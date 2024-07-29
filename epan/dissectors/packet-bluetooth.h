@@ -81,7 +81,7 @@ typedef enum {
     BT_PD_NONE,           /* no protocol data */
     BT_PD_BTHCI,          /* struct bthci_phdr * */
     BT_PD_BTMON,          /* struct btmon_phdr * */
-    BT_PD_USB_CONV_INFO,  /* usb_conv_info_t * */
+    BT_PD_URB_INFO,       /* urb_info_t * */
     BT_PD_UBERTOOTH_DATA  /* ubertooth_data_t * */
 } bt_protocol_data_type;
 
@@ -112,7 +112,7 @@ typedef struct _bluetooth_data_t {
         void              *none;
         struct bthci_phdr *bthci;
         struct btmon_phdr *btmon;
-        usb_conv_info_t   *usb_conv_info;
+        urb_info_t        *urb;
         ubertooth_data_t  *ubertooth_data;
     } previous_protocol_data;
 

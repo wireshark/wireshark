@@ -1583,7 +1583,7 @@ dissect_u3v_pending_ack(proto_tree *u3v_telegram_tree, tvbuff_t *tvb, packet_inf
  \brief DISSECT: Stream Leader
 */
 static void
-dissect_u3v_stream_leader(proto_tree *u3v_telegram_tree, tvbuff_t *tvb, packet_info *pinfo, usb_conv_info_t *usb_conv_info _U_)
+dissect_u3v_stream_leader(proto_tree *u3v_telegram_tree, tvbuff_t *tvb, packet_info *pinfo, urb_info_t *urb _U_)
 {
     uint32_t offset = 0;
     uint32_t payload_type = 0;
@@ -1669,7 +1669,7 @@ dissect_u3v_stream_leader(proto_tree *u3v_telegram_tree, tvbuff_t *tvb, packet_i
  \brief DISSECT: Stream Trailer
 */
 static void
-dissect_u3v_stream_trailer(proto_tree *u3v_telegram_tree, tvbuff_t *tvb, packet_info *pinfo, usb_conv_info_t *usb_conv_info _U_)
+dissect_u3v_stream_trailer(proto_tree *u3v_telegram_tree, tvbuff_t *tvb, packet_info *pinfo, urb_info_t *urb _U_)
 {
     int offset = 0;
     uint64_t block_id;
@@ -1728,7 +1728,7 @@ dissect_u3v_stream_trailer(proto_tree *u3v_telegram_tree, tvbuff_t *tvb, packet_
  \brief DISSECT: Stream Payload
 */
 static void
-dissect_u3v_stream_payload(proto_tree *u3v_telegram_tree, tvbuff_t *tvb, packet_info *pinfo, usb_conv_info_t *usb_conv_info _U_)
+dissect_u3v_stream_payload(proto_tree *u3v_telegram_tree, tvbuff_t *tvb, packet_info *pinfo, urb_info_t *urb _U_)
 {
     proto_item *item = NULL;
 
@@ -1759,22 +1759,25 @@ dissect_u3v(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
     proto_item *ti = NULL;
     proto_item *item = NULL;
     const char *command_string;
-    usb_conv_info_t *usb_conv_info;
+    urb_info_t *urb;
     int stream_detected = false;
     int control_detected = false;
     u3v_conv_info_t *u3v_conv_info = NULL;
     gencp_transaction_t *gencp_trans = NULL;
 
-    usb_conv_info = (usb_conv_info_t *)data;
+    urb = (urb_info_t *)data;
+    if (!urb || !urb->conv) {
+        return 0;
+    }
 
     /* decide if this packet belongs to U3V protocol */
-    u3v_conv_info = (u3v_conv_info_t *)usb_conv_info->class_data;
+    u3v_conv_info = (u3v_conv_info_t *)urb->conv->class_data;
 
     if (!u3v_conv_info) {
         u3v_conv_info = wmem_new0(wmem_file_scope(), u3v_conv_info_t);
-        usb_conv_info->class_data = u3v_conv_info;
-        usb_conv_info->class_data_type = USB_CONV_U3V;
-    } else if (usb_conv_info->class_data_type != USB_CONV_U3V) {
+        urb->conv->class_data = u3v_conv_info;
+        urb->conv->class_data_type = USB_CONV_U3V;
+    } else if (urb->conv->class_data_type != USB_CONV_U3V) {
         /* Don't dissect if another USB type is in the conversation */
         return 0;
     }
@@ -1785,16 +1788,16 @@ dissect_u3v(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
     }
 
     if (((tvb_reported_length(tvb) >= 4) && (( U3V_STREAM_LEADER_PREFIX == prefix ) || ( U3V_STREAM_TRAILER_PREFIX == prefix )))
-         || (usb_conv_info->endpoint == u3v_conv_info->ep_stream)) {
+         || (urb->endpoint == u3v_conv_info->ep_stream)) {
         stream_detected = true;
     }
 
     /* initialize interface class/subclass in case no descriptors have been dissected yet */
     if ( control_detected || stream_detected){
-        if ( usb_conv_info->interfaceClass  == IF_CLASS_UNKNOWN &&
-             usb_conv_info->interfaceSubclass  == IF_SUBCLASS_UNKNOWN){
-            usb_conv_info->interfaceClass = IF_CLASS_MISCELLANEOUS;
-            usb_conv_info->interfaceSubclass = IF_SUBCLASS_MISC_U3V;
+        if (urb->conv->interfaceClass == IF_CLASS_UNKNOWN &&
+            urb->conv->interfaceSubclass == IF_SUBCLASS_UNKNOWN) {
+            urb->conv->interfaceClass = IF_CLASS_MISCELLANEOUS;
+            urb->conv->interfaceSubclass = IF_SUBCLASS_MISC_U3V;
         }
     }
 
@@ -1942,8 +1945,8 @@ dissect_u3v(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
         /* this is streaming data */
 
         /* init this stream configuration */
-        u3v_conv_info = (u3v_conv_info_t *)usb_conv_info->class_data;
-        u3v_conv_info->ep_stream = usb_conv_info->endpoint;
+        u3v_conv_info = (u3v_conv_info_t *)urb->conv->class_data;
+        u3v_conv_info->ep_stream = urb->endpoint;
 
         /* Set the protocol column */
         col_set_str(pinfo->cinfo, COL_PROTOCOL, "U3V");
@@ -1960,13 +1963,13 @@ dissect_u3v(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
             prefix = tvb_get_letohl(tvb, offset);
             switch (prefix) {
             case U3V_STREAM_LEADER_PREFIX:
-                dissect_u3v_stream_leader(u3v_tree, tvb, pinfo, usb_conv_info);
+                dissect_u3v_stream_leader(u3v_tree, tvb, pinfo, urb);
                 break;
             case U3V_STREAM_TRAILER_PREFIX:
-                dissect_u3v_stream_trailer(u3v_tree, tvb, pinfo, usb_conv_info);
+                dissect_u3v_stream_trailer(u3v_tree, tvb, pinfo, urb);
                 break;
             default:
-                dissect_u3v_stream_payload(u3v_tree, tvb, pinfo, usb_conv_info);
+                dissect_u3v_stream_payload(u3v_tree, tvb, pinfo, urb);
                 break;
             }
         }
@@ -1980,7 +1983,7 @@ static bool
 dissect_u3v_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
     uint32_t prefix;
-    usb_conv_info_t *usb_conv_info;
+    urb_info_t *urb;
 
     /* all control and meta data packets of U3V contain at least the prefix */
     if (tvb_reported_length(tvb) < 4)
@@ -1988,16 +1991,16 @@ dissect_u3v_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
     prefix = tvb_get_letohl(tvb, 0);
 
     /* check if stream endpoint has been already set up for this conversation */
-    usb_conv_info = (usb_conv_info_t *)data;
-    if (!usb_conv_info)
+    urb = (urb_info_t *)data;
+    if (!urb || !urb->conv)
         return false;
 
     /* either right prefix or the endpoint of the interface descriptor
        set the correct class and subclass */
     if ((U3V_STREAM_LEADER_PREFIX  == prefix) || (U3V_STREAM_TRAILER_PREFIX == prefix) ||
         (U3V_CONTROL_PREFIX        == prefix) || (U3V_EVENT_PREFIX          == prefix) ||
-        ((usb_conv_info->interfaceClass == IF_CLASS_MISCELLANEOUS &&
-          usb_conv_info->interfaceSubclass == IF_SUBCLASS_MISC_U3V))) {
+        ((urb->conv->interfaceClass == IF_CLASS_MISCELLANEOUS &&
+          urb->conv->interfaceSubclass == IF_SUBCLASS_MISC_U3V))) {
         dissect_u3v(tvb, pinfo, tree, data);
         return true;
     }

@@ -293,7 +293,7 @@ add_uasp_tag_links(tvbuff_t *tvb, proto_tree *uasp_tree, uasp_itlq_nexus_t *uitl
 static int
 dissect_uasp_iu(tvbuff_t *tvb, packet_info *pinfo,
                 proto_tree *parent_tree, proto_tree *uasp_tree,
-                usb_conv_info_t *usb_conv_info _U_, uasp_conv_info_t *uasp_conv_info)
+                urb_info_t *urb _U_, uasp_conv_info_t *uasp_conv_info)
 {
     uint8_t            iu_id;
     uint8_t            status;
@@ -398,14 +398,14 @@ dissect_uasp_iu(tvbuff_t *tvb, packet_info *pinfo,
 static int
 dissect_uasp_data(tvbuff_t *tvb, packet_info *pinfo,
                   proto_tree *parent_tree, proto_tree *uasp_tree,
-                  usb_conv_info_t *usb_conv_info, uasp_conv_info_t *uasp_conv_info)
+                  urb_info_t *urb, uasp_conv_info_t *uasp_conv_info)
 {
     proto_item        *ti;
     uint16_t           tag;
     uasp_itlq_nexus_t *uitlq;
     bool               is_request;
 
-    is_request = (usb_conv_info->direction == P2P_DIR_SENT) ? true : false;
+    is_request = (urb->direction == P2P_DIR_SENT) ? true : false;
 
     /* TODO - fetch tag from USB 3.0 Bulk Streams.
      *
@@ -444,19 +444,19 @@ dissect_uasp_bulk(tvbuff_t *tvb,
                   void *data)
 {
     typedef int(*uasp_dissector_t)(tvbuff_t *, packet_info *, proto_tree *,
-                                   proto_tree *, usb_conv_info_t *, uasp_conv_info_t *);
+                                   proto_tree *, urb_info_t *, uasp_conv_info_t *);
 
     proto_tree        *uasp_tree;
     proto_item        *ti;
     uasp_dissector_t  dissector = NULL;
     uint8_t           endpoint;
-    usb_conv_info_t  *usb_conv_info = (usb_conv_info_t *)data;
-    uasp_conv_info_t *uasp_conv_info = get_uasp_conv_info(usb_conv_info);
+    urb_info_t       *urb = (urb_info_t *)data;
+    uasp_conv_info_t *uasp_conv_info = get_uasp_conv_info(urb->conv);
 
     if (!uasp_conv_info)
         return 0;
 
-    endpoint = usb_conv_info->endpoint;
+    endpoint = urb->endpoint;
     if (endpoint == uasp_conv_info->command_endpoint ||
         endpoint == uasp_conv_info->status_endpoint)
         dissector = dissect_uasp_iu;
@@ -473,7 +473,7 @@ dissect_uasp_bulk(tvbuff_t *tvb,
                                         "USB Attached SCSI");
     uasp_tree = proto_item_add_subtree(ti, ett_uasp);
 
-    return dissector(tvb, pinfo, parent_tree, uasp_tree, usb_conv_info, uasp_conv_info);
+    return dissector(tvb, pinfo, parent_tree, uasp_tree, urb, uasp_conv_info);
 }
 
 static int
@@ -486,12 +486,12 @@ dissect_uasp_descriptor(tvbuff_t *tvb,
     uint8_t           desc_len;
     proto_tree       *desc_tree;
     proto_tree       *desc_tree_item;
-    usb_conv_info_t  *usb_conv_info = (usb_conv_info_t *)data;
+    urb_info_t       *urb = (urb_info_t *)data;
     usb_trans_info_t *usb_trans_info = NULL;
     uasp_conv_info_t *uasp_conv_info;
 
-    if (usb_conv_info)
-        usb_trans_info = usb_conv_info->usb_trans_info;
+    if (urb)
+        usb_trans_info = urb->usb_trans_info;
 
     /* Descriptor must have a length and type field. */
     if (tvb_reported_length(tvb) < 2)
@@ -517,7 +517,7 @@ dissect_uasp_descriptor(tvbuff_t *tvb,
      * endpoint so the bulk dissector can distinguish between commands
      * and data reliably */
     if (!pinfo->fd->visited && usb_trans_info && usb_trans_info->interface_info) {
-        uint8_t endpoint = usb_trans_info->interface_info->endpoint;
+        uint8_t endpoint = usb_trans_info->interface_endpoint;
         uint8_t pipe_id = tvb_get_uint8(tvb, 2);
 
         uasp_conv_info = get_uasp_conv_info(usb_trans_info->interface_info);

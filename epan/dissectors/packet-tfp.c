@@ -236,11 +236,11 @@ dissect_tfp_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 static bool
 dissect_tfp_bulk_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-	usb_conv_info_t *usb_conv_info = (usb_conv_info_t *)data;
+	urb_info_t *urb = (urb_info_t *)data;
 
-	if ((usb_conv_info != NULL) &&
-		(usb_conv_info->deviceVendor == tfp_USB_VENDOR_ID) &&
-		(usb_conv_info->deviceProduct == tfp_USB_PRODUCT_ID)) {
+	if ((urb != NULL) && (urb->conv != NULL) &&
+		(urb->conv->deviceVendor == tfp_USB_VENDOR_ID) &&
+		(urb->conv->deviceProduct == tfp_USB_PRODUCT_ID)) {
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "TFP over USB");
 		col_clear(pinfo->cinfo, COL_INFO);
 		dissect_tfp_common(tvb, pinfo, tree);

@@ -137,12 +137,12 @@ dissect_usb_dfu_descriptor(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
     int               offset = 0;
     uint8_t           descriptor_length;
     uint8_t           descriptor_type;
-    usb_conv_info_t  *usb_conv_info = (usb_conv_info_t *) data;
+    urb_info_t       *urb = (urb_info_t *) data;
 
-    if (!usb_conv_info) return offset;
+    if (!urb || !urb->conv) return offset;
 
-    if (!(usb_conv_info->interfaceClass == IF_CLASS_APPLICATION_SPECIFIC &&
-            usb_conv_info->interfaceSubclass == 0x01)) return offset;
+    if (!(urb->conv->interfaceClass == IF_CLASS_APPLICATION_SPECIFIC &&
+            urb->conv->interfaceSubclass == 0x01)) return offset;
 
     descriptor_length = tvb_get_uint8(tvb, offset);
     descriptor_type = tvb_get_uint8(tvb, offset + 1);
@@ -204,12 +204,12 @@ dissect_usb_dfu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     uint32_t          k_device_address;
     uint32_t          k_frame_number;
     int32_t           block_number = -1;
-    usb_conv_info_t  *usb_conv_info = (usb_conv_info_t *)data;
+    urb_info_t       *urb = (urb_info_t *)data;
 
-    if (!usb_conv_info) return offset;
+    if (!urb) return offset;
 
-    bus_id         = usb_conv_info->bus_id;
-    device_address = usb_conv_info->device_address;
+    bus_id         = urb->bus_id;
+    device_address = urb->device_address;
 
     k_bus_id          = bus_id;
     k_device_address  = device_address;
@@ -226,7 +226,7 @@ dissect_usb_dfu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "USB DFU");
 
     p2p_dir_save = pinfo->p2p_dir;
-    pinfo->p2p_dir = (usb_conv_info->is_request) ? P2P_DIR_SENT : P2P_DIR_RECV;
+    pinfo->p2p_dir = (urb->is_request) ? P2P_DIR_SENT : P2P_DIR_RECV;
 
     switch (pinfo->p2p_dir) {
 
@@ -243,14 +243,14 @@ dissect_usb_dfu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         break;
     }
 
-    if (usb_conv_info->is_setup) {
+    if (urb->is_setup) {
         uint16_t interface;
 
         command_item = proto_tree_add_item(main_tree, hf_setup_command, tvb, offset, 1, ENC_LITTLE_ENDIAN);
         command = tvb_get_uint8(tvb, offset);
 
-        if (!((usb_conv_info->setup_requesttype == 0x21 && (command == 0x00 || command == 0x01 || command == 0x04 || command == 0x06)) ||
-            (usb_conv_info->setup_requesttype == 0xa1 && (command == 0x02 || command == 0x03 || command == 0x05))))
+        if (!((urb->setup_requesttype == 0x21 && (command == 0x00 || command == 0x01 || command == 0x04 || command == 0x06)) ||
+            (urb->setup_requesttype == 0xa1 && (command == 0x02 || command == 0x03 || command == 0x05))))
             expert_add_info(pinfo, command_item, &ei_invalid_command_for_request_type);
         offset += 1;
 

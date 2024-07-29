@@ -429,14 +429,14 @@ void proto_reg_handoff_usb_com(void);
 static int
 dissect_usb_com_descriptor(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-    usb_conv_info_t *usb_conv_info = (usb_conv_info_t *)data;
+    urb_info_t *urb = (urb_info_t *)data;
     int offset = 0;
     uint8_t type, subtype;
     proto_tree *subtree;
     proto_tree *subtree_capabilities;
     proto_item *subitem_capabilities;
 
-    if (!usb_conv_info) {
+    if (!urb) {
         return 0;
     }
 
@@ -494,19 +494,19 @@ dissect_usb_com_descriptor(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
                     controlling_iface_t *master_info = NULL;
                     uint32_t master;
 
-                    k_bus_id = usb_conv_info->bus_id;
-                    k_device_address = usb_conv_info->device_address;
+                    k_bus_id = urb->bus_id;
+                    k_device_address = urb->device_address;
                     k_frame_number = pinfo->num;
 
                     control_item = proto_tree_add_item_ret_uint(subtree, hf_usb_com_descriptor_control_interface, tvb, offset, 1, ENC_LITTLE_ENDIAN, &master);
 
-                    if (master != usb_conv_info->interfaceNum) {
+                    if (master != urb->conv->interfaceNum) {
                         expert_add_info(pinfo, control_item, &ei_unexpected_controlling_iface);
                     } else if (!PINFO_FD_VISITED(pinfo)) {
                         master_info = wmem_new(wmem_file_scope(), controlling_iface_t);
-                        master_info->interfaceClass = usb_conv_info->interfaceClass;
-                        master_info->interfaceSubclass = usb_conv_info->interfaceSubclass;
-                        master_info->interfaceProtocol = usb_conv_info->interfaceProtocol;
+                        master_info->interfaceClass = urb->conv->interfaceClass;
+                        master_info->interfaceSubclass = urb->conv->interfaceSubclass;
+                        master_info->interfaceProtocol = urb->conv->interfaceProtocol;
                     }
 
                     offset += 1;
@@ -612,7 +612,7 @@ dissect_usb_com_ntb_input_size(tvbuff_t *tvb, proto_tree *tree, int base_offset,
 static int
 dissect_usb_com_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-    usb_conv_info_t *usb_conv_info = (usb_conv_info_t *)data;
+    urb_info_t *urb = (urb_info_t *)data;
     usb_trans_info_t *usb_trans_info;
     proto_tree *subtree;
     proto_item *ti;
@@ -628,11 +628,11 @@ dissect_usb_com_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
     ti = proto_tree_add_item(tree, proto_usb_com, tvb, 0, -1, ENC_NA);
     subtree = proto_item_add_subtree(ti, ett_usb_com);
 
-    if (usb_conv_info) {
-        usb_trans_info = usb_conv_info->usb_trans_info;
+    if (urb) {
+        usb_trans_info = urb->usb_trans_info;
 
         ti = proto_tree_add_uint(subtree, hf_usb_com_control_subclass, tvb, 0, 0,
-                                 usb_conv_info->interfaceSubclass);
+                                 urb->conv->interfaceSubclass);
         proto_item_set_generated(ti);
 
         is_request = (pinfo->srcport==NO_ENDPOINT);
@@ -658,14 +658,14 @@ dissect_usb_com_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
         switch (usb_trans_info->setup.request)
         {
             case SEND_ENCAPSULATED_COMMAND:
-                if ((usb_conv_info->interfaceSubclass == COM_SUBCLASS_MBIM) && is_request) {
+                if ((urb->conv->interfaceSubclass == COM_SUBCLASS_MBIM) && is_request) {
                     tvbuff_t *mbim_tvb = tvb_new_subset_remaining(tvb, offset);
-                    offset += call_dissector_only(mbim_control_handle, mbim_tvb, pinfo, tree, usb_conv_info);
+                    offset += call_dissector_only(mbim_control_handle, mbim_tvb, pinfo, tree, urb);
                 }
                 break;
             case GET_ENCAPSULATED_RESPONSE:
-                if ((usb_conv_info->interfaceSubclass == COM_SUBCLASS_MBIM) && !is_request) {
-                    offset += call_dissector_only(mbim_control_handle, tvb, pinfo, tree, usb_conv_info);
+                if ((urb->conv->interfaceSubclass == COM_SUBCLASS_MBIM) && !is_request) {
+                    offset += call_dissector_only(mbim_control_handle, tvb, pinfo, tree, urb);
                 }
                 break;
             case GET_NTB_PARAMETERS:
@@ -743,7 +743,8 @@ dissect_usb_com_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 static int
 dissect_usb_com_bulk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-    usb_conv_info_t *usb_conv_info = (usb_conv_info_t *)data;
+    urb_info_t *urb = (urb_info_t *)data;
+    usb_conv_info_t *usb_conv_info;
     cdc_data_conv_t *cdc_data_info;
     uint32_t k_bus_id;
     uint32_t k_device_address;
@@ -759,9 +760,11 @@ dissect_usb_com_bulk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
     proto_tree *subtree;
     proto_item *item;
 
-    if (!usb_conv_info) {
+    if (!urb || !urb->conv) {
         return 0;
     }
+
+    usb_conv_info = urb->conv;
 
     if ((usb_conv_info->interfaceClass != IF_CLASS_CDC_DATA) || (usb_conv_info->interfaceSubclass != 0)) {
         /* As per Communications Device Class Revision 1.2 subclass is currently unused for CDC Data and should be zero
@@ -802,8 +805,8 @@ dissect_usb_com_bulk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
         tap_queue_packet(cdc_data_follow_tap, pinfo, tvb);
     }
 
-    k_bus_id = usb_conv_info->bus_id;
-    k_device_address = usb_conv_info->device_address;
+    k_bus_id = urb->bus_id;
+    k_device_address = urb->device_address;
     k_subordinate_id = usb_conv_info->interfaceNum;
 
     wmem_tree = (wmem_tree_t*)wmem_tree_lookup32_array(controlling_ifaces, key);

@@ -28,6 +28,7 @@ typedef struct _usb_address_t {
 
 
 typedef struct _usb_conv_info_t usb_conv_info_t;
+typedef struct _urb_info_t urb_info_t;
 
 /* Wireshark specific (i.e. numeric values are arbitrary) enum representing
  * USB device speed.
@@ -94,6 +95,7 @@ typedef struct _usb_trans_info_t {
      * once we know the endpoint.
      * Valid only during GET CONFIGURATION response.
      */
+    uint8_t interface_endpoint;
     usb_conv_info_t *interface_info;
 
     uint64_t usb_id;
@@ -112,18 +114,8 @@ enum usb_conv_class_data_type {
 /* Conversation Structure
  * there is one such structure for each device/endpoint conversation */
 struct _usb_conv_info_t {
-    uint16_t bus_id;
-    uint16_t device_address;
-    uint8_t  endpoint;
-    int      direction;
-    uint8_t  transfer_type; /* transfer type from URB */
     uint8_t  descriptor_transfer_type; /* transfer type lifted from the configuration descriptor */
     uint16_t max_packet_size; /* max packet size from configuration descriptor */
-    uint32_t device_protocol;
-    bool is_request;
-    bool is_setup;
-    uint8_t  setup_requesttype;
-    usb_speed_t speed;
 
     uint16_t interfaceClass;     /* Interface Descriptor - class          */
     uint16_t interfaceSubclass;  /* Interface Descriptor - subclass       */
@@ -135,7 +127,6 @@ struct _usb_conv_info_t {
     uint16_t deviceVersion;      /* Device    Descriptor - USB device version number BCD */
     uint8_t iSerialNumber;      /* Device    Descriptor - iSerialNumber (0 if no serial number available) */
     wmem_tree_t *transactions;
-    usb_trans_info_t *usb_trans_info; /* pointer to the current transaction */
 
     void *class_data;           /* private class/id decode data */
     enum usb_conv_class_data_type class_data_type;
@@ -143,11 +134,29 @@ struct _usb_conv_info_t {
     wmem_array_t *alt_settings;
 };
 
+/* URB data lifetime is limited to packet scope */
+struct _urb_info_t {
+    uint16_t bus_id;
+    uint16_t device_address;
+    uint8_t  endpoint;
+    int      direction;
+    uint8_t  transfer_type; /* transfer type from URB */
+    uint32_t device_protocol;
+    bool is_request;
+    bool is_setup;
+    uint8_t  setup_requesttype;
+    usb_speed_t speed;
+
+    usb_trans_info_t *usb_trans_info; /* pointer to the current transaction */
+
+    usb_conv_info_t *conv;
+};
+
 /* This is what a tap will tap */
 typedef struct _usb_tap_data_t {
     uint8_t urb_type;
     uint8_t transfer_type;
-    usb_conv_info_t *conv_info;
+    urb_info_t *urb;
     usb_trans_info_t *trans_info;
 } usb_tap_data_t;
 
@@ -321,13 +330,13 @@ sanitize_usb_max_packet_size(uint8_t ep_type, usb_speed_t speed,
 int
 dissect_usb_endpoint_descriptor(packet_info *pinfo, proto_tree *parent_tree,
                                 tvbuff_t *tvb, int offset,
-                                usb_conv_info_t  *usb_conv_info,
+                                urb_info_t *urb,
                                 uint8_t *out_ep_type, usb_speed_t speed);
 
 int
 dissect_usb_unknown_descriptor(packet_info *pinfo _U_, proto_tree *parent_tree,
                                tvbuff_t *tvb, int offset,
-                               usb_conv_info_t  *usb_conv_info _U_);
+                               urb_info_t *urb _U_);
 
 int
 dissect_urb_transfer_flags(tvbuff_t *tvb, int offset, proto_tree* tree, int hf, int endian);

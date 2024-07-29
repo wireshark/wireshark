@@ -1015,7 +1015,7 @@ static uint16_t dissect_mausb_mgmt_pkt_clear_transfers(proto_tree *tree,
 static uint16_t dissect_mausb_mgmt_pkt_ep_handle( proto_tree *tree, tvbuff_t *tvb,
             packet_info *pinfo, int16_t start, bool req, bool del)
 {
-    usb_conv_info_t usb_conv_info;
+    urb_info_t urb;
     proto_item *size_field = NULL;
     uint16_t offset = start;
     uint16_t loop_offset;
@@ -1024,7 +1024,7 @@ static uint16_t dissect_mausb_mgmt_pkt_ep_handle( proto_tree *tree, tvbuff_t *tv
     uint8_t last_ep_type = ENDPOINT_TYPE_NOT_SET;
     int i;
 
-    memset(&usb_conv_info,  0, sizeof(usb_conv_info_t));
+    memset(&urb,  0, sizeof(urb_info_t));
 
     num_ep = tvb_get_uint8(tvb, offset) & MAUSB_MGMT_NUM_EP_DES_MASK;
 
@@ -1076,20 +1076,20 @@ static uint16_t dissect_mausb_mgmt_pkt_ep_handle( proto_tree *tree, tvbuff_t *tv
 
             /* Standard USB Endpoint Descriptor */
             dissect_usb_endpoint_descriptor(pinfo, tree, tvb, loop_offset,
-                    &usb_conv_info, &last_ep_type, USB_SPEED_UNKNOWN);
+                    &urb, &last_ep_type, USB_SPEED_UNKNOWN);
             loop_offset += USB_DT_EP_SIZE;
 
             /* If there are more descriptors to read */
             if (MAUSB_EP_DES_SIZE < size_ep_des) {
                 /* TODO: Dissector for SS EP Companion Descriptors */
                 dissect_usb_unknown_descriptor(pinfo, tree,
-                        tvb, loop_offset, &usb_conv_info);
+                        tvb, loop_offset, &urb);
                 loop_offset += USB_DT_SS_EP_COMP_SIZE;
 
                 if (MAUSB_SS_EP_DES_SIZE < size_ep_des) {
                     /* TODO: Dissector for SSP ISO EP Companion Descriptors */
                     loop_offset += dissect_usb_unknown_descriptor(pinfo, tree,
-                            tvb, loop_offset, &usb_conv_info);
+                            tvb, loop_offset, &urb);
 
                     /* Pad to a DWORD */
                     proto_tree_add_item(tree, hf_mausb_ep_handle_req_pad, tvb,
@@ -1364,35 +1364,34 @@ static uint16_t dissect_mausb_mgmt_pkt_flds(struct mausb_header *header,
     return offset;
 }
 
-void mausb_set_usb_conv_info(usb_conv_info_t *usb_conv_info,
-                             struct mausb_header *header)
+void mausb_set_urb_info(urb_info_t *urb, struct mausb_header *header)
 {
-        usb_conv_info->is_request = mausb_is_transfer_req(header);
-        usb_conv_info->bus_id = mausb_ep_handle_bus_num(header->handle);
-        usb_conv_info->device_address = mausb_ep_handle_dev_addr(header->handle);
-        usb_conv_info->direction = mausb_is_from_host(header);
-        usb_conv_info->endpoint = mausb_ep_handle_ep_num(header->handle);
+        urb->is_request = mausb_is_transfer_req(header);
+        urb->bus_id = mausb_ep_handle_bus_num(header->handle);
+        urb->device_address = mausb_ep_handle_dev_addr(header->handle);
+        urb->direction = mausb_is_from_host(header);
+        urb->endpoint = mausb_ep_handle_ep_num(header->handle);
         if (mausb_ep_handle_ep_d(header->handle)) {
             /* IN endpoint */
-            usb_conv_info->endpoint |= 0x80;
+            urb->endpoint |= 0x80;
         }
-        usb_conv_info->is_setup = mausb_has_setup_data(header) ||
+        urb->is_setup = mausb_has_setup_data(header) ||
                                   mausb_is_setup_response(header);
         switch (mausb_tx_type(header)) {
         case MAUSB_TX_TYPE_CTRL:
-                usb_conv_info->transfer_type = URB_CONTROL;
+                urb->transfer_type = URB_CONTROL;
                 break;
         case MAUSB_TX_TYPE_ISOC:
-                usb_conv_info->transfer_type = URB_ISOCHRONOUS;
+                urb->transfer_type = URB_ISOCHRONOUS;
                 break;
         case MAUSB_TX_TYPE_BULK:
-                usb_conv_info->transfer_type = URB_BULK;
+                urb->transfer_type = URB_BULK;
                 break;
         case MAUSB_TX_TYPE_INTR:
-                usb_conv_info->transfer_type = URB_INTERRUPT;
+                urb->transfer_type = URB_INTERRUPT;
                 break;
         default:
-                usb_conv_info->transfer_type = URB_UNKNOWN;
+                urb->transfer_type = URB_UNKNOWN;
                 break;
         }
 }

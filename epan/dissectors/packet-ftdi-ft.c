@@ -305,6 +305,11 @@ void proto_reg_handoff_ftdi_ft(void);
 static FTDI_CHIP
 identify_chip(usb_conv_info_t *usb_conv_info)
 {
+    if (usb_conv_info == NULL)
+    {
+        return FTDI_CHIP_UNKNOWN;
+    }
+
     switch (usb_conv_info->deviceVersion)
     {
     case 0x0200:
@@ -335,9 +340,9 @@ identify_chip(usb_conv_info_t *usb_conv_info)
 }
 
 static FTDI_INTERFACE
-endpoint_to_interface(usb_conv_info_t *usb_conv_info)
+endpoint_to_interface(urb_info_t *urb)
 {
-    switch (usb_conv_info->endpoint)
+    switch (urb->endpoint)
     {
     case 0x01: /* A OUT */
     case 0x02: /* A IN */
@@ -734,10 +739,10 @@ dissect_modem_status_bytes(tvbuff_t *tvb, packet_info *pinfo _U_, int offset, pr
 }
 
 static void
-record_interface_mode(packet_info *pinfo, usb_conv_info_t *usb_conv_info, FTDI_INTERFACE interface, uint8_t bitmode)
+record_interface_mode(packet_info *pinfo, urb_info_t *urb, FTDI_INTERFACE interface, uint8_t bitmode)
 {
-    uint32_t        k_bus_id = usb_conv_info->bus_id;
-    uint32_t        k_device_address = usb_conv_info->device_address;
+    uint32_t        k_bus_id = urb->bus_id;
+    uint32_t        k_device_address = urb->device_address;
     uint32_t        k_interface = (uint32_t)interface;
     wmem_tree_key_t key[] = {
         {1, &k_bus_id},
@@ -749,18 +754,18 @@ record_interface_mode(packet_info *pinfo, usb_conv_info_t *usb_conv_info, FTDI_I
     bitmode_data_t *bitmode_data = NULL;
 
     bitmode_data = wmem_new(wmem_file_scope(), bitmode_data_t);
-    bitmode_data->bus_id = usb_conv_info->bus_id;
-    bitmode_data->device_address = usb_conv_info->device_address;
+    bitmode_data->bus_id = urb->bus_id;
+    bitmode_data->device_address = urb->device_address;
     bitmode_data->interface = interface;
     bitmode_data->bitmode = bitmode;
     wmem_tree_insert32_array(bitmode_info, key, bitmode_data);
 }
 
 static uint8_t
-get_recorded_interface_mode(packet_info *pinfo, usb_conv_info_t *usb_conv_info, FTDI_INTERFACE interface)
+get_recorded_interface_mode(packet_info *pinfo, urb_info_t *urb, FTDI_INTERFACE interface)
 {
-    uint32_t        k_bus_id = usb_conv_info->bus_id;
-    uint32_t        k_device_address = usb_conv_info->device_address;
+    uint32_t        k_bus_id = urb->bus_id;
+    uint32_t        k_device_address = urb->device_address;
     uint32_t        k_interface = (uint32_t)interface;
     wmem_tree_key_t key[] = {
         {1, &k_bus_id},
@@ -782,11 +787,11 @@ get_recorded_interface_mode(packet_info *pinfo, usb_conv_info_t *usb_conv_info, 
 }
 
 static desegment_data_t *
-record_desegment_data(packet_info *pinfo, usb_conv_info_t *usb_conv_info,
+record_desegment_data(packet_info *pinfo, urb_info_t *urb,
                       FTDI_INTERFACE interface, uint8_t bitmode)
 {
-    uint32_t        k_bus_id = usb_conv_info->bus_id;
-    uint32_t        k_device_address = usb_conv_info->device_address;
+    uint32_t        k_bus_id = urb->bus_id;
+    uint32_t        k_device_address = urb->device_address;
     uint32_t        k_interface = (uint32_t)interface;
     uint32_t        k_p2p_dir = (uint32_t)pinfo->p2p_dir;
     wmem_tree_key_t key[] = {
@@ -800,8 +805,8 @@ record_desegment_data(packet_info *pinfo, usb_conv_info_t *usb_conv_info,
     desegment_data_t *desegment_data = NULL;
 
     desegment_data = wmem_new(wmem_file_scope(), desegment_data_t);
-    desegment_data->bus_id = usb_conv_info->bus_id;
-    desegment_data->device_address = usb_conv_info->device_address;
+    desegment_data->bus_id = urb->bus_id;
+    desegment_data->device_address = urb->device_address;
     desegment_data->interface = interface;
     desegment_data->bitmode = bitmode;
     desegment_data->p2p_dir = pinfo->p2p_dir;
@@ -816,11 +821,11 @@ record_desegment_data(packet_info *pinfo, usb_conv_info_t *usb_conv_info,
 }
 
 static desegment_data_t *
-get_recorded_desegment_data(packet_info *pinfo, usb_conv_info_t *usb_conv_info,
+get_recorded_desegment_data(packet_info *pinfo, urb_info_t *urb,
                             FTDI_INTERFACE interface, uint8_t bitmode)
 {
-    uint32_t        k_bus_id = usb_conv_info->bus_id;
-    uint32_t        k_device_address = usb_conv_info->device_address;
+    uint32_t        k_bus_id = urb->bus_id;
+    uint32_t        k_device_address = urb->device_address;
     uint32_t        k_interface = (uint32_t)interface;
     uint32_t        k_p2p_dir = (uint32_t)pinfo->p2p_dir;
     wmem_tree_key_t key[] = {
@@ -899,21 +904,21 @@ static const reassembly_table_functions ftdi_reassembly_table_functions = {
 };
 
 static void
-dissect_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, usb_conv_info_t *usb_conv_info,
+dissect_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, urb_info_t *urb,
                 FTDI_INTERFACE interface, uint8_t bitmode)
 {
     uint32_t          k_bus_id;
     uint32_t          k_device_address;
 
-    k_bus_id = usb_conv_info->bus_id;
-    k_device_address = usb_conv_info->device_address;
+    k_bus_id = urb->bus_id;
+    k_device_address = urb->device_address;
 
     if (tvb && ((bitmode == BITMODE_MPSSE) || (bitmode == BITMODE_MCU)))
     {
         ftdi_mpsse_info_t mpsse_info = {
             .bus_id = k_bus_id,
             .device_address = k_device_address,
-            .chip = identify_chip(usb_conv_info),
+            .chip = identify_chip(urb->conv),
             .iface = interface,
             .mcu_mode = (bitmode == BITMODE_MCU),
         };
@@ -923,7 +928,7 @@ dissect_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, usb_conv_in
 
 static int
 dissect_serial_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree *ftdi_tree,
-                       usb_conv_info_t *usb_conv_info, FTDI_INTERFACE interface)
+                       urb_info_t *urb, FTDI_INTERFACE interface)
 {
     uint16_t          save_can_desegment;
     int               save_desegment_offset;
@@ -943,13 +948,13 @@ dissect_serial_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, prot
         uint8_t   bitmode;
         uint8_t   curr_layer_num = pinfo->curr_layer_num;
 
-        bitmode = get_recorded_interface_mode(pinfo, usb_conv_info, interface);
+        bitmode = get_recorded_interface_mode(pinfo, urb, interface);
 
         pinfo->can_desegment = 2;
         pinfo->desegment_offset = 0;
         pinfo->desegment_len = 0;
 
-        desegment_data = get_recorded_desegment_data(pinfo, usb_conv_info, interface, bitmode);
+        desegment_data = get_recorded_desegment_data(pinfo, urb, interface, bitmode);
         if (desegment_data)
         {
             fragment_head    *fd_head;
@@ -1004,7 +1009,7 @@ dissect_serial_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, prot
             payload_tvb = tvb;
         }
 
-        dissect_payload(payload_tvb, pinfo, tree, usb_conv_info, interface, bitmode);
+        dissect_payload(payload_tvb, pinfo, tree, urb, interface, bitmode);
 
         if (!PINFO_FD_VISITED(pinfo))
         {
@@ -1046,7 +1051,7 @@ dissect_serial_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, prot
                 {
                     /* Start desegmenting */
                     int fragment_length = tvb_reported_length_remaining(tvb, pinfo->desegment_offset);
-                    desegment_data = record_desegment_data(pinfo, usb_conv_info, interface, bitmode);
+                    desegment_data = record_desegment_data(pinfo, urb, interface, bitmode);
                     desegment_data->first_frame_offset = pinfo->desegment_offset;
                     fragment_add_check(&ftdi_reassembly_table, tvb, pinfo->desegment_offset, pinfo,
                                        desegment_data->first_frame, desegment_data, 0, fragment_length, true);
@@ -1072,7 +1077,7 @@ dissect_serial_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, prot
 
                     previous_desegment_data = desegment_data;
                     fragment_length = bytes - previous_bytes;
-                    desegment_data = record_desegment_data(pinfo, usb_conv_info, interface, bitmode);
+                    desegment_data = record_desegment_data(pinfo, urb, interface, bitmode);
                     desegment_data->first_frame_offset = previous_bytes;
                     desegment_data->previous = previous_desegment_data;
                     fragment_add_check(&ftdi_reassembly_table, tvb, previous_bytes, pinfo, desegment_data->first_frame,
@@ -1097,29 +1102,29 @@ dissect_ftdi_ft(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     proto_item       *main_item;
     proto_tree       *main_tree;
     int               offset = 0;
-    usb_conv_info_t  *usb_conv_info = (usb_conv_info_t *)data;
+    urb_info_t       *urb = (urb_info_t *)data;
     request_data_t   *request_data = NULL;
     wmem_tree_key_t   key[4];
     uint32_t          k_bus_id;
     uint32_t          k_device_address;
 
-    if (!usb_conv_info)
+    if (!urb)
     {
         return offset;
     }
 
-    if (usb_conv_info->is_setup)
+    if (urb->is_setup)
     {
         /* This dissector can only process device Vendor specific setup data */
-        if ((USB_TYPE(usb_conv_info->setup_requesttype) != RQT_SETUP_TYPE_VENDOR) ||
-            (USB_RECIPIENT(usb_conv_info->setup_requesttype) != RQT_SETUP_RECIPIENT_DEVICE))
+        if ((USB_TYPE(urb->setup_requesttype) != RQT_SETUP_TYPE_VENDOR) ||
+            (USB_RECIPIENT(urb->setup_requesttype) != RQT_SETUP_RECIPIENT_DEVICE))
         {
             return offset;
         }
     }
 
-    k_bus_id = usb_conv_info->bus_id;
-    k_device_address = usb_conv_info->device_address;
+    k_bus_id = urb->bus_id;
+    k_device_address = urb->device_address;
 
     key[0].length = 1;
     key[0].key = &k_bus_id;
@@ -1133,13 +1138,13 @@ dissect_ftdi_ft(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     main_item = proto_tree_add_item(tree, proto_ftdi_ft, tvb, offset, -1, ENC_NA);
     main_tree = proto_item_add_subtree(main_item, ett_ftdi_ft);
 
-    if (usb_conv_info->transfer_type == URB_CONTROL)
+    if (urb->transfer_type == URB_CONTROL)
     {
         col_set_str(pinfo->cinfo, COL_PROTOCOL, "FTDI FT");
         col_set_str(pinfo->cinfo, COL_INFO, "FTDI FT ");
-        col_append_str(pinfo->cinfo, COL_INFO, usb_conv_info->is_request ? "Request" : "Response");
+        col_append_str(pinfo->cinfo, COL_INFO, urb->is_request ? "Request" : "Response");
 
-        if (usb_conv_info->is_setup)
+        if (urb->is_setup)
         {
             int          bytes_dissected;
             uint8_t      brequest;
@@ -1168,7 +1173,7 @@ dissect_ftdi_ft(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 break;
             case REQUEST_SET_BAUD_RATE:
             {
-                FTDI_CHIP chip = identify_chip(usb_conv_info);
+                FTDI_CHIP chip = identify_chip(urb->conv);
                 bytes_dissected = dissect_request_set_baud_rate(tvb, pinfo, offset, main_tree, chip);
                 break;
             }
@@ -1210,8 +1215,8 @@ dissect_ftdi_ft(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
             /* Record the request type so we can find it when dissecting response */
             request_data = wmem_new(wmem_file_scope(), request_data_t);
-            request_data->bus_id = usb_conv_info->bus_id;
-            request_data->device_address = usb_conv_info->device_address;
+            request_data->bus_id = urb->bus_id;
+            request_data->device_address = urb->device_address;
             request_data->request = brequest;
             request_data->hvalue = hvalue;
             request_data->lindex = lindex;
@@ -1236,7 +1241,7 @@ dissect_ftdi_ft(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                     break;
                 case REQUEST_SET_BITMODE:
                     /* TODO: Record interface mode only if the control request has succeeded */
-                    record_interface_mode(pinfo, usb_conv_info, lindex_to_interface(request_data->lindex), request_data->hvalue);
+                    record_interface_mode(pinfo, urb, lindex_to_interface(request_data->lindex), request_data->hvalue);
                     break;
                 default:
                     break;
@@ -1260,7 +1265,7 @@ dissect_ftdi_ft(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         FTDI_INTERFACE interface;
         int rx_hf, tx_hf;
 
-        interface = endpoint_to_interface(usb_conv_info);
+        interface = endpoint_to_interface(urb);
         switch (interface)
         {
         case FTDI_INTERFACE_A:
@@ -1317,7 +1322,7 @@ dissect_ftdi_ft(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 tvb_composite_finalize(rx_tvb);
                 col_append_fstr(pinfo->cinfo, COL_INFO, " %d bytes", total_rx_len);
                 add_new_data_source(pinfo, rx_tvb, "RX Payload");
-                dissect_serial_payload(rx_tvb, pinfo, tree, main_tree, usb_conv_info, interface);
+                dissect_serial_payload(rx_tvb, pinfo, tree, main_tree, urb, interface);
             }
             else
             {
@@ -1340,7 +1345,7 @@ dissect_ftdi_ft(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
                 tx_tvb = tvb_new_subset_length(tvb, offset, bytes);
                 add_new_data_source(pinfo, tx_tvb, "TX Payload");
-                dissect_serial_payload(tx_tvb, pinfo, tree, main_tree, usb_conv_info, interface);
+                dissect_serial_payload(tx_tvb, pinfo, tree, main_tree, urb, interface);
                 offset += bytes;
             }
         }

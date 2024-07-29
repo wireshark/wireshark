@@ -153,7 +153,7 @@ save_command(uint32_t cmd, uint32_t arg0, uint32_t arg1, uint32_t data_length,
     command_data_t  *command_data;
     wmem_tree_t     *wmem_tree;
     int              direction = P2P_DIR_UNKNOWN;
-    usb_conv_info_t *usb_conv_info = (usb_conv_info_t *) data;
+    urb_info_t      *urb = (urb_info_t *) data;
 
     frame_number = pinfo->num;
 
@@ -163,13 +163,13 @@ save_command(uint32_t cmd, uint32_t arg0, uint32_t arg1, uint32_t data_length,
         interface_id = 0;
 
     if (proto == proto_usb) {
-        usb_conv_info = (usb_conv_info_t *) data;
-        DISSECTOR_ASSERT(usb_conv_info);
+        urb = (urb_info_t *) data;
+        DISSECTOR_ASSERT(urb);
 
-        direction = usb_conv_info->direction;
+        direction = urb->direction;
 
-        bus_id             = usb_conv_info->bus_id;
-        device_address     = usb_conv_info->device_address;
+        bus_id             = urb->bus_id;
+        device_address     = urb->device_address;
 
         key[0].length = 1;
         key[0].key = &interface_id;
@@ -336,7 +336,7 @@ dissect_adb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     uint32_t         arg1;
     uint32_t         data_length = 0;
     uint32_t         crc32 = 0;
-    usb_conv_info_t *usb_conv_info = NULL;
+    urb_info_t      *urb = NULL;
     wmem_tree_key_t  key[5];
     uint32_t         interface_id;
     uint32_t         bus_id;
@@ -369,10 +369,10 @@ dissect_adb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     }
 
     if (proto == proto_usb) {
-        usb_conv_info = (usb_conv_info_t *) data;
-        DISSECTOR_ASSERT(usb_conv_info);
+        urb = (urb_info_t *) data;
+        DISSECTOR_ASSERT(urb);
 
-        direction = usb_conv_info->direction;
+        direction = urb->direction;
     } else if (proto == proto_tcp) {
         if (pinfo->destport == ADB_TCP_PORT)
             direction = P2P_DIR_SENT;
@@ -388,8 +388,8 @@ dissect_adb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         interface_id = 0;
 
     if (proto == proto_usb) {
-        bus_id             = usb_conv_info->bus_id;
-        device_address     = usb_conv_info->device_address;
+        bus_id             = urb->bus_id;
+        device_address     = urb->device_address;
 
         key[0].length = 1;
         key[0].key = &interface_id;
@@ -661,8 +661,8 @@ dissect_adb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 adb_service_data.session_key[0] = interface_id;
 
                 if (proto == proto_usb) {
-                    adb_service_data.session_key[1] = usb_conv_info->bus_id;
-                    adb_service_data.session_key[2] = usb_conv_info->device_address;
+                    adb_service_data.session_key[1] = urb->bus_id;
+                    adb_service_data.session_key[2] = urb->device_address;
                 } else { /* tcp */
                     if (direction == P2P_DIR_SENT) {
                         adb_service_data.session_key[1] = pinfo->srcport;
@@ -718,8 +718,8 @@ dissect_adb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                     adb_service_data.session_key[0] = interface_id;
 
                     if (proto == proto_usb) {
-                        adb_service_data.session_key[1] = usb_conv_info->bus_id;
-                        adb_service_data.session_key[2] = usb_conv_info->device_address;
+                        adb_service_data.session_key[1] = urb->bus_id;
+                        adb_service_data.session_key[2] = urb->device_address;
                     } else { /* tcp */
                         if (direction == P2P_DIR_SENT) {
                             adb_service_data.session_key[1] = pinfo->srcport;

@@ -3903,20 +3903,20 @@ err:
 
 
 static bool
-is_correct_interface(usb_conv_info_t *usb_info, report_descriptor_t *report)
+is_correct_interface(urb_info_t *urb, report_descriptor_t *report)
 {
-    return (usb_info->bus_id == report->bus_id) &&
-           (usb_info->device_address == report->device_address) &&
-           (usb_info->interfaceNum == report->interface);
+    return (urb->bus_id == report->bus_id) &&
+           (urb->device_address == report->device_address) &&
+           (urb->conv->interfaceNum == report->interface);
 }
 
 /* Returns the report descriptor */
 static report_descriptor_t _U_ *
-get_report_descriptor(packet_info *pinfo _U_, usb_conv_info_t *usb_info)
+get_report_descriptor(packet_info *pinfo _U_, urb_info_t *urb)
 {
-    uint32_t bus_id = usb_info->bus_id;
-    uint32_t device_address = usb_info->device_address;
-    uint32_t interface = usb_info->interfaceNum;
+    uint32_t bus_id = urb->bus_id;
+    uint32_t device_address = urb->device_address;
+    uint32_t interface = urb->conv->interfaceNum;
     wmem_tree_key_t key[] = {
         {1, &bus_id},
         {1, &device_address},
@@ -3927,7 +3927,7 @@ get_report_descriptor(packet_info *pinfo _U_, usb_conv_info_t *usb_info)
 
     report_descriptor_t *data = NULL;
     data = (report_descriptor_t*) wmem_tree_lookup32_array_le(report_descriptors, key);
-    if (data && is_correct_interface(usb_info, data))
+    if (data && is_correct_interface(urb, data))
         return data;
 
     return NULL;
@@ -4333,7 +4333,7 @@ dissect_usb_hid_report_localitem_data(packet_info *pinfo, proto_tree *tree, tvbu
 /* Dissector for individual HID report items.  Recursive. */
 static int
 // NOLINTNEXTLINE(misc-no-recursion)
-dissect_usb_hid_report_item(packet_info *pinfo _U_, proto_tree *parent_tree, tvbuff_t *tvb, int offset, usb_conv_info_t *usb_conv_info _U_, const struct usb_hid_global_state *global)
+dissect_usb_hid_report_item(packet_info *pinfo _U_, proto_tree *parent_tree, tvbuff_t *tvb, int offset, urb_info_t *urb, const struct usb_hid_global_state *global)
 {
     proto_item *subitem;
     proto_tree *tree, *subtree;
@@ -4413,7 +4413,7 @@ dissect_usb_hid_report_item(packet_info *pinfo _U_, proto_tree *parent_tree, tvb
             if (bTag == USBHID_MAINITEM_TAG_COLLECTION) {
                 /* Begin collection, nest following elements under us */
                 increment_dissection_depth(pinfo);
-                offset = dissect_usb_hid_report_item(pinfo, subtree, tvb, offset, usb_conv_info, &cur_global);
+                offset = dissect_usb_hid_report_item(pinfo, subtree, tvb, offset, urb, &cur_global);
                 decrement_dissection_depth(pinfo);
                 proto_item_set_len(subitem, offset-old_offset);
             } else if (bTag == USBHID_MAINITEM_TAG_ENDCOLLECTION) {
@@ -4427,7 +4427,7 @@ dissect_usb_hid_report_item(packet_info *pinfo _U_, proto_tree *parent_tree, tvb
 
 /* Dissector for HID "GET DESCRIPTOR" subtype. */
 int
-dissect_usb_hid_get_report_descriptor(packet_info *pinfo _U_, proto_tree *parent_tree, tvbuff_t *tvb, int offset, usb_conv_info_t *usb_conv_info)
+dissect_usb_hid_get_report_descriptor(packet_info *pinfo _U_, proto_tree *parent_tree, tvbuff_t *tvb, int offset, urb_info_t *urb)
 {
     proto_item *item;
     proto_tree *tree;
@@ -4439,16 +4439,16 @@ dissect_usb_hid_get_report_descriptor(packet_info *pinfo _U_, proto_tree *parent
     item = proto_tree_add_protocol_format(parent_tree, proto_usb_hid, tvb, offset,
                                           -1, "HID Report");
     tree = proto_item_add_subtree(item, ett_usb_hid_report);
-    offset = dissect_usb_hid_report_item(pinfo, tree, tvb, offset, usb_conv_info, &initial_global);
+    offset = dissect_usb_hid_report_item(pinfo, tree, tvb, offset, urb, &initial_global);
 
     /* only insert report descriptor the first time we parse it */
-    if (!PINFO_FD_VISITED(pinfo) && usb_conv_info) {
+    if (!PINFO_FD_VISITED(pinfo) && urb && urb->conv) {
         wmem_allocator_t *scope = wmem_file_scope();
         report_descriptor_t *data = wmem_new0(scope, report_descriptor_t);
 
-        data->bus_id = usb_conv_info->bus_id;
-        data->device_address = usb_conv_info->device_address;
-        data->interface = usb_conv_info->interfaceNum;
+        data->bus_id = urb->bus_id;
+        data->device_address = urb->device_address;
+        data->interface = urb->conv->interfaceNum;
         data->desc_length = offset - old_offset;
         data->desc_body = (uint8_t*) tvb_memdup(scope, tvb, old_offset, data->desc_length);
 
@@ -4467,7 +4467,7 @@ dissect_usb_hid_get_report_descriptor(packet_info *pinfo _U_, proto_tree *parent
 
 /* Dissector for HID GET_REPORT request. See USBHID 1.11, Chapter 7.2.1 Get_Report Request */
 static void
-dissect_usb_hid_get_report(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *tvb, int offset, bool is_request, usb_conv_info_t *usb_conv_info _U_)
+dissect_usb_hid_get_report(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *tvb, int offset, bool is_request, urb_info_t *urb _U_)
 {
     proto_item *item;
     proto_tree *subtree;
@@ -4493,7 +4493,7 @@ dissect_usb_hid_get_report(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *t
 
 /* Dissector for HID SET_REPORT request. See USBHID 1.11, Chapter 7.2.2 Set_Report Request */
 static void
-dissect_usb_hid_set_report(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *tvb, int offset, bool is_request, usb_conv_info_t *usb_conv_info _U_)
+dissect_usb_hid_set_report(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *tvb, int offset, bool is_request, urb_info_t *urb _U_)
 {
     proto_item *item;
     proto_tree *subtree;
@@ -4519,7 +4519,7 @@ dissect_usb_hid_set_report(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *t
 
 /* Dissector for HID GET_IDLE request. See USBHID 1.11, Chapter 7.2.3 Get_Idle Request */
 static void
-dissect_usb_hid_get_idle(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *tvb, int offset, bool is_request, usb_conv_info_t *usb_conv_info _U_)
+dissect_usb_hid_get_idle(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *tvb, int offset, bool is_request, urb_info_t *urb _U_)
 {
     proto_item *item;
     proto_tree *subtree;
@@ -4544,7 +4544,7 @@ dissect_usb_hid_get_idle(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *tvb
 
 /* Dissector for HID SET_IDLE request. See USBHID 1.11, Chapter 7.2.4 Set_Idle Request */
 static void
-dissect_usb_hid_set_idle(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *tvb, int offset, bool is_request, usb_conv_info_t *usb_conv_info _U_)
+dissect_usb_hid_set_idle(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *tvb, int offset, bool is_request, urb_info_t *urb _U_)
 {
     proto_item *item;
     proto_tree *subtree;
@@ -4570,7 +4570,7 @@ dissect_usb_hid_set_idle(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *tvb
 
 /* Dissector for HID GET_PROTOCOL request. See USBHID 1.11, Chapter 7.2.5 Get_Protocol Request */
 static void
-dissect_usb_hid_get_protocol(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *tvb, int offset, bool is_request, usb_conv_info_t *usb_conv_info _U_)
+dissect_usb_hid_get_protocol(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *tvb, int offset, bool is_request, urb_info_t *urb _U_)
 {
     if (!is_request)
         return;
@@ -4587,7 +4587,7 @@ dissect_usb_hid_get_protocol(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t 
 
 /* Dissector for HID SET_PROTOCOL request. See USBHID 1.11, Chapter 7.2.6 Set_Protocol Request */
 static void
-dissect_usb_hid_set_protocol(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *tvb, int offset, bool is_request, usb_conv_info_t *usb_conv_info _U_)
+dissect_usb_hid_set_protocol(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *tvb, int offset, bool is_request, urb_info_t *urb _U_)
 {
     if (!is_request)
         return;
@@ -4603,7 +4603,7 @@ dissect_usb_hid_set_protocol(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t 
 }
 
 
-typedef void (*usb_setup_dissector)(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, bool is_request, usb_conv_info_t *usb_conv_info);
+typedef void (*usb_setup_dissector)(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, bool is_request, urb_info_t *urb);
 
 typedef struct _usb_setup_dissector_table_t {
     uint8_t request;
@@ -4931,19 +4931,19 @@ dissect_usb_hid_boot_mouse_input_report(tvbuff_t *tvb, packet_info *pinfo, proto
 /* dissect a "standard" control message that's sent to an interface */
 static int
 dissect_usb_hid_control_std_intf(tvbuff_t *tvb, packet_info *pinfo,
-        proto_tree *tree, usb_conv_info_t *usb_conv_info)
+        proto_tree *tree, urb_info_t *urb)
 {
     int               offset = 0;
     usb_trans_info_t *usb_trans_info;
     uint8_t           req;
 
-    usb_trans_info = usb_conv_info->usb_trans_info;
+    usb_trans_info = urb->usb_trans_info;
 
     /* XXX - can we do some plausibility checks here? */
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "USBHID");
 
-    /* we can't use usb_conv_info->is_request since usb_conv_info
+    /* we can't use urb->is_request since urb
        was replaced with the interface conversation */
     if (usb_trans_info->request_in == pinfo->num) {
         /* the tvb that we see here is the setup packet
@@ -4980,7 +4980,7 @@ dissect_usb_hid_control_std_intf(tvbuff_t *tvb, packet_info *pinfo,
                 val_to_str_ext(usb_trans_info->u.get_descriptor.type,
                     &hid_descriptor_type_vals_ext, "Unknown type %u"));
         if (usb_trans_info->u.get_descriptor.type == USB_DT_HID_REPORT)
-            offset = dissect_usb_hid_get_report_descriptor(pinfo, tree, tvb, offset, usb_conv_info);
+            offset = dissect_usb_hid_get_report_descriptor(pinfo, tree, tvb, offset, urb);
     }
 
     return offset;
@@ -4989,7 +4989,7 @@ dissect_usb_hid_control_std_intf(tvbuff_t *tvb, packet_info *pinfo,
 /* dissect a class-specific control message that's sent to an interface */
 static int
 dissect_usb_hid_control_class_intf(tvbuff_t *tvb, packet_info *pinfo,
-        proto_tree *tree, usb_conv_info_t *usb_conv_info)
+        proto_tree *tree, urb_info_t *urb)
 {
     usb_trans_info_t *usb_trans_info;
     bool is_request;
@@ -4997,7 +4997,7 @@ dissect_usb_hid_control_class_intf(tvbuff_t *tvb, packet_info *pinfo,
     usb_setup_dissector dissector = NULL;
     const usb_setup_dissector_table_t *tmp;
 
-    usb_trans_info = usb_conv_info->usb_trans_info;
+    usb_trans_info = urb->usb_trans_info;
 
     is_request = (pinfo->srcport==NO_ENDPOINT);
 
@@ -5025,7 +5025,7 @@ dissect_usb_hid_control_class_intf(tvbuff_t *tvb, packet_info *pinfo,
         offset += 1;
     }
 
-    dissector(pinfo, tree, tvb, offset, is_request, usb_conv_info);
+    dissector(pinfo, tree, tvb, offset, is_request, urb);
     return tvb_captured_length(tvb);
 }
 
@@ -5292,7 +5292,7 @@ dissect_usb_hid_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
     proto_item *hid_ti;
     proto_tree *hid_tree;
     wmem_array_t *fields;
-    usb_conv_info_t *usb_data = (usb_conv_info_t*) data;
+    urb_info_t *usb_data = (urb_info_t*) data;
     report_descriptor_t *rdesc = get_report_descriptor(pinfo, usb_data);
     unsigned remaining = tvb_reported_length_remaining(tvb, offset);
 
@@ -5343,14 +5343,14 @@ dissect_usb_hid_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
 static int
 dissect_usb_hid_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-    usb_conv_info_t *usb_conv_info;
+    urb_info_t *urb;
     usb_trans_info_t *usb_trans_info;
     uint8_t type, recip;
 
-    usb_conv_info = (usb_conv_info_t *)data;
-    if (!usb_conv_info)
+    urb = (urb_info_t *)data;
+    if (!urb)
         return 0;
-    usb_trans_info = usb_conv_info->usb_trans_info;
+    usb_trans_info = urb->usb_trans_info;
     if (!usb_trans_info)
         return 0;
 
@@ -5359,9 +5359,9 @@ dissect_usb_hid_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 
     if (recip == RQT_SETUP_RECIPIENT_INTERFACE) {
         if (type == RQT_SETUP_TYPE_STANDARD)
-            return dissect_usb_hid_control_std_intf(tvb, pinfo, tree, usb_conv_info);
+            return dissect_usb_hid_control_std_intf(tvb, pinfo, tree, urb);
         else if (type == RQT_SETUP_TYPE_CLASS)
-            return dissect_usb_hid_control_class_intf(tvb, pinfo, tree, usb_conv_info);
+            return dissect_usb_hid_control_class_intf(tvb, pinfo, tree, urb);
     }
 
     return dissect_usb_hid_data(tvb, pinfo, tree, data);

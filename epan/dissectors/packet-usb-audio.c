@@ -1043,14 +1043,14 @@ allocate_audio_conv_info(void)
 }
 
 static void
-set_entity_type(usb_conv_info_t *usb_conv_info, uint8_t id, usb_audio_entity_t type)
+set_entity_type(urb_info_t *urb, uint8_t id, usb_audio_entity_t type)
 {
-    audio_conv_info_t *audio_conv_info = (audio_conv_info_t *)usb_conv_info->class_data;
+    audio_conv_info_t *audio_conv_info = (audio_conv_info_t *)urb->conv->class_data;
     if (!audio_conv_info) {
         audio_conv_info = allocate_audio_conv_info();
-        usb_conv_info->class_data = audio_conv_info;
-        usb_conv_info->class_data_type = USB_CONV_AUDIO;
-    } else if (usb_conv_info->class_data_type != USB_CONV_AUDIO) {
+        urb->conv->class_data = audio_conv_info;
+        urb->conv->class_data_type = USB_CONV_AUDIO;
+    } else if (urb->conv->class_data_type != USB_CONV_AUDIO) {
         /* XXX: Should this check be changed to assert? */
         return;
     }
@@ -1062,10 +1062,10 @@ set_entity_type(usb_conv_info_t *usb_conv_info, uint8_t id, usb_audio_entity_t t
 }
 
 static usb_audio_entity_t
-get_entity_type(usb_conv_info_t *usb_conv_info, uint8_t id)
+get_entity_type(urb_info_t *urb, uint8_t id)
 {
-    audio_conv_info_t *audio_conv_info = (audio_conv_info_t *)usb_conv_info->class_data;
-    if (!audio_conv_info || (usb_conv_info->class_data_type != USB_CONV_AUDIO)) {
+    audio_conv_info_t *audio_conv_info = (audio_conv_info_t *)urb->conv->class_data;
+    if (!audio_conv_info || (urb->conv->class_data_type != USB_CONV_AUDIO)) {
         return USB_AUDIO_ENTITY_UNKNOWN;
     }
     return audio_conv_info->entity_type[id];
@@ -1087,7 +1087,7 @@ base_volume(char *buf, uint32_t value)
    body's length) */
 static int
 dissect_ac_if_hdr_body(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
-        proto_tree *tree, usb_conv_info_t *usb_conv_info)
+        proto_tree *tree, urb_info_t *urb)
 {
     int      offset_start;
     uint16_t bcdADC;
@@ -1113,7 +1113,7 @@ dissect_ac_if_hdr_body(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 
     /* version 1 refers to the Basic Audio Device specification,
        version 2 is the Audio Device class specification, see above */
-    if (usb_conv_info->interfaceProtocol == AUDIO_PROTOCOL_V1) {
+    if (urb->conv->interfaceProtocol == AUDIO_PROTOCOL_V1) {
         proto_tree_add_item(tree, hf_ac_if_hdr_total_len,
                 tvb, offset, 2, ENC_LITTLE_ENDIAN);
         offset += 2;
@@ -1128,7 +1128,7 @@ dissect_ac_if_hdr_body(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
             offset++;
         }
     }
-    else if (usb_conv_info->interfaceProtocol == AUDIO_PROTOCOL_V2) {
+    else if (urb->conv->interfaceProtocol == AUDIO_PROTOCOL_V2) {
         proto_tree_add_item(tree, hf_ac_if_hdr_category,
                 tvb, offset, 1, ENC_LITTLE_ENDIAN);
         offset++;
@@ -1145,7 +1145,7 @@ dissect_ac_if_hdr_body(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 
 static int
 dissect_ac_if_input_terminal(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
-        proto_tree *tree, usb_conv_info_t *usb_conv_info)
+        proto_tree *tree, urb_info_t *urb)
 {
     int                offset_start;
 
@@ -1211,7 +1211,8 @@ dissect_ac_if_input_terminal(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
     };
 
     /* do not try to dissect unknown versions */
-    if (!((usb_conv_info->interfaceProtocol == AUDIO_PROTOCOL_V1) || (usb_conv_info->interfaceProtocol == AUDIO_PROTOCOL_V2)))
+    if (!((urb->conv->interfaceProtocol == AUDIO_PROTOCOL_V1) ||
+          (urb->conv->interfaceProtocol == AUDIO_PROTOCOL_V2)))
         return 0;
 
     offset_start = offset;
@@ -1225,7 +1226,7 @@ dissect_ac_if_input_terminal(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
     proto_tree_add_item(tree, hf_ac_if_input_assocterminal, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset += 1;
 
-    if (usb_conv_info->interfaceProtocol == AUDIO_PROTOCOL_V2) {
+    if (urb->conv->interfaceProtocol == AUDIO_PROTOCOL_V2) {
         proto_tree_add_item(tree, hf_ac_if_input_csourceid, tvb, offset, 1, ENC_LITTLE_ENDIAN);
         offset += 1;
     }
@@ -1233,10 +1234,10 @@ dissect_ac_if_input_terminal(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
     proto_tree_add_item(tree, hf_ac_if_input_nrchannels, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset += 1;
 
-    if (usb_conv_info->interfaceProtocol == AUDIO_PROTOCOL_V1) {
+    if (urb->conv->interfaceProtocol == AUDIO_PROTOCOL_V1) {
         proto_tree_add_bitmask(tree, tvb, offset, hf_ac_if_input_wchannelconfig, ett_ac_if_input_wchannelconfig, input_wchannelconfig, ENC_LITTLE_ENDIAN);
         offset += 2;
-    } else if (usb_conv_info->interfaceProtocol == AUDIO_PROTOCOL_V2) {
+    } else if (urb->conv->interfaceProtocol == AUDIO_PROTOCOL_V2) {
         proto_tree_add_bitmask(tree, tvb, offset, hf_ac_if_input_bmchannelconfig, ett_ac_if_input_bmchannelconfig, input_bmchannelconfig, ENC_LITTLE_ENDIAN);
         offset += 4;
     }
@@ -1244,7 +1245,7 @@ dissect_ac_if_input_terminal(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
     proto_tree_add_item(tree, hf_ac_if_input_channelnames, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset += 1;
 
-    if (usb_conv_info->interfaceProtocol == AUDIO_PROTOCOL_V2) {
+    if (urb->conv->interfaceProtocol == AUDIO_PROTOCOL_V2) {
         proto_tree_add_bitmask(tree, tvb, offset, hf_ac_if_input_controls, ett_ac_if_input_controls, controls, ENC_LITTLE_ENDIAN);
         offset += 2;
     }
@@ -1257,7 +1258,7 @@ dissect_ac_if_input_terminal(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 
 static int
 dissect_ac_if_output_terminal(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
-        proto_tree *tree, usb_conv_info_t *usb_conv_info)
+        proto_tree *tree, urb_info_t *urb)
 {
     int                offset_start;
 
@@ -1272,7 +1273,8 @@ dissect_ac_if_output_terminal(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
     };
 
     /* do not try to dissect unknown versions */
-    if (!((usb_conv_info->interfaceProtocol == AUDIO_PROTOCOL_V1) || (usb_conv_info->interfaceProtocol == AUDIO_PROTOCOL_V2)))
+    if (!((urb->conv->interfaceProtocol == AUDIO_PROTOCOL_V1) ||
+          (urb->conv->interfaceProtocol == AUDIO_PROTOCOL_V2)))
         return 0;
 
     offset_start = offset;
@@ -1289,7 +1291,7 @@ dissect_ac_if_output_terminal(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
     proto_tree_add_item(tree, hf_ac_if_output_sourceid, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset += 1;
 
-    if (usb_conv_info->interfaceProtocol == AUDIO_PROTOCOL_V2) {
+    if (urb->conv->interfaceProtocol == AUDIO_PROTOCOL_V2) {
         proto_tree_add_item(tree, hf_ac_if_output_clk_sourceid, tvb, offset, 1, ENC_LITTLE_ENDIAN);
         offset += 1;
 
@@ -1305,7 +1307,7 @@ dissect_ac_if_output_terminal(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 
 static int
 dissect_ac_if_feature_unit(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
-        proto_tree *tree, usb_conv_info_t *usb_conv_info, uint8_t desc_len)
+        proto_tree *tree, urb_info_t *urb, uint8_t desc_len)
 {
     int offset_start;
     int i;
@@ -1351,13 +1353,14 @@ dissect_ac_if_feature_unit(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
         NULL };
 
     /* do not try to dissect unknown versions */
-    if (!((usb_conv_info->interfaceProtocol == AUDIO_PROTOCOL_V1) || (usb_conv_info->interfaceProtocol == AUDIO_PROTOCOL_V2)))
+    if (!((urb->conv->interfaceProtocol == AUDIO_PROTOCOL_V1) ||
+          (urb->conv->interfaceProtocol == AUDIO_PROTOCOL_V2)))
         return 0;
 
     offset_start = offset;
 
     if (!PINFO_FD_VISITED(pinfo)) {
-        set_entity_type(usb_conv_info, tvb_get_uint8(tvb, offset), USB_AUDIO_ENTITY_FEATURE_UNIT);
+        set_entity_type(urb, tvb_get_uint8(tvb, offset), USB_AUDIO_ENTITY_FEATURE_UNIT);
     }
     proto_tree_add_item(tree, hf_ac_if_fu_unitid, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset += 1;
@@ -1365,7 +1368,7 @@ dissect_ac_if_feature_unit(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
     proto_tree_add_item(tree, hf_ac_if_fu_sourceid, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset += 1;
 
-    if (usb_conv_info->interfaceProtocol == AUDIO_PROTOCOL_V1) {
+    if (urb->conv->interfaceProtocol == AUDIO_PROTOCOL_V1) {
         proto_tree_add_item(tree, hf_ac_if_fu_controlsize, tvb, offset, 1, ENC_LITTLE_ENDIAN);
         controlsize = tvb_get_uint8(tvb, offset);
         offset += 1;
@@ -1393,7 +1396,7 @@ dissect_ac_if_feature_unit(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
             offset += controlsize;
         }
 
-    } else if (usb_conv_info->interfaceProtocol == AUDIO_PROTOCOL_V2) {
+    } else if (urb->conv->interfaceProtocol == AUDIO_PROTOCOL_V2) {
         /* Descriptor size is 6+(ch+1)*4, calculate and validate ch */
         ch = (desc_len - 6) / 4 - 1;
         if (((6 + (ch + 1) * 4) != desc_len) || (ch < 0)) {
@@ -1420,7 +1423,7 @@ dissect_ac_if_feature_unit(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
     return offset-offset_start;
 }
 
-static int dissect_ac_if_selector_unit(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, usb_conv_info_t *usb_conv_info)
+static int dissect_ac_if_selector_unit(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, urb_info_t *urb)
 {
     int offset_start;
     uint32_t nrinpins,i;
@@ -1435,13 +1438,14 @@ static int dissect_ac_if_selector_unit(tvbuff_t *tvb, int offset, packet_info *p
     };
 
     /* do not try to dissect unknown versions */
-    if (!((usb_conv_info->interfaceProtocol == AUDIO_PROTOCOL_V1) || (usb_conv_info->interfaceProtocol == AUDIO_PROTOCOL_V2)))
+    if (!((urb->conv->interfaceProtocol == AUDIO_PROTOCOL_V1) ||
+          (urb->conv->interfaceProtocol == AUDIO_PROTOCOL_V2)))
         return 0;
 
     offset_start = offset;
 
     if (!PINFO_FD_VISITED(pinfo)) {
-        set_entity_type(usb_conv_info, tvb_get_uint8(tvb, offset), USB_AUDIO_ENTITY_SELECTOR);
+        set_entity_type(urb, tvb_get_uint8(tvb, offset), USB_AUDIO_ENTITY_SELECTOR);
     }
     proto_tree_add_item(tree, hf_ac_if_su_unitid, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset += 1;
@@ -1458,7 +1462,7 @@ static int dissect_ac_if_selector_unit(tvbuff_t *tvb, int offset, packet_info *p
         proto_item_append_text(ti, "%s%d", (i > 0) ? ", " : "", source_id);
     }
 
-    if (usb_conv_info->interfaceProtocol == AUDIO_PROTOCOL_V2) {
+    if (urb->conv->interfaceProtocol == AUDIO_PROTOCOL_V2) {
         proto_tree_add_bitmask(tree, tvb, offset, hf_ac_if_su_controls, ett_ac_if_su_controls, controls, ENC_LITTLE_ENDIAN);
         offset += 1;
     }
@@ -1471,7 +1475,7 @@ static int dissect_ac_if_selector_unit(tvbuff_t *tvb, int offset, packet_info *p
 
 static int
 dissect_ac_if_mixed_unit(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
-        proto_tree *tree, usb_conv_info_t *usb_conv_info _U_)
+        proto_tree *tree, urb_info_t *urb _U_)
 {
     int      offset_start;
     uint8_t nrinpins;
@@ -1528,7 +1532,7 @@ dissect_ac_if_mixed_unit(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 
 static int
 dissect_ac_if_clock_source(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
-        proto_tree *tree, usb_conv_info_t *usb_conv_info)
+        proto_tree *tree, urb_info_t *urb)
 {
     int offset_start;
     static int * const cs_attributes[] = {
@@ -1546,7 +1550,7 @@ dissect_ac_if_clock_source(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
     offset_start = offset;
 
     if (!PINFO_FD_VISITED(pinfo)) {
-        set_entity_type(usb_conv_info, tvb_get_uint8(tvb, offset), USB_AUDIO_ENTITY_CLOCK_SOURCE);
+        set_entity_type(urb, tvb_get_uint8(tvb, offset), USB_AUDIO_ENTITY_CLOCK_SOURCE);
     }
     proto_tree_add_item(tree, hf_ac_if_clksrc_id, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset += 1;
@@ -1568,7 +1572,7 @@ dissect_ac_if_clock_source(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 
 static int
 dissect_ac_if_clock_selector(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
-        proto_tree *tree, usb_conv_info_t *usb_conv_info)
+        proto_tree *tree, urb_info_t *urb)
 {
     int    offset_start;
     uint8_t nrinpins;
@@ -1580,7 +1584,7 @@ dissect_ac_if_clock_selector(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
     offset_start = offset;
 
     if (!PINFO_FD_VISITED(pinfo)) {
-        set_entity_type(usb_conv_info, tvb_get_uint8(tvb, offset), USB_AUDIO_ENTITY_CLOCK_SELECTOR);
+        set_entity_type(urb, tvb_get_uint8(tvb, offset), USB_AUDIO_ENTITY_CLOCK_SELECTOR);
     }
     proto_tree_add_item(tree, hf_ac_if_clksel_id, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset += 1;
@@ -1606,7 +1610,7 @@ dissect_ac_if_clock_selector(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 
 static int
 dissect_ac_if_extension_unit(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
-                             proto_tree *tree, usb_conv_info_t *usb_conv_info)
+                             proto_tree *tree, urb_info_t *urb)
 {
     int offset_start;
     uint8_t nrinpins;
@@ -1653,7 +1657,7 @@ dissect_ac_if_extension_unit(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
     };
 
     if (!PINFO_FD_VISITED(pinfo)) {
-        set_entity_type(usb_conv_info, tvb_get_uint8(tvb, offset), USB_AUDIO_ENTITY_EXTENSION_UNIT);
+        set_entity_type(urb, tvb_get_uint8(tvb, offset), USB_AUDIO_ENTITY_EXTENSION_UNIT);
     }
     proto_tree_add_item(tree, hf_ac_if_extunit_id, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset += 1;
@@ -1675,7 +1679,7 @@ dissect_ac_if_extension_unit(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 
     // TODO:
     // desc_tree = proto_tree_add_subtree(tree, tvb, offset, ???)
-    // offset += dissect_as_if_general_body(tvb, offset, pinfo, desc_tree, usb_conv_info);
+    // offset += dissect_as_if_general_body(tvb, offset, pinfo, desc_tree, urb);
     proto_tree_add_bitmask(tree, tvb, offset, hf_ac_if_extunit_bmchannelconfig, ett_ac_if_extunit_bmchannelconfig, v2_channels, ENC_LITTLE_ENDIAN);
     offset += 4;
 
@@ -1693,7 +1697,7 @@ dissect_ac_if_extension_unit(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 
 static int
 dissect_as_if_general_body(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
-        proto_tree *tree, usb_conv_info_t *usb_conv_info)
+        proto_tree *tree, urb_info_t *urb)
 {
     int                offset_start;
 
@@ -1805,14 +1809,14 @@ dissect_as_if_general_body(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 
     offset_start = offset;
 
-    if (usb_conv_info->interfaceProtocol == AUDIO_PROTOCOL_V1) {
+    if (urb->conv->interfaceProtocol == AUDIO_PROTOCOL_V1) {
         proto_tree_add_item(tree, hf_as_if_gen_term_link, tvb, offset, 1, ENC_LITTLE_ENDIAN);
         offset++;
         proto_tree_add_item(tree, hf_as_if_gen_delay, tvb, offset, 1, ENC_LITTLE_ENDIAN);
         offset++;
         proto_tree_add_item(tree, hf_as_if_gen_wformattag, tvb, offset, 2, ENC_LITTLE_ENDIAN);
         offset += 2;
-    } else if (usb_conv_info->interfaceProtocol == AUDIO_PROTOCOL_V2) {
+    } else if (urb->conv->interfaceProtocol == AUDIO_PROTOCOL_V2) {
         uint8_t format_type;
         int * const *formats_bitmask;
 
@@ -1860,7 +1864,7 @@ dissect_as_if_general_body(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 
 static int
 dissect_as_if_format_type_ver1_body(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
-        proto_tree *tree, usb_conv_info_t *usb_conv_info _U_)
+        proto_tree *tree, urb_info_t *urb _U_)
 {
     int    offset_start;
     uint8_t SamFreqType;
@@ -1977,7 +1981,7 @@ dissect_as_if_format_type_ver1_body(tvbuff_t *tvb, int offset, packet_info *pinf
 
 static int
 dissect_as_if_format_type_ver2_body(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
-        proto_tree *tree, usb_conv_info_t *usb_conv_info _U_)
+        proto_tree *tree, urb_info_t *urb _U_)
 {
     int    offset_start;
     uint8_t format_type;
@@ -2001,12 +2005,12 @@ dissect_as_if_format_type_ver2_body(tvbuff_t *tvb, int offset, packet_info *pinf
 
 static int
 dissect_as_if_format_type_body(tvbuff_t *tvb, int offset, packet_info *pinfo,
-        proto_tree *tree, usb_conv_info_t *usb_conv_info)
+        proto_tree *tree, urb_info_t *urb)
 {
-    if (usb_conv_info->interfaceProtocol == AUDIO_PROTOCOL_V1) {
-        return dissect_as_if_format_type_ver1_body(tvb, offset, pinfo, tree, usb_conv_info);
-    } else if (usb_conv_info->interfaceProtocol == AUDIO_PROTOCOL_V2) {
-        return dissect_as_if_format_type_ver2_body(tvb, offset, pinfo, tree, usb_conv_info);
+    if (urb->conv->interfaceProtocol == AUDIO_PROTOCOL_V1) {
+        return dissect_as_if_format_type_ver1_body(tvb, offset, pinfo, tree, urb);
+    } else if (urb->conv->interfaceProtocol == AUDIO_PROTOCOL_V2) {
+        return dissect_as_if_format_type_ver2_body(tvb, offset, pinfo, tree, urb);
     }
 
     return 0;
@@ -2014,7 +2018,7 @@ dissect_as_if_format_type_body(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 static int
 dissect_as_ep_general_body(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
-        proto_tree *tree, usb_conv_info_t *usb_conv_info)
+        proto_tree *tree, urb_info_t *urb)
 {
     int                offset_start = offset;
 
@@ -2038,13 +2042,14 @@ dissect_as_ep_general_body(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
     };
 
     /* do not try to dissect unknown versions */
-    if (!((usb_conv_info->interfaceProtocol == AUDIO_PROTOCOL_V1) || (usb_conv_info->interfaceProtocol == AUDIO_PROTOCOL_V2)))
+    if (!((urb->conv->interfaceProtocol == AUDIO_PROTOCOL_V1) ||
+          (urb->conv->interfaceProtocol == AUDIO_PROTOCOL_V2)))
         return 0;
 
-    if (usb_conv_info->interfaceProtocol == AUDIO_PROTOCOL_V1) {
+    if (urb->conv->interfaceProtocol == AUDIO_PROTOCOL_V1) {
         proto_tree_add_bitmask(tree, tvb, offset, hf_as_ep_gen_bmattributes, ett_as_ep_gen_attributes, v1_attributes, ENC_LITTLE_ENDIAN);
         offset++;
-    } else if (usb_conv_info->interfaceProtocol == AUDIO_PROTOCOL_V2) {
+    } else if (urb->conv->interfaceProtocol == AUDIO_PROTOCOL_V2) {
         proto_tree_add_bitmask(tree, tvb, offset, hf_as_ep_gen_bmattributes, ett_as_ep_gen_attributes, v2_attributes, ENC_LITTLE_ENDIAN);
         offset++;
         proto_tree_add_bitmask(tree, tvb, offset, hf_as_ep_gen_controls, ett_as_ep_gen_controls, controls, ENC_LITTLE_ENDIAN);
@@ -2061,7 +2066,7 @@ dissect_as_ep_general_body(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 
 static int
 dissect_ms_if_hdr_body(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
-        proto_tree *tree, usb_conv_info_t *usb_conv_info _U_)
+        proto_tree *tree, urb_info_t *urb _U_)
 {
     int      offset_start;
     uint16_t bcdADC;
@@ -2087,7 +2092,7 @@ dissect_ms_if_hdr_body(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 
 static int
 dissect_ms_if_midi_in_body(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
-        proto_tree *tree, usb_conv_info_t *usb_conv_info _U_)
+        proto_tree *tree, urb_info_t *urb _U_)
 {
     int      offset_start = offset;
 
@@ -2103,7 +2108,7 @@ dissect_ms_if_midi_in_body(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 
 static int
 dissect_ms_if_midi_out_body(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
-        proto_tree *tree, usb_conv_info_t *usb_conv_info _U_)
+        proto_tree *tree, urb_info_t *urb _U_)
 {
     int      offset_start = offset;
     uint8_t  nrinputpins;
@@ -2133,7 +2138,7 @@ dissect_ms_if_midi_out_body(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 
 static int
 dissect_ms_ep_general_body(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
-        proto_tree *tree, usb_conv_info_t *usb_conv_info _U_)
+        proto_tree *tree, urb_info_t *urb _U_)
 {
     int      offset_start = offset;
     uint8_t  numjacks;
@@ -2157,7 +2162,7 @@ dissect_usb_audio_descriptor(tvbuff_t *tvb, packet_info *pinfo,
 {
     int              offset = 0;
     int              bytes_dissected = 0;
-    usb_conv_info_t *usb_conv_info;
+    urb_info_t      *urb;
     proto_tree       *desc_tree = NULL;
     proto_item       *desc_tree_item;
     uint8_t          desc_len;
@@ -2165,8 +2170,8 @@ dissect_usb_audio_descriptor(tvbuff_t *tvb, packet_info *pinfo,
     uint8_t          desc_subtype;
     const char      *subtype_str;
 
-    usb_conv_info = (usb_conv_info_t *)data;
-    if (!usb_conv_info || usb_conv_info->interfaceClass!=IF_CLASS_AUDIO)
+    urb = (urb_info_t *)data;
+    if (!urb || !urb->conv || urb->conv->interfaceClass!=IF_CLASS_AUDIO)
         return 0;
 
     desc_len  = tvb_get_uint8(tvb, offset);
@@ -2174,11 +2179,13 @@ dissect_usb_audio_descriptor(tvbuff_t *tvb, packet_info *pinfo,
 
     if (desc_type == CS_INTERFACE) {
         /* Switch to interface specific usb_conv_info */
-        usb_conv_info = get_usb_iface_conv_info(pinfo, usb_conv_info->interfaceNum);
+        urb = wmem_new(pinfo->pool, urb_info_t);
+        memcpy(urb, data, sizeof(urb_info_t));
+        urb->conv = get_usb_iface_conv_info(pinfo, urb->conv->interfaceNum);
     }
 
     if (desc_type==CS_INTERFACE &&
-            usb_conv_info->interfaceSubclass==AUDIO_IF_SUBCLASS_AUDIOCONTROL) {
+            urb->conv->interfaceSubclass==AUDIO_IF_SUBCLASS_AUDIOCONTROL) {
 
         desc_tree = proto_tree_add_subtree(tree, tvb, offset, desc_len,
                 ett_usb_audio_desc, &desc_tree_item,
@@ -2203,38 +2210,38 @@ dissect_usb_audio_descriptor(tvbuff_t *tvb, packet_info *pinfo,
                    this is not necessarily the length of the body
                    as some components are not yet dissected
                    we rely on the descriptor's length byte instead */
-                bytes_dissected += dissect_ac_if_hdr_body(tvb, offset, pinfo, desc_tree, usb_conv_info);
+                bytes_dissected += dissect_ac_if_hdr_body(tvb, offset, pinfo, desc_tree, urb);
                 break;
             case AC_SUBTYPE_INPUT_TERMINAL:
-                bytes_dissected += dissect_ac_if_input_terminal(tvb, offset, pinfo, desc_tree, usb_conv_info);
+                bytes_dissected += dissect_ac_if_input_terminal(tvb, offset, pinfo, desc_tree, urb);
                 break;
             case AC_SUBTYPE_OUTPUT_TERMINAL:
-                bytes_dissected += dissect_ac_if_output_terminal(tvb, offset, pinfo, desc_tree, usb_conv_info);
+                bytes_dissected += dissect_ac_if_output_terminal(tvb, offset, pinfo, desc_tree, urb);
                 break;
             case AC_SUBTYPE_MIXER_UNIT:
-                bytes_dissected += dissect_ac_if_mixed_unit(tvb, offset, pinfo, desc_tree, usb_conv_info);
+                bytes_dissected += dissect_ac_if_mixed_unit(tvb, offset, pinfo, desc_tree, urb);
                 break;
             case AC_SUBTYPE_SELECTOR_UNIT:
-                bytes_dissected += dissect_ac_if_selector_unit(tvb, offset, pinfo, desc_tree, usb_conv_info);
+                bytes_dissected += dissect_ac_if_selector_unit(tvb, offset, pinfo, desc_tree, urb);
                 break;
             case AC_SUBTYPE_FEATURE_UNIT:
-                bytes_dissected += dissect_ac_if_feature_unit(tvb, offset, pinfo, desc_tree, usb_conv_info, desc_len);
+                bytes_dissected += dissect_ac_if_feature_unit(tvb, offset, pinfo, desc_tree, urb, desc_len);
                 break;
             case AC_SUBTYPE_CLOCK_SOURCE:
-                bytes_dissected += dissect_ac_if_clock_source(tvb, offset, pinfo, desc_tree, usb_conv_info);
+                bytes_dissected += dissect_ac_if_clock_source(tvb, offset, pinfo, desc_tree, urb);
                 break;
             case AC_SUBTYPE_CLOCK_SELECTOR:
-                bytes_dissected += dissect_ac_if_clock_selector(tvb, offset, pinfo, desc_tree, usb_conv_info);
+                bytes_dissected += dissect_ac_if_clock_selector(tvb, offset, pinfo, desc_tree, urb);
                 break;
             case AC_SUBTYPE_EXTENSION_UNIT:
-                bytes_dissected += dissect_ac_if_extension_unit(tvb, offset, pinfo, desc_tree, usb_conv_info);
+                bytes_dissected += dissect_ac_if_extension_unit(tvb, offset, pinfo, desc_tree, urb);
                 break;
             default:
                 break;
         }
     }
     else if (desc_type==CS_INTERFACE &&
-            usb_conv_info->interfaceSubclass==AUDIO_IF_SUBCLASS_AUDIOSTREAMING) {
+            urb->conv->interfaceSubclass==AUDIO_IF_SUBCLASS_AUDIOSTREAMING) {
 
         desc_tree = proto_tree_add_subtree(tree, tvb, offset, desc_len,
                 ett_usb_audio_desc, &desc_tree_item,
@@ -2256,11 +2263,11 @@ dissect_usb_audio_descriptor(tvbuff_t *tvb, packet_info *pinfo,
         switch(desc_subtype) {
             case AS_SUBTYPE_GENERAL:
                 bytes_dissected += dissect_as_if_general_body(tvb, offset, pinfo,
-                        desc_tree, usb_conv_info);
+                        desc_tree, urb);
                 break;
             case AS_SUBTYPE_FORMAT_TYPE:
                 bytes_dissected += dissect_as_if_format_type_body(tvb, offset, pinfo,
-                        desc_tree, usb_conv_info);
+                        desc_tree, urb);
                 break;
             default:
                 break;
@@ -2268,7 +2275,7 @@ dissect_usb_audio_descriptor(tvbuff_t *tvb, packet_info *pinfo,
     }
     /* there are no class-specific endpoint descriptors for audio control */
     else if (desc_type == CS_ENDPOINT &&
-            usb_conv_info->interfaceSubclass==AUDIO_IF_SUBCLASS_AUDIOSTREAMING) {
+            urb->conv->interfaceSubclass==AUDIO_IF_SUBCLASS_AUDIOSTREAMING) {
 
         desc_tree = proto_tree_add_subtree(tree, tvb, offset, desc_len,
                 ett_usb_audio_desc, &desc_tree_item,
@@ -2287,14 +2294,14 @@ dissect_usb_audio_descriptor(tvbuff_t *tvb, packet_info *pinfo,
         switch(desc_subtype) {
             case AS_EP_SUBTYPE_GENERAL:
                 bytes_dissected += dissect_as_ep_general_body(tvb, offset, pinfo,
-                        desc_tree, usb_conv_info);
+                        desc_tree, urb);
                 break;
             default:
                 break;
         }
     }
     else if (desc_type==CS_INTERFACE &&
-            usb_conv_info->interfaceSubclass==AUDIO_IF_SUBCLASS_MIDISTREAMING) {
+            urb->conv->interfaceSubclass==AUDIO_IF_SUBCLASS_MIDISTREAMING) {
         desc_tree = proto_tree_add_subtree(tree, tvb, offset, desc_len,
                 ett_usb_audio_desc, &desc_tree_item,
                 "Class-specific MIDI Streaming Interface Descriptor");
@@ -2315,22 +2322,22 @@ dissect_usb_audio_descriptor(tvbuff_t *tvb, packet_info *pinfo,
         switch(desc_subtype) {
             case MS_IF_SUBTYPE_HEADER:
                 bytes_dissected += dissect_ms_if_hdr_body(tvb, offset, pinfo,
-                        desc_tree, usb_conv_info);
+                        desc_tree, urb);
                 break;
             case MS_IF_SUBTYPE_MIDI_IN_JACK:
                 bytes_dissected += dissect_ms_if_midi_in_body(tvb, offset, pinfo,
-                        desc_tree, usb_conv_info);
+                        desc_tree, urb);
                 break;
             case MS_IF_SUBTYPE_MIDI_OUT_JACK:
                 bytes_dissected += dissect_ms_if_midi_out_body(tvb, offset, pinfo,
-                        desc_tree, usb_conv_info);
+                        desc_tree, urb);
                 break;
             default:
                 break;
         }
     }
     else if (desc_type==CS_ENDPOINT &&
-            usb_conv_info->interfaceSubclass==AUDIO_IF_SUBCLASS_MIDISTREAMING) {
+            urb->conv->interfaceSubclass==AUDIO_IF_SUBCLASS_MIDISTREAMING) {
         desc_tree = proto_tree_add_subtree(tree, tvb, offset, desc_len,
                 ett_usb_audio_desc, &desc_tree_item,
                 "Class-specific MIDI Streaming Endpoint Descriptor");
@@ -2348,7 +2355,7 @@ dissect_usb_audio_descriptor(tvbuff_t *tvb, packet_info *pinfo,
         switch(desc_subtype) {
             case MS_EP_SUBTYPE_GENERAL:
                 bytes_dissected += dissect_ms_ep_general_body(tvb, offset, pinfo,
-                        desc_tree, usb_conv_info);
+                        desc_tree, urb);
                 break;
             default:
                 break;
@@ -2364,29 +2371,29 @@ dissect_usb_audio_descriptor(tvbuff_t *tvb, packet_info *pinfo,
 }
 
 static usb_audio_entity_t
-get_addressed_entity_type(usb_conv_info_t *usb_conv_info)
+get_addressed_entity_type(urb_info_t *urb)
 {
     usb_audio_entity_t  entity = USB_AUDIO_ENTITY_UNKNOWN;
 
-    if (USB_RECIPIENT(usb_conv_info->usb_trans_info->setup.requesttype) == RQT_SETUP_RECIPIENT_INTERFACE) {
-        int8_t id = (usb_conv_info->usb_trans_info->setup.wIndex & 0xFF00) >> 8;
-        entity = get_entity_type(usb_conv_info, id);
+    if (USB_RECIPIENT(urb->usb_trans_info->setup.requesttype) == RQT_SETUP_RECIPIENT_INTERFACE) {
+        int8_t id = (urb->usb_trans_info->setup.wIndex & 0xFF00) >> 8;
+        entity = get_entity_type(urb, id);
     }
 
     return entity;
 }
 
 static bool
-has_data_stage(usb_conv_info_t *usb_conv_info)
+has_data_stage(urb_info_t *urb)
 {
     /* If the two conditions are fulfilled, then URB we got should contain data stage */
-    return (usb_conv_info->usb_trans_info->setup.wLength > 0) &&
-        (usb_conv_info->usb_trans_info->setup.requesttype & USB_DIR_IN) == (usb_conv_info->is_request ? USB_DIR_OUT : USB_DIR_IN);
+    return (urb->usb_trans_info->setup.wLength > 0) &&
+        (urb->usb_trans_info->setup.requesttype & USB_DIR_IN) == (urb->is_request ? USB_DIR_OUT : USB_DIR_IN);
 }
 
 static int
 dissect_windex_and_wlength(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
-                           proto_tree *tree, usb_conv_info_t *usb_conv_info)
+                           proto_tree *tree, urb_info_t *urb)
 {
     int                 offset_start = offset;
     static int * const  windex_interface[] = {
@@ -2399,9 +2406,9 @@ dissect_windex_and_wlength(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
         NULL
     };
 
-    if (USB_RECIPIENT(usb_conv_info->usb_trans_info->setup.requesttype) == RQT_SETUP_RECIPIENT_INTERFACE) {
+    if (USB_RECIPIENT(urb->usb_trans_info->setup.requesttype) == RQT_SETUP_RECIPIENT_INTERFACE) {
         proto_tree_add_bitmask(tree, tvb, offset, hf_windex, ett_windex, windex_interface, ENC_LITTLE_ENDIAN);
-    } else if (USB_RECIPIENT(usb_conv_info->usb_trans_info->setup.requesttype) == RQT_SETUP_RECIPIENT_ENDPOINT) {
+    } else if (USB_RECIPIENT(urb->usb_trans_info->setup.requesttype) == RQT_SETUP_RECIPIENT_ENDPOINT) {
         proto_tree_add_bitmask(tree, tvb, offset, hf_windex, ett_windex, windex_endpoint, ENC_LITTLE_ENDIAN);
     }
     offset += 2;
@@ -2414,13 +2421,13 @@ dissect_windex_and_wlength(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 
 static int
 dissect_v1_control(tvbuff_t *tvb, int offset, packet_info *pinfo,
-                   proto_tree *tree, usb_conv_info_t *usb_conv_info)
+                   proto_tree *tree, urb_info_t *urb)
 {
     int                 offset_start = offset;
     proto_item         *ti;
     const char         *request_str;
     uint8_t             bRequest;
-    usb_audio_entity_t  entity = get_addressed_entity_type(usb_conv_info);
+    usb_audio_entity_t  entity = get_addressed_entity_type(urb);
     const value_string *control_selector_vals = NULL;
     uint8_t             control_selector;
     const char         *str;
@@ -2433,12 +2440,12 @@ dissect_v1_control(tvbuff_t *tvb, int offset, packet_info *pinfo,
         NULL
     };
 
-    bRequest = usb_conv_info->usb_trans_info->setup.request;
+    bRequest = urb->usb_trans_info->setup.request;
     request_str = try_val_to_str_ext(bRequest, &v1_brequest_vals_ext);
     if (request_str)
         col_set_str(pinfo->cinfo, COL_INFO, request_str);
 
-    control_selector = (usb_conv_info->usb_trans_info->setup.wValue & 0xFF00) >> 8;
+    control_selector = (urb->usb_trans_info->setup.wValue & 0xFF00) >> 8;
 
     switch (entity) {
         case USB_AUDIO_ENTITY_SELECTOR:
@@ -2470,7 +2477,7 @@ dissect_v1_control(tvbuff_t *tvb, int offset, packet_info *pinfo,
         col_append_fstr(pinfo->cinfo, COL_INFO, " %s", str);
     }
 
-    if (usb_conv_info->is_request) {
+    if (urb->is_request) {
         proto_tree_add_item(tree, hf_brequest_v1, tvb, offset, 1, ENC_LITTLE_ENDIAN);
         offset++;
 
@@ -2485,11 +2492,11 @@ dissect_v1_control(tvbuff_t *tvb, int offset, packet_info *pinfo,
         }
         offset += 2;
 
-        offset += dissect_windex_and_wlength(tvb, offset, pinfo, tree, usb_conv_info);
+        offset += dissect_windex_and_wlength(tvb, offset, pinfo, tree, urb);
 
     }
 
-    if (has_data_stage(usb_conv_info)) {
+    if (has_data_stage(urb)) {
         proto_tree  *subtree;
         proto_item  *subtree_item;
 
@@ -2511,11 +2518,11 @@ dissect_v1_control(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 static int
 dissect_v2_control_cur_range(tvbuff_t *tvb, int offset, packet_info *pinfo,
-                             proto_tree *tree, usb_conv_info_t *usb_conv_info)
+                             proto_tree *tree, urb_info_t *urb)
 {
     int                 offset_start = offset;
     proto_item         *ti;
-    usb_audio_entity_t  entity = get_addressed_entity_type(usb_conv_info);
+    usb_audio_entity_t  entity = get_addressed_entity_type(urb);
     const value_string *control_selector_vals = NULL;
     uint8_t             control_selector, channel_number;
     parameter_layout_t  layout = PARAMETER_LAYOUT_UNKNOWN;
@@ -2527,8 +2534,8 @@ dissect_v2_control_cur_range(tvbuff_t *tvb, int offset, packet_info *pinfo,
         NULL
     };
 
-    control_selector = (usb_conv_info->usb_trans_info->setup.wValue & 0xFF00) >> 8;
-    channel_number = usb_conv_info->usb_trans_info->setup.wValue & 0x00FF;
+    control_selector = (urb->usb_trans_info->setup.wValue & 0xFF00) >> 8;
+    channel_number = urb->usb_trans_info->setup.wValue & 0x00FF;
 
     switch (entity) {
         case USB_AUDIO_ENTITY_CLOCK_SOURCE:
@@ -2559,7 +2566,7 @@ dissect_v2_control_cur_range(tvbuff_t *tvb, int offset, packet_info *pinfo,
         col_append_fstr(pinfo->cinfo, COL_INFO, " %s", str);
     }
 
-    if (usb_conv_info->is_request) {
+    if (urb->is_request) {
         ti = proto_tree_add_bitmask(tree, tvb, offset, hf_wvalue, ett_wvalue, wvalue_fields, ENC_LITTLE_ENDIAN);
         if (wvalue_fields[1] == NULL) {
             /* Control selector not handled, mark as undecoded */
@@ -2567,10 +2574,10 @@ dissect_v2_control_cur_range(tvbuff_t *tvb, int offset, packet_info *pinfo,
         }
         offset += 2;
 
-        offset += dissect_windex_and_wlength(tvb, offset, pinfo, tree, usb_conv_info);
+        offset += dissect_windex_and_wlength(tvb, offset, pinfo, tree, urb);
     }
 
-    if (has_data_stage(usb_conv_info)) {
+    if (has_data_stage(urb)) {
         proto_tree  *subtree;
         proto_item  *subtree_item;
         const char *title;
@@ -2614,7 +2621,7 @@ dissect_v2_control_cur_range(tvbuff_t *tvb, int offset, packet_info *pinfo,
             proto_item_append_text(subtree_item, ": %s", parameter_str);
         }
 
-        if (usb_conv_info->usb_trans_info->setup.request == V2_REQUEST_RANGE) {
+        if (urb->usb_trans_info->setup.request == V2_REQUEST_RANGE) {
             uint32_t  max_n;
 
             proto_tree_add_item_ret_uint(subtree, hf_parameter_wnumsubranges, tvb, offset, 2, ENC_LITTLE_ENDIAN, &n);
@@ -2622,12 +2629,12 @@ dissect_v2_control_cur_range(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
             if (attribute_size == 0) {
                 max_n = 0;
-            } else if (usb_conv_info->usb_trans_info->setup.wLength >= 2 + n * attribute_size) {
+            } else if (urb->usb_trans_info->setup.wLength >= 2 + n * attribute_size) {
                 /* Host requested enough bytes to contain all data */
                 max_n = n;
-            } else if (usb_conv_info->usb_trans_info->setup.wLength > 2) {
+            } else if (urb->usb_trans_info->setup.wLength > 2) {
                 /* Host requested less, this is not Malformed in any way */
-                max_n = (usb_conv_info->usb_trans_info->setup.wLength - 2) / (3 * attribute_size);
+                max_n = (urb->usb_trans_info->setup.wLength - 2) / (3 * attribute_size);
             } else {
                 max_n = 0;
             }
@@ -2654,24 +2661,24 @@ dissect_v2_control_cur_range(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 static int
 dissect_v2_control(tvbuff_t *tvb, int offset, packet_info *pinfo,
-                   proto_tree *tree, usb_conv_info_t *usb_conv_info)
+                   proto_tree *tree, urb_info_t *urb)
 {
     int          offset_start = offset;
     const char *request_str;
     uint8_t      bRequest;
 
-    bRequest = usb_conv_info->usb_trans_info->setup.request;
+    bRequest = urb->usb_trans_info->setup.request;
     request_str = try_val_to_str_ext(bRequest, &v2_brequest_vals_ext);
     if (request_str)
         col_append_fstr(pinfo->cinfo, COL_INFO, " %s", request_str);
 
-    if (usb_conv_info->is_request) {
+    if (urb->is_request) {
         proto_tree_add_item(tree, hf_brequest_v2, tvb, offset, 1, ENC_LITTLE_ENDIAN);
         offset++;
     }
 
     if ((bRequest == V2_REQUEST_CUR) || (bRequest == V2_REQUEST_RANGE)) {
-        offset += dissect_v2_control_cur_range(tvb, offset, pinfo, tree, usb_conv_info);
+        offset += dissect_v2_control_cur_range(tvb, offset, pinfo, tree, urb);
     }
 
     return offset - offset_start;
@@ -2680,49 +2687,48 @@ dissect_v2_control(tvbuff_t *tvb, int offset, packet_info *pinfo,
 static int
 dissect_usb_audio_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *data)
 {
-    usb_conv_info_t *usb_conv_info;
+    urb_info_t      *urb = (urb_info_t *)data;
     int              offset, length;
 
     /* Reject the packet if data is NULL */
-    if (data == NULL)
+    if ((urb == NULL) || (urb->conv == NULL))
         return 0;
-    usb_conv_info = (usb_conv_info_t *)data;
 
     /* Dissect only Class requests directed to interface or endpoint */
-    if ((usb_conv_info->usb_trans_info == NULL) ||
-        (USB_TYPE(usb_conv_info->usb_trans_info->setup.requesttype) != RQT_SETUP_TYPE_CLASS) ||
-        !(USB_RECIPIENT(usb_conv_info->usb_trans_info->setup.requesttype) == RQT_SETUP_RECIPIENT_INTERFACE ||
-          USB_RECIPIENT(usb_conv_info->usb_trans_info->setup.requesttype) == RQT_SETUP_RECIPIENT_ENDPOINT)) {
+    if ((urb->usb_trans_info == NULL) ||
+        (USB_TYPE(urb->usb_trans_info->setup.requesttype) != RQT_SETUP_TYPE_CLASS) ||
+        !(USB_RECIPIENT(urb->usb_trans_info->setup.requesttype) == RQT_SETUP_RECIPIENT_INTERFACE ||
+          USB_RECIPIENT(urb->usb_trans_info->setup.requesttype) == RQT_SETUP_RECIPIENT_ENDPOINT)) {
         return 0;
     }
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "USBAUDIO");
-    col_set_str(pinfo->cinfo, COL_INFO, usb_conv_info->usb_trans_info->setup.requesttype & USB_DIR_IN ? "GET" : "SET");
+    col_set_str(pinfo->cinfo, COL_INFO, urb->usb_trans_info->setup.requesttype & USB_DIR_IN ? "GET" : "SET");
 
     length = tvb_reported_length(tvb);
     offset = 0;
 
-    if ((usb_conv_info->interfaceClass == IF_CLASS_AUDIO) &&
-        (usb_conv_info->interfaceSubclass == AUDIO_IF_SUBCLASS_AUDIOCONTROL)) {
-        switch (usb_conv_info->interfaceProtocol) {
+    if ((urb->conv->interfaceClass == IF_CLASS_AUDIO) &&
+        (urb->conv->interfaceSubclass == AUDIO_IF_SUBCLASS_AUDIOCONTROL)) {
+        switch (urb->conv->interfaceProtocol) {
             case AUDIO_PROTOCOL_V1:
-                offset += dissect_v1_control(tvb, offset, pinfo, parent_tree, usb_conv_info);
+                offset += dissect_v1_control(tvb, offset, pinfo, parent_tree, urb);
                 break;
             case AUDIO_PROTOCOL_V2:
-                offset += dissect_v2_control(tvb, offset, pinfo, parent_tree, usb_conv_info);
+                offset += dissect_v2_control(tvb, offset, pinfo, parent_tree, urb);
                 break;
             default:
                 break;
         }
     }
 
-    if (!usb_conv_info->is_request &&
-        (((usb_conv_info->usb_trans_info->setup.requesttype & USB_DIR_IN) == USB_DIR_OUT) ||
-          (usb_conv_info->usb_trans_info->setup.wLength == 0))) {
+    if (!urb->is_request &&
+        (((urb->usb_trans_info->setup.requesttype & USB_DIR_IN) == USB_DIR_OUT) ||
+          (urb->usb_trans_info->setup.wLength == 0))) {
         /* We are dissecting URB status information, it is not really a "response" */
         col_append_str(pinfo->cinfo, COL_INFO, " status");
     } else {
-        col_append_str(pinfo->cinfo, COL_INFO, usb_conv_info->is_request ? " request" : " response");
+        col_append_str(pinfo->cinfo, COL_INFO, urb->is_request ? " request" : " response");
     }
 
     if (offset < length) {
@@ -2736,21 +2742,20 @@ dissect_usb_audio_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_
 static int
 dissect_usb_audio_bulk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *data)
 {
-    usb_conv_info_t *usb_conv_info;
+    urb_info_t      *urb = (urb_info_t *)data;
     int              offset, length;
     int              i;
 
     /* Reject the packet if data is NULL */
-    if (data == NULL)
+    if ((urb == NULL) || (urb->conv == NULL))
         return 0;
-    usb_conv_info = (usb_conv_info_t *)data;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "USBAUDIO");
 
     length = tvb_reported_length(tvb);
     offset = 0;
 
-    switch (usb_conv_info->interfaceSubclass)
+    switch (urb->conv->interfaceSubclass)
     {
         case AUDIO_IF_SUBCLASS_MIDISTREAMING:
             col_set_str(pinfo->cinfo, COL_INFO, "USB-MIDI Event Packets");

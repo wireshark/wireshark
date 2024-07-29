@@ -57,16 +57,16 @@ static int dissect_usb_printer_ctl(
         tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     bool is_request = (pinfo->srcport == NO_ENDPOINT);
-    usb_conv_info_t *usb_conv_info = (usb_conv_info_t *)data;
+    urb_info_t *urb = (urb_info_t *)data;
     usb_trans_info_t *usb_trans_info;
     int offset = 0;
     uint8_t bReq;
     uint32_t dev_id_len;
 
-    if (!usb_conv_info)
+    if (!urb)
         return 0;
 
-    usb_trans_info = usb_conv_info->usb_trans_info;
+    usb_trans_info = urb->usb_trans_info;
     if (!usb_trans_info)
         return 0;
 

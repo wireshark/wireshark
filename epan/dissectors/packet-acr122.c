@@ -219,7 +219,7 @@ dissect_acr122(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     uint8_t          length;
     uint8_t          command = CMD_UNKNOWN;
     command_data_t  *command_data;
-    usb_conv_info_t *usb_conv_info;
+    urb_info_t      *urb;
     wmem_tree_key_t  key[5];
     uint32_t         bus_id;
     uint32_t         device_address;
@@ -236,11 +236,11 @@ dissect_acr122(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     main_tree = proto_item_add_subtree(main_item, ett_acr122);
 
     if (!data) return offset;
-    usb_conv_info = (usb_conv_info_t *) data;
+    urb = (urb_info_t *) data;
 
-    bus_id = usb_conv_info->bus_id;
-    device_address = usb_conv_info->device_address;
-    endpoint = usb_conv_info->endpoint;
+    bus_id = urb->bus_id;
+    device_address = urb->device_address;
+    endpoint = urb->endpoint;
 
     k_bus_id  = bus_id;
     k_device_address  = device_address;
@@ -330,7 +330,7 @@ dissect_acr122(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         case CMD_DIRECT_TRANSMIT:
             if (length > 0) {
                 next_tvb = tvb_new_subset_length(tvb, offset, length);
-                call_dissector_with_data(pn532_handle, next_tvb, pinfo, tree, usb_conv_info);
+                call_dissector_with_data(pn532_handle, next_tvb, pinfo, tree, urb);
                 offset += length;
             }
             break;
@@ -511,7 +511,7 @@ dissect_acr122(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
             if (tvb_captured_length_remaining(tvb, offset) > 2) {
                 next_tvb = tvb_new_subset_length(tvb, offset, tvb_captured_length_remaining(tvb, offset) - 2);
-                call_dissector_with_data(pn532_handle, next_tvb, pinfo, tree, usb_conv_info);
+                call_dissector_with_data(pn532_handle, next_tvb, pinfo, tree, urb);
                 offset += tvb_captured_length_remaining(tvb, offset) - 2;
             }
             break;

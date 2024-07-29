@@ -76,41 +76,41 @@ value_string_ext usb_massstorage_protocol_vals_ext = VALUE_STRING_EXT_INIT(usb_m
 static int
 dissect_usb_ms_bulk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *data)
 {
-    usb_conv_info_t *usb_conv_info;
+    urb_info_t *urb;
 
-    usb_conv_info = (usb_conv_info_t *)data;
+    urb = (urb_info_t *)data;
 
-    return dissector_try_uint_new(usb_ms_bulk_dissector_table, usb_conv_info->interfaceProtocol, tvb, pinfo, parent_tree, true, usb_conv_info);
+    return dissector_try_uint_new(usb_ms_bulk_dissector_table, urb->conv->interfaceProtocol, tvb, pinfo, parent_tree, true, urb);
 }
 
 static int
 dissect_usb_ms_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *data)
 {
-    usb_conv_info_t *usb_conv_info;
+    urb_info_t *urb;
 
-    usb_conv_info = (usb_conv_info_t *)data;
+    urb = (urb_info_t *)data;
 
-    return dissector_try_uint_new(usb_ms_control_dissector_table, usb_conv_info->interfaceProtocol, tvb, pinfo, parent_tree, true, usb_conv_info);
+    return dissector_try_uint_new(usb_ms_control_dissector_table, urb->conv->interfaceProtocol, tvb, pinfo, parent_tree, true, urb);
 }
 
 static int
 dissect_usb_ms_interrupt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *data)
 {
-    usb_conv_info_t *usb_conv_info;
+    urb_info_t *urb;
 
-    usb_conv_info = (usb_conv_info_t *)data;
+    urb = (urb_info_t *)data;
 
-    return dissector_try_uint_new(usb_ms_interrupt_dissector_table, usb_conv_info->interfaceProtocol, tvb, pinfo, parent_tree, true, usb_conv_info);
+    return dissector_try_uint_new(usb_ms_interrupt_dissector_table, urb->conv->interfaceProtocol, tvb, pinfo, parent_tree, true, urb);
 }
 
 static int
 dissect_usb_ms_descriptor(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *data)
 {
-    usb_conv_info_t *usb_conv_info;
+    urb_info_t *urb;
 
-    usb_conv_info = (usb_conv_info_t *)data;
+    urb = (urb_info_t *)data;
 
-    return dissector_try_uint_new(usb_ms_descriptor_dissector_table, usb_conv_info->interfaceProtocol, tvb, pinfo, parent_tree, true, usb_conv_info);
+    return dissector_try_uint_new(usb_ms_descriptor_dissector_table, urb->conv->interfaceProtocol, tvb, pinfo, parent_tree, true, urb);
 }
 
 void

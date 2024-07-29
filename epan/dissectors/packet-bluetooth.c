@@ -5771,10 +5771,10 @@ dissect_bluetooth_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
     bluetooth_data = dissect_bluetooth_common(tvb, pinfo, tree);
 
     /*
-     * data points to a usb_conv_info_t.
+     * data points to a urb_info_t.
      */
-    bluetooth_data->previous_protocol_data_type = BT_PD_USB_CONV_INFO;
-    bluetooth_data->previous_protocol_data.usb_conv_info = (usb_conv_info_t *)data;
+    bluetooth_data->previous_protocol_data_type = BT_PD_URB_INFO;
+    bluetooth_data->previous_protocol_data.urb = (urb_info_t *)data;
 
     return call_dissector_with_data(hci_usb_handle, tvb, pinfo, tree, bluetooth_data);
 }

@@ -101,7 +101,7 @@ dissect_hci_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     proto_tree        *titem = NULL;
     proto_item        *pitem = NULL;
     int                offset = 0;
-    usb_conv_info_t   *usb_conv_info;
+    urb_info_t        *urb;
     tvbuff_t          *next_tvb = NULL;
     bluetooth_data_t  *bluetooth_data;
     int                p2p_dir_save;
@@ -114,8 +114,8 @@ dissect_hci_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     if (data == NULL)
         return 0;
 
-    DISSECTOR_ASSERT(bluetooth_data->previous_protocol_data_type == BT_PD_USB_CONV_INFO);
-    usb_conv_info = bluetooth_data->previous_protocol_data.usb_conv_info;
+    DISSECTOR_ASSERT(bluetooth_data->previous_protocol_data_type == BT_PD_URB_INFO);
+    urb = bluetooth_data->previous_protocol_data.urb;
 
     titem = proto_tree_add_item(tree, proto_hci_usb, tvb, offset, -1, ENC_NA);
     ttree = proto_item_add_subtree(titem, ett_hci_usb);
@@ -123,7 +123,7 @@ dissect_hci_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "HCI_USB");
 
     p2p_dir_save = pinfo->p2p_dir;
-    pinfo->p2p_dir = (usb_conv_info->is_request) ? P2P_DIR_SENT : P2P_DIR_RECV;
+    pinfo->p2p_dir = (urb->is_request) ? P2P_DIR_SENT : P2P_DIR_RECV;
 
     switch (pinfo->p2p_dir) {
 
@@ -140,7 +140,7 @@ dissect_hci_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         break;
     }
 
-    if (usb_conv_info->is_setup) {
+    if (urb->is_setup) {
         proto_tree_add_item(ttree, hf_bthci_usb_setup_request, tvb, offset, 1, ENC_LITTLE_ENDIAN);
         offset += 1;
 
@@ -154,14 +154,14 @@ dissect_hci_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         offset += 2;
     }
 
-    session_id = usb_conv_info->bus_id << 16 | usb_conv_info->device_address << 8 | ((pinfo->p2p_dir == P2P_DIR_RECV) ? 1 : 0 ) << 7 | usb_conv_info->endpoint;
+    session_id = urb->bus_id << 16 | urb->device_address << 8 | ((pinfo->p2p_dir == P2P_DIR_RECV) ? 1 : 0 ) << 7 | urb->endpoint;
 
-    bluetooth_data->adapter_id = usb_conv_info->bus_id << 8 | usb_conv_info->device_address;
+    bluetooth_data->adapter_id = urb->bus_id << 8 | urb->device_address;
 /* TODO: adapter disconnect on some USB action, for now do not support adapter disconnection */
     bluetooth_data->adapter_disconnect_in_frame = &bluetooth_max_disconnect_in_frame;
 
     next_tvb = tvb_new_subset_remaining(tvb, offset);
-    if (!pinfo->fd->visited && usb_conv_info->transfer_type != URB_ISOCHRONOUS &&
+    if (!pinfo->fd->visited && urb->transfer_type != URB_ISOCHRONOUS &&
             tvb_captured_length(tvb) == tvb_reported_length(tvb)) {
         fragment_info_t  *fragment_info;
 
@@ -175,7 +175,7 @@ dissect_hci_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         }
 
         if (fragment_info->fragment_id == 0) {
-            switch(usb_conv_info->transfer_type)
+            switch(urb->transfer_type)
             {
             case URB_CONTROL:
                 fragment_info->remaining_length = tvb_get_uint8(tvb, offset + 2) + 3;
@@ -217,7 +217,7 @@ dissect_hci_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                     NULL, ttree);
         }
 
-        switch(usb_conv_info->transfer_type)
+        switch(urb->transfer_type)
         {
         case URB_CONTROL:
             call_dissector_with_data(bthci_cmd_handle, next_tvb, pinfo, tree, bluetooth_data);
@@ -234,9 +234,9 @@ dissect_hci_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         proto_item_set_generated(pitem);
     }
 
-    if (usb_conv_info->transfer_type == URB_ISOCHRONOUS) {
+    if (urb->transfer_type == URB_ISOCHRONOUS) {
         call_dissector_with_data(bthci_sco_handle, next_tvb, pinfo, tree, bluetooth_data);
-    } else if (usb_conv_info->transfer_type == URB_UNKNOWN) {
+    } else if (urb->transfer_type == URB_UNKNOWN) {
         proto_tree_add_item(ttree, hf_bthci_usb_data, tvb, offset, -1, ENC_NA);
     }
 

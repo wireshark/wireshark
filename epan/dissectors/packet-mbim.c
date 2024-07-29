@@ -7523,7 +7523,7 @@ dissect_mbim_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
     struct mbim_info *mbim_info = NULL;
 
     if (data) {
-        usb_trans_info_t *usb_trans_info = ((usb_conv_info_t *)data)->usb_trans_info;
+        usb_trans_info_t *usb_trans_info = ((urb_info_t *)data)->usb_trans_info;
         if (usb_trans_info && (usb_trans_info->setup.request == 0x00)) {
             tree = proto_tree_get_parent_tree(tree);
         }
@@ -9797,15 +9797,15 @@ dissect_mbim_bulk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 static bool
 dissect_mbim_bulk_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-    usb_conv_info_t *usb_conv_info = (usb_conv_info_t *)data;
+    urb_info_t *urb = (urb_info_t *)data;
 
-    if ((usb_conv_info == NULL) ||
-        ((usb_conv_info->interfaceClass != IF_CLASS_CDC_DATA) &&
-        (usb_conv_info->interfaceClass != IF_CLASS_UNKNOWN))) {
+    if ((urb == NULL) || (urb->conv == NULL) ||
+        ((urb->conv->interfaceClass != IF_CLASS_CDC_DATA) &&
+        (urb->conv->interfaceClass != IF_CLASS_UNKNOWN))) {
         return false;
     }
 
-    if (dissect_mbim_bulk(tvb, pinfo, tree, usb_conv_info)) {
+    if (dissect_mbim_bulk(tvb, pinfo, tree, urb)) {
         return true;
     }
     return false;
@@ -9814,30 +9814,30 @@ dissect_mbim_bulk_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 static int
 dissect_mbim_decode_as(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-    usb_conv_info_t *usb_conv_info;
+    urb_info_t *urb;
     usb_trans_info_t *usb_trans_info;
 
     if (!data || (tvb_reported_length(tvb) == 0)) {
         return 0;
     }
 
-    usb_conv_info = (usb_conv_info_t *)data;
-    usb_trans_info = usb_conv_info->usb_trans_info;
+    urb = (urb_info_t *)data;
+    usb_trans_info = urb->usb_trans_info;
 
-    switch (usb_conv_info->transfer_type) {
+    switch (urb->transfer_type) {
         case URB_CONTROL:
             if (!usb_trans_info) {
-                return dissect_mbim_control(tvb, pinfo, tree, usb_conv_info);
+                return dissect_mbim_control(tvb, pinfo, tree, urb);
             } else if ((usb_trans_info->setup.request == 0x00) && (pinfo->srcport == NO_ENDPOINT)) {
                 /* Skip Send Encapsulated Command header */
                 tvbuff_t *mbim_tvb = tvb_new_subset_remaining(tvb, 7);
-                return dissect_mbim_control(mbim_tvb, pinfo, tree, usb_conv_info);
+                return dissect_mbim_control(mbim_tvb, pinfo, tree, urb);
             } else if ((usb_trans_info->setup.request == 0x01) && (pinfo->srcport != NO_ENDPOINT)) {
-                return dissect_mbim_control(tvb, pinfo, tree, usb_conv_info);
+                return dissect_mbim_control(tvb, pinfo, tree, urb);
             }
             break;
         case URB_BULK:
-            return dissect_mbim_bulk(tvb, pinfo, tree, usb_conv_info);
+            return dissect_mbim_bulk(tvb, pinfo, tree, urb);
         default:
             break;
     }

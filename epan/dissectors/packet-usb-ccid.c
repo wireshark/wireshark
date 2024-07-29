@@ -484,7 +484,7 @@ dissect_ccid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     uint8_t     cmd;
     uint32_t    payload_len;
     tvbuff_t   *next_tvb;
-    usb_conv_info_t  *usb_conv_info;
+    urb_info_t *urb;
     int len_remaining;
     uint8_t bProtocolNum;
     proto_tree *protocol_tree;
@@ -492,7 +492,7 @@ dissect_ccid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     /* Reject the packet if data is NULL */
     if (data == NULL)
         return 0;
-    usb_conv_info = (usb_conv_info_t *)data;
+    urb = (urb_info_t *)data;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "USBCCID");
     col_set_str(pinfo->cinfo, COL_INFO,     "CCID Packet");
@@ -607,7 +607,7 @@ dissect_ccid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         /* sent/received is from the perspective of the card reader */
         pinfo->p2p_dir = P2P_DIR_SENT;
 
-        if (!dissector_try_payload_new(subdissector_table, next_tvb, pinfo, tree, true, usb_conv_info)) {
+        if (!dissector_try_payload_new(subdissector_table, next_tvb, pinfo, tree, true, urb)) {
             call_data_dissector(next_tvb, pinfo, tree);
         }
         break;
@@ -631,7 +631,7 @@ dissect_ccid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         next_tvb = tvb_new_subset_length(tvb, 10, payload_len);
         pinfo->p2p_dir = P2P_DIR_RECV;
 
-        if (!dissector_try_payload_new(subdissector_table, next_tvb, pinfo, tree, true, usb_conv_info)) {
+        if (!dissector_try_payload_new(subdissector_table, next_tvb, pinfo, tree, true, urb)) {
             call_data_dissector(next_tvb, pinfo, tree);
         }
         break;

@@ -160,7 +160,7 @@ static const true_false_string hub_port_status_indicator_meaning = {
 
 /* Dissector for ClearHubFeature, Chapter 11.24.2.1 Clear Hub Feature */
 static void
-dissect_usb_hub_clear_hub_feature(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, bool is_request, usb_trans_info_t *usb_trans_info _U_, usb_conv_info_t *usb_conv_info _U_)
+dissect_usb_hub_clear_hub_feature(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, bool is_request, usb_trans_info_t *usb_trans_info _U_, urb_info_t *urb _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *subtree = NULL;
@@ -192,7 +192,7 @@ dissect_usb_hub_clear_hub_feature(packet_info *pinfo, proto_tree *tree, tvbuff_t
 
 /* Dissector for ClearPortFeature, Chapter 11.24.2.2 Clear Port Feature */
 static void
-dissect_usb_hub_clear_port_feature(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, bool is_request, usb_trans_info_t *usb_trans_info _U_, usb_conv_info_t *usb_conv_info _U_)
+dissect_usb_hub_clear_port_feature(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, bool is_request, usb_trans_info_t *usb_trans_info _U_, urb_info_t *urb _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *subtree = NULL;
@@ -226,7 +226,7 @@ dissect_usb_hub_clear_port_feature(packet_info *pinfo, proto_tree *tree, tvbuff_
 
 /* Dissector for ClearTTBuffer, Chapter 11.24.2.3 Clear TT Buffer */
 static void
-dissect_usb_hub_clear_tt_buffer(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *tvb, int offset, bool is_request, usb_trans_info_t *usb_trans_info _U_, usb_conv_info_t *usb_conv_info _U_)
+dissect_usb_hub_clear_tt_buffer(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *tvb, int offset, bool is_request, usb_trans_info_t *usb_trans_info _U_, urb_info_t *urb _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *subtree = NULL;
@@ -254,7 +254,7 @@ dissect_usb_hub_clear_tt_buffer(packet_info *pinfo _U_, proto_tree *tree, tvbuff
 
 /* Dissector for GetHubDescriptor, Chapter 11.24.2.5 Get Hub Descriptor */
 static void
-dissect_usb_hub_get_hub_descriptor(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *tvb, int offset, bool is_request, usb_trans_info_t *usb_trans_info _U_, usb_conv_info_t *usb_conv_info _U_)
+dissect_usb_hub_get_hub_descriptor(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *tvb, int offset, bool is_request, usb_trans_info_t *usb_trans_info _U_, urb_info_t *urb _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *subtree = NULL;
@@ -282,7 +282,7 @@ dissect_usb_hub_get_hub_descriptor(packet_info *pinfo _U_, proto_tree *tree, tvb
 
 /* Dissector for GetHubStatus, Chapter 11.24.2.6 Get Hub Status */
 static void
-dissect_usb_hub_get_hub_status(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, bool is_request, usb_trans_info_t *usb_trans_info _U_, usb_conv_info_t *usb_conv_info _U_)
+dissect_usb_hub_get_hub_status(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, bool is_request, usb_trans_info_t *usb_trans_info _U_, urb_info_t *urb _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *subtree = NULL;
@@ -309,7 +309,7 @@ dissect_usb_hub_get_hub_status(packet_info *pinfo, proto_tree *tree, tvbuff_t *t
 
 /* Dissector for GetPortStatus, Chapter 11.24.2.7 Get Port Status */
 static void
-dissect_usb_hub_get_port_status(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, bool is_request, usb_trans_info_t *usb_trans_info, usb_conv_info_t *usb_conv_info _U_)
+dissect_usb_hub_get_port_status(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, bool is_request, usb_trans_info_t *usb_trans_info, urb_info_t *urb _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *subtree = NULL;
@@ -365,7 +365,7 @@ dissect_usb_hub_get_port_status(packet_info *pinfo, proto_tree *tree, tvbuff_t *
 
 /* Dissector for GetTTState, Chapter 11.24.2.8 Get_TT_State */
 static void
-dissect_usb_hub_get_tt_state(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *tvb, int offset, bool is_request, usb_trans_info_t *usb_trans_info _U_, usb_conv_info_t *usb_conv_info _U_)
+dissect_usb_hub_get_tt_state(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *tvb, int offset, bool is_request, usb_trans_info_t *usb_trans_info _U_, urb_info_t *urb _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *subtree = NULL;
@@ -391,7 +391,7 @@ dissect_usb_hub_get_tt_state(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t 
 
 /* Dissector for ResetTT, Chapter 11.24.2.9 Reset_TT */
 static void
-dissect_usb_hub_reset_tt(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *tvb, int offset, bool is_request, usb_trans_info_t *usb_trans_info _U_, usb_conv_info_t *usb_conv_info _U_)
+dissect_usb_hub_reset_tt(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *tvb, int offset, bool is_request, usb_trans_info_t *usb_trans_info _U_, urb_info_t *urb _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *subtree = NULL;
@@ -417,7 +417,7 @@ dissect_usb_hub_reset_tt(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *tvb
 
 /* Dissector for SetHubDescriptor, Chapter 11.24.2.10 Set Hub Descriptor */
 static void
-dissect_usb_hub_set_hub_descriptor(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *tvb, int offset, bool is_request, usb_trans_info_t *usb_trans_info _U_, usb_conv_info_t *usb_conv_info _U_)
+dissect_usb_hub_set_hub_descriptor(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *tvb, int offset, bool is_request, usb_trans_info_t *usb_trans_info _U_, urb_info_t *urb _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *subtree = NULL;
@@ -445,7 +445,7 @@ dissect_usb_hub_set_hub_descriptor(packet_info *pinfo _U_, proto_tree *tree, tvb
 
 /* Dissector for StopTT, Chapter 11.24.2.11 Stop TT */
 static void
-dissect_usb_hub_stop_tt(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *tvb, int offset, bool is_request, usb_trans_info_t *usb_trans_info _U_, usb_conv_info_t *usb_conv_info _U_)
+dissect_usb_hub_stop_tt(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *tvb, int offset, bool is_request, usb_trans_info_t *usb_trans_info _U_, urb_info_t *urb _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *subtree = NULL;
@@ -471,7 +471,7 @@ dissect_usb_hub_stop_tt(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *tvb,
 
 /* Dissector for SetHubFeature, Chapter 11.24.2.12 Set Hub Feature */
 static void
-dissect_usb_hub_set_hub_feature(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, bool is_request, usb_trans_info_t *usb_trans_info, usb_conv_info_t *usb_conv_info _U_)
+dissect_usb_hub_set_hub_feature(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, bool is_request, usb_trans_info_t *usb_trans_info, urb_info_t *urb _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *subtree = NULL;
@@ -502,7 +502,7 @@ dissect_usb_hub_set_hub_feature(packet_info *pinfo, proto_tree *tree, tvbuff_t *
 
 /* Dissector for SetPortFeature, Chapter 11.24.2.13 Set Port Feature */
 static void
-dissect_usb_hub_set_port_feature(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, bool is_request, usb_trans_info_t *usb_trans_info, usb_conv_info_t *usb_conv_info _U_)
+dissect_usb_hub_set_port_feature(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, bool is_request, usb_trans_info_t *usb_trans_info, urb_info_t *urb _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *subtree = NULL;
@@ -536,7 +536,7 @@ dissect_usb_hub_set_port_feature(packet_info *pinfo, proto_tree *tree, tvbuff_t 
 }
 
 
-typedef void (*usb_setup_dissector)(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, bool is_request, usb_trans_info_t *usb_trans_info, usb_conv_info_t *usb_conv_info);
+typedef void (*usb_setup_dissector)(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, bool is_request, usb_trans_info_t *usb_trans_info, urb_info_t *urb);
 
 typedef struct _usb_setup_dissector_table_t {
 	uint8_t request_type;
@@ -619,17 +619,17 @@ static int
 dissect_usb_hub_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
 	bool is_request;
-	usb_conv_info_t *usb_conv_info;
+	urb_info_t *urb;
 	usb_trans_info_t *usb_trans_info;
 	int offset = 0;
 	usb_setup_dissector dissector;
 	const usb_setup_dissector_table_t *tmp;
 
 	/* Reject the packet if data or usb_trans_info are NULL */
-	if (data == NULL || ((usb_conv_info_t *)data)->usb_trans_info == NULL)
+	if (data == NULL || ((urb_info_t *)data)->usb_trans_info == NULL)
 		return 0;
-	usb_conv_info = (usb_conv_info_t *)data;
-	usb_trans_info = usb_conv_info->usb_trans_info;
+	urb = (urb_info_t *)data;
+	usb_trans_info = urb->usb_trans_info;
 
 	is_request = (pinfo->srcport==NO_ENDPOINT);
 
@@ -662,7 +662,7 @@ dissect_usb_hub_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 		offset += 1;
 	}
 
-	dissector(pinfo, tree, tvb, offset, is_request, usb_trans_info, usb_conv_info);
+	dissector(pinfo, tree, tvb, offset, is_request, usb_trans_info, urb);
 	return tvb_captured_length(tvb);
 }
 

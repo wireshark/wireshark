@@ -56,7 +56,7 @@ static const value_string status_vals[] = {
 };
 
 static void
-dissect_usbms_bot_reset(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *tvb, int offset, bool is_request, usb_trans_info_t *usb_trans_info _U_, usb_conv_info_t *usb_conv_info _U_)
+dissect_usbms_bot_reset(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *tvb, int offset, bool is_request, usb_trans_info_t *usb_trans_info _U_, urb_info_t *urb _U_)
 {
     if(is_request){
         proto_tree_add_item(tree, hf_usbms_bot_value, tvb, offset, 2, ENC_LITTLE_ENDIAN);
@@ -73,7 +73,7 @@ dissect_usbms_bot_reset(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *tvb,
 }
 
 static void
-dissect_usbms_bot_get_max_lun(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *tvb, int offset, bool is_request, usb_trans_info_t *usb_trans_info _U_, usb_conv_info_t *usb_conv_info _U_)
+dissect_usbms_bot_get_max_lun(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *tvb, int offset, bool is_request, usb_trans_info_t *usb_trans_info _U_, urb_info_t *urb _U_)
 {
     if(is_request){
         proto_tree_add_item(tree, hf_usbms_bot_value, tvb, offset, 2, ENC_LITTLE_ENDIAN);
@@ -91,7 +91,7 @@ dissect_usbms_bot_get_max_lun(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t
 }
 
 
-typedef void (*usb_setup_dissector)(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, bool is_request, usb_trans_info_t *usb_trans_info, usb_conv_info_t *usb_conv_info);
+typedef void (*usb_setup_dissector)(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, bool is_request, usb_trans_info_t *usb_trans_info, urb_info_t *urb);
 
 typedef struct _usb_setup_dissector_table_t {
     uint8_t request;
@@ -118,7 +118,7 @@ static int
 dissect_usbms_bot_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *data)
 {
     bool is_request;
-    usb_conv_info_t *usb_conv_info;
+    urb_info_t *urb;
     usb_trans_info_t *usb_trans_info;
     int offset=0;
     usb_setup_dissector dissector = NULL;
@@ -127,10 +127,10 @@ dissect_usbms_bot_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_
     proto_item *ti;
 
     /* Reject the packet if data or usb_trans_info are NULL */
-    if (data == NULL || ((usb_conv_info_t *)data)->usb_trans_info == NULL)
+    if (data == NULL || ((urb_info_t *)data)->usb_trans_info == NULL)
         return 0;
-    usb_conv_info = (usb_conv_info_t *)data;
-    usb_trans_info = usb_conv_info->usb_trans_info;
+    urb = (urb_info_t *)data;
+    usb_trans_info = urb->usb_trans_info;
 
     is_request=(pinfo->srcport==NO_ENDPOINT);
 
@@ -161,7 +161,7 @@ dissect_usbms_bot_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_
         offset += 1;
     }
 
-    dissector(pinfo, tree, tvb, offset, is_request, usb_trans_info, usb_conv_info);
+    dissector(pinfo, tree, tvb, offset, is_request, usb_trans_info, urb);
     return tvb_captured_length(tvb);
 }
 
@@ -327,7 +327,7 @@ usbms_bot_bulk_is_csw(tvbuff_t *tvb, int offset, bool is_request)
 static int
 dissect_usbms_bot_bulk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* data)
 {
-    usb_conv_info_t *usb_conv_info;
+    urb_info_t *urb;
     usbms_bot_conv_info_t *usbms_bot_conv_info;
     int offset=0;
     bool is_request;
@@ -338,17 +338,19 @@ dissect_usbms_bot_bulk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tre
     /* Reject the packet if data is NULL */
     if (data == NULL)
         return 0;
-    usb_conv_info = (usb_conv_info_t *)data;
+    urb = (urb_info_t *)data;
+    if (urb->conv == NULL)
+        return 0;
 
     /* verify that we do have a usbms_bot_conv_info */
-    usbms_bot_conv_info=(usbms_bot_conv_info_t *)usb_conv_info->class_data;
+    usbms_bot_conv_info=(usbms_bot_conv_info_t *)urb->conv->class_data;
     if(!usbms_bot_conv_info){
         usbms_bot_conv_info=wmem_new(wmem_file_scope(), usbms_bot_conv_info_t);
         usbms_bot_conv_info->itl=wmem_tree_new(wmem_file_scope());
         usbms_bot_conv_info->itlq=wmem_tree_new(wmem_file_scope());
-        usb_conv_info->class_data=usbms_bot_conv_info;
-        usb_conv_info->class_data_type = USB_CONV_MASS_STORAGE_BOT;
-    } else if (usb_conv_info->class_data_type != USB_CONV_MASS_STORAGE_BOT) {
+        urb->conv->class_data=usbms_bot_conv_info;
+        urb->conv->class_data_type = USB_CONV_MASS_STORAGE_BOT;
+    } else if (urb->conv->class_data_type != USB_CONV_MASS_STORAGE_BOT) {
         /* Don't dissect if another USB type is in the conversation */
         return 0;
     }

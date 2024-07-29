@@ -1193,7 +1193,7 @@ dissect_cc2400_register(proto_tree *tree, tvbuff_t *tvb, int offset, uint8_t reg
 
 static int
 dissect_usb_rx_packet(proto_tree *main_tree, proto_tree *tree, packet_info *pinfo,
-        tvbuff_t *tvb, int offset, int16_t command, usb_conv_info_t *usb_conv_info)
+        tvbuff_t *tvb, int offset, int16_t command, urb_info_t *urb)
 {
     proto_item  *sub_item;
     proto_tree  *sub_tree;
@@ -1326,8 +1326,8 @@ dissect_usb_rx_packet(proto_tree *main_tree, proto_tree *tree, packet_info *pinf
                 length += tvb_get_uint8(tvb, offset + 5) & 0x1f;
 
             ubertooth_data = wmem_new(pinfo->pool, ubertooth_data_t);
-            ubertooth_data->bus_id = usb_conv_info->bus_id;
-            ubertooth_data->device_address = usb_conv_info->device_address;
+            ubertooth_data->bus_id = urb->bus_id;
+            ubertooth_data->device_address = urb->device_address;
             ubertooth_data->clock_100ns = clock_100ns;
             ubertooth_data->channel = channel;
 
@@ -1365,7 +1365,7 @@ dissect_ubertooth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     proto_item       *sub_item;
     proto_item       *sub_tree;
     int               offset = 0;
-    usb_conv_info_t  *usb_conv_info = (usb_conv_info_t *)data;
+    urb_info_t       *urb = (urb_info_t *)data;
     int               p2p_dir_save;
     uint8_t           command;
     int16_t           command_response = -1;
@@ -1387,10 +1387,10 @@ dissect_ubertooth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "UBERTOOTH");
 
-    if (!usb_conv_info) return offset;
+    if (!urb) return offset;
 
     p2p_dir_save = pinfo->p2p_dir;
-    pinfo->p2p_dir = (usb_conv_info->is_request) ? P2P_DIR_SENT : P2P_DIR_RECV;
+    pinfo->p2p_dir = (urb->is_request) ? P2P_DIR_SENT : P2P_DIR_RECV;
 
     switch (pinfo->p2p_dir) {
 
@@ -1408,8 +1408,8 @@ dissect_ubertooth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
         break;
     }
 
-    bus_id         = usb_conv_info->bus_id;
-    device_address = usb_conv_info->device_address;
+    bus_id         = urb->bus_id;
+    device_address = urb->device_address;
 
     k_bus_id          = bus_id;
     k_device_address  = device_address;
@@ -1421,7 +1421,7 @@ dissect_ubertooth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     key[1].key = &k_device_address;
 
 
-    if (usb_conv_info->is_setup) {
+    if (urb->is_setup) {
         proto_tree_add_item(main_tree, hf_command, tvb, offset, 1, ENC_NA);
         command = tvb_get_uint8(tvb, offset);
         offset += 1;
@@ -1745,10 +1745,10 @@ dissect_ubertooth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 
     case 1: /* Rx Symbols */
     case 27: /* Spectrum Analyzer */
-        if (usb_conv_info->transfer_type == URB_BULK) {
+        if (urb->transfer_type == URB_BULK) {
 
             while (tvb_reported_length_remaining(tvb, offset) > 0) {
-                offset = dissect_usb_rx_packet(tree, main_tree, pinfo, tvb, offset, command_response, usb_conv_info);
+                offset = dissect_usb_rx_packet(tree, main_tree, pinfo, tvb, offset, command_response, urb);
             }
             break;
         }
@@ -1956,7 +1956,7 @@ dissect_ubertooth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
             break;
         }
 
-        offset = dissect_usb_rx_packet(tree, main_tree, pinfo, tvb, offset, command_response, usb_conv_info);
+        offset = dissect_usb_rx_packet(tree, main_tree, pinfo, tvb, offset, command_response, urb);
 
         break;
     case 53: /* Read Register */

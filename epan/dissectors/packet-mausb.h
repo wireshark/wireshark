@@ -56,8 +56,7 @@ uint8_t mausb_ep_handle_ep_num(uint16_t handle);
 uint8_t mausb_ep_handle_dev_addr(uint16_t handle);
 uint8_t mausb_ep_handle_bus_num(uint16_t handle);
 
-void mausb_set_usb_conv_info(usb_conv_info_t *usb_conv_info,
-                             struct mausb_header *header);
+void mausb_set_urb_info(urb_info_t *urb, struct mausb_header *header);
 
 #endif
 
