@@ -999,7 +999,9 @@ void LograyMainWindow::updateRecentCaptures() {
 
     /* Iterate through the actions in menuOpenRecentCaptureFile,
      * removing special items, a maybe duplicate entry and every item above count_max */
+#if defined(Q_OS_MAC)
     int shortcut = Qt::Key_0;
+#endif
     foreach(recent_item_status *ri, mainApp->recentItems()) {
         // Add the new item
         ra = new QAction(recentMenu);
@@ -1008,10 +1010,12 @@ void LograyMainWindow::updateRecentCaptures() {
         ra->setEnabled(ri->accessible);
         recentMenu->insertAction(NULL, ra);
         action_cf_name = ra->data().toString();
+#if defined(Q_OS_MAC)
         if (shortcut <= Qt::Key_9) {
             ra->setShortcut(Qt::META | (Qt::Key)shortcut);
             shortcut++;
         }
+#endif
         ra->setText(action_cf_name);
         connect(ra, &QAction::triggered, this, &LograyMainWindow::recentActionTriggered);
 
