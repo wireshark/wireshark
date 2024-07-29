@@ -169,7 +169,7 @@ dissect_dsr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     /* Set the Protocol column to the constant string of dsr */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "DSR");
-    col_add_str(pinfo->cinfo, COL_INFO, "Options : ");
+    col_set_str(pinfo->cinfo, COL_INFO, "Options : ");
 
     /* create display subtree for the protocol */
     ti_main = proto_tree_add_item(tree, proto_dsr, tvb, 0, -1, ENC_NA);

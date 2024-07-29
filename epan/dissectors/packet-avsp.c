@@ -193,7 +193,7 @@ dissect_avsp(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_
             ti = proto_tree_add_item(avsp_tree, hf_avsp_ts_64_tai, tvb, 0, -1,
                 ENC_NA);
             avsp_64_tree = proto_item_add_subtree(ti, ett_avsp);
-            col_add_str(pinfo->cinfo, COL_INFO, "64bit TAI timestamp");
+            col_set_str(pinfo->cinfo, COL_INFO, "64bit TAI timestamp");
             proto_tree_add_item(avsp_64_tree, hf_avsp_ts_64_sec, tvb, offset,
                 4, ENC_BIG_ENDIAN);
             offset += 4;
@@ -205,7 +205,7 @@ dissect_avsp(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_
             ti = proto_tree_add_item(avsp_tree, hf_avsp_ts_64_utc, tvb, 0, -1,
                 ENC_NA);
             avsp_64_tree = proto_item_add_subtree(ti, ett_avsp);
-            col_add_str(pinfo->cinfo, COL_INFO, "64bit UTC timestamp");
+            col_set_str(pinfo->cinfo, COL_INFO, "64bit UTC timestamp");
             proto_tree_add_item(avsp_64_tree, hf_avsp_ts_64_sec, tvb, offset,
                 4, ENC_BIG_ENDIAN);
             offset += 4;
@@ -217,7 +217,7 @@ dissect_avsp(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_
             ti = proto_tree_add_item(avsp_tree, hf_avsp_ts_48_tai, tvb, 0, -1,
                 ENC_NA);
             avsp_48_tree = proto_item_add_subtree(ti, ett_avsp);
-            col_add_str(pinfo->cinfo, COL_INFO, "48bit TAI timestamp");
+            col_set_str(pinfo->cinfo, COL_INFO, "48bit TAI timestamp");
             proto_tree_add_item(avsp_48_tree, hf_avsp_ts_48_sec, tvb, offset,
                 2, ENC_BIG_ENDIAN);
             offset += 2;
@@ -229,7 +229,7 @@ dissect_avsp(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_
             ti = proto_tree_add_item(avsp_tree, hf_avsp_ts_48_utc, tvb, 0, -1,
                 ENC_NA);
             avsp_48_tree = proto_item_add_subtree(ti, ett_avsp);
-            col_add_str(pinfo->cinfo, COL_INFO, "48bit UTC timestamp");
+            col_set_str(pinfo->cinfo, COL_INFO, "48bit UTC timestamp");
             proto_tree_add_item(avsp_48_tree, hf_avsp_ts_48_sec, tvb, offset,
                 2, ENC_BIG_ENDIAN);
             offset += 2;
@@ -269,7 +269,7 @@ dissect_avsp(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_
 
         switch (version) {
         case ARISTA_TGEN_VER_1:
-            col_add_str(pinfo->cinfo, COL_INFO, "Arista TGen Frame");
+            col_set_str(pinfo->cinfo, COL_INFO, "Arista TGen Frame");
 
             /* Get TGen Header Control Word. */
             ti = proto_tree_add_item(avsp_tree, hf_avsp_tgen_hdr, tvb, offset, 6,

@@ -393,7 +393,7 @@ static int dissect_ecpri(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
     concatenation = tvb_get_uint8(tvb, offset) & 0x01;
     if (concatenation != 0x00)
     {
-        col_append_fstr(pinfo->cinfo, COL_INFO, "Concatenation");
+        col_append_str(pinfo->cinfo, COL_INFO, "Concatenation");
     }
 
     /* do-while loop for concatenation check */

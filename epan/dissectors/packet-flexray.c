@@ -394,7 +394,7 @@ dissect_flexray(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
 
         } else {
             call_subdissector = false;
-            col_append_fstr(pinfo->cinfo, COL_INFO, "   NF");
+            col_append_str(pinfo->cinfo, COL_INFO, "   NF");
 
             /* Payload is optional on Null Frames */
             if (payload_truncated && flexray_current_payload_length != 0) {

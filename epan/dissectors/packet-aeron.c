@@ -2927,7 +2927,7 @@ static int dissect_aeron(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
     if (!cinfo)
         return 0;
 
-    col_add_str(pinfo->cinfo, COL_PROTOCOL, "Aeron");
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "Aeron");
     col_clear(pinfo->cinfo, COL_INFO);
     col_add_str(pinfo->cinfo, COL_INFO, aeron_format_transport_uri(cinfo));
     col_set_fence(pinfo->cinfo, COL_INFO);

@@ -540,7 +540,7 @@ dissect_autosar_nm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
           proto_item_append_text(ti, ", Source Node: %i", src_node_id);
       }
   }
-  col_append_fstr(pinfo->cinfo, COL_INFO, ")");
+  col_append_str(pinfo->cinfo, COL_INFO, ")");
 
   /* now we need to process the user defined fields ... */
   ti = proto_tree_add_item(autosar_nm_tree, hf_autosar_nm_user_data, tvb, offset, msg_length - offset, ENC_NA);

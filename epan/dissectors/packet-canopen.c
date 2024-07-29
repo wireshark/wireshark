@@ -1313,7 +1313,7 @@ dissect_canopen(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 
         nmt_node_id = tvb_get_uint8(tvb, offset);
         if (nmt_node_id == 0x00) {
-            col_append_fstr(pinfo->cinfo, COL_INFO, " [All]");
+            col_append_str(pinfo->cinfo, COL_INFO, " [All]");
         } else {
             col_append_fstr(pinfo->cinfo, COL_INFO, " [0x%x]", nmt_node_id);
         }

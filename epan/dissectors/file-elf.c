@@ -1768,7 +1768,7 @@ dissect_elf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
     proto_tree_add_uint(generated_tree, hf_elf_blackholes_size, tvb, 0, 0, tvb_captured_length(tvb) - (unsigned)file_size);
 
     col_clear(pinfo->cinfo, COL_INFO);
-    col_add_str(pinfo->cinfo, COL_INFO, "(ELF)");
+    col_set_str(pinfo->cinfo, COL_INFO, "(ELF)");
 
     /* We jumping around offsets, so treat as bytes as read */
     return tvb_captured_length(tvb);

@@ -296,8 +296,8 @@ dissect_flip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
      * Dissect extension headers (if any).
      */
     if ((ext_hdr == true) && (payload_len < FLIP_EXTENSION_HDR_MIN_LEN)) {
-        col_add_fstr(pinfo->cinfo, COL_INFO,
-                     "Extension header indicated, but not enough data");
+        col_set_str(pinfo->cinfo, COL_INFO,
+                    "Extension header indicated, but not enough data");
         goto DISSECT_FLIP_EXIT;
     }
 

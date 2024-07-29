@@ -140,7 +140,7 @@ dissect_matter_btp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *btatt_tree, vo
     if (tvb_reported_length(tvb) < 1)
         return 0;
 
-    col_add_str(pinfo->cinfo, COL_PROTOCOL, "Matter BTP");
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "Matter BTP");
 
     switch (pinfo->p2p_dir) {
         case P2P_DIR_SENT:

@@ -921,7 +921,7 @@ dissect_codec(tvbuff_t *tvb, packet_info *pinfo, proto_item *service_item, proto
                             value8[2],
                             value8[3]);
                     } else {
-                        col_append_fstr(pinfo->cinfo, COL_INFO, " (none)");
+                        col_append_str(pinfo->cinfo, COL_INFO, " (none)");
                         proto_item_append_text(service_item, " (none)");
                     }
 
@@ -1060,7 +1060,7 @@ dissect_codec(tvbuff_t *tvb, packet_info *pinfo, proto_item *service_item, proto
                                         (value & 0x01) ? " JointStereo" : "",
                                         (value & 0x0F) ? "" : "not set ");
                                 } else {
-                                    col_append_fstr(pinfo->cinfo, COL_INFO, " none)");
+                                    col_append_str(pinfo->cinfo, COL_INFO, " none)");
                                     proto_item_append_text(service_item, " none)");
                                 }
                             } else {
@@ -1115,7 +1115,7 @@ dissect_codec(tvbuff_t *tvb, packet_info *pinfo, proto_item *service_item, proto
                                         (value2 & 0x02) ? " DualChannel" : "",
                                         (value2 & 0x01) ? " Stereo" : "");
                                 } else {
-                                    col_append_fstr(pinfo->cinfo, COL_INFO, " none)");
+                                    col_append_str(pinfo->cinfo, COL_INFO, " none)");
                                     proto_item_append_text(service_item, " none)");
                                 }
                             } else {
@@ -3030,7 +3030,7 @@ dissect_aptx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         break;
     }
 
-    col_append_fstr(pinfo->cinfo, COL_INFO, "aptX");
+    col_append_str(pinfo->cinfo, COL_INFO, "aptX");
 
     aptx_item = proto_tree_add_item(tree, proto_aptx, tvb, 0, -1, ENC_NA);
     aptx_tree = proto_item_add_subtree(aptx_item, ett_aptx);

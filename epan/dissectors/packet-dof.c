@@ -5394,7 +5394,7 @@ static int dof_dissect_dpp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 
             if (api_data->transport_session->is_streaming)
             {
-                col_append_fstr(pinfo->cinfo, COL_INFO, "DNP/DPP Negotiation");
+                col_append_str(pinfo->cinfo, COL_INFO, "DNP/DPP Negotiation");
 
                 if (pinfo->fd->visited &&
                     api_data->transport_session->negotiation_required &&

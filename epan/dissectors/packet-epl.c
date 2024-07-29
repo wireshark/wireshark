@@ -4076,11 +4076,11 @@ dissect_epl_sdo_command_write_by_index(struct epl_convo *convo, proto_tree *epl_
 				col_append_fstr(pinfo->cinfo, COL_INFO, "_%02Xh", (idx-sod_index));
 				if(sod_index == EPL_SOD_PDO_RX_MAPP || sod_index == EPL_SOD_PDO_TX_MAPP)
 				{
-					col_append_fstr(pinfo->cinfo, COL_INFO, "_AU64");
+					col_append_str(pinfo->cinfo, COL_INFO, "_AU64");
 				}
 				else
 				{
-					col_append_fstr(pinfo->cinfo, COL_INFO, "_REC");
+					col_append_str(pinfo->cinfo, COL_INFO, "_REC");
 				}
 				idx = sod_index;
 			}
@@ -4110,18 +4110,18 @@ dissect_epl_sdo_command_write_by_index(struct epl_convo *convo, proto_tree *epl_
 			{
 				psf_item = proto_tree_add_item(epl_tree, hf_epl_asnd_sdo_cmd_data_subindex, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 				proto_item_append_text(psf_item, " (ObjectMapping)");
-				col_append_fstr(pinfo->cinfo, COL_INFO, "/ObjectMapping)");
+				col_append_str(pinfo->cinfo, COL_INFO, "/ObjectMapping)");
 			}
 			/* no subindex */
 			else if(nosub)
 			{
-				col_append_fstr(pinfo->cinfo, COL_INFO, ")");
+				col_append_str(pinfo->cinfo, COL_INFO, ")");
 			}
 			else if(subindex == 0x00)
 			{
 				psf_item = proto_tree_add_item(epl_tree, hf_epl_asnd_sdo_cmd_data_subindex, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 				proto_item_append_text(psf_item, " (NumberOfEntries)");
-				col_append_fstr(pinfo->cinfo, COL_INFO, "/NumberOfEntries)");
+				col_append_str(pinfo->cinfo, COL_INFO, "/NumberOfEntries)");
 			}
 			else
 			{
@@ -4534,7 +4534,7 @@ dissect_epl_sdo_command_write_multiple_by_index(struct epl_convo *convo, proto_t
 				{
 					if (nosub)
 						/* no subindex */
-						col_append_fstr(pinfo->cinfo, COL_INFO, ")");
+						col_append_str(pinfo->cinfo, COL_INFO, ")");
 					else
 						col_append_fstr(pinfo->cinfo, COL_INFO, "/%d)", subindex);
 				}
@@ -4636,7 +4636,7 @@ dissect_epl_sdo_command_write_multiple_by_index(struct epl_convo *convo, proto_t
 				{
 					if (nosub)
 						/* no subindex */
-						col_append_fstr(pinfo->cinfo, COL_INFO, ")");
+						col_append_str(pinfo->cinfo, COL_INFO, ")");
 					else
 						col_append_fstr(pinfo->cinfo, COL_INFO, "/%d)", subindex);
 				}
@@ -4871,7 +4871,7 @@ dissect_epl_sdo_command_read_multiple_by_index(struct epl_convo *convo, proto_tr
 				{
 					if (nosub)
 						/* no subindex */
-						col_append_fstr(pinfo->cinfo, COL_INFO, ")");
+						col_append_str(pinfo->cinfo, COL_INFO, ")");
 					else
 						col_append_fstr(pinfo->cinfo, COL_INFO, "/%d)", subindex);
 				}
@@ -5027,7 +5027,7 @@ dissect_epl_sdo_command_read_multiple_by_index(struct epl_convo *convo, proto_tr
 				{
 					if (nosub)
 						/* no subindex */
-						col_append_fstr(pinfo->cinfo, COL_INFO, ")");
+						col_append_str(pinfo->cinfo, COL_INFO, ")");
 					else
 						col_append_fstr(pinfo->cinfo, COL_INFO, "/%d)", subindex);
 				}

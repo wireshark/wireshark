@@ -733,7 +733,7 @@ static geonw_transaction_t *transaction_start(packet_info * pinfo, proto_tree * 
             it = proto_tree_add_item(tree, hf_geonw_no_resp, NULL, 0, 0, ENC_NA);
             proto_item_set_generated(it);
 
-            col_append_fstr(pinfo->cinfo, COL_INFO, " (no response found!)");
+            col_append_str(pinfo->cinfo, COL_INFO, " (no response found!)");
 
             /* Expert info. */
             expert_add_info_format(pinfo, it, &ei_geonw_resp_not_found, "No response seen to LS Request");

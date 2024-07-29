@@ -144,13 +144,12 @@ class ColCall:
                     # Not easy/possible to judge lifetime of string..
                     print('Note:', self.issue_prefix(), '- is this OK??')
 
-
         if self.name == 'col_add_str':
             # If literal string, could have used col_set_str instead?
             self.last_args = self.last_args.replace('\\\"', "'")
             self.last_args = self.last_args.strip()
             if self.last_args.startswith('"'):
-                print('Warning:', self.issue_prefix(), '- could call col_set_str() instead?')
+                print('Warning:', self.issue_prefix(), '- could call col_set_str() instead')
                 warnings_found += 1
             elif self.last_args.startswith('val_to_str_const'):
                 print('Warning:', self.issue_prefix(), '- const so could use col_set_str() instead')

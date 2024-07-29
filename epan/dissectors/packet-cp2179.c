@@ -972,7 +972,7 @@ dissect_cp2179_pdu(tvbuff_t *cp2179_tvb, packet_info *pinfo, proto_tree *tree, v
 
     message_type = classify_message_type(cp2179_tvb);
     /* set information for Information column for CP2179 */
-    col_add_str(pinfo->cinfo, COL_INFO, val_to_str_ext_const(message_type, &cp2179_messagetype_vals_ext, "Unknown Message Type"));
+    col_set_str(pinfo->cinfo, COL_INFO, val_to_str_ext_const(message_type, &cp2179_messagetype_vals_ext, "Unknown Message Type"));
 
     if (!pinfo->fd->visited){
         conversation_t           *conversation = NULL;

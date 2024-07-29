@@ -6366,7 +6366,7 @@ dissect_amqp_1_0_AMQP_frame(tvbuff_t *tvb,
     args_tree = proto_item_add_subtree(amqp_item, ett_args);
 
     if (tvb_reported_length(tvb) == 0) { /* empty keepalive sent */
-        col_append_fstr(pinfo->cinfo, COL_INFO, "(empty)");
+        col_append_str(pinfo->cinfo, COL_INFO, "(empty)");
         col_set_fence(pinfo->cinfo, COL_INFO);
         return;
     }

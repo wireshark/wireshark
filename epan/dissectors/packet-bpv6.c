@@ -1924,7 +1924,7 @@ dissect_bpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
     }
 
     if (primary_header_size == 0) {      /*Couldn't parse primary header*/
-        col_add_str(pinfo->cinfo, COL_INFO, "Protocol Error");
+        col_set_str(pinfo->cinfo, COL_INFO, "Protocol Error");
         return 0;      /*Give up*/
     }
 

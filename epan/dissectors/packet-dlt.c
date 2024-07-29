@@ -489,11 +489,11 @@ dissect_dlt_verbose_parameter_bool(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     proto_tree_add_item(tree, hf_dlt_data_bool, tvb, offset, 1, ENC_NA);
 
     if (value==0x00) {
-        col_append_fstr(pinfo->cinfo, COL_INFO, " false");
+        col_append_str(pinfo->cinfo, COL_INFO, " false");
     } else if (value==0x01) {
-        col_append_fstr(pinfo->cinfo, COL_INFO, " true");
+        col_append_str(pinfo->cinfo, COL_INFO, " true");
     } else {
-        col_append_fstr(pinfo->cinfo, COL_INFO, " undefined");
+        col_append_str(pinfo->cinfo, COL_INFO, " undefined");
     }
 
     return length;
@@ -1162,7 +1162,7 @@ dissect_dlt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_,
     ti = proto_tree_add_item(dlt_tree, hf_dlt_payload, tvb, offset, length - offset, ENC_NA);
     subtree = proto_item_add_subtree(ti, ett_dlt_payload);
 
-    col_append_fstr(pinfo->cinfo, COL_INFO, ":");
+    col_append_str(pinfo->cinfo, COL_INFO, ":");
 
     if (!ext_header || !verbose) {
         offset += dissect_dlt_non_verbose_payload(tvb, pinfo, tree, subtree, offset, payload_le, msg_type, msg_type_info_comb, ecu_id);

@@ -473,7 +473,7 @@ dissect_bthcrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     } else if (protocol == BTSDP_HARDCOPY_NOTIFICATION_PROTOCOL_UUID) {
         offset = dissect_notification(tvb, pinfo, main_tree, offset, is_client_message);
     } else {
-        col_append_fstr(pinfo->cinfo, COL_INFO, "HCRP stream");
+        col_append_str(pinfo->cinfo, COL_INFO, "HCRP stream");
     }
 
     if (tvb_reported_length_remaining(tvb, offset)) {

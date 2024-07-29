@@ -406,7 +406,7 @@ dissect_fb_zero_unencrypt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *fb_zero
 
             proto_item_append_text(ti, ", Type: %s (%s)", message_tag_str,
                                    val_to_str_const(message_tag, message_tag_vals, "Unknown Tag"));
-            col_add_str(pinfo->cinfo, COL_INFO, val_to_str_const(message_tag, message_tag_vals, "Unknown"));
+            col_set_str(pinfo->cinfo, COL_INFO, val_to_str_const(message_tag, message_tag_vals, "Unknown"));
             offset += 4;
 
             proto_tree_add_item(fb_zero_tree, hf_fb_zero_tag_number, tvb, offset, 2, ENC_LITTLE_ENDIAN);
@@ -468,7 +468,7 @@ dissect_fb_zero_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         offset = dissect_fb_zero_unencrypt(tvb, pinfo, fb_zero_tree, offset, 1);
 
     }else {     /* Payload... (encrypted... TODO FIX !) */
-        col_add_str(pinfo->cinfo, COL_INFO, "Payload (Encrypted)");
+        col_set_str(pinfo->cinfo, COL_INFO, "Payload (Encrypted)");
         proto_tree_add_item(fb_zero_tree, hf_fb_zero_payload, tvb, offset, -1, ENC_NA);
     }
     return offset;

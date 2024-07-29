@@ -6425,7 +6425,7 @@ dissect_artnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 
   opcode = tvb_get_letohs(tvb, offset);
 
-  col_add_str(pinfo->cinfo, COL_INFO,
+  col_set_str(pinfo->cinfo, COL_INFO,
     val_to_str_ext_const(opcode, &artnet_opcode_vals_ext, "Unknown"));
 
 

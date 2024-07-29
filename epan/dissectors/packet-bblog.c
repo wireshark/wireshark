@@ -315,7 +315,7 @@ dissect_bblog_event(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
     default:
         event_name = try_val_to_str(event_identifier, event_identifier_values);
         if (event_name != NULL) {
-            col_append_fstr(pinfo->cinfo, COL_INFO, "%s", event_name);
+            col_append_str(pinfo->cinfo, COL_INFO, event_name);
         } else {
             col_append_fstr(pinfo->cinfo, COL_INFO, "Unknown (flex1 0x%08x, flex2 0x%08x0)", flex1, flex2);
         }

@@ -7393,7 +7393,7 @@ dissect_btmesh_transport_control_message(tvbuff_t *tvb, packet_info *pinfo, prot
 {
     proto_tree *sub_tree;
 
-    col_append_fstr(pinfo->cinfo, COL_INFO, "%s",
+    col_append_str(pinfo->cinfo, COL_INFO,
         val_to_str_const(opcode, btmesh_ctrl_opcode_vals, "Control Message Unknown"));
 
     sub_tree = proto_tree_add_subtree_format(tree, tvb, offset, -1, ett_btmesh_transp_ctrl_msg, NULL, "Transport Control Message %s",
@@ -7810,7 +7810,7 @@ dissect_btmesh_transport_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
         } else {
             if (opcode == 0) {
                 col_clear(pinfo->cinfo, COL_INFO);
-                col_append_fstr(pinfo->cinfo, COL_INFO, "%s",
+                col_append_str(pinfo->cinfo, COL_INFO,
                     val_to_str_const(opcode, btmesh_ctrl_opcode_vals, "Control Message Unknown"));
                 /* OBO 1 */
                 proto_tree_add_item(sub_tree, hf_btmesh_obo, tvb, offset, 2, ENC_BIG_ENDIAN);

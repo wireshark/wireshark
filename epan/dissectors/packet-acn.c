@@ -5713,7 +5713,7 @@ dissect_acn_dmx_discovery_pdu(uint32_t protocol_id, tvbuff_t *tvb, packet_info *
       else if(current_universe_idx == 0)
         col_append_str(pinfo->cinfo,COL_INFO, "none");
 
-      col_append_fstr(pinfo->cinfo,COL_INFO, "]");
+      col_append_str(pinfo->cinfo,COL_INFO, "]");
 
       proto_tree_add_string(pdu_tree, hf_acn_dmx_discovery_universe_list, tvb, data_offset, end_offset-data_offset, "");
 

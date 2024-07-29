@@ -306,7 +306,7 @@ dissect_ubt(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_)
     ubt_msg_type = proto_tree_add_item_ret_uint(message_tree, hf_ubt_msg_type, tvb, offset, MESSAGE_TYPE_SIZE, ENC_BIG_ENDIAN, &msgtype);
 
     proto_item_append_text(ubt_msg_type, "(%s)", val_to_str(msgtype, ubt_msgtype_vals, "Unknown Type (%02d)"));
-    col_append_fstr(pinfo->cinfo, COL_INFO, "%s", val_to_str(msgtype, ubt_msgtype_vals, "Unknown Type (%02d)"));
+    col_append_str(pinfo->cinfo, COL_INFO, val_to_str(msgtype, ubt_msgtype_vals, "Unknown Type (%02d)"));
 
     offset += MESSAGE_TYPE_SIZE;
 

@@ -91,7 +91,7 @@ dissect_amt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 
     proto_tree_add_item(amt_tree, hf_amt_version, tvb, offset, 1, ENC_NA);
     proto_tree_add_item_ret_uint(amt_tree, hf_amt_type, tvb, offset, 1, ENC_NA, &type);
-    col_add_str(pinfo->cinfo, COL_INFO, val_to_str_const(type, amt_type_vals, "Unknown AMT TYPE"));
+    col_set_str(pinfo->cinfo, COL_INFO, val_to_str_const(type, amt_type_vals, "Unknown AMT TYPE"));
     offset += 1;
 
     switch(type){

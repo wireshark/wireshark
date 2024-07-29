@@ -4255,8 +4255,9 @@ dissect_dcerpc_cn_bind(tvbuff_t *tvb, int offset, packet_info *pinfo,
             wmem_map_insert(dcerpc_binds, key, value);
         }
 
-        if (i > 0)
-            col_append_fstr(pinfo->cinfo, COL_INFO, ",");
+        if (i > 0) {
+            col_append_str(pinfo->cinfo, COL_INFO, ",");
+        }
         col_append_fstr(pinfo->cinfo, COL_INFO, " %s V%u.%u (%s)",
                         guids_resolve_guid_to_str(&if_id, pinfo->pool), if_ver, if_ver_minor,
                         guids_resolve_guid_to_str(&trans_id, pinfo->pool));
@@ -4370,8 +4371,9 @@ dissect_dcerpc_cn_bind_ack(tvbuff_t *tvb, int offset, packet_info *pinfo,
         offset = dissect_dcerpc_uint32(tvb, offset, pinfo, ctx_tree, hdr->drep,
                                        hf_dcerpc_cn_ack_trans_ver, &trans_ver);
 
-        if (i > 0)
-            col_append_fstr(pinfo->cinfo, COL_INFO, ",");
+        if (i > 0) {
+            col_append_str(pinfo->cinfo, COL_INFO, ",");
+        }
         col_append_fstr(pinfo->cinfo, COL_INFO, " %s", result_str);
     }
 

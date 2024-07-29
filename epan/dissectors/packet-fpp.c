@@ -313,13 +313,13 @@ col_fstr_process(tvbuff_t *tvb, packet_info *pinfo, fpp_crc_t crc_val) {
 
     switch( get_packet_type(tvb) ) {
         case FPP_Packet_Expess:
-            col_add_str(pinfo->cinfo, COL_INFO, "[Express]");
+            col_set_str(pinfo->cinfo, COL_INFO, "[Express]");
             break;
         case FPP_Packet_Verify:
-            col_add_str(pinfo->cinfo, COL_INFO, "[Verify]");
+            col_set_str(pinfo->cinfo, COL_INFO, "[Verify]");
             break;
         case FPP_Packet_Response:
-            col_add_str(pinfo->cinfo, COL_INFO, "[Respond]");
+            col_set_str(pinfo->cinfo, COL_INFO, "[Respond]");
             break;
         case FPP_Packet_Init:
             if (crc_val == CRC_CRC)
