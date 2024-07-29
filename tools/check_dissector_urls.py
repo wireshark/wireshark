@@ -262,7 +262,6 @@ elif args.open:
 elif args.docs:
     # Find links from doc folder(s)
     find_links_in_folder(os.path.join(os.path.dirname(__file__), '..', 'doc'))
-    find_links_in_folder(os.path.join(os.path.dirname(__file__), '..', 'docbook'))
 
 else:
     # Find links from dissector folder.

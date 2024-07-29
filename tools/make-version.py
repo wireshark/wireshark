@@ -129,8 +129,8 @@ def update_attributes_asciidoc(src_dir, repo_data):
 
 def update_docinfo_asciidoc(src_dir, repo_data):
     doc_paths = []
-    doc_paths += [os.path.join(src_dir, 'docbook', 'wsdg_src', 'developer-guide-docinfo.xml')]
-    doc_paths += [os.path.join(src_dir, 'docbook', 'wsug_src', 'user-guide-docinfo.xml')]
+    doc_paths += [os.path.join(src_dir, 'doc', 'wsdg_src', 'developer-guide-docinfo.xml')]
+    doc_paths += [os.path.join(src_dir, 'doc', 'wsug_src', 'user-guide-docinfo.xml')]
 
     for doc_path in doc_paths:
         with open(doc_path, encoding='utf-8') as fh:
