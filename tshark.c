@@ -143,6 +143,7 @@
 #define LONGOPT_HEXDUMP                 LONGOPT_BASE_APPLICATION+7
 #define LONGOPT_SELECTED_FRAME          LONGOPT_BASE_APPLICATION+8
 #define LONGOPT_PRINT_TIMERS            LONGOPT_BASE_APPLICATION+9
+#define LONGOPT_GLOBAL_PROFILE          LONGOPT_BASE_APPLICATION+10
 
 capture_file cfile;
 
@@ -514,6 +515,7 @@ print_usage(FILE *output)
     fprintf(output, "  --capture-comment <comment>\n");
     fprintf(output, "                           add a capture file comment, if supported\n");
     fprintf(output, "  -C <config profile>      start with specified configuration profile\n");
+    fprintf(output, "  --global-profile         use the global profile instead of personal profile\n");
     fprintf(output, "  -F <output file type>    set the output file type; default is pcapng.\n");
     fprintf(output, "                           an empty \"-F\" option will list the file types\n");
     fprintf(output, "  -V                       add output of packet tree        (Packet Details)\n");
@@ -959,6 +961,7 @@ main(int argc, char *argv[])
         {"hexdump", ws_required_argument, NULL, LONGOPT_HEXDUMP},
         {"selected-frame", ws_required_argument, NULL, LONGOPT_SELECTED_FRAME},
         {"print-timers", ws_no_argument, NULL, LONGOPT_PRINT_TIMERS},
+        {"global-profile", ws_no_argument, NULL, LONGOPT_GLOBAL_PROFILE},
         {0, 0, 0, 0}
     };
     bool                 arg_error = false;
@@ -1103,6 +1106,28 @@ main(int argc, char *argv[])
      * and then process them after initializing libwireshark?
      */
     ws_opterr = 0;
+
+    /*  We should check at first if we should use a global profile before
+        parsing the profile name */
+    while ((opt = ws_getopt_long(argc, argv, optstring, long_options, NULL)) != -1) {
+        switch (opt) {
+            case LONGOPT_GLOBAL_PROFILE:
+                {
+                    char *global_dir;
+
+                    global_dir = get_global_profiles_dir();
+                    set_persconffile_dir(global_dir);
+                    g_free(global_dir);
+                    break;
+                }
+            default:
+                break;
+        }
+    }
+
+    ws_optreset = 1;
+    ws_optind = 1;
+    ws_opterr = 1;
 
     while ((opt = ws_getopt_long(argc, argv, optstring, long_options, NULL)) != -1) {
         switch (opt) {
@@ -1873,6 +1898,9 @@ main(int argc, char *argv[])
                 break;
             case LONGOPT_PRINT_TIMERS:
                 opt_print_timers = true;
+                break;
+            case LONGOPT_GLOBAL_PROFILE:
+                /* already processed; just ignore it now */
                 break;
             default:
             case '?':        /* Bad flag - print usage message */

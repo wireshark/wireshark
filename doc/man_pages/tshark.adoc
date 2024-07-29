@@ -309,7 +309,9 @@ may differ from *-a packets:*<capture packet count>.
 -C  <configuration profile>::
 +
 --
-Run with the given configuration profile.
+Run with the given configuration profile. If used in conjucton with
+--global-profile, then the global profile with the associated name
+would be used.
 --
 
 -D|--list-interfaces::

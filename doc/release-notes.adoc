@@ -368,6 +368,8 @@ The following features are either new or have been significantly updated since v
 * Editcap has an `--extract-secrets` option to extract embedded decryption
   secrets from a capture file. wsbuglink:18197[]
 
+* Global profiles can be used in tshark by using `--global-profile` option.
+
 === Removed Features and Support
 
 * The tshark `-G` option with no argument is deprecated and will be removed in
