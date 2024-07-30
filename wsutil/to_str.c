@@ -703,7 +703,7 @@ format_fractional_part_nsecs(char *buf, size_t buflen, uint32_t nsecs, const cha
 	int8_t *num_ptr;
 	size_t num_len;
 
-	ws_assert(precision != 0);
+	ws_assert(precision != WS_TSPREC_SEC);
 
 	if (buflen == 0) {
 		/*
@@ -775,63 +775,63 @@ format_fractional_part_nsecs(char *buf, size_t buflen, uint32_t nsecs, const cha
 	 */
 	switch (precision) {
 
-	case 1:
+	case WS_TSPREC_100_MSEC:
 		/*
 		 * Scale down to units of 1/10 second.
 		 */
 		frac_part = nsecs / 100000000U;
 		break;
 
-	case 2:
+	case WS_TSPREC_10_MSEC:
 		/*
 		 * Scale down to units of 1/100 second.
 		 */
 		frac_part = nsecs / 10000000U;
 		break;
 
-	case 3:
+	case WS_TSPREC_MSEC:
 		/*
 		 * Scale down to units of 1/1000 second.
 		 */
 		frac_part = nsecs / 1000000U;
 		break;
 
-	case 4:
+	case WS_TSPREC_100_USEC:
 		/*
 		 * Scale down to units of 1/10000 second.
 		 */
 		frac_part = nsecs / 100000U;
 		break;
 
-	case 5:
+	case WS_TSPREC_10_USEC:
 		/*
 		 * Scale down to units of 1/100000 second.
 		 */
 		frac_part = nsecs / 10000U;
 		break;
 
-	case 6:
+	case WS_TSPREC_USEC:
 		/*
 		 * Scale down to units of 1/1000000 second.
 		 */
 		frac_part = nsecs / 1000U;
 		break;
 
-	case 7:
+	case WS_TSPREC_100_NSEC:
 		/*
 		 * Scale down to units of 1/10000000 second.
 		 */
 		frac_part = nsecs / 100U;
 		break;
 
-	case 8:
+	case WS_TSPREC_10_NSEC:
 		/*
 		 * Scale down to units of 1/100000000 second.
 		 */
 		frac_part = nsecs / 10U;
 		break;
 
-	case 9:
+	case WS_TSPREC_NSEC:
 		/*
 		 * We're already in units of 1/1000000000 second.
 		 */
@@ -939,7 +939,7 @@ display_signed_time(char *buf, size_t buflen, const nstime_t *ns, int precision)
 	buf += num_len;
 	buflen -= num_len;
 
-	if (precision == 0) {
+	if (precision == WS_TSPREC_SEC) {
 		/*
 		 * Seconds precision, so no nanosecond.
 		 * Nothing more to do other than to
