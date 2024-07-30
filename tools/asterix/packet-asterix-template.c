@@ -709,9 +709,11 @@ static uint8_t asterix_field_exists (tvbuff_t *tvb, unsigned offset, int bitInde
 // NOLINTNEXTLINE(misc-no-recursion)
 static int asterix_field_length (tvbuff_t *tvb, unsigned offset, const AsterixField * const field)
 {
+    unsigned bit_size;
     unsigned size;
     uint64_t count;
     uint8_t i;
+    bool should_break;
 
     size = 0;
     switch(field->type) {
@@ -724,7 +726,13 @@ static int asterix_field_length (tvbuff_t *tvb, unsigned offset, const AsterixFi
             size = (unsigned)(field->repetition_counter_size + count * field->length);
             break;
         case FX:
-            for (size = field->length + field->header_length; tvb_get_uint8 (tvb, offset + size - 1) & 1; size += field->length);
+            for (i = 0, bit_size = 0; field->part[i] != NULL; i++) {
+                // We don't need to shift value as FX bits are always at the end
+                should_break = field->part[i]->type == FIELD_PART_FX && !(tvb_get_uint8 (tvb, offset + bit_size / 8) & 1);
+                bit_size += field->part[i]->bit_length;
+                if (should_break) break;
+            }
+            size = bit_size / 8;
             break;
         case EXP:
             for (i = 0, size = 0; i < field->header_length; i++) {

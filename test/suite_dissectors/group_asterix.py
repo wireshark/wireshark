@@ -1582,7 +1582,7 @@ class TestCategory048:
         validator.add_dissection(
             [0x04, 0x20, 0x00],
             "asterix.048_090",
-            dict_local(x_090, "048_090", "FL", "2048")
+            dict_local(x_090, "048_090", "FL", "-2048")
         )
         validator.add_dissection(
             [0x02, 0x80, 0xff],

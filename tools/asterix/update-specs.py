@@ -452,12 +452,10 @@ def part1(ctx, get_ref, catalogue):
                 tell('};')
 
                 # AsterixField
-                first_part = list(takewhile(lambda x: x is not None, items))
-                n = (sum([get_bit_size(i) for i in first_part]) + 1) // 8
                 parts = 'I{}_PARTS'.format(ref)
                 comp = '{ NULL }'
-                tell('static const AsterixField I{} = {} FX, {}, 0, {}, &hf_{}, {}, {} {};'.format
-                    (ref, '{', n, 0, ref, parts, comp, '}'))
+                tell('static const AsterixField I{} = {} FX, 0, 0, 0, &hf_{}, {}, {} {};'.format
+                    (ref, '{', ref, parts, comp, '}'))
 
             elif t == 'Repetitive':
                 ctx.reset_offset()
