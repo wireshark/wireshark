@@ -4130,7 +4130,9 @@ postdissectors_want_hfids(void)
 
 	for (i = 0; i < postdissectors->len; i++) {
 		if (POSTDISSECTORS(i).wanted_hfids != NULL &&
-		    POSTDISSECTORS(i).wanted_hfids->len != 0)
+		    POSTDISSECTORS(i).wanted_hfids->len != 0 &&
+		    (POSTDISSECTORS(i).handle->protocol == NULL ||
+		     proto_is_protocol_enabled(POSTDISSECTORS(i).handle->protocol)))
 			return true;
 	}
 	return false;
@@ -4149,7 +4151,9 @@ prime_epan_dissect_with_postdissector_wanted_hfids(epan_dissect_t *edt)
 	}
 	for (i = 0; i < postdissectors->len; i++) {
 		if (POSTDISSECTORS(i).wanted_hfids != NULL &&
-		    POSTDISSECTORS(i).wanted_hfids->len != 0)
+		    POSTDISSECTORS(i).wanted_hfids->len != 0 &&
+		    (POSTDISSECTORS(i).handle->protocol == NULL ||
+		     proto_is_protocol_enabled(POSTDISSECTORS(i).handle->protocol)))
 			epan_dissect_prime_with_hfid_array(edt,
 			    POSTDISSECTORS(i).wanted_hfids);
 	}
