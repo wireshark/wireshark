@@ -218,7 +218,7 @@ dissect_ipdr_samis_type_1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
     //col_clear(pinfo->cinfo, COL_INFO);
     ti = proto_tree_add_item(tree, proto_ipdr_samis_type_1, tvb, 0, -1, ENC_NA);
     samis_type_1_tree = proto_item_add_subtree(ti, ett_ipdr_samis_type_1);
-    col_add_str(pinfo->cinfo, COL_INFO, "SAMIS-TYPE-1");
+    col_set_str(pinfo->cinfo, COL_INFO, "SAMIS-TYPE-1");
 
     proto_tree_add_item(samis_type_1_tree, hf_ipdr_samis_record_length, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;

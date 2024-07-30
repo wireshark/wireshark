@@ -4818,7 +4818,7 @@ dissect_ikev2_fragmentation(tvbuff_t *tvb, int offset, proto_tree *tree,
 
     if (defrag_decrypted_isakmp_tvb && key_info && message_next_payload_set) {
       /* Completely reassembled  - already decrypted - dissect reassembled payload if know next payload type */
-      col_append_fstr(pinfo->cinfo, COL_INFO, " (reassembled)");
+      col_append_str(pinfo->cinfo, COL_INFO, " (reassembled)");
       dissect_payloads(defrag_decrypted_isakmp_tvb, tree,
                       2,           /* Could store with next_payload, but wouldn't be here otherwise.. */
                       message_next_payload,

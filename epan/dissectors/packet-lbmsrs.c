@@ -2192,7 +2192,7 @@ static unsigned dissect_lbmsrs_batch(tvbuff_t * tvb, packet_info * pinfo, proto_
     unsigned cnt_sli = 0;
 
 
-    col_append_fstr(pinfo->cinfo, COL_INFO, "[");
+    col_append_str(pinfo->cinfo, COL_INFO, "[");
     /*add a sub-tree for the batch */
 
     proto_item *srs_batch;
@@ -2306,7 +2306,7 @@ static unsigned dissect_lbmsrs_registration_request(tvbuff_t * tvb, packet_info 
         return (offset - start_offset);
     }
 
-    col_append_fstr(pinfo->cinfo, COL_INFO, "[SRS REGISTRATION REQUEST]");
+    col_append_str(pinfo->cinfo, COL_INFO, "[SRS REGISTRATION REQUEST]");
     /*add a sub-tree for SRS */
     proto_item *lbmsrs_details;
     proto_tree *lbmsrs_details_tree = proto_tree_add_subtree(tree, tvb, offset, rsocket_payload_len, ett_lbmsrs_details, &lbmsrs_details, "SRS Registration Request");
@@ -2346,7 +2346,7 @@ static unsigned dissect_lbmsrs_registration_response(tvbuff_t * tvb, packet_info
         return (offset - start_offset);
     }
 
-    col_append_fstr(pinfo->cinfo, COL_INFO, "[SRS REGISTRATION RESPONSE]");
+    col_append_str(pinfo->cinfo, COL_INFO, "[SRS REGISTRATION RESPONSE]");
 
     /*add a sub-tree for SRS */
     proto_item *lbmsrs_details;
@@ -2376,7 +2376,7 @@ static unsigned dissect_lbmsrs_stream_request(tvbuff_t * tvb, packet_info * pinf
         return (offset - start_offset);
     }
 
-    col_append_fstr(pinfo->cinfo, COL_INFO, "[SRS STREAM REQUEST]");
+    col_append_str(pinfo->cinfo, COL_INFO, "[SRS STREAM REQUEST]");
 
     /*add a sub-tree for SRS */
     proto_item *lbmsrs_details;
@@ -2514,7 +2514,7 @@ static int dissect_lbmsrs_pdus(tvbuff_t * tvb, packet_info * pinfo, proto_tree *
         col_add_str(pinfo->cinfo, COL_INFO, frameName);
     }
     else {
-        col_add_str(pinfo->cinfo, COL_INFO, "UNDEFINED");
+        col_set_str(pinfo->cinfo, COL_INFO, "UNDEFINED");
     }
 
     /*add the rsocket ignore flag*/

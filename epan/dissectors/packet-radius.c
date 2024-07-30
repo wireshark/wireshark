@@ -1950,7 +1950,7 @@ dissect_attribute_value_pairs(proto_tree *tree, packet_info *pinfo, tvbuff_t *tv
 			proto_item_set_generated(item);
 
 			if (valid == 0) {
-				col_append_fstr(pinfo->cinfo, COL_INFO, " [incorrect message authenticator]");
+				col_append_str(pinfo->cinfo, COL_INFO, " [incorrect message authenticator]");
 			}
 		}
 
@@ -2146,7 +2146,7 @@ dissect_radius(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 					/* Yes, mark it as such */
 					rad_info->is_duplicate = true;
 					rad_info->req_num = radius_call->req_num;
-					col_append_fstr(pinfo->cinfo, COL_INFO, ", Duplicate Request");
+					col_append_str(pinfo->cinfo, COL_INFO, ", Duplicate Request");
 
 					if (tree) {
 						proto_item *item;
@@ -2172,7 +2172,7 @@ dissect_radius(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 					proto_item_set_generated(item);
 
 					if (valid == 0) {
-						col_append_fstr(pinfo->cinfo, COL_INFO, " [incorrect authenticator]");
+						col_append_str(pinfo->cinfo, COL_INFO, " [incorrect authenticator]");
 					}
 				}
 			}
@@ -2307,7 +2307,7 @@ dissect_radius(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 					proto_item_set_generated(item);
 
 					if (valid == 0) {
-						col_append_fstr(pinfo->cinfo, COL_INFO, " [incorrect authenticator]");
+						col_append_str(pinfo->cinfo, COL_INFO, " [incorrect authenticator]");
 					}
 				}
 			}
@@ -2323,7 +2323,7 @@ dissect_radius(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 				if ((radius_call->rsp_num != pinfo->num) && (radius_call->rspcode == rh.rh_code)) {
 					/* No, so it's a duplicate response. Mark it as such. */
 					rad_info->is_duplicate = true;
-					col_append_fstr(pinfo->cinfo, COL_INFO, ", Duplicate Response");
+					col_append_str(pinfo->cinfo, COL_INFO, ", Duplicate Response");
 
 					if (tree) {
 						proto_item *item;

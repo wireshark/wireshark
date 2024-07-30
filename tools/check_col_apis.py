@@ -125,7 +125,7 @@ class ColCall:
 
         # This is never a good idea..
         if self.last_args.startswith(r'"%s"'):
-            print('Warning:', self.issue_prefix(), "- what are you trying to do - don't need fstr API?")
+            print('Warning:', self.issue_prefix(), " - don't need fstr API?")
             warnings_found += 1
 
         # String should be static, or at least persist
@@ -168,7 +168,7 @@ class ColCall:
                 # Should contain at least one format specifier!
                 format_string = m.group(1)
                 if format_string.find('%') == -1:
-                    print('Warning:', self.issue_prefix(), 'with no format specifiers  - "' + format_string + '"')
+                    print('Warning:', self.issue_prefix(), 'with no format specifiers  - "' + format_string + '" - use str() version instead')
                     warnings_found += 1
 
 
@@ -192,14 +192,24 @@ def checkFile(filename, generated, verbose=False):
         matches = re.finditer(r'(col_set_str|col_add_str|col_add_fstr|col_append_str|col_append_fstr)\((.*?)\)\s*\;', contents, re.MULTILINE|re.DOTALL)
         col_calls = []
 
+        last_line_number = 1
+        last_char_offset = 0
+
         for m in matches:
             args = m.group(2)
 
             line_number = -1
             # May fail to find there were comments inside call...
-            match_offset = full_contents.find(m.group(0))
+            # Make search partial to:
+            # - avoid finding an earlier identical call
+            # - speed up searching by making it shorter
+            remaining_lines_text =  full_contents[last_char_offset:]
+            match_offset = remaining_lines_text.find(m.group(0))
             if match_offset != -1:
-                line_number = len(full_contents[0:match_offset].splitlines())
+                match_in_lines = len(remaining_lines_text[0:match_offset].splitlines())
+                line_number = last_line_number + match_in_lines-1
+                last_line_number = line_number
+                last_char_offset += match_offset + 1  # enough to not match again
 
             # Match first 2 args plus remainer
             args_m = re.match(r'(.*?),\s*(.*?),\s*(.*)', args)

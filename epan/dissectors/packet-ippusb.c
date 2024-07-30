@@ -334,7 +334,7 @@ dissect_ippusb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 
                         if(processed_tvb){
                             ret = dissector_try_uint_new(ippusb_dissector_table, HTTP, processed_tvb, pinfo, tree, true, data);
-                            col_append_fstr(pinfo->cinfo, COL_INFO, " Reassembled Data");
+                            col_append_str(pinfo->cinfo, COL_INFO, " Reassembled Data");
                         }
                     }
                 }
@@ -399,7 +399,7 @@ dissect_ippusb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
                     ret = dissector_try_uint_new(ippusb_dissector_table, HTTP, processed_tvb, pinfo, tree, true, data);
 
                     if (current_msp->document & MSP_DOCUMENT_TRUNCATED) {
-                        col_append_fstr(pinfo->cinfo, COL_INFO, " Document Truncated");
+                        col_append_str(pinfo->cinfo, COL_INFO, " Document Truncated");
                     }
                 }
             }
@@ -417,11 +417,11 @@ dissect_ippusb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 
                     ret = dissector_try_uint_new(ippusb_dissector_table, HTTP, processed_tvb, pinfo, tree, true, data);
 
-                    col_append_fstr(pinfo->cinfo, COL_INFO, " Reassembled Data");
+                    col_append_str(pinfo->cinfo, COL_INFO, " Reassembled Data");
 
                     /* If the document was truncated mark it as such in the UX */
                     if (current_msp->document & MSP_DOCUMENT_TRUNCATED) {
-                        col_append_fstr(pinfo->cinfo, COL_INFO, " Document Truncated");
+                        col_append_str(pinfo->cinfo, COL_INFO, " Document Truncated");
                     }
                 }
             }

@@ -3196,7 +3196,7 @@ static void dissect_knxip_data( uint8_t header_length, uint8_t protocol_version 
   */
   if( service_family_name == NULL )
   {
-    col_add_str( cinfo, COL_INFO, "Unknown Service Family" );
+    col_set_str( cinfo, COL_INFO, "Unknown Service Family" );
     proto_item_append_text( kip_item, " Unknown Service Family" );
     ok = 0;
   }
@@ -3322,7 +3322,7 @@ static void dissect_knxip_data( uint8_t header_length, uint8_t protocol_version 
           /* 1 byte Channel ID */
           if( remaining_len < 1 )
           {
-            col_append_fstr( cinfo, COL_INFO, " ???" );
+            col_append_str( cinfo, COL_INFO, " ???" );
             proto_item_append_text( kip_item, ", ???" );
             expert_add_info_format( pinfo, kip_item, KIP_ERROR, "Missing 1 byte Channel" );
             ok = 0;
@@ -3336,7 +3336,7 @@ static void dissect_knxip_data( uint8_t header_length, uint8_t protocol_version 
             /* 1 byte Status */
             if( remaining_len < 2 )
             {
-              col_append_fstr( cinfo, COL_INFO, " ???" );
+              col_append_str( cinfo, COL_INFO, " ???" );
               proto_item_append_text( kip_item, ", ???" );
               expert_add_info_format( pinfo, kip_item, KIP_ERROR, "Missing 1 byte Status" );
               ok = 0;
@@ -3373,12 +3373,12 @@ static void dissect_knxip_data( uint8_t header_length, uint8_t protocol_version 
       case KIP_CONNECTIONSTATE_REQUEST:
         {
           /* 1 byte Channel ID */
-          col_append_fstr( cinfo, COL_INFO, " #" );
+          col_append_str( cinfo, COL_INFO, " #" );
           proto_item_append_text( kip_item, ", Conn #" );
 
           if( remaining_len < 1 )
           {
-            col_append_fstr( cinfo, COL_INFO, "???" );
+            col_append_str( cinfo, COL_INFO, "???" );
             proto_item_append_text( kip_item, "???" );
             expert_add_info_format( pinfo, kip_item, KIP_ERROR, "Missing 1 byte Channel" );
             ok = 0;
@@ -3412,12 +3412,12 @@ static void dissect_knxip_data( uint8_t header_length, uint8_t protocol_version 
       case KIP_CONNECTIONSTATE_RESPONSE:
         {
           /* 1 byte Channel ID */
-          col_append_fstr( cinfo, COL_INFO, " #" );
+          col_append_str( cinfo, COL_INFO, " #" );
           proto_item_append_text( kip_item, ", Conn #" );
 
           if( remaining_len < 1 )
           {
-            col_append_fstr( cinfo, COL_INFO, "???" );
+            col_append_str( cinfo, COL_INFO, "???" );
             proto_item_append_text( kip_item, "???" );
             expert_add_info_format( pinfo, kip_item, KIP_ERROR, "Missing 1 byte Channel" );
             ok = 0;
@@ -3433,7 +3433,7 @@ static void dissect_knxip_data( uint8_t header_length, uint8_t protocol_version 
             /* 1 byte Status */
             if( remaining_len < 2 )
             {
-              col_append_fstr( cinfo, COL_INFO, "???" );
+              col_append_str( cinfo, COL_INFO, "???" );
               proto_item_append_text( kip_item, "???" );
               expert_add_info_format( pinfo, kip_item, KIP_ERROR, "Missing 1 byte Status" );
               ok = 0;
@@ -3442,7 +3442,7 @@ static void dissect_knxip_data( uint8_t header_length, uint8_t protocol_version 
             {
               uint8_t status = tvb_get_uint8( tvb, offset );
               const char* status_info = val_to_str( status, error_vals, "Error 0x%02x" );
-              col_append_fstr( cinfo, COL_INFO, "%s", status_info );
+              col_append_str( cinfo, COL_INFO, status_info );
               proto_item_append_text( kip_item, "%s", status_info );
               knxip_tree_add_status( kip_tree, tvb, offset );
               offset++;
@@ -3454,12 +3454,12 @@ static void dissect_knxip_data( uint8_t header_length, uint8_t protocol_version 
       case KIP_DISCONNECT_REQUEST:
         {
           /* 1 byte Channel ID */
-          col_append_fstr( cinfo, COL_INFO, " #" );
+          col_append_str( cinfo, COL_INFO, " #" );
           proto_item_append_text( kip_item, ", Conn #" );
 
           if( remaining_len < 1 )
           {
-            col_append_fstr( cinfo, COL_INFO, "???" );
+            col_append_str( cinfo, COL_INFO, "???" );
             proto_item_append_text( kip_item, "???" );
             expert_add_info_format( pinfo, kip_item, KIP_ERROR, "Missing 1 byte Channel" );
             ok = 0;
@@ -3493,12 +3493,12 @@ static void dissect_knxip_data( uint8_t header_length, uint8_t protocol_version 
       case KIP_DISCONNECT_RESPONSE:
         {
           /* 1 byte Channel ID */
-          col_append_fstr( cinfo, COL_INFO, " #" );
+          col_append_str( cinfo, COL_INFO, " #" );
           proto_item_append_text( kip_item, ", Conn #" );
 
           if( remaining_len < 1 )
           {
-            col_append_fstr( cinfo, COL_INFO, "???" );
+            col_append_str( cinfo, COL_INFO, "???" );
             proto_item_append_text( kip_item, "???" );
             expert_add_info_format( pinfo, kip_item, KIP_ERROR, "Missing 1 byte Channel" );
             ok = 0;
@@ -3514,7 +3514,7 @@ static void dissect_knxip_data( uint8_t header_length, uint8_t protocol_version 
             /* 1 byte Status */
             if( remaining_len < 2 )
             {
-              col_append_fstr( cinfo, COL_INFO, "???" );
+              col_append_str( cinfo, COL_INFO, "???" );
               proto_item_append_text( kip_item, "???" );
               expert_add_info_format( pinfo, kip_item, KIP_ERROR, "Missing 1 byte Status" );
               ok = 0;
@@ -3523,7 +3523,7 @@ static void dissect_knxip_data( uint8_t header_length, uint8_t protocol_version 
             {
               uint8_t status = tvb_get_uint8( tvb, offset );
               const char* status_info = val_to_str( status, error_vals, "Error 0x%02x" );
-              col_append_fstr( cinfo, COL_INFO, "%s", status_info );
+              col_append_str( cinfo, COL_INFO, status_info );
               proto_item_append_text( kip_item, "%s", status_info );
               knxip_tree_add_status( kip_tree, tvb, offset );
               offset++;

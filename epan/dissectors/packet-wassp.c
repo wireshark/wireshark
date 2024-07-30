@@ -5925,14 +5925,14 @@ static int dissect_wassp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 	else if (ru_msg_type == WASSP_RU_Discov) /* ap discover header*/
 	{
 		if (tvb_get_ntohs(tvb, RU_HDR_AC_OP) == RU_DISCOVER_OP_MODE)
-			col_add_str(pinfo->cinfo, COL_INFO, "RU Discover Request");
+			col_set_str(pinfo->cinfo, COL_INFO, "RU Discover Request");
 		else
-			col_add_str(pinfo->cinfo, COL_INFO, "RU Discover Response");
+			col_set_str(pinfo->cinfo, COL_INFO, "RU Discover Response");
 	}
 	else
-        {
-		col_add_str(pinfo->cinfo, COL_INFO, val_to_str_const(tvb_get_uint8(tvb, WASSP_HDR_TYPE), wassp_header_types, "Unknown WASSP Message Type"));
-        }
+	{
+		col_set_str(pinfo->cinfo, COL_INFO, val_to_str_const(tvb_get_uint8(tvb, WASSP_HDR_TYPE), wassp_header_types, "Unknown WASSP Message Type"));
+	}
 
 	save_fragmented = pinfo->fragmented;
 

@@ -3160,8 +3160,8 @@ dissect_radiotap_channel(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
 		};
 
 		chan_str = ieee80211_mhz_to_str(freq);
-		col_add_fstr(pinfo->cinfo,
-			     COL_FREQ_CHAN, "%s", chan_str);
+		col_add_str(pinfo->cinfo,
+				 COL_FREQ_CHAN, chan_str);
 		proto_tree_add_uint_format_value(tree,
 					   hf_radiotap_channel_frequency,
 					   tvb, offset, 2, freq,

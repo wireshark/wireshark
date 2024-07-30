@@ -638,7 +638,7 @@ dissect_isobus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data) 
                 col_append_fstr(pinfo->cinfo, COL_INFO, "Fragment number %u", sequenceId);
             }
         } else {
-            col_append_fstr(pinfo->cinfo, COL_INFO, "ERROR: Transport protocol was not initialized");
+            col_append_str(pinfo->cinfo, COL_INFO, "ERROR: Transport protocol was not initialized");
         }
     } else if (pdu_format == REQUEST) {
         uint32_t req_pgn;
@@ -680,16 +680,16 @@ dissect_isobus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data) 
         switch (address_claimed) {
         case 255:
             /* This seems to be not allowed. Create ticket, if this is not correct. */
-            col_append_fstr(pinfo->cinfo, COL_INFO, "Trying to claim global destination address!? This seems wrong!");
+            col_append_str(pinfo->cinfo, COL_INFO, "Trying to claim global destination address!? This seems wrong!");
             break;
         case 254:
-            col_append_fstr(pinfo->cinfo, COL_INFO, "Cannot claim address");
+            col_append_str(pinfo->cinfo, COL_INFO, "Cannot claim address");
             break;
         default:
             col_append_fstr(pinfo->cinfo, COL_INFO, "Address claimed %u", address_claimed);
         }
     } else if (call_isobus_subdissector(tvb, pinfo, isobus_tree, false, priority, pdu_format, pgn, src_addr, data) == 0) {
-        col_append_fstr(pinfo->cinfo, COL_INFO, "Protocol not yet supported");
+        col_append_str(pinfo->cinfo, COL_INFO, "Protocol not yet supported");
         proto_tree_add_item(isobus_tree, hf_isobus_payload, tvb, 0, tvb_captured_length(tvb), ENC_NA);
     }
 

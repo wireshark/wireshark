@@ -11697,7 +11697,7 @@ dissect_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, bool fi
 		/* Check if this is a special packet type and it has non-regular title */
 		packet_title = get_special_packet_title(si->opcode, si->flags, si->msg_id, tvb, offset);
 		if (packet_title) {
-			col_append_fstr(pinfo->cinfo, COL_INFO, "%s", packet_title);
+			col_append_str(pinfo->cinfo, COL_INFO, packet_title);
 		} else {
 			/* Regular packets have standard title */
 			col_append_fstr(pinfo->cinfo, COL_INFO, "%s %s",

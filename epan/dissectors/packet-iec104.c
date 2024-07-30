@@ -2184,7 +2184,7 @@ static void dissect_iec60870_segment(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 		col_append_fstr(pinfo->cinfo, COL_INFO, " [ASDU fragment, %u byte%s]",
 				fragment_length, plurality(fragment_length, "", "s"));
 	} else {
-		col_append_fstr(pinfo->cinfo, COL_INFO, " EOA");
+		col_append_str(pinfo->cinfo, COL_INFO, " EOA");
 	}
 
 	fragment_head *fd_head = fragment_add_seq_next(&iec60870_reassemble_table, next_tvb, 0, pinfo,msg_seqid, NULL,

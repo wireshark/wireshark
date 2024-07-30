@@ -12608,7 +12608,7 @@ add_ff_ftm(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, int offset)
   uint8_t dialog_token = tvb_get_uint8(tvb, offset);
   offset += add_ff_dialog_token(tree, tvb, pinfo, offset);
   if (dialog_token == 0) {
-    col_append_fstr(pinfo->cinfo, COL_INFO, " (Termination)");
+    col_append_str(pinfo->cinfo, COL_INFO, " (Termination)");
   }
   offset += add_ff_followup_dialog_token(tree, tvb, pinfo, offset);
   offset += add_ff_ftm_tod(tree, tvb, pinfo, offset);
@@ -29343,7 +29343,7 @@ dissect_ntb_specific(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int of
   item = proto_tree_add_bitmask_with_flags(tree, tvb, offset, hf_ieee80211_tag_ranging_ntb,
                                            ett_tag_ranging_ntb, nontb_fields,
                                            ENC_LITTLE_ENDIAN, BMT_NO_APPEND);
-  col_append_fstr(pinfo->cinfo, COL_INFO, ", NTB");
+  col_append_str(pinfo->cinfo, COL_INFO, ", NTB");
   add_min_max_time_between_measurements(item, tvb, pinfo, offset, sub_length);
 }
 

@@ -430,7 +430,7 @@ dissect_jdwp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
   packet_type = 1;
   if (tvb_reported_length(tvb) == JDWP_HANDSHAKE_LENGTH) {
     if (tvb_strneql(tvb, offset, JDWP_HANDSHAKE_MSG, JDWP_HANDSHAKE_LENGTH) == 0) {
-      col_append_fstr(pinfo->cinfo, COL_INFO, "JDWP Handshake");
+      col_append_str(pinfo->cinfo, COL_INFO, "JDWP Handshake");
       packet_type = 0;
     }
   }
@@ -459,7 +459,7 @@ dissect_jdwp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
    */
   switch (flags) {
     case PACKET_TYPE_COMMAND:
-      col_append_fstr(pinfo->cinfo, COL_INFO, "Command");
+      col_append_str(pinfo->cinfo, COL_INFO, "Command");
       proto_tree_add_item_ret_uint(jdwp_tree, hf_jdwp_commandset, tvb, offset, 1, ENC_BIG_ENDIAN, &mem_commandset);
       offset += 1;
 
@@ -576,9 +576,9 @@ dissect_jdwp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
       offset += 2;
 
       if(mem_errorcode == 0) {
-        col_append_fstr(pinfo->cinfo, COL_INFO, "Reply (Success)");
+        col_append_str(pinfo->cinfo, COL_INFO, "Reply (Success)");
       } else {
-        col_append_fstr(pinfo->cinfo, COL_INFO, "Reply (Failure)");
+        col_append_str(pinfo->cinfo, COL_INFO, "Reply (Failure)");
       }
 
       /* reply comes with data when the minimal length is 12 */

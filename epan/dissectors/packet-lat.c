@@ -341,7 +341,7 @@ dissect_lat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 	proto_tree *lat_tree = NULL;
 	uint8_t command;
 
-	col_add_str(pinfo->cinfo, COL_PROTOCOL, "LAT");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "LAT");
 	col_clear(pinfo->cinfo, COL_INFO);
 
 	command = tvb_get_uint8(tvb, offset) >> 2;
