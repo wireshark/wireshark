@@ -13020,7 +13020,7 @@ dissect_v9_v10_options_template(tvbuff_t *tvb, packet_info *pinfo, proto_tree *p
 {
     int remaining;
     proto_item_append_text(pdutree, " (Options Template): ");
-    col_append_fstr(pinfo->cinfo, COL_INFO, " [Options-Template:");
+    col_append_str(pinfo->cinfo, COL_INFO, " [Options-Template:");
 
     remaining = length;
     while (remaining > 3) { /* allow for padding */
@@ -13166,7 +13166,7 @@ dissect_v9_v10_options_template(tvbuff_t *tvb, packet_info *pinfo, proto_tree *p
     if (remaining > 0)
         flow_process_textfield(pdutree, tvb, offset, remaining, hf_cflow_padding);
 
-    col_append_fstr(pinfo->cinfo, COL_INFO, "]");
+    col_append_str(pinfo->cinfo, COL_INFO, "]");
 
     return length;
 }
@@ -13186,7 +13186,7 @@ dissect_v9_v10_data_template(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdut
     }
 
     proto_item_append_text(pdutree, " (Data Template): ");
-    col_append_fstr(pinfo->cinfo, COL_INFO, " [Data-Template:");
+    col_append_str(pinfo->cinfo, COL_INFO, " [Data-Template:");
 
     remaining = length;
     while (remaining > 3) { /* allow for padding */
@@ -13281,7 +13281,7 @@ dissect_v9_v10_data_template(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdut
     if (remaining > 0)
         flow_process_textfield(pdutree, tvb, offset, remaining, hf_cflow_padding);
 
-    col_append_fstr(pinfo->cinfo, COL_INFO, "]");
+    col_append_str(pinfo->cinfo, COL_INFO, "]");
 
     return length;
 }

@@ -1408,7 +1408,7 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		bool try_desegment_body;
 
 		if (streaming_chunk_mode && begin_with_chunk) {
-			col_add_str(pinfo->cinfo, COL_INFO, "Chunk Stream ");
+			col_set_str(pinfo->cinfo, COL_INFO, "Chunk Stream ");
 		} else {
 			/*
 			 * Yes, it's a request or response.

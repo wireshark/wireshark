@@ -632,7 +632,7 @@ dissect_isobus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data) 
 
                 if (call_isobus_subdissector(tvb_new_subset_remaining(reassembled_data, 3), pinfo, isobus_tree, false, 0, pdu_format_reassembled,
                     pgn_reassembled, src_addr, data) == 0) {
-                    col_append_fstr(pinfo->cinfo, COL_INFO, "Protocol not yet supported");
+                    col_append_str(pinfo->cinfo, COL_INFO, "Protocol not yet supported");
                 }
             } else {
                 col_append_fstr(pinfo->cinfo, COL_INFO, "Fragment number %u", sequenceId);

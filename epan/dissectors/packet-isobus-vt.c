@@ -993,7 +993,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
         }
         else
         {
-            col_append_fstr(pinfo->cinfo, COL_INFO, "ESC button press was successfully received");
+            col_append_str(pinfo->cinfo, COL_INFO, "ESC button press was successfully received");
         }
     }
         break;
@@ -1177,11 +1177,11 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
         if (termination_cause & 0x01)
         {
             proto_item_append_text(ti, "Audio was terminated ");
-            col_append_fstr(pinfo->cinfo, COL_INFO, "VT Control audio signal termination: Audio was terminated");
+            col_append_str(pinfo->cinfo, COL_INFO, "VT Control audio signal termination: Audio was terminated");
         }
         else
         {
-            col_append_fstr(pinfo->cinfo, COL_INFO, "VT Control audio signal termination: Error in message");
+            col_append_str(pinfo->cinfo, COL_INFO, "VT Control audio signal termination: Error in message");
         }
     }
         break;
@@ -1230,15 +1230,15 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
 
             if(error_codes & 0x01)
             {
-                col_append_fstr(pinfo->cinfo, COL_INFO, "End of object pool received, object pool contains errors");
+                col_append_str(pinfo->cinfo, COL_INFO, "End of object pool received, object pool contains errors");
             }
             else if(error_codes & 0x02)
             {
-                col_append_fstr(pinfo->cinfo, COL_INFO, "End of object pool received, but VT ran out of memory");
+                col_append_str(pinfo->cinfo, COL_INFO, "End of object pool received, but VT ran out of memory");
             }
             else
             {
-                col_append_fstr(pinfo->cinfo, COL_INFO, "End of object pool received, object pool accepted");
+                col_append_str(pinfo->cinfo, COL_INFO, "End of object pool received, object pool accepted");
             }
         }
     }
@@ -1358,7 +1358,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
                         get_object_id_string(auxiliary_function_object_id), get_object_id_string(auxiliary_input_object_id));
                 }
             }
-            col_append_fstr(pinfo->cinfo, COL_INFO, "Create preferred assignment");
+            col_append_str(pinfo->cinfo, COL_INFO, "Create preferred assignment");
         }
         else
         {
@@ -1391,7 +1391,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
             }
             else
             {
-                col_append_fstr(pinfo->cinfo, COL_INFO, "Successfully created preferred assignment");
+                col_append_str(pinfo->cinfo, COL_INFO, "Successfully created preferred assignment");
             }
         }
     }
@@ -1657,7 +1657,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
                         number_of_instances, function_attribute, val_to_str_const(assigned_attribute, auxiliary_assigned_attributes, "unknown"));
                 }
             }
-            col_append_fstr(pinfo->cinfo, COL_INFO, "Received Auxiliary Capabilities");
+            col_append_str(pinfo->cinfo, COL_INFO, "Received Auxiliary Capabilities");
         }
     }
         break;
@@ -1687,12 +1687,12 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
             }
             else
             {
-                col_append_fstr(pinfo->cinfo, COL_INFO, "ESC error");
+                col_append_str(pinfo->cinfo, COL_INFO, "ESC error");
             }
         }
         else
         {
-            col_append_fstr(pinfo->cinfo, COL_INFO, "End of object pool received, object pool accepted");
+            col_append_str(pinfo->cinfo, COL_INFO, "End of object pool received, object pool accepted");
         }
         break;
     case VT_HIDE_SHOW_OBJECT:
@@ -1728,7 +1728,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
 
             if(error_codes)
             {
-                col_append_fstr(pinfo->cinfo, COL_INFO, "Hide Show Error");
+                col_append_str(pinfo->cinfo, COL_INFO, "Hide Show Error");
             }
             else
             {
@@ -1809,7 +1809,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
 
             if(error_codes)
             {
-                col_append_fstr(pinfo->cinfo, COL_INFO, "Enable Disable Error");
+                col_append_str(pinfo->cinfo, COL_INFO, "Enable Disable Error");
             }
             else
             {
@@ -1874,7 +1874,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
 
             if(error_codes)
             {
-                col_append_fstr(pinfo->cinfo, COL_INFO, "Error while selecting input object");
+                col_append_str(pinfo->cinfo, COL_INFO, "Error while selecting input object");
             }
             else
             {
@@ -1935,11 +1935,11 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
 
             if(error_codes)
             {
-                col_append_fstr(pinfo->cinfo, COL_INFO, "Control audio signal Error");
+                col_append_str(pinfo->cinfo, COL_INFO, "Control audio signal Error");
             }
             else
             {
-                col_append_fstr(pinfo->cinfo, COL_INFO, "Control audio signal successful");
+                col_append_str(pinfo->cinfo, COL_INFO, "Control audio signal successful");
             }
         }
     }
@@ -1970,11 +1970,11 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
 
             if(error_codes)
             {
-                col_append_fstr(pinfo->cinfo, COL_INFO, "Set audio volume Error");
+                col_append_str(pinfo->cinfo, COL_INFO, "Set audio volume Error");
             }
             else
             {
-                col_append_fstr(pinfo->cinfo, COL_INFO, "Set audio volume successful");
+                col_append_str(pinfo->cinfo, COL_INFO, "Set audio volume successful");
             }
         }
     }
@@ -2027,7 +2027,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
 
             if(error_codes)
             {
-                col_append_fstr(pinfo->cinfo, COL_INFO, "Change child location error");
+                col_append_str(pinfo->cinfo, COL_INFO, "Change child location error");
             }
             else
             {
@@ -2076,7 +2076,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
 
             if(error_codes)
             {
-                col_append_fstr(pinfo->cinfo, COL_INFO, "Change size error");
+                col_append_str(pinfo->cinfo, COL_INFO, "Change size error");
             }
             else
             {
@@ -2119,7 +2119,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
 
             if(error_codes)
             {
-                col_append_fstr(pinfo->cinfo, COL_INFO, "Background colour change error");
+                col_append_str(pinfo->cinfo, COL_INFO, "Background colour change error");
             }
             else
             {
@@ -2168,7 +2168,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
         {
             if(error_codes)
             {
-                col_append_fstr(pinfo->cinfo, COL_INFO, "Numeric value change error");
+                col_append_str(pinfo->cinfo, COL_INFO, "Numeric value change error");
             }
             else
             {
@@ -2659,7 +2659,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
     {
         if(direction == ecu_to_vt)
         {
-            col_append_fstr(pinfo->cinfo, COL_INFO, "Object pool should be deleted from volatile memory");
+            col_append_str(pinfo->cinfo, COL_INFO, "Object pool should be deleted from volatile memory");
         }
         else
         {
@@ -2675,11 +2675,11 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
 
             if(error_codes)
             {
-                col_append_fstr(pinfo->cinfo, COL_INFO, "Error while deleting object pool from volatile memory");
+                col_append_str(pinfo->cinfo, COL_INFO, "Error while deleting object pool from volatile memory");
             }
             else
             {
-                col_append_fstr(pinfo->cinfo, COL_INFO, "Object pool was successfully deleted from volatile memory");
+                col_append_str(pinfo->cinfo, COL_INFO, "Object pool was successfully deleted from volatile memory");
             }
         }
     }
@@ -2746,7 +2746,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
 
             if(error_codes)
             {
-                col_append_fstr(pinfo->cinfo, COL_INFO, "String value change error");
+                col_append_str(pinfo->cinfo, COL_INFO, "String value change error");
             }
             else
             {
@@ -2870,11 +2870,11 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
 
             if(error_codes)
             {
-                col_append_fstr(pinfo->cinfo, COL_INFO, "Error while changing object label");
+                col_append_str(pinfo->cinfo, COL_INFO, "Error while changing object label");
             }
             else
             {
-                col_append_fstr(pinfo->cinfo, COL_INFO, "Object label successfully changed");
+                col_append_str(pinfo->cinfo, COL_INFO, "Object label successfully changed");
             }
         }
     }
@@ -2923,11 +2923,11 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
 
             if(error_codes)
             {
-                col_append_fstr(pinfo->cinfo, COL_INFO, "Error while changing polygon point");
+                col_append_str(pinfo->cinfo, COL_INFO, "Error while changing polygon point");
             }
             else
             {
-                col_append_fstr(pinfo->cinfo, COL_INFO, "Polygon point successfully changed");
+                col_append_str(pinfo->cinfo, COL_INFO, "Polygon point successfully changed");
             }
         }
     }
@@ -3456,11 +3456,11 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
     {
         if(direction == ecu_to_vt)
         {
-            col_append_fstr(pinfo->cinfo, COL_INFO, "Identify VT");
+            col_append_str(pinfo->cinfo, COL_INFO, "Identify VT");
         }
         else
         {
-            col_append_fstr(pinfo->cinfo, COL_INFO, "Reply Identify VT ");
+            col_append_str(pinfo->cinfo, COL_INFO, "Reply Identify VT ");
         }
     }
         break;
@@ -3573,22 +3573,22 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
             {
                 if(command == MASK_LOCK)
                 {
-                    col_append_fstr(pinfo->cinfo, COL_INFO, "Error while locking ");
+                    col_append_str(pinfo->cinfo, COL_INFO, "Error while locking ");
                 }
                 else if(command == MASK_UNLOCK)
                 {
-                    col_append_fstr(pinfo->cinfo, COL_INFO, "Error while unlocking ");
+                    col_append_str(pinfo->cinfo, COL_INFO, "Error while unlocking ");
                 }
             }
             else
             {
                 if(command == MASK_LOCK)
                 {
-                    col_append_fstr(pinfo->cinfo, COL_INFO, "Locking successful ");
+                    col_append_str(pinfo->cinfo, COL_INFO, "Locking successful ");
                 }
                 else if(command == MASK_UNLOCK)
                 {
-                    col_append_fstr(pinfo->cinfo, COL_INFO, "Unlocking successful ");
+                    col_append_str(pinfo->cinfo, COL_INFO, "Unlocking successful ");
                 }
             }
         }
@@ -3744,7 +3744,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
 
                 if(number_of_ranges > 1)
                 {
-                    col_append_fstr(pinfo->cinfo, COL_INFO, "s");
+                    col_append_str(pinfo->cinfo, COL_INFO, "s");
                 }
             }
         }
@@ -3759,7 +3759,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
     {
         if(direction == ecu_to_vt)
         {
-            col_append_fstr(pinfo->cinfo, COL_INFO, "Requesting number of soft keys");
+            col_append_str(pinfo->cinfo, COL_INFO, "Requesting number of soft keys");
         }
         else
         {
@@ -3795,7 +3795,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
     {
         if(direction == ecu_to_vt)
         {
-            col_append_fstr(pinfo->cinfo, COL_INFO, "Requesting text font data");
+            col_append_str(pinfo->cinfo, COL_INFO, "Requesting text font data");
         }
         else if(direction == vt_to_ecu)
         {
@@ -3840,7 +3840,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
             proto_tree_add_item(ti_typeattribute_subtree, hf_isobus_vt_gettextfontdata_typeattributes_flashhidden, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             proto_tree_add_item(ti_typeattribute_subtree, hf_isobus_vt_gettextfontdata_typeattributes_proportionalfontrendering, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 
-            col_append_fstr(pinfo->cinfo, COL_INFO, "Text font data received");
+            col_append_str(pinfo->cinfo, COL_INFO, "Text font data received");
         }
     }
         break;
@@ -3848,7 +3848,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
     {
         if(direction == ecu_to_vt)
         {
-            col_append_fstr(pinfo->cinfo, COL_INFO, "Request window mask data");
+            col_append_str(pinfo->cinfo, COL_INFO, "Request window mask data");
         }
         else
         {
@@ -3871,7 +3871,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
     {
         if(direction == ecu_to_vt)
         {
-            col_append_fstr(pinfo->cinfo, COL_INFO, "Request supported objects");
+            col_append_str(pinfo->cinfo, COL_INFO, "Request supported objects");
         }
         else
         {
@@ -3896,7 +3896,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
                 offset += 1;
             }
 
-            col_append_fstr(pinfo->cinfo, COL_INFO, "Supported objects received");
+            col_append_str(pinfo->cinfo, COL_INFO, "Supported objects received");
         }
     }
         break;
@@ -3904,7 +3904,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
     {
         if(direction == ecu_to_vt)
         {
-            col_append_fstr(pinfo->cinfo, COL_INFO, "Request hardware info");
+            col_append_str(pinfo->cinfo, COL_INFO, "Request hardware info");
         }
         else
         {
@@ -3975,11 +3975,11 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
 
             if(error_codes)
             {
-                col_append_fstr(pinfo->cinfo, COL_INFO, "Error while storing version");
+                col_append_str(pinfo->cinfo, COL_INFO, "Error while storing version");
             }
             else
             {
-                col_append_fstr(pinfo->cinfo, COL_INFO, "Version successfully stored");
+                col_append_str(pinfo->cinfo, COL_INFO, "Version successfully stored");
             }
         }
     }
@@ -4014,11 +4014,11 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
 
             if(error_codes)
             {
-                col_append_fstr(pinfo->cinfo, COL_INFO, "Error while loading version");
+                col_append_str(pinfo->cinfo, COL_INFO, "Error while loading version");
             }
             else
             {
-                col_append_fstr(pinfo->cinfo, COL_INFO, "Version successfully loaded");
+                col_append_str(pinfo->cinfo, COL_INFO, "Version successfully loaded");
             }
         }
     }
@@ -4049,11 +4049,11 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
 
             if(error_codes)
             {
-                col_append_fstr(pinfo->cinfo, COL_INFO, "Error while deleting version");
+                col_append_str(pinfo->cinfo, COL_INFO, "Error while deleting version");
             }
             else
             {
-                col_append_fstr(pinfo->cinfo, COL_INFO, "Version successfully deleted");
+                col_append_str(pinfo->cinfo, COL_INFO, "Version successfully deleted");
             }
         }
     }
@@ -4062,7 +4062,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
     {
         if(direction == ecu_to_vt)
         {
-            col_append_fstr(pinfo->cinfo, COL_INFO, "Request a list of extended versions");
+            col_append_str(pinfo->cinfo, COL_INFO, "Request a list of extended versions");
         }
         else
         {
@@ -4079,7 +4079,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
                 offset += 32;
             }
 
-            col_append_fstr(pinfo->cinfo, COL_INFO, "Extended versions received");
+            col_append_str(pinfo->cinfo, COL_INFO, "Extended versions received");
         }
     }
         break;
@@ -4111,11 +4111,11 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
 
             if(error_codes)
             {
-                col_append_fstr(pinfo->cinfo, COL_INFO, "Error while storing extended version");
+                col_append_str(pinfo->cinfo, COL_INFO, "Error while storing extended version");
             }
             else
             {
-                col_append_fstr(pinfo->cinfo, COL_INFO, "Extended version successfully stored");
+                col_append_str(pinfo->cinfo, COL_INFO, "Extended version successfully stored");
             }
         }
     }
@@ -4150,11 +4150,11 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
 
             if(error_codes)
             {
-                col_append_fstr(pinfo->cinfo, COL_INFO, "Error while loading extended version");
+                col_append_str(pinfo->cinfo, COL_INFO, "Error while loading extended version");
             }
             else
             {
-                col_append_fstr(pinfo->cinfo, COL_INFO, "Extended version successfully loaded");
+                col_append_str(pinfo->cinfo, COL_INFO, "Extended version successfully loaded");
             }
         }
     }
@@ -4185,11 +4185,11 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
 
             if(error_codes)
             {
-                col_append_fstr(pinfo->cinfo, COL_INFO, "Error while deleting extended version");
+                col_append_str(pinfo->cinfo, COL_INFO, "Error while deleting extended version");
             }
             else
             {
-                col_append_fstr(pinfo->cinfo, COL_INFO, "Extended version successfully deleted");
+                col_append_str(pinfo->cinfo, COL_INFO, "Extended version successfully deleted");
             }
         }
     }
@@ -4198,7 +4198,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
     {
         if(direction == ecu_to_vt)
         {
-            col_append_fstr(pinfo->cinfo, COL_INFO, "Extended version successfully deleted");
+            col_append_str(pinfo->cinfo, COL_INFO, "Extended version successfully deleted");
         }
         /*no else as this message can only be used from ecu to vt*/
     }
@@ -4220,7 +4220,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
                 offset += 7;
             }
 
-            col_append_fstr(pinfo->cinfo, COL_INFO, "Versions received");
+            col_append_str(pinfo->cinfo, COL_INFO, "Versions received");
         }
         /*no else as this message can only be used from vt to ecu*/
     }
@@ -4308,7 +4308,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
 
         if(version > 3 && bitmask & 0x80)
         {
-            col_append_fstr(pinfo->cinfo, COL_INFO, "Initiate ");
+            col_append_str(pinfo->cinfo, COL_INFO, "Initiate ");
         }
         col_append_fstr(pinfo->cinfo, COL_INFO, "Working Set Maintenance, VT version is %d",
             version);

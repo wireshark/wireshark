@@ -1638,7 +1638,7 @@ static void dissect_readreg_cmd(proto_tree *gvcp_telegram_tree, tvbuff_t *tvb, p
 
 	if (num_registers > 1)
 	{
-		col_append_fstr(pinfo->cinfo, COL_INFO, "[Multiple Register Read Command]");
+		col_append_str(pinfo->cinfo, COL_INFO, "[Multiple Register Read Command]");
 	}
 	else
 	{
@@ -1743,7 +1743,7 @@ static void dissect_writereg_cmd(proto_tree *gvcp_telegram_tree, tvbuff_t *tvb, 
 
 	if (num_registers > 1)
 	{
-		col_append_fstr(pinfo->cinfo, COL_INFO, "[Multiple Register Write Command]");
+		col_append_str(pinfo->cinfo, COL_INFO, "[Multiple Register Write Command]");
 	}
 	else
 	{
@@ -2214,7 +2214,7 @@ static void dissect_readreg_ack(proto_tree *gvcp_telegram_tree, tvbuff_t *tvb, p
 
 	if (num_registers > 1)
 	{
-		col_append_fstr(pinfo->cinfo, COL_INFO, "[Multiple ReadReg Ack]");
+		col_append_str(pinfo->cinfo, COL_INFO, "[Multiple ReadReg Ack]");
 	}
 	else
 	{

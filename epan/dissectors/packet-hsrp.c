@@ -489,7 +489,7 @@ dissect_hsrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                                 offset+=2;
 
                                 opcode = tvb_get_uint8(tvb, offset+1);
-                                col_add_str(pinfo->cinfo, COL_INFO,
+                                col_set_str(pinfo->cinfo, COL_INFO,
                                                      val_to_str_const(opcode, hsrp2_opcode_vals, "Unknown"));
 
                                 state = tvb_get_uint8(tvb, offset+2);

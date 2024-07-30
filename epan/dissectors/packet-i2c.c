@@ -223,8 +223,8 @@ dissect_i2c_kontron(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
 	uint8_t     addr;
 	tvbuff_t   *new_tvb;
 
-	col_add_str(pinfo->cinfo, COL_DEF_SRC, "I2C");
-	col_add_str(pinfo->cinfo, COL_PROTOCOL, "I2C");
+	col_set_str(pinfo->cinfo, COL_DEF_SRC, "I2C");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "I2C");
 
 	ti = proto_tree_add_protocol_format(tree, proto_i2c, tvb, 0, -1,
 			"Inter-Integrated Circuit (Data)");

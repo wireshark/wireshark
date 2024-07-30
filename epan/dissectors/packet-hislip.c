@@ -490,7 +490,7 @@ decode_controlcode(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, hislipin
         /*if release add ] and leave*/
         if (data->controlcode != 1)
         {
-            col_append_fstr(pinfo->cinfo, COL_INFO, "]");
+            col_append_str(pinfo->cinfo, COL_INFO, "]");
             break;
         }
 
@@ -499,13 +499,13 @@ decode_controlcode(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, hislipin
         {
 
             proto_item_append_text(item, "[Exclusive]");
-            col_append_fstr(pinfo->cinfo, COL_INFO, " Exclusive]");
+            col_append_str(pinfo->cinfo, COL_INFO, " Exclusive]");
             proto_item_append_text(data->hislip_item, " (Exclusive)");
         }
         else
         {
             proto_item_append_text(item, "[Shared]");
-            col_append_fstr(pinfo->cinfo, COL_INFO, " Shared]");
+            col_append_str(pinfo->cinfo, COL_INFO, " Shared]");
             proto_item_append_text(data->hislip_item, " (Shared)");
         }
         break;

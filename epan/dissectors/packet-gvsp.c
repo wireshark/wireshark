@@ -2459,19 +2459,19 @@ static int dissect_gvsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
     if (info.flag_resendrangeerror != 0)
     {
         /* Add range error to info string */
-        col_append_fstr(pinfo->cinfo, COL_INFO, "[RANGE_ERROR] ");
+        col_append_str(pinfo->cinfo, COL_INFO, "[RANGE_ERROR] ");
     }
 
     if (info.flag_previousblockdropped != 0)
     {
         /* Add block dropped to info string */
-        col_append_fstr(pinfo->cinfo, COL_INFO, "[BLOCK_DROPPED] ");
+        col_append_str(pinfo->cinfo, COL_INFO, "[BLOCK_DROPPED] ");
     }
 
     if (info.flag_packetresend != 0)
     {
         /* Add packet resend to info string */
-        col_append_fstr(pinfo->cinfo, COL_INFO, "[PACKET_RESEND] ");
+        col_append_str(pinfo->cinfo, COL_INFO, "[PACKET_RESEND] ");
     }
 
     /* Process packet types that are payload agnostic */

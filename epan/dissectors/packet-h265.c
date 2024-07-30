@@ -3002,7 +3002,7 @@ dissect_h265(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 			else
 			{
 				if ((tvb_get_uint8(tvb, offset) & 0x40) == 0x40) {
-					col_append_fstr(pinfo->cinfo, COL_INFO, " End");
+					col_append_str(pinfo->cinfo, COL_INFO, " End");
 				}
 				return offset;
 			}

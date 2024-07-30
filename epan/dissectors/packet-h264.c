@@ -1435,7 +1435,7 @@ h264_user_data_unregistered(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo 
     /* Microsoft MS-H264PF Specification */
     if ( memcmp(&guid, &(ms_guids[MS_LAYOUT]), sizeof(e_guid_t)) == 0)
     {
-        col_append_fstr(pinfo->cinfo, COL_INFO, ":MS_Layout");
+        col_append_str(pinfo->cinfo, COL_INFO, ":MS_Layout");
         proto_item_append_text(uuid_item,"  - Microsoft Stream Layout SEI Message");
         /* Loop through the layer presence bytes 0-7 */
         for (i = 0; i < 8 ; i++)
@@ -1481,7 +1481,7 @@ h264_user_data_unregistered(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo 
     }
     else if ( memcmp(&guid, &(ms_guids[MS_CROPPING]), sizeof(e_guid_t)) == 0)
     {
-        col_append_fstr(pinfo->cinfo, COL_INFO, ":MS_Cropping");
+        col_append_str(pinfo->cinfo, COL_INFO, ":MS_Cropping");
         proto_item_append_text(uuid_item,"  - Microsoft Cropping Info SEI Message");
         num_crops = tvb_get_uint8 (tvb, offset);
         proto_tree_add_item (tree, hf_h264_sei_ms_crop_num_data, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -1502,7 +1502,7 @@ h264_user_data_unregistered(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo 
     }
     else if ( memcmp(&guid, &(ms_guids[MS_BITSTREAM]), sizeof(e_guid_t)) == 0)
     {
-        col_append_fstr(pinfo->cinfo, COL_INFO, ":MS_Bitstream");
+        col_append_str(pinfo->cinfo, COL_INFO, ":MS_Bitstream");
         proto_item_append_text(uuid_item,"  - Microsoft Bitstream Info SEI Message");
         proto_tree_add_item (tree, hf_h264_sei_ms_bitstream_ref_frame_cnt, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset++;
@@ -2171,7 +2171,7 @@ dissect_h264_pacsi(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offs
     if (tvb_reported_length_remaining(tvb, offset) > 0)
     {
         contains_sei = true;
-        col_append_fstr(pinfo->cinfo, COL_INFO, "(");
+        col_append_str(pinfo->cinfo, COL_INFO, "(");
     }
 
     /* Decode the SEI units that are in the packet. */
@@ -2197,7 +2197,7 @@ dissect_h264_pacsi(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offs
     }
     if (contains_sei == true)
     {
-        col_append_fstr(pinfo->cinfo, COL_INFO, ")");
+        col_append_str(pinfo->cinfo, COL_INFO, ")");
     }
 }
 
@@ -2230,7 +2230,7 @@ dissect_h264_stap(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, int o
         if (nal_unit_size == 0 || tvb_reported_length_remaining(tvb, offset) < nal_unit_size)
         {
             /* Throw an exception if the size is wrong and don't try to decode the rest of the packet. */
-            col_append_fstr(pinfo->cinfo, COL_INFO, "  [Bad NAL Length]");
+            col_append_str(pinfo->cinfo, COL_INFO, "  [Bad NAL Length]");
             item = proto_tree_add_expert (tree, pinfo, &ei_h264_bad_nal_length, tvb, offset-2, 2);
             proto_item_append_text(item, " Size of %d, Remaining %d",
                     nal_unit_size, tvb_reported_length_remaining(tvb, offset));
@@ -2288,7 +2288,7 @@ dissect_h264_mtap(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, int o
         if (nal_unit_size == 0 || tvb_reported_length_remaining(tvb, offset) < nal_unit_size)
         {
             /* Throw an exception if the size is wrong and don't try to decode the rest of the packet. */
-            col_append_fstr(pinfo->cinfo, COL_INFO, "  [Bad NAL Length]");
+            col_append_str(pinfo->cinfo, COL_INFO, "  [Bad NAL Length]");
             item = proto_tree_add_expert (tree, pinfo, &ei_h264_bad_nal_length, tvb, size_offset, 2);
             proto_item_append_text(item, " Size of %d, Remaining %d",
                     nal_unit_size, tvb_reported_length_remaining(tvb, offset));
@@ -2355,7 +2355,7 @@ dissect_h264_nalu_extension (proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo
             if (nal_unit_size == 0 || tvb_reported_length_remaining(tvb, offset) < nal_unit_size)
             {
                 /* Throw an exception if the size is wrong and don't try to decode the rest of the packet. */
-                col_append_fstr(pinfo->cinfo, COL_INFO, "  [Bad NAL Length]");
+                col_append_str(pinfo->cinfo, COL_INFO, "  [Bad NAL Length]");
                 item = proto_tree_add_expert (nimtap_tree, pinfo, &ei_h264_bad_nal_length, tvb, size_offset, 2);
                 proto_item_append_text(item, " Size of %d, Remaining %d",
                         nal_unit_size, tvb_reported_length_remaining(tvb, offset));
@@ -2613,7 +2613,7 @@ dissect_h264(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
             else
             {
                 if ((tvb_get_uint8(tvb, offset)&0x40) == 0x40) {
-                    col_append_fstr(pinfo->cinfo, COL_INFO, " End");
+                    col_append_str(pinfo->cinfo, COL_INFO, " End");
                 }
                 return offset;
             }

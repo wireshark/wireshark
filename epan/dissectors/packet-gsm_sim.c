@@ -1467,7 +1467,7 @@ dissect_gsm_apdu(uint8_t ins, uint8_t p1, uint8_t p2, uint8_t p3, tvbuff_t *tvb,
 		}
 		if (p1 == 0 && p2 == 0) {
 			/* Logical channels are assigned by the card when P2 is 0. */
-			col_append_fstr(pinfo->cinfo, COL_INFO, "(assign channel) ");
+			col_append_str(pinfo->cinfo, COL_INFO, "(assign channel) ");
 		} else {
 			col_append_fstr(pinfo->cinfo, COL_INFO, "(channel: %d) ", p2);
 		}

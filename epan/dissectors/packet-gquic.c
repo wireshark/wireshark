@@ -1880,7 +1880,7 @@ dissect_gquic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *gquic_tr
 
             DISSECTOR_ASSERT(gquic_info->version_valid && gquic_info->version >= 50);
 
-            col_append_fstr(pinfo->cinfo, COL_INFO, ", CRYPTO");
+            col_append_str(pinfo->cinfo, COL_INFO, ", CRYPTO");
             offset += 1;
             proto_tree_add_item_ret_varint(ft_tree, hf_gquic_crypto_offset, tvb, offset, -1, ENC_VARINT_QUIC, &crypto_offset, &lenvar);
             offset += lenvar;
@@ -1892,7 +1892,7 @@ dissect_gquic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *gquic_tr
                 message_tag = tvb_get_ntohl(tvb, offset);
                 ti = proto_tree_add_item_ret_string(ft_tree, hf_gquic_tag, tvb, offset, 4, ENC_ASCII|ENC_NA, pinfo->pool, &message_tag_str);
                 proto_item_append_text(ti, " (%s)", val_to_str_const(message_tag, message_tag_vals, "Unknown Tag"));
-                col_add_str(pinfo->cinfo, COL_INFO, val_to_str_const(message_tag, message_tag_vals, "Unknown"));
+                col_set_str(pinfo->cinfo, COL_INFO, val_to_str_const(message_tag, message_tag_vals, "Unknown"));
                 offset += 4;
 
                 offset = dissect_gquic_tags(tvb, pinfo, ft_tree, offset);
@@ -1943,7 +1943,7 @@ dissect_gquic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *gquic_tr
                     proto_item_append_text(ti_stream, " (Reserved for (G)QUIC handshake, crypto, config updates...)");
                     proto_item_append_text(ti, " (%s)", val_to_str_const(message_tag, message_tag_vals, "Unknown Tag"));
                     proto_item_append_text(ti_ft, ", Type: %s (%s)", message_tag_str, val_to_str_const(message_tag, message_tag_vals, "Unknown Tag"));
-                    col_add_str(pinfo->cinfo, COL_INFO, val_to_str_const(message_tag, message_tag_vals, "Unknown"));
+                    col_set_str(pinfo->cinfo, COL_INFO, val_to_str_const(message_tag, message_tag_vals, "Unknown"));
                     offset += 4;
 
                     offset = dissect_gquic_tags(tvb, pinfo, ft_tree, offset);
@@ -1954,7 +1954,7 @@ dissect_gquic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *gquic_tr
 
                     proto_item_append_text(ti_stream, " (Reserved for H2 HEADERS)");
 
-                    col_add_str(pinfo->cinfo, COL_INFO, "H2");
+                    col_set_str(pinfo->cinfo, COL_INFO, "H2");
 
                     tvb_h2 = tvb_new_subset_remaining(tvb, offset);
 
@@ -1964,7 +1964,7 @@ dissect_gquic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *gquic_tr
                 default: { /* Data... */
                     int data_len = tvb_reported_length_remaining(tvb, offset);
 
-                    col_add_str(pinfo->cinfo, COL_INFO, "DATA");
+                    col_set_str(pinfo->cinfo, COL_INFO, "DATA");
 
                     proto_tree_add_item(ft_tree, hf_gquic_stream_data, tvb, offset, data_len, ENC_NA);
                     offset += data_len;
@@ -2289,7 +2289,7 @@ dissect_gquic_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     if (is_gquic_unencrypt(tvb, pinfo, offset, len_pkn, gquic_info) || g_gquic_debug){
         offset = dissect_gquic_unencrypt(tvb, pinfo, gquic_tree, offset, len_pkn, gquic_info);
     }else {     /* Payload... (encrypted... TODO FIX !) */
-        col_add_str(pinfo->cinfo, COL_INFO, "Payload (Encrypted)");
+        col_set_str(pinfo->cinfo, COL_INFO, "Payload (Encrypted)");
         proto_tree_add_item(gquic_tree, hf_gquic_payload, tvb, offset, -1, ENC_NA);
 
     }
@@ -2408,7 +2408,7 @@ dissect_gquic_q046(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     if (is_gquic_unencrypt(tvb, pinfo, offset, len_pkn, gquic_info) || g_gquic_debug){
         offset = dissect_gquic_unencrypt(tvb, pinfo, gquic_tree, offset, len_pkn, gquic_info);
     }else {     /* Payload... (encrypted... TODO FIX !) */
-        col_add_str(pinfo->cinfo, COL_INFO, "Payload (Encrypted)");
+        col_set_str(pinfo->cinfo, COL_INFO, "Payload (Encrypted)");
         proto_tree_add_item(gquic_tree, hf_gquic_payload, tvb, offset, -1, ENC_NA);
 
     }

@@ -4810,36 +4810,36 @@ dissect_struct_ldlm_intent(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_
     proto_tree_add_bitmask(parent_tree, tvb, offset, hf_lustre_ldlm_intent_opc, ett_lustre_ldlm_intent_opc, flags, ENC_LITTLE_ENDIAN);
     offset += 8;
 
-    col_append_fstr(pinfo->cinfo, COL_INFO, "[ intent:");
+    col_append_str(pinfo->cinfo, COL_INFO, "[ intent:");
     if (trans->sub_opcode & IT_OPEN    )
-        col_append_fstr(pinfo->cinfo, COL_INFO, " open");
+        col_append_str(pinfo->cinfo, COL_INFO, " open");
     if (trans->sub_opcode & IT_CREAT   )
-        col_append_fstr(pinfo->cinfo, COL_INFO, " create");
+        col_append_str(pinfo->cinfo, COL_INFO, " create");
     if (trans->sub_opcode & IT_READDIR )
-        col_append_fstr(pinfo->cinfo, COL_INFO, " readdir");
+        col_append_str(pinfo->cinfo, COL_INFO, " readdir");
     if (trans->sub_opcode & IT_GETATTR )
-        col_append_fstr(pinfo->cinfo, COL_INFO, " getattr");
+        col_append_str(pinfo->cinfo, COL_INFO, " getattr");
     if (trans->sub_opcode & IT_LOOKUP  )
-        col_append_fstr(pinfo->cinfo, COL_INFO, " lookup");
+        col_append_str(pinfo->cinfo, COL_INFO, " lookup");
     if (trans->sub_opcode & IT_UNLINK  )
-        col_append_fstr(pinfo->cinfo, COL_INFO, " unlink");
+        col_append_str(pinfo->cinfo, COL_INFO, " unlink");
     if (trans->sub_opcode & IT_TRUNC   )
-        col_append_fstr(pinfo->cinfo, COL_INFO, " trunc");
+        col_append_str(pinfo->cinfo, COL_INFO, " trunc");
     if (trans->sub_opcode & IT_GETXATTR)
-        col_append_fstr(pinfo->cinfo, COL_INFO, " getxattr");
+        col_append_str(pinfo->cinfo, COL_INFO, " getxattr");
     if (trans->sub_opcode & IT_EXEC    )
-        col_append_fstr(pinfo->cinfo, COL_INFO, " exec");
+        col_append_str(pinfo->cinfo, COL_INFO, " exec");
     if (trans->sub_opcode & IT_PIN     )
-        col_append_fstr(pinfo->cinfo, COL_INFO, " pin");
+        col_append_str(pinfo->cinfo, COL_INFO, " pin");
     if (trans->sub_opcode & IT_LAYOUT  )
-        col_append_fstr(pinfo->cinfo, COL_INFO, " layout");
+        col_append_str(pinfo->cinfo, COL_INFO, " layout");
     if (trans->sub_opcode & IT_QUOTA_DQACQ)
-        col_append_fstr(pinfo->cinfo, COL_INFO, " quota_dqacq");
+        col_append_str(pinfo->cinfo, COL_INFO, " quota_dqacq");
     if (trans->sub_opcode & IT_QUOTA_CONN )
-        col_append_fstr(pinfo->cinfo, COL_INFO, " quota_conn");
+        col_append_str(pinfo->cinfo, COL_INFO, " quota_conn");
     if (trans->sub_opcode & IT_SETXATTR   )
-        col_append_fstr(pinfo->cinfo, COL_INFO, " setxattr");
-    col_append_fstr(pinfo->cinfo, COL_INFO, " ] ");
+        col_append_str(pinfo->cinfo, COL_INFO, " setxattr");
+    col_append_str(pinfo->cinfo, COL_INFO, " ] ");
 
     return offset;
 }

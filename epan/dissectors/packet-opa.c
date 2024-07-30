@@ -605,7 +605,7 @@ static void parse_opa_grh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 
     int local_offset = *offset;
 
-    col_append_fstr(pinfo->cinfo, COL_INFO, "GRH: ");
+    col_append_str(pinfo->cinfo, COL_INFO, "GRH: ");
     global_route_header_item = proto_tree_add_item(tree, hf_opa_grh, tvb, local_offset, 40, ENC_NA);
     global_route_header_tree = proto_item_add_subtree(global_route_header_item, ett_grh);
 
@@ -645,7 +645,7 @@ static void parse_opa_bth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 
     int local_offset = *offset;
 
-    col_append_fstr(pinfo->cinfo, COL_INFO, "BTH: ");
+    col_append_str(pinfo->cinfo, COL_INFO, "BTH: ");
     base_transport_header_item = proto_tree_add_item(tree, hf_opa_bth, tvb, local_offset, 12, ENC_NA);
     base_transport_header_tree = proto_item_add_subtree(base_transport_header_item, ett_bth);
 
@@ -772,7 +772,7 @@ static void parse_RDETH(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
     proto_item *RDETH_header_item;
     proto_tree *RDETH_header_tree;
 
-    col_append_fstr(pinfo->cinfo, COL_INFO, "RDETH: ");
+    col_append_str(pinfo->cinfo, COL_INFO, "RDETH: ");
     RDETH_header_item = proto_tree_add_item(tree, hf_opa_RDETH, tvb, local_offset, 4, ENC_NA);
     RDETH_header_tree = proto_item_add_subtree(RDETH_header_item, ett_rdeth);
 
@@ -790,7 +790,7 @@ static void parse_DETH(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
     proto_item *DETH_header_item;
     proto_tree *DETH_header_tree;
 
-    col_append_fstr(pinfo->cinfo, COL_INFO, "DETH: ");
+    col_append_str(pinfo->cinfo, COL_INFO, "DETH: ");
     DETH_header_item = proto_tree_add_item(tree, hf_opa_DETH, tvb, local_offset, 8, ENC_NA);
     DETH_header_tree = proto_item_add_subtree(DETH_header_item, ett_deth);
 
@@ -811,7 +811,7 @@ static void parse_RETH(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
     proto_item *RETH_header_item;
     proto_tree *RETH_header_tree;
 
-    col_append_fstr(pinfo->cinfo, COL_INFO, "RETH: ");
+    col_append_str(pinfo->cinfo, COL_INFO, "RETH: ");
     RETH_header_item = proto_tree_add_item(tree, hf_opa_RETH, tvb, local_offset, 16, ENC_NA);
     RETH_header_tree = proto_item_add_subtree(RETH_header_item, ett_reth);
 
@@ -832,7 +832,7 @@ static void parse_ATOMICETH(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     proto_item *ATOMICETH_header_item;
     proto_tree *ATOMICETH_header_tree;
 
-    col_append_fstr(pinfo->cinfo, COL_INFO, "AtomicETH: ");
+    col_append_str(pinfo->cinfo, COL_INFO, "AtomicETH: ");
     ATOMICETH_header_item = proto_tree_add_item(tree, hf_opa_AtomicETH, tvb, local_offset, 28, ENC_NA);
     ATOMICETH_header_tree = proto_item_add_subtree(ATOMICETH_header_item, ett_atomiceth);
 
@@ -854,7 +854,7 @@ static void parse_AETH(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
     proto_item *AETH_header_item;
     proto_tree *AETH_header_tree;
 
-    col_append_fstr(pinfo->cinfo, COL_INFO, "AETH: ");
+    col_append_str(pinfo->cinfo, COL_INFO, "AETH: ");
     AETH_header_item = proto_tree_add_item(tree, hf_opa_AETH, tvb, local_offset, 4, ENC_NA);
     AETH_header_tree = proto_item_add_subtree(AETH_header_item, ett_aeth);
 
@@ -873,7 +873,7 @@ static void parse_ATOMICACKETH(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     proto_item *ATOMICACKETH_header_item;
     proto_tree *ATOMICACKETH_header_tree;
 
-    col_append_fstr(pinfo->cinfo, COL_INFO, "AtomicACKETH: ");
+    col_append_str(pinfo->cinfo, COL_INFO, "AtomicACKETH: ");
     ATOMICACKETH_header_item = proto_tree_add_item(tree, hf_opa_AtomicAckETH, tvb, local_offset, 8, ENC_NA);
     ATOMICACKETH_header_tree = proto_item_add_subtree(ATOMICACKETH_header_item, ett_atomicacketh);
     proto_tree_add_item(ATOMICACKETH_header_tree, hf_opa_AtomicAckETH_original_remote_data, tvb, local_offset, 8, ENC_BIG_ENDIAN);
@@ -888,7 +888,7 @@ static void parse_IMMDT(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
     proto_item *IMMDT_header_item;
     proto_tree *IMMDT_header_tree;
 
-    col_append_fstr(pinfo->cinfo, COL_INFO, "IMMDT: ");
+    col_append_str(pinfo->cinfo, COL_INFO, "IMMDT: ");
     IMMDT_header_item = proto_tree_add_item(tree, hf_opa_IMMDT, tvb, local_offset, 4, ENC_NA);
     IMMDT_header_tree = proto_item_add_subtree(IMMDT_header_item, ett_immdt);
     proto_tree_add_item(IMMDT_header_tree, hf_opa_IMMDT_data, tvb, local_offset, 4, ENC_BIG_ENDIAN);
@@ -903,7 +903,7 @@ static void parse_IETH(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
     proto_item *IETH_header_item;
     proto_tree *IETH_header_tree;
 
-    col_append_fstr(pinfo->cinfo, COL_INFO, "IETH: ");
+    col_append_str(pinfo->cinfo, COL_INFO, "IETH: ");
     IETH_header_item = proto_tree_add_item(tree, hf_opa_IETH, tvb, local_offset, 4, ENC_NA);
     IETH_header_tree = proto_item_add_subtree(IETH_header_item, ett_ieth);
 
@@ -920,7 +920,7 @@ static void parse_KDETH(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
     proto_item *KDETH_header_item;
     proto_tree *KDETH_header_tree;
 
-    col_append_fstr(pinfo->cinfo, COL_INFO, "KDETH: ");
+    col_append_str(pinfo->cinfo, COL_INFO, "KDETH: ");
     KDETH_header_item = proto_tree_add_item(tree, hf_opa_KDETH, tvb, local_offset, 8, ENC_NA);
     KDETH_header_tree = proto_item_add_subtree(KDETH_header_item, ett_kdeth);
 
@@ -941,7 +941,7 @@ static void parse_PSM(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int *
     proto_tree *PSM_header_tree;
     uint32_t payLength;
 
-    col_append_fstr(pinfo->cinfo, COL_INFO, "PSM: ");
+    col_append_str(pinfo->cinfo, COL_INFO, "PSM: ");
     PSM_header_item = proto_tree_add_item(tree, hf_opa_psm, tvb, local_offset, 28, ENC_NA);
     PSM_header_tree = proto_item_add_subtree(PSM_header_item, ett_psm);
 
@@ -1125,7 +1125,7 @@ static void parse_TIDRDMA(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
     switch (opCode) {
     case TID_RDMA_WRITE_REQUEST:
         parse_RETH(tvb, pinfo, tree, &local_offset);
-        col_append_fstr(pinfo->cinfo, COL_INFO, "TID RDMA Write Request: ");
+        col_append_str(pinfo->cinfo, COL_INFO, "TID RDMA Write Request: ");
         TIDRDMA_header_item = proto_tree_add_item(tree, hf_opa_TIDRDMA, tvb, local_offset, 12, ENC_NA);
         proto_item_set_text(TIDRDMA_header_item, "TID RDMA Write Request Header");
         TIDRDMA_header_tree = proto_item_add_subtree(TIDRDMA_header_item, ett_tidrdma);
@@ -1141,7 +1141,7 @@ static void parse_TIDRDMA(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
         break;
     case TID_RDMA_WRITE_RESPONSE:
         parse_AETH(tvb, pinfo, tree, &local_offset);
-        col_append_fstr(pinfo->cinfo, COL_INFO, "TID RDMA Write Response: ");
+        col_append_str(pinfo->cinfo, COL_INFO, "TID RDMA Write Response: ");
         TIDRDMA_header_item = proto_tree_add_item(tree, hf_opa_TIDRDMA, tvb, local_offset, 24, ENC_NA);
         proto_item_set_text(TIDRDMA_header_item, "TID RDMA Write Response Header");
         TIDRDMA_header_tree = proto_item_add_subtree(TIDRDMA_header_item, ett_tidrdma);
@@ -1162,7 +1162,7 @@ static void parse_TIDRDMA(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
         *parsePayload = false;
         break;
     case TID_RDMA_WRITE_DATA:
-        col_append_fstr(pinfo->cinfo, COL_INFO, "TID RDMA Write Data: ");
+        col_append_str(pinfo->cinfo, COL_INFO, "TID RDMA Write Data: ");
         TIDRDMA_header_item = proto_tree_add_item(tree, hf_opa_TIDRDMA, tvb, local_offset, 28, ENC_NA);
         proto_item_set_text(TIDRDMA_header_item, "TID RDMA Write Data Header");
         TIDRDMA_header_tree = proto_item_add_subtree(TIDRDMA_header_item, ett_tidrdma);
@@ -1177,7 +1177,7 @@ static void parse_TIDRDMA(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
         *parsePayload = true;
         break;
     case TID_RDMA_WRITE_DATA_LAST:
-        col_append_fstr(pinfo->cinfo, COL_INFO, "TID RDMA Write Data Last: ");
+        col_append_str(pinfo->cinfo, COL_INFO, "TID RDMA Write Data Last: ");
         TIDRDMA_header_item = proto_tree_add_item(tree, hf_opa_TIDRDMA, tvb, local_offset, 28, ENC_NA);
         proto_item_set_text(TIDRDMA_header_item, "TID RDMA Write Data Last Header");
         TIDRDMA_header_tree = proto_item_add_subtree(TIDRDMA_header_item, ett_tidrdma);
@@ -1193,7 +1193,7 @@ static void parse_TIDRDMA(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
         break;
     case TID_RDMA_READ_REQUEST:
         parse_RETH(tvb, pinfo, tree, &local_offset);
-        col_append_fstr(pinfo->cinfo, COL_INFO, "TID RDMA Read Request: ");
+        col_append_str(pinfo->cinfo, COL_INFO, "TID RDMA Read Request: ");
         TIDRDMA_header_item = proto_tree_add_item(tree, hf_opa_TIDRDMA, tvb, local_offset, 12, ENC_NA);
         proto_item_set_text(TIDRDMA_header_item, "TID RDMA Read Request Header");
         TIDRDMA_header_tree = proto_item_add_subtree(TIDRDMA_header_item, ett_tidrdma);
@@ -1212,7 +1212,7 @@ static void parse_TIDRDMA(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
         break;
     case TID_RDMA_READ_RESPONSE:
         parse_AETH(tvb, pinfo, tree, &local_offset);
-        col_append_fstr(pinfo->cinfo, COL_INFO, "TID RDMA Read Response: ");
+        col_append_str(pinfo->cinfo, COL_INFO, "TID RDMA Read Response: ");
         TIDRDMA_header_item = proto_tree_add_item(tree, hf_opa_TIDRDMA, tvb, local_offset, 24, ENC_NA);
         proto_item_set_text(TIDRDMA_header_item, "TID RDMA Read Response Header");
         TIDRDMA_header_tree = proto_item_add_subtree(TIDRDMA_header_item, ett_tidrdma);
@@ -1230,7 +1230,7 @@ static void parse_TIDRDMA(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
         *parsePayload = true;
         break;
     case TID_RDMA_RESYNC:
-        col_append_fstr(pinfo->cinfo, COL_INFO, "TID RDMA Read ReSync: ");
+        col_append_str(pinfo->cinfo, COL_INFO, "TID RDMA Read ReSync: ");
         TIDRDMA_header_item = proto_tree_add_item(tree, hf_opa_TIDRDMA, tvb, local_offset, 28, ENC_NA);
         proto_item_set_text(TIDRDMA_header_item, "TID RDMA Read ReSync Header");
         TIDRDMA_header_tree = proto_item_add_subtree(TIDRDMA_header_item, ett_tidrdma);
@@ -1246,7 +1246,7 @@ static void parse_TIDRDMA(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
         break;
     case TID_RDMA_ACK:
         parse_AETH(tvb, pinfo, tree, &local_offset);
-        col_append_fstr(pinfo->cinfo, COL_INFO, "TID RDMA ACK: ");
+        col_append_str(pinfo->cinfo, COL_INFO, "TID RDMA ACK: ");
         TIDRDMA_header_item = proto_tree_add_item(tree, hf_opa_TIDRDMA, tvb, local_offset, 24, ENC_NA);
         proto_item_set_text(TIDRDMA_header_item, "TID RDMA ACK Header");
         TIDRDMA_header_tree = proto_item_add_subtree(TIDRDMA_header_item, ett_tidrdma);

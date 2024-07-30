@@ -305,7 +305,7 @@ dissect_osmux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
                                    "unknown 0x%02x"));
 
         if (osmuxh->rtp_m)
-            col_append_fstr(pinfo->cinfo, COL_INFO, "(M) ");
+            col_append_str(pinfo->cinfo, COL_INFO, "(M) ");
 
         ti = proto_tree_add_protocol_format(tree, proto_osmux, tvb, offset, -1,
                 "Osmux type %s frame",
