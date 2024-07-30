@@ -713,10 +713,10 @@ static bool lua_load_internal_script(const char* filename) {
 /* This one is used to load plugins: either from the plugin directories,
  *   or from the command line.
  */
-static gboolean lua_load_plugin_script(const char* name,
-                                       const char* filename,
-                                       const char* dirname,
-                                       const int file_count)
+static bool lua_load_plugin_script(const char* name,
+                                   const char* filename,
+                                   const char* dirname,
+                                   const int file_count)
 {
     ws_debug("Loading lua script: %s", filename);
     if (lua_load_script(filename, dirname, file_count)) {
