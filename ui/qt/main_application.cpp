@@ -304,7 +304,7 @@ void MainApplication::helpTopicAction(topic_action_e action)
     QString url = gchar_free_to_qstring(topic_action_url(action));
 
     if (!url.isEmpty()) {
-        QDesktopServices::openUrl(QUrl(url));
+        QDesktopServices::openUrl(QUrl(QDir::fromNativeSeparators(url)));
     }
 }
 

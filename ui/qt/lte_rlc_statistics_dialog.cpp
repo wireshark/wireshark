@@ -719,7 +719,7 @@ static const QString channel_col_3_title_ = QObject::tr("Priority");
 
 // Constructor.
 LteRlcStatisticsDialog::LteRlcStatisticsDialog(QWidget &parent, CaptureFile &cf, const char *filter) :
-    TapParameterDialog(parent, cf, HELP_STATS_LTE_MAC_TRAFFIC_DIALOG),
+    TapParameterDialog(parent, cf, HELP_STATS_LTE_RLC_TRAFFIC_DIALOG),
     cf_(cf),
     packet_count_(0)
 {
