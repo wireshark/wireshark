@@ -81,6 +81,7 @@ static int hf_zabbix_version = -1;
 
 /* Initialize the subtree pointers */
 static int ett_zabbix = -1;
+static int ett_zabbix_flags = -1;
 
 /* Initialize expert fields */
 static expert_field ei_zabbix_packet_too_large = EI_INIT;
@@ -254,7 +255,7 @@ dissect_zabbix_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
     zabbix_tree = proto_item_add_subtree(ti, ett_zabbix);
     proto_tree_add_item(zabbix_tree, hf_zabbix_header, tvb, offset, 4, ENC_UTF_8);
     offset += 4;
-    proto_tree_add_bitmask(zabbix_tree, tvb, offset, hf_zabbix_flags, ett_zabbix, flagbits, ENC_BIG_ENDIAN);
+    proto_tree_add_bitmask(zabbix_tree, tvb, offset, hf_zabbix_flags, ett_zabbix_flags, flagbits, ENC_BIG_ENDIAN);
     offset += 1;
     if (is_large_packet) {
         /* 8-byte values */
@@ -1072,6 +1073,7 @@ proto_register_zabbix(void)
     /* Setup protocol subtree array */
     static gint *ett[] = {
         &ett_zabbix,
+        &ett_zabbix_flags,
     };
 
     module_t *zabbix_module;
