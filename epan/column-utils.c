@@ -494,6 +494,9 @@ col_append_str_uint(column_info *cinfo, const int col, const char *abbrev, uint3
 {
   char buf[16];
 
+  if (!CHECK_COL(cinfo, col))
+    return;
+
   uint32_to_str_buf(val, buf, sizeof(buf));
   col_append_lstr(cinfo, col, sep ? sep : "", abbrev, "=", buf, COL_ADD_LSTR_TERMINATOR);
 }
@@ -515,6 +518,9 @@ void
 col_append_ports(column_info *cinfo, const int col, port_type typ, uint16_t src, uint16_t dst)
 {
   char buf_src[32], buf_dst[32];
+
+  if (!CHECK_COL(cinfo, col))
+    return;
 
   col_snprint_port(buf_src, 32, typ, src);
   col_snprint_port(buf_dst, 32, typ, dst);
