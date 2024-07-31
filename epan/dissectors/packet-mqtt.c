@@ -1854,6 +1854,7 @@ void proto_reg_handoff_mqtt(void)
   ssl_dissector_add(MQTT_SSL_DEFAULT_PORT, mqtt_handle);
 
   media_type_dissector_table = find_dissector_table("media_type");
+  dissector_add_string("quic.proto", "mqtt", mqtt_handle);
 }
 
 /*
