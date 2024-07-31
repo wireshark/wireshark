@@ -594,38 +594,48 @@ static int lua_script_push_args(const int script_num) {
     return count;
 }
 
+/* Prepends a path to the global package path (used by require)
+ * We could add a custom loader to package.searchers instead, which
+ * might be more useful in some way. We could also have some method of
+ * saving and restoring the path, instead of constantly adding to it. */
+static void prepend_path(const char* dirname) {
+    const char* path;
+
+    /* prepend the directory name to _G.package.path */
+    lua_getglobal(L, "package"); /* get the package table from the global table */
+    lua_getfield(L, -1, "path");    /* get the path field from the package table */
+    path = luaL_checkstring(L, -1); /* get the path string */
+    lua_pop(L, 1);                  /* pop the path string */
+    /* prepend the path */
+    /* We could also add "?/init.lua" for packages. */
+    lua_pushfstring(L, "%s" G_DIR_SEPARATOR_S "?.lua;%s",
+                    dirname, path);
+    lua_setfield(L, -2, "path");
+    lua_pop(L, 1);
+}
+
 #define FILE_NAME_KEY "__FILE__"
 #define DIR_NAME_KEY "__DIR__"
 #define DIR_SEP_NAME_KEY "__DIR_SEPARATOR__"
 /* assumes a loaded chunk's function is on top of stack */
 static void set_file_environment(const char* filename, const char* dirname) {
-    const char* path;
-
     lua_newtable(L); /* environment for script (index 3) */
 
+    /* XXX - Do we need this? A script can get the filename and path from
+     * debug.getinfo/lua_Debug source */
     lua_pushstring(L, filename); /* tell the script about its filename */
     lua_setfield(L, -2, FILE_NAME_KEY); /* make it accessible at __FILE__ */
 
     lua_pushstring(L, dirname); /* tell the script about its dirname */
     lua_setfield(L, -2, DIR_NAME_KEY); /* make it accessible at __DIR__ */
 
+    /* XXX - Do we need this? package.config:sub(1,1) is the directory separator */
     lua_pushstring(L, G_DIR_SEPARATOR_S); /* tell the script the directory separator */
-    lua_setfield(L, -2, DIR_SEP_NAME_KEY); /* make it accessible at __DIR__ */
+    lua_setfield(L, -2, DIR_SEP_NAME_KEY); /* make it accessible at __DIR_SEPARATOR__ */
 
     lua_newtable(L); /* new metatable */
 
     lua_pushglobaltable(L);
-
-    /* prepend the directory name to _G.package.path */
-    lua_getfield(L, -1, "package"); /* get the package table from the global table */
-    lua_getfield(L, -1, "path");    /* get the path field from the package table */
-    path = luaL_checkstring(L, -1); /* get the path string */
-    lua_pop(L, 1);                  /* pop the path string */
-    /* prepend the various paths */
-    lua_pushfstring(L, "%s" G_DIR_SEPARATOR_S "?.lua;%s" G_DIR_SEPARATOR_S "?.lua;%s" G_DIR_SEPARATOR_S "?.lua;%s",
-                    dirname, get_plugins_pers_dir(), get_plugins_dir(), path);
-    lua_setfield(L, -2, "path");    /* set the new string to be the path field of the package table */
-    lua_setfield(L, -2, "package"); /* set the package table to be the package field of the global */
 
     lua_setfield(L, -2, "__index"); /* make metatable's __index point to global table */
 
@@ -633,6 +643,21 @@ static void set_file_environment(const char* filename, const char* dirname) {
 
     lua_setupvalue(L, -2, 1); /* pop environment and assign it to upvalue 1 */
 
+    /* The result of this is a new environment that falls back to reading from
+     * the global environment for any entry not in the new environment, but
+     * can't change the global environment while running.
+     *
+     * Unfortunately, while we could create a file-local package.path, it
+     * wouldn't have any effect on the path actually used by requires, since
+     * the requires function has as an upvalue the original package table;
+     * we can't change the behavior of requires without changing it for
+     * the global environment and for all scripts.
+     *
+     * For some of the same reasons, if the script itself calls require(),
+     * that actually affects the original global environment too, so this
+     * sandboxing doesn't completely work to keep the global environment
+     * unchanged. Is it worth it?
+     */
 }
 
 
@@ -806,6 +831,11 @@ static int lua_load_plugins(const char *dirname, register_cb cb, void *client_da
 
     /* Process files in ASCIIbetical order */
     if (sorted_filenames != NULL) {
+        /* If this is not the root of the plugin directory, add it to the path.
+         * XXX - Should we remove it after we're done with this directory? */
+        if (depth > 0) {
+            prepend_path(dirname);
+        }
         sorted_filenames = g_list_sort(sorted_filenames, string_compare);
         for (l = sorted_filenames; l != NULL; l = l->next) {
             filename = (char *)l->data;
@@ -845,6 +875,14 @@ static int lua_load_pers_plugins(register_cb cb, void *client_data,
     int plugins_counter = 0;
 
     /* aux table (set) to make sure we only load each file once (by name) */
+    /* XXX - This doesn't prevent users from loading a file a second time
+     * via a different method, e.g., require() or dofile().
+     *
+     * We should probably add to package.loaded for each file, either what
+     * pcall() returns, or true if it returns nil, as require does.
+     * Then require wouldn't load the file again, but would retrieve the result.
+     * (Or we could just use require directly, without sandboxing _ENV.)
+     */
     GHashTable *loaded_user_scripts = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, NULL);
 
     /* load user scripts */
@@ -1592,6 +1630,14 @@ void wslua_init(register_cb cb, void *client_data) {
     }
 
     /* load system's init.lua */
+#if 0
+    /* wslua_dofile / wslua_get_actual_filename look in the datafile dir.
+     * Should we add that to the path for require() as well, for consistency?
+     */
+    prepend_path(get_datafile_dir());
+#endif
+    /* Add the global plugins path for require */
+    prepend_path(get_plugins_dir());
     filename = g_build_filename(get_plugins_dir(), "init.lua", (char *)NULL);
     if (file_exists(filename)) {
         ws_debug("Loading init.lua file: %s", filename);
@@ -1602,6 +1648,21 @@ void wslua_init(register_cb cb, void *client_data) {
     /* load user's init.lua */
     /* if we are indeed superuser run user scripts only if told to do so */
     if (!started_with_special_privs() || run_anyway) {
+#if 0
+        /* wslua_dofile / wslua_get_actual_filename look in the personal configuration
+         * directory. Should we add that to the path for require() as well, for consistency?
+         */
+        profile_dir = get_profile_dir(NULL, false);
+        prepend_path(profile_dir);
+        g_free(profile_dir);
+#endif
+        /* Add the personal plugins path(s) for require() */
+        char *old_path = get_persconffile_path("plugins", false);
+        if (strcmp(get_plugins_pers_dir(), old_path) != 0) {
+            prepend_path(old_path);
+        }
+        g_free(old_path);
+        prepend_path(get_plugins_pers_dir());
         filename = g_build_filename(get_plugins_pers_dir(), "init.lua", (char *)NULL);
         if (file_exists(filename)) {
             ws_debug("Loading init.lua file: %s", filename);
@@ -1663,6 +1724,12 @@ void wslua_init(register_cb cb, void *client_data) {
             const char *script_filename = ex_opt_get_nth("lua_script", i);
             char* dirname = g_strdup(script_filename);
             char* dname = get_dirname(dirname);
+            /* Add the command line script directory to the path (unless it's
+             * the current directory, which should already be in the path by
+             * default).
+             * XXX - Should we remove it after we're done with this script? */
+            if (dname)
+                prepend_path(dname);
 
             if (cb)
                 (*cb)(RA_LUA_PLUGINS, get_basename(script_filename), client_data);
