@@ -20,6 +20,8 @@
 #include "ui/export_pdu_ui_utils.h"
 #include "ui/capture_globals.h"
 
+#include "main_application.h"
+
 StripHeadersDialog::StripHeadersDialog(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::StripHeadersDialog)
@@ -28,12 +30,15 @@ StripHeadersDialog::StripHeadersDialog(QWidget *parent) :
 
     ui->setupUi(this);
 
+    setWindowTitle(mainApp->windowTitleString(tr("Strip Headers")));
+
     for (tap_name_list = get_export_pdu_tap_list(); tap_name_list; tap_name_list = g_slist_next(tap_name_list)) {
         if (export_pdu_tap_get_encap((const char*)tap_name_list->data) != WTAP_ENCAP_WIRESHARK_UPPER_PDU) {
             ui->comboBox->addItem((const char*)(tap_name_list->data));
         }
     }
 }
+
 void StripHeadersDialog::on_buttonBox_accepted()
 {
     const QByteArray& filter = ui->displayFilterLineEdit->text().toUtf8();
@@ -41,6 +46,12 @@ void StripHeadersDialog::on_buttonBox_accepted()
 
     do_export_pdu(filter.constData(), global_capture_opts.temp_dir, tap_name.constData());
 }
+
+void StripHeadersDialog::on_buttonBox_helpRequested()
+{
+    mainApp->helpTopicAction(HELP_STRIP_HEADERS_DIALOG);
+}
+
 StripHeadersDialog::~StripHeadersDialog()
 {
     delete ui;

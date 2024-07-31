@@ -255,6 +255,12 @@ topic_action_url(topic_action_e action)
     case(HELP_EXPORT_BYTES_DIALOG):
         url = user_guide_url("ChIOExportSection.html#ChIOExportSelectedDialog");
         break;
+    case(HELP_EXPORT_PDUS_DIALOG):
+        url = user_guide_url("ChIOExportSection.html#ChIOExportPDUSDialog");
+        break;
+    case(HELP_STRIP_HEADERS_DIALOG):
+        url = user_guide_url("ChIOExportSection.html#ChIOStripHeadersDialog");
+        break;
     case(HELP_EXPORT_OBJECT_LIST):
         url = user_guide_url("ChIOExportSection.html#ChIOExportObjectsDialog");
         break;

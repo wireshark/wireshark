@@ -30,6 +30,7 @@ private:
 
 private slots:
     void on_buttonBox_accepted();
+    void on_buttonBox_helpRequested();
 };
 
 #endif // EXPORT_PDU_DIALOG_H

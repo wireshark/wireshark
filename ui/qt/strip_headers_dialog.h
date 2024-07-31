@@ -30,6 +30,7 @@ private:
 
 private slots:
     void on_buttonBox_accepted();
+    void on_buttonBox_helpRequested();
 };
 
 #endif // STRIP_HEADERS_DIALOG_H

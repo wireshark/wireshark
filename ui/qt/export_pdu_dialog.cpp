@@ -19,6 +19,8 @@
 #include "ui/export_pdu_ui_utils.h"
 #include "ui/capture_globals.h"
 
+#include "main_application.h"
+
 ExportPDUDialog::ExportPDUDialog(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::ExportPDUDialog)
@@ -27,12 +29,15 @@ ExportPDUDialog::ExportPDUDialog(QWidget *parent) :
 
     ui->setupUi(this);
 
+    setWindowTitle(mainApp->windowTitleString(tr("Export PDUs")));
+
     for (tap_name_list = get_export_pdu_tap_list(); tap_name_list; tap_name_list = g_slist_next(tap_name_list)) {
         if (export_pdu_tap_get_encap((const char*)tap_name_list->data) == WTAP_ENCAP_WIRESHARK_UPPER_PDU) {
             ui->comboBox->addItem((const char*)(tap_name_list->data));
         }
     }
 }
+
 void ExportPDUDialog::on_buttonBox_accepted()
 {
     const QByteArray& filter = ui->displayFilterLineEdit->text().toUtf8();
@@ -40,6 +45,12 @@ void ExportPDUDialog::on_buttonBox_accepted()
 
     do_export_pdu(filter.constData(), global_capture_opts.temp_dir, tap_name.constData());
 }
+
+void ExportPDUDialog::on_buttonBox_helpRequested()
+{
+    mainApp->helpTopicAction(HELP_EXPORT_PDUS_DIALOG);
+}
+
 ExportPDUDialog::~ExportPDUDialog()
 {
     delete ui;

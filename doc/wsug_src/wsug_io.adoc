@@ -1026,7 +1026,7 @@ NOTE: As a developer you can add any dissector to the existing list or define a 
 +
 NOTE: The file produced has a `Wireshark Upper PDU` encapsulation type that has somewhat limited support outside of Wireshark, but is very flexible and can contain PDUs for any protocol for which there is a Wireshark dissector.
 
-[#ChIOStripHeaders]
+[#ChIOStripHeadersDialog]
 
 ==== The “Strip Headers...” Dialog Box
 
