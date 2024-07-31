@@ -22,8 +22,10 @@ from the global link:{wireshark-users-guide-url}ChPluginFolders.html[_plugins di
 and then from the user’s
 link:{wireshark-users-guide-url}ChAppFilesConfigurationSection.html[_personal plugins directory_].
 Then all files ending with _.lua_ are loaded from the global plugins
-directory. Then all files ending with _.lua_ in the personal Lua plugin's
-directory.
+directory and its subdirectories. Then all files ending with _.lua_ in the
+personal Lua plugins directory and its subdirectories are loaded. The
+files are processed in ASCIIbetical order (compared byte-by-byte, as `strcmp`),
+descending into each subdirectory depth-first in order.
 
 Whether or not Lua scripts are enabled can be controlled via the
 _$$enable_lua$$_ variable. Lua scripts are enabled by
@@ -51,10 +53,37 @@ run_user_scripts_when_superuser = true
 ----
 
 The command line option _$$-X lua_script:$$++file.lua++_ can also be used to load
-specific Lua scripts.
+specific Lua scripts. Arguments can be given to a script loaded at the command
+line with the option _$$-X lua_scriptN:$$++arg++_, where _N_ is the ordinal
+index of the script on the command line. For example, if two scripts were loaded
+on the command line with _$$-X lua_script:$$++my.lua++_ and
+_$$-X lua_script:$$++other.lua++_ in that order, then _$$-X lua_script1:$$++foo++_
+would pass _foo_ to _my.lua_ and _$$-X lua_script2:$$++bar++_ would pass _bar_ to
+_other.lua_. Multiple command line options could be passed to _my.lua_ by
+repating the option _$$-X lua_script1:$$_.  Arguments are available in a script in
+a global table called _arg_, similar to when
+link:https://www.lua.org/manual/5.4/manual.html#7[running Lua standalone].
 
-The Lua code is executed after all protocol dissectors are
-initialized and before reading any file.
+[IMPORTANT]
+.Loading order matters
+====
+Lua dissectors, unlike <<ChapterDissection,compiled protocol dissectors>>, do
+not have separate <<ChDissectSetup,registration and handoff>> stages yet
+(see wsbuglink:15907[]). Each Lua dissector's registration and handoff is
+completed before moving to the next Lua file in turn.
+That means that the order in which Lua files are read is quite important;
+in order for a Lua dissector to register in a dissector table set up by another
+dissector, the latter dissector must have been already processed. The easiest
+way to ensure this is to put Lua dissectors that need to be registered first
+in files whose name is earlier in ASCIIbetical order (the name of the script
+does not necessarily need to relate to the name of the dissector.)
+
+The Lua code is executed after all compiled dissectors, both built-in and plugin,
+are initialized and before reading any file.
+This means that Lua dissectors can add themselves to tables registered by compiled
+dissectors, but not vice versa; compiled dissectors cannot add themselves to
+dissector tables registered by Lua dissectors.
+====
 
 Wireshark for Windows uses a modified Lua runtime
 (link:https://github.com/Lekensteyn/lua-unicode[lua-unicode]) to
