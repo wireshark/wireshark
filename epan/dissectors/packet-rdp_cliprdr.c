@@ -108,7 +108,7 @@ dissect_rdp_cliprdr(tvbuff_t *tvb _U_, packet_info *pinfo, proto_tree *parent_tr
 	proto_tree_add_item(tree, hf_cliprdr_dataLen, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	//offset += 4;
 
-	col_add_str(pinfo->cinfo, COL_INFO, val_to_str_const(cmdId, rdp_cliprdr_order_vals, "Unknown clipboard command"));
+	col_set_str(pinfo->cinfo, COL_INFO, val_to_str_const(cmdId, rdp_cliprdr_order_vals, "Unknown clipboard command"));
 
 	switch (cmdId) {
 	case CB_MONITOR_READY:

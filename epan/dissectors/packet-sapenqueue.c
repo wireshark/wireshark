@@ -408,7 +408,7 @@ dissect_sapenqueue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
 	}
 
 	/* Add the protocol to the column */
-	col_add_str(pinfo->cinfo, COL_PROTOCOL, "SAPENQUEUE");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "SAPENQUEUE");
 	/* Clear out stuff in the info column */
 	col_clear(pinfo->cinfo,COL_INFO);
 

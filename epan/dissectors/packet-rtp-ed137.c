@@ -871,7 +871,7 @@ static ed137rmm_transaction_t *transaction_start(packet_info * pinfo,
                          ENC_NA);
             proto_item_set_generated(it);
 
-            col_append_fstr(pinfo->cinfo, COL_INFO, ", RMM (no response found!)");
+            col_append_str(pinfo->cinfo, COL_INFO, ", RMM (no response found!)");
 
             /* Expert info. */
             expert_add_info_format(pinfo, it, &ei_rtp_hdr_ed137_ft_climax_ddc_rmm_resp_not_found,

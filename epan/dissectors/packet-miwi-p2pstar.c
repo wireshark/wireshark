@@ -557,7 +557,7 @@ dissect_miwi_connect_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, mi
         proto_item_append_text(ti, "%s", val_to_str_const(status, miwi_p2pstar_conn_status, " (Reserved)"));
     }
     *offset += 1;
-    col_append_fstr(pinfo->cinfo, COL_INFO, " Connection Response");
+    col_append_str(pinfo->cinfo, COL_INFO, " Connection Response");
 
     /* Update the info column. */
     if(status == IEEE802154_CMD_ASRSP_AS_SUCCESS){
@@ -799,7 +799,7 @@ dissect_miwi_connect_tbl_bcast_cmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 static void
 dissect_miwi_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, miwi_packet *packet, unsigned *offset)
 {
-    col_append_fstr(pinfo->cinfo, COL_INFO, "%s", val_to_str_const((const uint32_t)packet->command_id, miwi_p2pstar_cmd_names, "Unknown Command"));
+    col_append_str(pinfo->cinfo, COL_INFO, val_to_str_const((const uint32_t)packet->command_id, miwi_p2pstar_cmd_names, "Unknown Command"));
 
     switch (packet->command_id){
         case MIWI_P2P_CMD_CONN_REQ:

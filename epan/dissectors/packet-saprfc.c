@@ -940,7 +940,7 @@ dissect_saprfc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 	proto_tree *saprfc_tree = NULL, *accept_info_tree = NULL;
 
 	/* Add the protocol to the column */
-	col_add_str(pinfo->cinfo, COL_PROTOCOL, "SAPRFC");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "SAPRFC");
 	/* Clear out stuff in the info column */
 	col_clear(pinfo->cinfo, COL_INFO);
 

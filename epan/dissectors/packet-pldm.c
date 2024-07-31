@@ -628,7 +628,7 @@ int dissect_base(tvbuff_t *tvb, packet_info *pinfo, proto_tree *p_tree, const pl
 				if (pldmT == 63)
 					pldmT = 7; // for oem-specific inorder to avoid array of size 64
 				if (instID > 31 || pldmT > 7) {
-					col_append_fstr(pinfo->cinfo, COL_INFO, "Invalid PLDM Inst ID or Type");
+					col_append_str(pinfo->cinfo, COL_INFO, "Invalid PLDM Inst ID or Type");
 					break;
 				} else {
 					pldmTypeMap = wmem_map_new(addr_resolv_scope, g_direct_hash, g_direct_equal);
@@ -702,12 +702,12 @@ int dissect_base(tvbuff_t *tvb, packet_info *pinfo, proto_tree *p_tree, const pl
 						}
 					    break;
 					default:
-					       col_append_fstr(pinfo->cinfo, COL_INFO, "Invalid PLDM Command Request");
+						   col_append_str(pinfo->cinfo, COL_INFO, "Invalid PLDM Command Request");
 				}
 			}
 			break;
 		default:
-			col_append_fstr(pinfo->cinfo, COL_INFO, "Invalid PLDM command");
+			col_append_str(pinfo->cinfo, COL_INFO, "Invalid PLDM command");
 			break;
 	}
 	return tvb_captured_length(tvb);
@@ -806,11 +806,11 @@ int dissect_platform(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *p_tree, 
 										proto_tree_add_item(p_tree, hf_sensor_value_s32, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 										break;
 									default: // Invalid
-										col_append_fstr(pinfo->cinfo, COL_INFO, "Invalid byte");
+										col_append_str(pinfo->cinfo, COL_INFO, "Invalid byte");
 								}
 								break;
 							default:
-								col_append_fstr(pinfo->cinfo, COL_INFO, "Invalid sensor event class");
+								col_append_str(pinfo->cinfo, COL_INFO, "Invalid sensor event class");
 								break;
 						}
 						break;
@@ -849,7 +849,7 @@ int dissect_platform(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *p_tree, 
 						}
 						break;
 					default:
-						col_append_fstr(pinfo->cinfo, COL_INFO, "Invalid platform message type");
+						col_append_str(pinfo->cinfo, COL_INFO, "Invalid platform message type");
 				}
 			}
 			else {
@@ -929,7 +929,7 @@ int dissect_platform(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *p_tree, 
 						proto_tree_add_item(p_tree, hf_sensor_value_s32, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 						break;
 					default: // Invalid
-						col_append_fstr(pinfo->cinfo, COL_INFO, "Invalid byte");
+						col_append_str(pinfo->cinfo, COL_INFO, "Invalid byte");
 				}
 			}
 			break;
@@ -960,7 +960,7 @@ int dissect_platform(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *p_tree, 
 						proto_tree_add_item(p_tree, hf_effecter_value_s32, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 						break;
 					default: // Invalid
-						col_append_fstr(pinfo->cinfo, COL_INFO, "Invalid byte");
+						col_append_str(pinfo->cinfo, COL_INFO, "Invalid byte");
 				}
 			}
 			break;
@@ -1005,7 +1005,7 @@ int dissect_platform(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *p_tree, 
 						proto_tree_add_item(p_tree, hf_effecter_value_pres_s32, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 						break;
 					default: // Invalid
-						col_append_fstr(pinfo->cinfo, COL_INFO, "Invalid byte");
+						col_append_str(pinfo->cinfo, COL_INFO, "Invalid byte");
 				}
 
 			}
@@ -1050,7 +1050,7 @@ int dissect_platform(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *p_tree, 
 				uint16_t pdr_length = tvb_reported_length_remaining(tvb, offset);
 				if (response_cnt) {
 					if (pdr_length != response_cnt) {
-						col_append_fstr(pinfo->cinfo, COL_INFO, "Corrupt PDR Record data");
+						col_append_str(pinfo->cinfo, COL_INFO, "Corrupt PDR Record data");
 						break;
 					}
 					while (response_cnt > 0) {
@@ -1114,12 +1114,12 @@ uint16_t parse_fru_record_table(tvbuff_t *tvb, const packet_info *pinfo,
 											offset, field_len, ENC_UTF_16 | ENC_BIG_ENDIAN);
 						break;
 					default:
-						col_append_fstr(pinfo->cinfo, COL_INFO, "Unsupported or invalid FRU record encoding");
+						col_append_str(pinfo->cinfo, COL_INFO, "Unsupported or invalid FRU record encoding");
 						break;
 				}
 				offset += field_len;
 			} else {
-				col_append_fstr(pinfo->cinfo, COL_INFO, "Unsupported or OEM FRU record type");
+				col_append_str(pinfo->cinfo, COL_INFO, "Unsupported or OEM FRU record type");
 			}
 		}
 		bytes_left = tvb_reported_length(tvb) - offset;
@@ -1185,7 +1185,7 @@ int dissect_FRU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *p_tree, const pld
 				offset += 1;
 				offset = parse_fru_record_table(tvb, pinfo, p_tree, offset);//check
 				if (tvb_captured_length(tvb) != offset)
-					col_append_fstr(pinfo->cinfo, COL_INFO, "Unexpected bytes at end of FRU table");
+					col_append_str(pinfo->cinfo, COL_INFO, "Unexpected bytes at end of FRU table");
 			}
 			break;
 		case 0x03: // Set Fru record table
@@ -1231,7 +1231,7 @@ int dissect_FRU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *p_tree, const pld
 			}
 			break;
 		default:
-			col_append_fstr(pinfo->cinfo, COL_INFO, "Unsupported or Invalid PLDM command");
+			col_append_str(pinfo->cinfo, COL_INFO, "Unsupported or Invalid PLDM command");
 			break;
 	}
 

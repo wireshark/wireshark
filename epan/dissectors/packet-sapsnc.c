@@ -225,8 +225,8 @@ dissect_sapsnc_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32
 static int
 dissect_sapsnc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-	/* Add the protocol to the column */
-	col_add_str(pinfo->cinfo, COL_PROTOCOL, ", SAPSNC");
+	/* Add the protocol to the column. TODO: append instead? */
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, ", SAPSNC");
 	/* Clear out stuff in the info column */
 	col_clear(pinfo->cinfo,COL_INFO);
 	/* Call the SNC frame dissection function */

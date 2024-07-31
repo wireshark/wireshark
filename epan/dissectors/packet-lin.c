@@ -458,7 +458,7 @@ dissect_lin(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     col_add_fstr(pinfo->cinfo, COL_INFO, "LIN %s", val_to_str(msg_type, lin_msg_type_names, "(0x%02x)"));
 
     if (errors != 0) {
-        col_append_fstr(pinfo->cinfo, COL_INFO, " - ERR");
+        col_append_str(pinfo->cinfo, COL_INFO, " - ERR");
         proto_item_set_end(ti_root, tvb, 8);
         return 8;
     }

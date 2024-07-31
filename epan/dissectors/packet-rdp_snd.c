@@ -103,7 +103,7 @@ dissect_rdp_snd(tvbuff_t *tvb _U_, packet_info *pinfo, proto_tree *parent_tree _
 	proto_tree_add_item(tree, hf_snd_bodySize, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	//offset += 2;
 
-	col_add_str(pinfo->cinfo, COL_INFO, val_to_str_const(cmdId, rdp_snd_order_vals, "Unknown rdpsnd command"));
+	col_set_str(pinfo->cinfo, COL_INFO, val_to_str_const(cmdId, rdp_snd_order_vals, "Unknown rdpsnd command"));
 
 	switch (cmdId) {
 	case SNDC_CLOSE:

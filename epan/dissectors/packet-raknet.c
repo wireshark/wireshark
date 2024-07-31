@@ -1242,7 +1242,7 @@ raknet_dissect_connected_message(tvbuff_t *tvb, packet_info *pinfo,
          * RakNet uses ChaCha stream cipher to encrypt messages, which
          * is currently not supported by this dissector.
          */
-        col_add_str(pinfo->cinfo, COL_INFO, "Encrypted message");
+        col_set_str(pinfo->cinfo, COL_INFO, "Encrypted message");
 
         item_size = tvb_reported_length_remaining(tvb, offset);
         ti = proto_tree_add_expert(root_tree, pinfo, &ei_raknet_encrypted_message, tvb,
@@ -1372,7 +1372,7 @@ raknet_dissect_connected_message(tvbuff_t *tvb, packet_info *pinfo,
                     /*
                      * More messages are in the packet.
                      */
-                    col_append_fstr(pinfo->cinfo, COL_INFO, ", ");
+                    col_append_str(pinfo->cinfo, COL_INFO, ", ");
                     col_set_fence(pinfo->cinfo, COL_INFO);
                     continue;
                 }

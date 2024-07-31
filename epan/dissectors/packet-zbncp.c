@@ -1298,7 +1298,7 @@ dissect_zbncp_high_level_hdr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
     offset += 2;
 
     /* Update col */
-    col_append_fstr(pinfo->cinfo, COL_INFO, "%s", val_to_str_const(*ptype, zbncp_hl_type, "Unknown Type"));
+    col_append_str(pinfo->cinfo, COL_INFO, val_to_str_const(*ptype, zbncp_hl_type, "Unknown Type"));
     col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", val_to_str_const(*call_id, zbncp_hl_call_id, "Unknown Call ID"));
 
     /* Dissect additional values */

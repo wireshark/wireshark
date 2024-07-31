@@ -92,16 +92,16 @@ dissect_ap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void *data _
     switch (comcls) {
         case 0x0: {
             // ack without data
-            col_append_fstr(pinfo->cinfo, COL_INFO, "%s", "ACK without data");
+            col_append_str(pinfo->cinfo, COL_INFO, "ACK without data");
             break;
         }
         case 0x4: {
             // serial transfer
-            col_append_fstr(pinfo->cinfo, COL_INFO, "%s", "Serial transfer");
+            col_append_str(pinfo->cinfo, COL_INFO, "Serial transfer");
             break;
         }
         default:
-            col_append_fstr(pinfo->cinfo, COL_INFO, "%s", "UNKNOWN command class");
+            col_append_str(pinfo->cinfo, COL_INFO, "UNKNOWN command class");
     }
 
     proto_item *ap_item = proto_tree_add_item(tree, proto_ap, tvb, 0, -1, ENC_NA);

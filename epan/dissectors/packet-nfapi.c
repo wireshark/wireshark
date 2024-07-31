@@ -8275,7 +8275,7 @@ static int dissect_nfapi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
 	// Flag if this is a vendor extension message, could do it for P4, 5, 7
 	if (msg_id >= 0x0300 && msg_id <= 0x03FF)
 	{
-		col_append_fstr(pinfo->cinfo, COL_INFO, "Vendor Extension");
+		col_append_str(pinfo->cinfo, COL_INFO, "Vendor Extension");
 		proto_item_append_text(nfapi_item, ", Vendor Extension");
 	}
 	else

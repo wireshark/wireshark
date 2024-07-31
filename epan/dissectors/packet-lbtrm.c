@@ -1120,7 +1120,7 @@ static int dissect_lbtrm(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
     lbm_lbtrm_tap_info_t * tapinfo = NULL;
     proto_item * header_type_item = NULL;
 
-    col_add_str(pinfo->cinfo, COL_PROTOCOL, "LBT-RM");
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "LBT-RM");
     col_clear(pinfo->cinfo, COL_INFO);
     if (lbtrm_use_tag)
     {

@@ -258,12 +258,12 @@ static void _dissect_uasip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
                     }
                     else
                     {
-                        col_add_str(pinfo->cinfo, COL_INFO, "DATA - Couldn't resolve direction.");
+                        col_set_str(pinfo->cinfo, COL_INFO, "DATA - Couldn't resolve direction.");
                     }
                 }
                 else
                 {
-                    col_add_str(pinfo->cinfo, COL_INFO, "ACK");
+                    col_set_str(pinfo->cinfo, COL_INFO, "ACK");
                 }
             }
             else

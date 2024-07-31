@@ -134,7 +134,7 @@ dissect_sapigs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 	proto_tree *sapigs_tree = NULL, *sapigs_tables_tree = NULL;
 
 	/* Add the protocol to the column */
-	col_add_str(pinfo->cinfo, COL_PROTOCOL, "SAPIGS");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "SAPIGS");
 	/* Add function name in the info column */
 	col_add_fstr(pinfo->cinfo, COL_INFO, " function: %s", tvb_get_string_enc(pinfo->pool, tvb, 0, 32, ENC_ASCII));
 

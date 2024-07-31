@@ -340,7 +340,7 @@ dissect_twamp_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
     it = proto_tree_add_item(tree, proto_twamp_control, tvb, 0, -1, ENC_NA);
     twamp_tree = proto_item_add_subtree(it, ett_twamp_control);
 
-    col_add_str(pinfo->cinfo, COL_INFO, val_to_str_const(cp->state, twamp_control_state_vals, "Unknown"));
+    col_set_str(pinfo->cinfo, COL_INFO, val_to_str_const(cp->state, twamp_control_state_vals, "Unknown"));
 
     switch (cp->state) {
     case CONTROL_STATE_GREETING:

@@ -299,7 +299,7 @@ static int dissect_lbmpdm_tcp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * 
 {
     char * tag_name = NULL;
 
-    col_add_str(pinfo->cinfo, COL_PROTOCOL, "LBMPDM-TCP");
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "LBMPDM-TCP");
     col_clear(pinfo->cinfo, COL_INFO);
     if (lbmpdm_tcp_use_tag)
     {

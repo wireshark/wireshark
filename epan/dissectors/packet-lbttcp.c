@@ -616,7 +616,7 @@ static int dissect_lbttcp_real(tvbuff_t * tvb, packet_info * pinfo, proto_tree *
 {
     char * tag_name = NULL;
 
-    col_add_str(pinfo->cinfo, COL_PROTOCOL, "LBT-TCP");
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "LBT-TCP");
     col_clear(pinfo->cinfo, COL_INFO);
     if (lbttcp_use_tag)
     {

@@ -1422,7 +1422,7 @@ dissect_v3_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         refuse_bundle_hdr = tvb_get_uint8(tvb, offset);
         proto_tree_add_item(conv_tree, hf_tcpclv3_refuse_reason_code, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
-        col_add_str(pinfo->cinfo, COL_INFO, val_to_str_const((refuse_bundle_hdr>>4)&0xF, v3_refuse_reason_code, "Unknown"));
+        col_set_str(pinfo->cinfo, COL_INFO, val_to_str_const((refuse_bundle_hdr>>4)&0xF, v3_refuse_reason_code, "Unknown"));
 
         // implied transfer ID
         xfer_id = wmem_map_lookup(ctx->rx_peer->frame_loc_to_transfer, ctx->cur_loc);

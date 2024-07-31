@@ -464,7 +464,7 @@ dissect_S101(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                              fi->offset, datalen,
                              true);
                     fi->offset += datalen;
-                    col_append_fstr(pinfo->cinfo, COL_INFO,
+                    col_append_str(pinfo->cinfo, COL_INFO,
                                 " (Message fragment)");
                 }
             }

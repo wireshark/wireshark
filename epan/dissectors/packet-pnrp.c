@@ -787,7 +787,7 @@ static int dissect_pnrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
                     offset = 0;
                 } else {
                     proto_tree_add_item(pnrp_message_tree, hf_pnrp_fragmented_payload, tvb, offset, -1, ENC_NA);
-                    col_append_fstr(pinfo->cinfo, COL_INFO, " [Fragmented message]");
+                    col_append_str(pinfo->cinfo, COL_INFO, " [Fragmented message]");
                     return tvb_captured_length(tvb);
                 }
                 break;

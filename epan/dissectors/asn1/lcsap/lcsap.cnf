@@ -108,7 +108,7 @@ ProtocolIE-Field/value ie_field_value
       col_add_fstr(actx->pinfo->cinfo, COL_INFO, "%sResp",
                    val_to_str_const(ProcedureCode, lcsap_ProcedureCode_vals, "unknown message"));
     else
-      col_add_str(actx->pinfo->cinfo, COL_INFO,
+      col_set_str(actx->pinfo->cinfo, COL_INFO,
                    val_to_str_const(ProcedureCode, lcsap_ProcedureCode_vals, "unknown message"));
   }
 

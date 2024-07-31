@@ -862,10 +862,10 @@ dissect_smtp_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *smtp_tree, 
 
                   if ((multiline_state != SMTP_MULTILINE_CONTINUE) &&
                       (multiline_state != SMTP_MULTILINE_END)) {
-                    col_append_fstr(pinfo->cinfo, COL_INFO, "%s",
+                    col_append_str(pinfo->cinfo, COL_INFO,
                                   tvb_format_text(pinfo->pool, tvb, offset, linelen));
                   } else {
-                    col_append_fstr(pinfo->cinfo, COL_INFO, "%s",
+                    col_append_str(pinfo->cinfo, COL_INFO,
                       tvb_format_text(pinfo->pool, tvb, offset+4, linelen-4));
                   }
               }

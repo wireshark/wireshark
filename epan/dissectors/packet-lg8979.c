@@ -504,7 +504,7 @@ dissect_lg8979(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
             NULL
         };
 
-        col_add_str(pinfo->cinfo, COL_INFO, "Master -> RTU");
+        col_set_str(pinfo->cinfo, COL_INFO, "Master -> RTU");
 
         /* Add Flags to Protocol Tree */
         shr = tvb_get_uint8(tvb, offset) & 0x80;
@@ -748,7 +748,7 @@ dissect_lg8979(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
             NULL
         };
 
-        col_add_str(pinfo->cinfo, COL_INFO, "RTU -> Master");
+        col_set_str(pinfo->cinfo, COL_INFO, "RTU -> Master");
 
         /* Retrieve and add Flags to Protocol Tree */
         shr = tvb_get_uint8(tvb, offset) & 0x80;

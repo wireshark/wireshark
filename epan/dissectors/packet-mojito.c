@@ -288,7 +288,7 @@ dissect_mojito_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	offset += 4;
 
 	header_data->opcode = tvb_get_uint8(tvb, offset);
-	col_add_str(pinfo->cinfo, COL_INFO, val_to_str_const(header_data->opcode, opcodeflags, "Unknown"));
+	col_set_str(pinfo->cinfo, COL_INFO, val_to_str_const(header_data->opcode, opcodeflags, "Unknown"));
 	proto_tree_add_item(header_tree, hf_mojito_opcode, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
 

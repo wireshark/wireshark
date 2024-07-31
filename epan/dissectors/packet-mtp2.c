@@ -1104,7 +1104,7 @@ dissect_mtp2_bitstream(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
           /* append the reassembled packet to the head of the packet list */
           wmem_list_prepend(result->found_packets, prepare_data_for_found_packet(new_tvb,result->mtp2_remain_data.before_fh_unalignment_offset));
           /* set the protocol name */
-          col_add_str(pinfo->cinfo, COL_PROTOCOL, "MTP2");
+          col_set_str(pinfo->cinfo, COL_PROTOCOL, "MTP2");
         }
       }
     }
@@ -1117,8 +1117,8 @@ dissect_mtp2_bitstream(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
       wmem_list_frame_t *recognized_packet = wmem_list_head(result->found_packets);
 
       /* info field pre-set, we can see the MTP2 strings even if there is an error in the dissection */
-      col_add_str(pinfo->cinfo, COL_PROTOCOL, "MTP2");
-      col_add_str(pinfo->cinfo, COL_INFO, "MTP2");
+      col_set_str(pinfo->cinfo, COL_PROTOCOL, "MTP2");
+      col_set_str(pinfo->cinfo, COL_INFO, "MTP2");
       /* while there are available packets */
       while (recognized_packet != NULL) {
         mtp2_recognized_packet_t *recognized_packet_data = (mtp2_recognized_packet_t *) wmem_list_frame_data(recognized_packet);
@@ -1162,14 +1162,14 @@ dissect_mtp2_bitstream(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
           && result->mtp2_remain_data.after_last_flag != NULL
           && frag_msg_before_fh)
       {
-        col_add_str(pinfo->cinfo, COL_PROTOCOL, "MTP2");
+        col_set_str(pinfo->cinfo, COL_PROTOCOL, "MTP2");
         col_info_str = ws_strdup_printf("[MTP2 Reassembled in: %u]", frag_msg_before_fh->reassembled_in);
         col_add_str(pinfo->cinfo, COL_INFO, col_info_str);
         g_free(col_info_str);
       } else {
-        col_add_str(pinfo->cinfo, COL_PROTOCOL, "MTP2");
+        col_set_str(pinfo->cinfo, COL_PROTOCOL, "MTP2");
         col_info_str = "[MTP2 No Packets]";
-        col_add_str(pinfo->cinfo, COL_INFO, col_info_str);
+        col_set_str(pinfo->cinfo, COL_INFO, col_info_str);
       }
     }
     /* this adds the "Reassembled in" text to the proto tree to the packet where there is leftover data at the end */

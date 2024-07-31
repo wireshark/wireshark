@@ -2557,7 +2557,7 @@ dissect_selfm(tvbuff_t *selfm_tvb, packet_info *pinfo, proto_tree *tree, void* d
         selfm_tree = proto_item_add_subtree(selfm_item, ett_selfm);
 
         /* Set INFO column with SEL Protocol Message Type */
-        col_add_str(pinfo->cinfo, COL_INFO, val_to_str_ext_const(msg_type, &selfm_msgtype_vals_ext, "Unknown Message Type"));
+        col_set_str(pinfo->cinfo, COL_INFO, val_to_str_ext_const(msg_type, &selfm_msgtype_vals_ext, "Unknown Message Type"));
 
         /* Add Message Type to Protocol Tree */
         proto_tree_add_item(selfm_tree, hf_selfm_msgtype, selfm_tvb, offset, 2, ENC_BIG_ENDIAN);

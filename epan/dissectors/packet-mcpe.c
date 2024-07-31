@@ -476,7 +476,7 @@ dissect_mcpe(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         int packet_size;
 
         col_set_str(pinfo->cinfo, COL_PROTOCOL, "MCPE");
-        col_add_str(pinfo->cinfo, COL_INFO, "Encrypted packet");
+        col_set_str(pinfo->cinfo, COL_INFO, "Encrypted packet");
 
         packet_size = tvb_reported_length(tvb);
         ti = proto_tree_add_item(tree, proto_mcpe, tvb, 0, packet_size, ENC_NA);

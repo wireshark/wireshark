@@ -1148,8 +1148,8 @@ dissect_sbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
 
                 case SBUS_ACKNAK:
                     sbus_ack_code = tvb_get_ntohs(tvb,9);
-                    col_add_fstr(pinfo->cinfo, COL_INFO,
-                                    "%s", val_to_str_const(sbus_ack_code,
+                    col_set_str(pinfo->cinfo, COL_INFO,
+                                    val_to_str_const(sbus_ack_code,
                                                         sbus_ack_nak_vals,
                                                         "Unknown NAK response code!"));
                     break;

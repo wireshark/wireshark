@@ -144,7 +144,7 @@ dissect_macctrl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
     proto_tree_add_item(macctrl_tree, hf_macctrl_timestamp, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
   }
-  col_add_str(pinfo->cinfo, COL_INFO, val_to_str_const(opcode, opcode_vals, "Unknown"));
+  col_set_str(pinfo->cinfo, COL_INFO, val_to_str_const(opcode, opcode_vals, "Unknown"));
 
   switch (opcode) {
 

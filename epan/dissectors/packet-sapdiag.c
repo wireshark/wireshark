@@ -2829,7 +2829,7 @@ dissect_sapdiag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
 	proto_tree *sapdiag_tree = NULL, *header_tree = NULL, *com_flag_tree = NULL, *payload_tree = NULL;
 
 	/* Add the protocol to the column */
-	col_add_str(pinfo->cinfo, COL_PROTOCOL, "SAPDIAG");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "SAPDIAG");
 	/* Clear out stuff in the info column */
 	col_clear(pinfo->cinfo,COL_INFO);
 

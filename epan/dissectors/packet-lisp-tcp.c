@@ -303,7 +303,7 @@ dissect_lisp_tcp_reliable_transport_message(tvbuff_t *tvb, packet_info *pinfo, p
         proto_tree_add_item(message_tree, hf_lisp_tcp_message_registration_refresh_flags_rejected, tvb, offset, 2, ENC_BIG_ENDIAN);
         if (refresh_flags & REFRESH_FLAG_R) {
             proto_item_append_text(tim, " (rejected only)");
-            col_append_fstr(pinfo->cinfo, COL_INFO, " (rejected only)");
+            col_append_str(pinfo->cinfo, COL_INFO, " (rejected only)");
         }
 
         /* Reserved (15 bits) */

@@ -1622,7 +1622,7 @@ static uint32_t vsip_dissect_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo, 
 
     type = tvb_get_uint8(tvb, offset);
     proto_tree_add_uint(tree, hf_vsip_Type, tvb, offset, 1, type);
-    col_add_str(pinfo->cinfo, COL_INFO, val_to_str_ext_const(type, &EVsipMessageType_vals_ext, "Unknown") );
+    col_set_str(pinfo->cinfo, COL_INFO, val_to_str_ext_const(type, &EVsipMessageType_vals_ext, "Unknown") );
     offset++;
 
     proto_tree_add_item(tree, hf_vsip_TransacId, tvb, offset, 2, ENC_BIG_ENDIAN);

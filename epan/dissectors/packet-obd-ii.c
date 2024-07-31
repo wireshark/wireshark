@@ -1219,12 +1219,12 @@ dissect_obdii_mode_01(tvbuff_t *tvb, struct obdii_packet_info *oinfo, proto_tree
 	if (!handled)
 	{
 		/* display raw */
-		col_append_fstr(oinfo->pinfo->cinfo, COL_INFO, ": <");
+		col_append_str(oinfo->pinfo->cinfo, COL_INFO, ": <");
 		if (oinfo->value_bytes >= 1) col_append_fstr(oinfo->pinfo->cinfo, COL_INFO, " %.2X", oinfo->valueA);
 		if (oinfo->value_bytes >= 2) col_append_fstr(oinfo->pinfo->cinfo, COL_INFO, " %.2X", oinfo->valueB);
 		if (oinfo->value_bytes >= 3) col_append_fstr(oinfo->pinfo->cinfo, COL_INFO, " %.2X", oinfo->valueC);
 		if (oinfo->value_bytes >= 4) col_append_fstr(oinfo->pinfo->cinfo, COL_INFO, " %.2X", oinfo->valueD);
-		col_append_fstr(oinfo->pinfo->cinfo, COL_INFO, " >");
+		col_append_str(oinfo->pinfo->cinfo, COL_INFO, " >");
 	}
 }
 
@@ -1234,13 +1234,13 @@ dissect_obdii_mode_07(tvbuff_t *tvb, struct obdii_packet_info *oinfo, proto_tree
 	proto_tree_add_item(tree, hf_obdii_raw_value, tvb, OBDII_MODE07_DATA_OFF, oinfo->value_bytes, ENC_NA);
 
 	/* display raw */
-	col_append_fstr(oinfo->pinfo->cinfo, COL_INFO, ": <");
+	col_append_str(oinfo->pinfo->cinfo, COL_INFO, ": <");
 	if (oinfo->value_bytes >= 1) col_append_fstr(oinfo->pinfo->cinfo, COL_INFO, " %.2X", oinfo->valueA);
 	if (oinfo->value_bytes >= 2) col_append_fstr(oinfo->pinfo->cinfo, COL_INFO, " %.2X", oinfo->valueB);
 	if (oinfo->value_bytes >= 3) col_append_fstr(oinfo->pinfo->cinfo, COL_INFO, " %.2X", oinfo->valueC);
 	if (oinfo->value_bytes >= 4) col_append_fstr(oinfo->pinfo->cinfo, COL_INFO, " %.2X", oinfo->valueD);
 	if (oinfo->value_bytes >= 5) col_append_fstr(oinfo->pinfo->cinfo, COL_INFO, " %.2X", oinfo->valueE);
-	col_append_fstr(oinfo->pinfo->cinfo, COL_INFO, " >");
+	col_append_str(oinfo->pinfo->cinfo, COL_INFO, " >");
 }
 
 static void

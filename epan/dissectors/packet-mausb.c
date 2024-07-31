@@ -1574,7 +1574,7 @@ dissect_mausb_pkt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     mausb_num_pdus++;
 
-    col_add_str(pinfo->cinfo, COL_INFO, "[");
+    col_set_str(pinfo->cinfo, COL_INFO, "[");
     col_set_fence(pinfo->cinfo, COL_INFO);
 
     /*** PROTOCOL TREE ***/

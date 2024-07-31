@@ -485,7 +485,7 @@ static int dissect_lwm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
                 call_data_dissector(decrypted_tvb, pinfo, lwm_tree);
                 /* XXX - needed?
                    add_new_data_source(pinfo, decrypted_tvb, "Decrypted LWmesh Payload"); */
-                col_append_fstr(pinfo->cinfo, COL_INFO, ",  MIC SUCCESS");
+                col_append_str(pinfo->cinfo, COL_INFO, ",  MIC SUCCESS");
 
             }
             else

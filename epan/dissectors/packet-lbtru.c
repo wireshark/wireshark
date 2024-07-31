@@ -1140,7 +1140,7 @@ static int dissect_lbtru(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
     proto_item * next_hdr_item = NULL;
     lbm_lbtru_tap_info_t * tapinfo = NULL;
 
-    col_add_str(pinfo->cinfo, COL_PROTOCOL, "LBT-RU");
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "LBT-RU");
     if (lbtru_use_tag)
     {
         tag_name = lbtru_tag_find(pinfo);

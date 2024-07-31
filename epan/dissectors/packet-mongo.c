@@ -1004,7 +1004,7 @@ dissect_mongo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
     col_append_fstr(pinfo->cinfo, COL_INFO, " %s", val_to_str_const(effective_opcode, opcode_vals, "Unknown"));
 
     if(opcode != effective_opcode) {
-      col_append_fstr(pinfo->cinfo, COL_INFO, " (Compressed)");
+      col_append_str(pinfo->cinfo, COL_INFO, " (Compressed)");
     }
 
     if(offset < tvb_reported_length(tvb))
