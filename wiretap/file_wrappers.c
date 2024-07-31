@@ -66,20 +66,45 @@ static struct compression_type {
     wtap_compression_type  type;
     const char            *extension;
     const char            *description;
+    const char            *name;
+    const bool            can_write_compressed;
 } compression_types[] = {
 #ifdef USE_ZLIB_OR_ZLIBNG
-    { WTAP_GZIP_COMPRESSED, "gz", "gzip compressed" },
+    { WTAP_GZIP_COMPRESSED, "gz", "gzip compressed", "gzip", true },
 #endif /* USE_ZLIB_OR_ZLIBNG */
 #ifdef HAVE_ZSTD
-    { WTAP_ZSTD_COMPRESSED, "zst", "zstd compressed" },
+    { WTAP_ZSTD_COMPRESSED, "zst", "zstd compressed", "zstd", false },
 #endif /* HAVE_ZSTD */
 #ifdef USE_LZ4
-    { WTAP_LZ4_COMPRESSED, "lz4", "lz4 compressed" },
+    { WTAP_LZ4_COMPRESSED, "lz4", "lz4 compressed", "lz4", false },
 #endif /* USE_LZ4 */
-    { WTAP_UNCOMPRESSED, NULL, NULL }
+    { WTAP_UNCOMPRESSED, NULL, NULL, "none", true },
+    { WTAP_UNKNOWN_COMPRESSION, NULL, NULL, NULL, false },
 };
 
 static wtap_compression_type file_get_compression_type(FILE_T stream);
+
+wtap_compression_type
+wtap_name_to_compression_type(const char *name)
+{
+    for (struct compression_type *p = compression_types;
+	    p->type != WTAP_UNKNOWN_COMPRESSION; p++) {
+		if (!g_strcmp0(name, p->name))
+			return p->type;
+	}
+    return WTAP_UNKNOWN_COMPRESSION;
+}
+
+bool
+wtap_can_write_extension(wtap_compression_type compression_type)
+{
+    for (struct compression_type *p = compression_types; p->type != WTAP_UNKNOWN_COMPRESSION; p++) {
+		if (compression_type == p->type)
+			return p->can_write_compressed;
+	}
+
+    return false;
+}
 
 wtap_compression_type
 wtap_get_compression_type(wtap *wth)
@@ -121,6 +146,22 @@ wtap_get_all_compression_type_extensions_list(void)
 		extensions = g_slist_prepend(extensions, (void *)p->extension);
 
 	return extensions;
+}
+
+GSList *
+wtap_get_all_output_compression_type_names_list(void)
+{
+	GSList *names;
+
+	names = NULL;	/* empty list, to start with */
+
+	for (struct compression_type *p = compression_types;
+	    p->type != WTAP_UNCOMPRESSED; p++) {
+            if (p->can_write_compressed)
+                names = g_slist_prepend(names, (void *)p->name);
+        }
+
+	return names;
 }
 
 /* #define GZBUFSIZE 8192 */

@@ -921,7 +921,8 @@ Cause *TShark* to print a view of the packet details.
 +
 --
 Write raw packet data to __outfile__ or to the standard output if
-__outfile__ is '-'.
+__outfile__ is '-'. If the outfile has the extension '.gz',
+then the output file is compressed to a gzip archive.
 
 NOTE: *-w* provides raw packet data, not text.  If you want text output
 you need to redirect stdout (e.g. using '>'), don't use the *-w*
@@ -2279,6 +2280,12 @@ elapsed time and aggregate counters for per-packet operations (dissection and fi
 include::dissection-options.adoc[tags=**;!not_tshark]
 
 include::diagnostic-options.adoc[]
+
+--compress <type>::
++
+--
+Compress the output file using the type compression format.
+--
 
 == CAPTURE FILTER SYNTAX
 

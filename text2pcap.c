@@ -76,6 +76,7 @@
 #include <ui/text_import.h>
 #include <wsutil/version_info.h>
 #include <ui/failure_message.h>
+#include <wsutil/clopts_common.h>
 #include <wsutil/report_message.h>
 #include <wsutil/inet_addr.h>
 #include <wsutil/cpu_info.h>
@@ -99,7 +100,10 @@
 #include "wiretap/wtap.h"
 #include "wiretap/pcap-encap.h"
 
+#define LONGOPT_COMPRESS                LONGOPT_BASE_APPLICATION+1
+
 /*--- Options --------------------------------------------------------------------*/
+
 
 /* Be quiet */
 static bool quiet;
@@ -212,6 +216,8 @@ print_usage (FILE *output)
             "                         (def: 16: hexadecimal) No effect in hexdump mode.\n"
             "\n"
             "Output:\n"
+            "                         if the output file(s) have the .gz extension, then\n"
+            "                         gzip compression will be used.\n"
             "  -F <capture type>      set the output file type; default is pcapng.\n"
             "                         an empty \"-F\" option will list the file types.\n"
             "  -E <encap type>        set the output file encapsulation type; default is\n"
@@ -224,6 +230,8 @@ print_usage (FILE *output)
             "                         Example: -l 7 for ARCNet packets.\n"
             "  -m <max-packet>        max packet length in output; default is %u\n"
             "  -N <intf-name>         assign name to the interface in the pcapng file.\n"
+            "  --compress <type>      Compress the output file using the type compression format.\n"
+            "                         "
             "\n"
             "Prepend dummy header:\n"
             "  -e <ethertype>         prepend dummy Ethernet II header with specified EtherType\n"
@@ -302,6 +310,21 @@ list_capture_types(void) {
     g_array_free(writable_type_subtypes, TRUE);
 }
 
+static void
+list_output_compression_types(void) {
+    GSList *output_compression_types;
+
+    fprintf(stderr, "mergecap: The available output compress type(s) for the \"--compress\" flag are:\n");
+    output_compression_types = wtap_get_all_output_compression_type_names_list();
+    for (GSList *compression_type = output_compression_types;
+        compression_type != NULL;
+        compression_type = g_slist_next(compression_type)) {
+            fprintf(stderr, "   %s\n", (const char *)compression_type->data);
+        }
+
+    g_slist_free(output_compression_types);
+}
+
 struct string_elem {
     const char *sstr;   /* The short string */
     const char *lstr;   /* The long string */
@@ -367,6 +390,7 @@ parse_options(int argc, char *argv[], text_import_info_t * const info, wtap_dump
     static const struct ws_option long_options[] = {
         {"help", ws_no_argument, NULL, 'h'},
         {"version", ws_no_argument, NULL, 'v'},
+        {"compress", ws_required_argument, NULL, LONGOPT_COMPRESS},
         {0, 0, 0, 0 }
     };
     const char *interface_name = NULL;
@@ -376,6 +400,7 @@ parse_options(int argc, char *argv[], text_import_info_t * const info, wtap_dump
     int wtap_encap_type = WTAP_ENCAP_ETHERNET;
     int err;
     char* err_info;
+    wtap_compression_type compression_type = WTAP_UNCOMPRESSED;
     GError* gerror = NULL;
     GRegex* regex = NULL;
 
@@ -713,6 +738,15 @@ parse_options(int argc, char *argv[], text_import_info_t * const info, wtap_dump
             }
             break;
 
+        case LONGOPT_COMPRESS:
+            compression_type = wtap_name_to_compression_type(ws_optarg);
+            if (compression_type == WTAP_UNKNOWN_COMPRESSION) {
+                cmdarg_err("\"%s\" isn't a valid output compression mode",
+                            ws_optarg);
+                list_output_compression_types();
+                return WS_EXIT_INVALID_OPTION;
+            }
+            break;
 
         case '?':
             switch(ws_optopt) {
@@ -721,6 +755,9 @@ parse_options(int argc, char *argv[], text_import_info_t * const info, wtap_dump
                 return WS_EXIT_INVALID_OPTION;
             case 'F':
                 list_capture_types();
+                return WS_EXIT_INVALID_OPTION;
+            case LONGOPT_COMPRESS:
+                list_output_compression_types();
                 return WS_EXIT_INVALID_OPTION;
             }
             /* FALLTHROUGH */
@@ -824,6 +861,11 @@ parse_options(int argc, char *argv[], text_import_info_t * const info, wtap_dump
         }
     }
 
+    if (compression_type != WTAP_UNCOMPRESSED && !wtap_dump_can_compress(file_type_subtype)) {
+            cmdarg_err("The file format can't be written to output compressed format");
+            return WS_EXIT_INVALID_OPTION;
+    }
+
     if (strcmp(argv[ws_optind], "-") != 0) {
         input_filename = argv[ws_optind];
         if (info->mode == TEXT_IMPORT_REGEX) {
@@ -878,7 +920,10 @@ parse_options(int argc, char *argv[], text_import_info_t * const info, wtap_dump
     if (strcmp(argv[ws_optind+1], "-") != 0) {
         /* Write to a file.  Open the file. */
         output_filename = argv[ws_optind+1];
-        wdh = wtap_dump_open(output_filename, file_type_subtype, WTAP_UNCOMPRESSED, params, &err, &err_info);
+        if (compression_type == WTAP_UNCOMPRESSED && g_str_has_suffix(output_filename, ".gz")) {
+            compression_type = WTAP_GZIP_COMPRESSED;
+        }
+        wdh = wtap_dump_open(output_filename, file_type_subtype, compression_type, params, &err, &err_info);
     } else {
         /* Write to the standard output. */
         output_filename = "Standard output";

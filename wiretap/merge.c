@@ -1254,7 +1254,7 @@ merge_files_common(const char* out_filename, /* filename in normal output mode,
                    const int file_type, const char *const *in_filenames,
                    const unsigned in_file_count, const bool do_append,
                    idb_merge_mode mode, unsigned snaplen,
-                   const char *app_name, merge_progress_callback_t* cb)
+                   const char *app_name, merge_progress_callback_t* cb, wtap_compression_type compression_type)
 {
     merge_in_file_t    *in_files = NULL;
     int                 frame_type = WTAP_ENCAP_PER_PACKET;
@@ -1371,20 +1371,20 @@ merge_files_common(const char* out_filename, /* filename in normal output mode,
             pdh = wtap_dump_open_tempfile(out_filenamep ? out_filename : NULL,
                                           &temp_filename,
                                           pfx ? pfx : "mergecap", file_type,
-                                          WTAP_UNCOMPRESSED, &params, &err,
+                                          compression_type, &params, &err,
                                           &err_info);
             if (pdh) {
                 g_ptr_array_add(temp_files, temp_filename);
             }
         } else if (out_filenamep) {
             pdh = wtap_dump_open_tempfile(out_filename, out_filenamep, pfx, file_type,
-                                          WTAP_UNCOMPRESSED, &params, &err,
+                                          compression_type, &params, &err,
                                           &err_info);
         } else if (out_filename) {
-            pdh = wtap_dump_open(out_filename, file_type, WTAP_UNCOMPRESSED,
+            pdh = wtap_dump_open(out_filename, file_type, compression_type,
                                  &params, &err, &err_info);
         } else {
-            pdh = wtap_dump_open_stdout(file_type, WTAP_UNCOMPRESSED, &params,
+            pdh = wtap_dump_open_stdout(file_type, compression_type, &params,
                                         &err, &err_info);
         }
         if (pdh == NULL) {
@@ -1476,7 +1476,7 @@ merge_files_common(const char* out_filename, /* filename in normal output mode,
         // We recurse here, but we're limited by MAX_MERGE_FILES
         status = merge_files_common(out_filename, out_filenamep, pfx,
                     file_type, (const char**)temp_files->pdata,
-                    temp_files->len, do_append, mode, snaplen, app_name, cb);
+                    temp_files->len, do_append, mode, snaplen, app_name, cb, compression_type);
         /* If that failed, it has already reported an error */
         g_ptr_array_free(temp_files, true);
     }
@@ -1493,7 +1493,7 @@ bool
 merge_files(const char* out_filename, const int file_type,
             const char *const *in_filenames, const unsigned in_file_count,
             const bool do_append, const idb_merge_mode mode,
-            unsigned snaplen, const char *app_name, merge_progress_callback_t* cb)
+            unsigned snaplen, const char *app_name, merge_progress_callback_t* cb, const  wtap_compression_type compression_type)
 {
     ws_assert(out_filename != NULL);
     ws_assert(in_file_count > 0);
@@ -1514,7 +1514,7 @@ merge_files(const char* out_filename, const int file_type,
 
     return merge_files_common(out_filename, NULL, NULL,
                               file_type, in_filenames, in_file_count,
-                              do_append, mode, snaplen, app_name, cb);
+                              do_append, mode, snaplen, app_name, cb, compression_type);
 }
 
 /*
@@ -1536,7 +1536,7 @@ merge_files_to_tempfile(const char *tmpdir, char **out_filenamep, const char *pf
 
     return merge_files_common(tmpdir, out_filenamep, pfx,
                               file_type, in_filenames, in_file_count,
-                              do_append, mode, snaplen, app_name, cb);
+                              do_append, mode, snaplen, app_name, cb, WTAP_UNCOMPRESSED);
 }
 
 /*
@@ -1552,7 +1552,7 @@ merge_files_to_stdout(const int file_type, const char *const *in_filenames,
 {
     return merge_files_common(NULL, NULL, NULL,
                               file_type, in_filenames, in_file_count,
-                              do_append, mode, snaplen, app_name, cb);
+                              do_append, mode, snaplen, app_name, cb, WTAP_UNCOMPRESSED);
 }
 
 /*

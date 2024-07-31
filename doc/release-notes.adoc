@@ -176,7 +176,6 @@ The following features are either new or have been significantly updated since v
   ** "Limit to Display Filter" is checked if a display filter is applied
      when the Flow Graph is opened, per the documentation.
 
-
 * TCP Stream Graphs:
 
   ** A better decision is made about which side is the server and thus
@@ -388,6 +387,11 @@ The following features are either new or have been significantly updated since v
   responsive GUI performance when jumping to different packets. Fast random
   access has been supported with gzip compressed files since version 1.8.0,
   but this is not supported for Zstd compressed files.
+
+* Mergecap, Editcap, TShark and Text2pcap have an `--compress` option to
+  compress output to different formats. For now, the only supported output
+  compressed format is gzip. A gzip archive is also created if the output
+  filename has the extension .gz.
 
 * Wireshark's Git repostory tags are now signed using SSH.
   See

@@ -144,6 +144,7 @@
 #define LONGOPT_SELECTED_FRAME          LONGOPT_BASE_APPLICATION+8
 #define LONGOPT_PRINT_TIMERS            LONGOPT_BASE_APPLICATION+9
 #define LONGOPT_GLOBAL_PROFILE          LONGOPT_BASE_APPLICATION+10
+#define LONGOPT_COMPRESS                LONGOPT_BASE_APPLICATION+11
 
 capture_file cfile;
 
@@ -253,7 +254,7 @@ typedef enum {
     PROCESS_FILE_ERROR,
     PROCESS_FILE_INTERRUPTED
 } process_file_status_t;
-static process_file_status_t process_cap_file(capture_file *, char *, int, bool, int, int64_t, int);
+static process_file_status_t process_cap_file(capture_file *, char *, int, bool, int, int64_t, int, wtap_compression_type, bool);
 
 static bool process_packet_single_pass(capture_file *cf,
         epan_dissect_t *edt, int64_t offset, wtap_rec *rec, Buffer *buf,
@@ -352,6 +353,21 @@ list_capture_types(void)
                 wtap_file_type_subtype_description(ft));
     }
     g_array_free(writable_type_subtypes, TRUE);
+}
+
+static void
+list_output_compression_types(void) {
+    GSList *output_compression_types;
+
+    fprintf(stderr, "mergecap: The available output compress type(s) for the \"--compress\" flag are:\n");
+    output_compression_types = wtap_get_all_output_compression_type_names_list();
+    for (GSList *compression_type = output_compression_types;
+        compression_type != NULL;
+        compression_type = g_slist_next(compression_type)) {
+            fprintf(stderr, "   %s\n", (const char *)compression_type->data);
+        }
+
+    g_slist_free(output_compression_types);
 }
 
 struct string_elem {
@@ -511,7 +527,8 @@ print_usage(FILE *output)
     /*fprintf(output, "\n");*/
     fprintf(output, "Output:\n");
     fprintf(output, "  -w <outfile|->           write packets to a pcapng-format file named \"outfile\"\n");
-    fprintf(output, "                           (or '-' for stdout)\n");
+    fprintf(output, "                           (or '-' for stdout). If the output filename has the\n");
+    fprintf(output, "                           .gz extension, it will be compressed to a gzip archive\n");
     fprintf(output, "  --capture-comment <comment>\n");
     fprintf(output, "                           add a capture file comment, if supported\n");
     fprintf(output, "  -C <config profile>      start with specified configuration profile\n");
@@ -578,6 +595,7 @@ print_usage(FILE *output)
     fprintf(output, "                           specified protocols within the mapping file\n");
     fprintf(output, "  --temp-dir <directory>   write temporary files to this directory\n");
     fprintf(output, "                           (default: %s)\n", g_get_tmp_dir());
+    fprintf(output, "  --compress <type>        compress the output file using the type compression format\n");
     fprintf(output, "\n");
 
     ws_log_print_usage(output);
@@ -962,11 +980,12 @@ main(int argc, char *argv[])
         {"selected-frame", ws_required_argument, NULL, LONGOPT_SELECTED_FRAME},
         {"print-timers", ws_no_argument, NULL, LONGOPT_PRINT_TIMERS},
         {"global-profile", ws_no_argument, NULL, LONGOPT_GLOBAL_PROFILE},
+        {"compress", ws_required_argument, NULL, LONGOPT_COMPRESS},
         {0, 0, 0, 0}
     };
     bool                 arg_error = false;
     bool                 has_extcap_options = false;
-    bool                 is_capturing = true;
+    volatile bool        is_capturing = true;
 
     int                  err;
     char                *err_info;
@@ -982,21 +1001,22 @@ main(int argc, char *argv[])
     bool                 capture_option_specified = false;
     volatile int         max_packet_count = 0;
 #endif
-    volatile int         out_file_type = WTAP_FILE_TYPE_SUBTYPE_UNKNOWN;
-    volatile bool        out_file_name_res = false;
-    volatile int         in_file_type = WTAP_TYPE_AUTO;
-    char                *volatile cf_name = NULL;
-    char                *rfilter = NULL;
-    char                *volatile dfilter = NULL;
-    dfilter_t           *rfcode = NULL;
-    dfilter_t           *dfcode = NULL;
-    e_prefs             *prefs_p;
-    char                *output_only = NULL;
-    char                *volatile pdu_export_arg = NULL;
-    char                *volatile exp_pdu_filename = NULL;
-    const char          *volatile tls_session_keys_file = NULL;
-    exp_pdu_t            exp_pdu_tap_data;
-    const char*         elastic_mapping_filter = NULL;
+    volatile int          out_file_type = WTAP_FILE_TYPE_SUBTYPE_UNKNOWN;
+    volatile bool         out_file_name_res = false;
+    volatile int          in_file_type = WTAP_TYPE_AUTO;
+    char                 *volatile cf_name = NULL;
+    char                 *rfilter = NULL;
+    char                 *volatile dfilter = NULL;
+    dfilter_t            *rfcode = NULL;
+    dfilter_t            *dfcode = NULL;
+    e_prefs              *prefs_p;
+    char                 *output_only = NULL;
+    char                 *volatile pdu_export_arg = NULL;
+    char                 *volatile exp_pdu_filename = NULL;
+    const char           *volatile tls_session_keys_file = NULL;
+    exp_pdu_t             exp_pdu_tap_data;
+    const char*           elastic_mapping_filter = NULL;
+    wtap_compression_type volatile compression_type;
 
     /*
      * The leading + ensures that getopt_long() does not permute the argv[]
@@ -1909,11 +1929,23 @@ main(int argc, char *argv[])
             case LONGOPT_GLOBAL_PROFILE:
                 /* already processed; just ignore it now */
                 break;
+            case LONGOPT_COMPRESS:        /* compress type */
+                compression_type = wtap_name_to_compression_type(ws_optarg);
+                if (compression_type == WTAP_UNKNOWN_COMPRESSION) {
+                    cmdarg_err("\"%s\" isn't a valid output compression mode",
+                               ws_optarg);
+                    list_output_compression_types();
+                    goto clean_exit;
+                }
+                break;
             default:
             case '?':        /* Bad flag - print usage message */
                 switch(ws_optopt) {
                     case 'F':
                         list_capture_types();
+                        break;
+                    case LONGOPT_COMPRESS:
+                        list_output_compression_types();
                         break;
                     default:
                         print_usage(stderr);
@@ -1943,6 +1975,18 @@ main(int argc, char *argv[])
 
     if (no_duplicate_keys && output_action != WRITE_JSON && output_action != WRITE_JSON_RAW) {
         cmdarg_err("--no-duplicate-keys can only be used with \"-T json\" and \"-T jsonraw\"");
+        exit_status = WS_EXIT_INVALID_OPTION;
+        goto clean_exit;
+    }
+
+    if (compression_type != WTAP_UNCOMPRESSED && !wtap_dump_can_compress(out_file_type)) {
+        cmdarg_err("The file format can't be written to output compressed format");
+        exit_status = WS_EXIT_INVALID_OPTION;
+        goto clean_exit;
+    }
+
+    if (compression_type != WTAP_UNCOMPRESSED && is_capturing) {
+        cmdarg_err("Writing to compressed output is not supported for live format");
         exit_status = WS_EXIT_INVALID_OPTION;
         goto clean_exit;
     }
@@ -2513,11 +2557,14 @@ main(int argc, char *argv[])
 #ifdef HAVE_LIBPCAP
                     global_capture_opts.has_autostop_packets ? global_capture_opts.autostop_packets : 0,
                     global_capture_opts.has_autostop_filesize ? global_capture_opts.autostop_filesize : 0,
-                    global_capture_opts.has_autostop_written_packets ? global_capture_opts.autostop_written_packets : 0);
+                    global_capture_opts.has_autostop_written_packets ? global_capture_opts.autostop_written_packets : 0,
+                    compression_type, is_capturing);
 #else
             max_packet_count,
                 0,
-                0);
+                0,
+                WTAP_UNCOMPRESSED,
+                is_capturing);
 #endif
         }
         CATCH(OutOfMemoryError) {
@@ -3967,7 +4014,8 @@ process_cap_file_single_pass(capture_file *cf, wtap_dumper *pdh,
 static process_file_status_t
 process_cap_file(capture_file *cf, char *save_file, int out_file_type,
         bool out_file_name_res, int max_packet_count, int64_t max_byte_count,
-        int max_write_packet_count)
+        int max_write_packet_count, wtap_compression_type compression_type,
+        bool is_capturing)
 {
     process_file_status_t status = PROCESS_FILE_SUCCEEDED;
     wtap_dumper *pdh;
@@ -4005,7 +4053,19 @@ process_cap_file(capture_file *cf, char *save_file, int out_file_type,
             pdh = wtap_dump_open_stdout(out_file_type, WTAP_UNCOMPRESSED, &params,
                     &err, &err_info);
         } else {
-            pdh = wtap_dump_open(save_file, out_file_type, WTAP_UNCOMPRESSED, &params,
+            if (compression_type == WTAP_UNCOMPRESSED && g_str_has_suffix(save_file, ".gz")) {
+                if (!wtap_dump_can_compress(out_file_type)) {
+                    cmdarg_err("The file format does not support writing to a compressed output");
+                    goto out;
+                }
+                if (is_capturing) {
+                    cmdarg_err("Writing to compressed output is not supported for live format");
+                    goto out;
+                }
+
+                compression_type = WTAP_GZIP_COMPRESSED;
+            }
+            pdh = wtap_dump_open(save_file, out_file_type, compression_type, &params,
                     &err, &err_info);
         }
 
