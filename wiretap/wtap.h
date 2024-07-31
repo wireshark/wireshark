@@ -1950,17 +1950,24 @@ typedef enum {
     WTAP_UNCOMPRESSED,
     WTAP_GZIP_COMPRESSED,
     WTAP_ZSTD_COMPRESSED,
-    WTAP_LZ4_COMPRESSED
+    WTAP_LZ4_COMPRESSED,
+    WTAP_UNKNOWN_COMPRESSION,
 } wtap_compression_type;
 
 WS_DLL_PUBLIC
 wtap_compression_type wtap_get_compression_type(wtap *wth);
+WS_DLL_PUBLIC
+wtap_compression_type wtap_name_to_compression_type(const char *name);
 WS_DLL_PUBLIC
 const char *wtap_compression_type_description(wtap_compression_type compression_type);
 WS_DLL_PUBLIC
 const char *wtap_compression_type_extension(wtap_compression_type compression_type);
 WS_DLL_PUBLIC
 GSList *wtap_get_all_compression_type_extensions_list(void);
+WS_DLL_PUBLIC
+GSList *wtap_get_all_output_compression_type_names_list(void);
+WS_DLL_PUBLIC
+bool wtap_can_write_extension(wtap_compression_type compression_type);
 
 /*** get various information snippets about the current file ***/
 

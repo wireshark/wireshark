@@ -882,6 +882,8 @@ print_usage(FILE *output)
     fprintf(output, "  -a <framenum>:<comment> Add or replace comment for given frame number\n");
     fprintf(output, "\n");
     fprintf(output, "Output File(s):\n");
+    fprintf(output, "                         if the output file(s) have the .gz extension, then\n");
+    fprintf(output, "                         gzip compression will be used\n");
     fprintf(output, "  -c <packets per file>  split the packet output to different files based on\n");
     fprintf(output, "                         uniform packet counts with a maximum of\n");
     fprintf(output, "                         <packets per file> each.\n");
@@ -912,6 +914,7 @@ print_usage(FILE *output)
     fprintf(output, "                         Discard all packet comments from the input file\n");
     fprintf(output, "                         when writing the output file.  Does not discard\n");
     fprintf(output, "                         comments added by \"-a\" in the same command line.\n");
+    fprintf(output, "  --compress <type>      Compress the output file using the type compression format.\n");
     fprintf(output, "\n");
     fprintf(output, "Miscellaneous:\n");
     fprintf(output, "  -h, --help             display this help and exit.\n");
@@ -974,6 +977,21 @@ list_encap_types(FILE *stream) {
     g_slist_foreach(list, string_elem_print, stream);
     g_slist_free(list);
     g_free(encaps);
+}
+
+static void
+list_output_compression_types(void) {
+    GSList *output_compression_types;
+
+    fprintf(stderr, "mergecap: The available output compress type(s) for the \"--compress\" flag are:\n");
+    output_compression_types = wtap_get_all_output_compression_type_names_list();
+    for (GSList *compression_type = output_compression_types;
+        compression_type != NULL;
+        compression_type = g_slist_next(compression_type)) {
+            fprintf(stderr, "   %s\n", (const char *)compression_type->data);
+        }
+
+    g_slist_free(output_compression_types);
 }
 
 static void
@@ -1050,7 +1068,8 @@ editcap_cmdarg_err_cont(const char *msg_format, va_list ap)
 
 static wtap_dumper *
 editcap_dump_open(const char *filename, const wtap_dump_params *params,
-                  GArray *idbs_seen, int *err, char **err_info)
+                  GArray *idbs_seen, int *err, char **err_info,
+                  wtap_compression_type compression_type)
 {
     wtap_dumper *pdh;
 
@@ -1059,7 +1078,14 @@ editcap_dump_open(const char *filename, const wtap_dump_params *params,
         pdh = wtap_dump_open_stdout(out_file_type_subtype, WTAP_UNCOMPRESSED,
                                     params, err, err_info);
     } else {
-        pdh = wtap_dump_open(filename, out_file_type_subtype, WTAP_UNCOMPRESSED,
+        if (compression_type == WTAP_UNCOMPRESSED && g_str_has_suffix(filename, ".gz")) {
+            if (!wtap_dump_can_compress(out_file_type_subtype)) {
+                cmdarg_err("The file format does not support writing to a compressed output");
+                return NULL;
+            }
+            compression_type = WTAP_GZIP_COMPRESSED;
+        }
+        pdh = wtap_dump_open(filename, out_file_type_subtype, compression_type,
                              params, err, err_info);
     }
     if (pdh == NULL)
@@ -1280,16 +1306,17 @@ main(int argc, char *argv[])
     char         *read_err_info, *write_err_info;
     int           opt;
 
-#define LONGOPT_NO_VLAN              LONGOPT_BASE_APPLICATION+1
-#define LONGOPT_SKIP_RADIOTAP_HEADER LONGOPT_BASE_APPLICATION+2
-#define LONGOPT_SEED                 LONGOPT_BASE_APPLICATION+3
-#define LONGOPT_INJECT_SECRETS       LONGOPT_BASE_APPLICATION+4
-#define LONGOPT_DISCARD_ALL_SECRETS  LONGOPT_BASE_APPLICATION+5
-#define LONGOPT_CAPTURE_COMMENT      LONGOPT_BASE_APPLICATION+6
+#define LONGOPT_NO_VLAN                 LONGOPT_BASE_APPLICATION+1
+#define LONGOPT_SKIP_RADIOTAP_HEADER    LONGOPT_BASE_APPLICATION+2
+#define LONGOPT_SEED                    LONGOPT_BASE_APPLICATION+3
+#define LONGOPT_INJECT_SECRETS          LONGOPT_BASE_APPLICATION+4
+#define LONGOPT_DISCARD_ALL_SECRETS     LONGOPT_BASE_APPLICATION+5
+#define LONGOPT_CAPTURE_COMMENT         LONGOPT_BASE_APPLICATION+6
 #define LONGOPT_DISCARD_CAPTURE_COMMENT LONGOPT_BASE_APPLICATION+7
-#define LONGOPT_SET_UNUSED           LONGOPT_BASE_APPLICATION+8
+#define LONGOPT_SET_UNUSED              LONGOPT_BASE_APPLICATION+8
 #define LONGOPT_DISCARD_PACKET_COMMENTS LONGOPT_BASE_APPLICATION+9
-#define LONGOPT_EXTRACT_SECRETS      LONGOPT_BASE_APPLICATION+10
+#define LONGOPT_EXTRACT_SECRETS         LONGOPT_BASE_APPLICATION+10
+#define LONGOPT_COMPRESS                LONGOPT_BASE_APPLICATION+11
 
     static const struct ws_option long_options[] = {
         {"novlan", ws_no_argument, NULL, LONGOPT_NO_VLAN},
@@ -1304,6 +1331,7 @@ main(int argc, char *argv[])
         {"set-unused", ws_no_argument, NULL, LONGOPT_SET_UNUSED},
         {"discard-packet-comments", ws_no_argument, NULL, LONGOPT_DISCARD_PACKET_COMMENTS},
         {"extract-secrets", ws_no_argument, NULL, LONGOPT_EXTRACT_SECRETS},
+        {"compress", ws_required_argument, NULL, LONGOPT_COMPRESS},
         {0, 0, 0, 0 }
     };
 
@@ -1344,6 +1372,7 @@ main(int argc, char *argv[])
     bool                         valid_seed = false;
     unsigned int                 seed = 0;
     bool                         edit_option_specified = false;
+    wtap_compression_type compression_type   = WTAP_UNCOMPRESSED;
 
     cmdarg_err_init(editcap_cmdarg_err, editcap_cmdarg_err_cont);
     memset(&read_rec, 0, sizeof *rec);
@@ -1502,6 +1531,18 @@ main(int argc, char *argv[])
             /* XXX - Would it make sense to specify what types of secrets
              * to extract (or any)?
              */
+            break;
+        }
+
+        case LONGOPT_COMPRESS:
+        {
+            compression_type = wtap_name_to_compression_type(ws_optarg);
+            if (compression_type == WTAP_UNKNOWN_COMPRESSION) {
+                cmdarg_err("\"%s\" isn't a valid output compression mode",
+                            ws_optarg);
+                list_output_compression_types();
+                goto clean_exit;
+            }
             break;
         }
 
@@ -1748,6 +1789,9 @@ main(int argc, char *argv[])
             case'T':
                 list_encap_types(stdout);
                 break;
+            case LONGOPT_COMPRESS:
+                    list_output_compression_types();
+                    break;
             default:
                 print_usage(stderr);
                 ret = WS_EXIT_INVALID_OPTION;
@@ -1771,6 +1815,12 @@ main(int argc, char *argv[])
     if (out_file_type_subtype == WTAP_FILE_TYPE_SUBTYPE_UNKNOWN) {
       /* default to pcapng   */
       out_file_type_subtype = wtap_pcapng_file_type_subtype();
+    }
+
+    if (compression_type != WTAP_UNCOMPRESSED && !wtap_dump_can_compress(out_file_type_subtype)) {
+        cmdarg_err("The file format can't be written to output compressed format");
+        ret = WS_EXIT_INVALID_OPTION;
+        goto clean_exit;
     }
 
     if (err_prob >= 0.0) {
@@ -2005,7 +2055,7 @@ main(int argc, char *argv[])
             }
 
             pdh = editcap_dump_open(filename, &params, idbs_seen, &write_err,
-                                    &write_err_info);
+                                    &write_err_info, compression_type);
 
             if (pdh == NULL) {
                 cfile_dump_open_failure_message(filename,
@@ -2071,7 +2121,7 @@ main(int argc, char *argv[])
                         fprintf(stderr, "Continuing writing in file %s\n", filename);
 
                     pdh = editcap_dump_open(filename, &params, idbs_seen,
-                                            &write_err, &write_err_info);
+                                            &write_err, &write_err_info, compression_type);
 
                     if (pdh == NULL) {
                         cfile_dump_open_failure_message(filename,
@@ -2108,7 +2158,7 @@ main(int argc, char *argv[])
                     fprintf(stderr, "Continuing writing in file %s\n", filename);
 
                 pdh = editcap_dump_open(filename, &params, idbs_seen,
-                                        &write_err, &write_err_info);
+                                        &write_err, &write_err_info, compression_type);
                 if (pdh == NULL) {
                     cfile_dump_open_failure_message(filename,
                                                     write_err, write_err_info,
@@ -2547,7 +2597,7 @@ main(int argc, char *argv[])
         filename = g_strdup(argv[ws_optind+1]);
 
         pdh = editcap_dump_open(filename, &params, idbs_seen, &write_err,
-                                &write_err_info);
+                                &write_err_info, compression_type);
         if (pdh == NULL) {
             cfile_dump_open_failure_message(filename,
                                             write_err, write_err_info,

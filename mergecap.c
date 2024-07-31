@@ -46,6 +46,8 @@
 
 #include "ui/failure_message.h"
 
+#define LONGOPT_COMPRESS                LONGOPT_BASE_APPLICATION+1
+
 /*
  * Show the usage
  */
@@ -60,10 +62,12 @@ print_usage(FILE *output)
     fprintf(output, "                    default is to merge based on frame timestamps.\n");
     fprintf(output, "  -s <snaplen>      truncate packets to <snaplen> bytes of data.\n");
     fprintf(output, "  -w <outfile>|-    set the output filename to <outfile> or '-' for stdout.\n");
+    fprintf(output, "                    if the output filename has the .gz extension, it will be compressed to a gzip archive\n");
     fprintf(output, "  -F <capture type> set the output file type; default is pcapng.\n");
     fprintf(output, "                    an empty \"-F\" option will list the file types.\n");
     fprintf(output, "  -I <IDB merge mode> set the merge mode for Interface Description Blocks; default is 'all'.\n");
     fprintf(output, "                    an empty \"-I\" option will list the merge modes.\n");
+    fprintf(output, "  --compress <type> compress the output file using the type compression format.\n");
     fprintf(output, "\n");
     fprintf(output, "Miscellaneous:\n");
     fprintf(output, "  -h, --help        display this help and exit.\n");
@@ -114,6 +118,21 @@ list_idb_merge_modes(void) {
     for (i = 0; i < IDB_MERGE_MODE_MAX; i++) {
         fprintf(stderr, "    %s\n", merge_idb_merge_mode_to_string(i));
     }
+}
+
+static void
+list_output_compression_types(void) {
+    GSList *output_compression_types;
+
+    fprintf(stderr, "mergecap: The available output compress type(s) for the \"--compress\" flag are:\n");
+    output_compression_types = wtap_get_all_output_compression_type_names_list();
+    for (GSList *compression_type = output_compression_types;
+        compression_type != NULL;
+        compression_type = g_slist_next(compression_type)) {
+            fprintf(stderr, "   %s\n", (const char *)compression_type->data);
+        }
+
+    g_slist_free(output_compression_types);
 }
 
 static bool
@@ -201,16 +220,18 @@ main(int argc, char *argv[])
     static const struct ws_option long_options[] = {
         {"help", ws_no_argument, NULL, 'h'},
         {"version", ws_no_argument, NULL, 'v'},
+        {"compress", ws_required_argument, NULL, LONGOPT_COMPRESS},
         {0, 0, 0, 0 }
     };
-    bool                do_append          = false;
-    bool                verbose            = false;
-    int                 in_file_count      = 0;
-    uint32_t            snaplen            = 0;
-    int                 file_type          = WTAP_FILE_TYPE_SUBTYPE_UNKNOWN;
-    char               *out_filename       = NULL;
-    bool                status             = true;
-    idb_merge_mode      mode               = IDB_MERGE_MODE_MAX;
+    bool                  do_append        = false;
+    bool                  verbose          = false;
+    int                   in_file_count    = 0;
+    uint32_t              snaplen          = 0;
+    int                   file_type        = WTAP_FILE_TYPE_SUBTYPE_UNKNOWN;
+    char                  *out_filename    = NULL;
+    bool                  status           = true;
+    idb_merge_mode        mode             = IDB_MERGE_MODE_MAX;
+    wtap_compression_type compression_type = WTAP_UNCOMPRESSED;
     merge_progress_callback_t cb;
 
     cmdarg_err_init(mergecap_cmdarg_err, mergecap_cmdarg_err_cont);
@@ -304,6 +325,15 @@ main(int argc, char *argv[])
                 out_filename = ws_optarg;
                 break;
 
+            case LONGOPT_COMPRESS:
+                compression_type = wtap_name_to_compression_type(ws_optarg);
+                if (compression_type == WTAP_UNKNOWN_COMPRESSION) {
+                    cmdarg_err("\"%s\" isn't a valid output compression mode",
+                                ws_optarg);
+                    list_output_compression_types();
+                    goto clean_exit;
+                }
+                break;
             case '?':              /* Bad options if GNU getopt */
                 switch(ws_optopt) {
                     case'F':
@@ -311,6 +341,9 @@ main(int argc, char *argv[])
                         break;
                     case'I':
                         list_idb_merge_modes();
+                        break;
+                    case LONGOPT_COMPRESS:
+                        list_output_compression_types();
                         break;
                     default:
                         print_usage(stderr);
@@ -343,6 +376,12 @@ main(int argc, char *argv[])
         return 1;
     }
 
+    if (compression_type != WTAP_UNCOMPRESSED && !wtap_dump_can_compress(file_type)) {
+        cmdarg_err("The file format can't be written to output compressed format");
+        status = false;
+        goto clean_exit;
+    }
+
     /*
      * Setting IDB merge mode must use a file format that supports
      * (and thus requires) interface ID and information blocks.
@@ -368,11 +407,20 @@ main(int argc, char *argv[])
                 get_appname_and_version(),
                 verbose ? &cb : NULL);
     } else {
+        if (compression_type == WTAP_UNCOMPRESSED && g_str_has_suffix(out_filename, ".gz")) {
+            if (!wtap_dump_can_compress(file_type)) {
+                cmdarg_err("The file format does not support writing to a compressed output");
+                status = false;
+                goto clean_exit;
+            }
+            compression_type = WTAP_GZIP_COMPRESSED;
+        }
+
         /* merge the files to the outfile */
         status = merge_files(out_filename, file_type,
                 (const char *const *) &argv[ws_optind], in_file_count,
                 do_append, mode, snaplen, get_appname_and_version(),
-                verbose ? &cb : NULL);
+                verbose ? &cb : NULL, compression_type);
     }
 
 clean_exit:
