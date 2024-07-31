@@ -11346,8 +11346,6 @@ dissect_btatt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                         break;
                     length = tvb_get_uint16(tvb, offset, ENC_LITTLE_ENDIAN);
                     offset+=2;
-                    if (length <= 0)
-                        continue;
                     remain-=2;
                     if (remain < length)
                         break;
