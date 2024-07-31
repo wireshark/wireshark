@@ -1,7 +1,7 @@
 /* packet-tecmp.c
  * Technically Enhanced Capture Module Protocol (TECMP) dissector.
  * By <lars.voelker@technica-engineering.de>
- * Copyright 2019-2023 Dr. Lars Voelker
+ * Copyright 2019-2024 Dr. Lars Voelker
  * Copyright 2020      Ayoub Kaanich
  *
  * Wireshark - Network traffic analyzer
@@ -54,6 +54,7 @@ static bool detect_asam_cmp_ignore_user_defined = true;
 
 static dissector_table_t lin_subdissector_table;
 static dissector_table_t data_subdissector_table;
+static dissector_table_t data_type_subdissector_table;
 static dissector_handle_t text_lines_handle;
 
 /* Header fields */
@@ -2058,7 +2059,20 @@ dissect_tecmp_log_or_replay_stream(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                 break;
 
             default:
-                proto_tree_add_item(tecmp_tree, hf_tecmp_payload_data, sub_tvb, 0, length, ENC_NA);
+            {
+                tecmp_info_t tecmp_info;
+                tecmp_info.interface_id = interface_id;
+                tecmp_info.device_id = device_id;
+                tecmp_info.data_type = data_type;
+                tecmp_info.msg_type = tecmp_msg_type;
+
+                dissector_handle_t handle = dissector_get_uint_handle(data_type_subdissector_table, data_type);
+                if (handle != NULL) {
+                    call_dissector_only(handle, tvb, pinfo, tecmp_tree, &tecmp_info);
+                } else {
+                    proto_tree_add_item(tecmp_tree, hf_tecmp_payload_data, sub_tvb, 0, length, ENC_NA);
+                }
+            }
             }
 
             offset += length;
@@ -2820,6 +2834,7 @@ proto_register_tecmp_payload(void) {
      * Dissectors can register themselves in this table.
      */
     data_subdissector_table = register_dissector_table(TECMP_PAYLOAD_INTERFACE_ID, "TECMP Interface ID", proto_tecmp_payload, FT_UINT32, BASE_HEX);
+    data_type_subdissector_table = register_dissector_table(TECMP_DATA_TYPE, "TECMP Data Type", proto_tecmp_payload, FT_UINT16, BASE_HEX);
 
 }
 
