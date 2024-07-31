@@ -983,7 +983,7 @@ dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t ip_proto)
     len = tvb_captured_length(tvb);
 
     ti = proto_tree_add_item(tree, (ip_proto == IP_PROTO_UDP) ? proto_udp : proto_udplite, tvb, offset, 8, ENC_NA);
-    if (udp_summary_in_tree) {
+    if (udp_summary_in_tree && tree) {
         proto_item_append_text(ti, ", Src Port: %s, Dst Port: %s",
                      port_with_resolution_to_str(pinfo->pool, PT_UDP, udph->uh_sport),
                      port_with_resolution_to_str(pinfo->pool, PT_UDP, udph->uh_dport));

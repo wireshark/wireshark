@@ -1135,7 +1135,7 @@ dissect_dccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
     col_append_ports(pinfo->cinfo, COL_INFO, PT_DCCP, dccph->sport, dccph->dport);
 
     dccp_item = proto_tree_add_item(tree, proto_dccp, tvb, offset, -1, ENC_NA);
-    if (dccp_summary_in_tree) {
+    if (dccp_summary_in_tree && tree) {
         proto_item_append_text(dccp_item, ", Src Port: %s, Dst Port: %s",
                                port_with_resolution_to_str(pinfo->pool, PT_DCCP, dccph->sport),
                                port_with_resolution_to_str(pinfo->pool, PT_DCCP, dccph->dport));
