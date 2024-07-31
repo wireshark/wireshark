@@ -184,13 +184,28 @@ static int hf_lix2_rCSSessionModification;        /* RCSSessionModification */
 static int hf_lix2_rCSSessionRelease;             /* RCSSessionRelease */
 static int hf_lix2_aMFUEPolicyTransfer;           /* AMFUEPolicyTransfer */
 static int hf_lix2_aMFUEServiceAccept;            /* AMFUEServiceAccept */
+static int hf_lix2_ePSRANHandoverCommand;         /* EPSRANHandoverCommand */
+static int hf_lix2_ePSRANHandoverRequest;         /* EPSRANHandoverRequest */
+static int hf_lix2_mMERANTraceReport;             /* MMERANTraceReport */
+static int hf_lix2_mMEUEServiceAccept;            /* MMEUEServiceAccept */
+static int hf_lix2_nWDAFEventsSubscription;       /* NWDAFEventsSubscription */
+static int hf_lix2_nWDAFEventsNotification;       /* NWDAFEventsNotification */
+static int hf_lix2_nWDAFAnalyticsInfoQuery;       /* NWDAFAnalyticsInfoQuery */
+static int hf_lix2_nWDAFRoamingAnalyticsSubscription;  /* NWDAFRoamingAnalyticsSubscription */
+static int hf_lix2_nWDAFRoamingAnalyticsNotification;  /* NWDAFRoamingAnalyticsNotification */
+static int hf_lix2_startOfInterceptForRegisteredRCSUser;  /* StartOfInterceptForRegisteredRCSUser */
+static int hf_lix2_startOfInterceptWithEstablisedRCSSession;  /* StartOfInterceptWithEstablisedRCSSession */
+static int hf_lix2_uDMProSeTargetIdentifierDeconcealment;  /* UDMProSeTargetIdentifierDeconcealment */
+static int hf_lix2_uDMProSeTargetAuthentication;  /* UDMProSeTargetAuthentication */
 static int hf_lix2_iRIPayloadOID;                 /* RELATIVE_OID */
 static int hf_lix2_event_01;                      /* IRIEvent */
 static int hf_lix2_targetIdentifiers;             /* SEQUENCE_OF_IRITargetIdentifier */
 static int hf_lix2_targetIdentifiers_item;        /* IRITargetIdentifier */
+static int hf_lix2_mediatedFromIndicator;         /* MediatedFromIndicator */
 static int hf_lix2_mDFCellSiteReport;             /* MDFCellSiteReport */
 static int hf_lix2_identifier;                    /* TargetIdentifier */
 static int hf_lix2_provenance;                    /* TargetIdentifierProvenance */
+static int hf_lix2_xIRIRelativeOID;               /* RELATIVE_OID */
 static int hf_lix2_cCPayloadOID;                  /* RELATIVE_OID */
 static int hf_lix2_pDU;                           /* CCPDU */
 static int hf_lix2_uPFCCPDU;                      /* UPFCCPDU */
@@ -199,6 +214,7 @@ static int hf_lix2_mMSCCPDU;                      /* MMSCCPDU */
 static int hf_lix2_nIDDCCPDU;                     /* NIDDCCPDU */
 static int hf_lix2_pTCCCPDU;                      /* PTCCCPDU */
 static int hf_lix2_iMSCCPDU;                      /* IMSCCPDU */
+static int hf_lix2_rCSCCPDU;                      /* RCSCCPDU */
 static int hf_lix2_lINotificationPayloadOID;      /* RELATIVE_OID */
 static int hf_lix2_notification;                  /* LINotificationMessage */
 static int hf_lix2_lINotification;                /* LINotification */
@@ -348,13 +364,19 @@ static int hf_lix2_equivalentPLMNList;            /* PLMNList */
 static int hf_lix2_fiveGMMCapability;             /* FiveGMMCapability */
 static int hf_lix2_initialRANUEContextSetup;      /* InitialRANUEContextSetup */
 static int hf_lix2_mUSIMUERequestType;            /* MUSIMUERequestType */
+static int hf_lix2_unavailabilityPeriodDuration;  /* UnavailabilityPeriodDuration */
+static int hf_lix2_fiveGSUpdateType;              /* FiveGSUpdateType */
+static int hf_lix2_uEAreaIndication;              /* UEAreaIndication */
+static int hf_lix2_establishmentCauseNon3GPPAccess;  /* EstablishmentCauseNon3GPPAccess */
 static int hf_lix2_deregistrationDirection;       /* AMFDirection */
 static int hf_lix2_accessType;                    /* AccessType */
 static int hf_lix2_cause;                         /* FiveGMMCause */
 static int hf_lix2_switchOffIndicator;            /* SwitchOffIndicator */
 static int hf_lix2_reRegRequiredIndicator;        /* ReRegRequiredIndicator */
-static int hf_lix2_sMSOverNASIndicator;           /* SMSOverNASIndicator */
+static int hf_lix2_deprecatedSMSOverNASIndicator;  /* SMSOverNASIndicator */
+static int hf_lix2_deprecatedOldGUTI;             /* EPS5GGUTI */
 static int hf_lix2_timeOfRegistration;            /* Timestamp */
+static int hf_lix2_sMSOverNASIndicator;           /* SMSOverNASIndicator */
 static int hf_lix2_uEPolicy;                      /* UEPolicy */
 static int hf_lix2_failedProcedureType;           /* AMFFailedProcedureType */
 static int hf_lix2_failureCause_02;               /* AMFFailureCause */
@@ -377,19 +399,21 @@ static int hf_lix2_gUTI_01;                       /* GUTI */
 static int hf_lix2_serviceAreaList;               /* ServiceAreaList */
 static int hf_lix2_traceRecordType;               /* TraceRecordType */
 static int hf_lix2_traceDirection;                /* TraceDirection */
-static int hf_lix2_traceActivationInfo;           /* TraceActivationInfo */
+static int hf_lix2_deprecatedTraceActivationInfo;  /* TraceActivationInfo */
 static int hf_lix2_nGRANCGI;                      /* NCGI */
 static int hf_lix2_globalRANNodeID;               /* GlobalRANNodeID */
 static int hf_lix2_traceCollectionEntityInfo;     /* TraceCollectionEntityInfo */
 static int hf_lix2_aMFTraceData;                  /* XMLType */
+static int hf_lix2_traceActivation;               /* TraceActivation */
 static int hf_lix2_serviceMessageIdentity;        /* ServiceMessageIdentity */
 static int hf_lix2_serviceType;                   /* OCTET_STRING_SIZE_1 */
 static int hf_lix2_fiveGTMSI;                     /* FiveGTMSI */
 static int hf_lix2_uplinkDataStatus;              /* OCTET_STRING_SIZE_2_32 */
 static int hf_lix2_pDUSessionStatus;              /* OCTET_STRING_SIZE_2_32 */
-static int hf_lix2_uERequestType;                 /* FiveGSMRequestType */
+static int hf_lix2_deprecatedUERequestType;       /* FiveGSMRequestType */
 static int hf_lix2_pagingRestriction;             /* PagingRestrictionIndicator */
 static int hf_lix2_forbiddenTAIList;              /* TAIList */
+static int hf_lix2_uERequestType;                 /* MUSIMUERequestType */
 static int hf_lix2_aMFRegionID;                   /* AMFRegionID */
 static int hf_lix2_aMFSetID;                      /* AMFSetID */
 static int hf_lix2_aMFPointer;                    /* AMFPointer */
@@ -454,6 +478,8 @@ static int hf_lix2_fiveGProSeDirectCommunication;  /* FiveGProSeAuthorizationInd
 static int hf_lix2_fiveGProSeL2UEToNetworkRelay;  /* FiveGProSeAuthorizationIndicator */
 static int hf_lix2_fiveGProSeL3UEToNetworkRelay;  /* FiveGProSeAuthorizationIndicator */
 static int hf_lix2_fiveGProSeL2RemoteUE;          /* FiveGProSeAuthorizationIndicator */
+static int hf_lix2_country;                       /* UTF8String_SIZE_2 */
+static int hf_lix2_internationalAreaIndication;   /* BOOLEAN */
 static int hf_lix2_sUPIUnauthenticated;           /* SUPIUnauthenticatedIndication */
 static int hf_lix2_gTPTunnelID;                   /* FTEID */
 static int hf_lix2_pDUSessionType;                /* PDUSessionType */
@@ -472,6 +498,8 @@ static int hf_lix2_handoverState;                 /* HandoverState */
 static int hf_lix2_gTPTunnelInfo;                 /* GTPTunnelInfo */
 static int hf_lix2_pCCRules;                      /* PCCRuleSet */
 static int hf_lix2_ePSPDNConnectionEstablishment;  /* EPSPDNConnectionEstablishment */
+static int hf_lix2_satelliteBackhaulCategory;     /* SBIType */
+static int hf_lix2_gEOSatelliteID;                /* GEOSatelliteID */
 static int hf_lix2_uEEndpoint_01;                 /* UEEndpointAddress */
 static int hf_lix2_ePSPDNConnectionModification;  /* EPSPDNConnectionModification */
 static int hf_lix2_uPPathChange;                  /* UPPathChange */
@@ -527,14 +555,19 @@ static int hf_lix2_maxAllowedUpLat;               /* INTEGER */
 static int hf_lix2_trafficRoutes;                 /* RouteToLocationSet */
 static int hf_lix2_trafficSteeringPolIdDl;        /* UTF8String */
 static int hf_lix2_trafficSteeringPolIdUl;        /* UTF8String */
+static int hf_lix2_deprecatedSourceDNAI;          /* DNAI */
+static int hf_lix2_deprecatedTargetDNAI;          /* DNAI */
+static int hf_lix2_deprecatedDNAIChangeType;      /* DNAIChangeType */
+static int hf_lix2_deprecatedSourceUEIPAddr;      /* IPAddress */
+static int hf_lix2_deprecatedTargetUEIPAddr;      /* IPAddress */
+static int hf_lix2_sourceTrafficRouting;          /* RouteToLocation */
+static int hf_lix2_targetTrafficRouting;          /* RouteToLocation */
+static int hf_lix2_eASIPReplaceInfos;             /* EASIPReplaceInfos */
 static int hf_lix2_sourceDNAI;                    /* DNAI */
 static int hf_lix2_targetDNAI;                    /* DNAI */
 static int hf_lix2_dNAIChangeType;                /* DNAIChangeType */
 static int hf_lix2_sourceUEIPAddr;                /* IPAddress */
 static int hf_lix2_targetUEIPAddr;                /* IPAddress */
-static int hf_lix2_sourceTrafficRouting;          /* RouteToLocation */
-static int hf_lix2_targetTrafficRouting;          /* RouteToLocation */
-static int hf_lix2_eASIPReplaceInfos;             /* EASIPReplaceInfos */
 static int hf_lix2_mACAddress;                    /* MACAddress */
 static int hf_lix2_PCCRuleSet_item;               /* PCCRule */
 static int hf_lix2_PCCRuleIDSet_item;             /* PCCRuleID */
@@ -695,6 +728,9 @@ static int hf_lix2_aKMAIndicator;                 /* BOOLEAN */
 static int hf_lix2_authAAA;                       /* BOOLEAN */
 static int hf_lix2_pvsInfo;                       /* ServerAddressingInfoList */
 static int hf_lix2_uDMSubscriptionDataSets;       /* SBIType */
+static int hf_lix2_servingNetworkName;            /* UTF8String */
+static int hf_lix2_relayServiceCode;              /* INTEGER */
+static int hf_lix2_authenticationType;            /* PrimaryAuthenticationType */
 static int hf_lix2_ServerAddressingInfoList_item;  /* ServerAddressingInfo */
 static int hf_lix2_iPv4Address;                   /* IPv4Address */
 static int hf_lix2_iPv6Address;                   /* IPv6Address */
@@ -707,7 +743,7 @@ static int hf_lix2_infoRequestType;               /* UDMInfoRequestType */
 static int hf_lix2_rGAuthCtx;                     /* SEQUENCE_SIZE_1_MAX_OF_SubscriberIdentifier */
 static int hf_lix2_rGAuthCtx_item;                /* SubscriberIdentifier */
 static int hf_lix2_authType;                      /* PrimaryAuthenticationType */
-static int hf_lix2_servingNetworkName;            /* PLMNID */
+static int hf_lix2_servingNetworkName_01;         /* PLMNID */
 static int hf_lix2_aUSFInstanceID;                /* NFID */
 static int hf_lix2_cellCAGInfo;                   /* CAGID */
 static int hf_lix2_n5GCIndicator;                 /* BOOLEAN */
@@ -745,6 +781,9 @@ static int hf_lix2_sMSAddress;                    /* SMSAddress */
 static int hf_lix2_e164Number;                    /* E164Number */
 static int hf_lix2_sMSTPDU;                       /* SMSTPDU */
 static int hf_lix2_truncatedSMSTPDU;              /* TruncatedSMSTPDU */
+static int hf_lix2_redactedSMSTPDU;               /* SMSTPDU */
+static int hf_lix2_threeGPP2SMSTPDU;              /* ThreeGPP2SMSTPDU */
+static int hf_lix2_redacted3GPP2SMSTPDU;          /* ThreeGPP2SMSTPDU */
 static int hf_lix2_transactionID;                 /* UTF8String */
 static int hf_lix2_version;                       /* MMSVersion */
 static int hf_lix2_dateTime;                      /* Timestamp */
@@ -996,13 +1035,36 @@ static int hf_lix2_rCSSIPSessionMessage;          /* RCSSIPSessionMessage */
 static int hf_lix2_rCSTargetContactIdentities;    /* SEQUENCE_SIZE_1_MAX_OF_RCSIdentity */
 static int hf_lix2_rCSTargetContactIdentities_item;  /* RCSIdentity */
 static int hf_lix2_sIPMessage;                    /* IMSPayload */
+static int hf_lix2_rCSRegistrationInformation;    /* SEQUENCE_SIZE_1_MAX_OF_RCSRegistrationInformation */
+static int hf_lix2_rCSRegistrationInformation_item;  /* RCSRegistrationInformation */
+static int hf_lix2_userOnline;                    /* BOOLEAN */
+static int hf_lix2_additionalInstanceLocation;    /* SEQUENCE_SIZE_1_MAX_OF_AdditionalInstanceLocation */
+static int hf_lix2_additionalInstanceLocation_item;  /* AdditionalInstanceLocation */
+static int hf_lix2_participants;                  /* SEQUENCE_SIZE_1_MAX_OF_RCSDestinations */
+static int hf_lix2_participants_item;             /* RCSDestinations */
+static int hf_lix2_rCSSessionEndpoints;           /* RCSSessionEndpoints */
+static int hf_lix2_rCSSessionLegs;                /* SEQUENCE_SIZE_1_MAX_OF_RCSSIPSessionExchange */
+static int hf_lix2_rCSSessionLegs_item;           /* RCSSIPSessionExchange */
+static int hf_lix2_rCSSessionInformation;         /* SEQUENCE_SIZE_1_MAX_OF_RCSSessionContext */
+static int hf_lix2_rCSSessionInformation_item;    /* RCSSessionContext */
+static int hf_lix2_encapsulatedRCSPayload;        /* EncapsulatedRCSPayload */
+static int hf_lix2_instance_01;                   /* SIPEndpoint */
+static int hf_lix2_path;                          /* UTF8String */
 static int hf_lix2_RCSDestinations_item;          /* RCSDestination */
 static int hf_lix2_RCSDestination_item;           /* RCSIdentity */
 static int hf_lix2_fiveGSIdentities;              /* FiveGSSubscriberIDs */
 static int hf_lix2_ePSIdentities;                 /* EPSSubscriberIDs */
 static int hf_lix2_iMSIdentities;                 /* IMSSubscriberIDs */
+static int hf_lix2_sIPRegistration;               /* RCSSIPRegistrationExchange */
+static int hf_lix2_userProfile;                   /* XMLType */
+static int hf_lix2_multiDevice;                   /* XMLType */
+static int hf_lix2_presenceDocument;              /* XMLType */
+static int hf_lix2_cPMSessionInfo;                /* MIMEEntity */
 static int hf_lix2_sessionLeg;                    /* RCSSessionLeg */
+static int hf_lix2_sIPRequest;                    /* IMSPayload */
+static int hf_lix2_sIPResponse;                   /* IMSPayload */
 static int hf_lix2_rCSSessionResult;              /* RCSSessionResult */
+static int hf_lix2_mSRPPathInfo;                  /* MSRPPath */
 static int hf_lix2_registrationType_01;           /* RegistrationType */
 static int hf_lix2_eECID;                         /* UTF8String */
 static int hf_lix2_aCProfiles;                    /* ACProfiles */
@@ -1114,6 +1176,22 @@ static int hf_lix2_networkAssistanceSessionResource;  /* SBIType */
 static int hf_lix2_nAOperationType;               /* NAOperationType */
 static int hf_lix2_fiveGMSAFUnsuccessfulOperation;  /* FiveGMSAFUnsuccessfulOperation */
 static int hf_lix2_fiveGMSAFErrorCode;            /* FiveGMSAFErrorCode */
+static int hf_lix2_nWDAFConsumerNFType;           /* NWDAFConsumerNFType */
+static int hf_lix2_nWDAFEventsSubscriptionOpType;  /* NWDAFEventsSubscriptionOpType */
+static int hf_lix2_nWDAFSubscribedEventList;      /* SEQUENCE_SIZE_1_MAX_OF_NWDAFEvent */
+static int hf_lix2_nWDAFSubscribedEventList_item;  /* NWDAFEvent */
+static int hf_lix2_nWDAFEventsSubscription_01;    /* SBIType */
+static int hf_lix2_nWDAFEventsSubscriptionID;     /* UTF8String */
+static int hf_lix2_nWDAFEventsSubscriptionResponseCode;  /* NWDAFEventsSubscriptionResponseCode */
+static int hf_lix2_nWDAFNotifiedEventList;        /* SEQUENCE_SIZE_1_MAX_OF_NWDAFEvent */
+static int hf_lix2_nWDAFNotifiedEventList_item;   /* NWDAFEvent */
+static int hf_lix2_nWDAFEventsNotification_01;    /* SBIType */
+static int hf_lix2_nWDAFEvent;                    /* NWDAFEvent */
+static int hf_lix2_nWDAFEventReportingRequirement;  /* SBIType */
+static int hf_lix2_nWDAFEventFilter;              /* SBIType */
+static int hf_lix2_nWDAFAnalyticsData;            /* SBIType */
+static int hf_lix2_nWDAFAnalyticsInfoResponseCode;  /* NWDAFAnalyticsInfoResponseCode */
+static int hf_lix2_deprecatedPEI;                 /* PEI */
 static int hf_lix2_sourceIPAddress_01;            /* IPAddress */
 static int hf_lix2_destinationIPAddress_01;       /* IPAddress */
 static int hf_lix2_iPv6flowLabel;                 /* IPv6FlowLabel */
@@ -1125,20 +1203,79 @@ static int hf_lix2_packetCount;                   /* INTEGER */
 static int hf_lix2_byteCount;                     /* INTEGER */
 static int hf_lix2_useSessionTrigger;             /* BOOLEAN */
 static int hf_lix2_tAIList;                       /* TAIList */
+static int hf_lix2_mMEUES1APID;                   /* MMEUES1APID */
+static int hf_lix2_eNBUES1APID;                   /* RANUES1APID */
+static int hf_lix2_handoverType_01;               /* EPSHandoverType */
+static int hf_lix2_eRABsToBeForwarded;            /* ERABContextList */
+static int hf_lix2_eRABsToRelease;                /* ERABReleaseList */
+static int hf_lix2_targetToSourceContainers;      /* SEQUENCE_SIZE_1_MAX_OF_RANTargetToSourceContainer */
+static int hf_lix2_targetToSourceContainers_item;  /* RANTargetToSourceContainer */
+static int hf_lix2_handoverCause_01;              /* EPSRANCause */
+static int hf_lix2_cSGInfo;                       /* EPSCSGInfo */
+static int hf_lix2_admittedCSGID;                 /* CSGID */
+static int hf_lix2_ePSRANUEContext;               /* EPSRANUEContext */
 static int hf_lix2_attachType;                    /* EPSAttachType */
 static int hf_lix2_attachResult;                  /* EPSAttachResult */
 static int hf_lix2_ePSTAIList;                    /* TAIList */
 static int hf_lix2_sMSServiceStatus;              /* EPSSMSServiceStatus */
 static int hf_lix2_oldGUTI_01;                    /* GUTI */
+static int hf_lix2_s1Information;                 /* S1Information */
+static int hf_lix2_nASTransportInitialInformation_01;  /* EPSNASTransportInitialInformation */
+static int hf_lix2_ePSUENetworkCapability;        /* EPSUENetworkCapability */
+static int hf_lix2_initailRANUEContextSetup;      /* EPSRANUEContext */
+static int hf_lix2_ePSNetworkPolicy;              /* EPSNetworkPolicy */
 static int hf_lix2_detachDirection;               /* MMEDirection */
 static int hf_lix2_detachType;                    /* EPSDetachType */
 static int hf_lix2_cause_08;                      /* EMMCause */
+static int hf_lix2_traceActivationInfo;           /* TraceActivation */
+static int hf_lix2_eUTRANCGI;                     /* ECGI */
+static int hf_lix2_mMETraceData;                  /* XMLType */
+static int hf_lix2_mTMSI;                         /* TMSI */
+static int hf_lix2_cSFBResponse;                  /* OCTET_STRING_SIZE_1 */
+static int hf_lix2_uEEPSBearerContextStatus;      /* OCTET_STRING_SIZE_2 */
+static int hf_lix2_controlPlaneServiceType;       /* OCTET_STRING_SIZE_1 */
 static int hf_lix2_failedProcedureType_02;        /* MMEFailedProcedureType */
 static int hf_lix2_failureCause_04;               /* MMEFailureCause */
 static int hf_lix2_lPPaMessage;                   /* OCTET_STRING */
 static int hf_lix2_mMELCSCorrelationId;           /* OCTET_STRING_SIZE_4 */
+static int hf_lix2_hENBTransportLayerAddress;     /* IPAddr */
+static int hf_lix2_uDPPortNumber;                 /* PortNumber */
+static int hf_lix2_eNGNBID;                       /* GNbID */
+static int hf_lix2_supportedTAList_01;            /* TACList */
+static int hf_lix2_broadcastPLMN;                 /* PLMNList */
+static int hf_lix2_ConnectedENGNBList_item;       /* ConnectedENGNB */
+static int hf_lix2_cSGID;                         /* CSGID */
+static int hf_lix2_cSGMembershipStatus;           /* CSGMembershipIndication */
+static int hf_lix2_rANUES1APID;                   /* RANUES1APID */
+static int hf_lix2_eRABSetupRequest;              /* ERABContextList */
+static int hf_lix2_handoverRestrictionList;       /* EPSHandoverRestrictionList */
+static int hf_lix2_uERadioCapability_01;          /* EPSUERadioCapability */
+static int hf_lix2_cSFallbackIndicator;           /* EPSCSFallbackIndicator */
+static int hf_lix2_proSeAuthorized;               /* EPSProSeAuthorization */
+static int hf_lix2_lTEV2XServicesAuthorized;      /* LTEV2XServiceAuthorization */
+static int hf_lix2_aerialUESubscription;          /* AerialUESubscriptionIndicator */
+static int hf_lix2_subscriptionBasedUEDifferentiationIndication;  /* EPSSubscriptionBasedUEDifferentiationIndication */
+static int hf_lix2_relayNodeIndicator;            /* BOOLEAN */
+static int hf_lix2_bBFTunnelInformation;          /* BBFTunnelInformation */
+static int hf_lix2_lTENTNTAIInformation;          /* LTENTNTAIInformation */
+static int hf_lix2_eRABID;                        /* EPSBearerID */
+static int hf_lix2_eRABQoSParameters;             /* ERABQoSParameters */
+static int hf_lix2_transportLayerAddress;         /* IPAddr */
+static int hf_lix2_uLGTPTEID;                     /* FTEID */
+static int hf_lix2_dLGTPTEID;                     /* FTEID */
+static int hf_lix2_ERABContextList_item;          /* ERABContext */
+static int hf_lix2_cause_09;                      /* EPSRANCause */
+static int hf_lix2_ERABReleaseList_item;          /* ERABError */
+static int hf_lix2_pLMN;                          /* PLMNID */
+static int hf_lix2_tACListInLTENTN;               /* TACList */
+static int hf_lix2_uETAC;                         /* TAC */
 static int hf_lix2_eMMCause;                      /* EMMCause */
 static int hf_lix2_eSMCause;                      /* ESMCause */
+static int hf_lix2_servedPLMNs;                   /* PLMNSupportList */
+static int hf_lix2_MMEServedGUMMEIList_item;      /* MMEServedGUMMEI */
+static int hf_lix2_cSGIDList;                     /* CSGIDList */
+static int hf_lix2_connectedENGNBList;            /* ConnectedENGNBList */
+static int hf_lix2_mMEServedGUMMEIList;           /* MMEServedGUMMEIList */
 static int hf_lix2_notificationType;              /* LINotificationType */
 static int hf_lix2_appliedTargetID;               /* TargetIdentifier */
 static int hf_lix2_appliedDeliveryInformation;    /* SEQUENCE_OF_LIAppliedDeliveryInformation */
@@ -1191,7 +1328,6 @@ static int hf_lix2_nAI;                           /* NAI */
 static int hf_lix2_mMEID;                         /* MMEID */
 static int hf_lix2_mMEGroupID;                    /* MMEGroupID */
 static int hf_lix2_mMECode;                       /* MMECode */
-static int hf_lix2_mTMSI;                         /* TMSI */
 static int hf_lix2_radioNetwork;                  /* CauseRadioNetwork */
 static int hf_lix2_transport;                     /* CauseTransport */
 static int hf_lix2_nas;                           /* CauseNas */
@@ -1236,6 +1372,8 @@ static int hf_lix2_protectionSchemeID;            /* ProtectionSchemeID */
 static int hf_lix2_homeNetworkPublicKeyID;        /* HomeNetworkPublicKeyID */
 static int hf_lix2_schemeOutput;                  /* SchemeOutput */
 static int hf_lix2_routingIndicatorLength;        /* INTEGER_1_4 */
+static int hf_lix2_sUPIType;                      /* SUPIType */
+static int hf_lix2_homeNetworkIdentifier;         /* HomeNetworkIdentifier */
 static int hf_lix2_SupportedTAList_item;          /* TAItem */
 static int hf_lix2_tAC;                           /* TAC */
 static int hf_lix2_broadcastPLMNList;             /* SEQUENCE_SIZE_1_MAX_OF_BroadcastPLMNItem */
@@ -1281,6 +1419,8 @@ static int hf_lix2_ignoreECGI;                    /* BOOLEAN */
 static int hf_lix2_nCGI;                          /* NCGI */
 static int hf_lix2_globalGNbID;                   /* GlobalRANNodeID */
 static int hf_lix2_ignoreNCGI;                    /* BOOLEAN */
+static int hf_lix2_nRNTNTAIInfo;                  /* NRNTNTAIInfo */
+static int hf_lix2_iABMTUserLocation;             /* IABMTUserLocation */
 static int hf_lix2_n3IWFID;                       /* N3IWFIDNGAP */
 static int hf_lix2_uEIPAddr;                      /* IPAddr */
 static int hf_lix2_portNumber_01;                 /* INTEGER */
@@ -1319,6 +1459,7 @@ static int hf_lix2_lAC;                           /* LAC */
 static int hf_lix2_sAC;                           /* SAC */
 static int hf_lix2_rAC;                           /* RAC */
 static int hf_lix2_eUTRACellID;                   /* EUTRACellID */
+static int hf_lix2_TACList_item;                  /* TAC */
 static int hf_lix2_TAIList_item;                  /* TAI */
 static int hf_lix2_nRCellID;                      /* NRCellID */
 static int hf_lix2_rANCGI;                        /* RANCGI */
@@ -1370,9 +1511,9 @@ static int hf_lix2_geodeticInformation_01;        /* GeodeticInformationOctet */
 static int hf_lix2_currentLocationRetrieved;      /* BOOLEAN */
 static int hf_lix2_ageOfLocationInformation;      /* INTEGER */
 static int hf_lix2_userCSGInformation;            /* UserCSGInformation */
-static int hf_lix2_cSGID;                         /* CSGID */
 static int hf_lix2_cSGAccessMode;                 /* CSGAccessMode */
 static int hf_lix2_cSGMembershipIndication;       /* CSGMembershipIndication */
+static int hf_lix2_CSGIDList_item;                /* CSGID */
 static int hf_lix2_cellPortionID;                 /* CellPortionID */
 static int hf_lix2_type_02;                       /* AMFEventType */
 static int hf_lix2_timestamp;                     /* Timestamp */
@@ -1414,7 +1555,7 @@ static int hf_lix2_horVelocity;                   /* HorizontalVelocity */
 static int hf_lix2_horWithVertVelocity;           /* HorizontalWithVerticalVelocity */
 static int hf_lix2_horVelocityWithUncertainty;    /* HorizontalVelocityWithUncertainty */
 static int hf_lix2_horWithVertVelocityAndUncertainty;  /* HorizontalWithVerticalVelocityAndUncertainty */
-static int hf_lix2_country;                       /* UTF8String */
+static int hf_lix2_country_01;                    /* UTF8String */
 static int hf_lix2_a1;                            /* UTF8String */
 static int hf_lix2_a2;                            /* UTF8String */
 static int hf_lix2_a3;                            /* UTF8String */
@@ -1450,26 +1591,26 @@ static int hf_lix2_mode;                          /* PositioningMode */
 static int hf_lix2_usage;                         /* Usage */
 static int hf_lix2_methodCode;                    /* MethodCode */
 static int hf_lix2_gNSS;                          /* GNSSID */
-static int hf_lix2_uncertainty;                   /* Uncertainty */
+static int hf_lix2_deprecatedUncertainty;         /* Uncertainty */
 static int hf_lix2_uncertaintySBI;                /* UncertaintySBI */
-static int hf_lix2_uncertainty_01;                /* UncertaintyEllipse */
+static int hf_lix2_uncertainty;                   /* UncertaintyEllipse */
 static int hf_lix2_confidence;                    /* Confidence */
 static int hf_lix2_pointList;                     /* SET_SIZE_3_15_OF_GeographicalCoordinates */
 static int hf_lix2_pointList_item;                /* GeographicalCoordinates */
 static int hf_lix2_point_01;                      /* GeographicalCoordinates */
 static int hf_lix2_uncertaintyEllipse;            /* UncertaintyEllipse */
-static int hf_lix2_uncertaintyAltitude;           /* Uncertainty */
+static int hf_lix2_deprecatedUncertaintyAltitude;  /* Uncertainty */
 static int hf_lix2_uncertaintyAltitudeSBI;        /* UncertaintySBI */
 static int hf_lix2_innerRadius;                   /* InnerRadius */
-static int hf_lix2_uncertaintyRadius;             /* Uncertainty */
+static int hf_lix2_deprecatedUncertaintyRadius;   /* Uncertainty */
 static int hf_lix2_offsetAngle;                   /* Angle */
 static int hf_lix2_includedAngle;                 /* Angle */
 static int hf_lix2_uncertaintyRadiusSBI;          /* UncertaintySBI */
 static int hf_lix2_latitude;                      /* UTF8String */
 static int hf_lix2_longitude;                     /* UTF8String */
 static int hf_lix2_mapDatumInformation;           /* OGCURN */
-static int hf_lix2_semiMajor;                     /* Uncertainty */
-static int hf_lix2_semiMinor;                     /* Uncertainty */
+static int hf_lix2_deprecatedSemiMajor;           /* Uncertainty */
+static int hf_lix2_deprecatedSemiMinor;           /* Uncertainty */
 static int hf_lix2_orientationMajor;              /* Orientation */
 static int hf_lix2_semiMajorSBI;                  /* UncertaintySBI */
 static int hf_lix2_semiMinorSBI;                  /* UncertaintySBI */
@@ -1477,7 +1618,7 @@ static int hf_lix2_hSpeed;                        /* HorizontalSpeed */
 static int hf_lix2_bearing;                       /* Angle */
 static int hf_lix2_vSpeed;                        /* VerticalSpeed */
 static int hf_lix2_vDirection;                    /* VerticalDirection */
-static int hf_lix2_uncertainty_02;                /* SpeedUncertainty */
+static int hf_lix2_uncertainty_01;                /* SpeedUncertainty */
 static int hf_lix2_hUncertainty;                  /* SpeedUncertainty */
 static int hf_lix2_vUncertainty;                  /* SpeedUncertainty */
 static int hf_lix2_accessNetworkInformation_01;   /* SIPAccessNetworkInformation */
@@ -1497,6 +1638,10 @@ static int hf_lix2_cellularAccessInfo_item;       /* SIPCellularAccessInfo */
 static int hf_lix2_cNILocation;                   /* SEQUENCE_OF_SIPLocationInfo */
 static int hf_lix2_cNILocation_item;              /* SIPLocationInfo */
 static int hf_lix2_cellularNetworkInfo;           /* UTF8String */
+static int hf_lix2_tACListNRNTN;                  /* SEQUENCE_SIZE_1_MAX_OF_TAC */
+static int hf_lix2_tACListNRNTN_item;             /* TAC */
+static int hf_lix2_uELocationDerivedNTNTAC;       /* TAC */
+static int hf_lix2_nRCGI;                         /* NCGI */
 static int hf_lix2_fullPayload;                   /* EncapsulatedRCSPayload */
 static int hf_lix2_modifiedPayload;               /* ModifiedRCSPayload */
 static int hf_lix2_mIME;                          /* MIMEEntity */
@@ -1537,6 +1682,11 @@ static int hf_lix2_encapsulatedMIMEEntity;        /* EncapsulatedMIMEEntity */
 static int hf_lix2_index;                         /* INTEGER */
 static int hf_lix2_fullBody;                      /* NULL */
 static int hf_lix2_bodyPart;                      /* MIMEPartIdentifier */
+static int hf_lix2_moduleIdentifier;              /* OBJECT_IDENTIFIER */
+static int hf_lix2_aSNReference;                  /* ExternalASNReference */
+static int hf_lix2_encodedASNValue;               /* ExternalASNValue */
+static int hf_lix2_bER;                           /* OCTET_STRING */
+static int hf_lix2_alignedPER;                    /* OCTET_STRING */
 
 static int ett_lix2_XIRIPayload;
 static int ett_lix2_XIRIEvent;
@@ -1544,6 +1694,7 @@ static int ett_lix2_IRIPayload;
 static int ett_lix2_SEQUENCE_OF_IRITargetIdentifier;
 static int ett_lix2_IRIEvent;
 static int ett_lix2_IRITargetIdentifier;
+static int ett_lix2_MediatedFromIndicator;
 static int ett_lix2_CCPayload;
 static int ett_lix2_CCPDU;
 static int ett_lix2_LINotificationPayload;
@@ -1631,6 +1782,7 @@ static int ett_lix2_NRV2XServicesAuthorization;
 static int ett_lix2_LTEV2XServiceAuthorization;
 static int ett_lix2_TargetNSSAIInfo;
 static int ett_lix2_FiveGProSeAuthorizationIndication;
+static int ett_lix2_UEAreaIndication;
 static int ett_lix2_SMFPDUSessionEstablishment;
 static int ett_lix2_SEQUENCE_OF_UEEndpointAddress;
 static int ett_lix2_SMFPDUSessionModification;
@@ -1717,6 +1869,8 @@ static int ett_lix2_UDMLocationInformationResult;
 static int ett_lix2_UDMUEInformationResponse;
 static int ett_lix2_UDMUEAuthenticationResponse;
 static int ett_lix2_UDMStartOfInterceptionWithRegisteredTarget;
+static int ett_lix2_UDMProSeTargetIdentifierDeconcealment;
+static int ett_lix2_UDMProSeTargetAuthentication;
 static int ett_lix2_ServerAddressingInfoList;
 static int ett_lix2_ServerAddressingInfo;
 static int ett_lix2_FQDNList;
@@ -1839,9 +1993,23 @@ static int ett_lix2_RCSSessionEstablishment;
 static int ett_lix2_RCSSessionModification;
 static int ett_lix2_RCSSessionRelease;
 static int ett_lix2_RCSCapabilityDiscovery;
+static int ett_lix2_StartOfInterceptForRegisteredRCSUser;
+static int ett_lix2_SEQUENCE_SIZE_1_MAX_OF_RCSRegistrationInformation;
+static int ett_lix2_SEQUENCE_SIZE_1_MAX_OF_AdditionalInstanceLocation;
+static int ett_lix2_StartOfInterceptWithEstablisedRCSSession;
+static int ett_lix2_SEQUENCE_SIZE_1_MAX_OF_RCSDestinations;
+static int ett_lix2_SEQUENCE_SIZE_1_MAX_OF_RCSSIPSessionExchange;
+static int ett_lix2_SEQUENCE_SIZE_1_MAX_OF_RCSSessionContext;
+static int ett_lix2_RCSCCPDU;
+static int ett_lix2_AdditionalInstanceLocation;
+static int ett_lix2_MSRPPath;
 static int ett_lix2_RCSDestinations;
 static int ett_lix2_RCSDestination;
 static int ett_lix2_RCSIdentity;
+static int ett_lix2_RCSRegistrationInformation;
+static int ett_lix2_RCSSessionContext;
+static int ett_lix2_RCSSIPRegistrationExchange;
+static int ett_lix2_RCSSIPSessionExchange;
 static int ett_lix2_RCSSIPSessionMessage;
 static int ett_lix2_EESEECRegistration;
 static int ett_lix2_EESEASDiscovery;
@@ -1890,18 +2058,44 @@ static int ett_lix2_FiveGMSAFMetricsReporting;
 static int ett_lix2_FiveGMSAFNetworkAssistance;
 static int ett_lix2_FiveGMSAFUnsuccessfulProcedure;
 static int ett_lix2_FiveGMSAFStartOfInterceptionWithAlreadyConfiguredUE;
+static int ett_lix2_NWDAFEventsSubscription;
+static int ett_lix2_SEQUENCE_SIZE_1_MAX_OF_NWDAFEvent;
+static int ett_lix2_NWDAFEventsNotification;
+static int ett_lix2_NWDAFAnalyticsInfoQuery;
+static int ett_lix2_NWDAFRoamingAnalyticsSubscription;
+static int ett_lix2_NWDAFRoamingAnalyticsNotification;
 static int ett_lix2_LALSReport;
 static int ett_lix2_PDHeaderReport;
 static int ett_lix2_PDSummaryReport;
 static int ett_lix2_AMFIdentifierAssociation;
 static int ett_lix2_MMEIdentifierAssociation;
+static int ett_lix2_EPSRANHandoverCommand;
+static int ett_lix2_SEQUENCE_SIZE_1_MAX_OF_RANTargetToSourceContainer;
+static int ett_lix2_EPSRANHandoverRequest;
 static int ett_lix2_MMEAttach;
 static int ett_lix2_MMEDetach;
 static int ett_lix2_MMELocationUpdate;
+static int ett_lix2_MMERANTraceReport;
 static int ett_lix2_MMEStartOfInterceptionWithEPSAttachedUE;
+static int ett_lix2_MMEUEServiceAccept;
 static int ett_lix2_MMEUnsuccessfulProcedure;
 static int ett_lix2_MMEPositioningInfoTransfer;
+static int ett_lix2_BBFTunnelInformation;
+static int ett_lix2_ConnectedENGNB;
+static int ett_lix2_ConnectedENGNBList;
+static int ett_lix2_EPSCSGInfo;
+static int ett_lix2_EPSRANUEContext;
+static int ett_lix2_EPSNASTransportInitialInformation;
+static int ett_lix2_ERABQoSParameters;
+static int ett_lix2_ERABContext;
+static int ett_lix2_ERABContextList;
+static int ett_lix2_ERABError;
+static int ett_lix2_ERABReleaseList;
+static int ett_lix2_LTENTNTAIInformation;
 static int ett_lix2_MMEFailureCause;
+static int ett_lix2_MMEServedGUMMEI;
+static int ett_lix2_MMEServedGUMMEIList;
+static int ett_lix2_S1Information;
 static int ett_lix2_LINotification;
 static int ett_lix2_SEQUENCE_OF_LIAppliedDeliveryInformation;
 static int ett_lix2_LIAppliedDeliveryInformation;
@@ -1995,6 +2189,7 @@ static int ett_lix2_LAI;
 static int ett_lix2_SAI;
 static int ett_lix2_RAI;
 static int ett_lix2_ECGI;
+static int ett_lix2_TACList;
 static int ett_lix2_TAIList;
 static int ett_lix2_NCGI;
 static int ett_lix2_RANCGI;
@@ -2016,6 +2211,7 @@ static int ett_lix2_FourGLocationInfo;
 static int ett_lix2_EPSLocationInformation;
 static int ett_lix2_MMELocationInformation;
 static int ett_lix2_UserCSGInformation;
+static int ett_lix2_CSGIDList;
 static int ett_lix2_SGSNLocationInformation;
 static int ett_lix2_ESMLCCellInfo;
 static int ett_lix2_LocationPresenceReport;
@@ -2061,6 +2257,9 @@ static int ett_lix2_SIPAccessNetworkInformation;
 static int ett_lix2_SIPCNIHeaderInfo;
 static int ett_lix2_SEQUENCE_OF_SIPCellularAccessInfo;
 static int ett_lix2_SIPCellularNetworkInformation;
+static int ett_lix2_NRNTNTAIInfo;
+static int ett_lix2_SEQUENCE_SIZE_1_MAX_OF_TAC;
+static int ett_lix2_IABMTUserLocation;
 static int ett_lix2_RCSPayload;
 static int ett_lix2_EncapsulatedRCSPayload;
 static int ett_lix2_ModifiedRCSPayload;
@@ -2079,6 +2278,8 @@ static int ett_lix2_XMLType;
 static int ett_lix2_MIMEEntity;
 static int ett_lix2_MIMEPartIdentifier;
 static int ett_lix2_MIMEBody;
+static int ett_lix2_ExternalASNType;
+static int ett_lix2_ExternalASNValue;
 
 
 
@@ -2348,6 +2549,27 @@ dissect_lix2_INTEGER_1_4(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 }
 
 
+
+static int
+dissect_lix2_SUPIType(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                                NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_lix2_HomeNetworkIdentifier(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_UTF8String,
+                                            actx, tree, tvb, offset, hf_index,
+                                            NULL);
+
+  return offset;
+}
+
+
 static const ber_sequence_t SUCI_sequence[] = {
   { &hf_lix2_mCC            , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_lix2_MCC },
   { &hf_lix2_mNC            , BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_lix2_MNC },
@@ -2356,6 +2578,8 @@ static const ber_sequence_t SUCI_sequence[] = {
   { &hf_lix2_homeNetworkPublicKeyID, BER_CLASS_CON, 5, BER_FLAGS_IMPLTAG, dissect_lix2_HomeNetworkPublicKeyID },
   { &hf_lix2_schemeOutput   , BER_CLASS_CON, 6, BER_FLAGS_IMPLTAG, dissect_lix2_SchemeOutput },
   { &hf_lix2_routingIndicatorLength, BER_CLASS_CON, 7, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_INTEGER_1_4 },
+  { &hf_lix2_sUPIType       , BER_CLASS_CON, 8, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_SUPIType },
+  { &hf_lix2_homeNetworkIdentifier, BER_CLASS_CON, 9, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_HomeNetworkIdentifier },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -2934,6 +3158,50 @@ dissect_lix2_NCGI(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1
 }
 
 
+static const ber_sequence_t SEQUENCE_SIZE_1_MAX_OF_TAC_sequence_of[1] = {
+  { &hf_lix2_tACListNRNTN_item, BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_lix2_TAC },
+};
+
+static int
+dissect_lix2_SEQUENCE_SIZE_1_MAX_OF_TAC(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                      SEQUENCE_SIZE_1_MAX_OF_TAC_sequence_of, hf_index, ett_lix2_SEQUENCE_SIZE_1_MAX_OF_TAC);
+
+  return offset;
+}
+
+
+static const ber_sequence_t NRNTNTAIInfo_sequence[] = {
+  { &hf_lix2_servingPLMN    , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_lix2_PLMNID },
+  { &hf_lix2_tACListNRNTN   , BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_lix2_SEQUENCE_SIZE_1_MAX_OF_TAC },
+  { &hf_lix2_uELocationDerivedNTNTAC, BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_TAC },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_lix2_NRNTNTAIInfo(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   NRNTNTAIInfo_sequence, hf_index, ett_lix2_NRNTNTAIInfo);
+
+  return offset;
+}
+
+
+static const ber_sequence_t IABMTUserLocation_sequence[] = {
+  { &hf_lix2_nRCGI          , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_lix2_NCGI },
+  { &hf_lix2_tAI            , BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_TAI },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_lix2_IABMTUserLocation(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   IABMTUserLocation_sequence, hf_index, ett_lix2_IABMTUserLocation);
+
+  return offset;
+}
+
+
 static const ber_sequence_t NRLocation_sequence[] = {
   { &hf_lix2_tAI            , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_lix2_TAI },
   { &hf_lix2_nCGI           , BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_lix2_NCGI },
@@ -2944,6 +3212,8 @@ static const ber_sequence_t NRLocation_sequence[] = {
   { &hf_lix2_globalGNbID    , BER_CLASS_CON, 7, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_GlobalRANNodeID },
   { &hf_lix2_cellSiteInformation, BER_CLASS_CON, 8, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_CellSiteInformation },
   { &hf_lix2_ignoreNCGI     , BER_CLASS_CON, 9, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_BOOLEAN },
+  { &hf_lix2_nRNTNTAIInfo   , BER_CLASS_CON, 10, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_NRNTNTAIInfo },
+  { &hf_lix2_iABMTUserLocation, BER_CLASS_CON, 11, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_IABMTUserLocation },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -3381,7 +3651,7 @@ dissect_lix2_UncertaintySBI(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 
 static const ber_sequence_t PointUncertaintyCircle_sequence[] = {
   { &hf_lix2_geographicalCoordinates, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_lix2_GeographicalCoordinates },
-  { &hf_lix2_uncertainty    , BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_lix2_Uncertainty },
+  { &hf_lix2_deprecatedUncertainty, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_lix2_Uncertainty },
   { &hf_lix2_uncertaintySBI , BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_UncertaintySBI },
   { NULL, 0, 0, 0, NULL }
 };
@@ -3406,8 +3676,8 @@ dissect_lix2_Orientation(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 
 
 static const ber_sequence_t UncertaintyEllipse_sequence[] = {
-  { &hf_lix2_semiMajor      , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_lix2_Uncertainty },
-  { &hf_lix2_semiMinor      , BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_lix2_Uncertainty },
+  { &hf_lix2_deprecatedSemiMajor, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_lix2_Uncertainty },
+  { &hf_lix2_deprecatedSemiMinor, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_lix2_Uncertainty },
   { &hf_lix2_orientationMajor, BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_lix2_Orientation },
   { &hf_lix2_semiMajorSBI   , BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_UncertaintySBI },
   { &hf_lix2_semiMinorSBI   , BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_UncertaintySBI },
@@ -3435,7 +3705,7 @@ dissect_lix2_Confidence(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_
 
 static const ber_sequence_t PointUncertaintyEllipse_sequence[] = {
   { &hf_lix2_geographicalCoordinates, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_lix2_GeographicalCoordinates },
-  { &hf_lix2_uncertainty_01 , BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_lix2_UncertaintyEllipse },
+  { &hf_lix2_uncertainty    , BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_lix2_UncertaintyEllipse },
   { &hf_lix2_confidence     , BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_lix2_Confidence },
   { NULL, 0, 0, 0, NULL }
 };
@@ -3506,7 +3776,7 @@ static const ber_sequence_t PointAltitudeUncertainty_sequence[] = {
   { &hf_lix2_point_01       , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_lix2_GeographicalCoordinates },
   { &hf_lix2_altitude       , BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_lix2_Altitude },
   { &hf_lix2_uncertaintyEllipse, BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_lix2_UncertaintyEllipse },
-  { &hf_lix2_uncertaintyAltitude, BER_CLASS_CON, 4, BER_FLAGS_IMPLTAG, dissect_lix2_Uncertainty },
+  { &hf_lix2_deprecatedUncertaintyAltitude, BER_CLASS_CON, 4, BER_FLAGS_IMPLTAG, dissect_lix2_Uncertainty },
   { &hf_lix2_confidence     , BER_CLASS_CON, 5, BER_FLAGS_IMPLTAG, dissect_lix2_Confidence },
   { &hf_lix2_uncertaintyAltitudeSBI, BER_CLASS_CON, 6, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_UncertaintySBI },
   { NULL, 0, 0, 0, NULL }
@@ -3544,7 +3814,7 @@ dissect_lix2_Angle(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn
 static const ber_sequence_t EllipsoidArc_sequence[] = {
   { &hf_lix2_point_01       , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_lix2_GeographicalCoordinates },
   { &hf_lix2_innerRadius    , BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_lix2_InnerRadius },
-  { &hf_lix2_uncertaintyRadius, BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_lix2_Uncertainty },
+  { &hf_lix2_deprecatedUncertaintyRadius, BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_lix2_Uncertainty },
   { &hf_lix2_offsetAngle    , BER_CLASS_CON, 4, BER_FLAGS_IMPLTAG, dissect_lix2_Angle },
   { &hf_lix2_includedAngle  , BER_CLASS_CON, 5, BER_FLAGS_IMPLTAG, dissect_lix2_Angle },
   { &hf_lix2_confidence     , BER_CLASS_CON, 6, BER_FLAGS_IMPLTAG, dissect_lix2_Confidence },
@@ -4058,7 +4328,7 @@ dissect_lix2_SpeedUncertainty(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 static const ber_sequence_t HorizontalVelocityWithUncertainty_sequence[] = {
   { &hf_lix2_hSpeed         , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_lix2_HorizontalSpeed },
   { &hf_lix2_bearing        , BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_lix2_Angle },
-  { &hf_lix2_uncertainty_02 , BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_lix2_SpeedUncertainty },
+  { &hf_lix2_uncertainty_01 , BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_lix2_SpeedUncertainty },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -4117,7 +4387,7 @@ dissect_lix2_VelocityEstimate(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 
 
 static const ber_sequence_t CivicAddress_sequence[] = {
-  { &hf_lix2_country        , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_lix2_UTF8String },
+  { &hf_lix2_country_01     , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_lix2_UTF8String },
   { &hf_lix2_a1             , BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_UTF8String },
   { &hf_lix2_a2             , BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_UTF8String },
   { &hf_lix2_a3             , BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_UTF8String },
@@ -6030,6 +6300,62 @@ dissect_lix2_MUSIMUERequestType(bool implicit_tag _U_, tvbuff_t *tvb _U_, int of
 }
 
 
+
+static int
+dissect_lix2_UnavailabilityPeriodDuration(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                       NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_lix2_FiveGSUpdateType(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                       NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_lix2_UTF8String_SIZE_2(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_UTF8String,
+                                            actx, tree, tvb, offset, hf_index,
+                                            NULL);
+
+  return offset;
+}
+
+
+static const ber_sequence_t UEAreaIndication_sequence[] = {
+  { &hf_lix2_country        , BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_UTF8String_SIZE_2 },
+  { &hf_lix2_internationalAreaIndication, BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_BOOLEAN },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_lix2_UEAreaIndication(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   UEAreaIndication_sequence, hf_index, ett_lix2_UEAreaIndication);
+
+  return offset;
+}
+
+
+
+static int
+dissect_lix2_EstablishmentCauseNon3GPPAccess(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                       NULL);
+
+  return offset;
+}
+
+
 static const ber_sequence_t AMFRegistration_sequence[] = {
   { &hf_lix2_registrationType, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_lix2_AMFRegistrationType },
   { &hf_lix2_registrationResult, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_lix2_AMFRegistrationResult },
@@ -6057,6 +6383,10 @@ static const ber_sequence_t AMFRegistration_sequence[] = {
   { &hf_lix2_fiveGMMCapability, BER_CLASS_CON, 24, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_FiveGMMCapability },
   { &hf_lix2_initialRANUEContextSetup, BER_CLASS_CON, 25, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_InitialRANUEContextSetup },
   { &hf_lix2_mUSIMUERequestType, BER_CLASS_CON, 26, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_MUSIMUERequestType },
+  { &hf_lix2_unavailabilityPeriodDuration, BER_CLASS_CON, 27, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_UnavailabilityPeriodDuration },
+  { &hf_lix2_fiveGSUpdateType, BER_CLASS_CON, 28, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_FiveGSUpdateType },
+  { &hf_lix2_uEAreaIndication, BER_CLASS_CON, 29, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_UEAreaIndication },
+  { &hf_lix2_establishmentCauseNon3GPPAccess, BER_CLASS_CON, 30, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_EstablishmentCauseNon3GPPAccess },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -6139,6 +6469,7 @@ static const ber_sequence_t AMFDeregistration_sequence[] = {
   { &hf_lix2_location       , BER_CLASS_CON, 9, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_Location },
   { &hf_lix2_switchOffIndicator, BER_CLASS_CON, 10, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_SwitchOffIndicator },
   { &hf_lix2_reRegRequiredIndicator, BER_CLASS_CON, 11, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_ReRegRequiredIndicator },
+  { &hf_lix2_unavailabilityPeriodDuration, BER_CLASS_CON, 12, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_UnavailabilityPeriodDuration },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -6158,8 +6489,9 @@ static const ber_sequence_t AMFLocationUpdate_sequence[] = {
   { &hf_lix2_gPSI           , BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_lix2_GPSI },
   { &hf_lix2_gUTI           , BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_FiveGGUTI },
   { &hf_lix2_location       , BER_CLASS_CON, 6, BER_FLAGS_IMPLTAG, dissect_lix2_Location },
-  { &hf_lix2_sMSOverNASIndicator, BER_CLASS_CON, 7, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_SMSOverNASIndicator },
-  { &hf_lix2_oldGUTI        , BER_CLASS_CON, 8, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_lix2_EPS5GGUTI },
+  { &hf_lix2_deprecatedSMSOverNASIndicator, BER_CLASS_CON, 7, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_SMSOverNASIndicator },
+  { &hf_lix2_deprecatedOldGUTI, BER_CLASS_CON, 8, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_lix2_EPS5GGUTI },
+  { &hf_lix2_uEAreaIndication, BER_CLASS_CON, 9, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_UEAreaIndication },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -6200,6 +6532,9 @@ static const ber_sequence_t AMFStartOfInterceptionWithRegisteredUE_sequence[] = 
   { &hf_lix2_eMM5GRegStatus , BER_CLASS_CON, 15, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_EMM5GMMStatus },
   { &hf_lix2_sORTransparentContainer, BER_CLASS_CON, 16, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_SORTransparentContainer },
   { &hf_lix2_uEPolicy       , BER_CLASS_CON, 17, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_UEPolicy },
+  { &hf_lix2_unavailabilityPeriodDuration, BER_CLASS_CON, 18, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_UnavailabilityPeriodDuration },
+  { &hf_lix2_fiveGSUpdateType, BER_CLASS_CON, 19, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_FiveGSUpdateType },
+  { &hf_lix2_uEAreaIndication, BER_CLASS_CON, 20, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_UEAreaIndication },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -7199,11 +7534,11 @@ static const ber_sequence_t PCCRule_sequence[] = {
   { &hf_lix2_trafficRoutes  , BER_CLASS_CON, 8, BER_FLAGS_IMPLTAG, dissect_lix2_RouteToLocationSet },
   { &hf_lix2_trafficSteeringPolIdDl, BER_CLASS_CON, 9, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_UTF8String },
   { &hf_lix2_trafficSteeringPolIdUl, BER_CLASS_CON, 10, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_UTF8String },
-  { &hf_lix2_sourceDNAI     , BER_CLASS_CON, 11, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_DNAI },
-  { &hf_lix2_targetDNAI     , BER_CLASS_CON, 12, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_DNAI },
-  { &hf_lix2_dNAIChangeType , BER_CLASS_CON, 13, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_DNAIChangeType },
-  { &hf_lix2_sourceUEIPAddr , BER_CLASS_CON, 14, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_lix2_IPAddress },
-  { &hf_lix2_targetUEIPAddr , BER_CLASS_CON, 15, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_lix2_IPAddress },
+  { &hf_lix2_deprecatedSourceDNAI, BER_CLASS_CON, 11, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_DNAI },
+  { &hf_lix2_deprecatedTargetDNAI, BER_CLASS_CON, 12, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_DNAI },
+  { &hf_lix2_deprecatedDNAIChangeType, BER_CLASS_CON, 13, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_DNAIChangeType },
+  { &hf_lix2_deprecatedSourceUEIPAddr, BER_CLASS_CON, 14, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_lix2_IPAddress },
+  { &hf_lix2_deprecatedTargetUEIPAddr, BER_CLASS_CON, 15, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_lix2_IPAddress },
   { &hf_lix2_sourceTrafficRouting, BER_CLASS_CON, 16, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_RouteToLocation },
   { &hf_lix2_targetTrafficRouting, BER_CLASS_CON, 17, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_RouteToLocation },
   { &hf_lix2_eASIPReplaceInfos, BER_CLASS_CON, 18, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_EASIPReplaceInfos },
@@ -7584,6 +7919,54 @@ dissect_lix2_EPSPDNConnectionEstablishment(bool implicit_tag _U_, tvbuff_t *tvb 
 }
 
 
+
+static int
+dissect_lix2_SBIReference(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_UTF8String,
+                                            actx, tree, tvb, offset, hf_index,
+                                            NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_lix2_SBIValue(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_UTF8String,
+                                            actx, tree, tvb, offset, hf_index,
+                                            NULL);
+
+  return offset;
+}
+
+
+static const ber_sequence_t SBIType_sequence[] = {
+  { &hf_lix2_sBIReference   , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_lix2_SBIReference },
+  { &hf_lix2_sBIValue       , BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_lix2_SBIValue },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_lix2_SBIType(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   SBIType_sequence, hf_index, ett_lix2_SBIType);
+
+  return offset;
+}
+
+
+
+static int
+dissect_lix2_GEOSatelliteID(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_UTF8String,
+                                            actx, tree, tvb, offset, hf_index,
+                                            NULL);
+
+  return offset;
+}
+
+
 static const ber_sequence_t SMFPDUSessionEstablishment_sequence[] = {
   { &hf_lix2_sUPI           , BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_lix2_SUPI },
   { &hf_lix2_sUPIUnauthenticated, BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_SUPIUnauthenticatedIndication },
@@ -7612,6 +7995,8 @@ static const ber_sequence_t SMFPDUSessionEstablishment_sequence[] = {
   { &hf_lix2_gTPTunnelInfo  , BER_CLASS_CON, 25, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_GTPTunnelInfo },
   { &hf_lix2_pCCRules       , BER_CLASS_CON, 26, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_PCCRuleSet },
   { &hf_lix2_ePSPDNConnectionEstablishment, BER_CLASS_CON, 27, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_EPSPDNConnectionEstablishment },
+  { &hf_lix2_satelliteBackhaulCategory, BER_CLASS_CON, 28, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_SBIType },
+  { &hf_lix2_gEOSatelliteID , BER_CLASS_CON, 29, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_GEOSatelliteID },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -7979,6 +8364,8 @@ static const ber_sequence_t SMFPDUSessionModification_sequence[] = {
   { &hf_lix2_ePSPDNConnectionModification, BER_CLASS_CON, 18, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_EPSPDNConnectionModification },
   { &hf_lix2_uPPathChange   , BER_CLASS_CON, 19, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_UPPathChange },
   { &hf_lix2_pFDDataForApp  , BER_CLASS_CON, 20, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_PFDDataForApp },
+  { &hf_lix2_satelliteBackhaulCategory, BER_CLASS_CON, 21, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_SBIType },
+  { &hf_lix2_gEOSatelliteID , BER_CLASS_CON, 22, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_GEOSatelliteID },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -8209,6 +8596,8 @@ static const ber_sequence_t SMFStartOfInterceptionWithEstablishedPDUSession_sequ
   { &hf_lix2_pCCRules       , BER_CLASS_CON, 24, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_PCCRuleSet },
   { &hf_lix2_ePSStartOfInterceptionWithEstablishedPDNConnection, BER_CLASS_CON, 25, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_EPSStartOfInterceptionWithEstablishedPDNConnection },
   { &hf_lix2_pFDDataForApps , BER_CLASS_CON, 26, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_PFDDataForApps },
+  { &hf_lix2_satelliteBackhaulCategory, BER_CLASS_CON, 27, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_SBIType },
+  { &hf_lix2_gEOSatelliteID , BER_CLASS_CON, 28, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_GEOSatelliteID },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -8544,15 +8933,31 @@ dissect_lix2_TruncatedSMSTPDU(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 }
 
 
+
+static int
+dissect_lix2_ThreeGPP2SMSTPDU(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                       NULL);
+
+  return offset;
+}
+
+
 static const value_string lix2_SMSTPDUData_vals[] = {
   {   1, "sMSTPDU" },
   {   2, "truncatedSMSTPDU" },
+  {   3, "redactedSMSTPDU" },
+  {   4, "threeGPP2SMSTPDU" },
+  {   5, "redacted3GPP2SMSTPDU" },
   { 0, NULL }
 };
 
 static const ber_choice_t SMSTPDUData_choice[] = {
   {   1, &hf_lix2_sMSTPDU        , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_lix2_SMSTPDU },
   {   2, &hf_lix2_truncatedSMSTPDU, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_lix2_TruncatedSMSTPDU },
+  {   3, &hf_lix2_redactedSMSTPDU, BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_lix2_SMSTPDU },
+  {   4, &hf_lix2_threeGPP2SMSTPDU, BER_CLASS_CON, 4, BER_FLAGS_IMPLTAG, dissect_lix2_ThreeGPP2SMSTPDU },
+  {   5, &hf_lix2_redacted3GPP2SMSTPDU, BER_CLASS_CON, 5, BER_FLAGS_IMPLTAG, dissect_lix2_ThreeGPP2SMSTPDU },
   { 0, NULL, 0, 0, 0, NULL }
 };
 
@@ -8669,6 +9074,7 @@ dissect_lix2_IMPU(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1
 
 static const ber_sequence_t LALSReport_sequence[] = {
   { &hf_lix2_sUPI           , BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_lix2_SUPI },
+  { &hf_lix2_deprecatedPEI  , BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_lix2_PEI },
   { &hf_lix2_gPSI           , BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_lix2_GPSI },
   { &hf_lix2_location       , BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_Location },
   { &hf_lix2_iMPU           , BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_lix2_IMPU },
@@ -11043,6 +11449,8 @@ static const ber_sequence_t AccessInfo_sequence[] = {
   { &hf_lix2_establishmentStatus, BER_CLASS_CON, 5, BER_FLAGS_IMPLTAG, dissect_lix2_EstablishmentStatus },
   { &hf_lix2_aNTypeToReactivate, BER_CLASS_CON, 6, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_AccessType },
   { &hf_lix2_gTPTunnelInfo  , BER_CLASS_CON, 7, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_GTPTunnelInfo },
+  { &hf_lix2_satelliteBackhaulCategory, BER_CLASS_CON, 8, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_SBIType },
+  { &hf_lix2_gEOSatelliteID , BER_CLASS_CON, 9, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_GEOSatelliteID },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -11498,6 +11906,7 @@ static const ber_sequence_t NEFPDUSessionModification_sequence[] = {
   { &hf_lix2_aFID           , BER_CLASS_CON, 8, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_AFID },
   { &hf_lix2_rDSAction      , BER_CLASS_CON, 9, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_RDSAction },
   { &hf_lix2_serializationFormat, BER_CLASS_CON, 10, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_SerializationFormat },
+  { &hf_lix2_pDUSessionID   , BER_CLASS_CON, 11, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_PDUSessionID },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -12013,6 +12422,7 @@ static const ber_sequence_t SCEFPDNConnectionUpdate_sequence[] = {
   { &hf_lix2_sCSASID        , BER_CLASS_CON, 8, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_SCSASID },
   { &hf_lix2_rDSAction      , BER_CLASS_CON, 9, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_RDSAction },
   { &hf_lix2_serializationFormat, BER_CLASS_CON, 10, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_SerializationFormat },
+  { &hf_lix2_ePSBearerID    , BER_CLASS_CON, 11, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_EPSBearerID },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -12326,6 +12736,396 @@ dissect_lix2_EPSSMSServiceStatus(bool implicit_tag _U_, tvbuff_t *tvb _U_, int o
 }
 
 
+static const ber_sequence_t CSGIDList_sequence_of[1] = {
+  { &hf_lix2_CSGIDList_item , BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_lix2_CSGID },
+};
+
+static int
+dissect_lix2_CSGIDList(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                      CSGIDList_sequence_of, hf_index, ett_lix2_CSGIDList);
+
+  return offset;
+}
+
+
+static const ber_sequence_t TACList_sequence_of[1] = {
+  { &hf_lix2_TACList_item   , BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_lix2_TAC },
+};
+
+static int
+dissect_lix2_TACList(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                      TACList_sequence_of, hf_index, ett_lix2_TACList);
+
+  return offset;
+}
+
+
+static const ber_sequence_t ConnectedENGNB_sequence[] = {
+  { &hf_lix2_eNGNBID        , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_lix2_GNbID },
+  { &hf_lix2_supportedTAList_01, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_lix2_TACList },
+  { &hf_lix2_broadcastPLMN  , BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_lix2_PLMNList },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_lix2_ConnectedENGNB(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   ConnectedENGNB_sequence, hf_index, ett_lix2_ConnectedENGNB);
+
+  return offset;
+}
+
+
+static const ber_sequence_t ConnectedENGNBList_sequence_of[1] = {
+  { &hf_lix2_ConnectedENGNBList_item, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_lix2_ConnectedENGNB },
+};
+
+static int
+dissect_lix2_ConnectedENGNBList(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                      ConnectedENGNBList_sequence_of, hf_index, ett_lix2_ConnectedENGNBList);
+
+  return offset;
+}
+
+
+static const ber_sequence_t MMEServedGUMMEI_sequence[] = {
+  { &hf_lix2_servedPLMNs    , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_lix2_PLMNSupportList },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_lix2_MMEServedGUMMEI(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   MMEServedGUMMEI_sequence, hf_index, ett_lix2_MMEServedGUMMEI);
+
+  return offset;
+}
+
+
+static const ber_sequence_t MMEServedGUMMEIList_sequence_of[1] = {
+  { &hf_lix2_MMEServedGUMMEIList_item, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_lix2_MMEServedGUMMEI },
+};
+
+static int
+dissect_lix2_MMEServedGUMMEIList(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                      MMEServedGUMMEIList_sequence_of, hf_index, ett_lix2_MMEServedGUMMEIList);
+
+  return offset;
+}
+
+
+static const ber_sequence_t S1Information_sequence[] = {
+  { &hf_lix2_globalRANNodeID, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_lix2_GlobalRANNodeID },
+  { &hf_lix2_rANNodeName    , BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_lix2_RANNodeName },
+  { &hf_lix2_supportedTAList, BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_SupportedTAList },
+  { &hf_lix2_cSGIDList      , BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_CSGIDList },
+  { &hf_lix2_connectedENGNBList, BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_ConnectedENGNBList },
+  { &hf_lix2_mMEServedGUMMEIList, BER_CLASS_CON, 6, BER_FLAGS_IMPLTAG, dissect_lix2_MMEServedGUMMEIList },
+  { &hf_lix2_iABSupported   , BER_CLASS_CON, 7, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_BOOLEAN },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_lix2_S1Information(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   S1Information_sequence, hf_index, ett_lix2_S1Information);
+
+  return offset;
+}
+
+
+
+static int
+dissect_lix2_RANUES1APID(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                                NULL);
+
+  return offset;
+}
+
+
+static const ber_sequence_t BBFTunnelInformation_sequence[] = {
+  { &hf_lix2_hENBTransportLayerAddress, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_lix2_IPAddr },
+  { &hf_lix2_uDPPortNumber  , BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_PortNumber },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_lix2_BBFTunnelInformation(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   BBFTunnelInformation_sequence, hf_index, ett_lix2_BBFTunnelInformation);
+
+  return offset;
+}
+
+
+static const ber_sequence_t LTENTNTAIInformation_sequence[] = {
+  { &hf_lix2_pLMN           , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_lix2_PLMNID },
+  { &hf_lix2_tACListInLTENTN, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_lix2_TACList },
+  { &hf_lix2_uETAC          , BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_TAC },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_lix2_LTENTNTAIInformation(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   LTENTNTAIInformation_sequence, hf_index, ett_lix2_LTENTNTAIInformation);
+
+  return offset;
+}
+
+
+static const ber_sequence_t EPSNASTransportInitialInformation_sequence[] = {
+  { &hf_lix2_rANUES1APID    , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_lix2_RANUES1APID },
+  { &hf_lix2_relayNodeIndicator, BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_BOOLEAN },
+  { &hf_lix2_bBFTunnelInformation, BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_BBFTunnelInformation },
+  { &hf_lix2_eDTSession     , BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_BOOLEAN },
+  { &hf_lix2_iABNodeIndication, BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_BOOLEAN },
+  { &hf_lix2_lTENTNTAIInformation, BER_CLASS_CON, 6, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_LTENTNTAIInformation },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_lix2_EPSNASTransportInitialInformation(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   EPSNASTransportInitialInformation_sequence, hf_index, ett_lix2_EPSNASTransportInitialInformation);
+
+  return offset;
+}
+
+
+
+static int
+dissect_lix2_EPSUENetworkCapability(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                       NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_lix2_MMEUES1APID(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                                NULL);
+
+  return offset;
+}
+
+
+static const ber_sequence_t ERABQoSParameters_sequence[] = {
+  { &hf_lix2_qCI            , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_lix2_QCI },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_lix2_ERABQoSParameters(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   ERABQoSParameters_sequence, hf_index, ett_lix2_ERABQoSParameters);
+
+  return offset;
+}
+
+
+static const ber_sequence_t ERABContext_sequence[] = {
+  { &hf_lix2_eRABID         , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_lix2_EPSBearerID },
+  { &hf_lix2_eRABQoSParameters, BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_ERABQoSParameters },
+  { &hf_lix2_transportLayerAddress, BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_IPAddr },
+  { &hf_lix2_uLGTPTEID      , BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_FTEID },
+  { &hf_lix2_dLGTPTEID      , BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_FTEID },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_lix2_ERABContext(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   ERABContext_sequence, hf_index, ett_lix2_ERABContext);
+
+  return offset;
+}
+
+
+static const ber_sequence_t ERABContextList_sequence_of[1] = {
+  { &hf_lix2_ERABContextList_item, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_lix2_ERABContext },
+};
+
+static int
+dissect_lix2_ERABContextList(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                      ERABContextList_sequence_of, hf_index, ett_lix2_ERABContextList);
+
+  return offset;
+}
+
+
+
+static int
+dissect_lix2_OBJECT_IDENTIFIER(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_object_identifier(implicit_tag, actx, tree, tvb, offset, hf_index, NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_lix2_ExternalASNReference(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_UTF8String,
+                                            actx, tree, tvb, offset, hf_index,
+                                            NULL);
+
+  return offset;
+}
+
+
+static const value_string lix2_ExternalASNValue_vals[] = {
+  {   1, "bER" },
+  {   2, "alignedPER" },
+  { 0, NULL }
+};
+
+static const ber_choice_t ExternalASNValue_choice[] = {
+  {   1, &hf_lix2_bER            , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_lix2_OCTET_STRING },
+  {   2, &hf_lix2_alignedPER     , BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_lix2_OCTET_STRING },
+  { 0, NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_lix2_ExternalASNValue(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_choice(actx, tree, tvb, offset,
+                                 ExternalASNValue_choice, hf_index, ett_lix2_ExternalASNValue,
+                                 NULL);
+
+  return offset;
+}
+
+
+static const ber_sequence_t ExternalASNType_sequence[] = {
+  { &hf_lix2_moduleIdentifier, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_lix2_OBJECT_IDENTIFIER },
+  { &hf_lix2_aSNReference   , BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_ExternalASNReference },
+  { &hf_lix2_encodedASNValue, BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_lix2_ExternalASNValue },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_lix2_ExternalASNType(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   ExternalASNType_sequence, hf_index, ett_lix2_ExternalASNType);
+
+  return offset;
+}
+
+
+
+static int
+dissect_lix2_EPSHandoverRestrictionList(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_lix2_ExternalASNType(implicit_tag, tvb, offset, actx, tree, hf_index);
+
+  return offset;
+}
+
+
+
+static int
+dissect_lix2_EPSUERadioCapability(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                       NULL);
+
+  return offset;
+}
+
+
+static const value_string lix2_EPSCSFallbackIndicator_vals[] = {
+  {   1, "cSFallbackRequired" },
+  {   2, "cSFallbackHighPriority" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_lix2_EPSCSFallbackIndicator(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                  NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_lix2_EPSProSeAuthorization(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_lix2_ExternalASNType(implicit_tag, tvb, offset, actx, tree, hf_index);
+
+  return offset;
+}
+
+
+static const value_string lix2_AerialUESubscriptionIndicator_vals[] = {
+  {   1, "authorized" },
+  {   2, "notAuthorized" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_lix2_AerialUESubscriptionIndicator(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                  NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_lix2_EPSSubscriptionBasedUEDifferentiationIndication(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_lix2_ExternalASNType(implicit_tag, tvb, offset, actx, tree, hf_index);
+
+  return offset;
+}
+
+
+static const ber_sequence_t EPSRANUEContext_sequence[] = {
+  { &hf_lix2_mMEUES1APID    , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_lix2_MMEUES1APID },
+  { &hf_lix2_rANUES1APID    , BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_lix2_RANUES1APID },
+  { &hf_lix2_eRABSetupRequest, BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_ERABContextList },
+  { &hf_lix2_handoverRestrictionList, BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_EPSHandoverRestrictionList },
+  { &hf_lix2_uERadioCapability_01, BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_EPSUERadioCapability },
+  { &hf_lix2_rATFrequencySelectionPriority, BER_CLASS_CON, 6, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_RATFrequencySelectionPriority },
+  { &hf_lix2_cSFallbackIndicator, BER_CLASS_CON, 7, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_EPSCSFallbackIndicator },
+  { &hf_lix2_proSeAuthorized, BER_CLASS_CON, 8, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_EPSProSeAuthorization },
+  { &hf_lix2_lTEV2XServicesAuthorized, BER_CLASS_CON, 9, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_LTEV2XServiceAuthorization },
+  { &hf_lix2_aerialUESubscription, BER_CLASS_CON, 10, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_AerialUESubscriptionIndicator },
+  { &hf_lix2_subscriptionBasedUEDifferentiationIndication, BER_CLASS_CON, 11, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_EPSSubscriptionBasedUEDifferentiationIndication },
+  { &hf_lix2_iABAuthorizedIndicator, BER_CLASS_CON, 12, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_IABAuthorizedIndicator },
+  { &hf_lix2_nRV2XServicesAuthorization, BER_CLASS_CON, 13, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_NRV2XServicesAuthorization },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_lix2_EPSRANUEContext(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   EPSRANUEContext_sequence, hf_index, ett_lix2_EPSRANUEContext);
+
+  return offset;
+}
+
+
+
+static int
+dissect_lix2_EPSNetworkPolicy(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                       NULL);
+
+  return offset;
+}
+
+
 static const ber_sequence_t MMEAttach_sequence[] = {
   { &hf_lix2_attachType     , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_lix2_EPSAttachType },
   { &hf_lix2_attachResult   , BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_lix2_EPSAttachResult },
@@ -12338,6 +13138,16 @@ static const ber_sequence_t MMEAttach_sequence[] = {
   { &hf_lix2_sMSServiceStatus, BER_CLASS_CON, 9, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_EPSSMSServiceStatus },
   { &hf_lix2_oldGUTI_01     , BER_CLASS_CON, 10, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_GUTI },
   { &hf_lix2_eMM5GRegStatus , BER_CLASS_CON, 11, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_EMM5GMMStatus },
+  { &hf_lix2_pagingRestrictionIndicator, BER_CLASS_CON, 12, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_PagingRestrictionIndicator },
+  { &hf_lix2_rATType        , BER_CLASS_CON, 13, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_RATType },
+  { &hf_lix2_rRCEstablishmentCause, BER_CLASS_CON, 14, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_lix2_RRCEstablishmentCause },
+  { &hf_lix2_s1Information  , BER_CLASS_CON, 15, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_S1Information },
+  { &hf_lix2_nASTransportInitialInformation_01, BER_CLASS_CON, 16, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_EPSNASTransportInitialInformation },
+  { &hf_lix2_equivalentPLMNList, BER_CLASS_CON, 17, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_PLMNList },
+  { &hf_lix2_ePSUENetworkCapability, BER_CLASS_CON, 18, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_EPSUENetworkCapability },
+  { &hf_lix2_initailRANUEContextSetup, BER_CLASS_CON, 19, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_EPSRANUEContext },
+  { &hf_lix2_mUSIMUERequestType, BER_CLASS_CON, 20, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_MUSIMUERequestType },
+  { &hf_lix2_ePSNetworkPolicy, BER_CLASS_CON, 21, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_EPSNetworkPolicy },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -12449,6 +13259,16 @@ static const ber_sequence_t MMEStartOfInterceptionWithEPSAttachedUE_sequence[] =
   { &hf_lix2_ePSTAIList     , BER_CLASS_CON, 9, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_TAIList },
   { &hf_lix2_sMSServiceStatus, BER_CLASS_CON, 10, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_EPSSMSServiceStatus },
   { &hf_lix2_eMM5GRegStatus , BER_CLASS_CON, 12, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_EMM5GMMStatus },
+  { &hf_lix2_pagingRestrictionIndicator, BER_CLASS_CON, 13, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_PagingRestrictionIndicator },
+  { &hf_lix2_rATType        , BER_CLASS_CON, 14, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_RATType },
+  { &hf_lix2_rRCEstablishmentCause, BER_CLASS_CON, 15, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_lix2_RRCEstablishmentCause },
+  { &hf_lix2_s1Information  , BER_CLASS_CON, 16, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_S1Information },
+  { &hf_lix2_nASTransportInitialInformation_01, BER_CLASS_CON, 17, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_EPSNASTransportInitialInformation },
+  { &hf_lix2_equivalentPLMNList, BER_CLASS_CON, 18, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_PLMNList },
+  { &hf_lix2_ePSUENetworkCapability, BER_CLASS_CON, 19, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_EPSUENetworkCapability },
+  { &hf_lix2_initailRANUEContextSetup, BER_CLASS_CON, 20, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_EPSRANUEContext },
+  { &hf_lix2_mUSIMUERequestType, BER_CLASS_CON, 21, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_MUSIMUERequestType },
+  { &hf_lix2_ePSNetworkPolicy, BER_CLASS_CON, 22, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_EPSNetworkPolicy },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -13409,6 +14229,13 @@ static const value_string lix2_PredefinedPayloadModification_vals[] = {
   {   6, "tS33128TruncatedSMSTPDU" },
   {   7, "iMSTextContentRemoval" },
   {   8, "iMSSubjectContentRemoval" },
+  {   9, "rCSPresenceLocationRemoval" },
+  {  10, "rCSCPIMLocationRemoval" },
+  {  11, "rCSTextContentRemoval" },
+  {  12, "rCSSubjectContentRemoval" },
+  {  13, "rCSGeolocationPUSHContentRemoval" },
+  {  14, "rCSFileURLContentRemoval" },
+  {  15, "threeGPP2SMSUserDataRedaction" },
   { 0, NULL }
 };
 
@@ -14152,7 +14979,7 @@ static const ber_sequence_t UDMAuthenticationInfoRequest_sequence[] = {
   { &hf_lix2_infoRequestType, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_lix2_UDMInfoRequestType },
   { &hf_lix2_rGAuthCtx      , BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_lix2_SEQUENCE_SIZE_1_MAX_OF_SubscriberIdentifier },
   { &hf_lix2_authType       , BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_lix2_PrimaryAuthenticationType },
-  { &hf_lix2_servingNetworkName, BER_CLASS_CON, 4, BER_FLAGS_IMPLTAG, dissect_lix2_PLMNID },
+  { &hf_lix2_servingNetworkName_01, BER_CLASS_CON, 4, BER_FLAGS_IMPLTAG, dissect_lix2_PLMNID },
   { &hf_lix2_aUSFInstanceID , BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_NFID },
   { &hf_lix2_cellCAGInfo    , BER_CLASS_CON, 6, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_CAGID },
   { &hf_lix2_n5GCIndicator  , BER_CLASS_CON, 7, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_BOOLEAN },
@@ -15636,43 +16463,6 @@ dissect_lix2_EESStartOfInterceptionWithRegisteredEEC(bool implicit_tag _U_, tvbu
 }
 
 
-
-static int
-dissect_lix2_SBIReference(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_UTF8String,
-                                            actx, tree, tvb, offset, hf_index,
-                                            NULL);
-
-  return offset;
-}
-
-
-
-static int
-dissect_lix2_SBIValue(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_UTF8String,
-                                            actx, tree, tvb, offset, hf_index,
-                                            NULL);
-
-  return offset;
-}
-
-
-static const ber_sequence_t SBIType_sequence[] = {
-  { &hf_lix2_sBIReference   , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_lix2_SBIReference },
-  { &hf_lix2_sBIValue       , BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_lix2_SBIValue },
-  { NULL, 0, 0, 0, NULL }
-};
-
-static int
-dissect_lix2_SBIType(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   SBIType_sequence, hf_index, ett_lix2_SBIType);
-
-  return offset;
-}
-
-
 static const ber_sequence_t UDMStartOfInterceptionWithRegisteredTarget_sequence[] = {
   { &hf_lix2_sUPI           , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_lix2_SUPI },
   { &hf_lix2_gPSI           , BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_lix2_GPSI },
@@ -16185,6 +16975,8 @@ dissect_lix2_TraceRecordType(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 static const value_string lix2_TraceDirection_vals[] = {
   {   1, "toAMF" },
   {   2, "fromAMF" },
+  {   3, "toMME" },
+  {   4, "fromMME" },
   { 0, NULL }
 };
 
@@ -16299,18 +17091,28 @@ dissect_lix2_TraceCollectionEntityInfo(bool implicit_tag _U_, tvbuff_t *tvb _U_,
 }
 
 
+
+static int
+dissect_lix2_TraceActivation(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_lix2_ExternalASNType(implicit_tag, tvb, offset, actx, tree, hf_index);
+
+  return offset;
+}
+
+
 static const ber_sequence_t AMFRANTraceReport_sequence[] = {
   { &hf_lix2_userIdentifiers, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_lix2_UserIdentifiers },
   { &hf_lix2_aMFUENGAPID    , BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_lix2_AMFUENGAPID },
   { &hf_lix2_rANUENGAPID    , BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_lix2_RANUENGAPID },
   { &hf_lix2_traceRecordType, BER_CLASS_CON, 4, BER_FLAGS_IMPLTAG, dissect_lix2_TraceRecordType },
   { &hf_lix2_traceDirection , BER_CLASS_CON, 5, BER_FLAGS_IMPLTAG, dissect_lix2_TraceDirection },
-  { &hf_lix2_traceActivationInfo, BER_CLASS_CON, 6, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_TraceActivationInfo },
+  { &hf_lix2_deprecatedTraceActivationInfo, BER_CLASS_CON, 6, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_TraceActivationInfo },
   { &hf_lix2_nGRANCGI       , BER_CLASS_CON, 7, BER_FLAGS_IMPLTAG, dissect_lix2_NCGI },
   { &hf_lix2_globalRANNodeID, BER_CLASS_CON, 8, BER_FLAGS_IMPLTAG, dissect_lix2_GlobalRANNodeID },
   { &hf_lix2_traceCollectionEntityInfo, BER_CLASS_CON, 9, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_TraceCollectionEntityInfo },
   { &hf_lix2_aMFTraceData   , BER_CLASS_CON, 10, BER_FLAGS_IMPLTAG, dissect_lix2_XMLType },
   { &hf_lix2_location       , BER_CLASS_CON, 11, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_Location },
+  { &hf_lix2_traceActivation, BER_CLASS_CON, 12, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_TraceActivation },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -16706,10 +17508,25 @@ dissect_lix2_RCSSessionResult(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 }
 
 
+static const ber_sequence_t MSRPPath_sequence[] = {
+  { &hf_lix2_path           , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_lix2_UTF8String },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_lix2_MSRPPath(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   MSRPPath_sequence, hf_index, ett_lix2_MSRPPath);
+
+  return offset;
+}
+
+
 static const ber_sequence_t RCSSIPSessionMessage_sequence[] = {
   { &hf_lix2_sessionLeg     , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_lix2_RCSSessionLeg },
   { &hf_lix2_sIPMessage     , BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_lix2_IMSPayload },
   { &hf_lix2_rCSSessionResult, BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_lix2_RCSSessionResult },
+  { &hf_lix2_mSRPPathInfo   , BER_CLASS_CON, 4, BER_FLAGS_IMPLTAG, dissect_lix2_MSRPPath },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -16746,7 +17563,7 @@ dissect_lix2_RCSSessionEstablishment(bool implicit_tag _U_, tvbuff_t *tvb _U_, i
 
 static const value_string lix2_RCSSessionEndpoints_vals[] = {
   {   1, "remoteOnly" },
-  {   2, "locatlOnly" },
+  {   2, "localOnly" },
   {   3, "localAndRemote" },
   { 0, NULL }
 };
@@ -16872,9 +17689,10 @@ static const ber_sequence_t AMFUEServiceAccept_sequence[] = {
   { &hf_lix2_fiveGTMSI      , BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_FiveGTMSI },
   { &hf_lix2_uplinkDataStatus, BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_OCTET_STRING_SIZE_2_32 },
   { &hf_lix2_pDUSessionStatus, BER_CLASS_CON, 6, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_OCTET_STRING_SIZE_2_32 },
-  { &hf_lix2_uERequestType  , BER_CLASS_CON, 7, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_FiveGSMRequestType },
+  { &hf_lix2_deprecatedUERequestType, BER_CLASS_CON, 7, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_FiveGSMRequestType },
   { &hf_lix2_pagingRestriction, BER_CLASS_CON, 8, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_PagingRestrictionIndicator },
   { &hf_lix2_forbiddenTAIList, BER_CLASS_CON, 9, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_TAIList },
+  { &hf_lix2_uERequestType  , BER_CLASS_CON, 10, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_MUSIMUERequestType },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -16882,6 +17700,632 @@ static int
 dissect_lix2_AMFUEServiceAccept(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    AMFUEServiceAccept_sequence, hf_index, ett_lix2_AMFUEServiceAccept);
+
+  return offset;
+}
+
+
+
+static int
+dissect_lix2_EPSHandoverType(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_lix2_ExternalASNType(implicit_tag, tvb, offset, actx, tree, hf_index);
+
+  return offset;
+}
+
+
+
+static int
+dissect_lix2_EPSRANCause(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_lix2_ExternalASNType(implicit_tag, tvb, offset, actx, tree, hf_index);
+
+  return offset;
+}
+
+
+static const ber_sequence_t ERABError_sequence[] = {
+  { &hf_lix2_eRABID         , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_lix2_EPSBearerID },
+  { &hf_lix2_cause_09       , BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_lix2_EPSRANCause },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_lix2_ERABError(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   ERABError_sequence, hf_index, ett_lix2_ERABError);
+
+  return offset;
+}
+
+
+static const ber_sequence_t ERABReleaseList_sequence_of[1] = {
+  { &hf_lix2_ERABReleaseList_item, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_lix2_ERABError },
+};
+
+static int
+dissect_lix2_ERABReleaseList(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                      ERABReleaseList_sequence_of, hf_index, ett_lix2_ERABReleaseList);
+
+  return offset;
+}
+
+
+static const ber_sequence_t SEQUENCE_SIZE_1_MAX_OF_RANTargetToSourceContainer_sequence_of[1] = {
+  { &hf_lix2_targetToSourceContainers_item, BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_lix2_RANTargetToSourceContainer },
+};
+
+static int
+dissect_lix2_SEQUENCE_SIZE_1_MAX_OF_RANTargetToSourceContainer(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                      SEQUENCE_SIZE_1_MAX_OF_RANTargetToSourceContainer_sequence_of, hf_index, ett_lix2_SEQUENCE_SIZE_1_MAX_OF_RANTargetToSourceContainer);
+
+  return offset;
+}
+
+
+static const ber_sequence_t EPSRANHandoverCommand_sequence[] = {
+  { &hf_lix2_userIdentifiers, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_lix2_UserIdentifiers },
+  { &hf_lix2_mMEUES1APID    , BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_lix2_MMEUES1APID },
+  { &hf_lix2_eNBUES1APID    , BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_lix2_RANUES1APID },
+  { &hf_lix2_handoverType_01, BER_CLASS_CON, 4, BER_FLAGS_IMPLTAG, dissect_lix2_EPSHandoverType },
+  { &hf_lix2_eRABsToBeForwarded, BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_ERABContextList },
+  { &hf_lix2_eRABsToRelease , BER_CLASS_CON, 6, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_ERABReleaseList },
+  { &hf_lix2_targetToSourceContainers, BER_CLASS_CON, 7, BER_FLAGS_IMPLTAG, dissect_lix2_SEQUENCE_SIZE_1_MAX_OF_RANTargetToSourceContainer },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_lix2_EPSRANHandoverCommand(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   EPSRANHandoverCommand_sequence, hf_index, ett_lix2_EPSRANHandoverCommand);
+
+  return offset;
+}
+
+
+static const ber_sequence_t EPSCSGInfo_sequence[] = {
+  { &hf_lix2_cSGID          , BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_CSGID },
+  { &hf_lix2_cSGMembershipStatus, BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_CSGMembershipIndication },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_lix2_EPSCSGInfo(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   EPSCSGInfo_sequence, hf_index, ett_lix2_EPSCSGInfo);
+
+  return offset;
+}
+
+
+static const ber_sequence_t EPSRANHandoverRequest_sequence[] = {
+  { &hf_lix2_userIdentifiers, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_lix2_UserIdentifiers },
+  { &hf_lix2_handoverType_01, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_lix2_EPSHandoverType },
+  { &hf_lix2_handoverCause_01, BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_lix2_EPSRANCause },
+  { &hf_lix2_sourceToTargetContainer, BER_CLASS_CON, 4, BER_FLAGS_IMPLTAG, dissect_lix2_RANSourceToTargetContainer },
+  { &hf_lix2_cSGInfo        , BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_EPSCSGInfo },
+  { &hf_lix2_targetToSourceContainer, BER_CLASS_CON, 6, BER_FLAGS_IMPLTAG, dissect_lix2_RANTargetToSourceContainer },
+  { &hf_lix2_admittedCSGID  , BER_CLASS_CON, 7, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_CSGID },
+  { &hf_lix2_ePSRANUEContext, BER_CLASS_CON, 8, BER_FLAGS_IMPLTAG, dissect_lix2_EPSRANUEContext },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_lix2_EPSRANHandoverRequest(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   EPSRANHandoverRequest_sequence, hf_index, ett_lix2_EPSRANHandoverRequest);
+
+  return offset;
+}
+
+
+static const ber_sequence_t MMERANTraceReport_sequence[] = {
+  { &hf_lix2_userIdentifiers, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_lix2_UserIdentifiers },
+  { &hf_lix2_mMEUES1APID    , BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_lix2_MMEUES1APID },
+  { &hf_lix2_eNBUES1APID    , BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_lix2_RANUES1APID },
+  { &hf_lix2_traceRecordType, BER_CLASS_CON, 4, BER_FLAGS_IMPLTAG, dissect_lix2_TraceRecordType },
+  { &hf_lix2_traceDirection , BER_CLASS_CON, 5, BER_FLAGS_IMPLTAG, dissect_lix2_TraceDirection },
+  { &hf_lix2_traceActivationInfo, BER_CLASS_CON, 6, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_TraceActivation },
+  { &hf_lix2_eUTRANCGI      , BER_CLASS_CON, 7, BER_FLAGS_IMPLTAG, dissect_lix2_ECGI },
+  { &hf_lix2_globalRANNodeID, BER_CLASS_CON, 8, BER_FLAGS_IMPLTAG, dissect_lix2_GlobalRANNodeID },
+  { &hf_lix2_traceCollectionEntityInfo, BER_CLASS_CON, 9, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_TraceCollectionEntityInfo },
+  { &hf_lix2_mMETraceData   , BER_CLASS_CON, 10, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_XMLType },
+  { &hf_lix2_location       , BER_CLASS_CON, 11, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_Location },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_lix2_MMERANTraceReport(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   MMERANTraceReport_sequence, hf_index, ett_lix2_MMERANTraceReport);
+
+  return offset;
+}
+
+
+static const ber_sequence_t MMEUEServiceAccept_sequence[] = {
+  { &hf_lix2_userIdentifiers, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_lix2_UserIdentifiers },
+  { &hf_lix2_serviceType    , BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_OCTET_STRING_SIZE_1 },
+  { &hf_lix2_mTMSI          , BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_TMSI },
+  { &hf_lix2_cSFBResponse   , BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_OCTET_STRING_SIZE_1 },
+  { &hf_lix2_uEEPSBearerContextStatus, BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_OCTET_STRING_SIZE_2 },
+  { &hf_lix2_uERequestType  , BER_CLASS_CON, 6, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_MUSIMUERequestType },
+  { &hf_lix2_pagingRestriction, BER_CLASS_CON, 7, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_PagingRestrictionIndicator },
+  { &hf_lix2_controlPlaneServiceType, BER_CLASS_CON, 8, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_OCTET_STRING_SIZE_1 },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_lix2_MMEUEServiceAccept(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   MMEUEServiceAccept_sequence, hf_index, ett_lix2_MMEUEServiceAccept);
+
+  return offset;
+}
+
+
+static const value_string lix2_NWDAFConsumerNFType_vals[] = {
+  {   1, "pCF" },
+  {   2, "nSSF" },
+  {   3, "aMF" },
+  {   4, "sMF" },
+  {   5, "nEF" },
+  {   6, "aF" },
+  {   7, "lMF" },
+  {   8, "oAM" },
+  {   9, "nWDAF" },
+  {  10, "dCCF" },
+  {  11, "cEF" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_lix2_NWDAFConsumerNFType(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                  NULL);
+
+  return offset;
+}
+
+
+static const value_string lix2_NWDAFEventsSubscriptionOpType_vals[] = {
+  {   1, "pOST" },
+  {   2, "pUT" },
+  {   3, "dELETE" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_lix2_NWDAFEventsSubscriptionOpType(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                  NULL);
+
+  return offset;
+}
+
+
+static const value_string lix2_NWDAFEvent_vals[] = {
+  {   1, "serviceExperience" },
+  {   2, "uEMobility" },
+  {   3, "uEComm" },
+  {   4, "abnormalBehaviour" },
+  {   5, "dispersion" },
+  {   6, "relativeProximity" },
+  {   7, "pDUSessionTraffic" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_lix2_NWDAFEvent(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                  NULL);
+
+  return offset;
+}
+
+
+static const ber_sequence_t SEQUENCE_SIZE_1_MAX_OF_NWDAFEvent_sequence_of[1] = {
+  { &hf_lix2_nWDAFSubscribedEventList_item, BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_NOOWNTAG, dissect_lix2_NWDAFEvent },
+};
+
+static int
+dissect_lix2_SEQUENCE_SIZE_1_MAX_OF_NWDAFEvent(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                      SEQUENCE_SIZE_1_MAX_OF_NWDAFEvent_sequence_of, hf_index, ett_lix2_SEQUENCE_SIZE_1_MAX_OF_NWDAFEvent);
+
+  return offset;
+}
+
+
+static const value_string lix2_NWDAFEventsSubscriptionResponseCode_vals[] = {
+  {   1, "oK200" },
+  {   2, "created201" },
+  {   3, "noContent204" },
+  {   4, "temporaryRedirect307" },
+  {   5, "permanentRedirect308" },
+  {   6, "badRequest400" },
+  {   7, "unauthorized401" },
+  {   8, "forbidden403" },
+  {   9, "notFound404" },
+  {  10, "notAcceptable406" },
+  {  11, "lengthRequired411" },
+  {  12, "payloadTooLarge413" },
+  {  13, "unsupportedMediaType415" },
+  {  14, "tooManyRequests429" },
+  {  15, "internalServerError500" },
+  {  16, "notImplemented501" },
+  {  17, "badGateway502" },
+  {  18, "serviceUnavailable503" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_lix2_NWDAFEventsSubscriptionResponseCode(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                  NULL);
+
+  return offset;
+}
+
+
+static const ber_sequence_t NWDAFEventsSubscription_sequence[] = {
+  { &hf_lix2_sUPI           , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_lix2_SUPI },
+  { &hf_lix2_nWDAFConsumerNFType, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_lix2_NWDAFConsumerNFType },
+  { &hf_lix2_nWDAFEventsSubscriptionOpType, BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_lix2_NWDAFEventsSubscriptionOpType },
+  { &hf_lix2_nWDAFSubscribedEventList, BER_CLASS_CON, 4, BER_FLAGS_IMPLTAG, dissect_lix2_SEQUENCE_SIZE_1_MAX_OF_NWDAFEvent },
+  { &hf_lix2_nWDAFEventsSubscription_01, BER_CLASS_CON, 5, BER_FLAGS_IMPLTAG, dissect_lix2_SBIType },
+  { &hf_lix2_nWDAFEventsSubscriptionID, BER_CLASS_CON, 6, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_UTF8String },
+  { &hf_lix2_nWDAFEventsSubscriptionResponseCode, BER_CLASS_CON, 7, BER_FLAGS_IMPLTAG, dissect_lix2_NWDAFEventsSubscriptionResponseCode },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_lix2_NWDAFEventsSubscription(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   NWDAFEventsSubscription_sequence, hf_index, ett_lix2_NWDAFEventsSubscription);
+
+  return offset;
+}
+
+
+static const ber_sequence_t NWDAFEventsNotification_sequence[] = {
+  { &hf_lix2_sUPI           , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_lix2_SUPI },
+  { &hf_lix2_nWDAFNotifiedEventList, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_lix2_SEQUENCE_SIZE_1_MAX_OF_NWDAFEvent },
+  { &hf_lix2_nWDAFEventsNotification_01, BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_lix2_SBIType },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_lix2_NWDAFEventsNotification(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   NWDAFEventsNotification_sequence, hf_index, ett_lix2_NWDAFEventsNotification);
+
+  return offset;
+}
+
+
+static const value_string lix2_NWDAFAnalyticsInfoResponseCode_vals[] = {
+  {   1, "oK200" },
+  {   2, "noContent204" },
+  {   3, "badRequest400" },
+  {   4, "unauthorized401" },
+  {   5, "forbidden403" },
+  {   6, "notFound404" },
+  {   7, "notAcceptable406" },
+  {   8, "uRITooLong414" },
+  {   9, "tooManyRequests429" },
+  {  10, "internalServerError500" },
+  {  11, "badGateway502" },
+  {  12, "serviceUnavailable503" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_lix2_NWDAFAnalyticsInfoResponseCode(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                  NULL);
+
+  return offset;
+}
+
+
+static const ber_sequence_t NWDAFAnalyticsInfoQuery_sequence[] = {
+  { &hf_lix2_sUPI           , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_lix2_SUPI },
+  { &hf_lix2_nWDAFEvent     , BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_lix2_NWDAFEvent },
+  { &hf_lix2_nWDAFEventReportingRequirement, BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_SBIType },
+  { &hf_lix2_nWDAFEventFilter, BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_SBIType },
+  { &hf_lix2_nWDAFAnalyticsData, BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_SBIType },
+  { &hf_lix2_nWDAFAnalyticsInfoResponseCode, BER_CLASS_CON, 6, BER_FLAGS_IMPLTAG, dissect_lix2_NWDAFAnalyticsInfoResponseCode },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_lix2_NWDAFAnalyticsInfoQuery(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   NWDAFAnalyticsInfoQuery_sequence, hf_index, ett_lix2_NWDAFAnalyticsInfoQuery);
+
+  return offset;
+}
+
+
+static const ber_sequence_t NWDAFRoamingAnalyticsSubscription_sequence[] = {
+  { &hf_lix2_sUPI           , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_lix2_SUPI },
+  { &hf_lix2_pLMNID         , BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_lix2_PLMNID },
+  { &hf_lix2_nWDAFEventsSubscriptionOpType, BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_lix2_NWDAFEventsSubscriptionOpType },
+  { &hf_lix2_nWDAFSubscribedEventList, BER_CLASS_CON, 4, BER_FLAGS_IMPLTAG, dissect_lix2_SEQUENCE_SIZE_1_MAX_OF_NWDAFEvent },
+  { &hf_lix2_nWDAFEventsSubscription_01, BER_CLASS_CON, 5, BER_FLAGS_IMPLTAG, dissect_lix2_SBIType },
+  { &hf_lix2_nWDAFEventsSubscriptionID, BER_CLASS_CON, 6, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_UTF8String },
+  { &hf_lix2_nWDAFEventsSubscriptionResponseCode, BER_CLASS_CON, 7, BER_FLAGS_IMPLTAG, dissect_lix2_NWDAFEventsSubscriptionResponseCode },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_lix2_NWDAFRoamingAnalyticsSubscription(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   NWDAFRoamingAnalyticsSubscription_sequence, hf_index, ett_lix2_NWDAFRoamingAnalyticsSubscription);
+
+  return offset;
+}
+
+
+static const ber_sequence_t NWDAFRoamingAnalyticsNotification_sequence[] = {
+  { &hf_lix2_sUPI           , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_lix2_SUPI },
+  { &hf_lix2_nWDAFNotifiedEventList, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_lix2_SEQUENCE_SIZE_1_MAX_OF_NWDAFEvent },
+  { &hf_lix2_nWDAFEventsNotification_01, BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_lix2_SBIType },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_lix2_NWDAFRoamingAnalyticsNotification(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   NWDAFRoamingAnalyticsNotification_sequence, hf_index, ett_lix2_NWDAFRoamingAnalyticsNotification);
+
+  return offset;
+}
+
+
+static const ber_sequence_t RCSSIPRegistrationExchange_sequence[] = {
+  { &hf_lix2_rCSRegistrationUpdateRequest, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_lix2_IMSPayload },
+  { &hf_lix2_rCSRegistrationUpdateResponse, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_lix2_IMSPayload },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_lix2_RCSSIPRegistrationExchange(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   RCSSIPRegistrationExchange_sequence, hf_index, ett_lix2_RCSSIPRegistrationExchange);
+
+  return offset;
+}
+
+
+static const value_string lix2_RCSRegistrationInformation_vals[] = {
+  {   1, "sIPRegistration" },
+  {   2, "userProfile" },
+  {   3, "multiDevice" },
+  {   4, "presenceDocument" },
+  { 0, NULL }
+};
+
+static const ber_choice_t RCSRegistrationInformation_choice[] = {
+  {   1, &hf_lix2_sIPRegistration, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_lix2_RCSSIPRegistrationExchange },
+  {   2, &hf_lix2_userProfile    , BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_lix2_XMLType },
+  {   3, &hf_lix2_multiDevice    , BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_lix2_XMLType },
+  {   4, &hf_lix2_presenceDocument, BER_CLASS_CON, 4, BER_FLAGS_IMPLTAG, dissect_lix2_XMLType },
+  { 0, NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_lix2_RCSRegistrationInformation(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_choice(actx, tree, tvb, offset,
+                                 RCSRegistrationInformation_choice, hf_index, ett_lix2_RCSRegistrationInformation,
+                                 NULL);
+
+  return offset;
+}
+
+
+static const ber_sequence_t SEQUENCE_SIZE_1_MAX_OF_RCSRegistrationInformation_sequence_of[1] = {
+  { &hf_lix2_rCSRegistrationInformation_item, BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_lix2_RCSRegistrationInformation },
+};
+
+static int
+dissect_lix2_SEQUENCE_SIZE_1_MAX_OF_RCSRegistrationInformation(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                      SEQUENCE_SIZE_1_MAX_OF_RCSRegistrationInformation_sequence_of, hf_index, ett_lix2_SEQUENCE_SIZE_1_MAX_OF_RCSRegistrationInformation);
+
+  return offset;
+}
+
+
+
+static int
+dissect_lix2_SIPEndpoint(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_UTF8String,
+                                            actx, tree, tvb, offset, hf_index,
+                                            NULL);
+
+  return offset;
+}
+
+
+static const ber_sequence_t AdditionalInstanceLocation_sequence[] = {
+  { &hf_lix2_instance_01    , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_lix2_SIPEndpoint },
+  { &hf_lix2_location       , BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_lix2_Location },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_lix2_AdditionalInstanceLocation(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   AdditionalInstanceLocation_sequence, hf_index, ett_lix2_AdditionalInstanceLocation);
+
+  return offset;
+}
+
+
+static const ber_sequence_t SEQUENCE_SIZE_1_MAX_OF_AdditionalInstanceLocation_sequence_of[1] = {
+  { &hf_lix2_additionalInstanceLocation_item, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_lix2_AdditionalInstanceLocation },
+};
+
+static int
+dissect_lix2_SEQUENCE_SIZE_1_MAX_OF_AdditionalInstanceLocation(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                      SEQUENCE_SIZE_1_MAX_OF_AdditionalInstanceLocation_sequence_of, hf_index, ett_lix2_SEQUENCE_SIZE_1_MAX_OF_AdditionalInstanceLocation);
+
+  return offset;
+}
+
+
+static const ber_sequence_t StartOfInterceptForRegisteredRCSUser_sequence[] = {
+  { &hf_lix2_rCSTargetIdentities, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_lix2_SEQUENCE_SIZE_1_MAX_OF_RCSIdentity },
+  { &hf_lix2_rCSRegistrationInformation, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_lix2_SEQUENCE_SIZE_1_MAX_OF_RCSRegistrationInformation },
+  { &hf_lix2_userOnline     , BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_lix2_BOOLEAN },
+  { &hf_lix2_location       , BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_Location },
+  { &hf_lix2_additionalInstanceLocation, BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_SEQUENCE_SIZE_1_MAX_OF_AdditionalInstanceLocation },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_lix2_StartOfInterceptForRegisteredRCSUser(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   StartOfInterceptForRegisteredRCSUser_sequence, hf_index, ett_lix2_StartOfInterceptForRegisteredRCSUser);
+
+  return offset;
+}
+
+
+static const ber_sequence_t SEQUENCE_SIZE_1_MAX_OF_RCSDestinations_sequence_of[1] = {
+  { &hf_lix2_participants_item, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_lix2_RCSDestinations },
+};
+
+static int
+dissect_lix2_SEQUENCE_SIZE_1_MAX_OF_RCSDestinations(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                      SEQUENCE_SIZE_1_MAX_OF_RCSDestinations_sequence_of, hf_index, ett_lix2_SEQUENCE_SIZE_1_MAX_OF_RCSDestinations);
+
+  return offset;
+}
+
+
+static const ber_sequence_t RCSSIPSessionExchange_sequence[] = {
+  { &hf_lix2_sessionLeg     , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_lix2_RCSSessionLeg },
+  { &hf_lix2_sIPRequest     , BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_lix2_IMSPayload },
+  { &hf_lix2_sIPResponse    , BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_lix2_IMSPayload },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_lix2_RCSSIPSessionExchange(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   RCSSIPSessionExchange_sequence, hf_index, ett_lix2_RCSSIPSessionExchange);
+
+  return offset;
+}
+
+
+static const ber_sequence_t SEQUENCE_SIZE_1_MAX_OF_RCSSIPSessionExchange_sequence_of[1] = {
+  { &hf_lix2_rCSSessionLegs_item, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_lix2_RCSSIPSessionExchange },
+};
+
+static int
+dissect_lix2_SEQUENCE_SIZE_1_MAX_OF_RCSSIPSessionExchange(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                      SEQUENCE_SIZE_1_MAX_OF_RCSSIPSessionExchange_sequence_of, hf_index, ett_lix2_SEQUENCE_SIZE_1_MAX_OF_RCSSIPSessionExchange);
+
+  return offset;
+}
+
+
+static const value_string lix2_RCSSessionContext_vals[] = {
+  {   1, "cPMSessionInfo" },
+  { 0, NULL }
+};
+
+static const ber_choice_t RCSSessionContext_choice[] = {
+  {   1, &hf_lix2_cPMSessionInfo , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_lix2_MIMEEntity },
+  { 0, NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_lix2_RCSSessionContext(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_choice(actx, tree, tvb, offset,
+                                 RCSSessionContext_choice, hf_index, ett_lix2_RCSSessionContext,
+                                 NULL);
+
+  return offset;
+}
+
+
+static const ber_sequence_t SEQUENCE_SIZE_1_MAX_OF_RCSSessionContext_sequence_of[1] = {
+  { &hf_lix2_rCSSessionInformation_item, BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_lix2_RCSSessionContext },
+};
+
+static int
+dissect_lix2_SEQUENCE_SIZE_1_MAX_OF_RCSSessionContext(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                      SEQUENCE_SIZE_1_MAX_OF_RCSSessionContext_sequence_of, hf_index, ett_lix2_SEQUENCE_SIZE_1_MAX_OF_RCSSessionContext);
+
+  return offset;
+}
+
+
+static const ber_sequence_t StartOfInterceptWithEstablisedRCSSession_sequence[] = {
+  { &hf_lix2_rCSTargetIdentities, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_lix2_SEQUENCE_SIZE_1_MAX_OF_RCSIdentity },
+  { &hf_lix2_participants   , BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_lix2_SEQUENCE_SIZE_1_MAX_OF_RCSDestinations },
+  { &hf_lix2_conversationID , BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_lix2_RCSConversationID },
+  { &hf_lix2_contributionID , BER_CLASS_CON, 4, BER_FLAGS_IMPLTAG, dissect_lix2_RCSContributionID },
+  { &hf_lix2_rCSSessionType , BER_CLASS_CON, 5, BER_FLAGS_IMPLTAG, dissect_lix2_RCSSessionType },
+  { &hf_lix2_rCSSessionEndpoints, BER_CLASS_CON, 6, BER_FLAGS_IMPLTAG, dissect_lix2_RCSSessionEndpoints },
+  { &hf_lix2_rCSSessionLegs , BER_CLASS_CON, 7, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_SEQUENCE_SIZE_1_MAX_OF_RCSSIPSessionExchange },
+  { &hf_lix2_rCSSessionInformation, BER_CLASS_CON, 8, BER_FLAGS_IMPLTAG, dissect_lix2_SEQUENCE_SIZE_1_MAX_OF_RCSSessionContext },
+  { &hf_lix2_location       , BER_CLASS_CON, 9, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_Location },
+  { &hf_lix2_additionalInstanceLocation, BER_CLASS_CON, 10, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_SEQUENCE_SIZE_1_MAX_OF_AdditionalInstanceLocation },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_lix2_StartOfInterceptWithEstablisedRCSSession(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   StartOfInterceptWithEstablisedRCSSession_sequence, hf_index, ett_lix2_StartOfInterceptWithEstablisedRCSSession);
+
+  return offset;
+}
+
+
+static const ber_sequence_t UDMProSeTargetIdentifierDeconcealment_sequence[] = {
+  { &hf_lix2_sUPI           , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_lix2_SUPI },
+  { &hf_lix2_sUCI           , BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_lix2_SUCI },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_lix2_UDMProSeTargetIdentifierDeconcealment(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   UDMProSeTargetIdentifierDeconcealment_sequence, hf_index, ett_lix2_UDMProSeTargetIdentifierDeconcealment);
+
+  return offset;
+}
+
+
+static const ber_sequence_t UDMProSeTargetAuthentication_sequence[] = {
+  { &hf_lix2_servingNetworkName, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_lix2_UTF8String },
+  { &hf_lix2_relayServiceCode, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_lix2_INTEGER },
+  { &hf_lix2_authenticationType, BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_lix2_PrimaryAuthenticationType },
+  { &hf_lix2_sUPI           , BER_CLASS_CON, 4, BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_lix2_SUPI },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_lix2_UDMProSeTargetAuthentication(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   UDMProSeTargetAuthentication_sequence, hf_index, ett_lix2_UDMProSeTargetAuthentication);
 
   return offset;
 }
@@ -17034,6 +18478,19 @@ static const value_string lix2_XIRIEvent_vals[] = {
   { 145, "rCSSessionRelease" },
   { 146, "aMFUEPolicyTransfer" },
   { 147, "aMFUEServiceAccept" },
+  { 148, "ePSRANHandoverCommand" },
+  { 149, "ePSRANHandoverRequest" },
+  { 150, "mMERANTraceReport" },
+  { 151, "mMEUEServiceAccept" },
+  { 152, "nWDAFEventsSubscription" },
+  { 153, "nWDAFEventsNotification" },
+  { 154, "nWDAFAnalyticsInfoQuery" },
+  { 155, "nWDAFRoamingAnalyticsSubscription" },
+  { 156, "nWDAFRoamingAnalyticsNotification" },
+  { 157, "startOfInterceptForRegisteredRCSUser" },
+  { 158, "startOfInterceptWithEstablisedRCSSession" },
+  { 159, "uDMProSeTargetIdentifierDeconcealment" },
+  { 160, "uDMProSeTargetAuthentication" },
   { 0, NULL }
 };
 
@@ -17184,6 +18641,19 @@ static const ber_choice_t XIRIEvent_choice[] = {
   { 145, &hf_lix2_rCSSessionRelease, BER_CLASS_CON, 145, BER_FLAGS_IMPLTAG, dissect_lix2_RCSSessionRelease },
   { 146, &hf_lix2_aMFUEPolicyTransfer, BER_CLASS_CON, 146, BER_FLAGS_IMPLTAG, dissect_lix2_AMFUEPolicyTransfer },
   { 147, &hf_lix2_aMFUEServiceAccept, BER_CLASS_CON, 147, BER_FLAGS_IMPLTAG, dissect_lix2_AMFUEServiceAccept },
+  { 148, &hf_lix2_ePSRANHandoverCommand, BER_CLASS_CON, 148, BER_FLAGS_IMPLTAG, dissect_lix2_EPSRANHandoverCommand },
+  { 149, &hf_lix2_ePSRANHandoverRequest, BER_CLASS_CON, 149, BER_FLAGS_IMPLTAG, dissect_lix2_EPSRANHandoverRequest },
+  { 150, &hf_lix2_mMERANTraceReport, BER_CLASS_CON, 150, BER_FLAGS_IMPLTAG, dissect_lix2_MMERANTraceReport },
+  { 151, &hf_lix2_mMEUEServiceAccept, BER_CLASS_CON, 151, BER_FLAGS_IMPLTAG, dissect_lix2_MMEUEServiceAccept },
+  { 152, &hf_lix2_nWDAFEventsSubscription, BER_CLASS_CON, 152, BER_FLAGS_IMPLTAG, dissect_lix2_NWDAFEventsSubscription },
+  { 153, &hf_lix2_nWDAFEventsNotification, BER_CLASS_CON, 153, BER_FLAGS_IMPLTAG, dissect_lix2_NWDAFEventsNotification },
+  { 154, &hf_lix2_nWDAFAnalyticsInfoQuery, BER_CLASS_CON, 154, BER_FLAGS_IMPLTAG, dissect_lix2_NWDAFAnalyticsInfoQuery },
+  { 155, &hf_lix2_nWDAFRoamingAnalyticsSubscription, BER_CLASS_CON, 155, BER_FLAGS_IMPLTAG, dissect_lix2_NWDAFRoamingAnalyticsSubscription },
+  { 156, &hf_lix2_nWDAFRoamingAnalyticsNotification, BER_CLASS_CON, 156, BER_FLAGS_IMPLTAG, dissect_lix2_NWDAFRoamingAnalyticsNotification },
+  { 157, &hf_lix2_startOfInterceptForRegisteredRCSUser, BER_CLASS_CON, 157, BER_FLAGS_IMPLTAG, dissect_lix2_StartOfInterceptForRegisteredRCSUser },
+  { 158, &hf_lix2_startOfInterceptWithEstablisedRCSSession, BER_CLASS_CON, 158, BER_FLAGS_IMPLTAG, dissect_lix2_StartOfInterceptWithEstablisedRCSSession },
+  { 159, &hf_lix2_uDMProSeTargetIdentifierDeconcealment, BER_CLASS_CON, 159, BER_FLAGS_IMPLTAG, dissect_lix2_UDMProSeTargetIdentifierDeconcealment },
+  { 160, &hf_lix2_uDMProSeTargetAuthentication, BER_CLASS_CON, 160, BER_FLAGS_IMPLTAG, dissect_lix2_UDMProSeTargetAuthentication },
   { 0, NULL, 0, 0, 0, NULL }
 };
 
@@ -17371,6 +18841,19 @@ static const value_string lix2_IRIEvent_vals[] = {
   { 145, "rCSSessionRelease" },
   { 146, "aMFUEPolicyTransfer" },
   { 147, "aMFUEServiceAccept" },
+  { 148, "ePSRANHandoverCommand" },
+  { 149, "ePSRANHandoverRequest" },
+  { 150, "mMERANTraceReport" },
+  { 151, "mMEUEServiceAccept" },
+  { 152, "nWDAFEventsSubscription" },
+  { 153, "nWDAFEventsNotification" },
+  { 154, "nWDAFAnalyticsInfoQuery" },
+  { 155, "nWDAFRoamingAnalyticsSubscription" },
+  { 156, "nWDAFRoamingAnalyticsNotification" },
+  { 157, "startOfInterceptForRegisteredRCSUser" },
+  { 158, "startOfInterceptWithEstablisedRCSSession" },
+  { 159, "uDMProSeTargetIdentifierDeconcealment" },
+  { 160, "uDMProSeTargetAuthentication" },
   { 0, NULL }
 };
 
@@ -17520,6 +19003,19 @@ static const ber_choice_t IRIEvent_choice[] = {
   { 145, &hf_lix2_rCSSessionRelease, BER_CLASS_CON, 145, BER_FLAGS_IMPLTAG, dissect_lix2_RCSSessionRelease },
   { 146, &hf_lix2_aMFUEPolicyTransfer, BER_CLASS_CON, 146, BER_FLAGS_IMPLTAG, dissect_lix2_AMFUEPolicyTransfer },
   { 147, &hf_lix2_aMFUEServiceAccept, BER_CLASS_CON, 147, BER_FLAGS_IMPLTAG, dissect_lix2_AMFUEServiceAccept },
+  { 148, &hf_lix2_ePSRANHandoverCommand, BER_CLASS_CON, 148, BER_FLAGS_IMPLTAG, dissect_lix2_EPSRANHandoverCommand },
+  { 149, &hf_lix2_ePSRANHandoverRequest, BER_CLASS_CON, 149, BER_FLAGS_IMPLTAG, dissect_lix2_EPSRANHandoverRequest },
+  { 150, &hf_lix2_mMERANTraceReport, BER_CLASS_CON, 150, BER_FLAGS_IMPLTAG, dissect_lix2_MMERANTraceReport },
+  { 151, &hf_lix2_mMEUEServiceAccept, BER_CLASS_CON, 151, BER_FLAGS_IMPLTAG, dissect_lix2_MMEUEServiceAccept },
+  { 152, &hf_lix2_nWDAFEventsSubscription, BER_CLASS_CON, 152, BER_FLAGS_IMPLTAG, dissect_lix2_NWDAFEventsSubscription },
+  { 153, &hf_lix2_nWDAFEventsNotification, BER_CLASS_CON, 153, BER_FLAGS_IMPLTAG, dissect_lix2_NWDAFEventsNotification },
+  { 154, &hf_lix2_nWDAFAnalyticsInfoQuery, BER_CLASS_CON, 154, BER_FLAGS_IMPLTAG, dissect_lix2_NWDAFAnalyticsInfoQuery },
+  { 155, &hf_lix2_nWDAFRoamingAnalyticsSubscription, BER_CLASS_CON, 155, BER_FLAGS_IMPLTAG, dissect_lix2_NWDAFRoamingAnalyticsSubscription },
+  { 156, &hf_lix2_nWDAFRoamingAnalyticsNotification, BER_CLASS_CON, 156, BER_FLAGS_IMPLTAG, dissect_lix2_NWDAFRoamingAnalyticsNotification },
+  { 157, &hf_lix2_startOfInterceptForRegisteredRCSUser, BER_CLASS_CON, 157, BER_FLAGS_IMPLTAG, dissect_lix2_StartOfInterceptForRegisteredRCSUser },
+  { 158, &hf_lix2_startOfInterceptWithEstablisedRCSSession, BER_CLASS_CON, 158, BER_FLAGS_IMPLTAG, dissect_lix2_StartOfInterceptWithEstablisedRCSSession },
+  { 159, &hf_lix2_uDMProSeTargetIdentifierDeconcealment, BER_CLASS_CON, 159, BER_FLAGS_IMPLTAG, dissect_lix2_UDMProSeTargetIdentifierDeconcealment },
+  { 160, &hf_lix2_uDMProSeTargetAuthentication, BER_CLASS_CON, 160, BER_FLAGS_IMPLTAG, dissect_lix2_UDMProSeTargetAuthentication },
   { 0, NULL, 0, 0, 0, NULL }
 };
 
@@ -17631,10 +19127,31 @@ dissect_lix2_SEQUENCE_OF_IRITargetIdentifier(bool implicit_tag _U_, tvbuff_t *tv
 }
 
 
+static const value_string lix2_MediatedFromIndicator_vals[] = {
+  {   1, "xIRIRelativeOID" },
+  { 0, NULL }
+};
+
+static const ber_choice_t MediatedFromIndicator_choice[] = {
+  {   1, &hf_lix2_xIRIRelativeOID, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_lix2_RELATIVE_OID },
+  { 0, NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_lix2_MediatedFromIndicator(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_choice(actx, tree, tvb, offset,
+                                 MediatedFromIndicator_choice, hf_index, ett_lix2_MediatedFromIndicator,
+                                 NULL);
+
+  return offset;
+}
+
+
 static const ber_sequence_t IRIPayload_sequence[] = {
   { &hf_lix2_iRIPayloadOID  , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_lix2_RELATIVE_OID },
   { &hf_lix2_event_01       , BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_lix2_IRIEvent },
   { &hf_lix2_targetIdentifiers, BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_SEQUENCE_OF_IRITargetIdentifier },
+  { &hf_lix2_mediatedFromIndicator, BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_lix2_MediatedFromIndicator },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -17757,6 +19274,26 @@ dissect_lix2_IMSCCPDU(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, 
 }
 
 
+static const value_string lix2_RCSCCPDU_vals[] = {
+  {   1, "encapsulatedRCSPayload" },
+  { 0, NULL }
+};
+
+static const ber_choice_t RCSCCPDU_choice[] = {
+  {   1, &hf_lix2_encapsulatedRCSPayload, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_lix2_EncapsulatedRCSPayload },
+  { 0, NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_lix2_RCSCCPDU(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_choice(actx, tree, tvb, offset,
+                                 RCSCCPDU_choice, hf_index, ett_lix2_RCSCCPDU,
+                                 NULL);
+
+  return offset;
+}
+
+
 static const value_string lix2_CCPDU_vals[] = {
   {   1, "uPFCCPDU" },
   {   2, "extendedUPFCCPDU" },
@@ -17764,6 +19301,7 @@ static const value_string lix2_CCPDU_vals[] = {
   {   4, "nIDDCCPDU" },
   {   5, "pTCCCPDU" },
   {   6, "iMSCCPDU" },
+  {   7, "rCSCCPDU" },
   { 0, NULL }
 };
 
@@ -17774,6 +19312,7 @@ static const ber_choice_t CCPDU_choice[] = {
   {   4, &hf_lix2_nIDDCCPDU      , BER_CLASS_CON, 4, BER_FLAGS_IMPLTAG, dissect_lix2_NIDDCCPDU },
   {   5, &hf_lix2_pTCCCPDU       , BER_CLASS_CON, 5, BER_FLAGS_IMPLTAG, dissect_lix2_PTCCCPDU },
   {   6, &hf_lix2_iMSCCPDU       , BER_CLASS_CON, 6, BER_FLAGS_IMPLTAG, dissect_lix2_IMSCCPDU },
+  {   7, &hf_lix2_rCSCCPDU       , BER_CLASS_CON, 7, BER_FLAGS_IMPLTAG, dissect_lix2_RCSCCPDU },
   { 0, NULL, 0, 0, 0, NULL }
 };
 
@@ -18547,6 +20086,58 @@ void proto_register_lix2(void) {
       { "aMFUEServiceAccept", "lix2.aMFUEServiceAccept_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
+    { &hf_lix2_ePSRANHandoverCommand,
+      { "ePSRANHandoverCommand", "lix2.ePSRANHandoverCommand_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lix2_ePSRANHandoverRequest,
+      { "ePSRANHandoverRequest", "lix2.ePSRANHandoverRequest_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lix2_mMERANTraceReport,
+      { "mMERANTraceReport", "lix2.mMERANTraceReport_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lix2_mMEUEServiceAccept,
+      { "mMEUEServiceAccept", "lix2.mMEUEServiceAccept_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lix2_nWDAFEventsSubscription,
+      { "nWDAFEventsSubscription", "lix2.nWDAFEventsSubscription_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lix2_nWDAFEventsNotification,
+      { "nWDAFEventsNotification", "lix2.nWDAFEventsNotification_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lix2_nWDAFAnalyticsInfoQuery,
+      { "nWDAFAnalyticsInfoQuery", "lix2.nWDAFAnalyticsInfoQuery_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lix2_nWDAFRoamingAnalyticsSubscription,
+      { "nWDAFRoamingAnalyticsSubscription", "lix2.nWDAFRoamingAnalyticsSubscription_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lix2_nWDAFRoamingAnalyticsNotification,
+      { "nWDAFRoamingAnalyticsNotification", "lix2.nWDAFRoamingAnalyticsNotification_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lix2_startOfInterceptForRegisteredRCSUser,
+      { "startOfInterceptForRegisteredRCSUser", "lix2.startOfInterceptForRegisteredRCSUser_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lix2_startOfInterceptWithEstablisedRCSSession,
+      { "startOfInterceptWithEstablisedRCSSession", "lix2.startOfInterceptWithEstablisedRCSSession_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lix2_uDMProSeTargetIdentifierDeconcealment,
+      { "uDMProSeTargetIdentifierDeconcealment", "lix2.uDMProSeTargetIdentifierDeconcealment_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lix2_uDMProSeTargetAuthentication,
+      { "uDMProSeTargetAuthentication", "lix2.uDMProSeTargetAuthentication_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
     { &hf_lix2_iRIPayloadOID,
       { "iRIPayloadOID", "lix2.iRIPayloadOID",
         FT_REL_OID, BASE_NONE, NULL, 0,
@@ -18563,6 +20154,10 @@ void proto_register_lix2(void) {
       { "IRITargetIdentifier", "lix2.IRITargetIdentifier_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
+    { &hf_lix2_mediatedFromIndicator,
+      { "mediatedFromIndicator", "lix2.mediatedFromIndicator",
+        FT_UINT32, BASE_DEC, VALS(lix2_MediatedFromIndicator_vals), 0,
+        NULL, HFILL }},
     { &hf_lix2_mDFCellSiteReport,
       { "mDFCellSiteReport", "lix2.mDFCellSiteReport",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -18575,6 +20170,10 @@ void proto_register_lix2(void) {
       { "provenance", "lix2.provenance",
         FT_UINT32, BASE_DEC, VALS(lix2_TargetIdentifierProvenance_vals), 0,
         "TargetIdentifierProvenance", HFILL }},
+    { &hf_lix2_xIRIRelativeOID,
+      { "xIRIRelativeOID", "lix2.xIRIRelativeOID",
+        FT_REL_OID, BASE_NONE, NULL, 0,
+        "RELATIVE_OID", HFILL }},
     { &hf_lix2_cCPayloadOID,
       { "cCPayloadOID", "lix2.cCPayloadOID",
         FT_REL_OID, BASE_NONE, NULL, 0,
@@ -18606,6 +20205,10 @@ void proto_register_lix2(void) {
     { &hf_lix2_iMSCCPDU,
       { "iMSCCPDU", "lix2.iMSCCPDU_element",
         FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lix2_rCSCCPDU,
+      { "rCSCCPDU", "lix2.rCSCCPDU",
+        FT_UINT32, BASE_DEC, VALS(lix2_RCSCCPDU_vals), 0,
         NULL, HFILL }},
     { &hf_lix2_lINotificationPayloadOID,
       { "lINotificationPayloadOID", "lix2.lINotificationPayloadOID",
@@ -19203,6 +20806,22 @@ void proto_register_lix2(void) {
       { "mUSIMUERequestType", "lix2.mUSIMUERequestType",
         FT_BYTES, BASE_NONE, NULL, 0,
         NULL, HFILL }},
+    { &hf_lix2_unavailabilityPeriodDuration,
+      { "unavailabilityPeriodDuration", "lix2.unavailabilityPeriodDuration",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lix2_fiveGSUpdateType,
+      { "fiveGSUpdateType", "lix2.fiveGSUpdateType",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lix2_uEAreaIndication,
+      { "uEAreaIndication", "lix2.uEAreaIndication_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lix2_establishmentCauseNon3GPPAccess,
+      { "establishmentCauseNon3GPPAccess", "lix2.establishmentCauseNon3GPPAccess",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
     { &hf_lix2_deregistrationDirection,
       { "deregistrationDirection", "lix2.deregistrationDirection",
         FT_UINT32, BASE_DEC, VALS(lix2_AMFDirection_vals), 0,
@@ -19223,14 +20842,22 @@ void proto_register_lix2(void) {
       { "reRegRequiredIndicator", "lix2.reRegRequiredIndicator",
         FT_UINT32, BASE_DEC, VALS(lix2_ReRegRequiredIndicator_vals), 0,
         NULL, HFILL }},
-    { &hf_lix2_sMSOverNASIndicator,
-      { "sMSOverNASIndicator", "lix2.sMSOverNASIndicator",
+    { &hf_lix2_deprecatedSMSOverNASIndicator,
+      { "deprecatedSMSOverNASIndicator", "lix2.deprecatedSMSOverNASIndicator",
         FT_UINT32, BASE_DEC, VALS(lix2_SMSOverNASIndicator_vals), 0,
-        NULL, HFILL }},
+        "SMSOverNASIndicator", HFILL }},
+    { &hf_lix2_deprecatedOldGUTI,
+      { "deprecatedOldGUTI", "lix2.deprecatedOldGUTI",
+        FT_UINT32, BASE_DEC, VALS(lix2_EPS5GGUTI_vals), 0,
+        "EPS5GGUTI", HFILL }},
     { &hf_lix2_timeOfRegistration,
       { "timeOfRegistration", "lix2.timeOfRegistration",
         FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL, 0,
         "Timestamp", HFILL }},
+    { &hf_lix2_sMSOverNASIndicator,
+      { "sMSOverNASIndicator", "lix2.sMSOverNASIndicator",
+        FT_UINT32, BASE_DEC, VALS(lix2_SMSOverNASIndicator_vals), 0,
+        NULL, HFILL }},
     { &hf_lix2_uEPolicy,
       { "uEPolicy", "lix2.uEPolicy",
         FT_BYTES, BASE_NONE, NULL, 0,
@@ -19319,10 +20946,10 @@ void proto_register_lix2(void) {
       { "traceDirection", "lix2.traceDirection",
         FT_UINT32, BASE_DEC, VALS(lix2_TraceDirection_vals), 0,
         NULL, HFILL }},
-    { &hf_lix2_traceActivationInfo,
-      { "traceActivationInfo", "lix2.traceActivationInfo_element",
+    { &hf_lix2_deprecatedTraceActivationInfo,
+      { "deprecatedTraceActivationInfo", "lix2.deprecatedTraceActivationInfo_element",
         FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
+        "TraceActivationInfo", HFILL }},
     { &hf_lix2_nGRANCGI,
       { "nGRANCGI", "lix2.nGRANCGI_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -19339,6 +20966,10 @@ void proto_register_lix2(void) {
       { "aMFTraceData", "lix2.aMFTraceData_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "XMLType", HFILL }},
+    { &hf_lix2_traceActivation,
+      { "traceActivation", "lix2.traceActivation_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
     { &hf_lix2_serviceMessageIdentity,
       { "serviceMessageIdentity", "lix2.serviceMessageIdentity",
         FT_UINT32, BASE_DEC, VALS(lix2_ServiceMessageIdentity_vals), 0,
@@ -19359,8 +20990,8 @@ void proto_register_lix2(void) {
       { "pDUSessionStatus", "lix2.pDUSessionStatus",
         FT_BYTES, BASE_NONE, NULL, 0,
         "OCTET_STRING_SIZE_2_32", HFILL }},
-    { &hf_lix2_uERequestType,
-      { "uERequestType", "lix2.uERequestType",
+    { &hf_lix2_deprecatedUERequestType,
+      { "deprecatedUERequestType", "lix2.deprecatedUERequestType",
         FT_UINT32, BASE_DEC, VALS(lix2_FiveGSMRequestType_vals), 0,
         "FiveGSMRequestType", HFILL }},
     { &hf_lix2_pagingRestriction,
@@ -19371,6 +21002,10 @@ void proto_register_lix2(void) {
       { "forbiddenTAIList", "lix2.forbiddenTAIList",
         FT_UINT32, BASE_DEC, NULL, 0,
         "TAIList", HFILL }},
+    { &hf_lix2_uERequestType,
+      { "uERequestType", "lix2.uERequestType",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "MUSIMUERequestType", HFILL }},
     { &hf_lix2_aMFRegionID,
       { "aMFRegionID", "lix2.aMFRegionID",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -19627,6 +21262,14 @@ void proto_register_lix2(void) {
       { "fiveGProSeL2RemoteUE", "lix2.fiveGProSeL2RemoteUE",
         FT_UINT32, BASE_DEC, VALS(lix2_FiveGProSeAuthorizationIndicator_vals), 0,
         "FiveGProSeAuthorizationIndicator", HFILL }},
+    { &hf_lix2_country,
+      { "country", "lix2.country",
+        FT_STRING, BASE_NONE, NULL, 0,
+        "UTF8String_SIZE_2", HFILL }},
+    { &hf_lix2_internationalAreaIndication,
+      { "internationalAreaIndication", "lix2.internationalAreaIndication",
+        FT_BOOLEAN, BASE_NONE, NULL, 0,
+        "BOOLEAN", HFILL }},
     { &hf_lix2_sUPIUnauthenticated,
       { "sUPIUnauthenticated", "lix2.sUPIUnauthenticated",
         FT_BOOLEAN, BASE_NONE, NULL, 0,
@@ -19698,6 +21341,14 @@ void proto_register_lix2(void) {
     { &hf_lix2_ePSPDNConnectionEstablishment,
       { "ePSPDNConnectionEstablishment", "lix2.ePSPDNConnectionEstablishment_element",
         FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lix2_satelliteBackhaulCategory,
+      { "satelliteBackhaulCategory", "lix2.satelliteBackhaulCategory_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "SBIType", HFILL }},
+    { &hf_lix2_gEOSatelliteID,
+      { "gEOSatelliteID", "lix2.gEOSatelliteID",
+        FT_STRING, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_lix2_uEEndpoint_01,
       { "uEEndpoint", "lix2.uEEndpoint",
@@ -19919,6 +21570,38 @@ void proto_register_lix2(void) {
       { "trafficSteeringPolIdUl", "lix2.trafficSteeringPolIdUl",
         FT_STRING, BASE_NONE, NULL, 0,
         "UTF8String", HFILL }},
+    { &hf_lix2_deprecatedSourceDNAI,
+      { "deprecatedSourceDNAI", "lix2.deprecatedSourceDNAI",
+        FT_STRING, BASE_NONE, NULL, 0,
+        "DNAI", HFILL }},
+    { &hf_lix2_deprecatedTargetDNAI,
+      { "deprecatedTargetDNAI", "lix2.deprecatedTargetDNAI",
+        FT_STRING, BASE_NONE, NULL, 0,
+        "DNAI", HFILL }},
+    { &hf_lix2_deprecatedDNAIChangeType,
+      { "deprecatedDNAIChangeType", "lix2.deprecatedDNAIChangeType",
+        FT_UINT32, BASE_DEC, VALS(lix2_DNAIChangeType_vals), 0,
+        "DNAIChangeType", HFILL }},
+    { &hf_lix2_deprecatedSourceUEIPAddr,
+      { "deprecatedSourceUEIPAddr", "lix2.deprecatedSourceUEIPAddr",
+        FT_UINT32, BASE_DEC, VALS(lix2_IPAddress_vals), 0,
+        "IPAddress", HFILL }},
+    { &hf_lix2_deprecatedTargetUEIPAddr,
+      { "deprecatedTargetUEIPAddr", "lix2.deprecatedTargetUEIPAddr",
+        FT_UINT32, BASE_DEC, VALS(lix2_IPAddress_vals), 0,
+        "IPAddress", HFILL }},
+    { &hf_lix2_sourceTrafficRouting,
+      { "sourceTrafficRouting", "lix2.sourceTrafficRouting_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "RouteToLocation", HFILL }},
+    { &hf_lix2_targetTrafficRouting,
+      { "targetTrafficRouting", "lix2.targetTrafficRouting_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "RouteToLocation", HFILL }},
+    { &hf_lix2_eASIPReplaceInfos,
+      { "eASIPReplaceInfos", "lix2.eASIPReplaceInfos_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
     { &hf_lix2_sourceDNAI,
       { "sourceDNAI", "lix2.sourceDNAI",
         FT_STRING, BASE_NONE, NULL, 0,
@@ -19939,18 +21622,6 @@ void proto_register_lix2(void) {
       { "targetUEIPAddr", "lix2.targetUEIPAddr",
         FT_UINT32, BASE_DEC, VALS(lix2_IPAddress_vals), 0,
         "IPAddress", HFILL }},
-    { &hf_lix2_sourceTrafficRouting,
-      { "sourceTrafficRouting", "lix2.sourceTrafficRouting_element",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "RouteToLocation", HFILL }},
-    { &hf_lix2_targetTrafficRouting,
-      { "targetTrafficRouting", "lix2.targetTrafficRouting_element",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "RouteToLocation", HFILL }},
-    { &hf_lix2_eASIPReplaceInfos,
-      { "eASIPReplaceInfos", "lix2.eASIPReplaceInfos_element",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
     { &hf_lix2_mACAddress,
       { "mACAddress", "lix2.mACAddress",
         FT_BYTES, BASE_NONE, NULL, 0,
@@ -20591,6 +22262,18 @@ void proto_register_lix2(void) {
       { "uDMSubscriptionDataSets", "lix2.uDMSubscriptionDataSets_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "SBIType", HFILL }},
+    { &hf_lix2_servingNetworkName,
+      { "servingNetworkName", "lix2.servingNetworkName",
+        FT_STRING, BASE_NONE, NULL, 0,
+        "UTF8String", HFILL }},
+    { &hf_lix2_relayServiceCode,
+      { "relayServiceCode", "lix2.relayServiceCode",
+        FT_INT32, BASE_DEC, NULL, 0,
+        "INTEGER", HFILL }},
+    { &hf_lix2_authenticationType,
+      { "authenticationType", "lix2.authenticationType",
+        FT_UINT32, BASE_DEC, VALS(lix2_PrimaryAuthenticationType_vals), 0,
+        "PrimaryAuthenticationType", HFILL }},
     { &hf_lix2_ServerAddressingInfoList_item,
       { "ServerAddressingInfo", "lix2.ServerAddressingInfo_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -20639,7 +22322,7 @@ void proto_register_lix2(void) {
       { "authType", "lix2.authType",
         FT_UINT32, BASE_DEC, VALS(lix2_PrimaryAuthenticationType_vals), 0,
         "PrimaryAuthenticationType", HFILL }},
-    { &hf_lix2_servingNetworkName,
+    { &hf_lix2_servingNetworkName_01,
       { "servingNetworkName", "lix2.servingNetworkName_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "PLMNID", HFILL }},
@@ -20791,6 +22474,18 @@ void proto_register_lix2(void) {
       { "truncatedSMSTPDU", "lix2.truncatedSMSTPDU",
         FT_BYTES, BASE_NONE, NULL, 0,
         NULL, HFILL }},
+    { &hf_lix2_redactedSMSTPDU,
+      { "redactedSMSTPDU", "lix2.redactedSMSTPDU",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "SMSTPDU", HFILL }},
+    { &hf_lix2_threeGPP2SMSTPDU,
+      { "threeGPP2SMSTPDU", "lix2.threeGPP2SMSTPDU",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lix2_redacted3GPP2SMSTPDU,
+      { "redacted3GPP2SMSTPDU", "lix2.redacted3GPP2SMSTPDU",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "ThreeGPP2SMSTPDU", HFILL }},
     { &hf_lix2_transactionID,
       { "transactionID", "lix2.transactionID",
         FT_STRING, BASE_NONE, NULL, 0,
@@ -21795,6 +23490,66 @@ void proto_register_lix2(void) {
       { "sIPMessage", "lix2.sIPMessage",
         FT_UINT32, BASE_DEC, VALS(lix2_IMSPayload_vals), 0,
         "IMSPayload", HFILL }},
+    { &hf_lix2_rCSRegistrationInformation,
+      { "rCSRegistrationInformation", "lix2.rCSRegistrationInformation",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "SEQUENCE_SIZE_1_MAX_OF_RCSRegistrationInformation", HFILL }},
+    { &hf_lix2_rCSRegistrationInformation_item,
+      { "RCSRegistrationInformation", "lix2.RCSRegistrationInformation",
+        FT_UINT32, BASE_DEC, VALS(lix2_RCSRegistrationInformation_vals), 0,
+        NULL, HFILL }},
+    { &hf_lix2_userOnline,
+      { "userOnline", "lix2.userOnline",
+        FT_BOOLEAN, BASE_NONE, NULL, 0,
+        "BOOLEAN", HFILL }},
+    { &hf_lix2_additionalInstanceLocation,
+      { "additionalInstanceLocation", "lix2.additionalInstanceLocation",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "SEQUENCE_SIZE_1_MAX_OF_AdditionalInstanceLocation", HFILL }},
+    { &hf_lix2_additionalInstanceLocation_item,
+      { "AdditionalInstanceLocation", "lix2.AdditionalInstanceLocation_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lix2_participants,
+      { "participants", "lix2.participants",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "SEQUENCE_SIZE_1_MAX_OF_RCSDestinations", HFILL }},
+    { &hf_lix2_participants_item,
+      { "RCSDestinations", "lix2.RCSDestinations",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lix2_rCSSessionEndpoints,
+      { "rCSSessionEndpoints", "lix2.rCSSessionEndpoints",
+        FT_UINT32, BASE_DEC, VALS(lix2_RCSSessionEndpoints_vals), 0,
+        NULL, HFILL }},
+    { &hf_lix2_rCSSessionLegs,
+      { "rCSSessionLegs", "lix2.rCSSessionLegs",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "SEQUENCE_SIZE_1_MAX_OF_RCSSIPSessionExchange", HFILL }},
+    { &hf_lix2_rCSSessionLegs_item,
+      { "RCSSIPSessionExchange", "lix2.RCSSIPSessionExchange_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lix2_rCSSessionInformation,
+      { "rCSSessionInformation", "lix2.rCSSessionInformation",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "SEQUENCE_SIZE_1_MAX_OF_RCSSessionContext", HFILL }},
+    { &hf_lix2_rCSSessionInformation_item,
+      { "RCSSessionContext", "lix2.RCSSessionContext",
+        FT_UINT32, BASE_DEC, VALS(lix2_RCSSessionContext_vals), 0,
+        NULL, HFILL }},
+    { &hf_lix2_encapsulatedRCSPayload,
+      { "encapsulatedRCSPayload", "lix2.encapsulatedRCSPayload",
+        FT_UINT32, BASE_DEC, VALS(lix2_EncapsulatedRCSPayload_vals), 0,
+        NULL, HFILL }},
+    { &hf_lix2_instance_01,
+      { "instance", "lix2.instance",
+        FT_STRING, BASE_NONE, NULL, 0,
+        "SIPEndpoint", HFILL }},
+    { &hf_lix2_path,
+      { "path", "lix2.path",
+        FT_STRING, BASE_NONE, NULL, 0,
+        "UTF8String", HFILL }},
     { &hf_lix2_RCSDestinations_item,
       { "RCSDestination", "lix2.RCSDestination",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -21815,14 +23570,46 @@ void proto_register_lix2(void) {
       { "iMSIdentities", "lix2.iMSIdentities",
         FT_UINT32, BASE_DEC, VALS(lix2_IMSSubscriberIDs_vals), 0,
         "IMSSubscriberIDs", HFILL }},
+    { &hf_lix2_sIPRegistration,
+      { "sIPRegistration", "lix2.sIPRegistration_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "RCSSIPRegistrationExchange", HFILL }},
+    { &hf_lix2_userProfile,
+      { "userProfile", "lix2.userProfile_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "XMLType", HFILL }},
+    { &hf_lix2_multiDevice,
+      { "multiDevice", "lix2.multiDevice_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "XMLType", HFILL }},
+    { &hf_lix2_presenceDocument,
+      { "presenceDocument", "lix2.presenceDocument_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "XMLType", HFILL }},
+    { &hf_lix2_cPMSessionInfo,
+      { "cPMSessionInfo", "lix2.cPMSessionInfo_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "MIMEEntity", HFILL }},
     { &hf_lix2_sessionLeg,
       { "sessionLeg", "lix2.sessionLeg",
         FT_UINT32, BASE_DEC, VALS(lix2_RCSSessionLeg_vals), 0,
         "RCSSessionLeg", HFILL }},
+    { &hf_lix2_sIPRequest,
+      { "sIPRequest", "lix2.sIPRequest",
+        FT_UINT32, BASE_DEC, VALS(lix2_IMSPayload_vals), 0,
+        "IMSPayload", HFILL }},
+    { &hf_lix2_sIPResponse,
+      { "sIPResponse", "lix2.sIPResponse",
+        FT_UINT32, BASE_DEC, VALS(lix2_IMSPayload_vals), 0,
+        "IMSPayload", HFILL }},
     { &hf_lix2_rCSSessionResult,
       { "rCSSessionResult", "lix2.rCSSessionResult",
         FT_UINT32, BASE_DEC, VALS(lix2_RCSSessionResult_vals), 0,
         NULL, HFILL }},
+    { &hf_lix2_mSRPPathInfo,
+      { "mSRPPathInfo", "lix2.mSRPPathInfo_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "MSRPPath", HFILL }},
     { &hf_lix2_registrationType_01,
       { "registrationType", "lix2.registrationType",
         FT_UINT32, BASE_DEC, VALS(lix2_RegistrationType_vals), 0,
@@ -22267,6 +24054,70 @@ void proto_register_lix2(void) {
       { "fiveGMSAFErrorCode", "lix2.fiveGMSAFErrorCode",
         FT_UINT32, BASE_DEC, VALS(lix2_FiveGMSAFErrorCode_vals), 0,
         NULL, HFILL }},
+    { &hf_lix2_nWDAFConsumerNFType,
+      { "nWDAFConsumerNFType", "lix2.nWDAFConsumerNFType",
+        FT_UINT32, BASE_DEC, VALS(lix2_NWDAFConsumerNFType_vals), 0,
+        NULL, HFILL }},
+    { &hf_lix2_nWDAFEventsSubscriptionOpType,
+      { "nWDAFEventsSubscriptionOpType", "lix2.nWDAFEventsSubscriptionOpType",
+        FT_UINT32, BASE_DEC, VALS(lix2_NWDAFEventsSubscriptionOpType_vals), 0,
+        NULL, HFILL }},
+    { &hf_lix2_nWDAFSubscribedEventList,
+      { "nWDAFSubscribedEventList", "lix2.nWDAFSubscribedEventList",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "SEQUENCE_SIZE_1_MAX_OF_NWDAFEvent", HFILL }},
+    { &hf_lix2_nWDAFSubscribedEventList_item,
+      { "NWDAFEvent", "lix2.NWDAFEvent",
+        FT_UINT32, BASE_DEC, VALS(lix2_NWDAFEvent_vals), 0,
+        NULL, HFILL }},
+    { &hf_lix2_nWDAFEventsSubscription_01,
+      { "nWDAFEventsSubscription", "lix2.nWDAFEventsSubscription_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "SBIType", HFILL }},
+    { &hf_lix2_nWDAFEventsSubscriptionID,
+      { "nWDAFEventsSubscriptionID", "lix2.nWDAFEventsSubscriptionID",
+        FT_STRING, BASE_NONE, NULL, 0,
+        "UTF8String", HFILL }},
+    { &hf_lix2_nWDAFEventsSubscriptionResponseCode,
+      { "nWDAFEventsSubscriptionResponseCode", "lix2.nWDAFEventsSubscriptionResponseCode",
+        FT_UINT32, BASE_DEC, VALS(lix2_NWDAFEventsSubscriptionResponseCode_vals), 0,
+        NULL, HFILL }},
+    { &hf_lix2_nWDAFNotifiedEventList,
+      { "nWDAFNotifiedEventList", "lix2.nWDAFNotifiedEventList",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "SEQUENCE_SIZE_1_MAX_OF_NWDAFEvent", HFILL }},
+    { &hf_lix2_nWDAFNotifiedEventList_item,
+      { "NWDAFEvent", "lix2.NWDAFEvent",
+        FT_UINT32, BASE_DEC, VALS(lix2_NWDAFEvent_vals), 0,
+        NULL, HFILL }},
+    { &hf_lix2_nWDAFEventsNotification_01,
+      { "nWDAFEventsNotification", "lix2.nWDAFEventsNotification_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "SBIType", HFILL }},
+    { &hf_lix2_nWDAFEvent,
+      { "nWDAFEvent", "lix2.nWDAFEvent",
+        FT_UINT32, BASE_DEC, VALS(lix2_NWDAFEvent_vals), 0,
+        NULL, HFILL }},
+    { &hf_lix2_nWDAFEventReportingRequirement,
+      { "nWDAFEventReportingRequirement", "lix2.nWDAFEventReportingRequirement_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "SBIType", HFILL }},
+    { &hf_lix2_nWDAFEventFilter,
+      { "nWDAFEventFilter", "lix2.nWDAFEventFilter_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "SBIType", HFILL }},
+    { &hf_lix2_nWDAFAnalyticsData,
+      { "nWDAFAnalyticsData", "lix2.nWDAFAnalyticsData_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "SBIType", HFILL }},
+    { &hf_lix2_nWDAFAnalyticsInfoResponseCode,
+      { "nWDAFAnalyticsInfoResponseCode", "lix2.nWDAFAnalyticsInfoResponseCode",
+        FT_UINT32, BASE_DEC, VALS(lix2_NWDAFAnalyticsInfoResponseCode_vals), 0,
+        NULL, HFILL }},
+    { &hf_lix2_deprecatedPEI,
+      { "deprecatedPEI", "lix2.deprecatedPEI",
+        FT_UINT32, BASE_DEC, VALS(lix2_PEI_vals), 0,
+        "PEI", HFILL }},
     { &hf_lix2_sourceIPAddress_01,
       { "sourceIPAddress", "lix2.sourceIPAddress",
         FT_UINT32, BASE_DEC, VALS(lix2_IPAddress_vals), 0,
@@ -22311,6 +24162,50 @@ void proto_register_lix2(void) {
       { "tAIList", "lix2.tAIList",
         FT_UINT32, BASE_DEC, NULL, 0,
         NULL, HFILL }},
+    { &hf_lix2_mMEUES1APID,
+      { "mMEUES1APID", "lix2.mMEUES1APID",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lix2_eNBUES1APID,
+      { "eNBUES1APID", "lix2.eNBUES1APID",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "RANUES1APID", HFILL }},
+    { &hf_lix2_handoverType_01,
+      { "handoverType", "lix2.handoverType_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "EPSHandoverType", HFILL }},
+    { &hf_lix2_eRABsToBeForwarded,
+      { "eRABsToBeForwarded", "lix2.eRABsToBeForwarded",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "ERABContextList", HFILL }},
+    { &hf_lix2_eRABsToRelease,
+      { "eRABsToRelease", "lix2.eRABsToRelease",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "ERABReleaseList", HFILL }},
+    { &hf_lix2_targetToSourceContainers,
+      { "targetToSourceContainers", "lix2.targetToSourceContainers",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "SEQUENCE_SIZE_1_MAX_OF_RANTargetToSourceContainer", HFILL }},
+    { &hf_lix2_targetToSourceContainers_item,
+      { "RANTargetToSourceContainer", "lix2.RANTargetToSourceContainer",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lix2_handoverCause_01,
+      { "handoverCause", "lix2.handoverCause_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "EPSRANCause", HFILL }},
+    { &hf_lix2_cSGInfo,
+      { "cSGInfo", "lix2.cSGInfo_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "EPSCSGInfo", HFILL }},
+    { &hf_lix2_admittedCSGID,
+      { "admittedCSGID", "lix2.admittedCSGID",
+        FT_INT32, BASE_DEC, NULL, 0,
+        "CSGID", HFILL }},
+    { &hf_lix2_ePSRANUEContext,
+      { "ePSRANUEContext", "lix2.ePSRANUEContext_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
     { &hf_lix2_attachType,
       { "attachType", "lix2.attachType",
         FT_UINT32, BASE_DEC, VALS(lix2_EPSAttachType_vals), 0,
@@ -22331,6 +24226,26 @@ void proto_register_lix2(void) {
       { "oldGUTI", "lix2.oldGUTI_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "GUTI", HFILL }},
+    { &hf_lix2_s1Information,
+      { "s1Information", "lix2.s1Information_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lix2_nASTransportInitialInformation_01,
+      { "nASTransportInitialInformation", "lix2.nASTransportInitialInformation_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "EPSNASTransportInitialInformation", HFILL }},
+    { &hf_lix2_ePSUENetworkCapability,
+      { "ePSUENetworkCapability", "lix2.ePSUENetworkCapability",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lix2_initailRANUEContextSetup,
+      { "initailRANUEContextSetup", "lix2.initailRANUEContextSetup_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "EPSRANUEContext", HFILL }},
+    { &hf_lix2_ePSNetworkPolicy,
+      { "ePSNetworkPolicy", "lix2.ePSNetworkPolicy",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
     { &hf_lix2_detachDirection,
       { "detachDirection", "lix2.detachDirection",
         FT_UINT32, BASE_DEC, VALS(lix2_MMEDirection_vals), 0,
@@ -22343,6 +24258,34 @@ void proto_register_lix2(void) {
       { "cause", "lix2.cause",
         FT_UINT32, BASE_DEC, NULL, 0,
         "EMMCause", HFILL }},
+    { &hf_lix2_traceActivationInfo,
+      { "traceActivationInfo", "lix2.traceActivationInfo_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "TraceActivation", HFILL }},
+    { &hf_lix2_eUTRANCGI,
+      { "eUTRANCGI", "lix2.eUTRANCGI_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ECGI", HFILL }},
+    { &hf_lix2_mMETraceData,
+      { "mMETraceData", "lix2.mMETraceData_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "XMLType", HFILL }},
+    { &hf_lix2_mTMSI,
+      { "mTMSI", "lix2.mTMSI",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "TMSI", HFILL }},
+    { &hf_lix2_cSFBResponse,
+      { "cSFBResponse", "lix2.cSFBResponse",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "OCTET_STRING_SIZE_1", HFILL }},
+    { &hf_lix2_uEEPSBearerContextStatus,
+      { "uEEPSBearerContextStatus", "lix2.uEEPSBearerContextStatus",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "OCTET_STRING_SIZE_2", HFILL }},
+    { &hf_lix2_controlPlaneServiceType,
+      { "controlPlaneServiceType", "lix2.controlPlaneServiceType",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "OCTET_STRING_SIZE_1", HFILL }},
     { &hf_lix2_failedProcedureType_02,
       { "failedProcedureType", "lix2.failedProcedureType",
         FT_UINT32, BASE_DEC, VALS(lix2_MMEFailedProcedureType_vals), 0,
@@ -22359,12 +24302,156 @@ void proto_register_lix2(void) {
       { "mMELCSCorrelationId", "lix2.mMELCSCorrelationId",
         FT_BYTES, BASE_NONE, NULL, 0,
         "OCTET_STRING_SIZE_4", HFILL }},
+    { &hf_lix2_hENBTransportLayerAddress,
+      { "hENBTransportLayerAddress", "lix2.hENBTransportLayerAddress_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "IPAddr", HFILL }},
+    { &hf_lix2_uDPPortNumber,
+      { "uDPPortNumber", "lix2.uDPPortNumber",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "PortNumber", HFILL }},
+    { &hf_lix2_eNGNBID,
+      { "eNGNBID", "lix2.eNGNBID",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "GNbID", HFILL }},
+    { &hf_lix2_supportedTAList_01,
+      { "supportedTAList", "lix2.supportedTAList",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "TACList", HFILL }},
+    { &hf_lix2_broadcastPLMN,
+      { "broadcastPLMN", "lix2.broadcastPLMN",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "PLMNList", HFILL }},
+    { &hf_lix2_ConnectedENGNBList_item,
+      { "ConnectedENGNB", "lix2.ConnectedENGNB_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lix2_cSGID,
+      { "cSGID", "lix2.cSGID",
+        FT_INT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lix2_cSGMembershipStatus,
+      { "cSGMembershipStatus", "lix2.cSGMembershipStatus",
+        FT_UINT32, BASE_DEC, VALS(lix2_CSGMembershipIndication_vals), 0,
+        "CSGMembershipIndication", HFILL }},
+    { &hf_lix2_rANUES1APID,
+      { "rANUES1APID", "lix2.rANUES1APID",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lix2_eRABSetupRequest,
+      { "eRABSetupRequest", "lix2.eRABSetupRequest",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "ERABContextList", HFILL }},
+    { &hf_lix2_handoverRestrictionList,
+      { "handoverRestrictionList", "lix2.handoverRestrictionList_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "EPSHandoverRestrictionList", HFILL }},
+    { &hf_lix2_uERadioCapability_01,
+      { "uERadioCapability", "lix2.uERadioCapability",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "EPSUERadioCapability", HFILL }},
+    { &hf_lix2_cSFallbackIndicator,
+      { "cSFallbackIndicator", "lix2.cSFallbackIndicator",
+        FT_UINT32, BASE_DEC, VALS(lix2_EPSCSFallbackIndicator_vals), 0,
+        "EPSCSFallbackIndicator", HFILL }},
+    { &hf_lix2_proSeAuthorized,
+      { "proSeAuthorized", "lix2.proSeAuthorized_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "EPSProSeAuthorization", HFILL }},
+    { &hf_lix2_lTEV2XServicesAuthorized,
+      { "lTEV2XServicesAuthorized", "lix2.lTEV2XServicesAuthorized_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "LTEV2XServiceAuthorization", HFILL }},
+    { &hf_lix2_aerialUESubscription,
+      { "aerialUESubscription", "lix2.aerialUESubscription",
+        FT_UINT32, BASE_DEC, VALS(lix2_AerialUESubscriptionIndicator_vals), 0,
+        "AerialUESubscriptionIndicator", HFILL }},
+    { &hf_lix2_subscriptionBasedUEDifferentiationIndication,
+      { "subscriptionBasedUEDifferentiationIndication", "lix2.subscriptionBasedUEDifferentiationIndication_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "EPSSubscriptionBasedUEDifferentiationIndication", HFILL }},
+    { &hf_lix2_relayNodeIndicator,
+      { "relayNodeIndicator", "lix2.relayNodeIndicator",
+        FT_BOOLEAN, BASE_NONE, NULL, 0,
+        "BOOLEAN", HFILL }},
+    { &hf_lix2_bBFTunnelInformation,
+      { "bBFTunnelInformation", "lix2.bBFTunnelInformation_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lix2_lTENTNTAIInformation,
+      { "lTENTNTAIInformation", "lix2.lTENTNTAIInformation_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lix2_eRABID,
+      { "eRABID", "lix2.eRABID",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "EPSBearerID", HFILL }},
+    { &hf_lix2_eRABQoSParameters,
+      { "eRABQoSParameters", "lix2.eRABQoSParameters_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lix2_transportLayerAddress,
+      { "transportLayerAddress", "lix2.transportLayerAddress_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "IPAddr", HFILL }},
+    { &hf_lix2_uLGTPTEID,
+      { "uLGTPTEID", "lix2.uLGTPTEID_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "FTEID", HFILL }},
+    { &hf_lix2_dLGTPTEID,
+      { "dLGTPTEID", "lix2.dLGTPTEID_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "FTEID", HFILL }},
+    { &hf_lix2_ERABContextList_item,
+      { "ERABContext", "lix2.ERABContext_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lix2_cause_09,
+      { "cause", "lix2.cause_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "EPSRANCause", HFILL }},
+    { &hf_lix2_ERABReleaseList_item,
+      { "ERABError", "lix2.ERABError_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lix2_pLMN,
+      { "pLMN", "lix2.pLMN_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "PLMNID", HFILL }},
+    { &hf_lix2_tACListInLTENTN,
+      { "tACListInLTENTN", "lix2.tACListInLTENTN",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "TACList", HFILL }},
+    { &hf_lix2_uETAC,
+      { "uETAC", "lix2.uETAC",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "TAC", HFILL }},
     { &hf_lix2_eMMCause,
       { "eMMCause", "lix2.eMMCause",
         FT_UINT32, BASE_DEC, NULL, 0,
         NULL, HFILL }},
     { &hf_lix2_eSMCause,
       { "eSMCause", "lix2.eSMCause",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lix2_servedPLMNs,
+      { "servedPLMNs", "lix2.servedPLMNs",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "PLMNSupportList", HFILL }},
+    { &hf_lix2_MMEServedGUMMEIList_item,
+      { "MMEServedGUMMEI", "lix2.MMEServedGUMMEI_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lix2_cSGIDList,
+      { "cSGIDList", "lix2.cSGIDList",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lix2_connectedENGNBList,
+      { "connectedENGNBList", "lix2.connectedENGNBList",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lix2_mMEServedGUMMEIList,
+      { "mMEServedGUMMEIList", "lix2.mMEServedGUMMEIList",
         FT_UINT32, BASE_DEC, NULL, 0,
         NULL, HFILL }},
     { &hf_lix2_notificationType,
@@ -22575,10 +24662,6 @@ void proto_register_lix2(void) {
       { "mMECode", "lix2.mMECode",
         FT_BYTES, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-    { &hf_lix2_mTMSI,
-      { "mTMSI", "lix2.mTMSI",
-        FT_BYTES, BASE_NONE, NULL, 0,
-        "TMSI", HFILL }},
     { &hf_lix2_radioNetwork,
       { "radioNetwork", "lix2.radioNetwork",
         FT_UINT32, BASE_DEC, VALS(lix2_CauseRadioNetwork_vals), 0,
@@ -22755,6 +24838,14 @@ void proto_register_lix2(void) {
       { "routingIndicatorLength", "lix2.routingIndicatorLength",
         FT_UINT32, BASE_DEC, NULL, 0,
         "INTEGER_1_4", HFILL }},
+    { &hf_lix2_sUPIType,
+      { "sUPIType", "lix2.sUPIType",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lix2_homeNetworkIdentifier,
+      { "homeNetworkIdentifier", "lix2.homeNetworkIdentifier",
+        FT_STRING, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
     { &hf_lix2_SupportedTAList_item,
       { "TAItem", "lix2.TAItem_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -22935,6 +25026,14 @@ void proto_register_lix2(void) {
       { "ignoreNCGI", "lix2.ignoreNCGI",
         FT_BOOLEAN, BASE_NONE, NULL, 0,
         "BOOLEAN", HFILL }},
+    { &hf_lix2_nRNTNTAIInfo,
+      { "nRNTNTAIInfo", "lix2.nRNTNTAIInfo_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lix2_iABMTUserLocation,
+      { "iABMTUserLocation", "lix2.iABMTUserLocation_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
     { &hf_lix2_n3IWFID,
       { "n3IWFID", "lix2.n3IWFID",
         FT_BYTES, BASE_NONE, NULL, 0,
@@ -23085,6 +25184,10 @@ void proto_register_lix2(void) {
         NULL, HFILL }},
     { &hf_lix2_eUTRACellID,
       { "eUTRACellID", "lix2.eUTRACellID",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lix2_TACList_item,
+      { "TAC", "lix2.TAC",
         FT_BYTES, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_lix2_TAIList_item,
@@ -23291,10 +25394,6 @@ void proto_register_lix2(void) {
       { "userCSGInformation", "lix2.userCSGInformation_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-    { &hf_lix2_cSGID,
-      { "cSGID", "lix2.cSGID",
-        FT_INT32, BASE_DEC, NULL, 0,
-        NULL, HFILL }},
     { &hf_lix2_cSGAccessMode,
       { "cSGAccessMode", "lix2.cSGAccessMode",
         FT_UINT32, BASE_DEC, VALS(lix2_CSGAccessMode_vals), 0,
@@ -23302,6 +25401,10 @@ void proto_register_lix2(void) {
     { &hf_lix2_cSGMembershipIndication,
       { "cSGMembershipIndication", "lix2.cSGMembershipIndication",
         FT_UINT32, BASE_DEC, VALS(lix2_CSGMembershipIndication_vals), 0,
+        NULL, HFILL }},
+    { &hf_lix2_CSGIDList_item,
+      { "CSGID", "lix2.CSGID",
+        FT_INT32, BASE_DEC, NULL, 0,
         NULL, HFILL }},
     { &hf_lix2_cellPortionID,
       { "cellPortionID", "lix2.cellPortionID",
@@ -23467,7 +25570,7 @@ void proto_register_lix2(void) {
       { "horWithVertVelocityAndUncertainty", "lix2.horWithVertVelocityAndUncertainty_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "HorizontalWithVerticalVelocityAndUncertainty", HFILL }},
-    { &hf_lix2_country,
+    { &hf_lix2_country_01,
       { "country", "lix2.country",
         FT_STRING, BASE_NONE, NULL, 0,
         "UTF8String", HFILL }},
@@ -23611,15 +25714,15 @@ void proto_register_lix2(void) {
       { "gNSS", "lix2.gNSS",
         FT_UINT32, BASE_DEC, VALS(lix2_GNSSID_vals), 0,
         "GNSSID", HFILL }},
-    { &hf_lix2_uncertainty,
-      { "uncertainty", "lix2.uncertainty",
+    { &hf_lix2_deprecatedUncertainty,
+      { "deprecatedUncertainty", "lix2.deprecatedUncertainty",
         FT_UINT32, BASE_DEC, NULL, 0,
-        NULL, HFILL }},
+        "Uncertainty", HFILL }},
     { &hf_lix2_uncertaintySBI,
       { "uncertaintySBI", "lix2.uncertaintySBI",
         FT_STRING, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-    { &hf_lix2_uncertainty_01,
+    { &hf_lix2_uncertainty,
       { "uncertainty", "lix2.uncertainty_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "UncertaintyEllipse", HFILL }},
@@ -23643,8 +25746,8 @@ void proto_register_lix2(void) {
       { "uncertaintyEllipse", "lix2.uncertaintyEllipse_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-    { &hf_lix2_uncertaintyAltitude,
-      { "uncertaintyAltitude", "lix2.uncertaintyAltitude",
+    { &hf_lix2_deprecatedUncertaintyAltitude,
+      { "deprecatedUncertaintyAltitude", "lix2.deprecatedUncertaintyAltitude",
         FT_UINT32, BASE_DEC, NULL, 0,
         "Uncertainty", HFILL }},
     { &hf_lix2_uncertaintyAltitudeSBI,
@@ -23655,8 +25758,8 @@ void proto_register_lix2(void) {
       { "innerRadius", "lix2.innerRadius",
         FT_UINT32, BASE_DEC, NULL, 0,
         NULL, HFILL }},
-    { &hf_lix2_uncertaintyRadius,
-      { "uncertaintyRadius", "lix2.uncertaintyRadius",
+    { &hf_lix2_deprecatedUncertaintyRadius,
+      { "deprecatedUncertaintyRadius", "lix2.deprecatedUncertaintyRadius",
         FT_UINT32, BASE_DEC, NULL, 0,
         "Uncertainty", HFILL }},
     { &hf_lix2_offsetAngle,
@@ -23683,12 +25786,12 @@ void proto_register_lix2(void) {
       { "mapDatumInformation", "lix2.mapDatumInformation",
         FT_STRING, BASE_NONE, NULL, 0,
         "OGCURN", HFILL }},
-    { &hf_lix2_semiMajor,
-      { "semiMajor", "lix2.semiMajor",
+    { &hf_lix2_deprecatedSemiMajor,
+      { "deprecatedSemiMajor", "lix2.deprecatedSemiMajor",
         FT_UINT32, BASE_DEC, NULL, 0,
         "Uncertainty", HFILL }},
-    { &hf_lix2_semiMinor,
-      { "semiMinor", "lix2.semiMinor",
+    { &hf_lix2_deprecatedSemiMinor,
+      { "deprecatedSemiMinor", "lix2.deprecatedSemiMinor",
         FT_UINT32, BASE_DEC, NULL, 0,
         "Uncertainty", HFILL }},
     { &hf_lix2_orientationMajor,
@@ -23719,7 +25822,7 @@ void proto_register_lix2(void) {
       { "vDirection", "lix2.vDirection",
         FT_UINT32, BASE_DEC, VALS(lix2_VerticalDirection_vals), 0,
         "VerticalDirection", HFILL }},
-    { &hf_lix2_uncertainty_02,
+    { &hf_lix2_uncertainty_01,
       { "uncertainty", "lix2.uncertainty",
         FT_STRING, BASE_NONE, NULL, 0,
         "SpeedUncertainty", HFILL }},
@@ -23799,6 +25902,22 @@ void proto_register_lix2(void) {
       { "cellularNetworkInfo", "lix2.cellularNetworkInfo",
         FT_STRING, BASE_NONE, NULL, 0,
         "UTF8String", HFILL }},
+    { &hf_lix2_tACListNRNTN,
+      { "tACListNRNTN", "lix2.tACListNRNTN",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "SEQUENCE_SIZE_1_MAX_OF_TAC", HFILL }},
+    { &hf_lix2_tACListNRNTN_item,
+      { "TAC", "lix2.TAC",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lix2_uELocationDerivedNTNTAC,
+      { "uELocationDerivedNTNTAC", "lix2.uELocationDerivedNTNTAC",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "TAC", HFILL }},
+    { &hf_lix2_nRCGI,
+      { "nRCGI", "lix2.nRCGI_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "NCGI", HFILL }},
     { &hf_lix2_fullPayload,
       { "fullPayload", "lix2.fullPayload",
         FT_UINT32, BASE_DEC, VALS(lix2_EncapsulatedRCSPayload_vals), 0,
@@ -23959,6 +26078,26 @@ void proto_register_lix2(void) {
       { "bodyPart", "lix2.bodyPart",
         FT_UINT32, BASE_DEC, VALS(lix2_MIMEPartIdentifier_vals), 0,
         "MIMEPartIdentifier", HFILL }},
+    { &hf_lix2_moduleIdentifier,
+      { "moduleIdentifier", "lix2.moduleIdentifier",
+        FT_OID, BASE_NONE, NULL, 0,
+        "OBJECT_IDENTIFIER", HFILL }},
+    { &hf_lix2_aSNReference,
+      { "aSNReference", "lix2.aSNReference",
+        FT_STRING, BASE_NONE, NULL, 0,
+        "ExternalASNReference", HFILL }},
+    { &hf_lix2_encodedASNValue,
+      { "encodedASNValue", "lix2.encodedASNValue",
+        FT_UINT32, BASE_DEC, VALS(lix2_ExternalASNValue_vals), 0,
+        "ExternalASNValue", HFILL }},
+    { &hf_lix2_bER,
+      { "bER", "lix2.bER",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "OCTET_STRING", HFILL }},
+    { &hf_lix2_alignedPER,
+      { "alignedPER", "lix2.alignedPER",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "OCTET_STRING", HFILL }},
   };
 
   /* List of subtrees */
@@ -23969,6 +26108,7 @@ void proto_register_lix2(void) {
     &ett_lix2_SEQUENCE_OF_IRITargetIdentifier,
     &ett_lix2_IRIEvent,
     &ett_lix2_IRITargetIdentifier,
+    &ett_lix2_MediatedFromIndicator,
     &ett_lix2_CCPayload,
     &ett_lix2_CCPDU,
     &ett_lix2_LINotificationPayload,
@@ -24056,6 +26196,7 @@ void proto_register_lix2(void) {
     &ett_lix2_LTEV2XServiceAuthorization,
     &ett_lix2_TargetNSSAIInfo,
     &ett_lix2_FiveGProSeAuthorizationIndication,
+    &ett_lix2_UEAreaIndication,
     &ett_lix2_SMFPDUSessionEstablishment,
     &ett_lix2_SEQUENCE_OF_UEEndpointAddress,
     &ett_lix2_SMFPDUSessionModification,
@@ -24142,6 +26283,8 @@ void proto_register_lix2(void) {
     &ett_lix2_UDMUEInformationResponse,
     &ett_lix2_UDMUEAuthenticationResponse,
     &ett_lix2_UDMStartOfInterceptionWithRegisteredTarget,
+    &ett_lix2_UDMProSeTargetIdentifierDeconcealment,
+    &ett_lix2_UDMProSeTargetAuthentication,
     &ett_lix2_ServerAddressingInfoList,
     &ett_lix2_ServerAddressingInfo,
     &ett_lix2_FQDNList,
@@ -24264,9 +26407,23 @@ void proto_register_lix2(void) {
     &ett_lix2_RCSSessionModification,
     &ett_lix2_RCSSessionRelease,
     &ett_lix2_RCSCapabilityDiscovery,
+    &ett_lix2_StartOfInterceptForRegisteredRCSUser,
+    &ett_lix2_SEQUENCE_SIZE_1_MAX_OF_RCSRegistrationInformation,
+    &ett_lix2_SEQUENCE_SIZE_1_MAX_OF_AdditionalInstanceLocation,
+    &ett_lix2_StartOfInterceptWithEstablisedRCSSession,
+    &ett_lix2_SEQUENCE_SIZE_1_MAX_OF_RCSDestinations,
+    &ett_lix2_SEQUENCE_SIZE_1_MAX_OF_RCSSIPSessionExchange,
+    &ett_lix2_SEQUENCE_SIZE_1_MAX_OF_RCSSessionContext,
+    &ett_lix2_RCSCCPDU,
+    &ett_lix2_AdditionalInstanceLocation,
+    &ett_lix2_MSRPPath,
     &ett_lix2_RCSDestinations,
     &ett_lix2_RCSDestination,
     &ett_lix2_RCSIdentity,
+    &ett_lix2_RCSRegistrationInformation,
+    &ett_lix2_RCSSessionContext,
+    &ett_lix2_RCSSIPRegistrationExchange,
+    &ett_lix2_RCSSIPSessionExchange,
     &ett_lix2_RCSSIPSessionMessage,
     &ett_lix2_EESEECRegistration,
     &ett_lix2_EESEASDiscovery,
@@ -24315,18 +26472,44 @@ void proto_register_lix2(void) {
     &ett_lix2_FiveGMSAFNetworkAssistance,
     &ett_lix2_FiveGMSAFUnsuccessfulProcedure,
     &ett_lix2_FiveGMSAFStartOfInterceptionWithAlreadyConfiguredUE,
+    &ett_lix2_NWDAFEventsSubscription,
+    &ett_lix2_SEQUENCE_SIZE_1_MAX_OF_NWDAFEvent,
+    &ett_lix2_NWDAFEventsNotification,
+    &ett_lix2_NWDAFAnalyticsInfoQuery,
+    &ett_lix2_NWDAFRoamingAnalyticsSubscription,
+    &ett_lix2_NWDAFRoamingAnalyticsNotification,
     &ett_lix2_LALSReport,
     &ett_lix2_PDHeaderReport,
     &ett_lix2_PDSummaryReport,
     &ett_lix2_AMFIdentifierAssociation,
     &ett_lix2_MMEIdentifierAssociation,
+    &ett_lix2_EPSRANHandoverCommand,
+    &ett_lix2_SEQUENCE_SIZE_1_MAX_OF_RANTargetToSourceContainer,
+    &ett_lix2_EPSRANHandoverRequest,
     &ett_lix2_MMEAttach,
     &ett_lix2_MMEDetach,
     &ett_lix2_MMELocationUpdate,
+    &ett_lix2_MMERANTraceReport,
     &ett_lix2_MMEStartOfInterceptionWithEPSAttachedUE,
+    &ett_lix2_MMEUEServiceAccept,
     &ett_lix2_MMEUnsuccessfulProcedure,
     &ett_lix2_MMEPositioningInfoTransfer,
+    &ett_lix2_BBFTunnelInformation,
+    &ett_lix2_ConnectedENGNB,
+    &ett_lix2_ConnectedENGNBList,
+    &ett_lix2_EPSCSGInfo,
+    &ett_lix2_EPSRANUEContext,
+    &ett_lix2_EPSNASTransportInitialInformation,
+    &ett_lix2_ERABQoSParameters,
+    &ett_lix2_ERABContext,
+    &ett_lix2_ERABContextList,
+    &ett_lix2_ERABError,
+    &ett_lix2_ERABReleaseList,
+    &ett_lix2_LTENTNTAIInformation,
     &ett_lix2_MMEFailureCause,
+    &ett_lix2_MMEServedGUMMEI,
+    &ett_lix2_MMEServedGUMMEIList,
+    &ett_lix2_S1Information,
     &ett_lix2_LINotification,
     &ett_lix2_SEQUENCE_OF_LIAppliedDeliveryInformation,
     &ett_lix2_LIAppliedDeliveryInformation,
@@ -24420,6 +26603,7 @@ void proto_register_lix2(void) {
     &ett_lix2_SAI,
     &ett_lix2_RAI,
     &ett_lix2_ECGI,
+    &ett_lix2_TACList,
     &ett_lix2_TAIList,
     &ett_lix2_NCGI,
     &ett_lix2_RANCGI,
@@ -24441,6 +26625,7 @@ void proto_register_lix2(void) {
     &ett_lix2_EPSLocationInformation,
     &ett_lix2_MMELocationInformation,
     &ett_lix2_UserCSGInformation,
+    &ett_lix2_CSGIDList,
     &ett_lix2_SGSNLocationInformation,
     &ett_lix2_ESMLCCellInfo,
     &ett_lix2_LocationPresenceReport,
@@ -24486,6 +26671,9 @@ void proto_register_lix2(void) {
     &ett_lix2_SIPCNIHeaderInfo,
     &ett_lix2_SEQUENCE_OF_SIPCellularAccessInfo,
     &ett_lix2_SIPCellularNetworkInformation,
+    &ett_lix2_NRNTNTAIInfo,
+    &ett_lix2_SEQUENCE_SIZE_1_MAX_OF_TAC,
+    &ett_lix2_IABMTUserLocation,
     &ett_lix2_RCSPayload,
     &ett_lix2_EncapsulatedRCSPayload,
     &ett_lix2_ModifiedRCSPayload,
@@ -24504,6 +26692,8 @@ void proto_register_lix2(void) {
     &ett_lix2_MIMEEntity,
     &ett_lix2_MIMEPartIdentifier,
     &ett_lix2_MIMEBody,
+    &ett_lix2_ExternalASNType,
+    &ett_lix2_ExternalASNValue,
   };
 
   /* Register protocol */
