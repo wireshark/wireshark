@@ -40,6 +40,8 @@
  *   - Added support for L1Sync
  * - Patrik Thunström 27.01.2024 <patrik.thunstroem@technica-engineering.de>
  *   - Improvements/corrections for cumulativeScaledRateOffset
+ * - Prashant Tripathi 31-07-2024 <prashant_tripathi@selinc.com>
+ *   - Corrections to timeOfNextJump field in ATOI TLV
 
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -6654,7 +6656,7 @@ proto_register_ptp(void)
         },
         { &hf_ptp_v2_atoi_tlv_timeofnextjump,
           { "timeOfNextJump", "ptp.v2.an.atoi.timeOfNextJump",
-            FT_BYTES, BASE_NONE, NULL, 0x00,
+            FT_INT48, BASE_DEC, NULL, 0x00,
             NULL, HFILL }
         },
         { &hf_ptp_v2_atoi_tlv_displayname,
