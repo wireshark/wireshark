@@ -119,7 +119,7 @@ static int hf_smb2_time;
 static int hf_smb2_preauth_hash;
 static int hf_smb2_header_len;
 static int hf_smb2_msg_id;
-static int hf_smb2_pid;
+static int hf_smb2_header_reserved;
 static int hf_smb2_tid;
 static int hf_smb2_aid;
 static int hf_smb2_sesid;
@@ -462,6 +462,7 @@ static int hf_smb2_cap_multi_channel;
 static int hf_smb2_cap_persistent_handles;
 static int hf_smb2_cap_directory_leasing;
 static int hf_smb2_cap_encryption;
+static int hf_smb2_cap_notifications;
 static int hf_smb2_dialect;
 static int hf_smb2_max_trans_size;
 static int hf_smb2_max_read_size;
@@ -2252,6 +2253,11 @@ static const true_false_string tfs_cap_encryption = {
 	"This host does NOT support ENCRYPTION"
 };
 
+static const true_false_string tfs_cap_notifications = {
+	"This host supports receiving NOTIFICATIONS",
+	"This host does NOT support receiving NOTIFICATIONS"
+};
+
 static const true_false_string tfs_smb2_ioctl_network_interface_capability_rss = {
 	"This interface supports RSS",
 	"This interface does not support RSS"
@@ -3644,6 +3650,7 @@ dissect_smb2_buffercode(proto_tree *parent_tree, tvbuff_t *tvb, int offset, uint
 #define NEGPROT_CAP_PERSISTENT_HANDLES	0x00000010
 #define NEGPROT_CAP_DIRECTORY_LEASING	0x00000020
 #define NEGPROT_CAP_ENCRYPTION		0x00000040
+#define NEGPROT_CAP_NOTIFICATIONS		0x00000080
 static int
 dissect_smb2_capabilities(proto_tree *parent_tree, tvbuff_t *tvb, int offset)
 {
@@ -3655,6 +3662,7 @@ dissect_smb2_capabilities(proto_tree *parent_tree, tvbuff_t *tvb, int offset)
 		&hf_smb2_cap_persistent_handles,
 		&hf_smb2_cap_directory_leasing,
 		&hf_smb2_cap_encryption,
+		&hf_smb2_cap_notifications,
 		NULL
 	};
 
@@ -11406,8 +11414,8 @@ dissect_smb2_tid_sesid(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *tvb, 
 		proto_tree_add_item(tree, hf_smb2_aid, tvb, offset, 8, ENC_LITTLE_ENDIAN);
 		offset += 8;
 	} else {
-		/* Process ID */
-		proto_tree_add_item(tree, hf_smb2_pid, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+		/* Reserved */
+		proto_tree_add_item(tree, hf_smb2_header_reserved, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 		offset += 4;
 
 		/* Tree ID */
@@ -12093,8 +12101,8 @@ proto_register_smb2(void)
 			NULL, 0, NULL, HFILL }
 		},
 
-		{ &hf_smb2_pid,
-			{ "Process Id", "smb2.pid", FT_UINT32, BASE_HEX,
+		{ &hf_smb2_header_reserved,
+			{ "Reserved", "smb2.header_reserved", FT_UINT32, BASE_HEX,
 			NULL, 0, NULL, HFILL }
 		},
 
@@ -13715,6 +13723,11 @@ proto_register_smb2(void)
 		{ &hf_smb2_cap_encryption,
 			{ "ENCRYPTION", "smb2.capabilities.encryption", FT_BOOLEAN, 32,
 			TFS(&tfs_cap_encryption), NEGPROT_CAP_ENCRYPTION, "If the host supports ENCRYPTION", HFILL }
+		},
+
+		{ &hf_smb2_cap_notifications,
+			{ "NOTIFICATIONS", "smb2.capabilities.notifications", FT_BOOLEAN, 32,
+			TFS(&tfs_cap_notifications), NEGPROT_CAP_NOTIFICATIONS, "If the host supports receiving notifications from server", HFILL }
 		},
 
 		{ &hf_smb2_max_trans_size,
