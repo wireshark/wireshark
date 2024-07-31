@@ -1,3 +1,207 @@
+ccaa67c1ea Last batch of col_ API changes
+8420e64fde btle: Get rid of unecessary frame_number variable
+91a40d3355 btle: Extract out dissect_btle_adv()
+316e14e502 WSDG: Add some information about Lua loading order
+1331532387 BGP: fix check of length of labeled prefix
+ee3471894f LIX2: Update to 3GPP TS 33.128 V18.8.0
+62d985f191 asterix: Fix dissector for extended items
+d8eed38731 SMB2: Add SMB2 notifications capabilities flag
+897864da07 epan: Do not prime with hfids wanted by disabled postdissectors
+99096b76ed Improve some more col_ calls, and script improvements
+2e97567825 wslua: Change one stray static function return value to bool
+524613daed Improve more col_ API calls
+1dd922be36 Add option to run tshark with profile from global profiles
+dc4271d78b nettrace_3gpp_32_423: Eliminate unnecessary copies of RE matches.
+4c40367838 Qt: no Windows META key - only Q_OS_MAC at this time
+8f6b40c4fd Tools: Update a couple of doc directory references
+04ee1cf9dd Qt: disable follow if no frame selected
+edecbd535b MacOS: Update some package versions.
+09dbf1e9b6 Change some non-optimal col_ calls
+e80d3eb9bf Add tools/check_col_apis.py
+bbd3ce58db WSUG: add Reset Layout to main toolbar
+fe0a53b873 ntlmssp: Prevent leaks of cipher contexts
+254b74b974 Docs: update README files
+7cd25d2861 SDP: Update an enum
+ade004d6b0 cllog: Check the stripped time stamp validity
+b8040bad31 gitignore: Update the Doc section
+1f865ae6a2 [Automatic update for 2024-07-28]
+37e871a756 GTPv2: Don't include padding in the RAC in ULI
+ba07b59501 iee80211: Update status codes per 802.11-2020
+862a2f2fd0 tcp: Convert a function name to C99 style
+d976b3d848 Qt: add reset layout button to toolbar
+902df16bc3 dtls: Don't call gcry_cipher_encrypt on a null cipher context
+66dcd56f1e ntlmssp: Don't insert a key created on the stack into a hash table
+8b45d8a85b pgsql: Handle "direct SSL" negotiation
+c599d6962e monero: Stop dissection on an invalid type
+6e08eae526 Qt: Fix clearing displayFilterCombo on Qt < 5.15
+e25e93082a USB HID: Do not store complete usb conv info
+10e6789834 Media Type: Add a structured suffix table
+ad53eb6a78 ILP: Fix a field name
+4b1f094c18 Docs: Asciidoctor compat-mode transitioned to modern syntax
+2e71982fee nstime: use consistent names for FILETIME-epoch conversion routines.
+bde8fa5f67 bpv7: Initialize subj_ts
+487b336942 WiX: Install the release notes as "Release Notes.html"
+f4d9153a3a Use col_append_str for literal strings with no specifiers
+f439919447 smb: use COUNT_BYTES_SUBR() and COUNT_BYTES_TRANS_SUBR() macros.
+347e6c616f pidl: fix the check for Windows.
+1f00714415 pidl: handle compilers whose cpp doesn't strip // comments.(win) [skip ci]
+8e6c608b31 Clean up handling of times based on the NT FILETIME epoch.
+b48759e4a4 qnet6: Do not use col_set_str on the result of val_to_str
+5792487cf2 Fix various ASN.1 generation warnings and require UTF-8
+9e3e17136c For literal strings, prefer col_set_str() to col_add_fstr()
+d48edda709 USBLL: Reassemble High-Bandwidth interrupt endpoint data
+cfc9dc3a00 USB: Fix High-Bandwidth endpoint sanitization
+9ee0999cac DCERPC: Do not include glib.
+c8c73f6678 packaging: Fix the RPM build
+668881fec7 NSIS+WiX: Switch from "NEWS" to "Release Notes.html"
+abbd64a3a1 CIGI: Convert CIGI 4 to a dissector table
+4bc1d198b8 GTPv2: Add units of kbps to AMBR
+ed3a7c8e31 Release notes: We now ship with NPcap 1.79
+b07275791d composite_tvbs: speed up by using GQueue
+c51e992a23 packaging: Install release-notes.html in our RPM package
+42eb155e05 Docs: Update our targets
+57af0553f1 GitLab CI: Try to limit interruptibility to merge requests
+dd8f9c1087 pidl: handle compilers whose cpp doesn't strip // comments. [skip ci]
+dabf84e0d7 GitLab CI: Our guides are now in the doc directory
+54d279dd7e Docs: Move the User's and Developer's Guides to the doc directory
+ea842c8be0 Don't include glib when not needed.
+b9eec9503c BTLE: increase str_addr_len to accomidate new longer string name after #16417
+e8dc6be7df PFCP:Use wmem to allocate memmory
+3b75810424 WSUG: Add FTP-DATA to exported objects.
+dd7cb22c82 Convert remaining dcerpc dissectors to C99 types
+ea348265a1 ZBEE SEC: Enable empty payload security check
+ae17322376 PID_RELATED_ENTITY_GUID and PID_RELATED_ORIGINAL_WRITER_INFO
+86f47a4249 cigi: fix typo on hf name
+cb22bc045a ErlDP: Add missing tags
+f71745c6bd dcerpc: get rid of guint1632 and guint3264 types.
+7574b47b5f pidl: explain the "Syntax error near '/'" errors. [skip ci]
+8abd58d9a0 CIGI: Use a dissector table for packet id for version 3
+b55ee60a7a DHCPv6: decode DHCPv4-over-DHCPv6
+0fa2751812 ANCP: Extend with new data from IANA registery
+a7a0f772f7 Update our mailing list URLs
+0e4ff696b7 Art-Net: Add oem code values and extensions to todControl cmds
+375fdb472f Change some function names and variable types to use C99 types.
+0e17c06c35 AERON: Add Resolution frame type identification
+1e925dc843 ELF: Extend some value ranges
+bb65650dfe EPAN: various cleanups to addr_resolv
+4047e3a851 DOC: Document Enable IP geolocation checkbox in name resolv prefs
+e1e449c5bd RTCP: make notification a bool
+054ae0c79c Re-enable disabled pidl dissectors and regenerate for C99
+429b5dcd14 pidl: remove an unused variable. [skip ci]
+c7091b057c Convert a number of "guint" to "uint" in function names and alike.
+b72753c50a capture_info_dialog.cpp: fix warning (found by check tools)
+f0c1d9d58d NAS 5GS: upgrade dissector to v18.7.0
+8e8c831d44 Docs: typo in previous name
+7232a302ee pidl: more C99 types.
+e4acb0276e dcerpc: change pidl to use C99 types.
+319fb7bd56 pidl: fix some more build issues.
+1af47e5f64 Make it possible to generate the PIDL dissectors with CMake.
+70cd5a04ba epan: Deprecate the GLib-style tvb_get_gu?int functions
+f889eabb12 Qt: Use a shared model for DisplayFilterCombo
+0fd3d14601 SMB: Remove bogus malformed error
+caffeba5ec GDT: Remove unneccessary includes.
+bbee0f9340 Convert use of G_GINT64_MODIFIER to PRIu64/PRId64
+048e2de8fd Convert G_GUINT32_FORMAT to PRIu32
+c4247075cf convert-dissectors-h-to-C99, remove include glib
+5743153197 Convert gushort to C99 types
+5bd8b730d0 Convert zbee-direct to C99 types
+55b9e55a13 Convert remaining DCERPC dissectors to C99 Types
+5ed65d3195 ORAN FH CUS: trivial edits
+0274951625 epan: Update our remaining old-style tvb integer accessors
+f4af6bdc0a Replace gint with int in README.dissector
+125d712770 Zabbix: Add separate subtree identifier for Flags tree
+4829e3ff39 CBOR: Register CBOR Sequence dissector with description
+b70a243d64 CoAP: Remove duplicate value string entry
+a4ecb58643 Convert dcerpc templates co C99 types
+e40128d030 DCM: Update data structures, dictionary and message exchange
+b517de1634 mp2t: Fix an underflow
+96fa766c4b Add Protected S1G Action frame dissection
+d14c086703 Rename tvb_get_guintvar tvb_get_uintvar
+6a053794a0 Convert dtd files to C99 types
+3ed8b04363 Convert types used in comments to C99 types
+c4aac41433 Convert some temp variable names to C99 style
+f8610965c5 PFCP:Change tvb_get_guint.. to tvb_get_uint...
+c41c23a818 Fix some mask warnings (from check_typed_item_calls.py)
+e9a42a9fd6 Convert g(u)intptr -> (u)intptr_t
+3c33dccf7c Modernize some function names
+d6ff757f0f docs: Use pdf theme option that works for asciidoctorj
+6b0f20668c frame_tvbuff: Modernize a couple of function names
+058a3d56d4 epan: Deprecate some GLib-style functions
+3a6fda7882 asciidoctor: Prefer batch file commands on Windows
+0eed9bdf8b Remove the g prefix from the tvb search routines.
+1b2bf20dbc docs: Use new-style tvb integer accessors in the Developer's Guide
+00f7d51730 wslua: Use new-style tvb integer accessors
+2c4e056c08 Pass a set of PIDL flags, not "is open" and "is close" Booleans.
+1337bf40a2 convert-rf4ce-secur-to-C99-types
+205293aa52 Fix some spelling errors
+a9ebc96d48 [Automatic update for 2024-07-21]
+b29c855ba3 radiotap: retrieve field with appropriate function
+355afd1dee CIGI: Don't define identical TFS multiple times
+8b978c94de ZMTP: minor changes
+46df62bb0f convert-opensafety-to-C99
+7f1bf1a26c convert-tvb_get_guintx
+81066453e7 epan: Use new-style tvb integer accessors in our top-level code
+09c01b8521 UI: Use new-style tvb integer accessors
+dfc63ba2ff nmf: Use varint API, don't throw exceptions or undefined shift
+04968e140f nmf: Remove proto initialization
+2e7ca427b4 convert-x11-helpers-to-C99-types
+5951fed220 Convert pidl .cnf files to C99 types
+e6d5e8c815 convert file-dissectors to C99 types
+e9845bd3f9 6LoWPAN: Fix base of Page Number field
+bc5f7d729d Convert dissectors 1-9 to C99 types
+029dce389b Convert dissectors W to C99 types
+97f93df2e4 Convert dissectors YZ to C99 types
+af353f48f5 Convert dissectors X to C99 types
+ffdced10e8 Convert dissectors V to c99 types
+5d72821204 epan: convert dissectors S to C99 types
+75ea337b68 epan: convert dissectors P to C99 types
+f61c344fb9 docs: Support more symbols in asciidoctor-pdf
+7274fe8c97 epan: convert dissectors T to C99 types
+866bb943f2 tvbuff.h: include headers to define macros used herein.
+cb9eac4bc2 check_typed_item_calls.py: trying to get warning count down
+dbd3f3778e sysdig: add the latest kernel APIs
+38a1f99d7a NAS EPS: upgrade dissector to v18.7.0
+650b164ad0 wsdg: specify debian sym link
+bd12a6750f SOMEIP: Fix a broken test
+4cd3c7e870 Diameter 3GPP: Add Feature-List for SWx, S6b
+f0a1fb231d Update netlink generation tool and update netlink nl82011 dissector
+cbcb180095 Update ISOBUS parameters
+734df63153 IANA added another IPv6 special block
+1ac5195df2 DOC: complement SNMP user table description
+315aaf2e77 FBZERO and GQUIC: chacha20 -> chacha12
+da91cb25fa ORAN FH CUS: fix a check - dereference pointer before test
+4ce51e5667 windows-common: don't export legacy {NT,WERR,HRES}_errors
+7c0402e75b pidl:dcerpc-*: regenerate dissectors after {NT,WERR,HRES}_errors_ext pidl changes
+46d74a4fbd svcctl.cnf: make use of WERR_errors_ext
+003d4b0ac0 tools/pidl: make use of {NT,WERR,HRES}_errors_ext
+6e69523711 pidl:dcerpc-*: regenerate dissectors after BASE_DEC/HEX pidl changes
+c58a16350b tools/pidl: don't use hardcoded BASE_HEX nor BASE_DEC
+8eeb888ab2 dcerpc-{budb,butc}: regenerate after {NT,WERR}_errors_ext idl2wrs changes
+d0e762051f idl2wrs: make use of {NT,WERR}_errors_ext
+d789da7260 smb-direct: make use of &NT_errors_ext
+29dee5fc82 kerberos: make use of &NT_errors_ext
+ef30c03372 nmf: initial commit for [MC-NMF] .NET Message Framing Protocol
+ce1e3ad96e xml: add o:BinarySecurityToken => GSSAPI dissection
+3c042d997d xml: run ./tools/convert-glib-types.py epan/dissectors/packet-xml.*
+10b644a26f epan: convert dissectors U to C99 types
+18aa227772 epan: convert dissectors R to C99 types
+f7d0e4a633 epan: convert dissectors Q to C99 types
+75fec70124 epan: convert dissectors O to C99 types
+5ac53351ff ieee80211: Eliminate false positive maybe-initialized
+8f01b0aeea Remove break after return
+d15fc6e1ca GSM A GM: upgrade dissector to v18.6.0
+baea7be0ab wslua: Expose pinfo saved_can_desegment to Lua pktinfo
+7f96b474b8 GitLab CI: Enable automatic pipeline cancellation
+f85b22fd18 Qt: I/O Graph Throughput and zero values handling
+32c5280dfa Qt: update filenames in comments; remove HelpContents icon property
+38c3cf5c2f Switch our GLib 64-bit format specifiers to their C99 equivalents
+490bd19bb5 epan: convert dissectors N to C99 types
+81bdcbd378 epan: convert dissectors M to C99 types
+8156dd0d94 epan: convert dissectors L to C99 types
+a275a44abf Bluetooth: update UUID registery
+61c68a601f BACAPP: Update vendor registery
+40e3bc99a5 Version: 4.3.0 → 4.3.1
+1c3cf00f75 Build: 4.3.0
 27c7e2adc8 TCP: Performance improvement for managing the OOO list
 945f04c2a2 epan: convert dissectors K to C99 types
 ea170b811f epan: convert dissectors J to C99 types
