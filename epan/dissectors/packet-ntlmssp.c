@@ -374,8 +374,10 @@ static bool
 ntlmssp_sessions_destroy_cb(wmem_allocator_t *allocator _U_, wmem_cb_event_t event _U_, void *user_data _U_)
 {
   ntlmssp_info * conv_ntlmssp_info = (ntlmssp_info *) user_data;
-  gcry_cipher_close(conv_ntlmssp_info->rc4_handle_client);
-  gcry_cipher_close(conv_ntlmssp_info->rc4_handle_server);
+  if (conv_ntlmssp_info->rc4_state_initialized) {
+    gcry_cipher_close(conv_ntlmssp_info->rc4_handle_client);
+    gcry_cipher_close(conv_ntlmssp_info->rc4_handle_server);
+  }
   /* unregister this callback */
   return false;
 }
