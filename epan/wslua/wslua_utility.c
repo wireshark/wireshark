@@ -394,6 +394,44 @@ char* wslua_get_actual_filename(const char* fname) {
     return NULL;
 }
 
+WSLUA_FUNCTION wslua_dofile(lua_State* L) {
+    /*
+    Loads a Lua file and executes it as a Lua chunk, similar to the standard
+    https://www.lua.org/manual/5.4/manual.html#pdf-dofile[dofile]
+    but searches additional directories.
+    The search order is the current directory, followed by the user's
+    https://www.wireshark.org/docs/wsug_html_chunked/ChAppFilesConfigurationSection.html[personal configuration]
+    directory, and finally the
+    https://www.wireshark.org/docs/wsug_html_chunked/ChAppFilesConfigurationSection.html[global configuration]
+    directory.
+
+    [TIP]
+    .The configuration directories are not the plugin directories.
+    ====
+    The configuration directories searched are not the global and personal plugin
+    directories. All Lua files in the plugin directories are loaded at startup;
+    `dofile` is for loading files from additional locations.
+    The file path can be absolute or relative to one of the search directories.
+    ====
+
+    */
+#define WSLUA_ARG_dofile_FILENAME 1 /* Name of the file to be run. If the file does not exist in the current directory, the user and system directories are searched. */
+    const char *given_fname = luaL_checkstring(L, WSLUA_ARG_dofile_FILENAME);
+    char* filename = wslua_get_actual_filename(given_fname);
+    int n;
+
+    if (!filename) {
+        WSLUA_ARG_ERROR(dofile,FILENAME,"file does not exist");
+        return 0;
+    }
+
+    n = lua_gettop(L);
+    if (luaL_loadfile(L, filename) != 0) lua_error(L);
+    g_free(filename);
+    lua_call(L, 0, LUA_MULTRET);
+    return lua_gettop(L) - n;
+}
+
 WSLUA_FUNCTION wslua_loadfile(lua_State* L) {
     /*
     Loads a Lua file and compiles it into a Lua chunk, similar to the standard
@@ -440,35 +478,6 @@ WSLUA_FUNCTION wslua_loadfile(lua_State* L) {
         return 2;
     }
 }
-
-WSLUA_FUNCTION wslua_dofile(lua_State* L) {
-    /*
-    Loads a Lua file and executes it as a Lua chunk, similar to the standard
-    https://www.lua.org/manual/5.4/manual.html#pdf-dofile[dofile]
-    but searches additional directories.
-    The search order is the current directory, followed by the user's
-    https://www.wireshark.org/docs/wsug_html_chunked/ChAppFilesConfigurationSection.html[personal configuration]
-    directory, and finally the
-    https://www.wireshark.org/docs/wsug_html_chunked/ChAppFilesConfigurationSection.html[global configuration]
-    directory.
-    */
-#define WSLUA_ARG_dofile_FILENAME 1 /* Name of the file to be run. If the file does not exist in the current directory, the user and system directories are searched. */
-    const char *given_fname = luaL_checkstring(L, WSLUA_ARG_dofile_FILENAME);
-    char* filename = wslua_get_actual_filename(given_fname);
-    int n;
-
-    if (!filename) {
-        WSLUA_ARG_ERROR(dofile,FILENAME,"file does not exist");
-        return 0;
-    }
-
-    n = lua_gettop(L);
-    if (luaL_loadfile(L, filename) != 0) lua_error(L);
-    g_free(filename);
-    lua_call(L, 0, LUA_MULTRET);
-    return lua_gettop(L) - n;
-}
-
 
 typedef struct _statcmd_t {
     lua_State* L;
