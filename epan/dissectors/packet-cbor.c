@@ -693,12 +693,6 @@ dissect_cbor_tag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *cbor_tree, int *
 	uint64_t         tag = 0;
 	proto_item      *item;
 	proto_tree      *subtree;
-	unsigned recursion_depth = p_get_proto_depth(pinfo, proto_cbor);
-
-	/* dissect_cbor_main_type and dissect_cbor_tag can exhaust the stack
-	 * calling each other recursively on malformed packets otherwise */
-	DISSECTOR_ASSERT(recursion_depth <= MAX_RECURSION_DEPTH);
-	p_set_proto_depth(pinfo, proto_cbor, recursion_depth + 1);
 
 	item = proto_tree_add_item(cbor_tree, hf_cbor_item_tag, tvb, *offset, -1, ENC_NA);
 	subtree = proto_item_add_subtree(item, ett_cbor_tag);
@@ -734,20 +728,17 @@ dissect_cbor_tag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *cbor_tree, int *
 		if (type_minor > 0x17) {
 			expert_add_info_format(pinfo, subtree, &ei_cbor_invalid_minor_type,
 					"invalid minor type %i in tag", type_minor);
-			p_set_proto_depth(pinfo, proto_cbor, recursion_depth);
 			return false;
 		}
 		break;
 	}
 
 	if (!dissect_cbor_main_type(tvb, pinfo, subtree, offset)) {
-		p_set_proto_depth(pinfo, proto_cbor, recursion_depth);
 		return false;
 	}
 
 	proto_item_append_text(item, ": %s (%" PRIu64 ")", val64_to_str(tag, tag64_vals, "Unknown"), tag);
 	proto_item_set_end(item, tvb, *offset);
-	p_set_proto_depth(pinfo, proto_cbor, recursion_depth);
 
 	return true;
 }
@@ -860,27 +851,45 @@ dissect_cbor_main_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *cbor_tree,
 	type_major = (type & 0xe0) >> 5;
 	type_minor = (type & 0x1f);
 
+	unsigned recursion_depth = p_get_proto_depth(pinfo, proto_cbor);
+
+	/* dissect_cbor_main_type and dissect_cbor_tag/dissect_cbor_map can exhaust
+	 * the stack calling each other recursively on malformed packets otherwise */
+	DISSECTOR_ASSERT(recursion_depth <= MAX_RECURSION_DEPTH);
+	p_set_proto_depth(pinfo, proto_cbor, recursion_depth + 1);
+
+	bool valid = false;
 	switch (type_major) {
 	case CBOR_TYPE_USIGNED_INT:
-		return dissect_cbor_unsigned_integer(tvb, pinfo, cbor_tree, offset, type_minor);
+		valid = dissect_cbor_unsigned_integer(tvb, pinfo, cbor_tree, offset, type_minor);
+		break;
 	case CBOR_TYPE_NEGATIVE_INT:
-		return dissect_cbor_negative_integer(tvb, pinfo, cbor_tree, offset, type_minor);
+		valid = dissect_cbor_negative_integer(tvb, pinfo, cbor_tree, offset, type_minor);
+		break;
 	case CBOR_TYPE_BYTE_STRING:
-		return dissect_cbor_byte_string(tvb, pinfo, cbor_tree, offset, type_minor);
+		valid = dissect_cbor_byte_string(tvb, pinfo, cbor_tree, offset, type_minor);
+		break;
 	case CBOR_TYPE_TEXT_STRING:
-		return dissect_cbor_text_string(tvb, pinfo, cbor_tree, offset, type_minor);
+		valid = dissect_cbor_text_string(tvb, pinfo, cbor_tree, offset, type_minor);
+		break;
 	case CBOR_TYPE_ARRAY:
-		return dissect_cbor_array(tvb, pinfo, cbor_tree, offset, type_minor);
+		valid = dissect_cbor_array(tvb, pinfo, cbor_tree, offset, type_minor);
+		break;
 	case CBOR_TYPE_MAP:
-		return dissect_cbor_map(tvb, pinfo, cbor_tree, offset, type_minor);
+		valid = dissect_cbor_map(tvb, pinfo, cbor_tree, offset, type_minor);
+		break;
 	case CBOR_TYPE_TAGGED:
-		return dissect_cbor_tag(tvb, pinfo, cbor_tree, offset, type_minor);
+		valid = dissect_cbor_tag(tvb, pinfo, cbor_tree, offset, type_minor);
+		break;
 	case CBOR_TYPE_FLOAT:
-		return dissect_cbor_float_simple_data(tvb, pinfo, cbor_tree, offset, type_minor);
+		valid = dissect_cbor_float_simple_data(tvb, pinfo, cbor_tree, offset, type_minor);
+		break;
+	default:
+		DISSECTOR_ASSERT_NOT_REACHED();
 	}
 
-	DISSECTOR_ASSERT_NOT_REACHED();
-	return false;
+	p_set_proto_depth(pinfo, proto_cbor, recursion_depth);
+	return valid;
 }
 
 static int
