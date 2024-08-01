@@ -483,7 +483,7 @@ int main(int argc, char *qt_argv[])
     char                *rf_path;
     int                  rf_open_errno;
 #ifdef HAVE_LIBPCAP
-    char                *err_str, *err_str_secondary;;
+    char                *err_str, *err_str_secondary;
 #else
 #ifdef _WIN32
 #ifdef HAVE_AIRPCAP

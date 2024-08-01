@@ -4474,7 +4474,7 @@ get_gatt_service_handle_from_handle(packet_info *pinfo, uint32_t handle,
 
     if (bluetooth_data) {
         frame_number = pinfo->num;
-        direction = pinfo->p2p_dir;;
+        direction = pinfo->p2p_dir;
 
         key[0].length = 1;
         key[0].key    = &bluetooth_data->interface_id;
@@ -4513,7 +4513,7 @@ get_gatt_char_decl_handle_from_handle(packet_info *pinfo, uint32_t handle,
 
     if (bluetooth_data) {
         frame_number = pinfo->num;
-        direction = pinfo->p2p_dir;;
+        direction = pinfo->p2p_dir;
 
         key[0].length = 1;
         key[0].key    = &bluetooth_data->interface_id;

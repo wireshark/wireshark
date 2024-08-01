@@ -1158,7 +1158,7 @@ dissect_wlan_radio_phdr(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, 
         can_calculate_rate = true;
         /*for each user*/
         for (i = 0; i < info_11be->num_users; i++) {
-          unsigned nsts = info_11be->user[i].nsts;;
+          unsigned nsts = info_11be->user[i].nsts;
           unsigned bw_idx = 0;
           /* Do we have all the fields needed to compute rate ?*/
           if (!info_11be->has_gi || !info_11be->user[i].nsts_known || !nsts)

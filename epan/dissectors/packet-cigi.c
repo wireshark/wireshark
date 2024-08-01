@@ -15810,7 +15810,7 @@ proto_reg_handoff_cigi(void)
         dissector_add_uint("cigi3.packet_id", CIGI3_PACKET_ID_SYMBOL_CIRCLE_DEFINITION,
             create_dissector_handle(cigi3_3_add_symbol_circle_definition, proto_cigi));
         dissector_add_uint("cigi3.packet_id", CIGI3_PACKET_ID_SYMBOL_LINE_DEFINITION,
-            create_dissector_handle(cigi3_3_add_symbol_line_definition, proto_cigi));;
+            create_dissector_handle(cigi3_3_add_symbol_line_definition, proto_cigi));
         dissector_add_uint("cigi3.packet_id", CIGI3_PACKET_ID_SYMBOL_CLONE,
             create_dissector_handle(cigi3_3_add_symbol_clone, proto_cigi));
         dissector_add_uint("cigi3.packet_id", CIGI3_PACKET_ID_SYMBOL_CONTROL,

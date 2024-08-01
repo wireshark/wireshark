@@ -828,7 +828,7 @@ mapi_dissect_struct_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	int start_offset = offset;;
+	int start_offset = offset;
 	tvbuff_t *decrypted_tvb = NULL;
 	uint16_t		pdu_len;
 	uint32_t		size;

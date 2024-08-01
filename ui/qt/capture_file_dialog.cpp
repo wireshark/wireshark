@@ -307,7 +307,7 @@ QString CaptureFileDialog::fileType(int ft, QStringList &suffixes)
         for (GSList *extension = extensions_list; extension != NULL;
              extension = g_slist_next(extension)) {
             QString suffix((char *)extension->data);
-            filter += " *." + suffix;;
+            filter += " *." + suffix;
             suffixes << suffix;
         }
         wtap_free_extensions_list(extensions_list);
