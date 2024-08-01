@@ -843,27 +843,45 @@ dissect_cbor_main_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *cbor_tree,
 	type_major = (type & 0xe0) >> 5;
 	type_minor = (type & 0x1f);
 
+	unsigned recursion_depth = p_get_proto_depth(pinfo, proto_cbor);
+
+	/* dissect_cbor_main_type and dissect_cbor_tag/dissect_cbor_map can exhaust
+	 * the stack calling each other recursively on malformed packets otherwise */
+	DISSECTOR_ASSERT(recursion_depth <= prefs.gui_max_tree_depth);
+	p_set_proto_depth(pinfo, proto_cbor, recursion_depth + 1);
+
+	gboolean valid = FALSE;
 	switch (type_major) {
 	case CBOR_TYPE_USIGNED_INT:
-		return dissect_cbor_unsigned_integer(tvb, pinfo, cbor_tree, offset, type_minor);
+		valid = dissect_cbor_unsigned_integer(tvb, pinfo, cbor_tree, offset, type_minor);
+		break;
 	case CBOR_TYPE_NEGATIVE_INT:
-		return dissect_cbor_negative_integer(tvb, pinfo, cbor_tree, offset, type_minor);
+		valid = dissect_cbor_negative_integer(tvb, pinfo, cbor_tree, offset, type_minor);
+		break;
 	case CBOR_TYPE_BYTE_STRING:
-		return dissect_cbor_byte_string(tvb, pinfo, cbor_tree, offset, type_minor);
+		valid = dissect_cbor_byte_string(tvb, pinfo, cbor_tree, offset, type_minor);
+		break;
 	case CBOR_TYPE_TEXT_STRING:
-		return dissect_cbor_text_string(tvb, pinfo, cbor_tree, offset, type_minor);
+		valid = dissect_cbor_text_string(tvb, pinfo, cbor_tree, offset, type_minor);
+		break;
 	case CBOR_TYPE_ARRAY:
-		return dissect_cbor_array(tvb, pinfo, cbor_tree, offset, type_minor);
+		valid = dissect_cbor_array(tvb, pinfo, cbor_tree, offset, type_minor);
+		break;
 	case CBOR_TYPE_MAP:
-		return dissect_cbor_map(tvb, pinfo, cbor_tree, offset, type_minor);
+		valid = dissect_cbor_map(tvb, pinfo, cbor_tree, offset, type_minor);
+		break;
 	case CBOR_TYPE_TAGGED:
-		return dissect_cbor_tag(tvb, pinfo, cbor_tree, offset, type_minor);
+		valid = dissect_cbor_tag(tvb, pinfo, cbor_tree, offset, type_minor);
+		break;
 	case CBOR_TYPE_FLOAT:
-		return dissect_cbor_float_simple_data(tvb, pinfo, cbor_tree, offset, type_minor);
+		valid = dissect_cbor_float_simple_data(tvb, pinfo, cbor_tree, offset, type_minor);
+		break;
+	default:
+		DISSECTOR_ASSERT_NOT_REACHED();
 	}
 
-	DISSECTOR_ASSERT_NOT_REACHED();
-	return FALSE;
+	p_set_proto_depth(pinfo, proto_cbor, recursion_depth);
+	return valid;
 }
 
 static int
