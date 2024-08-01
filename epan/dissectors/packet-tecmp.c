@@ -376,6 +376,7 @@ static const value_string msg_type_names[] = {
 #define TECMP_DATA_TYPE_ANALOG             0x0020
 #define TECMP_DATA_TYPE_ANALOG_SLA         0x0021
 #define TECMP_DATA_TYPE_ETH                0x0080
+#define TECMP_DATA_TYPE_ETH_RAW            0x0081
 #define TECMP_DATA_TYPE_ETH_10BASE_T1S     0x0082
 #define TECMP_DATA_TYPE_XCP_DATA           0x00A0
 #define TECMP_DATA_TYPE_MIPI_CSI2_V        0x0101
@@ -405,6 +406,7 @@ static const value_string tecmp_msgtype_names[] = {
     {TECMP_DATA_TYPE_ANALOG,               "Analog"},
     {TECMP_DATA_TYPE_ANALOG_SLA,           "Analog_SLA"},
     {TECMP_DATA_TYPE_ETH,                  "Ethernet II"},
+    {TECMP_DATA_TYPE_ETH_RAW,              "Ethernet Raw"},
     {TECMP_DATA_TYPE_ETH_10BASE_T1S,       "Ethernet 10BASE-T1S"},
     {TECMP_DATA_TYPE_XCP_DATA,             "XCP-Data"},
     {TECMP_DATA_TYPE_MIPI_CSI2_V,          "MIPI-CSI2 V"},
@@ -434,6 +436,21 @@ static const value_string tecmp_device_id_prefixes[] = {
     {0x0030, "CM LIN Combo"},
     {0x0040, "CM CAN Combo"},
     {0x0060, "CM 100 High"},
+    {0x0080, "CM Eth Combo"},
+    {0x0090, "CM 1000 High"},
+    {0x00e0, "CM MultiGigabit"},
+    {0, NULL}
+};
+
+static const value_string tecmp_device_ids_specific[] = {
+    {0x0050, "CM Sense 0"},
+    {0x0051, "CM Sense 1"},
+    {0x0052, "CM Sense 2"},
+    {0x0053, "CM Sense 3"},
+    {0x0054, "CM Sense 4"},
+    {0x0055, "CM Sense 5"},
+    {0x0056, "CM Sense 6"},
+    {0x0057, "CM Sense 7"},
     {0x0070, "CM 10BASE-T1S 0"},
     {0x0071, "CM 10BASE-T1S 1"},
     {0x0072, "CM 10BASE-T1S 2"},
@@ -444,14 +461,12 @@ static const value_string tecmp_device_id_prefixes[] = {
     {0x0077, "CM 10BASE-T1S 7"},
     {0x0078, "CM 10BASE-T1S 8"},
     {0x0079, "CM 10BASE-T1S 9"},
-    {0x007a, "CM ILaS Combo 0"},
-    {0x007b, "CM ILaS Combo 1"},
-    {0x007c, "CM ILaS Combo 2"},
-    {0x007d, "CM ILaS Combo 3"},
-    {0x007e, "CM ILaS Combo 4"},
-    {0x007f, "CM ILaS Combo 5"},
-    {0x0080, "CM Eth Combo"},
-    {0x0090, "CM 1000 High"},
+    {0x007a, "ILaS Sniffer 0"},
+    {0x007b, "ILaS Sniffer 1"},
+    {0x007c, "ILaS Sniffer 2"},
+    {0x007d, "ILaS Sniffer 3"},
+    {0x007e, "ILaS Sniffer 4"},
+    {0x007f, "ILaS Sniffer 5"},
     {0, NULL}
 };
 
@@ -464,12 +479,15 @@ static const value_string tecmp_device_types[] = {
     {0x02, "CM LIN Combo"},
     {0x04, "CM CAN Combo"},
     {0x06, "CM 100 High"},
+    {0x07, "CM 100 High TC10"},
     {0x08, "CM Eth Combo"},
     {0x0a, "CM 1000 High"},
     {TECMP_DEVICE_TYPE_CM_10BASE_T1S, "CM 10BASE-T1S"},
-    {TECMP_DEVICE_TYPE_CM_ILAS_COMBO, "CM ILaS Combo"},
+    {TECMP_DEVICE_TYPE_CM_ILAS_COMBO, "ILaS Sniffer"},
     {0x10, "Sensor specific"},
     {0x20, "Logger"},
+    {0x42, "CM MultiGigabit"},
+    {0x46, "CM Sense"},
     {0, NULL}
 };
 
@@ -905,25 +923,33 @@ post_update_tecmp_devices_cb(void) {
 
 static void
 add_device_id_text(proto_item *ti, uint16_t device_id) {
+    /* lets check configured entries first */
     const char *descr = ht_lookup_name(data_tecmp_devices, device_id);
 
-    if (descr != NULL) {
-        proto_item_append_text(ti, " (%s)", descr);
-    } else if (device_id >= 0x0070 && device_id <= 0x007f) {
-        descr = val_to_str_const((device_id), tecmp_device_id_prefixes, "Unknown/Unconfigured CM");
-        proto_item_append_text(ti, " (%s)", descr);
-    } else {
-        /* try to pick a default */
-        descr = val_to_str_const((device_id & 0xfff0), tecmp_device_id_prefixes, "Unknown/Unconfigured CM");
+    if (descr == NULL) {
+        /* lets check specific  */
+        descr = try_val_to_str(device_id, tecmp_device_ids_specific);
+    }
 
+    if (descr == NULL) {
+        /* lets check ranged prefixes */
+        descr = try_val_to_str((device_id & 0xfff0), tecmp_device_id_prefixes);
         if (descr != NULL) {
             if ((device_id & 0x000f) == 0) {
                 proto_item_append_text(ti, " (%s %d (Default))", descr, (device_id & 0x000f));
             } else {
                 proto_item_append_text(ti, " (%s %d)", descr, (device_id & 0x000f));
             }
+            return;
         }
     }
+
+    /* if, we found nothing before */
+    if (descr == NULL) {
+        descr = "Unknown/Unconfigured CM";
+    }
+
+    proto_item_append_text(ti, " (%s)", descr);
 }
 
 /*** UAT TECMP_INTERFACE_IDs ***/
