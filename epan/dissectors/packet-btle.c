@@ -4351,22 +4351,151 @@ dissect_btle_acl_or_iso(tvbuff_t *tvb,
 }
 
 static int
-dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+dissect_btle_broadcast_iso(tvbuff_t *tvb,
+                           packet_info *pinfo,
+                           proto_tree *btle_tree,
+                           uint32_t adapter_id,
+                           uint32_t interface_id,
+                           uint32_t access_address)
 {
-    proto_item           *btle_item;
-    proto_tree           *btle_tree;
     proto_item           *sub_item;
     proto_tree           *sub_tree;
     int                   offset = 0;
-    uint32_t              access_address, length;
-    tvbuff_t              *next_tvb;
+    uint32_t              length;
     static const uint8_t   broadcast_addr[] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
-    connection_info_t     *connection_info = NULL;
     wmem_tree_t           *wmem_tree;
     wmem_tree_key_t        key[5];
 
     proto_item            *item;
     unsigned               item_value;
+
+    broadcastiso_connection_info_t *broadcastiso_connection_info = NULL;
+    uint32_t     seed_access_address = access_address & 0x0041ffff;
+    proto_item  *data_header_item;
+    proto_tree  *data_header_tree;
+    uint8_t      llid;
+    uint8_t      control_opcode;
+
+    key[0].length = 1;
+    key[0].key = &interface_id;
+    key[1].length = 1;
+    key[1].key = &adapter_id;
+    key[2].length = 1;
+    key[2].key = &seed_access_address;
+    key[3].length = 0;
+    key[3].key = NULL;
+
+    wmem_tree = (wmem_tree_t *) wmem_tree_lookup32_array(broadcastiso_connection_info_tree, key);
+    if (wmem_tree) {
+        broadcastiso_connection_info = (broadcastiso_connection_info_t *) wmem_tree_lookup32_le(wmem_tree, pinfo->num);
+        if (broadcastiso_connection_info) {
+            char   *str_addr_src;
+            /* Holds "Central" + access_address + NULL, which is the longest string */
+            int     str_addr_len = 17 + 1;
+
+            str_addr_src = (char *) wmem_alloc(pinfo->pool, str_addr_len);
+
+            sub_item = proto_tree_add_ether(btle_tree, hf_central_bd_addr, tvb, 0, 0, broadcastiso_connection_info->central_bd_addr);
+            proto_item_set_generated(sub_item);
+
+            snprintf(str_addr_src, str_addr_len, "Central_0x%08x", broadcastiso_connection_info->access_address);
+            set_address(&pinfo->dl_src, AT_ETHER, sizeof(broadcastiso_connection_info->central_bd_addr), broadcastiso_connection_info->central_bd_addr);
+            clear_address(&pinfo->dl_dst);
+
+            set_address(&pinfo->net_src, AT_STRINGZ, (int)strlen(str_addr_src)+1, str_addr_src);
+            copy_address_shallow(&pinfo->src, &pinfo->net_src);
+
+            if (!pinfo->fd->visited) {
+                address *addr;
+
+                addr = (address *) wmem_memdup(wmem_file_scope(), &pinfo->dl_src, sizeof(address));
+                addr->data =  wmem_memdup(wmem_file_scope(), pinfo->dl_src.data, pinfo->dl_src.len);
+                p_add_proto_data(wmem_file_scope(), pinfo, proto_bluetooth, BLUETOOTH_DATA_SRC, addr);
+            }
+        }
+    }
+
+    set_address(&pinfo->net_dst, AT_ETHER, 6, broadcast_addr);
+    copy_address_shallow(&pinfo->dl_dst, &pinfo->net_dst);
+    copy_address_shallow(&pinfo->dst, &pinfo->net_dst);
+
+    data_header_item = proto_tree_add_item(btle_tree,  hf_data_header, tvb, offset, 2, ENC_NA);
+    data_header_tree = proto_item_add_subtree(data_header_item, ett_data_header);
+
+    proto_tree_add_item(data_header_tree, hf_data_header_llid_broadcastiso, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    llid = tvb_get_uint8(tvb, offset) & 0x03;
+    proto_tree_add_item(data_header_tree, hf_data_header_control_subevent_sequence_number, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(data_header_tree, hf_data_header_control_subevent_transmission_flag, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(data_header_tree, hf_data_header_rfu_67, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset += 1;
+
+    proto_tree_add_item(data_header_tree, hf_data_header_length, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    item = proto_tree_add_item_ret_uint(btle_tree, hf_length, tvb, offset, 1, ENC_LITTLE_ENDIAN, &length);
+    proto_item_set_hidden(item);
+    offset += 1;
+
+    switch (llid) {
+    case 0x00: /* Unframed BIS Data PDU; end fragment of an SDU or a complete SDU */
+    case 0x01: /* Unframed BIS Data PDU; start or continuation fragment of an SDU */
+    case 0x02: /* Framed BIS Data PDU; one or more segments of an SDU */
+        proto_tree_add_item(btle_tree, hf_isochronous_data, tvb, offset, length, ENC_NA);
+        offset += length;
+        break;
+
+    case 0x03: /* BIG Control PDU */
+        proto_tree_add_item(btle_tree, hf_big_control_opcode, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        control_opcode = tvb_get_uint8(tvb, offset);
+        offset += 1;
+
+        col_add_fstr(pinfo->cinfo, COL_INFO, "BIG Control Opcode: %s",
+                val_to_str_ext_const(control_opcode, &big_control_opcode_vals_ext, "Unknown"));
+
+        switch (control_opcode) {
+        case 0x00: /* BIG_CHANNEL_MAP_IND */
+            sub_item = proto_tree_add_item(btle_tree, hf_control_channel_map, tvb, offset, 5, ENC_NA);
+            sub_tree = proto_item_add_subtree(sub_item, ett_channel_map);
+
+            call_dissector(btcommon_le_channel_map_handle, tvb_new_subset_length(tvb, offset, 5), pinfo, sub_tree);
+            offset += 5;
+
+            proto_tree_add_item_ret_uint(btle_tree, hf_control_instant, tvb, offset, 2, ENC_LITTLE_ENDIAN, &item_value);
+            offset += 2;
+            break;
+
+        case 0x01: /* BIG_TERMINATE_IND */
+            proto_tree_add_item(btle_tree, hf_control_error_code, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset += 1;
+            proto_tree_add_item_ret_uint(btle_tree, hf_control_instant, tvb, offset, 2, ENC_LITTLE_ENDIAN, &item_value);
+            offset += 2;
+            break;
+
+        default:
+            offset = dissect_ctrl_pdu_without_data(tvb, pinfo, btle_tree, offset);
+            break;
+        }
+        break;
+
+    default:
+        if (tvb_reported_length_remaining(tvb, offset) > 3) {
+            proto_tree_add_expert(btle_tree, pinfo, &ei_unknown_data, tvb, offset, tvb_reported_length_remaining(tvb, offset) - 3);
+            offset += tvb_reported_length_remaining(tvb, offset) - 3;
+        }
+    }
+
+    return offset;
+}
+
+static int
+dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+{
+    proto_item           *btle_item;
+    proto_tree           *btle_tree;
+    proto_item           *sub_item;
+    int                   offset = 0;
+    uint32_t              access_address, length;
+    tvbuff_t              *next_tvb;
+    connection_info_t     *connection_info = NULL;
+
     uint8_t                btle_pdu_type = BTLE_PDU_TYPE_UNKNOWN;
 
     uint32_t               interface_id;
@@ -4439,119 +4568,14 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                                          btle_pdu_type) - 2;
         offset += length + 2;
     } else if (btle_pdu_type == BTLE_PDU_TYPE_BROADCASTISO) {
-        broadcastiso_connection_info_t *broadcastiso_connection_info = NULL;
-        uint32_t     seed_access_address = access_address & 0x0041ffff;
-        proto_item  *data_header_item;
-        proto_tree  *data_header_tree;
-        uint8_t      llid;
-        uint8_t      control_opcode;
-
-        key[0].length = 1;
-        key[0].key = &interface_id;
-        key[1].length = 1;
-        key[1].key = &adapter_id;
-        key[2].length = 1;
-        key[2].key = &seed_access_address;
-        key[3].length = 0;
-        key[3].key = NULL;
-
-        wmem_tree = (wmem_tree_t *) wmem_tree_lookup32_array(broadcastiso_connection_info_tree, key);
-        if (wmem_tree) {
-            broadcastiso_connection_info = (broadcastiso_connection_info_t *) wmem_tree_lookup32_le(wmem_tree, pinfo->num);
-            if (broadcastiso_connection_info) {
-                char   *str_addr_src;
-                /* Holds "Central" + access_address + NULL, which is the longest string */
-                int     str_addr_len = 17 + 1;
-
-                str_addr_src = (char *) wmem_alloc(pinfo->pool, str_addr_len);
-
-                sub_item = proto_tree_add_ether(btle_tree, hf_central_bd_addr, tvb, 0, 0, broadcastiso_connection_info->central_bd_addr);
-                proto_item_set_generated(sub_item);
-
-                snprintf(str_addr_src, str_addr_len, "Central_0x%08x", broadcastiso_connection_info->access_address);
-                set_address(&pinfo->dl_src, AT_ETHER, sizeof(broadcastiso_connection_info->central_bd_addr), broadcastiso_connection_info->central_bd_addr);
-                clear_address(&pinfo->dl_dst);
-
-                set_address(&pinfo->net_src, AT_STRINGZ, (int)strlen(str_addr_src)+1, str_addr_src);
-                copy_address_shallow(&pinfo->src, &pinfo->net_src);
-
-                if (!pinfo->fd->visited) {
-                    address *addr;
-
-                    addr = (address *) wmem_memdup(wmem_file_scope(), &pinfo->dl_src, sizeof(address));
-                    addr->data =  wmem_memdup(wmem_file_scope(), pinfo->dl_src.data, pinfo->dl_src.len);
-                    p_add_proto_data(wmem_file_scope(), pinfo, proto_bluetooth, BLUETOOTH_DATA_SRC, addr);
-                }
-            }
-        }
-
-        set_address(&pinfo->net_dst, AT_ETHER, 6, broadcast_addr);
-        copy_address_shallow(&pinfo->dl_dst, &pinfo->net_dst);
-        copy_address_shallow(&pinfo->dst, &pinfo->net_dst);
-
-        data_header_item = proto_tree_add_item(btle_tree,  hf_data_header, tvb, offset, 2, ENC_NA);
-        data_header_tree = proto_item_add_subtree(data_header_item, ett_data_header);
-
-        proto_tree_add_item(data_header_tree, hf_data_header_llid_broadcastiso, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-        llid = tvb_get_uint8(tvb, offset) & 0x03;
-        proto_tree_add_item(data_header_tree, hf_data_header_control_subevent_sequence_number, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(data_header_tree, hf_data_header_control_subevent_transmission_flag, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(data_header_tree, hf_data_header_rfu_67, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-        offset += 1;
-
-        proto_tree_add_item(data_header_tree, hf_data_header_length, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-        item = proto_tree_add_item_ret_uint(btle_tree, hf_length, tvb, offset, 1, ENC_LITTLE_ENDIAN, &length);
-        proto_item_set_hidden(item);
-        offset += 1;
-
-        switch (llid) {
-        case 0x00: /* Unframed BIS Data PDU; end fragment of an SDU or a complete SDU */
-        case 0x01: /* Unframed BIS Data PDU; start or continuation fragment of an SDU */
-        case 0x02: /* Framed BIS Data PDU; one or more segments of an SDU */
-            proto_tree_add_item(btle_tree, hf_isochronous_data, tvb, offset, length, ENC_NA);
-            offset += length;
-            break;
-
-        case 0x03: /* BIG Control PDU */
-            proto_tree_add_item(btle_tree, hf_big_control_opcode, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-            control_opcode = tvb_get_uint8(tvb, offset);
-            offset += 1;
-
-            col_add_fstr(pinfo->cinfo, COL_INFO, "BIG Control Opcode: %s",
-                    val_to_str_ext_const(control_opcode, &big_control_opcode_vals_ext, "Unknown"));
-
-            switch (control_opcode) {
-            case 0x00: /* BIG_CHANNEL_MAP_IND */
-                sub_item = proto_tree_add_item(btle_tree, hf_control_channel_map, tvb, offset, 5, ENC_NA);
-                sub_tree = proto_item_add_subtree(sub_item, ett_channel_map);
-
-                call_dissector(btcommon_le_channel_map_handle, tvb_new_subset_length(tvb, offset, 5), pinfo, sub_tree);
-                offset += 5;
-
-                proto_tree_add_item_ret_uint(btle_tree, hf_control_instant, tvb, offset, 2, ENC_LITTLE_ENDIAN, &item_value);
-                offset += 2;
-                break;
-
-            case 0x01: /* BIG_TERMINATE_IND */
-                proto_tree_add_item(btle_tree, hf_control_error_code, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-                offset += 1;
-                proto_tree_add_item_ret_uint(btle_tree, hf_control_instant, tvb, offset, 2, ENC_LITTLE_ENDIAN, &item_value);
-                offset += 2;
-                break;
-
-            default:
-                offset = dissect_ctrl_pdu_without_data(tvb, pinfo, btle_tree, offset);
-                break;
-            }
-            break;
-
-        default:
-            if (tvb_reported_length_remaining(tvb, offset) > 3) {
-                proto_tree_add_expert(btle_tree, pinfo, &ei_unknown_data, tvb, offset, tvb_reported_length_remaining(tvb, offset) - 3);
-                offset += tvb_reported_length_remaining(tvb, offset) - 3;
-            }
-        }
-
+        next_tvb = tvb_new_subset_remaining(tvb, offset);
+        length = dissect_btle_broadcast_iso(next_tvb,
+                                            pinfo,
+                                            btle_tree,
+                                            adapter_id,
+                                            interface_id,
+                                            access_address) - 2;
+        offset += length + 2;
     } else {
         /* Unknown physical channel PDU type. Assume CRC size is 3 bytes */
         if (tvb_reported_length_remaining(tvb, offset) > 3) {
