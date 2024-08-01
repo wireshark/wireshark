@@ -827,6 +827,7 @@ Clang + Code Checks:
     - ./tools/check_typed_item_calls.py --consecutive --label --mask --check-bitmask-fields --commits $NUM_COMMITS | tee item_calls_check.txt
     - ./tools/check_tfs.py --check-value-strings --commits $NUM_COMMITS | tee tfs_check.txt
     - ./tools/check_val_to_str.py --commits $NUM_COMMITS | tee val_to_str_check.txt
+    - ./tools/check_col_apis.py --commits $NUM_COMMITS | tee col_apis_check.txt
   artifacts:
     paths:
       - clang_report.txt
@@ -836,6 +837,7 @@ Clang + Code Checks:
       - item_calls_check.txt
       - tfs_check.txt
       - val_to_str_check.txt
+      - col_apis_check.txt
       - checkhf_conflict.txt
       - html/
 
