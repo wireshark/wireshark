@@ -90,6 +90,7 @@ tools = [
     ('tools/check_static.py',                             True,   False),
     ('tools/check_dissector_urls.py',                     False,  True),
     ('tools/check_val_to_str.py',                         False,  True),
+    ('tools/check_col_apis.py',                           False,  True),
     ('tools/cppcheck/cppcheck.sh',                        False,  True),
     ('tools/checkhf.pl',                                  False,  True),
     ('tools/checkAPIs.pl',                                False,  True),
