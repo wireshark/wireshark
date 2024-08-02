@@ -177,7 +177,7 @@ WS_DLL_PUBLIC void col_set_str(column_info *cinfo, const int col, const char * s
 
 /** Add (replace) the text of a column element, the text will be formatted and copied.
  *
- * Unprintable characters according to isprint() are escaped.
+ * Unprintable characters according to g_ascii_isprint() are escaped.
  *
  * @param cinfo the current packet row
  * @param col the column to use, e.g. COL_INFO
@@ -192,7 +192,7 @@ WS_DLL_PUBLIC void col_add_lstr(column_info *cinfo, const int el, const char *st
 
 /** Add (replace) the text of a column element, the text will be formatted and copied.
  *
- * Unprintable characters according to isprint() are escaped.
+ * Unprintable characters according to g_ascii_isprint() are escaped.
  *
  * Same function as col_add_str() but using a printf-like format string.
  *
@@ -206,7 +206,7 @@ WS_DLL_PUBLIC void col_add_fstr(column_info *cinfo, const int col, const char *f
 
 /** Append the given text to a column element, the text will be formatted and copied.
  *
- * Unprintable characters according to isprint() are escaped.
+ * Unprintable characters according to g_ascii_isprint() are escaped.
  *
  * @param cinfo the current packet row
  * @param col the column to use, e.g. COL_INFO
@@ -252,7 +252,7 @@ WS_DLL_PUBLIC void col_append_lstr(column_info *cinfo, const int el, const char 
 
 /** Append the given text to a column element, the text will be formatted and copied.
  *
- * Unprintable characters according to isprint() are escaped.
+ * Unprintable characters according to g_ascii_isprint() are escaped.
  *
  * Same function as col_append_str() but using a printf-like format string.
  *
@@ -266,7 +266,7 @@ WS_DLL_PUBLIC void col_append_fstr(column_info *cinfo, const int col, const char
 
 /** Prepend the given text to a column element, the text will be formatted and copied.
  *
- * Unprintable characters according to isprint() are escaped.
+ * Unprintable characters according to g_ascii_isprint() are escaped.
  *
  * @param cinfo the current packet row
  * @param col the column to use, e.g. COL_INFO
@@ -278,7 +278,7 @@ WS_DLL_PUBLIC void col_prepend_fstr(column_info *cinfo, const int col, const cha
 
 /** Prepend the given text to a column element, the text will be formatted and copied.
  *
- * Unprintable characters according to isprint() are escaped.
+ * Unprintable characters according to g_ascii_isprint() are escaped.
  *
  * This function is similar to col_prepend_fstr() but this function will
  * unconditionally set a fence to the end of the prepended data even if there
@@ -292,7 +292,7 @@ WS_DLL_PUBLIC void col_prepend_fence_fstr(column_info *cinfo, const int col, con
 
 /** Append the given text (prepended by a separator) to a column element.
  *
- * Unprintable characters according to isprint() are escaped.
+ * Unprintable characters according to g_ascii_isprint() are escaped.
  *
  * Much like col_append_str() but will prepend the given separator if the column isn't empty.
  *
@@ -306,7 +306,7 @@ WS_DLL_PUBLIC void col_append_sep_str(column_info *cinfo, const int col, const c
 
 /** Append the given text (prepended by a separator) to a column element.
  *
- * Unprintable characters according to isprint() are escaped.
+ * Unprintable characters according to g_ascii_isprint() are escaped.
  *
  * Much like col_append_fstr() but will prepend the given separator if the column isn't empty.
  *
