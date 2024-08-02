@@ -1364,6 +1364,13 @@ if(BUILD_wireshark OR BUILD_logray)
 			OPTIONAL_COMPONENTS
 				Multimedia
 		)
+
+		if (WIN32 AND Qt6Widgets_VERSION VERSION_LESS 6.5.3)
+			message(WARNING "Qt 6.5.3 or later is required.")
+		endif()
+		if (APPLE AND Qt6Widgets_VERSION VERSION_LESS 6.5.3)
+			message(WARNING "Qt 6.5.3 or later is required.")
+		endif()
 	else(USE_qt6)
 		set(qtver 5)
 		if(DEFINED ENV{WIRESHARK_QT5_PREFIX_PATH})
