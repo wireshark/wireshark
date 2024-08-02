@@ -91,8 +91,6 @@ static dissector_handle_t cborseq_handle;
 #define CBOR_TYPE_TAGGED	6
 #define CBOR_TYPE_FLOAT		7
 
-#define MAX_RECURSION_DEPTH 100 /* pretty arbitrary */
-
 static const value_string major_type_vals[] = {
 	{ 0, "Unsigned Integer" },
 	{ 1, "Negative Integer" },
@@ -336,7 +334,6 @@ dissect_cbor_negative_integer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *cbo
 	return true;
 }
 
-#define CBOR_MAX_RECURSION_DEPTH 10 // Arbitrary
 static bool
 // NOLINTNEXTLINE(misc-no-recursion)
 dissect_cbor_byte_string(tvbuff_t *tvb, packet_info *pinfo, proto_tree *cbor_tree, int *offset, uint8_t type_minor)
@@ -394,7 +391,7 @@ dissect_cbor_byte_string(tvbuff_t *tvb, packet_info *pinfo, proto_tree *cbor_tre
 			}
 
 			unsigned recursion_depth = p_get_proto_depth(pinfo, proto_cbor);
-			if (recursion_depth > CBOR_MAX_RECURSION_DEPTH) {
+			if (recursion_depth > prefs.gui_max_tree_depth) {
 				proto_tree_add_expert(subtree, pinfo, &ei_cbor_max_recursion_depth_reached, tvb, 0, 0);
 				return false;
 			}
@@ -491,7 +488,7 @@ dissect_cbor_text_string(tvbuff_t *tvb, packet_info *pinfo, proto_tree *cbor_tre
 			}
 
 			unsigned recursion_depth = p_get_proto_depth(pinfo, proto_cbor);
-			if (recursion_depth > CBOR_MAX_RECURSION_DEPTH) {
+			if (recursion_depth > prefs.gui_max_tree_depth) {
 				proto_tree_add_expert(subtree, pinfo, &ei_cbor_max_recursion_depth_reached, tvb, 0, 0);
 				return false;
 			}
@@ -855,7 +852,10 @@ dissect_cbor_main_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *cbor_tree,
 
 	/* dissect_cbor_main_type and dissect_cbor_tag/dissect_cbor_map can exhaust
 	 * the stack calling each other recursively on malformed packets otherwise */
-	DISSECTOR_ASSERT(recursion_depth <= MAX_RECURSION_DEPTH);
+	if (recursion_depth > prefs.gui_max_tree_depth) {
+		proto_tree_add_expert(cbor_tree, pinfo, &ei_cbor_max_recursion_depth_reached, tvb, 0, 0);
+		return false;
+	}
 	p_set_proto_depth(pinfo, proto_cbor, recursion_depth + 1);
 
 	bool valid = false;
