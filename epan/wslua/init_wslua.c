@@ -660,6 +660,53 @@ static void set_file_environment(const char* filename, const char* dirname) {
      */
 }
 
+/* This loads plugins like Lua modules / libraries, using require().
+ * It has the advantage that loaded files get add to the package.loaded
+ * table, so files aren't run again by require() either.
+ */
+static bool lua_load_plugin(const char* filename) {
+    int status;
+    char *trimmed;
+
+    const char *basename = get_basename(filename);
+    char *dot = strrchr(basename, '.');
+    if (dot) {
+        trimmed = g_strndup(basename, dot - basename);
+    } else {
+        trimmed = g_strdup(basename);
+    }
+
+    lua_settop(L, 0);
+
+    lua_pushcfunction(L, error_handler_with_callback);
+
+    lua_getglobal(L, "require");
+
+    lua_pushstring(L, trimmed);
+
+    /* Ignore the return from "require" by passing 0 as nresults to lua_pcall
+     * (we could add it to the global table using the name as dolibrary() does,
+     * but that is deprecated style in modern Lua.)
+     */
+    status = lua_pcall(L, 1, 0, 1);
+    if (status != LUA_OK) {
+        switch (status) {
+            case LUA_ERRRUN:
+                report_failure("Lua: Error during loading:\n%s", lua_tostring(L, -1));
+                break;
+            case LUA_ERRMEM:
+                report_failure("Lua: Error during loading: out of memory");
+                break;
+            case LUA_ERRERR:
+                report_failure("Lua: Error during loading: error while retrieving error message");
+                break;
+            default:
+                report_failure("Lua: Error during loading: unknown error %d", status);
+                break;
+        }
+    }
+    return status == LUA_OK;
+}
 
 /* If file_count > 0 then it's a command-line-added user script, and the count
  * represents which user script it is (first=1, second=2, etc.).
@@ -735,8 +782,8 @@ static bool lua_load_internal_script(const char* filename) {
     return lua_load_script(filename, NULL, 0);
 }
 
-/* This one is used to load plugins: either from the plugin directories,
- *   or from the command line.
+/* This one is used to load plugins from the plugin directories,
+ *   or scripts from the command line. The latter have file_count > 0.
  */
 static bool lua_load_plugin_script(const char* name,
                                    const char* filename,
@@ -744,7 +791,8 @@ static bool lua_load_plugin_script(const char* name,
                                    const int file_count)
 {
     ws_debug("Loading lua script: %s", filename);
-    if (lua_load_script(filename, dirname, file_count)) {
+    if (file_count > 0 ? lua_load_script(filename, dirname, file_count) :
+                         lua_load_plugin(filename)) {
         wslua_add_plugin(name, get_current_plugin_version(), filename);
         clear_current_plugin_version();
         return true;
@@ -878,10 +926,7 @@ static int lua_load_pers_plugins(register_cb cb, void *client_data,
     /* XXX - This doesn't prevent users from loading a file a second time
      * via a different method, e.g., require() or dofile().
      *
-     * We should probably add to package.loaded for each file, either what
-     * pcall() returns, or true if it returns nil, as require does.
-     * Then require wouldn't load the file again, but would retrieve the result.
-     * (Or we could just use require directly, without sandboxing _ENV.)
+     * It shouldn't be needed now that we're calling require for the plugins.
      */
     GHashTable *loaded_user_scripts = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, NULL);
 

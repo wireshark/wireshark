@@ -356,6 +356,15 @@ The following features are either new or have been significantly updated since v
   deprecated in one version are removed in the subsequent version without
   additional notice, so it can be worth checking the manual for previous versions.
 
+* Lua scripts in the plugins directories are now initially loaded via the same
+  internal Lua methods as `require()`. This avoids errors from loading plugins
+  twice (once by scanning the directory initially, and once by `require()`),
+  and also results in globals defined in plugins entering the global namespace.
+  Previously globals defined in plugins only entered the global namespace when
+  placed in the global plugins directory, but not the personal plugins directory.
+  Using globals in plugins remains deprecated style (both by Wireshark and in Lua
+  generally), that should be avoided via using other methods. wsbuglink:18589[]
+
 * Lua functions have been added to decompress and decode TvbRanges with other
   compression types besides zlib, such as Brotli, Snappy, Zstd, and others,
   matching the support in the C API. tvbrange:uncompress() has been deprecated

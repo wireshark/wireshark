@@ -255,6 +255,134 @@ end
 register_menu("Test/Packets", menuable_tap, MENU_TOOLS_UNSORTED)
 ----
 
+[#wslua_require_example]
+
+=== Example: Lua scripts with shared modules
+
+Lua plugins that depend on protocols, dissectors, dissector tables, and other
+items registered with Wireshark by other Lua scripts can access those through
+the Wireshark Lua API. The key is ensuring that the providing script is
+read first, as previously mentioned.
+
+It is also possible to depend on Lua functions defined in other Lua scripts.
+The recommended method is to load those scripts as
+link:https://www.lua.org/manual/5.4/manual.html#6.3[modules] via
+link:https://www.lua.org/manual/5.4/manual.html#pdf-require[require].
+Modules preferably should avoid defining globals, and should return a
+table containing functions indexed by name. Globals defined in modules will
+leak into the global namespace when `require()` is used, and name collisions
+can cause unexpected results. (As an aside, local variables are faster in
+Lua because global variables require extra table lookups.) Directories
+containing loaded Lua scripts (including those specified on the command line
+with _$$-X lua_script:$$++my.lua++_) are automatically added to the `require()`
+search path.
+
+For example, suppose there is a Lua script in the personal plugins directory
+named _bar.lua_ as follows:
+
+[source,lua]
+----
+-- bar.lua
+-- Converts an integer representing an IPv4 address into its dotted quad
+-- string representation.
+
+-- This is the module object, which will be returned at the end of this file.
+local M = {
+}
+
+M.GetIPAddressString = function(ip)
+    -- Lua BitOp library, included in all versions of Wireshark
+    --local octet1 = bit.rshift(bit.band(0xFF000000, ip), 24)
+    --local octet2 = bit.rshift(bit.band(0x00FF0000, ip), 16)
+    --local octet3 = bit.rshift(bit.band(0x0000FF00, ip), 8)
+    --local octet4 = bit.band(0x000000FF, ip)
+
+    -- Lua >= 5.3 native bit operators, supported in Wireshark >= 4.4
+    local octet1 = ip >> 24
+    local octet2 = ip >> 16 & 0xFF
+    local octet3 = ip >> 8 & 0xFF
+    local octet4 = ip & 0xFF
+
+    return octet1 .. "." .. octet2 .. "." .. octet3 .. "." .. octet4
+end
+
+-- Return the table we've created, which will be accessible as the return
+-- value of require() or dofile(), and at the global package.loaded["bar"]
+return M
+----
+
+Other Lua plugins that wish to use the module can then `require()` it
+(note that the _.lua_ extension is not used in `require()`, unlike the
+similar `dofile()`):
+
+[source,lua]
+----
+-- Foo dissector
+local p_foo = Proto("foo", "Foo")
+
+local bar = require("bar")
+
+local f_ip = ProtoField.ipv4("foo.ip", "IP")
+local f_ipint = ProtoField.uint32("foo.ipint", "IP as Uint32")
+local f_ipstr = ProtoField.string("foo.ipstr", "IP as String")
+
+p_foo.fields = { f_ip, f_ipint, f_ipstr }
+
+function p_foo.dissector(tvbuf, pktinfo, tree)
+
+    -- Set the protocol column to show this name
+    pktinfo.cols.protocol:set("FooMessage")
+
+    local pktlen = tvbuf:reported_length_remaining()
+
+    local subtree = tree:add(p_foo, tvbuf:range(0,pktlen))
+
+    local child, ipaddr = subtree:add_packet_field(f_ip, tvbuf(8, 4), ENC_BIG_ENDIAN)
+    local child, ipint = subtree:add_packet_field(f_ipint, tvbuf(8, 4), ENC_BIG_ENDIAN)
+
+    -- These two are the same string
+    subtree:add(f_ipstr, tvbuf(8,4), bar.GetIPAddressString(ipint))
+    subtree:add(f_ipstr, tvbuf(8,4), tostring(ipaddr))
+
+    return pktlen
+end
+
+DissectorTable.get("udp.port"):add(2012, p_foo)
+----
+
+Using `require()` is another way to control the order in which files are loaded.
+Lua `require()` ensures that a module is only executed once. Subsequent calls
+will return the same table already loaded.
+
+[IMPORTANT]
+.Avoid duplicate registration
+====
+In versions of Wireshark before 4.4, the initial loading of Lua plugins in the
+plugins directory does not register them in the table of already loaded modules
+used by `require()`. This means that Lua script in the plugins directory that
+are initially loaded can be executed a second time by `require()`. For scripts
+that register dissectors or tables with Wireshark, this will result in errors like
+`Proto new: there cannot be two protocols with the same description`. It is
+safer to `require()` only Lua scripts that define common functions but do not
+call the Wireshark Lua API to register protocols, dissectors, etc.
+
+In 4.4 and later, scripts in the plugin directories are loaded using the same
+internal methods as `require()`, which eliminates duplicate registration errors
+from loading of files in the plugin directory and using `require()`. This also
+means that the order in which plugins are loaded can be adjusted by using
+`require()` in addition to changing file names. However, duplicate registration
+errors can still happen with other methods of executing a file that do
+not check if it has already been loaded, like `dofile()`.
+====
+
+Lua scripts loaded on the command line are sandboxed into their own environment
+and globals defined in them do not leak in the general global environment.
+Modules loaded via `require()` within those scripts can escape that sandboxing,
+however. Plugins in the personal (but not global) directory had similar
+sandboxing prior to Wireshark 4.4, but now globals defined in plugins in the
+personal directory will enter the global namespace for other plugins, as has
+always been the case for plugins in the global plugin directory.
+
 [#wsluarm_modules]
 
 == Wireshark’s Lua API Reference Manual
