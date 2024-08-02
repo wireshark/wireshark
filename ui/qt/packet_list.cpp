@@ -584,7 +584,6 @@ void PacketList::selectionChanged (const QItemSelection & selected, const QItemS
         selection_history_.resize(cur_history_);
         selection_history_.append(cap_file_->current_frame->num);
     }
-    in_history_ = false;
 
     related_packet_delegate_.clear();
 
