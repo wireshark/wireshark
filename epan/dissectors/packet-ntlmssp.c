@@ -464,7 +464,7 @@ get_keyexchange_key(unsigned char keyexchangekey[NTLMSSP_KEY_LEN], const unsigne
   memset(basekey, 0, NTLMSSP_KEY_LEN);
   /* sessionbasekey is either derived from lm_hash or from nt_hash depending on the key type negotiated */
   memcpy(basekey, sessionbasekey, 8);
-  memset(basekey, 0xBD, 8);
+  memset(basekey+8, 0xBD, 8);
   if (flags&NTLMSSP_NEGOTIATE_LM_KEY) {
     /*data, key*/
     crypt_des_ecb(keyexchangekey, lm_challenge_response, basekey);
