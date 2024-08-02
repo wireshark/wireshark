@@ -314,12 +314,12 @@ SecurityCategory/type								ABBREV=category.type
 ExtensionField/type									ABBREV=extension.type
 TokenData/type										ABBREV=token-data-type
 
-# This table creates the value_sting to name P3 operation codes and errors
+# This table creates the value_string to name P3 operation codes and errors
 # in file packet-p3-table.c which is included in the template file
 #
 #.TABLE_HDR
 /* P3 ABSTRACT-OPERATIONS */
-const value_string p3_opr_code_string_vals[] = {
+static const value_string p3_opr_code_string_vals[] = {
 #.TABLE_BODY OPERATION
 	{ %(&operationCode)s, "%(_ident)s" },
 #.TABLE_FTR

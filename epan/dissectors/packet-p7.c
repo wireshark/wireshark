@@ -602,7 +602,7 @@ static int ett_p7_RTABapdu;
 
 
 /* P7 ABSTRACT-OPERATIONS */
-const value_string p7_opr_code_string_vals[] = {
+static const value_string p7_opr_code_string_vals[] = {
 	{ op_ros_bind, "ms_bind" },
 	{ op_summarize, "summarize" },
 	{ op_list, "list" },

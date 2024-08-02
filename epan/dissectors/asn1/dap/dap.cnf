@@ -186,12 +186,12 @@ SaslCredentials/credentials ABBREV=saslCredentials
 TokenData/time				ABBREV=utctime
 NameErrorData/matched		ABBREV=matched_name
 
-# This table creates the value_sting to name DAP operation codes and errors
+# This table creates the value_string to name DAP operation codes and errors
 # in file packet-dap-table.c which is included in the template file
 #
 #.TABLE_HDR
 /* DAP OPERATIONS */
-const value_string dap_opr_code_string_vals[] = {
+static const value_string dap_opr_code_string_vals[] = {
 #.TABLE_BODY OPERATION
 	{ %(&operationCode)s, "%(_ident)s" },
 #.TABLE_FTR

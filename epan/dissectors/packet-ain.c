@@ -784,7 +784,7 @@ static const value_string ain_nature_of_carrier_vals[] = {
 
 
 /* AIN OPERATIONS */
-const value_string ain_opr_code_strings[] = {
+static const value_string ain_opr_code_strings[] = {
   { 26116                                   , "callInfoFromResource" },
   { 28161                                   , "close" },
   { 26118                                   , "cTRClear" },

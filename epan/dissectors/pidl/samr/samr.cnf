@@ -365,7 +365,7 @@ samr_user_specific_rights(tvbuff_t *tvb, int offset, proto_tree *tree, uint32_t 
 	proto_tree_add_bitmask_list_value(tree, tvb, offset, 4, access_flags, access);
 }
 
-struct access_mask_info samr_user_access_mask_info = {
+static struct access_mask_info samr_user_access_mask_info = {
 	"SAMR User",			/* Name of specific rights */
 	samr_user_specific_rights,	/* Dissection function */
 	NULL,				/* Generic mapping table */

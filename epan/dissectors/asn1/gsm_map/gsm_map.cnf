@@ -180,7 +180,7 @@ VelocityEstimate
 #.REGISTER
 MAP-DialoguePDU				B "0.4.0.0.1.1.1.1" "map-DialogueAS"
 
-# This table creates the value_sting to name GSM MAP operation codes and errors
+# This table creates the value_string to name GSM MAP operation codes and errors
 # in file packet-camel-table.c which is included in the template file
 #
 #.TABLE_BODY OPERATION

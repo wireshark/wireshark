@@ -83,7 +83,7 @@ CAMEL-AChBillingChargingCharacteristics/timeDurationCharging/tariffSwitchInterva
 ApplyChargingGPRSArg/tariffSwitchInterval applyChargingGPRS-tariffSwitchInterval
 TimeIfTariffSwitch/tariffSwitchInterval timeIfTariffSwitch-tariffSwitchInterval
 
-# This table creates the value_sting to name Camel operation codes and errors
+# This table creates the value_string to name Camel operation codes and errors
 # in file packet-camel-table.c which is included in the template file
 #
 #.TABLE_HDR
