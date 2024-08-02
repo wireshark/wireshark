@@ -41,7 +41,7 @@
 //*
 //*                              from 4-5 August 1999 TEM - Simplified the 2 and 3D Coordinates to be floats only.
 //*                              from 19 January 2000 TEM -
-//* included a generic exception∆s model that GIXS,
+//* included a generic exceptions model that GIXS,
 //*GIAS Profile will use.
 //*	7 March 2000		   from March 2000 TEM - added new //*						   structure that is somewhat similar //*					   to NameValueTable called a //*							   StringTable
 //*
