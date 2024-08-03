@@ -286,18 +286,6 @@ AboutDialog::AboutDialog(QWidget *parent) :
     QFile f_acknowledgements;
     QFile f_license;
 
-    AuthorListModel * authorModel = new AuthorListModel(this);
-    AStringListListSortFilterProxyModel * proxyAuthorModel = new AStringListListSortFilterProxyModel(this);
-    proxyAuthorModel->setSourceModel(authorModel);
-    proxyAuthorModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
-    proxyAuthorModel->setColumnToFilter(0);
-    proxyAuthorModel->setColumnToFilter(1);
-    ui->tblAuthors->setModel(proxyAuthorModel);
-    ui->tblAuthors->setRootIsDecorated(false);
-    ui->tblAuthors->setContextMenuPolicy(Qt::CustomContextMenu);
-    connect(ui->tblAuthors, &QTreeView::customContextMenuRequested, this, &AboutDialog::handleCopyMenu);
-    connect(ui->searchAuthors, &QLineEdit::textChanged, proxyAuthorModel, &AStringListListSortFilterProxyModel::setFilter);
-
     if (!is_packet_configuration_namespace()) {
         setWindowTitle(tr("About Logray"));
         ui->tabWidget->setTabText(ui->tabWidget->indexOf(ui->tab_wireshark), tr("Logray"));
@@ -314,11 +302,27 @@ AboutDialog::AboutDialog(QWidget *parent) :
         ui->label_logo->setPixmap(QPixmap(":/about/wssplash_dev.png"));
 #endif
 
+    /* Authors */
+    AuthorListModel * authorModel = new AuthorListModel(this);
+    AStringListListSortFilterProxyModel * authorProxyModel = new AStringListListSortFilterProxyModel(this);
+    authorProxyModel->setSourceModel(authorModel);
+    authorProxyModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
+    authorProxyModel->setColumnToFilter(0);
+    authorProxyModel->setColumnToFilter(1);
+    ui->tblAuthors->setModel(authorProxyModel);
+    ui->tblAuthors->setRootIsDecorated(false);
+    ui->tblAuthors->setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(ui->tblAuthors, &QTreeView::customContextMenuRequested, this, &AboutDialog::handleCopyMenu);
+    connect(ui->searchAuthors, &QLineEdit::textChanged, authorProxyModel, &AStringListListSortFilterProxyModel::setFilter);
+
     /* Folders */
     FolderListModel * folderModel = new FolderListModel(this);
     AStringListListSortFilterProxyModel * folderProxyModel = new AStringListListSortFilterProxyModel(this);
     folderProxyModel->setSourceModel(folderModel);
+    folderProxyModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
+    folderProxyModel->setColumnToFilter(0);
     folderProxyModel->setColumnToFilter(1);
+    folderProxyModel->setColumnToFilter(2);
     folderProxyModel->setFilterType(AStringListListSortFilterProxyModel::FilterByStart);
     AStringListListUrlProxyModel * folderDisplayModel = new AStringListListUrlProxyModel(this);
     folderDisplayModel->setSourceModel(folderProxyModel);
@@ -334,13 +338,16 @@ AboutDialog::AboutDialog(QWidget *parent) :
     connect(ui->searchFolders, &QLineEdit::textChanged, folderProxyModel, &AStringListListSortFilterProxyModel::setFilter);
     connect(ui->tblFolders, &QTreeView::doubleClicked, this, &AboutDialog::urlDoubleClicked);
 
-
     /* Plugins */
     ui->label_no_plugins->hide();
     PluginListModel * pluginModel = new PluginListModel(this);
     AStringListListSortFilterProxyModel * pluginFilterModel = new AStringListListSortFilterProxyModel(this);
     pluginFilterModel->setSourceModel(pluginModel);
+    pluginFilterModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
     pluginFilterModel->setColumnToFilter(0);
+    pluginFilterModel->setColumnToFilter(1);
+    pluginFilterModel->setColumnToFilter(2);
+    pluginFilterModel->setColumnToFilter(3);
     AStringListListSortFilterProxyModel * pluginTypeModel = new AStringListListSortFilterProxyModel(this);
     pluginTypeModel->setSourceModel(pluginFilterModel);
     pluginTypeModel->setColumnToFilter(2);
@@ -372,6 +379,7 @@ AboutDialog::AboutDialog(QWidget *parent) :
     AStringListListSortFilterProxyModel * shortcutProxyModel = new AStringListListSortFilterProxyModel(this);
     shortcutProxyModel->setSourceModel(shortcutModel);
     shortcutProxyModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
+    shortcutProxyModel->setColumnToFilter(0);
     shortcutProxyModel->setColumnToFilter(1);
     shortcutProxyModel->setColumnToFilter(2);
     ui->tblShortcuts->setModel(shortcutProxyModel);

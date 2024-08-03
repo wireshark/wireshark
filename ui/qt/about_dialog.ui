@@ -157,7 +157,7 @@
        <item>
         <widget class="QLineEdit" name="searchFolders">
          <property name="placeholderText">
-          <string>Filter by path</string>
+          <string>Search Folders</string>
          </property>
         </widget>
        </item>
