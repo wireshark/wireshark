@@ -114,7 +114,7 @@ add_library(wslua OBJECT
 )
 
 if(FETCH_lua)
-	add_dependencies(wslua lua53)
+	add_dependencies(wslua lua54)
 endif()
 
 target_include_directories(wslua
