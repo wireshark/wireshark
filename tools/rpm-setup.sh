@@ -236,21 +236,36 @@ fi
 
 if [ $ADD_QT6 -ne 0 ]
 then
-	# Fedora Qt6 packages required from a minimal installation
-	QT6_LIST=(qt6-qtbase-devel
-			qt6-qttools-devel
-			qt6-qt5compat-devel
-			qt6-qtmultimedia-devel
-			libxkbcommon-devel)
+	# See CMakeLists.txt in the root directory for a list of
+	# Qt6 modules required for a minimal installation
+	# Base and Multimedia pull in most of the other required modules
+	# RH/Fedora and SUSE use slightly different pkg names for modules
+	QT6_LIST=(base
+			tools
+			multimedia)
 
-	for pkg in "${QT6_LIST[@]}"
+	for module in "${QT6_LIST[@]}"
 	do
-		add_package BASIC_LIST "$pkg" ||
-		echo "Qt6 dependency $pkg is unavailable" >&2
+		add_package BASIC_LIST "qt6-qt${module}-devel" ||
+		add_package BASIC_LIST "qt6-${module}-devel" ||
+		echo "Required Qt6 Module $module is unavailable" >&2
 	done
 
+	# qt6-linguist: RHEL, Fedora
+	# qt6-linguist-devel: OpenSUSE
+	add_package BASIC_LIST qt6-linguist ||
+	add_package BASIC_LIST qt6-linguist-devel ||
+	echo "Required Qt6 module LinguistTools is unavailable" >&2
+
+	add_package BASIC_LIST qt6-qt5compat-devel ||
+	echo "Required Qt6 module Qt5Compat is unavailable"
+
+	add_package BASIC_LIST libxkbcommon-devel ||
+	echo "Required Qt6 dependency libxkbcommon-devel is unavailable"
+
 	add_package ADDITIONAL_LIST qt6-qtimageformats ||
-	echo "Optional Qt6 Image Formats is unavailable" >&2
+	add_package ADDITIONAL_LIST qt6-imageformats ||
+	echo "Optional Qt6 module Image Formats is unavailable" >&2
 fi
 
 # This in only required on OpenSUSE
