@@ -17,6 +17,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/oids.h>
 #include <epan/asn1.h>
 #include <epan/proto_data.h>
 #include <wsutil/array.h>
@@ -45,15 +46,19 @@ static int hf_pkinit_trustedCertifiers_item;      /* TrustedCA */
 static int hf_pkinit_kdcCert;                     /* IssuerAndSerialNumber */
 static int hf_pkinit_caName;                      /* Name */
 static int hf_pkinit_issuerAndSerial;             /* IssuerAndSerialNumber */
+static int hf_pkinit_kdf_id;                      /* OBJECT_IDENTIFIER */
 static int hf_pkinit_pkAuthenticator;             /* PKAuthenticator */
 static int hf_pkinit_clientPublicValue;           /* SubjectPublicKeyInfo */
 static int hf_pkinit_supportedCMSTypes;           /* SEQUENCE_OF_AlgorithmIdentifier */
 static int hf_pkinit_supportedCMSTypes_item;      /* AlgorithmIdentifier */
 static int hf_pkinit_clientDHNonce;               /* DHNonce */
+static int hf_pkinit_supportedKDFs;               /* SEQUENCE_OF_KDFAlgorithmId */
+static int hf_pkinit_supportedKDFs_item;          /* KDFAlgorithmId */
 static int hf_pkinit_cusec;                       /* INTEGER */
 static int hf_pkinit_ctime;                       /* KerberosTime */
 static int hf_pkinit_paNonce;                     /* INTEGER_0_4294967295 */
 static int hf_pkinit_paChecksum;                  /* OCTET_STRING */
+static int hf_pkinit_freshnessToken;              /* OCTET_STRING */
 static int hf_pkinit_realm;                       /* Realm */
 static int hf_pkinit_principalName;               /* PrincipalName */
 static int hf_pkinit_dhSignedData;                /* ContentInfo */
@@ -75,8 +80,10 @@ static int hf_pkinit_encryption_cert;             /* OCTET_STRING */
 static int ett_pkinit_PaPkAsReq;
 static int ett_pkinit_SEQUENCE_OF_TrustedCA;
 static int ett_pkinit_TrustedCA;
+static int ett_pkinit_KDFAlgorithmId;
 static int ett_pkinit_AuthPack;
 static int ett_pkinit_SEQUENCE_OF_AlgorithmIdentifier;
+static int ett_pkinit_SEQUENCE_OF_KDFAlgorithmId;
 static int ett_pkinit_PKAuthenticator;
 static int ett_pkinit_KRB5PrincipalName;
 static int ett_pkinit_PaPkAsRep;
@@ -153,6 +160,29 @@ dissect_pkinit_DHNonce(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_,
 
 
 static int
+dissect_pkinit_OBJECT_IDENTIFIER(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_object_identifier(implicit_tag, actx, tree, tvb, offset, hf_index, NULL);
+
+  return offset;
+}
+
+
+static const ber_sequence_t KDFAlgorithmId_sequence[] = {
+  { &hf_pkinit_kdf_id       , BER_CLASS_CON, 0, 0, dissect_pkinit_OBJECT_IDENTIFIER },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_pkinit_KDFAlgorithmId(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   KDFAlgorithmId_sequence, hf_index, ett_pkinit_KDFAlgorithmId);
+
+  return offset;
+}
+
+
+
+static int
 dissect_pkinit_INTEGER(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                                 NULL);
@@ -186,6 +216,7 @@ static const ber_sequence_t PKAuthenticator_sequence[] = {
   { &hf_pkinit_ctime        , BER_CLASS_CON, 1, 0, dissect_KerberosV5Spec2_KerberosTime },
   { &hf_pkinit_paNonce      , BER_CLASS_CON, 2, 0, dissect_pkinit_INTEGER_0_4294967295 },
   { &hf_pkinit_paChecksum   , BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL, dissect_pkinit_OCTET_STRING },
+  { &hf_pkinit_freshnessToken, BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL, dissect_pkinit_OCTET_STRING },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -217,11 +248,25 @@ dissect_pkinit_SEQUENCE_OF_AlgorithmIdentifier(bool implicit_tag _U_, tvbuff_t *
 }
 
 
+static const ber_sequence_t SEQUENCE_OF_KDFAlgorithmId_sequence_of[1] = {
+  { &hf_pkinit_supportedKDFs_item, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_pkinit_KDFAlgorithmId },
+};
+
+static int
+dissect_pkinit_SEQUENCE_OF_KDFAlgorithmId(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                      SEQUENCE_OF_KDFAlgorithmId_sequence_of, hf_index, ett_pkinit_SEQUENCE_OF_KDFAlgorithmId);
+
+  return offset;
+}
+
+
 static const ber_sequence_t AuthPack_sequence[] = {
   { &hf_pkinit_pkAuthenticator, BER_CLASS_CON, 0, 0, dissect_pkinit_PKAuthenticator },
   { &hf_pkinit_clientPublicValue, BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL, dissect_pkix1explicit_SubjectPublicKeyInfo },
   { &hf_pkinit_supportedCMSTypes, BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL, dissect_pkinit_SEQUENCE_OF_AlgorithmIdentifier },
   { &hf_pkinit_clientDHNonce, BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL, dissect_pkinit_DHNonce },
+  { &hf_pkinit_supportedKDFs, BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL, dissect_pkinit_SEQUENCE_OF_KDFAlgorithmId },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -458,6 +503,10 @@ void proto_register_pkinit(void) {
       { "issuerAndSerial", "pkinit.issuerAndSerial_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "IssuerAndSerialNumber", HFILL }},
+    { &hf_pkinit_kdf_id,
+      { "kdf-id", "pkinit.kdf_id",
+        FT_OID, BASE_NONE, NULL, 0,
+        "OBJECT_IDENTIFIER", HFILL }},
     { &hf_pkinit_pkAuthenticator,
       { "pkAuthenticator", "pkinit.pkAuthenticator_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -478,6 +527,14 @@ void proto_register_pkinit(void) {
       { "clientDHNonce", "pkinit.clientDHNonce",
         FT_BYTES, BASE_NONE, NULL, 0,
         "DHNonce", HFILL }},
+    { &hf_pkinit_supportedKDFs,
+      { "supportedKDFs", "pkinit.supportedKDFs",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "SEQUENCE_OF_KDFAlgorithmId", HFILL }},
+    { &hf_pkinit_supportedKDFs_item,
+      { "KDFAlgorithmId", "pkinit.KDFAlgorithmId_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
     { &hf_pkinit_cusec,
       { "cusec", "pkinit.cusec",
         FT_INT32, BASE_DEC, NULL, 0,
@@ -492,6 +549,10 @@ void proto_register_pkinit(void) {
         "INTEGER_0_4294967295", HFILL }},
     { &hf_pkinit_paChecksum,
       { "paChecksum", "pkinit.paChecksum",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "OCTET_STRING", HFILL }},
+    { &hf_pkinit_freshnessToken,
+      { "freshnessToken", "pkinit.freshnessToken",
         FT_BYTES, BASE_NONE, NULL, 0,
         "OCTET_STRING", HFILL }},
     { &hf_pkinit_realm,
@@ -565,8 +626,10 @@ void proto_register_pkinit(void) {
     &ett_pkinit_PaPkAsReq,
     &ett_pkinit_SEQUENCE_OF_TrustedCA,
     &ett_pkinit_TrustedCA,
+    &ett_pkinit_KDFAlgorithmId,
     &ett_pkinit_AuthPack,
     &ett_pkinit_SEQUENCE_OF_AlgorithmIdentifier,
+    &ett_pkinit_SEQUENCE_OF_KDFAlgorithmId,
     &ett_pkinit_PKAuthenticator,
     &ett_pkinit_KRB5PrincipalName,
     &ett_pkinit_PaPkAsRep,
@@ -591,5 +654,16 @@ void proto_reg_handoff_pkinit(void) {
   register_ber_oid_dissector("1.3.6.1.5.2.3.2", dissect_KDCDHKeyInfo_PDU, proto_pkinit, "id-pkdhkeydata");
   register_ber_oid_dissector("1.3.6.1.5.2.2", dissect_KRB5PrincipalName_PDU, proto_pkinit, "id-pkinit-san");
 
-}
 
+    /* It would seem better to get these from REGISTER declarations in
+       pkinit.cnf rather than putting them in the template this way,
+       but I had trouble with that, and other existing examples are
+       done this way. [res Fri Aug 2 23:55:30 2024]
+
+       RFC-8636 "PKINIT Algorithm Agility"
+    */
+    oid_add_from_string("id-pkinit-kdf-ah-sha1"   , "1.3.6.1.5.2.3.6.1");
+    oid_add_from_string("id-pkinit-kdf-ah-sha256" , "1.3.6.1.5.2.3.6.2");
+    oid_add_from_string("id-pkinit-kdf-ah-sha512" , "1.3.6.1.5.2.3.6.3");
+    oid_add_from_string("id-pkinit-kdf-ah-sha384" , "1.3.6.1.5.2.3.6.4");
+}

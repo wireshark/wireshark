@@ -12,6 +12,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/oids.h>
 #include <epan/asn1.h>
 #include <epan/proto_data.h>
 #include <wsutil/array.h>
@@ -100,5 +101,16 @@ void proto_register_pkinit(void) {
 /*--- proto_reg_handoff_pkinit -------------------------------------------*/
 void proto_reg_handoff_pkinit(void) {
 #include "packet-pkinit-dis-tab.c"
-}
 
+    /* It would seem better to get these from REGISTER declarations in
+       pkinit.cnf rather than putting them in the template this way,
+       but I had trouble with that, and other existing examples are
+       done this way. [res Fri Aug 2 23:55:30 2024]
+
+       RFC-8636 "PKINIT Algorithm Agility"
+    */
+    oid_add_from_string("id-pkinit-kdf-ah-sha1"   , "1.3.6.1.5.2.3.6.1");
+    oid_add_from_string("id-pkinit-kdf-ah-sha256" , "1.3.6.1.5.2.3.6.2");
+    oid_add_from_string("id-pkinit-kdf-ah-sha512" , "1.3.6.1.5.2.3.6.3");
+    oid_add_from_string("id-pkinit-kdf-ah-sha384" , "1.3.6.1.5.2.3.6.4");
+}
