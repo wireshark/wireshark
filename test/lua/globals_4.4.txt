@@ -1552,7 +1552,7 @@
         ["_newmembuffer"] = '<function 448>',
         ["split"] = '<function 449>',
         ["version"] = '<function 450>',
-        ["_VERSION"] = "Lrexlib 2.9.1 (for PCRE2)"
+        ["_VERSION"] = "Lrexlib 2.9.2 (for PCRE2)"
     },
     ["running_superuser"] = '<filtered>',
     ["select"] = '<function 451>',

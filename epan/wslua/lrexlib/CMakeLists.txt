@@ -25,6 +25,6 @@ if(FETCH_lua)
 endif()
 
 add_compile_definitions(
-	VERSION=\"2.9.1\"
+	VERSION=\"2.9.2\"
 	PCRE2_CODE_UNIT_WIDTH=8
 )
