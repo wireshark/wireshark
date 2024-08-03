@@ -66,7 +66,6 @@ ADDITIONAL_LIST="\
 	libsmi \
 	brotli \
 	zstd \
-	lua53 \
 	"
 
 # Uncomment to add PNG compression utilities used by compress-pngs:
@@ -174,6 +173,14 @@ echo "ninja is unavailable"
 # libilbc: FreeBSD
 add_package ADDITIONAL_LIST libilbc ||
 echo "libilbc is unavailable"
+
+# lua: OpenBSD latest (current 5.4)
+# lua54: FreeBSD, NetBSD 5.4.x
+# lua53 is also acceptable
+add_package ADDITIONAL_LIST lua ||
+add_package ADDITIONAL_LIST lua54 ||
+add_package ADDITIONAL_LIST lua53 ||
+echo "lua >= 5.3 is unavailable"
 
 # Add OS-specific required/optional packages
 # Those not listed don't require additions.
