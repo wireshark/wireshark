@@ -170,11 +170,8 @@ add_packages() {
 add_package BASIC_LIST glib2 || add_package BASIC_LIST libglib-2_0-0 ||
 echo "Required package glib2|libglib-2_0-0 is unavailable" >&2
 
-add_package BASIC_LIST lua53-devel || add_package BASIC_LIST lua-devel ||
-echo "Required package lua53-devel|lua-devel is unavailable" >&2
-
-add_package BASIC_LIST lua53 || add_package BASIC_LIST lua ||
-echo "Required package lua53|lua is unavailable" >&2
+add_package BASIC_LIST lua-devel || add_package BASIC_LIST lua54-devel || add_package BASIC_LIST lua53-devel ||
+echo "Required package lua-devel|lua54-devel|lua53-devel is unavailable" >&2
 
 add_package BASIC_LIST libpcap || add_package BASIC_LIST libpcap1 ||
 echo "Required package libpcap|libpcap1 is unavailable" >&2
