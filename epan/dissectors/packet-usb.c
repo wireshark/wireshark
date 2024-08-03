@@ -4441,7 +4441,7 @@ dissect_linux_usb_pseudo_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
     usb_conv_info->transfer_type = transfer_type;
 
     endpoint_byte = tvb_get_uint8(tvb, 10);   /* direction bit | endpoint */
-    usb_conv_info->endpoint = endpoint_byte & 0x7F;
+    usb_conv_info->endpoint = endpoint_byte;
     if (endpoint_byte & URB_TRANSFER_IN)
         usb_conv_info->direction = P2P_DIR_RECV;
     else
@@ -4519,7 +4519,7 @@ dissect_usbpcap_buffer_packet_header(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 
     endpoint_byte = tvb_get_uint8(tvb, 21);
     usb_conv_info->direction = endpoint_byte&URB_TRANSFER_IN ?  P2P_DIR_RECV : P2P_DIR_SENT;
-    usb_conv_info->endpoint = endpoint_byte&0x7F;
+    usb_conv_info->endpoint = endpoint_byte;
     proto_tree_add_bitmask(tree, tvb, 21, hf_usb_endpoint_address, ett_usb_endpoint, usb_endpoint_fields, ENC_LITTLE_ENDIAN);
 
     transfer_type = tvb_get_uint8(tvb, 22);
@@ -4593,7 +4593,7 @@ dissect_darwin_buffer_packet_header(tvbuff_t *tvb, packet_info *pinfo, proto_tre
     proto_tree_add_uint(tree, hf_usb_darwin_device_address, tvb, 29, 1, usb_conv_info->device_address);
 
     endpoint_byte = tvb_get_uint8(tvb, 30);   /* direction bit | endpoint */
-    usb_conv_info->endpoint = endpoint_byte & 0x7F;
+    usb_conv_info->endpoint = endpoint_byte;
     if (endpoint_byte & URB_TRANSFER_IN) {
         usb_conv_info->direction = P2P_DIR_RECV;
     }

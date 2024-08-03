@@ -1372,6 +1372,10 @@ void mausb_set_usb_conv_info(usb_conv_info_t *usb_conv_info,
         usb_conv_info->device_address = mausb_ep_handle_dev_addr(header->handle);
         usb_conv_info->direction = mausb_is_from_host(header);
         usb_conv_info->endpoint = mausb_ep_handle_ep_num(header->handle);
+        if (mausb_ep_handle_ep_d(header->handle)) {
+            /* IN endpoint */
+            usb_conv_info->endpoint |= 0x80;
+        }
         usb_conv_info->is_setup = mausb_has_setup_data(header) ||
                                   mausb_is_setup_response(header);
         switch (mausb_tx_type(header)) {
