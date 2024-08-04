@@ -154,7 +154,7 @@ static dissector_handle_t bgp_handle;
 #define BGP_OPTION_CAPABILITY        2   /* RFC2842 */
 #define BGP_OPTION_EXTENDED_LEN        255     /* RFC9072 */
 
-/* https://www.iana.org/assignments/capability-codes/capability-codes.xhtml (last updated 2018-08-21) */
+/* https://www.iana.org/assignments/capability-codes/capability-codes.xhtml (last updated 2024-01-23) */
 /* BGP capability code */
 #define BGP_CAPABILITY_RESERVED                      0  /* RFC5492 */
 #define BGP_CAPABILITY_MULTIPROTOCOL                 1  /* RFC2858 */
@@ -178,9 +178,13 @@ static dissector_handle_t bgp_handle;
 #define BGP_CAPABILITY_FQDN                         73  /* draft-walton-bgp-hostname-capability */
 #define BGP_CAPABILITY_BFD_STRICT                   74  /* draft-ietf-idr-bgp-bfd-strict-mode */
 #define BGP_CAPABILITY_SOFT_VERSION                 75  /* draft-abraitis-bgp-version-capability */
-#define BGP_CAPABILITY_ROUTE_REFRESH_CISCO         128  /* Cisco */
-#define BGP_CAPABILITY_ORF_CISCO                   130  /* Cisco */
-#define BGP_CAPABILITY_MULTISESSION_CISCO          131  /* Cisco */
+#define BGP_CAPABILITY_PATHS_LIMIT                  76  /* draft-abraitis-idr-addpath-paths-limit */
+#define BGP_CAPABILITY_ROUTE_REFRESH_CISCO         128  /* Cisco, RFC8810 */
+#define BGP_CAPABILITY_RPD_CISCO                   129  /* Cisco, RFC8810 */
+#define BGP_CAPABILITY_ORF_CISCO                   130  /* Cisco, RFC8810 */
+#define BGP_CAPABILITY_MULTISESSION_CISCO          131  /* Cisco, RFC8810 */
+#define BGP_CAPABILITY_FQDN_CISCO                  184  /* Cisco, RFC8810 */
+#define BGP_CAPABILITY_OPERATIONAL_MSG_CISCO       185  /* Cisco, RFC8810 */
 
 #define BGP_ORF_PREFIX_CISCO    0x80 /* Cisco */
 #define BGP_ORF_COMM_CISCO      0x81 /* Cisco */
@@ -204,6 +208,14 @@ static dissector_handle_t bgp_handle;
 /* https://www.iana.org/assignments/bgp-well-known-communities/bgp-well-known-communities.xhtml */
 #define BGP_COMM_GRACEFUL_SHUTDOWN   0xFFFF0000
 #define BGP_COMM_ACCEPT_OWN          0xFFFF0001
+#define BGP_COMM_RT_FLTR_XLTD_V4     0xFFFF0002
+#define BGP_COMM_RT_FLTR_V4          0xFFFF0003
+#define BGP_COMM_RT_FLTR_XLTD_V6     0xFFFF0004
+#define BGP_COMM_RT_FLTR_V6          0xFFFF0005
+#define BGP_COMM_LLGR_STALE          0xFFFF0006
+#define BGP_COMM_NO_LLGR             0xFFFF0007
+#define BGP_COMM_ACCEPT_OWN_HOP      0xFFFF0008
+#define BGP_COMM_STANDBY_PE          0xFFFF0009
 #define BGP_COMM_BLACKHOLE           0xFFFF029A
 #define BGP_COMM_NO_EXPORT           0xFFFFFF01
 #define BGP_COMM_NO_ADVERTISE        0xFFFFFF02
@@ -251,6 +263,9 @@ static dissector_handle_t bgp_handle;
 #define BGPTYPE_BGPSEC_PATH         33 /* BGPsec_PATH [RFC8205] */
 #define BGPTYPE_OTC                 35 /* BGP Only to Customer [RFC9234] */
 #define BGPTYPE_D_PATH              36 /* https://tools.ietf.org/html/draft-rabadan-sajassi-bess-evpn-ipvpn-interworking-02 */
+#define BGPTYPE_SFP_ATTRIBUTE       37 /* SFP Attribute [RFC9015] */
+#define BGPTYPE_BFD_DISCRIMINATOR   38 /* BFD Discriminator [RFC9026] */
+#define BGPTYPE_NEXT_HOP_DEP_CAP    39 /* BGP Next Hop Dependent Capabilities draft-ietf-idr-entropy-label-13 */
 #define BGPTYPE_BGP_PREFIX_SID      40 /* BGP Prefix-SID [RFC8669] */
 #define BGPTYPE_LINK_STATE_OLD_ATTR 99 /* squatted value used by at least 2
                                           implementations before IANA assignment */
@@ -341,10 +356,12 @@ static dissector_handle_t bgp_handle;
 #define BGP_EXT_COM_TYPE_HIGH_TR_FLOW_I     0x07    /* FlowSpec Transitive Extended Communities [draft-ietf-idr-flowspec-interfaceset] */
 #define BGP_EXT_COM_TYPE_HIGH_TR_FLOW       0x08    /* Flow spec redirect/mirror to IP next-hop [draft-simpson-idr-flowspec-redirect] */
 #define BGP_EXT_COM_TYPE_HIGH_TR_FLOW_R     0x09    /* FlowSpec Redirect to indirection-id Extended Community [draft-ietf-idr-flowspec-path-redirect] */
+#define BGP_EXT_COM_TYPE_HIGH_TR_TP_CLASS   0x0a    /* Transitive Transport Class [draft-ietf-idr-bgp-ct-30] */
+#define BGP_EXT_COM_TYPE_HIGH_TR_SFC        0x0b    /* Transitive SFC [RFC9015] */
 #define BGP_EXT_COM_TYPE_HIGH_TR_MUP        0x0c    /* Transitive MUP Extended Community */
-#define BGP_EXT_COM_TYPE_HIGH_TR_EXP        0x80    /* Generic Transitive Experimental Extended Community */
-#define BGP_EXT_COM_TYPE_HIGH_TR_EXP_2      0x81    /* Generic Transitive Experimental Use Extended Community Part 2 [RFC7674] */
-#define BGP_EXT_COM_TYPE_HIGH_TR_EXP_3      0x82    /* Generic Transitive Experimental Use Extended Community Part 3 [RFC7674] */
+#define BGP_EXT_COM_TYPE_HIGH_TR_EXT        0x80    /* Generic Transitive Extended Community [RFC7153][RFC9184] */
+#define BGP_EXT_COM_TYPE_HIGH_TR_EXT_2      0x81    /* Generic Transitive Extended Community Part 2 [RFC8955][RFC9184] */
+#define BGP_EXT_COM_TYPE_HIGH_TR_EXT_3      0x82    /* Generic Transitive Extended Community Part 3 [RFC8955][RFC9184] */
 #define BGP_EXT_COM_TYPE_HIGH_TR_EXP_EIGRP  0x88    /* EIGRP attributes - http://www.cisco.com/c/en/us/td/docs/ios/12_0s/feature/guide/seipecec.html */
 
 /* BGP non transitive extended community type high octet */
@@ -352,12 +369,13 @@ static dissector_handle_t bgp_handle;
 /* 0xc0-0xcf Reserved for Experimental Use (see [RFC4360]) */
 /* 0xd0-0xff Standards Action */
 /* 0x45-0x7f Unassigned */
-#define BGP_EXT_COM_TYPE_HIGH_NTR_AS2       0x40    /* Non-Transitive Two-Octet AS-Specific Extended Community */
-#define BGP_EXT_COM_TYPE_HIGH_NTR_IP4       0x41    /* Non-Transitive IPv4-Address-specific Extended Community */
-#define BGP_EXT_COM_TYPE_HIGH_NTR_AS4       0x42    /* Non-Transitive Four-Octet AS-Specific Extended Community */
-#define BGP_EXT_COM_TYPE_HIGH_NTR_OPAQUE    0x43    /* Non-Transitive Opaque Extended Community */
+#define BGP_EXT_COM_TYPE_HIGH_NTR_AS2       0x40    /* Non-Transitive Two-Octet AS-Specific Extended Community [RFC7153] */
+#define BGP_EXT_COM_TYPE_HIGH_NTR_IP4       0x41    /* Non-Transitive IPv4-Address-specific Extended Community [RFC7153] */
+#define BGP_EXT_COM_TYPE_HIGH_NTR_AS4       0x42    /* Non-Transitive Four-Octet AS-Specific Extended Community [RFC7153] */
+#define BGP_EXT_COM_TYPE_HIGH_NTR_OPAQUE    0x43    /* Non-Transitive Opaque Extended Community [RFC7153] */
 #define BGP_EXT_COM_TYPE_HIGH_NTR_QOS       0x44    /* QoS Marking [Thomas_Martin_Knoll] */
-
+#define BGP_EXT_COM_TYPE_HIGH_NTR_FLOWSPEC  0x47    /* FlowSpec Non-Transitive Extended Communities [draft-ietf-idr-flowspec-interfaceset] */
+#define BGP_EXT_COM_TYPE_HIGH_NTR_TRANSPORT 0x4a    /* Non-Transitive Transport Class [draft-ietf-idr-bgp-ct-30] */
 
 /* EVPN Extended Community Sub-Types */
 #define BGP_EXT_COM_STYPE_EVPN_MMAC         0x00    /* MAC Mobility [draft-ietf-l2vpn-pbb-evpn] */
@@ -375,6 +393,9 @@ static dissector_handle_t bgp_handle;
 #define BGP_EXT_COM_STYPE_EVPN_EVIRT2       0x0c    /* draft-ietf-bess-evpn-igmp-mld-proxy */
 #define BGP_EXT_COM_STYPE_EVPN_EVIRT3       0x0d    /* draft-ietf-bess-evpn-igmp-mld-proxy */
 #define BGP_EXT_COM_STYPE_EVPN_ATTACHCIRT   0x0e    /* draft-sajassi-bess-evpn-ac-aware-bundling */
+#define BGP_EXT_COM_STYPE_EVPN_SVC_CARV_TS  0x0f    /* draft-ietf-bess-evpn-fast-df-recovery */
+#define BGP_EXT_COM_STYPE_EVPN_LINK_BW      0x10    /* draft-ietf-bess-evpn-unequal-lb */
+#define BGP_EXT_COM_STYPE_EVPN_RT_EC        0x15    /* draft-zzhang-idr-rt-derived-community */
 
 /* RFC 7432 Flag single active mode */
 #define BGP_EXT_COM_ESI_LABEL_FLAGS         0x01    /* bitmask: set for single active multi-homing site */
@@ -406,29 +427,24 @@ static dissector_handle_t bgp_handle;
 
 
 /* Transitive Two-Octet AS-Specific Extended Community Sub-Types */
-/* 0x04 Unassigned */
-/* 0x06-0x07 Unassigned */
-/* 0x0b-0x0f Unassigned */
-/* 0x11-0xff Unassigned */
 #define BGP_EXT_COM_STYPE_AS2_RT        0x02    /* Route Target [RFC4360] */
 #define BGP_EXT_COM_STYPE_AS2_RO        0x03    /* Route Origin [RFC4360] */
+//#define BGP_EXT_COM_STYPE_AS2_LBW       0x04    /* Juniper Transitive Link Bandwidth */
 #define BGP_EXT_COM_STYPE_AS2_OSPF_DID  0x05    /* OSPF Domain Identifier [RFC4577] */
+#define BGP_EXT_COM_STYPE_AS2_RT_AGG_P  0x06    /* Route Aggregation Parameter */
 #define BGP_EXT_COM_STYPE_AS2_DCOLL     0x08    /* BGP Data Collection [RFC4384] */
 #define BGP_EXT_COM_STYPE_AS2_SRC_AS    0x09    /* Source AS [RFC6514] */
 #define BGP_EXT_COM_STYPE_AS2_L2VPN     0x0a    /* L2VPN Identifier [RFC6074] */
-#define BGP_EXT_COM_STYPE_AS2_CVPND     0x0010  /* Cisco VPN-Distinguisher [Eric_Rosen] */
+#define BGP_EXT_COM_STYPE_AS2_CVPND     0x10    /* Cisco VPN-Distinguisher [Eric_Rosen] */
+#define BGP_EXT_COM_STYPE_AS2_RT_REC    0x13    /* Route-Target Record [draft-ietf-bess-service-chaining] */
+#define BGP_EXT_COM_STYPE_AS2_RT_EC     0x15    /* RT-derived-EC [draft-zzhang-idr-rt-derived-community] */
+//#define BGP_EXT_COM_STYPE_AS2_VNI       0x80    /* Virtual-Network Identifier Extended Community */
 
 /* Non-Transitive Two-Octet AS-Specific Extended Community Sub-Types */
-/* 0x00-0xbf First Come First Served */
-/* 0xc0-0xff IETF Review*/
-
 #define BGP_EXT_COM_STYPE_AS2_LBW       0x04    /* Link Bandwidth Extended Community [draft-ietf-idr-link-bandwidth-00] */
 #define BGP_EXT_COM_STYPE_AS2_VNI       0x80    /* Virtual-Network Identifier Extended Community [draft-drao-bgp-l3vpn-virtual-network-overlays] */
 
 /* Transitive Four-Octet AS-Specific Extended Community Sub-Types */
-/* 0x00-0xbf First Come First Served */
-/* 0xc0-0xff IETF Review */
-
 #define BGP_EXT_COM_STYPE_AS4_RT        0x02    /* Route Target [RFC5668] */
 #define BGP_EXT_COM_STYPE_AS4_RO        0x03    /* Route Origin [RFC5668] */
 #define BGP_EXT_COM_STYPE_AS4_GEN       0x04    /* Generic (deprecated) [draft-ietf-idr-as4octet-extcomm-generic-subtype] */
@@ -437,6 +453,7 @@ static dissector_handle_t bgp_handle;
 #define BGP_EXT_COM_STYPE_AS4_S_AS      0x09    /* Source AS [RFC6514] */
 #define BGP_EXT_COM_STYPE_AS4_CIS_V     0x10    /* Cisco VPN Identifier [Eric_Rosen] */
 #define BGP_EXT_COM_STYPE_AS4_RT_REC    0x13    /* Route-Target Record [draft-ietf-bess-service-chaining] */
+#define BGP_EXT_COM_STYPE_AS2_RT_EC     0x15    /* RT-derived-EC [draft-zzhang-idr-rt-derived-community] */
 
 /* Non-Transitive Four-Octet AS-Specific Extended Community Sub-Types */
 
@@ -449,20 +466,38 @@ static dissector_handle_t bgp_handle;
 
 #define BGP_EXT_COM_STYPE_IP4_RT        0x02    /* Route Target [RFC4360] */
 #define BGP_EXT_COM_STYPE_IP4_RO        0x03    /* Route Origin [RFC4360] */
+#define BGP_EXT_COM_STYPE_IP4_IFIT_TAIL 0x04    /* IPv4-Address-Specific IFIT Tail Community [draft-wang-idr-bgp-ifit-capabilities] */
 #define BGP_EXT_COM_STYPE_IP4_OSPF_DID  0x05    /* OSPF Domain Identifier [RFC4577] */
 #define BGP_EXT_COM_STYPE_IP4_OSPF_RID  0x07    /* OSPF Router ID [RFC4577] */
+#define BGP_EXT_COM_STYPE_IP4_NODE_TGT  0x09    /* Node Target Extended Community [draft-ietf-idr-node-target-ext-comm] */
 #define BGP_EXT_COM_STYPE_IP4_L2VPN     0x0a    /* L2VPN Identifier [RFC6074] */
 #define BGP_EXT_COM_STYPE_IP4_VRF_I     0x0b    /* VRF Route Import [RFC6514] */
+#define BGP_EXT_COM_STYPE_IP4_FLOW_RDR  0x0c    /* Flow-spec Redirect to IPv4 [draft-ietf-idr-flowspec-redirect] */
 #define BGP_EXT_COM_STYPE_IP4_CIS_D     0x10    /* Cisco VPN-Distinguisher [Eric_Rosen] */
-#define BGP_EXT_COM_STYPE_IP4_SEG_NH    0x12    /* Inter-area P2MP Segmented Next-Hop [draft-ietf-mpls-seamless-mcast] */
+#define BGP_EXT_COM_STYPE_IP4_SEG_NH    0x12    /* Inter-area P2MP Segmented Next-Hop [RFC7524] */
+#define BGP_EXT_COM_STYPE_IP4_RT_REC    0x13    /* Route-Target Record [draft-ietf-bess-service-chaining] */
+#define BGP_EXT_COM_STYPE_IP4_VRF_RNH   0x14    /* VRF-Recursive-Next-Hop-Extended-Community */
+#define BGP_EXT_COM_STYPE_IP4_RT_EC     0x15    /* RT-derived-EC [draft-zzhang-idr-rt-derived-community-00] */
+#define BGP_EXT_COM_STYPE_IP4_MVPN_RP   0x20    /* MVPN SA RP-address Extended Community [RFC9081] */
 
 /* Transitive Opaque Extended Community Sub-Types */
 
 #define BGP_EXT_COM_STYPE_OPA_COST      0x01    /* Cost Community [draft-ietf-idr-custom-decision] */
+#define BGP_EXT_COM_STYPE_OPA_CP_OSPF   0x03    /* CP-ORF [RFC7543] */
+#define BGP_EXT_COM_STYPE_OPA_EXTN_SRC  0x04    /* Extranet Source Extended Community [RFC7900] */
+#define BGP_EXT_COM_STYPE_OPA_EXTN_SEP  0x05    /* Extranet Separation Extended Community [RFC7900] */
 #define BGP_EXT_COM_STYPE_OPA_OSPF_RT   0x06    /* OSPF Route Type [RFC4577] */
+#define BGP_EXT_COM_STYPE_OPA_PMSI_ATTR 0x07    /* Additional PMSI Tunnel Attribute Flags [RFC7902] */
+#define BGP_EXT_COM_STYPE_OPA_CTX_LBL   0x08    /* Context-Specific Label Space ID Extended Community [RFC9573] */
 #define BGP_EXT_COM_STYPE_OPA_COLOR     0x0b    /* Color Extended Community [RFC5512] */
 #define BGP_EXT_COM_STYPE_OPA_ENCAP     0x0c    /* Encapsulation Extended Community [RFC5512] */
 #define BGP_EXT_COM_STYPE_OPA_DGTW      0x0d    /* Default Gateway  [Yakov_Rekhter] */
+#define BGP_EXT_COM_STYPE_OPA_PPMP_LBL  0x0e    /* Point-to-Point-to-Multipoint (PPMP) Label [Rishabh_Parekh] */
+#define BGP_EXT_COM_STYPE_OPA_GRP_TAG   0x0f    /* BGP Group Policy Class Tag Extended Community [Dhananjaya_Rao] */
+#define BGP_EXT_COM_STYPE_OPA_HSH_SRT   0x14    /* Consistent Hash Sort Order [draft-ietf-bess-service-chaining] */
+#define BGP_EXT_COM_STYPE_OPA_GRP_PID   0x17    /* Group Policy ID Extended Community [draft-wlin-bess-group-policy-id-extended-community] */
+#define BGP_EXT_COM_STYPE_OPA_LCM       0x1b    /* Local Color Mapping (LCM) [draft-ietf-idr-bgp-car-05] */
+#define BGP_EXT_COM_STYPE_OPA_LOADBAL   0xaa    /* LoadBalance [draft-ietf-bess-service-chaining] */
 
 /* BGP Cost Community Point of Insertion Types */
 
@@ -494,10 +529,27 @@ static dissector_handle_t bgp_handle;
 #define BGP_EXT_COM_TUNNEL_MPLSGRE      11      /* MPLS in GRE Encapsulation [draft-sd-l2vpn-evpn-overlay] */
 #define BGP_EXT_COM_TUNNEL_VXLANGPE     12      /* VxLAN GPE Encapsulation [draft-sd-l2vpn-evpn-overlay] */
 #define BGP_EXT_COM_TUNNEL_MPLSUDP      13      /* MPLS in UDP Encapsulation [draft-ietf-l3vpn-end-system] */
+#define BGP_EXT_COM_TUNNEL_IPV6_TUNNEL  14      /* IPv6 Tunnel 	[Martin_Djernaes] */
+#define BGP_EXT_COM_TUNNEL_SE_TE_POLICY 15      /* SR TE Policy Type [draft-ietf-idr-sr-policy-safi-04] */
+#define BGP_EXT_COM_TUNNEL_BARE         16      /* Bare [Nischal_Sheth] */
+#define BGP_EXT_COM_TUNNEL_SR_TUNNEL    17      /* SR Tunnel [RFC9125] */
+#define BGP_EXT_COM_TUNNEL_CLOUD_SEC    18      /* Cloud Security [Ramesh_Babu_Yakkala] */
+#define BGP_EXT_COM_TUNNEL_GENEVE_ENCAP 19      /* Geneve Encapsulation [RFC8926] */
+#define BGP_EXT_COM_TUNNEL_ANY_ENCAP    20      /* Any Encapsulation [draft-ietf-bess-bgp-multicast-controller-06] */
+#define BGP_EXT_COM_TUNNEL_GTP_TUNNEL   21      /* GTP Tunnel Type [Keyur_Patel][Tetsuya_Murakami] */
+#define BGP_EXT_COM_TUNNEL_DPS_TUNNEL   22      /* Dynamic Path Selection (DPS) Tunnel Encapsulation [Venkit_Kasiviswanathan] */
+#define BGP_EXT_COM_TUNNEL_OPE          23      /* Originating PE (OPE) [draft-heitz-bess-evpn-option-b-01] */
+#define BGP_EXT_COM_TUNNEL_DYN_DPS_POL  24      /* Dynamic Path Selection (DPS) Policy [Sarah_Chen] */
+#define BGP_EXT_COM_TUNNEL_SDWAN_HYB    25      /* SDWAN-Hybrid [draft-ietf-idr-sdwan-edge-discovery-04] */
+#define BGP_EXT_COM_TUNNEL_X_OVER_UDP   26      /* X-over-UDP [Jeffrey_Haas] */
+#define BGP_EXT_COM_TUNNEL_DES_ENCAP    27      /* Distributed Etherlink Switch (DES) Tunnel Encapsulation [David_Cronin] */
 
 /* Non-Transitive Opaque Extended Community Sub-Types */
 
 #define BGP_EXT_COM_STYPE_OPA_OR_VAL_ST 0x00    /* BGP Origin Validation State [draft-ietf-sidr-origin-validation-signaling] */
+#define BGP_EXT_COM_STYPE_OPA_COST      0x01    /* Cost Community [draft-ietf-idr-custom-decision] */
+#define BGP_EXT_COM_STYPE_OPA_RT        0x02    /* Route Target [Nischal_Sheth] */
+#define BGP_EXT_COM_STYPE_OPA_RT_EC     0x15    /* RT-derived-EC [draft-zzhang-idr-rt-derived-community-00] */
 
 /* Transitive MUP Extended Community Sub-Types */
 #define BGP_EXT_COM_STYPE_MUP_DIRECT_SEG 0x00
@@ -514,6 +566,8 @@ static dissector_handle_t bgp_handle;
 #define BGP_EXT_COM_STYPE_EXP_F_RMARK   0x09    /* Flow spec traffic-remarking [RFC5575] */
 #define BGP_EXT_COM_STYPE_EXP_L2        0x0a    /* Layer2 Info Extended Community [RFC4761] */
 #define BGP_EXT_COM_STYPE_EXP_ETREE     0x0b    /* E-Tree Info [RFC7796] */
+#define BGP_EXT_COM_STYPE_EXP_FLOW_RATE 0x0c    /* Flow spec traffic-rate-packets [RFC8955] */
+#define BGP_EXT_COM_STYPE_EXP_FLOW_SFC  0x0d    /* Flow Specification for SFC Classifiers [RFC9015] */
 #define BGP_EXT_COM_STYPE_EXP_TAG       0x84    /* Tag [https://github.com/Juniper/contrail-controller/wiki/BGP-Extended-Communities#tag] */
 #define BGP_EXT_COM_STYPE_EXP_SUB_CLUS  0x85    /* Origin Sub-Cluster [https://github.com/robric/wiki-contrail-controller/blob/master/BGP-Extended-Communities.md] */
 
@@ -592,7 +646,7 @@ static dissector_handle_t bgp_handle;
 #define FORMAT_IP_LOC       0x01    /* Format IP address:AN(2bytes) */
 #define FORMAT_AS4_LOC      0x02    /* Format AS(4bytes):AN(2bytes) */
 
-/* RFC 4760 subsequent address family numbers (last updated 2021-03-23)
+/* RFC 4760 subsequent address family numbers (last updated 2024-03-19)
  * https://www.iana.org/assignments/safi-namespace/safi-namespace.xhtml
  */
 #define SAFNUM_UNICAST          1  /* RFC4760 */
@@ -603,6 +657,7 @@ static dissector_handle_t bgp_handle;
 #define SAFNUM_MULTISEG_PW      6  /* RFC7267 */
 #define SAFNUM_ENCAPSULATION    7  /* RFC5512, obsolete and never deployed, see draft-ietf-idr-tunnel-encaps-22 */
 #define SAFNUM_MCAST_VPLS       8  /* RFC7117 */
+#define SAFNUM_BGP_SFC          9  /* RFC9015 */
 #define SAFNUM_TUNNEL          64  /* draft-nalawade-kapoor-tunnel-safi-05.txt (Expired) */
 #define SAFNUM_VPLS            65  /* RFC4761, RFC6074 */
 #define SAFNUM_MDT             66  /* RFC6037 */
@@ -618,6 +673,10 @@ static dissector_handle_t bgp_handle;
 #define SAFNUM_CT              76  /* draft-kaliraj-idr-bgp-classful-transport-planes-07 */
 #define SAFNUM_FLOWSPEC        77  /* draft-ietf-idr-flowspec-nvo3-13 */
 #define SAFNUM_MCAST_TREE      78  /* draft-ietf-bess-bgp-multicast-03 */
+#define SAFNUM_BGP_DPS         79  /* https://www.arista.com/en/cg-veos-router/veos-router-dynamic-path-selection */
+#define SAFNUM_BGP_LS_SPF      80  /* draft-ietf-lsvr-bgp-spf-15 */
+#define SAFNUM_BGP_CAR         83  /* draft-ietf-idr-bgp-car-05 */
+#define SAFNUM_BGP_VPN_CAR     84  /* draft-ietf-idr-bgp-car-05 */
 #define SAFNUM_BGP_MUP         85  /* draft-mpmz-bess-mup-safi-03 */
 #define SAFNUM_LAB_VPNUNICAST 128  /* RFC4364, RFC8277 */
 #define SAFNUM_LAB_VPNMULCAST 129  /* RFC6513, RFC6514 */
@@ -631,7 +690,7 @@ static dissector_handle_t bgp_handle;
 #define BGP_ADDPATH_RECEIVE  0x01
 #define BGP_ADDPATH_SEND     0x02
 
-/* mcast-vpn route types draft-ietf-l3vpn-2547bis-mcast-bgp-08.txt */
+/* mcast-vpn route types RFC 6514 */
 #define MCAST_VPN_RTYPE_INTRA_AS_IPMSI_AD 1
 #define MCAST_VPN_RTYPE_INTER_AS_IPMSI_AD 2
 #define MCAST_VPN_RTYPE_SPMSI_AD          3
@@ -641,60 +700,118 @@ static dissector_handle_t bgp_handle;
 #define MCAST_VPN_RTYPE_SOURCE_TREE_JOIN  7
 
 /* RFC 5512 Tunnel Types */
-#define TUNNEL_TYPE_L2TP_OVER_IP 1
-#define TUNNEL_TYPE_GRE          2
-#define TUNNEL_TYPE_TTE          3
-#define TUNNEL_TYPE_IPSEC_IN_TM  4
-#define TUNNEL_TYPE_IP_IN_IP_IPSEC 5
-#define TUNNEL_TYPE_MPLS_IN_IP_IPSEC 6
-#define TUNNEL_TYPE_IP_IN_IP     7
-#define TUNNEL_TYPE_VXLAN        8
-#define TUNNEL_TYPE_NVGRE        9
-#define TUNNEL_TYPE_MPLS         10
-#define TUNNEL_TYPE_MPLS_IN_GRE  11
-#define TUNNEL_TYPE_VXLAN_GPE    12
-#define TUNNEL_TYPE_MPLS_IN_UDP  13
-#define TUNNEL_TYPE_IPV6_TUNNEL  14
-#define TUNNEL_TYPE_SR_TE_POLICY 15
-#define TUNNEL_TYPE_BARE         16
-#define TUNNEL_TYPE_SR_TUNNEL    17
+#define TUNNEL_TYPE_L2TP_OVER_IP      1
+#define TUNNEL_TYPE_GRE               2
+#define TUNNEL_TYPE_TTE               3
+#define TUNNEL_TYPE_IPSEC_IN_TM       4
+#define TUNNEL_TYPE_IP_IN_IP_IPSEC    5
+#define TUNNEL_TYPE_MPLS_IN_IP_IPSEC  6
+#define TUNNEL_TYPE_IP_IN_IP          7
+#define TUNNEL_TYPE_VXLAN             8
+#define TUNNEL_TYPE_NVGRE             9
+#define TUNNEL_TYPE_MPLS             10
+#define TUNNEL_TYPE_MPLS_IN_GRE      11
+#define TUNNEL_TYPE_VXLAN_GPE        12
+#define TUNNEL_TYPE_MPLS_IN_UDP      13
+#define TUNNEL_TYPE_IPV6_TUNNEL      14
+#define TUNNEL_TYPE_SR_TE_POLICY     15
+#define TUNNEL_TYPE_BARE             16
+#define TUNNEL_TYPE_SR_TUNNEL        17
+#define TUNNEL_TYPE_CLOUD_SECURITY   18
+#define TUNNEL_TYPE_GENEVE_ENCAP     19
+#define TUNNEL_TYPE_ANY_ENCAP        20
+#define TUNNEL_TYPE_GTP_TUNNEL_TYPE  21
+#define TUNNEL_TYPE_DPS_TUNNEL_ENCAP 22
+#define TUNNEL_TYPE_ORIGINATING_PE   23
+#define TUNNEL_TYPE_DPS_POLICY       24
+#define TUNNEL_TYPE_SDWAN_HYBRID     25
+#define TUNNEL_TYPE_X_OVER_UDP       26
+#define TUNNEL_TYPE_DES_TUNNEL_ENCAP 27
+
 
 /*RFC 6514 PMSI Tunnel Types */
-#define PMSI_TUNNEL_NOPRESENT    0
-#define PMSI_TUNNEL_RSVPTE_P2MP  1
-#define PMSI_TUNNEL_MLDP_P2MP    2
-#define PMSI_TUNNEL_PIMSSM       3
-#define PMSI_TUNNEL_PIMSM        4
-#define PMSI_TUNNEL_BIDIR_PIM    5
-#define PMSI_TUNNEL_INGRESS      6
-#define PMSI_TUNNEL_MLDP_MP2MP   7
+#define PMSI_TUNNEL_NOPRESENT           0
+#define PMSI_TUNNEL_RSVPTE_P2MP         1
+#define PMSI_TUNNEL_MLDP_P2MP           2
+#define PMSI_TUNNEL_PIMSSM              3
+#define PMSI_TUNNEL_PIMSM               4
+#define PMSI_TUNNEL_BIDIR_PIM           5
+#define PMSI_TUNNEL_INGRESS             6
+#define PMSI_TUNNEL_MLDP_MP2MP          7
+#define PMSI_TUNNEL_TRANPORT            8
+#define PMSI_TUNNEL_ASS_REPLIC          9
+#define PMSI_TUNNEL_BIER                11
+#define PMSI_TUNNEL_SR_MPLS_P2MP        12
 
-#define PMSI_MLDP_FEC_TYPE_RSVD         0
-#define PMSI_MLDP_FEC_TYPE_GEN_LSP      1
-#define PMSI_MLDP_FEC_TYPE_EXT_TYPE     255
-#define PMSI_MLDP_FEC_ETYPE_RSVD        0
+/* RFC 6388, RFC 6826, RFC 6512, RFC 7246, RFC 7442, RFC 8338 */
+#define PMSI_MLDP_FEC_TYPE_RSVD                     0
+#define PMSI_MLDP_FEC_TYPE_GEN_LSP                  1
+#define PMSI_MLDP_FEC_TYPE_TRANSIT_IPV4_SRC         3
+#define PMSI_MLDP_FEC_TYPE_TRANSIT_IPV6_SRC         4
+#define PMSI_MLDP_FEC_TYPE_TRANSIT_IPV4_BIDIR       5
+#define PMSI_MLDP_FEC_TYPE_TRANSIT_IPV6_BIDIR       6
+#define PMSI_MLDP_FEC_TYPE_RECURSE_OPAQUE_VALUE     7
+#define PMSI_MLDP_FEC_TYPE_VPN_RECURSE_OPAQUE_VALUE 8
+#define PMSI_MLDP_FEC_TYPE_TRANSIT_VPNV4_BIDIR      9
+#define PMSI_MLDP_FEC_TYPE_TRANSIT_VPNV6_BIDIR      10
+#define PMSI_MLDP_FEC_TYPE_TRANSIT_IPV4_SHARED_TREE 11
+#define PMSI_MLDP_FEC_TYPE_TRANSIT_IPV6_SHARED_TREE 12
+#define PMSI_MLDP_FEC_TYPE_L2VPN_MCAST              13
+#define PMSI_MLDP_FEC_TYPE_TRANSIT_VPNV4_SRC        250
+#define PMSI_MLDP_FEC_TYPE_TRANSIT_VPNV6_SRC        251
+#define PMSI_MLDP_FEC_TYPE_EXT_TYPE                 255
+
+#define PMSI_MLDP_FEC_ETYPE_RSVD                    0
 
 /* RFC 7311 AIGP types */
 #define AIGP_TLV_TYPE           1
 
-/* RFC 5512/5640 Sub-TLV Types */
-#define TUNNEL_SUBTLV_ENCAPSULATION 1
-#define TUNNEL_SUBTLV_PROTO_TYPE    2
-#define TUNNEL_SUBTLV_IPSEC_TA      3
-#define TUNNEL_SUBTLV_COLOR         4
-#define TUNNEL_SUBTLV_LOAD_BALANCE  5
-#define TUNNEL_SUBTLV_REMOTE_ENDPOINT 6
-#define TUNNEL_SUBTLV_IPV4_DS_FIELD 7
-#define TUNNEL_SUBTLV_UDP_DST_PORT  8
-#define TUNNEL_SUBTLV_EMBEDDED_LABEL 9
-#define TUNNEL_SUBTLV_MPLS_LABEL    10
-#define TUNNEL_SUBTLV_PREFIX_SID    11
-#define TUNNEL_SUBTLV_PREFERENCE    12
-#define TUNNEL_SUBTLV_BINDING_SID   13
-#define TUNNEL_SUBTLV_ENLP          14
-#define TUNNEL_SUBTLV_PRIORITY      15
-#define TUNNEL_SUBTLV_SEGMENT_LIST  128
-#define TUNNEL_SUBTLV_POLICY_NAME   129
+/* RFC 9012 (RFC 5512/5640) Sub-TLV Types */
+#define TUNNEL_SUBTLV_ENCAPSULATION     1
+#define TUNNEL_SUBTLV_PROTO_TYPE        2
+#define TUNNEL_SUBTLV_IPSEC_TA          3
+#define TUNNEL_SUBTLV_COLOR             4
+#define TUNNEL_SUBTLV_LOAD_BALANCE      5
+#define TUNNEL_SUBTLV_REMOTE_ENDPOINT   6
+#define TUNNEL_SUBTLV_IPV4_DS_FIELD     7
+#define TUNNEL_SUBTLV_UDP_DST_PORT      8
+#define TUNNEL_SUBTLV_EMBEDDED_LABEL    9
+#define TUNNEL_SUBTLV_MPLS_LABEL        10
+#define TUNNEL_SUBTLV_PREFIX_SID        11
+#define TUNNEL_SUBTLV_PREFERENCE        12
+#define TUNNEL_SUBTLV_BINDING_SID       13
+#define TUNNEL_SUBTLV_ENLP              14
+#define TUNNEL_SUBTLV_PRIORITY          15
+
+#define TUNNEL_SUBTLV_SPI_SI_REP        16
+
+#define TUNNEL_SUBTLV_SRV6_BINDING_SID  20
+
+#define TUNNEL_SUBTLV_IPSEC_SA_ID       64
+#define TUNNEL_SUBTLV_EXT_PORT_PROP     65
+#define TUNNEL_SUBTLV_UNDERLAY_ISP_PROP 66
+#define TUNNEL_SUBTLV_IPSEC_SA_NONCE    67
+#define TUNNEL_SUBTLV_IPSEC_PUBLIC_KEY  68
+#define TUNNEL_SUBTLV_IPSEC_SA_PROPOSAL 69
+#define TUNNEL_SUBTLV_SIMPL_IPSEC_SA    70
+
+#define TUNNEL_SUBTLV_NRP               123
+#define TUNNEL_SUBTLV_RPF               124
+#define TUNNEL_SUBTLV_TREE_LABEL_STACK  125
+
+#define TUNNEL_SUBTLV_SEGMENT_LIST      128
+#define TUNNEL_SUBTLV_POLICY_CP_NAME    129
+#define TUNNEL_SUBTLV_POLICY_NAME       130
+
+#define TUNNEL_SUBTLV_WAN_ID            192
+#define TUNNEL_SUBTLV_BYTES             193
+#define TUNNEL_SUBTLV_IPSEC_DIM         194
+#define TUNNEL_SUBTLV_IPSEC_KEY_EXCH    195
+#define TUNNEL_SUBTLV_IPSEC_SA_PROPS    196
+#define TUNNEL_SUBTLV_SRV_SEGMENT_LIST  197
+#define TUNNEL_SUBTLV_SRV_VTEP          198
+#define TUNNEL_SUBTLV_DES_ADJACENCY     199
+
 
 /* BGP Tunnel SubTLV VXLAN Flags bitmask */
 #define TUNNEL_SUBTLV_VXLAN_VALID_VNID          0x80
@@ -746,10 +863,13 @@ static dissector_handle_t bgp_handle;
 #define BGP_LS_NLRI_PROTO_ID_UNKNOWN       0
 #define BGP_LS_NLRI_PROTO_ID_IS_IS_LEVEL_1 1
 #define BGP_LS_NLRI_PROTO_ID_IS_IS_LEVEL_2 2
-#define BGP_LS_NLRI_PROTO_ID_OSPF          3
+#define BGP_LS_NLRI_PROTO_ID_OSPF_V2       3
 #define BGP_LS_NLRI_PROTO_ID_DIRECT        4
 #define BGP_LS_NLRI_PROTO_ID_STATIC        5
+#define BGP_LS_NLRI_PROTO_ID_OSPF_V3       6
 #define BGP_LS_NLRI_PROTO_ID_BGP           7
+#define BGP_LS_NLRI_PROTO_ID_RSVP_TE       8
+#define BGP_LS_NLRI_PROTO_ID_SEGMENT_ROUTING 9
 
 /* Link-State routing universes */
 #define BGP_LS_NLRI_ROUTING_UNIVERSE_LEVEL_3     0
@@ -883,7 +1003,7 @@ static dissector_handle_t bgp_handle;
 /* draft-ietf-idr-bgp-ls-app-specific-attr-07 */
 #define BGP_LS_APP_SPEC_LINK_ATTR                   1122
 
-/* Prefix-SID TLV flags, draft-gredler-idr-bgp-ls-segment-routing-ext-01:
+/* Prefix-SID TLV flags, draft-gredler-idr-bgp-ls-segment-routing-ext, RFC 8665-8667:
 
                              0  1  2  3  4  5  6  7
                             +--+--+--+--+--+--+--+--+
@@ -904,16 +1024,16 @@ static dissector_handle_t bgp_handle;
 #define BGP_LS_SR_PREFIX_SID_FLAG_V  0x08
 #define BGP_LS_SR_PREFIX_SID_FLAG_L  0x04
 
-/* Adjacency-SID TLV flags, draft-gredler-idr-bgp-ls-segment-routing-ext-01:
+/* Adjacency-SID TLV flags, draft-gredler-idr-bgp-ls-segment-routing-ext, RFC 8665-8667:
 
                              0  1  2  3  4  5  6  7
                             +--+--+--+--+--+--+--+--+
-   if Protocol-ID is IS-IS  |F |B |V |L |S |  |  |  |
+   if Protocol-ID is IS-IS  |F |B |V |L |S |P |  |  |
                             +--+--+--+--+--+--+--+--+
 
                              0  1  2  3  4  5  6  7
                             +--+--+--+--+--+--+--+--+
-   if Protocol-ID is OSPF   |B |V |L |S |  |  |  |  |
+   if Protocol-ID is OSPF   |B |V |L |G |P |  |  |  |
                             +--+--+--+--+--+--+--+--+
 */
 #define BGP_LS_SR_ADJACENCY_SID_FLAG_FI 0x80
@@ -923,8 +1043,10 @@ static dissector_handle_t bgp_handle;
 #define BGP_LS_SR_ADJACENCY_SID_FLAG_VI 0x20
 #define BGP_LS_SR_ADJACENCY_SID_FLAG_LO 0x20
 #define BGP_LS_SR_ADJACENCY_SID_FLAG_LI 0x10
-#define BGP_LS_SR_ADJACENCY_SID_FLAG_SO 0x10
+#define BGP_LS_SR_ADJACENCY_SID_FLAG_GO 0x10
 #define BGP_LS_SR_ADJACENCY_SID_FLAG_SI 0x08
+#define BGP_LS_SR_ADJACENCY_SID_FLAG_PO 0x08
+#define BGP_LS_SR_ADJACENCY_SID_FLAG_PI 0x04
 
 /* BGP Peering SIDs TLV flags, rfc9086:
 
@@ -1031,60 +1153,64 @@ static dissector_handle_t bgp_handle;
 #define SRV6_SERVICE_DATA_SRV6_SID_STRUCTURE 1
 
 /* SRv6 Endpoint behavior */
-#define SRV6_ENDPOINT_BEHAVIOR_END                    0x0001 /* End [draft-ietf-spring-srv6-network-programming]                                         */
-#define SRV6_ENDPOINT_BEHAVIOR_END_PSP                0x0002 /* End with PSP [draft-ietf-spring-srv6-network-programming]                                */
-#define SRV6_ENDPOINT_BEHAVIOR_END_USP                0x0003 /* End with USP [draft-ietf-spring-srv6-network-programming]                                */
-#define SRV6_ENDPOINT_BEHAVIOR_END_PSP_USP            0x0004 /* End with PSP & USP [draft-ietf-spring-srv6-network-programming]                          */
-#define SRV6_ENDPOINT_BEHAVIOR_END_X                  0x0005 /* End.X [draft-ietf-spring-srv6-network-programming]                                       */
-#define SRV6_ENDPOINT_BEHAVIOR_END_X_PSP              0x0006 /* End.X with PSP [draft-ietf-spring-srv6-network-programming]                              */
-#define SRV6_ENDPOINT_BEHAVIOR_END_X_USP              0x0007 /* End.X with UPS [draft-ietf-spring-srv6-network-programming]                              */
-#define SRV6_ENDPOINT_BEHAVIOR_END_X_PSP_USP          0x0008 /* End.X with PSP & USP [draft-ietf-spring-srv6-network-programming]                        */
-#define SRV6_ENDPOINT_BEHAVIOR_END_T                  0x0009 /* End.T [draft-ietf-spring-srv6-network-programming]                                       */
-#define SRV6_ENDPOINT_BEHAVIOR_END_T_PSP              0x000A /* End.T with PSP [draft-ietf-spring-srv6-network-programming]                              */
-#define SRV6_ENDPOINT_BEHAVIOR_END_T_USP              0x000B /* End.T with USP [draft-ietf-spring-srv6-network-programming]                              */
-#define SRV6_ENDPOINT_BEHAVIOR_END_T_PSP_USP          0x000C /* End.T with PSP & USP [draft-ietf-spring-srv6-network-programming]                        */
-#define SRV6_ENDPOINT_BEHAVIOR_END_B6_ENCAPS          0x000E /* End.B6.Encaps [draft-ietf-spring-srv6-network-programming]                               */
-#define SRV6_ENDPOINT_BEHAVIOR_END_BM                 0x000F /* End.BM [draft-ietf-spring-srv6-network-programming]                                      */
-#define SRV6_ENDPOINT_BEHAVIOR_END_DX6                0x0010 /* End.DX6 [draft-ietf-spring-srv6-network-programming]                                     */
-#define SRV6_ENDPOINT_BEHAVIOR_END_DX4                0x0011 /* End.DX4 [draft-ietf-spring-srv6-network-programming]                                     */
-#define SRV6_ENDPOINT_BEHAVIOR_END_DT6                0x0012 /* End.DT6 [draft-ietf-spring-srv6-network-programming]                                     */
-#define SRV6_ENDPOINT_BEHAVIOR_END_DT4                0x0013 /* End.DT4 [draft-ietf-spring-srv6-network-programming]                                     */
-#define SRV6_ENDPOINT_BEHAVIOR_END_DT46               0x0014 /* End.DT46 [draft-ietf-spring-srv6-network-programming]                                    */
-#define SRV6_ENDPOINT_BEHAVIOR_END_DX2                0x0015 /* End.DX2 [draft-ietf-spring-srv6-network-programming]                                     */
-#define SRV6_ENDPOINT_BEHAVIOR_END_DX2V               0x0016 /* End.DX2V [draft-ietf-spring-srv6-network-programming]                                    */
-#define SRV6_ENDPOINT_BEHAVIOR_END_DT2U               0x0017 /* End.DX2U [draft-ietf-spring-srv6-network-programming]                                    */
-#define SRV6_ENDPOINT_BEHAVIOR_END_DT2M               0x0018 /* End.DT2M [draft-ietf-spring-srv6-network-programming]                                    */
-#define SRV6_ENDPOINT_BEHAVIOR_END_B6_ENCAPS_RED      0x001B /* End.B6.Encaps.Red [draft-ietf-spring-srv6-network-programming]                           */
-#define SRV6_ENDPOINT_BEHAVIOR_END_USD                0x001C /* End with USD [draft-ietf-spring-srv6-network-programming]                                */
-#define SRV6_ENDPOINT_BEHAVIOR_END_PSP_USD            0x001D /* End with PSP & USD [draft-ietf-spring-srv6-network-programming]                          */
-#define SRV6_ENDPOINT_BEHAVIOR_END_USP_USD            0x001E /* End with USP & USD [draft-ietf-spring-srv6-network-programming]                          */
-#define SRV6_ENDPOINT_BEHAVIOR_END_PSP_USP_USD        0x001F /* End with PSP, USP & USD [draft-ietf-spring-srv6-network-programming]                     */
-#define SRV6_ENDPOINT_BEHAVIOR_END_X_USD              0x0020 /* End.X with USD [draft-ietf-spring-srv6-network-programming]                              */
-#define SRV6_ENDPOINT_BEHAVIOR_END_X_PSP_USD          0x0021 /* End.X with PSP & USD [draft-ietf-spring-srv6-network-programming]                        */
-#define SRV6_ENDPOINT_BEHAVIOR_END_X_USP_USD          0x0022 /* End.X with USP & USD [draft-ietf-spring-srv6-network-programming]                        */
-#define SRV6_ENDPOINT_BEHAVIOR_END_X_PSP_USP_USD      0x0023 /* End.X with PSP, USP & USD [draft-ietf-spring-srv6-network-programming]                   */
-#define SRV6_ENDPOINT_BEHAVIOR_END_T_USD              0x0024 /* End.T with USD [draft-ietf-spring-srv6-network-programming]                              */
-#define SRV6_ENDPOINT_BEHAVIOR_END_T_PSP_USD          0x0025 /* End.T with PSP & USD [draft-ietf-spring-srv6-network-programming]                        */
-#define SRV6_ENDPOINT_BEHAVIOR_END_T_USP_USD          0x0026 /* End.T with USP & USD [draft-ietf-spring-srv6-network-programming]                        */
-#define SRV6_ENDPOINT_BEHAVIOR_END_T_PSP_USP_USD      0x0027 /* End.T with PSP, USP & USD [draft-ietf-spring-srv6-network-programming]                   */
+#define SRV6_ENDPOINT_BEHAVIOR_END                    0x0001 /* End [RFC8986]                                                                            */
+#define SRV6_ENDPOINT_BEHAVIOR_END_PSP                0x0002 /* End with PSP [RFC8986]                                                                   */
+#define SRV6_ENDPOINT_BEHAVIOR_END_USP                0x0003 /* End with USP [RFC8986]                                                                   */
+#define SRV6_ENDPOINT_BEHAVIOR_END_PSP_USP            0x0004 /* End with PSP & USP [RFC8986]                                                             */
+#define SRV6_ENDPOINT_BEHAVIOR_END_X                  0x0005 /* End.X [RFC8986]                                                                          */
+#define SRV6_ENDPOINT_BEHAVIOR_END_X_PSP              0x0006 /* End.X with PSP [RFC8986]                                                                 */
+#define SRV6_ENDPOINT_BEHAVIOR_END_X_USP              0x0007 /* End.X with UPS [RFC8986]                                                                 */
+#define SRV6_ENDPOINT_BEHAVIOR_END_X_PSP_USP          0x0008 /* End.X with PSP & USP [RFC8986]                                                           */
+#define SRV6_ENDPOINT_BEHAVIOR_END_T                  0x0009 /* End.T [RFC8986]                                                                          */
+#define SRV6_ENDPOINT_BEHAVIOR_END_T_PSP              0x000A /* End.T with PSP [RFC8986]                                                                 */
+#define SRV6_ENDPOINT_BEHAVIOR_END_T_USP              0x000B /* End.T with USP [RFC8986]                                                                 */
+#define SRV6_ENDPOINT_BEHAVIOR_END_T_PSP_USP          0x000C /* End.T with PSP & USP [RFC8986]                                                           */
+#define SRV6_ENDPOINT_BEHAVIOR_END_B6_INSERT          0x000D /* End.B6.Insert [draft-filsfils-spring-srv6-net-pgm-insertion-04]                          */
+#define SRV6_ENDPOINT_BEHAVIOR_END_B6_ENCAPS          0x000E /* End.B6.Encaps [RFC8986]                                                                  */
+#define SRV6_ENDPOINT_BEHAVIOR_END_BM                 0x000F /* End.BM [RFC8986]                                                                         */
+#define SRV6_ENDPOINT_BEHAVIOR_END_DX6                0x0010 /* End.DX6 [RFC8986]                                                                        */
+#define SRV6_ENDPOINT_BEHAVIOR_END_DX4                0x0011 /* End.DX4 [RFC8986]                                                                        */
+#define SRV6_ENDPOINT_BEHAVIOR_END_DT6                0x0012 /* End.DT6 [RFC8986]                                                                        */
+#define SRV6_ENDPOINT_BEHAVIOR_END_DT4                0x0013 /* End.DT4 [RFC8986]                                                                        */
+#define SRV6_ENDPOINT_BEHAVIOR_END_DT46               0x0014 /* End.DT46 [RFC8986]                                                                       */
+#define SRV6_ENDPOINT_BEHAVIOR_END_DX2                0x0015 /* End.DX2 [RFC8986]                                                                        */
+#define SRV6_ENDPOINT_BEHAVIOR_END_DX2V               0x0016 /* End.DX2V [RFC8986]                                                                       */
+#define SRV6_ENDPOINT_BEHAVIOR_END_DT2U               0x0017 /* End.DX2U [RFC8986]                                                                       */
+#define SRV6_ENDPOINT_BEHAVIOR_END_DT2M               0x0018 /* End.DT2M [RFC8986]                                                                       */
+#define SRV6_ENDPOINT_BEHAVIOR_END_B6_INSERT_RED      0x001A /* End.B6.Insert.Red [draft-filsfils-spring-srv6-net-pgm-insertion-04]                      */
+#define SRV6_ENDPOINT_BEHAVIOR_END_B6_ENCAPS_RED      0x001B /* End.B6.Encaps.Red [RFC8986]                                                              */
+#define SRV6_ENDPOINT_BEHAVIOR_END_USD                0x001C /* End with USD [RFC8986]                                                                   */
+#define SRV6_ENDPOINT_BEHAVIOR_END_PSP_USD            0x001D /* End with PSP & USD [RFC8986]                                                             */
+#define SRV6_ENDPOINT_BEHAVIOR_END_USP_USD            0x001E /* End with USP & USD [RFC8986]                                                             */
+#define SRV6_ENDPOINT_BEHAVIOR_END_PSP_USP_USD        0x001F /* End with PSP, USP & USD [RFC8986]                                                        */
+#define SRV6_ENDPOINT_BEHAVIOR_END_X_USD              0x0020 /* End.X with USD [RFC8986]                                                                 */
+#define SRV6_ENDPOINT_BEHAVIOR_END_X_PSP_USD          0x0021 /* End.X with PSP & USD [RFC8986]                                                           */
+#define SRV6_ENDPOINT_BEHAVIOR_END_X_USP_USD          0x0022 /* End.X with USP & USD [RFC8986]                                                           */
+#define SRV6_ENDPOINT_BEHAVIOR_END_X_PSP_USP_USD      0x0023 /* End.X with PSP, USP & USD [RFC8986]                                                      */
+#define SRV6_ENDPOINT_BEHAVIOR_END_T_USD              0x0024 /* End.T with USD [RFC8986]                                                                 */
+#define SRV6_ENDPOINT_BEHAVIOR_END_T_PSP_USD          0x0025 /* End.T with PSP & USD [RFC8986]                                                           */
+#define SRV6_ENDPOINT_BEHAVIOR_END_T_USP_USD          0x0026 /* End.T with USP & USD [RFC8986]                                                           */
+#define SRV6_ENDPOINT_BEHAVIOR_END_T_PSP_USP_USD      0x0027 /* End.T with PSP, USP & USD [RFC8986]                                                      */
+#define SRV6_ENDPOINT_BEHAVIOR_END_MAP                0x0028 /* End.MAP                                                                                  */
+#define SRV6_ENDPOINT_BEHAVIOR_END_LIMIT              0x0029 /* End.Limit                                                                                */
 #define SRV6_ENDPOINT_BEHAVIOR_END_ONLY_CSID          0x002A /* End with NEXT-ONLY-CSID [draft-filsfils-spring-net-pgm-extension-srv6-usid]              */
-#define SRV6_ENDPOINT_BEHAVIOR_END_CSID               0x002B /* End with NEXT-CSID [draft-filsfils-spring-net-pgm-extension-srv6-usid]                   */
-#define SRV6_ENDPOINT_BEHAVIOR_END_CSID_PSP           0x002C /* End with NEXT-CSID & PSP [draft-filsfils-spring-net-pgm-extension-srv6-usid]             */
-#define SRV6_ENDPOINT_BEHAVIOR_END_CSID_USP           0x002D /* End with NEXT-CSID & USP [draft-filsfils-spring-net-pgm-extension-srv6-usid]             */
-#define SRV6_ENDPOINT_BEHAVIOR_END_CSID_PSP_USP       0x002E /* End with NEXT-CSID, PSP & USP [draft-filsfils-spring-net-pgm-extension-srv6-usid]        */
-#define SRV6_ENDPOINT_BEHAVIOR_END_CSID_USD           0x002F /* End with NEXT-CSID & USD [draft-filsfils-spring-net-pgm-extension-srv6-usid]             */
-#define SRV6_ENDPOINT_BEHAVIOR_END_CSID_PSP_USD       0x0030 /* End with NEXT-CSID, PSP & USD [draft-filsfils-spring-net-pgm-extension-srv6-usid]        */
-#define SRV6_ENDPOINT_BEHAVIOR_END_CSID_USP_USD       0x0031 /* End with NEXT-CSID, USP & USD [draft-filsfils-spring-net-pgm-extension-srv6-usid]        */
-#define SRV6_ENDPOINT_BEHAVIOR_END_CSID_PSP_USP_USD   0x0032 /* End with NEXT-CSID, PSP, USP & USD [draft-filsfils-spring-net-pgm-extension-srv6-usid]   */
+#define SRV6_ENDPOINT_BEHAVIOR_END_CSID               0x002B /* End with NEXT-CSID [draft-ietf-spring-srv6-srh-compression]                              */
+#define SRV6_ENDPOINT_BEHAVIOR_END_CSID_PSP           0x002C /* End with NEXT-CSID & PSP [draft-ietf-spring-srv6-srh-compression]                        */
+#define SRV6_ENDPOINT_BEHAVIOR_END_CSID_USP           0x002D /* End with NEXT-CSID & USP [draft-ietf-spring-srv6-srh-compression]                        */
+#define SRV6_ENDPOINT_BEHAVIOR_END_CSID_PSP_USP       0x002E /* End with NEXT-CSID, PSP & USP [draft-ietf-spring-srv6-srh-compression]                   */
+#define SRV6_ENDPOINT_BEHAVIOR_END_CSID_USD           0x002F /* End with NEXT-CSID & USD [draft-ietf-spring-srv6-srh-compression]                        */
+#define SRV6_ENDPOINT_BEHAVIOR_END_CSID_PSP_USD       0x0030 /* End with NEXT-CSID, PSP & USD [draft-ietf-spring-srv6-srh-compression]                   */
+#define SRV6_ENDPOINT_BEHAVIOR_END_CSID_USP_USD       0x0031 /* End with NEXT-CSID, USP & USD [draft-ietf-spring-srv6-srh-compression]                   */
+#define SRV6_ENDPOINT_BEHAVIOR_END_CSID_PSP_USP_USD   0x0032 /* End with NEXT-CSID, PSP, USP & USD [draft-ietf-spring-srv6-srh-compression]              */
 #define SRV6_ENDPOINT_BEHAVIOR_END_X_ONLY_CSID        0x0033 /* End.X with NEXT-ONLY-CSID [draft-filsfils-spring-net-pgm-extension-srv6-usid]            */
-#define SRV6_ENDPOINT_BEHAVIOR_END_X_CSID             0x0034 /* End.X with NEXT-CSID [draft-filsfils-spring-net-pgm-extension-srv6-usid]                 */
-#define SRV6_ENDPOINT_BEHAVIOR_END_X_CSID_PSP         0x0035 /* End.X with NEXT-CSID & PSP [draft-filsfils-spring-net-pgm-extension-srv6-usid]           */
-#define SRV6_ENDPOINT_BEHAVIOR_END_X_CSID_USP         0x0036 /* End.X with NEXT-CSID & USP [draft-filsfils-spring-net-pgm-extension-srv6-usid]           */
-#define SRV6_ENDPOINT_BEHAVIOR_END_X_CSID_PSP_USP     0x0037 /* End.X with NEXT-CSID, PSP & USP [draft-filsfils-spring-net-pgm-extension-srv6-usid]      */
-#define SRV6_ENDPOINT_BEHAVIOR_END_X_CSID_USD         0x0038 /* End.X with NEXT-CSID & USD [draft-filsfils-spring-net-pgm-extension-srv6-usid]           */
-#define SRV6_ENDPOINT_BEHAVIOR_END_X_CSID_PSP_USD     0x0039 /* End.X with NEXT-CSID, PSP & USD [draft-filsfils-spring-net-pgm-extension-srv6-usid]      */
-#define SRV6_ENDPOINT_BEHAVIOR_END_X_CSID_USP_USD     0x003A /* End.X with NEXT-CSID, USP & USD [draft-filsfils-spring-net-pgm-extension-srv6-usid]      */
-#define SRV6_ENDPOINT_BEHAVIOR_END_X_CSID_PSP_USP_USD 0x003B /* End.X with NEXT-CSID, PSP, USP & USD [draft-filsfils-spring-net-pgm-extension-srv6-usid] */
+#define SRV6_ENDPOINT_BEHAVIOR_END_X_CSID             0x0034 /* End.X with NEXT-CSID [draft-ietf-spring-srv6-srh-compression]                            */
+#define SRV6_ENDPOINT_BEHAVIOR_END_X_CSID_PSP         0x0035 /* End.X with NEXT-CSID & PSP [draft-ietf-spring-srv6-srh-compression]                      */
+#define SRV6_ENDPOINT_BEHAVIOR_END_X_CSID_USP         0x0036 /* End.X with NEXT-CSID & USP [draft-ietf-spring-srv6-srh-compression]                      */
+#define SRV6_ENDPOINT_BEHAVIOR_END_X_CSID_PSP_USP     0x0037 /* End.X with NEXT-CSID, PSP & USP [draft-ietf-spring-srv6-srh-compression]                 */
+#define SRV6_ENDPOINT_BEHAVIOR_END_X_CSID_USD         0x0038 /* End.X with NEXT-CSID & USD [draft-ietf-spring-srv6-srh-compression]                      */
+#define SRV6_ENDPOINT_BEHAVIOR_END_X_CSID_PSP_USD     0x0039 /* End.X with NEXT-CSID, PSP & USD [draft-ietf-spring-srv6-srh-compression]                 */
+#define SRV6_ENDPOINT_BEHAVIOR_END_X_CSID_USP_USD     0x003A /* End.X with NEXT-CSID, USP & USD [draft-ietf-spring-srv6-srh-compression]                 */
+#define SRV6_ENDPOINT_BEHAVIOR_END_X_CSID_PSP_USP_USD 0x003B /* End.X with NEXT-CSID, PSP, USP & USD [draft-ietf-spring-srv6-srh-compression]            */
 #define SRV6_ENDPOINT_BEHAVIOR_END_DX6_CSID           0x003C /* End.DX6 with NEXT-CSID [draft-filsfils-spring-net-pgm-extension-srv6-usid]               */
 #define SRV6_ENDPOINT_BEHAVIOR_END_DX4_CSID           0x003D /* End.DX4 with NEXT-CSID [draft-filsfils-spring-net-pgm-extension-srv6-usid]               */
 #define SRV6_ENDPOINT_BEHAVIOR_END_DT6_CSID           0x003E /* End.DT6 with NEXT-CSID [draft-filsfils-spring-net-pgm-extension-srv6-usid]               */
@@ -1094,11 +1220,17 @@ static dissector_handle_t bgp_handle;
 #define SRV6_ENDPOINT_BEHAVIOR_END_DX2V_CSID          0x0042 /* End.DX2V with NEXT-CSID [draft-filsfils-spring-net-pgm-extension-srv6-usid]              */
 #define SRV6_ENDPOINT_BEHAVIOR_END_DT2U_CSID          0x0043 /* End.DT2U with NEXT-CSID [draft-filsfils-spring-net-pgm-extension-srv6-usid]              */
 #define SRV6_ENDPOINT_BEHAVIOR_END_DT2M_CSID          0x0044 /* End.DT2M with NEXT-CSID [draft-filsfils-spring-net-pgm-extension-srv6-usid]              */
-#define SRV6_ENDPOINT_BEHAVIOR_END_M_GTP6D            0x0045 /* End.M.GTP6.D [draft-ietf-dmm-srv6-mobile-uplane]                                         */
-#define SRV6_ENDPOINT_BEHAVIOR_END_M_GTP6DI           0x0046 /* End.M.GTP6.Di [draft-ietf-dmm-srv6-mobile-uplane]                                        */
-#define SRV6_ENDPOINT_BEHAVIOR_END_M_GTP6E            0x0047 /* End.M.GTP6.E [draft-ietf-dmm-srv6-mobile-uplane]                                         */
-#define SRV6_ENDPOINT_BEHAVIOR_END_M_GTP4E            0x0048 /* End.M.GTP4.E [draft-ietf-dmm-srv6-mobile-uplane]                                         */
-#define SRV6_ENDPOINT_BEHAVIOR_OPAQUE                 0xFFFF /* Opaque [draft-ietf-spring-srv6-network-programming]                                      */
+#define SRV6_ENDPOINT_BEHAVIOR_END_M_GTP6D            0x0045 /* End.M.GTP6.D [RFC9433]                                                                   */
+#define SRV6_ENDPOINT_BEHAVIOR_END_M_GTP6DI           0x0046 /* End.M.GTP6.Di [RFC9433]                                                                  */
+#define SRV6_ENDPOINT_BEHAVIOR_END_M_GTP6E            0x0047 /* End.M.GTP6.E [RFC9433]                                                                   */
+#define SRV6_ENDPOINT_BEHAVIOR_END_M_GTP4E            0x0048 /* End.M.GTP4.E [RFC9433]                                                                   */
+ #define SRV6_ENDPOINT_BEHAVIOR_END_M                  0x004A /* End.M (Mirror SID) [draft-ietf-rtgwg-srv6-egress-protection-02]                          */
+#define SRV6_ENDPOINT_BEHAVIOR_END_REPLICATE          0x004B /* End.Replicate [RFC9524]                                                                  */
+#define SRV6_ENDPOINT_BEHAVIOR_END_NSH                0x0054 /* End.NSH - NSH Segment [RFC9491]                                                          */
+#define SRV6_ENDPOINT_BEHAVIOR_END_DX1                0x009E /* End.DX1 [draft-ietf-pals-ple-02]                                                         */
+#define SRV6_ENDPOINT_BEHAVIOR_END_DX1_NEXT_CSID      0x009F /* End.DX1 with NEXT-CSID [draft-ietf-pals-ple-02]                                          */
+#define SRV6_ENDPOINT_BEHAVIOR_END_DX1_REPL_CSID      0x00A0 /* End.DX1 with REPLACE-CSID [draft-ietf-pals-ple-02]                                       */
+#define SRV6_ENDPOINT_BEHAVIOR_OPAQUE                 0xFFFF /* Opaque [RFC8986]                                                                         */
 
 static const value_string bgptypevals[] = {
     { BGP_OPEN,                "OPEN Message" },
@@ -1144,6 +1276,7 @@ static const value_string evpn_nlri_esi_type[] = {
 #define BGP_MAJOR_ERROR_STATE_MACHINE 5
 #define BGP_MAJOR_ERROR_CEASE         6
 #define BGP_MAJOR_ERROR_ROUTE_REFRESH 7
+#define BGP_MAJOR_ERROR_SH_T_EXPIRED  8
 
 static const value_string bgpnotify_major[] = {
     { BGP_MAJOR_ERROR_MSG_HDR,       "Message Header Error" },
@@ -1153,6 +1286,7 @@ static const value_string bgpnotify_major[] = {
     { BGP_MAJOR_ERROR_STATE_MACHINE, "Finite State Machine Error" },
     { BGP_MAJOR_ERROR_CEASE,         "Cease" },
     { BGP_MAJOR_ERROR_ROUTE_REFRESH, "ROUTE-REFRESH Message Error" },    /* RFC 7313 - Enhanced Route Refresh Capability for BGP-4 */
+    { BGP_MAJOR_ERROR_SH_T_EXPIRED,  "Send Hold Timer Expired" },
     { 0, NULL }
 };
 
@@ -1164,14 +1298,15 @@ static const value_string bgpnotify_minor_msg_hdr[] = {
 };
 
 static const value_string bgpnotify_minor_open_msg[] = {
-    { 1, "Unsupported Version Number" },
-    { 2, "Bad Peer AS" },
-    { 3, "Bad BGP Identifier" },
-    { 4, "Unsupported Optional Parameter" },
-    { 5, "Authentication Failure [Deprecated]" },
-    { 6, "Unacceptable Hold Time" },
-    { 7, "Unsupported Capability" },
-    { 8, "No supported AFI/SAFI (Cisco)" },
+    { 1,  "Unsupported Version Number" },
+    { 2,  "Bad Peer AS" },
+    { 3,  "Bad BGP Identifier" },
+    { 4,  "Unsupported Optional Parameter" },
+    { 5,  "Authentication Failure [Deprecated]" },
+    { 6,  "Unacceptable Hold Time" },
+    { 7,  "Unsupported Capability" },
+    { 8,  "No supported AFI/SAFI (Cisco)" },
+    { 11, "Role Mismatch" },
     { 0, NULL }
 };
 
@@ -1289,6 +1424,9 @@ static const value_string bgpattr_type[] = {
     { BGPTYPE_BGPSEC_PATH,         "BGPsec_PATH" },
     { BGPTYPE_OTC,                 "OTC" },
     { BGPTYPE_D_PATH,              "D_PATH" },
+    { BGPTYPE_SFP_ATTRIBUTE,       "SFP Attribute" },
+    { BGPTYPE_BFD_DISCRIMINATOR,   "BFD Discriminator" },
+    { BGPTYPE_NEXT_HOP_DEP_CAP,    "BGP Next Hop Dependent Capabilities" },
     { BGPTYPE_BGP_PREFIX_SID,      "BGP Prefix-SID" },
     { BGPTYPE_LINK_STATE_OLD_ATTR, "LINK_STATE (unofficial code point)" },
     { BGPTYPE_ATTR_SET,            "ATTR_SET" },
@@ -1308,6 +1446,10 @@ static const value_string pmsi_tunnel_type[] = {
     { PMSI_TUNNEL_BIDIR_PIM,      "BIDIR-PIM Tree" },
     { PMSI_TUNNEL_INGRESS,        "Ingress Replication" },
     { PMSI_TUNNEL_MLDP_MP2MP,     "mLDP MP2MP LSP" },
+    { PMSI_TUNNEL_TRANPORT,       "Transport Tunnel" },
+    { PMSI_TUNNEL_ASS_REPLIC,     "Assisted Replication Tunnel" },
+    { PMSI_TUNNEL_BIER,           "BIER" },
+    { PMSI_TUNNEL_SR_MPLS_P2MP,   "SR-MPLS P2MP Tree" },
     { 0, NULL }
 };
 
@@ -1317,9 +1459,22 @@ static const value_string aigp_tlv_type[] = {
 };
 
 static const value_string pmsi_mldp_fec_opaque_value_type[] = {
-    { PMSI_MLDP_FEC_TYPE_RSVD,          "Reserved" },
-    { PMSI_MLDP_FEC_TYPE_GEN_LSP,       "Generic LSP Identifier" },
-    { PMSI_MLDP_FEC_TYPE_EXT_TYPE,      "Extended Type field in the following two bytes" },
+    { PMSI_MLDP_FEC_TYPE_RSVD,                      "Reserved" },
+    { PMSI_MLDP_FEC_TYPE_GEN_LSP,                   "Generic LSP Identifier" },
+    { PMSI_MLDP_FEC_TYPE_TRANSIT_IPV4_SRC,          "Transit IPv4 Source" },
+    { PMSI_MLDP_FEC_TYPE_TRANSIT_IPV6_SRC,          "Transit IPv6 Source" },
+    { PMSI_MLDP_FEC_TYPE_TRANSIT_IPV4_BIDIR,        "Transit IPv4 Bidir" },
+    { PMSI_MLDP_FEC_TYPE_TRANSIT_IPV6_BIDIR,        "Transit IPv6 Bidir" },
+    { PMSI_MLDP_FEC_TYPE_RECURSE_OPAQUE_VALUE,      "Recursive Opaque Value" },
+    { PMSI_MLDP_FEC_TYPE_VPN_RECURSE_OPAQUE_VALUE,  "VPN-Recursive Opaque Value" },
+    { PMSI_MLDP_FEC_TYPE_TRANSIT_VPNV4_BIDIR,       "Transit VPNv4 Bidir" },
+    { PMSI_MLDP_FEC_TYPE_TRANSIT_VPNV6_BIDIR,       "Transit VPNv6 Bidir" },
+    { PMSI_MLDP_FEC_TYPE_TRANSIT_IPV4_SHARED_TREE,  "Transit IPv4 Shared Tree" },
+    { PMSI_MLDP_FEC_TYPE_TRANSIT_IPV6_SHARED_TREE,  "Transit IPv6 Shared Tree" },
+    { PMSI_MLDP_FEC_TYPE_L2VPN_MCAST,               "L2VPN-MCAST application" },
+    { PMSI_MLDP_FEC_TYPE_TRANSIT_VPNV4_SRC,         "Transit VPNv4 Source" },
+    { PMSI_MLDP_FEC_TYPE_TRANSIT_VPNV6_SRC,         "Transit VPNv6 Source" },
+    { PMSI_MLDP_FEC_TYPE_EXT_TYPE,                  "Extended Type field in the following two bytes" },
     { 0, NULL}
 };
 
@@ -1346,15 +1501,25 @@ static const value_string bgp_attr_tunnel_type[] = {
     { TUNNEL_TYPE_SR_TE_POLICY, "SR TE Policy Type" },
     { TUNNEL_TYPE_BARE,         "Bare" },
     { TUNNEL_TYPE_SR_TUNNEL,    "SR Tunnel" },
+    { TUNNEL_TYPE_CLOUD_SECURITY, "Cloud Security" },
+    { TUNNEL_TYPE_GENEVE_ENCAP, "Geneve Encapsulation" },
+    { TUNNEL_TYPE_ANY_ENCAP,    "Any Encapsulation" },
+    { TUNNEL_TYPE_GTP_TUNNEL_TYPE, "GTP Tunnel Type" },
+    { TUNNEL_TYPE_DPS_TUNNEL_ENCAP, "Dynamic Path Selection Tunnel Encapsulation" },
+    { TUNNEL_TYPE_ORIGINATING_PE, "Originating PE" },
+    { TUNNEL_TYPE_DPS_POLICY,   "Dynamic Path Selection Policy" },
+    { TUNNEL_TYPE_SDWAN_HYBRID, "SDWAN Hybrid" },
+    { TUNNEL_TYPE_X_OVER_UDP,   "X-over-UDP" },
+    { TUNNEL_TYPE_DES_TUNNEL_ENCAP, "Distributed Ehterlink Switch Tunnel Encapsulation" },
     { 0, NULL }
 };
 
 static const value_string subtlv_type[] = {
-    { TUNNEL_SUBTLV_ENCAPSULATION,  "ENCAPSULATION" },
-    { TUNNEL_SUBTLV_PROTO_TYPE,     "PROTOCOL_TYPE" },
+    { TUNNEL_SUBTLV_ENCAPSULATION,  "Encapsulation" },
+    { TUNNEL_SUBTLV_PROTO_TYPE,     "Protocol Type" },
     { TUNNEL_SUBTLV_IPSEC_TA,       "IPsec Tunnel Authenticator" },
-    { TUNNEL_SUBTLV_COLOR,          "COLOR" },
-    { TUNNEL_SUBTLV_LOAD_BALANCE,   "LOAD_BALANCE" },
+    { TUNNEL_SUBTLV_COLOR,          "Color" },
+    { TUNNEL_SUBTLV_LOAD_BALANCE,   "Load-Balancing Block" },
     { TUNNEL_SUBTLV_REMOTE_ENDPOINT,"Tunnel Egress Endpoint" },
     { TUNNEL_SUBTLV_IPV4_DS_FIELD,  "IPv4 DS Field" },
     { TUNNEL_SUBTLV_UDP_DST_PORT,   "UDP Destination Port" },
@@ -1365,8 +1530,29 @@ static const value_string subtlv_type[] = {
     { TUNNEL_SUBTLV_BINDING_SID,    "Binding SID" },
     { TUNNEL_SUBTLV_ENLP,           "ENLP" },
     { TUNNEL_SUBTLV_PRIORITY,       "Priority" },
+    { TUNNEL_SUBTLV_SPI_SI_REP,     "SPI/SI Representation" },
+    { TUNNEL_SUBTLV_SRV6_BINDING_SID, "SRv6 Binding SID" },
+    { TUNNEL_SUBTLV_IPSEC_SA_ID,    "IPSEC-SA-ID" },
+    { TUNNEL_SUBTLV_EXT_PORT_PROP,  "Extended Port Property" },
+    { TUNNEL_SUBTLV_UNDERLAY_ISP_PROP, "Underlay ISP Properties" },
+    { TUNNEL_SUBTLV_IPSEC_SA_NONCE, "IPsec SA Nonce" },
+    { TUNNEL_SUBTLV_IPSEC_PUBLIC_KEY, "IPsec Public Key" },
+    { TUNNEL_SUBTLV_IPSEC_SA_PROPOSAL, "IPsec SA Proposal" },
+    { TUNNEL_SUBTLV_SIMPL_IPSEC_SA, "Simplified IPsec SA" },
+    { TUNNEL_SUBTLV_NRP,            "NRP" },
+    { TUNNEL_SUBTLV_RPF,            "RPF" },
+    { TUNNEL_SUBTLV_TREE_LABEL_STACK, "Tree Label Stack" },
     { TUNNEL_SUBTLV_SEGMENT_LIST,   "Segment List" },
+    { TUNNEL_SUBTLV_POLICY_CP_NAME, "Policy CP Name" },
     { TUNNEL_SUBTLV_POLICY_NAME,    "Policy Name" },
+    { TUNNEL_SUBTLV_WAN_ID,         "The WAN ID" },
+    { TUNNEL_SUBTLV_BYTES,          "The Bytes" },
+    { TUNNEL_SUBTLV_IPSEC_DIM,      "IPSEC DIM" },
+    { TUNNEL_SUBTLV_IPSEC_KEY_EXCH, "IPSEC Key Exchange" },
+    { TUNNEL_SUBTLV_IPSEC_SA_PROPS, "IPSEC SA Proposals" },
+    { TUNNEL_SUBTLV_SRV_SEGMENT_LIST, "Service Segment List" },
+    { TUNNEL_SUBTLV_SRV_VTEP,       "Service Vtep" },
+    { TUNNEL_SUBTLV_DES_ADJACENCY,  "Distributed Etherlink Switch (DES) Adjacency" },
     { 0, NULL }
 };
 
@@ -1401,26 +1587,30 @@ static const true_false_string tfs_bgpext_com_type_auth = {
 };
 
 static const value_string bgpext_com_type_high[] = {
-    { BGP_EXT_COM_TYPE_HIGH_TR_AS2,         "Transitive 2-Octet AS-Specific" },
-    { BGP_EXT_COM_TYPE_HIGH_TR_IP4,         "Transitive IPv4-Address-Specific" },
-    { BGP_EXT_COM_TYPE_HIGH_TR_AS4,         "Transitive 4-Octet AS-Specific" },
-    { BGP_EXT_COM_TYPE_HIGH_TR_OPAQUE,      "Transitive Opaque" },
-    { BGP_EXT_COM_TYPE_HIGH_TR_QOS,         "Transitive QoS Marking" },
-    { BGP_EXT_COM_TYPE_HIGH_TR_COS,         "Transitive CoS Capability" },
-    { BGP_EXT_COM_TYPE_HIGH_TR_EVPN,        "Transitive EVPN" },
-    { BGP_EXT_COM_TYPE_HIGH_TR_FLOW_I,      "FlowSpec Transitive" },
-    { BGP_EXT_COM_TYPE_HIGH_TR_FLOW,        "Transitive Flow spec redirect/mirror to IP next-hop" },
-    { BGP_EXT_COM_TYPE_HIGH_TR_FLOW_R,      "Transitive FlowSpec Redirect to indirection-id" },
-    { BGP_EXT_COM_TYPE_HIGH_TR_MUP,         "Transitive MUP" },
-    { BGP_EXT_COM_TYPE_HIGH_TR_EXP,         "Generic Transitive Experimental Use"},
-    { BGP_EXT_COM_TYPE_HIGH_TR_EXP_2,       "Generic Transitive Experimental Use Part 2"},
-    { BGP_EXT_COM_TYPE_HIGH_TR_EXP_3,       "Generic Transitive Experimental Use Part 3 "},
-    { BGP_EXT_COM_TYPE_HIGH_TR_EXP_EIGRP,   "Transitive Experimental EIGRP" },
-    { BGP_EXT_COM_TYPE_HIGH_NTR_AS2,        "Non-Transitive 2-Octet AS-Specific" },
-    { BGP_EXT_COM_TYPE_HIGH_NTR_IP4,        "Non-Transitive IPv4-Address-Specific" },
-    { BGP_EXT_COM_TYPE_HIGH_NTR_AS4,        "Non-Transitive 4-Octet AS-Specific" },
-    { BGP_EXT_COM_TYPE_HIGH_NTR_OPAQUE,     "Non-Transitive Opaque" },
-    { BGP_EXT_COM_TYPE_HIGH_NTR_QOS,        "Non-Transitive QoS Marking" },
+    { BGP_EXT_COM_TYPE_HIGH_TR_AS2,        "Transitive 2-Octet AS-Specific" },
+    { BGP_EXT_COM_TYPE_HIGH_TR_IP4,        "Transitive IPv4-Address-Specific" },
+    { BGP_EXT_COM_TYPE_HIGH_TR_AS4,        "Transitive 4-Octet AS-Specific" },
+    { BGP_EXT_COM_TYPE_HIGH_TR_OPAQUE,     "Transitive Opaque" },
+    { BGP_EXT_COM_TYPE_HIGH_TR_QOS,        "Transitive QoS Marking" },
+    { BGP_EXT_COM_TYPE_HIGH_TR_COS,        "Transitive CoS Capability" },
+    { BGP_EXT_COM_TYPE_HIGH_TR_EVPN,       "Transitive EVPN" },
+    { BGP_EXT_COM_TYPE_HIGH_TR_FLOW_I,     "FlowSpec Transitive" },
+    { BGP_EXT_COM_TYPE_HIGH_TR_FLOW,       "Transitive Flow spec redirect/mirror to IP next-hop" },
+    { BGP_EXT_COM_TYPE_HIGH_TR_FLOW_R,     "Transitive FlowSpec Redirect to indirection-id" },
+    { BGP_EXT_COM_TYPE_HIGH_TR_TP_CLASS,   "Transitive Transport Class" },
+    { BGP_EXT_COM_TYPE_HIGH_TR_SFC,        "Transitive SFC" },
+    { BGP_EXT_COM_TYPE_HIGH_TR_MUP,        "Transitive MUP" },
+    { BGP_EXT_COM_TYPE_HIGH_TR_EXT,        "Generic Transitive Extended Community"},
+    { BGP_EXT_COM_TYPE_HIGH_TR_EXT_2,      "Generic Transitive Extended Community Part 2"},
+    { BGP_EXT_COM_TYPE_HIGH_TR_EXT_3,      "Generic Transitive Extended Community Part 3 "},
+    { BGP_EXT_COM_TYPE_HIGH_TR_EXP_EIGRP,  "Transitive Experimental EIGRP" },
+    { BGP_EXT_COM_TYPE_HIGH_NTR_AS2,       "Non-Transitive 2-Octet AS-Specific" },
+    { BGP_EXT_COM_TYPE_HIGH_NTR_IP4,       "Non-Transitive IPv4-Address-Specific" },
+    { BGP_EXT_COM_TYPE_HIGH_NTR_AS4,       "Non-Transitive 4-Octet AS-Specific" },
+    { BGP_EXT_COM_TYPE_HIGH_NTR_OPAQUE,    "Non-Transitive Opaque" },
+    { BGP_EXT_COM_TYPE_HIGH_NTR_QOS,       "Non-Transitive QoS Marking" },
+    { BGP_EXT_COM_TYPE_HIGH_NTR_FLOWSPEC,  "FlowSpec Non-Transitive Extended Communities" },
+    { BGP_EXT_COM_TYPE_HIGH_NTR_TRANSPORT, "Non-Transitive Transport Class" },
     { 0, NULL}
 };
 
@@ -1453,17 +1643,25 @@ static const value_string bgpext_com_stype_tr_evpn[] = {
     { BGP_EXT_COM_STYPE_EVPN_EVIRT2,      "EVI-RT Type 2 Extended Community" },
     { BGP_EXT_COM_STYPE_EVPN_EVIRT3,      "EVI-RT Type 3 Extended Community" },
     { BGP_EXT_COM_STYPE_EVPN_ATTACHCIRT,  "EVPN Attachment Circuit" },
+    { BGP_EXT_COM_STYPE_EVPN_SVC_CARV_TS, "Service Carving Timestamp" },
+    { BGP_EXT_COM_STYPE_EVPN_LINK_BW,     "EVPN Link Bandwidth Extended Community" },
+    { BGP_EXT_COM_STYPE_EVPN_RT_EC,       "RT-derived-EC" },
     { 0, NULL}
 };
 
 static const value_string bgpext_com_stype_tr_as2[] = {
     { BGP_EXT_COM_STYPE_AS2_RT,       "Route Target" },
     { BGP_EXT_COM_STYPE_AS2_RO,       "Route Origin" },
+    { BGP_EXT_COM_STYPE_AS2_LBW,      "Link Bandwidth" },
     { BGP_EXT_COM_STYPE_AS2_OSPF_DID, "OSPF Domain Identifier" },
+    { BGP_EXT_COM_STYPE_AS2_RT_AGG_P, "Route Aggregation Parameter" },
     { BGP_EXT_COM_STYPE_AS2_DCOLL,    "BGP Data Collection" },
     { BGP_EXT_COM_STYPE_AS2_SRC_AS,   "Source AS" },
     { BGP_EXT_COM_STYPE_AS2_L2VPN,    "L2VPN Identifier" },
     { BGP_EXT_COM_STYPE_AS2_CVPND,    "Cisco VPN-Distinguisher" },
+    { BGP_EXT_COM_STYPE_AS2_RT_REC,   "Route Target Record" },
+    { BGP_EXT_COM_STYPE_AS2_RT_EC,    "RT-derived-EC" },
+    { BGP_EXT_COM_STYPE_AS2_VNI,      "Virtual-Network Identifier" },
     { 0, NULL}
 };
 
@@ -1482,6 +1680,7 @@ static const value_string bgpext_com_stype_tr_as4[] = {
     { BGP_EXT_COM_STYPE_AS4_S_AS,     "Source AS" },
     { BGP_EXT_COM_STYPE_AS4_CIS_V,    "Cisco VPN Identifier" },
     { BGP_EXT_COM_STYPE_AS4_RT_REC,   "Route-Target Record"},
+    { BGP_EXT_COM_STYPE_AS4_RT_REC,   "RT-derived-EC" },
     { 0, NULL}
 };
 
@@ -1493,25 +1692,44 @@ static const value_string bgpext_com_stype_ntr_as4[] = {
 static const value_string bgpext_com_stype_tr_IP4[] = {
     { BGP_EXT_COM_STYPE_IP4_RT,       "Route Target" },
     { BGP_EXT_COM_STYPE_IP4_RO,       "Route Origin" },
+    { BGP_EXT_COM_STYPE_IP4_IFIT_TAIL,"IPv4-Address-Specific IFIT Tail Community" },
     { BGP_EXT_COM_STYPE_IP4_OSPF_DID, "OSPF Domain Identifier" },
     { BGP_EXT_COM_STYPE_IP4_OSPF_RID, "OSPF Router ID" },
+    { BGP_EXT_COM_STYPE_IP4_NODE_TGT, "Node Target Extended Community" },
     { BGP_EXT_COM_STYPE_IP4_L2VPN,    "L2VPN Identifier" },
     { BGP_EXT_COM_STYPE_IP4_VRF_I,    "VRF Route Import" },
+    { BGP_EXT_COM_STYPE_IP4_FLOW_RDR, "Flow-spec Redirect to IPv4" },
     { BGP_EXT_COM_STYPE_IP4_CIS_D,    "Cisco VPN-Distinguisher" },
     { BGP_EXT_COM_STYPE_IP4_SEG_NH,   "Inter-area P2MP Segmented Next-Hop" },
+    { BGP_EXT_COM_STYPE_IP4_RT_REC,   "Route-Target Record" },
+    { BGP_EXT_COM_STYPE_IP4_VRF_RNH,  "VRF-Recursive-Next-Hop-Extended-Community" },
+    { BGP_EXT_COM_STYPE_IP4_RT_EC,    "RT-derived-EC" },
+    { BGP_EXT_COM_STYPE_IP4_MVPN_RP,  "MVPN SA RP-address Extended Community" },
     { 0, NULL}
 };
 
 static const value_string bgpext_com_stype_ntr_IP4[] = {
+    { BGP_EXT_COM_STYPE_IP4_NODE_TGT, "Node Target Extended Community" },
     { 0, NULL}
 };
 
 static const value_string bgpext_com_stype_tr_opaque[] = {
-    { BGP_EXT_COM_STYPE_OPA_COST,    "Cost" },
-    { BGP_EXT_COM_STYPE_OPA_OSPF_RT, "OSPF Route Type" },
-    { BGP_EXT_COM_STYPE_OPA_COLOR,   "Color" },
-    { BGP_EXT_COM_STYPE_OPA_ENCAP,   "Encapsulation" },
-    { BGP_EXT_COM_STYPE_OPA_DGTW,    "Default Gateway" },
+    { BGP_EXT_COM_STYPE_OPA_COST,      "Cost" },
+    { BGP_EXT_COM_STYPE_OPA_CP_OSPF,   "CP-ORF" },
+    { BGP_EXT_COM_STYPE_OPA_EXTN_SRC,  "Extranet Source Extended Community" },
+    { BGP_EXT_COM_STYPE_OPA_EXTN_SEP,  "Extranet Separation Extended Community" },
+    { BGP_EXT_COM_STYPE_OPA_OSPF_RT,   "OSPF Route Type" },
+    { BGP_EXT_COM_STYPE_OPA_PMSI_ATTR, "Additional PMSI Tunnel Attribute Flags" },
+    { BGP_EXT_COM_STYPE_OPA_CTX_LBL,   "Context-Specific Label Space ID Extended Community" },
+    { BGP_EXT_COM_STYPE_OPA_COLOR,     "Color" },
+    { BGP_EXT_COM_STYPE_OPA_ENCAP,     "Encapsulation" },
+    { BGP_EXT_COM_STYPE_OPA_DGTW,      "Default Gateway" },
+    { BGP_EXT_COM_STYPE_OPA_PPMP_LBL,  "Point-to-Point-to-Multipoint (PPMP) Label" },
+    { BGP_EXT_COM_STYPE_OPA_GRP_TAG,   "BGP Group Policy Class Tag Extended Community" },
+    { BGP_EXT_COM_STYPE_OPA_HSH_SRT,   "Consistent Hash Sort Order" },
+    { BGP_EXT_COM_STYPE_OPA_GRP_PID,   "Group Policy ID Extended Community" },
+    { BGP_EXT_COM_STYPE_OPA_LCM,       "Local Color Mapping (LCM)" },
+    { BGP_EXT_COM_STYPE_OPA_LOADBAL,   "LoadBalance" },
     { 0, NULL}
 };
 
@@ -1543,12 +1761,29 @@ static const value_string bgpext_com_tunnel_type[] = {
     { BGP_EXT_COM_TUNNEL_MPLSGRE,       "MPLS in GRE Encapsulation" },
     { BGP_EXT_COM_TUNNEL_VXLANGPE,      "VxLAN GPE Encapsulation" },
     { BGP_EXT_COM_TUNNEL_MPLSUDP,       "MPLS in UDP Encapsulation" },
+    { BGP_EXT_COM_TUNNEL_IPV6_TUNNEL,   "IPv6 Tunnel" },
+    { BGP_EXT_COM_TUNNEL_SE_TE_POLICY,  "SR TE Policy Type" },
+    { BGP_EXT_COM_TUNNEL_BARE,          "Bare" },
+    { BGP_EXT_COM_TUNNEL_SR_TUNNEL,     "SR Tunnel" },
+    { BGP_EXT_COM_TUNNEL_CLOUD_SEC,     "Cloud Security" },
+    { BGP_EXT_COM_TUNNEL_GENEVE_ENCAP,  "Geneve Encapsulation" },
+    { BGP_EXT_COM_TUNNEL_ANY_ENCAP,     "Any Encapsulation" },
+    { BGP_EXT_COM_TUNNEL_GTP_TUNNEL,    "GTP Tunnel Type" },
+    { BGP_EXT_COM_TUNNEL_DPS_TUNNEL,    "Dynamic Path Selection (DPS) Tunnel Encapsulation" },
+    { BGP_EXT_COM_TUNNEL_OPE,           "Originating PE (OPE)" },
+    { BGP_EXT_COM_TUNNEL_DYN_DPS_POL,   "Dynamic Path Selection (DPS) Policy" },
+    { BGP_EXT_COM_TUNNEL_SDWAN_HYB,     "SDWAN-Hybrid" },
+    { BGP_EXT_COM_TUNNEL_X_OVER_UDP,    "X-over-UDP" },
+    { BGP_EXT_COM_TUNNEL_DES_ENCAP,     "Distributed Etherlink Switch (DES) Tunnel Encapsulation" },
     { 0, NULL}
 };
 
 static const value_string bgpext_com_stype_ntr_opaque[] = {
     { BGP_EXT_COM_STYPE_OPA_COST,       "Cost" },
     { BGP_EXT_COM_STYPE_OPA_OR_VAL_ST,  "BGP Origin Validation state" },
+    { BGP_EXT_COM_STYPE_OPA_COST,       "Cost Community" },
+    { BGP_EXT_COM_STYPE_OPA_RT,         "Route Target" },
+    { BGP_EXT_COM_STYPE_OPA_RT_EC,      "RT-derived-EC" },
     { 0, NULL}
 };
 
@@ -1563,6 +1798,8 @@ static const value_string bgpext_com_stype_tr_exp[] = {
     { BGP_EXT_COM_STYPE_EXP_F_RMARK,    "Flow spec traffic-remarking" },
     { BGP_EXT_COM_STYPE_EXP_L2,         "Layer2 Info" },
     { BGP_EXT_COM_STYPE_EXP_ETREE,      "E-Tree Info" },
+    { BGP_EXT_COM_STYPE_EXP_FLOW_RATE,  "Flow spec traffic-rate-packets" },
+    { BGP_EXT_COM_STYPE_EXP_FLOW_SFC,   "Flow Specification for SFC Classifiers" },
     { BGP_EXT_COM_STYPE_EXP_TAG,        "Tag" },
     { BGP_EXT_COM_STYPE_EXP_SUB_CLUS,   "Origin Sub-Cluster" },
     { 0, NULL}
@@ -1685,6 +1922,10 @@ static const value_string bgpattr_nlri_safi[] = {
     { SAFNUM_CT,                "Classful Transport Planes" },
     { SAFNUM_FLOWSPEC,          "Tunneled Traffic Flowspec" },
     { SAFNUM_MCAST_TREE,        "MCAST-TREE" },
+    { SAFNUM_BGP_DPS,           "Dynamic Path Selection" },
+    { SAFNUM_BGP_LS_SPF,        "BGP-LS-SPF" },
+    { SAFNUM_BGP_CAR,           "BGP-CAR" },
+    { SAFNUM_BGP_VPN_CAR,       "BGP-VPN-CAR" },
     { SAFNUM_BGP_MUP,           "BGP-MUP" },
     { SAFNUM_LAB_VPNUNICAST,    "Labeled VPN Unicast" },
     { SAFNUM_LAB_VPNMULCAST,    "Labeled VPN Multicast" },
@@ -1778,12 +2019,27 @@ static const value_string capability_vals[] = {
     { BGP_CAPABILITY_MULTISESSION_CISCO,            "Multisession BGP Capability (Cisco)" },
     { BGP_CAPABILITY_BFD_STRICT,                    "BFD Strict-Mode capability" },
     { BGP_CAPABILITY_SOFT_VERSION,                  "Software Version Capability" },
+    { BGP_CAPABILITY_PATHS_LIMIT,                   "PATHS-LIMIT Capability" },
+    { BGP_CAPABILITY_ROUTE_REFRESH_CISCO,           "Route Refresh Capability (Cisco)" },
+    { BGP_CAPABILITY_RPD_CISCO,                     "Routing Policy Distribution (Cisco)" },
+    { BGP_CAPABILITY_ORF_CISCO,                     "Outbound Route Filtering (Cisco)" },
+    { BGP_CAPABILITY_MULTISESSION_CISCO,            "Multisession (Cisco)" },
+    { BGP_CAPABILITY_FQDN_CISCO,                    "FQDN (Cisco)" },
+    { BGP_CAPABILITY_OPERATIONAL_MSG_CISCO,         "OPERATIONAL message (Cisco)" },
     { 0, NULL }
 };
 
 static const value_string community_vals[] = {
     { BGP_COMM_GRACEFUL_SHUTDOWN,   "GRACEFUL_SHUTDOWN" },
     { BGP_COMM_ACCEPT_OWN,          "ACCEPT_OWN" },
+    { BGP_COMM_RT_FLTR_XLTD_V4,     "ROUTE_FILTER_TRANSLATED_v4" },
+    { BGP_COMM_RT_FLTR_V4,          "ROUTE_FILTER_v4" },
+    { BGP_COMM_RT_FLTR_XLTD_V6,     "ROUTE_FILTER_TRANSLATED_v6" },
+    { BGP_COMM_RT_FLTR_V6,          "ROUTE_FILTER_v6" },
+    { BGP_COMM_LLGR_STALE,          "LLGR_STALE" },
+    { BGP_COMM_NO_LLGR,             "NO_LLGR" },
+    { BGP_COMM_ACCEPT_OWN_HOP,      "accept-own-nexthop" },
+    { BGP_COMM_STANDBY_PE,          "Standby PE" },
     { BGP_COMM_BLACKHOLE,           "BLACKHOLE" },
     { BGP_COMM_NO_EXPORT,           "NO_EXPORT" },
     { BGP_COMM_NO_ADVERTISE,        "NO_ADVERTISE" },
@@ -1825,10 +2081,13 @@ static const value_string link_state_nlri_protocol_id_values[] = {
         {BGP_LS_NLRI_PROTO_ID_UNKNOWN, "Unknown" },
         {BGP_LS_NLRI_PROTO_ID_IS_IS_LEVEL_1, "IS-IS Level 1"},
         {BGP_LS_NLRI_PROTO_ID_IS_IS_LEVEL_2, "IS-IS Level 2"},
-        {BGP_LS_NLRI_PROTO_ID_OSPF, "OSPF"},
+        {BGP_LS_NLRI_PROTO_ID_OSPF_V2, "OSPFv2"},
         {BGP_LS_NLRI_PROTO_ID_DIRECT, "Direct"},
         {BGP_LS_NLRI_PROTO_ID_STATIC, "Static"},
+        {BGP_LS_NLRI_PROTO_ID_OSPF_V3, "OSPFv3"},
         {BGP_LS_NLRI_PROTO_ID_BGP, "BGP"},
+        {BGP_LS_NLRI_PROTO_ID_RSVP_TE, "RSVP-TE" },
+        {BGP_LS_NLRI_PROTO_ID_SEGMENT_ROUTING, "Segment Routing" },
         {0, NULL},
 };
 
@@ -1924,7 +2183,7 @@ static const value_string srv6_service_data_sub_sub_tlv_type[] = {
     { 0,  NULL }
 };
 
-/* SRv6 Endpoint behavior value_string [draft-ietf-spring-srv6-network-programming-24]. */
+/* SRv6 Endpoint behavior value_string [RFC 8986]. */
 static const value_string srv6_endpoint_behavior[] = {
     { SRV6_ENDPOINT_BEHAVIOR_END,                    "End" },
     { SRV6_ENDPOINT_BEHAVIOR_END_PSP,                "End with PSP" },
@@ -1938,6 +2197,7 @@ static const value_string srv6_endpoint_behavior[] = {
     { SRV6_ENDPOINT_BEHAVIOR_END_T_PSP,              "End.T with PSP" },
     { SRV6_ENDPOINT_BEHAVIOR_END_T_USP,              "End.T with USP" },
     { SRV6_ENDPOINT_BEHAVIOR_END_T_PSP_USP,          "End.T with PSP & USP" },
+    { SRV6_ENDPOINT_BEHAVIOR_END_B6_INSERT,          "End.B6.Insert" },
     { SRV6_ENDPOINT_BEHAVIOR_END_B6_ENCAPS,          "End.B6.Encaps" },
     { SRV6_ENDPOINT_BEHAVIOR_END_BM,                 "End.BM" },
     { SRV6_ENDPOINT_BEHAVIOR_END_DX6,                "End.DX6" },
@@ -1949,6 +2209,7 @@ static const value_string srv6_endpoint_behavior[] = {
     { SRV6_ENDPOINT_BEHAVIOR_END_DX2V,               "End.DX2V" },
     { SRV6_ENDPOINT_BEHAVIOR_END_DT2U,               "End.DT2U" },
     { SRV6_ENDPOINT_BEHAVIOR_END_DT2M,               "End.DT2M" },
+    { SRV6_ENDPOINT_BEHAVIOR_END_B6_INSERT_RED,      "End.B6.Insert.Red" },
     { SRV6_ENDPOINT_BEHAVIOR_END_B6_ENCAPS_RED,      "End.B6.Encaps.Red" },
     { SRV6_ENDPOINT_BEHAVIOR_END_USD,                "End with USD" },
     { SRV6_ENDPOINT_BEHAVIOR_END_PSP_USD,            "End with PSP & USD" },
@@ -1962,6 +2223,8 @@ static const value_string srv6_endpoint_behavior[] = {
     { SRV6_ENDPOINT_BEHAVIOR_END_T_PSP_USD,          "End.T with PSP & USD" },
     { SRV6_ENDPOINT_BEHAVIOR_END_T_USP_USD,          "End.T with USP & USD" },
     { SRV6_ENDPOINT_BEHAVIOR_END_T_PSP_USP_USD,      "End.T with PSP, USP & USD" },
+    { SRV6_ENDPOINT_BEHAVIOR_END_MAP,                "End.MAP" },
+    { SRV6_ENDPOINT_BEHAVIOR_END_LIMIT,              "End.Limit" },
     { SRV6_ENDPOINT_BEHAVIOR_END_ONLY_CSID,          "End with NEXT-ONLY-CSID" },
     { SRV6_ENDPOINT_BEHAVIOR_END_CSID,               "End with NEXT-CSID" },
     { SRV6_ENDPOINT_BEHAVIOR_END_CSID_PSP,           "End with NEXT-CSID & PSP" },
@@ -1993,6 +2256,12 @@ static const value_string srv6_endpoint_behavior[] = {
     { SRV6_ENDPOINT_BEHAVIOR_END_M_GTP6DI,           "End.M.GTP6.Di" },
     { SRV6_ENDPOINT_BEHAVIOR_END_M_GTP6E,            "End.M.GTP6.E" },
     { SRV6_ENDPOINT_BEHAVIOR_END_M_GTP4E,            "End.M.GTP4.E" },
+    { SRV6_ENDPOINT_BEHAVIOR_END_M,                  "End.M" },
+    { SRV6_ENDPOINT_BEHAVIOR_END_REPLICATE,          "End.Replicate" },
+    { SRV6_ENDPOINT_BEHAVIOR_END_NSH,                "End.NSH - NSH Segment" },
+    { SRV6_ENDPOINT_BEHAVIOR_END_DX1,                "End.DX1" },
+    { SRV6_ENDPOINT_BEHAVIOR_END_DX1_NEXT_CSID,      "End.DX1 with NEXT-CSID" },
+    { SRV6_ENDPOINT_BEHAVIOR_END_DX1_REPL_CSID,      "End.DX1 with REPLACE-CSID" },
     { SRV6_ENDPOINT_BEHAVIOR_OPAQUE,                 "Opaque" },
     { 0,  NULL }
 };
@@ -2532,7 +2801,9 @@ static int hf_bgp_ls_sr_tlv_adjacency_sid_flags_vo;
 static int hf_bgp_ls_sr_tlv_adjacency_sid_flags_li;
 static int hf_bgp_ls_sr_tlv_adjacency_sid_flags_lo;
 static int hf_bgp_ls_sr_tlv_adjacency_sid_flags_si;
-static int hf_bgp_ls_sr_tlv_adjacency_sid_flags_so;
+static int hf_bgp_ls_sr_tlv_adjacency_sid_flags_go;
+static int hf_bgp_ls_sr_tlv_adjacency_sid_flags_pi;
+static int hf_bgp_ls_sr_tlv_adjacency_sid_flags_po;
 static int hf_bgp_ls_sr_tlv_adjacency_sid_weight;
 static int hf_bgp_ls_sr_tlv_adjacency_sid_label;
 static int hf_bgp_ls_sr_tlv_adjacency_sid_index;
@@ -5884,7 +6155,7 @@ decode_link_state_attribute_tlv(proto_tree *tree, tvbuff_t *tvb, int offset, pac
                 /*
                    0  1  2  3  4  5  6  7
                   +--+--+--+--+--+--+--+--+
-                  |F |B |V |L |S |  |  |  |
+                  |F |B |V |L |S |P |  |  |
                   +--+--+--+--+--+--+--+--+
                 */
                 static int * const adj_sid_isis_flags[] = {
@@ -5893,19 +6164,21 @@ decode_link_state_attribute_tlv(proto_tree *tree, tvbuff_t *tvb, int offset, pac
                     &hf_bgp_ls_sr_tlv_adjacency_sid_flags_vi,
                     &hf_bgp_ls_sr_tlv_adjacency_sid_flags_li,
                     &hf_bgp_ls_sr_tlv_adjacency_sid_flags_si,
+                    &hf_bgp_ls_sr_tlv_adjacency_sid_flags_pi,
                     NULL
                 };
                 /*
                    0  1  2  3  4  5  6  7
                   +--+--+--+--+--+--+--+--+
-                  |B |V |L |S |  |  |  |  |
+                  |B |V |L |G |P |  |  |  |
                   +--+--+--+--+--+--+--+--+
                 */
                 static int * const adj_sid_ospf_flags[] = {
                     &hf_bgp_ls_sr_tlv_adjacency_sid_flags_bo,
                     &hf_bgp_ls_sr_tlv_adjacency_sid_flags_vo,
                     &hf_bgp_ls_sr_tlv_adjacency_sid_flags_lo,
-                    &hf_bgp_ls_sr_tlv_adjacency_sid_flags_so,
+                    &hf_bgp_ls_sr_tlv_adjacency_sid_flags_go,
+                    &hf_bgp_ls_sr_tlv_adjacency_sid_flags_po,
                     NULL
                 };
 
@@ -5913,7 +6186,7 @@ decode_link_state_attribute_tlv(proto_tree *tree, tvbuff_t *tvb, int offset, pac
                 tlv_tree = proto_item_add_subtree(tlv_item, ett_bgp_link_state);
                 proto_tree_add_item(tlv_tree, hf_bgp_ls_type, tvb, offset, 2, ENC_BIG_ENDIAN);
                 proto_tree_add_item(tlv_tree, hf_bgp_ls_length, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
-                if (protocol_id == BGP_LS_NLRI_PROTO_ID_OSPF) {
+                if ((protocol_id == BGP_LS_NLRI_PROTO_ID_OSPF_V2) || (protocol_id == BGP_LS_NLRI_PROTO_ID_OSPF_V3)) {
                     proto_tree_add_bitmask(tlv_tree, tvb, offset + 4, hf_bgp_ls_sr_tlv_adjacency_sid_flags,
                                            ett_bgp_link_state, adj_sid_ospf_flags, ENC_BIG_ENDIAN);
                 } else {
@@ -6014,13 +6287,13 @@ decode_link_state_attribute_tlv(proto_tree *tree, tvbuff_t *tvb, int offset, pac
             tlv_tree = proto_item_add_subtree(tlv_item, ett_bgp_link_state);
             proto_tree_add_item(tlv_tree, hf_bgp_ls_type, tvb, offset, 2, ENC_BIG_ENDIAN);
             ti = proto_tree_add_item(tlv_tree, hf_bgp_ls_length, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
-            if ((protocol_id == BGP_LS_NLRI_PROTO_ID_OSPF && length < 26) ||
+            if ((((protocol_id == BGP_LS_NLRI_PROTO_ID_OSPF_V2) || (protocol_id == BGP_LS_NLRI_PROTO_ID_OSPF_V3)) && length < 26) ||
                 ((protocol_id == BGP_LS_NLRI_PROTO_ID_IS_IS_LEVEL_1 ||
                   protocol_id == BGP_LS_NLRI_PROTO_ID_IS_IS_LEVEL_2) && length < 28)) {
                 expert_add_info_format(pinfo, ti, &ei_bgp_ls_error,
                                        "Unexpected TLV Length (%u) in BGP-LS %s TLV, it must be %u bytes or more!",
                                        length, "SRv6 LAN End.X SID",
-                                       protocol_id == BGP_LS_NLRI_PROTO_ID_OSPF ? 26 : 28);
+                                       ((protocol_id == BGP_LS_NLRI_PROTO_ID_OSPF_V2) || (protocol_id == BGP_LS_NLRI_PROTO_ID_OSPF_V3)) ? 26 : 28);
                 break;
             }
             proto_tree_add_item(tlv_tree, hf_bgp_ls_sr_tlv_srv6_endx_sid_endpoint_behavior, tvb, offset + 4, 2, ENC_NA);
@@ -6031,7 +6304,7 @@ decode_link_state_attribute_tlv(proto_tree *tree, tvbuff_t *tvb, int offset, pac
             proto_tree_add_item(tlv_tree, hf_bgp_ls_sr_tlv_srv6_endx_sid_weight, tvb, offset + 8, 1, ENC_BIG_ENDIAN);
             proto_tree_add_item(tlv_tree, hf_bgp_ls_sr_tlv_srv6_endx_sid_reserved, tvb, offset + 9, 1, ENC_BIG_ENDIAN);
             local_offset = offset + 10;
-            if (protocol_id == BGP_LS_NLRI_PROTO_ID_OSPF) {
+            if ((protocol_id == BGP_LS_NLRI_PROTO_ID_OSPF_V2) || (protocol_id == BGP_LS_NLRI_PROTO_ID_OSPF_V3)) {
                 proto_tree_add_item(tlv_tree, hf_bgp_ls_sr_tlv_srv6_endx_sid_neighbor_ospf, tvb, local_offset, 4, ENC_BIG_ENDIAN);
                 local_offset += 4;
             } else {
@@ -6258,7 +6531,7 @@ decode_link_state_attribute_tlv(proto_tree *tree, tvbuff_t *tvb, int offset, pac
                 tlv_tree = proto_item_add_subtree(tlv_item, ett_bgp_link_state);
                 proto_tree_add_item(tlv_tree, hf_bgp_ls_type, tvb, offset, 2, ENC_BIG_ENDIAN);
                 proto_tree_add_item(tlv_tree, hf_bgp_ls_length, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
-                if (protocol_id == BGP_LS_NLRI_PROTO_ID_OSPF) {
+                if ((protocol_id == BGP_LS_NLRI_PROTO_ID_OSPF_V2) || (protocol_id == BGP_LS_NLRI_PROTO_ID_OSPF_V3)) {
                     proto_tree_add_bitmask(tlv_tree, tvb, offset + 4, hf_bgp_ls_sr_tlv_prefix_sid_flags,
                                            ett_bgp_link_state, prefix_sid_ospf_flags, ENC_BIG_ENDIAN);
                 } else {
@@ -6308,7 +6581,7 @@ decode_link_state_attribute_tlv(proto_tree *tree, tvbuff_t *tvb, int offset, pac
             tlv_tree = proto_item_add_subtree(tlv_item, ett_bgp_link_state);
             proto_tree_add_item(tlv_tree, hf_bgp_ls_type, tvb, offset, 2, ENC_BIG_ENDIAN);
             proto_tree_add_item(tlv_tree, hf_bgp_ls_length, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
-            if (protocol_id == BGP_LS_NLRI_PROTO_ID_OSPF) {
+            if ((protocol_id == BGP_LS_NLRI_PROTO_ID_OSPF_V2) || (protocol_id == BGP_LS_NLRI_PROTO_ID_OSPF_V3)) {
                 /* rfc7684, rfc9089 */
                 static int * const prefix_attr_ospf_flags[] = {
                     &hf_bgp_ls_sr_tlv_prefix_attr_flags_flags_ao,
@@ -9158,7 +9431,7 @@ dissect_bgp_update_ext_com(proto_tree *parent_tree, tvbuff_t *tvb, uint16_t tlen
                         break;
                 }
                 break;
-            case BGP_EXT_COM_TYPE_HIGH_TR_EXP: /* Generic Transitive Experimental Extended Community */
+            case BGP_EXT_COM_TYPE_HIGH_TR_EXT: /* Generic Transitive Extended Community */
                 proto_tree_add_item(community_tree, hf_bgp_ext_com_stype_tr_exp, tvb, offset+1, 1, ENC_BIG_ENDIAN);
 
                 proto_item_set_text(community_item, "%s:",
@@ -9289,7 +9562,7 @@ dissect_bgp_update_ext_com(proto_tree *parent_tree, tvbuff_t *tvb, uint16_t tlen
                 }
                 break;
 
-            case BGP_EXT_COM_TYPE_HIGH_TR_EXP_2:
+            case BGP_EXT_COM_TYPE_HIGH_TR_EXT_2:
                 proto_tree_add_item(community_tree, hf_bgp_ext_com_stype_tr_exp_2, tvb, offset+1, 1, ENC_BIG_ENDIAN);
 
                 proto_item_set_text(community_item, "%s:",
@@ -9320,7 +9593,7 @@ dissect_bgp_update_ext_com(proto_tree *parent_tree, tvbuff_t *tvb, uint16_t tlen
                 }
                 break;
 
-            case BGP_EXT_COM_TYPE_HIGH_TR_EXP_3:
+            case BGP_EXT_COM_TYPE_HIGH_TR_EXT_3:
                 proto_tree_add_item(community_tree, hf_bgp_ext_com_stype_tr_exp_3, tvb, offset+1, 1, ENC_BIG_ENDIAN);
 
                 proto_item_set_text(community_item, "%s:",
@@ -13707,12 +13980,18 @@ proto_register_bgp(void)
       { &hf_bgp_ls_sr_tlv_adjacency_sid_flags_li,
         { "Local Flag (L)", "bgp.ls.sr.tlv.adjacency.sid.flags.l", FT_BOOLEAN,
           8, TFS(&tfs_set_notset), BGP_LS_SR_ADJACENCY_SID_FLAG_LI, NULL, HFILL}},
-      { &hf_bgp_ls_sr_tlv_adjacency_sid_flags_so,
-        { "Set Flag (S)", "bgp.ls.sr.tlv.adjacency.sid.flags.s", FT_BOOLEAN,
-          8, TFS(&tfs_set_notset), BGP_LS_SR_ADJACENCY_SID_FLAG_SO, NULL, HFILL}},
+      { &hf_bgp_ls_sr_tlv_adjacency_sid_flags_go,
+        { "Group Flag (S)", "bgp.ls.sr.tlv.adjacency.sid.flags.g", FT_BOOLEAN,
+          8, TFS(&tfs_set_notset), BGP_LS_SR_ADJACENCY_SID_FLAG_GO, NULL, HFILL}},
       { &hf_bgp_ls_sr_tlv_adjacency_sid_flags_si,
         { "Set Flag (S)", "bgp.ls.sr.tlv.adjacency.sid.flags.s", FT_BOOLEAN,
           8, TFS(&tfs_set_notset), BGP_LS_SR_ADJACENCY_SID_FLAG_SI, NULL, HFILL}},
+      { &hf_bgp_ls_sr_tlv_adjacency_sid_flags_po,
+        { "Persistent Flag (P)", "bgp.ls.sr.tlv.adjacency.sid.flags.p", FT_BOOLEAN,
+          8, TFS(&tfs_set_notset), BGP_LS_SR_ADJACENCY_SID_FLAG_PO, NULL, HFILL}},
+      { &hf_bgp_ls_sr_tlv_adjacency_sid_flags_pi,
+        { "Persistent Flag (P)", "bgp.ls.sr.tlv.adjacency.sid.flags.p", FT_BOOLEAN,
+          8, TFS(&tfs_set_notset), BGP_LS_SR_ADJACENCY_SID_FLAG_PI, NULL, HFILL}},
       { &hf_bgp_ls_sr_tlv_adjacency_sid_weight,
         { "Weight", "bgp.ls.sr.tlv.adjacency.sid.weight", FT_UINT8,
           BASE_DEC, NULL, 0x0, NULL, HFILL}},
