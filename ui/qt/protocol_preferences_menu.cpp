@@ -116,7 +116,7 @@ public:
     }
 
     void showUatDialog() {
-        UatDialog *uat_dlg = new UatDialog(qobject_cast<QWidget*>(parent()), prefs_get_uat_value(pref_));
+        UatDialog *uat_dlg = new UatDialog(mainApp->mainWindow(), prefs_get_uat_value(pref_));
         connect(uat_dlg, SIGNAL(destroyed(QObject*)), mainApp, SLOT(flushAppSignals()));
         uat_dlg->setWindowModality(Qt::ApplicationModal);
         uat_dlg->setAttribute(Qt::WA_DeleteOnClose);
