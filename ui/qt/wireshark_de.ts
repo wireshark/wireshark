@@ -3011,6 +3011,10 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
         <source>Display filter:</source>
         <translation>Anzeigefilter:</translation>
     </message>
+    <message>
+        <source>Export PDUs</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>ExtArgSelector</name>
@@ -11644,6 +11648,10 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     <message>
         <source>Display filter:</source>
         <translation>Anzeigefilter:</translation>
+    </message>
+    <message>
+        <source>Strip Headers</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

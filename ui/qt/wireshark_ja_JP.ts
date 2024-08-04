@@ -3003,6 +3003,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <source>Display filter:</source>
         <translation>表示フィルタ:</translation>
     </message>
+    <message>
+        <source>Export PDUs</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>ExtArgSelector</name>
@@ -4504,27 +4508,27 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Move to top left</source>
-        <translation type="unfinished"></translation>
+        <translation>左上に移動</translation>
     </message>
     <message>
         <source>Move to top center</source>
-        <translation type="unfinished"></translation>
+        <translation>中央上に移動</translation>
     </message>
     <message>
         <source>Move to top right</source>
-        <translation type="unfinished"></translation>
+        <translation>右上に移動</translation>
     </message>
     <message>
         <source>Move to bottom left</source>
-        <translation type="unfinished"></translation>
+        <translation>左下に移動</translation>
     </message>
     <message>
         <source>Move to bottom center</source>
-        <translation type="unfinished"></translation>
+        <translation>中央下に移動</translation>
     </message>
     <message>
         <source>Move to bottom right</source>
-        <translation type="unfinished"></translation>
+        <translation>右下に移動</translation>
     </message>
     <message>
         <source>Portable Document Format (*.pdf)</source>
@@ -11613,6 +11617,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <source>Display filter:</source>
         <translation>表示フィルタ:</translation>
     </message>
+    <message>
+        <source>Strip Headers</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>SupportedProtocolsDialog</name>
@@ -14518,7 +14526,7 @@ a:hover {
     </message>
     <message>
         <source>Reset layout to default size</source>
-        <translation type="unfinished"></translation>
+        <translation>デフォルトサイズにレイアウトをリセット</translation>
     </message>
     <message>
         <source>Resize Columns</source>

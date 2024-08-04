@@ -3015,6 +3015,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <source>Display filter:</source>
         <translation>Filtr:</translation>
     </message>
+    <message>
+        <source>Export PDUs</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>ExtArgSelector</name>
@@ -11669,6 +11673,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Display filter:</source>
         <translation>Filtr wyświetlania:</translation>
+    </message>
+    <message>
+        <source>Strip Headers</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

@@ -3007,6 +3007,10 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
         <source>Display filter:</source>
         <translation>Filtre d&apos;affichage :</translation>
     </message>
+    <message>
+        <source>Export PDUs</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>ExtArgSelector</name>
@@ -11639,6 +11643,10 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
     <message>
         <source>Display filter:</source>
         <translation>Filtre d&apos;affichage :</translation>
+    </message>
+    <message>
+        <source>Strip Headers</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

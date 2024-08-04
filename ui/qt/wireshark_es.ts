@@ -2984,6 +2984,10 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
         <source>Display filter:</source>
         <translation>Filtro de visualización:</translation>
     </message>
+    <message>
+        <source>Export PDUs</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>ExtArgSelector</name>
@@ -11542,6 +11546,10 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     <message>
         <source>Display filter:</source>
         <translation type="unfinished">Filtro de visualización:</translation>
+    </message>
+    <message>
+        <source>Strip Headers</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

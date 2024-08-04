@@ -3009,6 +3009,10 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <source>Display filter:</source>
         <translation>Visningsfilter:</translation>
     </message>
+    <message>
+        <source>Export PDUs</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>ExtArgSelector</name>
@@ -11642,6 +11646,10 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     <message>
         <source>Display filter:</source>
         <translation>Visningsfilter:</translation>
+    </message>
+    <message>
+        <source>Strip Headers</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

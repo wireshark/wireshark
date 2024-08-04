@@ -3011,6 +3011,10 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <source>Display filter:</source>
         <translation>Filtro di visualizzazione:</translation>
     </message>
+    <message>
+        <source>Export PDUs</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>ExtArgSelector</name>
@@ -11645,6 +11649,10 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <source>Display filter:</source>
         <translation>Filtro di visualizzazione:</translation>
     </message>
+    <message>
+        <source>Strip Headers</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>SupportedProtocolsDialog</name>
@@ -14546,7 +14554,7 @@ a:hover {
     </message>
     <message>
         <source>Reset layout to default size</source>
-        <translation type="unfinished"></translation>
+        <translation>Ripristina la disposizione alla dimensione predefinita </translation>
     </message>
     <message>
         <source>Resize Columns</source>
