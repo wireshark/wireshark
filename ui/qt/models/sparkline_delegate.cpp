@@ -20,7 +20,7 @@ void SparkLineDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opt
     QList<int> points = qvariant_cast<QList<int> >(index.data(Qt::UserRole));
     int max = 1;
     // We typically draw a sparkline alongside some text. Size our
-    // drawing area based on an Em width. and a bit of eyballing on
+    // drawing area based on an Em width. and a bit of eyeballing on
     // Linux, macOS, and Windows.
     int em_w = option.fontMetrics.height();
     int content_w = option.rect.width() - (em_w / 4);

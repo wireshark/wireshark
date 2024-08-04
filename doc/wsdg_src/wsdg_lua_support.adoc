@@ -60,7 +60,7 @@ on the command line with _$$-X lua_script:$$++my.lua++_ and
 _$$-X lua_script:$$++other.lua++_ in that order, then _$$-X lua_script1:$$++foo++_
 would pass _foo_ to _my.lua_ and _$$-X lua_script2:$$++bar++_ would pass _bar_ to
 _other.lua_. Multiple command line options could be passed to _my.lua_ by
-repating the option _$$-X lua_script1:$$_.  Arguments are available in a script in
+repeating the option _$$-X lua_script1:$$_.  Arguments are available in a script in
 a global table called _arg_, similar to when
 link:https://www.lua.org/manual/5.4/manual.html#7[running Lua standalone].
 

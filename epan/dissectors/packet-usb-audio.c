@@ -703,7 +703,7 @@ static const value_string terminal_types_vals[] = {
     {0x0100, "USB Undefined"},
     {0x0101, "USB Streaming"},
     {0x01FF, "USB vendor specific"},
-    /* Input Terminal Tyoes */
+    /* Input Terminal Types */
     {0x0200, "Input Undefined"},
     {0x0201, "Microphone"},
     {0x0202, "Desktop Microphone"},

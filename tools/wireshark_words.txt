@@ -910,6 +910,7 @@ ganss
 gboolean
 gchar
 gcrypt
+gencp
 gendc
 geninfo
 gentoo
@@ -1306,6 +1307,7 @@ magnitudes
 mailto
 maintainers
 malloc
+manand
 manarg
 manip
 mantissa
@@ -1816,6 +1818,7 @@ proxied
 proxying
 proxykey
 pscell
+psecs
 pseudowire
 psname
 ptime
@@ -1962,6 +1965,7 @@ regname
 reimplement
 reimplementation
 reimplemented
+reimplementing
 reinitialization
 reinitialize
 reinitialized
@@ -2272,6 +2276,7 @@ sshkey
 ssupervisor
 stainfo
 stanag
+standardised
 standardization
 starttls
 stateful
@@ -2490,6 +2495,7 @@ trustdom
 truthiness
 tshark
 tspec
+tsprec
 tstamp
 tuesday
 tunid

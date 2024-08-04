@@ -4703,7 +4703,7 @@ proto_register_btle(void)
             NULL, HFILL }
         },
         { &hf_scan_response_data,
-            { "Scan Response Data",              "btle.scan_responce_data",
+            { "Scan Response Data",              "btle.scan_response_data",
             FT_BYTES, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },

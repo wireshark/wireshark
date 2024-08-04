@@ -170,7 +170,7 @@ void RtpAudioFile::setFrameReadStage(qint64 prepend_samples)
 {
     sample_file_frame_->seek(0);
     if (prepend_samples > 0) {
-        // Skip first frame which contains openning silence
+        // Skip first frame which contains opening silence
         sample_file_frame_->read((char *)&cur_frame_, sizeof(cur_frame_));
     }
 }

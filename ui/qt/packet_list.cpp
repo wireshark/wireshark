@@ -2021,7 +2021,7 @@ void PacketList::scrollViewChanged(bool at_end)
 // out colors.
 // Try 3: One packet per vertical scroll bar pixel. This seems to work best
 // but has the smallest window.
-// Try 4: Use a multiple of the scroll bar heigh and scale the image down
+// Try 4: Use a multiple of the scroll bar height and scale the image down
 // using Qt::SmoothTransformation. This gives us more packets per raster
 // line.
 

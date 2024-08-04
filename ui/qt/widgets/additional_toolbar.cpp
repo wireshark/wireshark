@@ -537,7 +537,7 @@ void AdditionalToolbarWidgetAction::sendTextToCallback()
     ApplyLineEdit * editor = dynamic_cast<ApplyLineEdit *>(sender());
     if (! editor)
     {
-        /* Called from button, searching for acompanying line edit */
+        /* Called from button, searching for accompanying line edit */
         QWidget * parent = dynamic_cast<QWidget *>(sender()->parent());
         if (parent)
         {
