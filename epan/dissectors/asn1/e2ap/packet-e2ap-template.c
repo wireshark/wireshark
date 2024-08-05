@@ -797,6 +797,10 @@ proto_reg_handoff_e2ap(void)
   oid_add_from_string("KPM v1",         "1.3.6.1.4.1.53148.1.1.2.2");
   oid_add_from_string("KPM v2",         "1.3.6.1.4.1.53148.1.2.2.2");
   oid_add_from_string("KPM v3",         "1.2.6.1.4.1.53148.1.3.2.2");
+  oid_add_from_string("KPM v4",         "1.2.6.1.4.1.53148.1.4.2.2");
+  oid_add_from_string("KPM v5",         "1.2.6.1.4.1.53148.1.5.2.2");
+  oid_add_from_string("KPM v6",         "1.2.6.1.4.1.53148.1.6.2.2");
+
 
   /* RC */
   // TODO: appears to be the same???  Asking for clarification from ORAN..
@@ -806,6 +810,12 @@ proto_reg_handoff_e2ap(void)
 
   /* NI */
   oid_add_from_string("NI  v1",         "1.3.6.1.4.1.53148.1.1.2.1");
+  oid_add_from_string("NI  v2",         "1.3.6.1.4.1.53148.1.2.2.1");
+  oid_add_from_string("NI  v3",         "1.3.6.1.4.1.53148.1.3.2.1");
+  oid_add_from_string("NI  v4",         "1.3.6.1.4.1.53148.1.4.2.1");
+  oid_add_from_string("NI  v5",         "1.3.6.1.4.1.53148.1.5.2.1");
+  oid_add_from_string("NI  v6",         "1.3.6.1.4.1.53148.1.6.2.1");
+
 
   /* CCC */
   oid_add_from_string("CCC v1",         "1.3.6.1.4.1.53148.1.1.2.4");
@@ -813,10 +823,11 @@ proto_reg_handoff_e2ap(void)
   oid_add_from_string("CCC v3",         "1.3.6.1.4.1.53148.1.3.2.4");
   oid_add_from_string("CCC v4",         "1.3.6.1.4.1.53148.1.4.2.4");
   oid_add_from_string("CCC v5",         "1.3.6.1.4.1.53148.1.5.2.4");
+  oid_add_from_string("CCC v6",         "1.3.6.1.4.1.53148.1.6.2.4");
 
 
-  /********************************/
-  /* Register 'built-in' dissectors */
+  /*********************************************************/
+  /* Register 'built-in' dissectors (i.e., from asn1/e2ap) */
 
   static ran_function_dissector_t kpm_v3 =
   { "ORAN-E2SM-KPM", "1.2.6.1.4.1.53148.1.3.2.2", 3, 0,
