@@ -66,6 +66,15 @@ static int hf_nmea0183_gll_mode;
 static int hf_nmea0183_rot_rate_of_turn;
 static int hf_nmea0183_rot_valid;
 
+static int hf_nmea0183_vhw_true_heading;
+static int hf_nmea0183_vhw_true_heading_unit;
+static int hf_nmea0183_vhw_magnetic_heading;
+static int hf_nmea0183_vhw_magnetic_heading_unit;
+static int hf_nmea0183_vhw_water_speed_knot;
+static int hf_nmea0183_vhw_water_speed_knot_unit;
+static int hf_nmea0183_vhw_water_speed_kilometer;
+static int hf_nmea0183_vhw_water_speed_kilometer_unit;
+
 static int hf_nmea0183_zda_time;
 static int hf_nmea0183_zda_time_hour;
 static int hf_nmea0183_zda_time_minute;
@@ -99,6 +108,10 @@ static expert_field ei_nmea0183_field_missing;
 static expert_field ei_nmea0183_gga_altitude_unit_incorrect;
 static expert_field ei_nmea0183_gga_geoidal_separation_unit_incorrect;
 static expert_field ei_nmea0183_hdt_unit_incorrect;
+static expert_field ei_nmea0183_vhw_true_heading_unit_incorrect;
+static expert_field ei_nmea0183_vhw_magnetic_heading_unit_incorrect;
+static expert_field ei_nmea0183_vhw_water_speed_knot_unit_incorrect;
+static expert_field ei_nmea0183_vhw_water_speed_kilometer_unit_incorrect;
 
 static int proto_nmea0183;
 
@@ -900,6 +913,39 @@ dissect_nmea0183_sentence_rot(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     return tvb_captured_length(tvb);
 }
 
+/* Dissect a VHW sentence. */
+static int
+dissect_nmea0183_sentence_vhw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+    int offset = 0;
+
+    proto_tree *subtree = proto_tree_add_subtree(tree, tvb, offset,
+                                                 tvb_captured_length(tvb), ett_nmea0183_sentence,
+                                                 NULL, "VHW sentence - Water speed and heading");
+
+    offset += dissect_nmea0183_field(tvb, pinfo, subtree, offset, hf_nmea0183_vhw_true_heading, "degree");
+
+    offset += dissect_nmea0183_field_fixed_text(tvb, pinfo, subtree, offset, hf_nmea0183_vhw_true_heading_unit,
+                                                "T", &ei_nmea0183_vhw_true_heading_unit_incorrect);
+
+    offset += dissect_nmea0183_field(tvb, pinfo, subtree, offset, hf_nmea0183_vhw_magnetic_heading, "degree");
+
+    offset += dissect_nmea0183_field_fixed_text(tvb, pinfo, subtree, offset, hf_nmea0183_vhw_magnetic_heading_unit,
+                                                "M", &ei_nmea0183_vhw_magnetic_heading_unit_incorrect);
+
+    offset += dissect_nmea0183_field(tvb, pinfo, subtree, offset, hf_nmea0183_vhw_water_speed_knot, "knot");
+
+    offset += dissect_nmea0183_field_fixed_text(tvb, pinfo, subtree, offset, hf_nmea0183_vhw_water_speed_knot_unit,
+                                                "N", &ei_nmea0183_vhw_water_speed_knot_unit_incorrect);
+
+    offset += dissect_nmea0183_field(tvb, pinfo, subtree, offset, hf_nmea0183_vhw_water_speed_kilometer, "kilometer per hour");
+
+    dissect_nmea0183_field_fixed_text(tvb, pinfo, subtree, offset, hf_nmea0183_vhw_water_speed_kilometer_unit,
+                                                "K", &ei_nmea0183_vhw_water_speed_kilometer_unit_incorrect);
+
+    return tvb_captured_length(tvb);
+}
+
 /* Dissect a ZDA (Time & Date) sentence. The time field is split into individual parts. */
 static int
 dissect_nmea0183_sentence_zda(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -1026,6 +1072,10 @@ dissect_nmea0183(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
     else if (g_ascii_strcasecmp(sentence_id, "ROT") == 0)
     {
         offset += dissect_nmea0183_sentence_rot(data_tvb, pinfo, nmea0183_tree);
+    }
+    else if (g_ascii_strcasecmp(sentence_id, "VHW") == 0)
+    {
+        offset += dissect_nmea0183_sentence_vhw(data_tvb, pinfo, nmea0183_tree);
     }
     else if (g_ascii_strcasecmp(sentence_id, "ZDA") == 0)
     {
@@ -1320,6 +1370,46 @@ void proto_register_nmea0183(void)
           FT_STRING, BASE_NONE,
           NULL, 0x0,
           "NMEA 0183 ROT Status, A means data is valid", HFILL}},
+        {&hf_nmea0183_vhw_true_heading,
+         {"True heading", "nmea0183.vhw_true_heading",
+          FT_STRING, BASE_NONE,
+          NULL, 0x0,
+          "NMEA 0183 VHW Heading, degrees True", HFILL}},
+        {&hf_nmea0183_vhw_true_heading_unit,
+         {"Heading unit", "nmea0183.vhw_true_heading_unit",
+          FT_STRING, BASE_NONE,
+          NULL, 0x0,
+          "NMEA 0183 VHW Heading unit, must be T", HFILL}},
+        {&hf_nmea0183_vhw_magnetic_heading,
+         {"Magnetic heading", "nmea0183.vhw_magnetic_heading",
+          FT_STRING, BASE_NONE,
+          NULL, 0x0,
+          "NMEA 0183 VHW Heading, degrees Magnetic", HFILL}},
+        {&hf_nmea0183_vhw_magnetic_heading_unit,
+         {"Heading unit", "nmea0183.vhw_magnetic_heading_unit",
+          FT_STRING, BASE_NONE,
+          NULL, 0x0,
+          "NMEA 0183 VHW Heading unit, must be M", HFILL}},
+        {&hf_nmea0183_vhw_water_speed_knot,
+         {"Water speed", "nmea0183.vhw_water_speed_knot",
+          FT_STRING, BASE_NONE,
+          NULL, 0x0,
+          "NMEA 0183 VHW Water speed, knots", HFILL}},
+        {&hf_nmea0183_vhw_water_speed_knot_unit,
+         {"Speed unit", "nmea0183.vhw_water_speed_knot_unit",
+          FT_STRING, BASE_NONE,
+          NULL, 0x0,
+          "NMEA 0183 VHW Water speed unit, must be N", HFILL}},
+        {&hf_nmea0183_vhw_water_speed_kilometer,
+         {"Water speed", "nmea0183.vhw_water_speed_kilometer",
+          FT_STRING, BASE_NONE,
+          NULL, 0x0,
+          "NMEA 0183 VHW Water speed, kilometers per hour", HFILL}},
+        {&hf_nmea0183_vhw_water_speed_kilometer_unit,
+         {"Speed unit", "nmea0183.vhw_water_speed_kilometer_unit",
+          FT_STRING, BASE_NONE,
+          NULL, 0x0,
+          "NMEA 0183 VHW Water speed unit, must be K", HFILL}},
         {&hf_nmea0183_zda_time,
          {"UTC Time", "nmea0183.zda_time",
           FT_NONE, BASE_NONE,
@@ -1415,7 +1505,19 @@ void proto_register_nmea0183(void)
           "Incorrect geoidal separation unit (should be 'M')", EXPFILL}},
         {&ei_nmea0183_hdt_unit_incorrect,
          {"nmea0183.hdt_unit_incorrect", PI_PROTOCOL, PI_WARN,
-          "Incorrect heading unit (should be 'T')", EXPFILL}}};
+          "Incorrect heading unit (should be 'T')", EXPFILL}},
+        {&ei_nmea0183_vhw_true_heading_unit_incorrect,
+         {"nmea0183.vhw_true_heading_unit_incorrect", PI_PROTOCOL, PI_WARN,
+          "Incorrect heading unit (should be 'T')", EXPFILL}},
+        {&ei_nmea0183_vhw_magnetic_heading_unit_incorrect,
+         {"nmea0183.vhw_magnetic_heading_unit_incorrect", PI_PROTOCOL, PI_WARN,
+          "Incorrect heading unit (should be 'M')", EXPFILL}},
+        {&ei_nmea0183_vhw_water_speed_knot_unit_incorrect,
+         {"nmea0183.vhw_water_speed_knot_unit_incorrect", PI_PROTOCOL, PI_WARN,
+          "Incorrect speed unit (should be 'N')", EXPFILL}},
+        {&ei_nmea0183_vhw_water_speed_kilometer_unit_incorrect,
+         {"nmea0183.vhw_water_speed_kilometer_unit_incorrect", PI_PROTOCOL, PI_WARN,
+          "Incorrect speed unit (should be 'K')", EXPFILL}}};
 
     proto_nmea0183 = proto_register_protocol("NMEA 0183 protocol", "NMEA 0183", "nmea0183");
 
