@@ -14086,16 +14086,17 @@ dissect_transaction2_request_data(tvbuff_t *tvb, packet_info *pinfo,
 		break;
 	}
 
-	/* If the LOI is "Info Set EAs (2), and dc is greater than zero, SECONDARY requests will follow
-	* carrying the remainder of the data. */
-	if (si->info_level == 2 && dc > 0) {
-		proto_tree_add_item(tree, hf_smb_secondaries_will_follow, tvb, offset, dc, ENC_NA);
-		dc = 0;
-	}
-	/* ooops there were data we didn't know how to process */
-	if (dc != 0) {
-		proto_tree_add_item(tree, hf_smb_unknown, tvb, offset, dc, ENC_NA);
-		offset += dc;
+	if (dc > 0) {
+		if (si->info_level == 2) {
+			/* The LOI is "Info Set EAs (2), and dc is greater than zero, thus
+			* SECONDARY requests will follow carrying the remainder of the data. */
+			proto_tree_add_item(tree, hf_smb_secondaries_will_follow, tvb, offset, dc, ENC_NA);
+			dc = 0;
+		} else {
+			/* ooops there were data we didn't know how to process */
+			proto_tree_add_item(tree, hf_smb_unknown, tvb, offset, dc, ENC_NA);
+			offset += dc;
+		}
 	}
 
 	return offset;
@@ -17004,13 +17005,22 @@ dissect_transaction_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	proto_tree_add_uint(tree, hf_smb_data_disp16, tvb, offset, 2, dd);
 	offset += 2;
 
-	/* Now that a FF2 pid_mid response has been fully decoded, we can remove
-	 * it from the unmatched table. It was left in there to prevent "response<unknown>"
-	 * errors whenever there were multiple responses to the same request.
+	/* Now that a FF2 or a SET_FILE_INFO with info level of 2 response has been fully decoded,
+	 * we can remove it from the unmatched table. They were left in there to prevent
+	 * "response<unknown>" errors to FF2 requests whenever there were multiple responses to
+	 * the same request, or replies to SET_FILE_INFO requests with "Subcommand: <UNKNOWN>"
+	 * errors, respectively.
 	 */
-	if (pinfo->fd->visited && t2i && t2i->subcmd == 0x01) {
-		pid_mid = (si->pid << 16) | si->mid;
-		g_hash_table_remove(si->ct->unmatched, GUINT_TO_POINTER(pid_mid));
+	if (pinfo->fd->visited && t2i) {
+		if( (t2i->subcmd == 0x01 ||
+		    (t2i->subcmd == 8 && t2i->info_level == 2))||
+		    (si->cmd == SMB_COM_TRANSACTION2_SECONDARY ||
+                     si->cmd == SMB_COM_TRANSACTION_SECONDARY  ||
+		     si->cmd == SMB_COM_NT_TRANSACT_SECONDARY)) {
+
+			pid_mid = (si->pid << 16) | si->mid;
+			g_hash_table_remove(si->ct->unmatched, GUINT_TO_POINTER(pid_mid));
+		}
 	}
 
 	if (td && td >= dc + dd ) {
@@ -18014,9 +18024,9 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* da
 	conversation_t       *conversation;
 	nstime_t              t, deltat;
 	smb_transact2_info_t *t2i = NULL;
+	gboolean	      remove = true;
 
 	si = wmem_new0(wmem_packet_scope(), smb_info_t);
-
 	top_tree_global = parent_tree;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "SMB");
@@ -18099,16 +18109,10 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* da
 		   We don't need to do anything
 		*/
 		si->unidir = true;
-	} else if ( (si->cmd == SMB_COM_NT_CANCEL)                  /* NT Cancel */
-		   || (si->cmd == SMB_COM_TRANSACTION_SECONDARY)    /* Transaction Secondary */
-		   || (si->cmd == SMB_COM_TRANSACTION2_SECONDARY)   /* Transaction2 Secondary */
-		   || (si->cmd == SMB_COM_NT_TRANSACT_SECONDARY)) { /* NT Transaction Secondary */
-		/* Ok, we got a special request type. This request is either
-		   an NT Cancel or a continuation relative to a real request
-		   in an earlier packet.  In either case, we don't expect any
-		   responses to this packet.  For continuations, any later
-		   responses we see really just belong to the original request.
-		   Anyway, we want to remember this packet somehow and
+	} else if (si->cmd == SMB_COM_NT_CANCEL)                  /* NT Cancel */
+		/* Ok, we got a special request type. This request is an
+		   an NT Cancel. We don't expect any responses to this packet.
+		   Anyway, we want to remembe0 this packet somehow and
 		   remember which original request it is associated with so
 		   we can say nice things such as "This is a Cancellation to
 		   the request in frame x", but we don't want the
@@ -18120,8 +18124,17 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* da
 		   requests smb_saved_info_t but we don't touch it or change anything
 		   in it.
 		*/
-
 		si->unidir = true;  /*we don't expect an answer to this one*/
+
+	else if ((si->cmd == SMB_COM_TRANSACTION_SECONDARY)    /* Transaction Secondary */
+		 || (si->cmd == SMB_COM_TRANSACTION2_SECONDARY)   /* Transaction2 Secondary */
+		 || (si->cmd == SMB_COM_NT_TRANSACT_SECONDARY)) { /* NT Transaction Secondary */
+		 /* In the case of secondariy requests there is response to the initial request
+		    followed by one or more secondary *requests* then another response. Each
+		    of the secondaries should point to the second response as the response
+		    and have "Response in: <second response's frame number>".
+		 */
+		si->unidir = false;
 
 		if (!pinfo->fd->visited) {
 			/* try to find which original call we match and if we
@@ -18140,8 +18153,24 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* da
 				new_key = wmem_new(wmem_file_scope(), smb_saved_info_key_t);
 				new_key->frame = pinfo->num;
 				new_key->pid_mid = pid_mid;
-				g_hash_table_insert(si->ct->matched, new_key,
-				    sip);
+				/*
+				* With secondary requests there is a command such as
+				* SET_FILE_INFO, an immediate response, one or more
+				* secondaries containing the remaining data, followed by
+				* another response. Each secondary shows command as the
+				* request, and the *second* response as the response.
+				* The second request shows the command as the request.
+				* Finally the command request shows the second response
+				* as the response frame. We need to set sip->frame_res = 0
+				* so that the second response will be matched to each
+				* secondary request.
+				*/
+				if ((si->cmd == SMB_COM_TRANSACTION_SECONDARY)  ||
+				    (si->cmd == SMB_COM_TRANSACTION2_SECONDARY) ||
+				    (si->cmd == SMB_COM_NT_TRANSACT_SECONDARY)) {
+					sip->frame_res = 0;
+				}
+				g_hash_table_insert(si->ct->matched, new_key, sip);
 			} else {
 				if ((si->cmd == SMB_COM_TRANSACTION_SECONDARY)  ||
 				    (si->cmd == SMB_COM_TRANSACTION2_SECONDARY) ||
@@ -18281,17 +18310,24 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* da
 						 * We DON'T want #4 to be presented as a response to #1
 						 */
 						/* Prevent FIND_FIRST2 "<unknown>" responses when there are multiple
-						 * responses to the same request. We leave the pid_mid of these responses
-						 * in the unmatched table until all of them have been fully processed
-						 * and then remove that pid-mid.
+						 * responses to the same request. And prevent "Continuation of:
+						 * <unknown frame>" in Trans2 Secondary requests.
+						 * We leave the pid_mid of these responses and requests in the unmatched
+						 * table until all of them have been fully processed.
 						 */
 						if (sip->extra_info_type == SMB_EI_T2I) {
 							t2i = (smb_transact2_info_t *)sip->extra_info;
-							if (t2i	&& t2i->subcmd != 0x01) {
-								g_hash_table_remove(si->ct->unmatched, GUINT_TO_POINTER(pid_mid));
+							if (t2i
+							&& (t2i->subcmd == 0x01
+							|| (t2i->subcmd == 0x08 && t2i->info_level == 2)
+							|| (si->cmd == SMB_COM_TRANSACTION2_SECONDARY
+							||  si->cmd == SMB_COM_TRANSACTION_SECONDARY
+							||  si->cmd == SMB_COM_NT_TRANSACT_SECONDARY))) {
+								remove = false;
 							}
-						}
-						else {
+							if (remove)
+								g_hash_table_remove(si->ct->unmatched, GUINT_TO_POINTER(pid_mid));
+						} else {
 							g_hash_table_remove(si->ct->unmatched, GUINT_TO_POINTER(pid_mid));
 						}
 
@@ -18308,6 +18344,7 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* da
 					sip = (smb_saved_info_t *)g_hash_table_lookup(si->ct->primaries, GUINT_TO_POINTER(pid_mid));
 				}
 			}
+
 			if (si->request) {
 				sip = wmem_new(wmem_file_scope(), smb_saved_info_t);
 				sip->frame_req = pinfo->num;

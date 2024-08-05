@@ -133,7 +133,8 @@ typedef struct {
 	uint32_t ioctl_function;
 } smb_nt_transact_info_t;
 
-/* the information we need to keep around for transaction2 commands */
+/* the information we need to keep around for transaction2 commands
+* t2i and st2i */
 typedef struct {
 	int	    subcmd;
 	int	    info_level;
@@ -165,17 +166,18 @@ typedef enum {
 
 typedef struct _smb_fid_into_t smb_fid_info_t;
 
+/* sip */
 typedef struct {
-	uint32_t		  frame_req, frame_res;
+	uint32_t	  frame_req, frame_res;
 	nstime_t	  req_time;
-	uint16_t		  flags;
+	uint16_t	  flags;
 	uint8_t		  cmd;
 	void		 *extra_info;
 	smb_extra_info_t  extra_info_type;
 	/* we save the fid in each transaction so that we can get fid filters
 	   to match both request and response */
-	bool	  fid_seen_in_request;
-	uint16_t		  fid;
+	bool		  fid_seen_in_request;
+	uint16_t	  fid;
 } smb_saved_info_t;
 
 /*
@@ -184,7 +186,7 @@ typedef struct {
  * Remote API and Mailslot dissectors.
  * XXX - have an additional data structure hung off of this by the
  * subdissectors?
- */
+ * tri */
 typedef struct {
 	int	 subcmd;
 	int	 trans_subcmd;
@@ -234,6 +236,7 @@ typedef struct conv_tables {
 	wmem_tree_t *uid_tree;
 } conv_tables_t;
 
+/* si */
 typedef struct smb_info {
   uint8_t  cmd;
   int	   tid, pid, uid, mid;
