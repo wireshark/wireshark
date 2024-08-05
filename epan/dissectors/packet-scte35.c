@@ -1439,7 +1439,7 @@ proto_register_scte35(void)
              FT_UINT8, BASE_HEX, NULL, 0xFE, NULL, HFILL}},
         {&hf_descriptor_component_pts_offset,
          {"PTS Offset", "scte35.splice_descriptor.component.pts_offset",
-             FT_UINT64, BASE_DEC, NULL, 0x1FFFFFFFF, NULL, HFILL}},
+             FT_UINT40, BASE_DEC, NULL, 0x01FFFFFFFF, NULL, HFILL}},
         {&hf_descriptor_segmentation_duration,
          {"Segmentation Duration", "scte35.splice_descriptor.segmentation_duration",
              FT_UINT64, BASE_DEC, NULL, 0xFFFFFFFFFF, NULL, HFILL}},

@@ -157,29 +157,29 @@ enum {
 };
 
 enum {
-	RDPUDP_SYN = 0x0001,
-	RDPUDP_FIN = 0x0002,
-	RDPUDP_ACK = 0x0004,
-	RDPUDP_DATA = 0x0008,
-	RDPUDP_FEC = 0x0010,
-	RDPUDP_CN = 0x0020,
-	RDPUDP_CWR = 0x0040,
-	RDPUDP_AOA = 0x0100,
-	RDPUDP_SYNLOSSY = 0x0200,
-	RDPUDP_ACKDELAYED = 0x0400,
+	RDPUDP_SYN =           0x0001,
+	RDPUDP_FIN =           0x0002,
+	RDPUDP_ACK =           0x0004,
+	RDPUDP_DATA =          0x0008,
+	RDPUDP_FEC =           0x0010,
+	RDPUDP_CN =            0x0020,
+	RDPUDP_CWR =           0x0040,
+	RDPUDP_AOA =           0x0100,
+	RDPUDP_SYNLOSSY =      0x0200,
+	RDPUDP_ACKDELAYED =    0x0400,
 	RDPUDP_CORRELATIONID = 0x0800,
-	RDPUDP_SYNEX = 0x1000
+	RDPUDP_SYNEX =         0x1000
 };
 
 #define RDPUDP_VERSION_INFO_VALID 0x0001
 
 enum {
-	RDPUDP2_ACK = 0x0001,
-	RDPUDP2_DATA = 0x0004,
-	RDPUDP2_ACKVEC = 0x0008,
-	RDPUDP2_AOA = 0x0010,
+	RDPUDP2_ACK =      0x0001,
+	RDPUDP2_DATA =     0x0004,
+	RDPUDP2_ACKVEC =   0x0008,
+	RDPUDP2_AOA =      0x0010,
 	RDPUDP2_OVERHEAD = 0x0040,
-	RDPUDP2_DELAYACK = 0x00100
+	RDPUDP2_DELAYACK = 0x0100
 };
 
 static const value_string rdpudp_version_vals[] = {
@@ -850,7 +850,7 @@ proto_register_rdpudp(void) {
 		{"Short packet length", "rdpudp.shortpacketlen", FT_UINT8, BASE_DEC, NULL, 0x7, NULL, HFILL}
 	  },
 	  { &hf_rdpudp2_flags,
-		 {"Flags", "rdpudp.flags", FT_UINT16, BASE_HEX, NULL, 0xfff, NULL, HFILL}
+		 {"Flags", "rdpudp.flags", FT_UINT16, BASE_HEX, NULL, 0x0fff, NULL, HFILL}
 	  },
 	  { &hf_rdpudp2_flag_ack,
 		{"Ack", "rdpudp.flags.ack", FT_BOOLEAN, 16, NULL, RDPUDP2_ACK, NULL, HFILL}

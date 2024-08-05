@@ -531,7 +531,15 @@ def is_ignored_consecutive_filter(filter):
         'btle.control.phys.le_coded_phy',
         'gsm_rlcmac.ul.gprs_multislot_class_exist',
         'tpm.resp.size',
-        'sasp.flags.quiesce'
+        'sasp.flags.quiesce',
+        'canopen.sdo.n',
+        'cigi.celestial_sphere_control.date',
+        'corosync_totemsrp.orf_token.seq',
+        'dec_dna.flags.msglen',
+        'hiqnet.device',
+        'ipdr.cm_ipv6_addr_len',
+        'ipdr.cm_ipv6_addr_string',
+        'mpeg_descr.phone.nat_code_len'
     }
     if filter in ignore_filters:
         return True
@@ -543,6 +551,7 @@ def is_ignored_consecutive_filter(filter):
         re.compile(r'alcap.*bwt.*.[b|f]w'),
         re.compile(r'btle.control.phys.le_[1|2]m_phy'),
         re.compile(r'ansi_a_bsmap.cm2.scm.bc_entry.opmode[0|1]'),
+        re.compile(r'cemi.[n|x]')
     ]
     for patt in ignore_patterns:
         if patt.match(filter):

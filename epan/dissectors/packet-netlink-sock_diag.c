@@ -55,13 +55,13 @@ enum {
 
 enum ws_unix_diag_show_mask {
 	/* show mask for unix diag from <include/uapi/linux/unix_diag.h> */
-	WS_UDIAG_SHOW_NAME     = 0x01,
-	WS_UDIAG_SHOW_VFS      = 0x02,
-	WS_UDIAG_SHOW_PEER     = 0x04,
-	WS_UDIAG_SHOW_ICONS    = 0x08,
-	WS_UDIAG_SHOW_RQLEN    = 0x10,
-	WS_UDIAG_SHOW_MEMINFO  = 0x20,
-	WS_UDIAG_SHOW_UID      = 0X40
+	WS_UDIAG_SHOW_NAME     = 0x00000001,
+	WS_UDIAG_SHOW_VFS      = 0x00000002,
+	WS_UDIAG_SHOW_PEER     = 0x00000004,
+	WS_UDIAG_SHOW_ICONS    = 0x00000008,
+	WS_UDIAG_SHOW_RQLEN    = 0x00000010,
+	WS_UDIAG_SHOW_MEMINFO  = 0x00000020,
+	WS_UDIAG_SHOW_UID      = 0x00000040
 };
 
 enum ws_unix_diag_attr_type {
@@ -105,10 +105,10 @@ enum ws_inet_diag_attr_type {
 
 enum ws_netlink_diag_show_type {
 	/* show mask for netlink diag from <include/uapi/linux/netlink_diag.h> */
-	WS_NDIAG_SHOW_MEMINFO   = 0x01,
-	WS_NDIAG_SHOW_GROUPS    = 0x02,
-	WS_NDIAG_SHOW_RING_CFG  = 0x04,
-	WS_NDIAG_SHOW_FLAGS     = 0X08,
+	WS_NDIAG_SHOW_MEMINFO   = 0x00000001,
+	WS_NDIAG_SHOW_GROUPS    = 0x00000002,
+	WS_NDIAG_SHOW_RING_CFG  = 0x00000004,
+	WS_NDIAG_SHOW_FLAGS     = 0x00000008,
 };
 
 enum ws_netlink_diag_attr_type {
@@ -122,12 +122,12 @@ enum ws_netlink_diag_attr_type {
 
 enum ws_packet_diag_show_mask {
 	/* show mask for packet diag from <include/uapi/linux/packet_diag.h> */
-	WS_PACKET_SHOW_INFO        = 0x01,
-	WS_PACKET_SHOW_MCLIST      = 0x02,
-	WS_PACKET_SHOW_RING_CFG    = 0x04,
-	WS_PACKET_SHOW_FANOUT      = 0x08,
-	WS_PACKET_SHOW_MEMINFO     = 0x10,
-	WS_PACKET_SHOW_FILTER      = 0x20
+	WS_PACKET_SHOW_INFO        = 0x00000001,
+	WS_PACKET_SHOW_MCLIST      = 0x00000002,
+	WS_PACKET_SHOW_RING_CFG    = 0x00000004,
+	WS_PACKET_SHOW_FANOUT      = 0x00000008,
+	WS_PACKET_SHOW_MEMINFO     = 0x00000010,
+	WS_PACKET_SHOW_FILTER      = 0x00000020
 };
 
 enum ws_packet_diag_attr_type {
