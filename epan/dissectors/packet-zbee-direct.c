@@ -1868,37 +1868,42 @@ void proto_reg_handoff_zb_direct(void)
 {
     typedef struct
     {
-        const char *uuid;
+        const char * const uuid;
+        char * const description;
         dissector_t dissector;
     } zb_direct_service_t;
 
     static zb_direct_service_t services[] =
     {
-        { "29144af4-00ff-4481-bfe9-6d0299b429e3", dissect_zb_direct_dump_info },
+        { "29144af4-00ff-4481-bfe9-6d0299b429e3", "ZBD Dump Info", dissect_zb_direct_dump_info },
 
         /* 6.5.1. Zigbee Direct Security Service characteristic */
-        { "29144af4-0001-4481-bfe9-6d0299b429e3", dissect_zb_direct_secur_c25519_aesmmo },
-        { "29144af4-0002-4481-bfe9-6d0299b429e3", dissect_zb_direct_secur_c25519_sha256 },
-        { "29144af4-0003-4481-bfe9-6d0299b429e3", dissect_zb_direct_secur_p256 },
+        { "29144af4-0001-4481-bfe9-6d0299b429e3", "ZBD Authenticate SPEKE/Curve25519/AES-MMO-128/HMAC-AES-MMO-128", dissect_zb_direct_secur_c25519_aesmmo },
+        { "29144af4-0002-4481-bfe9-6d0299b429e3", "ZBD Authenticate SPEKE/Curve25519/SHA-256/HMAC-SHA-256-128", dissect_zb_direct_secur_c25519_sha256 },
+        { "29144af4-0003-4481-bfe9-6d0299b429e3", "ZBD Authenticate ECDHE-PSK/P-256/SHA-256/HMAC-SHA-256-128", dissect_zb_direct_secur_p256 },
 
         /* 7.7.2.3. Zigbee Direct Commissioning Service characteristics */
-        { "7072377d-0001-421c-b163-491c27333a61", dissect_zb_direct_formation },
-        { "7072377d-0002-421c-b163-491c27333a61", dissect_zb_direct_join },
-        { "7072377d-0003-421c-b163-491c27333a61", dissect_zb_direct_permit_join },
-        { "7072377d-0004-421c-b163-491c27333a61", dissect_zb_direct_leave },
-        { "7072377d-0005-421c-b163-491c27333a61", dissect_zb_direct_status },
-        { "7072377d-0006-421c-b163-491c27333a61", dissect_zb_direct_manage_joiners },
-        { "7072377d-0007-421c-b163-491c27333a61", dissect_zb_direct_identify },
-        { "7072377d-0008-421c-b163-491c27333a61", dissect_zb_direct_finding_binding },
+        { "7072377d-0001-421c-b163-491c27333a61", "ZBD Form Network", dissect_zb_direct_formation },
+        { "7072377d-0002-421c-b163-491c27333a61", "ZBD Join Network",  dissect_zb_direct_join },
+        { "7072377d-0003-421c-b163-491c27333a61", "ZBD Permit Joining", dissect_zb_direct_permit_join },
+        { "7072377d-0004-421c-b163-491c27333a61", "ZBD Leave Network", dissect_zb_direct_leave },
+        { "7072377d-0005-421c-b163-491c27333a61", "ZBD Commissioning Status", dissect_zb_direct_status },
+        { "7072377d-0006-421c-b163-491c27333a61", "ZBD Manage Joiners", dissect_zb_direct_manage_joiners },
+        { "7072377d-0007-421c-b163-491c27333a61", "ZBD Identify", dissect_zb_direct_identify },
+        { "7072377d-0008-421c-b163-491c27333a61", "ZBD Finding & Binding", dissect_zb_direct_finding_binding },
 
         /* 7.7.3.3. Zigbee Direct Tunnel Service characteristics */
-        { "8bd178fd-0001-45f4-8120-b2378bd5313f", dissect_zb_direct_tunneling },
-        { NULL, NULL },
+        { "8bd178fd-0001-45f4-8120-b2378bd5313f", "ZBD Tunnel Service NPDU", dissect_zb_direct_tunneling },
+        { NULL, NULL, NULL },
     };
 
     for (size_t i = 0; services[i].uuid; i++)
     {
-        dissector_handle_t handle = create_dissector_handle(services[i].dissector, proto_zb_direct);
+        wmem_tree_insert_string(bluetooth_uuids, services[i].uuid, services[i].description, 0);
+
+        dissector_handle_t handle = create_dissector_handle_with_name_and_description(
+            services[i].dissector, proto_zb_direct,
+            NULL, services[i].description);
         dissector_add_string("bluetooth.uuid", services[i].uuid, handle);
     }
 
