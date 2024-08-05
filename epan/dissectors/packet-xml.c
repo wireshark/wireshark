@@ -313,6 +313,11 @@ dissect_xml(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     tvbuff_t         *decoded;
     uint16_t          try_bom;
 
+    // Register the fields if we haven't done so already
+    if (hf_doctype <= 0) {
+        proto_registrar_get_byname("xml.doctype");
+    }
+
     if (stack != NULL)
         g_ptr_array_free(stack, true);
 
@@ -1704,8 +1709,8 @@ xml_cleanup_protocol(void) {
     g_regex_unref(encoding_pattern);
 }
 
-void
-proto_register_xml(void)
+static void
+register_xml_fields(const char *unused _U_)
 {
     static int *ett_base[] = {
         &unknown_ns.ett,
@@ -1762,14 +1767,13 @@ proto_register_xml(void)
         }
     };
 
+    expert_module_t* expert_xml;
+
     static ei_register_info ei[] = {
         { &ei_xml_closing_unopened_tag, { "xml.closing_unopened_tag", PI_MALFORMED, PI_ERROR, "Closing an unopened tag", EXPFILL }},
         { &ei_xml_closing_unopened_xmpli_tag, { "xml.closing_unopened_xmpli_tag", PI_MALFORMED, PI_ERROR, "Closing an unopened xmpli tag", EXPFILL }},
         { &ei_xml_unrecognized_text, { "xml.unrecognized_text", PI_PROTOCOL, PI_WARN, "Unrecognized text", EXPFILL }},
     };
-
-    module_t *xml_module;
-    expert_module_t* expert_xml;
 
     hf_arr  = wmem_array_new(wmem_epan_scope(), sizeof(hf_register_info));
     ett_arr = g_array_new(false, false, sizeof(int *));
@@ -1779,12 +1783,22 @@ proto_register_xml(void)
 
     init_xml_names();
 
-    xml_ns.hf_tag = proto_register_protocol("eXtensible Markup Language", "XML", xml_ns.name);
-
     proto_register_field_array(xml_ns.hf_tag, (hf_register_info*)wmem_array_get_raw(hf_arr), wmem_array_get_count(hf_arr));
     proto_register_subtree_array((int **)ett_arr->data, ett_arr->len);
     expert_xml = expert_register_protocol(xml_ns.hf_tag);
     expert_register_field_array(expert_xml, ei, array_length(ei));
+
+    g_array_free(ett_arr, true);
+}
+
+void
+proto_register_xml(void)
+{
+    module_t *xml_module;
+
+    xml_ns.hf_tag = proto_register_protocol("eXtensible Markup Language", "XML", xml_ns.name);
+
+    proto_register_prefix("xml", register_xml_fields);
 
     xml_module = prefs_register_protocol(xml_ns.hf_tag, NULL);
     prefs_register_obsolete_preference(xml_module, "heuristic");
@@ -1799,8 +1813,6 @@ proto_register_xml(void)
                                    "Use this charset if the 'encoding' attribute of XML declaration is missing."
                                    "Unsupported encoding will be replaced by the default UTF-8.",
                                    &pref_default_encoding, ws_supported_mibenum_vals_character_sets_ev_array, false);
-
-    g_array_free(ett_arr, true);
 
     register_init_routine(&xml_init_protocol);
     register_cleanup_routine(&xml_cleanup_protocol);
