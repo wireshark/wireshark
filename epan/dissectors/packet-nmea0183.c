@@ -98,6 +98,8 @@ static expert_field ei_nmea0183_gga_geoidal_separation_unit_incorrect;
 
 static int proto_nmea0183;
 
+static dissector_handle_t nmea0183_handle;
+
 // List of known Talker IDs (Source: NMEA Revealed by Eric S. Raymond, https://gpsd.gitlab.io/gpsd/NMEA.html, retrieved 2023-01-26)
 static const string_string known_talker_ids[] = {
     {"AB", "Independent AIS Base Station"},
@@ -1382,12 +1384,11 @@ void proto_register_nmea0183(void)
     proto_register_subtree_array(ett, array_length(ett));
     expert_nmea0183 = expert_register_protocol(proto_nmea0183);
     expert_register_field_array(expert_nmea0183, ei, array_length(ei));
+
+    nmea0183_handle = register_dissector("nmea0183", dissect_nmea0183, proto_nmea0183);
 }
 
 void proto_reg_handoff_nmea0183(void)
 {
-    static dissector_handle_t nmea0183_handle;
-
-    nmea0183_handle = create_dissector_handle(dissect_nmea0183, proto_nmea0183);
     dissector_add_for_decode_as_with_preference("udp.port", nmea0183_handle);
 }
