@@ -3752,10 +3752,9 @@ static const value_string artnet_indicator_state_vals[] = {
   { 0,      NULL }
 };
 
-static const value_string artnet_rom_booted_vals[] = {
-  { 0x00, "Normal boot (from flash)" },
-  { 0x01, "Booted from ROM" },
-  { 0,    NULL }
+static const true_false_string tfs_artnet_rom_booted = {
+  "Booted from ROM",
+  "Normal boot (from flash)"
 };
 
 static const value_string artnet_port_prog_auth_vals[] = {
@@ -4016,22 +4015,24 @@ static const value_string vals_artnet_poll_reply_style[] = {
   { 0x00, NULL },
 };
 
-static const value_string vals_artnet_poll_reply_tx_proto[] = {
-  { 0x00, "Art-Net" },
-  { 0x01, "sACN" },
-  { 0x00, NULL },
+static const true_false_string tfs_artnet_poll_reply_tx_and_conversion_proto = {
+  "sACN",
+  "Art-Net"
 };
 
-static const value_string artnet_poll_reply_status2_bigaddr_supported_vals[] = {
-  { 0x00, "8bit Port-Address" },
-  { 0x01, "15bit Port-Address" },
-  { 0x00, NULL }
+static const true_false_string tfs_artnet_poll_reply_status2_bigaddr_supported = {
+  "15bit Port-Address",
+  "8bit Port-Address"
 };
 
-static const value_string vals_artnet_poll_reply_output_style[] = {
-  { 0x00, "delta" },
-  { 0x01, "continuous" },
-  { 0x00, NULL }
+static const true_false_string tfs_artnet_poll_reply_output_style = {
+  "continuous",
+  "delta"
+};
+
+static const true_false_string tfs_artnet_poll_reply_output_discovery = {
+  "Currently not running",
+  "Currently running"
 };
 
 static const value_string vals_artnet_poll_reply_status3_failsafe_state[] = {
@@ -4105,10 +4106,9 @@ static int * const artnet_poll_talktome_fields[] = {
   NULL
 };
 
-static const value_string artnet_talktome_diag_unicast_vals[] = {
-  { 0x00, "Broadcast" },
-  { 0x01, "Unicast" },
-  { 0x00, NULL }
+static const true_false_string tfs_artnet_talktome_diag_unicast = {
+  "Unicast",
+  "Broadcast"
 };
 
 static const value_string artnet_talktome_diag_priority_vals[] = {
@@ -4171,6 +4171,8 @@ static int hf_artnet_poll_reply_good_output_dmx_text;
 static int hf_artnet_poll_reply_good_output_dmx_sip;
 static int hf_artnet_poll_reply_good_output_dmx_test;
 static int hf_artnet_poll_reply_good_output_data;
+static int hf_artnet_poll_reply_good_output_bg_discovery;
+static int hf_artnet_poll_reply_good_output_discovery;
 static int hf_artnet_poll_reply_good_output_style;
 static int hf_artnet_poll_reply_good_output_rdm;
 static int hf_artnet_poll_reply_swin;
@@ -4235,6 +4237,7 @@ static int ett_artnet_poll_reply_swremote;
 static int ett_artnet_poll_reply_status2;
 static int ett_artnet_poll_reply_status3;
 
+static int hf_artnet_poll_reply_good_input_converts_to;
 static int hf_artnet_poll_reply_good_input_recv_error;
 static int hf_artnet_poll_reply_good_input_disabled;
 static int hf_artnet_poll_reply_good_input_dmx_text;
@@ -4273,6 +4276,7 @@ static int * const artnet_poll_reply_status_fields[] = {
 };
 
 static int * const artnet_poll_reply_good_input_fields[] = {
+  &hf_artnet_poll_reply_good_input_converts_to,
   &hf_artnet_poll_reply_good_input_recv_error,
   &hf_artnet_poll_reply_good_input_disabled,
   &hf_artnet_poll_reply_good_input_dmx_text,
@@ -4295,6 +4299,8 @@ static int * const artnet_poll_reply_good_output_fields[] = {
 };
 
 static int * const artnet_poll_reply_good_output_b_fields[] = {
+  &hf_artnet_poll_reply_good_output_bg_discovery,
+  &hf_artnet_poll_reply_good_output_discovery,
   &hf_artnet_poll_reply_good_output_style,
   &hf_artnet_poll_reply_good_output_rdm,
   NULL
@@ -4614,6 +4620,7 @@ static int hf_artnet_media_control_reply;
 
 /* ArtTimeCode */
 static int hf_artnet_time_code;
+static int hf_artnet_time_code_stream_id;
 static int hf_artnet_time_code_frames;
 static int hf_artnet_time_code_seconds;
 static int hf_artnet_time_code_minutes;
@@ -4729,16 +4736,14 @@ static int * const artnet_nzs_vlc_flags_fields[] = {
 #define ARTNET_NZS_VLC_MAGIC_MAN_ID     0x414C
 #define ARTNET_NZS_VLC_MAGIC_SUB_CODE   0x45
 
-static const value_string vals_artnet_nzs_vlc_ieee[] = {
-  { 0x00, "Payload language" },
-  { 0x01, "IEEE VLC data" },
-  { 0x00, NULL }
+static const true_false_string tfs_artnet_nzs_vlc_ieee = {
+  "IEEE VLC data",
+  "Payload language"
 };
 
-static const value_string vals_artnet_nzs_vlc_beacon[] = {
-  { 0x00, "send once" },
-  { 0x01, "continuously repeat" },
-  { 0x00, NULL }
+static const true_false_string tfs_artnet_nzs_vlc_beacon = {
+  "continuously repeat",
+  "send once"
 };
 
 #define ARTNET_NZS_VLC_LANG_CODE_BEACON_URL       0x0000
@@ -6211,8 +6216,12 @@ static unsigned
 dissect_artnet_time_code(tvbuff_t *tvb, unsigned offset, proto_tree *tree)
 {
   proto_tree_add_item(tree, hf_artnet_filler, tvb,
-                      offset, 2, ENC_NA);
-  offset += 2;
+                      offset, 1, ENC_NA);
+  offset += 1;
+
+  proto_tree_add_item(tree, hf_artnet_time_code_stream_id, tvb,
+                      offset, 1, ENC_BIG_ENDIAN);
+  offset += 1;
 
   proto_tree_add_item(tree, hf_artnet_time_code_frames, tvb,
                       offset, 1, ENC_BIG_ENDIAN);
@@ -7265,7 +7274,7 @@ proto_register_artnet(void) {
     { &hf_artnet_poll_talktome_diag_unicast,
       { "Send diagnostics unicast",
         "artnet.poll.talktome_diag_unicast",
-        FT_UINT8, BASE_HEX, VALS(artnet_talktome_diag_unicast_vals), 0x08,
+        FT_BOOLEAN, 8, TFS(&tfs_artnet_talktome_diag_unicast), 0x08,
         NULL, HFILL }},
 
     { &hf_artnet_poll_talktome_vlc,
@@ -7382,7 +7391,7 @@ proto_register_artnet(void) {
     { &hf_artnet_poll_reply_status_rom_booted,
       { "ROM Booted",
         "artnet.poll_reply.rom_booted",
-        FT_UINT8, BASE_HEX, VALS(artnet_rom_booted_vals), 0x04,
+        FT_BOOLEAN, 8, TFS(&tfs_artnet_rom_booted), 0x04,
         NULL, HFILL }},
 
     { &hf_artnet_poll_reply_status_port_prog,
@@ -7475,40 +7484,46 @@ proto_register_artnet(void) {
         FT_UINT8, BASE_HEX, NULL, 0x0,
         NULL, HFILL }},
 
+    { &hf_artnet_poll_reply_good_input_converts_to,
+      { "Input converts to",
+        "artnet.poll_reply.good_input_converts_to",
+        FT_BOOLEAN, 8, TFS(&tfs_artnet_poll_reply_tx_and_conversion_proto), 0x01,
+        NULL, HFILL }},
+
     { &hf_artnet_poll_reply_good_input_recv_error,
       { "Receive errors detected",
         "artnet.poll_reply.good_input_recv_error",
-        FT_UINT8, BASE_HEX, NULL, 0x04,
+        FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x04,
         NULL, HFILL }},
 
     { &hf_artnet_poll_reply_good_input_disabled,
       { "Input is disabled",
         "artnet.poll_reply.good_input_disabled",
-        FT_UINT8, BASE_HEX, NULL, 0x08,
+        FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x08,
         NULL, HFILL }},
 
     { &hf_artnet_poll_reply_good_input_dmx_text,
       { "DMX text packets supported",
         "artnet.poll_reply.good_input_dmx_text",
-        FT_UINT8, BASE_HEX, NULL, 0x10,
+        FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x10,
         NULL, HFILL }},
 
     { &hf_artnet_poll_reply_good_input_dmx_sip,
       { "DMX SIPs supported",
         "artnet.poll_reply.good_input_dmx_sip",
-        FT_UINT8, BASE_HEX, NULL, 0x20,
+        FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x20,
         NULL, HFILL }},
 
     { &hf_artnet_poll_reply_good_input_dmx_test,
       { "DMX test packets supported",
         "artnet.poll_reply.good_input_dmx_test",
-        FT_UINT8, BASE_HEX, NULL, 0x40,
+        FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x40,
         NULL, HFILL }},
 
     { &hf_artnet_poll_reply_good_input_data,
       { "Data received",
         "artnet.poll_reply.good_input_data",
-        FT_UINT8, BASE_HEX, NULL, 0x80,
+        FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x80,
         NULL, HFILL }},
 
     { &hf_artnet_poll_reply_good_input_2,
@@ -7592,7 +7607,7 @@ proto_register_artnet(void) {
     { &hf_artnet_poll_reply_good_output_tx_proto,
       { "Transmit protocol",
         "artnet.poll_reply.good_output_tx_proto",
-        FT_UINT8, BASE_HEX, VALS(vals_artnet_poll_reply_tx_proto), 0x01,
+        FT_BOOLEAN, 8, TFS(&tfs_artnet_poll_reply_tx_and_conversion_proto), 0x01,
         NULL, HFILL }},
 
     { &hf_artnet_poll_reply_good_output_merge_ltp,
@@ -7637,10 +7652,22 @@ proto_register_artnet(void) {
         FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x80,
         NULL, HFILL }},
 
+    { &hf_artnet_poll_reply_good_output_bg_discovery,
+      { "Background Discovery",
+        "artnet.poll_reply.good_output_bg_discovery",
+        FT_BOOLEAN, 8, TFS(&tfs_disabled_enabled), 0x10,
+        NULL, HFILL }},
+
+    { &hf_artnet_poll_reply_good_output_discovery,
+      { "Discovery",
+        "artnet.poll_reply.good_output_discovery",
+        FT_BOOLEAN, 8, TFS(&tfs_artnet_poll_reply_output_discovery), 0x20,
+        NULL, HFILL }},
+
     { &hf_artnet_poll_reply_good_output_style,
       { "Output Style",
         "artnet.poll_reply.good_output_style",
-        FT_UINT8, BASE_HEX, VALS(vals_artnet_poll_reply_output_style), 0x40,
+        FT_BOOLEAN, 8, TFS(&tfs_artnet_poll_reply_output_style), 0x40,
         NULL, HFILL }},
 
     { &hf_artnet_poll_reply_good_output_rdm,
@@ -7916,7 +7943,7 @@ proto_register_artnet(void) {
     { &hf_artnet_poll_reply_status2_bigaddr_supported,
       { "Port-Address size",
         "artnet.poll_reply.addrsupport",
-        FT_UINT8, BASE_HEX, VALS(artnet_poll_reply_status2_bigaddr_supported_vals), 0x08,
+        FT_BOOLEAN, 8, TFS(&tfs_artnet_poll_reply_status2_bigaddr_supported), 0x08,
         NULL, HFILL }},
 
     { &hf_artnet_poll_reply_status2_sacn_supported,
@@ -8116,7 +8143,7 @@ proto_register_artnet(void) {
     { &hf_artnet_nzs_vlc_flags_beacon,
       { "Beacon",
         "artnet.nzs.vlc_beacon",
-        FT_UINT8, BASE_HEX, VALS(vals_artnet_nzs_vlc_beacon), 0x20,
+        FT_BOOLEAN, 8, TFS(&tfs_artnet_nzs_vlc_beacon), 0x20,
         NULL, HFILL }},
 
     { &hf_artnet_nzs_vlc_flags_reply,
@@ -8128,7 +8155,7 @@ proto_register_artnet(void) {
     { &hf_artnet_nzs_vlc_flags_ieee,
       { "IEEE",
         "artnet.nzs.vlc_ieee",
-        FT_UINT8, BASE_HEX, VALS(vals_artnet_nzs_vlc_ieee), 0x80,
+        FT_BOOLEAN, 8, TFS(&tfs_artnet_nzs_vlc_ieee), 0x80,
         NULL, HFILL }},
 
     { &hf_artnet_nzs_vlc_transaction,
@@ -9056,6 +9083,12 @@ proto_register_artnet(void) {
         "artnet.time_code",
         FT_NONE, BASE_NONE, NULL, 0,
         "Art-Net ArtTimeCode packet", HFILL }},
+
+    { &hf_artnet_time_code_stream_id,
+      { "Stream ID",
+        "artnet.time_code.stream_id",
+        FT_UINT8, BASE_DEC_HEX, NULL, 0,
+        NULL, HFILL }},
 
     { &hf_artnet_time_code_frames,
       { "Frames",
