@@ -18101,7 +18101,9 @@ proto_reg_handoff_btgatt(void)
         wmem_tree_insert_string(bluetooth_uuids, uuid_dissectors[i].uuid, uuid_dissectors[i].short_name, 0);
 
         if (uuid_dissectors[i].dissect_func) {
-            dissector_handle_t handle = create_dissector_handle(uuid_dissectors[i].dissect_func, proto_btgatt);
+            dissector_handle_t handle = create_dissector_handle_with_name_and_description(
+                uuid_dissectors[i].dissect_func, proto_btgatt,
+                NULL, uuid_dissectors[i].short_name);
             dissector_add_string("bluetooth.uuid", uuid_dissectors[i].uuid, handle);
         }
     }
