@@ -1182,7 +1182,8 @@ sub Parse($$$$$)
 	$self->{res}->{headers} .= "#include \"config.h\"\n";
 
 	$self->{res}->{headers} .= "#include <string.h>\n";
-	$self->{res}->{headers} .= "#include <epan/packet.h>\n\n";
+	$self->{res}->{headers} .= "#include <epan/packet.h>\n";
+	$self->{res}->{headers} .= "#include <epan/tfs.h>\n\n";
 
 	$self->{res}->{headers} .= "#include \"packet-dcerpc.h\"\n";
 	$self->{res}->{headers} .= "#include \"packet-dcerpc-nt.h\"\n";

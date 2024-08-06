@@ -2648,7 +2648,7 @@ sub parse_file($$)
 	my $cpp = $ENV{CPP};
 	my $options = "";
 	if ($^O eq "MSWin32") {
-
+		$cpp = "cpp";
 	}else{
 		if (! defined $cpp) {
 			if (defined $ENV{CC}) {
