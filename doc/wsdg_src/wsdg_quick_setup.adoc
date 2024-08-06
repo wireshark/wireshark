@@ -270,9 +270,12 @@ _wireshark-dev_ mailing list explaining your problem. Include the output from
 
 // Retain ChSetupWin32 for backward compatibility
 [#ChSetupWindows]
-=== Windows: Using Microsoft Visual Studio[[ChSetupWin32]]
+=== Windows
 
 A quick setup guide for Windows development with recommended configurations.
+
+[#ChSetupWindowsMSVC]
+==== Using Microsoft Visual Studio[[ChSetupWin32]]
 
 [WARNING]
 ====
@@ -292,7 +295,7 @@ Known traps are:
 
 [#ChSetupChocolatey]
 
-==== Recommended: Install Chocolatey
+===== Recommended: Install Chocolatey
 
 https://chocolatey.org/[Chocolatey] is a native package manager for
 Windows. There are https://chocolatey.org/packages[packages] for most of
@@ -314,7 +317,7 @@ choco install -y git cmake python3
 
 [#ChSetupMSVC]
 
-==== Install Microsoft Visual Studio
+===== Install Microsoft Visual Studio
 
 Download and install https://visualstudio.microsoft.com/thank-you-downloading-visual-studio/?sku=Community&rel=17[“Microsoft Visual Studio 2022 Community Edition”].
 If you prefer you can instead download and install https://visualstudio.microsoft.com/thank-you-downloading-visual-studio/?sku=Community&rel=16[“Microsoft Visual Studio 2019 Community Edition”].
@@ -362,7 +365,7 @@ Visual Studio 2022 is also used to create official Wireshark builds, so it will 
 
 [#ChSetupQt]
 
-==== Install Qt
+===== Install Qt
 
 The main Wireshark application uses the Qt windowing toolkit. To install
 Qt, go to the https://www.qt.io/download[“Download Qt” page], select
@@ -390,7 +393,7 @@ to cmake.
 
 [#ChSetupPython]
 
-==== Install Python
+===== Install Python
 
 Get a Python 3 installer from https://python.org/download/[] and install Python.
 Its installation location varies depending on the options selected in the installer and on the version of Python that you are installing.
@@ -412,7 +415,7 @@ Chocolatey will likely install Python in one of the locations above, or possibly
 
 [#ChSetupGit]
 
-==== Install Git
+===== Install Git
 
 Please note that the following is not required to build Wireshark but can be
 quite helpful when working with the sources.
@@ -432,23 +435,23 @@ _Use Git from the Windows Command Prompt_ (in chocolatey the _/GitOnlyOnPath_
 option). Do *not* select the _Use Git and optional Unix tools from the Windows Command Prompt_
 option (in chocolatey the _/GitAndUnixToolsOnPath_ option).
 
-===== The Official Windows Installer
+====== The Official Windows Installer
 
 The official command-line installer is available at https://git-scm.com/download/win.
 
-===== Git Extensions
+====== Git Extensions
 
 Git Extensions is a native Windows graphical Git client for
 Windows. You can download the installer from
 https://github.com/gitextensions/gitextensions/releases/latest.
 
-===== TortoiseGit
+====== TortoiseGit
 
 TortoiseGit is a native Windows graphical Git
 similar to TortoiseSVN. You can download the installer from
 https://tortoisegit.org/download/.
 
-===== Command Line client via Chocolatey
+====== Command Line client via Chocolatey
 
 The command line client can be installed (and updated) using Chocolatey:
 ----
@@ -458,7 +461,7 @@ choco install -y git
 // winget has git.
 // https://github.com/microsoft/winget-pkgs/tree/master/manifests/g/Git/Git
 
-===== Others
+====== Others
 
 A list of other GUI interfaces for Git can be found at
 https://git-scm.com/downloads/guis
@@ -466,7 +469,7 @@ https://git-scm.com/downloads/guis
 
 [#ChSetupCMake]
 
-==== Install CMake
+===== Install CMake
 
 While CMake is required to build Wireshark, it might have been installed as a component of either Visual Studio or Qt.
 If that’s the case you can skip this step.
@@ -487,7 +490,7 @@ Chocolatey ensures cmake.exe is on your path.
 
 [#ChSetupAsciidoctor]
 
-==== Install Asciidoctor, Xsltproc, And DocBook
+===== Install Asciidoctor, Xsltproc, And DocBook
 
 https://asciidoctor.org/[Asciidoctor] can be run directly as a Ruby script or via a Java wrapper (AsciidoctorJ).
 The JavaScript flavor (Asciidoctor.js) isn’t yet supported.
@@ -508,7 +511,7 @@ path and that xsltproc uses the DocBook catalog.
 
 // winget has no Asciidoctor, xsltproc, or DocBook packages.
 
-==== Install winflexbison
+===== Install winflexbison
 
 Get the winFlexBison installer from
 https://sourceforge.net/projects/winflexbison/
@@ -525,7 +528,7 @@ Chocolatey ensures win_flex.exe is on your path.
 
 // winget has no bison package.
 
-==== Optional: Install Perl
+===== Optional: Install Perl
 
 If needed you can get a Perl installer from
 http://strawberryperl.com/
@@ -544,7 +547,7 @@ choco install -y activeperl
 // winget has StrawberryPerl.
 // https://github.com/microsoft/winget-pkgs/tree/master/manifests/s/StrawberryPerl/StrawberryPerl
 
-==== Install and Prepare Sources
+===== Install and Prepare Sources
 
 [TIP]
 .Make sure everything works
@@ -590,7 +593,7 @@ Make sure your repository path doesn't contain spaces.
 
 [#ChSetupPrepareCommandCom]
 
-==== Open a Visual Studio Command Prompt
+===== Open a Visual Studio Command Prompt
 
 From the Start Menu (or Start Screen), navigate to the “Visual Studio 2022” folder and choose the https://docs.microsoft.com/en-us/cpp/build/building-on-the-command-line?view=msvc-170#developer_command_prompt_shortcuts[Command Prompt] appropriate for the build you wish to make, e.g. “x64 Native Tools Command Prompt for VS 2022” for a 64-bit version.
 Depending on your version of Windows the Command Prompt list might be directly under “Visual Studio 2022” or you might have to dig for it under multiple folders, e.g. menu:Visual Studio 2022[Visual Studio Tools,Windows Desktop Command Prompts].
@@ -654,7 +657,7 @@ The build directory can be deleted at any time and the build files regenerated a
 
 [#ChWindowsGenerate]
 
-==== Generate the build files
+===== Generate the build files
 
 CMake is used to process the CMakeLists.txt files in the source tree and produce build files appropriate
 for your system.
@@ -724,19 +727,19 @@ and then building the solution again.
 
 The build files produced by CMake will regenerate themselves if required by changes in the source tree.
 
-==== Debug Environment Setup
+===== Debug Environment Setup
 
 You can debug using the Visual Studio Debugger or WinDbg. See the section
 on using the <<ChToolsDebugger, Debugger Tools>>.
 
-==== Optional: Create User’s and Developer’s Guide
+===== Optional: Create User’s and Developer’s Guide
 
 To build the Wireshark User's Guide and the Wireshark Developer's Guide,
 build the `all_guides` target, e.g.  `msbuild all_guides.vcxproj`.
 Detailed information to build these guides can be found in the file
 _doc\README.documentation.adoc_ in the Wireshark sources.
 
-==== Optional: Create a Wireshark Installer
+===== Optional: Create a Wireshark Installer
 
 Note: You should have successfully built Wireshark
 before doing the following.
@@ -771,14 +774,14 @@ It’s a good idea to test on a different machine than the developer machine.
 
 [#ChSetupMSYS2]
 
-=== Windows: Using MinGW-w64 with MSYS2
+==== Using MinGW-w64 with MSYS2
 
 MSYS2 comes with different environments/subsystems and the first thing you
 have to decide is which one to use. The differences among the environments
 are mainly environment variables, default compilers/linkers, architecture,
 system libraries used etc. If you are unsure, go with UCRT64.
 
-==== Building from source
+===== Building from source
 
 . Open the shell for the selected 64-bit environment.
 
@@ -800,7 +803,7 @@ system libraries used etc. If you are unsure, go with UCRT64.
 
 The application should be launched using the same shell.
 
-==== Building an .exe installer
+===== Building an .exe installer
 
 . Follow the instructions above to compile Wireshark from source.
 
@@ -815,7 +818,7 @@ Alternatively you can also use the PKGBUILD included in the Wireshark
 source distribution to compile Wireshark into a binary package that can be
 https://www.msys2.org/wiki/Creating-Packages/[installed using pacman].
 
-==== Comparison with MSVC toolchain
+===== Comparison with MSVC toolchain
 
 The official Wireshark Windows installer is compiled using Microsoft Visual
 Studio (MSVC). Currently the MSYS2 build has the following limitations compared to
@@ -831,7 +834,7 @@ the build using MSVC:
 
 [#ChSetupCross]
 
-=== Windows: Cross-compilation using Linux
+==== Cross-compilation using Linux
 
 It is possible to compile Wireshark for Microsoft Windows using Linux and MinGW.
 This way developers can deploy Wireshark on Windows systems without requiring
@@ -839,7 +842,7 @@ a Windows host machine. Building for Windows using a Linux host is also
 easier for devs already familiar with Linux, the build itself is faster and it
 uses a very mature C/C++ compiler (GCC) and debugger (GDB).
 
-==== Using Fedora Linux
+===== Using Fedora Linux
 
 https://fedoraproject.org/[Fedora Linux] provides the best out-of-the-box
 support for MinGW cross-compilation. Fedora is what the project uses to test
@@ -850,7 +853,7 @@ involve some trial and error to setup.
 The build instructions on Fedora follow the familiar recipe for building Wireshark
 using Linux.
 
-===== Building from source
+====== Building from source
 
 . Install needed dependencies:
 
@@ -871,7 +874,7 @@ Note that currently it is not possible to run the test-suite when cross-compilin
 
 If successful the installer can be found in `$CMAKE_BINARY_DIR/packaging/nsis`.
 
-===== Notes and comparison with MSVC builds
+====== Notes and comparison with MSVC builds
 
 * Only the MSVCRT C library for Microsoft Windows can be used. Support for the
   UCRT (Universal C Runtime) library on Fedora Linux is in the initial stages of
@@ -889,7 +892,7 @@ If successful the installer can be found in `$CMAKE_BINARY_DIR/packaging/nsis`.
 
 * AirPcap is not supported.
 
-==== Using Arch Linux
+===== Using Arch Linux
 
 https://archlinux.org/[Arch Linux] has good support for MinGW using packages
 from the https://aur.archlinux.org/[AUR]. Note that the mingw-w64 AUR packages
