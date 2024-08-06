@@ -53,6 +53,8 @@
 #include <epan/arptypes.h>
 #include <epan/sminmpec.h>
 #include <epan/strutil.h>
+#include <epan/tfs.h>
+#include <epan/unit_strings.h>
 #include "packet-tcp.h"
 #include "packet-arp.h"
 #include "packet-dns.h"

@@ -13,6 +13,7 @@
  * SPDX-License-Identifier: LGPL-2.1-or-later
  */
 #include "config.h"
+#include <stdint.h>
 
 #include "packet-bpsec.h"
 #include "packet-bpv7.h"
@@ -20,10 +21,7 @@
 #include <epan/prefs.h>
 #include <epan/proto.h>
 #include <epan/expert.h>
-#include <epan/to_str.h>
-#include <wsutil/crc16.h>
-#include <wsutil/crc32.h>
-#include <inttypes.h>
+#include <epan/tfs.h>
 #include "epan/wscbor.h"
 
 void proto_register_bpsec(void);

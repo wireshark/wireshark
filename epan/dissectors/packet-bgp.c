@@ -69,15 +69,13 @@
 #include "config.h"
 
 #include <epan/packet.h>
-#include <epan/exceptions.h>
-#include <epan/show_exception.h>
 #include <epan/afn.h>
 #include <epan/prefs.h>
 #include <epan/expert.h>
-#include <epan/etypes.h>
 #include <epan/to_str.h>
 #include <epan/proto_data.h>
 #include <epan/ipproto.h>
+#include <epan/tfs.h>
 #include <wsutil/str_util.h>
 #include "packet-ip.h"
 #include "packet-tcp.h"

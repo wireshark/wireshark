@@ -15,6 +15,8 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/expert.h>
+#include <epan/tfs.h>
+
 #include <wiretap/wtap.h>
 
 #include "packet-adb_service.h"

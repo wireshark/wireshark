@@ -12,7 +12,9 @@
 #include <errno.h>
 
 #include <epan/packet.h>
+
 #include <wsutil/pint.h>
+#include <wsutil/array.h>
 
 #define le16_to_cpu		GINT16_FROM_LE
 #define le32_to_cpu		GINT32_FROM_LE

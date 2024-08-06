@@ -18,10 +18,12 @@
 
 #include <epan/packet.h>
 #include <epan/expert.h>
+#include <epan/oui.h>
+#include <epan/tfs.h>
+#include <epan/unit_strings.h>
 #include "packet-llc.h"
 #include "packet-ieee80211.h"
 #include "packet-dns.h"
-#include <epan/oui.h>
 
 void proto_register_awdl(void);
 void proto_reg_handoff_awdl(void);

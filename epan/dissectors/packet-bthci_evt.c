@@ -31,6 +31,7 @@
 #include <epan/decode_as.h>
 #include <epan/tap.h>
 #include <epan/proto_data.h>
+#include <epan/unit_strings.h>
 
 #include <wsutil/utf8_entities.h>
 

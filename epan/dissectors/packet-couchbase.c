@@ -35,6 +35,8 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/expert.h>
+#include <epan/tfs.h>
+#include <epan/unit_strings.h>
 
 #ifdef HAVE_SNAPPY
 #include <snappy-c.h>

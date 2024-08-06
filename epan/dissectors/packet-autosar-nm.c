@@ -22,6 +22,7 @@
 
 #include <epan/packet.h>
 #include <epan/prefs.h>
+#include <epan/tfs.h>
 #include <epan/uat.h>
 #include "packet-socketcan.h"
 

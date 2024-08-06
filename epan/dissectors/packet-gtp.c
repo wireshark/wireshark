@@ -55,8 +55,9 @@
 #include <epan/uat.h>
 #include <epan/proto_data.h>
 #include <epan/etypes.h>
+#include <epan/tfs.h>
+#include <epan/unit_strings.h>
 
-#include "packet-ppp.h"
 #include "packet-radius.h"
 #include "packet-gsm_a_common.h"
 #include "packet-gsm_map.h"
@@ -70,7 +71,6 @@
 #include "packet-pdcp-nr.h"
 #include "packet-pdcp-lte.h"
 #include "packet-rohc.h"
-#include "packet-s1ap.h"
 
 void proto_register_gtp(void);
 void proto_reg_handoff_gtp(void);

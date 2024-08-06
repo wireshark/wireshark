@@ -20,6 +20,7 @@
 #include <epan/expert.h>
 #include <epan/oids.h>
 #include <epan/asn1.h>
+#include <epan/tfs.h>
 
 #include "packet-rtp.h"
 

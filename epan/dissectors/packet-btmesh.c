@@ -26,6 +26,8 @@
 #include <epan/uat.h>
 #include <epan/reassemble.h>
 #include <epan/to_str.h>
+#include <epan/tfs.h>
+#include <epan/unit_strings.h>
 
 #define BTMESH_NOT_USED 0
 #define BTMESH_KEY_ENTRY_VALID 4

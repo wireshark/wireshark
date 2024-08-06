@@ -19,6 +19,7 @@
 #include <epan/exceptions.h>
 #include <epan/show_exception.h>
 #include <epan/addr_resolv.h>
+#include <epan/tfs.h>
 #include <wiretap/pcapng_module.h>
 #include <wiretap/secrets-types.h>
 

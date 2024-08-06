@@ -17,6 +17,7 @@
 #include <epan/expert.h>
 #include <epan/lapd_sapi.h>
 #include <epan/prefs.h>
+#include <epan/unit_strings.h>
 
 #include "packet-gsm_a_common.h"
 

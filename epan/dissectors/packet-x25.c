@@ -22,6 +22,7 @@
 #include <epan/nlpid.h>
 #include <epan/x264_prt_id.h>
 #include <epan/lapd_sapi.h>
+#include <epan/tfs.h>
 #include <wiretap/wtap.h>
 #include "packet-sflow.h"
 

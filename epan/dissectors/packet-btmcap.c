@@ -16,8 +16,7 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/expert.h>
-
-#include "packet-btsdp.h"
+#include <epan/unit_strings.h>
 
 static int proto_btmcap;
 

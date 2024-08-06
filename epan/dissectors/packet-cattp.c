@@ -18,6 +18,7 @@
 #include <epan/prefs.h>
 #include <epan/expert.h>
 #include <epan/in_cksum.h>
+#include <epan/unit_strings.h>
 
 #define CATTP_SHORTNAME "CAT-TP"
 #define CATTP_HBLEN 18

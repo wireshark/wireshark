@@ -14,6 +14,9 @@
 #include <epan/packet.h>
 #include <epan/tap.h>
 #include <epan/addr_resolv.h>
+#include <epan/tfs.h>
+#include <epan/unit_strings.h>
+
 void proto_register_bat(void);
 void proto_reg_handoff_bat(void);
 

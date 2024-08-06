@@ -69,12 +69,12 @@
 
 #include <stdio.h>      /* for sscanf() */
 #include <epan/packet.h>
-#include <epan/to_str.h>
 #include <epan/prefs.h>
-#include <epan/conversation.h>
 #include <epan/tap.h>
 #include <epan/reassemble.h>
 #include <epan/expert.h>
+#include <epan/tfs.h>
+#include <epan/unit_strings.h>
 #include "packet-scsi.h"
 #include "packet-scsi-osd.h"
 #include "packet-scsi-mmc.h"

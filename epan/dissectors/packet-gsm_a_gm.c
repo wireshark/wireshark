@@ -103,6 +103,9 @@
 #include <epan/expert.h>
 #include <epan/ipproto.h>
 #include <epan/etypes.h>
+#include <epan/tfs.h>
+#include <epan/unit_strings.h>
+#include <wsutil/array.h>
 #include "packet-ber.h"
 #include "packet-gsm_a_common.h"
 #include "packet-e212.h"

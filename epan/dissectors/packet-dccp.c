@@ -56,10 +56,10 @@
 #include <epan/conversation.h>
 #include <epan/conversation_table.h>
 #include <epan/conversation_filter.h>
-#include <epan/exported_pdu.h>
 #include <epan/tap.h>
+#include <epan/unit_strings.h>
+
 #include <wsutil/str_util.h>
-#include <wsutil/utf8_entities.h>
 
 #include "packet-dccp.h"
 

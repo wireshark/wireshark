@@ -36,6 +36,7 @@
 #include <epan/export_object.h>
 #include <epan/exceptions.h>
 #include <epan/show_exception.h>
+#include <epan/unit_strings.h>
 #include <glib.h>
 #include "packet-http.h"
 #include "packet-http2.h"

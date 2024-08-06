@@ -16,7 +16,7 @@
 
 #include <epan/packet.h>
 #include <epan/expert.h>
-
+#include <epan/tfs.h>
 
 #define MAKE_TYPE_VAL(a, b, c, d)   ((a)<<24 | (b)<<16 | (c)<<8 | (d))
 

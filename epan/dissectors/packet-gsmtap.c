@@ -36,6 +36,8 @@
 #include <epan/packet.h>
 #include <epan/expert.h>
 #include <epan/conversation.h>
+#include <epan/tfs.h>
+#include <epan/unit_strings.h>
 #include "packet-gsm_rlcmac.h"
 #include <wiretap/wtap.h>
 

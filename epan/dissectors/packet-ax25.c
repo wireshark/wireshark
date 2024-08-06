@@ -38,6 +38,7 @@
 #include <epan/xdlc.h>
 #include <epan/ax25_pids.h>
 #include <epan/ipproto.h>
+#include <epan/tfs.h>
 
 #define STRLEN	80
 

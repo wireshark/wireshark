@@ -130,7 +130,6 @@
 #include <stdio.h>		/* for sscanf() */
 
 #include <epan/packet.h>
-#include <epan/exceptions.h>
 #include "packet-arp.h"
 #include "packet-dns.h"				/* for get_dns_name() */
 #include <epan/addr_resolv.h>
@@ -138,13 +137,13 @@
 #include <epan/tap.h>
 #include <epan/stat_tap_ui.h>
 #include <epan/arptypes.h>
-#include <epan/addr_resolv.h>
 #include <epan/expert.h>
 #include <epan/uat.h>
-#include <epan/strutil.h>
 #include <epan/sminmpec.h>
 #include <wsutil/str_util.h>
 #include <wsutil/strtoi.h>
+#include <wsutil/array.h>
+
 void proto_register_dhcp(void);
 void proto_reg_handoff_dhcp(void);
 

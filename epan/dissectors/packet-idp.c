@@ -14,6 +14,7 @@
 #include <epan/packet.h>
 #include "packet-idp.h"
 #include <epan/etypes.h>
+#include <epan/unit_strings.h>
 
 void proto_register_idp(void);
 void proto_reg_handoff_idp(void);

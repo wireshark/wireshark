@@ -28,13 +28,12 @@
 #include <math.h>
 
 #include <epan/packet.h>
-#include <epan/exceptions.h>
-#include <epan/strutil.h>
 #include <epan/expert.h>
 #include <epan/prefs.h>
 #include <epan/decode_as.h>
 #include <epan/to_str.h>
 #include <epan/proto_data.h>
+#include <epan/tfs.h>
 #include <wsutil/str_util.h>
 #include <epan/uat.h>
 #include "packet-tcp.h"

@@ -13,10 +13,9 @@
 #include "config.h"
 
 #include <epan/packet.h>
-#include <epan/expert.h>
+#include <epan/unit_strings.h>
 
 
-#include "packet-bluetooth.h"
 #include "packet-btbredr_rf.h"
 
 static int proto_btlmp;

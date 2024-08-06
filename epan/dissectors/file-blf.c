@@ -21,7 +21,6 @@
 #include "config.h"
 
 #include <epan/packet.h>
-#include <epan/prefs.h>
 #include <epan/expert.h>
 
 #include <wiretap/blf.h>

@@ -24,6 +24,8 @@
 #include <epan/decode_as.h>
 #include <epan/proto_data.h>
 #include <epan/reassemble.h>
+#include <epan/unit_strings.h>
+
 #include <wiretap/wtap.h>
 
 #include "packet-bluetooth.h"

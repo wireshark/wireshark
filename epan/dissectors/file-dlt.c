@@ -22,7 +22,6 @@
 #include "config.h"
 
 #include <epan/packet.h>
-#include <epan/prefs.h>
 
 static int proto_dlt;
 

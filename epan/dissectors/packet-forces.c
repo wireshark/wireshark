@@ -15,6 +15,7 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/expert.h>
+#include <epan/unit_strings.h>
 
 void proto_register_forces(void);
 void proto_reg_handoff_forces(void);

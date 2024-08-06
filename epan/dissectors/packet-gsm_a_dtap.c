@@ -105,12 +105,15 @@
 #include <epan/expert.h>
 #include <epan/tap.h>
 #include <epan/strutil.h>
+#include <epan/tfs.h>
+#include <epan/unit_strings.h>
+
+#include <wsutil/array.h>
 
 #include "packet-bssap.h"
 #include "packet-ber.h"
 #include "packet-q931.h"
 #include "packet-gsm_a_common.h"
-#include "packet-ppp.h"
 #include "packet-isup.h"
 
 void proto_register_gsm_a_dtap(void);

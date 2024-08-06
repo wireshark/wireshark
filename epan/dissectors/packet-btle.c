@@ -22,6 +22,8 @@
 #include <epan/expert.h>
 #include <epan/proto_data.h>
 #include <epan/reassemble.h>
+#include <epan/tfs.h>
+#include <epan/unit_strings.h>
 
 #include <wiretap/wtap.h>
 

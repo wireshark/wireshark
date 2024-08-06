@@ -21,6 +21,7 @@
 #include <epan/reassemble.h>
 #include <epan/expert.h>
 #include <epan/proto_data.h>
+#include <epan/tfs.h>
 #include <epan/stats_tree.h>
 #include "packet-bacapp.h"
 

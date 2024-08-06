@@ -9,8 +9,8 @@
  */
 #include "config.h"
 
+#include <stdint.h>
 #include <glib.h>
-
 #include "cfile.h"
 
 const nstime_t *

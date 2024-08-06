@@ -16,14 +16,9 @@
 #endif
 
 #include <epan/packet.h>
-#include <epan/epan.h>
 #include <epan/exceptions.h>
 #include <epan/show_exception.h>
-#include <epan/timestamp.h>
-#include <epan/prefs.h>
-#include <epan/to_str.h>
 #include <epan/tap.h>
-#include <epan/expert.h>
 #include <epan/proto_data.h>
 #include <epan/color_filters.h>
 #include <wiretap/wtap.h>

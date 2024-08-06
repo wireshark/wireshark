@@ -21,6 +21,8 @@
 #include <epan/etypes.h>
 #include <epan/expert.h>
 #include <epan/value_string.h>
+#include <epan/tfs.h>
+#include <epan/unit_strings.h>
 
 #define UDP_PORT_GENEVE  6081
 #define GENEVE_VER 0

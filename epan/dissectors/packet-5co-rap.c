@@ -28,8 +28,9 @@
 
 #include <epan/packet.h>
 #include <epan/to_str.h>
+#include <epan/unit_strings.h>
 #include <wsutil/utf8_entities.h>
-#include <string.h>
+#include <wsutil/array.h>
 #include "packet-tcp.h"
 
 /* Prototypes */
@@ -784,7 +785,7 @@ void proto_register_FiveCoRAP(void)
     wmem_strbuf_t* hf_abbrev_write_buf = NULL;
 
     /* Setup list of header fields (based on static table and specific table) */
-    static hf_register_info hf[array_length(hf_base) + 2*array_length(registers_def)];
+    static hf_register_info hf[(array_length(hf_base)) + (2*array_length(registers_def))];
     for (i = 0; i < array_length(hf_base); i++) {
         hf[i] = hf_base[i];
     }

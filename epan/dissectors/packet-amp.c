@@ -14,6 +14,7 @@
 #include <epan/exceptions.h>
 #include <epan/expert.h>
 #include <epan/packet.h>
+#include <epan/tfs.h>
 #include "packet-amp.h"
 
 /* The AMP standard can be found here:

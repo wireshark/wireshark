@@ -22,6 +22,7 @@
 
 #include <epan/packet.h>
 #include <epan/expert.h>
+#include <wsutil/array.h>
 
 #include "packet-gmr1_common.h"
 

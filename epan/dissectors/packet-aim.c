@@ -17,6 +17,7 @@
 #include <epan/packet.h>
 #include <epan/strutil.h>
 #include <epan/to_str.h>
+#include <epan/tfs.h>
 
 #include "packet-tcp.h"
 #include "packet-tls.h"

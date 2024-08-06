@@ -16,7 +16,7 @@
 
 #include <epan/packet.h>
 #include <epan/expert.h>
-#include <epan/range.h>
+#include <epan/tfs.h>
 #include <epan/crc16-tvb.h>
 #include "packet-tcp.h"
 

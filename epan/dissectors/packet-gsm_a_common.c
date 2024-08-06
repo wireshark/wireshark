@@ -18,11 +18,14 @@
 #include <math.h>
 
 #include <epan/packet.h>
-#include <epan/to_str.h>
 #include <epan/expert.h>
 #include <epan/tap.h>
 #include <epan/stat_tap_ui.h>
+#include <epan/tfs.h>
+#include <epan/unit_strings.h>
+
 #include <wsutil/str_util.h>
+#include <wsutil/array.h>
 #include "packet-gsm_a_common.h"
 #include "packet-bssap.h"
 #include "packet-gmr1_common.h"

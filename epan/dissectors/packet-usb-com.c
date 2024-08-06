@@ -14,6 +14,9 @@
 #include <epan/packet.h>
 #include <epan/expert.h>
 #include <epan/follow.h>
+#include <epan/conversation.h>
+#include <epan/tfs.h>
+#include <epan/unit_strings.h>
 #include "packet-usb.h"
 
 static int cdc_data_follow_tap;

@@ -16,6 +16,7 @@
 #include <config.h>
 #include <epan/packet.h>
 #include <epan/expert.h>
+#include <epan/tfs.h>
 
 #define AMT_UDP_PORT 2268
 

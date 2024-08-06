@@ -15,6 +15,7 @@
 #include <epan/conversation.h>
 #include <epan/to_str.h>
 #include <epan/prefs.h>
+#include <epan/unit_strings.h>
 
 void proto_register_bt_tracker(void);
 void proto_reg_handoff_bt_tracker(void);

@@ -42,6 +42,8 @@
 #include <epan/etypes.h>
 #include <epan/decode_as.h>
 #include <epan/proto_data.h>
+#include <epan/tfs.h>
+#include <epan/unit_strings.h>
 #include "packet-socketcan.h"
 
 #include "packet-mp2t.h"

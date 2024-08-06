@@ -13,7 +13,8 @@
 
 #include <epan/packet.h>
 #include <epan/expert.h>
-#include <epan/to_str.h>
+#include <epan/unit_strings.h>
+
 #include "packet-fc.h"
 #include "packet-fcswils.h"
 #include "packet-fcct.h"

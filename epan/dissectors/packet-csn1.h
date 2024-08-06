@@ -15,6 +15,7 @@
 #define _PACKET_CSN1_H_
 
 #include <epan/expert.h>
+#include <wsutil/array.h>
 
 /* Error codes */
 #define  CSN_OK                               0

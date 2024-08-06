@@ -17,6 +17,8 @@
 #include <epan/addr_resolv.h>
 #include <epan/reassemble.h>
 #include <epan/expert.h>
+#include <epan/tfs.h>
+#include <epan/unit_strings.h>
 
 #include <wsutil/crc32.h>
 

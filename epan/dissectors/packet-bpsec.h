@@ -16,8 +16,6 @@
 
 #include <ws_symbol_export.h>
 #include <epan/tvbuff.h>
-#include <epan/proto.h>
-#include <epan/expert.h>
 
 #ifdef __cplusplus
 extern "C" {

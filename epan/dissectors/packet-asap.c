@@ -25,9 +25,12 @@
 #include <epan/to_str.h>
 #include <epan/sctpppids.h>
 #include <epan/stat_tap_ui.h>
+#include <epan/tfs.h>
+#include <epan/unit_strings.h>
 
 #include <wsutil/str_util.h>
 #include <wsutil/ws_roundup.h>
+#include <wsutil/array.h>
 
 #include "packet-asap+enrp-common.h"
 

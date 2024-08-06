@@ -13,6 +13,7 @@
 
 
 #include <epan/packet.h>
+#include <epan/tfs.h>
 #include "packet-tcp.h"
 
 /* Forward declarations */

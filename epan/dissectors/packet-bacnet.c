@@ -15,7 +15,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
-
+#include <epan/tfs.h>
 #include <epan/llcsaps.h>
 #include "packet-bacnet.h"
 

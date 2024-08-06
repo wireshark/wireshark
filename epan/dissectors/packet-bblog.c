@@ -15,6 +15,7 @@
 
 #include <wiretap/wtap.h>
 #include <epan/packet.h>
+#include <epan/tfs.h>
 #include "packet-bblog.h"
 
 #define PEN_NFLX 10949

@@ -27,9 +27,11 @@
 #include <config.h>
 #include <epan/packet.h>
 #include <epan/proto_data.h>
-#include <string.h>
+#include <wsutil/array.h>
 #include "packet-tcp.h"
-
+#include <stdio.h>
+#include <stdbool.h>
+#include <stdint.h>
 /* Prototypes */
 void proto_reg_handoff_FiveCoLegacy(void);
 void proto_register_FiveCoLegacy(void);

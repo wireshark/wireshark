@@ -52,6 +52,7 @@
 #include <epan/expert.h>
 #include <epan/uat.h>
 #include <epan/decode_as.h>
+#include <epan/tfs.h>
 #include <wiretap/wtap.h>
 #ifdef DEBUG_BER
 #include <epan/ws_printf.h>

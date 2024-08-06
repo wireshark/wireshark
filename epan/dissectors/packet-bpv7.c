@@ -14,11 +14,13 @@
 #include "config.h"
 #define WS_LOG_DOMAIN "packet-bpv7"
 
+#include <inttypes.h>
+
 #include "packet-bpv7.h"
 #include "epan/wscbor.h"
+#include <epan/proto.h>
 #include <epan/packet.h>
 #include <epan/prefs.h>
-#include <epan/proto.h>
 #include <epan/expert.h>
 #include <epan/to_str.h>
 #include <epan/reassemble.h>
@@ -28,10 +30,11 @@
 #include <epan/conversation_filter.h>
 #include <epan/exceptions.h>
 #include <epan/ftypes/ftypes.h>
+#include <epan/unit_strings.h>
+#include <epan/tfs.h>
 #include <wsutil/crc16.h>
+#include <wsutil/array.h>
 #include <wsutil/crc32.h>
-#include <wsutil/utf8_entities.h>
-#include <inttypes.h>
 
 void proto_register_bpv7(void);
 void proto_reg_handoff_bpv7(void);

@@ -21,6 +21,7 @@
 #include "config.h"
 #include <epan/packet.h>
 #include <epan/expert.h>
+#include <epan/unit_strings.h>
 #include "packet-tcp.h"
 
 /* N.B. IANA has these ports registered for hdl-srv (name from original RFC) */

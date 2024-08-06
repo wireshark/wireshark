@@ -33,13 +33,14 @@
 #include <epan/decode_as.h>
 #include <epan/tap.h>
 #include <epan/proto_data.h>
+#include <epan/tfs.h>
+#include <epan/unit_strings.h>
 
 #include <wsutil/utf8_entities.h>
 
 #include "packet-bluetooth.h"
 #include "packet-bthci_cmd.h"
 #include "packet-bthci_evt.h"
-#include "packet-btsdp.h"
 #include "packet-btatt.h"
 
 static int proto_bthci_cmd;

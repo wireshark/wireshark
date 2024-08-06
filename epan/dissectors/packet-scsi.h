@@ -13,6 +13,7 @@
 
 #include <epan/exceptions.h>
 #include <epan/srt_table.h>
+#include <epan/conversation.h>
 
 #ifdef __cplusplus
 extern "C" {

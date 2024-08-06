@@ -33,6 +33,8 @@
 #include <epan/prefs.h>
 #include <epan/expert.h>
 #include <epan/to_str.h>
+#include <epan/tfs.h>
+#include <epan/unit_strings.h>
 
 #include "packet-arp.h"
 #include "packet-tcp.h"

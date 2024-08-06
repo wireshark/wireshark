@@ -10,9 +10,12 @@
 #ifndef __PACKET_USB_H__
 #define __PACKET_USB_H__
 
+#include <epan/packet_info.h>
+#include <epan/proto.h>
+#include <epan/tvbuff.h>
 #include <epan/value_string.h>
-#include <epan/wmem_scopes.h>
-#include <epan/conversation.h>
+#include <epan/tfs.h>
+#include <wsutil/nstime.h>
 
 typedef struct _usb_address_t {
     uint32_t device;

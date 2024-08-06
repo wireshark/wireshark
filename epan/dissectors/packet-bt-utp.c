@@ -19,9 +19,8 @@
 #include <epan/expert.h>
 #include <epan/prefs.h>
 #include <epan/proto_data.h>
-#include <epan/reassemble.h>
+#include <epan/unit_strings.h>
 
-#include "packet-udp.h"
 #include "packet-bt-utp.h"
 
 void proto_register_bt_utp(void);

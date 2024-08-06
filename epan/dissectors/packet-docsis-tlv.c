@@ -17,6 +17,8 @@
 #include <epan/packet.h>
 #include <epan/expert.h>
 #include <epan/reassemble.h>
+#include <epan/tfs.h>
+#include <epan/unit_strings.h>
 
 #include "packet-docsis-tlv.h"
 

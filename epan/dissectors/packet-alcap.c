@@ -21,6 +21,7 @@
 
 #include <epan/prefs.h>
 #include <epan/expert.h>
+#include <epan/tfs.h>
 #include <wsutil/str_util.h>
 #include "packet-alcap.h"
 #include "packet-mtp3.h"

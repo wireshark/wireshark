@@ -16,6 +16,8 @@
 #include <epan/prefs.h>
 #include <epan/expert.h>
 #include <epan/strutil.h>
+#include <epan/unit_strings.h>
+
 #include "packet-btrfcomm.h"
 #include "packet-btsdp.h"
 

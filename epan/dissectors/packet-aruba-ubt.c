@@ -12,10 +12,10 @@
  /* header files */
 #include "config.h"
 #include <epan/packet.h>
-#include <epan/prefs.h>
 #include <epan/expert.h>
 #include <epan/addr_resolv.h>
 #include "packet-ipv6.h"
+#include <epan/tfs.h>
 
 /* This is not IANA assigned nor registered */
 #define PORT_UBT 15560

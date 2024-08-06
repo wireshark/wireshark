@@ -20,10 +20,11 @@
 
 #include <epan/packet.h>
 #include <epan/exceptions.h>
-#include <epan/prefs.h>
+#include <epan/unit_strings.h>
 #include "packet-tcp.h"
 
 #include <wsutil/str_util.h>
+#include <wsutil/array.h>
 
 /* Known as SHARED_SECRET_MAX in the DRBD sources */
 #define DRBD_STRING_MAX 64

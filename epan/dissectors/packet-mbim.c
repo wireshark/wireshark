@@ -44,6 +44,9 @@
 #include <epan/to_str.h>
 #include <epan/strutil.h>
 #include <epan/ipproto.h>
+#include <epan/conversation.h>
+#include <epan/tfs.h>
+#include <epan/unit_strings.h>
 #include <wiretap/wtap.h>
 
 #include "packet-gsm_a_common.h"

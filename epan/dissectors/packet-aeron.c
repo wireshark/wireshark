@@ -16,12 +16,9 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/expert.h>
-#include <epan/uat.h>
-#include <epan/tap.h>
 #include <epan/conversation.h>
-#include <epan/exceptions.h>
 #include <epan/to_str.h>
-#include <wsutil/pint.h>
+#include <epan/tfs.h>
 #include <wsutil/ws_roundup.h>
 
 /*

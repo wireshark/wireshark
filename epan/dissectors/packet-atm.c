@@ -14,18 +14,15 @@
 #include <epan/capture_dissectors.h>
 #include <wsutil/pint.h>
 #include <epan/oui.h>
-#include <epan/addr_resolv.h>
 #include <epan/ppptypes.h>
 #include <epan/expert.h>
 #include <epan/crc10-tvb.h>
 #include <epan/crc32-tvb.h>
 #include <epan/decode_as.h>
+#include <epan/tfs.h>
 
 #include "packet-atm.h"
 #include "packet-snmp.h"
-#include "packet-eth.h"
-#include "packet-tr.h"
-#include "packet-llc.h"
 #include <epan/prefs.h>
 #include "packet-pw-atm.h"
 

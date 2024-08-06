@@ -22,10 +22,10 @@
 #include <epan/packet.h>
 #include <epan/expert.h>
 #include <epan/prefs.h>
+#include <epan/tfs.h>
 
 #include "packet-tcp.h"
 #include "packet-bgp.h"
-#include "exceptions.h"
 
 void proto_register_bmp(void);
 void proto_reg_handoff_bmp(void);

@@ -25,6 +25,9 @@
 
 #include <epan/packet.h>
 #include <epan/expert.h>
+#include <epan/tfs.h>
+#include <epan/unit_strings.h>
+#include <wsutil/array.h>
 
 void proto_register_ansi_801(void);
 void proto_reg_handoff_ansi_801(void);

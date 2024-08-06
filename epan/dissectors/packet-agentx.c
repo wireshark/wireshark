@@ -15,6 +15,7 @@
 
 #include <epan/packet.h>
 #include <epan/to_str.h>
+#include <epan/tfs.h>
 #include <wsutil/ws_roundup.h>
 
 #include "packet-tcp.h"

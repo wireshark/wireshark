@@ -21,6 +21,8 @@
 #include "config.h"
 #include <epan/packet.h>
 #include <epan/expert.h>
+#include <epan/tfs.h>
+#include <epan/unit_strings.h>
 #include "packet-mbtcp.h"
 
 #define PROTO_TAG_ECMP	"ECMP"

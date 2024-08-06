@@ -15,10 +15,10 @@
 #include <epan/packet.h>
 #include <epan/expert.h>
 #include <epan/prefs.h>
+#include <epan/unit_strings.h>
 
 #include "packet-bluetooth.h"
 #include "packet-btl2cap.h"
-#include "packet-btsdp.h"
 #include "packet-btavdtp.h"
 #include "packet-btavrcp.h"
 #include "packet-rtp.h"

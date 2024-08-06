@@ -20,11 +20,12 @@
 #include <wsutil/pint.h>
 #include <epan/crc32-tvb.h>
 #include <wsutil/802_11-utils.h>
-#include <epan/tap.h>
 #include <epan/prefs.h>
 #include <epan/addr_resolv.h>
 #include <epan/expert.h>
 #include <epan/arptypes.h>
+#include <epan/tfs.h>
+#include <epan/unit_strings.h>
 #include "packet-ieee80211.h"
 #include "packet-ieee80211-radiotap-iter.h"
 

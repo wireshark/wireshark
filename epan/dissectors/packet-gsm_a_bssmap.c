@@ -32,6 +32,7 @@
 #include <epan/asn1.h>
 
 #include <wsutil/str_util.h>
+#include <wsutil/array.h>
 
 #include "packet-bssgp.h"
 #include "packet-gsm_a_common.h"

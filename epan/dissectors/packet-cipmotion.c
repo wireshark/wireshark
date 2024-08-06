@@ -19,6 +19,7 @@
 
 #include <epan/packet.h>
 #include <epan/expert.h>
+#include <epan/unit_strings.h>
 
 #include "packet-cipmotion.h"
 

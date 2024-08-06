@@ -91,6 +91,9 @@
 #include "packet-x509af.h"
 #include <epan/reassemble.h>
 #include <epan/proto_data.h>
+#include <epan/tfs.h>
+#include <epan/unit_strings.h>
+#include <wsutil/array.h>
 
 void proto_register_docsis_mgmt(void);
 void proto_reg_handoff_docsis_mgmt(void);

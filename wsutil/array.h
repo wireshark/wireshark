@@ -11,6 +11,9 @@
 #ifndef __WSUTIL_ARRAY_H__
 #define __WSUTIL_ARRAY_H__
 
+#include <stdlib.h>
+#include <glib.h>
+
 /** Useful when you have an array whose size is known at compile-time. */
 #define array_length(x)	(sizeof (x) / sizeof (x)[0])
 

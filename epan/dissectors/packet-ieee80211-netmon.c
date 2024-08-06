@@ -12,6 +12,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/unit_strings.h>
 
 #include <wiretap/wtap.h>
 

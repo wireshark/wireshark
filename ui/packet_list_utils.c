@@ -11,6 +11,8 @@
 
 #include "config.h"
 
+#include <stdint.h>
+#include <stdbool.h>
 #include "packet_list_utils.h"
 
 #include <epan/column.h>

@@ -20,6 +20,7 @@
 #include <epan/expert.h>
 #include <epan/conversation.h>
 #include <epan/proto_data.h>
+#include <epan/tfs.h>
 
 #include "packet-bfcp.h"
 
