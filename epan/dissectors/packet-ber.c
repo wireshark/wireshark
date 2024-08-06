@@ -394,7 +394,8 @@ static void
 decode_ber_add_to_list(void *key, void *value, void *user_data)
 {
     struct ber_decode_as_populate* populate = (struct ber_decode_as_populate*)user_data;
-    populate->add_to_list("ASN.1", (char *)key, value, populate->ui_element);
+    dtbl_entry_t *dtbl_entry = (dtbl_entry_t*)value;
+    populate->add_to_list("ASN.1", (char *)key, dtbl_entry_get_initial_handle(dtbl_entry), populate->ui_element);
 }
 
 static void ber_populate_list(const char *table_name _U_, decode_as_add_to_list_func add_to_list, void *ui_element)
@@ -450,7 +451,7 @@ register_ber_syntax_dissector(const char *syntax, int proto, dissector_t dissect
 {
     dissector_handle_t dissector_handle;
 
-    dissector_handle = create_dissector_handle(dissector, proto);
+    dissector_handle = create_dissector_handle_with_name_and_description(dissector, proto, NULL, syntax);
     dissector_add_string("ber.syntax", syntax, dissector_handle);
 
 }

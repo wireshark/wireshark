@@ -2315,10 +2315,10 @@ dissector_add_for_decode_as(const char *name, dissector_handle_t handle)
 	   with the same descriptions.
 
 	   FT_STRING can at least show the string value in the dialog,
-	   so we don't do the check for them. XXX - ? It can show the
-	   string value the dissector is being set to, but can't distinguish
-	   the dissectors. See the Decode As table for Internet media types
-	   (which packet-obex.c adds.)
+	   so we don't do the check for them. XXX - It can show the
+	   string value the dissector is being set to if there's a custom
+	   populate function (like BER uses) but the GUI model still uses
+	   the description.
 
 	 */
 	const char *dissector_name;
