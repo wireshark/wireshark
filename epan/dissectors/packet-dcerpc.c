@@ -39,6 +39,7 @@
 #include <epan/show_exception.h>
 #include <epan/decode_as.h>
 #include <epan/proto_data.h>
+#include <epan/tfs.h>
 
 #include <wsutil/str_util.h>
 #include "packet-tcp.h"

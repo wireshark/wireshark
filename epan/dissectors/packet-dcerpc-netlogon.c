@@ -15,6 +15,8 @@
 
 #include <epan/packet.h>
 #include <epan/expert.h>
+#include <epan/tfs.h>
+
 #include <wsutil/wsgcrypt.h>
 #include <wsutil/wslog.h>
 

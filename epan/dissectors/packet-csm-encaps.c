@@ -14,6 +14,7 @@
 
 #include <epan/packet.h>
 #include <epan/etypes.h>
+#include <epan/tfs.h>
 
 #define OPCODE_NOOP              0x0000
 #define OPCODE_CONTROL_PACKET    0x0001

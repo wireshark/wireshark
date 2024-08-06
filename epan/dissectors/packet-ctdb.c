@@ -12,7 +12,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
-#include <epan/exceptions.h>
+#include <epan/tfs.h>
 #include <epan/expert.h>
 void proto_register_ctdb(void);
 void proto_reg_handoff_ctdb(void);

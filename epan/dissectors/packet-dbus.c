@@ -18,6 +18,7 @@
 #include <wiretap/wtap.h>
 #include <epan/expert.h>
 #include <epan/ptvcursor.h>
+#include <epan/tfs.h>
 #include <wsutil/ws_roundup.h>
 #include <epan/conversation.h>
 #include "packet-tcp.h"
