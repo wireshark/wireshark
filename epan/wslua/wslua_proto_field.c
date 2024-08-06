@@ -17,6 +17,9 @@
 
 #include "config.h"
 
+#include <epan/tfs.h>
+#include <epan/unit_strings.h>
+
 #include "wslua.h"
 
 /* WSLUA_CONTINUE_MODULE Proto */

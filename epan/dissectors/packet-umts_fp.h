@@ -8,6 +8,7 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
+#include <epan/conversation.h>
 
 /* Channel types */
 #define CHANNEL_UNKNOWN           0

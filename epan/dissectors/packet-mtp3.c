@@ -33,6 +33,8 @@
 #include <wiretap/wtap.h>
 #include <epan/addr_resolv.h>
 
+#include <wsutil/array.h>
+
 #include "packet-q708.h"
 #include "packet-sccp.h"
 #include "packet-frame.h"

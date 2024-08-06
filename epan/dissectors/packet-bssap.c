@@ -24,6 +24,7 @@
 #include <epan/prefs.h>
 #include <epan/proto_data.h>
 #include <wsutil/str_util.h>
+#include <epan/tfs.h>
 #include "packet-bssap.h"
 #include "packet-gsm_a_common.h"
 #include "packet-e212.h"

@@ -36,7 +36,9 @@
 #include <epan/stat_tap_ui.h>
 #include <epan/asn1.h>
 #include <epan/expert.h>
+#include <epan/tfs.h>
 #include <wsutil/strtoi.h>
+#include <wsutil/array.h>
 
 #include "packet-ber.h"
 #include "packet-camel.h"

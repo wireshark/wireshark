@@ -13,6 +13,9 @@
 
 #include <epan/packet.h>
 #include <epan/expert.h>
+#include <epan/tfs.h>
+
+#include <wsutil/array.h>
 #include "packet-usb.h"
 
 void proto_register_usb_vid(void);

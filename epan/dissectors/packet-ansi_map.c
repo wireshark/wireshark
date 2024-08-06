@@ -83,6 +83,9 @@
 #include <epan/tap.h>
 #include <epan/stat_tap_ui.h>
 #include <epan/asn1.h>
+#include <epan/tfs.h>
+
+#include <wsutil/array.h>
 
 #include "packet-ber.h"
 #include "packet-ansi_map.h"

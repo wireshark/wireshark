@@ -47,6 +47,7 @@
 
 #include <epan/oids.h>
 #include <epan/expert.h>
+#include <epan/tfs.h>
 
 #include <wsutil/str_util.h>
 

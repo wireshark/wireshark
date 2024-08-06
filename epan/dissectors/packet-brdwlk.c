@@ -13,6 +13,7 @@
 
 #include <epan/packet.h>
 #include <epan/proto_data.h>
+#include <epan/tfs.h>
 #include "packet-fc.h"
 
 #define BRDWLK_MAX_PACKET_CNT  0xFFFF

@@ -20,6 +20,7 @@
 #include <epan/sctpppids.h>
 #include <epan/stat_tap_ui.h>
 
+#include <wsutil/array.h>
 
 #define PINGPONGPROTOCOL_PAYLOAD_PROTOCOL_ID_LEGACY 0x29097602
 

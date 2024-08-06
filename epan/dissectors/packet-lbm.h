@@ -90,6 +90,8 @@
 #include <winsock2.h>
 #endif
 
+#include <epan/tfs.h>
+
 typedef uint8_t lbm_uint8_t;
 typedef uint16_t lbm_uint16_t;
 typedef uint32_t lbm_uint32_t;

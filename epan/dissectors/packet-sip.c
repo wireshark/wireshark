@@ -35,7 +35,9 @@
 #include <epan/addr_resolv.h>
 #include <epan/epan_dissect.h>
 #include <epan/iana_charsets.h>
+#include <epan/tfs.h>
 
+#include <wsutil/array.h>
 #include <wsutil/str_util.h>
 #include <wsutil/wsgcrypt.h>
 

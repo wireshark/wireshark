@@ -22,6 +22,7 @@
 #include "config.h"
 #include <epan/packet.h>
 #include <epan/expert.h>
+#include <epan/tfs.h>
 
 #define BUSMIRRORING_UDP_PORT 30511
 

@@ -30,8 +30,8 @@
 #include "config.h"
 
 #include <epan/packet.h>
-#include <epan/prefs.h>
 #include <epan/expert.h>
+#include <epan/tfs.h>
 #include "packet-gre.h"
 
 void proto_register_erspan(void);

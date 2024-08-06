@@ -12,8 +12,9 @@
 #ifndef __GUID_UTILS_H__
 #define __GUID_UTILS_H__
 
+#include <stdint.h>
 #include "ws_symbol_export.h"
-#include <wsutil/wmem/wmem.h>
+#include <epan/wmem_scopes.h>
 
 #define GUID_LEN	16
 

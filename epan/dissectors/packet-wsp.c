@@ -35,6 +35,7 @@
 #include <epan/tfs.h>
 
 #include <wsutil/str_util.h>
+#include <wsutil/array.h>
 
 #include "packet-wap.h"
 #include "packet-wsp.h"

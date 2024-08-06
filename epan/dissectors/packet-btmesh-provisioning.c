@@ -18,6 +18,7 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/expert.h>
+#include <epan/tfs.h>
 
 #include "packet-btmesh.h"
 

@@ -24,6 +24,7 @@
 #include <epan/expert.h>
 #include <epan/prefs.h>
 #include <epan/to_str.h>
+#include <epan/tfs.h>
 
 /* Forward declaration */
 void proto_register_cigi(void);

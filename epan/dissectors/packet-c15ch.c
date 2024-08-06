@@ -15,6 +15,7 @@
 #include <epan/etypes.h>
 #include <epan/strutil.h>
 #include <epan/wmem_scopes.h>
+#include <epan/tfs.h>
 
 void proto_register_c15ch_hbeat(void);
 void proto_register_c15ch(void);

@@ -21,8 +21,6 @@
 #include <wsutil/pint.h>
 
 #include <epan/proto.h> /* for DISSECTOR_ASSERT. */
-#include <epan/tvbuff.h>
-#include <epan/to_str.h>
 #include <epan/strutil.h>
 
 #include "dot11decrypt_util.h"

@@ -22,6 +22,7 @@
 #include <epan/prefs.h>
 #include <epan/expert.h>
 #include <epan/crc32-tvb.h>
+#include <epan/tfs.h>
 
 void proto_register_mim(void);
 void proto_reg_handoff_fabricpath(void);

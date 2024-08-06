@@ -41,8 +41,8 @@
 #include "config.h"
 
 #include <epan/packet.h>
-#include <epan/reassemble.h>
 #include <epan/expert.h>
+#include <epan/tfs.h>
 #include <epan/wscbor.h>
 #include "packet-bpv6.h"
 #include "packet-cfdp.h"

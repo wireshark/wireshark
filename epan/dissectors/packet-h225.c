@@ -37,6 +37,9 @@
 #include <epan/tap.h>
 #include <epan/stat_tap_ui.h>
 #include <epan/rtd_table.h>
+#include <epan/tfs.h>
+#include <wsutil/array.h>
+
 #include "packet-frame.h"
 #include "packet-tpkt.h"
 #include "packet-per.h"

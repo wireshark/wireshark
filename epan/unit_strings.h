@@ -11,6 +11,7 @@
 #ifndef __UNIT_STRINGS_H__
 #define __UNIT_STRINGS_H__
 
+#include <stdint.h>
 #include "ws_symbol_export.h"
 
 #ifdef __cplusplus

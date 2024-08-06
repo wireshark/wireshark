@@ -17,6 +17,7 @@
 
 #include "config.h"
 
+#include <stdint.h>
 #include "epan/guid-utils.h"
 #include "epan/proto.h"
 #include "wslua.h"

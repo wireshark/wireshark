@@ -14,6 +14,7 @@
 
 #include <epan/packet.h>
 #include <epan/prefs.h>
+#include <epan/tfs.h>
 
 #include "packet-tcp.h"
 

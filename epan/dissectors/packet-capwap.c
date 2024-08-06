@@ -17,6 +17,7 @@
 #include <epan/expert.h>
 #include <epan/sminmpec.h>
 #include <epan/addr_resolv.h>
+#include <epan/tfs.h>
 
 #include "packet-ieee80211.h"
 

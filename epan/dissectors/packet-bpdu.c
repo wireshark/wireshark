@@ -20,6 +20,7 @@
 #include <epan/prefs.h>
 #include <epan/expert.h>
 #include <epan/cisco_pid.h>
+#include <epan/tfs.h>
 
 /* Offsets of fields within a BPDU */
 

@@ -16,6 +16,7 @@
 #include <epan/conversation.h>
 #include <epan/to_str.h>
 #include <epan/proto_data.h>
+#include <epan/tfs.h>
 
 void proto_reg_handoff_ceph(void);
 void proto_register_ceph(void);

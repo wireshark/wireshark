@@ -13,11 +13,11 @@
 #include <stdio.h>      /* for sscanf() */
 
 #include <epan/packet.h>
-#include <epan/conversation.h>
 #include <epan/expert.h>
 #include <epan/prefs.h>
 #include <epan/addr_resolv.h>
 #include <epan/proto_data.h>
+#include <epan/tfs.h>
 
 #include <wsutil/strtoi.h>
 

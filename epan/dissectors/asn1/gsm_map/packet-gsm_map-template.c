@@ -43,6 +43,8 @@
 #include <epan/proto_data.h>
 #include <epan/conversation.h>
 #include <wsutil/strtoi.h>
+#include <epan/tfs.h>
+#include <wsutil/array.h>
 
 #include <epan/asn1.h>
 #include "packet-ber.h"

@@ -21,6 +21,8 @@
 #include <epan/prefs.h>
 #include <epan/proto_data.h>
 #include <epan/tap.h>
+#include <epan/tfs.h>
+#include <epan/unit_strings.h>
 
 #include "packet-ieee80211.h"
 #include "packet-ieee80211-radio.h"

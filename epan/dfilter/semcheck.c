@@ -18,13 +18,12 @@
 #include "sttype-field.h"
 #include "sttype-slice.h"
 #include "sttype-op.h"
-#include "sttype-set.h"
 #include "sttype-function.h"
 #include "sttype-pointer.h"
 #include "sttype-number.h"
 
 #include <epan/exceptions.h>
-#include <epan/packet.h>
+#include <epan/tfs.h>
 
 #include <wsutil/ws_assert.h>
 #include <wsutil/wslog.h>
