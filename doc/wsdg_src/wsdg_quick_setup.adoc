@@ -696,7 +696,7 @@ the environment variables `WIRESHARK_BASE_DIR` and `CMAKE_PREFIX_PATH`.
 
 [#ChWindowsBuild]
 
-==== Build Wireshark
+===== Build Wireshark
 
 Now it’s time to build Wireshark!
 
