@@ -134,7 +134,8 @@ static int hf_oran_bfwCompHdr_compMeth;
 static int hf_oran_symbolId;
 static int hf_oran_startPrbu;
 static int hf_oran_numPrbu;
-/* static int hf_oran_udCompParam; */
+
+static int hf_oran_udCompParam;
 
 static int hf_oran_bfwCompParam;
 
@@ -251,6 +252,7 @@ static int ett_oran_offset_start_prb_num_prb;
 static int ett_oran_prb_cisamples;
 static int ett_oran_cisample;
 static int ett_oran_udcomphdr;
+static int ett_oran_udcompparam;
 static int ett_oran_cicomphdr;
 static int ett_oran_cicompparam;
 static int ett_oran_bfwcomphdr;
@@ -1026,6 +1028,7 @@ static int dissect_bfwCompParam(tvbuff_t *tvb, proto_tree *tree, packet_info *pi
             offset++;
             break;
         case COMP_BLOCK_SCALE:  /* block scaling */
+            /* Separate into integer and fractional bits? */
             proto_tree_add_item(bfwcompparam_tree, hf_oran_blockScaler,
                                 tvb, offset, 1, ENC_BIG_ENDIAN);
             offset++;
@@ -2567,6 +2570,67 @@ static int dissect_udcomphdr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
     return offset;
 }
 
+/* Dissect udCompParam (user data compression header, 7.5.2.10) */
+/* bit_width and comp_meth are out params */
+static int dissect_udcompparam(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned offset,
+                               unsigned comp_meth, uint32_t *exponent)
+{
+    if (comp_meth == COMP_NONE || comp_meth == COMP_MODULATION) {
+        /* Not even creating a subtree */
+        return offset;
+    }
+
+    /* Subtree */
+    proto_item *udcompparam_ti = proto_tree_add_string_format(tree, hf_oran_udCompParam,
+                                                         tvb, offset, 1, "",
+                                                         "udCompHdr");
+    proto_tree *udcompparam_tree = proto_item_add_subtree(udcompparam_ti, ett_oran_udcompparam);
+
+    uint32_t param_exponent;
+
+    switch (comp_meth) {
+        case COMP_BLOCK_FP:
+            proto_tree_add_item(udcompparam_tree, hf_oran_reserved_4bits, tvb, offset, 1, ENC_NA);
+            proto_tree_add_item_ret_uint(udcompparam_tree, hf_oran_exponent,
+                                         tvb, offset, 1, ENC_BIG_ENDIAN, &param_exponent);
+            *exponent = param_exponent;
+            proto_item_append_text(udcompparam_ti, " (Exponent=%u)", param_exponent);
+            offset += 1;
+            break;
+
+        case COMP_BLOCK_SCALE:
+            /* Separate into integer and fractional bits? */
+            proto_tree_add_item(udcompparam_tree, hf_oran_blockScaler,
+                                tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset++;
+            break;
+
+        case COMP_U_LAW:
+            /* compBitWidth, compShift */
+            proto_tree_add_item(udcompparam_tree, hf_oran_compBitWidth,
+                                tvb, offset, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(udcompparam_tree, hf_oran_compShift,
+                                tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset += 1;
+            break;
+
+        case BFP_AND_SELECTIVE_RE:
+            /* TODO: sReSMask + exponent */
+            offset += 2;
+            break;
+        case MOD_COMPR_AND_SELECTIVE_RE:
+            /* TODO: sReSMask + reserved*/
+            offset += 2;
+            break;
+        default:
+            /* reserved (set to all zeros), but how many bytes?? */
+            break;
+    }
+
+    return offset;
+}
+
+
 /* Dissect ciCompHdr (channel information compression header, 7.5.2.15) */
 /* bit_width and comp_meth are out params */
 static int dissect_cicomphdr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned offset,
@@ -2957,14 +3021,12 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
                                                                   "", "PRB");
             proto_tree *rb_tree = proto_item_add_subtree(prbHeading, ett_oran_u_prb);
             uint32_t exponent = 0;
-            if ((compression != COMP_NONE) && (compression != COMP_MODULATION)) {
-                proto_tree_add_item(rb_tree, hf_oran_reserved_4bits, tvb, offset, 1, ENC_NA);
-                proto_tree_add_item_ret_uint(rb_tree, hf_oran_exponent, tvb, offset, 1, ENC_BIG_ENDIAN, &exponent);
-                offset += 1;
-            }
+
+            /* udCompParam (depends upon compression method) */
+            offset = dissect_udcompparam(tvb, pinfo, rb_tree, offset, compression, &exponent);
+
             /* Show PRB number in root */
             proto_item_append_text(prbHeading, " %u", startPrbu + i*(1+rb));
-
 
             proto_tree_add_item(rb_tree, hf_oran_iq_user_data, tvb, offset, nBytesForSamples, ENC_NA);
 
@@ -3859,17 +3921,16 @@ proto_register_oran(void)
           HFILL}
         },
 
-#if 0
+
         /* Section 8.3.3.15 (not always present?) */
         {&hf_oran_udCompParam,
          {"User Data Compression Parameter", "oran_fh_cus.udCompParam",
-          FT_UINT8, BASE_DEC | BASE_RANGE_STRING,
-          RVALS(udCompParams), 0x0,
+          FT_STRING, BASE_NONE,
+          NULL, 0x0,
           "Applies to whatever compression method is specified "
           "by the associated sectionID's compMeth value",
           HFILL}
         },
-#endif
 
         /* Section 6.3.3.15 */
         {&hf_oran_iSample,
@@ -4391,6 +4452,7 @@ proto_register_oran(void)
         &ett_oran_prb_cisamples,
         &ett_oran_cisample,
         &ett_oran_udcomphdr,
+        &ett_oran_udcompparam,
         &ett_oran_cicomphdr,
         &ett_oran_cicompparam,
         &ett_oran_bfwcomphdr,
