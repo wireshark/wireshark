@@ -345,9 +345,9 @@ choco install -y visualstudio2022community visualstudio2022-workload-nativedeskt
 // https://github.com/microsoft/winget-pkgs/tree/master/manifests/m/Microsoft/VisualStudio
 
 You can use other Microsoft C compiler variants, but VS2022 is used to
-build the development releases and is the preferred option. It’s
-possible to compile Wireshark with a wide range of Microsoft C compiler
-variants. For details see <<ChToolsMSChain>>.
+build the development releases for Windows and is the preferred option
+on Windows.  It’s possible to compile Wireshark with a wide range of
+Microsoft C compiler variants.  For details see <<ChToolsMSChain>>.
 
 You may have to do this as Administrator.
 
@@ -361,7 +361,7 @@ For further details on this topic, see <<ChToolsGNUChain>>. This may change in f
 
 Why is this recommended?
 While this is a huge download, the Community Editions of Visual Studio are free (as in beer) and include the Visual Studio integrated debugger.
-Visual Studio 2022 is also used to create official Wireshark builds, so it will likely have fewer development-related problems.
+Visual Studio 2022 is also used to create official Wireshark builds for Windows, so it will likely have fewer development-related problems.
 
 [#ChSetupQt]
 
