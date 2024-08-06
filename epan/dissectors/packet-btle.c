@@ -4951,7 +4951,7 @@ proto_register_btle(void)
         },
         { &hf_extended_advertising_tx_power,
             { "TX Power",                         "btle.extended_advertising_header.tx_power",
-            FT_INT8, BASE_DEC | BASE_UNIT_STRING, &units_dbm, 0x0,
+            FT_INT8, BASE_DEC | BASE_UNIT_STRING, UNS(&units_dbm), 0x0,
             NULL, HFILL }
         },
         { &hf_extended_advertising_header_acad,
@@ -5456,7 +5456,7 @@ proto_register_btle(void)
         },
         { &hf_control_max_rx_time,
             { "Max RX time",     "btle.control.max_rx_time",
-            FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_microsecond_microseconds, 0x0,
+            FT_UINT16, BASE_DEC|BASE_UNIT_STRING, UNS(&units_microsecond_microseconds), 0x0,
             NULL, HFILL }
         },
         { &hf_control_max_tx_octets,
@@ -5466,7 +5466,7 @@ proto_register_btle(void)
         },
         { &hf_control_max_tx_time,
             { "Max TX time",     "btle.control.max_tx_time",
-            FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_microsecond_microseconds, 0x0,
+            FT_UINT16, BASE_DEC|BASE_UNIT_STRING, UNS(&units_microsecond_microseconds), 0x0,
             NULL, HFILL }
         },
         { &hf_control_phys_sender_le_1m_phy,
@@ -5731,7 +5731,7 @@ proto_register_btle(void)
         },
         { &hf_control_sdu_interval_c_to_p,
             { "SDU_Interval_C_To_P",             "btle.control.sdu_interval_c_to_p",
-            FT_UINT24, BASE_DEC|BASE_UNIT_STRING, &units_microsecond_microseconds, 0x0fffff,
+            FT_UINT24, BASE_DEC|BASE_UNIT_STRING, UNS(&units_microsecond_microseconds), 0x0fffff,
             NULL, HFILL }
         },
         { &hf_control_rfu_3,
@@ -5741,7 +5741,7 @@ proto_register_btle(void)
         },
         { &hf_control_sdu_interval_p_to_c,
             { "SDU_Interval_P_To_C",             "btle.control.sdu_interval_p_to_c",
-            FT_UINT24, BASE_DEC|BASE_UNIT_STRING, &units_microsecond_microseconds, 0x0fffff,
+            FT_UINT24, BASE_DEC|BASE_UNIT_STRING, UNS(&units_microsecond_microseconds), 0x0fffff,
             NULL, HFILL }
         },
         { &hf_control_rfu_4,
@@ -5766,7 +5766,7 @@ proto_register_btle(void)
         },
         { &hf_control_sub_interval,
             { "Sub_Interval",                    "btle.control.sub_interval",
-            FT_UINT24, BASE_DEC|BASE_UNIT_STRING, &units_microsecond_microseconds, 0x0,
+            FT_UINT24, BASE_DEC|BASE_UNIT_STRING, UNS(&units_microsecond_microseconds), 0x0,
             NULL, HFILL }
         },
         { &hf_control_bn_c_to_p,

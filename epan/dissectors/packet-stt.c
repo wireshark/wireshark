@@ -575,7 +575,7 @@ proto_register_stt(void)
         },
         { &hf_stt_tcp_data_offset,
           { "Data Offset", "stt.tcp.data_offset",
-            FT_UINT8, BASE_DEC|BASE_UNIT_STRING, &units_byte_bytes, 0x0,
+            FT_UINT8, BASE_DEC|BASE_UNIT_STRING, UNS(&units_byte_bytes), 0x0,
             NULL, HFILL,
           },
         },

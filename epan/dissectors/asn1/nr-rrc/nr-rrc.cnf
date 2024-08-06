@@ -1158,7 +1158,7 @@ RAT-Type TYPE_PREFIX
   }
 
 #.TYPE_ATTR
-RejectWaitTime DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_seconds
+RejectWaitTime DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_seconds)
 
 #.TYPE_RENAME
 MeasTriggerQuantityUTRA-FDD-r16/utra-FDD-RSCP-r16 MeasTriggerQuantityUTRA_FDD_RSCP_r16
@@ -1176,7 +1176,7 @@ MeasTriggerQuantityUTRA-FDD-r16/utra-FDD-EcN0-r16 DISPLAY=BASE_CUSTOM STRINGS=CF
 SIB1/cellSelectionInfo/q-RxLevMinOffset DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(nr_rrc_q_RxLevMin_fmt)
 
 #.TYPE_ATTR
-SIB1/cellSelectionInfo/q-QualMinOffset DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_decibels
+SIB1/cellSelectionInfo/q-QualMinOffset DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_decibels)
 
 #.FN_BODY SL-TxResourceReq-r16/sl-CapabilityInformationSidelink-r16 VAL_PTR = &sl_cap_info_sidelink_tvb
   tvbuff_t *sl_cap_info_sidelink_tvb = NULL;
@@ -1197,7 +1197,7 @@ SIB1/cellSelectionInfo/q-QualMinOffset DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS
   }
 
 #.TYPE_ATTR
-LogMeasInfo-r16/relativeTimeStamp-r16 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_seconds
+LogMeasInfo-r16/relativeTimeStamp-r16 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_seconds)
 
 #.TYPE_ATTR
 RLF-Report-r16/nr-RLF-Report-r16/timeConnFailure-r16 DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(nr_rrc_timeConnFailure_r16_fmt)
@@ -1221,10 +1221,10 @@ RLF-Report-r16/nr-RLF-Report-r16/timeConnFailure-r16 DISPLAY=BASE_CUSTOM STRINGS
   }
 
 #.TYPE_ATTR
-TimeSinceFailure-r16 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_seconds
+TimeSinceFailure-r16 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_seconds)
 
 #.TYPE_ATTR
-TimeUntilReconnection-r16 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_seconds
+TimeUntilReconnection-r16 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_seconds)
 
 #.TYPE_ATTR
 TimeSinceCHO-Reconfig-r17 DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(nr_rrc_TimeSinceCHO_Reconfig_r17_fmt)
@@ -1233,19 +1233,19 @@ TimeSinceCHO-Reconfig-r17 DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(nr_rrc_TimeSinceCH
 TimeSinceCPAC-Reconfig-r18 DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(nr_rrc_TimeSinceCHO_Reconfig_r17_fmt)
 
 #.TYPE_ATTR
-TimeConnSourceDAPS-Failure-r17 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_milliseconds
+TimeConnSourceDAPS-Failure-r17 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_milliseconds)
 
 #.TYPE_ATTR
-UPInterruptionTimeAtHO-r17 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_milliseconds
+UPInterruptionTimeAtHO-r17 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_milliseconds)
 
 #.TYPE_ATTR
-ElapsedTimeT316-r18 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_milliseconds
+ElapsedTimeT316-r18 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_milliseconds)
 
 #.TYPE_ATTR
-ElapsedTimeSCG-Failure-r18 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_milliseconds
+ElapsedTimeSCG-Failure-r18 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_milliseconds)
 
 #.TYPE_ATTR
-TimeSinceSHR-r18 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_seconds
+TimeSinceSHR-r18 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_seconds)
 
 #.FN_BODY ULInformationTransferIRAT-r16-IEs/ul-DCCH-MessageEUTRA-r16 VAL_PTR = &ul_dcch_msg_eutra_tvb
   tvbuff_t *ul_dcch_msg_eutra_tvb = NULL;
@@ -1263,7 +1263,7 @@ IntraFreqNeighCellInfo/q-RxLevMinOffsetCell DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(
 IntraFreqNeighCellInfo/q-RxLevMinOffsetCellSUL DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(nr_rrc_q_RxLevMin_fmt)
 
 #.TYPE_ATTR
-IntraFreqNeighCellInfo/q-QualMinOffsetCell DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_decibels
+IntraFreqNeighCellInfo/q-QualMinOffsetCell DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_decibels)
 
 #.TYPE_ATTR
 InterFreqNeighCellInfo/q-RxLevMinOffsetCell DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(nr_rrc_q_RxLevMin_fmt)
@@ -1272,22 +1272,22 @@ InterFreqNeighCellInfo/q-RxLevMinOffsetCell DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(
 InterFreqNeighCellInfo/q-RxLevMinOffsetCellSUL DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(nr_rrc_q_RxLevMin_fmt)
 
 #.TYPE_ATTR
-InterFreqNeighCellInfo/q-QualMinOffsetCell DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_decibels
+InterFreqNeighCellInfo/q-QualMinOffsetCell DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_decibels)
 
 #.TYPE_ATTR
 CarrierFreqEUTRA/q-RxLevMin DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(nr_rrc_q_RxLevMin_fmt)
 
 #.TYPE_ATTR
-CarrierFreqEUTRA/q-QualMin DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_decibels
+CarrierFreqEUTRA/q-QualMin DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_decibels)
 
 #.TYPE_ATTR
-CarrierFreqEUTRA/p-MaxEUTRA DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_dbm
+CarrierFreqEUTRA/p-MaxEUTRA DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_dbm)
 
 #.TYPE_ATTR
 EUTRA-FreqNeighCellInfo/q-RxLevMinOffsetCell DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(nr_rrc_q_RxLevMin_fmt)
 
 #.TYPE_ATTR
-EUTRA-FreqNeighCellInfo/q-QualMinOffsetCell DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_decibels
+EUTRA-FreqNeighCellInfo/q-QualMinOffsetCell DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_decibels)
 
 #.TYPE_ATTR
 SIB6/messageIdentifier TYPE=FT_UINT16 DISPLAY=BASE_DEC|BASE_EXT_STRING STRINGS=&lte_rrc_messageIdentifier_vals_ext
@@ -1515,7 +1515,7 @@ SIB9/timeInfo/dayLightSavingTime TYPE=FT_UINT8 DISPLAY=BASE_DEC STRINGS=VALS(nr_
   }
 
 #.TYPE_ATTR
-SIB9/timeInfo/leapSeconds DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_seconds
+SIB9/timeInfo/leapSeconds DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_seconds)
 
 #.TYPE_ATTR
 SIB9/timeInfo/localTimeOffset DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(nr_rrc_localTimeOffset_fmt)
@@ -1572,16 +1572,16 @@ RSSI-Range-r16 DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(nr_rrc_RSSI_Range_r16_fmt)
   }
 
 #.TYPE_ATTR
-ConfiguredGrantConfig/configuredGrantTimer DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_periodicities
+ConfiguredGrantConfig/configuredGrantTimer DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_periodicities)
 
 #.TYPE_ATTR
-ConnEstFailureControl/connEstFailOffset DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_decibels
+ConnEstFailureControl/connEstFailOffset DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_decibels)
 
 #.TYPE_ATTR
 DRX-Config/drx-SlotOffset DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(nr_rrc_drx_SlotOffset_fmt)
 
 #.TYPE_ATTR
-FrequencyInfoDL-SIB/offsetToPointA DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_prbs
+FrequencyInfoDL-SIB/offsetToPointA DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_prbs)
 
 #.TYPE_ATTR
 Hysteresis DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(nr_rrc_Hysteresis_fmt)
@@ -1608,10 +1608,10 @@ RSRQ-RangeEUTRA-r16 DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(nr_rrc_RSRQ_RangeEUTRA_r
   }
 
 #.TYPE_ATTR
-ChannelAccessConfig-r16/maxEnergyDetectionThreshold-r16 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_dbm
+ChannelAccessConfig-r16/maxEnergyDetectionThreshold-r16 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_dbm)
 
 #.TYPE_ATTR
-ChannelAccessConfig-r16/energyDetectionThresholdOffset-r16 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_decibels
+ChannelAccessConfig-r16/energyDetectionThresholdOffset-r16 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_decibels)
 
 #.TYPE_ATTR
 MeasResultUTRA-FDD-r16/measResult-r16/utra-FDD-RSCP-r16 DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(nr_rrc_utra_FDD_RSCP_r16_fmt)
@@ -1620,61 +1620,61 @@ MeasResultUTRA-FDD-r16/measResult-r16/utra-FDD-RSCP-r16 DISPLAY=BASE_CUSTOM STRI
 MeasResultUTRA-FDD-r16/measResult-r16/utra-FDD-EcN0-r16 DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(nr_rrc_utra_FDD_EcN0_r16_fmt)
 
 #.TYPE_ATTR
-MeasResultForRSSI-r16/channelOccupancy-r16 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_percent
+MeasResultForRSSI-r16/channelOccupancy-r16 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_percent)
 
 #.TYPE_ATTR
 UL-PDCP-DelayValueResult-r16/averageDelay-r16 DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(nr_rrc_averageDelay_r16_fmt)
 
 #.TYPE_ATTR
-NZP-CSI-RS-Resource/powerControlOffset DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_decibels
+NZP-CSI-RS-Resource/powerControlOffset DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_decibels)
 
 #.TYPE_ATTR
-P-Max DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_dbm
+P-Max DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_dbm)
 
 #.TYPE_ATTR
-PUCCH-ResourceSet/maxPayloadMinus1 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_bit_bits
+PUCCH-ResourceSet/maxPayloadMinus1 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_bit_bits)
 
 #.TYPE_ATTR
-PUCCH-ConfigCommon/p0-nominal DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_dbm
+PUCCH-ConfigCommon/p0-nominal DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_dbm)
 
 #.TYPE_ATTR
-PUCCH-PowerControl/deltaF-PUCCH-f0 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_decibels
+PUCCH-PowerControl/deltaF-PUCCH-f0 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_decibels)
 
 #.TYPE_ATTR
-PUCCH-PowerControl/deltaF-PUCCH-f1 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_decibels
+PUCCH-PowerControl/deltaF-PUCCH-f1 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_decibels)
 
 #.TYPE_ATTR
-PUCCH-PowerControl/deltaF-PUCCH-f2 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_decibels
+PUCCH-PowerControl/deltaF-PUCCH-f2 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_decibels)
 
 #.TYPE_ATTR
-PUCCH-PowerControl/deltaF-PUCCH-f3 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_decibels
+PUCCH-PowerControl/deltaF-PUCCH-f3 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_decibels)
 
 #.TYPE_ATTR
-PUCCH-PowerControl/deltaF-PUCCH-f4 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_decibels
+PUCCH-PowerControl/deltaF-PUCCH-f4 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_decibels)
 
 #.TYPE_ATTR
-P0-PUCCH/p0-PUCCH-Value DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_decibels
+P0-PUCCH/p0-PUCCH-Value DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_decibels)
 
 #.TYPE_ATTR
 PUSCH-ConfigCommon/msg3-DeltaPreamble DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(nr_rrc_msg3_DeltaPreamble_fmt)
 
 #.TYPE_ATTR
-PUSCH-ConfigCommon/p0-NominalWithGrant DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_dbm
+PUSCH-ConfigCommon/p0-NominalWithGrant DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_dbm)
 
 #.TYPE_ATTR
-PUSCH-PowerControl/p0-NominalWithoutGrant DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_dbm
+PUSCH-PowerControl/p0-NominalWithoutGrant DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_dbm)
 
 #.TYPE_ATTR
-P0-PUSCH-AlphaSet/p0 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_decibels
+P0-PUSCH-AlphaSet/p0 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_decibels)
 
 #.TYPE_ATTR
-Q-QualMin DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_decibels
+Q-QualMin DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_decibels)
 
 #.TYPE_ATTR
 Q-RxLevMin DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(nr_rrc_Q_RxLevMin_fmt)
 
 #.TYPE_ATTR
-RACH-ConfigGeneric/preambleReceivedTargetPower DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_dbm
+RACH-ConfigGeneric/preambleReceivedTargetPower DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_dbm)
 
 #.TYPE_ATTR
 RSRP-RangeEUTRA DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(nr_rrc_RSRP_RangeEUTRA_fmt)
@@ -1686,7 +1686,7 @@ RSRQ-RangeEUTRA DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(nr_rrc_RSRQ_RangeEUTRA_fmt)
 SINR-RangeEUTRA DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(nr_rrc_SINR_RangeEUTRA_fmt)
 
 #.TYPE_ATTR
-MsgA-PUSCH-Config-r16/msgA-DeltaPreamble-r16 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_decibels
+MsgA-PUSCH-Config-r16/msgA-DeltaPreamble-r16 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_decibels)
 
 #.TYPE_ATTR
 MeasTriggerQuantityOffset/rsrp DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(nr_rrc_MeasTriggerQuantityOffset_fmt)
@@ -1701,7 +1701,7 @@ MeasTriggerQuantityOffset/sinr DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(nr_rrc_MeasTr
 ReselectionThreshold DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(nr_rrc_ReselectionThreshold_fmt)
 
 #.TYPE_ATTR
-ReselectionThresholdQ DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_decibels
+ReselectionThresholdQ DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_decibels)
 
 #.TYPE_ATTR
 RSRP-Range DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(nr_rrc_RSRP_Range_fmt)
@@ -1710,28 +1710,28 @@ RSRP-Range DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(nr_rrc_RSRP_Range_fmt)
 RSRQ-Range DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(nr_rrc_RSRQ_Range_fmt)
 
 #.TYPE_ATTR
-SearchSpace/duration DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_slots
+SearchSpace/duration DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_slots)
 
 #.TYPE_ATTR
-ServingCellConfigCommon/ss-PBCH-BlockPower DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_dbm
+ServingCellConfigCommon/ss-PBCH-BlockPower DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_dbm)
 
 #.TYPE_ATTR
-ServingCellConfigCommonSIB/ss-PBCH-BlockPower DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_dbm
+ServingCellConfigCommonSIB/ss-PBCH-BlockPower DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_dbm)
 
 #.TYPE_ATTR
 SINR-Range DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(nr_rrc_SINR_Range_fmt)
 
 #.TYPE_ATTR
-SRS-ResourceSet/p0 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_dbm
+SRS-ResourceSet/p0 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_dbm)
 
 #.TYPE_ATTR
-SRS-PosResourceSet-r16/p0-r16 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_dbm
+SRS-PosResourceSet-r16/p0-r16 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_dbm)
 
 #.TYPE_ATTR
 SRS-RSRP-Range-r16 DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(nr_rrc_SRS_RSRP_r16_fmt)
 
 #.TYPE_ATTR
-T-Reselection DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_seconds
+T-Reselection DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_seconds)
 
 #.FN_BODY BandParametersSidelinkEUTRA-NR-r16/eutra/bandParametersSidelinkEUTRA1-r16 VAL_PTR = &band_params_sl_tvb
   tvbuff_t *band_params_sl_tvb = NULL;
@@ -1862,7 +1862,7 @@ T-Reselection DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_seconds
   }
 
 #.TYPE_ATTR
-EUTRA-NS-PmaxValue/additionalPmax DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_dbm
+EUTRA-NS-PmaxValue/additionalPmax DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_dbm)
 
 #.TYPE_ATTR
 WLAN-Identifiers-r16/ssid-r16 TYPE=FT_STRING DISPLAY=BASE_NONE
@@ -1880,10 +1880,10 @@ WLAN-Identifiers-r16/bssid-r16 TYPE=FT_ETHER
 WLAN-Identifiers-r16/hessid-r16 TYPE=FT_ETHER
 
 #.TYPE_ATTR
-VisitedCellInfo-r16/timeSpent-r16 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_seconds
+VisitedCellInfo-r16/timeSpent-r16 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_seconds)
 
 #.TYPE_ATTR
-VisitedPSCellInfo-r17/timeSpent-r17 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_seconds
+VisitedPSCellInfo-r17/timeSpent-r17 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_seconds)
 
 #.FN_HDR PosSystemInformation-r16-IEs/posSIB-TypeAndInfo-r16/_item
   nr_rrc_get_private_data(actx)->pos_sib_type = LPP_POS_SIB_TYPE_UNKNOWN;
@@ -2418,7 +2418,7 @@ CA-ParametersEUTRA-v1570/dl-1024QAM-TotalWeightedLayers DISPLAY=BASE_CUSTOM STRI
   }
 
 #.TYPE_ATTR
-TimeBetweenEvent-r17 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_milliseconds
+TimeBetweenEvent-r17 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_milliseconds)
 
 #.FN_BODY ReferenceLocation-r17 VAL_PTR = &ellipsoid_point_tvb
   tvbuff_t *ellipsoid_point_tvb = NULL;
@@ -2442,19 +2442,19 @@ TimeBetweenEvent-r17 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_millisecon
 FlightPathUpdateDistanceThr-r18 DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(nr_rrc_FlightPathUpdateDistanceThr_r18_fmt)
 
 #.TYPE_ATTR
-flightPathUpdateTimeThr-r18 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_seconds
+flightPathUpdateTimeThr-r18 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_seconds)
 
 #.TYPE_ATTR
-Altitude-r18 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_meters
+Altitude-r18 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_meters)
 
 #.TYPE_ATTR
-ATG-Config-r18/heightgNB-r18 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_meters
+ATG-Config-r18/heightgNB-r18 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_meters)
 
 #.TYPE_ATTR
-HysteresisAltitude-r18 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_meters
+HysteresisAltitude-r18 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_meters)
 
 #.TYPE_ATTR
-LCG-DSR-Config-r18/remainingTimeThreshold-r18 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_milliseconds
+LCG-DSR-Config-r18/remainingTimeThreshold-r18 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_milliseconds)
 
 #.FN_HDR SBCCH-SL-BCH-Message
   proto_item *ti;

@@ -375,10 +375,10 @@ NG-RAN-Cell-Identity/e-utra ABBREV=E_UTRA_Cell_Identity TYPE=FT_UINT32 DISPLAY=B
   }
 
 #.TYPE_ATTR
-SurvivalTime DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_microseconds
+SurvivalTime DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_microseconds)
 
 #.TYPE_ATTR
-BitRate DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_bit_sec
+BitRate DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_bit_sec)
 
 #.TYPE_ATTR
 PacketLossRate DISPLAY = BASE_CUSTOM STRINGS = CF_FUNC(xnap_PacketLossRate_fmt)
@@ -387,10 +387,10 @@ PacketLossRate DISPLAY = BASE_CUSTOM STRINGS = CF_FUNC(xnap_PacketLossRate_fmt)
 PacketDelayBudget DISPLAY = BASE_CUSTOM STRINGS = CF_FUNC(xnap_PacketDelayBudget_fmt)
 
 #.TYPE_ATTR
-AveragingWindow DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_milliseconds
+AveragingWindow DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_milliseconds)
 
 #.TYPE_ATTR
-MaximumDataBurstVolume DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_byte_bytes
+MaximumDataBurstVolume DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_byte_bytes)
 
 #.FN_BODY TransportLayerAddress VAL_PTR = &parameter_tvb LEN_PTR = &len
   tvbuff_t *parameter_tvb = NULL;
@@ -472,13 +472,13 @@ MaximumDataBurstVolume DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_byte_byt
   }
 
 #.TYPE_ATTR
-ExpectedUEMovingTrajectoryItem/timeStayedInCell DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_seconds
+ExpectedUEMovingTrajectoryItem/timeStayedInCell DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_seconds)
 
 #.TYPE_ATTR
-ExpectedActivityPeriod DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_seconds
+ExpectedActivityPeriod DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_seconds)
 
 #.TYPE_ATTR
-ExpectedIdlePeriod DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_seconds
+ExpectedIdlePeriod DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_seconds)
 
 #.FN_BODY VolumeTimedReport-Item/startTimeStamp VAL_PTR = &timestamp_tvb
   tvbuff_t *timestamp_tvb = NULL;
@@ -499,10 +499,10 @@ ExpectedIdlePeriod DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_seconds
   }
 
 #.TYPE_ATTR
-VolumeTimedReport-Item/usageCountUL DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_octet_octets
+VolumeTimedReport-Item/usageCountUL DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_octet_octets)
 
 #.TYPE_ATTR
-VolumeTimedReport-Item/usageCountDL DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_octet_octets
+VolumeTimedReport-Item/usageCountDL DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_octet_octets)
 
 #.FN_BODY UERadioCapabilityForPagingOfNR VAL_PTR = &parameter_tvb
   tvbuff_t *parameter_tvb = NULL;
@@ -643,7 +643,7 @@ BluetoothName TYPE=FT_STRING DISPLAY = BASE_NONE
 ExtendedPacketDelayBudget DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(xnap_ExtendedPacketDelayBudget_fmt)
 
 #.TYPE_ATTR
-M7period DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_minutes
+M7period DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_minutes)
 
 #.FN_BODY MDT-Location-Info VAL_PTR=&parameter_tvb
   tvbuff_t *parameter_tvb = NULL;
@@ -703,7 +703,7 @@ MobilityParametersModificationRange/handoverTriggerChange DISPLAY=BASE_CUSTOM ST
   }
 
 #.TYPE_ATTR
-OfferedCapacity DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_kbps
+OfferedCapacity DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_kbps)
 
 #.FN_BODY RACH-Config-Common VAL_PTR = &parameter_tvb
   tvbuff_t *parameter_tvb = NULL;
@@ -820,7 +820,7 @@ WLANName TYPE=FT_STRING DISPLAY = BASE_NONE
   }
 
 #.TYPE_ATTR
-TSCAssistanceInformation/periodicity DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_microseconds
+TSCAssistanceInformation/periodicity DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_microseconds)
 
 #.FN_BODY ReportCharacteristics VAL_PTR = &parameter_tvb
   tvbuff_t *parameter_tvb = NULL;
@@ -952,7 +952,7 @@ TSCAssistanceInformation/periodicity DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&
   }
 
 #.TYPE_ATTR
-QosMonitoringReportingFrequency DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_seconds
+QosMonitoringReportingFrequency DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_seconds)
 
 #.FN_BODY MDTMode-EUTRA VAL_PTR = &mdt_mode_eutra_tvb
   tvbuff_t *mdt_mode_eutra_tvb = NULL;
@@ -999,10 +999,10 @@ AveragePacketDelayValue DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(xnap_AveragePacketDe
   }
 
 #.TYPE_ATTR
-MT-SDT-DataSize DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_byte_bytes
+MT-SDT-DataSize DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_byte_bytes)
 
 #.TYPE_ATTR
-MeasuredTrajectoryNGRANCellInfo/timeUEStaysInCell DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_seconds
+MeasuredTrajectoryNGRANCellInfo/timeUEStaysInCell DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_seconds)
 
 #.TYPE_ATTR
 N6JitterInformation/n6JitterLowerBound DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(xnap_N6Jitter_fmt)
@@ -1011,7 +1011,7 @@ N6JitterInformation/n6JitterLowerBound DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(xnap_
 N6JitterInformation/n6JitterUpperBound DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(xnap_N6Jitter_fmt)
 
 #.TYPE_ATTR
-RequestedPredictionTime DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_seconds
+RequestedPredictionTime DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_seconds)
 
 #.FN_BODY SRSConfiguration VAL_PTR = &parameter_tvb
   tvbuff_t *parameter_tvb = NULL;
@@ -1023,7 +1023,7 @@ RequestedPredictionTime DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_seconds
   }
 
 #.TYPE_ATTR
-TimeSinceFailure DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_seconds
+TimeSinceFailure DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_seconds)
 
 #.FN_BODY PSCellListContainer VAL_PTR = &parameter_tvb
   tvbuff_t *parameter_tvb = NULL;

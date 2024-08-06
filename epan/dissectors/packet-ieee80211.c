@@ -42878,12 +42878,12 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_ff_rm_tx_power,
      {"Transmit Power Used", "wlan.rm.tx_power",
-      FT_INT8, BASE_DEC|BASE_UNIT_STRING, &units_dbm, 0,
+      FT_INT8, BASE_DEC|BASE_UNIT_STRING, UNS(&units_dbm), 0,
       NULL, HFILL }},
 
     {&hf_ieee80211_ff_rm_max_tx_power,
      {"Max Transmit Power", "wlan.rm.max_tx_power",
-      FT_INT8, BASE_DEC|BASE_UNIT_STRING, &units_dbm, 0,
+      FT_INT8, BASE_DEC|BASE_UNIT_STRING, UNS(&units_dbm), 0,
       NULL, HFILL }},
 
     {&hf_ieee80211_ff_tpc,
@@ -42903,7 +42903,7 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_ff_tpc_tx_power,
      {"TPC Transmit Power", "wlan.rm.tpc.tx_power",
-      FT_INT8, BASE_DEC|BASE_UNIT_STRING, &units_dbm, 0,
+      FT_INT8, BASE_DEC|BASE_UNIT_STRING, UNS(&units_dbm), 0,
       NULL, HFILL }},
 
     {&hf_ieee80211_ff_tpc_link_margin,
@@ -43856,7 +43856,7 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_tag_sta_beam_track, /* DMG STA beam track capa*/
      {"STA Beam Tracking Time Limit", "wlan.dmg_capa.beam_track",
-      FT_UINT16, BASE_DEC | BASE_UNIT_STRING, &units_microseconds, 0,
+      FT_UINT16, BASE_DEC | BASE_UNIT_STRING, UNS(&units_microseconds), 0,
       NULL, HFILL }},
 
     {&hf_ieee80211_tag_ext_sc_mcs_max_tx, /* DMG STA Ext SC MCS Capa: Max TX*/
@@ -45402,12 +45402,12 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_tag_ranging_ntb_min_time_msmts,
      {"Min Time Between Measurements", "wlan.ranging.ntb.min_time",
-      FT_UINT48, BASE_DEC | BASE_UNIT_STRING, &units_100_us, GENMASK(23, 1),
+      FT_UINT48, BASE_DEC | BASE_UNIT_STRING, UNS(&units_100_us), GENMASK(23, 1),
       NULL, HFILL }},
 
     {&hf_ieee80211_tag_ranging_ntb_max_time_msmts,
      {"Max Time Between Measurements", "wlan.ranging.ntb.max_time",
-      FT_UINT48, BASE_DEC | BASE_UNIT_STRING, &units_10_ms, GENMASK64(43, 24),
+      FT_UINT48, BASE_DEC | BASE_UNIT_STRING, UNS(&units_10_ms), GENMASK64(43, 24),
       NULL, HFILL }},
 
     {&hf_ieee80211_tag_ranging_ntb_r2i_tx_power,
@@ -47221,7 +47221,7 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_hs20_reauth_delay,
      {"Re-Auth Delay", "wlan.hs20.deauth.reauth_delay",
-      FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_seconds, 0, NULL, HFILL }},
+      FT_UINT16, BASE_DEC|BASE_UNIT_STRING, UNS(&units_seconds), 0, NULL, HFILL }},
 
     {&hf_ieee80211_hs20_deauth_reason_url_len,
      {"Reason URL Length", "wlan.hs20.deauth.reason_url_len",
@@ -47351,12 +47351,12 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_symbp_extreme_load_kbps,
      {"Load", "wlan.tag.symbol_proprietary.extreme.load_kbps",
-      FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_kbps, 0,
+      FT_UINT16, BASE_DEC|BASE_UNIT_STRING, UNS(&units_kbps), 0,
       NULL, HFILL }},
 
     {&hf_ieee80211_symbp_extreme_load_pps,
      {"Load", "wlan.tag.symbol_proprietary.extreme.load_pps",
-      FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_pkts_per_sec, 0,
+      FT_UINT16, BASE_DEC|BASE_UNIT_STRING, UNS(&units_pkts_per_sec), 0,
       NULL, HFILL }},
 
     {&hf_ieee80211_symbp_extreme_client_tx_power,
@@ -47451,7 +47451,7 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_tag_country_info_fnm_mtpl,
      {"Maximum Transmit Power Level", "wlan.country_info.fnm.mtpl",
-      FT_INT8, BASE_DEC|BASE_UNIT_STRING, &units_dbm, 0,
+      FT_INT8, BASE_DEC|BASE_UNIT_STRING, UNS(&units_dbm), 0,
       NULL, HFILL }},
 
     {&hf_ieee80211_tag_country_info_rrc,
@@ -49436,29 +49436,29 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_s1g_auth_control_thresh_tus,
      {"Authentication Control Threshold", "wlan.s1g.auth_control.threshold",
-      FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_tu_tus,
+      FT_UINT16, BASE_DEC|BASE_UNIT_STRING, UNS(&units_tu_tus),
       0xFFC0, NULL, HFILL }},
 
     {&hf_ieee80211_s1g_auth_slot_duration,
      {"Authentication Slot Duration", "wlan.s1g.auth_control.slot_duration",
-      FT_UINT24, BASE_DEC|BASE_UNIT_STRING, &units_di_dis, 0x0000FE,
+      FT_UINT24, BASE_DEC|BASE_UNIT_STRING, UNS(&units_di_dis), 0x0000FE,
       NULL, HFILL }},
 
     {&hf_ieee80211_s1g_auth_max_trans_int,
      {"Maximum Transmission Interval",
       "wlan.s1g.distributed_auth_control.max_xmit_int",
-      FT_UINT24, BASE_DEC|BASE_UNIT_STRING, &units_tu_tus, 0x00FF00,
+      FT_UINT24, BASE_DEC|BASE_UNIT_STRING, UNS(&units_tu_tus), 0x00FF00,
       NULL, HFILL }},
 
     {&hf_ieee80211_s1g_auth_min_trans_int,
      {"Minimum Transmission Interval",
       "wlan.s1g.distributed_auth_control.min_xmit_int",
-      FT_UINT24, BASE_DEC|BASE_UNIT_STRING, &units_tu_tus, 0xFF0000,
+      FT_UINT24, BASE_DEC|BASE_UNIT_STRING, UNS(&units_tu_tus), 0xFF0000,
       NULL, HFILL }},
 
     {&hf_ieee80211_s1g_tsf_timer_accuracy,
      {"TSF Timer Accuracy", "wlan.s1g.tsf_timer_accuracy",
-      FT_UINT8, BASE_DEC|BASE_UNIT_STRING, &units_ppm, 0x0, NULL, HFILL }},
+      FT_UINT8, BASE_DEC|BASE_UNIT_STRING, UNS(&units_ppm), 0x0, NULL, HFILL }},
 
     {&hf_ieee80211_s1g_relay_control,
      {"Relay Control", "wlan.s1g.relay_control",
@@ -49674,7 +49674,7 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_s1g_max_away_duration,
      {"Max Away Duration", "wlan.s1g.max_away_duration",
-      FT_UINT16, BASE_DEC | BASE_UNIT_STRING, &units_tu_tus,
+      FT_UINT16, BASE_DEC | BASE_UNIT_STRING, UNS(&units_tu_tus),
       0x0, NULL, HFILL }},
 
     {&hf_ieee80211_s1g_tim_bmapctrl,
@@ -51103,17 +51103,17 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_tag_power_capability_min,
      {"Minimum Transmit Power", "wlan.powercap.min",
-      FT_INT8, BASE_DEC|BASE_UNIT_STRING, &units_dbm, 0,
+      FT_INT8, BASE_DEC|BASE_UNIT_STRING, UNS(&units_dbm), 0,
       "The nominal minimum transmit power with which the STA is capable of transmitting in the current channel", HFILL }},
 
     {&hf_ieee80211_tag_power_capability_max,
      {"Maximum Transmit Power", "wlan.powercap.max",
-      FT_INT8, BASE_DEC|BASE_UNIT_STRING, &units_dbm, 0,
+      FT_INT8, BASE_DEC|BASE_UNIT_STRING, UNS(&units_dbm), 0,
       "The nominal maximum transmit power with which the STA is capable of transmitting in the current channel", HFILL }},
 
     {&hf_ieee80211_tag_tpc_report_trsmt_pow,
      {"Transmit Power", "wlan.tpcrep.trsmt_pow",
-      FT_INT8, BASE_DEC|BASE_UNIT_STRING, &units_dbm, 0,
+      FT_INT8, BASE_DEC|BASE_UNIT_STRING, UNS(&units_dbm), 0,
       NULL, HFILL }},
 
     {&hf_ieee80211_tag_tpc_report_link_mrg,
@@ -52572,7 +52572,7 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_tag_neighbor_report_subelement_bss_dur,
      {"Duration", "wlan.nreport.subelem.bss_dur",
-      FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_minutes, 0,
+      FT_UINT16, BASE_DEC|BASE_UNIT_STRING, UNS(&units_minutes), 0,
       NULL, HFILL }},
 
     {&hf_ieee80211_tag_neighbor_report_subelement_tsf_offset,
@@ -53103,7 +53103,7 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_wfa_ie_mbo_assoc_retry_delay,
      {"Re-association Delay", "wlan.wfa.ie.mbo.assoc_retry.delay",
-      FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_seconds, 0, NULL, HFILL }},
+      FT_UINT16, BASE_DEC|BASE_UNIT_STRING, UNS(&units_seconds), 0, NULL, HFILL }},
 
     {&hf_ieee80211_wfa_ie_oce_cap_ctrl,
      {"OCE Control", "wlan.wfa.ie.oce.cap.ctrl",
@@ -53135,11 +53135,11 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_wfa_ie_oce_rssi_assoc_rej_delta,
      {"Delta RSSI", "wlan.wfa.ie.oce.rssi_assoc_rej.delta",
-      FT_UINT8, BASE_DEC|BASE_UNIT_STRING, &units_decibels, 0, NULL, HFILL }},
+      FT_UINT8, BASE_DEC|BASE_UNIT_STRING, UNS(&units_decibels), 0, NULL, HFILL }},
 
     {&hf_ieee80211_wfa_ie_oce_rssi_assoc_rej_delay,
      {"Retry Delay", "wlan.wfa.ie.oce.rssi_assoc_rej.delay",
-      FT_UINT8, BASE_DEC|BASE_UNIT_STRING, &units_seconds, 0, NULL, HFILL }},
+      FT_UINT8, BASE_DEC|BASE_UNIT_STRING, UNS(&units_seconds), 0, NULL, HFILL }},
 
     {&hf_ieee80211_wfa_ie_oce_wan_metrics_avail_cap,
      {"Available Capacity", "wlan.wfa.ie.oce.wan_metrics.avail_cap",
@@ -53222,7 +53222,7 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_rsn_ie_gtk_kde_lifetime,
      {"Key Lifetime", "wlan.rsn.ie.key_lifetime_kde.lifetime",
-      FT_UINT32, BASE_DEC|BASE_UNIT_STRING, &units_seconds, 0x0, NULL, HFILL }},
+      FT_UINT32, BASE_DEC|BASE_UNIT_STRING, UNS(&units_seconds), 0x0, NULL, HFILL }},
 
     {&hf_ieee80211_rsn_ie_error_kde_res,
      {"Reserved", "wlan.rsn.ie.error_kde.reserved",
@@ -53560,7 +53560,7 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_aironet_ie_dtpc,
      {"Aironet IE CCX DTCP", "wlan.aironet.dtpc",
-      FT_INT8, BASE_DEC|BASE_UNIT_STRING, &units_dbm, 0,
+      FT_INT8, BASE_DEC|BASE_UNIT_STRING, UNS(&units_dbm), 0,
       NULL, HFILL }},
 
     {&hf_ieee80211_aironet_ie_dtpc_unknown,
@@ -56339,7 +56339,7 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_stream_timeout,
      {"Stream Timeout", "wlan.ext_tag.mscs_descriptor.stream_timeout",
-      FT_UINT32, BASE_DEC|BASE_UNIT_STRING, &units_tu_tus, 0x0, NULL, HFILL }},
+      FT_UINT32, BASE_DEC|BASE_UNIT_STRING, UNS(&units_tu_tus), 0x0, NULL, HFILL }},
 
     {&hf_ieee80211_mscs_subelement_id,
      {"MSCS Subelement ID", "wlan.ext_tag.mscs_descriptor.subelement_id",
@@ -57672,7 +57672,7 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_he_ops_duration,
      {"OPS Duration", "wlan.ext_tag.ops.ops_duration",
-      FT_UINT8, BASE_DEC|BASE_UNIT_STRING, &units_ms, 0x0, NULL, HFILL }},
+      FT_UINT8, BASE_DEC|BASE_UNIT_STRING, UNS(&units_ms), 0x0, NULL, HFILL }},
 
     {&hf_ieee80211_he_uora_field,
      {"UL OFDMA-based Random Access Parameter SET", "wlan.ext_tag.uora_parameter_set.field",
@@ -57693,7 +57693,7 @@ proto_register_ieee80211(void)
     {&hf_ieee80211_max_channel_switch_time,
      {"Max Channel Switch Time",
       "wlan.ext_tag.max_channel_switch_time.switch_time",
-      FT_UINT24, BASE_DEC|BASE_UNIT_STRING, &units_tu_tus, 0x0, NULL, HFILL }},
+      FT_UINT24, BASE_DEC|BASE_UNIT_STRING, UNS(&units_tu_tus), 0x0, NULL, HFILL }},
 
     {&hf_ieee80211_oci_operating_class,
      {"Operating Class", "wlan.ext_tag.oci.operating_class",
@@ -58235,7 +58235,7 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_tag_pasn_comeback_after,
      {"Comeback After", "wlan.etag.pasn_parameters.comeback_after",
-      FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_tu_tus, 0x0, NULL, HFILL }},
+      FT_UINT16, BASE_DEC|BASE_UNIT_STRING, UNS(&units_tu_tus), 0x0, NULL, HFILL }},
 
     {&hf_ieee80211_tag_pasn_cookie_length,
      {"Cookie length", "wlan.etag.pasn_parameters.cookie_length",

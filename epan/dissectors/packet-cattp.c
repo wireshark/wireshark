@@ -526,7 +526,7 @@ proto_register_cattp(void)
         {
             &hf_cattp_eaklen,
             {
-                "Extended Acknowledgement Numbers", "cattp.eaks", FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_pdu, 0x0,
+                "Extended Acknowledgement Numbers", "cattp.eaks", FT_UINT16, BASE_DEC|BASE_UNIT_STRING, UNS(&units_pdu), 0x0,
                 NULL, HFILL
             }
         }

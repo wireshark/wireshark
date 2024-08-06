@@ -1802,12 +1802,12 @@ proto_register_fcswils(void)
 
         { &hf_swils_elp_r_a_tov,
           {"R_A_TOV", "swils.elp.ratov",
-           FT_UINT32, BASE_DEC|BASE_UNIT_STRING, &units_milliseconds, 0x0,
+           FT_UINT32, BASE_DEC|BASE_UNIT_STRING, UNS(&units_milliseconds), 0x0,
            NULL, HFILL}},
 
         { &hf_swils_elp_e_d_tov,
           {"E_D_TOV", "swils.elp.edtov",
-           FT_UINT32, BASE_DEC|BASE_UNIT_STRING, &units_milliseconds, 0x0,
+           FT_UINT32, BASE_DEC|BASE_UNIT_STRING, UNS(&units_milliseconds), 0x0,
            NULL, HFILL}},
 
         { &hf_swils_elp_req_epn,
@@ -2432,7 +2432,7 @@ proto_register_fcswils(void)
       /* Generated from convert_proto_tree_add_text.pl */
       { &hf_swils_requested_domain_id, { "Requested Domain ID", "swils.requested_domain_id", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_swils_granted_domain_id, { "Granted Domain ID", "swils.granted_domain_id", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_swils_lsrh_lsr_age, { "LSR Age", "swils.lsr.age", FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_seconds, 0x0, NULL, HFILL }},
+      { &hf_swils_lsrh_lsr_age, { "LSR Age", "swils.lsr.age", FT_UINT16, BASE_DEC|BASE_UNIT_STRING, UNS(&units_seconds), 0x0, NULL, HFILL }},
       { &hf_swils_lsrh_options, { "Options", "swils.lsr.options", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
       { &hf_swils_lsrh_checksum, { "Checksum", "swils.lsr.checksum", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
       { &hf_swils_lsrh_lsr_length, { "LSR Length", "swils.lsr.length", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},

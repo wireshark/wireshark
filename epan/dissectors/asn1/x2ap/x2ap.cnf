@@ -469,7 +469,7 @@ FiveGS-TAC TYPE = FT_UINT24 DISPLAY = BASE_DEC_HEX
   dissect_e212_mcc_mnc(parameter_tvb, actx->pinfo, subtree, 0, number_type, false);
 
 #.TYPE_ATTR
-BitRate DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_bit_sec
+BitRate DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_bit_sec)
 
 #.FN_BODY GUMMEI
   struct x2ap_private_data *x2ap_data = x2ap_get_private_data(actx->pinfo);
@@ -526,7 +526,7 @@ MME-Group-ID TYPE = FT_UINT16 DISPLAY = BASE_DEC_HEX
   }
 
 #.TYPE_ATTR
-Time-UE-StayedInCell DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_seconds
+Time-UE-StayedInCell DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_seconds)
 
 #.TYPE_ATTR
 Time-UE-StayedInCell-EnhancedGranularity DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(x2ap_Time_UE_StayedInCell_EnhancedGranularity_fmt)
@@ -580,10 +580,10 @@ Threshold-RSRQ DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(x2ap_Threshold_RSRQ_fmt)
   }
 
 #.TYPE_ATTR
-ExpectedActivityPeriod DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_seconds
+ExpectedActivityPeriod DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_seconds)
 
 #.TYPE_ATTR
-ExpectedIdlePeriod DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_seconds
+ExpectedIdlePeriod DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_seconds)
 
 #.TYPE_ATTR
 RSRPMeasurementResult/_item/rSRPMeasured DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(x2ap_Threshold_RSRP_fmt)
@@ -623,7 +623,7 @@ LHN-ID TYPE=FT_STRING DISPLAY = BASE_NONE
   }
 
 #.TYPE_ATTR
-ExtendedBitRate DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_bit_sec
+ExtendedBitRate DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_bit_sec)
 
 #.FN_BODY NRencryptionAlgorithms VAL_PTR = &parameter_tvb
   tvbuff_t *parameter_tvb = NULL;
@@ -674,10 +674,10 @@ ExtendedBitRate DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_bit_sec
   }
 
 #.TYPE_ATTR
-E-RABUsageReport-Item/usageCountUL DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_octet_octets
+E-RABUsageReport-Item/usageCountUL DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_octet_octets)
 
 #.TYPE_ATTR
-E-RABUsageReport-Item/usageCountDL DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_octet_octets
+E-RABUsageReport-Item/usageCountDL DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_octet_octets)
 
 #.FN_BODY ServedNRCell-Information/measurementTimingConfiguration VAL_PTR = &param_tvb
   tvbuff_t *param_tvb = NULL;
@@ -724,13 +724,13 @@ WLANName TYPE=FT_STRING DISPLAY = BASE_NONE
 #.END
 
 #.TYPE_ATTR
-Subscription-Based-UE-DifferentiationInfo/periodicTime DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_seconds
+Subscription-Based-UE-DifferentiationInfo/periodicTime DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_seconds)
 
 #.TYPE_ATTR
-ScheduledCommunicationTime/timeofDayStart DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_seconds
+ScheduledCommunicationTime/timeofDayStart DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_seconds)
 
 #.TYPE_ATTR
-ScheduledCommunicationTime/timeofDayEnd DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_seconds
+ScheduledCommunicationTime/timeofDayEnd DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_seconds)
 
 #.FN_BODY LastVisitedNGRANCellInformation VAL_PTR = &parameter_tvb
   tvbuff_t *parameter_tvb = NULL;
@@ -944,7 +944,7 @@ ScheduledCommunicationTime/timeofDayEnd DISPLAY=BASE_DEC|BASE_UNIT_STRING STRING
   }
 
 #.TYPE_ATTR
-CHO-HandoverWindowStart DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_seconds
+CHO-HandoverWindowStart DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_seconds)
 
 #.TYPE_ATTR
 CHO-HandoverWindowDuration DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(x2ap_cho_handover_window_duration_fmt)

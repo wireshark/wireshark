@@ -7638,7 +7638,7 @@ proto_register_gsm_a_dtap(void)
         },
         { &hf_gsm_a_dtap_epc_ue_tl_gh_ul_data_delay,
           { "Uplink data delay","gsm_a.dtap.epc.ue_tl_gh_ul_data_delay",
-            FT_UINT8, BASE_DEC|BASE_UNIT_STRING, &units_seconds, 0x0,
+            FT_UINT8, BASE_DEC|BASE_UNIT_STRING, UNS(&units_seconds), 0x0,
             NULL, HFILL }
         },
         { &hf_gsm_a_dtap_epc_ue_positioning_technology,
@@ -8374,7 +8374,7 @@ proto_register_gsm_a_dtap(void)
         },
         { &hf_gsm_a_dtap_uplink_rlc_sdu_size,
           { "Uplink RLC SDU size", "gsm_a_dtap.uplink_rlc_sdu_size",
-          FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_bit_bits, 0x0,
+          FT_UINT16, BASE_DEC|BASE_UNIT_STRING, UNS(&units_bit_bits), 0x0,
           NULL, HFILL }
         },
         { &hf_gsm_a_dtap_radio_bearer,

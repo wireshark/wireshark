@@ -898,7 +898,7 @@ proto_register_nordic_ble(void)
         },
         { &hf_nordic_ble_rssi,
             { "RSSI", "nordic_ble.rssi",
-                FT_INT8, BASE_DEC | BASE_UNIT_STRING, &units_dbm, 0x0,
+                FT_INT8, BASE_DEC | BASE_UNIT_STRING, UNS(&units_dbm), 0x0,
                 "Received Signal Strength Indicator", HFILL }
         },
         { &hf_nordic_ble_event_counter,
@@ -908,22 +908,22 @@ proto_register_nordic_ble(void)
         },
         { &hf_nordic_ble_time,
             { "Timestamp", "nordic_ble.time",
-                FT_UINT32, BASE_DEC | BASE_UNIT_STRING, &units_microseconds, 0x0,
+                FT_UINT32, BASE_DEC | BASE_UNIT_STRING, UNS(&units_microseconds), 0x0,
                 "Firmware timestamp", HFILL }
         },
         { &hf_nordic_ble_delta_time,
             { "Delta time (end to start)", "nordic_ble.delta_time",
-                FT_UINT32, BASE_DEC | BASE_UNIT_STRING, &units_microseconds, 0x0,
+                FT_UINT32, BASE_DEC | BASE_UNIT_STRING, UNS(&units_microseconds), 0x0,
                 "Time since end of last reported packet", HFILL }
         },
         { &hf_nordic_ble_delta_time_ss,
             { "Delta time (start to start)", "nordic_ble.delta_time_ss",
-                FT_UINT32, BASE_DEC | BASE_UNIT_STRING, &units_microseconds, 0x0,
+                FT_UINT32, BASE_DEC | BASE_UNIT_STRING, UNS(&units_microseconds), 0x0,
                 "Time since start of last reported packet", HFILL }
         },
         { &hf_nordic_ble_packet_time,
             { "Packet time (start to end)", "nordic_ble.packet_time",
-                FT_UINT32, BASE_DEC | BASE_UNIT_STRING, &units_microseconds, 0x0,
+                FT_UINT32, BASE_DEC | BASE_UNIT_STRING, UNS(&units_microseconds), 0x0,
                 "Time of packet", HFILL }
         },
     };

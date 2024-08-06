@@ -2371,7 +2371,7 @@ proto_register_cipmotion(void)
       },
       { &hf_cip_devc_time_stamp,
         { "Device Time Stamp", "cipm.devctimestamp",
-          FT_UINT64, BASE_DEC|BASE_UNIT_STRING, &units_nanosecond_nanoseconds, 0,
+          FT_UINT64, BASE_DEC|BASE_UNIT_STRING, UNS(&units_nanosecond_nanoseconds), 0,
           "Time Data Set: Device Time Stamp", HFILL}
       },
       { &hf_cip_devc_time_offset,
@@ -2728,7 +2728,7 @@ proto_register_cipmotion(void)
       },
       { &hf_cip_event_ts,
         { "Event Time Stamp", "cipm.evntimestamp",
-          FT_UINT64, BASE_DEC|BASE_UNIT_STRING, &units_nanosecond_nanoseconds, 0,
+          FT_UINT64, BASE_DEC|BASE_UNIT_STRING, UNS(&units_nanosecond_nanoseconds), 0,
           "Event Channel: Time Stamp", HFILL}
       },
 
@@ -3055,32 +3055,32 @@ proto_register_cipmotion(void)
       },
       { &hf_var_devce_instance_block_size,
         { "Instance Block Size", "cipm.var_devce.header.instance_block_size",
-          FT_UINT8, BASE_DEC|BASE_UNIT_STRING, &units_word_words, 0,
+          FT_UINT8, BASE_DEC|BASE_UNIT_STRING, UNS(&units_word_words), 0,
           "Variable Device Header: Instance Block Size", HFILL}
       },
       { &hf_var_devce_cyclic_block_size,
         { "Cyclic Block Size", "cipm.var_devce.header.cyclic_block_size",
-          FT_UINT8, BASE_DEC|BASE_UNIT_STRING, &units_word_words, 0,
+          FT_UINT8, BASE_DEC|BASE_UNIT_STRING, UNS(&units_word_words), 0,
           "Variable Device Header: Cyclic Block Size", HFILL}
       },
       { &hf_var_devce_cyclic_data_block_size,
         { "Cyclic Data Block Size", "cipm.var_devce.header.cyclic_data_block_size",
-          FT_UINT8, BASE_DEC|BASE_UNIT_STRING, &units_word_words, 0,
+          FT_UINT8, BASE_DEC|BASE_UNIT_STRING, UNS(&units_word_words), 0,
           "Variable Device Header: Cyclic Data Block Size", HFILL}
       },
       { &hf_var_devce_cyclic_rw_block_size,
         { "Cyclic Read/Write Block Size", "cipm.var_devce.header.cyclic_rw_block_size",
-          FT_UINT8, BASE_DEC|BASE_UNIT_STRING, &units_word_words, 0,
+          FT_UINT8, BASE_DEC|BASE_UNIT_STRING, UNS(&units_word_words), 0,
           "Variable Device Header: Cyclic Read/Write Block Size", HFILL}
       },
       { &hf_var_devce_event_block_size,
         { "Event Block Size", "cipm.var_devce.header.event_block_size",
-          FT_UINT8, BASE_DEC|BASE_UNIT_STRING, &units_word_words, 0,
+          FT_UINT8, BASE_DEC|BASE_UNIT_STRING, UNS(&units_word_words), 0,
           "Variable Device Header: Event Block Size", HFILL}
       },
       { &hf_var_devce_service_block_size,
         { "Service Block Size", "cipm.var_devce.header.service_block_size",
-          FT_UINT8, BASE_DEC|BASE_UNIT_STRING, &units_word_words, 0,
+          FT_UINT8, BASE_DEC|BASE_UNIT_STRING, UNS(&units_word_words), 0,
           "Variable Device Header: Service Block Size", HFILL}
       },
 

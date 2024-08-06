@@ -4707,12 +4707,12 @@ proto_register_gsm_a_common(void)
     },
     { &hf_gsm_a_horizontal_speed,
         { "Horizontal Speed", "gsm_a.gad.horizontal_velocity",
-        FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_kmh, 0x0,
+        FT_UINT16, BASE_DEC|BASE_UNIT_STRING, UNS(&units_kmh), 0x0,
         NULL, HFILL }
     },
     { &hf_gsm_a_vertical_speed,
         { "Vertical Speed", "gsm_a.gad.vertical_speed",
-        FT_UINT8, BASE_DEC|BASE_UNIT_STRING, &units_kmh, 0x0,
+        FT_UINT8, BASE_DEC|BASE_UNIT_STRING, UNS(&units_kmh), 0x0,
         NULL, HFILL }
     },
     { &hf_gsm_a_uncertainty_speed,

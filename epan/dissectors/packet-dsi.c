@@ -382,7 +382,7 @@ proto_register_dsi(void)
 
 		{ &hf_dsi_length,
 		  { "Length",           "dsi.length",
-		    FT_UINT32, BASE_DEC|BASE_UNIT_STRING, &units_byte_bytes, 0x0,
+		    FT_UINT32, BASE_DEC|BASE_UNIT_STRING, UNS(&units_byte_bytes), 0x0,
 		    "Total length of the data that follows the DSI header.", HFILL }},
 
 		{ &hf_dsi_reserved,

@@ -2049,7 +2049,7 @@ proto_register_do_irp(void)
         },
         { &hf_do_irp_timeout,
             { "Timeout", "do-irp.timeout",
-            FT_UINT32, BASE_DEC | BASE_UNIT_STRING, &units_seconds, 0x0, NULL, HFILL }
+            FT_UINT32, BASE_DEC | BASE_UNIT_STRING, UNS(&units_seconds), 0x0, NULL, HFILL }
         },
 
         /* Message Credential */

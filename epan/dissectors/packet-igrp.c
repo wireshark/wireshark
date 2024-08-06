@@ -211,7 +211,7 @@ void proto_register_igrp(void)
     { &hf_igrp_network, { "Network", "igrp.network", FT_IPv4, BASE_NONE, NULL, 0x0, NULL, HFILL }},
     { &hf_igrp_delay, { "Delay", "igrp.delay", FT_UINT24, BASE_DEC, NULL, 0x0, NULL, HFILL }},
     { &hf_igrp_bandwidth, { "Bandwidth", "igrp.bandwidth", FT_UINT24, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-    { &hf_igrp_mtu, { "MTU", "igrp.mtu", FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_byte_bytes, 0x0, NULL, HFILL }},
+    { &hf_igrp_mtu, { "MTU", "igrp.mtu", FT_UINT16, BASE_DEC|BASE_UNIT_STRING, UNS(&units_byte_bytes), 0x0, NULL, HFILL }},
     { &hf_igrp_reliability, { "Reliability", "igrp.reliability", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
     { &hf_igrp_load, { "Load", "igrp.load", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
     { &hf_igrp_hop_count, { "Hop count", "igrp.hop_count", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},

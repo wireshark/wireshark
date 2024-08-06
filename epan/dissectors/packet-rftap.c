@@ -473,17 +473,17 @@ proto_register_rftap(void)
         { &hf_rftap_freq, {
             "Frequency",
             "rftap.freq",
-            FT_DOUBLE, BASE_NONE|BASE_UNIT_STRING, &units_hz, 0,
+            FT_DOUBLE, BASE_NONE|BASE_UNIT_STRING, UNS(&units_hz), 0,
             "Actual (measured) carrier frequency, in Hertz (not necessarily center frequency)", HFILL }},
         { &hf_rftap_nomfreq, {
             "Nominal Frequency",
             "rftap.nomfreq",
-            FT_DOUBLE, BASE_NONE|BASE_UNIT_STRING, &units_hz, 0,
+            FT_DOUBLE, BASE_NONE|BASE_UNIT_STRING, UNS(&units_hz), 0,
             "Nominal carrier frequency, in Hertz (the ideal frequency, ignoring freq errors)", HFILL }},
         { &hf_rftap_freqofs, {
             "Frequency Offset",
             "rftap.freqofs",
-            FT_DOUBLE, BASE_NONE|BASE_UNIT_STRING, &units_hz, 0,
+            FT_DOUBLE, BASE_NONE|BASE_UNIT_STRING, UNS(&units_hz), 0,
             "Carrier frequency offset, in Hertz: wikipedia.org/wiki/Carrier_frequency_offset", HFILL }},
         { &hf_rftap_signal_power, {
             "Signal Power",
@@ -523,22 +523,22 @@ proto_register_rftap(void)
         { &hf_rftap_duration, {
             "Duration",
             "rftap.duration",
-            FT_DOUBLE, BASE_NONE|BASE_UNIT_STRING, &units_second_seconds, 0,
+            FT_DOUBLE, BASE_NONE|BASE_UNIT_STRING, UNS(&units_second_seconds), 0,
             "The duration of the event (packet), in seconds", HFILL }},
         { &hf_rftap_latitude, {
             "Latitude",
             "rftap.lat",
-            FT_DOUBLE, BASE_NONE|BASE_UNIT_STRING, &units_degree_degrees, 0,
+            FT_DOUBLE, BASE_NONE|BASE_UNIT_STRING, UNS(&units_degree_degrees), 0,
             "Latitude of receiver (-90..90 degrees), using WGS 84 datum: wikipedia.org/wiki/World_Geodetic_System", HFILL }},
         { &hf_rftap_longitude, {
             "Longitude",
             "rftap.lon",
-            FT_DOUBLE, BASE_NONE|BASE_UNIT_STRING, &units_degree_degrees, 0,
+            FT_DOUBLE, BASE_NONE|BASE_UNIT_STRING, UNS(&units_degree_degrees), 0,
             "Longitude of receiver (-180..180 degrees), using WGS 84 datum: wikipedia.org/wiki/World_Geodetic_System", HFILL }},
         { &hf_rftap_altitude, {
             "Altitude",
             "rftap.alt",
-            FT_DOUBLE, BASE_NONE|BASE_UNIT_STRING, &units_meter_meters, 0,
+            FT_DOUBLE, BASE_NONE|BASE_UNIT_STRING, UNS(&units_meter_meters), 0,
             "Altitude of receiver, in meters, using WGS 84 datum: wikipedia.org/wiki/World_Geodetic_System", HFILL }},
 
         /* rftap tagged parameters */

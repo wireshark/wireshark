@@ -646,7 +646,7 @@ proto_register_alp(void)
         } },
         { &hf_alp_header_extension_length, {
             "Header Extension Length", "alp.he.length",
-            FT_UINT8, BASE_DEC|BASE_UNIT_STRING, &units_byte_bytes, 0, NULL, HFILL
+            FT_UINT8, BASE_DEC|BASE_UNIT_STRING, UNS(&units_byte_bytes), 0, NULL, HFILL
         } },
 
         { &hf_alp_header_extension_sony_l1d_timeinfo, {

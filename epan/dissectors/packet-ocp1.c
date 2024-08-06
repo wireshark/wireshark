@@ -2839,13 +2839,13 @@ proto_register_ocp1(void)
         { &hf_ocp1_heartbeat_time_s,
             { "Heartbeat Time", "ocp1.heartbeat.time",
             FT_UINT16, BASE_DEC | BASE_UNIT_STRING,
-            &units_seconds, 0x0,
+            UNS(&units_seconds), 0x0,
             NULL, HFILL }
         },
         { &hf_ocp1_heartbeat_time_ms,
             { "Heartbeat Time", "ocp1.heartbeat.time",
             FT_UINT32, BASE_DEC | BASE_UNIT_STRING,
-            &units_milliseconds, 0x0,
+            UNS(&units_milliseconds), 0x0,
             NULL, HFILL }
         },
 

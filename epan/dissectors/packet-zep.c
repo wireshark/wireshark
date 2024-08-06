@@ -283,7 +283,7 @@ void proto_register_zep(void)
             NULL, HFILL }},
 
         { &hf_zep_ieee_length,
-        { "Length",              "zep.length", FT_UINT8, BASE_DEC|BASE_UNIT_STRING, &units_byte_bytes, ZEP_LENGTH_MASK,
+        { "Length",              "zep.length", FT_UINT8, BASE_DEC|BASE_UNIT_STRING, UNS(&units_byte_bytes), ZEP_LENGTH_MASK,
             "The length (in bytes) of the encapsulated IEEE 802.15.4 MAC frame.", HFILL }},
 
         { &hf_zep_protocol_id,

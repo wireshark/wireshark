@@ -7773,7 +7773,7 @@ proto_register_bthci_cmd(void)
         },
         { &hf_command_response_time_delta,
             { "Command-Response Delta",          "bthci_cmd.command_response_delta",
-            FT_DOUBLE, BASE_NONE|BASE_UNIT_STRING, &units_milliseconds, 0x00,
+            FT_DOUBLE, BASE_NONE|BASE_UNIT_STRING, UNS(&units_milliseconds), 0x00,
             NULL, HFILL }
         },
         { &hf_pending_in_frame,
@@ -7783,7 +7783,7 @@ proto_register_bthci_cmd(void)
         },
         { &hf_command_pending_time_delta,
             { "Command-Pending Delta",          "bthci_cmd.command_pending_delta",
-            FT_DOUBLE, BASE_NONE|BASE_UNIT_STRING, &units_milliseconds, 0x00,
+            FT_DOUBLE, BASE_NONE|BASE_UNIT_STRING, UNS(&units_milliseconds), 0x00,
             NULL, HFILL }
         },
         { &hf_bthci_cmd_le_tx_octets,
@@ -7793,7 +7793,7 @@ proto_register_bthci_cmd(void)
         },
         { &hf_bthci_cmd_le_tx_time,
           { "TxTime", "bthci_cmd.le_tx_time",
-            FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_microseconds, 0x0,
+            FT_UINT16, BASE_DEC|BASE_UNIT_STRING, UNS(&units_microseconds), 0x0,
             NULL, HFILL }
         },
         { &hf_bthci_cmd_le_suggested_max_tx_octets,
@@ -7803,7 +7803,7 @@ proto_register_bthci_cmd(void)
         },
         { &hf_bthci_cmd_le_suggested_max_tx_time,
           { "SuggestedMaxTxTime", "bthci_cmd.le_suggested_max_tx_time",
-            FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_microseconds, 0x0,
+            FT_UINT16, BASE_DEC|BASE_UNIT_STRING, UNS(&units_microseconds), 0x0,
             NULL, HFILL }
         },
         { &hf_bthci_cmd_le_remote_p_256_public_key,
@@ -7828,7 +7828,7 @@ proto_register_bthci_cmd(void)
         },
         { &hf_bthci_cmd_le_rpa_timeout,
           { "RPA Timeout", "bthci_cmd.le_rpa_timeout",
-            FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_second_seconds, 0x0,
+            FT_UINT16, BASE_DEC|BASE_UNIT_STRING, UNS(&units_second_seconds), 0x0,
             NULL, HFILL }
         },
         { &hf_bthci_cmd_advertising_handle,
@@ -8268,17 +8268,17 @@ proto_register_bthci_cmd(void)
         },
         { &hf_bthci_cmd_sdu_interval_c_to_p,
           { "SDU Interval Central to Peripheral",   "bthci_cmd.sdu_interval_c_to_p",
-            FT_UINT24, BASE_DEC|BASE_UNIT_STRING, &units_microseconds, 0x0,
+            FT_UINT24, BASE_DEC|BASE_UNIT_STRING, UNS(&units_microseconds), 0x0,
             NULL, HFILL }
         },
         { &hf_bthci_cmd_sdu_interval_p_to_c,
           { "SDU Interval Peripheral to Central",   "bthci_cmd.sdu_interval_p_to_c",
-            FT_UINT24, BASE_DEC|BASE_UNIT_STRING, &units_microseconds, 0x0,
+            FT_UINT24, BASE_DEC|BASE_UNIT_STRING, UNS(&units_microseconds), 0x0,
             NULL, HFILL }
         },
         { &hf_bthci_cmd_sdu_interval,
           { "SDU Interval",   "bthci_cmd.sdu_interval",
-            FT_UINT24, BASE_DEC|BASE_UNIT_STRING, &units_microseconds, 0x0,
+            FT_UINT24, BASE_DEC|BASE_UNIT_STRING, UNS(&units_microseconds), 0x0,
             NULL, HFILL }
         },
         { &hf_bthci_cmd_peripherals_clock_accuracy,
@@ -8333,32 +8333,32 @@ proto_register_bthci_cmd(void)
         },
         { &hf_bthci_cmd_max_sdu_c_to_p,
           { "Max SDU Central to Peripheral", "bthci_cmd.max_sdu_c_to_p",
-            FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_octet_octets, 0x0,
+            FT_UINT16, BASE_DEC|BASE_UNIT_STRING, UNS(&units_octet_octets), 0x0,
             NULL, HFILL }
         },
         { &hf_bthci_cmd_max_sdu_p_to_c,
           { "Max SDU Peripheral to Central", "bthci_cmd.max_sdu_p_to_c",
-            FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_octet_octets, 0x0,
+            FT_UINT16, BASE_DEC|BASE_UNIT_STRING, UNS(&units_octet_octets), 0x0,
             NULL, HFILL }
         },
         { &hf_bthci_cmd_max_sdu,
           { "Max SDU", "bthci_cmd.max_sdu",
-            FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_octet_octets, 0x0,
+            FT_UINT16, BASE_DEC|BASE_UNIT_STRING, UNS(&units_octet_octets), 0x0,
             NULL, HFILL }
         },
         { &hf_bthci_cmd_max_pdu_c_to_p,
           { "Max PDU Central to Peripheral", "bthci_cmd.max_pdu_c_to_p",
-            FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_octet_octets, 0x0,
+            FT_UINT16, BASE_DEC|BASE_UNIT_STRING, UNS(&units_octet_octets), 0x0,
             NULL, HFILL }
         },
         { &hf_bthci_cmd_max_pdu_p_to_c,
           { "Max PDU Peripheral to Central", "bthci_cmd.max_pdu_p_to_c",
-            FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_octet_octets, 0x0,
+            FT_UINT16, BASE_DEC|BASE_UNIT_STRING, UNS(&units_octet_octets), 0x0,
             NULL, HFILL }
         },
         { &hf_bthci_cmd_max_pdu,
           { "Max PDU", "bthci_cmd.max_pdu",
-            FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_octet_octets, 0x0,
+            FT_UINT16, BASE_DEC|BASE_UNIT_STRING, UNS(&units_octet_octets), 0x0,
             NULL, HFILL }
         },
         { &hf_bthci_cmd_phy_c_to_p,
@@ -8388,17 +8388,17 @@ proto_register_bthci_cmd(void)
         },
         { &hf_bthci_cmd_max_transport_latency_c_to_p,
           { "Max Transport Latency Central to Peripheral", "bthci_cmd.max_transport_latency_c_to_p",
-            FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_milliseconds, 0x0,
+            FT_UINT16, BASE_DEC|BASE_UNIT_STRING, UNS(&units_milliseconds), 0x0,
             NULL, HFILL }
         },
         { &hf_bthci_cmd_max_transport_latency_p_to_c,
           { "Max Transport Latency Peripheral to Central", "bthci_cmd.max_transport_latency_p_to_c",
-            FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_milliseconds, 0x0,
+            FT_UINT16, BASE_DEC|BASE_UNIT_STRING, UNS(&units_milliseconds), 0x0,
             NULL, HFILL }
         },
         { &hf_bthci_cmd_max_transport_latency,
           { "Max Transport Latency", "bthci_cmd.max_transport_latency",
-            FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_milliseconds, 0x0,
+            FT_UINT16, BASE_DEC|BASE_UNIT_STRING, UNS(&units_milliseconds), 0x0,
             NULL, HFILL }
         },
         { &hf_bthci_cmd_rtn_c_to_p,
@@ -8488,7 +8488,7 @@ proto_register_bthci_cmd(void)
         },
         { &hf_bthci_cmd_controller_delay,
           { "Controller Delay", "bthci_cmd.controller_delay",
-            FT_UINT24, BASE_DEC|BASE_UNIT_STRING, &units_microseconds, 0x0,
+            FT_UINT24, BASE_DEC|BASE_UNIT_STRING, UNS(&units_microseconds), 0x0,
             NULL, HFILL }
         },
         { &hf_bthci_cmd_codec_config_length,
@@ -8523,22 +8523,22 @@ proto_register_bthci_cmd(void)
         },
         { &hf_bthci_cmd_high_threshold,
           { "High Threshold", "bthci_cmd.high_threshold",
-            FT_UINT8, BASE_DEC|BASE_UNIT_STRING, &units_decibels, 0x0,
+            FT_UINT8, BASE_DEC|BASE_UNIT_STRING, UNS(&units_decibels), 0x0,
             NULL, HFILL }
         },
         { &hf_bthci_cmd_high_hysteresis,
           { "High Hysteresis", "bthci_cmd.high_hysteresis",
-            FT_UINT8, BASE_DEC|BASE_UNIT_STRING, &units_decibels, 0x0,
+            FT_UINT8, BASE_DEC|BASE_UNIT_STRING, UNS(&units_decibels), 0x0,
             NULL, HFILL }
         },
         { &hf_bthci_cmd_low_threshold,
           { "Low Threshold", "bthci_cmd.low_threshold",
-            FT_UINT8, BASE_DEC|BASE_UNIT_STRING, &units_decibels, 0x0,
+            FT_UINT8, BASE_DEC|BASE_UNIT_STRING, UNS(&units_decibels), 0x0,
             NULL, HFILL }
         },
         { &hf_bthci_cmd_low_hysteresis,
           { "Low Hysteresis", "bthci_cmd.low_hysteresis",
-            FT_UINT8, BASE_DEC|BASE_UNIT_STRING, &units_decibels, 0x0,
+            FT_UINT8, BASE_DEC|BASE_UNIT_STRING, UNS(&units_decibels), 0x0,
             NULL, HFILL }
         },
         { &hf_bthci_cmd_min_time_spent,
@@ -9152,7 +9152,7 @@ proto_register_bthci_cmd(void)
         },
         { &hf_bthci_cmd_min_encryption_key_size,
           { "Minimum Encryption Key Size", "bthci_cmd.min_encryption_key_size",
-            FT_UINT8, BASE_DEC|BASE_UNIT_STRING, &units_octet_octets, 0x0,
+            FT_UINT8, BASE_DEC|BASE_UNIT_STRING, UNS(&units_octet_octets), 0x0,
             NULL, HFILL }
         }
     };
@@ -10704,7 +10704,7 @@ proto_register_btcommon(void)
         },
         { &hf_btcommon_eir_ad_biginfo_sub_interval,
           { "Sub_Interval", "btcommon.eir_ad.entry.biginfo.sub_interval",
-            FT_UINT32, BASE_DEC|BASE_UNIT_STRING, &units_microsecond_microseconds, 0x0fffff00,
+            FT_UINT32, BASE_DEC|BASE_UNIT_STRING, UNS(&units_microsecond_microseconds), 0x0fffff00,
             NULL, HFILL}
         },
         { &hf_btcommon_eir_ad_biginfo_pto,
@@ -10714,7 +10714,7 @@ proto_register_btcommon(void)
         },
         { &hf_btcommon_eir_ad_biginfo_bis_spacing,
           { "BIS_Spacing", "btcommon.eir_ad.entry.biginfo.bis_spacing",
-            FT_UINT24, BASE_DEC|BASE_UNIT_STRING, &units_microsecond_microseconds, 0x0fffff,
+            FT_UINT24, BASE_DEC|BASE_UNIT_STRING, UNS(&units_microsecond_microseconds), 0x0fffff,
             NULL, HFILL}
         },
         { &hf_btcommon_eir_ad_biginfo_irc,

@@ -1584,19 +1584,19 @@ void proto_register_awdl(void)
     },
     { &hf_awdl_phytime,
       { "PHY Tx Time", "awdl.phytime",
-        FT_UINT32, BASE_DEC | BASE_UNIT_STRING, &units_microseconds, 0x0,
+        FT_UINT32, BASE_DEC | BASE_UNIT_STRING, UNS(&units_microseconds), 0x0,
         "Time shortly before the frame was sent out by the radio", HFILL
       }
     },
     { &hf_awdl_targettime,
       { "Target Tx Time", "awdl.targettime",
-        FT_UINT32, BASE_DEC | BASE_UNIT_STRING, &units_microseconds, 0x0,
+        FT_UINT32, BASE_DEC | BASE_UNIT_STRING, UNS(&units_microseconds), 0x0,
         "Time when the frame was created.", HFILL
       }
     },
     { &hf_awdl_txdelay,
       { "Tx Delay", "awdl.txdelay",
-        FT_UINT32, BASE_DEC | BASE_UNIT_STRING, &units_microseconds, 0x0,
+        FT_UINT32, BASE_DEC | BASE_UNIT_STRING, UNS(&units_microseconds), 0x0,
         "Difference between the PHY and target time stamps", HFILL
       }
     },
@@ -1974,7 +1974,7 @@ void proto_register_awdl(void)
     },
     { &hf_awdl_syncparams_tx_counter,
       { "Tx Counter", "awdl.syncparams.txcounter",
-        FT_UINT16, BASE_DEC | BASE_UNIT_STRING, &units_ieee80211_tu, 0x0,
+        FT_UINT16, BASE_DEC | BASE_UNIT_STRING, UNS(&units_ieee80211_tu), 0x0,
         "Time until next AW starts", HFILL
       }
     },
@@ -1990,12 +1990,12 @@ void proto_register_awdl(void)
     },
     { &hf_awdl_syncparams_aw_period,
       { "Availability Window Period", "awdl.syncparams.awperiod",
-        FT_UINT16, BASE_DEC | BASE_UNIT_STRING, &units_ieee80211_tu, 0x0, NULL, HFILL
+        FT_UINT16, BASE_DEC | BASE_UNIT_STRING, UNS(&units_ieee80211_tu), 0x0, NULL, HFILL
       }
     },
     { &hf_awdl_syncparams_action_frame_period,
       { "Action Frame Period", "awdl.syncparams.afperiod",
-        FT_UINT16, BASE_DEC | BASE_UNIT_STRING, &units_ieee80211_tu, 0x0, NULL, HFILL
+        FT_UINT16, BASE_DEC | BASE_UNIT_STRING, UNS(&units_ieee80211_tu), 0x0, NULL, HFILL
       }
     },
     { &hf_awdl_syncparams_awdl_flags,
@@ -2005,17 +2005,17 @@ void proto_register_awdl(void)
     },
     { &hf_awdl_syncparams_aw_ext_length,
       { "Availability Window Extension Length", "awdl.syncparams.aw.ext_len",
-        FT_UINT16, BASE_DEC | BASE_UNIT_STRING, &units_ieee80211_tu, 0x0, NULL, HFILL
+        FT_UINT16, BASE_DEC | BASE_UNIT_STRING, UNS(&units_ieee80211_tu), 0x0, NULL, HFILL
       }
     },
     { &hf_awdl_syncparams_aw_cmn_length,
       { "Availability Window Common Length", "awdl.syncparams.aw.common_len",
-        FT_UINT16, BASE_DEC | BASE_UNIT_STRING, &units_ieee80211_tu, 0x0, NULL, HFILL
+        FT_UINT16, BASE_DEC | BASE_UNIT_STRING, UNS(&units_ieee80211_tu), 0x0, NULL, HFILL
       }
     },
     { &hf_awdl_syncparams_aw_remaining,
       { "Remaining Availability Window Length", "awdl.syncparams.aw.remaining",
-        FT_INT16, BASE_DEC | BASE_UNIT_STRING, &units_ieee80211_tu, 0x0, NULL, HFILL
+        FT_INT16, BASE_DEC | BASE_UNIT_STRING, UNS(&units_ieee80211_tu), 0x0, NULL, HFILL
       }
     },
     { &hf_awdl_syncparams_ext_min,

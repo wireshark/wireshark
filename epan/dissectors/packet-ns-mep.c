@@ -753,7 +753,7 @@ proto_register_ns_mep(void)
 			{ "Network Metrics", "nstrace.mep.mfu.networkMetrics", FT_NONE, BASE_NONE, NULL, 0x0,
 			NULL, HFILL } },
 		{ &hf_ns_roundTripTime,
-			{ "Round Trip Time", "nstrace.mep.mfu.roundTripTime", FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_milliseconds, 0x0,
+			{ "Round Trip Time", "nstrace.mep.mfu.roundTripTime", FT_UINT16, BASE_DEC|BASE_UNIT_STRING, UNS(&units_milliseconds), 0x0,
 			NULL, HFILL } },
 		{ &hf_ns_hops,
 			{ "Hops", "nstrace.mep.mfu.hops", FT_UINT8, BASE_DEC, NULL, 0x0,

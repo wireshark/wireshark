@@ -2365,46 +2365,46 @@ PortNumber TYPE = FT_UINT16 DISPLAY = BASE_DEC
   }
 
 #.TYPE_ATTR
-ChannelOccupancyTimePercentage DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_percent
+ChannelOccupancyTimePercentage DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_percent)
 
 #.TYPE_ATTR
-EnergyDetectionThreshold DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_dbm
+EnergyDetectionThreshold DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_dbm)
 
 #.TYPE_ATTR
-MIMOPRBusageInformation/dl-GBR-PRB-usage-for-MIMO DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_percent
+MIMOPRBusageInformation/dl-GBR-PRB-usage-for-MIMO DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_percent)
 
 #.TYPE_ATTR
-MIMOPRBusageInformation/ul-GBR-PRB-usage-for-MIMO DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_percent
+MIMOPRBusageInformation/ul-GBR-PRB-usage-for-MIMO DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_percent)
 
 #.TYPE_ATTR
-MIMOPRBusageInformation/dl-non-GBR-PRB-usage-for-MIMO DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_percent
+MIMOPRBusageInformation/dl-non-GBR-PRB-usage-for-MIMO DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_percent)
 
 #.TYPE_ATTR
-MIMOPRBusageInformation/ul-non-GBR-PRB-usage-for-MIMO DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_percent
+MIMOPRBusageInformation/ul-non-GBR-PRB-usage-for-MIMO DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_percent)
 
 #.TYPE_ATTR
-MIMOPRBusageInformation/dl-Total-PRB-usage-for-MIMO DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_percent
+MIMOPRBusageInformation/dl-Total-PRB-usage-for-MIMO DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_percent)
 
 #.TYPE_ATTR
-MIMOPRBusageInformation/ul-Total-PRB-usage-for-MIMO DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_percent
+MIMOPRBusageInformation/ul-Total-PRB-usage-for-MIMO DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_percent)
 
 #.TYPE_ATTR
-SNSSAIRadioResourceStatus-Item/sNSSAIdlGBRPRBusage DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_percent
+SNSSAIRadioResourceStatus-Item/sNSSAIdlGBRPRBusage DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_percent)
 
 #.TYPE_ATTR
-SNSSAIRadioResourceStatus-Item/sNSSAIulGBRPRBusage DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_percent
+SNSSAIRadioResourceStatus-Item/sNSSAIulGBRPRBusage DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_percent)
 
 #.TYPE_ATTR
-SNSSAIRadioResourceStatus-Item/sNSSAIdlNonGBRPRBusage DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_percent
+SNSSAIRadioResourceStatus-Item/sNSSAIdlNonGBRPRBusage DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_percent)
 
 #.TYPE_ATTR
-SNSSAIRadioResourceStatus-Item/sNSSAIulNonGBRPRBusage DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_percent
+SNSSAIRadioResourceStatus-Item/sNSSAIulNonGBRPRBusage DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_percent)
 
 #.TYPE_ATTR
-SNSSAIRadioResourceStatus-Item/sNSSAIdlTotalPRBallocation DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_percent
+SNSSAIRadioResourceStatus-Item/sNSSAIdlTotalPRBallocation DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_percent)
 
 #.TYPE_ATTR
-SNSSAIRadioResourceStatus-Item/sNSSAIulTotalPRBallocation DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_percent
+SNSSAIRadioResourceStatus-Item/sNSSAIulTotalPRBallocation DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_percent)
 
 #.FN_BODY CG-Config VAL_PTR = &param_tvb
   tvbuff_t *param_tvb = NULL;
@@ -2624,10 +2624,10 @@ MaxPacketLossRate DISPLAY = BASE_CUSTOM STRINGS = CF_FUNC(f1ap_MaxPacketLossRate
 PacketDelayBudget DISPLAY = BASE_CUSTOM STRINGS = CF_FUNC(f1ap_PacketDelayBudget_fmt)
 
 #.TYPE_ATTR
-AveragingWindow DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_milliseconds
+AveragingWindow DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_milliseconds)
 
 #.TYPE_ATTR
-MaximumDataBurstVolume DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_byte_bytes
+MaximumDataBurstVolume DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_byte_bytes)
 
 #.FN_BODY ProtectedEUTRAResourceIndication VAL_PTR = &param_tvb
   tvbuff_t *param_tvb = NULL;
@@ -2685,7 +2685,7 @@ MaximumDataBurstVolume DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_byte_byt
   }
 
 #.TYPE_ATTR
-UACReductionIndication DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_percent
+UACReductionIndication DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_percent)
 
 #.FN_BODY DRX-Config VAL_PTR = &param_tvb
   tvbuff_t *param_tvb = NULL;
@@ -2880,7 +2880,7 @@ ExtendedPacketDelayBudget DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(f1ap_ExtendedPacke
   }
 
 #.TYPE_ATTR
-M7period DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_minutes
+M7period DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_minutes)
 
 #.FN_BODY MeasurementsToActivate VAL_PTR=&param_tvb
   tvbuff_t *param_tvb = NULL;
@@ -2909,10 +2909,10 @@ M7period DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_minutes
   }
 
 #.TYPE_ATTR
-RepetitionPeriod DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_seconds
+RepetitionPeriod DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_seconds)
 
 #.TYPE_ATTR
-Periodicity DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_microseconds
+Periodicity DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_microseconds)
 
 #.FN_BODY RACH-Config-Common VAL_PTR = &param_tvb
   tvbuff_t *param_tvb = NULL;
@@ -3238,7 +3238,7 @@ Periodicity DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_microseconds
   }
 
 #.TYPE_ATTR
-StartTimeAndDuration/duration DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_seconds
+StartTimeAndDuration/duration DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_seconds)
 
 #.FN_BODY SuccessfulHOReportInformation-Item/successfulHOReportContainer VAL_PTR = &param_tvb
   tvbuff_t *param_tvb = NULL;
@@ -3249,7 +3249,7 @@ StartTimeAndDuration/duration DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_s
   }
 
 #.TYPE_ATTR
-SurvivalTime DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_microseconds
+SurvivalTime DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_microseconds)
 
 #.FN_BODY UL-GapFR2-Config VAL_PTR = &param_tvb
   tvbuff_t *param_tvb = NULL;

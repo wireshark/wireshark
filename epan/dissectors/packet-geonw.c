@@ -3195,7 +3195,7 @@ proto_register_geonw(void)
 
         { &hf_geonw_so_pv_time,
           { "Timestamp", "geonw.src_pos.tst",
-            FT_UINT32, BASE_DEC|BASE_UNIT_STRING, &units_milliseconds, 0x00,
+            FT_UINT32, BASE_DEC|BASE_UNIT_STRING, UNS(&units_milliseconds), 0x00,
             NULL, HFILL }},
 
         { &hf_geonw_so_pv_lat,
@@ -3241,7 +3241,7 @@ proto_register_geonw(void)
 
         { &hf_geonw_dccmco_output_power,
           { "Output power", "geonw.outpower",
-            FT_UINT8, BASE_DEC|BASE_UNIT_STRING, &units_dbm, 0xf8,
+            FT_UINT8, BASE_DEC|BASE_UNIT_STRING, UNS(&units_dbm), 0xf8,
             NULL, HFILL }},
 
         { &hf_geonw_dccmco_reserved,
@@ -3282,7 +3282,7 @@ proto_register_geonw(void)
 
         { &hf_geonw_de_pv_time,
           { "Timestamp", "geonw.dst_pos.tst",
-            FT_UINT32, BASE_DEC|BASE_UNIT_STRING, &units_milliseconds, 0x00,
+            FT_UINT32, BASE_DEC|BASE_UNIT_STRING, UNS(&units_milliseconds), 0x00,
             NULL, HFILL }},
 
         { &hf_geonw_de_pv_lat,
@@ -3308,22 +3308,22 @@ proto_register_geonw(void)
 
         { &hf_geonw_gxc_radius,
           { "Radius r", "geonw.gxc.radius",
-            FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_meters, 0x00,
+            FT_UINT16, BASE_DEC|BASE_UNIT_STRING, UNS(&units_meters), 0x00,
             NULL, HFILL }},
 
         { &hf_geonw_gxc_distancea,
           { "Distance a", "geonw.gxc.distancea",
-            FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_meters, 0x00,
+            FT_UINT16, BASE_DEC|BASE_UNIT_STRING, UNS(&units_meters), 0x00,
             NULL, HFILL }},
 
         { &hf_geonw_gxc_distanceb,
           { "Distance b", "geonw.gxc.distanceb",
-            FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_meters, 0x00,
+            FT_UINT16, BASE_DEC|BASE_UNIT_STRING, UNS(&units_meters), 0x00,
             NULL, HFILL }},
 
         { &hf_geonw_gxc_angle,
           { "Angle", "geonw.gxc.angle",
-            FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_degree_degrees, 0x00,
+            FT_UINT16, BASE_DEC|BASE_UNIT_STRING, UNS(&units_degree_degrees), 0x00,
             NULL, HFILL }},
 
         { &hf_geonw_gxc_reserved,

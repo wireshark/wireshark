@@ -345,7 +345,7 @@ proto_register_ipxwan(void)
 
 	    { &hf_ipxwan_wan_link_delay,
 	      { "WAN Link Delay", "ipxwan.rip_sap_info_exchange.wan_link_delay",
-	         FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_milliseconds, 0x0, NULL, HFILL }},
+	         FT_UINT16, BASE_DEC|BASE_UNIT_STRING, UNS(&units_milliseconds), 0x0, NULL, HFILL }},
 
 	    { &hf_ipxwan_common_network_number,
 	      { "Common Network Number", "ipxwan.rip_sap_info_exchange.common_network_number",
@@ -357,11 +357,11 @@ proto_register_ipxwan(void)
 
 	    { &hf_ipxwan_delay,
 	      { "Delay", "ipxwan.nlsp_information.delay",
-	         FT_UINT32, BASE_DEC|BASE_UNIT_STRING, &units_microseconds, 0x0, NULL, HFILL }},
+	         FT_UINT32, BASE_DEC|BASE_UNIT_STRING, UNS(&units_microseconds), 0x0, NULL, HFILL }},
 
 	    { &hf_ipxwan_throughput,
 	      { "Throughput", "ipxwan.nlsp_information.throughput",
-	         FT_UINT32, BASE_DEC|BASE_UNIT_STRING, &units_microseconds, 0x0, NULL, HFILL }},
+	         FT_UINT32, BASE_DEC|BASE_UNIT_STRING, UNS(&units_microseconds), 0x0, NULL, HFILL }},
 
 	    { &hf_ipxwan_request_size,
 	      { "Request Size", "ipxwan.nlsp_raw_throughput_data.request_size",
@@ -369,7 +369,7 @@ proto_register_ipxwan(void)
 
 	    { &hf_ipxwan_delta_time,
 	      { "Delta Time", "ipxwan.nlsp_raw_throughput_data.delta_time",
-	         FT_UINT32, BASE_DEC|BASE_UNIT_STRING, &units_microseconds, 0x0, NULL, HFILL }},
+	         FT_UINT32, BASE_DEC|BASE_UNIT_STRING, UNS(&units_microseconds), 0x0, NULL, HFILL }},
 
 	    { &hf_ipxwan_extended_node_id,
 	      { "Extended Node ID", "ipxwan.extended_node_id",

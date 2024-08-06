@@ -17211,7 +17211,7 @@ void proto_register_rtps(void) {
 
     { &hf_rtps_sequence_size, {
         "sequenceSize", "rtps.sequence_size",
-        FT_UINT32, BASE_DEC|BASE_UNIT_STRING, &units_octet_octets, 0, NULL, HFILL }
+        FT_UINT32, BASE_DEC|BASE_UNIT_STRING, UNS(&units_octet_octets), 0, NULL, HFILL }
     },
 
     { &hf_rtps_guid, {

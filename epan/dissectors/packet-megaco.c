@@ -3781,7 +3781,7 @@ proto_register_megaco(void)
           { "RTCP Allocation Specific Behaviour", "megaco.gm_rsb", FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
         { &hf_megaco_tman_sdr,
-          { "Sustainable Data Rate", "megaco.tman_sdr", FT_INT32, BASE_DEC|BASE_UNIT_STRING, &units_byte_bytespsecond, 0x0,
+          { "Sustainable Data Rate", "megaco.tman_sdr", FT_INT32, BASE_DEC|BASE_UNIT_STRING, UNS(&units_byte_bytespsecond), 0x0,
             NULL, HFILL }},
         { &hf_megaco_tman_mbs,
           { "Maximum Burst Rate", "megaco.tman_mbs", FT_STRING, BASE_NONE, NULL, 0x0,

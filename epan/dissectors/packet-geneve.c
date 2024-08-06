@@ -403,7 +403,7 @@ proto_register_geneve(void)
         },
         { &hf_geneve_option_length,
           { "Length", "geneve.option.length",
-            FT_UINT8, BASE_DEC|BASE_UNIT_STRING, &units_byte_bytes, 0x00,
+            FT_UINT8, BASE_DEC|BASE_UNIT_STRING, UNS(&units_byte_bytes), 0x00,
             NULL, HFILL }
         },
         { &hf_geneve_option,

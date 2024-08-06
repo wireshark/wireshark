@@ -837,8 +837,8 @@ void proto_register_ecpri(void)
             { &hf_measurement_id, { "Measurement ID",  "ecpri.measurementid",  FT_UINT8,  BASE_HEX,                  NULL,               0x0, NULL, HFILL } },
             { &hf_action_type,        { "Action Type", "ecpri.actiontype",     FT_UINT8,  BASE_HEX|BASE_RANGE_STRING, RVALS(action_type_coding), 0x0, NULL, HFILL } },
             { &hf_timestamp,          { "Time Stamp",  "ecpri.timestamp",      FT_BYTES,  SEP_COLON,                 NULL,               0x0, NULL, HFILL } },
-            { &hf_timestamp_sec,      { "Seconds",     "ecpri.sec",            FT_UINT48, BASE_DEC|BASE_UNIT_STRING, &units_seconds,     0x0, NULL, HFILL } },
-            { &hf_timestamp_nanosec,  { "Nanoseconds", "ecpri.nanosec",        FT_UINT32, BASE_DEC|BASE_UNIT_STRING, &units_nanoseconds, 0x0, NULL, HFILL } },
+            { &hf_timestamp_sec,      { "Seconds",     "ecpri.sec",            FT_UINT48, BASE_DEC|BASE_UNIT_STRING, UNS(&units_seconds),     0x0, NULL, HFILL } },
+            { &hf_timestamp_nanosec,  { "Nanoseconds", "ecpri.nanosec",        FT_UINT32, BASE_DEC|BASE_UNIT_STRING, UNS(&units_nanoseconds), 0x0, NULL, HFILL } },
             { &hf_compensation_value, { "Compensation Value", "ecpri.compval", FT_UINT64, BASE_DEC,                  NULL,               0x0, NULL, HFILL } },
             /* Message Type 6: Remote Reset */
             { &hf_reset_id,     { "Reset ID",       "ecpri.resetid",   FT_UINT16,  BASE_HEX,                   NULL,                   0x00,     NULL, HFILL } },

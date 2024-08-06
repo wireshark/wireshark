@@ -1440,7 +1440,7 @@ proto_register_simulcrypt (void)
 		 NULL, HFILL }},
 
 		{ &hf_simulcrypt_message_length,
-		{ "Message Length", "simulcrypt.message.len", FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_byte_bytes, 0x0,  /* length 2 bytes, print as decimal value */
+		{ "Message Length", "simulcrypt.message.len", FT_UINT16, BASE_DEC|BASE_UNIT_STRING, UNS(&units_byte_bytes), 0x0,  /* length 2 bytes, print as decimal value */
 		NULL, HFILL }},
 
 		{ &hf_simulcrypt_message,
@@ -1464,7 +1464,7 @@ proto_register_simulcrypt (void)
 		 NULL, HFILL }},
 
 		{ &hf_simulcrypt_parameter_length,
-		{ "Parameter Length", "simulcrypt.parameter.len", FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_byte_bytes, 0x0,  /* length 2 bytes, print as decimal value */
+		{ "Parameter Length", "simulcrypt.parameter.len", FT_UINT16, BASE_DEC|BASE_UNIT_STRING, UNS(&units_byte_bytes), 0x0,  /* length 2 bytes, print as decimal value */
 		 NULL, HFILL }},
 
 		{ &hf_simulcrypt_ca_system_id,
@@ -1488,31 +1488,31 @@ proto_register_simulcrypt (void)
 		 NULL, HFILL }},
 
 		{ &hf_simulcrypt_delay_start,
-		{ "Delay start", "simulcrypt.delay_start", FT_INT16, BASE_DEC|BASE_UNIT_STRING, &units_milliseconds, 0x0,
+		{ "Delay start", "simulcrypt.delay_start", FT_INT16, BASE_DEC|BASE_UNIT_STRING, UNS(&units_milliseconds), 0x0,
 		 NULL, HFILL }},
 
 		{ &hf_simulcrypt_delay_stop,
-		{ "Delay stop", "simulcrypt.delay_stop", FT_INT16, BASE_DEC|BASE_UNIT_STRING, &units_milliseconds, 0x0,
+		{ "Delay stop", "simulcrypt.delay_stop", FT_INT16, BASE_DEC|BASE_UNIT_STRING, UNS(&units_milliseconds), 0x0,
 		 NULL, HFILL }},
 
 		{ &hf_simulcrypt_ac_delay_start,
-		{ "AC delay start", "simulcrypt.ac_delay_start", FT_INT16, BASE_DEC|BASE_UNIT_STRING, &units_milliseconds, 0x0,
+		{ "AC delay start", "simulcrypt.ac_delay_start", FT_INT16, BASE_DEC|BASE_UNIT_STRING, UNS(&units_milliseconds), 0x0,
 		 NULL, HFILL }},
 
 		{ &hf_simulcrypt_ac_delay_stop,
-		{ "AC delay stop", "simulcrypt.ac_delay_stop", FT_INT16, BASE_DEC|BASE_UNIT_STRING, &units_milliseconds, 0x0,
+		{ "AC delay stop", "simulcrypt.ac_delay_stop", FT_INT16, BASE_DEC|BASE_UNIT_STRING, UNS(&units_milliseconds), 0x0,
 		 NULL, HFILL }},
 
 		{ &hf_simulcrypt_transition_delay_start,
-		{ "Transition delay start", "simulcrypt.transition_delay_start", FT_INT16, BASE_DEC|BASE_UNIT_STRING, &units_milliseconds, 0x0,
+		{ "Transition delay start", "simulcrypt.transition_delay_start", FT_INT16, BASE_DEC|BASE_UNIT_STRING, UNS(&units_milliseconds), 0x0,
 		 NULL, HFILL }},
 
 		{ &hf_simulcrypt_transition_delay_stop,
-		{ "Transition delay stop", "simulcrypt.transition_delay_stop", FT_INT16, BASE_DEC|BASE_UNIT_STRING, &units_milliseconds, 0x0,
+		{ "Transition delay stop", "simulcrypt.transition_delay_stop", FT_INT16, BASE_DEC|BASE_UNIT_STRING, UNS(&units_milliseconds), 0x0,
 		 NULL, HFILL }},
 
 		{ &hf_simulcrypt_ecm_rep_period,
-		{ "ECM repetition period", "simulcrypt.ecm_rep_period", FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_milliseconds, 0x0,
+		{ "ECM repetition period", "simulcrypt.ecm_rep_period", FT_UINT16, BASE_DEC|BASE_UNIT_STRING, UNS(&units_milliseconds), 0x0,
 		 NULL, HFILL }},
 
 		{ &hf_simulcrypt_max_streams,
@@ -1532,7 +1532,7 @@ proto_register_simulcrypt (void)
 		 NULL, HFILL }},
 
 		{ &hf_simulcrypt_max_comp_time,
-		{ "Max comp time", "simulcrypt.max_comp_time", FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_milliseconds, 0x0,
+		{ "Max comp time", "simulcrypt.max_comp_time", FT_UINT16, BASE_DEC|BASE_UNIT_STRING, UNS(&units_milliseconds), 0x0,
 		 NULL, HFILL }},
 
 		{ &hf_simulcrypt_access_criteria,
@@ -1592,7 +1592,7 @@ proto_register_simulcrypt (void)
 		 NULL, HFILL }},
 
 		{ &hf_simulcrypt_bandwidth,
-		{ "Bandwidth", "simulcrypt.bandwidth", FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_kbps, 0x0,
+		{ "Bandwidth", "simulcrypt.bandwidth", FT_UINT16, BASE_DEC|BASE_UNIT_STRING, UNS(&units_kbps), 0x0,
 		 NULL, HFILL }},
 
 		{ &hf_simulcrypt_data_type,
@@ -1772,7 +1772,7 @@ proto_register_simulcrypt (void)
 		 NULL, HFILL }},
 
 		{ &hf_simulcrypt_initial_bandwidth,
-		{ "Initial bandwidth", "simulcrypt.parameter.initial_bandwidth", FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_kbps, 0x0,
+		{ "Initial bandwidth", "simulcrypt.parameter.initial_bandwidth", FT_UINT16, BASE_DEC|BASE_UNIT_STRING, UNS(&units_kbps), 0x0,
 		 NULL, HFILL }},
 
 		{ &hf_simulcrypt_asi_input_packet_id,

@@ -1843,7 +1843,7 @@ void proto_register_wisun(void)
         },
 
         { &hf_wisun_btie_bio,
-          { "BIO", "wisun.btie.bio", FT_UINT24, BASE_DEC|BASE_UNIT_STRING, &units_milliseconds, 0x0,
+          { "BIO", "wisun.btie.bio", FT_UINT24, BASE_DEC|BASE_UNIT_STRING, UNS(&units_milliseconds), 0x0,
             "Broadcast Interval Offset", HFILL }
         },
 
@@ -1853,12 +1853,12 @@ void proto_register_wisun(void)
         },
 
         { &hf_wisun_fcie_tx,
-          { "Transmit Flow Control", "wisun.fcie.tx", FT_UINT8, BASE_DEC|BASE_UNIT_STRING, &units_milliseconds, 0x0,
+          { "Transmit Flow Control", "wisun.fcie.tx", FT_UINT8, BASE_DEC|BASE_UNIT_STRING, UNS(&units_milliseconds), 0x0,
             NULL, HFILL }
         },
 
         { &hf_wisun_fcie_rx,
-          { "Receive Flow Control", "wisun.fcie.rx", FT_UINT8, BASE_DEC|BASE_UNIT_STRING, &units_milliseconds, 0x0,
+          { "Receive Flow Control", "wisun.fcie.rx", FT_UINT8, BASE_DEC|BASE_UNIT_STRING, UNS(&units_milliseconds), 0x0,
             NULL, HFILL }
         },
 
@@ -1928,7 +1928,7 @@ void proto_register_wisun(void)
         },
 
         { &hf_wisun_lbtie_bio,
-          { "LFN BIO", "wisun.lbtie.bio", FT_UINT24, BASE_DEC|BASE_UNIT_STRING, &units_milliseconds, 0x0,
+          { "LFN BIO", "wisun.lbtie.bio", FT_UINT24, BASE_DEC|BASE_UNIT_STRING, UNS(&units_milliseconds), 0x0,
             "LFN Broadcast Interval Offset", HFILL }
         },
 
@@ -1943,7 +1943,7 @@ void proto_register_wisun(void)
         },
 
         { &hf_wisun_nrie_timing_accuracy,
-          { "Timing Accuracy", "wisun.nrie.timing_accuracy", FT_UINT8, BASE_DEC|BASE_UNIT_STRING, &units_milliseconds, 0x0,
+          { "Timing Accuracy", "wisun.nrie.timing_accuracy", FT_UINT8, BASE_DEC|BASE_UNIT_STRING, UNS(&units_milliseconds), 0x0,
             NULL, HFILL }
         },
 
@@ -2139,7 +2139,7 @@ void proto_register_wisun(void)
         },
 
         { &hf_wisun_usie_dwell_interval,
-          { "Dwell Interval", "wisun.usie.dwell", FT_UINT8, BASE_DEC|BASE_UNIT_STRING, &units_milliseconds, 0x0,
+          { "Dwell Interval", "wisun.usie.dwell", FT_UINT8, BASE_DEC|BASE_UNIT_STRING, UNS(&units_milliseconds), 0x0,
             NULL, HFILL }
         },
 
@@ -2194,7 +2194,7 @@ void proto_register_wisun(void)
         },
 
         { &hf_wisun_usie_explicit_frequency,
-          { "CH0 Frequency", "wisun.usie.explicit.frequency", FT_UINT32, BASE_DEC|BASE_UNIT_STRING, &units_khz, WISUN_CH_PLAN_EXPLICIT_FREQ,
+          { "CH0 Frequency", "wisun.usie.explicit.frequency", FT_UINT32, BASE_DEC|BASE_UNIT_STRING, UNS(&units_khz), WISUN_CH_PLAN_EXPLICIT_FREQ,
             NULL, HFILL }
         },
 
@@ -2254,7 +2254,7 @@ void proto_register_wisun(void)
         },
 
         { &hf_wisun_bsie_bcast_interval,
-          { "Broadcast Interval", "wisun.bsie.interval", FT_UINT32, BASE_DEC|BASE_UNIT_STRING, &units_milliseconds, 0x0,
+          { "Broadcast Interval", "wisun.bsie.interval", FT_UINT32, BASE_DEC|BASE_UNIT_STRING, UNS(&units_milliseconds), 0x0,
             NULL, HFILL }
         },
 
@@ -2474,7 +2474,7 @@ void proto_register_wisun(void)
         },
 
         { &hf_wisun_lbatsie_next_tx_delay,
-          { "Next Transmit Delay", "wisun.lbatsie.next_tx_delay", FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_milliseconds, 0x0,
+          { "Next Transmit Delay", "wisun.lbatsie.next_tx_delay", FT_UINT16, BASE_DEC|BASE_UNIT_STRING, UNS(&units_milliseconds), 0x0,
             NULL, HFILL }
         },
 
@@ -2509,7 +2509,7 @@ void proto_register_wisun(void)
         },
 
         { &hf_wisun_jmie_metric_plf_data,
-          { "PAN Load Factor", "wisun.jmie.metric.plf.data", FT_UINT8, BASE_DEC|BASE_UNIT_STRING, &units_percent, 0x0,
+          { "PAN Load Factor", "wisun.jmie.metric.plf.data", FT_UINT8, BASE_DEC|BASE_UNIT_STRING, UNS(&units_percent), 0x0,
             NULL, HFILL }
         },
 

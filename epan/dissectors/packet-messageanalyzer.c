@@ -1603,7 +1603,7 @@ void proto_register_message_analyzer(void)
 		},
 		{ &hf_etw_ndis_packet_metadata_wifi_rssi,
 			{ "RSSI", "etw.ndis.packet_metadata.wifi_rssi",
-			FT_INT32, BASE_DEC|BASE_UNIT_STRING, &units_dbm, 0x0, NULL, HFILL }
+			FT_INT32, BASE_DEC|BASE_UNIT_STRING, UNS(&units_dbm), 0x0, NULL, HFILL }
 		},
 		{ &hf_etw_ndis_packet_metadata_wifi_datarate,
 			{ "Datarate", "etw.ndis.packet_metadata.wifi_datarate",

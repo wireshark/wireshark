@@ -4575,7 +4575,7 @@ proto_register_mip6(void)
     },
     { &hf_mip6_opt_natd_refresh_t,
       { "Refresh time", "mip6.natd.refresh_t",
-        FT_UINT32, BASE_DEC|BASE_UNIT_STRING, &units_seconds, 0x0,
+        FT_UINT32, BASE_DEC|BASE_UNIT_STRING, UNS(&units_seconds), 0x0,
         NULL, HFILL }
     },
     { &hf_mip6_opt_ipv4coa_reserved,

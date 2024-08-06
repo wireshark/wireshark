@@ -6814,7 +6814,7 @@ proto_register_lcp(void)
                 NULL, 0x0, NULL, HFILL }},
         { &hf_lcp_opt_reportingperiod,
             { "Reporting Period", "lcp.opt.reporting_period", FT_UINT32,
-                BASE_DEC|BASE_UNIT_STRING, &units_microsecond_microseconds, 0x0,
+                BASE_DEC|BASE_UNIT_STRING, UNS(&units_microsecond_microseconds), 0x0,
                 "Maximum time in micro-seconds that the remote end should "
                 "wait between transmission of LCP Link-Quality-Report packets",
                 HFILL }},
@@ -6831,11 +6831,11 @@ proto_register_lcp(void)
             { "CCITT 32-bit", "lcp.opt.fcs_alternatives.ccitt32", FT_BOOLEAN,
                 8, NULL, 0x04, NULL, HFILL }},
         { &hf_lcp_opt_maximum,
-            { "Maximum", "lcp.opt.maximum", FT_UINT8, BASE_DEC|BASE_UNIT_STRING, &units_octet_octets, 0x0,
+            { "Maximum", "lcp.opt.maximum", FT_UINT8, BASE_DEC|BASE_UNIT_STRING, UNS(&units_octet_octets), 0x0,
                 "The largest number of padding octets which may be added "
                 "to the frame.", HFILL }},
         { &hf_lcp_opt_window,
-            { "Window", "lcp.opt.window", FT_UINT8, BASE_DEC|BASE_UNIT_STRING, &units_frame_frames, 0x0,
+            { "Window", "lcp.opt.window", FT_UINT8, BASE_DEC|BASE_UNIT_STRING, UNS(&units_frame_frames), 0x0,
                 "The number of frames the receiver will buffer.", HFILL }},
         { &hf_lcp_opt_hdlc_address,
             { "Address", "lcp.opt.hdlc_address", FT_BYTES, BASE_NONE, NULL,
@@ -7758,7 +7758,7 @@ proto_register_bacp(void)
       { &hf_bacp_opt_length, { "Length", "bacp.opt.length", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       /* Generated from convert_proto_tree_add_text.pl */
       { &hf_bacp_magic_number, { "Magic number", "bacp.magic_number", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-      { &hf_bacp_link_speed, { "Link Speed", "bacp.link_speed", FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_kbps, 0x0, NULL, HFILL }},
+      { &hf_bacp_link_speed, { "Link Speed", "bacp.link_speed", FT_UINT16, BASE_DEC|BASE_UNIT_STRING, UNS(&units_kbps), 0x0, NULL, HFILL }},
       { &hf_bacp_link_type, { "Link Type", "bacp.link_type", FT_UINT8, BASE_DEC, VALS(bap_link_type_vals), 0x0, NULL, HFILL }},
     };
 

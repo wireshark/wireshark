@@ -674,7 +674,7 @@ proto_register_slimp3(void)
             NULL, HFILL }},
 
         /* Generated from convert_proto_tree_add_text.pl */
-        { &hf_slimp3_display_delay, { "Delay", "slimp3.display_delay", FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_milliseconds, 0x0, NULL, HFILL }},
+        { &hf_slimp3_display_delay, { "Delay", "slimp3.display_delay", FT_UINT16, BASE_DEC|BASE_UNIT_STRING, UNS(&units_milliseconds), 0x0, NULL, HFILL }},
         { &hf_slimp3_display_string, { "String", "slimp3.display_string", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
         { &hf_slimp3_display_command, { "Command", "slimp3.display_command", FT_UINT8, BASE_DEC, VALS(slimp3_display_commands), 0x0, NULL, HFILL }},
         { &hf_slimp3_display_unknown, { "Unknown", "slimp3.display_unknown", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},

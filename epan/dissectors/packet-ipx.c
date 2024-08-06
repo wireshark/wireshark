@@ -1290,7 +1290,7 @@ proto_register_ipx(void)
 		  "Source or Destination IPX Address  \"network.node\"", HFILL }},
 
 		{ &hf_ipx_len,
-		{ "Length",		"ipx.len", FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_byte_bytes, 0x0,
+		{ "Length",		"ipx.len", FT_UINT16, BASE_DEC|BASE_UNIT_STRING, UNS(&units_byte_bytes), 0x0,
 			NULL, HFILL }},
 
 		{ &hf_ipx_hops,

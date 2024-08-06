@@ -857,7 +857,7 @@ void proto_register_osmo_trx(void)
 		{ &hf_otrxd_rssi, { "RSSI", "osmo_trxd.meas.rssi",
 		  FT_UINT8, BASE_CUSTOM, CF_FUNC(format_rssi), 0, NULL, HFILL } },
 		{ &hf_otrxd_toa256, { "Timing of Arrival", "osmo_trxd.meas.toa256",
-		  FT_INT16, BASE_DEC | BASE_UNIT_STRING, &otrx_units_toa256, 0, NULL, HFILL } },
+		  FT_INT16, BASE_DEC | BASE_UNIT_STRING, UNS(&otrx_units_toa256), 0, NULL, HFILL } },
 
 		/* MTS (Modulation and Training Sequence) fields */
 		{ &hf_otrxd_nope_ind, { "NOPE Indication", "osmo_trxd.nope_ind",
@@ -877,13 +877,13 @@ void proto_register_osmo_trx(void)
 		{ &hf_otrxd_tsc, { "TSC (Training Sequence Code)", "osmo_trxd.tsc",
 		  FT_UINT8, BASE_DEC, NULL, 0x07, NULL, HFILL } },
 		{ &hf_otrxd_ci, { "C/I (Carrier-to-Interference ratio)", "osmo_trxd.meas.ci",
-		  FT_INT16, BASE_DEC | BASE_UNIT_STRING, &units_centibels, 0, NULL, HFILL } },
+		  FT_INT16, BASE_DEC | BASE_UNIT_STRING, UNS(&units_centibels), 0, NULL, HFILL } },
 
 		/* Tx header fields */
 		{ &hf_otrxd_tx_att, { "Tx Attenuation", "osmo_trxd.tx_att",
-		  FT_UINT8, BASE_DEC | BASE_UNIT_STRING, &units_decibels, 0, NULL, HFILL } },
+		  FT_UINT8, BASE_DEC | BASE_UNIT_STRING, UNS(&units_decibels), 0, NULL, HFILL } },
 		{ &hf_otrxd_tx_scpir, { "SCPIR Value", "osmo_trxd.scpir_val",
-		  FT_INT8, BASE_DEC | BASE_UNIT_STRING, &units_decibels, 0, NULL, HFILL } },
+		  FT_INT8, BASE_DEC | BASE_UNIT_STRING, UNS(&units_decibels), 0, NULL, HFILL } },
 		{ &hf_otrxd_tx_rfu, { "Spare padding", "osmo_trxd.spare",
 		  FT_BYTES, SEP_SPACE, NULL, 0, NULL, HFILL } },
 

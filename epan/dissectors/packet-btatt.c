@@ -12828,7 +12828,7 @@ proto_register_btatt(void)
         },
         {&hf_btatt_battery_level,
             {"Battery Level", "btatt.battery_level",
-            FT_UINT8, BASE_DEC | BASE_UNIT_STRING, &units_percent, 0x0,
+            FT_UINT8, BASE_DEC | BASE_UNIT_STRING, UNS(&units_percent), 0x0,
             NULL, HFILL}
         },
         {&hf_btatt_battery_power_state,
@@ -17286,32 +17286,32 @@ proto_register_btatt(void)
         },
         {&hf_btatt_supported_heart_rate_range_minimum_heart_rate,
             {"Minimum Heart Rate", "btatt.supported_heart_rate_range.minimum_heart_rate",
-            FT_UINT8, BASE_DEC | BASE_UNIT_STRING, &units_bpm, 0x0,
+            FT_UINT8, BASE_DEC | BASE_UNIT_STRING, UNS(&units_bpm), 0x0,
             NULL, HFILL}
         },
         {&hf_btatt_supported_heart_rate_range_maximum_heart_rate,
             {"Maximum Heart Rate", "btatt.supported_heart_rate_range.maximum_heart_rate",
-            FT_UINT8, BASE_DEC | BASE_UNIT_STRING, &units_bpm, 0x0,
+            FT_UINT8, BASE_DEC | BASE_UNIT_STRING, UNS(&units_bpm), 0x0,
             NULL, HFILL}
         },
         {&hf_btatt_supported_heart_rate_range_minimum_increment,
             {"Minimum Increment", "btatt.supported_heart_rate_range.minimum_increment",
-            FT_UINT8, BASE_DEC | BASE_UNIT_STRING, &units_bpm, 0x0,
+            FT_UINT8, BASE_DEC | BASE_UNIT_STRING, UNS(&units_bpm), 0x0,
             NULL, HFILL}
         },
         {&hf_btatt_supported_power_range_minimum_power,
             {"Minimum Power", "btatt.supported_power_range.minimum_power",
-            FT_INT16, BASE_DEC | BASE_UNIT_STRING, &units_watt, 0x0,
+            FT_INT16, BASE_DEC | BASE_UNIT_STRING, UNS(&units_watt), 0x0,
             NULL, HFILL}
         },
         {&hf_btatt_supported_power_range_maximum_power,
             {"Maximum Power", "btatt.supported_power_range.maximum_power",
-            FT_INT16, BASE_DEC | BASE_UNIT_STRING, &units_watt, 0x0,
+            FT_INT16, BASE_DEC | BASE_UNIT_STRING, UNS(&units_watt), 0x0,
             NULL, HFILL}
         },
         {&hf_btatt_supported_power_range_minimum_increment,
             {"Minimum Increment", "btatt.supported_power_range.minimum_increment",
-            FT_UINT16, BASE_DEC | BASE_UNIT_STRING, &units_watt, 0x0,
+            FT_UINT16, BASE_DEC | BASE_UNIT_STRING, UNS(&units_watt), 0x0,
             NULL, HFILL}
         },
         {&hf_btatt_fitness_machine_status_opcode,
@@ -17346,17 +17346,17 @@ proto_register_btatt(void)
         },
         {&hf_btatt_fitness_machine_power,
             {"Power", "btatt.fitness_machine.power",
-            FT_INT16, BASE_DEC | BASE_UNIT_STRING, &units_watt, 0x0,
+            FT_INT16, BASE_DEC | BASE_UNIT_STRING, UNS(&units_watt), 0x0,
             NULL, HFILL}
         },
         {&hf_btatt_fitness_machine_heart_rate,
             {"Heart Rate", "btatt.fitness_machine.heart_rate",
-            FT_UINT8, BASE_DEC | BASE_UNIT_STRING, &units_bpm, 0x0,
+            FT_UINT8, BASE_DEC | BASE_UNIT_STRING, UNS(&units_bpm), 0x0,
             NULL, HFILL}
         },
         {&hf_btatt_fitness_machine_expended_energy,
             {"Expended Energy", "btatt.fitness_machine.expended_energy",
-            FT_UINT16, BASE_DEC | BASE_UNIT_STRING, &units_calorie, 0x0,
+            FT_UINT16, BASE_DEC | BASE_UNIT_STRING, UNS(&units_calorie), 0x0,
             NULL, HFILL}
         },
         {&hf_btatt_fitness_machine_number_of_steps,
@@ -17371,12 +17371,12 @@ proto_register_btatt(void)
         },
         {&hf_btatt_fitness_machine_distance,
             {"Distance", "btatt.fitness_machine.distance",
-            FT_UINT24, BASE_DEC | BASE_UNIT_STRING, &units_meters, 0x0,
+            FT_UINT24, BASE_DEC | BASE_UNIT_STRING, UNS(&units_meters), 0x0,
             NULL, HFILL}
         },
         {&hf_btatt_fitness_machine_training_time,
             {"Training Time", "btatt.fitness_machine.training_time",
-            FT_UINT16, BASE_DEC | BASE_UNIT_STRING, &units_seconds, 0x0,
+            FT_UINT16, BASE_DEC | BASE_UNIT_STRING, UNS(&units_seconds), 0x0,
             NULL, HFILL}
         },
         {&hf_btatt_fitness_machine_wheel_circumference,
@@ -17411,37 +17411,37 @@ proto_register_btatt(void)
         },
         {&hf_btatt_fitness_machine_targeted_time_in_fat_burn_zone,
             {"Targeted Time in Fat Burn Zone", "btatt.fitness_machine.targeted_time_in_fat_burn_zone",
-            FT_UINT16, BASE_DEC | BASE_UNIT_STRING, &units_seconds, 0x0,
+            FT_UINT16, BASE_DEC | BASE_UNIT_STRING, UNS(&units_seconds), 0x0,
             NULL, HFILL}
         },
         {&hf_btatt_fitness_machine_targeted_time_in_fitness_zone,
             {"Targeted Time in Fitness Zone", "btatt.fitness_machine.targeted_time_in_fitness_zone",
-            FT_UINT16, BASE_DEC | BASE_UNIT_STRING, &units_seconds, 0x0,
+            FT_UINT16, BASE_DEC | BASE_UNIT_STRING, UNS(&units_seconds), 0x0,
             NULL, HFILL}
         },
         {&hf_btatt_fitness_machine_targeted_time_in_very_light_zone,
             {"Targeted Time in Very Light Zone", "btatt.fitness_machine.targeted_time_in_very_light_zone",
-            FT_UINT16, BASE_DEC | BASE_UNIT_STRING, &units_seconds, 0x0,
+            FT_UINT16, BASE_DEC | BASE_UNIT_STRING, UNS(&units_seconds), 0x0,
             NULL, HFILL}
         },
         {&hf_btatt_fitness_machine_targeted_time_in_light_zone,
             {"Targeted Time in Light Zone", "btatt.fitness_machine.targeted_time_in_light_zone",
-            FT_UINT16, BASE_DEC | BASE_UNIT_STRING, &units_seconds, 0x0,
+            FT_UINT16, BASE_DEC | BASE_UNIT_STRING, UNS(&units_seconds), 0x0,
             NULL, HFILL}
         },
         {&hf_btatt_fitness_machine_targeted_time_in_moderate_zone,
             {"Targeted Time in Moderate Zone", "btatt.fitness_machine.targeted_time_in_moderate_zone",
-            FT_UINT16, BASE_DEC | BASE_UNIT_STRING, &units_seconds, 0x0,
+            FT_UINT16, BASE_DEC | BASE_UNIT_STRING, UNS(&units_seconds), 0x0,
             NULL, HFILL}
         },
         {&hf_btatt_fitness_machine_targeted_time_in_hard_zone,
             {"Targeted Time in Hard Zone", "btatt.fitness_machine.targeted_time_in_hard_zone",
-            FT_UINT16, BASE_DEC | BASE_UNIT_STRING, &units_seconds, 0x0,
+            FT_UINT16, BASE_DEC | BASE_UNIT_STRING, UNS(&units_seconds), 0x0,
             NULL, HFILL}
         },
         {&hf_btatt_fitness_machine_targeted_time_in_maximum_zone,
             {"Targeted Time in Maximum Zone", "btatt.fitness_machine.targeted_time_in_maximum_zone",
-            FT_UINT16, BASE_DEC | BASE_UNIT_STRING, &units_seconds, 0x0,
+            FT_UINT16, BASE_DEC | BASE_UNIT_STRING, UNS(&units_seconds), 0x0,
             NULL, HFILL}
         },
         {&hf_btatt_volume_setting,
@@ -17704,7 +17704,7 @@ proto_register_btgatt(void)
         },
         {&hf_gatt_microbit_accelerometer_period,
             {"Accelerometer Period", "btgatt.microbit.accelerometer.period",
-            FT_UINT16, BASE_DEC | BASE_UNIT_STRING, &units_milliseconds, 0x0,
+            FT_UINT16, BASE_DEC | BASE_UNIT_STRING, UNS(&units_milliseconds), 0x0,
             NULL, HFILL}
         },
         {&hf_gatt_microbit_magnetometer_data,
@@ -17729,12 +17729,12 @@ proto_register_btgatt(void)
         },
         {&hf_gatt_microbit_magnetometer_period,
             {"Magnetometer Period", "btgatt.microbit.magnetometer.period",
-            FT_UINT16, BASE_DEC | BASE_UNIT_STRING, &units_milliseconds, 0x0,
+            FT_UINT16, BASE_DEC | BASE_UNIT_STRING, UNS(&units_milliseconds), 0x0,
             NULL, HFILL}
         },
         {&hf_gatt_microbit_magnetometer_bearing,
             {"Magnetometer Bearing", "btgatt.microbit.magnetometer.bearing",
-            FT_UINT16, BASE_DEC | BASE_UNIT_STRING, &units_degree_bearing, 0x0,
+            FT_UINT16, BASE_DEC | BASE_UNIT_STRING, UNS(&units_degree_bearing), 0x0,
             NULL, HFILL}
         },
         {&hf_gatt_microbit_button_a_state,
@@ -17989,7 +17989,7 @@ proto_register_btgatt(void)
         },
         {&hf_gatt_microbit_scrolling_delay,
             {"Scrolling Delay", "btgatt.microbit.scrolling_delay",
-            FT_UINT16, BASE_DEC | BASE_UNIT_STRING, &units_milliseconds, 0x0,
+            FT_UINT16, BASE_DEC | BASE_UNIT_STRING, UNS(&units_milliseconds), 0x0,
             NULL, HFILL}
         },
         {&hf_gatt_microbit_microbit_requirements,
@@ -18019,12 +18019,12 @@ proto_register_btgatt(void)
         },
         {&hf_gatt_microbit_temperature_value,
             {"Temperature", "btgatt.microbit.temperature.value",
-            FT_INT8, BASE_DEC | BASE_UNIT_STRING, &units_degree_celsius, 0x0,
+            FT_INT8, BASE_DEC | BASE_UNIT_STRING, UNS(&units_degree_celsius), 0x0,
             NULL, HFILL}
         },
         {&hf_gatt_microbit_temperature_period,
             {"Temperature Period", "btgatt.microbit.temperature.period",
-            FT_UINT16, BASE_DEC | BASE_UNIT_STRING, &units_milliseconds, 0x0,
+            FT_UINT16, BASE_DEC | BASE_UNIT_STRING, UNS(&units_milliseconds), 0x0,
             NULL, HFILL}
         }
     };

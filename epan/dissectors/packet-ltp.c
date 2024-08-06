@@ -1711,11 +1711,11 @@ proto_register_ltp(void)
 	  },
 	  {&hf_ltp_data_offset,
 		  {"Offset","ltp.data.offset",
-		  FT_UINT64,BASE_DEC|BASE_UNIT_STRING, &units_byte_bytes, 0x0, NULL, HFILL}
+		  FT_UINT64,BASE_DEC|BASE_UNIT_STRING, UNS(&units_byte_bytes), 0x0, NULL, HFILL}
 	  },
 	  {&hf_ltp_data_length,
 		  {"Length","ltp.data.length",
-		  FT_UINT64,BASE_DEC|BASE_UNIT_STRING, &units_byte_bytes, 0x0, NULL, HFILL}
+		  FT_UINT64,BASE_DEC|BASE_UNIT_STRING, UNS(&units_byte_bytes), 0x0, NULL, HFILL}
 	  },
 	  {&hf_ltp_data_chkp,
 		  {"Checkpoint serial number","ltp.data.chkp",
@@ -1755,15 +1755,15 @@ proto_register_ltp(void)
 	  },
 	  {&hf_ltp_block_red_size,
 		  {"Red part size", "ltp.block.red_size",
-		  FT_UINT64,BASE_DEC|BASE_UNIT_STRING, &units_byte_bytes, 0x0, NULL, HFILL}
+		  FT_UINT64,BASE_DEC|BASE_UNIT_STRING, UNS(&units_byte_bytes), 0x0, NULL, HFILL}
 	  },
 	  {&hf_ltp_block_green_size,
 		  {"Green part size", "ltp.block.green_size",
-		  FT_UINT64,BASE_DEC|BASE_UNIT_STRING, &units_byte_bytes, 0x0, NULL, HFILL}
+		  FT_UINT64,BASE_DEC|BASE_UNIT_STRING, UNS(&units_byte_bytes), 0x0, NULL, HFILL}
 	  },
 	  {&hf_ltp_block_bundle_size,
 		  {"Bundle size", "ltp.block.bundle_size",
-		  FT_UINT64,BASE_DEC|BASE_UNIT_STRING, &units_byte_bytes, 0x0,
+		  FT_UINT64,BASE_DEC|BASE_UNIT_STRING, UNS(&units_byte_bytes), 0x0,
 		  "The dissected bundle is below in the protocol tree", HFILL}
 	  },
 	  {&hf_ltp_block_bundle_cnt,
@@ -1804,15 +1804,15 @@ proto_register_ltp(void)
 	  },
 	  {&hf_ltp_rpt_ub,
 		  {"Upper bound","ltp.rpt.ub",
-		  FT_UINT64,BASE_DEC|BASE_UNIT_STRING, &units_byte_bytes, 0x0, NULL, HFILL}
+		  FT_UINT64,BASE_DEC|BASE_UNIT_STRING, UNS(&units_byte_bytes), 0x0, NULL, HFILL}
 	  },
 	  {&hf_ltp_rpt_lb,
 		  {"Lower bound","ltp.rpt.lb",
-		  FT_UINT64,BASE_DEC|BASE_UNIT_STRING, &units_byte_bytes, 0x0, NULL, HFILL}
+		  FT_UINT64,BASE_DEC|BASE_UNIT_STRING, UNS(&units_byte_bytes), 0x0, NULL, HFILL}
 	  },
 	  {&hf_ltp_rpt_len,
 		  {"Report bound length","ltp.rpt.bound_len",
-		  FT_UINT64,BASE_DEC|BASE_UNIT_STRING, &units_byte_bytes, 0x0, NULL, HFILL}
+		  FT_UINT64,BASE_DEC|BASE_UNIT_STRING, UNS(&units_byte_bytes), 0x0, NULL, HFILL}
 	  },
 	  {&hf_ltp_rpt_retrans,
 		  {"Retransmission of report in frame","ltp.rpt.retrans",
@@ -1824,11 +1824,11 @@ proto_register_ltp(void)
 	  },
 	  {&hf_ltp_rpt_clm_off,
 		  {"Offset","ltp.rpt.clm.off",
-		  FT_UINT64,BASE_DEC|BASE_UNIT_STRING, &units_byte_bytes, 0x0, NULL, HFILL}
+		  FT_UINT64,BASE_DEC|BASE_UNIT_STRING, UNS(&units_byte_bytes), 0x0, NULL, HFILL}
 	  },
 	  {&hf_ltp_rpt_clm_len,
 		  {"Length","ltp.rpt.clm.len",
-		  FT_UINT64,BASE_DEC|BASE_UNIT_STRING, &units_byte_bytes, 0x0, NULL, HFILL}
+		  FT_UINT64,BASE_DEC|BASE_UNIT_STRING, UNS(&units_byte_bytes), 0x0, NULL, HFILL}
 	  },
 	  {&hf_ltp_rpt_clm_fst,
 		  {"First block index","ltp.rpt.clm.first",
@@ -1845,7 +1845,7 @@ proto_register_ltp(void)
 	  },
 	  {&hf_ltp_rpt_gap,
 		  {"Reception gap","ltp.rpt.gap",
-		  FT_UINT64,BASE_DEC|BASE_UNIT_STRING, &units_byte_bytes, 0x0, NULL, HFILL}
+		  FT_UINT64,BASE_DEC|BASE_UNIT_STRING, UNS(&units_byte_bytes), 0x0, NULL, HFILL}
 	  },
 	  {&hf_ltp_rpt_gap_fst,
 		  {"First block index","ltp.rpt.gap.first",
@@ -1862,7 +1862,7 @@ proto_register_ltp(void)
 	  },
 	  {&hf_ltp_rpt_gap_total,
 		  {"Total gap length","ltp.rpt.gap_total",
-		  FT_UINT64,BASE_DEC|BASE_UNIT_STRING, &units_byte_bytes, 0x0, NULL, HFILL}
+		  FT_UINT64,BASE_DEC|BASE_UNIT_STRING, UNS(&units_byte_bytes), 0x0, NULL, HFILL}
 	  },
 	  {&hf_ltp_rpt_ack_sno,
 		  {"Report serial number","ltp.rpt.ack.sno",

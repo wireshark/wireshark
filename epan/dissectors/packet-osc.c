@@ -1104,7 +1104,7 @@ proto_register_osc(void)
 
         { &hf_osc_bundle_element_size_type, { "Size", "osc.bundle.element.size",
                 FT_INT32, BASE_DEC|BASE_UNIT_STRING,
-                &units_byte_bytes, 0x0,
+                UNS(&units_byte_bytes), 0x0,
                 "Bundle element size", HFILL } },
 
         { &hf_osc_message_type, { "Message", "osc.message",
@@ -1143,7 +1143,7 @@ proto_register_osc(void)
                 "Binary blob value", HFILL } },
         { &hf_osc_message_blob_size_type, { "Size", "osc.message.blob.size",
                 FT_INT32, BASE_DEC|BASE_UNIT_STRING,
-                &units_byte_bytes, 0x0,
+                UNS(&units_byte_bytes), 0x0,
                 "Binary blob size", HFILL } },
         { &hf_osc_message_blob_data_type, { "Data", "osc.message.blob.data",
                 FT_BYTES, BASE_NONE,

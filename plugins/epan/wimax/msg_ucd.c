@@ -681,42 +681,42 @@ void proto_register_mac_mgmt_msg_ucd(void)
 			&hf_ucd_tlv_t_159_band_amc_allocation_threshold,
 			{
 				"Band AMC Allocation Threshold", "wmx.ucd.band_amc.allocation_threshold",
-				FT_UINT8, BASE_HEX|BASE_UNIT_STRING, &wimax_units_db, 0, NULL, HFILL
+				FT_UINT8, BASE_HEX|BASE_UNIT_STRING, UNS(&wimax_units_db), 0, NULL, HFILL
 			}
 		},
 		{
 			&hf_ucd_tlv_t_161_band_amc_allocation_timer,
 			{
 				"Band AMC Allocation Timer", "wmx.ucd.band_amc.allocation_timer",
-				FT_UINT8, BASE_HEX|BASE_UNIT_STRING, &wimax_units_frame_frames, 0, NULL, HFILL
+				FT_UINT8, BASE_HEX|BASE_UNIT_STRING, UNS(&wimax_units_frame_frames), 0, NULL, HFILL
 			}
 		},
 		{
 			&hf_ucd_tlv_t_160_band_amc_release_threshold,
 			{
 				"Band AMC Release Threshold", "wmx.ucd.band_amc.release_threshold",
-				FT_UINT8, BASE_HEX|BASE_UNIT_STRING, &wimax_units_db, 0, NULL, HFILL
+				FT_UINT8, BASE_HEX|BASE_UNIT_STRING, UNS(&wimax_units_db), 0, NULL, HFILL
 			}
 		},
 		{
 			&hf_ucd_tlv_t_162_band_amc_release_timer,
 			{
 				"Band AMC Release Timer", "wmx.ucd.band_amc.release_timer",
-				FT_UINT8, BASE_HEX|BASE_UNIT_STRING, &wimax_units_frame_frames, 0, NULL, HFILL
+				FT_UINT8, BASE_HEX|BASE_UNIT_STRING, UNS(&wimax_units_frame_frames), 0, NULL, HFILL
 			}
 		},
 		{
 			&hf_ucd_tlv_t_164_band_amc_retry_timer,
 			{
 				"Band AMC Retry Timer", "wmx.ucd.band_amc.retry_timer",
-				FT_UINT8, BASE_HEX|BASE_UNIT_STRING, &wimax_units_frame_frames, 0, NULL, HFILL
+				FT_UINT8, BASE_HEX|BASE_UNIT_STRING, UNS(&wimax_units_frame_frames), 0, NULL, HFILL
 			}
 		},
 		{
 			&hf_ucd_tlv_t_163_band_status_report_max_period,
 			{
 				"Band Status Report MAC Period", "wmx.ucd.band_status.report_max_period",
-				FT_UINT8, BASE_DEC|BASE_UNIT_STRING, &wimax_units_frame_frames, 0, NULL, HFILL
+				FT_UINT8, BASE_DEC|BASE_UNIT_STRING, UNS(&wimax_units_frame_frames), 0, NULL, HFILL
 			}
 		},
 		{
@@ -737,7 +737,7 @@ void proto_register_mac_mgmt_msg_ucd(void)
 			&hf_ucd_burst_ranging_data_ratio,
 			{
 				"Ranging Data Ratio", "wmx.ucd.burst.ranging_data_ratio",
-				FT_UINT8, BASE_DEC|BASE_UNIT_STRING, &wimax_units_db, 0, NULL, HFILL
+				FT_UINT8, BASE_DEC|BASE_UNIT_STRING, UNS(&wimax_units_db), 0, NULL, HFILL
 			}
 		},
 		{
@@ -757,7 +757,7 @@ void proto_register_mac_mgmt_msg_ucd(void)
 #if 0
 		{
 			&hf_ucd_burst_power_boost,
-			{"Focused Contention Power Boost", "wmx.ucd.burst.power_boost", FT_UINT8, BASE_HEX|BASE_UNIT_STRING, &wimax_units_db, 0, NULL, HFILL}
+			{"Focused Contention Power Boost", "wmx.ucd.burst.power_boost", FT_UINT8, BASE_HEX|BASE_UNIT_STRING, UNS(&wimax_units_db), 0, NULL, HFILL}
 		},
 		{
 			&hf_ucd_burst_tcs_enable,
@@ -768,21 +768,21 @@ void proto_register_mac_mgmt_msg_ucd(void)
 			&hf_ucd_bw_req_size,
 			{
 				"Bandwidth Request Opportunity Size", "wmx.ucd.bw_req_size",
-				FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &wimax_units_ps, 0, NULL, HFILL
+				FT_UINT16, BASE_DEC|BASE_UNIT_STRING, UNS(&wimax_units_ps), 0, NULL, HFILL
 			}
 		},
 		{
 			&hf_ucd_tlv_t_172_cqich_band_amc_transition_delay,
 			{
 				"CQICH Band AMC-Transition Delay", "wmx.ucd.cqich_band_amc_transition_delay",
-				FT_UINT8, BASE_DEC|BASE_UNIT_STRING, &wimax_units_frame_frames, 0, NULL, HFILL
+				FT_UINT8, BASE_DEC|BASE_UNIT_STRING, UNS(&wimax_units_frame_frames), 0, NULL, HFILL
 			}
 		},
 		{
 			&hf_ucd_freq,
 			{
 				"Frequency", "wmx.ucd.frequency",
-				FT_UINT32, BASE_DEC|BASE_UNIT_STRING, &wimax_units_khz, 0, NULL, HFILL
+				FT_UINT32, BASE_DEC|BASE_UNIT_STRING, UNS(&wimax_units_khz), 0, NULL, HFILL
 			}
 		},
 		{
@@ -796,7 +796,7 @@ void proto_register_mac_mgmt_msg_ucd(void)
 			&hf_ucd_tlv_t_171_harq_ack_delay_dl_burst,
 			{
 				"HARQ ACK Delay for DL Burst", "wmx.ucd.harq_ack_delay_dl_burst",
-				FT_UINT8, BASE_DEC|BASE_UNIT_STRING, &wimax_units_frame_offset, 0, NULL, HFILL
+				FT_UINT8, BASE_DEC|BASE_UNIT_STRING, UNS(&wimax_units_frame_offset), 0, NULL, HFILL
 			}
 		},
 		{
@@ -917,7 +917,7 @@ void proto_register_mac_mgmt_msg_ucd(void)
 			&hf_ucd_ranging_req_size,
 			{
 				"Ranging Request Opportunity Size", "wmx.ucd.ranging_req_size",
-				FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &wimax_units_db, 0, NULL, HFILL
+				FT_UINT16, BASE_DEC|BASE_UNIT_STRING, UNS(&wimax_units_db), 0, NULL, HFILL
 			}
 		},
 		{
@@ -931,7 +931,7 @@ void proto_register_mac_mgmt_msg_ucd(void)
 			&hf_ucd_tlv_t_170_safety_channel_retry_timer,
 			{
 				"Safety Channel Release Timer", "wmx.ucd.safety_channel_release_timer",
-				FT_UINT8, BASE_HEX|BASE_UNIT_STRING, &wimax_units_frame_frames, 0, NULL, HFILL
+				FT_UINT8, BASE_HEX|BASE_UNIT_STRING, UNS(&wimax_units_frame_frames), 0, NULL, HFILL
 			}
 		},
 		{

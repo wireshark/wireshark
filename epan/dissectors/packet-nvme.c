@@ -4518,7 +4518,7 @@ proto_register_nvme(void)
         },
         { &hf_nvmeof_cmd_connect_kato,
             { "Keep Alive Timeout", "nvme.fabrics.cmd.connect.kato",
-               FT_UINT32, BASE_DEC|BASE_UNIT_STRING, &units_milliseconds, 0x0, NULL, HFILL}
+               FT_UINT32, BASE_DEC|BASE_UNIT_STRING, UNS(&units_milliseconds), 0x0, NULL, HFILL}
         },
         { &hf_nvmeof_cmd_connect_rsvd3,
             { "Reserved", "nvme.fabrics.cmd.connect.rsvd3",
@@ -5440,7 +5440,7 @@ proto_register_nvme(void)
         },
         { &hf_nvme_cmd_set_features_dword11_kat[1],
             { "Keep Alive Timeout", "nvme.cmd.set_features.dword11.kat.kato",
-               FT_UINT32, BASE_DEC|BASE_UNIT_STRING, &units_milliseconds, 0, NULL, HFILL}
+               FT_UINT32, BASE_DEC|BASE_UNIT_STRING, UNS(&units_milliseconds), 0, NULL, HFILL}
         },
         { &hf_nvme_cmd_set_features_dword11_hctm[0],
             { "DWORD11", "nvme.cmd.set_features.dword11.hctm",
@@ -8250,7 +8250,7 @@ proto_register_nvme(void)
         },
         { &hf_nvme_cqe_get_features_dword0_kat[1],
             { "Keep Alive Timeout", "nvme.cqe.dword0.get_features.kat.kato",
-               FT_UINT32, BASE_DEC|BASE_UNIT_STRING, &units_milliseconds, 0, NULL, HFILL}
+               FT_UINT32, BASE_DEC|BASE_UNIT_STRING, UNS(&units_milliseconds), 0, NULL, HFILL}
         },
         { &hf_nvme_cqe_get_features_dword0_hctm[0],
             { "DWORD0", "nvme.cqe.dword0.get_features.hctm",

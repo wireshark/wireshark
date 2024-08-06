@@ -8185,7 +8185,7 @@ proto_register_rtcp(void)
         },
         { &hf_rtcp_mcptt_duration,
             { "Duration", "rtcp.app_data.mcptt.duration",
-            FT_UINT16, BASE_DEC | BASE_UNIT_STRING,& units_second_seconds, 0x0,
+            FT_UINT16, BASE_DEC | BASE_UNIT_STRING, UNS(& units_second_seconds), 0x0,
             NULL, HFILL }
         },
         { &hf_rtcp_mcptt_floor_ind,

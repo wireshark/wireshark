@@ -7415,7 +7415,7 @@ proto_register_scsi(void)
       { &hf_scsi_ssc2_modepage_active_partition, { "Active Partition", "scsi.ssc2.modepage.active_partition", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_scsi_ssc2_modepage_write_object_buffer_full_ratio, { "Write Object Buffer Full Ratio", "scsi.ssc2.modepage.write_object_buffer_full_ratio", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_scsi_ssc2_modepage_read_object_buffer_empty_ratio, { "Read Object Buffer Empty Ratio", "scsi.ssc2.modepage.read_object_buffer_empty_ratio", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_scsi_ssc2_modepage_write_delay_time, { "Write Delay time", "scsi.ssc2.modepage.write_delay_time", FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_100_milliseconds, 0x0, NULL, HFILL }},
+      { &hf_scsi_ssc2_modepage_write_delay_time, { "Write Delay time", "scsi.ssc2.modepage.write_delay_time", FT_UINT16, BASE_DEC|BASE_UNIT_STRING, UNS(&units_100_milliseconds), 0x0, NULL, HFILL }},
       { &hf_scsi_ssc2_modepage_obr, { "OBR", "scsi.ssc2.modepage.obr", FT_BOOLEAN, 8, NULL, 0x80, NULL, HFILL }},
       { &hf_scsi_ssc2_modepage_gap_size, { "Gap Size", "scsi.ssc2.modepage.gap_size", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_scsi_ssc2_modepage_eod_defined, { "EOD Defined", "scsi.ssc2.modepage.eod_defined", FT_UINT8, BASE_DEC, NULL, 0xE0, NULL, HFILL }},

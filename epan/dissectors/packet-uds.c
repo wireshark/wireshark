@@ -3315,15 +3315,15 @@ proto_register_uds(void) {
         { &hf_uds_dsc_parameter_record, {
             "Parameter Record", "uds.dsc.parameter_record", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL } },
         { &hf_uds_dsc_default_p2_server_timer, {
-            "Default P2 Server Timer", "uds.dsc.p2_server_time_default", FT_UINT16, BASE_DEC | BASE_UNIT_STRING, &units_milliseconds, 0x0, NULL, HFILL } },
+            "Default P2 Server Timer", "uds.dsc.p2_server_time_default", FT_UINT16, BASE_DEC | BASE_UNIT_STRING, UNS(&units_milliseconds), 0x0, NULL, HFILL } },
         /* Header field is actually only 16bit but has to be scaled up by 10x. */
         { &hf_uds_dsc_enhanced_p2_server_timer, {
-            "Enhanced P2 Server Timer", "uds.dsc.p2_server_time_enhanced", FT_UINT32, BASE_DEC | BASE_UNIT_STRING, &units_milliseconds, 0x0, NULL, HFILL } },
+            "Enhanced P2 Server Timer", "uds.dsc.p2_server_time_enhanced", FT_UINT32, BASE_DEC | BASE_UNIT_STRING, UNS(&units_milliseconds), 0x0, NULL, HFILL } },
 
         { &hf_uds_er_subfunction, {
             "SubFunction", "uds.er.subfunction", FT_UINT8, BASE_HEX, VALS(uds_er_types), 0x0, NULL, HFILL } },
         { &hf_uds_er_power_down_time, {
-            "Power Down Time", "uds.er.power_down_time", FT_UINT8, BASE_DEC | BASE_UNIT_STRING, &units_seconds, 0x0, NULL, HFILL } },
+            "Power Down Time", "uds.er.power_down_time", FT_UINT8, BASE_DEC | BASE_UNIT_STRING, UNS(&units_seconds), 0x0, NULL, HFILL } },
 
         { &hf_uds_cdtci_group_of_dtc, {
             "Group of DTC", "uds.cdtci.group_of_dtc", FT_UINT24, BASE_HEX, VALS(uds_cdtci_group_of_dtc), 0x0, NULL, HFILL } },

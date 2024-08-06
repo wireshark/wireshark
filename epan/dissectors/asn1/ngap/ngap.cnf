@@ -435,7 +435,7 @@ UE-NGAP-IDs/aMF-UE-NGAP-ID ABBREV=AMF_UE_NGAP_ID
 ProtocolExtensionID TYPE = FT_UINT8  DISPLAY = BASE_DEC|BASE_EXT_STRING STRINGS = &ngap_ProtocolIE_ID_vals_ext
 
 #.TYPE_ATTR
-BitRate DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_bit_sec
+BitRate DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_bit_sec)
 
 #.TYPE_ATTR
 MessageIdentifier TYPE = FT_UINT16 DISPLAY = BASE_DEC|BASE_EXT_STRING STRINGS = &lte_rrc_messageIdentifier_vals_ext
@@ -466,7 +466,7 @@ MessageIdentifier TYPE = FT_UINT16 DISPLAY = BASE_DEC|BASE_EXT_STRING STRINGS = 
   }
 
 #.TYPE_ATTR
-RepetitionPeriod DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_seconds
+RepetitionPeriod DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_seconds)
 
 #.FN_BODY WarningType VAL_PTR = &parameter_tvb
   tvbuff_t *parameter_tvb = NULL;
@@ -542,7 +542,7 @@ EPS-TAC TYPE = FT_UINT16 DISPLAY = BASE_DEC_HEX
 CommonNetworkInstance TYPE=FT_BYTES DISPLAY = BASE_SHOW_UTF_8_PRINTABLE
 
 #.TYPE_ATTR
-SurvivalTime DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_microseconds
+SurvivalTime DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_microseconds)
 
 #.TYPE_ATTR
 TAC TYPE = FT_UINT24 DISPLAY = BASE_DEC_HEX
@@ -560,7 +560,7 @@ TAC TYPE = FT_UINT24 DISPLAY = BASE_DEC_HEX
   }
 
 #.TYPE_ATTR
-TimeSynchronizationAssistanceInformation/uuTimeSynchronizationErrorBudget DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_nanoseconds
+TimeSynchronizationAssistanceInformation/uuTimeSynchronizationErrorBudget DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_nanoseconds)
 
 #.FN_BODY PLMNIdentity  VAL_PTR = &parameter_tvb
   tvbuff_t *parameter_tvb = NULL;
@@ -695,10 +695,10 @@ PacketLossRate DISPLAY = BASE_CUSTOM STRINGS = CF_FUNC(ngap_PacketLossRate_fmt)
 PacketDelayBudget DISPLAY = BASE_CUSTOM STRINGS = CF_FUNC(ngap_PacketDelayBudget_fmt)
 
 #.TYPE_ATTR
-AveragingWindow DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_milliseconds
+AveragingWindow DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_milliseconds)
 
 #.TYPE_ATTR
-MaximumDataBurstVolume DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_byte_bytes
+MaximumDataBurstVolume DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_byte_bytes)
 
 #.FN_BODY InterfacesToTrace VAL_PTR = &parameter_tvb
   tvbuff_t *parameter_tvb = NULL;
@@ -825,7 +825,7 @@ PortNumber TYPE = FT_UINT16 DISPLAY = BASE_DEC
   }
 
 #.TYPE_ATTR
-RecommendedCellItem/timeStayedInCell DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_seconds
+RecommendedCellItem/timeStayedInCell DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_seconds)
 
 #.FN_BODY UERadioCapability VAL_PTR = &parameter_tvb
   tvbuff_t *parameter_tvb = NULL;
@@ -865,7 +865,7 @@ RecommendedCellItem/timeStayedInCell DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&
   }
 
 #.TYPE_ATTR
-TimeSyncAssistanceInfo/uUTimeSyncErrorBudget DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_nanoseconds
+TimeSyncAssistanceInfo/uUTimeSyncErrorBudget DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_nanoseconds)
 
 #.FN_BODY RATRestrictionInformation VAL_PTR=&parameter_tvb
   tvbuff_t *parameter_tvb = NULL;
@@ -944,7 +944,7 @@ TimeSyncAssistanceInfo/uUTimeSyncErrorBudget DISPLAY=BASE_DEC|BASE_UNIT_STRING S
   }
 
 #.TYPE_ATTR
-ExpectedUEMovingTrajectoryItem/timeStayedInCell DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_seconds
+ExpectedUEMovingTrajectoryItem/timeStayedInCell DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_seconds)
 
 #.FN_BODY LastVisitedEUTRANCellInformation VAL_PTR = &parameter_tvb
   tvbuff_t *parameter_tvb = NULL;
@@ -974,19 +974,19 @@ ExpectedUEMovingTrajectoryItem/timeStayedInCell DISPLAY=BASE_DEC|BASE_UNIT_STRIN
   }
 
 #.TYPE_ATTR
-ExpectedActivityPeriod DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_seconds
+ExpectedActivityPeriod DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_seconds)
 
 #.TYPE_ATTR
-ExpectedIdlePeriod DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_seconds
+ExpectedIdlePeriod DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_seconds)
 
 #.TYPE_ATTR
-TimeUEStayedInCell DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_seconds
+TimeUEStayedInCell DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_seconds)
 
 #.TYPE_ATTR
 TimeUEStayedInCellEnhancedGranularity DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(ngap_TimeUEStayedInCellEnhancedGranularity_fmt)
 
 #.TYPE_ATTR
-TrafficLoadReductionIndication DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_percent
+TrafficLoadReductionIndication DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_percent)
 
 #.FN_BODY PeriodicRegistrationUpdateTimer VAL_PTR=&val_tvb HF_INDEX=-1
   tvbuff_t *val_tvb = NULL;
@@ -1047,10 +1047,10 @@ PeriodicRegistrationUpdateTimer TYPE=FT_UINT8 DISPLAY=BASE_CUSTOM STRINGS=CF_FUN
     call_dissector(nrppa_handle, parameter_tvb, %(ACTX)s->pinfo, tree);
 
 #.TYPE_ATTR
-VolumeTimedReport-Item/usageCountUL DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_octet_octets
+VolumeTimedReport-Item/usageCountUL DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_octet_octets)
 
 #.TYPE_ATTR
-VolumeTimedReport-Item/usageCountDL DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_octet_octets
+VolumeTimedReport-Item/usageCountDL DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_octet_octets)
 
 #.TYPE_ATTR
 BluetoothName TYPE=FT_STRING DISPLAY = BASE_NONE
@@ -1097,7 +1097,7 @@ BluetoothName TYPE=FT_STRING DISPLAY = BASE_NONE
   }
 
 #.TYPE_ATTR
-Extended-ConnectedTime DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_seconds
+Extended-ConnectedTime DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_seconds)
 
 #.TYPE_ATTR
 ExtendedPacketDelayBudget DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(ngap_ExtendedPacketDelayBudget_fmt)
@@ -1225,7 +1225,7 @@ LAC TYPE = FT_UINT16 DISPLAY = BASE_DEC_HEX
   }
 
 #.TYPE_ATTR
-Periodicity DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_microseconds
+Periodicity DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_microseconds)
 
 #.TYPE_ATTR
 Threshold-RSRP DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(ngap_Threshold_RSRP_fmt)
@@ -1265,7 +1265,7 @@ FiveG-TMSI TYPE = FT_UINT32 DISPLAY = BASE_DEC_HEX
   }
 
 #.TYPE_ATTR
-QosMonitoringReportingFrequency DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_seconds
+QosMonitoringReportingFrequency DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_seconds)
 
 #.FN_BODY UpdateFeedback VAL_PTR=&parameter_tvb
   tvbuff_t *parameter_tvb = NULL;
@@ -1297,10 +1297,10 @@ QosMonitoringReportingFrequency DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units
   offset = _offset;
 
 #.TYPE_ATTR
-BurstArrivalTimeWindow/burstArrivalTimeWindowStart DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_microseconds
+BurstArrivalTimeWindow/burstArrivalTimeWindowStart DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_microseconds)
 
 #.TYPE_ATTR
-BurstArrivalTimeWindow/burstArrivalTimeWindowEnd DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_microseconds
+BurstArrivalTimeWindow/burstArrivalTimeWindowEnd DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_microseconds)
 
 #.TYPE_ATTR
 N6JitterInformation/n6JitterLowerBound DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(ngap_N6Jitter_fmt)
@@ -1309,13 +1309,13 @@ N6JitterInformation/n6JitterLowerBound DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(ngap_
 N6JitterInformation/n6JitterUpperBound DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(ngap_N6Jitter_fmt)
 
 #.TYPE_ATTR
-PagingPolicyDifferentiationItem/dl-DataSize DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_byte_bytes
+PagingPolicyDifferentiationItem/dl-DataSize DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_byte_bytes)
 
 #.TYPE_ATTR
-TimeSinceFailure DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_seconds
+TimeSinceFailure DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_seconds)
 
 #.TYPE_ATTR
-TSCFeedbackInformation/burstArrivalburstArrivalTimeOffsetTimeWindowEnd DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_microseconds
+TSCFeedbackInformation/burstArrivalburstArrivalTimeOffsetTimeWindowEnd DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_microseconds)
 
 #.FN_BODY PDUSessionResourceReleaseCommandTransfer
   ngap_get_private_data(actx->pinfo)->qos_flow_add_info_rel_type = 0;

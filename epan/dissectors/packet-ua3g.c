@@ -4660,7 +4660,7 @@ proto_register_ua3g(void)
         { &hf_ua3g_ringing_cadence_on_off, { "On / Off", "ua3g.ringing_cadence.on_off", FT_BOOLEAN, 8, TFS(&tfs_on_off), 0x80, NULL, HFILL }},
         { &hf_ua3g_ringing_cadence_length, { "Length (ms)", "ua3g.ringing_cadence.length", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
         { &hf_ua3g_feedback_level, { "Level (dB)", "ua3g.command.feedback.level", FT_INT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-        { &hf_ua3g_feedback_duration, { "Duration", "ua3g.command.feedback.duration", FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_milliseconds, 0x0, NULL, HFILL }},
+        { &hf_ua3g_feedback_duration, { "Duration", "ua3g.command.feedback.duration", FT_UINT16, BASE_DEC|BASE_UNIT_STRING, UNS(&units_milliseconds), 0x0, NULL, HFILL }},
         { &hf_ua3g_r_w_peripheral_address, { "Address", "ua3g.r_w_peripheral.address", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
         { &hf_ua3g_r_w_peripheral_content, { "Content", "ua3g.r_w_peripheral.content", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
         { &hf_ua3g_icon_cmd_icon_number, { "Icon Number", "ua3g.icon_cmd.icon_number", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},

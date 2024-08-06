@@ -2528,7 +2528,7 @@ proto_register_oampdu(void)
 
         { &hf_oampdu_info_oampduConfig,
             { "Max OAMPDU Size",    "oampdu.info.oampduConfig",
-                FT_UINT16,    BASE_DEC|BASE_UNIT_STRING, &units_byte_bytes,    0x0,
+                FT_UINT16,    BASE_DEC|BASE_UNIT_STRING, UNS(&units_byte_bytes),    0x0,
                 "OAMPDU Configuration", HFILL }},
 
         { &hf_oampdu_info_oui,
@@ -2831,7 +2831,7 @@ proto_register_oampdu(void)
 
         { &hf_oam_dpoe_pkt_buffer_us_queue_inc,
             { "Upstream Queue Increment", "oampdu.pkt_buf.us_queue_increment",
-                FT_UINT8, BASE_DEC|BASE_UNIT_STRING, &units_1k, 0x0,
+                FT_UINT8, BASE_DEC|BASE_UNIT_STRING, UNS(&units_1k), 0x0,
                 NULL, HFILL } },
 
         { &hf_oam_dpoe_pkt_buffer_ds_queues,
@@ -2846,32 +2846,32 @@ proto_register_oampdu(void)
 
         { &hf_oam_dpoe_pkt_buffer_ds_queue_inc,
             { "Downstream Queue Increment", "oampdu.pkt_buf.ds_queue_increment",
-                FT_UINT8, BASE_DEC|BASE_UNIT_STRING, &units_1k, 0x0,
+                FT_UINT8, BASE_DEC|BASE_UNIT_STRING, UNS(&units_1k), 0x0,
                 NULL, HFILL } },
 
         { &hf_oam_dpoe_pkt_buffer_total_memory,
             { "Total Memory", "oampdu.pkt_buf.total_memory",
-                FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_1k, 0x0,
+                FT_UINT16, BASE_DEC|BASE_UNIT_STRING, UNS(&units_1k), 0x0,
                 NULL, HFILL } },
 
         { &hf_oam_dpoe_pkt_buffer_us_memory_max,
             { "Upstream Memory Max", "oampdu.pkt_buf.us_memory_max",
-                FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_1k, 0x0,
+                FT_UINT16, BASE_DEC|BASE_UNIT_STRING, UNS(&units_1k), 0x0,
                 NULL, HFILL } },
 
         { &hf_oam_dpoe_pkt_buffer_ds_memory_max,
             { "Downstream Memory Max", "oampdu.pkt_buf.ds_memory_max",
-                FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_1k, 0x0,
+                FT_UINT16, BASE_DEC|BASE_UNIT_STRING, UNS(&units_1k), 0x0,
                 NULL, HFILL } },
 
         { &hf_oam_dpoe_frame_rate_maximum,
             { "Maximum OAM Rate", "oampdu.frame.rate.min",
-                FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_num_100ms, 0x0,
+                FT_UINT16, BASE_DEC|BASE_UNIT_STRING, UNS(&units_num_100ms), 0x0,
                 NULL, HFILL } },
 
         { &hf_oam_dpoe_frame_rate_minimum,
             { "Minimum OAM Rate", "oampdu.frame.rate.max",
-                FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_pdus_100ms, 0x0,
+                FT_UINT16, BASE_DEC|BASE_UNIT_STRING, UNS(&units_pdus_100ms), 0x0,
                 NULL, HFILL } },
 
         { &hf_oam_dpoe_mfg_org_name,

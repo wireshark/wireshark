@@ -3386,12 +3386,12 @@ proto_register_q931(void)
         /* Generated from convert_proto_tree_add_text.pl */
         { &hf_q931_first_segment,
           { "First segment", "q931.segment.first",
-            FT_UINT8, BASE_DEC|BASE_UNIT_STRING, &units_segment_remaining, 0x7F,
+            FT_UINT8, BASE_DEC|BASE_UNIT_STRING, UNS(&units_segment_remaining), 0x7F,
             NULL, HFILL }
         },
         { &hf_q931_not_first_segment,
           { "Not first segment", "q931.segment.not_first",
-            FT_UINT8, BASE_DEC|BASE_UNIT_STRING, &units_segment_remaining, 0x7F,
+            FT_UINT8, BASE_DEC|BASE_UNIT_STRING, UNS(&units_segment_remaining), 0x7F,
             NULL, HFILL }
         },
         { &hf_q931_bearer_capability_data,
@@ -3461,7 +3461,7 @@ proto_register_q931(void)
         },
         { &hf_q931_bearer_capability_default_packet_size,
           { "Default packet size", "q931.bearer_capability.default_packet_size",
-            FT_UINT8, BASE_DEC|BASE_UNIT_STRING, &units_octet_octets, 0x0F,
+            FT_UINT8, BASE_DEC|BASE_UNIT_STRING, UNS(&units_octet_octets), 0x0F,
             NULL, HFILL }
         },
         { &hf_q931_bearer_capability_packet_window_size,
@@ -3686,7 +3686,7 @@ proto_register_q931(void)
         },
         { &hf_q931_user_information_len,
           { "User information", "q931.user.len",
-            FT_UINT32, BASE_DEC|BASE_UNIT_STRING, &units_octet_octets, 0x0,
+            FT_UINT32, BASE_DEC|BASE_UNIT_STRING, UNS(&units_octet_octets), 0x0,
             NULL, HFILL }
         },
         { &hf_q931_user_information_str,
@@ -3856,22 +3856,22 @@ proto_register_q931(void)
         },
         { &hf_q931_cumulative_transit_delay,
           { "Cumulative transit delay", "q931.cumulative_transit_delay",
-            FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_milliseconds, 0x0,
+            FT_UINT16, BASE_DEC|BASE_UNIT_STRING, UNS(&units_milliseconds), 0x0,
             NULL, HFILL }
         },
         { &hf_q931_requested_end_to_end_transit_delay,
           { "Requested end-to-end transit delay", "q931.requested_end_to_end_transit_delay",
-            FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_milliseconds, 0x0,
+            FT_UINT16, BASE_DEC|BASE_UNIT_STRING, UNS(&units_milliseconds), 0x0,
             NULL, HFILL }
         },
         { &hf_q931_maximum_end_to_end_transit_delay,
           { "Maximum end-to-end transit delay", "q931.maximum_end_to_end_transit_delay",
-            FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_milliseconds, 0x0,
+            FT_UINT16, BASE_DEC|BASE_UNIT_STRING, UNS(&units_milliseconds), 0x0,
             NULL, HFILL }
         },
         { &hf_q931_transit_delay,
           { "Transit delay", "q931.transit_delay",
-            FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_milliseconds, 0x0,
+            FT_UINT16, BASE_DEC|BASE_UNIT_STRING, UNS(&units_milliseconds), 0x0,
             NULL, HFILL }
         },
         { &hf_q931_display_information,

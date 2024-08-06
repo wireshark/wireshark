@@ -332,7 +332,7 @@ proto_register_btmcap(void)
         },
         { &hf_btmcap_timestamp_required_accuracy,
             { "Timestamp Required Accuracy",     "btmcap.timestamp_required_accuracy",
-            FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_ppm, 0x00,
+            FT_UINT16, BASE_DEC|BASE_UNIT_STRING, UNS(&units_ppm), 0x00,
             NULL, HFILL }
         },
         { &hf_btmcap_timestamp_update_information,
@@ -352,7 +352,7 @@ proto_register_btmcap(void)
         },
         { &hf_btmcap_timestamp_sample_accuracy,
             { "Timestamp Sample Accuracy",       "btmcap.timestamp_sample_accuracy",
-            FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_microseconds, 0x00,
+            FT_UINT16, BASE_DEC|BASE_UNIT_STRING, UNS(&units_microseconds), 0x00,
             NULL, HFILL }
         },
         { &hf_btmcap_bluetooth_clock_access_resolution,
@@ -362,17 +362,17 @@ proto_register_btmcap(void)
         },
         { &hf_btmcap_sync_lead_time,
             { "Sync Lead Time",                  "btmcap.sync_lead_time",
-            FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_milliseconds, 0x00,
+            FT_UINT16, BASE_DEC|BASE_UNIT_STRING, UNS(&units_milliseconds), 0x00,
             NULL, HFILL }
         },
         { &hf_btmcap_timestamp_native_resolution,
             { "Timestamp Native Resolution",     "btmcap.timestamp_native_resolution",
-            FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_microseconds, 0x00,
+            FT_UINT16, BASE_DEC|BASE_UNIT_STRING, UNS(&units_microseconds), 0x00,
             NULL, HFILL }
         },
         { &hf_btmcap_timestamp_native_accuracy,
             { "Timestamp Native Accuracy",       "btmcap.timestamp_native_accuracy",
-            FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_ppm, 0x00,
+            FT_UINT16, BASE_DEC|BASE_UNIT_STRING, UNS(&units_ppm), 0x00,
             NULL, HFILL }
         },
         { &hf_btmcap_response_parameters,

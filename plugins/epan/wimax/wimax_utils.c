@@ -738,15 +738,15 @@ void wimax_proto_register_wimax_utility_decoders(void)
 		},
 		{	/* 7 Maximum Sustained Traffic Rate */
 			&hf_sfe_max_str,
-			{"Maximum Sustained Traffic Rate", "wmx.sfe.msr", FT_UINT32, BASE_DEC|BASE_UNIT_STRING, &wimax_units_bit_sec, 0x0, NULL, HFILL}
+			{"Maximum Sustained Traffic Rate", "wmx.sfe.msr", FT_UINT32, BASE_DEC|BASE_UNIT_STRING, UNS(&wimax_units_bit_sec), 0x0, NULL, HFILL}
 		},
 		{	/* 8 Maximum Traffic Burst */
 			&hf_sfe_max_traffic_burst,
-			{"Maximum Traffic Burst", "wmx.sfe.max_traffic_burst", FT_UINT32, BASE_DEC|BASE_UNIT_STRING, &wimax_units_byte_bytes, 0x0, NULL, HFILL}
+			{"Maximum Traffic Burst", "wmx.sfe.max_traffic_burst", FT_UINT32, BASE_DEC|BASE_UNIT_STRING, UNS(&wimax_units_byte_bytes), 0x0, NULL, HFILL}
 		},
 		{	/* 9 Minimum Reserved Traffic Rate */
 			&hf_sfe_min_rtr,
-			{"Minimum Reserved Traffic Rate", "wmx.sfe.mrr", FT_UINT32, BASE_DEC|BASE_UNIT_STRING, &wimax_units_bit_sec, 0x0, NULL, HFILL}
+			{"Minimum Reserved Traffic Rate", "wmx.sfe.mrr", FT_UINT32, BASE_DEC|BASE_UNIT_STRING, UNS(&wimax_units_bit_sec), 0x0, NULL, HFILL}
 		},
 		{
 			/* 10 Reserved */
@@ -801,11 +801,11 @@ void wimax_proto_register_wimax_utility_decoders(void)
 		},
 		{	/* 13 Tolerated Jitter */
 			&hf_sfe_jitter,
-			{"Tolerated Jitter", "wmx.sfe.jitter", FT_UINT32, BASE_DEC|BASE_UNIT_STRING, &wimax_units_ms, 0x0, NULL, HFILL}
+			{"Tolerated Jitter", "wmx.sfe.jitter", FT_UINT32, BASE_DEC|BASE_UNIT_STRING, UNS(&wimax_units_ms), 0x0, NULL, HFILL}
 		},
 		{	/* 14 Maximum Latency */
 			&hf_sfe_max_latency,
-			{"Maximum Latency", "wmx.sfe.max_latency", FT_UINT32, BASE_DEC|BASE_UNIT_STRING, &wimax_units_ms, 0x0, NULL, HFILL}
+			{"Maximum Latency", "wmx.sfe.max_latency", FT_UINT32, BASE_DEC|BASE_UNIT_STRING, UNS(&wimax_units_ms), 0x0, NULL, HFILL}
 		},
 		{	/* 15 Fixed/Variable Length SDU */
 			&hf_sfe_fixed_len_sdu,
@@ -813,7 +813,7 @@ void wimax_proto_register_wimax_utility_decoders(void)
 		},
 		{	/* 16 SDU Size */
 			&hf_sfe_sdu_size,
-			{"SDU Size", "wmx.sfe.sdu_size", FT_UINT8, BASE_DEC|BASE_UNIT_STRING, &wimax_units_byte_bytes, 0x0, NULL, HFILL}
+			{"SDU Size", "wmx.sfe.sdu_size", FT_UINT8, BASE_DEC|BASE_UNIT_STRING, UNS(&wimax_units_byte_bytes), 0x0, NULL, HFILL}
 		},
 		{	/* 17 SAID Onto Which SF Is Mapped */
 			&hf_sfe_target_said,
@@ -898,7 +898,7 @@ void wimax_proto_register_wimax_utility_decoders(void)
 		},
 			{	/* 31 Time Base */
 			&hf_sfe_time_base,
-			{"Time Base", "wmx.sfe.time_base", FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &wimax_units_ms, 0x0, NULL, HFILL}
+			{"Time Base", "wmx.sfe.time_base", FT_UINT16, BASE_DEC|BASE_UNIT_STRING, UNS(&wimax_units_ms), 0x0, NULL, HFILL}
 		},
 			{	/* 32 Paging Preference */
 			&hf_sfe_paging_preference,
@@ -942,11 +942,11 @@ void wimax_proto_register_wimax_utility_decoders(void)
 		},
 			{	/* 40 Unsolicited Grant Interval */
 			&hf_sfe_unsolicited_grant_interval,
-			{"Unsolicited Grant Interval", "wmx.sfe.unsolicited_grant_interval", FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &wimax_units_ms, 0x0, NULL, HFILL}
+			{"Unsolicited Grant Interval", "wmx.sfe.unsolicited_grant_interval", FT_UINT16, BASE_DEC|BASE_UNIT_STRING, UNS(&wimax_units_ms), 0x0, NULL, HFILL}
 		},
 			{	/* 41 Unsolicited Polling Interval */
 			&hf_sfe_unsolicited_polling_interval,
-			{"Unsolicited Polling Interval", "wmx.sfe.unsolicited_polling_interval", FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &wimax_units_ms, 0x0, NULL, HFILL}
+			{"Unsolicited Polling Interval", "wmx.sfe.unsolicited_polling_interval", FT_UINT16, BASE_DEC|BASE_UNIT_STRING, UNS(&wimax_units_ms), 0x0, NULL, HFILL}
 		},
 		{	/* 42 PDU SN extended subheader for HARQ reordering */
 			&hf_sfe_pdu_sn_ext_subheader_reorder,

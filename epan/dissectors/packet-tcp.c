@@ -10243,7 +10243,7 @@ proto_register_tcp(void)
 
         { &hf_mptcp_expected_idsn,
           { "Subflow expected IDSN", "mptcp.expected_idsn", FT_UINT64,
-            BASE_DEC|BASE_UNIT_STRING, &units_64bit_version, 0x0, NULL, HFILL}},
+            BASE_DEC|BASE_UNIT_STRING, UNS(&units_64bit_version), 0x0, NULL, HFILL}},
 
         { &hf_mptcp_analysis,
           { "MPTCP analysis",   "mptcp.analysis", FT_NONE, BASE_NONE, NULL, 0x0,

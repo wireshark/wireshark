@@ -2649,12 +2649,12 @@ proto_register_bthfp(void)
         },
         { &hf_vgs,
            { "Gain",                             "bthfp.vgs",
-           FT_UINT8, BASE_DEC|BASE_UNIT_STRING, &units_slash15, 0,
+           FT_UINT8, BASE_DEC|BASE_UNIT_STRING, UNS(&units_slash15), 0,
            NULL, HFILL}
         },
         { &hf_vgm,
            { "Gain",                             "bthfp.vgm",
-           FT_UINT8, BASE_DEC|BASE_UNIT_STRING, &units_slash15, 0,
+           FT_UINT8, BASE_DEC|BASE_UNIT_STRING, UNS(&units_slash15), 0,
            NULL, HFILL}
         },
         { &hf_nrec,

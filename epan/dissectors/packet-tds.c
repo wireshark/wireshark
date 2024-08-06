@@ -8934,7 +8934,7 @@ proto_register_tds(void)
         },
         { &hf_tds_error_msgtext_length,
           { "Error message length", "tds.error.msgtext_length",
-            FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_characters, 0x0,
+            FT_UINT16, BASE_DEC|BASE_UNIT_STRING, UNS(&units_characters), 0x0,
             NULL, HFILL }
         },
         { &hf_tds_error_msgtext,
@@ -8944,7 +8944,7 @@ proto_register_tds(void)
         },
         { &hf_tds_error_servername_length,
           { "Server name length", "tds.error.servername_length",
-          FT_UINT8, BASE_DEC|BASE_UNIT_STRING, &units_characters, 0x0,
+          FT_UINT8, BASE_DEC|BASE_UNIT_STRING, UNS(&units_characters), 0x0,
           NULL, HFILL }
         },
         { &hf_tds_error_servername,
@@ -8954,7 +8954,7 @@ proto_register_tds(void)
         },
         { &hf_tds_error_procname_length,
           { "Process name length", "tds.error.procname_length",
-          FT_UINT8, BASE_DEC|BASE_UNIT_STRING, &units_characters, 0x0,
+          FT_UINT8, BASE_DEC|BASE_UNIT_STRING, UNS(&units_characters), 0x0,
           NULL, HFILL }
         },
         { &hf_tds_error_procname,
@@ -9030,7 +9030,7 @@ proto_register_tds(void)
         },
         { &hf_tds_info_msgtext_length,
           { "Error message length", "tds.info.msgtext_length",
-            FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_characters, 0x0,
+            FT_UINT16, BASE_DEC|BASE_UNIT_STRING, UNS(&units_characters), 0x0,
             NULL, HFILL }
         },
         { &hf_tds_info_msgtext,
@@ -9040,7 +9040,7 @@ proto_register_tds(void)
         },
         { &hf_tds_info_servername_length,
           { "Server name length", "tds.info.servername_length",
-          FT_UINT8, BASE_DEC|BASE_UNIT_STRING, &units_characters, 0x0,
+          FT_UINT8, BASE_DEC|BASE_UNIT_STRING, UNS(&units_characters), 0x0,
           NULL, HFILL }
         },
         { &hf_tds_info_servername,
@@ -9050,7 +9050,7 @@ proto_register_tds(void)
         },
         { &hf_tds_info_procname_length,
           { "Process name length", "tds.info.procname_length",
-          FT_UINT8, BASE_DEC|BASE_UNIT_STRING, &units_characters, 0x0,
+          FT_UINT8, BASE_DEC|BASE_UNIT_STRING, UNS(&units_characters), 0x0,
           NULL, HFILL }
         },
         { &hf_tds_info_procname,

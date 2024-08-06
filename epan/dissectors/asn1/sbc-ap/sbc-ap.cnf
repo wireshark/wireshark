@@ -326,10 +326,10 @@ Message-Identifier TYPE = FT_UINT16 DISPLAY = BASE_DEC|BASE_EXT_STRING STRINGS =
   }
 
 #.TYPE_ATTR
-Repetition-Period DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_seconds
+Repetition-Period DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_seconds)
 
 #.TYPE_ATTR
-Extended-Repetition-Period DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_seconds
+Extended-Repetition-Period DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_seconds)
 
 #.FN_BODY Warning-Type VAL_PTR = &parameter_tvb
   tvbuff_t *parameter_tvb = NULL;

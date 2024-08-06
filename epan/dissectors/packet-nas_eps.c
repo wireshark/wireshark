@@ -8442,7 +8442,7 @@ proto_register_nas_eps(void)
     },
     { &hf_nas_eps_emm_ciph_key_data_validity_duration,
         { "Validity duration", "nas-eps.emm.ciph_key_data.validity_duration",
-        FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_minute_minutes, 0x0,
+        FT_UINT16, BASE_DEC|BASE_UNIT_STRING, UNS(&units_minute_minutes), 0x0,
         NULL, HFILL }
     },
     { &hf_nas_eps_emm_ciph_key_data_tais_list_len,
@@ -9118,12 +9118,12 @@ proto_register_nas_eps(void)
     },
     { &hf_nas_eps_emm_unavail_info_unavail_period_duration,
         { "Unavailability period duration", "nas-eps.emm.unavailability_info.unavailability_period_duration",
-        FT_UINT24, BASE_DEC|BASE_UNIT_STRING, &units_seconds, 0x0,
+        FT_UINT24, BASE_DEC|BASE_UNIT_STRING, UNS(&units_seconds), 0x0,
         NULL, HFILL }
     },
     { &hf_nas_eps_emm_unavail_info_start_unavail_period,
         { "Start of unavailability period", "nas-eps.emm.unavailability_info.start_unavailability_period",
-        FT_UINT24, BASE_DEC|BASE_UNIT_STRING, &units_seconds, 0x0,
+        FT_UINT24, BASE_DEC|BASE_UNIT_STRING, UNS(&units_seconds), 0x0,
         NULL, HFILL }
     },
     { &hf_nas_eps_emm_unavail_config_suppi,
@@ -9143,12 +9143,12 @@ proto_register_nas_eps(void)
     },
     { &hf_nas_eps_emm_unavail_config_unavail_period_duration,
         { "Unavailability period duration", "nas-eps.emm.unavailability_config.unavailability_period_duration",
-        FT_UINT24, BASE_DEC|BASE_UNIT_STRING, &units_seconds, 0x0,
+        FT_UINT24, BASE_DEC|BASE_UNIT_STRING, UNS(&units_seconds), 0x0,
         NULL, HFILL }
     },
     { &hf_nas_eps_emm_unavail_config_start_unavail_period,
         { "Start of unavailability period", "nas-eps.emm.unavailability_config.start_unavailability_period",
-        FT_UINT24, BASE_DEC|BASE_UNIT_STRING, &units_seconds, 0x0,
+        FT_UINT24, BASE_DEC|BASE_UNIT_STRING, UNS(&units_seconds), 0x0,
         NULL, HFILL }
     },
     { &hf_nas_eps_emm_ue_info_req_uclir,

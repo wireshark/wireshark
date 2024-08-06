@@ -1767,12 +1767,12 @@ proto_register_ftp(void)
 
         { &hf_ftp_command_response_duration,
           { "Response duration", "ftp.command-response.duration",
-            FT_UINT32, BASE_DEC|BASE_UNIT_STRING, &units_milliseconds, 0,
+            FT_UINT32, BASE_DEC|BASE_UNIT_STRING, UNS(&units_milliseconds), 0,
             "Duration of command response in ms", HFILL }},
 
         { &hf_ftp_command_response_kbps,
           { "Response bitrate", "ftp.command-response.bitrate",
-            FT_UINT32, BASE_DEC|BASE_UNIT_STRING, &units_kbps, 0,
+            FT_UINT32, BASE_DEC|BASE_UNIT_STRING, UNS(&units_kbps), 0,
             "Bitrate of command response", HFILL }},
 
         { &hf_ftp_command_response_frames,

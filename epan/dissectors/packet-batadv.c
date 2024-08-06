@@ -4618,12 +4618,12 @@ void proto_register_batadv(void)
 		},
 		{ &hf_batadv_batman_gwflags_dl_speed,
 		  { "Download Speed", "batadv.batman.gwflags.dl_speed",
-		    FT_UINT32, BASE_DEC|BASE_UNIT_STRING, &units_kbit, 0x0,
+		    FT_UINT32, BASE_DEC|BASE_UNIT_STRING, UNS(&units_kbit), 0x0,
 		    NULL, HFILL }
 		},
 		{ &hf_batadv_batman_gwflags_ul_speed,
 		  { "Upload Speed", "batadv.batman.gwflags.ul_speed",
-		    FT_UINT32, BASE_DEC|BASE_UNIT_STRING, &units_kbit, 0x0,
+		    FT_UINT32, BASE_DEC|BASE_UNIT_STRING, UNS(&units_kbit), 0x0,
 		    NULL, HFILL }
 		},
 		{ &hf_batadv_batman_tq,

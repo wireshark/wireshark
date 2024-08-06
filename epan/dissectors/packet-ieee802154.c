@@ -6227,7 +6227,7 @@ void proto_register_ieee802154(void)
             NULL, HFILL }},
 
         { &hf_ieee802154_rssi,
-        { "RSSI",                           "wpan.rssi", FT_INT8, BASE_DEC|BASE_UNIT_STRING, &units_decibels, 0x0,
+        { "RSSI",                           "wpan.rssi", FT_INT8, BASE_DEC|BASE_UNIT_STRING, UNS(&units_decibels), 0x0,
             "Received Signal Strength", HFILL }},
 
         { &hf_ieee802154_fcs_ok,
@@ -6303,7 +6303,7 @@ void proto_register_ieee802154(void)
             NULL, HFILL }},
 
         { &hf_ieee802154_hie_time_correction_value,
-        { "Time Correction",                "wpan.header_ie.time_correction.value", FT_INT16, BASE_DEC|BASE_UNIT_STRING, &units_microseconds, 0x0FFF,
+        { "Time Correction",                "wpan.header_ie.time_correction.value", FT_INT16, BASE_DEC|BASE_UNIT_STRING, UNS(&units_microseconds), 0x0FFF,
             "Time correction in microseconds", HFILL }},
 
         /* CSL IE */
@@ -7038,7 +7038,7 @@ void proto_register_ieee802154(void)
             NULL, HFILL }},
 
         { &hf_ieee802154_tap_rss,
-        { "RSS",           "wpan-tap.rss", FT_FLOAT, BASE_NONE|BASE_UNIT_STRING, &units_dbm, 0x0,
+        { "RSS",           "wpan-tap.rss", FT_FLOAT, BASE_NONE|BASE_UNIT_STRING, UNS(&units_dbm), 0x0,
             NULL, HFILL }},
 
         { &hf_ieee802154_ch_num,
@@ -7050,7 +7050,7 @@ void proto_register_ieee802154(void)
             "Channel page", HFILL }},
 
         { &hf_ieee802154_bit_rate,
-        { "Bit Rate",       "wpan-tap.bit_rate", FT_UINT32, BASE_DEC|BASE_UNIT_STRING, &units_bit_sec, 0x0,
+        { "Bit Rate",       "wpan-tap.bit_rate", FT_UINT32, BASE_DEC|BASE_UNIT_STRING, UNS(&units_bit_sec), 0x0,
             NULL, HFILL }},
 
         { &hf_ieee802154_sun_band,
@@ -7090,19 +7090,19 @@ void proto_register_ieee802154(void)
             NULL, HFILL }},
 
         { &hf_ieee802154_sof_ts,
-        { "Start of frame timestamp",   "wpan-tap.sof_ts", FT_UINT64, BASE_DEC|BASE_UNIT_STRING, &units_nanoseconds, 0x0,
+        { "Start of frame timestamp",   "wpan-tap.sof_ts", FT_UINT64, BASE_DEC|BASE_UNIT_STRING, UNS(&units_nanoseconds), 0x0,
             NULL, HFILL }},
 
         { &hf_ieee802154_eof_ts,
-        { "End of frame timestamp",     "wpan-tap.eof_ts", FT_UINT64, BASE_DEC|BASE_UNIT_STRING, &units_nanoseconds, 0x0,
+        { "End of frame timestamp",     "wpan-tap.eof_ts", FT_UINT64, BASE_DEC|BASE_UNIT_STRING, UNS(&units_nanoseconds), 0x0,
             NULL, HFILL }},
 
         { &hf_ieee802154_slot_start_ts,
-        { "Start of slot timestamp",    "wpan-tap.slot_start_ts", FT_UINT64, BASE_DEC|BASE_UNIT_STRING, &units_nanoseconds, 0x0,
+        { "Start of slot timestamp",    "wpan-tap.slot_start_ts", FT_UINT64, BASE_DEC|BASE_UNIT_STRING, UNS(&units_nanoseconds), 0x0,
             NULL, HFILL }},
 
         { &hf_ieee802154_tap_timeslot_length,
-        { "Timeslot length",            "wpan-tap.timeslot_length", FT_UINT32, BASE_DEC|BASE_UNIT_STRING, &units_microseconds, 0x0,
+        { "Timeslot length",            "wpan-tap.timeslot_length", FT_UINT32, BASE_DEC|BASE_UNIT_STRING, UNS(&units_microseconds), 0x0,
             NULL, HFILL }},
 
         { &hf_ieee802154_tap_lqi,
@@ -7110,11 +7110,11 @@ void proto_register_ieee802154(void)
             NULL, HFILL }},
 
         { &hf_ieee802154_chplan_start,
-        { "Channel0 freq",              "wpan-tap.chplan.start", FT_FLOAT, BASE_NONE|BASE_UNIT_STRING, &units_khz, 0x0,
+        { "Channel0 freq",              "wpan-tap.chplan.start", FT_FLOAT, BASE_NONE|BASE_UNIT_STRING, UNS(&units_khz), 0x0,
             "Channel 0 center frequency", HFILL }},
 
         { &hf_ieee802154_chplan_spacing,
-        { "Spacing",                    "wpan-tap.chplan.spacing", FT_FLOAT, BASE_NONE|BASE_UNIT_STRING, &units_khz, 0x0,
+        { "Spacing",                    "wpan-tap.chplan.spacing", FT_FLOAT, BASE_NONE|BASE_UNIT_STRING, UNS(&units_khz), 0x0,
             "Channel spacing", HFILL }},
 
         { &hf_ieee802154_chplan_channels,
@@ -7122,19 +7122,19 @@ void proto_register_ieee802154(void)
             "Number of channels", HFILL }},
 
         { &hf_ieee802154_ch_freq,
-        { "Frequency",                  "wpan-tap.ch_freq", FT_FLOAT, BASE_NONE|BASE_UNIT_STRING, &units_khz, 0x0,
+        { "Frequency",                  "wpan-tap.ch_freq", FT_FLOAT, BASE_NONE|BASE_UNIT_STRING, UNS(&units_khz), 0x0,
             "Channel center frequency", HFILL }},
 
         { &hf_ieee802154_frame_start_offset,
-        { "Frame start offset",       "wpan.tsch.frame_start_offset", FT_DOUBLE, BASE_NONE|BASE_UNIT_STRING, &units_microseconds, 0x0,
+        { "Frame start offset",       "wpan.tsch.frame_start_offset", FT_DOUBLE, BASE_NONE|BASE_UNIT_STRING, UNS(&units_microseconds), 0x0,
             "Start of frame timestamp - start of slot timestamp", HFILL }},
 
         { &hf_ieee802154_frame_duration,
-        { "Frame duration",           "wpan.tsch.frame_duration", FT_DOUBLE, BASE_NONE|BASE_UNIT_STRING, &units_microseconds, 0x0,
+        { "Frame duration",           "wpan.tsch.frame_duration", FT_DOUBLE, BASE_NONE|BASE_UNIT_STRING, UNS(&units_microseconds), 0x0,
             "End of frame timestamp - start of frame timestamp", HFILL }},
 
         { &hf_ieee802154_frame_end_offset,
-        { "Frame end offset", "wpan.tsch.frame_end_offset", FT_DOUBLE, BASE_NONE|BASE_UNIT_STRING, &units_microseconds, 0x0,
+        { "Frame end offset", "wpan.tsch.frame_end_offset", FT_DOUBLE, BASE_NONE|BASE_UNIT_STRING, UNS(&units_microseconds), 0x0,
             "End of frame timestamp - (start of slot timestamp + timeslot length)", HFILL }},
 
         { &hf_ieee802154_asn,

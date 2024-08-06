@@ -1517,7 +1517,7 @@ proto_register_jfif(void)
         { &hf_start_ifd_offset,
           {   "Start offset of IFD starting from the TIFF header start",
               "image-jfif.start_ifd_offset",
-              FT_UINT32, BASE_DEC|BASE_UNIT_STRING, &units_byte_bytes, 0x0,
+              FT_UINT32, BASE_DEC|BASE_UNIT_STRING, UNS(&units_byte_bytes), 0x0,
               NULL,
               HFILL
           }
@@ -1525,7 +1525,7 @@ proto_register_jfif(void)
         { &hf_next_ifd_offset,
           {   "Offset to next IFD from start of TIFF header",
               "image-jfif.next_ifd_offset",
-              FT_UINT32, BASE_DEC|BASE_UNIT_STRING, &units_byte_bytes, 0x0,
+              FT_UINT32, BASE_DEC|BASE_UNIT_STRING, UNS(&units_byte_bytes), 0x0,
               NULL,
               HFILL
           }

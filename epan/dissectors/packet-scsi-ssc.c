@@ -1331,9 +1331,9 @@ proto_register_scsi_ssc(void)
           {"Capacity Proportion Value", "scsi_ssc.cpv", FT_UINT16, BASE_DEC,
            NULL, 0, NULL, HFILL}},
       /* Generated from convert_proto_tree_add_text.pl */
-      { &hf_scsi_ssc_readblocklimits_granularity, { "Granularity", "scsi_ssc.readblocklimits.granularity", FT_UINT8, BASE_DEC|BASE_UNIT_STRING, &units_byte_bytes, 0x0, NULL, HFILL }},
-      { &hf_scsi_ssc_readblocklimits_max_block_length_limit, { "Maximum Block Length Limit", "scsi_ssc.readblocklimits.max_block_length_limit", FT_UINT24, BASE_DEC|BASE_UNIT_STRING, &units_byte_bytes, 0x0, NULL, HFILL }},
-      { &hf_scsi_ssc_readblocklimits_min_block_length_limit, { "Minimum Block Length Limit", "scsi_ssc.readblocklimits.min_block_length_limit", FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_byte_bytes, 0x0, NULL, HFILL }},
+      { &hf_scsi_ssc_readblocklimits_granularity, { "Granularity", "scsi_ssc.readblocklimits.granularity", FT_UINT8, BASE_DEC|BASE_UNIT_STRING, UNS(&units_byte_bytes), 0x0, NULL, HFILL }},
+      { &hf_scsi_ssc_readblocklimits_max_block_length_limit, { "Maximum Block Length Limit", "scsi_ssc.readblocklimits.max_block_length_limit", FT_UINT24, BASE_DEC|BASE_UNIT_STRING, UNS(&units_byte_bytes), 0x0, NULL, HFILL }},
+      { &hf_scsi_ssc_readblocklimits_min_block_length_limit, { "Minimum Block Length Limit", "scsi_ssc.readblocklimits.min_block_length_limit", FT_UINT16, BASE_DEC|BASE_UNIT_STRING, UNS(&units_byte_bytes), 0x0, NULL, HFILL }},
       { &hf_scsi_ssc_erase6_immed, { "IMMED", "scsi_ssc.erase6.immed", FT_UINT8, BASE_DEC, NULL, 0x02, NULL, HFILL }},
       { &hf_scsi_ssc_erase6_long, { "LONG", "scsi_ssc.erase6.long", FT_UINT8, BASE_DEC, NULL, 0x01, NULL, HFILL }},
       { &hf_scsi_ssc_space16_parameter_len, { "Parameter Len", "scsi_ssc.space16.parameter_len", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},

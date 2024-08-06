@@ -12162,7 +12162,7 @@ proto_register_isup(void)
       { &hf_isup_call_history_info, { "Call history info", "isup.call_history_info", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_isup_network_specific_facility, { "Network specific facility (refer to 3.36/Q.763 for detailed decoding)", "isup.network_specific_facility", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_isup_user_service_information_prime, { "User service information prime (-> Q.931 Bearer capability information IE)", "isup.user_service_information_prime", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-      { &hf_isup_propagation_delay_counter, { "Propagation delay counter", "isup.propagation_delay_counter", FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_milliseconds, 0x0, NULL, HFILL }},
+      { &hf_isup_propagation_delay_counter, { "Propagation delay counter", "isup.propagation_delay_counter", FT_UINT16, BASE_DEC|BASE_UNIT_STRING, UNS(&units_milliseconds), 0x0, NULL, HFILL }},
       { &hf_isup_remote_operations, { "Remote operations", "isup.remote_operations", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_isup_feature_code, { "Feature Code", "isup.feature_code", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_isup_user_teleservice_information, { "User teleservice information (-> Q.931 High Layer Compatibility IE)", "isup.user_teleservice_information", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},

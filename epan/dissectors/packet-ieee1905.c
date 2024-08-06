@@ -9457,7 +9457,7 @@ proto_register_ieee1905(void)
 
         { &hf_ieee1905_ap_radio_eirp,
           { "Maximum transmit power EIRP", "ieee1905.radio_basic.max_power",
-            FT_INT8, BASE_DEC|BASE_UNIT_STRING, &units_dbm, 0, NULL, HFILL }},
+            FT_INT8, BASE_DEC|BASE_UNIT_STRING, UNS(&units_dbm), 0, NULL, HFILL }},
 
         { &hf_ieee1905_ap_radio_non_op_count,
           { "Number of non-operable channels", "ieee1905.radio_basic.non_op_channels",
@@ -9696,7 +9696,7 @@ proto_register_ieee1905(void)
 
         { &hf_ieee1905_trans_power_limit_eirp,
           { "Transmit power limit EIRP per 20MHz", "ieee1905.transmit_power.eirp",
-            FT_INT8, BASE_DEC|BASE_UNIT_STRING, &units_dbm, 0, NULL, HFILL }},
+            FT_INT8, BASE_DEC|BASE_UNIT_STRING, UNS(&units_dbm), 0, NULL, HFILL }},
 
         { &hf_ieee1905_channel_select_resp_radio_id,
           { "Radio unique ID", "ieee1905.channel_select.radio_id",
@@ -9728,7 +9728,7 @@ proto_register_ieee1905(void)
 
         { &hf_ieee1905_op_channel_eirp,
           { "Current transmit power EIRP", "ieee1905.operating_channel.eirp",
-            FT_INT8, BASE_DEC|BASE_UNIT_STRING, &units_dbm, 0, NULL, HFILL }},
+            FT_INT8, BASE_DEC|BASE_UNIT_STRING, UNS(&units_dbm), 0, NULL, HFILL }},
 
         { &hf_ieee1905_ap_he_cap_radio_id,
           { "Radio unique ID", "ieee1905.ap_he_capability.radio_id",
@@ -9922,7 +9922,7 @@ proto_register_ieee1905(void)
 
         { &hf_ieee1905_metrics_channel_util_threshold,
           { "Utilization Reporting threshold", "ieee1905.sta_metric_policy.utilization_threshold",
-            FT_UINT8, BASE_DEC|BASE_UNIT_STRING, &units_dbm, 0, NULL, HFILL }},
+            FT_UINT8, BASE_DEC|BASE_UNIT_STRING, UNS(&units_dbm), 0, NULL, HFILL }},
 
         { &hf_ieee1905_ap_metric_query_bssid_cnt,
           { "BSSID Count", "ieee1905.ap_metrics_query.bssid_cnt",
@@ -10352,7 +10352,7 @@ proto_register_ieee1905(void)
 
         { &hf_ieee1905_channel_scan_capa_min_scan_interval,
           { "Minimum Scan Interval", "ieee1905.channel_scan_capabilities.min_scan_interval",
-            FT_UINT32, BASE_DEC | BASE_UNIT_STRING, &units_seconds,
+            FT_UINT32, BASE_DEC | BASE_UNIT_STRING, UNS(&units_seconds),
             0, NULL, HFILL }},
 
         { &hf_ieee1905_channel_scan_capa_class_num,

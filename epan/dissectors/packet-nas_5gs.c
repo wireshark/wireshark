@@ -12392,7 +12392,7 @@ proto_register_nas_5gs(void)
         },
         { &hf_nas_5gs_mm_ciph_key_data_validity_duration,
         { "Validity duration", "nas-5gs.mm.ciph_key_data.validity_duration",
-            FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_minute_minutes, 0x0,
+            FT_UINT16, BASE_DEC|BASE_UNIT_STRING, UNS(&units_minute_minutes), 0x0,
             NULL, HFILL }
         },
         { &hf_nas_5gs_mm_ciph_key_data_tais_list_len,
@@ -13717,7 +13717,7 @@ proto_register_nas_5gs(void)
         },
         { &hf_nas_5gs_sm_averaging_window,
         { "Averaging window",   "nas-5gs.sm.averaging_window",
-            FT_UINT16, BASE_DEC | BASE_UNIT_STRING, &units_millisecond_milliseconds, 0x0,
+            FT_UINT16, BASE_DEC | BASE_UNIT_STRING, UNS(&units_millisecond_milliseconds), 0x0,
             NULL, HFILL }
         },
         { &hf_nas_5gs_sm_eps_bearer_id,
@@ -15152,7 +15152,7 @@ proto_register_nas_5gs(void)
         },
         { &hf_nas_5gs_mm_on_demand_nssai_slice_dereg_inactiv_timer,
         { "Slice deregistration inactivity timer", "nas-5gs.mm.on_demand_nssai.slice_dereg_inactiv_timer",
-            FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_seconds, 0x0,
+            FT_UINT16, BASE_DEC|BASE_UNIT_STRING, UNS(&units_seconds), 0x0,
             NULL, HFILL }
         },
         { &hf_nas_5gs_mm_ext_5gmm_cause_sat_nr,

@@ -1678,7 +1678,7 @@ proto_register_btlmp(void)
         },
         {  &hf_param_afh_instant,
            { "AFH Instant",                                     "btlmp.afh.instant",
-             FT_UINT32, BASE_HEX | BASE_UNIT_STRING, &units_slots, 0x00,
+             FT_UINT32, BASE_HEX | BASE_UNIT_STRING, UNS(&units_slots), 0x00,
              NULL, HFILL }
         },
         {  &hf_param_afh_channelmap[0],
@@ -1738,12 +1738,12 @@ proto_register_btlmp(void)
         },
         {  &hf_param_afh_mininterval,
            { "AFH Min Interval",                                "btlmp.afh.mininterval",
-             FT_UINT16, BASE_HEX_DEC | BASE_UNIT_STRING, &units_slots, 0x00,
+             FT_UINT16, BASE_HEX_DEC | BASE_UNIT_STRING, UNS(&units_slots), 0x00,
              NULL, HFILL }
         },
         {  &hf_param_afh_maxinterval,
            { "AFH Max Interval",                                "btlmp.afh.maxinterval",
-             FT_UINT16, BASE_HEX_DEC | BASE_UNIT_STRING, &units_slots, 0x00,
+             FT_UINT16, BASE_HEX_DEC | BASE_UNIT_STRING, UNS(&units_slots), 0x00,
              NULL, HFILL }
         },
         {  &hf_param_afh_channelclass[0][0],
@@ -1958,7 +1958,7 @@ proto_register_btlmp(void)
         },
         {  &hf_param_clockoffset,
            { "Clock Offset",                                    "btlmp.clockoffset",
-             FT_UINT16, BASE_HEX | BASE_UNIT_STRING, &units_slotpairs, 0x00,
+             FT_UINT16, BASE_HEX | BASE_UNIT_STRING, UNS(&units_slotpairs), 0x00,
              NULL, HFILL }
         },
         {  &hf_param_authresp,
@@ -1978,37 +1978,37 @@ proto_register_btlmp(void)
         },
         {  &hf_param_switchinstant,
            { "Switch Instant",                                  "btlmp.switchinstant",
-             FT_UINT32, BASE_HEX | BASE_UNIT_STRING, &units_slots, 0x00,
+             FT_UINT32, BASE_HEX | BASE_UNIT_STRING, UNS(&units_slots), 0x00,
              NULL, HFILL }
         },
         {  &hf_param_holdtime,
            { "Hold Time",                                       "btlmp.holdtime",
-             FT_UINT16, BASE_HEX | BASE_UNIT_STRING, &units_slots, 0x00,
+             FT_UINT16, BASE_HEX | BASE_UNIT_STRING, UNS(&units_slots), 0x00,
              NULL, HFILL }
         },
         {  &hf_param_holdinstant,
            { "Hold Instant",                                    "btlmp.holdinstant",
-             FT_UINT32, BASE_HEX | BASE_UNIT_STRING, &units_slots, 0x00,
+             FT_UINT32, BASE_HEX | BASE_UNIT_STRING, UNS(&units_slots), 0x00,
              NULL, HFILL }
         },
         {  &hf_param_dsniff,
            { "Dsniff",                                          "btlmp.sniff.d",
-             FT_UINT16, BASE_HEX | BASE_UNIT_STRING, &units_slots, 0x00,
+             FT_UINT16, BASE_HEX | BASE_UNIT_STRING, UNS(&units_slots), 0x00,
              NULL, HFILL }
         },
         {  &hf_param_tsniff,
            { "Tsniff",                                          "btlmp.sniff.t",
-             FT_UINT16, BASE_HEX | BASE_UNIT_STRING, &units_slots, 0x00,
+             FT_UINT16, BASE_HEX | BASE_UNIT_STRING, UNS(&units_slots), 0x00,
              NULL, HFILL }
         },
         {  &hf_param_sniffattempt,
            { "Sniff Attempt",                                   "btlmp.sniff.attempt",
-             FT_UINT16, BASE_HEX | BASE_UNIT_STRING, &units_slots, 0x00,
+             FT_UINT16, BASE_HEX | BASE_UNIT_STRING, UNS(&units_slots), 0x00,
              NULL, HFILL }
         },
         {  &hf_param_snifftimeout,
            { "Sniff Timeout",                                   "btlmp.sniff.timeout",
-             FT_UINT16, BASE_HEX | BASE_UNIT_STRING, &units_slots, 0x00,
+             FT_UINT16, BASE_HEX | BASE_UNIT_STRING, UNS(&units_slots), 0x00,
              NULL, HFILL }
         },
         {  &hf_param_timingcontrolflags[0],
@@ -2073,7 +2073,7 @@ proto_register_btlmp(void)
         },
         {  &hf_param_pollinterval,
            { "Poll Interval",                                   "btlmp.qos.pollinterval",
-             FT_UINT16, BASE_HEX | BASE_UNIT_STRING, &units_slots, 0x00,
+             FT_UINT16, BASE_HEX | BASE_UNIT_STRING, UNS(&units_slots), 0x00,
              NULL, HFILL }
         },
         {  &hf_param_nbc,
@@ -2088,12 +2088,12 @@ proto_register_btlmp(void)
         },
         {  &hf_param_dsco,
            { "Dsco",                                            "btlmp.sco.d",
-             FT_UINT8, BASE_DEC | BASE_UNIT_STRING, &units_slots, 0x00,
+             FT_UINT8, BASE_DEC | BASE_UNIT_STRING, UNS(&units_slots), 0x00,
              NULL, HFILL }
         },
         {  &hf_param_tsco,
            { "Tsco",                                            "btlmp.sco.t",
-             FT_UINT8, BASE_DEC | BASE_UNIT_STRING, &units_slots, 0x00,
+             FT_UINT8, BASE_DEC | BASE_UNIT_STRING, UNS(&units_slots), 0x00,
              NULL, HFILL }
         },
         {  &hf_param_scopacket,
@@ -2108,22 +2108,22 @@ proto_register_btlmp(void)
         },
         {  &hf_param_slots,
            { "Slots",                                           "btlmp.slots",
-             FT_UINT8, BASE_HEX | BASE_UNIT_STRING, &units_slots, 0x00,
+             FT_UINT8, BASE_HEX | BASE_UNIT_STRING, UNS(&units_slots), 0x00,
              NULL, HFILL }
         },
         {  &hf_param_tmgacc_drift,
            { "Drift",                                           "btlmp.timingaccuracy.drift",
-             FT_UINT8, BASE_DEC | BASE_UNIT_STRING, &units_ppm, 0x00,
+             FT_UINT8, BASE_DEC | BASE_UNIT_STRING, UNS(&units_ppm), 0x00,
              NULL, HFILL }
         },
         {  &hf_param_tmgacc_jitter,
            { "Jitter",                                          "btlmp.timingaccuracy.jitter",
-             FT_UINT8, BASE_DEC | BASE_UNIT_STRING, &units_microsecond_microseconds, 0x00,
+             FT_UINT8, BASE_DEC | BASE_UNIT_STRING, UNS(&units_microsecond_microseconds), 0x00,
              NULL, HFILL }
         },
         {  &hf_param_slotoffset,
            { "Slot Offset",                                     "btlmp.slotoffset",
-             FT_UINT16, BASE_DEC | BASE_UNIT_STRING, &units_microsecond_microseconds, 0x00,
+             FT_UINT16, BASE_DEC | BASE_UNIT_STRING, UNS(&units_microsecond_microseconds), 0x00,
              NULL, HFILL }
         },
         {  &hf_param_bdaddr,
@@ -2143,7 +2143,7 @@ proto_register_btlmp(void)
         },
         {  &hf_param_supervisiontimeout,
            { "Supervision Timeout",                             "btlmp.supervisiontimeout",
-             FT_UINT16, BASE_DEC | BASE_UNIT_STRING, &units_slots, 0x00,
+             FT_UINT16, BASE_DEC | BASE_UNIT_STRING, UNS(&units_slots), 0x00,
              NULL, HFILL }
         },
         {  &hf_param_testscenario,
@@ -2233,17 +2233,17 @@ proto_register_btlmp(void)
         },
         {  &hf_param_clkadjinstant,
            { "Clock Adjust Instant",                            "btlmp.clkadj.instant",
-             FT_UINT32, BASE_HEX | BASE_UNIT_STRING, &units_slots, 0x00,
+             FT_UINT32, BASE_HEX | BASE_UNIT_STRING, UNS(&units_slots), 0x00,
              NULL, HFILL }
         },
         {  &hf_param_clkadjus,
            { "Clock Adjust Microseconds",                       "btlmp.clkadj.us",
-             FT_INT16, BASE_DEC | BASE_UNIT_STRING, &units_microsecond_microseconds, 0x00,
+             FT_INT16, BASE_DEC | BASE_UNIT_STRING, UNS(&units_microsecond_microseconds), 0x00,
              NULL, HFILL }
         },
         {  &hf_param_clkadjslots,
            { "Clock Adjust Slots",                              "btlmp.clkadj.slots",
-             FT_UINT8, BASE_HEX | BASE_UNIT_STRING, &units_slots, 0x00,
+             FT_UINT8, BASE_HEX | BASE_UNIT_STRING, UNS(&units_slots), 0x00,
              NULL, HFILL }
         },
         {  &hf_param_clkadjmode,
@@ -2253,12 +2253,12 @@ proto_register_btlmp(void)
         },
         {  &hf_param_clkadjclk,
            { "Clock Adjust Clock",                              "btlmp.clkadj.clk",
-             FT_UINT32, BASE_HEX | BASE_UNIT_STRING, &units_slotpairs, 0x00,
+             FT_UINT32, BASE_HEX | BASE_UNIT_STRING, UNS(&units_slotpairs), 0x00,
              NULL, HFILL }
         },
         {  &hf_param_clkadjperiod,
            { "Clock Adjust Period",                             "btlmp.clkadj.period",
-             FT_UINT8, BASE_DEC | BASE_UNIT_STRING, &units_slots, 0x00,
+             FT_UINT8, BASE_DEC | BASE_UNIT_STRING, UNS(&units_slots), 0x00,
              NULL, HFILL }
         },
         {  &hf_param_packettypetable,
@@ -2278,17 +2278,17 @@ proto_register_btlmp(void)
         },
         {  &hf_param_escod,
            { "Desco",                                           "btlmp.esco.d",
-             FT_UINT8, BASE_DEC | BASE_UNIT_STRING, &units_slots, 0x00,
+             FT_UINT8, BASE_DEC | BASE_UNIT_STRING, UNS(&units_slots), 0x00,
              NULL, HFILL }
         },
         {  &hf_param_escot,
            { "Tesco",                                           "btlmp.esco.t",
-             FT_UINT8, BASE_DEC | BASE_UNIT_STRING, &units_slots, 0x00,
+             FT_UINT8, BASE_DEC | BASE_UNIT_STRING, UNS(&units_slots), 0x00,
              NULL, HFILL }
         },
         {  &hf_param_escow,
            { "Wesco",                                           "btlmp.esco.w",
-             FT_UINT8, BASE_DEC | BASE_UNIT_STRING, &units_slots, 0x00,
+             FT_UINT8, BASE_DEC | BASE_UNIT_STRING, UNS(&units_slots), 0x00,
              NULL, HFILL }
         },
         {  &hf_param_escopackettypems,
@@ -2323,7 +2323,7 @@ proto_register_btlmp(void)
         },
         {  &hf_param_minsniffmodetimeout,
            { "Min Sniff Mode Timeout",                          "btlmp.sniffsubrate.minmodetimeout",
-             FT_UINT16, BASE_DEC | BASE_UNIT_STRING, &units_slots, 0x00,
+             FT_UINT16, BASE_DEC | BASE_UNIT_STRING, UNS(&units_slots), 0x00,
              NULL, HFILL }
         },
         {  &hf_param_sniffsubratinginstant,
@@ -2388,7 +2388,7 @@ proto_register_btlmp(void)
         },
         {  &hf_param_samtsm,
            { "Tsam-sm",                                         "btlmp.sam.tsm",
-             FT_UINT8, BASE_DEC | BASE_UNIT_STRING, &units_slots, 0x00,
+             FT_UINT8, BASE_DEC | BASE_UNIT_STRING, UNS(&units_slots), 0x00,
              NULL, HFILL }
         },
         {  &hf_param_samnsm,
@@ -2418,7 +2418,7 @@ proto_register_btlmp(void)
         },
         {  &hf_param_saminstant,
            { "SAM Instant",                                     "btlmp.sam.instant",
-             FT_UINT32, BASE_HEX | BASE_UNIT_STRING, &units_slots, 0x00,
+             FT_UINT32, BASE_HEX | BASE_UNIT_STRING, UNS(&units_slots), 0x00,
              NULL, HFILL }
         },
         {  &hf_params,

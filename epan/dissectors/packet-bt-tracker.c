@@ -566,7 +566,7 @@ proto_register_bt_tracker(void)
     },
     { &hf_bt_tracker_extension_len,
       { "Extension Length", "bt-tracker.extension_len",
-      FT_UINT8, BASE_DEC|BASE_UNIT_STRING, &units_byte_bytes, 0x0,
+      FT_UINT8, BASE_DEC|BASE_UNIT_STRING, UNS(&units_byte_bytes), 0x0,
       NULL, HFILL }
     },
     { &hf_bt_tracker_extension_unknown,

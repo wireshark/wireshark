@@ -821,7 +821,7 @@ proto_register_aodv(void)
         },
         { &hf_aodv_ext_length,
           { "Extension Length", "aodv.ext_length",
-            FT_UINT8, BASE_DEC|BASE_UNIT_STRING, &units_byte_bytes, 0x0,
+            FT_UINT8, BASE_DEC|BASE_UNIT_STRING, UNS(&units_byte_bytes), 0x0,
             "Extension Data Length", HFILL}
         },
         { &hf_aodv_ext_interval,

@@ -2025,7 +2025,7 @@ ssl_common_dissect_t name;
     { & name .hf.hs_session_ticket_lifetime_hint,                       \
       { "Session Ticket Lifetime Hint",                                 \
         prefix ".handshake.session_ticket_lifetime_hint",               \
-        FT_UINT32, BASE_DEC|BASE_UNIT_STRING, &units_second_seconds, 0x0, \
+        FT_UINT32, BASE_DEC|BASE_UNIT_STRING, UNS(&units_second_seconds), 0x0, \
         "New Session Ticket Lifetime Hint", HFILL }                     \
     },                                                                  \
     { & name .hf.hs_session_ticket_age_add,                             \

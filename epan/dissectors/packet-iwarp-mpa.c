@@ -1015,7 +1015,7 @@ void proto_register_mpa(void)
 					NULL, HFILL } },
 			{ &hf_mpa_pd_length, {
 					"Private data length", "iwarp_mpa.pdlength",
-					FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_byte_bytes, 0x0,
+					FT_UINT16, BASE_DEC|BASE_UNIT_STRING, UNS(&units_byte_bytes), 0x0,
 					NULL, HFILL } },
 			{ &hf_mpa_private_data, {
 					"Private data", "iwarp_mpa.privatedata",
@@ -1023,7 +1023,7 @@ void proto_register_mpa(void)
 					NULL, HFILL } },
 			{ &hf_mpa_ulpdu_length, {
 					"ULPDU length", "iwarp_mpa.ulpdulength",
-					FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_byte_bytes, 0x0,
+					FT_UINT16, BASE_DEC|BASE_UNIT_STRING, UNS(&units_byte_bytes), 0x0,
 					NULL, HFILL } },
 			{ &hf_mpa_pad, {
 					"Padding", "iwarp_mpa.pad",
@@ -1043,7 +1043,7 @@ void proto_register_mpa(void)
 					"Marker: Reserved", HFILL } },
 			{ &hf_mpa_marker_fpduptr, {
 					"FPDU back pointer", "iwarp_mpa.marker_fpduptr",
-					FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_byte_bytes, 0x0,
+					FT_UINT16, BASE_DEC|BASE_UNIT_STRING, UNS(&units_byte_bytes), 0x0,
 					"Marker: FPDU Pointer", HFILL } }
 	};
 

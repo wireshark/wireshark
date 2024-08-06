@@ -8035,7 +8035,7 @@ proto_register_artnet(void) {
     { &hf_artnet_poll_reply_refreshrate,
       { "Refresh rate",
         "artnet.poll_reply.refreshrate",
-        FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_hz, 0,
+        FT_UINT16, BASE_DEC|BASE_UNIT_STRING, UNS(&units_hz), 0,
         NULL, HFILL }},
 
     /* ArtOutput */
@@ -8187,13 +8187,13 @@ proto_register_artnet(void) {
     { &hf_artnet_nzs_vlc_mod_depth,
       { "VLC Modulation Depth",
         "artnet.nzs.vlc_mod_depth",
-        FT_UINT8, BASE_DEC|BASE_UNIT_STRING, &units_percent, 0,
+        FT_UINT8, BASE_DEC|BASE_UNIT_STRING, UNS(&units_percent), 0,
         NULL, HFILL }},
 
     { &hf_artnet_nzs_vlc_mod_freq,
       { "VLC Modulation Frequency",
         "artnet.nzs.vlc_mod_freq",
-        FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_hz, 0,
+        FT_UINT16, BASE_DEC|BASE_UNIT_STRING, UNS(&units_hz), 0,
         NULL, HFILL }},
 
     { &hf_artnet_nzs_vlc_mod_type,
@@ -8211,7 +8211,7 @@ proto_register_artnet(void) {
     { &hf_artnet_nzs_vlc_beacon_repeat,
       { "VLC Beacon Repeat Frequency",
         "artnet.nzs.vlc_beacon_freq",
-        FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_hz, 0,
+        FT_UINT16, BASE_DEC|BASE_UNIT_STRING, UNS(&units_hz), 0,
         NULL, HFILL }},
 
     { &hf_artnet_nzs_vlc_payload,

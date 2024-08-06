@@ -5199,7 +5199,7 @@ proto_register_dnp3(void)
     { &hf_dnp3_al_count, { "Count", "dnp3.al.count", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
     { &hf_dnp3_al_on_time, { "On Time", "dnp3.al.on_time", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
     { &hf_dnp3_al_off_time, { "Off Time", "dnp3.al.off_time", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-    { &hf_dnp3_al_time_delay, { "Time Delay", "dnp3.al.time_delay", FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_milliseconds, 0x0, NULL, HFILL }},
+    { &hf_dnp3_al_time_delay, { "Time Delay", "dnp3.al.time_delay", FT_UINT16, BASE_DEC|BASE_UNIT_STRING, UNS(&units_milliseconds), 0x0, NULL, HFILL }},
     { &hf_dnp3_al_file_string_offset, { "File String Offset", "dnp3.al.file_string_offset", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
     { &hf_dnp3_al_file_string_length, { "File String Length", "dnp3.al.file_string_length", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
     { &hf_dnp3_al_file_name, { "File Name", "dnp3.al.file_name", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},

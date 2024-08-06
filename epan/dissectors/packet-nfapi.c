@@ -8434,7 +8434,7 @@ void proto_register_nfapi(void)
 		},
 		{ &hf_nfapi_p7_message_header_message_length,
 			{ "Message Length", "nfapi.p7_message_header.message_length",
-			FT_UINT16, BASE_DEC | BASE_UNIT_STRING, &units_byte_bytes, 0x0,
+			FT_UINT16, BASE_DEC | BASE_UNIT_STRING, UNS(&units_byte_bytes), 0x0,
 			"The length in bytes of the message segment including the header", HFILL }
 		},
 		{ &hf_nfapi_p7_message_header_m,
@@ -8461,7 +8461,7 @@ void proto_register_nfapi(void)
 		},
 		{ &hf_nfapi_p7_message_header_transmit_timestamp,
 			{ "Transmit Timestamp", "nfapi.p7_message_header.timestamp",
-			FT_UINT32, BASE_DEC | BASE_UNIT_STRING, &units_milliseconds, 0x0,
+			FT_UINT32, BASE_DEC | BASE_UNIT_STRING, UNS(&units_milliseconds), 0x0,
 			"The offset from VNF SFN/SF 0/0 time reference of the message transmission at the transport layer, in microseconds, with a range of 0 to 10239999", HFILL }
 		},
 		{ &hf_nfapi_tl_tag,
@@ -8471,7 +8471,7 @@ void proto_register_nfapi(void)
 		},
 		{ &hf_nfapi_tl_length,
 			{ "TLV Length", "nfapi.tlv_length",
-			FT_UINT16, BASE_DEC | BASE_UNIT_STRING, &units_byte_bytes, 0x0,
+			FT_UINT16, BASE_DEC | BASE_UNIT_STRING, UNS(&units_byte_bytes), 0x0,
 			NULL, HFILL }
 		},
 		{ &hf_nfapi_error_code,
@@ -9076,22 +9076,22 @@ void proto_register_nfapi(void)
 		},
 		{ &hf_nfapi_dl_config_timing,
 			{ "DL config Timing", "nfapi.dl.config.timing",
-			FT_UINT32, BASE_DEC | BASE_UNIT_STRING, &units_milliseconds, 0x0,
+			FT_UINT32, BASE_DEC | BASE_UNIT_STRING, UNS(&units_milliseconds), 0x0,
 			"The timing offset before the air interface subframe start that the DL_Config.request must be received at the PNF.", HFILL }
 		},
 		{ &hf_nfapi_tx_timing,
 			{ "Tx Timing", "nfapi.general.tx.timing",
-			FT_UINT32, BASE_DEC | BASE_UNIT_STRING, &units_milliseconds, 0x0,
+			FT_UINT32, BASE_DEC | BASE_UNIT_STRING, UNS(&units_milliseconds), 0x0,
 			"The timing offset before the air interface subframe start that the TX.request must be received at the PNF.", HFILL }
 		},
 		{ &hf_nfapi_ul_config_timing,
 			{ "UL Config Timing", "nfapi.ul.config.timing",
-			FT_UINT32, BASE_DEC | BASE_UNIT_STRING, &units_milliseconds, 0x0,
+			FT_UINT32, BASE_DEC | BASE_UNIT_STRING, UNS(&units_milliseconds), 0x0,
 			"The timing offset before the air interface subframe start that the UL_CONFIG.request must be received at the PNF.", HFILL }
 		},
 		{ &hf_nfapi_hi_dci0_timing,
 			{ "HI DCi0 Timing", "nfapi.hi.dci0.timing",
-			FT_UINT32, BASE_DEC | BASE_UNIT_STRING, &units_milliseconds, 0x0,
+			FT_UINT32, BASE_DEC | BASE_UNIT_STRING, UNS(&units_milliseconds), 0x0,
 			"The timing offset before the air interface subframe start that the HI_DCI0.request must be received at the PNF.", HFILL }
 		},
 		{ &hf_nfapi_maximum_number_phys,
@@ -9101,7 +9101,7 @@ void proto_register_nfapi(void)
 		},
 		{ &hf_nfapi_maximum_total_bandwidth,
 			{ "Maximum Total Bandwidth", "nfapi.maximum.total.bandwidth",
-			FT_UINT16, BASE_DEC | BASE_UNIT_STRING, &khz_100_units_db, 0x0,
+			FT_UINT16, BASE_DEC | BASE_UNIT_STRING, UNS(&khz_100_units_db), 0x0,
 			"The total maximum bandwidth (in units of 100kHz) supported by the PNF device.", HFILL }
 		},
 		{ &hf_nfapi_maximum_total_number_dl_layers,
@@ -9267,22 +9267,22 @@ void proto_register_nfapi(void)
 		},
 		{ &hf_nfapi_minimum_downlink_frequency,
 			{ "Minimum downlink frequency", "nfapi.minimum_downlink_frequency",
-			FT_UINT32, BASE_DEC | BASE_UNIT_STRING, &khz_100_units_db, 0x0,
+			FT_UINT32, BASE_DEC | BASE_UNIT_STRING, UNS(&khz_100_units_db), 0x0,
 			"The minimum supported downlink frequency in 100kHz units", HFILL }
 		},
 		{ &hf_nfapi_maximum_downlink_frequency,
 			{ "Maximum downlink frequency", "nfapi.maximum_downlink_frequency",
-			FT_UINT32, BASE_DEC | BASE_UNIT_STRING, &khz_100_units_db, 0x0,
+			FT_UINT32, BASE_DEC | BASE_UNIT_STRING, UNS(&khz_100_units_db), 0x0,
 			"The maximum supported downlink frequency in 100kHz units", HFILL }
 		},
 		{ &hf_nfapi_minimum_uplink_frequency,
 			{ "Minimum uplink frequency", "nfapi.minimum_uplink_frequency",
-			FT_UINT32, BASE_DEC | BASE_UNIT_STRING, &khz_100_units_db, 0x0,
+			FT_UINT32, BASE_DEC | BASE_UNIT_STRING, UNS(&khz_100_units_db), 0x0,
 			"The minimum supported uplink frequency in 100kHz units", HFILL }
 		},
 		{ &hf_nfapi_maximum_uplink_frequency,
 			{ "Maximum uplink frequency", "nfapi.maximum_uplink_frequency",
-			FT_UINT32, BASE_DEC | BASE_UNIT_STRING, &khz_100_units_db, 0x0,
+			FT_UINT32, BASE_DEC | BASE_UNIT_STRING, UNS(&khz_100_units_db), 0x0,
 			"The maximum supported uplink frequency in 100kHz units", HFILL }
 		},
 		{ &hf_nfapi_transmission_mode7_supported,
@@ -10664,7 +10664,7 @@ void proto_register_nfapi(void)
 		},
 		{ &hf_nfapi_dl_node_sync_t1,
 			{ "DL Node Sync t1", "nfapi.dl.node.sync.t1",
-			FT_UINT32, BASE_DEC | BASE_UNIT_STRING, &units_milliseconds, 0x0,
+			FT_UINT32, BASE_DEC | BASE_UNIT_STRING, UNS(&units_milliseconds), 0x0,
 			"Offset from VNF SFN/SF 0/0 time reference of the DL Node Sync message transmission at the transport layer, in microseconds.", HFILL }
 		},
 		{ &hf_nfapi_dl_node_sync_delta_sfn_sf,
@@ -10704,17 +10704,17 @@ void proto_register_nfapi(void)
 		},
 		{ &hf_nfapi_ul_node_sync_t1,
 			{ "UL Node Sync t1", "nfapi.ul.node.sync.t1",
-			FT_UINT32, BASE_DEC | BASE_UNIT_STRING, &units_milliseconds, 0x0,
+			FT_UINT32, BASE_DEC | BASE_UNIT_STRING, UNS(&units_milliseconds), 0x0,
 			"The supplied t1 field in the DL Node Sync", HFILL }
 		},
 		{ &hf_nfapi_ul_node_sync_t2,
 			{ "UL Node Sync t2", "nfapi.ul.node.sync.t2",
-			FT_UINT32, BASE_DEC | BASE_UNIT_STRING, &units_milliseconds, 0x0,
+			FT_UINT32, BASE_DEC | BASE_UNIT_STRING, UNS(&units_milliseconds), 0x0,
 			"Offset from PNF SFN/SF 0/0 time reference of the DL Node Sync message reception at the transport layer, in microseconds.", HFILL }
 		},
 		{ &hf_nfapi_ul_node_sync_t3,
 			{ "UL Node Sync t3", "nfapi.ul.node.sync.t3",
-			FT_UINT32, BASE_DEC | BASE_UNIT_STRING, &units_milliseconds, 0x0,
+			FT_UINT32, BASE_DEC | BASE_UNIT_STRING, UNS(&units_milliseconds), 0x0,
 			"Offset from PNF SFN/SF 0/0 time reference of the UL Node Sync message transmission at the transport layer, in microseconds.", HFILL }
 		},
 		{ &hf_nfapi_pb,
@@ -10964,7 +10964,7 @@ void proto_register_nfapi(void)
 		},
 		{ &hf_nfapi_measurement_period,
 			{ "Measurement Period", "nfapi.measurement.period",
-			FT_UINT16, BASE_DEC | BASE_UNIT_STRING, &units_milliseconds, 0x0,
+			FT_UINT16, BASE_DEC | BASE_UNIT_STRING, UNS(&units_milliseconds), 0x0,
 			"The length of time to measure RSSI over, in units of 1ms.", HFILL }
 		},
 		{ &hf_nfapi_bandwidth,
@@ -10974,7 +10974,7 @@ void proto_register_nfapi(void)
 		},
 		{ &hf_nfapi_timeout,
 			{ "Timeout", "nfapi.timeout",
-			FT_UINT32, BASE_DEC | BASE_UNIT_STRING, &units_milliseconds, 0x0,
+			FT_UINT32, BASE_DEC | BASE_UNIT_STRING, UNS(&units_milliseconds), 0x0,
 			"The timeout value after which the PNF should abort the procedure in units of 1ms. The value of 0 indicates that the PNF should attempt to complete the procedure without any VNF-imposed timeout.", HFILL }
 		},
 		{ &hf_nfapi_number_of_earfcns,
@@ -11179,12 +11179,12 @@ void proto_register_nfapi(void)
 		},
 		{ &hf_nfapi_received_interference_power,
 			{ "Received interference power", "nfapi.received.interference.power",
-			FT_UINT16, BASE_DEC | BASE_UNIT_STRING, &units_milliseconds, 0x0,
+			FT_UINT16, BASE_DEC | BASE_UNIT_STRING, UNS(&units_milliseconds), 0x0,
 			"The Received interference power measurement", HFILL }
 		},
 		{ &hf_nfapi_thermal_noise_power,
 			{ "Thermal noise power", "nfapi.thermal.noise.power",
-			FT_UINT16, BASE_DEC | BASE_UNIT_STRING, &units_milliseconds, 0x0,
+			FT_UINT16, BASE_DEC | BASE_UNIT_STRING, UNS(&units_milliseconds), 0x0,
 			"The Thermal noise power measurement", HFILL }
 		},
 		{ &hf_nfapi_dl_rs_tx_power_measurement,

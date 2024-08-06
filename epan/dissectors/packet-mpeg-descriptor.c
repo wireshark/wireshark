@@ -5095,12 +5095,12 @@ proto_register_mpeg_descriptor(void)
         /* 0x43 Satellite Delivery System Descriptor */
         { &hf_mpeg_descr_satellite_delivery_frequency, {
             "Frequency", "mpeg_descr.sat_delivery.freq",
-            FT_DOUBLE, BASE_NONE|BASE_UNIT_STRING, &units_ghz, 0, NULL, HFILL
+            FT_DOUBLE, BASE_NONE|BASE_UNIT_STRING, UNS(&units_ghz), 0, NULL, HFILL
         } },
 
         { &hf_mpeg_descr_satellite_delivery_orbital_position, {
             "Orbital Position", "mpeg_descr.sat_delivery.orbital_pos",
-            FT_FLOAT, BASE_NONE|BASE_UNIT_STRING, &units_degree_degrees, 0, NULL, HFILL
+            FT_FLOAT, BASE_NONE|BASE_UNIT_STRING, UNS(&units_degree_degrees), 0, NULL, HFILL
         } },
 
         { &hf_mpeg_descr_satellite_delivery_west_east_flag, {

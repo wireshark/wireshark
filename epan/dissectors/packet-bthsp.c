@@ -1077,12 +1077,12 @@ proto_register_bthsp(void)
         },
         { &hf_vgs,
            { "Gain",                             "bthsp.vgs",
-           FT_UINT8, BASE_DEC|BASE_UNIT_STRING, &units_slash15, 0,
+           FT_UINT8, BASE_DEC|BASE_UNIT_STRING, UNS(&units_slash15), 0,
            NULL, HFILL}
         },
         { &hf_vgm,
            { "Gain",                             "bthsp.vgm",
-           FT_UINT8, BASE_DEC|BASE_UNIT_STRING, &units_slash15, 0,
+           FT_UINT8, BASE_DEC|BASE_UNIT_STRING, UNS(&units_slash15), 0,
            NULL, HFILL}
         },
         { &hf_ckpd,

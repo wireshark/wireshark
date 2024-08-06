@@ -613,7 +613,7 @@ proto_register_iso_data(void)
     static hf_register_info hf[] = {
         { &hf_bthci_iso_data_timestamp,
           { "Timestamp",           "bthci_iso_data.timestamp",
-            FT_UINT32, BASE_DEC|BASE_UNIT_STRING, &units_microseconds, 0x0,
+            FT_UINT32, BASE_DEC|BASE_UNIT_STRING, UNS(&units_microseconds), 0x0,
             NULL, HFILL }
         },
         { &hf_bthci_iso_data_packet_seq_num,

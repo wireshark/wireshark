@@ -750,7 +750,7 @@ PortNumber TYPE = FT_UINT16 DISPLAY = BASE_DEC
   }
 
 #.TYPE_ATTR
-BitRate DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_bit_sec
+BitRate DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_bit_sec)
 
 #.FN_BODY DRB-Usage-Report-Item/startTimeStamp VAL_PTR = &timestamp_tvb
   tvbuff_t *timestamp_tvb = NULL;
@@ -771,10 +771,10 @@ BitRate DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_bit_sec
   }
 
 #.TYPE_ATTR
-DRB-Usage-Report-Item/usageCountUL DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_octet_octets
+DRB-Usage-Report-Item/usageCountUL DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_octet_octets)
 
 #.TYPE_ATTR
-DRB-Usage-Report-Item/usageCountDL DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_octet_octets
+DRB-Usage-Report-Item/usageCountDL DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_octet_octets)
 
 #.TYPE_ATTR
 MaxPacketLossRate DISPLAY = BASE_CUSTOM STRINGS = CF_FUNC(e1ap_MaxPacketLossRate_fmt)
@@ -783,13 +783,13 @@ MaxPacketLossRate DISPLAY = BASE_CUSTOM STRINGS = CF_FUNC(e1ap_MaxPacketLossRate
 PacketDelayBudget DISPLAY = BASE_CUSTOM STRINGS = CF_FUNC(e1ap_PacketDelayBudget_uL_D1_Result_fmt)
 
 #.TYPE_ATTR
-AveragingWindow DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_milliseconds
+AveragingWindow DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_milliseconds)
 
 #.TYPE_ATTR
-MaxDataBurstVolume DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_byte_bytes
+MaxDataBurstVolume DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_byte_bytes)
 
 #.TYPE_ATTR
-Inactivity-Timer DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_seconds
+Inactivity-Timer DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_seconds)
 
 #.FN_BODY TransportLayerAddress VAL_PTR = &param_tvb
   tvbuff_t *param_tvb = NULL;
@@ -833,16 +833,16 @@ Inactivity-Timer DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_seconds
   }
 
 #.TYPE_ATTR
-MRDC-Data-Usage-Report-Item/usageCountUL DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_octet_octets
+MRDC-Data-Usage-Report-Item/usageCountUL DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_octet_octets)
 
 #.TYPE_ATTR
-MRDC-Data-Usage-Report-Item/usageCountDL DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_octet_octets
+MRDC-Data-Usage-Report-Item/usageCountDL DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_octet_octets)
 
 #.TYPE_ATTR
 ExtendedPacketDelayBudget DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(e1ap_ExtendedPacketDelayBudget_fmt)
 
 #.TYPE_ATTR
-HW-CapacityIndicator/offeredThroughput DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_kbps
+HW-CapacityIndicator/offeredThroughput DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_kbps)
 
 #.FN_BODY InterfacesToTrace VAL_PTR = &param_tvb
   tvbuff_t *param_tvb = NULL;
@@ -862,7 +862,7 @@ HW-CapacityIndicator/offeredThroughput DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS
   }
 
 #.TYPE_ATTR
-M7period DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_minutes
+M7period DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_minutes)
 
 #.FN_BODY MeasurementsToActivate VAL_PTR=&param_tvb
   tvbuff_t *param_tvb = NULL;
@@ -895,7 +895,7 @@ M7period DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_minutes
   }
 
 #.TYPE_ATTR
-Periodicity DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_microseconds
+Periodicity DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_microseconds)
 
 #.FN_BODY BurstArrivalTime VAL_PTR = &param_tvb
   tvbuff_t *param_tvb = NULL;
@@ -909,16 +909,16 @@ Periodicity DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_microseconds
 DRB-Measurement-Results-Information-Item/uL-D1-Result DISPLAY = BASE_CUSTOM STRINGS = CF_FUNC(e1ap_PacketDelayBudget_uL_D1_Result_fmt)
 
 #.TYPE_ATTR
-QosMonitoringReportingFrequency DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_seconds
+QosMonitoringReportingFrequency DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_seconds)
 
 #.TYPE_ATTR
-SurvivalTime DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_microseconds
+SurvivalTime DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_microseconds)
 
 #.TYPE_ATTR
-UEInactivityInformation DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_seconds
+UEInactivityInformation DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_seconds)
 
 #.TYPE_ATTR
-MT-SDT-Data-Size DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_byte_bytes
+MT-SDT-Data-Size DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_byte_bytes)
 
 #.TYPE_ATTR
 N6JitterInformation/n6JitterLowerBound DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(e1ap_N6Jitter_fmt)
@@ -927,7 +927,7 @@ N6JitterInformation/n6JitterLowerBound DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(e1ap_
 N6JitterInformation/n6JitterUpperBound DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(e1ap_N6Jitter_fmt)
 
 #.TYPE_ATTR
-SDT-data-size-threshold DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_byte_bytes
+SDT-data-size-threshold DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_byte_bytes)
 
 #.FN_HDR Reset
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "Reset");

@@ -1212,32 +1212,32 @@ void proto_register_srt(void)
         {&hf_srt_rtt, {
             "ACKD_RTT", "srt.rtt",
             FT_UINT32, BASE_DEC | BASE_UNIT_STRING,
-            &units_microseconds, 0, NULL, HFILL}},
+            UNS(&units_microseconds), 0, NULL, HFILL}},
 
         {&hf_srt_rttvar, {
             "ACKD_RTTVAR", "srt.rttvar",
             FT_UINT32, BASE_DEC | BASE_UNIT_STRING,
-            &units_microseconds, 0, NULL, HFILL}},
+            UNS(&units_microseconds), 0, NULL, HFILL}},
 
         {&hf_srt_bufavail, {
             "ACKD_BUFFERLEFT", "srt.bufavail",
             FT_UINT32, BASE_DEC | BASE_UNIT_STRING,
-            &units_pkts, 0, NULL, HFILL}},
+            UNS(&units_pkts), 0, NULL, HFILL}},
 
         {&hf_srt_rate, {
             "ACKD_RCVSPEED", "srt.rate",
             FT_UINT32, BASE_DEC | BASE_UNIT_STRING,
-            &units_pkts_per_sec, 0, NULL, HFILL}},
+            UNS(&units_pkts_per_sec), 0, NULL, HFILL}},
 
         {&hf_srt_bandwidth, {
             "ACKD_BANDWIDTH", "srt.bw",
             FT_UINT32, BASE_DEC | BASE_UNIT_STRING,
-            &units_pkts_per_sec, 0, NULL, HFILL}},
+            UNS(&units_pkts_per_sec), 0, NULL, HFILL}},
 
         {&hf_srt_rcvrate, {
             "ACKD_RCVRATE", "srt.rcvrate",
             FT_UINT32, BASE_DEC | BASE_UNIT_STRING,
-            &units_byte_bytespsecond, 0, NULL, HFILL}},
+            UNS(&units_byte_bytespsecond), 0, NULL, HFILL}},
 
         {&hf_srt_handshake_version, {
             "Handshake Version", "srt.hs.version",
@@ -1399,12 +1399,12 @@ void proto_register_srt(void)
         {&hf_srt_srths_agent_latency, {
             "Latency", "srt.hs.agent_latency",
             FT_UINT16, BASE_DEC | BASE_UNIT_STRING,
-            &units_milliseconds, 0, NULL, HFILL}},
+            UNS(&units_milliseconds), 0, NULL, HFILL}},
 
         {&hf_srt_srths_peer_latency, {
             "Peer Latency", "srt.hs.peer_latency",
             FT_UINT16, BASE_DEC | BASE_UNIT_STRING,
-            &units_milliseconds, 0, NULL, HFILL}},
+            UNS(&units_milliseconds), 0, NULL, HFILL}},
 
         {&hf_srt_srtkm_msg, {
             "KMX Message (or KM State if 4 bytes)", "srt.km.msg",

@@ -6584,31 +6584,31 @@ proto_register_lldp(void)
 		},
 		{ &hf_hytec_single_mode,
 			{ HYTEC_TBD__SINGLE_MODE_STR, "lldp.hytec.single_mode", FT_UINT32, BASE_DEC|BASE_UNIT_STRING,
-			&units_m, 0x0, NULL, HFILL}
+			UNS(&units_m), 0x0, NULL, HFILL}
 		},
 		{ &hf_hytec_multi_mode_50,
 			{ HYTEC_TBD__MULTI_MODE_50_STR, "lldp.hytec.multi_mode_50", FT_UINT32, BASE_DEC|BASE_UNIT_STRING,
-			&units_m, 0x0, NULL, HFILL}
+			UNS(&units_m), 0x0, NULL, HFILL}
 		},
 		{ &hf_hytec_multi_mode_62_5,
 			{ HYTEC_TBD__MULTI_MODE_62_5_STR, "lldp.hytec.multi_mode_62_5", FT_UINT32, BASE_DEC|BASE_UNIT_STRING,
-			&units_m, 0x0, NULL, HFILL}
+			UNS(&units_m), 0x0, NULL, HFILL}
 		},
 		{ &hf_hytec_tx_current_output_power,
 			{ HYTEC_MD__TX_CURRENT_OUTPUT_POWER_STR, "lldp.hytec.tx_current_output_power", FT_FLOAT, BASE_NONE|BASE_UNIT_STRING,
-			&units_microwatts, 0x0, NULL, HFILL}
+			UNS(&units_microwatts), 0x0, NULL, HFILL}
 		},
 		{ &hf_hytec_rx_current_input_power,
 			{ HYTEC_MD__RX_CURRENT_INPUT_POWER_STR, "lldp.hytec.rx_current_input_power", FT_FLOAT, BASE_NONE|BASE_UNIT_STRING,
-			&units_microwatts, 0x0, NULL, HFILL}
+			UNS(&units_microwatts), 0x0, NULL, HFILL}
 		},
 		{ &hf_hytec_rx_input_snr,
 			{ HYTEC_MD__RX_INPUT_SNR_STR, "lldp.hytec.rx_input_snr", FT_FLOAT, BASE_NONE|BASE_UNIT_STRING,
-			&units_decibels, 0x0, NULL, HFILL}
+			UNS(&units_decibels), 0x0, NULL, HFILL}
 		},
 		{ &hf_hytec_lineloss,
 			{ HYTEC_MD__LINELOSS_STR, "lldp.hytec.lineloss", FT_FLOAT, BASE_NONE|BASE_UNIT_STRING,
-			&units_decibels, 0x0, NULL, HFILL}
+			UNS(&units_decibels), 0x0, NULL, HFILL}
 		},
 		{ &hf_hytec_mac_trace_request,
 			{ HYTEC_MC__MAC_TRACE_REQUEST_STR, "lldp.hytec.mac_trace_request", FT_NONE, BASE_NONE,

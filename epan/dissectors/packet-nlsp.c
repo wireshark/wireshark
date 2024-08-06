@@ -1364,7 +1364,7 @@ proto_register_nlsp(void)
 
 		{ &hf_nlsp_hello_holding_timer,
 		  { "Holding Timer", "nlsp.hello.holding_timer",
-		    FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_seconds, 0x0,
+		    FT_UINT16, BASE_DEC|BASE_UNIT_STRING, UNS(&units_seconds), 0x0,
 		    NULL, HFILL }
 		},
 
@@ -1516,12 +1516,12 @@ proto_register_nlsp(void)
 		},
 		{ &hf_nlsp_link_info_delay,
 		  { "Delay", "nlsp.link_info.delay",
-		    FT_UINT32, BASE_DEC|BASE_UNIT_STRING, &units_microseconds, 0x0,
+		    FT_UINT32, BASE_DEC|BASE_UNIT_STRING, UNS(&units_microseconds), 0x0,
 		    NULL, HFILL }
 		},
 		{ &hf_nlsp_link_info_throughput,
 		  { "Throughput", "nlsp.link_info.throughput",
-		    FT_UINT32, BASE_DEC|BASE_UNIT_STRING, &units_bit_sec, 0x0,
+		    FT_UINT32, BASE_DEC|BASE_UNIT_STRING, UNS(&units_bit_sec), 0x0,
 		    NULL, HFILL }
 		},
 		{ &hf_nlsp_link_info_media_type,
@@ -1571,12 +1571,12 @@ proto_register_nlsp(void)
 		},
 		{ &hf_nlsp_ext_routes_rip_delay,
 		  { "RIP delay", "nlsp.ext_routes.rip_delay",
-		    FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_tick_ticks, 0x0,
+		    FT_UINT16, BASE_DEC|BASE_UNIT_STRING, UNS(&units_tick_ticks), 0x0,
 		    NULL, HFILL }
 		},
 		{ &hf_nlsp_remaining_lifetime,
 		  { "Remaining Lifetime", "nlsp.remaining_lifetime",
-		    FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_seconds, 0x0,
+		    FT_UINT16, BASE_DEC|BASE_UNIT_STRING, UNS(&units_seconds), 0x0,
 		    NULL, HFILL }
 		},
 		{ &hf_nlsp_lsp_id_system_id,
@@ -1616,7 +1616,7 @@ proto_register_nlsp(void)
 		},
 		{ &hf_nlsp_csnp_remaining_lifetime,
 		  { "Remaining Lifetime", "nlsp.csnp.remaining_lifetime",
-		    FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_seconds, 0x0,
+		    FT_UINT16, BASE_DEC|BASE_UNIT_STRING, UNS(&units_seconds), 0x0,
 		    NULL, HFILL }
 		},
 		{ &hf_nlsp_csnp_lsp_checksum,
@@ -1646,7 +1646,7 @@ proto_register_nlsp(void)
 		},
 		{ &hf_nlsp_psnp_remaining_lifetime,
 		  { "Remaining Lifetime", "nlsp.psnp.remaining_lifetime",
-		    FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_seconds, 0x0,
+		    FT_UINT16, BASE_DEC|BASE_UNIT_STRING, UNS(&units_seconds), 0x0,
 		    NULL, HFILL }
 		},
 		{ &hf_nlsp_psnp_lsp_checksum,

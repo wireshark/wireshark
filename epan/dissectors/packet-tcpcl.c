@@ -348,7 +348,7 @@ static hf_register_info hf_tcpcl[] = {
     },
     {&hf_tcpclv3_chdr_keep_alive,
      {"Keep Alive", "tcpcl.contact_hdr.keep_alive",
-      FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_seconds, 0x0, NULL, HFILL}
+      FT_UINT16, BASE_DEC|BASE_UNIT_STRING, UNS(&units_seconds), 0x0, NULL, HFILL}
     },
     {&hf_tcpclv3_chdr_local_eid,
      {"Local EID", "tcpcl.contact_hdr.local_eid",
@@ -372,7 +372,7 @@ static hf_register_info hf_tcpcl[] = {
     {&hf_tcpclv4_sessext_flags, {"Item Flags", "tcpcl.v4.sessext.flags", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}},
     {&hf_tcpclv4_sessext_flags_crit, {"CRITICAL", "tcpcl.v4.sessext.flags.critical", FT_BOOLEAN, 8, TFS(&tfs_set_notset), TCPCLV4_EXTENSION_FLAG_CRITICAL, NULL, HFILL}},
     {&hf_tcpclv4_sessext_type, {"Item Type", "tcpcl.v4.sessext.type", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL}},
-    {&hf_tcpclv4_sessext_len, {"Item Length", "tcpcl.v4.sessext.len", FT_UINT32, BASE_DEC|BASE_UNIT_STRING, &units_octet_octets, 0x0, NULL, HFILL}},
+    {&hf_tcpclv4_sessext_len, {"Item Length", "tcpcl.v4.sessext.len", FT_UINT32, BASE_DEC|BASE_UNIT_STRING, UNS(&units_octet_octets), 0x0, NULL, HFILL}},
     {&hf_tcpclv4_sessext_data, {"Type-Specific Data", "tcpcl.v4.sessext.data", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL}},
 
     // Transfer extension fields
@@ -380,19 +380,19 @@ static hf_register_info hf_tcpcl[] = {
     {&hf_tcpclv4_xferext_flags, {"Item Flags", "tcpcl.v4.xferext.flags", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}},
     {&hf_tcpclv4_xferext_flags_crit, {"CRITICAL", "tcpcl.v4.xferext.flags.critical", FT_BOOLEAN, 8, TFS(&tfs_set_notset), TCPCLV4_EXTENSION_FLAG_CRITICAL, NULL, HFILL}},
     {&hf_tcpclv4_xferext_type, {"Item Type", "tcpcl.v4.xferext.type", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL}},
-    {&hf_tcpclv4_xferext_len, {"Item Length", "tcpcl.v4.xferext.len", FT_UINT32, BASE_DEC|BASE_UNIT_STRING, &units_octet_octets, 0x0, NULL, HFILL}},
+    {&hf_tcpclv4_xferext_len, {"Item Length", "tcpcl.v4.xferext.len", FT_UINT32, BASE_DEC|BASE_UNIT_STRING, UNS(&units_octet_octets), 0x0, NULL, HFILL}},
     {&hf_tcpclv4_xferext_data, {"Type-Specific Data", "tcpcl.v4.xferext.data", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL}},
 
     // SESS_INIT fields
-    {&hf_tcpclv4_sess_init_keepalive, {"Keepalive Interval", "tcpcl.v4.sess_init.keepalive", FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_seconds, 0x0, NULL, HFILL}},
-    {&hf_tcpclv4_sess_init_seg_mru, {"Segment MRU", "tcpcl.v4.sess_init.seg_mru", FT_UINT64, BASE_DEC|BASE_UNIT_STRING, &units_octet_octets, 0x0, NULL, HFILL}},
-    {&hf_tcpclv4_sess_init_xfer_mru, {"Transfer MRU", "tcpcl.v4.sess_init.xfer_mru", FT_UINT64, BASE_DEC|BASE_UNIT_STRING, &units_octet_octets, 0x0, NULL, HFILL}},
-    {&hf_tcpclv4_sess_init_nodeid_len, {"Node ID Length", "tcpcl.v4.sess_init.nodeid_len", FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_octet_octets, 0x0, NULL, HFILL}},
+    {&hf_tcpclv4_sess_init_keepalive, {"Keepalive Interval", "tcpcl.v4.sess_init.keepalive", FT_UINT16, BASE_DEC|BASE_UNIT_STRING, UNS(&units_seconds), 0x0, NULL, HFILL}},
+    {&hf_tcpclv4_sess_init_seg_mru, {"Segment MRU", "tcpcl.v4.sess_init.seg_mru", FT_UINT64, BASE_DEC|BASE_UNIT_STRING, UNS(&units_octet_octets), 0x0, NULL, HFILL}},
+    {&hf_tcpclv4_sess_init_xfer_mru, {"Transfer MRU", "tcpcl.v4.sess_init.xfer_mru", FT_UINT64, BASE_DEC|BASE_UNIT_STRING, UNS(&units_octet_octets), 0x0, NULL, HFILL}},
+    {&hf_tcpclv4_sess_init_nodeid_len, {"Node ID Length", "tcpcl.v4.sess_init.nodeid_len", FT_UINT16, BASE_DEC|BASE_UNIT_STRING, UNS(&units_octet_octets), 0x0, NULL, HFILL}},
     {&hf_tcpclv4_sess_init_nodeid_data, {"Node ID Data (UTF8)", "tcpcl.v4.sess_init.nodeid_data", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL}},
-    {&hf_tcpclv4_sess_init_extlist_len, {"Extension Items Length", "tcpcl.v4.sess_init.extlist_len", FT_UINT32, BASE_DEC|BASE_UNIT_STRING, &units_octet_octets, 0x0, NULL, HFILL}},
+    {&hf_tcpclv4_sess_init_extlist_len, {"Extension Items Length", "tcpcl.v4.sess_init.extlist_len", FT_UINT32, BASE_DEC|BASE_UNIT_STRING, UNS(&units_octet_octets), 0x0, NULL, HFILL}},
     {&hf_tcpclv4_sess_init_related, {"Related SESS_INIT", "tcpcl.v4.sess_init.related", FT_FRAMENUM, BASE_NONE, NULL, 0x0, NULL, HFILL}},
     // Session negotiation results
-    {&hf_tcpclv4_negotiate_keepalive, {"Negotiated Keepalive Interval", "tcpcl.v4.negotiated.keepalive", FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_seconds, 0x0, NULL, HFILL}},
+    {&hf_tcpclv4_negotiate_keepalive, {"Negotiated Keepalive Interval", "tcpcl.v4.negotiated.keepalive", FT_UINT16, BASE_DEC|BASE_UNIT_STRING, UNS(&units_seconds), 0x0, NULL, HFILL}},
     // SESS_TERM fields
     {&hf_tcpclv4_sess_term_flags, {"Flags", "tcpcl.v4.sess_term.flags", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}},
     {&hf_tcpclv4_sess_term_flags_reply, {"REPLY", "tcpcl.v4.sess_term.flags.reply", FT_BOOLEAN, 8, TFS(&tfs_set_notset), TCPCLV4_SESS_TERM_FLAG_REPLY, NULL, HFILL}},
@@ -406,16 +406,16 @@ static hf_register_info hf_tcpcl[] = {
     {&hf_tcpclv4_xfer_id, {"Transfer ID", "tcpcl.v4.xfer_id", FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL}},
     {&hf_tcpclv4_xfer_total_len, {"Expected Total Length", "tcpcl.v4.xfer.total_len", FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL}},
     // XFER_SEGMENT fields
-    {&hf_tcpclv4_xfer_segment_extlist_len, {"Extension Items Length", "tcpcl.v4.xfer_segment.extlist_len", FT_UINT32, BASE_DEC|BASE_UNIT_STRING, &units_octet_octets, 0x0, NULL, HFILL}},
-    {&hf_tcpclv4_xfer_segment_data_len, {"Segment Length", "tcpcl.v4.xfer_segment.data_len", FT_UINT64, BASE_DEC|BASE_UNIT_STRING, &units_octet_octets, 0x0, NULL, HFILL}},
+    {&hf_tcpclv4_xfer_segment_extlist_len, {"Extension Items Length", "tcpcl.v4.xfer_segment.extlist_len", FT_UINT32, BASE_DEC|BASE_UNIT_STRING, UNS(&units_octet_octets), 0x0, NULL, HFILL}},
+    {&hf_tcpclv4_xfer_segment_data_len, {"Segment Length", "tcpcl.v4.xfer_segment.data_len", FT_UINT64, BASE_DEC|BASE_UNIT_STRING, UNS(&units_octet_octets), 0x0, NULL, HFILL}},
     {&hf_tcpclv4_xfer_segment_data, {"Segment Data", "tcpcl.v4.xfer_segment.data", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}},
-    {&hf_tcpclv4_xfer_segment_seen_len, {"Seen Length", "tcpcl.v4.xfer_segment.seen_len", FT_UINT64, BASE_DEC|BASE_UNIT_STRING, &units_octet_octets, 0x0, NULL, HFILL}},
+    {&hf_tcpclv4_xfer_segment_seen_len, {"Seen Length", "tcpcl.v4.xfer_segment.seen_len", FT_UINT64, BASE_DEC|BASE_UNIT_STRING, UNS(&units_octet_octets), 0x0, NULL, HFILL}},
     {&hf_tcpclv4_xfer_segment_related_start, {"Related XFER_SEGMENT start", "tcpcl.v4.xfer_segment.related_start", FT_FRAMENUM, BASE_NONE, NULL, 0x0, NULL, HFILL}},
     {&hf_tcpclv4_xfer_segment_time_start, {"Time since transfer Start", "tcpcl.v4.xfer_segment.time_since_start", FT_RELATIVE_TIME, BASE_NONE, NULL, 0x0, NULL, HFILL}},
     {&hf_tcpclv4_xfer_segment_related_ack, {"Related XFER_ACK", "tcpcl.v4.xfer_segment.related_ack", FT_FRAMENUM, BASE_NONE, NULL, 0x0, NULL, HFILL}},
     {&hf_tcpclv4_xfer_segment_time_diff, {"Acknowledgment Time", "tcpcl.v4.xfer_segment.time_diff", FT_RELATIVE_TIME, BASE_NONE, NULL, 0x0, NULL, HFILL}},
     // XFER_ACK fields
-    {&hf_tcpclv4_xfer_ack_ack_len, {"Acknowledged Length", "tcpcl.v4.xfer_ack.ack_len", FT_UINT64, BASE_DEC|BASE_UNIT_STRING, &units_octet_octets, 0x0, NULL, HFILL}},
+    {&hf_tcpclv4_xfer_ack_ack_len, {"Acknowledged Length", "tcpcl.v4.xfer_ack.ack_len", FT_UINT64, BASE_DEC|BASE_UNIT_STRING, UNS(&units_octet_octets), 0x0, NULL, HFILL}},
     {&hf_tcpclv4_xfer_ack_related_start, {"Related XFER_SEGMENT start", "tcpcl.v4.xfer_ack.related_start", FT_FRAMENUM, BASE_NONE, NULL, 0x0, NULL, HFILL}},
     {&hf_tcpclv4_xfer_ack_time_start, {"Time since transfer Start", "tcpcl.v4.xfer_ack.time_since_start", FT_RELATIVE_TIME, BASE_NONE, NULL, 0x0, NULL, HFILL}},
     {&hf_tcpclv4_xfer_ack_related_seg, {"Related XFER_SEGMENT", "tcpcl.v4.xfer_ack.related_seg", FT_FRAMENUM, BASE_NONE, FRAMENUM_TYPE(FT_FRAMENUM_ACK), 0x0, NULL, HFILL}},
@@ -428,7 +428,7 @@ static hf_register_info hf_tcpcl[] = {
     {&hf_tcpclv4_msg_reject_head, {"Rejected Type", "tcpcl.v4.msg_reject.head", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}},
 
     // Specific extensions
-    {&hf_tcpclv4_xferext_transferlen_total_len, {"Total Length", "tcpcl.v4.xferext.transfer_length.total_len", FT_UINT64, BASE_DEC|BASE_UNIT_STRING, &units_octet_octets, 0x0, NULL, HFILL}},
+    {&hf_tcpclv4_xferext_transferlen_total_len, {"Total Length", "tcpcl.v4.xferext.transfer_length.total_len", FT_UINT64, BASE_DEC|BASE_UNIT_STRING, UNS(&units_octet_octets), 0x0, NULL, HFILL}},
     // PKIX other name form
     {&hf_othername_bundleeid, {"BundleEID", "tcpcl.v4.BundleEID", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL}},
 

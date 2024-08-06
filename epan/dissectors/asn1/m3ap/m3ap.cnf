@@ -165,7 +165,7 @@ ProtocolIE-Field/value ie_field_value
 #.END
 
 #.TYPE_ATTR
-BitRate DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_bit_sec
+BitRate DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_bit_sec)
 
 #.FN_BODY MBMS-Service-Area VAL_PTR = &parameter_tvb
   tvbuff_t *parameter_tvb=NULL;

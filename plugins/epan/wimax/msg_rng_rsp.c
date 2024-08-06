@@ -566,7 +566,7 @@ void proto_register_mac_mgmt_msg_rng_rsp(void)
 			&hf_rng_rsp_dl_freq_override,
 			{
 				"Downlink Frequency Override", "wmx.rng_rsp.dl_freq_override",
-				FT_UINT32, BASE_DEC|BASE_UNIT_STRING, &wimax_units_hz, 0x00, NULL, HFILL
+				FT_UINT32, BASE_DEC|BASE_UNIT_STRING, UNS(&wimax_units_hz), 0x00, NULL, HFILL
 			}
 		},
 		{
@@ -757,7 +757,7 @@ void proto_register_mac_mgmt_msg_rng_rsp(void)
 			&hf_rng_rsp_offset_freq_adjust,
 			{
 				"Offset Frequency Adjust", "wmx.rng_rsp.offset_freq_adjust",
-				FT_INT32, BASE_DEC|BASE_UNIT_STRING, &wimax_units_hz, 0x00, NULL, HFILL
+				FT_INT32, BASE_DEC|BASE_UNIT_STRING, UNS(&wimax_units_hz), 0x00, NULL, HFILL
 			}
 		},
 		{

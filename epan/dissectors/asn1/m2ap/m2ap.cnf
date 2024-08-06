@@ -105,7 +105,7 @@ ProtocolIE-Field/value ie_field_value
 #.END
 
 #.TYPE_ATTR
-BitRate DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_bit_sec
+BitRate DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_bit_sec)
 
 #.FN_HDR SessionStartRequest
   col_set_str(actx->pinfo->cinfo, COL_INFO, "MBMS Session Start Request");

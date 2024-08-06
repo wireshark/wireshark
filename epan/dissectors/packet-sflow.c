@@ -3434,7 +3434,7 @@ proto_register_sflow(void) {
       },
       { &hf_sflow_flow_sample_sample_pool,
         { "Sample pool", "sflow.flow_sample.sample_pool",
-          FT_UINT32, BASE_DEC|BASE_UNIT_STRING, &units_total_packets, 0x0,
+          FT_UINT32, BASE_DEC|BASE_UNIT_STRING, UNS(&units_total_packets), 0x0,
           NULL, HFILL }
       },
       { &hf_sflow_flow_sample_dropped_packets,

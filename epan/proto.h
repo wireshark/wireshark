@@ -75,6 +75,9 @@ struct expert_field;
 /** Make a const true_false_string[] look like a _true_false_string pointer, used to set header_field_info.strings */
 #define TFS(x)      (cast_same(const struct true_false_string*, (x)))
 
+/** Make a const unit_name_string[] look like a unit_name_string pointer, used to set header_field_info.strings */
+#define UNS(x)      (cast_same(const struct unit_name_string*, (x)))
+
 typedef void (*custom_fmt_func_t)(char *, uint32_t);
 
 typedef void (*custom_fmt_func_64_t)(char *, uint64_t);

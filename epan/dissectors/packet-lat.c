@@ -1574,7 +1574,7 @@ proto_register_lat(void)
 
 	    { &hf_lat_keep_alive_timer,
 		{ "Keep-alive timer", "lat.keep_alive_timer", FT_UINT8,
-		  BASE_DEC|BASE_UNIT_STRING, &units_second_seconds, 0x0, NULL, HFILL}},
+		  BASE_DEC|BASE_UNIT_STRING, UNS(&units_second_seconds), 0x0, NULL, HFILL}},
 
 	    { &hf_lat_facility_number,
 		{ "Facility number", "lat.facility_number", FT_UINT16,

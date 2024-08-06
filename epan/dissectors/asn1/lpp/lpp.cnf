@@ -270,34 +270,34 @@ EllipsoidArc/includedAngle DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lpp_angle_fmt)
 EllipsoidArc/confidence DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lpp_confidence_fmt)
 
 #.TYPE_ATTR
-HorizontalVelocity/bearing DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_degree_degrees
+HorizontalVelocity/bearing DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_degree_degrees)
 
 #.TYPE_ATTR
-HorizontalVelocity/horizontalSpeed DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_kmh
+HorizontalVelocity/horizontalSpeed DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_kmh)
 
 #.TYPE_ATTR
-HorizontalVelocityWithUncertainty/bearing DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_degree_degrees
+HorizontalVelocityWithUncertainty/bearing DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_degree_degrees)
 
 #.TYPE_ATTR
-HorizontalVelocityWithUncertainty/horizontalSpeed DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_kmh
+HorizontalVelocityWithUncertainty/horizontalSpeed DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_kmh)
 
 #.TYPE_ATTR
-HorizontalVelocityWithUncertainty/uncertaintySpeed DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_kmh
+HorizontalVelocityWithUncertainty/uncertaintySpeed DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_kmh)
 
 #.TYPE_ATTR
-HorizontalWithVerticalVelocityAndUncertainty/bearing DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_degree_degrees
+HorizontalWithVerticalVelocityAndUncertainty/bearing DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_degree_degrees)
 
 #.TYPE_ATTR
-HorizontalWithVerticalVelocityAndUncertainty/horizontalSpeed DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_kmh
+HorizontalWithVerticalVelocityAndUncertainty/horizontalSpeed DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_kmh)
 
 #.TYPE_ATTR
-HorizontalWithVerticalVelocityAndUncertainty/verticalSpeed DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_kmh
+HorizontalWithVerticalVelocityAndUncertainty/verticalSpeed DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_kmh)
 
 #.TYPE_ATTR
-HorizontalWithVerticalVelocityAndUncertainty/horizontalUncertaintySpeed DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_kmh
+HorizontalWithVerticalVelocityAndUncertainty/horizontalUncertaintySpeed DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_kmh)
 
 #.TYPE_ATTR
-HorizontalWithVerticalVelocityAndUncertainty/verticalUncertaintySpeed DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_kmh
+HorizontalWithVerticalVelocityAndUncertainty/verticalUncertaintySpeed DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_kmh)
 
 #.TYPE_ATTR
 PolygonPoints/degreesLatitude DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lpp_degreesLatitude_fmt)
@@ -326,7 +326,7 @@ PolygonPoints/degreesLongitude DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lpp_degreesLo
   }
 
 #.TYPE_ATTR
-ReportingDuration DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_seconds
+ReportingDuration DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_seconds)
 
 #.TYPE_ATTR
 HorizontalAccuracy/accuracy DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lpp_uncertainty_fmt)
@@ -347,13 +347,13 @@ HorizontalAccuracyExt-r15/confidence-r15 DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lpp
 VerticalAccuracyExt-r15/confidence-r15 DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lpp_confidence_fmt)
 
 #.TYPE_ATTR
-ResponseTime/time DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_seconds
+ResponseTime/time DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_seconds)
 
 #.TYPE_ATTR
-ResponseTime/eag_1/responseTimeEarlyFix-r12 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_seconds
+ResponseTime/eag_1/responseTimeEarlyFix-r12 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_seconds)
 
 #.TYPE_ATTR
-ResponseTimeNB-r14/timeNB-r14 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_seconds
+ResponseTimeNB-r14/timeNB-r14 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_seconds)
 
 #.TYPE_ATTR
 MessageSizeLimitNB-r14/measurementLimit-r14 DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lpp_measurementLimit_fmt)
@@ -597,10 +597,10 @@ GNSS-TimeModelElement/tA2 DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lpp_tA2_fmt)
 GNSS-TimeModelElement/gnss-TO-ID STRINGS=VALS(lpp_gnss_TO_ID_vals)
 
 #.TYPE_ATTR
-GNSS-TimeModelElement/deltaT DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_seconds
+GNSS-TimeModelElement/deltaT DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_seconds)
 
 #.TYPE_ATTR
-GNSS-DifferentialCorrections/dgnss-RefTime DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_seconds
+GNSS-DifferentialCorrections/dgnss-RefTime DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_seconds)
 
 #.TYPE_ATTR
 DGNSS-SgnTypeElement/gnss-StatusHealth STRINGS=VALS(lpp_gnss_StatusHealth_vals)
@@ -931,7 +931,7 @@ NavModelCNAV-KeplerianSet/cnavCus DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lpp_cnavCx
 NavModelCNAV-KeplerianSet/cnavCuc DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lpp_cnavCx_fmt)
 
 #.TYPE_ATTR
-NavModel-GLONASS-ECEF/gloEn DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_day_days
+NavModel-GLONASS-ECEF/gloEn DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_day_days)
 
 #.FN_BODY NavModel-GLONASS-ECEF/gloP1 VAL_PTR = &gloP1_tvb HF_INDEX=-1
   tvbuff_t *gloP1_tvb = NULL;
@@ -944,7 +944,7 @@ NavModel-GLONASS-ECEF/gloEn DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_day
   }
 
 #.TYPE_ATTR
-NavModel-GLONASS-ECEF/gloP1 TYPE=FT_UINT8 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_minutes
+NavModel-GLONASS-ECEF/gloP1 TYPE=FT_UINT8 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_minutes)
 
 #.TYPE_ATTR
 NavModel-GLONASS-ECEF/gloX DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lpp_gloX_Y_Z_fmt)
@@ -1007,7 +1007,7 @@ NavModel-SBAS-ECEF/sbasZgDotDot DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lpp_sbasZgDo
 NavModel-BDS-KeplerianSet-r12/bdsAODE-r12 DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lpp_bdsAODC_AODE_r12_fmt)
 
 #.TYPE_ATTR
-NavModel-BDS-KeplerianSet-r12/bdsURAI-r12 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_meters
+NavModel-BDS-KeplerianSet-r12/bdsURAI-r12 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_meters)
 
 #.TYPE_ATTR
 NavModel-BDS-KeplerianSet-r12/bdsToe-r12 DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lpp_bdsToc_Toe_r12_fmt)
@@ -1058,10 +1058,10 @@ NavModel-BDS-KeplerianSet-r12/bdsCic-r12 DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lpp
 NavModel-BDS-KeplerianSet-r12/bdsCis-r12 DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lpp_bdsCuc_Cus_Cic_Cis_r12_fmt)
 
 #.TYPE_ATTR
-GNSS-DataBitAssistance/gnss-TOD DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_seconds
+GNSS-DataBitAssistance/gnss-TOD DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_seconds)
 
 #.TYPE_ATTR
-GNSS-DataBitAssistance/gnss-TODfrac DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_milliseconds
+GNSS-DataBitAssistance/gnss-TODfrac DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_milliseconds)
 
 #.TYPE_ATTR
 GNSS-AcquisitionAssistance/confidence-r10 DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lpp_confidence_fmt)
@@ -1079,7 +1079,7 @@ GNSS-AcquisitionAssistElement/dopplerUncertainty STRINGS=VALS(lpp_dopplerUncerta
 GNSS-AcquisitionAssistElement/codePhase DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lpp_codePhase_fmt)
 
 #.TYPE_ATTR
-GNSS-AcquisitionAssistElement/intCodePhase DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_milliseconds
+GNSS-AcquisitionAssistElement/intCodePhase DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_milliseconds)
 
 #.TYPE_ATTR
 GNSS-AcquisitionAssistElement/codePhaseSearchWindow DISPLAY=BASE_DEC|BASE_EXT_STRING STRINGS=&lpp_codePhaseSearchWindow_vals_ext
@@ -1225,7 +1225,7 @@ AlmanacMidiAlmanacSet/midiAlmaf0 DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lpp_midiAlm
 AlmanacMidiAlmanacSet/midiAlmaf1 DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lpp_midiAlmaf1_fmt)
 
 #.TYPE_ATTR
-AlmanacGLONASS-AlmanacSet/gloAlm-NA DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_day_days
+AlmanacGLONASS-AlmanacSet/gloAlm-NA DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_day_days)
 
 #.TYPE_ATTR
 AlmanacGLONASS-AlmanacSet/gloAlmLambdaA DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lpp_gloAlmLambdaA_DeltaIa_fmt)
@@ -1336,19 +1336,19 @@ UTC-ModelSet1/gnss-Utc-A0 DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lpp_gnss_Utc_A0_fm
 UTC-ModelSet1/gnss-Utc-Tot DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lpp_gnss_Utc_Tot_fmt)
 
 #.TYPE_ATTR
-UTC-ModelSet1/gnss-Utc-WNt DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_week_weeks
+UTC-ModelSet1/gnss-Utc-WNt DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_week_weeks)
 
 #.TYPE_ATTR
-UTC-ModelSet1/gnss-Utc-DeltaTls DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_seconds
+UTC-ModelSet1/gnss-Utc-DeltaTls DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_seconds)
 
 #.TYPE_ATTR
-UTC-ModelSet1/gnss-Utc-WNlsf DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_week_weeks
+UTC-ModelSet1/gnss-Utc-WNlsf DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_week_weeks)
 
 #.TYPE_ATTR
-UTC-ModelSet1/gnss-Utc-DN DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_day_days
+UTC-ModelSet1/gnss-Utc-DN DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_day_days)
 
 #.TYPE_ATTR
-UTC-ModelSet1/gnss-Utc-DeltaTlsf DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_seconds
+UTC-ModelSet1/gnss-Utc-DeltaTlsf DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_seconds)
 
 #.TYPE_ATTR
 UTC-ModelSet2/utcA0 DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lpp_tA0_fmt)
@@ -1360,16 +1360,16 @@ UTC-ModelSet2/utcA1 DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lpp_tA1_fmt)
 UTC-ModelSet2/utcA2 DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lpp_tA2_fmt)
 
 #.TYPE_ATTR
-UTC-ModelSet2/utcDeltaTls DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_seconds
+UTC-ModelSet2/utcDeltaTls DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_seconds)
 
 #.TYPE_ATTR
 UTC-ModelSet2/utcTot DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lpp_gnss_TimeModelRefTime_fmt)
 
 #.TYPE_ATTR
-UTC-ModelSet2/utcWNot DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_week_weeks
+UTC-ModelSet2/utcWNot DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_week_weeks)
 
 #.TYPE_ATTR
-UTC-ModelSet2/utcWNlsf DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_week_weeks
+UTC-ModelSet2/utcWNlsf DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_week_weeks)
 
 #.FN_BODY UTC-ModelSet2/utcDN VAL_PTR = &utcDN_tvb HF_INDEX=-1
   tvbuff_t *utcDN_tvb = NULL;
@@ -1382,13 +1382,13 @@ UTC-ModelSet2/utcWNlsf DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_week_wee
   }
 
 #.TYPE_ATTR
-UTC-ModelSet2/utcDN TYPE=FT_UINT8 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_day_days
+UTC-ModelSet2/utcDN TYPE=FT_UINT8 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_day_days)
 
 #.TYPE_ATTR
-UTC-ModelSet2/utcDeltaTlsf DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_seconds
+UTC-ModelSet2/utcDeltaTlsf DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_seconds)
 
 #.TYPE_ATTR
-UTC-ModelSet3/nA DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_day_days
+UTC-ModelSet3/nA DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_day_days)
 
 #.TYPE_ATTR
 UTC-ModelSet3/tauC DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lpp_tauC_fmt)
@@ -1422,19 +1422,19 @@ UTC-ModelSet4/utcA0wnt DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lpp_gnss_Utc_A0_fmt)
 UTC-ModelSet4/utcTot DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lpp_gnss_Utc_Tot_fmt)
 
 #.TYPE_ATTR
-UTC-ModelSet4/utcWNt DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_week_weeks
+UTC-ModelSet4/utcWNt DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_week_weeks)
 
 #.TYPE_ATTR
-UTC-ModelSet4/utcDeltaTls DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_seconds
+UTC-ModelSet4/utcDeltaTls DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_seconds)
 
 #.TYPE_ATTR
-UTC-ModelSet4/utcWNlsf DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_week_weeks
+UTC-ModelSet4/utcWNlsf DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_week_weeks)
 
 #.TYPE_ATTR
-UTC-ModelSet4/utcDN DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_day_days
+UTC-ModelSet4/utcDN DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_day_days)
 
 #.TYPE_ATTR
-UTC-ModelSet4/utcDeltaTlsf DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_seconds
+UTC-ModelSet4/utcDeltaTlsf DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_seconds)
 
 #.TYPE_ATTR
 UTC-ModelSet4/utcStandardID TYPE=FT_UINT8 DISPLAY=BASE_DEC STRINGS=VALS(lpp_utcStandardID_vals)
@@ -1446,19 +1446,19 @@ UTC-ModelSet5-r12/utcA0-r12 DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lpp_gnss_Utc_A0_
 UTC-ModelSet5-r12/utcA1-r12 DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lpp_gnss_Utc_A1_fmt)
 
 #.TYPE_ATTR
-UTC-ModelSet5-r12/utcDeltaTls-r12 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_seconds
+UTC-ModelSet5-r12/utcDeltaTls-r12 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_seconds)
 
 #.TYPE_ATTR
-UTC-ModelSet5-r12/utcWNlsf-r12 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_week_weeks
+UTC-ModelSet5-r12/utcWNlsf-r12 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_week_weeks)
 
 #.TYPE_ATTR
-UTC-ModelSet5-r12/utcDN-r12 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_day_days
+UTC-ModelSet5-r12/utcDN-r12 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_day_days)
 
 #.TYPE_ATTR
-UTC-ModelSet5-r12/utcDeltaTlsf-r12 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_seconds
+UTC-ModelSet5-r12/utcDeltaTlsf-r12 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_seconds)
 
 #.TYPE_ATTR
-BDS-DifferentialCorrections-r12/dbds-RefTime-r12 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_seconds
+BDS-DifferentialCorrections-r12/dbds-RefTime-r12 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_seconds)
 
 #.TYPE_ATTR
 DBDS-CorrectionElement-r12/bds-UDREI-r12 TYPE=FT_UINT8 DISPLAY=BASE_DEC|BASE_EXT_STRING STRINGS=&lpp_bds_UDREI_vals_ext
@@ -1470,7 +1470,7 @@ DBDS-CorrectionElement-r12/bds-RURAI-r12 TYPE=FT_UINT8 DISPLAY=BASE_DEC|BASE_EXT
 DBDS-CorrectionElement-r12/bds-ECC-DeltaT-r12 DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lpp_bds_ECC_DeltaT_r12_fmt)
 
 #.TYPE_ATTR
-BDS-GridModelParameter-r12/bds-RefTime-r12 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_seconds
+BDS-GridModelParameter-r12/bds-RefTime-r12 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_seconds)
 
 #.TYPE_ATTR
 GridIonElement-r12/dt-r12 DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lpp_bds_GridIonElement_dt_r12_fmt)
@@ -1479,13 +1479,13 @@ GridIonElement-r12/dt-r12 DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lpp_bds_GridIonEle
 GridIonElement-r12/givei-r12 TYPE=FT_UINT8 DISPLAY=BASE_DEC|BASE_EXT_STRING STRINGS=&lpp_bds_givei_vals_ext
 
 #.TYPE_ATTR
-GNSS-RTK-SatelliteDataElement-r15/integer-ms-r15 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_milliseconds
+GNSS-RTK-SatelliteDataElement-r15/integer-ms-r15 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_milliseconds)
 
 #.TYPE_ATTR
-GNSS-RTK-SatelliteDataElement-r15/rough-range-r15 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_milliseconds
+GNSS-RTK-SatelliteDataElement-r15/rough-range-r15 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_milliseconds)
 
 #.TYPE_ATTR
-GNSS-RTK-SatelliteDataElement-r15/rough-phase-range-rate-r15 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_meter_sec
+GNSS-RTK-SatelliteDataElement-r15/rough-phase-range-rate-r15 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_meter_sec)
 
 #.TYPE_ATTR
 GNSS-RTK-SatelliteSignalDataElement-r15/fine-PseudoRange-r15 DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lpp_fine_PseudoRange_r15_fmt)
@@ -1593,16 +1593,16 @@ SSR-CodeBiasSignalElement-r15/codeBias-r15 DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(l
   proto_item_append_text(actx->created_item, " (units of 30 mns for glonass, hours otherwise)");
 
 #.TYPE_ATTR
-GNSS-DataBitAssistanceReq/gnss-TOD-Req DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_seconds
+GNSS-DataBitAssistanceReq/gnss-TOD-Req DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_seconds)
 
 #.TYPE_ATTR
-GNSS-DataBitAssistanceReq/gnss-TOD-FracReq DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_milliseconds
+GNSS-DataBitAssistanceReq/gnss-TOD-FracReq DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_milliseconds)
 
 #.TYPE_ATTR
 GNSS-DataBitAssistanceReq/dataBitInterval TYPE=FT_UINT8 DISPLAY=BASE_DEC|BASE_EXT_STRING STRINGS=&lpp_dataBitInterval_vals_ext
 
 #.TYPE_ATTR
-MeasurementReferenceTime/gnss-TOD-msec DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_milliseconds
+MeasurementReferenceTime/gnss-TOD-msec DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_milliseconds)
 
 #.TYPE_ATTR
 MeasurementReferenceTime/gnss-TOD-frac DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lpp_fractionalSecondsFromFrameStructureStart_fmt)
@@ -1611,13 +1611,13 @@ MeasurementReferenceTime/gnss-TOD-frac DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lpp_f
 MeasurementReferenceTime/gnss-TOD-unc DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lpp_referenceTimeUnc_fmt)
 
 #.TYPE_ATTR
-MeasurementReferenceTime/networkTime/gSM/deltaGNSS-TOD DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_milliseconds
+MeasurementReferenceTime/networkTime/gSM/deltaGNSS-TOD DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_milliseconds)
 
 #.TYPE_ATTR
-GNSS-SgnMeasElement/gnss-CodePhaseAmbiguity DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_milliseconds
+GNSS-SgnMeasElement/gnss-CodePhaseAmbiguity DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_milliseconds)
 
 #.TYPE_ATTR
-GNSS-SatMeasElement/cNo DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_dbhz
+GNSS-SatMeasElement/cNo DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_dbhz)
 
 #.TYPE_ATTR
 GNSS-SatMeasElement/carrierQualityInd TYPE=FT_UINT8 DISPLAY=BASE_DEC STRINGS=VALS(lpp_carrierQualityInd_vals)
@@ -1626,7 +1626,7 @@ GNSS-SatMeasElement/carrierQualityInd TYPE=FT_UINT8 DISPLAY=BASE_DEC STRINGS=VAL
 GNSS-SatMeasElement/codePhase DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lpp_GNSS_SatMeas_codePhase_fmt)
 
 #.TYPE_ATTR
-GNSS-SatMeasElement/integerCodePhase DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_milliseconds
+GNSS-SatMeasElement/integerCodePhase DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_milliseconds)
 
 #.TYPE_ATTR
 GNSS-SatMeasElement/codePhaseRMSError DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lpp_codePhaseRMSError_fmt)
@@ -1655,7 +1655,7 @@ GNSS-SatMeasElement/eag_1/delta-codePhase-r15 DISPLAY=BASE_CUSTOM STRINGS=CF_FUN
 GNSS-PeriodicControlParam-r15/deliveryAmount-r15 DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lpp_deliveryAmount_r15_fmt)
 
 #.TYPE_ATTR
-GNSS-PeriodicControlParam-r15/deliveryInterval-r15 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_seconds
+GNSS-PeriodicControlParam-r15/deliveryInterval-r15 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_seconds)
 
 #.TYPE_ATTR
 MeasuredResultsElement/rsrp-Result DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lpp_rsrp_Result_fmt)
@@ -1685,13 +1685,13 @@ MBS-BeaconMeasElement-r13/codePhase-r13 DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lpp_
 MBS-BeaconMeasElement-r13/codePhaseRMSError-r13 DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lpp_codePhaseRMSError_fmt)
 
 #.TYPE_ATTR
-MBS-BeaconMeasElement-r13/eag_1/rssi-r14 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_dbm
+MBS-BeaconMeasElement-r13/eag_1/rssi-r14 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_dbm)
 
 #.TYPE_ATTR
-Sensor-MeasurementInformation-r13/uncompensatedBarometricPressure-r13 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_pa
+Sensor-MeasurementInformation-r13/uncompensatedBarometricPressure-r13 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_pa)
 
 #.TYPE_ATTR
-Sensor-MeasurementInformation-r13/eag_1/uncertainty-r14/range-r14 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_pa
+Sensor-MeasurementInformation-r13/eag_1/uncertainty-r14/range-r14 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_pa)
 
 #.TYPE_ATTR
 Sensor-MeasurementInformation-r13/eag_1/uncertainty-r14/confidence-r14 DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lpp_confidence_fmt)
@@ -1715,7 +1715,7 @@ Displacement-r15/verticalDistance-r15 DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lpp_1_
 Displacement-r15/verticalUncConfidence-r15 DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lpp_confidence_fmt)
 
 #.TYPE_ATTR
-UTC-Time-r15/utcTime-ms-r15 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_milliseconds
+UTC-Time-r15/utcTime-ms-r15 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_milliseconds)
 
 #.FN_BODY MBS-AlmanacAssistance-r14/transmitterLatitude-r14 VAL_PTR = &transmitterLatitude_tvb HF_INDEX=-1
   tvbuff_t *transmitterLatitude_tvb = NULL;
@@ -1751,10 +1751,10 @@ MBS-AlmanacAssistance-r14/transmitterLongitude-r14 TYPE=FT_UINT32 DISPLAY=BASE_C
 MBS-AlmanacAssistance-r14/transmitterAltitude-r14 TYPE=FT_UINT16 DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lpp_transmitterAltitude_fmt)
 
 #.TYPE_ATTR
-MBS-AlmanacAssistance-r14/timeCorrection-r14 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_nanoseconds
+MBS-AlmanacAssistance-r14/timeCorrection-r14 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_nanoseconds)
 
 #.TYPE_ATTR
-MBS-AcquisitionAssistance-r14/freq-r14 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_hz
+MBS-AcquisitionAssistance-r14/freq-r14 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_hz)
 
 #.TYPE_ATTR
 Sensor-AssistanceDataList-r14/refPressure-r14 DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lpp_refPressure_fmt)
@@ -1772,10 +1772,10 @@ Sensor-AssistanceDataList-r14/eag_1/period-v1520/referencePressureRate-v1520 DIS
   proto_item_append_text(actx->created_item, "Pa/Km");
 
 #.TYPE_ATTR
-PressureValidityArea-v1520/validityAreaWidth-v1520 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_km
+PressureValidityArea-v1520/validityAreaWidth-v1520 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_km)
 
 #.TYPE_ATTR
-PressureValidityArea-v1520/vvalidityAreaHeight-v1520 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_km
+PressureValidityArea-v1520/vvalidityAreaHeight-v1520 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_km)
 
 #.TYPE_ATTR
 PressureValidityPeriod-v1520/beginTimeAlt-v1520 DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lpp_PressureValidityPeriod_v1520_fmt)
@@ -1784,7 +1784,7 @@ PressureValidityPeriod-v1520/beginTimeAlt-v1520 DISPLAY=BASE_CUSTOM STRINGS=CF_F
 PressureValidityPeriod-v1520/duration-v1520 DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lpp_PressureValidityPeriod_v1520_fmt)
 
 #.TYPE_ATTR
-WLAN-MeasurementElement-r13/rssi-r13 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_dbm
+WLAN-MeasurementElement-r13/rssi-r13 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_dbm)
 
 #.TYPE_ATTR
 WLAN-AP-Identifier-r13/bssid-r13 TYPE=FT_ETHER
@@ -1808,7 +1808,7 @@ BT-MeasurementElement-r13/btAddr-r13 TYPE=FT_ETHER DISPLAY=BASE_NONE
   actx->created_item = proto_tree_add_item(tree, hf_index, btAddr_tvb, 0, 6, ENC_NA);
 
 #.TYPE_ATTR
-BT-MeasurementElement-r13/rssi-r13 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_dbm
+BT-MeasurementElement-r13/rssi-r13 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_dbm)
 
 #.FN_HDR CipheringKeyData-r15
   lpp_get_private_data(actx->pinfo)->is_ciphered = true;

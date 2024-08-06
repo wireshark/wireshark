@@ -226,7 +226,7 @@ proto_register_sync(void)
         },
         { &hf_sync_timestamp,
             { "Timestamp", "sync.timestamp",
-            FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_milliseconds, 0x0,
+            FT_UINT16, BASE_DEC|BASE_UNIT_STRING, UNS(&units_milliseconds), 0x0,
             "Relative time value for the starting time of a synchronisation sequence within the synchronisation period.", HFILL }
         },
         { &hf_sync_packet_nr,

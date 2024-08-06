@@ -2209,7 +2209,7 @@ proto_register_tibia(void)
         { &hf_tibia_client_vram,
             { "Video RAM", "tibia.client.vram",
                 FT_UINT16, BASE_DEC|BASE_UNIT_STRING,
-                &mb_unit, 0x0,
+                UNS(&mb_unit), 0x0,
                 NULL, HFILL }
         },
         { &hf_tibia_client_resolution,
@@ -2471,7 +2471,7 @@ proto_register_tibia(void)
         { &hf_tibia_creature_health,
             { "Creature", "tibia.creature.health",
                 FT_UINT8, BASE_DEC|BASE_UNIT_STRING,
-                &units_percent, 0x0,
+                UNS(&units_percent), 0x0,
                 NULL, HFILL }
         },
         { &hf_tibia_window,

@@ -2234,12 +2234,12 @@ proto_register_ansi_801(void)
 		},
 		{ &hf_ansi_801_time_of_almanac,
 		  { "Time of almanac", "ansi_801.time_of_almanac",
-		    FT_UINT8, BASE_DEC|BASE_UNIT_STRING, &units_time_of_almanac, 0x0,
+		    FT_UINT8, BASE_DEC|BASE_UNIT_STRING, UNS(&units_time_of_almanac), 0x0,
 		    NULL, HFILL }
 		},
 		{ &hf_ansi_801_gps_week_number,
 		  { "GPS week number", "ansi_801.gps_week_number",
-		    FT_UINT8, BASE_DEC|BASE_UNIT_STRING, &units_gps_week_number, 0x0,
+		    FT_UINT8, BASE_DEC|BASE_UNIT_STRING, UNS(&units_gps_week_number), 0x0,
 		    NULL, HFILL }
 		},
 	};

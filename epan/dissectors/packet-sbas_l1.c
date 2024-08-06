@@ -1826,7 +1826,7 @@ void proto_register_sbas_l1(void) {
 
         // MT7
         {&hf_sbas_l1_mt7,          {"MT7",                                "sbas_l1.mt7",          FT_NONE,   BASE_NONE, NULL,                               0x0,    NULL, HFILL}},
-        {&hf_sbas_l1_mt7_t_lat,    {"System Latency (t_lat)",             "sbas_l1.mt7.t_lat",    FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_seconds,     0x03c0, NULL, HFILL}},
+        {&hf_sbas_l1_mt7_t_lat,    {"System Latency (t_lat)",             "sbas_l1.mt7.t_lat",    FT_UINT16, BASE_DEC|BASE_UNIT_STRING, UNS(&units_seconds),     0x03c0, NULL, HFILL}},
         {&hf_sbas_l1_mt7_iodp,     {"Issue of Data - PRN (IODP)",         "sbas_l1.mt7.iodp",     FT_UINT8,  BASE_DEC,  NULL,                               0x30,   NULL, HFILL}},
         {&hf_sbas_l1_mt7_spare,    {"Spare",                              "sbas_l1.mt7.spare",    FT_UINT8,  BASE_DEC,  NULL,                               0x0c,   NULL, HFILL}},
         {&hf_sbas_l1_mt7_ai_1,     {"Degradation Factor Indicator ai_1",  "sbas_l1.mt7.ai_1",     FT_UINT16, BASE_DEC,  VALS(DEGRADATION_FACTOR_INDICATOR), 0x03c0, NULL, HFILL}},

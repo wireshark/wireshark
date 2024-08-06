@@ -5311,7 +5311,7 @@ void proto_register_rsl(void)
         },
         { &hf_rsl_osmo_top_acch_val,
           { "Overpower value", "gsm_abis_rsl.osmo_top_acch.val",
-            FT_UINT8, BASE_DEC | BASE_UNIT_STRING, &units_decibels, 0x07,
+            FT_UINT8, BASE_DEC | BASE_UNIT_STRING, UNS(&units_decibels), 0x07,
             NULL, HFILL }
         },
         { &hf_rsl_osmo_top_acch_rxqual,

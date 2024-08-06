@@ -9374,7 +9374,7 @@ proto_register_docsis_mgmt (void)
     },
     {&hf_docsis_ucd_cent_freq_subc0,
      {"Center Frequency of Subcarrier 0", "docsis_ucd.cent_freq_subc0",
-      FT_UINT32, BASE_DEC|BASE_UNIT_STRING, &units_hz, 0x00,
+      FT_UINT32, BASE_DEC|BASE_UNIT_STRING, UNS(&units_hz), 0x00,
       NULL, HFILL}
     },
     {&hf_docsis_ucd_subcarrier_range,
@@ -10353,7 +10353,7 @@ proto_register_docsis_mgmt (void)
      {
        "OFDM Block Frequency",
        "docsis_dccreq.ds_ofdm_block_freq",
-       FT_UINT32, BASE_DEC|BASE_UNIT_STRING, &units_hz, 0x0,
+       FT_UINT32, BASE_DEC|BASE_UNIT_STRING, UNS(&units_hz), 0x0,
        NULL,
        HFILL
      }
@@ -11492,17 +11492,17 @@ proto_register_docsis_mgmt (void)
     },
     {&hf_docsis_mdd_diplexer_us_upper_band_edge_override,
      {"Diplexer Upstream Upper Band Edge Override", "docsis_mdd.diplexer_us_upper_band_edge_override",
-      FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_mhz, 0x0,
+      FT_UINT16, BASE_DEC|BASE_UNIT_STRING, UNS(&units_mhz), 0x0,
       NULL, HFILL}
     },
     {&hf_docsis_mdd_diplexer_ds_lower_band_edge_override,
      {"Diplexer Downstream Lower Band Edge Override", "docsis_mdd.diplexer_ds_lower_band_edge_override",
-      FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_mhz, 0x0,
+      FT_UINT16, BASE_DEC|BASE_UNIT_STRING, UNS(&units_mhz), 0x0,
       NULL, HFILL}
     },
     {&hf_docsis_mdd_diplexer_ds_upper_band_edge_override,
      {"Diplexer Downstream Upper Band Edge Override", "docsis_mdd.diplexer_ds_upper_band_edge_override",
-      FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_mhz, 0x0,
+      FT_UINT16, BASE_DEC|BASE_UNIT_STRING, UNS(&units_mhz), 0x0,
       NULL, HFILL}
     },
     /* MDD Advanced Band Plan Descriptor */
@@ -11935,7 +11935,7 @@ proto_register_docsis_mgmt (void)
       {"Roll Off", "docsis_ocd.tlv.roll_off", FT_UINT8, BASE_DEC, VALS (docsis_ocd_roll_off), 0x0, NULL, HFILL}
     },
     {&hf_docsis_ocd_tlv_ofdm_spec_loc,
-      {"OFDM Spectrum Location", "docsis_ocd.tlv.ofdm_spec_loc", FT_UINT32, BASE_DEC|BASE_UNIT_STRING, &units_hz, 0x0, NULL, HFILL}
+      {"OFDM Spectrum Location", "docsis_ocd.tlv.ofdm_spec_loc", FT_UINT32, BASE_DEC|BASE_UNIT_STRING, UNS(&units_hz), 0x0, NULL, HFILL}
     },
     {&hf_docsis_ocd_tlv_time_int_depth,
       {"Time Interleaving Depth", "docsis_ocd.tlv.time_int_depth", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}
@@ -12319,7 +12319,7 @@ proto_register_docsis_mgmt (void)
     },
     {&hf_docsis_cwt_max_duration,
      {"Maximum Duration", "docsis_cwt.max_duration",
-      FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_milliseconds, 0x0,
+      FT_UINT16, BASE_DEC|BASE_UNIT_STRING, UNS(&units_milliseconds), 0x0,
       NULL, HFILL}
     },
     {&hf_docsis_cwt_us_encodings_tlv,
@@ -12435,17 +12435,17 @@ proto_register_docsis_mgmt (void)
     },
     {&hf_docsis_ect_control_method_fg_duration,
     {"Duration", "docsis_ect.control.method.fg.duration",
-      FT_UINT8, BASE_DEC|BASE_UNIT_STRING, &units_symbols, 0x0,
+      FT_UINT8, BASE_DEC|BASE_UNIT_STRING, UNS(&units_symbols), 0x0,
       NULL, HFILL}
     },
     {&hf_docsis_ect_control_method_fg_periodicity,
     {"Periodicity", "docsis_ect.control.method.fg.periodicity",
-      FT_UINT8, BASE_DEC|BASE_UNIT_STRING, &units_seconds, 0x0,
+      FT_UINT8, BASE_DEC|BASE_UNIT_STRING, UNS(&units_seconds), 0x0,
       NULL, HFILL}
     },
     {&hf_docsis_ect_control_method_fg_expiration_time,
     {"Expiration Time", "docsis_ect.control.method.fg.expiration_time",
-      FT_UINT8, BASE_DEC|BASE_UNIT_STRING, &units_seconds, 0x0,
+      FT_UINT8, BASE_DEC|BASE_UNIT_STRING, UNS(&units_seconds), 0x0,
       NULL, HFILL}
     },
     {&hf_docsis_ect_control_method_fg_ds_zbl,
@@ -12470,17 +12470,17 @@ proto_register_docsis_mgmt (void)
     },
     {&hf_docsis_ect_control_method_bg_duration,
     {"Duration", "docsis_ect.control.method.bg.duration",
-      FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_milliseconds, 0x0,
+      FT_UINT16, BASE_DEC|BASE_UNIT_STRING, UNS(&units_milliseconds), 0x0,
       NULL, HFILL}
     },
     {&hf_docsis_ect_control_method_bg_periodicity,
     {"Periodicity", "docsis_ect.control.method.bg.periodicity",
-      FT_UINT8, BASE_DEC|BASE_UNIT_STRING, &units_seconds, 0x0,
+      FT_UINT8, BASE_DEC|BASE_UNIT_STRING, UNS(&units_seconds), 0x0,
       NULL, HFILL}
     },
     {&hf_docsis_ect_control_method_bg_expiration_time,
     {"Expiration Time", "docsis_ect.control.method.bg.expiration_time",
-      FT_UINT8, BASE_DEC|BASE_UNIT_STRING, &units_seconds, 0x0,
+      FT_UINT8, BASE_DEC|BASE_UNIT_STRING, UNS(&units_seconds), 0x0,
       NULL, HFILL}
     },
     {&hf_docsis_ect_control_method_bg_start_time,
@@ -12520,7 +12520,7 @@ proto_register_docsis_mgmt (void)
     },
     {&hf_docsis_ect_control_rxmer_duration,
     {"RxMER Duration", "docsis_ect.control.rxmer_duration",
-      FT_UINT8, BASE_DEC|BASE_UNIT_STRING, &units_symbols, 0x0,
+      FT_UINT8, BASE_DEC|BASE_UNIT_STRING, UNS(&units_symbols), 0x0,
       NULL, HFILL}
     },
     /* DPR */

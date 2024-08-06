@@ -349,7 +349,7 @@ proto_register_esis(void) {
       { "PDU Type", "esis.type",      FT_UINT8, BASE_DEC, VALS(esis_vals), OSI_PDU_TYPE_MASK, NULL, HFILL }},
 
     { &hf_esis_holdtime,
-      { "Holding Time", "esis.htime", FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_second_seconds, 0x0, NULL, HFILL }},
+      { "Holding Time", "esis.htime", FT_UINT16, BASE_DEC|BASE_UNIT_STRING, UNS(&units_second_seconds), 0x0, NULL, HFILL }},
 
     { &hf_esis_checksum,
       { "Checksum", "esis.chksum",    FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
@@ -359,11 +359,11 @@ proto_register_esis(void) {
 
       /* Generated from convert_proto_tree_add_text.pl */
       { &hf_esis_number_of_source_addresses, { "Number of Source Addresses (SA, Format: NSAP)", "esis.number_of_source_addresses", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_esis_sal, { "SAL", "esis.sal", FT_UINT8, BASE_DEC|BASE_UNIT_STRING, &units_octet_octets, 0x0, NULL, HFILL }},
+      { &hf_esis_sal, { "SAL", "esis.sal", FT_UINT8, BASE_DEC|BASE_UNIT_STRING, UNS(&units_octet_octets), 0x0, NULL, HFILL }},
       { &hf_esis_sa, { "SA", "esis.sa", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-      { &hf_esis_netl, { "NETL", "esis.netl", FT_UINT8, BASE_DEC|BASE_UNIT_STRING, &units_octet_octets, 0x0, NULL, HFILL }},
-      { &hf_esis_dal, { "DAL", "esis.dal", FT_UINT8, BASE_DEC|BASE_UNIT_STRING, &units_octet_octets, 0x0, NULL, HFILL }},
-      { &hf_esis_bsnpal, { "BSNPAL", "esis.bsnpal", FT_UINT8, BASE_DEC|BASE_UNIT_STRING, &units_octet_octets, 0x0, NULL, HFILL }},
+      { &hf_esis_netl, { "NETL", "esis.netl", FT_UINT8, BASE_DEC|BASE_UNIT_STRING, UNS(&units_octet_octets), 0x0, NULL, HFILL }},
+      { &hf_esis_dal, { "DAL", "esis.dal", FT_UINT8, BASE_DEC|BASE_UNIT_STRING, UNS(&units_octet_octets), 0x0, NULL, HFILL }},
+      { &hf_esis_bsnpal, { "BSNPAL", "esis.bsnpal", FT_UINT8, BASE_DEC|BASE_UNIT_STRING, UNS(&units_octet_octets), 0x0, NULL, HFILL }},
       { &hf_esis_net, { "NET", "esis.net", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_esis_da, { "DA", "esis.da", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_esis_bsnpa, { "BSNPA", "esis.bsnpa", FT_SYSTEM_ID, BASE_NONE, NULL, 0x0, NULL, HFILL }},

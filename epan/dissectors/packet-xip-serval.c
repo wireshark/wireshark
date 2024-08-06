@@ -270,7 +270,7 @@ proto_register_xip_serval(void)
 
 		{ &hf_xip_serval_hl,
 		{ "Header Length", "xip_serval.hl", FT_UINT8,
-		   BASE_DEC|BASE_UNIT_STRING, &units_byte_bytes, 0x0,	NULL, HFILL }},
+		   BASE_DEC|BASE_UNIT_STRING, UNS(&units_byte_bytes), 0x0,	NULL, HFILL }},
 
 		{ &hf_xip_serval_proto,
 		{ "Protocol", "xip_serval.proto", FT_UINT8,
@@ -292,7 +292,7 @@ proto_register_xip_serval(void)
 
 		{ &hf_xip_serval_ext_length,
 		{ "Extension Length", "xip_serval.ext_length", FT_UINT8,
-		   BASE_DEC|BASE_UNIT_STRING, &units_byte_bytes, 0x0,	NULL, HFILL }},
+		   BASE_DEC|BASE_UNIT_STRING, UNS(&units_byte_bytes), 0x0,	NULL, HFILL }},
 
 		/* Serval Control Extension Header. */
 

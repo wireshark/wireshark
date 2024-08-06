@@ -513,7 +513,7 @@ proto_register_trmac(void)
 			NULL, HFILL }},
 
 		{ &hf_trmac_length,
-		{ "Total Length",			"trmac.length", FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_byte_bytes, 0x0,
+		{ "Total Length",			"trmac.length", FT_UINT16, BASE_DEC|BASE_UNIT_STRING, UNS(&units_byte_bytes), 0x0,
 			NULL, HFILL }},
 
 		{ &hf_trmac_srcclass,
@@ -597,7 +597,7 @@ proto_register_trmac(void)
 			NULL, HFILL }},
 
 		{ &hf_trmac_error_report_timer_value,
-		{ "Error Report Timer Value",		"trmac.error_report_timer_value", FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_milliseconds, 0x0,
+		{ "Error Report Timer Value",		"trmac.error_report_timer_value", FT_UINT16, BASE_DEC|BASE_UNIT_STRING, UNS(&units_milliseconds), 0x0,
 			NULL, HFILL }},
 
 		{ &hf_trmac_authorized_function_classes,

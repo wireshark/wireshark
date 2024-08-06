@@ -797,6 +797,10 @@ sub check_hf_entries($$)
                         print STDERR "Error: $hf: BASE_EXT_STRING should use VALS_EXT_PTR for 'strings' instead of '$convert' in $filename\n";
                         $errorCount++;
                 }
+                if ($display =~ /BASE_UNIT_STRING/ && ($convert !~ m/^((0[xX]0?)?0$|NULL$|UNS)/)) {
+                        print STDERR "Error: $hf: BASE_UNIT_STRING with non-null 'convert' field missing UNS in $filename\n";
+                        $errorCount++;
+                }
                 if ($ft =~ m/^FT_U?INT(8|16|24|32)$/ && $convert =~ m/^VALS64\(/) {
                         print STDERR "Error: $hf: 32-bit field must use VALS instead of VALS64 in $filename\n";
                         $errorCount++;
@@ -809,8 +813,8 @@ sub check_hf_entries($$)
                         print STDERR "Error: $hf is passing the address of a pointer to $1 in $filename\n";
                         $errorCount++;
                 }
-                if ($convert !~ m/^((0[xX]0?)?0$|NULL$|VALS|VALS64|VALS_EXT_PTR|RVALS|TFS|CF_FUNC|FRAMENUM_TYPE|&|STRINGS_ENTERPRISES)/ && $display !~ /BASE_CUSTOM/) {
-                        print STDERR "Error: non-null $hf 'convert' field missing 'VALS|VALS64|RVALS|TFS|CF_FUNC|FRAMENUM_TYPE|&|STRINGS_ENTERPRISES' in $filename ?\n";
+                if ($convert !~ m/^((0[xX]0?)?0$|NULL$|VALS|VALS64|VALS_EXT_PTR|RVALS|TFS|UNS|CF_FUNC|FRAMENUM_TYPE|&|STRINGS_ENTERPRISES)/ && $display !~ /BASE_CUSTOM/) {
+                        print STDERR "Error: non-null $hf 'convert' field missing 'VALS|VALS64|RVALS|TFS|UNS|CF_FUNC|FRAMENUM_TYPE|&|STRINGS_ENTERPRISES' in $filename ?\n";
                         $errorCount++;
                 }
 ## Benign...

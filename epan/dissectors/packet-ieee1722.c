@@ -1300,7 +1300,7 @@ void proto_register_1722_61883(void)
         },
         { &hf_1722_61883_stream_data_length,
             { "1394 Stream Data Length", "iec61883.stream_data_len",
-              FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_byte_bytes, 0x0, NULL, HFILL }
+              FT_UINT16, BASE_DEC|BASE_UNIT_STRING, UNS(&units_byte_bytes), 0x0, NULL, HFILL }
         },
         { &hf_1722_61883_tag,
             { "1394 Packet Format Tag", "iec61883.tag",
@@ -1630,7 +1630,7 @@ void proto_register_1722_aaf (void)
         },
         { &hf_1722_aaf_stream_data_length,
             { "Stream Data Length", "aaf.stream_data_len",
-              FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_byte_bytes, IEEE_1722_STREAM_DATA_LENGTH_MASK, NULL, HFILL }
+              FT_UINT16, BASE_DEC|BASE_UNIT_STRING, UNS(&units_byte_bytes), IEEE_1722_STREAM_DATA_LENGTH_MASK, NULL, HFILL }
         },
         { &hf_1722_aaf_sparse_timestamp,
             { "Sparse Timestamp Mode", "aaf.sparse_timestamp",
@@ -1830,7 +1830,7 @@ void proto_register_1722_cvf (void)
         },
         { &hf_1722_cvf_stream_data_length,
             { "Stream Data Length", "cvf.stream_data_len",
-              FT_UINT16, BASE_DEC | BASE_UNIT_STRING, &units_byte_bytes, IEEE_1722_STREAM_DATA_LENGTH_MASK, NULL, HFILL }
+              FT_UINT16, BASE_DEC | BASE_UNIT_STRING, UNS(&units_byte_bytes), IEEE_1722_STREAM_DATA_LENGTH_MASK, NULL, HFILL }
         },
         { &hf_1722_cvf_h264_ptvfield,
             { "H264 Payload Timestamp Valid", "cvf.h264_ptvfield",
@@ -1987,7 +1987,7 @@ void proto_register_1722_crf(void)
         },
         { &hf_1722_crf_data_length,
             { "Data Length", "crf.data_len",
-              FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_byte_bytes, 0x0, NULL, HFILL }
+              FT_UINT16, BASE_DEC|BASE_UNIT_STRING, UNS(&units_byte_bytes), 0x0, NULL, HFILL }
         },
         { &hf_1722_crf_timestamp_interval,
             { "Timestamp Interval", "crf.timestamp_interval",

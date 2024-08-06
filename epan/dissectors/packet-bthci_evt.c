@@ -8119,12 +8119,12 @@ proto_register_bthci_evt(void)
         },
         { &hf_bthci_evt_transmit_power_level,
           { "Transmit Power Level", "bthci_evt.transmit_power_level",
-            FT_INT8, BASE_DEC|BASE_UNIT_STRING, &units_dbm, 0x0,
+            FT_INT8, BASE_DEC|BASE_UNIT_STRING, UNS(&units_dbm), 0x0,
             NULL, HFILL }
         },
         { &hf_bthci_evt_max_transmit_power_level,
           { "Maximum Transmit Power Level", "bthci_evt.max_transmit_power_level",
-            FT_INT8, BASE_DEC|BASE_UNIT_STRING, &units_dbm, 0x0,
+            FT_INT8, BASE_DEC|BASE_UNIT_STRING, UNS(&units_dbm), 0x0,
             NULL, HFILL }
         },
         { &hf_bthci_evt_num_supp_iac,
@@ -8164,7 +8164,7 @@ proto_register_bthci_evt(void)
         },
         { &hf_bthci_evt_rssi,
           { "RSSI", "bthci_evt.rssi",
-            FT_INT8, BASE_DEC|BASE_UNIT_STRING, &units_dbm, 0x0,
+            FT_INT8, BASE_DEC|BASE_UNIT_STRING, UNS(&units_dbm), 0x0,
             NULL, HFILL }
         },
         { &hf_bthci_evt_host_data_packet_length_acl,
@@ -8665,7 +8665,7 @@ proto_register_bthci_evt(void)
         },
         { &hf_bthci_evt_le_con_latency,
           { "Connection Latency", "bthci_evt.le_con_latency",
-            FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_number_events, 0x0,
+            FT_UINT16, BASE_DEC|BASE_UNIT_STRING, UNS(&units_number_events), 0x0,
             NULL, HFILL }
         },
         { &hf_bthci_evt_le_supervision_timeout,
@@ -8680,7 +8680,7 @@ proto_register_bthci_evt(void)
         },
         { &hf_bthci_evt_le_max_tx_time,
           { "Max TX Time", "bthci_evt.max_tx_time",
-            FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_microseconds, 0x0,
+            FT_UINT16, BASE_DEC|BASE_UNIT_STRING, UNS(&units_microseconds), 0x0,
             NULL, HFILL }
         },
         { &hf_bthci_evt_le_max_rx_octets,
@@ -8690,7 +8690,7 @@ proto_register_bthci_evt(void)
         },
         { &hf_bthci_evt_le_max_rx_time,
           { "Max RX Time", "bthci_evt.max_rx_time",
-            FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_microseconds, 0x0,
+            FT_UINT16, BASE_DEC|BASE_UNIT_STRING, UNS(&units_microseconds), 0x0,
             NULL, HFILL }
         },
         { &hf_bthci_evt_encrypted_diversifier,
@@ -8890,17 +8890,17 @@ proto_register_bthci_evt(void)
         },
         { &hf_command_response_time_delta,
             { "Command-Response Delta",          "bthci_evt.command_response_delta",
-            FT_DOUBLE, BASE_NONE|BASE_UNIT_STRING, &units_milliseconds, 0x00,
+            FT_DOUBLE, BASE_NONE|BASE_UNIT_STRING, UNS(&units_milliseconds), 0x00,
             NULL, HFILL }
         },
         { &hf_command_pending_time_delta,
             { "Command-Pending Delta",          "bthci_evt.command_pending_delta",
-            FT_DOUBLE, BASE_NONE|BASE_UNIT_STRING, &units_milliseconds, 0x00,
+            FT_DOUBLE, BASE_NONE|BASE_UNIT_STRING, UNS(&units_milliseconds), 0x00,
             NULL, HFILL }
         },
         { &hf_pending_response_time_delta,
             { "Pending-Response Delta",          "bthci_evt.pending_response_delta",
-            FT_DOUBLE, BASE_NONE|BASE_UNIT_STRING, &units_milliseconds, 0x00,
+            FT_DOUBLE, BASE_NONE|BASE_UNIT_STRING, UNS(&units_milliseconds), 0x00,
             NULL, HFILL }
         },
         { &hf_bthci_evt_le_features,
@@ -9495,7 +9495,7 @@ proto_register_bthci_evt(void)
         },
         { &hf_bthci_evt_suggested_max_tx_time,
           { "Suggested Max Tx Time",        "bthci_evt.suggested_max_tx_time",
-            FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_microseconds, 0x0,
+            FT_UINT16, BASE_DEC|BASE_UNIT_STRING, UNS(&units_microseconds), 0x0,
             NULL, HFILL }
         },
         { &hf_bthci_evt_suggested_max_rx_octets,
@@ -9505,7 +9505,7 @@ proto_register_bthci_evt(void)
         },
         { &hf_bthci_evt_suggested_max_rx_time,
           { "Suggested Max Rx Time",        "bthci_evt.suggested_max_rx_time",
-            FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_microseconds, 0x0,
+            FT_UINT16, BASE_DEC|BASE_UNIT_STRING, UNS(&units_microseconds), 0x0,
             NULL, HFILL }
         },
         { &hf_bthci_evt_resolving_list_size,
@@ -9565,7 +9565,7 @@ proto_register_bthci_evt(void)
         },
         { &hf_bthci_evt_tx_power,
           { "TX Power", "bthci_evt.tx_power",
-            FT_INT8, BASE_DEC|BASE_UNIT_STRING, &units_dbm, 0x0,
+            FT_INT8, BASE_DEC|BASE_UNIT_STRING, UNS(&units_dbm), 0x0,
             NULL, HFILL }
         },
         { &hf_bthci_evt_periodic_advertising_interval,
@@ -9615,12 +9615,12 @@ proto_register_bthci_evt(void)
         },
         { &hf_bthci_evt_min_tx_power,
           { "Minimum TX Power", "bthci_evt.min_tx_power",
-            FT_INT8, BASE_DEC|BASE_UNIT_STRING, &units_dbm, 0x0,
+            FT_INT8, BASE_DEC|BASE_UNIT_STRING, UNS(&units_dbm), 0x0,
             NULL, HFILL }
         },
         { &hf_bthci_evt_max_tx_power,
           { "Maximum TX Power", "bthci_evt.max_tx_power",
-            FT_INT8, BASE_DEC|BASE_UNIT_STRING, &units_dbm, 0x0,
+            FT_INT8, BASE_DEC|BASE_UNIT_STRING, UNS(&units_dbm), 0x0,
             NULL, HFILL }
         },
         { &hf_bthci_evt_rf_tx_path_compensation,
@@ -9745,7 +9745,7 @@ proto_register_bthci_evt(void)
         },
         { &hf_bthci_evt_max_encryption_key_size,
           { "Max Encryption Key Size",        "bthci_evt.max_encryption_key_size",
-            FT_UINT8, BASE_DEC|BASE_UNIT_STRING, &units_octet_octets, 0x0,
+            FT_UINT8, BASE_DEC|BASE_UNIT_STRING, UNS(&units_octet_octets), 0x0,
             NULL, HFILL }
         },
         { &hf_bthci_evt_sdu_packet_seq_num,
@@ -9755,12 +9755,12 @@ proto_register_bthci_evt(void)
         },
         { &hf_bthci_evt_sdu_packet_timestamp,
           { "SDU Packet Timestamp",     "bthci_evt.sdu_packet_timestamp",
-            FT_UINT32, BASE_DEC|BASE_UNIT_STRING, &units_microseconds, 0x0,
+            FT_UINT32, BASE_DEC|BASE_UNIT_STRING, UNS(&units_microseconds), 0x0,
             NULL, HFILL }
         },
         { &hf_bthci_evt_sdu_packet_offset,
           { "SDU Packet Offset",     "bthci_evt.sdu_packet_offset",
-            FT_UINT24, BASE_DEC|BASE_UNIT_STRING, &units_microseconds, 0x0,
+            FT_UINT24, BASE_DEC|BASE_UNIT_STRING, UNS(&units_microseconds), 0x0,
             NULL, HFILL }
         },
         { &hf_bthci_evt_cig_id,
@@ -9850,32 +9850,32 @@ proto_register_bthci_evt(void)
         },
         { &hf_bthci_evt_cig_sync_delay,
           { "CIG Sync Delay",     "bthci_evt.cig_sync_delay",
-            FT_UINT24, BASE_DEC|BASE_UNIT_STRING, &units_microseconds, 0x0,
+            FT_UINT24, BASE_DEC|BASE_UNIT_STRING, UNS(&units_microseconds), 0x0,
             NULL, HFILL }
         },
         { &hf_bthci_evt_big_sync_delay,
           { "BIG Sync Delay",     "bthci_evt.big_sync_delay",
-            FT_UINT24, BASE_DEC|BASE_UNIT_STRING, &units_microseconds, 0x0,
+            FT_UINT24, BASE_DEC|BASE_UNIT_STRING, UNS(&units_microseconds), 0x0,
             NULL, HFILL }
         },
         { &hf_bthci_evt_cis_sync_delay,
           { "CIS Sync Delay",     "bthci_evt.cis_sync_delay",
-            FT_UINT24, BASE_DEC|BASE_UNIT_STRING, &units_microseconds, 0x0,
+            FT_UINT24, BASE_DEC|BASE_UNIT_STRING, UNS(&units_microseconds), 0x0,
             NULL, HFILL }
         },
         { &hf_bthci_evt_transport_latency_c_to_p,
           { "Transport Latency Central to Peripheral",     "bthci_evt.transport_latency_c_to_p",
-            FT_UINT24, BASE_DEC|BASE_UNIT_STRING, &units_microseconds, 0x0,
+            FT_UINT24, BASE_DEC|BASE_UNIT_STRING, UNS(&units_microseconds), 0x0,
             NULL, HFILL }
         },
         { &hf_bthci_evt_transport_latency_p_to_c,
           { "Transport Latency Peripheral to Central",     "bthci_evt.transport_latency_p_to_c",
-            FT_UINT24, BASE_DEC|BASE_UNIT_STRING, &units_microseconds, 0x0,
+            FT_UINT24, BASE_DEC|BASE_UNIT_STRING, UNS(&units_microseconds), 0x0,
             NULL, HFILL }
         },
         { &hf_bthci_evt_big_transport_latency,
           { "BIG Transport Latency",     "bthci_evt.big_transport_latency",
-            FT_UINT24, BASE_DEC|BASE_UNIT_STRING, &units_microseconds, 0x0,
+            FT_UINT24, BASE_DEC|BASE_UNIT_STRING, UNS(&units_microseconds), 0x0,
             NULL, HFILL }
         },
         { &hf_bthci_evt_phy_c_to_p,
@@ -9910,12 +9910,12 @@ proto_register_bthci_evt(void)
         },
         { &hf_bthci_evt_max_pdu_c_to_p,
           { "Max PDU Central to Peripheral", "bthci_evt.max_pdu_c_to_p",
-            FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_octet_octets, 0x0,
+            FT_UINT16, BASE_DEC|BASE_UNIT_STRING, UNS(&units_octet_octets), 0x0,
             NULL, HFILL }
         },
         { &hf_bthci_evt_max_pdu_p_to_c,
           { "Max PDU Peripheral to Central", "bthci_evt.max_pdu_p_to_c",
-            FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_octet_octets, 0x0,
+            FT_UINT16, BASE_DEC|BASE_UNIT_STRING, UNS(&units_octet_octets), 0x0,
             NULL, HFILL }
         },
         { &hf_bthci_evt_phy,
@@ -9945,7 +9945,7 @@ proto_register_bthci_evt(void)
         },
         { &hf_bthci_evt_max_pdu,
           { "Max PDU", "bthci_evt.max_pdu",
-            FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_octet_octets, 0x0,
+            FT_UINT16, BASE_DEC|BASE_UNIT_STRING, UNS(&units_octet_octets), 0x0,
             NULL, HFILL }
         },
         { &hf_bthci_evt_iso_interval,
@@ -9965,7 +9965,7 @@ proto_register_bthci_evt(void)
         },
         { &hf_bthci_evt_current_path_loss,
           { "Current Path Loss", "bthci_evt.current_path_loss",
-            FT_UINT8, BASE_DEC|BASE_UNIT_STRING, &units_decibels, 0x0,
+            FT_UINT8, BASE_DEC|BASE_UNIT_STRING, UNS(&units_decibels), 0x0,
             NULL, HFILL }
         },
         { &hf_bthci_evt_zone_entered,
@@ -10000,17 +10000,17 @@ proto_register_bthci_evt(void)
         },
         { &hf_bthci_evt_power_level_delta,
           { "Transmit Power Delta", "bthci_evt.power_level_delta",
-            FT_INT8, BASE_DEC|BASE_UNIT_STRING, &units_decibels, 0x0,
+            FT_INT8, BASE_DEC|BASE_UNIT_STRING, UNS(&units_decibels), 0x0,
             NULL, HFILL }
         },
         { &hf_bthci_evt_sdu_interval,
           { "SDU Interval",   "bthci_evt.sdu_interval",
-            FT_UINT24, BASE_DEC|BASE_UNIT_STRING, &units_microseconds, 0x0,
+            FT_UINT24, BASE_DEC|BASE_UNIT_STRING, UNS(&units_microseconds), 0x0,
             NULL, HFILL }
         },
         { &hf_bthci_evt_max_sdu,
           { "Max SDU", "bthci_evt.max_sdu",
-            FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_octet_octets, 0x0,
+            FT_UINT16, BASE_DEC|BASE_UNIT_STRING, UNS(&units_octet_octets), 0x0,
             NULL, HFILL }
         },
         { &hf_bthci_evt_framing,
@@ -10025,12 +10025,12 @@ proto_register_bthci_evt(void)
         },
         { &hf_bthci_evt_subrate_factor,
           { "Subrate Factor", "bthci_evt.subrate_factor",
-            FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_number_events, 0x0,
+            FT_UINT16, BASE_DEC|BASE_UNIT_STRING, UNS(&units_number_events), 0x0,
             NULL, HFILL }
         },
         { &hf_bthci_evt_continuation_number,
           { "Continuation Number", "bthci_evt.continuation_number",
-            FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_number_events, 0x0,
+            FT_UINT16, BASE_DEC|BASE_UNIT_STRING, UNS(&units_number_events), 0x0,
             NULL, HFILL }
         },
         { &hf_bthci_evt_subevent_start,

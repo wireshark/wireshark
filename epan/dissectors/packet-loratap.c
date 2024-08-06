@@ -238,7 +238,7 @@ proto_register_loratap(void)
 	{ &hf_loratap_header_length_type,
 		{ "Header Length", "loratap.header_length",
 		FT_UINT16, BASE_DEC|BASE_UNIT_STRING,
-		&units_byte_bytes, 0x0,
+		UNS(&units_byte_bytes), 0x0,
 		NULL, HFILL }
 	},
 	{ &hf_loratap_header_padding,
@@ -256,7 +256,7 @@ proto_register_loratap(void)
 	{ &hf_loratap_header_channel_frequency_type,
 		{ "Frequency", "loratap.channel.frequency",
 		FT_UINT32, BASE_DEC|BASE_UNIT_STRING,
-		&units_hz, 0x0,
+		UNS(&units_hz), 0x0,
 		NULL, HFILL }
 	},
 	{ &hf_loratap_header_channel_bandwidth_type,
@@ -334,7 +334,7 @@ proto_register_loratap(void)
 	{ &hf_loratap_header_datarate_type,
 		{ "FSK datarate", "loratap.channel.datarate",
 		FT_UINT16, BASE_DEC|BASE_UNIT_STRING,
-		&units_bit_sec, 0x0,
+		UNS(&units_bit_sec), 0x0,
 		NULL, HFILL }
 	},
 	{ &hf_loratap_header_if_channel_type,

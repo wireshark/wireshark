@@ -140,7 +140,7 @@ proto_register_idp(void)
 
 		{ &hf_idp_len,
 		    { "Length",		"idp.len", FT_UINT16, BASE_DEC|BASE_UNIT_STRING,
-			&units_byte_bytes, 0x0, NULL, HFILL }},
+			UNS(&units_byte_bytes), 0x0, NULL, HFILL }},
 
 		/* XXX - does this have separate hop count and time subfields? */
 		{ &hf_idp_hops,

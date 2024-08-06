@@ -1264,7 +1264,7 @@ proto_register_lorawan(void)
 	{ &hf_lorawan_mac_command_down_link_check_ans_margin_type,
 		{ "Demodulation Margin", "lorawan.link_check_answer.margin",
 		FT_UINT8, BASE_DEC|BASE_UNIT_STRING,
-		&units_decibels, 0x0,
+		UNS(&units_decibels), 0x0,
 		NULL, HFILL }
 	},
 	{ &hf_lorawan_mac_command_down_link_check_ans_gwcnt_type,
@@ -1438,7 +1438,7 @@ proto_register_lorawan(void)
 	{ &hf_lorawan_mac_command_down_rx_setup_req_frequency_type,
 		{ "Frequency", "lorawan.rx_setup_request.frequency",
 		FT_UINT24, BASE_DEC|BASE_UNIT_STRING,
-		&units_hz, 0x0,
+		UNS(&units_hz), 0x0,
 		NULL, HFILL }
 	},
 	{ &hf_lorawan_mac_command_up_rx_setup_ans_type,
@@ -1486,7 +1486,7 @@ proto_register_lorawan(void)
 	{ &hf_lorawan_mac_command_down_new_channel_req_frequency_type,
 		{ "Frequency", "lorawan.new_channel_request.frequency",
 		FT_UINT24, BASE_DEC|BASE_UNIT_STRING,
-		&units_hz, 0x0,
+		UNS(&units_hz), 0x0,
 		NULL, HFILL }
 	},
 	{ &hf_lorawan_mac_command_down_new_channel_req_drrange_max_type,
@@ -1522,7 +1522,7 @@ proto_register_lorawan(void)
 	{ &hf_lorawan_mac_command_down_rx_timing_req_delay_type,
 		{ "Delay", "lorawan.rx_timing_request.delay",
 		FT_UINT8, BASE_DEC|BASE_UNIT_STRING,
-		&units_seconds, LORAWAN_MAC_COMMAND_DOWN_RX_TIMING_REQ_DELAY_MASK,
+		UNS(&units_seconds), LORAWAN_MAC_COMMAND_DOWN_RX_TIMING_REQ_DELAY_MASK,
 		NULL, HFILL }
 	},
 	{ &hf_lorawan_mac_command_up_di_channel_ans_type,
@@ -1648,7 +1648,7 @@ proto_register_lorawan(void)
 	{ &hf_lorawan_join_accept_rxdelay_type,
 		{ "Delay between TX and RX", "lorawan.join_accept.rxdelay",
 		FT_UINT8, BASE_DEC|BASE_UNIT_STRING,
-		&units_seconds, 0x0,
+		UNS(&units_seconds), 0x0,
 		"[RXDelay] Delay between TX and RX", HFILL }
 	},
 	{ &hf_lorawan_join_accept_cflist_type,

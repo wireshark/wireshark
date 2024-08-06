@@ -394,7 +394,7 @@ proto_register_opus(void)
           TFS(&fc_v_bit_vals), 0x80, NULL, HFILL}},
         {&hf_opus_frame_size,
          {"Frame Size", "opus.frame_size", FT_UINT16, BASE_DEC | BASE_UNIT_STRING,
-          &units_byte_bytes, 0x0, NULL, HFILL}},
+          UNS(&units_byte_bytes), 0x0, NULL, HFILL}},
         {&hf_opus_frame,
          {"Frame Data", "opus.frame_data", FT_BYTES, BASE_NONE | BASE_ALLOW_ZERO,
           NULL, 0x0, NULL, HFILL}},

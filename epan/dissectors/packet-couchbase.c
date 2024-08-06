@@ -3801,7 +3801,7 @@ proto_register_couchbase(void)
     { &hf_flex_frame_len, {"Flexible Frame Len", "couchbase.flex_frame.frame.len", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
     { &hf_flex_frame_len_esc, {"Flexible Frame Len (esc)", "couchbase.flex_frame.frame.len", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 
-    { &hf_flex_frame_tracing_duration, {"Server Recv->Send duration", "couchbase.flex_frame.frame.duration", FT_DOUBLE, BASE_NONE|BASE_UNIT_STRING, &units_microseconds, 0, NULL, HFILL } },
+    { &hf_flex_frame_tracing_duration, {"Server Recv->Send duration", "couchbase.flex_frame.frame.duration", FT_DOUBLE, BASE_NONE|BASE_UNIT_STRING, UNS(&units_microseconds), 0, NULL, HFILL } },
     { &hf_flex_frame_ru_count, {"Read unit count", "couchbase.flex_frame.frame.ru_count", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL } },
     { &hf_flex_frame_wu_count, {"Write unit count", "couchbase.flex_frame.frame.wu_count", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL } },
     { &hf_flex_frame_durability_req, {"Durability Requirement", "couchbase.flex_frame.frame.durability_req", FT_UINT8, BASE_DEC, VALS(flex_frame_durability_req), 0, NULL, HFILL } },

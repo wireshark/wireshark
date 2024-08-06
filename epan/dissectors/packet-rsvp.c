@@ -8459,7 +8459,7 @@ proto_register_rsvp(void)
 
         {&hf_rsvp_parameter_length,
          { "Parameter length", "rsvp.parameter_length",
-           FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_word_not_including_header, 0x0,
+           FT_UINT16, BASE_DEC|BASE_UNIT_STRING, UNS(&units_word_not_including_header), 0x0,
            NULL, HFILL }
         },
 
@@ -10067,7 +10067,7 @@ proto_register_rsvp(void)
 
         { &hf_rsvp_data_length,
          { "Data length", "rsvp.data_length",
-           FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_word_not_including_header, 0,
+           FT_UINT16, BASE_DEC|BASE_UNIT_STRING, UNS(&units_word_not_including_header), 0,
            NULL, HFILL
          }
         },
@@ -10364,8 +10364,8 @@ proto_register_rsvp(void)
       { &hf_rsvp_gen_uni_data, { "Data", "rsvp.gen_uni.data", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_rsvp_gen_uni_logical_port_id, { "Logical Port ID", "rsvp.gen_uni.logical_port_id", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_rsvp_gen_uni_service_level, { "Service Level", "rsvp.gen_uni.service_level", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_rsvp_restart_cap_restart_time, { "Restart Time", "rsvp.restart_cap.restart_time", FT_UINT32, BASE_DEC|BASE_UNIT_STRING, &units_milliseconds, 0x0, NULL, HFILL }},
-      { &hf_rsvp_restart_cap_recovery_time, { "Recovery Time", "rsvp.restart_cap.recovery_time", FT_UINT32, BASE_DEC|BASE_UNIT_STRING, &units_milliseconds, 0x0, NULL, HFILL }},
+      { &hf_rsvp_restart_cap_restart_time, { "Restart Time", "rsvp.restart_cap.restart_time", FT_UINT32, BASE_DEC|BASE_UNIT_STRING, UNS(&units_milliseconds), 0x0, NULL, HFILL }},
+      { &hf_rsvp_restart_cap_recovery_time, { "Recovery Time", "rsvp.restart_cap.recovery_time", FT_UINT32, BASE_DEC|BASE_UNIT_STRING, UNS(&units_milliseconds), 0x0, NULL, HFILL }},
       { &hf_rsvp_detour_plr_id, { "PLR ID", "rsvp.detour.plr_id", FT_IPv4, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_rsvp_detour_avoid_node_id, { "Avoid Node ID", "rsvp.detour.avoid_node_id", FT_IPv4, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_rsvp_message_checksum, { "Message Checksum", "rsvp.message_checksum", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
@@ -10384,7 +10384,7 @@ proto_register_rsvp(void)
       { &hf_rsvp_wavelength_channel_spacing, { "Channel Spacing", "rsvp.wavelength.channel_spacing", FT_UINT8, BASE_DEC, NULL, 0x1E, NULL, HFILL }},
       { &hf_rsvp_wavelength_n, { "Central Frequency", "rsvp.wavelength.n", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_rsvp_wavelength_m, { "Channel Width (m)", "rsvp.wavelength.m", FT_FLOAT, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-      { &hf_rsvp_wavelength_wavelength, { "Wavelength", "rsvp.wavelength.wavelength", FT_UINT32, BASE_DEC|BASE_UNIT_STRING, &units_nanometers, 0x0, NULL, HFILL }},
+      { &hf_rsvp_wavelength_wavelength, { "Wavelength", "rsvp.wavelength.wavelength", FT_UINT32, BASE_DEC|BASE_UNIT_STRING, UNS(&units_nanometers), 0x0, NULL, HFILL }},
       { &hf_rsvp_sonet_s, { "S", "rsvp.sonet.s", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_rsvp_sonet_u, { "U", "rsvp.sonet.u", FT_UINT8, BASE_DEC, NULL, 0xF0, NULL, HFILL }},
       { &hf_rsvp_sonet_k, { "K", "rsvp.sonet.k", FT_UINT8, BASE_DEC, NULL, 0x0F, NULL, HFILL }},

@@ -1807,7 +1807,7 @@ void proto_register_ieee80211_radio(void)
       "802.11 channel number that this frame was sent/received on", HFILL }},
 
     {&hf_wlan_radio_frequency,
-     {"Frequency", "wlan_radio.frequency", FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_mhz, 0,
+     {"Frequency", "wlan_radio.frequency", FT_UINT16, BASE_DEC|BASE_UNIT_STRING, UNS(&units_mhz), 0,
       "Center frequency of the 802.11 channel that this frame was sent/received on", HFILL }},
 
     {&hf_wlan_radio_short_preamble,
@@ -1815,31 +1815,31 @@ void proto_register_ieee80211_radio(void)
       NULL, HFILL }},
 
     {&hf_wlan_radio_signal_percent,
-     {"Signal strength (percentage)", "wlan_radio.signal_percentage", FT_UINT32, BASE_DEC|BASE_UNIT_STRING, &units_percent, 0,
+     {"Signal strength (percentage)", "wlan_radio.signal_percentage", FT_UINT32, BASE_DEC|BASE_UNIT_STRING, UNS(&units_percent), 0,
       "Signal strength, as percentage of maximum RSSI", HFILL }},
 
     {&hf_wlan_radio_signal_db,
-     {"Signal strength (dB)", "wlan_radio.signal_db", FT_UINT8, BASE_DEC|BASE_UNIT_STRING, &units_decibels, 0,
+     {"Signal strength (dB)", "wlan_radio.signal_db", FT_UINT8, BASE_DEC|BASE_UNIT_STRING, UNS(&units_decibels), 0,
       NULL, HFILL }},
 
     {&hf_wlan_radio_signal_dbm,
-     {"Signal strength (dBm)", "wlan_radio.signal_dbm", FT_INT8, BASE_DEC|BASE_UNIT_STRING, &units_dbm, 0,
+     {"Signal strength (dBm)", "wlan_radio.signal_dbm", FT_INT8, BASE_DEC|BASE_UNIT_STRING, UNS(&units_dbm), 0,
       NULL, HFILL }},
 
     {&hf_wlan_radio_noise_percent,
-     {"Noise level (percentage)", "wlan_radio.noise_percentage", FT_UINT32, BASE_DEC|BASE_UNIT_STRING, &units_percent, 0,
+     {"Noise level (percentage)", "wlan_radio.noise_percentage", FT_UINT32, BASE_DEC|BASE_UNIT_STRING, UNS(&units_percent), 0,
       NULL, HFILL }},
 
     {&hf_wlan_radio_noise_db,
-     {"Noise level (dB)", "wlan_radio.noise_db", FT_UINT8, BASE_DEC|BASE_UNIT_STRING, &units_decibels, 0,
+     {"Noise level (dB)", "wlan_radio.noise_db", FT_UINT8, BASE_DEC|BASE_UNIT_STRING, UNS(&units_decibels), 0,
       NULL, HFILL }},
 
     {&hf_wlan_radio_noise_dbm,
-     {"Noise level (dBm)", "wlan_radio.noise_dbm", FT_INT8, BASE_DEC|BASE_UNIT_STRING, &units_dbm, 0,
+     {"Noise level (dBm)", "wlan_radio.noise_dbm", FT_INT8, BASE_DEC|BASE_UNIT_STRING, UNS(&units_dbm), 0,
       NULL, HFILL }},
 
     {&hf_wlan_radio_snr,
-     {"Signal/noise ratio (dB)", "wlan_radio.snr", FT_INT32, BASE_DEC|BASE_UNIT_STRING, &units_decibels, 0,
+     {"Signal/noise ratio (dB)", "wlan_radio.snr", FT_INT32, BASE_DEC|BASE_UNIT_STRING, UNS(&units_decibels), 0,
       NULL, HFILL }},
 
     {&hf_wlan_radio_timestamp,
@@ -1859,12 +1859,12 @@ void proto_register_ieee80211_radio(void)
       NULL, HFILL }},
 
     {&hf_wlan_radio_duration,
-     {"Duration", "wlan_radio.duration", FT_UINT32, BASE_DEC|BASE_UNIT_STRING, &units_microseconds, 0,
+     {"Duration", "wlan_radio.duration", FT_UINT32, BASE_DEC|BASE_UNIT_STRING, UNS(&units_microseconds), 0,
       "Total duration of the frame in microseconds, including any preamble or plcp header. "
       "Calculated from the frame length, modulation and other phy data.", HFILL }},
 
     {&hf_wlan_radio_preamble,
-     {"Preamble", "wlan_radio.preamble", FT_UINT32, BASE_DEC|BASE_UNIT_STRING, &units_microseconds, 0,
+     {"Preamble", "wlan_radio.preamble", FT_UINT32, BASE_DEC|BASE_UNIT_STRING, UNS(&units_microseconds), 0,
       "Duration of the PLCP or preamble in microseconds, calculated from PHY data", HFILL }},
 
     {&hf_wlan_radio_aggregate,
@@ -1872,19 +1872,19 @@ void proto_register_ieee80211_radio(void)
       "MPDU is part of an A-MPDU", HFILL }},
 
     {&hf_wlan_radio_ifs,
-     {"IFS", "wlan_radio.ifs", FT_INT64, BASE_DEC|BASE_UNIT_STRING, &units_microseconds, 0,
+     {"IFS", "wlan_radio.ifs", FT_INT64, BASE_DEC|BASE_UNIT_STRING, UNS(&units_microseconds), 0,
       "Inter Frame Space before this frame in microseconds, calculated from PHY data", HFILL }},
 
     {&hf_wlan_radio_start_tsf,
-     {"Start", "wlan_radio.start_tsf", FT_UINT64, BASE_DEC|BASE_UNIT_STRING, &units_microseconds, 0,
+     {"Start", "wlan_radio.start_tsf", FT_UINT64, BASE_DEC|BASE_UNIT_STRING, UNS(&units_microseconds), 0,
       "Calculated start time of the frame", HFILL }},
 
     {&hf_wlan_radio_end_tsf,
-     {"End", "wlan_radio.end_tsf", FT_UINT64, BASE_DEC|BASE_UNIT_STRING, &units_microseconds, 0,
+     {"End", "wlan_radio.end_tsf", FT_UINT64, BASE_DEC|BASE_UNIT_STRING, UNS(&units_microseconds), 0,
       "Calculated end time of the frame", HFILL }},
 
     {&hf_wlan_radio_aggregate_duration,
-     {"Aggregate Duration", "wlan_radio.aggregate.duration", FT_UINT32, BASE_DEC|BASE_UNIT_STRING, &units_microseconds, 0,
+     {"Aggregate Duration", "wlan_radio.aggregate.duration", FT_UINT32, BASE_DEC|BASE_UNIT_STRING, UNS(&units_microseconds), 0,
       "Total duration of the aggregate in microseconds, including any preamble or plcp header and multiple MPDUs. "
       "Calculated from the total subframe lengths, modulation and other phy data, assumes no excess padding.", HFILL }},
 

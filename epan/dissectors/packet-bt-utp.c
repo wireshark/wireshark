@@ -1156,7 +1156,7 @@ proto_register_bt_utp(void)
     },
     { &hf_bt_utp_extension_len,
       { "Extension Length", "bt-utp.extension_len",
-      FT_UINT8, BASE_DEC|BASE_UNIT_STRING, &units_byte_bytes, 0x0,
+      FT_UINT8, BASE_DEC|BASE_UNIT_STRING, UNS(&units_byte_bytes), 0x0,
       NULL, HFILL }
     },
     { &hf_bt_utp_extension_bitmask,
@@ -1211,7 +1211,7 @@ proto_register_bt_utp(void)
     },
     { &hf_bt_utp_wnd_size_v1,
       { "Window Size", "bt-utp.wnd_size",
-      FT_UINT32, BASE_DEC|BASE_UNIT_STRING, &units_byte_bytes, 0x0,
+      FT_UINT32, BASE_DEC|BASE_UNIT_STRING, UNS(&units_byte_bytes), 0x0,
       NULL, HFILL }
     },
     { &hf_bt_utp_seq_nr,

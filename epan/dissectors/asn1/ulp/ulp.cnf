@@ -129,10 +129,10 @@ Notification/requestorId TYPE=FT_STRING DISPLAY=BASE_NONE
 Notification/clientName TYPE=FT_STRING DISPLAY=BASE_NONE
 
 #.TYPE_ATTR
-NavigationModel/gpsToe DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_hours
+NavigationModel/gpsToe DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_hours)
 
 #.TYPE_ATTR
-NavigationModel/toeLimit DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_hours
+NavigationModel/toeLimit DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_hours)
 
 #.FN_BODY PosPayLoad/rrlpPayload  VAL_PTR = &rrlp_tvb
  tvbuff_t *rrlp_tvb;
@@ -144,19 +144,19 @@ NavigationModel/toeLimit DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_hours
   }
 
 #.TYPE_ATTR
-PeriodicParams/intervalBetweenFixes DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_seconds
+PeriodicParams/intervalBetweenFixes DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_seconds)
 
 #.TYPE_ATTR
-PeriodicParams/startTime DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_seconds
+PeriodicParams/startTime DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_seconds)
 
 #.TYPE_ATTR
-AreaEventParams/startTime DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_seconds
+AreaEventParams/startTime DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_seconds)
 
 #.TYPE_ATTR
-AreaEventParams/stopTime DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_seconds
+AreaEventParams/stopTime DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_seconds)
 
 #.TYPE_ATTR
-RepeatedReportingParams/minimumIntervalTime DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_seconds
+RepeatedReportingParams/minimumIntervalTime DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_seconds)
 
 #.FN_BODY WLANAreaId/apMACAddress VAL_PTR=&val_tvb HF_INDEX=-1
   tvbuff_t *val_tvb;
@@ -173,16 +173,16 @@ WLANAreaId/apMACAddress TYPE=FT_ETHER
 GANSSSignalsDescription/ganssId STRINGS=VALS(ulp_ganss_id_vals)
 
 #.TYPE_ATTR
-TimeStamp/relativeTime DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_seconds
+TimeStamp/relativeTime DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_seconds)
 
 #.TYPE_ATTR
-ReportingCriteria/minTimeInterval DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_seconds
+ReportingCriteria/minTimeInterval DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_seconds)
 
 #.TYPE_ATTR
-TimeWindow/startTime DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_minutes
+TimeWindow/startTime DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_minutes)
 
 #.TYPE_ATTR
-TimeWindow/stopTime DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_minutes
+TimeWindow/stopTime DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_minutes)
 
 #.TYPE_ATTR
 GANSSPositionMethod/ganssId STRINGS=VALS(ulp_ganss_id_vals)
@@ -272,7 +272,7 @@ GanssReqGenericData/ganssSBASid TYPE=FT_UINT8 DISPLAY=BASE_DEC STRINGS=VALS(ulp_
   }
 
 #.TYPE_ATTR
-GanssDataBits/ganssTODmin DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_seconds
+GanssDataBits/ganssTODmin DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_seconds)
 
 #.TYPE_ATTR
 ReqDataBitAssistanceList/ganssDataBitInterval DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(ulp_ganssDataBitInterval_fmt)
@@ -336,13 +336,13 @@ PositionEstimate/uncertainty/uncertaintySemiMajor DISPLAY=BASE_CUSTOM STRINGS=CF
 PositionEstimate/uncertainty/uncertaintySemiMinor DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(ulp_QoP_horacc_fmt)
 
 #.TYPE_ATTR
-PositionEstimate/uncertainty/orientationMajorAxis DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_degree_degrees
+PositionEstimate/uncertainty/orientationMajorAxis DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_degree_degrees)
 
 #.TYPE_ATTR
-PositionEstimate/confidence DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_percent
+PositionEstimate/confidence DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_percent)
 
 #.TYPE_ATTR
-AltitudeInfo/altitude DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_meters
+AltitudeInfo/altitude DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_meters)
 
 #.TYPE_ATTR
 AltitudeInfo/altUncertainty DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(ulp_QoP_veracc_fmt)
@@ -369,13 +369,13 @@ QoP/horacc DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(ulp_QoP_horacc_fmt)
 QoP/veracc DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(ulp_QoP_veracc_fmt)
 
 #.TYPE_ATTR
-QoP/maxLocAge DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_seconds
+QoP/maxLocAge DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_seconds)
 
 #.TYPE_ATTR
 QoP/delay DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(ulp_QoP_delay_fmt)
 
 #.TYPE_ATTR
-QoP/ver2-responseTime DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_seconds
+QoP/ver2-responseTime DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_seconds)
 
 #.FN_BODY Horvel/bearing VAL_PTR=&val_tvb HF_INDEX=-1
   tvbuff_t *val_tvb;
@@ -386,7 +386,7 @@ QoP/ver2-responseTime DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_seconds
   }
 
 #.TYPE_ATTR
-Horvel/bearing TYPE=FT_UINT16 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_degree_degrees
+Horvel/bearing TYPE=FT_UINT16 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_degree_degrees)
 
 #.FN_BODY Horvel/horspeed VAL_PTR=&val_tvb HF_INDEX=-1
   tvbuff_t *val_tvb;
@@ -397,7 +397,7 @@ Horvel/bearing TYPE=FT_UINT16 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_d
   }
 
 #.TYPE_ATTR
-Horvel/horspeed TYPE=FT_UINT16 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_kmh
+Horvel/horspeed TYPE=FT_UINT16 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_kmh)
 
 #.FN_BODY Horandvervel/verdirect VAL_PTR=&val_tvb HF_INDEX=-1
   tvbuff_t *val_tvb;
@@ -419,7 +419,7 @@ Horandvervel/verdirect TYPE=FT_BOOLEAN STRINGS=TFS(&ulp_vertical_dir_val)
   }
 
 #.TYPE_ATTR
-Horandvervel/bearing TYPE=FT_UINT16 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_degree_degrees
+Horandvervel/bearing TYPE=FT_UINT16 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_degree_degrees)
 
 #.FN_BODY Horandvervel/horspeed VAL_PTR=&val_tvb HF_INDEX=-1
   tvbuff_t *val_tvb;
@@ -430,7 +430,7 @@ Horandvervel/bearing TYPE=FT_UINT16 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&u
   }
 
 #.TYPE_ATTR
-Horandvervel/horspeed TYPE=FT_UINT16 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_kmh
+Horandvervel/horspeed TYPE=FT_UINT16 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_kmh)
 
 #.FN_BODY Horandvervel/verspeed VAL_PTR=&val_tvb HF_INDEX=-1
   tvbuff_t *val_tvb;
@@ -441,7 +441,7 @@ Horandvervel/horspeed TYPE=FT_UINT16 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&
   }
 
 #.TYPE_ATTR
-Horandvervel/verspeed TYPE=FT_UINT8 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_kmh
+Horandvervel/verspeed TYPE=FT_UINT8 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_kmh)
 
 #.FN_BODY Horveluncert/bearing VAL_PTR=&val_tvb HF_INDEX=-1
   tvbuff_t *val_tvb;
@@ -452,7 +452,7 @@ Horandvervel/verspeed TYPE=FT_UINT8 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&u
   }
 
 #.TYPE_ATTR
-Horveluncert/bearing TYPE=FT_UINT16 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_degree_degrees
+Horveluncert/bearing TYPE=FT_UINT16 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_degree_degrees)
 
 #.FN_BODY Horveluncert/horspeed VAL_PTR=&val_tvb HF_INDEX=-1
   tvbuff_t *val_tvb;
@@ -463,7 +463,7 @@ Horveluncert/bearing TYPE=FT_UINT16 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&u
   }
 
 #.TYPE_ATTR
-Horveluncert/horspeed TYPE=FT_UINT16 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_kmh
+Horveluncert/horspeed TYPE=FT_UINT16 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_kmh)
 
 #.FN_BODY Horveluncert/uncertspeed VAL_PTR=&val_tvb HF_INDEX=-1
   tvbuff_t *val_tvb;
@@ -474,7 +474,7 @@ Horveluncert/horspeed TYPE=FT_UINT16 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&
   }
 
 #.TYPE_ATTR
-Horveluncert/uncertspeed TYPE=FT_UINT8 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_kmh
+Horveluncert/uncertspeed TYPE=FT_UINT8 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_kmh)
 
 #.FN_BODY Horandveruncert/verdirect VAL_PTR=&val_tvb HF_INDEX=-1
   tvbuff_t *val_tvb;
@@ -496,7 +496,7 @@ Horandveruncert/verdirect TYPE=FT_BOOLEAN STRINGS=TFS(&ulp_vertical_dir_val)
   }
 
 #.TYPE_ATTR
-Horandveruncert/bearing TYPE=FT_UINT16 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_degree_degrees
+Horandveruncert/bearing TYPE=FT_UINT16 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_degree_degrees)
 
 #.FN_BODY Horandveruncert/horspeed VAL_PTR=&val_tvb HF_INDEX=-1
   tvbuff_t *val_tvb;
@@ -507,7 +507,7 @@ Horandveruncert/bearing TYPE=FT_UINT16 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS
   }
 
 #.TYPE_ATTR
-Horandveruncert/horspeed TYPE=FT_UINT16 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_kmh
+Horandveruncert/horspeed TYPE=FT_UINT16 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_kmh)
 
 #.FN_BODY Horandveruncert/verspeed VAL_PTR=&val_tvb HF_INDEX=-1
   tvbuff_t *val_tvb;
@@ -518,7 +518,7 @@ Horandveruncert/horspeed TYPE=FT_UINT16 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRING
   }
 
 #.TYPE_ATTR
-Horandveruncert/verspeed TYPE=FT_UINT8 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_kmh
+Horandveruncert/verspeed TYPE=FT_UINT8 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_kmh)
 
 #.FN_BODY Horandveruncert/horuncertspeed VAL_PTR=&val_tvb HF_INDEX=-1
   tvbuff_t *val_tvb;
@@ -529,7 +529,7 @@ Horandveruncert/verspeed TYPE=FT_UINT8 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS
   }
 
 #.TYPE_ATTR
-Horandveruncert/horuncertspeed TYPE=FT_UINT8 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_kmh
+Horandveruncert/horuncertspeed TYPE=FT_UINT8 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_kmh)
 
 #.FN_BODY Horandveruncert/veruncertspeed VAL_PTR=&val_tvb HF_INDEX=-1
   tvbuff_t *val_tvb;
@@ -540,7 +540,7 @@ Horandveruncert/horuncertspeed TYPE=FT_UINT8 DISPLAY=BASE_DEC|BASE_UNIT_STRING S
   }
 
 #.TYPE_ATTR
-Horandveruncert/veruncertspeed TYPE=FT_UINT8 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_kmh
+Horandveruncert/veruncertspeed TYPE=FT_UINT8 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_kmh)
 
 #.TYPE_ATTR
 RelativeTime DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(ulp_RelativeTime_fmt)
@@ -574,28 +574,28 @@ RSRQ-Range DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(ulp_RSRQ_Range_fmt)
 WlanAPInformation/apMACAddress TYPE=FT_ETHER
 
 #.TYPE_ATTR
-WlanAPInformation/apTransmitPower DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_dbm
+WlanAPInformation/apTransmitPower DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_dbm)
 
 #.TYPE_ATTR
-WlanAPInformation/apAntennaGain DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_dbi
+WlanAPInformation/apAntennaGain DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_dbi)
 
 #.TYPE_ATTR
-WlanAPInformation/apSignaltoNoise DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_decibels
+WlanAPInformation/apSignaltoNoise DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_decibels)
 
 #.TYPE_ATTR
-WlanAPInformation/apSignalStrength DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_dbm
+WlanAPInformation/apSignalStrength DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_dbm)
 
 #.TYPE_ATTR
-WlanAPInformation/setTransmitPower DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_dbm
+WlanAPInformation/setTransmitPower DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_dbm)
 
 #.TYPE_ATTR
-WlanAPInformation/setAntennaGain DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_dbi
+WlanAPInformation/setAntennaGain DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_dbi)
 
 #.TYPE_ATTR
-WlanAPInformation/setSignaltoNoise DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_decibels
+WlanAPInformation/setSignaltoNoise DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_decibels)
 
 #.TYPE_ATTR
-WlanAPInformation/setSignalStrength DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_dbm
+WlanAPInformation/setSignalStrength DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_dbm)
 
 #.TYPE_ATTR
 WlanAPInformation/apSignalStrengthDelta DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(ulp_SignalDelta_fmt)
@@ -650,16 +650,16 @@ WimaxNMR/relDelaystd DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(ulp_WimaxRTD_fmt)
 WimaxNMR/rssi DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(ulp_WimaxNMR_rssi_fmt)
 
 #.TYPE_ATTR
-WimaxNMR/rSSIstd DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_decibels
+WimaxNMR/rSSIstd DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_decibels)
 
 #.TYPE_ATTR
 WimaxNMR/bSTxPower DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(ulp_WimaxNMR_rssi_fmt)
 
 #.TYPE_ATTR
-WimaxNMR/cinr DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_decibels
+WimaxNMR/cinr DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_decibels)
 
 #.TYPE_ATTR
-WimaxNMR/cINRstd DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_decibels
+WimaxNMR/cINRstd DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_decibels)
 
 #.TYPE_ATTR
 UTRAN-GPSReferenceTimeAssistance/gpsReferenceTimeUncertainty DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(ulp_UTRAN_gpsReferenceTimeUncertainty_fmt)
@@ -671,7 +671,7 @@ UTRAN-GPSReferenceTimeResult/gpsReferenceTimeUncertainty DISPLAY=BASE_CUSTOM STR
 UTRAN-GANSSReferenceTimeAssistance/ganssTimeID STRINGS=VALS(ulp_ganss_time_id_vals)
 
 #.TYPE_ATTR
-UTRAN-GANSSReferenceTime/ganssTOD DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_seconds
+UTRAN-GANSSReferenceTime/ganssTOD DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_seconds)
 
 #.TYPE_ATTR
 UTRAN-GANSSReferenceTime/utran-GANSSTimingOfCell DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(ulp_utran_GANSSTimingOfCell_fmt)
@@ -722,10 +722,10 @@ SET-GANSSReferenceTime/ganss-TODUncertainty ulp_UTRAN_gpsReferenceTimeUncertaint
                                                       NULL);
 
 #.TYPE_ATTR
-ReportingCap/minInt DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_seconds
+ReportingCap/minInt DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_seconds)
 
 #.TYPE_ATTR
-ReportingCap/maxInt DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_minutes
+ReportingCap/maxInt DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_minutes)
 
 #.TYPE_ATTR
 Coordinate/latitude DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(ulp_Coordinate_latitude_fmt)
@@ -734,18 +734,18 @@ Coordinate/latitude DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(ulp_Coordinate_latitude_
 Coordinate/longitude DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(ulp_Coordinate_longitude_fmt)
 
 #.TYPE_ATTR
-CircularArea/radius DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_meters
+CircularArea/radius DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_meters)
 
 #.TYPE_ATTR
-EllipticalArea/semiMajor DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_meters
+EllipticalArea/semiMajor DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_meters)
 
 #.TYPE_ATTR
-EllipticalArea/semiMinor DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_meters
+EllipticalArea/semiMinor DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_meters)
 
 #.TYPE_ATTR
-EllipticalArea/angle DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_degree_degrees
+EllipticalArea/angle DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_degree_degrees)
 
 #.TYPE_ATTR
-PolygonArea/polygonHysteresis DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_meters
+PolygonArea/polygonHysteresis DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_meters)
 
 #.END

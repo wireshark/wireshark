@@ -3183,7 +3183,7 @@ void proto_register_ecmp (void)
 	{ "Chunks allowed","ecmp.chunking", FT_UINT16, BASE_DEC, NULL,0xF000, "ECMP number of chunks allowed", HFILL}},
 
 	{ &hf_ecmp_max_response_size,
-	{ "Maximum Response Size","ecmp.response_size", FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_byte_bytes, 0x0FFF, NULL, HFILL}},
+	{ "Maximum Response Size","ecmp.response_size", FT_UINT16, BASE_DEC|BASE_UNIT_STRING, UNS(&units_byte_bytes), 0x0FFF, NULL, HFILL}},
 
 	{ &hf_ecmp_category,
 	{ "Device", "ecmp.category", FT_UINT8, BASE_DEC, VALS(category), 0x0, "ECMP Category (drive or option module)", HFILL }},
@@ -3440,7 +3440,7 @@ void proto_register_ecmp (void)
 	{ &hf_ecmp_file_length, { "File length", "ecmp.file_length", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 	{ &hf_ecmp_mec_offset, { "mec_offset", "ecmp.mec_offset", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 	{ &hf_ecmp_sample_period, { "Sample period", "ecmp.sample_period", FT_RELATIVE_TIME, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-	{ &hf_ecmp_rx_timeout, { "RX Timeout", "ecmp.rx_timeout", FT_UINT32, BASE_DEC|BASE_UNIT_STRING, &units_microseconds, 0x0, NULL, HFILL }},
+	{ &hf_ecmp_rx_timeout, { "RX Timeout", "ecmp.rx_timeout", FT_UINT32, BASE_DEC|BASE_UNIT_STRING, UNS(&units_microseconds), 0x0, NULL, HFILL }},
 	{ &hf_ecmp_rx_action, { "Action", "ecmp.rx_action", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 	{ &hf_ecmp_rx_event_destination, { "Event Destination", "ecmp.rx_event_destination", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 	{ &hf_ecmp_rx_event, { "Event", "ecmp.rx_event", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},

@@ -1554,7 +1554,7 @@ void proto_register_tns(void)
 
 		{ &hf_tns_connect_data_length, {
 			"Length of Connect Data", "tns.connect_data_length", FT_UINT16,
-			BASE_DEC|BASE_UNIT_STRING, &units_byte_bytes, 0x0, NULL, HFILL }},
+			BASE_DEC|BASE_UNIT_STRING, UNS(&units_byte_bytes), 0x0, NULL, HFILL }},
 		{ &hf_tns_connect_data_offset, {
 			"Offset to Connect Data", "tns.connect_data_offset", FT_UINT16, BASE_DEC,
 			NULL, 0x0, NULL, HFILL }},
@@ -1601,7 +1601,7 @@ void proto_register_tns(void)
 
 		{ &hf_tns_accept_data_length, {
 			"Accept Data Length", "tns.accept_data_length", FT_UINT16,
-			BASE_DEC|BASE_UNIT_STRING, &units_byte_bytes, 0x0, NULL, HFILL }},
+			BASE_DEC|BASE_UNIT_STRING, UNS(&units_byte_bytes), 0x0, NULL, HFILL }},
 		{ &hf_tns_accept_data, {
 			"Accept Data", "tns.accept_data", FT_STRING, BASE_NONE,
 			NULL, 0x0, NULL, HFILL }},
@@ -1617,7 +1617,7 @@ void proto_register_tns(void)
 			NULL, 0x0, "Refuse Reason from System", HFILL }},
 		{ &hf_tns_refuse_data_length, {
 			"Refuse Data Length", "tns.refuse_data_length", FT_UINT16,
-			BASE_DEC|BASE_UNIT_STRING, &units_byte_bytes, 0x0, NULL, HFILL }},
+			BASE_DEC|BASE_UNIT_STRING, UNS(&units_byte_bytes), 0x0, NULL, HFILL }},
 		{ &hf_tns_refuse_data, {
 			"Refuse Data", "tns.refuse_data", FT_STRING, BASE_NONE,
 			NULL, 0x0, NULL, HFILL }},
@@ -1653,7 +1653,7 @@ void proto_register_tns(void)
 
 		{ &hf_tns_redirect_data_length, {
 			"Redirect Data Length", "tns.redirect_data_length", FT_UINT16,
-			BASE_DEC|BASE_UNIT_STRING, &units_byte_bytes, 0x0, NULL, HFILL }},
+			BASE_DEC|BASE_UNIT_STRING, UNS(&units_byte_bytes), 0x0, NULL, HFILL }},
 		{ &hf_tns_redirect_data, {
 			"Redirect Data", "tns.redirect_data", FT_STRING, BASE_NONE,
 			NULL, 0x0, NULL, HFILL }},
@@ -1694,7 +1694,7 @@ void proto_register_tns(void)
 			VALS(tns_data_funcs), 0x0, NULL, HFILL }},
 		{ &hf_tns_data_length, {
 			"Data Length", "tns.data_length", FT_UINT32,
-			BASE_DEC|BASE_UNIT_STRING, &units_byte_bytes, 0x0, NULL, HFILL }},
+			BASE_DEC|BASE_UNIT_STRING, UNS(&units_byte_bytes), 0x0, NULL, HFILL }},
 
 		{ &hf_tns_data_oci_id, {
 			"Call ID", "tns.data_oci.id", FT_UINT8, BASE_HEX|BASE_EXT_STRING,

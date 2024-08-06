@@ -2024,11 +2024,11 @@ void proto_register_synphasor(void)
 
 		{ &hf_frsize,
 		{ "Framesize", "synphasor.frsize", FT_UINT16, BASE_DEC | BASE_UNIT_STRING,
-		  &units_byte_bytes, 0x0, NULL, HFILL }},
+		  UNS(&units_byte_bytes), 0x0, NULL, HFILL }},
 
 		{ &hf_station_name_len,
 		{ "Station name length", "synphasor.station_name_len", FT_UINT8,
-		  BASE_DEC | BASE_UNIT_STRING, &units_byte_bytes, 0x0, NULL, HFILL }},
+		  BASE_DEC | BASE_UNIT_STRING, UNS(&units_byte_bytes), 0x0, NULL, HFILL }},
 
 		{ &hf_station_name,
 		{ "Station name", "synphasor.station_name", FT_STRING, BASE_NONE,
@@ -2074,7 +2074,7 @@ void proto_register_synphasor(void)
 
 		{ &hf_fracsec_ms,
 		{ "Fraction of second", "synphasor.fracsec_ms", FT_FLOAT, BASE_NONE | BASE_UNIT_STRING,
-		  &units_millisecond_milliseconds, 0x0, NULL, HFILL }},
+		  UNS(&units_millisecond_milliseconds), 0x0, NULL, HFILL }},
 
 	/* Data types for configuration frames */
 		{ &hf_cont_idx,
@@ -2108,7 +2108,7 @@ void proto_register_synphasor(void)
 
 		{ &hf_conf_chnam_len,
 		{ "Channel name length", "synphasor.conf.chnam_len", FT_UINT8,
-		  BASE_DEC | BASE_UNIT_STRING, &units_byte_bytes, 0x0, NULL, HFILL }},
+		  BASE_DEC | BASE_UNIT_STRING, UNS(&units_byte_bytes), 0x0, NULL, HFILL }},
 
 		{ &hf_conf_chnam,
 		{ "Channel name", "synphasor.conf.chnam", FT_STRING, BASE_NONE,
@@ -2176,7 +2176,7 @@ void proto_register_synphasor(void)
 
 		{ &hf_conf_phasor_angle_offset,
 		{ "Phasor angle offset", "synphasor.conf.phasor_angle_offset", FT_FLOAT,
-		  BASE_NONE | BASE_UNIT_STRING, &units_degree_degrees, 0x0, NULL, HFILL }},
+		  BASE_NONE | BASE_UNIT_STRING, UNS(&units_degree_degrees), 0x0, NULL, HFILL }},
 
 		{ &hf_conf_analog_scale_factor,
 		{ "Analog scale factor", "synphasor.conf.analog_scale_factor", FT_FLOAT,
@@ -2188,15 +2188,15 @@ void proto_register_synphasor(void)
 
 		{ &hf_conf_pmu_lat,
 		{ "PMU Latitude", "synphasor.conf.pmu_latitude", FT_FLOAT,
-		  BASE_NONE | BASE_UNIT_STRING, &units_degree_degrees, 0x0, NULL, HFILL }},
+		  BASE_NONE | BASE_UNIT_STRING, UNS(&units_degree_degrees), 0x0, NULL, HFILL }},
 
 		{ &hf_conf_pmu_lon,
 		{ "PMU Longitude", "synphasor.conf.pmu_longitude", FT_FLOAT,
-		  BASE_NONE | BASE_UNIT_STRING, &units_degree_degrees, 0x0, NULL, HFILL }},
+		  BASE_NONE | BASE_UNIT_STRING, UNS(&units_degree_degrees), 0x0, NULL, HFILL }},
 
 		{ &hf_conf_pmu_elev,
 		{ "PMU Elevation", "synphasor.conf.pmu_elevation", FT_FLOAT,
-		  BASE_NONE | BASE_UNIT_STRING, &units_meter_meters, 0x0, NULL, HFILL }},
+		  BASE_NONE | BASE_UNIT_STRING, UNS(&units_meter_meters), 0x0, NULL, HFILL }},
 
 		{ &hf_conf_pmu_lat_unknown,
 		{ "PMU Latitude", "synphasor.conf.pmu_latitude", FT_FLOAT, BASE_NONE,
@@ -2216,11 +2216,11 @@ void proto_register_synphasor(void)
 
 		{ &hf_conf_window,
 		{ "PM window length", "synphasor.conf.window", FT_UINT32,
-		  BASE_DEC | BASE_UNIT_STRING, &units_microsecond_microseconds, 0x0, NULL, HFILL }},
+		  BASE_DEC | BASE_UNIT_STRING, UNS(&units_microsecond_microseconds), 0x0, NULL, HFILL }},
 
 		{ &hf_conf_grp_dly,
 		{ "PM group delay", "synphasor.conf.grp_dly", FT_UINT32,
-		  BASE_DEC | BASE_UNIT_STRING, &units_microsecond_microseconds, 0x0, NULL, HFILL }},
+		  BASE_DEC | BASE_UNIT_STRING, UNS(&units_microsecond_microseconds), 0x0, NULL, HFILL }},
 
 		{ &hf_conf_fnom,
 		{ "Nominal line frequency", "synphasor.conf.fnom", FT_BOOLEAN, 16,
@@ -2286,8 +2286,8 @@ void proto_register_synphasor(void)
       { &hf_synphasor_num_digital_status_words, { "Number of digital status words", "synphasor.num_digital_status_words", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_synphasor_rate_of_transmission, { "Rate of transmission", "synphasor.rate_of_transmission", FT_INT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_synphasor_phasor, { "Phasor", "synphasor.phasor", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-      { &hf_synphasor_actual_frequency_value, { "Actual frequency value", "synphasor.actual_frequency_value", FT_FLOAT, BASE_NONE|BASE_UNIT_STRING, &units_hz, 0x0, NULL, HFILL }},
-      { &hf_synphasor_rate_change_frequency, { "Rate of change of frequency", "synphasor.rate_change_frequency", FT_FLOAT, BASE_NONE|BASE_UNIT_STRING, &units_hz_s, 0x0, NULL, HFILL }},
+      { &hf_synphasor_actual_frequency_value, { "Actual frequency value", "synphasor.actual_frequency_value", FT_FLOAT, BASE_NONE|BASE_UNIT_STRING, UNS(&units_hz), 0x0, NULL, HFILL }},
+      { &hf_synphasor_rate_change_frequency, { "Rate of change of frequency", "synphasor.rate_change_frequency", FT_FLOAT, BASE_NONE|BASE_UNIT_STRING, UNS(&units_hz_s), 0x0, NULL, HFILL }},
       { &hf_synphasor_frequency_deviation_from_nominal, { "Frequency deviation from nominal", "synphasor.frequency_deviation_from_nominal", FT_INT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_synphasor_analog_value, { "Analog value", "synphasor.analog_value", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_synphasor_digital_status_word, { "Digital status word", "synphasor.digital_status_word", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
