@@ -37,10 +37,31 @@ static void
 display_dissector_table_names(const char *table_name, const char *ui_name,
 void *output)
 {
-    if ((prev_display_dissector_name == NULL) ||
-        (strcmp(prev_display_dissector_name, table_name) != 0)) {
-        fprintf((FILE *)output, "\t%s (%s)\n", table_name, ui_name);
-        prev_display_dissector_name = table_name;
+    ftenum_t selector_type = get_dissector_table_selector_type(table_name);
+
+    switch (selector_type) {
+
+    case FT_UINT8:
+    case FT_UINT16:
+    case FT_UINT24:
+    case FT_UINT32:
+    case FT_STRING:
+    case FT_STRINGZ:
+    case FT_UINT_STRING:
+    case FT_STRINGZPAD:
+    case FT_STRINGZTRUNC:
+    case FT_NONE:
+        /* This option supports these types. */
+        if ((prev_display_dissector_name == NULL) ||
+            (strcmp(prev_display_dissector_name, table_name) != 0)) {
+            fprintf((FILE *)output, "\t%s (%s)\n", table_name, ui_name);
+            prev_display_dissector_name = table_name;
+        }
+        break;
+
+    default:
+        /* Other types (FT_GUID, FT_BYTES) are not supported. */
+        break;
     }
 }
 
@@ -353,6 +374,19 @@ bool decode_as_command_option(const char *cl_param)
         /* There is no selector for this table */
         break;
 
+    case FT_BYTES:
+        /* Custom table. Parsing a selector is not really possible. */
+        cmdarg_err("\"%s\" is a custom table; specifying selectors on the command line is not supported.", table_name);
+        g_free(decoded_param);
+        return false;
+
+    case FT_GUID:
+        /* GUID table. It might be possible to parse a selector (guid_key)
+         * in the future, but not now. */
+        cmdarg_err("\"%s\" is a GUID table; specifying selectors on the command line is not supported.", table_name);
+        g_free(decoded_param);
+        return false;
+
     default:
         /* There are currently no dissector tables with any types other
         than the ones listed above. */
@@ -479,7 +513,8 @@ bool decode_as_command_option(const char *cl_param)
 
     default:
         /* There are currently no dissector tables with any types other
-        than the ones listed above. */
+        than the ones listed above. (We already exited for FT_GUID and
+        FT_BYTES tables.) */
         ws_assert_not_reached();
     }
     g_free(decoded_param); /* "Decode As" rule has been successfully added */
