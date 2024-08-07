@@ -972,8 +972,6 @@ static const value_string extended_power_options_vals[] = {
   {0, NULL},
 };
 
-static const unit_name_string local_units_mhz = { " MHz", NULL };
-
 static void
 fourth_db(char *buf, uint32_t value)
 {
@@ -6642,37 +6640,37 @@ proto_register_docsis_tlv (void)
     {&hf_docsis_tlv_mcap_adv_down_lower_band_edge_conf,
      {".79 Advanced Downstream Lower Band Edge Configuration",
       "docsis_tlv.mcap.adv_down_lower_band_edge_conf",
-      FT_UINT16, BASE_DEC|BASE_UNIT_STRING, UNS(&local_units_mhz), 0x0,
+      FT_UINT16, BASE_DEC|BASE_UNIT_STRING, UNS(&units_mhz), 0x0,
       NULL, HFILL}
     },
     {&hf_docsis_tlv_mcap_adv_down_upper_band_edge_conf,
      {".80 Advanced Downstream Upper Band Edge Configuration",
       "docsis_tlv.mcap.adv_down_upper_band_edge_conf",
-      FT_UINT16, BASE_DEC|BASE_UNIT_STRING, UNS(&local_units_mhz), 0x0,
+      FT_UINT16, BASE_DEC|BASE_UNIT_STRING, UNS(&units_mhz), 0x0,
       NULL, HFILL}
     },
     {&hf_docsis_tlv_mcap_adv_up_upper_band_edge_conf,
      {".81 Advanced Upstream Upper Band Edge Configuration",
       "docsis_tlv.mcap.adv_up_upper_band_edge_conf",
-      FT_UINT16, BASE_DEC|BASE_UNIT_STRING, UNS(&local_units_mhz), 0x0,
+      FT_UINT16, BASE_DEC|BASE_UNIT_STRING, UNS(&units_mhz), 0x0,
       NULL, HFILL}
     },
     {&hf_docsis_tlv_mcap_adv_down_lower_band_edge_option,
      {"Advanced Diplexer Downstream Lower Band Edge Option",
       "docsis_tlv.mcap.adv_down_lower_band_edge_option",
-      FT_UINT16, BASE_DEC|BASE_UNIT_STRING, UNS(&local_units_mhz), 0x0,
+      FT_UINT16, BASE_DEC|BASE_UNIT_STRING, UNS(&units_mhz), 0x0,
       NULL, HFILL}
     },
     {&hf_docsis_tlv_mcap_adv_down_upper_band_edge_option,
      {"Advanced Diplexer Downstream Upper Band Edge Option",
       "docsis_tlv.mcap.adv_down_upper_band_edge_option",
-      FT_UINT16, BASE_DEC|BASE_UNIT_STRING, UNS(&local_units_mhz), 0x0,
+      FT_UINT16, BASE_DEC|BASE_UNIT_STRING, UNS(&units_mhz), 0x0,
       NULL, HFILL}
     },
     {&hf_docsis_tlv_mcap_adv_up_upper_band_edge_option,
      {"Advanced Diplexer Upstream Upper Band Edge Option",
       "docsis_tlv.mcap.adv_up_upper_band_edge_option",
-      FT_UINT16, BASE_DEC|BASE_UNIT_STRING, UNS(&local_units_mhz), 0x0,
+      FT_UINT16, BASE_DEC|BASE_UNIT_STRING, UNS(&units_mhz), 0x0,
       NULL, HFILL}
     },
     {&hf_docsis_tlv_mcap_extended_power_options,
