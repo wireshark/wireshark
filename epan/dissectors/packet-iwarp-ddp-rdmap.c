@@ -19,6 +19,8 @@
 #include <epan/reassemble.h>
 #include <epan/conversation.h>
 #include <epan/proto_data.h>
+#include <epan/tfs.h>
+#include <epan/unit_strings.h>
 
 #include "packet-iwarp-ddp-rdmap.h"
 

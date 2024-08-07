@@ -22,6 +22,7 @@
 #include <epan/sctpppids.h>
 #include <epan/asn1.h>
 #include <epan/prefs.h>
+#include <wsutil/array.h>
 
 #include "packet-per.h"
 

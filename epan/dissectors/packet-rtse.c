@@ -23,6 +23,7 @@
 #include <epan/asn1.h>
 #include <epan/expert.h>
 
+#include <wsutil/array.h>
 #include <wsutil/str_util.h>
 
 #include "packet-ber.h"

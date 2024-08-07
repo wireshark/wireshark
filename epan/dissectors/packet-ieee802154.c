@@ -101,6 +101,8 @@
 #include <epan/etypes.h>
 #include <epan/oui.h>
 #include <epan/tap.h>
+#include <epan/tfs.h>
+#include <epan/unit_strings.h>
 #include <wsutil/pint.h>
 
 /* Use libgcrypt for cipher libraries. */

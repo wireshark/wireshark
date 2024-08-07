@@ -38,6 +38,7 @@
 
 #include <epan/packet.h>
 #include <epan/expert.h>
+#include <epan/tfs.h>
 #include "packet-csn1.h"
 #include "packet-gsm_a_rr.h"
 

@@ -29,6 +29,8 @@
 #include <epan/expert.h>
 #include <epan/address.h>
 #include <epan/reassemble.h>
+#include <epan/tfs.h>
+#include <epan/unit_strings.h>
 #include "packet-wps.h"
 #include "packet-wifi-dpp.h"
 #include "packet-ieee80211.h"

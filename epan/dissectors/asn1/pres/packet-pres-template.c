@@ -18,6 +18,7 @@
 #include <epan/conversation.h>
 #include <epan/expert.h>
 #include <epan/uat.h>
+#include <wsutil/array.h>
 
 #include <epan/asn1.h>
 #include <epan/oids.h>

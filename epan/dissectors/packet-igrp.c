@@ -21,6 +21,8 @@
 #include <epan/expert.h>
 #include <epan/to_str.h>
 #include <epan/ipproto.h>
+#include <epan/tfs.h>
+#include <epan/unit_strings.h>
 
 void proto_register_igrp(void);
 void proto_reg_handoff_igrp(void);

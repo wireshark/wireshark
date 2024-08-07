@@ -14,6 +14,7 @@
 
 #include <epan/packet.h>
 #include <epan/exceptions.h>
+#include <wsutil/array.h>
 
 #include <epan/asn1.h>
 #include "packet-ber.h"

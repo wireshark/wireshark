@@ -21,6 +21,7 @@
 #include <epan/sctpppids.h>
 #include <epan/proto_data.h>
 #include <epan/conversation.h>
+#include <wsutil/array.h>
 
 #include "packet-xnap.h"
 #include "packet-per.h"

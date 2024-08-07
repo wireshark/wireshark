@@ -16,6 +16,7 @@
 
 /*****/
 #include <epan/packet.h>
+#include <epan/tfs.h>
 /*****/
 
 #include "packet-h248.h"

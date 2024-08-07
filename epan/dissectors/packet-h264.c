@@ -23,6 +23,7 @@
 #include <epan/asn1.h>
 #include <epan/expert.h>
 #include <epan/prefs.h>
+#include <epan/tfs.h>
 #include "packet-h264.h"
 
 void proto_register_h264(void);

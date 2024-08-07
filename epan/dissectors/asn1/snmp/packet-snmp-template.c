@@ -50,6 +50,7 @@
 #include <epan/oids.h>
 #include <epan/srt_table.h>
 #include <epan/tap.h>
+#include <wsutil/array.h>
 #include "packet-ipx.h"
 #include "packet-hpext.h"
 #include "packet-ber.h"

@@ -12,6 +12,7 @@
 
 #include <epan/packet.h>
 #include <epan/expert.h>
+#include <epan/unit_strings.h>
 #include "packet-ipx.h"
 
 void proto_register_ipxwan(void);

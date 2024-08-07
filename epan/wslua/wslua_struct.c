@@ -60,13 +60,8 @@
 
 #include "config.h"
 
-#include <assert.h>
 #include <limits.h>
-#include <stddef.h>
-#include <string.h>
-
-#include <stdio.h>
-
+#include <wsutil/array.h>
 #include "wslua.h"
 
 /* WSLUA_MODULE Struct Binary encode/decode support

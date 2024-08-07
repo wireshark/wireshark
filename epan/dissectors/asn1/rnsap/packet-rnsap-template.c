@@ -19,6 +19,7 @@
 #include <epan/packet.h>
 #include <epan/asn1.h>
 #include <epan/proto_data.h>
+#include <wsutil/array.h>
 
 #include "packet-isup.h"
 #include "packet-per.h"

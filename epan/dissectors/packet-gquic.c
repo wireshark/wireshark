@@ -23,6 +23,7 @@ QUIC source code in Chromium : https://code.google.com/p/chromium/codesearch#chr
 #include <epan/prefs.h>
 #include <epan/expert.h>
 #include <epan/conversation.h>
+#include <epan/tfs.h>
 #include "packet-http2.h"
 #include "packet-quic.h"
 #include <wsutil/strtoi.h>

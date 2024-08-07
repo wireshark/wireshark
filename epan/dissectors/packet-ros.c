@@ -20,6 +20,7 @@
 #include <epan/conversation.h>
 #include <epan/asn1.h>
 #include <epan/expert.h>
+#include <wsutil/array.h>
 
 #include "packet-ber.h"
 #include "packet-pres.h"

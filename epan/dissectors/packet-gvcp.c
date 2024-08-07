@@ -17,6 +17,7 @@
 
 #include <epan/packet.h>
 #include <epan/conversation.h>
+#include <epan/tfs.h>
 
 #define GVCP_MIN_PACKET_SIZE          ( 8 )
 #define GVCP_MAX_STREAM_CHANNEL_COUNT ( 512 )

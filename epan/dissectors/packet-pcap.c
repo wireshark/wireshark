@@ -23,6 +23,7 @@
 
 #include <epan/packet.h>
 #include <epan/prefs.h>
+#include <wsutil/array.h>
 
 #include <epan/strutil.h>
 #include <epan/asn1.h>

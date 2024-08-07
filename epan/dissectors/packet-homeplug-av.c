@@ -17,6 +17,7 @@
 #include <epan/packet.h>
 #include <epan/etypes.h>
 #include <epan/ptvcursor.h>
+#include <epan/tfs.h>
 
 void proto_register_homeplug_av(void);
 void proto_reg_handoff_homeplug_av(void);
