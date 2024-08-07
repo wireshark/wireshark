@@ -753,7 +753,7 @@ IA5_7BIT_decode(unsigned char * dest, const unsigned char* src, int len)
 
 /* chars allowed: lower case letters, digits, '-', "_", and ".". */
 static
-const uint8_t module_valid_chars_lower_case[128] = {
+const uint8_t module_valid_chars_lower_case[256] = {
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, /* 0x00-0x0F */
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, /* 0x10-0x1F */
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, /* 0x20-0x2F '-', '.'      */
@@ -762,11 +762,12 @@ const uint8_t module_valid_chars_lower_case[128] = {
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, /* 0x50-0x5F '_' */
     0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, /* 0x60-0x6F 'a'-'o'       */
     1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, /* 0x70-0x7F 'p'-'z'       */
+    /* upper 128 empty-initialized to 0 */
 };
 
 /* chars allowed: alphanumerics, '-', "_", and ".". */
 static
-const uint8_t module_valid_chars[128] = {
+const uint8_t module_valid_chars[256] = {
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, /* 0x00-0x0F */
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, /* 0x10-0x1F */
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, /* 0x20-0x2F '-', '.'      */
@@ -775,6 +776,7 @@ const uint8_t module_valid_chars[128] = {
     1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1, /* 0x50-0x5F 'P'-'Z', '_' */
     0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, /* 0x60-0x6F 'a'-'o'       */
     1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, /* 0x70-0x7F 'p'-'z'       */
+    /* upper 128 empty-initialized to 0 */
 };
 
 unsigned char
@@ -800,7 +802,7 @@ module_check_valid_name(const char *name, bool lower_only)
         if (c == '.' && lastc == '.') {
             break;
         }
-    } while (c < 128 && chars[c]);
+    } while (chars[c]);
 
     /* Trailing '.' is disallowed. */
     if (lastc == '.') {
