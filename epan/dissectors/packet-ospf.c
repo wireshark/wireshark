@@ -52,6 +52,9 @@
  * Added support for optical spectrum occupation for flexi grid WDM links (RFC 8363)
  *   - (c) 2018 Julien Meuric <julien.meuric@orange.com>
  *   - (c) 2018 Khalifa Ndiaye <khalifa.ndiaye@orange.com>
+ *
+ * Added support for OSPFv3 Link State Advertisement Extensibility (RFC 8362)
+ *   - (c) 2024 Jacob Lodge
  */
 
 #include "config.h"
@@ -178,6 +181,17 @@ static const value_string auth_vals[] = {
 #define OSPF_V3_LSTYPE_INTRA_AREA_PREFIX     9
 #define OSPF_V3_LSTYPE_OPAQUE_RI            12
 
+/* OSPFv3 E-LSA*/
+#define OSPF_V3_LSTYPE_E_ROUTER            33
+#define OSPF_V3_LSTYPE_E_NETWORK           34
+#define OSPF_V3_LSTYPE_E_INTER_AREA_PREFIX 35
+#define OSPF_V3_LSTYPE_E_INTER_AREA_ROUTER 36
+#define OSPF_V3_LSTYPE_E_AS_EXTERNAL       37
+// Not to be used per RFC 8362             38
+#define OSPF_V3_LSTYPE_E_TYPE_7            39
+#define OSPF_v3_LSTYPE_E_LINK              40
+#define OSPF_V3_LSTYPE_E_INTRA_AREA_PREFIX 41
+
 /* Opaque LSA types */
 #define OSPF_LSTYPE_OP_BASE      8
 #define OSPF_LSTYPE_OP_LINKLOCAL 9
@@ -293,6 +307,37 @@ static const value_string ri_lsa_sa_tlv_type_vals[] = {
     {0, NULL}
 };
 
+/* https://www.iana.org/assignments/ospfv3-parameters/ospfv3-parameters.xhtml#extended-lsa-tlvs */
+
+/* OSPFv3 Extended-LSA TLVS (RFC 8362)*/
+#define	OSPF6_TLV_RESERVED  0
+#define	OSPF6_TLV_ROUTER_LINK  1
+#define	OSPF6_TLV_ATTACHED_ROUTERS  2
+#define	OSPF6_TLV_INTER_AREA_PREFIX  3
+#define	OSPF6_TLV_INTER_AREA_ROUTER  4
+#define	OSPF6_TLV_EXTERNAL_PREFIX  5
+#define	OSPF6_TLV_INTRA_AREA_PREFIX  6
+#define	OSPF6_TLV_IPV6_LL_ADDR  7
+#define	OSPF6_TLV_IPV4_LL_ADDR  8
+
+static const value_string ospf6_extended_lsa_tlv_type_vals[] = {
+    {OSPF6_TLV_ROUTER_LINK, "Router-Link TLV"},
+    {OSPF6_TLV_ATTACHED_ROUTERS, "Attached-Routers TLV"},
+    {OSPF6_TLV_INTER_AREA_PREFIX, "Inter-Area-Prefix TLV"},
+    {OSPF6_TLV_INTER_AREA_ROUTER, "Inter-Area-Router TLV"},
+    {OSPF6_TLV_EXTERNAL_PREFIX, "External-Prefix TLV"},
+    {OSPF6_TLV_INTRA_AREA_PREFIX, "Intra-Area-Prefix TLV"},
+    {OSPF6_TLV_IPV6_LL_ADDR, "IPv6 Link-Local Address TLV"},
+    {OSPF6_TLV_IPV4_LL_ADDR, "IPv4 Link-Local Address TLV"},
+    { 0, NULL }
+
+};
+
+/* OSPFv3 Extended-LSA Sub-TLVs  */
+#define OSPF6_STLV_RESERVED 0
+#define OSPF6_STLV_IPV6_FWD_ADDR 1
+#define OSPF6_STLV_IPV4_FWD_ADDR 2
+
 /* IGP MSD Type (rfc8491) */
 #define IGP_MSD_TYPE_RESERVED           0
 #define IGP_MSD_TYPE_MPLS               1
@@ -375,6 +420,9 @@ static const value_string v3_ls_type_vals[] = {
     {OSPF_V3_LSTYPE_NSSA,                 "NSSA-LSA"                     },
     {OSPF_V3_LSTYPE_LINK,                 "Link-LSA"                     },
     {OSPF_V3_LSTYPE_INTRA_AREA_PREFIX,    "Intra-Area-Prefix-LSA"        },
+    {OSPF_V3_LSTYPE_E_INTRA_AREA_PREFIX,  "E-Intra-Area-Prefix-LSA"     },
+    {OSPF_V3_LSTYPE_E_ROUTER,             "E-Router-LSA"                },
+    {OSPF_v3_LSTYPE_E_LINK,               "E-Link-LSA"                  },
     {OSPF_V3_LSTYPE_OPAQUE_RI,            "Router Information Opaque-LSA"},
     {0,                                   NULL                           }
 };
@@ -603,6 +651,8 @@ static int ett_ospf_hello;
 static int ett_ospf_desc;
 static int ett_ospf_lsr;
 static int ett_ospf_lsa;
+static int ett_ospf_elsa;
+static int ett_ospf_elsa_pfx_tlv;
 static int ett_ospf_lsa_router_link;
 static int ett_ospf_lsa_upd;
 static int ett_ospf_v2_options;
@@ -761,6 +811,8 @@ static int hf_ospf_v3_ls_link;
 static int hf_ospf_v3_ls_intra_area_prefix;
 static int hf_ospf_v3_ls_opaque_ri;
 
+static int hf_ospf_v3_elsa_intra_area_prefix;
+
 static int *hf_ospf_v3_ls_type_array[] = {
         &hf_ospf_v3_ls_router,
         &hf_ospf_v3_ls_network,
@@ -771,7 +823,8 @@ static int *hf_ospf_v3_ls_type_array[] = {
         &hf_ospf_v3_ls_nssa,
         &hf_ospf_v3_ls_link,
         &hf_ospf_v3_ls_intra_area_prefix,
-        &hf_ospf_v3_ls_opaque_ri
+        &hf_ospf_v3_ls_opaque_ri,
+        &hf_ospf_v3_elsa_intra_area_prefix
 };
 
 static int hf_ospf_adv_router;
@@ -959,6 +1012,10 @@ static int hf_ospf_header_checksum;
 static int hf_ospf_tlv_type;
 static int hf_ospf_tlv_length;
 
+
+/* OSPF v3 Extended LSA TLV's RFC 8362*/
+static int hf_ospf_v3_e_lsa_tlv_type;
+static int hf_ospf_v3_e_lsa_tlv_length;
 
 /* Header OSPF v2 auth */
 static int hf_ospf_header_auth_type;
@@ -2903,6 +2960,81 @@ static void dissect_ospf_lsa_grace_tlv (tvbuff_t *tvb, packet_info *pinfo, int o
 }
 
 /*
+ * Dissect the TLVs within a Extended-LSA as defined by RFC 8362
+*/
+static void dissect_ospf6_e_lsa_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tree,
+                           uint32_t length, uint8_t address_family)
+{
+    int tlv_type;
+    unsigned tlv_length;
+    uint8_t prefix_length;
+
+    int offset_end = offset + length;
+
+    proto_tree *tlv_tree;
+
+    while(offset < offset_end) {
+        tlv_type = tvb_get_ntohs(tvb, offset);
+        tlv_length = tvb_get_ntohs(tvb, offset + 2);
+
+        tlv_tree = proto_tree_add_subtree_format(tree, tvb, offset, tlv_length+4,
+                                ett_ospf_elsa_pfx_tlv, NULL, "%s", val_to_str_const(tlv_type, ospf6_extended_lsa_tlv_type_vals, "Unknown E-LSA TLV"));
+
+        proto_tree_add_item(tlv_tree, hf_ospf_v3_e_lsa_tlv_type, tvb, offset, 2, ENC_BIG_ENDIAN);
+
+        proto_tree_add_item(tlv_tree, hf_ospf_v3_e_lsa_tlv_length, tvb, offset+2, 2, ENC_BIG_ENDIAN);
+
+        switch(tlv_type)
+        {
+            case OSPF6_TLV_INTRA_AREA_PREFIX:
+            /* metric */
+            proto_tree_add_item(tlv_tree, hf_ospf_metric, tvb, offset + 4, 4, ENC_BIG_ENDIAN);
+
+            /* prefix length */
+            prefix_length=tvb_get_uint8(tvb, offset + 8);
+            proto_tree_add_item(tlv_tree, hf_ospf_prefix_length, tvb, offset + 8, 1, ENC_BIG_ENDIAN);
+
+            /* prefix options */
+            proto_tree_add_bitmask(tlv_tree, tvb, offset + 9, hf_ospf_v3_prefix_option, ett_ospf_v3_prefix_options, bf_v3_prefix_options, ENC_BIG_ENDIAN);
+
+            /* address_prefix */
+            dissect_ospf_v3_address_prefix(tvb, pinfo, offset + 12, prefix_length, tlv_tree, address_family);
+
+            offset +=  4 + WS_ROUNDUP_4(tlv_length);
+
+            break;
+            case OSPF6_TLV_ROUTER_LINK:
+                /* Type */
+                proto_tree_add_item(tlv_tree, hf_ospf_v3_lsa_type, tvb, offset + 4, 1, ENC_BIG_ENDIAN);
+                /* Reserved */
+                proto_tree_add_item(tlv_tree, hf_ospf_header_reserved, tvb, offset+5, 1, ENC_NA);
+                /* Metric */
+                proto_tree_add_item(tlv_tree, hf_ospf_metric, tvb, offset + 6, 2, ENC_BIG_ENDIAN);
+                /* Interface ID */
+                proto_tree_add_item(tlv_tree, hf_ospf_v3_lsa_interface_id, tvb, offset + 8, 4, ENC_BIG_ENDIAN);
+                /* Neighbor Interface ID */
+                proto_tree_add_item(tlv_tree, hf_ospf_v3_lsa_neighbor_interface_id, tvb, offset + 12, 4, ENC_BIG_ENDIAN);
+                /* Neighbor Router ID */
+                proto_tree_add_item(tlv_tree, hf_ospf_v3_lsa_neighbor_router_id, tvb, offset + 16, 4, ENC_BIG_ENDIAN);
+
+                offset +=  4 + WS_ROUNDUP_4(tlv_length);
+
+                break;
+            case OSPF6_TLV_IPV6_LL_ADDR:
+                /* Ipv6 addr */
+                proto_tree_add_item(tlv_tree, hf_ospf_v3_lsa_link_local_interface_address, tvb, offset + 4, 16, ENC_NA);
+                offset +=  4 + WS_ROUNDUP_4(tlv_length);
+            break;
+            default:
+                offset +=  4 + WS_ROUNDUP_4(tlv_length);
+            break;
+
+        }
+    }
+}
+
+
+/*
  * This function dissects the Optional Router capabilities LSA.
  * In case of OSPFv2, the Router Capabilities would be advertized via the first TLV
  * of an RI LSA and in the case of OSPFv3, the router capabilities would be advertized
@@ -4258,6 +4390,59 @@ dissect_ospf_v3_lsa(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *t
         offset += ls_length;
         break;
 
+    case OSPF_V3_LSTYPE_E_INTRA_AREA_PREFIX:
+
+        /* prefixes, 0 as per RFC  */
+        proto_tree_add_item_ret_uint(ospf_lsa_tree, hf_ospf_v3_lsa_num_prefixes, tvb, offset, 2, ENC_BIG_ENDIAN, &number_prefixes);
+
+        /* referenced LS type */
+        proto_tree_add_item(ospf_lsa_tree, hf_ospf_v3_lsa_referenced_ls_type, tvb, offset+2, 2, ENC_BIG_ENDIAN);
+
+        /* Referenced Link State ID */
+        proto_tree_add_item(ospf_lsa_tree, hf_ospf_v3_lsa_referenced_link_state_id, tvb, offset + 4, 4, ENC_BIG_ENDIAN);
+
+        /* Referenced Advertising Router */
+        proto_tree_add_item(ospf_lsa_tree, hf_ospf_referenced_advertising_router, tvb, offset + 8, 4, ENC_BIG_ENDIAN);
+
+        offset+=12;
+        ls_length-=12;
+
+        dissect_ospf6_e_lsa_tlv(tvb, pinfo, offset, ospf_lsa_tree, ls_length, address_family);
+        offset += ls_length;
+        break;
+    case OSPF_V3_LSTYPE_E_ROUTER:
+
+        /* flags field in an router-lsa */
+        proto_tree_add_bitmask(ospf_lsa_tree, tvb, offset, hf_ospf_v3_router_lsa_flag, ett_ospf_v3_router_lsa_flags, bf_v3_router_lsa_flags, ENC_BIG_ENDIAN);
+
+        /* options field in an router-lsa */
+        proto_tree_add_bitmask(ospf_lsa_tree, tvb, offset + 1, hf_ospf_v3_options, ett_ospf_v3_options, bf_v3_options, ENC_BIG_ENDIAN);
+
+        /* skip the router-lsa flags and options */
+        offset+=4;
+        ls_length-=4;
+        dissect_ospf6_e_lsa_tlv(tvb, pinfo, offset, ospf_lsa_tree, ls_length, address_family);
+        offset += ls_length;
+        break;
+
+    case OSPF_v3_LSTYPE_E_LINK:
+
+        /* router priority */
+        proto_tree_add_item(ospf_lsa_tree, hf_ospf_v3_lsa_router_priority, tvb, offset, 1, ENC_BIG_ENDIAN);
+
+        /* options field in an link-lsa */
+        proto_tree_add_bitmask(ospf_lsa_tree, tvb, offset + 1, hf_ospf_v3_options, ett_ospf_v3_options, bf_v3_options, ENC_BIG_ENDIAN);
+
+        offset+=4;
+        ls_length-=4;
+
+        dissect_ospf6_e_lsa_tlv(tvb, pinfo, offset, ospf_lsa_tree, ls_length, address_family);
+        offset += ls_length;
+        break;
+
+
+    break;
+
     default:
         /* unknown LSA type */
         expert_add_info_format(pinfo, type_item, &ei_ospf_lsa_unknown_type,
@@ -4536,6 +4721,14 @@ proto_register_ospf(void)
          { "Opaque LSA", "ospf.lsa.opaque", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
            NULL, HFILL }},
 
+        /* OSPFv3 E-LSA TLV */
+        {&hf_ospf_v3_e_lsa_tlv_type,
+         { "TLV Type", "ospf.v3.elsa.tlv_type", FT_UINT16, BASE_DEC, NULL, 0x0,
+           NULL, HFILL }},
+        {&hf_ospf_v3_e_lsa_tlv_length,
+         { "TLV Length", "ospf.v3.elsa.tlv_length", FT_UINT16, BASE_DEC, NULL, 0x0,
+           NULL, HFILL }},
+
         /* OSPFv3 LS Types */
         {&hf_ospf_v3_ls_type,
          { "LS Type", "ospf.v3.lsa", FT_UINT16, BASE_HEX, NULL, 0x0,
@@ -4576,6 +4769,9 @@ proto_register_ospf(void)
            NULL, HFILL }},
         {&hf_ospf_v3_ls_intra_area_prefix,
          { "Intra-Area-Prefix-LSA", "ospf.v3.lsa.intraprefix", FT_BOOLEAN, BASE_NONE,
+           NULL, 0x0, NULL, HFILL }},
+        {&hf_ospf_v3_elsa_intra_area_prefix,
+         { "E-Intra-Area-Prefix-LSA", "ospf.v3.elsa.intraprefix", FT_BOOLEAN, BASE_NONE,
            NULL, 0x0, NULL, HFILL }},
         {&hf_ospf_v3_ls_opaque_ri,
          { "Router Information Opaque-LSA", "ospf.v3.lsa.opaque", FT_BOOLEAN, BASE_NONE,
@@ -5195,6 +5391,8 @@ proto_register_ospf(void)
         &ett_ospf_lsa_mpls_link_stlv,
         &ett_ospf_lsa_mpls_link_stlv_admingrp,
         &ett_ospf_lsa_opaque_ri,
+        &ett_ospf_elsa,
+        &ett_ospf_elsa_pfx_tlv,
         &ett_ospf_lsa_ri_tlv,
         &ett_ospf_lsa_dh_tlv,
         &ett_ospf_lsa_sa_tlv,
