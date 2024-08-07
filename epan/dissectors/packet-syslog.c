@@ -16,23 +16,40 @@
 
 #include "config.h"
 
-
 #include <epan/packet.h>
 #include <epan/strutil.h>
 
 #include "packet-syslog.h"
 #include "packet-acdr.h"
+#include "packet-tcp.h"
 
-#define UDP_PORT_SYSLOG 514
+#define SYSLOG_PORT_UDP  514
+#define SYSLOG_PORT_TLS 6514
 
 #define PRIORITY_MASK 0x0007  /* 0000 0111 */
-#define FACILITY_MASK 0x03f8  /* 1111 1000 */
+#define FACILITY_MASK 0x03F8  /* 1111 1000 */
+
+#define MSG_BOM   0xEFBBBF
+#define RFC5424_V 0x3120      /* '1 ' */
+#define NIL_VALUE 0x2D        /* '-'  */
+#define SD_START  0x5B        /* '['  */
+#define SD_END    0x5D        /* ']'  */
+#define SD_STOP   0x5D20      /* '] ' */
+#define SD_DELIM  0x5D5B      /* '][' */
+#define CHR_SPACE 0x20        /* ' '  */
+#define CHR_COLON 0x3A        /* ':'  */
+#define CHR_EQUAL 0x3D        /* '='  */
+#define CHR_QUOTE 0x22        /* '"'  */
+#define CHR_0     0x30        /* '0'  */
 
 void proto_reg_handoff_syslog(void);
 void proto_register_syslog(void);
 
 /* The maximum number if priority digits to read in. */
 #define MAX_DIGITS 3
+
+/* The maximum chars for framing to read in */
+#define MAX_FRAMING_DIGITS 5
 
 static const value_string short_level_vals[] = {
   { LEVEL_EMERG,        "EMERG" },
@@ -75,9 +92,9 @@ static const value_string short_facility_vals[] = {
 };
 
 static int proto_syslog;
+static int hf_syslog_msglen;
 static int hf_syslog_level;
 static int hf_syslog_facility;
-static int hf_syslog_msg;
 static int hf_syslog_msu_present;
 static int hf_syslog_version;
 static int hf_syslog_timestamp;
@@ -85,14 +102,23 @@ static int hf_syslog_timestamp_old;
 static int hf_syslog_hostname;
 static int hf_syslog_appname;
 static int hf_syslog_procid;
+static int hf_syslog_msg;
 static int hf_syslog_msgid;
-static int hf_syslog_msgid_utf8;
-static int hf_syslog_msgid_bom;
+static int hf_syslog_bom;
+static int hf_syslog_sd;
+static int hf_syslog_sd_element;
+static int hf_syslog_sd_element_name;
+static int hf_syslog_sd_param;
+static int hf_syslog_sd_param_name;
+static int hf_syslog_sd_param_value;
 
 static int ett_syslog;
-static int ett_syslog_msg;
+static int ett_syslog_sd;
+static int ett_syslog_sd_element;
+static int ett_syslog_sd_param;
 
 static dissector_handle_t syslog_handle;
+static dissector_handle_t syslog_handle_tcp;
 
 static dissector_handle_t mtp_handle;
 
@@ -154,7 +180,7 @@ mtp3_msu_present(tvbuff_t *tvb, packet_info *pinfo, int fac, int level, const ch
 
 static bool dissect_syslog_info(proto_tree* tree, tvbuff_t* tvb, unsigned* offset, int hfindex)
 {
-  int end_offset = tvb_find_uint8(tvb, *offset, -1, ' ');
+  int end_offset = tvb_find_uint8(tvb, *offset, -1, CHR_SPACE);
   if (end_offset == -1)
     return false;
   proto_tree_add_item(tree, hfindex, tvb, *offset, end_offset - *offset, ENC_NA);
@@ -162,16 +188,128 @@ static bool dissect_syslog_info(proto_tree* tree, tvbuff_t* tvb, unsigned* offse
   return true;
 }
 
+static bool dissect_syslog_sd(proto_tree* tree, tvbuff_t* tvb, packet_info *pinfo, unsigned* offset)
+{
+
+  proto_item *ti;
+  proto_tree *sd_tree;
+  unsigned counter_parameters, counter_elements = 0;
+
+  // Check for NIL value
+  if(tvb_reported_length_remaining(tvb, *offset) >= 2) {
+    if(tvb_get_uint8(tvb, *offset) == NIL_VALUE && tvb_get_uint8(tvb, *offset + 1) == CHR_SPACE) {
+      ti = proto_tree_add_item(tree, hf_syslog_sd, tvb, *offset, 1, ENC_NA);
+      proto_item_append_text(ti, ": -");
+      *offset = *offset + 2;
+      return true;
+    }
+  }
+
+  /* Validate the start */
+  if(tvb_get_uint8(tvb, *offset) != SD_START)
+    return false;
+
+  /* Search the end */
+  int sd_end = tvb_find_uint16(tvb, *offset, -1, SD_STOP);
+  if (sd_end == -1)
+    return false;
+
+  ti = proto_tree_add_item(tree, hf_syslog_sd, tvb, *offset, sd_end - *offset + 1, ENC_NA);
+  sd_tree = proto_item_add_subtree(ti, ett_syslog_sd);
+
+  /* SD-ELEMENTS */
+  while(*offset < (unsigned)sd_end) {
+
+    proto_item *ti_element;
+    proto_tree *element_tree;
+
+    /* Find the end of current element (finding is guaranteed, because we already checked for SD_STOP) */
+    int element_end = tvb_find_uint8(tvb, *offset, -1, SD_END);
+    ti_element = proto_tree_add_item(sd_tree, hf_syslog_sd_element, tvb, *offset, element_end - *offset + 1, ENC_NA);
+    element_tree = proto_item_add_subtree(ti_element, ett_syslog_sd_element);
+
+    /* First char is opening bracket, move offset */
+    *offset = *offset + 1;
+
+    /* SD-ELEMENT */
+    while(*offset < (unsigned)element_end) {
+
+      /* Find the first space char (=SD-NAME), move to next element if failed */
+      int sdname_end = tvb_find_uint8(tvb, *offset, -1, CHR_SPACE);
+      if(sdname_end == -1 || sdname_end >= element_end) {
+        *offset = element_end + 1;
+        break;
+      }
+
+      proto_tree_add_item(element_tree, hf_syslog_sd_element_name, tvb, *offset, sdname_end - *offset, ENC_ASCII);
+      proto_item_append_text(ti_element, " (%s)", tvb_get_string_enc(pinfo->pool, tvb, *offset, sdname_end - *offset, ENC_ASCII));
+      *offset = sdname_end + 1;
+
+      /* PARAMETERS */
+      counter_parameters = 0;
+      while(*offset < (unsigned)element_end) {
+
+        proto_item *ti_param;
+        proto_tree *param_tree;
+
+        /* Find the first equals char ('=') which delimits param name and value, move to next element if failed */
+        int param_value_divide = tvb_find_uint8(tvb, *offset, -1, CHR_EQUAL);
+        if(param_value_divide == -1 || param_value_divide >= element_end) {
+          *offset = element_end + 1;
+          break;
+          break;
+        }
+
+        /* Parameter Tree */
+        ti_param = proto_tree_add_item(element_tree, hf_syslog_sd_param, tvb, *offset, 0, ENC_NA);
+        param_tree = proto_item_add_subtree(ti_param, ett_syslog_sd_param);
+
+        /* Get parameter name */
+        proto_tree_add_item(param_tree, hf_syslog_sd_param_name, tvb, *offset, param_value_divide - *offset, ENC_ASCII);
+        proto_item_append_text(ti_param, " (%s)", tvb_get_string_enc(pinfo->pool, tvb, *offset, param_value_divide - *offset, ENC_ASCII));
+        *offset = param_value_divide + 1;
+
+        /* Find the first and second quote char which marks the start and end of a value */
+        int value_start = tvb_find_uint8(tvb, *offset,   -1, CHR_QUOTE);
+        int value_end   = tvb_find_uint8(tvb, *offset+1, -1, CHR_QUOTE);
+
+        /* If start or end could not be determined, move to next element */
+        if(value_start == -1 || value_end == -1 || value_start >= element_end || value_end >= element_end) {
+          *offset = element_end + 1;
+          break;
+          break;
+        }
+
+        proto_tree_add_item(param_tree, hf_syslog_sd_param_value, tvb, value_start+1, value_end-value_start-1, ENC_ASCII);
+        proto_item_set_end(ti_param, tvb, value_end+1);
+        *offset = value_end + 2;
+
+        counter_parameters++;
+      }
+
+      proto_item_append_text(ti_element, " (%d parameter%s)", counter_parameters, plurality(counter_parameters, "", "s"));
+      counter_elements++;
+    }
+  }
+
+  proto_item_append_text(ti, " (%d element%s)", counter_elements, plurality(counter_elements, "", "s"));
+
+  /* Move offset by one byte because space char is expected */
+  *offset = *offset + 1;
+  return true;
+
+}
+
 /* Dissect message as defined in RFC5424 */
 static void
-dissect_syslog_message(proto_tree* tree, tvbuff_t* tvb, unsigned offset)
+dissect_rfc5424_syslog_message(proto_tree* tree, tvbuff_t* tvb, packet_info *pinfo, unsigned offset)
 {
   int end_offset;
 
   if (!dissect_syslog_info(tree, tvb, &offset, hf_syslog_version))
     return;
 
-  end_offset = tvb_find_uint8(tvb, offset, -1, ' ');
+  end_offset = tvb_find_uint8(tvb, offset, -1, CHR_SPACE);
   if (end_offset == -1)
     return;
   if ((unsigned)end_offset != offset) {
@@ -187,13 +325,23 @@ dissect_syslog_message(proto_tree* tree, tvbuff_t* tvb, unsigned offset)
     return;
   if (!dissect_syslog_info(tree, tvb, &offset, hf_syslog_procid))
     return;
-  if (tvb_get_uint24(tvb, offset, ENC_BIG_ENDIAN) == 0xefbbbf) {
-    proto_tree_add_item(tree, hf_syslog_msgid_bom, tvb, offset, 3, ENC_BIG_ENDIAN);
+  if (!dissect_syslog_info(tree, tvb, &offset, hf_syslog_msgid))
+    return;
+
+  /* STRUCTURED DATA */
+  if (!dissect_syslog_sd(tree, tvb, pinfo, &offset))
+    return;
+
+  /* Check for BOM and read in the rest of msg*/
+  if (tvb_reported_length_remaining(tvb, offset) > 3 && tvb_get_uint24(tvb, offset, ENC_BIG_ENDIAN) == MSG_BOM) {
+    proto_tree_add_item(tree, hf_syslog_bom, tvb, offset, 3, ENC_BIG_ENDIAN);
     offset += 3;
-    proto_tree_add_item(tree, hf_syslog_msgid_utf8, tvb, offset, tvb_reported_length_remaining(tvb, offset), ENC_UTF_8);
+
+    proto_tree_add_item(tree, hf_syslog_msg, tvb, offset, tvb_reported_length_remaining(tvb, offset), ENC_UTF_8);
   } else {
-    proto_tree_add_item(tree, hf_syslog_msgid, tvb, offset, tvb_reported_length_remaining(tvb, offset), ENC_ASCII);
+    proto_tree_add_item(tree, hf_syslog_msg, tvb, offset, tvb_reported_length_remaining(tvb, offset), ENC_ASCII);
   }
+
 }
 
 /* Dissect message as defined in RFC3164 */
@@ -202,12 +350,14 @@ dissect_rfc3164_syslog_message(proto_tree* tree, tvbuff_t* tvb, unsigned offset)
 {
   unsigned tvb_offset = 0;
 
+  /* RFC 3164 HEADER section */
+
   /* Simple check if the first 16 bytes look like TIMESTAMP "Mmm dd hh:mm:ss"
    * by checking for spaces and colons. Otherwise return without processing
    * the message. */
-  if (tvb_get_uint8(tvb, offset + 3) == ' ' && tvb_get_uint8(tvb, offset + 6) == ' ' &&
-        tvb_get_uint8(tvb, offset + 9) == ':' && tvb_get_uint8(tvb, offset + 12) == ':' &&
-        tvb_get_uint8(tvb, offset + 15) == ' ') {
+  if (tvb_get_uint8(tvb, offset + 3) == CHR_SPACE && tvb_get_uint8(tvb, offset + 6) == CHR_SPACE &&
+        tvb_get_uint8(tvb, offset + 9) == CHR_COLON && tvb_get_uint8(tvb, offset + 12) == CHR_COLON &&
+        tvb_get_uint8(tvb, offset + 15) == CHR_SPACE) {
     proto_tree_add_item(tree, hf_syslog_timestamp_old, tvb, offset, 15, ENC_ASCII);
     offset += 16;
   } else {
@@ -216,44 +366,106 @@ dissect_rfc3164_syslog_message(proto_tree* tree, tvbuff_t* tvb, unsigned offset)
 
   if (!dissect_syslog_info(tree, tvb, &offset, hf_syslog_hostname))
     return;
+
+  /* RFC 3164 MSG section */
+
+  /* TAG field (proc) */
   for (tvb_offset=offset; tvb_offset < offset+32; tvb_offset++){
     uint8_t octet;
     octet = tvb_get_uint8(tvb, tvb_offset);
     if (!g_ascii_isalnum(octet)){
       proto_tree_add_item(tree, hf_syslog_procid, tvb, offset, tvb_offset - offset, ENC_ASCII);
-      offset = tvb_offset;
+      offset = tvb_offset+1;
       break;
     }
   }
-  proto_tree_add_item(tree, hf_syslog_msgid, tvb, offset, tvb_reported_length_remaining(tvb, offset), ENC_ASCII);
+
+  /* CONTENT */
+  /* Read in the rest as msg */
+  proto_tree_add_item(tree, hf_syslog_msg, tvb, offset, tvb_reported_length_remaining(tvb, offset), ENC_ASCII);
 }
 
-/* The message format is defined in RFC 3164 */
+/* Checks if Octet Counting Framing is used and return entire PDU length */
+static unsigned
+get_framed_syslog_pdu_len(packet_info *pinfo, tvbuff_t *tvb, int offset, void *data _U_)
+{
+  /*
+    RFC 6587: Octet Counting Framing can be assumed if the data starts with non-zero digits.
+    SYSLOG-FRAME = MSG-LEN SP SYSLOG-MSG
+
+    This function returns the length of the PDU (incl. leading <LEN><SPACE>)
+  */
+
+  /* Find leading integers */
+  int digits_str_len = 0;
+  while(tvb_bytes_exist(tvb, offset + digits_str_len, 1) && digits_str_len < MAX_FRAMING_DIGITS) {
+    uint8_t current_char = tvb_get_uint8(tvb, offset + digits_str_len);
+    if(!g_ascii_isdigit(current_char) || (digits_str_len == 0 && current_char == CHR_0))
+      break;
+    digits_str_len++;
+  }
+
+  /* Get the actual integer from string */
+  unsigned msg_len = 0;
+  unsigned multiplier = 1;
+  if(digits_str_len > 0) {
+    const uint8_t *digits_str = tvb_get_string_enc(pinfo->pool, tvb, offset, digits_str_len, ENC_ASCII);
+    for (unsigned d = digits_str_len; d > 0; d--) {
+      msg_len += ((digits_str[d-1] - CHR_0) * multiplier);
+      multiplier *= 10;
+    }
+  }
+
+  /*
+    When a <space> is found after the length digits, it seems to be framed TCP
+  */
+  if(msg_len > 0 && tvb_bytes_exist(tvb, offset, digits_str_len+1)) {
+    if(tvb_get_uint8(tvb, offset + digits_str_len) == CHR_SPACE) {
+      return msg_len + 1 + digits_str_len;
+    }
+  }
+
+  return 0;
+
+}
+
+/* Main dissection function */
 static int
-dissect_syslog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
+dissect_syslog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
   int pri = -1, lev = -1, fac = -1;
-  int msg_off = 0, msg_len, reported_msg_len;
+  int msg_off = 0, pri_digits = 0, pri_chars = 0, msg_len, reported_msg_len, framing_leading_str_len = 0;
+  unsigned framing_pdu_len;
   proto_item *ti;
   proto_tree *syslog_tree;
-  proto_tree *syslog_message_tree;
   const char *msg_str;
   tvbuff_t *mtp3_tvb;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "Syslog");
   col_clear(pinfo->cinfo, COL_INFO);
 
+  framing_pdu_len = get_framed_syslog_pdu_len(pinfo, tvb, msg_off, data);
+  if(framing_pdu_len > 0) {
+    framing_leading_str_len = snprintf(NULL, 0, "%d", framing_pdu_len) + 1;
+    msg_off += framing_leading_str_len;
+  }
+
   if (tvb_get_uint8(tvb, msg_off) == '<') {
     /* A facility and level follow. */
     msg_off++;
+    pri_chars++;
     pri = 0;
     while (tvb_bytes_exist(tvb, msg_off, 1) &&
-           g_ascii_isdigit(tvb_get_uint8(tvb, msg_off)) && msg_off <= MAX_DIGITS) {
-      pri = pri * 10 + (tvb_get_uint8(tvb, msg_off) - '0');
+           g_ascii_isdigit(tvb_get_uint8(tvb, msg_off)) && pri_digits <= MAX_DIGITS) {
+      pri = pri * 10 + (tvb_get_uint8(tvb, msg_off) - CHR_0);
+      pri_digits++;
+      pri_chars++;
       msg_off++;
     }
-    if (tvb_get_uint8(tvb, msg_off) == '>')
+    if (tvb_get_uint8(tvb, msg_off) == '>') {
       msg_off++;
+      pri_chars++;
+    }
     fac = (pri & FACILITY_MASK) >> 3;
     lev = pri & PRIORITY_MASK;
   }
@@ -275,43 +487,43 @@ dissect_syslog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
     }
   }
 
-  if (tree) {
-    if (pri >= 0) {
-      ti = proto_tree_add_protocol_format(tree, proto_syslog, tvb, 0, -1,
-        "Syslog message: %s.%s: %s",
-        val_to_str_const(fac, short_facility_vals, "UNKNOWN"),
-        val_to_str_const(lev, short_level_vals, "UNKNOWN"), msg_str);
-    } else {
-      ti = proto_tree_add_protocol_format(tree, proto_syslog, tvb, 0, -1,
-        "Syslog message: (unknown): %s", msg_str);
-    }
-    syslog_tree = proto_item_add_subtree(ti, ett_syslog);
-    if (pri >= 0) {
-      proto_tree_add_uint(syslog_tree, hf_syslog_facility, tvb, 0,
-        msg_off, pri);
-      proto_tree_add_uint(syslog_tree, hf_syslog_level, tvb, 0,
-        msg_off, pri);
-    }
-    ti = proto_tree_add_item(syslog_tree, hf_syslog_msg, tvb, msg_off,
-      msg_len, ENC_UTF_8);
-    syslog_message_tree = proto_item_add_subtree(ti, ett_syslog_msg);
+  if (pri >= 0) {
+    ti = proto_tree_add_protocol_format(tree, proto_syslog, tvb, 0, -1,
+      "Syslog message: %s.%s: %s",
+      val_to_str_const(fac, short_facility_vals, "UNKNOWN"),
+      val_to_str_const(lev, short_level_vals, "UNKNOWN"), msg_str);
+  } else {
+    ti = proto_tree_add_protocol_format(tree, proto_syslog, tvb, 0, -1,
+      "Syslog message: (unknown): %s", msg_str);
+  }
+  syslog_tree = proto_item_add_subtree(ti, ett_syslog);
 
-    /* RFC5424 defines a version field which is currently defined as '1'
-     * followed by a space (0x3120). Otherwise the message is probable
-     * a RFC3164 message.
-     */
-    if (msg_len > 2 && tvb_get_ntohs(tvb, msg_off) == 0x3120) {
-      dissect_syslog_message(syslog_message_tree, tvb, msg_off);
-    } else if ( msg_len > 15) {
-      dissect_rfc3164_syslog_message(syslog_message_tree, tvb, msg_off);
-    }
+  if (framing_pdu_len)
+    proto_tree_add_item(syslog_tree, hf_syslog_msglen, tvb, 0, framing_leading_str_len - 1, ENC_ASCII);
 
-    if (mtp3_tvb) {
-      proto_item *mtp3_item;
-      mtp3_item = proto_tree_add_boolean(syslog_tree, hf_syslog_msu_present,
-                                         tvb, msg_off, msg_len, true);
-      proto_item_set_generated(mtp3_item);
-    }
+  if (pri >= 0) {
+    proto_tree_add_uint(syslog_tree, hf_syslog_facility, tvb, framing_leading_str_len,
+      pri_chars, pri);
+    proto_tree_add_uint(syslog_tree, hf_syslog_level, tvb, framing_leading_str_len,
+      pri_chars, pri);
+  }
+
+  /*
+  *  RFC5424 defines a version field which is currently defined as '1'
+  *  followed by a space (0x3120). Otherwise the message is probably
+  *  a RFC3164 message.
+  */
+  if (msg_len > 2 && tvb_get_ntohs(tvb, msg_off) == RFC5424_V) {
+    dissect_rfc5424_syslog_message(syslog_tree, tvb, pinfo, msg_off);
+  } else if ( msg_len > 15) {
+    dissect_rfc3164_syslog_message(syslog_tree, tvb, msg_off);
+  }
+
+  if (mtp3_tvb) {
+    proto_item *mtp3_item;
+    mtp3_item = proto_tree_add_boolean(syslog_tree, hf_syslog_msu_present,
+                                        tvb, msg_off, msg_len, true);
+    proto_item_set_generated(mtp3_item);
   }
 
   /* Call MTP dissector if encapsulated MSU was found... */
@@ -322,110 +534,151 @@ dissect_syslog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
   return tvb_captured_length(tvb);
 }
 
+static int
+dissect_syslog_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+{
+
+  /*
+    When get_framed_syslog_pdu_len() returns >0, it has been checked for TCP Octet Counting Framing.
+    It can be handed over to tcp_dissect_pdus().
+  */
+  if(get_framed_syslog_pdu_len(pinfo, tvb, 0, data) > 0) {
+    tcp_dissect_pdus(tvb, pinfo, tree, true, MAX_FRAMING_DIGITS + 1, get_framed_syslog_pdu_len, dissect_syslog, data);
+    return tvb_reported_length(tvb);
+  }
+
+  /* If no framing was detected, simply pass it to the syslog dissector function */
+  return dissect_syslog(tvb, pinfo, tree, data);
+}
+
 /* Register the protocol with Wireshark */
 void proto_register_syslog(void)
 {
 
   /* Setup list of header fields */
   static hf_register_info hf[] = {
+    { &hf_syslog_msglen,
+      { "Message Length", "syslog.msglen",
+        FT_STRING, BASE_NONE, NULL, 0x0,
+        "Length of message (without this field)", HFILL }
+    },
     { &hf_syslog_facility,
-      { "Facility",           "syslog.facility",
+      { "Facility", "syslog.facility",
         FT_UINT16, BASE_DEC, VALS(syslog_facility_vals), FACILITY_MASK,
         "Message facility", HFILL }
     },
     { &hf_syslog_level,
-      { "Level",              "syslog.level",
+      { "Level", "syslog.level",
         FT_UINT16, BASE_DEC, VALS(syslog_level_vals), PRIORITY_MASK,
         "Message level", HFILL }
     },
-    { &hf_syslog_msg,
-      { "Message",            "syslog.msg",
-        FT_STRING, BASE_NONE, NULL, 0x0,
-        "Message Text", HFILL }
-    },
     { &hf_syslog_msu_present,
-      { "SS7 MSU present",    "syslog.msu_present",
+      { "SS7 MSU present", "syslog.msu_present",
         FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-        "True if an SS7 MSU was detected in the syslog message",
-        HFILL }
+        "True if an SS7 MSU was detected in the syslog message", HFILL }
     },
     { &hf_syslog_version,
-      { "Syslog version", "syslog.version",
+      { "Version", "syslog.version",
         FT_STRING, BASE_NONE, NULL, 0x0,
-        NULL,
-        HFILL }
+        "Syslog version", HFILL }
     },
     { &hf_syslog_timestamp,
-      { "Syslog timestamp", "syslog.timestamp",
-        FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL, 0x0,
-        NULL,
-        HFILL }
+      { "Timestamp", "syslog.timestamp",
+        FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0x0,
+        NULL, HFILL }
     },
     { &hf_syslog_timestamp_old,
-      { "Syslog timestamp (RFC3164)", "syslog.timestamp_rfc3164",
+      { "Timestamp (RFC3164)", "syslog.timestamp_rfc3164",
         FT_STRING, BASE_NONE, NULL, 0x0,
-        NULL,
-        HFILL }
+        NULL, HFILL }
     },
     { &hf_syslog_hostname,
-      { "Syslog hostname", "syslog.hostname",
+      { "Hostname", "syslog.hostname",
         FT_STRING, BASE_NONE, NULL, 0x0,
-        NULL,
-        HFILL }
+        "The hostname that generated this message", HFILL }
     },
     { &hf_syslog_appname,
-      { "Syslog app name", "syslog.appname",
+      { "App Name", "syslog.appname",
         FT_STRING, BASE_NONE, NULL, 0x0,
-        "The name of the app that generated this message",
-        HFILL }
+        "The name of the app that generated this message", HFILL }
     },
     { &hf_syslog_procid,
-      { "Syslog process id", "syslog.procid",
+      { "Process ID", "syslog.procid",
         FT_STRING, BASE_NONE, NULL, 0x0,
-        NULL,
-        HFILL }
+        "The ID of the process that generated this message", HFILL }
+    },
+    { &hf_syslog_msg,
+      { "Message", "syslog.msg",
+        FT_STRING, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }
     },
     { &hf_syslog_msgid,
-      { "Syslog message id", "syslog.msgid",
+      { "Message ID", "syslog.msgid",
         FT_STRING, BASE_NONE, NULL, 0x0,
-        NULL,
-        HFILL }
+        NULL, HFILL }
     },
-    { &hf_syslog_msgid_utf8,
-      { "Syslog message id", "syslog.msgid",
-        FT_STRING, BASE_NONE, NULL, 0x0,
-        NULL,
-        HFILL }
-    },
-    { &hf_syslog_msgid_bom,
-      { "Syslog BOM", "syslog.msgid.bom",
+    { &hf_syslog_bom,
+      { "BOM", "syslog.msgid.bom",
         FT_UINT24, BASE_HEX, NULL, 0x0,
-        NULL,
-        HFILL }
+        "Byte Order Mark", HFILL }
+    },
+    { &hf_syslog_sd,
+      { "Structured Data", "syslog.sd",
+        FT_NONE, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_syslog_sd_element,
+      { "Element", "syslog.sd.element",
+        FT_NONE, BASE_NONE, NULL, 0x0,
+        "Structured Data Element", HFILL }
+    },
+    { &hf_syslog_sd_element_name,
+      { "Element Name", "syslog.sd.element.name",
+        FT_STRING, BASE_NONE, NULL, 0x0,
+        "Structured Data Element Name", HFILL }
+    },
+    { &hf_syslog_sd_param,
+      { "Parameter", "syslog.sd.param",
+        FT_NONE, BASE_NONE, NULL, 0x0,
+        "Structured Data Parameter", HFILL }
+    },
+    { &hf_syslog_sd_param_name,
+      { "Parameter Name", "syslog.sd.param.name",
+        FT_STRING, BASE_NONE, NULL, 0x0,
+        "Structured Data Parameter Name", HFILL }
+    },
+    { &hf_syslog_sd_param_value,
+      { "Parameter Value", "syslog.sd.param.value",
+        FT_STRING, BASE_NONE, NULL, 0x0,
+        "Structured Data Parameter Value", HFILL }
     }
   };
 
   /* Setup protocol subtree array */
   static int *ett[] = {
     &ett_syslog,
-    &ett_syslog_msg
+    &ett_syslog_sd,
+    &ett_syslog_sd_element,
+    &ett_syslog_sd_param
   };
 
   /* Register the protocol name and description */
-  proto_syslog = proto_register_protocol("Syslog message", "Syslog", "syslog");
+  proto_syslog = proto_register_protocol("Syslog Message", "Syslog", "syslog");
 
   /* Required function calls to register the header fields and subtrees used */
   proto_register_field_array(proto_syslog, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 
   syslog_handle = register_dissector("syslog", dissect_syslog, proto_syslog);
+  syslog_handle_tcp = register_dissector("syslog.tcp", dissect_syslog_tcp, proto_syslog);
 }
 
 void
 proto_reg_handoff_syslog(void)
 {
-  dissector_add_uint_with_preference("udp.port", UDP_PORT_SYSLOG, syslog_handle);
-  dissector_add_for_decode_as_with_preference("tcp.port", syslog_handle);
+  dissector_add_uint_with_preference("udp.port", SYSLOG_PORT_UDP, syslog_handle);
+  dissector_add_for_decode_as_with_preference("tcp.port", syslog_handle_tcp);
+  dissector_add_uint_with_preference("tls.port", SYSLOG_PORT_TLS, syslog_handle_tcp);
 
   dissector_add_uint("acdr.media_type", ACDR_Info, syslog_handle);
 
