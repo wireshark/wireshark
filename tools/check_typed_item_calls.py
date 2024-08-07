@@ -380,7 +380,8 @@ known_non_contiguous_fields = { 'wlan.fixed.capabilities.cfpoll.sta',
                                 'hf_hiqnet_flagmask',
                                 'hf_h223_mux_mpl',
                                 'rdp.flags.pkt',
-                                'erf.flags.if_raw'  # confirmed by Stephen Donnelly
+                                'erf.flags.if_raw',  # confirmed by Stephen Donnelly
+                                'oran_fh_cus.sReSMask'
                               }
 ##################################################################################################
 

@@ -136,6 +136,7 @@ static int hf_oran_startPrbu;
 static int hf_oran_numPrbu;
 
 static int hf_oran_udCompParam;
+static int hf_oran_sReSMask;
 
 static int hf_oran_bfwCompParam;
 
@@ -2570,10 +2571,11 @@ static int dissect_udcomphdr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
     return offset;
 }
 
-/* Dissect udCompParam (user data compression header, 7.5.2.10) */
+/* Dissect udCompParam (user data compression parameter, 8.3.3.15) */
 /* bit_width and comp_meth are out params */
 static int dissect_udcompparam(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned offset,
-                               unsigned comp_meth, uint32_t *exponent)
+                               unsigned comp_meth,
+                               uint32_t *exponent, uint16_t *sReSMask)
 {
     if (comp_meth == COMP_NONE || comp_meth == COMP_MODULATION) {
         /* Not even creating a subtree */
@@ -2586,7 +2588,7 @@ static int dissect_udcompparam(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
                                                          "udCompHdr");
     proto_tree *udcompparam_tree = proto_item_add_subtree(udcompparam_ti, ett_oran_udcompparam);
 
-    uint32_t param_exponent;
+    uint32_t param_exponent, param_sresmask;
 
     switch (comp_meth) {
         case COMP_BLOCK_FP:
@@ -2615,13 +2617,26 @@ static int dissect_udcompparam(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
             break;
 
         case BFP_AND_SELECTIVE_RE:
-            /* TODO: sReSMask + exponent */
+            /* sReSMask + exponent */
+            proto_tree_add_item_ret_uint(udcompparam_tree, hf_oran_sReSMask,
+                                         tvb, offset, 2, ENC_BIG_ENDIAN, &param_sresmask);
+            proto_tree_add_item_ret_uint(udcompparam_tree, hf_oran_exponent,
+                                         tvb, offset, 1, ENC_BIG_ENDIAN, &param_exponent);
+            *sReSMask = param_sresmask;
+            *exponent = param_exponent;
             offset += 2;
             break;
+
         case MOD_COMPR_AND_SELECTIVE_RE:
-            /* TODO: sReSMask + reserved*/
+            /* sReSMask + reserved*/
+            proto_tree_add_item_ret_uint(udcompparam_tree, hf_oran_sReSMask,
+                                         tvb, offset, 2, ENC_BIG_ENDIAN, &param_sresmask);
+            proto_tree_add_item(udcompparam_tree, hf_oran_reserved_4bits,
+                                tvb, offset, 1, ENC_BIG_ENDIAN);
+            *sReSMask = param_sresmask;
             offset += 2;
             break;
+
         default:
             /* reserved (set to all zeros), but how many bytes?? */
             break;
@@ -2849,6 +2864,30 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
     return tvb_captured_length(tvb);
 }
 
+static int dissect_oran_u_re(tvbuff_t *tvb, proto_tree *tree,
+                             unsigned sample_number, int samples_offset,
+                             unsigned sample_bit_width,
+                             uint32_t exponent)
+{
+    /* I */
+    unsigned i_bits = tvb_get_bits(tvb, samples_offset, sample_bit_width, ENC_BIG_ENDIAN);
+    float i_value = decompress_value(i_bits, COMP_BLOCK_FP, sample_bit_width, exponent);
+    unsigned sample_len_in_bytes = ((samples_offset%8)+sample_bit_width+7)/8;
+    proto_item *i_ti = proto_tree_add_float(tree, hf_oran_iSample, tvb, samples_offset/8, sample_len_in_bytes, i_value);
+    proto_item_set_text(i_ti, "iSample: %0.12f  0x%04x (iSample-%u in the PRB)", i_value, i_bits, sample_number);
+    samples_offset += sample_bit_width;
+    /* Q */
+    unsigned q_bits = tvb_get_bits(tvb, samples_offset, sample_bit_width, ENC_BIG_ENDIAN);
+    float q_value = decompress_value(q_bits, COMP_BLOCK_FP, sample_bit_width, exponent);
+    sample_len_in_bytes = ((samples_offset%8)+sample_bit_width+7)/8;
+    proto_item *q_ti = proto_tree_add_float(tree, hf_oran_qSample, tvb, samples_offset/8, sample_len_in_bytes, q_value);
+    proto_item_set_text(q_ti, "qSample: %0.12f  0x%04x (qSample-%u in the PRB)", q_value, q_bits, sample_number);
+    samples_offset += sample_bit_width;
+
+    return samples_offset;
+}
+
+
 /* User plane dissector (section 8) */
 static int
 dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
@@ -2944,7 +2983,7 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
     unsigned bytesLeft;
 
     unsigned number_of_sections = 0;
-    unsigned nBytesPerPrb;
+    unsigned nBytesPerPrb =0;
 
     do {
         unsigned section_start_offet = offset;
@@ -2997,14 +3036,6 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
             proto_item_set_generated(ud_comp_meth_item);
         }
 
-        /* Work this out each time, as udCompHdr may have changed things */
-        unsigned nBytesForSamples = (sample_bit_width * 12 * 2) / 8;
-        nBytesPerPrb = nBytesForSamples;
-        if ((compression != COMP_NONE) && (compression != COMP_MODULATION)) {
-            nBytesPerPrb++;         /* 1 extra byte reserved/exponent */
-        }
-
-
         write_section_info(sectionHeading, pinfo, protocol_item, sectionId, startPrbu, numPrbu, rb);
 
         /* TODO: should this use the same pref as c-plane? */
@@ -3017,45 +3048,66 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
         for (unsigned i = 0; i < numPrbu; i++) {
             /* Create subtree */
             proto_item *prbHeading = proto_tree_add_string_format(section_tree, hf_oran_samples_prb,
-                                                                  tvb, offset, nBytesPerPrb,
+                                                                  tvb, offset, 0,
                                                                   "", "PRB");
             proto_tree *rb_tree = proto_item_add_subtree(prbHeading, ett_oran_u_prb);
             uint32_t exponent = 0;
+            uint16_t sresmask = 0;
 
             /* udCompParam (depends upon compression method) */
-            offset = dissect_udcompparam(tvb, pinfo, rb_tree, offset, compression, &exponent);
+            int before = offset;
+            offset = dissect_udcompparam(tvb, pinfo, rb_tree, offset, compression, &exponent, &sresmask);
+            int udcompparam_len = offset-before;
 
             /* Show PRB number in root */
             proto_item_append_text(prbHeading, " %u", startPrbu + i*(1+rb));
+
+            /* Work out how many REs / PRB */
+            unsigned res_per_prb = 12;
+            if (compression==BFP_AND_SELECTIVE_RE || compression==MOD_COMPR_AND_SELECTIVE_RE) {
+                res_per_prb = 0;
+                /* Use sresmask to pick out which REs are present */
+                for (unsigned n=0; n<12; n++) {
+                    if (sresmask & (1<<n)) {
+                        res_per_prb++;
+                    }
+                }
+            }
+
+            unsigned nBytesForSamples = (sample_bit_width * res_per_prb * 2) / 8;
+            nBytesPerPrb = nBytesForSamples + udcompparam_len;
 
             proto_tree_add_item(rb_tree, hf_oran_iq_user_data, tvb, offset, nBytesForSamples, ENC_NA);
 
             if (pref_showIQSampleValues) {
                 /* Individual values */
                 unsigned samples_offset = offset*8;
-                unsigned sample_number = 0;
-                for (unsigned n = 0; n<12; n++) {
-                    /* I */
-                    unsigned i_bits = tvb_get_bits(tvb, samples_offset, sample_bit_width, ENC_BIG_ENDIAN);
-                    float i_value = decompress_value(i_bits, COMP_BLOCK_FP, sample_bit_width, exponent);
-                    unsigned sample_len_in_bytes = ((samples_offset%8)+sample_bit_width+7)/8;
-                    proto_item *i_ti = proto_tree_add_float(rb_tree, hf_oran_iSample, tvb, samples_offset/8, sample_len_in_bytes, i_value);
-                    proto_item_set_text(i_ti, "iSample: %0.12f  0x%04x (iSample-%u in the PRB)", i_value, i_bits, sample_number);
-                    samples_offset += sample_bit_width;
-                    /* Q */
-                    unsigned q_bits = tvb_get_bits(tvb, samples_offset, sample_bit_width, ENC_BIG_ENDIAN);
-                    float q_value = decompress_value(q_bits, COMP_BLOCK_FP, sample_bit_width, exponent);
-                    sample_len_in_bytes = ((samples_offset%8)+sample_bit_width+7)/8;
-                    proto_item *q_ti = proto_tree_add_float(rb_tree, hf_oran_qSample, tvb, samples_offset/8, sample_len_in_bytes, q_value);
-                    proto_item_set_text(q_ti, "qSample: %0.12f  0x%04x (qSample-%u in the PRB)", q_value, q_bits, sample_number);
-                    samples_offset += sample_bit_width;
+                unsigned samples = 0;
 
-                    sample_number++;
+                if (compression==BFP_AND_SELECTIVE_RE || compression==MOD_COMPR_AND_SELECTIVE_RE) {
+                    /* Use sresmask to pick out which REs are present */
+                    for (unsigned n=0; n<12; n++) {
+                        if (sresmask & (1<<n)) {
+                            samples_offset = dissect_oran_u_re(tvb, rb_tree,
+                                                               n, samples_offset, sample_bit_width, exponent);
+                            samples++;
+                        }
+                    }
                 }
-                proto_item_append_text(prbHeading, " (%u samples)", sample_number);
+                else {
+                    /* All 12 REs are present */
+                    for (unsigned n = 0; n<12; n++) {
+                        samples_offset = dissect_oran_u_re(tvb, rb_tree,
+                                                           n, samples_offset, sample_bit_width, exponent);
+                        samples++;
+                    }
+                }
+                proto_item_append_text(prbHeading, " (%u samples)", samples);
             }
 
             offset += nBytesForSamples;
+
+            proto_item_set_end(prbHeading, tvb, offset);
 
             /* Set length of overall section */
             proto_item_set_len(sectionHeading, offset-section_start_offet);
@@ -3922,7 +3974,7 @@ proto_register_oran(void)
         },
 
 
-        /* Section 8.3.3.15 (not always present?) */
+        /* Section 8.3.3.15 (not always present - depends upon meth) */
         {&hf_oran_udCompParam,
          {"User Data Compression Parameter", "oran_fh_cus.udCompParam",
           FT_STRING, BASE_NONE,
@@ -3930,6 +3982,13 @@ proto_register_oran(void)
           "Applies to whatever compression method is specified "
           "by the associated sectionID's compMeth value",
           HFILL}
+        },
+        /* 8.3.3.17 */
+        {&hf_oran_sReSMask,
+         {"sReSMask", "oran_fh_cus.sReSMask",
+          FT_UINT16, BASE_HEX,
+          NULL, 0xf0ff,
+          "selective RE sending mask", HFILL}
         },
 
         /* Section 6.3.3.15 */
