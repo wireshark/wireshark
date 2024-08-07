@@ -371,6 +371,7 @@ static const range_string filter_indices[] = {
     {4, 4,  "UL filter for NPRACH 0, 1; min. passband 48 x 3.75KHz = 180 KHz"},
     {5, 5,  "UL filter for PRACH preamble formats"},
     {8, 8,  "UL filter NPUSCH"},
+    {9, 9,  "Mixed numerology and other channels except PRACH and NB-IoT"},
     {9, 15, "Reserved"},
     {0, 0, NULL}
 };
@@ -381,7 +382,7 @@ enum section_c_types {
     SEC_C_NORMAL = 1,
     SEC_C_RSVD2 = 2,
     SEC_C_PRACH = 3,
-    SEC_C_RSVD4 = 4,
+    SEC_C_SLOT_CONTROL = 4,
     SEC_C_UE_SCHED = 5,
     SEC_C_CH_INFO = 6,
     SEC_C_LAA = 7,
@@ -393,7 +394,7 @@ static const range_string section_types[] = {
     { SEC_C_NORMAL,            SEC_C_NORMAL,            "Most DL/UL radio channels" },
     { SEC_C_RSVD2,             SEC_C_RSVD2,             "Reserved for future use" },
     { SEC_C_PRACH,             SEC_C_PRACH,             "PRACH and mixed-numerology channels" },
-    { SEC_C_RSVD4,             SEC_C_RSVD4,             "Reserved for future use" },
+    { SEC_C_SLOT_CONTROL,      SEC_C_SLOT_CONTROL,      "Slot Configuration Control" },
     { SEC_C_UE_SCHED,          SEC_C_UE_SCHED,          "UE scheduling information (UE-ID assignment to section)" },
     { SEC_C_CH_INFO,           SEC_C_CH_INFO,           "Channel information" },
     { SEC_C_LAA,               SEC_C_LAA,               "LAA" },
@@ -406,7 +407,7 @@ static const range_string section_types_short[] = {
     { SEC_C_NORMAL,            SEC_C_NORMAL,            "(Most channels)" },
     { SEC_C_RSVD2,             SEC_C_RSVD2,             "(reserved)" },
     { SEC_C_PRACH,             SEC_C_PRACH,             "(PRACH/mixed-\u03bc)" },
-    { SEC_C_RSVD4,             SEC_C_RSVD4,             "(reserved)" },
+    { SEC_C_SLOT_CONTROL,      SEC_C_SLOT_CONTROL,      "(Slot info)" },
     { SEC_C_UE_SCHED,          SEC_C_UE_SCHED,          "(UE scheduling info)" },
     { SEC_C_CH_INFO,           SEC_C_CH_INFO,           "(Channel info)" },
     { SEC_C_LAA,               SEC_C_LAA,               "(LAA)" },
@@ -470,6 +471,7 @@ static const range_string subcarrier_spacings[] = {
     { 0, 0, NULL }
 };
 
+/* Table 7.5.3.14-1 laaMsgType definition */
 static const range_string laaMsgTypes[] = {
     {0, 0,  "LBT_PDSCH_REQ - lls - O-DU to O-RU request to obtain a PDSCH channel"},
     {1, 1,  "LBT_DRS_REQ - lls - O-DU to O-RU request to obtain the channel and send DRS"},
@@ -477,7 +479,7 @@ static const range_string laaMsgTypes[] = {
     {3, 3,  "LBT_DRS_RSP - O-RU to O-DU response, DRS sending success or failure"},
     {4, 4,  "LBT_Buffer_Error - O-RU to O-DU response, reporting buffer overflow"},
     {5, 5,  "LBT_CWCONFIG_REQ - O-DU to O-RU request, congestion window configuration"},
-    {6, 6,  "LBT_CWCONFIG_REQ - O-RU to O-DU request, congestion window config"},
+    {6, 6,  "LBT_CWCONFIG_RST - O-RU to O-DU request, congestion window config, response"},
     {8, 15, "reserved for future methods"},
     {0, 0, NULL}
 };
@@ -542,7 +544,7 @@ static const value_string bfw_comp_headers_comp_meth[] = {
     {0, NULL}
 };
 
-/* 7.7.6.2 */
+/* 7.7.6.2 rbgSize (resource block group size) */
 static const value_string rbg_size_vals[] = {
     {0,     "reserved"},
     {1,     "1"},
@@ -1287,7 +1289,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
     bool extension_flag = false;
 
     /* These sections are similar, so handle as common with per-type differences */
-    if (sectionType <= SEC_C_UE_SCHED) {
+    if ((sectionType <= SEC_C_UE_SCHED) && (sectionType != SEC_C_SLOT_CONTROL)) {
         /* sectionID */
         proto_item *ti = proto_tree_add_item_ret_uint(c_section_tree, hf_oran_section_id, tvb, offset, 2, ENC_BIG_ENDIAN, &sectionId);
         if (sectionId == 4095) {
@@ -1385,6 +1387,9 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
             default:
                 break;
         }
+    }
+    else if (sectionType == SEC_C_SLOT_CONTROL) { /* Section Type 4 */
+        /* TODO: ? */
     }
     else if (sectionType == SEC_C_CH_INFO) {  /* Section Type 6 */
         /* ef */
@@ -2753,13 +2758,24 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
     proto_item *pi = proto_tree_add_string(section_tree, hf_oran_refa, tvb, ref_a_offset, 3, id);
     proto_item_set_generated(pi);
 
+    /* Peek ahead at the section type */
+    uint32_t sectionType = 0;
+    sectionType = tvb_get_uint8(tvb, offset+1);
+
     /* numberOfSections */
     uint32_t nSections = 0;
-    proto_tree_add_item_ret_uint(section_tree, hf_oran_numberOfSections, tvb, offset, 1, ENC_NA, &nSections);
-    offset += 1;
+    if (sectionType != SEC_C_SLOT_CONTROL) {
+        proto_tree_add_item_ret_uint(section_tree, hf_oran_numberOfSections, tvb, offset, 1, ENC_NA, &nSections);
+        offset += 1;
+    }
+    else {
+        /* TODO: Slot Control has these fields instead */
+        /* reserved */
+        /* cmdScope */
+        offset++;
+    }
 
     /* sectionType */
-    uint32_t sectionType = 0;
     proto_tree_add_item_ret_uint(section_tree, hf_oran_sectionType, tvb, offset, 1, ENC_NA, &sectionType);
     offset += 1;
 
@@ -2800,7 +2816,15 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
             offset += 1;
             break;
 
-        case SEC_C_PRACH:       /* Section Type 3 */
+        case SEC_C_SLOT_CONTROL: /* Section Type 4 */
+            /* TODO: numberOfST4Cmds */
+            offset += 1;
+            /* TODO: reserved */
+            offset += 1;
+            /* TODO: loop over commands (header is 8 bytes, 5 separate commands) */
+            break;
+
+        case SEC_C_PRACH:        /* Section Type 3 */
             /* timeOffset */
             proto_tree_add_item(section_tree, hf_oran_timeOffset, tvb, offset, 2, ENC_BIG_ENDIAN);
             offset += 2;
