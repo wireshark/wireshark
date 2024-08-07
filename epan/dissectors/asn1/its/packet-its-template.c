@@ -44,6 +44,8 @@
 #include <epan/conversation.h>
 #include <epan/tap.h>
 #include <wsutil/utf8_entities.h>
+#include <wsutil/array.h>
+
 #include "packet-ber.h"
 #include "packet-per.h"
 

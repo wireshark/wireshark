@@ -20,12 +20,11 @@
 
 #include "config.h"
 #include <epan/packet.h>
-#include <epan/exceptions.h>
-#include <epan/show_exception.h>
-#include <epan/expert.h>
 #include <epan/reassemble.h>
 #include <epan/conversation.h>
+#include <epan/tfs.h>
 
+#include <wsutil/array.h>
 
 #define PROTO_SHORT_NAME "WASSP"
 #define PROTO_LONG_NAME "Wireless Access Station Session Protocol"

@@ -12,6 +12,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/tfs.h>
 #include "packet-mpeg-sect.h"
 #include "packet-mpeg-descriptor.h"
 

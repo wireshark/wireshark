@@ -22,6 +22,8 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 
+#include <wsutil/array.h>
+
 #include "packet-raknet.h"
 
 /* Minecraft Pocket Edition Protocol

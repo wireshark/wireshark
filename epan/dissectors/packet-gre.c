@@ -12,6 +12,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/tfs.h>
 #include <epan/capture_dissectors.h>
 #include <epan/etypes.h>
 #include <epan/in_cksum.h>
@@ -20,6 +21,7 @@
 #include <epan/llcsaps.h>
 #include "packet-gre.h"
 #include "packet-wccp.h"
+
 #include <epan/decode_as.h>
 
 #define GRE_IN_UDP_PORT 4754

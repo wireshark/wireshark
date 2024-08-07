@@ -20,7 +20,7 @@
 #include <epan/packet.h>
 #include <epan/to_str.h>
 #include <epan/uat.h>
-#include <epan/strutil.h>
+#include <wsutil/array.h>
 #include <wsutil/str_util.h>
 
 #include "packet-gsm_a_common.h"

@@ -23,6 +23,7 @@
 #include <epan/show_exception.h>
 #include <epan/proto_data.h>
 #include <epan/prefs.h>
+#include <wsutil/array.h>
 
 #include <wsutil/str_util.h>
 #include <wsutil/epochs.h>

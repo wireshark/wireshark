@@ -5905,7 +5905,6 @@ def produce_code():
 #include "config.h"
 
 #include <string.h>
-#include <glib.h>
 #include <epan/packet.h>
 #include <epan/dfilter/dfilter.h>
 #include <epan/exceptions.h>
@@ -5917,6 +5916,7 @@ def produce_code():
 #include <epan/reassemble.h>
 #include <epan/tap.h>
 #include <epan/proto_data.h>
+#include <wsutil/array.h>
 #include "packet-ncp-int.h"
 #include "packet-ncp-nmas.h"
 #include "packet-ncp-sss.h"

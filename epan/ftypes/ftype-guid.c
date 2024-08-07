@@ -14,6 +14,7 @@
 #include <ftypes-int.h>
 #include <epan/guid-utils.h>
 #include <epan/to_str.h>
+#include <wsutil/array.h>
 
 static void
 guid_fvalue_set_guid(fvalue_t *fv, const e_guid_t *value)

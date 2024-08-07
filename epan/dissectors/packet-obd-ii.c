@@ -14,6 +14,7 @@
 
 #include <epan/packet.h>
 #include <epan/proto.h>
+#include <epan/unit_strings.h>
 #include <expert.h>
 
 #include <wsutil/utf8_entities.h>

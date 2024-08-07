@@ -25,6 +25,7 @@
 #include <epan/addr_resolv.h>
 #include <epan/tap.h>
 #include <epan/srt_table.h>
+#include <epan/tfs.h>
 #include <proto.h>
 #include <unit_strings.h>
 
@@ -36,7 +37,6 @@
 #include "packet-ranap.h"
 #include "packet-bssgp.h"
 #include "packet-ngap.h"
-#include "packet-ntp.h"
 #include "packet-gtpv2.h"
 #include "packet-radius.h"
 #include "packet-diameter.h"

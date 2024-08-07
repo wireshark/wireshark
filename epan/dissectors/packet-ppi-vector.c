@@ -21,6 +21,7 @@
 
 #include <epan/packet.h>
 #include <epan/expert.h>
+#include <epan/unit_strings.h>
 #include "packet-ppi-geolocation-common.h"
 
 enum ppi_vector_type {

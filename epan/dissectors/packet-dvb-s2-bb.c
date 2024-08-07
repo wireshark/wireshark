@@ -49,7 +49,7 @@
 #include <epan/expert.h>
 #include <epan/reassemble.h>
 #include <epan/conversation.h>
-#include <epan/proto_data.h>
+#include <epan/tfs.h>
 #include <epan/stream.h>
 #include <wsutil/bits_count_ones.h>
 #include <wsutil/str_util.h>

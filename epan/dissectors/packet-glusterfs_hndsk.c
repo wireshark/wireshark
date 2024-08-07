@@ -22,6 +22,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/tfs.h>
 
 #include "packet-rpc.h"
 #include "packet-gluster.h"

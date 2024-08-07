@@ -17,6 +17,8 @@
 #include <epan/oids.h>
 #include <epan/asn1.h>
 
+#include <wsutil/array.h>
+
 #include "packet-ber.h"
 #include "packet-isup.h"
 #include "packet-q931.h"

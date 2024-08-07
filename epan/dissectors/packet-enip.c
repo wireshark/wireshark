@@ -35,6 +35,7 @@
 #include <epan/expert.h>
 #include <epan/decode_as.h>
 #include <epan/proto_data.h>
+#include <epan/tfs.h>
 #include <ipproto.h>
 
 #include "packet-tcp.h"

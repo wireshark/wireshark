@@ -15,11 +15,12 @@
 #include "config.h"
 
 #include <epan/packet.h>
-#include <epan/prefs.h>
+#include <epan/tfs.h>
 #include <epan/expert.h>
 #include <epan/exceptions.h>
 #include <epan/show_exception.h>
 
+#include <wsutil/array.h>
 #include "packet-gsm_a_common.h"
 #include "packet-e212.h"
 

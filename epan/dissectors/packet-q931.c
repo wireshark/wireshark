@@ -14,6 +14,8 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/tfs.h>
+#include <epan/unit_strings.h>
 #include <epan/tap.h>
 #include <epan/nlpid.h>
 #include "packet-q931.h"

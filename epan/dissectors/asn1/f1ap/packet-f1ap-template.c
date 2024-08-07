@@ -21,6 +21,7 @@
 #include <epan/stats_tree.h>
 #include <epan/tfs.h>
 #include <epan/unit_strings.h>
+#include <wsutil/array.h>
 
 #include "packet-per.h"
 #include "packet-f1ap.h"

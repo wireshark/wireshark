@@ -12,6 +12,7 @@
 #include <epan/packet.h>
 #include <epan/oids.h>
 #include <epan/asn1.h>
+#include <wsutil/array.h>
 
 #include "packet-nist-csor.h"
 #include "packet-ber.h"

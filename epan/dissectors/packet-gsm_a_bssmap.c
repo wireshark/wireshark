@@ -30,6 +30,7 @@
 #include <epan/tap.h>
 #include <epan/expert.h>
 #include <epan/asn1.h>
+#include <epan/tfs.h>
 
 #include <wsutil/str_util.h>
 #include <wsutil/array.h>

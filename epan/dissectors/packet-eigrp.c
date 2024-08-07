@@ -18,6 +18,7 @@
 #include <epan/addr_resolv.h>
 #include <epan/ipproto.h>
 #include <epan/expert.h>
+#include <epan/tfs.h>
 
 #include "packet-eigrp.h"
 #include "packet-ipx.h"

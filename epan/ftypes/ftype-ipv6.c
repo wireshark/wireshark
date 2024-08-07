@@ -8,13 +8,12 @@
 
 #include "config.h"
 
-#include <string.h>
-
 #include <ftypes-int.h>
 #include <epan/addr_resolv.h>
 #include <epan/to_str.h>
 #include <wsutil/inet_cidr.h>
 #include <wsutil/strtoi.h>
+#include <wsutil/array.h>
 
 static bool
 ipv6_from_literal(fvalue_t *fv, const char *s, bool allow_partial_value _U_, char **err_msg)

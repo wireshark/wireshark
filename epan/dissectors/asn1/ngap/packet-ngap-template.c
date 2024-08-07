@@ -28,6 +28,7 @@
 #include <epan/tap.h>
 #include <epan/stats_tree.h>
 #include <wsutil/wsjson.h>
+#include <wsutil/array.h>
 
 #include "packet-ngap.h"
 #include "packet-per.h"

@@ -15,8 +15,8 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/expert.h>
+#include <epan/unit_strings.h>
 #include <ftypes/ftypes.h>
-#include <glibconfig.h>
 #include <proto.h>
 #include <stdint.h>
 

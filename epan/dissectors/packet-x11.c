@@ -47,6 +47,7 @@
 #include "packet-x11-keysymdef.h"
 #include "packet-x11.h"
 
+#include <wsutil/array.h>
 #include <wsutil/bits_count_ones.h>
 
 void proto_register_x11(void);

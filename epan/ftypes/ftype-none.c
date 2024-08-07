@@ -9,7 +9,7 @@
 #include "config.h"
 
 #include <ftypes-int.h>
-
+#include <wsutil/array.h>
 
 void
 ftype_register_none(void)

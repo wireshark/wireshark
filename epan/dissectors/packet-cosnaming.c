@@ -25,6 +25,7 @@
 #include <epan/proto.h>
 #include "packet-giop.h"
 #include <epan/expert.h>
+#include <wsutil/array.h>
 
 #include "ws_diag_control.h"
 #include "ws_compiler_tests.h"

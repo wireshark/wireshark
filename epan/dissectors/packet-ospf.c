@@ -60,11 +60,13 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/tfs.h>
 #include <epan/capture_dissectors.h>
 #include <epan/ipproto.h>
 #include <epan/in_cksum.h>
 #include <epan/expert.h>
 #include <epan/addr_resolv.h>
+#include <epan/unit_strings.h>
 #include <wsutil/ws_roundup.h>
 #include "packet-rsvp.h"
 

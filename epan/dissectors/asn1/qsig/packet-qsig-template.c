@@ -16,6 +16,7 @@
 #include <epan/strutil.h>
 #include <epan/asn1.h>
 #include <wsutil/strtoi.h>
+#include <wsutil/array.h>
 
 #include "packet-ber.h"
 #include "packet-qsig.h"

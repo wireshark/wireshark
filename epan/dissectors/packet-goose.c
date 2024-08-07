@@ -24,6 +24,7 @@
 #include <epan/proto_data.h>
 #include <epan/etypes.h>
 #include <epan/expert.h>
+#include <wsutil/array.h>
 
 #include "packet-ber.h"
 #include "packet-acse.h"

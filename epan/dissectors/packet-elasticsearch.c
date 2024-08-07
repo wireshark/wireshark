@@ -12,6 +12,7 @@
 
 #include <epan/packet.h>
 #include <epan/expert.h>
+#include <epan/tfs.h>
 #include "packet-tcp.h"
 
 #define ELASTICSEARCH_DISCOVERY_PORT 54328 /* Not IANA registered */

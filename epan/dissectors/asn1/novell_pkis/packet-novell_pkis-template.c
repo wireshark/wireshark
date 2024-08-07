@@ -15,6 +15,7 @@
 #include <epan/oids.h>
 #include <epan/conversation.h>
 #include <epan/asn1.h>
+#include <wsutil/array.h>
 
 #include "packet-per.h"
 #include "packet-ber.h"

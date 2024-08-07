@@ -14,6 +14,7 @@
 #include <epan/etypes.h>
 #include <epan/eapol_keydes_types.h>
 #include <epan/proto_data.h>
+#include <epan/tfs.h>
 
 #include "packet-eapol.h"
 

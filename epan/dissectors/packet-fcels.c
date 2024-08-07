@@ -17,7 +17,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
-#include <epan/to_str.h>
+#include <epan/tfs.h>
 #include <epan/expert.h>
 #include "packet-fc.h"
 #include "packet-fcels.h"

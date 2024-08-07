@@ -51,6 +51,7 @@
 #include <epan/to_str.h>
 #include <epan/strutil.h>
 #include <epan/afn.h>
+#include <epan/tfs.h>
 #include <wsutil/filesystem.h>
 #include <wsutil/report_message.h>
 #include "packet-tcp.h"

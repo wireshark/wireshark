@@ -17,6 +17,7 @@
 #include <wiretap/wtap.h>
 #include <epan/expert.h>
 #include <epan/uat.h>
+#include <epan/tfs.h>
 
 #include "packet-flexray.h"
 

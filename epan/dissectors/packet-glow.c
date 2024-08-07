@@ -19,6 +19,7 @@
 
 #include <epan/packet.h>
 #include <epan/proto_data.h>
+#include <wsutil/array.h>
 #include "packet-ber.h"
 
 #define PNAME  "Glow"

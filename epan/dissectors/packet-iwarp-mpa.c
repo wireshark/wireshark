@@ -15,6 +15,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/unit_strings.h>
 #include <epan/expert.h>
 #include <epan/crc32-tvb.h>
 #include <wsutil/crc32.h>

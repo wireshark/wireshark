@@ -22,7 +22,10 @@
 #include <epan/exceptions.h>
 #include <epan/show_exception.h>
 #include <epan/to_str.h>
+#include <epan/tfs.h>
+#include <epan/unit_strings.h>
 
+#include <wsutil/array.h>
 #include <wsutil/pow2.h>
 #include <wsutil/pint.h>
 #include <wsutil/wsjson.h>

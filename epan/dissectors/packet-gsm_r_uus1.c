@@ -28,9 +28,8 @@
 
 #include <epan/packet.h>
 #include <epan/expert.h>
-#include <epan/tap.h>
+#include <epan/tfs.h>
 #include <epan/prefs.h>
-#include <epan/strutil.h>
 
 /* forward reference */
 void proto_register_gsm_r_uus1(void);

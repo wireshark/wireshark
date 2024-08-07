@@ -15,6 +15,7 @@
 
 #include <epan/packet.h>
 #include <epan/aftypes.h>
+#include <epan/tfs.h>
 
 /* function declarations */
 void proto_register_dplay(void);

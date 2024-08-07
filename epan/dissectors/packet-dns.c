@@ -71,7 +71,7 @@
 #include <epan/afn.h>
 #include <epan/tap.h>
 #include <epan/stats_tree.h>
-#include <wsutil/utf8_entities.h>
+#include <epan/tfs.h>
 #include "packet-tls.h"
 #include "packet-dtls.h"
 #include "packet-http2.h"

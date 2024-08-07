@@ -13,6 +13,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/tfs.h>
 
 void proto_register_ehs(void);
 void proto_reg_handoff_ehs(void);

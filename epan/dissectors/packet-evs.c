@@ -17,6 +17,7 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/proto_data.h>
+#include <epan/tfs.h>
 #include <wsutil/str_util.h>
 #include <wsutil/utf8_entities.h>
 #include "packet-rtp.h"

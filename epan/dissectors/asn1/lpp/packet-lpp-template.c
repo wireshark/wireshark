@@ -20,6 +20,7 @@
 #include <epan/asn1.h>
 #include <epan/tfs.h>
 #include <epan/proto_data.h>
+#include <wsutil/array.h>
 
 #include "packet-per.h"
 #include "packet-lpp.h"

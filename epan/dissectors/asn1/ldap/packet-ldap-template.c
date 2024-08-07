@@ -85,6 +85,7 @@
 #include <epan/uat.h>
 #include <epan/charsets.h>
 #include <wsutil/str_util.h>
+#include <wsutil/array.h>
 #include "packet-frame.h"
 #include "packet-tcp.h"
 #include "packet-windows-common.h"

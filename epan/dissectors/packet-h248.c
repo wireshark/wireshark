@@ -27,6 +27,7 @@
 #include <epan/prefs.h>
 #include <epan/exported_pdu.h>
 #include <epan/address_types.h>
+#include <wsutil/array.h>
 #include "packet-alcap.h"
 #include "packet-ber.h"
 #include "packet-tpkt.h"

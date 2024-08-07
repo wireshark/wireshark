@@ -15,6 +15,7 @@
 #include <epan/asn1.h>
 #include <epan/tap.h>
 #include <epan/exported_pdu.h>
+#include <wsutil/array.h>
 
 #include "packet-ber.h"
 #include "packet-gssapi.h"

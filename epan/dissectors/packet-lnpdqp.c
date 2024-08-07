@@ -16,6 +16,7 @@
 #include <epan/packet.h>
 
 #include <epan/asn1.h>
+#include <wsutil/array.h>
 #include "packet-ber.h"
 
 #define PNAME  "Local Number Portability Database Query"

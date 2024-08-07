@@ -37,10 +37,8 @@
 #include <epan/etypes.h>
 #include <epan/decode_as.h>
 #include <epan/in_cksum.h>
-
+#include <epan/tfs.h>
 #include <epan/prefs.h>
-
-#include <epan/rtp_pt.h>
 
 void proto_register_flip(void);
 void proto_reg_handoff_flip(void);

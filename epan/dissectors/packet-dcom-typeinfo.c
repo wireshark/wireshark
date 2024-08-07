@@ -14,6 +14,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/tfs.h>
 #include "packet-dcerpc.h"
 #include "packet-dcom.h"
 

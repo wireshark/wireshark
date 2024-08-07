@@ -15,7 +15,7 @@
 
 
 #include <epan/packet.h>
-#include <epan/to_str.h>
+#include <epan/tfs.h>
 #include <epan/reassemble.h>
 #include "packet-tcp.h"
 #include "packet-epmd.h"

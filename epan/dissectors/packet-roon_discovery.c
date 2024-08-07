@@ -20,6 +20,7 @@
 #include <stdlib.h> /* For bsearch() */
 
 #include <epan/packet.h>   /* Should be first Wireshark include (other than config.h) */
+#include <wsutil/array.h>
 
 /* Prototypes */
 /* (Required to prevent [-Wmissing-prototypes] warnings */

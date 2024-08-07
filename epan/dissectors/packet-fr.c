@@ -28,12 +28,10 @@
 #include <epan/expert.h>
 #include <epan/conversation.h>
 #include <epan/arptypes.h>
+#include <epan/tfs.h>
 
 #include "packet-llc.h"
 #include "packet-chdlc.h"
-#include "packet-eth.h"
-#include "packet-ip.h"
-#include "packet-ppp.h"
 #include "packet-juniper.h"
 #include "packet-sflow.h"
 #include "packet-l2tp.h"

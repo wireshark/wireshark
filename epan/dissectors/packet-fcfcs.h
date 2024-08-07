@@ -10,6 +10,8 @@
 #ifndef __PACKET_FCFCS_H_
 #define __PACKET_FCFCS_H_
 
+#include <epan/tfs.h>
+
 #define FCFCS_GTIN       0x100
 #define FCFCS_GIEL       0x101
 #define FCFCS_GIET       0x111

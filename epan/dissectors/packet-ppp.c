@@ -14,7 +14,9 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/tfs.h>
 #include <epan/capture_dissectors.h>
+#include <epan/unit_strings.h>
 #include <wsutil/pint.h>
 #include <wsutil/str_util.h>
 #include <epan/prefs.h>
@@ -22,10 +24,8 @@
 #include <epan/ppptypes.h>
 #include <epan/etypes.h>
 #include <epan/expert.h>
-#include <epan/ip_opts.h>
 #include "packet-chdlc.h"
 #include "packet-ip.h"
-#include "packet-ipx.h"
 #include <epan/nlpid.h>
 #include <epan/crc16-tvb.h>
 #include <epan/crc32-tvb.h>

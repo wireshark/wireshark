@@ -19,6 +19,7 @@
 #include <epan/asn1.h>
 
 #include <wsutil/mpeg-audio.h>
+#include <wsutil/array.h>
 
 #include "packet-per.h"
 

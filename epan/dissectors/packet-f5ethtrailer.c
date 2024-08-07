@@ -196,9 +196,10 @@ Notes:
 #include <epan/proto.h>
 #include <epan/proto_data.h>
 #include <epan/conversation_filter.h>
+#include <epan/tfs.h>
+
 #include "packet-ip.h"
 #include "packet-tcp.h"
-#include <epan/etypes.h>
 #include <epan/to_str.h>
 #include <epan/stats_tree.h>
 #define F5FILEINFOTAP_SRC

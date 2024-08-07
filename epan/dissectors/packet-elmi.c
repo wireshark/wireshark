@@ -19,7 +19,7 @@
 
 #include <epan/packet.h>
 #include <epan/etypes.h>
-
+#include <epan/tfs.h>
 
 static int proto_elmi;
 

@@ -19,6 +19,7 @@
 #include <epan/packet.h>
 #include <epan/expert.h>
 #include <epan/asn1.h>
+#include <epan/tfs.h>
 
 #include "packet-diameter.h"
 #include "packet-diameter_3gpp.h"

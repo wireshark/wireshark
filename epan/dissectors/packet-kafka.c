@@ -18,7 +18,10 @@
 #include <epan/packet.h>
 #include <epan/expert.h>
 #include <epan/prefs.h>
-#include <epan/proto_data.h>
+
+#include <wsutil/array.h>
+
+
 #ifdef HAVE_SNAPPY
 #include <snappy-c.h>
 #endif
@@ -26,6 +29,7 @@
 #include <lz4.h>
 #include <lz4frame.h>
 #endif
+
 #include "packet-tcp.h"
 #include "packet-tls.h"
 

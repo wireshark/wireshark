@@ -20,6 +20,7 @@
 #include <epan/strutil.h>
 #include <epan/asn1.h>
 #include <epan/expert.h>
+#include <wsutil/array.h>
 
 #include "packet-per.h"
 #include "packet-h450-ros.h"

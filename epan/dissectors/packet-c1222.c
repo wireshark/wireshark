@@ -24,6 +24,7 @@
 #include <epan/uat.h>
 #include <epan/oids.h>
 #include <wsutil/eax.h>
+#include <wsutil/array.h>
 #include "packet-ber.h"
 #include "packet-tcp.h"
 #include "packet-c1222.h"

@@ -8,13 +8,12 @@
 
 #include "config.h"
 
-#include <stdio.h>
 #include <ftypes-int.h>
 #include <string.h>
 
 #include <strutil.h>
 #include <wsutil/ws_assert.h>
-#include <wsutil/unicode-utils.h>
+#include <wsutil/array.h>
 #include <wsutil/strtoi.h>
 
 

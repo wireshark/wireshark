@@ -22,7 +22,7 @@
 #include <stdlib.h>
 
 #include <epan/packet.h>
-
+#include <epan/tfs.h>
 
 void proto_register_gmr1_rach(void);
 

@@ -27,6 +27,7 @@
 #include <epan/packet.h>
 #include <epan/exceptions.h>
 #include <epan/conversation.h>
+#include <wsutil/array.h>
 #include "packet-ber.h"
 #include "packet-per.h"
 #include "packet-atn-ulcs.h"

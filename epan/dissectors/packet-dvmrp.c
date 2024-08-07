@@ -42,6 +42,7 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/expert.h>
+#include <epan/tfs.h>
 #include "packet-igmp.h"
 
 void proto_register_dvmrp(void);

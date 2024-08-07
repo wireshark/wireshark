@@ -44,7 +44,7 @@
 #include <epan/prefs.h>
 #include <epan/reassemble.h>
 #include <epan/addr_resolv.h>
-#include <epan/exceptions.h>
+#include <epan/tfs.h>
 #include <epan/crc16-tvb.h>
 #include <epan/crc32-tvb.h>
 

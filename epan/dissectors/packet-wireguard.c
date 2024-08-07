@@ -30,6 +30,7 @@
 #include <wsutil/wsgcrypt.h>
 #include <wsutil/curve25519.h>
 #include <wsutil/wslog.h>
+#include <wsutil/array.h>
 #include <epan/secrets.h>
 #include <wiretap/secrets-types.h>
 

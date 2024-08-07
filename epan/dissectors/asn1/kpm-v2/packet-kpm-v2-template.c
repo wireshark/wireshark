@@ -15,6 +15,7 @@
 #include <epan/packet.h>
 #include <epan/strutil.h>
 #include <epan/asn1.h>
+#include <wsutil/array.h>
 
 #include "packet-e2ap.h"
 #include "packet-per.h"

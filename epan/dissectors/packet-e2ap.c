@@ -30,6 +30,7 @@
 #include <epan/oids.h>
 #include <epan/tap.h>
 #include <epan/stats_tree.h>
+#include <wsutil/array.h>
 
 #include "packet-e2ap.h"
 #include "packet-per.h"

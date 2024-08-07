@@ -28,8 +28,11 @@
 #include <epan/addr_resolv.h> /* Needed for BASE_ENTERPRISES */
 #include <epan/tap.h>
 #include <epan/srt_table.h>
+#include <epan/tfs.h>
+#include <epan/unit_strings.h>
 #include <proto.h>
 #include <tvbuff.h>
+#include <wsutil/array.h>
 #include "packet-e164.h"
 #include "packet-e212.h"
 #include "packet-ip.h"

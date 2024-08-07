@@ -19,6 +19,7 @@
 
 #include <epan/packet.h>
 #include <epan/expert.h>
+#include <epan/tfs.h>
 
 #include <epan/addr_resolv.h>
 #include <epan/crc8-tvb.h>

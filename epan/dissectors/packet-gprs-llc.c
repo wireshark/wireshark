@@ -14,6 +14,7 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/expert.h>
+#include <epan/tfs.h>
 #include <wiretap/wtap.h>
 
 void proto_register_llcgprs(void);

@@ -24,7 +24,7 @@
 
 #include <epan/packet.h>   /* Should be first Wireshark include (other than config.h) */
 #include <epan/expert.h>
-#include <epan/prefs.h>
+#include <epan/tfs.h>
 #include <epan/crc16-tvb.h>
 #include <epan/crc32-tvb.h>
 #include <epan/decode_as.h>

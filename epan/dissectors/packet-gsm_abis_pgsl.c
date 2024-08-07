@@ -17,6 +17,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/tfs.h>
 #include <epan/prefs.h>
 
 #include "packet-gsm_rlcmac.h"

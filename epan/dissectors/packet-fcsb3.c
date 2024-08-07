@@ -13,6 +13,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/tfs.h>
 #include "packet-fc.h"
 #include "packet-fcsb3.h"
 

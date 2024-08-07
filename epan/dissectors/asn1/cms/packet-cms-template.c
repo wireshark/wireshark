@@ -18,6 +18,7 @@
 #include <epan/asn1.h>
 #include <epan/proto_data.h>
 #include <wsutil/wsgcrypt.h>
+#include <wsutil/array.h>
 
 #include "packet-ber.h"
 #include "packet-cms.h"

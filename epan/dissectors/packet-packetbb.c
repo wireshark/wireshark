@@ -18,6 +18,7 @@
 #include <epan/packet.h>
 #include <epan/expert.h>
 #include <epan/to_str.h>
+#include <wsutil/array.h>
 
 void proto_reg_handoff_packetbb(void);
 void proto_register_packetbb(void);

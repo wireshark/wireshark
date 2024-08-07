@@ -9,10 +9,9 @@
 #include "config.h"
 
 #include <ftypes-int.h>
-#include <epan/strutil.h>
 #include <epan/to_str.h>
 #include <string.h>
-#include <wsutil/glib-compat.h>
+#include <wsutil/array.h>
 
 #include <epan/exceptions.h>
 #include <wsutil/ws_assert.h>

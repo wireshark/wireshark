@@ -102,6 +102,7 @@ which ATN standard is supported ?
 #include <epan/packet.h>
 #include <epan/address.h>
 #include <epan/conversation.h>
+#include <wsutil/array.h>
 #include <epan/osi-utils.h>
 #include "packet-ber.h"
 #include "packet-per.h"

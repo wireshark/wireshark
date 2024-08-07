@@ -18,7 +18,7 @@
 
 #include <epan/packet.h>
 #include <epan/xdlc.h>
-#include "packet-l2tp.h"
+#include <epan/tfs.h>
 
 void proto_register_ehdlc(void);
 void proto_reg_handoff_ehdlc(void);

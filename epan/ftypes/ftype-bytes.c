@@ -10,13 +10,13 @@
 
 #include <ftypes-int.h>
 #include <string.h>
-#include <errno.h>
 #include <stdlib.h>
 #include <epan/addr_resolv.h>
 #include <epan/strutil.h>
 #include <epan/oids.h>
 #include <epan/osi-utils.h>
 #include <epan/to_str.h>
+#include <wsutil/array.h>
 
 static void
 bytes_fvalue_new(fvalue_t *fv)

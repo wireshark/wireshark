@@ -29,6 +29,7 @@
 #include <epan/tap.h>
 #include <epan/expert.h>
 #include <epan/asn1.h>
+#include <epan/tfs.h>
 #include "packet-dvbci.h"
 #include "packet-mpeg-descriptor.h"
 #include "packet-mpeg-sect.h"

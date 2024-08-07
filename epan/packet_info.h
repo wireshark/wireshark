@@ -12,7 +12,6 @@
 #define __PACKET_INFO_H__
 
 #include "frame_data.h"
-#include "tvbuff.h"
 #include "address.h"
 
 struct conversation_element;

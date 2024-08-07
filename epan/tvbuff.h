@@ -24,11 +24,9 @@
 #include <ws_symbol_export.h>
 #include <ws_attributes.h>
 
-#include <ws_attributes.h>
 #include <epan/guid-utils.h>
-#include <epan/wmem_scopes.h>
 
-#include <wsutil/inet_cidr.h>
+#include <wsutil/inet_addr.h>
 #include <wsutil/nstime.h>
 #include "wsutil/ws_mempbrk.h"
 

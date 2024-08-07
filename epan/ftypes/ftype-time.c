@@ -12,14 +12,13 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 #include <math.h>
 
 #include <epan/to_str.h>
 #include <wsutil/time_util.h>
 #include <wsutil/ws_strptime.h>
 #include <wsutil/safe-math.h>
-
+#include <wsutil/array.h>
 
 static enum ft_result
 cmp_order(const fvalue_t *a, const fvalue_t *b, int *cmp)

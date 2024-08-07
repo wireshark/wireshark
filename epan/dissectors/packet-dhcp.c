@@ -140,6 +140,7 @@
 #include <epan/expert.h>
 #include <epan/uat.h>
 #include <epan/sminmpec.h>
+#include <epan/tfs.h>
 #include <wsutil/str_util.h>
 #include <wsutil/strtoi.h>
 #include <wsutil/array.h>

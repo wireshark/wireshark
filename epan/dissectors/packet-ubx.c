@@ -16,6 +16,7 @@
 #include <epan/expert.h>
 #include <epan/packet.h>
 #include <epan/unit_strings.h>
+#include <wsutil/array.h>
 #include <wsutil/utf8_entities.h>
 #include <wsutil/pint.h>
 

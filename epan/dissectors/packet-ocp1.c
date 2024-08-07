@@ -14,6 +14,7 @@
 #include <epan/packet.h>
 #include <epan/expert.h>
 #include <epan/conversation.h>
+#include <epan/unit_strings.h>
 #include "packet-tcp.h"
 
 #define OCP1_SYNC_VAL                0x3B

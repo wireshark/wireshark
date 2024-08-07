@@ -26,6 +26,7 @@
 #include <epan/strutil.h>
 
 #include <wsutil/str_util.h>
+#include <wsutil/array.h>
 
 #include "packet-tcp.h"
 

@@ -31,6 +31,7 @@
 #include <epan/expert.h>
 #include <wiretap/wtap.h>
 #include <wsutil/strtoi.h>
+#include <wsutil/array.h>
 
 #include "packet-syslog.h"
 

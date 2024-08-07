@@ -39,6 +39,7 @@
 #include <epan/etypes.h>
 #include <epan/expert.h>
 #include <epan/ppptypes.h>
+#include <epan/tfs.h>
 
 typedef enum {
     RT_CTL_INITIALIZATION,

@@ -15,8 +15,8 @@
 #include "config.h"
 
 #include <epan/packet.h>
-#include <epan/charsets.h>
 #include <epan/conversation.h>
+#include <epan/tfs.h>
 
 #include "packet-e212.h"
 #include "packet-gsm_a_common.h"

@@ -12,11 +12,12 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/tfs.h>
+#include <epan/unit_strings.h>
 #include <epan/oui.h>
 #include <epan/nlpid.h>
 #include <epan/etypes.h>
 #include <epan/expert.h>
-#include <wsutil/str_util.h>
 #include "packet-q931.h"
 #include "packet-arp.h"
 

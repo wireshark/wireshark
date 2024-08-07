@@ -16,12 +16,12 @@
 #include "config.h"
 
 #include <epan/packet.h>
-#include <epan/exceptions.h>
+#include <epan/tfs.h>
 #include <epan/expert.h>
 #include <epan/reassemble.h>
-#include <epan/wmem_scopes.h>
-
+#include <unit_strings.h>
 #include <ptvcursor.h>
+#include <wsutil/array.h>
 
 void proto_register_nfapi(void);
 void proto_reg_handoff_nfapi(void);

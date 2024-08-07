@@ -21,6 +21,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/tfs.h>
 #include "packet-link16.h"
 
 #define DEFAULT_DIS_UDP_PORT 3000 /* Not IANA registered */

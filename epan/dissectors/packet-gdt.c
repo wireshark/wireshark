@@ -19,6 +19,7 @@
 
 #include <epan/packet.h>
 #include <epan/sctpppids.h>
+#include <wsutil/array.h>
 
 #include "packet-ber.h"
 #include "packet-gdt.h"

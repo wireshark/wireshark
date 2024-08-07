@@ -60,6 +60,7 @@
 #include <epan/expert.h>
 #include <epan/iana_charsets.h>
 #include <epan/proto_data.h>
+#include <epan/tfs.h>
 #include "packet-tcp.h"
 
 void proto_register_drda(void);

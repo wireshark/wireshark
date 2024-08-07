@@ -12,10 +12,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
-#include <epan/prefs.h>
-#include <epan/xdlc.h>
-#include <epan/reassemble.h>
-#include <epan/conversation.h>
+#include <epan/tfs.h>
 
 void proto_register_gsm_l2rcop(void);
 

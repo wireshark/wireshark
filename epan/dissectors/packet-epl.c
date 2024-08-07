@@ -69,6 +69,7 @@
 #include <epan/proto_data.h>
 #include <epan/strutil.h>
 #include <epan/uat.h>
+#include <epan/tfs.h>
 #include <wsutil/strtoi.h>
 #include <wsutil/file_util.h>
 #include <wsutil/report_message.h>

@@ -54,12 +54,11 @@
 
 #include "config.h"
 
-#include <string.h>
-
 #include <epan/packet.h>
-#include <epan/exceptions.h>
 #include <epan/addr_resolv.h>
 #include <epan/expert.h>
+#include <epan/tfs.h>
+
 #include <epan/prefs.h>
 #include "packet-dcerpc.h"
 #include "packet-dcom.h"

@@ -15,6 +15,8 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/tfs.h>
+#include <epan/unit_strings.h>
 #include <epan/asn1.h>
 #include <epan/prefs.h>
 #include <epan/expert.h>
@@ -22,6 +24,7 @@
 #include <epan/show_exception.h>
 #include <epan/to_str.h>
 #include <epan/proto_data.h>
+#include <wsutil/array.h>
 #include <wsutil/pow2.h>
 #include <wsutil/pint.h>
 #include "packet-gsm_map.h"

@@ -267,22 +267,19 @@
 #include "config.h"
 
 #include <errno.h>
-#include <math.h>
 
 #include <epan/packet.h>
-#include <epan/exceptions.h>
 #include <epan/prefs.h>
 #include <epan/expert.h>
 #include <epan/proto_data.h>
-#include <epan/strutil.h>
 #include <epan/reassemble.h>
 #include <epan/tap.h>
 #include <epan/conversation.h>
+#include <epan/tfs.h>
 #include <wsutil/file_util.h>
 #include <wsutil/str_util.h>
 #include <wsutil/pint.h>
 #include <wsutil/report_message.h>
-#include <epan/ws_printf.h>
 
 #include "packet-giop.h"
 #include "packet-ziop.h"

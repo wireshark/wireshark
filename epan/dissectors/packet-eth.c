@@ -21,6 +21,7 @@
 #include <epan/conversation_filter.h>
 #include <epan/capture_dissectors.h>
 #include <epan/exported_pdu.h>
+#include <epan/tfs.h>
 #include <wsutil/pint.h>
 #include "packet-eth.h"
 #include "packet-gre.h"

@@ -15,10 +15,7 @@
 #include <ftypes-int.h>
 #include <inttypes.h>
 #include <stdio.h>
-#include <math.h>
-#include <float.h>
-
-#include "strutil.h"
+#include <wsutil/array.h>
 
 #define DOUBLE_REPR_LENGTH  27
 

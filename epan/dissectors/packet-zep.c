@@ -33,6 +33,8 @@
 
 
 #include <epan/packet.h>
+#include <epan/tfs.h>
+#include <wsutil/array.h>
 
 /*  Function declarations */
 void proto_reg_handoff_zep(void);

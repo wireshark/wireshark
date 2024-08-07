@@ -12,6 +12,7 @@
 
 #include <epan/packet.h>
 #include <epan/prefs.h>
+#include <epan/tfs.h>
 #include "packet-fmp.h"
 #include "packet-rpc.h"
 

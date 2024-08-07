@@ -31,6 +31,7 @@
 #include <epan/proto_data.h>
 #include <epan/tap.h>
 #include <wsutil/pint.h>
+#include <wsutil/array.h>
 #include "packet-tpkt.h"
 #include "packet-per.h"
 #include "packet-h323.h"

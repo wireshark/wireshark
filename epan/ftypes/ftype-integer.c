@@ -9,14 +9,13 @@
 #include "config.h"
 
 #include <stdlib.h>
-#include <errno.h>
 #include "ftypes-int.h"
 #include <epan/addr_resolv.h>
 #include <epan/strutil.h>
 #include <epan/to_str.h>
 
-#include <wsutil/pint.h>
 #include <wsutil/safe-math.h>
+#include <wsutil/array.h>
 
 static void
 int_fvalue_new(fvalue_t *fv)

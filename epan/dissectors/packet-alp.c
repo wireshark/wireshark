@@ -18,6 +18,7 @@
 #include <epan/packet.h>
 #include <epan/to_str.h>
 #include <epan/unit_strings.h>
+#include <wsutil/array.h>
 #include <wiretap/wtap.h>
 
 void proto_reg_handoff_alp(void);

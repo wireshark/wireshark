@@ -14,9 +14,8 @@
 #include "config.h"
 
 #include <epan/packet.h>
-#include <epan/exceptions.h>
 #include <epan/prefs.h>
-#include <epan/to_str.h>
+#include <epan/tfs.h>
 #include <wiretap/wtap.h>
 #include <epan/reassemble.h>
 #include <epan/conversation_table.h>

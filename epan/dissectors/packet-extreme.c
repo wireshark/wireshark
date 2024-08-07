@@ -133,6 +133,7 @@ These are the structures you will see most often in EDP frames.
 #include <epan/to_str.h>
 #include <epan/strutil.h>
 #include <epan/in_cksum.h>
+#include <epan/tfs.h>
 #include "packet-llc.h"
 #include <epan/oui.h>
 

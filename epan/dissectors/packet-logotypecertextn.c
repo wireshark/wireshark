@@ -17,6 +17,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <wsutil/array.h>
 
 #include "packet-ber.h"
 #include "packet-logotypecertextn.h"

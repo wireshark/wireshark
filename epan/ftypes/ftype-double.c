@@ -8,13 +8,9 @@
 
 #include "config.h"
 
-#include <stdio.h>
 #include <ftypes-int.h>
-#include <math.h>
-#include <errno.h>
 #include <float.h>
-
-#include "strutil.h"
+#include <wsutil/array.h>
 
 static void
 double_fvalue_new(fvalue_t *fv)
