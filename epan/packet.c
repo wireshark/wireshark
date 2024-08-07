@@ -2541,6 +2541,7 @@ dissector_all_tables_foreach_func (void *key, void *value, void *user_data)
 	g_hash_table_foreach(sub_dissectors->hash_table, info->next_func, info);
 }
 
+#if 0
 /*
  * Walk all dissector tables calling a user supplied function on each
  * entry.
@@ -2556,6 +2557,7 @@ dissector_all_tables_foreach (DATFunc func,
 	info.next_func   = dissector_table_foreach_func;
 	g_hash_table_foreach(dissector_tables, dissector_all_tables_foreach_func, &info);
 }
+#endif
 
 /*
  * Walk one dissector table's hash table calling a user supplied function
@@ -3826,17 +3828,25 @@ depend_dissector_list_t find_depend_dissector_list(const char* name)
  * There is one record per line. The fields are tab-delimited.
  *
  * Field 1 = layer type, e.g. "tcp.port"
- * Field 2 = selector in decimal
+ * Field 2 = selector - decimal for integer tables, strings for string tables,
+ *           blank for payload tables. Custom and GUID tables aren't shown.
+ *           (XXX - Should integer tables respect the table base, e.g. use hex?)
  * Field 3 = "decode as" name, e.g. "http"
+ *
+ * XXX - View -> Internals -> Dissector Tables in the GUI includes the UI name,
+ * and separates tables by category. We could add fields for the the UI name
+ * and category.
+ *
+ * The GUI doesn't display FT_NONE (it should) nor FT_GUID tables, but does
+ * FT_BYTES (Custom) tables with the handle description name as key.
+ * That may or may not be helpful.
  */
 
 
 static void
 dissector_dump_decodes_display(const char *table_name,
-			       ftenum_t selector_type _U_, void *key, void *value,
-			       void *user_data _U_)
+			       ftenum_t selector_type _U_, void *key, void *value)
 {
-	uint32_t            selector       = GPOINTER_TO_UINT (key);
 	dissector_table_t   sub_dissectors = find_dissector_table(table_name);
 	dtbl_entry_t       *dtbl_entry;
 	dissector_handle_t  handle;
@@ -3844,36 +3854,111 @@ dissector_dump_decodes_display(const char *table_name,
 	const char         *decode_as;
 
 	ws_assert(sub_dissectors);
-	switch (sub_dissectors->type) {
 
+	dtbl_entry = (dtbl_entry_t *)value;
+	ws_assert(dtbl_entry);
+
+	handle   = dtbl_entry->current;
+	ws_assert(handle);
+
+	proto_id = dissector_handle_get_protocol_index(handle);
+
+	if (proto_id != -1) {
+		decode_as = proto_get_protocol_filter_name(proto_id);
+		ws_assert(decode_as != NULL);
+		switch (sub_dissectors->type) {
+			case FT_UINT8:
+			case FT_UINT16:
+			case FT_UINT24:
+			case FT_UINT32:
+				printf("%s\t%u\t%s\n", table_name, GPOINTER_TO_UINT(key), decode_as);
+				break;
+
+			case FT_STRING:
+				printf("%s\t%s\t%s\n", table_name, (char*)key, decode_as);
+				break;
+
+			case FT_NONE:
+				printf("%s\t\t%s\n", table_name, decode_as);
+				break;
+
+			case FT_GUID:
+				// We could output something here with the guid_key
+				break;
+
+			case FT_BYTES:
+				// View->Internals->Dissector Tables uses the description,
+				// but that doesn't tell anything about how the table is
+				// configured. (This isn't a list of all possible handles.)
+				// Is it useful to output?
+				break;
+
+			default:
+				break;
+		}
+	}
+}
+
+static int compare_ints(const void *a, const void *b)
+{
+	uint32_t inta, intb;
+
+	inta = GPOINTER_TO_UINT(a);
+	intb = GPOINTER_TO_UINT(b);
+
+	if (inta < intb)
+		return -1;
+	if (inta > intb)
+		return 1;
+	return 0;
+}
+
+static void
+dissector_dump_table_decodes(const char *table_name, const char *ui_name _U_, void *user_data _U_)
+{
+	dissector_table_t   sub_dissectors = find_dissector_table(table_name);
+	GList *keys;
+
+	ws_assert(sub_dissectors);
+	keys = g_hash_table_get_keys(sub_dissectors->hash_table);
+
+	switch (sub_dissectors->type) {
 		case FT_UINT8:
 		case FT_UINT16:
 		case FT_UINT24:
 		case FT_UINT32:
-			dtbl_entry = (dtbl_entry_t *)value;
-			ws_assert(dtbl_entry);
-
-			handle   = dtbl_entry->current;
-			ws_assert(handle);
-
-			proto_id = dissector_handle_get_protocol_index(handle);
-
-			if (proto_id != -1) {
-				decode_as = proto_get_protocol_filter_name(proto_id);
-				ws_assert(decode_as != NULL);
-				printf("%s\t%u\t%s\n", table_name, selector, decode_as);
-			}
+			keys = g_list_sort(keys, compare_ints);
 			break;
 
-	default:
-		break;
+		case FT_STRING:
+		case FT_STRINGZ:
+		case FT_UINT_STRING:
+		case FT_STRINGZPAD:
+		case FT_STRINGZTRUNC:
+			keys = g_list_sort(keys, (GCompareFunc)strcmp);
+			break;
+
+		/* FT_NONE we don't need to sort. We could do something for
+		 * FT_GUID and FT_BYTES (Custom) if we were to output them,
+		 * possibly with g_list_sort_with_data.
+		 */
+		default:
+			break;
 	}
+
+	for (GList *entry = g_list_first(keys); entry; entry = entry->next) {
+		void *key = entry->data;
+		void *value = g_hash_table_lookup(sub_dissectors->hash_table, key);
+		dissector_dump_decodes_display(table_name, sub_dissectors->type, key, value);
+	}
+
+	g_list_free(keys);
 }
 
 void
 dissector_dump_decodes(void)
 {
-	dissector_all_tables_foreach(dissector_dump_decodes_display, NULL);
+	dissector_all_tables_foreach_table(dissector_dump_table_decodes, NULL, (GCompareFunc)strcmp);
 }
 
 /*
