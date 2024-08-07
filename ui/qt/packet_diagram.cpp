@@ -371,6 +371,8 @@ void PacketDiagram::setRootNode(proto_node *root_node)
     // useful in our case because it gives us a cheap way to retain our
     // scroll position between packets.
     scene()->clear();
+    viewport()->update();
+
     selected_field_ = nullptr;
     y_pos_ = 0;
 
@@ -391,7 +393,7 @@ void PacketDiagram::setRootNode(proto_node *root_node)
         kids.next();
 
         // Exclude all ("Frame") and nothing
-        if (tl_node->finfo->start == 0 && tl_node->finfo->length == (int) tvb_captured_length(cap_file_->edt->tvb)) {
+        if (tl_node == root_node->first_child) {
             continue;
         }
         if (tl_node->finfo->length < 1) {
@@ -466,6 +468,9 @@ void PacketDiagram::contextMenuEvent(QContextMenuEvent *event)
     action->setCheckable(true);
     action->setChecked(layout_->showFields());
     connect(action, &QAction::toggled, this, &PacketDiagram::showFieldsToggled);
+
+    action = ctx_menu->addAction(tr("Refresh"));
+    connect(action, &QAction::triggered, this, &PacketDiagram::resetScene);
 
     ctx_menu->addSeparator();
 
