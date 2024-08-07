@@ -209,6 +209,11 @@ typedef struct _usb_tap_data_t {
 #define IF_CLASS_VIDEO                0x0e
 #define IF_CLASS_PERSONAL_HEALTHCARE  0x0f
 #define IF_CLASS_AUDIO_VIDEO          0x10
+#define IF_CLASS_BILLBOARD            0x11
+#define IF_CLASS_USB_C_BRIDGE         0x12
+#define IF_CLASS_BULK_DISPLAY_PROTO   0x13
+#define IF_CLASS_MCTP_USB_EP          0x14
+#define IF_CLASS_I3C                  0x3c
 #define IF_CLASS_DIAGNOSTIC_DEVICE    0xdc
 #define IF_CLASS_WIRELESS_CONTROLLER  0xe0
 #define IF_CLASS_MISCELLANEOUS        0xef
