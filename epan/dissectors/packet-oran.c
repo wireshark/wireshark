@@ -230,6 +230,15 @@ static int hf_oran_bfZe3dd;
 static int hf_oran_bfAzSl;
 static int hf_oran_bfZeSl;
 
+static int hf_oran_cmd_scope;
+static int hf_oran_number_of_st4_cmds;
+
+static int hf_oran_st4_cmd_header;
+static int hf_oran_st4_cmd_type;
+static int hf_oran_st4_cmd_len;
+static int hf_oran_st4_cmd_num_slots;
+static int hf_oran_st4_cmd_ack_nack_req_id;
+
 
 /* Computed fields */
 static int hf_oran_c_eAxC_ID;
@@ -263,6 +272,7 @@ static int ett_oran_prb_allocation;
 static int ett_oran_punc_pattern;
 static int ett_oran_bfacomphdr;
 static int ett_oran_modcomp_param_set;
+static int ett_oran_st4_cmd_header;
 
 
 /* Expert info */
@@ -638,6 +648,25 @@ static const value_string ci_comp_opt_vals[] = {
     {1, "compression per PRB, one ciCompParam exists before the I/Q value of each PRB"},
     {0,   NULL}
 };
+
+static const range_string cmd_scope_vals[] = {
+    {0, 0,  "ARRAY-COMMAND"},
+    {1, 1,  "CARRIER-COMMAND"},
+    {2, 2,  "O-RU-COMMAND"},
+    {3, 15, "reserved"},
+    {0, 0,  NULL}
+};
+
+static const range_string st4_cmd_type_vals[] = {
+    {0, 0,   "reserved for future command types"},
+    {1, 1,   "TIME_DOMAIN_BEAM_CONFIG"},
+    {2, 2,   "TDD_CONFIG_PATTERN"},
+    {3, 3,   "TRX_CONTROL"},
+    {4, 4,   "ASM"},
+    {5, 255, "reserved for future command types"},
+    {0, 0,  NULL}
+};
+
 
 
 static const true_false_string tfs_sfStatus =
@@ -2769,9 +2798,11 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
         offset += 1;
     }
     else {
-        /* TODO: Slot Control has these fields instead */
+        /* Slot Control has these fields instead */
         /* reserved */
+        proto_tree_add_item(section_tree, hf_oran_reserved_4bits, tvb, offset, 1, ENC_NA);
         /* cmdScope */
+        proto_tree_add_item(section_tree, hf_oran_cmd_scope, tvb, offset, 1, ENC_NA);
         offset++;
     }
 
@@ -2817,12 +2848,65 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
             break;
 
         case SEC_C_SLOT_CONTROL: /* Section Type 4 */
-            /* TODO: numberOfST4Cmds */
+        {
+            /* numberOfST4Cmds */
+            uint32_t no_st4_cmds, st4_cmd_len, st4_cmd_type;
+            proto_tree_add_item_ret_uint(section_tree, hf_oran_number_of_st4_cmds, tvb, offset, 1, ENC_NA, &no_st4_cmds);
             offset += 1;
-            /* TODO: reserved */
+            /* reserved (1 byte) */
+            proto_tree_add_bits_item(section_tree, hf_oran_reserved, tvb, (offset*8), 8, ENC_BIG_ENDIAN);
             offset += 1;
+
+            /* Table 7.4.6-2: Section Type 4 Command common header format */
+            proto_item *hdr_ti = proto_tree_add_string_format(tree, hf_oran_st4_cmd_header,
+                                                              tvb, offset, 1, "",
+                                                              "Type 4 Command common header");
+            proto_tree *hdr_tree = proto_item_add_subtree(hdr_ti, ett_oran_st4_cmd_header);
+
+            /* st4CmdType */
+            proto_tree_add_item_ret_uint(hdr_tree, hf_oran_st4_cmd_type, tvb, offset, 1, ENC_NA, &st4_cmd_type);
+            offset += 1;
+            /* st4CmdLen */
+            proto_tree_add_item_ret_uint(hdr_tree, hf_oran_st4_cmd_len, tvb, offset, 2, ENC_NA, &st4_cmd_len);
+            offset += 2;
+            /* numSlots */
+            proto_tree_add_item(hdr_tree, hf_oran_st4_cmd_num_slots, tvb, offset, 1, ENC_NA);
+            offset += 1;
+            /* ackNackReqId */
+            proto_tree_add_item(hdr_tree, hf_oran_st4_cmd_ack_nack_req_id, tvb, offset, 2, ENC_NA);
+            offset += 2;
+            /* reserved */
+            proto_tree_add_bits_item(hdr_tree, hf_oran_reserved, tvb, (offset*8), 16, ENC_BIG_ENDIAN);
+            offset += 2;
+
+            proto_item_append_text(hdr_ti, " (cmd=%s, len=%u words)",
+                                   rval_to_str_const(st4_cmd_type, st4_cmd_type_vals, "Unknown"),
+                                   st4_cmd_len);
+
+
             /* TODO: loop over commands (header is 8 bytes, 5 separate commands) */
+            unsigned command_start_offset = offset;
+            for (uint32_t n=0; n < no_st4_cmds; n++) {
+                /* TODO: add format accoding to cmd Type */
+                switch (st4_cmd_type) {
+                    case 1:  /* TIME_DOMAIN_BEAM_CONFIG */
+                        break;
+                    case 2:  /* TDD_CONFIG_PATTERN */
+                        break;
+                    case 3:  /* TRX_CONTROL */
+                        break;
+                    case 4:  /* ASM */
+                        break;
+                    default:
+                        /* ERROR! */
+                        break;
+                }
+            }
+
+            /* Advance by signalled length */
+            offset = command_start_offset + (st4_cmd_len * 4);
             break;
+        }
 
         case SEC_C_PRACH:        /* Section Type 3 */
             /* timeOffset */
@@ -3259,7 +3343,7 @@ proto_register_oran(void)
           HFILL}
         },
 
-        /* Section 7.5.2.2 */
+        /* Section 7.5.2.3 */
         {&hf_oran_filter_index,
          {"Filter Index", "oran_fh_cus.filterIndex",
           FT_UINT8, BASE_DEC | BASE_RANGE_STRING,
@@ -4513,7 +4597,65 @@ proto_register_oran(void)
           VALS(sidelobe_suppression_vals), 0x38,
           "beamforming zenith sidelobe parameter",
           HFILL}
-        }
+        },
+
+        /* 7.5.2.17 */
+        {&hf_oran_cmd_scope,
+         {"cmdScope", "oran_fh_cus.cmdScope",
+          FT_UINT8, BASE_DEC | BASE_RANGE_STRING,
+          RVALS(cmd_scope_vals), 0x0f,
+          "command scope",
+          HFILL}
+        },
+        /* 7.5.2.18 */
+        {&hf_oran_number_of_st4_cmds,
+         {"numberOfST4Cmds", "oran_fh_cus.numberOfST4Cmds",
+          FT_UINT8, BASE_DEC,
+          NULL, 0x0,
+          "Number of Section Type 4 commands",
+          HFILL}
+        },
+
+        {&hf_oran_st4_cmd_header,
+         {"Command common header", "oran_fh_cus.st4CmdCommonHeader",
+          FT_STRING, BASE_NONE,
+          NULL, 0x0,
+          NULL,
+          HFILL}
+        },
+
+        /* 7.5.3.38 */
+        {&hf_oran_st4_cmd_type,
+         {"st4CmdType", "oran_fh_cus.st4CmdType",
+          FT_UINT8, BASE_DEC | BASE_RANGE_STRING,
+          RVALS(st4_cmd_type_vals), 0x0,
+          NULL,
+          HFILL}
+        },
+        /* 7.5.3.39 */
+        {&hf_oran_st4_cmd_len,
+         {"st4CmdLen", "oran_fh_cus.st4CmdLen",
+          FT_UINT16, BASE_DEC,
+          NULL, 0x0,
+          "Length of command in 32-bit words",
+          HFILL}
+        },
+        /* 7.5.3.40 */
+        {&hf_oran_st4_cmd_num_slots,
+         {"numSlots", "oran_fh_cus.st4NumSlots",
+          FT_UINT8, BASE_DEC,
+          NULL, 0x0,
+          "Contiguous slots for which command is applicable",
+          HFILL}
+        },
+        /* 7.5.3.41 */
+        {&hf_oran_st4_cmd_ack_nack_req_id,
+         {"ackNackReqId", "oran_fh_cus.ackNackReqId",
+          FT_UINT16, BASE_DEC,
+          NULL, 0x0,
+          "ACK/NACK Request Id",
+          HFILL}
+        },
     };
 
     /* Setup protocol subtree array */
@@ -4544,7 +4686,8 @@ proto_register_oran(void)
         &ett_oran_prb_allocation,
         &ett_oran_punc_pattern,
         &ett_oran_bfacomphdr,
-        &ett_oran_modcomp_param_set
+        &ett_oran_modcomp_param_set,
+        &ett_oran_st4_cmd_header
     };
 
     expert_module_t* expert_oran;
