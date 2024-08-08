@@ -158,11 +158,32 @@ KRB5PrincipalName ::= SEQUENCE {
 --
 
 PaPkAsRep ::= CHOICE {
-      dhSignedData            [0] ContentInfo,
-      encKeyPack              [1] ContentInfo,
-      ...
+   dhInfo                  [0] DHRepInfo,
+   -- Selected when Diffie-Hellman key exchange is
+   -- used.
+   encKeyPack              [1] ContentInfo,
+   -- RFC-4556 has this as "IMPLICIT OCTET STRING", with a comment
+   -- this "contains a CMS type ContentInfo encoded according to
+   -- [RFC3852]." Define it this way instead so that Wireshark can
+   -- properly dissect it.
+   ...
 }
 
+
+DHRepInfo ::= SEQUENCE {
+   dhSignedData            [0] ContentInfo,
+   -- RFC-4556 has this as "IMPLICIT OCTET STRING", with a comment
+   -- this "contains a CMS type ContentInfo encoded according to
+   -- [RFC3852]." Define it this way instead so that Wireshark can
+   -- properly dissect it.
+   serverDHNonce           [1] DHNonce OPTIONAL,
+   -- Present if and only if dhKeyExpiration is
+   -- present in the KDCDHKeyInfo.
+   kdf                     [2] KDFAlgorithmId OPTIONAL,
+   -- The KDF picked by the KDC.
+   -- (added by RFC-8636 "PKINIT Algorithm Agility")
+   ...
+   }
 
 KDCDHKeyInfo ::= SEQUENCE {
     subjectPublicKey        [0] BIT STRING,

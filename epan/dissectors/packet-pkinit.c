@@ -61,8 +61,11 @@ static int hf_pkinit_paChecksum;                  /* OCTET_STRING */
 static int hf_pkinit_freshnessToken;              /* OCTET_STRING */
 static int hf_pkinit_realm;                       /* Realm */
 static int hf_pkinit_principalName;               /* PrincipalName */
-static int hf_pkinit_dhSignedData;                /* ContentInfo */
+static int hf_pkinit_dhInfo;                      /* DHRepInfo */
 static int hf_pkinit_encKeyPack;                  /* ContentInfo */
+static int hf_pkinit_dhSignedData;                /* ContentInfo */
+static int hf_pkinit_serverDHNonce;               /* DHNonce */
+static int hf_pkinit_kdf;                         /* KDFAlgorithmId */
 static int hf_pkinit_subjectPublicKey;            /* BIT_STRING */
 static int hf_pkinit_dhNonce;                     /* INTEGER */
 static int hf_pkinit_dhKeyExpiration;             /* KerberosTime */
@@ -87,6 +90,7 @@ static int ett_pkinit_SEQUENCE_OF_KDFAlgorithmId;
 static int ett_pkinit_PKAuthenticator;
 static int ett_pkinit_KRB5PrincipalName;
 static int ett_pkinit_PaPkAsRep;
+static int ett_pkinit_DHRepInfo;
 static int ett_pkinit_KDCDHKeyInfo;
 static int ett_pkinit_PKAuthenticator_Win2k;
 static int ett_pkinit_PA_PK_AS_REQ_Win2k;
@@ -294,14 +298,30 @@ dissect_pkinit_KRB5PrincipalName(bool implicit_tag _U_, tvbuff_t *tvb _U_, int o
 }
 
 
+static const ber_sequence_t DHRepInfo_sequence[] = {
+  { &hf_pkinit_dhSignedData , BER_CLASS_CON, 0, 0, dissect_cms_ContentInfo },
+  { &hf_pkinit_serverDHNonce, BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL, dissect_pkinit_DHNonce },
+  { &hf_pkinit_kdf          , BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL, dissect_pkinit_KDFAlgorithmId },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_pkinit_DHRepInfo(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   DHRepInfo_sequence, hf_index, ett_pkinit_DHRepInfo);
+
+  return offset;
+}
+
+
 const value_string pkinit_PaPkAsRep_vals[] = {
-  {   0, "dhSignedData" },
+  {   0, "dhInfo" },
   {   1, "encKeyPack" },
   { 0, NULL }
 };
 
 static const ber_choice_t PaPkAsRep_choice[] = {
-  {   0, &hf_pkinit_dhSignedData , BER_CLASS_CON, 0, 0, dissect_cms_ContentInfo },
+  {   0, &hf_pkinit_dhInfo       , BER_CLASS_CON, 0, 0, dissect_pkinit_DHRepInfo },
   {   1, &hf_pkinit_encKeyPack   , BER_CLASS_CON, 1, 0, dissect_cms_ContentInfo },
   { 0, NULL, 0, 0, 0, NULL }
 };
@@ -563,14 +583,26 @@ void proto_register_pkinit(void) {
       { "principalName", "pkinit.principalName_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-    { &hf_pkinit_dhSignedData,
-      { "dhSignedData", "pkinit.dhSignedData_element",
+    { &hf_pkinit_dhInfo,
+      { "dhInfo", "pkinit.dhInfo_element",
         FT_NONE, BASE_NONE, NULL, 0,
-        "ContentInfo", HFILL }},
+        "DHRepInfo", HFILL }},
     { &hf_pkinit_encKeyPack,
       { "encKeyPack", "pkinit.encKeyPack_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "ContentInfo", HFILL }},
+    { &hf_pkinit_dhSignedData,
+      { "dhSignedData", "pkinit.dhSignedData_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ContentInfo", HFILL }},
+    { &hf_pkinit_serverDHNonce,
+      { "serverDHNonce", "pkinit.serverDHNonce",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "DHNonce", HFILL }},
+    { &hf_pkinit_kdf,
+      { "kdf", "pkinit.kdf_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "KDFAlgorithmId", HFILL }},
     { &hf_pkinit_subjectPublicKey,
       { "subjectPublicKey", "pkinit.subjectPublicKey",
         FT_BYTES, BASE_NONE, NULL, 0,
@@ -633,6 +665,7 @@ void proto_register_pkinit(void) {
     &ett_pkinit_PKAuthenticator,
     &ett_pkinit_KRB5PrincipalName,
     &ett_pkinit_PaPkAsRep,
+    &ett_pkinit_DHRepInfo,
     &ett_pkinit_KDCDHKeyInfo,
     &ett_pkinit_PKAuthenticator_Win2k,
     &ett_pkinit_PA_PK_AS_REQ_Win2k,
