@@ -98,6 +98,7 @@ struct dissector_table {
  * Dissector tables. const char * -> dissector_table *
  */
 static GHashTable *dissector_tables;
+static bool all_tables_handles_sorted = false;
 
 /*
  * Dissector table aliases. const char * -> const char *
@@ -202,6 +203,7 @@ packet_init(void)
 {
 	dissector_tables = g_hash_table_new_full(g_str_hash, g_str_equal,
 			NULL, destroy_dissector_table);
+	all_tables_handles_sorted = false;
 
 	dissector_table_aliases = g_hash_table_new_full(g_str_hash, g_str_equal,
 			NULL, NULL);
@@ -2254,6 +2256,23 @@ dissector_compare_filter_name(const void *dissector_a, const void *dissector_b)
 	return ret;
 }
 
+void
+packet_all_tables_sort_handles(void)
+{
+	GHashTableIter iter;
+	g_hash_table_iter_init(&iter, dissector_tables);
+	void *key, *value;
+	dissector_table_t table;
+	while (g_hash_table_iter_next(&iter, &key, &value)) {
+		table = (dissector_table_t)value;
+		table->dissector_handles = g_slist_sort(table->dissector_handles, (GCompareFunc)dissector_compare_filter_name);
+	}
+	/* Any handles added to a table after this (e.g., by a Lua dissector,
+	 * by reloading Lua dissectors, by a UAT or other preference) will
+	 * be added using g_slist_insert_sorted. */
+	all_tables_handles_sorted = true;
+}
+
 /* Add a handle to the list of handles that *could* be used with this
    table.  That list is used by the "Decode As"/"-d" code in the UI. */
 void
@@ -2379,8 +2398,13 @@ dissector_add_for_decode_as(const char *name, dissector_handle_t handle)
 	}
 
 	/* Add it to the list. */
-	sub_dissectors->dissector_handles =
-		g_slist_insert_sorted(sub_dissectors->dissector_handles, (void *)handle, (GCompareFunc)dissector_compare_filter_name);
+	if (all_tables_handles_sorted) {
+		sub_dissectors->dissector_handles =
+			g_slist_insert_sorted(sub_dissectors->dissector_handles, (void *)handle, (GCompareFunc)dissector_compare_filter_name);
+	} else {
+		sub_dissectors->dissector_handles =
+			g_slist_prepend(sub_dissectors->dissector_handles, (void *)handle);
+	}
 }
 
 void dissector_add_for_decode_as_with_preference(const char *name,

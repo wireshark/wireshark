@@ -652,6 +652,10 @@ proto_init(GSList *register_all_plugin_protocols_list,
 	/* sort the protocols by protocol name */
 	protocols = g_list_sort(protocols, proto_compare_name);
 
+	/* sort the dissector handles in dissector tables (for -G reports
+	 * and -d error messages. The GUI sorts the handles itself.) */
+	packet_all_tables_sort_handles();
+
 	/* We've assigned all the subtree type values; allocate the array
 	   for them, and zero it out. */
 	tree_is_expanded = g_new0(uint32_t, (num_tree_types/32)+1);
