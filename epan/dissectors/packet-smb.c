@@ -18024,7 +18024,7 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* da
 	conversation_t       *conversation;
 	nstime_t              t, deltat;
 	smb_transact2_info_t *t2i = NULL;
-	gboolean	      remove = true;
+	bool		      remove = true;
 
 	si = wmem_new0(wmem_packet_scope(), smb_info_t);
 	top_tree_global = parent_tree;
