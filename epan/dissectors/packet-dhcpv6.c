@@ -261,6 +261,13 @@ static int hf_client_link_layer_addr_hwtype;
 static int hf_client_link_layer_addr;
 static int hf_client_link_layer_addr_ether;
 
+static int hf_dnr_svcpriority;
+static int hf_dnr_auth_domain_name_len;
+static int hf_dnr_auth_domain_name;
+static int hf_dnr_addrs_len;
+static int hf_dnr_addrs;
+static int hf_dnr_svcparams;
+
 static int hf_dhcpv6_non_dns_encoded_name;
 static int hf_dhcpv6_domain_field_len_exceeded;
 static int hf_dhcpv6_decoded_portion;
@@ -519,6 +526,7 @@ static dissector_table_t dhcpv6_enterprise_opts_dissector_table;
 #define OPTION_V6_SZTP_REDIRECT        136  /* RFC-ietf-netconf-zerotouch-29 */
 #define OPTION_S46_BIND_IPV6_PREFIX    137  /* RFC 8539 */
 #define OPTION_IPv6_ADDRESS_ANDSF      143  /* RFC 6153 */
+#define OPTION_V6_DNR                  144  /* RFC 9463 */
 
 /* temporary value until defined by IETF */
 #define OPTION_MIP6_HA                 165
@@ -698,6 +706,7 @@ static const value_string opttype_vals[] = {
     { OPTION_MIP6_HA,                "Mobile IPv6 Home Agent" },
     { OPTION_MIP6_HOA,               "Mobile IPv6 Home Address" },
     { OPTION_NAI,                    "Network Access Identifier" },
+    { OPTION_V6_DNR,                 "Discovery of Network DNS Resolvers" },
     { 0,        NULL }
 };
 static value_string_ext opttype_vals_ext = VALUE_STRING_EXT_INIT(opttype_vals);
@@ -2985,6 +2994,71 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
             }
         }
         break;
+    case OPTION_V6_DNR: {
+        // This option is pretty complex, with variable-length fields, FQDN, list of addresses, and service parameters
+        // that have their own encoding, borrowed from DNS on-wire. Ugh. For option syntax, see RFC9463, Section 4.1.
+        // The svcparams field is encoded according to RFC9460, Section 2.2. There is a registry of supported
+        // service parameters, maintained by IANA (see https://www.iana.org/assignments/dns-svcb/dns-svcb.xhtml).
+        // Initial (currently defined, as of Aug 2024) list of parmaters (that are usable in DHCPv6 DNR option) are:
+        // alpn, port, dohpath.
+        //
+        // This is a very active discussion area in the IETF, so more parameters are expected in the future.
+        //
+        // Sadly, right now this code does not try to dissect SVCPARAMS.
+        int adn_len = 0;
+        int addrs_len = 0;
+        int offset = 0;
+        if (optlen < 6) {
+            expert_add_info_format(pinfo, option_item, &ei_dhcpv6_malformed_option,
+                "DNR v6 error: truncated option (shorter than 6 octets)");
+            break;
+        }
+        proto_tree_add_item(subtree, hf_dnr_svcpriority, tvb, off, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(subtree, hf_dnr_auth_domain_name_len, tvb, off+2, 2, ENC_BIG_ENDIAN);
+        adn_len = tvb_get_ntohs(tvb, off+2);
+        if (optlen < 4 + adn_len) {
+            expert_add_info_format(pinfo, option_item, &ei_dhcpv6_malformed_option,
+                "DNR v6 error: truncated option (too long authentication-domain-name)");
+            break;
+        }
+
+        // adn: get_dns_name(tvb, off, optlen, off, &dns_name, &dns_name_len);
+        dhcpv6_domain(subtree, ti, pinfo, hf_dnr_auth_domain_name, tvb, off+4, adn_len);
+
+        if (optlen < 6 + adn_len) {
+            expert_add_info_format(pinfo, option_item, &ei_dhcpv6_malformed_option,
+                "DNR v6 error: truncated option (Addr Length truncated)");
+            break;
+        }
+        addrs_len = tvb_get_ntohs(tvb, off+4+adn_len);
+        proto_tree_add_item(subtree, hf_dnr_addrs_len, tvb, off+4+adn_len, 2, ENC_BIG_ENDIAN);
+
+        if (addrs_len % 16) {
+            expert_add_info_format(pinfo, option_item, &ei_dhcpv6_malformed_option,
+                "v6 Discovery of Network Resolvers: invalid addrs_len (not divisible by 16)");
+            break;
+        }
+        if (optlen < 6 + adn_len + addrs_len) {
+            expert_add_info_format(pinfo, option_item, &ei_dhcpv6_malformed_option,
+                "DNR v6 error: truncated option (too long addrs_len or not enough octects with addresses)");
+            break;
+        }
+
+        for (i = 0; i < addrs_len; i += 16) {
+            ti = proto_tree_add_item(subtree, hf_dnr_addrs, tvb, off+6+adn_len + i, 16, ENC_NA);
+            proto_item_prepend_text(ti, " %d ", i/16 + 1);
+        }
+
+        offset = 6 + adn_len + addrs_len;
+        if (offset < optlen){
+            proto_tree_add_item(subtree, hf_dnr_svcparams, tvb, off+offset, optlen-offset, ENC_ASCII);
+        } else {
+            expert_add_info_format(pinfo, option_item, &ei_dhcpv6_malformed_option,
+                "DNR v6 error: truncated option (missing service parameters)");
+        }
+
+        break;
+    }
     }
 
     decrement_dissection_depth(pinfo);
@@ -3572,6 +3646,18 @@ proto_register_dhcpv6(void)
           { "Link-layer address (Ethernet)", "dhcpv6.client_link_layer_addr_ether", FT_ETHER, BASE_NONE, NULL, 0x0, NULL, HFILL}},
         { &hf_client_link_layer_addr_hwtype,
           { "Hardware type", "dhcpv6.client_link_layer_addr_hwtype", FT_UINT16, BASE_DEC, VALS(arp_hrd_vals), 0, NULL, HFILL }},
+        { &hf_dnr_svcpriority,
+          {"DNR service priority", "dhcpv6.dnr.svcpriority", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL}},
+        { &hf_dnr_auth_domain_name_len,
+          {"DNR authentication domain name length", "dhcpv6.dnr.adn_len", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL}},
+        { &hf_dnr_auth_domain_name,
+          {"DNR authentication domain name", "dhcpv6.dnr.adn", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL}},
+        { &hf_dnr_addrs_len,
+          {"DNR addresses list length", "dhcpv6.addrs.len", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL}},
+        { &hf_dnr_addrs,
+          {"DNR addresses list", "dhcpv6.addrs", FT_IPv6, BASE_NONE, NULL, 0, NULL, HFILL}},
+        { &hf_dnr_svcparams,
+          {"DNR service parameters", "dhcpv6.svcparams", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL}}
     };
 
     static int *ett[] = {
