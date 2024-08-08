@@ -30,6 +30,7 @@ set(PIDL_DISSECTOR_NAMES
 	mdssvc
 	misc
 	nspi
+	rcg
 	rfr
 	samr
 	srvsvc
@@ -124,6 +125,9 @@ set(PIDL_DISSECTOR_nspi_EXTRA_DEPS
 	idl_types.h
 	mapicodes_enum.h
 	mapitags_enum.h
+)
+set(PIDL_DISSECTOR_rcg_EXTRA_DEPS
+	idl_types.h
 )
 set(PIDL_DISSECTOR_rfr_EXTRA_DEPS
 	idl_types.h

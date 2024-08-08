@@ -44,6 +44,7 @@ SUBDIRS = \
 	mdssvc		\
 	misc		\
 	nspi		\
+	rcg		\
 	rfr		\
 	samr		\
 	svcctl		\
@@ -158,6 +159,11 @@ $(SUBDIRS) $(DONT_BUILD_SUBDIRS): %: ../packet-dcerpc-%.c ../packet-dcerpc-%.h
 ../packet-dcerpc-nspi.c \
 ../packet-dcerpc-nspi.h: nspi/nspi.idl nspi/nspi.cnf \
 				idl_types.h mapicodes_enum.h mapitags_enum.h
+	cd $(<D) && $(PIDL) $(pidl_out) $(pidl_inc) -- $(<F)
+
+../packet-dcerpc-rcg.c \
+../packet-dcerpc-rcg.h: rcg/rcg.idl rcg/rcg.cnf \
+				idl_types.h  mapicodes_enum.h
 	cd $(<D) && $(PIDL) $(pidl_out) $(pidl_inc) -- $(<F)
 
 ../packet-dcerpc-rfr.c \
