@@ -177,8 +177,8 @@
  * So, I listen in on REQUEST(resolve) messages between client and
  * Nameserver, and store the respones (REPLY/Objkey, Repo_ID) here.
  *
- * Also, stringified IOR's can be read from a file "IOR.txt" and used
- * to populate  this hash also.
+ * Also, stringified IOR's can be read from a file, e.g. "IOR.txt", and used
+ * to populate this hash also.
  *
  *
  * Other Data structures
@@ -1088,7 +1088,7 @@ typedef struct giop_conv_info_t {
 
 static bool giop_desegment = true;
 static bool giop_reassemble = true;
-static const char *giop_ior_file = "IOR.txt";
+static const char *giop_ior_file;
 
 /*
  * ------------------------------------------------------------------------------------------+
