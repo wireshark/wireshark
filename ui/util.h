@@ -12,6 +12,8 @@
 #ifndef __UTIL_H__
 #define __UTIL_H__
 
+#include <stdint.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */

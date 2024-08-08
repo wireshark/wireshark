@@ -10,18 +10,18 @@
 
 #include "config.h"
 
-#include "epan/prefs.h"
 #include "ui/util.h"
 
 #include <ui/qt/widgets/path_selection_edit.h>
 #include "ui/qt/widgets/wireshark_file_dialog.h"
+#include "ui/qt/utils/qt_ui_utils.h"
 
 #include <QHBoxLayout>
 #include <QToolButton>
 #include <QWidget>
 #include <QLineEdit>
 
-PathSelectionEdit::PathSelectionEdit(QString title, QString path, bool selectFile, QWidget *parent) : 
+PathSelectionEdit::PathSelectionEdit(QString title, QString path, bool selectFile, QWidget *parent) :
     QWidget(parent)
 {
     _title = title;
@@ -49,7 +49,7 @@ PathSelectionEdit::PathSelectionEdit(QString title, QString path, bool selectFil
     setFocusPolicy(_edit->focusPolicy());
 }
 
-PathSelectionEdit::PathSelectionEdit(QWidget *parent) : 
+PathSelectionEdit::PathSelectionEdit(QWidget *parent) :
     PathSelectionEdit(tr("Select a path"), QString(), true, parent)
 {}
 
@@ -75,11 +75,7 @@ void PathSelectionEdit::browseForPath()
     QString openDir = _path;
 
     if (openDir.isEmpty()) {
-        if (prefs.gui_fileopen_style == FO_STYLE_LAST_OPENED) {
-            openDir = QString(get_open_dialog_initial_dir());
-        } else if (prefs.gui_fileopen_style == FO_STYLE_SPECIFIED) {
-            openDir = QString(prefs.gui_fileopen_dir);
-        }
+        openDir = openDialogInitialDir();
     }
 
     QString newPath;
