@@ -703,10 +703,10 @@ static const value_string opttype_vals[] = {
     { OPTION_V6_SZTP_REDIRECT,       "SZTP Redirect" },
     { OPTION_S46_BIND_IPV6_PREFIX,   "Softwire Source Binding Prefix Hint" },
     { OPTION_IPv6_ADDRESS_ANDSF,     "ANDSF IPv6 Address" },
+    { OPTION_V6_DNR,                 "Discovery of Network DNS Resolvers" },
     { OPTION_MIP6_HA,                "Mobile IPv6 Home Agent" },
     { OPTION_MIP6_HOA,               "Mobile IPv6 Home Address" },
     { OPTION_NAI,                    "Network Access Identifier" },
-    { OPTION_V6_DNR,                 "Discovery of Network DNS Resolvers" },
     { 0,        NULL }
 };
 static value_string_ext opttype_vals_ext = VALUE_STRING_EXT_INIT(opttype_vals);
