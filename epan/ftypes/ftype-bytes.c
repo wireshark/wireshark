@@ -10,6 +10,7 @@
 
 #include <ftypes-int.h>
 #include <string.h>
+#include <errno.h>
 #include <stdlib.h>
 #include <epan/addr_resolv.h>
 #include <epan/strutil.h>
