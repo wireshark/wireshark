@@ -3013,7 +3013,11 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
                 "DNR v6 error: truncated option (shorter than 6 octets)");
             break;
         }
+
+        // Parsing service priority
         proto_tree_add_item(subtree, hf_dnr_svcpriority, tvb, off, 2, ENC_BIG_ENDIAN);
+
+        // Parsing authentication-domain-name (len + FQDN field)
         proto_tree_add_item(subtree, hf_dnr_auth_domain_name_len, tvb, off+2, 2, ENC_BIG_ENDIAN);
         adn_len = tvb_get_ntohs(tvb, off+2);
         if (optlen < 4 + adn_len) {
@@ -3021,10 +3025,9 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
                 "DNR v6 error: truncated option (too long authentication-domain-name)");
             break;
         }
-
-        // adn: get_dns_name(tvb, off, optlen, off, &dns_name, &dns_name_len);
         dhcpv6_domain(subtree, ti, pinfo, hf_dnr_auth_domain_name, tvb, off+4, adn_len);
 
+        // Parse Addresses list (length + actual list)
         if (optlen < 6 + adn_len) {
             expert_add_info_format(pinfo, option_item, &ei_dhcpv6_malformed_option,
                 "DNR v6 error: truncated option (Addr Length truncated)");
@@ -3049,6 +3052,7 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
             proto_item_prepend_text(ti, " %d ", i/16 + 1);
         }
 
+        // Parse the service parameters
         offset = 6 + adn_len + addrs_len;
         if (offset < optlen){
             proto_tree_add_item(subtree, hf_dnr_svcparams, tvb, off+offset, optlen-offset, ENC_ASCII);
