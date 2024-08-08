@@ -84,6 +84,16 @@
        </attribute>
       </widget>
      </item>
+     <item row="2" column="0" colspan="3">
+      <widget class="QRadioButton" name="foStyleCWDRadioButton">
+       <property name="text">
+        <string>The current working directory</string>
+       </property>
+       <attribute name="buttonGroup">
+        <string notr="true">openInButtonGroup</string>
+       </attribute>
+      </widget>
+     </item>
     </layout>
    </item>
    <item>

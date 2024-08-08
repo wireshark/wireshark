@@ -48,6 +48,7 @@ private:
 
 private slots:
     void on_geometryCheckBox_toggled(bool checked);
+    void on_foStyleCWDRadioButton_toggled(bool checked);
     void on_foStyleLastOpenedRadioButton_toggled(bool checked);
     void on_foStyleSpecifiedRadioButton_toggled(bool checked);
     void on_foStyleSpecifiedLineEdit_textEdited(const QString &new_dir);

@@ -78,6 +78,7 @@ char *datafile_dir;
 char *persdatafile_dir;
 char *persconfprofile;
 char *doc_dir;
+char *current_working_dir;
 
 /* Directory from which the executable came. */
 static char *progfile_dir;
@@ -963,6 +964,33 @@ const char *
 get_progfile_dir(void)
 {
     return progfile_dir;
+}
+
+extern const char *
+get_current_working_dir(void)
+{
+    if (current_working_dir != NULL) {
+        return current_working_dir;
+    }
+
+    /*
+     * It's good to cache this because on Windows Microsoft cautions
+     * against using GetCurrentDirectory except early on, e.g. when
+     * parsing command line options.
+     */
+    current_working_dir = g_get_current_dir();
+    /*
+     * The above always returns something, with a fallback, e.g., on macOS
+     * if the program is run from Finder, of G_DIR_SEPARATOR_S.
+     * On Windows when run from a shortcut / taskbar it returns whatever
+     * the "run in" directory is on the shortcut, which is usually the
+     * directory where the program resides, which isn't that useful.
+     * Should we set it to the home directory on macOS or the
+     * "My Documents" folder on Windows in those cases,
+     * as we do in get_persdatafile_dir()? This isn't the default preference
+     * setting so perhaps caveat emptor is ok.
+     */
+    return current_working_dir;
 }
 
 /*
@@ -2699,6 +2727,8 @@ free_progdirs(void)
     doc_dir = NULL;
     g_free(install_prefix);
     install_prefix = NULL;
+    g_free(current_working_dir);
+    current_working_dir = NULL;
 #if defined(HAVE_PLUGINS) || defined(HAVE_LUA)
     g_free(plugin_dir);
     plugin_dir = NULL;

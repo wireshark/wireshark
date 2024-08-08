@@ -405,6 +405,10 @@ get_open_dialog_initial_dir(void)
             initial_dir = get_persdatafile_dir();
         break;
 
+    case FO_STYLE_CWD:
+        initial_dir = get_current_working_dir();
+        break;
+
     default:
         ws_assert_not_reached();
         initial_dir = NULL;

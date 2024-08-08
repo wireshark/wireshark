@@ -115,8 +115,9 @@ static const enum_val_t gui_version_placement_type[] = {
 };
 
 static const enum_val_t gui_fileopen_style[] = {
-    {"LAST_OPENED", "LAST_OPENED", 0},
-    {"SPECIFIED", "SPECIFIED", 1},
+    {"LAST_OPENED", "LAST_OPENED", FO_STYLE_LAST_OPENED},
+    {"SPECIFIED", "SPECIFIED", FO_STYLE_SPECIFIED},
+    {"CWD", "CWD", FO_STYLE_CWD},
     {NULL, NULL, -1}
 };
 

@@ -48,6 +48,7 @@ MainWindowPreferencesFrame::MainWindowPreferencesFrame(QWidget *parent) :
                 ).arg(ui->geometryCheckBox->style()->subElementRect(QStyle::SE_CheckBoxContents, &style_opt).left());
     ui->foStyleLastOpenedRadioButton->setStyleSheet(indent_ss);
     ui->foStyleSpecifiedRadioButton->setStyleSheet(indent_ss);
+    ui->foStyleCWDRadioButton->setStyleSheet(indent_ss);
     ui->maxFilterLineEdit->setStyleSheet(indent_ss);
     ui->maxRecentLineEdit->setStyleSheet(indent_ss);
 
@@ -114,10 +115,18 @@ void MainWindowPreferencesFrame::updateWidgets()
         ui->geometryCheckBox->setChecked(false);
     }
 
-    if (prefs_get_enum_value(pref_fileopen_style_, pref_stashed) == FO_STYLE_LAST_OPENED) {
+    switch (prefs_get_enum_value(pref_fileopen_style_, pref_stashed)) {
+
+    case FO_STYLE_LAST_OPENED:
         ui->foStyleLastOpenedRadioButton->setChecked(true);
-    } else {
+        break;
+    case FO_STYLE_CWD:
+        ui->foStyleCWDRadioButton->setChecked(true);
+        break;
+    case FO_STYLE_SPECIFIED:
+    default:
         ui->foStyleSpecifiedRadioButton->setChecked(true);
+        break;
     }
 
     ui->foStyleSpecifiedLineEdit->setText(prefs_get_string_value(pref_fileopen_dir_, pref_stashed));
@@ -146,6 +155,13 @@ void MainWindowPreferencesFrame::on_geometryCheckBox_toggled(bool checked)
     prefs_set_bool_value(pref_geometry_save_position_, checked, pref_stashed);
     prefs_set_bool_value(pref_geometry_save_size_, checked, pref_stashed);
     prefs_set_bool_value(pref_geometry_save_maximized_, checked, pref_stashed);
+}
+
+void MainWindowPreferencesFrame::on_foStyleCWDRadioButton_toggled(bool checked)
+{
+    if (checked) {
+        prefs_set_enum_value(pref_fileopen_style_, FO_STYLE_CWD, pref_stashed);
+    }
 }
 
 void MainWindowPreferencesFrame::on_foStyleLastOpenedRadioButton_toggled(bool checked)

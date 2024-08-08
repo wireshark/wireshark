@@ -65,6 +65,7 @@ char string_to_name_resolve(const char *string, struct _e_addr_resolve *name_res
  */
 #define FO_STYLE_LAST_OPENED    0 /* start in last directory we looked at */
 #define FO_STYLE_SPECIFIED      1 /* start in specified directory */
+#define FO_STYLE_CWD            2 /* start in current working directory at startup */
 
 /*
  * Toolbar styles.

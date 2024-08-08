@@ -302,6 +302,11 @@ WS_DLL_PUBLIC const char *get_persdatafile_dir(void);
 WS_DLL_PUBLIC void set_persdatafile_dir(const char *p);
 
 /*
+ * Get the current working directory.
+ */
+WS_DLL_PUBLIC WS_RETNONNULL const char *get_current_working_dir(void);
+
+/*
  * Return an error message for UNIX-style errno indications on open or
  * create operations.
  */
