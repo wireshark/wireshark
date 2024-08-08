@@ -3043,7 +3043,7 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
         }
         if (optlen < 6 + adn_len + addrs_len) {
             expert_add_info_format(pinfo, option_item, &ei_dhcpv6_malformed_option,
-                "DNR v6 error: truncated option (too long addrs_len or not enough octects with addresses)");
+                "DNR v6 error: truncated option (too long addrs_len or not enough octets with addresses)");
             break;
         }
 
