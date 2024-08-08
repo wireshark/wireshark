@@ -683,6 +683,7 @@ static bool lua_load_plugin(const char* filename) {
     lua_getglobal(L, "require");
 
     lua_pushstring(L, trimmed);
+    g_free(trimmed);
 
     /* Ignore the return from "require" by passing 0 as nresults to lua_pcall
      * (we could add it to the global table using the name as dolibrary() does,
