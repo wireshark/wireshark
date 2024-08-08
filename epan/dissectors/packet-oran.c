@@ -239,6 +239,11 @@ static int hf_oran_st4_cmd_len;
 static int hf_oran_st4_cmd_num_slots;
 static int hf_oran_st4_cmd_ack_nack_req_id;
 
+static int hf_oran_sleepmode;
+static int hf_oran_log2maskbits;
+static int hf_oran_num_slots_ext;
+static int hf_oran_antMask_trx_control;
+
 
 /* Computed fields */
 static int hf_oran_c_eAxC_ID;
@@ -665,6 +670,27 @@ static const range_string st4_cmd_type_vals[] = {
     {4, 4,   "ASM"},
     {5, 255, "reserved for future command types"},
     {0, 0,  NULL}
+};
+
+/* Table 7.5.3.51-1 */
+static const value_string log2maskbits_vals[] = {
+    {0,  "reserved"},
+    {1,  "min antMask size is 16 bits.."},
+    {2,  "min antMask size is 16 bits.."},
+    {3,  "min antMask size is 16 bits.."},
+    {4,  "16"},
+    {5,  "32"},
+    {6,  "64"},
+    {7,  "128"},
+    {8,  "256"},
+    {9,  "512"},
+    {10, "1024"},
+    {11, "2048"},
+    {12, "4096"},
+    {13, "8192"},
+    {14, "16384"},
+    {15, "reserved"},
+    {0,   NULL}
 };
 
 
@@ -2857,54 +2883,107 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
             proto_tree_add_bits_item(section_tree, hf_oran_reserved, tvb, (offset*8), 8, ENC_BIG_ENDIAN);
             offset += 1;
 
-            /* Table 7.4.6-2: Section Type 4 Command common header format */
-            proto_item *hdr_ti = proto_tree_add_string_format(tree, hf_oran_st4_cmd_header,
-                                                              tvb, offset, 1, "",
-                                                              "Type 4 Command common header");
-            proto_tree *hdr_tree = proto_item_add_subtree(hdr_ti, ett_oran_st4_cmd_header);
-
-            /* st4CmdType */
-            proto_tree_add_item_ret_uint(hdr_tree, hf_oran_st4_cmd_type, tvb, offset, 1, ENC_NA, &st4_cmd_type);
-            offset += 1;
-            /* st4CmdLen */
-            proto_tree_add_item_ret_uint(hdr_tree, hf_oran_st4_cmd_len, tvb, offset, 2, ENC_NA, &st4_cmd_len);
-            offset += 2;
-            /* numSlots */
-            proto_tree_add_item(hdr_tree, hf_oran_st4_cmd_num_slots, tvb, offset, 1, ENC_NA);
-            offset += 1;
-            /* ackNackReqId */
-            proto_tree_add_item(hdr_tree, hf_oran_st4_cmd_ack_nack_req_id, tvb, offset, 2, ENC_NA);
-            offset += 2;
-            /* reserved */
-            proto_tree_add_bits_item(hdr_tree, hf_oran_reserved, tvb, (offset*8), 16, ENC_BIG_ENDIAN);
-            offset += 2;
-
-            proto_item_append_text(hdr_ti, " (cmd=%s, len=%u words)",
-                                   rval_to_str_const(st4_cmd_type, st4_cmd_type_vals, "Unknown"),
-                                   st4_cmd_len);
-
-
-            /* TODO: loop over commands (header is 8 bytes, 5 separate commands) */
+            /* Loop over commands.  Each is 8-byte common header, followed by cmd-specific payload */
             unsigned command_start_offset = offset;
             for (uint32_t n=0; n < no_st4_cmds; n++) {
+                /* Table 7.4.6-2: Section Type 4 Command common header format */
+                proto_item *hdr_ti = proto_tree_add_string_format(section_tree, hf_oran_st4_cmd_header,
+                                                                  tvb, offset, 1, "",
+                                                                  "Type 4 Command common header");
+                proto_tree *hdr_tree = proto_item_add_subtree(hdr_ti, ett_oran_st4_cmd_header);
+
+                /* st4CmdType */
+                proto_tree_add_item_ret_uint(hdr_tree, hf_oran_st4_cmd_type, tvb, offset, 1, ENC_NA, &st4_cmd_type);
+                offset += 1;
+                /* st4CmdLen */
+                proto_tree_add_item_ret_uint(hdr_tree, hf_oran_st4_cmd_len, tvb, offset, 2, ENC_NA, &st4_cmd_len);
+                offset += 2;
+                /* numSlots */
+                proto_tree_add_item(hdr_tree, hf_oran_st4_cmd_num_slots, tvb, offset, 1, ENC_NA);
+                offset += 1;
+                /* ackNackReqId */
+                proto_tree_add_item(hdr_tree, hf_oran_st4_cmd_ack_nack_req_id, tvb, offset, 2, ENC_NA);
+                offset += 2;
+                /* reserved */
+                proto_tree_add_bits_item(hdr_tree, hf_oran_reserved, tvb, (offset*8), 16, ENC_BIG_ENDIAN);
+                offset += 2;
+                /* Set summary */
+                proto_item_append_text(hdr_ti, " (cmd=%s, len=%u words)",
+                                       rval_to_str_const(st4_cmd_type, st4_cmd_type_vals, "Unknown"),
+                                       st4_cmd_len);
+
                 /* TODO: add format accoding to cmd Type */
+                /* TODO: add in own subtrees? */
                 switch (st4_cmd_type) {
                     case 1:  /* TIME_DOMAIN_BEAM_CONFIG */
                         break;
                     case 2:  /* TDD_CONFIG_PATTERN */
                         break;
                     case 3:  /* TRX_CONTROL */
+                        /* reserved */
+                        proto_tree_add_item(section_tree, hf_oran_reserved_1bit, tvb, offset, 1, ENC_BIG_ENDIAN);
+                        /* log2MaskBits (4 bits) */
+                        proto_tree_add_item(section_tree, hf_oran_log2maskbits, tvb, offset, 1, ENC_BIG_ENDIAN);
+                        /* sleepMode */
+                        proto_tree_add_item(section_tree, hf_oran_sleepmode, tvb, offset, 1, ENC_BIG_ENDIAN);
+                        offset += 1;
+
+                        /* reserved (4 bits) */
+                        proto_tree_add_item(section_tree, hf_oran_reserved_4bits, tvb, offset, 1, ENC_BIG_ENDIAN);
+                        /* numSlotsExt */
+                        proto_tree_add_item(section_tree, hf_oran_num_slots_ext, tvb, offset, 3, ENC_BIG_ENDIAN);
+                        offset += 3;
+
+                        /* reserved (2 bits) */
+                        proto_tree_add_item(section_tree, hf_oran_reserved_1bit, tvb, offset, 1, ENC_BIG_ENDIAN);
+                        /* symbolMask */
+                        proto_tree_add_item(section_tree, hf_oran_symbolMask, tvb, offset, 2, ENC_BIG_ENDIAN);
+                        offset += 2;
+
+                        /* antMask (2-2048 bytes).
+                           will assume that it occupies the remainder of the command length.. */
+                        unsigned remaining = st4_cmd_len - (offset-command_start_offset);
+                        proto_tree_add_item(section_tree, hf_oran_antMask_trx_control, tvb, offset, remaining, ENC_NA);
+                        offset += remaining;
+
+                        /* [padding] */
                         break;
-                    case 4:  /* ASM */
+                    case 4:  /* ASM (advanced sleep mode) */
+                        /* reserved */
+                        proto_tree_add_item(section_tree, hf_oran_reserved_1bit, tvb, offset, 1, ENC_BIG_ENDIAN);
+                        /* reserved */
+                        /* sleepMode */
+                        proto_tree_add_item(section_tree, hf_oran_sleepmode, tvb, offset, 1, ENC_BIG_ENDIAN);
+                        offset += 1;
+
+                        /* reserved (4 bits) */
+                        proto_tree_add_item(section_tree, hf_oran_reserved_4bits, tvb, offset, 1, ENC_BIG_ENDIAN);
+                        /* numSlotsExt */
+                        proto_tree_add_item(section_tree, hf_oran_num_slots_ext, tvb, offset, 3, ENC_BIG_ENDIAN);
+                        offset += 3;
+
+                        /* reserved (2 bits) */
+                        proto_tree_add_item(section_tree, hf_oran_reserved_1bit, tvb, offset, 1, ENC_BIG_ENDIAN);
+                        /* symbolMask */
+                        proto_tree_add_item(section_tree, hf_oran_symbolMask, tvb, offset, 2, ENC_BIG_ENDIAN);
+                        offset += 2;
+
+                        /* reserved (2 bytes) */
+                        proto_tree_add_bits_item(section_tree, hf_oran_reserved, tvb, (offset*8), 16, ENC_BIG_ENDIAN);
+                        offset += 2;
+
+                        /* [padding] */
                         break;
+
                     default:
                         /* ERROR! */
                         break;
                 }
+
+                /* Advance by signalled length (needs to be aligned on 4-byte boundary) */
+                offset = command_start_offset + (st4_cmd_len * 4);
             }
 
-            /* Advance by signalled length */
-            offset = command_start_offset + (st4_cmd_len * 4);
             break;
         }
 
@@ -4656,6 +4735,40 @@ proto_register_oran(void)
           "ACK/NACK Request Id",
           HFILL}
         },
+
+        /* 7.5.3.52 */
+        {&hf_oran_sleepmode,
+         {"sleepMode", "oran_fh_cus.sleepMode",
+          FT_UINT8, BASE_HEX,
+          NULL, 0x03,
+          NULL,
+          HFILL}
+        },
+        /* 7.5.3.51 */
+        {&hf_oran_log2maskbits,
+         {"log2MaskBits", "oran_fh_cus.log2MaskBits",
+          FT_UINT8, BASE_HEX,
+          VALS(log2maskbits_vals), 0x3c,
+          NULL,
+          HFILL}
+        },
+        /* 7.5.3.53 */
+        {&hf_oran_num_slots_ext,
+         {"numSlotsExt", "oran_fh_cus.numSlotsExt",
+          FT_UINT24, BASE_DEC,
+          NULL, 0x0fffff,
+          NULL,
+          HFILL}
+        },
+        /* 7.5.3.54 */
+        {&hf_oran_antMask_trx_control,
+         {"antMask", "oran_fh_cus.antMask",
+          FT_BYTES, BASE_NONE,
+          NULL, 0x0,
+          NULL,
+          HFILL}
+        },
+
     };
 
     /* Setup protocol subtree array */
