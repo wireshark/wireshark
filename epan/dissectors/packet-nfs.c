@@ -724,6 +724,7 @@ static int hf_nfs4_gdd_child_attr_delay;
 static int hf_nfs4_gdd_dir_attr_delay;
 static int hf_nfs4_gdd_child_attrs;
 static int hf_nfs4_gdd_dir_attrs;
+static int hf_nfs4_nad_last_entry;
 
 static int ett_nfs;
 static int ett_nfs_fh_encoding;
@@ -943,6 +944,11 @@ static int ett_nfs4_write_same;
 static int ett_nfs4_listxattr_names;
 static int ett_nfs4_notify_delay;
 static int ett_nfs4_notify_attrs;
+static int ett_nfs4_cb_notify_changes;
+static int ett_nfs4_cb_notify_list_entries;
+static int ett_nfs4_cb_notify_remove4;
+static int ett_nfs4_cb_notify_add4;
+static int ett_nfs4_cb_notify_rename4;
 
 static expert_field ei_nfs_too_many_ops;
 static expert_field ei_nfs_not_vnx_file;
@@ -11738,6 +11744,134 @@ dissect_nfs4_cb_layoutrecall(tvbuff_t *tvb, int offset, proto_tree *tree, packet
 	return offset;
 }
 
+#define BIT(__n)	(1 << __n)
+
+static int
+dissect_notify_entry4(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info *pinfo,
+		      rpc_call_info_value *civ)
+{
+	offset = dissect_nfs_utf8string(tvb, offset, tree, hf_nfs4_component, NULL);
+	return dissect_nfs4_fattrs(tvb, offset, pinfo, tree, FATTR4_DISSECT_VALUES, civ);
+}
+
+static int
+dissect_notify_remove4(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info *pinfo,
+		       rpc_call_info_value *civ)
+{
+	offset = dissect_notify_entry4(tvb, offset, tree, pinfo, civ);
+	return dissect_rpc_uint64(tvb, tree, hf_nfs4_cookie, offset);
+}
+
+static inline int
+dissect_prev_entry4(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info *pinfo,
+		    rpc_call_info_value *civ)
+{
+	return dissect_notify_remove4(tvb, offset, tree, pinfo, civ);
+}
+
+static int
+dissect_notify_add4(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info *pinfo,
+		       rpc_call_info_value *civ)
+{
+	uint32_t count;
+
+	/* nad_old_entry */
+	count = tvb_get_ntohl(tvb, offset);
+	offset += 4;
+	if (count)
+		offset = dissect_notify_remove4(tvb, offset, tree, pinfo, civ);
+
+	/* nad_new_entry */
+	offset = dissect_notify_entry4(tvb, offset, tree, pinfo, civ);
+
+	/* nad_new_entry_cookie */
+	count = tvb_get_ntohl(tvb, offset);
+	offset += 4;
+	if (count)
+		offset = dissect_rpc_uint64(tvb, tree, hf_nfs4_cookie, offset);
+
+	/* nad_prev_entry */
+	count = tvb_get_ntohl(tvb, offset);
+	offset += 4;
+	if (count)
+		offset = dissect_prev_entry4(tvb, offset, tree, pinfo, civ);
+
+	return dissect_rpc_bool(tvb, tree, hf_nfs4_nad_last_entry, offset);
+}
+
+static int
+dissect_notify_rename4(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info *pinfo,
+		       rpc_call_info_value *civ)
+{
+	offset = dissect_notify_remove4(tvb, offset, tree, pinfo, civ);
+	return dissect_notify_add4(tvb, offset, tree, pinfo, civ);
+}
+
+static int
+dissect_nfs4_cb_notify_args(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info *pinfo, rpc_call_info_value *civ)
+{
+	proto_tree *ctree;
+	uint32_t changes;
+	uint32_t i;
+
+	offset = dissect_nfs4_stateid(tvb, offset, tree, NULL);
+	offset = dissect_nfs4_fh(tvb, offset, pinfo, tree, "FileHandle", NULL, civ);
+
+	changes = tvb_get_ntohl(tvb, offset);
+	ctree = proto_tree_add_subtree_format(tree, tvb, offset, 4, ett_nfs4_cb_notify_changes,
+					      NULL, "Changes (count: %u)", changes);
+	offset += 4;
+	for (i = 0; i < changes; ++i) {
+		uint32_t len, mask = 0;
+		proto_tree *ntree;
+
+		/*
+		 * Grab the first word of the bitmap. This will need to be modified if
+		 * it ever spills into multiple words (unlikely).
+		 */
+		len = tvb_get_ntohl(tvb, offset);
+		if (len)
+			mask = tvb_get_ntohl(tvb, offset + 4);
+		offset = dissect_nfs4_notify_type4_bitmap(tvb, ctree, pinfo, offset);
+
+		len = tvb_get_ntohl(tvb, offset);
+		ntree = proto_tree_add_subtree_format(ctree, tvb, offset, 4,
+						      ett_nfs4_cb_notify_list_entries,
+						      NULL, "Notifications (len: %u)", len);
+		offset += 4;
+
+		/* FIXME: NOTIFY4_CHANGE_CHILD_ATTRS */
+		/* FIXME: NOTIFY4_CHANGE_DIR_ATTRS */
+		if (mask & BIT(NOTIFY4_REMOVE_ENTRY)) {
+			proto_tree *rtree;
+
+			rtree = proto_tree_add_subtree(ntree, tvb, offset, 4,
+						       ett_nfs4_cb_notify_remove4,
+						       NULL, "Remove Entry");
+			offset = dissect_notify_remove4(tvb, offset, rtree, pinfo, civ);
+		}
+
+		if (mask & BIT(NOTIFY4_ADD_ENTRY)) {
+			proto_tree *atree;
+
+			atree = proto_tree_add_subtree(ntree, tvb, offset, 4,
+						       ett_nfs4_cb_notify_add4,
+						       NULL, "Add Entry");
+			offset = dissect_notify_add4(tvb, offset, atree, pinfo, civ);
+		}
+
+		if (mask & BIT(NOTIFY4_RENAME_ENTRY)) {
+			proto_tree *rtree;
+
+			rtree = proto_tree_add_subtree(ntree, tvb, offset, 4,
+						       ett_nfs4_cb_notify_rename4,
+						       NULL, "Rename Entry");
+			offset = dissect_notify_rename4(tvb, offset, rtree, pinfo, civ);
+		}
+		/* FIXME: NOTIFY4_CHANGE_COOKIE_VERIFIER */
+	}
+	return offset;
+}
 
 static int
 dissect_nfs4_cb_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, rpc_call_info_value *civ)
@@ -11805,6 +11939,8 @@ dissect_nfs4_cb_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tre
 			offset = dissect_nfs4_cb_recall_any_mask(tvb, offset, pinfo, newftree);
 			break;
 		case NFS4_OP_CB_NOTIFY:
+			offset = dissect_nfs4_cb_notify_args(tvb, offset, newftree, pinfo, civ);
+			break;
 		case NFS4_OP_CB_PUSH_DELEG:
 		case NFS4_OP_CB_RECALLABLE_OBJ_AVAIL:
 		case NFS4_OP_CB_RECALL_SLOT:
@@ -14619,6 +14755,10 @@ proto_register_nfs(void)
 			"Dir notification attrs", "nfs.gdd.dir_attrs",
 			FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL}},
 
+		{ &hf_nfs4_nad_last_entry, {
+			"last entry?", "nfs.notify.add.last_entry", FT_BOOLEAN, BASE_NONE,
+			TFS(&tfs_yes_no), 0x0, NULL, HFILL }},
+
 		{ &hf_nfs4_ff_local, {
 			"client used cache?", "nfs.ff.local", FT_BOOLEAN, BASE_NONE,
 			TFS(&tfs_yes_no), 0x0, NULL, HFILL }},
@@ -14933,6 +15073,7 @@ proto_register_nfs(void)
 		&ett_nfs4_listxattr_names,
 		&ett_nfs4_notify_delay,
 		&ett_nfs4_notify_attrs,
+		&ett_nfs4_cb_notify_changes,
 	};
 
 	static ei_register_info ei[] = {
