@@ -11,6 +11,9 @@
  * ------------------------------------------------------------------------------------------------
  * eCPRI Transport Network V1.2 -- Specifications
  * http://www.cpri.info/downloads/Requirements_for_the_eCPRI_Transport_Network_V1_2_2018_06_25.pdf
+ *
+ * May carry ORAN FH-CUS (packet-oran.c) - Message Types, 0, 2, 5
+ * See https://specifications.o-ran.org/specifications, WG4, Fronthaul Interfaces Workgroup
  * ------------------------------------------------------------------------------------------------
  */
 
@@ -332,7 +335,7 @@ static const true_false_string tfs_c_bit =
   "This eCPRI message is last one inside eCPRI PDU"
 };
 
-static dissector_handle_t oran_handle;
+static dissector_handle_t oran_fh_handle;
 
 /**************************************************************************************************/
 /* Implementation of the functions                                                                */
@@ -465,20 +468,20 @@ static int dissect_ecpri(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
         /* Call the FH CUS dissector if preference set */
         if (pref_message_type_decoding)
         {
-
             tvbuff_t *fh_tvb = tvb_new_subset_length(tvb, offset, payload_size);
             /***********************************************************************************************/
-            /* See whether O-RAN fronthaul sub-dissector that handles this, otherwise decode vanilla eCPRI */
+            /* See whether O-RAN fronthaul sub-dissector handles this, otherwise decode as vanilla eCPRI   */
             /* N.B. FH CUS dissector only handles:                                                         */
             /* - message type 0 (IQ DATA)                                                                  */
             /* - message type 2 (RT CTRL DATA)                                                             */
             /***********************************************************************************************/
-            if (call_dissector_only(oran_handle, fh_tvb, pinfo, tree, &msg_type))
+            if (call_dissector_only(oran_fh_handle, fh_tvb, pinfo, tree, &msg_type))
             {
                 /* Assume that it has claimed the entire tvb */
                 offset = tvb_reported_length(tvb);
             }
             else {
+                /* ORAN FH-CUS dissector didn't handle it */
                 switch (msg_type)
                 {
                 case ECPRI_MT_IQ_DATA:
@@ -881,7 +884,7 @@ void proto_register_ecpri(void)
     };
 
     expert_module_t* expert_ecpri;
-    module_t* module_message_decoding;
+    module_t* ecpri_module;
 
     /* Register the protocol name and description */
     proto_ecpri = proto_register_protocol("evolved Common Public Radio Interface",    /* Protoname */
@@ -897,11 +900,11 @@ void proto_register_ecpri(void)
     expert_ecpri = expert_register_protocol(proto_ecpri);
     expert_register_field_array(expert_ecpri, ei, array_length(ei));
     /* Register Preference */
-    module_message_decoding = prefs_register_protocol( proto_ecpri, NULL);
+    ecpri_module = prefs_register_protocol(proto_ecpri, NULL);
     /* If not set, it shows which message type was used, but no decoding of payload */
-    prefs_register_bool_preference(module_message_decoding,
+    prefs_register_bool_preference(ecpri_module,
             "ecpripref.msg.decoding",
-            "Decode Message Type",
+            "Decode Message Types",
             "Decode the Message Types according to eCPRI Specification V1.2",
     &pref_message_type_decoding);
 }
@@ -911,7 +914,7 @@ void proto_reg_handoff_ecpri(void)
     dissector_add_uint("ethertype", ETHERTYPE_ECPRI, ecpri_handle);             /* Ethertypes 0xAEFE */
     dissector_add_uint_range_with_preference("udp.port", "", ecpri_handle);     /* UDP Port Preference */
 
-    oran_handle = find_dissector("oran_fh_cus");
+    oran_fh_handle = find_dissector("oran_fh_cus");
 }
 
 /*

@@ -11,8 +11,9 @@
 
  /*
    * Dissector for the O-RAN Fronthaul CUS protocol specification.
+   * See https://specifications.o-ran.org/specifications, WG4, Fronthaul Interfaces Workgroup
    * The current implementation is based on the
-   * ORAN-WG4.CUS.0-v10.00 specification, dated 2022/07/23 (plus some enums from v13)
+   * ORAN-WG4.CUS.0-v10.00 specification, dated 2022/07/23 (plus some enums from v13, ST4+ST8 from v15)
    *
    */
 #include <config.h>
@@ -125,6 +126,7 @@ static int hf_oran_reserved_1bit;
 static int hf_oran_reserved_2bits;
 static int hf_oran_reserved_4bits;
 static int hf_oran_reserved_6bits;
+static int hf_oran_reserved_7bits;
 
 static int hf_oran_ext11_reserved;
 
@@ -243,6 +245,12 @@ static int hf_oran_sleepmode;
 static int hf_oran_log2maskbits;
 static int hf_oran_num_slots_ext;
 static int hf_oran_antMask_trx_control;
+
+static int hf_oran_ready;
+static int hf_oran_number_of_acks;
+static int hf_oran_number_of_nacks;
+static int hf_oran_ackid;
+static int hf_oran_nackid;
 
 
 /* Computed fields */
@@ -1319,7 +1327,8 @@ static int dissect_ciCompParam(tvbuff_t *tvb, proto_tree *tree, packet_info *pin
  * N.B. these are the green parts of the tables showing Section Types, differing by section Type */
 static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
                                   uint32_t sectionType, proto_item *protocol_item,
-                                  uint8_t ci_iq_width, uint8_t ci_comp_meth, unsigned ci_comp_opt)
+                                  uint8_t ci_iq_width, uint8_t ci_comp_meth, unsigned ci_comp_opt,
+                                  uint32_t number_of_acks, uint32_t number_of_nacks)
 {
     unsigned offset = 0;
     proto_tree *c_section_tree = NULL;
@@ -1659,6 +1668,19 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
         }
         /* For now just skip indicated length of bytes */
         offset = payload_offset + 4*(laa_msg_len+1);
+    }
+    else if (sectionType == SEC_C_ACK_NACK_FEEDBACK) {
+        proto_item *ti;
+        for (unsigned int n=1; n <= number_of_acks; n++) {
+            ti = proto_tree_add_item(c_section_tree, hf_oran_ackid, tvb, offset, 2, ENC_BIG_ENDIAN);
+            proto_item_append_text(ti, " [%u]", n);
+            offset += 2;
+        }
+        for (unsigned int m=1; m <= number_of_nacks; m++) {
+            ti = proto_tree_add_item(c_section_tree, hf_oran_nackid, tvb, offset, 2, ENC_BIG_ENDIAN);
+            proto_item_append_text(ti, " [%u]", m);
+            offset += 2;
+        }
     }
 
     /* Section extension commands */
@@ -2817,19 +2839,26 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
     uint32_t sectionType = 0;
     sectionType = tvb_get_uint8(tvb, offset+1);
 
-    /* numberOfSections */
+    /* numberOfSections (or whatever section has instead) */
     uint32_t nSections = 0;
-    if (sectionType != SEC_C_SLOT_CONTROL) {
-        proto_tree_add_item_ret_uint(section_tree, hf_oran_numberOfSections, tvb, offset, 1, ENC_NA, &nSections);
-        offset += 1;
-    }
-    else {
+    if (sectionType == SEC_C_SLOT_CONTROL) {
         /* Slot Control has these fields instead */
         /* reserved */
         proto_tree_add_item(section_tree, hf_oran_reserved_4bits, tvb, offset, 1, ENC_NA);
         /* cmdScope */
         proto_tree_add_item(section_tree, hf_oran_cmd_scope, tvb, offset, 1, ENC_NA);
-        offset++;
+        offset += 1;
+    }
+    else if (sectionType == SEC_C_ACK_NACK_FEEDBACK) {
+        /* reserved (7 bits) */
+        proto_tree_add_item(section_tree, hf_oran_reserved_7bits, tvb, offset, 1, ENC_NA);
+        /* ready (1 bit) */
+        proto_tree_add_item(section_tree, hf_oran_ready, tvb, offset, 1, ENC_NA);
+        offset += 1;
+    }
+    else {
+        proto_tree_add_item_ret_uint(section_tree, hf_oran_numberOfSections, tvb, offset, 1, ENC_NA, &nSections);
+        offset += 1;
     }
 
     /* sectionType */
@@ -2843,6 +2872,7 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
 
     uint32_t scs, slots_per_subframe;
     uint32_t num_ues = 0;
+    uint32_t number_of_acks = 0, number_of_nacks = 0;
     proto_item *ti;
 
     switch (sectionType) {
@@ -2912,13 +2942,16 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
                                        rval_to_str_const(st4_cmd_type, st4_cmd_type_vals, "Unknown"),
                                        st4_cmd_len);
 
-                /* TODO: add format accoding to cmd Type */
+                /* Add format according to cmd Type */
                 /* TODO: add in own subtrees? */
                 switch (st4_cmd_type) {
                     case 1:  /* TIME_DOMAIN_BEAM_CONFIG */
+                        /* TODO: */
                         break;
                     case 2:  /* TDD_CONFIG_PATTERN */
+                        /* TODO: */
                         break;
+
                     case 3:  /* TRX_CONTROL */
                         /* reserved */
                         proto_tree_add_item(section_tree, hf_oran_reserved_1bit, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -2948,6 +2981,7 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
 
                         /* [padding] */
                         break;
+
                     case 4:  /* ASM (advanced sleep mode) */
                         /* reserved */
                         proto_tree_add_item(section_tree, hf_oran_reserved_1bit, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -3022,6 +3056,15 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
         case SEC_C_LAA:
             /* TODO: */
             break;
+
+        case SEC_C_ACK_NACK_FEEDBACK:
+            /* numberOfAcks (1 byte) */
+            proto_tree_add_item_ret_uint(section_tree, hf_oran_number_of_acks, tvb, offset, 1, ENC_BIG_ENDIAN, &number_of_acks);
+            offset += 1;
+            /* numberOfNacks (1 byte) */
+            proto_tree_add_item_ret_uint(section_tree, hf_oran_number_of_nacks, tvb, offset, 1, ENC_BIG_ENDIAN, &number_of_nacks);
+            offset += 1;
+            break;
     };
 
     proto_item_append_text(sectionHeading, "%d, %s, Frame: %d, Subframe: %d, Slot: %d, StartSymbol: %d",
@@ -3038,7 +3081,8 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
     for (uint32_t i = 0; i < nSections; ++i) {
         tvbuff_t *section_tvb = tvb_new_subset_length_caplen(tvb, offset, -1, -1);
         offset += dissect_oran_c_section(section_tvb, oran_tree, pinfo, sectionType, protocol_item,
-                                         bit_width, ci_comp_method, ci_comp_opt);
+                                         bit_width, ci_comp_method, ci_comp_opt,
+                                         number_of_acks, number_of_nacks);
     }
 
     /* Expert error if we are short of tvb by > 3 bytes */
@@ -3945,6 +3989,14 @@ proto_register_oran(void)
           NULL,
           HFILL}
         },
+        {&hf_oran_reserved_7bits,
+         {"reserved", "oran_fh_cus.reserved",
+          FT_UINT8, BASE_HEX,
+          NULL, 0xfe,
+          NULL,
+          HFILL}
+        },
+
 
         /* 7.7.11 */
         {&hf_oran_ext11_reserved,
@@ -4768,6 +4820,46 @@ proto_register_oran(void)
           NULL,
           HFILL}
         },
+
+        {&hf_oran_ready,
+         {"ready", "oran_fh_cus.ready",
+          FT_BOOLEAN, 8,
+          NULL, 0x01,
+          "wake-up ready indicator",
+          HFILL}
+        },
+        /* 7.5.3.34 */
+        {&hf_oran_number_of_acks,
+         {"numberOfAcks", "oran_fh_cus.numberOfAcks",
+          FT_UINT8, BASE_DEC,
+          NULL, 0x01,
+          "number of ACKs for one eAxC_ID",
+          HFILL}
+        },
+        /* 7.5.3.35 */
+        {&hf_oran_number_of_nacks,
+         {"numberOfNacks", "oran_fh_cus.numberOfNacks",
+          FT_UINT8, BASE_DEC,
+          NULL, 0x01,
+          "number of NACKs for one eAxC_ID",
+          HFILL}
+        },
+        /* 7.5.3.36 */
+        {&hf_oran_ackid,
+         {"ackId", "oran_fh_cus.ackId",
+          FT_UINT16, BASE_DEC,
+          NULL, 0x0,
+          NULL,
+          HFILL}
+        },
+        /* 7.5.3.37 */
+        {&hf_oran_nackid,
+         {"nackId", "oran_fh_cus.nackId",
+          FT_UINT16, BASE_DEC,
+          NULL, 0x0,
+          NULL,
+          HFILL}
+        }
 
     };
 
