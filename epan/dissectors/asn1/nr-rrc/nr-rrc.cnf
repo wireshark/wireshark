@@ -2456,6 +2456,138 @@ HysteresisAltitude-r18 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_mete
 #.TYPE_ATTR
 LCG-DSR-Config-r18/remainingTimeThreshold-r18 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_milliseconds)
 
+#.FN_FTR DLDedicatedMessageSegment-r16-IEs
+  if (nr_rrc_reassemble_dcch_segments) {
+    uint16_t *p_ueid = nr_rrc_get_ueid_from_lower_layers(wmem_file_scope(), actx->pinfo);
+    uint32_t ueid, id, count;
+    fragment_head *frag_data;
+    tvbuff_t *reassembled_tvb;
+    wmem_tree_key_t key[3];
+    nr_rrc_private_data_t *nr_priv = nr_rrc_get_private_data(actx);
+
+    if (p_ueid != NULL) {
+      ueid = *p_ueid;
+    } else {
+      ueid = 0;
+    }
+    key[0].length = 1;
+    key[0].key = &ueid;
+    key[1].length = 1;
+    key[1].key = &actx->pinfo->num;
+    key[2].length = 0;
+    key[2].key = NULL;
+    if (!PINFO_FD_VISITED(actx->pinfo)) {
+      void *value;
+
+      if (wmem_map_lookup_extended(nr_rrc_dcch_segment_ueid_count_hash, GUINT_TO_POINTER((ueid<<16)|(1<<15)), NULL, &value)) {
+        count = GPOINTER_TO_UINT(value);
+      } else {
+        count = 0;
+      }
+      if (nr_priv->dcch_segment_number == 0) {
+        /* new segmented message */
+        count++;
+        wmem_map_insert(nr_rrc_dcch_segment_ueid_count_hash, GUINT_TO_POINTER((ueid<<16)|(1<<15)), GUINT_TO_POINTER(count));
+      }
+      id = (ueid<<16)|(1<<15)|(count&0x7fff);
+      wmem_tree_insert32_array(nr_rrc_dcch_segment_id_tree, key, GUINT_TO_POINTER(id));
+    } else {
+      id = GPOINTER_TO_UINT(wmem_tree_lookup32_array(nr_rrc_dcch_segment_id_tree, key));
+    }
+    if (nr_priv->dcch_segment != NULL) {
+      frag_data = fragment_add_seq_check(&nr_rrc_dcch_segment_reassembly_table, nr_priv->dcch_segment, 0, actx->pinfo,
+                                         id, NULL, nr_priv->dcch_segment_number,
+                                         tvb_reported_length(nr_priv->dcch_segment),
+                                         !nr_priv->dcch_segment_last);
+      reassembled_tvb = process_reassembled_data(nr_priv->dcch_segment, 0, actx->pinfo, "Reassembled DL Dedicated Message",
+                                                 frag_data, &nr_rrc_dcch_segment_frag_items, NULL, tree);
+      if (reassembled_tvb) {
+        dissect_DL_DCCH_Message_PDU(reassembled_tvb, actx->pinfo, tree, NULL);
+      }
+    }
+  }
+
+#.FN_BODY DLDedicatedMessageSegment-r16-IEs/segmentNumber-r16 VAL_PTR=&value
+  uint32_t value;
+%(DEFAULT_BODY)s
+  nr_rrc_get_private_data(actx)->dcch_segment_number = value;
+
+#.FN_BODY DLDedicatedMessageSegment-r16-IEs/rrc-MessageSegmentContainer-r16 VAL_PTR=&segment
+  tvbuff_t *segment;
+%(DEFAULT_BODY)s
+  nr_rrc_get_private_data(actx)->dcch_segment = segment;
+
+#.FN_BODY DLDedicatedMessageSegment-r16-IEs/rrc-MessageSegmentType-r16 VAL_PTR=&value
+  uint32_t value;
+%(DEFAULT_BODY)s
+  nr_rrc_get_private_data(actx)->dcch_segment_last = (value > 0) ? true : false;
+
+#.FN_FTR ULDedicatedMessageSegment-r16-IEs
+  if (nr_rrc_reassemble_dcch_segments) {
+    uint16_t *p_ueid = nr_rrc_get_ueid_from_lower_layers(wmem_file_scope(), actx->pinfo);
+    uint32_t ueid, id, count;
+    fragment_head *frag_data;
+    tvbuff_t *reassembled_tvb;
+    wmem_tree_key_t key[3];
+    nr_rrc_private_data_t *nr_priv = nr_rrc_get_private_data(actx);
+
+    if (p_ueid != NULL) {
+      ueid = *p_ueid;
+    } else {
+      ueid = 0;
+    }
+    key[0].length = 1;
+    key[0].key = &ueid;
+    key[1].length = 1;
+    key[1].key = &actx->pinfo->num;
+    key[2].length = 0;
+    key[2].key = NULL;
+    if (!PINFO_FD_VISITED(actx->pinfo)) {
+      void *value;
+
+      if (wmem_map_lookup_extended(nr_rrc_dcch_segment_ueid_count_hash, GUINT_TO_POINTER(ueid<<16), NULL, &value)) {
+        count = GPOINTER_TO_UINT(value);
+      } else {
+        count = 0;
+      }
+      if (nr_priv->dcch_segment_number == 0) {
+        /* new segmented message */
+        count++;
+        wmem_map_insert(nr_rrc_dcch_segment_ueid_count_hash, GUINT_TO_POINTER(ueid<<16), GUINT_TO_POINTER(count));
+      }
+      id = (ueid<<16)|(count&0x7fff);
+      wmem_tree_insert32_array(nr_rrc_dcch_segment_id_tree, key, GUINT_TO_POINTER(id));
+    } else {
+      id = GPOINTER_TO_UINT(wmem_tree_lookup32_array(nr_rrc_dcch_segment_id_tree, key));
+    }
+    if (nr_priv->dcch_segment != NULL) {
+      frag_data = fragment_add_seq_check(&nr_rrc_dcch_segment_reassembly_table, nr_priv->dcch_segment, 0, actx->pinfo,
+                                         id, NULL, nr_priv->dcch_segment_number,
+                                         tvb_reported_length(nr_priv->dcch_segment),
+                                         !nr_priv->dcch_segment_last);
+      reassembled_tvb = process_reassembled_data(nr_priv->dcch_segment, 0, actx->pinfo, "Reassembled UL Dedicated Message",
+                                                 frag_data, &nr_rrc_dcch_segment_frag_items, NULL, tree);
+      if (reassembled_tvb) {
+        dissect_nr_rrc_UL_DCCH_Message_PDU(reassembled_tvb, actx->pinfo, tree, NULL);
+      }
+    }
+  }
+
+#.FN_BODY ULDedicatedMessageSegment-r16-IEs/segmentNumber-r16 VAL_PTR=&value
+  uint32_t value;
+%(DEFAULT_BODY)s
+  nr_rrc_get_private_data(actx)->dcch_segment_number = value;
+
+#.FN_BODY ULDedicatedMessageSegment-r16-IEs/rrc-MessageSegmentContainer-r16 VAL_PTR=&segment
+  tvbuff_t *segment;
+%(DEFAULT_BODY)s
+  nr_rrc_get_private_data(actx)->dcch_segment = segment;
+
+#.FN_BODY ULDedicatedMessageSegment-r16-IEs/rrc-MessageSegmentType-r16 VAL_PTR=&value
+  uint32_t value;
+%(DEFAULT_BODY)s
+  nr_rrc_get_private_data(actx)->dcch_segment_last = (value > 0) ? true : false;
+
 #.FN_HDR SBCCH-SL-BCH-Message
   proto_item *ti;
 
