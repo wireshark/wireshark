@@ -1047,8 +1047,6 @@ static compression_type_test const compression_type_tests[] = {
 static int
 check_for_compression(FILE_T state)
 {
-    unsigned already_read;
-
     /* get some data in the input buffer */
     if (state->in.avail == 0) {
         if (fill_in_buffer(state) == -1)
@@ -1092,22 +1090,15 @@ check_for_compression(FILE_T state)
      * We didn't see anything that looks like a header for any type of
      * compressed file that we support, so just do uncompressed I/O.
      *
-     * XXX - we don't need the fast seek stuff for that, as we don't
-     * have any compression state to keep track of and don't need to
-     * map between offsets in the uncompressed data and offsets in
-     * the compressed file; what are we doing here?
-     *
-     * XXX - The fast seek data is presumably for the case where a compressed
-     * stream ends and is followed by an uncompressed portion. Theoretically
-     * that should work (e.g., compress a pcapng file and then concatenate
-     * a uncompressed pcapng on the end.) It doesn't quite work though, and
-     * it only _could_ work if the uncompressed portion were at the end, as
-     * we don't constantly scan for magic bytes in the middle of uncompressed
-     * data. (Concatenated compressed streams _do_ work, even streams of
-     * different compression types.)
+     * XXX - This fast seek data is for the case where a compressed stream
+     * ends and is followed by an uncompressed portion.  It only works if
+     * the uncompressed portion is at the end, as we don't constantly scan
+     * for magic bytes in the middle of uncompressed data. (Concatenated
+     * compressed streams _do_ work, even streams of different compression types.)
      */
     if (state->fast_seek)
-        fast_seek_header(state, state->raw_pos - state->in.avail - state->out.avail, state->pos, UNCOMPRESSED);
+        fast_seek_header(state, state->raw_pos - state->in.avail, state->pos, UNCOMPRESSED);
+
 
     /* doing raw i/o, save start of raw data for seeking, copy any leftover
        input to output -- this assumes that the output buffer is larger than
@@ -1116,10 +1107,9 @@ check_for_compression(FILE_T state)
     state->out.next = state->out.buf;
     /* not a compressed file -- copy everything we've read into the
        input buffer to the output buffer and fall to raw i/o */
-    already_read = bytes_in_buffer(&state->in);
-    if (already_read != 0) {
-        memcpy(state->out.buf, state->in.buf, already_read);
-        state->out.avail = already_read;
+    if (state->in.avail) {
+        memcpy(state->out.buf, state->in.next, state->in.avail);
+        state->out.avail = state->in.avail;
 
         /* Now discard everything in the input buffer */
         buf_reset(&state->in);
