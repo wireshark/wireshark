@@ -930,8 +930,8 @@ check_for_zstd_compression(FILE_T state)
      * success if we support Zstandard and an error if we don't.
      */
     if (state->in.avail >= 4
-        && state->in.buf[0] == 0x28 && state->in.buf[1] == 0xb5
-        && state->in.buf[2] == 0x2f && state->in.buf[3] == 0xfd) {
+        && state->in.next[0] == 0x28 && state->in.next[1] == 0xb5
+        && state->in.next[2] == 0x2f && state->in.next[3] == 0xfd) {
 #ifdef HAVE_ZSTD
         const size_t ret = ZSTD_initDStream(state->zstd_dctx);
         if (ZSTD_isError(ret)) {
@@ -1004,8 +1004,8 @@ check_for_lz4_compression(FILE_T state)
      * if we support lz4 and an error if we don't.
      */
     if (state->in.avail >= 4
-        && state->in.buf[0] == 0x04 && state->in.buf[1] == 0x22
-        && state->in.buf[2] == 0x4d && state->in.buf[3] == 0x18) {
+        && state->in.next[0] == 0x04 && state->in.next[1] == 0x22
+        && state->in.next[2] == 0x4d && state->in.next[3] == 0x18) {
 #ifdef USE_LZ4
 #if LZ4_VERSION_NUMBER >= 10800
         LZ4F_resetDecompressionContext(state->lz4_dctx);
