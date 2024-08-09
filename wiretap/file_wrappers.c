@@ -1096,6 +1096,15 @@ check_for_compression(FILE_T state)
      * have any compression state to keep track of and don't need to
      * map between offsets in the uncompressed data and offsets in
      * the compressed file; what are we doing here?
+     *
+     * XXX - The fast seek data is presumably for the case where a compressed
+     * stream ends and is followed by an uncompressed portion. Theoretically
+     * that should work (e.g., compress a pcapng file and then concatenate
+     * a uncompressed pcapng on the end.) It doesn't quite work though, and
+     * it only _could_ work if the uncompressed portion were at the end, as
+     * we don't constantly scan for magic bytes in the middle of uncompressed
+     * data. (Concatenated compressed streams _do_ work, even streams of
+     * different compression types.)
      */
     if (state->fast_seek)
         fast_seek_header(state, state->raw_pos - state->in.avail - state->out.avail, state->pos, UNCOMPRESSED);
