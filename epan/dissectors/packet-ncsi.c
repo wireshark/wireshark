@@ -710,7 +710,7 @@ dissect_ncsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     proto_tree *ncsi_tree, *ncsi_payload_tree;
     proto_item *ti, *pti;
     uint8_t type, plen, poffset;
-    uint16_t err_status;
+    uint32_t resp_code, reason_code;
 
     static int * const type_masked_fields[] = {
         &hf_ncsi_type_code_masked,
@@ -772,13 +772,13 @@ dissect_ncsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             plen, ett_ncsi_payload, &pti, "Payload");
 
     /* All responses start with response code & reason data */
-    err_status = 0;
+    resp_code = 0;
+    reason_code = 0;
     if (type != 0xff && type & 0x80) {
-        proto_tree_add_item(ncsi_payload_tree, hf_ncsi_resp, tvb,
-                16, 2, ENC_NA);
-        proto_tree_add_item(ncsi_payload_tree, hf_ncsi_reason, tvb,
-                18, 2, ENC_NA);
-        err_status = tvb_get_uint16(tvb, 16, ENC_BIG_ENDIAN) + tvb_get_uint16(tvb, 18, ENC_BIG_ENDIAN);
+        proto_tree_add_item_ret_uint(ncsi_payload_tree, hf_ncsi_resp, tvb,
+                16, 2, ENC_NA, &resp_code);
+        proto_tree_add_item_ret_uint(ncsi_payload_tree, hf_ncsi_reason, tvb,
+                18, 2, ENC_NA, &reason_code);
     }
 
     if (type == NCSI_TYPE_AEN) {
@@ -878,7 +878,7 @@ dissect_ncsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                     proto_item_set_text(opti, "Get Temperature reply");
                     proto_tree_add_bitmask(oem_payload_tree, tvb, 16 + poffset + 7, hf_ncsi_mlnx_gtemp_index, ett_ncsi_mlnx, mlx_gtemp_fields, ENC_NA);
                     proto_tree_add_bitmask(oem_payload_tree, tvb, 16 + poffset + 8, hf_ncsi_mlnx_gtemp_pad_mms, ett_ncsi_mlnx, mlx_gtemp_pad_fields, ENC_NA);
-                    if(!err_status) {
+                    if(resp_code ==0 && reason_code == 0) {
                         proto_tree_add_item(oem_payload_tree, hf_ncsi_mlnx_temp1, tvb, 16 + poffset + 9, 1, ENC_NA);
                         proto_tree_add_item(oem_payload_tree, hf_ncsi_mlnx_temp2, tvb, 16 + poffset + 10, 1, ENC_NA);
                         proto_tree_add_item(oem_payload_tree, hf_ncsi_mlnx_temp3, tvb, 16 + poffset + 11, 1, ENC_NA);
