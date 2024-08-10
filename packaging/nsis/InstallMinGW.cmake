@@ -5,9 +5,9 @@ if(MINGW)
 	# mingw-w64 dlls
 	file(GLOB MINGW_DLLS
 		${MINGW_BINDIR}/iconv.dll
-		${MINGW_BINDIR}/icudata72.dll
-		${MINGW_BINDIR}/icui18n72.dll
-		${MINGW_BINDIR}/icuuc72.dll
+		${MINGW_BINDIR}/icudata[1-9][0-9].dll
+		${MINGW_BINDIR}/icui18n[1-9][0-9].dll
+		${MINGW_BINDIR}/icuuc[1-9][0-9].dll
 		${MINGW_BINDIR}/libbrotlicommon.dll
 		${MINGW_BINDIR}/libbrotlidec.dll
 		${MINGW_BINDIR}/libbrotlienc.dll
