@@ -44,8 +44,12 @@
         <translation>Klasörler</translation>
     </message>
     <message>
+        <source>Search Folders</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Filter by path</source>
-        <translation>Yola göre filtrele</translation>
+        <translation type="vanished">Yola göre filtrele</translation>
     </message>
     <message>
         <source>Plugins</source>
@@ -6909,6 +6913,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>En son kullanılan klasör</translation>
     </message>
     <message>
+        <source>The current working directory</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Show up to</source>
         <translation>Kadar göster</translation>
     </message>
@@ -7337,6 +7345,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Show Field Values</source>
         <translation>Alan Değerlerini Göster</translation>
+    </message>
+    <message>
+        <source>Refresh</source>
+        <translation type="unfinished">Yenile</translation>
     </message>
     <message>
         <source>Save Diagram As…</source>

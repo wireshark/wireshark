@@ -44,8 +44,12 @@
         <translation>Cartelle</translation>
     </message>
     <message>
+        <source>Search Folders</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Filter by path</source>
-        <translation>Filtro per percorso</translation>
+        <translation type="vanished">Filtro per percorso</translation>
     </message>
     <message>
         <source>Plugins</source>
@@ -3013,7 +3017,7 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>Export PDUs</source>
-        <translation type="unfinished"></translation>
+        <translation>Esporta PDU</translation>
     </message>
 </context>
 <context>
@@ -6931,6 +6935,10 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation>La cartella usata più di recente</translation>
     </message>
     <message>
+        <source>The current working directory</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Show up to</source>
         <translation>Mostra fino a</translation>
     </message>
@@ -7359,6 +7367,10 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     <message>
         <source>Show Field Values</source>
         <translation>Mostra i valori dei campi</translation>
+    </message>
+    <message>
+        <source>Refresh</source>
+        <translation type="unfinished">Aggiorna</translation>
     </message>
     <message>
         <source>Save Diagram As…</source>
@@ -11651,7 +11663,7 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>Strip Headers</source>
-        <translation type="unfinished"></translation>
+        <translation>Rimuovi intestazioni</translation>
     </message>
 </context>
 <context>

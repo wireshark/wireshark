@@ -44,8 +44,12 @@
         <translation>文件夹</translation>
     </message>
     <message>
+        <source>Search Folders</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Filter by path</source>
-        <translation>按路径过滤</translation>
+        <translation type="vanished">按路径过滤</translation>
     </message>
     <message>
         <source>Plugins</source>
@@ -6903,6 +6907,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>最近使用的文件夹</translation>
     </message>
     <message>
+        <source>The current working directory</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Show up to</source>
         <translation>显示最多</translation>
     </message>
@@ -7331,6 +7339,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Show Field Values</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Refresh</source>
+        <translation type="unfinished">刷新</translation>
     </message>
     <message>
         <source>Save Diagram As…</source>

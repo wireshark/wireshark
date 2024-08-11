@@ -44,8 +44,12 @@
         <translation>Dossiers</translation>
     </message>
     <message>
+        <source>Search Folders</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Filter by path</source>
-        <translation>Filtrer par chemin</translation>
+        <translation type="vanished">Filtrer par chemin</translation>
     </message>
     <message>
         <source>Plugins</source>
@@ -6928,6 +6932,10 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
         <translation>Le dernier dossier utilisé</translation>
     </message>
     <message>
+        <source>The current working directory</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Show up to</source>
         <translation>Afficher</translation>
     </message>
@@ -7356,6 +7364,10 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
     <message>
         <source>Show Field Values</source>
         <translation>Afficher les valeurs de champ</translation>
+    </message>
+    <message>
+        <source>Refresh</source>
+        <translation type="unfinished">Rafraîchir</translation>
     </message>
     <message>
         <source>Save Diagram As…</source>

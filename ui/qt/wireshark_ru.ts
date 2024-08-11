@@ -44,8 +44,12 @@
         <translation>Папки</translation>
     </message>
     <message>
+        <source>Search Folders</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Filter by path</source>
-        <translation>Фильтр по пути размещения</translation>
+        <translation type="vanished">Фильтр по пути размещения</translation>
     </message>
     <message>
         <source>Plugins</source>
@@ -6951,6 +6955,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Последняя использованная папка</translation>
     </message>
     <message>
+        <source>The current working directory</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Show up to</source>
         <translation>Показывать до</translation>
     </message>
@@ -7379,6 +7387,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Show Field Values</source>
         <translation>Показать значения полей</translation>
+    </message>
+    <message>
+        <source>Refresh</source>
+        <translation type="unfinished">Обновить</translation>
     </message>
     <message>
         <source>Save Diagram As…</source>

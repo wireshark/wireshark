@@ -44,8 +44,12 @@
         <translation>Ordner</translation>
     </message>
     <message>
+        <source>Search Folders</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Filter by path</source>
-        <translation>Nach Pfad filtern</translation>
+        <translation type="vanished">Nach Pfad filtern</translation>
     </message>
     <message>
         <source>Plugins</source>
@@ -6931,6 +6935,10 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
         <translation>Zuletzt genutztem Ordner</translation>
     </message>
     <message>
+        <source>The current working directory</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Show up to</source>
         <translation>Anzeigen von maximal</translation>
     </message>
@@ -7359,6 +7367,10 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     <message>
         <source>Show Field Values</source>
         <translation>Zeige Feldwerte</translation>
+    </message>
+    <message>
+        <source>Refresh</source>
+        <translation type="unfinished">Aktualisieren</translation>
     </message>
     <message>
         <source>Save Diagram As…</source>

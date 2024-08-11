@@ -44,8 +44,12 @@
         <translation>Carpetas</translation>
     </message>
     <message>
+        <source>Search Folders</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Filter by path</source>
-        <translation>Filtrar por ruta</translation>
+        <translation type="vanished">Filtrar por ruta</translation>
     </message>
     <message>
         <source>Plugins</source>
@@ -6865,6 +6869,10 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
         <translation>La carpeta usada más recientemente</translation>
     </message>
     <message>
+        <source>The current working directory</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Show up to</source>
         <translation>Mostrar hasta</translation>
     </message>
@@ -7293,6 +7301,10 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     <message>
         <source>Show Field Values</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Refresh</source>
+        <translation type="unfinished">Actualizar</translation>
     </message>
     <message>
         <source>Save Diagram As…</source>

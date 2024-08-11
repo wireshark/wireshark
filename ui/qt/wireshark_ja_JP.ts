@@ -44,8 +44,12 @@
         <translation>フォルダ</translation>
     </message>
     <message>
+        <source>Search Folders</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Filter by path</source>
-        <translation>パスでフィルタ</translation>
+        <translation type="vanished">パスでフィルタ</translation>
     </message>
     <message>
         <source>Plugins</source>
@@ -3005,7 +3009,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Export PDUs</source>
-        <translation type="unfinished"></translation>
+        <translation>PDUをエクスポート</translation>
     </message>
 </context>
 <context>
@@ -6912,6 +6916,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>一番最近に使ったフォルダ</translation>
     </message>
     <message>
+        <source>The current working directory</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Show up to</source>
         <translation>ここまで表示</translation>
     </message>
@@ -7340,6 +7348,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Show Field Values</source>
         <translation>フィールド値を表示</translation>
+    </message>
+    <message>
+        <source>Refresh</source>
+        <translation type="unfinished">更新</translation>
     </message>
     <message>
         <source>Save Diagram As…</source>
@@ -11619,7 +11631,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Strip Headers</source>
-        <translation type="unfinished"></translation>
+        <translation>ヘッダーを除去</translation>
     </message>
 </context>
 <context>

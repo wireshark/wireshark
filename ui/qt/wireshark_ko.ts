@@ -44,8 +44,12 @@
         <translation>폴더</translation>
     </message>
     <message>
+        <source>Search Folders</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Filter by path</source>
-        <translation>경로로 필터</translation>
+        <translation type="vanished">경로로 필터</translation>
     </message>
     <message>
         <source>Plugins</source>
@@ -6909,6 +6913,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>가장 최근에 사용한 폴더</translation>
     </message>
     <message>
+        <source>The current working directory</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Show up to</source>
         <translation>최대 표시 개수</translation>
     </message>
@@ -7337,6 +7345,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Show Field Values</source>
         <translation>필드 값 표시</translation>
+    </message>
+    <message>
+        <source>Refresh</source>
+        <translation type="unfinished">새로 고침</translation>
     </message>
     <message>
         <source>Save Diagram As…</source>

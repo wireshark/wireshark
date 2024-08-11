@@ -44,7 +44,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Filter by path</source>
+        <source>Search Folders</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -6870,6 +6870,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>The current working directory</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Show up to</source>
         <translation type="unfinished"></translation>
     </message>
@@ -7297,6 +7301,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Show Field Values</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Refresh</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

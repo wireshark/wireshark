@@ -44,8 +44,12 @@
         <translation>Mappar</translation>
     </message>
     <message>
+        <source>Search Folders</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Filter by path</source>
-        <translation>Filtrera efter sökväg</translation>
+        <translation type="vanished">Filtrera efter sökväg</translation>
     </message>
     <message>
         <source>Plugins</source>
@@ -6929,6 +6933,10 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <translation>Den senast använda mappen</translation>
     </message>
     <message>
+        <source>The current working directory</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Show up to</source>
         <translation>Visa upp till</translation>
     </message>
@@ -7357,6 +7365,10 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     <message>
         <source>Show Field Values</source>
         <translation>Visa fältvärden</translation>
+    </message>
+    <message>
+        <source>Refresh</source>
+        <translation type="unfinished">Uppdatera</translation>
     </message>
     <message>
         <source>Save Diagram As…</source>
