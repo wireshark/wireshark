@@ -2613,6 +2613,7 @@ dissect_v2_control_cur_range(tvbuff_t *tvb, int offset, packet_info *pinfo,
             default:
                 title = "Unknown Layout Parameter Block";
                 attribute_size = 0;
+                cur_hf = min_hf = max_hf = res_hf = 0;
                 break;
         }
 
