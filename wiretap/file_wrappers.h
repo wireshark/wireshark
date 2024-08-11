@@ -44,4 +44,15 @@ extern int gzwfile_close(GZWFILE_T state);
 extern int gzwfile_geterr(GZWFILE_T state);
 #endif /* HAVE_ZLIB */
 
+#ifdef HAVE_LZ4
+typedef struct lz4_writer *LZ4WFILE_T;
+
+extern LZ4WFILE_T lz4wfile_open(const char *path);
+extern LZ4WFILE_T lz4wfile_fdopen(int fd);
+extern size_t lz4wfile_write(LZ4WFILE_T state, const void *buf, size_t len);
+extern int lz4wfile_flush(LZ4WFILE_T state);
+extern int lz4wfile_close(LZ4WFILE_T state);
+extern int lz4wfile_geterr(LZ4WFILE_T state);
+#endif
+
 #endif /* __FILE_H__ */
