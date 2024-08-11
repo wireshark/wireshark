@@ -40,7 +40,7 @@ for i in range(256):
 for utf8line in lines:
     # Convert single backslashes to double (escaped) backslashes, escape quotes, etc.
     utf8line = utf8line.rstrip()
-    utf8line = re.sub("\?+", "?", utf8line)
+    utf8line = re.sub(r"\?+", "?", utf8line)
     line = ''.join(escapes[byte] for byte in utf8line.encode('utf8'))
 
     if line == "# Vendors, devices and interfaces. Please keep sorted.":
