@@ -7880,15 +7880,7 @@ decode_prefix_MP(proto_tree *tree, int hf_path_id, int hf_addr4, int hf_addr6,
                                         tag, plen);
                     return -1;
                 }
-                plen -= (labnum * 3*8);
-
-                if (plen < 8*8) {
-                    proto_tree_add_expert_format(tree, pinfo, &ei_bgp_prefix_length_invalid, tvb, start_offset, 1,
-                                        "%s Labeled VPN IPv4 prefix length %u invalid",
-                                        tag, plen + (labnum * 3*8));
-                    return -1;
-                }
-                plen -= 8*8;
+                plen -= (labnum * 3*8 + 8*8);
 
                 length = tvb_get_ipv4_addr_with_prefix_len(tvb, offset + 8, &ip4addr, plen);
                 if (length < 0) {
@@ -8078,15 +8070,7 @@ decode_prefix_MP(proto_tree *tree, int hf_path_id, int hf_addr4, int hf_addr6,
                                         "%s Labeled VPN IPv6 prefix length %u invalid", tag, plen);
                     return -1;
                 }
-                plen -= (labnum * 3*8);
-
-                if (plen < 8*8) {
-                    proto_tree_add_expert_format(tree, pinfo, &ei_bgp_prefix_length_invalid, tvb, start_offset, 1,
-                                        "%s Labeled VPN IPv6 prefix length %u invalid",
-                                        tag, plen + (labnum * 3*8));
-                    return -1;
-                }
-                plen -= 8*8;
+                plen -= (labnum * 3*8 + 8*8);
 
                 length = tvb_get_ipv6_addr_with_prefix_len(tvb, offset + 8, &ip6addr, plen);
                 if (length < 0) {
