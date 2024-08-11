@@ -71,15 +71,15 @@ QString ColumnTypeDelegate::alignDesc(char xalign)
 {
     switch (xalign) {
     case COLUMN_XALIGN_DEFAULT:
-        return tr("Default");
+        return QObject::tr("Default");
     case COLUMN_XALIGN_LEFT:
-        return tr("Left");
+        return QObject::tr("Left");
     case COLUMN_XALIGN_CENTER:
-        return tr("Center");
+        return QObject::tr("Center");
     case COLUMN_XALIGN_RIGHT:
-        return tr("Right");
+        return QObject::tr("Right");
     default:
-        return tr("Unknown");
+        return QObject::tr("Unknown");
     }
 }
 
