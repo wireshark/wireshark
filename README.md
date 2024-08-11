@@ -89,10 +89,14 @@ the required compression library was available when Wireshark was compiled.
 Currently supported compression formats are:
 
 - GZIP
-- ZSTD
 - LZ4
+- ZSTD
 
-You can disable zlib support by running `cmake -DENABLE_ZLIB=OFF`.
+GZIP and LZ4 (when using independent blocks, which is the default) support
+fast random seeking, which offers much better GUI performance on large files.
+Any of these compression formats can be disabled at compile time by passing
+the corresponding option to cmake, i.e., `cmake -DENABLE_ZLIB=OFF`,
+`cmake -DENABLE_LZ4=OFF`, or `cmake -DENABLE_ZSTD=OFF`.
 
 Although Wireshark can read AIX iptrace files, the documentation on
 AIX's iptrace packet-trace command is sparse.  The `iptrace` command

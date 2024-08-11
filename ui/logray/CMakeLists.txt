@@ -22,6 +22,7 @@ set(WIRESHARK_WIDGET_HEADERS
 	${CMAKE_SOURCE_DIR}/ui/qt/widgets/capture_filter_combo.h
 	${CMAKE_SOURCE_DIR}/ui/qt/widgets/capture_filter_edit.h
 	${CMAKE_SOURCE_DIR}/ui/qt/widgets/clickable_label.h
+	${CMAKE_SOURCE_DIR}/ui/qt/widgets/compression_group_box.h
 	${CMAKE_SOURCE_DIR}/ui/qt/widgets/copy_from_profile_button.h
 	${CMAKE_SOURCE_DIR}/ui/qt/widgets/detachable_tabwidget.h
 	${CMAKE_SOURCE_DIR}/ui/qt/widgets/display_filter_combo.h
@@ -261,6 +262,7 @@ set(WIRESHARK_WIDGET_SRCS
 	${CMAKE_SOURCE_DIR}/ui/qt/widgets/capture_filter_combo.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/widgets/capture_filter_edit.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/widgets/clickable_label.cpp
+	${CMAKE_SOURCE_DIR}/ui/qt/widgets/compression_group_box.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/widgets/copy_from_profile_button.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/widgets/detachable_tabwidget.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/widgets/display_filter_combo.cpp

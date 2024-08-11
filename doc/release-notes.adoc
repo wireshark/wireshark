@@ -379,6 +379,15 @@ The following features are either new or have been significantly updated since v
 
 * Global profiles can be used in tshark by using `--global-profile` option.
 
+* Fast random access is supported with LZ4 compressed files (when compressed
+  with independent blocks, which is the default). This provides much more
+  responsive GUI performance when jumping to different packets. gzip compressed
+  files also support fast random seeking (since 1.8.0), but Zstd compressed
+  do not.
+
+* Existing capture files can be saved with LZ4 compression. LZ4 has an emphasis
+  on speed and may be particularly useful for large files.
+
 === Removed Features and Support
 
 * The tshark `-G` option with no argument is deprecated and will be removed in

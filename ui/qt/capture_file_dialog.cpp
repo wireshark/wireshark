@@ -418,23 +418,22 @@ void CaptureFileDialog::fixFilenameExtension()
     }
 
     // Fixup the new suffix based on whether we're compressing or not.
-    if (compressionType() == WTAP_UNCOMPRESSED) {
-        // Not compressing; strip off any compression suffix
-        GSList *compression_type_extensions = wtap_get_all_compression_type_extensions_list();
-        for (GSList *compression_type_extension = compression_type_extensions;
-            compression_type_extension != NULL;
-            compression_type_extension = g_slist_next(compression_type_extension)) {
-            QString suffix = QString(".") + (char *)compression_type_extension->data;
-            if (new_suffix.endsWith(suffix)) {
-                //
-                // It ends with this compression suffix; chop it off.
-                //
-                new_suffix.chop(suffix.size());
-                break;
-            }
+    // Strip off any compression suffix
+    GSList *compression_type_extensions = wtap_get_all_compression_type_extensions_list();
+    for (GSList *compression_type_extension = compression_type_extensions;
+        compression_type_extension != NULL;
+        compression_type_extension = g_slist_next(compression_type_extension)) {
+        QString suffix = QString(".") + (char *)compression_type_extension->data;
+        if (new_suffix.endsWith(suffix)) {
+            //
+            // It ends with this compression suffix; chop it off.
+            //
+            new_suffix.chop(suffix.size());
+            break;
         }
-        g_slist_free(compression_type_extensions);
-    } else {
+    }
+    g_slist_free(compression_type_extensions);
+    if (compressionType() != WTAP_UNCOMPRESSED) {
         // Compressing; append the appropriate compression suffix.
         QString compressed_file_extension = QString(".") + wtap_compression_type_extension(compressionType());
         if (valid_extensions.contains(new_suffix + compressed_file_extension)) {
@@ -503,7 +502,7 @@ int CaptureFileDialog::selectedFileType() {
 }
 
 wtap_compression_type CaptureFileDialog::compressionType() {
-    return compress_.isChecked() ? WTAP_GZIP_COMPRESSED : WTAP_UNCOMPRESSED;
+    return compress_group_box_.compressionType();
 }
 
 void CaptureFileDialog::addDisplayFilterEdit(QString &display_filter) {
@@ -539,15 +538,11 @@ void CaptureFileDialog::addFormatTypeSelector(QVBoxLayout &v_box) {
 }
 
 void CaptureFileDialog::addGzipControls(QVBoxLayout &v_box) {
-    compress_.setText(tr("Compress with g&zip"));
-    if (cap_file_->compression_type == WTAP_GZIP_COMPRESSED &&
-        wtap_dump_can_compress(default_ft_)) {
-        compress_.setChecked(true);
-    } else {
-        compress_.setChecked(false);
+    if (wtap_dump_can_compress(default_ft_)) {
+        compress_group_box_.setCompressionType(cap_file_->compression_type);
     }
-    v_box.addWidget(&compress_, 0, Qt::AlignTop);
-    connect(&compress_, &QCheckBox::stateChanged, this, &CaptureFileDialog::fixFilenameExtension);
+    v_box.addWidget(&compress_group_box_, 0, Qt::AlignTop);
+    connect(&compress_group_box_, &CompressionGroupBox::stateChanged, this, &CaptureFileDialog::fixFilenameExtension);
 
 }
 

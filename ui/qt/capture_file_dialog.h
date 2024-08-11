@@ -13,6 +13,7 @@
 #include <ui/qt/widgets/wireshark_file_dialog.h>
 
 #include <ui/qt/widgets/display_filter_edit.h>
+#include <ui/qt/widgets/compression_group_box.h>
 #include "packet_range_group_box.h"
 #include "ui/help_url.h"
 
@@ -117,7 +118,7 @@ private:
 
     int default_ft_;
 
-    QCheckBox compress_;
+    CompressionGroupBox compress_group_box_;
 
     PacketRangeGroupBox packet_range_group_box_;
     QPushButton *save_bt_;

@@ -2124,7 +2124,7 @@ wtap_dump_can_open(int file_type_subtype)
  * Return whether we know how to write a compressed file of the specified
  * file type.
  */
-#if defined (HAVE_ZLIB) || defined (HAVE_ZLIBNG)
+#if defined (HAVE_ZLIB) || defined (HAVE_ZLIBNG) || defined (HAVE_LZ4FRAME_H)
 bool
 wtap_dump_can_compress(int file_type_subtype)
 {
