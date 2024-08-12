@@ -386,12 +386,12 @@ dissect_PNMRP_Option(tvbuff_t *tvb, int offset,
 
     /* OUI (organizational unique id) */
     offset = dissect_pn_oid(tvb, offset, pinfo,tree, hf_pn_mrp_oui, &oui);
+    length -= 3;
 
     switch (oui)
     {
     case OUI_SIEMENS:
         proto_item_append_text(item, "(SIEMENS)");
-        length -= 3;
         offset = dissect_pn_uint8(tvb, offset, pinfo, tree, hf_pn_mrp_ed1type, &u8MrpEd1Type);
         length -= 1;
         switch (u8MrpEd1Type)
