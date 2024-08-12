@@ -627,13 +627,6 @@ dissect_zbee_secure(tvbuff_t *tvb, packet_info *pinfo, proto_tree* tree, unsigne
             break;
     } /* switch */
 
-    /* Get and display the MIC. */
-    if (mic_len) {
-        /* Display the MIC. */
-        proto_tree_add_item(sec_tree, hf_zbee_sec_mic, tvb, (int)(tvb_captured_length(tvb)-mic_len),
-                mic_len, ENC_NA);
-    }
-
     /* Empty payload has to be security checked as well,
      * since it contains MIC authentication tag */
     payload_len = tvb_reported_length_remaining(tvb, offset+mic_len);
@@ -652,7 +645,8 @@ dissect_zbee_secure(tvbuff_t *tvb, packet_info *pinfo, proto_tree* tree, unsigne
     }
 
     /* Have we captured all the payload? */
-    if (tvb_captured_length_remaining(tvb, offset+mic_len) < payload_len) {
+    if (tvb_captured_length_remaining(tvb, offset+mic_len) < payload_len
+            || !tvb_bytes_exist(tvb, offset+payload_len, mic_len) /* there are at least enough bytes for MIC */ ) {
         /*
          * No - don't try to decrypt it.
          *
@@ -669,6 +663,13 @@ dissect_zbee_secure(tvbuff_t *tvb, packet_info *pinfo, proto_tree* tree, unsigne
         call_data_dissector(payload_tvb, pinfo, tree);
         /* Couldn't decrypt, so return NULL. */
         return NULL;
+    }
+
+    /* Get and display the MIC. */
+    if (mic_len) {
+        /* Display the MIC. */
+        proto_tree_add_item(sec_tree, hf_zbee_sec_mic, tvb, (int)(tvb_reported_length(tvb)-mic_len),
+                mic_len, ENC_NA);
     }
 
     /* Allocate memory to decrypt the payload into.
