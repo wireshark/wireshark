@@ -396,20 +396,57 @@ fast_seek_header(FILE_T file, int64_t in_pos, int64_t out_pos,
 }
 
 static void
-fast_seek_reset(
-#ifdef HAVE_ZLIB
-    FILE_T state)
-#else /* HAVE_ZLIB */
-    FILE_T state _U_)
-#endif /* HAVE_ZLIB */
+fast_seek_reset(FILE_T state)
 {
-#ifdef HAVE_ZLIB
-    if (state->compression == ZLIB && state->fast_seek_cur != NULL) {
-        struct zlib_cur_seek_point *cur = (struct zlib_cur_seek_point *) state->fast_seek_cur;
+    switch (state->compression) {
 
-        cur->have = 0;
-    }
+    case UNKNOWN:
+        break;
+
+    case UNCOMPRESSED:
+        /* Nothing to do */
+        break;
+
+    case ZLIB:
+#ifdef HAVE_ZLIB
+        if (state->fast_seek_cur != NULL) {
+            struct zlib_cur_seek_point *cur = (struct zlib_cur_seek_point *) state->fast_seek_cur;
+
+            cur->have = 0;
+        }
+#else
+        /* Fail if we don't have zlibng, as that shouldn't happen? */
 #endif /* HAVE_ZLIB */
+        break;
+
+    case GZIP_AFTER_HEADER:
+        break;
+
+    case ZSTD:
+#ifdef HAVE_ZSTD
+        /* Anything to do? */
+#else
+        /* This "cannot happen" */
+        ws_assert_not_reached();
+#endif /* HAVE_ZSTD */
+        break;
+
+    case LZ4:
+#ifdef HAVE_LZ4
+        /* Anything to do? */
+#else
+        /* This "cannot happen" */
+        ws_assert_not_reached();
+#endif /* HAVE_LZ4 */
+        break;
+
+    /* Add other compression types here */
+
+    default:
+        /* This "cannot happen" */
+        ws_assert_not_reached();
+        break;
+    }
 }
 
 static bool
