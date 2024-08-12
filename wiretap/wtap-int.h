@@ -82,7 +82,8 @@ struct wtap {
 struct wtap_dumper;
 
 /*
- * This could either be a FILE * or a gzFile.
+ * This could either be a FILE * or a handle used by code that writes
+ * a compressed file.
  */
 typedef void *WFILE_T;
 
