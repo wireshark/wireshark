@@ -39,7 +39,8 @@ my %dissector_used = ();
 my %ptrtype_mappings = (
 	"unique" => "NDR_POINTER_UNIQUE",
 	"ref" => "NDR_POINTER_REF",
-	"ptr" => "NDR_POINTER_PTR"
+	"ptr" => "NDR_POINTER_PTR",
+	"full" => "NDR_POINTER_PTR"
 );
 
 my %variable_scalars = (
@@ -341,6 +342,7 @@ sub ElementLevel($$$$$$$$)
 		} elsif ($l->{LEVEL} eq "EMBEDDED") {
 			$type = "embedded";
 		}
+
 		$self->pidl_code("offset = dissect_ndr_$type\_pointer(tvb, offset, pinfo, tree, di, drep, $myname\_, $ptrtype_mappings{$l->{POINTER_TYPE}}, \"Pointer to ".field2name(StripPrefixes($e->{NAME}, $self->{conformance}->{strip_prefixes})) . " ($e->{TYPE})\",$hf);");
 	} elsif ($l->{TYPE} eq "ARRAY") {
 		if ($l->{IS_INLINE}) {
@@ -876,8 +878,16 @@ sub Union($$$$)
 	if (defined $switch_type) {
 		$self->pidl_code("offset = $switch_dissect(tvb, offset, pinfo, tree, di, drep, hf_index, &level);");
 
-		if ($e->{ALIGN} > 1) {
-			$self->pidl_code("ALIGN_TO_$e->{ALIGN}_BYTES;");
+		my $alignValue = $e->{ALIGN};
+		if (property_matches($e, "flag", ".*LIBNDR_FLAG_ALIGN.*")) {
+			my $align_flag = $e->{PROPERTIES}->{flag};
+			if ($align_flag =~ m/LIBNDR_FLAG_ALIGN(\d+)/) {
+				$alignValue = $1;
+			}
+		}
+
+		if ($alignValue > 1) {
+			$self->pidl_code("ALIGN_TO_".$alignValue."_BYTES;");
 			$self->pidl_code("");
 		}
 	}
