@@ -2666,47 +2666,36 @@ wtap_dump_discard_sysdig_meta_events(wtap_dumper *wdh)
 
 /* internally open a file for writing (compressed or not) */
 static WFILE_T
-#if defined (HAVE_ZLIB) || defined (HAVE_ZLIBNG) || defined (HAVE_LZ4FRAME_H)
 wtap_dump_file_open(wtap_dumper *wdh, const char *filename)
-#else
-wtap_dump_file_open(wtap_dumper *wdh _U_, const char *filename)
-#endif /* defined (HAVE_ZLIB) || defined (HAVE_ZLIBNG) || defined (HAVE_LZ4FRAME_H) */
 {
-
+	switch (wdh->compression_type) {
 #if defined (HAVE_ZLIB) || defined (HAVE_ZLIBNG)
-	if (wdh->compression_type == WTAP_GZIP_COMPRESSED) {
+	case WTAP_GZIP_COMPRESSED:
 		return gzwfile_open(filename);
-	} else
 #endif /* defined (HAVE_ZLIB) || defined (HAVE_ZLIBNG) */
 #ifdef HAVE_LZ4FRAME_H
-	if (wdh->compression_type == WTAP_LZ4_COMPRESSED) {
+	case WTAP_LZ4_COMPRESSED:
 		return lz4wfile_open(filename);
-	} else
 #endif /* HAVE_LZ4FRAME_H */
-	{
+	default:
 		return ws_fopen(filename, "wb");
 	}
 }
 
 /* internally open a file for writing (compressed or not) */
 static WFILE_T
-#if defined (HAVE_ZLIB) || defined (HAVE_ZLIBNG) || defined (HAVE_LZ4FRAME_H)
 wtap_dump_file_fdopen(wtap_dumper *wdh, int fd)
-#else
-wtap_dump_file_fdopen(wtap_dumper *wdh _U_, int fd)
-#endif /* defined (HAVE_ZLIB) || defined (HAVE_ZLIBNG) || defined (HAVE_LZ4FRAME_H) */
 {
+	switch (wdh->compression_type) {
 #if defined (HAVE_ZLIB) || defined (HAVE_ZLIBNG)
-	if (wdh->compression_type == WTAP_GZIP_COMPRESSED) {
+	case WTAP_GZIP_COMPRESSED:
 		return gzwfile_fdopen(fd);
-	} else
 #endif /* defined (HAVE_ZLIB) || defined (HAVE_ZLIBNG) */
 #ifdef HAVE_LZ4FRAME_H
-	if (wdh->compression_type == WTAP_LZ4_COMPRESSED) {
+	case WTAP_LZ4_COMPRESSED:
 		return lz4wfile_fdopen(fd);
-	} else
 #endif /* HAVE_LZ4FRAME_H */
-	{
+	default:
 		return ws_fdopen(fd, "wb");
 	}
 }
