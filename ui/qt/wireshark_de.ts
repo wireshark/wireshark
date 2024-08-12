@@ -48,10 +48,6 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Filter by path</source>
-        <translation type="vanished">Nach Pfad filtern</translation>
-    </message>
-    <message>
         <source>Plugins</source>
         <translation>Plugins</translation>
     </message>
@@ -845,29 +841,6 @@
         <source>Automatically detect file type</source>
         <translation>Dateityp automatisch erkennen</translation>
     </message>
-    <message numerus="yes">
-        <source>%1, error after %Ln packet(s)</source>
-        <oldsource>%1, error after %2 packets</oldsource>
-        <translation type="vanished">
-            <numerusform>%1, Fehler nach %Ln Paket</numerusform>
-            <numerusform>%1, Fehler nach %Ln Paketen</numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <source>%1, timed out at %Ln packet(s)</source>
-        <oldsource>%1, timed out at %2 packets</oldsource>
-        <translation type="vanished">
-            <numerusform>%1, Zeitüberschreitung nach %Ln Paket</numerusform>
-            <numerusform>%1, Zeitüberschreitung nach %Ln Paketen</numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <source>%1, %Ln packet(s)</source>
-        <translation type="vanished">
-            <numerusform>%1, %Ln Paket</numerusform>
-            <numerusform>%1, %Ln Pakete</numerusform>
-        </translation>
-    </message>
     <message>
         <source>Prepend packets</source>
         <translation>Pakete vorne einfügen</translation>
@@ -898,7 +871,7 @@
     </message>
     <message>
         <source>Compress with g&amp;zip</source>
-        <translation>Mit g&amp;zip komprimieren</translation>
+        <translation type="vanished">Mit g&amp;zip komprimieren</translation>
     </message>
     <message>
         <source>Open Capture File</source>
@@ -1953,23 +1926,23 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     <name>ColumnTypeDelegate</name>
     <message>
         <source>Default</source>
-        <translation>Standard</translation>
+        <translation type="vanished">Standard</translation>
     </message>
     <message>
         <source>Left</source>
-        <translation>Links</translation>
+        <translation type="vanished">Links</translation>
     </message>
     <message>
         <source>Center</source>
-        <translation>Zentriert</translation>
+        <translation type="vanished">Zentriert</translation>
     </message>
     <message>
         <source>Right</source>
-        <translation>Rechts</translation>
+        <translation type="vanished">Rechts</translation>
     </message>
     <message>
         <source>Unknown</source>
-        <translation>Unbekannt</translation>
+        <translation type="vanished">Unbekannt</translation>
     </message>
 </context>
 <context>
@@ -1985,6 +1958,25 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     <message>
         <source>Copy filter text to the clipboard.</source>
         <translation>Filter text in die Zwischenablage kopieren.</translation>
+    </message>
+</context>
+<context>
+    <name>CompressionGroupBox</name>
+    <message>
+        <source>Compression options</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Uncompressed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Compress with g&amp;zip</source>
+        <translation type="unfinished">Mit g&amp;zip komprimieren</translation>
+    </message>
+    <message>
+        <source>Compress with &amp;LZ4</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -3521,20 +3513,6 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
         <source>Print</source>
         <translation>Drucken</translation>
     </message>
-    <message numerus="yes">
-        <source>%Ln client pkt(s), </source>
-        <translation type="vanished">
-            <numerusform>%Ln Client Paket,</numerusform>
-            <numerusform>%Ln Client Pakete,</numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <source>%Ln server pkt(s), </source>
-        <translation type="vanished">
-            <numerusform>%Ln Server Paket,</numerusform>
-            <numerusform>%Ln Server Pakete,</numerusform>
-        </translation>
-    </message>
     <message>
         <source>ASCII</source>
         <translation>ASCII</translation>
@@ -4438,11 +4416,11 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>2 min</source>
-        <translation type="unfinished">10 Min. {2 ?}</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>5 min</source>
-        <translation type="unfinished">10 Min. {5 ?}</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Wireshark I/O Graphs: %1</source>
@@ -7976,20 +7954,6 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
         <source>Select zip file for export</source>
         <translation>Zum Exportieren eine Zipdatei auswählen</translation>
     </message>
-    <message numerus="yes">
-        <source>… %Ln selected personal profile(s)</source>
-        <translation type="vanished">
-            <numerusform>… %Ln ausgewähltes persönliches Profil</numerusform>
-            <numerusform>… %Ln ausgewählte persönliche Profile</numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <source>%Ln selected personal profile(s)</source>
-        <translation type="vanished">
-            <numerusform>%Ln ausgewähltes persönliches Profil</numerusform>
-            <numerusform>%Ln ausgewählte persönliche Profile</numerusform>
-        </translation>
-    </message>
     <message>
         <source>An import of profiles is not allowed, while changes are pending</source>
         <translation>Solange Änderungen noch anstehen können Profile nicht importiert werden</translation>
@@ -8939,6 +8903,18 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     <message>
         <source>LOAD</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Left</source>
+        <translation type="unfinished">Links</translation>
+    </message>
+    <message>
+        <source>Center</source>
+        <translation type="unfinished">Zentriert</translation>
+    </message>
+    <message>
+        <source>Right</source>
+        <translation type="unfinished">Rechts</translation>
     </message>
 </context>
 <context>
@@ -15220,14 +15196,6 @@ a:hover {
     <message>
         <source>No Keys</source>
         <translation>Keine Schlüssel</translation>
-    </message>
-    <message numerus="yes">
-        <source>Export SSL Session Keys (%Ln key(s))</source>
-        <oldsource>Export SSL Session Keys (%1 key%2</oldsource>
-        <translation type="vanished">
-            <numerusform>SSL Session Keys exportieren (%Ln Key)</numerusform>
-            <numerusform>SSL Session Key exportieren (%Ln Keys)</numerusform>
-        </translation>
     </message>
     <message>
         <source>Raw data (*.bin *.dat *.raw);;All Files (</source>

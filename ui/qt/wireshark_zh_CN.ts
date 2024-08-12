@@ -48,10 +48,6 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Filter by path</source>
-        <translation type="vanished">按路径过滤</translation>
-    </message>
-    <message>
         <source>Plugins</source>
         <translation>插件</translation>
     </message>
@@ -844,26 +840,6 @@
         <source>Automatically detect file type</source>
         <translation>自动检测文件类型</translation>
     </message>
-    <message numerus="yes">
-        <source>%1, error after %Ln packet(s)</source>
-        <oldsource>%1, error after %2 packets</oldsource>
-        <translation type="vanished">
-            <numerusform>%1，%Ln 分组后出错</numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <source>%1, timed out at %Ln packet(s)</source>
-        <oldsource>%1, timed out at %2 packets</oldsource>
-        <translation type="vanished">
-            <numerusform>%1，在分组 %Ln 处超时</numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <source>%1, %Ln packet(s)</source>
-        <translation type="vanished">
-            <numerusform>%1，%Ln 分组</numerusform>
-        </translation>
-    </message>
     <message>
         <source>Prepend packets</source>
         <translation>前置分组</translation>
@@ -894,7 +870,7 @@
     </message>
     <message>
         <source>Compress with g&amp;zip</source>
-        <translation>用 gzip 压缩(&amp;Z)</translation>
+        <translation type="vanished">用 gzip 压缩(&amp;Z)</translation>
     </message>
     <message>
         <source>Open Capture File</source>
@@ -1942,23 +1918,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <name>ColumnTypeDelegate</name>
     <message>
         <source>Default</source>
-        <translation>默认</translation>
-    </message>
-    <message>
-        <source>Left</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Center</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Right</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Unknown</source>
-        <translation type="unfinished">未知</translation>
+        <translation type="vanished">默认</translation>
     </message>
 </context>
 <context>
@@ -1974,6 +1934,25 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Copy filter text to the clipboard.</source>
         <translation>复制过滤器文本到剪贴板。</translation>
+    </message>
+</context>
+<context>
+    <name>CompressionGroupBox</name>
+    <message>
+        <source>Compression options</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Uncompressed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Compress with g&amp;zip</source>
+        <translation type="unfinished">用 gzip 压缩(&amp;Z)</translation>
+    </message>
+    <message>
+        <source>Compress with &amp;LZ4</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -3507,18 +3486,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <source>Print</source>
         <translation>打印</translation>
     </message>
-    <message numerus="yes">
-        <source>%Ln client pkt(s), </source>
-        <translation type="vanished">
-            <numerusform>%Ln 客户端 分组，</numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <source>%Ln server pkt(s), </source>
-        <translation type="vanished">
-            <numerusform>%Ln 服务器 分组，</numerusform>
-        </translation>
-    </message>
     <message>
         <source>ASCII</source>
         <translation>ASCII</translation>
@@ -4375,11 +4342,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>2 ms</source>
-        <translation type="unfinished">100毫秒 {2 ?}</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>5 ms</source>
-        <translation type="unfinished">100毫秒 {5 ?}</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>10 ms</source>
@@ -4387,11 +4354,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>20 ms</source>
-        <translation type="unfinished">100毫秒 {20 ?}</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>50 ms</source>
-        <translation type="unfinished">100毫秒 {50 ?}</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>100 ms</source>
@@ -4399,27 +4366,27 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>200 ms</source>
-        <translation type="unfinished">100毫秒 {200 ?}</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>500 ms</source>
-        <translation type="unfinished">100毫秒 {500 ?}</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>2 sec</source>
-        <translation type="unfinished">10秒 {2 ?}</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>5 sec</source>
-        <translation type="unfinished">10秒 {5 ?}</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>2 min</source>
-        <translation type="unfinished">10分钟 {2 ?}</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>5 min</source>
-        <translation type="unfinished">10分钟 {5 ?}</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Wireshark I/O Graphs: %1</source>
@@ -8704,31 +8671,31 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>LCID 32</source>
-        <translation type="unfinished">LCID 32</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>LCID 33</source>
-        <translation type="unfinished">LCID 33</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>LCID 34</source>
-        <translation type="unfinished">LCID 34</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>LCID 35</source>
-        <translation type="unfinished">LCID 35</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>LCID 36</source>
-        <translation type="unfinished">LCID 36</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>LCID 37</source>
-        <translation type="unfinished">LCID 37</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>LCID 38</source>
-        <translation type="unfinished">LCID 38</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>TM</source>
@@ -8888,6 +8855,18 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>LOAD</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Left</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Center</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Right</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

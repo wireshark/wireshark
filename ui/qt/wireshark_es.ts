@@ -48,10 +48,6 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Filter by path</source>
-        <translation type="vanished">Filtrar por ruta</translation>
-    </message>
-    <message>
         <source>Plugins</source>
         <translation>Complementos</translation>
     </message>
@@ -121,9 +117,9 @@
     </message>
     <message numerus="yes">
         <source>Copy Row(s)</source>
-        <translation>
-            <numerusform>Copiar fila</numerusform>
-            <numerusform>Copiar filas</numerusform>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
 </context>
@@ -875,7 +871,7 @@
     </message>
     <message>
         <source>Compress with g&amp;zip</source>
-        <translation>Comprimir con g&amp;zip</translation>
+        <translation type="vanished">Comprimir con g&amp;zip</translation>
     </message>
     <message>
         <source>Open Capture File</source>
@@ -1923,29 +1919,6 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
 </context>
 <context>
-    <name>ColumnTypeDelegate</name>
-    <message>
-        <source>Default</source>
-        <translation type="unfinished">Predeterminado</translation>
-    </message>
-    <message>
-        <source>Left</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Center</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Right</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Unknown</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
     <name>CompiledFilterOutput</name>
     <message>
         <source>Compiled Filter Output</source>
@@ -1958,6 +1931,25 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     <message>
         <source>Copy filter text to the clipboard.</source>
         <translation>Copia texto de filtro al portapapeles.</translation>
+    </message>
+</context>
+<context>
+    <name>CompressionGroupBox</name>
+    <message>
+        <source>Compression options</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Uncompressed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Compress with g&amp;zip</source>
+        <translation type="unfinished">Comprimir con g&amp;zip</translation>
+    </message>
+    <message>
+        <source>Compress with &amp;LZ4</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -3087,9 +3079,9 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     <message numerus="yes">
         <source>%Ln File(s) in Set</source>
         <oldsource>%1 File%2 in Set</oldsource>
-        <translation>
-            <numerusform>%Ln archivo en conjunto</numerusform>
-            <numerusform>%Ln archivos en conjunto</numerusform>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
 </context>
@@ -3536,23 +3528,23 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message numerus="yes">
         <source>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;client&lt;/span&gt; pkt(s), </source>
-        <translation>
-            <numerusform>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;cliente&lt;/span&gt; pkt,</numerusform>
-            <numerusform>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;cliente&lt;/span&gt; pkts,</numerusform>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;server&lt;/span&gt; pkt(s), </source>
-        <translation>
-            <numerusform>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;servidor&lt;/span&gt; pkt,</numerusform>
-            <numerusform>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;servidor&lt;/span&gt; pkts,</numerusform>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>%Ln turn(s).</source>
-        <translation>
-            <numerusform>%Ln cambio.</numerusform>
-            <numerusform>%Ln cambios.</numerusform>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
     <message>
@@ -4397,11 +4389,11 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>2 min</source>
-        <translation type="unfinished">10 min {2 ?}</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>5 min</source>
-        <translation type="unfinished">10 min {5 ?}</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Wireshark I/O Graphs: %1</source>
@@ -6456,7 +6448,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>Move Up 100 Pixels</source>
-        <translation type="unfinished">Mover arriba 10 píxeles {100 ?}</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>PgUp</source>
@@ -6733,9 +6725,9 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     <message numerus="yes">
         <source>%Ln byte(s)</source>
         <oldsource>, %1 bytes</oldsource>
-        <translation>
-            <numerusform>%Ln byte</numerusform>
-            <numerusform>%Ln bytes</numerusform>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
     <message numerus="yes">
@@ -7376,8 +7368,8 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     <message numerus="yes">
         <source>%Ln byte(s)</source>
         <translation type="unfinished">
-            <numerusform>%Ln byte</numerusform>
-            <numerusform>%Ln bytes</numerusform>
+            <numerusform></numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
     <message numerus="yes">
@@ -7908,13 +7900,6 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
         <source>Select zip file for export</source>
         <translation>Seleccione archivo zip para exportar</translation>
     </message>
-    <message numerus="yes">
-        <source>%Ln selected personal profile(s)</source>
-        <translation type="vanished">
-            <numerusform>%Ln perfil personal seleccionado</numerusform>
-            <numerusform>%Ln perfiles personales seleccionados</numerusform>
-        </translation>
-    </message>
     <message>
         <source>An import of profiles is not allowed, while changes are pending</source>
         <translation type="unfinished"></translation>
@@ -7933,9 +7918,9 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message numerus="yes">
         <source>%Ln profile(s) exported</source>
-        <translation>
-            <numerusform>%Ln perfil exportado</numerusform>
-            <numerusform>%Ln perfiles exportados</numerusform>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
     <message>
@@ -7964,16 +7949,16 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message numerus="yes">
         <source>%Ln profile(s) imported</source>
-        <translation>
-            <numerusform>%Ln perfil importado</numerusform>
-            <numerusform>%Ln perfiles importados</numerusform>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>, %Ln profile(s) skipped</source>
-        <translation>
-            <numerusform>, %Ln perfil omitido</numerusform>
-            <numerusform>, %Ln perfiles omitidos</numerusform>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
     <message>
@@ -8863,6 +8848,18 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>LOAD</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Left</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Center</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Right</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -9906,11 +9903,11 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>Move Left 1 Pixels</source>
-        <translation type="unfinished">Mover a la izquierda 10 píxeles {1 ?}</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Move Right 1 Pixels</source>
-        <translation type="unfinished">Mover a la derecha 10 píxeles {1 ?}</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Go To Packet Under Cursor</source>
@@ -11354,9 +11351,9 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message numerus="yes">
         <source>Frame %1, %2, %Ln byte(s).</source>
-        <translation>
-            <numerusform>Trama %1, %2, %Ln byte.</numerusform>
-            <numerusform>Trama %1, %2, %Ln bytes.</numerusform>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
     <message>
@@ -12910,9 +12907,9 @@ a:hover {
     </message>
     <message numerus="yes">
         <source>%n interface(s) shown, %1 hidden</source>
-        <translation>
-            <numerusform>%n interfaz mostrada, %1 oculta</numerusform>
-            <numerusform>%n interfaces mostradas, %1 ocultas</numerusform>
+        <translation type="unfinished">
+            <numerusform>%n interface shown, %1 hidden</numerusform>
+            <numerusform>%n interfaces shown, %1 hidden</numerusform>
         </translation>
     </message>
     <message>
@@ -15149,9 +15146,9 @@ a:hover {
     </message>
     <message numerus="yes">
         <source>Delete comments from %n packet(s)</source>
-        <translation>
-            <numerusform>Eliminar comentarios de %n paquete(s)</numerusform>
-            <numerusform>Eliminar comentarios de %n paquete(s)</numerusform>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
     <message>

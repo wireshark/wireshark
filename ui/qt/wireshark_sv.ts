@@ -48,10 +48,6 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Filter by path</source>
-        <translation type="vanished">Filtrera efter sökväg</translation>
-    </message>
-    <message>
         <source>Plugins</source>
         <translation>Insticksmoduler</translation>
     </message>
@@ -845,29 +841,6 @@
         <source>Automatically detect file type</source>
         <translation>Detektera automatiskt filtyp</translation>
     </message>
-    <message numerus="yes">
-        <source>%1, error after %Ln packet(s)</source>
-        <oldsource>%1, error after %2 packets</oldsource>
-        <translation type="vanished">
-            <numerusform>%1, fel efter %Ln paket</numerusform>
-            <numerusform>%1, fel efter %Ln paket</numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <source>%1, timed out at %Ln packet(s)</source>
-        <oldsource>%1, timed out at %2 packets</oldsource>
-        <translation type="vanished">
-            <numerusform>%1, tidsgränsen gick ut efter %Ln paket</numerusform>
-            <numerusform>%1, tidsgränsen gick ut efter %Ln paket</numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <source>%1, %Ln packet(s)</source>
-        <translation type="vanished">
-            <numerusform>%1, %Ln paket</numerusform>
-            <numerusform>%1, %Ln paket</numerusform>
-        </translation>
-    </message>
     <message>
         <source>Prepend packets</source>
         <translation>Lägg paket före</translation>
@@ -898,7 +871,7 @@
     </message>
     <message>
         <source>Compress with g&amp;zip</source>
-        <translation>Komprimera med g&amp;zip</translation>
+        <translation type="vanished">Komprimera med g&amp;zip</translation>
     </message>
     <message>
         <source>Open Capture File</source>
@@ -1948,29 +1921,6 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
 </context>
 <context>
-    <name>ColumnTypeDelegate</name>
-    <message>
-        <source>Default</source>
-        <translation type="unfinished">Standard</translation>
-    </message>
-    <message>
-        <source>Left</source>
-        <translation type="unfinished">Vänster</translation>
-    </message>
-    <message>
-        <source>Center</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Right</source>
-        <translation type="unfinished">Höger</translation>
-    </message>
-    <message>
-        <source>Unknown</source>
-        <translation type="unfinished">Okänd</translation>
-    </message>
-</context>
-<context>
     <name>CompiledFilterOutput</name>
     <message>
         <source>Compiled Filter Output</source>
@@ -1983,6 +1933,25 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     <message>
         <source>Copy filter text to the clipboard.</source>
         <translation>Kopiera filtertext till urklipp.</translation>
+    </message>
+</context>
+<context>
+    <name>CompressionGroupBox</name>
+    <message>
+        <source>Compression options</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Uncompressed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Compress with g&amp;zip</source>
+        <translation type="unfinished">Komprimera med g&amp;zip</translation>
+    </message>
+    <message>
+        <source>Compress with &amp;LZ4</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -3519,20 +3488,6 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <source>Print</source>
         <translation>Skriv</translation>
     </message>
-    <message numerus="yes">
-        <source>%Ln client pkt(s), </source>
-        <translation type="vanished">
-            <numerusform>%Ln klientpaket,</numerusform>
-            <numerusform>%Ln klientpaket,</numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <source>%Ln server pkt(s), </source>
-        <translation type="vanished">
-            <numerusform>%Ln serverpaket,</numerusform>
-            <numerusform>%Ln serverpaket,</numerusform>
-        </translation>
-    </message>
     <message>
         <source>ASCII</source>
         <translation>ASCII</translation>
@@ -4436,11 +4391,11 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>2 min</source>
-        <translation type="unfinished">10 min {2 ?}</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>5 min</source>
-        <translation type="unfinished">10 min {5 ?}</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Wireshark I/O Graphs: %1</source>
@@ -7974,20 +7929,6 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <source>Select zip file for export</source>
         <translation>Välj zip-fil för exporten</translation>
     </message>
-    <message numerus="yes">
-        <source>… %Ln selected personal profile(s)</source>
-        <translation type="vanished">
-            <numerusform>… %Ln vad personlig profil</numerusform>
-            <numerusform>… %Ln valda personliga profiler</numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <source>%Ln selected personal profile(s)</source>
-        <translation type="vanished">
-            <numerusform>%Ln vald personlig profil</numerusform>
-            <numerusform>%Ln valda personliga profiler</numerusform>
-        </translation>
-    </message>
     <message>
         <source>An import of profiles is not allowed, while changes are pending</source>
         <translation>En import av profiler är inte tillåtet medans ändringar väntar</translation>
@@ -8937,6 +8878,18 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     <message>
         <source>LOAD</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Left</source>
+        <translation type="unfinished">Vänster</translation>
+    </message>
+    <message>
+        <source>Center</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Right</source>
+        <translation type="unfinished">Höger</translation>
     </message>
 </context>
 <context>
@@ -15218,14 +15171,6 @@ a:hover {
     <message>
         <source>No Keys</source>
         <translation>Inga nycklar</translation>
-    </message>
-    <message numerus="yes">
-        <source>Export SSL Session Keys (%Ln key(s))</source>
-        <oldsource>Export SSL Session Keys (%1 key%2</oldsource>
-        <translation type="vanished">
-            <numerusform>Exportera SSL-sessionsnycklar (%Ln nyckel)</numerusform>
-            <numerusform>Exportera SSL-sessionsnycklar (%Ln nycklar)</numerusform>
-        </translation>
     </message>
     <message>
         <source>Raw data (*.bin *.dat *.raw);;All Files (</source>

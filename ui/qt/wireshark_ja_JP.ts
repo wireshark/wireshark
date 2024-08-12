@@ -48,10 +48,6 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Filter by path</source>
-        <translation type="vanished">パスでフィルタ</translation>
-    </message>
-    <message>
         <source>Plugins</source>
         <translation>プラグイン</translation>
     </message>
@@ -844,26 +840,6 @@
         <source>Automatically detect file type</source>
         <translation>ファイル種別を自動的に検出</translation>
     </message>
-    <message numerus="yes">
-        <source>%1, error after %Ln packet(s)</source>
-        <oldsource>%1, error after %2 packets</oldsource>
-        <translation type="vanished">
-            <numerusform>%Ln パケットの後に %1, エラー </numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <source>%1, timed out at %Ln packet(s)</source>
-        <oldsource>%1, timed out at %2 packets</oldsource>
-        <translation type="vanished">
-            <numerusform>%Ln パケットにて %1, タイムアウト</numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <source>%1, %Ln packet(s)</source>
-        <translation type="vanished">
-            <numerusform>%1, %Ln パケット</numerusform>
-        </translation>
-    </message>
     <message>
         <source>Prepend packets</source>
         <translation>前にパケットを挿入</translation>
@@ -894,7 +870,7 @@
     </message>
     <message>
         <source>Compress with g&amp;zip</source>
-        <translation>gzip形式で圧縮(&amp;z)</translation>
+        <translation type="vanished">gzip形式で圧縮(&amp;z)</translation>
     </message>
     <message>
         <source>Open Capture File</source>
@@ -1945,23 +1921,23 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <name>ColumnTypeDelegate</name>
     <message>
         <source>Default</source>
-        <translation>デフォルト</translation>
+        <translation type="vanished">デフォルト</translation>
     </message>
     <message>
         <source>Left</source>
-        <translation>左</translation>
+        <translation type="vanished">左</translation>
     </message>
     <message>
         <source>Center</source>
-        <translation>中央</translation>
+        <translation type="vanished">中央</translation>
     </message>
     <message>
         <source>Right</source>
-        <translation>右</translation>
+        <translation type="vanished">右</translation>
     </message>
     <message>
         <source>Unknown</source>
-        <translation>不明</translation>
+        <translation type="vanished">不明</translation>
     </message>
 </context>
 <context>
@@ -1977,6 +1953,25 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Copy filter text to the clipboard.</source>
         <translation>フィルタテキストをクリップボードにコピーします</translation>
+    </message>
+</context>
+<context>
+    <name>CompressionGroupBox</name>
+    <message>
+        <source>Compression options</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Uncompressed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Compress with g&amp;zip</source>
+        <translation type="unfinished">gzip形式で圧縮(&amp;z)</translation>
+    </message>
+    <message>
+        <source>Compress with &amp;LZ4</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -3511,18 +3506,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Print</source>
         <translation>印刷</translation>
-    </message>
-    <message numerus="yes">
-        <source>%Ln client pkt(s), </source>
-        <translation type="vanished">
-            <numerusform>%Ln クライアントパケット, </numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <source>%Ln server pkt(s), </source>
-        <translation type="vanished">
-            <numerusform>%Ln サーバーパケット, </numerusform>
-        </translation>
     </message>
     <message>
         <source>ASCII</source>
@@ -7954,18 +7937,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <source>Select zip file for export</source>
         <translation>エキスポートするzipファイルを選択します</translation>
     </message>
-    <message numerus="yes">
-        <source>… %Ln selected personal profile(s)</source>
-        <translation type="vanished">
-            <numerusform>… %Ln 選択された個人プロファイル</numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <source>%Ln selected personal profile(s)</source>
-        <translation type="vanished">
-            <numerusform>%Ln 選択された個人プロファイル</numerusform>
-        </translation>
-    </message>
     <message>
         <source>An import of profiles is not allowed, while changes are pending</source>
         <translation>プロファイルのインポートは許可されません。この間の変更は保留されます。</translation>
@@ -8911,6 +8882,18 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>LOAD</source>
         <translation>読込</translation>
+    </message>
+    <message>
+        <source>Left</source>
+        <translation type="unfinished">左</translation>
+    </message>
+    <message>
+        <source>Center</source>
+        <translation type="unfinished">中央</translation>
+    </message>
+    <message>
+        <source>Right</source>
+        <translation type="unfinished">右</translation>
     </message>
 </context>
 <context>
@@ -15187,13 +15170,6 @@ a:hover {
     <message>
         <source>No Keys</source>
         <translation>キーはありません</translation>
-    </message>
-    <message numerus="yes">
-        <source>Export SSL Session Keys (%Ln key(s))</source>
-        <oldsource>Export SSL Session Keys (%1 key%2</oldsource>
-        <translation type="vanished">
-            <numerusform>SSLセッション鍵をエクスポート (%Ln keys)</numerusform>
-        </translation>
     </message>
     <message>
         <source>Raw data (*.bin *.dat *.raw);;All Files (</source>

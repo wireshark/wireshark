@@ -48,10 +48,6 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Filter by path</source>
-        <translation type="vanished">Фільтр за шляхом</translation>
-    </message>
-    <message>
         <source>Plugins</source>
         <translation>Плаґіни</translation>
     </message>
@@ -121,10 +117,10 @@
     </message>
     <message numerus="yes">
         <source>Copy Row(s)</source>
-        <translation>
-            <numerusform>Скопіювати Рядок</numerusform>
-            <numerusform>Скопіювати Рядки</numerusform>
-            <numerusform>Скопіювати Рядки</numerusform>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
 </context>
@@ -876,7 +872,7 @@
     </message>
     <message>
         <source>Compress with g&amp;zip</source>
-        <translation>&amp;Стиснути gzip&apos;ом</translation>
+        <translation type="vanished">&amp;Стиснути gzip&apos;ом</translation>
     </message>
     <message>
         <source>Open Capture File</source>
@@ -1928,29 +1924,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
 </context>
 <context>
-    <name>ColumnTypeDelegate</name>
-    <message>
-        <source>Default</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Left</source>
-        <translation type="unfinished">Вліво</translation>
-    </message>
-    <message>
-        <source>Center</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Right</source>
-        <translation type="unfinished">Вправо</translation>
-    </message>
-    <message>
-        <source>Unknown</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
     <name>CompiledFilterOutput</name>
     <message>
         <source>Compiled Filter Output</source>
@@ -1963,6 +1936,25 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Copy filter text to the clipboard.</source>
         <translation>Скопіювати текст фільтру до буферу обміну</translation>
+    </message>
+</context>
+<context>
+    <name>CompressionGroupBox</name>
+    <message>
+        <source>Compression options</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Uncompressed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Compress with g&amp;zip</source>
+        <translation type="unfinished">&amp;Стиснути gzip&apos;ом</translation>
+    </message>
+    <message>
+        <source>Compress with &amp;LZ4</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -3498,22 +3490,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <source>Print</source>
         <translation>Роздрукувати</translation>
     </message>
-    <message numerus="yes">
-        <source>%Ln client pkt(s), </source>
-        <translation type="vanished">
-            <numerusform>%Ln пакет клієнта,</numerusform>
-            <numerusform>%Ln пакети клієнта,</numerusform>
-            <numerusform>%Ln пакетів клієнта,</numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <source>%Ln server pkt(s), </source>
-        <translation type="vanished">
-            <numerusform>%Ln пакет сервера,</numerusform>
-            <numerusform>%Ln пакети сервера,</numerusform>
-            <numerusform>%Ln пакетів сервера,</numerusform>
-        </translation>
-    </message>
     <message>
         <source>ASCII</source>
         <translation>ASCII</translation>
@@ -3660,10 +3636,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message numerus="yes">
         <source>%Ln total stream(s).</source>
-        <translation>
-            <numerusform>%Ln потік.</numerusform>
-            <numerusform>%Ln всього потоків.</numerusform>
-            <numerusform>%Ln всього потоків.</numerusform>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
     <message numerus="yes">
@@ -4387,19 +4363,19 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>2 sec</source>
-        <translation type="unfinished">10 сек {2 ?}</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>5 sec</source>
-        <translation type="unfinished">10 сек {5 ?}</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>2 min</source>
-        <translation type="unfinished">10 хв {2 ?}</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>5 min</source>
-        <translation type="unfinished">10 хв {5 ?}</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Wireshark I/O Graphs: %1</source>
@@ -6456,7 +6432,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Move Up 100 Pixels</source>
-        <translation type="unfinished">Переміститися Вгору На 10 Пікселів {100 ?}</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>PgUp</source>
@@ -8868,6 +8844,18 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <source>LOAD</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Left</source>
+        <translation type="unfinished">Вліво</translation>
+    </message>
+    <message>
+        <source>Center</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Right</source>
+        <translation type="unfinished">Вправо</translation>
+    </message>
 </context>
 <context>
     <name>QObject::QObject::QObject</name>
@@ -9907,11 +9895,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Move Left 1 Pixels</source>
-        <translation type="unfinished">Переміститися Вліво На 10 Пікселів {1 ?}</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Move Right 1 Pixels</source>
-        <translation type="unfinished">Переміститися Вправо На 10 Пікселів {1 ?}</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Go To Packet Under Cursor</source>

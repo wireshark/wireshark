@@ -48,10 +48,6 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Filter by path</source>
-        <translation type="vanished">경로로 필터</translation>
-    </message>
-    <message>
         <source>Plugins</source>
         <translation>플러그인</translation>
     </message>
@@ -844,26 +840,6 @@
         <source>Automatically detect file type</source>
         <translation>파일 형식을 자동으로 감지</translation>
     </message>
-    <message numerus="yes">
-        <source>%1, error after %Ln packet(s)</source>
-        <oldsource>%1, error after %2 packets</oldsource>
-        <translation type="vanished">
-            <numerusform>%1, 패킷 %Ln개 이후 오류</numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <source>%1, timed out at %Ln packet(s)</source>
-        <oldsource>%1, timed out at %2 packets</oldsource>
-        <translation type="vanished">
-            <numerusform>%1, 패킷 %Ln개 이후 시간 초과됨</numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <source>%1, %Ln packet(s)</source>
-        <translation type="vanished">
-            <numerusform>%1, 패킷 %Ln개</numerusform>
-        </translation>
-    </message>
     <message>
         <source>Prepend packets</source>
         <translation>앞쪽에 패킷 넣기</translation>
@@ -894,7 +870,7 @@
     </message>
     <message>
         <source>Compress with g&amp;zip</source>
-        <translation>gzip 형식으로 압축(&amp;Z)</translation>
+        <translation type="vanished">gzip 형식으로 압축(&amp;Z)</translation>
     </message>
     <message>
         <source>Open Capture File</source>
@@ -1946,23 +1922,23 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <name>ColumnTypeDelegate</name>
     <message>
         <source>Default</source>
-        <translation>기본값</translation>
+        <translation type="vanished">기본값</translation>
     </message>
     <message>
         <source>Left</source>
-        <translation>왼쪽</translation>
+        <translation type="vanished">왼쪽</translation>
     </message>
     <message>
         <source>Center</source>
-        <translation>가운데</translation>
+        <translation type="vanished">가운데</translation>
     </message>
     <message>
         <source>Right</source>
-        <translation>오른쪽</translation>
+        <translation type="vanished">오른쪽</translation>
     </message>
     <message>
         <source>Unknown</source>
-        <translation>알 수 없음</translation>
+        <translation type="vanished">알 수 없음</translation>
     </message>
 </context>
 <context>
@@ -1978,6 +1954,25 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Copy filter text to the clipboard.</source>
         <translation>필터 텍스트를 클립보드에 복사합니다.</translation>
+    </message>
+</context>
+<context>
+    <name>CompressionGroupBox</name>
+    <message>
+        <source>Compression options</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Uncompressed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Compress with g&amp;zip</source>
+        <translation type="unfinished">gzip 형식으로 압축(&amp;Z)</translation>
+    </message>
+    <message>
+        <source>Compress with &amp;LZ4</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -3513,18 +3508,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <source>Print</source>
         <translation>인쇄</translation>
     </message>
-    <message numerus="yes">
-        <source>%Ln client pkt(s), </source>
-        <translation type="vanished">
-            <numerusform>클라이언트 패킷 %Ln개,</numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <source>%Ln server pkt(s), </source>
-        <translation type="vanished">
-            <numerusform>서버 패킷 %Ln개, </numerusform>
-        </translation>
-    </message>
     <message>
         <source>ASCII</source>
         <translation>ASCII</translation>
@@ -4421,11 +4404,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>2 min</source>
-        <translation type="unfinished">10분 {2 ?}</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>5 min</source>
-        <translation type="unfinished">10분 {5 ?}</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Wireshark I/O Graphs: %1</source>
@@ -7951,18 +7934,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <source>Select zip file for export</source>
         <translation>내보낼 ZIP 파일 선택</translation>
     </message>
-    <message numerus="yes">
-        <source>… %Ln selected personal profile(s)</source>
-        <translation type="vanished">
-            <numerusform>… 선택한 개인 프로필 %Ln개</numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <source>%Ln selected personal profile(s)</source>
-        <translation type="vanished">
-            <numerusform>선택한 개인 프로필 %Ln개</numerusform>
-        </translation>
-    </message>
     <message>
         <source>An import of profiles is not allowed, while changes are pending</source>
         <translation>변경 사항이 보류 중일 때 프로필 가져오기는 허용되지 않습니다</translation>
@@ -8908,6 +8879,18 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>LOAD</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Left</source>
+        <translation type="unfinished">왼쪽</translation>
+    </message>
+    <message>
+        <source>Center</source>
+        <translation type="unfinished">가운데</translation>
+    </message>
+    <message>
+        <source>Right</source>
+        <translation type="unfinished">오른쪽</translation>
     </message>
 </context>
 <context>
@@ -15184,13 +15167,6 @@ a:hover {
     <message>
         <source>No Keys</source>
         <translation>키 없음</translation>
-    </message>
-    <message numerus="yes">
-        <source>Export SSL Session Keys (%Ln key(s))</source>
-        <oldsource>Export SSL Session Keys (%1 key%2</oldsource>
-        <translation type="vanished">
-            <numerusform>SSL 세션 키 내보내기(키 %Ln개)</numerusform>
-        </translation>
     </message>
     <message>
         <source>Raw data (*.bin *.dat *.raw);;All Files (</source>

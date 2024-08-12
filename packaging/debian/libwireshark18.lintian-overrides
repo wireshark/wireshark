@@ -1,0 +1,12 @@
+# Some plugins are so simple that they don't need libc
+libwireshark18: library-not-linked-against-libc
+
+# Proper names or typos directly from IANA enterprise-numbers (epan/enterprises.c)
+libwireshark18: spelling-error-in-binary Nam Name [usr/lib/x86_64-linux-gnu/libwireshark.so.18.0.0]
+libwireshark18: spelling-error-in-binary Informations Information [usr/lib/x86_64-linux-gnu/libwireshark.so.18.0.0]
+libwireshark18: spelling-error-in-binary Dont Don't [usr/lib/x86_64-linux-gnu/libwireshark.so.18.0.0]
+libwireshark18: spelling-error-in-binary Transmittion Transmission [usr/lib/x86_64-linux-gnu/libwireshark.so.18.0.0]
+libwireshark18: spelling-error-in-binary VERION VERSION [usr/lib/x86_64-linux-gnu/libwireshark.so.18.0.0]
+
+# Embedding the manuf data from CSV files into static C arrays isn't static linkage
+libwireshark18: embedded-library ieee-data [usr/lib/x86_64-linux-gnu/libwireshark.so.18.0.0]
