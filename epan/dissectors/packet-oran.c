@@ -22,7 +22,9 @@
 #include <epan/expert.h>
 #include <epan/prefs.h>
 
-/* TODO:
+/* N.B. dissector preferences are taking the place of (some) M-plane parameters, so unfortunately it can be
+ * fiddly to get the preferences into a good state to decode a given capture..
+ * TODO:
  * - sequence analysis based on sequence Id.  N.B. separate counts per antenna for spatial stream (eAxC Id), plane, direction
  * - tap stats by flow?
  * - for U-Plane, track back to last C-Plane frame for that eAxC
@@ -36,6 +38,7 @@
  * - for section extensions, check constraints (section type, which other extension types appear with them, order)
  * - when section extensions are present, some section header fields are effectively ignored
  * - re-order items (decl and hf definitions) to match spec order
+ * - map forward/backwards between acknack requests (SE-22 or ST4 and ST8 responses)
  */
 
 /* Prototypes */
@@ -252,6 +255,8 @@ static int hf_oran_number_of_nacks;
 static int hf_oran_ackid;
 static int hf_oran_nackid;
 
+static int hf_oran_disable_tdbfns;
+static int hf_oran_td_beam_group;
 
 /* Computed fields */
 static int hf_oran_c_eAxC_ID;
@@ -299,6 +304,7 @@ static expert_field ei_oran_rbg_size_reserved;
 static expert_field ei_oran_frame_length;
 static expert_field ei_oran_numprbc_ext21_zero;
 static expert_field ei_oran_ci_prb_group_size_reserved;
+static expert_field ei_oran_st8_nackid;
 
 
 
@@ -720,6 +726,12 @@ static const true_false_string tfs_partial_full_sf = {
   "full SF"
 };
 
+static const true_false_string disable_tdbfns_tfs = {
+  "beam numbers excluded",
+  "beam numbers included"
+};
+
+
 /* Config for (and later, worked-out allocations) bundles for ext11 (dynamic BFW) */
 typedef struct {
     /* Ext 6 config */
@@ -966,7 +978,7 @@ write_section_info(proto_item *section_heading, packet_info *pinfo, proto_item *
             write_pdu_label_and_info(section_heading, protocol_item, pinfo, ", Id: %d (all PRBs)", section_id);
             break;
         case 1:
-            write_pdu_label_and_info(section_heading, protocol_item, pinfo, ", Id: %d (PRB: %3u)", section_id, start_prbx);
+            write_pdu_label_and_info(section_heading, protocol_item, pinfo, ", Id: %d (PRB: %7u)", section_id, start_prbx);
             break;
         default:
             write_pdu_label_and_info(section_heading, protocol_item, pinfo, ", Id: %d (PRB: %3u-%3u%s)", section_id, start_prbx,
@@ -1669,7 +1681,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
         /* For now just skip indicated length of bytes */
         offset = payload_offset + 4*(laa_msg_len+1);
     }
-    else if (sectionType == SEC_C_ACK_NACK_FEEDBACK) {
+    else if (sectionType == SEC_C_ACK_NACK_FEEDBACK) {      /* Section Type 8 */
         proto_item *ti;
         for (unsigned int n=1; n <= number_of_acks; n++) {
             ti = proto_tree_add_item(c_section_tree, hf_oran_ackid, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -1677,8 +1689,12 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
             offset += 2;
         }
         for (unsigned int m=1; m <= number_of_nacks; m++) {
-            ti = proto_tree_add_item(c_section_tree, hf_oran_nackid, tvb, offset, 2, ENC_BIG_ENDIAN);
+            uint32_t nack_id;
+            ti = proto_tree_add_item_ret_uint(c_section_tree, hf_oran_nackid, tvb, offset, 2, ENC_BIG_ENDIAN, &nack_id);
             proto_item_append_text(ti, " [%u]", m);
+            expert_add_info_format(pinfo, ti, &ei_oran_st8_nackid,
+                                   "Received Nack for ackNackId=%u",
+                                   nack_id);
             offset += 2;
         }
     }
@@ -2946,8 +2962,38 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
                 /* TODO: add in own subtrees? */
                 switch (st4_cmd_type) {
                     case 1:  /* TIME_DOMAIN_BEAM_CONFIG */
-                        /* TODO: */
+                    {
+                        bool disable_tdbfns;
+
+                        /* reserved (2 bits) */
+                        proto_tree_add_item(section_tree, hf_oran_reserved_2bits, tvb, offset, 1, ENC_BIG_ENDIAN);
+                        /* symbolMask (14 bits) */
+                        proto_tree_add_item(section_tree, hf_oran_symbolMask, tvb, offset, 2, ENC_BIG_ENDIAN);
+                        offset += 2;
+
+                        /* Read entries until reach end of command length */
+                        while ((offset - command_start_offset) < (st4_cmd_len * 4)) {
+                            /* disableTDBFNs */
+                            proto_tree_add_item_ret_boolean(section_tree, hf_oran_disable_tdbfns, tvb, offset, 1, ENC_BIG_ENDIAN, &disable_tdbfns);
+                            /* tdBeamGrp */
+                            proto_tree_add_item(section_tree, hf_oran_td_beam_group, tvb, offset, 2, ENC_BIG_ENDIAN);
+                            offset += 2;
+                            if (!disable_tdbfns) {
+                                /* bfwCompHdr (2 subheaders - bfwIqWidth and bfwCompMeth)*/
+                                uint32_t bfwcomphdr_iq_width, bfwcomphdr_comp_meth;
+                                proto_item *comp_meth_ti;
+                                offset = dissect_bfwCompHdr(tvb, section_tree, offset,
+                                                            &bfwcomphdr_iq_width, &bfwcomphdr_comp_meth, &comp_meth_ti);
+                                /* reserved (3 bytes) */
+                                offset += 3;
+                            }
+                            else {
+                                /* Pad to next 4-byte boundary */
+                                offset += (offset % 4);
+                            }
+                        }
                         break;
+                    }
                     case 2:  /* TDD_CONFIG_PATTERN */
                         /* TODO: */
                         break;
@@ -4859,7 +4905,26 @@ proto_register_oran(void)
           NULL, 0x0,
           NULL,
           HFILL}
-        }
+        },
+        /* 7.5.3.43 */
+        {&hf_oran_disable_tdbfns,
+         {"disableTDBFNs", "oran_fh_cus.disableTDBFNs",
+          FT_BOOLEAN, 8,
+          TFS(&disable_tdbfns_tfs), 0x80,
+          NULL,
+          HFILL}
+        },
+
+        /* 7.5.3.44 */
+        {&hf_oran_td_beam_group,
+         {"tdBeamGrp", "oran_fh_cus.tdBeamGrp",
+          FT_UINT16, BASE_HEX,
+          NULL, 0x7fff,
+          "Applies to symbolMask in command header",
+          HFILL}
+        },
+
+
 
     };
 
@@ -4908,6 +4973,8 @@ proto_register_oran(void)
         { &ei_oran_frame_length, { "oran_fh_cus.frame_length", PI_MALFORMED, PI_ERROR, "there should be 0-3 bytes remaining after PDU in frame", EXPFILL }},
         { &ei_oran_numprbc_ext21_zero, { "oran_fh_cus.numprbc-ext21-zero", PI_MALFORMED, PI_ERROR, "numPrbc shall not be set to 0 when ciPrbGroupSize is configured", EXPFILL }},
         { &ei_oran_ci_prb_group_size_reserved, { "oran_fh_cus.ci_prb_group_size_reserved", PI_MALFORMED, PI_WARN, "ciPrbGroupSize should be 2-254", EXPFILL }},
+        { &ei_oran_st8_nackid, { "oran_fh_cus.sr8_nackid", PI_SEQUENCE, PI_WARN, "operation for this ackId failed", EXPFILL }},
+
     };
 
     /* Register the protocol name and description */
