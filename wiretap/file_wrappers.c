@@ -408,15 +408,16 @@ fast_seek_reset(FILE_T state)
         break;
 
     case ZLIB:
-#ifdef HAVE_ZLIB
+#ifdef USE_ZLIB_OR_ZLIBNG
         if (state->fast_seek_cur != NULL) {
             struct zlib_cur_seek_point *cur = (struct zlib_cur_seek_point *) state->fast_seek_cur;
 
             cur->have = 0;
         }
 #else
-        /* Fail if we don't have zlibng, as that shouldn't happen? */
-#endif /* HAVE_ZLIB */
+        /* This "cannot happen" */
+        ws_assert_not_reached();
+#endif /* USE_ZLIB_OR_ZLIBNG */
         break;
 
     case GZIP_AFTER_HEADER:
