@@ -11,6 +11,7 @@
 
 #include "config.h"
 #include <string.h>
+#include <wsutil/array.h>
 #include <epan/packet.h>
 #include <epan/tfs.h>
 
@@ -664,7 +665,6 @@ rcg_dissect_element_KERB_ASN1_DATA_CHECKSUM_Asn1Buffer_(tvbuff_t *tvb, int offse
 		//offset += 4;
 	return offset;
 }
-
 int
 rcg_dissect_struct_KerbCredIsoRemoteOutput(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
 {
@@ -753,7 +753,6 @@ rcg_dissect_struct_NtlmCredIsoRemoteInput(tvbuff_t *tvb _U_, int offset _U_, pac
 	}
 	offset = rcg_dissect_element_NtlmCredIsoRemoteInput_CallId(tvb, offset, pinfo, tree, di, drep, &CallId);
 	col_set_str(pinfo->cinfo, COL_INFO, val_to_str(CallId, rcg_RemoteGuardCallId_vals, "unknown operation (%u)"));
-
 	offset = rcg_dissect_element_NtlmCredIsoRemoteInput_callUnion(tvb, offset, pinfo, tree, di, drep, &CallId);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
 	proto_item_set_len(item, offset-old_offset);
@@ -816,8 +815,6 @@ rcg_dissect_struct_KERB_ASN1_DATA(tvbuff_t *tvb _U_, int offset _U_, packet_info
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
 	int old_offset;
-
-	if (di->conformant_run) return offset;
 
 	ALIGN_TO_5_BYTES;
 
@@ -882,8 +879,6 @@ rcg_dissect_struct_KERB_ASN1_DATA_CHECKSUM(tvbuff_t *tvb _U_, int offset _U_, pa
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
 	int old_offset;
-
-	if (di->conformant_run) return offset;
 
 	ALIGN_TO_5_BYTES;
 
@@ -956,8 +951,6 @@ rcg_dissect_struct_KERB_RPC_OCTET_STRING(tvbuff_t *tvb _U_, int offset _U_, pack
 	proto_tree *tree = NULL;
 	int old_offset;
 
-	if (di->conformant_run) return offset;
-
 	ALIGN_TO_5_BYTES;
 
 	old_offset = offset;
@@ -1010,8 +1003,6 @@ rcg_dissect_struct_KERB_RPC_PA_DATA(tvbuff_t *tvb _U_, int offset _U_, packet_in
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
 	int old_offset;
-
-	if (di->conformant_run) return offset;
 
 	ALIGN_TO_5_BYTES;
 
@@ -1074,8 +1065,6 @@ rcg_dissect_struct_KERB_RPC_ENCRYPTION_KEY(tvbuff_t *tvb _U_, int offset _U_, pa
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
 	int old_offset;
-
-	if (di->conformant_run) return offset;
 
 	ALIGN_TO_5_BYTES;
 
@@ -1151,8 +1140,6 @@ rcg_dissect_struct_RPC_UNICODE_STRING(tvbuff_t *tvb _U_, int offset _U_, packet_
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
 	int old_offset;
-
-	if (di->conformant_run) return offset;
 
 	ALIGN_TO_5_BYTES;
 
@@ -1233,8 +1220,6 @@ rcg_dissect_struct_KERB_RPC_INTERNAL_NAME(tvbuff_t *tvb _U_, int offset _U_, pac
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
 	int old_offset;
-
-	if (di->conformant_run) return offset;
 
 	ALIGN_TO_5_BYTES;
 
@@ -1357,8 +1342,6 @@ rcg_dissect_struct_SECPKG_SUPPLEMENTAL_CRED(tvbuff_t *tvb _U_, int offset _U_, p
 	proto_tree *tree = NULL;
 	int old_offset;
 
-	if (di->conformant_run) return offset;
-
 	ALIGN_TO_4_BYTES;
 
 	old_offset = offset;
@@ -1422,8 +1405,6 @@ rcg_dissect_struct_SECPKG_SUPPLEMENTAL_CRED_ARRAY(tvbuff_t *tvb _U_, int offset 
 	proto_tree *tree = NULL;
 	int old_offset;
 
-	if (di->conformant_run) return offset;
-
 	ALIGN_TO_4_BYTES;
 
 	old_offset = offset;
@@ -1457,8 +1438,6 @@ rcg_dissect_struct_PSECPKG_SUPPLEMENTAL_CRED_ARRAY(tvbuff_t *tvb _U_, int offset
 {
 	proto_item *item = NULL;
 	int old_offset;
-
-	if (di->conformant_run) return offset;
 
 	ALIGN_TO_4_BYTES;
 
@@ -1524,8 +1503,6 @@ rcg_dissect_struct_KERB_RPC_CRYPTO_API_BLOB(tvbuff_t *tvb _U_, int offset _U_, p
 	proto_tree *tree = NULL;
 	int old_offset;
 
-	if (di->conformant_run) return offset;
-
 	ALIGN_TO_5_BYTES;
 
 	old_offset = offset;
@@ -1570,8 +1547,6 @@ rcg_dissect_struct_NegotiateVersion(tvbuff_t *tvb _U_, int offset _U_, packet_in
 	proto_tree *tree = NULL;
 	int old_offset;
 
-	if (di->conformant_run) return offset;
-
 	ALIGN_TO_4_BYTES;
 
 	old_offset = offset;
@@ -1614,8 +1589,6 @@ rcg_dissect_struct_LARGE_INTEGER(tvbuff_t *tvb _U_, int offset _U_, packet_info 
 	proto_tree *tree = NULL;
 	int old_offset;
 
-	if (di->conformant_run) return offset;
-
 	ALIGN_TO_8_BYTES;
 
 	old_offset = offset;
@@ -1647,8 +1620,6 @@ rcg_dissect_struct_PLARGE_INTEGER(tvbuff_t *tvb _U_, int offset _U_, packet_info
 {
 	proto_item *item = NULL;
 	int old_offset;
-
-	if (di->conformant_run) return offset;
 
 	ALIGN_TO_4_BYTES;
 
@@ -1731,8 +1702,6 @@ rcg_dissect_struct_BuildAsReqAuthenticatorReq(tvbuff_t *tvb _U_, int offset _U_,
 	proto_tree *tree = NULL;
 	int old_offset;
 
-	if (di->conformant_run) return offset;
-
 	ALIGN_TO_5_BYTES;
 
 	old_offset = offset;
@@ -1787,8 +1756,6 @@ rcg_dissect_struct_BuildAsReqAuthenticatorResp(tvbuff_t *tvb _U_, int offset _U_
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
 	int old_offset;
-
-	if (di->conformant_run) return offset;
 
 	ALIGN_TO_5_BYTES;
 
@@ -1876,8 +1843,6 @@ rcg_dissect_struct_VerifyServiceTicketReq(tvbuff_t *tvb _U_, int offset _U_, pac
 	proto_tree *tree = NULL;
 	int old_offset;
 
-	if (di->conformant_run) return offset;
-
 	ALIGN_TO_5_BYTES;
 
 	old_offset = offset;
@@ -1933,8 +1898,6 @@ rcg_dissect_struct_VerifyServiceTicketResp(tvbuff_t *tvb _U_, int offset _U_, pa
 	proto_tree *tree = NULL;
 	int old_offset;
 
-	if (di->conformant_run) return offset;
-
 	ALIGN_TO_5_BYTES;
 
 	old_offset = offset;
@@ -1968,8 +1931,6 @@ rcg_dissect_struct_PRPC_UNICODE_STRING(tvbuff_t *tvb _U_, int offset _U_, packet
 {
 	proto_item *item = NULL;
 	int old_offset;
-
-	if (di->conformant_run) return offset;
 
 	ALIGN_TO_4_BYTES;
 
@@ -2138,8 +2099,6 @@ rcg_dissect_struct_CreateApReqAuthenticatorReq(tvbuff_t *tvb _U_, int offset _U_
 	proto_tree *tree = NULL;
 	int old_offset;
 
-	if (di->conformant_run) return offset;
-
 	ALIGN_TO_5_BYTES;
 
 	old_offset = offset;
@@ -2216,8 +2175,6 @@ rcg_dissect_struct_CreateApReqAuthenticatorResp(tvbuff_t *tvb _U_, int offset _U
 	proto_tree *tree = NULL;
 	int old_offset;
 
-	if (di->conformant_run) return offset;
-
 	ALIGN_TO_8_BYTES;
 
 	old_offset = offset;
@@ -2289,8 +2246,6 @@ rcg_dissect_struct_DecryptApReplyReq(tvbuff_t *tvb _U_, int offset _U_, packet_i
 	proto_tree *tree = NULL;
 	int old_offset;
 
-	if (di->conformant_run) return offset;
-
 	ALIGN_TO_5_BYTES;
 
 	old_offset = offset;
@@ -2334,8 +2289,6 @@ rcg_dissect_struct_DecryptApReplyResp(tvbuff_t *tvb _U_, int offset _U_, packet_
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
 	int old_offset;
-
-	if (di->conformant_run) return offset;
 
 	ALIGN_TO_5_BYTES;
 
@@ -2439,8 +2392,6 @@ rcg_dissect_struct_UnpackKdcReplyBodyReq(tvbuff_t *tvb _U_, int offset _U_, pack
 	proto_tree *tree = NULL;
 	int old_offset;
 
-	if (di->conformant_run) return offset;
-
 	ALIGN_TO_5_BYTES;
 
 	old_offset = offset;
@@ -2499,8 +2450,6 @@ rcg_dissect_struct_UnpackKdcReplyBodyResp(tvbuff_t *tvb _U_, int offset _U_, pac
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
 	int old_offset;
-
-	if (di->conformant_run) return offset;
 
 	ALIGN_TO_5_BYTES;
 
@@ -2580,8 +2529,6 @@ rcg_dissect_struct_ComputeTgsChecksumReq(tvbuff_t *tvb _U_, int offset _U_, pack
 	proto_tree *tree = NULL;
 	int old_offset;
 
-	if (di->conformant_run) return offset;
-
 	ALIGN_TO_5_BYTES;
 
 	old_offset = offset;
@@ -2627,8 +2574,6 @@ rcg_dissect_struct_ComputeTgsChecksumResp(tvbuff_t *tvb _U_, int offset _U_, pac
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
 	int old_offset;
-
-	if (di->conformant_run) return offset;
 
 	ALIGN_TO_5_BYTES;
 
@@ -2706,8 +2651,6 @@ rcg_dissect_struct_BuildEncryptedAuthDataReq(tvbuff_t *tvb _U_, int offset _U_, 
 	proto_tree *tree = NULL;
 	int old_offset;
 
-	if (di->conformant_run) return offset;
-
 	ALIGN_TO_5_BYTES;
 
 	old_offset = offset;
@@ -2753,8 +2696,6 @@ rcg_dissect_struct_BuildEncryptedAuthDataResp(tvbuff_t *tvb _U_, int offset _U_,
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
 	int old_offset;
-
-	if (di->conformant_run) return offset;
 
 	ALIGN_TO_5_BYTES;
 
@@ -2840,8 +2781,6 @@ rcg_dissect_struct_PackApReplyReq(tvbuff_t *tvb _U_, int offset _U_, packet_info
 	proto_tree *tree = NULL;
 	int old_offset;
 
-	if (di->conformant_run) return offset;
-
 	ALIGN_TO_5_BYTES;
 
 	old_offset = offset;
@@ -2912,8 +2851,6 @@ rcg_dissect_struct_PackApReplyResp(tvbuff_t *tvb _U_, int offset _U_, packet_inf
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
 	int old_offset;
-
-	if (di->conformant_run) return offset;
 
 	ALIGN_TO_5_BYTES;
 
@@ -2992,8 +2929,6 @@ rcg_dissect_struct_HashS4UPreauthReq(tvbuff_t *tvb _U_, int offset _U_, packet_i
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
 	int old_offset;
-
-	if (di->conformant_run) return offset;
 
 	ALIGN_TO_5_BYTES;
 
@@ -3081,8 +3016,6 @@ rcg_dissect_struct_HashS4UPreauthResp(tvbuff_t *tvb _U_, int offset _U_, packet_
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
 	int old_offset;
-
-	if (di->conformant_run) return offset;
 
 	ALIGN_TO_5_BYTES;
 
@@ -3178,8 +3111,6 @@ rcg_dissect_struct_SignS4UPreauthDataReq(tvbuff_t *tvb _U_, int offset _U_, pack
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
 	int old_offset;
-
-	if (di->conformant_run) return offset;
 
 	ALIGN_TO_5_BYTES;
 
@@ -3286,8 +3217,6 @@ rcg_dissect_struct_SignS4UPreauthDataResp(tvbuff_t *tvb _U_, int offset _U_, pac
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
 	int old_offset;
-
-	if (di->conformant_run) return offset;
 
 	ALIGN_TO_5_BYTES;
 
@@ -3420,8 +3349,6 @@ rcg_dissect_struct_VerifyChecksumReq(tvbuff_t *tvb _U_, int offset _U_, packet_i
 	proto_tree *tree = NULL;
 	int old_offset;
 
-	if (di->conformant_run) return offset;
-
 	ALIGN_TO_5_BYTES;
 
 	old_offset = offset;
@@ -3473,8 +3400,6 @@ rcg_dissect_struct_VerifyChecksumResp(tvbuff_t *tvb _U_, int offset _U_, packet_
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
 	int old_offset;
-
-	if (di->conformant_run) return offset;
 
 	ALIGN_TO_4_BYTES;
 
@@ -3578,8 +3503,6 @@ rcg_dissect_struct_DecryptPacCredentialsReq(tvbuff_t *tvb _U_, int offset _U_, p
 	proto_tree *tree = NULL;
 	int old_offset;
 
-	if (di->conformant_run) return offset;
-
 	ALIGN_TO_5_BYTES;
 
 	old_offset = offset;
@@ -3630,8 +3553,6 @@ rcg_dissect_struct_DecryptPacCredentialsResp(tvbuff_t *tvb _U_, int offset _U_, 
 	proto_tree *tree = NULL;
 	int old_offset;
 
-	if (di->conformant_run) return offset;
-
 	ALIGN_TO_4_BYTES;
 
 	old_offset = offset;
@@ -3673,8 +3594,6 @@ rcg_dissect_struct_CreateECDHKeyAgreementReq(tvbuff_t *tvb _U_, int offset _U_, 
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
 	int old_offset;
-
-	if (di->conformant_run) return offset;
 
 	ALIGN_TO_4_BYTES;
 
@@ -3793,8 +3712,6 @@ rcg_dissect_struct_CreateECDHKeyAgreementResp(tvbuff_t *tvb _U_, int offset _U_,
 	proto_tree *tree = NULL;
 	int old_offset;
 
-	if (di->conformant_run) return offset;
-
 	ALIGN_TO_5_BYTES;
 
 	old_offset = offset;
@@ -3842,8 +3759,6 @@ rcg_dissect_struct_CreateDHKeyAgreementReq(tvbuff_t *tvb _U_, int offset _U_, pa
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
 	int old_offset;
-
-	if (di->conformant_run) return offset;
 
 	old_offset = offset;
 
@@ -4007,8 +3922,6 @@ rcg_dissect_struct_CreateDHKeyAgreementResp(tvbuff_t *tvb _U_, int offset _U_, p
 	proto_tree *tree = NULL;
 	int old_offset;
 
-	if (di->conformant_run) return offset;
-
 	ALIGN_TO_5_BYTES;
 
 	old_offset = offset;
@@ -4063,8 +3976,6 @@ rcg_dissect_struct_DestroyKeyAgreementReq(tvbuff_t *tvb _U_, int offset _U_, pac
 	proto_tree *tree = NULL;
 	int old_offset;
 
-	if (di->conformant_run) return offset;
-
 	ALIGN_TO_8_BYTES;
 
 	old_offset = offset;
@@ -4107,8 +4018,6 @@ rcg_dissect_struct_DestroyKeyAgreementResp(tvbuff_t *tvb _U_, int offset _U_, pa
 	proto_tree *tree = NULL;
 	int old_offset;
 
-	if (di->conformant_run) return offset;
-
 	old_offset = offset;
 
 	if (parent_tree) {
@@ -4144,8 +4053,6 @@ rcg_dissect_struct_KeyAgreementGenerateNonceReq(tvbuff_t *tvb _U_, int offset _U
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
 	int old_offset;
-
-	if (di->conformant_run) return offset;
 
 	ALIGN_TO_8_BYTES;
 
@@ -4229,8 +4136,6 @@ rcg_dissect_struct_KeyAgreementGenerateNonceResp(tvbuff_t *tvb _U_, int offset _
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
 	int old_offset;
-
-	if (di->conformant_run) return offset;
 
 	ALIGN_TO_5_BYTES;
 
@@ -4369,8 +4274,6 @@ rcg_dissect_struct_FinalizeKeyAgreementReq(tvbuff_t *tvb _U_, int offset _U_, pa
 	proto_tree *tree = NULL;
 	int old_offset;
 
-	if (di->conformant_run) return offset;
-
 	ALIGN_TO_5_BYTES;
 
 	old_offset = offset;
@@ -4430,8 +4333,6 @@ rcg_dissect_struct_FinalizeKeyAgreementResp(tvbuff_t *tvb _U_, int offset _U_, p
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
 	int old_offset;
-
-	if (di->conformant_run) return offset;
 
 	ALIGN_TO_5_BYTES;
 
@@ -5038,8 +4939,6 @@ rcg_dissect_struct_NT_RESPONSE(tvbuff_t *tvb _U_, int offset _U_, packet_info *p
 	proto_item *item = NULL;
 	int old_offset;
 
-	if (di->conformant_run) return offset;
-
 	old_offset = offset;
 
 	if (parent_tree) {
@@ -5062,8 +4961,6 @@ rcg_dissect_struct_NT_CHALLENGE(tvbuff_t *tvb _U_, int offset _U_, packet_info *
 {
 	proto_item *item = NULL;
 	int old_offset;
-
-	if (di->conformant_run) return offset;
 
 	ALIGN_TO_4_BYTES;
 
@@ -5094,8 +4991,6 @@ rcg_dissect_struct_PNT_CHALLENGE(tvbuff_t *tvb _U_, int offset _U_, packet_info 
 	proto_item *item = NULL;
 	int old_offset;
 
-	if (di->conformant_run) return offset;
-
 	ALIGN_TO_4_BYTES;
 
 	old_offset = offset;
@@ -5124,8 +5019,6 @@ rcg_dissect_struct_LM_SESSION_KEY(tvbuff_t *tvb _U_, int offset _U_, packet_info
 	proto_item *item = NULL;
 	int old_offset;
 
-	if (di->conformant_run) return offset;
-
 	old_offset = offset;
 
 	if (parent_tree) {
@@ -5149,8 +5042,6 @@ rcg_dissect_struct_MSV1_0_LM3_RESPONSE(tvbuff_t *tvb _U_, int offset _U_, packet
 	proto_item *item = NULL;
 	int old_offset;
 
-	if (di->conformant_run) return offset;
-
 	old_offset = offset;
 
 	if (parent_tree) {
@@ -5173,8 +5064,6 @@ rcg_dissect_struct_PMSV1_0_LM3_RESPONSE(tvbuff_t *tvb _U_, int offset _U_, packe
 {
 	proto_item *item = NULL;
 	int old_offset;
-
-	if (di->conformant_run) return offset;
 
 	ALIGN_TO_4_BYTES;
 
@@ -5205,8 +5094,6 @@ rcg_dissect_struct_USER_SESSION_KEY(tvbuff_t *tvb _U_, int offset _U_, packet_in
 	proto_item *item = NULL;
 	int old_offset;
 
-	if (di->conformant_run) return offset;
-
 	old_offset = offset;
 
 	if (parent_tree) {
@@ -5229,8 +5116,6 @@ rcg_dissect_struct_PUSER_SESSION_KEY(tvbuff_t *tvb _U_, int offset _U_, packet_i
 {
 	proto_item *item = NULL;
 	int old_offset;
-
-	if (di->conformant_run) return offset;
 
 	ALIGN_TO_4_BYTES;
 
@@ -5261,8 +5146,6 @@ rcg_dissect_struct_MSV1_0_CREDENTIAL_KEY(tvbuff_t *tvb _U_, int offset _U_, pack
 	proto_item *item = NULL;
 	int old_offset;
 
-	if (di->conformant_run) return offset;
-
 	old_offset = offset;
 
 	if (parent_tree) {
@@ -5285,8 +5168,6 @@ rcg_dissect_struct_PMSV1_0_CREDENTIAL_KEY(tvbuff_t *tvb _U_, int offset _U_, pac
 {
 	proto_item *item = NULL;
 	int old_offset;
-
-	if (di->conformant_run) return offset;
 
 	ALIGN_TO_4_BYTES;
 
@@ -5397,8 +5278,6 @@ rcg_dissect_struct_MSV1_0_REMOTE_ENCRYPTED_SECRETS(tvbuff_t *tvb _U_, int offset
 	proto_tree *tree = NULL;
 	int old_offset;
 
-	if (di->conformant_run) return offset;
-
 	ALIGN_TO_4_BYTES;
 
 	old_offset = offset;
@@ -5442,8 +5321,6 @@ rcg_dissect_struct_PMSV1_0_REMOTE_ENCRYPTED_SECRETS(tvbuff_t *tvb _U_, int offse
 {
 	proto_item *item = NULL;
 	int old_offset;
-
-	if (di->conformant_run) return offset;
 
 	ALIGN_TO_4_BYTES;
 
@@ -5510,8 +5387,6 @@ rcg_dissect_struct_Lm20GetNtlm3ChallengeResponseReq(tvbuff_t *tvb _U_, int offse
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
 	int old_offset;
-
-	if (di->conformant_run) return offset;
 
 	ALIGN_TO_4_BYTES;
 
@@ -5613,8 +5488,6 @@ rcg_dissect_struct_Lm20GetNtlm3ChallengeResponseResp(tvbuff_t *tvb _U_, int offs
 	proto_tree *tree = NULL;
 	int old_offset;
 
-	if (di->conformant_run) return offset;
-
 	ALIGN_TO_5_BYTES;
 
 	old_offset = offset;
@@ -5674,8 +5547,6 @@ rcg_dissect_struct_CalculateNtResponseReq(tvbuff_t *tvb _U_, int offset _U_, pac
 	proto_tree *tree = NULL;
 	int old_offset;
 
-	if (di->conformant_run) return offset;
-
 	ALIGN_TO_4_BYTES;
 
 	old_offset = offset;
@@ -5719,8 +5590,6 @@ rcg_dissect_struct_CalculateNtResponseResp(tvbuff_t *tvb _U_, int offset _U_, pa
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
 	int old_offset;
-
-	if (di->conformant_run) return offset;
 
 	old_offset = offset;
 
@@ -5775,8 +5644,6 @@ rcg_dissect_struct_CalculateUserSessionKeyNtReq(tvbuff_t *tvb _U_, int offset _U
 	proto_tree *tree = NULL;
 	int old_offset;
 
-	if (di->conformant_run) return offset;
-
 	ALIGN_TO_5_BYTES;
 
 	old_offset = offset;
@@ -5820,8 +5687,6 @@ rcg_dissect_struct_CalculateUserSessionKeyNtResp(tvbuff_t *tvb _U_, int offset _
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
 	int old_offset;
-
-	if (di->conformant_run) return offset;
 
 	old_offset = offset;
 
@@ -5867,8 +5732,6 @@ rcg_dissect_struct_CompareCredentialsReq(tvbuff_t *tvb _U_, int offset _U_, pack
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
 	int old_offset;
-
-	if (di->conformant_run) return offset;
 
 	ALIGN_TO_4_BYTES;
 
@@ -5931,8 +5794,6 @@ rcg_dissect_struct_CompareCredentialsResp(tvbuff_t *tvb _U_, int offset _U_, pac
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
 	int old_offset;
-
-	if (di->conformant_run) return offset;
 
 	ALIGN_TO_4_BYTES;
 
