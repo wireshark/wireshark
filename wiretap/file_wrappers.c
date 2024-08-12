@@ -1947,29 +1947,36 @@ file_seek(FILE_T file, int64_t offset, int whence, int *err)
          * has been called on this file, which should never be the case
          * for a pipe.
          */
+        switch (here->compression) {
+
 #ifdef USE_ZLIB_OR_ZLIBNG
-        if (here->compression == ZLIB) {
+        case ZLIB:
 #ifdef HAVE_INFLATEPRIME
             off = here->in - (here->data.zlib.bits ? 1 : 0);
 #else /* HAVE_INFLATEPRIME */
             off = here->in;
 #endif /* HAVE_INFLATEPRIME */
             off2 = here->out;
-        } else if (here->compression == GZIP_AFTER_HEADER) {
+            break;
+
+        case GZIP_AFTER_HEADER:
             off = here->in;
             off2 = here->out;
-        } else
+            break;
 #endif /* USE_ZLIB_OR_ZLIBNG */
+
 #ifdef USE_LZ4
-        if (here->compression == LZ4) {
+        case LZ4:
             ws_debug("fast seek lz4");
             off = here->in;
             off2 = here->out;
-        } else
+            break;
 #endif /* USE_LZ4 */
-        {
+
+        default:
             off2 = (file->pos + offset);
             off = here->in + (off2 - here->out);
+            break;
         }
 
         if (ws_lseek64(file->fd, off, SEEK_SET) == -1) {
@@ -1986,8 +1993,10 @@ file_seek(FILE_T file, int64_t offset, int whence, int *err)
         file->err_info = NULL;
         buf_reset(&file->in);
 
+        switch (here->compression) {
+
 #ifdef USE_ZLIB_OR_ZLIBNG
-        if (here->compression == ZLIB) {
+        case ZLIB: {
             zlib_stream*strm = &file->strm;
             ZLIB_PREFIX(inflateReset)(strm);
             strm->adler = here->data.zlib.adler;
@@ -2010,15 +2019,20 @@ file_seek(FILE_T file, int64_t offset, int whence, int *err)
 #endif /* HAVE_INFLATEPRIME */
             (void)ZLIB_PREFIX(inflateSetDictionary)(strm, here->data.zlib.window, ZLIB_WINSIZE);
             file->compression = ZLIB;
-        } else if (here->compression == GZIP_AFTER_HEADER) {
+            break;
+        }
+
+        case GZIP_AFTER_HEADER: {
             zlib_stream* strm = &file->strm;
             ZLIB_PREFIX(inflateReset)(strm);
             strm->adler = ZLIB_PREFIX(crc32)(0L, Z_NULL, 0);
             file->compression = ZLIB;
-        } else
+            break;
+        }
 #endif /* USE_ZLIB_OR_ZLIBNG */
+
 #ifdef USE_LZ4
-        if (here->compression == LZ4) {
+        case LZ4:
             /* If the frame information seems to have changed (i.e., we fast
              * seeked into a different frame that also has different flags
              * and options), then reset the context and re-read it.
@@ -2048,9 +2062,13 @@ file_seek(FILE_T file, int64_t offset, int whence, int *err)
             }
             file->lz4_info = here->data.lz4.lz4_info;
             file->compression = LZ4;
-        } else
+            break;
 #endif /* USE_LZ4 */
+
+        default:
             file->compression = here->compression;
+            break;
+        }
 
         offset = (file->pos + offset) - off2;
         file->pos = off2;
