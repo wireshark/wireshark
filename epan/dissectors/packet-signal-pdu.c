@@ -2483,7 +2483,7 @@ dissect_spdu_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_tree, u
     if (tvb_captured_length(tvb) > 0 && paramlist == NULL) {
         /* we only receive a tvb with nothing behind us */
         proto_tree_add_text_internal(tree, tvb, 0, tvb_captured_length(tvb), "Payload of PDU is not configured. See protocol preferences.");
-        return tvb_captured_length(tvb);
+        return call_data_dissector(tvb, pinfo, tree);
     }
 
     if (root_tree == NULL && !proto_field_is_referenced(root_tree, proto_signal_pdu) && !paramlist->aggregation) {
