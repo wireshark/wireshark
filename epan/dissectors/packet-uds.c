@@ -12,6 +12,9 @@
 
 #include <epan/packet.h>
 #include <epan/uat.h>
+#include <epan/unit_strings.h>
+
+#include <wsutil/array.h>
 #include "packet-uds.h"
 #include "packet-doip.h"
 #include "packet-hsfz.h"

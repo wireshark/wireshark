@@ -18,6 +18,10 @@
 #include <epan/show_exception.h>
 #include <epan/to_str.h>
 #include <epan/charsets.h>
+#include <epan/tfs.h>
+#include <epan/unit_strings.h>
+
+#include <wsutil/array.h>
 #include <wsutil/str_util.h>
 
 #include "packet-dns.h"

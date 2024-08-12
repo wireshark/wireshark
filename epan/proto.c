@@ -18,6 +18,9 @@
 #include <inttypes.h>
 #include <errno.h>
 
+#include <epan/tfs.h>
+#include <epan/unit_strings.h>
+
 #include <wsutil/array.h>
 #include <wsutil/bits_ctz.h>
 #include <wsutil/bits_count_ones.h>

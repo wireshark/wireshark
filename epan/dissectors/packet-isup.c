@@ -46,7 +46,10 @@
 #include <epan/reassemble.h>
 #include <epan/to_str.h>
 #include <epan/media_params.h>
-#include <wsutil/str_util.h>
+#include <epan/tfs.h>
+#include <epan/unit_strings.h>
+
+#include <wsutil/array.h>
 #include "packet-q931.h"
 #include "packet-isup.h"
 #include "packet-e164.h"

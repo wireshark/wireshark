@@ -15,10 +15,8 @@
 
 #include "config.h"
 
-#include <glib.h>
-#include <string.h>
-
 #include <epan/packet.h>
+#include <wsutil/array.h>
 #include "packet-dcerpc.h"
 #include "packet-dcerpc-nt.h"
 #include "packet-windows-common.h"

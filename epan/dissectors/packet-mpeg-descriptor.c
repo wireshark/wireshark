@@ -13,6 +13,10 @@
 
 #include <epan/packet.h>
 #include <epan/dvb_chartbl.h>
+#include <epan/tfs.h>
+#include <epan/unit_strings.h>
+
+#include <wsutil/array.h>
 #include "packet-mpeg-sect.h"
 #include "packet-mpeg-descriptor.h"
 

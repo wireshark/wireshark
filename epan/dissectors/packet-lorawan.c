@@ -19,6 +19,9 @@
 #include <epan/uat.h>
 #include <epan/strutil.h>
 #include <epan/crc16-tvb.h> /* For CRC verification */
+#include <epan/unit_strings.h>
+
+#include <wsutil/array.h>
 #include <wsutil/wsgcrypt.h>
 
 void proto_reg_handoff_lorawan(void);

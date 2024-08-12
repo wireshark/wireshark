@@ -13,7 +13,9 @@
 #include <epan/packet.h>
 #include <epan/addr_resolv.h>
 #include <epan/ipproto.h>
-#include <epan/expert.h>
+#include <epan/unit_strings.h>
+
+#include <wsutil/array.h>
 #include <wsutil/utf8_entities.h>
 
 #include "packet-netmon.h"

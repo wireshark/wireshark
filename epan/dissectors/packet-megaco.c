@@ -31,7 +31,6 @@
 #include <stdlib.h>
 
 #include <epan/packet.h>
-#include <epan/exceptions.h>
 #include <epan/tap.h>
 #include <epan/rtd_table.h>
 #include <epan/prefs.h>
@@ -40,6 +39,9 @@
 #include <epan/asn1.h>
 #include <epan/sctpppids.h>
 #include <epan/charsets.h>
+#include <epan/unit_strings.h>
+
+#include <wsutil/array.h>
 #include <wsutil/strtoi.h>
 #include "packet-ber.h"
 #include "packet-tpkt.h"

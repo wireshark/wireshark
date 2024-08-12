@@ -21,7 +21,10 @@
 #include <epan/ipproto.h>
 #include <epan/prefs.h>
 #include <epan/reassemble.h>
-#include <epan/to_str.h>
+#include <epan/tfs.h>
+#include <epan/unit_strings.h>
+
+#include <wsutil/array.h>
 
 #include "packet-ip.h"
 

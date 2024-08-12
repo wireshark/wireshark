@@ -15,6 +15,10 @@
 #include <epan/packet.h>
 #include <epan/expert.h>
 #include <epan/in_cksum.h>
+#include <epan/tfs.h>
+#include <epan/unit_strings.h>
+
+#include <wsutil/array.h>
 #include <ipproto.h>
 
 void proto_register_xip_serval(void);

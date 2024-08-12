@@ -20,6 +20,8 @@
 #include <epan/expert.h>
 #include <epan/exceptions.h>
 
+#include <wsutil/array.h>
+
 #include "packet-oer.h"
 
 

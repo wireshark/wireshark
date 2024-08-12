@@ -89,14 +89,15 @@
 #include "packet-tcp.h"
 #include <wsutil/adler32.h>
 #include <epan/address.h>
-#include <epan/to_str.h>
 #include <epan/prefs.h>
 #include <epan/uat.h>
 #include <epan/conversation.h>
 #include <epan/value_string.h>
 #include <epan/expert.h>
-#include <epan/address.h>
-#include <wsutil/filesystem.h>
+#include <epan/tfs.h>
+#include <epan/unit_strings.h>
+
+#include <wsutil/array.h>
 #include <wsutil/file_util.h>
 #include <wsutil/wsgcrypt.h>
 #include <wsutil/report_message.h>
@@ -104,7 +105,6 @@
 #include <wsutil/strtoi.h>
 #include <wsutil/rsa.h>
 #include <errno.h>
-#include <epan/ws_printf.h>
 #include <epan/ptvcursor.h>
 
 void proto_register_tibia(void);

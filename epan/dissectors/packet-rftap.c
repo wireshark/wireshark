@@ -25,7 +25,9 @@
 #include <config.h>
 
 #include <epan/packet.h>
-#include <epan/prefs.h>
+#include <epan/unit_strings.h>
+
+#include <wsutil/array.h>
 
 /* Prototypes */
 /* (Required to prevent [-Wmissing-prototypes] warnings */

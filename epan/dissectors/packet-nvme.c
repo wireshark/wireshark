@@ -19,10 +19,11 @@
 
 #include "config.h"
 
-#include <stdlib.h>
-
 #include <epan/packet.h>
+#include <epan/tfs.h>
+#include <epan/unit_strings.h>
 
+#include <wsutil/array.h>
 #include "packet-nvme.h"
 
 void proto_register_nvme(void);

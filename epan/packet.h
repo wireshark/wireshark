@@ -10,20 +10,17 @@
 
 #ifndef __PACKET_H__
 #define __PACKET_H__
-#include <wireshark.h>
 
 #include <wsutil/array.h>
 #include <wiretap/wtap_opttypes.h>
 #include "proto.h"
 #include "tvbuff.h"
 #include "epan.h"
-#include "value_string.h"
 #include "frame_data.h"
 #include "packet_info.h"
 #include "column-utils.h"
 #include "guid-utils.h"
 #include "tfs.h"
-#include "unit_strings.h"
 
 #ifdef __cplusplus
 extern "C" {

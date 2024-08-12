@@ -91,7 +91,6 @@
 
 #include <epan/packet.h>
 #include <epan/expert.h>
-#include <epan/exceptions.h>
 #include <epan/prefs.h>
 #include <epan/to_str.h>
 #include <epan/in_cksum.h>
@@ -101,6 +100,10 @@
 #include <epan/conversation_table.h>
 #include <epan/tap.h>
 #include <epan/addr_resolv.h>
+#include <epan/tfs.h>
+#include <epan/unit_strings.h>
+
+#include <wsutil/array.h>
 #include <wsutil/utf8_entities.h>
 #include "packet-rsvp.h"
 #include "packet-ip.h"

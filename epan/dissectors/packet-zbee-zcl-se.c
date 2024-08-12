@@ -16,10 +16,12 @@
 
 
 #include <epan/packet.h>
-#include <epan/prefs.h>
 #include <epan/expert.h>
 #include <epan/to_str.h>
+#include <epan/tfs.h>
+#include <epan/unit_strings.h>
 
+#include <wsutil/array.h>
 #include <wsutil/epochs.h>
 
 #include "packet-zbee.h"

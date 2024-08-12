@@ -16,6 +16,9 @@
 #include <epan/packet.h>
 #include <epan/expert.h>
 #include <epan/crc6-tvb.h>
+#include <epan/unit_strings.h>
+
+#include <wsutil/array.h>
 
 #define TYPE_0_LEN 17
 #define TYPE_1_LEN 11

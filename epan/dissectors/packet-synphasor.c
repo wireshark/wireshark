@@ -20,6 +20,10 @@
 #include <epan/crc16-tvb.h>
 #include <epan/expert.h>
 #include <epan/proto_data.h>
+#include <epan/tfs.h>
+#include <epan/unit_strings.h>
+
+#include <wsutil/array.h>
 #include "packet-tcp.h"
 
 #include <wsutil/utf8_entities.h>

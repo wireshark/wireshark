@@ -70,6 +70,9 @@
 #include <epan/uat.h>
 #include <epan/eapol_keydes_types.h>
 #include <epan/proto_data.h>
+#include <epan/tfs.h>
+#include <epan/unit_strings.h>
+#include <wsutil/array.h>
 
 #include "packet-wps.h"
 #include "packet-e212.h"

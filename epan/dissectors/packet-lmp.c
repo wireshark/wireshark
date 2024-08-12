@@ -29,15 +29,14 @@
 #include "config.h"
 
 #include <epan/packet.h>
-#include <epan/exceptions.h>
 #include <epan/prefs.h>
 #include <epan/in_cksum.h>
-#include <epan/etypes.h>
-#include <epan/ipproto.h>
 #include <epan/expert.h>
 #include <epan/to_str.h>
+#include <epan/tfs.h>
+#include <epan/unit_strings.h>
 
-#include "packet-ip.h"
+#include <wsutil/array.h>
 #include "packet-rsvp.h"
 
 void proto_register_lmp(void);

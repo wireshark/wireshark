@@ -60,7 +60,9 @@
 #include <stdlib.h>
 
 #include <epan/packet.h>
+#include <epan/unit_strings.h>
 
+#include <wsutil/array.h>
 #include "packet-rtcp.h"
 #include "packet-rtp.h"
 #include "packet-gsm_a_common.h"

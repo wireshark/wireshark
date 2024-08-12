@@ -16,7 +16,10 @@
 #include <epan/expert.h>
 #include <epan/packet.h>
 
-#include <wsutil/pint.h>
+#include <epan/tfs.h>
+#include <epan/unit_strings.h>
+
+#include <wsutil/array.h>
 #include <wsutil/utf8_entities.h>
 
 #include "packet-ubx.h"

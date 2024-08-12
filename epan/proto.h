@@ -23,11 +23,6 @@
 #ifndef __PROTO_H__
 #define __PROTO_H__
 
-#include <stdarg.h>
-
-#include <epan/wmem_scopes.h>
-
-#include "wsutil/inet_cidr.h"
 #include "wsutil/nstime.h"
 #include "tvbuff.h"
 #include "value_string.h"

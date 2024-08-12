@@ -41,7 +41,7 @@
 
 #include "config.h"
 
-
+#include <wsutil/array.h>
 #include <epan/packet.h>
 
 /*  Function declarations */

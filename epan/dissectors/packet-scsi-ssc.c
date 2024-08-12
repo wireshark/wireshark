@@ -20,8 +20,9 @@
 #include "config.h"
 
 #include <epan/packet.h>
-#include <epan/conversation.h>
-#include <wsutil/str_util.h>
+#include <epan/unit_strings.h>
+
+#include <wsutil/array.h>
 #include "packet-scsi.h"
 #include "packet-scsi-ssc.h"
 #include "packet-scsi-smc.h"

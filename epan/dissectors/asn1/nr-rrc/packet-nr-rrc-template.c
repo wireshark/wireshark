@@ -23,6 +23,9 @@
 #include <epan/show_exception.h>
 #include <epan/proto_data.h>
 #include <epan/prefs.h>
+#include <epan/tfs.h>
+#include <epan/unit_strings.h>
+
 #include <wsutil/array.h>
 
 #include <wsutil/str_util.h>

@@ -31,9 +31,12 @@
 
 #include "config.h"
 
-#include <string.h>
+
 #include <epan/packet.h>
 #include <epan/exceptions.h>
+#include <epan/unit_strings.h>
+
+#include <wsutil/array.h>
 #include "packet-tcp.h"
 
 void proto_register_osc(void);

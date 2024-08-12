@@ -1182,6 +1182,7 @@ sub Parse($$$$$)
 	$self->{res}->{headers} .= "#include \"config.h\"\n";
 
 	$self->{res}->{headers} .= "#include <string.h>\n";
+	$self->{res}->{headers} .= "#include <wsutil/array.h>\n";
 	$self->{res}->{headers} .= "#include <epan/packet.h>\n";
 	$self->{res}->{headers} .= "#include <epan/tfs.h>\n\n";
 

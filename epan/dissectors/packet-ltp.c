@@ -42,6 +42,8 @@
 #include <epan/reassemble.h>
 #include <epan/stats_tree.h>
 #include <epan/to_str.h>
+#include <epan/unit_strings.h>
+#include <wsutil/array.h>
 #include <wsutil/wmem/wmem_map.h>
 #include <wsutil/wmem/wmem_interval_tree.h>
 

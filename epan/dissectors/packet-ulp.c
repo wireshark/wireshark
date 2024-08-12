@@ -26,11 +26,12 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/asn1.h>
+#include <epan/tfs.h>
+#include <epan/unit_strings.h>
 #include <wsutil/array.h>
 
 #include "packet-per.h"
 #include "packet-tcp.h"
-#include "packet-gsm_map.h"
 #include "packet-e164.h"
 #include "packet-e212.h"
 

@@ -20,6 +20,11 @@
 #include <epan/decode_as.h>
 #include <epan/proto_data.h>
 #include <epan/to_str.h>
+#include <epan/tfs.h>
+#include <epan/unit_strings.h>
+
+#include <wsutil/array.h>
+
 
 void proto_reg_handoff_loratap(void);
 void proto_register_loratap(void);

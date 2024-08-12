@@ -20,6 +20,11 @@
 #include <epan/conversation.h>
 #include <epan/expert.h>
 #include <epan/proto_data.h>
+#include <epan/tfs.h>
+#include <epan/unit_strings.h>
+
+#include <wsutil/array.h>
+
 /* NOTE:
  * packet-spice.h is auto-generated from a Spice protocol definition by a tool
  * included in the spice-common repository

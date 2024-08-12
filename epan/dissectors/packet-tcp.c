@@ -28,7 +28,10 @@
 #include <epan/exported_pdu.h>
 #include <epan/in_cksum.h>
 #include <epan/proto_data.h>
+#include <epan/tfs.h>
+#include <epan/unit_strings.h>
 
+#include <wsutil/array.h>
 #include <wsutil/utf8_entities.h>
 #include <wsutil/str_util.h>
 #include <wsutil/wsgcrypt.h>
@@ -36,8 +39,6 @@
 #include <wsutil/ws_assert.h>
 
 #include "packet-tcp.h"
-#include "packet-ip.h"
-#include "packet-icmp.h"
 
 void proto_register_tcp(void);
 void proto_reg_handoff_tcp(void);

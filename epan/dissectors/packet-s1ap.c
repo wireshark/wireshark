@@ -22,7 +22,6 @@
 
 #include <epan/packet.h>
 
-#include <epan/strutil.h>
 #include <epan/asn1.h>
 #include <epan/prefs.h>
 #include <epan/sctpppids.h>
@@ -31,12 +30,12 @@
 #include <epan/proto_data.h>
 #include <epan/exceptions.h>
 #include <epan/show_exception.h>
+#include <epan/tfs.h>
+#include <epan/unit_strings.h>
 #include <wsutil/array.h>
 
-#include "packet-ber.h"
 #include "packet-per.h"
 #include "packet-e212.h"
-#include "packet-sccp.h"
 #include "packet-lte-rrc.h"
 #include "packet-ranap.h"
 #include "packet-bssgp.h"

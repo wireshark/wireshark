@@ -51,7 +51,10 @@
 #include <epan/exceptions.h>
 #include <epan/proto_data.h>
 #include <epan/reassemble.h>
-#include <epan/strutil.h>
+#include <epan/tfs.h>
+#include <epan/unit_strings.h>
+
+#include <wsutil/array.h>
 #if defined(HAVE_ZLIB) && !defined(HAVE_ZLIBNG)
 #define ZLIB_CONST
 #define ZLIB_PREFIX(x) x

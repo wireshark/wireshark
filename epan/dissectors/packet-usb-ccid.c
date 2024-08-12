@@ -18,6 +18,10 @@
 #include <epan/decode_as.h>
 #include <epan/packet.h>
 #include <epan/prefs.h>
+#include <epan/tfs.h>
+#include <epan/unit_strings.h>
+
+#include <wsutil/array.h>
 #include "packet-usb.h"
 
 static int proto_ccid;

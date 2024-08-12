@@ -16,7 +16,10 @@
 #include <epan/reassemble.h>
 #include <epan/oids.h>
 #include <epan/oui.h>
+#include <epan/tfs.h>
+#include <epan/unit_strings.h>
 
+#include <wsutil/array.h>
 #include "packet-ieee802154.h"
 
 void proto_register_wisun(void);

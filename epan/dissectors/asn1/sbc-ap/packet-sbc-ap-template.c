@@ -13,10 +13,12 @@
 #include "config.h"
 
 #include <epan/packet.h>
-#include <epan/strutil.h>
 #include <epan/asn1.h>
 #include <epan/sctpppids.h>
 #include <epan/proto_data.h>
+#include <epan/tfs.h>
+#include <epan/unit_strings.h>
+
 #include <wsutil/array.h>
 
 #include "packet-ber.h"

@@ -10,6 +10,8 @@
 #ifndef PACKET_NETMON_H
 #define PACKET_NETMON_H
 
+#include <epan/expert.h>
+
 #define EVENT_HEADER_FLAG_EXTENDED_INFO         0x0001
 #define EVENT_HEADER_FLAG_PRIVATE_SESSION       0x0002
 #define EVENT_HEADER_FLAG_STRING_ONLY           0x0004

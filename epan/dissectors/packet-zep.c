@@ -34,6 +34,7 @@
 
 #include <epan/packet.h>
 #include <epan/tfs.h>
+#include <epan/unit_strings.h>
 #include <wsutil/array.h>
 
 /*  Function declarations */

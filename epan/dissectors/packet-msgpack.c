@@ -15,11 +15,12 @@
 
 #include "config.h"
 
+#include <wsutil/array.h>
 #include <epan/packet.h>
 #include <epan/expert.h>
 #include <epan/to_str.h>
 
-#include <math.h>
+
 
 void proto_register_msgpack(void);
 void proto_reg_handoff_msgpack(void);

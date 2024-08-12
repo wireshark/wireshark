@@ -11,13 +11,12 @@
 
 #include "config.h"
 
-#include <stdlib.h>
-
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/proto_data.h>
 #include <wiretap/wtap.h>
 #include <wsutil/strtoi.h>
+#include <wsutil/array.h>
 
 #include "packet-mac-lte.h"
 #include "packet-pdcp-lte.h"

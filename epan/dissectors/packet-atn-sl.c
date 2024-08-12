@@ -10,6 +10,7 @@
 
 #include "config.h"
 
+#include <wsutil/array.h>
 #include <epan/packet.h>
 
 void proto_register_atn_sl(void);

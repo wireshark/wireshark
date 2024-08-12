@@ -21,6 +21,8 @@
 #include <epan/packet.h>
 #include <epan/conversation.h>
 
+#include <wsutil/array.h>
+
 #define IDN_PORT 7255
 
 #define MAX_CHANNELS	512

@@ -15,7 +15,9 @@
 #define WIMAX_UTILS_H
 
 #include <epan/packet.h>
+#include <epan/unit_strings.h>
 
+#include <wsutil/array.h>
 extern void dissect_extended_tlv(proto_tree *reg_req_tree, int tlv_type, tvbuff_t *tvb, unsigned tlv_offset, unsigned tlv_len, packet_info *pinfo, unsigned offset, int proto_registry);
 extern void dissect_power_saving_class(proto_tree *rng_req_tree, int tlv_type, tvbuff_t *tvb, unsigned  compound_tlv_len, packet_info *pinfo, unsigned offset);
 extern int dissect_ulmap_ie(proto_tree *ie_tree, packet_info* pinfo, int offset, int length, tvbuff_t *tvb);

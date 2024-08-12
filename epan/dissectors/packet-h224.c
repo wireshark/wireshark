@@ -18,7 +18,7 @@
 
 #include <config.h>
 
-
+#include <wsutil/array.h>
 #include <epan/packet.h>
 #include <epan/proto.h>
 #include <epan/t35.h>

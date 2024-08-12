@@ -16,9 +16,11 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/strutil.h>
-#include <range.h>
+#include <epan/tfs.h>
+#include <epan/unit_strings.h>
+
+#include <wsutil/array.h>
 #include <wsutil/crc16-plain.h>
-#include <wsutil/pint.h>
 #include <wsutil/wsgcrypt.h>
 
 #define SOLAREDGE_MAGIC_NUMBER			0x79563412

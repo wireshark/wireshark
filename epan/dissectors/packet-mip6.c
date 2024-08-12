@@ -43,13 +43,14 @@
 
 #include <epan/ipproto.h>
 #include <epan/expert.h>
-#include <epan/ip_opts.h>
 #include <epan/sminmpec.h>
 #include <epan/addr_resolv.h>
+#include <epan/tfs.h>
+#include <epan/unit_strings.h>
 
+#include <wsutil/array.h>
 #include <wsutil/str_util.h>
 
-#include "packet-ntp.h"
 #include "packet-gtpv2.h"
 #include "packet-e164.h"
 #include "packet-e212.h"

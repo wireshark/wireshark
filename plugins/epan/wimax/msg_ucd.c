@@ -21,6 +21,10 @@
 */
 
 #include <epan/packet.h>
+#include <epan/tfs.h>
+#include <epan/unit_strings.h>
+
+#include <wsutil/array.h>
 #include "wimax_tlv.h"
 #include "wimax_mac.h"
 #include "wimax_utils.h"

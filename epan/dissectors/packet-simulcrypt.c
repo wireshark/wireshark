@@ -22,6 +22,10 @@
 
 #include <epan/packet.h>
 #include <epan/prefs.h>
+#include <epan/tfs.h>
+#include <epan/unit_strings.h>
+
+#include <wsutil/array.h>
 #include "packet-tcp.h"
 
 #define PROTO_TAG_SIMULCRYPT            "SIMULCRYPT"

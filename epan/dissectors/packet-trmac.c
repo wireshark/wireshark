@@ -14,7 +14,9 @@
 #include <epan/packet.h>
 #include <epan/to_str.h>
 #include <epan/expert.h>
+#include <epan/unit_strings.h>
 
+#include <wsutil/array.h>
 void proto_register_trmac(void);
 
 static int proto_trmac;

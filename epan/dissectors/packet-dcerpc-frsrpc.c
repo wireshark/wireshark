@@ -11,6 +11,7 @@
 
 #include "config.h"
 #include <string.h>
+#include <wsutil/array.h>
 #include <epan/packet.h>
 #include <epan/tfs.h>
 

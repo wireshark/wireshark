@@ -13,6 +13,9 @@
 
 #include <epan/packet.h>
 #include <epan/to_str.h>
+#include <epan/unit_strings.h>
+
+#include <wsutil/array.h>
 #include "packet-tcp.h"
 
 void proto_register_ns_mep(void);

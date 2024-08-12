@@ -25,6 +25,10 @@
 #include <epan/expert.h>
 #include <epan/uat.h>
 #include <epan/proto_data.h>
+#include <epan/tfs.h>
+#include <epan/unit_strings.h>
+
+#include <wsutil/array.h>
 #include <wsutil/utf8_entities.h>
 
 #include "packet-tecmp.h"

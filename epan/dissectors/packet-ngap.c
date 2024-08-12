@@ -32,6 +32,8 @@
 #include <epan/show_exception.h>
 #include <epan/tap.h>
 #include <epan/stats_tree.h>
+#include <epan/tfs.h>
+#include <epan/unit_strings.h>
 #include <wsutil/wsjson.h>
 #include <wsutil/array.h>
 
