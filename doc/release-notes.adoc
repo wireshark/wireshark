@@ -388,6 +388,11 @@ The following features are either new or have been significantly updated since v
 * Existing capture files can be saved with LZ4 compression. LZ4 has an emphasis
   on speed and may be particularly useful for large files.
 
+* Wireshark's Git repostory tags are now signed using SSH.
+  See
+  https://www.wireshark.org/docs/wsdg_html_chunked/ChSrcGitRepository.html#ChSrcWebInterface[the Developer's Guide]
+  for more details.
+
 === Removed Features and Support
 
 * The tshark `-G` option with no argument is deprecated and will be removed in

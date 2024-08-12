@@ -38,6 +38,7 @@ GitLab makes it easy to contribute.
 You can make changes locally and push them to your own work area at gitlab.com, or if your change is minor you can make changes entirely within your web browser.
 
 .Historical trivia: GitLab is the *fourth* iteration of our source code repository and code review system.
+// Five if you include "sending patches to Gerald."
 
 Wireshark originally used https://www.nongnu.org/cvs/[Concurrent Versions System] (CVS) and migrated to https://subversion.apache.org/[Subversion] in July 2004.
 We migrated from Subversion to Git and https://www.gerritcodereview.com/[Gerrit] in January 2014, and from Gerrit to GitLab in August 2020.
@@ -68,6 +69,11 @@ Stable release maintenance. For example, release-3.4 is used to manage the 3.4.x
 Tags for major releases and release candidates consist of a “v” followed by a version number such as “v3.2.1” or “v3.2.3rc0”.
 Major releases additionally have a tag prefixed with “wireshark-” followed by a version number, such as “wireshark-3.2.0”.
 
+Tags created after August 1, 2024 are signed using SSH. This includes the tags for versions 4.4.0rc1, 4.4.0, 4.2.7, and 4.0.17. If you wish to verify these tags, you must have the following entry in __~/.ssh/allowed_signers__:
+
+    gerald@wireshark.org namespaces="git" ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIBHe1qOxwBietT54lZ3qawTc8B9unWP+T3JVR9l2rQaP
+
+Tags were signed using GPG prior to August 2024.
 
 [#ChSrcGitWeb]
 === Browsing And Searching The Source Code
