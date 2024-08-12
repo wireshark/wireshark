@@ -69,15 +69,6 @@ static const value_string pn_mrp_block_type_vals[] = {
     { 0, NULL },
 };
 
-static const value_string pn_mrp_oui_vals[] = {
-    { OUI_PROFINET,         "PROFINET" },
-    { OUI_SIEMENS,          "SIEMENS" },
-
-    { 0, NULL }
-};
-
-
-
 static const value_string pn_mrp_port_role_vals[] = {
     { 0x0000, "Primary ring port" },
     { 0x0001, "Secondary ring port"},
@@ -598,7 +589,7 @@ proto_register_pn_mrp (void)
 
     { &hf_pn_mrp_oui,
       { "MRP_ManufacturerOUI", "pn_mrp.oui",
-        FT_UINT24, BASE_HEX, VALS(pn_mrp_oui_vals), 0x0,
+        FT_UINT24, BASE_OUI, NULL, 0x0,
         NULL, HFILL }},
 
     { &hf_pn_mrp_ed1type,

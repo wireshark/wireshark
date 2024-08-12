@@ -73,9 +73,6 @@ static int ett_pn_ptcp_header;
 static int ett_pn_ptcp_block;
 static int ett_pn_ptcp_block_header;
 
-#define OUI_PROFINET_MULTICAST   0x010ECF   /* PROFIBUS Nutzerorganisation e.V. */
-
-
 #define PN_PTCP_BT_END              0x00
 #define PN_PTCP_BT_SUBDOMAIN        0x01
 #define PN_PTCP_BT_TIME             0x02
@@ -99,12 +96,6 @@ static const value_string pn_ptcp_block_type[] = {
     { PN_PTCP_BT_PORT_TIME,       "PortTime"},
     /*0x08 - 0x7E Reserved */
     { PN_PTCP_BT_OPTION,          "Organizationally Specific"},
-    { 0, NULL }
-};
-
-static const value_string pn_ptcp_oui_vals[] = {
-    { OUI_PROFINET,               "PROFINET" },
-    { OUI_PROFINET_MULTICAST,     "PROFINET" },
     { 0, NULL }
 };
 
@@ -1045,7 +1036,7 @@ proto_register_pn_ptcp (void)
 
         { &hf_pn_ptcp_oui,
           { "Organizationally Unique Identifier", "pn_ptcp.oui",
-            FT_UINT24, BASE_HEX, VALS(pn_ptcp_oui_vals), 0x0,
+            FT_UINT24, BASE_OUI, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_pn_ptcp_profinet_subtype,
