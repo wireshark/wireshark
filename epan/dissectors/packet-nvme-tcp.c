@@ -50,7 +50,7 @@ static int proto_nvme_tcp;
 static dissector_handle_t nvmet_tcp_handle;
 static dissector_handle_t nvmet_tls_handle;
 
-#define NVME_TCP_PORT_RANGE    "4420" /* IANA registered */
+#define NVME_TCP_PORT_RANGE    "4420,8009" /* IANA registered */
 
 #define NVME_FABRICS_TCP "NVMe/TCP"
 #define NVME_TCP_HEADER_SIZE 8
