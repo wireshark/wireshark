@@ -110,7 +110,7 @@ static dissector_handle_t eth_withoutfcs_dissector;
 #define MAC_MC_BC          INT64_C(0x010000000000)
 
 /* proto */
-static int dissect_fp_common( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int header_size );
+static int dissect_fp_common( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int header_size, int fcs_len );
 
 /*
  * These packets are a bit strange.
@@ -132,10 +132,20 @@ static int dissect_fp_common( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
  * the regular code that checks Ethertypes.
  */
 static bool
-dissect_fp_heur (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+dissect_fp_heur (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
+  struct eth_phdr *eth = (struct eth_phdr *)data;
   uint16_t etype = 0;
   int header_size = 0;
+  int fcs_len = -1; // Unknown - we won't dissect it (see below)
+
+  /* Use the FCS length reported from Ethernet, which might be reported from
+   * wiretap if it was in the pcapng (if we're lucky), but likely has fallen
+   * back to the Ethernet "fcs" preference.
+   */
+  if (eth && eth->fcs_len != -1) {
+    fcs_len = eth->fcs_len;
+  }
 
   if ( ! tvb_bytes_exist( tvb, 12, 2 ) )
      return false;
@@ -157,7 +167,7 @@ dissect_fp_heur (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
       return false;
   }
 
-  if ( dissect_fp_common( tvb, pinfo, tree, header_size ) > 0 ) {
+  if ( dissect_fp_common( tvb, pinfo, tree, header_size, fcs_len ) > 0 ) {
     return true;
   }
 
@@ -206,7 +216,7 @@ fp_add_hmac (tvbuff_t *tvb, proto_tree *tree, int offset) {
 
 /* FabricPath MiM Dissector */
 static int
-dissect_fp_common ( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int header_size)
+dissect_fp_common ( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int header_size, int fcs_len)
 {
   proto_item   *ti;
   proto_tree   *fp_tree;
@@ -330,25 +340,42 @@ dissect_fp_common ( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int hea
   proto_tree_add_item (fp_tree, hf_ttl, tvb, offset, FP_FTAG_LEN, ENC_BIG_ENDIAN);
 
   /* eval FCS */
-  fcs_offset = tvb_reported_length(tvb) - 4;
+  /*
+   * These packets don't have a length field, and the Ethernet dissector
+   * always returns the full captured length (because it will consume
+   * unused bytes as a trailer), so we don't have a good way to heuristically
+   * detect if there's an FCS. So if we don't know if there's an FCS,
+   * don't dissect it here and don't slice it off (so that if there isn't
+   * one, the Ethernet dissector and dissectors it calls don't have errors
+   * from slicing off too many bytes - #19989), but also tell the Ethernet
+   * dissector that there definitely isn't an FCS so that it treats it as a
+   * generic trailer, because if there _is_ an FCS the calculation includes
+   * this header, so any calculation in the Ethernet dissector will be
+   * wrong - #15769).
+   */
+  if (fcs_len > 0) {
+    fcs_offset = tvb_reported_length(tvb) - fcs_len;
 
-  if ( tvb_bytes_exist(tvb, fcs_offset, 4 ) ) {
-    if ( fp_check_fcs ) {
-      uint32_t fcs = crc32_802_tvb(tvb, fcs_offset);
-      proto_tree_add_checksum(fp_tree, tvb, fcs_offset, hf_fp_fcs, hf_fp_fcs_status, &ei_fp_fcs_bad, pinfo, fcs, ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY);
-    } else {
-      proto_tree_add_checksum(fp_tree, tvb, fcs_offset, hf_fp_fcs, hf_fp_fcs_status, &ei_fp_fcs_bad, pinfo, 0, ENC_BIG_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
+    if ( tvb_bytes_exist(tvb, fcs_offset, fcs_len ) ) {
+      if ( fp_check_fcs ) {
+        uint32_t fcs = crc32_802_tvb(tvb, fcs_offset);
+        proto_tree_add_checksum(fp_tree, tvb, fcs_offset, hf_fp_fcs, hf_fp_fcs_status, &ei_fp_fcs_bad, pinfo, fcs, ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY);
+      } else {
+        proto_tree_add_checksum(fp_tree, tvb, fcs_offset, hf_fp_fcs, hf_fp_fcs_status, &ei_fp_fcs_bad, pinfo, 0, ENC_BIG_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
+      }
+      proto_tree_set_appendix(fp_tree, tvb, fcs_offset, fcs_len);
     }
-    proto_tree_set_appendix(fp_tree, tvb, fcs_offset, 4);
+  } else {
+    fcs_len = 0;
   }
 
   /* call the eth dissector w/o the FCS */
-  next_tvb_len = tvb_reported_length_remaining( tvb, header_size ) - 4;
+  next_tvb_len = tvb_reported_length_remaining( tvb, header_size ) - fcs_len;
   next_tvb = tvb_new_subset_length( tvb, header_size, next_tvb_len );
 
   /*
-   * We've already verified the replaced CFP checksum
-   * Therefore we call the Ethernet dissector without expecting a FCS
+   * We've already handled the replaced CFP checksum above.
+   * Therefore we call the Ethernet dissector without expecting a FCS.
    */
   call_dissector( eth_withoutfcs_dissector, next_tvb, pinfo, tree );
 

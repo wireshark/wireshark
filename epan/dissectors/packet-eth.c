@@ -453,8 +453,16 @@ dissect_eth_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
    * Ethernet framing, allow heuristic dissectors to take
    * a first look before we assume that it's actually an
    * Ethernet packet.
+   *
+   * Tell the heuristic dissectors what FCS length was reported for
+   * this packet - the non-Ethernet packet might or might not include
+   * the FCS, or might have a different calculation. (Heuristic
+   * dissectors also can't report a number of bytes consumed, so we
+   * can't really handle the "maybefcs" case otherwise.)
    */
-  if (dissector_try_heuristic(heur_subdissector_list, tvb, pinfo, parent_tree, &hdtbl_entry, NULL))
+  struct eth_phdr    phdr;
+  phdr.fcs_len = fcs_len;
+  if (dissector_try_heuristic(heur_subdissector_list, tvb, pinfo, parent_tree, &hdtbl_entry, &phdr))
     return fh_tree;
 
   if (ehdr->type <= IEEE_802_3_MAX_LEN) {
