@@ -396,15 +396,15 @@ static const value_string fraction_number_vals [] = {
 };
 
 static const range_string fdf_rvals [] = {
-    {0x00, 0x07,    "Basic format for AM824"},
-    {0x08, 0x0f,    "Basic format for AM824. Transmission rate may be controlled by an AV/C command set"},
-    {0x10, 0x17,    "Basic format for 24-bit*4 audio pack"},
-    {0x18, 0x1f,    "Reserved"},
-    {0x20, 0x27,    "Basic format for 32-bit floating-point data"},
-    {0x28, 0x2f,    "Reserved"},
-    {0x30, 0x37,    "Basic format for 32-bit generic data"},
-    {0x38, 0x3f,    "Reserved"},
-    {0x40, 0xfe,    "Reserved"},
+    {0x00, 0x00,    "Basic format for AM824"},
+    {0x01, 0x01,    "Basic format for AM824. Transmission rate may be controlled by an AV/C command set"},
+    {0x02, 0x02,    "Basic format for 24-bit*4 audio pack"},
+    {0x03, 0x03,    "Reserved"},
+    {0x04, 0x04,    "Basic format for 32-bit floating-point data"},
+    {0x05, 0x05,    "Reserved"},
+    {0x06, 0x06,    "Basic format for 32-bit generic data"},
+    {0x07, 0x07,    "Reserved"},
+    {0x08, 0xfe,    "Reserved"},
     {0xff, 0xff,    "Packet for NO-DATA"},
     {0,    0,       NULL}
 };
