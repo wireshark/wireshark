@@ -305,6 +305,8 @@ static expert_field ei_oran_frame_length;
 static expert_field ei_oran_numprbc_ext21_zero;
 static expert_field ei_oran_ci_prb_group_size_reserved;
 static expert_field ei_oran_st8_nackid;
+static expert_field ei_oran_st4_no_cmds;
+static expert_field ei_oran_st4_zero_len_cmd;
 
 
 
@@ -676,6 +678,7 @@ static const range_string cmd_scope_vals[] = {
     {0, 0,  NULL}
 };
 
+/* N.B., table in 7.5.3.38 is truncated.. */
 static const range_string st4_cmd_type_vals[] = {
     {0, 0,   "reserved for future command types"},
     {1, 1,   "TIME_DOMAIN_BEAM_CONFIG"},
@@ -2861,7 +2864,7 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
         /* Slot Control has these fields instead */
         /* reserved */
         proto_tree_add_item(section_tree, hf_oran_reserved_4bits, tvb, offset, 1, ENC_NA);
-        /* cmdScope */
+        /* cmdScope (4 bits) */
         proto_tree_add_item(section_tree, hf_oran_cmd_scope, tvb, offset, 1, ENC_NA);
         offset += 1;
     }
@@ -2922,14 +2925,19 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
         case SEC_C_SLOT_CONTROL: /* Section Type 4 */
         {
             /* numberOfST4Cmds */
-            uint32_t no_st4_cmds, st4_cmd_len, st4_cmd_type;
-            proto_tree_add_item_ret_uint(section_tree, hf_oran_number_of_st4_cmds, tvb, offset, 1, ENC_NA, &no_st4_cmds);
+            uint32_t no_st4_cmds, st4_cmd_len, num_slots, ack_nack_req_id, st4_cmd_type;
+            proto_item *no_ti = proto_tree_add_item_ret_uint(section_tree, hf_oran_number_of_st4_cmds,
+                                                             tvb, offset, 1, ENC_NA, &no_st4_cmds);
+            if (no_st4_cmds) {
+                expert_add_info_format(pinfo, no_ti, &ei_oran_st4_no_cmds,
+                                       "Not valid for ST4 to carry no commands");
+            }
             offset += 1;
             /* reserved (1 byte) */
             proto_tree_add_bits_item(section_tree, hf_oran_reserved, tvb, (offset*8), 8, ENC_BIG_ENDIAN);
             offset += 1;
 
-            /* Loop over commands.  Each is 8-byte common header, followed by cmd-specific payload */
+            /* Loop over commands.  Each has 8-byte common header, followed by cmd-specific payload */
             unsigned command_start_offset = offset;
             for (uint32_t n=0; n < no_st4_cmds; n++) {
                 /* Table 7.4.6-2: Section Type 4 Command common header format */
@@ -2939,24 +2947,34 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
                 proto_tree *hdr_tree = proto_item_add_subtree(hdr_ti, ett_oran_st4_cmd_header);
 
                 /* st4CmdType */
+                /* TODO: check that cmd is compatible with scope? */
                 proto_tree_add_item_ret_uint(hdr_tree, hf_oran_st4_cmd_type, tvb, offset, 1, ENC_NA, &st4_cmd_type);
                 offset += 1;
                 /* st4CmdLen */
-                proto_tree_add_item_ret_uint(hdr_tree, hf_oran_st4_cmd_len, tvb, offset, 2, ENC_NA, &st4_cmd_len);
+                proto_item *len_ti = proto_tree_add_item_ret_uint(hdr_tree, hf_oran_st4_cmd_len, tvb, offset, 2, ENC_NA, &st4_cmd_len);
+                if (st4_cmd_len == 0) {
+                    /* Meaning of 0 not yet defined (v15.00) */
+                    proto_item_append_text(len_ti, " (reserved)");
+                    expert_add_info(pinfo, len_ti, &ei_oran_st4_zero_len_cmd);
+                }
                 offset += 2;
                 /* numSlots */
-                proto_tree_add_item(hdr_tree, hf_oran_st4_cmd_num_slots, tvb, offset, 1, ENC_NA);
+                proto_item *slots_ti = proto_tree_add_item_ret_uint(hdr_tree, hf_oran_st4_cmd_num_slots, tvb, offset, 1, ENC_NA, &num_slots);
+                if (num_slots == 0) {
+                    proto_item_append_text(slots_ti, " (until changed)");
+                }
                 offset += 1;
                 /* ackNackReqId */
-                proto_tree_add_item(hdr_tree, hf_oran_st4_cmd_ack_nack_req_id, tvb, offset, 2, ENC_NA);
+                proto_tree_add_item_ret_uint(hdr_tree, hf_oran_st4_cmd_ack_nack_req_id, tvb, offset, 2, ENC_NA, &ack_nack_req_id);
                 offset += 2;
                 /* reserved */
                 proto_tree_add_bits_item(hdr_tree, hf_oran_reserved, tvb, (offset*8), 16, ENC_BIG_ENDIAN);
                 offset += 2;
+
                 /* Set summary */
-                proto_item_append_text(hdr_ti, " (cmd=%s, len=%u words)",
+                proto_item_append_text(hdr_ti, " (cmd=%s, len=%u words, slots=%u, ackNackReqId=%u)",
                                        rval_to_str_const(st4_cmd_type, st4_cmd_type_vals, "Unknown"),
-                                       st4_cmd_len);
+                                       st4_cmd_len, num_slots, ack_nack_req_id);
 
                 /* Add format according to cmd Type */
                 /* TODO: add in own subtrees? */
@@ -2989,7 +3007,9 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
                             }
                             else {
                                 /* Pad to next 4-byte boundary */
-                                offset += (offset % 4);
+                                if (offset%4) {
+                                    offset += (4-(offset%4));
+                                }
                             }
                         }
                         break;
@@ -3025,7 +3045,10 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
                         proto_tree_add_item(section_tree, hf_oran_antMask_trx_control, tvb, offset, remaining, ENC_NA);
                         offset += remaining;
 
-                        /* [padding] */
+                        /* Pad to next 4-byte boundary */
+                        if (offset%4) {
+                            offset += (4-(offset%4));
+                        }
                         break;
 
                     case 4:  /* ASM (advanced sleep mode) */
@@ -3051,8 +3074,6 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
                         /* reserved (2 bytes) */
                         proto_tree_add_bits_item(section_tree, hf_oran_reserved, tvb, (offset*8), 16, ENC_BIG_ENDIAN);
                         offset += 2;
-
-                        /* [padding] */
                         break;
 
                     default:
@@ -4085,8 +4106,6 @@ proto_register_oran(void)
           HFILL}
         },
 
-
-
         /* Table 7.5.3.32-1 */
         {&hf_oran_blockScaler,
          {"blockScaler", "oran_fh_cus.blockScaler",
@@ -4151,7 +4170,7 @@ proto_register_oran(void)
           HFILL}
         },
 
-        /* 7.7.22.1 */
+        /* 7.7.22.2 */
         {&hf_oran_ack_nack_req_id,
          {"ackNackReqId", "oran_fh_cus.ackNackReqId",
           FT_UINT16, BASE_HEX,
@@ -4973,8 +4992,9 @@ proto_register_oran(void)
         { &ei_oran_frame_length, { "oran_fh_cus.frame_length", PI_MALFORMED, PI_ERROR, "there should be 0-3 bytes remaining after PDU in frame", EXPFILL }},
         { &ei_oran_numprbc_ext21_zero, { "oran_fh_cus.numprbc-ext21-zero", PI_MALFORMED, PI_ERROR, "numPrbc shall not be set to 0 when ciPrbGroupSize is configured", EXPFILL }},
         { &ei_oran_ci_prb_group_size_reserved, { "oran_fh_cus.ci_prb_group_size_reserved", PI_MALFORMED, PI_WARN, "ciPrbGroupSize should be 2-254", EXPFILL }},
-        { &ei_oran_st8_nackid, { "oran_fh_cus.sr8_nackid", PI_SEQUENCE, PI_WARN, "operation for this ackId failed", EXPFILL }},
-
+        { &ei_oran_st8_nackid, { "oran_fh_cus.st8_nackid", PI_SEQUENCE, PI_WARN, "operation for this ackId failed", EXPFILL }},
+        { &ei_oran_st4_no_cmds, { "oran_fh_cus.st4_nackid", PI_MALFORMED, PI_ERROR, "Not valid to have no commands in ST4", EXPFILL }},
+        { &ei_oran_st4_zero_len_cmd, { "oran_fh_cus.st4_zero_len_cmd", PI_MALFORMED, PI_WARN, "ST4 cmd with length 0 is reserved", EXPFILL }},
     };
 
     /* Register the protocol name and description */
