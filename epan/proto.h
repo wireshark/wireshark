@@ -2854,7 +2854,10 @@ extern bool proto_check_for_protocol_or_field(const proto_tree* tree, const int 
     tree. Only works with primed trees, and is fast.
  @param tree tree of interest
  @param hfindex primed hfindex
- @return GPtrArray pointer */
+ @return GPtrArray pointer
+
+   The caller should *not* free the GPtrArray*; proto_tree_free_node()
+   handles that. */
 WS_DLL_PUBLIC GPtrArray* proto_get_finfo_ptr_array(const proto_tree *tree, const int hfindex);
 
 /** Return whether we're tracking any interesting fields.
@@ -2868,7 +2871,10 @@ WS_DLL_PUBLIC bool proto_tracking_interesting_fields(const proto_tree *tree);
     proto_get_finfo_ptr_array because it has to search through the tree.
  @param tree tree of interest
  @param hfindex index of field info of interest
- @return GPtrArry pointer */
+ @return GPtrArry pointer
+
+    The caller does need to free the returned GPtrArray with
+    g_ptr_array_free(<array>, true). */
 WS_DLL_PUBLIC GPtrArray* proto_find_finfo(proto_tree *tree, const int hfindex);
 
 /** Return GPtrArray* of field_info pointer for first hfindex that appear in
@@ -2876,13 +2882,19 @@ tree. Works with any tree, primed or unprimed, and is slower than
 proto_get_finfo_ptr_array because it has to search through the tree.
 @param tree tree of interest
 @param hfindex index of field info of interest
-@return GPtrArry pointer */
+@return GPtrArry pointer
+
+    The caller does need to free the returned GPtrArray with
+    g_ptr_array_free(<array>, true). */
 WS_DLL_PUBLIC GPtrArray* proto_find_first_finfo(proto_tree *tree, const int hfindex);
 
 /** Return GPtrArray* of field_info pointers containg all hfindexes that appear
     in tree.
  @param tree tree of interest
- @return GPtrArry pointer */
+ @return GPtrArry pointer
+
+    The caller does need to free the returned GPtrArray with
+    g_ptr_array_free(<array>, true). */
 WS_DLL_PUBLIC GPtrArray* proto_all_finfos(proto_tree *tree);
 
 /** Dumps a glossary of the protocol registrations to STDOUT */
