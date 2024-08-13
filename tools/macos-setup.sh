@@ -174,7 +174,8 @@ LUA_VERSION=5.4.6
 SNAPPY_VERSION=1.2.1
 ZSTD_VERSION=1.5.6
 ZLIBNG_VERSION=2.1.6
-LIBXML2_VERSION=2.11.5
+LIBXML2_VERSION=2.11.9 # Matches vcpkg
+LIBXML2_SHA256=780157a1efdb57188ec474dca87acaee67a3a839c2525b2214d318228451809f
 LZ4_VERSION=1.9.4
 SBC_VERSION=2.0
 CARES_VERSION=1.31.0
@@ -1775,7 +1776,7 @@ install_zlibng() {
         cd zlib-ng-$ZLIBNG_VERSION
         mkdir build
         cd build
-        "${DO_CMAKE[@]}" .. 
+        "${DO_CMAKE[@]}" ..
         make "${MAKE_BUILD_OPTS[@]}"
         $DO_MAKE_INSTALL
         cd ../..
@@ -1807,12 +1808,13 @@ uninstall_zlibng() {
     fi
 }
 install_libxml2() {
-    if [ "$LIBXML2_VERSION" -a ! -f libxml2-$LIBXML2_VERSION-done ] ; then
+    if [ "$LIBXML2_VERSION" ] && [ ! -f libxml2-$LIBXML2_VERSION-done ] ; then
         echo "Downloading, building, and installing libxml2:"
         LIBXML2_MAJOR_VERSION="$( expr "$LIBXML2_VERSION" : '\([0-9][0-9]*\).*' )"
         LIBXML2_MINOR_VERSION="$( expr "$LIBXML2_VERSION" : '[0-9][0-9]*\.\([0-9][0-9]*\).*' )"
         LIBXML2_MAJOR_MINOR_VERSION=$LIBXML2_MAJOR_VERSION.$LIBXML2_MINOR_VERSION
-        [ -f libxml2-$LIBXML2_VERSION.tar.gz ] || curl "${CURL_REMOTE_NAME_OPTS[@]}" https://download.gnome.org/sources/libxml2/$LIBXML2_MAJOR_MINOR_VERSION/libxml2-$LIBXML2_VERSION.tar.xz
+        [ -f libxml2-$LIBXML2_VERSION.tar.gz ] || curl "${CURL_REMOTE_NAME_OPTS[@]}" "https://download.gnome.org/sources/libxml2/$LIBXML2_MAJOR_MINOR_VERSION/libxml2-$LIBXML2_VERSION.tar.xz"
+        echo "$LIBXML2_SHA256  libxml2-$LIBXML2_VERSION.tar.xz" | shasum --algorithm 256 --check
         $no_build && echo "Skipping installation" && return
         xzcat libxml2-$LIBXML2_VERSION.tar.xz | tar xf -
         cd "libxml2-$LIBXML2_VERSION"
@@ -1834,18 +1836,18 @@ install_libxml2() {
 uninstall_libxml2() {
     if [ -n "$installed_libxml2_version" ] ; then
         echo "Uninstalling libxml2:"
-        cd libxml2-$installed_libxml2_version
+        cd "libxml2-$installed_libxml2_version"
         $DO_MAKE_UNINSTALL
         make distclean
         cd ..
-        rm libxml2-$installed_libxml2_version-done
+        rm "libxml2-$installed_libxml2_version-done"
 
-        if [ "$#" -eq 1 -a "$1" = "-r" ] ; then
+        if [ "$#" -eq 1 ] && [ "$1" = "-r" ] ; then
             #
             # Get rid of the previously downloaded and unpacked version.
             #
-            rm -rf libxml2-$installed_libxml2_version
-            rm -rf libxml2-$installed_libxml2_version.tar.xz
+            rm -rf "libxml2-$installed_libxml2_version"
+            rm -rf "libxml2-$installed_libxml2_version.tar.xz"
         fi
 
         installed_libxml2_version=""
@@ -2789,7 +2791,7 @@ install_minizip_ng() {
         cd minizip-ng-$MINIZIPNG_VERSION
         mkdir build
         cd build
-        "${DO_CMAKE[@]}" .. 
+        "${DO_CMAKE[@]}" ..
         make "${MAKE_BUILD_OPTS[@]}"
         $DO_MAKE_INSTALL
         cd ../..
@@ -3028,8 +3030,7 @@ install_all() {
         uninstall_lz4 -r
     fi
 
-    if [ -n "$installed_libxml2_version" -a \
-              "$installed_libxml2_version" != "$LIBXML2_VERSION" ] ; then
+    if [ -n "$installed_libxml2_version" ] && [ "$installed_libxml2_version" != "$LIBXML2_VERSION" ] ; then
         echo "Installed libxml2 version is $installed_libxml2_version"
         if [ -z "$LIBXML2_VERSION" ] ; then
             echo "libxml2 is not requested"
