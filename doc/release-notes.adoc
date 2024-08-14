@@ -481,6 +481,13 @@ You can still use the old-style names, but they have been deprecated.
   list of flags consisting of the plugin types used.
   See wsutil/plugins.h for details.
 
+// == Prior Versions
+
+// This document only describes the changes introduced in Wireshark {wireshark-version}.
+// You can find release notes for prior versions at the following locations:
+
+// * https://www.wireshark.org/docs/relnotes/wireshark-4.4.0.html[Wireshark 4.4.0]
+
 == Getting Wireshark
 
 Wireshark source code and installation packages are available from
