@@ -33,12 +33,10 @@
  * - Radio transport layer (eCPRI) fragmentation / reassembly
  * - Detect/indicate signs of application layer fragmentation?
  * - Not handling M-plane setting for "little endian byte order" as applied to IQ samples and beam weights
- * - Really long long text in some items will not be displayed.  Try to summarise/truncate
- * - Register for UDP port(s)
  * - for section extensions, check constraints (section type, which other extension types appear with them, order)
  * - when section extensions are present, some section header fields are effectively ignored
  * - re-order items (decl and hf definitions) to match spec order
- * - map forward/backwards between acknack requests (SE-22 or ST4 and ST8 responses)
+ * - map forward/backwards between acknack requests (SE-22 or ST4 <-> ST8 responses)
  */
 
 /* Prototypes */
@@ -312,6 +310,7 @@ static expert_field ei_oran_st8_nackid;
 static expert_field ei_oran_st4_no_cmds;
 static expert_field ei_oran_st4_zero_len_cmd;
 static expert_field ei_oran_st4_wrong_len_cmd;
+static expert_field ei_oran_st4_unknown_cmd;
 
 
 /* These are the message types handled by this dissector */
@@ -1566,6 +1565,8 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
     else if (sectionType == SEC_C_LAA) {   /* Section Type 7 */
         /* 7.2.5 Table 6.4-6 */
         /* TODO: untested */
+        unsigned mcot;
+        proto_item *mcot_ti;
 
         /* laaMsgType */
         uint32_t laa_msg_type;
@@ -1598,7 +1599,11 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                 proto_tree_add_item(c_section_tree, hf_oran_lbtBackoffCounter, tvb, offset, 2, ENC_BIG_ENDIAN);
                 offset += 1;
                 /* MCOT (4 bits) */
-                proto_tree_add_item(c_section_tree, hf_oran_MCOT, tvb, offset, 1, ENC_BIG_ENDIAN);
+                mcot_ti = proto_tree_add_item_ret_uint(c_section_tree, hf_oran_MCOT, tvb, offset, 1, ENC_BIG_ENDIAN, &mcot);
+                if (mcot<1 || mcot>10) {
+                    proto_item_append_text(mcot_ti, " (should be in range 1-10!)");
+                    /* TODO: expert info? */
+                }
                 /* reserved (10 bits) */
                 proto_tree_add_bits_item(c_section_tree, hf_oran_reserved, tvb, (offset*8)+6, 10, ENC_BIG_ENDIAN);
                 break;
@@ -3095,7 +3100,10 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
                         break;
 
                     default:
-                        /* ERROR! */
+                        /* Error! */
+                        expert_add_info_format(pinfo, len_ti, &ei_oran_st4_unknown_cmd,
+                                               "Dissected ST4 command (%u) not recognised",
+                                                st4_cmd_type);
                         break;
                 }
 
@@ -3148,11 +3156,11 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
             break;
 
         case SEC_C_RSVD2:
-        case SEC_C_LAA:
+        case SEC_C_LAA:                   /* Section Type 7 */
             /* TODO: */
             break;
 
-        case SEC_C_ACK_NACK_FEEDBACK:
+        case SEC_C_ACK_NACK_FEEDBACK:     /* Section Type 8 */
             /* numberOfAcks (1 byte) */
             proto_tree_add_item_ret_uint(section_tree, hf_oran_number_of_acks, tvb, offset, 1, ENC_BIG_ENDIAN, &number_of_acks);
             offset += 1;
@@ -3602,8 +3610,8 @@ proto_register_oran(void)
          {"Slot within frame", "oran_fh_cus.slot-within-frame",
           FT_UINT16, BASE_DEC,
           NULL, 0x0,
-         "Slot within frame, to match DCT logs",
-         HFILL}
+          "Slot within frame, to match DCT logs",
+          HFILL}
         },
 
         /* Section 7.5.2.7 */
@@ -3611,8 +3619,7 @@ proto_register_oran(void)
          {"Start Symbol ID", "oran_fh_cus.startSymbolId",
           FT_UINT8, BASE_DEC,
           NULL, 0x3f,
-          "The first symbol number within slot, to "
-          "which the information of this message is applies",
+          "The first symbol number within slot affected",
           HFILL}
         },
 
@@ -3666,8 +3673,7 @@ proto_register_oran(void)
           { "FFT Size", "oran_fh_cus.frameStructure.fft",
             FT_UINT8, BASE_HEX | BASE_RANGE_STRING,
             RVALS(frame_structure_fft), 0xf0,
-            "The FFT/iFFT size being used for all IQ data processing related "
-            "to this message",
+            "The FFT/iFFT size being used for all IQ data processing related to this message",
             HFILL }
         },
 
@@ -3676,11 +3682,7 @@ proto_register_oran(void)
           { "Subcarrier Spacing", "oran_fh_cus.frameStructure.spacing",
             FT_UINT8, BASE_HEX | BASE_RANGE_STRING,
             RVALS(subcarrier_spacings), 0x0f,
-            "The sub carrier spacing "
-            "as well as the number of slots per 1ms sub-frame according "
-            "to 3GPP TS 38.211, taking for completeness also 3GPP TS 36.211 "
-            "into account. The parameter \u03bc=0...5 from 3GPP TS 38.211 is "
-            "extended to apply for PRACH processing",
+            "The sub carrier spacing as well as the number of slots per 1ms sub-frame",
             HFILL }
         },
 
@@ -3734,10 +3736,7 @@ proto_register_oran(void)
          {"RE Mask", "oran_fh_cus.reMask",
           FT_UINT16, BASE_HEX,
           NULL, 0xfff0,
-          "The Resource Element (RE) mask within a "
-          "PRB. Each bit setting in the reMask indicates if the section control "
-          "is applicable to the RE sent in U-Plane messages (0=not applicable; "
-          "1=applicable)",
+          "The Resource Element (RE) mask within a PRB",
           HFILL}
         },
 
@@ -3755,11 +3754,7 @@ proto_register_oran(void)
          {"Number of Symbols", "oran_fh_cus.numSymbol",
           FT_UINT8, BASE_DEC,
           NULL, 0x0f,
-          "Defines number of symbols to which the section "
-          "control is applicable. At minimum, the section control shall be "
-          "applicable to at least one symbol. However, possible optimizations "
-          "could allow for several (up to 14) symbols, if e.g., all 14 "
-          "symbols use the same beam ID",
+          "Defines number of symbols to which the section control is applicable",
           HFILL}
         },
 
@@ -3768,83 +3763,83 @@ proto_register_oran(void)
          {"Extension Flag", "oran_fh_cus.ef",
           FT_BOOLEAN, 8,
           NULL, 0x80,
-         "Indicates if more section extensions follow",
+          "Indicates if more section extensions follow",
           HFILL}
         },
 
         /* Section 7.5.3.9 */
         {&hf_oran_beamId,
          {"Beam ID", "oran_fh_cus.beamId",
-          FT_UINT16, BASE_DEC,
-          NULL, 0x7fff,
-          "Defines the beam pattern to be applied to the U-Plane data",
-          HFILL}
+           FT_UINT16, BASE_DEC,
+           NULL, 0x7fff,
+           "Defines the beam pattern to be applied to the U-Plane data",
+           HFILL}
         },
 
         /* Section 7.5.3.8 */
         {&hf_oran_extension,
          {"Extension", "oran_fh_cus.extension",
-          FT_STRING, BASE_NONE,
-          NULL, 0x0,
-          "Section extension type (ef)",
-          HFILL}
+           FT_STRING, BASE_NONE,
+           NULL, 0x0,
+           "Section extension type (ef)",
+           HFILL}
         },
 
         /* Section 7.6.2.1 */
         {&hf_oran_exttype,
          {"extType", "oran_fh_cus.extType",
-          FT_UINT8, BASE_DEC,
-          VALS(exttype_vals), 0x7f,
-          "The extension type, which provides additional parameters specific to subject data extension",
-          HFILL}
+           FT_UINT8, BASE_DEC,
+           VALS(exttype_vals), 0x7f,
+           "The extension type, which provides additional parameters specific to subject data extension",
+           HFILL}
         },
 
         /* Section 7.6.2.3 */
         {&hf_oran_extlen,
          {"extLen", "oran_fh_cus.extLen",
-         FT_UINT16, BASE_DEC,
-         NULL, 0x0,
-         "Extension length in 32-bit words",
-         HFILL}
+          FT_UINT16, BASE_DEC,
+          NULL, 0x0,
+          "Extension length in 32-bit words",
+          HFILL}
         },
 
         /* Section 7.7.1 */
         {&hf_oran_bfw,
          {"bfw", "oran_fh_cus.bfw",
-         FT_STRING, BASE_NONE,
-         NULL, 0x0,
-         "Set of weights for a particular antenna",
-         HFILL}
+          FT_STRING, BASE_NONE,
+          NULL, 0x0,
+          "Set of weights for a particular antenna",
+          HFILL}
         },
         {&hf_oran_bfw_bundle,
          {"Bundle", "oran_fh_cus.bfw.bundle",
-         FT_STRING, BASE_NONE,
-         NULL, 0x0,
-         "Bundle of BFWs",
-         HFILL}
+          FT_STRING, BASE_NONE,
+          NULL, 0x0,
+          "Bundle of BFWs",
+          HFILL}
         },
         {&hf_oran_bfw_bundle_id,
          {"Bundle Id", "oran_fh_cus.bfw.bundleId",
-         FT_UINT32, BASE_DEC,
-         NULL, 0x0,
-         NULL,
-         HFILL}
+          FT_UINT32, BASE_DEC,
+          NULL, 0x0,
+          NULL,
+          HFILL}
         },
         /* Section 7.7.1.4 */
         {&hf_oran_bfw_i,
          {"bfwI", "oran_fh_cus.bfwI",
-         FT_FLOAT, BASE_NONE,
-         NULL, 0x0,
-         "In-phase",
-         HFILL}
+          FT_FLOAT, BASE_NONE,
+          NULL, 0x0,
+          "In-phase",
+          HFILL}
         },
         /* Section 7.7.1.5 */
         {&hf_oran_bfw_q,
          {"bfwQ", "oran_fh_cus.bfwQ",
-         FT_FLOAT, BASE_NONE,
-         NULL, 0x0,
-         "Quadrature",
-         HFILL}
+          FT_FLOAT, BASE_NONE,
+          NULL, 0x0,
+          "Quadrature",
+          HFILL}
         },
 
         /* Section 7.5.3.10 */
@@ -3907,10 +3902,7 @@ proto_register_oran(void)
          {"Defer Factor", "oran_fh_cus.lbtDeferFactor",
           FT_UINT8, BASE_DEC,
           NULL, 0x1c,
-          "Defer factor in sensing slots as described in 3GPP TS 36.213 "
-          "Section 15.1.1. This parameter is used for LBT CAT 4 and can take "
-          "one of three values: {1, 3, 7} based on the priority class. Four "
-          "priority classes are defined in 3GPP TS 36.213",
+          "Defer factor in sensing slots as described in 3GPP TS 36.213 Section 15.1.1",
           HFILL}
         },
 
@@ -3919,11 +3911,7 @@ proto_register_oran(void)
          {"Backoff Counter", "oran_fh_cus.lbtBackoffCounter",
           FT_UINT16, BASE_DEC,
           NULL, 0x03ff,
-          "LBT backoff counter in sensing slots as described in 3GPP TS 36.213 "
-          "Section 15.1.1. This parameter is used for LBT CAT 4 and can "
-          "take one of nine values: {3, 7, 15, 31, 63, 127, 255, 511, 1023} "
-          "based on the priority class. Four priority classes are defined "
-          "in 3GPP TS 36.213",
+          "LBT backoff counter in sensing slots as described in 3GPP TS 36.213 Section 15.1.1",
           HFILL}
         },
 
@@ -3942,10 +3930,7 @@ proto_register_oran(void)
          {"Maximum Channel Occupancy Time", "oran_fh_cus.MCOT",
           FT_UINT8, BASE_DEC,
           NULL, 0xf0,
-          "LTE TXOP duration in subframes as described in 3GPP TS 36.213 "
-          "Section 15.1.1. The maximum values for this parameter are {2, 3, 8, "
-          "10} based on the priority class. Four priority classes are "
-          "defined in 3GPP TS 36.213",
+          "LTE TXOP duration in subframes as described in 3GPP TS 36.213 Section 15.1.1",
           HFILL}
         },
 
@@ -5033,6 +5018,7 @@ proto_register_oran(void)
         { &ei_oran_st4_no_cmds, { "oran_fh_cus.st4_nackid", PI_MALFORMED, PI_ERROR, "Not valid to have no commands in ST4", EXPFILL }},
         { &ei_oran_st4_zero_len_cmd, { "oran_fh_cus.st4_zero_len_cmd", PI_MALFORMED, PI_WARN, "ST4 cmd with length 0 is reserved", EXPFILL }},
         { &ei_oran_st4_wrong_len_cmd, { "oran_fh_cus.st4_wrong_len_cmd", PI_MALFORMED, PI_ERROR, "ST4 cmd with length not matching contents", EXPFILL }},
+        { &ei_oran_st4_unknown_cmd, { "oran_fh_cus.st4_unknown_cmd", PI_MALFORMED, PI_ERROR, "ST4 cmd with unknown command code", EXPFILL }},
     };
 
     /* Register the protocol name and description */
