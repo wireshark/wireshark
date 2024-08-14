@@ -1144,12 +1144,12 @@ dissect_one_protobuf_field(tvbuff_t *tvb, unsigned* offset, unsigned maxlen, pac
  */
 static void
 add_missing_fields_with_default_values(tvbuff_t* tvb, unsigned offset, packet_info* pinfo, proto_tree* message_tree,
-    const PbwDescriptor* message_desc, int* parsed_fields, int parsed_fields_count, json_dumper *dumper)
+    const PbwDescriptor* message_desc, wmem_map_t* parsed_fields, json_dumper *dumper)
 {
     const PbwFieldDescriptor* field_desc;
     const char* field_name, * field_full_name, * enum_value_name, * string_value;
     int field_count = pbw_Descriptor_field_count(message_desc);
-    int field_type, i, j;
+    int field_type, i;
     uint64_t field_number;
     bool is_required;
     bool is_repeated;
@@ -1200,15 +1200,8 @@ add_missing_fields_with_default_values(tvbuff_t* tvb, unsigned offset, packet_in
         }
 
         /* check if it is parsed */
-        if (parsed_fields && parsed_fields_count > 0) {
-            for (j = 0; j < parsed_fields_count; j++) {
-                if ((uint64_t) parsed_fields[j] == field_number) {
-                    break;
-                }
-            }
-            if (j < parsed_fields_count) {
-                continue; /* this field is parsed */
-            }
+        if (wmem_map_lookup(parsed_fields, GINT_TO_POINTER(field_number))) {
+            continue; /* this field is parsed */
         }
 
         field_name = pbw_FieldDescriptor_name(field_desc);
@@ -1442,19 +1435,15 @@ dissect_protobuf_message(tvbuff_t *tvb, unsigned offset, unsigned length, packet
     unsigned max_offset = offset + length;
     const PbwFieldDescriptor* field_desc;
     const PbwFieldDescriptor* prev_field_desc = NULL;
-    int* parsed_fields = NULL; /* store parsed field numbers. end with NULL */
-    int parsed_fields_count = 0;
-    int field_count = 0;
+    wmem_map_t* parsed_fields = NULL; /* store parsed field numbers. */
     nstime_t timestamp = { 0 };
     char* value_label = NULL; /* The label representing the value of some wellknown message, such as google.protobuf.Timestamp */
 
     if (message_desc) {
         message_name = pbw_Descriptor_full_name(message_desc);
-        /* N.B. extra entries are needed because of possibly repeated items within message.
-           TODO: use dynamic wmem_array_t? Don't fancy void* interface... */
-        field_count = pbw_Descriptor_field_count(message_desc) + 256;
-        if (add_default_value && field_count > 0) {
-            parsed_fields = wmem_alloc0_array(pinfo->pool, int, field_count);
+
+        if (add_default_value) {
+            parsed_fields = wmem_map_new(pinfo->pool, g_direct_hash, g_direct_equal);
         }
 
         if (strcmp(message_name, "google.protobuf.Timestamp") == 0) {
@@ -1536,12 +1525,7 @@ dissect_protobuf_message(tvbuff_t *tvb, unsigned offset, unsigned length, packet
         }
 
         if (parsed_fields && field_desc) {
-            if (parsed_fields_count < field_count) {
-                parsed_fields[parsed_fields_count++] = pbw_FieldDescriptor_number(field_desc);
-            }
-            else {
-                /* TODO: error?  Means default values may not be set/shown.. */
-            }
+            wmem_map_insert(parsed_fields, GINT_TO_POINTER(pbw_FieldDescriptor_number(field_desc)), GINT_TO_POINTER(1));
         }
 
         prev_field_desc = field_desc;
@@ -1554,16 +1538,12 @@ dissect_protobuf_message(tvbuff_t *tvb, unsigned offset, unsigned length, packet
     }
 
     /* add default values for missing fields */
-    if (add_default_value && field_count > 0) {
-        add_missing_fields_with_default_values(tvb, offset, pinfo, message_tree, message_desc, parsed_fields, parsed_fields_count, dumper);
+    if (add_default_value && parsed_fields) {
+        add_missing_fields_with_default_values(tvb, offset, pinfo, message_tree, message_desc, parsed_fields, dumper);
     }
 
     if (message_desc && dumper) {
         json_dumper_end_object(dumper);
-    }
-
-    if (parsed_fields) {
-        wmem_free(pinfo->pool, parsed_fields);
     }
 
     if (value_label) {
