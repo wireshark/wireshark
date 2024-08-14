@@ -24,6 +24,8 @@
 #include <epan/expert.h>
 #include <epan/to_str.h>
 #include <epan/export_object.h>
+#include <epan/tfs.h>
+#include <wsutil/array.h>
 
 #include "packet-windows-common.h"
 #include "packet-smb.h"
@@ -16120,15 +16122,13 @@ dissect_qfsi_vals(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 
 		/* volume label length, only one byte here */
 		CHECK_BYTE_COUNT_TRANS_SUBR(1);
-		fn_len = tvb_get_uint8(tvb, offset);
-		proto_tree_add_item(tree, hf_smb_volume_label_len, tvb, offset, 1, ENC_NA);
+		proto_tree_add_item_ret_uint(tree, hf_smb_volume_label_len, tvb, offset, 1, ENC_NA, &fn_len);
 		COUNT_BYTES_TRANS_SUBR(1);
 
 		/* label - not aligned! */
 		fn = get_unicode_or_ascii_string(tvb, &offset, si->unicode, &fn_len, true, true, bcp);
 		CHECK_STRING_TRANS_SUBR(fn);
-		proto_tree_add_string(tree, hf_smb_volume_label, tvb, offset, fn_len,
-			fn);
+		proto_tree_add_string(tree, hf_smb_volume_label, tvb, offset, fn_len, fn);
 		COUNT_BYTES_TRANS_SUBR(fn_len);
 
 		break;
@@ -16144,8 +16144,7 @@ dissect_qfsi_vals(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 		fn_len = vll;
 		fn = get_unicode_or_ascii_string(tvb, &offset, si->unicode, &fn_len, false, true, bcp);
 		CHECK_STRING_TRANS_SUBR(fn);
-		proto_tree_add_string(tree, hf_smb_volume_label, tvb, offset, fn_len,
-			fn);
+		proto_tree_add_string(tree, hf_smb_volume_label, tvb, offset, fn_len, fn);
 		COUNT_BYTES_TRANS_SUBR(fn_len);
 
 		break;
