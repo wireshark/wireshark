@@ -1,3 +1,133 @@
+c531952378 assa_r3: Use FT_CHAR for a character
+76445daf29 Qt: Fix compression on Qt < 5.15
+b3fdac241b Qt: fix build with <QT5.15
+03fa047c74 Initialize release-4.4
+e8bb2d7fec Docs: Note that we sign Git tags using SSH
+c82d9a70a7 wiretap: convert more if-chains that test compresion type to switches.
+2db41a3ae4 Dissectors: Include what you use.
+fbec9d9c6a Syslog: Enhance Syslog dissector
+8fabefc1ed wiretap: Simplify ifdefs
+bff7b84ace Signal-PDU: show payload, if no config is found
+58a557b3ca zbee sec: Assure there are enough bytes for MIC
+609ec97473 Profinet: Use BASE_OUI
+f9e8483d1e profinet-mrp: Always subtract the OUI length
+eef6e3c5b5 wiretap: reset fast seek with either zlib or zlib-ng
+8ab7f82f04 Qt: Don't idle dissect with the read lock held
+93e8eb2ffb ORAN FH CUS: Add another ST4 command type
+4e1697141b wiretap: slightly clean up fast_seek_reset().
+168cef006a wiretap: update a comment. [skip ci]
+1832f2bc39 Qt: Add GUI support for saving in LZ4 format
+5d87f8fed0 wiretap: Add support for writing LZ4
+8ef3ac4cc8 Windows: Update Krb5 to 1.21.3
+27c6a0cbca wiretap: Support fast seek in LZ4 Frame files
+3fe2451f83 Qt: Call QObject::tr where needed
+279a0d8b42 tools: Make more Python strings raw strings
+0a55069455 [Automatic update for 2024-08-11]
+03e99f3bc9 BGP: simplify check of labeled prefix length
+8e33795288 USB-AUDIO: Always init hfs, even if not used
+1b42370f49 Add option to save files in current working directory
+2d6056c8cd MinGW+NSIS: Glob for versions of ICU
+f8653b0cc1 wiretap: Fix fast seek header for uncompressed files
+7fdffd7e3c nmea0183: Add VHW sentence dissector
+f211e2ada2 ncsi: Refined codes by using proto_tree_add_item_ret_uint()
+4f1dbdc978 ncsi: Add Mellanox OEM command (get temperature)
+f1ca99521d USB: Update HID usage pages
+3e181e8bc2 NR RRC: add a preference to perform DCCH message segments reassembly
+20f7a55397 Qt: empty packet diagram when single protocol layer
+9ec9c8850c wiretap: Fix concatenated lz4 and zstd streams
+78d235a237 LTE RRC: add a preference to perform DCCH message segments reassembly
+ee92ff23ba wiretap: Add a comment about compression
+90f2d78deb ORAN FH CUS: Add Control ST8 (Ack/Nack feedback)
+27c09ba852 GIOP: Don't default to looking for IOR.txt in the CWD
+bc402e6dba epan: restore removal of errno.h
+be8e18119e ORAN FH CUS: Add ST4 commands TRX_CONTROL and ASM
+2dfa29f4bd epan: optimize module_check_valid_name
+ba7488ed10 Qt: PathSelectionEdit avoid importing prefs, IWYU
+3d285ce47c ORAN FH CUS: For ST4, dissect common header and skip command
+5a3923ba05 lua: Fix a leak
+69c385ea14 Revert "XML: Delay registering fields"
+5e5f39d6f3 tshark: Sort the decodes report, show string and payload tables
+6abdf6b55a USB: Add new classes and corresponding protocols
+5b42fb28dc SMB: Incorrect 'Continuation of' frame number
+3282723e45 SMB: Incorrect 'Continuation of' frame number
+d0d35bfffa Don't assert when specifying a Custom or GUID table to "-d"
+acc59fbacd ORAN FH CUS: getting ready to support ST4
+e9dd399ac2 Dissectors: Include what you use.
+c8a4fbeb5b lrexlib: Restore the Lua 5.1 ifdefs
+3c3165f5f1 Dissectors: Include what you use.
+e70df89dac ORAN FH CUS: Complete udCompParam
+57cf04f08d epan: wip RFC 8362 OSPF E-LSA dissector
+5a62af7ca7 lrexlib: Use SPDX-License-Identifier
+221219dd1c docsis: no need for our own unit_name_string for MHz.
+89ee83f86a Add a UNS() macro, similar to TFS().
+d24b19885d wsdg: fix header level of one section.
+144be4dcc7 wsdg: emphasize that VS 2022 is recommended *for Windows*.
+aad9b0e279 wsdg: make "Windows" a toplevel section in the build setup.
+b100fb2357 Dissectors: Include what you use - DCERPC regenerated
+c8729ae274 Dissectors: Include what you use.
+8f15564a25 PIDL:Get it to work on windows.
+a68e502d31 ORAN FH CUS: Start to add proper handling for udCompParam
+e181b5140b Dissectors: Include what we use(2).
+984d300eaf Dissectors: Include what we use.
+bd94e40a3f BER: Make the Decode As functionality mostly work again
+d218d6754f XML: Delay registering fields
+b6b8a3c805 zigbee-direct: Add descriptions for the dissectors
+30dbf2cf1a btatt: Create dissectors with description for Decode As
+0a6f717f9c Qt: allow search on all columns in About tabs
+0ec99307c6 E2AP: register more OIDS (without implementations)
+a48efa3cf7 nmea0183: Add HDT sentence dissector
+922327f075 Art-Net: Update to Rev. DK (and minor changes)
+a787e582ba nmea0183: Use `register_dissector()`
+9c8582ad98 check_typed_item_calls.py: suppress or fix a few issues
+4c79d56d99 BGP: Update dissector with current registries and RFCs
+d8d76d58aa Feature Code for NetScaler TPC Reset Window Error Code
+48638219d2 Fix some spelling errors
+889f058947 Qt: Don't parent a Uat preference dialog with a menu that gets destroyed
+2e84661103 USB: Split conversation data from URB data
+c94a4cecaa [Automatic update for 2024-08-04]
+baf0bfc263 USB: Store endpoint with direction flag in usb_conv_info
+ac3bb285ac rpm-setup: Add correct SUSE Qt6 package names
+e528693114 rpm-setup: Prefer Lua 5.4 on SUSE
+bdd4d7f09a wslua: Use require to load Lua plugins in plugins directories
+a9920556d0 btle: Extract out dissect_btle_broadcast_iso()
+8675c07e85 btle: Extract out dissect_btle_acl_or_iso()
+e247c146c8 Lua: Switch the downloaded Lua to 5.4
+9b180d292e tools: Install latest Lua on *BSD
+fada77bbc1 lrexlib: Update to upstream 2.9.2
+2748575ca9 tools: Install latest lua package on Arch Linux
+9d2da2c45a Qt: Stay in packet list history until we're done with history
+9db5109011 epan: Fixup our column utility API documentation
+2ff4e0f458 CBOR: More recursion check updates
+f327bf379c Make some symbols in generated dissectors static
+77a45aae05 MySQL: Add dissector test
+d6975675b9 wslua: Don't prepend the same path entries more than once
+bb5a5feaa4 ntlmssp: Updating Session Basekey Generation for NTLMv1
+5219e36780 Qt: windows file: URLs with # (fragments); LTE help typo
+30f11e9694 CBOR: Update a recursion check
+31111a89f2 GIAS: Remove an odd byte from uco.idl
+63e5ac75b4 Delete some double semicolons
+18f6ca96d0 packetBB: Skip over the extended type before retrieving length
+19788906e9 wslua: Add some clarification to dofile
+ddd2b8a7d2 Fixing the data type for timeOfNextJump in PTP
+838cdad7b1 taps: Document what TL_REQUIRES_PROTO_TREE actually does
+e69c817b4d Qt/Bluetooth: Display ATT Server overview as a tree
+2dccb6c40a Fix some spelling errors
+948d614a94 GNSS: add dissector for SBAS L1 MT18
+5d983a39f0 TECMP: Adding support to register dissector for unknown data type
+f7db37441e ntlmssp: Only close the gcrypt ciphers if enabled
+1ae3cee9be MQTT: Use MQTT dissector for MQTT over QUIC
+c24eabfb13 btatt: fix "Read Multiple Variable Length" parsing
+12d5ee22fd Add call to check_col_apis.py to pipeline
+d186f89a7c IEEE802154: Parse TLVs for Enhanced Beacons
+caec0bc640 Add check_col_apis.py call to check_dissector.py
+5d69cc44d7 udp, dccp: Check for a null tree before resolving a port to string
+b24016e0b2 GitLab CI: Compress our FAQ
+51967fc669 docs: Simplify path to attributes file
+353ed4e982 column-utils: Check columns before convering ports to string
+2d409e4c54 Gitlab CI: Add our FAQ to the Documentation job
+0b9b9e9581 Qt: Export PDUs/Strip Headers - dialog title and help button
+ba0d705aa8 Version: 4.3.1 → 4.3.2
+8892f0dc09 Build: 4.3.1
 ccaa67c1ea Last batch of col_ API changes
 8420e64fde btle: Get rid of unecessary frame_number variable
 91a40d3355 btle: Extract out dissect_btle_adv()
