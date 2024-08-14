@@ -140,7 +140,7 @@ typedef struct _ieee1722_seq_data_t {
 #define IEEE_1722_QI2_MASK      0xc0
 #define IEEE_1722_FMT_MASK      0x3f
 #define IEEE_1722_FDF_TSF_MASK  0x80
-#define IEEE_1722_FDF_MASK      0xf8
+#define IEEE_1722_FDF_MASK      0xff
 
 /**************************************************************************************************/
 /* subtype AAF                                                                                    */
