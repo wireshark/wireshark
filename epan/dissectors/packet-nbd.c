@@ -1,6 +1,8 @@
 /* packet-nbd.c
  * Routines for Network Block Device (NBD) dissection.
  *
+ * https://github.com/NetworkBlockDevice/nbd/blob/master/doc/proto.md
+ *
  * Ronnie sahlberg 2006
  *
  * Wireshark - Network traffic analyzer
@@ -21,7 +23,17 @@ void proto_reg_handoff_nbd(void);
 
 static int proto_nbd;
 static int hf_nbd_magic;
+static int hf_nbd_cmd_flags;
+static int hf_nbd_cmd_flags_fua;
+static int hf_nbd_cmd_flags_no_hole;
+static int hf_nbd_cmd_flags_df;
+static int hf_nbd_cmd_flags_req_one;
+static int hf_nbd_cmd_flags_fast_zero;
+static int hf_nbd_cmd_flags_payload_len;
+static int hf_nbd_reply_flags;
+static int hf_nbd_reply_flags_done;
 static int hf_nbd_type;
+static int hf_nbd_reply_type;
 static int hf_nbd_error;
 static int hf_nbd_handle;
 static int hf_nbd_from;
@@ -32,7 +44,8 @@ static int hf_nbd_time;
 static int hf_nbd_data;
 
 static int ett_nbd;
-
+static int ett_nbd_cmd_flags;
+static int ett_nbd_reply_flags;
 
 static bool nbd_desegment = true;
 
@@ -51,17 +64,49 @@ typedef struct _nbd_conv_info_t {
 
 #define NBD_REQUEST_MAGIC		0x25609513
 #define NBD_RESPONSE_MAGIC		0x67446698
+#define NBD_STRUCTURED_REPLY_MAGIC	0x668e33ef
 
 #define NBD_CMD_READ			0
 #define NBD_CMD_WRITE			1
 #define NBD_CMD_DISC			2
+#define NBD_CMD_FLUSH			3
+#define NBD_CMD_TRIM 			4
+#define NBD_CMD_CACHE			5
+#define NBD_CMD_WRITE_ZEROES		6
+#define NBD_CMD_BLOCK_STATUS		7
+#define NBD_CMD_RESIZE			8
+
 static const value_string nbd_type_vals[] = {
 	{NBD_CMD_READ,	"NBD_CMD_READ"},
 	{NBD_CMD_WRITE,	"NBD_CMD_WRITE"},
 	{NBD_CMD_DISC,	"NBD_CMD_DISC"},
+	{NBD_CMD_FLUSH,	"NBD_CMD_FLUSH"},
+	{NBD_CMD_TRIM,	"NBD_CMD_TRIM"},
+	{NBD_CMD_CACHE,	"NBD_CMD_CACHE"},
+	{NBD_CMD_WRITE_ZEROES,	"NBD_CMD_WRITE_ZEROES"},
+	{NBD_CMD_BLOCK_STATUS,	"NBD_CMD_BLOCK_STATUS"},
+	{NBD_CMD_RESIZE,	"NBD_CMD_RESIZE"},
 	{0, NULL}
 };
 
+#define NBD_REPLY_NONE		0
+#define NBD_REPLY_OFFSET_DATA	1
+#define NBD_REPLY_OFFSET_HOLE	2
+#define NBD_REPLY_BLOCK_STATUS	5
+#define NBD_REPLY_BLOCK_STATUS_EXT 6
+#define NBD_REPLY_ERROR		32769
+#define NBD_REPLY_ERROR_OFFSET	32770
+
+static const value_string nbd_reply_type_vals[] = {
+	{NBD_REPLY_NONE,		"NBD_REPLY_NONE"},
+	{NBD_REPLY_OFFSET_DATA,		"NBD_REPLY_OFFSET_DATA"},
+	{NBD_REPLY_OFFSET_HOLE,		"NBD_REPLY_OFFSET_HOLE"},
+	{NBD_REPLY_BLOCK_STATUS,	"NBD_REPLY_BLOCK_STATUS"},
+	{NBD_REPLY_BLOCK_STATUS_EXT,	"NBD_REPLY_BLOCK_STATUS_EXT"},
+	{NBD_REPLY_ERROR,		"NBD_REPLY_ERROR"},
+	{NBD_REPLY_ERROR_OFFSET,	"NBD_REPLY_ERROR_OFFSET"},
+	{0, NULL}
+};
 
 /* This function will try to determine the complete size of a PDU
  * based on the information in the header.
@@ -80,11 +125,15 @@ get_nbd_tcp_pdu_len(packet_info *pinfo, tvbuff_t *tvb, int offset, void *data _U
 
 	switch(magic){
 	case NBD_REQUEST_MAGIC:
-		type=tvb_get_ntohl(tvb, offset+4);
+		type=tvb_get_ntohs(tvb, offset+6);
 		switch(type){
 		case NBD_CMD_WRITE:
 			return tvb_get_ntohl(tvb, offset+24)+28;
 		default:
+			/*
+			 * NB: Length field should always be present (and zero)
+			 * for other types too.
+			 */
 			return 28;
 		}
 	case NBD_RESPONSE_MAGIC:
@@ -144,6 +193,8 @@ get_nbd_tcp_pdu_len(packet_info *pinfo, tvbuff_t *tvb, int offset, void *data _U
 		} else {
 			return 16;
 		}
+	case NBD_STRUCTURED_REPLY_MAGIC:
+		return tvb_get_ntohl(tvb, offset+16)+20;
 	default:
 		break;
 	}
@@ -152,10 +203,25 @@ get_nbd_tcp_pdu_len(packet_info *pinfo, tvbuff_t *tvb, int offset, void *data _U
 	return 0;
 }
 
+static int * const nbd_cmd_flags[] = {
+	&hf_nbd_cmd_flags_fua,
+	&hf_nbd_cmd_flags_no_hole,
+	&hf_nbd_cmd_flags_df,
+	&hf_nbd_cmd_flags_req_one,
+	&hf_nbd_cmd_flags_fast_zero,
+	&hf_nbd_cmd_flags_payload_len,
+	NULL,
+};
+
+static int * const nbd_reply_flags[] = {
+	&hf_nbd_reply_flags_done,
+	NULL,
+};
+
 static int
 dissect_nbd_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* data _U_)
 {
-	uint32_t magic, error, packet;
+	uint32_t magic, error, packet, data_len;
 	uint32_t handle[2];
 	uint64_t from;
 	int offset=0;
@@ -183,6 +249,7 @@ dissect_nbd_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
 	switch(magic){
 	case NBD_REQUEST_MAGIC:
 	case NBD_RESPONSE_MAGIC:
+	case NBD_STRUCTURED_REPLY_MAGIC:
 		handle[0]=tvb_get_ntohl(tvb, offset+4);
 		handle[1]=tvb_get_ntohl(tvb, offset+8);
 		break;
@@ -207,7 +274,8 @@ dissect_nbd_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
 		conversation_add_proto_data(conversation, proto_nbd, nbd_info);
 	}
 	if(!pinfo->fd->visited){
-		if(magic==NBD_REQUEST_MAGIC){
+		switch (magic) {
+		case NBD_REQUEST_MAGIC:
 			/* This is a request */
 			nbd_trans=wmem_new(wmem_file_scope(), nbd_transaction_t);
 			nbd_trans->req_frame=pinfo->num;
@@ -221,7 +289,15 @@ dissect_nbd_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
 			hkey[1].length=0;
 
 			wmem_tree_insert32_array(nbd_info->unacked_pdus, hkey, (void *)nbd_trans);
-		} else if(magic==NBD_RESPONSE_MAGIC){
+			break;
+
+		case NBD_RESPONSE_MAGIC:
+		case NBD_STRUCTURED_REPLY_MAGIC:
+			/* There MAY be multiple structured reply chunk to the
+			 * same request (with the same cookie/handle), instead
+			 * of TCP segmentation. In that case the later ones
+			 * will replace the older ones for matching.
+			 */
 			hkey[0].length=2;
 			hkey[0].key=handle;
 			hkey[1].length=0;
@@ -243,6 +319,9 @@ dissect_nbd_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
 				hkey[2].length=0;
 				wmem_tree_insert32_array(nbd_info->acked_pdus, hkey, (void *)nbd_trans);
 			}
+			break;
+		default:
+			ws_assert_not_reached();
 		}
 	} else {
 		packet=pinfo->num;
@@ -257,7 +336,7 @@ dissect_nbd_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
 	/* The bloody handles are reused !!! even though they are 64 bits.
 	 * So we must verify we got the "correct" one
 	 */
-	if( (magic==NBD_RESPONSE_MAGIC)
+	if( (magic==NBD_RESPONSE_MAGIC || magic==NBD_STRUCTURED_REPLY_MAGIC)
 	&&  (nbd_trans)
 	&&  (pinfo->num<nbd_trans->req_frame) ){
 		/* must have been the wrong one */
@@ -275,7 +354,8 @@ dissect_nbd_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
 	}
 
 	/* print state tracking in the tree */
-	if(magic==NBD_REQUEST_MAGIC){
+	switch (magic) {
+	case NBD_REQUEST_MAGIC:
 		/* This is a request */
 		if(nbd_trans->rep_frame){
 			proto_item *it;
@@ -283,7 +363,9 @@ dissect_nbd_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
 			it=proto_tree_add_uint(tree, hf_nbd_response_in, tvb, 0, 0, nbd_trans->rep_frame);
 			proto_item_set_generated(it);
 		}
-	} else if(magic==NBD_RESPONSE_MAGIC){
+		break;
+	case NBD_RESPONSE_MAGIC:
+	case NBD_STRUCTURED_REPLY_MAGIC:
 		/* This is a reply */
 		if(nbd_trans->req_frame){
 			proto_item *it;
@@ -301,8 +383,12 @@ dissect_nbd_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
 
 	switch(magic){
 	case NBD_REQUEST_MAGIC:
-		proto_tree_add_item(tree, hf_nbd_type, tvb, offset, 4, ENC_BIG_ENDIAN);
-		offset+=4;
+		proto_tree_add_bitmask(tree, tvb, offset, hf_nbd_cmd_flags,
+			ett_nbd_cmd_flags, nbd_cmd_flags, ENC_BIG_ENDIAN);
+		offset+=2;
+
+		proto_tree_add_item(tree, hf_nbd_type, tvb, offset, 2, ENC_BIG_ENDIAN);
+		offset+=2;
 
 		proto_tree_add_item(tree, hf_nbd_handle, tvb, offset, 8, ENC_BIG_ENDIAN);
 		offset+=8;
@@ -347,6 +433,23 @@ dissect_nbd_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
 			proto_tree_add_item(tree, hf_nbd_data, tvb, offset, nbd_trans->datalen, ENC_NA);
 		}
 		break;
+	case NBD_STRUCTURED_REPLY_MAGIC:
+		/* structured reply flags */
+		proto_tree_add_bitmask(tree, tvb, offset, hf_nbd_reply_flags,
+			ett_nbd_reply_flags, nbd_reply_flags, ENC_BIG_ENDIAN);
+		offset+=2;
+		proto_tree_add_item(tree, hf_nbd_reply_type, tvb, offset, 2, ENC_BIG_ENDIAN);
+		offset+=2;
+
+		proto_tree_add_item(tree, hf_nbd_handle, tvb, offset, 8, ENC_BIG_ENDIAN);
+		offset+=8;
+
+		proto_tree_add_item_ret_uint(tree, hf_nbd_len, tvb, offset, 4, ENC_BIG_ENDIAN, &data_len);
+		offset+=4;
+
+		if (data_len) {
+			proto_tree_add_item(tree, hf_nbd_data, tvb, offset, data_len, ENC_NA);
+		}
 	}
 
 	return tvb_captured_length(tvb);
@@ -371,13 +474,8 @@ dissect_nbd_tcp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
 			return false;
 		}
 		/* verify type */
-		type=tvb_get_ntohl(tvb, 4);
-		switch(type){
-		case NBD_CMD_READ:
-		case NBD_CMD_WRITE:
-		case NBD_CMD_DISC:
-			break;
-		default:
+		type=tvb_get_ntohs(tvb, 6);
+		if (!try_val_to_str(type, nbd_type_vals)) {
 			return false;
 		}
 
@@ -390,6 +488,13 @@ dissect_nbd_tcp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
 		}
 		tcp_dissect_pdus(tvb, pinfo, tree, nbd_desegment, 16, get_nbd_tcp_pdu_len, dissect_nbd_tcp_pdu, data);
 		return true;
+	case NBD_STRUCTURED_REPLY_MAGIC:
+		/* structured replies are 20 bytes or more,
+		 * and the length is in bytes 17-20. */
+		if(tvb_captured_length(tvb)<20){
+			return false;
+		}
+		tcp_dissect_pdus(tvb, pinfo, tree, nbd_desegment, 20, get_nbd_tcp_pdu_len, dissect_nbd_tcp_pdu, data);
 	default:
 		break;
 	}
@@ -403,9 +508,39 @@ void proto_register_nbd(void)
 		{ &hf_nbd_magic,
 		  { "Magic", "nbd.magic", FT_UINT32, BASE_HEX,
 		    NULL, 0x0, NULL, HFILL }},
+		{ &hf_nbd_cmd_flags,
+		  { "Flags", "nbd.cmd.flags", FT_UINT16, BASE_HEX,
+		    NULL, 0x0, NULL, HFILL }},
+		{ &hf_nbd_cmd_flags_fua,
+		  { "Forced Unit Access", "nbd.cmd.flags.fua", FT_BOOLEAN, 16,
+		    TFS(&tfs_set_notset), 0x0001, NULL, HFILL }},
+		{ &hf_nbd_cmd_flags_no_hole,
+		  { "No Hole", "nbd.cmd.flags.no_hole", FT_BOOLEAN, 16,
+		    TFS(&tfs_set_notset), 0x0002, NULL, HFILL }},
+		{ &hf_nbd_cmd_flags_df,
+		  { "Don't Fragment", "nbd.cmd.flags.df", FT_BOOLEAN, 16,
+		    TFS(&tfs_set_notset), 0x0004, NULL, HFILL }},
+		{ &hf_nbd_cmd_flags_req_one,
+		  { "Request One", "nbd.cmd.flags.req_one", FT_BOOLEAN, 16,
+		    TFS(&tfs_set_notset), 0x0008, NULL, HFILL }},
+		{ &hf_nbd_cmd_flags_fast_zero,
+		  { "Fast Zero", "nbd.cmd.flags.fast_zero", FT_BOOLEAN, 16,
+		    TFS(&tfs_set_notset), 0x0010, NULL, HFILL }},
+		{ &hf_nbd_cmd_flags_payload_len,
+		  { "Payload Len", "nbd.cmd.flags.payload_len", FT_BOOLEAN, 16,
+		    TFS(&tfs_set_notset), 0x0020, NULL, HFILL }},
+		{ &hf_nbd_reply_flags,
+		  { "Flags", "nbd.reply.flags", FT_UINT16, BASE_HEX,
+		    NULL, 0x0, NULL, HFILL }},
+		{ &hf_nbd_reply_flags_done,
+		  { "Done", "nbd.reply.flags.done", FT_BOOLEAN, 16,
+		    TFS(&tfs_set_notset), 0x0001, NULL, HFILL }},
 		{ &hf_nbd_type,
-		  { "Type", "nbd.type", FT_UINT32, BASE_DEC,
+		  { "Type", "nbd.type", FT_UINT16, BASE_DEC,
 		    VALS(nbd_type_vals), 0x0, NULL, HFILL }},
+		{ &hf_nbd_reply_type,
+		  { "Type", "nbd.reply.type", FT_UINT16, BASE_DEC,
+		    VALS(nbd_reply_type_vals), 0x0, NULL, HFILL }},
 		{ &hf_nbd_error,
 		  { "Error", "nbd.error", FT_UINT32, BASE_DEC,
 		    NULL, 0x0, NULL, HFILL }},
@@ -437,6 +572,8 @@ void proto_register_nbd(void)
 
 	static int *ett[] = {
 		&ett_nbd,
+		&ett_nbd_cmd_flags,
+		&ett_nbd_reply_flags,
 	};
 
 	module_t *nbd_module;
