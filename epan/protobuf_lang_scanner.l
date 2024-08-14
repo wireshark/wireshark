@@ -167,8 +167,8 @@ to                              PROTOBUF_LANG_PARSE(PT_TO);
 
     /* Using extended identifier because we care only about position */
 [a-zA-Z0-9_.][a-zA-Z0-9_.+-]*    PROTOBUF_LANG_PARSE(PT_IDENT);
-\"(\'|\\.|\"\"|[^"\n"])*\"       PROTOBUF_LANG_PARSE(PT_STRLIT);
-\'(\"|\\.|\'\'|[^"\n"])*\'       PROTOBUF_LANG_PARSE(PT_STRLIT);
+\"(\'|\\\"|[^\""\n"])*\"         PROTOBUF_LANG_PARSE(PT_STRLIT);
+\'(\"|\\\'|[^\'"\n"])*\'         PROTOBUF_LANG_PARSE(PT_STRLIT);
 
     /* comments */
 "//"[^\r\n]*
