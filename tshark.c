@@ -1016,7 +1016,7 @@ main(int argc, char *argv[])
     const char           *volatile tls_session_keys_file = NULL;
     exp_pdu_t             exp_pdu_tap_data;
     const char*           elastic_mapping_filter = NULL;
-    wtap_compression_type volatile compression_type;
+    wtap_compression_type volatile compression_type = WTAP_UNCOMPRESSED;
 
     /*
      * The leading + ensures that getopt_long() does not permute the argv[]
