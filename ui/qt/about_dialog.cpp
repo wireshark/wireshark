@@ -189,16 +189,16 @@ ShortcutListModel::ShortcutListModel(QObject * parent):
         QStringList row;
         row << shortcuts[name].first << name << shortcuts[name].second;
         appendRow(row);
-        if (shortcuts[name].first == QKeySequence(Qt::CTRL + Qt::Key_Up).toString(QKeySequence::NativeText)) {
+        if (shortcuts[name].first == QKeySequence(Qt::CTRL | Qt::Key_Up).toString(QKeySequence::NativeText)) {
             appendRow(QStringList() << "F7" << name << shortcuts[name].second);
         }
-        if (shortcuts[name].first == QKeySequence(Qt::CTRL + Qt::Key_Down).toString(QKeySequence::NativeText)) {
+        if (shortcuts[name].first == QKeySequence(Qt::CTRL | Qt::Key_Down).toString(QKeySequence::NativeText)) {
             appendRow(QStringList() << "F8" << name << shortcuts[name].second);
         }
     }
 
     /* Hard coded keyPressEvent() */
-    appendRow(QStringList() << QKeySequence(Qt::CTRL + Qt::Key_Slash).toString(QKeySequence::NativeText) << tr("Display Filter Input") << tr("Jump to display filter input box"));
+    appendRow(QStringList() << QKeySequence(Qt::CTRL | Qt::Key_Slash).toString(QKeySequence::NativeText) << tr("Display Filter Input") << tr("Jump to display filter input box"));
 }
 
 QStringList ShortcutListModel::headerColumns() const
