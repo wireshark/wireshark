@@ -160,7 +160,7 @@ def main():
         with urllib.request.urlopen(ENTERPRISE_NUMBERS_URL) as f:
             if f.status != 200:
                 raise Exception("request for " + ENTERPRISE_NUMBERS_URL + " failed with result code " + f.status)
-            data = f.read().decode('utf-8')
+            data = f.read().decode('utf-8').replace(u'\u200e', '')
 
     # Find bits we need and generate enterprise entries
     enterprises_content,last_updated_line = generate_enterprise_entries(data)
