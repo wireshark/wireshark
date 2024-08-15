@@ -674,9 +674,20 @@ else() # ! MSVC
 		# -O<X> and -g get set by the CMAKE_BUILD_TYPE
 		-Wall
 		-Wextra
+		-Wformat
+		-Wformat=2
+		-Wno-format-nonliteral	# TODO https://gitlab.com/wireshark/wireshark/-/issues/19995
+		#-Wconversion			# TODO see above
+		#-Wsign-conversion		# TODO see above
+		-Wtrampolines			# Enable warnings about trampolines that require executable stacks
+		if((CMAKE_C_COMPILER_ID STREQUAL "GNU" AND CMAKE_C_COMPILER_VERSION VERSION_GREATER_EQUAL "12.0"))
+		   -Wbidi-chars=any
+		endif()
 		-Wpointer-arith
 		-Wformat-security
-		-fno-strict-overflow
+		-Werror=format-security
+		-Werror=incompatible-pointer-types
+		-Werror=int-conversion
 		-fexcess-precision=fast	# GCC-only
 		-Wvla
 		-Wattributes
@@ -688,6 +699,54 @@ else() # ! MSVC
 		-Wunreachable-code	# Clang-only
 		-Wdocumentation		# Clang-only
 		-Wlogical-op		# GCC-only
+
+		# Run-time protections mechanisms
+		if((CMAKE_C_COMPILER_ID STREQUAL "GNU" AND CMAKE_C_COMPILER_VERSION VERSION_GREATER_EQUAL "13.0") OR
+		   (CMAKE_C_COMPILER_ID STREQUAL "Clang" AND CMAKE_C_COMPILER_VERSION VERSION_GREATER_EQUAL "16.0"))
+			-fstrict-flex-arrays=3			# Consider a trailing array in a struct as a flexible array if declared as []
+		endif()
+		if((CMAKE_C_COMPILER_ID STREQUAL "GNU" AND CMAKE_C_COMPILER_VERSION VERSION_GREATER_EQUAL "12.0") OR
+		   (CMAKE_C_COMPILER_ID STREQUAL "Clang" AND CMAKE_C_COMPILER_VERSION VERSION_GREATER_EQUAL "9.0"))
+		   -D_FORTIFY_SOURCE=3				# Fortify sources with compile- and run-time checks for unsafe libc usage and buffer overflows. Requires -O1 or higher
+		endif()
+		if((CMAKE_C_COMPILER_ID STREQUAL "GNU" AND CMAKE_C_COMPILER_VERSION VERSION_GREATER_EQUAL "8.0") OR
+		   (CMAKE_C_COMPILER_ID STREQUAL "Clang" AND CMAKE_C_COMPILER_VERSION VERSION_GREATER_EQUAL "11.0"))
+			-fstack-clash-protection		# Increased reliability of stack overflow detection
+		endif()
+		if(WIRESHARK_TARGET_PLATFORM MATCHES "x64")
+			if((CMAKE_C_COMPILER_ID STREQUAL "GNU" AND CMAKE_C_COMPILER_VERSION VERSION_GREATER_EQUAL "8.0") OR
+			  (CMAKE_C_COMPILER_ID STREQUAL "Clang" AND CMAKE_C_COMPILER_VERSION VERSION_GREATER_EQUAL "11.0"))
+				-fcf-protection=full		# Enable control flow protection to counter Return Oriented Programming (ROP) and Jump Oriented Programming (JOP) attacks on many x86 architectures
+			endif()
+		endif()
+		if(WIRESHARK_TARGET_PLATFORM MATCHES "arm64")
+			if((CMAKE_C_COMPILER_ID STREQUAL "GNU" AND CMAKE_C_COMPILER_VERSION VERSION_GREATER_EQUAL "9.0") OR
+			   (CMAKE_C_COMPILER_ID STREQUAL "Clang" AND CMAKE_C_COMPILER_VERSION VERSION_GREATER_EQUAL "8.0"))
+				-mbranch-protection=standard	# Enable branch protection to counter Return Oriented Programming (ROP) and Jump Oriented Programming (JOP) attacks on AArch64
+			endif()
+		endif()
+		-U_FORTIFY_SOURCE					# Run-time buffer overflow detection
+		-D_GLIBCXX_ASSERTIONS				# Precondition checks for C++ standard library calls. Can impact performance.
+		-fstack-protector-strong			# Stack smashing protector
+		-fno-delete-null-pointer-checks		# Force retention of null pointer checks
+		-fno-strict-overflow				# Integer overflow may occur
+		-fno-strict-aliasing				# Do not assume strict aliasing
+		if((CMAKE_C_COMPILER_ID STREQUAL "GNU" AND CMAKE_C_COMPILER_VERSION VERSION_GREATER_EQUAL "12.0") OR
+		   (CMAKE_C_COMPILER_ID STREQUAL "Clang" AND CMAKE_C_COMPILER_VERSION VERSION_GREATER_EQUAL "8.0"))
+		   -ftrivial-auto-var-init			# Perform trivial auto variable initialization
+		endif()
+		-fexceptions						# Enable exception propagation to harden multi-threaded C code
+		# TODO improve cross-compile handled flags
+		#if(CMAKE_C_COMPILER_ID STREQUAL "GNU" AND CMAKE_C_COMPILER_VERSION VERSION_GREATER_EQUAL "14.0")
+		#		if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+		#		check_c_compiler_flag(-fhardened C__FHARDENED_VALID)
+		#		check_cxx_compiler_flag(-fhardened CXX__FHARDENED_VALID)
+		#		if (C__FHARDENED_VALID AND CXX__FHARDENED_VALID)
+		#			-fhardened					# Enable pre-determined set of hardening options in GCC. Currently, -fhardened is only supported on GNU/Linux targets
+		#		endif()
+		#	endif()
+		#endif()
+
 		#
 		# Disable errors unconditionally for some static analysis warnings
 		# that are dormant at lower optimizations levels or active only in
@@ -697,7 +756,7 @@ else() # ! MSVC
 		# priority target for action. That is very disruptive
 		# with -Werror enabled (the default on the master branch).
 		#
-		-Wno-error=stringop-overflow=
+		#-Wno-error=stringop-overflow=
 		#
 		# XXX Now that we have a CI job with Release build type (using
 		# -O3 optimization level) the dormancy issue should be ameliorated
@@ -710,7 +769,7 @@ else() # ! MSVC
 		# We want to be able to build with -Werror in that case. New
 		# code should not introduce new deprecations in any case.
 		#
-		-Wno-error=deprecated-declarations
+		#-Wno-error=deprecated-declarations
 	)
 
 	if((NOT ENABLE_ASAN) AND (NOT ENABLE_TSAN) AND (NOT ENABLE_UBSAN) AND (NOT DISABLE_FRAME_LARGER_THAN_WARNING))

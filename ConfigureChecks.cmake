@@ -132,6 +132,9 @@ check_type_size("ssize_t"       SSIZE_T)
 if(NOT CMAKE_CROSSCOMPILING)
 	check_c_source_runs("
 		#include <stdio.h>
+
+		#pragma GCC diagnostic push
+		#pragma GCC diagnostic ignored \"-Wall\"
 		int main(void)
 		{
 			/* Check that snprintf() and vsnprintf() don't return
@@ -140,7 +143,8 @@ if(NOT CMAKE_CROSSCOMPILING)
 			* the nul byte. */
 			char buf[3];
 			return snprintf(buf, sizeof(buf), \"%s\", \"ABCDEF\") > 0 ? 0 : 1;
-		}"
+		}
+		#pragma GCC diagnostic pop"
 		HAVE_C99_VSNPRINTF
 	)
 	if (NOT HAVE_C99_VSNPRINTF)
