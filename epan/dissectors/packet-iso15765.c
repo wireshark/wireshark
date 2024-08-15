@@ -109,17 +109,15 @@ typedef struct iso15765_seq_key {
 } iso15765_seq_key_t;
 
 static unsigned
-iso15765_seq_hash_func(const void *v)
-{
-    const iso15765_seq_key_t* key = (const iso15765_seq_key_t*)v;
+iso15765_seq_hash_func(const void *v) {
+    const iso15765_seq_key_t *key = (const iso15765_seq_key_t *)v;
     return (key->frame_id ^ key->bus_type);
 }
 
 static int
-iso15765_seq_equal_func(const void *v1, const void *v2)
-{
-    const iso15765_seq_key_t* key1 = (const iso15765_seq_key_t*)v1;
-    const iso15765_seq_key_t* key2 = (const iso15765_seq_key_t*)v2;
+iso15765_seq_equal_func(const void *v1, const void *v2) {
+    const iso15765_seq_key_t *key1 = (const iso15765_seq_key_t *)v1;
+    const iso15765_seq_key_t *key2 = (const iso15765_seq_key_t *)v2;
 
     return (key1->bus_type == key2->bus_type &&
         key1->frame_id == key2->frame_id &&
