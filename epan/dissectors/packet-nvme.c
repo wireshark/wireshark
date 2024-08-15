@@ -2280,7 +2280,7 @@ static const value_string sub_type_tbl[] = {
     { 0, "Reserved" },
     { 1, "Referral to another Discovery Subsystem" },
     { 2, "NVM subsystem with IO controllers" },
-    { 3, "Current Discovery Subsytem" },
+    { 3, "Current Discovery Subsystem" },
     { 0, NULL }
 };
 
@@ -8491,7 +8491,7 @@ proto_register_nvme(void)
                FT_UINT16, BASE_HEX, NULL, 0x3000, NULL, HFILL}
         },
         { &hf_nvme_cqe_status[5],
-            { "More Infornation in Log Page", "nvme.cqe.status.m",
+            { "More Information in Log Page", "nvme.cqe.status.m",
                FT_BOOLEAN, 16, NULL, 0x4000, NULL, HFILL}
         },
         { &hf_nvme_cqe_status[6],

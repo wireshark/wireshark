@@ -1,6 +1,7 @@
 0x%02x
 0x%08x
 10base
+10baset1s
 10gig
 16apsk
 1xrtt
@@ -51,6 +52,7 @@ aes128
 aes256
 aethra
 afnum
+afscall
 aggreg
 aggregated
 aggregates
@@ -172,6 +174,7 @@ available
 avaya
 avrcp
 axcor
+az3dd
 b100base
 bacapp
 backedup
@@ -181,6 +184,7 @@ backoff
 bacnet
 bangladesh
 barbados
+barcelona
 basicmcsmap
 batched
 baudrate
@@ -310,6 +314,7 @@ centiseconds
 centre
 centric
 centrino
+cepopt
 cfilters
 cflags
 cframe
@@ -357,6 +362,7 @@ classmark
 classmark3
 claypaky
 clearallportcounters
+clearvfportcounters
 clientkey
 clientout
 clksrc
@@ -367,6 +373,7 @@ clusctl
 clusprop
 clustermap
 cmake
+cmctrl
 cmdcontrol
 cmdmfg
 cmstatus
@@ -470,7 +477,9 @@ croatian
 crypto
 cryptographic
 csapi
+cseds
 ctime
+ctratt
 ctrls
 ctrlstat
 ctxinfo
@@ -634,6 +643,7 @@ diffie
 diffserv
 Digicel
 digitech
+digitel
 digitizer
 digium
 dilithium
@@ -674,6 +684,7 @@ dodag
 doppler
 dot11Qos
 dot1q
+dot5stats
 dotnet
 double
 downlink
@@ -846,9 +857,11 @@ february
 fhandle
 fiber
 fibre
+fileinfoack
 fileseg
 fileset
 filsfils
+filter1d
 filter2d
 finditer
 firefox
@@ -923,6 +936,7 @@ gerald
 geran
 getattr
 getentrybyname
+getfocusports
 getgroupinfo
 getimageinfo
 getnext
@@ -931,7 +945,9 @@ getset
 getsetinfo
 getter
 getters
+getvffocusports
 getvfinfo
+getvfportcounters
 gidaddr
 gigabit
 gigamon
@@ -1018,6 +1034,7 @@ hssite
 hsupa
 htonl
 htons
+htotal
 http2
 https
 huawei
@@ -1212,6 +1229,7 @@ keymap
 keypress
 keyring
 keyset
+keysyms
 keytab
 knxip
 korean
@@ -1224,9 +1242,11 @@ l3vpn
 laggy
 lanalyzer
 lanka
+lanman
 latencies
 latin
 layerables
+lbart
 lbmpdm
 lcgid
 lcids
@@ -1238,6 +1258,7 @@ lempar
 level1login
 lexer
 lexpos
+lflags
 lfsck
 libcap
 libdir
@@ -1253,6 +1274,7 @@ libssh
 libxml
 licmgr
 lidaddr
+lincrcerror
 linearity
 lineno
 linkaddr
@@ -1260,7 +1282,11 @@ linkcss
 linker
 linkinfo
 linksys
+linmessage
+linrcverror
+linsenderror
 linux
+linwakeup
 list1
 literals
 lithionics
@@ -1287,6 +1313,7 @@ lossy
 lsarpc
 lscap
 lsflags
+lspping
 lstat
 ltype
 lucent
@@ -1295,6 +1322,7 @@ luminaire
 luminance
 luxembourg
 lycamobile
+lz4frame
 macaddr
 macaddress
 macos
@@ -1406,6 +1434,7 @@ motorola
 móviles
 mozilla
 mp4ves
+mpath
 mpeg4
 mplstp
 mpquic
@@ -1603,6 +1632,7 @@ ofpbac
 ofpbfc
 ofpbic
 ofpbmc
+ofpbpc
 ofpbrc
 ofpet
 ofpfmfc
@@ -1742,6 +1772,7 @@ pmconfig
 pmkid
 pname
 polestar
+polska
 polycom
 polygon
 polynom
@@ -1780,6 +1811,7 @@ prefetch
 prefill
 prefname
 prefs
+preload
 preloaded
 prepay
 prepend
@@ -1864,12 +1896,15 @@ quintuplet
 quintuplets
 quotactl
 r3info
+rachctrl
 radcom
 radeon
 radians
 radiotap
+radisys
 radix
 ralink
+ramirez
 ranap
 randomisation
 randomization
@@ -2068,6 +2103,7 @@ rnsap
 roamer
 robert
 romania
+roshan
 rotterdam
 routable
 routererr
@@ -2077,6 +2113,7 @@ rpcsec
 rpmbuild
 rsocket
 rsrvd
+rsrvn
 rtitcp
 rtpdump
 rtpevent
@@ -2179,6 +2216,7 @@ severities
 sfiocr
 sflag
 sflow
+sfrbx
 sftpserver
 sftserver
 sgdsn
@@ -2213,6 +2251,7 @@ skype
 slaac
 slimp
 slovak
+slovensko
 slsch
 smime
 sminfo
@@ -2267,6 +2306,7 @@ srcip
 srcport
 srtcp
 srvcc
+srvreq
 srvsvc
 ss7pcs
 sscanf
@@ -2274,6 +2314,7 @@ sscop
 sshdump
 sshkey
 ssupervisor
+st4cmd
 stainfo
 stanag
 standardised
@@ -2389,12 +2430,14 @@ sysframe
 syslog
 sysmac
 systemd
+t7entry
 tablemod
 tabular
 taiwan
 tanzania
 tbilisi
 tclas
+tclass
 tcpcc
 tcpdump
 tcpflags
@@ -2435,8 +2478,10 @@ textbox
 tfields
 tfmccack
 tfshark
+thales
 thermister
 thermistor
+thompson
 throughput
 thunderx
 thursday
@@ -2504,6 +2549,7 @@ tunneling
 tuple
 tuples
 tvbparse
+tvbuf
 tvbuff
 tvbuffer
 twamp
@@ -2527,6 +2573,7 @@ ubiquisys
 uboot
 ubuntu
 ucast
+udisk
 udpcp
 udpdump
 udphdr
@@ -2745,6 +2792,7 @@ verbosity
 verifications
 verifier
 verizon
+versatel
 version2
 version3
 version4
@@ -2773,6 +2821,7 @@ volerr
 volid
 voltype
 vserver
+vtotal
 vxlan
 wakeup
 wapforum
@@ -2849,6 +2898,7 @@ yyterminate
 yytext
 z3950
 zbncp
+ze3dd
 zeroes
 zigbee
 zlibng

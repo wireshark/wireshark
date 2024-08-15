@@ -24,7 +24,7 @@ on stdout. Each input line must contain exactly one address. Output is in INI fo
 delimiter named after the query address followed by a set of "key: value" pairs. A comment
 beginning with "# End" is appended to each section.
 
-At startup an "[init]" section is printed that shows the status of each datbase and of mmdbresolve
+At startup an "[init]" section is printed that shows the status of each database and of mmdbresolve
 itself.
 
 == OPTIONS
