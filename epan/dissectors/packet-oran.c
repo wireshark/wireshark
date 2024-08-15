@@ -698,17 +698,17 @@ static const value_string log2maskbits_vals[] = {
     {1,  "min antMask size is 16 bits.."},
     {2,  "min antMask size is 16 bits.."},
     {3,  "min antMask size is 16 bits.."},
-    {4,  "16"},
-    {5,  "32"},
-    {6,  "64"},
-    {7,  "128"},
-    {8,  "256"},
-    {9,  "512"},
-    {10, "1024"},
-    {11, "2048"},
-    {12, "4096"},
-    {13, "8192"},
-    {14, "16384"},
+    {4,  "16 bits"},
+    {5,  "32 bits"},
+    {6,  "64 bits"},
+    {7,  "128 bits"},
+    {8,  "256 bits"},
+    {9,  "512 bits"},
+    {10, "1024 bits"},
+    {11, "2048 bits"},
+    {12, "4096 bits"},
+    {13, "8192 bits"},
+    {14, "16384 bits"},
     {15, "reserved"},
     {0,   NULL}
 };
@@ -2968,6 +2968,9 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
                     proto_item_append_text(len_ti, " (reserved)");
                     expert_add_info(pinfo, len_ti, &ei_oran_st4_zero_len_cmd);
                 }
+                else {
+                    proto_item_append_text(len_ti, " (%u bytes)", st4_cmd_len*4);
+                }
                 offset += 2;
                 /* numSlots */
                 proto_item *slots_ti = proto_tree_add_item_ret_uint(hdr_tree, hf_oran_st4_cmd_num_slots, tvb, offset, 1, ENC_NA, &num_slots);
@@ -2983,7 +2986,7 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
                 offset += 2;
 
                 /* Set common header summary */
-                proto_item_append_text(hdr_ti, " (cmd=%s, len=%u words, slots=%u, ackNackReqId=%u)",
+                proto_item_append_text(hdr_ti, " (cmd=%s, len=%u, slots=%u, ackNackReqId=%u)",
                                        rval_to_str_const(st4_cmd_type, st4_cmd_type_vals, "Unknown"),
                                        st4_cmd_len, num_slots, ack_nack_req_id);
 
@@ -3059,10 +3062,10 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
                         proto_tree_add_item(command_tree, hf_oran_symbolMask, tvb, offset, 2, ENC_BIG_ENDIAN);
                         offset += 2;
 
-                        /* antMask (2-2048 bytes).  Size is lookup from log2MaskBits enum.. */
+                        /* antMask (16-2048 bits).  Size is lookup from log2MaskBits enum.. */
                         unsigned antmask_length = 2;
                         if (log2maskbits >= 4) {
-                            antmask_length = 1 << log2maskbits;
+                            antmask_length = (1 << log2maskbits) / 8;
                         }
                         proto_tree_add_item(command_tree, hf_oran_antMask_trx_control, tvb, offset, antmask_length, ENC_NA);
                         offset += antmask_length;
@@ -3107,7 +3110,8 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
                         break;
                 }
 
-                int padding_remaining = command_start_offset + (st4_cmd_len * 4) - offset;
+                /* Check apparent size of padding (0-3 bytes ok) */
+                long padding_remaining = command_start_offset + (st4_cmd_len * 4) - offset;
                 if (padding_remaining < 0 || padding_remaining > 3) {
                     expert_add_info_format(pinfo, len_ti, &ei_oran_st4_wrong_len_cmd,
                                            "Dissected ST4 command does not match signalled st4CmdLen - set to %u (%u bytes) but dissected %u bytes",
@@ -4887,7 +4891,7 @@ proto_register_oran(void)
          {"log2MaskBits", "oran_fh_cus.log2MaskBits",
           FT_UINT8, BASE_HEX,
           VALS(log2maskbits_vals), 0x3c,
-          NULL,
+          "Number of bits to appear in antMask",
           HFILL}
         },
         /* 7.5.3.53 */
