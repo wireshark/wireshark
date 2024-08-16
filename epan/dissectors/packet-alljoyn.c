@@ -13,6 +13,7 @@
 #include <epan/packet.h>
 #include <epan/expert.h>
 #include <wsutil/ws_roundup.h>
+#include <wsutil/array.h>
 #include <wsutil/str_util.h>
 
 void proto_register_AllJoyn(void);
@@ -906,7 +907,6 @@ parse_arg(tvbuff_t      *tvb,
 
     case ARG_ARRAY:      /* AllJoyn array container type */
         {
-            static char   bad_array_format[]  = "BAD DATA: Array length (in bytes) is %d. Remaining packet length is %d.";
             proto_item   *item;
             proto_tree   *tree;
             const uint8_t *sig_saved;
@@ -933,7 +933,8 @@ parse_arg(tvbuff_t      *tvb,
             starting_offset = pad_according_to_type(padding_start, field_starting_offset, packet_length, *sig_saved); /* Advance to the data elements. */
 
             if(length < 0 || length > MAX_ARRAY_LEN || starting_offset + length > packet_length) {
-                col_add_fstr(pinfo->cinfo, COL_INFO, bad_array_format, length, tvb_reported_length_remaining(tvb, starting_offset));
+                col_add_fstr(pinfo->cinfo, COL_INFO, "BAD DATA: Array length (in bytes) is %d. Remaining packet length is %d.",
+                    length, tvb_reported_length_remaining(tvb, starting_offset));
                 return tvb_reported_length(tvb);
             }
 
