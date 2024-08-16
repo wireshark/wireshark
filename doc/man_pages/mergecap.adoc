@@ -145,13 +145,17 @@ Causes *mergecap* to print a number of messages while it's working.
 
 -w  <outfile>|-::
 Sets the output filename. If the name is '*-*', stdout will be used.
-If the name has the extension '.gz', then the output file is compressed
-to a gzip archive. This setting is mandatory.
+If the *--compress* option is not given, then the filename extension is
+used to deduce the desired compression method, if any; e.g., if the name has
+the extension '.gz', then the output file is compressed to a gzip archive.
+This setting is mandatory.
 
 --compress <type>::
 +
 --
 Compress the output file using the type compression format.
+*--compress* with no argument provides a list of the compression formats supported
+for writing. The type given takes precedence over the extension of __outfile__.
 --
 
 include::diagnostic-options.adoc[]

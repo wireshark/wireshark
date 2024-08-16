@@ -231,7 +231,7 @@ main(int argc, char *argv[])
     char                  *out_filename    = NULL;
     bool                  status           = true;
     idb_merge_mode        mode             = IDB_MERGE_MODE_MAX;
-    wtap_compression_type compression_type = WTAP_UNCOMPRESSED;
+    wtap_compression_type compression_type = WTAP_UNKNOWN_COMPRESSION;
     merge_progress_callback_t cb;
 
     cmdarg_err_init(mergecap_cmdarg_err, mergecap_cmdarg_err_cont);
@@ -376,20 +376,18 @@ main(int argc, char *argv[])
         return 1;
     }
 
-    if (compression_type == WTAP_UNCOMPRESSED) {
+    if (compression_type == WTAP_UNKNOWN_COMPRESSION) {
         /* An explicitly specified compression type overrides filename
          * magic. (Should we allow specifying "no" compression with, e.g.
          * a ".gz" extension?) */
-        GSList *compression_type_extensions = wtap_get_all_compression_type_extensions_list();
-        for (GSList *extension = compression_type_extensions;
-                extension != NULL; extension = g_slist_next(extension)) {
-
-            if (g_str_has_suffix(out_filename, (const char*)extension->data)) {
-                compression_type = wtap_extension_to_compression_type((const char*)extension->data);
-                break;
-            }
+        const char *sfx = strrchr(out_filename, '.');
+        if (sfx) {
+            compression_type = wtap_extension_to_compression_type(sfx + 1);
         }
-        g_slist_free(compression_type_extensions);
+    }
+
+    if (compression_type == WTAP_UNKNOWN_COMPRESSION) {
+        compression_type = WTAP_UNCOMPRESSED;
     }
 
     if (!wtap_can_write_compression_type(compression_type)) {

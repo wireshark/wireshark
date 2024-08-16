@@ -1016,7 +1016,7 @@ main(int argc, char *argv[])
     const char           *volatile tls_session_keys_file = NULL;
     exp_pdu_t             exp_pdu_tap_data;
     const char*           elastic_mapping_filter = NULL;
-    wtap_compression_type volatile compression_type = WTAP_UNCOMPRESSED;
+    wtap_compression_type volatile compression_type = WTAP_UNKNOWN_COMPRESSION;
 
     /*
      * The leading + ensures that getopt_long() does not permute the argv[]
@@ -2065,22 +2065,19 @@ main(int argc, char *argv[])
             exit_status = WS_EXIT_INVALID_OPTION;
             goto clean_exit;
         }
-        if (compression_type == WTAP_UNCOMPRESSED) {
+        if (compression_type == WTAP_UNKNOWN_COMPRESSION) {
             /* An explicitly specified compression type overrides filename
-             * magic. (Should we allow specifying "no" compression with, e.g.
-             * a ".gz" extension?) */
-            GSList *compression_type_extensions = wtap_get_all_compression_type_extensions_list();
-            for (GSList *extension = compression_type_extensions;
-                    extension != NULL; extension = g_slist_next(extension)) {
-
-                if (g_str_has_suffix(save_file, (const char*)extension->data)) {
-
-                    compression_type = wtap_extension_to_compression_type((const char*)extension->data);
-                    break;
-                }
+             * magic. (Should we allow a way to specify "no" compression
+             * with, e.g. a ".gz" extension?) */
+            const char *sfx = strrchr(save_file, '.');
+            if (sfx) {
+                compression_type = wtap_extension_to_compression_type(sfx + 1);
             }
-            g_slist_free(compression_type_extensions);
         }
+    }
+
+    if (compression_type == WTAP_UNKNOWN_COMPRESSION) {
+        compression_type = WTAP_UNCOMPRESSED;
     }
 
     if (!wtap_can_write_compression_type(compression_type)) {

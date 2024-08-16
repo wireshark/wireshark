@@ -143,8 +143,9 @@ instruments
 There is no need to tell *Wireshark* what type of
 file you are reading; it will determine the file type by itself.
 *Wireshark* is also capable of reading any of these file formats if they
-are compressed using gzip.  *Wireshark* recognizes this directly from
-the file; the '.gz' extension is not required for this purpose.
+are compressed using gzip, LZ4, or Zstandard, if compiled with the
+appropriate support.  *Wireshark* recognizes this directly from the file;
+the '.gz' or other extension is not required for this purpose.
 
 Like other protocol analyzers, *Wireshark*'s main window shows 3 views
 of a packet.  It shows a summary line, briefly describing what the
@@ -507,8 +508,8 @@ folder last used.
 +
 --
 Read packet data from __infile__, can be any supported capture file format
-(including gzipped files).  It's not possible to use named pipes or stdin
-here! To capture from a pipe or from stdin use *-i -*
+(including compressed files).  It's not possible to use named pipes or stdin
+here, unlike *TShark*! To capture from a pipe or from stdin use *-i -*.
 --
 
 -R|--read-filter  <read (display) filter>::
