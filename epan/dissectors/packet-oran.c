@@ -262,6 +262,11 @@ static int hf_oran_td_beam_group;
 static int hf_oran_c_eAxC_ID;
 static int hf_oran_refa;
 
+/* Hidden fields for filtering */
+static int hf_oran_cplane;
+static int hf_oran_uplane;
+
+
 /* Initialize the subtree pointers */
 static int ett_oran;
 static int ett_oran_ecpri_rtcid;
@@ -292,7 +297,6 @@ static int ett_oran_bfacomphdr;
 static int ett_oran_modcomp_param_set;
 static int ett_oran_st4_cmd_header;
 static int ett_oran_st4_cmd;
-
 
 
 /* Expert info */
@@ -437,15 +441,15 @@ static const range_string section_types[] = {
     { 0, 0, NULL} };
 
 static const range_string section_types_short[] = {
-    { SEC_C_UNUSED_RB,         SEC_C_UNUSED_RB,         "(Unused RBs)" },
-    { SEC_C_NORMAL,            SEC_C_NORMAL,            "(Most channels)" },
-    { SEC_C_RSVD2,             SEC_C_RSVD2,             "(reserved)" },
+    { SEC_C_UNUSED_RB,         SEC_C_UNUSED_RB,         "(Unused RBs)        " },
+    { SEC_C_NORMAL,            SEC_C_NORMAL,            "(Most channels)     " },
+    { SEC_C_RSVD2,             SEC_C_RSVD2,             "(reserved)          " },
     { SEC_C_PRACH,             SEC_C_PRACH,             "(PRACH/mixed-\u03bc)" },
-    { SEC_C_SLOT_CONTROL,      SEC_C_SLOT_CONTROL,      "(Slot info)" },
+    { SEC_C_SLOT_CONTROL,      SEC_C_SLOT_CONTROL,      "(Slot info)         " },
     { SEC_C_UE_SCHED,          SEC_C_UE_SCHED,          "(UE scheduling info)" },
-    { SEC_C_CH_INFO,           SEC_C_CH_INFO,           "(Channel info)" },
-    { SEC_C_LAA,               SEC_C_LAA,               "(LAA)" },
-    { SEC_C_ACK_NACK_FEEDBACK, SEC_C_ACK_NACK_FEEDBACK, "(ACK/NACK)" },
+    { SEC_C_CH_INFO,           SEC_C_CH_INFO,           "(Channel info)      " },
+    { SEC_C_LAA,               SEC_C_LAA,               "(LAA)               " },
+    { SEC_C_ACK_NACK_FEEDBACK, SEC_C_ACK_NACK_FEEDBACK, "(ACK/NACK)          " },
     { 9,                       255,                     "Reserved for future use" },
     { 0, 0, NULL }
 };
@@ -981,13 +985,13 @@ write_section_info(proto_item *section_heading, packet_info *pinfo, proto_item *
 {
     switch (num_prbx) {
         case 0:
-            write_pdu_label_and_info(section_heading, protocol_item, pinfo, ", Id: %d (all PRBs)", section_id);
+            write_pdu_label_and_info(section_heading, protocol_item, pinfo, ", Id: %2d (all PRBs)", section_id);
             break;
         case 1:
-            write_pdu_label_and_info(section_heading, protocol_item, pinfo, ", Id: %d (PRB: %7u)", section_id, start_prbx);
+            write_pdu_label_and_info(section_heading, protocol_item, pinfo, ", Id: %2d (PRB: %7u)", section_id, start_prbx);
             break;
         default:
-            write_pdu_label_and_info(section_heading, protocol_item, pinfo, ", Id: %d (PRB: %3u-%3u%s)", section_id, start_prbx,
+            write_pdu_label_and_info(section_heading, protocol_item, pinfo, ", Id: %2d (PRB: %3u-%3u%s)", section_id, start_prbx,
                                      start_prbx + (num_prbx-1)*(1+rb), rb ? " (every-other)" : "");
     }
 }
@@ -1345,8 +1349,7 @@ static int dissect_ciCompParam(tvbuff_t *tvb, proto_tree *tree, packet_info *pin
  * N.B. these are the green parts of the tables showing Section Types, differing by section Type */
 static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
                                   uint32_t sectionType, proto_item *protocol_item,
-                                  uint8_t ci_iq_width, uint8_t ci_comp_meth, unsigned ci_comp_opt,
-                                  uint32_t number_of_acks, uint32_t number_of_nacks)
+                                  uint8_t ci_iq_width, uint8_t ci_comp_meth, unsigned ci_comp_opt)
 {
     unsigned offset = 0;
     proto_tree *c_section_tree = NULL;
@@ -1692,23 +1695,6 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
         }
         /* For now just skip indicated length of bytes */
         offset = payload_offset + 4*(laa_msg_len+1);
-    }
-    else if (sectionType == SEC_C_ACK_NACK_FEEDBACK) {      /* Section Type 8 */
-        proto_item *ti;
-        for (unsigned int n=1; n <= number_of_acks; n++) {
-            ti = proto_tree_add_item(c_section_tree, hf_oran_ackid, tvb, offset, 2, ENC_BIG_ENDIAN);
-            proto_item_append_text(ti, " [%u]", n);
-            offset += 2;
-        }
-        for (unsigned int m=1; m <= number_of_nacks; m++) {
-            uint32_t nack_id;
-            ti = proto_tree_add_item_ret_uint(c_section_tree, hf_oran_nackid, tvb, offset, 2, ENC_BIG_ENDIAN, &nack_id);
-            proto_item_append_text(ti, " [%u]", m);
-            expert_add_info_format(pinfo, ti, &ei_oran_st8_nackid,
-                                   "Received Nack for ackNackId=%u",
-                                   nack_id);
-            offset += 2;
-        }
     }
 
     /* Section extension commands */
@@ -2801,6 +2787,10 @@ static int dissect_cicomphdr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 /* Control plane dissector (section 7). */
 static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
+    /* Hidden filter for plane */
+    proto_item *plane_ti = proto_tree_add_item(tree, hf_oran_cplane, tvb, 0, 0, ENC_NA);
+    PROTO_ITEM_SET_HIDDEN(plane_ti);
+
     /* Set up structures needed to add the protocol subtree and manage it */
     unsigned offset = 0;
 
@@ -3171,13 +3161,28 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
             /* numberOfNacks (1 byte) */
             proto_tree_add_item_ret_uint(section_tree, hf_oran_number_of_nacks, tvb, offset, 1, ENC_BIG_ENDIAN, &number_of_nacks);
             offset += 1;
+
+            for (unsigned int n=1; n <= number_of_acks; n++) {
+                proto_item *ack_ti = proto_tree_add_item(section_tree, hf_oran_ackid, tvb, offset, 2, ENC_BIG_ENDIAN);
+                proto_item_append_text(ack_ti, " [#%u]", n);
+                offset += 2;
+            }
+            for (unsigned int m=1; m <= number_of_nacks; m++) {
+                uint32_t nack_id;
+                proto_item *nack_ti = proto_tree_add_item_ret_uint(section_tree, hf_oran_nackid, tvb, offset, 2, ENC_BIG_ENDIAN, &nack_id);
+                proto_item_append_text(nack_ti, " [#%u]", m);
+                expert_add_info_format(pinfo, nack_ti, &ei_oran_st8_nackid,
+                                       "Received Nack for ackNackId=%u",
+                                       nack_id);
+                offset += 2;
+            }
             break;
     };
 
     proto_item_append_text(sectionHeading, "%d, %s, Frame: %d, Subframe: %d, Slot: %d, StartSymbol: %d",
                            sectionType, val_to_str_const(direction, data_direction_vals, "Unknown"),
                            frameId, subframeId, slotId, startSymbolId);
-    write_pdu_label_and_info(protocol_item, NULL, pinfo, ", Type: %d %s", sectionType,
+    write_pdu_label_and_info(protocol_item, NULL, pinfo, ", Type: %2d %s", sectionType,
                              rval_to_str_const(sectionType, section_types_short, "Unknown"));
 
     /* Set actual length of C-Plane section. */
@@ -3188,8 +3193,7 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
     for (uint32_t i = 0; i < nSections; ++i) {
         tvbuff_t *section_tvb = tvb_new_subset_length_caplen(tvb, offset, -1, -1);
         offset += dissect_oran_c_section(section_tvb, oran_tree, pinfo, sectionType, protocol_item,
-                                         bit_width, ci_comp_method, ci_comp_opt,
-                                         number_of_acks, number_of_nacks);
+                                         bit_width, ci_comp_method, ci_comp_opt);
     }
 
     /* Expert error if we are short of tvb by > 3 bytes */
@@ -3230,6 +3234,10 @@ static int dissect_oran_u_re(tvbuff_t *tvb, proto_tree *tree,
 static int
 dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
+    /* Hidden filter for plane */
+    proto_item *plane_ti = proto_tree_add_item(tree, hf_oran_uplane, tvb, 0, 0, ENC_NA);
+    PROTO_ITEM_SET_HIDDEN(plane_ti);
+
     /* Set up structures needed to add the protocol subtree and manage it */
     int offset = 0;
 
@@ -3398,7 +3406,7 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
             int udcompparam_len = offset-before;
 
             /* Show PRB number in root */
-            proto_item_append_text(prbHeading, " %u", startPrbu + i*(1+rb));
+            proto_item_append_text(prbHeading, " %3u", startPrbu + i*(1+rb));
 
             /* Work out how many REs / PRB */
             unsigned res_per_prb = 12;
@@ -4922,7 +4930,7 @@ proto_register_oran(void)
         {&hf_oran_number_of_acks,
          {"numberOfAcks", "oran_fh_cus.numberOfAcks",
           FT_UINT8, BASE_DEC,
-          NULL, 0x01,
+          NULL, 0x0,
           "number of ACKs for one eAxC_ID",
           HFILL}
         },
@@ -4930,7 +4938,7 @@ proto_register_oran(void)
         {&hf_oran_number_of_nacks,
          {"numberOfNacks", "oran_fh_cus.numberOfNacks",
           FT_UINT8, BASE_DEC,
-          NULL, 0x01,
+          NULL, 0x0,
           "number of NACKs for one eAxC_ID",
           HFILL}
         },
@@ -4968,8 +4976,21 @@ proto_register_oran(void)
           HFILL}
         },
 
-
-
+        /* For convenient filtering */
+        {&hf_oran_cplane,
+         {"C-Plane", "oran_fh_cus.c-plane",
+          FT_NONE, BASE_NONE,
+          NULL, 0x0,
+          NULL,
+          HFILL}
+        },
+        {&hf_oran_uplane,
+         {"U-Plane", "oran_fh_cus.u-plane",
+          FT_NONE, BASE_NONE,
+          NULL, 0x0,
+          NULL,
+          HFILL}
+        },
     };
 
     /* Setup protocol subtree array */
