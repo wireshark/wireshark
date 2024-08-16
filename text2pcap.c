@@ -314,7 +314,7 @@ static void
 list_output_compression_types(void) {
     GSList *output_compression_types;
 
-    fprintf(stderr, "mergecap: The available output compress type(s) for the \"--compress\" flag are:\n");
+    cmdarg_err("The available output compression type(s) for the \"--compress\" flag are:\n");
     output_compression_types = wtap_get_all_output_compression_type_names_list();
     for (GSList *compression_type = output_compression_types;
         compression_type != NULL;
@@ -861,9 +861,32 @@ parse_options(int argc, char *argv[], text_import_info_t * const info, wtap_dump
         }
     }
 
+    if (compression_type == WTAP_UNCOMPRESSED) {
+        /* An explicitly specified compression type overrides filename
+         * magic. (Should we allow specifying "no" compression with, e.g.
+         * a ".gz" extension?) */
+        GSList *compression_type_extensions = wtap_get_all_compression_type_extensions_list();
+        for (GSList *extension = compression_type_extensions;
+                extension != NULL; extension = g_slist_next(extension)) {
+
+            if (g_str_has_suffix(argv[ws_optind+1], (const char*)extension->data)) {
+                compression_type = wtap_extension_to_compression_type((const char*)extension->data);
+                break;
+            }
+        }
+        g_slist_free(compression_type_extensions);
+    }
+
+    if (!wtap_can_write_compression_type(compression_type)) {
+        cmdarg_err("Output files can't be written as %s",
+                wtap_compression_type_description(compression_type));
+        return WS_EXIT_INVALID_OPTION;
+    }
+
     if (compression_type != WTAP_UNCOMPRESSED && !wtap_dump_can_compress(file_type_subtype)) {
-            cmdarg_err("The file format can't be written to output compressed format");
-            return WS_EXIT_INVALID_OPTION;
+        cmdarg_err("The file format %s can't be written to output compressed format",
+            wtap_file_type_subtype_name(file_type_subtype));
+        return WS_EXIT_INVALID_OPTION;
     }
 
     if (strcmp(argv[ws_optind], "-") != 0) {
@@ -920,14 +943,11 @@ parse_options(int argc, char *argv[], text_import_info_t * const info, wtap_dump
     if (strcmp(argv[ws_optind+1], "-") != 0) {
         /* Write to a file.  Open the file. */
         output_filename = argv[ws_optind+1];
-        if (compression_type == WTAP_UNCOMPRESSED && g_str_has_suffix(output_filename, ".gz")) {
-            compression_type = WTAP_GZIP_COMPRESSED;
-        }
         wdh = wtap_dump_open(output_filename, file_type_subtype, compression_type, params, &err, &err_info);
     } else {
         /* Write to the standard output. */
         output_filename = "Standard output";
-        wdh = wtap_dump_open_stdout(file_type_subtype, WTAP_UNCOMPRESSED, params, &err, &err_info);
+        wdh = wtap_dump_open_stdout(file_type_subtype, compression_type, params, &err, &err_info);
     }
 
     if (!wdh) {
@@ -1073,8 +1093,7 @@ main(int argc, char *argv[])
      */
     configuration_init_error = configuration_init(argv[0], NULL);
     if (configuration_init_error != NULL) {
-        fprintf(stderr,
-                "text2pcap: Can't get pathname of directory containing the text2pcap program: %s.\n",
+        cmdarg_err("Can't get pathname of directory containing the text2pcap program: %s.",
                 configuration_init_error);
         g_free(configuration_init_error);
     }
