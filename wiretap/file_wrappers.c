@@ -95,8 +95,19 @@ wtap_name_to_compression_type(const char *name)
     return WTAP_UNKNOWN_COMPRESSION;
 }
 
+wtap_compression_type
+wtap_extension_to_compression_type(const char *ext)
+{
+    for (struct compression_type *p = compression_types;
+	    p->type != WTAP_UNKNOWN_COMPRESSION; p++) {
+		if (!g_strcmp0(ext, p->extension))
+			return p->type;
+	}
+    return WTAP_UNKNOWN_COMPRESSION;
+}
+
 bool
-wtap_can_write_extension(wtap_compression_type compression_type)
+wtap_can_write_compression_type(wtap_compression_type compression_type)
 {
     for (struct compression_type *p = compression_types; p->type != WTAP_UNKNOWN_COMPRESSION; p++) {
 		if (compression_type == p->type)

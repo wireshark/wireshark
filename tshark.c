@@ -254,7 +254,7 @@ typedef enum {
     PROCESS_FILE_ERROR,
     PROCESS_FILE_INTERRUPTED
 } process_file_status_t;
-static process_file_status_t process_cap_file(capture_file *, char *, int, bool, int, int64_t, int, wtap_compression_type, bool);
+static process_file_status_t process_cap_file(capture_file *, char *, int, bool, int, int64_t, int, wtap_compression_type);
 
 static bool process_packet_single_pass(capture_file *cf,
         epan_dissect_t *edt, int64_t offset, wtap_rec *rec, Buffer *buf,
@@ -359,7 +359,7 @@ static void
 list_output_compression_types(void) {
     GSList *output_compression_types;
 
-    fprintf(stderr, "mergecap: The available output compress type(s) for the \"--compress\" flag are:\n");
+    fprintf(stderr, "tshark: The available output compression type(s) for the \"--compress\" flag are:\n");
     output_compression_types = wtap_get_all_output_compression_type_names_list();
     for (GSList *compression_type = output_compression_types;
         compression_type != NULL;
@@ -1979,18 +1979,6 @@ main(int argc, char *argv[])
         goto clean_exit;
     }
 
-    if (compression_type != WTAP_UNCOMPRESSED && !wtap_dump_can_compress(out_file_type)) {
-        cmdarg_err("The file format can't be written to output compressed format");
-        exit_status = WS_EXIT_INVALID_OPTION;
-        goto clean_exit;
-    }
-
-    if (compression_type != WTAP_UNCOMPRESSED && is_capturing) {
-        cmdarg_err("Writing to compressed output is not supported for live format");
-        exit_status = WS_EXIT_INVALID_OPTION;
-        goto clean_exit;
-    }
-
     /* If we specified output fields, but not the output field type... */
     /* XXX: If we specfied both output fields with -e *and* protocol filters
      * with -j/-J, only the former are used. Should we warn or abort?
@@ -2077,6 +2065,42 @@ main(int argc, char *argv[])
             exit_status = WS_EXIT_INVALID_OPTION;
             goto clean_exit;
         }
+        if (compression_type == WTAP_UNCOMPRESSED) {
+            /* An explicitly specified compression type overrides filename
+             * magic. (Should we allow specifying "no" compression with, e.g.
+             * a ".gz" extension?) */
+            GSList *compression_type_extensions = wtap_get_all_compression_type_extensions_list();
+            for (GSList *extension = compression_type_extensions;
+                    extension != NULL; extension = g_slist_next(extension)) {
+
+                if (g_str_has_suffix(save_file, (const char*)extension->data)) {
+
+                    compression_type = wtap_extension_to_compression_type((const char*)extension->data);
+                    break;
+                }
+            }
+            g_slist_free(compression_type_extensions);
+        }
+    }
+
+    if (!wtap_can_write_compression_type(compression_type)) {
+        cmdarg_err("Output files can't be written as %s",
+                wtap_compression_type_description(compression_type));
+        exit_status = WS_EXIT_INVALID_OPTION;
+        goto clean_exit;
+    }
+
+    if (compression_type != WTAP_UNCOMPRESSED && !wtap_dump_can_compress(out_file_type)) {
+        cmdarg_err("The file format %s can't be written to output compressed format",
+                wtap_file_type_subtype_name(out_file_type));
+        exit_status = WS_EXIT_INVALID_OPTION;
+        goto clean_exit;
+    }
+
+    if (compression_type != WTAP_UNCOMPRESSED && is_capturing) {
+        cmdarg_err("Writing to compressed output is not supported for live captures");
+        exit_status = WS_EXIT_INVALID_OPTION;
+        goto clean_exit;
     }
 
 #ifndef HAVE_LIBPCAP
@@ -2558,13 +2582,12 @@ main(int argc, char *argv[])
                     global_capture_opts.has_autostop_packets ? global_capture_opts.autostop_packets : 0,
                     global_capture_opts.has_autostop_filesize ? global_capture_opts.autostop_filesize : 0,
                     global_capture_opts.has_autostop_written_packets ? global_capture_opts.autostop_written_packets : 0,
-                    compression_type, is_capturing);
+                    compression_type);
 #else
             max_packet_count,
                 0,
                 0,
-                WTAP_UNCOMPRESSED,
-                is_capturing);
+                WTAP_UNCOMPRESSED);
 #endif
         }
         CATCH(OutOfMemoryError) {
@@ -4014,8 +4037,7 @@ process_cap_file_single_pass(capture_file *cf, wtap_dumper *pdh,
 static process_file_status_t
 process_cap_file(capture_file *cf, char *save_file, int out_file_type,
         bool out_file_name_res, int max_packet_count, int64_t max_byte_count,
-        int max_write_packet_count, wtap_compression_type compression_type,
-        bool is_capturing)
+        int max_write_packet_count, wtap_compression_type compression_type)
 {
     process_file_status_t status = PROCESS_FILE_SUCCEEDED;
     wtap_dumper *pdh;
@@ -4050,21 +4072,9 @@ process_cap_file(capture_file *cf, char *save_file, int out_file_type,
         ws_debug("tshark: writing format type %d, to %s", out_file_type, save_file);
         if (strcmp(save_file, "-") == 0) {
             /* Write to the standard output. */
-            pdh = wtap_dump_open_stdout(out_file_type, WTAP_UNCOMPRESSED, &params,
+            pdh = wtap_dump_open_stdout(out_file_type, compression_type, &params,
                     &err, &err_info);
         } else {
-            if (compression_type == WTAP_UNCOMPRESSED && g_str_has_suffix(save_file, ".gz")) {
-                if (!wtap_dump_can_compress(out_file_type)) {
-                    cmdarg_err("The file format does not support writing to a compressed output");
-                    goto out;
-                }
-                if (is_capturing) {
-                    cmdarg_err("Writing to compressed output is not supported for live format");
-                    goto out;
-                }
-
-                compression_type = WTAP_GZIP_COMPRESSED;
-            }
             pdh = wtap_dump_open(save_file, out_file_type, compression_type, &params,
                     &err, &err_info);
         }
