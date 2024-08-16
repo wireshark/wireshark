@@ -76,7 +76,7 @@ static struct compression_type {
     { WTAP_ZSTD_COMPRESSED, "zst", "zstd compressed", "zstd", false },
 #endif /* HAVE_ZSTD */
 #ifdef USE_LZ4
-    { WTAP_LZ4_COMPRESSED, "lz4", "lz4 compressed", "lz4", false },
+    { WTAP_LZ4_COMPRESSED, "lz4", "lz4 compressed", "lz4", true },
 #endif /* USE_LZ4 */
     { WTAP_UNCOMPRESSED, NULL, NULL, "none", true },
     { WTAP_UNKNOWN_COMPRESSION, NULL, NULL, NULL, false },

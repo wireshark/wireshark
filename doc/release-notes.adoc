@@ -41,9 +41,10 @@ The following features are either new or have been significantly updated since v
 //  They previously shipped with Qt 6.2.3.
 
 * Mergecap, Editcap, TShark and Text2pcap have an `--compress` option to
-  compress output to different formats. For now, the only supported output
-  compressed format is gzip. A gzip archive is also created if the output
-  filename has the extension .gz.
+  compress output to different formats. For now, it supports the gzip
+  and LZ4 compression formats. When the option is not given, the desired
+  compression format can also be deduced from the output filename
+  extension, e.g. gzip for .gz.
 
 // === Removed Features and Support
 

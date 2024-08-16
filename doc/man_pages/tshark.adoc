@@ -55,7 +55,7 @@ from the file and displaying a summary line on the standard output for
 each packet read.  *TShark* is able to detect, read and write the same
 capture files that are supported by *Wireshark*.  The input file
 doesn't need a specific filename extension; the file format and an
-optional gzip, zstd or lz4 compression will be automatically detected.  Near the
+optional gzip, Zstandard, or LZ4 compression will be automatically detected.  Near the
 beginning of the DESCRIPTION section of xref:wireshark.html[wireshark](1) or
 https://www.wireshark.org/docs/man-pages/wireshark.html is a detailed
 description of the way *Wireshark* handles this, which is the same way
@@ -64,7 +64,8 @@ description of the way *Wireshark* handles this, which is the same way
 Compressed file support uses (and therefore requires) the zlib library.
 If the zlib library is not present when compiling *TShark*, it will be
 possible to compile it, but the resulting program will be unable to read
-compressed files.
+compressed files. Similarly, LZ4 and ZStandard also require their respective
+libraries.
 
 When displaying packets on the standard output, *TShark* writes, by
 default, a summary line containing the fields specified by the
@@ -136,10 +137,16 @@ will be displayed along with the detail lines.
 When writing packets to a file, *TShark*, by default, writes the file
 in *pcapng* format, and writes all of the packets it sees to the output
 file.  The *-F* option can be used to specify the format in which to
-write the file.  This list of available file formats is displayed by the
+write the file.  The list of available file formats is displayed by the
 *-F* option without a value.  However, for a live capture, you can only
 specify a file format supported by xref:dumpcap.html[dumpcap](1), viz.
-*pcapng* or *pcap*.
+*pcapng* or *pcap*. The *--compress* option can be used to specify
+a compression method as well; the list of supported compression methods
+for writing can be displayed by the *--compress* method without an
+argument. If the *--compress* option is not given, then the desired
+compression method, if any, is deduced from the extension of the filename
+given as argument to the *-w* option. Compression is not supported for
+live capture.
 
 When capturing packets, *TShark* writes to the standard error an
 initial line listing the interfaces from which packets are being
@@ -170,7 +177,9 @@ to dump one of several types of internal glossaries and then exit.
 Perform a two-pass analysis. This causes *TShark* to buffer output until the
 entire first pass is done, but allows it to fill in fields that require future
 knowledge, such as 'response in frame #' fields. Also permits reassembly
-frame dependencies to be calculated correctly.
+frame dependencies to be calculated correctly. This requires the ability
+to seek backwards on the input, and as such cannot be used with live captures
+or when reading from a pipe or FIFO.
 --
 
 -a|--autostop  <capture autostop condition>::
@@ -779,9 +788,13 @@ printed, just the statistics.
 +
 --
 Read packet data from __infile__, can be any supported capture file format
-(including gzipped files).  It is possible to use named pipes or stdin (-)
-here but only with certain (not compressed) capture file formats (in
-particular: those that can be read without seeking backwards).
+(including compressed files).  It is possible to use named pipes or stdin (-)
+here but only with certain capture file formats (in particular: those that
+can be read without seeking backwards.)
+
+TIP: Reading a live capture from the standard out of another process through
+a pipe can circumvent restrictions that apply to *TShark* during live capture,
+such as file formats or compression.
 --
 
 -R|--read-filter  <Read filter>::
@@ -921,8 +934,10 @@ Cause *TShark* to print a view of the packet details.
 +
 --
 Write raw packet data to __outfile__ or to the standard output if
-__outfile__ is '-'. If the outfile has the extension '.gz',
-then the output file is compressed to a gzip archive.
+__outfile__ is '-'. The *-F* and *--compress* options can be used
+to control the file format and compression method. If the latter is
+not given, then the extension may be used to deduce the desired
+compression algorithm, if supported, e.g. a gzip archive for '.gz'.
 
 NOTE: *-w* provides raw packet data, not text.  If you want text output
 you need to redirect stdout (e.g. using '>'), don't use the *-w*
@@ -2277,15 +2292,30 @@ Output JSON containing elapsed times for each pass tshark does to process a capt
 file and the sum elapsed time for all passes. The per-pass output contains the total
 elapsed time and aggregate counters for per-packet operations (dissection and filtering).
 
-include::dissection-options.adoc[tags=**;!not_tshark]
-
-include::diagnostic-options.adoc[]
-
 --compress <type>::
 +
 --
 Compress the output file using the type compression format.
+*--compress* with no argument provides a list of the compression formats supported
+for writing. The type given takes precedence over the extension of __outfile__.
+
+NOTE: This option only works with the *-r* option, i.e., when reading a
+capture file, not for live captures.
+////
+The --compress-type option is not documented anywhere; it works with live captures,
+but only a limited set of capture options (multiple file mode (-b), but not
+ringbuffer mode (no -b files), and only compressed upon file rotation.)
+It works with TShark and dumpcap, but not from the command line in Wireshark
+(though the Wireshark GUI can pass the option to dumpcap.)
+
+Should we document it? Deprecate it in favor of also using compress? Do nothing
+until it has closer feature parity to *--compress* but for captures?
+////
 --
+
+include::dissection-options.adoc[tags=**;!not_tshark]
+
+include::diagnostic-options.adoc[]
 
 == CAPTURE FILTER SYNTAX
 

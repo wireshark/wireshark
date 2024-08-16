@@ -103,9 +103,11 @@ the same way *Editcap* handles this.
 
 *Editcap* can write the file in several output formats. The *-F*
 flag can be used to specify the format in which to write the capture
-file; *editcap -F* provides a list of the available output formats. If
-the output file has the .gz extension, then the output file is compressed
-to a gzip archive.
+file; *editcap -F* provides a list of the available output formats.
+*Editcap* can also compress the output file. The *--compress* option
+can specify the compression type. If that option is not given, then the desired
+compression method, if any, is deduced from the extension of __outfile__;
+e.g., if the output filename has the .gz extension, then the gzip format is used.
 
 *Editcap* can also be used to extract embedded decryption secrets from file
 formats like *pcapng* that contain them, in lieu of writing a capture file.
@@ -532,6 +534,8 @@ command line.
 +
 --
 Compress the output file using the type compression format.
+*--compress* with no argument provides a list of the compression formats supported
+for writing. The type given takes precedence over the extension of __outfile__.
 --
 
 include::diagnostic-options.adoc[]
