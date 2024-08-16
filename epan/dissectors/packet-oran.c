@@ -315,6 +315,7 @@ static expert_field ei_oran_st4_no_cmds;
 static expert_field ei_oran_st4_zero_len_cmd;
 static expert_field ei_oran_st4_wrong_len_cmd;
 static expert_field ei_oran_st4_unknown_cmd;
+static expert_field ei_oran_mcot_out_of_range;
 
 
 /* These are the message types handled by this dissector */
@@ -932,7 +933,7 @@ static void ext11_work_out_bundles(unsigned startPrbc,
 typedef struct {
     uint32_t last_cplane_frame;
     nstime_t last_cplane_frame_ts;
-    /* TODO: add udCompHdr info for subsequence U-Plane frames? */
+    /* TODO: add udCompHdr info for subsequent U-Plane frames? */
 
     /* First U-PLane frame following 'last_cplane' frame */
     uint32_t first_uplane_frame;
@@ -1331,12 +1332,21 @@ static int dissect_ciCompParam(tvbuff_t *tvb, proto_tree *tree, packet_info *pin
             proto_item_append_text(cicompparam_ti, " (Exponent=%u)", ci_exponent);
             bit_offset += 8; /* one byte */
             break;
-
         case COMP_BLOCK_SCALE:
-        case COMP_U_LAW:
-            /* TODO: handle (separate) details) */
+            /* Separate into integer and fractional bits? */
+            proto_tree_add_item(cicompparam_tree, hf_oran_blockScaler,
+                                tvb, bit_offset*8, 1, ENC_BIG_ENDIAN);
             bit_offset += 8;
             break;
+        case COMP_U_LAW:
+            /* compBitWidth, compShift */
+            proto_tree_add_item(cicompparam_tree, hf_oran_compBitWidth,
+                                tvb, bit_offset*8, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(cicompparam_tree, hf_oran_compShift,
+                                tvb, bit_offset*8, 1, ENC_BIG_ENDIAN);
+            bit_offset += 8;
+            break;
+
         default:
             /* reserved, ? bytes of zeros.. */
             break;
@@ -1605,7 +1615,9 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                 mcot_ti = proto_tree_add_item_ret_uint(c_section_tree, hf_oran_MCOT, tvb, offset, 1, ENC_BIG_ENDIAN, &mcot);
                 if (mcot<1 || mcot>10) {
                     proto_item_append_text(mcot_ti, " (should be in range 1-10!)");
-                    /* TODO: expert info? */
+                    expert_add_info_format(pinfo, mcot_ti, &ei_oran_mcot_out_of_range,
+                                           "MCOT seen with value %u (must be 1-10)", mcot);
+
                 }
                 /* reserved (10 bits) */
                 proto_tree_add_bits_item(c_section_tree, hf_oran_reserved, tvb, (offset*8)+6, 10, ENC_BIG_ENDIAN);
@@ -2081,7 +2093,8 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                         /* Using numPortC as visible in issue 18116 */
                         proto_item_append_text(extension_ti, " (%u entries) ", numPortc);
                         for (n=0; n < numPortc; n++) {
-                            /* TODO: Single reserved bit */
+                            /* 1 reserved bit */
+                            proto_tree_add_item(extension_tree, hf_oran_reserved_1bit, tvb, offset, 1, ENC_BIG_ENDIAN);
 
                             /* port beam ID (or UEID) */
                             uint32_t id;
@@ -5044,6 +5057,7 @@ proto_register_oran(void)
         { &ei_oran_st4_zero_len_cmd, { "oran_fh_cus.st4_zero_len_cmd", PI_MALFORMED, PI_WARN, "ST4 cmd with length 0 is reserved", EXPFILL }},
         { &ei_oran_st4_wrong_len_cmd, { "oran_fh_cus.st4_wrong_len_cmd", PI_MALFORMED, PI_ERROR, "ST4 cmd with length not matching contents", EXPFILL }},
         { &ei_oran_st4_unknown_cmd, { "oran_fh_cus.st4_unknown_cmd", PI_MALFORMED, PI_ERROR, "ST4 cmd with unknown command code", EXPFILL }},
+        { &ei_oran_mcot_out_of_range, { "oran_fh_cus.mcot_out_of_range", PI_MALFORMED, PI_ERROR, "MCOT should be 1-10", EXPFILL }},
     };
 
     /* Register the protocol name and description */
