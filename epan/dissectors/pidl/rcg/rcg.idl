@@ -22,32 +22,32 @@ interface rcg {
 	typedef struct {
 		uint32 Pdu;
 		uint32 Length;
-		[size_is(Length)] uint8 *Asn1Buffer;
+		[size_is(Length)] uint8 *checksum;
 	} KERB_ASN1_DATA_CHECKSUM;
 
 	typedef struct {
 		uint32 length;
 		[size_is(length)] uint8 *value;
 	} KERB_RPC_OCTET_STRING;
-	
+
 	typedef struct {
 		int32 preauth_data_type;
 		KERB_RPC_OCTET_STRING preauth_data;
 	} KERB_RPC_PA_DATA;
-	
+
 	typedef struct {
 		uint32 reserved1;
 		uint32 reserved2;
 		KERB_RPC_OCTET_STRING reserved3;
 	} KERB_RPC_ENCRYPTION_KEY;
-	
+
 	typedef struct {
 		uint16 Length;
 		uint16 MaximumLength;
 		[size_is(MaximumLength/2), length_is(Length/2)]
 		[string,charset(UTF16)] uint16* Buffer;
 	} RPC_UNICODE_STRING;
-	
+
 	typedef struct {
 		int16 NameType;
 		uint16 NameCount;
@@ -56,7 +56,7 @@ interface rcg {
 
 
 	//[v1_enum]
-	typedef [enum16bit] enum 
+	typedef [enum16bit] enum
 	{
 		//RemoteCallMinimum = 0,
 		// start generic calls - not tied to a specific SSP
@@ -94,7 +94,7 @@ interface rcg {
 		RemoteCallKerbFinalizeKeyAgreement = 0x118,
 		//RemoteCallKerbMaximum = 0x1ff,
 		// End Kerberos remote calls
-		
+
 		// Start NTLM remote calls
 		//RemoteCallNtlmMinimum = 0x200,
 		RemoteCallNtlmNegotiateVersion = 0x200,
@@ -107,34 +107,34 @@ interface rcg {
 		//RemoteCallMaximum = 0x2ff,
 		//RemoteCallInvalid = 0xffff // This enumeration MUST fit in 16 bits
 	} RemoteGuardCallId;
-	
-	
+
+
 	typedef struct _SECPKG_SUPPLEMENTAL_CRED {
 		RPC_UNICODE_STRING PackageName;
 		uint32 CredentialSize;
 		[size_is(CredentialSize)] uint8 *Credentials;
 	} SECPKG_SUPPLEMENTAL_CRED;
-	
+
 	typedef struct {
 		uint32 CredentialCount;
 		[size_is(CredentialCount)] SECPKG_SUPPLEMENTAL_CRED Credentials[*];
 	} SECPKG_SUPPLEMENTAL_CRED_ARRAY;
 	typedef struct SECPKG_SUPPLEMENTAL_CRED_ARRAY *PSECPKG_SUPPLEMENTAL_CRED_ARRAY;
-	
-	
+
+
 	typedef struct {
 		uint32 cbData;
 		[size_is(cbData)] PBYTE pbData;
 	} KERB_RPC_CRYPTO_API_BLOB;
-	
-	
+
+
 	// Used to negotiate the protocol version that will be used.
 	// Server sends the maximum version it supports; client replies
 	// with the version that will actually be used.
 	typedef struct {
 		uint32 MaxSupportedVersion;
 	} NegotiateVersion;
-	
+
 	typedef struct {
 		int64 QuadPart;
 	} LARGE_INTEGER;
@@ -150,7 +150,7 @@ interface rcg {
 		int32 PreauthDataType;
 		KERB_RPC_OCTET_STRING PreauthData;
 	} BuildAsReqAuthenticatorResp;
-	
+
 	typedef struct {
 		KERB_ASN1_DATA* PackedTicket;
 		KERB_RPC_ENCRYPTION_KEY* ServiceKey;
@@ -161,7 +161,7 @@ interface rcg {
 		KERB_ASN1_DATA DecryptedTicket;
 		int32 KerbProtocolError;
 	} VerifyServiceTicketResp;
-	
+
 	typedef struct RPC_UNICODE_STRING *PRPC_UNICODE_STRING;
 	typedef struct {
 		KERB_RPC_ENCRYPTION_KEY* EncryptionKey;
@@ -171,7 +171,7 @@ interface rcg {
 		LARGE_INTEGER *SkewTime;
 		[ptr] KERB_RPC_ENCRYPTION_KEY* SubKey; // optional
 		[ptr] KERB_ASN1_DATA* AuthData; // optional
-		[ptr] KERB_ASN1_DATA* GssChecksum;	// optional
+		[ptr] KERB_ASN1_DATA_CHECKSUM* GssChecksum; // optional
 		uint32 KeyUsage;
 	} CreateApReqAuthenticatorReq;
 
@@ -180,12 +180,12 @@ interface rcg {
 		KERB_ASN1_DATA Authenticator;
 		int32 KerbProtocolError;
 	} CreateApReqAuthenticatorResp;
-	
+
 	typedef struct {
 		KERB_ASN1_DATA* EncryptedReply;
 		KERB_RPC_ENCRYPTION_KEY* Key;
 	} DecryptApReplyReq;
-	
+
 	typedef struct {
 		KERB_ASN1_DATA ApReply;
 	} DecryptApReplyResp;
@@ -196,12 +196,12 @@ interface rcg {
 		[ptr] KERB_RPC_ENCRYPTION_KEY* StrengthenKey; // seems optional
 		uint32 Pdu;
 		uint32 KeyUsage;
-	} UnpackKdcReplyBodyReq;	
+	} UnpackKdcReplyBodyReq;
 
 	typedef struct {
 		int32 KerbProtocolError;
 		KERB_ASN1_DATA ReplyBody;
-	} UnpackKdcReplyBodyResp;	
+	} UnpackKdcReplyBodyResp;
 
 	typedef struct {
 		KERB_ASN1_DATA* RequestBody;
@@ -210,7 +210,7 @@ interface rcg {
 	} ComputeTgsChecksumReq;
 
 	typedef struct {
-		KERB_ASN1_DATA Checksum;
+		KERB_ASN1_DATA_CHECKSUM Checksum;
 	} ComputeTgsChecksumResp;
 
 	typedef struct {
@@ -222,7 +222,7 @@ interface rcg {
 	typedef struct {
 		KERB_ASN1_DATA EncryptedAuthData;
 	} BuildEncryptedAuthDataResp;
-	
+
 	typedef struct {
 		KERB_ASN1_DATA* Reply;
 		KERB_ASN1_DATA* ReplyBody;
@@ -231,9 +231,9 @@ interface rcg {
 
 	typedef struct {
 		uint32 PackedReplySize;
-		[size_is(PackedReplySize)] uint8 *PackedReply;	
+		[size_is(PackedReplySize)] uint8 *PackedReply;
 	} PackApReplyResp;
-	
+
 	typedef struct {
 		KERB_ASN1_DATA* S4UPreauth;
 		KERB_RPC_ENCRYPTION_KEY* Key;
@@ -242,7 +242,7 @@ interface rcg {
 
 	typedef struct {
 		uint32 *ChecksumSize;
-		[size_is(, *ChecksumSize)] uint8 ** ChecksumValue;	
+		[size_is(, *ChecksumSize)] uint8 ** ChecksumValue;
 	} HashS4UPreauthResp;
 
 	typedef struct {
@@ -251,13 +251,13 @@ interface rcg {
 		KERB_ASN1_DATA* UserId;
 		PLONG ChecksumType;
 	} SignS4UPreauthDataReq;
-	
+
 	typedef struct {
 		int32 *ChecksumType;
 		uint32 *ChecksumSize;
 		[size_is(, *ChecksumSize)] uint8 ** ChecksumValue;
 	} SignS4UPreauthDataResp;
-	
+
 	typedef struct {
 		KERB_RPC_ENCRYPTION_KEY* Key;
 		uint32 ChecksumType;
@@ -270,7 +270,7 @@ interface rcg {
 	typedef struct {
 		BOOL IsValid;
 	} VerifyChecksumResp;
-	
+
 	typedef struct {
 		KERB_RPC_ENCRYPTION_KEY* Key;
 		uint32 Version;
@@ -282,7 +282,7 @@ interface rcg {
 	typedef struct {
 		PSECPKG_SUPPLEMENTAL_CRED_ARRAY Credentials;
 	} DecryptPacCredentialsResp;
-	
+
 	typedef struct {
 		uint32 KeyBitLen;
 	} CreateECDHKeyAgreementReq;
@@ -293,13 +293,13 @@ interface rcg {
 		uint32 *EncodedPubKeyLen;
 		[size_is(, *EncodedPubKeyLen)] uint8 ** EncodedPubKey;
 	} CreateECDHKeyAgreementResp;
-	
+
 	typedef struct {
 		// This [case(RemoteCallKerb)] struct has no input parameters, but for
 		// simplicity and consistency with the other parameters, let's define
 		// this as a [case(RemoteCallKerb)] struct with a single ignored value.
 		UCHAR Ignored;
-	} CreateDHKeyAgreementReq; 
+	} CreateDHKeyAgreementReq;
 
 	typedef struct {
 		KERB_RPC_CRYPTO_API_BLOB* ModulusP;
@@ -309,8 +309,8 @@ interface rcg {
 		KERBERR* KerbErr;
 		uint32 *LittleEndianPublicKeyLen;
 		[size_is(, *LittleEndianPublicKeyLen)] uint8 ** LittleEndianPublicKey;
-	} CreateDHKeyAgreementResp; 
-	
+	} CreateDHKeyAgreementResp;
+
 	typedef struct {
 		KEY_AGREEMENT_HANDLE KeyAgreementHandle;
 	} DestroyKeyAgreementReq;
@@ -319,7 +319,7 @@ interface rcg {
 		// This [case(RemoteCallKerb)] struct has no output, but for
 		// simplicity and consistency define as a
 		// [case(RemoteCallKerb)] struct with a single ignored value.
-		UCHAR Ignored;		
+		UCHAR Ignored;
 	} DestroyKeyAgreementResp;
 
 	typedef struct {
@@ -364,8 +364,8 @@ interface rcg {
 		[case(RemoteCallKerbKeyAgreementGenerateNonce)] KeyAgreementGenerateNonceReq keyAgreementGenerateNonce;
 		[case(RemoteCallKerbFinalizeKeyAgreement)] FinalizeKeyAgreementReq finalizeKeyAgreement;
 	} KerbInputUnion;
-	
-	
+
+
 	[public]
 	typedef struct {
 		// CallId determines the call being sent over the wire.
@@ -395,13 +395,13 @@ interface rcg {
 		[case(RemoteCallKerbKeyAgreementGenerateNonce)] KeyAgreementGenerateNonceResp keyAgreementGenerateNonce;
 		[case(RemoteCallKerbFinalizeKeyAgreement)] FinalizeKeyAgreementResp finalizeKeyAgreement;
 	} KerbOutputUnion;
-	
+
 	[public]
 	typedef struct {
 		// CallId determines the call being sent over the wire.
 		RemoteGuardCallId CallId;
 		NTSTATUS Status;
-		
+
 		// Input paramters are held in a union so that each call can be sent
 		// over the wire in the same type of KerbCredIsoRemoteInput structure.
 		[switch_type(RemoteGuardCallId), switch_is(CallId)] KerbOutputUnion callUnion;
@@ -412,13 +412,13 @@ interface rcg {
 	     // UCHAR Data[MSV1_0_RESPONSE_LENGTH];
 	 } NT_RESPONSE;
 
-	typedef struct _NT_CHALLENGE{ 
+	typedef struct _NT_CHALLENGE{
 		//UCHAR Data[MSV1_0_CHALLENGE_LENGTH];
 	} NT_CHALLENGE;
 	typedef struct NT_CHALLENGE *PNT_CHALLENGE;
 
 	typedef NT_CHALLENGE LM_SESSION_KEY;
-	
+
 	typedef struct {
 		//UCHAR Response[MSV1_0_NTLM3_RESPONSE_LENGTH];
 		//UCHAR ChallengeFromClient[MSV1_0_CHALLENGE_LENGTH];
@@ -455,7 +455,7 @@ interface rcg {
 		PRPC_UNICODE_STRING ServerName;
 		//UCHAR ChallengeToClient[MSV1_0_CHALLENGE_LENGTH];
 	} Lm20GetNtlm3ChallengeResponseReq;
-	
+
 	typedef struct {
 		uint16 Ntlm3ResponseLength;
 		[size_is(Ntlm3ResponseLength)] uint8 *Ntlm3Response;
@@ -479,7 +479,7 @@ interface rcg {
 		NT_RESPONSE *NtResponse;
 		PMSV1_0_REMOTE_ENCRYPTED_SECRETS Credential;
 	} CalculateUserSessionKeyNtReq;
-	
+
 	typedef struct {
 		USER_SESSION_KEY UserSessionKey;
 	} CalculateUserSessionKeyNtResp;
@@ -490,13 +490,13 @@ interface rcg {
 		PMSV1_0_REMOTE_ENCRYPTED_SECRETS LhsCredential;
 		PMSV1_0_REMOTE_ENCRYPTED_SECRETS RhsCredential;
 	} CompareCredentialsReq;
-	
+
 	typedef struct {
 		BOOL AreNtOwfsEqual;
 		BOOL AreLmOwfsEqual;
 		BOOL AreShaOwfsEqual;
 	} CompareCredentialsResp;
-	
+
 	typedef [flag(LIBNDR_FLAG_ALIGN4), switch_type(uint16)] union {
 		[case(RemoteCallNtlmNegotiateVersion)] NegotiateVersion negotiateVersion;
 		[case(RemoteCallNtlmLm20GetNtlm3ChallengeResponse)] Lm20GetNtlm3ChallengeResponseReq lm20GetNtlm3ChallengeResponse;
@@ -504,19 +504,19 @@ interface rcg {
 		[case(RemoteCallNtlmCalculateUserSessionKeyNt)] CalculateUserSessionKeyNtReq calculateUserSessionKeyNt;
 		[case(RemoteCallNtlmCompareCredentials)] CompareCredentialsReq compareCredentials;
 	} NtlmCredInput;
-	
+
 	[public]
 	typedef struct {
 		RemoteGuardCallId CallId;
 		[switch_type(RemoteGuardCallId), switch_is(CallId)] NtlmCredInput callUnion;
 	} NtlmCredIsoRemoteInput;
-	
+
 
 	typedef [flag(LIBNDR_FLAG_ALIGN4), switch_type(uint16)] union {
 		[case(RemoteCallNtlmNegotiateVersion)] NegotiateVersion negotiateVersion;
 		[case(RemoteCallNtlmLm20GetNtlm3ChallengeResponse)] Lm20GetNtlm3ChallengeResponseResp lm20GetNtlm3ChallengeResponse;
 		[case(RemoteCallNtlmCalculateNtResponse)] CalculateNtResponseResp calculateNtResponse;
-		[case(RemoteCallNtlmCalculateUserSessionKeyNt)] CalculateUserSessionKeyNtResp calculateUserSessionKeyNt;		
+		[case(RemoteCallNtlmCalculateUserSessionKeyNt)] CalculateUserSessionKeyNtResp calculateUserSessionKeyNt;
 		[case(RemoteCallNtlmCompareCredentials)] CompareCredentialsResp compareCredentials;
 	} NtlmCredOutput;
 
@@ -527,5 +527,5 @@ interface rcg {
 		[switch_type(RemoteGuardCallId), switch_is(CallId)] NtlmCredOutput callUnion;
 	} NtlmCredIsoRemoteOutput;
 
-	
+
 }

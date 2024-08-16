@@ -179,9 +179,9 @@ static int hf_rcg_HashS4UPreauthReq_S4UPreauth;
 static int hf_rcg_HashS4UPreauthResp_ChecksumSize;
 static int hf_rcg_HashS4UPreauthResp_ChecksumValue;
 static int hf_rcg_KERB_ASN1_DATA_Asn1Buffer;
-static int hf_rcg_KERB_ASN1_DATA_CHECKSUM_Asn1Buffer;
 static int hf_rcg_KERB_ASN1_DATA_CHECKSUM_Length;
 static int hf_rcg_KERB_ASN1_DATA_CHECKSUM_Pdu;
+static int hf_rcg_KERB_ASN1_DATA_CHECKSUM_checksum;
 static int hf_rcg_KERB_ASN1_DATA_Length;
 static int hf_rcg_KERB_ASN1_DATA_Pdu;
 static int hf_rcg_KERB_RPC_CRYPTO_API_BLOB_cbData;
@@ -329,8 +329,8 @@ static int rcg_dissect_element_KERB_ASN1_DATA_Asn1Buffer_(tvbuff_t *tvb _U_, int
 static int rcg_dissect_element_KERB_ASN1_DATA_Asn1Buffer__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
 static int rcg_dissect_element_KERB_ASN1_DATA_CHECKSUM_Pdu(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
 static int rcg_dissect_element_KERB_ASN1_DATA_CHECKSUM_Length(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_KERB_ASN1_DATA_CHECKSUM_Asn1Buffer(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int rcg_dissect_element_KERB_ASN1_DATA_CHECKSUM_Asn1Buffer_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static int rcg_dissect_element_KERB_ASN1_DATA_CHECKSUM_checksum(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static int rcg_dissect_element_KERB_ASN1_DATA_CHECKSUM_checksum_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
 static int rcg_dissect_element_KERB_RPC_OCTET_STRING_length(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
 static int rcg_dissect_element_KERB_RPC_OCTET_STRING_value(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
 static int rcg_dissect_element_KERB_RPC_OCTET_STRING_value_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
@@ -649,20 +649,16 @@ static int rcg_dissect_element_NtlmCredIsoRemoteOutput_Status(tvbuff_t *tvb _U_,
 static int rcg_dissect_element_NtlmCredIsoRemoteOutput_callUnion(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, uint16_t *CallId);
  #include <epan/asn1.h>
  #include "packet-kerberos.h"
- static int
-rcg_dissect_element_KERB_ASN1_DATA_CHECKSUM_Asn1Buffer_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di _U_ , guint8 *drep _U_)
+static int
+rcg_dissect_element_KERB_ASN1_DATA_CHECKSUM_checksum_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di _U_ , guint8 *drep _U_)
 {
+        if (di->conformant_run)
+            return offset;
 	asn1_ctx_t asn1_ctx;
-	if (di->conformant_run) {
-		di->conformant_eaten = 4;
-        return offset + 4;
-	}
+	ALIGN_TO_4_BYTES;
 	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
 	asn1_ctx.private_data = /*&rcg*/NULL;
 	offset = dissect_krb5_Checksum(tree, tvb, offset + 4, &asn1_ctx);
-	ALIGN_TO_4_BYTES;
-		// ugly hack
-		//offset += 4;
 	return offset;
 }
 int
@@ -846,7 +842,7 @@ rcg_dissect_struct_KERB_ASN1_DATA(tvbuff_t *tvb _U_, int offset _U_, packet_info
 /* IDL: struct { */
 /* IDL: 	uint32 Pdu; */
 /* IDL: 	uint32 Length; */
-/* IDL: 	[ref] [size_is(Length)] uint8 *Asn1Buffer; */
+/* IDL: 	[ref] [size_is(Length)] uint8 *checksum; */
 /* IDL: } */
 
 static int
@@ -866,9 +862,9 @@ rcg_dissect_element_KERB_ASN1_DATA_CHECKSUM_Length(tvbuff_t *tvb _U_, int offset
 }
 
 static int
-rcg_dissect_element_KERB_ASN1_DATA_CHECKSUM_Asn1Buffer(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+rcg_dissect_element_KERB_ASN1_DATA_CHECKSUM_checksum(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, rcg_dissect_element_KERB_ASN1_DATA_CHECKSUM_Asn1Buffer_, NDR_POINTER_REF, "Pointer to Asn1Buffer (uint8)",hf_rcg_KERB_ASN1_DATA_CHECKSUM_Asn1Buffer);
+	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, rcg_dissect_element_KERB_ASN1_DATA_CHECKSUM_checksum_, NDR_POINTER_REF, "Pointer to Checksum (uint8)",hf_rcg_KERB_ASN1_DATA_CHECKSUM_checksum);
 
 	return offset;
 }
@@ -893,7 +889,7 @@ rcg_dissect_struct_KERB_ASN1_DATA_CHECKSUM(tvbuff_t *tvb _U_, int offset _U_, pa
 
 	offset = rcg_dissect_element_KERB_ASN1_DATA_CHECKSUM_Length(tvb, offset, pinfo, tree, di, drep);
 
-	offset = rcg_dissect_element_KERB_ASN1_DATA_CHECKSUM_Asn1Buffer(tvb, offset, pinfo, tree, di, drep);
+	offset = rcg_dissect_element_KERB_ASN1_DATA_CHECKSUM_checksum(tvb, offset, pinfo, tree, di, drep);
 
 
 	proto_item_set_len(item, offset-old_offset);
@@ -1960,7 +1956,7 @@ rcg_dissect_struct_PRPC_UNICODE_STRING(tvbuff_t *tvb _U_, int offset _U_, packet
 /* IDL: 	[ref] LARGE_INTEGER *SkewTime; */
 /* IDL: 	[ptr(1)] KERB_RPC_ENCRYPTION_KEY *SubKey; */
 /* IDL: 	[ptr(1)] KERB_ASN1_DATA *AuthData; */
-/* IDL: 	[ptr(1)] KERB_ASN1_DATA *GssChecksum; */
+/* IDL: 	[ptr(1)] KERB_ASN1_DATA_CHECKSUM *GssChecksum; */
 /* IDL: 	uint32 KeyUsage; */
 /* IDL: } */
 
@@ -2071,7 +2067,7 @@ rcg_dissect_element_CreateApReqAuthenticatorReq_AuthData_(tvbuff_t *tvb _U_, int
 static int
 rcg_dissect_element_CreateApReqAuthenticatorReq_GssChecksum(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, rcg_dissect_element_CreateApReqAuthenticatorReq_GssChecksum_, NDR_POINTER_PTR, "Pointer to GssChecksum (KERB_ASN1_DATA)",hf_rcg_CreateApReqAuthenticatorReq_GssChecksum);
+	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, rcg_dissect_element_CreateApReqAuthenticatorReq_GssChecksum_, NDR_POINTER_PTR, "Pointer to GssChecksum (KERB_ASN1_DATA_CHECKSUM)",hf_rcg_CreateApReqAuthenticatorReq_GssChecksum);
 
 	return offset;
 }
@@ -2079,7 +2075,7 @@ rcg_dissect_element_CreateApReqAuthenticatorReq_GssChecksum(tvbuff_t *tvb _U_, i
 static int
 rcg_dissect_element_CreateApReqAuthenticatorReq_GssChecksum_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	offset = rcg_dissect_struct_KERB_ASN1_DATA(tvb,offset,pinfo,tree,di,drep,hf_rcg_CreateApReqAuthenticatorReq_GssChecksum,0);
+	offset = rcg_dissect_struct_KERB_ASN1_DATA_CHECKSUM(tvb,offset,pinfo,tree,di,drep,hf_rcg_CreateApReqAuthenticatorReq_GssChecksum,0);
 
 	return offset;
 }
@@ -2557,13 +2553,13 @@ rcg_dissect_struct_ComputeTgsChecksumReq(tvbuff_t *tvb _U_, int offset _U_, pack
 
 
 /* IDL: struct { */
-/* IDL: 	KERB_ASN1_DATA Checksum; */
+/* IDL: 	KERB_ASN1_DATA_CHECKSUM Checksum; */
 /* IDL: } */
 
 static int
 rcg_dissect_element_ComputeTgsChecksumResp_Checksum(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	offset = rcg_dissect_struct_KERB_ASN1_DATA(tvb,offset,pinfo,tree,di,drep,hf_rcg_ComputeTgsChecksumResp_Checksum,0);
+	offset = rcg_dissect_struct_KERB_ASN1_DATA_CHECKSUM(tvb,offset,pinfo,tree,di,drep,hf_rcg_ComputeTgsChecksumResp_Checksum,0);
 
 	return offset;
 }
@@ -6214,12 +6210,12 @@ void proto_register_dcerpc_rcg(void)
 	  { "ChecksumValue", "rcg.HashS4UPreauthResp.ChecksumValue", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_rcg_KERB_ASN1_DATA_Asn1Buffer,
 	  { "Asn1Buffer", "rcg.KERB_ASN1_DATA.Asn1Buffer", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_rcg_KERB_ASN1_DATA_CHECKSUM_Asn1Buffer,
-	  { "Asn1Buffer", "rcg.KERB_ASN1_DATA_CHECKSUM.Asn1Buffer", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_rcg_KERB_ASN1_DATA_CHECKSUM_Length,
 	  { "Length", "rcg.KERB_ASN1_DATA_CHECKSUM.Length", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_rcg_KERB_ASN1_DATA_CHECKSUM_Pdu,
 	  { "Pdu", "rcg.KERB_ASN1_DATA_CHECKSUM.Pdu", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_rcg_KERB_ASN1_DATA_CHECKSUM_checksum,
+	  { "Checksum", "rcg.KERB_ASN1_DATA_CHECKSUM.checksum", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_rcg_KERB_ASN1_DATA_Length,
 	  { "Length", "rcg.KERB_ASN1_DATA.Length", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_rcg_KERB_ASN1_DATA_Pdu,
