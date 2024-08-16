@@ -376,8 +376,32 @@ main(int argc, char *argv[])
         return 1;
     }
 
+    if (compression_type == WTAP_UNCOMPRESSED) {
+        /* An explicitly specified compression type overrides filename
+         * magic. (Should we allow specifying "no" compression with, e.g.
+         * a ".gz" extension?) */
+        GSList *compression_type_extensions = wtap_get_all_compression_type_extensions_list();
+        for (GSList *extension = compression_type_extensions;
+                extension != NULL; extension = g_slist_next(extension)) {
+
+            if (g_str_has_suffix(out_filename, (const char*)extension->data)) {
+                compression_type = wtap_extension_to_compression_type((const char*)extension->data);
+                break;
+            }
+        }
+        g_slist_free(compression_type_extensions);
+    }
+
+    if (!wtap_can_write_compression_type(compression_type)) {
+        cmdarg_err("Output files can't be written as %s",
+                wtap_compression_type_description(compression_type));
+        status = false;
+        goto clean_exit;
+    }
+
     if (compression_type != WTAP_UNCOMPRESSED && !wtap_dump_can_compress(file_type)) {
-        cmdarg_err("The file format can't be written to output compressed format");
+        cmdarg_err("The file format %s can't be written to output compressed format",
+            wtap_file_type_subtype_name(file_type));
         status = false;
         goto clean_exit;
     }
@@ -405,17 +429,8 @@ main(int argc, char *argv[])
                 (const char *const *) &argv[ws_optind],
                 in_file_count, do_append, mode, snaplen,
                 get_appname_and_version(),
-                verbose ? &cb : NULL);
+                verbose ? &cb : NULL, compression_type);
     } else {
-        if (compression_type == WTAP_UNCOMPRESSED && g_str_has_suffix(out_filename, ".gz")) {
-            if (!wtap_dump_can_compress(file_type)) {
-                cmdarg_err("The file format does not support writing to a compressed output");
-                status = false;
-                goto clean_exit;
-            }
-            compression_type = WTAP_GZIP_COMPRESSED;
-        }
-
         /* merge the files to the outfile */
         status = merge_files(out_filename, file_type,
                 (const char *const *) &argv[ws_optind], in_file_count,
