@@ -1124,6 +1124,10 @@ main(int argc, char *argv[])
      * XXX - can we do this all with one getopt_long() call, saving the
      * arguments we can't handle until after initializing libwireshark,
      * and then process them after initializing libwireshark?
+     *
+     * We set ws_opterr to 0 so that ws_getopt_long doesn't print error
+     * messages for bad long options. We'll do that once, in the final
+     * call where all the error handling happens.
      */
     ws_opterr = 0;
 
@@ -1145,9 +1149,12 @@ main(int argc, char *argv[])
         }
     }
 
+    /*
+     * Reset the options parser, set ws_optreset to 1 and set ws_optind to 1.
+     * We still don't want to print error messages, though.
+     */
     ws_optreset = 1;
     ws_optind = 1;
-    ws_opterr = 1;
 
     while ((opt = ws_getopt_long(argc, argv, optstring, long_options, NULL)) != -1) {
         switch (opt) {
