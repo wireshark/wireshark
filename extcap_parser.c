@@ -115,7 +115,7 @@ static extcap_token_sentence *extcap_tokenize_sentence(const char *s) {
     unsigned param_type = EXTCAP_PARAM_UNKNOWN;
 
     if (!g_utf8_validate(s, -1, NULL))
-        return false;
+        return NULL;
 
     extcap_token_sentence *rs = g_new0(extcap_token_sentence, 1);
 

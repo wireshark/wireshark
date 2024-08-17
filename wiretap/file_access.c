@@ -2174,7 +2174,7 @@ wtap_dump_init_dumper(int file_type_subtype, wtap_compression_type compression_t
 	if (!wtap_dump_can_open(file_type_subtype)) {
 		/* Invalid type, or type we don't know how to write. */
 		*err = WTAP_ERR_UNWRITABLE_FILE_TYPE;
-		return false;
+		return NULL;
 	}
 
 	/* OK, we know how to write that file type/subtype; can we write

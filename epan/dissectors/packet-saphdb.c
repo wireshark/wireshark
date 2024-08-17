@@ -1249,7 +1249,7 @@ get_saphdb_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data
 static int
 dissect_saphdb_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-	return dissect_saphdb_message(tvb, pinfo, tree, false);
+	return dissect_saphdb_message(tvb, pinfo, tree, NULL);
 }
 
 static int

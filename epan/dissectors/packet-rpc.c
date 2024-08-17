@@ -2075,7 +2075,7 @@ looks_like_rpc_call(tvbuff_t *tvb, int offset)
 		 * is better than nothing.
 		 */
 		if (rpc_prog_key == 0 || rpc_prog_key == 0xffffffff)
-			return false;
+			return NULL;
 		version = tvb_get_ntohl(tvb, offset+16);
 		if (version > 10)
 			return NULL;

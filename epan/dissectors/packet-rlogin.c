@@ -256,7 +256,7 @@ static void rlogin_display(rlogin_hash_entry_t *hash_info,
 
 		/* User info tree */
 		user_info_item = proto_tree_add_string_format(rlogin_tree, hf_user_info, tvb,
-		                                              offset, info_len, false,
+		                                              offset, info_len, NULL,
 		                                              "User info (%s)",
 		                                              tvb_format_text(pinfo->pool, tvb, offset, info_len));
 		user_info_tree = proto_item_add_subtree(user_info_item,
