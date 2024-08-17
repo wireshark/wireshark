@@ -371,6 +371,10 @@ fast_seek_header(FILE_T file, int64_t in_pos, int64_t out_pos,
 {
     struct fast_seek_point *item = NULL;
 
+    if (!file->fast_seek) {
+        return;
+    }
+
     if (file->fast_seek->len != 0)
         item = (struct fast_seek_point *)file->fast_seek->pdata[file->fast_seek->len - 1];
 
