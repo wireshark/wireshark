@@ -70,7 +70,23 @@ static int hf_nbd_len;
 static int hf_nbd_response_in;
 static int hf_nbd_response_to;
 static int hf_nbd_time;
+static int hf_nbd_export_name_len;
+static int hf_nbd_export_name;
+static int hf_nbd_info_num;
+static int hf_nbd_info;
+static int hf_nbd_query_num;
+static int hf_nbd_query;
+static int hf_nbd_export_description;
+static int hf_nbd_block_size_min;
+static int hf_nbd_block_size_prefer;
+static int hf_nbd_payload_size_max;
+static int hf_nbd_meta_context_id;
+static int hf_nbd_meta_context_name;
+static int hf_nbd_error_msg_len;
+static int hf_nbd_error_msg;
 static int hf_nbd_data;
+static int hf_nbd_hole_size;
+static int hf_nbd_status_flags;
 
 static int ett_nbd;
 static int ett_nbd_hnd_flags;
@@ -80,6 +96,7 @@ static int ett_nbd_reply_flags;
 static int ett_nbd_trans_flags;
 
 static expert_field ei_nbd_hnd_reply_error;
+static expert_field ei_nbd_unexpected_data;
 
 static dissector_handle_t nbd_handle;
 static dissector_handle_t tls_handle;
@@ -124,6 +141,7 @@ typedef enum _nbd_state_e {
 #define NBD_HND_INIT_MAGIC	0x4e42444d41474943 // "NBDMAGIC"
 #define NBD_HND_OPT_MAGIC	0x49484156454F5054 // "IHAVEOPT"
 #define NBD_HND_REPLY_MAGIC	0x03e889045565a9
+#define NBD_HND_OLD_MAGIC	0x00420281861253
 
 #define NBD_REQUEST_MAGIC		0x25609513
 #define NBD_RESPONSE_MAGIC		0x67446698
@@ -153,6 +171,19 @@ static const value_string nbd_opt_vals[] = {
 	{NBD_OPT_LIST_META_CONTEXT,	"List Metadata Contexts"},
 	{NBD_OPT_SET_META_CONTEXT,	"Set Metadata Contexts"},
 	{NBD_OPT_EXTENDED_HEADERS,	"Extended Headers"},
+	{0, NULL}
+};
+
+#define NBD_INFO_EXPORT	0
+#define NBD_INFO_NAME	1
+#define NBD_INFO_DESCRIPTION	2
+#define NBD_INFO_BLOCK_SIZE	3
+
+static const value_string nbd_info_vals[] = {
+	{NBD_INFO_EXPORT,	"Export"},
+	{NBD_INFO_NAME,	"Name"},
+	{NBD_INFO_DESCRIPTION,	"Description"},
+	{NBD_INFO_BLOCK_SIZE,	"Block Size"},
 	{0, NULL}
 };
 
@@ -200,15 +231,15 @@ static const value_string nbd_hnd_reply_vals[] = {
 #define NBD_CMD_RESIZE			8
 
 static const value_string nbd_type_vals[] = {
-	{NBD_CMD_READ,	"NBD_CMD_READ"},
-	{NBD_CMD_WRITE,	"NBD_CMD_WRITE"},
-	{NBD_CMD_DISC,	"NBD_CMD_DISC"},
-	{NBD_CMD_FLUSH,	"NBD_CMD_FLUSH"},
-	{NBD_CMD_TRIM,	"NBD_CMD_TRIM"},
-	{NBD_CMD_CACHE,	"NBD_CMD_CACHE"},
-	{NBD_CMD_WRITE_ZEROES,	"NBD_CMD_WRITE_ZEROES"},
-	{NBD_CMD_BLOCK_STATUS,	"NBD_CMD_BLOCK_STATUS"},
-	{NBD_CMD_RESIZE,	"NBD_CMD_RESIZE"},
+	{NBD_CMD_READ,	"Read"},
+	{NBD_CMD_WRITE,	"Write"},
+	{NBD_CMD_DISC,	"Disconnect"},
+	{NBD_CMD_FLUSH,	"Flush"},
+	{NBD_CMD_TRIM,	"Trim"},
+	{NBD_CMD_CACHE,	"Cache"},
+	{NBD_CMD_WRITE_ZEROES,	"Write Zeroes"},
+	{NBD_CMD_BLOCK_STATUS,	"Block Status"},
+	{NBD_CMD_RESIZE,	"Resize"},
 	{0, NULL}
 };
 
@@ -228,6 +259,29 @@ static const value_string nbd_reply_type_vals[] = {
 	{NBD_REPLY_BLOCK_STATUS_EXT,	"NBD_REPLY_BLOCK_STATUS_EXT"},
 	{NBD_REPLY_ERROR,		"NBD_REPLY_ERROR"},
 	{NBD_REPLY_ERROR_OFFSET,	"NBD_REPLY_ERROR_OFFSET"},
+	{0, NULL}
+};
+
+#define NBD_SUCCESS	0
+#define NBD_EPERM	1
+#define NBD_EIO		5
+#define NBD_ENOMEM	12
+#define NBD_EINVAL	22
+#define NBD_ENOSPC	28
+#define NBD_EOVERFLOW	75
+#define NBD_ENOTSUP	95
+#define NBD_ESHUTDOWN	108
+
+static const value_string nbd_error_vals[] = {
+	{NBD_SUCCESS,	"Success"},
+	{NBD_EPERM,	"Operation not pemitted"},
+	{NBD_EIO,	"Input/output error"},
+	{NBD_ENOMEM,	"Cannot allocate memory"},
+	{NBD_EINVAL,	"Invalid argument"},
+	{NBD_ENOSPC,	"No space left on device"},
+	{NBD_EOVERFLOW,	"Value too large"},
+	{NBD_ENOTSUP,	"Operation not supported"},
+	{NBD_ESHUTDOWN,	"Server is in the process of being shut down"},
 	{0, NULL}
 };
 
@@ -396,10 +450,89 @@ static int * const nbd_reply_flags[] = {
 	NULL,
 };
 
+static int * const nbd_trans_flags[] = {
+	&hf_nbd_trans_flags_has_flags,
+	&hf_nbd_trans_flags_read_only,
+	&hf_nbd_trans_flags_flush,
+	&hf_nbd_trans_flags_fua,
+	&hf_nbd_trans_flags_rotational,
+	&hf_nbd_trans_flags_trim,
+	&hf_nbd_trans_flags_write_zeroes,
+	&hf_nbd_trans_flags_df,
+	&hf_nbd_trans_flags_multi_conn,
+	&hf_nbd_trans_flags_resize,
+	&hf_nbd_trans_flags_cache,
+	&hf_nbd_trans_flags_fast_zero,
+	&hf_nbd_trans_flags_block_status_payload,
+	NULL,
+};
+
+static int
+dissect_nbd_structured_reply(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned type)
+{
+	proto_item *item;
+	int offset = 0;
+	uint32_t len;
+
+	switch (type) {
+	case NBD_REPLY_OFFSET_DATA:
+		proto_tree_add_item(tree, hf_nbd_from, tvb, offset, 8, ENC_BIG_ENDIAN);
+		offset += 8;
+
+		proto_tree_add_item(tree, hf_nbd_data, tvb, offset, -1, ENC_NA);
+		offset = tvb_reported_length(tvb);
+		break;
+
+	case NBD_REPLY_OFFSET_HOLE:
+		proto_tree_add_item(tree, hf_nbd_from, tvb, offset, 8, ENC_BIG_ENDIAN);
+		offset += 8;
+
+		proto_tree_add_item(tree, hf_nbd_hole_size, tvb, offset, 4, ENC_NA);
+		offset = tvb_reported_length(tvb);
+		break;
+
+	case NBD_REPLY_BLOCK_STATUS:
+		proto_tree_add_item(tree, hf_nbd_meta_context_id, tvb, offset, 4, ENC_BIG_ENDIAN);
+		offset += 4;
+		while (tvb_reported_length_remaining(tvb, offset)) {
+			proto_tree_add_item(tree, hf_nbd_len, tvb, offset, 4, ENC_BIG_ENDIAN);
+			offset += 4;
+			proto_tree_add_item(tree, hf_nbd_status_flags, tvb, offset, 4, ENC_BIG_ENDIAN);
+			offset += 4;
+		}
+		break;
+
+	case NBD_REPLY_ERROR:
+		proto_tree_add_item(tree, hf_nbd_error, tvb, offset, 4, ENC_BIG_ENDIAN);
+		offset += 4;
+		proto_tree_add_item_ret_uint(tree, hf_nbd_error_msg_len, tvb, offset, 2, ENC_BIG_ENDIAN, &len);
+		offset += 2;
+		proto_tree_add_item(tree, hf_nbd_error_msg, tvb, offset, len, ENC_UTF_8);
+		break;
+
+	case NBD_REPLY_ERROR_OFFSET:
+		proto_tree_add_item(tree, hf_nbd_error, tvb, offset, 4, ENC_BIG_ENDIAN);
+		offset += 4;
+		proto_tree_add_item_ret_uint(tree, hf_nbd_error_msg_len, tvb, offset, 2, ENC_BIG_ENDIAN, &len);
+		offset += 2;
+		proto_tree_add_item(tree, hf_nbd_error_msg, tvb, offset, len, ENC_UTF_8);
+		offset += len;
+		proto_tree_add_item(tree, hf_nbd_from, tvb, offset, 8, ENC_BIG_ENDIAN);
+		offset += 8;
+	}
+
+	if (tvb_reported_length_remaining(tvb, offset)) {
+		item = proto_tree_add_item(tree, hf_nbd_data, tvb, offset, -1, ENC_NA);
+		expert_add_info(pinfo, item, &ei_nbd_unexpected_data);
+	}
+
+	return tvb_reported_length(tvb);
+}
+
 static int
 dissect_nbd_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* data _U_)
 {
-	uint32_t magic, error, packet, data_len;
+	uint32_t magic, error, packet, data_len, type;
 	uint32_t handle[2];
 	uint64_t from;
 	int offset=0;
@@ -511,8 +644,13 @@ dissect_nbd_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
 		nbd_trans->req_frame=0;
 		nbd_trans->rep_frame=0;
 		nbd_trans->req_time=pinfo->abs_ts;
-		nbd_trans->type=0xffff;
-		nbd_trans->datalen=0;
+		if (magic == NBD_REQUEST_MAGIC) {
+			nbd_trans->type=tvb_get_ntohl(tvb, offset);
+			nbd_trans->datalen=tvb_get_ntohl(tvb, offset+20);
+		} else {
+			nbd_trans->type=0xffff;
+			nbd_trans->datalen=0;
+		}
 	}
 
 	/* print state tracking in the tree */
@@ -562,15 +700,15 @@ dissect_nbd_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
 		proto_tree_add_item(tree, hf_nbd_len, tvb, offset, 4, ENC_BIG_ENDIAN);
 		offset+=4;
 
+		col_add_fstr(pinfo->cinfo, COL_INFO, "%s Request", val_to_str(nbd_trans->type, nbd_type_vals, "Unknown (%d)"));
 		switch(nbd_trans->type){
 		case NBD_CMD_WRITE:
-			col_add_fstr(pinfo->cinfo, COL_INFO, "Write Request  Offset:0x%" PRIx64 " Length:%d", from, nbd_trans->datalen);
-			break;
 		case NBD_CMD_READ:
-			col_add_fstr(pinfo->cinfo, COL_INFO, "Read Request  Offset:0x%" PRIx64 " Length:%d", from, nbd_trans->datalen);
-			break;
-		case NBD_CMD_DISC:
-			col_set_str(pinfo->cinfo, COL_INFO, "Disconnect Request");
+		case NBD_CMD_TRIM:
+		case NBD_CMD_CACHE:
+		case NBD_CMD_WRITE_ZEROES:
+		case NBD_CMD_BLOCK_STATUS:
+			col_append_fstr(pinfo->cinfo, COL_INFO, "  Offset:0x%" PRIx64 " Length:%d", from, nbd_trans->datalen);
 			break;
 		}
 
@@ -589,7 +727,7 @@ dissect_nbd_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
 		proto_tree_add_item(tree, hf_nbd_handle, tvb, offset, 8, ENC_BIG_ENDIAN);
 		offset+=8;
 
-		col_add_fstr(pinfo->cinfo, COL_INFO, "%s Response  Error:%d", (nbd_trans->type==NBD_CMD_WRITE)?"Write":"Read", error);
+		col_add_fstr(pinfo->cinfo, COL_INFO, "%s Response  %s", val_to_str(nbd_trans->type, nbd_type_vals, "Unknown (%d)"), val_to_str(error, nbd_error_vals, "Unknown error (%d)"));
 
 		if(nbd_trans->type==NBD_CMD_READ){
 			proto_tree_add_item(tree, hf_nbd_data, tvb, offset, nbd_trans->datalen, ENC_NA);
@@ -600,7 +738,10 @@ dissect_nbd_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
 		proto_tree_add_bitmask(tree, tvb, offset, hf_nbd_reply_flags,
 			ett_nbd_reply_flags, nbd_reply_flags, ENC_BIG_ENDIAN);
 		offset+=2;
-		proto_tree_add_item(tree, hf_nbd_reply_type, tvb, offset, 2, ENC_BIG_ENDIAN);
+		item = proto_tree_add_item_ret_uint(tree, hf_nbd_reply_type, tvb, offset, 2, ENC_BIG_ENDIAN, &type);
+		if (type & 0x8000) {
+			expert_add_info(pinfo, item, &ei_nbd_hnd_reply_error);
+		}
 		offset+=2;
 
 		proto_tree_add_item(tree, hf_nbd_handle, tvb, offset, 8, ENC_BIG_ENDIAN);
@@ -609,16 +750,15 @@ dissect_nbd_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
 		proto_tree_add_item_ret_uint(tree, hf_nbd_len, tvb, offset, 4, ENC_BIG_ENDIAN, &data_len);
 		offset+=4;
 
-		if (data_len) {
-			proto_tree_add_item(tree, hf_nbd_data, tvb, offset, data_len, ENC_NA);
-		}
+		dissect_nbd_structured_reply(tvb_new_subset_length(tvb, offset, data_len), pinfo, tree, type);
+		offset += data_len;
 	}
 
 	return tvb_captured_length(tvb);
 }
 
 static int
-dissect_nbd_transmission(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tree, void *data _U_)
+dissect_nbd_transmission(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
 	uint32_t magic, type;
 	unsigned pdu_fixed;
@@ -667,14 +807,15 @@ get_nbd_opt_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U
 }
 
 static int
-dissect_nbd_opt_pdu(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *parent_tree, void* data _U_)
+dissect_nbd_opt_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* data _U_)
 {
 	proto_item *item;
 	proto_tree *tree;
 	int offset = 0;
-	uint32_t opt, data_len;
+	uint32_t opt, data_len, name_len, info_num;
 	nbd_conv_info_t *nbd_info;
 	nbd_option_t *nbd_opt;
+	const uint8_t *export_name;
 
 	item = proto_tree_add_item(parent_tree, proto_nbd, tvb, 0, -1, ENC_NA);
 	tree = proto_item_add_subtree(item, ett_nbd);
@@ -708,7 +849,40 @@ dissect_nbd_opt_pdu(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *parent_tr
 	offset += 4;
 
 	if (data_len) {
-		proto_tree_add_item(tree, hf_nbd_data, tvb, offset, data_len, ENC_NA);
+		switch (nbd_opt->opt) {
+		case NBD_OPT_EXPORT_NAME:
+			proto_tree_add_item_ret_string(tree, hf_nbd_export_name, tvb, offset, data_len, ENC_UTF_8, pinfo->pool, &export_name);
+			col_append_sep_str(pinfo->cinfo, COL_INFO, ":", export_name);
+			break;
+		case NBD_OPT_INFO:
+		case NBD_OPT_GO:
+			proto_tree_add_item_ret_uint(tree, hf_nbd_export_name_len, tvb, offset, 4, ENC_BIG_ENDIAN, &name_len);
+			offset += 4;
+			proto_tree_add_item(tree, hf_nbd_export_name, tvb, offset, name_len, ENC_UTF_8);
+			offset += name_len;
+			proto_tree_add_item_ret_uint(tree, hf_nbd_info_num, tvb, offset, 2, ENC_BIG_ENDIAN, &info_num);
+			offset += 2;
+			for (unsigned i = 0; i < info_num; ++i) {
+				proto_tree_add_item(tree, hf_nbd_info, tvb, offset, 2, ENC_BIG_ENDIAN);
+				offset += 2;
+			}
+			break;
+		case NBD_OPT_LIST_META_CONTEXT:
+		case NBD_OPT_SET_META_CONTEXT:
+			proto_tree_add_item_ret_uint(tree, hf_nbd_export_name_len, tvb, offset, 4, ENC_BIG_ENDIAN, &name_len);
+			offset += 4;
+			proto_tree_add_item(tree, hf_nbd_export_name, tvb, offset, name_len, ENC_UTF_8);
+			offset += name_len;
+			proto_tree_add_item_ret_uint(tree, hf_nbd_query_num, tvb, offset, 4, ENC_BIG_ENDIAN, &info_num);
+			offset += 4;
+			for (unsigned i = 0; i < info_num; ++i) {
+				proto_tree_add_item_ret_length(tree, hf_nbd_query, tvb, offset, 2, ENC_BIG_ENDIAN, &name_len);
+				offset += name_len;
+			}
+			break;
+		default:
+			proto_tree_add_item(tree, hf_nbd_data, tvb, offset, data_len, ENC_NA);
+		}
 	}
 
 	return tvb_captured_length(tvb);
@@ -723,7 +897,69 @@ get_nbd_opt_reply_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *d
 }
 
 static int
-dissect_nbd_opt_reply_pdu(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *parent_tree, void* data _U_)
+dissect_nbd_opt_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned type)
+{
+	proto_item *item;
+	int offset = 0;
+	uint32_t name_len, info_type;
+
+	switch (type) {
+	case NBD_REP_SERVER:
+		proto_tree_add_item_ret_uint(tree, hf_nbd_export_name_len, tvb, offset, 4, ENC_BIG_ENDIAN, &name_len);
+		offset += 4;
+		proto_tree_add_item(tree, hf_nbd_export_name, tvb, offset, name_len, ENC_UTF_8);
+		offset += name_len;
+		break;
+	case NBD_REP_INFO:
+		proto_tree_add_item_ret_uint(tree, hf_nbd_info, tvb, offset, 2, ENC_BIG_ENDIAN, &info_type);
+		offset += 2;
+		switch (info_type) {
+			case NBD_INFO_EXPORT:
+			proto_tree_add_item(tree, hf_nbd_export_size, tvb, offset, 8, ENC_BIG_ENDIAN);
+			offset += 8;
+
+			proto_tree_add_bitmask(tree, tvb, offset, hf_nbd_trans_flags,
+				ett_nbd_trans_flags, nbd_trans_flags, ENC_BIG_ENDIAN);
+			offset += 2;
+			break;
+			case NBD_INFO_NAME:
+			proto_tree_add_item(tree, hf_nbd_export_name, tvb, offset, tvb_reported_length_remaining(tvb, offset), ENC_UTF_8);
+			offset = tvb_reported_length(tvb);
+			break;
+			case NBD_INFO_DESCRIPTION:
+			proto_tree_add_item(tree, hf_nbd_export_description, tvb, offset, tvb_reported_length_remaining(tvb, offset), ENC_UTF_8);
+			offset = tvb_reported_length(tvb);
+			break;
+			case NBD_INFO_BLOCK_SIZE:
+			proto_tree_add_item(tree, hf_nbd_block_size_min, tvb, offset, 4, ENC_BIG_ENDIAN);
+			offset += 4;
+			proto_tree_add_item(tree, hf_nbd_block_size_prefer, tvb, offset, 4, ENC_BIG_ENDIAN);
+			offset += 4;
+			proto_tree_add_item(tree, hf_nbd_payload_size_max, tvb, offset, 4, ENC_BIG_ENDIAN);
+			offset += 4;
+		}
+		break;
+	case NBD_REP_META_CONTEXT:
+		proto_tree_add_item(tree, hf_nbd_meta_context_id, tvb, offset, 4, ENC_BIG_ENDIAN);
+		offset += 4;
+		proto_tree_add_item(tree, hf_nbd_meta_context_name, tvb, offset, tvb_reported_length_remaining(tvb, offset), ENC_UTF_8);
+		offset = tvb_reported_length(tvb);
+	}
+
+	if (tvb_reported_length_remaining(tvb, offset)) {
+		if (type & UINT32_C(1 << 31)) {
+			proto_tree_add_item(tree, hf_nbd_error_msg, tvb, offset, -1, ENC_UTF_8);
+		} else {
+			item = proto_tree_add_item(tree, hf_nbd_data, tvb, offset, -1, ENC_NA);
+			expert_add_info(pinfo, item, &ei_nbd_unexpected_data);
+		}
+	}
+
+	return tvb_reported_length(tvb);
+}
+
+static int
+dissect_nbd_opt_reply_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* data _U_)
 {
 	proto_item *item, *gen_item;
 	proto_tree *tree;
@@ -774,10 +1010,7 @@ dissect_nbd_opt_reply_pdu(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *par
 	proto_tree_add_item_ret_uint(tree, hf_nbd_len, tvb, offset, 4, ENC_BIG_ENDIAN, &data_len);
 	offset += 4;
 
-	if (data_len) {
-		proto_tree_add_item(tree, hf_nbd_data, tvb, offset, data_len, ENC_NA);
-	}
-
+	dissect_nbd_opt_reply(tvb_new_subset_length(tvb, offset, data_len), pinfo, tree, reply);
 	return tvb_captured_length(tvb);
 }
 
@@ -792,25 +1025,8 @@ get_nbd_export_len(packet_info *pinfo, tvbuff_t *tvb _U_, int offset _U_, void *
 	return 10 + (nbd_info->no_zeroes ? 0 : 124);
 }
 
-static int * const nbd_trans_flags[] = {
-	&hf_nbd_trans_flags_has_flags,
-	&hf_nbd_trans_flags_read_only,
-	&hf_nbd_trans_flags_flush,
-	&hf_nbd_trans_flags_fua,
-	&hf_nbd_trans_flags_rotational,
-	&hf_nbd_trans_flags_trim,
-	&hf_nbd_trans_flags_write_zeroes,
-	&hf_nbd_trans_flags_df,
-	&hf_nbd_trans_flags_multi_conn,
-	&hf_nbd_trans_flags_resize,
-	&hf_nbd_trans_flags_cache,
-	&hf_nbd_trans_flags_fast_zero,
-	&hf_nbd_trans_flags_block_status_payload,
-	NULL,
-};
-
 static int
-dissect_nbd_export_pdu(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *parent_tree, void* data _U_)
+dissect_nbd_export_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* data _U_)
 {
 	proto_item *item;
 	proto_tree *tree;
@@ -870,8 +1086,45 @@ static int * const nbd_cli_flags[] = {
 	NULL,
 };
 
+static unsigned
+get_nbd_old_len(packet_info *pinfo _U_, tvbuff_t *tvb _U_, int offset _U_, void *data _U_)
+{
+	return 144; // 8 + 8 + 4 + 124
+}
+
 static int
-dissect_nbd_hnd(packet_info *pinfo _U_, tvbuff_t *tvb, proto_tree *parent_tree, void *data _U_)
+dissect_nbd_old_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* data _U_)
+{
+	proto_item *item;
+	proto_tree *tree;
+	int offset = 0;
+
+	col_set_str(pinfo->cinfo, COL_INFO, "Oldstyle Handshake");
+
+	item = proto_tree_add_item(parent_tree, proto_nbd, tvb, 0, -1, ENC_NA);
+	tree = proto_item_add_subtree(item, ett_nbd);
+
+	proto_tree_add_item(tree, hf_nbd_hnd_magic, tvb, offset, 8, ENC_BIG_ENDIAN);
+	offset += 8;
+
+	proto_tree_add_item(tree, hf_nbd_export_size, tvb, offset, 8, ENC_BIG_ENDIAN);
+	offset += 8;
+
+	proto_tree_add_bitmask(tree, tvb, offset, hf_nbd_hnd_flags,
+		ett_nbd_hnd_flags, nbd_hnd_flags, ENC_BIG_ENDIAN);
+	offset += 2;
+
+	proto_tree_add_bitmask(tree, tvb, offset, hf_nbd_trans_flags,
+		ett_nbd_trans_flags, nbd_trans_flags, ENC_BIG_ENDIAN);
+	offset += 2;
+
+	proto_tree_add_item(tree, hf_nbd_reserved, tvb, offset, 124, ENC_NA);
+
+	return tvb_captured_length(tvb);
+}
+
+static int
+dissect_nbd_hnd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *data _U_)
 {
 	proto_item *item;
 	proto_tree *tree;
@@ -920,6 +1173,9 @@ dissect_nbd_hnd(packet_info *pinfo _U_, tvbuff_t *tvb, proto_tree *parent_tree, 
 		nbd_set_state(pinfo, STATE_HND_OPT);
 		tcp_dissect_pdus(tvb, pinfo, parent_tree, nbd_desegment, 20, get_nbd_opt_reply_len, dissect_nbd_opt_reply_pdu, data);
 		break;
+	case NBD_HND_OLD_MAGIC:
+		tcp_dissect_pdus(tvb, pinfo, parent_tree, nbd_desegment, 20, get_nbd_old_len, dissect_nbd_old_pdu, data);
+		break;
 	default:
 		return 0;
 	}
@@ -953,8 +1209,8 @@ dissect_nbd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* da
 	 * number is used for different messages types in the two directions.)
 	 */
 
-	if (!dissect_nbd_transmission(pinfo, tvb, parent_tree, data)) {
-		if (!dissect_nbd_hnd(pinfo, tvb, parent_tree, data)) {
+	if (!dissect_nbd_transmission(tvb, pinfo, parent_tree, data)) {
+		if (!dissect_nbd_hnd(tvb, pinfo, parent_tree, data)) {
 
 			item = proto_tree_add_item(parent_tree, proto_nbd, tvb, 0, -1, ENC_NA);
 			tree = proto_item_add_subtree(item, ett_nbd);
@@ -1038,6 +1294,7 @@ dissect_nbd_tcp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
 	case NBD_HND_INIT_MAGIC:
 	case NBD_HND_OPT_MAGIC:
 	case NBD_HND_REPLY_MAGIC:
+	case NBD_HND_OLD_MAGIC:
 		conversation_set_dissector(conversation, nbd_handle);
 		dissect_nbd(tvb, pinfo, tree, data);
 		return true;
@@ -1160,11 +1417,11 @@ void proto_register_nbd(void)
 		  { "Type", "nbd.type", FT_UINT16, BASE_DEC,
 		    VALS(nbd_type_vals), 0x0, NULL, HFILL }},
 		{ &hf_nbd_reply_type,
-		  { "Type", "nbd.reply.type", FT_UINT16, BASE_DEC,
+		  { "Reply Type", "nbd.reply.type", FT_UINT16, BASE_DEC,
 		    VALS(nbd_reply_type_vals), 0x0, NULL, HFILL }},
 		{ &hf_nbd_error,
 		  { "Error", "nbd.error", FT_UINT32, BASE_DEC,
-		    NULL, 0x0, NULL, HFILL }},
+		    VALS(nbd_error_vals), 0x0, NULL, HFILL }},
 		{ &hf_nbd_len,
 		  { "Length", "nbd.len", FT_UINT32, BASE_DEC,
 		    NULL, 0x0, NULL, HFILL }},
@@ -1184,9 +1441,57 @@ void proto_register_nbd(void)
 		  { "Time", "nbd.time", FT_RELATIVE_TIME, BASE_NONE,
 		    NULL, 0x0, "The time between the Call and the Reply", HFILL }},
 
+		{ &hf_nbd_export_name_len,
+		  { "Export Name Length", "nbd.export.name.len", FT_UINT32, BASE_DEC,
+		    NULL, 0x0, NULL, HFILL }},
+		{ &hf_nbd_export_name,
+		  { "Export Name", "nbd.export.name", FT_STRING, BASE_NONE,
+		    NULL, 0x0, NULL, HFILL }},
+		{ &hf_nbd_info_num,
+		  { "Number of Information Requests", "nbd.info.num", FT_UINT16, BASE_DEC,
+		    NULL, 0x0, NULL, HFILL }},
+		{ &hf_nbd_info,
+		  { "Information Type", "nbd.info", FT_UINT16, BASE_DEC,
+		    VALS(nbd_info_vals), 0x0, NULL, HFILL }},
+		{ &hf_nbd_query_num,
+		  { "Number of Queries", "nbd.query.num", FT_UINT32, BASE_DEC,
+		    NULL, 0x0, NULL, HFILL }},
+		{ &hf_nbd_query,
+		  { "Query", "nbd.info.num", FT_UINT_STRING, BASE_NONE,
+		    NULL, 0x0, NULL, HFILL }},
+		{ &hf_nbd_export_description,
+		  { "Export Description", "nbd.export.description", FT_STRING, BASE_NONE,
+		    NULL, 0x0, NULL, HFILL }},
+		{ &hf_nbd_block_size_min,
+		  { "Minimum Block Size", "nbd.block_size.min", FT_UINT32, BASE_DEC,
+		    NULL, 0x0, NULL, HFILL }},
+		{ &hf_nbd_block_size_prefer,
+		  { "Preferred Block Size", "nbd.block_size.prefer", FT_UINT32, BASE_DEC,
+		    NULL, 0x0, NULL, HFILL }},
+		{ &hf_nbd_payload_size_max,
+		  { "Maximum Payload Size", "nbd.payload_size.max", FT_UINT32, BASE_DEC,
+		    NULL, 0x0, NULL, HFILL }},
+		{ &hf_nbd_meta_context_id,
+		  { "Metadat Context ID", "nbd.meta_context.id", FT_UINT32, BASE_DEC,
+		    NULL, 0x0, NULL, HFILL }},
+		{ &hf_nbd_meta_context_name,
+		  { "Metadata Context Name", "nbd.meta_context.name", FT_STRING, BASE_NONE,
+		    NULL, 0x0, NULL, HFILL }},
+		{ &hf_nbd_error_msg_len,
+		  { "Message Length", "nbd.error_msg.len", FT_UINT16, BASE_DEC,
+		    NULL, 0x0, NULL, HFILL }},
+		{ &hf_nbd_error_msg,
+		  { "Error Message", "nbd.error_msg", FT_STRING, BASE_NONE,
+		    NULL, 0x0, NULL, HFILL }},
 		{ &hf_nbd_data,
 		  { "Data", "nbd.data", FT_BYTES, BASE_NONE,
 		    NULL, 0x0, NULL, HFILL }},
+		{ &hf_nbd_hole_size,
+		  { "Hole Size", "nbd.hole_size", FT_UINT32, BASE_DEC|BASE_UNIT_STRING,
+		    UNS(&units_byte_bytes), 0x0, NULL, HFILL }},
+		{ &hf_nbd_status_flags,
+		  { "Block Status Flags", "nbd.status_flags", FT_UINT32, BASE_DEC,
+		    NULL, 0x0, "Status flags as defined by metadata context", HFILL }},
 
 	};
 
@@ -1202,6 +1507,7 @@ void proto_register_nbd(void)
 
 	static ei_register_info ei[] = {
 		{ &ei_nbd_hnd_reply_error, {"nbd.hnd.reply.error", PI_RESPONSE_CODE, PI_NOTE, "Reply Error", EXPFILL }},
+		{ &ei_nbd_unexpected_data, {"nbd.data.unexpected", PI_UNDECODED, PI_WARN, "Unexpected data", EXPFILL }},
 	};
 
 	module_t *nbd_module;
