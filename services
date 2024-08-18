@@ -5088,6 +5088,7 @@ dell-eql-asm	7569/tcp	# Dell EqualLogic Host Group Management
 aries-kfinder	7570/tcp/udp	# Aries Kfinder
 coherence	7574/tcp	# Oracle Coherence Cluster Service
 coherence-disc	7574/udp	# Oracle Coherence Cluster discovery service
+wtmi-panel	7575/tcp	# Main access port for WTMI Panel
 sun-lm		7588/tcp/udp	# Sun License Manager
 mipi-debug	7606/tcp/udp	# MIPI Alliance Debug
 indi		7624/tcp/udp	# Instrument Neutral Distributed Interface
