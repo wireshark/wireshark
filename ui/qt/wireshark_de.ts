@@ -1105,7 +1105,7 @@
     </message>
     <message>
         <source>Average packet size, B</source>
-        <translation>Durschnittliche Paketgröße, B</translation>
+        <translation>Durchschnittliche Paketgröße, B</translation>
     </message>
     <message>
         <source>Bytes</source>
@@ -1113,11 +1113,11 @@
     </message>
     <message>
         <source>Average bytes/s</source>
-        <translation>Durschnittliche Byte/s</translation>
+        <translation>Durchschnittliche Byte/s</translation>
     </message>
     <message>
         <source>Average bits/s</source>
-        <translation>Durschnittliche Bit/s</translation>
+        <translation>Durchschnittliche Bit/s</translation>
     </message>
     <message>
         <source>Section Comment</source>
@@ -1467,7 +1467,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>Stop capturing after the specified number of files have been created.</source>
-        <translation type="unfinished"></translation>
+        <translation>Mitschneiden beenden, nachdem die angegebene Anzahl an Dateien erstellt wurde.</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Stop capturing after the specified amount of data has been captured.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -3303,7 +3303,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>Location</source>
-        <translation>Lokation</translation>
+        <translation>Pfad</translation>
     </message>
     <message>
         <source>Typical Files</source>
@@ -8091,7 +8091,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>Unacked (Outstanding) Bytes (B)</source>
-        <translation type="unfinished"></translation>
+        <translation>Nicht-ACK-bestätigte (ausstehende) Bytes (B)</translation>
     </message>
     <message>
         <source>[no capture file]</source>
@@ -13670,19 +13670,19 @@ a:hover {
     </message>
     <message>
         <source>Tenths of a millisecond</source>
-        <translation>Zehntelmillisekunde</translation>
+        <translation>Zehntelmillisekunden</translation>
     </message>
     <message>
         <source>Hundredths of a millisecond</source>
-        <translation>Hundertstelmillisekunde</translation>
+        <translation>Hundertstelmillisekunden</translation>
     </message>
     <message>
         <source>Tenths of a microsecond</source>
-        <translation>Zehntelmikrosekunde</translation>
+        <translation>Zehntelmikrosekunden</translation>
     </message>
     <message>
         <source>Hundredths of a microsecond</source>
-        <translation>Hundertstelmikrosekunde</translation>
+        <translation>Hundertstelmikrosekunden</translation>
     </message>
     <message>
         <source>Packet &amp;Diagram</source>
@@ -14082,11 +14082,11 @@ a:hover {
     </message>
     <message>
         <source>Tenths of a second</source>
-        <translation>Zehntelsekunde</translation>
+        <translation>Zehntelsekunden</translation>
     </message>
     <message>
         <source>Hundredths of a second</source>
-        <translation>Hundertstel</translation>
+        <translation>Hundertstelsekunden</translation>
     </message>
     <message>
         <source>Milliseconds</source>

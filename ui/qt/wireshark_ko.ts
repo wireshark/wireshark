@@ -1460,7 +1460,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Stop capturing after the specified number of files have been created.</source>
-        <translation type="unfinished"></translation>
+        <translation>지정한 개수의 파일을 생성한 후 캡처를 정지합니다.</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Stop capturing after the specified amount of data has been captured.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -1472,7 +1472,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Stop capturing after the specified amount of time has passed.</source>
-        <translation>지정한 시간이 지난 뒤 캡처를 정지합니다.</translation>
+        <translation>지정한 시간이 지난 후 캡처를 정지합니다.</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Optionally specify a temporary directory for unnamed capture files.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -8064,7 +8064,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Unacked (Outstanding) Bytes (B)</source>
-        <translation type="unfinished"></translation>
+        <translation>ACK되지 않은(나가는) 바이트(바이트)</translation>
     </message>
     <message>
         <source>[no capture file]</source>
