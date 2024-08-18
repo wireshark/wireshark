@@ -870,10 +870,6 @@
         <translation>Filtro de lectura:</translation>
     </message>
     <message>
-        <source>Compress with g&amp;zip</source>
-        <translation type="vanished">Comprimir con g&amp;zip</translation>
-    </message>
-    <message>
         <source>Open Capture File</source>
         <oldsource>Wireshark: Open Capture File</oldsource>
         <translation>Abrir archivo de captura</translation>
@@ -1945,7 +1941,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>Compress with g&amp;zip</source>
-        <translation type="unfinished">Comprimir con g&amp;zip</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Compress with &amp;LZ4</source>
@@ -4389,11 +4385,11 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>2 min</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">10 min {2 ?}</translation>
     </message>
     <message>
         <source>5 min</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">10 min {5 ?}</translation>
     </message>
     <message>
         <source>Wireshark I/O Graphs: %1</source>
@@ -6448,7 +6444,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>Move Up 100 Pixels</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Mover arriba 10 píxeles {100 ?}</translation>
     </message>
     <message>
         <source>PgUp</source>
@@ -9903,11 +9899,11 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>Move Left 1 Pixels</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Mover a la izquierda 10 píxeles {1 ?}</translation>
     </message>
     <message>
         <source>Move Right 1 Pixels</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Mover a la derecha 10 píxeles {1 ?}</translation>
     </message>
     <message>
         <source>Go To Packet Under Cursor</source>

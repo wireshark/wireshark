@@ -869,10 +869,6 @@
         <translation>读取过滤器:</translation>
     </message>
     <message>
-        <source>Compress with g&amp;zip</source>
-        <translation type="vanished">用 gzip 压缩(&amp;Z)</translation>
-    </message>
-    <message>
         <source>Open Capture File</source>
         <oldsource>Wireshark: Open Capture File</oldsource>
         <translation>打开捕获文件</translation>
@@ -1915,13 +1911,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
 </context>
 <context>
-    <name>ColumnTypeDelegate</name>
-    <message>
-        <source>Default</source>
-        <translation type="vanished">默认</translation>
-    </message>
-</context>
-<context>
     <name>CompiledFilterOutput</name>
     <message>
         <source>Compiled Filter Output</source>
@@ -1948,7 +1937,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Compress with g&amp;zip</source>
-        <translation type="unfinished">用 gzip 压缩(&amp;Z)</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Compress with &amp;LZ4</source>
@@ -4342,11 +4331,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>2 ms</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">100毫秒 {2 ?}</translation>
     </message>
     <message>
         <source>5 ms</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">100毫秒 {5 ?}</translation>
     </message>
     <message>
         <source>10 ms</source>
@@ -4354,11 +4343,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>20 ms</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">100毫秒 {20 ?}</translation>
     </message>
     <message>
         <source>50 ms</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">100毫秒 {50 ?}</translation>
     </message>
     <message>
         <source>100 ms</source>
@@ -4366,27 +4355,27 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>200 ms</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">100毫秒 {200 ?}</translation>
     </message>
     <message>
         <source>500 ms</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">100毫秒 {500 ?}</translation>
     </message>
     <message>
         <source>2 sec</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">10秒 {2 ?}</translation>
     </message>
     <message>
         <source>5 sec</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">10秒 {5 ?}</translation>
     </message>
     <message>
         <source>2 min</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">10分钟 {2 ?}</translation>
     </message>
     <message>
         <source>5 min</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">10分钟 {5 ?}</translation>
     </message>
     <message>
         <source>Wireshark I/O Graphs: %1</source>
@@ -8671,31 +8660,31 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>LCID 32</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">LCID 32</translation>
     </message>
     <message>
         <source>LCID 33</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">LCID 33</translation>
     </message>
     <message>
         <source>LCID 34</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">LCID 34</translation>
     </message>
     <message>
         <source>LCID 35</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">LCID 35</translation>
     </message>
     <message>
         <source>LCID 36</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">LCID 36</translation>
     </message>
     <message>
         <source>LCID 37</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">LCID 37</translation>
     </message>
     <message>
         <source>LCID 38</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">LCID 38</translation>
     </message>
     <message>
         <source>TM</source>

@@ -871,10 +871,6 @@
         <translation>Фильтр чтения:</translation>
     </message>
     <message>
-        <source>Compress with g&amp;zip</source>
-        <translation type="vanished">Сжать с помощью g&amp;zip</translation>
-    </message>
-    <message>
         <source>Open Capture File</source>
         <oldsource>Wireshark: Open Capture File</oldsource>
         <translation>Открытие файла захвата</translation>
@@ -1951,7 +1947,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Compress with g&amp;zip</source>
-        <translation type="unfinished">Сжать с помощью g&amp;zip</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Compress with &amp;LZ4</source>
@@ -4403,11 +4399,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>2 min</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">10 мин {2 ?}</translation>
     </message>
     <message>
         <source>5 min</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">10 мин {5 ?}</translation>
     </message>
     <message>
         <source>Wireshark I/O Graphs: %1</source>

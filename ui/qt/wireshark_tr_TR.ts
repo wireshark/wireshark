@@ -869,10 +869,6 @@
         <translation>Filtreyi oku:</translation>
     </message>
     <message>
-        <source>Compress with g&amp;zip</source>
-        <translation type="vanished">G&amp;zip ile sıkıştır</translation>
-    </message>
-    <message>
         <source>Open Capture File</source>
         <oldsource>Wireshark: Open Capture File</oldsource>
         <translation>Yakalama Dosyasını Aç</translation>
@@ -1919,29 +1915,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
 </context>
 <context>
-    <name>ColumnTypeDelegate</name>
-    <message>
-        <source>Default</source>
-        <translation type="vanished">Öntanımlı</translation>
-    </message>
-    <message>
-        <source>Left</source>
-        <translation type="vanished">Sol</translation>
-    </message>
-    <message>
-        <source>Center</source>
-        <translation type="vanished">Merkez</translation>
-    </message>
-    <message>
-        <source>Right</source>
-        <translation type="vanished">Sağ</translation>
-    </message>
-    <message>
-        <source>Unknown</source>
-        <translation type="vanished">Bilinmiyor</translation>
-    </message>
-</context>
-<context>
     <name>CompiledFilterOutput</name>
     <message>
         <source>Compiled Filter Output</source>
@@ -1968,7 +1941,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Compress with g&amp;zip</source>
-        <translation type="unfinished">G&amp;zip ile sıkıştır</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Compress with &amp;LZ4</source>
@@ -4404,11 +4377,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>2 min</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">10 dakika {2 ?}</translation>
     </message>
     <message>
         <source>5 min</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">10 dakika {5 ?}</translation>
     </message>
     <message>
         <source>Wireshark I/O Graphs: %1</source>
@@ -8886,11 +8859,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Center</source>
-        <translation type="unfinished">Merkez</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Right</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Sağa</translation>
     </message>
 </context>
 <context>

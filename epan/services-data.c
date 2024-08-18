@@ -5664,6 +5664,7 @@ static const ws_services_entry_t global_tcp_services_table[] = {
     { 7563, "cfw",              "Control Framework" },
     { 7569, "dell-eql-asm",     "Dell EqualLogic Host Group Management" },
     { 7574, "coherence",        "Oracle Coherence Cluster Service" },
+    { 7575, "wtmi-panel",       "Main access port for WTMI Panel" },
     { 7626, "simco",            "SImple Middlebox COnfiguration (SIMCO) Server" },
     { 7630, "hawk",             "HA Web Konsole" },
     { 7631, "tesla-sys-msg",    "TESLA System Messaging" },

@@ -871,10 +871,6 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Compress with g&amp;zip</source>
-        <translation type="vanished">&amp;Стиснути gzip&apos;ом</translation>
-    </message>
-    <message>
         <source>Open Capture File</source>
         <oldsource>Wireshark: Open Capture File</oldsource>
         <translation>Відкрити Файл Захоплення</translation>
@@ -1950,7 +1946,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Compress with g&amp;zip</source>
-        <translation type="unfinished">&amp;Стиснути gzip&apos;ом</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Compress with &amp;LZ4</source>
@@ -4363,19 +4359,19 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>2 sec</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">10 сек {2 ?}</translation>
     </message>
     <message>
         <source>5 sec</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">10 сек {5 ?}</translation>
     </message>
     <message>
         <source>2 min</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">10 хв {2 ?}</translation>
     </message>
     <message>
         <source>5 min</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">10 хв {5 ?}</translation>
     </message>
     <message>
         <source>Wireshark I/O Graphs: %1</source>
@@ -6432,7 +6428,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Move Up 100 Pixels</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Переміститися Вгору На 10 Пікселів {100 ?}</translation>
     </message>
     <message>
         <source>PgUp</source>
@@ -9895,11 +9891,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Move Left 1 Pixels</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Переміститися Вліво На 10 Пікселів {1 ?}</translation>
     </message>
     <message>
         <source>Move Right 1 Pixels</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Переміститися Вправо На 10 Пікселів {1 ?}</translation>
     </message>
     <message>
         <source>Go To Packet Under Cursor</source>
