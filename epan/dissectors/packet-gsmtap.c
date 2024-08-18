@@ -129,6 +129,13 @@ enum {
 };
 
 enum {
+	GSMTAP_SIM_SUB_APDU = 0,
+	GSMTAP_SIM_SUB_ATR,
+
+	GSMTAP_SIM_SUB_MAX
+};
+
+enum {
 	GSMTAP_RRC_SUB_DL_DCCH_Message = 0,
 	GSMTAP_RRC_SUB_UL_DCCH_Message,
 	GSMTAP_RRC_SUB_DL_CCCH_Message,
@@ -322,6 +329,7 @@ enum gsmtap_um_voice_type {
 };
 
 static dissector_handle_t sub_handles[GSMTAP_SUB_MAX];
+static dissector_handle_t sim_sub_handles[GSMTAP_SIM_SUB_MAX];
 static dissector_handle_t rrc_sub_handles[GSMTAP_RRC_SUB_MAX];
 static dissector_handle_t lte_rrc_sub_handles[GSMTAP_LTE_RRC_SUB_MAX];
 static dissector_handle_t lte_nas_sub_handles[GSMTAP_LTE_NAS_SUB_MAX];
@@ -947,6 +955,17 @@ dissect_gsmtap_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 	}
 
 	switch (type) {
+	case GSMTAP_TYPE_SIM:
+		sub_handle = GSMTAP_SUB_SIM;
+		switch (sub_type) {
+		case GSMTAP_SIM_ATR:
+			sub_handle_idx = GSMTAP_SIM_SUB_ATR;
+			break;
+		default:
+			sub_handle_idx = GSMTAP_SIM_SUB_APDU;
+			break;
+		}
+		break;
 	case GSMTAP_TYPE_UMTS_RRC:
 		sub_handle = GSMTAP_SUB_UMTS_RRC;
 		sub_handle_idx = sub_type;
@@ -1161,6 +1180,10 @@ dissect_gsmtap_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 		break;
 	}
 	switch (sub_handle){
+	case GSMTAP_SUB_SIM:
+		call_dissector(sim_sub_handles[sub_handle_idx], payload_tvb,
+			       pinfo, tree);
+		break;
 	case GSMTAP_SUB_UMTS_RRC:
 		call_dissector(rrc_sub_handles[sub_handle_idx], payload_tvb,
 			       pinfo, tree);
@@ -1320,6 +1343,9 @@ proto_reg_handoff_gsmtap(void)
 	sub_handles[GSMTAP_SUB_PPP] = find_dissector_add_dependency("ppp", proto_gsmtap);
 	sub_handles[GSMTAP_SUB_V120] = find_dissector_add_dependency("v120", proto_gsmtap);
 	sub_handles[GSMTAP_SUB_X75] = find_dissector_add_dependency("x75", proto_gsmtap);
+
+	sim_sub_handles[GSMTAP_SIM_SUB_APDU] = find_dissector_add_dependency("gsm_sim", proto_gsmtap);
+	sim_sub_handles[GSMTAP_SIM_SUB_ATR] = find_dissector_add_dependency("iso7816.atr", proto_gsmtap);
 
 	rrc_sub_handles[GSMTAP_RRC_SUB_DL_DCCH_Message] = find_dissector_add_dependency("rrc.dl.dcch", proto_gsmtap);
 	rrc_sub_handles[GSMTAP_RRC_SUB_UL_DCCH_Message] = find_dissector_add_dependency("rrc.ul.dcch", proto_gsmtap);

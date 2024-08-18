@@ -3060,8 +3060,6 @@ proto_register_gsm_sim(void)
 void
 proto_reg_handoff_gsm_sim(void)
 {
-	dissector_add_uint("gsmtap.type", GSMTAP_TYPE_SIM, sim_handle);
-
 	dissector_add_for_decode_as("usbccid.subdissector", sim_part_handle);
 
 	sub_handle_cap = find_dissector_add_dependency("etsi_cat", proto_gsm_sim);
