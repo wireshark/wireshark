@@ -1,4 +1,4 @@
-Text2pcap (Wireshark) 4.3.2 (v4.3.2rc0-41-gbaf0bfc263ea)
+Text2pcap (Wireshark) 4.5.0 (v4.5.0rc0-48-g7b7ca8210417)
 Generate a capture file from an ASCII hexdump of packets.
 See https://www.wireshark.org for more information.
 
@@ -41,6 +41,8 @@ Input:
                          (def: 16: hexadecimal) No effect in hexdump mode.
 
 Output:
+                         if the output file(s) have the .gz extension, then
+                         gzip compression will be used.
   -F <capture type>      set the output file type; default is pcapng.
                          an empty "-F" option will list the file types.
   -E <encap type>        set the output file encapsulation type; default is
@@ -53,7 +55,8 @@ Output:
                          Example: -l 7 for ARCNet packets.
   -m <max-packet>        max packet length in output; default is 262144
   -N <intf-name>         assign name to the interface in the pcapng file.
-
+  --compress <type>      Compress the output file using the type compression format.
+                         
 Prepend dummy header:
   -e <ethertype>         prepend dummy Ethernet II header with specified EtherType
                          (in HEX).

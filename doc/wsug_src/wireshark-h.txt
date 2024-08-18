@@ -1,4 +1,4 @@
-Wireshark 4.3.2 (v4.3.2rc0-41-gbaf0bfc263ea)
+Wireshark 4.5.0 (v4.5.0rc0-48-g7b7ca8210417)
 Interactively dump and analyze network traffic.
 See https://www.wireshark.org for more information.
 

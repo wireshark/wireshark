@@ -1,4 +1,4 @@
-Mergecap (Wireshark) 4.3.2 (v4.3.2rc0-41-gbaf0bfc263ea)
+Mergecap (Wireshark) 4.5.0 (v4.5.0rc0-48-g7b7ca8210417)
 Merge two or more capture files into one.
 See https://www.wireshark.org for more information.
 
@@ -9,10 +9,12 @@ Output:
                     default is to merge based on frame timestamps.
   -s <snaplen>      truncate packets to <snaplen> bytes of data.
   -w <outfile>|-    set the output filename to <outfile> or '-' for stdout.
+                    if the output filename has the .gz extension, it will be compressed to a gzip archive
   -F <capture type> set the output file type; default is pcapng.
                     an empty "-F" option will list the file types.
   -I <IDB merge mode> set the merge mode for Interface Description Blocks; default is 'all'.
                     an empty "-I" option will list the merge modes.
+  --compress <type> compress the output file using the type compression format.
 
 Miscellaneous:
   -h, --help        display this help and exit.

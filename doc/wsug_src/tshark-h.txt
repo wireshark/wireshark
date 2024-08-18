@@ -1,4 +1,4 @@
-TShark (Wireshark) 4.3.2 (v4.3.2rc0-41-gbaf0bfc263ea)
+TShark (Wireshark) 4.5.0 (v4.5.0rc0-48-g7b7ca8210417)
 Dump and analyze network traffic.
 See https://www.wireshark.org for more information.
 
@@ -77,7 +77,8 @@ Processing:
                            disable dissection of heuristic protocol
 Output:
   -w <outfile|->           write packets to a pcapng-format file named "outfile"
-                           (or '-' for stdout)
+                           (or '-' for stdout). If the output filename has the
+                           .gz extension, it will be compressed to a gzip archive
   --capture-comment <comment>
                            add a capture file comment, if supported
   -C <config profile>      start with specified configuration profile
@@ -144,6 +145,7 @@ Output:
                            specified protocols within the mapping file
   --temp-dir <directory>   write temporary files to this directory
                            (default: /tmp)
+  --compress <type>        compress the output file using the type compression format
 
 Diagnostic output:
   --log-level <level>      sets the active log level ("critical", "warning", etc.)
