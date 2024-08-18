@@ -1151,7 +1151,7 @@ static int dissect_bfwCompParam(tvbuff_t *tvb, proto_tree *tree, packet_info *pi
     }
 
     /* Can't go on if compression scheme not supported */
-    if (!*supported) {
+    if (!(*supported)) {
         expert_add_info_format(pinfo, ti, &ei_oran_unsupported_bfw_compression_method,
                                "BFW Compression method %u (%s) not supported by dissector",
                                bfw_comp_method,
@@ -1247,7 +1247,7 @@ static uint32_t dissect_bfw_bundle(tvbuff_t *tvb, proto_tree *tree, packet_info 
 
     /* bfwCompParam */
     bool compression_method_supported = false;
-    unsigned exponent;
+    unsigned exponent = 0;
     offset = dissect_bfwCompParam(tvb, bundle_tree, pinfo, offset, comp_meth_ti,
                                   bfwcomphdr_comp_meth, &exponent, &compression_method_supported);
 
