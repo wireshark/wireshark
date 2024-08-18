@@ -370,7 +370,7 @@ dissect_fr_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   proto_tree *fr_tree     = NULL;
   proto_tree *octet_tree  = NULL;
   uint8_t     fr_octet;
-  int         is_response = false;
+  bool        is_response = false;
   uint32_t    addr        = 0;
   bool        encap_is_frf_3_2;
   uint8_t     fr_ctrl;

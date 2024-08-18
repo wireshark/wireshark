@@ -1608,7 +1608,7 @@ defragment_by_sequence(packet_info *pinfo, tvbuff_t *tvb, int offset, int mpf,
 {
 	fragment_head *fd_head;
 	int frag_number = -1;
-	int more_frags = true;
+	bool more_frags = true;
 	tvbuff_t *rh_tvb = NULL;
 	int frag_len;
 

@@ -157,7 +157,7 @@ typedef struct {
 /* Global instance of the snort session */
 static snort_session_t current_session;
 
-static int snort_config_ok = true;   /* N.B. Not running test at the moment... */
+static bool snort_config_ok = true;   /* N.B. Not running test at the moment... */
 
 
 

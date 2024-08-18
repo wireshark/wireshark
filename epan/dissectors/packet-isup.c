@@ -9736,7 +9736,7 @@ dissect_ansi_isup_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree 
   proto_item *type_item;
   int         offset, bufferlength;
   uint8_t     message_type, opt_parameter_pointer;
-  int         opt_part_possible = false; /* default setting - for message types allowing optional
+  bool        opt_part_possible = false; /* default setting - for message types allowing optional
                                             params explicitly set to true in case statement */
   tap_calling_number            = NULL;
   offset                        = 0;
@@ -10013,7 +10013,7 @@ dissect_isup_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *isup
   proto_item *type_item = NULL;
   int         offset, bufferlength;
   uint8_t     message_type, opt_parameter_pointer;
-  int         opt_part_possible = false; /* default setting - for message types allowing optional
+  bool        opt_part_possible = false; /* default setting - for message types allowing optional
                                              params explicitly set to true in case statement */
   tap_calling_number            = NULL;
   offset                        = 0;

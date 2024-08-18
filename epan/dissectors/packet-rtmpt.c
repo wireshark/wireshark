@@ -807,7 +807,7 @@ rtmpt_get_amf_txid(tvbuff_t *tvb, int offset, proto_item* pi)
 
 static char *
 rtmpt_get_packet_desc(tvbuff_t *tvb, uint32_t offset, proto_item* pi, uint32_t remain, rtmpt_conv_t *rconv, int cdir,
-        rtmpt_packet_t *tp, int *deschasopcode)
+        rtmpt_packet_t *tp, bool *deschasopcode)
 {
         if (tp->cmd == RTMPT_TYPE_CHUNK_SIZE || tp->cmd == RTMPT_TYPE_ABORT_MESSAGE ||
             tp->cmd == RTMPT_TYPE_ACKNOWLEDGEMENT || tp->cmd == RTMPT_TYPE_WINDOW) {
@@ -1924,7 +1924,7 @@ dissect_rtmpt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, rtmpt_conv_t 
         int         offset         = 0;
 
         char       *sDesc          = NULL;
-        int         deschasopcode  = false;
+        bool        deschasopcode  = false;
         bool        haveETS        = false;
         uint32_t    iBodyOffset    = 0;
         uint32_t    iBodyRemain    = 0;

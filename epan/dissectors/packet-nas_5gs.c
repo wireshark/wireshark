@@ -15328,7 +15328,7 @@ proto_register_nas_5gs(void)
 void
 proto_reg_handoff_nas_5gs(void)
 {
-    static int initialized = false;
+    static bool initialized = false;
 
     if (!initialized) {
         heur_dissector_add("udp", dissect_nas_5gs_heur, "NAS-5GS over UDP", "nas_5gs_udp", proto_nas_5gs, HEURISTIC_DISABLE);

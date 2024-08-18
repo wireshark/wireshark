@@ -1098,7 +1098,7 @@ dissect_eigrp_ipv4_addrs (proto_item *ti, proto_tree *tree, tvbuff_t *tvb,
     ws_in4_addr ip_addr;
     int         addr_len;
     proto_item *ti_prefixlen, *ti_dst;
-    int         first = true;
+    bool        first = true;
 
     for (; tvb_reported_length_remaining(tvb, offset) > 0; offset += (1 + addr_len)) {
         length = tvb_get_uint8(tvb, offset);
@@ -1152,7 +1152,7 @@ dissect_eigrp_ipv6_addrs (proto_item *ti, proto_tree *tree, tvbuff_t *tvb,
     ws_in6_addr  addr;
     address            addr_str;
     proto_item        *ti_prefixlen, *ti_dst;
-    int                first = true;
+    bool               first = true;
 
     for (; tvb_reported_length_remaining(tvb, offset) > 0; offset += (1 + addr_len)) {
         length = tvb_get_uint8(tvb, offset);
@@ -1706,7 +1706,7 @@ dissect_eigrp_ipv4_tlv (proto_item *ti, proto_tree *tree, tvbuff_t *tvb,
                         packet_info *pinfo, uint16_t tlv)
 {
     int offset      = 0;
-    int unreachable = false;
+    bool unreachable = false;
 
     proto_tree_add_item(tree, hf_eigrp_ipv4_nexthop, tvb, offset, 4,
                         ENC_BIG_ENDIAN);
@@ -1791,7 +1791,7 @@ dissect_eigrp_ipv6_tlv (proto_item *ti, proto_tree *tree, tvbuff_t *tvb,
                         packet_info *pinfo, uint16_t tlv)
 {
     int offset      = 0;
-    int unreachable = false;
+    bool unreachable = false;
 
     proto_tree_add_item(tree, hf_eigrp_ipv6_nexthop, tvb, offset, 16,
                         ENC_NA);
@@ -1866,7 +1866,7 @@ dissect_eigrp_ipx_tlv (proto_item *ti, proto_tree *tree, tvbuff_t *tvb,
                        packet_info *pinfo, uint16_t tlv)
 {
     int offset      = 0;
-    int unreachable = false;
+    bool unreachable = false;
 
     /* nexthop for route... */
     offset = dissect_eigrp_nexthop(tree, tvb, EIGRP_AF_IPX, offset);
@@ -1932,7 +1932,7 @@ dissect_eigrp_multi_topology_tlv (proto_item *ti, proto_tree *tree, tvbuff_t *tv
 {
     uint16_t    afi;
     int         offset      = 2;
-    int         unreachable = false;
+    bool        unreachable = false;
 
     /* tid for you */
     proto_tree_add_item(tree, hf_eigrp_tid, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -2329,7 +2329,7 @@ dissect_eigrp_multi_protocol_tlv (proto_item *ti, proto_tree *tree, tvbuff_t *tv
 {
     int         offset      = 0;
     uint16_t    afi;
-    int         unreachable = false;
+    bool        unreachable = false;
 
     /* tid for you */
     proto_tree_add_item(tree, hf_eigrp_tid, tvb, offset, 2, ENC_BIG_ENDIAN);

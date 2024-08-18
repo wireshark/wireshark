@@ -1149,7 +1149,7 @@ dissect_u3v_register_bases(uint64_t addr, tvbuff_t *tvb, int offset, u3v_conv_in
 static int
 dissect_u3v_register(uint64_t addr, proto_tree *branch, tvbuff_t *tvb, int offset, int length, u3v_conv_info_t *u3v_conv_info)
 {
-    int isABRM = false, isSBRM = false, isSIRM = false,isEIRM = false;
+    bool isABRM = false, isSBRM = false, isSIRM = false, isEIRM = false;
     /* check if this is the access to one of the base address registers */
     if ( addr < 0x10000 ) {
         isABRM = true;
@@ -1760,8 +1760,8 @@ dissect_u3v(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
     proto_item *item = NULL;
     const char *command_string;
     urb_info_t *urb;
-    int stream_detected = false;
-    int control_detected = false;
+    bool stream_detected = false;
+    bool control_detected = false;
     u3v_conv_info_t *u3v_conv_info = NULL;
     gencp_transaction_t *gencp_trans = NULL;
 

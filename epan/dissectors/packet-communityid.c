@@ -160,7 +160,7 @@ static bool communityid_tuple_lt(uint8_t addr_len,
                                      const uint16_t *sport, const uint16_t *dport)
 {
     int addrcmp = memcmp(saddr, daddr, addr_len);
-    int ports_lt = (sport != NULL && dport != NULL) ? GUINT16_FROM_BE(*sport) < GUINT16_FROM_BE(*dport) : true;
+    bool ports_lt = (sport != NULL && dport != NULL) ? GUINT16_FROM_BE(*sport) < GUINT16_FROM_BE(*dport) : true;
     return addrcmp < 0 || (addrcmp == 0 && ports_lt);
 }
 
