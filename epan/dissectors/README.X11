@@ -6,8 +6,18 @@ latest protocol descriptions.
 
 Once you have those, you also need the XML protocol descriptions. In the
 epan/dissectors directory, run the following commands:
- git clone git://anongit.freedesktop.org/xcb/proto xcbproto
- git clone git://anongit.freedesktop.org/git/mesa/mesa
+  git clone git@gitlab.freedesktop.org:xorg/proto/xcbproto.git
+  git clone git@gitlab.freedesktop.org:mesa/mesa.git
+
+Please be aware that the Mesa repository is rather large. As of this writing,
+the full git history is 587MiB and the source itself is roughly 250MiB. The
+space needed can be significantly reduced by downloading less commit history
+(such as with the git option --shallow-source, available since git 2.11) and
+performing a sparse checkout (available since git 2.25), e.g.,
+
+  git clone --shallow-since=2024-04-23 --sparse git@gitlab.freedesktop.org:mesa/mesa.git
+  cd mesa
+  git sparse-checkout add src/mapi/glapi/gen/
 
 As of this writing, mesa will provide:
  src/mapi/glapi/gen/gl_API.xml
@@ -43,10 +53,9 @@ and xcbproto provides:
  xtest.xml
  xv.xml
  xvmc.xml
-  
+
 Or, if you have already cloned those repositories, "git pull" each one to bring
-it up to date. Please be aware that the Mesa repository is rather large; it is
-slightly more than 200MB as of this writing.
+it up to date.
 
 Then build the x11-dissector target; for example, run the command
 
