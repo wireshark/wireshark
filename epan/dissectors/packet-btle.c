@@ -2788,8 +2788,8 @@ dissect_btle_acl_or_iso(tvbuff_t *tvb,
         connection_info = (connection_info_t *) wmem_tree_lookup32_le(wmem_tree, pinfo->num);
         if (connection_info) {
             char   *str_addr_src, *str_addr_dst;
-            /* Holds "Peripheral_0x" (13 chars) + access_address (as %08x, 8 chars) + NULL, which is the longest string */
-            int     str_addr_len = 13 + 8 + 1;
+            /* longest possible string */
+            const size_t str_addr_len = sizeof("Peripheral_0x12345678");
 
             str_addr_src = (char *) wmem_alloc(pinfo->pool, str_addr_len);
             str_addr_dst = (char *) wmem_alloc(pinfo->pool, str_addr_len);
@@ -4392,8 +4392,8 @@ dissect_btle_broadcast_iso(tvbuff_t *tvb,
         broadcastiso_connection_info = (broadcastiso_connection_info_t *) wmem_tree_lookup32_le(wmem_tree, pinfo->num);
         if (broadcastiso_connection_info) {
             char   *str_addr_src;
-            /* Holds "Central" + access_address + NULL, which is the longest string */
-            int     str_addr_len = 17 + 1;
+            /* longest possible string */
+            const size_t str_addr_len = sizeof("Central_0x12345678");
 
             str_addr_src = (char *) wmem_alloc(pinfo->pool, str_addr_len);
 
