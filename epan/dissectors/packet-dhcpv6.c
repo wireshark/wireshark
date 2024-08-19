@@ -3143,11 +3143,8 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
                 case DNR_SVCPARAMS_KEY_ALPN:
                     for (uint32_t svcparams_offset = 0; svcparams_offset < svcparams_length; ) {
                         const uint8_t *alpn = 0;
-                        uint32_t cur_offset = 0;
                         proto_tree_add_item_ret_uint(svcparams_tree, hf_dnr_svcparams_alpn_length, tvb, off+offset+svcparams_offset, 1, ENC_BIG_ENDIAN, &svcparams_alpn_length);
-                        cur_offset += 1;
                         proto_tree_add_item_ret_string(svcparams_tree, hf_dnr_svcparams_alpn, tvb, off+offset + 1 +svcparams_offset, svcparams_alpn_length, ENC_ASCII|ENC_NA, pinfo->pool, &alpn);
-                        cur_offset += svcparams_alpn_length;
                         proto_item_append_text(svcparams_ti, "%c%s", (svcparams_offset == 0 ? '=' : ','), alpn);
                         svcparams_offset += 1 + svcparams_alpn_length;
                     }
