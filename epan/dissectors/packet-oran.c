@@ -258,6 +258,10 @@ static int hf_oran_nackid;
 static int hf_oran_disable_tdbfns;
 static int hf_oran_td_beam_group;
 
+static int hf_oran_dir_pattern;
+static int hf_oran_guard_pattern;
+
+
 /* Computed fields */
 static int hf_oran_c_eAxC_ID;
 static int hf_oran_refa;
@@ -1151,7 +1155,7 @@ static int dissect_bfwCompParam(tvbuff_t *tvb, proto_tree *tree, packet_info *pi
     }
 
     /* Can't go on if compression scheme not supported */
-    if (!(*supported)) {
+    if (!(*supported) && ti) {
         expert_add_info_format(pinfo, ti, &ei_oran_unsupported_bfw_compression_method,
                                "BFW Compression method %u (%s) not supported by dissector",
                                bfw_comp_method,
@@ -3013,6 +3017,8 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
                         proto_tree_add_item(command_tree, hf_oran_symbolMask, tvb, offset, 2, ENC_BIG_ENDIAN);
                         offset += 2;
 
+                        uint32_t bfwcomphdr_iq_width = 16, bfwcomphdr_comp_meth = COMP_NONE;
+
                         /* Read entries until reach end of command length */
                         while ((offset - command_start_offset) < (st4_cmd_len * 4)) {
                             /* disableTDBFNs */
@@ -3022,7 +3028,6 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
                             offset += 2;
                             if (!disable_tdbfns) {
                                 /* bfwCompHdr (2 subheaders - bfwIqWidth and bfwCompMeth)*/
-                                uint32_t bfwcomphdr_iq_width, bfwcomphdr_comp_meth;
                                 proto_item *comp_meth_ti;
                                 offset = dissect_bfwCompHdr(tvb, command_tree, offset,
                                                             &bfwcomphdr_iq_width, &bfwcomphdr_comp_meth, &comp_meth_ti);
@@ -3030,16 +3035,64 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
                                 offset += 3;
                             }
                             else {
-                                /* Pad to next 4-byte boundary */
-                                if (offset%4) {
-                                    offset += (4-(offset%4));
+                                /* bfwCompParam */
+                                unsigned exponent;
+                                bool     supported;
+                                offset = dissect_bfwCompParam(tvb, command_tree, pinfo, offset,
+                                                              NULL, bfwcomphdr_comp_meth, &exponent, &supported);
+
+                                /* Antenna count from preference */
+                                unsigned num_trx = pref_num_bf_antennas;
+                                int bit_offset = offset*8;
+
+                                for (unsigned trx=0; trx < num_trx; trx++) {
+                                    /* Create antenna subtree */
+                                    int bfw_offset = bit_offset / 8;
+                                    proto_item *bfw_ti = proto_tree_add_string_format(command_tree, hf_oran_bfw,
+                                                                                      tvb, bfw_offset, 0, "", "TRX %3u: (", trx);
+                                    proto_tree *bfw_tree = proto_item_add_subtree(bfw_ti, ett_oran_bfw);
+
+                                    /* I value */
+                                    /* Get bits, and convert to float. */
+                                    uint32_t bits = tvb_get_bits(tvb, bit_offset, bfwcomphdr_iq_width, ENC_BIG_ENDIAN);
+                                    float value = decompress_value(bits, COMP_BLOCK_FP, bfwcomphdr_iq_width, exponent);
+                                    /* Add to tree. */
+                                    proto_tree_add_float_format_value(bfw_tree, hf_oran_bfw_i, tvb, bit_offset/8, (bfwcomphdr_iq_width+7)/8, value, "%f", value);
+                                    bit_offset += bfwcomphdr_iq_width;
+                                    proto_item_append_text(bfw_ti, "I=%f ", value);
+
+                                    /* Leave a gap between I and Q values */
+                                    proto_item_append_text(bfw_ti, "  ");
+
+                                    /* Q value */
+                                    /* Get bits, and convert to float. */
+                                    bits = tvb_get_bits(tvb, bit_offset, bfwcomphdr_iq_width, ENC_BIG_ENDIAN);
+                                    value = decompress_value(bits, COMP_BLOCK_FP, bfwcomphdr_iq_width, exponent);
+                                    /* Add to tree. */
+                                    proto_tree_add_float_format_value(bfw_tree, hf_oran_bfw_q, tvb, bit_offset/8, (bfwcomphdr_iq_width+7)/8, value, "%f", value);
+                                    bit_offset += bfwcomphdr_iq_width;
+                                    proto_item_append_text(bfw_ti, "Q=%f", value);
+
+                                    proto_item_append_text(bfw_ti, ")");
+                                    proto_item_set_len(bfw_ti, (bit_offset+7)/8  - bfw_offset);
                                 }
+                                /* Need to round to next byte */
+                                offset = (bit_offset+7)/8;
                             }
                         }
                         break;
                     }
                     case 2:  /* TDD_CONFIG_PATTERN */
-                        /* TODO: */
+                        /* reserved (2 bits) */
+                        proto_tree_add_item(command_tree, hf_oran_reserved_2bits, tvb, offset, 1, ENC_BIG_ENDIAN);
+                        /* dirPattern (14 bits) */
+                        proto_tree_add_item(command_tree, hf_oran_dir_pattern, tvb, offset, 2, ENC_BIG_ENDIAN);
+                        offset += 2;
+                        /* reserved (2 bits) */
+                        proto_tree_add_item(command_tree, hf_oran_reserved_2bits, tvb, offset, 1, ENC_BIG_ENDIAN);
+                        /* guardPattern (14 bits) */
+                        proto_tree_add_item(command_tree, hf_oran_guard_pattern, tvb, offset, 2, ENC_BIG_ENDIAN);
+                        offset += 2;
                         break;
 
                     case 3:  /* TRX_CONTROL */
@@ -4986,6 +5039,23 @@ proto_register_oran(void)
           FT_UINT16, BASE_HEX,
           NULL, 0x7fff,
           "Applies to symbolMask in command header",
+          HFILL}
+        },
+
+        /* 7.5.3.49 */
+        {&hf_oran_dir_pattern,
+         {"dirPattern", "oran_fh_cus.dirPattern",
+          FT_BOOLEAN, 16,
+          NULL, 0x3fff,
+          NULL,
+          HFILL}
+        },
+        /* 7.5.3.50 */
+        {&hf_oran_guard_pattern,
+         {"guardPattern", "oran_fh_cus.guardPattern",
+          FT_BOOLEAN, 16,
+          NULL, 0x3fff,
+          NULL,
           HFILL}
         },
 
