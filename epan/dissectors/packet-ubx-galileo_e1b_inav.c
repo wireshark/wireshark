@@ -109,7 +109,7 @@ static int dissect_ubx_gal_inav(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
     tvbuff_t *next_tvb;
 
     bool sar_start, sar_long_rlm;
-    uint32_t inav_type, page_type;
+    uint32_t inav_type, even_page_type, odd_page_type;
     uint64_t data_122_67, data_66_17, data_16_1;
     uint8_t *word;
 
@@ -120,12 +120,12 @@ static int dissect_ubx_gal_inav(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 
     // even page
     proto_tree_add_item(gal_inav_tree, hf_ubx_gal_inav_even_odd, tvb, 0, 1, ENC_NA);
-    proto_tree_add_item_ret_uint(gal_inav_tree, hf_ubx_gal_inav_page_type, tvb, 0, 1, ENC_NA, &page_type);
+    proto_tree_add_item_ret_uint(gal_inav_tree, hf_ubx_gal_inav_page_type, tvb, 0, 1, ENC_NA, &even_page_type);
 
-    if (page_type == 1) { // alert page
+    if (even_page_type == 1) { // alert page
         proto_tree_add_item(gal_inav_tree, hf_ubx_gal_inav_reserved_1,  tvb, 0, 15, ENC_NA);
     }
-    else { // nominal page
+    else if (even_page_type == 0) { // nominal page
         proto_tree_add_item_ret_uint(gal_inav_tree,   hf_ubx_gal_inav_type,        tvb, 0,  1, ENC_NA,         &inav_type);
         proto_tree_add_item_ret_uint64(gal_inav_tree, hf_ubx_gal_inav_data_122_67, tvb, 0,  8, ENC_BIG_ENDIAN, &data_122_67);
         proto_tree_add_item_ret_uint64(gal_inav_tree, hf_ubx_gal_inav_data_66_17,  tvb, 8,  8, ENC_BIG_ENDIAN, &data_66_17);
@@ -137,12 +137,12 @@ static int dissect_ubx_gal_inav(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 
     // odd page
     proto_tree_add_item(gal_inav_tree, hf_ubx_gal_inav_even_odd, tvb, 16, 1, ENC_NA);
-    proto_tree_add_item_ret_uint(gal_inav_tree, hf_ubx_gal_inav_page_type, tvb, 16, 1, ENC_NA, &page_type);
+    proto_tree_add_item_ret_uint(gal_inav_tree, hf_ubx_gal_inav_page_type, tvb, 16, 1, ENC_NA, &odd_page_type);
 
-    if (page_type == 1) { // alert page
+    if (odd_page_type == 1) { // alert page
         proto_tree_add_item(gal_inav_tree, hf_ubx_gal_inav_reserved_1,  tvb, 16, 11, ENC_NA);
     }
-    else { // nominal page
+    else if (odd_page_type == 0) { // nominal page
         proto_tree_add_item_ret_uint64(gal_inav_tree, hf_ubx_gal_inav_data_16_1,   tvb, 16, 8, ENC_BIG_ENDIAN, &data_16_1);
         proto_tree_add_item(gal_inav_tree, hf_ubx_gal_inav_osnma,       tvb, 16, 8, ENC_BIG_ENDIAN);
 
@@ -168,7 +168,7 @@ static int dissect_ubx_gal_inav(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
     proto_tree_add_item(gal_inav_tree, hf_ubx_gal_inav_pad,           tvb, 31, 1, ENC_NA);
 
     // handoff the data word of a nominal page
-    if (page_type == 0) {
+    if (even_page_type == 0 && odd_page_type == 0) {
         // create new tvb with the data word
         word = wmem_alloc(pinfo->pool, 16);
         phton16(word + 14, data_16_1);
