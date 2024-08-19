@@ -18,6 +18,7 @@ trans.ja_JP            = ui/qt/wireshark_ja_JP.ts
 trans.pl               = ui/qt/wireshark_pl.ts
 trans.sv               = ui/qt/wireshark_sv.ts
 trans.zh_CN            = ui/qt/wireshark_zh_CN.ts
+trans.hu               = ui/qt/wireshark_hu.ts
 trans.it               = ui/qt/wireshark_it.ts
 trans.es               = ui/qt/wireshark_es.ts
 trans.fr               = ui/qt/wireshark_fr.ts
