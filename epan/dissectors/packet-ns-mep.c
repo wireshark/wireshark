@@ -843,7 +843,7 @@ proto_register_ns_mep(void)
 			NULL, HFILL }},
 
 		{ &hf_nsmep_mfu_svctype,
-			{ "Service Type", "nstrace.mep.mfu.svctype", FT_UINT16, BASE_HEX, VALS(ns_svc_type_vals), 0x0,
+			{ "Service Type", "nstrace.mep.mfu.svctype", FT_UINT32, BASE_HEX, VALS(ns_svc_type_vals), 0x0,
 			NULL, HFILL }},
 
 		{ &hf_nsmep_mfu_reqflag,

@@ -930,6 +930,7 @@ static const value_string cip_con_rtf_vals[] = {
    { 1,        "Zero data length idle mode"},
    { 2,        "Modeless"  },
    { 3,        "Heartbeat"  },
+   { 4,        "Reserved"  },
    { 5,        "Safety"  },
 
    { 0,        NULL             }
