@@ -320,6 +320,8 @@ static expert_field ei_oran_st4_zero_len_cmd;
 static expert_field ei_oran_st4_wrong_len_cmd;
 static expert_field ei_oran_st4_unknown_cmd;
 static expert_field ei_oran_mcot_out_of_range;
+static expert_field ei_oran_se10_unknown_beamgrouptype;
+
 
 
 /* These are the message types handled by this dissector */
@@ -798,6 +800,13 @@ static void ext11_work_out_bundles(unsigned startPrbc,
     if (settings->ext6_set) {
         unsigned bundles_per_entry = (settings->ext6_rbg_size / numBundPrb);
 
+        /* Need to cope with these not dividing exactly, or even having more PRbs in a bundle that
+           rbg size.  i.e. each bundle gets the correct number of PRBs until
+           all rbg entries are consumed... */
+        if (bundles_per_entry == 0) {
+            bundles_per_entry = 1;
+        }
+
         /* Maybe also be affected by ext 21 */
         if (settings->ext21_set) {
             /* N.B., have already checked that numPrbc is not 0 */
@@ -809,8 +818,14 @@ static void ext11_work_out_bundles(unsigned startPrbc,
         }
 
         unsigned bundles_set = 0;
-        for (uint8_t n=0; n < settings->ext6_num_bits_set; n++) {
-            /* For each bit set in the mask */
+        for (uint8_t n=0;
+             n < (settings->ext6_num_bits_set * settings->ext6_rbg_size) / numBundPrb;
+             n++) {
+
+            /* For each bundle... */
+
+            /* TODO: Work out where first PRB is */
+            /* May not be the start of an rbg block... */
             uint32_t prb_start = (settings->ext6_bits_set[n] * settings->ext6_rbg_size);
 
             /* For each bundle within identified rbgSize block */
@@ -821,6 +836,7 @@ static void ext11_work_out_bundles(unsigned startPrbc,
                     break;
                 }
                 /* Bundle consists of numBundPrb bundles */
+                /* TODO: may involve PRBs from >1 rbg blocks.. */
                 settings->bundles[bundles_set].end = startPrbc+prb_start+((m+1)*numBundPrb)-1;
                 if (settings->bundles[bundles_set].end > (startPrbc+numPrbc-1)) {
                     /* Extends beyond end, so counts but is an orphan bundle */
@@ -2047,12 +2063,13 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                 offset += 1;
                 break;
 
-            case 10: /* Section description for group configuration of multiple ports */
+            case 10: /* Group configuration of multiple ports */
             {
                 /* beamGroupType */
                 uint32_t beam_group_type = 0;
-                proto_tree_add_item_ret_uint(extension_tree, hf_oran_beamGroupType,
-                                             tvb, offset, 1, ENC_BIG_ENDIAN, &beam_group_type);
+                proto_item *bgt_ti;
+                bgt_ti = proto_tree_add_item_ret_uint(extension_tree, hf_oran_beamGroupType,
+                                                      tvb, offset, 1, ENC_BIG_ENDIAN, &beam_group_type);
                 proto_item_append_text(extension_ti, " (%s)", val_to_str_const(beam_group_type, beam_group_type_vals, "Unknown"));
 
                 /* numPortc */
@@ -2061,35 +2078,18 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                                              tvb, offset, 1, ENC_BIG_ENDIAN, &numPortc);
                 offset++;
 
-                /* TODO: any generated fields or expert info should be added, due to entries in table 5-35 ? */
-
                 /* Will append all beamId values to extension_ti, regardless of beamGroupType */
                 proto_item_append_text(extension_ti, "(");
                 unsigned n;
 
                 switch (beam_group_type) {
                     case 0x0: /* common beam */
-                        /* Reserved byte */
-                        proto_tree_add_item(extension_tree, hf_oran_rsvd8, tvb, offset, 1, ENC_NA);
-                        offset++;
-
-                        /* All entries are beamId... */
-                        for (n=0; n < numPortc; n++) {
-                            proto_item_append_text(extension_ti, "%u ", beamId);
-                        }
-                        break;
-
                     case 0x1: /* beam matrix indication */
+
                         /* Reserved byte */
                         proto_tree_add_item(extension_tree, hf_oran_rsvd8, tvb, offset, 1, ENC_NA);
                         offset++;
-
-                        /* Entries inc from beamId... */
-                        for (n=0; n < numPortc; n++) {
-                            proto_item_append_text(extension_ti, "%u ", beamId+n);
-                        }
                         break;
-
                     case 0x2: /* beam vector listing */
                     {
                         /* Beam listing vector case */
@@ -2113,7 +2113,8 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                     }
 
                     default:
-                        /* TODO: warning for unsupported/reserved value */
+                        /* Warning for unsupported/reserved value */
+                        expert_add_info(NULL, bgt_ti, &ei_oran_se10_unknown_beamgrouptype);
                         break;
                 }
                 proto_item_append_text(extension_ti, ")");
@@ -2186,7 +2187,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                                                         numPrbc :
                                                         pref_num_weights_per_bundle,
                                                     iq_width,
-                                                    b,                                 /* bundle number */
+                                                    b+1,                               /* bundle number */
                                                     ext11_settings.bundles[b].start,
                                                     ext11_settings.bundles[b].end,
                                                     ext11_settings.bundles[b].is_orphan);
@@ -5128,6 +5129,7 @@ proto_register_oran(void)
         { &ei_oran_st4_wrong_len_cmd, { "oran_fh_cus.st4_wrong_len_cmd", PI_MALFORMED, PI_ERROR, "ST4 cmd with length not matching contents", EXPFILL }},
         { &ei_oran_st4_unknown_cmd, { "oran_fh_cus.st4_unknown_cmd", PI_MALFORMED, PI_ERROR, "ST4 cmd with unknown command code", EXPFILL }},
         { &ei_oran_mcot_out_of_range, { "oran_fh_cus.mcot_out_of_range", PI_MALFORMED, PI_ERROR, "MCOT should be 1-10", EXPFILL }},
+        { &ei_oran_se10_unknown_beamgrouptype, { "oran_fh_cus.se10_unknown_beamgrouptype", PI_MALFORMED, PI_WARN, "SE10 - unknown BeamGroupType value", EXPFILL }},
     };
 
     /* Register the protocol name and description */
