@@ -222,7 +222,7 @@ typedef int (*ReqRespDissector)(tvbuff_t*, packet_info *, proto_tree *,
  */
 static int
 is_memcache_request_or_reply(const char *data, int linelen, uint8_t *opcode,
-                             memcache_type_t *type, int *expect_content_length,
+                             memcache_type_t *type, bool *expect_content_length,
                              ReqRespDissector *reqresp_dissector);
 
 static unsigned
@@ -686,7 +686,7 @@ static bool
 memcache_req_resp_hdrs_do_reassembly (
     tvbuff_t *tvb, const int offset, packet_info *pinfo,
     const bool desegment_headers, const bool desegment_body,
-    const memcache_type_t type, const int expect_content_length)
+    const memcache_type_t type, const bool expect_content_length)
 {
   int       linelen;
   int       next_offset;
@@ -790,7 +790,7 @@ dissect_memcache_message (tvbuff_t *tvb, int offset, packet_info *pinfo, proto_t
   int                orig_offset;
   int                first_linelen;
   int                datalen;
-  int                expect_content_length = false;
+  bool               expect_content_length = false;
   int                next_offset;
 
   bool               is_request_or_reply;
@@ -1656,11 +1656,11 @@ memcache_request_dissector (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
  */
 static int
 is_memcache_request_or_reply (const char *data, int linelen, uint8_t *opcode,
-                             memcache_type_t *type, int *expect_content_length,
+                             memcache_type_t *type, bool *expect_content_length,
                              ReqRespDissector *reqresp_dissector)
 {
   const unsigned char *ptr = (const unsigned char *)data;
-  int           is_request_or_response = false;
+  bool          is_request_or_response = false;
   int           indx = 0;
 
   /* look for a space */

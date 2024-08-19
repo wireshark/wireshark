@@ -1319,7 +1319,7 @@ static void colorFlags(tvbuff_t *tvb, int *offsetp, proto_tree *t)
       proto_tree *tt;
 
       if (do_red_green_blue) {
-            int sep = false;
+            bool sep = false;
             wmem_strbuf_t *buffer = wmem_strbuf_create(wmem_packet_scope());
             wmem_strbuf_append(buffer, "flags: ");
 

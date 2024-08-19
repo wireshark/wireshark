@@ -555,7 +555,7 @@ static dissector_handle_t nr_rrc_dl_dcch;
 /* Preference variables */
 static bool global_pdcp_dissect_user_plane_as_ip = true;
 static bool global_pdcp_dissect_signalling_plane_as_rrc = true;
-static int      global_pdcp_check_sequence_numbers = true;
+static int  global_pdcp_check_sequence_numbers = SEQUENCE_ANALYSIS_RLC_ONLY;
 static bool global_pdcp_dissect_rohc;
 
 /* Preference settings for deciphering and integrity checking. */

@@ -2382,7 +2382,7 @@ dissect_iscsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bool check_po
         uint32_t data_segment_len;
         uint32_t pduLen = 48;
         uint8_t secondPduByte = tvb_get_uint8(tvb, offset + 1);
-        int badPdu = false;
+        bool badPdu = false;
         uint8_t ahsLen=0;
         uint32_t data_segment_offset, data_segment_len_padded;
 

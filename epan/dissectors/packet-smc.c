@@ -1701,7 +1701,7 @@ dissect_smcr_infiniband_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	uint16_t msg_len;
 	llc_message msg_byte0;
 	uint8_t msg_byte1;
-	int v1_check = true, v2_check = true;
+	bool v1_check = true, v2_check = true;
 
 	if (tvb_captured_length_remaining(tvb, SMCR_MSG_BYTE_0) < 2)  /* need at least 2 bytes */
 		return false;

@@ -618,7 +618,7 @@ bool ImportTextDialog::checkDateTimeFormat(const QString &time_format)
     /* nonstandard is f for fractions of seconds */
     const QString valid_code = "aAbBcdDFfHIjmMpsSTUwWxXyYzZ%";
     int idx = 0;
-    int ret = false;
+    bool ret = false;
 
     /* XXX: Temporary(?) hack to allow ISO format time, a checkbox is
      * probably better */

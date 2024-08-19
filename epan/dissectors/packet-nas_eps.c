@@ -9303,7 +9303,7 @@ static bool dissect_nas_eps_heur(tvbuff_t *tvb, packet_info *pinfo,
 void
 proto_reg_handoff_nas_eps(void)
 {
-    static int initialized = false;
+    static bool initialized = false;
 
     if (!initialized) {
         heur_dissector_add("udp", dissect_nas_eps_heur, "NAS-EPS over UDP", "nas_eps_udp", proto_nas_eps, HEURISTIC_DISABLE);

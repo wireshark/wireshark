@@ -595,7 +595,7 @@ static void
 aim_get_message( unsigned char *msg, tvbuff_t *tvb, int msg_offset, int msg_length)
 {
 	int i,j,c;
-	int bracket = false;
+	bool bracket = false;
 	int max, tagchars = 0;
 	int new_offset = msg_offset;
 	int new_length = msg_length;
