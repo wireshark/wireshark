@@ -849,7 +849,7 @@ dissect_nbd_opt_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
 	offset += 4;
 
 	if (data_len) {
-		switch (nbd_opt->opt) {
+		switch (opt) {
 		case NBD_OPT_EXPORT_NAME:
 			proto_tree_add_item_ret_string(tree, hf_nbd_export_name, tvb, offset, data_len, ENC_UTF_8, pinfo->pool, &export_name);
 			col_append_sep_str(pinfo->cinfo, COL_INFO, ":", export_name);
