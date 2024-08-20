@@ -37,6 +37,15 @@ static int hf_cliprdr_msgType;
 static int hf_cliprdr_msgFlags;
 static int hf_cliprdr_dataLen;
 
+static int hf_cliprdr_requestedFormatId;
+static int hf_cliprdr_clipDataId;
+static int hf_cliprdr_streamId;
+static int hf_cliprdr_lindex;
+static int hf_cliprdr_dwFlags;
+static int hf_cliprdr_nPositionLow;
+static int hf_cliprdr_nPositionHigh;
+static int hf_cliprdr_cbRequested;
+
 static int ett_rdp_cliprdr;
 
 
@@ -78,6 +87,32 @@ static const value_string msgFlags_vals[] = {
 	{ 0x0, NULL},
 };
 
+static const value_string knownFormats_vals[] = {
+	{ 0x0000, "CB_RAW" },
+	{ 0x0001, "CF_TEXT" },
+	{ 0x0002, "CF_BITMAP" },
+	{ 0x0003, "CF_METAFILEPICT" },
+	{ 0x0004, "CF_SYLK" },
+	{ 0x0005, "CF_DIF" },
+	{ 0x0006, "CF_TIFF" },
+	{ 0x0007, "CF_OEMTEXT" },
+	{ 0x0008, "CF_DIB" },
+	{ 0x0009, "CF_PALETTE" },
+	{ 0x000a, "CF_PENDATA" },
+	{ 0x000b, "CF_RIFF" },
+	{ 0x000c, "CF_WAVE" },
+	{ 0x000d, "CF_UNICODETEXT" },
+	{ 0x000e, "CF_ENHMETAFILE" },
+	{ 0x000f, "CF_HDROP" },
+	{ 0x0010, "CF_LOCALE" },
+	{ 0x0011, "CF_DIBV5" },
+	{ 0x0080, "CF_OWNERDISPLAY" },
+	{ 0x0081, "CF_DSPTEXT" },
+	{ 0x0082, "CF_DSPBITMAP" },
+	{ 0x0083, "CF_DSPMETAFILEPICT" },
+	{ 0x008E, "CF_DSPENHMETAFILE" },
+	{ 0x0, NULL},
+};
 
 
 static int
@@ -87,6 +122,7 @@ dissect_rdp_cliprdr(tvbuff_t *tvb _U_, packet_info *pinfo, proto_tree *parent_tr
 	int nextOffset, offset = 0;
 	uint32_t cmdId = 0;
 	uint32_t pduLength;
+        uint32_t formatId;
 	proto_tree *tree;
 
 	parent_tree = proto_tree_get_root(parent_tree);
@@ -106,30 +142,61 @@ dissect_rdp_cliprdr(tvbuff_t *tvb _U_, packet_info *pinfo, proto_tree *parent_tr
 	offset += 2;
 
 	proto_tree_add_item(tree, hf_cliprdr_dataLen, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-	//offset += 4;
+	offset += 4;
 
 	col_set_str(pinfo->cinfo, COL_INFO, val_to_str_const(cmdId, rdp_cliprdr_order_vals, "Unknown clipboard command"));
 
 	switch (cmdId) {
 	case CB_MONITOR_READY:
 	case CB_FORMAT_LIST:
+            break;
 	case CB_FORMAT_LIST_RESPONSE:
+            break;
 	case CB_FORMAT_DATA_REQUEST:
+            proto_tree_add_item_ret_uint(tree, hf_cliprdr_requestedFormatId, tvb, offset, 4, ENC_LITTLE_ENDIAN, &formatId);
+
+            col_append_fstr(pinfo->cinfo, COL_INFO, " - %s", val_to_str_const(formatId, knownFormats_vals, "Unknown format"));
+            break;
 	case CB_FORMAT_DATA_RESPONSE:
+            break;
 	case CB_TEMP_DIRECTORY:
 	case CB_CLIP_CAPS:
+            break;
 	case CB_FILECONTENTS_REQUEST:
+            proto_tree_add_item(tree, hf_cliprdr_streamId, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+            offset += 4;
+
+            proto_tree_add_item(tree, hf_cliprdr_lindex, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+            offset += 4;
+
+            proto_tree_add_item(tree, hf_cliprdr_dwFlags, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+            offset += 4;
+
+            proto_tree_add_item(tree, hf_cliprdr_nPositionLow, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+            offset += 4;
+
+            proto_tree_add_item(tree, hf_cliprdr_nPositionHigh, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+            offset += 4;
+
+            proto_tree_add_item(tree, hf_cliprdr_cbRequested, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+            offset += 4;
+
+            proto_tree_add_item(tree, hf_cliprdr_clipDataId, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+            break;
 	case CB_FILECONTENTS_RESPONSE:
+            proto_tree_add_item(tree, hf_cliprdr_streamId, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+            break;
 	case CB_LOCK_CLIPDATA:
 	case CB_UNLOCK_CLIPDATA:
+            proto_tree_add_item(tree, hf_cliprdr_clipDataId, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+            break;
 	default:
-		break;
+            break;
 	}
 
 	offset = nextOffset;
 	return offset;
 }
-
 
 void proto_register_rdp_cliprdr(void) {
 	static hf_register_info hf[] = {
@@ -145,6 +212,46 @@ void proto_register_rdp_cliprdr(void) {
 		},
 		{ &hf_cliprdr_dataLen,
 		  { "dataLen", "rdp_cliprdr.datalen",
+			FT_UINT32, BASE_DEC, NULL, 0x0,
+			NULL, HFILL }
+		},
+		{ &hf_cliprdr_requestedFormatId,
+		  { "requestedFormatId", "rdp_cliprdr.requestedformatid",
+			FT_UINT32, BASE_HEX, VALS(knownFormats_vals), 0x0,
+			NULL, HFILL }
+		},
+		{ &hf_cliprdr_clipDataId,
+		  { "clipDataId", "rdp_cliprdr.clipdataid",
+			FT_UINT32, BASE_HEX, NULL, 0x0,
+			NULL, HFILL }
+		},
+		{ &hf_cliprdr_streamId,
+		  { "streamId", "rdp_cliprdr.streamid",
+			FT_UINT32, BASE_HEX, NULL, 0x0,
+			NULL, HFILL }
+		},
+		{ &hf_cliprdr_lindex,
+		  { "lindex", "rdp_cliprdr.lindex",
+			FT_UINT32, BASE_DEC, NULL, 0x0,
+			NULL, HFILL }
+		},
+		{ &hf_cliprdr_dwFlags,
+		  { "dwFlags", "rdp_cliprdr.dwflags",
+			FT_UINT32, BASE_HEX, NULL, 0x0,
+			NULL, HFILL }
+		},
+		{ &hf_cliprdr_nPositionLow,
+		  { "nPositionLow", "rdp_cliprdr.npositionlow",
+			FT_UINT32, BASE_DEC, NULL, 0x0,
+			NULL, HFILL }
+		},
+		{ &hf_cliprdr_nPositionHigh,
+		  { "nPositionHigh", "rdp_cliprdr.npositionhigh",
+			FT_UINT32, BASE_DEC, NULL, 0x0,
+			NULL, HFILL }
+		},
+		{ &hf_cliprdr_cbRequested,
+		  { "cbRequested", "rdp_cliprdr.cbrequested",
 			FT_UINT32, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }
 		},
