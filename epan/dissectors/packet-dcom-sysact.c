@@ -336,7 +336,7 @@ dissect_dcom_ActivationPropertiesCustomerHdr(tvbuff_t *tvb, int offset, packet_i
     offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, sub_tree, di, drep,
             NULL, NDR_POINTER_UNIQUE, "OpaqueDataPtr: Pointer To NULL", 0);
 
-    offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
+    dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
     proto_item_set_len(sub_item, u32CustomHdrSize);
 
     return old_offset + u32CustomHdrSize;

@@ -1970,7 +1970,6 @@ dissect_oampdu_vendor_specific(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
                 case 0x00:
                     break;
                 case DPOE_OPCODE_GET_REQUEST:
-                    variable_length = 0;
                     while (next_byte != 0x00) {
                         leaf_branch = tvb_get_ntoh24(tvb, offset);
                         if (leaf_branch == DPOE_LB_ONU_OBJ || leaf_branch == DPOE_LB_LINK_OBJ || \

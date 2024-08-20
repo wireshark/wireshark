@@ -484,7 +484,6 @@ bool TrafficDataFilterProxy::lessThan(const QModelIndex &source_left, const QMod
                     quint32 valA = g_ntohl(ip4addr);
                     quint32 valB = model->data(source_right, ATapDataModel::DATA_IPV4_INTEGER).value<quint32>();
                     result = valA < valB;
-                    identical = valA == valB;
                 }
                 // else: never supposed to happen
             } else if ( (addressTypeA == AT_IPv4) && (addressTypeB == AT_STRINGZ) ) {
@@ -495,7 +494,6 @@ bool TrafficDataFilterProxy::lessThan(const QModelIndex &source_left, const QMod
                     quint32 valA = model->data(source_left, ATapDataModel::DATA_IPV4_INTEGER).value<quint32>();
                     quint32 valB = g_ntohl(ip4addr);
                     result = valA < valB;
-                    identical = valA == valB;
                 }
                 // else: never supposed to happen
             } else {
