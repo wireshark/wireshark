@@ -4555,6 +4555,8 @@ sharkd_session_process_iograph(char *buf, const jsmntok_t *tokens, int count)
             graph->calc_type = IOG_ITEM_UNIT_CALC_AVERAGE;
         else if (g_str_has_prefix(tok_graph, "load:"))
             graph->calc_type = IOG_ITEM_UNIT_CALC_LOAD;
+        else if (g_str_has_prefix(tok_graph, "throughput:"))
+            graph->calc_type = IOG_ITEM_UNIT_CALC_THROUGHPUT;
         else
             break;
 
