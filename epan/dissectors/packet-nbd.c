@@ -751,7 +751,7 @@ dissect_nbd_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
 		offset+=4;
 
 		dissect_nbd_structured_reply(tvb_new_subset_length(tvb, offset, data_len), pinfo, tree, type);
-		offset += data_len;
+		/*offset += data_len; */
 	}
 
 	return tvb_captured_length(tvb);

@@ -322,7 +322,6 @@ nmf_get_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *_info)
 		}
 
 		len = tvb_get_uint32(tvb, offset, ENC_LITTLE_ENDIAN);
-		offset += 4;
 
 		needed = 4 + len;
 		return needed;
@@ -340,7 +339,6 @@ nmf_get_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *_info)
 		offset += 3;
 
 		len = tvb_get_uint16(tvb, offset, ENC_BIG_ENDIAN);
-		offset += 2;
 
 		needed = 5 + len;
 		return needed;

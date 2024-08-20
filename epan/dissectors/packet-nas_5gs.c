@@ -4909,7 +4909,7 @@ de_nas_5gs_mm_tnan_info(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo _U_ 
         proto_tree_add_item_ret_uint(tree, hf_nas_5gs_mm_tnan_info_ssid_len, tvb, curr_offset, 1, ENC_BIG_ENDIAN, &ret_len);
         curr_offset++;
         proto_tree_add_item(tree, hf_nas_5gs_mm_tnan_info_ssid, tvb, curr_offset, ret_len, ENC_NA);
-        curr_offset += ret_len;
+        /*curr_offset += ret_len;*/
     }
 
     return len;

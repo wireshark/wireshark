@@ -3225,7 +3225,7 @@ de_emm_unavail_info(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo _U_,
     }
     if (flags & 0x10) {
         proto_tree_add_item(tree, hf_nas_eps_emm_unavail_info_start_unavail_period, tvb, offset, 3, ENC_BIG_ENDIAN);
-        offset += 3;
+        /*  offset += 3; */
     }
 
     return len;
@@ -3260,7 +3260,7 @@ de_emm_unavail_config(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo _U_,
     }
     if (flags & 0x04) {
         proto_tree_add_item(tree, hf_nas_eps_emm_unavail_config_start_unavail_period, tvb, offset, 3, ENC_BIG_ENDIAN);
-        offset += 3;
+        /* offset += 3; */
     }
 
     return len;
