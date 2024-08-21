@@ -19,6 +19,9 @@
 
 #include "ui/io_graph_item.h"
 
+// XXX - constant defined elsewhere, any benefit to store it in a global .h ?
+#define MICROSECS_PER_SEC 1000000
+
 int64_t get_io_graph_index(packet_info *pinfo, int interval) {
     nstime_t time_delta;
 
@@ -137,7 +140,7 @@ GString *check_field_unit(const char *field_name, int *hf_index, io_graph_item_u
 }
 
 // Adapted from get_it_value in gtk/io_stat.c.
-double get_io_graph_item(const io_graph_item_t *items_, io_graph_item_unit_t val_units_, int idx, int hf_index_, const capture_file *cap_file, int interval_, int cur_idx_)
+double get_io_graph_item(const io_graph_item_t *items_, io_graph_item_unit_t val_units_, int idx, int hf_index_, const capture_file *cap_file, int interval_, int cur_idx_, bool asAOT)
 {
     double     value = 0;          /* FIXME: loss of precision, visible on the graph for small values */
     int        adv_type;
@@ -152,11 +155,11 @@ double get_io_graph_item(const io_graph_item_t *items_, io_graph_item_unit_t val
     // more meaningful and consistent.
     switch (val_units_) {
     case IOG_ITEM_UNIT_PACKETS:
-        return item->frames;
+        return asAOT ? MICROSECS_PER_SEC*item->frames/interval_ : item->frames;
     case IOG_ITEM_UNIT_BYTES:
-        return (double) item->bytes;
+        return asAOT ? MICROSECS_PER_SEC*item->bytes/interval_ : item->bytes;
     case IOG_ITEM_UNIT_BITS:
-        return (double) (item->bytes * 8);
+        return asAOT ? MICROSECS_PER_SEC*item->bytes*8/interval_ : item->bytes*8;
     case IOG_ITEM_UNIT_CALC_FRAMES:
         return item->frames;
     case IOG_ITEM_UNIT_CALC_FIELDS:
@@ -194,7 +197,7 @@ double get_io_graph_item(const io_graph_item_t *items_, io_graph_item_unit_t val
             value = item->int_min;
             break;
         case IOG_ITEM_UNIT_CALC_THROUGHPUT:
-            value = item->double_tot*(8*1000000/interval_);
+            value = item->double_tot*(8*MICROSECS_PER_SEC/interval_);
             break;
         case IOG_ITEM_UNIT_CALC_AVERAGE:
             if (item->fields) {

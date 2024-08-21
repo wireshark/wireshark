@@ -56,6 +56,9 @@ class QCPAxisTickerDateTime;
 // 2^25 = 16777216
 const int max_io_items_ = 1 << 25;
 
+/* define I/O Graph specific UAT columns */
+enum UatColumnsIOG {colEnabled = 0, colAOT, colName, colDFilter, colColor, colStyle, colYAxis, colYField, colSMAPeriod, colYAxisFactor, colMaxNum};
+
 // XXX - Move to its own file?
 class IOGraph : public QObject {
 Q_OBJECT
@@ -68,6 +71,8 @@ public:
     QString configError() const { return config_err_; }
     QString name() const { return name_; }
     void setName(const QString &name);
+    void setAOT(bool asAOT);
+    bool getAOT() const { return asAOT_; }
     QString filter() const { return filter_; }
     bool setFilter(const QString &filter);
     void applyCurrentColor();
@@ -141,6 +146,7 @@ private:
     int hf_index_;
     int interval_;
     nstime_t start_time_;
+    bool asAOT_; // Average Over Time interpretation
 
     // Cached data. We should be able to change the Y axis without retapping as
     // much as is feasible.
@@ -160,11 +166,9 @@ public:
     explicit IOGraphDialog(QWidget &parent, CaptureFile &cf, QString displayFilter = QString(), io_graph_item_unit_t value_units = IOG_ITEM_UNIT_PACKETS, QString yfield = QString());
     ~IOGraphDialog();
 
-    enum UatColumns { colEnabled = 0, colName, colDFilter, colColor, colStyle, colYAxis, colYField, colSMAPeriod, colYAxisFactor, colMaxNum};
-
-    void addGraph(bool checked, QString name, QString dfilter, QRgb color_idx, IOGraph::PlotStyles style,
+    void addGraph(bool checked, bool asAOT, QString name, QString dfilter, QRgb color_idx, IOGraph::PlotStyles style,
                   io_graph_item_unit_t value_units, QString yfield, int moving_average, int yaxisfactor);
-    void addGraph(bool checked, QString dfilter, io_graph_item_unit_t value_units, QString yfield);
+    void addGraph(bool checked, bool asAOT, QString dfilter, io_graph_item_unit_t value_units, QString yfield);
     void addGraph(bool copy_from_current = false);
     void addDefaultGraph(bool enabled, int idx = 0);
     void syncGraphSettings(int row);
@@ -242,6 +246,7 @@ private:
     bool saveCsv(const QString &file_name) const;
     IOGraph *currentActiveGraph() const;
     bool graphIsEnabled(int row) const;
+    bool graphAsAOT(int row) const;
 
 private slots:
     static void applyChanges();

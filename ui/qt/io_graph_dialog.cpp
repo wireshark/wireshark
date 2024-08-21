@@ -101,6 +101,7 @@ const int stat_update_interval_ = 200; // ms
 // Saved graph settings
 typedef struct _io_graph_settings_t {
     bool enabled;
+    bool asAOT;
     char* name;
     char* dfilter;
     unsigned color;
@@ -179,7 +180,7 @@ static QPointer<UatModel> static_uat_model_;
 
 // y_axis_factor was added in 3.6. Provide backward compatibility.
 static const char *iog_uat_defaults_[] = {
-    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, "1"
+    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, "1"
 };
 
 static char *decimal_point;
@@ -306,6 +307,7 @@ static bool sma_period_chk_enum(void* u1 _U_, const char* strptr, unsigned len, 
 
 
 UAT_BOOL_ENABLE_CB_DEF(io_graph, enabled, io_graph_settings_t)
+UAT_BOOL_ENABLE_CB_DEF(io_graph, asAOT, io_graph_settings_t)
 UAT_CSTRING_CB_DEF(io_graph, name, io_graph_settings_t)
 UAT_DISPLAY_FILTER_CB_DEF(io_graph, dfilter, io_graph_settings_t)
 UAT_COLOR_CB_DEF(io_graph, color, io_graph_settings_t)
@@ -317,6 +319,7 @@ UAT_DEC_CB_DEF(io_graph, y_axis_factor, io_graph_settings_t)
 
 static uat_field_t io_graph_packet_fields[] = {
     UAT_FLD_BOOL_ENABLE(io_graph, enabled, "Enabled", "Graph visibility"),
+    UAT_FLD_BOOL_ENABLE(io_graph, asAOT, "avg over time", "Average over time interpretation"),
     UAT_FLD_CSTRING(io_graph, name, "Graph Name", "The name of the graph"),
     UAT_FLD_DISPLAY_FILTER(io_graph, dfilter, "Display Filter", "Graph packets matching this display filter"),
     UAT_FLD_COLOR(io_graph, color, "Color", "Graph color (#RRGGBB)"),
@@ -331,6 +334,7 @@ static uat_field_t io_graph_packet_fields[] = {
 
 static uat_field_t io_graph_event_fields[] = {
     UAT_FLD_BOOL_ENABLE(io_graph, enabled, "Enabled", "Graph visibility"),
+    UAT_FLD_BOOL_ENABLE(io_graph, asAOT, "asAOT", "asAOT"),
     UAT_FLD_CSTRING(io_graph, name, "Graph Name", "The name of the graph"),
     UAT_FLD_DISPLAY_FILTER(io_graph, dfilter, "Display Filter", "Graph packets matching this display filter"),
     UAT_FLD_COLOR(io_graph, color, "Color", "Graph color (#RRGGBB)"),
@@ -348,6 +352,7 @@ static void* io_graph_copy_cb(void* dst_ptr, const void* src_ptr, size_t) {
     const io_graph_settings_t* src = (const io_graph_settings_t *)src_ptr;
 
     dst->enabled = src->enabled;
+    dst->asAOT = src->asAOT;
     dst->name = g_strdup(src->name);
     dst->dfilter = g_strdup(src->dfilter);
     dst->color = src->color;
@@ -540,7 +545,7 @@ IOGraphDialog::IOGraphDialog(QWidget &parent, CaptureFile &cf, QString displayFi
     }
 
     if (! filterExists && (!displayFilter.isEmpty() || !yfield.isEmpty())) {
-        addGraph(true, displayFilter, value_units, yfield);
+        addGraph(true, false, displayFilter, value_units, yfield);
     }
 
     toggleTracerStyle(true);
@@ -601,13 +606,14 @@ void IOGraphDialog::copyFromProfile(QString filename)
     }
 }
 
-void IOGraphDialog::addGraph(bool checked, QString name, QString dfilter, QRgb color_idx, IOGraph::PlotStyles style, io_graph_item_unit_t value_units, QString yfield, int moving_average, int y_axis_factor)
+void IOGraphDialog::addGraph(bool checked, bool asAOT, QString name, QString dfilter, QRgb color_idx, IOGraph::PlotStyles style, io_graph_item_unit_t value_units, QString yfield, int moving_average, int y_axis_factor)
 {
     if (uat_model_ == nullptr)
         return;
 
     QVariantList newRowData;
     newRowData.append(checked ? Qt::Checked : Qt::Unchecked);
+    newRowData.append(asAOT ? Qt::Checked : Qt::Unchecked);
     newRowData.append(name);
     newRowData.append(dfilter);
     newRowData.append(QColor(color_idx));
@@ -630,7 +636,7 @@ void IOGraphDialog::addGraph(bool checked, QString name, QString dfilter, QRgb c
     ui->graphUat->setCurrentIndex(newIndex);
 }
 
-void IOGraphDialog::addGraph(bool checked, QString dfilter, io_graph_item_unit_t value_units, QString yfield)
+void IOGraphDialog::addGraph(bool checked, bool asAOT, QString dfilter, io_graph_item_unit_t value_units, QString yfield)
 {
     if (uat_model_ == nullptr)
         return;
@@ -649,7 +655,7 @@ void IOGraphDialog::addGraph(bool checked, QString dfilter, io_graph_item_unit_t
             graph_name = QString(val_to_str_const(value_units, y_axis_event_vs, "Unknown")).replace("Y Field", yfield);
         }
     }
-    addGraph(checked, std::move(graph_name), dfilter, ColorUtils::graphColor(uat_model_->rowCount()),
+    addGraph(checked, asAOT, std::move(graph_name), dfilter, ColorUtils::graphColor(uat_model_->rowCount()),
         IOGraph::psLine, value_units, yfield, DEFAULT_MOVING_AVERAGE, DEFAULT_Y_AXIS_FACTOR);
 }
 
@@ -702,22 +708,22 @@ void IOGraphDialog::addDefaultGraph(bool enabled, int idx)
     if (is_packet_configuration_namespace()) {
         switch (idx % 2) {
         case 0:
-            addGraph(enabled, tr("All Packets"), QString(), ColorUtils::graphColor(idx),
+            addGraph(enabled, false, tr("All Packets"), QString(), ColorUtils::graphColor(idx),
                     IOGraph::psLine, IOG_ITEM_UNIT_PACKETS, QString(), DEFAULT_MOVING_AVERAGE, DEFAULT_Y_AXIS_FACTOR);
             break;
         default:
-            addGraph(enabled, tr("TCP Errors"), "tcp.analysis.flags", ColorUtils::graphColor(4), // 4 = red
+            addGraph(enabled, false, tr("TCP Errors"), "tcp.analysis.flags", ColorUtils::graphColor(4), // 4 = red
                     IOGraph::psBar, IOG_ITEM_UNIT_PACKETS, QString(), DEFAULT_MOVING_AVERAGE, DEFAULT_Y_AXIS_FACTOR);
             break;
         }
     } else {
         switch (idx % 2) {
         case 0:
-            addGraph(enabled, tr("All Events"), QString(), ColorUtils::graphColor(idx),
+            addGraph(enabled, false, tr("All Events"), QString(), ColorUtils::graphColor(idx),
                     IOGraph::psLine, IOG_ITEM_UNIT_PACKETS, QString(), DEFAULT_MOVING_AVERAGE, DEFAULT_Y_AXIS_FACTOR);
             break;
         default:
-            addGraph(enabled, tr("All Execs"), "evt.type == \"execve\"", ColorUtils::graphColor(4), // 4 = red
+            addGraph(enabled, false, tr("All Execs"), "evt.type == \"execve\"", ColorUtils::graphColor(4), // 4 = red
                     IOGraph::psDot, IOG_ITEM_UNIT_PACKETS, QString(), DEFAULT_MOVING_AVERAGE, DEFAULT_Y_AXIS_FACTOR);
             break;
         }
@@ -747,6 +753,9 @@ void IOGraphDialog::syncGraphSettings(int row)
 
     iog->setName(uat_model_->data(uat_model_->index(row, colName)).toString());
     iog->setFilter(uat_model_->data(uat_model_->index(row, colDFilter)).toString());
+
+    bool asAOT = graphAsAOT(row);
+    iog->setAOT(asAOT);
 
     /* plot style depend on the value unit, so set it first. */
     data_str = uat_model_->data(uat_model_->index(row, colYAxis)).toString();
@@ -1002,7 +1011,6 @@ void IOGraphDialog::panAxes(int x_pixels, int y_pixels)
     }
 }
 
-
 void IOGraphDialog::toggleTracerStyle(bool force_default)
 {
     if (!tracer_->visible() && !force_default) return;
@@ -1056,6 +1064,17 @@ bool IOGraphDialog::graphIsEnabled(int row) const
     } else {
         IOGraph* iog = ioGraphs_.value(row, nullptr);
         return (iog && iog->visible());
+    }
+}
+
+bool IOGraphDialog::graphAsAOT(int row) const
+{
+    if (uat_model_) {
+        Qt::CheckState state = static_cast<Qt::CheckState>(uat_model_->data(uat_model_->index(row, colAOT), Qt::CheckStateRole).toInt());
+        return state == Qt::Checked;
+    } else {
+        IOGraph* iog = ioGraphs_.value(row, nullptr);
+        return (iog && iog->getAOT());
     }
 }
 
@@ -1177,6 +1196,7 @@ void IOGraphDialog::updateLegend()
     QSet<format_size_units_e> format_units_set;
     QSet<QString> vu_label_set;
     QString intervalText = ui->intervalComboBox->itemText(ui->intervalComboBox->currentIndex());
+    QSet<bool> aot_set;
 
     iop->legend->setVisible(false);
     iop->yAxis->setLabel(QString());
@@ -1188,6 +1208,18 @@ void IOGraphDialog::updateLegend()
             QString label(iog->valueUnitLabel());
             vu_label_set.insert(label);
             format_units_set.insert(iog->formatUnits());
+
+            /* Track "as throughput" checkboxes values */
+            io_graph_item_unit_t vu = iog->valueUnits();
+            switch(vu) {
+                case IOG_ITEM_UNIT_PACKETS:
+                case IOG_ITEM_UNIT_BYTES:
+                case IOG_ITEM_UNIT_BITS:
+                    aot_set.insert(iog->getAOT());
+                    break;
+                default:
+                    break;
+            }
         }
     }
 
@@ -1220,8 +1252,14 @@ void IOGraphDialog::updateLegend()
     }
 
     // All the same. Use the Y Axis label.
-    if (vu_label_set.size() == 1) {
-        iop->yAxis->setLabel(vu_label_set.values().constFirst() + "/" + intervalText);
+    if ((vu_label_set.size() == 1) && (aot_set.size() == 1)) {
+        if(aot_set.contains(1)) {
+            // "as throughput" was requested
+            iop->yAxis->setLabel(vu_label_set.values().constFirst() + "/s");
+        }
+        else {
+            iop->yAxis->setLabel(vu_label_set.values().constFirst() + "/" + intervalText);
+        }
     }
 
     // Create a legend with a Title label at top.
@@ -2144,6 +2182,7 @@ IOGraph::IOGraph(QCustomPlot *parent) :
     hf_index_(-1),
     interval_(0),
     start_time_(NSTIME_INIT_ZERO),
+    asAOT_(false),
     cur_idx_(-1)
 {
     Q_ASSERT(parent_ != NULL);
@@ -2275,6 +2314,22 @@ void IOGraph::applyCurrentColor()
         // that uses QCustomPlot) - see link below for how to set QCP colors:
         // https://www.qcustomplot.com/index.php/demos/barchartdemo
         bars_->setBrush(color_);
+    }
+}
+
+// Sets the Average Over Time value.
+// Mostly C/P of setVisible(), Refer to this method for comments.
+void IOGraph::setAOT(bool asAOT)
+{
+    bool old_val = asAOT_;
+    asAOT_ = asAOT;
+    if (old_val != asAOT) {
+        if (visible_ && need_retap_) {
+            need_retap_ = false;
+            emit requestRetap();
+        } else {
+            emit requestRecalc();
+        }
     }
 }
 
@@ -2834,7 +2889,7 @@ double IOGraph::getItemValue(int idx, const capture_file *cap_file) const
 {
     ws_assert(idx < max_io_items_);
 
-    return get_io_graph_item(&items_[0], val_units_, idx, hf_index_, cap_file, interval_, cur_idx_);
+    return get_io_graph_item(&items_[0], val_units_, idx, hf_index_, cap_file, interval_, cur_idx_, asAOT_);
 }
 
 // "tap_reset" callback for register_tap_listener

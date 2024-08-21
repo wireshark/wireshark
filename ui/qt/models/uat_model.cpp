@@ -11,6 +11,7 @@
  */
 
 #include "uat_model.h"
+#include "ui/qt/io_graph_dialog.h"
 #include <epan/to_str.h>
 #include <ui/qt/utils/qt_ui_utils.h>
 #include <QFont>
@@ -122,11 +123,47 @@ Qt::ItemFlags UatModel::flags(const QModelIndex &index) const
 
     uat_field_t *field = &uat_->fields[index.column()];
 
-    if (field->mode == PT_TXTMOD_BOOL)
-    {
-        flags |= Qt::ItemIsUserCheckable;
+    /* UAT being multipurpose, we want to handle this specific
+     * case for I/O Graphs here.
+     * Column indexes are defined there (io_graph_dialog precisely).
+     */
+    bool isIOGraph = g_strcmp0(uat_->name, "I/O Graphs") == 0;
+    if(isIOGraph) {
+        UatColumnsIOG ucol = colAOT;
+        if(index.column()==colAOT) {
+            ucol = colYAxis;
+            uat_field_t *field2 = &uat_->fields[ucol];
+            void *rec = UAT_INDEX_PTR(uat_, index.row());
+            char *str = NULL;
+            unsigned length;
+            field2->cb.tostr(rec, &str, &length, field2->cbdata.tostr, field2->fld_data);
+            bool allowsAOT = (str &&
+                         ( (g_strcmp0(str, "Packets") == 0) ||
+                         (g_strcmp0(str, "Bytes") == 0) ||
+                         (g_strcmp0(str, "Bits") == 0) ));
+            g_free(str);
+
+            if ((field->mode == PT_TXTMOD_BOOL) && allowsAOT ) {
+                flags |= Qt::ItemIsUserCheckable;
+            }
+        }
+        else {
+            if (field->mode == PT_TXTMOD_BOOL) {
+                flags |= Qt::ItemIsUserCheckable;
+            }
+        }
+
+        flags |= Qt::ItemIsEditable | Qt::ItemIsDragEnabled;
     }
-    flags |= Qt::ItemIsEditable | Qt::ItemIsDragEnabled;
+    else {
+        // default case (non-I/O Graph)
+        if (field->mode == PT_TXTMOD_BOOL)
+        {
+            flags |= Qt::ItemIsUserCheckable;
+        }
+        flags |= Qt::ItemIsEditable | Qt::ItemIsDragEnabled;
+    }
+
     return flags;
 }
 

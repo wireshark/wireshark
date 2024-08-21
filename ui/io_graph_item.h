@@ -189,8 +189,9 @@ GString *check_field_unit(const char *field_name, int *hf_index, io_graph_item_u
  * @param cap_file [in] Capture file.
  * @param interval [in] Timing interval in ms.
  * @param cur_idx [in] Current index.
+ * @param asAOT [in] Interpret when possible the value as an Average Over Time.
  */
-double get_io_graph_item(const io_graph_item_t *items, io_graph_item_unit_t val_units, int idx, int hf_index, const capture_file *cap_file, int interval, int cur_idx);
+double get_io_graph_item(const io_graph_item_t *items, io_graph_item_unit_t val_units, int idx, int hf_index, const capture_file *cap_file, int interval, int cur_idx, bool asAOT);
 
 /** Update the values of an io_graph_item_t.
  *

@@ -438,6 +438,16 @@ json_prep(char* buf, const jsmntok_t* tokens, int count)
         {"iograph",    "filter7",        2, JSMN_STRING,       SHARKD_JSON_STRING,   SHARKD_OPTIONAL},
         {"iograph",    "filter8",        2, JSMN_STRING,       SHARKD_JSON_STRING,   SHARKD_OPTIONAL},
         {"iograph",    "filter9",        2, JSMN_STRING,       SHARKD_JSON_STRING,   SHARKD_OPTIONAL},
+        {"iograph",    "aot0",           2, JSMN_PRIMITIVE,    SHARKD_JSON_BOOLEAN,  SHARKD_OPTIONAL},
+        {"iograph",    "aot1",           2, JSMN_PRIMITIVE,    SHARKD_JSON_BOOLEAN,  SHARKD_OPTIONAL},
+        {"iograph",    "aot2",           2, JSMN_PRIMITIVE,    SHARKD_JSON_BOOLEAN,  SHARKD_OPTIONAL},
+        {"iograph",    "aot3",           2, JSMN_PRIMITIVE,    SHARKD_JSON_BOOLEAN,  SHARKD_OPTIONAL},
+        {"iograph",    "aot4",           2, JSMN_PRIMITIVE,    SHARKD_JSON_BOOLEAN,  SHARKD_OPTIONAL},
+        {"iograph",    "aot5",           2, JSMN_PRIMITIVE,    SHARKD_JSON_BOOLEAN,  SHARKD_OPTIONAL},
+        {"iograph",    "aot6",           2, JSMN_PRIMITIVE,    SHARKD_JSON_BOOLEAN,  SHARKD_OPTIONAL},
+        {"iograph",    "aot7",           2, JSMN_PRIMITIVE,    SHARKD_JSON_BOOLEAN,  SHARKD_OPTIONAL},
+        {"iograph",    "aot8",           2, JSMN_PRIMITIVE,    SHARKD_JSON_BOOLEAN,  SHARKD_OPTIONAL},
+        {"iograph",    "aot9",           2, JSMN_PRIMITIVE,    SHARKD_JSON_BOOLEAN,  SHARKD_OPTIONAL},
         {"load",       "file",           2, JSMN_STRING,       SHARKD_JSON_STRING,   SHARKD_MANDATORY},
         {"setcomment", "frame",          2, JSMN_PRIMITIVE,    SHARKD_JSON_UINTEGER, SHARKD_MANDATORY},
         {"setcomment", "comment",        2, JSMN_STRING,       SHARKD_JSON_STRING,   SHARKD_OPTIONAL},
@@ -4404,6 +4414,7 @@ struct sharkd_iograph
     int hf_index;
     io_graph_item_unit_t calc_type;
     uint32_t interval;
+    bool aot;
 
     /* result */
     int space_items;
@@ -4526,6 +4537,7 @@ sharkd_session_process_iograph(char *buf, const jsmntok_t *tokens, int count)
         const char *tok_filter;
         char tok_format_buf[32];
         const char *field_name;
+        const char *tok_aot;
 
         snprintf(tok_format_buf, sizeof(tok_format_buf), "graph%d", i);
         tok_graph = json_find_attr(buf, tokens, count, tok_format_buf);
@@ -4575,6 +4587,15 @@ sharkd_session_process_iograph(char *buf, const jsmntok_t *tokens, int count)
         graph->num_items = 0;
         graph->items = NULL;
 
+        snprintf(tok_format_buf, sizeof(tok_format_buf), "aot%d", i);
+        tok_aot = json_find_attr(buf, tokens, count, tok_format_buf);
+        if (tok_aot!=NULL) {
+            graph->aot = (!strcmp(tok_aot, "true")) ? true : false;
+        }
+        else {
+            graph->aot = false;
+        }
+
         if (!graph->error)
             graph->error = register_tap_listener("frame", graph, tok_filter, TL_REQUIRES_PROTO_TREE, NULL, sharkd_iograph_packet, NULL, NULL);
 
@@ -4623,7 +4644,7 @@ sharkd_session_process_iograph(char *buf, const jsmntok_t *tokens, int count)
             {
                 double val;
 
-                val = get_io_graph_item(graph->items, graph->calc_type, idx, graph->hf_index, &cfile, graph->interval, graph->num_items);
+                val = get_io_graph_item(graph->items, graph->calc_type, idx, graph->hf_index, &cfile, graph->interval, graph->num_items, graph->aot);
 
                 /* if it's zero, don't display */
                 if (val == 0.0)

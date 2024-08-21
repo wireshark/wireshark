@@ -3097,7 +3097,7 @@ void LograyMainWindow::showIOGraphDialog(io_graph_item_unit_t value_units, QStri
         foreach(iog_dialog, iographdialogs) {
             if (!iog_dialog->fileClosed()) {
                 iog_found = true;
-                iog_dialog->addGraph(true, displayFilter, value_units, yfield);
+                iog_dialog->addGraph(true, false, displayFilter, value_units, yfield);
                 break;
             }
         }
