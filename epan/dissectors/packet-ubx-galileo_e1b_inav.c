@@ -83,9 +83,14 @@ static const value_string GAL_SSP[] = {
     {0, NULL},
 };
 
-/* Format mean anomaly at reference time */
-static void fmt_m0(char *label, int64_t c) {
-    snprintf(label, ITEM_LABEL_LENGTH, "%" PRId64 " * 2^-31 semi-circles", c);
+/* Format semi-circles (with 2^-31 scale factor) for
+ * - mean anomaly at reference time
+ * - longitude of ascending node of orbital plane at weekly epoch
+ * - inclination angle at reference time
+ * - argument of perigee
+ */
+static void fmt_semi_circles(char *label, int32_t c) {
+    snprintf(label, ITEM_LABEL_LENGTH, "%d * 2^-31 semi-circles", c);
 }
 
 /* Format eccentricity */
@@ -253,13 +258,13 @@ void proto_register_ubx_gal_inav(void) {
         {&hf_ubx_gal_inav_word0_tow,     {"Time of Week",        "gal_inav.word0.tow",     FT_UINT32,     BASE_DEC,  NULL, 0x000fffff,  NULL, HFILL}},
 
         // Word 1
-        {&hf_ubx_gal_inav_word1,         {"Word 1 (Ephemeris (1/4))",                 "gal_inav.word1",          FT_NONE,   BASE_NONE, NULL, 0x0,    NULL, HFILL}},
-        {&hf_ubx_gal_inav_word1_iodnav,  {"IOD_nav",                                  "gal_inav.word1.iod_nav",  FT_UINT16, BASE_DEC,  NULL, 0x03ff, NULL, HFILL}},
-        {&hf_ubx_gal_inav_word1_t0e,     {"Ephemeris reference time (t_0e)",          "gal_inav.word1.t_0e",     FT_UINT16, BASE_CUSTOM, CF_FUNC(&fmt_t0e), 0xfffc, NULL, HFILL}},
-        {&hf_ubx_gal_inav_word1_m0,      {"Mean anomaly at reference time (M_0)",     "gal_inav.word1.m_0",      FT_INT64,  BASE_CUSTOM, CF_FUNC(&fmt_m0),     0x03fffffffc000000, NULL, HFILL}},
-        {&hf_ubx_gal_inav_word1_e,       {"Eccentricity (e)",                         "gal_inav.word1.e",        FT_UINT64, BASE_CUSTOM, CF_FUNC(&fmt_e),      0x03fffffffc000000, NULL, HFILL}},
-        {&hf_ubx_gal_inav_word1_sqrta,   {"Square root of the semi-major axis (" UTF8_SQUARE_ROOT "a)", "gal_inav.word1.sqrt_a",   FT_UINT64, BASE_CUSTOM, CF_FUNC(&fmt_sqrt_a), 0x00000003fffffffc, NULL, HFILL}},
-        {&hf_ubx_gal_inav_word1_reserved,{"Reserved",                                 "gal_inav.word1.reserved", FT_UINT8,  BASE_HEX, NULL, 0x03, NULL, HFILL}},
+        {&hf_ubx_gal_inav_word1,         {"Word 1 (Ephemeris (1/4))",                                   "gal_inav.word1",          FT_NONE,   BASE_NONE,   NULL,                       0x0,                NULL, HFILL}},
+        {&hf_ubx_gal_inav_word1_iodnav,  {"IOD_nav",                                                    "gal_inav.word1.iod_nav",  FT_UINT16, BASE_DEC,    NULL,                       0x03ff,             NULL, HFILL}},
+        {&hf_ubx_gal_inav_word1_t0e,     {"Ephemeris reference time (t_0e)",                            "gal_inav.word1.t_0e",     FT_UINT16, BASE_CUSTOM, CF_FUNC(&fmt_t0e),          0xfffc,             NULL, HFILL}},
+        {&hf_ubx_gal_inav_word1_m0,      {"Mean anomaly at reference time (M" UTF8_SUBSCRIPT_ZERO ")",  "gal_inav.word1.m_0",      FT_INT64,  BASE_CUSTOM, CF_FUNC(&fmt_semi_circles), 0x03fffffffc000000, NULL, HFILL}},
+        {&hf_ubx_gal_inav_word1_e,       {"Eccentricity (e)",                                           "gal_inav.word1.e",        FT_UINT64, BASE_CUSTOM, CF_FUNC(&fmt_e),            0x03fffffffc000000, NULL, HFILL}},
+        {&hf_ubx_gal_inav_word1_sqrta,   {"Square root of the semi-major axis (" UTF8_SQUARE_ROOT "a)", "gal_inav.word1.sqrt_a",   FT_UINT64, BASE_CUSTOM, CF_FUNC(&fmt_sqrt_a),       0x00000003fffffffc, NULL, HFILL}},
+        {&hf_ubx_gal_inav_word1_reserved,{"Reserved",                                                   "gal_inav.word1.reserved", FT_UINT8,  BASE_HEX,    NULL,                       0x03,               NULL, HFILL}},
     };
 
     static int *ett[] = {
