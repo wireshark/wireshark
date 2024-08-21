@@ -1065,6 +1065,7 @@ check_for_zstd_compression(FILE_T state)
             return -1;
         }
 
+        fast_seek_header(state, state->raw_pos - state->in.avail, state->pos, ZSTD);
         state->compression = ZSTD;
         state->is_compressed = true;
         return 1;
@@ -1984,17 +1985,20 @@ file_seek(FILE_T file, int64_t offset, int whence, int *err)
 
     /*
      * We're not seeking within the buffer.  Do we have "fast seek" data
-     * for the location to which we will be seeking, and is the offset
-     * outside the span for compressed files or is this an uncompressed
-     * file?
+     * for the location to which we will be seeking, and are we either
+     * seeking backwards or is the fast seek point past what is in the
+     * buffer? (We don't want to "fast seek" backwards to a point that
+     * we've already read and buffered if we're actually seeking forwards.)
      *
-     * For LZ4, we need to use the fast seek data even if we're within
-     * a SPAN in the case where the LZ4F_frameInfo data changed.
-     *
-     * XXX, profile
+     * It might in certain cases be faster to continue reading linearly
+     * foward rather than jump to the fast seek point if the distance
+     * to the fast seek point is small, but we might only be able to do that
+     * if the compression context doesn't change (which for LZ4 includes if
+     * we jump to a LZ4 with different options.)
+     * XXX - profile different buffer and SPAN sizes
      */
     if ((here = fast_seek_find(file, file->pos + offset)) &&
-        (offset < 0 || offset > SPAN || here->compression == UNCOMPRESSED || here->compression == LZ4)) {
+        (offset < 0 || here->out >= file->pos + file->out.avail)) {
         int64_t off, off2;
 
         /*
@@ -2029,9 +2033,16 @@ file_seek(FILE_T file, int64_t offset, int whence, int *err)
             break;
 #endif /* USE_LZ4 */
 
-        default:
+        case UNCOMPRESSED:
+            /* In an uncompressed portion, seek directly to the offset */
             off2 = (file->pos + offset);
             off = here->in + (off2 - here->out);
+            break;
+
+        default:
+            /* Otherwise, seek to the fast seek point to do any needed setup. */
+            off = here->in;
+            off2 = here->out;
             break;
         }
 
@@ -2120,6 +2131,20 @@ file_seek(FILE_T file, int64_t offset, int whence, int *err)
             file->compression = LZ4;
             break;
 #endif /* USE_LZ4 */
+
+#ifdef HAVE_ZSTD
+        case ZSTD:
+        {
+            const size_t ret = ZSTD_initDStream(file->zstd_dctx);
+            if (ZSTD_isError(ret)) {
+                file->err = WTAP_ERR_DECOMPRESS;
+                file->err_info = ZSTD_getErrorName(ret);
+                return -1;
+            }
+            file->compression = ZSTD;
+            break;
+        }
+#endif /* HAVE_ZSTD */
 
         default:
             file->compression = here->compression;
