@@ -254,6 +254,10 @@ void PreferencesDialog::apply()
     unsigned int redissect_flags = 0;
 
     // XXX - We should validate preferences as the user changes them, not here.
+    //       Some, but not all, of the preference controls validate the input,
+    //       but they don't disable the OK/Apply button, and, what's worse, the
+    //       "stashed" value is sometimes the last valid input, not, e.g., the
+    //       input when the dialog was opened.
     // XXX - We're also too enthusiastic about setting must_redissect.
     prefs_modules_foreach_submodules(NULL, module_prefs_unstash, (void *)&redissect_flags);
 
