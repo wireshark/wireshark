@@ -128,7 +128,15 @@ class ColCall:
             print('Warning:', self.issue_prefix(), " - don't need fstr API?")
             warnings_found += 1
 
-        # String should be static, or at least persist
+        # Unlikely, but did someone accidentally include a specifier but call str() function with no args?
+        if self.last_args.startswith('"') and self.last_args.find("%") != -1 and self.name.find('fstr') == -1:
+            print('Warning:', self.issue_prefix(), " - meant to call fstr version of function?")
+            warnings_found += 1
+
+        ternary_re = re.compile(r'.*\s*\?\s*.*\".*\"\s*:\s*.*\".*\"')
+
+        # String should be static, or at least persist.
+        # TODO: how persistent does it need to be.  Which memory scope is appropriate?
         if self.name == 'col_set_str':
             # Literal strings are safe, as well as some other patterns..
             if self.last_args.startswith('"'):
@@ -136,13 +144,15 @@ class ColCall:
             elif self.last_args.startswith('val_to_str_const') or self.last_args.startswith('val_to_str_ext_const'):
                 return
             # TODO: substitute macros to avoid some special cases..
-            elif self.last_args.startswith('PSNAME') or self.last_args.startswith('PNAME') or self.last_args.startswith('PROTO_SHORT_NAME'):
+            elif self.last_args.upper() == self.last_args:
                 return
-            # TODO; match ternary test with both outcomes being literal strings?
+            # Ternary test with both outcomes being literal strings?
+            elif ternary_re.match(self.last_args):
+                return
             else:
                 if self.verbose:
                     # Not easy/possible to judge lifetime of string..
-                    print('Note:', self.issue_prefix(), '- is this OK??')
+                    print('Note:', self.issue_prefix(), '- is this persistent enough??')
 
         if self.name == 'col_add_str':
             # If literal string, could have used col_set_str instead?
