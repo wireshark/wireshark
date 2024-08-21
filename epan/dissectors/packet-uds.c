@@ -1109,6 +1109,7 @@ static const enum_val_t certificate_decoding_vals[] = {
 static int uds_certificate_decoding_config = (int)cert_parsing_off;
 
 static bool uds_dissect_small_sids_with_obd_ii = true;
+static bool uds_clear_info_col = false;
 
 typedef struct _address_string {
     unsigned address;
@@ -2243,7 +2244,12 @@ dissect_uds_internal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint16
     uint32_t    offset = 0;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "UDS");
-    col_clear(pinfo->cinfo,COL_INFO);
+
+    if (uds_clear_info_col) {
+        col_clear(pinfo->cinfo, COL_INFO);
+    } else {
+        col_append_str(pinfo->cinfo, COL_INFO, " ");
+    }
 
     sid = tvb_get_uint8(tvb, offset);
     service = sid & UDS_SID_MASK;
@@ -2254,7 +2260,7 @@ dissect_uds_internal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint16
 
     service_name = val_to_str_ext(service, &uds_services_ext, "Unknown (0x%02x)");
 
-    col_add_fstr(pinfo->cinfo, COL_INFO, "%-7s   %-36s", (sid & UDS_REPLY_MASK)? "Reply": "Request", service_name);
+    col_append_fstr(pinfo->cinfo, COL_INFO, "%-7s   %-36s", (sid & UDS_REPLY_MASK)? "Reply": "Request", service_name);
 
     ti = proto_tree_add_item(tree, proto_uds, tvb, offset, -1, ENC_NA);
     uds_tree = proto_item_add_subtree(ti, ett_uds);
@@ -3830,6 +3836,11 @@ proto_register_uds(void) {
         "Certificate Decoding Strategy",
         "Decide how the certificate bytes are decoded",
         &uds_certificate_decoding_config, certificate_decoding_vals, false);
+
+    prefs_register_bool_preference(uds_module, "do_clear_info_col",
+        "Show only UDS in the Info Column",
+        "Show only UDS in the Info Column?",
+        &uds_clear_info_col);
 
     heur_subdissector_list = register_heur_dissector_list_with_description("uds", "UDS RDBI data", proto_uds);
 }
