@@ -63,11 +63,20 @@ static int hf_ubx_gal_inav_word1_e;
 static int hf_ubx_gal_inav_word1_sqrta;
 static int hf_ubx_gal_inav_word1_reserved;
 
+static int hf_ubx_gal_inav_word2;
+static int hf_ubx_gal_inav_word2_iodnav;
+static int hf_ubx_gal_inav_word2_omega0;
+static int hf_ubx_gal_inav_word2_i0;
+static int hf_ubx_gal_inav_word2_omega;
+static int hf_ubx_gal_inav_word2_incl_angle_rate;
+static int hf_ubx_gal_inav_word2_reserved;
+
 static dissector_table_t ubx_gal_inav_word_dissector_table;
 
 static int ett_ubx_gal_inav;
 static int ett_ubx_gal_inav_word0;
 static int ett_ubx_gal_inav_word1;
+static int ett_ubx_gal_inav_word2;
 static int ett_ubx_gal_inav_sar;
 
 static const value_string GAL_PAGE_TYPE[] = {
@@ -91,6 +100,13 @@ static const value_string GAL_SSP[] = {
  */
 static void fmt_semi_circles(char *label, int32_t c) {
     snprintf(label, ITEM_LABEL_LENGTH, "%d * 2^-31 semi-circles", c);
+}
+
+/* Format rate of semi-circles (with 2^-43 scale factor) for
+ * - inclination angle
+ */
+static void fmt_semi_circles_rate(char *label, int16_t c) {
+    snprintf(label, ITEM_LABEL_LENGTH, "%d * 2^-43 semi-circles/s", c);
 }
 
 /* Format eccentricity */
@@ -226,6 +242,24 @@ static int dissect_ubx_gal_inav_word1(tvbuff_t *tvb, packet_info *pinfo _U_, pro
     return tvb_captured_length(tvb);
 }
 
+/* Dissect word 2 - Ephemeris (2/4) */
+static int dissect_ubx_gal_inav_word2(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_) {
+    col_append_str(pinfo->cinfo, COL_INFO, "Word 2 (Ephemeris (2/4))");
+
+    proto_item *ti = proto_tree_add_item(tree, hf_ubx_gal_inav_word2, tvb, 0, 16, ENC_NA);
+    proto_tree *word_tree = proto_item_add_subtree(ti, ett_ubx_gal_inav_word2);
+
+    proto_tree_add_item(word_tree, hf_ubx_gal_inav_word_type,             tvb,  0, 1, ENC_NA);
+    proto_tree_add_item(word_tree, hf_ubx_gal_inav_word2_iodnav,          tvb,  0, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(word_tree, hf_ubx_gal_inav_word2_omega0,          tvb,  2, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(word_tree, hf_ubx_gal_inav_word2_i0,              tvb,  6, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(word_tree, hf_ubx_gal_inav_word2_omega,           tvb, 10, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(word_tree, hf_ubx_gal_inav_word2_incl_angle_rate, tvb, 14, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(word_tree, hf_ubx_gal_inav_word2_reserved,        tvb, 15, 1, ENC_NA);
+
+    return tvb_captured_length(tvb);
+}
+
 void proto_register_ubx_gal_inav(void) {
 
     static hf_register_info hf[] = {
@@ -265,6 +299,15 @@ void proto_register_ubx_gal_inav(void) {
         {&hf_ubx_gal_inav_word1_e,       {"Eccentricity (e)",                                           "gal_inav.word1.e",        FT_UINT64, BASE_CUSTOM, CF_FUNC(&fmt_e),            0x03fffffffc000000, NULL, HFILL}},
         {&hf_ubx_gal_inav_word1_sqrta,   {"Square root of the semi-major axis (" UTF8_SQUARE_ROOT "a)", "gal_inav.word1.sqrt_a",   FT_UINT64, BASE_CUSTOM, CF_FUNC(&fmt_sqrt_a),       0x00000003fffffffc, NULL, HFILL}},
         {&hf_ubx_gal_inav_word1_reserved,{"Reserved",                                                   "gal_inav.word1.reserved", FT_UINT8,  BASE_HEX,    NULL,                       0x03,               NULL, HFILL}},
+
+        // Word 2
+        {&hf_ubx_gal_inav_word2,                 {"Word 2 (Ephemeris (2/4))",                                                                                  "gal_inav.word2",          FT_NONE,   BASE_NONE,   NULL,                            0x0,        NULL, HFILL}},
+        {&hf_ubx_gal_inav_word2_iodnav,          {"IOD_nav",                                                                                                   "gal_inav.word2.iod_nav",  FT_UINT16, BASE_DEC,    NULL,                            0x03ff,     NULL, HFILL}},
+        {&hf_ubx_gal_inav_word2_omega0,          {"Longitude of ascending node of orbital plane at weekly epoch (" UTF8_CAPITAL_OMEGA UTF8_SUBSCRIPT_ZERO ")", "gal_inav.word2.omega_0",  FT_INT32,  BASE_CUSTOM, CF_FUNC(&fmt_semi_circles),      0xffffffff, NULL, HFILL}},
+        {&hf_ubx_gal_inav_word2_i0,              {"Inclination angle at reference time (i" UTF8_SUBSCRIPT_ZERO ")",                                            "gal_inav.word2.i_0",      FT_INT32,  BASE_CUSTOM, CF_FUNC(&fmt_semi_circles),      0xffffffff, NULL, HFILL}},
+        {&hf_ubx_gal_inav_word2_omega,           {"Argument of perigee (" UTF8_OMEGA ")",                                                                      "gal_inav.word2.omega",    FT_INT32,  BASE_CUSTOM, CF_FUNC(&fmt_semi_circles),      0xffffffff, NULL, HFILL}},
+        {&hf_ubx_gal_inav_word2_incl_angle_rate, {"Rate of change of inclination angle (di)",                                                                  "gal_inav.word2.di",       FT_INT16,  BASE_CUSTOM, CF_FUNC(&fmt_semi_circles_rate), 0xfffc,     NULL, HFILL}},
+        {&hf_ubx_gal_inav_word2_reserved,        {"Reserved",                                                                                                  "gal_inav.word2.reserved", FT_UINT8,  BASE_HEX,    NULL,                            0x03,       NULL, HFILL}},
     };
 
     static int *ett[] = {
@@ -288,4 +331,5 @@ void proto_reg_handoff_ubx_gal_inav(void) {
 
     dissector_add_uint("ubx.rxm.sfrbx.gal_inav.word", 0, create_dissector_handle(dissect_ubx_gal_inav_word0, proto_ubx_gal_inav));
     dissector_add_uint("ubx.rxm.sfrbx.gal_inav.word", 1, create_dissector_handle(dissect_ubx_gal_inav_word1, proto_ubx_gal_inav));
+    dissector_add_uint("ubx.rxm.sfrbx.gal_inav.word", 2, create_dissector_handle(dissect_ubx_gal_inav_word2, proto_ubx_gal_inav));
 }
