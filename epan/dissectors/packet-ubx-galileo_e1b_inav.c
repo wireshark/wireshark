@@ -47,15 +47,15 @@ static int hf_ubx_gal_inav_tail;
 static int hf_ubx_gal_inav_pad;
 static int hf_ubx_gal_inav_reserved_1;
 
+static int hf_ubx_gal_inav_word_type;
+
 static int hf_ubx_gal_inav_word0;
-static int hf_ubx_gal_inav_word0_type;
 static int hf_ubx_gal_inav_word0_time;
 static int hf_ubx_gal_inav_word0_spare;
 static int hf_ubx_gal_inav_word0_wn;
 static int hf_ubx_gal_inav_word0_tow;
 
 static int hf_ubx_gal_inav_word1;
-static int hf_ubx_gal_inav_word1_type;
 static int hf_ubx_gal_inav_word1_iodnav;
 static int hf_ubx_gal_inav_word1_t0e;
 static int hf_ubx_gal_inav_word1_m0;
@@ -194,7 +194,7 @@ static int dissect_ubx_gal_inav_word0(tvbuff_t *tvb, packet_info *pinfo _U_, pro
     proto_item *ti = proto_tree_add_item(tree, hf_ubx_gal_inav_word0, tvb, 0, 16, ENC_NA);
     proto_tree *word_tree = proto_item_add_subtree(ti, ett_ubx_gal_inav_word0);
 
-    proto_tree_add_item(word_tree, hf_ubx_gal_inav_word0_type,  tvb,  0,  1, ENC_NA);
+    proto_tree_add_item(word_tree, hf_ubx_gal_inav_word_type,   tvb,  0,  1, ENC_NA);
     proto_tree_add_item(word_tree, hf_ubx_gal_inav_word0_time,  tvb,  0,  1, ENC_NA);
     proto_tree_add_item(word_tree, hf_ubx_gal_inav_word0_spare, tvb,  1, 11, ENC_NA);
     proto_tree_add_item(word_tree, hf_ubx_gal_inav_word0_wn,    tvb, 12,  4, ENC_BIG_ENDIAN);
@@ -210,7 +210,7 @@ static int dissect_ubx_gal_inav_word1(tvbuff_t *tvb, packet_info *pinfo _U_, pro
     proto_item *ti = proto_tree_add_item(tree, hf_ubx_gal_inav_word1, tvb, 0, 16, ENC_NA);
     proto_tree *word_tree = proto_item_add_subtree(ti, ett_ubx_gal_inav_word1);
 
-    proto_tree_add_item(word_tree, hf_ubx_gal_inav_word1_type,     tvb,  0, 1, ENC_NA);
+    proto_tree_add_item(word_tree, hf_ubx_gal_inav_word_type,      tvb,  0, 1, ENC_NA);
     proto_tree_add_item(word_tree, hf_ubx_gal_inav_word1_iodnav,   tvb,  0, 2, ENC_BIG_ENDIAN);
     proto_tree_add_item(word_tree, hf_ubx_gal_inav_word1_t0e,      tvb,  2, 2, ENC_BIG_ENDIAN);
     proto_tree_add_item(word_tree, hf_ubx_gal_inav_word1_m0,       tvb,  3, 8, ENC_BIG_ENDIAN);
@@ -242,9 +242,11 @@ void proto_register_ubx_gal_inav(void) {
         {&hf_ubx_gal_inav_tail,          {"Tail",          "gal_inav.tail",          FT_UINT8,   BASE_HEX,  NULL,                0x3f,               NULL, HFILL}},
         {&hf_ubx_gal_inav_pad,           {"Pad",           "gal_inav.pad",           FT_UINT8,   BASE_HEX,  NULL,                0x0,                NULL, HFILL}},
 
+        // Data words
+        {&hf_ubx_gal_inav_word_type,     {"Type",                "gal_inav.word.type",     FT_UINT8,      BASE_DEC,  NULL, 0xfc, NULL, HFILL}},
+
         // Word 0
         {&hf_ubx_gal_inav_word0,         {"Word 0 (Spare Word)", "gal_inav.word0",         FT_NONE,       BASE_NONE, NULL, 0x0,  NULL, HFILL}},
-        {&hf_ubx_gal_inav_word0_type,    {"Type",                "gal_inav.word0.type",    FT_UINT8,      BASE_HEX,  NULL, 0xfc, NULL, HFILL}},
         {&hf_ubx_gal_inav_word0_time,    {"Time",                "gal_inav.word0.time",    FT_UINT8,      BASE_HEX,  NULL, 0x03, NULL, HFILL}},
         {&hf_ubx_gal_inav_word0_spare,   {"Spare",               "gal_inav.word0.spare",   FT_BYTES,      BASE_NONE|SEP_SPACE, NULL, 0x0,  NULL, HFILL}},
         {&hf_ubx_gal_inav_word0_wn,      {"Week Number",         "gal_inav.word0.wn",      FT_UINT32,     BASE_DEC,  NULL, 0xfff00000,  NULL, HFILL}},
@@ -252,7 +254,6 @@ void proto_register_ubx_gal_inav(void) {
 
         // Word 1
         {&hf_ubx_gal_inav_word1,         {"Word 1 (Ephemeris (1/4))",                 "gal_inav.word1",          FT_NONE,   BASE_NONE, NULL, 0x0,    NULL, HFILL}},
-        {&hf_ubx_gal_inav_word1_type,    {"Type",                                     "gal_inav.word1.type",     FT_UINT8,  BASE_HEX,  NULL, 0xfc,   NULL, HFILL}},
         {&hf_ubx_gal_inav_word1_iodnav,  {"IOD_nav",                                  "gal_inav.word1.iod_nav",  FT_UINT16, BASE_DEC,  NULL, 0x03ff, NULL, HFILL}},
         {&hf_ubx_gal_inav_word1_t0e,     {"Ephemeris reference time (t_0e)",          "gal_inav.word1.t_0e",     FT_UINT16, BASE_CUSTOM, CF_FUNC(&fmt_t0e), 0xfffc, NULL, HFILL}},
         {&hf_ubx_gal_inav_word1_m0,      {"Mean anomaly at reference time (M_0)",     "gal_inav.word1.m_0",      FT_INT64,  BASE_CUSTOM, CF_FUNC(&fmt_m0),     0x03fffffffc000000, NULL, HFILL}},
