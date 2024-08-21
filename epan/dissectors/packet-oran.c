@@ -324,6 +324,7 @@ static expert_field ei_oran_mcot_out_of_range;
 static expert_field ei_oran_se10_unknown_beamgrouptype;
 static expert_field ei_oran_start_symbol_id_not_zero;
 static expert_field ei_oran_trx_control_cmd_scope;
+static expert_field ei_oran_unhandled_se;
 
 
 
@@ -813,6 +814,7 @@ typedef struct {
 static void ext11_work_out_bundles(unsigned startPrbc,
                                    unsigned numPrbc,
                                    unsigned numBundPrb,             /* number of PRBs pre (full) bundle */
+                                   bool rad _U_,
                                    ext11_settings_t *settings)
 {
     /* Allocation configured by ext 6 */
@@ -823,7 +825,7 @@ static void ext11_work_out_bundles(unsigned startPrbc,
            rbg size.  i.e. each bundle gets the correct number of PRBs until
            all rbg entries are consumed... */
 
-        /* TODO: need to check 7.9.4.2 */
+        /* TODO: need to check 7.9.4.2.  Different cases depending upon value of RAD */
 
         if (bundles_per_entry == 0) {
             bundles_per_entry = 1;
@@ -1526,7 +1528,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
         }
     }
     else if (sectionType == SEC_C_SLOT_CONTROL) { /* Section Type 4 */
-        /* TODO: ? */
+        /* Nothing here.. */
     }
     else if (sectionType == SEC_C_CH_INFO) {  /* Section Type 6 */
         /* ef */
@@ -1766,7 +1768,8 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
 
         /* extType */
         uint32_t exttype;
-        proto_tree_add_item_ret_uint(extension_tree, hf_oran_exttype, tvb, offset, 1, ENC_BIG_ENDIAN, &exttype);
+        proto_item *exttype_ti;
+        exttype_ti = proto_tree_add_item_ret_uint(extension_tree, hf_oran_exttype, tvb, offset, 1, ENC_BIG_ENDIAN, &exttype);
         offset++;
         proto_item_append_text(sectionHeading, " (ext-%u)", exttype);
 
@@ -2147,6 +2150,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
             {
                 bool disableBFWs;
                 uint32_t numBundPrb;
+                bool rad;
 
                 /* disableBFWs */
                 proto_tree_add_item_ret_boolean(extension_tree, hf_oran_disable_bfws,
@@ -2155,8 +2159,8 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                     proto_item_append_text(extension_ti, " (disableBFWs)");
                 }
                 /* RAD */
-                proto_tree_add_item(extension_tree, hf_oran_rad,
-                                    tvb, offset, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_item_ret_boolean(extension_tree, hf_oran_rad,
+                                    tvb, offset, 1, ENC_BIG_ENDIAN, &rad);
                 /* 6 reserved bits */
                 proto_tree_add_item(extension_tree, hf_oran_ext11_reserved, tvb,
                                     offset, 1, ENC_BIG_ENDIAN);
@@ -2197,7 +2201,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                     }
 
                     /* Work out bundles! */
-                    ext11_work_out_bundles(startPrbc, numPrbc, numBundPrb, &ext11_settings);
+                    ext11_work_out_bundles(startPrbc, numPrbc, numBundPrb, rad, &ext11_settings);
                     num_bundles = ext11_settings.num_bundles;
 
                     /* Add (complete) bundles */
@@ -2233,7 +2237,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                         break;
                     }
 
-                    ext11_work_out_bundles(startPrbc, numPrbc, numBundPrb, &ext11_settings);
+                    ext11_work_out_bundles(startPrbc, numPrbc, numBundPrb, rad, &ext11_settings);
                     num_bundles = ext11_settings.num_bundles;
 
                     for (unsigned n=0; n < num_bundles; n++) {
@@ -2403,6 +2407,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                 uint32_t end_bit = (offset+extlen_remaining_bytes) * 8;
                 uint32_t ueid_index = 1;
                 /* TODO: just filling up all available bytes - some may actually be padding.. */
+                /* "the preceding Section Type and extension messages implicitly provide the number of scheduled users" */
                 for (uint32_t bit_offset=offset*8; bit_offset < end_bit; bit_offset+=4, ueid_index++) {
                     proto_item *ti = proto_tree_add_bits_item(extension_tree, hf_oran_num_ueid, tvb, bit_offset, 4, ENC_BIG_ENDIAN);
                     proto_item_append_text(ti, " (user #%u)", ueid_index);
@@ -2429,7 +2434,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
 
             case 19:  /* Compact beamforming information for multiple port */
             {
-                /* beamId in section header should be ignored */
+                /* beamId in section header should be ignored. Guard against appending multiple times.. */
                 if (beamId_ti && !beamId_ignored) {
                     proto_item_append_text(beamId_ti, " (ignored)");
                     beamId_ignored = true;
@@ -2443,7 +2448,8 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                     proto_item_append_text(extension_ti, " (disableBFWs)");
                 }
                 /* Repetition */
-                proto_tree_add_bits_item(extension_tree, hf_oran_repetition, tvb, (offset*8)+1, 1, ENC_BIG_ENDIAN);
+                uint64_t repetition;
+                proto_tree_add_bits_ret_val(extension_tree, hf_oran_repetition, tvb, (offset*8)+1, 1, &repetition, ENC_BIG_ENDIAN);
                 /* numPortc */
                 uint32_t numPortc;
                 proto_tree_add_item_ret_uint(extension_tree, hf_oran_numPortc,
@@ -2462,100 +2468,101 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                 offset = dissect_bfwCompHdr(tvb, extension_tree, offset,
                                             &bfwcomphdr_iq_width, &bfwcomphdr_comp_meth, &comp_meth_ti);
 
-                /* Add entries for each port */
-                for (unsigned port=0; port < numPortc; port++) {
+                if (!repetition) {
 
-                    /* Create subtree for port entry*/
-                    int port_start_offset = offset;
-                    proto_item *port_ti = proto_tree_add_string_format(extension_tree, hf_oran_ext19_port,
-                                                                       tvb, offset, 0,
-                                                                      "", "Port %u: ", port);
-                    proto_tree *port_tree = proto_item_add_subtree(port_ti, ett_oran_ext19_port);
+                    /* Add entries for each port */
+                    for (unsigned port=0; port < numPortc; port++) {
 
+                        /* Create subtree for port entry*/
+                        int port_start_offset = offset;
+                        proto_item *port_ti = proto_tree_add_string_format(extension_tree, hf_oran_ext19_port,
+                                                                           tvb, offset, 0,
+                                                                          "", "Port %u: ", port);
+                        proto_tree *port_tree = proto_item_add_subtree(port_ti, ett_oran_ext19_port);
 
+                        /* Reserved (4 bits) */
+                        proto_tree_add_item(port_tree, hf_oran_reserved_4bits, tvb, offset, 1, ENC_BIG_ENDIAN);
+                        /* portReMask (12 bits) */
+                        proto_tree_add_item(port_tree, hf_oran_portReMask, tvb, offset, 2, ENC_BIG_ENDIAN);
+                        offset += 2;
 
-                    /* Reserved (4 bits) */
-                    proto_tree_add_item(port_tree, hf_oran_reserved_4bits, tvb, offset, 1, ENC_BIG_ENDIAN);
-                    /* portReMask (12 bits) */
-                    proto_tree_add_item(port_tree, hf_oran_portReMask, tvb, offset, 2, ENC_BIG_ENDIAN);
-                    offset += 2;
-
-                    /* Reserved (2 bits) */
-                    proto_tree_add_item(port_tree, hf_oran_reserved_2bits, tvb, offset, 1, ENC_BIG_ENDIAN);
-                    /* portSymbolMask (14 bits) */
-                    proto_tree_add_item(port_tree, hf_oran_portSymbolMask, tvb, offset, 2, ENC_BIG_ENDIAN);
-                    offset += 2;
-
-                    /* Reserved (1 bit) */
-                    proto_tree_add_item(port_tree, hf_oran_reserved_1bit, tvb, offset, 1, ENC_BIG_ENDIAN);
-                    /* beamID (15 bits) */
-                    proto_tree_add_item_ret_uint(port_tree, hf_oran_beamId, tvb, offset, 2, ENC_BIG_ENDIAN, &beamId);
-                    proto_item_append_text(port_ti, " (beamId=%u)", beamId);
-                    offset += 2;
-
-                    /* bfwCompParam (TODO: present in disableBFWs case?) */
-                    bool compression_method_supported = false;
-                    uint32_t exponent = 0;
-                    offset = dissect_bfwCompParam(tvb, port_tree, pinfo, offset, comp_meth_ti,
-                                                  bfwcomphdr_comp_meth, &exponent, &compression_method_supported);
-
-
-                    if (!disableBFWs) {
-                        /*****************************************************************/
-                        /* Table 7.7.19.1-1 (there is no part 2 for disableBFWs case...) */
-                        /*****************************************************************/
-
-                        /* Look up width of samples. */
-                        uint8_t iq_width = !bfwcomphdr_iq_width ? 16 : bfwcomphdr_iq_width;
-
-                        int bit_offset = offset*8;
-                        int bfw_offset;
-
-                        /* Add weights for each TRX */
-                        for (unsigned b=0; b < pref_num_bf_antennas; b++) {
-
-                            /* Create BFW subtree */
-                            bfw_offset = bit_offset / 8;
-                            uint8_t bfw_extent = ((bit_offset + (iq_width*2)) / 8) - bfw_offset;
-                            proto_item *bfw_ti = proto_tree_add_string_format(port_tree, hf_oran_bfw,
-                                                                              tvb, bfw_offset, bfw_extent,
-                                                                              "", "TRX %u: (", b);
-                            proto_tree *bfw_tree = proto_item_add_subtree(bfw_ti, ett_oran_bfw);
-
-                            /* I */
-                            /* Get bits, and convert to float. */
-                            uint32_t bits = tvb_get_bits(tvb, bit_offset, iq_width, ENC_BIG_ENDIAN);
-                            float value = decompress_value(bits, bfwcomphdr_comp_meth, iq_width, exponent);
-                            /* Add to tree. */
-                            proto_tree_add_float_format_value(bfw_tree, hf_oran_bfw_i, tvb, bit_offset/8, (iq_width+7)/8, value, "#%u=%f", b, value);
-                            bit_offset += iq_width;
-                            proto_item_append_text(bfw_ti, "I%u=%f ", b, value);
-
-                            /* Q */
-                            /* Get bits, and convert to float. */
-                            bits = tvb_get_bits(tvb, bit_offset, iq_width, ENC_BIG_ENDIAN);
-                            value = decompress_value(bits, bfwcomphdr_comp_meth, iq_width, exponent);
-                            /* Add to tree. */
-                            proto_tree_add_float_format_value(bfw_tree, hf_oran_bfw_q, tvb, bit_offset/8, (iq_width+7)/8, value, "#%u=%f", b, value);
-                            bit_offset += iq_width;
-                            proto_item_append_text(bfw_ti, "Q%u=%f)", b, value);
-                        }
-
-                        offset = (bit_offset+7)/8;
-                    }
-                    else {
-                        /* No weights... */
+                        /* Reserved (2 bits) */
+                        proto_tree_add_item(port_tree, hf_oran_reserved_2bits, tvb, offset, 1, ENC_BIG_ENDIAN);
+                        /* portSymbolMask (14 bits) */
+                        proto_tree_add_item(port_tree, hf_oran_portSymbolMask, tvb, offset, 2, ENC_BIG_ENDIAN);
+                        offset += 2;
 
                         /* Reserved (1 bit) */
-                        proto_tree_add_bits_item(extension_tree, hf_oran_reserved, tvb, offset*8, 1, ENC_BIG_ENDIAN);
+                        proto_tree_add_item(port_tree, hf_oran_reserved_1bit, tvb, offset, 1, ENC_BIG_ENDIAN);
                         /* beamID (15 bits) */
-                        proto_tree_add_item_ret_uint(extension_tree, hf_oran_beamId, tvb, offset, 2, ENC_BIG_ENDIAN, &beamId);
+                        proto_tree_add_item_ret_uint(port_tree, hf_oran_beamId, tvb, offset, 2, ENC_BIG_ENDIAN, &beamId);
                         proto_item_append_text(port_ti, " (beamId=%u)", beamId);
                         offset += 2;
-                    }
 
-                    /* Set length of this port entry */
-                    proto_item_set_len(port_ti, offset-port_start_offset);
+                        /* bfwCompParam (TODO: present in disableBFWs case??) */
+                        bool compression_method_supported = false;
+                        uint32_t exponent = 0;
+                        offset = dissect_bfwCompParam(tvb, port_tree, pinfo, offset, comp_meth_ti,
+                                                      bfwcomphdr_comp_meth, &exponent, &compression_method_supported);
+
+                        /* No weights present */
+                        if (!disableBFWs) {
+                            /*****************************************************************/
+                            /* Table 7.7.19.1-1 (there is no part 2 for disableBFWs case...) */
+                            /*****************************************************************/
+
+                            /* Look up width of samples. */
+                            uint8_t iq_width = !bfwcomphdr_iq_width ? 16 : bfwcomphdr_iq_width;
+
+                            int bit_offset = offset*8;
+                            int bfw_offset;
+
+                            /* Add weights for each TRX */
+                            for (unsigned b=0; b < pref_num_bf_antennas; b++) {
+
+                                /* Create BFW subtree */
+                                bfw_offset = bit_offset / 8;
+                                uint8_t bfw_extent = ((bit_offset + (iq_width*2)) / 8) - bfw_offset;
+                                proto_item *bfw_ti = proto_tree_add_string_format(port_tree, hf_oran_bfw,
+                                                                                  tvb, bfw_offset, bfw_extent,
+                                                                                  "", "TRX %u: (", b);
+                                proto_tree *bfw_tree = proto_item_add_subtree(bfw_ti, ett_oran_bfw);
+
+                                /* I */
+                                /* Get bits, and convert to float. */
+                                uint32_t bits = tvb_get_bits(tvb, bit_offset, iq_width, ENC_BIG_ENDIAN);
+                                float value = decompress_value(bits, bfwcomphdr_comp_meth, iq_width, exponent);
+                                /* Add to tree. */
+                                proto_tree_add_float_format_value(bfw_tree, hf_oran_bfw_i, tvb, bit_offset/8, (iq_width+7)/8, value, "#%u=%f", b, value);
+                                bit_offset += iq_width;
+                                proto_item_append_text(bfw_ti, "I%u=%f ", b, value);
+
+                                /* Q */
+                                /* Get bits, and convert to float. */
+                                bits = tvb_get_bits(tvb, bit_offset, iq_width, ENC_BIG_ENDIAN);
+                                value = decompress_value(bits, bfwcomphdr_comp_meth, iq_width, exponent);
+                                /* Add to tree. */
+                                proto_tree_add_float_format_value(bfw_tree, hf_oran_bfw_q, tvb, bit_offset/8, (iq_width+7)/8, value, "#%u=%f", b, value);
+                                bit_offset += iq_width;
+                                proto_item_append_text(bfw_ti, "Q%u=%f)", b, value);
+                            }
+
+                            offset = (bit_offset+7)/8;
+                        }
+                        else {
+                            /* No weights... */
+
+                            /* Reserved (1 bit) */
+                            proto_tree_add_bits_item(extension_tree, hf_oran_reserved, tvb, offset*8, 1, ENC_BIG_ENDIAN);
+                            /* beamID (15 bits) */
+                            proto_tree_add_item_ret_uint(extension_tree, hf_oran_beamId, tvb, offset, 2, ENC_BIG_ENDIAN, &beamId);
+                            proto_item_append_text(port_ti, " (beamId=%u)", beamId);
+                            offset += 2;
+                        }
+
+                        /* Set length of this port entry */
+                        proto_item_set_len(port_ti, offset-port_start_offset);
+                    }
                 }
                 break;
             }
@@ -2651,7 +2658,11 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                 break;
 
             default:
-                /* Other/unexpected extension types. TODO: expert info */
+                /* Other/unexpected extension types */
+                expert_add_info_format(pinfo, exttype_ti, &ei_oran_unhandled_se,
+                                       "SE %u (%s) not supported by dissector",
+                                       exttype, val_to_str_const(exttype, exttype_vals, "Reserved"));
+
                 break;
         }
 
@@ -2872,7 +2883,7 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
     proto_tree_add_item_ret_uint(section_tree, hf_oran_data_direction, tvb, offset, 1, ENC_NA, &direction);
     /* payloadVersion */
     proto_tree_add_item(section_tree, hf_oran_payload_version, tvb, offset, 1, ENC_NA);
-    if (sectionType != 4) {
+    if (sectionType != 4 && sectionType != 8) {
         /* filterIndex */
         proto_tree_add_item(section_tree, hf_oran_filter_index, tvb, offset, 1, ENC_NA);
     }
@@ -3162,9 +3173,19 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
                             proto_item_append_text(num_slots_ext_ti, " (undefined sleep period)");
                         }
                         else {
-                            uint32_t total = num_slots + num_slots_ext;
-                            /* TODO: time should be rounded up according to SCS */
-                            proto_item_append_text(num_slots_ext_ti, " (defined sleep period of %u us)", total);
+                            /* Time should be rounded up according to SCS */
+                            float total = num_slots + num_slots_ext;
+                            /* From table 7.5.2.13-3 */
+                            float slot_length_by_scs[16] = { 1000, 500, 250, 125, 62.5, 31.25,
+                                                             0, 0, 0, 0, 0, 0,  /* reserved */
+                                                             1000, 1000, 1000, 1000 };
+                            float slot_length = slot_length_by_scs[scs];
+                            /* Only using valid SCS. TODO: is this test ok? */
+                            if (slot_length != 0) {
+                                /* Round up to next slot */
+                                total = ((int)(total / slot_length) + 1) * slot_length;
+                                proto_item_append_text(num_slots_ext_ti, " (defined sleep period of %f us)", total);
+                            }
                         }
                         offset += 3;
 
@@ -5184,7 +5205,7 @@ proto_register_oran(void)
         { &ei_oran_extlen_zero, { "oran_fh_cus.extlen_zero", PI_MALFORMED, PI_ERROR, "extlen - zero is reserved value", EXPFILL }},
         { &ei_oran_rbg_size_reserved, { "oran_fh_cus.rbg_size_reserved", PI_MALFORMED, PI_ERROR, "rbgSize - zero is reserved value", EXPFILL }},
         { &ei_oran_frame_length, { "oran_fh_cus.frame_length", PI_MALFORMED, PI_ERROR, "there should be 0-3 bytes remaining after PDU in frame", EXPFILL }},
-        { &ei_oran_numprbc_ext21_zero, { "oran_fh_cus.numprbc-ext21-zero", PI_MALFORMED, PI_ERROR, "numPrbc shall not be set to 0 when ciPrbGroupSize is configured", EXPFILL }},
+        { &ei_oran_numprbc_ext21_zero, { "oran_fh_cus.numprbc_ext21_zero", PI_MALFORMED, PI_ERROR, "numPrbc shall not be set to 0 when ciPrbGroupSize is configured", EXPFILL }},
         { &ei_oran_ci_prb_group_size_reserved, { "oran_fh_cus.ci_prb_group_size_reserved", PI_MALFORMED, PI_WARN, "ciPrbGroupSize should be 2-254", EXPFILL }},
         { &ei_oran_st8_nackid, { "oran_fh_cus.st8_nackid", PI_SEQUENCE, PI_WARN, "operation for this ackId failed", EXPFILL }},
         { &ei_oran_st4_no_cmds, { "oran_fh_cus.st4_nackid", PI_MALFORMED, PI_ERROR, "Not valid to have no commands in ST4", EXPFILL }},
@@ -5195,7 +5216,7 @@ proto_register_oran(void)
         { &ei_oran_se10_unknown_beamgrouptype, { "oran_fh_cus.se10_unknown_beamgrouptype", PI_MALFORMED, PI_WARN, "SE10 - unknown BeamGroupType value", EXPFILL }},
         { &ei_oran_start_symbol_id_not_zero, { "oran_fh_cus.startsymbolid_shall_be_zero", PI_MALFORMED, PI_WARN, "For ST4 commands 3&4, startSymbolId shall be 0", EXPFILL }},
         { &ei_oran_trx_control_cmd_scope, { "oran_fh_cus.trx_command.bad_cmdscope", PI_MALFORMED, PI_WARN, "TRX command must have cmdScope of ARRAY-COMMAND", EXPFILL }},
-
+        { &ei_oran_unhandled_se, { "oran_fh_cus.se_not_handled", PI_UNDECODED, PI_WARN, "SE not recognised/handled by dissector", EXPFILL }},
     };
 
     /* Register the protocol name and description */
