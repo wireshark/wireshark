@@ -896,7 +896,7 @@ static const value_string netscaler_reset_window_error_code_vals[] = {
     { 9952,  "Reset on SSL FATAL ALERT RCVD." },
     { 9953,  "Reset on triggering of timeout action." },
     { 9956,  "QOS incomplete POST handling error." },
-    { 9957,  "AppQoS Persistent sercvice is down." },
+    { 9957,  "AppQoS Persistent service is down." },
     { 9958,  "Not used+C187:C199." },
     { 9959,  "Not used." },
     { 9960,  "MPTCP options error." },
@@ -8776,7 +8776,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 
         /* Check if the window value of this reset packet is in the NetScaler error code range */
         const char *tcp_ns_reset_window_error_descr = try_val_to_str(real_window, netscaler_reset_window_error_code_vals);
-        if (tcp_ns_reset_window_error_descr != NULL) { /* If its in the Netcaler range, add tree */
+        if (tcp_ns_reset_window_error_descr != NULL) { /* If its in the Netscaler range, add tree */
             item = proto_tree_add_string(tcp_tree, hf_tcp_ns_reset_window_error_code, tvb,
                    offset + 14, 2,tcp_ns_reset_window_error_descr);
             proto_item_set_generated(item);

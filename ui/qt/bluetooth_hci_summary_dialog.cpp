@@ -185,7 +185,7 @@ void BluetoothHciSummaryDialog::keyPressEvent(QKeyEvent *event)
 {
 /* NOTE: Do nothing*, but in real it "takes focus" from button_box so allow user
  * to use Enter button to jump to frame from tree widget */
-/* * - reimplement shortcuts from contex menu */
+/* * - reimplement shortcuts from context menu */
 
    if (event->modifiers() & Qt::ControlModifier && event->key()== Qt::Key_M)
         on_actionMark_Unmark_Row_triggered();

@@ -460,6 +460,8 @@ parser.add_argument('--comments', action='store_true',
                     help='check comments in source files')
 parser.add_argument('--no-wikipedia', action='store_true',
                     help='skip checking known bad words from wikipedia - can be slow')
+parser.add_argument('--show-most-common', action='store', default='100',
+                    help='number of most common not-known workds to display')
 
 
 args = parser.parse_args()
@@ -611,7 +613,7 @@ for f in files:
 
 # Show the most commonly not-recognised words.
 print('')
-counter = Counter(missing_words).most_common(100)
+counter = Counter(missing_words).most_common(int(args.show_most_common))
 if len(counter) > 0:
     for c in counter:
         print(c[0], ':', c[1])

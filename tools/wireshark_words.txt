@@ -30,6 +30,7 @@ acp133
 acquirer
 actioned
 activations
+acttab
 actuator
 acyclic
 adaption
@@ -192,6 +193,7 @@ bayer
 bband
 bblog
 bcast
+bcntime
 beamformed
 beamformee
 beamformer
@@ -286,9 +288,11 @@ caplen
 capsa
 captioning
 capwap
+caracas
 cardbus
 carrierfreq
 carrierid
+cartesian
 casio
 categorization
 categorizes
@@ -304,6 +308,7 @@ cctrch
 cdma2000
 cdmacallmode
 cdmachanneldata
+cdrom
 celeron
 cellid
 cellidentity
@@ -327,6 +332,7 @@ channelised
 channelized
 channelmap
 channelseq
+chanwidth
 chars
 charset
 charsets
@@ -341,10 +347,13 @@ choco
 chocolatey
 chooser
 choplen
+chown
 chroma
 chromaticities
 chromaticity
+chset
 chunked
+chunking
 cicam
 cinfo
 ciphered
@@ -365,6 +374,7 @@ clearallportcounters
 clearvfportcounters
 clientkey
 clientout
+cliprdr
 clksrc
 cllog
 clopts
@@ -465,6 +475,7 @@ cpich
 cplusplus
 cppcheck
 cpubus
+cpuid
 cpuregisters
 cqich
 credential
@@ -716,6 +727,7 @@ eastat
 ebcdic
 ecdhe
 ecdsa
+ecefephem
 econet
 ecpri
 ed137a
@@ -764,6 +776,7 @@ enrollee
 entityid
 entryid
 enttec
+entypes
 enumerated
 enumerates
 enumeration
@@ -777,6 +790,7 @@ eperm
 ephemeris
 epoll
 epsem
+epson
 equinf
 equinix
 equiv
@@ -820,10 +834,12 @@ exfunc
 exocet
 expandtab
 expansions
+exponentials
 extapp
 extattr
 extcap
 extcaps
+extcomm
 extcopy
 extensibility
 extensible
@@ -927,6 +943,7 @@ gencp
 gendc
 geninfo
 gentoo
+geoidal
 geoip
 geolocation
 geonw
@@ -972,6 +989,7 @@ gostr
 gpointer
 gprscdr
 gprsmeasurementparams3g
+gpsascii
 granularity
 greek
 greenwich
@@ -992,6 +1010,7 @@ gzipped
 handoff
 hangul
 hangup
+haptic
 harqid
 harris
 hartip
@@ -1004,11 +1023,13 @@ headend
 hebrew
 heimdal
 hellman
+helsinki
 heuristic
 heuristicly
 heuristics
 hexnum
 hfarr
+hficongestionsetting
 hfill,
 hfindex
 hfinfo
@@ -1027,6 +1048,7 @@ howto
 hpfeeds
 hplmn
 hresult
+hsadmin
 hsdpa
 hsdsch
 hspdsch
@@ -1137,6 +1159,7 @@ interferer
 interleaving
 internacional
 interop
+interoute
 interpolated
 interruptible
 interworking
@@ -1179,6 +1202,7 @@ iptables
 iptrace
 ipv4addr
 ipv6addr
+ipvpn
 ipxnet
 ipxnets
 irqmask
@@ -1188,6 +1212,7 @@ isatap
 iscsi
 iseries
 isinstance
+islamic
 isobus
 isocenter
 isochronous
@@ -1232,6 +1257,7 @@ keyset
 keysyms
 keytab
 knxip
+kolkata
 korean
 krb5kdc
 krb5krb
@@ -1245,6 +1271,7 @@ lanka
 lanman
 latencies
 latin
+layer2octet
 layerables
 lbart
 lbmpdm
@@ -1273,10 +1300,12 @@ libscap
 libsmi
 libssh
 libxml
+libyan
 licmgr
 lidaddr
 lincrcerror
 linearity
+lineend
 lineno
 linkaddr
 linkcss
@@ -1311,6 +1340,7 @@ lookups
 loopback
 loran
 lossy
+lquota
 lsarpc
 lscap
 lsflags
@@ -1342,6 +1372,7 @@ manip
 mantissa
 manuf
 mappable
+marconi
 mariadb
 marvell
 masterkey
@@ -1400,6 +1431,7 @@ midamble
 migratable
 milano
 millimeters
+millisecs
 milliwatt
 mingw
 minimap
@@ -1430,6 +1462,7 @@ modulo
 modulus
 modus
 monday
+monterrey
 moscow
 motorola
 móviles
@@ -1534,6 +1567,7 @@ netricity
 netscaler
 nettl
 netxray
+newark
 newpw
 nexthop
 nextseq
@@ -1594,17 +1628,20 @@ nreport
 nrppa
 nrtcws
 nsapi
+nsdbg
 nssai
 nssvc
 nstat
 nstime
 nstrace
 nstring
+nsymbol
 nt4change
 ntlmssp
 ntlmv
 ntohl
 ntohs
+ntpserver
 ntstatus
 nttime
 ntwkconn
@@ -1649,6 +1686,7 @@ ofppr
 ofprr
 ofptfpt
 ofpxmt
+olympus
 om2000
 omniidl
 omron
@@ -1741,6 +1779,7 @@ pdsch
 pdustatus
 peeraddr
 peerkey
+pentapartial
 pentium
 periodicities
 periodicity
@@ -1758,6 +1797,7 @@ phonebook
 phymod
 physcellid
 picmg
+picosecond
 pinfo
 pixmap
 plaintext
@@ -1831,6 +1871,7 @@ prioritized
 privkey
 procid
 profi
+profibus
 profidrive
 profienergy
 profinet
@@ -1854,6 +1895,7 @@ pscell
 psecs
 pseudowire
 psname
+psnip
 ptime
 ptlrpc
 ptvcursor
@@ -1915,6 +1957,7 @@ randpkt
 randr
 raster
 rawip
+raymond
 rcode
 rcsta
 rctxinfo
@@ -1967,6 +2010,7 @@ reconfigures
 reconfirm
 reconfrqst
 reconnection
+rects
 recurse
 recurses
 recursively
@@ -1984,6 +2028,7 @@ redist
 redistributable
 redistributables
 redistributes
+reeanble
 reenabled
 reencyption
 reentry
@@ -2012,6 +2057,7 @@ reint
 reinvoke
 rekey
 rekeying
+relephem
 relocatable
 remapping
 remediation
@@ -2042,6 +2088,7 @@ rerouting
 resampled
 resampler
 rescan
+rescanning
 resegment
 resegmentation
 resegmented
@@ -2112,6 +2159,7 @@ rowfmt
 rpcap
 rpcsec
 rpmbuild
+rrggbb
 rsocket
 rsrvd
 rsrvn
@@ -2245,6 +2293,7 @@ simulcrypt
 singulation
 sinsp
 sinteger
+sipalg
 sistemas
 sizeof
 skippable
@@ -2342,6 +2391,7 @@ streamid
 strfunc
 stringz
 stringzpad
+strlen
 strtoul
 struct
 structs
@@ -2402,6 +2452,7 @@ superset
 suppfeat
 svalidator
 svcparam
+svcparams
 sverige
 svhdx
 swedish
@@ -2428,6 +2479,7 @@ synthesiser
 sysdig
 sysex
 sysframe
+sysinfo
 syslog
 sysmac
 systemd
@@ -2461,6 +2513,7 @@ Teléfonos
 telekom
 telematic
 telematics
+telenet
 telenor
 teleservice
 teleservices
@@ -2549,6 +2602,7 @@ tunneled
 tunneling
 tuple
 tuples
+turnbwm
 tvbparse
 tvbuf
 tvbuff
@@ -2610,6 +2664,7 @@ uncalculated
 uncalibrated
 uncategorized
 unchannelized
+uncheck
 unchunked
 unciphered
 uncoloured
@@ -2829,6 +2884,7 @@ wapforum
 wbxml
 webcam
 webkit
+webrtc
 websocket
 wednesday
 werror

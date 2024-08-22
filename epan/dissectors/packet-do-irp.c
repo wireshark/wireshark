@@ -1171,7 +1171,7 @@ decode_header_body_credential(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
             offset += decode_pk_data(tvb, pinfo, do_irp_body_tree, offset);
 
         }
-        /* All error resposes */
+        /* All error responses */
         else if(
             (respcode >= DO_IRP_RC_ERROR && respcode <= DO_IRP_RC_SERVER_NOT_RESP) ||
             (respcode >= DO_IRP_RC_INVALID_ADMIN && respcode <= DO_IRP_RC_ACCESS_DENIED) ||

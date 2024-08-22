@@ -600,7 +600,7 @@ static const value_string usb_hid_generic_desktop_controls_usage_page_vals[] = {
     {0xA6, "Application Debugger Break"},
     {0xA7, "System Speaker Mute"},
     {0xA8, "System Hibernate"},
-    {0xA9, "System Microhpone Mute"},
+    {0xA9, "System Microphone Mute"},
     {0xB0, "System Display Invert"},
     {0xB1, "System Display Internal"},
     {0xB2, "System Display External"},

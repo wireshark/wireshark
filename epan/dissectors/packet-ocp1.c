@@ -2630,7 +2630,7 @@ dissect_ocp1_pdu(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tree
             if (tvb_get_uint16(tvb, offset + 8, ENC_BIG_ENDIAN) != 0x01)
                 return 0;
 
-            /* Message length possibe are 2 bytes (sec) or 4 bytes (msec) */
+            /* Message length possible are 2 bytes (sec) or 4 bytes (msec) */
             if (header_pdu_size != 11 && header_pdu_size != 13)
                 return 0;
 
