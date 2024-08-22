@@ -725,7 +725,7 @@ void proto_register_rdp_egfx(void) {
 		},
 		{ &hf_egfx_reset_monitorDefFlags,
 		  { "Flags", "rdp_egfx.monitor.flags",
-			FT_UINT32, BASE_DEC, VALS(rdp_egfx_monitor_flags_vals), 0x0,
+			FT_UINT32, BASE_HEX, VALS(rdp_egfx_monitor_flags_vals), 0x0,
 			NULL, HFILL }
 		},
 		{ &hf_egfx_start_timestamp,
