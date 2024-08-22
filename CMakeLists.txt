@@ -3015,7 +3015,10 @@ if(BUILD_logray AND QT_FOUND)
 		BUNDLE DESTINATION ${CMAKE_INSTALL_BINDIR}
 	)
 
-	if(QT_WINDEPLOYQT_EXECUTABLE)
+	# The build can fail if the copy_logray_qt_dlls target is run at
+	# the same time as the copy_qt_dlls target, so just assume that
+	# copy_qt_dlls will provide everything we need for now.
+	if(QT_WINDEPLOYQT_EXECUTABLE AND NOT BUILD_wireshark)
 		add_custom_target(copy_logray_qt_dlls ALL)
 		set_target_properties(copy_logray_qt_dlls PROPERTIES FOLDER "Copy Tasks")
 		# Will we ever need to use --debug? Windeployqt seems to
