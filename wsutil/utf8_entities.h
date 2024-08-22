@@ -14,6 +14,11 @@
 #define __UTF8_ENTITIES_H__
 
 /*
+ * Common UTF-8 sequences.
+ * Although we've supported UTF-8 encoded source files since April 2019 /
+ * bd75f5af0a, it can be useful to explictly encode some code points in
+ * order to ensure that we use them consistently.
+ *
  * Sequences can be found at
  * http://www.fileformat.info/info/unicode/
  * http://www.utf8-chartable.de/
@@ -25,12 +30,6 @@
  * stray too far from code page 437 or WGL4:
  * https://en.wikipedia.org/wiki/Code_page_437
  * https://en.wikipedia.org/wiki/Windows_Glyph_List_4
- *
- * Hopefully we can dispense with the sequences below and simply encode our
- * files as UTF 8 at some point. For example gcc has supported UTF 8 since
- * at least 3.4. Visual C++ on the other hand is much more problematic.
- * 2015 and later support /source-charset:utf-8, but prior versions appear
- * to require a UTF 8 BOM.
  */
 
 #define UTF8_DEGREE_SIGN                    "\xc2\xb0"      /*   176 /   0xb0 */
