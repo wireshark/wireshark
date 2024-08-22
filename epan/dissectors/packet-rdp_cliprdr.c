@@ -37,6 +37,8 @@ static int hf_cliprdr_msgType;
 static int hf_cliprdr_msgFlags;
 static int hf_cliprdr_dataLen;
 
+static int hf_cliprdr_cCapabilitiesSets;
+static int hf_cliprdr_pad1;
 static int hf_cliprdr_requestedFormatId;
 static int hf_cliprdr_clipDataId;
 static int hf_cliprdr_streamId;
@@ -45,8 +47,20 @@ static int hf_cliprdr_dwFlags;
 static int hf_cliprdr_nPositionLow;
 static int hf_cliprdr_nPositionHigh;
 static int hf_cliprdr_cbRequested;
+static int hf_cliprdr_capaSet_type;
+static int hf_cliprdr_capaSet_len;
+static int hf_cliprdr_capaSet_version;
+static int hf_cliprdr_capaSet_flags;
+static int hf_cliprdr_capaSet_flags_longnames;
+static int hf_cliprdr_capaSet_flags_stream;
+static int hf_cliprdr_capaSet_flags_nofilepaths;
+static int hf_cliprdr_capaSet_flags_canlock;
+static int hf_cliprdr_capaSet_flags_hugefile;
 
 static int ett_rdp_cliprdr;
+static int ett_rdp_cliprdr_capa_sets;
+static int ett_rdp_cliprdr_capa_set;
+static int ett_cliprdr_capaSet_flags;
 
 
 enum {
@@ -114,16 +128,69 @@ static const value_string knownFormats_vals[] = {
 	{ 0x0, NULL},
 };
 
+enum {
+    CB_CAPSTYPE_GENERAL = 0x0001,
+};
+
+static const value_string capaset_version_vals[] = {
+	{ 0x0001, "CB_CAPS_VERSION_1" },
+	{ 0x0002, "CB_CAPS_VERSION_2" },
+	{ 0x0, NULL},
+};
+
+enum {
+    CB_USE_LONG_FORMAT_NAMES = 0x00000002,
+    CB_STREAM_FILECLIP_ENABLED = 0x00000004,
+    CB_FILECLIP_NO_FILE_PATHS = 0x00000008,
+    CB_CAN_LOCK_CLIPDATA = 0x00000010,
+    CB_HUGE_FILE_SUPPORT_ENABLED = 0x00000020
+};
+
+
+static int * const cliprdr_capaSet_flags[] = {
+    &hf_cliprdr_capaSet_flags_longnames,
+    &hf_cliprdr_capaSet_flags_stream,
+    &hf_cliprdr_capaSet_flags_nofilepaths,
+    &hf_cliprdr_capaSet_flags_canlock,
+    &hf_cliprdr_capaSet_flags_hugefile,
+    NULL
+};
+
+typedef struct {
+    bool serverLongNames;
+    bool clientLongNames;
+} cliprdr_conv_info_t;
+
+
+static cliprdr_conv_info_t *
+cliprdr_get_conversation_data(packet_info *pinfo)
+{
+	conversation_t  *conversation;
+	cliprdr_conv_info_t *info;
+
+	conversation = find_or_create_conversation(pinfo);
+
+	info = (cliprdr_conv_info_t *)conversation_get_proto_data(conversation, proto_rdp_cliprdr);
+	if (info == NULL) {
+            info = wmem_new0(wmem_file_scope(), cliprdr_conv_info_t);
+            conversation_add_proto_data(conversation, proto_rdp_cliprdr, info);
+	}
+
+	return info;
+}
+
 
 static int
 dissect_rdp_cliprdr(tvbuff_t *tvb _U_, packet_info *pinfo, proto_tree *parent_tree _U_, void *data _U_)
 {
+	cliprdr_conv_info_t *info;
 	proto_item *item;
 	int nextOffset, offset = 0;
 	uint32_t cmdId = 0;
 	uint32_t pduLength;
-        uint32_t formatId;
+	uint32_t formatId;
 	proto_tree *tree;
+	bool toServer = rdp_isServerAddressTarget(pinfo);
 
 	parent_tree = proto_tree_get_root(parent_tree);
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "CLIPRDR");
@@ -146,8 +213,11 @@ dissect_rdp_cliprdr(tvbuff_t *tvb _U_, packet_info *pinfo, proto_tree *parent_tr
 
 	col_set_str(pinfo->cinfo, COL_INFO, val_to_str_const(cmdId, rdp_cliprdr_order_vals, "Unknown clipboard command"));
 
+        info = cliprdr_get_conversation_data(pinfo);
+
 	switch (cmdId) {
 	case CB_MONITOR_READY:
+            break;
 	case CB_FORMAT_LIST:
             break;
 	case CB_FORMAT_LIST_RESPONSE:
@@ -160,8 +230,48 @@ dissect_rdp_cliprdr(tvbuff_t *tvb _U_, packet_info *pinfo, proto_tree *parent_tr
 	case CB_FORMAT_DATA_RESPONSE:
             break;
 	case CB_TEMP_DIRECTORY:
-	case CB_CLIP_CAPS:
             break;
+	case CB_CLIP_CAPS: {
+            guint32 cCapabilitiesSets;
+            proto_tree_add_item_ret_uint(tree, hf_cliprdr_cCapabilitiesSets, tvb, offset, 2, ENC_LITTLE_ENDIAN, &cCapabilitiesSets);
+            offset += 2;
+
+            proto_tree_add_item(tree, hf_cliprdr_pad1, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+
+            proto_tree *sets_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_rdp_cliprdr_capa_sets, NULL, "Capability sets");
+            for (guint32 i = 0; i < cCapabilitiesSets; i++) {
+                guint16 capaType = tvb_get_uint16(tvb, offset, ENC_LITTLE_ENDIAN);
+                guint16 capaLen = tvb_get_uint16(tvb, offset + 2, ENC_LITTLE_ENDIAN);
+
+                const char *capaName = "Unknown";
+                if (capaType == CB_CAPSTYPE_GENERAL)
+                    capaName = "General (0x0001)";
+
+                proto_tree *set_tree = proto_tree_add_subtree(sets_tree, tvb, offset, capaLen, ett_rdp_cliprdr_capa_set, NULL, capaName);
+                proto_tree_add_item(set_tree, hf_cliprdr_capaSet_type, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                offset += 2;
+
+                proto_tree_add_item(set_tree, hf_cliprdr_capaSet_len, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                offset += 2;
+
+                if (capaType == CB_CAPSTYPE_GENERAL) {
+                    guint64 flags;
+
+                    proto_tree_add_item(set_tree, hf_cliprdr_capaSet_version, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+                    offset += 4;
+
+                    proto_tree_add_bitmask_ret_uint64(set_tree, tvb, offset, hf_cliprdr_capaSet_flags, ett_cliprdr_capaSet_flags, cliprdr_capaSet_flags, ENC_LITTLE_ENDIAN, &flags);
+                    offset += 4;
+
+                    if (toServer)
+                        info->clientLongNames = !!(flags & CB_USE_LONG_FORMAT_NAMES);
+                    else
+                        info->serverLongNames = !!(flags & CB_USE_LONG_FORMAT_NAMES);
+                }
+            }
+            break;
+        }
 	case CB_FILECONTENTS_REQUEST:
             proto_tree_add_item(tree, hf_cliprdr_streamId, tvb, offset, 4, ENC_LITTLE_ENDIAN);
             offset += 4;
@@ -215,6 +325,16 @@ void proto_register_rdp_cliprdr(void) {
 			FT_UINT32, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }
 		},
+		{ &hf_cliprdr_cCapabilitiesSets,
+		  { "cCapabilitiesSets", "rdp_cliprdr.ccapabilitiessets",
+			FT_UINT16, BASE_DEC, NULL, 0x0,
+			NULL, HFILL }
+		},
+		{ &hf_cliprdr_pad1,
+		  { "Pad1", "rdp_cliprdr.pad1",
+			FT_UINT16, BASE_DEC, NULL, 0x0,
+			NULL, HFILL }
+		},
 		{ &hf_cliprdr_requestedFormatId,
 		  { "requestedFormatId", "rdp_cliprdr.requestedformatid",
 			FT_UINT32, BASE_HEX, VALS(knownFormats_vals), 0x0,
@@ -255,10 +375,58 @@ void proto_register_rdp_cliprdr(void) {
 			FT_UINT32, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }
 		},
+                { &hf_cliprdr_capaSet_type,
+		  { "Type", "rdp_cliprdr.capasettype",
+		    FT_UINT16, BASE_HEX, NULL, 0x0,
+			NULL, HFILL }
+		},
+		{ &hf_cliprdr_capaSet_len,
+		  { "Length", "rdp_cliprdr.capasetlen",
+			FT_UINT16, BASE_DEC, NULL, 0x0,
+			NULL, HFILL }
+		},
+                { &hf_cliprdr_capaSet_version,
+		  { "Version", "rdp_cliprdr.capasetversion",
+		    FT_UINT32, BASE_HEX, VALS(capaset_version_vals), 0x0,
+			NULL, HFILL }
+		},
+		{ &hf_cliprdr_capaSet_flags,
+		  { "Flags", "rdp_cliprdr.capasetflags",
+			FT_UINT32, BASE_HEX, NULL, 0x0,
+			NULL, HFILL }
+		},
+		{ &hf_cliprdr_capaSet_flags_longnames,
+		  { "CB_USE_LONG_FORMAT_NAMES", "rdp_cliprdr.capasetflags.longnames",
+			FT_UINT32, BASE_HEX, NULL, CB_USE_LONG_FORMAT_NAMES,
+			NULL, HFILL }
+		},
+		{ &hf_cliprdr_capaSet_flags_stream,
+		  { "CB_STREAM_FILECLIP_ENABLED", "rdp_cliprdr.capasetflags.streamfileclip",
+			FT_UINT32, BASE_HEX, NULL, CB_STREAM_FILECLIP_ENABLED,
+			NULL, HFILL }
+		},
+		{ &hf_cliprdr_capaSet_flags_nofilepaths,
+		  { "CB_FILECLIP_NO_FILE_PATHS", "rdp_cliprdr.capasetflags.nofilepaths",
+			FT_UINT32, BASE_HEX, NULL, CB_FILECLIP_NO_FILE_PATHS,
+			NULL, HFILL }
+		},
+		{ &hf_cliprdr_capaSet_flags_canlock,
+		  { "CB_CAN_LOCK_CLIPDATA", "rdp_cliprdr.capasetflags.canlock",
+			FT_UINT32, BASE_HEX, NULL, CB_CAN_LOCK_CLIPDATA,
+			NULL, HFILL }
+		},
+		{ &hf_cliprdr_capaSet_flags_hugefile,
+		  { "CB_HUGE_FILE_SUPPORT_ENABLED", "rdp_cliprdr.capasetflags.hugefile",
+			FT_UINT32, BASE_HEX, NULL, CB_HUGE_FILE_SUPPORT_ENABLED,
+			NULL, HFILL }
+		},
 	};
 
 	static int *ett[] = {
 		&ett_rdp_cliprdr,
+                &ett_rdp_cliprdr_capa_sets,
+                &ett_rdp_cliprdr_capa_set,
+                &ett_cliprdr_capaSet_flags,
 	};
 
 	proto_rdp_cliprdr = proto_register_protocol(PNAME, PSNAME, PFNAME);
