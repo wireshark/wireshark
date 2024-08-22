@@ -4,6 +4,7 @@
  * Copyright 2013 Alexander Chemeris <alexander.chemeris@gmail.com>: dissector improvement
  * Copyright 2013 Dario Lombardo (lomato@gmail.com): Official Wireshark port
  * Copyright 2022 Amazon.com, Inc. or its affiliates - Cody Planteen <codplant@amazon.com>: context packet decoding
+ * Copyright 2024 Valley Tech Systems, Inc. - John Moon <john.moon@vts-i.com>: spectral context decoding
  *
  * Original dissector repository: https://github.com/bistromath/vrt-dissector
  *
@@ -122,6 +123,7 @@ static int hf_vrt_cif1_polarization; /* 1-bit polarization */
 static int hf_vrt_cif1_range; /* 1-bit range (distance) */
 static int hf_vrt_cif1_aux_freq; /* 1-bit aux frequency */
 static int hf_vrt_cif1_aux_bandwidth; /* 1-bit aux bandwidth */
+static int hf_vrt_cif1_spectrum; /* 1-bit spectrum */
 static int hf_vrt_cif1_io32; /* 1-bit discrete I/O (32-bit) */
 static int hf_vrt_cif1_io64; /* 1-bit discrete I/O (64-bit) */
 static int hf_vrt_cif1_v49_spec; /* 1-bit V49 spec compliance */
@@ -194,6 +196,16 @@ static int hf_vrt_context_pol_ellipticity; /* 16-bit polarization ellipticity an
 static int hf_vrt_context_range; /* 32-bit range (distance) */
 static int hf_vrt_context_aux_freq; /* 64-bit aux frequency */
 static int hf_vrt_context_aux_bandwidth; /* 64-bit aux bandwidth */
+static int hf_vrt_context_spectrum_spectrum_type; /* 32-bit spectrum type */
+static int hf_vrt_context_spectrum_window_type; /* 32-bit window type */
+static int hf_vrt_context_spectrum_num_transform_points; /* 32-bit number of transform points */
+static int hf_vrt_context_spectrum_num_window_points; /* 32-bit number of window points */
+static int hf_vrt_context_spectrum_resolution; /* 64-bit number of resolution points */
+static int hf_vrt_context_spectrum_span; /* 64-bit number of span (bandwidth) */
+static int hf_vrt_context_spectrum_num_averages; /* 32-bit number of averages */
+static int hf_vrt_context_spectrum_weighting_factor; /* 32-bit weighting factor */
+static int hf_vrt_context_spectrum_spectrum_f1_f2_indices; /* 64-bit F1-F2 indices */
+static int hf_vrt_context_spectrum_window_time_delta; /* 32-bit window time-delta */
 static int hf_vrt_context_io32; /* 32-bit discrete I/O */
 static int hf_vrt_context_io64; /* 64-bit discrete I/O */
 static int hf_vrt_context_v49_spec; /* 32-bit V49 spec compliance */
@@ -288,7 +300,8 @@ static const int ETT_IDX_REL_EPHEM = 15;
 static const int ETT_IDX_GPS_ASCII = 16;
 static const int ETT_IDX_ASSOC_LISTS = 17;
 static const int ETT_IDX_POL = 18;
-static const int ETT_IDX_VER = 19;
+static const int ETT_IDX_SPECTRUM = 19;
+static const int ETT_IDX_VER = 20;
 
 static const value_string packet_types[] = {
     {0x00, "IF data packet without stream ID"},
@@ -421,6 +434,7 @@ static int dissect_context_signal_data_format(proto_tree *tree, tvbuff_t *tvb, i
 static int dissect_context_state_event(proto_tree *tree, tvbuff_t *tvb, int offset);
 static int dissect_context_temperature(proto_tree *tree, tvbuff_t *tvb, int offset);
 static int dissect_context_ver(proto_tree *tree, tvbuff_t *tvb, int offset);
+static int dissect_context_spectrum(proto_tree *tree, tvbuff_t *tvb, int offset);
 static const char* get_engr_prefix(double *val);
 
 /* context simple field dissector function pointer array (mutually exclusive with complex below) */
@@ -449,8 +463,8 @@ static complex_dissector_t complex_dissector_cif0[32] = {
 /* partial CIF1 support */
 static complex_dissector_t complex_dissector_cif1[32] = {
     NULL, NULL, dissect_context_ver, NULL, NULL, NULL, NULL, dissect_context_array_of_records,
-    NULL, dissect_context_array_of_records, NULL, dissect_context_array_of_records, NULL, NULL,
-    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+    NULL, dissect_context_array_of_records, dissect_context_spectrum, dissect_context_array_of_records,
+    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
     dissect_context_array_of_records, NULL,
     dissect_context_polarization, dissect_context_phase_offset };
 
@@ -792,6 +806,7 @@ static int dissect_context_cif1(proto_tree *tree, tvbuff_t *tvb, int offset) {
     proto_tree_add_item(cif1_tree, hf_vrt_cif1_range, tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(cif1_tree, hf_vrt_cif1_aux_freq, tvb, offset + 2, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(cif1_tree, hf_vrt_cif1_aux_bandwidth, tvb, offset + 2, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(cif1_tree, hf_vrt_cif1_spectrum, tvb, offset + 2, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(cif1_tree, hf_vrt_cif1_io32, tvb, offset + 3, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(cif1_tree, hf_vrt_cif1_io64, tvb, offset + 3, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(cif1_tree, hf_vrt_cif1_v49_spec, tvb, offset + 3, 1, ENC_BIG_ENDIAN);
@@ -973,6 +988,21 @@ static int dissect_context_ver(proto_tree *tree, tvbuff_t *tvb, int offset) {
     proto_tree_add_item(ver_tree, hf_vrt_context_ver_day, tvb, offset, 2, ENC_BIG_ENDIAN);
     proto_tree_add_item(ver_tree, hf_vrt_context_ver_rev, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
     proto_tree_add_item(ver_tree, hf_vrt_context_ver_user, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
+    return 0;
+}
+
+static int dissect_context_spectrum(proto_tree *tree, tvbuff_t *tvb, int offset) {
+    proto_tree *spectrum_tree = proto_tree_add_subtree(tree, tvb, offset, 52, ETT_IDX_SPECTRUM, NULL, "Spectrum");
+    proto_tree_add_item(spectrum_tree, hf_vrt_context_spectrum_spectrum_type, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(spectrum_tree, hf_vrt_context_spectrum_window_type, tvb, offset + 4, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(spectrum_tree, hf_vrt_context_spectrum_num_transform_points, tvb, offset + 8, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(spectrum_tree, hf_vrt_context_spectrum_num_window_points, tvb, offset + 12, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(spectrum_tree, hf_vrt_context_spectrum_resolution, tvb, offset + 16, 8, ENC_BIG_ENDIAN);
+    proto_tree_add_item(spectrum_tree, hf_vrt_context_spectrum_span, tvb, offset + 24, 8, ENC_BIG_ENDIAN);
+    proto_tree_add_item(spectrum_tree, hf_vrt_context_spectrum_num_averages, tvb, offset + 32, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(spectrum_tree, hf_vrt_context_spectrum_weighting_factor, tvb, offset + 36, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(spectrum_tree, hf_vrt_context_spectrum_spectrum_f1_f2_indices, tvb, offset + 40, 8, ENC_BIG_ENDIAN);
+    proto_tree_add_item(spectrum_tree, hf_vrt_context_spectrum_window_time_delta, tvb, offset + 48, 4, ENC_BIG_ENDIAN);
     return 0;
 }
 
@@ -1386,6 +1416,12 @@ proto_register_vrt(void)
             { "Aux bandwidth", "vrt.cif1.auxbw",
             FT_BOOLEAN, 8,
             NULL, 0x20,
+            NULL, HFILL }
+        },
+        { &hf_vrt_cif1_spectrum,
+            { "Spectrum", "vrt.cif1.spectrum",
+            FT_BOOLEAN, 8,
+            NULL, 0x04,
             NULL, HFILL }
         },
         { &hf_vrt_cif1_io32,
@@ -2172,6 +2208,66 @@ proto_register_vrt(void)
             { "Aux bandwidth", "vrt.context.auxbw",
             FT_INT64, BASE_CUSTOM,
             CF_FUNC(format_hertz), 0x00,
+            NULL, HFILL }
+        },
+        { &hf_vrt_context_spectrum_spectrum_type,
+            { "Spectrum type", "vrt.context.spectrum.spectrum_type",
+            FT_UINT32, BASE_HEX,
+            NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_vrt_context_spectrum_window_type,
+            { "Window type", "vrt.context.spectrum.window_type",
+            FT_UINT32, BASE_HEX,
+            NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_vrt_context_spectrum_num_transform_points,
+            { "Num transform points", "vrt.context.spectrum.num_transform_points",
+            FT_UINT32, BASE_DEC,
+            NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_vrt_context_spectrum_num_window_points,
+            { "Num window points", "vrt.context.spectrum.num_window_points",
+            FT_UINT32, BASE_DEC,
+            NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_vrt_context_spectrum_resolution,
+            { "Resolution", "vrt.context.spectrum.resolution",
+            FT_INT64, BASE_CUSTOM,
+            CF_FUNC(format_hertz), 0x00,
+            NULL, HFILL }
+        },
+        { &hf_vrt_context_spectrum_span,
+            { "Span", "vrt.context.spectrum.span",
+            FT_INT64, BASE_CUSTOM,
+            CF_FUNC(format_hertz), 0x00,
+            NULL, HFILL }
+        },
+        { &hf_vrt_context_spectrum_num_averages,
+            { "Num averages", "vrt.context.spectrum.num_averages",
+            FT_UINT32, BASE_DEC,
+            NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_vrt_context_spectrum_weighting_factor,
+            { "Weighting factor", "vrt.context.spectrum.weighting_factor",
+            FT_UINT32, BASE_DEC,
+            NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_vrt_context_spectrum_spectrum_f1_f2_indices,
+            { "F1-F2 Indices", "vrt.context.spectrum.spectrum_f1_f2_indices",
+            FT_UINT64, BASE_DEC,
+            NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_vrt_context_spectrum_window_time_delta,
+            { "Window time-delta", "vrt.context.spectrum.window_time_delta",
+            FT_UINT32, BASE_DEC,
+            NULL, 0x00,
             NULL, HFILL }
         },
         { &hf_vrt_context_io32,
