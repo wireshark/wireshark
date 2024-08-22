@@ -1358,11 +1358,12 @@ check_for_lz4_compression(FILE_T state)
         }
 #endif /* LZ4_VERSION_NUMBER >= 10800 */
         size_t headerSize = LZ4F_HEADER_SIZE_MAX;
-#if LZ4_VERSION_NUMBER >= 10900
+#if LZ4_VERSION_NUMBER >= 10903
         /*
-         * In 1.9.0+ we can handle a silly edge case of a tiny valid
+         * In 1.9.3+ we can handle a silly edge case of a tiny valid
          * frame at the end of a file that is smaller than the maximum
-         * header size.
+         * header size. (lz4frame.h added the function in 1.9.0, but
+         * only for the static library; it wasn't exported until 1.9.3)
          */
         while (state->in.avail < LZ4F_MIN_SIZE_TO_KNOW_HEADER_LENGTH) {
             if (fill_in_buffer(state) == -1) {
@@ -1380,7 +1381,7 @@ check_for_lz4_compression(FILE_T state)
             state->err_info = LZ4F_getErrorName(headerSize);
             return -1;
         }
-#endif /* LZ4_VERSION_NUMBER >= 10900 */
+#endif /* LZ4_VERSION_NUMBER >= 10903 */
         while (state->in.avail < headerSize) {
             if (fill_in_buffer(state) == -1) {
                 return -1;
