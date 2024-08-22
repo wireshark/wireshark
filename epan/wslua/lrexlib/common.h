@@ -8,7 +8,9 @@
 #include "lua.h"
 
 #if LUA_VERSION_NUM > 501
-# define lua_objlen lua_rawlen
+# ifndef lua_objlen
+#  define lua_objlen lua_rawlen
+# endif
   int luaL_typerror (lua_State *L, int narg, const char *tname);
 #endif
 
