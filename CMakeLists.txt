@@ -701,6 +701,7 @@ else() # ! MSVC
 		-Wlogical-op		# GCC-only
 
 		# Run-time protections mechanisms
+		-U_FORTIFY_SOURCE	# Run-time buffer overflow detection. For dist like Ubuntu, U_FORTIFY_SOURCE must be input before D_FORTIFY_SOURCE
 		if((CMAKE_C_COMPILER_ID STREQUAL "GNU" AND CMAKE_C_COMPILER_VERSION VERSION_GREATER_EQUAL "13.0") OR
 		   (CMAKE_C_COMPILER_ID STREQUAL "Clang" AND CMAKE_C_COMPILER_VERSION VERSION_GREATER_EQUAL "16.0"))
 			-fstrict-flex-arrays=3			# Consider a trailing array in a struct as a flexible array if declared as []
@@ -725,7 +726,6 @@ else() # ! MSVC
 				-mbranch-protection=standard	# Enable branch protection to counter Return Oriented Programming (ROP) and Jump Oriented Programming (JOP) attacks on AArch64
 			endif()
 		endif()
-		-U_FORTIFY_SOURCE					# Run-time buffer overflow detection
 		-D_GLIBCXX_ASSERTIONS				# Precondition checks for C++ standard library calls. Can impact performance.
 		-fstack-protector-strong			# Stack smashing protector
 		-fno-delete-null-pointer-checks		# Force retention of null pointer checks
