@@ -1110,7 +1110,7 @@ addSeqid(tvbuff_t *tvb, proto_tree *oran_tree, int *offset)
     *offset += 1;
 
     /* Summary */
-    proto_item_append_text(seqIdItem, ", SeqId: %d, SubSeqId: %d, E: %d", seqId, subSeqId, e);
+    proto_item_append_text(seqIdItem, ", SeqId: %3d, SubSeqId: %d, E: %d", seqId, subSeqId, e);
 }
 
 /* 7.7.1.2 bfwCompHdr (beamforming weight compression header) */
@@ -1144,6 +1144,12 @@ static int dissect_bfwCompParam(tvbuff_t *tvb, proto_tree *tree, packet_info *pi
                                 proto_item *meth_ti, uint32_t bfw_comp_method,
                                 uint32_t *exponent, bool *supported)
 {
+    if (bfw_comp_method == COMP_NONE) {
+        /* Absent! */
+        *supported = true;
+        return offset;
+    }
+
     /* Subtree */
     proto_item *bfwcompparam_ti = proto_tree_add_string_format(tree, hf_oran_bfwCompParam,
                                                                tvb, offset, 1, "",
@@ -1155,10 +1161,6 @@ static int dissect_bfwCompParam(tvbuff_t *tvb, proto_tree *tree, packet_info *pi
 
     *supported = false;
     switch (bfw_comp_method) {
-        case COMP_NONE:         /* no compression */
-            /* In this case, bfwCompParam is absent! */
-            *supported = true;
-            break;
         case COMP_BLOCK_FP:     /* block floating point */
             /* 4 reserved bits +  exponent */
             proto_tree_add_item_ret_uint(bfwcompparam_tree, hf_oran_exponent,
@@ -2142,7 +2144,6 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                 offset++;
 
                 /* Will append all beamId values to extension_ti, regardless of beamGroupType */
-                proto_item_append_text(extension_ti, "(");
                 unsigned n;
 
                 switch (beam_group_type) {
@@ -2155,10 +2156,11 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                         break;
                     case 0x2: /* beam vector listing */
                     {
+                        proto_item_append_text(extension_ti, "[ ");
+
                         /* Beam listing vector case */
                         /* Work out how many port beam entries there is room for */
                         /* Using numPortC as visible in issue 18116 */
-                        proto_item_append_text(extension_ti, " (%u entries) ", numPortc);
                         for (n=0; n < numPortc; n++) {
                             /* 1 reserved bit */
                             proto_tree_add_item(extension_tree, hf_oran_reserved_1bit, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -2172,6 +2174,8 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
 
                             proto_item_append_text(extension_ti, "%u ", id);
                         }
+                        proto_item_append_text(extension_ti, "]");
+
                         break;
                     }
 
@@ -2180,7 +2184,6 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                         expert_add_info(NULL, bgt_ti, &ei_oran_se10_unknown_beamgrouptype);
                         break;
                 }
-                proto_item_append_text(extension_ti, ")");
                 break;
             }
 
