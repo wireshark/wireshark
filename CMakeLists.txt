@@ -676,16 +676,10 @@ else() # ! MSVC
 		-Wextra
 		-Wformat
 		-Wformat=2
-		-Wno-format-nonliteral	# TODO https://gitlab.com/wireshark/wireshark/-/issues/19995
-		#-Wconversion			# TODO see above
-		#-Wsign-conversion		# TODO see above
 		-Wtrampolines			# Enable warnings about trampolines that require executable stacks
-		if((CMAKE_C_COMPILER_ID STREQUAL "GNU" AND CMAKE_C_COMPILER_VERSION VERSION_GREATER_EQUAL "12.0"))
-		   -Wbidi-chars=any
-		endif()
+		-Wbidi-chars=any
 		-Wpointer-arith
 		-Wformat-security
-		-Werror=format-security
 		-Werror=incompatible-pointer-types
 		-Werror=int-conversion
 		-fexcess-precision=fast	# GCC-only
@@ -708,10 +702,11 @@ else() # ! MSVC
 		-D_GLIBCXX_ASSERTIONS				# Precondition checks for C++ standard library calls. Can impact performance.
 		-fstack-protector-strong			# Stack smashing protector
 		-fno-delete-null-pointer-checks		# Force retention of null pointer checks
-		-fno-strict-overflow				# Integer overflow may occur
+		# The above used to fail on macOS El Capitan clang (see below in PEDANTIC) Does it work now?
+		-fno-strict-overflow			# Defines signed overflow as wrapping on gcc and clang, prevents optimizations that assume overflow never happens
 		-fno-strict-aliasing				# Do not assume strict aliasing
 		-ftrivial-auto-var-init			# Perform trivial auto variable initialization
-		-fexceptions						# Enable exception propagation to harden multi-threaded C code
+		-fexceptions					# Enable exception propagation to harden multi-threaded C code
 
 		#
 		# Disable errors unconditionally for some static analysis warnings
@@ -741,11 +736,17 @@ else() # ! MSVC
 	if(NOT CMAKE_BUILD_TYPE STREQUAL "Debug")
 		# _FORTIFY_SOURCE requires -O1 or higher, and the Debug
 		# build type has no optimization
-		list(APPEND WIRESHARK_COMMON_FLAGS
-		# and the Debug build type is without optimization
-		-U_FORTIFY_SOURCE	# Run-time buffer overflow detection. For dist like Ubuntu, U_FORTIFY_SOURCE must be input before D_FORTIFY_SOURCE
-		-D_FORTIFY_SOURCE=3				# Fortify sources with compile- and run-time checks for unsafe libc usage and buffer overflows. Requires -O1 or higher
-		)
+		if((CMAKE_C_COMPILER_ID STREQUAL "GNU" AND CMAKE_C_COMPILER_VERSION VERSION_GREATER_EQUAL "12.0") OR
+		   (CMAKE_C_COMPILER_ID STREQUAL "Clang" AND CMAKE_C_COMPILER_VERSION VERSION_GREATER_EQUAL "9.0"))
+			# On some gcc < 12.0, test_compiler_flag will report that
+			# -D_FORTIFY_SOURCE=3 is valid, but actually trying to compile
+			# with it will give a warning that it has the same effect as
+			# -D_FORTIFY_SOURCE=2
+			list(APPEND WIRESHARK_COMMON_FLAGS
+			-U_FORTIFY_SOURCE	# Run-time buffer overflow detection. For dist like Ubuntu, U_FORTIFY_SOURCE must be input before D_FORTIFY_SOURCE
+			-D_FORTIFY_SOURCE=3				# Fortify sources with compile- and run-time checks for unsafe libc usage and buffer overflows. Requires -O1 or higher
+			)
+		endif()
 	endif()
 
 	# test_compiler_flag doesn't seem to test that a flag is supported on
@@ -814,6 +815,7 @@ else() # ! MSVC
 	# Not all warnings are the same. They fall on a spectrum from "critical"
 	# to "pedantic nonsense". These are warnings that realistically are worth
 	# fixing eventually.
+	# TODO https://gitlab.com/wireshark/wireshark/-/issues/19995
 	#
 	if(ENABLE_TODO_WARNINGS)
 		list(APPEND WIRESHARK_COMMON_FLAGS
@@ -822,6 +824,9 @@ else() # ! MSVC
 			#
 			-Wmissing-prototypes
 			-Wmissing-declarations
+
+			-Wconversion
+			-Wsign-conversion
 			#
 			# A bunch of "that might not work on SPARC" code blocks
 			# this one for now; some of it is code that *will* work
@@ -840,6 +845,8 @@ else() # ! MSVC
 			# seem to flag very interesting issues.
 			#
 			-Wno-format-truncation # Enabled with -Wall
+
+			-Wno-format-nonliteral	# Enabled with -Wformat=2
 		)
 		list(APPEND WIRESHARK_C_ONLY_FLAGS
 			-Wno-pointer-sign # Enabled with -Wall
