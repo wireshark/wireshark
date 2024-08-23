@@ -118,6 +118,7 @@ void proto_reg_handoff_pn_io(void);
 #define strtok_sys(str, delim, context) strtok_r(str, delim, context)
 #endif
 
+static dissector_handle_t eap_handle;
 
 static int proto_pn_io;
 static int proto_pn_io_device;
@@ -156,6 +157,7 @@ static int hf_pn_io_ar_properties_device_access;
 static int hf_pn_io_ar_properties_companion_ar;
 static int hf_pn_io_ar_properties_achnowledge_companion_ar;
 static int hf_pn_io_ar_properties_reserved;
+static int hf_pn_io_ar_properties_reject_dcp_set_request;
 static int hf_pn_io_ar_properties_time_aware_system;
 static int hf_pn_io_ar_properties_combined_object_container_with_legacy_startupmode;
 static int hf_pn_io_ar_properties_combined_object_container_with_advanced_startupmode;
@@ -570,6 +572,46 @@ static int hf_pn_io_cim_station_expected_neighbor_block_number_of_entries;
 static int hf_pn_io_cim_station_port_capabilities_block_number_of_entries;
 static int hf_pn_io_cim_expected_network_attributes_uuid;
 
+static int hf_pn_io_security;
+static int hf_pn_io_security_information;
+static int hf_pn_io_security_information_protection_mode;
+static int hf_pn_io_security_information_reserved;
+static int hf_pn_io_security_operation;
+static int hf_pn_io_security_features;
+static int hf_pn_io_security_features_key_pair_generation;
+static int hf_pn_io_security_features_reserved;
+static int hf_pn_io_rtc_algorithm;
+static int hf_pn_io_rta_algorithm;
+static int hf_pn_io_rpc_algorithm;
+static int hf_pn_io_derivation_algorithm;
+static int hf_pn_io_agreement_algorithm;
+static int hf_pn_io_signature_algorithm;
+static int hf_pn_io_security_capability;
+static int hf_pn_io_security_capability_usage;
+static int hf_pn_io_security_capability_algorithm_symmetric_ao;
+static int hf_pn_io_security_capability_algorithm_symmetric_ae;
+static int hf_pn_io_security_capability_algorithm_key_derivation_function;
+static int hf_pn_io_security_capability_algorithm_key_agreement_function;
+static int hf_pn_io_security_capability_algorithm_digital_signature_function;
+static int hf_pn_io_security_capability_algorithm_reserved;
+static int hf_pn_io_security_configuration_parameters;
+static int hf_pn_io_security_mode;
+static int hf_pn_io_certificate_validity_period_check;
+static int hf_pn_io_security_configuration_parameters_reserved1;
+static int hf_pn_io_security_configuration_parameters_reserved2;
+static int hf_pn_io_security_data;
+static int hf_pn_io_sack_degradation_threshold;
+static int hf_pn_io_credential_id;
+static int hf_pn_io_credential_id_credential_type;
+static int hf_pn_io_credential_id_reserved;
+static int hf_pn_io_number_of_entries;
+static int hf_pn_io_private_key;
+static int hf_pn_io_private_key_length;
+static int hf_pn_io_certificate_length;
+static int hf_pn_io_certificate;
+static int hf_pn_io_certification_request_length;
+static int hf_pn_io_certification_request;
+
 static int hf_pn_io_nme_parameter_uuid;
 static int hf_pn_io_nme_domain_vid_config;
 static int hf_pn_io_nme_domain_vid_config_stream_high_vid;
@@ -948,7 +990,7 @@ static int hf_pn_io_snmp_read_community_name;
 static int hf_pn_io_snmp_write_community_name;
 
 static int hf_pn_io_snmp_control;
-
+static int hf_pn_io_eap_data;
 /* static int hf_pn_io_packedframe_SFCRC; */
 static int ett_pn_io;
 static int ett_pn_io_block;
@@ -1012,7 +1054,18 @@ static int ett_pn_io_sr_properties;
 static int ett_pn_io_line_delay;
 static int ett_pn_io_counter_status;
 static int ett_pn_io_neighbor;
-
+static int ett_pn_io_credential_id;
+static int ett_pn_io_security;
+static int ett_pn_io_security_configuration_parameters;
+static int ett_pn_io_security_features;
+static int ett_pn_io_security_capability;
+static int ett_pn_io_rtc_algorithm;
+static int ett_pn_io_rta_algorithm;
+static int ett_pn_io_rpc_algorithm;
+static int ett_pn_io_derivation_algorithm;
+static int ett_pn_io_agreement_algorithm;
+static int ett_pn_io_signature_algorithm;
+static int ett_pn_io_eap;
 static int ett_pn_io_GroupProperties;
 
 static int ett_pn_io_asset_management_info;
@@ -1178,6 +1231,7 @@ static const value_string pn_io_block_type[] = {
     { 0x010A, "SRInfoBlock"},
     { 0x010B, "ARFSUBlock"},
     { 0x010C, "RSInfoBlock"},
+    { 0x010D, "ARAlgorithmInfoBlock"},
     { 0x0110, "IODControlReq Prm End.req"},
     { 0x8110, "IODControlRes Prm End.rsp"},
     { 0x0111, "IODControlReq Plug Prm End.req"},
@@ -1196,7 +1250,11 @@ static const value_string pn_io_block_type[] = {
     { 0x8117, "IOXControlRes Ready for RT_CLASS_3.rsp"},
     { 0x0118, "PrmBeginReq"},
     { 0x8118, "PrmBeginRes"},
+    { 0x811A, "SecurityResponse" },
+
     { 0x0119, "SubmoduleListBlock"},
+    { 0x011A, "SecurityRequestBlock"},
+    { 0x011B, "ARUUIDBlock"},
 
     { 0x0200, "PDPortDataCheck"},
     { 0x0201, "PDevData"},
@@ -1274,6 +1332,7 @@ static const value_string pn_io_block_type[] = {
     { 0x027E, "CIMStationExpectedNeighborBlock" },
     { 0x027F, "NMEDomainConfigRealBlock" },
     { 0x0300, "CIMSNMPAdjust"},
+    { 0x0302, "CIMSNMPReal"},
     { 0x0400, "MultipleBlockHeader"},
     { 0x0401, "COContainerContent"},
     { 0x0500, "RecordDataReadQuery"},
@@ -1506,6 +1565,14 @@ static const value_string pn_io_arproperties_data_rate[] = {
 static const value_string pn_io_arproperties_acknowldege_companion_ar[] = {
     { 0x00000000, "No companion AR or no acknowledge for the companion AR required" },
     { 0x00000001, "Companion AR with acknowledge" },
+    { 0, NULL }
+};
+
+
+/* Bit 27 */
+static const value_string pn_io_arproperties_reject_dcp_set_request[] = {
+    { 0x00000000, "Accepted" },
+    { 0x00000001, "Rejected" },
     { 0, NULL }
 };
 
@@ -1745,8 +1812,37 @@ static const value_string pn_io_index[] = {
     /*0x802E reserved */
     { 0x802F, "PDPortDataAdjust for one subslot" },
     { 0x8030, "IsochronousModeData for one subslot" },
-    { 0x8031, "PDTimeData for one subslot" },
-    /*0x8032 - 0x804F reserved */
+    { 0x8031, "Expected PDSyncData for one subslot with SyncID value 1" },
+    { 0x8032, "Expected PDSyncData for one subslot with SyncID value 2" },
+    { 0x8033, "Expected PDSyncData for one subslot with SyncID value 3" },
+    { 0x8034, "Expected PDSyncData for one subslot with SyncID value 4" },
+    { 0x8035, "Expected PDSyncData for one subslot with SyncID value 5" },
+    { 0x8036, "Expected PDSyncData for one subslot with SyncID value 6" },
+    { 0x8037, "Expected PDSyncData for one subslot with SyncID value 7" },
+    { 0x8038, "Expected PDSyncData for one subslot with SyncID value 8" },
+    { 0x8039, "Expected PDSyncData for one subslot with SyncID value 9" },
+    { 0x803A, "Expected PDSyncData for one subslot with SyncID value 10" },
+    { 0x803B, "Expected PDSyncData for one subslot with SyncID value 11" },
+    { 0x803C, "Expected PDSyncData for one subslot with SyncID value 12" },
+    { 0x803D, "Expected PDSyncData for one subslot with SyncID value 13" },
+    { 0x803E, "Expected PDSyncData for one subslot with SyncID value 14" },
+    { 0x803F, "Expected PDSyncData for one subslot with SyncID value 15" },
+    { 0x8040, "Expected PDSyncData for one subslot with SyncID value 16" },
+    { 0x8041, "Expected PDSyncData for one subslot with SyncID value 17" },
+    { 0x8042, "Expected PDSyncData for one subslot with SyncID value 18" },
+    { 0x8043, "Expected PDSyncData for one subslot with SyncID value 19" },
+    { 0x8044, "Expected PDSyncData for one subslot with SyncID value 20" },
+    { 0x8045, "Expected PDSyncData for one subslot with SyncID value 21" },
+    { 0x8046, "Expected PDSyncData for one subslot with SyncID value 22" },
+    { 0x8047, "Expected PDSyncData for one subslot with SyncID value 23" },
+    { 0x8048, "Expected PDSyncData for one subslot with SyncID value 24" },
+    { 0x8049, "Expected PDSyncData for one subslot with SyncID value 25" },
+    { 0x804A, "Expected PDSyncData for one subslot with SyncID value 26" },
+    { 0x804B, "Expected PDSyncData for one subslot with SyncID value 27" },
+    { 0x804C, "Expected PDSyncData for one subslot with SyncID value 28" },
+    { 0x804D, "Expected PDSyncData for one subslot with SyncID value 29" },
+    { 0x804E, "Expected PDSyncData for one subslot with SyncID value 30" },
+    { 0x804F, "Expected PDSyncData for one subslot with SyncID value 31" },
     { 0x8050, "PDInterfaceMrpDataReal for one subslot" },
     { 0x8051, "PDInterfaceMrpDataCheck for one subslot" },
     { 0x8052, "PDInterfaceMrpDataAdjust for one subslot" },
@@ -1790,7 +1886,8 @@ static const value_string pn_io_index[] = {
     /*0x80FA - 0x80FF reserved for CIM data */
     /*0x8100 - 0x81FF reserved */
     { 0x8200, "CIMSNMPAdjust" },
-    /*0x8201 - 0xAFEF reserved */
+    { 0x8201, "CIMSNMPReal" },
+    /*0x8202 - 0xAFEF reserved */
     { 0xAFF0, "I&M0" },
     { 0xAFF1, "I&M1" },
     { 0xAFF2, "I&M2" },
@@ -2975,6 +3072,26 @@ static const value_string pn_io_pe_measurement_status[] = {
     { 0, NULL }
 };
 
+static const range_string pn_io_credential_id_credential_type[] = {
+    { 0x00, 0x00, "No credential exists" },
+    { 0x01, 0x01, "IDevID" },
+    { 0x02, 0x02, "LDevID-Generic" },
+    { 0x03, 0x03, "LDevID-PN" },
+    { 0, 0, NULL }
+};
+
+static const range_string pn_io_number_of_octets[] = {
+    { 0x0000, 0x0000, "Reserved" },
+    { 0x0001, 0x0FFF, "Mandatory values" },
+    { 0x1000, 0xFFFF, "Optinal values" },
+    { 0, 0, NULL }
+};
+
+static const range_string pn_io_number_of_entries[] = {
+    { 0x0000, 0xFFFF, "Number of entries" },
+    { 0, 0, NULL }
+};
+
 static const value_string pn_io_port_state[] = {
     { 0x0000, "reserved" },
     { 0x0001, "up" },
@@ -3468,6 +3585,110 @@ static const range_string pn_io_am_location_level_vals[] = {
 static const value_string pn_io_am_location_reserved_vals[] = {
     { 0x00, "Reserved" },
     { 0, NULL }
+};
+
+static const value_string pn_io_security_information_protection_mode[] = {
+    { 0x00, "Authentication only" },
+    { 0x01, "Authenticated encryption" },
+    { 0, NULL }
+};
+
+static const range_string pn_io_security_mode[] = {
+    { 0x0000, 0x0000, "Preserve stored value" },
+    { 0x0001, 0x0001, "ANY Default Value" },
+    { 0x0002, 0x0002, "PROTECTED" },
+    { 0x0003, 0x0003, "Reserved" },
+    { 0, 0, NULL }
+};
+
+static const range_string pn_io_certificate_validity_period_check[] = {
+    { 0x00, 0x00, "Preserved stored value" },
+    { 0x01, 0x01, "OFF Default value" },
+    { 0x02, 0x02, "ON" },
+    { 0x03, 0x03, "Reserved" },
+    { 0, 0, NULL }
+};
+
+static const range_string pn_io_sack_degradation_threshold[] = {
+    { 0x00, 0x00, "Preserve stored value" },
+    { 0x01, 0x3F, "SACKDegredationThresholdFactor" },
+    { 0xFF, 0xFF, "Disable SACKDegredationThresholdFactor Default Value" },
+    { 0, 0, NULL }
+};
+
+static const value_string pn_io_security_features_key_pair_generation[] = {
+    { 0x0, "Not supported" },
+    { 0x1, "Suported" },
+    { 0, NULL }
+};
+
+static const range_string pn_io_security_capability_usage[] = {
+    { 0x00, 0x00, "Not applicable for the desired communication protocol" },
+    { 0x01, 0x01, "Symmetric, authentication only" },
+    { 0x02, 0x02, "Symmetric, authentication encryption" },
+    { 0x03, 0x03, "Key derivation function" },
+    { 0x04, 0x04, "Key aggreement function" },
+    { 0x05, 0x05, "Digital signature function" },
+    { 0x06, 0xFF, "Reserved" },
+    { 0, 0, NULL }
+};
+
+static const range_string pn_io_security_capability_algorithm_symmetric_ao[] = {
+    { 0x00, 0x00, "AEAD_AES_128_GCM" },
+    { 0x01, 0x01, "AEAD_AES_256_GCM" },
+    { 0x02, 0x02, "AEAD_CHACHA20_POLY1305" },
+    { 0x03, 0xFF, "Reserved" },
+    { 0, 0, NULL }
+};
+
+static const range_string pn_io_security_capability_algorithm_symmetric_ae[] = {
+    { 0x00, 0x00, "AEAD_AES_128_GCM" },
+    { 0x01, 0x01, "AEAD_AES_256_GCM" },
+    { 0x02, 0x02, "AEAD_CHACHA20_POLY1305" },
+    { 0x03, 0xFF, "Reserved" },
+    { 0, 0, NULL }
+};
+
+static const range_string pn_io_security_capability_algorithm_key_derivation_function[] = {
+    { 0x00, 0x00, "HKDF together with SHA-256" },
+    { 0x01, 0xFF, "Reserved" },
+    { 0, 0, NULL }
+};
+
+static const range_string pn_io_security_capability_algorithm_key_agreement_function[] = {
+    { 0x00, 0x00, "X25519" },
+    { 0x01, 0x01, "X448" },
+    { 0x02, 0xFF, "Reserved" },
+    { 0, 0, NULL }
+};
+
+static const range_string pn_io_security_capability_algorithm_digital_signature_function[] = {
+    { 0x00, 0x00, "Ed25519" },
+    { 0x01, 0x01, "Ed448" },
+    { 0x02, 0x02, "ECDSA-with-SHA256 using P-256 curve" },
+    { 0x03, 0x03, "ECDSA-with-SHA512 using P-521 curve" },
+    { 0x04, 0xFF, "Reserved" },
+    { 0, 0, NULL }
+};
+
+static const range_string pn_io_security_operation[] = {
+    { 0x0000, 0x0000, "Reserved" },
+    { 0x0001, 0x0001, "Get Security Capabilities" },
+    { 0x0002, 0x0002, "Get Available CredentialIDs" },
+    { 0x0003, 0x0003, "Get Security Configuation Parameters" },
+    { 0x0004, 0x0004, "Get EE Certification Path" },
+    { 0x0005, 0x0005, "Get Trusted CA Certificate" },
+    { 0x0006, 0x0006, "Generate Key Pair And CSR" },
+    { 0x0007, 0x0007, "Imprint Private Key" },
+    { 0x0008, 0x0008, "Imprint EE Certification Path" },
+    { 0x0009, 0x0009, "Remove EE Certification Path and Private Key" },
+    { 0x000A, 0x000A, "Imprint Trusted CA Certificate" },
+    { 0x000B, 0x000B, "Remove Trusted CA Certificate" },
+    { 0x000C, 0x000C, "Set Security Configuration Parameters" },
+    { 0x000D, 0x00FF, "Reserved" },
+    { 0x0100, 0x0100, "Process EAP Message" },
+    { 0x0100, 0xFFFF, "Reserved" },
+    { 0, 0, NULL }
 };
 
 static const range_string pn_io_RedundancyDataHoldFactor[] = {
@@ -8073,6 +8294,445 @@ dissect_SubmoduleListBlock(tvbuff_t *tvb, int offset,
     return offset;
 }
 
+/* dissect the SecurityRequest block */
+static int
+dissect_SecurityRequest_block(tvbuff_t* tvb, int offset,
+    packet_info* pinfo, proto_tree* tree, proto_item* item _U_, uint8_t* drep, uint8_t u8BlockVersionHigh, uint8_t u8BlockVersionLow, uint16_t u16BodyLength)
+{
+    uint16_t     u16SecurityOperation;
+    uint16_t     u16CertificateRequestLength;
+    uint16_t     u16NumberOfEntries;
+    uint16_t     u16PrivateKeyLength;
+    uint16_t     u16CertificateLength;
+    uint32_t     u32CredentialIDCredentialType;
+    uint32_t     u32CredentialIDReserved;
+    uint64_t     u64SecurityMode;
+    uint64_t     u64CertificateValidityPeriodCheck;
+    uint64_t     u64Reserved1;
+    uint64_t     u64SACKDegredationThreshold;
+    uint64_t     u64Reserved2;
+
+    dcerpc_info di; /* fake dcerpc_info struct */
+    dcerpc_call_value dcv; /* fake dcerpc_call_value struct */
+    di.call_data = &dcv;
+
+
+    proto_item* configuration_item;
+    proto_tree* configuration_tree;
+
+    proto_item* credential_item;
+    proto_tree* credential_tree;
+
+
+    if (u8BlockVersionHigh != 1 || u8BlockVersionLow != 0) {
+        expert_add_info_format(pinfo, item, &ei_pn_io_block_version,
+            "Block version %u.%u not implemented yet!", u8BlockVersionHigh, u8BlockVersionLow);
+        return offset;
+    }
+
+    /* SecurityOperation */
+    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, hf_pn_io_security_operation, &u16SecurityOperation);
+
+    if (u16BodyLength > 2)
+    {
+        if (u16SecurityOperation <= 0x000C)
+        {
+            /* SCMRequestData */
+
+            if (u16SecurityOperation >= 0x0004 && u16SecurityOperation <= 0x000B) {
+                /* CredentialID */
+                credential_item = proto_tree_add_item(tree, hf_pn_io_credential_id, tvb, offset, 4, ENC_NA);
+                credential_tree = proto_item_add_subtree(credential_item, ett_pn_io_credential_id);
+                dissect_dcerpc_uint32(tvb, offset, pinfo, credential_tree, drep,
+                    hf_pn_io_credential_id_credential_type, &u32CredentialIDCredentialType);
+                u32CredentialIDCredentialType &= 0x0000000F;
+                offset = dissect_dcerpc_uint32(tvb, offset, pinfo, credential_tree, drep,
+                    hf_pn_io_credential_id_reserved, &u32CredentialIDReserved);
+                u32CredentialIDReserved >>= 4;
+            }
+            if (u16SecurityOperation == 0x0006) // GenerateKeyPairandCSRReq 
+            {
+                /* CertificationRequestLength */
+                u16CertificateRequestLength = tvb_get_ntohs(tvb, offset);
+                proto_tree_add_uint_format(tree, hf_pn_io_certification_request_length, tvb, offset, 2, u16CertificateRequestLength, "CertificationRequestLength: %u", u16CertificateRequestLength);
+                offset += 2;
+                /* CertificationRequestInfo */
+                proto_tree_add_item(tree, hf_pn_io_certification_request, tvb, offset, u16CertificateRequestLength, ENC_ASCII);
+                offset += u16CertificateRequestLength;
+            }
+            if (u16SecurityOperation == 0x0007) /* ImprintPrivateKeyReq */
+            {
+                /* PrivateKeyLength */
+                u16PrivateKeyLength = tvb_get_ntohs(tvb, offset);
+                proto_tree_add_uint_format(tree, hf_pn_io_private_key_length, tvb, offset, 2, u16PrivateKeyLength, "PrivateKeyLength: %u", u16PrivateKeyLength);
+                offset += 2;
+                //offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, hf_pn_io_private_key_length, &u16PrivateKeyLength);
+
+                /* PrivateKey */
+                proto_tree_add_item(tree, hf_pn_io_private_key, tvb, offset, u16PrivateKeyLength, ENC_ASCII);
+                offset += u16PrivateKeyLength;
+            }
+
+            if (u16SecurityOperation == 0x0008) /* ImprintEECertificationPathReq */
+            {
+                /* EECertificationPath */
+                /* Padding */
+                offset = dissect_pn_padding(tvb, offset, pinfo, tree, 1);
+
+                /* Padding */
+                offset = dissect_pn_padding(tvb, offset, pinfo, tree, 1);
+
+                /* NumberOfElements */
+                offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
+                    hf_pn_io_number_of_entries, &u16NumberOfEntries);
+
+                while (u16NumberOfEntries--)
+                {
+                    /* CertificateLength */
+                    u16CertificateLength = tvb_get_ntohs(tvb, offset);
+                    proto_tree_add_uint_format(tree, hf_pn_io_certificate_length, tvb, offset, 2, u16CertificateLength, "CertificateLength: %u", u16CertificateLength);
+                    offset += 2;
+               //     offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, hf_pn_io_certificate_length, &u16CertificateLength);
+
+                    /* Certificate */
+                    proto_tree_add_item(tree, hf_pn_io_certificate, tvb, offset, u16CertificateLength, ENC_ASCII);
+                    offset += u16CertificateLength;
+
+                    /* Padding */
+                    offset = dissect_pn_align4(tvb, offset, pinfo, tree);
+                }
+            }
+
+            if (u16SecurityOperation == 0x000A) /* ImprintTrustedCACertificateReq */
+            {
+                /* TrustedCACertificate */
+                /* CertificateLength */
+                u16CertificateLength = tvb_get_ntohs(tvb, offset);
+                proto_tree_add_uint_format(tree, hf_pn_io_certificate_length, tvb, offset, 2, u16CertificateLength, "CertificateLength: %u", u16CertificateLength);
+                offset += 2;
+            //    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, hf_pn_io_certificate_length, &u16CertificateLength);
+
+                /* Certificate */
+                proto_tree_add_item(tree, hf_pn_io_certificate, tvb, offset, u16CertificateLength, ENC_ASCII);
+                offset += u16CertificateLength;
+            }
+
+            if (u16SecurityOperation == 0x000C) /* SetSecurityConfigurationParametersReq */
+            {
+                /* SecurityConfigurationParameters */
+                configuration_item = proto_tree_add_item(tree, hf_pn_io_security_configuration_parameters, tvb, offset, 8, ENC_NA);
+                configuration_tree = proto_item_add_subtree(configuration_item, ett_pn_io_security_configuration_parameters);
+
+                /* SecurityMode */
+                dissect_dcerpc_uint64(tvb, offset, pinfo, configuration_tree, &di, drep,
+                    hf_pn_io_security_mode, &u64SecurityMode);
+     
+                /* CertificateValidityPeriodCheck */
+                dissect_dcerpc_uint64(tvb, offset, pinfo, configuration_tree, &di, drep,
+                    hf_pn_io_certificate_validity_period_check, &u64CertificateValidityPeriodCheck);
+                
+                /* Reserved1 */
+                dissect_dcerpc_uint64(tvb, offset, pinfo, configuration_tree, &di, drep,
+                    hf_pn_io_security_configuration_parameters_reserved1, &u64Reserved1);
+               
+                /* SACKDegredationThreshold */
+                dissect_dcerpc_uint64(tvb, offset, pinfo, configuration_tree, &di, drep,
+                    hf_pn_io_sack_degradation_threshold, &u64SACKDegredationThreshold);
+                
+                /* Reserved2 */
+                offset = dissect_dcerpc_uint64(tvb, offset, pinfo, configuration_tree, &di, drep,
+                    hf_pn_io_security_configuration_parameters_reserved2, &u64Reserved2);
+                
+            }
+
+        }
+        else if (u16SecurityOperation == 0x0100)
+        {
+            /* SAMRequestData */
+            tvbuff_t *eap_tvb;
+            // Get EAP Data lentgth
+            uint16_t length = tvb_get_uint16(tvb, offset+2, ENC_BIG_ENDIAN);
+            eap_tvb = tvb_new_subset_length(tvb, offset, length);
+            if ((eap_tvb != NULL) && eap_handle != NULL){
+              call_dissector(eap_handle, eap_tvb, pinfo, tree);
+            }else{
+              proto_tree_add_item(tree, hf_pn_io_eap_data, tvb, offset, length, ENC_NA);
+            }
+            offset += length;
+        }
+        else
+        {
+            offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, hf_pn_io_reserved16, NULL);
+        }
+    }
+    /* Padding */
+    offset = dissect_pn_align4(tvb, offset, pinfo, tree);
+
+    return offset;
+}
+
+/* dissect the SecurityResponse block */
+static int
+dissect_SecurityResponse_block(tvbuff_t* tvb, int offset,
+    packet_info* pinfo, proto_tree* tree, proto_item* item _U_, uint8_t* drep, uint8_t u8BlockVersionHigh, uint8_t u8BlockVersionLow, uint16_t u16BodyLength)
+{
+    uint16_t     u16SecurityOperation;
+    uint16_t     u16KeyPairGeneration;
+    uint16_t     u16SecurityFeaturesReserved;
+    uint16_t     u16NumberOfEntries;
+    uint16_t     u16SecurityCapabilityUsage;
+    uint16_t     u16SecurityCapabilityAlgorithm;
+    uint16_t     u16CertificateLength;
+    uint16_t     u16CertificateRequestLength;
+    uint32_t     u32CredentialIDCredentialType;
+    uint32_t     u32CredentialIDReserved;
+    uint64_t     u64SecurityMode;
+    uint64_t     u64CertificateValidityPeriodCheck;
+    uint64_t     u64Reserved1;
+    uint64_t     u64SACKDegredationThreshold;
+    uint64_t     u64Reserved2;
+
+    dcerpc_info di; /* fake dcerpc_info struct */
+    dcerpc_call_value dcv; /* fake dcerpc_call_value struct */
+    di.call_data = &dcv;
+
+    proto_item* features_item;
+    proto_tree* features_tree;
+
+    proto_item* capability_item;
+    proto_tree* capability_tree;
+
+    proto_item* credential_item;
+    proto_tree* credential_tree;
+
+    proto_item* configuration_item;
+    proto_tree* configuration_tree;
+
+    if (u8BlockVersionHigh != 1 || u8BlockVersionLow != 0) {
+        expert_add_info_format(pinfo, item, &ei_pn_io_block_version,
+            "Block version %u.%u not implemented yet!", u8BlockVersionHigh, u8BlockVersionLow);
+        return offset;
+    }
+
+    /* SecurityOperation */
+    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, hf_pn_io_security_operation, &u16SecurityOperation);
+
+    if (u16BodyLength > 2)
+    {
+        if (u16SecurityOperation <= 0x000C)
+        {
+            /* SCMResponseData */
+            switch (u16SecurityOperation)
+            {
+            case(0x0001): /* GetSecurityCapabilitiesRsp */
+                /* SecurityFeatures */
+                features_item = proto_tree_add_item(tree, hf_pn_io_security_features, tvb, offset, 2, ENC_NA);
+                features_tree = proto_item_add_subtree(features_item, ett_pn_io_security_features);
+
+                dissect_dcerpc_uint16(tvb, offset, pinfo, features_tree, drep, hf_pn_io_security_features_key_pair_generation, &u16KeyPairGeneration);
+                u16KeyPairGeneration &= 0xF;
+                offset = dissect_dcerpc_uint16(tvb, offset, pinfo, features_tree, drep, hf_pn_io_security_features_reserved, &u16SecurityFeaturesReserved);
+                u16SecurityFeaturesReserved >>= 1;
+
+                /* NumberOfEntries */
+                offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, hf_pn_io_number_of_entries, &u16NumberOfEntries);
+
+                while (u16NumberOfEntries--)
+                {
+                    /* SecurityCapability */
+                    capability_item = proto_tree_add_item(tree, hf_pn_io_security_capability, tvb, offset, 2, ENC_NA);
+                    capability_tree = proto_item_add_subtree(capability_item, ett_pn_io_security_capability);
+                    dissect_dcerpc_uint16(tvb, offset, pinfo, capability_item, drep, hf_pn_io_security_capability_usage, &u16SecurityCapabilityUsage);
+                    u16SecurityCapabilityUsage &= 0xF;
+                    switch (u16SecurityCapabilityUsage)
+                    {
+                    case(0x01):
+                        offset = dissect_dcerpc_uint16(tvb, offset, pinfo, capability_tree, drep, hf_pn_io_security_capability_algorithm_symmetric_ao, &u16SecurityCapabilityAlgorithm);
+                        u16SecurityCapabilityAlgorithm >>= 8;
+                        break;
+                    case(0x02):
+                        offset = dissect_dcerpc_uint16(tvb, offset, pinfo, capability_tree, drep, hf_pn_io_security_capability_algorithm_symmetric_ae, &u16SecurityCapabilityAlgorithm);
+                        u16SecurityCapabilityAlgorithm >>= 8;
+                        break;
+                    case(0x03):
+                        offset = dissect_dcerpc_uint16(tvb, offset, pinfo, capability_tree, drep, hf_pn_io_security_capability_algorithm_key_derivation_function, &u16SecurityCapabilityAlgorithm);
+                        u16SecurityCapabilityAlgorithm >>= 8;
+                        break;
+                    case(0x04):
+                        offset = dissect_dcerpc_uint16(tvb, offset, pinfo, capability_tree, drep, hf_pn_io_security_capability_algorithm_key_agreement_function, &u16SecurityCapabilityAlgorithm);
+                        u16SecurityCapabilityAlgorithm >>= 8;
+                        break;
+                    case(0x05):
+                        offset = dissect_dcerpc_uint16(tvb, offset, pinfo, capability_tree, drep, hf_pn_io_security_capability_algorithm_digital_signature_function, &u16SecurityCapabilityAlgorithm);
+                        u16SecurityCapabilityAlgorithm >>= 8;
+                        break;
+                    default:
+                        offset = dissect_dcerpc_uint16(tvb, offset, pinfo, capability_tree, drep, hf_pn_io_security_capability_algorithm_reserved, &u16SecurityCapabilityAlgorithm);
+                        u16SecurityCapabilityAlgorithm >>= 8;
+                        break;
+                    }
+                }
+                break;
+            case(0x0002): /* GetAvailableCredentialIDRsp */
+                /* Padding */
+                offset = dissect_pn_padding(tvb, offset, pinfo, tree, 1);
+
+                /* Padding */
+                offset = dissect_pn_padding(tvb, offset, pinfo, tree, 1);
+
+                /* NumberOfElements */
+                offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, hf_pn_io_number_of_entries, &u16NumberOfEntries);
+
+                while (u16NumberOfEntries--)
+                {
+                    /* CredentialID */
+                    credential_item = proto_tree_add_item(tree, hf_pn_io_credential_id, tvb, offset, 4, ENC_NA);
+                    credential_tree = proto_item_add_subtree(credential_item, ett_pn_io_credential_id);
+                    dissect_dcerpc_uint32(tvb, offset, pinfo, credential_tree, drep,
+                        hf_pn_io_credential_id_credential_type, &u32CredentialIDCredentialType);
+                    u32CredentialIDCredentialType &= 0x0000000F;
+                    offset = dissect_dcerpc_uint32(tvb, offset, pinfo, credential_tree, drep,
+                        hf_pn_io_credential_id_reserved, &u32CredentialIDReserved);
+                    u32CredentialIDReserved >>= 4;
+                }
+                break;
+            case(0x0003): /* GetSecurityConfigurationParametersRsp */
+                /* SecurityConfigurationParameters */
+                configuration_item = proto_tree_add_item(tree, hf_pn_io_security_configuration_parameters, tvb, offset, 8, ENC_NA);
+                configuration_tree = proto_item_add_subtree(configuration_item, ett_pn_io_security_configuration_parameters);
+
+                /* SecurityMode */
+                dissect_dcerpc_uint64(tvb, offset, pinfo, configuration_tree, &di, drep,
+                    hf_pn_io_security_mode, &u64SecurityMode);
+                
+                /* CertificateValidityPeriodCheck */
+                dissect_dcerpc_uint64(tvb, offset, pinfo, configuration_tree, &di, drep,
+                    hf_pn_io_certificate_validity_period_check, &u64CertificateValidityPeriodCheck);
+                
+                /* Reserved1 */
+                dissect_dcerpc_uint64(tvb, offset, pinfo, configuration_tree, &di, drep,
+                    hf_pn_io_security_configuration_parameters_reserved1, &u64Reserved1);
+                
+                /* SACKDegredationThreshold */
+                dissect_dcerpc_uint64(tvb, offset, pinfo, configuration_tree, &di, drep,
+                    hf_pn_io_sack_degradation_threshold, &u64SACKDegredationThreshold);
+                
+                /* Reserved2 */
+                offset = dissect_dcerpc_uint64(tvb, offset, pinfo, configuration_tree, &di, drep,
+                    hf_pn_io_security_configuration_parameters_reserved2, &u64Reserved2);
+                
+                break;
+            case(0x0004): /* GetEECertificationPathRsp */
+                /* EECertificationPath */
+                /* Padding */
+                offset = dissect_pn_padding(tvb, offset, pinfo, tree, 1);
+
+                /* Padding */
+                offset = dissect_pn_padding(tvb, offset, pinfo, tree, 1);
+
+                /* NumberOfElements */
+                offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
+                    hf_pn_io_number_of_entries, &u16NumberOfEntries);
+
+                while (u16NumberOfEntries--)
+                {
+                    /* CertificateLength */
+                    u16CertificateLength = tvb_get_ntohs(tvb, offset);
+                    proto_tree_add_uint_format(tree, hf_pn_io_certificate_length, tvb, offset, 2, u16CertificateLength, "CertificateLength: %u", u16CertificateLength);
+                    offset += 2;
+
+                    /* Certificate */
+                    proto_tree_add_item(tree, hf_pn_io_certificate, tvb, offset, u16CertificateLength, ENC_ASCII);
+                    offset += u16CertificateLength;
+
+                    /* Padding */
+                    offset = dissect_pn_align4(tvb, offset, pinfo, tree);
+                }
+                break;
+            case(0x0005): /* GetTrustedCACertificateRsp */
+                /* TrustedCACertificate */
+                /* CertificateLength */
+                u16CertificateLength = tvb_get_ntohs(tvb, offset);
+                proto_tree_add_uint_format(tree, hf_pn_io_certificate_length, tvb, offset, 2, u16CertificateLength, "CertificateLength: %u", u16CertificateLength);
+                offset += 2;
+
+                /* Certificate */
+                proto_tree_add_item(tree, hf_pn_io_certificate, tvb, offset, u16CertificateLength, ENC_ASCII);
+                offset += u16CertificateLength;
+                break;
+            case(0x0006): // GenerateKeyPairAndCSRRsp 
+
+                /* CertificationRequestLength */
+                u16CertificateRequestLength = tvb_get_ntohs(tvb, offset);
+                proto_tree_add_uint_format(tree, hf_pn_io_certification_request_length, tvb, offset, 2, u16CertificateRequestLength, "CertificationRequestLength: %u", u16CertificateRequestLength);
+                offset += 2;
+                /* CertificationRequest */
+                proto_tree_add_item(tree, hf_pn_io_certification_request, tvb, offset, u16CertificateRequestLength, ENC_ASCII);
+                offset += u16CertificateRequestLength;
+
+                break;
+            case(0x0007): /* ImprintPrivateKeyRsp */
+            case(0x0008): /* ImprintEECertificationPathRsp */
+            case(0x0009): /* ImprintEECertificationPathAndPrivateKeyRsp */
+            case(0x000A): /* ImprintTrustedCACertificateRsp */
+            case(0x000B): /* RemoveTrustedCACertificateRsp */
+            case(0x000C): /* SetSecurityModeRsp */
+                break;
+            default:
+                offset = dissect_pn_undecoded(tvb, offset, pinfo, tree, tvb_captured_length(tvb));
+                break;
+            }
+        }
+        else if (u16SecurityOperation == 0x0100)
+        {
+            /* SAMResponseData */
+            tvbuff_t *eap_tvb;
+            
+            // Get EAP Data lentgth
+            uint16_t length = tvb_get_uint16(tvb, offset+2, ENC_BIG_ENDIAN);
+            eap_tvb = tvb_new_subset_length(tvb, offset, length);
+            if ((eap_tvb != NULL) && eap_handle != NULL){
+              call_dissector(eap_handle, eap_tvb, pinfo, tree);
+            }else{
+              proto_tree_add_item(tree, hf_pn_io_eap_data, tvb, offset, length, ENC_NA);
+            }
+            offset += length;
+        }
+        else
+        {
+            offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, hf_pn_io_reserved16, NULL);
+        }
+    }
+
+    /* Padding */
+    offset = dissect_pn_align4(tvb, offset, pinfo, tree);
+
+    return offset;
+}
+
+/* dissect the ARUUID block */
+static int
+dissect_ARUUID_block(tvbuff_t* tvb, int offset,
+    packet_info* pinfo, proto_tree* tree, proto_item* item _U_, uint8_t* drep, uint8_t u8BlockVersionHigh, uint8_t u8BlockVersionLow)
+{
+    e_guid_t aruuid;
+
+    if (u8BlockVersionHigh != 1 || u8BlockVersionLow != 0) {
+        expert_add_info_format(pinfo, item, &ei_pn_io_block_version,
+            "Block version %u.%u not implemented yet!", u8BlockVersionHigh, u8BlockVersionLow);
+        return offset;
+    }
+
+    /* For 2 byte Padding. It is already dissected in dissect_dcerpc_uuid_t function. */
+    offset += 2;
+
+    /* ARUUID */
+    offset = dissect_dcerpc_uuid_t(tvb, offset, pinfo, tree, drep,
+        hf_pn_io_ar_uuid, &aruuid);
+
+    return offset;
+
+}
 
 /* dissect the PDevData block */
 static int
@@ -11521,6 +12181,8 @@ dissect_ARProperties(tvbuff_t *tvb, int offset,
     wmem_map_insert(pnio_time_aware_frame_map, GUINT_TO_POINTER(pinfo->num), GUINT_TO_POINTER(isTimeAware));
 
     dissect_dcerpc_uint32(tvb, offset, pinfo, sub_tree, drep,
+                        hf_pn_io_ar_properties_reject_dcp_set_request, &u32ARProperties);
+    dissect_dcerpc_uint32(tvb, offset, pinfo, sub_tree, drep,
                         hf_pn_io_ar_properties_reserved, &u32ARProperties);
     dissect_dcerpc_uint32(tvb, offset, pinfo, sub_tree, drep,
                         hf_pn_io_ar_properties_achnowledge_companion_ar, &u32ARProperties);
@@ -13906,6 +14568,109 @@ dissect_RSInfoBlock_block(tvbuff_t *tvb, int offset,
     return offset;
 }
 
+/* dissect ARAlgorithmInfoBlock */
+static int
+dissect_ARAlgorithmInfoBlock_block(tvbuff_t* tvb, int offset,
+    packet_info* pinfo, proto_tree* tree, proto_item* item, uint8_t* drep,
+    uint8_t u8BlockVersionHigh, uint8_t u8BlockVersionLow, uint16_t u16BodyLength _U_)
+{
+    uint16_t     u16SecurityCapabilityUsage;
+    uint16_t     u16SecurityCapabilityAlgorithm;
+
+    proto_item*     rtc_item;
+    proto_tree*     rtc_tree;
+
+    proto_item*     rta_item;
+    proto_tree*     rta_tree;
+
+    proto_item*     rpc_item;
+    proto_tree*     rpc_tree;
+
+    proto_item*     derivation_item;
+    proto_tree*     derivation_tree;
+
+    proto_item*     agreement_item;
+    proto_tree*     agreement_tree;
+
+    proto_item*     signature_item;
+    proto_tree*     signature_tree;
+
+    if (u8BlockVersionHigh != 1 || u8BlockVersionLow != 0) {
+        expert_add_info_format(pinfo, item, &ei_pn_io_block_version,
+            "Block version %u.%u not implemented yet!", u8BlockVersionHigh, u8BlockVersionLow);
+        return offset;
+    }
+
+    /* Padding */
+    offset = dissect_pn_padding(tvb, offset, pinfo, tree, 1);
+
+    /* Padding */
+    offset = dissect_pn_padding(tvb, offset, pinfo, tree, 1);
+
+    /* RTCAlgorithm */
+    rtc_item = proto_tree_add_item(tree, hf_pn_io_rtc_algorithm, tvb, offset, 2, ENC_NA);
+    rtc_tree = proto_item_add_subtree(rtc_item, ett_pn_io_rtc_algorithm);
+
+    dissect_dcerpc_uint16(tvb, offset, pinfo, rtc_tree, drep, hf_pn_io_security_capability_usage, &u16SecurityCapabilityUsage);
+    u16SecurityCapabilityUsage &= 0xF;
+
+    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, rtc_tree, drep, hf_pn_io_security_capability_algorithm_symmetric_ao, &u16SecurityCapabilityAlgorithm);
+    u16SecurityCapabilityAlgorithm >>= 8;
+
+    /* RTAAlgorithm */
+    rta_item = proto_tree_add_item(tree, hf_pn_io_rta_algorithm, tvb, offset, 2, ENC_NA);
+    rta_tree = proto_item_add_subtree(rta_item, ett_pn_io_rta_algorithm);
+
+    dissect_dcerpc_uint16(tvb, offset, pinfo, rta_tree, drep, hf_pn_io_security_capability_usage, &u16SecurityCapabilityUsage);
+    u16SecurityCapabilityUsage &= 0xF;
+
+    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, rta_tree, drep, hf_pn_io_security_capability_algorithm_symmetric_ao, &u16SecurityCapabilityAlgorithm);
+    u16SecurityCapabilityAlgorithm >>= 8;
+
+    /* RPCAlgorithm */
+    rpc_item = proto_tree_add_item(tree, hf_pn_io_rpc_algorithm, tvb, offset, 2, ENC_NA);
+    rpc_tree = proto_item_add_subtree(rpc_item, ett_pn_io_rpc_algorithm);
+
+    dissect_dcerpc_uint16(tvb, offset, pinfo, rpc_tree, drep, hf_pn_io_security_capability_usage, &u16SecurityCapabilityUsage);
+    u16SecurityCapabilityUsage &= 0xF;
+
+    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, rpc_tree, drep, hf_pn_io_security_capability_algorithm_symmetric_ao, &u16SecurityCapabilityAlgorithm);
+    u16SecurityCapabilityAlgorithm >>= 8;
+
+    /* DerivationAlgorithm */
+    derivation_item = proto_tree_add_item(tree, hf_pn_io_derivation_algorithm, tvb, offset, 2, ENC_NA);
+    derivation_tree = proto_item_add_subtree(derivation_item, ett_pn_io_derivation_algorithm);
+
+    dissect_dcerpc_uint16(tvb, offset, pinfo, derivation_tree, drep, hf_pn_io_security_capability_usage, &u16SecurityCapabilityUsage);
+    u16SecurityCapabilityUsage &= 0xF;
+
+    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, derivation_tree, drep, hf_pn_io_security_capability_algorithm_key_derivation_function, &u16SecurityCapabilityAlgorithm);
+    u16SecurityCapabilityAlgorithm >>= 8;
+
+    /* AgreementAlgorithm */
+    agreement_item = proto_tree_add_item(tree, hf_pn_io_agreement_algorithm, tvb, offset, 2, ENC_NA);
+    agreement_tree = proto_item_add_subtree(agreement_item, ett_pn_io_agreement_algorithm);
+
+    dissect_dcerpc_uint16(tvb, offset, pinfo, agreement_tree, drep, hf_pn_io_security_capability_usage, &u16SecurityCapabilityUsage);
+    u16SecurityCapabilityUsage &= 0xF;
+
+    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, agreement_tree, drep, hf_pn_io_security_capability_algorithm_key_agreement_function, &u16SecurityCapabilityAlgorithm);
+    u16SecurityCapabilityAlgorithm >>= 8;
+
+    /* SigatureAlgorithm */
+    signature_item = proto_tree_add_item(tree, hf_pn_io_signature_algorithm, tvb, offset, 2, ENC_NA);
+    signature_tree = proto_item_add_subtree(signature_item, ett_pn_io_signature_algorithm);
+
+    dissect_dcerpc_uint16(tvb, offset, pinfo, signature_tree, drep, hf_pn_io_security_capability_usage, &u16SecurityCapabilityUsage);
+    u16SecurityCapabilityUsage &= 0xF;
+
+    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, signature_tree, drep, hf_pn_io_security_capability_algorithm_digital_signature_function, &u16SecurityCapabilityAlgorithm);
+    u16SecurityCapabilityAlgorithm >>= 8;
+
+    return offset;
+
+}
+
 /* dissect the PDIRSubframeData block  0x022a */
 static int
 // NOLINTNEXTLINE(misc-no-recursion)
@@ -14709,6 +15474,25 @@ dissect_CIMSNMPAdjust_block(tvbuff_t *tvb, int offset,
     return offset;
 }
 
+/* CIMSNMPReal */
+static int
+dissect_CIMSNMPReal_block(tvbuff_t* tvb, int offset,
+    packet_info* pinfo, proto_tree* tree, proto_item* item _U_, guint8* drep, guint8 u8BlockVersionHigh, guint8 u8BlockVersionLow)
+{
+    if (u8BlockVersionHigh != 1 || u8BlockVersionLow != 0) {
+        expert_add_info_format(pinfo, item, &ei_pn_io_block_version,
+            "Block version %u.%u not implemented yet!", u8BlockVersionHigh, u8BlockVersionLow);
+        return offset;
+    }
+
+    /* SNMPControl */
+    proto_tree_add_item(tree, hf_pn_io_snmp_control, tvb, offset, 2, DREP_ENC_INTEGER(drep));
+    offset += 2;
+
+    return offset;
+}
+
+
 /* dissect the MultipleBlockHeader block */
 static int
 // NOLINTNEXTLINE(misc-no-recursion)
@@ -15029,10 +15813,25 @@ dissect_block(tvbuff_t *tvb, int offset,
                         hf_pn_io_block_type, &u16BlockType);
     offset = dissect_dcerpc_uint16(tvb, offset, pinfo, header_tree, drep,
                         hf_pn_io_block_length, &u16BlockLength);
+
+    if ((u16BlockType == 0x0000) && (u16BlockLength == 0x0000))
+    {
+        if (sub_item != NULL)
+            proto_item_set_hidden(sub_item);
+        return -1;
+    }
+
     offset = dissect_dcerpc_uint8(tvb, offset, pinfo, header_tree, drep,
                         hf_pn_io_block_version_high, &u8BlockVersionHigh);
     offset = dissect_dcerpc_uint8(tvb, offset, pinfo, header_tree, drep,
                         hf_pn_io_block_version_low, &u8BlockVersionLow);
+
+    if (try_val_to_str(u16BlockType, pn_io_block_type) == NULL)
+    {
+        if (sub_item != NULL)
+            proto_item_set_hidden(sub_item);
+        return -1;
+    }
 
     proto_item_append_text(header_item, ": Type=%s, Length=%u(+4), Version=%u.%u",
         val_to_str(u16BlockType, pn_io_block_type, "Unknown (0x%04x)"),
@@ -15177,6 +15976,9 @@ dissect_block(tvbuff_t *tvb, int offset,
     case(0x010C):
         dissect_RSInfoBlock_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow, u16BodyLength);
         break;
+    case(0x010D):
+        dissect_ARAlgorithmInfoBlock_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow, u16BodyLength);
+        break;
     case(0x0110):
     case(0x0111):
     case(0x0112):
@@ -15194,7 +15996,12 @@ dissect_block(tvbuff_t *tvb, int offset,
     case(0x0119):
         dissect_SubmoduleListBlock(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow, u16BodyLength, ar);
         break;
-
+    case(0x011A):
+        dissect_SecurityRequest_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow, u16BodyLength);
+        break;
+    case (0x011B):
+        dissect_ARUUID_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow);
+        break;
     case(0x0200): /* PDPortDataCheck */
         dissect_PDPortData_Check_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow,
             u16BodyLength);
@@ -15411,6 +16218,9 @@ dissect_block(tvbuff_t *tvb, int offset,
     case(0x300):
         dissect_CIMSNMPAdjust_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow, u16BodyLength);
         break;
+    case(0x302):
+        dissect_CIMSNMPReal_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow);
+        break;
     case(0x0400):
         dissect_MultipleBlockHeader_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow, u16BodyLength);
         break;
@@ -15497,6 +16307,9 @@ dissect_block(tvbuff_t *tvb, int offset,
     case(0x8118):
         dissect_ControlPlugOrConnect_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow, ar, u16BlockType);
         break;
+    case(0x811A):
+        dissect_SecurityResponse_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow, u16BodyLength);
+        break;
     default:
         dissect_pn_undecoded(tvb, offset, pinfo, sub_tree, u16BodyLength);
     }
@@ -15540,7 +16353,11 @@ dissect_blocks(tvbuff_t *tvb, int offset,
 
 
     while (tvb_captured_length(tvb) > (unsigned) offset) {
-        offset = dissect_block(tvb, offset, pinfo, tree, drep, &u16Index, &u32RecDataLen, &ar);
+        int result = dissect_block(tvb, offset, pinfo, tree, drep, &u16Index, &u32RecDataLen, &ar);
+        if (result > 0)
+            offset = result;
+        else
+            return offset;
         u16Index++;
     }
 
@@ -16014,6 +16831,7 @@ dissect_RecordDataRead(tvbuff_t *tvb, int offset,
     case(0x80F5):   /* CIMNetConfDataAdjust */
     case(0x8200):   /* CIMSNMPAdjust */
 
+    case(0x8201):   /* CIMSNMPReal */
     case(0xaff0):   /* I&M0 */
     case(0xaff1):   /* I&M1 */
     case(0xaff2):   /* I&M2 */
@@ -16480,6 +17298,7 @@ dissect_RecordDataWrite(tvbuff_t *tvb, int offset,
     case(0x80B0):   /* CombinedObjectContainer*/
     case(0x80CF):   /* RS_AdjustObserver */
     case(0x8200):   /* CIMSNMPAdjust */
+    case(0x8201):   /* CIMSNMPReal */
     case(0xaff1):   /* I&M1 */
     case(0xaff2):   /* I&M2 */
     case(0xaff3):   /* I&M3 */
@@ -16655,6 +17474,10 @@ dissect_rsi_blocks(tvbuff_t* tvb, int offset,
             offset = dissect_IODWriteReq(tvb, offset, pinfo, tree, drep, &ar, recursion_count);
         else if (type == PDU_TYPE_RSP)
             offset = dissect_IODWriteRes(tvb, offset, pinfo, tree, drep);
+        break;
+    case(0xA): // SecurityAssociationControl request or response
+    //    offset = dissect_SecurityAssociationControl(tvb, offset, pinfo, tree, drep);
+        offset = dissect_blocks(tvb, offset, pinfo, tree, drep);
         break;
     default:
         col_append_str(pinfo->cinfo, COL_INFO, "Reserved");
@@ -16835,6 +17658,134 @@ dissect_PNIO_RTA(tvbuff_t *tvb, int offset,
     return offset;
 }
 
+static int
+dissect_PNIO_RTA_with_security(tvbuff_t* tvb, int offset,
+    packet_info* pinfo, proto_tree* tree, uint8_t* drep)
+{
+    uint8_t      u8PDUType;
+    uint8_t      u8PDUVersion;
+    uint8_t      u8WindowSize;
+    uint8_t      u8Tack;
+    uint8_t      u8ProtectionMode;
+    uint8_t      u8InformationReserved;
+    uint16_t     u16AlarmDstEndpoint;
+    uint16_t     u16AlarmSrcEndpoint;
+    uint16_t     u16SendSeqNum;
+    uint16_t     u16AckSeqNum;
+    uint16_t     u16VarPartLen;
+    int         start_offset = offset;
+    uint16_t     u16Index = 0;
+    uint16_t     u16LengthSecurityData;
+    uint32_t     u32RecDataLen;
+    pnio_ar_t* ar = NULL;
+
+
+    proto_item* rta_item;
+    proto_tree* rta_tree;
+
+    proto_item* sub_item;
+    proto_tree* sub_tree;
+
+    proto_item* security_item;
+    proto_tree* security_tree;
+
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "PNIO-ALsec");
+
+    rta_item = proto_tree_add_protocol_format(tree, proto_pn_io, tvb, offset, tvb_captured_length(tvb),
+        "PROFINET IO Alarm with security");
+    rta_tree = proto_item_add_subtree(rta_item, ett_pn_io_rta);
+
+    /* SecurityMetaData block */
+    security_item = proto_tree_add_item(rta_tree, hf_pn_io_security, tvb, offset, 8, ENC_NA);
+    security_tree = proto_item_add_subtree(security_item, ett_pn_io_security);
+
+    proto_tree* information_tree = proto_item_add_subtree(security_item, ett_pn_io_security);
+
+    dissect_dcerpc_uint8(tvb, offset, pinfo, information_tree, drep, hf_pn_io_security_information_protection_mode, &u8ProtectionMode);
+    u8ProtectionMode &= 0x0F;
+    offset = dissect_dcerpc_uint8(tvb, offset, pinfo, information_tree, drep, hf_pn_io_security_information_reserved, &u8InformationReserved);
+    u8InformationReserved >>= 1;
+
+    offset = dissect_SecurityMetaData_block(tvb, offset, pinfo, security_item, security_tree, drep);
+
+    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, rta_tree, drep,
+        hf_pn_io_alarm_dst_endpoint, &u16AlarmDstEndpoint);
+    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, rta_tree, drep,
+        hf_pn_io_alarm_src_endpoint, &u16AlarmSrcEndpoint);
+
+    col_append_fstr(pinfo->cinfo, COL_INFO, ", Src: 0x%x, Dst: 0x%x",
+        u16AlarmSrcEndpoint, u16AlarmDstEndpoint);
+
+    /* PDU type */
+    sub_item = proto_tree_add_item(rta_tree, hf_pn_io_pdu_type, tvb, offset, 1, ENC_NA);
+    sub_tree = proto_item_add_subtree(sub_item, ett_pn_io_pdu_type);
+    dissect_dcerpc_uint8(tvb, offset, pinfo, sub_tree, drep,
+        hf_pn_io_pdu_type_type, &u8PDUType);
+    u8PDUType &= 0x0F;
+    offset = dissect_dcerpc_uint8(tvb, offset, pinfo, sub_tree, drep,
+        hf_pn_io_pdu_type_version, &u8PDUVersion);
+    u8PDUVersion >>= 4;
+    proto_item_append_text(sub_item, ", Type: %s, Version: %u",
+        val_to_str(u8PDUType, pn_io_pdu_type, "Unknown"),
+        u8PDUVersion);
+
+    /* additional flags */
+    sub_item = proto_tree_add_item(rta_tree, hf_pn_io_add_flags, tvb, offset, 1, ENC_NA);
+    sub_tree = proto_item_add_subtree(sub_item, ett_pn_io_add_flags);
+    dissect_dcerpc_uint8(tvb, offset, pinfo, sub_tree, drep,
+        hf_pn_io_window_size, &u8WindowSize);
+    u8WindowSize &= 0x0F;
+    offset = dissect_dcerpc_uint8(tvb, offset, pinfo, sub_tree, drep,
+        hf_pn_io_tack, &u8Tack);
+    u8Tack >>= 4;
+    proto_item_append_text(sub_item, ", Window Size: %u, Tack: %u",
+        u8WindowSize, u8Tack);
+
+    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, rta_tree, drep,
+        hf_pn_io_send_seq_num, &u16SendSeqNum);
+    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, rta_tree, drep,
+        hf_pn_io_ack_seq_num, &u16AckSeqNum);
+    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, rta_tree, drep,
+        hf_pn_io_var_part_len, &u16VarPartLen);
+
+    switch (u8PDUType & 0x0F) {
+    case(1):    /* Data-RTA */
+        col_append_str(pinfo->cinfo, COL_INFO, ", Data-RTA");
+        offset = dissect_block(tvb, offset, pinfo, rta_tree, drep, &u16Index, &u32RecDataLen, &ar);
+        break;
+    case(2):    /* NACK-RTA */
+        col_append_str(pinfo->cinfo, COL_INFO, ", NACK-RTA");
+        /* no additional data */
+        break;
+    case(3):    /* ACK-RTA */
+        col_append_str(pinfo->cinfo, COL_INFO, ", ACK-RTA");
+        /* no additional data */
+        break;
+    case(4):    /* ERR-RTA */
+        col_append_str(pinfo->cinfo, COL_INFO, ", ERR-RTA");
+        offset = dissect_PNIO_status(tvb, offset, pinfo, rta_tree, drep);
+        break;
+    default:
+        offset = dissect_pn_undecoded(tvb, offset, pinfo, tree, tvb_captured_length(tvb));
+    }
+
+    if (u8ProtectionMode == 0x00)
+        offset = dissect_SecurityChecksum(tvb, offset, rta_tree);
+    else if (u8ProtectionMode == 0x01)
+    {
+        u16LengthSecurityData = tvb_captured_length_remaining(tvb, offset);
+        proto_tree_add_item(rta_tree, hf_pn_io_security_data, tvb, offset, u16LengthSecurityData, ENC_NA);
+        proto_item* security_data_item = proto_tree_add_protocol_format(rta_tree, proto_pn_io, tvb, offset, u16LengthSecurityData, 
+            "PROFINET IO Secure Data");
+        proto_item_set_hidden(security_data_item);
+        offset += u16LengthSecurityData;
+    }
+
+    proto_item_set_len(rta_item, offset - start_offset);
+
+    return offset;
+
+}
 
 /* possibly dissect a PN-IO related PN-RT packet */
 static bool
@@ -16848,6 +17799,9 @@ dissect_PNIO_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     heur_dtbl_entry_t *hdtbl_entry;
     conversation_t* conversation;
     uint8_t isTimeAware = false;
+    uint8_t   u8ProtectionMode;
+    uint16_t  u16SecurityLength;
+    int       security_data = 0;
 
     /*
      * In case the packet is a protocol encoded in the basic PNIO transport stream,
@@ -16869,8 +17823,20 @@ dissect_PNIO_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     if (((u16FrameID >= 0x0100 && u16FrameID <= 0x06FF) || /* RTC3 non redundant */
         (u16FrameID >= 0x0700 && u16FrameID <= 0x0fff)) && /* RTC3 redundant */
         !isTimeAware) {
-        dissect_CSF_SDU_heur(tvb, pinfo, tree, data);
-        return true;
+            u8ProtectionMode = tvb_get_uint8(tvb, 0);
+            u8ProtectionMode &= 0x0F;
+            u16SecurityLength = tvb_get_uint16(tvb, 6, ENC_BIG_ENDIAN);
+    
+            if (u8ProtectionMode == 0x01)
+                security_data = tvb_captured_length_remaining(tvb, 8) - 16; /* Exclude SecurityChecksum, which is encrypted */
+            else if (u8ProtectionMode == 0x00)
+                security_data = tvb_captured_length_remaining(tvb, 8) + 4; /* Include cyclic status fields */
+    
+            if (u16SecurityLength == security_data)
+                dissect_RTC3_with_security(tvb, 0, pinfo, tree, drep, data);
+            else
+                dissect_CSF_SDU_heur(tvb, pinfo, tree, data);
+            return true;
     }
 
     /* is this a PNIO class stream data packet? */
@@ -16893,9 +17859,47 @@ dissect_PNIO_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     /* is this a PNIO class 1 data packet? */
     /* frame id must be in valid range (cyclic Real-Time, class=1) and
      * first byte (CBA version field) has to be != 0x11 */
-    if (u16FrameID >= 0x8000 && u16FrameID < 0xbfff) {
+    /* if it is a PNIO class 1 data packet, is it secured? */
+    /* SecurityLength in SecurityMetaData must match with the length of the security
+     * data to consider as a PNIO class 1 data packet with security */
+    if (u16FrameID >= 0x8000 && u16FrameID < 0xbbff) {
+        u8ProtectionMode = tvb_get_uint8(tvb, 0);
+        u8ProtectionMode &= 0x0F;
+        u16SecurityLength = tvb_get_uint16(tvb, 6, ENC_BIG_ENDIAN);
+
+        if (u8ProtectionMode == 0x01)
+            security_data = tvb_captured_length_remaining(tvb, 8) - 16; /* Exclude SecurityChecksum, which is encrypted */
+        else if (u8ProtectionMode == 0x00)
+            security_data = tvb_captured_length_remaining(tvb, 8) + 4; /* Include cyclic status fields */
+
         extract_pnio_objects_withoutAR(pinfo);
-        dissect_PNIO_C_SDU_RTC1(tvb, 0, pinfo, tree, drep, u16FrameID);
+        if (u16SecurityLength == security_data)
+            dissect_PNIO_RTC1_with_security(tvb, 0, pinfo, tree, drep, u16FrameID);
+        else
+            dissect_PNIO_C_SDU_RTC1(tvb, 0, pinfo, tree, drep, u16FrameID);
+        return true;
+    }
+
+    /* is this a PNIO class 1 data packet? */
+    /* frame id must be in valid range (cyclic Real-Time, class=1, multicast) and
+     * first byte (CBA version field) has to be != 0x11 */
+     /* if it is a PNIO class 1 data packet, is it secured? */
+     /* SecurityLength in SecurityMetaData must match with the length of the security
+      * data to consider as a PNIO class 1 data packet with security */
+    if (u16FrameID >= 0xbc00 && u16FrameID < 0xbfff) {
+        u8ProtectionMode = tvb_get_uint8(tvb, 0);
+        u8ProtectionMode &= 0x0F;
+        u16SecurityLength = tvb_get_uint16(tvb, 6, ENC_BIG_ENDIAN);
+
+        if (u8ProtectionMode == 0x01)
+            security_data = tvb_captured_length_remaining(tvb, 8) - 16; /* Exclude SecurityChecksum, which is encrypted */
+        else if (u8ProtectionMode == 0x00)
+            security_data = tvb_captured_length_remaining(tvb, 8) + 4; /* Include cyclic status fields */
+
+        if (u16SecurityLength == security_data)
+            dissect_PNIO_RTC1_with_security(tvb, 0, pinfo, tree, drep, u16FrameID);
+        else
+            dissect_PNIO_C_SDU_RTC1(tvb, 0, pinfo, tree, drep, u16FrameID);
         return true;
     }
 
@@ -16927,6 +17931,26 @@ dissect_PNIO_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     /* is this a Remote Service Interface (RSI) packet*/
     if (u16FrameID == 0xfe02) {
         dissect_PNIO_RSI(tvb, 0, pinfo, tree, drep);
+        return true;
+    }
+    /* is this a PNIO high priority alarm packet? */
+    if (u16FrameID == 0xfc41) {
+        col_set_str(pinfo->cinfo, COL_INFO, "Alarm High");
+
+        dissect_PNIO_RTA_with_security(tvb, 0, pinfo, tree, drep);
+        return true;
+    }
+
+    if (u16FrameID == 0xfe41) {
+        col_set_str(pinfo->cinfo, COL_INFO, "Alarm Low");
+
+        dissect_PNIO_RTA_with_security(tvb, 0, pinfo, tree, drep);
+        return true;
+    }
+
+    /* is this a Remote Service Interface (RSI) packet with security? */
+    if (u16FrameID == 0xfe42) {
+        dissect_PNIO_RSI_with_security(tvb, 0, pinfo, tree, drep);
         return true;
     }
 
@@ -17163,7 +18187,12 @@ proto_register_pn_io (void)
     },
     { &hf_pn_io_ar_properties_reserved,
       { "Reserved", "pn_io.ar_properties.reserved",
-        FT_UINT32, BASE_HEX, NULL, 0x0FFFF000,
+        FT_UINT32, BASE_HEX, NULL, 0x07FFF000,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_ar_properties_reject_dcp_set_request,
+      { "RejectDCPsetRequests", "pn_io.ar_properties.reject_dcp_set_request",
+        FT_UINT32, BASE_HEX, VALS(pn_io_arproperties_reject_dcp_set_request), 0x08000000,
         NULL, HFILL }
     },
     { &hf_pn_io_ar_properties_time_aware_system,
@@ -20638,6 +21667,192 @@ proto_register_pn_io (void)
        FT_UINT8, BASE_HEX | BASE_RANGE_STRING, RVALS(pn_io_pe_operational_mode), 0x0,
        NULL, HFILL }
     },
+    { &hf_pn_io_security,
+    { "PN RTA with Security", "pn_io.security",
+        FT_NONE, BASE_NONE, NULL, 0x0,
+        "", HFILL }
+    },
+    { &hf_pn_io_security_information,
+    { "SecurityInformation", "pn_io.security_information",
+        FT_UINT8, BASE_HEX, NULL, 0x0,
+        "", HFILL }
+    },
+    { &hf_pn_io_security_information_protection_mode,
+    { "SecurityInformation.ProtectionMode", "pn_io.security_information.protection_mode",
+        FT_UINT8, BASE_HEX, VALS(pn_io_security_information_protection_mode), 0x01,
+        "", HFILL }
+    },
+    { &hf_pn_io_security_information_reserved,
+    { "SecurityInformation.Reserved", "pn_io.security_information.reserved",
+        FT_UINT8, BASE_HEX, NULL, 0xFE,
+        "", HFILL }
+    },
+    { &hf_pn_io_security_operation,
+    { "SecurityOperation", "pn_io.security_operation",
+        FT_UINT16, BASE_HEX | BASE_RANGE_STRING, RVALS(pn_io_security_operation), 0xFFFF,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_security_features,
+    { "SecurityFeatures", "pn_io.security_features",
+        FT_UINT16, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_security_features_key_pair_generation,
+    { "SecurityFeatures.KeyPairGeneration", "pn_io.security_features.key_pair_generation",
+        FT_UINT16, BASE_HEX, VALS(pn_io_security_features_key_pair_generation), 0x1,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_security_features_reserved,
+    { "SecurityFeatures.Reserved", "pn_io.security_features.reserved",
+        FT_UINT16, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_rtc_algorithm,
+    { "RTCAlgorithm", "pn_io.rtc_algorithm",
+        FT_UINT16, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_rta_algorithm,
+    { "RTAAlgorithm", "pn_io.rta_algorithm",
+        FT_UINT16, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_rpc_algorithm,
+    { "RPCAlgorithm", "pn_io.rpc_algorithm",
+        FT_UINT16, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_derivation_algorithm,
+    { "DerivationAlgorithm", "pn_io.derivation_algorithm",
+        FT_UINT16, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_agreement_algorithm,
+    { "AgreementAlgorithm", "pn_io.agreement_algorithm",
+        FT_UINT16, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_signature_algorithm,
+    { "SignatureAlgorithm", "pn_io.signature_algorithm",
+        FT_UINT16, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_security_capability,
+    { "SecurityCapability", "pn_io.security_capability",
+        FT_UINT16, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_security_capability_usage,
+    { "SecurityCapability.Usage", "pn_io.security_capability.usage",
+        FT_UINT16, BASE_HEX | BASE_RANGE_STRING, RVALS(pn_io_security_capability_usage), 0x00FF,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_security_capability_algorithm_symmetric_ao,
+    { "SecurityCapability.Algorithm.SymmetricAuthenticationOnly", "pn_io.security_capability.algorithm.symmetric_authentication_only",
+        FT_UINT16, BASE_HEX | BASE_RANGE_STRING, RVALS(pn_io_security_capability_algorithm_symmetric_ao), 0xFF00,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_security_capability_algorithm_symmetric_ae,
+    { "SecurityCapability.Algorithm.SymmetricAuthenticationEncryption", "pn_io.security_capability.algorithm.symmetric_authentication_encryption",
+        FT_UINT16, BASE_HEX | BASE_RANGE_STRING, RVALS(pn_io_security_capability_algorithm_symmetric_ae), 0xFF00,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_security_capability_algorithm_key_derivation_function,
+    { "SecurityCapability.Algorithm.KeyDerivationFunction", "pn_io.security_capability.algorithm.key_derivation_function",
+        FT_UINT16, BASE_HEX | BASE_RANGE_STRING, RVALS(pn_io_security_capability_algorithm_key_derivation_function), 0xFF00,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_security_capability_algorithm_key_agreement_function,
+    { "SecurityCapability.Algorithm.KeyAgreementFunction", "pn_io.security_capability.algorithm.key_agreement_function",
+        FT_UINT16, BASE_HEX | BASE_RANGE_STRING, RVALS(pn_io_security_capability_algorithm_key_agreement_function), 0xFF00,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_security_capability_algorithm_digital_signature_function,
+    { "SecurityCapability.Algorithm.DigitalSignatureFunction", "pn_io.security_capability.algorithm.digital_signature_function",
+        FT_UINT16, BASE_HEX | BASE_RANGE_STRING, RVALS(pn_io_security_capability_algorithm_digital_signature_function), 0xFF00,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_security_capability_algorithm_reserved,
+    { "SecurityCapability.Algorithm.Reserved", "pn_io.security_capability.algorithm.reserved",
+        FT_UINT16, BASE_HEX, NULL, 0xFF00,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_security_configuration_parameters,
+    { "SecurityConfigurationParameters", "pn_io.security_configuration_parameters",
+        FT_UINT64, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_security_mode,
+    { "SecurityConfigurationParameters.SecurityMode", "pn_io.security_configuration_parameters.security_mode",
+        FT_UINT64, BASE_HEX | BASE_RANGE_STRING, RVALS(pn_io_security_mode), 0x0000000000000003,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_certificate_validity_period_check,
+    { "SecurityConfigurationParameters.CertificateVelidityPeriodCheck", "pn_io.security_configuration_parameters.certificate_validity_period_check",
+        FT_UINT64, BASE_HEX | BASE_RANGE_STRING, RVALS(pn_io_certificate_validity_period_check), 0x000000000000000C,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_security_configuration_parameters_reserved1,
+    { "SecurityConfigurationParameters.Reserved1", "pn_io.security_configuration_parameters.reserved1",
+        FT_UINT64, BASE_HEX, NULL, 0x00000000000000F0,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_sack_degradation_threshold,
+    { "SecurityConfigurationParameters.SACKDegredationThreshold", "pn_io.security_configuration_parameters.SACKDegredationThreshold",
+        FT_UINT64, BASE_HEX | BASE_RANGE_STRING, RVALS(pn_io_sack_degradation_threshold), 0x000000000000FF00,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_security_configuration_parameters_reserved2,
+    {  "SecurityConfigurationParameters.Reserved2", "pn_io.security_configuration_parameters.reserved2",
+        FT_UINT64, BASE_HEX, NULL, 0xFFFFFFFFFFFF0000,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_security_data,
+    {   "SecurityData", "pn_io.security_data",
+        FT_BYTES, BASE_NONE, NULL, 0x0,
+        NULL, HFILL
+    }
+    },
+    { &hf_pn_io_credential_id,
+    { "CredentialID", "pn_io.credential_id",
+        FT_UINT64, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_credential_id_credential_type,
+    { "CredentialID.CredentialType", "pn_io.credential_id.credential_type",
+        FT_UINT32, BASE_HEX | BASE_RANGE_STRING, RVALS(pn_io_credential_id_credential_type), 0x00000003,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_credential_id_reserved,
+    { "CredentialID.Reserved", "pn_io.credential_id.reserved",
+        FT_UINT32, BASE_HEX, NULL, 0xFFFFFFFC,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_private_key_length,
+        { "PrivateKeyLength", "pn_io.private_key_length",
+        FT_UINT16, BASE_DEC, NULL, 0xFFFF,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_private_key,
+    { "PrivateKey", "pn_io.private_key",
+        FT_BYTES, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_certificate_length,
+    { "CertificateLength", "pn_io.certificate_length",
+        FT_UINT16, BASE_DEC, NULL, 0xFFFF,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_certificate,
+    { "Certificate", "pn_io.certificate",
+        FT_BYTES, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_number_of_entries,
+    { "NumberOfEntries", "pn_io.number_of_entries",
+        FT_UINT16, BASE_HEX | BASE_RANGE_STRING, RVALS(pn_io_number_of_entries), 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_snmp_control,
     { "SNMPControl", "pn_io.snmp_control",
         FT_UINT16, BASE_HEX, VALS(pn_io_snmp_control), 0x0,
@@ -20662,6 +21877,21 @@ proto_register_pn_io (void)
     { "SNMP read write community name", "pn_io.snmp_write_community_name",
         FT_NONE, BASE_NONE, NULL, 0x0,
         NULL, HFILL }
+    },
+    { &hf_pn_io_certification_request_length,
+    { "Certification Request Length", "pn_io.certification_request_length",
+        FT_UINT16, BASE_DEC | BASE_RANGE_STRING, RVALS(pn_io_number_of_octets), 0xFFFF,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_certification_request,
+    { "Certification Request", "pn_io.certification_request",
+        FT_STRING, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_eap_data,
+        { "EAP Message", "pn_io.eap.data",
+          FT_BYTES, BASE_NONE, NULL, 0x00,
+          NULL, HFILL }
     },
     };
 
@@ -20732,6 +21962,18 @@ proto_register_pn_io (void)
         &ett_pn_io_line_delay,
         &ett_pn_io_counter_status,
         &ett_pn_io_dcp_boundary,
+        &ett_pn_io_credential_id,
+        &ett_pn_io_security,
+        &ett_pn_io_security_configuration_parameters,
+        &ett_pn_io_security_features,
+        &ett_pn_io_security_capability,
+        &ett_pn_io_rtc_algorithm,
+        &ett_pn_io_rta_algorithm,
+        &ett_pn_io_rpc_algorithm,
+        &ett_pn_io_derivation_algorithm,
+        &ett_pn_io_agreement_algorithm,
+        &ett_pn_io_signature_algorithm,
+        &ett_pn_io_eap,
         &ett_pn_io_peer_to_peer_boundary,
         &ett_pn_io_mau_type_extension,
         &ett_pn_io_pe_service_request,
@@ -20840,6 +22082,9 @@ proto_register_pn_io (void)
 void
 proto_reg_handoff_pn_io (void)
 {
+    // find and add eap dissector
+    eap_handle = find_dissector_add_dependency("eap", proto_pn_io);
+
     /* Register the protocols as dcerpc */
     dcerpc_init_uuid (proto_pn_io_device, ett_pn_io, &uuid_pn_io_device, ver_pn_io_device, pn_io_dissectors, hf_pn_io_opnum);
     dcerpc_init_uuid (proto_pn_io_controller, ett_pn_io, &uuid_pn_io_controller, ver_pn_io_controller, pn_io_dissectors, hf_pn_io_opnum);

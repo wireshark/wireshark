@@ -57,6 +57,11 @@ static int hf_pn_rt_data_status_redundancy_input_cr_state_is_backup;
 static int hf_pn_rt_data_status_redundancy_input_cr_state_is_primary;
 static int hf_pn_rt_data_status_primary;
 
+static int hf_pn_rt_security_meta_data;
+static int hf_pn_rt_security_information;
+static int hf_pn_rt_security_information_protection_mode;
+static int hf_pn_rt_security_information_reserved;
+static int hf_pn_rt_security_data;
 static int hf_pn_rt_sf_crc16;
 static int hf_pn_rt_sf_crc16_status;
 static int hf_pn_rt_sf;
@@ -83,6 +88,11 @@ static int ett_pn_rt_data_status;
 static int ett_pn_rt_sf;
 static int ett_pn_rt_frag;
 static int ett_pn_rt_frag_status;
+static int ett_pn_rt_security;
+static int ett_pn_rt_security_information;
+static int ett_pn_rt_security_control;
+static int ett_pn_rt_security_length;
+static int ett_pn_rt_security_meta_data;
 
 static expert_field ei_pn_rt_sf_crc16;
 
@@ -145,14 +155,19 @@ static const value_string pn_rt_frag_status_more_follows[] = {
     { 0, NULL }
 };
 
+static const value_string pn_rt_security_information_protection_mode[] = {
+    { 0x00, "Authentication Only" },
+    { 0x01, "Authenticated encryption" },
+    { 0, NULL }
+};
+
 /* Copied and renamed from proto.c because global value_strings don't work for plugins */
 static const value_string plugin_proto_checksum_vals[] = {
 	{ PROTO_CHECKSUM_E_BAD,        "Bad"  },
 	{ PROTO_CHECKSUM_E_GOOD,       "Good" },
 	{ PROTO_CHECKSUM_E_UNVERIFIED, "Unverified" },
 	{ PROTO_CHECKSUM_E_NOT_PRESENT, "Not present" },
-
-	{ 0,        NULL }
+	{ 0, NULL }
 };
 
 static void
@@ -361,12 +376,21 @@ dissect_CSF_SDU_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
     uint8_t     u8SFDataLength = 255;
     uint8_t     u8SFCycleCounter;
     uint8_t     u8SFDataStatus;
+    uint16_t    u16SecurityLength;
     int         offset         = 0;
+    int        security_data;
     uint32_t    u32SubStart;
     proto_item *sub_item;
     proto_tree *sub_tree;
     uint16_t    crc;
 
+    u16SecurityLength = tvb_get_uint16(tvb, 6, ENC_BIG_ENDIAN);
+    security_data = tvb_captured_length_remaining(tvb, 8) + 4; /* Include cyclic status fields */
+
+    if (u16SecurityLength == security_data)
+        offset = 8;
+    else
+        offset = 0;
 
     /* possible FrameID ranges for DFP */
     if ((u16FrameID < 0x0100) || (u16FrameID > 0x3FFF))
@@ -449,6 +473,45 @@ dissect_CSF_SDU_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
 
 }
 
+int
+dissect_RTC3_with_security(tvbuff_t* tvb, int offset,
+    packet_info* pinfo, proto_tree* tree, uint8_t* drep _U_, void* data)
+{
+    proto_item* meta_data_item;
+    proto_tree* meta_data_tree;
+
+    uint8_t u8ProtectionMode;
+    uint8_t u8InformationReserved;
+    uint16_t u16LengthSecurityData;
+
+    meta_data_item = proto_tree_add_item(tree, hf_pn_rt_security_meta_data, tvb, offset, 8, ENC_NA);
+    meta_data_tree = proto_item_add_subtree(meta_data_item, ett_pn_rt_security_meta_data);
+
+    /* SecurityInformation */
+
+    dissect_dcerpc_uint8(tvb, offset, pinfo, meta_data_tree, drep, hf_pn_rt_security_information_protection_mode, &u8ProtectionMode);
+    u8ProtectionMode &= 0x0F;
+    offset = dissect_dcerpc_uint8(tvb, offset, pinfo, meta_data_tree, drep, hf_pn_rt_security_information_reserved, &u8InformationReserved);
+    u8InformationReserved >>= 1;
+
+    /* rest of the SecurityMetaData */
+    offset = dissect_SecurityMetaData_block(tvb, offset, pinfo, meta_data_item, meta_data_tree, drep);
+
+    if (u8ProtectionMode == 0x00)
+        dissect_CSF_SDU_heur(tvb, pinfo, tree, data);
+    else if (u8ProtectionMode == 0x01)
+    {
+        u16LengthSecurityData = tvb_captured_length_remaining(tvb, offset);
+        proto_tree_add_item(tree, hf_pn_rt_security_data, tvb, offset, u16LengthSecurityData, ENC_NA);
+        proto_item* security_data_item = proto_tree_add_protocol_format(tree, proto_pn_rt, tvb, offset, u16LengthSecurityData, 
+            "PROFINET IO Secure Data");
+        proto_item_set_hidden(security_data_item);
+        offset += u16LengthSecurityData;
+    }   
+
+    return offset;
+    
+}
 /* for reassemble processing we need some inits.. */
 /* Register PNIO defrag table init routine.      */
 
@@ -588,9 +651,12 @@ dissect_pn_rt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
 {
     int          pdu_len;
     int          data_len;
+    int         security_data;
     uint16_t     u16FrameID;
     uint8_t      u8DataStatus;
     uint8_t      u8TransferStatus;
+    uint8_t      u8ProtectionMode;
+    uint16_t     u16SecurityLength;
     uint16_t     u16CycleCounter;
     const char *pszProtAddInfo;
     const char *pszProtShort;
@@ -626,6 +692,7 @@ dissect_pn_rt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
      * FCS themselves, as that will just break things. */
 
     /* Initialize variables */
+    data_len = 0;
     pn_rt_tree = NULL;
     ti         = NULL;
 
@@ -682,17 +749,41 @@ dissect_pn_rt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
         pszProtSummary  = "Real-Time";
         pszProtComment  = "0x0082-0x00FF: Reserved ID";
         bCyclic         = false;
-    } else if (u16FrameID <= 0x6FF && !isTimeAware) {
-        pszProtShort    = "PN-RTC3";
-        pszProtAddInfo  = "RTC3, ";
-        pszProtSummary  = "Isochronous-Real-Time";
-        pszProtComment  = "0x0100-0x06FF: RED: Real-Time(class=3): non redundant, normal or DFP";
+    } else if (u16FrameID <= 0x06FF && !isTimeAware) {
+        u16SecurityLength = tvb_get_uint16(tvb, 8, ENC_BIG_ENDIAN);
+        security_data = tvb_captured_length_remaining(tvb, 10) - 16;
+        if (u16SecurityLength == security_data)
+        {
+            pszProtShort = "PN-RTC3sec";
+            pszProtAddInfo = "RTC3sec, ";
+            pszProtSummary = "Isochronous-Real-Time";
+            pszProtComment = "0x0100-0x06FF: RED: Real-Time(class=3): non redundant, normal or DFP, with security";
+        }
+        else
+        {
+            pszProtShort = "PN-RTC3";
+            pszProtAddInfo = "RTC3, ";
+            pszProtSummary = "Isochronous-Real-Time";
+            pszProtComment = "0x0100-0x06FF: RED: Real-Time(class=3): non redundant, normal or DFP, without security";
+        }
         bCyclic         = true;
     } else if (u16FrameID <= 0x0FFF && !isTimeAware) {
-        pszProtShort    = "PN-RTC3";
-        pszProtAddInfo  = "RTC3, ";
-        pszProtSummary  = "Isochronous-Real-Time";
-        pszProtComment  = "0x0700-0x0FFF: RED: Real-Time(class=3): redundant, normal or DFP";
+        u16SecurityLength = tvb_get_uint16(tvb, 8, ENC_BIG_ENDIAN);
+        security_data = tvb_captured_length_remaining(tvb, 10) - 16;
+        if (u16SecurityLength == security_data)
+        {
+            pszProtShort = "PN-RTC3sec";
+            pszProtAddInfo = "RTC3sec, ";
+            pszProtSummary = "Isochronous-Real-Time";
+            pszProtComment = "0x0700-0x0FFF: RED: Real-Time(class=3): redundant, normal or DFP, with security";
+        }
+        else
+        {
+            pszProtShort = "PN-RTC3";
+            pszProtAddInfo = "RTC3, ";
+            pszProtSummary = "Isochronous-Real-Time";
+            pszProtComment = "0x0700-0x0FFF: RED: Real-Time(class=3): redundant, normal or DFP, without security";
+        }        
         bCyclic         = true;
     } else if (u16FrameID <= 0x7FFF && !isTimeAware) {
         pszProtShort    = "PN-RT";
@@ -706,6 +797,12 @@ dissect_pn_rt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
         pszProtSummary = "Real-Time";
         pszProtComment = "0x0100-0x0FFF: Reserved ID";
         bCyclic = false;
+    } else if (u16FrameID <= 0x1FFF && isTimeAware) {
+        pszProtShort = "PN-RTCS";
+        pszProtAddInfo = "RT_STREAM, ";
+        pszProtSummary = "Real-Time";
+        pszProtComment = "0x1000-0x1FFF: RT_CLASS_STREAM";
+        bCyclic = true;
     } else if (u16FrameID <= 0x2FFF && isTimeAware) {
         pszProtShort = "PN-RTCS";
         pszProtAddInfo = "RT_STREAM, ";
@@ -718,23 +815,54 @@ dissect_pn_rt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
         pszProtSummary = "Real-Time";
         pszProtComment = "0x3000-0x37FF: Reserved ID";
         bCyclic = false;
+    } else if (u16FrameID <= 0x3BFF && isTimeAware) {
+        pszProtShort = "PN-RTCS";
+        pszProtAddInfo = "RT_STREAM, ";
+        pszProtSummary = "Real-Time";
+        pszProtComment = "0x3800-0x3FFF: RT_CLASS_STREAM with security";
+        bCyclic = true;
     } else if (u16FrameID <= 0x3FFF && isTimeAware) {
         pszProtShort = "PN-RTCS";
         pszProtAddInfo = "RT_STREAM, ";
         pszProtSummary = "Real-Time";
         pszProtComment = "0x3800-0x3FFF: RT_CLASS_STREAM";
+        bCyclic = false;
+    }
+    else if (u16FrameID <= 0xBBFF) {
+        u16SecurityLength = tvb_get_uint16(tvb, 8, ENC_BIG_ENDIAN);
+        security_data = tvb_captured_length_remaining(tvb, 10) - 16;
+        if (u16SecurityLength == security_data)
+        {
+            pszProtShort = "PN-RTC1sec";
+            pszProtAddInfo = "RTC1sec, ";
+            pszProtSummary = "cyclic Real-Time";
+            pszProtComment = "0x8000-0xBBFF: Real-Time(class=1 unicast): non redundant, normal, with security";
+        }
+        else
+        {
+            pszProtShort = "PN-RTC1";
+            pszProtAddInfo = "RTC1, ";
+            pszProtSummary = "cyclic Real-Time";
+            pszProtComment = "0x8000-0xBBFF: Real-Time(class=1 unicast): non redundant, normal, without security";
+        }
         bCyclic = true;
-    } else if (u16FrameID <= 0xBBFF) {
-        pszProtShort    = "PN-RTC1";
-        pszProtAddInfo  = "RTC1, ";
-        pszProtSummary  = "cyclic Real-Time";
-        pszProtComment  = "0x8000-0xBBFF: Real-Time(class=1 unicast): non redundant, normal";
-        bCyclic         = true;
     } else if (u16FrameID <= 0xBFFF) {
-        pszProtShort    = "PN-RTC1";
-        pszProtAddInfo  = "RTC1, ";
-        pszProtSummary  = "cyclic Real-Time";
-        pszProtComment  = "0xBC00-0xBFFF: Real-Time(class=1 multicast): non redundant, normal";
+        u16SecurityLength = tvb_get_uint16(tvb, 8, ENC_BIG_ENDIAN);
+        security_data = tvb_captured_length_remaining(tvb, 10) - 16;
+        if (u16SecurityLength == security_data)
+        {
+            pszProtShort = "PN-RTC1sec";
+            pszProtAddInfo = "RTC1sec, ";
+            pszProtSummary = "cyclic Real-Time";
+            pszProtComment = "0xBC00-0xBFFF: Real-Time(class=1 multicast): non redundant, normal, with security";
+        }
+        else
+        {
+            pszProtShort = "PN-RTC1";
+            pszProtAddInfo = "RTC1, ";
+            pszProtSummary = "cyclic Real-Time";
+            pszProtComment = "0xBC00-0xBFFF: Real-Time(class=1 multicast): non redundant, normal, without security";
+        }
         bCyclic         = true;
     } else if (u16FrameID <= 0xF7FF) {
         /* check if udp frame on PNIO port */
@@ -779,6 +907,12 @@ dissect_pn_rt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
             pszProtSummary  = "acyclic Real-Time";
             pszProtComment  = "Real-Time: Acyclic PN-IO Alarm high priority";
         }
+        if (u16FrameID == 0xfc41) {
+            pszProtShort    = "PN-RTA with security";
+            pszProtAddInfo  = "Alarm High, ";
+            pszProtSummary  = "acyclic Real-Time";
+            pszProtComment  = "Real-Time: Acyclic PN-IO Alarm High priority with security";
+        }
 
     } else if (u16FrameID <= 0xFEFF) {
         pszProtShort    = "PN-RTA";
@@ -792,11 +926,23 @@ dissect_pn_rt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
             pszProtSummary  = "acyclic Real-Time";
             pszProtComment  = "Real-Time: Acyclic PN-IO Alarm low priority";
         }
+        if (u16FrameID == 0xFE41) {
+            pszProtShort    = "PN-RTA with security";
+            pszProtAddInfo  = "Alarm Low, ";
+            pszProtSummary  = "acyclic Real-Time";
+            pszProtComment  = "Real Time: Acyclic PN-IO Alarm low priority with security";
+        }
         if (u16FrameID == 0xFE02) {
             pszProtShort = "PN-RSI";
             pszProtAddInfo = "";
             pszProtSummary = "acyclic Real-Time";
             pszProtComment = "Real-Time: Acyclic PN-IO RSI";
+        }
+        if (u16FrameID == 0xFE42) {
+            pszProtShort = "PNIO-RSIsec";
+            pszProtAddInfo = "";
+            pszProtSummary = "acyclic Real-Time";
+            pszProtComment = "Real-Time: Acyclic PN-IO RSI with security";
         }
         if (u16FrameID == FRAME_ID_DCP_HELLO) {
             pszProtShort    = "PN-RTA";
@@ -872,8 +1018,51 @@ dissect_pn_rt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
         bCyclic         = false;
     }
 
+    /* Set APDU_Status for RTA frames with security. If AE, it is encrypted. */
+    u16SecurityLength = tvb_get_uint16(tvb, 8, ENC_BIG_ENDIAN);
+    security_data = tvb_captured_length_remaining(tvb, 10) - 16;
+
+    if ((u16SecurityLength == security_data) && bCyclic)
+    {
+        u8ProtectionMode = tvb_get_uint8(tvb, 2);
+        u8ProtectionMode &= 0x0F;
+
+        if (u8ProtectionMode == 0x00)
+        {
+            /* cyclic transfer has cycle counter, data status and transfer status fields at the end */
+            u16CycleCounter = tvb_get_ntohs(tvb, pdu_len - 20);
+            u8DataStatus = tvb_get_uint8(tvb, pdu_len - 18);
+            u8TransferStatus = tvb_get_uint8(tvb, pdu_len - 17);
+
+            snprintf(szFieldSummary, sizeof(szFieldSummary),
+                "%sID:0x%04x, Len:%4u, Cycle:%5u (%s,%s,%s,%s)",
+                pszProtAddInfo, u16FrameID, pdu_len - 2 - 8 - 4 - 16, u16CycleCounter,
+                (u8DataStatus & 0x04) ? "Valid" : "Invalid",
+                (u8DataStatus & 0x01) ? "Primary" : "Backup",
+                (u8DataStatus & 0x20) ? "Ok" : "Problem",
+                (u8DataStatus & 0x10) ? "Run" : "Stop");
+
+            /* user data length is packet len - frame id - optional cyclic status fields - SecurityChecksum */
+            data_len = pdu_len - 2 - 4 - 16;
+        }
+        else if (u8ProtectionMode == 0x01)
+        {
+            u16CycleCounter = 0;
+            u8DataStatus = 0;
+            u8TransferStatus = 0;
+
+            /* AE-RTA frames have no fields at the end, since it is encrypted */
+            snprintf(szFieldSummary, sizeof(szFieldSummary),
+                "%sID:0x%04x, Len:%4u",
+                pszProtAddInfo, u16FrameID, pdu_len - 2);
+
+            /* user data length is packet len - frame id */
+            data_len = pdu_len - 2;
+        }
+
+    }
     /* decode optional cyclic fields at the packet end and build the summary line */
-    if (bCyclic) {
+    else if (bCyclic) {
         /* cyclic transfer has cycle counter, data status and transfer status fields at the end */
         u16CycleCounter  = tvb_get_ntohs(tvb, pdu_len - 4);
         u8DataStatus     = tvb_get_uint8(tvb, pdu_len - 2);
@@ -919,7 +1108,34 @@ dissect_pn_rt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
         proto_tree_add_uint_format(pn_rt_tree, hf_pn_rt_frame_id, tvb,
           0, 2, u16FrameID, "FrameID: 0x%04x (%s)", u16FrameID, pszProtComment);
 
-        if (bCyclic) {
+        /* APDU_Status for RTA frames with security. If AE, APDU_Status Info will not show because it is encrypted. */
+        if ((u16SecurityLength == security_data) && bCyclic)
+        {
+            u8ProtectionMode = tvb_get_uint8(tvb, 2);
+            u8ProtectionMode &= 0x0F;
+            if (u8ProtectionMode == 0x00)
+            {
+                /* add cycle counter */
+                proto_tree_add_uint_format(pn_rt_tree, hf_pn_rt_cycle_counter, tvb,
+                    pdu_len - 20, 2, u16CycleCounter, "CycleCounter: %u", u16CycleCounter);
+
+                /* add data status subtree */
+                dissect_DataStatus(tvb, pdu_len - 18, pn_rt_tree, pinfo, u8DataStatus);
+
+                /* add transfer status */
+                if (u8TransferStatus) {
+                    proto_tree_add_uint_format(pn_rt_tree, hf_pn_rt_transfer_status, tvb,
+                        pdu_len - 17, 1, u8TransferStatus,
+                        "TransferStatus: 0x%02x (ignore this frame)", u8TransferStatus);
+                }
+                else {
+                    proto_tree_add_uint_format(pn_rt_tree, hf_pn_rt_transfer_status, tvb,
+                        pdu_len - 17, 1, u8TransferStatus,
+                        "TransferStatus: 0x%02x (OK)", u8TransferStatus);
+                }
+            }
+        }
+        else if (bCyclic) {
             /* add cycle counter */
             proto_tree_add_uint_format(pn_rt_tree, hf_pn_rt_cycle_counter, tvb,
               pdu_len - 4, 2, u16CycleCounter, "CycleCounter: %u", u16CycleCounter);
@@ -941,7 +1157,7 @@ dissect_pn_rt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
     }
 
     /* update column info now */
-    if (u16FrameID == 0xFE02)
+    if (u16FrameID == 0xFE02 || u16FrameID == 0xFE42)
     {
         snprintf(szFieldSummary, sizeof(szFieldSummary), "%s", "");
     }
@@ -949,14 +1165,30 @@ dissect_pn_rt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
     col_set_str(pinfo->cinfo, COL_PROTOCOL, pszProtShort);
 
     /* get frame user data tvb (without header and footer) */
-    next_tvb = tvb_new_subset_length(tvb, 2, data_len);
+    if (u16SecurityLength == security_data)
+    {
+        next_tvb = tvb_new_subset_length(tvb, 2, data_len);
+        if (!dissector_try_heuristic(heur_subdissector_list, next_tvb, pinfo, pn_rt_tree, &hdtbl_entry, GUINT_TO_POINTER((uint32_t)u16FrameID))) {
+            /*col_set_str(pinfo->cinfo, COL_INFO, "Unknown");*/
 
-    /* ask heuristics, if some sub-dissector is interested in this packet payload */
-    if (!dissector_try_heuristic(heur_subdissector_list, next_tvb, pinfo, tree, &hdtbl_entry, GUINT_TO_POINTER( (uint32_t) u16FrameID))) {
-        /*col_set_str(pinfo->cinfo, COL_INFO, "Unknown");*/
+            /* We don't know this; dissect it as data. */
+            dissect_pn_undecoded(next_tvb, 0, pinfo, pn_rt_tree, tvb_captured_length(next_tvb));
+        }
 
-        /* Oh, well, we don't know this; dissect it as data. */
-        dissect_pn_undecoded(next_tvb, 0, pinfo, tree, tvb_captured_length(next_tvb));
+        /* SecurityChecksum for AO-RTC frames */
+        if (u8ProtectionMode == 0x00)
+            dissect_SecurityChecksum(tvb, pdu_len - 16, pn_rt_tree);
+    }
+    else
+    {
+        next_tvb = tvb_new_subset_length(tvb, 2, data_len);
+        /* ask heuristics, if some sub-dissector is interested in this packet payload */
+        if (!dissector_try_heuristic(heur_subdissector_list, next_tvb, pinfo, tree, &hdtbl_entry, GUINT_TO_POINTER( (uint32_t) u16FrameID))) {
+            /*col_set_str(pinfo->cinfo, COL_INFO, "Unknown");*/
+
+            /* Oh, well, we don't know this; dissect it as data. */
+            dissect_pn_undecoded(next_tvb, 0, pinfo, tree, tvb_captured_length(next_tvb));
+        }
     }
     return tvb_captured_length(tvb);
 }
@@ -1050,6 +1282,31 @@ proto_register_pn_rt(void)
             FT_UINT8, BASE_HEX, 0, 0x01,
             NULL, HFILL }},
 
+        { &hf_pn_rt_security_meta_data,
+          { "SecurityMetaData", "pn_rt.security_meta_data",
+            FT_NONE, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+      
+		{ &hf_pn_rt_security_information,
+		  { "SecurityInformation", "pn_rt.security_information",
+		    FT_UINT8, BASE_HEX, NULL, 0x0,
+		    "", HFILL }},
+      
+		{ &hf_pn_rt_security_information_protection_mode,
+		  { "SecurityInformation.ProtectionMode", "pn_rt.security_information.protection_mode",
+		    FT_UINT8, BASE_HEX, VALS(pn_rt_security_information_protection_mode), 0x01,
+		    "", HFILL }},
+      
+		{ &hf_pn_rt_security_information_reserved,
+		  { "SecurityInformation.Reserved", "pn_rt.security_information.reserved",
+		    FT_UINT8, BASE_HEX, NULL, 0xFE,
+		    "", HFILL }},
+      
+		{ &hf_pn_rt_security_data,
+		  { "SecurityData", "pn_rt.security_data",
+		    FT_BYTES, BASE_NONE, NULL, 0x0,
+		    "", HFILL }},
+      
         { &hf_pn_rt_transfer_status,
           { "TransferStatus", "pn_rt.transfer_status",
             FT_UINT8, BASE_DEC, NULL, 0x0,
@@ -1134,7 +1391,12 @@ proto_register_pn_rt(void)
         &ett_pn_rt_data_status,
         &ett_pn_rt_sf,
         &ett_pn_rt_frag,
-        &ett_pn_rt_frag_status
+        &ett_pn_rt_frag_status,
+        &ett_pn_rt_security,
+        &ett_pn_rt_security_information,
+        &ett_pn_rt_security_control,
+        &ett_pn_rt_security_length,
+        &ett_pn_rt_security_meta_data
     };
 
     static ei_register_info ei[] = {

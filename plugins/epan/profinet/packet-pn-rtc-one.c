@@ -92,6 +92,14 @@ static int hf_pn_io_ioxs_res14;
 static int hf_pn_io_ioxs_instance;
 static int hf_pn_io_ioxs_datastate;
 
+/* PN-RTC with security */
+static int hf_pn_io_security_meta_data;
+static int hf_pn_io_security_information;
+static int hf_pn_io_security_information_protection_mode;
+static int hf_pn_io_security_information_reserved;
+static int hf_pn_io_security_data;
+static int hf_pn_io_cycle_counter;
+
 /* PROFIsafe statusbyte and controlbyte */
 static int hf_pn_io_ps_sb;
 static int hf_pn_io_ps_sb_iparOK;
@@ -136,6 +144,8 @@ static int hf_pn_pa_profile_value_16bit;
 static int hf_pn_pa_profile_value_float;
 
 static int ett_pn_io_rtc;
+static int ett_pn_io_rtc_security;
+static int ett_pn_io_rtc_security_meta_data;
 static int ett_pn_io_ioxs;
 static int ett_pn_io_io_data_object;
 static int ett_pn_pa_profile_status;
@@ -159,6 +169,12 @@ static const value_string pn_io_ioxs_instance[] = {
 static const value_string pn_io_ioxs_datastate[] = {
     { 0x00 /*  0*/, "Bad" },
     { 0x01 /*  1*/, "Good" },
+    { 0, NULL }
+};
+
+static const value_string pn_io_security_information_protection_mode[] = {
+    { 0x00, "Authentication only" },
+    { 0x01, "Authenticated encryption" },
     { 0, NULL }
 };
 
@@ -462,6 +478,9 @@ dissect_PNIO_C_SDU_RTC1(tvbuff_t *tvb, int offset,
     uint16_t number_iocs_input_cr;
     uint16_t number_io_data_objects_output_cr;
     uint16_t number_iocs_output_cr;
+    uint16_t u16SecurityLength;
+
+    int security_data;
 
     conversation_t    *conversation;
     stationInfo       *station_info = NULL;
@@ -487,15 +506,33 @@ dissect_PNIO_C_SDU_RTC1(tvbuff_t *tvb, int offset,
     uint32_t            current_aruuid = 0;
     uint32_t            current_fake_aruuid = 4126751477;
 
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, "PNIO");            /* set protocol name */
+    u16SecurityLength = tvb_get_uint16(tvb, 6, ENC_BIG_ENDIAN);
+    security_data = tvb_captured_length_remaining(tvb, 8) + 4; /* Include cyclic status fields */
 
-    data_item = proto_tree_add_protocol_format(tree, proto_pn_io_rtc1, tvb, offset, tvb_captured_length(tvb),
-            "PROFINET IO Cyclic Service Data Unit: %u bytes", tvb_captured_length(tvb));
-    data_tree = proto_item_add_subtree(data_item, ett_pn_io_rtc);
+    if (u16SecurityLength == security_data)
+    {
+        col_set_str(pinfo->cinfo, COL_PROTOCOL, "PNIOsec");            /* set protocol name */
 
-    /* dissect_dcerpc_uint16(tvb, offset, pinfo, data_tree, drep, hf_pn_io_packedframe_SFCRC, &u16SFCRC); */
-    if (dissect_CSF_SDU_heur(tvb, pinfo, data_tree, NULL))
-        return(tvb_captured_length(tvb));
+        data_item = proto_tree_add_protocol_format(tree, proto_pn_io_rtc1, tvb, offset, tvb_captured_length(tvb) - 8,
+            "PROFINET IO Cyclic Service Data Unit: %u bytes", tvb_captured_length(tvb) - 8);
+        data_tree = proto_item_add_subtree(data_item, ett_pn_io_rtc);
+
+        /* dissect_dcerpc_uint16(tvb, offset, pinfo, data_tree, drep, hf_pn_io_packedframe_SFCRC, &u16SFCRC); */
+        if ((dissect_CSF_SDU_heur(tvb, pinfo, data_tree, NULL)))
+            return(tvb_captured_length(tvb) - 8);
+    }
+    else
+    {
+        col_set_str(pinfo->cinfo, COL_PROTOCOL, "PNIO");            /* set protocol name */
+
+        data_item = proto_tree_add_protocol_format(tree, proto_pn_io_rtc1, tvb, offset, tvb_captured_length(tvb),
+                "PROFINET IO Cyclic Service Data Unit: %u bytes", tvb_captured_length(tvb));
+        data_tree = proto_item_add_subtree(data_item, ett_pn_io_rtc);
+
+        /* dissect_dcerpc_uint16(tvb, offset, pinfo, data_tree, drep, hf_pn_io_packedframe_SFCRC, &u16SFCRC); */
+        if (dissect_CSF_SDU_heur(tvb, pinfo, data_tree, NULL))
+            return(tvb_captured_length(tvb));
+    }
 
     /* Only dissect cyclic RTC1 frames, if PN Connect Request has been read */
     conversation = find_conversation(pinfo->num, &pinfo->dl_src, &pinfo->dl_dst, CONVERSATION_NONE, 0, 0, 0);
@@ -534,7 +571,10 @@ dissect_PNIO_C_SDU_RTC1(tvbuff_t *tvb, int offset,
             pn_find_dcp_station_info(station_info, conversation);
 
             if (pnio_ps_selection == true) {
-                col_set_str(pinfo->cinfo, COL_PROTOCOL, "PNIO_PS");    /* set PROFISsafe protocol name */
+                if (u16SecurityLength == security_data)
+                    col_set_str(pinfo->cinfo, COL_PROTOCOL, "PNIO_PSsec");    /* set PROFISsafe with security protocol name */
+                else
+                    col_set_str(pinfo->cinfo, COL_PROTOCOL, "PNIO_PS");    /* set PROFISsafe protocol name */
             }
 
             if (addresses_equal(&(pinfo->src), conversation_key_addr1(conversation->key_ptr)) && addresses_equal(&(pinfo->dst), conversation_key_addr2(conversation->key_ptr))) {
@@ -980,6 +1020,47 @@ dissect_PNIO_C_SDU_RTC1(tvbuff_t *tvb, int offset,
     return offset;
 }
 
+/* dissect a PN-IO RTC1 with security */
+int
+dissect_PNIO_RTC1_with_security(tvbuff_t* tvb, int offset,
+    packet_info* pinfo, proto_tree* tree, uint8_t* drep _U_, uint16_t frameid)
+{
+    proto_item* meta_data_item;
+    proto_tree* meta_data_tree;
+
+    uint8_t      u8ProtectionMode;
+    uint8_t      u8InformationReserved;
+    uint16_t     u16LengthSecurityData;
+
+    meta_data_item = proto_tree_add_item(tree, hf_pn_io_security_meta_data, tvb, offset, 8, ENC_NA);
+    meta_data_tree = proto_item_add_subtree(meta_data_item, ett_pn_io_rtc_security_meta_data);
+
+    /* SecurityInformation */
+    dissect_dcerpc_uint8(tvb, offset, pinfo, meta_data_tree, drep, hf_pn_io_security_information_protection_mode, &u8ProtectionMode);
+    u8ProtectionMode &= 0x0F;
+    offset = dissect_dcerpc_uint8(tvb, offset, pinfo, meta_data_tree, drep, hf_pn_io_security_information_reserved, &u8InformationReserved);
+    u8InformationReserved >>= 1;
+
+    /* rest of the SecurityMetaData */
+    offset = dissect_SecurityMetaData_block(tvb, offset, pinfo, meta_data_item, meta_data_tree, drep);
+
+    /* dissect data depending on the SecurityInformation.ProtectionMode */
+    if (u8ProtectionMode == 0x00)
+        dissect_PNIO_C_SDU_RTC1(tvb, offset, pinfo, tree, drep, frameid);
+    else if (u8ProtectionMode == 0x01)
+    {
+       u16LengthSecurityData = tvb_captured_length_remaining(tvb, offset);
+       proto_tree_add_item(tree, hf_pn_io_security_data, tvb, offset, u16LengthSecurityData, ENC_NA);
+       proto_item* security_data_item = proto_tree_add_protocol_format(tree, proto_pn_io_rtc1, tvb, offset, u16LengthSecurityData, 
+        "PROFINET IO Secure Data");
+       proto_item_set_hidden(security_data_item);
+       offset += u16LengthSecurityData;
+       col_set_str(pinfo->cinfo, COL_PROTOCOL, "PNIOsec");            /* set protocol name */
+    }
+
+    return offset;
+}
+
 
 /* dissect the PA Profile status field */
 static int
@@ -1147,6 +1228,37 @@ init_pn_io_rtc1(int proto)
         { &hf_pn_io_ioxs_datastate,
             { "DataState", "pn_io.ioxs.datastate",
             FT_UINT8, BASE_HEX, VALS(pn_io_ioxs_datastate), 0x80,
+            NULL, HFILL }
+        },
+        /* RTC with security */
+        { &hf_pn_io_security_meta_data,
+            { "SecurityMetaData", "pn_io.security.security_meta_data",
+            FT_NONE, BASE_NONE, NULL, 0x0,
+            "", HFILL }
+        },
+        { &hf_pn_io_security_information,
+            { "SecurityInformation", "pn_io.security_information",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            "", HFILL }
+        },
+        { &hf_pn_io_security_information_protection_mode,
+            { "SecurityInformation.ProtectionMode", "pn_io.security_information.protection_mode",
+            FT_UINT8, BASE_HEX, VALS(pn_io_security_information_protection_mode), 0x01,
+            "", HFILL }
+        },
+        { &hf_pn_io_security_information_reserved,
+            { "SecurityInformation.Reserved", "pn_io.security_information.reserved",
+            FT_UINT8, BASE_HEX, NULL, 0xFE,
+            "", HFILL }
+        },
+        { &hf_pn_io_security_data,
+            { "SecurityData", "pn_io.security_data",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            "", HFILL }
+        },
+        { &hf_pn_io_cycle_counter,
+            { "CycleCounter", "pn_io.cycle_counter",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         /* PROFIsafe parameter */
@@ -1337,6 +1449,8 @@ init_pn_io_rtc1(int proto)
 
     static int *ett[] = {
         &ett_pn_io_rtc,
+        &ett_pn_io_rtc_security,
+        &ett_pn_io_rtc_security_meta_data,
         &ett_pn_io_ioxs,
         &ett_pn_io_io_data_object,
         &ett_pn_pa_profile_status

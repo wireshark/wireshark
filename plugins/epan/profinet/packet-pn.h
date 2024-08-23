@@ -182,9 +182,24 @@ extern int dissect_PNIO_status(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 extern int dissect_PNIO_C_SDU_RTC1(tvbuff_t* tvb, int offset, packet_info* pinfo,
                     proto_tree* tree, uint8_t* drep _U_, uint16_t frameid);
+                    
+extern int dissect_PNIO_RTC1_with_security(tvbuff_t* tvb, int offset, packet_info* pinfo,
+                    proto_tree* tree, uint8_t* drep _U_, uint16_t frameid);
+
+extern int dissect_RTC3_with_security(tvbuff_t* tvb, int offset, packet_info* pinfo, 
+                    proto_tree* tree, uint8_t* drep _U_, void* data);
 
 extern int dissect_PNIO_RSI(tvbuff_t *tvb, int offset, packet_info *pinfo,
                     proto_tree *tree, uint8_t *drep);
+                    
+extern int dissect_PNIO_RSI_with_security(tvbuff_t* tvb, int offset, packet_info* pinfo,
+                    proto_tree* tree, uint8_t* drep);
+
+extern int dissect_SecurityMetaData_block(tvbuff_t* tvb, int offset,
+                    packet_info* pinfo, proto_item* item, proto_tree* tree, uint8_t* drep);
+
+extern int dissect_SecurityChecksum(tvbuff_t* tvb, int offset, proto_tree* tree);
+
 
 extern int dissect_PDRsiInstances_block(tvbuff_t *tvb, int offset,
                     packet_info *pinfo, proto_tree *tree, proto_item *item _U_, uint8_t *drep, uint8_t u8BlockVersionHigh, uint8_t u8BlockVersionLow);

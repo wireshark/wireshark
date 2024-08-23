@@ -69,6 +69,8 @@ static int hf_pn_rsi_interface;
 
 static int hf_pn_rsi_svcs_block;
 
+static int hf_pn_rsi_security_association_control;
+
 static int hf_pn_rsi_number_of_entries;
 static int hf_pn_rsi_pd_rsi_instance;
 static int hf_pn_rsi_device_type;
@@ -78,13 +80,30 @@ static int hf_pn_rsi_hw_revision;
 static int hf_pn_rsi_sw_revision_prefix;
 static int hf_pn_rsi_sw_revision;
 
+static int hf_pn_rsi_security_meta_data;
+static int hf_pn_rsi_security_information;
+static int hf_pn_rsi_security_information_protection_mode;
+static int hf_pn_rsi_security_information_reserved;
+static int hf_pn_rsi_security_control;
+static int hf_pn_rsi_security_control_generation_number;
+static int hf_pn_rsi_security_control_reserved;
+static int hf_pn_rsi_security_sequence_counter;
+static int hf_pn_rsi_security_length;
+static int hf_pn_rsi_security_length_length;
+static int hf_pn_rsi_security_length_reserved;
+static int hf_pn_rsi_security_checksum;
+static int hf_pn_rsi_security_data;
 static int ett_pn_rsi;
 static int ett_pn_rsi_pdu_type;
 static int ett_pn_rsi_f_opnum_offset;
 static int ett_pn_rsi_conn_block;
+static int ett_pn_rsi_security_association_control;
+
 static int ett_pn_rsi_svcs_block;
 static int ett_pn_rsi_add_flags;
 static int ett_pn_rsi_rta;
+static int ett_pn_rsi_security_meta_data;
+static int ett_pn_rsi_security_information;
 static int ett_pn_io_pd_rsi_instance;
 
 static expert_field ei_pn_rsi_error;
@@ -166,25 +185,20 @@ static const range_string pn_rsi_f_opnum_offset_offset[] = {
     { 0, 0, NULL }
 };
 
-static const value_string pn_rsi_f_opnum_offset_opnum[] = {
-    { 0x00, "Connect" },
-    { 0x01, "Reserved" },
-    { 0x02, "Read" },
-    { 0x03, "Write" },
-    { 0x04, "Control" },
-    { 0x05, "ReadImplicit" },
-    { 0x06, "ReadConnectionless" },
-    { 0x07, "ReadNotification" },
-    { 0x08, "PrmWriteMore" },
-    { 0x09, "PrmWriteEnd" },
-    { 0x0A, "Reserved" },
-    { 0x0B, "Reserved" },
-    { 0x0C, "Reserved" },
-    { 0x0D, "Reserved" },
-    { 0x0E, "Reserved" },
-    { 0x0F, "Reserved" },
-    { 0x1F, "Reserved" },
-    { 0, NULL }
+static const range_string pn_rsi_f_opnum_offset_opnum[] = {
+    { 0x00, 0x00, "Connect" },
+    { 0x01, 0x01, "Reserved" },
+    { 0x02, 0x02, "Read" },
+    { 0x03, 0x03, "Write" },
+    { 0x04, 0x04, "Control" },
+    { 0x05, 0x05, "ReadImplicit" },
+    { 0x06, 0x06, "ReadConnectionless" },
+    { 0x07, 0x07, "ReadNotification" },
+    { 0x08, 0x08, "PrmWriteMore" },
+    { 0x09, 0x09, "PrmWriteEnd" },
+    { 0x0A, 0x0A, "SecurityAssociationControl" },
+    { 0x0B, 0x1F, "Reserved" },
+    { 0, 0, NULL }
 };
 
 static const range_string pn_rsi_f_opnum_offset_callsequence[] = {
@@ -195,7 +209,7 @@ static const range_string pn_rsi_f_opnum_offset_callsequence[] = {
 static const range_string pn_rsi_rsp_max_length[] = {
     { 0x00000000, 0x00000003, "Reserved" },
     { 0x00000004, 0x00FFFFFF, "Usable" },
-    { 0x01FFFFFF, 0xFFFFFFFF, "Reserved" },
+    { 0x01000000, 0xFFFFFFFF, "Reserved" },
     { 0, 0, NULL }
 };
 
@@ -205,6 +219,30 @@ static const range_string pn_rsi_interface[] = {
     { 0x02, 0x02, "CIM device interface" },
     { 0x03, 0x03, "Read Implicit CIM device interface" },
     { 0x04, 0xFF, "Reserved" },
+    { 0, 0, NULL }
+};
+
+static const value_string pn_rsi_security_information_protection_mode[] = {
+    { 0x00, "Authentication only" },
+    { 0x01, "Authenticated encryption" },
+    { 0, NULL }
+};
+
+static const range_string pn_rsi_security_control_generation_number[] = {
+    { 0x00, 0x0F, "Addresses the stage of the PRO state machine which is to be used" },
+    { 0, 0, NULL }
+};
+
+static const range_string pn_rsi_security_length_length[] = {
+    { 0x0000, 0x000, "Reserved" },
+    { 0x0001, 0x07FF, "Usable for length information" },
+    { 0, 0, NULL }
+};
+
+static const range_string pn_rsi_security_sequence_counter[] = {
+    { 0x0, 0x0, "reserved" },
+    { 0x00000001, 0x0FFFFFFF, "Usable values" },
+    { 0x10000000, 0xFFFFFFFF, "Usable values, this range indicates to the caller a key update sequence via SecurityControl.NextContextID" },
     { 0, 0, NULL }
 };
 
@@ -449,10 +487,63 @@ dissect_RSI_CONN_block(tvbuff_t *tvb, int offset,
     return offset;
 }
 
+/* dissect a SecurityAssociationControl block (on top of the PN-RT protocol) */
+static int
+dissect_SecurityAssociationContol_block(tvbuff_t* tvb, int offset,
+    packet_info* pinfo, proto_tree* tree, uint8_t* drep, uint16_t u16VarPartLen, uint8_t u8MoreFrag, uint32_t u32FOpnumOffsetOffset, uint32_t u32FOpnumOffsetOpnum, uint16_t u16DestinationServiceAccessPoint)
+{
+    proto_item* sub_item;
+    proto_tree* sub_tree;
+
+    uint16_t     u16VendorId;
+    uint16_t     u16DeviceId;
+    uint16_t     u16InstanceId;
+    uint8_t      u8RsiInterface;
+    uint32_t     u32RspMaxLength;
+    uint32_t     u32RsiHeaderSize = 4;
+
+    // PDU.FOpnumOffset.Offset + PDU.VarPartLen - 4 - RsiHeaderSize
+    int32_t length = u32FOpnumOffsetOffset + u16VarPartLen - 4 - u32RsiHeaderSize;
+
+    sub_item = proto_tree_add_item(tree, hf_pn_rsi_security_association_control, tvb, offset, 0, ENC_NA);
+    sub_tree = proto_item_add_subtree(sub_item, ett_pn_rsi_security_association_control);
+
+    if (u32FOpnumOffsetOffset == 0) {
+
+        offset = dissect_dcerpc_uint32(tvb, offset, pinfo, sub_tree, drep,
+            hf_pn_rsi_rsp_max_length, &u32RspMaxLength);
+        if (u16DestinationServiceAccessPoint == 0xFFFF)
+        {
+            offset = dissect_dcerpc_uint16(tvb, offset, pinfo, sub_tree, drep,
+                hf_pn_rsi_vendor_id, &u16VendorId);
+            offset = dissect_dcerpc_uint16(tvb, offset, pinfo, sub_tree, drep,
+                hf_pn_rsi_device_id, &u16DeviceId);
+            offset = dissect_dcerpc_uint16(tvb, offset, pinfo, sub_tree, drep,
+                hf_pn_rsi_instance_id, &u16InstanceId);
+            offset = dissect_dcerpc_uint8(tvb, offset, pinfo, sub_tree, drep,
+                hf_pn_rsi_interface, &u8RsiInterface);
+
+            offset = dissect_pn_padding(tvb, offset, pinfo, sub_tree, 1);
+        }
+
+    }
+    else if (u8MoreFrag == 0)
+    {
+        proto_item_append_text(sub_item, ", RSI Header of SecurityAssociationControl is at first segment");
+    }
+
+    if (length > 0) {
+        offset = dissect_pn_rta_remaining_user_data_bytes(tvb, offset, pinfo, sub_tree, drep,
+            tvb_captured_length_remaining(tvb, offset), u8MoreFrag, u32FOpnumOffsetOpnum, PDU_TYPE_REQ);
+    }
+
+    return offset;
+}
+
 /* dissect a PN-IO RSI FREQ RTA PDU (on top of PN-RT protocol) */
 static int
 dissect_FREQ_RTA_block(tvbuff_t *tvb, int offset,
-    packet_info *pinfo, proto_tree *tree, uint8_t *drep, uint16_t u16VarPartLen, uint8_t u8MoreFrag)
+    packet_info *pinfo, proto_tree *tree, uint8_t *drep, uint16_t u16VarPartLen, uint8_t u8MoreFrag, uint16_t u16DestinationServiceAccessPoint)
 {
     uint32_t   u32FOpnumOffset;
     uint32_t   u32FOpnumOffsetOpnum;
@@ -463,7 +554,10 @@ dissect_FREQ_RTA_block(tvbuff_t *tvb, int offset,
     switch (u32FOpnumOffsetOpnum) {
     case(0x0):    /* RSI-CONN-PDU */
         col_append_str(pinfo->cinfo, COL_INFO, "Connect request");
-        offset = dissect_RSI_CONN_block(tvb, offset, pinfo, tree, drep, u16VarPartLen, u8MoreFrag, u32FOpnumOffsetOffset, u32FOpnumOffsetOpnum);
+        if (u16DestinationServiceAccessPoint == 0xFFFF)
+            offset = dissect_RSI_CONN_block(tvb, offset, pinfo, tree, drep, u16VarPartLen, u8MoreFrag, u32FOpnumOffsetOffset, u32FOpnumOffsetOpnum);
+        else
+            offset = dissect_RSI_SVCS_block(tvb, offset, pinfo, tree, drep, u16VarPartLen, u8MoreFrag, u32FOpnumOffsetOffset, u32FOpnumOffsetOpnum);
         break;
     case(0x1):    /* Reserved */
         col_append_str(pinfo->cinfo, COL_INFO, "Reserved");
@@ -500,6 +594,10 @@ dissect_FREQ_RTA_block(tvbuff_t *tvb, int offset,
     case(0x9) :    /* RSI-SVCS-PDU */
         col_append_str(pinfo->cinfo, COL_INFO, "PrmWriteEnd request");
         offset = dissect_RSI_SVCS_block(tvb, offset, pinfo, tree, drep, u16VarPartLen, u8MoreFrag, u32FOpnumOffsetOffset, u32FOpnumOffsetOpnum);
+        break;
+    case(0xA) : /* SecurityAssociationControl */
+        col_append_str(pinfo->cinfo, COL_INFO, "SecurityAssociationControl");
+        offset = dissect_SecurityAssociationContol_block(tvb, offset, pinfo, tree, drep, u16VarPartLen, u8MoreFrag, u32FOpnumOffsetOffset, u32FOpnumOffsetOpnum, u16DestinationServiceAccessPoint);
         break;
     default:
         col_append_str(pinfo->cinfo, COL_INFO, "Reserved");
@@ -579,6 +677,9 @@ dissect_FRSP_RTA_block(tvbuff_t *tvb, int offset,
     case(0x9) :   /* PrmWriteEnd */
         col_append_str(pinfo->cinfo, COL_INFO, "PrmWriteEnd response");
         break;
+    case(0xA): /* SecurityAssociationControl */
+        col_append_str(pinfo->cinfo, COL_INFO, "SecurityAssociationControl response");
+        break;
     default:
         col_append_str(pinfo->cinfo, COL_INFO, "Reserved");
         break;
@@ -648,7 +749,6 @@ dissect_PNIO_RSI(tvbuff_t *tvb, int offset,
     proto_item *sub_item;
     proto_tree *sub_tree;
 
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, "PNIO-RSI");
     rta_item = proto_tree_add_protocol_format(tree, proto_pn_rsi, tvb, offset, tvb_captured_length(tvb),
         "PROFINET IO RSI");
 
@@ -702,7 +802,7 @@ dissect_PNIO_RSI(tvbuff_t *tvb, int offset,
         offset = dissect_PNIO_status(tvb, offset, pinfo, rta_tree, drep);
         break;
     case(5):    /* FREQ-RTA */
-        offset = dissect_FREQ_RTA_block(tvb, offset, pinfo, rta_tree, drep, u16VarPartLen, u8MoreFrag);
+        offset = dissect_FREQ_RTA_block(tvb, offset, pinfo, rta_tree, drep, u16VarPartLen, u8MoreFrag, u16DestinationServiceAccessPoint);
         break;
     case(6):    /* FRSP-RTA */
         offset = dissect_FRSP_RTA_block(tvb, offset, pinfo, rta_tree, drep, u16VarPartLen, u8MoreFrag);
@@ -713,6 +813,221 @@ dissect_PNIO_RSI(tvbuff_t *tvb, int offset,
     }
 
     proto_item_set_len(rta_item, offset - start_offset);
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "PNIO-RSI");
+
+    return offset;
+}
+
+/* dissect a PN RTA RSI PDU with security (on top of PN-RT protocol) */
+int
+dissect_PNIO_RSI_with_security(tvbuff_t* tvb, int offset,
+    packet_info* pinfo, proto_tree* tree, uint8_t* drep)
+{
+    uint16_t     u16DestinationServiceAccessPoint;
+    uint16_t     u16SourceServiceAccessPoint;
+    uint8_t      u8PDUType;
+    uint8_t      u8PDUVersion;
+    uint8_t      u8AddFlags;
+    uint8_t      u8MoreFrag;
+    uint8_t      u8ProtectionMode;
+    uint8_t      u8InformationReserved;
+    uint8_t      u8NextContextID;
+    uint8_t      u8CurrentContextID;
+    uint8_t      u8LengthSecurityChecksum = 16;
+    uint16_t     u16VendorId;
+    uint16_t     u16DeviceId;
+    uint16_t     u16SendSeqNum;
+    uint16_t     u16AckSeqNum;
+    uint16_t     u16VarPartLen;
+    uint16_t     u16SecurityLength;
+    uint16_t     u16LengthReserved;
+    uint16_t     u16LengthSecurityData;
+    uint32_t     u32SecuritySequenceCounter;
+    int         start_offset = offset;
+
+    proto_item* rta_item;
+    proto_tree* rta_tree;
+
+    proto_item* sub_item;
+    proto_tree* sub_tree;
+
+    proto_item* security_item;
+    proto_tree* security_tree;
+
+    rta_item = proto_tree_add_protocol_format(tree, proto_pn_rsi, tvb, offset, tvb_captured_length(tvb),
+        "PROFINET IO RSI with Security");
+
+    rta_tree = proto_item_add_subtree(rta_item, ett_pn_rsi_rta);
+
+    /* SecurityMetaData block */
+    security_item = proto_tree_add_item(rta_tree, hf_pn_rsi_security_meta_data, tvb, offset, 8, ENC_NA);
+    security_tree = proto_item_add_subtree(security_item, ett_pn_rsi_security_meta_data);
+
+    proto_tree* information_tree = proto_item_add_subtree(security_item, ett_pn_rsi_security_meta_data);
+
+    dissect_dcerpc_uint8(tvb, offset, pinfo, information_tree, drep,
+        hf_pn_rsi_security_information_protection_mode, &u8ProtectionMode);
+    u8ProtectionMode &= 0x0F;
+    offset = dissect_dcerpc_uint8(tvb, offset, pinfo, information_tree, drep,
+        hf_pn_rsi_security_information_reserved, &u8InformationReserved);
+    u8InformationReserved >>= 1;
+
+    proto_tree* control_tree = proto_item_add_subtree(security_item, ett_pn_rsi_security_meta_data);
+
+    dissect_dcerpc_uint8(tvb, offset, pinfo, control_tree, drep,
+        hf_pn_rsi_security_control_generation_number, &u8NextContextID);
+    u8NextContextID &= 0x0F;
+    offset = dissect_dcerpc_uint8(tvb, offset, pinfo, control_tree, drep,
+        hf_pn_rsi_security_control_reserved, &u8CurrentContextID);
+    u8CurrentContextID >>= 4;
+
+    offset = dissect_dcerpc_uint32(tvb, offset, pinfo, security_tree, drep,
+        hf_pn_rsi_security_sequence_counter, &u32SecuritySequenceCounter);
+
+    dissect_dcerpc_uint16(tvb, offset, pinfo, security_tree, drep,
+        hf_pn_rsi_security_length_length, &u16SecurityLength);
+    u16SecurityLength <<= 5;
+    u16SecurityLength >>= 5;
+    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, security_tree, drep,
+        hf_pn_rsi_security_length_reserved, &u16LengthReserved);
+    u16LengthReserved >>= 11;
+    
+
+    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, rta_tree, drep,
+        hf_pn_rsi_dst_srv_access_point, &u16DestinationServiceAccessPoint);
+    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, rta_tree, drep,
+        hf_pn_rsi_src_srv_access_point, &u16SourceServiceAccessPoint);
+
+    //col_append_fstr(pinfo->cinfo, COL_INFO, ", Src: 0x%x, Dst: 0x%x",
+    //    u16SourceServiceAccessPoint, u16DestinationServiceAccessPoint);
+
+    if (u8ProtectionMode == 0x00) // Authentication only
+    {
+        /* PDU type */
+        sub_item = proto_tree_add_item(rta_tree, hf_pn_rsi_pdu_type, tvb, offset, 1, ENC_NA);
+        sub_tree = proto_item_add_subtree(sub_item, ett_pn_rsi_pdu_type);
+
+        /* PDU type type - version of RTA 2*/
+        dissect_dcerpc_uint8(tvb, offset, pinfo, sub_tree, drep,
+            hf_pn_rsi_pdu_type_type, &u8PDUType);
+        u8PDUType &= 0x0F;
+
+        /* PDU type version - version of RTA 2*/
+        offset = dissect_dcerpc_uint8(tvb, offset, pinfo, sub_tree, drep,
+            hf_pn_rsi_pdu_type_version, &u8PDUVersion);
+        u8PDUVersion >>= 4;
+        //proto_item_append_text(sub_item, ", Type: %s, Version: %u",
+        //    val_to_str(u8PDUType, pn_rsi_pdu_type_type, "Unknown"),
+        //    u8PDUVersion);
+        offset = dissect_RSIAdditionalFlags(tvb, offset, pinfo, rta_tree, drep, &u8AddFlags);
+        u8MoreFrag = (u8AddFlags >> 5) & 0x1;
+        offset = dissect_dcerpc_uint16(tvb, offset, pinfo, rta_tree, drep,
+            hf_pn_rsi_send_seq_num, &u16SendSeqNum);
+        offset = dissect_dcerpc_uint16(tvb, offset, pinfo, rta_tree, drep,
+            hf_pn_rsi_ack_seq_num, &u16AckSeqNum);
+        offset = dissect_dcerpc_uint16(tvb, offset, pinfo, rta_tree, drep,
+            hf_pn_rsi_var_part_len, &u16VarPartLen);
+
+        switch (u8PDUType & 0x0F) {
+        case(3):    /* ACK-RTA */
+            col_append_str(pinfo->cinfo, COL_INFO, "ACK-RTA");
+
+            if (u8AddFlags & 0x40) {
+
+                col_append_str(pinfo->cinfo, COL_INFO, ", Application Ready Notification");
+            }
+            /* no additional data */
+            break;
+        case(4):    /* ERR-RTA */
+            col_append_str(pinfo->cinfo, COL_INFO, "ERR-RTA");
+            offset = dissect_PNIO_status(tvb, offset, pinfo, rta_tree, drep);
+            if (tvb_captured_length(tvb) - offset > 0)
+            {
+                /* VendorDeviceErrorInfo */
+                offset = dissect_dcerpc_uint16(tvb, offset, pinfo, rta_tree, drep,
+                    hf_pn_rsi_vendor_id, &u16VendorId);
+                offset = dissect_dcerpc_uint16(tvb, offset, pinfo, rta_tree, drep,
+                    hf_pn_rsi_device_id, &u16DeviceId);
+                offset = dissect_pn_user_data(tvb, offset, pinfo, rta_tree, tvb_captured_length(tvb) - offset - 16, "Data");
+            }
+            break;
+        case(5):    /* FREQ-RTA */
+            offset = dissect_FREQ_RTA_block(tvb, offset, pinfo, rta_tree, drep, u16VarPartLen, u8MoreFrag, u16DestinationServiceAccessPoint);
+            break;
+        case(6):    /* FRSP-RTA */
+            offset = dissect_FRSP_RTA_block(tvb, offset, pinfo, rta_tree, drep, u16VarPartLen, u8MoreFrag);
+            break;
+        default:
+            offset = dissect_pn_undecoded(tvb, offset, pinfo, tree, tvb_captured_length(tvb));
+            break;
+        }
+    
+        /* SecurityChecksum */
+        proto_tree_add_item(rta_tree, hf_pn_rsi_security_checksum, tvb, offset, u8LengthSecurityChecksum, ENC_NA);
+        offset += u8LengthSecurityChecksum;
+    }
+
+    else if (u8ProtectionMode == 0x01) // Authenticated encryption
+    {
+        /* SecurityData */
+        gchar szFieldSummary[100];
+        u16LengthSecurityData = tvb_captured_length_remaining(tvb, offset);
+        proto_tree_add_item(rta_tree, hf_pn_rsi_security_data, tvb, offset, u16LengthSecurityData, ENC_NA);
+        offset += u16LengthSecurityData;
+        snprintf(szFieldSummary, sizeof(szFieldSummary),
+            "RSI encrypted, DestinationServiceAccessPoint: %u, SourceServiceAccessPoint: %u, Len: %4u",
+            u16DestinationServiceAccessPoint, u16SourceServiceAccessPoint, u16LengthSecurityData);
+        col_append_str(pinfo->cinfo, COL_INFO, szFieldSummary);       
+    }
+    proto_item_set_len(rta_item, offset - start_offset);
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "PNIO-RSIsec");
+
+    return offset;
+}
+
+int
+dissect_SecurityMetaData_block(tvbuff_t* tvb, int offset,
+    packet_info* pinfo, proto_item* item, proto_tree* tree, uint8_t* drep)
+{
+    uint8_t      u8NextContextID;
+    uint8_t      u8CurrentContextID;
+    uint16_t     u16SecurityLength;
+    uint16_t     u16LengthReserved;
+    uint32_t     u32SecuritySequenceCounter;
+
+    /* SecurityControl */
+    proto_tree* control_tree = proto_item_add_subtree(item, ett_pn_rsi_security_meta_data);
+
+    dissect_dcerpc_uint8(tvb, offset, pinfo, control_tree, drep,
+        hf_pn_rsi_security_control_generation_number, &u8NextContextID);
+    u8NextContextID &= 0x0F;
+    offset = dissect_dcerpc_uint8(tvb, offset, pinfo, control_tree, drep,
+        hf_pn_rsi_security_control_reserved, &u8CurrentContextID);
+    u8CurrentContextID >>= 4;
+
+    /* SecuritySequenceCounter */
+    offset = dissect_dcerpc_uint32(tvb, offset, pinfo, tree, drep,
+        hf_pn_rsi_security_sequence_counter, &u32SecuritySequenceCounter);
+
+    /* SecurityLength */
+    dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
+        hf_pn_rsi_security_length_length, &u16SecurityLength);
+    u16SecurityLength <<= 5;
+    u16SecurityLength >>= 5;
+    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
+        hf_pn_rsi_security_length_reserved, &u16LengthReserved);
+    u16LengthReserved >>= 11;
+
+    return offset;
+}
+
+int
+dissect_SecurityChecksum(tvbuff_t* tvb, int offset, proto_tree* tree)
+{
+    uint8_t      u8LengthSecurityChecksum = 16;
+
+    proto_tree_add_item(tree, hf_pn_rsi_security_checksum, tvb, offset, u8LengthSecurityChecksum, ENC_NA);
+    offset += u8LengthSecurityChecksum;
 
     return offset;
 }
@@ -898,7 +1213,7 @@ init_pn_rsi(int proto)
         },
         { &hf_pn_rsi_f_opnum_offset_opnum,
         { "FOpnumOffset.Opnum", "pn_rsi.f_opnum_offset.opnum",
-        FT_UINT32, BASE_HEX, VALS(pn_rsi_f_opnum_offset_opnum), 0x1F000000,
+        FT_UINT32, BASE_HEX|BASE_RANGE_STRING, RVALS(pn_rsi_f_opnum_offset_opnum), 0x1F000000,
         NULL, HFILL }
         },
         { &hf_pn_rsi_f_opnum_offset_callsequence,
@@ -908,6 +1223,11 @@ init_pn_rsi(int proto)
         },
         { &hf_pn_rsi_conn_block,
         { "RSI CONN Block", "pn_rsi.conn_block",
+        FT_NONE, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }
+        },
+        { &hf_pn_rsi_security_association_control,
+        { "RSI Security Association Control", "pn_rsi.security_association_control",
         FT_NONE, BASE_NONE, NULL, 0x0,
         NULL, HFILL }
         },
@@ -1040,6 +1360,71 @@ init_pn_rsi(int proto)
           { "PN IO RSI Data Payload", "pn_rsi.data_payload",
             FT_NONE, BASE_NONE, NULL, 0x0,
             "", HFILL }
+        },
+        { &hf_pn_rsi_security_meta_data,
+          { "SecurityMetaData", "pn_rsi.security",
+            FT_NONE, BASE_NONE, NULL, 0x0,
+            "", HFILL }
+        },
+        { &hf_pn_rsi_security_information,
+          { "SecurityInformation", "pn_rsi.security_information",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            "", HFILL }
+        },
+        { &hf_pn_rsi_security_information_protection_mode,
+          { "SecurityInformation.ProtectionMode", "pn_rsi.security_information.protection_mode",
+            FT_UINT8, BASE_HEX, VALS(pn_rsi_security_information_protection_mode), 0x01,
+            "", HFILL }
+        },
+        { &hf_pn_rsi_security_information_reserved,
+          { "SecurityInformation.Reserved", "pn_rsi.security_information.reserved",
+            FT_UINT8, BASE_HEX, NULL, 0xFE,
+            "", HFILL }
+        },
+        { &hf_pn_rsi_security_control,
+          { "SecurityControl", "pn_rsi.security_control",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            "", HFILL }
+        },
+        { &hf_pn_rsi_security_control_generation_number,
+          { "SecurityControl.GenerationNumber", "pn_rsi.security_control.generation_number",
+            FT_UINT8, BASE_HEX | BASE_RANGE_STRING, RVALS(pn_rsi_security_control_generation_number), 0x0F,
+            "", HFILL }
+        },
+        { &hf_pn_rsi_security_control_reserved,
+          { "SecurityControl.Reserved", "pn_rsi.security_control.reserved",
+            FT_UINT8, BASE_HEX, NULL, 0xF0,
+            "", HFILL }
+        },
+        { &hf_pn_rsi_security_sequence_counter,
+          { "SecuritySequenceCounter", "pn_rsi.security_sequence_counter",
+            FT_UINT32, BASE_HEX | BASE_RANGE_STRING, RVALS(pn_rsi_security_sequence_counter), 0x0,
+            "", HFILL }
+        },
+        { &hf_pn_rsi_security_length,
+          { "SecurityLength", "pn_rsi.security_length",
+            FT_UINT16, BASE_HEX, NULL, 0x0,
+            "", HFILL }
+        },
+        { &hf_pn_rsi_security_length_length,
+          { "SecurityLength.Length", "pn_rsi.security_length.length",
+            FT_UINT16, BASE_HEX | BASE_RANGE_STRING, RVALS(pn_rsi_security_length_length), 0x07FF,
+            "", HFILL }
+        },
+        { &hf_pn_rsi_security_length_reserved,
+          { "SecurityLength.Reserved", "pn_rsi.security_length.reserved",
+            FT_UINT16, BASE_HEX, NULL, 0xF800,
+            "", HFILL }
+        },
+        { &hf_pn_rsi_security_checksum,
+          { "SecurityChecksum", "pn_rsi.security_checksum",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            "", HFILL }
+        },
+        { &hf_pn_rsi_security_data,
+          { "SecurityData", "pn_rsi.security_data",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            "", HFILL }
         }
     };
 
@@ -1048,13 +1433,16 @@ init_pn_rsi(int proto)
         &ett_pn_rsi_pdu_type,
         &ett_pn_rsi_f_opnum_offset,
         &ett_pn_rsi_conn_block,
+        &ett_pn_rsi_security_association_control,
         &ett_pn_rsi_svcs_block,
         &ett_pn_rsi_add_flags,
         &ett_pn_rsi_rta,
         &ett_pn_io_pd_rsi_instance,
         &ett_pn_rsi_segments,
         &ett_pn_rsi_segment,
-        &ett_pn_rsi_data_payload
+        &ett_pn_rsi_data_payload,
+        &ett_pn_rsi_security_meta_data,
+        &ett_pn_rsi_security_information
     };
 
     static ei_register_info ei[] = {
@@ -1064,7 +1452,7 @@ init_pn_rsi(int proto)
 
     expert_module_t* expert_pn_rsi;
 
-    proto_pn_rsi = proto;
+    proto_pn_rsi = proto_register_protocol("PROFINET RSI", "PN-RSI", "pn_rsi");
 
     proto_register_field_array(proto, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
