@@ -87,6 +87,7 @@ set(WIRETAP_C_MODULE_FILES
 	${CMAKE_CURRENT_SOURCE_DIR}/pcap-common.c
 	${CMAKE_CURRENT_SOURCE_DIR}/pcapng-netflix-custom.c
 	${CMAKE_CURRENT_SOURCE_DIR}/pcapng-sysdig.c
+	${CMAKE_CURRENT_SOURCE_DIR}/peak-trc.c
 	${CMAKE_CURRENT_SOURCE_DIR}/peekclassic.c
 	${CMAKE_CURRENT_SOURCE_DIR}/peektagged.c
 	${CMAKE_CURRENT_SOURCE_DIR}/pppdump.c

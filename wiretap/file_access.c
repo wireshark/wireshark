@@ -97,6 +97,7 @@
 #include "rtpdump.h"
 #include "ems.h"
 #include "ttl.h"
+#include "peak-trc.h"
 
 /*
  * Add an extension, and all compressed versions thereof if requested,
@@ -182,6 +183,7 @@ static const struct file_extension_info file_type_extensions_base[] = {
 	{ "EMS file", false, "ems" },
 	{ "ASN.1 Basic Encoding Rules", false, "cer;crl;csr;p10;p12;p772;p7c;p7s;p7m;p8;pfx;tsq;tsr" },
 	{ "RFC 7468 files", false, "crt;pem" },
+	{ "PEAK CAN TRC log", true, "trc" },
 };
 
 #define	N_FILE_TYPE_EXTENSIONS	array_length(file_type_extensions_base)
@@ -417,6 +419,7 @@ static const struct open_info open_info_base[] = {
 	{ "CSS Electronics CLX000 CAN log",         OPEN_INFO_MAGIC,     cllog_open,               "txt",      NULL, NULL },
 	{ "Ericsson eNode-B raw log",               OPEN_INFO_MAGIC,     eri_enb_log_open,         NULL,       NULL, NULL },
 	{ "Systemd Journal",                        OPEN_INFO_HEURISTIC, systemd_journal_open,     "log;jnl;journal",      NULL, NULL },
+	{ "PEAK CAN TRC log",                       OPEN_INFO_HEURISTIC, peak_trc_open,            "trc",      NULL, NULL },
 
 	/* ASCII trace files from Telnet sessions. */
 	{ "Lucent/Ascend access server trace",      OPEN_INFO_HEURISTIC, ascend_open,              "txt",      NULL, NULL },
@@ -431,7 +434,6 @@ static const struct open_info open_info_base[] = {
 	{ "Ruby Marshal Object",                    OPEN_INFO_HEURISTIC, ruby_marshal_open,        "",         NULL, NULL },
 	{ "3gpp phone log",                         OPEN_INFO_MAGIC,     log3gpp_open,             "log",      NULL, NULL },
 	{ "MP4 media file",                         OPEN_INFO_MAGIC,     mp4_open,                 "mp4",      NULL, NULL },
-
 };
 
 /* this is only used to build the dynamic array on load, do NOT use this

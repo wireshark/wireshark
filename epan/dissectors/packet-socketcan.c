@@ -794,7 +794,7 @@ dissect_socketcan_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, un
             tvbuff_t   *next_tvb;
 
             if (can_info.id & CAN_RTR_FLAG) {
-                col_append_str(pinfo->cinfo, COL_INFO, "(Remote Transmission Request)");
+                col_append_str(pinfo->cinfo, COL_INFO, " (Remote Transmission Request)");
             }
 
             next_tvb = tvb_new_subset_length(tvb, CAN_DATA_OFFSET, can_info.len);
