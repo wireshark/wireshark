@@ -563,7 +563,8 @@ static int hf_smb_trans_name;
 static int hf_smb_transaction_flags;
 static int hf_smb_transaction_flags_dtid;
 static int hf_smb_transaction_flags_owt;
-static int hf_smb_search_count;
+static int hf_smb_search_count_max;
+static int hf_smb_search_count_found;
 static int hf_smb_search_pattern;
 static int hf_smb_ff2;
 static int hf_smb_ff2_backup;
@@ -5887,15 +5888,18 @@ dissect_write_mpx_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 }
 
 static int
-dissect_sid(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, proto_tree *smb_tree _U_, smb_info_t *si _U_)
+dissect_search_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, proto_tree *smb_tree _U_, smb_info_t *si _U_)
 {
 	uint8_t wc;
 	uint16_t bc;
+	uint32_t search_id;
 
 	WORD_COUNT;
 
-	/* sid */
-	proto_tree_add_item(tree, hf_smb_search_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+	/* search ID */
+	proto_tree_add_item_ret_uint(tree, hf_smb_search_id, tvb, offset, 2,
+		ENC_LITTLE_ENDIAN, &search_id);
+	col_append_fstr(pinfo->cinfo, COL_INFO, ", Search ID: %u", (uint16_t)search_id);
 	offset += 2;
 
 	BYTE_COUNT;
@@ -10950,7 +10954,7 @@ static const true_false_string tfs_ff2_close = {
 };
 
 /* used by
-   TRANS2_FIND_FIRST2
+   TRANS2_FIND_FIRST2 and TRANS2_FIND_NEXT2
 */
 static const value_string ff2_il_vals[] = {
 	{ 1,		"Info Standard"},
@@ -11380,6 +11384,7 @@ dissect_transaction2_request_parameters(tvbuff_t *tvb, packet_info *pinfo,
 	smb_transact2_info_t *t2i;
 	int                   fn_len;
 	const char           *fn;
+	uint32_t	      search_id;
 
 	DISSECTOR_ASSERT(si);
 
@@ -11456,7 +11461,7 @@ dissect_transaction2_request_parameters(tvbuff_t *tvb, packet_info *pinfo,
 
 		/* search count */
 		CHECK_BYTE_COUNT_TRANS(2);
-		proto_tree_add_item(tree, hf_smb_search_count, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(tree, hf_smb_search_count_max, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		COUNT_BYTES_TRANS(2);
 
 		/* Find First2 flags */
@@ -11488,18 +11493,22 @@ dissect_transaction2_request_parameters(tvbuff_t *tvb, packet_info *pinfo,
 		COUNT_BYTES_TRANS(fn_len);
 
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", Pattern: %s",
-			    format_text(wmem_packet_scope(), (const unsigned char*)fn, strlen(fn)));
+			format_text(wmem_packet_scope(), (const unsigned char*)fn, strlen(fn)));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
+			val_to_str(si->info_level, ff2_il_vals, "Unknown (0x%02x)"));
 
 		break;
 	case 0x0002:	/*TRANS2_FIND_NEXT2*/
 		/* sid */
 		CHECK_BYTE_COUNT_TRANS(2);
-		proto_tree_add_item(tree, hf_smb_search_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item_ret_uint(tree, hf_smb_search_id, tvb, offset, 2,
+			ENC_LITTLE_ENDIAN, &search_id);
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Search ID: %u", (uint16_t)search_id);
 		COUNT_BYTES_TRANS(2);
 
 		/* search count */
 		CHECK_BYTE_COUNT_TRANS(2);
-		proto_tree_add_item(tree, hf_smb_search_count, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(tree, hf_smb_search_count_max, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		COUNT_BYTES_TRANS(2);
 
 		/* Find First2 information level */
@@ -11509,6 +11518,9 @@ dissect_transaction2_request_parameters(tvbuff_t *tvb, packet_info *pinfo,
 			t2i->info_level = si->info_level;
 		proto_tree_add_uint(tree, hf_smb_ff2_information_level, tvb, offset, 2, si->info_level);
 		COUNT_BYTES_TRANS(2);
+
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
+			val_to_str(si->info_level, ff2_il_vals, "Unknown (0x%02x)"));
 
 		/* resume key */
 		CHECK_BYTE_COUNT_TRANS(4);
@@ -11527,9 +11539,12 @@ dissect_transaction2_request_parameters(tvbuff_t *tvb, packet_info *pinfo,
 			fn);
 		COUNT_BYTES_TRANS(fn_len);
 
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Continue: %s",
-			    format_text(wmem_packet_scope(), (const unsigned char*)fn, strlen(fn)));
-
+		if (strlen(fn)) {
+			col_append_fstr(pinfo->cinfo, COL_INFO, ", Continue after: %s",
+				    format_text(wmem_packet_scope(), (const unsigned char*)fn, strlen(fn)));
+		} else {
+			col_append_fstr(pinfo->cinfo, COL_INFO, ", Continue after previous file");
+		}
 		break;
 	case 0x0003:	/*TRANS2_QUERY_FS_INFORMATION*/
 		/* level of interest */
@@ -14599,7 +14614,7 @@ dissect_transaction_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 
 static int
-dissect_4_3_4_1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
+dissect_4_3_4_1(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *parent_tree,
     int offset, uint16_t *bcp, bool *trunc, smb_info_t *si)
 {
 	int                   fn_len;
@@ -14694,9 +14709,6 @@ dissect_4_3_4_1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 		fn);
 	COUNT_BYTES_SUBR(fn_len);
 
-	col_append_fstr(pinfo->cinfo, COL_INFO, " %s",
-		    format_text(wmem_packet_scope(), fn, strlen(fn)));
-
 	proto_item_append_text(item, " File: %s", format_text(wmem_packet_scope(), (const unsigned char*)fn, strlen(fn)));
 	proto_item_set_len(item, offset-old_offset);
 
@@ -14705,7 +14717,7 @@ dissect_4_3_4_1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 }
 
 static int
-dissect_4_3_4_2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
+dissect_4_3_4_2(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *parent_tree,
     int offset, uint16_t *bcp, bool *trunc, smb_info_t *si)
 {
 	int                   fn_len;
@@ -14800,10 +14812,6 @@ dissect_4_3_4_2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 	proto_tree_add_string(tree, hf_smb_file_name, tvb, offset, fn_len,
 		fn);
 	COUNT_BYTES_SUBR(fn_len);
-
-	col_append_fstr(pinfo->cinfo, COL_INFO, " %s",
-		    format_text(wmem_packet_scope(), (const unsigned char*)fn, strlen(fn)));
-
 	proto_item_append_text(item, " File: %s", format_text(wmem_packet_scope(), (const unsigned char*)fn, strlen(fn)));
 
 	/*
@@ -14836,7 +14844,7 @@ dissect_4_3_4_2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
  * this soon.
  */
 static int
-dissect_4_3_4_3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
+dissect_4_3_4_3(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *parent_tree,
     int offset, uint16_t *bcp, bool *trunc, smb_info_t *si)
 {
 	int                   fn_len;
@@ -14931,9 +14939,6 @@ dissect_4_3_4_3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 		fn);
 	COUNT_BYTES_SUBR(fn_len);
 
-	col_append_fstr(pinfo->cinfo, COL_INFO, " %s",
-		    format_text(wmem_packet_scope(), (const unsigned char*)fn, strlen(fn)));
-
 	proto_item_append_text(item, " File: %s", format_text(wmem_packet_scope(), (const unsigned char*)fn, strlen(fn)));
 	proto_item_set_len(item, offset-old_offset);
 
@@ -15015,9 +15020,6 @@ dissect_4_3_4_4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 	proto_tree_add_string(tree, hf_smb_file_name, tvb, offset, fn_len,
 		fn);
 	COUNT_BYTES_SUBR(fn_len);
-
-	col_append_fstr(pinfo->cinfo, COL_INFO, " %s",
-		    format_text(wmem_packet_scope(), (const unsigned char*)fn, strlen(fn)));
 
 	/* skip to next structure */
 	if (neo) {
@@ -15122,9 +15124,6 @@ dissect_4_3_4_5(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 	proto_tree_add_string(tree, hf_smb_file_name, tvb, offset, fn_len,
 		fn);
 	COUNT_BYTES_SUBR(fn_len);
-
-	col_append_fstr(pinfo->cinfo, COL_INFO, " %s",
-		    format_text(wmem_packet_scope(), (const unsigned char*)fn, strlen(fn)));
 
 	/* skip to next structure */
 	if (neo) {
@@ -15256,9 +15255,6 @@ dissect_4_3_4_6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 		fn);
 	COUNT_BYTES_SUBR(fn_len);
 
-	col_append_fstr(pinfo->cinfo, COL_INFO, " %s",
-		    format_text(wmem_packet_scope(), (const unsigned char*)fn, strlen(fn)));
-
 	/* skip to next structure */
 	if (neo) {
 		padcnt = (old_offset + neo) - offset;
@@ -15377,9 +15373,6 @@ dissect_4_3_4_6full(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 	proto_tree_add_string(tree, hf_smb_file_name, tvb, offset, fn_len,
 		fn);
 	COUNT_BYTES_SUBR(fn_len);
-
-	col_append_fstr(pinfo->cinfo, COL_INFO, " %s",
-		    format_text(wmem_packet_scope(), (const unsigned char*)fn, strlen(fn)));
 
 	/* skip to next structure */
 	if (neo) {
@@ -15521,9 +15514,6 @@ dissect_4_3_4_6_id_both(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
 		fn);
 	COUNT_BYTES_SUBR(fn_len);
 
-	col_append_fstr(pinfo->cinfo, COL_INFO, " %s",
-		    format_text(wmem_packet_scope(), (const unsigned char*)fn, strlen(fn)));
-
 	/* skip to next structure */
 	if (neo) {
 		padcnt = (old_offset + neo) - offset;
@@ -15547,7 +15537,7 @@ dissect_4_3_4_6_id_both(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
 }
 
 static int
-dissect_4_3_4_7(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
+dissect_4_3_4_7(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *parent_tree,
     int offset, uint16_t *bcp, bool *trunc, smb_info_t *si)
 {
 	int         fn_len;
@@ -15601,9 +15591,6 @@ dissect_4_3_4_7(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 	proto_tree_add_string(tree, hf_smb_file_name, tvb, offset, fn_len,
 		fn);
 	COUNT_BYTES_SUBR(fn_len);
-
-	col_append_fstr(pinfo->cinfo, COL_INFO, " %s",
-		    format_text(wmem_packet_scope(), (const unsigned char*)fn, strlen(fn)));
 
 	/* skip to next structure */
 	if (neo) {
@@ -16456,17 +16443,18 @@ dissect_transaction2_response_data(tvbuff_t *tvb, packet_info *pinfo,
 		if (count == -1) {
 			break;
 		}
-
+		col_append_fstr(pinfo->cinfo, COL_INFO,
+			       ", Files found: %u", count);
 		if (count) {
+			while (count--) {
+				offset = dissect_ff2_response_data(tvb, pinfo, tree,
+								   offset, &dc, &trunc, si);
+				if (trunc)
+					break;
+			}
+		} else {
 			col_append_str(pinfo->cinfo, COL_INFO,
-				       ", Files:");
-		}
-
-		while (count--) {
-			offset = dissect_ff2_response_data(tvb, pinfo, tree,
-							   offset, &dc, &trunc, si);
-			if (trunc)
-				break;
+				       ", No files found");
 		}
 		break;
 	case 0x0002:	/*TRANS2_FIND_NEXT2*/
@@ -16477,15 +16465,17 @@ dissect_transaction2_response_data(tvbuff_t *tvb, packet_info *pinfo,
 			break;
 		}
 		if (count) {
+			col_append_fstr(pinfo->cinfo, COL_INFO,
+				       ", Files found: %u", count);
+			while (count--) {
+				offset = dissect_ff2_response_data(tvb, pinfo, tree,
+					offset, &dc, &trunc, si);
+				if (trunc)
+					break;
+			}
+		} else {
 			col_append_str(pinfo->cinfo, COL_INFO,
-				       ", Files:");
-		}
-
-		while (count--) {
-			offset = dissect_ff2_response_data(tvb, pinfo, tree,
-				offset, &dc, &trunc, si);
-			if (trunc)
-				break;
+				       ", No files found");
 		}
 		break;
 	case 0x0003:	/*TRANS2_QUERY_FS_INFORMATION*/
@@ -16595,6 +16585,7 @@ dissect_transaction2_response_parameters(tvbuff_t *tvb, packet_info *pinfo, prot
 	int                   lno;
 	int                   offset = 0;
 	int                   pc;
+	uint32_t	      search_id;
 
 	pc = tvb_reported_length(tvb);
 
@@ -16685,12 +16676,16 @@ dissect_transaction2_response_parameters(tvbuff_t *tvb, packet_info *pinfo, prot
 		proto_tree_add_uint(tree, hf_smb_ff2_information_level, tvb, 0, 0, si->info_level);
 
 		/* sid */
-		proto_tree_add_item(tree, hf_smb_search_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+
+		proto_tree_add_item_ret_uint(tree, hf_smb_search_id, tvb, offset, 2,
+			ENC_LITTLE_ENDIAN, &search_id);
 		offset += 2;
+
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Search ID: %u", (uint16_t)search_id);
 
 		/* search count */
 		si->info_count = tvb_get_letohs(tvb, offset);
-		proto_tree_add_uint(tree, hf_smb_search_count, tvb, offset, 2, si->info_count);
+		proto_tree_add_uint(tree, hf_smb_search_count_found, tvb, offset, 2, si->info_count);
 		offset += 2;
 
 		/* end of search */
@@ -16710,7 +16705,7 @@ dissect_transaction2_response_parameters(tvbuff_t *tvb, packet_info *pinfo, prot
 	case 0x02:	/*TRANS2_FIND_NEXT2*/
 		/* search count */
 		si->info_count = tvb_get_letohs(tvb, offset);
-		proto_tree_add_uint(tree, hf_smb_search_count, tvb, offset, 2, si->info_count);
+		proto_tree_add_uint(tree, hf_smb_search_count_found, tvb, offset, 2, si->info_count);
 		offset += 2;
 
 		/* end of search */
@@ -17005,18 +17000,17 @@ dissect_transaction_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	proto_tree_add_uint(tree, hf_smb_data_disp16, tvb, offset, 2, dd);
 	offset += 2;
 
-	/* Now that a FF2 or a SET_FILE_INFO with info level of 2 response has been fully decoded,
+	/* Now that an FF2 FIND_NEXT2 or SET_FILE_INFO, or a SET_PATH_INFO response has been fully decoded,
 	 * we can remove it from the unmatched table. They were left in there to prevent
-	 * "response<unknown>" errors to FF2 requests whenever there were multiple responses to
-	 * the same request, or replies to SET_FILE_INFO requests with "Subcommand: <UNKNOWN>"
-	 * errors, respectively.
+	 * "response<unknown>" errors whenever there are multiple responses to the same request,
+	 * or requests with "Subcommand: <UNKNOWN>" errors, respectively.
 	 */
 	if (pinfo->fd->visited && t2i) {
-		if( (t2i->subcmd == 0x01 ||
-		    (t2i->subcmd == 8 && t2i->info_level == 2))||
-		    (si->cmd == SMB_COM_TRANSACTION2_SECONDARY ||
-                     si->cmd == SMB_COM_TRANSACTION_SECONDARY  ||
-		     si->cmd == SMB_COM_NT_TRANSACT_SECONDARY)) {
+		if (t2i->subcmd == 0x0001 || t2i->subcmd == 0x0002  ||
+		    t2i->subcmd == 0x0006 || t2i->subcmd == 0x0008 ||
+			si->cmd == SMB_COM_TRANSACTION2_SECONDARY ||
+                    si->cmd == SMB_COM_TRANSACTION_SECONDARY  ||
+		    si->cmd == SMB_COM_NT_TRANSACT_SECONDARY) {
 
 			pid_mid = (si->pid << 16) | si->mid;
 			g_hash_table_remove(si->ct->unmatched, GUINT_TO_POINTER(pid_mid));
@@ -17349,7 +17343,7 @@ static const smb_function smb_dissector[256] = {
 	/* 0x31 Close And Tree Disconnect */ {dissect_close_file_request         , dissect_empty},
 	/* 0x32 Transaction2*/	             {dissect_transaction_request        , dissect_transaction_response},
 	/* 0x33 Transaction2 Secondary*/     {dissect_transaction_request        , dissect_unknown}, /*This SMB has no response */
-	/* 0x34 Find Close2*/                {dissect_sid                        , dissect_empty},
+	/* 0x34 Find Close2*/                {dissect_search_id                  , dissect_empty},
 	/* 0x35 Find Notify Close*/          {dissect_find_notify_close          , dissect_empty},
 	/* 0x36 */  {dissect_unknown, dissect_unknown},
 	/* 0x37 */  {dissect_unknown, dissect_unknown},
@@ -18309,25 +18303,31 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* da
 						 * 4, <- Response MID:5
 						 * We DON'T want #4 to be presented as a response to #1
 						 */
-						/* Prevent FIND_FIRST2 "<unknown>" responses when there are multiple
-						 * responses to the same request. And prevent "Continuation of:
-						 * <unknown frame>" in Trans2 Secondary requests.
+						/* Prevent "FIND_FIRST2 <unknown>", "FIND_NEXT2 <unknown>"
+						 * "SET_FILE_INFO <unknown>" INFO and "SET_PATH_INFO <unknown>"	responses
+						 * when there are multiple responses to the same request. And prevent
+						 * "Continuation of: <unknown frame>" in Trans2 Secondary requests.
 						 * We leave the pid_mid of these responses and requests in the unmatched
 						 * table until all of them have been fully processed.
 						 */
 						if (sip->extra_info_type == SMB_EI_T2I) {
 							t2i = (smb_transact2_info_t *)sip->extra_info;
-							if (t2i
-							&& (t2i->subcmd == 0x01
-							|| (t2i->subcmd == 0x08 && t2i->info_level == 2)
-							|| (si->cmd == SMB_COM_TRANSACTION2_SECONDARY
-							||  si->cmd == SMB_COM_TRANSACTION_SECONDARY
-							||  si->cmd == SMB_COM_NT_TRANSACT_SECONDARY))) {
-								remove = false;
+							if (t2i) {
+								/* FIND_FIRST2 or FIND_NEXT2 or
+								 * SET_FILE INFO or SET_PATH_INFO
+								 */
+								if (t2i->subcmd == 0x0001 || t2i->subcmd == 0x0002 ||
+							            t2i->subcmd == 0x0006 || t2i->subcmd == 0x0008) {
+									remove = false;
+								}
 							}
-							if (remove)
-								g_hash_table_remove(si->ct->unmatched, GUINT_TO_POINTER(pid_mid));
-						} else {
+						}
+						if (si->cmd == SMB_COM_TRANSACTION2_SECONDARY ||
+							si->cmd == SMB_COM_TRANSACTION_SECONDARY ||
+						    si->cmd == SMB_COM_NT_TRANSACT_SECONDARY) {
+								remove = false;
+						}
+						if (remove) {
 							g_hash_table_remove(si->ct->unmatched, GUINT_TO_POINTER(pid_mid));
 						}
 
@@ -20405,9 +20405,13 @@ proto_register_smb(void)
 		{ "One Way Transaction", "smb.transaction.flags.owt", FT_BOOLEAN, 16,
 		TFS(&tfs_tf_owt), 0x0002, "One Way Transaction (no response)?", HFILL }},
 
-	{ &hf_smb_search_count,
-		{ "Search Count", "smb.search_count", FT_UINT16, BASE_DEC,
+	{ &hf_smb_search_count_max,
+		{ "Search Count Max", "smb.search_count_max", FT_UINT16, BASE_DEC,
 		NULL, 0, "Maximum number of search entries to return", HFILL }},
+
+	{ &hf_smb_search_count_found,
+		{ "Search Count Found", "smb.search_count_found", FT_UINT16, BASE_DEC,
+		NULL, 0, "The number of files found", HFILL }},
 
 	{ &hf_smb_search_pattern,
 		{ "Search Pattern", "smb.search_pattern", FT_STRING, BASE_NONE,
@@ -20438,15 +20442,15 @@ proto_register_smb(void)
 		TFS(&tfs_ff2_close), 0x0001, "Close search after this request", HFILL }},
 
 	{ &hf_smb_ff2_information_level,
-		{ "Level of Interest", "smb.ff2_loi", FT_UINT16, BASE_DEC,
+		{ "Level of Interest", "smb.ff2_loi", FT_UINT16, BASE_HEX,
 		VALS(ff2_il_vals), 0, "Level of interest for FIND_FIRST2 command", HFILL }},
 
 	{ &hf_smb_qpi_loi,
-		{ "Level of Interest", "smb.qpi_loi", FT_UINT16, BASE_DEC,
+		{ "Level of Interest", "smb.qpi_loi", FT_UINT16, BASE_HEX,
 		VALS(qpi_loi_vals), 0, "Level of interest for TRANSACTION[2] QUERY_{FILE,PATH}_INFO commands", HFILL }},
 
 	{ &hf_smb_spi_loi,
-		{ "Level of Interest", "smb.spi_loi", FT_UINT16, BASE_DEC | BASE_EXT_STRING,
+		{ "Level of Interest", "smb.spi_loi", FT_UINT16, BASE_HEX | BASE_EXT_STRING,
 		&spi_loi_vals_ext, 0, "Level of interest for TRANSACTION[2] SET_{FILE,PATH}_INFO commands", HFILL }},
 
 #if 0
