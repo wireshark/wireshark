@@ -751,6 +751,7 @@ Ubuntu GCC Build:
     CXX: "g++"
   needs: [ 'Commit Check' ]
   script:
+    - source /gcc-latest.env
     # build-ubuntu puts us in `build`.
     - cd ..
     - mv build "🦈 build 🦈"
