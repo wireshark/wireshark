@@ -66,6 +66,17 @@ static int hf_nmea0183_gll_mode;
 static int hf_nmea0183_rot_rate_of_turn;
 static int hf_nmea0183_rot_valid;
 
+static int hf_nmea0183_vbw_water_speed_longitudinal;
+static int hf_nmea0183_vbw_water_speed_transverse;
+static int hf_nmea0183_vbw_water_speed_valid;
+static int hf_nmea0183_vbw_ground_speed_longitudinal;
+static int hf_nmea0183_vbw_ground_speed_transverse;
+static int hf_nmea0183_vbw_ground_speed_valid;
+static int hf_nmea0183_vbw_stern_water_speed;
+static int hf_nmea0183_vbw_stern_water_speed_valid;
+static int hf_nmea0183_vbw_stern_ground_speed;
+static int hf_nmea0183_vbw_stern_ground_speed_valid;
+
 static int hf_nmea0183_vhw_true_heading;
 static int hf_nmea0183_vhw_true_heading_unit;
 static int hf_nmea0183_vhw_magnetic_heading;
@@ -918,7 +929,7 @@ dissect_nmea0183_sentence_hdt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     offset += dissect_nmea0183_field(tvb, pinfo, subtree, offset, hf_nmea0183_hdt_heading, "degree");
 
     dissect_nmea0183_field_fixed_text(tvb, pinfo, subtree, offset, hf_nmea0183_hdt_unit,
-                                                "T", &ei_nmea0183_hdt_unit_incorrect);
+                                      "T", &ei_nmea0183_hdt_unit_incorrect);
 
     return tvb_captured_length(tvb);
 }
@@ -969,6 +980,33 @@ dissect_nmea0183_sentence_vhw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 
     dissect_nmea0183_field_fixed_text(tvb, pinfo, subtree, offset, hf_nmea0183_vhw_water_speed_kilometer_unit,
                                       "K", &ei_nmea0183_vhw_water_speed_kilometer_unit_incorrect);
+
+    return tvb_captured_length(tvb);
+}
+
+/* Dissect a VBW sentence. */
+static int
+dissect_nmea0183_sentence_vbw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+    int offset = 0;
+
+    proto_tree *subtree = proto_tree_add_subtree(tree, tvb, offset,
+                                                 tvb_captured_length(tvb), ett_nmea0183_sentence,
+                                                 NULL, "VBW sentence - Dual Ground/Water Speed");
+
+    offset += dissect_nmea0183_field(tvb, pinfo, subtree, offset, hf_nmea0183_vbw_water_speed_longitudinal, "knot");
+    offset += dissect_nmea0183_field(tvb, pinfo, subtree, offset, hf_nmea0183_vbw_water_speed_transverse, "knot");
+    offset += dissect_nmea0183_field_status(tvb, pinfo, subtree, offset, hf_nmea0183_vbw_water_speed_valid);
+
+    offset += dissect_nmea0183_field(tvb, pinfo, subtree, offset, hf_nmea0183_vbw_ground_speed_longitudinal, "knot");
+    offset += dissect_nmea0183_field(tvb, pinfo, subtree, offset, hf_nmea0183_vbw_ground_speed_transverse, "knot");
+    offset += dissect_nmea0183_field_status(tvb, pinfo, subtree, offset, hf_nmea0183_vbw_ground_speed_valid);
+
+    offset += dissect_nmea0183_field(tvb, pinfo, subtree, offset, hf_nmea0183_vbw_stern_water_speed, "knot");
+    offset += dissect_nmea0183_field_status(tvb, pinfo, subtree, offset, hf_nmea0183_vbw_stern_water_speed_valid);
+
+    offset += dissect_nmea0183_field(tvb, pinfo, subtree, offset, hf_nmea0183_vbw_stern_ground_speed, "knot");
+    dissect_nmea0183_field_status(tvb, pinfo, subtree, offset, hf_nmea0183_vbw_stern_ground_speed_valid);
 
     return tvb_captured_length(tvb);
 }
@@ -1167,6 +1205,10 @@ dissect_nmea0183(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
     else if (g_ascii_strcasecmp(sentence_id, "ROT") == 0)
     {
         offset += dissect_nmea0183_sentence_rot(data_tvb, pinfo, nmea0183_tree);
+    }
+    else if (g_ascii_strcasecmp(sentence_id, "VBW") == 0)
+    {
+        offset += dissect_nmea0183_sentence_vbw(data_tvb, pinfo, nmea0183_tree);
     }
     else if (g_ascii_strcasecmp(sentence_id, "VHW") == 0)
     {
@@ -1473,6 +1515,56 @@ void proto_register_nmea0183(void)
           FT_STRING, BASE_NONE,
           NULL, 0x0,
           "NMEA 0183 ROT Status, A means data is valid", HFILL}},
+        {&hf_nmea0183_vbw_water_speed_longitudinal,
+         {"Longitudinal water speed", "nmea0183.vbw_water_speed_longitudinal",
+          FT_STRING, BASE_NONE,
+          NULL, 0x0,
+          "NMEA 0183 VBW Longitudinal water speed, negative value means astern, knots", HFILL}},
+        {&hf_nmea0183_vbw_water_speed_transverse,
+         {"Transverse water speed", "nmea0183.vbw_water_speed_transverse",
+          FT_STRING, BASE_NONE,
+          NULL, 0x0,
+          "NMEA 0183 VBW Transverse water speed, negative value means port, knots", HFILL}},
+        {&hf_nmea0183_vbw_water_speed_valid,
+         {"Water speed validity", "nmea0183.vbw_water_speed_valid",
+          FT_STRING, BASE_NONE,
+          NULL, 0x0,
+          "NMEA 0183 VBW Water speed status, A means data is valid", HFILL}},
+        {&hf_nmea0183_vbw_ground_speed_longitudinal,
+         {"Longitudinal ground speed", "nmea0183.vbw_ground_speed_longitudinal",
+          FT_STRING, BASE_NONE,
+          NULL, 0x0,
+          "NMEA 0183 VBW Longitudinal ground speed, negative value means astern, knots", HFILL}},
+        {&hf_nmea0183_vbw_ground_speed_transverse,
+         {"Transverse ground speed", "nmea0183.vbw_ground_speed_transverse",
+          FT_STRING, BASE_NONE,
+          NULL, 0x0,
+          "NMEA 0183 VBW Transverse ground speed, negative value means port, knots", HFILL}},
+        {&hf_nmea0183_vbw_ground_speed_valid,
+         {"Ground speed validity", "nmea0183.vbw_ground_speed_valid",
+          FT_STRING, BASE_NONE,
+          NULL, 0x0,
+          "NMEA 0183 VBW Ground speed status, A means data is valid", HFILL}},
+        {&hf_nmea0183_vbw_stern_water_speed,
+         {"Stern water speed", "nmea0183.vbw_stern_water_speed",
+          FT_STRING, BASE_NONE,
+          NULL, 0x0,
+          "NMEA 0183 VBW Stern traverse water ground speed, negative value means port, knots", HFILL}},
+        {&hf_nmea0183_vbw_stern_water_speed_valid,
+         {"Stern water speed validity", "nmea0183.vbw_stern_water_speed_valid",
+          FT_STRING, BASE_NONE,
+          NULL, 0x0,
+          "NMEA 0183 VBW Stern traverse water speed status, A means data is valid", HFILL}},
+        {&hf_nmea0183_vbw_stern_ground_speed,
+         {"Stern ground speed", "nmea0183.vbw_stern_ground_speed",
+          FT_STRING, BASE_NONE,
+          NULL, 0x0,
+          "NMEA 0183 VBW Stern traverse ground ground speed, negative value means port, knots", HFILL}},
+        {&hf_nmea0183_vbw_stern_ground_speed_valid,
+         {"Stern ground speed validity", "nmea0183.vbw_stern_ground_speed_valid",
+          FT_STRING, BASE_NONE,
+          NULL, 0x0,
+          "NMEA 0183 VBW Stern traverse ground speed status, A means data is valid", HFILL}},
         {&hf_nmea0183_vhw_true_heading,
          {"True heading", "nmea0183.vhw_true_heading",
           FT_STRING, BASE_NONE,
