@@ -75,6 +75,15 @@ static int hf_nmea0183_vhw_water_speed_knot_unit;
 static int hf_nmea0183_vhw_water_speed_kilometer;
 static int hf_nmea0183_vhw_water_speed_kilometer_unit;
 
+static int hf_nmea0183_vlw_cumulative_water;
+static int hf_nmea0183_vlw_cumulative_water_unit;
+static int hf_nmea0183_vlw_trip_water;
+static int hf_nmea0183_vlw_trip_water_unit;
+static int hf_nmea0183_vlw_cumulative_ground;
+static int hf_nmea0183_vlw_cumulative_ground_unit;
+static int hf_nmea0183_vlw_trip_ground;
+static int hf_nmea0183_vlw_trip_ground_unit;
+
 static int hf_nmea0183_vtg_true_course;
 static int hf_nmea0183_vtg_true_course_unit;
 static int hf_nmea0183_vtg_magnetic_course;
@@ -122,6 +131,10 @@ static expert_field ei_nmea0183_vhw_true_heading_unit_incorrect;
 static expert_field ei_nmea0183_vhw_magnetic_heading_unit_incorrect;
 static expert_field ei_nmea0183_vhw_water_speed_knot_unit_incorrect;
 static expert_field ei_nmea0183_vhw_water_speed_kilometer_unit_incorrect;
+static expert_field ei_nmea0183_vlw_cumulative_water_unit_incorrect;
+static expert_field ei_nmea0183_vlw_trip_water_unit_incorrect;
+static expert_field ei_nmea0183_vlw_cumulative_ground_unit_incorrect;
+static expert_field ei_nmea0183_vlw_trip_ground_unit_incorrect;
 static expert_field ei_nmea0183_vtg_true_course_unit_incorrect;
 static expert_field ei_nmea0183_vtg_magnetic_course_unit_incorrect;
 static expert_field ei_nmea0183_vtg_ground_speed_knot_unit_incorrect;
@@ -960,6 +973,39 @@ dissect_nmea0183_sentence_vhw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     return tvb_captured_length(tvb);
 }
 
+/* Dissect a VLW sentence. */
+static int
+dissect_nmea0183_sentence_vlw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+    int offset = 0;
+
+    proto_tree *subtree = proto_tree_add_subtree(tree, tvb, offset,
+                                                 tvb_captured_length(tvb), ett_nmea0183_sentence,
+                                                 NULL, "VLW sentence - Distance Traveled through Water");
+
+    offset += dissect_nmea0183_field(tvb, pinfo, subtree, offset, hf_nmea0183_vlw_cumulative_water, "nautical miles");
+
+    offset += dissect_nmea0183_field_fixed_text(tvb, pinfo, subtree, offset, hf_nmea0183_vlw_cumulative_water_unit,
+                                                "N", &ei_nmea0183_vlw_cumulative_water_unit_incorrect);
+
+    offset += dissect_nmea0183_field(tvb, pinfo, subtree, offset, hf_nmea0183_vlw_trip_water, "nautical miles");
+
+    offset += dissect_nmea0183_field_fixed_text(tvb, pinfo, subtree, offset, hf_nmea0183_vlw_trip_water_unit,
+                                                "N", &ei_nmea0183_vlw_trip_water_unit_incorrect);
+
+    offset += dissect_nmea0183_field(tvb, pinfo, subtree, offset, hf_nmea0183_vlw_cumulative_ground, "nautical miles");
+
+    offset += dissect_nmea0183_field_fixed_text(tvb, pinfo, subtree, offset, hf_nmea0183_vlw_cumulative_ground_unit,
+                                                "N", &ei_nmea0183_vlw_cumulative_ground_unit_incorrect);
+
+    offset += dissect_nmea0183_field(tvb, pinfo, subtree, offset, hf_nmea0183_vlw_trip_ground, "nautical miles");
+
+    dissect_nmea0183_field_fixed_text(tvb, pinfo, subtree, offset, hf_nmea0183_vlw_trip_ground_unit,
+                                      "N", &ei_nmea0183_vlw_trip_ground_unit_incorrect);
+
+    return tvb_captured_length(tvb);
+}
+
 /* Dissect a VTG sentence. */
 static int
 dissect_nmea0183_sentence_vtg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -1125,6 +1171,10 @@ dissect_nmea0183(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
     else if (g_ascii_strcasecmp(sentence_id, "VHW") == 0)
     {
         offset += dissect_nmea0183_sentence_vhw(data_tvb, pinfo, nmea0183_tree);
+    }
+    else if (g_ascii_strcasecmp(sentence_id, "VLW") == 0)
+    {
+        offset += dissect_nmea0183_sentence_vlw(data_tvb, pinfo, nmea0183_tree);
     }
     else if (g_ascii_strcasecmp(sentence_id, "VTG") == 0)
     {
@@ -1463,6 +1513,46 @@ void proto_register_nmea0183(void)
           FT_STRING, BASE_NONE,
           NULL, 0x0,
           "NMEA 0183 VHW Water speed unit, must be K", HFILL}},
+        {&hf_nmea0183_vlw_cumulative_water,
+         {"Cumulative water distance", "nmea0183.vlw_hf_nmea0183_vlw_cumulative_water",
+          FT_STRING, BASE_NONE,
+          NULL, 0x0,
+          "NMEA 0183 VLW Total cumulative water distance, nautical miles", HFILL}},
+        {&hf_nmea0183_vlw_cumulative_water_unit,
+         {"Distance unit", "nmea0183.vlw_cumulative_water_unit",
+          FT_STRING, BASE_NONE,
+          NULL, 0x0,
+          "NMEA 0183 VLW Distance unit, must be N", HFILL}},
+        {&hf_nmea0183_vlw_trip_water,
+         {"Trip water distance", "nmea0183.vlw_hf_nmea0183_vlw_trip_water",
+          FT_STRING, BASE_NONE,
+          NULL, 0x0,
+          "NMEA 0183 VLW Water distance since Reset, nautical miles", HFILL}},
+        {&hf_nmea0183_vlw_trip_water_unit,
+         {"Distance unit", "nmea0183.vlw_trip_water_unit",
+          FT_STRING, BASE_NONE,
+          NULL, 0x0,
+          "NMEA 0183 VLW Distance unit, must be N", HFILL}},
+        {&hf_nmea0183_vlw_cumulative_ground,
+         {"Cumulative ground distance", "nmea0183.vlw_hf_nmea0183_vlw_cumulative_ground",
+          FT_STRING, BASE_NONE,
+          NULL, 0x0,
+          "NMEA 0183 VLW Total cumulative ground distance, nautical miles (NMEA 3 and above)", HFILL}},
+        {&hf_nmea0183_vlw_cumulative_ground_unit,
+         {"Distance unit", "nmea0183.vlw_cumulative_ground_unit",
+          FT_STRING, BASE_NONE,
+          NULL, 0x0,
+          "NMEA 0183 VLW Distance unit, must be N", HFILL}},
+        {&hf_nmea0183_vlw_trip_ground,
+         {"Trip ground distance", "nmea0183.vlw_hf_nmea0183_vlw_trip_ground",
+          FT_STRING, BASE_NONE,
+          NULL, 0x0,
+          "NMEA 0183 VLW Ground distance since Reset, nautical miles (NMEA 3 and above)", HFILL}},
+        {&hf_nmea0183_vlw_trip_ground_unit,
+         {"Distance unit", "nmea0183.vlw_trip_ground_unit",
+          FT_STRING, BASE_NONE,
+          NULL, 0x0,
+          "NMEA 0183 VLW Distance unit, must be N", HFILL}},
         {&hf_nmea0183_vtg_true_course,
          {"True course over ground", "nmea0183.vtg_true_course",
           FT_STRING, BASE_NONE,
@@ -1616,6 +1706,18 @@ void proto_register_nmea0183(void)
         {&ei_nmea0183_vhw_water_speed_kilometer_unit_incorrect,
          {"nmea0183.vhw_water_speed_kilometer_unit_incorrect", PI_PROTOCOL, PI_WARN,
           "Incorrect speed unit (should be 'K')", EXPFILL}},
+        {&ei_nmea0183_vlw_cumulative_water_unit_incorrect,
+         {"nmea0183.vlw_cumulative_water_unit_incorrect", PI_PROTOCOL, PI_WARN,
+          "Incorrect distance unit (should be 'N')", EXPFILL}},
+        {&ei_nmea0183_vlw_trip_water_unit_incorrect,
+         {"nmea0183.vlw_trip_water_unit_incorrect", PI_PROTOCOL, PI_WARN,
+          "Incorrect distance unit (should be 'N')", EXPFILL}},
+        {&ei_nmea0183_vlw_cumulative_ground_unit_incorrect,
+         {"nmea0183.vlw_cumulative_ground_unit_incorrect", PI_PROTOCOL, PI_WARN,
+          "Incorrect distance unit (should be 'N')", EXPFILL}},
+        {&ei_nmea0183_vlw_trip_ground_unit_incorrect,
+         {"nmea0183.vlw_trip_ground_unit_incorrect", PI_PROTOCOL, PI_WARN,
+          "Incorrect distance unit (should be 'N')", EXPFILL}},
         {&ei_nmea0183_vtg_true_course_unit_incorrect,
          {"nmea0183.vtg_true_course_unit_incorrect", PI_PROTOCOL, PI_WARN,
           "Incorrect course unit (should be 'T')", EXPFILL}},
