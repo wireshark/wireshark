@@ -18,6 +18,8 @@
 #include <epan/etypes.h>
 #include <epan/expert.h>
 #include <epan/crc16-tvb.h>
+#include <epan/tfs.h>
+#include <wsutil/array.h>
 #include <epan/dissectors/packet-dcerpc.h>
 
 #include <wsutil/crc16-plain.h>

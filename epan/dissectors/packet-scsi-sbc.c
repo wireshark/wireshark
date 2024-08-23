@@ -25,7 +25,8 @@
 #include "config.h"
 
 #include <epan/packet.h>
-#include <epan/conversation.h>
+#include <epan/tfs.h>
+#include <wsutil/array.h>
 #include "packet-scsi.h"
 #include "packet-scsi-sbc.h"
 

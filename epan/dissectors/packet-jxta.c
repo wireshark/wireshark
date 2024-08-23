@@ -28,6 +28,8 @@
 #include <epan/to_str.h>
 #include <epan/address_types.h>
 #include <epan/expert.h>
+#include <epan/tfs.h>
+#include <wsutil/array.h>
 #include <wsutil/str_util.h>
 
 #include "packet-jxta.h"

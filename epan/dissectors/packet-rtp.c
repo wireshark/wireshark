@@ -53,6 +53,8 @@
 #include <epan/expert.h>
 #include <epan/proto_data.h>
 #include <epan/decode_as.h>
+#include <epan/tfs.h>
+#include <wsutil/array.h>
 
 #include "packet-rtp.h"
 #include "packet-rtcp.h"

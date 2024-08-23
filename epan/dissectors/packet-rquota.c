@@ -13,6 +13,9 @@
 
 #include "config.h"
 
+#include <epan/packet.h>
+#include <epan/tfs.h>
+#include <wsutil/array.h>
 #include "packet-rpc.h"
 
 void proto_register_rquota(void);

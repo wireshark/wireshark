@@ -16,6 +16,8 @@
 
 #include "packet-rpc.h"
 #include <epan/to_str.h>
+#include <epan/tfs.h>
+#include <wsutil/array.h>
 
 /*
  * For the protocol specifications, see

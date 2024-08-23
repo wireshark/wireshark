@@ -14,10 +14,11 @@
 #include <epan/exceptions.h>
 #include <epan/show_exception.h>
 #include <epan/capture_dissectors.h>
+#include <epan/tfs.h>
+#include <wsutil/array.h>
 
 #include "packet-isl.h"
 #include "packet-eth.h"
-#include "packet-tr.h"
 
 void proto_register_isl(void);
 void proto_reg_handoff_isl(void);

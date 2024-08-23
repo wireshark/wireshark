@@ -14,6 +14,8 @@
 #include <epan/packet.h>
 #include <epan/aftypes.h>
 #include <epan/to_str.h>
+#include <epan/tfs.h>
+#include <wsutil/array.h>
 
 #include "packet-arp.h"
 #include "packet-netlink.h"

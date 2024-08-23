@@ -22,6 +22,8 @@
 #include <epan/packet.h>
 #include <epan/expert.h>
 #include <epan/etypes.h>
+#include <epan/tfs.h>
+#include <wsutil/array.h>
 
 #define MAX_SERCOS_DEVICES (512)
 #define MAX_SERCOS_ADDRESS (511)

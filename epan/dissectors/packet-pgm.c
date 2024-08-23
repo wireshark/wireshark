@@ -20,7 +20,8 @@
 #include <epan/prefs.h>
 #include <epan/ptvcursor.h>
 #include <epan/expert.h>
-
+#include <epan/tfs.h>
+#include <wsutil/array.h>
 /*
  * RFC 3208
  *

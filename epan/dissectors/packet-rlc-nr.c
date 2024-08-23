@@ -18,7 +18,8 @@
 #include <epan/tap.h>
 #include <epan/proto_data.h>
 #include <epan/reassemble.h>
-
+#include <epan/tfs.h>
+#include <wsutil/array.h>
 #include "packet-rlc-nr.h"
 #include "packet-rlc-3gpp-common.h"
 #include "packet-pdcp-nr.h"

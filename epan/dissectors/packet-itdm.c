@@ -15,6 +15,8 @@
 
 #include <epan/packet.h>
 #include <epan/prefs.h>
+#include <epan/tfs.h>
+#include <wsutil/array.h>
 
 void proto_register_itdm(void);
 void proto_reg_handoff_itdm(void);

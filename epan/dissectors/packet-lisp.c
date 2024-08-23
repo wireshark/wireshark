@@ -18,7 +18,8 @@
 #include <epan/afn.h>
 #include <epan/oui.h>
 #include <epan/expert.h>
-
+#include <epan/tfs.h>
+#include <wsutil/array.h>
 #include <wsutil/utf8_entities.h>
 
 void proto_register_lisp(void);

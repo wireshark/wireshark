@@ -23,7 +23,9 @@
 #include <epan/sctpppids.h>
 #include <epan/tap.h>
 #include <epan/to_str.h>
+#include <epan/tfs.h>
 
+#include <wsutil/array.h>
 #include <wsutil/str_util.h>
 #include <wsutil/ws_roundup.h>
 

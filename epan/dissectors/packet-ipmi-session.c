@@ -15,6 +15,8 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/tfs.h>
+#include <wsutil/array.h>
 
 void proto_register_ipmi_session(void);
 void proto_reg_handoff_ipmi_session(void);

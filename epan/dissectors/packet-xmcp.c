@@ -22,6 +22,8 @@
 #include <epan/ipproto.h>
 #include <epan/addr_resolv.h>
 #include <epan/expert.h>
+#include <epan/tfs.h>
+#include <wsutil/array.h>
 #include "packet-tcp.h"
 
 void proto_register_xmcp(void);

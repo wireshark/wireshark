@@ -18,6 +18,9 @@
 #include <epan/tap.h>
 #include <epan/uat.h>
 #include <epan/proto_data.h>
+#include <epan/tfs.h>
+#include <wsutil/array.h>
+
 #include "packet-mac-lte.h"
 #include "packet-rlc-lte.h"
 

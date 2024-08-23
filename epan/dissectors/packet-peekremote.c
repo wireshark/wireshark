@@ -49,7 +49,8 @@
 
 #include <epan/packet.h>
 #include <epan/expert.h>
-
+#include <epan/tfs.h>
+#include <wsutil/array.h>
 #include <wsutil/802_11-utils.h>
 #include <packet-ieee80211-radiotap-defs.h>
 

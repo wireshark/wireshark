@@ -18,7 +18,8 @@
 #include <epan/packet.h>
 #include <epan/addr_resolv.h>
 #include <epan/etypes.h>
-
+#include <epan/tfs.h>
+#include <wsutil/array.h>
 /*
  * See
  *

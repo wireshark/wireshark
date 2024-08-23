@@ -14,6 +14,8 @@
 #ifndef PACKET_CDT_H
 #define PACKET_CDT_H
 
+#include <epan/asn1.h>
+
 void dissect_cdt (tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree);
 #include "packet-cdt-exp.h"
 

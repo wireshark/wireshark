@@ -17,6 +17,8 @@
 #include <epan/packet.h>
 #include <epan/expert.h>
 #include <epan/unit_strings.h>
+#include <epan/tfs.h>
+#include <wsutil/array.h>
 
 /* This is a non-standard, ad-hoc protocol to pass baseband GSM bursts between
  * the transceiver (such as osmo-trx, fake_trx.py or grgsm_trx) and the L1

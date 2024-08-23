@@ -16,6 +16,8 @@
 #include <epan/exceptions.h>
 #include <epan/to_str.h>
 #include <epan/strutil.h>
+#include <epan/tfs.h>
+#include <wsutil/array.h>
 #include "packet-mount.h"
 #include "packet-nfs.h"
 

@@ -62,6 +62,7 @@
 #include <epan/expert.h>
 #include <epan/prefs.h>
 #include <epan/srt_table.h>
+#include <epan/tfs.h>
 #include <wsutil/wsgcrypt.h>
 #include <wsutil/file_util.h>
 #include <wsutil/str_util.h>

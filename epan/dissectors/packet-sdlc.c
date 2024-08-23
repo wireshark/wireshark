@@ -13,6 +13,8 @@
 #include <epan/packet.h>
 #include <wiretap/wtap.h>
 #include <epan/xdlc.h>
+#include <epan/tfs.h>
+#include <wsutil/array.h>
 
 /*
  * See:

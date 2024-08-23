@@ -34,7 +34,8 @@
 #include <epan/lapd_sapi.h>
 #include <epan/expert.h>
 #include <epan/proto_data.h>
-#include "packet-l2tp.h"
+#include <epan/tfs.h>
+#include <wsutil/array.h>
 
 void proto_register_lapd(void);
 void proto_reg_handoff_lapd(void);

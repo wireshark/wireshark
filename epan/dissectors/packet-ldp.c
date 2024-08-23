@@ -34,6 +34,8 @@
 #include <epan/afn.h>
 #include <epan/expert.h>
 #include <epan/show_exception.h>
+#include <epan/tfs.h>
+#include <wsutil/array.h>
 
 #include "packet-diffserv-mpls-common.h"
 #include "packet-ldp.h"

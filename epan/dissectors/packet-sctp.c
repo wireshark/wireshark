@@ -57,6 +57,8 @@
 #include <epan/show_exception.h>
 #include <epan/decode_as.h>
 #include <epan/proto_data.h>
+#include <epan/tfs.h>
+#include <wsutil/array.h>
 
 #include <wsutil/crc32.h>
 #include <wsutil/adler32.h>

@@ -12,7 +12,6 @@
 #include "config.h"
 #define WS_LOG_DOMAIN LOG_DOMAIN_EPAN
 
-#include <glib.h>
 #include <epan/packet.h>
 #include <epan/exceptions.h>
 #include <epan/expert.h>
@@ -20,6 +19,7 @@
 #include <epan/prefs-int.h>
 #include <epan/show_exception.h>
 #include <wsutil/ws_assert.h>
+#include <wsutil/array.h>
 
 #include <wsutil/wslog.h>
 

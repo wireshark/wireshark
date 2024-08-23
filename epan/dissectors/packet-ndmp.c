@@ -27,6 +27,8 @@
 #include "packet-scsi.h"
 #include <epan/prefs.h>
 #include <epan/reassemble.h>
+#include <epan/tfs.h>
+#include <wsutil/array.h>
 
 void proto_register_ndmp(void);
 void proto_reg_handoff_ndmp(void);

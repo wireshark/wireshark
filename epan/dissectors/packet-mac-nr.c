@@ -17,6 +17,8 @@
 #include <epan/proto_data.h>
 #include <epan/tap.h>
 #include <epan/uat.h>
+#include <epan/tfs.h>
+#include <wsutil/array.h>
 
 #include "packet-mac-nr.h"
 #include "packet-mac-3gpp-common.h"

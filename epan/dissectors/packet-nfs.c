@@ -18,7 +18,6 @@
 
 #include <epan/packet.h>
 #include <epan/prefs.h>
-#include <epan/exceptions.h>
 #include <epan/expert.h>
 #include <epan/proto_data.h>
 #include <epan/to_str.h>
@@ -27,6 +26,8 @@
 #include <epan/crc32-tvb.h>
 #include <epan/srt_table.h>
 #include <epan/tap.h>
+#include <epan/tfs.h>
+#include <wsutil/array.h>
 #include <wsutil/str_util.h>
 #include "packet-nfs.h"
 #include "packet-rpcrdma.h"

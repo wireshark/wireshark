@@ -19,6 +19,8 @@
 #include <epan/prefs.h>
 #include <epan/reassemble.h>
 #include <epan/to_str.h>
+#include <epan/tfs.h>
+#include <wsutil/array.h>
 #include "wsutil/pint.h"
 
 /*

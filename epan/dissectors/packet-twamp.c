@@ -25,8 +25,9 @@
 #include <config.h>
 #include <epan/packet.h>
 #include <epan/conversation.h>
-#include <epan/expert.h>
 #include <epan/proto_data.h>
+#include <epan/tfs.h>
+#include <wsutil/array.h>
 #include "packet-tcp.h"
 
 

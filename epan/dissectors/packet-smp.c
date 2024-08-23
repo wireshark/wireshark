@@ -37,7 +37,8 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/decode_as.h>
-
+#include <epan/tfs.h>
+#include <wsutil/array.h>
 #include "packet-tcp.h"
 
 void proto_reg_handoff_smp(void);

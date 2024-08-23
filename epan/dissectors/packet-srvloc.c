@@ -28,6 +28,8 @@
 #include <epan/prefs.h>
 #include "packet-tcp.h"
 #include <epan/expert.h>
+#include <epan/tfs.h>
+#include <wsutil/array.h>
 
 void proto_register_srvloc(void);
 void proto_reg_handoff_srvloc(void);

@@ -15,6 +15,8 @@
 #include <epan/packet.h>
 #include <epan/expert.h>
 #include <epan/nlpid.h>
+#include <epan/tfs.h>
+#include <wsutil/array.h>
 #include "packet-osi.h"
 #include "packet-isis.h"
 #include "packet-isis-clv.h"

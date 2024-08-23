@@ -23,6 +23,7 @@
 #include <epan/color_filters.h>
 #include <wiretap/wtap.h>
 #include <wsutil/str_util.h>
+#include <wsutil/array.h>
 
 #include "file-file.h"
 

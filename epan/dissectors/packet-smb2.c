@@ -31,6 +31,8 @@
 #include <epan/asn1.h>
 #include <epan/reassemble.h>
 #include <epan/uat.h>
+#include <epan/tfs.h>
+#include <wsutil/array.h>
 
 #include "packet-smb2.h"
 #include "packet-ntlmssp.h"

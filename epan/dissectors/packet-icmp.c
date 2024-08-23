@@ -34,7 +34,8 @@
 #include <epan/capture_dissectors.h>
 #include <epan/proto_data.h>
 #include <epan/afn.h>
-
+#include <epan/tfs.h>
+#include <wsutil/array.h>
 #include <wsutil/pint.h>
 
 #include "packet-ip.h"

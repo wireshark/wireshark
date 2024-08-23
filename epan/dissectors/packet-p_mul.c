@@ -28,9 +28,10 @@
 #include <epan/prefs.h>
 #include <epan/reassemble.h>
 #include <epan/expert.h>
-#include <epan/asn1.h>
 #include <epan/in_cksum.h>
 #include <epan/proto_data.h>
+#include <epan/tfs.h>
+#include <wsutil/array.h>
 
 #include <wsutil/str_util.h>
 

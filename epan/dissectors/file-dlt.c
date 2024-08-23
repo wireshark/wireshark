@@ -22,6 +22,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <wsutil/array.h>
 
 static int proto_dlt;
 

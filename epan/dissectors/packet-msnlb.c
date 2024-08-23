@@ -13,6 +13,8 @@
 #include <epan/packet.h>
 #include <epan/etypes.h>
 #include <epan/to_str.h>
+#include <epan/tfs.h>
+#include <wsutil/array.h>
 #include "packet-smb-common.h"
 
 void proto_register_msnlb(void);

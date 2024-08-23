@@ -16,6 +16,8 @@
 #include <epan/etypes.h>
 #include <epan/expert.h>
 #include <epan/reassemble.h>
+#include <epan/tfs.h>
+#include <wsutil/array.h>
 
 void proto_reg_handoff_opa_mad(void);
 void proto_register_opa_mad(void);

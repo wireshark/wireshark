@@ -13,6 +13,8 @@
 
 #include <epan/packet.h>
 #include <epan/etypes.h>
+#include <epan/tfs.h>
+#include <wsutil/array.h>
 #include <wsutil/wsgcrypt.h>
 
 void proto_register_macsec(void);

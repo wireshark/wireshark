@@ -14,14 +14,14 @@
 #include <stdlib.h>
 #include <math.h>
 #include <epan/packet.h>
-#include <epan/conversation.h>
 #include <epan/proto_data.h>
 #include <epan/wmem_scopes.h>
 #include <epan/expert.h>
-#include <epan/range.h>
 #include <epan/prefs.h>
 #include <epan/strutil.h>
 #include <epan/to_str.h>
+#include <epan/tfs.h>
+#include <wsutil/array.h>
 #include "packet-coap.h"
 #include "packet-ieee802154.h"
 #include "packet-mle.h"

@@ -14,6 +14,8 @@
 
 #include <epan/packet.h>
 #include <epan/addr_resolv.h> /* this is for get_hostname and udp_port_to_display */
+#include <epan/tfs.h>
+#include <wsutil/array.h>
 
 void proto_register_tpcp(void);
 void proto_reg_handoff_tpcp(void);

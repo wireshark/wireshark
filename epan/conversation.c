@@ -15,6 +15,7 @@
 #include <glib.h>
 
 #include <wiretap/wtap.h>
+#include <wsutil/array.h>
 
 #include "packet.h"
 #include "to_str.h"

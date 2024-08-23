@@ -20,7 +20,8 @@
 #include <epan/addr_resolv.h>
 #include <epan/tvbparse.h>
 #include <epan/conversation.h>
-
+#include <epan/tfs.h>
+#include <wsutil/array.h>
 #include <wsutil/epochs.h>
 
 #include "packet-ntp.h"

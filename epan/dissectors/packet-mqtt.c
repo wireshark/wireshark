@@ -35,7 +35,8 @@
 #include "config.h"
 #include <epan/expert.h>
 #include <epan/packet.h>
-#include <epan/strutil.h>
+#include <epan/tfs.h>
+#include <wsutil/array.h>
 #include <epan/uat.h>
 #include "packet-tcp.h"
 #include "packet-tls.h"

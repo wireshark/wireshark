@@ -22,6 +22,7 @@
 #include <epan/tfs.h>
 #include <wiretap/pcapng_module.h>
 #include <wiretap/secrets-types.h>
+#include <wsutil/array.h>
 
 #include "file-pcapng.h"
 #include "packet-pcap_pktdata.h"

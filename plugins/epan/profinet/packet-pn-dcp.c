@@ -29,16 +29,15 @@
 
 #include "config.h"
 
-#include <string.h>
-
 #include <glib.h>
 
 #include <epan/packet.h>
-#include <epan/exceptions.h>
 #include <epan/to_str.h>
 #include <epan/wmem_scopes.h>
 #include <epan/expert.h>
 #include <epan/conversation.h>
+#include <epan/tfs.h>
+#include <wsutil/array.h>
 
 #include "packet-pn.h"
 

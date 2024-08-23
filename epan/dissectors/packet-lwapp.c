@@ -18,6 +18,8 @@
 #include <epan/prefs.h>
 #include <epan/proto_data.h>
 #include <epan/expert.h>
+#include <epan/tfs.h>
+#include <wsutil/array.h>
 
 void proto_register_lwapp(void);
 void proto_reg_handoff_lwapp(void);

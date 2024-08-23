@@ -23,6 +23,8 @@
 #include <epan/packet.h>
 #include <epan/expert.h>
 #include <epan/conversation.h>
+#include <epan/tfs.h>
+#include <wsutil/array.h>
 #include "packet-tn5250.h"
 
 void proto_register_tn5250(void);

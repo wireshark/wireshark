@@ -20,7 +20,6 @@
 #include "packet_info.h"
 #include "column-utils.h"
 #include "guid-utils.h"
-#include "tfs.h"
 
 #ifdef __cplusplus
 extern "C" {

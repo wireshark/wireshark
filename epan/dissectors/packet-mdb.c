@@ -31,6 +31,8 @@
 #include "config.h"
 #include <epan/expert.h>
 #include <epan/packet.h>
+#include <epan/tfs.h>
+#include <wsutil/array.h>
 #include <wiretap/wtap.h>
 
 void proto_register_mdb(void);

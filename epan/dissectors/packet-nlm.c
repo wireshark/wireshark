@@ -22,6 +22,8 @@
 #include "packet-nfs.h"
 #include "packet-nlm.h"
 #include <epan/prefs.h>
+#include <epan/tfs.h>
+#include <wsutil/array.h>
 
 void proto_register_nlm(void);
 void proto_reg_handoff_nlm(void);

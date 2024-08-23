@@ -17,6 +17,8 @@
 #include <epan/to_str.h>
 #include <epan/etypes.h>
 #include <epan/addr_resolv.h>
+#include <epan/tfs.h>
+#include <wsutil/array.h>
 
 void proto_register_ismp(void);
 void proto_reg_handoff_ismp(void);

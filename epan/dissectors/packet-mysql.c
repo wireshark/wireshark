@@ -32,7 +32,8 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/expert.h>
-#include <epan/strutil.h>
+#include <epan/tfs.h>
+#include <wsutil/array.h>
 #include <epan/proto_data.h>
 #include <epan/reassemble.h>
 #include <epan/exceptions.h>

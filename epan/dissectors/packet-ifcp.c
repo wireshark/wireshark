@@ -20,6 +20,9 @@
 
 #include <epan/packet.h>
 #include <epan/prefs.h>
+#include <epan/tfs.h>
+#include <wsutil/array.h>
+
 #include "packet-tcp.h"
 #include "packet-fc.h"
 

@@ -36,6 +36,8 @@
 #include <epan/proto_data.h>
 #include <epan/prefs.h>
 #include <epan/expert.h>
+#include <epan/tfs.h>
+#include <wsutil/array.h>
 #include <wsutil/report_message.h>
 #include <wsutil/wsgcrypt.h>
 

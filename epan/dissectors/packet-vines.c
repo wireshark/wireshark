@@ -78,8 +78,8 @@
 #include <epan/arcnet_pids.h>
 #include <epan/llcsaps.h>
 #include <epan/to_str.h>
-#include <epan/address_types.h>
-#include <wsutil/pint.h>
+#include <epan/tfs.h>
+#include <wsutil/array.h>
 
 void proto_register_vines_frp(void);
 void proto_reg_handoff_vines_frp(void);

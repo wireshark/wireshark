@@ -37,7 +37,8 @@
 #include <epan/decode_as.h>
 #include <epan/proto_data.h>
 #include <epan/exported_pdu.h>
-
+#include <epan/tfs.h>
+#include <wsutil/array.h>
 #include <wiretap/erf_record.h>
 #include <wsutil/str_util.h>
 

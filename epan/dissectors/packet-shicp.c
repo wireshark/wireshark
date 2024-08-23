@@ -14,6 +14,8 @@
 #include <epan/packet.h>
 #include <epan/expert.h>
 #include <epan/addr_resolv.h>
+#include <epan/tfs.h>
+#include <wsutil/array.h>
 #include "packet-udp.h"
 
 void proto_reg_handoff_shicp(void);

@@ -18,10 +18,9 @@
 #include <epan/conversation.h>
 #include <epan/crc32-tvb.h>
 #include <epan/packet.h>
-#include <epan/to_str.h>
-#include "packet-sll.h"
+#include <epan/tfs.h>
+#include <wsutil/array.h>
 #include "packet-mctp.h"
-#include "packet-nvme.h"
 
 void proto_register_nvme_mi(void);
 void proto_reg_handoff_nvme_mi(void);

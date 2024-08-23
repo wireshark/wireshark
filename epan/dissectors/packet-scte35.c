@@ -29,6 +29,8 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/tfs.h>
+#include <wsutil/array.h>
 
 #define SCTE35_CMD_SPLICE_NULL (0x00)
 #define SCTE35_CMD_SPLICE_SCHEDULE (0x04)

@@ -18,9 +18,9 @@
 #include <epan/prefs.h>
 #include <epan/expert.h>
 #include <epan/to_str.h>
-#include <epan/uat.h>
 #include <epan/stats_tree.h>
-
+#include <epan/tfs.h>
+#include <wsutil/array.h>
 #include "packet-udp.h"
 #include "packet-someip.h"
 

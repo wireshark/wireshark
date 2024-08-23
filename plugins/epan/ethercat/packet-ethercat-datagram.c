@@ -17,6 +17,8 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/tfs.h>
+#include <wsutil/array.h>
 
 #include "packet-ethercat-datagram.h"
 #include "packet-ecatmb.h"

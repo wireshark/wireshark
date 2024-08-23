@@ -17,6 +17,8 @@
 #include <epan/expert.h>
 #include <epan/uat.h>
 #include <epan/proto_data.h>
+#include <epan/tfs.h>
+#include <wsutil/array.h>
 
 #include <wsutil/wsgcrypt.h>
 #include <wsutil/report_message.h>

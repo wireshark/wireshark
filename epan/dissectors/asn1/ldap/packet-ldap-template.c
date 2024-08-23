@@ -84,6 +84,7 @@
 #include <epan/expert.h>
 #include <epan/uat.h>
 #include <epan/charsets.h>
+#include <epan/tfs.h>
 #include <wsutil/str_util.h>
 #include <wsutil/array.h>
 #include "packet-frame.h"

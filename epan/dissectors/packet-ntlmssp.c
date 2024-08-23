@@ -26,7 +26,9 @@
 #include <epan/expert.h>
 #include <epan/show_exception.h>
 #include <epan/proto_data.h>
+#include <epan/tfs.h>
 
+#include <wsutil/array.h>
 #include <wsutil/wsgcrypt.h>
 #include <wsutil/crc32.h>
 #include <wsutil/str_util.h>

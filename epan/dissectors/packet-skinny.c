@@ -38,10 +38,10 @@
 #include <epan/conversation.h>
 #include <epan/wmem_scopes.h>
 #include <epan/to_str.h>
-#include <epan/reassemble.h>
 #include <epan/tap.h>
 #include <epan/ptvcursor.h>
-
+#include <epan/tfs.h>
+#include <wsutil/array.h>
 #include "packet-rtp.h"
 #include "packet-tcp.h"
 #include "packet-tls.h"

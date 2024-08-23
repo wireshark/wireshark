@@ -25,6 +25,8 @@
 #include <epan/prefs.h>
 #include <epan/conversation.h>
 #include <epan/expert.h>
+#include <epan/tfs.h>
+#include <wsutil/array.h>
 #include "packet-sprt.h"
 
 void proto_register_sprt(void);

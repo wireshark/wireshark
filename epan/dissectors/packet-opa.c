@@ -12,6 +12,8 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/tfs.h>
+#include <wsutil/array.h>
 #include <wiretap/erf_record.h>
 
 void proto_reg_handoff_opa_9b(void);

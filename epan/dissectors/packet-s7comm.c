@@ -15,6 +15,8 @@
 #include <epan/packet.h>
 #include <epan/reassemble.h>
 #include <stdlib.h>
+#include <epan/tfs.h>
+#include <wsutil/array.h>
 #include <wsutil/strtoi.h>
 #include <epan/expert.h>
 

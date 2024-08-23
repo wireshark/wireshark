@@ -64,7 +64,9 @@
 #include <epan/expert.h>
 #include <epan/conversation_filter.h>
 #include <epan/proto_data.h>
+#include <epan/tfs.h>
 
+#include <wsutil/array.h>
 #include <wsutil/file_util.h>
 #include <epan/prefs.h>
 

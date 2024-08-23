@@ -17,7 +17,8 @@
 #include <epan/ppptypes.h>
 #include <epan/etypes.h>
 #include <epan/ipproto.h>
-#include "packet-ppp.h"
+#include <epan/tfs.h>
+#include <wsutil/array.h>
 #include "packet-juniper.h"
 #include <epan/nlpid.h>
 

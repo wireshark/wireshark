@@ -14,11 +14,12 @@
 #include "config.h"
 
 #include <epan/packet.h>
-#include <epan/exceptions.h>
 #include <epan/prefs.h>    /* req'd for packet-zbee-security.h */
 #include <epan/expert.h>
 #include <epan/reassemble.h>
 #include <epan/proto_data.h>
+#include <epan/tfs.h>
+#include <wsutil/array.h>
 
 #include "packet-zbee.h"
 #include "packet-zbee-nwk.h"

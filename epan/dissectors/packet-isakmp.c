@@ -43,6 +43,7 @@
 #include <epan/expert.h>
 #include <epan/to_str.h>
 #include <epan/conversation.h>
+#include <epan/tfs.h>
 #include <wsutil/str_util.h>
 #include "packet-x509if.h"
 #include "packet-x509af.h"
@@ -51,8 +52,8 @@
 #include "packet-ber.h"
 
 #include <wsutil/wsgcrypt.h>
+#include <wsutil/array.h>
 #include <epan/proto_data.h>
-#include <epan/strutil.h>
 #include <epan/uat.h>
 
 void proto_register_isakmp(void);

@@ -14,6 +14,8 @@
 
 #include "config.h"
 #include <epan/packet.h>
+#include <epan/tfs.h>
+#include <wsutil/array.h>
 
 /* MQTT-SN message types. */
 #define MQTTSN_ADVERTISE              0x00

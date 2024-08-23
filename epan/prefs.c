@@ -24,7 +24,6 @@
 
 #include <stdio.h>
 #include <wsutil/filesystem.h>
-#include <epan/address.h>
 #include <epan/addr_resolv.h>
 #include <epan/oids.h>
 #include <epan/maxmind_db.h>
@@ -35,11 +34,11 @@
 #include <epan/column.h>
 #include <epan/decode_as.h>
 #include <capture_opts.h>
-#include "print.h"
 #include <wsutil/file_util.h>
 #include <wsutil/report_message.h>
 #include <wsutil/wslog.h>
 #include <wsutil/ws_assert.h>
+#include <wsutil/array.h>
 
 #include <epan/prefs-int.h>
 #include <epan/uat-int.h>

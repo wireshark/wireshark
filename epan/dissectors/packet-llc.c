@@ -22,10 +22,9 @@
 #include <epan/arcnet_pids.h>
 #include <epan/nlpid.h>
 #include <epan/addr_resolv.h>
+#include <epan/tfs.h>
+#include <wsutil/array.h>
 #include "packet-fc.h"
-#include "packet-ip.h"
-#include "packet-ipx.h"
-#include "packet-netbios.h"
 #include "packet-sll.h"
 #include "packet-juniper.h"
 

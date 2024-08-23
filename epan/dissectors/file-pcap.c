@@ -18,6 +18,7 @@
 #include <epan/expert.h>
 #include <epan/exceptions.h>
 #include <epan/show_exception.h>
+#include <wsutil/array.h>
 
 #include "packet-pcap_pktdata.h"
 

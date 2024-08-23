@@ -25,6 +25,8 @@
 #include <epan/packet.h>
 #include <epan/expert.h>
 #include <epan/sminmpec.h>
+#include <epan/tfs.h>
+#include <wsutil/array.h>
 
 #include "packet-wps.h"
 #include "packet-ieee80211.h"

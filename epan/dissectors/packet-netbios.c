@@ -20,7 +20,8 @@
 #include <epan/reassemble.h>
 #include <epan/prefs.h>
 #include <epan/expert.h>
-#include <epan/capture_dissectors.h>
+#include <epan/tfs.h>
+#include <wsutil/array.h>
 #include "packet-netbios.h"
 
 void proto_register_netbios(void);

@@ -16,6 +16,7 @@
 #include "config.h"
 #include <epan/packet.h>
 #include <epan/expert.h>
+#include <wsutil/array.h>
 
 void proto_reg_handoff_tiff(void);
 void proto_register_tiff(void);

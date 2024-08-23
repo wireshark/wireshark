@@ -24,11 +24,13 @@
 #include <epan/prefs.h>
 #include <epan/conversation.h>
 #include <epan/expert.h>
+#include <epan/tfs.h>
 #include "packet-scsi.h"
 #include <epan/crc32-tvb.h>
 #include <wsutil/crc32.h>
 #include <wsutil/inet_addr.h>
 #include <wsutil/strtoi.h>
+#include <wsutil/array.h>
 #include <wsutil/ws_roundup.h>
 
 void proto_register_iscsi(void);

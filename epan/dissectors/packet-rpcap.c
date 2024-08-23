@@ -20,6 +20,8 @@
 #include <epan/expert.h>
 #include <epan/exceptions.h>
 #include <epan/show_exception.h>
+#include <epan/tfs.h>
+#include <wsutil/array.h>
 #include <wsutil/str_util.h>
 
 #include "packet-frame.h"

@@ -10,7 +10,8 @@
 
 #include "config.h"
 
-
+#include <epan/tfs.h>
+#include <wsutil/array.h>
 #include "packet-rpc.h"
 #include "packet-nisplus.h"
 

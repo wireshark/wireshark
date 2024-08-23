@@ -17,6 +17,8 @@
 #include <epan/packet.h>
 #include <epan/conversation.h>
 #include <epan/expert.h>
+#include <epan/tfs.h>
+#include <wsutil/array.h>
 #include "packet-scsi.h"
 #include "packet-scsi-osd.h"
 

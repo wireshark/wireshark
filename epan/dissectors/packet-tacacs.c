@@ -27,7 +27,8 @@
 #include <epan/expert.h>
 #include <epan/addr_resolv.h>
 #include <wsutil/wsgcrypt.h>
-#include <epan/ws_printf.h>
+#include <epan/tfs.h>
+#include <wsutil/array.h>
 
 #include "packet-tcp.h"
 #include "packet-tacacs.h"

@@ -17,6 +17,8 @@
 
 #include <epan/packet.h>
 #include <epan/etypes.h>
+#include <epan/tfs.h>
+#include <wsutil/array.h>
 
 void proto_register_trill(void);
 void proto_reg_handoff_trill(void);

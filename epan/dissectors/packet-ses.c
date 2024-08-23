@@ -19,7 +19,8 @@
 #include <epan/conversation.h>
 #include <epan/reassemble.h>
 #include <epan/proto_data.h>
-
+#include <epan/tfs.h>
+#include <wsutil/array.h>
 #include <wsutil/str_util.h>
 
 #include "packet-ber.h"

@@ -17,6 +17,8 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/to_str.h>
+#include <epan/tfs.h>
+#include <wsutil/array.h>
 
 #include <wsutil/epochs.h>
 

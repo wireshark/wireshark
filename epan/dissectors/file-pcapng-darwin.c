@@ -11,6 +11,7 @@
 
 #include <epan/packet.h>
 #include <epan/addr_resolv.h>
+#include <wsutil/array.h>
 
 #include <epan/dissectors/file-pcapng.h>
 

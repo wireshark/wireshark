@@ -18,6 +18,8 @@
 
 
 #include <epan/packet.h>
+#include <epan/tfs.h>
+#include <wsutil/array.h>
 #include "wimax_mac.h"
 
 void proto_register_mac_mgmt_msg_arq_feedback(void);

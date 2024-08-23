@@ -17,6 +17,8 @@
 
 #include <epan/prefs.h>
 #include <epan/to_str.h>
+#include <epan/tfs.h>
+#include <wsutil/array.h>
 #include <wiretap/wtap.h>
 
 void proto_register_nsip(void);

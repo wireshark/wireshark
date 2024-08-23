@@ -50,6 +50,7 @@
 
 #include <epan/packet.h>
 #include <epan/prefs.h>
+#include <wsutil/array.h>
 
 /* forward reference */
 void proto_register_2dparityfec(void);

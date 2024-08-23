@@ -16,6 +16,8 @@
 
 #include <epan/etypes.h>
 #include <epan/crc32-tvb.h>
+#include <epan/tfs.h>
+#include <wsutil/array.h>
 #include <wsutil/crc32.h>
 #include <epan/ipproto.h>
 

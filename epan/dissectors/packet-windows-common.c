@@ -16,6 +16,8 @@
 #include <epan/exceptions.h>
 #include "packet-smb-sidsnooping.h"
 #include "packet-windows-common.h"
+#include <epan/tfs.h>
+#include <wsutil/array.h>
 #include "packet-smb.h"	/* for "sid_name_snooping" */
 
 /* The types used in [MS-DTYP] v20180912 should be interpreted as

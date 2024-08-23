@@ -16,6 +16,8 @@
 #include <wsutil/utf8_entities.h>
 #include <epan/expert.h>
 #include <epan/crc16-tvb.h>
+#include <epan/tfs.h>
+#include <wsutil/array.h>
 
 void proto_register_xra(void);
 void proto_reg_handoff_xra(void);

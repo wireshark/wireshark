@@ -17,6 +17,8 @@
 
 #include <epan/packet.h>
 #include <epan/expert.h>
+#include <epan/tfs.h>
+#include <wsutil/array.h>
 
 #define UDP_PORT_SAP   9875
 

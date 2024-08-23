@@ -20,6 +20,8 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/expert.h>
+#include <epan/tfs.h>
+#include <wsutil/array.h>
 
 void proto_reg_handoff_vp8(void);
 void proto_register_vp8(void);

@@ -12,8 +12,9 @@
 #include <stdbool.h>
 #include "config.h"
 #include <epan/packet.h>
-#include <epan/expert.h>
 #include <epan/uat.h>
+#include <epan/tfs.h>
+#include <wsutil/array.h>
 #include "packet-ieee802154.h"
 #include "packet-rf4ce-secur.h"
 

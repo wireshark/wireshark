@@ -70,6 +70,8 @@
 #include <epan/prefs.h>
 #include <epan/expert.h>
 #include <epan/proto_data.h>
+#include <epan/tfs.h>
+#include <wsutil/array.h>
 #include "packet-x11.h" /* This contains the extern for the X11 value_string_ext
 			 * "x11_keysym_vals_source_ext" that VNC uses. */
 

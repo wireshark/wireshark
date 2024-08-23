@@ -26,6 +26,8 @@
 #include <epan/prefs.h>
 #include <epan/expert.h>
 #include <epan/tap.h>
+#include <epan/tfs.h>
+#include <wsutil/array.h>
 #include "packet-tcp.h"
 #include "packet-tls.h"
 #include "packet-media-type.h"

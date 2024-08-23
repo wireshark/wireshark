@@ -15,6 +15,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/tfs.h>
 #include <wsutil/array.h>
 #include "packet-dcerpc.h"
 #include "packet-dcerpc-nt.h"

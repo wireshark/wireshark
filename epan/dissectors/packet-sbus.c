@@ -14,6 +14,8 @@
 #include <epan/packet.h>
 #include <epan/conversation.h>
 #include <epan/expert.h>
+#include <epan/tfs.h>
+#include <wsutil/array.h>
 
 void proto_register_sbus(void);
 void proto_reg_handoff_sbus(void);

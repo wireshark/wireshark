@@ -28,6 +28,8 @@
 
 #include <epan/packet.h>
 #include <epan/expert.h>
+#include <epan/tfs.h>
+#include <wsutil/array.h>
 
 void proto_register_nat_pmp(void);
 void proto_reg_handoff_nat_pmp(void);

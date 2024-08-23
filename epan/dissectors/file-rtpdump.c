@@ -21,6 +21,7 @@
 #include <epan/expert.h>
 #include <wsutil/strtoi.h>
 #include <wsutil/inet_addr.h>
+#include <wsutil/array.h>
 
 void proto_register_rtpdump(void);
 void proto_reg_handoff_rtpdump(void);

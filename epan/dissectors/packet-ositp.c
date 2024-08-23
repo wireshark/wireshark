@@ -21,6 +21,8 @@
 #include <epan/ipproto.h>
 #include <epan/expert.h>
 #include <epan/proto_data.h>
+#include <epan/tfs.h>
+#include <wsutil/array.h>
 
 #include <wsutil/str_util.h>
 #include "packet-frame.h"

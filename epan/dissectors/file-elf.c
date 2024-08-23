@@ -22,6 +22,7 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/expert.h>
+#include <wsutil/array.h>
 
 static dissector_handle_t elf_handle;
 

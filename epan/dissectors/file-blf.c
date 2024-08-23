@@ -24,6 +24,7 @@
 #include <epan/expert.h>
 
 #include <wiretap/blf.h>
+#include <wsutil/array.h>
 
 static int proto_blf;
 static int proto_blf_ethernetstatus_obj;

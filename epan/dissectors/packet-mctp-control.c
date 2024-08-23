@@ -22,9 +22,9 @@
 #include <config.h>
 
 #include <epan/packet.h>
-#include <epan/to_str.h>
+#include <epan/tfs.h>
+#include <wsutil/array.h>
 #include "packet-mctp.h"
-#include "packet-sll.h"
 
 #define MCTP_CTRL_MIN_LENGTH 3
 

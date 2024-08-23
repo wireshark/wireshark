@@ -18,6 +18,8 @@
 #include <epan/expert.h>
 #include <epan/in_cksum.h>
 #include <epan/to_str.h>
+#include <epan/tfs.h>
+#include <wsutil/array.h>
 #include "packet-igmp.h"
 
 void proto_register_pim(void);

@@ -27,6 +27,8 @@
 #include <epan/rtp_pt.h>
 #include <epan/expert.h>
 #include <epan/proto_data.h>
+#include <epan/tfs.h>
+#include <wsutil/array.h>
 #include "packet-rohc.h"
 
 void proto_register_rohc(void);

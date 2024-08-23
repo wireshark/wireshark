@@ -28,7 +28,8 @@
 /* clang-format on */
 
 #include <epan/expert.h>
-#include <string.h>
+#include <epan/tfs.h>
+#include <wsutil/array.h>
 
 #include "packet-llc.h"
 

@@ -14,15 +14,14 @@
 #include <wsutil/pint.h>
 #include <epan/expert.h>
 #include "packet-ieee8023.h"
-#include "packet-ipx.h"
-#include "packet-llc.h"
 #include <epan/etypes.h>
 #include <epan/prefs.h>
 #include <epan/to_str.h>
 #include <epan/addr_resolv.h>
 #include <epan/proto_data.h>
 #include <epan/conversation_table.h>
-#include <epan/conversation_filter.h>
+#include <epan/tfs.h>
+#include <wsutil/array.h>
 
 void proto_register_vlan(void);
 void proto_reg_handoff_vlan(void);

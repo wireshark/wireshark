@@ -38,7 +38,8 @@
 #include <math.h>
 
 #include <epan/packet.h>
-
+#include <epan/tfs.h>
+#include <wsutil/array.h>
 #include "packet-rmt-common.h"
 
 #define LCT_SCT_FLAG           0x0008

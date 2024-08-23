@@ -21,6 +21,8 @@
 
 #include <epan/packet.h>
 #include <epan/reassemble.h>
+#include <epan/tfs.h>
+#include <wsutil/array.h>
 #include "packet-wap.h"
 #include "packet-wtp.h"
 #include "packet-wsp.h"

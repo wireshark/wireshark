@@ -16,7 +16,8 @@
 
 #include <epan/decode_as.h>
 #include <epan/packet.h>
-#include <wiretap/wtap.h>
+#include <epan/tfs.h>
+#include <wsutil/array.h>
 #include <epan/xdlc.h>
 
 static dissector_table_t x75_subdissector_table;

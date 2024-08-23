@@ -33,7 +33,8 @@
 #include <epan/capture_dissectors.h>
 #include <epan/proto_data.h>
 #include <epan/strutil.h>
-
+#include <epan/tfs.h>
+#include <wsutil/array.h>
 #include <wsutil/pow2.h>
 
 #include "packet-ber.h"

@@ -21,7 +21,7 @@
 
 #include <epan/packet.h>
 #include <epan/capture_dissectors.h>
-#include <epan/exceptions.h>
+#include <epan/tfs.h>
 #include <epan/ptvcursor.h>
 #include <epan/prefs.h>
 #include <epan/expert.h>
@@ -29,6 +29,7 @@
 #include <wsutil/802_11-utils.h>
 #include <wsutil/pint.h>
 #include <wsutil/str_util.h>
+#include <wsutil/array.h>
 
 /*
  * Per-Packet Information (PPI) header.

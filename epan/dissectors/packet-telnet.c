@@ -19,6 +19,8 @@
 #include <epan/packet.h>
 #include <epan/expert.h>
 #include <epan/asn1.h>
+#include <epan/tfs.h>
+#include <wsutil/array.h>
 #include <wsutil/str_util.h>
 #include <wsutil/utf8_entities.h>
 #include "packet-kerberos.h"

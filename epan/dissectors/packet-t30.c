@@ -18,6 +18,8 @@
 #include <epan/packet.h>
 #include <epan/expert.h>
 #include <epan/charsets.h>
+#include <epan/tfs.h>
+#include <wsutil/array.h>
 
 #include "packet-t38.h"
 #include "packet-t30.h"

@@ -17,7 +17,8 @@
 #include "config.h"
 
 #include <epan/packet.h>
-#include "wimax-int.h"
+#include <epan/tfs.h>
+#include <wsutil/array.h>
 #include "wimax_compact_dlmap_ie_decoder.h"
 
 extern int proto_wimax;

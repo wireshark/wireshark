@@ -23,6 +23,8 @@
 
 #include <epan/expert.h>
 #include <epan/packet.h>
+#include <epan/tfs.h>
+#include <wsutil/array.h>
 
 #include "packet-osi.h"
 #include "packet-isis.h"

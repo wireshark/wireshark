@@ -16,9 +16,10 @@
 #include <epan/expert.h>
 #include <epan/exceptions.h>
 #include <epan/conversation_table.h>
+#include <epan/tfs.h>
+#include <wsutil/array.h>
 #include <wsutil/pint.h>
 #include "packet-tr.h"
-#include "packet-llc.h"
 #include "packet-sflow.h"
 #include <epan/prefs.h>
 void proto_register_tr(void);

@@ -20,6 +20,8 @@
 #include <epan/expert.h>
 #include <epan/packet.h>
 #include <epan/prefs.h>
+#include <epan/tfs.h>
+#include <wsutil/array.h>
 #include <wsutil/inet_addr.h>
 #include <wsutil/nstime.h>
 #include <wsutil/wsjson.h>

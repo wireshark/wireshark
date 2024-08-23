@@ -14,7 +14,6 @@
 #define WS_LOG_DOMAIN LOG_DOMAIN_EPAN
 
 #include <stdio.h>
-#include <stdlib.h>
 
 #include "packet.h"
 #include "expert.h"
@@ -26,6 +25,7 @@
 
 #include <wsutil/str_util.h>
 #include <wsutil/wslog.h>
+#include <wsutil/array.h>
 
 /* proto_expert cannot be static because it's referenced in the
  * print routines

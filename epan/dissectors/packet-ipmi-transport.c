@@ -13,7 +13,8 @@
 #include "config.h"
 
 #include <epan/packet.h>
-
+#include <epan/tfs.h>
+#include <wsutil/array.h>
 #include "packet-ipmi.h"
 
 void proto_register_ipmi_transport(void);

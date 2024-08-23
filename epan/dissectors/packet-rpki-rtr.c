@@ -20,6 +20,8 @@
 #include "packet-tls.h"
 #include <epan/expert.h>
 #include <epan/asn1.h>
+#include <epan/tfs.h>
+#include <wsutil/array.h>
 #include "packet-x509af.h"
 
 void proto_register_rpkirtr(void);

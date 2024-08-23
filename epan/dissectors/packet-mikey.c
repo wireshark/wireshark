@@ -28,6 +28,8 @@
 #include <epan/packet.h>
 #include <epan/asn1.h>
 #include <epan/proto_data.h>
+#include <epan/tfs.h>
+#include <wsutil/array.h>
 #include "packet-x509af.h"
 
 void proto_register_mikey(void);

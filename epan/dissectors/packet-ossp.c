@@ -21,7 +21,8 @@
 #include <epan/addr_resolv.h>
 #include <epan/oui.h>
 #include <epan/expert.h>
-
+#include <epan/tfs.h>
+#include <wsutil/array.h>
 #include <wsutil/str_util.h>
 
 /* General declarations */

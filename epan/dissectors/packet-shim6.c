@@ -15,7 +15,8 @@
 
 #include <epan/packet.h>
 #include <epan/expert.h>
-#include <epan/proto_data.h>
+#include <epan/tfs.h>
+#include <wsutil/array.h>
 #include <epan/in_cksum.h>
 #include <epan/ipproto.h>
 

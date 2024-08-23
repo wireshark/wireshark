@@ -62,11 +62,12 @@
 
 #include <epan/packet.h>
 #include <epan/ptvcursor.h>
-#include <epan/exceptions.h>
 #include <epan/reassemble.h>
 #include <epan/expert.h>
 #include <epan/prefs.h>
 #include <epan/strutil.h>
+#include <epan/tfs.h>
+#include <wsutil/array.h>
 
 #include "packet-windows-common.h"
 #include "packet-tcp.h"

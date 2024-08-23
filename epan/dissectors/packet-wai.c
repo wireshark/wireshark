@@ -24,6 +24,8 @@
 #include <epan/packet.h>
 #include <epan/etypes.h>
 #include <epan/reassemble.h>
+#include <epan/tfs.h>
+#include <wsutil/array.h>
 
 #define WAI_SUB_PRE_AUTHENTICATION      0x01    /* pre-authentication start */
 #define WAI_SUB_STAKEY_REQ              0x02    /* STAKey request */

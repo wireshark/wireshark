@@ -37,7 +37,8 @@
 #include "config.h"
 
 #include <epan/packet.h>
-#include <epan/exceptions.h>
+#include <epan/tfs.h>
+#include <wsutil/array.h>
 #include <epan/prefs.h>
 
 void proto_register_rtp_midi(void);

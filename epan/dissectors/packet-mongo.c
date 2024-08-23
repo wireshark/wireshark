@@ -20,7 +20,8 @@
 #include "config.h"
 
 #include <epan/packet.h>
-#include <epan/exceptions.h>
+#include <epan/tfs.h>
+#include <wsutil/array.h>
 #include <epan/expert.h>
 #include <epan/proto_data.h>
 #include <wsutil/crc32.h> // CRC32C_PRELOAD

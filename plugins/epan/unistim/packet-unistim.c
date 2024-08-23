@@ -17,6 +17,8 @@
 #include <epan/packet.h>
 #include <epan/tap.h>
 #include <epan/expert.h>
+#include <epan/tfs.h>
+#include <wsutil/array.h>
 #include <epan/dissectors/packet-rtp.h>
 #include <epan/dissectors/packet-rtcp.h>
 #include "packet-unistim.h"

@@ -12,6 +12,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <wsutil/array.h>
 #include "packet-dcerpc.h"
 
 void proto_register_dcerpc_taskschedulerservice(void);

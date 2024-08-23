@@ -23,7 +23,7 @@
 
 #include <epan/expert.h>
 #include <epan/packet.h>
-
+#include <wsutil/array.h>
 #include <file-rbm.h>
 #include <wiretap/ruby_marshal.h>
 

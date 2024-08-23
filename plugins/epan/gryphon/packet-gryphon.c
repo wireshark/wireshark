@@ -26,6 +26,8 @@
 #include <epan/proto_data.h>
 #include <epan/conversation.h>
 #include <epan/dissectors/packet-tcp.h>
+#include <epan/tfs.h>
+#include <wsutil/array.h>
 #include <wsutil/str_util.h>
 #include "packet-gryphon.h"
 

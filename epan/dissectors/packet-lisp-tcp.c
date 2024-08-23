@@ -16,6 +16,8 @@
 #include <epan/to_str.h>
 #include <epan/afn.h>
 #include <epan/expert.h>
+#include <epan/tfs.h>
+#include <wsutil/array.h>
 
 void proto_register_lisp_tcp(void);
 void proto_reg_handoff_lisp_tcp(void);

@@ -30,9 +30,9 @@
 #include <epan/packet.h>
 #include <epan/ipproto.h>
 #include <epan/ppptypes.h>
+#include <epan/tfs.h>
+#include <wsutil/array.h>
 #include <wsutil/str_util.h>
-#include "packet-ip.h"
-#include "packet-ppp.h"
 
 /* Shorthand macros for reading/writing 16/32 bit values from
  * possibly-unaligned indexes into a uint8_t[]

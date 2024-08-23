@@ -16,6 +16,9 @@
 #include <epan/prefs.h>
 #include <epan/expert.h>
 #include <epan/unit_strings.h>
+#include <epan/tfs.h>
+#include <wsutil/array.h>
+
 #include <ftypes/ftypes.h>
 #include <proto.h>
 #include <stdint.h>

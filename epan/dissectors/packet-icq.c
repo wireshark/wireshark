@@ -20,6 +20,8 @@
 #include <epan/packet.h>
 #include <epan/to_str.h>
 #include <epan/expert.h>
+#include <epan/tfs.h>
+#include <wsutil/array.h>
 
 void proto_register_icq(void);
 void proto_reg_handoff_icq(void);

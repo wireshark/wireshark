@@ -18,6 +18,8 @@
 #include <epan/prefs.h>
 #include <epan/proto_data.h>
 #include <epan/show_exception.h>
+#include <epan/tfs.h>
+#include <wsutil/array.h>
 
 #include <wiretap/wtap.h>
 

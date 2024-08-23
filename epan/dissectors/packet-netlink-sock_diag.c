@@ -14,6 +14,8 @@
 #include <epan/etypes.h>
 #include <epan/ipproto.h>
 #include <epan/strutil.h>
+#include <epan/tfs.h>
+#include <wsutil/array.h>
 #include "packet-netlink.h"
 
 void proto_register_netlink_sock_diag(void);

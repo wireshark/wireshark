@@ -42,11 +42,12 @@
 #include <glib.h>
 #include <epan/epan.h>
 
+#include <epan/tfs.h>
+#include <wsutil/array.h>
 #include <wsutil/cmdarg_err.h>
 #include <wsutil/filesystem.h>
 #include <wsutil/file_util.h>
 #include <wsutil/socket.h>
-#include <wsutil/plugins.h>
 #include <wsutil/privileges.h>
 #include <wsutil/report_message.h>
 #include <wsutil/please_report_bug.h>

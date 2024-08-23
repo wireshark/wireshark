@@ -14,7 +14,8 @@
 #include "config.h"
 
 #include <epan/packet.h>
-#include <epan/to_str.h>
+#include <epan/tfs.h>
+#include <wsutil/array.h>
 
 #include "packet-zbee.h"
 #include "packet-zbee-aps.h"

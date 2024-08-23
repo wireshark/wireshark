@@ -12,7 +12,9 @@
 #include <config.h>
 #include <epan/packet.h>
 #include <epan/conversation.h>
+#include <epan/tfs.h>
 #include <wiretap/wtap.h>
+#include <wsutil/array.h>
 
 #include "packet-ieee802154.h"
 #include "packet-zbncp.h"

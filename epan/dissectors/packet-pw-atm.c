@@ -27,7 +27,9 @@
 #include <epan/packet.h>
 #include <epan/expert.h>
 #include <epan/prefs.h>
+#include <epan/tfs.h>
 
+#include <wsutil/array.h>
 #include <wsutil/str_util.h>
 
 #include <wiretap/wtap.h> /*for atm pseudo header*/

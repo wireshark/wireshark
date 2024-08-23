@@ -25,6 +25,7 @@
 #include <epan/stat_tap_ui.h>
 #include <epan/srt_table.h>
 #include <epan/show_exception.h>
+#include <epan/tfs.h>
 #include <wsutil/array.h>
 
 #include "packet-rpc.h"

@@ -55,6 +55,8 @@
 #include <epan/expert.h>
 #include <epan/to_str.h>
 #include <epan/crc32-tvb.h>
+#include <epan/tfs.h>
+#include <wsutil/array.h>
 #include <wsutil/ws_roundup.h>
 #include "packet-tcp.h"
 

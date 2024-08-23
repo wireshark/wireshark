@@ -23,6 +23,8 @@
 #include <epan/strutil.h>
 #include <epan/conversation.h>
 #include <epan/xdlc.h>
+#include <epan/tfs.h>
+#include <wsutil/array.h>
 #include <wiretap/wtap.h>
 
 #include <epan/dissectors/packet-sll.h>
