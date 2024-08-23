@@ -2339,8 +2339,19 @@ dissecting_body:
 			 * We don't have a subdissector or we have one and it did not
 			 * dissect the payload - try the heuristic subdissectors.
 			 */
+			uint16_t save_can_desegment = pinfo->can_desegment;
+			if (!(is_request_or_reply || streaming_chunk_mode)) {
+				/* If this isn't a request or reply, and we're not
+				 * in streaming chunk mode, then we didn't try to
+				 * desegment the body. (We think this is file data
+				 * in the middle of a connection.) Allow the heuristic
+				 * dissectors to desegment, if possible.
+				 */
+				pinfo->can_desegment = pinfo->saved_can_desegment;
+			}
 			dissected = dissector_try_heuristic(heur_subdissector_list,
 							    next_tvb, pinfo, tree, &hdtbl_entry, content_info);
+			pinfo->can_desegment = save_can_desegment;
 		}
 
 		if (dissected) {

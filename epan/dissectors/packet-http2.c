@@ -1201,6 +1201,7 @@ static reassembly_table http2_streaming_reassembly_table;
 
 #define FRAME_HEADER_LENGTH     9
 #define MAGIC_FRAME_LENGTH      24
+#define MAGIC_FRAME_FIRST_LINE  16
 #define MASK_HTTP2_RESERVED     0x80000000
 #define MASK_HTTP2_STREAMID     0X7FFFFFFF
 #define MASK_HTTP2_PRIORITY     0X7FFFFFFF
@@ -4175,8 +4176,13 @@ dissect_http2_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 static unsigned get_http2_message_len(packet_info *pinfo _U_, tvbuff_t *tvb,
                                    int offset, void *data _U_)
 {
-        if ( tvb_memeql( tvb, offset, kMagicHello, MAGIC_FRAME_LENGTH ) == 0 ) {
-                return MAGIC_FRAME_LENGTH;
+        if ( tvb_memeql( tvb, offset, kMagicHello, FRAME_HEADER_LENGTH ) == 0 ) {
+            /* We're only guaranteed to have FRAME_HEADER_LENGTH here, but if
+             * those bytes match it's not a legal ordinary frame so it's
+             * sufficient. If we're here, we've already decided this is HTTP/2
+             * via heuristics or setting HTTP/2 to the port.
+             */
+            return MAGIC_FRAME_LENGTH;
         }
 
         return (unsigned)tvb_get_ntoh24(tvb, offset) + FRAME_HEADER_LENGTH;
@@ -4220,6 +4226,48 @@ dissect_http2_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
 
     /* Remember http2 conversation. */
     get_http2_session(pinfo, conversation);
+    dissect_http2(tvb, pinfo, tree, data);
+
+    return true;
+}
+
+static bool
+dissect_http2_heur_http(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+{
+    conversation_t *conversation;
+    http2_session_t *session;
+
+    conversation = find_or_create_conversation(pinfo);
+    session = (http2_session_t *)conversation_get_proto_data(conversation,
+                                                             proto_http2);
+    /* A http2 conversation was previously started, assume it is still active */
+    if (session) {
+      dissect_http2(tvb, pinfo, tree, data);
+      return true;
+    }
+
+    /* The HTTP dissector should hand us at least one line, but possibly only
+     * the first (if the TCP segment length is absurdly small.) 16 bytes is
+     * still enough to call this HTTP/2.
+     */
+    if (tvb_memeql(tvb, 0, kMagicHello, MAGIC_FRAME_FIRST_LINE) != 0) {
+        /* we couldn't find the Magic Hello (PRI * HTTP/2.0\r\n\r\nSM\r\n\r\n). */
+        return false;
+    }
+
+    /* Remember http2 conversation. */
+    get_http2_session(pinfo, conversation);
+
+    /* XXX - Ideally we'd set the conversation dissector so that TCP calls
+     * HTTP/2 directly instead of HTTP. (Note we don't call this path for
+     * upgraded connections, which still go through the HTTP dissector.)
+     * That would change pinfo->curr_layer_num for this first packet on the
+     * second pass, though, so we'd want to make sure we're using
+     * curr_proto_layer_num or similar to avoid that being an issue,
+     * e.g. on reassembly of HEADERS or DATA sent along with this frame.
+     * So for now we have the HTTP dissector call the HTTP/2 dissector.
+     */
+    //conversation_set_dissector_from_frame_number(conversation, pinfo->num, http2_handle);
     dissect_http2(tvb, pinfo, tree, data);
 
     return true;
@@ -4971,7 +5019,7 @@ proto_reg_handoff_http2(void)
 
     heur_dissector_add("tls", dissect_http2_heur_ssl, "HTTP2 over TLS", "http2_tls", proto_http2, HEURISTIC_ENABLE);
     heur_dissector_add("tcp", dissect_http2_heur, "HTTP2 over TCP", "http2_tcp", proto_http2, HEURISTIC_ENABLE);
-    heur_dissector_add("http", dissect_http2_heur, "HTTP2 on an HTTP port", "http2_http", proto_http2, HEURISTIC_ENABLE);
+    heur_dissector_add("http", dissect_http2_heur_http, "HTTP2 on an HTTP port", "http2_http", proto_http2, HEURISTIC_ENABLE);
 
     stats_tree_register("http2", "http2", "HTTP2", 0, http2_stats_tree_packet, http2_stats_tree_init, NULL);
 
