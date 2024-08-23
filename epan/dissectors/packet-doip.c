@@ -24,6 +24,7 @@
 #include <epan/packet.h>
 #include <epan/uat.h>
 #include <epan/expert.h>
+#include <epan/proto_data.h>
 
 #include "packet-tcp.h"
 #include "packet-tls.h"
@@ -195,18 +196,18 @@ static const value_string doip_payloads[] = {
     { DOIP_VEHICLE_IDENTIFICATION_REQ,      "Vehicle identification request" },
     { DOIP_VEHICLE_IDENTIFICATION_REQ_EID,  "Vehicle identification request with EID" },
     { DOIP_VEHICLE_IDENTIFICATION_REQ_VIN,  "Vehicle identification request with VIN" },
-    { DOIP_VEHICLE_ANNOUNCEMENT_MESSAGE,     "Vehicle announcement message/vehicle identification response message" },
-    { DOIP_ROUTING_ACTIVATION_REQUEST, "Routing activation request" },
-    { DOIP_ROUTING_ACTIVATION_RESPONSE, "Routing activation response" },
-    { DOIP_ALIVE_CHECK_REQUEST, "Alive check request" },
-    { DOIP_ALIVE_CHECK_RESPONSE, "Alive check response" },
-    { DOIP_ENTITY_STATUS_REQUEST, "DoIP entity status request" },
-    { DOIP_ENTITY_STATUS_RESPONSE, "DoIP entity status response" },
-    { DOIP_POWER_INFORMATION_REQUEST, "Diagnostic power mode information request" },
-    { DOIP_POWER_INFORMATION_RESPONSE, "Diagnostic power mode information response" },
-    { DOIP_DIAGNOSTIC_MESSAGE, "Diagnostic message" },
-    { DOIP_DIAGNOSTIC_MESSAGE_ACK, "Diagnostic message ACK" },
-    { DOIP_DIAGNOSTIC_MESSAGE_NACK, "Diagnostic message NACK" },
+    { DOIP_VEHICLE_ANNOUNCEMENT_MESSAGE,    "Vehicle announcement message/vehicle identification response message" },
+    { DOIP_ROUTING_ACTIVATION_REQUEST,      "Routing activation request" },
+    { DOIP_ROUTING_ACTIVATION_RESPONSE,     "Routing activation response" },
+    { DOIP_ALIVE_CHECK_REQUEST,             "Alive check request" },
+    { DOIP_ALIVE_CHECK_RESPONSE,            "Alive check response" },
+    { DOIP_ENTITY_STATUS_REQUEST,           "DoIP entity status request" },
+    { DOIP_ENTITY_STATUS_RESPONSE,          "DoIP entity status response" },
+    { DOIP_POWER_INFORMATION_REQUEST,       "Diagnostic power mode information request" },
+    { DOIP_POWER_INFORMATION_RESPONSE,      "Diagnostic power mode information response" },
+    { DOIP_DIAGNOSTIC_MESSAGE,              "Diagnostic message" },
+    { DOIP_DIAGNOSTIC_MESSAGE_ACK,          "Diagnostic message ACK" },
+    { DOIP_DIAGNOSTIC_MESSAGE_NACK,         "Diagnostic message NACK" },
     { 0, NULL }
 };
 
@@ -799,9 +800,23 @@ dissect_doip_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     uint8_t version = tvb_get_uint8(tvb, DOIP_VERSION_OFFSET);
     uint16_t payload_type = tvb_get_ntohs(tvb, DOIP_TYPE_OFFSET);
 
+    int raw_offset_tvb = tvb_raw_offset(tvb);
+    int *first_offset  = (int *)p_get_proto_data(wmem_file_scope(), pinfo, proto_doip, 0);
+
+    if (!first_offset) {
+        first_offset = wmem_new0(wmem_file_scope(), int);
+        *first_offset = raw_offset_tvb;
+        p_add_proto_data(wmem_file_scope(), pinfo, proto_doip, 0, first_offset);
+    }
+
     /* Set protocol and clear information columns */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "DoIP");
-    col_clear(pinfo->cinfo, COL_INFO);
+
+    if (*first_offset == raw_offset_tvb) {
+        col_clear(pinfo->cinfo, COL_INFO);
+    } else {
+        col_append_str(pinfo->cinfo, COL_INFO, " / ");
+    }
 
     if (
         version == ISO13400_2010 ||
@@ -810,9 +825,9 @@ dissect_doip_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         version == ISO13400_2019_AMD1 ||
         (version == DEFAULT_VALUE && (payload_type >= DOIP_VEHICLE_IDENTIFICATION_REQ && payload_type <= DOIP_VEHICLE_IDENTIFICATION_REQ_VIN))
         ) {
-        col_add_str(pinfo->cinfo, COL_INFO, resolve_doip_payload_type(pinfo->pool, payload_type, true));
+        col_append_str(pinfo->cinfo, COL_INFO, resolve_doip_payload_type(pinfo->pool, payload_type, true));
     } else {
-        col_set_str(pinfo->cinfo, COL_INFO, "Invalid/unsupported DoIP version");
+        col_append_str(pinfo->cinfo, COL_INFO, "Invalid/unsupported DoIP version");
     }
 
 
@@ -924,7 +939,7 @@ get_doip_message_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *p 
 
 
 static int
-dissect_doip_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
+dissect_doip_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     dissect_doip_message(tvb, pinfo, tree);
     return tvb_captured_length(tvb);
@@ -932,7 +947,7 @@ dissect_doip_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
 
 
 static int
-dissect_doip(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_, void* data)
+dissect_doip(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_, void *data)
 {
     tcp_dissect_pdus(tvb, pinfo, tree, true, DOIP_HEADER_LEN, get_doip_message_len, dissect_doip_pdu, data);
     return tvb_captured_length(tvb);
@@ -1331,7 +1346,7 @@ proto_reg_handoff_doip(void)
     dissector_add_uint("udp.port", DOIP_PORT, doip_handle);
     dissector_add_uint("tcp.port", DOIP_PORT, doip_handle);
 
-    ssl_dissector_add( DOIP_TLS_PORT, doip_handle);
+    ssl_dissector_add(DOIP_TLS_PORT, doip_handle);
 
     uds_handle = find_dissector("uds_over_doip");
 }
