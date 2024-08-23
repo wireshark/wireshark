@@ -701,51 +701,17 @@ else() # ! MSVC
 		-Wlogical-op		# GCC-only
 
 		# Run-time protections mechanisms
-		-U_FORTIFY_SOURCE	# Run-time buffer overflow detection. For dist like Ubuntu, U_FORTIFY_SOURCE must be input before D_FORTIFY_SOURCE
-		if((CMAKE_C_COMPILER_ID STREQUAL "GNU" AND CMAKE_C_COMPILER_VERSION VERSION_GREATER_EQUAL "13.0") OR
-		   (CMAKE_C_COMPILER_ID STREQUAL "Clang" AND CMAKE_C_COMPILER_VERSION VERSION_GREATER_EQUAL "16.0"))
-			-fstrict-flex-arrays=3			# Consider a trailing array in a struct as a flexible array if declared as []
-		endif()
-		if((CMAKE_C_COMPILER_ID STREQUAL "GNU" AND CMAKE_C_COMPILER_VERSION VERSION_GREATER_EQUAL "12.0") OR
-		   (CMAKE_C_COMPILER_ID STREQUAL "Clang" AND CMAKE_C_COMPILER_VERSION VERSION_GREATER_EQUAL "9.0"))
-		   -D_FORTIFY_SOURCE=3				# Fortify sources with compile- and run-time checks for unsafe libc usage and buffer overflows. Requires -O1 or higher
-		endif()
-		if((CMAKE_C_COMPILER_ID STREQUAL "GNU" AND CMAKE_C_COMPILER_VERSION VERSION_GREATER_EQUAL "8.0") OR
-		   (CMAKE_C_COMPILER_ID STREQUAL "Clang" AND CMAKE_C_COMPILER_VERSION VERSION_GREATER_EQUAL "11.0"))
-			-fstack-clash-protection		# Increased reliability of stack overflow detection
-		endif()
-		if(WIRESHARK_TARGET_PLATFORM MATCHES "x64")
-			if((CMAKE_C_COMPILER_ID STREQUAL "GNU" AND CMAKE_C_COMPILER_VERSION VERSION_GREATER_EQUAL "8.0") OR
-			  (CMAKE_C_COMPILER_ID STREQUAL "Clang" AND CMAKE_C_COMPILER_VERSION VERSION_GREATER_EQUAL "11.0"))
-				-fcf-protection=full		# Enable control flow protection to counter Return Oriented Programming (ROP) and Jump Oriented Programming (JOP) attacks on many x86 architectures
-			endif()
-		endif()
-		if(WIRESHARK_TARGET_PLATFORM MATCHES "arm64")
-			if((CMAKE_C_COMPILER_ID STREQUAL "GNU" AND CMAKE_C_COMPILER_VERSION VERSION_GREATER_EQUAL "9.0") OR
-			   (CMAKE_C_COMPILER_ID STREQUAL "Clang" AND CMAKE_C_COMPILER_VERSION VERSION_GREATER_EQUAL "8.0"))
-				-mbranch-protection=standard	# Enable branch protection to counter Return Oriented Programming (ROP) and Jump Oriented Programming (JOP) attacks on AArch64
-			endif()
-		endif()
+		-fstrict-flex-arrays=3			# Consider a trailing array in a struct as a flexible array if declared as []
+		-fstack-clash-protection		# Increased reliability of stack overflow detection
+		-fcf-protection=full		# Enable control flow protection to counter Return Oriented Programming (ROP) and Jump Oriented Programming (JOP) attacks on many x86 architectures
+		-mbranch-protection=standard	# Enable branch protection to counter Return Oriented Programming (ROP) and Jump Oriented Programming (JOP) attacks on AArch64
 		-D_GLIBCXX_ASSERTIONS				# Precondition checks for C++ standard library calls. Can impact performance.
 		-fstack-protector-strong			# Stack smashing protector
 		-fno-delete-null-pointer-checks		# Force retention of null pointer checks
 		-fno-strict-overflow				# Integer overflow may occur
 		-fno-strict-aliasing				# Do not assume strict aliasing
-		if((CMAKE_C_COMPILER_ID STREQUAL "GNU" AND CMAKE_C_COMPILER_VERSION VERSION_GREATER_EQUAL "12.0") OR
-		   (CMAKE_C_COMPILER_ID STREQUAL "Clang" AND CMAKE_C_COMPILER_VERSION VERSION_GREATER_EQUAL "8.0"))
-		   -ftrivial-auto-var-init			# Perform trivial auto variable initialization
-		endif()
+		-ftrivial-auto-var-init			# Perform trivial auto variable initialization
 		-fexceptions						# Enable exception propagation to harden multi-threaded C code
-		# TODO improve cross-compile handled flags
-		#if(CMAKE_C_COMPILER_ID STREQUAL "GNU" AND CMAKE_C_COMPILER_VERSION VERSION_GREATER_EQUAL "14.0")
-		#		if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
-		#		check_c_compiler_flag(-fhardened C__FHARDENED_VALID)
-		#		check_cxx_compiler_flag(-fhardened CXX__FHARDENED_VALID)
-		#		if (C__FHARDENED_VALID AND CXX__FHARDENED_VALID)
-		#			-fhardened					# Enable pre-determined set of hardening options in GCC. Currently, -fhardened is only supported on GNU/Linux targets
-		#		endif()
-		#	endif()
-		#endif()
 
 		#
 		# Disable errors unconditionally for some static analysis warnings
@@ -771,6 +737,27 @@ else() # ! MSVC
 		#
 		#-Wno-error=deprecated-declarations
 	)
+
+	if(NOT CMAKE_BUILD_TYPE STREQUAL "Debug")
+		# _FORTIFY_SOURCE requires -O1 or higher, and the Debug
+		# build type has no optimization
+		list(APPEND WIRESHARK_COMMON_FLAGS
+		# and the Debug build type is without optimization
+		-U_FORTIFY_SOURCE	# Run-time buffer overflow detection. For dist like Ubuntu, U_FORTIFY_SOURCE must be input before D_FORTIFY_SOURCE
+		-D_FORTIFY_SOURCE=3				# Fortify sources with compile- and run-time checks for unsafe libc usage and buffer overflows. Requires -O1 or higher
+		)
+	endif()
+
+	# test_compiler_flag doesn't seem to test that a flag is supported on
+	# a cross-compiled target, only for the native architecture. (Thus
+	# conversely it does work to verify that -mbranch-protection=standard
+	# doesn't work on x64 when compiling natively.)
+	# TODO: Check that this approach works.
+	#if(NOT CMAKE_CROSSCOMPILING)
+	#	list(APPEND WIRESHARK_COMMON_FLAGS
+	#	-fhardened					# Enable pre-determined set of hardening options in GCC. Currently, -fhardened is only supported on GNU/Linux targets
+	#	)
+	#endif()
 
 	if((NOT ENABLE_ASAN) AND (NOT ENABLE_TSAN) AND (NOT ENABLE_UBSAN) AND (NOT DISABLE_FRAME_LARGER_THAN_WARNING))
 		#
