@@ -19,6 +19,7 @@
 
 #include <config.h>
 #include <epan/packet.h>
+#include <packet-tcp.h>
 
 void proto_reg_handoff_trdp(void);
 void proto_register_trdp(void);
@@ -193,6 +194,26 @@ static int dissect_trdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
     return tvb_captured_length(tvb);
 }
 
+static unsigned get_trdp_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset _U_, void *data _U_)
+{
+    uint32_t plen;
+
+    plen = tvb_get_uint32(tvb, 20, ENC_BIG_ENDIAN);
+
+    return TRDP_MD_HEADER_LEN + plen;
+}
+
+static int dissect_trdp_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+{
+    /* Only Message Data over TCP */
+    if (!tvb_bytes_exist(tvb, 0, TRDP_MD_HEADER_LEN))
+        return 0;
+
+    tcp_dissect_pdus(tvb, pinfo, tree, true, TRDP_MD_HEADER_LEN,
+                     get_trdp_pdu_len, dissect_trdp, data);
+    return tvb_reported_length(tvb);
+}
+
 void proto_register_trdp(void)
 {
     static hf_register_info hf[] = {
@@ -270,11 +291,13 @@ void proto_register_trdp(void)
 
 void proto_reg_handoff_trdp(void)
 {
-    static dissector_handle_t trdp_handle;
+    static dissector_handle_t trdp_handle, trdp_tcp_handle;
 
     trdp_handle = create_dissector_handle(dissect_trdp, proto_trdp);
+    trdp_tcp_handle = create_dissector_handle(dissect_trdp_tcp, proto_trdp);
     dissector_add_uint("udp.port", TRDP_PD_UDP_PORT, trdp_handle);
     dissector_add_uint("udp.port", TRDP_MD_TCP_UDP_PORT, trdp_handle);
+    dissector_add_uint("tcp.port", TRDP_MD_TCP_UDP_PORT, trdp_tcp_handle);
 
     data_handle = find_dissector_add_dependency("data", proto_trdp);
 }
