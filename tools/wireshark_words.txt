@@ -1255,6 +1255,7 @@ ldflags
 leasequery
 legitimisation
 lempar
+lenbrook
 level1login
 lexer
 lexpos
