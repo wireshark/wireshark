@@ -469,6 +469,10 @@ static int hf_dhcp_option82_vi;					/* 82:9 */
 									/* 82:9 suboptions */
 static int hf_dhcp_option82_vi_enterprise;
 static int hf_dhcp_option82_vi_data_length;
+static int hf_dhcp_option82_vi_cl_option;
+static int hf_dhcp_option82_vi_cl_option_length;
+static int hf_dhcp_option82_vi_cl_tag;
+static int hf_dhcp_option82_vi_cl_tag_length;
 static int hf_dhcp_option82_vi_cl_docsis_version;			/* 82:9:4491:1 */
 static int hf_dhcp_option82_vi_cl_dpoe_system_version;		/* 82:9:4491:2 */
 static int hf_dhcp_option82_vi_cl_dpoe_system_pbb_service;		/* 82:9:4491:4 */
@@ -3470,6 +3474,16 @@ static const value_string option82_suboption_vals[] = {
 #define CL_AI_OPTION_CMTS_MSO_DEFINED_TEXT		6	/* 82:9:4491:6 */
 #define	CL_AI_OPTION_SECURE_FILE_TRANSFER_URI		7	/* 82:9:4491:7 */
 
+static const value_string option82_cl_tag_vals[] = {
+	{ CL_AI_OPTION_DOCSIS_VERSION, "CMTS DOCSIS version number" },
+	{ CL_AI_OPTION_DPOE_SYSTEM_VERSION, "DPOE System version number" },
+	{ CL_AI_OPTION_DPOE_SYSTEM_DHCPV4_PBB_SERVICE, "DPOE System DHCPv4 PBB service option" },
+	{ CL_AI_OPTION_CMTS_CM_SERVICE_CLASS, "Service Class or QoS Profile Name" },
+	{ CL_AI_OPTION_CMTS_MSO_DEFINED_TEXT, "MSO Defined Text" },
+	{ CL_AI_OPTION_SECURE_FILE_TRANSFER_URI, "Secure File Transfer URI" },
+	{ 0, NULL }
+};
+
 static int
 dhcp_dhcp_decode_agent_info(packet_info *pinfo, proto_item *v_ti, proto_tree *v_tree, tvbuff_t *tvb, int optoff,
 			     int optend)
@@ -3575,13 +3589,30 @@ dhcp_dhcp_decode_agent_info(packet_info *pinfo, proto_item *v_ti, proto_tree *v_
 					suboptoff++;
 
 					switch (enterprise) {
-					case VENDOR_CABLELABS: /* CableLab */
+					case VENDOR_CABLELABS: /* CableLabs */
+						/* Compare CL-SP-CANN-DHCP-Reg-I06-110210 (2011) and
+						 * CL-SP-CANN-DHCP-Reg-I13-160317 (2016) */
 						clsuboptoff = suboptoff;
 						clsubopt_end = clsuboptoff + datalen;
 						while (clsuboptoff < clsubopt_end) {
 							vs_opt = tvb_get_uint8(tvb, clsuboptoff);
 							vs_len = tvb_get_uint8(tvb, clsuboptoff+1);
-							clsuboptoff += 2;
+							if (vs_opt == CL_AI_OPTION_DOCSIS_VERSION &&
+								vs_len == 4) {
+
+								/* Superseded version with a redundant option code and option-length */
+								proto_tree_add_item(o82_sub_tree, hf_dhcp_option82_vi_cl_option, tvb, clsuboptoff, 1, ENC_BIG_ENDIAN);
+								clsuboptoff++;
+								proto_tree_add_item(o82_sub_tree, hf_dhcp_option82_vi_cl_option_length, tvb, clsuboptoff, 1, ENC_BIG_ENDIAN);
+								clsuboptoff++;
+
+								vs_opt = tvb_get_uint8(tvb, clsuboptoff);
+								vs_len = tvb_get_uint8(tvb, clsuboptoff+1);
+							}
+							proto_tree_add_item(o82_sub_tree, hf_dhcp_option82_vi_cl_tag, tvb, clsuboptoff, 1, ENC_BIG_ENDIAN);
+							clsuboptoff++;
+							proto_tree_add_item(o82_sub_tree, hf_dhcp_option82_vi_cl_tag_length, tvb, clsuboptoff, 1, ENC_BIG_ENDIAN);
+							clsuboptoff++;
 							switch (vs_opt) {
 							case CL_AI_OPTION_DOCSIS_VERSION:
 								proto_tree_add_uint_format_value(o82_sub_tree, hf_dhcp_option82_vi_cl_docsis_version,
@@ -9254,6 +9285,26 @@ proto_register_dhcp(void)
 		  { "Data Length", "dhcp.option.agent_information_option.vi.data_length",
 		    FT_UINT8, BASE_DEC, NULL, 0x0,
 		    "Option 82:9 VI Data Length", HFILL }},
+
+		{ &hf_dhcp_option82_vi_cl_option,
+		  { "Option", "dhcp.option.agent_information_option.vi.cl.option",
+		    FT_UINT8, BASE_DEC, NULL, 0x0,
+		    "Option 82:9 VI CL Option", HFILL }},
+
+		{ &hf_dhcp_option82_vi_cl_option_length,
+		  { "Option Length", "dhcp.option.agent_information_option.vi.cl.option_length",
+		    FT_UINT8, BASE_DEC, NULL, 0x0,
+		    "Option 82:9 VI CL Option Length", HFILL }},
+
+		{ &hf_dhcp_option82_vi_cl_tag,
+		  { "Tag", "dhcp.option.agent_information_option.vi.cl.tag",
+		    FT_UINT8, BASE_DEC, VALS(option82_cl_tag_vals), 0x0,
+		    "Option 82:9 VI CL Tag", HFILL }},
+
+		{ &hf_dhcp_option82_vi_cl_tag_length,
+		  { "Tag Length", "dhcp.option.agent_information_option.vi.cl.tag_length",
+		    FT_UINT8, BASE_DEC, NULL, 0x0,
+		    "Option 82:9 VI CL Tag Length", HFILL }},
 
 		{ &hf_dhcp_option82_vi_cl_docsis_version,
 		  { "DOCSIS Version Number", "dhcp.option.agent_information_option.vi.cl.docsis_version",
