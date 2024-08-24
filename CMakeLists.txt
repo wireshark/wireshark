@@ -733,11 +733,17 @@ else() # ! MSVC
 		#-Wno-error=deprecated-declarations
 	)
 
+	if (CMAKE_C_COMPILER_ID MATCHES "Clang")
+		# Avoid "argument unused during compilation" warnings for
+		# -fstack-clash-protection and -mbranch-protection=standard
+		list(APPEND WIRESHARK_COMMON_FLAGS -Qunused-arguments)
+	endif()
+
 	if(NOT CMAKE_BUILD_TYPE STREQUAL "Debug")
 		# _FORTIFY_SOURCE requires -O1 or higher, and the Debug
 		# build type has no optimization
 		if((CMAKE_C_COMPILER_ID STREQUAL "GNU" AND CMAKE_C_COMPILER_VERSION VERSION_GREATER_EQUAL "12.0") OR
-		   (CMAKE_C_COMPILER_ID STREQUAL "Clang" AND CMAKE_C_COMPILER_VERSION VERSION_GREATER_EQUAL "9.0"))
+		   (CMAKE_C_COMPILER_ID MATCHES "Clang" AND CMAKE_C_COMPILER_VERSION VERSION_GREATER_EQUAL "9.0"))
 			# On some gcc < 12.0, test_compiler_flag will report that
 			# -D_FORTIFY_SOURCE=3 is valid, but actually trying to compile
 			# with it will give a warning that it has the same effect as
