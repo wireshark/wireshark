@@ -177,7 +177,7 @@ dissect_pdu_transport(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
     uint32_t            pdu_id = 0;
     const char         *descr;
 
-    if (p_get_proto_data(pinfo->pool, pinfo, proto_pdu_transport, pinfo->curr_layer_num) != NULL) {
+    if (p_get_proto_data(pinfo->pool, pinfo, proto_pdu_transport, pinfo->curr_proto_layer_num) != NULL) {
         col_append_str(pinfo->cinfo, COL_INFO, ", ");
         col_set_fence(pinfo->cinfo, COL_INFO);
     }
@@ -221,7 +221,7 @@ dissect_pdu_transport(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
         col_append_fstr(pinfo->cinfo, COL_INFO, " (ID: 0x%x)", pdu_id);
     }
 
-    p_add_proto_data(pinfo->pool, pinfo, proto_pdu_transport, pinfo->curr_layer_num, GUINT_TO_POINTER(pdu_id));
+    p_add_proto_data(pinfo->pool, pinfo, proto_pdu_transport, pinfo->curr_proto_layer_num, GUINT_TO_POINTER(pdu_id));
 
     tmp = tvb_captured_length_remaining(tvb, offset);
     if ((int)length <= tmp) {
@@ -264,13 +264,13 @@ dissect_pdu_transport_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
 static void
 pdu_transport_id_prompt(packet_info *pinfo, char *result) {
     snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "PDU Transport ID 0x%08x as",
-             GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_pdu_transport, pinfo->curr_layer_num)));
+             GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_pdu_transport, pinfo->curr_proto_layer_num)));
 }
 
 static void *
 pdu_transport_id_value(packet_info *pinfo) {
     /* Limitation: This only returns the last proto_data, since udp_dissect_pdus gives us the same layer for all. */
-    return p_get_proto_data(pinfo->pool, pinfo, proto_pdu_transport, pinfo->curr_layer_num);
+    return p_get_proto_data(pinfo->pool, pinfo, proto_pdu_transport, pinfo->curr_proto_layer_num);
 }
 
 void
