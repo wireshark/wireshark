@@ -443,6 +443,10 @@ WSLUA_METHOD TreeItem_add_packet_field(lua_State *L) {
     WSLUA_RETURN(3); /* The new child <<lua_class_TreeItem,`TreeItem`>>, the field's extracted value or nil, and offset or nil. */
 }
 
+/* The following is used by TreeItem_add() and TreeItem_le() and can THROW.
+ * It should be called inside a TRY (e.g. WRAP_NON_LUA_EXCEPTIONS) block and
+ * THROW_LUA_ERROR should be used insteadof lua[L]_error.
+ */
 static int TreeItem_add_item_any(lua_State *L, bool little_endian) {
     TvbRange tvbr;
     Proto proto;
@@ -454,10 +458,10 @@ static int TreeItem_add_item_any(lua_State *L, bool little_endian) {
     proto_item* item = NULL;
 
     if (!tree_item) {
-        return luaL_error(L,"not a TreeItem!");
+        THROW_LUA_ERROR("not a TreeItem!");
     }
     if (tree_item->expired) {
-        luaL_error(L,"expired TreeItem");
+        THROW_LUA_ERROR("expired TreeItem");
         return 0;
     }
 
@@ -467,7 +471,7 @@ static int TreeItem_add_item_any(lua_State *L, bool little_endian) {
             type = FT_PROTOCOL;
             ett = proto->ett;
         } else if (lua_isnil(L, 1)) {
-            return luaL_error(L, "first argument to TreeItem:add is nil!");
+            THROW_LUA_ERROR("first argument to TreeItem:add is nil!");
         }
     } else {
         hfid = field->hfid;
@@ -490,7 +494,7 @@ static int TreeItem_add_item_any(lua_State *L, bool little_endian) {
 
         if (type == FT_STRINGZ) {
             if (tvb_find_uint8 (tvbr->tvb->ws_tvb, tvbr->offset, -1, 0) == -1) {
-                luaL_error(L,"out of bounds");
+                THROW_LUA_ERROR("out of bounds");
                 return 0;
             }
             tvbr->len = tvb_strsize (tvbr->tvb->ws_tvb, tvbr->offset);
@@ -564,7 +568,7 @@ static int TreeItem_add_item_any(lua_State *L, bool little_endian) {
                         uint32_t addr_value;
 
                         if (addr->type != AT_IPv4) {
-                            luaL_error(L, "Expected IPv4 address for FT_IPv4 field");
+                            THROW_LUA_ERROR("Expected IPv4 address for FT_IPv4 field");
                             return 0;
                         }
 
@@ -581,7 +585,7 @@ static int TreeItem_add_item_any(lua_State *L, bool little_endian) {
                     {
                         Address addr = checkAddress(L,1);
                         if (addr->type != AT_IPv6) {
-                            luaL_error(L, "Expected IPv6 address for FT_IPv6 field");
+                            THROW_LUA_ERROR("Expected IPv6 address for FT_IPv6 field");
                             return 0;
                         }
 
@@ -592,7 +596,7 @@ static int TreeItem_add_item_any(lua_State *L, bool little_endian) {
                     {
                         Address addr = checkAddress(L,1);
                         if (addr->type != AT_ETHER) {
-                            luaL_error(L, "Expected MAC address for FT_ETHER field");
+                            THROW_LUA_ERROR("Expected MAC address for FT_ETHER field");
                             return 0;
                         }
 
@@ -608,7 +612,7 @@ static int TreeItem_add_item_any(lua_State *L, bool little_endian) {
                 case FT_VINES:
                 case FT_FCWWN:
                 default:
-                    luaL_error(L,"FT_ not yet supported");
+                    THROW_LUA_ERROR("%s not yet supported", ftype_name(type));
                     return 0;
             }
 
@@ -616,7 +620,7 @@ static int TreeItem_add_item_any(lua_State *L, bool little_endian) {
 
         } else {
             if (type == FT_FRAMENUM) {
-                luaL_error(L, "ProtoField FRAMENUM cannot fetch value from Tvb");
+                THROW_LUA_ERROR("ProtoField FRAMENUM cannot fetch value from Tvb");
                 return 0;
             }
             /* the Lua stack is empty - no value was given - so decode the value from the tvb */
@@ -640,11 +644,11 @@ static int TreeItem_add_item_any(lua_State *L, bool little_endian) {
                 item = proto_tree_add_item(tree_item->tree, hf, tvbr->tvb->ws_tvb, tvbr->offset, tvbr->len, ENC_NA);
                 proto_item_set_text(item, "%s", s);
             } else {
-                luaL_error(L,"Internal error: hf_wslua_text not registered");
+                THROW_LUA_ERROR("Internal error: hf_wslua_text not registered");
             }
             lua_remove(L,1);
         } else {
-            luaL_error(L,"Tree item ProtoField/Protocol handle is invalid (ProtoField/Proto not registered?)");
+            THROW_LUA_ERROR("Tree item ProtoField/Protocol handle is invalid (ProtoField/Proto not registered?)");
         }
     }
 
@@ -726,7 +730,12 @@ WSLUA_METHOD TreeItem_add(lua_State *L) {
 #define WSLUA_OPTARG_TreeItem_add_TVBRANGE 3 /* The <<lua_class_TvbRange,`TvbRange`>> of bytes in the packet this tree item covers/represents. */
 #define WSLUA_OPTARG_TreeItem_add_VALUE 4 /* The field's value, instead of the ProtoField/Proto one. */
 #define WSLUA_OPTARG_TreeItem_add_LABEL 5 /* One or more strings to use for the tree item label, instead of the ProtoField/Proto one. */
-    WSLUA_RETURN(TreeItem_add_item_any(L,false)); /* The new child TreeItem. */
+
+    volatile int ret;
+    WRAP_NON_LUA_EXCEPTIONS(
+        ret = TreeItem_add_item_any(L,false);
+    )
+    WSLUA_RETURN(ret); /* The new child TreeItem. */
 }
 
 WSLUA_METHOD TreeItem_add_le(lua_State *L) {
@@ -745,7 +754,11 @@ WSLUA_METHOD TreeItem_add_le(lua_State *L) {
 #define WSLUA_OPTARG_TreeItem_add_le_TVBRANGE 3 /* The TvbRange of bytes in the packet this tree item covers/represents. */
 #define WSLUA_OPTARG_TreeItem_add_le_VALUE 4 /* The field's value, instead of the ProtoField/Proto one. */
 #define WSLUA_OPTARG_TreeItem_add_le_LABEL 5 /* One or more strings to use for the tree item label, instead of the ProtoField/Proto one. */
-    WSLUA_RETURN(TreeItem_add_item_any(L,true)); /* The new child TreeItem. */
+    volatile int ret;
+    WRAP_NON_LUA_EXCEPTIONS(
+        ret = TreeItem_add_item_any(L,true);
+    )
+    WSLUA_RETURN(ret); /* The new child TreeItem. */
 }
 
 /* WSLUA_ATTRIBUTE TreeItem_text RW Set/get the <<lua_class_TreeItem,`TreeItem`>>'s display string (string).

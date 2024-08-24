@@ -195,6 +195,8 @@ static int dissector_error_handler(lua_State *LS) {
     proto_tree *tb_tree;
 
     // Add the expert info Lua error message
+    // XXX - Should this add the current protocol to the message, and add to
+    // COL_INFO and the log, like DissectorError does?
     proto_tree_add_expert_format(lua_tree->tree, lua_pinfo, &ei_lua_error, lua_tvb, 0, 0,
             "Lua Error: %s", lua_tostring(LS,-1));
 

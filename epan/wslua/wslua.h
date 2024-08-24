@@ -47,6 +47,8 @@
 #include <epan/tvbparse.h>
 #include <epan/epan.h>
 #include <epan/expert.h>
+#include <epan/exceptions.h>
+#include <epan/show_exception.h>
 
 #include <epan/wslua/declare_wslua.h>
 
@@ -679,7 +681,7 @@ extern int wslua_reg_attributes(lua_State *L, const wslua_attribute_table *t, bo
     /* silly little trick so we can add a semicolon after this macro */ \
     typedef void __dummy##C##_set_##field
 
-#define WSLUA_ERROR(name,error) { luaL_error(L, "%s%s", #name ": " ,error); }
+#define WSLUA_ERROR(name,error) { luaL_error(L, "%s%s", #name ": ", error); }
 #define WSLUA_ARG_ERROR(name,attr,error) { luaL_argerror(L,WSLUA_ARG_ ## name ## _ ## attr, #name  ": " error); }
 #define WSLUA_OPTARG_ERROR(name,attr,error) { luaL_argerror(L,WSLUA_OPTARG_##name##_ ##attr, #name  ": " error); }
 
@@ -729,14 +731,34 @@ extern C shift##C(lua_State* L,int i)
     THROW_FORMATTED(DissectorError, __VA_ARGS__)
 
 /* Catches any Wireshark exceptions in code and convert it into a Lua error.
- * Normal restrictions for TRY/CATCH apply, in particular, do not return! */
+ * Normal restrictions for TRY/CATCH apply, in particular, do not return!
+ *
+ * This means do not call lua[L]_error() inside code, as that longjmps out
+ * of the TRY block to the Lua pcall! Use THROW_LUA_ERROR, which is caught
+ * and then converted into a Lua error.
+ *
+ * XXX: We CATCH_ALL here, although there's little point in catching
+ * OutOfMemoryError here. (Is CATCH_BOUNDS_AND_DISSECTOR_ERRORS sufficient?)
+ * There are some Exceptions that we catch and show but don't want to add
+ * the Lua error malformed expert info to the tree: BoundsError,
+ * FragmentBoundsError, and ScsiBoundsError (show_exception doesn't consider
+ * those malformed). The traceback might (or might not) be useful for those.
+ * Putting an extra malformed expert info in the tree in the cases that are
+ * malformed seems not so bad, but we might want to reduce that. Perhaps
+ * at least we could have a separate LuaError type and not call show_exception
+ * for that (we still need to handle some Lua errors that don't use this in
+ * dissector_error_handler.)
+ */
 #define WRAP_NON_LUA_EXCEPTIONS(code) \
 { \
     volatile bool has_error = false; \
     TRY { \
         code \
+    } CATCH3(BoundsError, FragmentBoundsError, ScsiBoundsError) { \
+        show_exception(lua_tvb, lua_pinfo, lua_tree->tree, EXCEPT_CODE, GET_MESSAGE); \
     } CATCH_ALL { \
-        lua_pushstring(L, GET_MESSAGE);  \
+        show_exception(lua_tvb, lua_pinfo, lua_tree->tree, EXCEPT_CODE, GET_MESSAGE); \
+        lua_pushfstring(L, "%s: %s", __func__, GET_MESSAGE ? GET_MESSAGE : "Malformed packet"); \
         has_error = true; \
     } ENDTRY; \
     if (has_error) { lua_error(L); } \
