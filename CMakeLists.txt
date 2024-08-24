@@ -680,8 +680,6 @@ else() # ! MSVC
 		-Wbidi-chars=any
 		-Wpointer-arith
 		-Wformat-security
-		-Werror=incompatible-pointer-types
-		-Werror=int-conversion
 		-fexcess-precision=fast	# GCC-only
 		-Wvla
 		-Wattributes
@@ -792,6 +790,8 @@ else() # ! MSVC
 		-Wshadow
 		-Wold-style-definition
 		-Wstrict-prototypes
+		-Wincompatible-pointer-types
+		-Wint-conversion
 	)
 
 	#
