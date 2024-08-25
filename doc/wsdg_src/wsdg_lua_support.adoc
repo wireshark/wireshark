@@ -434,3 +434,21 @@ real regex engine is more useful. Wireshark comes with Perl Compatible Regular
 Expressions version 2 (PCRE2). This engine is exposed into Wireshark’s Lua engine through the
 well-known Lrexlib library. The module is loaded in the global environment using
 the "rex_pcre2" table. The manual is available at https://rrthomas.github.io/lrexlib/manual.html.
+
+=== Bitwise Operations
+
+Lua 5.3 and greater has native https://www.lua.org/manual/5.4/manual.html#3.4.2[bitwise operators].
+The https://www.lua.org/manual/5.2/manual.html#6.7[bit32 library] introduced
+in Lua 5.2 is in Lua 5.3, albeit https://www.lua.org/manual/5.3/manual.html#8[deprecated],
+but not present in Lua 5.4. For maximum backwards compatibility, all versions of Wireshark
+with Lua support include the Lua BitOp library, which has been ported to be compatible with
+Lua 5.3 and 5.4. The BitOp API reference is available at https://bitop.luajit.org/api.html.
+The API is similar to that of the `bit32` library, and in many cases can function as a drop
+in replacement for code written to use that library by simply replacing a
+`bit32 = require("bit32")` statement with `bit32 = bit`.
+
+[NOTE]
+The library is already loaded in the global environment as the `bit` table;
+Lua dissectors should not contain a `require("bit")` statement, which will give an
+error (unless another copy of the BitOp library is also accessible to the system Lua
+outside the Wireshark distributed code.)
