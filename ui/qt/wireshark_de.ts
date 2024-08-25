@@ -893,10 +893,6 @@
         <translation>Lesefilter:</translation>
     </message>
     <message>
-        <source>Compress with g&amp;zip</source>
-        <translation type="vanished">Mit g&amp;zip komprimieren</translation>
-    </message>
-    <message>
         <source>Open Capture File</source>
         <oldsource>Wireshark: Open Capture File</oldsource>
         <translation>Mitschnittdatei öffnen</translation>
@@ -1946,29 +1942,6 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
 </context>
 <context>
-    <name>ColumnTypeDelegate</name>
-    <message>
-        <source>Default</source>
-        <translation type="vanished">Standard</translation>
-    </message>
-    <message>
-        <source>Left</source>
-        <translation type="vanished">Links</translation>
-    </message>
-    <message>
-        <source>Center</source>
-        <translation type="vanished">Zentriert</translation>
-    </message>
-    <message>
-        <source>Right</source>
-        <translation type="vanished">Rechts</translation>
-    </message>
-    <message>
-        <source>Unknown</source>
-        <translation type="vanished">Unbekannt</translation>
-    </message>
-</context>
-<context>
     <name>CompiledFilterOutput</name>
     <message>
         <source>Compiled Filter Output</source>
@@ -1987,19 +1960,19 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     <name>CompressionGroupBox</name>
     <message>
         <source>Compression options</source>
-        <translation type="unfinished"></translation>
+        <translation>Komprimierungsoptionen</translation>
     </message>
     <message>
         <source>&amp;Uncompressed</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Unkomprimiert</translation>
     </message>
     <message>
         <source>Compress with g&amp;zip</source>
-        <translation type="unfinished">Mit g&amp;zip komprimieren</translation>
+        <translation>Komprimiere mit g&amp;zip</translation>
     </message>
     <message>
         <source>Compress with &amp;LZ4</source>
-        <translation type="unfinished"></translation>
+        <translation>Komprimiere mit &amp;LZ4</translation>
     </message>
 </context>
 <context>
@@ -8829,15 +8802,15 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>Left</source>
-        <translation type="unfinished">Links</translation>
+        <translation>Links</translation>
     </message>
     <message>
         <source>Center</source>
-        <translation type="unfinished">Zentriert</translation>
+        <translation>Zentriert</translation>
     </message>
     <message>
         <source>Right</source>
-        <translation type="unfinished">Rechts</translation>
+        <translation>Rechts</translation>
     </message>
     <message>
         <source>Unknown</source>
@@ -11432,11 +11405,11 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     <name>ShortcutListModel</name>
     <message>
         <source>Display Filter Input</source>
-        <translation type="unfinished"></translation>
+        <translation>Anzeigefilter-Textfeld</translation>
     </message>
     <message>
         <source>Jump to display filter input box</source>
-        <translation type="unfinished"></translation>
+        <translation>Zum Anzeigefilter-Textfeld springen</translation>
     </message>
     <message>
         <source>Shortcut</source>

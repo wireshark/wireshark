@@ -893,10 +893,6 @@
         <translation>Filtre de lecture :</translation>
     </message>
     <message>
-        <source>Compress with g&amp;zip</source>
-        <translation type="vanished">Compresser avec g&amp;zip</translation>
-    </message>
-    <message>
         <source>Open Capture File</source>
         <oldsource>Wireshark: Open Capture File</oldsource>
         <translation>Ouvrir un fichier de capture</translation>
@@ -1970,7 +1966,7 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
     </message>
     <message>
         <source>Compress with g&amp;zip</source>
-        <translation type="unfinished">Compresser avec g&amp;zip</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Compress with &amp;LZ4</source>

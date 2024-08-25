@@ -893,10 +893,6 @@
         <translation>Filtro di lettura:</translation>
     </message>
     <message>
-        <source>Compress with g&amp;zip</source>
-        <translation type="vanished">Comprimi con g&amp;zip</translation>
-    </message>
-    <message>
         <source>Open Capture File</source>
         <oldsource>Wireshark: Open Capture File</oldsource>
         <translation>Apri un file di cattura</translation>
@@ -1946,29 +1942,6 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
 </context>
 <context>
-    <name>ColumnTypeDelegate</name>
-    <message>
-        <source>Default</source>
-        <translation type="vanished">Predefinito</translation>
-    </message>
-    <message>
-        <source>Left</source>
-        <translation type="vanished">Sinistra</translation>
-    </message>
-    <message>
-        <source>Center</source>
-        <translation type="vanished">Centro</translation>
-    </message>
-    <message>
-        <source>Right</source>
-        <translation type="vanished">Destra</translation>
-    </message>
-    <message>
-        <source>Unknown</source>
-        <translation type="vanished">Sconosciuto</translation>
-    </message>
-</context>
-<context>
     <name>CompiledFilterOutput</name>
     <message>
         <source>Compiled Filter Output</source>
@@ -1987,19 +1960,19 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     <name>CompressionGroupBox</name>
     <message>
         <source>Compression options</source>
-        <translation type="unfinished"></translation>
+        <translation>Opzioni di compressione</translation>
     </message>
     <message>
         <source>&amp;Uncompressed</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Non compresso</translation>
     </message>
     <message>
         <source>Compress with g&amp;zip</source>
-        <translation type="unfinished">Comprimi con g&amp;zip</translation>
+        <translation>Comprimi con g&amp;zip</translation>
     </message>
     <message>
         <source>Compress with &amp;LZ4</source>
-        <translation type="unfinished"></translation>
+        <translation>Comprimi con &amp;LZ4</translation>
     </message>
 </context>
 <context>
@@ -8829,15 +8802,15 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>Left</source>
-        <translation type="unfinished">Sinistra</translation>
+        <translation>Sinistra</translation>
     </message>
     <message>
         <source>Center</source>
-        <translation type="unfinished">Centro</translation>
+        <translation>Centro</translation>
     </message>
     <message>
         <source>Right</source>
-        <translation type="unfinished">Destra</translation>
+        <translation>Destra</translation>
     </message>
     <message>
         <source>Unknown</source>
@@ -11432,11 +11405,11 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     <name>ShortcutListModel</name>
     <message>
         <source>Display Filter Input</source>
-        <translation type="unfinished"></translation>
+        <translation>Immissione del filtro di visualizzazione</translation>
     </message>
     <message>
         <source>Jump to display filter input box</source>
-        <translation type="unfinished"></translation>
+        <translation>Passa all&apos;immissione del filtro di visualizzazione.</translation>
     </message>
     <message>
         <source>Shortcut</source>

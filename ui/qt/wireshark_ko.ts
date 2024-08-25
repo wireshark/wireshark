@@ -889,10 +889,6 @@
         <translation>읽기 필터:</translation>
     </message>
     <message>
-        <source>Compress with g&amp;zip</source>
-        <translation type="vanished">gzip 형식으로 압축(&amp;Z)</translation>
-    </message>
-    <message>
         <source>Open Capture File</source>
         <oldsource>Wireshark: Open Capture File</oldsource>
         <translation>캡처 파일 열기</translation>
@@ -1939,29 +1935,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
 </context>
 <context>
-    <name>ColumnTypeDelegate</name>
-    <message>
-        <source>Default</source>
-        <translation type="vanished">기본값</translation>
-    </message>
-    <message>
-        <source>Left</source>
-        <translation type="vanished">왼쪽</translation>
-    </message>
-    <message>
-        <source>Center</source>
-        <translation type="vanished">가운데</translation>
-    </message>
-    <message>
-        <source>Right</source>
-        <translation type="vanished">오른쪽</translation>
-    </message>
-    <message>
-        <source>Unknown</source>
-        <translation type="vanished">알 수 없음</translation>
-    </message>
-</context>
-<context>
     <name>CompiledFilterOutput</name>
     <message>
         <source>Compiled Filter Output</source>
@@ -1988,7 +1961,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Compress with g&amp;zip</source>
-        <translation type="unfinished">gzip 형식으로 압축(&amp;Z)</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Compress with &amp;LZ4</source>
@@ -8802,7 +8775,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Center</source>
-        <translation type="unfinished">가운데</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Right</source>

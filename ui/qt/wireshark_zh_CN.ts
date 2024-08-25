@@ -889,10 +889,6 @@
         <translation>读取过滤器:</translation>
     </message>
     <message>
-        <source>Compress with g&amp;zip</source>
-        <translation type="vanished">用 gzip 压缩(&amp;Z)</translation>
-    </message>
-    <message>
         <source>Open Capture File</source>
         <oldsource>Wireshark: Open Capture File</oldsource>
         <translation>打开捕获文件</translation>
@@ -1935,13 +1931,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
 </context>
 <context>
-    <name>ColumnTypeDelegate</name>
-    <message>
-        <source>Default</source>
-        <translation type="vanished">默认</translation>
-    </message>
-</context>
-<context>
     <name>CompiledFilterOutput</name>
     <message>
         <source>Compiled Filter Output</source>
@@ -1968,7 +1957,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Compress with g&amp;zip</source>
-        <translation type="unfinished">用 gzip 压缩(&amp;Z)</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Compress with &amp;LZ4</source>

@@ -871,10 +871,6 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Compress with g&amp;zip</source>
-        <translation type="vanished">&amp;Стиснути gzip&apos;ом</translation>
-    </message>
-    <message>
         <source>Open Capture File</source>
         <oldsource>Wireshark: Open Capture File</oldsource>
         <translation>Відкрити Файл Захоплення</translation>
@@ -1950,7 +1946,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Compress with g&amp;zip</source>
-        <translation type="unfinished">&amp;Стиснути gzip&apos;ом</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Compress with &amp;LZ4</source>

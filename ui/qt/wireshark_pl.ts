@@ -897,10 +897,6 @@
         <translation>Filtr wczytywania:</translation>
     </message>
     <message>
-        <source>Compress with g&amp;zip</source>
-        <translation type="vanished">Kompresuj używając gzip</translation>
-    </message>
-    <message>
         <source>Open Capture File</source>
         <oldsource>Wireshark: Open Capture File</oldsource>
         <translation>Otwórz plik przechwytywania</translation>
@@ -1950,25 +1946,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
 </context>
 <context>
-    <name>ColumnTypeDelegate</name>
-    <message>
-        <source>Default</source>
-        <translation type="vanished">Domyślnie</translation>
-    </message>
-    <message>
-        <source>Left</source>
-        <translation type="vanished">W lewo</translation>
-    </message>
-    <message>
-        <source>Right</source>
-        <translation type="vanished">W prawo</translation>
-    </message>
-    <message>
-        <source>Unknown</source>
-        <translation type="vanished">Nieznany</translation>
-    </message>
-</context>
-<context>
     <name>CompiledFilterOutput</name>
     <message>
         <source>Compiled Filter Output</source>
@@ -1995,7 +1972,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Compress with g&amp;zip</source>
-        <translation type="unfinished">Kompresuj używając gzip</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Compress with &amp;LZ4</source>

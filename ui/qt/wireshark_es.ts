@@ -870,10 +870,6 @@
         <translation>Filtro de lectura:</translation>
     </message>
     <message>
-        <source>Compress with g&amp;zip</source>
-        <translation type="vanished">Comprimir con g&amp;zip</translation>
-    </message>
-    <message>
         <source>Open Capture File</source>
         <oldsource>Wireshark: Open Capture File</oldsource>
         <translation>Abrir archivo de captura</translation>
@@ -1945,7 +1941,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>Compress with g&amp;zip</source>
-        <translation type="unfinished">Comprimir con g&amp;zip</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Compress with &amp;LZ4</source>
