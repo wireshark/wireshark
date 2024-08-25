@@ -62,7 +62,6 @@ static dissector_handle_t ocp1_tcp_handle;
 static dissector_handle_t ocp1_udp_handle;
 
 static int proto_ocp1;
-expert_module_t* expert_ocp1;
 
 /* Header Fields */
 static int hf_ocp1_sync_value;
@@ -3336,6 +3335,8 @@ proto_register_ocp1(void)
         &ett_ocp1_params_ocaver,
         &ett_ocp1_params_ptp
     };
+
+    expert_module_t* expert_ocp1;
 
     oca_request_hash_map = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), oca_handle_hash, oca_handle_equal);
 
