@@ -11543,7 +11543,7 @@ dissect_transaction2_request_parameters(tvbuff_t *tvb, packet_info *pinfo,
 			col_append_fstr(pinfo->cinfo, COL_INFO, ", Continue after: %s",
 				    format_text(wmem_packet_scope(), (const unsigned char*)fn, strlen(fn)));
 		} else {
-			col_append_fstr(pinfo->cinfo, COL_INFO, ", Continue after previous file");
+			col_append_str(pinfo->cinfo, COL_INFO, ", Continue after previous file");
 		}
 		break;
 	case 0x0003:	/*TRANS2_QUERY_FS_INFORMATION*/
