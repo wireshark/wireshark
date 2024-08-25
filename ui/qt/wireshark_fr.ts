@@ -774,7 +774,7 @@
     </message>
     <message>
         <source>Section %1</source>
-        <translation type="unfinished">Section %1</translation>
+        <translation>Section %1</translation>
     </message>
 </context>
 <context>
@@ -1012,7 +1012,7 @@
     </message>
     <message>
         <source>First event</source>
-        <translation type="unfinished"></translation>
+        <translation>Premier événement</translation>
     </message>
     <message>
         <source>Last packet</source>
@@ -1020,7 +1020,7 @@
     </message>
     <message>
         <source>Last event</source>
-        <translation type="unfinished"></translation>
+        <translation>Dernier événement</translation>
     </message>
     <message>
         <source>Elapsed</source>
@@ -1060,7 +1060,7 @@
     </message>
     <message>
         <source>Dropped events</source>
-        <translation type="unfinished"></translation>
+        <translation>Événements rejetés</translation>
     </message>
     <message>
         <source>Capture filter</source>
@@ -1104,7 +1104,7 @@
     </message>
     <message>
         <source>Size</source>
-        <translation type="unfinished">Taille</translation>
+        <translation>Taille</translation>
     </message>
     <message>
         <source>Statistics</source>
@@ -1132,7 +1132,7 @@
     </message>
     <message>
         <source>Events</source>
-        <translation type="unfinished">Evénements</translation>
+        <translation>Événements</translation>
     </message>
     <message>
         <source>Time span, s</source>
@@ -1416,11 +1416,11 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Usually a wireless network card will only capture the traffic sent to and from its own network address, and only captures &lt;em&gt;user data&lt;/em&gt; traffic with &amp;quot;fake&amp;quot; Ethernet headers. If you want to capture all traffic that wireless network cards can &amp;quot;see&amp;quot;, or are interested in 802.11 management or control packets, or radio-layer information, mark this option. Monitor mode availability depends on the wireless card and driver. See the Wiki for some more details of capturing packets on WLAN networks.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Habituellement, une carte réseau sans-fil ne capture que le trafic émis vers et depuis sa propre adresse réseau, et capture seulement le trafic de &lt;em&gt;données utilisateur&lt;/em&gt; avec un &amp;quot;faux&amp;quot; en-tête Ethernet. Si vous voulez capturer tout le trafic que la carte réseau sans-fil peut &amp;quot;voir&amp;quot;, ou êtes intéressés par les paquets de gestion ou de contrôle 802.11, ou les informations de niveau radio, cochez cette option. La disponibilité du mode Moniteur dépend de la carte sans-fil et de son pilote. Consultez le Wiki pour de plus amples détails concernant la capture de paquets sur un réseau WLAN.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Enable monitor mode on all 802.11 interfaces</source>
-        <translation type="unfinished"></translation>
+        <translation>Activer le mode Moniteur sur toutes les interfaces 802.11</translation>
     </message>
     <message>
         <source>compression</source>
@@ -1440,7 +1440,7 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;In multiple file mode, the date and time and file index number are inserted between filename template and any suffix. Select their order.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Dans le mode fichiers multiples, date et heure ainsi que le numéro d&apos;index du fichier sont insérés entre le nom de fichier et le suffixe. Sélectionnez leur ordre.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>YYYYmmDDHHMMSS_NNNNN</source>
@@ -1448,7 +1448,7 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Date and time before the file index number. This causes files to sort in creation time order, and keeps files from the same batch closely ordered.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Date et heure avant le numéro d&apos;index du fichier. Ceci force le tri des fichiers par ordre de leur heure de création et garde les fichiers d&apos;un même batch proches.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>NNNNN_YYYYmmDDHHMMSS</source>
@@ -1456,7 +1456,7 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;File index number before the date and time. This is the historic Wireshark ordering.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Numéro d&apos;index de fichier avant la date et heure. Ceci est l&apos;ordre utilisé historiquement par Wireshark.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;After capturing has switched to the next file and the given number of files has exceeded, the oldest file will be removed.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -1548,7 +1548,7 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
     </message>
     <message>
         <source>Stop capturing after the specified number of files have been created.</source>
-        <translation type="unfinished"></translation>
+        <translation>Arrête la capture après avoir créé le nombre de fichiers indiqués.</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Stop capturing after the specified amount of data has been captured.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -1612,7 +1612,7 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
     </message>
     <message>
         <source>Multiple files: Requested filesize too large. The filesize cannot be greater than 2 TB.</source>
-        <translation type="unfinished"></translation>
+        <translation>Fichier multiples : la taille demandée est trop élevée, elle ne doit pas être supérieure à 2 To.</translation>
     </message>
     <message>
         <source>Multiple files: No capture file name given. You must specify a filename if you want to use multiple files.</source>
@@ -1643,7 +1643,7 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Usually a wireless network card will only capture the traffic sent to and from its own network address, and only captures &lt;em&gt;user data&lt;/em&gt; traffic with &amp;quot;fake&amp;quot; Ethernet headers. If you want to capture all traffic that wireless network cards can &amp;quot;see&amp;quot;, or are interested in 802.11 management or control packets, or radio-layer information, mark this option. Monitor mode availability depends on the wireless card and driver. See the Wiki for more details of capturing packets on WLAN networks.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Habituellement, une carte réseau sans-fil ne capture que le trafic émis vers et depuis sa propre adresse réseau, et capture seulement le trafic de &lt;em&gt;données utilisateur&lt;/em&gt; avec un &amp;quot;faux&amp;quot; en-tête Ethernet. Si vous voulez capturer tout le trafic que la carte réseau sans-fil peut &amp;quot;voir&amp;quot;, ou êtes intéressés par les paquets de gestion ou de contrôle 802.11, ou les informations de niveau radio, cochez cette option. La disponibilité du mode Moniteur dépend de la carte sans-fil et de son pilote. Consultez le Wiki pour de plus amples détails concernant la capture de paquets sur un réseau WLAN.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Capture packets in monitor mode on 802.11 devices</source>
@@ -1667,15 +1667,15 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
     </message>
     <message>
         <source>Interval between updates (ms)</source>
-        <translation type="unfinished"></translation>
+        <translation>Intervalle entre les mises à jour (ms)</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;How often the capture notifies the GUI of new packets. Affects how often the GUI updates and the granularity of timers.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;A quelle fréquence la capture informe l&apos;interface graphique pour de nouveaux paquets. Ceci affecte la fréquence de mise à jour de l&apos;interface graphique et la granularité des chronomètres.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The interval between new packet updates. Affects how often the GUI updates and the granularity of timers.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;L&apos;intervalle entre les mises à jours des nouveaux paquets. Ceci affecte la fréquence de mises à jour de l&apos;interface graphique et la granularité des chronomètres.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Don&apos;t load interfaces on startup</source>
@@ -2397,11 +2397,11 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
     </message>
     <message>
         <source>By default order comparisons and contains/matches/in relations are true if any value matches. The quantifier &quot;all&quot; can be used to apply the test to all values in a frame.</source>
-        <translation type="unfinished"></translation>
+        <translation>Par défaut, les comparaisons d&apos;ordre et les relations contains/matches/in sont vraies si l&apos;une des valeurs correspond. Le quantificateur &quot;all&quot; peut être utilisé pour appliquer le test à toutes les valeur de la trame.</translation>
     </message>
     <message>
         <source>Quantifier</source>
-        <translation type="unfinished"></translation>
+        <translation>Quantificateur</translation>
     </message>
     <message>
         <source>Any</source>
@@ -2639,11 +2639,11 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
     </message>
     <message>
         <source>Latitude</source>
-        <translation type="unfinished"></translation>
+        <translation>Latitude</translation>
     </message>
     <message>
         <source>Longitude</source>
-        <translation type="unfinished"></translation>
+        <translation>Longitude</translation>
     </message>
     <message>
         <source>AS Number</source>
@@ -3677,7 +3677,7 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
     </message>
     <message>
         <source>Case sensitive</source>
-        <translation type="unfinished">Sensible à la casse</translation>
+        <translation>Sensible à la casse</translation>
     </message>
     <message>
         <source>Find &amp;Next</source>
@@ -4038,19 +4038,19 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
     </message>
     <message>
         <source>Remove the selected graph(s).</source>
-        <translation type="unfinished"></translation>
+        <translation>Supprimer le(s) graphe(s) sélectionné(s).</translation>
     </message>
     <message>
         <source>Duplicate the selected graph(s).</source>
-        <translation type="unfinished"></translation>
+        <translation>Dupliquer le(s) graphe(s) sélectionné(s).</translation>
     </message>
     <message>
         <source>Move the selected graph(s) upwards.</source>
-        <translation type="unfinished"></translation>
+        <translation>Déplacer le(s) graphe(s) sélectionné(s) vers le haut.</translation>
     </message>
     <message>
         <source>Move the selected graph(s) downwards.</source>
-        <translation type="unfinished"></translation>
+        <translation>Déplacer le(s) graphe(s) sélectionné(s) vers le bas.</translation>
     </message>
     <message>
         <source>Mouse</source>
@@ -4086,7 +4086,7 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
     </message>
     <message>
         <source>Automatic update</source>
-        <translation type="unfinished"></translation>
+        <translation>Mise à jour automatique</translation>
     </message>
     <message>
         <source>Enable legend</source>
@@ -6215,7 +6215,7 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;If more than this many rows are displayed, then sorting by columns that require packet dissection will be disabled. Increasing this number increases memory consumption by caching column values.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;S&apos;il y a plus de ce nombre de colonnes affichées, alors les tris par colonnes qui requièrent la dissection des paquets sera désactivée. Augmenter ce nombre augmente la mémoire utilisée par le cache de valeurs de colonnes..&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Enable mouse-over colorization</source>
@@ -6814,11 +6814,11 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
     </message>
     <message>
         <source>From Zip File...</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">à partir d&apos;un fichier Zip...</translation>
     </message>
     <message>
         <source>From Directory...</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">à partir d&apos;un répertoire</translation>
     </message>
     <message>
         <source>Selected Personal Profile...</source>
@@ -6884,7 +6884,7 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
     </message>
     <message>
         <source>The current working directory</source>
-        <translation type="unfinished"></translation>
+        <translation>Le répertoire de travail courant</translation>
     </message>
     <message>
         <source>Show up to</source>
@@ -7038,7 +7038,7 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
     </message>
     <message>
         <source>MAC Address</source>
-        <translation type="unfinished"></translation>
+        <translation>Adresse MAC</translation>
     </message>
     <message>
         <source>Search vendor name using a case-insentitive regular expression.</source>
@@ -7887,11 +7887,11 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
     </message>
     <message>
         <source>From Zip File...</source>
-        <translation type="unfinished"></translation>
+        <translation>à partir d&apos;un fichier Zip...</translation>
     </message>
     <message>
         <source>From Directory...</source>
-        <translation type="unfinished"></translation>
+        <translation>à partir d&apos;un répertoire</translation>
     </message>
     <message numerus="yes">
         <source>%Ln Selected Personal Profile(s)...</source>
@@ -8294,7 +8294,7 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
     </message>
     <message>
         <source>Disable unused protocols</source>
-        <translation type="unfinished"></translation>
+        <translation>Désactiver les protocoles non utilisés</translation>
     </message>
     <message>
         <source>Disable all protocols but those listed.</source>
@@ -8330,7 +8330,7 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
     </message>
     <message>
         <source>Protocols</source>
-        <translation type="unfinished"></translation>
+        <translation>Protocoles</translation>
     </message>
     <message>
         <source>Disable unused</source>
@@ -8350,7 +8350,7 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
     </message>
     <message>
         <source>Unused protocols have been disabled.</source>
-        <translation type="unfinished"></translation>
+        <translation>Les protocoles non utilisés ont été désactivés.</translation>
     </message>
     <message>
         <source>Protocol changes have been reverted.</source>
@@ -9116,7 +9116,7 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
     </message>
     <message>
         <source>Save as…</source>
-        <translation type="unfinished"></translation>
+        <translation>Enregistrer sous…</translation>
     </message>
     <message>
         <source># Resolved addresses found in %1</source>
@@ -9143,7 +9143,7 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
     </message>
     <message>
         <source>Copy table</source>
-        <translation type="unfinished"></translation>
+        <translation>Copier la table</translation>
     </message>
     <message>
         <source>as CSV</source>
@@ -10890,7 +10890,7 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Search for a subsequent occurrence in the current packet before advancing to the next packet.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Chercher une autre occurrence dans le paquet courant avant de passer au prochain paquet.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Multiple occurrences</source>
@@ -11392,7 +11392,7 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
     </message>
     <message>
         <source>Case sensitive</source>
-        <translation type="unfinished">Sensible à la casse</translation>
+        <translation>Sensible à la casse</translation>
     </message>
     <message>
         <source>Find &amp;Next</source>
@@ -11607,7 +11607,7 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
     </message>
     <message>
         <source>Strip Headers</source>
-        <translation type="unfinished"></translation>
+        <translation>Retirer les en-têtes</translation>
     </message>
 </context>
 <context>
@@ -12262,23 +12262,23 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     <name>TLSKeylogDialog</name>
     <message>
         <source>Dialog</source>
-        <translation type="unfinished">Dialogue</translation>
+        <translation>Dialogue</translation>
     </message>
     <message>
         <source>Browse…</source>
-        <translation type="unfinished"></translation>
+        <translation>Parcourir…</translation>
     </message>
     <message>
         <source>Command line</source>
-        <translation type="unfinished"></translation>
+        <translation>Ligne de commande</translation>
     </message>
     <message>
         <source>Run an application with the SSLKEYLOGFILE environment variable set to the file specified by the TLS key log filename preference. This enables TLS decryption in Wireshark. Set the key log file and start the capture before launching the application to ensure that the initial TLS handshakes are captured.</source>
-        <translation type="unfinished"></translation>
+        <translation>Exécutez une application avec la variable d&apos;environnement SSLKEYLOGFILE définie avec le fichier spécifié dans la préférence nom de fichier journal de clé TLS. Cela permet le déchiffrement TLS dans Wireshark. Définissez le fichier d&apos;enregistrement des clés et démarrez la capture avant de lancer l&apos;application afin de vous assurer que les poignées de main TLS initiales sont capturées.</translation>
     </message>
     <message>
         <source>&lt;span style=&quot; font-size:small;&quot;&gt;Firefox and Chrome are known to work. If your desired browser is currently running, close it first before launching it below. Command line options are supported.&lt;/span&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;span style=&quot; font-size:small;&quot;&gt;Firefox et Chrome sont connus pour fonctionner correctement. Si le navigateur de votre choix est actuellement en cours d’exécution, fermez-le d’abord avant de le lancer ci-dessous. Les options de ligne de commande sont prises en charge.&lt;/span&gt;</translation>
     </message>
     <message>
         <source>TLS (Pre)-Master-Secret log file path (tls.keylog_file)</source>
@@ -12286,11 +12286,11 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     </message>
     <message>
         <source>&lt;span style=&quot; font-size:small;&quot;&gt;TLS session secrets will be logged to this file. If you change this field, hit the Save button to update the TLS protocol preferences.&lt;/span&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;span style=&quot; font-size:small;&quot;&gt;Les secrets de session TLS seront enregistrés dans ce fichier. Si vous changez ce champ, cliquez sur le bouton Sauvegarder pour mettre à jour les préférences du protocole TLS.&lt;/span&gt;</translation>
     </message>
     <message>
         <source>Launch application with SSLKEYLOGFILE</source>
-        <translation type="unfinished"></translation>
+        <translation>Démarrez l&apos;application avec SSLKEYLOGFILE</translation>
     </message>
     <message>
         <source>Launch</source>
@@ -12306,7 +12306,7 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     </message>
     <message>
         <source>Program to start with SSLKEYLOGFILE</source>
-        <translation type="unfinished"></translation>
+        <translation>Programme à démarrer avec SSLKEYLOGFILE</translation>
     </message>
 </context>
 <context>
@@ -12426,7 +12426,7 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     </message>
     <message>
         <source>Time shifting is not available while capturing packets.</source>
-        <translation type="unfinished"></translation>
+        <translation>Le décalage de temps n&apos;est pas disponible pendant la capture de paquet.</translation>
     </message>
 </context>
 <context>
@@ -12584,19 +12584,19 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     </message>
     <message>
         <source>Remove the selected entry(ies).</source>
-        <translation type="unfinished"></translation>
+        <translation>Supprimer les entrées sélectionnées.</translation>
     </message>
     <message>
         <source>Copy the selected entry(ies).</source>
-        <translation type="unfinished"></translation>
+        <translation>Copier les entrées sélectionnées.</translation>
     </message>
     <message>
         <source>Move the selected entry(ies) up.</source>
-        <translation type="unfinished"></translation>
+        <translation>Déplacer les entrées sélectionnées vers le haut.</translation>
     </message>
     <message>
         <source>Move the selected entry(ies) down.</source>
-        <translation type="unfinished"></translation>
+        <translation>Déplacer les entrées sélectionnées vers le bas.</translation>
     </message>
     <message>
         <source>Clear all entries.</source>
@@ -12623,19 +12623,19 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     </message>
     <message>
         <source>Remove the selected entry(ies).</source>
-        <translation type="unfinished"></translation>
+        <translation>Supprimer les entrées sélectionnées.</translation>
     </message>
     <message>
         <source>Copy the selected entry(ies).</source>
-        <translation type="unfinished"></translation>
+        <translation>Copier les entrées sélectionnées.</translation>
     </message>
     <message>
         <source>Move the selected entry(ies) up.</source>
-        <translation type="unfinished"></translation>
+        <translation>Déplacer les entrées sélectionnées vers le haut.</translation>
     </message>
     <message>
         <source>Move the selected entry(ies) down.</source>
-        <translation type="unfinished"></translation>
+        <translation>Déplacer les entrées sélectionnées vers le bas.</translation>
     </message>
     <message>
         <source>Clear all entries.</source>
@@ -14110,23 +14110,23 @@ a:hover {
     </message>
     <message>
         <source>Show packet times as the seconds since the first captured packet.</source>
-        <translation type="unfinished"></translation>
+        <translation>Afficher les temps paquets en secondes depuis le premier paquet capturé.</translation>
     </message>
     <message>
         <source>Tenths of a millisecond</source>
-        <translation type="unfinished"></translation>
+        <translation>Dixièmes de millisecondes</translation>
     </message>
     <message>
         <source>Hundredths of a millisecond</source>
-        <translation type="unfinished"></translation>
+        <translation>Centièmes de millisecondes</translation>
     </message>
     <message>
         <source>Tenths of a microsecond</source>
-        <translation type="unfinished"></translation>
+        <translation>Dixièmes de microsecondes</translation>
     </message>
     <message>
         <source>Hundredths of a microsecond</source>
-        <translation type="unfinished"></translation>
+        <translation>Centièmes de microsecondes</translation>
     </message>
     <message>
         <source>Packet &amp;Diagram</source>
@@ -14282,11 +14282,11 @@ a:hover {
     </message>
     <message>
         <source>Wireshark User&apos;s Guide</source>
-        <translation type="unfinished"></translation>
+        <translation>Manuel utilisateur Wireshark</translation>
     </message>
     <message>
         <source>Display Filters</source>
-        <translation type="unfinished">Filtres d&apos;affichage</translation>
+        <translation>Filtres d&apos;affichage</translation>
     </message>
     <message>
         <source>Capture &amp;Filters…</source>
@@ -14740,7 +14740,7 @@ a:hover {
     </message>
     <message>
         <source>Release Notes</source>
-        <translation type="unfinished"></translation>
+        <translation>Notes de version</translation>
     </message>
     <message>
         <source>&amp;VoIP Calls</source>
@@ -15212,7 +15212,7 @@ a:hover {
     </message>
     <message>
         <source> before updating</source>
-        <translation type="unfinished"></translation>
+        <translation>avant de mettre à jour</translation>
     </message>
     <message>
         <source>There are no TLS Session Keys to save.</source>
@@ -15235,11 +15235,11 @@ a:hover {
     </message>
     <message>
         <source>There are no available secrets used to decrypt TLS traffic in the capture file.  Would you like to view information about how to decrypt TLS traffic on the wiki?</source>
-        <translation type="unfinished"></translation>
+        <translation>Il n’existe aucun secret disponible utilisé pour déchiffrer le trafic TLS dans le fichier de capture. Souhaitez-vous consulter des informations sur la façon de déchiffrer le trafic TLS sur le wiki ?</translation>
     </message>
     <message>
         <source>Are you sure you want to discard all decryption secrets?</source>
-        <translation type="unfinished"></translation>
+        <translation>Voulez-vous vraiment supprimer tous les secrets pour le déchiffrement ?</translation>
     </message>
     <message>
         <source>No filter available. Try another %1.</source>
