@@ -38,7 +38,6 @@ static dissector_handle_t do_irp_handle_udp;
 static dissector_handle_t do_irp_handle_tcp;
 
 static int proto_do_irp;
-expert_module_t* expert_do_irp;
 
 /* Fields Generic */
 static int hf_do_irp_string_len;
@@ -2132,6 +2131,8 @@ proto_register_do_irp(void)
         &ett_do_irp_hssite_server_if_flags,
         &ett_do_irp_pk
     };
+
+    expert_module_t* expert_do_irp;
 
     do_irp_request_hash_map = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), do_irp_handle_hash, do_irp_handle_equal);
 
