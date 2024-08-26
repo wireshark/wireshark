@@ -1582,7 +1582,7 @@ void wslua_init(register_cb cb, void *client_data) {
         { &ei_lua_proto_interface_error,    { "_ws.lua.proto.error",   PI_INTERFACE, PI_ERROR    ,"Protocol Error",   EXPFILL }},
 
         /* this one is for reporting errors executing Lua code */
-        { &ei_lua_error, { "_ws.lua.error", PI_UNDECODED, PI_ERROR ,"Lua Error", EXPFILL }},
+        { &ei_lua_error, { "_ws.lua.error", PI_DISSECTOR_BUG, PI_ERROR ,"Lua Error", EXPFILL }},
     };
 
     if (first_time) {
