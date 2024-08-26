@@ -512,7 +512,10 @@ WS_DLL_PUBLIC uint8_t* tvb_get_bits_array(wmem_allocator_t *scope, tvbuff_t *tvb
 
 /* Fetch a specified number of bits from bit offset in a tvb.  All of these
  * functions are equivalent, except for the type of the return value.  Note
- * that the parameter encoding (where supplied) is meaningless and ignored */
+ * that the parameter encoding (where supplied) indicates the *bit* ordering
+ * within each octet, but offsets 0-7 still indicate octet 0 in the buffer.
+ * Versions of Wireshark prior to 3.6 ignored the encoding parameter.
+ */
 
 /* get 1 - 8 bits returned in a uint8_t */
 WS_DLL_PUBLIC uint8_t tvb_get_bits8(tvbuff_t *tvb, unsigned bit_offset,
