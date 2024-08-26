@@ -20,19 +20,20 @@ If you or your organization would like to contribute or become a sponsor, please
 
 === Bug Fixes
 
-If you are upgrading Wireshark 4.2.0 or 4.2.1 on Windows you will need to https://www.wireshark.org/download.html[download and install] Wireshark {wireshark-version} or later by hand.
+// If you are upgrading Wireshark 4.2.0 or 4.2.1 on Windows you will need to https://www.wireshark.org/download.html[download and install] Wireshark {wireshark-version} or later by hand.
 
 The following vulnerabilities have been fixed:
 
-// * wssalink:2024-11[]
-// Foo dissector {crash,infinite loop,memory leak}.
-// wsbuglink:xxx[].
+* wssalink:2024-11[]
+NTLMSSP dissector crash.
+wsbuglink:19943[].
 // cveidlink:2024-xxx[].
-// Fixed in master: xxx
-// Fixed in release-4.2: xxx
-// Fixed in release-4.0: xxx
+// Fixed in master: 66dcd56f1e
+// Fixed in release-4.2: be0e7c955d
+// Fixed in release-4.0: ce871c20cd
 // CVSS AV:L/AC:L/PR:N/UI:R/S:U/C:H/I:H/A:H
-// CWE-824
+// CWE-825
+// * OSS-Fuzz 70582: wireshark:fuzzshark_udp_port-dns: Stack-buffer-overflow in header_equal. wsbuglink:19943[].
 
 The following bugs have been fixed:
 
@@ -40,6 +41,14 @@ The following bugs have been fixed:
 //* wsbuglink:6000[Wireshark bug]
 //* cveidlink:2014-2486[]
 //* Wireshark grabs your ID at 3 am, goes to Waffle House, and insults people.
+
+* Fuzz job issue: fuzz-2024-01-31-7745.pcap. wsbuglink:19627[].
+* OSS-Fuzz 70534: wireshark:fuzzshark_ip_proto-udp: Stack-overflow in dissect_cbor_main_type. wsbuglink:19935[].
+* SOME/IP Protocol heuristic dissector fails to parse. wsbuglink:19670[].
+* 6loWPAN: Page Number Field Incorrect Registration. wsbuglink:19934[].
+// * null. wsbuglink:19955[].
+* PacketBB incorrectly reports "Malformed Packet" wsbuglink:19972[].
+// * null. wsbuglink:19986[].
 
 === New and Updated Features
 
