@@ -137,6 +137,8 @@
 #define EXP_PDU_TAG_PORT_TYPE       24  /**< part type - 4 bytes, EXP_PDU_PT value */
 #define EXP_PDU_TAG_SRC_PORT        25  /**< source port - 4 bytes (even for protocols with 2-byte ports) */
 #define EXP_PDU_TAG_DST_PORT        26  /**< destination port - 4 bytes (even for protocols with 2-byte ports) */
+#define EXP_PDU_TAG_MATCH_UINT      27  /**< pinfo->match_uint, needed by some protocols for proper decoding */
+
 
 #define EXP_PDU_TAG_SS7_OPC         28
 #define EXP_PDU_TAG_SS7_DPC         29

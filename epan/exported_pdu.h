@@ -121,6 +121,7 @@ WS_DLL_PUBLIC exp_pdu_data_item_t exp_pdu_data_dst_ip;
 WS_DLL_PUBLIC exp_pdu_data_item_t exp_pdu_data_port_type;
 WS_DLL_PUBLIC exp_pdu_data_item_t exp_pdu_data_src_port;
 WS_DLL_PUBLIC exp_pdu_data_item_t exp_pdu_data_dst_port;
+WS_DLL_PUBLIC exp_pdu_data_item_t exp_pdu_data_match_uint;
 WS_DLL_PUBLIC exp_pdu_data_item_t exp_pdu_data_orig_frame_num;
 
 extern void export_pdu_init(void);
