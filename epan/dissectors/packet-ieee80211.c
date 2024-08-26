@@ -5388,7 +5388,7 @@ static int hf_ieee80211_s1g_cap_short_gi_for_4_mhz;
 static int hf_ieee80211_s1g_cap_short_gi_for_8_mhz;
 static int hf_ieee80211_s1g_cap_short_gi_for_16_mhz;
 static int hf_ieee80211_s1g_cap_supported_channel_width;
-static int hf_ieee80211_s1g_cap_rx_lpdc;
+static int hf_ieee80211_s1g_cap_rx_ldpc;
 static int hf_ieee80211_s1g_cap_tx_stbc;
 static int hf_ieee80211_s1g_cap_rx_stbc;
 static int hf_ieee80211_s1g_cap_su_beamformer_capable;
@@ -23706,7 +23706,7 @@ static int * const ieee80211_s1g_cap_byte1[] = {
 };
 
 static int * const ieee80211_s1g_cap_byte2[] = {
-  &hf_ieee80211_s1g_cap_rx_lpdc,
+  &hf_ieee80211_s1g_cap_rx_ldpc,
   &hf_ieee80211_s1g_cap_tx_stbc,
   &hf_ieee80211_s1g_cap_rx_stbc,
   &hf_ieee80211_s1g_cap_su_beamformer_capable,
@@ -48800,7 +48800,7 @@ proto_register_ieee80211(void)
       FT_UINT8, BASE_HEX, VALS(s1g_supported_channel_width_vals), 0xC0,
       NULL, HFILL }},
 
-    {&hf_ieee80211_s1g_cap_rx_lpdc,
+    {&hf_ieee80211_s1g_cap_rx_ldpc,
      {"Rx LDPC", "wlan.s1g.capabilities.rx_ldpc",
       FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x01, NULL, HFILL }},
 
