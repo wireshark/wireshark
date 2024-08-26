@@ -1720,11 +1720,16 @@ handle_export_pdu_dissection_table(packet_info *pinfo, tvbuff_t *tvb, uint32_t p
             &exp_pdu_data_port_type,
             &exp_pdu_data_src_port,
             &exp_pdu_data_dst_port,
+            &exp_pdu_data_match_uint,
             &exp_pdu_data_orig_frame_num,
             &exp_pdu_data_table_value,
             &exp_pdu_data_dissector_data,
             NULL
         };
+
+        /* Need to restore pinfo->match_uint to port matched*/
+        uint32_t saved_match_uint = pinfo->match_uint;
+        pinfo->match_uint = port;
 
         exp_pdu_data_t *exp_pdu_data;
 
@@ -1736,7 +1741,11 @@ handle_export_pdu_dissection_table(packet_info *pinfo, tvbuff_t *tvb, uint32_t p
         exp_pdu_data->tvb_reported_length = tvb_reported_length(tvb);
         exp_pdu_data->pdu_tvb = tvb;
 
+        /* match uint is restored after calling dissector, so in order to have the right value in exported PDU
+         * we need to set it here.
+         */
         tap_queue_packet(exported_pdu_tap, pinfo, exp_pdu_data);
+        pinfo->match_uint = saved_match_uint;
     }
 }
 
@@ -1782,7 +1791,7 @@ handle_export_pdu_heuristic(packet_info *pinfo, tvbuff_t *tvb, heur_dtbl_entry_t
 }
 
 static void
-handle_export_pdu_conversation(packet_info *pinfo, tvbuff_t *tvb, int src_port, int dst_port, struct tcpinfo *tcpinfo)
+handle_export_pdu_conversation(packet_info *pinfo, tvbuff_t *tvb, int src_port, int dst_port, struct tcp_analysis* tcpd, struct tcpinfo *tcpinfo)
 {
     if (have_tap_listener(exported_pdu_tap)) {
         tvb = handle_export_pdu_check_desegmentation(pinfo, tvb);
@@ -1802,10 +1811,15 @@ handle_export_pdu_conversation(packet_info *pinfo, tvbuff_t *tvb, int src_port, 
                     &exp_pdu_data_port_type,
                     &exp_pdu_data_src_port,
                     &exp_pdu_data_dst_port,
+                    &exp_pdu_data_match_uint,
                     &exp_pdu_data_orig_frame_num,
                     &exp_pdu_data_dissector_data,
                     NULL
                 };
+
+                /* Need to restore pinfo->match_uint to port matched*/
+                uint32_t saved_match_uint = pinfo->match_uint;
+                pinfo->match_uint = tcpd->match_uint;
 
                 exp_pdu_data_t *exp_pdu_data;
 
@@ -1817,6 +1831,7 @@ handle_export_pdu_conversation(packet_info *pinfo, tvbuff_t *tvb, int src_port, 
                 exp_pdu_data->pdu_tvb = tvb;
 
                 tap_queue_packet(exported_pdu_tap, pinfo, exp_pdu_data);
+                pinfo->match_uint = saved_match_uint;
             }
         }
     }
@@ -7748,7 +7763,7 @@ decode_tcp_ports(tvbuff_t *tvb, int offset, packet_info *pinfo,
     if (try_conversation_dissector(&pinfo->src, &pinfo->dst, CONVERSATION_TCP,
                                    src_port, dst_port, next_tvb, pinfo, tree, tcpinfo, 0)) {
         pinfo->want_pdu_tracking -= !!(pinfo->want_pdu_tracking);
-        handle_export_pdu_conversation(pinfo, next_tvb, src_port, dst_port, tcpinfo);
+        handle_export_pdu_conversation(pinfo, next_tvb, src_port, dst_port, tcpd, tcpinfo);
         return true;
     }
 
@@ -7762,6 +7777,7 @@ decode_tcp_ports(tvbuff_t *tvb, int offset, packet_info *pinfo,
             if (dissector_try_uint_new(subdissector_table, tcpd->server_port, next_tvb, pinfo, tree, true, tcpinfo)) {
                 pinfo->want_pdu_tracking -= !!(pinfo->want_pdu_tracking);
                 handle_export_pdu_dissection_table(pinfo, next_tvb, tcpd->server_port, tcpinfo);
+                tcpd->match_uint = tcpd->server_port;
                 return true;
             }
         } else {
@@ -7784,6 +7800,7 @@ decode_tcp_ports(tvbuff_t *tvb, int offset, packet_info *pinfo,
             if (dissector_try_uint_new(subdissector_table, low_port, next_tvb, pinfo, tree, true, tcpinfo)) {
                 pinfo->want_pdu_tracking -= !!(pinfo->want_pdu_tracking);
                 handle_export_pdu_dissection_table(pinfo, next_tvb, low_port, tcpinfo);
+                tcpd->match_uint = low_port;
                 return true;
             }
         } else {
@@ -7798,6 +7815,7 @@ decode_tcp_ports(tvbuff_t *tvb, int offset, packet_info *pinfo,
             if (dissector_try_uint_new(subdissector_table, high_port, next_tvb, pinfo, tree, true, tcpinfo)) {
                 pinfo->want_pdu_tracking -= !!(pinfo->want_pdu_tracking);
                 handle_export_pdu_dissection_table(pinfo, next_tvb, high_port, tcpinfo);
+                tcpd->match_uint = high_port;
                 return true;
             }
         } else {
@@ -7836,6 +7854,7 @@ decode_tcp_ports(tvbuff_t *tvb, int offset, packet_info *pinfo,
         dissector_try_uint_new(subdissector_table, tcpd->server_port, next_tvb, pinfo, tree, true, tcpinfo)) {
         pinfo->want_pdu_tracking -= !!(pinfo->want_pdu_tracking);
         handle_export_pdu_dissection_table(pinfo, next_tvb, tcpd->server_port, tcpinfo);
+        tcpd->match_uint = tcpd->server_port;
         return true;
     }
 
@@ -7843,12 +7862,14 @@ decode_tcp_ports(tvbuff_t *tvb, int offset, packet_info *pinfo,
         dissector_try_uint_new(subdissector_table, low_port, next_tvb, pinfo, tree, true, tcpinfo)) {
         pinfo->want_pdu_tracking -= !!(pinfo->want_pdu_tracking);
         handle_export_pdu_dissection_table(pinfo, next_tvb, low_port, tcpinfo);
+        tcpd->match_uint = low_port;
         return true;
     }
     if (try_high_port &&
         dissector_try_uint_new(subdissector_table, high_port, next_tvb, pinfo, tree, true, tcpinfo)) {
         pinfo->want_pdu_tracking -= !!(pinfo->want_pdu_tracking);
         handle_export_pdu_dissection_table(pinfo, next_tvb, high_port, tcpinfo);
+        tcpd->match_uint = high_port;
         return true;
     }
 

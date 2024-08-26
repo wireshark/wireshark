@@ -13,10 +13,10 @@
 
 #include <epan/packet.h>
 #include <wiretap/wtap.h>
-#include <epan/to_str.h>
 #include <epan/address_types.h>
 #include <epan/exported_pdu.h>
 #include <epan/expert.h>
+#include <wsutil/array.h>
 #include "packet-e212.h"
 #include "packet-mtp3.h"
 #include "packet-dvbci.h"
@@ -55,6 +55,7 @@ static int hf_exported_pdu_ipv6_dst;
 static int hf_exported_pdu_port_type;
 static int hf_exported_pdu_src_port;
 static int hf_exported_pdu_dst_port;
+static int hf_exported_pdu_match_uint;
 /** static int hf_exported_pdu_sctp_ppid; **/
 static int hf_exported_pdu_ss7_opc;
 static int hf_exported_pdu_ss7_dpc;
@@ -110,6 +111,7 @@ static const value_string exported_pdu_tag_vals[] = {
    { EXP_PDU_TAG_PORT_TYPE,             "Port Type" },
    { EXP_PDU_TAG_SRC_PORT,              "Source Port" },
    { EXP_PDU_TAG_DST_PORT,              "Destination Port" },
+   { EXP_PDU_TAG_MATCH_UINT,            "pinfo->match_uint(e.g Server port for protocol)" },
 
    { EXP_PDU_TAG_SS7_OPC,               "SS7 OPC" },
    { EXP_PDU_TAG_SS7_DPC,               "SS7 DPC" },
@@ -361,6 +363,9 @@ dissect_exported_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
                 break;
             case EXP_PDU_TAG_DST_PORT:
                 proto_tree_add_item_ret_uint(tag_tree, hf_exported_pdu_dst_port, tvb, offset, 4, ENC_BIG_ENDIAN, &pinfo->destport);
+                break;
+            case EXP_PDU_TAG_MATCH_UINT:
+                proto_tree_add_item_ret_uint(tag_tree, hf_exported_pdu_match_uint, tvb, offset, 4, ENC_BIG_ENDIAN, &pinfo->match_uint);
                 break;
             case EXP_PDU_TAG_SS7_OPC:
                 proto_tree_add_item(tag_tree, hf_exported_pdu_ss7_opc, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -631,6 +636,11 @@ proto_register_exported_pdu(void)
         },
         { &hf_exported_pdu_dst_port,
             { "Dst Port", "exported_pdu.dst_port",
+               FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_exported_pdu_match_uint,
+            { "Match uint", "exported_pdu.match_uint",
                FT_UINT32, BASE_DEC, NULL, 0,
               NULL, HFILL }
         },

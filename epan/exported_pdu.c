@@ -15,7 +15,6 @@
 
 #include <epan/packet.h>
 #include <epan/exported_pdu.h>
-#include <epan/address_types.h>
 #include <epan/tap.h>
 #include <wiretap/wtap.h>
 
@@ -158,6 +157,11 @@ static int exp_pdu_data_dst_port_populate_data(packet_info *pinfo, void* data _U
 	return exp_pdu_data_port_populate_data(pinfo->destport, EXP_PDU_TAG_DST_PORT, tlv_buffer, buffer_size);
 }
 
+static int exp_pdu_data_match_uint_populate_data(packet_info* pinfo, void* data _U_, uint8_t* tlv_buffer, uint32_t buffer_size)
+{
+	return exp_pdu_data_port_populate_data(pinfo->match_uint, EXP_PDU_TAG_MATCH_UINT, tlv_buffer, buffer_size);
+}
+
 static int exp_pdu_data_orig_frame_num_size(packet_info *pinfo _U_, void* data _U_)
 {
 	return EXP_PDU_TAG_ORIG_FNO_LEN + 4;
@@ -194,6 +198,7 @@ exp_pdu_data_item_t exp_pdu_data_dst_ip = {exp_pdu_data_dst_ip_size, exp_pdu_dat
 exp_pdu_data_item_t exp_pdu_data_port_type = {exp_pdu_data_port_type_size, exp_pdu_data_port_type_populate_data, NULL};
 exp_pdu_data_item_t exp_pdu_data_src_port = {exp_pdu_data_port_size, exp_pdu_data_src_port_populate_data, NULL};
 exp_pdu_data_item_t exp_pdu_data_dst_port = {exp_pdu_data_port_size, exp_pdu_data_dst_port_populate_data, NULL};
+exp_pdu_data_item_t exp_pdu_data_match_uint = { exp_pdu_data_port_size, exp_pdu_data_match_uint_populate_data, NULL };
 exp_pdu_data_item_t exp_pdu_data_orig_frame_num = {exp_pdu_data_orig_frame_num_size, exp_pdu_data_orig_frame_num_populate_data, NULL};
 
 exp_pdu_data_t *export_pdu_create_common_tags(packet_info *pinfo, const char *proto_name, uint16_t tag_type)
