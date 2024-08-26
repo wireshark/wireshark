@@ -192,7 +192,6 @@ WS_DLL_PUBLIC int exp_pdu_data_dissector_table_num_value_populate_data(packet_in
 	return exp_pdu_data_dissector_table_num_value_size(pinfo, data);
 }
 
-
 exp_pdu_data_item_t exp_pdu_data_src_ip = {exp_pdu_data_src_ip_size, exp_pdu_data_src_ip_populate_data, NULL};
 exp_pdu_data_item_t exp_pdu_data_dst_ip = {exp_pdu_data_dst_ip_size, exp_pdu_data_dst_ip_populate_data, NULL};
 exp_pdu_data_item_t exp_pdu_data_port_type = {exp_pdu_data_port_type_size, exp_pdu_data_port_type_populate_data, NULL};

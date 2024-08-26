@@ -1684,6 +1684,23 @@ static int exp_pdu_tcp_dissector_data_populate_data(packet_info *pinfo _U_, void
     return exp_pdu_tcp_dissector_data_size(pinfo, data);
 }
 
+static int exp_pdu_data_tcp_stream_id_size(packet_info* pinfo _U_, void* data _U_)
+{
+    return EXP_PDU_TAG_TCP_STREAM_ID_LEN + 4;
+}
+
+static int exp_pdu_tcp_stream_id_populate_data(packet_info* pinfo, void* data _U_, uint8_t* tlv_buffer, uint32_t buffer_size _U_)
+{
+
+    struct tcpinfo* dissector_data = (struct tcpinfo*)data;
+
+    phton16(tlv_buffer + 0, EXP_PDU_TAG_TCP_STREAM_ID);
+    phton16(tlv_buffer + 2, EXP_PDU_TAG_TCP_STREAM_ID_LEN); /* tag length */
+    phton32(tlv_buffer + 4, dissector_data->stream);
+
+    return exp_pdu_data_tcp_stream_id_size(pinfo, data);
+}
+
 static tvbuff_t*
 handle_export_pdu_check_desegmentation(packet_info *pinfo, tvbuff_t *tvb)
 {
@@ -1714,6 +1731,7 @@ handle_export_pdu_dissection_table(packet_info *pinfo, tvbuff_t *tvb, uint32_t p
         }
         exp_pdu_data_item_t exp_pdu_data_table_value = {exp_pdu_data_dissector_table_num_value_size, exp_pdu_data_dissector_table_num_value_populate_data, NULL};
         exp_pdu_data_item_t exp_pdu_data_dissector_data = {exp_pdu_tcp_dissector_data_size, exp_pdu_tcp_dissector_data_populate_data, NULL};
+        exp_pdu_data_item_t exp_pdu_data_tcp_stream_id = { exp_pdu_data_tcp_stream_id_size, exp_pdu_tcp_stream_id_populate_data, NULL };
         const exp_pdu_data_item_t *tcp_exp_pdu_items[] = {
             &exp_pdu_data_src_ip,
             &exp_pdu_data_dst_ip,
@@ -1724,6 +1742,7 @@ handle_export_pdu_dissection_table(packet_info *pinfo, tvbuff_t *tvb, uint32_t p
             &exp_pdu_data_orig_frame_num,
             &exp_pdu_data_table_value,
             &exp_pdu_data_dissector_data,
+            &exp_pdu_data_tcp_stream_id,
             NULL
         };
 
@@ -1735,6 +1754,7 @@ handle_export_pdu_dissection_table(packet_info *pinfo, tvbuff_t *tvb, uint32_t p
 
         exp_pdu_data_table_value.data = GUINT_TO_POINTER(port);
         exp_pdu_data_dissector_data.data = tcpinfo;
+        exp_pdu_data_tcp_stream_id.data = tcpinfo;
 
         exp_pdu_data = export_pdu_create_tags(pinfo, "tcp.port", EXP_PDU_TAG_DISSECTOR_TABLE_NAME, tcp_exp_pdu_items);
         exp_pdu_data->tvb_captured_length = tvb_captured_length(tvb);
@@ -8321,6 +8341,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     if (tcpd) {
         item = proto_tree_add_uint(tcp_tree, hf_tcp_stream, tvb, offset, 0, tcpd->stream);
         proto_item_set_generated(item);
+        tcpinfo.stream = tcpd->stream;
 
         if (tcppd) {
             item = proto_tree_add_uint(tcp_tree, hf_tcp_stream_pnum, tvb, offset, 0, tcppd->pnum);
