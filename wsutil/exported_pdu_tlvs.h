@@ -193,6 +193,8 @@
 */
 #define EXP_PDU_TAG_3GPP_ID   38
 
+#define EXP_PDU_TAG_TCP_STREAM_ID   39 /**< The TCP Stream ID from the original file or unique number for the stream in the trace. */
+
 #define EXP_PDU_TAG_IPV4_LEN            4
 #define EXP_PDU_TAG_IPV6_LEN            16
 
@@ -207,5 +209,7 @@
 #define EXP_PDU_TAG_DVBCI_EVT_LEN       1
 
 #define EXP_PDU_TAG_DISSECTOR_TABLE_NUM_VAL_LEN     4
+
+#define EXP_PDU_TAG_TCP_STREAM_ID_LEN   4
 
 #endif /* EXPORTED_PDU_TLVS_H */

@@ -31,6 +31,7 @@ static int hf_ip_src;
 static int hf_ipv6_addr;
 static int hf_ipv6_dst;
 static int hf_ipv6_src;
+static int hf_tcp_stream_id;
 
 static int proto_exported_pdu;
 static int hf_exported_pdu_tag;
@@ -126,6 +127,7 @@ static const value_string exported_pdu_tag_vals[] = {
    { EXP_PDU_TAG_COL_INFO_TEXT,         "Column Information String" },
    { EXP_PDU_TAG_USER_DATA_PDU,         "User Data PDU" },
    { EXP_PDU_TAG_3GPP_ID,               "3GPP Identity" },
+   { EXP_PDU_TAG_TCP_STREAM_ID,         "TCP Stream ID"},
 
    { 0,        NULL   }
 };
@@ -440,6 +442,9 @@ dissect_exported_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
             case EXP_PDU_TAG_3GPP_ID:
                 dissect_3gpp_id(tvb, pinfo, tag_tree, offset, tag_len);
                 break;
+            case EXP_PDU_TAG_TCP_STREAM_ID:
+                proto_tree_add_item(tag_tree, hf_tcp_stream_id, tvb, offset, 4, ENC_BIG_ENDIAN);
+                break;
             case EXP_PDU_TAG_END_OF_OPT:
                 break;
             default:
@@ -510,7 +515,7 @@ dissect_exported_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
                 else {
                     col_clear(pinfo->cinfo, COL_INFO);
                 }
-                dissector_try_uint_new(dis_tbl, dissector_table_val, payload_tvb, pinfo, tree, false, dissector_data);
+                dissector_try_uint_new(dis_tbl, dissector_table_val, payload_tvb, pinfo, tree, true, dissector_data);
             }
         }
         default:
@@ -796,6 +801,7 @@ proto_reg_handoff_exported_pdu(void)
     hf_ipv6_addr  = proto_registrar_get_id_byname("ipv6.addr");
     hf_ipv6_dst   = proto_registrar_get_id_byname("ipv6.dst");
     hf_ipv6_src   = proto_registrar_get_id_byname("ipv6.src");
+    hf_tcp_stream_id = proto_registrar_get_id_byname("tcp.stream");
 }
 
 
