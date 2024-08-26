@@ -661,7 +661,12 @@ static int hf_agent_monitor_x;
 static int hf_agent_monitor_y;
 static int hf_multi_media_time;
 static int hf_ram_hint;
-static int hf_button_state;
+static int hf_button;
+static int hf_buttons_state;
+static int hf_button_mask_left;
+static int hf_button_mask_middle;
+static int hf_button_mask_right;
+static int hf_button_mask_reserved_bits;
 static int hf_mouse_display_id;
 static int hf_display_text_fore_mode;
 static int hf_display_text_back_mode;
@@ -732,6 +737,7 @@ static int hf_resource_type;
 static int hf_resource_id;
 static int hf_ref_image;
 static int hf_ref_string;
+static int hf_vd_agent_buttons;
 static int hf_vd_agent_caps_request;
 static int hf_vd_agent_cap_mouse_state;
 static int hf_vd_agent_cap_monitors_config;
@@ -2243,8 +2249,8 @@ dissect_spice_agent_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         case VD_AGENT_MOUSE_STATE:
             dissect_POINT32(tvb, tree, offset);
             offset += (int)sizeof(point32_t);
-            proto_tree_add_item(tree, hf_button_state, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-            offset += 2;
+            proto_tree_add_item(tree, hf_vd_agent_buttons, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+            offset += 4;
             proto_tree_add_item(tree, hf_mouse_display_id, tvb, offset, 1, ENC_NA);
             offset += 1;
             break;
@@ -2512,6 +2518,28 @@ dissect_spice_keyboard_modifiers(tvbuff_t *tvb, proto_tree *tree, uint32_t offse
     return 2;
 }
 
+static int
+dissect_buttons_state(tvbuff_t *tvb, proto_tree *tree, uint32_t offset)
+{
+    proto_item* ti;
+    proto_tree *subtree;
+
+    ti = proto_tree_add_item(tree, hf_buttons_state, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    subtree = proto_item_add_subtree(ti, ett_inputs_client);
+
+    static int *const hf_buttons_mask[] = {
+        &hf_button_mask_left,
+        &hf_button_mask_middle,
+        &hf_button_mask_right,
+        &hf_button_mask_reserved_bits,
+        NULL
+    };
+
+    proto_tree_add_bitmask_list(subtree, tvb, offset, 2, hf_buttons_mask, ENC_LITTLE_ENDIAN);
+
+    return 2;
+}
+
 static uint32_t
 dissect_spice_inputs_client(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, const uint16_t message_type, proto_item* msgtype_item, uint32_t offset)
 {
@@ -2535,8 +2563,7 @@ dissect_spice_inputs_client(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             inputs_tree = proto_tree_add_subtree(tree, tvb, offset, sizeof(point32_t) + 3, ett_inputs_client, NULL, "Client MOUSE_POSITION message");
             dissect_POINT32(tvb, inputs_tree, offset);
             offset += (int)sizeof(point32_t);
-            proto_tree_add_item(inputs_tree, hf_button_state, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-            offset += 2;
+            offset += dissect_buttons_state(tvb, inputs_tree, offset);
             proto_tree_add_item(inputs_tree, hf_mouse_display_id, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset += 1;
             break;
@@ -2544,22 +2571,19 @@ dissect_spice_inputs_client(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             inputs_tree = proto_tree_add_subtree(tree, tvb, offset, sizeof(point32_t) + 2, ett_inputs_client, NULL, "Client MOUSE_MOTION message");
             dissect_POINT32(tvb, inputs_tree, offset);
             offset += (int)sizeof(point32_t);
-            proto_tree_add_item(inputs_tree, hf_button_state, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-            offset += 2;
+            offset += dissect_buttons_state(tvb, inputs_tree, offset);
             break;
         case SPICE_MSGC_INPUTS_MOUSE_PRESS:
             inputs_tree = proto_tree_add_subtree(tree, tvb, offset, 3, ett_inputs_client, NULL, "Client MOUSE_PRESS message");
-            proto_tree_add_item(inputs_tree, hf_button_state, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-            offset += 2;
-            proto_tree_add_item(inputs_tree, hf_mouse_display_id, tvb, offset, 1, ENC_NA);
+            proto_tree_add_item(inputs_tree, hf_button, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset += 1;
+            offset += dissect_buttons_state(tvb, inputs_tree, offset);
             break;
         case SPICE_MSGC_INPUTS_MOUSE_RELEASE:
             inputs_tree = proto_tree_add_subtree(tree, tvb, offset, 3, ett_inputs_client, NULL, "Client MOUSE_RELEASE message");
-            proto_tree_add_item(inputs_tree, hf_button_state, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-            offset += 2;
-            proto_tree_add_item(inputs_tree, hf_mouse_display_id, tvb, offset, 1, ENC_NA);
+            proto_tree_add_item(inputs_tree, hf_button, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset += 1;
+            offset += dissect_buttons_state(tvb, inputs_tree, offset);
             break;
         default:
             expert_add_info_format(pinfo, msgtype_item, &ei_spice_unknown_message, "Unknown inputs client message - cannot dissect");
@@ -4117,10 +4141,35 @@ proto_register_spice(void)
             FT_UINT32, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
-        { &hf_button_state, /*FIXME - bitmask */
-          { "Mouse button state", "spice.button_state",
-            FT_UINT32, BASE_DEC, NULL, 0x0,
+        { &hf_button,
+          { "Mouse button ID", "spice.button",
+            FT_UINT8, BASE_DEC, VALS(spice_mouse_button_vs), 0x0,
             NULL, HFILL }
+        },
+        { &hf_buttons_state,
+          { "Mouse buttons state mask", "spice.buttons_state",
+            FT_UINT16, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_button_mask_left,
+          { "Left", "spice.button_mask_left",
+            FT_BOOLEAN, 16, TFS(&tfs_set_notset), SPICE_MOUSE_BUTTON_MASK_LEFT,
+            NULL, HFILL }
+        },
+        { &hf_button_mask_middle,
+          { "Middle", "spice.button_mask_middle",
+            FT_BOOLEAN, 16, TFS(&tfs_set_notset), SPICE_MOUSE_BUTTON_MASK_MIDDLE,
+            NULL, HFILL }
+        },
+        { &hf_button_mask_right,
+          { "Right", "spice.button_mask_right",
+            FT_BOOLEAN, 16, TFS(&tfs_set_notset), SPICE_MOUSE_BUTTON_MASK_RIGHT,
+            NULL, HFILL }
+        },
+        { &hf_button_mask_reserved_bits,
+          { "Reserved bits", "spice.button_mask_reserved_bits",
+            FT_UINT16, BASE_HEX, NULL, 0xFFF8,
+            "Must be zero", HFILL }
         },
         { &hf_mouse_display_id,
           { "Mouse display ID", "spice.mouse_display_id",
@@ -4490,6 +4539,11 @@ proto_register_spice(void)
         { &hf_agent_monitor_y,
           { "y", "spice.agent_monitor_y",
             FT_INT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_vd_agent_buttons,
+          { "Buttons", "spice.vd_agent_buttons",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_vd_agent_caps_request,
