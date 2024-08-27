@@ -31,7 +31,6 @@ static int hf_ip_src;
 static int hf_ipv6_addr;
 static int hf_ipv6_dst;
 static int hf_ipv6_src;
-static int hf_tcp_stream_id;
 
 static int proto_exported_pdu;
 static int hf_exported_pdu_tag;
@@ -56,7 +55,6 @@ static int hf_exported_pdu_ipv6_dst;
 static int hf_exported_pdu_port_type;
 static int hf_exported_pdu_src_port;
 static int hf_exported_pdu_dst_port;
-static int hf_exported_pdu_match_uint;
 /** static int hf_exported_pdu_sctp_ppid; **/
 static int hf_exported_pdu_ss7_opc;
 static int hf_exported_pdu_ss7_dpc;
@@ -112,7 +110,6 @@ static const value_string exported_pdu_tag_vals[] = {
    { EXP_PDU_TAG_PORT_TYPE,             "Port Type" },
    { EXP_PDU_TAG_SRC_PORT,              "Source Port" },
    { EXP_PDU_TAG_DST_PORT,              "Destination Port" },
-   { EXP_PDU_TAG_MATCH_UINT,            "pinfo->match_uint(e.g Server port for protocol)" },
 
    { EXP_PDU_TAG_SS7_OPC,               "SS7 OPC" },
    { EXP_PDU_TAG_SS7_DPC,               "SS7 DPC" },
@@ -127,7 +124,6 @@ static const value_string exported_pdu_tag_vals[] = {
    { EXP_PDU_TAG_COL_INFO_TEXT,         "Column Information String" },
    { EXP_PDU_TAG_USER_DATA_PDU,         "User Data PDU" },
    { EXP_PDU_TAG_3GPP_ID,               "3GPP Identity" },
-   { EXP_PDU_TAG_TCP_STREAM_ID,         "TCP Stream ID"},
 
    { 0,        NULL   }
 };
@@ -366,9 +362,6 @@ dissect_exported_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
             case EXP_PDU_TAG_DST_PORT:
                 proto_tree_add_item_ret_uint(tag_tree, hf_exported_pdu_dst_port, tvb, offset, 4, ENC_BIG_ENDIAN, &pinfo->destport);
                 break;
-            case EXP_PDU_TAG_MATCH_UINT:
-                proto_tree_add_item_ret_uint(tag_tree, hf_exported_pdu_match_uint, tvb, offset, 4, ENC_BIG_ENDIAN, &pinfo->match_uint);
-                break;
             case EXP_PDU_TAG_SS7_OPC:
                 proto_tree_add_item(tag_tree, hf_exported_pdu_ss7_opc, tvb, offset, 4, ENC_BIG_ENDIAN);
                 mtp3_addr = wmem_new0(pinfo->pool, mtp3_addr_pc_t);
@@ -441,9 +434,6 @@ dissect_exported_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
                 break;
             case EXP_PDU_TAG_3GPP_ID:
                 dissect_3gpp_id(tvb, pinfo, tag_tree, offset, tag_len);
-                break;
-            case EXP_PDU_TAG_TCP_STREAM_ID:
-                proto_tree_add_item(tag_tree, hf_tcp_stream_id, tvb, offset, 4, ENC_BIG_ENDIAN);
                 break;
             case EXP_PDU_TAG_END_OF_OPT:
                 break;
@@ -644,11 +634,6 @@ proto_register_exported_pdu(void)
                FT_UINT32, BASE_DEC, NULL, 0,
               NULL, HFILL }
         },
-        { &hf_exported_pdu_match_uint,
-            { "Match uint", "exported_pdu.match_uint",
-               FT_UINT32, BASE_DEC, NULL, 0,
-              NULL, HFILL }
-        },
         { &hf_exported_pdu_ss7_opc,
             { "SS7 OPC", "exported_pdu.ss7_opc",
                FT_UINT32, BASE_DEC, NULL, 0,
@@ -801,7 +786,6 @@ proto_reg_handoff_exported_pdu(void)
     hf_ipv6_addr  = proto_registrar_get_id_byname("ipv6.addr");
     hf_ipv6_dst   = proto_registrar_get_id_byname("ipv6.dst");
     hf_ipv6_src   = proto_registrar_get_id_byname("ipv6.src");
-    hf_tcp_stream_id = proto_registrar_get_id_byname("tcp.stream");
 }
 
 

@@ -484,8 +484,6 @@ struct tcp_analysis {
 	 * help determine which dissector to call
 	 */
 	uint16_t server_port;
-	/* Remember the matched port */
-	int match_uint;
 	/* Set when the client sends a SYN with data and the cookie in the Fast Open
 	 * option.
 	 */
