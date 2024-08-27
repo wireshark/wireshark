@@ -197,7 +197,9 @@ Copy the packet bytes to the clipboard as raw binary. The data is stored
 in the clipboard using the MIME type “application/octet-stream”.
 
 |menu:Protocol Preferences[] ||
-Adjust the preferences for the selected protocol.
+Adjust the <<ChCustPreferencesSection,preferences>> for the selected protocol,
+or disable it entirely. (You can re-enable it with the
+<<ChAdvEnabledProtocols,“Enabled Protocols” dialog box>>.)
 
 |menu:Decode As...[] |menu:Analyze[] |
 Change or apply a new relation between two dissectors.
@@ -301,7 +303,9 @@ allows you to export raw packet bytes to a binary file.
 |menu:Filter Field Reference[]|| Open the filter field reference web page for the selected protocol in your web browser.
 
 |menu:Protocol Preferences[] ||
-Adjust the preferences for the selected protocol.
+Adjust the <<ChCustPreferencesSection,preferences>> for the selected protocol,
+or disable it entirely. (You can re-enable it with the
+<<ChAdvEnabledProtocols,“Enabled Protocols” dialog box>>.)
 
 |menu:Decode As...[]|menu:Analyze[]| Change or apply a new relation between two dissectors.
 

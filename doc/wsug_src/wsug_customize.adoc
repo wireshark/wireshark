@@ -707,6 +707,23 @@ On the left side is a tree where you can select the page to be shown.
 
 * The btn:[Cancel] button will restore all preferences settings to the last saved state.
 
+[TIP]
+====
+You can also see a protocol's preferences from the pop-up menus for the
+<<ChWorkPacketListPanePopUpMenuSection,“Packet List”>> or
+<<ChWorkPacketDetailsPanePopUpMenuSection,“Packet Details”>> panes,
+by going to the _Protocol Preferences_ menu item, which will pop open a sub-menu.
+
+The top entry in this new menu will take you to the Preferences dialog box
+as shown in <<ChCustGUIPrefPage>>, with the chosen protocol's page showing.
+
+The _final_ entry in this menu will _completely disable_ the dissection of
+the chosen protocol. See <<ChAdvEnabledProtocols>> for how to re-enable the protocol.
+
+Any other entries in this menu will let you quickly adjust individual
+preferences for this protocol without needing to open the full Preferences dialog box.
+====
+
 ==== Appearance
 
 These preferences give you the option to control the makeup of the GUI.
