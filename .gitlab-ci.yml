@@ -24,6 +24,11 @@ variables:
   CCACHE_DIR: "${CI_PROJECT_DIR}/ccache"
   # Preferred version of clang available on wireshark-ubuntu-dev
   CLANG_VERSION: "18"
+  # The Qt versions that we ship in our offical installers. Must match
+  # windows-qt6-lts-version and macos-qt6-lts-version in
+  # doc/wsdg_src/developer-guide.adoc in master.
+  WINDOWS_QT6_LTS_VERSION: "6.5.3"
+  MACOS_QT6_LTS_VERSION: "6.5.3"
   # Enable color output in various tools.
   # CMake, Ninja, and others: https://bixense.com/clicolors/
   CLICOLOR_FORCE: "1"
@@ -179,7 +184,7 @@ workflow:
     - $env:WIRESHARK_BASE_DIR = "C:\Development"
     - $env:Configuration = "RelWithDebInfo"
     - $env:Path += ";C:\Program Files\CMake\bin"
-    - $env:CMAKE_PREFIX_PATH = "C:\qt\6.5.3\msvc2019_64"
+    - $env:CMAKE_PREFIX_PATH = "C:\qt\$($env:WINDOWS_QT6_LTS_VERSION)\msvc2019_64"
     # https://help.appveyor.com/discussions/questions/18777-how-to-use-vcvars64bat-from-powershell
     - cmd.exe /c "call `"C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Auxiliary\Build\vcvars64.bat`" && set > %temp%\vcvars.txt"
     - Get-Content "$env:temp\vcvars.txt" | Foreach-Object { if ($_ -match "^(.*?)=(.*)$") { Set-Content "env:\$($matches[1])" $matches[2] } }
@@ -438,7 +443,7 @@ Windows x64 Package:
   before_script:
     - $env:WIRESHARK_BASE_DIR = "C:\Development"
     - $env:Configuration = "RelWithDebInfo"
-    - $env:CMAKE_PREFIX_PATH = "C:\Qt\6.5.3\msvc2019_64"
+    - $env:CMAKE_PREFIX_PATH = "C:\Qt\$($env:WINDOWS_QT6_LTS_VERSION)\msvc2019_64"
     # https://help.appveyor.com/discussions/questions/18777-how-to-use-vcvars64bat-from-powershell
     - cmd.exe /c "call `"C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Auxiliary\Build\vcvars64.bat`" && set > %temp%\vcvars.txt"
     - Get-Content "$env:temp\vcvars.txt" | Foreach-Object { if ($_ -match "^(.*?)=(.*)$") { Set-Content "env:\$($matches[1])" $matches[2] } }
@@ -484,7 +489,7 @@ Windows Arm64 Package:
   before_script:
     - $env:WIRESHARK_BASE_DIR = "C:\Development"
     - $env:Configuration = "RelWithDebInfo"
-    - $env:CMAKE_PREFIX_PATH = "C:\Qt\6.5.3\msvc2019_arm64"
+    - $env:CMAKE_PREFIX_PATH = "C:\Qt\$($env:WINDOWS_QT6_LTS_VERSION)\msvc2019_arm64"
     # https://help.appveyor.com/discussions/questions/18777-how-to-use-vcvars64bat-from-powershell
     - cmd.exe /c "call `"C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Auxiliary\Build\vcvarsarm64.bat`" && set > %temp%\vcvars.txt"
     - Get-Content "$env:temp\vcvars.txt" | Foreach-Object { if ($_ -match "^(.*?)=(.*)$") { Set-Content "env:\$($matches[1])" $matches[2] } }
@@ -539,7 +544,7 @@ macOS Arm Package:
     - wireshark-macos-arm-package
   retry: 1
   script:
-    - export CMAKE_PREFIX_PATH=/usr/local/Qt-6.5.3
+    - export CMAKE_PREFIX_PATH=/usr/local/Qt-$MACOS_QT6_LTS_VERSION
     - export PATH="$PATH:$HOME/bin"
     - mkdir build
     - cd build
@@ -590,7 +595,7 @@ macOS Intel Package:
     - wireshark-macos-intel-package
   retry: 1
   script:
-    - export CMAKE_PREFIX_PATH=/usr/local/Qt-6.5.3
+    - export CMAKE_PREFIX_PATH=/usr/local/Qt-$MACOS_QT6_LTS_VERSION
     - export PATH="$PATH:$HOME/bin"
     - mkdir build
     - cd build
