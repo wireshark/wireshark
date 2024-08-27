@@ -612,21 +612,15 @@ Enable or disable various protocol dissectors. See <<ChAdvEnabledProtocols>>.
 |menu:Decode As...[]                ||
 Decode certain packets as a particular protocol. See <<ChAdvDecodeAs>>.
 
-|menu:Follow[TCP Stream]            ||
-Open a window that displays all the TCP segments captured that are on
-the same TCP connection as a selected packet.
+|menu:SCTP[]                        ||
+Allows you to analyze and prepare a filter for this SCTP association.
+See <<ChTelSCTP>>.
+
+|menu:Follow[]                      ||
+Opens a sub-menu with options of various types of protocol streams
+to follow. The entries for protocols which aren't found in the
+currently selected packet will be disabled.
 See <<ChAdvFollowStreamSection>>.
-
-|menu:Follow[UDP Stream]            ||
-Same functionality as “Follow TCP Stream” but for UDP “streams”.
-
-|menu:Follow[TLS Stream]            ||
-Same functionality as “Follow TCP Stream” but for TLS or SSL streams.
-See the wiki page on link:{wireshark-wiki-url}TLS[TLS] for instructions
-on providing TLS keys.
-
-|menu:Follow[HTTP Stream]           ||
-Same functionality as “Follow TCP Stream” but for HTTP streams.
 
 |menu:Show Packet Bytes[]           ||
 Open a window allowing for decoding and reformatting packet bytes.

@@ -154,24 +154,13 @@ Create a new colorizing rule based on address information from the selected pack
 
 |menu:SCTP[] ||
 Allows you to analyze and prepare a filter for this SCTP association.
+See <<ChTelSCTP>>.
 
-|menu:Follow[TCP Stream] |menu:Analyze[] |
-Open a window that displays all the TCP segments captured that are on the same TCP connection as a selected packet.
+|menu:Follow[] |menu:Analyze[] |
+Opens a sub-menu with options of various types of protocol streams
+to follow. The entries for protocols which aren't found in the
+currently selected packet will not be shown.
 See <<ChAdvFollowStreamSection>>.
-
-|menu:Follow[UDP Stream] |menu:Analyze[] |
-Same functionality as “Follow TCP Stream” but for UDP “streams”.
-
-|menu:Follow[DCCP Stream] |menu:Analyze[] |
-Same functionality as “Follow TCP Stream” but for DCCP streams.
-
-|menu:Follow[TLS Stream] |menu:Analyze[] |
-Same functionality as “Follow TCP Stream” but for TLS or SSL streams.
-See the wiki page on link:{wireshark-wiki-url}TLS[TLS] for instructions
-on providing TLS keys.
-
-|menu:Follow[HTTP Stream] |menu:Analyze[] |
-Same functionality as “Follow TCP Stream” but for HTTP streams.
 
 |menu:Copy[Summary as Text] ||
 Copy the summary fields as displayed to the clipboard as tab-separated
@@ -257,20 +246,11 @@ The first submenu item shows the filter and subsequent items show the different 
 
 |menu:Colorize with Filter[]|| This menu item uses a display filter with the information from the selected protocol item to build a new colorizing rule.
 
-|menu:Follow[TCP Stream] |menu:Analyze[] |
-Open a window that displays all the TCP segments captured that are on the same TCP connection as a selected packet.
+|menu:Follow[] |menu:Analyze[] |
+Opens a sub-menu with options of various types of protocol streams
+to follow. The entries for protocols which aren't found in the
+currently selected packet will not be shown.
 See <<ChAdvFollowStreamSection>>.
-
-|menu:Follow[UDP Stream] |menu:Analyze[] |
-Same functionality as “Follow TCP Stream” but for UDP “streams”.
-
-|menu:Follow[TLS Stream] |menu:Analyze[] |
-Same functionality as “Follow TCP Stream” but for TLS or SSL streams.
-See the wiki page on link:{wireshark-wiki-url}TLS[TLS] for instructions
-on providing TLS keys.
-
-|menu:Follow[HTTP Stream] |menu:Analyze[] |
-Same functionality as “Follow TCP Stream” but for HTTP streams.
 
 |menu:Copy[All Visible Items] |menu:Edit[] |
 Copy the packet details as displayed.

@@ -24,9 +24,9 @@ display filter to show only the packets in a TLS or SSL stream. If so,
 Wireshark’s ability to follow protocol streams will be useful to you.
 
 To filter to a particular stream,
-select a TCP, UDP, DCCP, TLS, HTTP, HTTP/2, QUIC or SIP packet in the packet list of the stream/connection you are
-interested in and then select the menu item menu:Analyze[Follow > TCP Stream]
-(or use the context menu in the packet list). Wireshark will set an
+select a packet in the packet list of the stream/connection you are
+interested in and then select the menu item you want under menu:Analyze[Follow]
+(or in the context menu in the packet list). Wireshark will set an
 appropriate display filter and display a dialog box with the data from the
 stream laid out, as shown in <<ChAdvFollowStream>>.
 
@@ -37,6 +37,24 @@ the packets in the current stream. Some people open the “Follow TCP
 Stream” dialog and immediately close it as a quick way to isolate a
 particular stream. Closing the dialog with the “Back” button will reset
 the display filter if this behavior is not desired.
+====
+
+Wireshark supports following the streams of many different protocols, including
+TCP, UDP, DCCP, TLS, HTTP, HTTP/2, QUIC, WebSocket, SIP, and USB CDC.
+The dialog for following TCP streams is covered in detail here;
+most other supported protocols will show dialogs which are very similar.
+
+[NOTE]
+====
+If the type of stream you wish to follow is disabled or missing from the menu,
+Wireshark did not find the respective protocol in the currently selected packet.
+====
+
+[TIP]
+====
+To follow TLS or SSL streams, see the wiki page on
+link:{wireshark-wiki-url}TLS[TLS] for instructions
+on providing TLS keys.
 ====
 
 [#ChAdvFollowStream]
