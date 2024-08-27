@@ -113,7 +113,7 @@ GNU Public License); do so.  Continue to the “Installation Folder“ page
 of the installer screen, and select the “Custom installation“ option.
 On the “Select Components“ screen of the installer, select, for the
 desired Qt version, the “macOS” component. For example, at the time of
-this writing the Qt {qt6-lts-version} “macOS” component is used to build
+this writing the Qt {macos-qt6-lts-version} “macOS” component is used to build
 the official packages.  The “Qt Debug Information Files” component
 contains dSYM files which can be used for debugging. You can deselect
 all of the other the components such as “Qt Charts” or “Android xxxx”
@@ -134,7 +134,7 @@ environment:
 
 [subs="attributes+"]
 ----
-WIRESHARK_QT6_PREFIX_PATH=~/Qt/{qt6-lts-version}/macos
+WIRESHARK_QT6_PREFIX_PATH=~/Qt/{macos-qt6-lts-version}/macos
 export WIRESHARK_QT6_PREFIX_PATH
 ----
 
@@ -374,7 +374,7 @@ Qt, go to the https://www.qt.io/download[“Download Qt” page], select
 and use Next button to proceed. When asked, select "*Custom installation*".
 
 In the "Select Components" page, select your desired Qt version. We recommend
-the latest LTS version, and the stable Windows installers currently ship with Qt {qt6-lts-version}.
+the latest LTS version, and the stable Windows installers currently ship with Qt {windows-qt6-lts-version}.
 Select the following components:
 
 * MSVC 2019 64-bit
@@ -385,7 +385,7 @@ controls for playing back streams in the RTP Player dialog
 * You can deselect all of the other the components
 such as “Qt Charts” or “Android xxxx” as they aren’t required.
 
-The CMake variable CMAKE_PREFIX_PATH (see `https://doc.qt.io/qt-6/cmake-get-started.html`) should be set as appropriate for your environment and should point to the Qt installation directory, e.g. _C:\Qt{backslash}{qt6-lts-version}\msvc2019_64_
+The CMake variable CMAKE_PREFIX_PATH (see `https://doc.qt.io/qt-6/cmake-get-started.html`) should be set as appropriate for your environment and should point to the Qt installation directory, e.g. _C:\Qt{backslash}{windows-qt6-lts-version}\msvc2019_64_
 Alternatively you can also use the environment variable WIRESHARK_QT6_PREFIX_PATH.
 
 Qt 6 is the default option for building Wireshark, but Wireshark has support for Qt 5.12 and later. To enable Wireshark to build with Qt 5 pass `-DUSE_qt6=OFF`
@@ -622,7 +622,7 @@ rem Set *one* of these.
 set WIRESHARK_BASE_DIR=C:\Development
 rem set WIRESHARK_LIB_DIR=c:\wireshark-x64-libs
 rem Set the Qt installation directory
-set WIRESHARK_QT6_PREFIX_PATH=C:\Qt{backslash}{qt6-lts-version}\msvc2019_64
+set WIRESHARK_QT6_PREFIX_PATH=C:\Qt{backslash}{windows-qt6-lts-version}\msvc2019_64
 rem Append a custom string to the package version. Optional.
 set WIRESHARK_VERSION_EXTRA=-YourExtraVersionInfo
 ----
@@ -634,7 +634,7 @@ the Visual Studio Tools Command Prompt.
 .Use of Qt’s LTS branch
 ====
 It is generally recommended to use a LTS ("long term support") version for Qt. The current LTS version for Qt 6 is
-{qt6-lts-version}.
+{windows-qt6-lts-version}.
 ====
 
 --

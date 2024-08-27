@@ -73,7 +73,7 @@ It is available at https://www.qt.io/download-open-source/#section-2[].
 
 Qt 6 must be installed manually from the Qt installers page https://www.qt.io/download-open-source/#section-2[] using the version of Qt appropriate for your compiler.
 
-The CMake variable CMAKE_PREFIX_PATH (see `https://doc.qt.io/qt-6/cmake-get-started.html`) should be set to your Qt installation directory, e.g. _C:\Qt{backslash}{qt6-lts-version}\msvc2019_64_.
+The CMake variable CMAKE_PREFIX_PATH (see `https://doc.qt.io/qt-6/cmake-get-started.html`) should be set to your Qt installation directory, e.g. _C:\Qt{backslash}{windows-qt6-lts-version}\msvc2019_64_.
 Alternatively you can also use the environment variable WIRESHARK_QT6_PREFIX_PATH.
 
 [#ChLibsGLib]
