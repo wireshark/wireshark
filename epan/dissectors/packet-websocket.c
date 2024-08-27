@@ -917,12 +917,12 @@ proto_register_websocket(void)
     },
     { &hf_ws_payload,
       { "Payload", "websocket.payload",
-      FT_NONE, BASE_NONE, NULL, 0x0,
+      FT_BYTES, BASE_NONE|BASE_NO_DISPLAY_VALUE, NULL, 0x0,
       "Payload (after unmasking)", HFILL }
     },
     { &hf_ws_masked_payload,
       { "Masked payload", "websocket.masked_payload",
-      FT_NONE, BASE_NONE, NULL, 0x0,
+      FT_BYTES, BASE_NONE|BASE_NO_DISPLAY_VALUE, NULL, 0x0,
       NULL, HFILL }
     },
     { &hf_ws_payload_continue,
@@ -937,7 +937,7 @@ proto_register_websocket(void)
     },
     { &hf_ws_payload_close,
       { "Close", "websocket.payload.close",
-      FT_NONE, BASE_NONE, NULL, 0x0,
+      FT_BYTES, BASE_NONE|BASE_NO_DISPLAY_VALUE, NULL, 0x0,
       NULL, HFILL }
     },
     { &hf_ws_payload_close_status_code,
