@@ -137,8 +137,6 @@
 #define EXP_PDU_TAG_PORT_TYPE       24  /**< part type - 4 bytes, EXP_PDU_PT value */
 #define EXP_PDU_TAG_SRC_PORT        25  /**< source port - 4 bytes (even for protocols with 2-byte ports) */
 #define EXP_PDU_TAG_DST_PORT        26  /**< destination port - 4 bytes (even for protocols with 2-byte ports) */
-#define EXP_PDU_TAG_MATCH_UINT      27  /**< pinfo->match_uint, needed by some protocols for proper decoding */
-
 
 #define EXP_PDU_TAG_SS7_OPC         28
 #define EXP_PDU_TAG_SS7_DPC         29
@@ -193,8 +191,6 @@
 */
 #define EXP_PDU_TAG_3GPP_ID   38
 
-#define EXP_PDU_TAG_TCP_STREAM_ID   39 /**< The TCP Stream ID from the original file or unique number for the stream in the trace. */
-
 #define EXP_PDU_TAG_IPV4_LEN            4
 #define EXP_PDU_TAG_IPV6_LEN            16
 
@@ -209,7 +205,5 @@
 #define EXP_PDU_TAG_DVBCI_EVT_LEN       1
 
 #define EXP_PDU_TAG_DISSECTOR_TABLE_NUM_VAL_LEN     4
-
-#define EXP_PDU_TAG_TCP_STREAM_ID_LEN   4
 
 #endif /* EXPORTED_PDU_TLVS_H */
