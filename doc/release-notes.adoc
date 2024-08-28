@@ -7,12 +7,16 @@ include::attributes.adoc[]
 // Asciidoctor Syntax Quick Reference:
 // https://asciidoctor.org/docs/asciidoc-syntax-quick-reference/
 
-This is an experimental release intended to test new features for Wireshark 4.4.
+This is the first release of the 4.4 branch.
 
 == What is Wireshark?
 
 Wireshark is the world’s most popular network protocol analyzer.
 It is used for troubleshooting, analysis, development and education.
+
+Wireshark is hosted by the Wireshark Foundation, a nonprofit which promotes protocol analysis education.
+Wireshark and the foundation depend on your contributions in order to do their work.
+If you or your organization would like to contribute or become a sponsor, please visit https://wiresharkfoundation.org[wiresharkfoundation.org].
 
 == What’s New
 
@@ -54,7 +58,7 @@ See the “New and Updated Features” section below for more details.
 //* wsbuglink:5000[]
 //* wsbuglink:6000[Wireshark bug]
 //* cveidlink:2014-2486[]
-//* Wireshark grabs your ID at 3 am, goes to Waffle House, and insults people.
+//* Wireshark took a bite out of each of your freshly baked muffins until it found the perfect one.
 
 === New and Updated Features
 
@@ -418,7 +422,7 @@ The Parlay dissector has been removed.
 
 // Add one protocol per line between the -- delimiters in the format
 // “Full protocol name (Abbreviation)”
-// git log --oneline --diff-filter=A --stat v4.3.0rc0.. epan/dissectors plugins
+// ag -A1 '(define PSNAME|proto_register_protocol[^_])' $(git diff --name-only v4.4.0.. | ag packet- | sort -u)
 [commaize]
 --
 Allied Telesis Resiliency Link (AT RL)

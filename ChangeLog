@@ -1,3 +1,36 @@
+847e4f61a9 802.11 Radio: Add a bounds check
+bd18e943c7 epan: Don't set a libgcrypt log handler >= 1.11.0
+5bbe2bb0a3 pcap: fix a function return type.
+75cc1567d0 GitLab CI: Move our Qt versions to variables
+6ab76763ed epan: Add ifndef include guard to show_exception.h
+802a24139e Exported PDU revert adding of match_uint and TCP stream id.
+157344e9c1 Exported PDU: Add tag for tcp.stream and add to layers
+6103c8656a Export PDU: Add a new tag for pinfo->match_uint.
+37ac849629 Replace filenames with no. of files in FF2 and FN2
+d7dcbda5d3 Dissectors: Move expert declaration to function context
+758402eb4b [Automatic update for 2024-08-25]
+7cfd74db86 DHCP: Support the older version of CableLabs Option 82 suboption 9
+0407315674 PDU Transport: Use curr_proto_layer_num instead of curr_layer_num
+6d03ecc7ed DoIP/UDS: Last UDS message does not overwrite previous
+db807cdd49 File-blf: Allow for log containers to not have data (BUGFIX)
+8a5001ab68 wiretap: Fix compilation with LZ4 from 1.9.0 to 1.9.2 (e.g. Ubuntu 20)
+d182305333 wslua+lrexlib: Upstream fix for redefined symbol
+801ad62268 wiretap: Handle heterogeneous compression, zstd frames
+2ba9f4c56e Release notes: Add a link to issue 19116
+e8b09c41c1 Convert dissector ints used as bools to bools
+b0baddcd4a [Automatic update for 2024-08-18]
+13699b5b3e Protobuf: Use wmem_map_t instead of array overflow temporary solution
+e89b97eb31 Write compressed follow up
+694ab6eaa9 mergecap: Write compressed follow up
+de8e30e5c5 text2pcap: Write compressed follow up
+6068da544d tshark: Save as compressed tweaks
+d29a8ea8be tshark: Fix gzip uninitialized variable
+235758cc01 Add support for gzip-compressed output in mergecap and editcap
+de1b4e1b0b TECMP: updating to TECMP 1.9
+554d89389a wiretap: Check whether fast seeking is supported in fast_seek_header
+a0827b3f8f tshark: Don't print error messages for bad options twice
+6c578b6d71 Docs: Add a Prior Versions section
+b64f5f9a32 Build: 4.4.0rc1
 c531952378 assa_r3: Use FT_CHAR for a character
 76445daf29 Qt: Fix compression on Qt < 5.15
 b3fdac241b Qt: fix build with <QT5.15
