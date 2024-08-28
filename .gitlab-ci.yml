@@ -362,22 +362,23 @@ Fedora RPM Package:
 #     - tshark --version
 #  needs: [ 'Fedora RPM Package' ]
 
-openSUSE 15.5 RPM Package:
+openSUSE 15.6 RPM Package:
   extends: .build-rpm
-  image: registry.gitlab.com/wireshark/wireshark-containers/opensuse-15.5-dev
+  image: registry.gitlab.com/wireshark/wireshark-containers/opensuse-15.6-dev
   script:
+    - source /gcc-latest.env
     - printf "\e[0Ksection_start:%s:cmake_section[collapsed=true]\r\e[0KRunning CMake" "$( date +%s)"
-    - cmake -G Ninja -DUSE_qt6=OFF ..
+    - cmake -G Ninja ..
     - printf "\e[0Ksection_end:%s:cmake_section\r\e[0K" "$( date +%s)"
     - ninja wireshark_rpm
 
-openSUSE 15.5 RPM Test:
+openSUSE 15.6 RPM Test:
   extends: .test-rpm
-  image: registry.gitlab.com/wireshark/wireshark-containers/opensuse-15.5-dev
+  image: registry.gitlab.com/wireshark/wireshark-containers/opensuse-15.6-dev
   script:
     - zypper --no-gpg-checks --no-remote install -y build/packaging/rpm/RPMS/x86_64/*.rpm
     - tshark --version
-  needs: [ 'openSUSE 15.5 RPM Package' ]
+  needs: [ 'openSUSE 15.6 RPM Package' ]
 
 Rocky Linux 9 RPM Package:
   extends: .build-rpm
