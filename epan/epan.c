@@ -142,11 +142,14 @@ epan_get_version_number(int *major, int *minor, int *micro)
 		*micro = VERSION_MICRO;
 }
 
-#if defined(_WIN32)
+#if defined(_WIN32) && GCRYPT_VERSION_NUMBER < 0x010b00
 // Libgcrypt prints all log messages to stderr by default. This is noisier
 // than we would like on Windows. In particular slow_gatherer tends to print
 //     "NOTE: you should run 'diskperf -y' to enable the disk statistics"
 // which we don't care about.
+// gcry_set_log_handler was deprecated in libgcrypt 1.11.0, and also that
+// particular log message was quieted when not supported (and hence not useful)
+// https://github.com/gpg/libgcrypt/commit/35abf4d2eb582b78873aa324f6d02976788ffbbc
 static void
 quiet_gcrypt_logger (void *dummy _U_, int level, const char *format, va_list args)
 {
@@ -294,7 +297,7 @@ epan_init(register_cb cb, void *client_data, bool load_plugins)
 	gcry_control (GCRYCTL_NO_FIPS_MODE);
 #endif
 	gcry_check_version(NULL);
-#if defined(_WIN32)
+#if defined(_WIN32) && GCRYPT_VERSION_NUMBER < 0x010b00
 	gcry_set_log_handler (quiet_gcrypt_logger, NULL);
 #endif
 	gcry_control (GCRYCTL_DISABLE_SECMEM, 0);
