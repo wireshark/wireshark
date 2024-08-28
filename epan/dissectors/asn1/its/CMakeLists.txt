@@ -36,6 +36,7 @@ set( ASN_FILE_LIST
 	EVCSN-PDU-Descriptions.asn
 	EV-RSR-PDU-Descriptions.asn
 	CPM-OriginatingStationContainers.asn
+	CPM-PDU-Descriptionsv1.asn
 	CPM-PDU-Descriptions.asn
 	CPM-PerceivedObjectContainer.asn
 	CPM-PerceptionRegionContainer.asn

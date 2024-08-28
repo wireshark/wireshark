@@ -1,6 +1,6 @@
 --! @options: no-fields-header
 
-ETSI-ITS-CDD {itu-t (0) identified-organization (4) etsi (0) itsDomain (5) wg1 (1) 102894 cdd (2) major-version-3 (3) minor-version-1 (1)}
+ETSI-ITS-CDDv1 {itu-t (0) identified-organization (4) etsi (0) itsDomain (5) wg1 (1) 102894 cdd (2) major-version-3 (3) minor-version-1 (1)}
 
 DEFINITIONS AUTOMATIC TAGS ::=
 
@@ -3054,19 +3054,19 @@ StationaryVehicleSubCauseCode ::= INTEGER {
  * The ITS-S ID may be a pseudonym. It may change over space and/or over time.
  *
  * @category: Basic information
- * @revision: Created in V2.1.1 based on @ref StationID
+ * @revision: Created in V2.1.1 based on @ref StationIDv1
  */
-StationId ::= INTEGER(0..4294967295)
+StationIdv1 ::= INTEGER(0..4294967295)
 
 /**
  * This DE represents the identifier of an ITS-S.
  * The ITS-S ID may be a pseudonym. It may change over space and/or over time.
  *
- * @note: this DE is kept for backwards compatibility reasons only. It is recommended to use the @ref StationId instead.
+ * @note: this DE is kept for backwards compatibility reasons only. It is recommended to use the @ref StationIdv1 instead.
  * @category: Basic information
  * @revision: V1.3.1
  */
-StationID ::= INTEGER(0..4294967295)
+StationIDv1 ::= INTEGER(0..4294967295)
 
 /**
  * This DE represents the type of technical context the ITS-S is integrated in.
@@ -4170,7 +4170,7 @@ AccelerationMagnitude::= SEQUENCE {
  * 
  * It shall include the following components: 
  *
- * @field originatingStationId: Id of the ITS-S that takes the action. 
+ * @field originatingStationIdv1: Id of the ITS-S that takes the action. 
  * 
  * @field sequenceNumber: a sequence number. 
  * 
@@ -4178,7 +4178,7 @@ AccelerationMagnitude::= SEQUENCE {
  * @revision: Created in V2.1.1 based on @ref ActionID.
  */
 ActionId ::= SEQUENCE {
-    originatingStationId    StationId,
+    originatingStationIdv1    StationIdv1,
     sequenceNumber          SequenceNumber
 }
 
@@ -4187,7 +4187,7 @@ ActionId ::= SEQUENCE {
  * 
  * It shall include the following components: 
  *
- * @field originatingStationId: Id of the ITS-S that takes the action. 
+ * @field originatingStationIdv1: Id of the ITS-S that takes the action. 
  * 
  * @field sequenceNumber: a sequence number. 
  * 
@@ -4196,7 +4196,7 @@ ActionId ::= SEQUENCE {
  * @revision: V1.3.1
  */
 ActionID ::= SEQUENCE {
-    originatingStationId    StationID,
+    originatingStationIdv1    StationIDv1,
     sequenceNumber          SequenceNumber
 }
 
@@ -5099,11 +5099,12 @@ ItineraryPath ::= SEQUENCE SIZE(1..40) OF ReferencePosition
  * @revision:  update in V2.1.1: messageID and stationID changed to messageId and stationId; messageId is of type MessageId.
  */
 ItsPduHeader ::= SEQUENCE {
-    protocolVersion    OrdinalNumber1B,
+    protocolVersion    ProtocolVersion, --OrdinalNumber1B,
     messageId          MessageId,
-    stationId          StationId
+    stationId          StationIdv1
 }
 
+ProtocolVersion ::= INTEGER(0..255)
 /**
  * This DF indicates a transversal position in resolution of lanes and the associated lane type.
  *
@@ -5959,7 +5960,7 @@ RoadSegmentReferenceId ::= SEQUENCE {
  * @revision: created in V2.1.1
  */
 SafeDistanceIndication ::= SEQUENCE {
-    subjectStation           StationId OPTIONAL,
+    subjectStation           StationIdv1 OPTIONAL,
     safeDistanceIndicator    SafeDistanceIndicator,
     timeToCollision          DeltaTimeTenthOfSecond OPTIONAL,
     ...
@@ -6163,7 +6164,7 @@ TrailerData ::= SEQUENCE {
  * @revision: Created in V2.1.1
  */
 TrajectoryInterceptionIndication  ::= SEQUENCE {
-   subjectStation                     StationId OPTIONAL, 
+   subjectStation                     StationIdv1 OPTIONAL, 
    trajectoryInterceptionProbability  TrajectoryInterceptionProbability,
    trajectoryInterceptionConfidence   TrajectoryInterceptionConfidence OPTIONAL,
         ... 

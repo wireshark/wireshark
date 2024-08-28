@@ -15,6 +15,8 @@ DENM
 DENMv1
 CAM
 CAMv1
+CPM
+CollectivePerceptionMessage
 SSEM
 SREM
 IVIM
@@ -25,7 +27,6 @@ RTCMEM
 VAM
 ItsPduHeaderVam
 IMZM
-CollectivePerceptionMessage
 EvcsnPdu
 DriverLanguage
 ChargingPower
@@ -101,8 +102,10 @@ IVI							ivi
 GDD							gdd
 DSRC						dsrc
 RTCMEM-PDU-Descriptions                         rtcmem
+ETSI-ITS-CDDv1                                  itsv1
 ETSI-ITS-CDD                                    its
 CPM-OriginatingStationContainers                cpm
+CPM-PDU-Descriptionsv1                          cpmv1
 CPM-PDU-Descriptions                            cpm
 CPM-PerceivedObjectContainer                    cpm
 CPM-PerceptionRegionContainer                   cpm
@@ -127,6 +130,7 @@ SignalRequestMessage
 SignalStatusMessage
 RTCMcorrections
 CpmPayload
+CollectivePerceptionMessagev1
 ItsPduHeader
 VruAwareness
 InterferenceManagementZoneMessage
@@ -399,7 +403,9 @@ DistanceValue              DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(cpm_distance_valu
 DistanceConfidence         DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(cpm_distance_confidence_fmt)
 SpeedValueExtended         DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(cpm_speed_value_ext_fmt)
 ObjectDimensionValue       DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(cpm_object_dimension_value_fmt)
-#ObjectDimensionConfidence  DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(cpm_object_dimension_confidence_fmt)
+ObjectDimensionConfidence  DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(cpm_object_dimension_confidence_fmt)
+AngleConfidence            DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(cpm_angle_confidence_fmt)
+CartesianAngleValue        DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(cpm_cartesian_angle_value_fmt)
 
 #.END
 
@@ -917,11 +923,20 @@ CurvatureValue
 YawRateValue
 SteeringWheelAngleValue
 ValidityDuration
-ObjectDimensionValue
 SteeringWheelAngleConfidence
 TimestampIts
 GenerationDeltaTime
-
+TimeOfMeasurement
+ClassConfidence
+FreeSpaceConfidence
+ObjectConfidence
+DistanceValue
+DistanceConfidence
+SpeedValueExtended
+ObjectDimensionValue
+ObjectDimensionConfidence
+AngleConfidence
+CartesianAngleValue
 #.END
 
 #.NO_EMIT WITHOUT_VALS
