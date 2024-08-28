@@ -70,7 +70,7 @@ static bool libpcap_seek_read(wtap *wth, int64_t seek_off,
     wtap_rec *rec, Buffer *buf, int *err, char **err_info);
 static bool libpcap_read_packet(wtap *wth, FILE_T fh,
     wtap_rec *rec, Buffer *buf, int *err, char **err_info);
-static int libpcap_read_header(wtap *wth, FILE_T fh, int *err, char **err_info,
+static bool libpcap_read_header(wtap *wth, FILE_T fh, int *err, char **err_info,
     struct pcaprec_ss990915_hdr *hdr);
 static void libpcap_close(wtap *wth);
 
@@ -1021,7 +1021,8 @@ libpcap_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec,
 /* Read the header of the next packet.
 
    Return false on an error, true on success. */
-static int libpcap_read_header(wtap *wth, FILE_T fh, int *err, char **err_info,
+static bool
+libpcap_read_header(wtap *wth, FILE_T fh, int *err, char **err_info,
     struct pcaprec_ss990915_hdr *hdr)
 {
 	int bytes_to_read;
