@@ -7,8 +7,6 @@ include::attributes.adoc[]
 // Asciidoctor Syntax Quick Reference:
 // https://asciidoctor.org/docs/asciidoc-syntax-quick-reference/
 
-This is the first release of the 4.4 branch.
-
 == What is Wireshark?
 
 Wireshark is the world’s most popular network protocol analyzer.
@@ -20,8 +18,79 @@ If you or your organization would like to contribute or become a sponsor, please
 
 == What’s New
 
-// Add a summary of **major** changes here.
-// Add other changes to "New and Updated Features" below.
+=== Bug Fixes
+
+The following vulnerabilities have been fixed:
+
+// * wssalink:2024-12[]
+// Foo dissector {crash,infinite loop,memory leak}.
+// wsbuglink:xxx[].
+// cveidlink:2024-xxx[].
+// Fixed in master: xxx
+// Fixed in release-4.2: xxx
+// Fixed in release-4.0: xxx
+// CVSS AV:L/AC:L/PR:N/UI:R/S:U/C:H/I:H/A:H
+// CWE-824
+
+The following bugs have been fixed:
+
+//The following bugs have been fixed:
+//* wsbuglink:5000[]
+//* wsbuglink:6000[Wireshark bug]
+//* cveidlink:2014-2486[]
+//* Wireshark took a bite out of each of your freshly baked muffins until it found the perfect one.
+
+=== New and Updated Features
+
+There are no new or updated features in this release.
+
+// === Removed Features and Support
+
+// === Removed Dissectors
+
+=== New Protocol Support
+
+There are no new protocols in this release.
+
+=== Updated Protocol Support
+
+// Add one protocol per line between the -- delimiters.
+// ag -A1 '(define PSNAME|proto_register_protocol[^_])' $(git diff --name-only v4.2.7.. | ag packet- | sort -u)
+[commaize]
+--
+--
+
+=== New and Updated Capture File Support
+
+There is no new or updated capture file support in this release.
+// Add one file type per line between the -- delimiters.
+// [commaize]
+// --
+// --
+
+=== Updated File Format Decoding Support
+
+There is no updated file format support in this release.
+// Add one file type per line between the -- delimiters.
+// [commaize]
+// --
+// --
+
+// === New and Updated Capture Interfaces support
+
+// === New and Updated Codec support
+
+// === Major API Changes
+
+== Prior Versions
+
+This document only describes the changes introduced in Wireshark {wireshark-version}.
+You can find release notes for prior versions at the following locations:
+
+Wireshark 4.4.0 included the following changes.
+See the
+https://www.wireshark.org/docs/relnotes/wireshark-4.4.0.html[release notes]
+for details:
 
 Many improvements and fixes to the graphing dialogs, including
 I/O Graphs, Flow Graph / VoIP Calls, and TCP Stream Graphs.
@@ -48,455 +117,6 @@ valid field expression.
 Wireshark can be built with the zlib-ng instead of zlib for compressed file support.
 Zlib-ng is substantially faster than zlib.
 The official Windows and macOS packages include this feature.
-
-Many other improvements have been made.
-See the “New and Updated Features” section below for more details.
-
-//=== Bug Fixes
-
-//The following bugs have been fixed:
-//* wsbuglink:5000[]
-//* wsbuglink:6000[Wireshark bug]
-//* cveidlink:2014-2486[]
-//* Wireshark took a bite out of each of your freshly baked muffins until it found the perfect one.
-
-=== New and Updated Features
-
-The following features are either new or have been significantly updated since version 4.2.0:
-
-* The Windows installers now ship with Npcap 1.79.
-  They previously shipped with Npcap 1.78.
-
-//* The Windows installers now ship with Qt 6.5.2.
-//  They previously shipped with Qt 6.2.3.
-
-* Improvements to the "I/O Graphs" dialog:
-
-  ** A number of crasher bugs have been fixed.
-
-  ** The protocol tree context menu can open a I/O graph of the currently
-     selected field. wsbuglink:11362[]
-
-  ** Smaller intervals can be used, down to 1 microsecond. wsbuglink:13682[]
-
-  ** A larger number of I/O Graph item buckets can be used, up to 2^25^ (33 million)
-     items. wsbuglink:8460[]
-
-  ** The size of individual graph items has been reduced, which reduces memory utilization.
-
-  ** When the Y field or Y axis changes, the graph displays the new graph
-     correctly, retapping if necessary, instead of displaying information
-     based on stale data.
-
-  ** The graph is smarter about choosing whether to retap (expensive),
-     recalculate (moderately intensive), or replot (cheap) in order to
-     display the newly chosen options correctly with the least amount of
-     calculations. For instance, a graph that has previously been
-     plotted and is disabled and then reenabled without any other changes
-     will not require a new retap. wsbuglink:15822[]
-
-  ** LOAD graphs are graphed properly again. wsbuglink:18450[]
-
-  ** Y axes have human readable units with SI prefixes.
-     wsbuglink:12827[]
-
-  ** Bar widths are scaled to the size of the interval.
-
-  ** Bar border colors are a slightly darker color than that
-     of the graph itself, instead of always black. wsbuglink:17422[]
-
-  ** Time values have the correct width when axes are automatically reset.
-
-  ** The precision of the interval time shown in the hint message depends
-     on the interval.
-
-  ** The tracer follows the currently selected row on the table of graphs,
-     and does not appear on an invisible graph.
-
-  ** The tracer moves to the frame selected in the main window.
-     wsbuglink:12909[]
-
-  ** Pending graph changes are saved when changing profiles when the
-     I/O Graphs dialog is open.
-
-  ** I/O Graph dialog windows for closed capture files are no longer affected
-     by changing the list of graphs (either in that dialogs or in other dialogs
-     for the currently open file.)
-
-  ** Newly created temporary graphs, which will not be saved
-     unless the configuration has changed, are more clearly marked with
-     italics.
-
-  ** When "Time of Day" is selected for a graph, the absolute time will be
-     saved to CSV exports instead of the relative time. wsbuglink:13717[]
-
-  ** Graphs can be reordered by dragging and dropping their list entries. wsbuglink:13855[]
-
-  ** The graph layer order and legend order always matches the
-     order in the graph list. Legends also appear properly. wsbuglink:13854[]
-
-  ** The legend can be moved to other corners of the graph by right-clicking
-     on it and selecting its new location from a menu.
-
-  ** For purposes of displaying zero values, graphs with both lines and data point symbols are treated as line graphs, not scatter plots.
-
-  ** Logarithmic ticks are used when the Y axis is logarithmic.
-
-  ** The graph crosshairs context menu option works.
-
-  ** You can resize the graph list columns to their contents by right clicking on the list header.
-     wsbuglink:18102[]
-
-  ** The graph is more responsive to mouse movement, especially on Linux Wayland.
-
-* Improvements to the Sequence Diagram (Flow Graphs and VoIP Calls):
-
-  ** When exporting the graph as an image, the entire graph is shown
-     with up to 1000 items instead of only what was visible on-screen.
-     This value can be increased in the preferences. wsbuglink:13504[]
-
-  ** Endpoints that share the same address now have two distinct nodes
-     with a line between them. wsbuglink:12038[]
-
-  ** The "Comment" column can be resized by selecting the axis between the
-     "Comment" column and the graph and dragging, and auto-resized by
-     double-clicking the column. wsbuglink:4972[]
-
-  ** Tooltips are shown for elided comments.
-
-  ** The scroll direction via keyboard is no longer reversed. wsbuglink:12932[]
-
-  ** The column widths are fixed instead of resizing slightly depending
-     on the visible entries. wsbuglink:12931[]
-
-  ** The Y axis labels stay in the correct position without having to
-     click the btn:[Reset] button.
-
-  ** The progress bar appears correctly in the Flow Graph (non VoIP Calls).
-
-  ** The behavior of the "Any" and "Network" combobox is corrected.
-     wsbuglink:19818[]
-
-  ** "Limit to Display Filter" is checked if a display filter is applied
-     when the Flow Graph is opened, per the documentation.
-
-* TCP Stream Graphs:
-
-  ** A better decision is made about which side is the server and thus
-     the initially chosen direction in the graph.
-
-  ** The "Window Scaling" graph axis labels are corrected and show both graphs.
-
-  ** The graph crosshairs context menu option works.
-
-  ** Switching between relative and absolute sequence numbers works again.
-
-* The "Follow Stream" dialog can now show delta times between turns and all packets and events.
-
-* A number of graphs using the QCustomPlot widget ("I/O Graphs", "Flow Graph",
-  "TCP Stream Graphs", and "RTP Player") are more responsive to mouse
-  movement, especially on Linux when Wayland is used.
-
-* The "Find Packet" dialog can search backwards and find additional occurrences
-  of a string, hex value, or regular expression in a single frame.
-
-* When using "Go To Packet" with an undisplayed frame, the window goes to
-  nearest displayed frame by number. wsbuglink:2988[]
-
-* Display filter syntax enhancements:
-
-  ** Better handling of comparisons with value strings. Now the display filter engine can
-     correctly handle cases where multiple different numeric values map to the same value
-     string, including but not limited to range-type value strings.
-
-  ** Fields with value strings now support regular expression matching.
-
-  ** Date and time values now support arithmetic, with some restrictions:
-     the multiplier/divisor must be an integer or floating point number and appear on the right-hand
-     side of the operator.
-
-  ** The keyword "bitand" can be used as an alternative syntax for the bitwise-and operator.
-
-  ** Functions alone can now be used as an entire logical expression.
-     The result of the expression is the truthiness of the function return
-     value (or of all values if more than one). This is useful for example to write
-     "len(something)" instead of "len(something) != 0". Even more so if a function
-     returns itself a boolean value, it is now possible to write
-     "bool_test(some.field)" instead of having to write "bool_test(some.field) == True".
-     Both forms are now valid.
-
-  ** Display filter references can be written without curly braces. It
-     is now possible to write `$frame.number` instead of `${frame.number}` for example.
-
-  ** There are new display filter functions which test various IP address properties.
-     Check the
-     https://www.wireshark.org/docs/man-pages/wireshark-filter.html[wireshark-filter](5)
-     man page for more information.
-
-  ** There are new display filter functions which convert unsigned integer types to
-     decimal or hexadecimal, and convert fields with value strings into the
-     associated string for their value, which can be used to produce results similar to
-     custom columns. Check the
-     https://www.wireshark.org/docs/man-pages/wireshark-filter.html[wireshark-filter](5)
-     man page for more information.
-
-  ** Display filter macros can be written with a semicolon after the macro
-     name before the argument list, e.g. `${mymacro;arg1;...;argN}`, instead
-     of `${mymacro:arg1;...;argN}`. The version with semicolons works better
-     with pop-up suggestions when editing the display filter, so the version
-     with the colon might be removed in the future.
-
-  ** Display filter macros can be written using a function-like notation.
-     The macro `${mymacro:arg1;...;argN}` can be written
-     `$mymacro(arg1,...,argN)`.
-
-  ** AX.25 addresses are now filtered using the "CALLSIGN-SSID" string syntax.
-     Filtering based on the raw bytes values is still possible, like other
-     field types, with the `@` operator.  wsbuglink:17973[]
-
-* Display filter functions can be implemented as libwireshark plugins. Plugins are loaded
-  during startup from the usual binary plugin configuration directories. See the
-  `ipaddr.c` source file in the distribution for an example of a display filter C plugin
-  and the doc/plugins.example folder for generic instructions how to build a plugin.
-
-* Display filter autocompletions now also include display filter functions.
-
-* The display filter macro configuration file has changed format. It now uses
-  the same format as the "dfilters" file and has been renamed accordingly to
-  "dmacros". Internally it no longer uses the UAT API and the display filter macro
-  GUI dialog has been updated. There is some basic migration logic implemented
-  but it is advisable to check that the "dfilter_macros" (old) and
-  "dmacros" (new) files in the profile directory are consistent.
-
-* Custom columns can be defined using any valid field expression:
-
-  ** Display filter functions, like `len(tcp.payload)`, including nested functions
-     like `min(len(tcp.payload), len(udp.payload))` and newly defined functions
-     using the plugin system mentioned above. wsbuglink:15990[] wsbuglink:16181[]
-
-  ** Arithmetic calculations, like `ip.len * 8` or `tcp.srcport + tcp.dstport`.
-     wsbuglink:7752[]
-
-  ** Slices, like `tcp.payload[4:4]`. wsbuglink:10154[]
-
-  ** The layer operator, like `ip.proto#1`, which will return the protocol field in the
-     first IPv4 layer if there is tunneling. wsbuglink:18588[]
-
-  ** Raw byte addressing, like `@ip`, which will return the bytes of protocol
-     or FT_NONE fields, among others. wsbuglink:19076[]
-
-  ** Logical tests, like `tcp.port == 443`, which produce a check mark if
-     the test matches (similar to protocol and FT_NONE fields without `@`.)
-     This works with all logical operators, including e.g. regular expression
-     matching (`matches` or `~`.)
-
-  ** Defined display filter macros.
-
-  ** Any combination of the above also works.
-
-  ** Multifield columns are still available. For backwards compatibility,
-     `X or Y` is interpreted as a multifield column as before. To represent a
-     logical test for the presence of multiple fields instead of concatenating
-     values, use parenthesis, e.g. `(tcp.options.timestamp or tcp.options.nop)`.
-
-  ** Field references are not implemented because there's no sense of a
-     currently selected frame. "Resolved" column values (such as host name
-     resolution or value string lookup) are not supported for any of the new
-     expressions yet.
-
-* Custom output fields for `tshark -e <field>` can also be defined using any
-  valid field expression as above.
-
-  ** For custom output fields, `X or Y` is the usual logical test; to output
-     multiple fields use multiple `-e` terms as before.
-
-  ** The various `-E` options, including `-E occurrence`, all work as expected.
-
-* When selecting "Manage Interfaces" from "Capture Options", Wireshark only
-  attempts to reconnect to rpcap hosts that were active in the
-  last session, instead of every remote host that the current profile has ever
-  connected to. wsbuglink:17484[]
-
-* The "Resolved Addresses" dialog only shows what addresses and ports are
-  present in the file (not including information from static files), and
-  selected rows or the entire table can be saved or copied to the clipboard
-  in several formats. wsbuglink:16419[]
-
-* Dumpcap and Wireshark support the `-F` option when capturing a file
-  on the command line. wsbuglink:18009[]
-
-* When capturing on the command line dumpcap accepts a `-Q` option that is
-  quieter than `-q` and prints only errors to standard error, similar to tshark.
-  wsbuglink:14491[]
-
-* When capturing a file and requesting the `pcap` format, nanosecond resolution
-  time stamps will be written if the device and version of libpcap supports it.
-
-* When capturing using a file size autostop or ring buffer condition,
-  the maximum value is now 2 TB, up from 2GiB. Note that you may
-  have problems when the number of packets gets larger than 2^31^ or 2^32^,
-  though that is also true when no limit is set.
-
-* When capturing files in multiple file mode, a pattern that places the date and time
-  before the index number can be used (e.g., foo_20240714110102_00001.pcap instead of
-  foo_00001_20240714110102.pcap). This makes file names sortable in chronological order
-  across file sets from different captures. The "File Set" dialog has been updated to
-  handle the new pattern, which has been capable of being produced by tshark since
-  version 3.6.0.
-
-* Adding interfaces at startup is about twice as fast, and has many fewer
-  UAC pop-ups when Npcap is installed with access restricted to Administrators
-  on Windows.
-
-* The Lua version included with the Windows and macOS installers has been updated to 5.4.
-  While we have tried to help with backward compatibility by including lua_bitop library with
-  Lua 5.3 and 5.4 in addition to the native Lua support for bit operations
-  present in those versions, different versions of Lua are not guaranteed to
-  be compatible. If a Lua dissector has issues, check the manuals for
-  https://www.lua.org/manual/5.4/manual.html#8[Lua 5.4],
-  https://www.lua.org/manual/5.3/manual.html#8[Lua 5.3], and
-  https://www.lua.org/manual/5.2/manual.html#8[Lua 5.2] for
-  incompatibilities and suggested workarounds. Note that features marked as
-  deprecated in one version are removed in the subsequent version without
-  additional notice, so it can be worth checking the manual for previous versions.
-
-* Lua scripts in the plugins directories are now initially loaded via the same
-  internal Lua methods as `require()`. This avoids errors from loading plugins
-  twice, once by scanning the directory initially, and once by `require()`,
-  and also results in globals defined in plugins entering the global namespace.
-  Previously globals defined in plugins only entered the global namespace when
-  placed in the global plugins directory, but not the personal plugins directory.
-  Using globals in plugins remains deprecated style (both by Wireshark and in Lua
-  generally), that should be avoided via using other methods. wsbuglink:18589[]
-
-* Lua functions have been added to decompress and decode TvbRanges with other
-  compression types besides zlib, such as Brotli, Snappy, Zstd, and others,
-  matching the support in the C API. tvbrange:uncompress() has been deprecated
-  in favor of tvbrange:uncompress_zlib().
-
-* Lua Dumper now defaults to the pcapng file type, and to per-packet
-  encapsulation (creating interfaces on demand as necessary) when writing
-  pcapng wsbuglink:16403[]
-
-* Editcap has an `--extract-secrets` option to extract embedded decryption
-  secrets from a capture file. wsbuglink:18197[]
-
-* Global profiles can be used in tshark by using `--global-profile` option.
-
-* Capture files can be saved with LZ4 compression. LZ4 has an emphasis on
-  speed and may be particularly useful for large files.
-
-* Fast random access is supported with LZ4 compressed files when compressed
-  with independent blocks, which is the default. This provides much more
-  responsive GUI performance when jumping to different packets. Fast random
-  access has been supported with gzip compressed files since version 1.8.0,
-  but this is not supported for Zstd compressed files.
-
-* Mergecap, Editcap, TShark and Text2pcap have an `--compress` option to
-  compress output to different formats. For now, it supports the gzip
-  and LZ4 compression formats. When the option is not given, the desired
-  compression format can also be deduced from the output filename
-  extension, e.g. gzip for .gz.
-
-* Wireshark's Git repostory tags are now signed using SSH.
-  See
-  https://www.wireshark.org/docs/wsdg_html_chunked/ChSrcGitRepository.html#ChSrcWebInterface[the Developer's Guide]
-  for more details.
-
-=== Removed Features and Support
-
-* The tshark `-G` option with no argument is deprecated and will be removed in
-  a future version. Use `tshark -G fields` to produce the same report.
-
-=== Removed Dissectors
-
-The Parlay dissector has been removed.
-
-//=== New File Format Decoding Support
-
-//[commaize]
-//--
-//--
-
-=== New Protocol Support
-
-// Add one protocol per line between the -- delimiters in the format
-// “Full protocol name (Abbreviation)”
-// ag -A1 '(define PSNAME|proto_register_protocol[^_])' $(git diff --name-only v4.4.0.. | ag packet- | sort -u)
-[commaize]
---
-Allied Telesis Resiliency Link (AT RL)
-ATN Security Label
-Bit Index Explicit Replication (BIER)
-Bus Mirroring Protocol
-EGNOS Message Server (EMS) file format
-Galileo E1-B I/NAV navigation messages
-IBM i RDMA Endpoint (iRDMA-EDP)
-IWBEMSERVICES
-MAC NR Framed (mac-nr-framed)
-Matter Bluetooth Transport Protocol (MatterBTP)
-MiWi P2P Star
-Monero
-NMEA 0183
-PLDM
-RDP authentication redirection virtual channel protocol (rdpear)
-RF4CE Network Layer (RF4CE)
-RF4CE Profile (RF4CE Profile)
-RK512
-SAP Remote Function Call (SAPRFC)
-SBAS L1 Navigation Message
-Scanner Access Now Easy (SANE)
-TREL
-WMIO
-ZeroMQ Message Transport Protocol (ZMTP)
---
-
-=== Updated Protocol Support
-
-IPv6: The "show address detail" preference is now enabled by default. The
-address details provided have been extended to include more special purpose address
-block properties (forwardable, globally-routable, etc).
-
-Too many other protocol updates have been made to list them all here.
-
-//=== New and Updated Capture File Support
-
-// There is no new or updated capture file support in this release.
-// Add one file type per line between the -- delimiters.
-[commaize]
---
-EGNOS Messager Server (EMS) files
---
-
-// === New and Updated Capture Interfaces support
-[commaize]
---
-u-blox GNSS receivers
---
-
-//=== New and Updated Codec support
-
-//_Non-empty section placeholder._
-
-=== Major API Changes
-
-* The entire code base has been updated to use C99 types instead of GLib types.
-This includes changing occurrences `gboolean`, which is an integer, to C99's native `bool` type in many places.
-See https://gitlab.com/wireshark/wireshark/-/issues/19116[issue 19116] for more details.
-
-* The `tvb_get_guintX` and `tvb_get_gintX` functions in the tvbuff API have been renamed to `tvb_get_uintX` and `tvb_get_intX` (the GLib-style "g" has been removed).
-You can still use the old-style names, but they have been deprecated.
-
-* Plugins should provide a `plugin_describe()` function that returns an ORed
-  list of flags consisting of the plugin types used.
-  See _wsutil/plugins.h_ for details.
-
-// == Prior Versions
-
-// This document only describes the changes introduced in Wireshark {wireshark-version}.
-// You can find release notes for prior versions at the following locations:
-
-// * https://www.wireshark.org/docs/relnotes/wireshark-4.4.0.html[Wireshark 4.4.0]
 
 == Getting Wireshark
 
