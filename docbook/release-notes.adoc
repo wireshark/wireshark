@@ -34,20 +34,17 @@ This is the last release to support Windows 8.1 and Windows Server 2012.
 
 === Bug Fixes
 
-A regression in the TCP Stream Graph "Time Sequence (tcptrace)" receive window line behavior introduced in 4.0.15 and 4.2.5 has been fixed. wsbuglink:19846[]
+The following vulnerabilities have been fixed:
 
-The following vulnerability has been fixed:
-
-* wssalink:2024-11[]
-NTLMSSP dissector crash.
-wsbuglink:19943[].
-cveidlink:2024-8250[].
-// Fixed in master: 66dcd56f1e
-// Fixed in release-4.2: be0e7c955d
-// Fixed in release-4.0: ce871c20cd
+// * wssalink:2024-12[]
+// Foo dissector {crash,infinite loop,memory leak}.
+// wsbuglink:xxx[].
+// cveidlink:2024-xxx[].
+// Fixed in master: xxx
+// Fixed in release-4.2: xxx
+// Fixed in release-4.0: xxx
 // CVSS AV:L/AC:L/PR:N/UI:R/S:U/C:H/I:H/A:H
-// CWE-825
-// * OSS-Fuzz 70582: wireshark:fuzzshark_udp_port-dns: Stack-buffer-overflow in header_equal. wsbuglink:19943[].
+// CWE-824
 
 The following bugs have been fixed:
 
@@ -55,12 +52,6 @@ The following bugs have been fixed:
 //* wsbuglink:6000[Wireshark bug]
 //* cveidlink:2014-2486[]
 //* Wireshark insists on subscribing to two dozen streaming services but only watches three.
-
-* Fuzz job issue: fuzz-2024-01-31-7745.pcap. wsbuglink:19627[].
-* OSS-Fuzz 70534: wireshark:fuzzshark_ip_proto-udp: Stack-overflow in dissect_cbor_main_type. wsbuglink:19935[].
-* 6loWPAN: Page Number Field Incorrect Registration. wsbuglink:19934[].
-* Fuzz job issue: fuzz-2024-07-28-7314.pcap. wsbuglink:19964[].
-* PacketBB incorrectly reports "Malformed Packet" wsbuglink:19972[].
 
 === New and Updated Features
 
@@ -78,13 +69,6 @@ There are no new protocols in this release.
 // ag -A1 '(define PSNAME|proto_register_protocol[^_])' $(git diff --name-only v4.0.17.. | ag packet- | sort -u)
 [commaize]
 --
-6LoWPAN
-CAN-ETH
-CBOR
-LBMSRS
-NTLMSSP
-PacketBB
-PN-MRP
 --
 
 === New and Updated Capture File Support
@@ -118,6 +102,7 @@ There is no updated file format support in this release.
 This document only describes the changes introduced in Wireshark {wireshark-version}.
 You can find release notes for prior versions at the following locations:
 
+* https://www.wireshark.org/docs/relnotes/wireshark-4.0.17.html[Wireshark 4.0.17]
 * https://www.wireshark.org/docs/relnotes/wireshark-4.0.16.html[Wireshark 4.0.16]
 * https://www.wireshark.org/docs/relnotes/wireshark-4.0.15.html[Wireshark 4.0.15]
 * https://www.wireshark.org/docs/relnotes/wireshark-4.0.14.html[Wireshark 4.0.14]
