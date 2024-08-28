@@ -785,6 +785,7 @@ struct ieee_802_11be_user_info {
     unsigned rsv2:2;
 };
 
+#define PHDR_802_11BE_MAX_USERS 4
 struct ieee_802_11be {
     /* Which of this information is present? */
     unsigned has_ru_mru_size:1;
@@ -795,7 +796,7 @@ struct ieee_802_11be {
     uint8_t  ru_mru_size:4;  /* RU/MRU allocation */
     uint8_t  gi:2;           /* Guard Interval */
     uint8_t  num_users;
-    struct ieee_802_11be_user_info user[4]; /* Adding info for only upto 4 users */
+    struct ieee_802_11be_user_info user[PHDR_802_11BE_MAX_USERS]; /* Adding info for only upto 4 users */
 };
 
 
