@@ -9,12 +9,18 @@ include::attributes.adoc[]
 
 == What is Wireshark?
 
-This is expected to be the final release of the 4.0 branch.
-
 Wireshark is the world’s most popular network protocol analyzer.
 It is used for troubleshooting, analysis, development and education.
 
+Wireshark is hosted by the Wireshark Foundation, a nonprofit which promotes protocol analysis education.
+Wireshark and the foundation depend on your contributions in order to do their work.
+If you or your organization would like to contribute or become a sponsor, please visit https://wiresharkfoundation.org[wiresharkfoundation.org].
+
 == What’s New
+
+This is expected to be the final release of the 4.0 branch.
+
+This is the last release to support Windows 8.1 and Windows Server 2012.
 
 // __We do not ship official 32-bit Windows packages for Wireshark 4.0 and later__.
 // If you need to use Wireshark on that platform, we recommend using the latest 3.6 release.
@@ -30,12 +36,12 @@ It is used for troubleshooting, analysis, development and education.
 
 A regression in the TCP Stream Graph "Time Sequence (tcptrace)" receive window line behavior introduced in 4.0.15 and 4.2.5 has been fixed. wsbuglink:19846[]
 
-The following vulnerabilities have been fixed:
+The following vulnerability has been fixed:
 
 * wssalink:2024-11[]
 NTLMSSP dissector crash.
 wsbuglink:19943[].
-// cveidlink:2024-xxx[].
+cveidlink:2024-8250[].
 // Fixed in master: 66dcd56f1e
 // Fixed in release-4.2: be0e7c955d
 // Fixed in release-4.0: ce871c20cd
@@ -55,7 +61,6 @@ The following bugs have been fixed:
 * 6loWPAN: Page Number Field Incorrect Registration. wsbuglink:19934[].
 * Fuzz job issue: fuzz-2024-07-28-7314.pcap. wsbuglink:19964[].
 * PacketBB incorrectly reports "Malformed Packet" wsbuglink:19972[].
-// * null. wsbuglink:19986[].
 
 === New and Updated Features
 
@@ -70,9 +75,16 @@ There are no new protocols in this release.
 === Updated Protocol Support
 
 // Add one protocol per line between the -- delimiters.
-// ag -A1 '(define PSNAME|proto_register_protocol[^_])' $(git diff --name-only v4.0.15.. | ag packet- | sort -u)
+// ag -A1 '(define PSNAME|proto_register_protocol[^_])' $(git diff --name-only v4.0.17.. | ag packet- | sort -u)
 [commaize]
 --
+6LoWPAN
+CAN-ETH
+CBOR
+LBMSRS
+NTLMSSP
+PacketBB
+PN-MRP
 --
 
 === New and Updated Capture File Support

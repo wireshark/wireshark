@@ -1,0 +1,291 @@
+commit c034899541
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Mon Aug 26 13:09:58 2024 -0700
+
+    Prep for 4.0.17
+
+    [skip ci]
+
+commit 606302f94b
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Aug 25 09:26:01 2024 +0000
+
+    [Automatic update for 2024-08-25]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit 0f6396e65a
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Aug 18 09:25:35 2024 +0000
+
+    [Automatic update for 2024-08-18]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit c14aca8317
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Mon Aug 12 14:51:07 2024 +0000
+
+    profinet-mrp: Always subtract the OUI length
+
+    The length for the OUI needs to be removed from the remaining length
+    even in the unknown case.
+
+    Really this whole function should be rewritten to pass in a subset tvb
+    instead of a length, to minimize the chance of buffer issues.
+
+    Fix #19986
+
+    (cherry picked from commit f9e8483d1e2d864a0620a8dc5d9366a35da3619e)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 80b5b77725
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Mon Aug 12 13:58:22 2024 +0000
+
+    Qt: Don't idle dissect with the read lock held
+
+    It's not a time when we're idle, and worse, it can
+    lead to messages like:
+
+    The capture file "bittorrent-comp_4.pcapng.lz4" appears to be damaged or corrupt.
+    (pcapng: total block length 3722677760 is too large (> 134348832))"
+
+    when saving a large file still doing idle dissection into a new
+    format (new compression or new file type).
+
+    (cherry picked from commit 8ab7f82f04b5bc651650c5d872debcb6371d6a6f)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 806bf1aad5
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Aug 11 09:26:04 2024 +0000
+
+    [Automatic update for 2024-08-11]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+    TLS CT Log IDs failed.
+
+commit 6a83e02e51
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Aug 4 09:26:12 2024 +0000
+
+    [Automatic update for 2024-08-04]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+    TLS CT Log IDs failed.
+
+commit 5476753e20
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sat Aug 3 18:57:01 2024 +0000
+
+    Qt: Stay in packet list history until we're done with history
+
+    The functions that set in_history_ to true always set it to false
+    when they're done. Sometimes selectionChanged gets called twice
+    when in the middle of history (e.g., for clearing the selection
+    as well), and this causes history navigation back multiple packets
+    in history to cease to work.
+
+    See 52955b9c43a99942b332a8a2c0c2995608a539a1
+
+    (cherry picked from commit 9d2da2c45a94cdaf8ce17239057f6e33cc93c48b)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit aa05ef4975
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Thu Aug 1 15:22:55 2024 -0700
+
+    CBOR: Update a recursion check
+
+    Fixes #19935
+
+    (cherry picked from commit 30f11e96944434e17b9b2addf8ddf46d1bd8e2b8)
+
+    Conflicts:
+            epan/dissectors/packet-cbor.c
+
+commit 500d82cca1
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Thu Aug 1 21:29:32 2024 +0000
+
+    packetBB: Skip over the extended type before retrieving length
+
+    The packetBB TLV parsing parses the header twice, once to get
+    the length in order to add the tree item with the correct length
+    (rather than calling proto_item_set_len or similar later), and
+    once actually adding the items. In the initial retrieval of the
+    length it fails to increment the offset if the extended type is
+    present according to the flags bit.
+
+    Fix #19972
+
+    (cherry picked from commit 18f6ca96d017ff0b7de6e2a5c27d76580af4adda)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 130fdeb9a0
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Mon May 20 20:24:33 2024 -0400
+
+    caneth: Initialize the other fields of the can_info
+
+    The CAN-ETH protocol documents says that it is only for
+    8 bytes of data, i.e. CAN_CLASSIC.
+
+    This dissector wasn't updated when the bus_id field was introduced.
+    Explicitly initialize it to zero.
+
+    Fix #19627
+    Fix #19964
+
+    (backported from commit b457e92c8232694515cfa085b503936068b39be4)
+
+commit ce871c20cd
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sun Jul 28 13:33:21 2024 +0000
+
+    ntlmssp: Don't insert a key created on the stack into a hash table
+
+    We could change this table to an autoreset wmem_map as well.
+
+    Fix #19943
+
+    (cherry picked from commit 66dcd56f1eae615697b6588ac4778a61a5576391)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 284181d64a
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Jul 28 09:26:56 2024 +0000
+
+    [Automatic update for 2024-07-28]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+    services failed.
+    TLS CT Log IDs failed.
+
+commit 25cff3dd1d
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Jul 21 09:24:53 2024 +0000
+
+    [Automatic update for 2024-07-21]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+    TLS CT Log IDs failed.
+
+commit f7ed24fce2
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sat Jul 20 13:48:41 2024 +0000
+
+    6LoWPAN: Fix base of Page Number field
+
+    This is added with proto_tree_add_bits_item and as an integer (from
+    4 bits), which means that the base needs to be an actual display
+    base and not the width of a field (as used for FT_BOOLEAN fields
+    with a nonzero bitmask, which is not when using add_bits_item).
+
+    It happens to work because 16 is BASE_PT_SCTP, and the field happens
+    to be FT_UINT16, which is compatible with a port type.
+
+    Fix #19934
+
+    (cherry picked from commit e9845bd3f91a9fb37e24dd50ffc7746964acca16)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 20919c6a44
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Wed Jul 17 16:54:22 2024 -0700
+
+    GitLab CI: Enable automatic pipeline cancellation
+
+    Add a default job and make it interruptible. This should result in
+    automatic pipeline cancellation when someone pushes new changes to a
+    branch.
+
+    (cherry picked from commit 7f96b474b8210bc54f1edbd901ae27fcc2d41ed7)
+
+commit 6f44bc6ed1
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Wed Jul 17 14:18:07 2024 -0700
+
+    Release notes: This will be the final 4.0 release
+
+commit e558074dd2
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Tue Jul 16 16:15:08 2024 -0400
+
+    lbmsrs: Do not throw exceptions in heuristics
+
+    Subtracting two unsigned integers, and comparing them to a
+    small number, is not a reliable way to see if enough bytes
+    are left in the packet due to wraparound. To make things
+    clearer, use the tvbuff API when we want to check if enough
+    bytes remain.
+
+    Noticed in the captures attached to #19921
+
+    (backported from commit 5e17761308a7f6a504727758e75e67b3f370087a)
+
+commit 96c8001457
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Tue Jul 16 17:31:47 2024 -0700
+
+    GitLab CI: Fix an if statement
+
+    [skip ci]
+
+    (cherry picked from commit b23e9ac8ecfcfb68c6c1f97d1e45941ff07a3cd6)
+
+commit 5fa54288bd
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Jul 14 16:39:52 2024 +0000
+
+    [Automatic update for 2024-07-14]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+    TLS CT Log IDs failed.
+
+commit e95a7767a5
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Jul 14 13:46:57 2024 -0700
+
+    GitLab CI: Use ctest instead of pytest
+
+    Our test framework isn't compatible with pytest, so use ctest, which
+    runs `python3 test.py`, instead of pytest.
+
+commit 43f03cf854
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Tue Jul 9 19:18:49 2024 +0000
+
+    Shellcheck updates
+
+    Fix a few shellcheck warnings and add tools/rpm-setup.sh.
+
+    [skip ci]
+
+    (cherry picked from commit e49d6dd7cb3b1bdc6c4f7e28cebe51d8a73df8d9)
+
+    Co-authored-by: Gerald Combs <gerald@wireshark.org>
+    (cherry picked from commit 21691ee1c76381cf4e8ff8dc15a1886a16e5d2e6)
+
+    Conflicts:
+            tools/rpm-setup.sh
+
+commit a60cfdea06
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Wed Jul 10 12:24:41 2024 -0700
+
+    Version: 4.0.16 → 4.0.17
+
+    [skip ci]
