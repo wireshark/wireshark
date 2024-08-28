@@ -4136,7 +4136,7 @@ proto_register_oran(void)
          {"UE ID", "oran_fh_cus.ueId",
           FT_UINT16, BASE_HEX_DEC,
           NULL, 0x7fff,
-          "logical indentifier for set of channel info",
+          "logical identifier for set of channel info",
           HFILL}
         },
 

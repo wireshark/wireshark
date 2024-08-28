@@ -6,6 +6,7 @@
 16apsk
 1xrtt
 20west
+29west
 3gpp2
 3pcap
 5views
@@ -48,6 +49,7 @@ administratively
 adpclk
 adspec
 advatek
+advts
 adwin
 aes128
 aes256
@@ -67,6 +69,7 @@ airpcap
 airtel
 alcap
 alcatel
+algérie
 aliased
 alljoyn
 alloc
@@ -98,6 +101,7 @@ anonsvn
 anonymization
 antsel
 aperiodic
+apname
 appcheader
 appdata
 append
@@ -106,9 +110,11 @@ appid
 appkey
 applctrl
 applicability
+appname
 approx
 appset
 appsig
+apptype
 april
 arabic
 arbitrated
@@ -145,6 +151,7 @@ atheros
 atime
 atomically
 atsss
+atten
 attendee
 attrib
 attribs
@@ -217,6 +224,7 @@ bifuel
 bigint
 bigtk
 binlog
+bispdu
 bitfield
 bitmap
 bitmask
@@ -332,6 +340,7 @@ channelised
 channelized
 channelmap
 channelseq
+chanqual
 chanwidth
 chars
 charset
@@ -427,6 +436,7 @@ compatibiity
 compatibles
 compilable
 compilers
+completel
 compr
 computable
 comunicaciones
@@ -474,12 +484,14 @@ cpdlc
 cpich
 cplusplus
 cppcheck
+cpstate
 cpubus
 cpuid
 cpuregisters
 cqich
 credential
 credentials
+creds
 credssp
 criticalextensions
 criticalextensionsfuture
@@ -521,6 +533,7 @@ datastate
 datetime
 datum
 daysofweek
+dbprop
 dbuild
 dccreq
 dcerpc
@@ -658,6 +671,7 @@ digitel
 digitizer
 digium
 dilithium
+dimmable
 diplexer
 directionality
 dirname
@@ -773,6 +787,7 @@ enlight
 enodeb
 enqueue
 enrollee
+entel
 entityid
 entryid
 enttec
@@ -1027,6 +1042,7 @@ helsinki
 heuristic
 heuristicly
 heuristics
+hewlett
 hexnum
 hfarr
 hficongestionsetting
@@ -1112,7 +1128,9 @@ incremented
 incrementing
 indenting
 indirection
+indosat
 infile
+infini
 infiniband
 infix
 infolist
@@ -1227,6 +1245,7 @@ itunes
 iwarp
 ixveriwave
 jacobson
+janeiro
 january
 japanese
 jetds
@@ -1389,6 +1408,7 @@ mbsfn
 mbytes
 mcaal
 mcast
+mchdlc
 mcinfo
 mcmemberrecord
 mcount
@@ -1428,6 +1448,7 @@ miami
 microapp
 microbit
 midamble
+middlebox
 migratable
 milano
 millimeters
@@ -1586,6 +1607,7 @@ nintendo
 nistp
 nitnxlate
 njack
+nlink
 nlpid
 nmtcommand
 nnsvc
@@ -1604,6 +1626,7 @@ nonblock
 noncriticalextension
 noncriticalextensions
 nopad
+nopen
 noqueue
 nordic
 nordig
@@ -1667,21 +1690,26 @@ offsetp
 ofpacpt
 ofpat
 ofpbac
+ofpbct
 ofpbfc
 ofpbic
 ofpbmc
 ofpbpc
 ofpbrc
 ofpet
+ofpfc
 ofpfmfc
 ofpgmfc
 ofpgt
 ofpit
 ofpmf
 ofpmmfc
+ofpmofc
 ofpmp
+ofpopf
 ofppc
 ofppf
+ofppmfc
 ofppr
 ofprr
 ofptfpt
@@ -1720,9 +1748,11 @@ ordinal
 organisation
 orpcthat
 orthogonal
+osaka
 oscillatory
 oscore
 osdmap
+ositp
 osmocom
 osmux
 ospf6
@@ -1733,10 +1763,13 @@ overlay2mask
 overridable
 p2pstar
 pacch
+packard
 packetcable
 packetization
 packetized
+pacman
 pagings
+panamá
 panasonic
 parallelism
 parallelization
@@ -1776,6 +1809,7 @@ pcrepattern
 pdcch
 pdelay
 pdsch
+pdulength
 pdustatus
 peeraddr
 peerkey
@@ -1800,6 +1834,7 @@ picmg
 picosecond
 pinfo
 pixmap
+pkinit
 plaintext
 planar
 plano
@@ -1963,6 +1998,7 @@ rcsta
 rctxinfo
 rdeth
 rdpudp
+rdstls
 rdtci
 reachability
 readdir
@@ -2152,6 +2188,7 @@ roamer
 robert
 romania
 roshan
+rostelecom
 rotterdam
 routable
 routererr
@@ -2213,6 +2250,7 @@ schema
 schemas
 schweiz
 scoped
+scpsflags
 scrollbar
 sczdx
 sdcch
@@ -2295,8 +2333,10 @@ sinsp
 sinteger
 sipalg
 sistemas
+sitep
 sizeof
 skippable
+skopje
 skype
 slaac
 slimp
@@ -2325,6 +2365,7 @@ spacetel
 spacings
 spandsp
 spanish
+sparc
 spare
 spare1
 spare2
@@ -2396,6 +2437,7 @@ strtoul
 struct
 structs
 stype
+subaddr
 subaddress
 subband
 subcarrier
@@ -2544,6 +2586,7 @@ timeslot
 timestamp
 timestamps
 timetag
+timeutc
 timezone
 tipcv
 titlebar
@@ -2569,6 +2612,7 @@ tostring
 totemsrp
 touchlink
 touchpad
+toyota
 traceroute
 traff
 trans
@@ -2791,6 +2835,7 @@ unsupportable
 unsynchronized
 untagged
 unterminated
+untrackable
 untruncated
 untrusted
 untunneled
@@ -2860,6 +2905,7 @@ versioning
 vfinforecord
 vhdset
 viavi
+viettel
 virtex
 virtio
 virtualization
@@ -2924,6 +2970,7 @@ wslua
 wsluarm
 wsutil
 X32bit
+x509ce
 x509if
 x509sat
 xattr
@@ -2959,5 +3006,6 @@ ze3dd
 zeroes
 zigbee
 zlibng
+zsssr
 zugtyp
 zürich

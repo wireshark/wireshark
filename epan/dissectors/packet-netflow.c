@@ -3215,8 +3215,8 @@ static int      hf_pie_ntop_radius_user_imei;
 static int      hf_pie_ntop_radius_framed_ip_addr;
 static int      hf_pie_ntop_radius_acct_session_id;
 static int      hf_pie_ntop_radius_acct_status_type;
-static int      hf_pie_ntop_radius_acct_in_octects;
-static int      hf_pie_ntop_radius_acct_out_octects;
+static int      hf_pie_ntop_radius_acct_in_octets;
+static int      hf_pie_ntop_radius_acct_out_octets;
 static int      hf_pie_ntop_radius_acct_in_pkts;
 static int      hf_pie_ntop_radius_acct_out_pkts;
 static int      hf_pie_ntop_imap_login;
@@ -9247,13 +9247,13 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
 
         case (NTOP_BASE + 252):           /* RADIUS_ACCT_IN_OCTETS */
         case ((VENDOR_NTOP << 16) | 252): /* RADIUS_ACCT_IN_OCTETS */
-            ti = proto_tree_add_item(pdutree, hf_pie_ntop_radius_acct_in_octects,
+            ti = proto_tree_add_item(pdutree, hf_pie_ntop_radius_acct_in_octets,
                                      tvb, offset, length, ENC_BIG_ENDIAN);
             break;
 
         case (NTOP_BASE + 253):           /* RADIUS_ACCT_OUT_OCTETS */
         case ((VENDOR_NTOP << 16) | 253): /* RADIUS_ACCT_OUT_OCTETS */
-            ti = proto_tree_add_item(pdutree, hf_pie_ntop_radius_acct_out_octects,
+            ti = proto_tree_add_item(pdutree, hf_pie_ntop_radius_acct_out_octets,
                                      tvb, offset, length, ENC_BIG_ENDIAN);
             break;
 
@@ -17426,14 +17426,14 @@ proto_register_netflow(void)
           NULL, HFILL}
         },
         /* ntop, 35632 / 252 */
-        {&hf_pie_ntop_radius_acct_in_octects,
-         {"RADIUS Accounting Input Octets", "cflow.pie.ntop.radius_acct_in_octects",
+        {&hf_pie_ntop_radius_acct_in_octets,
+         {"RADIUS Accounting Input Octets", "cflow.pie.ntop.radius_acct_in_octets",
           FT_UINT32, BASE_DEC, NULL, 0x0,
           NULL, HFILL}
         },
         /* ntop, 35632 / 253 */
-        {&hf_pie_ntop_radius_acct_out_octects,
-         {"RADIUS Accounting Output Octets", "cflow.pie.ntop.radius_acct_out_octects",
+        {&hf_pie_ntop_radius_acct_out_octets,
+         {"RADIUS Accounting Output Octets", "cflow.pie.ntop.radius_acct_out_octets",
           FT_UINT32, BASE_DEC, NULL, 0x0,
           NULL, HFILL}
         },
