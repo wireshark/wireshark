@@ -180,8 +180,7 @@ wtap_open_return_val libpcap_open(wtap *wth, int *err, char **err_info)
 	bool byte_swapped;
 	pcap_variant_t variant;
 	libpcap_t *libpcap;
-	int skip_size = 0;
-	int sizebytes;
+	bool skip_ixia_extra = false;
 
 	/* Read in the number that should be at the start of a "libpcap" file */
 	if (!wtap_read_bytes(wth->fh, &magic, sizeof magic, err, err_info)) {
@@ -211,20 +210,61 @@ wtap_open_return_val libpcap_open(wtap *wth, int *err, char **err_info)
 		break;
 
 	case PCAP_IXIAHW_MAGIC:
+		/* Ixia "lcap" hardware-capture variant, in our
+		   byte order, in which there's an extra 4-byte
+		   field at the end of the file header, containing
+		   the total number of bytes of packet records in
+		   the file, i.e. the file size minus the file header
+		   size.  It's otherwise like standard pcap, with
+		   nanosecond time-stamp resolution.
+
+		   See issue #14073. */
+		skip_ixia_extra = true;
+		byte_swapped = false;
+		variant = PCAP_NSEC;
+		break;
+
+	case PCAP_SWAPPED_IXIAHW_MAGIC:
+		/* Ixia "lcap" hardware-capture variant, in a byte
+		   order opposite to ours, in which there's an extra
+		   4-byte field at the end of the file header,
+		   containing the total number of bytes of packet
+		   records in the file, i.e. the file size minus
+		   the file header size.  It's otherwise like standard
+		   pcap with nanosecond time-stamp resolution.
+
+		   See issue #14073. */
+		skip_ixia_extra = true;
+		byte_swapped = true;
+		variant = PCAP_NSEC;
+		break;
+
 	case PCAP_IXIASW_MAGIC:
-		/* Weird Ixia variant that has extra crud, written in our
-		   byte order.  It's otherwise like standard pcap. */
-		skip_size = 1;
+		/* Ixia "lcap" software-capture variant, in our
+		   byte order, in which there's an extra 4-byte
+		   field at the end of the file header, containing
+		   the total number of bytes of packet records in
+		   the file, i.e. the file size minus the file header
+		   size.  It's otherwise like standard pcap, with
+		   microsecond time-stamp resolution.
+
+		   See issue #14073. */
+		skip_ixia_extra = true;
 		byte_swapped = false;
 		variant = PCAP;
 		break;
 
-	case PCAP_SWAPPED_IXIAHW_MAGIC:
 	case PCAP_SWAPPED_IXIASW_MAGIC:
-		/* Weird Ixia variant that has extra crud, written in a
-		   byte order opposite to ours.  It's otherwise like
-		   standard pcap. */
-		skip_size = 1;
+		/* Ixia "lcap" software-capture variant, in a byte
+		   order opposite to ours, in which there's an extra
+		   4-byte field at the end of the file header,
+		   containing the total number of bytes of packet
+		   records in the file, i.e. the file size minus
+		   the file header size.  It's otherwise like standard
+		   pcap with microsecond time-stamp resolution.
+
+		   See issue #14073. */
+		skip_ixia_extra = true;
 		byte_swapped = true;
 		variant = PCAP;
 		break;
@@ -273,8 +313,13 @@ wtap_open_return_val libpcap_open(wtap *wth, int *err, char **err_info)
 	/* Read the rest of the header. */
 	if (!wtap_read_bytes(wth->fh, &hdr, sizeof hdr, err, err_info))
 		return WTAP_OPEN_ERROR;
-	if (skip_size==1 && !wtap_read_bytes(wth->fh, &sizebytes, sizeof sizebytes, err, err_info))
-		return WTAP_OPEN_ERROR;
+	if (skip_ixia_extra) {
+		/*
+		 * Skip 4 bytes of size information in the file header.
+		 */
+		if (!wtap_read_bytes(wth->fh, NULL, 4, err, err_info))
+			return WTAP_OPEN_ERROR;
+	}
 
 	if (byte_swapped) {
 		/* Byte-swap the header fields about which we care. */
