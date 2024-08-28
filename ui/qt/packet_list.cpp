@@ -240,8 +240,6 @@ PacketList::PacketList(QWidget *parent) :
     setUniformRowHeights(true);
     setAccessibleName("Packet list");
 
-    proto_prefs_menus_.setTitle(tr("Protocol Preferences"));
-
     packet_list_header_ = new PacketListHeader(header()->orientation());
     connect(packet_list_header_, &PacketListHeader::resetColumnWidth, this, &PacketList::setRecentColumnWidth);
     connect(packet_list_header_, &PacketListHeader::updatePackets, this, &PacketList::updatePackets);
@@ -643,43 +641,10 @@ void PacketList::contextMenuEvent(QContextMenuEvent *event)
 {
     const char *module_name = NULL;
 
-    proto_prefs_menus_.clear();
-
     if (finfo_array)
     {
         g_ptr_array_free(finfo_array, true);
         finfo_array = NULL;
-    }
-    if (cap_file_ && cap_file_->edt && cap_file_->edt->tree) {
-        finfo_array = proto_all_finfos(cap_file_->edt->tree);
-        QList<QString> added_proto_prefs;
-
-        for (unsigned i = 0; i < finfo_array->len; i++) {
-            field_info *fi = (field_info *)g_ptr_array_index (finfo_array, i);
-            const header_field_info *hfinfo =  fi->hfinfo;
-
-            if (prefs_is_registered_protocol(hfinfo->abbrev)) {
-                if (hfinfo->parent == -1) {
-                    module_name = hfinfo->abbrev;
-                } else {
-                    module_name = proto_registrar_get_abbrev(hfinfo->parent);
-                }
-
-                if (added_proto_prefs.contains(module_name)) {
-                    continue;
-                }
-
-                ProtocolPreferencesMenu *proto_prefs_menu = new ProtocolPreferencesMenu(hfinfo->name, module_name, &proto_prefs_menus_);
-
-                connect(proto_prefs_menu, SIGNAL(showProtocolPreferences(QString)),
-                        this, SIGNAL(showProtocolPreferences(QString)));
-                connect(proto_prefs_menu, SIGNAL(editProtocolPreference(preference*,pref_module*)),
-                        this, SIGNAL(editProtocolPreference(preference*,pref_module*)));
-
-                proto_prefs_menus_.addMenu(proto_prefs_menu);
-                added_proto_prefs << module_name;
-            }
-        }
     }
 
     QModelIndex ctxIndex = indexAt(event->pos());
@@ -793,7 +758,40 @@ void PacketList::contextMenuEvent(QContextMenuEvent *event)
 
     if (is_packet_configuration_namespace()) {
         ctx_menu->addSeparator();
-        ctx_menu->addMenu(&proto_prefs_menus_);
+        QMenu *proto_prefs_menus = new QMenu(ProtocolPreferencesMenu::tr("Protocol Preferences"), ctx_menu);
+
+        if (cap_file_ && cap_file_->edt && cap_file_->edt->tree) {
+            finfo_array = proto_all_finfos(cap_file_->edt->tree);
+            QList<QString> added_proto_prefs;
+
+            for (unsigned i = 0; i < finfo_array->len; i++) {
+                field_info *fi = (field_info *)g_ptr_array_index (finfo_array, i);
+                const header_field_info *hfinfo =  fi->hfinfo;
+
+                if (prefs_is_registered_protocol(hfinfo->abbrev)) {
+                    if (hfinfo->parent == -1) {
+                        module_name = hfinfo->abbrev;
+                    } else {
+                        module_name = proto_registrar_get_abbrev(hfinfo->parent);
+                    }
+
+                    if (added_proto_prefs.contains(module_name)) {
+                        continue;
+                    }
+
+                    ProtocolPreferencesMenu *proto_prefs_menu = new ProtocolPreferencesMenu(hfinfo->name, module_name, proto_prefs_menus);
+
+                    connect(proto_prefs_menu, SIGNAL(showProtocolPreferences(QString)),
+                            this, SIGNAL(showProtocolPreferences(QString)));
+                    connect(proto_prefs_menu, SIGNAL(editProtocolPreference(preference*,pref_module*)),
+                            this, SIGNAL(editProtocolPreference(preference*,pref_module*)));
+
+                    proto_prefs_menus->addMenu(proto_prefs_menu);
+                    added_proto_prefs << module_name;
+                }
+            }
+        }
+        ctx_menu->addMenu(proto_prefs_menus);
         action = ctx_menu->addAction(tr("Decode As…"));
         action->setProperty("create_new", QVariant(true));
         connect(action, &QAction::triggered, this, &PacketList::ctxDecodeAsDialog);

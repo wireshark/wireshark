@@ -165,7 +165,8 @@ add_prefs_menu_item(pref_t *pref, void *menu_ptr)
 }
 
 
-ProtocolPreferencesMenu::ProtocolPreferencesMenu()
+ProtocolPreferencesMenu::ProtocolPreferencesMenu(QWidget *parent) :
+    QMenu(parent)
 {
     setTitle(tr("Protocol Preferences"));
     setModule(NULL);

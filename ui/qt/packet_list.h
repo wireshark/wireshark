@@ -124,7 +124,6 @@ private:
     capture_file *cap_file_;
     QMenu conv_menu_;
     QMenu colorize_menu_;
-    QMenu proto_prefs_menus_;
     int ctx_column_;
     QByteArray column_state_;
     OverlayScrollBar *overlay_sb_;

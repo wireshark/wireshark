@@ -2247,6 +2247,11 @@ void WiresharkMainWindow::initConversationMenus()
 
         // Proto tree conversation menu is filled in in ProtoTree::contextMenuEvent.
         // We should probably do that here.
+        // XXX - Or we should create all the menus in the contextMenuEvents.
+        // Note that the packet list and proto tree menu items created here are
+        // not updated automatically on language change. (The main menu items,
+        // as members of main_ui_ are, in WiresharkMainWindow::changeEvent,)
+        // #19997
     }
 
     // Proto tree colorization items
