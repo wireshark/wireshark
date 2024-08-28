@@ -1633,6 +1633,7 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-nt-tpcp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-ntlmssp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-ntp.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-nts-ke.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-null.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-nvme.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-nvme-mi.c

@@ -66,6 +66,7 @@ The following features are either new or have been significantly updated since v
 [commaize]
 --
 Lenbrook Service Discovery Protocol (LSDP)
+Network Time Security Key Establishment Protocol (NTS-KE)
 --
 
 === Updated Protocol Support
