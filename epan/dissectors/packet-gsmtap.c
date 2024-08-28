@@ -854,6 +854,15 @@ dissect_gsmtap_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "GSMTAP");
 
+	ti = proto_tree_add_protocol_format(tree, proto_gsmtap, tvb, 0, hdr_len,
+		"GSM TAP Header");
+	gsmtap_tree = proto_item_add_subtree(ti, ett_gsmtap);
+	proto_tree_add_item(gsmtap_tree, hf_gsmtap_version,
+			    tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_uint(gsmtap_tree, hf_gsmtap_hdrlen,
+			    tvb, offset+1, 1, hdr_len);
+	proto_tree_add_item(gsmtap_tree, hf_gsmtap_type,
+			    tvb, offset+2, 1, ENC_BIG_ENDIAN);
 	/* Some GSMTAP types are completely unrelated to the Um air interface */
 	if (dissector_try_uint(gsmtap_dissector_table, type, payload_tvb,
 			       pinfo, tree))
@@ -899,20 +908,12 @@ dissect_gsmtap_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 		else
 			channel_str = val_to_str(channel, gsmtap_channels, "Unknown: %d");
 
-		ti = proto_tree_add_protocol_format(tree, proto_gsmtap, tvb, 0, hdr_len,
-			"GSM TAP Header, ARFCN: %u (%s), TS: %u, Channel: %s (%u)",
+		proto_item_append_text(ti, ", ARFCN: %u (%s), TS: %u, Channel: %s (%u)",
 			arfcn & GSMTAP_ARFCN_MASK,
 			arfcn & GSMTAP_ARFCN_F_UPLINK ? "Uplink" : "Downlink",
 			tvb_get_uint8(tvb, offset+3),
 			channel_str,
 			tvb_get_uint8(tvb, offset+14));
-		gsmtap_tree = proto_item_add_subtree(ti, ett_gsmtap);
-		proto_tree_add_item(gsmtap_tree, hf_gsmtap_version,
-				    tvb, offset, 1, ENC_BIG_ENDIAN);
-		proto_tree_add_uint(gsmtap_tree, hf_gsmtap_hdrlen,
-				    tvb, offset+1, 1, hdr_len);
-		proto_tree_add_item(gsmtap_tree, hf_gsmtap_type,
-				    tvb, offset+2, 1, ENC_BIG_ENDIAN);
 		proto_tree_add_item(gsmtap_tree, hf_gsmtap_timeslot,
 				    tvb, offset+3, 1, ENC_BIG_ENDIAN);
 		proto_tree_add_item(gsmtap_tree, hf_gsmtap_arfcn,
