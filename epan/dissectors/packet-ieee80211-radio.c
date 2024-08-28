@@ -104,6 +104,7 @@ static expert_field ei_wlan_radio_assumed_non_greenfield;
 static expert_field ei_wlan_radio_assumed_no_stbc;
 static expert_field ei_wlan_radio_assumed_no_extension_streams;
 static expert_field ei_wlan_radio_assumed_bcc_fec;
+static expert_field ei_wlan_radio_11be_num_users;
 
 static int wlan_radio_tap;
 static int wlan_radio_timeline_tap;
@@ -1160,6 +1161,10 @@ dissect_wlan_radio_phdr(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, 
         can_calculate_rate = true;
         /*for each user*/
         for (i = 0; i < info_11be->num_users; i++) {
+          if (i >= PHDR_802_11BE_MAX_USERS) {
+            expert_add_info(pinfo, radio_tree, &ei_wlan_radio_11be_num_users);
+            break;
+          }
           unsigned nsts = info_11be->user[i].nsts;
           unsigned bw_idx = 0;
           /* Do we have all the fields needed to compute rate ?*/
@@ -1921,6 +1926,10 @@ void proto_register_ieee80211_radio(void)
     { &ei_wlan_radio_assumed_bcc_fec,
       { "wlan_radio.assumed.bcc_fec", PI_ASSUMPTION, PI_WARN,
         "No fec type information was available, assuming bcc fec.", EXPFILL }},
+
+    { &ei_wlan_radio_11be_num_users,
+      { "wlan_radio.assumed.bcc_fec", PI_MALFORMED, PI_WARN,
+        "Number of users in the 802.11be header exceeds available slots.", EXPFILL }},
   };
 
   module_t *wlan_radio_module;
