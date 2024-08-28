@@ -22,12 +22,12 @@ If you or your organization would like to contribute or become a sponsor, please
 
 // If you are upgrading Wireshark 4.2.0 or 4.2.1 on Windows you will need to https://www.wireshark.org/download.html[download and install] Wireshark {wireshark-version} or later by hand.
 
-The following vulnerabilities have been fixed:
+The following vulnerability has been fixed:
 
 * wssalink:2024-11[]
 NTLMSSP dissector crash.
 wsbuglink:19943[].
-// cveidlink:2024-xxx[].
+cveidlink:2024-8250[].
 // Fixed in master: 66dcd56f1e
 // Fixed in release-4.2: be0e7c955d
 // Fixed in release-4.0: ce871c20cd
@@ -46,9 +46,7 @@ The following bugs have been fixed:
 * OSS-Fuzz 70534: wireshark:fuzzshark_ip_proto-udp: Stack-overflow in dissect_cbor_main_type. wsbuglink:19935[].
 * SOME/IP Protocol heuristic dissector fails to parse. wsbuglink:19670[].
 * 6loWPAN: Page Number Field Incorrect Registration. wsbuglink:19934[].
-// * null. wsbuglink:19955[].
 * PacketBB incorrectly reports "Malformed Packet" wsbuglink:19972[].
-// * null. wsbuglink:19986[].
 
 === New and Updated Features
 
@@ -66,9 +64,22 @@ There are no new protocols in this release.
 === Updated Protocol Support
 
 // Add one protocol per line between the -- delimiters.
-// ag -A1 '(define PSNAME|proto_register_protocol[^_])' $(git diff --name-only v4.2.5.. | ag packet- | sort -u)
+// ag -A1 '(define PSNAME|proto_register_protocol[^_])' $(git diff --name-only v4.2.7.. | ag packet- | sort -u)
 [commaize]
 --
+6LoWPAN
+BGP
+CAN-ETH
+CBOR
+IEEE 802.11
+LBMSRS
+NTLMSSP
+PacketBB
+PN-MRP
+SOME/IP
+USBLL
+X.75
+Zabbix
 --
 
 === New and Updated Capture File Support
