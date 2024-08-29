@@ -82,8 +82,15 @@ BuildRequires:	python3
 %if %{with toolchain_clang}
 BuildRequires:	clang
 %else
+# The default GCC version in Leap 15 is too old
+%if 0%{?suse_version} == 1500
+BuildRequires:	gcc13
+BuildRequires:	gcc13-PIE
+BuildRequires:	gcc13-c++
+%else
 BuildRequires:	gcc
 BuildRequires:	gcc-c++
+%endif
 %endif
 BuildRequires:	flex
 %if %{with ninja}
@@ -208,9 +215,16 @@ Requires:	qt5-qtsvg
 %endif
 %endif
 %if %{with qt6}
+%if 0%{?suse_version}
+BuildRequires:	qt6-base-devel
+BuildRequires:	qt6-multimedia-devel
+BuildRequires:	qt6-tools-devel
+BuildRequires:	qt6-linguist-devel
+%else
 BuildRequires:	qt6-qtbase-devel
 BuildRequires:	qt6-qtmultimedia-devel
 BuildRequires:	qt6-qttools-devel
+%endif
 BuildRequires:	qt6-qt5compat-devel
 BuildRequires:	libxkbcommon-devel
 %endif
