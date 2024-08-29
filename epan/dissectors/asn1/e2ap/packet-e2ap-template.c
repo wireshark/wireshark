@@ -797,10 +797,10 @@ proto_reg_handoff_e2ap(void)
   /* KPM */
   oid_add_from_string("KPM v1",         "1.3.6.1.4.1.53148.1.1.2.2");
   oid_add_from_string("KPM v2",         "1.3.6.1.4.1.53148.1.2.2.2");
-  oid_add_from_string("KPM v3",         "1.2.6.1.4.1.53148.1.3.2.2");
-  oid_add_from_string("KPM v4",         "1.2.6.1.4.1.53148.1.4.2.2");
-  oid_add_from_string("KPM v5",         "1.2.6.1.4.1.53148.1.5.2.2");
-  oid_add_from_string("KPM v6",         "1.2.6.1.4.1.53148.1.6.2.2");
+  oid_add_from_string("KPM v3",         "1.3.6.1.4.1.53148.1.3.2.2");
+  oid_add_from_string("KPM v4",         "1.3.6.1.4.1.53148.1.4.2.2");
+  oid_add_from_string("KPM v5",         "1.3.6.1.4.1.53148.1.5.2.2");
+  oid_add_from_string("KPM v6",         "1.3.6.1.4.1.53148.1.6.2.2");
 
 
   /* RC */
@@ -831,7 +831,7 @@ proto_reg_handoff_e2ap(void)
   /* Register 'built-in' dissectors (i.e., from asn1/e2ap) */
 
   static ran_function_dissector_t kpm_v3 =
-  { "ORAN-E2SM-KPM", "1.2.6.1.4.1.53148.1.3.2.2", 3, 0,
+  { "ORAN-E2SM-KPM", "1.3.6.1.4.1.53148.1.3.2.2", 3, 0,
     {  dissect_E2SM_KPM_RANfunction_Description_PDU,
 
        NULL,
