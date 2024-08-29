@@ -873,22 +873,6 @@ cllog_open(wtap *wth, int *err, char **err_info _U_)
     {
         char *linep;
 
-        if (*err != 0)
-        {
-            if (*err == WTAP_ERR_SHORT_READ)
-            {
-                /* Incomplete header, so not ours. */
-                g_free(clLog);
-                return WTAP_OPEN_NOT_MINE;
-            }
-            else
-            {
-                /* I/O error. */
-                g_free(clLog);
-                return WTAP_OPEN_ERROR;
-            }
-        }
-
         linep = line;
 
         /* Break on end of header */
@@ -954,13 +938,42 @@ cllog_open(wtap *wth, int *err, char **err_info _U_)
                      * ours.
                      */
                     g_free(clLog);
-                    return WTAP_OPEN_ERROR;
+                    if (*err == WTAP_ERR_BAD_FILE)
+                    {
+                        wmem_free(NULL, err_info);
+                        *err_info = NULL;
+                    }
+                    return WTAP_OPEN_NOT_MINE;
                 }
             }
         }
     }
 
     /*
+     * file_gets() didn't return a line.
+     * Did it get an error?
+     */
+    *err = file_error(wth->fh, err_info);
+    if (*err != 0)
+    {
+        /* Yes.  What was it? */
+        if (*err == WTAP_ERR_SHORT_READ)
+        {
+            /* Incomplete header, so not ours. */
+            g_free(clLog);
+            return WTAP_OPEN_NOT_MINE;
+        }
+        else
+        {
+            /* I/O error. */
+            g_free(clLog);
+            return WTAP_OPEN_ERROR;
+        }
+    }
+
+    /*
+     * No, it just got an EOF.
+     *
      * We've read the first line after the header, so it's the column
      * header line. Parse it.
      */
