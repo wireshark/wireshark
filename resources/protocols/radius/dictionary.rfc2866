@@ -24,8 +24,7 @@ ATTRIBUTE	Acct-Link-Count				51	integer
 
 VALUE	Acct-Status-Type		Start			1
 VALUE	Acct-Status-Type		Stop			2
-VALUE	Acct-Status-Type		Alive			3   # dup
-VALUE	Acct-Status-Type		Interim-Update		3
+VALUE	Acct-Status-Type		Interim-Update/Alive		3
 VALUE	Acct-Status-Type		Accounting-On		7
 VALUE	Acct-Status-Type		Accounting-Off		8
 VALUE	Acct-Status-Type		Failed			15
