@@ -94,7 +94,7 @@ default:
 
 .build-ubuntu:
   extends: .build-linux
-  image: registry.gitlab.com/wireshark/wireshark-containers/ubuntu-dev
+  image: registry.gitlab.com/wireshark/wireshark-containers/ubuntu-dev:2024-Q3
   retry: 1
   # https://gould.cx/ted/blog/2017/06/10/ccache-for-Gitlab-CI/
   cache:
@@ -216,7 +216,7 @@ Source Package:
 Debian Stable APT Package:
   extends: .build-linux
   rules: !reference [.if-merged]
-  image: registry.gitlab.com/wireshark/wireshark-containers/debian-stable-dev
+  image: registry.gitlab.com/wireshark/wireshark-containers/debian-stable-dev:2024-Q3
   script:
     - ln --symbolic --no-dereference --force packaging/debian
     - tools/make-version.py --set-release .
@@ -237,7 +237,7 @@ Debian Stable APT Package:
 Debian Stable APT Test:
   extends: .test-linux
   rules: !reference [.if-merged]
-  image: registry.gitlab.com/wireshark/wireshark-containers/debian-stable-dev
+  image: registry.gitlab.com/wireshark/wireshark-containers/debian-stable-dev:2024-Q3
   stage: test
   script:
     - DEBIAN_FRONTEND=noninteractive apt-get install ./debian-packages/*.deb -y
@@ -256,7 +256,7 @@ Debian Stable APT Test:
 
 Fedora RPM Package:
   extends: .build-rpm
-  image: registry.gitlab.com/wireshark/wireshark-containers/fedora-dev
+  image: registry.gitlab.com/wireshark/wireshark-containers/fedora-dev:2024-Q3
   script:
     # Shared GitLab runners limit the log size to 4M, so reduce verbosity. See
     # https://gitlab.com/gitlab-com/support-forum/issues/2790
@@ -276,7 +276,7 @@ Fedora RPM Package:
 
 openSUSE 15.5 RPM Package:
   extends: .build-rpm
-  image: registry.gitlab.com/wireshark/wireshark-containers/opensuse-15.5-dev
+  image: registry.gitlab.com/wireshark/wireshark-containers/opensuse-15.5-dev:2024-Q3
   script:
     - printf "\e[0Ksection_start:%s:cmake_section[collapsed=true]\r\e[0KRunning CMake" "$( date +%s)"
     - cmake -GNinja ..
@@ -285,7 +285,7 @@ openSUSE 15.5 RPM Package:
 
 openSUSE 15.5 RPM Test:
   extends: .test-rpm
-  image: registry.gitlab.com/wireshark/wireshark-containers/opensuse-15.5-dev
+  image: registry.gitlab.com/wireshark/wireshark-containers/opensuse-15.5-dev:2024-Q3
   script:
     - zypper --no-gpg-checks --no-remote install -y build/packaging/rpm/RPMS/x86_64/*.rpm
     - tshark --version
@@ -293,7 +293,7 @@ openSUSE 15.5 RPM Test:
 
 Rocky Linux 9 RPM Package:
   extends: .build-rpm
-  image: registry.gitlab.com/wireshark/wireshark-containers/rockylinux-9-dev
+  image: registry.gitlab.com/wireshark/wireshark-containers/rockylinux-9-dev:2024-Q3
   script:
     - printf "\e[0Ksection_start:%s:cmake_section[collapsed=true]\r\e[0KRunning CMake" "$( date +%s)"
     - cmake -GNinja ..
@@ -302,7 +302,7 @@ Rocky Linux 9 RPM Package:
 
 Rocky Linux 9 RPM Test:
   extends: .test-rpm
-  image: registry.gitlab.com/wireshark/wireshark-containers/rockylinux-9-dev
+  image: registry.gitlab.com/wireshark/wireshark-containers/rockylinux-9-dev:2024-Q3
   script:
     - dnf --nogpgcheck localinstall -y build/packaging/rpm/RPMS/x86_64/*.rpm
     - tshark --version
@@ -330,7 +330,7 @@ Ubuntu APT Package:
 Ubuntu APT Test:
   extends: .test-linux
   rules: !reference [.if-merged]
-  image: registry.gitlab.com/wireshark/wireshark-containers/ubuntu-dev
+  image: registry.gitlab.com/wireshark/wireshark-containers/ubuntu-dev:2024-Q3
   stage: test
   script:
     - DEBIAN_FRONTEND=noninteractive apt-get install ./ubuntu-packages/*.deb -y
@@ -339,7 +339,7 @@ Ubuntu APT Test:
     GIT_STRATEGY: none
   needs: [ 'Ubuntu APT Package' ]
 
-Win64 Package:
+.Win64 Package:
   extends: .build-windows
   rules: !reference [.if-w-w-only-merged]
   tags:
@@ -383,7 +383,7 @@ Win64 Package:
       }
     - ctest -C RelWithDebInfo --parallel 3 --force-new-ctest-process --output-on-failure
 
-macOS Arm Package:
+.macOS Arm Package:
   stage: build
   rules: !reference [.if-w-w-only-merged]
   variables:
@@ -428,7 +428,7 @@ macOS Arm Package:
       - build/run/release-info-*.ini
   needs: []
 
-macOS Intel Package:
+.macOS Intel Package:
   stage: build
   rules: !reference [.if-w-w-only-merged]
   variables:
@@ -477,7 +477,7 @@ macOS Intel Package:
 # Disabled until we have versioned docs.
 .Documentation:
   extends: .build-linux
-  image: registry.gitlab.com/wireshark/wireshark-containers/ubuntu-dev
+  image: registry.gitlab.com/wireshark/wireshark-containers/ubuntu-dev:2024-Q3
   rules:
     - if: '$CI_PIPELINE_SOURCE == "push" && $CI_PROJECT_URL =~ /.*gitlab.com\/wireshark\/wireshark/'
       changes:
@@ -608,7 +608,7 @@ Code Checks + Clang Warnings:
 
 # Windows runners are still beta, at least technically:
 # https://docs.gitlab.com/ee/user/gitlab_com/index.html#windows-shared-runners-beta
-Windows Build:
+.Windows Build:
   extends: .build-windows
   rules: !reference [.if-w-w-only-merge-request]
   tags:
@@ -693,7 +693,7 @@ Windows Build:
     - cat fuzz-test.err >> "$FUZZ_ERRORS"
     - if [ -n "$MC_DESTINATION_FUZZ" ] ; then mc --quiet cp "$FUZZ_CAPTURE" "$FUZZ_ERRORS" "$MC_DESTINATION_FUZZ/" ; fi
 
-ASan Menagerie Fuzz:
+.ASan Menagerie Fuzz:
   extends: .fuzz-ubuntu
   stage: fuzz-asan
   script:
@@ -712,7 +712,7 @@ ASan Menagerie Fuzz:
     - echo "export FUZZ_PASSED=$FUZZ_PASSED" > /tmp/fuzz_result.sh
     - $FUZZ_PASSED
 
-ASan randpkt Fuzz:
+.ASan randpkt Fuzz:
   extends: .fuzz-ubuntu
   stage: fuzz-randpkt
   script:
@@ -729,7 +729,7 @@ ASan randpkt Fuzz:
     - $FUZZ_PASSED
   needs: [ 'ASan Menagerie Fuzz' ]
 
-Valgrind Menagerie Fuzz:
+.Valgrind Menagerie Fuzz:
   extends: .fuzz-ubuntu
   stage: fuzz-valgrind
   resource_group: fuzz-release-4.0-valgrind
