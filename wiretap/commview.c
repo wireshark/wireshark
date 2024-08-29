@@ -711,9 +711,25 @@ commview_ncfx_open(wtap *wth, int *err, char **err_info)
 	commview_ncfx_header_t cv_hdr;
 
 	if(!commview_ncfx_read_header(&cv_hdr, wth->fh, err, err_info)) {
-		if (*err != 0 && *err != WTAP_ERR_SHORT_READ)
-			return WTAP_OPEN_ERROR;
-		return WTAP_OPEN_NOT_MINE;
+		if (*err == 0) {
+			/* EOF - not our file */
+			return WTAP_OPEN_NOT_MINE;
+		}
+		if (*err == WTAP_ERR_SHORT_READ) {
+			/* Short read - not our file */
+			return WTAP_OPEN_NOT_MINE;
+		}
+		if (*err == WTAP_ERR_BAD_FILE) {
+			/*
+			 * Not a valid record header - not our file;
+			 * discard the error.
+			 */
+			wmem_free(NULL, *err_info);
+			*err_info = NULL;
+			return WTAP_OPEN_NOT_MINE;
+		}
+		/* Hard error. */
+		return WTAP_OPEN_ERROR;
 	}
 
 	/* If any of these fields do not match what we expect, bail out. */
