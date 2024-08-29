@@ -349,6 +349,11 @@ typedef struct anqp_info_dissector_data {
 #define WFA_SUBTYPE_OWE_TRANSITION_MODE        28
 #define WFA_SUBTYPE_TRANSITION_DISABLE_KDE     32
 #define WFA_SUBTYPE_QOS_MGMT                   34 /* 0x22 */
+#define WFA_SUBTYPE_RSN_OVERRIDE               41 /* 0x29 */
+#define WFA_SUBTYPE_RSN_OVERRIDE_2             42 /* 0x2A */
+#define WFA_SUBTYPE_RSNX_OVERRIDE              43 /* 0x2B */
+#define WFA_SUBTYPE_RSN_SELECTION              44 /* 0x2C */
+#define WFA_SUBTYPE_RSN_OVERRIDE_LINK_KDE      45 /* 0x2D */
 
 /* WFA Public Action Types */
 #define WFA_SUBTYPE_ACTION_QOS_MGMT          0x1A

@@ -846,6 +846,11 @@ const value_string wfa_subtype_vals[] = {
   { WFA_WNM_SUBTYPE_CELL_DATA_CAPABILITIES, "Cellular Data Capabilities" },
   { WFA_SUBTYPE_TRANSITION_DISABLE_KDE, "Transition Disable KDE" },
   { WFA_SUBTYPE_QOS_MGMT, "QoS Management" },
+  { WFA_SUBTYPE_RSN_OVERRIDE, "RSN Element Override" },
+  { WFA_SUBTYPE_RSN_OVERRIDE_2, "RSN Element Override 2" },
+  { WFA_SUBTYPE_RSNX_OVERRIDE, "RSN Extension Element Override" },
+  { WFA_SUBTYPE_RSN_SELECTION, "RSN Selection" },
+  { WFA_SUBTYPE_RSN_OVERRIDE_LINK_KDE, "RSN Override Link KDE" },
   { 0, NULL }
 };
 
@@ -3722,6 +3727,13 @@ static const value_string fils_discovery_capability_fils_minimum_rate_he[] = {
   {3, "HE-MCS 3"},
   {4, "HE-MCS 4"},
   {0x00, NULL}
+};
+
+static const value_string wfa_rsne_variant_vals[] = {
+  { 0, "RSNE" },
+  { 1, "RSNE Override" },
+  { 2, "RSNE Override 2" },
+  { 0, NULL }
 };
 
 static int proto_wlan;
@@ -8085,6 +8097,8 @@ static int hf_ieee80211_tag_rsnx_spp_amsdu_capable;
 static int hf_ieee80211_tag_rsnx_urnm_mfpr;
 static int hf_ieee80211_tag_rsnx_reserved;
 
+static int hf_ieee80211_wfa_rsn_selection;
+static int hf_ieee80211_wfa_rsn_or_link_kde_link_id;
 
 /* ************************************************************************* */
 /*                              RFC 8110 fields                              */
@@ -19494,6 +19508,72 @@ static int dissect_group_data_cipher_suite(tvbuff_t *tvb, packet_info *pinfo _U_
   offset += 1;
 
   return offset;
+}
+
+static int
+dissect_rsn_ie(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
+               int offset, guint32 tag_len, association_sanity_check_t *association_sanity_check);
+
+static int
+dissect_wfa_rsn_override(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
+{
+  int tag_len = tvb_reported_length(tvb);
+
+  if (tag_len > 0)
+    dissect_rsn_ie(pinfo, tree, tvb, 0, tag_len, NULL);
+
+  return tag_len;
+}
+
+static int
+dissect_wfa_rsn_override_2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
+{
+  int tag_len = tvb_reported_length(tvb);
+
+  if (tag_len > 0)
+    dissect_rsn_ie(pinfo, tree, tvb, 0, tag_len, NULL);
+
+  return tag_len;
+}
+
+static int
+ieee80211_tag_rsnx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data);
+
+static int
+dissect_wfa_rsnx_override(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
+{
+  int tag_len = tvb_reported_length(tvb);
+
+  if (tag_len > 0)
+    ieee80211_tag_rsnx(tvb, pinfo, tree, data);
+
+  return tag_len;
+}
+
+static int
+dissect_wfa_rsn_selection(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
+{
+  int tag_len = tvb_reported_length(tvb);
+
+  proto_tree_add_item(tree, hf_ieee80211_wfa_rsn_selection, tvb, 0,
+                      1, ENC_NA);
+
+  return tag_len;
+}
+
+static int
+dissect_wfa_rsn_override_link_kde(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
+{
+  int tag_len = tvb_reported_length(tvb);
+  int offset = 0;
+
+  proto_tree_add_item(tree, hf_ieee80211_wfa_rsn_or_link_kde_link_id, tvb, offset,
+                      1, ENC_NA);
+  offset++;
+  ieee_80211_add_tagged_parameters(tvb, offset, pinfo, tree,
+                                   tag_len - 1, -1, NULL);
+
+  return tag_len;
 }
 
 static const range_string qos_mgmt_attributes[] = {
@@ -59631,6 +59711,14 @@ proto_register_ieee80211(void)
     {&hf_ieee80211_eht_mu_exclusive_beamforming_report_delta_snr,
      {"Delta SNR", "wlan.eht.mu.exclusive_beamforming_report.delta_snr",
       FT_INT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
+    {&hf_ieee80211_wfa_rsn_selection,
+     {"RSNE Variant", "wlan.wfa_rsn_selection.variant",
+      FT_UINT8, BASE_DEC, VALS(wfa_rsne_variant_vals), 0, NULL, HFILL }},
+
+    {&hf_ieee80211_wfa_rsn_or_link_kde_link_id,
+     {"Link ID", "wlan.wfa_rsn_or_link_kde.link_id",
+      FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
   };
 
   static hf_register_info aggregate_fields[] = {
@@ -60964,6 +61052,11 @@ proto_reg_handoff_ieee80211(void)
   dissector_add_uint("wlan.ie.wifi_alliance.subtype", WFA_WNM_SUBTYPE_NON_PREF_CHAN_REPORT, create_dissector_handle(dissect_wfa_wnm_non_pref_chan, -1));
   dissector_add_uint("wlan.ie.wifi_alliance.subtype", WFA_WNM_SUBTYPE_CELL_DATA_CAPABILITIES, create_dissector_handle(dissect_wfa_wnm_cell_cap, -1));
   dissector_add_uint("wlan.ie.wifi_alliance.subtype", WFA_SUBTYPE_QOS_MGMT, create_dissector_handle(dissect_qos_mgmt, -1));
+  dissector_add_uint("wlan.ie.wifi_alliance.subtype", WFA_SUBTYPE_RSN_OVERRIDE, create_dissector_handle(dissect_wfa_rsn_override, -1));
+  dissector_add_uint("wlan.ie.wifi_alliance.subtype", WFA_SUBTYPE_RSN_OVERRIDE_2, create_dissector_handle(dissect_wfa_rsn_override_2, -1));
+  dissector_add_uint("wlan.ie.wifi_alliance.subtype", WFA_SUBTYPE_RSNX_OVERRIDE, create_dissector_handle(dissect_wfa_rsnx_override, -1));
+  dissector_add_uint("wlan.ie.wifi_alliance.subtype", WFA_SUBTYPE_RSN_SELECTION, create_dissector_handle(dissect_wfa_rsn_selection, -1));
+  dissector_add_uint("wlan.ie.wifi_alliance.subtype", WFA_SUBTYPE_RSN_OVERRIDE_LINK_KDE, create_dissector_handle(dissect_wfa_rsn_override_link_kde, -1));
 }
 
 /*
