@@ -6651,16 +6651,19 @@ decode_gtp_utran_cont(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto
     proto_tree_add_item(ext_tree, hf_gtp_ext_length, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset = offset + 2;
     proto_tree_add_item(ext_tree, hf_gtp_utran_field, tvb, offset, length, ENC_NA);
+    if (length == 0) {
+        return 3;
+    }
 
     switch (pinfo->link_dir) {
     case P2P_DIR_UL:
         sub_tree = proto_tree_add_subtree(ext_tree, tvb, offset, length, ett_gtp_utran_cont, NULL, "Source RNC to Target RNC Transparent Container");
-        new_tvb = tvb_new_subset_remaining(tvb, offset);
+        new_tvb = tvb_new_subset_length(tvb, offset, length);
         dissect_ranap_SourceRNC_ToTargetRNC_TransparentContainer_PDU(new_tvb, pinfo, sub_tree, NULL);
         break;
     case P2P_DIR_DL:
         sub_tree = proto_tree_add_subtree(ext_tree, tvb, offset, length, ett_gtp_utran_cont, NULL, "Target RNC to Source RNC Transparent Container");
-        new_tvb = tvb_new_subset_remaining(tvb, offset);
+        new_tvb = tvb_new_subset_length(tvb, offset, length);
         dissect_ranap_TargetRNC_ToSourceRNC_TransparentContainer_PDU(new_tvb, pinfo, sub_tree, NULL);
         break;
     default:
