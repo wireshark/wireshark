@@ -10,6 +10,9 @@
             <Component Id="cmpGryphon_dll" Guid="*">
                 <File Id="filGryphon_dll" KeyPath="yes" Source="$(var.Plugins.Dir)\$(var.WiresharkMajorVersion).$(var.WiresharkMinorVersion)\epan\gryphon.dll" />
             </Component>
+            <Component Id="cmpIPAddress_dll" Guid="*">
+                <File Id="filIPAddress_dll" KeyPath="yes" Source="$(var.Plugins.Dir)\$(var.WiresharkMajorVersion).$(var.WiresharkMinorVersion)\epan\ipaddr.dll" />
+            </Component>
             <Component Id="cmpIrda_dll" Guid="*">
                 <File Id="filIrda_dll" KeyPath="yes" Source="$(var.Plugins.Dir)\$(var.WiresharkMajorVersion).$(var.WiresharkMinorVersion)\epan\irda.dll" />
             </Component>
@@ -38,6 +41,7 @@
         <ComponentGroup Id="CG.Plugins.Dissector">
             <ComponentRef Id="cmpEthercat_dll" />
             <ComponentRef Id="cmpGryphon_dll" />
+            <ComponentRef Id="cmpIPAddress_dll" />
             <ComponentRef Id="cmpIrda_dll" />
             <ComponentRef Id="cmpOpcua_dll" />
             <ComponentRef Id="cmpProfinet_dll" />
