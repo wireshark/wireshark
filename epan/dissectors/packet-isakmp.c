@@ -7440,7 +7440,7 @@ proto_register_isakmp(void)
         FT_UINT16, BASE_DEC, VALS(ike_attr_authmeth), 0x00,
         NULL, HFILL }},
     { &hf_isakmp_ike_attr_authentication_method_china,
-      { "Authentication Method for China IPSsec VPN specification", "isakmp.ike.attr.authentication_method_china",
+      { "Authentication Method for China IPsec VPN specification", "isakmp.ike.attr.authentication_method_china",
         FT_UINT16, BASE_DEC, VALS(ike_attr_authmeth_china), 0x00,
         NULL, HFILL }},
     { &hf_isakmp_ike_attr_group_description,
