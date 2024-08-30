@@ -40,6 +40,7 @@
  * - when section extensions are present, some section header fields are effectively ignored
  * - re-order items (decl and hf definitions) to match spec order
  * - map forward/backwards between acknack requests (SE-22 or ST4 <-> ST8 responses)
+ * - add hf items to use as roots for remaining subtrees (blurb more useful than filter..)
  */
 
 /* Prototypes */
@@ -270,6 +271,10 @@ static int hf_oran_td_beam_num;
 static int hf_oran_dir_pattern;
 static int hf_oran_guard_pattern;
 
+static int hf_oran_ecpri_pcid;
+static int hf_oran_ecpri_rtcid;
+static int hf_oran_ecpri_seqid;
+
 
 /* Computed fields */
 static int hf_oran_c_eAxC_ID;
@@ -335,6 +340,7 @@ static expert_field ei_oran_trx_control_cmd_scope;
 static expert_field ei_oran_unhandled_se;
 static expert_field ei_oran_bad_symbolmask;
 static expert_field ei_oran_numslots_not_zero;
+static expert_field ei_oran_version_unsupported;
 
 
 /* These are the message types handled by this dissector */
@@ -1051,11 +1057,13 @@ write_section_info(proto_item *section_heading, packet_info *pinfo, proto_item *
 
 /* 5.1.3.2.7 (real time control data / IQ data transfer message series identifier) */
 static void
-addPcOrRtcid(tvbuff_t *tvb, proto_tree *tree, int *offset, const char *name, uint16_t *eAxC)
+addPcOrRtcid(tvbuff_t *tvb, proto_tree *tree, int *offset, int hf, uint16_t *eAxC)
 {
     /* Subtree */
-    proto_item *item;
-    proto_tree *oran_pcid_tree = proto_tree_add_subtree(tree, tvb, *offset, 2, ett_oran_ecpri_pcid, &item, name);
+    proto_item *oran_pcid_ti = proto_tree_add_item(tree, hf,
+                                                   tvb, *offset, 2, ENC_NA);
+    proto_tree *oran_pcid_tree = proto_item_add_subtree(oran_pcid_ti, ett_oran_ecpri_pcid);
+
     uint64_t duPortId, bandSectorId, ccId, ruPortId = 0;
     int id_offset = *offset;
 
@@ -1085,7 +1093,8 @@ addPcOrRtcid(tvbuff_t *tvb, proto_tree *tree, int *offset, const char *name, uin
     proto_tree_add_bits_ret_val(oran_pcid_tree, hf_oran_ru_port_id, tvb, bit_offset, pref_ru_port_id_bits, &ruPortId, ENC_BIG_ENDIAN);
     *offset += 2;
 
-    proto_item_append_text(item, " (DU_Port_ID: %d, BandSector_ID: %d, CC_ID: %d, RU_Port_ID: %d)", (int)duPortId, (int)bandSectorId, (int)ccId, (int)ruPortId);
+    proto_item_append_text(oran_pcid_ti, " (DU_Port_ID: %d, BandSector_ID: %d, CC_ID: %d, RU_Port_ID: %d)",
+                           (int)duPortId, (int)bandSectorId, (int)ccId, (int)ruPortId);
     char id[16];
     snprintf(id, 16, "%x:%x:%x:%x", (int)duPortId, (int)bandSectorId, (int)ccId, (int)ruPortId);
     proto_item *pi = proto_tree_add_string(oran_pcid_tree, hf_oran_c_eAxC_ID, tvb, id_offset, 2, id);
@@ -1097,8 +1106,8 @@ static void
 addSeqid(tvbuff_t *tvb, proto_tree *oran_tree, int *offset)
 {
     /* Subtree */
-    proto_item *seqIdItem;
-    proto_tree *oran_seqid_tree = proto_tree_add_subtree(oran_tree, tvb, *offset, 2, ett_oran_ecpri_seqid, &seqIdItem, "ecpriSeqid");
+    proto_item *seqIdItem = proto_tree_add_item(oran_tree, hf_oran_ecpri_seqid, tvb, *offset, 2, ENC_NA);
+    proto_tree *oran_seqid_tree = proto_item_add_subtree(seqIdItem, ett_oran_ecpri_seqid);
     uint32_t seqId, subSeqId, e = 0;
     /* Sequence ID */
     proto_tree_add_item_ret_uint(oran_seqid_tree, hf_oran_sequence_id, tvb, *offset, 1, ENC_NA, &seqId);
@@ -1587,10 +1596,10 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
         /* Antenna count from preference */
         unsigned num_trx = pref_num_bf_antennas;
         if (numPrbc > 1) {
-            proto_item_append_text(sectionHeading, " (UEId=%u  PRBs %u-%u, %u antennas", ueId, startPrbc, startPrbc+numPrbc-1, num_trx);
+            proto_item_append_text(sectionHeading, " (UEId=%u  PRBs %u-%u, %u antennas)", ueId, startPrbc, startPrbc+numPrbc-1, num_trx);
         }
         else {
-            proto_item_append_text(sectionHeading, " (UEId=%u  PRB %u, %u antennas", ueId, startPrbc, num_trx);
+            proto_item_append_text(sectionHeading, " (UEId=%u  PRB %u, %u antennas)", ueId, startPrbc, num_trx);
         }
 
         bool first_prb = true;
@@ -2157,7 +2166,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                         break;
                     case 0x2: /* beam vector listing */
                     {
-                        proto_item_append_text(extension_ti, "[ ");
+                        proto_item_append_text(extension_ti, " [ ");
 
                         /* Beam listing vector case */
                         /* Work out how many port beam entries there is room for */
@@ -2889,6 +2898,17 @@ static int dissect_cicomphdr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
     return offset;
 }
 
+static void dissect_payload_version(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, unsigned offset)
+{
+    unsigned version;
+    proto_item *ti = proto_tree_add_item_ret_uint(tree, hf_oran_payload_version, tvb, offset, 1, ENC_NA, &version);
+    if (version != 1) {
+        expert_add_info_format(pinfo, ti, &ei_oran_version_unsupported,
+                               "PayloadVersion %u not supported by dissector (only 1 is known)",
+                               version);
+        /* TODO: should throw an exception? */
+    }
+}
 
 /* Control plane dissector (section 7). */
 static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
@@ -2909,7 +2929,7 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
     proto_tree *oran_tree = proto_item_add_subtree(protocol_item, ett_oran);
 
     uint16_t eAxC;
-    addPcOrRtcid(tvb, oran_tree, &offset, "ecpriRtcid", &eAxC);
+    addPcOrRtcid(tvb, oran_tree, &offset, hf_oran_ecpri_rtcid, &eAxC);
 
     if (!PINFO_FD_VISITED(pinfo)) {
         /* TODO: create or update conversation for stream eAxC */
@@ -2937,7 +2957,7 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
     uint32_t direction = 0;
     proto_tree_add_item_ret_uint(section_tree, hf_oran_data_direction, tvb, offset, 1, ENC_NA, &direction);
     /* payloadVersion */
-    proto_tree_add_item(section_tree, hf_oran_payload_version, tvb, offset, 1, ENC_NA);
+    dissect_payload_version(section_tree, tvb, pinfo, offset);
 
     /* filterIndex */
     if (sectionType == SEC_C_SLOT_CONTROL || sectionType == SEC_C_ACK_NACK_FEEDBACK) {
@@ -3498,7 +3518,7 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
     /* Transport header */
     /* Real-time control data / IQ data transfer message series identifier */
     uint16_t eAxC;
-    addPcOrRtcid(tvb, oran_tree, &offset, "ecpriPcid", &eAxC);
+    addPcOrRtcid(tvb, oran_tree, &offset, hf_oran_ecpri_pcid, &eAxC);
 
     if (!PINFO_FD_VISITED(pinfo)) {
         /* TODO: create or update conversation for stream eAxC */
@@ -3518,7 +3538,7 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
     uint32_t direction;
     proto_tree_add_item_ret_uint(timing_header_tree, hf_oran_data_direction, tvb, offset, 1, ENC_NA, &direction);
     /* payloadVersion */
-    proto_tree_add_item(timing_header_tree, hf_oran_payload_version, tvb, offset, 1, ENC_NA);
+    dissect_payload_version(timing_header_tree, tvb, pinfo, offset);
     /* filterIndex */
     proto_tree_add_item(timing_header_tree, hf_oran_filter_index, tvb, offset, 1, ENC_NA);
     offset += 1;
@@ -4034,12 +4054,11 @@ proto_register_oran(void)
            HFILL}
         },
 
-        /* Section 7.5.3.8 */
         {&hf_oran_extension,
          {"Extension", "oran_fh_cus.extension",
            FT_STRING, BASE_NONE,
            NULL, 0x0,
-           "Section extension type (ef)",
+           "Section extension",
            HFILL}
         },
 
@@ -5295,6 +5314,29 @@ proto_register_oran(void)
           NULL,
           HFILL}
         },
+
+        {&hf_oran_ecpri_pcid,
+         {"ecpriPcid", "oran_fh_cus.ecpriPcid",
+          FT_NONE, BASE_NONE,
+          NULL, 0x0,
+          "IQ data transfer message series identifier",
+          HFILL}
+        },
+        {&hf_oran_ecpri_rtcid,
+         {"ecpriRtcid", "oran_fh_cus.ecpriRtcid",
+          FT_NONE, BASE_NONE,
+          NULL, 0x0,
+          "Real time control data identifier",
+          HFILL}
+        },
+        {&hf_oran_ecpri_seqid,
+         {"ecpriSeqid", "oran_fh_cus.ecpriSeqid",
+          FT_NONE, BASE_NONE,
+          NULL, 0x0,
+          "message identifier",
+          HFILL}
+        },
+
     };
 
     /* Setup protocol subtree array */
@@ -5355,6 +5397,7 @@ proto_register_oran(void)
         { &ei_oran_unhandled_se, { "oran_fh_cus.se_not_handled", PI_UNDECODED, PI_WARN, "SE not recognised/handled by dissector", EXPFILL }},
         { &ei_oran_bad_symbolmask, { "oran_fh_cus.bad_symbol_mask", PI_MALFORMED, PI_WARN, "For non-zero sleepMode, symbolMask must be 0x0 or 0x3ffff", EXPFILL }},
         { &ei_oran_numslots_not_zero, { "oran_fh_cus.numslots_not_zero", PI_MALFORMED, PI_WARN, "For ST4 TIME_DOMAIN_BEAM_WEIGHTS, numSlots should be 0", EXPFILL }},
+        { &ei_oran_version_unsupported, { "oran_fh_cus.version_unsupported", PI_UNDECODED, PI_WARN, "Protocol version unsupported", EXPFILL }}
     };
 
     /* Register the protocol name and description */
