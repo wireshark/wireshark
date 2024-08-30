@@ -292,7 +292,7 @@ check_ip_field(dfwork_t *dfw, const char *func_name, ftenum_t logical_ftype _U_,
     if (check_which(ftype, which)) {
         return;
     }
-    dfunc_fail(dfw, param, "Only %s fields can be used as parameter for %s()",
+    dfunc_fail(dfw, param, "Only %s fields can be used as a parameter for %s()",
                                 print_which(which), func_name);
 }
 
