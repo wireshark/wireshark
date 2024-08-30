@@ -1272,7 +1272,7 @@ check_relation_LHS_FUNCTION(dfwork_t *dfw, stnode_op_t st_op _U_,
 
 		if (!compatible_ftypes(ftype1, ftype2)) {
 			FAIL(dfw, st_arg2, "Function %s and %s are not of compatible types.",
-					sttype_function_name(st_arg2), stnode_todisplay(st_arg2));
+					sttype_function_name(st_arg1), stnode_todisplay(st_arg2));
 		}
 		/* Do this check even though you'd think that if
 		 * they're compatible, then can_func() would pass. */
