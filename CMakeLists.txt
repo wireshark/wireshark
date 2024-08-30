@@ -4394,6 +4394,7 @@ endif()
 add_custom_target(test
 	COMMAND ${CMAKE_COMMAND} -E env PYTHONIOENCODING=UTF-8
 		${Python3_EXECUTABLE} -m pytest
+		${TEST_EXTRA_ARGS}
 	WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
 	DEPENDS test-programs
 	USES_TERMINAL
