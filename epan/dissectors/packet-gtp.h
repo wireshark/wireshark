@@ -23,7 +23,7 @@ typedef struct gtp_msg_hash_entry {
 typedef struct _gtp_hdr {
   uint8_t flags;  /* GTP header flags */
   uint8_t message; /* Message type */
-  uint16_t length; /* Length of header */
+  uint32_t length; /* Length of header */
   int64_t teid; /* Tunnel End-point ID */
 } gtp_hdr_t;
 

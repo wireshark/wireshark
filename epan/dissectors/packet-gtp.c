@@ -5088,25 +5088,20 @@ decode_gtp_pkt_flow_id(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, prot
  * TODO: Differenciate these uints?
  */
 static int
-decode_gtp_chrg_char(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_)
+decode_gtp_chrg_char(tvbuff_t* tvb, int offset, packet_info* pinfo _U_, proto_tree* tree, session_args_t* args _U_)
 {
 
-    uint16_t    chrg_char;
-    proto_item *te;
-    proto_tree *ext_tree_chrg_char;
+    static int* const gtp_charg_flags[] = {
+        &hf_gtp_chrg_char_s,
+        &hf_gtp_chrg_char_n,
+        &hf_gtp_chrg_char_p,
+        &hf_gtp_chrg_char_f,
+        &hf_gtp_chrg_char_h,
+        &hf_gtp_chrg_char_r,
+        NULL
+    };
 
-    chrg_char = tvb_get_ntohs(tvb, offset + 1);
-
-    te = proto_tree_add_uint(tree, hf_gtp_chrg_char, tvb, offset, 3, chrg_char);
-    /*"%s: %x", val_to_str_ext_const (GTP_EXT_CHRG_CHAR, &gtp_val_ext, "Unknown message"), chrg_char); */
-    ext_tree_chrg_char = proto_item_add_subtree(te, ett_gtp_ies[GTP_EXT_CHRG_CHAR]);
-
-    proto_tree_add_uint(ext_tree_chrg_char, hf_gtp_chrg_char_s, tvb, offset + 1, 2, chrg_char);
-    proto_tree_add_uint(ext_tree_chrg_char, hf_gtp_chrg_char_n, tvb, offset + 1, 2, chrg_char);
-    proto_tree_add_uint(ext_tree_chrg_char, hf_gtp_chrg_char_p, tvb, offset + 1, 2, chrg_char);
-    proto_tree_add_uint(ext_tree_chrg_char, hf_gtp_chrg_char_f, tvb, offset + 1, 2, chrg_char);
-    proto_tree_add_uint(ext_tree_chrg_char, hf_gtp_chrg_char_h, tvb, offset + 1, 2, chrg_char);
-    proto_tree_add_uint(ext_tree_chrg_char, hf_gtp_chrg_char_r, tvb, offset + 1, 2, chrg_char);
+    proto_tree_add_bitmask(tree, tvb, offset + 1, hf_gtp_chrg_char, ett_gtp_ies[GTP_EXT_CHRG_CHAR], gtp_charg_flags, ENC_BIG_ENDIAN);
 
     return 3;
 }
@@ -10312,12 +10307,12 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
     proto_item      *ti = NULL, *tf, *ext_hdr_len_item, *message_item;
     int              i, offset = 0, checked_field, mandatory;
     bool             gtp_prime, has_SN;
-    int              seq_no           = 0;
-    int              flow_label       = 0;
-    uint8_t          pdu_no, next_hdr = 0;
+    unsigned         seq_no           = 0;
+    unsigned         flow_label       = 0;
+    unsigned         pdu_no, next_hdr = 0;
     uint8_t          ext_hdr_val;
     unsigned         ext_hdr_length;
-    uint16_t         ext_hdr_pdcpsn;
+    uint32_t         ext_hdr_pdcpsn, value;
     char            *tid_str;
     uint8_t          sub_proto;
     uint8_t          acfield_len      = 0;
@@ -10496,16 +10491,14 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
     message_item = proto_tree_add_uint(gtp_tree, hf_gtp_message_type, tvb, offset, 1, gtp_hdr->message);
     offset++;
 
-    gtp_hdr->length = tvb_get_ntohs(tvb, offset);
-    proto_tree_add_uint(gtp_tree, hf_gtp_length, tvb, 2, 2, gtp_hdr->length);
+    proto_tree_add_item_ret_uint(gtp_tree, hf_gtp_length, tvb, 2, 2, ENC_BIG_ENDIAN, &gtp_hdr->length);
     offset += 2;
 
     /* We initialize the sequence number*/
     has_SN = false;
     if (gtp_prime) {
-        seq_no = tvb_get_ntohs(tvb, offset);
         has_SN = true;
-        proto_tree_add_uint(gtp_tree, hf_gtp_seq_number, tvb, offset, 2, seq_no);
+        proto_tree_add_item_ret_uint(gtp_tree, hf_gtp_seq_number, tvb, offset, 2, ENC_BIG_ENDIAN, &seq_no);
         offset += 2;
         /* If GTP' version is 0 and bit 1 is 0 20 bytes header is used, dissect it */
         if( (gtp_version == 0) && ((gtp_hdr->flags & 0x01) == 0) ) {
@@ -10517,17 +10510,14 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
     } else {
         switch (gtp_version) {
         case 0:
-            seq_no = tvb_get_ntohs(tvb, offset);
             has_SN = true;
-            proto_tree_add_uint(gtp_tree, hf_gtp_seq_number, tvb, offset, 2, seq_no);
+            proto_tree_add_item_ret_uint(gtp_tree, hf_gtp_seq_number, tvb, offset, 2, ENC_BIG_ENDIAN, &seq_no);
             offset += 2;
 
-            flow_label = tvb_get_ntohs(tvb, offset);
-            proto_tree_add_uint(gtp_tree, hf_gtp_flow_label, tvb, offset, 2, flow_label);
+            proto_tree_add_item_ret_uint(gtp_tree, hf_gtp_flow_label, tvb, offset, 2, ENC_BIG_ENDIAN, &flow_label);
             offset += 2;
 
-            pdu_no = tvb_get_uint8(tvb, offset);
-            proto_tree_add_uint(gtp_tree, hf_gtp_sndcp_number, tvb, offset, 1, pdu_no);
+            proto_tree_add_item_ret_uint(gtp_tree, hf_gtp_sndcp_number, tvb, offset, 1, ENC_NA, &pdu_no);
             offset += 4;
 
             tid_str = id_to_str(tvb, offset);
@@ -10538,8 +10528,8 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 
             break;
         case 1:
-            gtp_hdr->teid = tvb_get_ntohl(tvb, offset);
-            proto_tree_add_item(gtp_tree, hf_gtp_teid, tvb, offset, 4, ENC_BIG_ENDIAN);
+            proto_tree_add_item_ret_uint(gtp_tree, hf_gtp_teid, tvb, offset, 2, ENC_BIG_ENDIAN, &value);
+            gtp_hdr->teid = value;
             offset += 4;
 
             set_actual_length(tvb, offset + gtp_hdr->length);
@@ -10553,29 +10543,26 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
                 /* Those fields are only *interpreted* if the
                    particular flag for the field is set. */
                 if (gtp_hdr->flags & GTP_S_MASK) {
-                    seq_no = tvb_get_ntohs(tvb, offset);
                     has_SN = true;
-                    proto_tree_add_uint(gtp_tree, hf_gtp_seq_number, tvb, offset, 2, seq_no);
+                    proto_tree_add_item_ret_uint(gtp_tree, hf_gtp_seq_number, tvb, offset, 2, ENC_BIG_ENDIAN, &seq_no);
                 }
                 offset += 2;
 
                 if (gtp_hdr->flags & GTP_PN_MASK) {
-                    pdu_no = tvb_get_uint8(tvb, offset);
-                    proto_tree_add_uint(gtp_tree, hf_gtp_npdu_number, tvb, offset, 1, pdu_no);
+                    proto_tree_add_item_ret_uint(gtp_tree, hf_gtp_npdu_number, tvb, offset, 1, ENC_NA, &pdu_no);
                 }
                 offset++;
 
                 if (gtp_hdr->flags & GTP_E_MASK) {
                     proto_item* hdr_ext_item;
-                    next_hdr = tvb_get_uint8(tvb, offset);
-                    hdr_ext_item = proto_tree_add_uint(gtp_tree, hf_gtp_ext_hdr_next, tvb, offset, 1, next_hdr);
+                    hdr_ext_item = proto_tree_add_item_ret_uint(gtp_tree, hf_gtp_ext_hdr_next, tvb, offset, 1, ENC_NA, &next_hdr);
                     offset++;
                     /* Add each extension header found. */
                     while (next_hdr != 0) {
-                        ext_hdr_length = tvb_get_uint8(tvb, offset);
-                        tf = proto_tree_add_item(gtp_tree, hf_gtp_ext_hdr, tvb, offset, ext_hdr_length*4, ENC_NA);
+                        tf = proto_tree_add_item(gtp_tree, hf_gtp_ext_hdr, tvb, offset, 0, ENC_NA);
                         ext_tree = proto_item_add_subtree(tf, ett_gtp_ext_hdr);
-                        ext_hdr_len_item = proto_tree_add_item(ext_tree, hf_gtp_ext_hdr_length, tvb, offset,1, ENC_BIG_ENDIAN);
+                        ext_hdr_len_item = proto_tree_add_item_ret_uint(ext_tree, hf_gtp_ext_hdr_length, tvb, offset, 1, ENC_NA, &ext_hdr_length);
+                        proto_item_set_len(tf, ext_hdr_length * 4);
                         if (ext_hdr_length == 0) {
                             expert_add_info_format(pinfo, ext_hdr_len_item, &ei_gtp_ext_length_mal,
                                                    "Extension header length is zero");
@@ -10838,8 +10825,7 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
                             if (ext_hdr_length == 1) {
                                 proto_item* ext_item;
 
-                                ext_hdr_pdcpsn = tvb_get_ntohs(tvb, offset);
-                                ext_item = proto_tree_add_item(ext_tree, hf_gtp_ext_hdr_pdcpsn, tvb, offset, 2, ENC_BIG_ENDIAN);
+                                ext_item = proto_tree_add_item_ret_uint(ext_tree, hf_gtp_ext_hdr_pdcpsn, tvb, offset, 2, ENC_BIG_ENDIAN, &ext_hdr_pdcpsn);
                                 if (ext_hdr_pdcpsn & 0x8000) {
                                     expert_add_info(pinfo, ext_item, &ei_gtp_ext_hdr_pdcpsn);
                                 }
@@ -10869,9 +10855,7 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
                             }
                         }
                         offset += ext_hdr_length*4 - 2;
-
-                        next_hdr = tvb_get_uint8(tvb, offset);
-                        hdr_ext_item = proto_tree_add_uint(ext_tree, hf_gtp_ext_hdr_next, tvb, offset, 1, next_hdr);
+                        hdr_ext_item = proto_tree_add_item_ret_uint(ext_tree, hf_gtp_ext_hdr_next, tvb, offset, 1, ENC_NA, &next_hdr);
                         offset++;
                     }
                 } else
