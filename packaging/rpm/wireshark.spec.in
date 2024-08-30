@@ -255,11 +255,13 @@ development of Wireshark scripts and plugins.
 %build
 # The SUSE macros for cmake and ninja depend upon _bindir, which depends
 # on _prefix (and is thus wrong if _prefix is anything other than /usr).
-# Set _bindir to the correct value regardless of _prefix.
+# That's wrong - just because we're installing our package's binaries
+# into another _bindir doesn't mean we want to run cmake or ninja out
+# of there instead of the system cmake or ninja.
 %if 0%{?suse_version}
-%define _bindir /usr/bin
+%define __cmake /usr/bin/cmake
 %if %{with ninja}
-%define __builder %{_bindir}/ninja
+%define __builder /usr/bin/ninja
 %endif
 %endif
 
@@ -432,18 +434,13 @@ update-mime-database %{_datadir}/mime &> /dev/null || :
 
 %files
 
-%if 0%{?suse_version}
-# Before packing, we need to restore the bindir to the wireshark one
-%define _bindir %{_prefix}/bin
-%endif
-
 %defattr(-,root,root)
 %doc AUTHORS COPYING README.md
 %if %{with guides}
-%exclude %{_datadir}/doc/wireshark/wsdg_html_chunked
+%exclude %{_docdir}/wireshark/wsdg_html_chunked
 %endif
-%{_datadir}/doc/wireshark
-%docdir %{_datadir}/doc/wireshark
+%{_docdir}/wireshark
+%docdir %{_docdir}/wireshark
 
 # Don't pick up any of the wireshark (GUI) binaries here
 %exclude %{_bindir}/wireshark*
@@ -511,8 +508,8 @@ update-mime-database %{_datadir}/mime &> /dev/null || :
 %{_libdir}/cmake/wireshark
 %{_libdir}/pkgconfig/wireshark.pc
 %if %{with guides}
-%{_datadir}/doc/wireshark/wsdg_html_chunked
-%docdir %{_datadir}/doc/wireshark/wsdg_html_chunked
+%{_docdir}/wireshark/wsdg_html_chunked
+%docdir %{_docdir}/wireshark/wsdg_html_chunked
 %endif
 
 %changelog
