@@ -2443,12 +2443,15 @@ file_getc(FILE_T file)
     return ret < 1 ? -1 : buf[0];
 }
 
-/* Like file_gets, but returns a pointer to the terminating NUL. */
+/*
+ * Like file_gets, but returns a pointer to the terminating NUL
+ * on success and NULL on failure.
+ */
 char *
 file_getsp(char *buf, int len, FILE_T file)
 {
     unsigned left, n;
-    char *str;
+    char *curp;
     unsigned char *eol;
 
     /* check parameters */
@@ -2469,7 +2472,7 @@ file_getsp(char *buf, int len, FILE_T file)
     /* copy output bytes up to new line or len - 1, whichever comes first --
        append a terminating zero to the string (we don't check for a zero in
        the contents, let the user worry about that) */
-    str = buf;
+    curp = buf;
     left = (unsigned)len - 1;
     if (left) do {
             /* assure that something is in the output buffer */
@@ -2486,7 +2489,7 @@ file_getsp(char *buf, int len, FILE_T file)
                 if (fill_out_buffer(file) == -1)
                     return NULL;            /* error */
                 if (file->out.avail == 0)  {     /* end of file */
-                    if (buf == str)         /* got bupkus */
+                    if (curp == buf)        /* got bupkus */
                         return NULL;
                     break;                  /* got something -- return it */
                 }
@@ -2499,20 +2502,24 @@ file_getsp(char *buf, int len, FILE_T file)
                 n = (unsigned)(eol - file->out.next) + 1;
 
             /* copy through end-of-line, or remainder if not found */
-            memcpy(buf, file->out.next, n);
+            memcpy(curp, file->out.next, n);
             file->out.avail -= n;
             file->out.next += n;
             file->pos += n;
             left -= n;
-            buf += n;
+            curp += n;
         } while (left && eol == NULL);
 
     /* found end-of-line or out of space -- add a terminator and return
        a pointer to it */
-    buf[0] = 0;
-    return buf;
+    *curp = '\0';
+    return curp;
 }
 
+/*
+ * Returns a pointer to the beginning of the buffer on success
+ * and NULL on failure.
+ */
 char *
 file_gets(char *buf, int len, FILE_T file)
 {
