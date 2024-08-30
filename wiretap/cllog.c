@@ -839,6 +839,7 @@ cllog_open(wtap *wth, int *err, char **err_info _U_)
 {
     cCLLog_logFileInfo_t *clLog;
     char line[ MAX_LOG_LINE_LENGTH ];
+    char *linep;
 
     clLog = g_new0(cCLLog_logFileInfo_t, 1);
 
@@ -866,21 +867,15 @@ cllog_open(wtap *wth, int *err, char **err_info _U_)
     memset(clLog->parseFieldFunc, 0, sizeof( clLog->parseFieldFunc));
 
     /*
-     * We're at the beginning of the file; read each line and
-     * parse it.
+     * We're at the beginning of the file.  The header is a set
+     * of comment lines, each beginning with a '#'. Read each line,
+     * stopping if we see a non-comment line, and parse each
+     * comment line; if any aren't valid, quit and indicate that
+     * this isn't a CLX log file.
      */
-    while (file_gets(line, sizeof(line), wth->fh) != NULL)
+    while ((linep = file_gets(line, sizeof(line), wth->fh)) != NULL &&
+           linep[0] == '#')
     {
-        char *linep;
-
-        linep = line;
-
-        /* Break on end of header */
-        if (linep[0] != '#')
-        {
-            break;
-        }
-
         /*
          * Skip the comment character and white space following it.
          */
@@ -950,37 +945,51 @@ cllog_open(wtap *wth, int *err, char **err_info _U_)
     }
 
     /*
-     * file_gets() didn't return a line.
-     * Did it get an error?
+     * Did file_gets() fail?
      */
-    *err = file_error(wth->fh, err_info);
-    if (*err != 0)
+    if (linep == NULL)
     {
-        /* Yes.  What was it? */
-        if (*err == WTAP_ERR_SHORT_READ)
+        /*
+         * Yes - file_gets() didn't return a line.
+         * Did it get an error?
+         */
+        *err = file_error(wth->fh, err_info);
+        if (*err != 0)
         {
-            /* Incomplete header, so not ours. */
+            /* Yes.  What was it? */
+            if (*err == WTAP_ERR_SHORT_READ)
+            {
+                /* Incomplete header, so not ours. */
+                g_free(clLog);
+                return WTAP_OPEN_NOT_MINE;
+            }
+            else
+            {
+                /* I/O error. */
+                g_free(clLog);
+                return WTAP_OPEN_ERROR;
+            }
+        }
+
+        /*
+         * No, it just got an EOF; treat it as our file, as
+         * older versions did so.
+         *
+         * XXX - should we treat it as not our file, as it lacks
+         * the column header line?
+         */
+    }
+    else
+    {
+        /*
+         * We've read the first line after the header, so it's the column
+         * header line. Parse it.
+         */
+        if (!parseColumnHeaderFields(clLog, linep))
+        {
             g_free(clLog);
             return WTAP_OPEN_NOT_MINE;
         }
-        else
-        {
-            /* I/O error. */
-            g_free(clLog);
-            return WTAP_OPEN_ERROR;
-        }
-    }
-
-    /*
-     * No, it just got an EOF.
-     *
-     * We've read the first line after the header, so it's the column
-     * header line. Parse it.
-     */
-    if (!parseColumnHeaderFields(clLog, line))
-    {
-        g_free(clLog);
-        return WTAP_OPEN_NOT_MINE;
     }
 
     wth->priv = clLog;
