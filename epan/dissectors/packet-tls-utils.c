@@ -1420,6 +1420,15 @@ const value_string tls_hello_ext_psk_ke_mode[] = {
     { 0, NULL }
 };
 
+/* RFC 6066 Section 6 */
+const value_string tls_hello_ext_trusted_ca_key_type[] = {
+    {0, "pre_agreed"},
+    {1, "key_sha1_hash"},
+    {2, "x509_name"},
+    {3, "cert_sha1_hash"},
+    {0, NULL}
+};
+
 const value_string tls13_key_update_request[] = {
     { 0, "update_not_requested" },
     { 1, "update_requested" },
@@ -9715,6 +9724,127 @@ ssl_dissect_hnd_hello_ext_connection_id(ssl_common_dissect_t *hf, tvbuff_t *tvb,
     }
 } /* }}} */
 
+/* Trusted CA dissection. {{{ */
+static uint32_t
+ssl_dissect_hnd_hello_ext_trusted_ca_keys(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+                                          uint32_t offset, uint32_t offset_end)
+{
+    proto_item *ti;
+    proto_tree *subtree;
+    uint32_t keys_length, next_offset;
+
+    /*
+     * struct {
+     *     TrustedAuthority trusted_authorities_list<0..2^16-1>;
+     * } TrustedAuthorities;
+     *
+     * struct {
+     *     IdentifierType identifier_type;
+     *     select (identifier_type) {
+     *         case pre_agreed: struct {};
+     *         case key_sha1_hash: SHA1Hash;
+     *         case x509_name: DistinguishedName;
+     *         case cert_sha1_hash: SHA1Hash;
+     *     } identifier;
+     * } TrustedAuthority;
+     *
+     * enum {
+     *     pre_agreed(0), key_sha1_hash(1), x509_name(2),
+     *     cert_sha1_hash(3), (255)
+     * } IdentifierType;
+     *
+     * opaque DistinguishedName<1..2^16-1>;
+     *
+     */
+
+
+    /* TrustedAuthority trusted_authorities_list<0..2^16-1> */
+    if (!ssl_add_vector(hf, tvb, pinfo, tree, offset, offset_end, &keys_length, hf->hf.hs_ext_trusted_ca_keys_len,
+                        0, UINT16_MAX))
+    {
+        return offset_end;
+    }
+    offset += 2;
+    next_offset = offset + keys_length;
+
+    if (keys_length > 0)
+    {
+        ti = proto_tree_add_none_format(tree, hf->hf.hs_ext_trusted_ca_keys_list, tvb, offset, keys_length,
+                                        "Trusted CA keys (%d byte%s)", keys_length, plurality(keys_length, "", "s"));
+        subtree = proto_item_add_subtree(ti, hf->ett.hs_ext_trusted_ca_keys);
+
+        while (offset < next_offset)
+        {
+            uint32_t identifier_type;
+            proto_tree *trusted_key_tree;
+            proto_item *trusted_key_item;
+            asn1_ctx_t  asn1_ctx;
+            uint32_t key_len = 0;
+
+            identifier_type = tvb_get_uint8(tvb, offset);
+
+            // Use 0 as length for now as we'll only know the size when we decode the identifier
+            trusted_key_item = proto_tree_add_none_format(subtree, hf->hf.hs_ext_trusted_ca_key, tvb,
+                                                          offset, 0, "Trusted CA Key");
+            trusted_key_tree = proto_item_add_subtree(trusted_key_item, hf->ett.hs_ext_trusted_ca_key);
+
+            proto_tree_add_uint(trusted_key_tree, hf->hf.hs_ext_trusted_ca_key_type, tvb,
+                                offset, 1, identifier_type);
+            offset++;
+
+            /*
+             * enum {
+             *       pre_agreed(0), key_sha1_hash(1), x509_name(2),
+             *       cert_sha1_hash(3), (255)
+             *   } IdentifierType;
+             */
+            switch (identifier_type)
+            {
+                case 0:
+                    key_len = 0;
+                    break;
+                case 2:
+                    asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
+
+                    uint32_t name_length;
+                    /* opaque DistinguishedName<1..2^16-1> */
+                    if (!ssl_add_vector(hf, tvb, pinfo, trusted_key_tree, offset, next_offset, &name_length,
+                                        hf->hf.hs_ext_trusted_ca_key_dname_len, 1, UINT16_MAX)) {
+                        return next_offset;
+                    }
+                    offset += 2;
+
+                    dissect_x509if_DistinguishedName(false, tvb, offset, &asn1_ctx,
+                                                     trusted_key_tree, hf->hf.hs_ext_trusted_ca_key_dname);
+                    offset += name_length;
+                    break;
+                case 1:
+                case 3:
+                    key_len = 20;
+                    /* opaque SHA1Hash[20]; */
+                    proto_tree_add_item(trusted_key_tree, hf->hf.hs_ext_trusted_ca_key_hash, tvb,
+                                        offset, 20, ENC_NA);
+                    break;
+
+                default:
+                    key_len = 0;
+                    /*TODO display expert info about unknown ? */
+                    break;
+            }
+            proto_item_set_len(trusted_key_item, 1 + key_len);
+            offset += key_len;
+        }
+    }
+
+    if (!ssl_end_vector(hf, tvb, pinfo, tree, offset, next_offset))
+    {
+        offset = next_offset;
+    }
+
+    return offset;
+} /* }}} */
+
+
 /* Whether the Content and Handshake Types are valid; handle Protocol Version. {{{ */
 bool
 ssl_is_valid_content_type(uint8_t type)
@@ -11229,6 +11359,9 @@ ssl_dissect_hnd_extension(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *t
             /* FALLTHRU */
         case SSL_HND_HELLO_EXT_CONNECTION_ID:
             offset = ssl_dissect_hnd_hello_ext_connection_id(hf, tvb, pinfo, ext_tree, offset, hnd_type, session, ssl);
+            break;
+        case SSL_HND_HELLO_EXT_TRUSTED_CA_KEYS:
+                offset = ssl_dissect_hnd_hello_ext_trusted_ca_keys(hf, tvb, pinfo, ext_tree, offset, next_offset);
             break;
         default:
             proto_tree_add_item(ext_tree, hf->hf.hs_ext_data,
