@@ -1016,8 +1016,7 @@ ${If} $0 == "0"
   ${EndIf}
   ${StrRep} $0 '$USBPCAP_UNINSTALL' 'Uninstall.exe' 'USBPcapCMD.exe'
   ${StrRep} $1 '$0' '"' ''
-  SetOutPath $INSTDIR\extcap\wireshark
-  CopyFiles  /SILENT $1 $INSTDIR\extcap
+  CopyFiles  /SILENT $1 $INSTDIR\extcap\wireshark
   SetRebootFlag true
 ${EndIf}
 SecRequired_skip_USBPcap:
