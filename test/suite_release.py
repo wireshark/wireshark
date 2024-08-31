@@ -45,3 +45,11 @@ class TestReleaseAutomaticUpdates:
         '''Checks whether Wireshark was built with automatic updates.'''
 
         assert wireshark_features.have_automatic_updates
+
+class TestReleaseLua:
+    def test_lua_present(self, request, features):
+        '''Checks whether Wireshark was built with Lua support.'''
+        enabled = request.config.getoption('--enable-release', default=False)
+        if not enabled:
+            pytest.skip('Release tests are not enabled via --enable-release')
+        assert features.have_lua
