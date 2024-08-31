@@ -53,6 +53,8 @@ private slots:
     void clearFilter();
 
 private:
+    void updateFilter();
+
     bool plain_;
     bool field_name_only_;
     bool enable_save_action_;
@@ -65,6 +67,7 @@ private:
     StockIconToolButton *apply_button_;
     CaptureFilterSyntaxWorker *syntax_worker_;
     QThread *syntax_thread_;
+    QTimer *line_edit_timer_;
 
     void buildCompletionList(const QString &primitive_word, const QString &preamble);
 

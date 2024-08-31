@@ -30,6 +30,7 @@
 #include <QPainter>
 #include <QStringListModel>
 #include <QStyleOptionFrame>
+#include <QTimer>
 
 #include <ui/qt/utils/qt_ui_utils.h>
 
@@ -207,6 +208,10 @@ CaptureFilterEdit::CaptureFilterEdit(QWidget *parent, bool plain) :
 #endif
     }
 
+    line_edit_timer_ = new QTimer(this);
+    line_edit_timer_->setSingleShot(true);
+    connect(line_edit_timer_, &QTimer::timeout, this, &CaptureFilterEdit::updateFilter);
+
     syntax_thread_ = new QThread;
     syntax_worker_ = new CaptureFilterSyntaxWorker;
     syntax_worker_->moveToThread(syntax_thread_);
@@ -369,15 +374,21 @@ void CaptureFilterEdit::checkFilter(const QString& filter)
     }
 
     if (empty) {
+        line_edit_timer_->stop();
         setFilterSyntaxState(filter, Empty, QString());
     } else {
-        emit captureFilterChanged(filter);
+        line_edit_timer_->start(prefs.gui_debounce_timer);
     }
 }
 
 void CaptureFilterEdit::checkFilter()
 {
     checkFilter(text());
+}
+
+void CaptureFilterEdit::updateFilter()
+{
+    emit captureFilterChanged(text());
 }
 
 void CaptureFilterEdit::updateBookmarkMenu()
