@@ -133,12 +133,8 @@ dissect_ssyncp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         conversation_t *conversation = find_or_create_conversation(pinfo);
         ssyncp_info = (ssyncp_conv_info_t *)conversation_get_proto_data(conversation, proto_ssyncp);
         if (!ssyncp_info) {
-            ssyncp_info = wmem_new(wmem_file_scope(), ssyncp_conv_info_t);
+            ssyncp_info = wmem_new0(wmem_file_scope(), ssyncp_conv_info_t);
             conversation_add_proto_data(conversation, proto_ssyncp, ssyncp_info);
-            ssyncp_info->seen_packet[0] = FALSE;
-            ssyncp_info->seen_packet[1] = FALSE;
-            ssyncp_info->clock_seen[0] = FALSE;
-            ssyncp_info->clock_seen[1] = FALSE;
         }
 
         ssyncp_pinfo = wmem_new(wmem_file_scope(), ssyncp_packet_info_t);
@@ -255,7 +251,7 @@ dissect_ssyncp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         tvbuff_t *decrypted_tvb = tvb_new_child_real_data(tvb, decrypted, decrypted_len, decrypted_len);
         add_new_data_source(pinfo, decrypted_tvb, "Decrypted data");
 
-        if (!pinfo->fd->visited) {
+        if (!pinfo->fd->visited && ssyncp_info) {
             guint16 our_clock16 = ((guint64)pinfo->abs_ts.secs * 1000 + pinfo->abs_ts.nsecs / 1000000) & 0xffff;
             guint16 sender_ts = tvb_get_guint16(decrypted_tvb, 0, ENC_BIG_ENDIAN);
             guint16 reply_ts = tvb_get_guint16(decrypted_tvb, 2, ENC_BIG_ENDIAN);
