@@ -195,17 +195,31 @@ static void dissect_msgpack_array(tvbuff_t* tvb, packet_info* pinfo, proto_tree*
 {
 	proto_tree* subtree;
 	proto_item* ti;
-	uint8_t len;
+	uint32_t len;
+	uint32_t lensize = UINT32_MAX;
 	char* label;
 	unsigned i;
 
-	len = type & 0x0F;
+	if (type >> 4 == 0x9) {
+		len = type & 0x0F;
+		lensize = 0;
+	}
+	if (type == 0xdc) {
+		len = tvb_get_ntohs(tvb, *offset + 1);
+		lensize = 2;
+	}
+	if (type == 0xdd) {
+		len = tvb_get_ntohl(tvb, *offset + 1);
+		lensize = 4;
+	}
+
+	DISSECTOR_ASSERT(lensize != UINT32_MAX);
 
 	label = wmem_strdup_printf(pinfo->pool, "%s %u element%s", data ? (char*)data : "MsgPack Array", len, len > 1 ? "s" : "");
 
 	ti = proto_tree_add_string_format(tree, hf_msgpack_string, tvb, *offset, 1 + len, NULL, "%s", label);
 	subtree = proto_item_add_subtree(ti, ett_msgpack_array);
-	*offset += 1;
+	*offset += lensize + 1;
 	for (i = 0; i < len; i++) {
 		// We recurse here, but we'll run out of packet before we run out of stack.
 		dissect_msgpack_object(tvb, pinfo, subtree, data, offset, value);
@@ -361,7 +375,7 @@ static void dissect_msgpack_object(tvbuff_t* tvb, packet_info* pinfo, proto_tree
 	}
 
 	// Array
-	if (type >> 4 == 0x9) {
+	if (type >> 4 == 0x9 || type == 0xdc || type == 0xdd) {
 		// We recurse here, but we'll run out of packet before we run out of stack.
 		dissect_msgpack_array(tvb, pinfo, tree, type, data, offset, value);
 		return;
