@@ -1952,19 +1952,19 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <name>CompressionGroupBox</name>
     <message>
         <source>Compression options</source>
-        <translation type="unfinished"></translation>
+        <translation>圧縮オプション</translation>
     </message>
     <message>
         <source>&amp;Uncompressed</source>
-        <translation type="unfinished"></translation>
+        <translation>非圧縮(&amp;U)</translation>
     </message>
     <message>
         <source>Compress with g&amp;zip</source>
-        <translation type="unfinished"></translation>
+        <translation>gzip形式で圧縮(&amp;z)</translation>
     </message>
     <message>
         <source>Compress with &amp;LZ4</source>
-        <translation type="unfinished"></translation>
+        <translation>LZ4形式で圧縮(&amp;L)</translation>
     </message>
 </context>
 <context>
@@ -2706,6 +2706,14 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Save Endpoints Map</source>
         <translation>端末の地図を保存します</translation>
+    </message>
+    <message>
+        <source>Hide aggregated</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Hide IPv4 aggregated endpoints (see subnets file &amp; IPv4 preferences)</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Failed to save map file %1.</source>
@@ -7496,7 +7504,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <name>PacketList</name>
     <message>
         <source>Protocol Preferences</source>
-        <translation>プロトコル設定</translation>
+        <translation type="vanished">プロトコル設定</translation>
     </message>
     <message>
         <source>Summary as Text</source>
@@ -8774,15 +8782,15 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Left</source>
-        <translation type="unfinished">左</translation>
+        <translation>左</translation>
     </message>
     <message>
         <source>Center</source>
-        <translation type="unfinished"></translation>
+        <translation>中央</translation>
     </message>
     <message>
         <source>Right</source>
-        <translation type="unfinished">右</translation>
+        <translation>右</translation>
     </message>
     <message>
         <source>Unknown</source>
@@ -11375,11 +11383,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <name>ShortcutListModel</name>
     <message>
         <source>Display Filter Input</source>
-        <translation type="unfinished"></translation>
+        <translation>表示フィルタ入力</translation>
     </message>
     <message>
         <source>Jump to display filter input box</source>
-        <translation type="unfinished"></translation>
+        <translation>表示フィルタ入力ボックスへジャンプ</translation>
     </message>
     <message>
         <source>Shortcut</source>

@@ -45,7 +45,7 @@
     </message>
     <message>
         <source>Search Folders</source>
-        <translation type="unfinished"></translation>
+        <translation>Filtrer par chemin</translation>
     </message>
     <message>
         <source>Plugins</source>
@@ -81,11 +81,11 @@
     </message>
     <message>
         <source>About Logray</source>
-        <translation type="unfinished"></translation>
+        <translation>À propos de Logray</translation>
     </message>
     <message>
         <source>Logray</source>
-        <translation type="unfinished"></translation>
+        <translation>Logray</translation>
     </message>
     <message>
         <source>The directory does not exist</source>
@@ -766,7 +766,7 @@
     <name>CaptureCommentDialog</name>
     <message>
         <source>Edit Capture Comments</source>
-        <translation type="unfinished"></translation>
+        <translation>Modifier les commentaires de la capture</translation>
     </message>
     <message>
         <source>Add Comment</source>
@@ -1439,11 +1439,11 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Usually a wireless network card will only capture the traffic sent to and from its own network address, and only captures &lt;em&gt;user data&lt;/em&gt; traffic with &amp;quot;fake&amp;quot; Ethernet headers. If you want to capture all traffic that wireless network cards can &amp;quot;see&amp;quot;, or are interested in 802.11 management or control packets, or radio-layer information, mark this option. Monitor mode availability depends on the wireless card and driver. See the Wiki for some more details of capturing packets on WLAN networks.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Habituellement, une carte réseau sans-fil ne capture que le trafic émis vers et depuis sa propre adresse réseau, et capture seulement le trafic de &lt;em&gt;données utilisateur&lt;/em&gt; avec un &amp;quot;faux&amp;quot; en-tête Ethernet. Si vous voulez capturer tout le trafic que la carte réseau sans-fil peut &amp;quot;voir&amp;quot;, ou êtes intéressés par les paquets de gestion ou de contrôle 802.11, ou les informations de niveau radio, cochez cette option. La disponibilité du mode Moniteur dépend de la carte sans-fil et de son pilote. Consultez le Wiki pour de plus amples détails concernant la capture de paquets sur un réseau WLAN.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Enable monitor mode on all 802.11 interfaces</source>
-        <translation type="unfinished"></translation>
+        <translation>Activer le mode Moniteur sur toutes les interfaces 802.11</translation>
     </message>
     <message>
         <source>compression</source>
@@ -1459,11 +1459,11 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
     </message>
     <message>
         <source>File infix pattern</source>
-        <translation type="unfinished"></translation>
+        <translation>Modèle d&apos;infixe de fichier</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;In multiple file mode, the date and time and file index number are inserted between filename template and any suffix. Select their order.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Dans le mode fichiers multiples, date et heure ainsi que le numéro d&apos;index du fichier sont insérés entre le nom de fichier et le suffixe. Sélectionnez leur ordre.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>YYYYmmDDHHMMSS_NNNNN</source>
@@ -1471,7 +1471,7 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Date and time before the file index number. This causes files to sort in creation time order, and keeps files from the same batch closely ordered.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Date et heure avant le numéro d&apos;index du fichier. Ceci force le tri des fichiers par ordre de leur heure de création et garde les fichiers d&apos;un même batch proches.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>NNNNN_YYYYmmDDHHMMSS</source>
@@ -1479,7 +1479,7 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;File index number before the date and time. This is the historic Wireshark ordering.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Numéro d&apos;index de fichier avant la date et heure. Ceci est l&apos;ordre utilisé historiquement par Wireshark.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;After capturing has switched to the next file and the given number of files has exceeded, the oldest file will be removed.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -1666,7 +1666,7 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Usually a wireless network card will only capture the traffic sent to and from its own network address, and only captures &lt;em&gt;user data&lt;/em&gt; traffic with &amp;quot;fake&amp;quot; Ethernet headers. If you want to capture all traffic that wireless network cards can &amp;quot;see&amp;quot;, or are interested in 802.11 management or control packets, or radio-layer information, mark this option. Monitor mode availability depends on the wireless card and driver. See the Wiki for more details of capturing packets on WLAN networks.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Habituellement, une carte réseau sans-fil ne capture que le trafic émis vers et depuis sa propre adresse réseau, et capture seulement le trafic de &lt;em&gt;données utilisateur&lt;/em&gt; avec un &amp;quot;faux&amp;quot; en-tête Ethernet. Si vous voulez capturer tout le trafic que la carte réseau sans-fil peut &amp;quot;voir&amp;quot;, ou êtes intéressés par les paquets de gestion ou de contrôle 802.11, ou les informations de niveau radio, cochez cette option. La disponibilité du mode Moniteur dépend de la carte sans-fil et de son pilote. Consultez le Wiki pour de plus amples détails concernant la capture de paquets sur un réseau WLAN.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Capture packets in monitor mode on 802.11 devices</source>
@@ -1694,11 +1694,11 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;How often the capture notifies the GUI of new packets. Affects how often the GUI updates and the granularity of timers.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;A quelle fréquence la capture informe l&apos;interface graphique de la présence de nouveaux paquets. Ceci affecte la fréquence de mise à jour de l&apos;interface graphique et la granularité des chronomètres.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The interval between new packet updates. Affects how often the GUI updates and the granularity of timers.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;L&apos;intervalle entre les mises à jours des nouveaux paquets. Ceci affecte la fréquence de mises à jour de l&apos;interface graphique et la granularité des chronomètres.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Don&apos;t load interfaces on startup</source>
@@ -2420,19 +2420,19 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
     </message>
     <message>
         <source>By default order comparisons and contains/matches/in relations are true if any value matches. The quantifier &quot;all&quot; can be used to apply the test to all values in a frame.</source>
-        <translation type="unfinished"></translation>
+        <translation>Par défaut, les comparaisons d&apos;ordre et les relations contains/matches/in sont vraies si l&apos;une des valeurs correspond. Le quantificateur &quot;all&quot; peut être utilisé pour appliquer le test à toutes les valeurs de la trame.</translation>
     </message>
     <message>
         <source>Quantifier</source>
-        <translation type="unfinished"></translation>
+        <translation>Quantificateur</translation>
     </message>
     <message>
         <source>Any</source>
-        <translation type="unfinished">Tout</translation>
+        <translation>N&apos;importe quel</translation>
     </message>
     <message>
         <source>All</source>
-        <translation type="unfinished">Tout</translation>
+        <translation>Tous</translation>
     </message>
     <message>
         <source>Match against this value.</source>
@@ -2710,6 +2710,14 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
     <message>
         <source>Save Endpoints Map</source>
         <translation>Sauvegarder la carte des points de terminaison</translation>
+    </message>
+    <message>
+        <source>Hide aggregated</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Hide IPv4 aggregated endpoints (see subnets file &amp; IPv4 preferences)</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Failed to save map file %1.</source>
@@ -3628,7 +3636,7 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
     </message>
     <message>
         <source>%1 stream not found on the selected packet.</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 flux introuvable dans le paquet sélectionné.</translation>
     </message>
     <message>
         <source>Read activity(%6)</source>
@@ -7514,7 +7522,7 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
     <name>PacketList</name>
     <message>
         <source>Protocol Preferences</source>
-        <translation>Préférences de protocole</translation>
+        <translation type="vanished">Préférences de protocole</translation>
     </message>
     <message>
         <source>Summary as Text</source>

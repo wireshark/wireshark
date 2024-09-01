@@ -2689,6 +2689,14 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Hide aggregated</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Hide IPv4 aggregated endpoints (see subnets file &amp; IPv4 preferences)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Failed to save map file %1.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -7451,7 +7459,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     <name>PacketList</name>
     <message>
         <source>Protocol Preferences</source>
-        <translation>Preferencias de protocolo</translation>
+        <translation type="vanished">Preferencias de protocolo</translation>
     </message>
     <message>
         <source>Summary as Text</source>

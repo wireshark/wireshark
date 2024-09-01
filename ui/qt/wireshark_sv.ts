@@ -2716,6 +2716,14 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <translation>Spara ändpunktskarta</translation>
     </message>
     <message>
+        <source>Hide aggregated</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Hide IPv4 aggregated endpoints (see subnets file &amp; IPv4 preferences)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Failed to save map file %1.</source>
         <translation>Misslyckades att spara kartfilen %1.</translation>
     </message>
@@ -7517,7 +7525,7 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     <name>PacketList</name>
     <message>
         <source>Protocol Preferences</source>
-        <translation>Protokollinställningar</translation>
+        <translation type="vanished">Protokollinställningar</translation>
     </message>
     <message>
         <source>Summary as Text</source>
@@ -13078,7 +13086,7 @@ a:hover {
     </message>
     <message>
         <source>You are running Logray </source>
-        <translation type="unfinished"></translation>
+        <translation>Du kör Logray</translation>
     </message>
     <message>
         <source> You receive automatic updates.</source>
@@ -14215,23 +14223,23 @@ a:hover {
     </message>
     <message>
         <source>Show packet times as the seconds since the first captured packet.</source>
-        <translation type="unfinished"></translation>
+        <translation>Visa pakettider som antalet sekunder sedan det först fångade paket.</translation>
     </message>
     <message>
         <source>Tenths of a millisecond</source>
-        <translation type="unfinished"></translation>
+        <translation>Tiondelar av en millisekund</translation>
     </message>
     <message>
         <source>Hundredths of a millisecond</source>
-        <translation type="unfinished"></translation>
+        <translation>Hundradelar av en millisekund</translation>
     </message>
     <message>
         <source>Tenths of a microsecond</source>
-        <translation type="unfinished"></translation>
+        <translation>Tiondelar av en mikrosekund</translation>
     </message>
     <message>
         <source>Hundredths of a microsecond</source>
-        <translation type="unfinished"></translation>
+        <translation>Hundradelar av en mikrosekund</translation>
     </message>
     <message>
         <source>Packet &amp;Diagram</source>
@@ -14367,7 +14375,7 @@ a:hover {
     </message>
     <message>
         <source>MAC Address Blocks</source>
-        <translation type="unfinished">MAC-adressblock</translation>
+        <translation>MAC-adressblock</translation>
     </message>
     <message>
         <source>&amp;Options…</source>
@@ -14375,7 +14383,7 @@ a:hover {
     </message>
     <message>
         <source>&amp;3GPP Uu</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;3GPP Uu</translation>
     </message>
     <message>
         <source>&amp;Wireless</source>
@@ -14383,15 +14391,15 @@ a:hover {
     </message>
     <message>
         <source>&amp;User&apos;s Guide</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Användarguide</translation>
     </message>
     <message>
         <source>Wireshark User&apos;s Guide</source>
-        <translation type="unfinished"></translation>
+        <translation>Wiresharks användarguide</translation>
     </message>
     <message>
         <source>Display Filters</source>
-        <translation type="unfinished">Visningsfilter</translation>
+        <translation>Visningsfilter</translation>
     </message>
     <message>
         <source>Capture &amp;Filters…</source>
@@ -14439,7 +14447,7 @@ a:hover {
     </message>
     <message>
         <source>&amp;Mark/Unmark Selected</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Markera/avmarkera valda</translation>
     </message>
     <message>
         <source>Mark or unmark each selected packet</source>
@@ -14447,7 +14455,7 @@ a:hover {
     </message>
     <message>
         <source>&amp;Ignore/Unignore Selected</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Ignorera/avignorera valda</translation>
     </message>
     <message>
         <source>Ignore or unignore each selected packet</source>
@@ -14467,19 +14475,19 @@ a:hover {
     </message>
     <message>
         <source>Inject TLS Secrets</source>
-        <translation type="unfinished"></translation>
+        <translation>Infoga TLS-hemligheter</translation>
     </message>
     <message>
         <source>Embed used TLS secrets in the capture file</source>
-        <translation type="unfinished"></translation>
+        <translation>Bädda in använda TLS-hemligheter i fångstfilen</translation>
     </message>
     <message>
         <source>Discard All Secrets</source>
-        <translation type="unfinished"></translation>
+        <translation>Kasta alla hemligheter</translation>
     </message>
     <message>
         <source>Discard all decryption secrets in the capture file</source>
-        <translation type="unfinished"></translation>
+        <translation>Kasta alla avkrypteringshemligheter i fångstfilen</translation>
     </message>
     <message>
         <source>&amp;Preferences…</source>
@@ -14491,15 +14499,15 @@ a:hover {
     </message>
     <message>
         <source>General</source>
-        <translation type="unfinished"></translation>
+        <translation>Allmänt</translation>
     </message>
     <message>
         <source>Query-Response</source>
-        <translation type="unfinished"></translation>
+        <translation>Fråga-Svar</translation>
     </message>
     <message>
         <source>DNS Query-Response Statistics</source>
-        <translation type="unfinished"></translation>
+        <translation>DNS-fråge-svar-statistik</translation>
     </message>
     <message>
         <source>Request Sequences</source>
@@ -14511,11 +14519,11 @@ a:hover {
     </message>
     <message>
         <source>E2AP</source>
-        <translation type="unfinished"></translation>
+        <translation>E2AP</translation>
     </message>
     <message>
         <source>E2AP Messages</source>
-        <translation type="unfinished"></translation>
+        <translation>E2AP-meddelanden</translation>
     </message>
     <message>
         <source>Decode &amp;As…</source>
@@ -14579,7 +14587,7 @@ a:hover {
     </message>
     <message>
         <source>Reset layout to default size</source>
-        <translation type="unfinished"></translation>
+        <translation>Återställ layouten till standardstorleken</translation>
     </message>
     <message>
         <source>Resize Columns</source>
@@ -14841,11 +14849,11 @@ a:hover {
     </message>
     <message>
         <source>TLS Keylog Launcher</source>
-        <translation type="unfinished"></translation>
+        <translation>TLS-nyckelloggstartare</translation>
     </message>
     <message>
         <source>Release Notes</source>
-        <translation type="unfinished"></translation>
+        <translation>Utgåvenoteringar</translation>
     </message>
     <message>
         <source>&amp;VoIP Calls</source>
@@ -15165,7 +15173,7 @@ a:hover {
     </message>
     <message>
         <source>USB CDC Data</source>
-        <translation type="unfinished"></translation>
+        <translation>USB CDC-data</translation>
     </message>
     <message>
         <source>There is no &quot;rtp.ssrc&quot; field in this version of Wireshark.</source>
@@ -15325,7 +15333,7 @@ a:hover {
     </message>
     <message>
         <source> before updating</source>
-        <translation type="unfinished"></translation>
+        <translation>före uppdatering</translation>
     </message>
     <message>
         <source>There are no TLS Session Keys to save.</source>
@@ -15344,15 +15352,15 @@ a:hover {
     </message>
     <message>
         <source>No TLS Secrets</source>
-        <translation type="unfinished"></translation>
+        <translation>Inga TLS-hemligheter</translation>
     </message>
     <message>
         <source>There are no available secrets used to decrypt TLS traffic in the capture file.  Would you like to view information about how to decrypt TLS traffic on the wiki?</source>
-        <translation type="unfinished"></translation>
+        <translation>Det finns inga tillgängliga hemligheter att använda för att dekryptera TLS-trafiken i fångstfilen. Vill du se information om hur man kan dektryptera TLS-trafik i wiki:n?</translation>
     </message>
     <message>
         <source>Are you sure you want to discard all decryption secrets?</source>
-        <translation type="unfinished"></translation>
+        <translation>Är du säker på att du vill kasta alla avkrypteringshemligheter?</translation>
     </message>
     <message>
         <source>No filter available. Try another %1.</source>

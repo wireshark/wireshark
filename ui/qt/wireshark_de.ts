@@ -2716,6 +2716,14 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
         <translation>Endpunktekarte speichern</translation>
     </message>
     <message>
+        <source>Hide aggregated</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Hide IPv4 aggregated endpoints (see subnets file &amp; IPv4 preferences)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Failed to save map file %1.</source>
         <translation>Fehler beim Speichern der Kartendatei %1.</translation>
     </message>
@@ -7517,7 +7525,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     <name>PacketList</name>
     <message>
         <source>Protocol Preferences</source>
-        <translation>Protokolleinstellungen</translation>
+        <translation type="vanished">Protokolleinstellungen</translation>
     </message>
     <message>
         <source>Summary as Text</source>
