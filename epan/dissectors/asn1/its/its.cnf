@@ -522,6 +522,12 @@ CauseCodeType
   col_set_str(actx->pinfo->cinfo, COL_INFO, "CPM");
 #.END
 
+#.FN_HDR CollectivePerceptionMessagev1
+  actx->private_data = (void*)wmem_new0(actx->pinfo->pool, its_private_data_t);
+  col_set_str(actx->pinfo->cinfo, COL_PROTOCOL, "CPMv1");
+  col_set_str(actx->pinfo->cinfo, COL_INFO, "CPMv1");
+#.END
+
 #.FN_HDR InterferenceManagementZoneMessage
   actx->private_data = (void*)wmem_new0(actx->pinfo->pool, its_private_data_t);
   col_set_str(actx->pinfo->cinfo, COL_PROTOCOL, "IMZM");

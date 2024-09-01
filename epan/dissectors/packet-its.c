@@ -22057,6 +22057,9 @@ static const per_sequence_t cpmv1_CollectivePerceptionMessagev1_sequence[] = {
 
 static int
 dissect_cpmv1_CollectivePerceptionMessagev1(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  actx->private_data = (void*)wmem_new0(actx->pinfo->pool, its_private_data_t);
+  col_set_str(actx->pinfo->cinfo, COL_PROTOCOL, "CPMv1");
+  col_set_str(actx->pinfo->cinfo, COL_INFO, "CPMv1");
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_cpmv1_CollectivePerceptionMessagev1, cpmv1_CollectivePerceptionMessagev1_sequence);
 
