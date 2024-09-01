@@ -206,10 +206,10 @@ KrbFastArmorTypes PROT_PREFIX UPPER_CASE
     }
     break;
   case KERBEROS_PA_PK_AS_REQ:
-    offset=dissect_ber_octet_string_wcb(false, actx, sub_tree, tvb, offset,hf_index, dissect_pkinit_PaPkAsReq);
+    offset=dissect_ber_octet_string_wcb(false, actx, sub_tree, tvb, offset,hf_index, dissect_pkinit_PA_PK_AS_REQ);
     break;
   case KERBEROS_PA_PK_AS_REP:
-    offset=dissect_ber_octet_string_wcb(false, actx, sub_tree, tvb, offset,hf_index, dissect_pkinit_PaPkAsRep);
+    offset=dissect_ber_octet_string_wcb(false, actx, sub_tree, tvb, offset,hf_index, dissect_pkinit_PA_PK_AS_REP);
     break;
   case KERBEROS_PA_PAC_REQUEST:
     offset=dissect_ber_octet_string_wcb(false, actx, sub_tree, tvb, offset,hf_index, dissect_kerberos_PA_PAC_REQUEST);
@@ -333,6 +333,8 @@ KrbFastArmorTypes PROT_PREFIX UPPER_CASE
 
 #.TYPE_ATTR
 #xxx TYPE = FT_UINT16  DISPLAY = BASE_DEC  STRINGS = VALS(xx_vals)
+
+EncryptionKey/keytype STRINGS = VALS(kerberos_ENCTYPE_vals)
 
 #.FN_BODY ENCTYPE VAL_PTR=&(private_data->etype)
   kerberos_private_data_t *private_data = kerberos_get_private_data(actx);

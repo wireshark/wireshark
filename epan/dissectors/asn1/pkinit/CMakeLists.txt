@@ -15,7 +15,7 @@ set( EXT_ASN_FILE_LIST
 )
 
 set( ASN_FILE_LIST
-	PKINIT.asn
+	PKINIT_RFC_4556.asn
 )
 
 set( EXTRA_DIST

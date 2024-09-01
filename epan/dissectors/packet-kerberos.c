@@ -6428,10 +6428,10 @@ dissect_kerberos_T_padata_value(bool implicit_tag _U_, tvbuff_t *tvb _U_, int of
     }
     break;
   case KERBEROS_PA_PK_AS_REQ:
-    offset=dissect_ber_octet_string_wcb(false, actx, sub_tree, tvb, offset,hf_index, dissect_pkinit_PaPkAsReq);
+    offset=dissect_ber_octet_string_wcb(false, actx, sub_tree, tvb, offset,hf_index, dissect_pkinit_PA_PK_AS_REQ);
     break;
   case KERBEROS_PA_PK_AS_REP:
-    offset=dissect_ber_octet_string_wcb(false, actx, sub_tree, tvb, offset,hf_index, dissect_pkinit_PaPkAsRep);
+    offset=dissect_ber_octet_string_wcb(false, actx, sub_tree, tvb, offset,hf_index, dissect_pkinit_PA_PK_AS_REP);
     break;
   case KERBEROS_PA_PAC_REQUEST:
     offset=dissect_ber_octet_string_wcb(false, actx, sub_tree, tvb, offset,hf_index, dissect_kerberos_PA_PAC_REQUEST);
@@ -9690,7 +9690,7 @@ void proto_register_kerberos(void) {
         NULL, HFILL }},
     { &hf_kerberos_keytype,
       { "keytype", "kerberos.keytype",
-        FT_INT32, BASE_DEC, NULL, 0,
+        FT_INT32, BASE_DEC, VALS(kerberos_ENCTYPE_vals), 0,
         NULL, HFILL }},
     { &hf_kerberos_keyvalue,
       { "keyvalue", "kerberos.keyvalue",

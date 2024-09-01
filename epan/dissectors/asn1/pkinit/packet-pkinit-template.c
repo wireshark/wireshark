@@ -44,18 +44,6 @@ static int dissect_pkinit_PKAuthenticator_Win2k(bool implicit_tag _U_, tvbuff_t 
 
 #include "packet-pkinit-fn.c"
 
-int
-dissect_pkinit_PA_PK_AS_REQ(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_) {
-  offset = dissect_pkinit_PaPkAsReq(false, tvb, offset, actx, tree, -1);
-  return offset;
-}
-
-int
-dissect_pkinit_PA_PK_AS_REP(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_) {
-  offset = dissect_pkinit_PaPkAsRep(false, tvb, offset, actx, tree, -1);
-  return offset;
-}
-
 static int
 dissect_KerberosV5Spec2_KerberosTime(bool implicit_tag _U_, tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index _U_) {
   offset = dissect_krb5_ctime(tree, tvb, offset, actx);

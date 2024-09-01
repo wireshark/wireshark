@@ -8,8 +8,8 @@ PKIX1Explicit88              pkix1explicit
 #.IMPORT ../cms/cms-exp.cnf
 
 #.EXPORTS
-PaPkAsReq
-PaPkAsRep
+PA-PK-AS-REQ
+PA-PK-AS-REP
 PA-PK-AS-REQ-Win2k
 PA-PK-AS-REP-Win2k
 
@@ -37,7 +37,10 @@ KDCDHKeyInfo      B "1.3.6.1.5.2.3.2" "id-pkdhkeydata"
 KRB5PrincipalName B "1.3.6.1.5.2.2"   "id-pkinit-san"
 
 #.NO_EMIT
-
+TD-DH-PARAMETERS
+TD-TRUSTED-CERTIFIERS
+TD-INVALID-CERTIFICATES
+AD-INITIAL-VERIFIED-CAS
 #.TYPE_RENAME
 
 #.FIELD_RENAME

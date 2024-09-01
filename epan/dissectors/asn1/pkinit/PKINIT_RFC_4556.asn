@@ -1,0 +1,321 @@
+KerberosV5-PK-INIT-SPEC {
+        iso(1) identified-organization(3) dod(6) internet(1)
+        security(5) kerberosV5(2) modules(4) pkinit(5) }
+DEFINITIONS EXPLICIT TAGS ::=
+BEGIN
+
+IMPORTS
+
+    SubjectPublicKeyInfo, AlgorithmIdentifier, Name
+        FROM PKIX1Explicit88 { iso (1)
+            identified-organization (3) dod (6) internet (1)
+            security (5) mechanisms (5) pkix (7) id-mod (0)
+            id-pkix1-explicit (18) }
+            -- As defined in RFC 3280.
+
+    KerberosTime, PrincipalName, Realm, EncryptionKey, Checksum
+        FROM KerberosV5Spec2 { iso(1) identified-organization(3)
+            dod(6) internet(1) security(5) kerberosV5(2)
+            modules(4) krb5spec2(2) }
+            -- as defined in RFC 4120.
+
+-- WS addition
+        ContentInfo, IssuerAndSerialNumber
+            FROM CryptographicMessageSyntax { iso(1) member-body(2)
+              us(840) rsadsi(113549) pkcs(1) pkcs-9(9) smime(16)
+              modules(0) cms(1) };
+-- End WS addition
+
+id-pkinit OBJECT IDENTIFIER ::=
+    { iso(1) identified-organization(3) dod(6) internet(1)
+    security(5) kerberosv5(2) pkinit (3) }
+
+id-pkinit-authData      OBJECT IDENTIFIER  ::= { id-pkinit 1 }
+id-pkinit-DHKeyData     OBJECT IDENTIFIER  ::= { id-pkinit 2 }
+id-pkinit-rkeyData      OBJECT IDENTIFIER  ::= { id-pkinit 3 }
+id-pkinit-KPClientAuth  OBJECT IDENTIFIER  ::= { id-pkinit 4 }
+id-pkinit-KPKdc         OBJECT IDENTIFIER  ::= { id-pkinit 5 }
+
+id-pkinit-san OBJECT IDENTIFIER ::=
+    { iso(1) org(3) dod(6) internet(1) security(5) kerberosv5(2)
+    x509SanAN (2) }
+
+    id-pkinit-kdf  OBJECT IDENTIFIER ::= { id-pkinit 6 }
+
+id-pkinit-kdf-ah-sha1 OBJECT IDENTIFIER
+    ::= { id-pkinit-kdf sha1(1) }
+    -- SP800-56A ASN.1 structured hash-based KDF using SHA-1
+
+id-pkinit-kdf-ah-sha256 OBJECT IDENTIFIER
+    ::= { id-pkinit-kdf sha256(2) }
+    -- SP800-56A ASN.1 structured hash-based KDF using SHA-256
+
+id-pkinit-kdf-ah-sha512 OBJECT IDENTIFIER
+    ::= { id-pkinit-kdf sha512(3) }
+    -- SP800-56A ASN.1 structured hash-based KDF using SHA-512
+
+id-pkinit-kdf-ah-sha384 OBJECT IDENTIFIER
+    ::= { id-pkinit-kdf sha384(4) }
+    -- SP800-56A ASN.1 structured hash-based KDF using SHA-384
+pa-pk-as-req INTEGER ::=                  16
+pa-pk-as-rep INTEGER ::=                  17
+
+ad-initial-verified-cas INTEGER ::=        9
+
+td-trusted-certifiers INTEGER ::=        104
+td-invalid-certificates INTEGER ::=      105
+td-dh-parameters INTEGER ::=             109
+
+PA-PK-AS-REQ ::= SEQUENCE {
+    signedAuthPack          [0] ContentInfo, --IMPLICIT OCTET STRING,
+            -- Contains a CMS type ContentInfo encoded
+            -- according to [RFC3852].
+            -- The contentType field of the type ContentInfo
+            -- is id-signedData (1.2.840.113549.1.7.2),
+            -- and the content field is a SignedData.
+            -- The eContentType field for the type SignedData is
+            -- id-pkinit-authData (1.3.6.1.5.2.3.1), and the
+            -- eContent field contains the DER encoding of the
+            -- type AuthPack.
+            -- AuthPack is defined below.
+    trustedCertifiers       [1] SEQUENCE OF
+                ExternalPrincipalIdentifier OPTIONAL,
+            -- Contains a list of CAs, trusted by the client,
+            -- that can be used to certify the KDC.
+            -- Each ExternalPrincipalIdentifier identifies a CA
+            -- or a CA certificate (thereby its public key).
+            -- The information contained in the
+            -- trustedCertifiers SHOULD be used by the KDC as
+            -- hints to guide its selection of an appropriate
+            -- certificate chain to return to the client.
+    kdcPkId                 [2] IMPLICIT OCTET STRING
+                                OPTIONAL,
+            -- Contains a CMS type SignerIdentifier encoded
+            -- according to [RFC3852].
+            -- Identifies, if present, a particular KDC
+            -- public key that the client already has.
+    ...
+}
+
+DHNonce ::= OCTET STRING
+
+
+-- RFC-8636 "PKINIT Algorithm Agility"
+-- object identifier of a key-derivation function
+KDFAlgorithmId ::= SEQUENCE {
+    kdf-id                  [0] OBJECT IDENTIFIER,
+    ...
+}
+
+ExternalPrincipalIdentifier ::= SEQUENCE {
+    subjectName            [0] Name, --IMPLICIT OCTET STRING OPTIONAL,
+            -- Contains a PKIX type Name encoded according to
+            -- [RFC3280].
+            -- Identifies the certificate subject by the
+            -- distinguished subject name.
+            -- REQUIRED when there is a distinguished subject
+            -- name present in the certificate.
+    issuerAndSerialNumber   [1] IssuerAndSerialNumber, --IMPLICIT OCTET STRING OPTIONAL,
+            -- Contains a CMS type IssuerAndSerialNumber encoded
+            -- according to [RFC3852].
+            -- Identifies a certificate of the subject.
+            -- REQUIRED for TD-INVALID-CERTIFICATES and
+            -- TD-TRUSTED-CERTIFIERS.
+    subjectKeyIdentifier    [2] IMPLICIT OCTET STRING OPTIONAL,
+            -- Identifies the subject's public key by a key
+            -- identifier.  When an X.509 certificate is
+            -- referenced, this key identifier matches the X.509
+            -- subjectKeyIdentifier extension value.  When other
+            -- certificate formats are referenced, the documents
+            -- that specify the certificate format and their use
+            -- with the CMS must include details on matching the
+            -- key identifier to the appropriate certificate
+            -- field.
+            -- RECOMMENDED for TD-TRUSTED-CERTIFIERS.
+    ...
+}
+
+AuthPack ::= SEQUENCE {
+    pkAuthenticator         [0] PKAuthenticator,
+    clientPublicValue       [1] SubjectPublicKeyInfo OPTIONAL,
+            -- Type SubjectPublicKeyInfo is defined in
+            -- [RFC3280].
+            -- Specifies Diffie-Hellman domain parameters
+            -- and the client's public key value [IEEE1363].
+            -- The DH public key value is encoded as a BIT
+            -- STRING according to [RFC3279].
+            -- This field is present only if the client wishes
+            -- to use the Diffie-Hellman key agreement method.
+    supportedCMSTypes       [2] SEQUENCE OF AlgorithmIdentifier
+                                OPTIONAL,
+            -- Type AlgorithmIdentifier is defined in
+            -- [RFC3280].
+            -- List of CMS algorithm [RFC3370] identifiers
+            -- that identify key transport algorithms, or
+            -- content encryption algorithms, or signature
+            -- algorithms supported by the client in order of
+            -- (decreasing) preference.
+    clientDHNonce           [3] DHNonce OPTIONAL,
+            -- Present only if the client indicates that it
+            -- wishes to reuse DH keys or to allow the KDC to
+            -- do so.
+    -- supportedKDFs added by RFC-8636 "PKINIT Algorithm Agility"
+    supportedKDFs           [4] SEQUENCE OF KDFAlgorithmId OPTIONAL,
+    ...
+}
+
+PKAuthenticator ::= SEQUENCE {
+    cusec                   [0] INTEGER (0..999999),
+    ctime                   [1] KerberosTime,
+            -- cusec and ctime are used as in [RFC4120], for
+            -- replay prevention.
+    nonce                   [2] INTEGER (0..4294967295),
+            -- Chosen randomly; this nonce does not need to
+            -- match with the nonce in the KDC-REQ-BODY.
+    paChecksum              [3] OCTET STRING OPTIONAL,
+            -- MUST be present.
+            -- Contains the SHA1 checksum, performed over
+            -- KDC-REQ-BODY.
+    freshnessToken          [4] OCTET STRING OPTIONAL,
+            -- PA_AS_FRESHNESS padata value as received from the
+            -- KDC. MUST be present if sent by KDC
+    ...
+}
+
+TD-TRUSTED-CERTIFIERS ::= SEQUENCE OF
+                ExternalPrincipalIdentifier
+            -- Identifies a list of CAs trusted by the KDC.
+            -- Each ExternalPrincipalIdentifier identifies a CA
+            -- or a CA certificate (thereby its public key).
+
+TD-INVALID-CERTIFICATES ::= SEQUENCE OF
+                ExternalPrincipalIdentifier
+            -- Each ExternalPrincipalIdentifier identifies a
+            -- certificate (sent by the client) with an invalid
+            -- signature.
+
+KRB5PrincipalName ::= SEQUENCE {
+    realm                   [0] Realm,
+    principalName           [1] PrincipalName
+}
+
+AD-INITIAL-VERIFIED-CAS ::= SEQUENCE OF
+                ExternalPrincipalIdentifier
+            -- Identifies the certification path based on which
+            -- the client certificate was validated.
+            -- Each ExternalPrincipalIdentifier identifies a CA
+            -- or a CA certificate (thereby its public key).
+
+PA-PK-AS-REP ::= CHOICE {
+    dhInfo                  [0] DHRepInfo,
+            -- Selected when Diffie-Hellman key exchange is
+            -- used.
+    encKeyPack              [1] ContentInfo, --IMPLICIT OCTET STRING,
+            -- Selected when public key encryption is used.
+            -- Contains a CMS type ContentInfo encoded
+            -- according to [RFC3852].
+            -- The contentType field of the type ContentInfo is
+            -- id-envelopedData (1.2.840.113549.1.7.3).
+            -- The content field is an EnvelopedData.
+            -- The contentType field for the type EnvelopedData
+            -- is id-signedData (1.2.840.113549.1.7.2).
+            -- The eContentType field for the inner type
+            -- SignedData (when unencrypted) is
+            -- id-pkinit-rkeyData (1.3.6.1.5.2.3.3) and the
+            -- eContent field contains the DER encoding of the
+            -- type ReplyKeyPack.
+            -- ReplyKeyPack is defined below.
+    ...
+}
+
+DHRepInfo ::= SEQUENCE {
+    dhSignedData            [0] ContentInfo, --IMPLICIT OCTET STRING,
+            -- Contains a CMS type ContentInfo encoded according
+            -- to [RFC3852].
+            -- The contentType field of the type ContentInfo is
+            -- id-signedData (1.2.840.113549.1.7.2), and the
+            -- content field is a SignedData.
+            -- The eContentType field for the type SignedData is
+            -- id-pkinit-DHKeyData (1.3.6.1.5.2.3.2), and the
+            -- eContent field contains the DER encoding of the
+            -- type KDCDHKeyInfo.
+            -- KDCDHKeyInfo is defined below.
+    serverDHNonce           [1] DHNonce OPTIONAL,
+            -- Present if and only if dhKeyExpiration is
+            -- present.
+   kdf                     [2] KDFAlgorithmId OPTIONAL,
+   -- The KDF picked by the KDC.
+   -- (added by RFC-8636 "PKINIT Algorithm Agility")
+   ...
+}
+
+KDCDHKeyInfo ::= SEQUENCE {
+    subjectPublicKey        [0] BIT STRING,
+            -- The KDC's DH public key.
+            -- The DH public key value is encoded as a BIT
+            -- STRING according to [RFC3279].
+    nonce                   [1] INTEGER (0..4294967295),
+            -- Contains the nonce in the pkAuthenticator field
+            -- in the request if the DH keys are NOT reused,
+            -- 0 otherwise.
+    dhKeyExpiration         [2] KerberosTime OPTIONAL,
+            -- Expiration time for KDC's key pair,
+            -- present if and only if the DH keys are reused.
+            -- If present, the KDC's DH public key MUST not be
+            -- used past the point of this expiration time.
+            -- If this field is omitted then the serverDHNonce
+            -- field MUST also be omitted.
+    ...
+}
+
+--ReplyKeyPack ::= SEQUENCE {
+--    replyKey                [0] EncryptionKey,
+            -- Contains the session key used to encrypt the
+            -- enc-part field in the AS-REP, i.e., the
+            -- AS reply key.
+--    asChecksum              [1] Checksum,
+            -- Contains the checksum of the AS-REQ
+            -- corresponding to the containing AS-REP.
+            -- The checksum is performed over the type AS-REQ.
+            -- The protocol key [RFC3961] of the checksum is the
+            -- replyKey and the key usage number is 6.
+            -- If the replyKey's enctype is "newer" [RFC4120]
+            -- [RFC4121], the checksum is the required
+            -- checksum operation [RFC3961] for that enctype.
+            -- The client MUST verify this checksum upon receipt
+            -- of the AS-REP.
+--    ...
+--}
+
+TD-DH-PARAMETERS ::= SEQUENCE OF AlgorithmIdentifier
+            -- Each AlgorithmIdentifier specifies a set of
+            -- Diffie-Hellman domain parameters [IEEE1363].
+            -- This list is in decreasing preference order.
+
+-- Windows compat glue --
+
+PKAuthenticator-Win2k ::= SEQUENCE {
+	kdcName			[0] PrincipalName,
+	kdcRealm		[1] Realm,
+	cusec			[2] INTEGER (0..4294967295),
+	ctime			[3] KerberosTime,
+	nonce                   [4] INTEGER (-2147483648..2147483647),
+	...
+}
+
+PA-PK-AS-REQ-Win2k ::= SEQUENCE {
+	signed-auth-pack	[0] ContentInfo,
+	trusted-certifiers	[2] SEQUENCE OF TrustedCA OPTIONAL, -- XXX ExternalPrincipalIdentifier???
+	kdc-cert		[3] IMPLICIT OCTET STRING OPTIONAL,
+	encryption-cert		[4] IMPLICIT OCTET STRING OPTIONAL,
+	...
+}
+
+PA-PK-AS-REP-Win2k ::= PA-PK-AS-REP
+
+TrustedCA ::= CHOICE {
+    caName                  [0] Name,
+    issuerAndSerial         [2] IssuerAndSerialNumber,
+    ...
+}
+END

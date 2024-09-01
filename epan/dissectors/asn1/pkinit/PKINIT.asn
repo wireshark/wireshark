@@ -29,22 +29,20 @@ BEGIN
 
 
     IMPORTS
-        SubjectPublicKeyInfo, AlgorithmIdentifier, Name
-            FROM PKIX1Explicit88 { iso (1) identified-organization (3)
-              dod (6) internet (1) security (5) mechanisms (5)
-              pkix (7) id-mod (0) id-pkix1-explicit (18) }
+    SubjectPublicKeyInfo, AlgorithmIdentifier, Name
+        FROM PKIX1Explicit88 { iso (1) identified-organization (3)
+            dod (6) internet (1) security (5) mechanisms (5)
+            pkix (7) id-mod (0) id-pkix1-explicit (18) }
 
+    KerberosTime, TYPED-DATA, PrincipalName, Realm, EncryptionKey
+        FROM KerberosV5Spec2 { iso(1) identified-organization(3)
+            dod(6) internet(1) security(5) kerberosV5(2) modules(4)
+            krb5spec2(2) } ;
 
-        ContentInfo, IssuerAndSerialNumber
-            FROM CryptographicMessageSyntax { iso(1) member-body(2)
-              us(840) rsadsi(113549) pkcs(1) pkcs-9(9) smime(16)
-              modules(0) cms(1) }
-
-
-        KerberosTime, TYPED-DATA, PrincipalName, Realm, EncryptionKey
-            FROM KerberosV5Spec2 { iso(1) identified-organization(3)
-              dod(6) internet(1) security(5) kerberosV5(2) modules(4)
-              krb5spec2(2) } ;
+    ContentInfo, IssuerAndSerialNumber
+        FROM CryptographicMessageSyntax { iso(1) member-body(2)
+            us(840) rsadsi(113549) pkcs(1) pkcs-9(9) smime(16)
+            modules(0) cms(1) }
 
 
 --    id-pkinit  OBJECT IDENTIFIER ::=
@@ -91,7 +89,7 @@ id-pkinit-kdf-ah-sha384 OBJECT IDENTIFIER
     ::= { id-pkinit-kdf sha384(4) }
     -- SP800-56A ASN.1 structured hash-based KDF using SHA-384
 
-PaPkAsReq ::= SEQUENCE {
+PA-PK-AS-REQ ::= SEQUENCE {
     signedAuthPack          [0] ContentInfo,
     trustedCertifiers       [1] SEQUENCE OF TrustedCA OPTIONAL,
     kdcCert                 [2] IssuerAndSerialNumber OPTIONAL,
@@ -157,7 +155,7 @@ KRB5PrincipalName ::= SEQUENCE {
 --    }
 --
 
-PaPkAsRep ::= CHOICE {
+PA-PK-AS-REP ::= CHOICE {
    dhInfo                  [0] DHRepInfo,
    -- Selected when Diffie-Hellman key exchange is
    -- used.
@@ -218,7 +216,7 @@ PA-PK-AS-REQ-Win2k ::= SEQUENCE {
 	...
 }
 
-PA-PK-AS-REP-Win2k ::= PaPkAsRep
+PA-PK-AS-REP-Win2k ::= PA-PK-AS-REP
 
 END
 
