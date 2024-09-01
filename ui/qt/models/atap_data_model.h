@@ -58,6 +58,8 @@ public:
         DATAMODEL_UNKNOWN
     } dataModelType;
 
+    conv_hash_t hash_;
+
     /**
      * @brief Construct a new ATapDataModel object
      *
@@ -197,6 +199,13 @@ public:
      */
     dataModelType modelType() const;
 
+    conv_hash_t * hash();
+
+    /**
+     * @brief Update the flags
+     */
+    void updateFlags(unsigned flag);
+
 #ifdef HAVE_MAXMINDDB
     /**
      * @brief Does this model have geoip data available
@@ -217,8 +226,6 @@ protected:
 
     virtual tap_packet_cb conversationPacketHandler();
 
-    conv_hash_t * hash();
-
     void resetData();
     void updateData(GArray * data);
 
@@ -234,12 +241,13 @@ protected:
     double _minRelStartTime;
     double _maxRelStopTime;
 
+    unsigned _tapFlags;
+
     register_ct_t* registerTable() const;
 
 private:
     int _protoId;
 
-    conv_hash_t hash_;
 };
 
 class EndpointDataModel : public ATapDataModel

@@ -24,6 +24,7 @@
 
 #include <QMenu>
 #include <QTreeWidgetItem>
+#include <QVBoxLayout>
 
 class QCheckBox;
 class QDialogButtonBox;
@@ -67,6 +68,7 @@ protected:
     QDialogButtonBox *buttonBox() const;
     QCheckBox *displayFilterCheckBox() const;
     QCheckBox *absoluteTimeCheckBox() const;
+    QVBoxLayout *getVerticalLayout() const;
     TrafficTab *trafficTab() const;
     TrafficTypesList *trafficList() const;
 
@@ -76,6 +78,7 @@ protected slots:
 private slots:
     void on_nameResolutionCheckBox_toggled(bool checked);
     void displayFilterCheckBoxToggled(bool checked);
+    void aggregationSummaryOnlyCheckBoxToggled(bool checked);
     void captureEvent(CaptureEvent e);
 
     virtual void on_buttonBox_helpRequested() = 0;

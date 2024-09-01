@@ -632,6 +632,35 @@ set_tap_dfilter(void *tapdata, const char *fstring)
 	return NULL;
 }
 
+GString *
+set_tap_flags(void *tapdata, unsigned flags)
+{
+	tap_listener_t *tl=NULL,*tl2;
+
+	if(!tap_listener_queue){
+		return NULL;
+	}
+
+	if(tap_listener_queue->tapdata==tapdata){
+		tl=tap_listener_queue;
+	} else {
+		for(tl2=tap_listener_queue;tl2->next;tl2=tl2->next){
+			if(tl2->next->tapdata==tapdata){
+				tl=tl2->next;
+				break;
+			}
+
+		}
+	}
+
+	if(tl){
+		tl->needs_redraw=true;
+		tl->flags=flags;
+	}
+
+	return NULL;
+}
+
 /* this function recompiles dfilter for all registered tap listeners
  */
 void

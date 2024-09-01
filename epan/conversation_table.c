@@ -1040,6 +1040,11 @@ add_endpoint_table_data_ipv4_subnet(
      */
     if(is_aggregated) {
         add_endpoint_table_data(ch, aggaddr, port, sender, num_frames, num_bytes, et_info, etype);
+
+        // besides, add the original non-aggregated data when asked to
+        if(ch->flags & TL_IP_AGGREGATION_ORI) {
+            add_endpoint_table_data(ch, addr, port, sender, num_frames, num_bytes, et_info, etype);
+        }
     }
     else {
         add_endpoint_table_data(ch, addr, port, sender, num_frames, num_bytes, et_info, etype);

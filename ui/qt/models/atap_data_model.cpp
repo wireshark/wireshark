@@ -54,6 +54,8 @@ ATapDataModel::ATapDataModel(dataModelType type, int protoId, QString filter, QO
     _type = type;
     _disableTap = true;
 
+    _tapFlags = TL_IGNORE_DISPLAY_FILTER+TL_IP_AGGREGATION_ORI;
+
     QString _tap(proto_get_protocol_filter_name(protoId));
 }
 
@@ -112,7 +114,7 @@ bool ATapDataModel::enableTap()
     /* The errorString is ignored. If this is not working, there is nothing really the user may do about
      * it, so the error is only interesting to the developer.*/
     GString * errorString = register_tap_listener(tap().toUtf8().constData(), hash(), _filter.toUtf8().constData(),
-        TL_IGNORE_DISPLAY_FILTER, &ATapDataModel::tapReset, conversationPacketHandler(), &ATapDataModel::tapDraw, nullptr);
+        _tapFlags, &ATapDataModel::tapReset, conversationPacketHandler(), &ATapDataModel::tapDraw, nullptr);
     if (errorString && errorString->len > 0) {
         g_string_free(errorString, TRUE);
         _disableTap = true;
@@ -135,6 +137,20 @@ void ATapDataModel::disableTap()
         remove_tap_listener(hash());
     _disableTap = true;
     emit tapListenerChanged(false);
+}
+
+void ATapDataModel::updateFlags(unsigned flag)
+{
+
+    if(flag==0) {
+        _tapFlags |= TL_IP_AGGREGATION_ORI;
+    }
+    else {
+        _tapFlags &= ~(TL_IP_AGGREGATION_NULL|
+                       TL_IP_AGGREGATION_ORI|
+                       TL_IP_AGGREGATION_RESERVED);
+    }
+    set_tap_flags(&hash_, _tapFlags);
 }
 
 int ATapDataModel::rowCount(const QModelIndex &parent) const

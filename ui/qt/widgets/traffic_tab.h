@@ -190,6 +190,7 @@ public:
      * @param useNSTime use nanosecond timestamps if required and requested
      */
     void useNanosecondTimestamps(bool useNSTime);
+    ATapDataModel * dataModelForTabIndex(int tabIdx = -1);
 
 public slots:
 
@@ -229,7 +230,6 @@ private:
     QTreeView * createTree(int protoId);
     TrafficDataFilterProxy * modelForTabIndex(int tabIdx = -1);
     TrafficDataFilterProxy * modelForWidget(QWidget * widget);
-    ATapDataModel * dataModelForTabIndex(int tabIdx = -1);
     ATapDataModel * dataModelForWidget(QWidget * widget);
 
     void insertProtoTab(int protoId, bool emitSignals = true);

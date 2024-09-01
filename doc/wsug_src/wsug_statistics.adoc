@@ -338,6 +338,17 @@ had been applied, two columns ("Total Packets") and ("Percent Filtered") show
 the number of unfiltered total packets and the percentage of packets in this filter
 display.
 
+For IPv4 endpoints only, the _Hide aggregated_ checkbox controls how the traffic
+identified from the _subnets_ file should be displayed. By default (not checked),
+the individual endpoints and the subnets are both displayed, and when checked,
+only the aggregation is. The traffic which is not matching any subnet is kept
+as it is. This checkbox is available only when the IPv4 user preference
+_Aggregate subnets in Statistics Dialogs_ is enabled.
+See <<ChAppFilesConfigurationSection>> for the _subnets_ file
+description.
+image::images/ws-stats-endpoints-ipv4aggregation.png[{screenshot-attrs}]
+
+
 The btn:[Copy] button will copy the list values to the clipboard in CSV
 (Comma Separated Values), YAML format or JSON format. The numbers are generally
 exported without special formatting, but this can be enabled if needed.

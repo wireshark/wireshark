@@ -76,6 +76,12 @@ EndpointDialog::EndpointDialog(QWidget &parent, CaptureFile &cf) :
     connect(trafficTab()->tabBar(), &QTabBar::currentChanged, this, &EndpointDialog::tabChanged);
     connect(trafficTab(), &TrafficTab::tabDataChanged, this, &EndpointDialog::tabChanged);
 
+    aggregated_ck_ = new QCheckBox(tr("Hide aggregated"));
+    aggregated_ck_->setToolTip(tr("Hide IPv4 aggregated endpoints (see subnets file & IPv4 preferences)"));
+
+    getVerticalLayout()->insertWidget(3, aggregated_ck_ , 0);
+    connect( aggregated_ck_ , &QCheckBox::toggled, this, &EndpointDialog::aggregationToggled);
+
 #ifdef HAVE_MAXMINDDB
     map_bt_ = buttonBox()->addButton(tr("Map"), QDialogButtonBox::ActionRole);
     map_bt_->setToolTip(tr("Draw IPv4 or IPv6 endpoints on a map."));
@@ -118,6 +124,22 @@ void EndpointDialog::tabChanged(int idx)
     if (!file_closed_) {
         QVariant proto_id = trafficTab()->currentItemData(ATapDataModel::PROTO_ID);
         if (!proto_id.isNull()) {
+
+            /* enable/disable the Hide Aggregation checkbox for IPv4 */
+            // XXX - Maybe we can find a better way not relying on the protoname
+            unsigned is_pref_set = 0;
+            module_t *ip_module = prefs_find_module("ip");
+            if (ip_module) {
+                is_pref_set = prefs_get_uint_value("ip", "conv_agg_flag");
+            }
+
+            QString protoname = proto_get_protocol_short_name(find_protocol_by_id(proto_id.toInt()));
+            if(is_pref_set && protoname.toUtf8().data()== QString("IPv4")) {
+                aggregated_ck_ ->setEnabled(true);
+            }
+            else {
+                aggregated_ck_ ->setEnabled(false);
+            }
 
             for (GList * endTab = recent.endpoint_tabs; endTab; endTab = endTab->next) {
                 int protoId = proto_get_id_by_short_name((const char *)endTab->data);
@@ -171,6 +193,20 @@ void EndpointDialog::saveMap()
 void EndpointDialog::on_buttonBox_helpRequested()
 {
     mainApp->helpTopicAction(HELP_STATS_ENDPOINTS_DIALOG);
+}
+
+void EndpointDialog::aggregationToggled(bool checked)
+{
+    if (!cap_file_.isValid()) {
+        return;
+    }
+
+    ATapDataModel * atdm = trafficTab()->dataModelForTabIndex(1);
+    if(atdm) {
+        atdm->updateFlags(checked);
+    }
+
+    cap_file_.retapPackets();
 }
 
 void init_endpoint_table(struct register_ct* ct, const char *filter)

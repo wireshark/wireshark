@@ -92,6 +92,11 @@ QDialogButtonBox *TrafficTableDialog::buttonBox() const
     return ui->btnBoxSettings;
 }
 
+QVBoxLayout *TrafficTableDialog::getVerticalLayout() const
+{
+    return ui->verticalLayout;
+}
+
 QCheckBox *TrafficTableDialog::displayFilterCheckBox() const
 {
     return ui->displayFilterCheckBox;
@@ -122,6 +127,20 @@ void TrafficTableDialog::currentTabChanged()
         ui->nameResolutionCheckBox->setChecked(false);
         ui->trafficTab->setNameResolution(false);
     }
+}
+
+void TrafficTableDialog::aggregationSummaryOnlyCheckBoxToggled(bool checked)
+{
+    if (!cap_file_.isValid()) {
+        return;
+    }
+
+    ATapDataModel * atdm = trafficTab()->dataModelForTabIndex(1);
+    if(atdm) {
+        atdm->updateFlags(checked);
+    }
+
+    cap_file_.retapPackets();
 }
 
 void TrafficTableDialog::on_nameResolutionCheckBox_toggled(bool checked)

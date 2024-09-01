@@ -33,6 +33,7 @@ protected:
     void captureFileClosing();
 
 private:
+    QCheckBox *aggregated_ck_;
 #ifdef HAVE_MAXMINDDB
     QPushButton * map_bt_;
 #endif
@@ -44,6 +45,7 @@ private slots:
 #endif
     void tabChanged(int idx);
     void on_buttonBox_helpRequested();
+    void aggregationToggled(bool checked);
 };
 
 void init_endpoint_table(struct register_ct* ct, const char *filter);

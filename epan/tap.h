@@ -62,6 +62,11 @@ typedef void (*tap_finish_cb)(void *tapdata);
 #define TL_IGNORE_DISPLAY_FILTER    0x00000010      /**< use packet, even if it would be filtered out */
 #define TL_DISPLAY_FILTER_IGNORED   0x00100000      /**< flag for the conversation handler */
 
+/** Flags to indicate how the IP aggregation should behave during the statistics cb */
+#define TL_IP_AGGREGATION_NULL      0x00000100      /**< default analysis, no aggregation at all */
+#define TL_IP_AGGREGATION_ORI       0x00000200      /**< replace with subnets when possible, and keep original data */
+#define TL_IP_AGGREGATION_RESERVED  0x00000400      /**< reserved */
+
 typedef struct {
 	void (*register_tap_listener)(void);   /* routine to call to register tap listener */
 } tap_plugin;
@@ -252,6 +257,9 @@ WS_DLL_PUBLIC void tap_listeners_dfilter_recompile(void);
 
 /** this function removes a tap listener */
 WS_DLL_PUBLIC void remove_tap_listener(void *tapdata);
+
+/** This function sets new flags to a tap listener */
+WS_DLL_PUBLIC GString *set_tap_flags(void *tapdata, unsigned flags);
 
 /**
  * Return true if we have one or more tap listeners that require dissection,

@@ -192,12 +192,12 @@ WS_DLL_PUBLIC bool get_conversation_hide_ports(register_ct_t* ct);
 
 /** Get protocol ID of a conversation table
  *
- * @param ct Registered conversation tble
+ * @param ct Registered conversation table
  * @return protocol id of conversation table
  */
 WS_DLL_PUBLIC int get_conversation_proto_id(register_ct_t* ct);
 
-/** Get conversation tap function handler of a conversation tble
+/** Get conversation tap function handler of a conversation table
  *
  * @param ct Registered conversation table
  * @return conversation tap function handler of conversation table
