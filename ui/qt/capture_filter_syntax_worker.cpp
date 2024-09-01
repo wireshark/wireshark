@@ -89,7 +89,7 @@ void CaptureFilterSyntaxWorker::checkFilter(const QString filter)
     }
 
     foreach(int dlt, active_dlts.values()) {
-        pcap_compile_mtx_.lock();
+        QMutexLocker locker(&pcap_compile_mtx_);
         pd = pcap_open_dead(dlt, DUMMY_SNAPLENGTH);
         if (pd == NULL)
         {
@@ -115,8 +115,6 @@ void CaptureFilterSyntaxWorker::checkFilter(const QString filter)
             pcap_freecode(&fcode);
         }
         pcap_close(pd);
-
-        pcap_compile_mtx_.unlock();
 
         if (state == SyntaxLineEdit::Invalid) break;
     }
