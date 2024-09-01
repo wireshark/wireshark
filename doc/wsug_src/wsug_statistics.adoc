@@ -426,7 +426,10 @@ image::images/ws-stats-iographs.png[{screenshot-attrs}]
 As shown above, this window contains a chart drawing area along with a customizable list of graphs.
 Graphs are saved in your current <<ChCustConfigProfilesSection,profile>>.
 They are divided into time intervals, which can be set as described below.
-Hovering over the graph shows the last packet in each interval except as noted below.
+Hovering over the graph shows the last packet number of the selected graph (or by default,
+the first enabled graph in the graphs list) in each interval except as noted below.
+If the graph was customized, instead of the packet number it will show a value computed according
+to the custom settings (ex: MAX,MIN,..).
 Clicking on the graph takes you to the associated packet in the packet list.
 Individual graphs can be configured using the following options:
 
