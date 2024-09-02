@@ -1193,12 +1193,14 @@ void LograyMainWindow::setMenusForSelectedPacket()
         have_frames = capture_file_.capFile()->count > 0;
         have_marked = capture_file_.capFile()->marked_count > 0;
         another_is_marked = have_marked && rows.count() <= 1 &&
-                !(capture_file_.capFile()->marked_count == 1 && frame_selected && current_frame->marked);
+                !(capture_file_.capFile()->marked_count == 1 && frame_selected &&
+                current_frame && current_frame->marked);
         have_filtered = capture_file_.capFile()->displayed_count > 0 && capture_file_.capFile()->displayed_count != capture_file_.capFile()->count;
         have_ignored = capture_file_.capFile()->ignored_count > 0;
         have_time_ref = capture_file_.capFile()->ref_time_count > 0;
         another_is_time_ref = have_time_ref && rows.count() <= 1 &&
-                !(capture_file_.capFile()->ref_time_count == 1 && frame_selected && current_frame->ref_time);
+                !(capture_file_.capFile()->ref_time_count == 1 && frame_selected &&
+                current_frame && current_frame->ref_time);
 
         if (capture_file_.capFile()->edt && ! multi_selection && frame_selected)
         {
