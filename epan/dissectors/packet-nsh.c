@@ -23,6 +23,7 @@
 #include <epan/packet.h>
 #include <epan/etypes.h>
 #include <epan/expert.h>
+#include <epan/ipproto.h>
 #include "packet-nsh.h"
 #include "packet-vxlan.h"
 
@@ -365,7 +366,7 @@ proto_reg_handoff_nsh(void)
 	dissector_add_uint("gre.proto", ETHERTYPE_NSH, nsh_handle);
 	dissector_add_uint("vxlan.next_proto", VXLAN_NSH, nsh_handle);
 	dissector_add_uint("nsh.next_proto", NSH_NSH, nsh_handle);
-
+	dissector_add_uint("ip.proto", IP_PROTO_NSH, nsh_handle);
 }
 
 /*

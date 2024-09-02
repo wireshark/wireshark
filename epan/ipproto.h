@@ -109,7 +109,7 @@
 #define IP_PROTO_CPHB           73      /* Computer Protocol Heart Beat */
 #define IP_PROTO_WSN            74      /* WANG Span Network */
 #define IP_PROTO_PVP            75      /* Packet Video Protocol */
-#define IP_PROTO_BRSATMON       76      /* Backroon SATNET Monitoring */
+#define IP_PROTO_BRSATMON       76      /* Backroom SATNET Monitoring */
 #define IP_PROTO_SUNND          77      /* SUN ND Protocol - Temporary */
 #define IP_PROTO_WBMON          78      /* Wideband Monitoring */
 #define IP_PROTO_WBEXPAK        79      /* Wideband EXPAK */
@@ -177,6 +177,8 @@
 #define IP_PROTO_WESP           141     /* 141 WESP Wrapped Encapsulating Security Payload [RFC5840] */
 #define IP_PROTO_ROHC           142     /* 142 ROHC Robust Header Compression [RFC5858] */
 #define IP_PROTO_ETHERNET       143     /* Ethernet [RFC8986] */
+#define IP_PROTO_AGGFRAG        144     /* AGGFRAG encapsulation payload for ESP */
+#define IP_PROTO_NSH            145     /* Network Service Header */
 #define IP_PROTO_AX4000         173     /* AX/4000 Testblock - non IANA */
 #define IP_PROTO_NCS_HEARTBEAT  224     /* Novell NCS Heartbeat - http://support.novell.com/cgi-bin/search/searchtid.cgi?/10071158.htm */
 
