@@ -26684,7 +26684,7 @@ dissect_a_control_om(proto_tree *tree, tvbuff_t *tvb, int offset,
   uint32_t bits _U_, uint32_t start_bit)
 {
   proto_tree *om_tree = NULL;
-  unsigned the_bits = (tvb_get_letohl(tvb, offset) >> start_bit) & 0x0000003FF;
+  unsigned the_bits = (tvb_get_letohl(tvb, offset) >> start_bit) & 0x00000FFF;
 
   /*
    * We isolated the bits and moved them to the bottom ... so display them
