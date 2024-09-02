@@ -68,7 +68,11 @@ DIAG_ON_LEMON()
 }
 
 %syntax_error {
-    pbl_parser_error(state, "Syntax Error: unexpected token \"%s\"!", yyminor->v);
+    if (yyminor) {
+        pbl_parser_error(state, "Syntax Error: unexpected token \"%s\"", yyminor->v);
+    } else {
+        pbl_parser_error(state, "Syntax Error: missing token");
+    }
     state->grammar_error = TRUE;
 }
 
