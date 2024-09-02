@@ -2105,22 +2105,24 @@ dissecting_body:
 			}
 		}
 		/* Handle other transfer codings after de-chunking. */
-		switch (headers->transfer_encoding) {
-		case HTTP_TE_COMPRESS:
-		case HTTP_TE_DEFLATE:
-		case HTTP_TE_GZIP:
-			/*
-			 * We currently can't handle, for example, "gzip",
-			 * "compress", or "deflate" as *transfer* encodings;
-			 * just handle them as data for now.
-			 * XXX: Should this be sent to the follow tap?
-			 */
-			call_data_dissector(next_tvb, pinfo, http_tree);
-			goto body_dissected;
-		default:
-			/* Nothing to do for "identity" or when header is
-			 * missing or invalid. */
-			break;
+		if (headers) {
+			switch (headers->transfer_encoding) {
+			case HTTP_TE_COMPRESS:
+			case HTTP_TE_DEFLATE:
+			case HTTP_TE_GZIP:
+				/*
+				* We currently can't handle, for example, "gzip",
+				* "compress", or "deflate" as *transfer* encodings;
+				* just handle them as data for now.
+				* XXX: Should this be sent to the follow tap?
+				*/
+				call_data_dissector(next_tvb, pinfo, http_tree);
+				goto body_dissected;
+			default:
+				/* Nothing to do for "identity" or when header is
+				* missing or invalid. */
+				break;
+			}
 		}
 		/*
 		 * At this point, any chunked *transfer* coding has been removed
