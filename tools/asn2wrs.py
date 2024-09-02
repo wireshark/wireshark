@@ -6805,7 +6805,14 @@ def p_Unions_1 (t):
 
 def p_Unions_2 (t):
     'Unions : UElems UnionMark Intersections'
-    t[0] = Constraint(type = 'Union', subtype = [t[1], t[3]])
+    # Constraints currently ignored become None, e.g. InnerTypeConstraints
+    # (WITH COMPONENT[S]). Don't add them to a Union.
+    if t[3] is None:
+        t[0] = t[1]
+    elif t[1] is None:
+        t[0] = t[3]
+    else:
+        t[0] = Constraint(type = 'Union', subtype = [t[1], t[3]])
 
 def p_UElems (t):
     'UElems : Unions'
