@@ -118,12 +118,10 @@ static const QString para_tmpl_ = "<p>%1</p>\n";
 
 QString CaptureFilePropertiesDialog::summaryToHtml()
 {
-    summary_tally summary;
+    summary_tally summary = {};
     double seconds = 0.0;
     double disp_seconds = 0.0;
     double marked_seconds = 0.0;
-
-    memset(&summary, 0, sizeof(summary_tally));
 
     QString table_begin, table_end;
     QString table_row_begin, table_ul_row_begin, table_row_end;
@@ -140,13 +138,16 @@ QString CaptureFilePropertiesDialog::summaryToHtml()
     table_hheader25_tmpl = "<td width=\"25%\"><u>%1</u></td>";
     table_data_tmpl = "<td>%1</td>";
 
-    if (!file_closed_) {
-        /* initial computations */
-        summary_fill_in(cap_file_.capFile(), &summary);
-#ifdef HAVE_LIBPCAP
-        summary_fill_in_capture(cap_file_.capFile(), &global_capture_opts, &summary);
-#endif
+    if (file_closed_) {
+        // We shouldn't be here since our menu item or the refresh button should be disabled.
+        return QString();
     }
+
+    /* initial computations */
+    summary_fill_in(cap_file_.capFile(), &summary);
+#ifdef HAVE_LIBPCAP
+    summary_fill_in_capture(cap_file_.capFile(), &global_capture_opts, &summary);
+#endif
 
     seconds = summary.stop_time - summary.start_time;
     disp_seconds = summary.filtered_stop - summary.filtered_start;
