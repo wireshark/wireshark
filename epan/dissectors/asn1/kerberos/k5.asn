@@ -71,7 +71,7 @@ PADATA-TYPE ::= INTEGER {
 	pA-USE-SPECIFIED-KVNO(20),	-- [RFC4120]
 --	pA-SVR-REFERRAL-INFO(20), --	-- [REFERRALS]
 	pA-SAM-REDIRECT(21),		-- [KRB-WG.SAM]
-	pA-GET-FROM-TYPED-DATA(22),	-- (embedded in typed data) [RFC4120]
+--	pA-GET-FROM-TYPED-DATA(22), --	-- (embedded in typed data) [RFC4120]
 	tD-PADATA(22),			-- (embeds padata) [RFC4120]
 	pA-SAM-ETYPE-INFO(23),		-- (sam/otp) [KRB-WG.SAM]
 	pA-ALT-PRINC(24),		-- (crawdad@fnal.gov) [HW-AUTH]
