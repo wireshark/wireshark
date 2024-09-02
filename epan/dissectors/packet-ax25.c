@@ -60,16 +60,24 @@ static int hf_ax25_src;
 static int hf_ax25_via[ AX25_MAX_DIGIS ];
 
 static int hf_ax25_ctl;
+static int hf_ax25_ctl_ext;
 
 static int hf_ax25_n_r;
+static int hf_ax25_n_r_ext;
 static int hf_ax25_n_s;
+static int hf_ax25_n_s_ext;
 
 static int hf_ax25_p;
 static int hf_ax25_f;
+static int hf_ax25_p_ext;
+static int hf_ax25_f_ext;
 
 static int hf_ax25_ftype_s;
+static int hf_ax25_ftype_s_ext;
 static int hf_ax25_ftype_i;
+static int hf_ax25_ftype_i_ext;
 static int hf_ax25_ftype_su;
+static int hf_ax25_ftype_su_ext;
 
 static int hf_ax25_u_cmd;
 static int hf_ax25_u_resp;
@@ -86,6 +94,18 @@ static const xdlc_cf_items ax25_cf_items = {
 	&hf_ax25_u_resp,
 	&hf_ax25_ftype_i,
 	&hf_ax25_ftype_su
+};
+
+static const xdlc_cf_items ax25_cf_items_ext = {
+	&hf_ax25_n_r_ext,
+	&hf_ax25_n_s_ext,
+	&hf_ax25_p_ext,
+	&hf_ax25_f_ext,
+	&hf_ax25_ftype_s_ext,
+	&hf_ax25_u_cmd,
+	&hf_ax25_u_resp,
+	&hf_ax25_ftype_i_ext,
+	&hf_ax25_ftype_su_ext
 };
 
 static const value_string pid_vals[] = {
@@ -196,7 +216,9 @@ dissect_ax25( tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 		offset += AX25_ADDR_LEN;
 		}
 
-	/* XXX - next-to-last argument should be true if modulo 128 operation */
+	// XXX - Only optionally set extended bool.
+	const bool extended = true;
+
 	control = dissect_xdlc_control(	tvb,
 					offset,
 					pinfo,
@@ -204,14 +226,13 @@ dissect_ax25( tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 					hf_ax25_ctl,
 					ett_ax25_ctl,
 					&ax25_cf_items,
-					NULL,
+					&ax25_cf_items_ext,
 					NULL,
 					NULL,
 					is_response,
-					false,
+					extended,
 					false );
-	/* XXX - second argument should be true if modulo 128 operation */
-	offset += XDLC_CONTROL_LEN(control, false); /* step over control field */
+	offset += XDLC_CONTROL_LEN(control, extended); /* step over control field */
 
 	if ( XDLC_IS_INFORMATION( control ) )
 		{
@@ -329,9 +350,19 @@ proto_register_ax25(void)
 			FT_UINT8, BASE_HEX, NULL, 0x0,
 			"Control field", HFILL }
 		},
+		{ &hf_ax25_ctl_ext,
+			{ "Control",			"ax25.ctl_ext",
+			FT_UINT16, BASE_HEX, NULL, 0x0,
+			"Control field", HFILL }
+		},
 		{ &hf_ax25_n_r,
 			{ "n(r)",			"ax25.ctl.n_r",
 			FT_UINT8, BASE_DEC, NULL, XDLC_N_R_MASK,
+			NULL, HFILL }
+		},
+		{ &hf_ax25_n_r_ext,
+			{ "n(r) ext",			"ax25.ctl.n_r_ext",
+			FT_UINT16, BASE_DEC, NULL, XDLC_N_R_EXT_MASK,
 			NULL, HFILL }
 		},
 		{ &hf_ax25_n_s,
@@ -339,9 +370,24 @@ proto_register_ax25(void)
 			FT_UINT8, BASE_DEC, NULL, XDLC_N_S_MASK,
 			NULL, HFILL }
 		},
+		{ &hf_ax25_n_s_ext,
+			{ "n(s) ext",			"ax25.ctl.n_s_ext",
+			FT_UINT16, BASE_DEC, NULL, XDLC_N_S_EXT_MASK,
+			NULL, HFILL }
+		},
 		{ &hf_ax25_p,
 			{ "Poll",			"ax25.ctl.p",
 			FT_BOOLEAN, 8, TFS(&tfs_set_notset), XDLC_P_F,
+			NULL, HFILL }
+		},
+		{ &hf_ax25_f_ext,
+			{ "Final",			"ax25.ctl.f_ext",
+			FT_BOOLEAN, 16, TFS(&tfs_set_notset), XDLC_P_F_EXT,
+			NULL, HFILL }
+		},
+		{ &hf_ax25_p_ext,
+			{ "Poll",			"ax25.ctl.p_ext",
+			FT_BOOLEAN, 16, TFS(&tfs_set_notset), XDLC_P_F_EXT,
 			NULL, HFILL }
 		},
 		{ &hf_ax25_f,
@@ -354,14 +400,29 @@ proto_register_ax25(void)
 			FT_UINT8, BASE_HEX, VALS(stype_vals), XDLC_S_FTYPE_MASK,
 			NULL, HFILL }
 		},
+		{ &hf_ax25_ftype_s_ext,
+			{ "Frame type",			"ax25.ctl.ftype_s_ext",
+			FT_UINT16, BASE_HEX, VALS(stype_vals), XDLC_S_FTYPE_MASK,
+			NULL, HFILL }
+		},
 		{ &hf_ax25_ftype_i,
 			{ "Frame type",			"ax25.ctl.ftype_i",
 			FT_UINT8, BASE_HEX, VALS(ftype_vals), XDLC_I_MASK,
 			NULL, HFILL }
 		},
+		{ &hf_ax25_ftype_i_ext,
+			{ "Frame type",			"ax25.ctl.ftype_i_ext",
+			FT_UINT16, BASE_HEX, VALS(ftype_vals), XDLC_I_MASK,
+			NULL, HFILL }
+		},
 		{ &hf_ax25_ftype_su,
 			{ "Frame type",			"ax25.ctl.ftype_su",
 			FT_UINT8, BASE_HEX, VALS(ftype_vals), XDLC_S_U_MASK,
+			NULL, HFILL }
+		},
+		{ &hf_ax25_ftype_su_ext,
+			{ "Frame type",			"ax25.ctl.ftype_su_ext",
+			FT_UINT16, BASE_HEX, VALS(ftype_vals), XDLC_S_U_MASK,
 			NULL, HFILL }
 		},
 		{ &hf_ax25_u_cmd,
