@@ -25,6 +25,9 @@
 
 #include "mate.h"
 #include "mate_grammar.h"
+
+#include "ws_attributes.h"
+
 #include <wsutil/file_util.h>
 #include <wsutil/str_util.h>
 
@@ -73,6 +76,7 @@ typedef struct _transf_action_t {
 	AVPL* avpl;
 } transf_action_t;
 
+WS_NORETURN
 static void configuration_error(mate_config* mc, const char* fmt, ...) {
 	static char error_buffer[256];
 	const char* incl;
@@ -356,7 +360,9 @@ transform_decl(A) ::= TRANSFORM_KW NAME(B) transform_body(C) SEMICOLON. {
 	for ( c = C; c; c = c->next )
 		c->name = g_strdup(B);
 
-	g_hash_table_insert(mc->transfs,C->name,C);
+	if (C) {
+		g_hash_table_insert(mc->transfs,C->name,C);
+	}
 
 	A = NULL;
 }
