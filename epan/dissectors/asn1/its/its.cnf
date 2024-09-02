@@ -960,27 +960,13 @@ CartesianAngleValue
 #.END
 
 #
-# RCUnit subtypes bodies implemented manually as asn2wrs is not able to handle subtype constraint
+# vehicleSubClass implemented manually because asn2wrs is not able to handle subtype constraint
+# in terms of namedNumbers defined in the base type.
 #
 
-#.FN_BODY InternationalSign-speedLimits/unit
+#.FN_BODY ObjectClass/vehicleSubClass
   offset = dissect_per_constrained_integer(%(TVB)s, %(OFFSET)s, %(ACTX)s, %(TREE)s, %(HF_INDEX)s,
-                                           0U, 1U, %(VAL_PTR)s, false);
-#.END
-
-#.FN_BODY Weight/unit
-  offset = dissect_per_constrained_integer(%(TVB)s, %(OFFSET)s, %(ACTX)s, %(TREE)s, %(HF_INDEX)s,
-                                           10U, 12U, %(VAL_PTR)s, false);
-#.END
-
-#.FN_BODY DistOrDuration-Units
-  offset = dissect_per_constrained_integer(%(TVB)s, %(OFFSET)s, %(ACTX)s, %(TREE)s, %(HF_INDEX)s,
-                                           2U, 9U, %(VAL_PTR)s, false);
-#.END
-
-#.FN_BODY Distance/unit
-  offset = dissect_per_constrained_integer(%(TVB)s, %(OFFSET)s, %(ACTX)s, %(TREE)s, %(HF_INDEX)s,
-                                           2U, 8U, %(VAL_PTR)s, false);
+                                           0U, 14U, %(VAL_PTR)s, false);
 #.END
 
 #=== PtActivation =======================================================

@@ -3827,13 +3827,13 @@ class Type_Ref (Type):
         ectx.eth_dep_add(ident, self.val)
 
     def eth_tname(self):
-        if self.HasSizeConstraint():
+        if self.HasSizeConstraint() or self.HasValueConstraint():
             return asn2c(self.val) + '_' + self.constr.eth_constrname()
         else:
             return asn2c(self.val)
 
     def tr_need_own_fn(self, ectx):
-        return (ectx.Per() or ectx.Oer()) and self.HasSizeConstraint()
+        return (ectx.Per() or ectx.Oer()) and (self.HasSizeConstraint() or self.HasValueConstraint())
 
     def fld_obj_repr(self, ectx):
         return self.val
@@ -3877,6 +3877,13 @@ class Type_Ref (Type):
         pars['TYPE_REF_FN'] = 'dissect_%(TYPE_REF_PROTO)s_%(TYPE_REF_TNAME)s'
         if self.HasSizeConstraint():
             (pars['MIN_VAL'], pars['MAX_VAL'], pars['EXT']) = self.eth_get_size_constr(ectx)
+        elif self.HasValueConstraint():
+            # XXX - Handle if the value constraint is described using names from
+            # NamedNumbers defined in the reference base type.
+            # Also, we ought to enforce X.680 51.4.2 - 'All values in the "ValueRange"
+            # are required to be in the root of the parent type' by examining
+            # MIN_VAL and MAX_VAL of the parent type.
+            (pars['MIN_VAL'], pars['MAX_VAL'], pars['EXT']) = self.eth_get_value_constr(ectx)
         return pars
 
     def eth_type_default_body(self, ectx, tname):
@@ -3888,6 +3895,10 @@ class Type_Ref (Type):
                 body = ectx.eth_fn_call('dissect_%(ER)s_size_constrained_type', ret='offset',
                                         par=(('%(TVB)s', '%(OFFSET)s', '%(ACTX)s', '%(TREE)s', '%(HF_INDEX)s', '%(TYPE_REF_FN)s',),
                                              ('"%(TYPE_REF_TNAME)s"', '%(MIN_VAL)s', '%(MAX_VAL)s', '%(EXT)s',),))
+            elif self.HasValueConstraint() and isinstance(ectx.type[self.val]['val'], IntegerType):
+                body = ectx.eth_fn_call('dissect_%(ER)s_constrained_integer%(FN_VARIANT)s', ret='offset',
+                                        par=(('%(TVB)s', '%(OFFSET)s', '%(ACTX)s', '%(TREE)s', '%(HF_INDEX)s'),
+                                             ('%(MIN_VAL)s', '%(MAX_VAL)s', '%(VAL_PTR)s', '%(EXT)s'),))
             else:
                 body = ectx.eth_fn_call('%(TYPE_REF_FN)s', ret='offset',
                                         par=(('%(TVB)s', '%(OFFSET)s', '%(ACTX)s', '%(TREE)s', '%(HF_INDEX)s'),))
