@@ -19537,15 +19537,15 @@ dissect_wfa_rsn_override_2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 }
 
 static int
-ieee80211_tag_rsnx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data);
+dissect_rsnx_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int tag_len);
 
 static int
-dissect_wfa_rsnx_override(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
+dissect_wfa_rsnx_override(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
   int tag_len = tvb_reported_length(tvb);
 
   if (tag_len > 0)
-    ieee80211_tag_rsnx(tvb, pinfo, tree, data);
+    dissect_rsnx_ie(tvb, pinfo, tree, tag_len);
 
   return tag_len;
 }
@@ -34822,10 +34822,8 @@ ieee80211_tag_twt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 }
 
 static int
-ieee80211_tag_rsnx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
+dissect_rsnx_ie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int tag_len)
 {
-  int tag_len = tvb_reported_length(tvb);
-  ieee80211_tagged_field_data_t* field_data = (ieee80211_tagged_field_data_t*)data;
   int offset = 0;
   proto_item *octet;
   static int * const octet1[] = {
@@ -34847,12 +34845,6 @@ ieee80211_tag_rsnx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
     &hf_ieee80211_tag_rsnx_urnm_mfpr,
     NULL
   };
-
-  if (tag_len < 1) {
-    expert_add_info_format(pinfo, field_data->item_tag_length, &ei_ieee80211_tag_length, "Tag Length %u wrong, must be >= 1", tag_len);
-    return 0;
-  }
-  proto_item_append_text(field_data->item_tag, " (%u octet%s)", tag_len, plurality(tag_len, "", "s"));
 
   /* octet 1 */
   octet = proto_tree_add_bitmask_with_flags(tree, tvb, offset, hf_ieee80211_tag_rsnx, ett_tag_rsnx_octet1, octet1, ENC_LITTLE_ENDIAN, BMT_NO_APPEND);
@@ -34880,6 +34872,23 @@ ieee80211_tag_rsnx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
   }
 
   return offset;
+}
+
+static int
+ieee80211_tag_rsnx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
+{
+  int tag_len = tvb_reported_length(tvb);
+  ieee80211_tagged_field_data_t* field_data = (ieee80211_tagged_field_data_t*)data;
+
+  if (tag_len < 1) {
+    expert_add_info_format(pinfo, field_data->item_tag_length, &ei_ieee80211_tag_length, "Tag Length %u wrong, must be >= 1", tag_len);
+    return 0;
+  }
+  proto_item_append_text(field_data->item_tag, " (%u octet%s)", tag_len, plurality(tag_len, "", "s"));
+
+  dissect_rsnx_ie(tvb, pinfo, tree, tag_len);
+
+  return tvb_captured_length(tvb);
 }
 
 static int
