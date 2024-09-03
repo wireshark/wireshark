@@ -1544,6 +1544,16 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		}
 	}
 
+	// Ensure headers is valid before the `goto dissecting_body` below.
+	if (headers == NULL) {
+		DISSECTOR_ASSERT_HINT(!PINFO_FD_VISITED(pinfo) || (PINFO_FD_VISITED(pinfo) && !streaming_chunk_mode),
+			"The headers variable should not be NULL if it is in streaming mode during a non first scan.");
+		DISSECTOR_ASSERT_HINT(header_value_map == NULL, "The header_value_map variable should be NULL while headers is NULL.");
+
+		headers = wmem_new0((streaming_chunk_mode ? wmem_file_scope() : pinfo->pool), headers_t);
+		header_value_map = wmem_map_new((streaming_chunk_mode ? wmem_file_scope() : pinfo->pool), g_str_hash, g_str_equal);
+	}
+
 	if (streaming_chunk_mode && begin_with_chunk) {
 		datalen = reported_length;
 		goto dissecting_body;
@@ -1565,14 +1575,6 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	 * Process the packet data, a line at a time.
 	 */
 	http_type = MEDIA_CONTAINER_HTTP_OTHERS;	/* type not known yet */
-	if (headers == NULL) {
-		DISSECTOR_ASSERT_HINT(!PINFO_FD_VISITED(pinfo) || (PINFO_FD_VISITED(pinfo) && !streaming_chunk_mode),
-			"The headers variable should not be NULL if it is in streaming mode during a non first scan.");
-		DISSECTOR_ASSERT_HINT(header_value_map == NULL, "The header_value_map variable should be NULL while headers is NULL.");
-
-		headers = wmem_new0((streaming_chunk_mode ? wmem_file_scope() : pinfo->pool), headers_t);
-		header_value_map = wmem_map_new((streaming_chunk_mode ? wmem_file_scope() : pinfo->pool), g_str_hash, g_str_equal);
-	}
 
 	saw_req_resp_or_header = false;	/* haven't seen anything yet */
 	while (tvb_offset_exists(tvb, offset)) {
@@ -2013,7 +2015,7 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	if (!PINFO_FD_VISITED(pinfo) && streaming_chunk_mode && streaming_reassembly_data == NULL) {
 		DISSECTOR_ASSERT(!begin_with_chunk && handle && http_dechunk_body && http_desegment_body
-			&& headers && headers->content_type && header_value_map);
+			&& headers->content_type && header_value_map);
 
 		content_info = wmem_new0(wmem_file_scope(), media_content_info_t);
 		content_info->media_str = headers->content_type_parameters;
@@ -2070,7 +2072,7 @@ dissecting_body:
 		/*
 		 * Handle *transfer* encodings.
 		 */
-		if (headers && headers->transfer_encoding_chunked) {
+		if (headers->transfer_encoding_chunked) {
 			if (!http_dechunk_body) {
 				/* Chunking disabled, cannot dissect further. */
 				/* XXX: Should this be sent to the follow tap? */
@@ -2105,24 +2107,22 @@ dissecting_body:
 			}
 		}
 		/* Handle other transfer codings after de-chunking. */
-		if (headers) {
-			switch (headers->transfer_encoding) {
-			case HTTP_TE_COMPRESS:
-			case HTTP_TE_DEFLATE:
-			case HTTP_TE_GZIP:
-				/*
-				* We currently can't handle, for example, "gzip",
-				* "compress", or "deflate" as *transfer* encodings;
-				* just handle them as data for now.
-				* XXX: Should this be sent to the follow tap?
-				*/
-				call_data_dissector(next_tvb, pinfo, http_tree);
-				goto body_dissected;
-			default:
-				/* Nothing to do for "identity" or when header is
-				* missing or invalid. */
-				break;
-			}
+		switch (headers->transfer_encoding) {
+		case HTTP_TE_COMPRESS:
+		case HTTP_TE_DEFLATE:
+		case HTTP_TE_GZIP:
+			/*
+			* We currently can't handle, for example, "gzip",
+			* "compress", or "deflate" as *transfer* encodings;
+			* just handle them as data for now.
+			* XXX: Should this be sent to the follow tap?
+			*/
+			call_data_dissector(next_tvb, pinfo, http_tree);
+			goto body_dissected;
+		default:
+			/* Nothing to do for "identity" or when header is
+			* missing or invalid. */
+			break;
 		}
 		/*
 		 * At this point, any chunked *transfer* coding has been removed
