@@ -38,6 +38,7 @@
 #include <epan/xdlc.h>
 #include <epan/ax25_pids.h>
 #include <epan/ipproto.h>
+#include <epan/prefs.h>
 #include <epan/tfs.h>
 
 #define STRLEN	80
@@ -47,6 +48,8 @@
 
 void proto_register_ax25(void);
 void proto_reg_handoff_ax25(void);
+
+static bool gEXTENDED_MODE;
 
 /* Dissector table */
 static dissector_table_t ax25_dissector_table;
@@ -216,9 +219,6 @@ dissect_ax25( tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 		offset += AX25_ADDR_LEN;
 		}
 
-	// XXX - Only optionally set extended bool.
-	const bool extended = true;
-
 	control = dissect_xdlc_control(	tvb,
 					offset,
 					pinfo,
@@ -230,9 +230,9 @@ dissect_ax25( tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 					NULL,
 					NULL,
 					is_response,
-					extended,
+					gEXTENDED_MODE,
 					false );
-	offset += XDLC_CONTROL_LEN(control, extended); /* step over control field */
+	offset += XDLC_CONTROL_LEN(control, gEXTENDED_MODE); /* step over control field */
 
 	if ( XDLC_IS_INFORMATION( control ) )
 		{
@@ -450,6 +450,11 @@ proto_register_ax25(void)
 
 	/* Register the protocol name and description */
 	proto_ax25 = proto_register_protocol("Amateur Radio AX.25", "AX.25", "ax25");
+	module_t *ax25_module = ax25_module = prefs_register_protocol(proto_ax25, NULL);
+	prefs_register_bool_preference(ax25_module, "extended",
+				       "Set extended mode",
+				       "Enable extended mode calculation.",
+				       &gEXTENDED_MODE);
 
 	/* Register the dissector */
 	ax25_handle = register_dissector( "ax25", dissect_ax25, proto_ax25 );
