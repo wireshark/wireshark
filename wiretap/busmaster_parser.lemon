@@ -396,7 +396,7 @@ run_busmaster_parser(busmaster_state_t *state,
         return false;
     }
 
-    parser = BusmasterParserAlloc(g_malloc);
+    parser = BusmasterParserAlloc(g_malloc0);
 
 #ifdef BUSMASTER_PARSER_TRACE
     BusmasterParserTrace(stdout, "BusmasterParser >> ");

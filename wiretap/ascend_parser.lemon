@@ -485,7 +485,7 @@ run_ascend_parser(uint8_t *pd, ascend_state_t *parser_state, int *err, char **er
     */
     parser_state->pseudo_header->call_num[0] = '\0';
 
-    parser = AscendParserAlloc(g_malloc);
+    parser = AscendParserAlloc(g_malloc0);
 
 #ifdef ASCEND_PARSER_DEBUG
     AscendParserTrace(stderr, "=AP ");

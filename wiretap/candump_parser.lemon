@@ -294,7 +294,7 @@ run_candump_parser(candump_state_t *state, int *err, char **err_info)
         return false;
     }
 
-    parser = CandumpParserAlloc(g_malloc);
+    parser = CandumpParserAlloc(g_malloc0);
 
 #ifdef CANDUMP_DEBUG
     CandumpParserTrace(stdout, "parser >> ");
