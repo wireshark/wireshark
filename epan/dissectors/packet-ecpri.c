@@ -480,7 +480,8 @@ static int dissect_ecpri(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
                 /* Assume that it has claimed the entire tvb */
                 offset = tvb_reported_length(tvb);
             }
-            else {
+            else
+            {
                 /* ORAN FH-CUS dissector didn't handle it */
                 switch (msg_type)
                 {
@@ -789,19 +790,22 @@ static int dissect_ecpri(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
                 offset += payload_size;
             }
         }
-    } while (concatenation_bit != 0 && reported_length - offset >= ECPRI_HEADER_LENGTH);
-    if (concatenation_bit != false) {
+    } while (concatenation_bit != 0 && ((reported_length - offset) >= ECPRI_HEADER_LENGTH));
+
+    /* Expecting last concatenation bit to be false */
+    if (concatenation_bit != false)
+    {
         expert_add_info_format(pinfo, ti_c_bit, &ei_c_bit, "Concatenation Bit is 1, should be 0");
     }
 
-    /* Not dissected buffer */
+    /* Not dissected buffer - any remainder passed to data dissector */
     if (offset != 0)
     {
         next_tvb = tvb_new_subset_remaining(tvb, offset);
         call_data_dissector(next_tvb, pinfo, tree);
     }
 
-    /* Overall eCPRI length */
+    /* Overall eCPRI length (based upon reported length of tvb passed in) */
     proto_item *length_ti = proto_tree_add_uint(ecpri_tree, hf_ecpri_length, tvb, 0, 0, reported_length);
     proto_item_set_generated(length_ti);
 
@@ -835,7 +839,7 @@ void proto_register_ecpri(void)
             { &hf_request_response, { "Request/Response",   "ecpri.reqresp",   FT_UINT8,  BASE_HEX,  VALS(request_response_coding), 0x0F, NULL, HFILL } },
             { &hf_element_id,  { "Element ID",              "ecpri.elementid", FT_UINT16, BASE_HEX,  NULL,                          0x0,  NULL, HFILL } },
             { &hf_address,     { "Address",                 "ecpri.address",   FT_BYTES,  SEP_COLON, NULL,                          0x0,  NULL, HFILL } },
-            { &hf_data_length, { "Data Length",             "ecpri.length",    FT_UINT16, BASE_DEC,  NULL,                          0x0,  NULL, HFILL } },
+            { &hf_data_length, { "Data Length",             "ecpri.datalength",FT_UINT16, BASE_DEC,  NULL,                          0x0,  NULL, HFILL } },
             /* Message Type 5: One-way Delay Measurement */
             { &hf_measurement_id, { "Measurement ID",  "ecpri.measurementid",  FT_UINT8,  BASE_HEX,                  NULL,               0x0, NULL, HFILL } },
             { &hf_action_type,        { "Action Type", "ecpri.actiontype",     FT_UINT8,  BASE_HEX|BASE_RANGE_STRING, RVALS(action_type_coding), 0x0, NULL, HFILL } },
@@ -859,7 +863,7 @@ void proto_register_ecpri(void)
             /* Rest of Payload */
             { &hf_data,         { "User Data",  "ecpri.data",   FT_BYTES,   SEP_COLON,  NULL,   0x0,   NULL,   HFILL } },
 
-            { &hf_ecpri_length, { "eCPRI Length",  "ecpri.length",   FT_UINT32,   BASE_DEC,  NULL,   0x0,   NULL,   HFILL } },
+            { &hf_ecpri_length, { "eCPRI Length",  "ecpri.length",   FT_UINT32,   BASE_DEC,  NULL,   0x0,   "Length in bytes, including header",   HFILL } },
     };
 
     /* Setup protocol subtree array */

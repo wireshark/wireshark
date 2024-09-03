@@ -1044,12 +1044,15 @@ write_section_info(proto_item *section_heading, packet_info *pinfo, proto_item *
 {
     switch (num_prbx) {
         case 0:
+            /* None -> all */
             write_pdu_label_and_info(section_heading, protocol_item, pinfo, ", Id: %2d (all PRBs)", section_id);
             break;
         case 1:
+            /* Single PRB */
             write_pdu_label_and_info(section_heading, protocol_item, pinfo, ", Id: %2d (PRB: %7u)", section_id, start_prbx);
             break;
         default:
+            /* Range */
             write_pdu_label_and_info(section_heading, protocol_item, pinfo, ", Id: %2d (PRB: %3u-%3u%s)", section_id, start_prbx,
                                      start_prbx + (num_prbx-1)*(1+rb), rb ? " (every-other)" : "");
     }
@@ -1119,7 +1122,7 @@ addSeqid(tvbuff_t *tvb, proto_tree *oran_tree, int *offset)
     *offset += 1;
 
     /* Summary */
-    proto_item_append_text(seqIdItem, ", SeqId: %3d, SubSeqId: %d, E: %d", seqId, subSeqId, e);
+    proto_item_append_text(seqIdItem, " (SeqId: %3d, E: %d, SubSeqId: %d)", seqId, e, subSeqId);
 }
 
 /* 7.7.1.2 bfwCompHdr (beamforming weight compression header) */
@@ -3536,7 +3539,7 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 
     /* Common header for time reference */
     proto_item *timingHeader;
-    proto_tree *timing_header_tree = proto_tree_add_subtree(oran_tree, tvb, offset, 4, ett_oran_u_timing, &timingHeader, "Timing header");
+    proto_tree *timing_header_tree = proto_tree_add_subtree(oran_tree, tvb, offset, 4, ett_oran_u_timing, &timingHeader, "Timing header (");
 
     /* dataDirection */
     uint32_t direction;
@@ -3571,7 +3574,7 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
     proto_item *pi = proto_tree_add_string(timing_header_tree, hf_oran_refa, tvb, ref_a_offset, 3, id);
     proto_item_set_generated(pi);
 
-    proto_item_append_text(timingHeader, " %s, Frame: %d, Subframe: %d, Slot: %d, Symbol: %d",
+    proto_item_append_text(timingHeader, "%s, Frame: %d, Subframe: %d, Slot: %d, Symbol: %d)",
         val_to_str_const(direction, data_direction_vals, "Unknown"), frameId, subframeId, slotId, symbolId);
 
     unsigned sample_bit_width;
@@ -3600,7 +3603,7 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
     unsigned number_of_sections = 0;
     unsigned nBytesPerPrb =0;
 
-    /* Add each section */
+    /* Add each section (no count, just keep parsing until payload used) */
     do {
         unsigned section_start_offet = offset;
         proto_item *sectionHeading;
@@ -4527,7 +4530,7 @@ proto_register_oran(void)
         /* symbolId 8.3.3.7 */
         {&hf_oran_symbolId,
          {"Symbol Identifier", "oran_fh_cus.symbolId",
-          FT_UINT8, BASE_HEX,
+          FT_UINT8, BASE_DEC,
           NULL, 0x3f,
           "Identifies a symbol number within a slot",
           HFILL}
