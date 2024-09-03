@@ -320,10 +320,7 @@ dissect_lsdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
     if(
         tvb_reported_length(tvb) < LSDP_HEADER_LEN ||                   // Header must be available
         tvb_get_uint8(tvb, 0) != LSDP_HEADER_LEN ||                     // Header length must be fixed
-        strcmp(                                                         // Magic Word must match
-            tvb_get_string_enc(pinfo->pool, tvb, 1, 4, ENC_ASCII),
-            LSDP_MAGIC
-        ) == -1 ||
+        tvb_memeql(tvb, 1, LSDP_MAGIC, strlen(LSDP_MAGIC)) != 0 ||      // Magic Word must match
         tvb_get_uint8(tvb, 5) != LSDP_HEADER_VER                        // We only support version 1
     )
         return 0;
