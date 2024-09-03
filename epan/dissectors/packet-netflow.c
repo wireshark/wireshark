@@ -4846,16 +4846,15 @@ dissect_v8_aggpdu(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *pdutree
     case V8PDU_TOSAS_METHOD:
         offset = flow_process_aspair(pdutree, tvb, offset);
 
+        offset = flow_process_ints(pdutree, tvb, offset);
+
         if (verspec == V8PDU_TOSAS_METHOD) {
             proto_tree_add_item(pdutree, hf_cflow_tos, tvb,
                                 offset++, 1, ENC_BIG_ENDIAN);
             offset = flow_process_textfield(pdutree, tvb, offset, 1, hf_cflow_padding);
             offset = flow_process_textfield(pdutree, tvb, offset, 2, hf_cflow_reserved);
         }
-        /* ACF - Seen in the wild and documented here...
-           http://www.caida.org/tools/measurement/cflowd/configuration/configuration-9.html#ss9.1
-        */
-        offset = flow_process_ints(pdutree, tvb, offset);
+
         break;
 
     case V8PDU_PROTO_METHOD:
@@ -4927,9 +4926,9 @@ dissect_v8_aggpdu(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *pdutree
         proto_tree_add_item(pdutree, hf_cflow_dstnet, tvb, offset, 4, ENC_BIG_ENDIAN);
         offset += 4;
 
-        proto_tree_add_item(pdutree, hf_cflow_srcmask, tvb, offset++, 1, ENC_BIG_ENDIAN);
-
         proto_tree_add_item(pdutree, hf_cflow_dstmask, tvb, offset++, 1, ENC_BIG_ENDIAN);
+
+        proto_tree_add_item(pdutree, hf_cflow_srcmask, tvb, offset++, 1, ENC_BIG_ENDIAN);
 
         if ((verspec == V8PDU_TOSMATRIX_METHOD) ||
             (verspec == V8PDU_PREPORTPROTOCOL_METHOD)) {
