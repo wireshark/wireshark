@@ -451,7 +451,7 @@ static dissector_handle_t bgp_handle;
 #define BGP_EXT_COM_STYPE_AS4_S_AS      0x09    /* Source AS [RFC6514] */
 #define BGP_EXT_COM_STYPE_AS4_CIS_V     0x10    /* Cisco VPN Identifier [Eric_Rosen] */
 #define BGP_EXT_COM_STYPE_AS4_RT_REC    0x13    /* Route-Target Record [draft-ietf-bess-service-chaining] */
-#define BGP_EXT_COM_STYPE_AS2_RT_EC     0x15    /* RT-derived-EC [draft-zzhang-idr-rt-derived-community] */
+#define BGP_EXT_COM_STYPE_AS4_RT_EC     0x15    /* RT-derived-EC [draft-zzhang-idr-rt-derived-community] */
 
 /* Non-Transitive Four-Octet AS-Specific Extended Community Sub-Types */
 
@@ -1678,7 +1678,7 @@ static const value_string bgpext_com_stype_tr_as4[] = {
     { BGP_EXT_COM_STYPE_AS4_S_AS,     "Source AS" },
     { BGP_EXT_COM_STYPE_AS4_CIS_V,    "Cisco VPN Identifier" },
     { BGP_EXT_COM_STYPE_AS4_RT_REC,   "Route-Target Record"},
-    { BGP_EXT_COM_STYPE_AS4_RT_REC,   "RT-derived-EC" },
+    { BGP_EXT_COM_STYPE_AS4_RT_EC,    "RT-derived-EC" },
     { 0, NULL}
 };
 
@@ -1777,7 +1777,6 @@ static const value_string bgpext_com_tunnel_type[] = {
 };
 
 static const value_string bgpext_com_stype_ntr_opaque[] = {
-    { BGP_EXT_COM_STYPE_OPA_COST,       "Cost" },
     { BGP_EXT_COM_STYPE_OPA_OR_VAL_ST,  "BGP Origin Validation state" },
     { BGP_EXT_COM_STYPE_OPA_COST,       "Cost Community" },
     { BGP_EXT_COM_STYPE_OPA_RT,         "Route Target" },
@@ -2012,9 +2011,6 @@ static const value_string capability_vals[] = {
     { BGP_CAPABILITY_LONG_LIVED_GRACEFUL_RESTART,   "Long-Lived Graceful Restart (LLGR) Capability" },
     { BGP_CAPABILITY_CP_ORF,                        "CP-ORF Capability" },
     { BGP_CAPABILITY_FQDN,                          "FQDN Capability" },
-    { BGP_CAPABILITY_ROUTE_REFRESH_CISCO,           "Route refresh capability (Cisco)" },
-    { BGP_CAPABILITY_ORF_CISCO,                     "Cooperative route filtering capability (Cisco)" },
-    { BGP_CAPABILITY_MULTISESSION_CISCO,            "Multisession BGP Capability (Cisco)" },
     { BGP_CAPABILITY_BFD_STRICT,                    "BFD Strict-Mode capability" },
     { BGP_CAPABILITY_SOFT_VERSION,                  "Software Version Capability" },
     { BGP_CAPABILITY_PATHS_LIMIT,                   "PATHS-LIMIT Capability" },
