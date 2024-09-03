@@ -25,6 +25,7 @@
 #include <epan/prefs.h>
 #include <epan/decode_as.h>
 #include <epan/proto_data.h>
+#include <epan/unit_strings.h>
 #include <wsutil/pint.h>
 #include <wsutil/ws_roundup.h>
 
@@ -299,6 +300,19 @@ static int hf_usb_data_fragment;
 static int hf_usb_src;
 static int hf_usb_dst;
 static int hf_usb_addr;
+static int hf_usb_ss_bmAttributes;
+static int hf_usb_ss_bmAttributes_reserved0;
+static int hf_usb_ss_bmAttributes_LTM;
+static int hf_usb_ss_bmAttributes_reserved7_2;
+static int hf_usb_ss_wSpeedSupported;
+static int hf_usb_ss_wSpeedSupported_LS;
+static int hf_usb_ss_wSpeedSupported_FS;
+static int hf_usb_ss_wSpeedSupported_HS;
+static int hf_usb_ss_wSpeedSupported_Gen1;
+static int hf_usb_ss_wSpeedSupported_reserved;
+static int hf_usb_ss_bFunctionalitySupport;
+static int hf_usb_ss_bU1DevExitLat;
+static int hf_usb_ss_wU2DevExitLat;
 
 /* macOS */
 static int hf_usb_darwin_bcd_version;
@@ -392,6 +406,8 @@ static int ett_usbport_urb;
 static int ett_usbport_keyword;
 static int ett_transfer_flags;
 static int ett_usb20ext_bmAttributes;
+static int ett_ss_bmAttributes;
+static int ett_ss_wSpeedSupported;
 
 static expert_field ei_usb_undecoded;
 static expert_field ei_usb_bLength_even;
@@ -769,6 +785,28 @@ static const value_string usb_capability_vals[] = {
     {0, NULL}
 };
 static value_string_ext usb_capability_vals_ext = VALUE_STRING_EXT_INIT(usb_capability_vals);
+
+#define SS_SPEED_SUPPORTED_BIT_LS        0
+#define SS_SPEED_SUPPORTED_BIT_FS        1
+#define SS_SPEED_SUPPORTED_BIT_HS        2
+#define SS_SPEED_SUPPORTED_BIT_GEN1      3
+#define SS_SPEED_SUPPORTED_STR_LS        "low-speed"
+#define SS_SPEED_SUPPORTED_STR_FS        "full-speed"
+#define SS_SPEED_SUPPORTED_STR_HS        "high-speed"
+#define SS_SPEED_SUPPORTED_STR_GEN1      "Gen 1 speed"
+static const value_string usb_ss_bFunctionalitySupport_vals[] = {
+    {SS_SPEED_SUPPORTED_BIT_LS,        SS_SPEED_SUPPORTED_STR_LS},
+    {SS_SPEED_SUPPORTED_BIT_FS,        SS_SPEED_SUPPORTED_STR_FS},
+    {SS_SPEED_SUPPORTED_BIT_HS,        SS_SPEED_SUPPORTED_STR_HS},
+    {SS_SPEED_SUPPORTED_BIT_GEN1,      SS_SPEED_SUPPORTED_STR_GEN1},
+    {0, NULL}
+};
+static value_string_ext usb_ss_bFunctionalitySupport_vals_ext =
+    VALUE_STRING_EXT_INIT(usb_ss_bFunctionalitySupport_vals);
+static const true_false_string tfs_usb_ss_bmAttributes_reserved0 = {
+    "FIXME: Shall be set to zero",
+    "Shall be set to zero"
+};
 
 /* FreeBSD header */
 
@@ -3271,6 +3309,35 @@ dissect_usb_device_capability_descriptor(packet_info *pinfo, proto_tree *tree,
                 break;
             }
         }
+    } else if (cap_type == BOS_CAP_SUPERSPEED_USB) {
+        /* USB 3.2 Specification 9.6.2.2 SuperSpeed USB Device Capability */
+        static int * const usb_ss_bmAtrributes_fields[] = {
+            &hf_usb_ss_bmAttributes_reserved0,
+            &hf_usb_ss_bmAttributes_LTM,
+            &hf_usb_ss_bmAttributes_reserved7_2,
+            NULL
+        };
+        static int * const usb_ss_wSpeedSupported_fields[] = {
+            &hf_usb_ss_wSpeedSupported_LS,
+            &hf_usb_ss_wSpeedSupported_FS,
+            &hf_usb_ss_wSpeedSupported_HS,
+            &hf_usb_ss_wSpeedSupported_Gen1,
+            &hf_usb_ss_wSpeedSupported_reserved,
+            NULL
+        };
+
+        proto_tree_add_bitmask(tree, tvb, offset, hf_usb_ss_bmAttributes,
+            ett_ss_bmAttributes, usb_ss_bmAtrributes_fields, ENC_LITTLE_ENDIAN);
+        offset += 1;
+        proto_tree_add_bitmask(tree, tvb, offset, hf_usb_ss_wSpeedSupported,
+            ett_ss_wSpeedSupported, usb_ss_wSpeedSupported_fields, ENC_LITTLE_ENDIAN);
+        offset += 2;
+        proto_tree_add_item(tree, hf_usb_ss_bFunctionalitySupport, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset += 1;
+        proto_tree_add_item(tree, hf_usb_ss_bU1DevExitLat, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset += 1;
+        proto_tree_add_item(tree, hf_usb_ss_wU2DevExitLat, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset += 2;
     }
 
     if (cap_text) {
@@ -7118,7 +7185,59 @@ proto_register_usb(void)
             { "Source or Destination",               "usb.addr",
             FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
-        }
+        },
+        { &hf_usb_ss_bmAttributes,
+          { "bmAttributes", "usb.ss.bmAttributes",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }},
+        { &hf_usb_ss_bmAttributes_reserved0,
+          { "Reserved", "usb.ss.bmAttributes.reserved0",
+            FT_BOOLEAN, 8, TFS(&tfs_usb_ss_bmAttributes_reserved0), 0x01,
+            NULL, HFILL }},
+        { &hf_usb_ss_bmAttributes_LTM,
+          { "LTM", "usb.ss.bmAttributes.LTM",
+            FT_BOOLEAN, 8, NULL, 0x02,
+            NULL, HFILL }},
+        { &hf_usb_ss_bmAttributes_reserved7_2,
+          { "Reserved", "usb.ss.bmAttributes.reserved7_2",
+            FT_UINT8, BASE_HEX, NULL, 0xFC,
+            NULL, HFILL }},
+        { &hf_usb_ss_wSpeedSupported,
+          { "wSpeedSupported", "usb.ss.wSpeedSupported",
+            FT_UINT16, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }},
+        { &hf_usb_ss_wSpeedSupported_LS,
+          { SS_SPEED_SUPPORTED_STR_LS, "usb.ss.wSpeedSupported.LS",
+            FT_BOOLEAN, 16, NULL, 1 << SS_SPEED_SUPPORTED_BIT_LS,
+            NULL, HFILL }},
+        { &hf_usb_ss_wSpeedSupported_FS,
+          { SS_SPEED_SUPPORTED_STR_FS, "usb.ss.wSpeedSupported.FS",
+            FT_BOOLEAN, 16, NULL, 1 << SS_SPEED_SUPPORTED_BIT_FS,
+            NULL, HFILL }},
+        { &hf_usb_ss_wSpeedSupported_HS,
+          { SS_SPEED_SUPPORTED_STR_HS, "usb.ss.wSpeedSupported.HS",
+            FT_BOOLEAN, 16, NULL, 1 << SS_SPEED_SUPPORTED_BIT_HS,
+            NULL, HFILL }},
+        { &hf_usb_ss_wSpeedSupported_Gen1,
+          { SS_SPEED_SUPPORTED_STR_GEN1, "usb.ss.wSpeedSupported.Gen1",
+            FT_BOOLEAN, 16, NULL, 1 << SS_SPEED_SUPPORTED_BIT_GEN1,
+            NULL, HFILL }},
+        { &hf_usb_ss_wSpeedSupported_reserved,
+          { "Reserved", "usb.ss.wSpeedSupported.reserved",
+            FT_UINT16, BASE_HEX, NULL, 0xFFF0,
+            NULL, HFILL }},
+        { &hf_usb_ss_bFunctionalitySupport,
+          { "bFunctionalitySupport", "usb.ss.bFunctionalitySupport",
+            FT_UINT8, BASE_HEX|BASE_EXT_STRING, &usb_ss_bFunctionalitySupport_vals_ext, 0x0,
+            NULL, HFILL }},
+        { &hf_usb_ss_bU1DevExitLat,
+          { "bU1DevExitLat", "usb.ss.bU1DevExitLat",
+            FT_UINT8, BASE_DEC|BASE_UNIT_STRING, UNS(&units_microseconds), 0x0,
+            NULL, HFILL }},
+        { &hf_usb_ss_wU2DevExitLat,
+          { "wU2DevExitLat", "usb.ss.wU2DevExitLat",
+            FT_UINT16, BASE_DEC|BASE_UNIT_STRING, UNS(&units_microseconds), 0x0,
+            NULL, HFILL }},
     };
 
     static hf_register_info hf_usbport[] = {
@@ -7378,6 +7497,8 @@ proto_register_usb(void)
         &ett_endpoint_wMaxPacketSize,
         &ett_transfer_flags,
         &ett_usb20ext_bmAttributes,
+        &ett_ss_bmAttributes,
+        &ett_ss_wSpeedSupported,
     };
 
     static int *usbport_subtrees[] = {
