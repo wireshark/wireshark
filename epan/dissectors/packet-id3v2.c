@@ -400,7 +400,7 @@ dissect_id3v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
 {
 	proto_item *id3v2_item;
 	proto_tree *id3v2_tree;
-        tvbuff_t   *id3v2_tvb;
+	tvbuff_t   *id3v2_tvb;
 	unsigned    offset = 0;
 	uint32_t    size;
 	uint8_t     id3_version;
@@ -426,7 +426,7 @@ dissect_id3v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
 
 	size = decode_synchsafe_int(tvb_get_uint32(tvb, 6, ENC_BIG_ENDIAN));
 	/* `size` does not include the 10-byte header */
-        id3v2_tvb = tvb_new_subset_length(tvb, offset, size+10);
+	id3v2_tvb = tvb_new_subset_length(tvb, offset, size+10);
 	id3v2_item = proto_tree_add_item(tree, proto_id3v2, id3v2_tvb, offset, tvb_captured_length(id3v2_tvb), ENC_NA);
 	id3v2_tree = proto_item_add_subtree(id3v2_item, ett_id3v2);
 
