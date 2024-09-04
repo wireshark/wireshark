@@ -31,7 +31,6 @@ void proto_register_id3v2(void);
 static dissector_table_t media_type_dissector_table;
 
 static int proto_id3v2;
-static int hf_id3v2;
 static int hf_id3v2_file_id;
 static int hf_id3v2_version;
 static int hf_id3v2_flags;
@@ -428,7 +427,7 @@ dissect_id3v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
 	size = decode_synchsafe_int(tvb_get_uint32(tvb, 6, ENC_BIG_ENDIAN));
 	/* `size` does not include the 10-byte header */
         id3v2_tvb = tvb_new_subset_length(tvb, offset, size+10);
-	id3v2_item = proto_tree_add_item(tree, hf_id3v2, id3v2_tvb, offset, tvb_captured_length(id3v2_tvb), ENC_NA);
+	id3v2_item = proto_tree_add_item(tree, proto_id3v2, id3v2_tvb, offset, tvb_captured_length(id3v2_tvb), ENC_NA);
 	id3v2_tree = proto_item_add_subtree(id3v2_item, ett_id3v2);
 
 	proto_tree_add_item(id3v2_tree, hf_id3v2_file_id, id3v2_tvb, offset, 3, ENC_ISO_8859_1);
@@ -462,8 +461,6 @@ proto_register_id3v2(void)
 	expert_module_t *expert_id3v2;
 
 	static hf_register_info hf[] = {
-	    { &hf_id3v2,
-	      { "ID3v2", "id3v2", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
 	    { &hf_id3v2_file_id,
 	      { "File Identifier", "id3v2.file_id",
 		FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
