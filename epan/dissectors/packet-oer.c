@@ -587,14 +587,8 @@ dissect_oer_sequence(tvbuff_t *tvb, uint32_t offset, asn1_ctx_t *actx, proto_tre
             optional_mask[i >> 5] |= 0x80000000 >> (i & 0x1f);
         }
     }
-    if (num_opts > 0) {
-        uint8_t len = num_opts >> 3;
-        uint8_t remaining_bits = num_opts % 8;
-        if (remaining_bits) {
-            len++;
-        }
-        offset += len;
-    }
+    /* 16.2.1 preamble as a whole (including extension bit) occupies a whole number of octets */
+    offset = (bit_offset + 7) >> 3;
 
     /*  */
     for (i = 0, j = 0; sequence[i].p_id; i++) {
