@@ -436,6 +436,7 @@ json_key_lookup(proto_tree* tree, tvbparse_elem_t* tok, const char* key_str, pac
 {
 	proto_item* ti;
 	int hf_id;
+	int offset, len;
 
 	json_data_decoder_t* json_data_decoder_rec = (json_data_decoder_t*)g_hash_table_lookup(json_header_fields_hash, key_str);
 	if (json_data_decoder_rec == NULL) {
@@ -450,17 +451,47 @@ json_key_lookup(proto_tree* tree, tvbparse_elem_t* tok, const char* key_str, pac
 		return NULL;
 	}
 
+	/*
+	 * use_compact == true: "tok is the composed element of the member"
+	 *	This is only called when the value is a JSON_TOKEN_STRING.
+	 * use_compact == false: "tok is the composed element whose subelement is the value"
+	 *	For this, arrays with matching key are passed in before_array,
+	 *	strings are passed in after_value, and other types aren't passed in.
+	 */
 	if (use_compact) {
 		int str_len = (int)strlen(key_str);
-		ti = proto_tree_add_item(tree, hf_id, tok->tvb, tok->offset + (4 + str_len), tok->len - (5 + str_len), ENC_NA);
-		if (json_data_decoder_rec->json_data_decoder) {
-			(*json_data_decoder_rec->json_data_decoder)(tok->tvb, tree, pinfo, tok->offset + (4 + str_len), tok->len - (5 + str_len), key_str, use_compact);
-		}
+		/* tok refers to the member ("key":"value"), so the start of
+		 * the value is tok->offset + (4 + str_len) and its length is
+		 * tok->len - (5 + str_len).
+		 * XXX - Note this assumes that the value is a string, and
+		 * that there's no insignificant whitespace. The other method,
+		 * by using the parsed token for the value, correctly ignores
+		 * insigificant whitespace.
+		 */
+		offset = tok->offset + (4 + str_len);
+		len = tok->len - (5 + str_len);
 	} else {
-		ti = proto_tree_add_item(tree, hf_id, tok->tvb, tok->offset, tok->len, ENC_NA);
-		if (json_data_decoder_rec->json_data_decoder) {
-			(*json_data_decoder_rec->json_data_decoder)(tok->tvb, tree, pinfo, tok->offset, tok->len, key_str, use_compact);
+		json_token_type_t value_id = tok->sub ? (json_token_type_t)tok->sub->id : JSON_TOKEN_INVALID;
+
+		offset = tok->offset;
+		len = tok->len;
+		/* Remove the quotation marks from strings (we do that in the
+		 * compact case and the decoder functions apparently expect
+		 * that.)
+		 */
+		if (value_id == JSON_TOKEN_STRING && tok->len >= 2) {
+			offset += 1;
+			len -= 2;
 		}
+
+	}
+	/* XXX - Every hf_id in packet-json_3gpp.c is a FT_STRING. Should other
+	 * types be supported (perhaps verified against the JSON token type?)
+	 * Should the encoding be ENC_UTF_8? Should the string be unescaped here?
+	 */
+	ti = proto_tree_add_item(tree, hf_id, tok->tvb, offset, len, ENC_ASCII);
+	if (json_data_decoder_rec->json_data_decoder) {
+		(*json_data_decoder_rec->json_data_decoder)(tok->tvb, tree, pinfo, offset, len, key_str);
 	}
 	return ti;
 

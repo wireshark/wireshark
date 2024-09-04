@@ -21,7 +21,7 @@ extern GHashTable *json_header_fields_hash;
 
 /* json data decoding function
  */
-typedef void(*json_data_decoder_func)(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo, int offset, int len, const char* key_str, bool use_compact);
+typedef void(*json_data_decoder_func)(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo, int offset, int len, const char* key_str);
 
 /* Array of functions to dissect IEs
 */

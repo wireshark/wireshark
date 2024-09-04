@@ -219,7 +219,7 @@ static int hf_json_3gpp_suppfeat_nsmf_pdusession_21_n9fsc;
 
 /* Functions to sub dissect json content */
 static void
-dissect_base64decoded_eps_ie(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo, int offset, int len, const char* key_str _U_, bool use_compact _U_)
+dissect_base64decoded_eps_ie(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo, int offset, int len, const char* key_str _U_)
 {
 	/* base64-encoded characters, encoding the
 	 * EPS IE specified in 3GPP TS 29.274.
@@ -238,7 +238,7 @@ dissect_base64decoded_eps_ie(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo
 }
 
 static void
-dissect_base64decoded_nas5g_ie(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo, int offset, int len, const char* key_str, bool use_compact _U_)
+dissect_base64decoded_nas5g_ie(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo, int offset, int len, const char* key_str)
 {
 	/* base64-encoded characters, encoding the
 	 * NAS-5G IE specified in 3GPP TS 24.501.
@@ -271,7 +271,7 @@ dissect_base64decoded_nas5g_ie(tvbuff_t* tvb, proto_tree* tree, packet_info* pin
 }
 
 static void
-dissect_3gpp_supportfeatures(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo, int offset, int len, const char* key_str _U_, bool use_compact)
+dissect_3gpp_supportfeatures(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo, int offset, int len, const char* key_str _U_)
 {
 	const char *path = NULL;
 
@@ -310,12 +310,6 @@ dissect_3gpp_supportfeatures(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo
 	proto_item* ti;
 	proto_tree* sub_tree;
 	tvbuff_t   *suppfeat_tvb;
-
-	/* Skip quotation marks */
-	if (!use_compact) {
-		offset++;
-		len = len-2;
-	}
 
 	ti = proto_tree_add_item(tree, hf_json_3gpp_suppfeat, tvb, offset, len, ENC_ASCII);
 	if (len <= 0) {
@@ -877,7 +871,7 @@ register_static_headers(void) {
 	};
 
 	/* List of decoding functions the index matches the HF */
-	static void(*json_decode_fn[])(tvbuff_t * tvb, proto_tree * tree, packet_info * pinfo, int offset, int len, const char* key_str, bool use_compact) = {
+	static void(*json_decode_fn[])(tvbuff_t * tvb, proto_tree * tree, packet_info * pinfo, int offset, int len, const char* key_str) = {
 		dissect_base64decoded_eps_ie,   /* ueEpsPdnConnection */
 		dissect_base64decoded_eps_ie,   /* bearerLevelQoS */
 		dissect_base64decoded_eps_ie,   /* epsBearerSetup */
