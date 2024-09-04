@@ -217,7 +217,8 @@ static int hf_oran_puncReMask;
 static int hf_oran_RbgIncl;
 
 static int hf_oran_ci_prb_group_size;
-static int hf_oran_prg_size;
+static int hf_oran_prg_size_st5;
+static int hf_oran_prg_size_st6;
 
 static int hf_oran_num_ueid;
 
@@ -759,6 +760,24 @@ static const value_string sleep_mode_asm_vals[] = {
     {0,   NULL}
 };
 
+/* 7.7.21.3.1 */
+static const value_string prg_size_st5_vals[] = {
+    { 0, "reserved"},
+    { 1, "Precoding resource block group size as WIDEBAND"},
+    { 2, "Precoding resource block group size 2"},
+    { 3, "Precoding resource block group size 4"},
+    {0,   NULL}
+};
+
+static const value_string prg_size_st6_vals[] = {
+    { 0, "if ciPrbGroupSize is 2 or 4, then ciPrbGroupSize, else WIDEBAND"},
+    { 1, "Precoding resource block group size as WIDEBAND"},
+    { 2, "Precoding resource block group size 2"},
+    { 3, "Precoding resource block group size 4"},
+    {0,   NULL}
+};
+
+
 
 static const true_false_string tfs_sfStatus =
 {
@@ -1045,18 +1064,42 @@ write_section_info(proto_item *section_heading, packet_info *pinfo, proto_item *
     switch (num_prbx) {
         case 0:
             /* None -> all */
-            write_pdu_label_and_info(section_heading, protocol_item, pinfo, ", Id: %2d (all PRBs)", section_id);
+            write_pdu_label_and_info(section_heading, protocol_item, pinfo, ", Id: %4d (all PRBs)", section_id);
             break;
         case 1:
             /* Single PRB */
-            write_pdu_label_and_info(section_heading, protocol_item, pinfo, ", Id: %2d (PRB: %7u)", section_id, start_prbx);
+            write_pdu_label_and_info(section_heading, protocol_item, pinfo, ", Id: %4d (PRB: %7u)", section_id, start_prbx);
             break;
         default:
             /* Range */
-            write_pdu_label_and_info(section_heading, protocol_item, pinfo, ", Id: %2d (PRB: %3u-%3u%s)", section_id, start_prbx,
+            write_pdu_label_and_info(section_heading, protocol_item, pinfo, ", Id: %4d (PRB: %3u-%3u%s)", section_id, start_prbx,
                                      start_prbx + (num_prbx-1)*(1+rb), rb ? " (every-other)" : "");
     }
 }
+
+static void
+write_channel_section_info(proto_item *section_heading, packet_info *pinfo,
+                           uint32_t section_id, uint32_t ueId, uint32_t start_prbx, uint32_t num_prbx,
+                           uint32_t num_trx)
+{
+    switch (num_prbx) {
+        case 0:
+            /* TODO: ?? */
+            break;
+        case 1:
+            /* Single PRB */
+            write_pdu_label_and_info(section_heading, NULL, pinfo,
+                                     ", Id: %4d (UEId=%3u  PRB %7u, %2u antennas)",
+                                     section_id, ueId, start_prbx, num_trx);
+            break;
+        default:
+            /* Range */
+            write_pdu_label_and_info(section_heading, NULL, pinfo,
+                                     ", Id: %4d (UEId=%3u  PRBs %3u-%3u, %2u antennas)",
+                                     section_id, ueId, start_prbx, start_prbx+num_prbx-1, num_trx);
+    }
+}
+
 
 /* 5.1.3.2.7 (real time control data / IQ data transfer message series identifier) */
 static void
@@ -1598,12 +1641,9 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
 
         /* Antenna count from preference */
         unsigned num_trx = pref_num_bf_antennas;
-        if (numPrbc > 1) {
-            proto_item_append_text(sectionHeading, " (UEId=%u  PRBs %u-%u, %u antennas)", ueId, startPrbc, startPrbc+numPrbc-1, num_trx);
-        }
-        else {
-            proto_item_append_text(sectionHeading, " (UEId=%u  PRB %u, %u antennas)", ueId, startPrbc, num_trx);
-        }
+
+        write_channel_section_info(sectionHeading, pinfo,
+                                   sectionId, ueId, startPrbc, numPrbc, num_trx);
 
         bool first_prb = true;
         uint8_t exponent = 0;
@@ -1631,7 +1671,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                 /* Create subtree for antenna */
                 proto_item *sample_ti = proto_tree_add_string_format(prb_tree, hf_oran_ciSample,
                                                                      tvb, sample_offset, sample_extent,
-                                                                     "", "TRX=%u:  ", m);
+                                                                     "", "TRX=%2u:  ", m);
                 proto_tree *sample_tree = proto_item_add_subtree(sample_ti, ett_oran_cisample);
 
                 /* I */
@@ -1984,24 +2024,35 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
             case 4: /* SE 4: Modulation compression params (5.4.7.4) */
             {
                 /* csf */
-                proto_tree_add_bits_item(extension_tree, hf_oran_csf, tvb, offset*8, 1, ENC_BIG_ENDIAN);
+                /* TODO: break out into function and also call for SE5? */
+                proto_item *csf_ti;
+                uint64_t csf;
+                csf_ti = proto_tree_add_bits_ret_val(extension_tree, hf_oran_csf, tvb, offset*8, 1, &csf, ENC_BIG_ENDIAN);
+                if (csf) {
+                    /* Table 7.7.4.2-1 Constellation shift definition (index is udIqWidth) */
+                    const char* shift_value[] = { "n/a", "1/2", "1/4", "1/8", "1/16", "1/32" };
+                    if (ci_iq_width >=1 && ci_iq_width <= 5) {
+                        proto_item_append_text(csf_ti, " (Shift Value is %s)", shift_value[ci_iq_width]);
+                    }
+                }
                 /* modCompScaler */
                 uint32_t modCompScaler;
                 proto_item *ti = proto_tree_add_item_ret_uint(extension_tree, hf_oran_modcompscaler,
                                                               tvb, offset, 2, ENC_BIG_ENDIAN, &modCompScaler);
+                offset += 2;
+
                 /* Work out and show floating point value too. */
                 uint16_t exponent = (modCompScaler >> 11) & 0x000f; /* m.s. 4 bits */
                 uint16_t mantissa = modCompScaler & 0x07ff;         /* l.s. 11 bits */
                 double value = (double)mantissa * (1.0 / (1 << exponent));
                 proto_item_append_text(ti, " (%f)", value);
-
-                offset += 2;
                 break;
             }
 
             case 5: /* SE 5: Modulation Compression Additional Parameters (7.7.5) */
             {
                 /* Applies only to section types 1,3 and 5 */
+                /* N.B. there may be multiple instances of this SE in the same frame */
 
                 /* There may be one or 2 entries, depending upon extlen */
                 int sets = 1, reserved_bits = 0;
@@ -2692,6 +2743,8 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                 /* ciPrbGroupSize */
                 uint32_t ci_prb_group_size;
                 proto_item *prb_group_size_ti = proto_tree_add_item_ret_uint(extension_tree, hf_oran_ci_prb_group_size, tvb, offset, 1, ENC_BIG_ENDIAN, &ci_prb_group_size);
+                offset += 1;
+
                 switch (ci_prb_group_size) {
                     case 0:
                     case 1:
@@ -2703,6 +2756,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
 
                         break;
                     default:
+                        /* This value affects how SE 11 is interpreted */
                         ext11_settings.ext21_set = true;
                         ext11_settings.ext21_ci_prb_group_size = ci_prb_group_size;
 
@@ -2712,11 +2766,18 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                         break;
                 }
 
-                offset += 1;
                 /* reserved (6 bits) */
                 proto_tree_add_item(extension_tree, hf_oran_reserved_6bits, tvb, offset, 1, ENC_BIG_ENDIAN);
-                /* prgSize (2 bits) */
-                proto_tree_add_item(extension_tree, hf_oran_prg_size, tvb, offset, 1, ENC_BIG_ENDIAN);
+                /* prgSize (2 bits). Interpretation depends upon section type (5 or 6), but also mplane features? */
+                if (sectionType == SEC_C_UE_SCHED) {             /* Section Type 5 */
+                    proto_tree_add_item(extension_tree, hf_oran_prg_size_st5, tvb, offset, 1, ENC_BIG_ENDIAN);
+                }
+                else if (sectionType == SEC_C_CH_INFO) {         /* Section Type 6 */
+                    proto_tree_add_item(extension_tree, hf_oran_prg_size_st6, tvb, offset, 1, ENC_BIG_ENDIAN);
+                }
+                else {
+                    /* TODO: error? */
+                }
                 offset += 1;
                 break;
             }
@@ -4969,14 +5030,20 @@ proto_register_oran(void)
           HFILL}
         },
         /* 7.21.3 */
-        {&hf_oran_prg_size,
+        {&hf_oran_prg_size_st5,
          {"prgSize", "oran_fh_cus.prgSize",
           FT_UINT8, BASE_DEC,
-          NULL, 0x03,
+          VALS(prg_size_st5_vals), 0x03,
           "precoding resource block group size",
           HFILL}
         },
-
+        {&hf_oran_prg_size_st6,
+         {"prgSize", "oran_fh_cus.prgSize",
+          FT_UINT8, BASE_DEC,
+          VALS(prg_size_st6_vals), 0x03,
+          "precoding resource block group size",
+          HFILL}
+        },
 
         /* 7.7.17.2 numUeID */
         {&hf_oran_num_ueid,
