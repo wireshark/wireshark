@@ -536,7 +536,7 @@ proto_register_id3v2(void)
 
 	static ei_register_info ei[] = {
 	    { &ei_id3v2_undecoded,
-	      { "id3v2.undecoded", PI_UNDECODED, PI_NOTE,
+	      { "id3v2.expert.undecoded", PI_UNDECODED, PI_NOTE,
 		"Undecoded frame", EXPFILL }
 	    }
 	};
