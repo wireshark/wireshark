@@ -605,7 +605,7 @@ static int hf_its_lowDutyCycle;                   /* INTEGER_0_10000 */
 static int hf_its_powerReduction;                 /* INTEGER_0_30 */
 static int hf_its_dmcToffLimit;                   /* INTEGER_0_1200 */
 static int hf_its_dmcTonLimit;                    /* INTEGER_0_20 */
-static int hf_its_vehicleSubClass;                /* T_vehicleSubClass */
+static int hf_its_vehicleSubClass;                /* TrafficParticipantType_CONSTR001 */
 static int hf_its_vruSubClass;                    /* VruProfileAndSubprofile */
 static int hf_its_groupSubClass;                  /* VruClusterInformation */
 static int hf_its_otherSubClass;                  /* OtherSubClass */
@@ -7860,9 +7860,9 @@ dissect_its_MessageSegmentationInfo(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_
 
 
 static int
-dissect_its_T_vehicleSubClass(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_its_TrafficParticipantType_CONSTR001(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                           0U, 14U, NULL, false);
+                                                            0U, 14U, NULL, false);
 
   return offset;
 }
@@ -7920,7 +7920,7 @@ static const value_string its_ObjectClass_vals[] = {
 };
 
 static const per_choice_t its_ObjectClass_choice[] = {
-  {   0, &hf_its_vehicleSubClass , ASN1_EXTENSION_ROOT    , dissect_its_T_vehicleSubClass },
+  {   0, &hf_its_vehicleSubClass , ASN1_EXTENSION_ROOT    , dissect_its_TrafficParticipantType_CONSTR001 },
   {   1, &hf_its_vruSubClass     , ASN1_EXTENSION_ROOT    , dissect_its_VruProfileAndSubprofile },
   {   2, &hf_its_groupSubClass   , ASN1_EXTENSION_ROOT    , dissect_its_VruClusterInformation },
   {   3, &hf_its_otherSubClass   , ASN1_EXTENSION_ROOT    , dissect_its_OtherSubClass },
@@ -24228,7 +24228,7 @@ void proto_register_its(void)
     { &hf_its_vehicleSubClass,
       { "vehicleSubClass", "its.vehicleSubClass",
         FT_UINT32, BASE_DEC, VALS(its_TrafficParticipantType_vals), 0,
-        NULL, HFILL }},
+        "TrafficParticipantType_CONSTR001", HFILL }},
     { &hf_its_vruSubClass,
       { "vruSubClass", "its.vruSubClass",
         FT_UINT32, BASE_DEC, VALS(its_VruProfileAndSubprofile_vals), 0,

@@ -3377,10 +3377,14 @@ class Type (Node):
         else: ext = 'false'
         return (minv, maxv, ext)
 
-    def eth_get_value_constr(self, ectx):
+    def eth_get_value_constr(self, ectx, named_list=[]):
         (minv, maxv, ext) = ('MIN', 'MAX', False)
         if self.HasValueConstraint():
-            (minv, maxv, ext) = self.constr.GetValue(ectx)
+            # If this is a subclass (Type_Ref), we may have passed in the
+            # NamedNumberList of the parent class. Otherwise use our own,
+            # if we have one.
+            named_list = named_list or self.named_list
+            (minv, maxv, ext) = self.constr.GetValue(ectx, named_list)
         if minv == 'MIN': minv = 'NO_BOUND'
         if maxv == 'MAX': maxv = 'NO_BOUND'
         if str(minv).isdigit():
@@ -3584,30 +3588,41 @@ class Constraint (Node):
                or (self.type == 'Intersection' and (self.subtype[0].IsValue() or self.subtype[1].IsValue())) \
                or (self.type == 'Union' and (self.subtype[0].IsValue() and self.subtype[1].IsValue()))
 
-    def GetValue(self, ectx):
+    def GetValue(self, ectx, named_list=[]):
         (minv, maxv, ext) = ('MIN', 'MAX', False)
         if self.IsValue():
             if self.type == 'SingleValue':
                 minv = ectx.value_get_eth(self.subtype)
-                maxv = ectx.value_get_eth(self.subtype)
+                try:
+                    minv = next((e.val for e in named_list if minv == e.ident), minv)
+                except TypeError:
+                    # named_list is not an iterable, e.g. None
+                    pass
+                maxv = minv
                 ext = hasattr(self, 'ext') and self.ext
             elif self.type == 'ValueRange':
                 minv = ectx.value_get_eth(self.subtype[0])
                 maxv = ectx.value_get_eth(self.subtype[1])
+                try:
+                    minv = next((e.val for e in named_list if minv == e.ident), minv)
+                    maxv = next((e.val for e in named_list if maxv == e.ident), maxv)
+                except TypeError:
+                    # named_list is not an iterable
+                    pass
                 ext = hasattr(self, 'ext') and self.ext
             elif self.type == 'Intersection':
                 if self.subtype[0].IsValue() and not self.subtype[1].IsValue():
-                    (minv, maxv, ext) = self.subtype[0].GetValue(ectx)
+                    (minv, maxv, ext) = self.subtype[0].GetValue(ectx, named_list)
                 elif not self.subtype[0].IsValue() and self.subtype[1].IsValue():
-                    (minv, maxv, ext) = self.subtype[1].GetValue(ectx)
+                    (minv, maxv, ext) = self.subtype[1].GetValue(ectx, named_list)
                 elif self.subtype[0].IsValue() and self.subtype[1].IsValue():
-                    v0 = self.subtype[0].GetValue(ectx)
-                    v1 = self.subtype[1].GetValue(ectx)
+                    v0 = self.subtype[0].GetValue(ectx, named_list)
+                    v1 = self.subtype[1].GetValue(ectx, named_list)
                     (minv, maxv, ext) = (ectx.value_max(v0[0],v1[0]), ectx.value_min(v0[1],v1[1]), v0[2] and v1[2])
             elif self.type == 'Union':
                 if self.subtype[0].IsValue() and self.subtype[1].IsValue():
-                    v0 = self.subtype[0].GetValue(ectx)
-                    v1 = self.subtype[1].GetValue(ectx)
+                    v0 = self.subtype[0].GetValue(ectx, named_list)
+                    v1 = self.subtype[1].GetValue(ectx, named_list)
                     (minv, maxv, ext) = (ectx.value_min(v0[0],v1[0]), ectx.value_max(v0[1],v1[1]), hasattr(self, 'ext') and self.ext)
         return (minv, maxv, ext)
 
@@ -3866,6 +3881,11 @@ class Type_Ref (Type):
         else:
             return ectx.type[self.val]['val'].IndetermTag(ectx)
 
+    def eth_get_value_constr(self, ectx):
+        # NamedNumberList of the parent type
+        named_list = ectx.type[self.val]['val'].named_list
+        return super(Type_Ref, self).eth_get_value_constr(ectx, named_list)
+
     def eth_type_default_pars(self, ectx, tname):
         if tname:
             pars = Type.eth_type_default_pars(self, ectx, tname)
@@ -3878,9 +3898,7 @@ class Type_Ref (Type):
         if self.HasSizeConstraint():
             (pars['MIN_VAL'], pars['MAX_VAL'], pars['EXT']) = self.eth_get_size_constr(ectx)
         elif self.HasValueConstraint():
-            # XXX - Handle if the value constraint is described using names from
-            # NamedNumbers defined in the reference base type.
-            # Also, we ought to enforce X.680 51.4.2 - 'All values in the "ValueRange"
+            # We ought to enforce X.680 51.4.2 - 'All values in the "ValueRange"
             # are required to be in the root of the parent type' by examining
             # MIN_VAL and MAX_VAL of the parent type.
             (pars['MIN_VAL'], pars['MAX_VAL'], pars['EXT']) = self.eth_get_value_constr(ectx)
