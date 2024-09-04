@@ -605,7 +605,7 @@ static int hf_its_lowDutyCycle;                   /* INTEGER_0_10000 */
 static int hf_its_powerReduction;                 /* INTEGER_0_30 */
 static int hf_its_dmcToffLimit;                   /* INTEGER_0_1200 */
 static int hf_its_dmcTonLimit;                    /* INTEGER_0_20 */
-static int hf_its_vehicleSubClass;                /* TrafficParticipantType */
+static int hf_its_vehicleSubClass;                /* T_vehicleSubClass */
 static int hf_its_vruSubClass;                    /* VruProfileAndSubprofile */
 static int hf_its_groupSubClass;                  /* VruClusterInformation */
 static int hf_its_otherSubClass;                  /* OtherSubClass */
@@ -636,7 +636,7 @@ static int hf_its_lowerTriangularCorrelationMatrices;  /* LowerTriangularPositiv
 static int hf_its_objectDimensionZ;               /* ObjectDimension */
 static int hf_its_objectDimensionY;               /* ObjectDimension */
 static int hf_its_objectDimensionX;               /* ObjectDimension */
-static int hf_its_objectAge;                      /* DeltaTimeMilliSecondSigned */
+static int hf_its_objectAge;                      /* DeltaTimeMilliSecondSigned_0_2047 */
 static int hf_its_objectPerceptionQuality;        /* ObjectPerceptionQuality */
 static int hf_its_sensorIdList;                   /* SequenceOfIdentifier1B */
 static int hf_its_classification;                 /* ObjectClassDescription */
@@ -1481,12 +1481,12 @@ static int hf_gdd_vehicleWidth;                   /* Distance */
 static int hf_gdd_vehicleLength;                  /* Distance */
 static int hf_gdd_vehicleWeight;                  /* Weight */
 static int hf_gdd_dValue;                         /* INTEGER_1_16384 */
-static int hf_gdd_unit;                           /* T_unit */
+static int hf_gdd_unit;                           /* Code_Units_CONSTR002 */
 static int hf_gdd_wValue;                         /* INTEGER_1_16384 */
-static int hf_gdd_unit_01;                        /* T_unit_01 */
+static int hf_gdd_unit_01;                        /* Code_Units_10_12 */
 static int hf_gdd_speedLimitMax;                  /* INTEGER_0_250 */
 static int hf_gdd_speedLimitMin;                  /* INTEGER_0_250 */
-static int hf_gdd_unit_02;                        /* T_unit_02 */
+static int hf_gdd_unit_02;                        /* Code_Units_0_1 */
 static int hf_gdd_junctionDirection;              /* DistinInfo_junctionDirection */
 static int hf_gdd_roundaboutCwDirection;          /* DistinInfo_roundaboutCwDirection */
 static int hf_gdd_roundaboutCcwDirection;         /* DistinInfo_roundaboutCcwDirection */
@@ -7858,6 +7858,16 @@ dissect_its_MessageSegmentationInfo(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_
 }
 
 
+
+static int
+dissect_its_T_vehicleSubClass(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                           0U, 14U, NULL, false);
+
+  return offset;
+}
+
+
 static const value_string its_VruProfileAndSubprofile_vals[] = {
   {   0, "pedestrian" },
   {   1, "bicyclistAndLightVruVehicle" },
@@ -7910,7 +7920,7 @@ static const value_string its_ObjectClass_vals[] = {
 };
 
 static const per_choice_t its_ObjectClass_choice[] = {
-  {   0, &hf_its_vehicleSubClass , ASN1_EXTENSION_ROOT    , dissect_its_TrafficParticipantType },
+  {   0, &hf_its_vehicleSubClass , ASN1_EXTENSION_ROOT    , dissect_its_T_vehicleSubClass },
   {   1, &hf_its_vruSubClass     , ASN1_EXTENSION_ROOT    , dissect_its_VruProfileAndSubprofile },
   {   2, &hf_its_groupSubClass   , ASN1_EXTENSION_ROOT    , dissect_its_VruClusterInformation },
   {   3, &hf_its_otherSubClass   , ASN1_EXTENSION_ROOT    , dissect_its_OtherSubClass },
@@ -8155,6 +8165,16 @@ dissect_its_Velocity3dWithConfidence(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx
 }
 
 
+
+static int
+dissect_its_DeltaTimeMilliSecondSigned_0_2047(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            0U, 2047U, NULL, false);
+
+  return offset;
+}
+
+
 static const per_sequence_t its_SequenceOfIdentifier1B_sequence_of[1] = {
   { &hf_its_SequenceOfIdentifier1B_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_its_Identifier1B },
 };
@@ -8181,7 +8201,7 @@ static const per_sequence_t its_PerceivedObject_sequence[] = {
   { &hf_its_objectDimensionZ, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_its_ObjectDimension },
   { &hf_its_objectDimensionY, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_its_ObjectDimension },
   { &hf_its_objectDimensionX, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_its_ObjectDimension },
-  { &hf_its_objectAge       , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_its_DeltaTimeMilliSecondSigned },
+  { &hf_its_objectAge       , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_its_DeltaTimeMilliSecondSigned_0_2047 },
   { &hf_its_objectPerceptionQuality, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_its_ObjectPerceptionQuality },
   { &hf_its_sensorIdList    , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_its_SequenceOfIdentifier1B },
   { &hf_its_classification  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_its_ObjectClassDescription },
@@ -14916,9 +14936,9 @@ static const value_string gdd_Code_Units_vals[] = {
 
 
 static int
-dissect_gdd_T_unit(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_gdd_Code_Units_CONSTR002(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                           2U, 8U, NULL, false);
+                                                            2U, 8U, NULL, false);
 
   return offset;
 }
@@ -14926,7 +14946,7 @@ dissect_gdd_T_unit(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, prot
 
 static const per_sequence_t gdd_Distance_sequence[] = {
   { &hf_gdd_dValue          , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_gdd_INTEGER_1_16384 },
-  { &hf_gdd_unit            , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_gdd_T_unit },
+  { &hf_gdd_unit            , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_gdd_Code_Units_CONSTR002 },
   { NULL, 0, 0, NULL }
 };
 
@@ -14941,9 +14961,9 @@ dissect_gdd_Distance(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, pr
 
 
 static int
-dissect_gdd_T_unit_01(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_gdd_Code_Units_10_12(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                           10U, 12U, NULL, false);
+                                                            10U, 12U, NULL, false);
 
   return offset;
 }
@@ -14951,7 +14971,7 @@ dissect_gdd_T_unit_01(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, p
 
 static const per_sequence_t gdd_Weight_sequence[] = {
   { &hf_gdd_wValue          , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_gdd_INTEGER_1_16384 },
-  { &hf_gdd_unit_01         , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_gdd_T_unit_01 },
+  { &hf_gdd_unit_01         , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_gdd_Code_Units_10_12 },
   { NULL, 0, 0, NULL }
 };
 
@@ -14993,9 +15013,9 @@ dissect_gdd_INTEGER_0_250(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
 
 
 static int
-dissect_gdd_T_unit_02(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_gdd_Code_Units_0_1(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                           0U, 1U, NULL, false);
+                                                            0U, 1U, NULL, false);
 
   return offset;
 }
@@ -15004,7 +15024,7 @@ dissect_gdd_T_unit_02(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, p
 static const per_sequence_t gdd_InternationalSign_speedLimits_sequence[] = {
   { &hf_gdd_speedLimitMax   , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_gdd_INTEGER_0_250 },
   { &hf_gdd_speedLimitMin   , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_gdd_INTEGER_0_250 },
-  { &hf_gdd_unit_02         , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_gdd_T_unit_02 },
+  { &hf_gdd_unit_02         , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_gdd_Code_Units_0_1 },
   { NULL, 0, 0, NULL }
 };
 
@@ -15292,7 +15312,7 @@ dissect_gdd_DistOrDuration_value(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
 static int
 dissect_gdd_DistOrDuration_Units(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                           2U, 9U, NULL, false);
+                                                            2U, 9U, NULL, false);
 
   return offset;
 }
@@ -24208,7 +24228,7 @@ void proto_register_its(void)
     { &hf_its_vehicleSubClass,
       { "vehicleSubClass", "its.vehicleSubClass",
         FT_UINT32, BASE_DEC, VALS(its_TrafficParticipantType_vals), 0,
-        "TrafficParticipantType", HFILL }},
+        NULL, HFILL }},
     { &hf_its_vruSubClass,
       { "vruSubClass", "its.vruSubClass",
         FT_UINT32, BASE_DEC, VALS(its_VruProfileAndSubprofile_vals), 0,
@@ -24332,7 +24352,7 @@ void proto_register_its(void)
     { &hf_its_objectAge,
       { "objectAge", "its.objectAge",
         FT_INT32, BASE_DEC, NULL, 0,
-        "DeltaTimeMilliSecondSigned", HFILL }},
+        "DeltaTimeMilliSecondSigned_0_2047", HFILL }},
     { &hf_its_objectPerceptionQuality,
       { "objectPerceptionQuality", "its.objectPerceptionQuality",
         FT_UINT32, BASE_DEC, VALS(its_ObjectPerceptionQuality_vals), 0,
@@ -27655,7 +27675,7 @@ void proto_register_its(void)
     { &hf_gdd_unit,
       { "unit", "gdd.unit",
         FT_UINT32, BASE_DEC, VALS(gdd_Code_Units_vals), 0,
-        NULL, HFILL }},
+        "Code_Units_CONSTR002", HFILL }},
     { &hf_gdd_wValue,
       { "value", "gdd.value",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -27663,7 +27683,7 @@ void proto_register_its(void)
     { &hf_gdd_unit_01,
       { "unit", "gdd.unit",
         FT_UINT32, BASE_DEC, VALS(gdd_Code_Units_vals), 0,
-        "T_unit_01", HFILL }},
+        "Code_Units_10_12", HFILL }},
     { &hf_gdd_speedLimitMax,
       { "speedLimitMax", "gdd.speedLimitMax",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -27675,7 +27695,7 @@ void proto_register_its(void)
     { &hf_gdd_unit_02,
       { "unit", "gdd.unit",
         FT_UINT32, BASE_DEC, VALS(gdd_Code_Units_vals), 0,
-        "T_unit_02", HFILL }},
+        "Code_Units_0_1", HFILL }},
     { &hf_gdd_junctionDirection,
       { "junctionDirection", "gdd.junctionDirection",
         FT_UINT32, BASE_DEC, NULL, 0,

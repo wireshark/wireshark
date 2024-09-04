@@ -137,7 +137,7 @@ static int hf_ieee1609dot2_SequenceOfOctetString_item;  /* OCTET_STRING_SIZE_0_M
 static int hf_ieee1609dot2_jValue;                /* OCTET_STRING_SIZE_4 */
 static int hf_ieee1609dot2_value;                 /* OCTET_STRING_SIZE_9 */
 static int hf_ieee1609dot2_SequenceOfLinkageSeed_item;  /* LinkageSeed */
-static int hf_ieee1609dot2_version;               /* Uint8 */
+static int hf_ieee1609dot2_version;               /* Uint8_1 */
 static int hf_ieee1609dot2_crlSeries;             /* CrlSeries */
 static int hf_ieee1609dot2_crlCraca;              /* HashedId8 */
 static int hf_ieee1609dot2_issueDate;             /* Time32 */
@@ -189,7 +189,7 @@ static int hf_ieee1609dot2_headerInfo;            /* HeaderInfo */
 static int hf_ieee1609dot2_data;                  /* Ieee1609Dot2CrlData */
 static int hf_ieee1609dot2_content_01;            /* Ieee1609Dot2CrlContent */
 static int hf_ieee1609dot2_unsecuredData;         /* CrlContents */
-static int hf_ieee1609dot2_protocolVersion;       /* Uint8 */
+static int hf_ieee1609dot2_protocolVersion;       /* Uint8_3 */
 static int hf_ieee1609dot2_content_02;            /* Ieee1609Dot2Content */
 static int hf_ieee1609dot2_unsecuredData_01;      /* T_unsecuredData */
 static int hf_ieee1609dot2_signedData_01;         /* SignedData */
@@ -245,6 +245,7 @@ static int hf_ieee1609dot2_sm4Ccm_01;             /* One28BitCcmCiphertext */
 static int hf_ieee1609dot2_nonce;                 /* OCTET_STRING_SIZE_12 */
 static int hf_ieee1609dot2_ccmCiphertext;         /* Opaque */
 static int hf_ieee1609dot2_SequenceOfCertificate_item;  /* Certificate */
+static int hf_ieee1609dot2_version_01;            /* Uint8_3 */
 static int hf_ieee1609dot2_type;                  /* CertificateType */
 static int hf_ieee1609dot2_issuer;                /* IssuerIdentifier */
 static int hf_ieee1609dot2_toBeSigned;            /* ToBeSignedCertificate */
@@ -1676,6 +1677,16 @@ dissect_ieee1609dot2_ExtId(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
 }
 
 
+
+static int
+dissect_ieee1609dot2_Uint8_1(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_oer_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            1U, 1U, NULL, false);
+
+  return offset;
+}
+
+
 static const oer_sequence_t CrlPriorityInfo_sequence[] = {
   { &hf_ieee1609dot2_priority, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ieee1609dot2_Uint8 },
   { NULL, 0, 0, NULL }
@@ -1995,7 +2006,7 @@ dissect_ieee1609dot2_TypeSpecificCrlContents(tvbuff_t *tvb _U_, int offset _U_, 
 
 
 static const oer_sequence_t CrlContents_sequence[] = {
-  { &hf_ieee1609dot2_version, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ieee1609dot2_Uint8 },
+  { &hf_ieee1609dot2_version, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ieee1609dot2_Uint8_1 },
   { &hf_ieee1609dot2_crlSeries, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ieee1609dot2_CrlSeries },
   { &hf_ieee1609dot2_crlCraca, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ieee1609dot2_HashedId8 },
   { &hf_ieee1609dot2_issueDate, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ieee1609dot2_Time32 },
@@ -2092,6 +2103,16 @@ static int
 dissect_ieee1609dot2_MissingCrlIdentifier(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_oer_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_ieee1609dot2_MissingCrlIdentifier, MissingCrlIdentifier_sequence);
+
+  return offset;
+}
+
+
+
+static int
+dissect_ieee1609dot2_Uint8_3(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_oer_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            3U, 3U, NULL, false);
 
   return offset;
 }
@@ -2491,7 +2512,7 @@ dissect_ieee1609dot2_ToBeSignedCertificate(tvbuff_t *tvb _U_, int offset _U_, as
 
 
 static const oer_sequence_t CertificateBase_sequence[] = {
-  { &hf_ieee1609dot2_version, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ieee1609dot2_Uint8 },
+  { &hf_ieee1609dot2_version_01, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ieee1609dot2_Uint8_3 },
   { &hf_ieee1609dot2_type   , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ieee1609dot2_CertificateType },
   { &hf_ieee1609dot2_issuer , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ieee1609dot2_IssuerIdentifier },
   { &hf_ieee1609dot2_toBeSigned, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ieee1609dot2_ToBeSignedCertificate },
@@ -3017,7 +3038,7 @@ dissect_ieee1609dot2_Ieee1609Dot2Content(tvbuff_t *tvb _U_, int offset _U_, asn1
 
 
 static const oer_sequence_t Ieee1609Dot2Data_sequence[] = {
-  { &hf_ieee1609dot2_protocolVersion, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ieee1609dot2_Uint8 },
+  { &hf_ieee1609dot2_protocolVersion, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ieee1609dot2_Uint8_3 },
   { &hf_ieee1609dot2_content_02, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ieee1609dot2_Ieee1609Dot2Content },
   { NULL, 0, 0, NULL }
 };
@@ -3493,7 +3514,7 @@ void proto_register_ieee1609dot2(void) {
     { &hf_ieee1609dot2_version,
       { "version", "ieee1609dot2.version",
         FT_UINT32, BASE_DEC, NULL, 0,
-        "Uint8", HFILL }},
+        "Uint8_1", HFILL }},
     { &hf_ieee1609dot2_crlSeries,
       { "crlSeries", "ieee1609dot2.crlSeries",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -3701,7 +3722,7 @@ void proto_register_ieee1609dot2(void) {
     { &hf_ieee1609dot2_protocolVersion,
       { "protocolVersion", "ieee1609dot2.protocolVersion",
         FT_UINT32, BASE_DEC, NULL, 0,
-        "Uint8", HFILL }},
+        "Uint8_3", HFILL }},
     { &hf_ieee1609dot2_content_02,
       { "content", "ieee1609dot2.content",
         FT_UINT32, BASE_DEC, VALS(ieee1609dot2_Ieee1609Dot2Content_vals), 0,
@@ -3922,6 +3943,10 @@ void proto_register_ieee1609dot2(void) {
       { "Certificate", "ieee1609dot2.Certificate_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
+    { &hf_ieee1609dot2_version_01,
+      { "version", "ieee1609dot2.version",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "Uint8_3", HFILL }},
     { &hf_ieee1609dot2_type,
       { "type", "ieee1609dot2.type",
         FT_UINT32, BASE_DEC, VALS(ieee1609dot2_CertificateType_vals), 0,
