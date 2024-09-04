@@ -375,8 +375,10 @@ void SearchFrame::on_searchTypeComboBox_currentIndexChanged(int idx)
     sf_ui_->searchLineEdit->allowCompletion(idx == df_search_);
 
     if (idx == df_search_) {
+        sf_ui_->searchLineEdit->setPlaceholderText(DisplayFilterEdit::tr("Enter a display filter %1").arg(UTF8_HORIZONTAL_ELLIPSIS));
         sf_ui_->searchLineEdit->checkFilter();
     } else {
+        sf_ui_->searchLineEdit->setPlaceholderText(QString());
         sf_ui_->searchLineEdit->setToolTip(QString());
         mainApp->popStatus(MainApplication::FilterSyntax);
     }
