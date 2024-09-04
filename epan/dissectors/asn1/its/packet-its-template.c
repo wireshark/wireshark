@@ -847,9 +847,9 @@ cpm_object_dimension_value_fmt(char *s, uint32_t v)
 static void
 cpm_object_dimension_confidence_fmt(char *s, uint32_t v)
 {
-  if (v == 102) {
+  if (v == 32) {
     snprintf(s, ITEM_LABEL_LENGTH, "unavailable (%d)", v);
-  } else if (v == 101) {
+  } else if (v == 31) {
     snprintf(s, ITEM_LABEL_LENGTH, "outOfRange (%d)", v);
   } else {
     snprintf(s, ITEM_LABEL_LENGTH, "%.2fm (%d)", v * 0.01, v);
