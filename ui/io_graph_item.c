@@ -197,7 +197,7 @@ double get_io_graph_item(const io_graph_item_t *items_, io_graph_item_unit_t val
             value = item->int_min;
             break;
         case IOG_ITEM_UNIT_CALC_THROUGHPUT:
-            value = item->double_tot*(8*MICROSECS_PER_SEC/interval_);
+            value = item->double_tot*MICROSECS_PER_SEC/interval_;
             break;
         case IOG_ITEM_UNIT_CALC_AVERAGE:
             if (item->fields) {
@@ -230,7 +230,7 @@ double get_io_graph_item(const io_graph_item_t *items_, io_graph_item_unit_t val
             value = item->uint_min;
             break;
         case IOG_ITEM_UNIT_CALC_THROUGHPUT:
-            value = item->double_tot*(8*1000000/interval_);
+            value = item->double_tot*MICROSECS_PER_SEC/interval_;
             break;
         case IOG_ITEM_UNIT_CALC_AVERAGE:
             if (item->fields) {

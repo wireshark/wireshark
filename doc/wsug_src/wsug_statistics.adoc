@@ -483,7 +483,8 @@ Requires “Y Field” be a relative time value, and treats it as the duration o
 ended in the containing packet. Useful for response time fields like `smb.time`.
 
 THROUGHPUT(Y Field):::
-If the “Y Field” is a payload counted in Bytes (as frame.len, ip.len, ipv6.plen..), this is the throughput expressed in bits per second.
+If the “Y Field” is a payload (as frame.len, ip.len, ipv6.plen..), this is the computed throughput based on this payload.
+The “Y Axis Factor” needs to be set accordingly to the payload unit to have a value expressed in bits unit (ex: ip.len being expressed as Bytes, set Y Axis Factor to 8).
 
 Y Field::
 The display filter field from which to extract values for the Y axis calculations listed above.
