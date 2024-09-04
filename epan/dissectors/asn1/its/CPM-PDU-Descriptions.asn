@@ -19,12 +19,15 @@ BEGIN
 
 IMPORTS
 
-ItsPduHeader, MessageRateHz, MessageSegmentationInfo, OrdinalNumber1B,  ReferencePosition, StationType, TimestampIts
-FROM ETSI-ITS-CDD {itu-t (0) identified-organization (4) etsi (0) itsDomain (5) wg1 (1) ts (102894) cdd (2) major-version-3 (3) minor-version-1 (1)}
+MessageRateHz, ItsPduHeader, MessageSegmentationInfo, TimestampIts
+FROM ETSI-ITS-CDD {itu-t (0) identified-organization (4) etsi (0) itsDomain (5) wg1 (1) 102894 cdd (2) major-version-4 (4) minor-version-1 (1)}
+
+OrdinalNumber1B,  ReferencePosition, StationType
+FROM ETSI-ITS-CDDv1 {itu-t (0) identified-organization (4) etsi (0) itsDomain (5) wg1 (1) ts (102894) cdd (2) major-version-3 (3) minor-version-1 (1)}
 --WITH SUCCESSORS
 
 OriginatingRsuContainer, OriginatingVehicleContainer
-FROM CPM-OriginatingStationContainers {itu-t (0) identified-organization (4) etsi (0) itsDomain (5) wg1 (1) ts (103324) originatingStationContainers (2) major-version-1 (1) minor-version-1(1)}
+FROM CPM-OriginatingStationContainersv1 {itu-t (0) identified-organization (4) etsi (0) itsDomain (5) wg1 (1) ts (103324) originatingStationContainers (2) major-version-1 (1) minor-version-1(1)}
 --WITH SUCCESSORS
 
 SensorInformationContainer
