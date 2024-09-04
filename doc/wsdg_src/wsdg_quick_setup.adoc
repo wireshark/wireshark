@@ -598,8 +598,16 @@ Make sure your repository path doesn't contain spaces.
 From the Start Menu (or Start Screen), navigate to the “Visual Studio 2022” folder and choose the https://docs.microsoft.com/en-us/cpp/build/building-on-the-command-line?view=msvc-170#developer_command_prompt_shortcuts[Command Prompt] appropriate for the build you wish to make, e.g. “x64 Native Tools Command Prompt for VS 2022” for a 64-bit version.
 Depending on your version of Windows the Command Prompt list might be directly under “Visual Studio 2022” or you might have to dig for it under multiple folders, e.g. menu:Visual Studio 2022[Visual Studio Tools,Windows Desktop Command Prompts].
 
-You can set up a build environment in your own command prompt by running the appropriate `vcvars__ARCHITECTURE__.bat` command.
+You can set up a build environment in your own command prompt by running the appropriate `vcvarsall.bat` or `vcvars__ARCHITECTURE__.bat` command.
 See https://docs.microsoft.com/en-us/cpp/build/building-on-the-command-line?view=msvc-170#use-the-developer-tools-in-an-existing-command-window[Use the Microsoft C++ toolset from the command line] for details.
+If you're working from a PowerShell prompt you need to ensure that any environment variables set by the batch script are propagated back to your PowerShell environment:
+
+// https://help.appveyor.com/discussions/questions/18777-how-to-use-vcvars64bat-from-powershell
+// https://gitlab.kitware.com/cmake/cmake/-/blob/master/.gitlab/ci/vcvarsall.ps1
+[subs="attributes+"]
+----
+cmd.exe /c "call `"C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Auxiliary\Build\vcvarsarm64.bat`" && set" | Foreach-Object { if ($_ -match "^(.*?)=(.*)$") { Set-Content "env:\$($matches[1])" $matches[2] } }
+----
 
 [TIP]
 .Pin the items to the Task Bar
