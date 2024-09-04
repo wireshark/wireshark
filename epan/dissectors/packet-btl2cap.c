@@ -2975,7 +2975,20 @@ dissect_btl2cap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         proto_tree_add_item(btl2cap_tree, hf_btl2cap_psm, tvb, offset, 2, ENC_LITTLE_ENDIAN);
         offset += 2;
 
-        next_tvb = tvb_new_subset_length_caplen(tvb, offset, tvb_captured_length_remaining(tvb, offset), length);
+        /* 3.2 "For G-frames, the PDU length equals the payload size plus the
+         * number of octets in the PSM."
+         * Substract the PSM length. (Yes, technically the PSM is "at least"
+         * two octets in length, Little Endian where only the MSB (== Last)
+         * has least significant bit 0, and that's used to detect the size.
+         * We only use 2 octets everywhere in this dissector, though.)
+         */
+        if (length < 2) {
+            expert_add_info_format(pinfo, length_item, &ei_btl2cap_length_bad,
+                    "PDU length too short: %u (should include PSM)", length);
+            THROW(ReportedBoundsError);
+        }
+        length -= 2;
+        next_tvb = tvb_new_subset_length(tvb, offset, length);
 
         /* call next dissector */
         if (!dissector_try_uint_new(l2cap_psm_dissector_table, (uint32_t) psm, next_tvb, pinfo, tree, true, l2cap_data)) {
