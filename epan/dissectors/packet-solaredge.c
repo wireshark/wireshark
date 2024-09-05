@@ -985,7 +985,7 @@ static const char *global_system_encryption_key;
 static
 uint16_t calculate_crc(t_solaredge_packet_header *header, const uint8_t *data, int length)
 {
-	/* Concatenate in network endinaness header items followed by unmodified data */
+	/* Concatenate in network endianness header items followed by unmodified data */
 	uint16_t crc = 0x5a5a;
 	uint16_t sequence_number = g_htons(header->sequence_number);
 	uint32_t source_address = g_htonl(header->source_address);

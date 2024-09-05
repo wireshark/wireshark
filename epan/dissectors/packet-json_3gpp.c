@@ -1400,7 +1400,7 @@ proto_register_json_3gpp(void)
 		{ &hf_json_3gpp_suppfeat_nsmf_pdusession_1_ciot,
 			{ "CIOT", "json.3gpp.suppfeat.ciot",
 			FT_BOOLEAN, 4, NULL, 0x1,
-			"Celluar IoT", HFILL }
+			"Cellular IoT", HFILL }
 		},
 		{ &hf_json_3gpp_suppfeat_nsmf_pdusession_2_mapdu,
 			{ "MAPDU", "json.3gpp.suppfeat.mapdu",

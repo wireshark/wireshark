@@ -629,7 +629,7 @@ dissect_comrej(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tr
         offset += 2;
         break;
 
-    case 0x0002: /* Invalid CID in requets */
+    case 0x0002: /* Invalid CID in requests */
         proto_tree_add_item(tree, hf_btl2cap_scid, tvb, offset, 2, ENC_LITTLE_ENDIAN);
         offset += 2;
 

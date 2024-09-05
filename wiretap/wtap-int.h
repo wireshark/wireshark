@@ -46,7 +46,7 @@ struct wtap {
     unsigned                    next_interface_data;    /**< Next interface data that wtap_get_next_interface_description() will show */
     GArray                      *nrbs;                  /**< holds the Name Res Blocks, or NULL */
     GArray                      *dsbs;                  /**< An array of DSBs (of type wtap_block_t), or NULL if not supported. */
-    GArray                      *meta_events;           /**< An array of meta eventss (of type wtap_block_t), or NULL if not supported. */
+    GArray                      *meta_events;           /**< An array of meta events (of type wtap_block_t), or NULL if not supported. */
 
     char                        *pathname;              /**< File pathname; might just be "-" */
 

@@ -206,7 +206,7 @@ quint32 RtpAudioStream::calculateAudioOutRate(QAudioDeviceInfo out_device, unsig
 {
     quint32 out_rate;
 
-    // Use the first non-zero rate we find. Ajust it to match
+    // Use the first non-zero rate we find. Adjust it to match
     // our audio hardware.
     QAudioFormat format;
     format.setSampleRate(sample_rate);

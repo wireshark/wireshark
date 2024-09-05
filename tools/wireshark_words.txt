@@ -40,13 +40,16 @@ additionals
 additionsr
 addon
 addrbook
+addrs
 addrtype
+addrv
 adjacency
 adlink
 admin
 administrable
 administratively
 adpclk
+adpcm
 adspec
 advatek
 advts
@@ -67,6 +70,7 @@ aires
 aironet
 airpcap
 airtel
+alarmlog
 alcap
 alcatel
 algérie
@@ -103,6 +107,7 @@ antsel
 aperiodic
 apname
 appcheader
+appcontainer
 appdata
 append
 apphdr
@@ -114,6 +119,7 @@ appname
 approx
 appset
 appsig
+apptext
 apptype
 april
 arabic
@@ -149,6 +155,7 @@ atapi
 athens
 atheros
 atime
+atlantic
 atomically
 atsss
 atten
@@ -346,6 +353,7 @@ chars
 charset
 charsets
 chauvet
+chdlc
 checkbox
 checkout
 checksum
@@ -538,6 +546,7 @@ dbuild
 dccreq
 dcerpc
 dcname
+dcomp
 dct3trace
 deact
 deactivated
@@ -562,6 +571,7 @@ decentralization
 dechunk
 decimals
 declarator
+declinedlog
 decnet
 decnum
 decompressed
@@ -581,6 +591,7 @@ deenablement
 deencapsulate
 defence
 deferral
+defrag
 defragment
 defragmentation
 defragmented
@@ -629,6 +640,7 @@ descname
 descr
 descriptor
 descriptors
+descs
 desegment
 desegmentation
 desegmented
@@ -882,6 +894,7 @@ fastcom
 fastip
 fastmsg
 fattr
+fcslen
 fdata
 featureful
 february
@@ -898,6 +911,7 @@ finditer
 firefox
 firewall
 fiveco
+fixedchans
 fixme
 flag1
 flag2
@@ -942,6 +956,7 @@ fujitsu
 funcdesc
 functionalities
 funkt
+furuno
 fuzzed
 fuzzer
 fuzzing
@@ -966,6 +981,7 @@ geospatial
 geostd
 gerald
 geran
+gerrit
 getattr
 getentrybyname
 getfocusports
@@ -1133,6 +1149,7 @@ infile
 infini
 infiniband
 infix
+infocomm
 infolist
 informationitem
 informationlist
@@ -1193,6 +1210,7 @@ invalidly
 invariance
 invariant
 inversed
+invpwr
 ioctl
 ioepoch
 ioerr
@@ -1483,6 +1501,7 @@ modulo
 modulus
 modus
 monday
+monmap
 monterrey
 moscow
 motorola
@@ -1698,6 +1717,8 @@ ofpbpc
 ofpbrc
 ofpet
 ofpfc
+ofpfme
+ofpfmf
 ofpfmfc
 ofpgmfc
 ofpgt
@@ -1713,6 +1734,7 @@ ofppmfc
 ofppr
 ofprr
 ofptfpt
+ofpxmc
 ofpxmt
 olympus
 om2000
@@ -1734,7 +1756,9 @@ openstreetmap
 openvpn
 opflags
 oplock
+opmode
 opnum
+opreply
 optarg
 optimisation
 optimised
@@ -1751,7 +1775,9 @@ orthogonal
 osaka
 oscillatory
 oscore
+osdinfo
 osdmap
+osdstat
 ositp
 osmocom
 osmux
@@ -1779,6 +1805,7 @@ parameteriv
 parameterization
 parameterized
 paramfmt
+paramlen
 params
 paramset
 parens
@@ -1830,14 +1857,17 @@ phich
 phonebook
 phymod
 physcellid
+physlink
 picmg
 picosecond
 pinfo
 pixmap
 pkinit
+pktdata
 plaintext
 planar
 plano
+plcinterface
 plixer
 plmnid
 plugin
@@ -1852,6 +1882,7 @@ polska
 polycom
 polygon
 polynom
+poolop
 popup
 portableapps
 portcounters
@@ -1872,6 +1903,7 @@ prach
 pradesh
 preambles
 preauth
+preauthentication
 precisions
 precoding
 precompilation
@@ -1889,6 +1921,7 @@ prefname
 prefs
 preload
 preloaded
+prelogin
 prepay
 prepend
 prepost
@@ -1931,6 +1964,7 @@ psecs
 pseudowire
 psname
 psnip
+pssiae
 ptime
 ptlrpc
 ptvcursor
@@ -1966,6 +2000,7 @@ quantifiers
 quantization
 quantized
 queryhit
+queryresp
 queryset
 queueing
 quiesce
@@ -1993,6 +2028,7 @@ randr
 raster
 rawip
 raymond
+raytheon
 rcode
 rcsta
 rctxinfo
@@ -2113,6 +2149,8 @@ reprogrammable
 reprogramming
 republish
 reqinfo
+reqseq
+reqtype
 requester
 requesters
 requestor
@@ -2178,6 +2216,7 @@ rffpcnex
 rfinfo
 rfmon
 rgoose
+richard
 ripemd
 rlcmac
 rmcap
@@ -2217,6 +2256,7 @@ rxflags
 rxlen
 rxlev
 rxmcsmap
+rxmer
 rxreq
 s3accountlist
 s3interval
@@ -2257,6 +2297,7 @@ sdcch
 sdjournal
 sdkflags
 sdram
+sdulength
 sdusize
 secchan
 sectigo
@@ -2281,6 +2322,7 @@ seqnr
 seqnum
 seqpkt
 sequenceno
+sercom
 sercos
 sercosiii
 serialisation
@@ -2392,6 +2434,7 @@ spoolss
 sqlite
 sqlwarn
 srbid
+srcaddr
 srcdst
 srcip
 srcport
@@ -2404,6 +2447,7 @@ sscanf
 sscop
 sshdump
 sshkey
+ssiae
 ssupervisor
 st4cmd
 stainfo
@@ -2518,6 +2562,7 @@ syniverse
 synphasor
 syntaxes
 synthesiser
+syscall
 sysdig
 sysex
 sysframe
@@ -2534,6 +2579,7 @@ tbilisi
 tclas
 tclass
 tcpcc
+tcpdbg
 tcpdump
 tcpflags
 tcpip
@@ -2641,11 +2687,13 @@ tspec
 tsprec
 tstamp
 tuesday
+tunables
 tunid
 tunneled
 tunneling
 tuple
 tuples
+turkish
 turnbwm
 tvbparse
 tvbuf
@@ -2867,6 +2915,7 @@ userinfo
 userlist
 userplane
 utf8mb
+utf8string
 utilization
 utils
 utran
@@ -2883,6 +2932,8 @@ validator
 valstringname
 varbyte
 varint
+vbucket
+vbuckets
 vcpkg
 vcredist
 vcxproj
@@ -2893,6 +2944,7 @@ verbosity
 verifications
 verifier
 verizon
+versa
 versatel
 version2
 version3
@@ -2946,6 +2998,7 @@ wimaxasncp
 win2k
 winflexbison
 winget
+winnt
 winpcap
 winspool
 wiphy
@@ -2962,6 +3015,7 @@ wpcap
 wrepl
 writable
 writecap
+wsaqueryset
 wsbuglink
 wsbuild
 wscale
@@ -2974,6 +3028,7 @@ x509ce
 x509if
 x509sat
 xattr
+xattrs
 xauth
 xchannel
 xcode

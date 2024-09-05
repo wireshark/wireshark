@@ -221,7 +221,7 @@ def checkFile(filename, generated, verbose=False):
                 last_line_number = line_number
                 last_char_offset += match_offset + 1  # enough to not match again
 
-            # Match first 2 args plus remainer
+            # Match first 2 args plus remainder
             args_m = re.match(r'(.*?),\s*(.*?),\s*(.*)', args)
             if args_m:
                 col_calls.append(ColCall(filename, line_number, m.group(1), last_args=args_m.group(3),

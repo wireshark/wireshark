@@ -10754,7 +10754,7 @@ static void dissect_serialized_data(proto_tree *tree, packet_info *pinfo, tvbuff
   rtps_parameter_sequence_tree = proto_tree_add_subtree(tree, tvb, offset, size,
           ett_rtps_serialized_data, &ti, label);
 
-  /* We store thisa value for using later */
+  /* We store this value for using later */
   dissected_data_holder_tree = rtps_parameter_sequence_tree;
 
   if (frag_number > 1) {
