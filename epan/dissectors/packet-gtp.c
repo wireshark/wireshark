@@ -10531,7 +10531,7 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 
             break;
         case 1:
-            proto_tree_add_item_ret_uint(gtp_tree, hf_gtp_teid, tvb, offset, 2, ENC_BIG_ENDIAN, &value);
+            proto_tree_add_item_ret_uint(gtp_tree, hf_gtp_teid, tvb, offset, 4, ENC_BIG_ENDIAN, &value);
             gtp_hdr->teid = value;
             offset += 4;
 
