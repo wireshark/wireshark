@@ -61,7 +61,7 @@ These messages might appear in the packet details.
 ==== [Response in frame: 123]
 
 The current packet is the request of a detected request/response pair. You can
-directly jump to the corresponding response packet by double clicking on
+directly jump to the corresponding response packet by double-clicking on
 the message.
 
 ==== [Request in frame: 123]
@@ -76,6 +76,6 @@ The time between the request and the response packets.
 
 The session control protocol (SDP, H225, etc.) message which signaled the
 creation of this session. You can directly jump to the corresponding packet
-by double clicking on this message.
+by double-clicking on this message.
 
 // End of WSUG Appendix Messages

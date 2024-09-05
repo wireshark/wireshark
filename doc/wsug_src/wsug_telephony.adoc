@@ -500,7 +500,7 @@ User can control to where audio of a stream is routed to:
 * P - Play (when mono soundcard is available only)
 * M - Muted
 
-Audio routing can be changed by double clicking on first column of a row, by shortcut or by menu.
+Audio routing can be changed by double-clicking on first column of a row, by shortcut or by menu.
 
 User can use shortcuts:
 

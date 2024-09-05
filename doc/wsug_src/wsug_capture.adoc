@@ -258,7 +258,7 @@ Capturing can be stopped based on the following conditions:
 * The capture file size.
 * The capture file duration.
 
-You can double click on an interface row in the “Input“ tab or click btn:[Start] from any tab to commence the capture. You can click btn:[Cancel] to apply your changes and close the dialog.
+You can double-click on an interface row in the “Input“ tab or click btn:[Start] from any tab to commence the capture. You can click btn:[Cancel] to apply your changes and close the dialog.
 
 [#ChCapManageInterfacesSection]
 
