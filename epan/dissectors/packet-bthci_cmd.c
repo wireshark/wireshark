@@ -263,6 +263,7 @@ static int hf_bthci_cmd_flow_spec_sdu_arrival_time;
 static int hf_bthci_cmd_flow_spec_access_latency;
 static int hf_bthci_cmd_flush_to_us;
 static int hf_bthci_cmd_logical_link_handle;
+static int hf_bthci_cmd_evt_mask2;
 static int hf_bthci_cmd_evt_mask2_00;
 static int hf_bthci_cmd_evt_mask2_01;
 static int hf_bthci_cmd_evt_mask2_02;
@@ -271,12 +272,25 @@ static int hf_bthci_cmd_evt_mask2_04;
 static int hf_bthci_cmd_evt_mask2_05;
 static int hf_bthci_cmd_evt_mask2_06;
 static int hf_bthci_cmd_evt_mask2_07;
+static int hf_bthci_cmd_evt_mask2_08;
+static int hf_bthci_cmd_evt_mask2_09;
 static int hf_bthci_cmd_evt_mask2_10;
 static int hf_bthci_cmd_evt_mask2_11;
 static int hf_bthci_cmd_evt_mask2_12;
 static int hf_bthci_cmd_evt_mask2_13;
 static int hf_bthci_cmd_evt_mask2_14;
 static int hf_bthci_cmd_evt_mask2_15;
+static int hf_bthci_cmd_evt_mask2_16;
+static int hf_bthci_cmd_evt_mask2_17;
+static int hf_bthci_cmd_evt_mask2_18;
+static int hf_bthci_cmd_evt_mask2_19;
+static int hf_bthci_cmd_evt_mask2_20;
+static int hf_bthci_cmd_evt_mask2_21;
+static int hf_bthci_cmd_evt_mask2_22;
+static int hf_bthci_cmd_evt_mask2_23;
+static int hf_bthci_cmd_evt_mask2_24;
+static int hf_bthci_cmd_evt_mask2_25;
+static int hf_bthci_cmd_evt_mask2_reserved;
 static int hf_bthci_cmd_location_domain_aware;
 static int hf_bthci_cmd_location_domain;
 static int hf_bthci_cmd_location_domain_options;
@@ -651,6 +665,36 @@ static int hf_bthci_cmd_authenticated_payload_timeout;
 static int hf_bthci_cmd_extended_inquiry_length;
 static int hf_bthci_cmd_min_encryption_key_size;
 
+static int * const hfx_bthci_cmd_event_mask_page_2[] = {
+	&hf_bthci_cmd_evt_mask2_reserved,
+    &hf_bthci_cmd_evt_mask2_25,
+    &hf_bthci_cmd_evt_mask2_24,
+    &hf_bthci_cmd_evt_mask2_23,
+    &hf_bthci_cmd_evt_mask2_22,
+    &hf_bthci_cmd_evt_mask2_21,
+    &hf_bthci_cmd_evt_mask2_20,
+    &hf_bthci_cmd_evt_mask2_19,
+    &hf_bthci_cmd_evt_mask2_18,
+    &hf_bthci_cmd_evt_mask2_17,
+    &hf_bthci_cmd_evt_mask2_16,
+    &hf_bthci_cmd_evt_mask2_15,
+    &hf_bthci_cmd_evt_mask2_14,
+    &hf_bthci_cmd_evt_mask2_13,
+    &hf_bthci_cmd_evt_mask2_12,
+    &hf_bthci_cmd_evt_mask2_11,
+    &hf_bthci_cmd_evt_mask2_10,
+    &hf_bthci_cmd_evt_mask2_09,
+    &hf_bthci_cmd_evt_mask2_08,
+    &hf_bthci_cmd_evt_mask2_07,
+    &hf_bthci_cmd_evt_mask2_06,
+    &hf_bthci_cmd_evt_mask2_05,
+    &hf_bthci_cmd_evt_mask2_04,
+    &hf_bthci_cmd_evt_mask2_03,
+    &hf_bthci_cmd_evt_mask2_02,
+    &hf_bthci_cmd_evt_mask2_01,
+    &hf_bthci_cmd_evt_mask2_00,
+    NULL
+};
 
 static int * const hfx_bthci_cmd_le_event_mask[] = {
     &hf_bthci_cmd_le_event_mask_le_reserved,
@@ -822,6 +866,7 @@ static int ett_opcode;
 static int ett_cod_mask;
 static int ett_flow_spec_subtree;
 static int ett_le_channel_map;
+static int ett_event_mask_page_2;
 static int ett_le_event_mask;
 static int ett_adv_properties;
 static int ett_adv_sets;
@@ -3972,23 +4017,8 @@ dissect_host_controller_baseband_cmd(tvbuff_t *tvb, int offset, packet_info *pin
             break;
 
         case 0x0063: /* Set Event Mask Page 2 */
-            proto_tree_add_item(tree, hf_bthci_cmd_evt_mask2_00, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-            proto_tree_add_item(tree, hf_bthci_cmd_evt_mask2_01, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-            proto_tree_add_item(tree, hf_bthci_cmd_evt_mask2_02, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-            proto_tree_add_item(tree, hf_bthci_cmd_evt_mask2_03, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-            proto_tree_add_item(tree, hf_bthci_cmd_evt_mask2_04, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-            proto_tree_add_item(tree, hf_bthci_cmd_evt_mask2_05, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-            proto_tree_add_item(tree, hf_bthci_cmd_evt_mask2_06, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-            proto_tree_add_item(tree, hf_bthci_cmd_evt_mask2_07, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-            offset++;
-
-            proto_tree_add_item(tree, hf_bthci_cmd_evt_mask2_10, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-            proto_tree_add_item(tree, hf_bthci_cmd_evt_mask2_11, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-            proto_tree_add_item(tree, hf_bthci_cmd_evt_mask2_12, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-            proto_tree_add_item(tree, hf_bthci_cmd_evt_mask2_13, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-            proto_tree_add_item(tree, hf_bthci_cmd_evt_mask2_14, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-            proto_tree_add_item(tree, hf_bthci_cmd_evt_mask2_15, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-            offset+=7;
+            proto_tree_add_bitmask(tree, tvb, offset, hf_bthci_cmd_evt_mask2, ett_event_mask_page_2, hfx_bthci_cmd_event_mask_page_2, ENC_LITTLE_ENDIAN);
+            offset += 8;
             break;
 
         case 0x0065: /* Write Location Data */
@@ -7216,25 +7246,30 @@ proto_register_bthci_cmd(void)
             NULL, HFILL }
         },
 
+        { &hf_bthci_cmd_evt_mask2,
+          { "Event Mask Page 2", "bthci_cmd.evt_mask2",
+            FT_UINT64, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
         { &hf_bthci_cmd_evt_mask2_00,
           { "Physical Link Complete", "bthci_cmd.evt_mask2_00",
-            FT_UINT8, BASE_HEX, VALS(cmd_boolean), 0x01,
-            "Physical Link Complete Bit", HFILL }
+            FT_BOOLEAN, 64, NULL, UINT64_C(0x01),
+            NULL, HFILL }
         },
         { &hf_bthci_cmd_evt_mask2_01,
           { "Channel Selected", "bthci_cmd.evt_mask2_01",
-            FT_UINT8, BASE_HEX, VALS(cmd_boolean), 0x02,
-            "Channel Selected Bit", HFILL }
+            FT_BOOLEAN, 64, NULL, UINT64_C(0x02),
+            NULL, HFILL }
         },
         { &hf_bthci_cmd_evt_mask2_02,
           { "Disconnection Physical Link", "bthci_cmd.evt_mask2_02",
-            FT_UINT8, BASE_HEX, VALS(cmd_boolean), 0x04,
-            "Disconnection Physical Link Bit", HFILL }
+            FT_BOOLEAN, 64, NULL, UINT64_C(0x04),
+            NULL, HFILL }
         },
         { &hf_bthci_cmd_evt_mask2_03,
          { "Physical Link Loss Early Warning", "bthci_cmd.evt_mask2_03",
-            FT_UINT8, BASE_HEX, VALS(cmd_boolean), 0x08,
-            "Physical Link Loss Early Warning Bit", HFILL }
+            FT_BOOLEAN, 64, NULL, UINT64_C(0x08),
+            NULL, HFILL }
         },
         { &hf_bthci_cmd_evt_mask2_04,
           { "Physical Link Recovery", "bthci_cmd.evt_mask2_04",
@@ -7243,48 +7278,113 @@ proto_register_bthci_cmd(void)
         },
         { &hf_bthci_cmd_evt_mask2_05,
           { "Logical Link Complete", "bthci_cmd.evt_mask2_05",
-            FT_UINT8, BASE_HEX, VALS(cmd_boolean), 0x20,
-            "Logical Link Complete Bit", HFILL }
+            FT_BOOLEAN, 64, NULL, UINT64_C(0x20),
+            NULL, HFILL }
         },
         { &hf_bthci_cmd_evt_mask2_06,
           { "Disconnection Logical Link Complete", "bthci_cmd.evt_mask2_06",
-            FT_UINT8, BASE_HEX, VALS(cmd_boolean), 0x40,
-            "Disconnection Logical Link Complete Bit", HFILL }
+            FT_BOOLEAN, 64, NULL, UINT64_C(0x40),
+            NULL, HFILL }
         },
         { &hf_bthci_cmd_evt_mask2_07,
           { "Flow Spec Modify Complete", "bthci_cmd.evt_mask2_07",
-            FT_UINT8, BASE_HEX, VALS(cmd_boolean), 0x80,
-            "Flow Spec Modify Complete Bit", HFILL }
+            FT_BOOLEAN, 64, NULL, UINT64_C(0x80),
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_evt_mask2_08,
+          { "Number Of Completed Data Blocks", "bthci_cmd.evt_mask2_8",
+            FT_BOOLEAN, 64, NULL, UINT64_C(0x100),
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_evt_mask2_09,
+          { "AMP Start Test", "bthci_cmd.evt_mask2_9",
+            FT_BOOLEAN, 64, NULL, UINT64_C(0x200),
+            NULL, HFILL }
         },
         { &hf_bthci_cmd_evt_mask2_10,
-          { "Number Of Completed Data Blocks", "bthci_cmd.evt_mask2_10",
-            FT_UINT8, BASE_HEX, VALS(cmd_boolean), 0x01,
-            "Number Of Completed Data Blocks Bit", HFILL }
+          { "AMP Test End", "bthci_cmd.evt_mask2_10",
+            FT_BOOLEAN, 64, NULL, UINT64_C(0x400),
+            NULL, HFILL }
         },
         { &hf_bthci_cmd_evt_mask2_11,
-          { "AMP Start Test", "bthci_cmd.evt_mask2_11",
-            FT_UINT8, BASE_HEX, VALS(cmd_boolean), 0x02,
-            "AMP Start Test Bit", HFILL }
+          { "AMP Receiver Report", "bthci_cmd.evt_mask2_11",
+            FT_BOOLEAN, 64, NULL, UINT64_C(0x800),
+            NULL, HFILL }
         },
         { &hf_bthci_cmd_evt_mask2_12,
-          { "AMP Test End", "bthci_cmd.evt_mask2_12",
-            FT_UINT8, BASE_HEX, VALS(cmd_boolean), 0x04,
-            "AMP Test End Bit", HFILL }
+          { "Short Range Mode Change Complete", "bthci_cmd.evt_mask2_12",
+            FT_BOOLEAN, 64, NULL, UINT64_C(0x1000),
+            NULL, HFILL }
         },
         { &hf_bthci_cmd_evt_mask2_13,
-          { "AMP Receiver Report", "bthci_cmd.evt_mask2_13",
-            FT_UINT8, BASE_HEX, VALS(cmd_boolean), 0x08,
-            "AMP Receiver Report Bit", HFILL }
+          { "AMP Status Change", "bthci_cmd.evt_mask2_13",
+            FT_BOOLEAN, 64, NULL, UINT64_C(0x2000),
+            NULL, HFILL }
         },
         { &hf_bthci_cmd_evt_mask2_14,
-          { "Short Range Mode Change Complete", "bthci_cmd.evt_mask2_14",
-            FT_UINT8, BASE_HEX, VALS(cmd_boolean), 0x10,
-            "Short Range Mode Change Complete Bit", HFILL }
+          { "Triggered Clock Capture", "bthci_cmd.evt_mask2_14",
+            FT_BOOLEAN, 64, NULL, UINT64_C(0x4000),
+            NULL, HFILL }
         },
         { &hf_bthci_cmd_evt_mask2_15,
-          { "AMP Status Change", "bthci_cmd.evt_mask2_15",
-            FT_UINT8, BASE_HEX, VALS(cmd_boolean), 0x20,
-            "AMP Status Change Bit", HFILL }
+          { "Synchronization Train Complete", "bthci_cmd.evt_mask2_15",
+            FT_BOOLEAN, 64, NULL, UINT64_C(0x8000),
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_evt_mask2_16,
+          { "Synchronization Train Received", "bthci_cmd.evt_mask2_16",
+            FT_BOOLEAN, 64, NULL, UINT64_C(0x10000),
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_evt_mask2_17,
+          { "Connectionless Peripheral Broadcast Receive", "bthci_cmd.evt_mask2_17",
+            FT_BOOLEAN, 64, NULL, UINT64_C(0x20000),
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_evt_mask2_18,
+          { "Connectionless Peripheral Broadcast Timeout", "bthci_cmd.evt_mask2_18",
+            FT_BOOLEAN, 64, NULL, UINT64_C(0x40000),
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_evt_mask2_19,
+          { "Truncated Page Complete", "bthci_cmd.evt_mask2_19",
+            FT_BOOLEAN, 64, NULL, UINT64_C(0x80000),
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_evt_mask2_20,
+          { "Peripheral Page Response Timeout", "bthci_cmd.evt_mask2_20",
+            FT_BOOLEAN, 64, NULL, UINT64_C(0x100000),
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_evt_mask2_21,
+          { "Connectionless Peripheral Broadcast Channel Map Change", "bthci_cmd.evt_mask2_21",
+            FT_BOOLEAN, 64, NULL, UINT64_C(0x200000),
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_evt_mask2_22,
+          { "Inquiry Response Notification", "bthci_cmd.evt_mask2_22",
+            FT_BOOLEAN, 64, NULL, UINT64_C(0x400000),
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_evt_mask2_23,
+          { "Authenticated Payload Timeout Expired", "bthci_cmd.evt_mask2_23",
+            FT_BOOLEAN, 64, NULL, UINT64_C(0x800000),
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_evt_mask2_24,
+          { "SAM Status Change", "bthci_cmd.evt_mask2_24",
+            FT_BOOLEAN, 64, NULL, UINT64_C(0x1000000),
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_evt_mask2_25,
+          { "Encryption Change [v2]", "bthci_cmd.evt_mask2_25",
+            FT_BOOLEAN, 64, NULL, UINT64_C(0x2000000),
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_evt_mask2_reserved,
+          { "Reserved", "bthci_cmd.evt_mask2_25_reserved",
+            FT_UINT64, BASE_HEX, NULL, UINT64_C(0xFFFFFFFFFC000000),
+            NULL, HFILL }
         },
         { &hf_bthci_cmd_location_domain_aware,
           { "Location Domain Aware", "bthci_cmd.location_domain_aware",
@@ -9170,6 +9270,7 @@ proto_register_bthci_cmd(void)
         &ett_cod_mask,
         &ett_flow_spec_subtree,
         &ett_le_channel_map,
+        &ett_event_mask_page_2,
         &ett_le_event_mask,
         &ett_adv_properties,
         &ett_adv_sets,

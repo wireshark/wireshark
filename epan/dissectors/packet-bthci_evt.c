@@ -796,7 +796,7 @@ static const value_string evt_code_vals[] = {
     {0x05, "Disconnect Complete"},
     {0x06, "Authentication Complete"},
     {0x07, "Remote Name Request Complete"},
-    {0x08, "Encryption Change"},
+    {0x08, "Encryption Change [v1]"},
     {0x09, "Change Connection Link Key Complete"},
     {0x0a, "Link Key Type Changed"},
     {0x0b, "Read Remote Supported Features"},
@@ -869,6 +869,7 @@ static const value_string evt_code_vals[] = {
     {0x57, "Authenticated Payload Timeout Expired"},
     /* Core 5 */
     {0x58, "SAM Status Change"},
+    {0x59, "Encryption Change [v2]"},
     /* Other */
     /*{0xfe, "Bluetooth Logo Testing"}, // According to ESR05 it is not assigned */
     {0xff, "Vendor-Specific"},
@@ -5985,7 +5986,7 @@ dissect_bthci_evt_link_key_type_changed(tvbuff_t *tvb, int offset,
 
 static int
 dissect_bthci_evt_encryption_change(tvbuff_t *tvb, int offset,
-        packet_info *pinfo, proto_tree *tree, bluetooth_data_t *bluetooth_data)
+        packet_info *pinfo, proto_tree *tree, bluetooth_data_t *bluetooth_data, bool v2)
 {
     proto_tree_add_item(tree, hf_bthci_evt_status, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     send_hci_summary_status_tap(tvb_get_uint8(tvb, offset), pinfo, bluetooth_data);
@@ -5996,6 +5997,11 @@ dissect_bthci_evt_encryption_change(tvbuff_t *tvb, int offset,
 
     proto_tree_add_item(tree, hf_bthci_evt_encryption_enable, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset += 1;
+
+    if (v2) {
+        proto_tree_add_item(tree, hf_bthci_evt_enc_key_size, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset += 1;
+    }
 
     return offset;
 }
@@ -6426,8 +6432,9 @@ dissect_bthci_evt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
             add_opcode(pinfo->pool, opcode_list, 0x0419, COMMAND_STATUS_NORMAL); /* Remote Name Request */
             break;
 
-        case 0x08: /* Encryption Change */
-            offset = dissect_bthci_evt_encryption_change(tvb, offset, pinfo, bthci_evt_tree, bluetooth_data);
+        case 0x08: /* Encryption Change [v1] */
+        case 0x59: /* Encryption Change [v2] */
+            offset = dissect_bthci_evt_encryption_change(tvb, offset, pinfo, bthci_evt_tree, bluetooth_data, evt_code == 0x59);
             add_opcode(pinfo->pool, opcode_list, 0x0413, COMMAND_STATUS_NORMAL); /* Encryption Requested */
             add_opcode(pinfo->pool, opcode_list, 0x2019, COMMAND_STATUS_NORMAL); /* LE Start Encryption */
             break;
