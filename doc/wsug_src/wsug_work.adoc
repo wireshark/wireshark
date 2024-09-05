@@ -756,7 +756,7 @@ like decrypted data.)
 Offsets can be negative, indicating an offset from the end of a field.
 ----
 frame[-4:4] == 0.1.2.3
-frame[-4] == 0.1.2.3
+frame[-4:] == 0.1.2.3
 ----
 The two examples above both check the last four bytes of a frame.
 
