@@ -141,6 +141,9 @@ class TextHTMLParser(HTMLParser):
                     self.suffix_stack.append(':')
             except IndexError:
                 pass
+        if tag == 'sup':
+            self.need_quote = True
+            self.quote_stack.append('^')
         if tag in self.ignore_tags:
             self.ignore_level += 1
 
@@ -193,6 +196,8 @@ class TextHTMLParser(HTMLParser):
         if tag == 'a' and self.href:
             self.footnotes.append(self.href)
             self.text_block += '[{0}]'.format(len(self.footnotes))
+        if tag == 'sup':
+            self.quote_stack.pop()
         if tag in self.ignore_tags:
             self.ignore_level -= 1
 
