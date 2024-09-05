@@ -255,6 +255,7 @@ $INCLUDE dictionary.identity_engines
 $INCLUDE dictionary.iea
 $INCLUDE dictionary.infinera
 $INCLUDE dictionary.infoblox
+$INCLUDE dictionary.ingate
 $INCLUDE dictionary.infonet
 $INCLUDE dictionary.ipunplugged
 $INCLUDE dictionary.issanni

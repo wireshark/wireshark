@@ -1,0 +1,121 @@
+#
+# dictionary.ingate
+#
+#               Ingate Systems AB
+#               "Marcus Sundberg" <marcus@ingate.com>
+#
+# Version:      $Id: dictionary.ingate,v 1.8 2009/10/15 12:32:58 erik Exp $
+#
+
+VENDOR		Ingate			13465
+BEGIN-VENDOR	Ingate
+
+ATTRIBUTE	IG-Admin-Account	1	integer
+
+#
+#  Type of administrator account.
+#
+VALUE		IG-Admin-Account	Full-Access-Admin	1
+VALUE		IG-Admin-Account	Backup-Admin		2
+VALUE		IG-Admin-Account	Read-Only-Admin		3
+VALUE		IG-Admin-Account	VPN-Admin		4
+VALUE		IG-Admin-Account	SIP-Admin		5
+VALUE		IG-Admin-Account	VPN-Reneg-Admin		6
+
+#
+#  Accounting attributes.
+#
+ATTRIBUTE	IG-Acct-Input-Jitter			    128	integer	#start of media stats for audio
+ATTRIBUTE	IG-Acct-Output-Jitter			    129	integer
+ATTRIBUTE	IG-Acct-Input-Missing			    130	integer
+ATTRIBUTE	IG-Acct-Output-Missing			    131	integer
+ATTRIBUTE	IG-Acct-Input-Missing-Max		    132	integer
+ATTRIBUTE	IG-Acct-Output-Missing-Max		    133	integer
+ATTRIBUTE	IG-Acct-Input-Est-Mos			    134	integer
+ATTRIBUTE	IG-Acct-Output-Est-Mos			    135	integer
+ATTRIBUTE	IG-Acct-Input-Last-Payload-Type		    136	integer
+ATTRIBUTE	IG-Acct-Output-Last-Payload-Type	    137	integer
+ATTRIBUTE	IG-Acct-Input-Reordered			    138	integer
+ATTRIBUTE	IG-Acct-Output-Reordered		    139	integer
+ATTRIBUTE	IG-Acct-Input-Comfort-Noise		    140	string
+ATTRIBUTE	IG-Acct-Output-Comfort-Noise		    141	string
+ATTRIBUTE	IG-Acct-Input-Codec-Name		    142	string
+ATTRIBUTE	IG-Acct-Output-Codec-Name		    143	string
+ATTRIBUTE	IG-Acct-Input-Jitter-Max		    144	integer
+ATTRIBUTE	IG-Acct-Output-Jitter-Max		    145	integer
+ATTRIBUTE	IG-Acct-Remote-Party-Id			    146	string
+ATTRIBUTE	IG-Acct-P-Asserted-Identity		    147	string
+ATTRIBUTE	IG-Acct-Diversion			    148	string
+ATTRIBUTE	IG-Acct-Input-Jitter-Avg-Rtcp		    149	string
+ATTRIBUTE	IG-Acct-Input-Jitter-Max-Rtcp		    150	string
+ATTRIBUTE	IG-Acct-Input-Missing-Rtcp		    151	integer
+ATTRIBUTE	IG-Acct-Output-Jitter-Avg-Rtcp		    152	string
+ATTRIBUTE	IG-Acct-Output-Jitter-Max-Rtcp		    153	string
+ATTRIBUTE	IG-Acct-Output-Missing-Rtcp		    154	integer
+ATTRIBUTE	IG-Acct-Rtd-Avg-Rtcp			    155	string	#obsolete, replaced by 156 and 157
+ATTRIBUTE	IG-Acct-Rtd-Avg-RtcpIn			    156	string
+ATTRIBUTE	IG-Acct-Rtd-Avg-RtcpOut			    157	string
+ATTRIBUTE	IG-Acct-Input-DscpIn			    158	integer
+ATTRIBUTE	IG-Acct-Input-DscpOut			    159	integer
+ATTRIBUTE	IG-Acct-Output-DscpIn			    160	integer
+ATTRIBUTE	IG-Acct-Output-DscpOut			    161	integer
+ATTRIBUTE	IG-Acct-Input-IfIpIn			    162	string
+ATTRIBUTE	IG-Acct-Input-IfIpOut			    163	string
+ATTRIBUTE	IG-Acct-Output-IfIpIn			    164	string
+ATTRIBUTE	IG-Acct-Output-IfIpOut			    165	string
+ATTRIBUTE	IG-Acct-Input-Mtype			    166	string
+ATTRIBUTE	IG-Acct-Output-Mtype			    167	string
+
+ATTRIBUTE	IG-Acct-Video-Input-Octets		    176 integer	#start of media stats for video
+ATTRIBUTE	IG-Acct-Video-Output-Octets		    177 integer
+ATTRIBUTE	IG-Acct-Video-Input-Packets		    178 integer
+ATTRIBUTE	IG-Acct-Video-Output-Packets		    179 integer
+ATTRIBUTE	IG-Acct-Video-Input-Jitter		    180	integer
+ATTRIBUTE	IG-Acct-Video-Output-Jitter		    181	integer
+ATTRIBUTE	IG-Acct-Video-Input-Jitter-Max		    182	integer
+ATTRIBUTE	IG-Acct-Video-Output-Jitter-Max		    183	integer
+ATTRIBUTE	IG-Acct-Video-Input-Missing		    184	integer
+ATTRIBUTE	IG-Acct-Video-Output-Missing		    185	integer
+ATTRIBUTE	IG-Acct-Video-Input-Missing-Max		    186	integer
+ATTRIBUTE	IG-Acct-Video-Output-Missing-Max	    187	integer
+ATTRIBUTE	IG-Acct-Video-Input-Est-Mos		    188	integer	#not yet unused
+ATTRIBUTE	IG-Acct-Video-Output-Est-Mos		    189	integer	#not yet used
+ATTRIBUTE	IG-Acct-Video-Input-Last-Payload-Type	    190	integer
+ATTRIBUTE	IG-Acct-Video-Output-Last-Payload-Type	    191	integer
+ATTRIBUTE	IG-Acct-Video-Input-Reordered		    192	integer
+ATTRIBUTE	IG-Acct-Video-Output-Reordered		    193	integer
+ATTRIBUTE	IG-Acct-Video-Input-Codec-Name		    194	string
+ATTRIBUTE	IG-Acct-Video-Output-Codec-Name		    195	string
+ATTRIBUTE	IG-Acct-Video-Input-Jitter-Avg-Rtcp	    196	string
+ATTRIBUTE	IG-Acct-Video-Input-Jitter-Max-Rtcp	    197	string
+ATTRIBUTE	IG-Acct-Video-Input-Missing-Rtcp	    198	integer
+ATTRIBUTE	IG-Acct-Video-Output-Jitter-Avg-Rtcp	    199	string
+ATTRIBUTE	IG-Acct-Video-Output-Jitter-Max-Rtcp	    200	string
+ATTRIBUTE	IG-Acct-Video-Output-Missing-Rtcp	    201	integer
+ATTRIBUTE	IG-Acct-Video-Rtd-Avg-RtcpIn		    202	string
+ATTRIBUTE	IG-Acct-Video-Rtd-Avg-RtcpOut		    203	string
+ATTRIBUTE	IG-Acct-Video-Input-DscpIn		    204	integer
+ATTRIBUTE	IG-Acct-Video-Input-DscpOut		    205	integer
+ATTRIBUTE	IG-Acct-Video-Output-DscpIn		    206	integer
+ATTRIBUTE	IG-Acct-Video-Output-DscpOut		    207	integer
+ATTRIBUTE	IG-Acct-Video-Input-IfIpIn		    208	string
+ATTRIBUTE	IG-Acct-Video-Input-IfIpOut		    209	string
+ATTRIBUTE	IG-Acct-Video-Output-IfIpIn		    210	string
+ATTRIBUTE	IG-Acct-Video-Output-IfIpOut		    211 string
+ATTRIBUTE	IG-Acct-Video-Input-Mtype		    212	string
+ATTRIBUTE	IG-Acct-Video-Output-Mtype		    213	string
+ATTRIBUTE	IG-Acct-Other-Input-Octets		    224 integer	#start of media stats for other apps
+ATTRIBUTE	IG-Acct-Other-Output-Octets		    225	integer
+ATTRIBUTE	IG-Acct-Other-Input-Packets		    226 integer
+ATTRIBUTE	IG-Acct-Other-Output-Packets		    227 integer
+ATTRIBUTE	IG-Acct-Other-Input-DscpIn		    228	integer
+ATTRIBUTE	IG-Acct-Other-Input-DscpOut		    229	integer
+ATTRIBUTE	IG-Acct-Other-Output-DscpIn		    230	integer
+ATTRIBUTE	IG-Acct-Other-Output-DscpOut		    231	integer
+ATTRIBUTE	IG-Acct-Other-Input-IfIpIn		    232	string
+ATTRIBUTE	IG-Acct-Other-Input-IfIpOut		    233	string
+ATTRIBUTE	IG-Acct-Other-Output-IfIpIn		    234	string
+ATTRIBUTE	IG-Acct-Other-Output-IfIpOut		    235 string
+ATTRIBUTE	IG-Acct-Other-Input-Mtype		    236	string
+ATTRIBUTE	IG-Acct-Other-Output-Mtype		    237	string
+END-VENDOR	Ingate

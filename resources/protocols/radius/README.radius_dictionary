@@ -83,3 +83,6 @@ A few dictionaries have minor spelling or capitalization fixes.
 15. dictionary.usr
    - Has additional ATTRIBUTEs and VALUEs added by Wireshark commits, e.g.
      455381dace25101fd7cb8ab74c307c8b03650221 and 91f44b2940cb36f3eaf0580726155bb58304ebb6
+
+16. dictionary.ingate
+   - As openly defined in Ingate Systems AB manuals, and available on each unit.
