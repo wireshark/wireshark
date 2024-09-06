@@ -114,6 +114,38 @@ blf_calc_key_value(int pkt_encap, guint16 channel, guint16 hwchannel) {
     return (gint64)(((guint64)pkt_encap << 32) | ((guint64)hwchannel << 16) | (guint64)channel);
 }
 
+/** Return the Epoch ns time of the capture start
+ *
+ * This is not intended to fully validate the date and time,
+ * but just to check if the values are plausible.
+ */
+static guint64
+blf_get_start_offset_ns(blf_date_t* start_date) {
+    struct tm timestamp;
+    time_t start_offset_s;
+
+    if (start_date != NULL &&
+        (start_date->month >= 1 && start_date->month <= 12) &&
+        (start_date->day >= 1 && start_date->day <= 31) &&
+        (start_date->hour <= 23) && (start_date->mins <= 59) &&
+        (start_date->sec <= 61)  /* Apparently can be up to 61 on certain systems */
+        ) { /* Not checking if milliseconds are actually less than 1000 */
+        timestamp.tm_year = (start_date->year > 1970) ? start_date->year - 1900 : 70;
+        timestamp.tm_mon = start_date->month - 1;
+        timestamp.tm_mday = start_date->day;
+        timestamp.tm_hour = start_date->hour;
+        timestamp.tm_min = start_date->mins;
+        timestamp.tm_sec = start_date->sec;
+        timestamp.tm_isdst = -1;
+        start_offset_s = mktime(&timestamp);
+        if (start_offset_s >= 0) {
+            return (1000 * 1000 * (start_date->ms + (1000 * (guint64)start_offset_s)));
+        }
+    }
+
+    return 0;
+}
+
 static void add_interface_name(wtap_block_t *int_data, int pkt_encap, guint16 channel, guint16 hwchannel, gchar *name) {
     if (name != NULL) {
         wtap_block_add_string_option_format(*int_data, OPT_IDB_NAME, "%s", name);
@@ -2463,22 +2495,12 @@ blf_open(wtap *wth, int *err, gchar **err_info) {
         return WTAP_OPEN_ERROR;
     }
 
-    struct tm timestamp;
-    timestamp.tm_year = (header.start_date.year > 1970) ? header.start_date.year - 1900 : 70;
-    timestamp.tm_mon  = header.start_date.month -1;
-    timestamp.tm_mday = header.start_date.day;
-    timestamp.tm_hour = header.start_date.hour;
-    timestamp.tm_min  = header.start_date.mins;
-    timestamp.tm_sec  = header.start_date.sec;
-    timestamp.tm_isdst = -1;
-
     /* Prepare our private context. */
     blf = g_new(blf_t, 1);
     blf->log_containers = NULL;
     blf->current_log_container = 0;
     blf->current_real_seek_pos = 0;
-    blf->start_offset_ns = 1000 * 1000 * 1000 * (guint64)mktime(&timestamp);
-    blf->start_offset_ns += 1000 * 1000 * header.start_date.ms;
+    blf->start_offset_ns = blf_get_start_offset_ns(&header.start_date);
 
     blf->channel_to_iface_ht = g_hash_table_new_full(g_int64_hash, g_int64_equal, &blf_free_key, &blf_free_channel_to_iface_entry);
     blf->next_interface_id = 0;
