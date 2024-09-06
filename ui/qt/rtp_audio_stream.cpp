@@ -399,7 +399,7 @@ void RtpAudioStream::decodeAudio(QAudioDeviceInfo out_device)
             if (timing_mode_ == Uninterrupted) {
                 silence_samples = 0;
             } else {
-                silence_samples = (int)((rtp_time - rtp_time_prev)*sample_rate - decoded_bytes_prev / SAMPLE_BYTES);
+                silence_samples = (qint64)((rtp_time - rtp_time_prev)*sample_rate - decoded_bytes_prev / SAMPLE_BYTES);
                 silence_samples = silence_samples * audio_out_rate_ / sample_rate;
             }
 
