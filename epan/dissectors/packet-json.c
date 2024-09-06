@@ -453,37 +453,39 @@ json_key_lookup(proto_tree* tree, tvbparse_elem_t* tok, const char* key_str, pac
 
 	/*
 	 * use_compact == true: "tok is the composed element of the member"
-	 *	This is only called when the value is a JSON_TOKEN_STRING.
+	 *	This is only called from before_member when the value is a
+	 /	JSON_TOKEN_STRING.
 	 * use_compact == false: "tok is the composed element whose subelement is the value"
 	 *	For this, arrays with matching key are passed in before_array,
 	 *	strings are passed in after_value, and other types aren't passed in.
 	 */
+	const tvbparse_elem_t* value_tok = tok;
 	if (use_compact) {
-		int str_len = (int)strlen(key_str);
-		/* tok refers to the member ("key":"value"), so the start of
-		 * the value is tok->offset + (4 + str_len) and its length is
-		 * tok->len - (5 + str_len).
-		 * XXX - Note this assumes that the value is a string, and
-		 * that there's no insignificant whitespace. The other method,
-		 * by using the parsed token for the value, correctly ignores
-		 * insigificant whitespace.
+		/* tok refers to the member ("key":"value")
+		 * tok->sub is the key string
+		 * tok->sub->next is the ':'
+		 * tok->sub->last is a set with one element
+		 * tok->sub->last->sub is the value
 		 */
-		offset = tok->offset + (4 + str_len);
-		len = tok->len - (5 + str_len);
-	} else {
-		json_token_type_t value_id = tok->sub ? (json_token_type_t)tok->sub->id : JSON_TOKEN_INVALID;
+		DISSECTOR_ASSERT(tok->sub);
+		value_tok = tok->sub->last;
+	}
+	/* tok is a set with one element
+	 * tok->sub is the value
+	 */
+	DISSECTOR_ASSERT(value_tok && value_tok->sub);
+	value_tok = value_tok->sub;
 
-		offset = tok->offset;
-		len = tok->len;
-		/* Remove the quotation marks from strings (we do that in the
-		 * compact case and the decoder functions apparently expect
-		 * that.)
-		 */
-		if (value_id == JSON_TOKEN_STRING && tok->len >= 2) {
-			offset += 1;
-			len -= 2;
-		}
+	json_token_type_t value_id = (json_token_type_t)value_tok->id;
 
+	offset = value_tok->offset;
+	len = value_tok->len;
+	/* Remove the quotation marks from strings (the decoder functions
+	 * apparently expect that.)
+	 */
+	if (value_id == JSON_TOKEN_STRING && len >= 2) {
+		offset += 1;
+		len -= 2;
 	}
 	/* XXX - Every hf_id in packet-json_3gpp.c is a FT_STRING. Should other
 	 * types be supported (perhaps verified against the JSON token type?)
@@ -491,7 +493,7 @@ json_key_lookup(proto_tree* tree, tvbparse_elem_t* tok, const char* key_str, pac
 	 */
 	ti = proto_tree_add_item(tree, hf_id, tok->tvb, offset, len, ENC_ASCII);
 	if (json_data_decoder_rec->json_data_decoder) {
-		(*json_data_decoder_rec->json_data_decoder)(tok->tvb, tree, pinfo, offset, len, key_str);
+		(*json_data_decoder_rec->json_data_decoder)(value_tok->tvb, tree, pinfo, offset, len, key_str);
 	}
 	return ti;
 
