@@ -36,7 +36,7 @@
  * - Radio transport layer (eCPRI) fragmentation / reassembly
  * - Detect/indicate signs of application layer fragmentation?
  * - Not handling M-plane setting for "little endian byte order" as applied to IQ samples and beam weights
- * - for section extensions, check constraints (section type, which other extension types appear with them, order)
+ * - for section extensions, check more constraints (which other extension types appear with them, order)
  * - when section extensions are present, some section header fields are effectively ignored - flag?
  * - re-order items (decl and hf definitions) to match spec order
  * - map forward/backwards between acknack requests (SE-22 or ST4 <-> ST8 responses)
@@ -342,6 +342,7 @@ static expert_field ei_oran_bad_symbolmask;
 static expert_field ei_oran_numslots_not_zero;
 static expert_field ei_oran_version_unsupported;
 static expert_field ei_oran_laa_msg_type_unsupported;
+static expert_field ei_oran_se_on_unsupported_st;
 
 
 /* These are the message types handled by this dissector */
@@ -576,6 +577,69 @@ static const value_string exttype_vals[] = {
     {23,    "Multiple symbol modulation compression parameters"},
     {0, NULL}
 };
+
+/**************************************************************************************/
+/* Keep track for each Section Extension, which section types are allowed to carry it */
+#define HIGHEST_EXTTYPE 23
+typedef struct {
+    bool ST0;
+    bool ST1;
+    bool ST3;
+    bool ST5;
+    bool ST6;
+} AllowedCTs_t;
+
+
+static AllowedCTs_t ext_cts[HIGHEST_EXTTYPE] = {
+    /* ST0    ST1    ST3    ST5    ST6     */
+    { false, true,  true,  false, false },  // SE 1      (1,3)
+    { false, true,  true,  false, false },  // SE 2      (1,3)
+    { false, true,  true,  false, false },  // SE 3      (1,3)
+    { false, true,  true,  true,  false },  // SE 4      (1,3,5)
+    { false, true,  true,  true,  false },  // SE 5      (1,3,5)
+    { false, true,  true,  true,  false },  // SE 6      (1,3,5)
+    { true,  false, false, false, false },  // SE 7      (0)
+    { false, false, false, true,  false },  // SE 8      (5)
+    { true,  true,  true,  true,  true  },  // SE 9      (all)
+    { false, true,  true,  true,  false },  // SE 10     (1,3,5)
+    { false, true,  true,  false, false },  // SE 11     (1,3)
+    { false, true,  true,  true,  false },  // SE 12     (1,3,5)
+    { false, true,  true,  true,  false },  // SE 13     (1,3,5)
+    { false, false, false, true,  false },  // SE 14     (5)
+    { false, false, false, true,  true  },  // SE 15     (5,6)
+    { false, false, false, true,  false },  // SE 16     (5)
+    { false, false, false, true,  false },  // SE 17     (5)
+    { false, true,  true,  true,  false },  // SE 18     (1,3,5)
+    { false, true,  true,  false, false },  // SE 19     (1,3)
+    { true,  true,  true,  true,  true  },  // SE 20     (all)
+    { false, false, false, true,  true  },  // SE 21     (5,6)
+    { true,  true,  true,  true,  true  },  // SE 22     (all?)
+    { false, true,  true,  true,  false },  // SE 23     (1,3,5)
+};
+
+static bool se_allowed_in_st(unsigned se, unsigned ct)
+{
+    if (se==0 || se>HIGHEST_EXTTYPE) {
+        /* Don't know about SE, so assume ok.. */
+        return true;
+    }
+
+    switch (ct) {
+        case 1:
+            return ext_cts[se-1].ST1;
+        case 3:
+            return ext_cts[se-1].ST3;
+        case 5:
+            return ext_cts[se-1].ST5;
+        case 6:
+            return ext_cts[se-1].ST6;
+        default:
+            /* New section type that includes 'ef'.. assume ok */
+            return true;
+    }
+}
+
+/************************************************************************************/
 
 static const value_string bfw_comp_headers_iq_width[] = {
     {0,     "I and Q are 16 bits wide"},
@@ -1871,6 +1935,15 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
 
         proto_item_append_text(extension_ti, " (ext-%u: %s)", exttype, val_to_str_const(exttype, exttype_vals, "Reserved"));
 
+        /* Is this SE allowed for this section type? */
+        if (!se_allowed_in_st(exttype, sectionType)) {
+            expert_add_info_format(pinfo, extension_tree, &ei_oran_se_on_unsupported_st,
+                                   "SE %u (%s) should not appear in ST %u (%s)!",
+                                   exttype, val_to_str_const(exttype, exttype_vals, "Reserved"),
+                                   sectionType, rval_to_str_const(sectionType, section_types, "Unknown"));
+        }
+
+
         /* extLen (number of 32-bit words) */
         uint32_t extlen_len = ((exttype==11)||(exttype==19)||(exttype==20)) ? 2 : 1;  /* Extensions 11/19/20 are special */
         uint32_t extlen;
@@ -2518,6 +2591,8 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
 
             case 16:  /* SE 16: Antenna mapping in UE channel information based UL beamforming */
             {
+                /* Just filling available bytes with antMask entries.
+                   N.B., if SE 10 also used, could associate each antMask with (beamId or UEId) RX eAxC */
                 uint32_t extlen_remaining_bytes = (extlen*4) - 2;
                 unsigned num_ant_masks = extlen_remaining_bytes / 8;
                 for (unsigned n=0; n < num_ant_masks; n++) {
@@ -2777,15 +2852,13 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
 
                 /* reserved (6 bits) */
                 proto_tree_add_item(extension_tree, hf_oran_reserved_6bits, tvb, offset, 1, ENC_BIG_ENDIAN);
+
                 /* prgSize (2 bits). Interpretation depends upon section type (5 or 6), but also mplane features? */
                 if (sectionType == SEC_C_UE_SCHED) {             /* Section Type 5 */
                     proto_tree_add_item(extension_tree, hf_oran_prg_size_st5, tvb, offset, 1, ENC_BIG_ENDIAN);
                 }
                 else if (sectionType == SEC_C_CH_INFO) {         /* Section Type 6 */
                     proto_tree_add_item(extension_tree, hf_oran_prg_size_st6, tvb, offset, 1, ENC_BIG_ENDIAN);
-                }
-                else {
-                    /* TODO: error? */
                 }
                 offset += 1;
                 break;
@@ -5510,8 +5583,8 @@ proto_register_oran(void)
         { &ei_oran_bad_symbolmask, { "oran_fh_cus.bad_symbol_mask", PI_MALFORMED, PI_WARN, "For non-zero sleepMode, symbolMask must be 0x0 or 0x3ffff", EXPFILL }},
         { &ei_oran_numslots_not_zero, { "oran_fh_cus.numslots_not_zero", PI_MALFORMED, PI_WARN, "For ST4 TIME_DOMAIN_BEAM_WEIGHTS, numSlots should be 0", EXPFILL }},
         { &ei_oran_version_unsupported, { "oran_fh_cus.version_unsupported", PI_UNDECODED, PI_WARN, "Protocol version unsupported", EXPFILL }},
-        { &ei_oran_laa_msg_type_unsupported, { "oran_fh_cus.laa_msg_type_unsupported", PI_UNDECODED, PI_WARN, "laaMsgType unsupported", EXPFILL }}
-
+        { &ei_oran_laa_msg_type_unsupported, { "oran_fh_cus.laa_msg_type_unsupported", PI_UNDECODED, PI_WARN, "laaMsgType unsupported", EXPFILL }},
+        { &ei_oran_se_on_unsupported_st, { "oran_fh_cus.se_on_unsupported_st", PI_MALFORMED, PI_WARN, "Section Extension should not appear on this Section Type", EXPFILL }}
     };
 
     /* Register the protocol name and description */
