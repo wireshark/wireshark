@@ -2205,11 +2205,12 @@ dissect_tecmp_log_or_replay_stream(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                 tecmp_info.interface_id = interface_id;
                 tecmp_info.device_id = device_id;
                 tecmp_info.data_type = data_type;
+                tecmp_info.data_flags = tvb_get_uint16(tvb, offset - 2, ENC_BIG_ENDIAN);
                 tecmp_info.msg_type = tecmp_msg_type;
 
                 dissector_handle_t handle = dissector_get_uint_handle(data_type_subdissector_table, data_type);
                 if (handle != NULL) {
-                    call_dissector_only(handle, tvb, pinfo, tecmp_tree, &tecmp_info);
+                    call_dissector_only(handle, sub_tvb, pinfo, tecmp_tree, &tecmp_info);
                 } else {
                     proto_tree_add_item(tecmp_tree, hf_tecmp_payload_data, sub_tvb, 0, length, ENC_NA);
                 }

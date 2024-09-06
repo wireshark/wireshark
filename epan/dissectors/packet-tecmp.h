@@ -21,6 +21,7 @@ typedef struct tecmp_info {
     uint32_t interface_id;
     uint16_t device_id;
     uint16_t data_type;
+    uint16_t data_flags;
     uint8_t msg_type;
 } tecmp_info_t;
 
