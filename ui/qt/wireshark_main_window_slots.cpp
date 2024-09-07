@@ -2856,10 +2856,12 @@ void WiresharkMainWindow::colorizeConversation(bool create_rule)
             coloring_rules_dialog.exec();
         } else {
             char *err_msg = NULL;
-            if (!color_filters_set_tmp(cc_num, filter, false, &err_msg)) {
+            char *prev_filter = color_filters_get_tmp(cc_num);
+            if (!color_filters_set_tmp(cc_num, filter, prev_filter && (strcmp(prev_filter,filter)==0), &err_msg)) {
                 simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", err_msg);
                 g_free(err_msg);
             }
+            g_free(prev_filter);
             packet_list_->recolorPackets();
         }
     }
@@ -2893,10 +2895,12 @@ void WiresharkMainWindow::colorizeWithFilter(QByteArray filter, int color_number
     if (color_number > 0) {
         // Assume "Color X"
         char *err_msg = NULL;
-        if (!color_filters_set_tmp(color_number, filter.constData(), false, &err_msg)) {
+        char *prev_filter = color_filters_get_tmp(color_number);
+        if (!color_filters_set_tmp(color_number, filter.constData(), prev_filter && (strcmp(prev_filter,filter.constData())==0), &err_msg)) {
             simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", err_msg);
             g_free(err_msg);
         }
+        g_free(prev_filter);
         packet_list_->recolorPackets();
     } else {
         // New coloring rule
