@@ -122,8 +122,9 @@ void EndpointDialog::tabChanged(int idx)
     GList *selected_tab = NULL;
 
     if (!file_closed_) {
-        QVariant proto_id = trafficTab()->currentItemData(ATapDataModel::PROTO_ID);
-        if (!proto_id.isNull()) {
+        QVariant current_tab_var = trafficTab()->tabBar()->tabData(trafficTab()->currentIndex());
+        if (!current_tab_var.isNull()) {
+            TabData current_tab_data = qvariant_cast<TabData>(current_tab_var);
 
             /* enable/disable the Hide Aggregation checkbox for IPv4 */
             // XXX - Maybe we can find a better way not relying on the protoname
@@ -133,7 +134,7 @@ void EndpointDialog::tabChanged(int idx)
                 is_pref_set = prefs_get_uint_value("ip", "conv_agg_flag");
             }
 
-            QString protoname = proto_get_protocol_short_name(find_protocol_by_id(proto_id.toInt()));
+            QString protoname = proto_get_protocol_short_name(find_protocol_by_id(current_tab_data.protoId()));
             if(is_pref_set && protoname.toUtf8().data()== QString("IPv4")) {
                 aggregated_ck_ ->setEnabled(true);
             }
@@ -143,7 +144,7 @@ void EndpointDialog::tabChanged(int idx)
 
             for (GList * endTab = recent.endpoint_tabs; endTab; endTab = endTab->next) {
                 int protoId = proto_get_id_by_short_name((const char *)endTab->data);
-                if ((protoId > -1) && (protoId==proto_id.toInt())) {
+                if ((protoId > -1) && (protoId==current_tab_data.protoId())) {
                     selected_tab = endTab;
                 }
             }

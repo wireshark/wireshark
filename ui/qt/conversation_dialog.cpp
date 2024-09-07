@@ -110,6 +110,8 @@ void ConversationDialog::followStream()
     if (file_closed_)
         return;
 
+    // This is null if there's no items for the current tab, but there's no
+    // stream to follow in that case.
     QVariant protoIdData = trafficTab()->currentItemData(ATapDataModel::PROTO_ID);
     if (protoIdData.isNull())
         return;
@@ -155,13 +157,14 @@ void ConversationDialog::tabChanged(int)
     bool graph = false;
 
     if (!file_closed_) {
-        QVariant proto_id = trafficTab()->currentItemData(ATapDataModel::PROTO_ID);
-        if (!proto_id.isNull()) {
-            follow = (get_follow_by_proto_id(proto_id.toInt()) != nullptr);
+        QVariant current_tab_var = trafficTab()->tabBar()->tabData(trafficTab()->currentIndex());
+        if (!current_tab_var.isNull()) {
+            TabData current_tab_data = qvariant_cast<TabData>(current_tab_var);
+            follow = (get_follow_by_proto_id(current_tab_data.protoId()) != nullptr);
 
             for (GList * endTab = recent.conversation_tabs; endTab; endTab = endTab->next) {
                 int protoId = proto_get_id_by_short_name((const char *)endTab->data);
-                if ((protoId > -1) && (protoId==proto_id.toInt())) {
+                if ((protoId > -1) && (protoId==current_tab_data.protoId())) {
                     selected_tab = endTab;
                 }
             }
