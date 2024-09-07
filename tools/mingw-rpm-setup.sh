@@ -53,6 +53,7 @@ BASIC_LIST="mingw64-gcc \
 	mingw64-opus \
 	mingw64-wpcap \
 	mingw64-libxml2 \
+	mingw64-libnghttp2 \
 	ninja-build \
 	flex \
 	lemon \
