@@ -237,6 +237,7 @@ typedef struct {
     uint32_t response_in_frame_num;
     nstime_t request_ts;
     enum http2_data_reassembly_mode_t reassembly_mode;
+    char *scheme;
     char *authority;
     char *path;
 } http2_stream_info_t;
@@ -1483,11 +1484,37 @@ http2_get_stream_id(packet_info *pinfo)
 
     return h2session->current_stream_id;
 }
+
+const char*
+http2_get_request_full_uri(packet_info *pinfo, http2_session_t *http2_session, uint32_t stream_id)
+{
+    const char* uri = NULL;
+    http2_stream_info_t *stream_info = get_stream_info_for_id(pinfo, http2_session, false, stream_id);
+    if (stream_info && stream_info->authority) {
+        /* RFC9113 8.3.1:
+           "All HTTP/2 requests MUST include exactly one valid value for the
+           ":method", ":scheme", and ":path" pseudo-header fields, unless they
+           are CONNECT requests"
+        */
+        if (stream_info->is_stream_http_connect) {
+            uri = wmem_strdup(pinfo->pool, stream_info->authority);
+        } else {
+            uri = wmem_strdup_printf(pinfo->pool, "%s://%s%s", stream_info->scheme, stream_info->authority, stream_info->path);
+        }
+    }
+    return uri;
+}
 #else /* ! HAVE_NGHTTP2 */
 uint32_t
 http2_get_stream_id(packet_info *pinfo _U_)
 {
     return 0;
+}
+
+const char*
+http2_get_request_full_uri(packet_info *pinfo _U_, http2_session_t *http2_session _U_, uint32_t stream_id _U_)
+{
+    return NULL;
 }
 #endif /* ! HAVE_NGHTTP2 */
 
@@ -1929,6 +1956,10 @@ populate_http_header_tracking(tvbuff_t *tvb, packet_info *pinfo, http2_session_t
     if (strcmp(header_name, HTTP2_HEADER_AUTHORITY) == 0) {
         stream_info->authority = wmem_strndup(wmem_file_scope(), header_value, header_value_length);
     }
+
+    if (strcmp(header_name, HTTP2_HEADER_SCHEME) == 0) {
+        stream_info->scheme = wmem_strndup(wmem_file_scope(), header_value, header_value_length);
+    }
 }
 
 static void
@@ -2057,8 +2088,6 @@ inflate_http2_header_block(tvbuff_t *tvb, packet_info *pinfo, unsigned offset, p
     unsigned i;
     const char *method_header_value = NULL;
     const char *path_header_value = NULL;
-    const char *scheme_header_value = NULL;
-    const char *authority_header_value = NULL;
     http2_header_stream_info_t* header_stream_info;
     char *header_unescaped = NULL;
 
@@ -2359,12 +2388,6 @@ inflate_http2_header_block(tvbuff_t *tvb, packet_info *pinfo, unsigned offset, p
             proto_item_append_text(header_tree, " %s", reason_phase);
             proto_item_append_text(tree, ", %s %s", header_value, reason_phase);
         }
-        else if (strcmp(header_name, HTTP2_HEADER_AUTHORITY) == 0) {
-            authority_header_value = header_value;
-	}
-        else if (strcmp(header_name, HTTP2_HEADER_SCHEME) == 0) {
-            scheme_header_value = header_value;
-	}
 
         offset += in->length;
     }
@@ -2379,27 +2402,6 @@ inflate_http2_header_block(tvbuff_t *tvb, packet_info *pinfo, unsigned offset, p
         follow_data->stream_id = h2session->current_stream_id;
 
         tap_queue_packet(http2_follow_tap, pinfo, follow_data);
-    }
-
-    /* Use the Authority Header as an indication that this packet is a request */
-    if (authority_header_value) {
-        proto_item *e_ti;
-        char *uri;
-
-        /* RFC9113 8.3.1:
-           "All HTTP/2 requests MUST include exactly one valid value for the
-           ":method", ":scheme", and ":path" pseudo-header fields, unless they
-           are CONNECT requests"
-        */
-        if (method_header_value &&
-            strcmp(method_header_value, HTTP2_HEADER_METHOD_CONNECT) == 0) {
-            uri = wmem_strdup(pinfo->pool, authority_header_value);
-        } else {
-            uri = wmem_strdup_printf(pinfo->pool, "%s://%s%s", scheme_header_value, authority_header_value, path_header_value);
-        }
-        e_ti = proto_tree_add_string(tree, hf_http2_header_request_full_uri, tvb, 0, 0, uri);
-        proto_item_set_url(e_ti);
-        proto_item_set_generated(e_ti);
     }
 }
 
@@ -3788,6 +3790,12 @@ dissect_http2_push_promise(tvbuff_t *tvb, packet_info *pinfo _U_, http2_session_
         proto_item_set_generated(proto_tree_add_uint(http2_tree, hf_http2_response_in, tvb, 0, 0, stream_info->response_in_frame_num));
     }
 
+    const char *uri = http2_get_request_full_uri(pinfo, h2session, promised_stream_id);
+    if (uri) {
+        proto_item *uri_ti = proto_tree_add_string_format(http2_tree, hf_http2_header_request_full_uri, tvb, 0, 0, uri, "Full promised request URI: %s", uri);
+        proto_item_set_url(uri_ti);
+        proto_item_set_generated(uri_ti);
+    }
 #endif
 
     offset += headlen;
@@ -4156,6 +4164,13 @@ dissect_http2_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
             proto_tree_add_item(http2_tree, hf_http2_unknown, tvb, offset, -1, ENC_NA);
         break;
     }
+    const char *uri = http2_get_request_full_uri(pinfo, http2_session, streamid);
+    if (uri) {
+        proto_item *uri_ti = proto_tree_add_string(http2_tree, hf_http2_header_request_full_uri, tvb, 0, 0, uri);
+        proto_item_set_url(uri_ti);
+        proto_item_set_generated(uri_ti);
+    }
+
     tap_queue_packet(http2_tap, pinfo, http2_stats);
 
     /* HEADERS, CONTINUATION, and PUSH_PROMISE frames are compressed,
