@@ -268,7 +268,7 @@ unsigned_time_secs_to_str_buf(uint64_t time_val, const uint32_t frac,
         wmem_strbuf_append_printf(buf, "%s%" PRIu64 " minute%s", COMMA(do_comma), mins, PLURALIZE(mins));
         do_comma = true;
     }
-    if (secs != 0 || frac != 0) {
+    if (secs != 0) {
         if (frac != 0) {
             if (is_nsecs)
                 wmem_strbuf_append_printf(buf, "%s%" PRIu64 ".%09u seconds", COMMA(do_comma), secs, frac);
@@ -276,6 +276,18 @@ unsigned_time_secs_to_str_buf(uint64_t time_val, const uint32_t frac,
                 wmem_strbuf_append_printf(buf, "%s%" PRIu64 ".%03u seconds", COMMA(do_comma), secs, frac);
         } else
             wmem_strbuf_append_printf(buf, "%s%" PRIu64 " second%s", COMMA(do_comma), secs, PLURALIZE(secs));
+    } else if (frac != 0) {
+        if (is_nsecs) {
+            if (frac < 1000) {
+                wmem_strbuf_append_printf(buf, "%s%u nanosecond%s", COMMA(do_comma), frac, PLURALIZE(frac));
+            } else if (frac < 1000000) {
+                wmem_strbuf_append_printf(buf, "%s%u.%03u microseconds", COMMA(do_comma), frac / 1000, frac % 1000);
+            } else {
+                wmem_strbuf_append_printf(buf, "%s%u.%06u milliseconds", COMMA(do_comma), frac / 1000000, frac % 1000000);
+            }
+        } else {
+            wmem_strbuf_append_printf(buf, "%s%u millisecond%s", COMMA(do_comma), frac, PLURALIZE(frac));
+        }
     }
 }
 
