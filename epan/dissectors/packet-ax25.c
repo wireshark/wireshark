@@ -450,7 +450,7 @@ proto_register_ax25(void)
 
 	/* Register the protocol name and description */
 	proto_ax25 = proto_register_protocol("Amateur Radio AX.25", "AX.25", "ax25");
-	module_t *ax25_module = ax25_module = prefs_register_protocol(proto_ax25, NULL);
+	module_t *ax25_module = prefs_register_protocol(proto_ax25, NULL);
 	prefs_register_bool_preference(ax25_module, "extended",
 				       "Set extended mode",
 				       "Enable extended mode calculation.",
