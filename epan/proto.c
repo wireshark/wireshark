@@ -2082,6 +2082,19 @@ get_time_value(proto_tree *tree, tvbuff_t *tvb, const int start,
 			/*
 			 * NTP time stamp, little-endian.
 			 * Only supported for absolute times.
+			 *
+			 * NTP doesn't use this, because it's an Internet format
+			 * and hence big-endian. Any implementation must decide
+			 * whether the NTP timestamp is a 64-bit unsigned fixed
+			 * point number (RFC 1305, RFC 4330) or a 64-bit struct
+			 * with a 32-bit unsigned seconds field followed by a
+			 * 32-bit fraction field (cf. RFC 5905, which obsoletes
+			 * the previous two).
+			 *
+			 * XXX: We do the latter, but no dissector uses this format.
+			 * OTOH, ERF timestamps do the former, so perhaps we
+			 * should switch the interpretation so that packet-erf.c
+			 * could use this directly?
 			 */
 			DISSECTOR_ASSERT(!is_relative);
 
@@ -2204,6 +2217,15 @@ get_time_value(proto_tree *tree, tvbuff_t *tvb, const int start,
 			 * endian.
 			 *
 			 * Only supported for absolute times.
+			 *
+			 * The RTPS specification explicitly supports Little
+			 * Endian encoding. In one place, it states that its
+			 * Time_t representation "is the one defined by ...
+			 * RFC 1305", but in another explicitly defines it as
+			 * a struct consisting of an 32 bit unsigned seconds
+			 * field and a 32 bit unsigned fraction field, not a 64
+			 * bit fixed point, so we do that here.
+			 * https://www.omg.org/spec/DDSI-RTPS/2.5/PDF
 			 */
 			DISSECTOR_ASSERT(!is_relative);
 
