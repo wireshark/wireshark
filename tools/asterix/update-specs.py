@@ -97,7 +97,7 @@ def safe_string(s):
         '"':    r'\"',  # Double quotation mark.
         "\a":   "",     # Audible alert.
         "\b":   "",     # Backspace character.
-        "\e":   "",     # <ESC> character. (This is a GNU extension.)
+        chr(27): "",    # <ESC> character.
         "\f":   "",     # Form feed.
         "\n":   "",     # Newline character.
         "\r":   "",     # Carriage return.
