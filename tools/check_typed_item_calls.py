@@ -911,6 +911,98 @@ def findStringStrings(filename, macros, do_extra_checks=False):
     return vals_found
 
 
+# Look for expert entries in a dissector file.  Return ExpertEntries object
+def findExpertItems(filename, macros):
+        with open(filename, 'r', encoding="utf8") as f:
+            contents = f.read()
+
+            # Remove comments so as not to trip up RE.
+            contents = removeComments(contents)
+
+            # Look for array of definitions. Looks something like this
+            #static ei_register_info ei[] = {
+            #    { &ei_oran_unsupported_bfw_compression_method, { "oran_fh_cus.unsupported_bfw_compression_method", PI_UNDECODED, PI_WARN, "Unsupported BFW Compression Method", EXPFILL }},
+            #    { &ei_oran_invalid_sample_bit_width, { "oran_fh_cus.invalid_sample_bit_width", PI_UNDECODED, PI_ERROR, "Unsupported sample bit width", EXPFILL }},
+            #};
+
+            expertEntries = ExpertEntries(filename)
+
+            m = re.search(r'static ei_register_info\s*([a-zA-Z_]*)\s*\[\]\s*=\s*\{(.*?)\};', contents, re.MULTILINE|re.DOTALL)
+            if m:
+                entries = m.group(2)
+
+                # Now separate out each entry
+                matches = re.finditer(r'\{\s*&([a-zA-Z0-9_]*)\s*\,\s*\{\s*\"(.*?)\"\s*\,\s*([A-Z_]*)\,\s*([A-Z_]*)\,\s*\"(.*?)\"\s*\,\s*EXPFILL\s*\}\s*\}',
+                                    entries, re.MULTILINE|re.DOTALL)
+                for match in matches:
+                    expertEntry = ExpertEntry(filename, match.group(1), match.group(2), match.group(3), match.group(4), match.group(5))
+                    expertEntries.AddEntry(expertEntry)
+
+            return expertEntries
+
+
+
+
+# These are the valid valies from expert.h
+valid_groups = set(['PI_GROUP_MASK', 'PI_CHECKSUM', 'PI_SEQUENCE',
+                    'PI_RESPONSE_CODE', 'PI_REQUEST_CODE', 'PI_UNDECODED', 'PI_REASSEMBLE',
+                    'PI_MALFORMED', 'PI_DEBUG', 'PI_PROTOCOL', 'PI_SECURITY', 'PI_COMMENTS_GROUP',
+                    'PI_DECRYPTION', 'PI_ASSUMPTION', 'PI_DEPRECATED', 'PI_RECEIVE',
+                    'PI_INTERFACE', 'PI_DISSECTOR_BUG'])
+
+valid_levels = set(['PI_COMMENT', 'PI_CHAT', 'PI_NOTE',
+                    'PI_WARN', 'PI_ERROR'])
+
+
+# An individual entry
+class ExpertEntry:
+    def __init__(self, filename, name, filter, group, severity, label):
+        self.name = name
+        self.filter = filter
+        self.group = group
+        self.severity = severity
+        self.label = label
+
+        global errors_found, warnings_found
+
+        # Some immediate checks
+        if group not in valid_groups:
+            print('Error:', filename, 'group', group, 'is not in', valid_groups)
+            errors_found += 1
+
+        if severity not in valid_levels:
+            print('Error:', filename, 'severity', severity, 'is not in', valid_levels)
+            errors_found += 1
+
+        if label.startswith(' '):
+            print('Warning:', filename, 'Label', '"' + label + '"', 'for', name, 'starts with space')
+            warnings_found += 1
+        if label.endswith(' '):
+            print('Warning:', filename, 'Label', '"' + label + '"', 'for', name, 'ends with space')
+            warnings_found += 1
+
+
+# Collection of entries for this dissector
+class ExpertEntries:
+    def __init__(self, filename):
+        self.filename = filename
+        self.entries = []
+        self.labels = set()
+
+    def AddEntry(self, entry):
+        self.entries.append(entry)
+
+        global errors_found, warnings_found
+
+        # If these are not unique, can't tell apart from expert window (need to look into frame to see details)
+        # TODO: Maybe ok if have different severities?
+        if entry.label in self.labels:
+            print('Warning:', self.filename, 'label', '"' + entry.label + '"', 'has already been seen (now in', entry.name+')')
+            warnings_found += 1
+        self.labels.add(entry.label)
+
+
+
 # The relevant parts of an hf item.  Used as value in dict where hf variable name is key.
 class Item:
 
@@ -1778,7 +1870,8 @@ def findDissectorFilesInFolder(folder, recursive=False):
 
 # Run checks on the given dissector file.
 def checkFile(filename, check_mask=False, mask_exact_width=False, check_label=False, check_consecutive=False,
-              check_missing_items=False, check_bitmask_fields=False, label_vs_filter=False, extra_value_string_checks=False):
+              check_missing_items=False, check_bitmask_fields=False, label_vs_filter=False, extra_value_string_checks=False,
+              check_expert_items=False):
     # Check file exists - e.g. may have been deleted in a recent commit.
     if not os.path.exists(filename):
         print(filename, 'does not exist!')
@@ -1804,6 +1897,9 @@ def checkFile(filename, check_mask=False, mask_exact_width=False, check_label=Fa
     if extra_value_string_checks:
         for name in string_strings:
             string_strings[name].extraChecks()
+
+    if check_expert_items:
+        expert_items = findExpertItems(filename, macros)
 
 
     # Find important parts of items.
@@ -1892,6 +1988,8 @@ parser.add_argument('--label-vs-filter', action='store_true',
                     help='when set, check whether label matches last part of filter')
 parser.add_argument('--extra-value-string-checks', action='store_true',
                     help='when set, do extra checks on parsed value_strings')
+parser.add_argument('--check-expert-items', action='store_true',
+                    help='when set, do extra checks on expert items')
 parser.add_argument('--all-checks', action='store_true',
                     help='when set, apply all checks to selected files')
 
@@ -1906,7 +2004,8 @@ if args.all_checks:
     args.check_bitmask_fields = True
     args.label = True
     args.label_vs_filter = True
-    args.extra_value_string_checks
+    #args.extra_value_string_checks = True
+    #args.check_expert_items = True
 
 if args.check_bitmask_fields:
     args.mask = True
@@ -1978,7 +2077,8 @@ for f in files:
     checkFile(f, check_mask=args.mask, mask_exact_width=args.mask_exact_width, check_label=args.label,
               check_consecutive=args.consecutive, check_missing_items=args.missing_items,
               check_bitmask_fields=args.check_bitmask_fields, label_vs_filter=args.label_vs_filter,
-              extra_value_string_checks=args.extra_value_string_checks)
+              extra_value_string_checks=args.extra_value_string_checks,
+              check_expert_items=args.check_expert_items)
 
     # Do checks against all calls.
     if args.consecutive:

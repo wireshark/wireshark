@@ -1793,8 +1793,8 @@ void proto_register_miwi_p2pstar(void)
     static ei_register_info ei[] = {
         //{ &ei_miwi_empty_payload,     { "miwi_p2pstar.empty_payload",   PI_MALFORMED,      PI_ERROR, "Empty MiWi Payload!", EXPFILL }},
         { &ei_miwi_frame_ver,   { "miwi_p2pstar.frame_version_error", PI_COMMENTS_GROUP, PI_NOTE,  "Source address can not be broadcast address !", EXPFILL }},
-        { &ei_miwi_dst, { "miwi_p2pstar.dst_addr_error",     PI_COMMENTS_GROUP, PI_WARN,  "destination address Error ", EXPFILL }},
-        { &ei_miwi_src, { "miwi_p2pstar.src_addr_error",     PI_COMMENTS_GROUP, PI_WARN,  "Source address Error ", EXPFILL }},
+        { &ei_miwi_dst, { "miwi_p2pstar.dst_addr_error",     PI_COMMENTS_GROUP, PI_WARN,  "destination address Error", EXPFILL }},
+        { &ei_miwi_src, { "miwi_p2pstar.src_addr_error",     PI_COMMENTS_GROUP, PI_WARN,  "Source address Error", EXPFILL }},
         { &ei_miwi_invalid_addressing, { "miwi_p2pstar.invalid_addr_error", PI_PROTOCOL,   PI_NOTE,  "Invalid Address Error", EXPFILL }},
         { &ei_miwi_invalid_panid_compression, { "miwi_p2pstar.invalid_panid_comp_error", PI_PROTOCOL,   PI_WARN,  "Panid compression error", EXPFILL }},
         { &ei_miwi_invalid_panid_compression2, { "miwi_p2pstar.invalid_panid_comp2_error", PI_PROTOCOL,   PI_WARN,  "Panid2 compression error", EXPFILL }},

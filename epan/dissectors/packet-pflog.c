@@ -517,7 +517,7 @@ proto_register_pflog(void)
   static int *ett[] = { &ett_pflog };
 
   static ei_register_info ei[] = {
-     { &ei_pflog_invalid_header_length, { "pflog.invalid_header_length", PI_MALFORMED, PI_ERROR, "Invalid header length ", EXPFILL }},
+     { &ei_pflog_invalid_header_length, { "pflog.invalid_header_length", PI_MALFORMED, PI_ERROR, "Invalid header length", EXPFILL }},
   };
 
   expert_module_t* expert_pflog;

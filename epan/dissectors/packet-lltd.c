@@ -932,11 +932,11 @@ proto_register_lltd(void)
         { &ei_lltd_tlv_length_invalid, { "lltd.tlv.length.invalid", PI_MALFORMED, PI_ERROR, "Invalid length", EXPFILL }},
         { &ei_lltd_char_reserved, { "lltd.characteristic.reserved.not_zero", PI_PROTOCOL, PI_WARN, "Non zero reserve bits", EXPFILL }},
         { &ei_lltd_too_many_paths, { "lltd.too_many_paths", PI_PROTOCOL, PI_WARN, "Too many paths to root", EXPFILL }},
-        { &ei_lltd_tlv_type, { "lltd.tlv.type.invalid", PI_PROTOCOL, PI_WARN, "Invalid TLV Type 0x%02x", EXPFILL }},
-        { &ei_lltd_discovery_func, { "lltd.discovery.invalid", PI_PROTOCOL, PI_WARN, "Invalid function 0x%02x", EXPFILL }},
+        { &ei_lltd_tlv_type, { "lltd.tlv.type.invalid", PI_PROTOCOL, PI_WARN, "Invalid TLV Type", EXPFILL }},
+        { &ei_lltd_discovery_func, { "lltd.discovery.invalid", PI_PROTOCOL, PI_WARN, "Invalid function", EXPFILL }},
         { &ei_lltd_qos_seq_num, { "lltd.qos.seq_num.cannot_be_zero", PI_PROTOCOL, PI_WARN, "Sequence number can not be 0", EXPFILL }},
-        { &ei_lltd_qos_diag_func, { "lltd.qos_diag.invalid", PI_PROTOCOL, PI_WARN, "Invalid function 0x%02x", EXPFILL }},
-        { &ei_lltd_type_of_service, { "lltd.tos.invalid", PI_PROTOCOL, PI_WARN, "Invalid Type of Service value 0x%02x", EXPFILL }},
+        { &ei_lltd_qos_diag_func, { "lltd.qos_diag.invalid", PI_PROTOCOL, PI_WARN, "Invalid function", EXPFILL }},
+        { &ei_lltd_type_of_service, { "lltd.tos.invalid", PI_PROTOCOL, PI_WARN, "Invalid Type of Service value", EXPFILL }},
     };
 
     expert_module_t* expert_lltd;

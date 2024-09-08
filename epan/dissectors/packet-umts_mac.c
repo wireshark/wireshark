@@ -1535,7 +1535,7 @@ proto_register_umts_mac(void)
         { &ei_mac_unknown_content, { "mac.unknown_content", PI_MALFORMED, PI_ERROR, "Unknown RACH DCCH/DTCH Content", EXPFILL }},
         { &ei_mac_rach_tctf_unknown, { "mac.rach_tctf.unknown", PI_MALFORMED, PI_ERROR, "Unknown RACH TCTF", EXPFILL }},
         { &ei_mac_cs_dtch_not_implemented, { "mac.cs_dtch.not_implemented", PI_DEBUG, PI_ERROR, "CS DTCH Is not implemented", EXPFILL }},
-        { &ei_mac_fach_content_type_unknown, { "mac.fach_content_type.unknown", PI_UNDECODED, PI_WARN, " Unimplemented FACH Content type!", EXPFILL }},
+        { &ei_mac_fach_content_type_unknown, { "mac.fach_content_type.unknown", PI_UNDECODED, PI_WARN, "Unimplemented FACH Content type!", EXPFILL }},
         { &ei_mac_no_logical_channel, { "mac.no_logical_channel", PI_PROTOCOL, PI_WARN, "Frame is missing logical channel", EXPFILL }},
         { &ei_mac_faked_logical_channel_id, { "mac.faked_logical_channel_id", PI_PROTOCOL, PI_WARN, "This is a faked logical channel id!", EXPFILL }},
         { &ei_mac_macis_sdu_reassembled, { "mac.macis_sdu.reassembled", PI_REASSEMBLE, PI_CHAT, "Reassembled MAC-is SDU", EXPFILL }},

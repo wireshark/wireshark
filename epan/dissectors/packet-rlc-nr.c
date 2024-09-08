@@ -1820,8 +1820,8 @@ void proto_register_rlc_nr(void)
 
     static ei_register_info ei[] = {
         { &ei_rlc_nr_reserved_bits_not_zero, { "rlc-nr.reserved-bits-not-zero", PI_MALFORMED, PI_ERROR, "Reserved bits not zero", EXPFILL }},
-        { &ei_rlc_nr_um_sn, { "rlc-nr.um.sn.invalid", PI_MALFORMED, PI_ERROR, "Invalid sequence number length", EXPFILL }},
-        { &ei_rlc_nr_am_sn, { "rlc-nr.am.sn.invalid", PI_MALFORMED, PI_ERROR, "Invalid sequence number length", EXPFILL }},
+        { &ei_rlc_nr_um_sn, { "rlc-nr.um.sn.invalid", PI_MALFORMED, PI_ERROR, "Invalid UM sequence number length", EXPFILL }},
+        { &ei_rlc_nr_am_sn, { "rlc-nr.am.sn.invalid", PI_MALFORMED, PI_ERROR, "Invalid AM sequence number length", EXPFILL }},
         { &ei_rlc_nr_header_only, { "rlc-nr.header-only.expert", PI_SEQUENCE, PI_NOTE, "RLC PDU SDUs have been omitted", EXPFILL }},
         { &ei_rlc_nr_am_cpt, { "rlc-nr.am.cpt.invalid", PI_MALFORMED, PI_ERROR, "RLC Control frame type not handled", EXPFILL }},
         { &ei_rlc_nr_am_nack_sn_ack_same, { "rlc-nr.am.nack-sn.ack-same", PI_MALFORMED, PI_ERROR, "Status PDU shouldn't ACK and NACK the same sequence number", EXPFILL }},

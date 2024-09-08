@@ -10458,7 +10458,7 @@ proto_register_ceph(void)
 			"ceph.msg_unknown", PI_UNDECODED, PI_WARN,
 			"Unknown message type. This most likely means that the dissector "
 			"is out of date.  However it could also be an error by the "
-			"sender ", EXPFILL
+			"sender.", EXPFILL
 		} },
 		{ &ei_union_unknown, {
 			"ceph.union_unknown", PI_UNDECODED, PI_WARN,

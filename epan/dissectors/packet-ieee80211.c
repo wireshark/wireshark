@@ -60408,7 +60408,7 @@ proto_register_ieee80211(void)
 
     { &ei_ieee80211_tag_measure_request_beacon_unknown,
       { "wlan.measure.req.beacon.unknown.expert", PI_UNDECODED, PI_WARN,
-        "Unknown Data (not interpreted)", EXPFILL }},
+        "Unknown Measure RequestData (not interpreted)", EXPFILL }},
 
     { &ei_ieee80211_tag_measure_report_unknown,
       { "wlan.measure.rep.unknown.expert", PI_UNDECODED, PI_WARN,
@@ -60416,11 +60416,11 @@ proto_register_ieee80211(void)
 
     { &ei_ieee80211_tag_measure_report_beacon_unknown,
       { "wlan.measure.rep.beacon.unknown.expert", PI_UNDECODED, PI_WARN,
-        "Unknown Data (not interpreted)", EXPFILL }},
+        "Unknown Measure Report Data (not interpreted)", EXPFILL }},
 
     { &ei_ieee80211_tag_measure_report_lci_unknown,
       { "wlan.measure.rep.lci.unknown.expert", PI_UNDECODED, PI_WARN,
-        "Unknown Data (not interpreted)", EXPFILL }},
+        "Unknown Report LCI Data (not interpreted)", EXPFILL }},
 
     { &ei_ieee80211_tag_data,
       { "wlan.tag.data.undecoded", PI_UNDECODED, PI_NOTE,
@@ -60484,7 +60484,7 @@ proto_register_ieee80211(void)
 
     { &ei_ieee80211_invalid_control_id,
       { "wlan.htc.he.a_control.ctrl_id.invalid", PI_PROTOCOL, PI_ERROR,
-        "Invalid control word", EXPFILL }},
+        "Invalid control id", EXPFILL }},
 
     { &ei_ieee80211_invalid_control_length,
       { "wlan.htc.he.a_control.ctrl_length.invalid", PI_PROTOCOL, PI_ERROR,
