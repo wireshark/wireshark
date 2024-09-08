@@ -170,8 +170,8 @@ FIELDDISPLAY    --For FT_UINT{8,16,24,32,40,48,56,64} and
 
                 --For FT_ABSOLUTE_TIME:
 
-                  ABSOLUTE_TIME_LOCAL, ABSOLUTE_TIME_UTC, or
-                  ABSOLUTE_TIME_DOY_UTC
+                  ABSOLUTE_TIME_LOCAL, ABSOLUTE_TIME_UTC, ABSOLUTE_TIME_DOY_UTC,
+                  ABSOLUTE_TIME_NTP_UTC, or ABSOLUTE_TIME_UNIX
 
                 --For FT_BOOLEAN:
 
@@ -181,9 +181,10 @@ FIELDDISPLAY    --For FT_UINT{8,16,24,32,40,48,56,64} and
                   otherwise:
                     (must be) BASE_NONE
 
-                --For FT_STRING, FT_STRINGZ and FT_UINT_STRING:
+                --For FT_STRING, FT_STRINGZ, FT_STRINGZPAD, FT_STRINGZTRUNC,
+                  and FT_UINT_STRING:
 
-                  (must be) BASE_NONE
+                  BASE_STR_WSP or BASE_NONE
 
                 --For FT_BYTES and FT_UINT_BYTES:
 
