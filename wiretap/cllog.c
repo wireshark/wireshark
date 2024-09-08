@@ -755,7 +755,7 @@ static int cllog_file_type_subtype = -1;
 #define CAN_SFF_MASK 0x000007FF /* standard frame format (SFF) */
 
 static bool
-cllog_read_common(wtap *wth, FILE_T fh, wtap_rec *rec, Buffer *buf, int *err, char **err_info _U_)
+cllog_read_common(wtap *wth, FILE_T fh, wtap_rec *rec, Buffer *buf, int *err, char **err_info)
 {
     cCLLog_logFileInfo_t *clLog = (cCLLog_logFileInfo_t *) wth->priv;
     char line[MAX_LOG_LINE_LENGTH];
@@ -835,7 +835,7 @@ cllog_seek_read(wtap *wth, int64_t seek_off, wtap_rec *rec, Buffer *buf, int *er
 }
 
 wtap_open_return_val
-cllog_open(wtap *wth, int *err, char **err_info _U_)
+cllog_open(wtap *wth, int *err, char **err_info)
 {
     cCLLog_logFileInfo_t *clLog;
     char line[ MAX_LOG_LINE_LENGTH ];
@@ -935,7 +935,7 @@ cllog_open(wtap *wth, int *err, char **err_info _U_)
                     g_free(clLog);
                     if (*err == WTAP_ERR_BAD_FILE)
                     {
-                        wmem_free(NULL, err_info);
+                        wmem_free(NULL, *err_info);
                         *err_info = NULL;
                     }
                     return WTAP_OPEN_NOT_MINE;
