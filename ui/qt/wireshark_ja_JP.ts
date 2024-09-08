@@ -2709,11 +2709,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Hide aggregated</source>
-        <translation type="unfinished"></translation>
+        <translation>集約されたものを非表示</translation>
     </message>
     <message>
         <source>Hide IPv4 aggregated endpoints (see subnets file &amp; IPv4 preferences)</source>
-        <translation type="unfinished"></translation>
+        <translation>IPv4 集約された終端を非表示 (サブネットファイルとIPv4設定を参照)</translation>
     </message>
     <message>
         <source>Failed to save map file %1.</source>
@@ -7502,10 +7502,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
 </context>
 <context>
     <name>PacketList</name>
-    <message>
-        <source>Protocol Preferences</source>
-        <translation type="vanished">プロトコル設定</translation>
-    </message>
     <message>
         <source>Summary as Text</source>
         <translation>テキストとしての概要</translation>

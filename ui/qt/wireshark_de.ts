@@ -7524,10 +7524,6 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
 <context>
     <name>PacketList</name>
     <message>
-        <source>Protocol Preferences</source>
-        <translation type="vanished">Protokolleinstellungen</translation>
-    </message>
-    <message>
         <source>Summary as Text</source>
         <translation>Zusammenfassung als Text</translation>
     </message>

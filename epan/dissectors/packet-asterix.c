@@ -9,7 +9,7 @@ See tools/asterix/README.md for details.
 
 Data source:
 https://zoranbosnjak.github.io/asterix-specs
-git revision: 421940bf49cef4a5bf4dd58d8297420e492bfd83
+git revision: 3d2651f4b3102b59eccdb48b895080bcad46f5ce
 
 
 */
@@ -6275,9 +6275,9 @@ static const FieldPart * const I008_V1_2_020_PARTS[] = {
 static const AsterixField I008_V1_2_020 = { FX, 0, 0, 0, &hf_008_V1_2_020, I008_V1_2_020_PARTS, { NULL } };
 static int hf_008_V1_2_034;
 static int hf_008_V1_2_034_STR;
-static const FieldPart I008_V1_2_034_STR = { 8, 0.0078125, FIELD_PART_UFLOAT, &hf_008_V1_2_034_STR, NULL };
+static const FieldPart I008_V1_2_034_STR = { 8, 1.0, FIELD_PART_UINT, &hf_008_V1_2_034_STR, NULL };
 static int hf_008_V1_2_034_ENDR;
-static const FieldPart I008_V1_2_034_ENDR = { 8, 0.0078125, FIELD_PART_UFLOAT, &hf_008_V1_2_034_ENDR, NULL };
+static const FieldPart I008_V1_2_034_ENDR = { 8, 1.0, FIELD_PART_UINT, &hf_008_V1_2_034_ENDR, NULL };
 static int hf_008_V1_2_034_AZ;
 static const FieldPart I008_V1_2_034_AZ = { 16, 0.0054931640625, FIELD_PART_UFLOAT, &hf_008_V1_2_034_AZ, NULL };
 static const FieldPart * const I008_V1_2_034_PARTS[] = {
@@ -6289,11 +6289,11 @@ static const FieldPart * const I008_V1_2_034_PARTS[] = {
 static const AsterixField I008_V1_2_034 = { REPETITIVE, 4, 1, 0, &hf_008_V1_2_034, I008_V1_2_034_PARTS, { NULL } };
 static int hf_008_V1_2_036;
 static int hf_008_V1_2_036_X;
-static const FieldPart I008_V1_2_036_X = { 8, 0.015625, FIELD_PART_FLOAT, &hf_008_V1_2_036_X, NULL };
+static const FieldPart I008_V1_2_036_X = { 8, 1.0, FIELD_PART_INT, &hf_008_V1_2_036_X, NULL };
 static int hf_008_V1_2_036_Y;
-static const FieldPart I008_V1_2_036_Y = { 8, 0.015625, FIELD_PART_FLOAT, &hf_008_V1_2_036_Y, NULL };
+static const FieldPart I008_V1_2_036_Y = { 8, 1.0, FIELD_PART_INT, &hf_008_V1_2_036_Y, NULL };
 static int hf_008_V1_2_036_LENGTH;
-static const FieldPart I008_V1_2_036_LENGTH = { 8, 0.015625, FIELD_PART_UFLOAT, &hf_008_V1_2_036_LENGTH, NULL };
+static const FieldPart I008_V1_2_036_LENGTH = { 8, 1.0, FIELD_PART_UINT, &hf_008_V1_2_036_LENGTH, NULL };
 static const FieldPart * const I008_V1_2_036_PARTS[] = {
     &I008_V1_2_036_X,
     &I008_V1_2_036_Y,
@@ -6303,13 +6303,13 @@ static const FieldPart * const I008_V1_2_036_PARTS[] = {
 static const AsterixField I008_V1_2_036 = { REPETITIVE, 3, 1, 0, &hf_008_V1_2_036, I008_V1_2_036_PARTS, { NULL } };
 static int hf_008_V1_2_038;
 static int hf_008_V1_2_038_X1;
-static const FieldPart I008_V1_2_038_X1 = { 8, 0.015625, FIELD_PART_FLOAT, &hf_008_V1_2_038_X1, NULL };
+static const FieldPart I008_V1_2_038_X1 = { 8, 1.0, FIELD_PART_INT, &hf_008_V1_2_038_X1, NULL };
 static int hf_008_V1_2_038_Y1;
-static const FieldPart I008_V1_2_038_Y1 = { 8, 0.015625, FIELD_PART_FLOAT, &hf_008_V1_2_038_Y1, NULL };
+static const FieldPart I008_V1_2_038_Y1 = { 8, 1.0, FIELD_PART_INT, &hf_008_V1_2_038_Y1, NULL };
 static int hf_008_V1_2_038_X2;
-static const FieldPart I008_V1_2_038_X2 = { 8, 0.015625, FIELD_PART_FLOAT, &hf_008_V1_2_038_X2, NULL };
+static const FieldPart I008_V1_2_038_X2 = { 8, 1.0, FIELD_PART_INT, &hf_008_V1_2_038_X2, NULL };
 static int hf_008_V1_2_038_Y2;
-static const FieldPart I008_V1_2_038_Y2 = { 8, 0.015625, FIELD_PART_FLOAT, &hf_008_V1_2_038_Y2, NULL };
+static const FieldPart I008_V1_2_038_Y2 = { 8, 1.0, FIELD_PART_INT, &hf_008_V1_2_038_Y2, NULL };
 static const FieldPart * const I008_V1_2_038_PARTS[] = {
     &I008_V1_2_038_X1,
     &I008_V1_2_038_Y1,
@@ -6350,9 +6350,9 @@ static const FieldPart * const I008_V1_2_040_PARTS[] = {
 static const AsterixField I008_V1_2_040 = { FIXED, 2, 0, 0, &hf_008_V1_2_040, I008_V1_2_040_PARTS, { NULL } };
 static int hf_008_V1_2_050;
 static int hf_008_V1_2_050_X1;
-static const FieldPart I008_V1_2_050_X1 = { 8, 0.015625, FIELD_PART_FLOAT, &hf_008_V1_2_050_X1, NULL };
+static const FieldPart I008_V1_2_050_X1 = { 8, 1.0, FIELD_PART_INT, &hf_008_V1_2_050_X1, NULL };
 static int hf_008_V1_2_050_Y1;
-static const FieldPart I008_V1_2_050_Y1 = { 8, 0.015625, FIELD_PART_FLOAT, &hf_008_V1_2_050_Y1, NULL };
+static const FieldPart I008_V1_2_050_Y1 = { 8, 1.0, FIELD_PART_INT, &hf_008_V1_2_050_Y1, NULL };
 static const FieldPart * const I008_V1_2_050_PARTS[] = {
     &I008_V1_2_050_X1,
     &I008_V1_2_050_Y1,
@@ -6503,9 +6503,9 @@ static const FieldPart * const I008_V1_3_020_PARTS[] = {
 static const AsterixField I008_V1_3_020 = { FX, 0, 0, 0, &hf_008_V1_3_020, I008_V1_3_020_PARTS, { NULL } };
 static int hf_008_V1_3_034;
 static int hf_008_V1_3_034_STR;
-static const FieldPart I008_V1_3_034_STR = { 8, 0.0078125, FIELD_PART_UFLOAT, &hf_008_V1_3_034_STR, NULL };
+static const FieldPart I008_V1_3_034_STR = { 8, 1.0, FIELD_PART_UINT, &hf_008_V1_3_034_STR, NULL };
 static int hf_008_V1_3_034_ENDR;
-static const FieldPart I008_V1_3_034_ENDR = { 8, 0.0078125, FIELD_PART_UFLOAT, &hf_008_V1_3_034_ENDR, NULL };
+static const FieldPart I008_V1_3_034_ENDR = { 8, 1.0, FIELD_PART_UINT, &hf_008_V1_3_034_ENDR, NULL };
 static int hf_008_V1_3_034_AZ;
 static const FieldPart I008_V1_3_034_AZ = { 16, 0.0054931640625, FIELD_PART_UFLOAT, &hf_008_V1_3_034_AZ, NULL };
 static const FieldPart * const I008_V1_3_034_PARTS[] = {
@@ -6517,11 +6517,11 @@ static const FieldPart * const I008_V1_3_034_PARTS[] = {
 static const AsterixField I008_V1_3_034 = { REPETITIVE, 4, 1, 0, &hf_008_V1_3_034, I008_V1_3_034_PARTS, { NULL } };
 static int hf_008_V1_3_036;
 static int hf_008_V1_3_036_X;
-static const FieldPart I008_V1_3_036_X = { 8, 0.015625, FIELD_PART_FLOAT, &hf_008_V1_3_036_X, NULL };
+static const FieldPart I008_V1_3_036_X = { 8, 1.0, FIELD_PART_INT, &hf_008_V1_3_036_X, NULL };
 static int hf_008_V1_3_036_Y;
-static const FieldPart I008_V1_3_036_Y = { 8, 0.015625, FIELD_PART_FLOAT, &hf_008_V1_3_036_Y, NULL };
+static const FieldPart I008_V1_3_036_Y = { 8, 1.0, FIELD_PART_INT, &hf_008_V1_3_036_Y, NULL };
 static int hf_008_V1_3_036_LENGTH;
-static const FieldPart I008_V1_3_036_LENGTH = { 8, 0.015625, FIELD_PART_UFLOAT, &hf_008_V1_3_036_LENGTH, NULL };
+static const FieldPart I008_V1_3_036_LENGTH = { 8, 1.0, FIELD_PART_UINT, &hf_008_V1_3_036_LENGTH, NULL };
 static const FieldPart * const I008_V1_3_036_PARTS[] = {
     &I008_V1_3_036_X,
     &I008_V1_3_036_Y,
@@ -6531,13 +6531,13 @@ static const FieldPart * const I008_V1_3_036_PARTS[] = {
 static const AsterixField I008_V1_3_036 = { REPETITIVE, 3, 1, 0, &hf_008_V1_3_036, I008_V1_3_036_PARTS, { NULL } };
 static int hf_008_V1_3_038;
 static int hf_008_V1_3_038_X1;
-static const FieldPart I008_V1_3_038_X1 = { 8, 0.015625, FIELD_PART_FLOAT, &hf_008_V1_3_038_X1, NULL };
+static const FieldPart I008_V1_3_038_X1 = { 8, 1.0, FIELD_PART_INT, &hf_008_V1_3_038_X1, NULL };
 static int hf_008_V1_3_038_Y1;
-static const FieldPart I008_V1_3_038_Y1 = { 8, 0.015625, FIELD_PART_FLOAT, &hf_008_V1_3_038_Y1, NULL };
+static const FieldPart I008_V1_3_038_Y1 = { 8, 1.0, FIELD_PART_INT, &hf_008_V1_3_038_Y1, NULL };
 static int hf_008_V1_3_038_X2;
-static const FieldPart I008_V1_3_038_X2 = { 8, 0.015625, FIELD_PART_FLOAT, &hf_008_V1_3_038_X2, NULL };
+static const FieldPart I008_V1_3_038_X2 = { 8, 1.0, FIELD_PART_INT, &hf_008_V1_3_038_X2, NULL };
 static int hf_008_V1_3_038_Y2;
-static const FieldPart I008_V1_3_038_Y2 = { 8, 0.015625, FIELD_PART_FLOAT, &hf_008_V1_3_038_Y2, NULL };
+static const FieldPart I008_V1_3_038_Y2 = { 8, 1.0, FIELD_PART_INT, &hf_008_V1_3_038_Y2, NULL };
 static const FieldPart * const I008_V1_3_038_PARTS[] = {
     &I008_V1_3_038_X1,
     &I008_V1_3_038_Y1,
@@ -6578,9 +6578,9 @@ static const FieldPart * const I008_V1_3_040_PARTS[] = {
 static const AsterixField I008_V1_3_040 = { FIXED, 2, 0, 0, &hf_008_V1_3_040, I008_V1_3_040_PARTS, { NULL } };
 static int hf_008_V1_3_050;
 static int hf_008_V1_3_050_X1;
-static const FieldPart I008_V1_3_050_X1 = { 8, 0.015625, FIELD_PART_FLOAT, &hf_008_V1_3_050_X1, NULL };
+static const FieldPart I008_V1_3_050_X1 = { 8, 1.0, FIELD_PART_INT, &hf_008_V1_3_050_X1, NULL };
 static int hf_008_V1_3_050_Y1;
-static const FieldPart I008_V1_3_050_Y1 = { 8, 0.015625, FIELD_PART_FLOAT, &hf_008_V1_3_050_Y1, NULL };
+static const FieldPart I008_V1_3_050_Y1 = { 8, 1.0, FIELD_PART_INT, &hf_008_V1_3_050_Y1, NULL };
 static const FieldPart * const I008_V1_3_050_PARTS[] = {
     &I008_V1_3_050_X1,
     &I008_V1_3_050_Y1,
@@ -6710,9 +6710,9 @@ static const FieldPart * const I008_020_PARTS[] = {
 static const AsterixField I008_020 = { FX, 0, 0, 0, &hf_008_020, I008_020_PARTS, { NULL } };
 static int hf_008_034;
 static int hf_008_034_STR;
-static const FieldPart I008_034_STR = { 8, 0.0078125, FIELD_PART_UFLOAT, &hf_008_034_STR, NULL };
+static const FieldPart I008_034_STR = { 8, 1.0, FIELD_PART_UINT, &hf_008_034_STR, NULL };
 static int hf_008_034_ENDR;
-static const FieldPart I008_034_ENDR = { 8, 0.0078125, FIELD_PART_UFLOAT, &hf_008_034_ENDR, NULL };
+static const FieldPart I008_034_ENDR = { 8, 1.0, FIELD_PART_UINT, &hf_008_034_ENDR, NULL };
 static int hf_008_034_AZ;
 static const FieldPart I008_034_AZ = { 16, 0.0054931640625, FIELD_PART_UFLOAT, &hf_008_034_AZ, NULL };
 static const FieldPart * const I008_034_PARTS[] = {
@@ -6724,11 +6724,11 @@ static const FieldPart * const I008_034_PARTS[] = {
 static const AsterixField I008_034 = { REPETITIVE, 4, 1, 0, &hf_008_034, I008_034_PARTS, { NULL } };
 static int hf_008_036;
 static int hf_008_036_X;
-static const FieldPart I008_036_X = { 8, 0.015625, FIELD_PART_FLOAT, &hf_008_036_X, NULL };
+static const FieldPart I008_036_X = { 8, 1.0, FIELD_PART_INT, &hf_008_036_X, NULL };
 static int hf_008_036_Y;
-static const FieldPart I008_036_Y = { 8, 0.015625, FIELD_PART_FLOAT, &hf_008_036_Y, NULL };
+static const FieldPart I008_036_Y = { 8, 1.0, FIELD_PART_INT, &hf_008_036_Y, NULL };
 static int hf_008_036_LENGTH;
-static const FieldPart I008_036_LENGTH = { 8, 0.015625, FIELD_PART_UFLOAT, &hf_008_036_LENGTH, NULL };
+static const FieldPart I008_036_LENGTH = { 8, 1.0, FIELD_PART_UINT, &hf_008_036_LENGTH, NULL };
 static const FieldPart * const I008_036_PARTS[] = {
     &I008_036_X,
     &I008_036_Y,
@@ -6738,13 +6738,13 @@ static const FieldPart * const I008_036_PARTS[] = {
 static const AsterixField I008_036 = { REPETITIVE, 3, 1, 0, &hf_008_036, I008_036_PARTS, { NULL } };
 static int hf_008_038;
 static int hf_008_038_X1;
-static const FieldPart I008_038_X1 = { 8, 0.015625, FIELD_PART_FLOAT, &hf_008_038_X1, NULL };
+static const FieldPart I008_038_X1 = { 8, 1.0, FIELD_PART_INT, &hf_008_038_X1, NULL };
 static int hf_008_038_Y1;
-static const FieldPart I008_038_Y1 = { 8, 0.015625, FIELD_PART_FLOAT, &hf_008_038_Y1, NULL };
+static const FieldPart I008_038_Y1 = { 8, 1.0, FIELD_PART_INT, &hf_008_038_Y1, NULL };
 static int hf_008_038_X2;
-static const FieldPart I008_038_X2 = { 8, 0.015625, FIELD_PART_FLOAT, &hf_008_038_X2, NULL };
+static const FieldPart I008_038_X2 = { 8, 1.0, FIELD_PART_INT, &hf_008_038_X2, NULL };
 static int hf_008_038_Y2;
-static const FieldPart I008_038_Y2 = { 8, 0.015625, FIELD_PART_FLOAT, &hf_008_038_Y2, NULL };
+static const FieldPart I008_038_Y2 = { 8, 1.0, FIELD_PART_INT, &hf_008_038_Y2, NULL };
 static const FieldPart * const I008_038_PARTS[] = {
     &I008_038_X1,
     &I008_038_Y1,
@@ -6785,9 +6785,9 @@ static const FieldPart * const I008_040_PARTS[] = {
 static const AsterixField I008_040 = { FIXED, 2, 0, 0, &hf_008_040, I008_040_PARTS, { NULL } };
 static int hf_008_050;
 static int hf_008_050_X1;
-static const FieldPart I008_050_X1 = { 8, 0.015625, FIELD_PART_FLOAT, &hf_008_050_X1, NULL };
+static const FieldPart I008_050_X1 = { 8, 1.0, FIELD_PART_INT, &hf_008_050_X1, NULL };
 static int hf_008_050_Y1;
-static const FieldPart I008_050_Y1 = { 8, 0.015625, FIELD_PART_FLOAT, &hf_008_050_Y1, NULL };
+static const FieldPart I008_050_Y1 = { 8, 1.0, FIELD_PART_INT, &hf_008_050_Y1, NULL };
 static const FieldPart * const I008_050_PARTS[] = {
     &I008_050_X1,
     &I008_050_Y1,
@@ -6939,11 +6939,11 @@ static const FieldPart * const I009_V2_1_020_PARTS[] = {
 static const AsterixField I009_V2_1_020 = { FX, 0, 0, 0, &hf_009_V2_1_020, I009_V2_1_020_PARTS, { NULL } };
 static int hf_009_V2_1_030;
 static int hf_009_V2_1_030_X;
-static const FieldPart I009_V2_1_030_X = { 16, 0.015625, FIELD_PART_FLOAT, &hf_009_V2_1_030_X, NULL };
+static const FieldPart I009_V2_1_030_X = { 16, 1.0, FIELD_PART_INT, &hf_009_V2_1_030_X, NULL };
 static int hf_009_V2_1_030_Y;
-static const FieldPart I009_V2_1_030_Y = { 16, 0.015625, FIELD_PART_FLOAT, &hf_009_V2_1_030_Y, NULL };
+static const FieldPart I009_V2_1_030_Y = { 16, 1.0, FIELD_PART_INT, &hf_009_V2_1_030_Y, NULL };
 static int hf_009_V2_1_030_L;
-static const FieldPart I009_V2_1_030_L = { 16, 0.015625, FIELD_PART_UFLOAT, &hf_009_V2_1_030_L, NULL };
+static const FieldPart I009_V2_1_030_L = { 16, 1.0, FIELD_PART_UINT, &hf_009_V2_1_030_L, NULL };
 static const FieldPart * const I009_V2_1_030_PARTS[] = {
     &I009_V2_1_030_X,
     &I009_V2_1_030_Y,
@@ -7074,11 +7074,11 @@ static const FieldPart * const I009_020_PARTS[] = {
 static const AsterixField I009_020 = { FX, 0, 0, 0, &hf_009_020, I009_020_PARTS, { NULL } };
 static int hf_009_030;
 static int hf_009_030_X;
-static const FieldPart I009_030_X = { 16, 0.015625, FIELD_PART_FLOAT, &hf_009_030_X, NULL };
+static const FieldPart I009_030_X = { 16, 1.0, FIELD_PART_INT, &hf_009_030_X, NULL };
 static int hf_009_030_Y;
-static const FieldPart I009_030_Y = { 16, 0.015625, FIELD_PART_FLOAT, &hf_009_030_Y, NULL };
+static const FieldPart I009_030_Y = { 16, 1.0, FIELD_PART_INT, &hf_009_030_Y, NULL };
 static int hf_009_030_L;
-static const FieldPart I009_030_L = { 16, 0.015625, FIELD_PART_UFLOAT, &hf_009_030_L, NULL };
+static const FieldPart I009_030_L = { 16, 1.0, FIELD_PART_UINT, &hf_009_030_L, NULL };
 static const FieldPart * const I009_030_PARTS[] = {
     &I009_030_X,
     &I009_030_Y,
@@ -60210,26 +60210,26 @@ void proto_register_asterix (void)
         { &hf_008_V1_2_020_TST, { "TST", "asterix.008_V1_2_020_TST", FT_UINT8, BASE_DEC, VALS (valstr_008_V1_2_020_TST), 0x04, NULL, HFILL } },
         { &hf_008_V1_2_020_ER, { "ER", "asterix.008_V1_2_020_ER", FT_UINT8, BASE_DEC, VALS (valstr_008_V1_2_020_ER), 0x02, NULL, HFILL } },
         { &hf_008_V1_2_034, { "034, Sequence of Polar Vectors in SPF Notation", "asterix.008_V1_2_034", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_008_V1_2_034_STR, { "STR, Start Range, [(NM)]", "asterix.008_V1_2_034_STR", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_008_V1_2_034_ENDR, { "ENDR, End Range, [(NM)]", "asterix.008_V1_2_034_ENDR", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_008_V1_2_034_STR, { "STR, Start Range", "asterix.008_V1_2_034_STR", FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL } },
+        { &hf_008_V1_2_034_ENDR, { "ENDR, End Range", "asterix.008_V1_2_034_ENDR", FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL } },
         { &hf_008_V1_2_034_AZ, { "AZ, Azimuth, [°]", "asterix.008_V1_2_034_AZ", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_008_V1_2_036, { "036, Sequence of Cartesian Vectors in SPF Notation", "asterix.008_V1_2_036", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_008_V1_2_036_X, { "X, X-Component, [(NM)]", "asterix.008_V1_2_036_X", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_008_V1_2_036_Y, { "Y, Y-Component, [(NM)]", "asterix.008_V1_2_036_Y", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_008_V1_2_036_LENGTH, { "LENGTH, Length, [(NM)]", "asterix.008_V1_2_036_LENGTH", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_008_V1_2_036_X, { "X, X-Component", "asterix.008_V1_2_036_X", FT_INT8, BASE_DEC, NULL, 0x00, NULL, HFILL } },
+        { &hf_008_V1_2_036_Y, { "Y, Y-Component", "asterix.008_V1_2_036_Y", FT_INT8, BASE_DEC, NULL, 0x00, NULL, HFILL } },
+        { &hf_008_V1_2_036_LENGTH, { "LENGTH, Length", "asterix.008_V1_2_036_LENGTH", FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL } },
         { &hf_008_V1_2_038, { "038, Sequence of Weather Vectors in SPF Notation", "asterix.008_V1_2_038", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_008_V1_2_038_X1, { "X1, X1-Component, [(NM)]", "asterix.008_V1_2_038_X1", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_008_V1_2_038_Y1, { "Y1, Y1-Component, [(NM)]", "asterix.008_V1_2_038_Y1", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_008_V1_2_038_X2, { "X2, X2-Component, [(NM)]", "asterix.008_V1_2_038_X2", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_008_V1_2_038_Y2, { "Y2, Y2-Component, [(NM)]", "asterix.008_V1_2_038_Y2", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_008_V1_2_038_X1, { "X1, X1-Component", "asterix.008_V1_2_038_X1", FT_INT8, BASE_DEC, NULL, 0x00, NULL, HFILL } },
+        { &hf_008_V1_2_038_Y1, { "Y1, Y1-Component", "asterix.008_V1_2_038_Y1", FT_INT8, BASE_DEC, NULL, 0x00, NULL, HFILL } },
+        { &hf_008_V1_2_038_X2, { "X2, X2-Component", "asterix.008_V1_2_038_X2", FT_INT8, BASE_DEC, NULL, 0x00, NULL, HFILL } },
+        { &hf_008_V1_2_038_Y2, { "Y2, Y2-Component", "asterix.008_V1_2_038_Y2", FT_INT8, BASE_DEC, NULL, 0x00, NULL, HFILL } },
         { &hf_008_V1_2_040, { "040, Contour Identifier", "asterix.008_V1_2_040", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_008_V1_2_040_ORG, { "ORG", "asterix.008_V1_2_040_ORG", FT_UINT8, BASE_DEC, VALS (valstr_008_V1_2_040_ORG), 0x80, NULL, HFILL } },
         { &hf_008_V1_2_040_I, { "I, Intensity Level", "asterix.008_V1_2_040_I", FT_UINT8, BASE_DEC, NULL, 0x70, NULL, HFILL } },
         { &hf_008_V1_2_040_FSTLST, { "FSTLST", "asterix.008_V1_2_040_FSTLST", FT_UINT8, BASE_DEC, VALS (valstr_008_V1_2_040_FSTLST), 0x03, NULL, HFILL } },
         { &hf_008_V1_2_040_CSN, { "CSN, Contour Serial Number", "asterix.008_V1_2_040_CSN", FT_UINT8, BASE_HEX_DEC, NULL, 0x00, NULL, HFILL } },
         { &hf_008_V1_2_050, { "050, Sequence of Contour Points in SPF Notation", "asterix.008_V1_2_050", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_008_V1_2_050_X1, { "X1, [(NM)]", "asterix.008_V1_2_050_X1", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_008_V1_2_050_Y1, { "Y1, [(NM)]", "asterix.008_V1_2_050_Y1", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_008_V1_2_050_X1, { "X1", "asterix.008_V1_2_050_X1", FT_INT8, BASE_DEC, NULL, 0x00, NULL, HFILL } },
+        { &hf_008_V1_2_050_Y1, { "Y1", "asterix.008_V1_2_050_Y1", FT_INT8, BASE_DEC, NULL, 0x00, NULL, HFILL } },
         { &hf_008_V1_2_090, { "090, Time of Day", "asterix.008_V1_2_090", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_008_V1_2_090_VALUE, { "Time of Day, [s]", "asterix.008_V1_2_090_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_008_V1_2_100, { "100, Processing Status", "asterix.008_V1_2_100", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
@@ -60253,26 +60253,26 @@ void proto_register_asterix (void)
         { &hf_008_V1_3_020_TST, { "TST", "asterix.008_V1_3_020_TST", FT_UINT8, BASE_DEC, VALS (valstr_008_V1_3_020_TST), 0x04, NULL, HFILL } },
         { &hf_008_V1_3_020_ER, { "ER", "asterix.008_V1_3_020_ER", FT_UINT8, BASE_DEC, VALS (valstr_008_V1_3_020_ER), 0x02, NULL, HFILL } },
         { &hf_008_V1_3_034, { "034, Sequence of Polar Vectors in SPF Notation", "asterix.008_V1_3_034", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_008_V1_3_034_STR, { "STR, Start Range, [(NM)]", "asterix.008_V1_3_034_STR", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_008_V1_3_034_ENDR, { "ENDR, End Range, [(NM)]", "asterix.008_V1_3_034_ENDR", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_008_V1_3_034_STR, { "STR, Start Range", "asterix.008_V1_3_034_STR", FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL } },
+        { &hf_008_V1_3_034_ENDR, { "ENDR, End Range", "asterix.008_V1_3_034_ENDR", FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL } },
         { &hf_008_V1_3_034_AZ, { "AZ, Azimuth, [°]", "asterix.008_V1_3_034_AZ", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_008_V1_3_036, { "036, Sequence of Cartesian Vectors in SPF Notation", "asterix.008_V1_3_036", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_008_V1_3_036_X, { "X, X-Component, [(NM)]", "asterix.008_V1_3_036_X", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_008_V1_3_036_Y, { "Y, Y-Component, [(NM)]", "asterix.008_V1_3_036_Y", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_008_V1_3_036_LENGTH, { "LENGTH, Length, [(NM)]", "asterix.008_V1_3_036_LENGTH", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_008_V1_3_036_X, { "X, X-Component", "asterix.008_V1_3_036_X", FT_INT8, BASE_DEC, NULL, 0x00, NULL, HFILL } },
+        { &hf_008_V1_3_036_Y, { "Y, Y-Component", "asterix.008_V1_3_036_Y", FT_INT8, BASE_DEC, NULL, 0x00, NULL, HFILL } },
+        { &hf_008_V1_3_036_LENGTH, { "LENGTH, Length", "asterix.008_V1_3_036_LENGTH", FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL } },
         { &hf_008_V1_3_038, { "038, Sequence of Weather Vectors in SPF Notation", "asterix.008_V1_3_038", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_008_V1_3_038_X1, { "X1, X1-Component, [(NM)]", "asterix.008_V1_3_038_X1", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_008_V1_3_038_Y1, { "Y1, Y1-Component, [(NM)]", "asterix.008_V1_3_038_Y1", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_008_V1_3_038_X2, { "X2, X2-Component, [(NM)]", "asterix.008_V1_3_038_X2", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_008_V1_3_038_Y2, { "Y2, Y2-Component, [(NM)]", "asterix.008_V1_3_038_Y2", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_008_V1_3_038_X1, { "X1, X1-Component", "asterix.008_V1_3_038_X1", FT_INT8, BASE_DEC, NULL, 0x00, NULL, HFILL } },
+        { &hf_008_V1_3_038_Y1, { "Y1, Y1-Component", "asterix.008_V1_3_038_Y1", FT_INT8, BASE_DEC, NULL, 0x00, NULL, HFILL } },
+        { &hf_008_V1_3_038_X2, { "X2, X2-Component", "asterix.008_V1_3_038_X2", FT_INT8, BASE_DEC, NULL, 0x00, NULL, HFILL } },
+        { &hf_008_V1_3_038_Y2, { "Y2, Y2-Component", "asterix.008_V1_3_038_Y2", FT_INT8, BASE_DEC, NULL, 0x00, NULL, HFILL } },
         { &hf_008_V1_3_040, { "040, Contour Identifier", "asterix.008_V1_3_040", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_008_V1_3_040_ORG, { "ORG", "asterix.008_V1_3_040_ORG", FT_UINT8, BASE_DEC, VALS (valstr_008_V1_3_040_ORG), 0x80, NULL, HFILL } },
         { &hf_008_V1_3_040_I, { "I, Intensity Level", "asterix.008_V1_3_040_I", FT_UINT8, BASE_DEC, NULL, 0x70, NULL, HFILL } },
         { &hf_008_V1_3_040_FSTLST, { "FSTLST", "asterix.008_V1_3_040_FSTLST", FT_UINT8, BASE_DEC, VALS (valstr_008_V1_3_040_FSTLST), 0x03, NULL, HFILL } },
         { &hf_008_V1_3_040_CSN, { "CSN, Contour Serial Number", "asterix.008_V1_3_040_CSN", FT_UINT8, BASE_HEX_DEC, NULL, 0x00, NULL, HFILL } },
         { &hf_008_V1_3_050, { "050, Sequence of Contour Points in SPF Notation", "asterix.008_V1_3_050", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_008_V1_3_050_X1, { "X1, [(NM)]", "asterix.008_V1_3_050_X1", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_008_V1_3_050_Y1, { "Y1, [(NM)]", "asterix.008_V1_3_050_Y1", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_008_V1_3_050_X1, { "X1", "asterix.008_V1_3_050_X1", FT_INT8, BASE_DEC, NULL, 0x00, NULL, HFILL } },
+        { &hf_008_V1_3_050_Y1, { "Y1", "asterix.008_V1_3_050_Y1", FT_INT8, BASE_DEC, NULL, 0x00, NULL, HFILL } },
         { &hf_008_V1_3_090, { "090, Time of Day", "asterix.008_V1_3_090", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_008_V1_3_090_VALUE, { "Time of Day, [s]", "asterix.008_V1_3_090_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_008_V1_3_100, { "100, Processing Status", "asterix.008_V1_3_100", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
@@ -60296,26 +60296,26 @@ void proto_register_asterix (void)
         { &hf_008_020_TST, { "TST", "asterix.008_020_TST", FT_UINT8, BASE_DEC, VALS (valstr_008_020_TST), 0x04, NULL, HFILL } },
         { &hf_008_020_ER, { "ER", "asterix.008_020_ER", FT_UINT8, BASE_DEC, VALS (valstr_008_020_ER), 0x02, NULL, HFILL } },
         { &hf_008_034, { "034, Sequence of Polar Vectors in SPF Notation", "asterix.008_034", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_008_034_STR, { "STR, Start Range, [(NM)]", "asterix.008_034_STR", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_008_034_ENDR, { "ENDR, End Range, [(NM)]", "asterix.008_034_ENDR", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_008_034_STR, { "STR, Start Range", "asterix.008_034_STR", FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL } },
+        { &hf_008_034_ENDR, { "ENDR, End Range", "asterix.008_034_ENDR", FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL } },
         { &hf_008_034_AZ, { "AZ, Azimuth, [°]", "asterix.008_034_AZ", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_008_036, { "036, Sequence of Cartesian Vectors in SPF Notation", "asterix.008_036", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_008_036_X, { "X, X-Component, [(NM)]", "asterix.008_036_X", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_008_036_Y, { "Y, Y-Component, [(NM)]", "asterix.008_036_Y", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_008_036_LENGTH, { "LENGTH, Length, [(NM)]", "asterix.008_036_LENGTH", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_008_036_X, { "X, X-Component", "asterix.008_036_X", FT_INT8, BASE_DEC, NULL, 0x00, NULL, HFILL } },
+        { &hf_008_036_Y, { "Y, Y-Component", "asterix.008_036_Y", FT_INT8, BASE_DEC, NULL, 0x00, NULL, HFILL } },
+        { &hf_008_036_LENGTH, { "LENGTH, Length", "asterix.008_036_LENGTH", FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL } },
         { &hf_008_038, { "038, Sequence of Weather Vectors in SPF Notation", "asterix.008_038", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_008_038_X1, { "X1, X1-Component, [(NM)]", "asterix.008_038_X1", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_008_038_Y1, { "Y1, Y1-Component, [(NM)]", "asterix.008_038_Y1", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_008_038_X2, { "X2, X2-Component, [(NM)]", "asterix.008_038_X2", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_008_038_Y2, { "Y2, Y2-Component, [(NM)]", "asterix.008_038_Y2", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_008_038_X1, { "X1, X1-Component", "asterix.008_038_X1", FT_INT8, BASE_DEC, NULL, 0x00, NULL, HFILL } },
+        { &hf_008_038_Y1, { "Y1, Y1-Component", "asterix.008_038_Y1", FT_INT8, BASE_DEC, NULL, 0x00, NULL, HFILL } },
+        { &hf_008_038_X2, { "X2, X2-Component", "asterix.008_038_X2", FT_INT8, BASE_DEC, NULL, 0x00, NULL, HFILL } },
+        { &hf_008_038_Y2, { "Y2, Y2-Component", "asterix.008_038_Y2", FT_INT8, BASE_DEC, NULL, 0x00, NULL, HFILL } },
         { &hf_008_040, { "040, Contour Identifier", "asterix.008_040", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_008_040_ORG, { "ORG", "asterix.008_040_ORG", FT_UINT8, BASE_DEC, VALS (valstr_008_040_ORG), 0x80, NULL, HFILL } },
         { &hf_008_040_I, { "I, Intensity Level", "asterix.008_040_I", FT_UINT8, BASE_DEC, NULL, 0x70, NULL, HFILL } },
         { &hf_008_040_FSTLST, { "FSTLST", "asterix.008_040_FSTLST", FT_UINT8, BASE_DEC, VALS (valstr_008_040_FSTLST), 0x03, NULL, HFILL } },
         { &hf_008_040_CSN, { "CSN, Contour Serial Number", "asterix.008_040_CSN", FT_UINT8, BASE_HEX_DEC, NULL, 0x00, NULL, HFILL } },
         { &hf_008_050, { "050, Sequence of Contour Points in SPF Notation", "asterix.008_050", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_008_050_X1, { "X1, [(NM)]", "asterix.008_050_X1", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_008_050_Y1, { "Y1, [(NM)]", "asterix.008_050_Y1", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_008_050_X1, { "X1", "asterix.008_050_X1", FT_INT8, BASE_DEC, NULL, 0x00, NULL, HFILL } },
+        { &hf_008_050_Y1, { "Y1", "asterix.008_050_Y1", FT_INT8, BASE_DEC, NULL, 0x00, NULL, HFILL } },
         { &hf_008_090, { "090, Time of Day", "asterix.008_090", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_008_090_VALUE, { "Time of Day, [s]", "asterix.008_090_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_008_100, { "100, Processing Status", "asterix.008_100", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
@@ -60337,9 +60337,9 @@ void proto_register_asterix (void)
         { &hf_009_V2_1_020_I, { "I, Intensity Level", "asterix.009_V2_1_020_I", FT_UINT8, BASE_DEC, NULL, 0x70, NULL, HFILL } },
         { &hf_009_V2_1_020_S, { "S, Shading Orientation with Respect to North", "asterix.009_V2_1_020_S", FT_UINT8, BASE_DEC, VALS (valstr_009_V2_1_020_S), 0x0e, NULL, HFILL } },
         { &hf_009_V2_1_030, { "030, Sequence of Cartesian Vectors", "asterix.009_V2_1_030", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_009_V2_1_030_X, { "X, X-coordinate, [(NM)]", "asterix.009_V2_1_030_X", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_009_V2_1_030_Y, { "Y, Y-coordinate, [(NM)]", "asterix.009_V2_1_030_Y", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_009_V2_1_030_L, { "L, Vector Length, [(NM)]", "asterix.009_V2_1_030_L", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_009_V2_1_030_X, { "X, X-coordinate", "asterix.009_V2_1_030_X", FT_INT16, BASE_DEC, NULL, 0x00, NULL, HFILL } },
+        { &hf_009_V2_1_030_Y, { "Y, Y-coordinate", "asterix.009_V2_1_030_Y", FT_INT16, BASE_DEC, NULL, 0x00, NULL, HFILL } },
+        { &hf_009_V2_1_030_L, { "L, Vector Length", "asterix.009_V2_1_030_L", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL } },
         { &hf_009_V2_1_060, { "060, Synchronisation/Control Signal", "asterix.009_V2_1_060", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_009_V2_1_060_SN, { "SN, Step Number", "asterix.009_V2_1_060_SN", FT_UINT8, BASE_DEC, NULL, 0xfc, NULL, HFILL } },
         { &hf_009_V2_1_070, { "070, Time of Day", "asterix.009_V2_1_070", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
@@ -60366,9 +60366,9 @@ void proto_register_asterix (void)
         { &hf_009_020_I, { "I, Intensity Level", "asterix.009_020_I", FT_UINT8, BASE_DEC, NULL, 0x70, NULL, HFILL } },
         { &hf_009_020_S, { "S, Shading Orientation with Respect to North", "asterix.009_020_S", FT_UINT8, BASE_DEC, VALS (valstr_009_020_S), 0x0e, NULL, HFILL } },
         { &hf_009_030, { "030, Sequence of Cartesian Vectors", "asterix.009_030", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_009_030_X, { "X, X-coordinate, [(NM)]", "asterix.009_030_X", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_009_030_Y, { "Y, Y-coordinate, [(NM)]", "asterix.009_030_Y", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_009_030_L, { "L, Vector Length, [(NM)]", "asterix.009_030_L", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_009_030_X, { "X, X-coordinate", "asterix.009_030_X", FT_INT16, BASE_DEC, NULL, 0x00, NULL, HFILL } },
+        { &hf_009_030_Y, { "Y, Y-coordinate", "asterix.009_030_Y", FT_INT16, BASE_DEC, NULL, 0x00, NULL, HFILL } },
+        { &hf_009_030_L, { "L, Vector Length", "asterix.009_030_L", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL } },
         { &hf_009_060, { "060, Synchronisation/Control Signal", "asterix.009_060", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_009_060_SN, { "SN, Step Number", "asterix.009_060_SN", FT_UINT8, BASE_DEC, NULL, 0xfc, NULL, HFILL } },
         { &hf_009_070, { "070, Time of Day", "asterix.009_070", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },

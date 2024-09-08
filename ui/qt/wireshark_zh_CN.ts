@@ -7494,10 +7494,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
 <context>
     <name>PacketList</name>
     <message>
-        <source>Protocol Preferences</source>
-        <translation type="vanished">协议首选项</translation>
-    </message>
-    <message>
         <source>Summary as Text</source>
         <translation>摘要为文本</translation>
     </message>

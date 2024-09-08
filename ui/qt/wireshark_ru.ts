@@ -2724,11 +2724,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Hide aggregated</source>
-        <translation type="unfinished"></translation>
+        <translation>Скрыть агрегированные</translation>
     </message>
     <message>
         <source>Hide IPv4 aggregated endpoints (see subnets file &amp; IPv4 preferences)</source>
-        <translation type="unfinished"></translation>
+        <translation>Скрыть агрегированные конечные точки IPv4 ( смотрите файл подсетей и настройки IPv4)</translation>
     </message>
     <message>
         <source>Failed to save map file %1.</source>
@@ -7547,10 +7547,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
 </context>
 <context>
     <name>PacketList</name>
-    <message>
-        <source>Protocol Preferences</source>
-        <translation type="vanished">Параметры протокола</translation>
-    </message>
     <message>
         <source>Summary as Text</source>
         <translation>Сводка в текстовом формате</translation>

@@ -7500,10 +7500,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
 <context>
     <name>PacketList</name>
     <message>
-        <source>Protocol Preferences</source>
-        <translation type="vanished">Protokol Tercihleri</translation>
-    </message>
-    <message>
         <source>Summary as Text</source>
         <translation>Metin Olarak Özet</translation>
     </message>
