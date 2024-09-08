@@ -117,9 +117,9 @@
     </message>
     <message numerus="yes">
         <source>Copy Row(s)</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Copier la ligne</numerusform>
+            <numerusform>Copier les lignes</numerusform>
         </translation>
     </message>
 </context>
@@ -747,7 +747,7 @@
     </message>
     <message>
         <source>…as bits</source>
-        <translation>…comme bits</translation>
+        <translation>…en binaire</translation>
     </message>
     <message>
         <source>Show text based on packet</source>
@@ -1469,7 +1469,7 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
     </message>
     <message>
         <source>YYYYmmDDHHMMSS_NNNNN</source>
-        <translation type="unfinished"></translation>
+        <translation>AAAAmmJJHHMMSS_NNNNN</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Date and time before the file index number. This causes files to sort in creation time order, and keeps files from the same batch closely ordered.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -1477,7 +1477,7 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
     </message>
     <message>
         <source>NNNNN_YYYYmmDDHHMMSS</source>
-        <translation type="unfinished"></translation>
+        <translation>NNNNN_AAAAmmJJHHMMSS</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;File index number before the date and time. This is the historic Wireshark ordering.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -1968,11 +1968,11 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
     </message>
     <message>
         <source>Compress with g&amp;zip</source>
-        <translation type="unfinished"></translation>
+        <translation>Compressé avec g&amp;zip</translation>
     </message>
     <message>
         <source>Compress with &amp;LZ4</source>
-        <translation type="unfinished"></translation>
+        <translation>Compressé avec &amp;LZ4</translation>
     </message>
 </context>
 <context>
@@ -2015,7 +2015,7 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
     </message>
     <message>
         <source>Packets B </source>
-        <translation type="unfinished"></translation>
+        <translation>Paquets B</translation>
     </message>
     <message>
         <source>Bytes B </source>
@@ -2169,7 +2169,7 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
     </message>
     <message>
         <source>Copy packet bytes as printable ASCII characters and escape sequences.</source>
-        <translation type="unfinished"></translation>
+        <translation>Interprète les données du paquet en ASCII et génère une chaîne de caractères en C des caractères imprimables et de séquences d&apos;échappement.</translation>
     </message>
     <message>
         <source>…as Go literal</source>
@@ -2177,7 +2177,7 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
     </message>
     <message>
         <source>Copy packet bytes as Go literal.</source>
-        <translation type="unfinished"></translation>
+        <translation>Génère le code en Go de la définition d&apos;un tableau contenant les données du paquet.</translation>
     </message>
     <message>
         <source>…as C Array</source>
@@ -2185,7 +2185,7 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
     </message>
     <message>
         <source>Copy packet bytes as C Array.</source>
-        <translation type="unfinished"></translation>
+        <translation>Génère le code en C de la définition d&apos;un tableau contenant les données du paquet.</translation>
     </message>
     <message>
         <source>…as a Hex Stream</source>
@@ -2430,11 +2430,11 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
     </message>
     <message>
         <source>Any</source>
-        <translation type="unfinished">Tout</translation>
+        <translation>N&apos;importe quel</translation>
     </message>
     <message>
         <source>All</source>
-        <translation type="unfinished">Tout</translation>
+        <translation>Tous</translation>
     </message>
     <message>
         <source>Match against this value.</source>
@@ -2485,11 +2485,11 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
     <name>DissectorSyntaxLineEdit</name>
     <message>
         <source>Dissector entry</source>
-        <translation type="unfinished"></translation>
+        <translation>Entrée du Dissecteur</translation>
     </message>
     <message>
         <source>Enter a dissector %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Saisir un dissecteur %1</translation>
     </message>
 </context>
 <context>
@@ -2519,7 +2519,7 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
     </message>
     <message>
         <source>Dissector Description</source>
-        <translation type="unfinished"></translation>
+        <translation>Description du Dissecteur</translation>
     </message>
     <message>
         <source>Integer</source>
@@ -3100,9 +3100,9 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
     <message numerus="yes">
         <source>%Ln File(s) in Set</source>
         <oldsource>%1 File%2 in Set</oldsource>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%Ln Fichier dans l&apos;ensemble</numerusform>
+            <numerusform>%Ln Fichiers dans l&apos;ensemble</numerusform>
         </translation>
     </message>
 </context>
@@ -3186,7 +3186,7 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
     </message>
     <message>
         <source>Display Filter Macros</source>
-        <translation type="unfinished"></translation>
+        <translation>Macros de filtre d&apos;affichage</translation>
     </message>
     <message>
         <source>New macro</source>
@@ -3285,7 +3285,7 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
     </message>
     <message>
         <source>Macro Expression</source>
-        <translation type="unfinished"></translation>
+        <translation>Expression de la macro</translation>
     </message>
     <message>
         <source>Filter Expression</source>
@@ -3418,7 +3418,7 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
     </message>
     <message>
         <source>&quot;File&quot; dialog location</source>
-        <translation type="unfinished"></translation>
+        <translation>Chemin d&apos;accès du dialogue &quot;Fichier&quot;</translation>
     </message>
     <message>
         <source>Capture files</source>
@@ -3430,15 +3430,15 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
     </message>
     <message>
         <source>Preferences, profiles, manuf, …</source>
-        <translation type="unfinished"></translation>
+        <translation>Préférences, profils, fabrication, ...</translation>
     </message>
     <message>
         <source>Program files</source>
-        <translation type="unfinished"></translation>
+        <translation>Fichiers de programme</translation>
     </message>
     <message>
         <source>Binary plugins</source>
-        <translation type="unfinished"></translation>
+        <translation>Plugins binaires</translation>
     </message>
     <message>
         <source>Personal Extcap path</source>
@@ -3446,7 +3446,7 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
     </message>
     <message>
         <source>External capture (extcap) plugins</source>
-        <translation type="unfinished"></translation>
+        <translation>Plugins de capture externe (extcap)</translation>
     </message>
     <message>
         <source>Global Extcap path</source>
@@ -3507,6 +3507,20 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
         <source>Print</source>
         <translation>Imprimer</translation>
     </message>
+    <message numerus="yes">
+        <source>%Ln client pkt(s), </source>
+        <translation type="vanished">
+            <numerusform>%Ln paquet client, </numerusform>
+            <numerusform>%Ln paquets client, </numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>%Ln server pkt(s), </source>
+        <translation type="vanished">
+            <numerusform>%Ln paquet serveur, </numerusform>
+            <numerusform>%Ln paquets serveur, </numerusform>
+        </translation>
+    </message>
     <message>
         <source>ASCII</source>
         <translation>ASCII</translation>
@@ -3549,28 +3563,28 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
     </message>
     <message numerus="yes">
         <source>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;client&lt;/span&gt; pkt(s), </source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%Ln pqt &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;client&lt;/span&gt;, </numerusform>
+            <numerusform>%Ln pqts &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;client&lt;/span&gt;, </numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;server&lt;/span&gt; pkt(s), </source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%Ln pqt &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;server&lt;/span&gt;, </numerusform>
+            <numerusform>%Ln pqts &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;server&lt;/span&gt;, </numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>%Ln turn(s).</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%Ln tour.</numerusform>
+            <numerusform>%Ln tours.</numerusform>
         </translation>
     </message>
     <message>
         <source>Event %1. </source>
-        <translation type="unfinished"></translation>
+        <translation>Événement %1.</translation>
     </message>
     <message numerus="yes">
         <source>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;reads&lt;/span&gt;, </source>
@@ -3655,9 +3669,9 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
     </message>
     <message numerus="yes">
         <source>Max sub stream ID for the selected stream: %Ln</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>ID maximum des flux secondaires pour le flux sélectionné : %Ln</numerusform>
+            <numerusform>ID maximum des flux secondaires pour le flux sélectionné : %Ln</numerusform>
         </translation>
     </message>
     <message>
@@ -3678,15 +3692,15 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
     </message>
     <message>
         <source>No delta times</source>
-        <translation type="unfinished"></translation>
+        <translation>Aucun écart de temps</translation>
     </message>
     <message>
         <source>Turn delta times</source>
-        <translation type="unfinished"></translation>
+        <translation>Écart de temps de retournement</translation>
     </message>
     <message>
         <source>All delta times</source>
-        <translation type="unfinished"></translation>
+        <translation>Tous les écarts de temps</translation>
     </message>
     <message>
         <source>Stream</source>
@@ -3942,7 +3956,7 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
     </message>
     <message>
         <source>Enter code</source>
-        <translation type="unfinished"></translation>
+        <translation>Saisir code</translation>
     </message>
     <message>
         <source>Evaluate</source>
@@ -3950,11 +3964,11 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
     </message>
     <message>
         <source>Clear</source>
-        <translation type="unfinished">Vider</translation>
+        <translation>Vider</translation>
     </message>
     <message>
         <source>Use %1 to evaluate.</source>
-        <translation type="unfinished"></translation>
+        <translation>Utiliser %1 pour l&apos;évaluation.</translation>
     </message>
 </context>
 <context>
@@ -4115,7 +4129,7 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
     </message>
     <message>
         <source>Enable legend</source>
-        <translation type="unfinished"></translation>
+        <translation>Activer la légende</translation>
     </message>
     <message>
         <source>Reset Graph</source>
@@ -4428,7 +4442,7 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
     </message>
     <message>
         <source>Filtered events</source>
-        <translation type="unfinished"></translation>
+        <translation>Événements filtrés</translation>
     </message>
     <message>
         <source>All packets</source>
@@ -4436,7 +4450,7 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
     </message>
     <message>
         <source>All events</source>
-        <translation type="unfinished"></translation>
+        <translation>Tous les événements</translation>
     </message>
     <message>
         <source>All Packets</source>
@@ -4448,11 +4462,11 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
     </message>
     <message>
         <source>All Events</source>
-        <translation type="unfinished"></translation>
+        <translation>Tous les Événements</translation>
     </message>
     <message>
         <source>All Execs</source>
-        <translation type="unfinished"></translation>
+        <translation>Tous les Exécutables</translation>
     </message>
     <message>
         <source>Hover over the graph for details.</source>
@@ -4476,7 +4490,7 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
     </message>
     <message>
         <source>Click to select event</source>
-        <translation type="unfinished"></translation>
+        <translation>Cliquez pour sélectionner l&apos;événement</translation>
     </message>
     <message>
         <source>Event</source>
@@ -4500,7 +4514,7 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
     </message>
     <message>
         <source>%1 Intervals </source>
-        <translation type="unfinished"></translation>
+        <translation>%1 intervalles</translation>
     </message>
     <message>
         <source>Move to top left</source>
@@ -5282,7 +5296,7 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
     <name>InterfaceTreeDelegate</name>
     <message>
         <source>default</source>
-        <translation type="unfinished">défaut</translation>
+        <translation>par défaut</translation>
     </message>
 </context>
 <context>
@@ -6240,7 +6254,7 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;If more than this many rows are displayed, then sorting by columns that require packet dissection will be disabled. Increasing this number increases memory consumption by caching column values.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;S&apos;il y a plus de ce nombre de colonnes affichées, alors les tris par colonnes qui requièrent la dissection des paquets sera désactivée. Augmenter ce nombre augmente la mémoire utilisée par le cache de valeurs de colonnes..&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Si le nombre de lignes affichées est supérieur à ce nombre, alors les tris par colonnes qui requièrent la dissection des paquets seront désactivés. L&apos;augmentation de ce nombre accroît le nombre de valeurs de colonnes mises en cache et donc la consommation de mémoire.&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Enable mouse-over colorization</source>
@@ -7912,11 +7926,11 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
     </message>
     <message>
         <source>From Zip File...</source>
-        <translation>à partir d&apos;un fichier Zip...</translation>
+        <translation>À partir d&apos;un fichier Zip...</translation>
     </message>
     <message>
         <source>From Directory...</source>
-        <translation>à partir d&apos;un répertoire</translation>
+        <translation>À partir d&apos;un répertoire</translation>
     </message>
     <message numerus="yes">
         <source>%Ln Selected Personal Profile(s)...</source>
@@ -9137,7 +9151,7 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
     </message>
     <message>
         <source>Copy</source>
-        <translation type="unfinished"></translation>
+        <translation>Copier</translation>
     </message>
     <message>
         <source>Save as…</source>
@@ -9160,7 +9174,7 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
     <name>ResolvedAddressesView</name>
     <message>
         <source>as Plain Text</source>
-        <translation type="unfinished"></translation>
+        <translation>en Texte Brut</translation>
     </message>
     <message>
         <source>Copy selected rows</source>
@@ -9184,7 +9198,7 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
     </message>
     <message>
         <source>Save table as…</source>
-        <translation>Enregistrer la table comme…</translation>
+        <translation>Enregistrer la table sous…</translation>
     </message>
     <message>
         <source>Save Resolved Addresses As…</source>
@@ -10964,11 +10978,11 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
     </message>
     <message>
         <source>Event Details</source>
-        <translation>Détails des événements</translation>
+        <translation>Détails de l&apos;événement</translation>
     </message>
     <message>
         <source>Event Bytes</source>
-        <translation>Octets des événements</translation>
+        <translation>Octets de l&apos;événement</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Search the Info column of the event list (summary pane), decoded event display labels (tree view pane) or the ASCII-converted event data (hex view pane).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -11448,7 +11462,7 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
     </message>
     <message>
         <source>Percent-Encoding</source>
-        <translation type="unfinished"></translation>
+        <translation>Pourcent-Encodage</translation>
     </message>
     <message>
         <source>Quoted-Printable</source>
@@ -12609,7 +12623,7 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     </message>
     <message>
         <source>Remove the selected entry(ies).</source>
-        <translation>Supprimer les entrées sélectionnées.</translation>
+        <translation>Supprimer la ou les entrée(s) sélectionnée(s).</translation>
     </message>
     <message>
         <source>Copy the selected entry(ies).</source>
@@ -12617,11 +12631,11 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     </message>
     <message>
         <source>Move the selected entry(ies) up.</source>
-        <translation>Déplacer les entrées sélectionnées vers le haut.</translation>
+        <translation>Déplacer la ou les entrée(s) sélectionnée(s) vers le haut.</translation>
     </message>
     <message>
         <source>Move the selected entry(ies) down.</source>
-        <translation>Déplacer les entrées sélectionnées vers le bas.</translation>
+        <translation>Déplacer la ou les entrée(s) sélectionnée(s) vers le bas.</translation>
     </message>
     <message>
         <source>Clear all entries.</source>
@@ -12648,7 +12662,7 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     </message>
     <message>
         <source>Remove the selected entry(ies).</source>
-        <translation>Supprimer les entrées sélectionnées.</translation>
+        <translation>Supprimer la ou les entrée(s) sélectionnée(s).</translation>
     </message>
     <message>
         <source>Copy the selected entry(ies).</source>
@@ -12656,11 +12670,11 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     </message>
     <message>
         <source>Move the selected entry(ies) up.</source>
-        <translation>Déplacer les entrées sélectionnées vers le haut.</translation>
+        <translation>Déplacer la ou les entrée(s) sélectionnée(s) vers le haut.</translation>
     </message>
     <message>
         <source>Move the selected entry(ies) down.</source>
-        <translation>Déplacer les entrées sélectionnées vers le bas.</translation>
+        <translation>Déplacer la ou les entrée(s) sélectionnée(s) vers le bas.</translation>
     </message>
     <message>
         <source>Clear all entries.</source>
@@ -13568,7 +13582,7 @@ a:hover {
     </message>
     <message>
         <source>&amp;DTN</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;DTN</translation>
     </message>
     <message>
         <source>Osmux</source>
@@ -14021,7 +14035,7 @@ a:hover {
     </message>
     <message>
         <source>&amp;LTP</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;LTP</translation>
     </message>
     <message>
         <source>LTP segment and block statistics</source>
@@ -14337,7 +14351,7 @@ a:hover {
     </message>
     <message>
         <source>&amp;3GPP Uu</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;3GPP Uu</translation>
     </message>
     <message>
         <source>&amp;Wireless</source>
@@ -14345,7 +14359,7 @@ a:hover {
     </message>
     <message>
         <source>&amp;User&apos;s Guide</source>
-        <translation type="unfinished"></translation>
+        <translation>Manuel &amp;Utilisateur</translation>
     </message>
     <message>
         <source>Wireshark User&apos;s Guide</source>
@@ -14433,15 +14447,15 @@ a:hover {
     </message>
     <message>
         <source>Embed used TLS secrets in the capture file</source>
-        <translation type="unfinished"></translation>
+        <translation>Intégrer les secrets TLS utilisés dans le fichier de capture</translation>
     </message>
     <message>
         <source>Discard All Secrets</source>
-        <translation type="unfinished"></translation>
+        <translation>Rejeter tous les secrets</translation>
     </message>
     <message>
         <source>Discard all decryption secrets in the capture file</source>
-        <translation type="unfinished"></translation>
+        <translation>Rejeter tous les secrets de déchiffrement dans le fichier de capture</translation>
     </message>
     <message>
         <source>&amp;Preferences…</source>
@@ -14453,11 +14467,11 @@ a:hover {
     </message>
     <message>
         <source>General</source>
-        <translation type="unfinished"></translation>
+        <translation>Général</translation>
     </message>
     <message>
         <source>Query-Response</source>
-        <translation type="unfinished"></translation>
+        <translation>Requête-Réponse</translation>
     </message>
     <message>
         <source>DNS Query-Response Statistics</source>
