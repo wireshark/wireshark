@@ -9995,9 +9995,8 @@ proto_item_fill_label(const field_info *fi, char *label_str)
 			break;
 
 		case FT_RELATIVE_TIME:
-			tmp = rel_time_to_secs_str(NULL, fvalue_get_time(fi->value));
-			snprintf(label_str, ITEM_LABEL_LENGTH,
-				   "%s: %s seconds", hfinfo->name, tmp);
+			tmp = rel_time_to_str(NULL, fvalue_get_time(fi->value));
+			label_fill(label_str, 0, hfinfo, tmp);
 			wmem_free(NULL, tmp);
 			break;
 
