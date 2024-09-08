@@ -128,9 +128,6 @@ For special cases, there are some command line parameters available:
   `=no` - don’t install, otherwise use default settings. This option can be
   useful for a silent installer.
 
-* `/quicklaunchicon` installation of the quick launch icon, `=yes` - force
-  installation, `=no` - don’t install, otherwise use default settings.
-
 * `/D` sets the default installation directory ($INSTDIR), overriding InstallDir
   and InstallDirRegKey. It must be the last parameter used in the command line
   and must not contain any quotes even if the path contains spaces.
@@ -153,7 +150,7 @@ The following extcap binaries are supported.
 
 Example:
 ----
-> Wireshark-4.2.5-x64.exe /NCRC /S /desktopicon=yes /quicklaunchicon=no /D=C:\Program Files\Foo
+> Wireshark-4.2.5-x64.exe /NCRC /S /desktopicon=yes /D=C:\Program Files\Foo
 
 > Wireshark-4.2.5-x64.exe /S /EXTRACOMPONENTS=sshdump,udpdump
 ----
