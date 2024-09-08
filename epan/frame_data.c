@@ -276,8 +276,7 @@ frame_data_set_before_dissect(frame_data *fdata,
   /* If it's greater than the current elapsed time, set the elapsed time
      to it (we check for "greater than" so as not to be confused by
      time moving backwards). */
-  if ((int32_t)elapsed_time->secs < rel_ts.secs
-    || ((int32_t)elapsed_time->secs == rel_ts.secs && (int32_t)elapsed_time->nsecs < rel_ts.nsecs)) {
+  if (nstime_cmp(elapsed_time, &rel_ts) < 0) {
     *elapsed_time = rel_ts;
   }
 
