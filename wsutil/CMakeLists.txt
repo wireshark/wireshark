@@ -7,6 +7,11 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 #
 
+# CMake says that these paths should be relative to the install prefix
+# https://cmake.org/cmake/help/latest/module/GNUInstallDirs.html
+# Things generally work if they're not, but it becomes impossible
+# to relocate paths. Work around that, and just don't try to support
+# relocation.
 file(TO_NATIVE_PATH "${CMAKE_INSTALL_PREFIX}" PATH_INSTALL_PREFIX)
 string(REPLACE "\\" "\\\\" PATH_INSTALL_PREFIX "${PATH_INSTALL_PREFIX}")
 file(TO_NATIVE_PATH "${CMAKE_INSTALL_DATADIR}" PATH_DATA_DIR)
