@@ -403,9 +403,10 @@ static const value_string e_bit[] = {
 #define DIR_UPLINK      0
 #define DIR_DOWNLINK    1
 
+
 static const value_string data_direction_vals[] = {
-    { DIR_UPLINK,   "Uplink" },
-    { DIR_DOWNLINK, "Downlink" },
+    { DIR_UPLINK,   "Uplink" },   /* gNB Rx */
+    { DIR_DOWNLINK, "Downlink" }, /* gNB Tx */
     { 0, NULL}
 };
 
@@ -1485,6 +1486,11 @@ static uint32_t dissect_bfw_bundle(tvbuff_t *tvb, proto_tree *tree, packet_info 
 static int dissect_ciCompParam(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, unsigned bit_offset,
                                unsigned comp_meth, uint8_t *exponent)
 {
+    if (comp_meth == COMP_NONE) {
+        /* Nothing in frame so don't even create subtree */
+        return bit_offset;
+    }
+
     /* Subtree */
     proto_item *cicompparam_ti = proto_tree_add_string_format(tree, hf_oran_ciCompParam,
                                                             tvb, bit_offset/8, 1, "",
@@ -1494,8 +1500,6 @@ static int dissect_ciCompParam(tvbuff_t *tvb, proto_tree *tree, packet_info *pin
 
     /* Contents differ by compression method */
     switch (comp_meth) {
-        case COMP_NONE:
-            break;
         case COMP_BLOCK_FP:
             proto_tree_add_item(cicompparam_tree, hf_oran_reserved_4bits, tvb, bit_offset/8, 1, ENC_NA);
             proto_tree_add_item_ret_uint(cicompparam_tree, hf_oran_exponent,
@@ -1548,6 +1552,26 @@ static unsigned dissect_frame_structure(proto_item *tree, tvbuff_t *tvb, unsigne
         proto_item_set_generated(ti);
     }
     return offset + 1;
+}
+
+static unsigned dissect_csf(proto_item *tree, tvbuff_t *tvb, unsigned bit_offset,
+                            unsigned iq_width, bool *p_csf)
+{
+    proto_item *csf_ti;
+    uint64_t csf;
+    csf_ti = proto_tree_add_bits_ret_val(tree, hf_oran_csf, tvb, bit_offset, 1, &csf, ENC_BIG_ENDIAN);
+    if (csf) {
+        /* Table 7.7.4.2-1 Constellation shift definition (index is udIqWidth) */
+        const char* shift_value[] = { "n/a", "1/2", "1/4", "1/8", "1/16", "1/32" };
+        if (iq_width >=1 && iq_width <= 5) {
+            proto_item_append_text(csf_ti, " (Shift Value is %s)", shift_value[iq_width]);
+        }
+    }
+
+    if (p_csf != NULL) {
+        *p_csf = (csf!=0);
+    }
+    return bit_offset+1;
 }
 
 
@@ -1773,7 +1797,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
     }
     else if (sectionType == SEC_C_LAA) {   /* Section Type 7 */
         /* 7.2.5 Table 6.4-6 */
-        /* TODO: untested */
+        /* N.B. untested */
         unsigned mcot;
         proto_item *mcot_ti;
 
@@ -2106,17 +2130,8 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
             case 4: /* SE 4: Modulation compression params (5.4.7.4) */
             {
                 /* csf */
-                /* TODO: break out into function and also call for SE5? */
-                proto_item *csf_ti;
-                uint64_t csf;
-                csf_ti = proto_tree_add_bits_ret_val(extension_tree, hf_oran_csf, tvb, offset*8, 1, &csf, ENC_BIG_ENDIAN);
-                if (csf) {
-                    /* Table 7.7.4.2-1 Constellation shift definition (index is udIqWidth) */
-                    const char* shift_value[] = { "n/a", "1/2", "1/4", "1/8", "1/16", "1/32" };
-                    if (ci_iq_width >=1 && ci_iq_width <= 5) {
-                        proto_item_append_text(csf_ti, " (Shift Value is %s)", shift_value[ci_iq_width]);
-                    }
-                }
+                dissect_csf(extension_tree, tvb, offset*8, ci_iq_width, NULL);
+
                 /* modCompScaler */
                 uint32_t modCompScaler;
                 proto_item *ti = proto_tree_add_item_ret_uint(extension_tree, hf_oran_modcompscaler,
@@ -2176,14 +2191,14 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                                                                 tvb, set_start_offset, 0, "");
                     proto_tree *set_tree = proto_item_add_subtree(set_ti, ett_oran_modcomp_param_set);
 
-                    uint64_t mcScaleReMask, csf, mcScaleOffset;
+                    uint64_t mcScaleReMask, mcScaleOffset;
+                    bool csf;
 
                     /* mcScaleReMask (12 bits) */
                     proto_tree_add_bits_ret_val(set_tree, hf_oran_mc_scale_re_mask, tvb, bit_offset, 12, &mcScaleReMask, ENC_BIG_ENDIAN);
                     bit_offset += 12;
                     /* csf (1 bit) */
-                    proto_tree_add_bits_ret_val(set_tree, hf_oran_csf, tvb, bit_offset, 1, &csf, ENC_BIG_ENDIAN);
-                    bit_offset += 1;
+                    bit_offset = dissect_csf(set_tree, tvb, bit_offset, ci_iq_width, &csf);
                     /* mcScaleOffset (15 bits) */
                     proto_tree_add_bits_ret_val(set_tree, hf_oran_mc_scale_offset, tvb, bit_offset, 15, &mcScaleOffset, ENC_BIG_ENDIAN);
                     bit_offset += 15;
@@ -2191,7 +2206,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                     /* Summary */
                     proto_item_set_len(set_ti, (bit_offset+7)/8 - set_start_offset);
                     proto_item_append_text(set_ti, " (mcScaleReMask=0x%03x  csf=%5s  mcScaleOffset=%u)",
-                                           (unsigned)mcScaleReMask, tfs_get_true_false((bool)csf), (unsigned)mcScaleOffset);
+                                           (unsigned)mcScaleReMask, tfs_get_true_false(csf), (unsigned)mcScaleOffset);
                 }
 
                 proto_item_append_text(extension_ti, " (%u sets)", sets);
@@ -3259,14 +3274,12 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
 
             /* Show ACKs and NACKs */
             for (unsigned int n=1; n <= number_of_acks; n++) {
-                proto_item *ack_ti = proto_tree_add_item(section_tree, hf_oran_ackid, tvb, offset, 2, ENC_BIG_ENDIAN);
-                proto_item_append_text(ack_ti, " [#%u]", n);
+                proto_tree_add_item(section_tree, hf_oran_ackid, tvb, offset, 2, ENC_BIG_ENDIAN);
                 offset += 2;
             }
             for (unsigned int m=1; m <= number_of_nacks; m++) {
                 uint32_t nack_id;
                 proto_item *nack_ti = proto_tree_add_item_ret_uint(section_tree, hf_oran_nackid, tvb, offset, 2, ENC_BIG_ENDIAN, &nack_id);
-                proto_item_append_text(nack_ti, " [#%u]", m);
                 expert_add_info_format(pinfo, nack_ti, &ei_oran_st8_nackid,
                                        "Received Nack for ackNackId=%u",
                                        nack_id);
@@ -4302,7 +4315,7 @@ proto_register_oran(void)
         /* Section 7.5.3.10 */
         {&hf_oran_ueId,
          {"UE ID", "oran_fh_cus.ueId",
-          FT_UINT16, BASE_HEX_DEC,
+          FT_UINT16, BASE_DEC,
           NULL, 0x7fff,
           "logical identifier for set of channel info",
           HFILL}
