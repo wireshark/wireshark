@@ -168,6 +168,7 @@ typedef struct _dcerpc_info {
 	int hf_index;
 	dcerpc_call_value *call_data;
     const char *dcerpc_procedure_name;	/* Used by PIDL to store the name of the current dcerpc procedure */
+	struct _dcerpc_auth_info *auth_info;
 	void *private_data;
 
 	/* ndr pointer handling */

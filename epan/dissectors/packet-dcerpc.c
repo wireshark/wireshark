@@ -1238,6 +1238,8 @@ static void dissect_auth_verf(packet_info *pinfo,
     if (auth_info->auth_fns == NULL) {
         return;
     }
+    di.ptype = hdr->ptype;
+    di.auth_info = auth_info;
 
     switch (hdr->ptype) {
     case PDU_BIND:
