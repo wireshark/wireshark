@@ -1500,7 +1500,7 @@ static uint32_t string_to_IOR(char *in, uint32_t in_len, uint8_t **out) {
 
   /* skip past IOR:  and convert character pairs to uint8_t */
 
-  for (i=4; i<in_len-1; i+=2) {
+  for (i=4; i+1<in_len; i+=2) {
     if ( g_ascii_isxdigit(in[i]) && g_ascii_isxdigit(in[i+1]) ) { /* hex ? */
 
       if ( (tmpval_msb = ws_xton(in[i])) < 0 ) {
