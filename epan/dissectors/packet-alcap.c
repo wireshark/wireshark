@@ -2381,7 +2381,7 @@ proto_register_alcap(void)
         { &ei_alcap_undecoded, { "alcap.undecoded", PI_UNDECODED, PI_WARN, "Undecoded", EXPFILL }},
         { &ei_alcap_release_cause_not31, { "alcap.leg.cause.not31", PI_RESPONSE_CODE, PI_WARN, "Leg Release cause != 31", EXPFILL }},
         { &ei_alcap_abnormal_release, { "alcap.abnormal_release", PI_RESPONSE_CODE, PI_WARN, "Abnormal Release", EXPFILL }},
-        { &ei_alcap_response, { "alcap.response", PI_RESPONSE_CODE, PI_NOTE, " ", EXPFILL }},
+        { &ei_alcap_response, { "alcap.response", PI_RESPONSE_CODE, PI_NOTE, "Response", EXPFILL }},
     };
 
     proto_alcap = proto_register_protocol(alcap_proto_name, alcap_proto_name_short, "alcap");

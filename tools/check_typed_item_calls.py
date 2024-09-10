@@ -987,7 +987,7 @@ class ExpertEntries:
     def __init__(self, filename):
         self.filename = filename
         self.entries = []
-        self.labels = set()
+        self.labels = set()  # key is (name, severity)
 
     def AddEntry(self, entry):
         self.entries.append(entry)
@@ -996,10 +996,10 @@ class ExpertEntries:
 
         # If these are not unique, can't tell apart from expert window (need to look into frame to see details)
         # TODO: Maybe ok if have different severities?
-        if entry.label in self.labels:
+        if (entry.label, entry.severity) in self.labels:
             print('Warning:', self.filename, 'label', '"' + entry.label + '"', 'has already been seen (now in', entry.name+')')
             warnings_found += 1
-        self.labels.add(entry.label)
+        self.labels.add((entry.label, entry.severity))
 
 
 

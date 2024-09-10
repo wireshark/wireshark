@@ -10888,7 +10888,7 @@ void proto_register_mac_lte(void)
         { &ei_mac_lte_control_element_size_invalid, { "mac-lte.control-element.size-invalid", PI_MALFORMED, PI_ERROR, "Control Element has an unexpected size", EXPFILL }},
         { &ei_mac_lte_bsr_warn_threshold_exceeded, { "mac-lte.bsr-warn-threshold-exceeded", PI_SEQUENCE, PI_WARN, "BSR for LCG X exceeds threshold", EXPFILL }},
         { &ei_mac_lte_sch_header_only_truncated, { "mac-lte.sch.header-only-truncated", PI_SEQUENCE, PI_NOTE, "MAC PDU SDUs have been omitted", EXPFILL }},
-        { &ei_mac_lte_mch_header_only_truncated, { "mac-lte.mch.header-only-truncated", PI_SEQUENCE, PI_NOTE, "MAC PDU SDUs have been omitted", EXPFILL }},
+        { &ei_mac_lte_mch_header_only_truncated, { "mac-lte.mch.header-only-truncated", PI_SEQUENCE, PI_NOTE, "MAC MCH PDU SDUs have been omitted", EXPFILL }},
         { &ei_mac_lte_slsch_header_only_truncated, { "mac-lte.slsch.header-only-truncated", PI_SEQUENCE, PI_NOTE, "MAC PDU SDUs have been omitted", EXPFILL }},
         { &ei_mac_lte_context_length, { "mac-lte.length.invalid", PI_MALFORMED, PI_ERROR, "MAC PDU is longer than reported length", EXPFILL }},
         { &ei_mac_lte_rach_preamble_sent_warn, { "mac-lte.rach-preamble-sent", PI_SEQUENCE, PI_WARN, "RACH Preamble sent", EXPFILL }},
@@ -10901,7 +10901,7 @@ void proto_register_mac_lte(void)
         { &ei_mac_lte_context_crc_status, { "mac-lte.crc-status.error", PI_MALFORMED, PI_ERROR, "Frame has CRC error problem", EXPFILL }},
         { &ei_mac_lte_no_per_frame_data, { "mac-lte.no_per_frame_data", PI_UNDECODED, PI_WARN, "Can't dissect LTE MAC frame because no per-frame info was attached!", EXPFILL }},
         { &ei_mac_lte_sch_invalid_length, { "mac-lte.sch.invalid-length", PI_MALFORMED, PI_WARN, "Invalid PDU length (should be >= 32768)", EXPFILL }},
-        { &ei_mac_lte_mch_invalid_length, { "mac-lte.mch.invalid-length", PI_MALFORMED, PI_WARN, "Invalid PDU length (should be >= 32768)", EXPFILL }},
+        { &ei_mac_lte_mch_invalid_length, { "mac-lte.mch.invalid-length", PI_MALFORMED, PI_WARN, "Invalid MCH PDU length (should be >= 32768)", EXPFILL }},
         { &ei_mac_lte_invalid_sc_mcch_sc_mtch_subheader_multiplexing, { "mac-lte.mch.invalid-sc-mcch-sc-mtch-subheader-multiplexing", PI_MALFORMED, PI_ERROR, "SC-MCCH/SC-MTCH header multiplexed with non padding", EXPFILL }},
         { &ei_mac_lte_unknown_udp_framing_tag, { "mac-lte.unknown-udp-framing-tag", PI_UNDECODED, PI_WARN, "Unknown UDP framing tag, aborting dissection", EXPFILL }}
     };

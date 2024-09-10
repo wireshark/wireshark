@@ -3837,7 +3837,7 @@ proto_register_dhcpv6(void)
         { &ei_dhcpv6_root_only_domain_name, { "dhcpv6.expert.root_only_domain_name", PI_PROTOCOL, PI_ERROR,
                                     "ERROR: A root-only domain name cannot be resolved.", EXPFILL }},
         { &ei_dhcpv6_tld_lookup, { "dhcpv6.expert.tld_lookup", PI_COMMENTS_GROUP, PI_WARN,
-                                    "WARNING: TLDs are rarely resolvable ", EXPFILL }},
+                                    "WARNING: TLDs are rarely resolvable", EXPFILL }},
         { &ei_dhcpv6_partial_name_preceded_by_fqdn, { "dhcpv6.expert.partial_name_preceded_by_fqdn", PI_PROTOCOL, PI_ERROR,
                                     "ERROR: Partial name is preceded by an FQDN", EXPFILL }},
     };

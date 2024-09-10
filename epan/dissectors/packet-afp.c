@@ -7249,7 +7249,7 @@ proto_register_afp(void)
 	};
 
 	static ei_register_info ei[] = {
-		{ &ei_afp_subquery_count_over_safety_limit, { "afp.subquery_count_over_safety_limit", PI_MALFORMED, PI_ERROR, "Subquery count > safety limit ", EXPFILL }},
+		{ &ei_afp_subquery_count_over_safety_limit, { "afp.subquery_count_over_safety_limit", PI_MALFORMED, PI_ERROR, "Subquery count > safety limit", EXPFILL }},
 		{ &ei_afp_subquery_count_over_query_count, { "afp.subquery_count_over_query_count", PI_MALFORMED, PI_ERROR, "Subquery count > query count", EXPFILL }},
 		{ &ei_afp_abnormal_num_subqueries, { "afp.abnormal_num_subqueries", PI_PROTOCOL, PI_WARN, "Abnormal number of subqueries", EXPFILL }},
 		{ &ei_afp_too_many_acl_entries, { "afp.too_many_acl_entries", PI_UNDECODED, PI_WARN, "Too many ACL entries", EXPFILL }},
