@@ -545,19 +545,19 @@ format_units(wmem_allocator_t *allocator, double size,
             wmem_strbuf_append(human_str, is_small ? "bytes/s" : "Bps");
             break;
         case FORMAT_SIZE_UNIT_PACKETS:
-            wmem_strbuf_append(human_str, is_small ? "packets" : "packets");
+            wmem_strbuf_append(human_str, is_small ? "packets" : "pkts");
             break;
         case FORMAT_SIZE_UNIT_PACKETS_S:
-            wmem_strbuf_append(human_str, is_small ? "packets/s" : "packets/s");
+            wmem_strbuf_append(human_str, is_small ? "packets/s" : "pkts/s");
             break;
         case FORMAT_SIZE_UNIT_EVENTS:
-            wmem_strbuf_append(human_str, is_small ? "events" : "events");
+            wmem_strbuf_append(human_str, is_small ? "events" : "evts");
             break;
         case FORMAT_SIZE_UNIT_EVENTS_S:
-            wmem_strbuf_append(human_str, is_small ? "events/s" : "events/s");
+            wmem_strbuf_append(human_str, is_small ? "events/s" : "evts/s");
             break;
         case FORMAT_SIZE_UNIT_FIELDS:
-            wmem_strbuf_append(human_str, is_small ? "fields" : "fields");
+            wmem_strbuf_append(human_str, is_small ? "fields" : "flds");
             break;
         case FORMAT_SIZE_UNIT_SECONDS:
             wmem_strbuf_append(human_str, is_small ? "seconds" : "s");
