@@ -881,6 +881,11 @@ int main(int argc, char *qt_argv[])
     splash_update(RA_EXTCAP, NULL, NULL);
     extcap_register_preferences();
 
+    /* Apply the extcap command line options now that the extcap preferences
+     * are loaded.
+     */
+    commandline_options_apply_extcap();
+
     /* Some of the preferences affect the capture options. Apply those
      * before getting the other command line arguments, which can also
      * affect the capture options. The command line arguments should be

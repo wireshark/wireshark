@@ -58,6 +58,8 @@ extern void commandline_options_drop(const char *module_name, const char *pref_n
 
 extern void commandline_options_reapply(void);
 
+extern void commandline_options_apply_extcap(void);
+
 extern void commandline_options_free(void);
 
 extern commandline_param_info_t global_commandline_info;
