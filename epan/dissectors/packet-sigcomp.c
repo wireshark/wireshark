@@ -941,7 +941,7 @@ sigcomp_cleanup_udvm(void) {
 }
 
 
-static int udvm_state_access(tvbuff_t *tvb, proto_tree *tree,uint8_t *buff,uint16_t p_id_start, uint16_t p_id_length, uint16_t state_begin, uint16_t *state_length,
+static int udvm_state_access(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,uint8_t *buff,uint16_t p_id_start, uint16_t p_id_length, uint16_t state_begin, uint16_t *state_length,
                              uint16_t *state_address, uint16_t *state_instruction,
                              int hf_id)
 {
@@ -979,7 +979,7 @@ static int udvm_state_access(tvbuff_t *tvb, proto_tree *tree,uint8_t *buff,uint1
         partial_state[n] = buff[p_id_start + n];
         n++;
     }
-    partial_state_str = bytes_to_str(wmem_packet_scope(), partial_state, p_id_length);
+    partial_state_str = bytes_to_str(pinfo->pool, partial_state, p_id_length);
     proto_tree_add_item(tree, hf_sigcomp_accessing_state, tvb, 0, -1, ENC_NA);
     proto_tree_add_string(tree,hf_id, tvb, 0, 0, partial_state_str);
 
@@ -1736,7 +1736,7 @@ decompress_sigcomp_message(tvbuff_t *bytecode_tvb, tvbuff_t *message_tvb, packet
 {
     tvbuff_t      *decomp_tvb;
     /* UDVM memory must be initialised to zero */
-    uint8_t       *buff                       = (uint8_t *)wmem_alloc0(wmem_packet_scope(), UDVM_MEMORY_SIZE);
+    uint8_t       *buff                       = (uint8_t *)wmem_alloc0(pinfo->pool, UDVM_MEMORY_SIZE);
     char           string[2];
     uint8_t       *out_buff;    /* Largest allowed size for a message is UDVM_MEMORY_SIZE = 65536 */
     uint32_t       i                          = 0;
@@ -4120,7 +4120,7 @@ execute_next_instruction:
                                 "               byte_copy_right = %u, byte_copy_left = %u", byte_copy_right,byte_copy_left);
         }
 
-        result_code = udvm_state_access(message_tvb, udvm_tree, buff, p_id_start, p_id_length, state_begin, &state_length,
+        result_code = udvm_state_access(message_tvb, pinfo, udvm_tree, buff, p_id_start, p_id_length, state_begin, &state_length,
                                         &state_address, &state_instruction, hf_id);
         if ( result_code != 0 ) {
             goto decompression_failure;
@@ -4256,7 +4256,7 @@ execute_next_instruction:
             if (print_level_3 ) {
                 proto_tree_add_uint_format(udvm_tree, hf_sigcomp_state_value, bytecode_tvb, 0, 0, buff[k],
                                     "               Addr: %5u State value: %u (0x%x) ASCII(%s)",
-                                    k,buff[k],buff[k],format_text(wmem_packet_scope(), string, 1));
+                                    k,buff[k],buff[k],format_text(pinfo->pool, string, 1));
             }
             k = ( k + 1 ) & 0xffff;
             n++;
@@ -4385,7 +4385,7 @@ execute_next_instruction:
             if (print_level_3 ) {
                 proto_tree_add_uint_format(udvm_tree, hf_sigcomp_output_value, bytecode_tvb, 0, -1, buff[k],
                                     "               Output value: %u (0x%x) ASCII(%s) from Addr: %u ,output to dispatcher position %u",
-                                    buff[k],buff[k],format_text(wmem_packet_scope(), string,1), k,output_address);
+                                    buff[k],buff[k],format_text(pinfo->pool, string,1), k,output_address);
             }
             k = ( k + 1 ) & 0xffff;
             output_address ++;
@@ -4552,7 +4552,7 @@ execute_next_instruction:
                 udvm_state_create(sha1buff, sha1_digest_buf, STATE_MIN_ACCESS_LEN);
 /* end partial state-id change cco@iptel.org */
                 proto_tree_add_item(udvm_tree, hf_sigcomp_creating_state, bytecode_tvb, 0, -1, ENC_NA);
-                proto_tree_add_string(udvm_tree,hf_id, bytecode_tvb, 0, 0, bytes_to_str(wmem_packet_scope(), sha1_digest_buf, STATE_MIN_ACCESS_LEN));
+                proto_tree_add_string(udvm_tree,hf_id, bytecode_tvb, 0, 0, bytes_to_str(pinfo->pool, sha1_digest_buf, STATE_MIN_ACCESS_LEN));
 
                 n++;
 
@@ -4947,7 +4947,7 @@ dissect_sigcomp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sigcomp_tr
             offset = offset + len;
         }
         tvb_memcpy(tvb, partial_state, offset, partial_state_len);
-        partial_state_str = bytes_to_str(wmem_packet_scope(), partial_state, partial_state_len);
+        partial_state_str = bytes_to_str(pinfo->pool, partial_state, partial_state_len);
         proto_tree_add_string(sigcomp_tree,hf_sigcomp_partial_state,
             tvb, offset, partial_state_len, partial_state_str);
         offset = offset + partial_state_len;
@@ -4994,10 +4994,10 @@ dissect_sigcomp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sigcomp_tr
 
 /* begin partial state-id change cco@iptel.org */
 #if 0
-            result_code = udvm_state_access(tvb, sigcomp_tree, buff, p_id_start, partial_state_len, state_begin, &state_length,
+            result_code = udvm_state_access(tvb, pinfo, sigcomp_tree, buff, p_id_start, partial_state_len, state_begin, &state_length,
                 &state_address, &state_instruction, hf_sigcomp_partial_state);
 #endif
-            result_code = udvm_state_access(tvb, sigcomp_tree, buff, p_id_start, STATE_MIN_ACCESS_LEN, state_begin, &state_length,
+            result_code = udvm_state_access(tvb, pinfo, sigcomp_tree, buff, p_id_start, STATE_MIN_ACCESS_LEN, state_begin, &state_length,
                 &state_address, &state_instruction, hf_sigcomp_partial_state);
 
 /* end partial state-id change cco@iptel.org */

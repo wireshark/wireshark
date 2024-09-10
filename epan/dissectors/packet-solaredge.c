@@ -999,13 +999,13 @@ uint16_t calculate_crc(t_solaredge_packet_header *header, const uint8_t *data, i
 }
 
 static
-void solaredge_decrypt(const uint8_t *in, int length, uint8_t *out, gcry_cipher_hd_t cipher)
+void solaredge_decrypt(wmem_allocator_t *scratch, const uint8_t *in, int length, uint8_t *out, gcry_cipher_hd_t cipher)
 {
 	uint8_t rand1[SOLAREDGE_ENCRYPTION_KEY_LENGTH];
 	uint8_t rand2[SOLAREDGE_ENCRYPTION_KEY_LENGTH];
 	int payload_length = length - SOLAREDGE_ENCRYPTION_KEY_LENGTH;
-	uint8_t *payload = (uint8_t *) wmem_alloc(wmem_packet_scope(), payload_length);
-	uint8_t *intermediate_decrypted_payload = (uint8_t *) wmem_alloc(wmem_packet_scope(), payload_length);
+	uint8_t *payload = (uint8_t *) wmem_alloc(scratch, payload_length);
+	uint8_t *intermediate_decrypted_payload = (uint8_t *) wmem_alloc(scratch, payload_length);
 	int i = 0, posa = 0, posb = 0, posc = 0;
 	memcpy(rand2, in, SOLAREDGE_ENCRYPTION_KEY_LENGTH);
 	memcpy(payload, in + SOLAREDGE_ENCRYPTION_KEY_LENGTH, payload_length);
@@ -1289,7 +1289,7 @@ dissect_solaredge_recursive(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree 
 			conv_data = (t_solaredge_conversion_data *)conversation_get_proto_data(conv, proto_solaredge);
 			if ((conv_data != NULL) && (conv_data->session_key_found == true)) {
 				uint8_t *decrypted_buffer = (uint8_t*)wmem_alloc(pinfo->pool, header.length);
-				solaredge_decrypt(tvb_get_ptr(tvb, current_offset, header.length), header.length, decrypted_buffer, conv_data->cipher_hd_session);
+				solaredge_decrypt(pinfo->pool, tvb_get_ptr(tvb, current_offset, header.length), header.length, decrypted_buffer, conv_data->cipher_hd_session);
 				tvbuff_t *next_tvb = tvb_new_child_real_data(tvb, decrypted_buffer, header.length, header.length);
 				if ( tvb_get_uint32(next_tvb, 0, ENC_LITTLE_ENDIAN) == SOLAREDGE_MAGIC_NUMBER) {
 					add_new_data_source(pinfo, next_tvb, "Decrypted Packet");

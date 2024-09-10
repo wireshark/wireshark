@@ -365,7 +365,7 @@ add_string_param(tvbuff_t *tvb, int offset, int count _U_,
 }
 
 static const char *
-get_stringz_pointer_value(tvbuff_t *tvb, int offset, int convert, int *cptrp,
+get_stringz_pointer_value(wmem_allocator_t *scope, tvbuff_t *tvb, int offset, int convert, int *cptrp,
     int *lenp)
 {
 	int cptr;
@@ -380,20 +380,20 @@ get_stringz_pointer_value(tvbuff_t *tvb, int offset, int convert, int *cptrp,
 	    (string_len = tvb_strnlen(tvb, cptr, -1)) != -1) {
 	    	string_len++;	/* include the terminating '\0' */
 			*lenp = string_len;
-			return tvb_format_text(wmem_packet_scope(), tvb, cptr, string_len - 1);
+			return tvb_format_text(scope, tvb, cptr, string_len - 1);
 	} else
 		return NULL;
 }
 
 static int
 add_stringz_pointer_param(tvbuff_t *tvb, int offset, int count _U_,
-    packet_info *pinfo _U_, proto_tree *tree, int convert, int hf_index, smb_info_t *smb_info _U_)
+    packet_info *pinfo, proto_tree *tree, int convert, int hf_index, smb_info_t *smb_info _U_)
 {
 	int cptr;
 	const char *string;
 	int string_len;
 
-	string = get_stringz_pointer_value(tvb, offset, convert, &cptr,
+	string = get_stringz_pointer_value(pinfo->pool, tvb, offset, convert, &cptr,
 	    &string_len);
 	offset += 4;
 
@@ -2114,7 +2114,7 @@ dissect_transact_data(tvbuff_t *tvb, int offset, int convert,
 				 * Descriptor character is 'z', but this
 				 * isn't a string parameter.
 				 */
-				string = get_stringz_pointer_value(tvb, offset,
+				string = get_stringz_pointer_value(pinfo->pool, tvb, offset,
 				    convert, &cptr, &string_len);
 				offset += 4;
 				proto_tree_add_expert_format(tree, pinfo, &ei_smb_pipe_bad_type, tvb, cptr, string_len,

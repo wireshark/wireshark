@@ -430,8 +430,8 @@ sua_assoc(packet_info* pinfo, address* opc, address* dpc, unsigned src_rn, unsig
             return &no_sua_assoc;
     }
 
-    opck = opc->type == ss7pc_address_type ? mtp3_pc_hash((const mtp3_addr_pc_t *)opc->data) : g_str_hash(address_to_str(wmem_packet_scope(), opc));
-    dpck = dpc->type == ss7pc_address_type ? mtp3_pc_hash((const mtp3_addr_pc_t *)dpc->data) : g_str_hash(address_to_str(wmem_packet_scope(), dpc));
+    opck = opc->type == ss7pc_address_type ? mtp3_pc_hash((const mtp3_addr_pc_t *)opc->data) : g_str_hash(address_to_str(pinfo->pool, opc));
+    dpck = dpc->type == ss7pc_address_type ? mtp3_pc_hash((const mtp3_addr_pc_t *)dpc->data) : g_str_hash(address_to_str(pinfo->pool, dpc));
 
     switch (message_type) {
         case MESSAGE_TYPE_CORE:

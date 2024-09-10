@@ -64,14 +64,14 @@ static dissector_handle_t  sita_handle;
 #define REMOTE              "Remote"
 
 static const char *
-format_flags_string(unsigned char value, const char *array[])
+format_flags_string(wmem_allocator_t *scope, unsigned char value, const char *array[])
 {
     int         i;
     unsigned    bpos;
     wmem_strbuf_t   *buf;
     const char  *sep = "";
 
-    buf = wmem_strbuf_new_sized(wmem_packet_scope(), MAX_FLAGS_LEN);
+    buf = wmem_strbuf_new_sized(scope, MAX_FLAGS_LEN);
     for (i = 0; i < 8; i++) {
         bpos = 1 << i;
         if (value & bpos) {
@@ -137,7 +137,7 @@ dissect_sita(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 
         proto_tree_add_uint(sita_tree, hf_proto, tvb, 0, 0, proto);
 
-        flags_string = format_flags_string(flags, flags_str);
+        flags_string = format_flags_string(pinfo->pool, flags, flags_str);
         sita_flags_tree = proto_tree_add_subtree_format(sita_tree, tvb, 0, 0,
                 ett_sita_flags, NULL, "Flags: 0x%02x (From %s)%s%s",
                 flags,
@@ -172,12 +172,12 @@ dissect_sita(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
                 NULL
             };
 
-            errors1_string = format_flags_string(errors1, rx_errors1_str);
+            errors1_string = format_flags_string(pinfo->pool, errors1, rx_errors1_str);
             sita_errors1_tree = proto_tree_add_subtree_format(sita_tree, tvb, 0, 0,
                 ett_sita_errors1, NULL, "Receive Status: 0x%02x %s", errors1, errors1_string);
             proto_tree_add_bitmask_list_value(sita_errors1_tree, tvb, 0, 0, errors1_flags, errors1);
 
-            errors2_string = format_flags_string(errors2, rx_errors2_str);
+            errors2_string = format_flags_string(pinfo->pool, errors2, rx_errors2_str);
             sita_errors2_tree = proto_tree_add_subtree_format(sita_tree, tvb, 0, 0,
                 ett_sita_errors2, NULL, "Receive Status: 0x%02x %s", errors2, errors2_string);
             proto_tree_add_bitmask_list_value(sita_errors2_tree, tvb, 0, 0, errors2_flags, errors2);
@@ -190,7 +190,7 @@ dissect_sita(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
                 NULL
             };
 
-            errors2_string = format_flags_string(errors2, tx_errors2_str);
+            errors2_string = format_flags_string(pinfo->pool, errors2, tx_errors2_str);
             sita_errors1_tree = proto_tree_add_subtree_format(sita_tree, tvb, 0, 0,
                 ett_sita_errors1, NULL, "Transmit Status: 0x%02x %s", errors2, errors2_string);
             proto_tree_add_bitmask_list_value(sita_errors1_tree, tvb, 0, 0, errors2_flags, errors2);

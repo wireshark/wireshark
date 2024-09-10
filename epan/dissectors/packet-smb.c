@@ -1494,9 +1494,9 @@ const char *tree_ip_str(packet_info *pinfo, uint16_t cmd) {
 	if (	cmd == SMB_COM_READ_ANDX ||
 		cmd == SMB_COM_READ ||
 		cmd == SMB2_COM_READ) {
-		buf = address_to_str(wmem_packet_scope(), &pinfo->src);
+		buf = address_to_str(pinfo->pool, &pinfo->src);
 	} else {
-		buf = address_to_str(wmem_packet_scope(), &pinfo->dst);
+		buf = address_to_str(pinfo->pool, &pinfo->dst);
 	}
 
 	return buf;
@@ -1519,7 +1519,7 @@ feed_eo_smb(uint16_t cmd, uint16_t fid, tvbuff_t * tvb, packet_info *pinfo, uint
 	/* Create a new tvb to point to the payload data */
 	data_tvb = tvb_new_subset_length(tvb, dataoffset, datalen);
 	/* Create the eo_info to pass to the listener */
-	eo_info = wmem_new(wmem_packet_scope(), smb_eo_t);
+	eo_info = wmem_new(pinfo->pool, smb_eo_t);
 
 	/* Try to get fid_info and tid_info */
 	if (fid_info == NULL) {
@@ -1542,21 +1542,21 @@ feed_eo_smb(uint16_t cmd, uint16_t fid, tvbuff_t * tvb, packet_info *pinfo, uint
 		if (tid_info->filename) {
 			eo_info->hostname = tid_info->filename;
 		} else {
-			eo_info->hostname = wmem_strdup_printf(wmem_packet_scope(), "\\\\%s\\TREEID_UNKNOWN", tree_ip_str(pinfo, cmd));
+			eo_info->hostname = wmem_strdup_printf(pinfo->pool, "\\\\%s\\TREEID_UNKNOWN", tree_ip_str(pinfo, cmd));
 		}
 	}
-	else            eo_info->hostname = wmem_strdup_printf(wmem_packet_scope(), "\\\\%s\\TREEID_%i", tree_ip_str(pinfo, cmd), si->tid);
+	else            eo_info->hostname = wmem_strdup_printf(pinfo->pool, "\\\\%s\\TREEID_%i", tree_ip_str(pinfo, cmd), si->tid);
 	if (fid_info) {
 		eo_info->filename = NULL;
 		if (fid_info->fsi)
 			if (fid_info->fsi->filename)
 				eo_info->filename = (char *) fid_info->fsi->filename;
-		if (!eo_info->filename) eo_info->filename = wmem_strdup_printf(wmem_packet_scope(), "\\FILEID_%i", fid);
+		if (!eo_info->filename) eo_info->filename = wmem_strdup_printf(pinfo->pool, "\\FILEID_%i", fid);
 		eo_info->fid_type = fid_info->type;
 		eo_info->end_of_file = fid_info->end_of_file;
 	} else {
 		eo_info->fid_type = SMB_FID_TYPE_UNKNOWN;
-		eo_info->filename = wmem_strdup_printf(wmem_packet_scope(), "\\FILEID_%i", fid);
+		eo_info->filename = wmem_strdup_printf(pinfo->pool, "\\FILEID_%i", fid);
 		eo_info->end_of_file = 0;
 	}
 	if (eosmb_take_name_as_fid) {
@@ -1761,12 +1761,12 @@ smb_find_unicode_null_offset(tvbuff_t *tvb, int offset, const int maxlength, con
    of a Unicode string if the byte count
 */
 static char *
-unicode_to_str(tvbuff_t *tvb, int offset, int *us_lenp, bool exactlen,
+unicode_to_str(wmem_allocator_t *scope, tvbuff_t *tvb, int offset, int *us_lenp, bool exactlen,
 	       uint16_t bc)
 {
 	int len;
 	if (exactlen) {
-		return tvb_get_string_enc(wmem_packet_scope(), tvb, offset, *us_lenp, ENC_UTF_16|ENC_LITTLE_ENDIAN);
+		return tvb_get_string_enc(scope, tvb, offset, *us_lenp, ENC_UTF_16|ENC_LITTLE_ENDIAN);
 	} else {
 		/* Handle the odd cases where Windows 2000 has a Unicode
 		 * string followed by a single NUL byte when the string
@@ -1776,10 +1776,10 @@ unicode_to_str(tvbuff_t *tvb, int offset, int *us_lenp, bool exactlen,
 		if (len == -1) {
 			if (bc % 2 == 1	&& tvb_get_uint8(tvb, offset + bc - 1) == 0) {
 				*us_lenp = bc;
-				return tvb_get_string_enc(wmem_packet_scope(), tvb, offset, bc - 1, ENC_UTF_16|ENC_LITTLE_ENDIAN);
+				return tvb_get_string_enc(scope, tvb, offset, bc - 1, ENC_UTF_16|ENC_LITTLE_ENDIAN);
 			}
 		}
-		return tvb_get_stringz_enc(wmem_packet_scope(), tvb, offset, us_lenp, ENC_UTF_16|ENC_LITTLE_ENDIAN);
+		return tvb_get_stringz_enc(scope, tvb, offset, us_lenp, ENC_UTF_16|ENC_LITTLE_ENDIAN);
 	}
 }
 
@@ -1789,7 +1789,7 @@ unicode_to_str(tvbuff_t *tvb, int offset, int *us_lenp, bool exactlen,
  *   region
  */
 static const char *
-get_unicode_or_ascii_string(tvbuff_t *tvb, int *offsetp,
+get_unicode_or_ascii_string(wmem_allocator_t *scope, tvbuff_t *tvb, int *offsetp,
 			    bool useunicode, int *len, bool nopad, bool exactlen,
 			    uint16_t *bcp)
 {
@@ -1825,7 +1825,7 @@ get_unicode_or_ascii_string(tvbuff_t *tvb, int *offsetp,
 			}
 		}
 
-		string = unicode_to_str(tvb, *offsetp, &string_len, exactlen, *bcp);
+		string = unicode_to_str(scope, tvb, *offsetp, &string_len, exactlen, *bcp);
 	} else {
 		/* XXX: Use the local OEM (extended ASCII DOS) code page.
                  * On US English machines that means ENC_CP437, but it
@@ -1846,9 +1846,9 @@ get_unicode_or_ascii_string(tvbuff_t *tvb, int *offsetp,
 				copylen = INT_MAX;
 			}
 
-			return tvb_get_string_enc(wmem_packet_scope(), tvb, *offsetp, copylen, ENC_ASCII);
+			return tvb_get_string_enc(scope, tvb, *offsetp, copylen, ENC_ASCII);
 		} else {
-			return tvb_get_stringz_enc(wmem_packet_scope(), tvb, *offsetp, len, ENC_ASCII);
+			return tvb_get_stringz_enc(scope, tvb, *offsetp, len, ENC_ASCII);
 		}
 	}
 
@@ -3086,7 +3086,7 @@ dissect_negprot_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
 		 * one capture - is that an encryption key or something
 		 * such as that?
 		 */
-		dn = get_unicode_or_ascii_string(tvb, &offset,
+		dn = get_unicode_or_ascii_string(pinfo->pool, tvb, &offset,
 			si->unicode, &dn_len, false, false, &bc);
 		if (dn == NULL)
 			goto endofcommand;
@@ -3170,7 +3170,7 @@ dissect_negprot_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
 				CHECK_BYTE_COUNT(1);
 				COUNT_BYTES(1);
 			}
-			dn = get_unicode_or_ascii_string(tvb,
+			dn = get_unicode_or_ascii_string(pinfo->pool, tvb,
 				&offset, si->unicode, &dn_len, true, false,
 				&bc);
 			if (dn == NULL)
@@ -3180,7 +3180,7 @@ dissect_negprot_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
 			COUNT_BYTES(dn_len);
 
 			/* server name, seen in w2k pro capture */
-			dn = get_unicode_or_ascii_string(tvb,
+			dn = get_unicode_or_ascii_string(pinfo->pool, tvb,
 				&offset, si->unicode, &dn_len, true, false,
 				&bc);
 			if (dn == NULL)
@@ -3290,7 +3290,7 @@ dissect_old_dir_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
 	COUNT_BYTES(1);
 
 	/* dir name */
-	dn = get_unicode_or_ascii_string(tvb, &offset, si->unicode, &dn_len,
+	dn = get_unicode_or_ascii_string(pinfo->pool, tvb, &offset, si->unicode, &dn_len,
 		false, false, &bc);
 
 	if ((!pinfo->fd->visited) && si->sip) {
@@ -3305,7 +3305,7 @@ dissect_old_dir_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
 	COUNT_BYTES(dn_len);
 
 	col_append_fstr(pinfo->cinfo, COL_INFO, ", Directory: %s",
-		    format_text(wmem_packet_scope(), (const unsigned char *)dn, strlen(dn)));
+		    format_text(pinfo->pool, (const unsigned char *)dn, strlen(dn)));
 
 	END_OF_SMB
 
@@ -3435,7 +3435,7 @@ dissect_tree_connect_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	COUNT_BYTES(1);
 
 	/* Path */
-	an = get_unicode_or_ascii_string(tvb, &offset,
+	an = get_unicode_or_ascii_string(pinfo->pool, tvb, &offset,
 		si->unicode, &an_len, false, false, &bc);
 	if (an == NULL)
 		goto endofcommand;
@@ -3444,7 +3444,7 @@ dissect_tree_connect_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	COUNT_BYTES(an_len);
 
 	col_append_fstr(pinfo->cinfo, COL_INFO, ", Path: %s",
-		    format_text(wmem_packet_scope(), (const unsigned char*)an, strlen(an)));
+		    format_text(pinfo->pool, (const unsigned char*)an, strlen(an)));
 
 	/* buffer format */
 	CHECK_BYTE_COUNT(1);
@@ -3470,7 +3470,7 @@ dissect_tree_connect_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	 * Unicode are: ... The service name string in the
 	 * Tree_Connect_AndX SMB".  Is that claim false?
 	 */
-	an = get_unicode_or_ascii_string(tvb, &offset,
+	an = get_unicode_or_ascii_string(pinfo->pool, tvb, &offset,
 		si->unicode, &an_len, false, false, &bc);
 	if (an == NULL)
 		goto endofcommand;
@@ -3721,16 +3721,16 @@ dissect_move_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int of
 	COUNT_BYTES(1);
 
 	/* file name */
-	fn = get_unicode_or_ascii_string(tvb, &offset, si->unicode, &fn_len,
+	fn = get_unicode_or_ascii_string(pinfo->pool, tvb, &offset, si->unicode, &fn_len,
 		false, false, &bc);
 	if (fn == NULL)
 		goto endofcommand;
 	proto_tree_add_string_format(tree, hf_smb_file_name, tvb, offset,
-		fn_len,	fn, "Old File Name: %s", format_text(wmem_packet_scope(), (const unsigned char*)fn, strlen(fn)));
+		fn_len,	fn, "Old File Name: %s", format_text(pinfo->pool, (const unsigned char*)fn, strlen(fn)));
 	COUNT_BYTES(fn_len);
 
 	col_append_fstr(pinfo->cinfo, COL_INFO, ", Old Name: %s",
-		    format_text(wmem_packet_scope(), (const unsigned char*)fn, strlen(fn)));
+		    format_text(pinfo->pool, (const unsigned char*)fn, strlen(fn)));
 
 	/* buffer format */
 	CHECK_BYTE_COUNT(1);
@@ -3738,16 +3738,16 @@ dissect_move_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int of
 	COUNT_BYTES(1);
 
 	/* file name */
-	fn = get_unicode_or_ascii_string(tvb, &offset, si->unicode, &fn_len,
+	fn = get_unicode_or_ascii_string(pinfo->pool, tvb, &offset, si->unicode, &fn_len,
 		false, false, &bc);
 	if (fn == NULL)
 		goto endofcommand;
 	proto_tree_add_string_format(tree, hf_smb_file_name, tvb, offset,
-		fn_len,	fn, "New File Name: %s", format_text(wmem_packet_scope(), (const unsigned char*)fn, strlen(fn)));
+		fn_len,	fn, "New File Name: %s", format_text(pinfo->pool, (const unsigned char*)fn, strlen(fn)));
 	COUNT_BYTES(fn_len);
 
 	col_append_fstr(pinfo->cinfo, COL_INFO, ", New Name: %s",
-		    format_text(wmem_packet_scope(), (const unsigned char*)fn, strlen(fn)));
+		    format_text(pinfo->pool, (const unsigned char*)fn, strlen(fn)));
 
 	END_OF_SMB
 
@@ -3785,16 +3785,16 @@ dissect_copy_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int of
 	COUNT_BYTES(1);
 
 	/* file name */
-	fn = get_unicode_or_ascii_string(tvb, &offset, si->unicode, &fn_len,
+	fn = get_unicode_or_ascii_string(pinfo->pool, tvb, &offset, si->unicode, &fn_len,
 		false, false, &bc);
 	if (fn == NULL)
 		goto endofcommand;
 	proto_tree_add_string_format(tree, hf_smb_file_name, tvb, offset,
-		fn_len, fn, "Source File Name: %s", format_text(wmem_packet_scope(), (const unsigned char*)fn, strlen(fn)));
+		fn_len, fn, "Source File Name: %s", format_text(pinfo->pool, (const unsigned char*)fn, strlen(fn)));
 	COUNT_BYTES(fn_len);
 
 	col_append_fstr(pinfo->cinfo, COL_INFO, ", Source Name: %s",
-		    format_text(wmem_packet_scope(), (const unsigned char*)fn, strlen(fn)));
+		    format_text(pinfo->pool, (const unsigned char*)fn, strlen(fn)));
 
 	/* buffer format */
 	CHECK_BYTE_COUNT(1);
@@ -3802,16 +3802,16 @@ dissect_copy_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int of
 	COUNT_BYTES(1);
 
 	/* file name */
-	fn = get_unicode_or_ascii_string(tvb, &offset, si->unicode, &fn_len,
+	fn = get_unicode_or_ascii_string(pinfo->pool, tvb, &offset, si->unicode, &fn_len,
 		false, false, &bc);
 	if (fn == NULL)
 		goto endofcommand;
 	proto_tree_add_string_format(tree, hf_smb_file_name, tvb, offset,
 		fn_len, fn, "Destination File Name: %s",
-		format_text(wmem_packet_scope(), (const unsigned char*)fn, strlen(fn)));
+		format_text(pinfo->pool, (const unsigned char*)fn, strlen(fn)));
 	COUNT_BYTES(fn_len);
 
-	col_append_fstr(pinfo->cinfo, COL_INFO, ", Destination Name: %s", format_text(wmem_packet_scope(), (const unsigned char*)fn, strlen(fn)));
+	col_append_fstr(pinfo->cinfo, COL_INFO, ", Destination Name: %s", format_text(pinfo->pool, (const unsigned char*)fn, strlen(fn)));
 
 	END_OF_SMB
 
@@ -3842,7 +3842,7 @@ dissect_move_copy_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 	COUNT_BYTES(1);
 
 	/* file name */
-	fn = get_unicode_or_ascii_string(tvb, &offset, si->unicode, &fn_len,
+	fn = get_unicode_or_ascii_string(pinfo->pool, tvb, &offset, si->unicode, &fn_len,
 		false, false, &bc);
 	if (fn == NULL)
 		goto endofcommand;
@@ -3882,7 +3882,7 @@ dissect_open_file_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 	COUNT_BYTES(1);
 
 	/* file name */
-	fn = get_unicode_or_ascii_string(tvb, &offset, si->unicode, &fn_len,
+	fn = get_unicode_or_ascii_string(pinfo->pool, tvb, &offset, si->unicode, &fn_len,
 		false, false, &bc);
 	if (fn == NULL)
 		goto endofcommand;
@@ -3902,7 +3902,7 @@ dissect_open_file_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 	}
 
 	col_append_fstr(pinfo->cinfo, COL_INFO, ", Path: %s",
-		    format_text(wmem_packet_scope(), (const unsigned char*)fn, strlen(fn)));
+		    format_text(pinfo->pool, (const unsigned char*)fn, strlen(fn)));
 
 	END_OF_SMB
 
@@ -4443,7 +4443,7 @@ dissect_create_file_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	COUNT_BYTES(1);
 
 	/* File Name */
-	fn = get_unicode_or_ascii_string(tvb, &offset, si->unicode, &fn_len,
+	fn = get_unicode_or_ascii_string(pinfo->pool, tvb, &offset, si->unicode, &fn_len,
 		false, false, &bc);
 	if (fn == NULL)
 		goto endofcommand;
@@ -4465,7 +4465,7 @@ dissect_create_file_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 
 	col_append_fstr(pinfo->cinfo, COL_INFO, ", Path: %s",
-		    format_text(wmem_packet_scope(), (const unsigned char*)fn, strlen(fn)));
+		    format_text(pinfo->pool, (const unsigned char*)fn, strlen(fn)));
 
 	END_OF_SMB
 
@@ -4518,7 +4518,7 @@ dissect_delete_file_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	COUNT_BYTES(1);
 
 	/* file name */
-	fn = get_unicode_or_ascii_string(tvb, &offset, si->unicode, &fn_len,
+	fn = get_unicode_or_ascii_string(pinfo->pool, tvb, &offset, si->unicode, &fn_len,
 		false, false, &bc);
 
 	if ((!pinfo->fd->visited) && si->sip) {
@@ -4533,7 +4533,7 @@ dissect_delete_file_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	COUNT_BYTES(fn_len);
 
 	col_append_fstr(pinfo->cinfo, COL_INFO, ", Path: %s",
-		    format_text(wmem_packet_scope(), (const unsigned char*)fn, strlen(fn)));
+		    format_text(pinfo->pool, (const unsigned char*)fn, strlen(fn)));
 
 	END_OF_SMB
 
@@ -4564,7 +4564,7 @@ dissect_rename_file_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	COUNT_BYTES(1);
 
 	/* old file name */
-	fn = get_unicode_or_ascii_string(tvb, &offset, si->unicode, &fn_len,
+	fn = get_unicode_or_ascii_string(pinfo->pool, tvb, &offset, si->unicode, &fn_len,
 		false, false, &bc);
 	if (fn == NULL)
 		goto endofcommand;
@@ -4574,7 +4574,7 @@ dissect_rename_file_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	COUNT_BYTES(fn_len);
 
 	col_append_fstr(pinfo->cinfo, COL_INFO, ", Old Name: %s",
-		    format_text(wmem_packet_scope(), (const unsigned char*)fn, strlen(fn)));
+		    format_text(pinfo->pool, (const unsigned char*)fn, strlen(fn)));
 
 	/* buffer format */
 	CHECK_BYTE_COUNT(1);
@@ -4582,7 +4582,7 @@ dissect_rename_file_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	COUNT_BYTES(1);
 
 	/* file name */
-	fn = get_unicode_or_ascii_string(tvb, &offset, si->unicode, &fn_len,
+	fn = get_unicode_or_ascii_string(pinfo->pool, tvb, &offset, si->unicode, &fn_len,
 		false, false, &bc);
 	if (fn == NULL)
 		goto endofcommand;
@@ -4592,7 +4592,7 @@ dissect_rename_file_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	COUNT_BYTES(fn_len);
 
 	col_append_fstr(pinfo->cinfo, COL_INFO, ", New Name: %s",
-		    format_text(wmem_packet_scope(), (const unsigned char*)fn, strlen(fn)));
+		    format_text(pinfo->pool, (const unsigned char*)fn, strlen(fn)));
 
 	END_OF_SMB
 
@@ -4638,7 +4638,7 @@ dissect_nt_rename_file_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 	COUNT_BYTES(1);
 
 	/* old file name */
-	fn = get_unicode_or_ascii_string(tvb, &offset, si->unicode, &fn_len,
+	fn = get_unicode_or_ascii_string(pinfo->pool, tvb, &offset, si->unicode, &fn_len,
 		false, false, &bc);
 	if (fn == NULL)
 		goto endofcommand;
@@ -4647,7 +4647,7 @@ dissect_nt_rename_file_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 	COUNT_BYTES(fn_len);
 
 	col_append_fstr(pinfo->cinfo, COL_INFO, ", Old Name: %s",
-		    format_text(wmem_packet_scope(), (const unsigned char*)fn, strlen(fn)));
+		    format_text(pinfo->pool, (const unsigned char*)fn, strlen(fn)));
 
 	/* buffer format */
 	CHECK_BYTE_COUNT(1);
@@ -4655,7 +4655,7 @@ dissect_nt_rename_file_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 	COUNT_BYTES(1);
 
 	/* file name */
-	fn = get_unicode_or_ascii_string(tvb, &offset, si->unicode, &fn_len,
+	fn = get_unicode_or_ascii_string(pinfo->pool, tvb, &offset, si->unicode, &fn_len,
 		false, false, &bc);
 	if (fn == NULL)
 		goto endofcommand;
@@ -4664,7 +4664,7 @@ dissect_nt_rename_file_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 	COUNT_BYTES(fn_len);
 
 	col_append_fstr(pinfo->cinfo, COL_INFO, ", New Name: %s",
-		    format_text(wmem_packet_scope(), (const unsigned char*)fn, strlen(fn)));
+		    format_text(pinfo->pool, (const unsigned char*)fn, strlen(fn)));
 
 	END_OF_SMB
 
@@ -4692,7 +4692,7 @@ dissect_query_information_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 	COUNT_BYTES(1);
 
 	/* File Name */
-	fn = get_unicode_or_ascii_string(tvb, &offset, si->unicode, &fn_len,
+	fn = get_unicode_or_ascii_string(pinfo->pool, tvb, &offset, si->unicode, &fn_len,
 		false, false, &bc);
 	if (fn == NULL)
 		goto endofcommand;
@@ -4701,7 +4701,7 @@ dissect_query_information_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 	COUNT_BYTES(fn_len);
 
 	col_append_fstr(pinfo->cinfo, COL_INFO, ", Path: %s",
-		    format_text(wmem_packet_scope(), (const unsigned char*)fn, strlen(fn)));
+		    format_text(pinfo->pool, (const unsigned char*)fn, strlen(fn)));
 
 	END_OF_SMB
 
@@ -4767,7 +4767,7 @@ dissect_set_information_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 	COUNT_BYTES(1);
 
 	/* file name */
-	fn = get_unicode_or_ascii_string(tvb, &offset, si->unicode, &fn_len,
+	fn = get_unicode_or_ascii_string(pinfo->pool, tvb, &offset, si->unicode, &fn_len,
 		false, false, &bc);
 	if (fn == NULL)
 		goto endofcommand;
@@ -4776,7 +4776,7 @@ dissect_set_information_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 	COUNT_BYTES(fn_len);
 
 	col_append_fstr(pinfo->cinfo, COL_INFO, ", Path: %s",
-		    format_text(wmem_packet_scope(), (const unsigned char*)fn, strlen(fn)));
+		    format_text(pinfo->pool, (const unsigned char*)fn, strlen(fn)));
 
 	END_OF_SMB
 
@@ -5220,7 +5220,7 @@ dissect_create_temporary_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 	 * MS-CIFS says this is a "null-terminated string", without saying
 	 * it's always ASCII, so we honor the "Unicode strings" flag.
 	 */
-	fn = get_unicode_or_ascii_string(tvb, &offset, si->unicode, &fn_len,
+	fn = get_unicode_or_ascii_string(pinfo->pool, tvb, &offset, si->unicode, &fn_len,
 		false, false, &bc);
 	if (fn == NULL)
 		goto endofcommand;
@@ -5229,7 +5229,7 @@ dissect_create_temporary_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 	COUNT_BYTES(fn_len);
 
 	col_append_fstr(pinfo->cinfo, COL_INFO, ", Path: %s",
-		    format_text(wmem_packet_scope(), (const unsigned char*)fn, strlen(fn)));
+		    format_text(pinfo->pool, (const unsigned char*)fn, strlen(fn)));
 
 	END_OF_SMB
 
@@ -5261,7 +5261,7 @@ dissect_create_temporary_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 	 * MS-CIFS says "The string SHOULD be a null-terminated array of
 	 * ASCII characters.", so we ignore the "Unicode strings" flag.
 	 */
-	fn = get_unicode_or_ascii_string(tvb, &offset, false, &fn_len,
+	fn = get_unicode_or_ascii_string(pinfo->pool, tvb, &offset, false, &fn_len,
 		true, false, &bc);
 	if (fn == NULL)
 		goto endofcommand;
@@ -5474,13 +5474,13 @@ dissect_write_and_close_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
    available at http://us1.samba.org/samba/ftp/SMB-info/DOSEXTP.TXT
 */
 static char *
-smbext20_timeout_msecs_to_str(int32_t timeout)
+smbext20_timeout_msecs_to_str(wmem_allocator_t *scope, int32_t timeout)
 {
 	char *buf;
 #define SMBEXT20_TIMEOUT_MSECS_TO_STR_MAXLEN 60
 
 	if (timeout <= 0) {
-		buf = (char *)wmem_alloc(wmem_packet_scope(), SMBEXT20_TIMEOUT_MSECS_TO_STR_MAXLEN+1);
+		buf = (char *)wmem_alloc(scope, SMBEXT20_TIMEOUT_MSECS_TO_STR_MAXLEN+1);
 		if (timeout == 0) {
 			snprintf(buf, SMBEXT20_TIMEOUT_MSECS_TO_STR_MAXLEN+1, "Return immediately (0)");
 		} else if (timeout == -1) {
@@ -5493,7 +5493,7 @@ smbext20_timeout_msecs_to_str(int32_t timeout)
 		return buf;
 	}
 
-	return signed_time_msecs_to_str(wmem_packet_scope(), timeout);
+	return signed_time_msecs_to_str(scope, timeout);
 }
 
 static int
@@ -5524,7 +5524,7 @@ dissect_read_raw_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
 
 	/* timeout */
 	to = tvb_get_letohl(tvb, offset);
-	proto_tree_add_uint_format_value(tree, hf_smb_timeout, tvb, offset, 4, to, "%s", smbext20_timeout_msecs_to_str(to));
+	proto_tree_add_uint_format_value(tree, hf_smb_timeout, tvb, offset, 4, to, "%s", smbext20_timeout_msecs_to_str(pinfo->pool, to));
 	offset += 4;
 
 	/* 2 reserved bytes */
@@ -5759,7 +5759,7 @@ dissect_write_raw_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 
 	/* timeout */
 	to = tvb_get_letohl(tvb, offset);
-	proto_tree_add_uint_format_value(tree, hf_smb_timeout, tvb, offset, 4, to, "%s", smbext20_timeout_msecs_to_str(to));
+	proto_tree_add_uint_format_value(tree, hf_smb_timeout, tvb, offset, 4, to, "%s", smbext20_timeout_msecs_to_str(pinfo->pool, to));
 	offset += 4;
 
 	/* mode */
@@ -5837,7 +5837,7 @@ dissect_write_mpx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 
 	/* timeout */
 	to = tvb_get_letohl(tvb, offset);
-	proto_tree_add_uint_format_value(tree, hf_smb_timeout, tvb, offset, 4, to, "%s", smbext20_timeout_msecs_to_str(to));
+	proto_tree_add_uint_format_value(tree, hf_smb_timeout, tvb, offset, 4, to, "%s", smbext20_timeout_msecs_to_str(pinfo->pool, to));
 	offset += 4;
 
 	/* mode */
@@ -5910,7 +5910,7 @@ dissect_search_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int o
 }
 
 static int
-dissect_search_resume_key(tvbuff_t *tvb, packet_info *pinfo _U_,
+dissect_search_resume_key(tvbuff_t *tvb, packet_info *pinfo,
     proto_tree *parent_tree, int offset, uint16_t *bcp, bool *trunc,
     bool has_find_id, smb_info_t *si)
 {
@@ -5930,7 +5930,7 @@ dissect_search_resume_key(tvbuff_t *tvb, packet_info *pinfo _U_,
 
 	/* file name */
 	fn_len = 11;
-	fn = get_unicode_or_ascii_string(tvb, &offset, false/*never Unicode*/, &fn_len,
+	fn = get_unicode_or_ascii_string(pinfo->pool, tvb, &offset, false/*never Unicode*/, &fn_len,
 		true, true, bcp);
 	CHECK_STRING_SUBR(fn);
 	proto_tree_add_string(tree, hf_smb_file_name, tvb, offset, 11, fn);
@@ -6004,7 +6004,7 @@ dissect_search_dir_info(tvbuff_t *tvb, packet_info *pinfo,
            not supported; names are returned in the extended ASCII
            (OEM) character set only." */
 	fn_len = 13;
-	fn = get_unicode_or_ascii_string(tvb, &offset, false/*Never Unicode*/, &fn_len,
+	fn = get_unicode_or_ascii_string(pinfo->pool, tvb, &offset, false/*Never Unicode*/, &fn_len,
 		true, true, bcp);
 	CHECK_STRING_SUBR(fn);
 	proto_tree_add_string(tree, hf_smb_file_name, tvb, offset, fn_len, fn);
@@ -6046,7 +6046,7 @@ dissect_search_find_request(tvbuff_t *tvb, packet_info *pinfo,
 	COUNT_BYTES(1);
 
 	/* file name */
-	fn = get_unicode_or_ascii_string(tvb, &offset, si->unicode, &fn_len,
+	fn = get_unicode_or_ascii_string(pinfo->pool, tvb, &offset, si->unicode, &fn_len,
 		true, false, &bc);
 	if (fn == NULL)
 		goto endofcommand;
@@ -6055,7 +6055,7 @@ dissect_search_find_request(tvbuff_t *tvb, packet_info *pinfo,
 	COUNT_BYTES(fn_len);
 
 	col_append_fstr(pinfo->cinfo, COL_INFO, ", File: %s",
-		    format_text(wmem_packet_scope(), (const unsigned char*)fn, strlen(fn)));
+		    format_text(pinfo->pool, (const unsigned char*)fn, strlen(fn)));
 
 	/* buffer format */
 	CHECK_BYTE_COUNT(1);
@@ -6283,7 +6283,7 @@ dissect_locking_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
 	/* timeout */
 	to = tvb_get_letohl(tvb, offset);
-	proto_tree_add_uint_format_value(tree, hf_smb_timeout, tvb, offset, 4, to, "%s", smbext20_timeout_msecs_to_str(to));
+	proto_tree_add_uint_format_value(tree, hf_smb_timeout, tvb, offset, 4, to, "%s", smbext20_timeout_msecs_to_str(pinfo->pool, to));
 	offset += 4;
 
 	/* number of unlocks */
@@ -6723,7 +6723,7 @@ dissect_open_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 
 	/* timeout, described at http://us1.samba.org/samba/ftp/SMB-info/DOSEXTP.TXT */
 	to = tvb_get_letohl(tvb, offset);
-	proto_tree_add_uint_format_value(tree, hf_smb_timeout, tvb, offset, 4, to, "%s", smbext20_timeout_msecs_to_str(to));
+	proto_tree_add_uint_format_value(tree, hf_smb_timeout, tvb, offset, 4, to, "%s", smbext20_timeout_msecs_to_str(pinfo->pool, to));
 	offset += 4;
 
 	/* 4 reserved bytes */
@@ -6733,7 +6733,7 @@ dissect_open_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 	BYTE_COUNT;
 
 	/* file name */
-	fn = get_unicode_or_ascii_string(tvb, &offset, si->unicode, &fn_len,
+	fn = get_unicode_or_ascii_string(pinfo->pool, tvb, &offset, si->unicode, &fn_len,
 		false, false, &bc);
 	if (fn == NULL)
 		goto endofcommand;
@@ -6754,7 +6754,7 @@ dissect_open_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 	}
 
 	col_append_fstr(pinfo->cinfo, COL_INFO, ", Path: %s",
-		    format_text(wmem_packet_scope(), (const unsigned char*)fn, strlen(fn)));
+		    format_text(pinfo->pool, (const unsigned char*)fn, strlen(fn)));
 
 	END_OF_SMB
 
@@ -7740,7 +7740,7 @@ dissect_session_setup_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 		if ( tvb_strneql(tvb, offset, "Win", 3) == 0 ) {
 			unicodeflag = false;
 		}
-		an = get_unicode_or_ascii_string(tvb, &offset,
+		an = get_unicode_or_ascii_string(pinfo->pool, tvb, &offset,
 			unicodeflag, &an_len, false, false, &bc);
 		if (an == NULL)
 			goto endofcommand;
@@ -7766,7 +7766,7 @@ dissect_session_setup_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 		if ( tvb_strneql(tvb, offset, "Win", 3) == 0 ) {
 			unicodeflag = false;
 		}
-		an = get_unicode_or_ascii_string(tvb, &offset,
+		an = get_unicode_or_ascii_string(pinfo->pool, tvb, &offset,
 			unicodeflag, &an_len, false, false, &bc);
 		if (an == NULL)
 			goto endofcommand;
@@ -7779,7 +7779,7 @@ dissect_session_setup_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 		 * byte in front of this, at least if all the strings are
 		 * ASCII and the account name is empty. Another bug?
 		 */
-		dn = get_unicode_or_ascii_string(tvb, &offset,
+		dn = get_unicode_or_ascii_string(pinfo->pool, tvb, &offset,
 			si->unicode, &dn_len, false, false, &bc);
 		if (dn == NULL)
 			goto endofcommand;
@@ -7830,7 +7830,7 @@ dissect_session_setup_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 		}
 
 		/* Account Name */
-		an = get_unicode_or_ascii_string(tvb, &offset,
+		an = get_unicode_or_ascii_string(pinfo->pool, tvb, &offset,
 			si->unicode, &an_len, false, false, &bc);
 		if (an == NULL)
 			goto endofcommand;
@@ -7843,7 +7843,7 @@ dissect_session_setup_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 		 * byte in front of this, at least if all the strings are
 		 * ASCII and the account name is empty. Another bug?
 		 */
-		dn = get_unicode_or_ascii_string(tvb, &offset,
+		dn = get_unicode_or_ascii_string(pinfo->pool, tvb, &offset,
 			si->unicode, &dn_len, false, false, &bc);
 		if (dn == NULL)
 			goto endofcommand;
@@ -7858,11 +7858,11 @@ dissect_session_setup_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 		else
 			col_append_fstr(pinfo->cinfo, COL_INFO,
 					"%s\\%s",
-					format_text(wmem_packet_scope(), (const unsigned char*)dn, strlen(dn)),
-					format_text(wmem_packet_scope(), (const unsigned char*)an, strlen(an)));
+					format_text(pinfo->pool, (const unsigned char*)dn, strlen(dn)),
+					format_text(pinfo->pool, (const unsigned char*)an, strlen(an)));
 
 		/* OS */
-		an = get_unicode_or_ascii_string(tvb, &offset,
+		an = get_unicode_or_ascii_string(pinfo->pool, tvb, &offset,
 			si->unicode, &an_len, false, false, &bc);
 		if (an == NULL)
 			goto endofcommand;
@@ -7877,7 +7877,7 @@ dissect_session_setup_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 		 * suspect that, in practice, nobody ever looks at that field
 		 * because the bug didn't appear to get fixed until NT 5.0....
 		 */
-		an = get_unicode_or_ascii_string(tvb, &offset,
+		an = get_unicode_or_ascii_string(pinfo->pool, tvb, &offset,
 			si->unicode, &an_len, false, false, &bc);
 		if (an == NULL)
 			goto endofcommand;
@@ -7991,7 +7991,7 @@ dissect_session_setup_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 	}
 
 	/* OS */
-	an = get_unicode_or_ascii_string(tvb, &offset,
+	an = get_unicode_or_ascii_string(pinfo->pool, tvb, &offset,
 		si->unicode, &an_len, false, false, &bc);
 	if (an == NULL)
 		goto endofcommand;
@@ -8000,7 +8000,7 @@ dissect_session_setup_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 	COUNT_BYTES(an_len);
 
 	/* LANMAN */
-	an = get_unicode_or_ascii_string(tvb, &offset,
+	an = get_unicode_or_ascii_string(pinfo->pool, tvb, &offset,
 		si->unicode, &an_len, false, false, &bc);
 	if (an == NULL)
 		goto endofcommand;
@@ -8010,7 +8010,7 @@ dissect_session_setup_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 
 	if ((wc == 3) || (wc == 4)) {
 		/* Primary domain */
-		an = get_unicode_or_ascii_string(tvb, &offset,
+		an = get_unicode_or_ascii_string(pinfo->pool, tvb, &offset,
 			si->unicode, &an_len, false, false, &bc);
 		if (an == NULL)
 			goto endofcommand;
@@ -8200,7 +8200,7 @@ dissect_tree_connect_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 	COUNT_BYTES(pwlen);
 
 	/* Path */
-	an = get_unicode_or_ascii_string(tvb, &offset,
+	an = get_unicode_or_ascii_string(pinfo->pool, tvb, &offset,
 		si->unicode, &an_len, false, false, &bc);
 	if (an == NULL)
 		goto endofcommand;
@@ -8217,7 +8217,7 @@ dissect_tree_connect_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 	}
 
 	col_append_fstr(pinfo->cinfo, COL_INFO, ", Path: %s",
-		    format_text(wmem_packet_scope(), (const unsigned char*)an, strlen(an)));
+		    format_text(pinfo->pool, (const unsigned char*)an, strlen(an)));
 
 	/*
 	 * NOTE: the Service string is always ASCII, even if the
@@ -8230,7 +8230,7 @@ dissect_tree_connect_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 	an_len = tvb_strsize(tvb, offset);
 	CHECK_BYTE_COUNT(an_len);
 	proto_tree_add_item_ret_string(tree, hf_smb_service, tvb,
-		offset, an_len, ENC_ASCII|ENC_NA, wmem_packet_scope(), &an);
+		offset, an_len, ENC_ASCII|ENC_NA, pinfo->pool, &an);
 	COUNT_BYTES(an_len);
 
 	END_OF_SMB
@@ -8336,7 +8336,7 @@ dissect_tree_connect_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 	an_len = tvb_strsize(tvb, offset);
 	CHECK_BYTE_COUNT(an_len);
 	proto_tree_add_item_ret_string(tree, hf_smb_service, tvb,
-		offset, an_len, ENC_ASCII|ENC_NA, wmem_packet_scope(), &an);
+		offset, an_len, ENC_ASCII|ENC_NA, pinfo->pool, &an);
 	COUNT_BYTES(an_len);
 
 	/* Now when we know the service type, store it so that we know it for later commands down
@@ -8359,7 +8359,7 @@ dissect_tree_connect_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 		 */
 
 		/* Native FS */
-		an = get_unicode_or_ascii_string(tvb, &offset,
+		an = get_unicode_or_ascii_string(pinfo->pool, tvb, &offset,
 			si->unicode, &an_len, /*true*/false, false,
 			&bc);
 		if (an == NULL)
@@ -9175,7 +9175,7 @@ dissect_nt_trans_param_request(tvbuff_t *tvb, packet_info *pinfo, int offset, pr
 		}
 
 		/* file name */
-		fn = get_unicode_or_ascii_string(tvb, &offset, si->unicode, &fn_len, true, true, &bc);
+		fn = get_unicode_or_ascii_string(pinfo->pool, tvb, &offset, si->unicode, &fn_len, true, true, &bc);
 		if (fn != NULL) {
 			proto_tree_add_string(tree, hf_smb_file_name, tvb, offset, fn_len,
 				fn);
@@ -9859,7 +9859,7 @@ dissect_nt_trans_param_response(tvbuff_t *tvb, packet_info *pinfo,
 			if (len < 0) break;
 
 			/* file name */
-			fn = get_unicode_or_ascii_string(tvb, &offset, si->unicode, &fn_len, true, true, &bc);
+			fn = get_unicode_or_ascii_string(pinfo->pool, tvb, &offset, si->unicode, &fn_len, true, true, &bc);
 			if (fn == NULL)
 				break;
 			proto_tree_add_string(tree, hf_smb_file_name, tvb, offset, fn_len,
@@ -10161,7 +10161,7 @@ static const value_string print_mode_vals[] = {
 };
 
 static int
-dissect_open_print_file_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, proto_tree *smb_tree _U_, smb_info_t *si)
+dissect_open_print_file_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, proto_tree *smb_tree _U_, smb_info_t *si)
 {
 	int         fn_len;
 	const char *fn;
@@ -10188,7 +10188,7 @@ dissect_open_print_file_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 	COUNT_BYTES(1);
 
 	/* print identifier */
-	fn = get_unicode_or_ascii_string(tvb, &offset, si->unicode, &fn_len, true, false, &bc);
+	fn = get_unicode_or_ascii_string(pinfo->pool, tvb, &offset, si->unicode, &fn_len, true, false, &bc);
 	if (fn == NULL)
 		goto endofcommand;
 	proto_tree_add_string(tree, hf_smb_print_identifier, tvb, offset, fn_len,
@@ -10271,7 +10271,7 @@ dissect_get_print_queue_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 }
 
 static int
-dissect_print_queue_element(tvbuff_t *tvb, packet_info *pinfo _U_,
+dissect_print_queue_element(tvbuff_t *tvb, packet_info *pinfo,
     proto_tree *parent_tree, int offset, uint16_t *bcp, bool *trunc, smb_info_t *si)
 {
 	proto_tree *tree;
@@ -10312,7 +10312,7 @@ dissect_print_queue_element(tvbuff_t *tvb, packet_info *pinfo _U_,
 
 	/* file name */
 	fn_len = 16;
-	fn = get_unicode_or_ascii_string(tvb, &offset, si->unicode, &fn_len, true, true, bcp);
+	fn = get_unicode_or_ascii_string(pinfo->pool, tvb, &offset, si->unicode, &fn_len, true, true, bcp);
 	CHECK_STRING_SUBR(fn);
 	proto_tree_add_string(tree, hf_smb_print_spool_file_name, tvb, offset, 16,
 		fn);
@@ -10678,7 +10678,7 @@ dissect_nt_create_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 		    tvb, 0, 0);
 		goto endofcommand;
 	}
-	fn = get_unicode_or_ascii_string(tvb, &offset, si->unicode, &fn_len, false, false, &bc);
+	fn = get_unicode_or_ascii_string(pinfo->pool, tvb, &offset, si->unicode, &fn_len, false, false, &bc);
 	if (fn == NULL)
 		goto endofcommand;
 	proto_tree_add_string(tree, hf_smb_file_name, tvb, offset, fn_len,
@@ -10705,7 +10705,7 @@ dissect_nt_create_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 	}
 
 	col_append_fstr(pinfo->cinfo, COL_INFO, ", Path: %s",
-		    format_text(wmem_packet_scope(), (const unsigned char*)fn, strlen(fn)));
+		    format_text(pinfo->pool, (const unsigned char*)fn, strlen(fn)));
 
 	END_OF_SMB
 
@@ -11363,14 +11363,14 @@ dissect_get_dfs_request_data(tvbuff_t *tvb, packet_info *pinfo,
 	COUNT_BYTES_TRANS(2);
 
 	/* file name */
-	fn = get_unicode_or_ascii_string(tvb, &offset, unicode, &fn_len, false, false, &bc);
+	fn = get_unicode_or_ascii_string(pinfo->pool, tvb, &offset, unicode, &fn_len, false, false, &bc);
 	CHECK_STRING_TRANS(fn);
 	proto_tree_add_string(tree, hf_smb_file_name, tvb, offset, fn_len,
 		fn);
 	COUNT_BYTES_TRANS(fn_len);
 
 	col_append_fstr(pinfo->cinfo, COL_INFO, ", File: %s",
-		    format_text(wmem_packet_scope(), (const unsigned char*)fn, strlen(fn)));
+		    format_text(pinfo->pool, (const unsigned char*)fn, strlen(fn)));
 
 	*bcp = bc;
 	return offset;
@@ -11444,14 +11444,14 @@ dissect_transaction2_request_parameters(tvbuff_t *tvb, packet_info *pinfo,
 		COUNT_BYTES_TRANS(10);
 
 		/* file name */
-		fn = get_unicode_or_ascii_string(tvb, &offset, si->unicode, &fn_len, false, false, &bc);
+		fn = get_unicode_or_ascii_string(pinfo->pool, tvb, &offset, si->unicode, &fn_len, false, false, &bc);
 		CHECK_STRING_TRANS(fn);
 		proto_tree_add_string(tree, hf_smb_file_name, tvb, offset, fn_len,
 			fn);
 		COUNT_BYTES_TRANS(fn_len);
 
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", Path: %s",
-			    format_text(wmem_packet_scope(), (const unsigned char*)fn, strlen(fn)));
+			    format_text(pinfo->pool, (const unsigned char*)fn, strlen(fn)));
 		break;
 	case 0x0001:	/*TRANS2_FIND_FIRST2*/
 		/* Search Attributes */
@@ -11483,7 +11483,7 @@ dissect_transaction2_request_parameters(tvbuff_t *tvb, packet_info *pinfo,
 		COUNT_BYTES_TRANS(4);
 
 		/* search pattern */
-		fn = get_unicode_or_ascii_string(tvb, &offset, si->unicode, &fn_len, false, false, &bc);
+		fn = get_unicode_or_ascii_string(pinfo->pool, tvb, &offset, si->unicode, &fn_len, false, false, &bc);
 		CHECK_STRING_TRANS(fn);
 		if (t2i && !t2i->name) {
 			t2i->name = wmem_strdup(wmem_file_scope(), fn);
@@ -11493,7 +11493,7 @@ dissect_transaction2_request_parameters(tvbuff_t *tvb, packet_info *pinfo,
 		COUNT_BYTES_TRANS(fn_len);
 
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", Pattern: %s",
-			format_text(wmem_packet_scope(), (const unsigned char*)fn, strlen(fn)));
+			format_text(pinfo->pool, (const unsigned char*)fn, strlen(fn)));
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
 			val_to_str(si->info_level, ff2_il_vals, "Unknown (0x%02x)"));
 
@@ -11533,7 +11533,7 @@ dissect_transaction2_request_parameters(tvbuff_t *tvb, packet_info *pinfo,
 		bc -= 2;
 
 		/* file name */
-		fn = get_unicode_or_ascii_string(tvb, &offset, si->unicode, &fn_len, false, false, &bc);
+		fn = get_unicode_or_ascii_string(pinfo->pool, tvb, &offset, si->unicode, &fn_len, false, false, &bc);
 		CHECK_STRING_TRANS(fn);
 		proto_tree_add_string(tree, hf_smb_file_name, tvb, offset, fn_len,
 			fn);
@@ -11541,7 +11541,7 @@ dissect_transaction2_request_parameters(tvbuff_t *tvb, packet_info *pinfo,
 
 		if (strlen(fn)) {
 			col_append_fstr(pinfo->cinfo, COL_INFO, ", Continue after: %s",
-				    format_text(wmem_packet_scope(), (const unsigned char*)fn, strlen(fn)));
+				    format_text(pinfo->pool, (const unsigned char*)fn, strlen(fn)));
 		} else {
 			col_append_str(pinfo->cinfo, COL_INFO, ", Continue after previous file");
 		}
@@ -11594,7 +11594,7 @@ dissect_transaction2_request_parameters(tvbuff_t *tvb, packet_info *pinfo,
 		COUNT_BYTES_TRANS(4);
 
 		/* file name */
-		fn = tvb_get_stringz_enc(wmem_packet_scope(), tvb, offset, &fn_len, (si->unicode ? ENC_UTF_16|ENC_LITTLE_ENDIAN : ENC_ASCII|ENC_NA));
+		fn = tvb_get_stringz_enc(pinfo->pool, tvb, offset, &fn_len, (si->unicode ? ENC_UTF_16|ENC_LITTLE_ENDIAN : ENC_ASCII|ENC_NA));
 
 		CHECK_STRING_TRANS(fn);
 		proto_tree_add_string(tree, hf_smb_file_name, tvb, offset, fn_len,
@@ -11605,7 +11605,7 @@ dissect_transaction2_request_parameters(tvbuff_t *tvb, packet_info *pinfo,
 		}
 
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", Path: %s",
-			    format_text(wmem_packet_scope(), (const unsigned char*)fn, strlen(fn)));
+			    format_text(pinfo->pool, (const unsigned char*)fn, strlen(fn)));
 
 		break;
 	case 0x0006:	/*TRANS2_SET_PATH_INFORMATION*/
@@ -11623,14 +11623,14 @@ dissect_transaction2_request_parameters(tvbuff_t *tvb, packet_info *pinfo,
 		COUNT_BYTES_TRANS(4);
 
 		/* file name */
-		fn = get_unicode_or_ascii_string(tvb, &offset, si->unicode, &fn_len, false, false, &bc);
+		fn = get_unicode_or_ascii_string(pinfo->pool, tvb, &offset, si->unicode, &fn_len, false, false, &bc);
 		CHECK_STRING_TRANS(fn);
 		proto_tree_add_string(tree, hf_smb_file_name, tvb, offset, fn_len,
 			fn);
 		COUNT_BYTES_TRANS(fn_len);
 
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", Path: %s",
-			    format_text(wmem_packet_scope(), (const unsigned char*)fn, strlen(fn)));
+			    format_text(pinfo->pool, (const unsigned char*)fn, strlen(fn)));
 
 		break;
 	case 0x0007: {	/*TRANS2_QUERY_FILE_INFORMATION*/
@@ -11749,14 +11749,14 @@ dissect_transaction2_request_parameters(tvbuff_t *tvb, packet_info *pinfo,
 		COUNT_BYTES_TRANS(4);
 
 		/* file name */
-		fn = get_unicode_or_ascii_string(tvb, &offset, si->unicode, &fn_len, false, false, &bc);
+		fn = get_unicode_or_ascii_string(pinfo->pool, tvb, &offset, si->unicode, &fn_len, false, false, &bc);
 		CHECK_STRING_TRANS(fn);
 		proto_tree_add_string(tree, hf_smb_file_name, tvb, offset, fn_len,
 			fn);
 		COUNT_BYTES_TRANS(fn_len);
 
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", Path: %s",
-			    format_text(wmem_packet_scope(), (const unsigned char*)fn, strlen(fn)));
+			    format_text(pinfo->pool, (const unsigned char*)fn, strlen(fn)));
 
 		break;
 	case 0x000c:	/*TRANS2_FIND_NOTIFY_NEXT*/
@@ -11778,7 +11778,7 @@ dissect_transaction2_request_parameters(tvbuff_t *tvb, packet_info *pinfo,
 		COUNT_BYTES_TRANS(4);
 
 		/* dir name */
-		fn = get_unicode_or_ascii_string(tvb, &offset, si->unicode, &fn_len,
+		fn = get_unicode_or_ascii_string(pinfo->pool, tvb, &offset, si->unicode, &fn_len,
 			false, false, &bc);
 		CHECK_STRING_TRANS(fn);
 		proto_tree_add_string(tree, hf_smb_dir_name, tvb, offset, fn_len,
@@ -11786,7 +11786,7 @@ dissect_transaction2_request_parameters(tvbuff_t *tvb, packet_info *pinfo,
 		COUNT_BYTES_TRANS(fn_len);
 
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", Dir: %s",
-			    format_text(wmem_packet_scope(), (const unsigned char*)fn, strlen(fn)));
+			    format_text(pinfo->pool, (const unsigned char*)fn, strlen(fn)));
 		break;
 	case 0x000e:	/*TRANS2_SESSION_SETUP*/
 		/* XXX unknown structure*/
@@ -11796,14 +11796,14 @@ dissect_transaction2_request_parameters(tvbuff_t *tvb, packet_info *pinfo,
 		break;
 	case 0x0011:	/*TRANS2_REPORT_DFS_INCONSISTENCY*/
 		/* file name */
-		fn = get_unicode_or_ascii_string(tvb, &offset, si->unicode, &fn_len, false, false, &bc);
+		fn = get_unicode_or_ascii_string(pinfo->pool, tvb, &offset, si->unicode, &fn_len, false, false, &bc);
 		CHECK_STRING_TRANS(fn);
 		proto_tree_add_string(tree, hf_smb_file_name, tvb, offset, fn_len,
 			fn);
 		COUNT_BYTES_TRANS(fn_len);
 
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", File: %s",
-			    format_text(wmem_packet_scope(), (const unsigned char*)fn, strlen(fn)));
+			    format_text(pinfo->pool, (const unsigned char*)fn, strlen(fn)));
 		break;
 	}
 
@@ -11870,7 +11870,7 @@ dissect_dfs_referral_flags(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 /* dfs inconsistency data  (4.4.2)
 */
 static int
-dissect_dfs_inconsistency_data(tvbuff_t *tvb, packet_info *pinfo _U_,
+dissect_dfs_inconsistency_data(tvbuff_t *tvb, packet_info *pinfo,
     proto_tree *tree, int offset, uint16_t *bcp, smb_info_t *si)
 {
 	int         fn_len;
@@ -11900,7 +11900,7 @@ dissect_dfs_inconsistency_data(tvbuff_t *tvb, packet_info *pinfo _U_,
 	*bcp  -= 2;
 
 	/* node name */
-	fn = get_unicode_or_ascii_string(tvb, &offset, si->unicode, &fn_len, false, false, bcp);
+	fn = get_unicode_or_ascii_string(pinfo->pool, tvb, &offset, si->unicode, &fn_len, false, false, bcp);
 	CHECK_STRING_TRANS_SUBR(fn);
 	proto_tree_add_string(tree, hf_smb_dfs_referral_node, tvb, offset, fn_len,
 		fn);
@@ -11924,7 +11924,7 @@ dissect_dfs_referral_strings(tvbuff_t *tvb, proto_tree *tree, int hfindex,
 	bc -= (stroffset - offset);
 	for (istring = 0; istring < nstring; istring++) {
 		if ((int16_t)bc > 0) {
-			str = get_unicode_or_ascii_string(tvb, &stroffset, unicode, &str_len, false, false, &bc);
+			str = get_unicode_or_ascii_string(wmem_packet_scope(), tvb, &stroffset, unicode, &str_len, false, false, &bc);
 			CHECK_STRING_TRANS_SUBR(str);
 			proto_tree_add_string(tree, hfindex, tvb, stroffset, str_len, str);
 			stroffset += str_len;
@@ -12119,7 +12119,7 @@ dissect_dfs_referral_entry_v3(tvbuff_t *tvb, proto_tree *tree, int oldoffset, in
 /* get dfs referral data  (4.4.1)
 */
 int
-dissect_get_dfs_referral_data(tvbuff_t *tvb, packet_info *pinfo _U_,
+dissect_get_dfs_referral_data(tvbuff_t *tvb, packet_info *pinfo,
     proto_tree *tree, int offset, uint16_t *bcp, bool unicode)
 {
 	uint16_t    numref;
@@ -12201,7 +12201,7 @@ dissect_get_dfs_referral_data(tvbuff_t *tvb, packet_info *pinfo _U_,
 
 			case 1:
 				/* node name */
-				fn = get_unicode_or_ascii_string(tvb, &offset, unicode, &fn_len, false, false, bcp);
+				fn = get_unicode_or_ascii_string(pinfo->pool, tvb, &offset, unicode, &fn_len, false, false, bcp);
 				CHECK_STRING_TRANS_SUBR(fn);
 				proto_tree_add_string(rt, hf_smb_dfs_referral_node, tvb, offset, fn_len,
 					fn);
@@ -12435,7 +12435,7 @@ dissect_qfi_SMB_INFO_QUERY_EA_SIZE(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
 *  [MS-CIFS] 2.2.6.9.   This the "EA (Extended Attribute) subtree.
 */
 static int
-dissect_4_2_16_2(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+dissect_4_2_16_2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     int offset, uint16_t *bcp, bool *trunc)
 {
 	uint8_t name_len;
@@ -12486,7 +12486,7 @@ dissect_4_2_16_2(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 		proto_tree_add_item_ret_display_string(
 			subtree, hf_smb_ea_name, tvb, offset, name_len + 1,
 			ENC_ASCII|ENC_NA,
-			wmem_packet_scope(), &display_string);
+			pinfo->pool, &display_string);
 		proto_item_append_text(item, ": %s", display_string);
 		COUNT_BYTES_SUBR(name_len + 1);
 
@@ -12512,7 +12512,7 @@ dissect_4_2_16_2(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
    as described in 4.2.16.3
 */
 static int
-dissect_4_2_16_3(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+dissect_4_2_16_3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     int offset, uint16_t *bcp, bool *trunc, smb_info_t *si)
 {
 	int         fn_len;
@@ -12521,7 +12521,7 @@ dissect_4_2_16_3(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 	DISSECTOR_ASSERT(si);
 
 	/* file name */
-	fn = get_unicode_or_ascii_string(tvb, &offset, si->unicode, &fn_len, false, false, bcp);
+	fn = get_unicode_or_ascii_string(pinfo->pool, tvb, &offset, si->unicode, &fn_len, false, false, bcp);
 	CHECK_STRING_SUBR(fn);
 	proto_tree_add_string(tree, hf_smb_file_name, tvb, offset, fn_len,
 		fn);
@@ -12720,7 +12720,7 @@ dissect_qsfi_SMB_FILE_ENDOFFILE_INFO(tvbuff_t *tvb, packet_info *pinfo _U_, prot
    https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-fscc/20bcadba-808c-4880-b757-4af93e41edf6
 */
 int
-dissect_qfi_SMB_FILE_NAME_INFO(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+dissect_qfi_SMB_FILE_NAME_INFO(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     int offset, uint16_t *bcp, bool *trunc, bool unicode)
 {
 	int         fn_len;
@@ -12732,7 +12732,7 @@ dissect_qfi_SMB_FILE_NAME_INFO(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
 	COUNT_BYTES_SUBR(4);
 
 	/* file name */
-	fn = get_unicode_or_ascii_string(tvb, &offset, unicode, &fn_len, true, true, bcp);
+	fn = get_unicode_or_ascii_string(pinfo->pool, tvb, &offset, unicode, &fn_len, true, true, bcp);
 
 	CHECK_STRING_SUBR(fn);
 
@@ -12814,7 +12814,7 @@ dissect_qfi_SMB_FILE_ALL_INFO(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 
 	/* file name */
 	CHECK_BYTE_COUNT_SUBR(fn_len);
-	fn = get_unicode_or_ascii_string(tvb, &offset, si->unicode, &fn_len, true, true, bcp);
+	fn = get_unicode_or_ascii_string(pinfo->pool, tvb, &offset, si->unicode, &fn_len, true, true, bcp);
 	if (fn != NULL) {
 		proto_tree_add_string(tree, hf_smb_file_name, tvb, offset, fn_len,
 			fn);
@@ -12833,7 +12833,7 @@ dissect_qfi_SMB_FILE_ALL_INFO(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
    and 2.2.8.3.12 of the MS-CIFS spec
 */
 int
-dissect_qfi_SMB_FILE_STREAM_INFO(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *parent_tree,
+dissect_qfi_SMB_FILE_STREAM_INFO(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
     int offset, uint16_t *bcp, bool *trunc, int unicode)
 {
 	proto_item *item;
@@ -12873,13 +12873,13 @@ dissect_qfi_SMB_FILE_STREAM_INFO(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
 		COUNT_BYTES_SUBR(8);
 
 		/* stream name */
-		fn = get_unicode_or_ascii_string(tvb, &offset, unicode, &fn_len, false, true, bcp);
+		fn = get_unicode_or_ascii_string(pinfo->pool, tvb, &offset, unicode, &fn_len, false, true, bcp);
 		CHECK_STRING_SUBR(fn);
 		proto_tree_add_string(tree, hf_smb_t2_stream_name, tvb, offset, fn_len,
 			fn);
 		COUNT_BYTES_SUBR(fn_len);
 
-		proto_item_append_text(item, ": %s", format_text(wmem_packet_scope(), (const unsigned char*)fn, strlen(fn)));
+		proto_item_append_text(item, ": %s", format_text(pinfo->pool, (const unsigned char*)fn, strlen(fn)));
 		proto_item_set_len(item, offset-old_offset);
 
 		if (neo == 0)
@@ -13038,7 +13038,7 @@ dissect_4_2_16_12(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 /* 4.2.16.13 - SMB_QUERY_FILE_UNIX_LINK */
 
 static int
-dissect_4_2_16_13(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+dissect_4_2_16_13(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		  int offset, uint16_t *bcp, bool *trunc, smb_info_t *si)
 {
 	const char *fn;
@@ -13048,7 +13048,7 @@ dissect_4_2_16_13(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 
 	/* Link destination */
 
-	fn = get_unicode_or_ascii_string(
+	fn = get_unicode_or_ascii_string(pinfo->pool,
 		tvb, &offset, si->unicode, &fn_len, false, true, bcp);
 
 	CHECK_STRING_SUBR(fn);
@@ -13457,7 +13457,7 @@ static const true_false_string tfs_smb_replace = {
 };
 
 static int
-dissect_rename_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+dissect_rename_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		    int offset, uint16_t *bcp, bool *trunc, smb_info_t *si)
 {
 	const char *fn;
@@ -13484,7 +13484,7 @@ dissect_rename_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 
 	/* Target name */
 	fn_len = target_name_len;
-	fn = get_unicode_or_ascii_string(
+	fn = get_unicode_or_ascii_string(pinfo->pool,
 		tvb, &offset, si->unicode, &fn_len, false, true, bcp);
 
 	CHECK_STRING_SUBR(fn);
@@ -14297,7 +14297,7 @@ dissect_transaction_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 		/* timeout */
 		to = tvb_get_letohl(tvb, offset);
-		proto_tree_add_uint_format_value(tree, hf_smb_timeout, tvb, offset, 4, to, "%s", smbext20_timeout_msecs_to_str(to));
+		proto_tree_add_uint_format_value(tree, hf_smb_timeout, tvb, offset, 4, to, "%s", smbext20_timeout_msecs_to_str(pinfo->pool, to));
 		offset += 4;
 
 		/* 2 reserved bytes */
@@ -14409,7 +14409,7 @@ dissect_transaction_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		/* name is NULL if transaction2 */
 		if (si->cmd == SMB_COM_TRANSACTION) {
 			/* Transaction Name */
-			an = get_unicode_or_ascii_string(tvb, &offset,
+			an = get_unicode_or_ascii_string(pinfo->pool, tvb, &offset,
 				si->unicode, &an_len, false, false, &bc);
 			if (an == NULL)
 				goto endofcommand;
@@ -14614,7 +14614,7 @@ dissect_transaction_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 
 static int
-dissect_4_3_4_1(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *parent_tree,
+dissect_4_3_4_1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
     int offset, uint16_t *bcp, bool *trunc, smb_info_t *si)
 {
 	int                   fn_len;
@@ -14703,13 +14703,13 @@ dissect_4_3_4_1(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *parent_tree,
 		fn_len++;	/* include terminating '\0' */
 
 	/* file name */
-	fn = get_unicode_or_ascii_string(tvb, &offset, si->unicode, &fn_len, false, true, bcp);
+	fn = get_unicode_or_ascii_string(pinfo->pool, tvb, &offset, si->unicode, &fn_len, false, true, bcp);
 	CHECK_STRING_SUBR(fn);
 	proto_tree_add_string(tree, hf_smb_file_name, tvb, offset, fn_len,
 		fn);
 	COUNT_BYTES_SUBR(fn_len);
 
-	proto_item_append_text(item, " File: %s", format_text(wmem_packet_scope(), (const unsigned char*)fn, strlen(fn)));
+	proto_item_append_text(item, " File: %s", format_text(pinfo->pool, (const unsigned char*)fn, strlen(fn)));
 	proto_item_set_len(item, offset-old_offset);
 
 	*trunc = false;
@@ -14717,7 +14717,7 @@ dissect_4_3_4_1(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *parent_tree,
 }
 
 static int
-dissect_4_3_4_2(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *parent_tree,
+dissect_4_3_4_2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
     int offset, uint16_t *bcp, bool *trunc, smb_info_t *si)
 {
 	int                   fn_len;
@@ -14807,12 +14807,12 @@ dissect_4_3_4_2(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *parent_tree,
 	COUNT_BYTES_SUBR(1);
 
 	/* file name */
-	fn = get_unicode_or_ascii_string(tvb, &offset, si->unicode, &fn_len, true, true, bcp);
+	fn = get_unicode_or_ascii_string(pinfo->pool, tvb, &offset, si->unicode, &fn_len, true, true, bcp);
 	CHECK_STRING_SUBR(fn);
 	proto_tree_add_string(tree, hf_smb_file_name, tvb, offset, fn_len,
 		fn);
 	COUNT_BYTES_SUBR(fn_len);
-	proto_item_append_text(item, " File: %s", format_text(wmem_packet_scope(), (const unsigned char*)fn, strlen(fn)));
+	proto_item_append_text(item, " File: %s", format_text(pinfo->pool, (const unsigned char*)fn, strlen(fn)));
 
 	/*
 	 * To quote the footnote for FileName in Section 2.2.8.1.2:
@@ -14844,7 +14844,7 @@ dissect_4_3_4_2(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *parent_tree,
  * this soon.
  */
 static int
-dissect_4_3_4_3(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *parent_tree,
+dissect_4_3_4_3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
     int offset, uint16_t *bcp, bool *trunc, smb_info_t *si)
 {
 	int                   fn_len;
@@ -14933,13 +14933,13 @@ dissect_4_3_4_3(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *parent_tree,
 		fn_len++;	/* include terminating '\0' */
 
 	/* file name */
-	fn = get_unicode_or_ascii_string(tvb, &offset, si->unicode, &fn_len, false, true, bcp);
+	fn = get_unicode_or_ascii_string(pinfo->pool, tvb, &offset, si->unicode, &fn_len, false, true, bcp);
 	CHECK_STRING_SUBR(fn);
 	proto_tree_add_string(tree, hf_smb_file_name, tvb, offset, fn_len,
 		fn);
 	COUNT_BYTES_SUBR(fn_len);
 
-	proto_item_append_text(item, " File: %s", format_text(wmem_packet_scope(), (const unsigned char*)fn, strlen(fn)));
+	proto_item_append_text(item, " File: %s", format_text(pinfo->pool, (const unsigned char*)fn, strlen(fn)));
 	proto_item_set_len(item, offset-old_offset);
 
 	return offset;
@@ -15015,7 +15015,7 @@ dissect_4_3_4_4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 	COUNT_BYTES_SUBR(4);
 
 	/* file name */
-	fn = get_unicode_or_ascii_string(tvb, &offset, si->unicode, &fn_len, false, true, bcp);
+	fn = get_unicode_or_ascii_string(pinfo->pool, tvb, &offset, si->unicode, &fn_len, false, true, bcp);
 	CHECK_STRING_SUBR(fn);
 	proto_tree_add_string(tree, hf_smb_file_name, tvb, offset, fn_len,
 		fn);
@@ -15036,7 +15036,7 @@ dissect_4_3_4_4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 		}
 	}
 
-	proto_item_append_text(item, " File: %s", format_text(wmem_packet_scope(), (const unsigned char*)fn, strlen(fn)));
+	proto_item_append_text(item, " File: %s", format_text(pinfo->pool, (const unsigned char*)fn, strlen(fn)));
 	proto_item_set_len(item, offset-old_offset);
 
 	*trunc = false;
@@ -15119,7 +15119,7 @@ dissect_4_3_4_5(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 	COUNT_BYTES_SUBR(4);
 
 	/* file name */
-	fn = get_unicode_or_ascii_string(tvb, &offset, si->unicode, &fn_len, false, true, bcp);
+	fn = get_unicode_or_ascii_string(pinfo->pool, tvb, &offset, si->unicode, &fn_len, false, true, bcp);
 	CHECK_STRING_SUBR(fn);
 	proto_tree_add_string(tree, hf_smb_file_name, tvb, offset, fn_len,
 		fn);
@@ -15140,7 +15140,7 @@ dissect_4_3_4_5(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 		}
 	}
 
-	proto_item_append_text(item, " File: %s", format_text(wmem_packet_scope(), (const unsigned char*)fn, strlen(fn)));
+	proto_item_append_text(item, " File: %s", format_text(pinfo->pool, (const unsigned char*)fn, strlen(fn)));
 	proto_item_set_len(item, offset-old_offset);
 
 	*trunc = false;
@@ -15242,14 +15242,14 @@ dissect_4_3_4_6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 	COUNT_BYTES_SUBR(1);
 
 	/* short file name - it's not always in Unicode */
-	sfn = get_unicode_or_ascii_string(tvb, &offset, si->unicode, &sfn_len, false, true, bcp);
+	sfn = get_unicode_or_ascii_string(pinfo->pool, tvb, &offset, si->unicode, &sfn_len, false, true, bcp);
 	CHECK_STRING_SUBR(sfn);
 	proto_tree_add_string(tree, hf_smb_short_file_name, tvb, offset, 24,
 		sfn);
 	COUNT_BYTES_SUBR(24);
 
 	/* file name */
-	fn = get_unicode_or_ascii_string(tvb, &offset, si->unicode, &fn_len, false, true, bcp);
+	fn = get_unicode_or_ascii_string(pinfo->pool, tvb, &offset, si->unicode, &fn_len, false, true, bcp);
 	CHECK_STRING_SUBR(fn);
 	proto_tree_add_string(tree, hf_smb_file_name, tvb, offset, fn_len,
 		fn);
@@ -15270,7 +15270,7 @@ dissect_4_3_4_6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 		}
 	}
 
-	proto_item_append_text(item, " File: %s", format_text(wmem_packet_scope(), (const unsigned char*)fn, strlen(fn)));
+	proto_item_append_text(item, " File: %s", format_text(pinfo->pool, (const unsigned char*)fn, strlen(fn)));
 	proto_item_set_len(item, offset-old_offset);
 
 	*trunc = false;
@@ -15368,7 +15368,7 @@ dissect_4_3_4_6full(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 	COUNT_BYTES_SUBR(8);
 
 	/* file name */
-	fn = get_unicode_or_ascii_string(tvb, &offset, si->unicode, &fn_len, false, true, bcp);
+	fn = get_unicode_or_ascii_string(pinfo->pool, tvb, &offset, si->unicode, &fn_len, false, true, bcp);
 	CHECK_STRING_SUBR(fn);
 	proto_tree_add_string(tree, hf_smb_file_name, tvb, offset, fn_len,
 		fn);
@@ -15389,7 +15389,7 @@ dissect_4_3_4_6full(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 		}
 	}
 
-	proto_item_append_text(item, " File: %s", format_text(wmem_packet_scope(), (const unsigned char*)fn, strlen(fn)));
+	proto_item_append_text(item, " File: %s", format_text(pinfo->pool, (const unsigned char*)fn, strlen(fn)));
 	proto_item_set_len(item, offset-old_offset);
 
 	*trunc = false;
@@ -15491,7 +15491,7 @@ dissect_4_3_4_6_id_both(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
 	COUNT_BYTES_SUBR(1);
 
 	/* short file name - it's not always in Unicode */
-	sfn = get_unicode_or_ascii_string(tvb, &offset, si->unicode, &sfn_len, false, true, bcp);
+	sfn = get_unicode_or_ascii_string(pinfo->pool, tvb, &offset, si->unicode, &sfn_len, false, true, bcp);
 	CHECK_STRING_SUBR(sfn);
 	proto_tree_add_string(tree, hf_smb_short_file_name, tvb, offset, 24,
 		sfn);
@@ -15508,7 +15508,7 @@ dissect_4_3_4_6_id_both(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
 	COUNT_BYTES_SUBR(8);
 
 	/* file name */
-	fn = get_unicode_or_ascii_string(tvb, &offset, si->unicode, &fn_len, false, true, bcp);
+	fn = get_unicode_or_ascii_string(pinfo->pool, tvb, &offset, si->unicode, &fn_len, false, true, bcp);
 	CHECK_STRING_SUBR(fn);
 	proto_tree_add_string(tree, hf_smb_file_name, tvb, offset, fn_len,
 		fn);
@@ -15529,7 +15529,7 @@ dissect_4_3_4_6_id_both(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
 		}
 	}
 
-	proto_item_append_text(item, " File: %s", format_text(wmem_packet_scope(), (const unsigned char*)fn, strlen(fn)));
+	proto_item_append_text(item, " File: %s", format_text(pinfo->pool, (const unsigned char*)fn, strlen(fn)));
 	proto_item_set_len(item, offset-old_offset);
 
 	*trunc = false;
@@ -15537,7 +15537,7 @@ dissect_4_3_4_6_id_both(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
 }
 
 static int
-dissect_4_3_4_7(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *parent_tree,
+dissect_4_3_4_7(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
     int offset, uint16_t *bcp, bool *trunc, smb_info_t *si)
 {
 	int         fn_len;
@@ -15586,7 +15586,7 @@ dissect_4_3_4_7(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *parent_tree,
 	COUNT_BYTES_SUBR(4);
 
 	/* file name */
-	fn = get_unicode_or_ascii_string(tvb, &offset, si->unicode, &fn_len, false, true, bcp);
+	fn = get_unicode_or_ascii_string(pinfo->pool, tvb, &offset, si->unicode, &fn_len, false, true, bcp);
 	CHECK_STRING_SUBR(fn);
 	proto_tree_add_string(tree, hf_smb_file_name, tvb, offset, fn_len,
 		fn);
@@ -15607,7 +15607,7 @@ dissect_4_3_4_7(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *parent_tree,
 		}
 	}
 
-	proto_item_append_text(item, " File: %s", format_text(wmem_packet_scope(), (const unsigned char*)fn, strlen(fn)));
+	proto_item_append_text(item, " File: %s", format_text(pinfo->pool, (const unsigned char*)fn, strlen(fn)));
 	proto_item_set_len(item, offset-old_offset);
 
 	*trunc = false;
@@ -15644,7 +15644,7 @@ dissect_4_3_4_8(tvbuff_t *tvb, packet_info *pinfo,
 
 	/* Name */
 
-	fn = get_unicode_or_ascii_string(
+	fn = get_unicode_or_ascii_string(pinfo->pool,
 		tvb, &offset, si->unicode, &fn_len, false, false, bcp);
 
 	CHECK_STRING_SUBR(fn);
@@ -15705,7 +15705,7 @@ dissect_find_file_unix_info2(tvbuff_t *tvb, packet_info *pinfo,
 	 */
 	tvb_ensure_bytes_exist(tvb, offset, namelen);
 	fn_len = namelen;
-	fn = get_unicode_or_ascii_string(
+	fn = get_unicode_or_ascii_string(pinfo->pool,
 		tvb, &offset, si->unicode, &fn_len, true, true, bcp);
 
 	CHECK_STRING_SUBR(fn);
@@ -15904,7 +15904,7 @@ static const true_false_string tfs_smb_mac_streams = {
 };
 
 int
-dissect_qfsi_FS_VOLUME_INFO(tvbuff_t * tvb, packet_info * pinfo _U_, proto_tree * tree, int offset, uint16_t *bcp, int unicode)
+dissect_qfsi_FS_VOLUME_INFO(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, int offset, uint16_t *bcp, int unicode)
 {
 	int         fn_len, vll;
 	const char *fn;
@@ -15933,7 +15933,7 @@ dissect_qfsi_FS_VOLUME_INFO(tvbuff_t * tvb, packet_info * pinfo _U_, proto_tree 
 
 	/* label */
 	fn_len = vll;
-	fn = get_unicode_or_ascii_string(tvb, &offset, unicode, &fn_len, false, true, bcp);
+	fn = get_unicode_or_ascii_string(pinfo->pool, tvb, &offset, unicode, &fn_len, false, true, bcp);
 	CHECK_STRING_TRANS_SUBR(fn);
 	proto_tree_add_string(tree, hf_smb_volume_label, tvb, offset, fn_len,
 		fn);
@@ -15985,7 +15985,7 @@ dissect_qfsi_FS_DEVICE_INFO(tvbuff_t * tvb, packet_info * pinfo _U_, proto_tree 
 }
 
 int
-dissect_qfsi_FS_ATTRIBUTE_INFO(tvbuff_t * tvb, packet_info * pinfo _U_, proto_tree * tree, int offset, uint16_t *bcp)
+dissect_qfsi_FS_ATTRIBUTE_INFO(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, int offset, uint16_t *bcp)
 {
 	int         fn_len, fnl;
 	const char *fn;
@@ -16008,7 +16008,7 @@ dissect_qfsi_FS_ATTRIBUTE_INFO(tvbuff_t * tvb, packet_info * pinfo _U_, proto_tr
 
 	/* label */
 	fn_len = fnl;
-	fn = get_unicode_or_ascii_string(tvb, &offset, true, &fn_len, false, true, bcp);
+	fn = get_unicode_or_ascii_string(pinfo->pool, tvb, &offset, true, &fn_len, false, true, bcp);
 	CHECK_STRING_TRANS_SUBR(fn);
 	proto_tree_add_string(tree, hf_smb_fs_name, tvb, offset, fn_len,
 		fn);
@@ -16113,7 +16113,7 @@ dissect_qfsi_vals(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 		COUNT_BYTES_TRANS_SUBR(1);
 
 		/* label - not aligned! */
-		fn = get_unicode_or_ascii_string(tvb, &offset, si->unicode, &fn_len, true, true, bcp);
+		fn = get_unicode_or_ascii_string(pinfo->pool, tvb, &offset, si->unicode, &fn_len, true, true, bcp);
 		CHECK_STRING_TRANS_SUBR(fn);
 		proto_tree_add_string(tree, hf_smb_volume_label, tvb, offset, fn_len, fn);
 		COUNT_BYTES_TRANS_SUBR(fn_len);
@@ -16129,7 +16129,7 @@ dissect_qfsi_vals(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 
 		/* label */
 		fn_len = vll;
-		fn = get_unicode_or_ascii_string(tvb, &offset, si->unicode, &fn_len, false, true, bcp);
+		fn = get_unicode_or_ascii_string(pinfo->pool, tvb, &offset, si->unicode, &fn_len, false, true, bcp);
 		CHECK_STRING_TRANS_SUBR(fn);
 		proto_tree_add_string(tree, hf_smb_volume_label, tvb, offset, fn_len, fn);
 		COUNT_BYTES_TRANS_SUBR(fn_len);
@@ -18020,7 +18020,7 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* da
 	smb_transact2_info_t *t2i = NULL;
 	bool		      remove = true;
 
-	si = wmem_new0(wmem_packet_scope(), smb_info_t);
+	si = wmem_new0(pinfo->pool, smb_info_t);
 	top_tree_global = parent_tree;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "SMB");

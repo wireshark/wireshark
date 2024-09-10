@@ -201,7 +201,7 @@ static int dissect_sftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
                 slen = tvb_get_ntohl(tvb, offset) ;
                 proto_tree_add_item(sftp_tree, hf_ssh_sftp_path_len, tvb, offset, 4, ENC_BIG_ENDIAN);
                 offset += 4;
-                uint8_t * path = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, slen, ENC_UTF_8);
+                uint8_t * path = tvb_get_string_enc(pinfo->pool, tvb, offset, slen, ENC_UTF_8);
                 proto_tree_add_item(sftp_tree, hf_ssh_sftp_path, tvb, offset, slen, ENC_UTF_8);
                 offset += slen;
 //                int pflags = tvb_get_ntohl(tvb, offset) ;
@@ -219,7 +219,7 @@ static int dissect_sftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
                 slen = tvb_get_ntohl(tvb, offset) ;
                 proto_tree_add_item(sftp_tree, hf_ssh_sftp_handle_len, tvb, offset, 4, ENC_BIG_ENDIAN);
                 offset += 4;
-                char * handle = tvb_bytes_to_str(wmem_packet_scope(), tvb, offset, slen);
+                char * handle = tvb_bytes_to_str(pinfo->pool, tvb, offset, slen);
                 proto_tree_add_item(sftp_tree, hf_ssh_sftp_handle, tvb, offset, slen, ENC_NA);
                 offset += slen;
                 wmem_strbuf_append_printf(title, " SSH_FXP_CLOSE (%d) id=%d {%s}", typ, id, handle);
@@ -232,7 +232,7 @@ static int dissect_sftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
                 slen = tvb_get_ntohl(tvb, offset) ;
                 proto_tree_add_item(sftp_tree, hf_ssh_sftp_handle_len, tvb, offset, 4, ENC_BIG_ENDIAN);
                 offset += 4;
-                char * handle = tvb_bytes_to_str(wmem_packet_scope(), tvb, offset, slen);
+                char * handle = tvb_bytes_to_str(pinfo->pool, tvb, offset, slen);
                 proto_tree_add_item(sftp_tree, hf_ssh_sftp_handle, tvb, offset, slen, ENC_NA);
                 offset += slen;
                 proto_tree_add_item(sftp_tree, hf_ssh_sftp_offset, tvb, offset, 8, ENC_BIG_ENDIAN);
@@ -249,7 +249,7 @@ static int dissect_sftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
                 slen = tvb_get_ntohl(tvb, offset) ;
                 proto_tree_add_item(sftp_tree, hf_ssh_sftp_handle_len, tvb, offset, 4, ENC_BIG_ENDIAN);
                 offset += 4;
-                char * handle = tvb_bytes_to_str(wmem_packet_scope(), tvb, offset, slen);
+                char * handle = tvb_bytes_to_str(pinfo->pool, tvb, offset, slen);
                 proto_tree_add_item(sftp_tree, hf_ssh_sftp_handle, tvb, offset, slen, ENC_NA);
                 offset += slen;
                 proto_tree_add_item(sftp_tree, hf_ssh_sftp_offset, tvb, offset, 8, ENC_BIG_ENDIAN);
@@ -269,7 +269,7 @@ static int dissect_sftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
                 slen = tvb_get_ntohl(tvb, offset) ;
                 proto_tree_add_item(sftp_tree, hf_ssh_sftp_path_len, tvb, offset, 4, ENC_BIG_ENDIAN);
                 offset += 4;
-                uint8_t * path = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, slen, ENC_UTF_8);
+                uint8_t * path = tvb_get_string_enc(pinfo->pool, tvb, offset, slen, ENC_UTF_8);
                 wmem_strbuf_append_printf(title, " SSH_FXP_LSTAT (%d) id=%d [%s]", typ, id, path);
                 proto_tree_add_item(sftp_tree, hf_ssh_sftp_path, tvb, offset, slen, ENC_UTF_8);
                 offset += slen;
@@ -282,7 +282,7 @@ static int dissect_sftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
                 slen = tvb_get_ntohl(tvb, offset) ;
                 proto_tree_add_item(sftp_tree, hf_ssh_sftp_handle_len, tvb, offset, 4, ENC_BIG_ENDIAN);
                 offset += 4;
-                char * handle = tvb_bytes_to_str(wmem_packet_scope(), tvb, offset, slen);
+                char * handle = tvb_bytes_to_str(pinfo->pool, tvb, offset, slen);
                 proto_tree_add_item(sftp_tree, hf_ssh_sftp_handle, tvb, offset, slen, ENC_NA);
                 offset += slen;
                 wmem_strbuf_append_printf(title, " SSH_FXP_FSTAT (%d) id=%d {%s}", typ, id, handle);
@@ -295,7 +295,7 @@ static int dissect_sftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
                 slen = tvb_get_ntohl(tvb, offset) ;
                 proto_tree_add_item(sftp_tree, hf_ssh_sftp_path_len, tvb, offset, 4, ENC_BIG_ENDIAN);
                 offset += 4;
-                uint8_t * path = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, slen, ENC_UTF_8);
+                uint8_t * path = tvb_get_string_enc(pinfo->pool, tvb, offset, slen, ENC_UTF_8);
                 proto_tree_add_item(sftp_tree, hf_ssh_sftp_path, tvb, offset, slen, ENC_UTF_8);
                 offset += slen;
                 slen = dissect_sftp_attrs(tvb, pinfo, offset, sftp_tree);
@@ -314,7 +314,7 @@ static int dissect_sftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
                 slen = tvb_get_ntohl(tvb, offset) ;
                 proto_tree_add_item(sftp_tree, hf_ssh_sftp_path_len, tvb, offset, 4, ENC_BIG_ENDIAN);
                 offset += 4;
-                uint8_t * path = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, slen, ENC_UTF_8);
+                uint8_t * path = tvb_get_string_enc(pinfo->pool, tvb, offset, slen, ENC_UTF_8);
                 proto_tree_add_item(sftp_tree, hf_ssh_sftp_path, tvb, offset, slen, ENC_UTF_8);
                 offset += slen;
                 wmem_strbuf_append_printf(title, " SSH_FXP_OPENDIR (%d) id=%d [%s]", typ, id, path);
@@ -327,7 +327,7 @@ static int dissect_sftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
                 slen = tvb_get_ntohl(tvb, offset) ;
                 proto_tree_add_item(sftp_tree, hf_ssh_sftp_handle_len, tvb, offset, 4, ENC_BIG_ENDIAN);
                 offset += 4;
-                char * handle = tvb_bytes_to_str(wmem_packet_scope(), tvb, offset, slen);
+                char * handle = tvb_bytes_to_str(pinfo->pool, tvb, offset, slen);
                 proto_tree_add_item(sftp_tree, hf_ssh_sftp_handle, tvb, offset, slen, ENC_NA);
                 offset += slen;
                 wmem_strbuf_append_printf(title, " SSH_FXP_READDIR (%d) id=%d {%s}", typ, id, handle);
@@ -340,7 +340,7 @@ static int dissect_sftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
                 slen = tvb_get_ntohl(tvb, offset) ;
                 proto_tree_add_item(sftp_tree, hf_ssh_sftp_path_len, tvb, offset, 4, ENC_BIG_ENDIAN);
                 offset += 4;
-                uint8_t * path = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, slen, ENC_UTF_8);
+                uint8_t * path = tvb_get_string_enc(pinfo->pool, tvb, offset, slen, ENC_UTF_8);
                 wmem_strbuf_append_printf(title, " SSH_FXP_REMOVE (%d) id=%d [%s]", typ, id, path);
                 proto_tree_add_item(sftp_tree, hf_ssh_sftp_path, tvb, offset, slen, ENC_UTF_8);
                 offset += slen;
@@ -359,7 +359,7 @@ static int dissect_sftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
                 slen = tvb_get_ntohl(tvb, offset);
                 proto_tree_add_item(sftp_tree, hf_ssh_sftp_path_len, tvb, offset, 4, ENC_BIG_ENDIAN);
                 offset += 4;
-                uint8_t * path = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, slen, ENC_UTF_8);
+                uint8_t * path = tvb_get_string_enc(pinfo->pool, tvb, offset, slen, ENC_UTF_8);
                 wmem_strbuf_append_printf(title, " SSH_FXP_REALPATH (%d) id=%d [%s]", typ, id, path);
                 proto_tree_add_item(sftp_tree, hf_ssh_sftp_path, tvb, offset, slen, ENC_UTF_8);
                 offset += slen;
@@ -372,7 +372,7 @@ static int dissect_sftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
                 slen = tvb_get_ntohl(tvb, offset) ;
                 proto_tree_add_item(sftp_tree, hf_ssh_sftp_path_len, tvb, offset, 4, ENC_BIG_ENDIAN);
                 offset += 4;
-                uint8_t * path = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, slen, ENC_UTF_8);
+                uint8_t * path = tvb_get_string_enc(pinfo->pool, tvb, offset, slen, ENC_UTF_8);
                 wmem_strbuf_append_printf(title, " SSH_FXP_STAT (%d) id=%d [%s]", typ, id, path);
                 proto_tree_add_item(sftp_tree, hf_ssh_sftp_path, tvb, offset, slen, ENC_UTF_8);
                 offset += slen;
@@ -385,13 +385,13 @@ static int dissect_sftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
                 slen = tvb_get_ntohl(tvb, offset) ;
                 proto_tree_add_item(sftp_tree, hf_ssh_sftp_path_len, tvb, offset, 4, ENC_BIG_ENDIAN);
                 offset += 4;
-                uint8_t * oldpath = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, slen, ENC_UTF_8);
+                uint8_t * oldpath = tvb_get_string_enc(pinfo->pool, tvb, offset, slen, ENC_UTF_8);
                 proto_tree_add_item(sftp_tree, hf_ssh_sftp_path, tvb, offset, slen, ENC_UTF_8);
                 offset += slen;
                 slen = tvb_get_ntohl(tvb, offset) ;
                 proto_tree_add_item(sftp_tree, hf_ssh_sftp_path_len, tvb, offset, 4, ENC_BIG_ENDIAN);
                 offset += 4;
-                uint8_t * newpath = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, slen, ENC_UTF_8);
+                uint8_t * newpath = tvb_get_string_enc(pinfo->pool, tvb, offset, slen, ENC_UTF_8);
                 proto_tree_add_item(sftp_tree, hf_ssh_sftp_path, tvb, offset, slen, ENC_UTF_8);
                 offset += slen;
                 wmem_strbuf_append_printf(title, " SSH_FXP_STAT (%d) id=%d [%s] > [%s]", typ, id, oldpath, newpath);
@@ -413,7 +413,7 @@ static int dissect_sftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
                 slen = tvb_get_ntohl(tvb, offset) ;
                 proto_tree_add_item(sftp_tree, hf_ssh_sftp_error_message_len, tvb, offset, 4, ENC_BIG_ENDIAN);
                 offset += 4;
-                uint8_t * err_msg = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, slen, ENC_UTF_8);
+                uint8_t * err_msg = tvb_get_string_enc(pinfo->pool, tvb, offset, slen, ENC_UTF_8);
                 proto_tree_add_item(sftp_tree, hf_ssh_sftp_error_message, tvb, offset, slen, ENC_UTF_8);
                 offset += slen;
                 slen = tvb_get_ntohl(tvb, offset) ;
@@ -431,7 +431,7 @@ static int dissect_sftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
                 slen = tvb_get_ntohl(tvb, offset) ;
                 proto_tree_add_item(sftp_tree, hf_ssh_sftp_handle_len, tvb, offset, 4, ENC_BIG_ENDIAN);
                 offset += 4;
-                char * handle = tvb_bytes_to_str(wmem_packet_scope(), tvb, offset, slen);
+                char * handle = tvb_bytes_to_str(pinfo->pool, tvb, offset, slen);
                 proto_tree_add_item(sftp_tree, hf_ssh_sftp_handle, tvb, offset, slen, ENC_NA);
                 offset += slen;
                 wmem_strbuf_append_printf(title, " SSH_FXP_HANDLE (%d) id=%d {%s}", typ, id, handle);
@@ -500,10 +500,10 @@ static int dissect_sftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
         return offset;
 }
 
-static int dissect_sftp_attrs(tvbuff_t *packet_tvb, packet_info *pinfo _U_,
+static int dissect_sftp_attrs(tvbuff_t *packet_tvb, packet_info *pinfo,
         int offset, proto_item *msg_type_tree)
 {
-        wmem_strbuf_t *title = wmem_strbuf_new(wmem_packet_scope(), "SFTP attributes");
+        wmem_strbuf_t *title = wmem_strbuf_new(pinfo->pool, "SFTP attributes");
         proto_item * sftp_attrs_tree = proto_tree_add_subtree(msg_type_tree, packet_tvb, offset, -1, ett_sftp_attrs, NULL, NULL);
 
         int offset0 = offset;

@@ -923,7 +923,7 @@ ssh_dissect_ssh2(tvbuff_t *tvb, packet_info *pinfo,
     while(remain_length>0){
         int last_offset = offset;
         if (tree) {
-            wmem_strbuf_t *title = wmem_strbuf_new(wmem_packet_scope(), "SSH Version 2");
+            wmem_strbuf_t *title = wmem_strbuf_new(pinfo->pool, "SSH Version 2");
 
             if (peer_data->enc || peer_data->mac || peer_data->comp) {
                 wmem_strbuf_append_printf(title, " (");
@@ -1193,9 +1193,9 @@ ssh_tree_add_hostsignature(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_
     /* Read the signature type before creating the tree so we can append it as info. */
     type_len = tvb_get_ntohl(tvb, offset);
     offset += 4;
-    sig_type = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, type_len, ENC_ASCII|ENC_NA);
+    sig_type = tvb_get_string_enc(pinfo->pool, tvb, offset, type_len, ENC_ASCII|ENC_NA);
 
-    tree_title = wmem_strdup_printf(wmem_packet_scope(), "%s (type: %s)", tree_name, sig_type);
+    tree_title = wmem_strdup_printf(pinfo->pool, "%s (type: %s)", tree_name, sig_type);
     tree = proto_tree_add_subtree(parent_tree, tvb, last_offset, sig_len + 4, ett_idx, NULL,
                                   tree_title);
 
@@ -1308,7 +1308,7 @@ ssh_dissect_key_exchange(tvbuff_t *tvb, packet_info *pinfo,
     offset += 1;
 
     if (global_data->kex)
-        key_ex_title = wmem_strdup_printf(wmem_packet_scope(), "%s (method:%s)", key_ex_title, global_data->kex);
+        key_ex_title = wmem_strdup_printf(pinfo->pool, "%s (method:%s)", key_ex_title, global_data->kex);
     key_ex_tree = proto_tree_add_subtree(tree, tvb, offset, plen-1, ett_key_exchange, NULL, key_ex_title);
 
     /* msg_code */
@@ -1744,7 +1744,7 @@ ssh_dissect_protocol(tvbuff_t *tvb, packet_info *pinfo,
     // V_C / V_S (client and server identification strings) RFC4253 4.2
     // format: SSH-protoversion-softwareversion SP comments [CR LF not incl.]
     if (!PINFO_FD_VISITED(pinfo)) {
-        char *data = (char *)tvb_memdup(wmem_packet_scope(), tvb, offset, protolen);
+        char *data = (char *)tvb_memdup(pinfo->pool, tvb, offset, protolen);
         if(!is_response){
             ssh_hash_buffer_put_string(global_data->kex_client_version, data, protolen);
         }else{
@@ -1941,7 +1941,7 @@ ssh_dissect_key_init(tvbuff_t *tvb, packet_info *pinfo, int offset,
         tvb, offset, 4, ENC_NA);
     offset+=4;
 
-    hassh_algo = wmem_strbuf_new(wmem_packet_scope(), "");
+    hassh_algo = wmem_strbuf_new(pinfo->pool, "");
     if(!is_response) {
         wmem_strbuf_append_printf(hassh_algo, "%s;%s;%s;%s", peer_data->kex_proposal, peer_data->enc_proposals[CLIENT_TO_SERVER_PROPOSAL],
                 peer_data->mac_proposals[CLIENT_TO_SERVER_PROPOSAL], peer_data->comp_proposals[CLIENT_TO_SERVER_PROPOSAL]);
@@ -1982,7 +1982,7 @@ ssh_dissect_key_init(tvbuff_t *tvb, packet_info *pinfo, int offset,
 
     // I_C / I_S (client and server SSH_MSG_KEXINIT payload) RFC4253 4.2
     if (!PINFO_FD_VISITED(pinfo)) {
-        char *data = (char *)wmem_alloc(wmem_packet_scope(), payload_length + 1);
+        char *data = (char *)wmem_alloc(pinfo->pool, payload_length + 1);
         tvb_memcpy(tvb, data + 1, start_offset, payload_length);
         data[0] = SSH_MSG_KEXINIT;
         if(is_response){
@@ -3522,7 +3522,7 @@ ssh_tree_add_mac(proto_tree *tree, tvbuff_t *tvb, const unsigned offset, const u
                     if (bad_checksum_expert != NULL)
                         expert_add_info_format(pinfo, ti, bad_checksum_expert, "%s", expert_get_summary(bad_checksum_expert));
                 } else {
-                    char *data = (char *)wmem_alloc(wmem_packet_scope(), mac_len*2 + 1);
+                    char *data = (char *)wmem_alloc(pinfo->pool, mac_len*2 + 1);
                     *bytes_to_hexstr(data, calc_mac, mac_len) = 0;
                     proto_item_append_text(ti, " incorrect, computed %s", data);
                     if (bad_checksum_expert != NULL)
@@ -3809,7 +3809,7 @@ ssh_dissect_rfc8308_extension(tvbuff_t *packet_tvb, packet_info *pinfo,
 {
     (void)pinfo;
     unsigned ext_name_slen = tvb_get_ntohl(packet_tvb, offset);
-    uint8_t *ext_name = tvb_get_string_enc(wmem_packet_scope(), packet_tvb, offset + 4, ext_name_slen, ENC_ASCII);
+    uint8_t *ext_name = tvb_get_string_enc(pinfo->pool, packet_tvb, offset + 4, ext_name_slen, ENC_ASCII);
     unsigned ext_value_slen = tvb_get_ntohl(packet_tvb, offset + 4 + ext_name_slen);
     unsigned ext_len = 8 + ext_name_slen + ext_value_slen;
     proto_item *ext_tree = proto_tree_add_subtree_format(msg_type_tree, packet_tvb, offset, ext_len, ett_extension, NULL, "Extension: %s", ext_name);
@@ -3890,7 +3890,7 @@ ssh_dissect_userauth_generic(tvbuff_t *packet_tvb, packet_info *pinfo,
                 proto_tree_add_item(msg_type_tree, hf_ssh_userauth_method_name, packet_tvb, offset, slen, ENC_ASCII);
 
                 uint8_t* key_type;
-                key_type = tvb_get_string_enc(wmem_packet_scope(), packet_tvb, offset, slen, ENC_ASCII|ENC_NA);
+                key_type = tvb_get_string_enc(pinfo->pool, packet_tvb, offset, slen, ENC_ASCII|ENC_NA);
                 offset += slen;
                 if (0 == strcmp(key_type, "none")) {
                 }else if (0 == strcmp(key_type, "publickey")) {
@@ -4780,7 +4780,7 @@ ssh_dissect_connection_generic(tvbuff_t *packet_tvb, packet_info *pinfo,
                 slen = tvb_get_ntohl(packet_tvb, offset) ;
                 proto_tree_add_item(msg_type_tree, hf_ssh_global_request_name_len, packet_tvb, offset, 4, ENC_BIG_ENDIAN);
                 offset += 4;
-                request_name = tvb_get_string_enc(wmem_packet_scope(), packet_tvb, offset, slen, ENC_ASCII|ENC_NA);
+                request_name = tvb_get_string_enc(pinfo->pool, packet_tvb, offset, slen, ENC_ASCII|ENC_NA);
                 proto_tree_add_item(msg_type_tree, hf_ssh_global_request_name, packet_tvb, offset, slen, ENC_ASCII);
                 offset += slen;
                 proto_tree_add_item(msg_type_tree, hf_ssh_global_request_want_reply, packet_tvb, offset, 1, ENC_BIG_ENDIAN);
