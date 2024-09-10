@@ -1198,7 +1198,7 @@ dissect_cyclic_rd(tvbuff_t* tvb, proto_tree* tree, uint32_t offset, uint32_t siz
    proto_tree_add_item(header_tree, hf_cip_cyclic_read_sts, tvb, offset + 3, 1, ENC_LITTLE_ENDIAN);
 
    /* Display the remainder of the cyclic read data if there is any*/
-   if ( (size - 4) > 0 )
+   if ( size > 4 )
    {
       proto_tree_add_item(header_tree, hf_cip_cyclic_rd_data, tvb, offset + 4, size - 4, ENC_NA);
    }
