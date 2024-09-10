@@ -4330,8 +4330,8 @@ de_gc_timer3(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, uint32_t o
 	switch (oct>>5)
 	{
 		case 0:  str = "min"; val*=10; break;
-		case 1:  str = "hr"; break;
-		case 2:  str = "hr"; val*=10; break;
+		case 1:  str = "hours"; break;
+		case 2:  str = "hours"; val*=10; break;
 		case 3:  str = "sec"; val*=2; break;
 		case 4:  str = "sec"; val*=30; break;
 		case 5:  str = "min"; break;
