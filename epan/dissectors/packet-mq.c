@@ -3600,7 +3600,7 @@ static int reassemble_mq(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, vo
         uint8_t  iCtlF = 0;
         int32_t  iSegL = 0;
         int32_t  iBegL = 0;
-        int32_t  iEnco = 0;
+        uint32_t iEnco = 0;
         int32_t  iMulS = 0;
         int32_t  iHdrL = 0;
         int32_t  iNxtP = 0;
