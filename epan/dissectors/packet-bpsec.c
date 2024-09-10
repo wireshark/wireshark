@@ -36,6 +36,7 @@ static int proto_bpsec;
 /// Dissect opaque CBOR data
 static dissector_handle_t handle_cbor;
 /// Extension sub-dissectors
+static dissector_table_t secctx_dissectors;
 static dissector_table_t param_dissectors;
 static dissector_table_t result_dissectors;
 
@@ -199,10 +200,10 @@ unsigned bpsec_id_hash(const void *key) {
 /** Dissect an ID-value pair within a context.
  *
  */
-static int dissect_value(dissector_handle_t dissector, int64_t *typeid, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+static int dissect_value(dissector_handle_t dissector, bpsec_dissector_data_t *const data, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     int sublen = 0;
     if (dissector) {
-        sublen = call_dissector_with_data(dissector, tvb, pinfo, tree, typeid);
+        sublen = call_dissector_with_data(dissector, tvb, pinfo, tree, data);
         if ((sublen < 0) || ((unsigned)sublen < tvb_captured_length(tvb))) {
             expert_add_info(pinfo, proto_tree_get_parent(tree), &ei_value_partial_decode);
         }
@@ -270,12 +271,20 @@ static int dissect_block_asb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     wscbor_chunk_t *chunk_ctxid = wscbor_chunk_read(pinfo->pool, tvb, &offset);
     int64_t *ctxid = wscbor_require_int64(pinfo->pool, chunk_ctxid);
     proto_item *item_ctxid = proto_tree_add_cbor_int64(tree_asb, hf_asb_ctxid, pinfo, tvb, chunk_ctxid, ctxid);
-    if (ctxid) {
+    if (ctxid && item_ctxid) {
         if (*ctxid == 0) {
             expert_add_info(pinfo, item_ctxid, &ei_ctxid_zero);
         }
         else if (*ctxid < 0) {
             expert_add_info(pinfo, item_ctxid, &ei_ctxid_priv);
+        }
+
+        // apply label if registered
+        dissector_handle_t ctx_dis = dissector_get_custom_table_handle(secctx_dissectors, ctxid);
+        const char *dis_name = dissector_handle_get_description(ctx_dis);
+        if (dis_name) {
+            const header_field_info *hfinfo = item_ctxid->finfo->hfinfo;
+            proto_item_set_text(item_ctxid, "%s: %s (%" PRId64 ")", hfinfo ? hfinfo->name : NULL, dis_name, *ctxid);
         }
     }
 
@@ -309,9 +318,6 @@ static int dissect_block_asb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                     wscbor_chunk_t *chunk_paramid = wscbor_chunk_read(pinfo->pool, tvb, &offset);
                     int64_t *paramid = wscbor_require_int64(pinfo->pool, chunk_paramid);
                     proto_tree_add_cbor_int64(tree_param_pair, hf_asb_param_id, pinfo, tvb, chunk_paramid, paramid);
-                    if (paramid) {
-                        proto_item_append_text(item_param_pair, ", ID: %" PRId64, *paramid);
-                    }
 
                     const int offset_value = offset;
                     if (!wscbor_skip_next_item(pinfo->pool, tvb, &offset)) {
@@ -319,13 +325,18 @@ static int dissect_block_asb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                     }
                     tvbuff_t *tvb_value = tvb_new_subset_length(tvb, offset_value, offset - offset_value);
 
+                    bpsec_dissector_data_t bpsec_data = { .bp = data };
                     dissector_handle_t value_dissect = NULL;
                     if (ctxid && paramid) {
-                        bpsec_id_t *key = bpsec_id_new(pinfo->pool, *ctxid, *paramid);
-                        value_dissect = dissector_get_custom_table_handle(param_dissectors, key);
-                        bpsec_id_free(pinfo->pool, key);
+                        bpsec_data.id.context_id = *ctxid;
+                        bpsec_data.id.type_id = *paramid;
+                        value_dissect = dissector_get_custom_table_handle(param_dissectors, &(bpsec_data.id));
                     }
-                    dissect_value(value_dissect, paramid, tvb_value, pinfo, tree_param_pair);
+                    const char *dis_name = dissector_handle_get_description(value_dissect);
+                    if (paramid) {
+                        proto_item_append_text(item_param_pair, ": %s (%" PRId64 ")", dis_name, *paramid);
+                    }
+                    dissect_value(value_dissect, &bpsec_data, tvb_value, pinfo, tree_param_pair);
 
                     proto_item_set_len(item_param_pair, offset - chunk_param_pair->start);
                 }
@@ -370,9 +381,6 @@ static int dissect_block_asb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                         wscbor_chunk_t *chunk_resultid = wscbor_chunk_read(pinfo->pool, tvb, &offset);
                         int64_t *resultid = wscbor_require_int64(pinfo->pool, chunk_resultid);
                         proto_tree_add_cbor_int64(tree_result_pair, hf_asb_result_id, pinfo, tvb, chunk_resultid, resultid);
-                        if (resultid) {
-                            proto_item_append_text(item_result_pair, ", ID: %" PRId64, *resultid);
-                        }
 
                         const int offset_value = offset;
                         if (!wscbor_skip_next_item(pinfo->pool, tvb, &offset)) {
@@ -380,13 +388,18 @@ static int dissect_block_asb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                         }
                         tvbuff_t *tvb_value = tvb_new_subset_length(tvb, offset_value, offset - offset_value);
 
+                        bpsec_dissector_data_t bpsec_data = { .bp = data };
                         dissector_handle_t value_dissect = NULL;
                         if (ctxid && resultid) {
-                            bpsec_id_t *key = bpsec_id_new(pinfo->pool, *ctxid, *resultid);
-                            value_dissect = dissector_get_custom_table_handle(result_dissectors, key);
-                            bpsec_id_free(pinfo->pool, key);
+                            bpsec_data.id.context_id = *ctxid;
+                            bpsec_data.id.type_id = *resultid;
+                            value_dissect = dissector_get_custom_table_handle(result_dissectors, &(bpsec_data.id));
                         }
-                        dissect_value(value_dissect, resultid, tvb_value, pinfo, tree_result_pair);
+                        const char *dis_name = dissector_handle_get_description(value_dissect);
+                        if (resultid) {
+                            proto_item_append_text(item_result_pair, ": %s (%" PRId64 ")", dis_name, *resultid);
+                        }
+                        dissect_value(value_dissect, &bpsec_data, tvb_value, pinfo, tree_result_pair);
 
                         proto_item_set_len(item_result_pair, offset - chunk_result_pair->start);
                     }
@@ -484,6 +497,7 @@ void proto_register_bpsec(void) {
     expert_module_t *expert = expert_register_protocol(proto_bpsec);
     expert_register_field_array(expert, expertitems, array_length(expertitems));
 
+    secctx_dissectors = register_custom_dissector_table("bpsec.ctx", "BPSec Context", proto_bpsec, g_int64_hash, g_int64_equal, g_free);
     param_dissectors = register_custom_dissector_table("bpsec.param", "BPSec Parameter", proto_bpsec, bpsec_id_hash, bpsec_id_equal, g_free);
     result_dissectors = register_custom_dissector_table("bpsec.result", "BPSec Result", proto_bpsec, bpsec_id_hash, bpsec_id_equal, g_free);
 
@@ -509,67 +523,79 @@ void proto_reg_handoff_bpsec(void) {
 
     // Context 1: BIB-HMAC-SHA2
     {
+        int64_t *key = g_new0(int64_t, 1);
+        *key = 1;
+        dissector_handle_t hdl = create_dissector_handle_with_name_and_description(NULL, proto_bpsec, NULL, "BIB-HMAC-SHA2");
+        dissector_add_custom_table_handle("bpsec.ctx", key, hdl);
+    }
+    {
         bpsec_id_t *key = g_new(bpsec_id_t, 1);
         key->context_id = 1;
         key->type_id = 1;
-        dissector_handle_t hdl = create_dissector_handle(dissect_defaultsc_param_shavar, proto_bpsec);
+        dissector_handle_t hdl = create_dissector_handle_with_name_and_description(dissect_defaultsc_param_shavar, proto_bpsec, NULL, "BIB-HMAC-SHA2 SHA Variant");
         dissector_add_custom_table_handle("bpsec.param", key, hdl);
     }
     {
         bpsec_id_t *key = g_new(bpsec_id_t, 1);
         key->context_id = 1;
         key->type_id = 2;
-        dissector_handle_t hdl = create_dissector_handle(dissect_defaultsc_param_wrappedkey, proto_bpsec);
+        dissector_handle_t hdl = create_dissector_handle_with_name_and_description(dissect_defaultsc_param_wrappedkey, proto_bpsec, NULL, "BIB-HMAC-SHA2 Wrapped Key");
         dissector_add_custom_table_handle("bpsec.param", key, hdl);
     }
     {
         bpsec_id_t *key = g_new(bpsec_id_t, 1);
         key->context_id = 1;
         key->type_id = 3;
-        dissector_handle_t hdl = create_dissector_handle(dissect_defaultsc_param_scope, proto_bpsec);
+        dissector_handle_t hdl = create_dissector_handle_with_name_and_description(dissect_defaultsc_param_scope, proto_bpsec, NULL, "BIB-HMAC-SHA2 AAD Scope");
         dissector_add_custom_table_handle("bpsec.param", key, hdl);
     }
     {
         bpsec_id_t *key = g_new(bpsec_id_t, 1);
         key->context_id = 1;
         key->type_id = 1;
-        dissector_handle_t hdl = create_dissector_handle(dissect_defaultsc_result_hmac, proto_bpsec);
+        dissector_handle_t hdl = create_dissector_handle_with_name_and_description(dissect_defaultsc_result_hmac, proto_bpsec, NULL, "BIB-HMAC-SHA2 Tag");
         dissector_add_custom_table_handle("bpsec.result", key, hdl);
     }
     // Context 2: BCB-AES-GCM
     {
+        int64_t *key = g_new0(int64_t, 1);
+        *key = 2;
+        dissector_handle_t hdl = create_dissector_handle_with_name_and_description(NULL, proto_bpsec, NULL, "BCB-AES-GCM");
+        dissector_add_custom_table_handle("bpsec.ctx", key, hdl);
+    }
+    {
         bpsec_id_t *key = g_new(bpsec_id_t, 1);
         key->context_id = 2;
         key->type_id = 1;
-        dissector_handle_t hdl = create_dissector_handle(dissect_defaultsc_param_iv, proto_bpsec);
+        dissector_handle_t hdl = create_dissector_handle_with_name_and_description(dissect_defaultsc_param_iv, proto_bpsec, NULL, "BCB-AES-GCM IV");
         dissector_add_custom_table_handle("bpsec.param", key, hdl);
     }
     {
         bpsec_id_t *key = g_new(bpsec_id_t, 1);
         key->context_id = 2;
         key->type_id = 2;
-        dissector_handle_t hdl = create_dissector_handle(dissect_defaultsc_param_aesvar, proto_bpsec);
+        dissector_handle_t hdl = create_dissector_handle_with_name_and_description(dissect_defaultsc_param_aesvar, proto_bpsec, NULL, "BCB-AES-GCM AES Variant");
         dissector_add_custom_table_handle("bpsec.param", key, hdl);
     }
     {
         bpsec_id_t *key = g_new(bpsec_id_t, 1);
         key->context_id = 2;
         key->type_id = 3;
-        dissector_handle_t hdl = create_dissector_handle(dissect_defaultsc_param_wrappedkey, proto_bpsec);
+        dissector_handle_t hdl = create_dissector_handle_with_name_and_description(dissect_defaultsc_param_wrappedkey, proto_bpsec, NULL, "BCB-AES-GCM Wrapped Key");
         dissector_add_custom_table_handle("bpsec.param", key, hdl);
     }
     {
         bpsec_id_t *key = g_new(bpsec_id_t, 1);
         key->context_id = 2;
         key->type_id = 4;
-        dissector_handle_t hdl = create_dissector_handle(dissect_defaultsc_param_scope, proto_bpsec);
+        dissector_handle_t hdl = create_dissector_handle_with_name_and_description(dissect_defaultsc_param_scope, proto_bpsec, NULL, "BCB-AES-GCM AAD Scope");
         dissector_add_custom_table_handle("bpsec.param", key, hdl);
     }
     {
         bpsec_id_t *key = g_new(bpsec_id_t, 1);
         key->context_id = 2;
         key->type_id = 1;
-        dissector_handle_t hdl = create_dissector_handle(dissect_defaultsc_result_authtag, proto_bpsec);
+        dissector_handle_t hdl = create_dissector_handle_with_name_and_description(dissect_defaultsc_result_authtag, proto_bpsec, NULL, "BCB-AES-GCM Tag");
         dissector_add_custom_table_handle("bpsec.result", key, hdl);
     }
 

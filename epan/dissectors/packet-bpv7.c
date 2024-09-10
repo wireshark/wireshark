@@ -46,7 +46,7 @@ static const char *const proto_name_bp_admin = "BPv7 Admin";
 /// Protocol preferences and defaults
 static bool bp_compute_crc = true;
 static bool bp_reassemble_payload = true;
-static bool bp_payload_try_heur;
+static bool bp_payload_try_heur = false;
 
 /// Protocol handles
 static int proto_bp;
@@ -110,6 +110,8 @@ static int blocktype_order(const bp_block_canonical_t *block) {
                 return -2;
             case BP_BLOCKTYPE_BIB:
                 return -1;
+            case BP_BLOCKTYPE_PAYLOAD:
+                return 1; // last block
             default:
                 return 0;
         }
@@ -1528,71 +1530,7 @@ static int dissect_bp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
         block_ix++;
     }
 
-    // Block ordering requirements
-    for (wmem_list_frame_t *it = wmem_list_head(bundle->blocks); it;
-            it = wmem_list_frame_next(it)) {
-        bp_block_canonical_t *block = wmem_list_frame_data(it);
-        if (block->type_code && (*(block->type_code) == BP_BLOCKTYPE_PAYLOAD)) {
-            // must be last block (i.e. next is NULL)
-            if (wmem_list_frame_next(it)) {
-                expert_add_info(pinfo, block->item_block, &ei_block_payload_index);
-            }
-
-            if (block->data) {
-                bundle->pyld_start = wmem_new(wmem_file_scope(), unsigned);
-                *(bundle->pyld_start) = tvb_raw_offset(block->data) - tvb_raw_offset(tvb);
-                bundle->pyld_len = wmem_new(wmem_file_scope(), unsigned);
-                *(bundle->pyld_len) = tvb_reported_length(block->data);
-            }
-        }
-    }
-
-    // Handle block-type-specific data after all blocks are present
-    wmem_array_t *sorted = wmem_array_sized_new(
-        pinfo->pool,  sizeof(bp_block_canonical_t*),
-        wmem_list_count(bundle->blocks)
-    );
-    unsigned ix = 0;
-    for (wmem_list_frame_t *it = wmem_list_head(bundle->blocks); it;
-            it = wmem_list_frame_next(it), ++ix) {
-        bp_block_canonical_t *block = wmem_list_frame_data(it);
-        wmem_array_append_one(sorted, block);
-    }
-    wmem_array_sort(sorted, block_dissect_sort);
-
-    // Dissect in sorted order
-    for (ix = 0; ix < wmem_array_get_count(sorted); ++ix) {
-        bp_block_canonical_t *block = *(bp_block_canonical_t **)wmem_array_index(sorted, ix);
-
-        // Ignore when data is absent or is a
-        // confidentiality target (i.e. ciphertext)
-        if (!(block->data) || (wmem_map_size(block->sec.data_c) > 0)) {
-            continue;
-        }
-
-        // sub-dissect after all is read
-        dissector_handle_t data_dissect = NULL;
-        bool type_exp = false;
-        if (block->type_code) {
-            data_dissect = dissector_get_custom_table_handle(block_dissectors, block->type_code);
-            type_exp = (*(block->type_code) >= 192) && (*(block->type_code) <= 255);
-        }
-
-        bp_dissector_data_t dissect_data;
-        dissect_data.bundle = bundle;
-        dissect_data.block = block;
-        dissect_carried_data(data_dissect, &dissect_data, block->data, pinfo, block->tree_data, type_exp);
-    }
-
-    // Block-data-derived markings
-    apply_bpsec_mark(&(bundle->primary->sec), pinfo, bundle->primary->item_block);
-    for (wmem_list_frame_t *it = wmem_list_head(bundle->blocks); it;
-            it = wmem_list_frame_next(it)) {
-        bp_block_canonical_t *block = wmem_list_frame_data(it);
-        apply_bpsec_mark(&(block->sec), pinfo, block->item_block);
-    }
-
-    {
+    { // Extract primary block info first
         const bp_block_primary_t *primary = bundle->primary;
 
         proto_item_append_text(item_bundle, ", Src: %s", address_to_name(&(primary->src_nodeid->uri)));
@@ -1635,9 +1573,97 @@ static int dissect_bp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
         }
     }
 
-    if (bundle->pyld_start && bundle->pyld_len) {
-        proto_item_append_text(item_bundle, ", Payload-Size: %d", *(bundle->pyld_len));
+    // Extract pre-dissection block info
+    for (wmem_list_frame_t *it = wmem_list_head(bundle->blocks); it;
+            it = wmem_list_frame_next(it)) {
+        bp_block_canonical_t *block = wmem_list_frame_data(it);
+        if (block->type_code && (*(block->type_code) == BP_BLOCKTYPE_PAYLOAD)) {
+            // must be last block (i.e. next is NULL)
+            if (wmem_list_frame_next(it)) {
+                expert_add_info(pinfo, block->item_block, &ei_block_payload_index);
+            }
 
+            if (block->data) {
+                bundle->pyld_start = wmem_new(wmem_file_scope(), unsigned);
+                *(bundle->pyld_start) = tvb_raw_offset(block->data) - tvb_raw_offset(tvb);
+                bundle->pyld_len = wmem_new(wmem_file_scope(), unsigned);
+                *(bundle->pyld_len) = tvb_reported_length(block->data);
+            }
+        }
+    }
+
+    // Handle block-type-specific data after all blocks are present
+    wmem_array_t *sorted = wmem_array_sized_new(
+        pinfo->pool,  sizeof(bp_block_canonical_t*),
+        wmem_list_count(bundle->blocks)
+    );
+    unsigned ix = 0;
+    for (wmem_list_frame_t *it = wmem_list_head(bundle->blocks); it;
+            it = wmem_list_frame_next(it), ++ix) {
+        bp_block_canonical_t *block = wmem_list_frame_data(it);
+        wmem_array_append_one(sorted, block);
+    }
+    wmem_array_sort(sorted, block_dissect_sort);
+
+    // Dissect in sorted order (payload last)
+    for (ix = 0; ix < wmem_array_get_count(sorted); ++ix) {
+        bp_block_canonical_t *block = *(bp_block_canonical_t **)wmem_array_index(sorted, ix);
+
+        // Show payload block info before BTSD dissection (if possible)
+        if (block->type_code && (*(block->type_code) == BP_BLOCKTYPE_PAYLOAD)) {
+            if (block->data) {
+                proto_item_append_text(item_bundle, ", Payload-Size: %d", *(bundle->pyld_len));
+            }
+
+            col_append_str(pinfo->cinfo, COL_INFO, "Payload Size: ");
+            if (block->data) {
+                col_append_fstr(pinfo->cinfo, COL_INFO, "%d", *(bundle->pyld_len));
+            }
+            else {
+                col_append_str(pinfo->cinfo, COL_INFO, "N/A");
+            }
+            if (wmem_map_size(block->sec.data_c) > 0) {
+                col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "BPSec BCB target");
+            }
+            if (wmem_map_size(block->sec.data_i) > 0) {
+                col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "BPSec BIB target");
+            }
+
+            const bool is_admin = bundle->primary->flags & BP_BUNDLE_PAYLOAD_ADMIN;
+            if (is_admin) {
+                col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "Admin. Record");
+            }
+        }
+
+        // Ignore when data is absent or is a
+        // confidentiality target (i.e. ciphertext)
+        if (!(block->data) || (wmem_map_size(block->sec.data_c) > 0)) {
+            continue;
+        }
+
+        // sub-dissect after all is read
+        dissector_handle_t data_dissect = NULL;
+        bool type_exp = false;
+        if (block->type_code) {
+            data_dissect = dissector_get_custom_table_handle(block_dissectors, block->type_code);
+            type_exp = (*(block->type_code) >= 192) && (*(block->type_code) <= 255);
+        }
+
+        bp_dissector_data_t dissect_data;
+        dissect_data.bundle = bundle;
+        dissect_data.block = block;
+        dissect_carried_data(data_dissect, &dissect_data, block->data, pinfo, block->tree_data, type_exp);
+    }
+
+    // Block-data-derived markings
+    apply_bpsec_mark(&(bundle->primary->sec), pinfo, bundle->primary->item_block);
+    for (wmem_list_frame_t *it = wmem_list_head(bundle->blocks); it;
+            it = wmem_list_frame_next(it)) {
+        bp_block_canonical_t *block = wmem_list_frame_data(it);
+        apply_bpsec_mark(&(block->sec), pinfo, block->item_block);
+    }
+
+    if (bundle->pyld_start && bundle->pyld_len) {
         // Treat payload as non-protocol data
         const unsigned trailer_start = *(bundle->pyld_start) + *(bundle->pyld_len);
         proto_item_set_len(item_bundle, *(bundle->pyld_start));
@@ -1647,6 +1673,7 @@ static int dissect_bp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
         proto_item_set_len(item_bundle, offset);
     }
 
+    // Tap handles after all blocks are dissected
     bp_bundle_t *unique_bundle = bundle;
     if (bundle->ident) {
         // Keep bundle metadata around for the whole file
@@ -1982,7 +2009,6 @@ static int dissect_block_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
         tvb_payload = tvb;
     }
 
-    col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "Payload-Size: %d", payload_len);
     if (col_suffix) {
         col_append_str(pinfo->cinfo, COL_INFO, col_suffix);
     }
@@ -1992,7 +2018,6 @@ static int dissect_block_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 
     // Payload is known to be administrative, independent of destination EID
     if (is_admin) {
-        col_append_str(pinfo->cinfo, COL_INFO, " [Admin]");
         const int sublen = call_dissector_only(handle_admin, tvb_payload, pinfo, tree_top, context);
         if (sublen > 0) {
             return sublen;
