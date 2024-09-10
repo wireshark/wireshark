@@ -36,6 +36,7 @@ DissectorTablesDialog::DissectorTablesDialog(QWidget *parent) :
     //expand the "type" tables
     ui->tableTree->expandToDepth(0);
     ui->tableTree->resizeColumnToContents(DissectorTablesModel::colTableName);
+    ui->tableTree->collapseAll();
 
     ui->txtSearchLine->setFocus();
 }
@@ -51,4 +52,10 @@ void DissectorTablesDialog::on_txtSearchLine_textChanged(const QString &search_r
     /* If items are filtered out, then filtered back in, the tree remains collapsed
        Force an expansion */
     ui->tableTree->expandToDepth(0);
+
+    if (search_re != nullptr) {
+        ui->tableTree->expandAll();
+    } else {
+        ui->tableTree->collapseAll();
+    }
 }
