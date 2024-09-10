@@ -2424,7 +2424,7 @@ void WiresharkMainWindow::deleteCommentsFromPackets()
 
 void WiresharkMainWindow::deleteAllPacketComments()
 {
-    QMessageBox *msg_dialog = new QMessageBox();
+    QMessageBox *msg_dialog = new QMessageBox(this);
     connect(msg_dialog, &QMessageBox::finished, this, &WiresharkMainWindow::deleteAllPacketCommentsFinished);
 
     msg_dialog->setIcon(QMessageBox::Question);
@@ -2485,7 +2485,7 @@ void WiresharkMainWindow::discardAllSecrets()
     if (!capture_file_.isValid())
         return;
 
-    QMessageBox* msg_dialog = new QMessageBox();
+    QMessageBox* msg_dialog = new QMessageBox(this);
     connect(msg_dialog, &QMessageBox::finished, this, &WiresharkMainWindow::discardAllSecretsFinished);
 
     msg_dialog->setIcon(QMessageBox::Question);
@@ -2515,7 +2515,7 @@ void WiresharkMainWindow::discardAllSecretsFinished(int result)
 
 void WiresharkMainWindow::editConfigurationProfiles()
 {
-    ProfileDialog *cp_dialog = new ProfileDialog();
+    ProfileDialog *cp_dialog = new ProfileDialog(this);
     cp_dialog->setWindowModality(Qt::ApplicationModal);
     cp_dialog->setAttribute(Qt::WA_DeleteOnClose);
     cp_dialog->show();

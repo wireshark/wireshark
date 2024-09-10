@@ -2199,7 +2199,7 @@ void LograyMainWindow::deleteCommentsFromPackets()
 
 void LograyMainWindow::deleteAllPacketComments()
 {
-    QMessageBox *msg_dialog = new QMessageBox();
+    QMessageBox *msg_dialog = new QMessageBox(this);
     connect(msg_dialog, &QMessageBox::finished, this, &LograyMainWindow::deleteAllPacketCommentsFinished);
 
     msg_dialog->setIcon(QMessageBox::Question);
@@ -2224,7 +2224,7 @@ void LograyMainWindow::deleteAllPacketCommentsFinished(int result)
 
 void LograyMainWindow::editConfigurationProfiles()
 {
-    ProfileDialog *cp_dialog = new ProfileDialog();
+    ProfileDialog *cp_dialog = new ProfileDialog(this);
     cp_dialog->setWindowModality(Qt::ApplicationModal);
     cp_dialog->setAttribute(Qt::WA_DeleteOnClose);
     cp_dialog->show();
