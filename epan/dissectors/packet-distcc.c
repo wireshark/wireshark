@@ -288,7 +288,7 @@ dissect_distcc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void*
             offset=dissect_distcc_doto(tvb, pinfo, tree, offset, parameter);
         } else {
             call_data_dissector(tvb, pinfo, tree);
-            return tvb_captured_length(tvb);
+            break;
         }
     }
 
