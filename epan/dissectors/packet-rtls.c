@@ -100,7 +100,8 @@ static int ett_rtls;
 static int ett_rtls_message;
 static int ett_rtls_nack_flags;
 
-#define RTLS_MIN_LENGTH 16
+#define RTLS_HDR_LENGTH 16
+#define RTLS_SIGN_LENGTH 20
 
 #define AR_AS_CONFIG_SET            0x0000
 #define AR_STATION_REQUEST          0x0001
@@ -365,17 +366,17 @@ hf_rtls_nack_flags, ett_rtls_nack_flags, rtls_nack_flags, ENC_BIG_ENDIAN, BMT_NO
                 // We recurse here, but we'll run out of packet before we run out of stack.
                 offset = dissect_rtls_message_type(tvb, pinfo, sub_tree, offset, type);
 
-                proto_item_set_len(sub_tree, data_length + 16);
+                proto_item_set_len(sub_tree, data_length + RTLS_HDR_LENGTH);
                 cmr_messages--;
             }
             }
         break;
         default:{
-            uint32_t remaining;
-
-            remaining = tvb_reported_length_remaining(tvb, offset) - 20; /* Remove 20 of signature */
-            proto_tree_add_expert(rtls_tree, pinfo, &ei_rtls_undecoded, tvb, offset, remaining);
-            offset += remaining;
+            uint32_t remaining = tvb_reported_length_remaining(tvb, offset);
+            if(remaining > RTLS_SIGN_LENGTH){
+                proto_tree_add_expert(rtls_tree, pinfo, &ei_rtls_undecoded, tvb, offset, remaining - RTLS_SIGN_LENGTH);
+                offset += remaining - RTLS_SIGN_LENGTH;
+            }
             }
         break;
     }
@@ -391,7 +392,7 @@ dissect_rtls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
     unsigned    offset = 0;
     uint32_t    type;
 
-    if (tvb_reported_length(tvb) < RTLS_MIN_LENGTH)
+    if (tvb_reported_length(tvb) < RTLS_HDR_LENGTH + RTLS_SIGN_LENGTH)
         return 0;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "RTLS");
@@ -410,7 +411,7 @@ dissect_rtls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
     offset = dissect_rtls_message_type(tvb, pinfo, rtls_tree, offset, type);
 
     /* TODO: Check signature ? HMAC-SHA1 with shared key and RTLS packet data */
-    proto_tree_add_item(rtls_tree, hf_rtls_signature, tvb, offset, 20, ENC_NA);
+    proto_tree_add_item(rtls_tree, hf_rtls_signature, tvb, offset, RTLS_SIGN_LENGTH, ENC_NA);
     offset += 20;
 
     return offset;
