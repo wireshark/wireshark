@@ -2563,7 +2563,7 @@ dissect_smb2_fid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset
 	uint8_t drep[4] = { 0x10, 0x00, 0x00, 0x00}; /* fake DREP struct */
 	static dcerpc_info        di; /* fake dcerpc_info struct */
 	static dcerpc_call_value  call_data;
-	e_ctx_hnd   policy_hnd;
+	e_ctx_hnd   policy_hnd = {0, DCERPC_UUID_NULL};
 	e_ctx_hnd   *policy_hnd_hashtablekey;
 	proto_item *hnd_item   = NULL;
 	char       *fid_name;
