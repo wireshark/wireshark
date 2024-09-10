@@ -393,7 +393,7 @@ sss_string(tvbuff_t* tvb, int hfinfo, proto_tree *sss_tree, int offset, bool lit
     int     foffset = offset;
     uint32_t str_length;
     char    buffer[1024];
-    uint32_t i;
+    size_t  i = 0;
     uint8_t c_char;
     int length_remaining;
 
@@ -421,16 +421,15 @@ sss_string(tvbuff_t* tvb, int hfinfo, proto_tree *sss_tree, int offset, bool lit
         proto_tree_add_string(sss_tree, hfinfo, tvb, offset, 4, "<Not Specified>");
         return foffset;
     }
-    for ( i = 0; i < str_length; i++ ) {
+    while (i < str_length) {
         c_char = tvb_get_uint8(tvb, foffset);
         if (g_ascii_isprint(c_char)) {
-            buffer[i] = c_char;
+            buffer[i++] = c_char;
         } else {
             if (c_char) {
-                buffer[i] = '.';
+                buffer[i++] = '.';
             } else {
                 /* Skip NULL-terminators */
-                i--;
                 str_length--;
             }
         }
