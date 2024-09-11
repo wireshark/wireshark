@@ -8817,6 +8817,10 @@ dissect_secchan_verf(tvbuff_t *tvb, int offset, packet_info *pinfo,
         update_vars = 1;
     }
 
+    /*debugprintf("Setting isseen to true, old packet %d new %d\n",seen.num,pinfo->num);*/
+    seen.isseen = true;
+    seen.num = pinfo->num;
+
     vars = find_or_create_schannel_netlogon_auth_vars(pinfo, auth_info, is_server);
     if( vars != NULL ) {
         while(vars != NULL && vars->next_start != -1 && vars->next_start <  (int)pinfo->num ) {
@@ -8858,9 +8862,6 @@ dissect_secchan_verf(tvbuff_t *tvb, int offset, packet_info *pinfo,
     {
         debugprintf("Vars not found (is null %d) %d (dissect_verf)\n",vars==NULL,wmem_map_size(netlogon_auths));
     }
-    /*debugprintf("Setting isseen to true, old packet %d new %d\n",seen.num,pinfo->num);*/
-    seen.isseen = true;
-    seen.num = pinfo->num;
 
     return offset;
 }
