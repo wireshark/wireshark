@@ -470,6 +470,9 @@ bool TrafficTab::hasGeoIPData(int tabIdx)
     int tab = tabIdx == -1 || tabIdx >= count() ? currentIndex() : tabIdx;
 
     ATapDataModel * dataModel = dataModelForTabIndex(tab);
+    if (! dataModel)
+        return false;
+
     return dataModel->hasGeoIPData();
 }
 
