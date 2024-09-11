@@ -4221,19 +4221,23 @@ de_gc_timer(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, uint32_t of
 	switch (oct>>5)
 	{
 		case 0:
-			str = "sec"; val*=2;
+			str = "sec";
+			val *= 2;
 			break;
 		case 1:
 			str = "min";
 			break;
 		case 2:
-			str = "min"; val*=6;
+			str = "min";
+			val *= 6;
 			break;
 		case 7:
 			str = "";
 			item = proto_tree_add_uint_format_value(tree, hf_gsm_a_gm_gprs_timer, tvb, offset, 1, val, "timer is deactivated");
 			break;
-		default:  str = "min";
+		default:
+			str = "min";
+			break;
 	}
 
 	if (item == NULL) {
@@ -4270,18 +4274,22 @@ de_gc_timer2(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, uint32_t o
 	switch (oct>>5)
 	{
 		case 0:
-			str = "sec"; val*=2;
+			str = "sec";
+			val *= 2;
 			break;
 		case 1:
 			str = "min";
 			break;
 		case 2:
-			str = "min"; val*=6;
+			str = "min";
+			val *= 6;
 			break;
 		case 7:
 			item = proto_tree_add_uint_format_value(tree, hf_gsm_a_gm_gprs_timer2, tvb, curr_offset, 1, val, "timer is deactivated");
 			break;
-		default:  str = "min";
+		default:
+			str = "min";
+			break;
 	}
 
 	if (item == NULL) {
@@ -4329,13 +4337,36 @@ de_gc_timer3(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, uint32_t o
 
 	switch (oct>>5)
 	{
-		case 0:  str = "min"; val*=10; break;
-		case 1:  str = "hours"; break;
-		case 2:  str = "hours"; val*=10; break;
-		case 3:  str = "sec"; val*=2; break;
-		case 4:  str = "sec"; val*=30; break;
-		case 5:  str = "min"; break;
-		case 6:  str = "hours"; val *= 320; break;
+		case 0:
+			str = "min";
+			val *= 10;
+			break;
+		case 1:
+			if (val == 1) {
+				str = "hour";
+			} else {
+				str = "hours";
+			}
+			break;
+		case 2:
+			str = "hours";
+			val *= 10;
+			break;
+		case 3:
+			str = "sec";
+			val *= 2;
+			break;
+		case 4:
+			str = "sec";
+			val *= 30;
+			break;
+		case 5:
+			str = "min";
+			break;
+		case 6:
+			str = "hours";
+			val *= 320;
+			break;
 		case 7:
 			item = proto_tree_add_uint_format_value(tree, hf_gsm_a_gm_gprs_timer3, tvb, curr_offset, 1, val, "timer is deactivated");
 			break;
