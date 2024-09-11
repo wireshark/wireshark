@@ -8702,49 +8702,38 @@ dissect_packet_data(tvbuff_t *tvb ,tvbuff_t *auth_tvb _U_,
     /*debugprintf("Dissection of request data offset %d len=%d on packet %d\n",offset,tvb_length_remaining(tvb,offset),pinfo->num);*/
 
     vars = find_or_create_schannel_netlogon_auth_vars(pinfo, auth_info, is_server);
-
-    if(vars != NULL  ) {
-        while(vars != NULL && vars->next_start != -1 && vars->next_start < (int) pinfo->num ) {
-            vars = vars->next;
-        }
-        if(vars == NULL ) {
-            debugprintf("Vars not found %d (packet_data)\n",wmem_map_size(netlogon_auths));
-            return(buf);
-        }
-        else {
-            if(vars->can_decrypt == true) {
-                gcry_error_t err;
-                gcry_cipher_hd_t cipher_hd = NULL;
-                int data_len;
-                uint64_t copyconfounder = vars->confounder;
-
-                data_len = tvb_captured_length_remaining(tvb,offset);
-                if (data_len < 0) {
-                    return NULL;
-                }
-                err = prepare_decryption_cipher(vars, &cipher_hd);
-                if (err != 0) {
-                    ws_warning("GCRY: prepare_decryption_cipher %s/%s\n",
-                              gcry_strsource(err), gcry_strerror(err));
-                    return NULL;
-                }
-                gcry_cipher_decrypt(cipher_hd, (uint8_t*)&copyconfounder, 8, NULL, 0);
-                decrypted = (uint8_t*)tvb_memdup(pinfo->pool, tvb, offset,data_len);
-                if (!(vars->flags & NETLOGON_FLAG_AES)) {
-                    gcry_cipher_reset(cipher_hd);
-                }
-                gcry_cipher_decrypt(cipher_hd, decrypted, data_len, NULL, 0);
-                gcry_cipher_close(cipher_hd);
-                buf = tvb_new_child_real_data(tvb, decrypted, data_len, data_len);
-                /* Note: caller does add_new_data_source(...) */
-            }
-            else {
-                debugprintf("Session key not found can't decrypt ...\n");
-            }
-        }
-    } else {
+    if (vars == NULL) {
         debugprintf("Vars not found  %d (packet_data)\n",wmem_map_size(netlogon_auths));
         return(buf);
+    }
+
+    if (vars->can_decrypt == true) {
+        gcry_error_t err;
+        gcry_cipher_hd_t cipher_hd = NULL;
+        int data_len;
+        uint64_t copyconfounder = vars->confounder;
+
+        data_len = tvb_captured_length_remaining(tvb,offset);
+        if (data_len < 0) {
+            return NULL;
+        }
+        err = prepare_decryption_cipher(vars, &cipher_hd);
+        if (err != 0) {
+            ws_warning("GCRY: prepare_decryption_cipher %s/%s\n",
+                      gcry_strsource(err), gcry_strerror(err));
+            return NULL;
+        }
+        gcry_cipher_decrypt(cipher_hd, (uint8_t*)&copyconfounder, 8, NULL, 0);
+        decrypted = (uint8_t*)tvb_memdup(pinfo->pool, tvb, offset,data_len);
+        if (!(vars->flags & NETLOGON_FLAG_AES)) {
+            gcry_cipher_reset(cipher_hd);
+        }
+        gcry_cipher_decrypt(cipher_hd, decrypted, data_len, NULL, 0);
+        gcry_cipher_close(cipher_hd);
+        buf = tvb_new_child_real_data(tvb, decrypted, data_len, data_len);
+        /* Note: caller does add_new_data_source(...) */
+    } else {
+        debugprintf("Session key not found can't decrypt ...\n");
     }
 
     return(buf);
@@ -8822,45 +8811,34 @@ dissect_secchan_verf(tvbuff_t *tvb, int offset, packet_info *pinfo,
     seen.num = pinfo->num;
 
     vars = find_or_create_schannel_netlogon_auth_vars(pinfo, auth_info, is_server);
-    if( vars != NULL ) {
-        while(vars != NULL && vars->next_start != -1 && vars->next_start <  (int)pinfo->num ) {
-            vars = vars->next;
-        }
-        if(vars == NULL ) {
-            debugprintf("Vars not found %d (packet_data)\n",wmem_map_size(netlogon_auths));
-            return(offset);
-        }
-        else {
-            if(update_vars) {
-                vars->confounder = confounder;
-                vars->seq = uncrypt_sequence(vars->flags,vars->session_key,digest,encrypted_seq,is_server);
-            }
+    if (vars == NULL) {
+        debugprintf("Vars not found %d (packet_data)\n",wmem_map_size(netlogon_auths));
+        return(offset);
+    }
+    if(update_vars) {
+        vars->confounder = confounder;
+        vars->seq = uncrypt_sequence(vars->flags,vars->session_key,digest,encrypted_seq,is_server);
+    }
 
-            if(get_seal_key(vars->session_key,16,vars->encryption_key))
-            {
-                vars->can_decrypt = true;
-            }
-            else
-            {
-                debugprintf("get seal key returned 0\n");
-            }
-
-            if (vars->can_decrypt) {
-                expert_add_info_format(pinfo, proto_tree_get_parent(subtree),
-                         &ei_netlogon_session_key,
-                         "Using session key learned in frame %d ("
-                         "%02x%02x%02x%02x"
-                         ") from %s",
-                         vars->auth_fd_num,
-                         vars->session_key[0] & 0xFF,  vars->session_key[1] & 0xFF,
-                         vars->session_key[2] & 0xFF,  vars->session_key[3] & 0xFF,
-                         vars->nthash.key_origin);
-            }
-        }
+    if(get_seal_key(vars->session_key,16,vars->encryption_key))
+    {
+        vars->can_decrypt = true;
     }
     else
     {
-        debugprintf("Vars not found (is null %d) %d (dissect_verf)\n",vars==NULL,wmem_map_size(netlogon_auths));
+        debugprintf("get seal key returned 0\n");
+    }
+
+    if (vars->can_decrypt) {
+        expert_add_info_format(pinfo, proto_tree_get_parent(subtree),
+                 &ei_netlogon_session_key,
+                 "Using session key learned in frame %d ("
+                 "%02x%02x%02x%02x"
+                 ") from %s",
+                 vars->auth_fd_num,
+                 vars->session_key[0] & 0xFF,  vars->session_key[1] & 0xFF,
+                 vars->session_key[2] & 0xFF,  vars->session_key[3] & 0xFF,
+                 vars->nthash.key_origin);
     }
 
     return offset;
