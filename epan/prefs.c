@@ -2555,11 +2555,13 @@ column_hidden_set_cb(pref_t* pref, const char* value, unsigned int* changed_flag
      * set PRS_COL_HIDDEN on the command line).
      */
     format_pref = prefs_find_preference(gui_column_module, PRS_COL_FMT);
+    clp = (format_pref) ? *format_pref->varp.list : NULL;
     int cidx = 1;
-    for (clp = *format_pref->varp.list; clp != NULL; clp = clp->next) {
+    while (clp) {
       cfmt = (fmt_data *)clp->data;
       cfmt->visible = prefs_is_column_visible(*pref->varp.string, cidx);
       cidx++;
+      clp = clp->next;
     }
 
     return PREFS_SET_OK;
@@ -2634,9 +2636,11 @@ column_hidden_fmt_set_cb(pref_t* pref, const char* value, unsigned int* changed_
      * the hidden column prefs before the column format prefs.)
      */
     format_pref = prefs_find_preference(gui_column_module, PRS_COL_FMT);
-    for (clp = *format_pref->varp.list; clp != NULL; clp = clp->next) {
+    clp = (format_pref) ? *format_pref->varp.list : NULL;
+    while (clp) {
       cfmt = (fmt_data *)clp->data;
       cfmt->visible = prefs_is_column_fmt_visible(*pref->varp.string, cfmt);
+      clp = clp->next;
     }
 
     return PREFS_SET_OK;
