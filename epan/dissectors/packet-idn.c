@@ -516,7 +516,7 @@ static int dissect_idn_dmx_data(tvbuff_t *tvb, packet_info *pinfo, int offset, p
 	int *count = config->count;
 	int *base = config->base;
 	int base_value;
-	uint16_t data_size = tvb_reported_length_remaining(tvb, offset);
+	int data_size = tvb_reported_length_remaining(tvb, offset);
 	proto_tree *idn_samples_tree = proto_tree_add_subtree(idn_tree, tvb, offset, data_size, ett_data, NULL, "Channels");
 	proto_tree *idn_dmx_subtree;
 
