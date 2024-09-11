@@ -35,7 +35,6 @@ public slots:
     void checkPacket(capture_file *cap_file, frame_data *fdata, qsizetype row);
 
 private:
-    PacketListModel *packet_list_model_;
     QVector<struct profile_switch_filter> profile_filters_;
     bool capture_file_changed_;
     bool profile_changed_;
