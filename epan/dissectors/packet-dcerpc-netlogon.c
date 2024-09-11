@@ -93,9 +93,7 @@ static void printnbyte(const uint8_t* tab _U_,int nb _U_,const char* txt _U_,con
 #define NETLOGON_FLAG_1               0x1
 
 static wmem_map_t *netlogon_auths;
-#if 0
 static wmem_map_t *schannel_auths;
-#endif
 static int proto_dcerpc_netlogon;
 
 static int hf_netlogon_TrustedDomainName_string;
@@ -609,6 +607,39 @@ netlogon_auth_hash (const void *k)
     hash_val1 = add_address_to_hash(hash_val1, &key1->server);
     return hash_val1;
 }
+
+typedef struct _dcerpc_auth_schannel_key {
+    conversation_t *conv;
+    uint64_t        transport_salt;
+    uint32_t        auth_context_id;
+} dcerpc_auth_schannel_key;
+
+static unsigned
+dcerpc_auth_schannel_key_hash(const void *k)
+{
+    const dcerpc_auth_schannel_key *key = (const dcerpc_auth_schannel_key *)k;
+    unsigned hash;
+
+    hash = GPOINTER_TO_UINT(key->conv);
+    /* sizeof(unsigned) might be smaller than sizeof(uint64_t) */
+    hash += (unsigned)key->transport_salt;
+    hash += (unsigned)(key->transport_salt << sizeof(unsigned));
+    hash += key->auth_context_id;
+
+    return hash;
+}
+
+static int
+dcerpc_auth_schannel_key_equal(const void *k1, const void *k2)
+{
+    const dcerpc_auth_schannel_key *key1 = (const dcerpc_auth_schannel_key *)k1;
+    const dcerpc_auth_schannel_key *key2 = (const dcerpc_auth_schannel_key *)k2;
+
+    return ((key1->conv == key2->conv)
+            && (key1->transport_salt == key2->transport_salt)
+            && (key1->auth_context_id == key2->auth_context_id));
+}
+
 static int
 netlogon_dissect_EXTRA_FLAGS(tvbuff_t *tvb, int offset,
                              packet_info *pinfo, proto_tree *parent_tree, dcerpc_info *di, uint8_t *drep)
@@ -2687,6 +2718,98 @@ static void generate_hash_key(packet_info *pinfo,unsigned char is_server,netlogo
 
 }
 
+static netlogon_auth_vars *find_global_netlogon_auth_vars(packet_info *pinfo, unsigned char is_server)
+{
+    netlogon_auth_vars *lvars = NULL;
+    netlogon_auth_vars *avars = NULL;
+    netlogon_auth_key akey;
+
+    generate_hash_key(pinfo, is_server, &akey);
+    lvars = (netlogon_auth_vars *)wmem_map_lookup(netlogon_auths, &akey);
+
+    for (; lvars != NULL; lvars = lvars->next) {
+        int fd_num = (int) pinfo->num;
+
+        if (fd_num <= lvars->start) {
+            /*
+             * Before it even started,
+             * can't be used..., keep
+             * avars if we already found
+             * one.
+             */
+            break;
+        }
+        if (lvars->auth_fd_num == -1) {
+            /*
+             * No ServerAuthenticate{,1,3},
+             * no session key available,
+             * just ignore...
+             */
+            continue;
+        }
+        if (fd_num <= lvars->auth_fd_num) {
+            /*
+             * Before ServerAuthenticate{,1,3}
+             * can't be used..., keep
+             * avars if we already found
+             * one.
+             */
+            break;
+        }
+        /*
+         * remember the current match,
+         * but try to find a better one...
+         */
+        avars = lvars;
+    }
+
+    return avars;
+}
+
+static netlogon_auth_vars *find_or_create_schannel_netlogon_auth_vars(packet_info *pinfo,
+                                                                      dcerpc_auth_info *auth_info,
+                                                                      unsigned char is_server)
+{
+    dcerpc_auth_schannel_key skey = {
+        .conv = find_or_create_conversation(pinfo),
+        .transport_salt = dcerpc_get_transport_salt(pinfo),
+        .auth_context_id = auth_info->auth_context_id,
+    };
+    dcerpc_auth_schannel_key *sk = NULL;
+    netlogon_auth_vars *svars = NULL;
+    netlogon_auth_vars *avars = NULL;
+
+    svars = (netlogon_auth_vars *)wmem_map_lookup(schannel_auths, &skey);
+    if (svars != NULL) {
+        return svars;
+    }
+
+    avars = find_global_netlogon_auth_vars(pinfo, is_server);
+    if (avars == NULL) {
+        return NULL;
+    }
+
+    sk = wmem_memdup(wmem_file_scope(), &skey, sizeof(dcerpc_auth_schannel_key));
+    if (sk == NULL) {
+        return NULL;
+    }
+
+    svars = wmem_memdup(wmem_file_scope(), avars, sizeof(netlogon_auth_vars));
+    if (svars == NULL) {
+        return NULL;
+    }
+    svars->client_name = wmem_strdup(wmem_file_scope(), avars->client_name);
+    if (svars->client_name == NULL) {
+        return NULL;
+    }
+    svars->next_start = -1;
+    svars->next = NULL;
+
+    wmem_map_insert(schannel_auths, sk, svars);
+
+    return svars;
+}
+
 /*
  * IDL long NetrServerReqChallenge(
  * IDL      [in][unique][string] wchar_t *ServerName,
@@ -2724,6 +2847,7 @@ netlogon_dissect_netrserverreqchallenge_rqst(tvbuff_t *tvb, int offset,
     memcpy(tab,&vars->client_challenge,8);
 
     vars->start = pinfo->num;
+    vars->auth_fd_num = -1;
     vars->next_start = -1;
     vars->next = NULL;
 
@@ -8068,6 +8192,7 @@ static int dissect_secchan_nl_auth_message(tvbuff_t *tvb, int offset,
                                            packet_info *pinfo,
                                            proto_tree *tree, dcerpc_info *di _U_, uint8_t *drep)
 {
+    dcerpc_auth_info *auth_info = di->auth_info;
     proto_item *item = NULL;
     proto_tree *subtree = NULL;
     uint32_t messagetype;
@@ -8081,6 +8206,8 @@ static int dissect_secchan_nl_auth_message(tvbuff_t *tvb, int offset,
         NULL
     };
     int len;
+    netlogon_auth_vars *vars = NULL;
+    unsigned char is_server;
 
     if (tree) {
         subtree = proto_tree_add_subtree(
@@ -8151,6 +8278,40 @@ static int dissect_secchan_nl_auth_message(tvbuff_t *tvb, int offset,
         proto_tree_add_string(subtree, hf_netlogon_secchan_nl_nb_host_utf8, tvb, old_offset, offset-old_offset, str);
     }
 
+    switch (di->ptype) {
+    case PDU_BIND:
+    case PDU_ALTER:
+    case PDU_AUTH3:
+        is_server = 0;
+        break;
+    case PDU_BIND_ACK:
+    case PDU_BIND_NAK:
+    case PDU_ALTER_ACK:
+    case PDU_FAULT:
+        is_server = 1;
+        break;
+    default:
+        return offset;
+    }
+
+    vars = find_or_create_schannel_netlogon_auth_vars(pinfo, auth_info, is_server);
+    if (vars != NULL) {
+        expert_add_info_format(pinfo, proto_tree_get_parent(subtree),
+                               &ei_netlogon_session_key,
+                               "Using session key learned in frame %d ("
+                               "%02x%02x%02x%02x"
+                               ") from %s",
+                               vars->auth_fd_num,
+                               vars->session_key[0] & 0xFF,
+                               vars->session_key[1] & 0xFF,
+                               vars->session_key[2] & 0xFF,
+                               vars->session_key[3] & 0xFF,
+                               vars->nthash.key_origin);
+    }
+    else
+    {
+        debugprintf("Vars not found (is null %d) %d (dissect_verf)\n",vars==NULL,wmem_map_size(netlogon_auths));
+    }
 
     return offset;
 }
@@ -8538,11 +8699,9 @@ dissect_packet_data(tvbuff_t *tvb ,tvbuff_t *auth_tvb _U_,
     tvbuff_t  *buf = NULL;
     uint8_t* decrypted;
     netlogon_auth_vars *vars;
-    netlogon_auth_key key;
     /*debugprintf("Dissection of request data offset %d len=%d on packet %d\n",offset,tvb_length_remaining(tvb,offset),pinfo->num);*/
 
-    generate_hash_key(pinfo,is_server,&key);
-    vars = (netlogon_auth_vars *)wmem_map_lookup(netlogon_auths, &key);
+    vars = find_or_create_schannel_netlogon_auth_vars(pinfo, auth_info, is_server);
 
     if(vars != NULL  ) {
         while(vars != NULL && vars->next_start != -1 && vars->next_start < (int) pinfo->num ) {
@@ -8614,10 +8773,11 @@ static tvbuff_t* dissect_response_data(tvbuff_t *header_tvb _U_,
 /* MS-NRPC 2.2.1.3.2 */
 static int
 dissect_secchan_verf(tvbuff_t *tvb, int offset, packet_info *pinfo,
-                     proto_tree *tree, uint8_t *drep, unsigned char is_server)
+                     proto_tree *tree, uint8_t *drep,
+                     dcerpc_auth_info *auth_info,
+                     unsigned char is_server)
 {
     netlogon_auth_vars *vars;
-    netlogon_auth_key key;
     proto_item *vf = NULL;
     proto_tree *subtree = NULL;
     uint64_t encrypted_seq;
@@ -8625,8 +8785,6 @@ dissect_secchan_verf(tvbuff_t *tvb, int offset, packet_info *pinfo,
     uint64_t confounder = 0;
     int update_vars = 0;
 
-    generate_hash_key(pinfo,is_server,&key);
-    vars = (netlogon_auth_vars *)wmem_map_lookup(netlogon_auths,(const void **) &key);
     if(  ! (seen.isseen && seen.num == pinfo->num) ) {
         /*
          * Create a new tree, and split into x components ...
@@ -8658,6 +8816,8 @@ dissect_secchan_verf(tvbuff_t *tvb, int offset, packet_info *pinfo,
         }
         update_vars = 1;
     }
+
+    vars = find_or_create_schannel_netlogon_auth_vars(pinfo, auth_info, is_server);
     if( vars != NULL ) {
         while(vars != NULL && vars->next_start != -1 && vars->next_start <  (int)pinfo->num ) {
             vars = vars->next;
@@ -8708,13 +8868,13 @@ static int
 dissect_request_secchan_verf(tvbuff_t *tvb, int offset, packet_info *pinfo ,
                              proto_tree *tree, dcerpc_info *di _U_, uint8_t *drep )
 {
-    return dissect_secchan_verf(tvb,offset,pinfo,tree,drep,0);
+    return dissect_secchan_verf(tvb,offset,pinfo,tree,drep, di->auth_info, 0);
 }
 static int
 dissect_response_secchan_verf(tvbuff_t *tvb, int offset, packet_info *pinfo ,
                               proto_tree *tree, dcerpc_info *di _U_, uint8_t *drep )
 {
-    return dissect_secchan_verf(tvb,offset,pinfo,tree,drep,1);
+    return dissect_secchan_verf(tvb,offset,pinfo,tree,drep, di->auth_info, 1);
 }
 
 void
@@ -10148,9 +10308,7 @@ proto_register_dcerpc_netlogon(void)
     expert_register_field_array(expert_netlogon, ei, array_length(ei));
 
     netlogon_auths = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), netlogon_auth_hash, netlogon_auth_equal);
-#if 0
-    schannel_auths = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), netlogon_auth_hash, netlogon_auth_equal);
-#endif
+    schannel_auths = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), dcerpc_auth_schannel_key_hash, dcerpc_auth_schannel_key_equal);
 }
 
 static dcerpc_auth_subdissector_fns secchan_auth_fns = {
