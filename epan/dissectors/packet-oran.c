@@ -1246,6 +1246,8 @@ static int dissect_bfwCompHdr(tvbuff_t *tvb, proto_tree *tree, int offset,
     /* Width and method */
     proto_tree_add_item_ret_uint(bfwcomphdr_tree, hf_oran_bfwCompHdr_iqWidth,
                                  tvb, offset, 1, ENC_BIG_ENDIAN,  iq_width);
+    /* Special case: 0 -> 16 */
+    *iq_width = (*iq_width==0) ? 16 : *iq_width;
     *comp_meth_ti = proto_tree_add_item_ret_uint(bfwcomphdr_tree, hf_oran_bfwCompHdr_compMeth,
                                                  tvb, offset, 1, ENC_BIG_ENDIAN, comp_meth);
     offset++;
@@ -1993,9 +1995,6 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                 offset = dissect_bfwCompHdr(tvb, extension_tree, offset,
                                             &bfwcomphdr_iq_width, &bfwcomphdr_comp_meth, &comp_meth_ti);
 
-                /* Look up width of samples. */
-                uint8_t iq_width = !bfwcomphdr_iq_width ? 16 : bfwcomphdr_iq_width;
-
                 /* bfwCompParam */
                 uint32_t exponent = 0;
                 bool compression_method_supported = false;
@@ -2018,7 +2017,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                    Don't know how many there will be, so just fill available bytes...
                  */
                 unsigned weights_bytes = (extlen*4)-3;
-                unsigned num_weights_pairs = (weights_bytes*8) / (iq_width*2);
+                unsigned num_weights_pairs = (weights_bytes*8) / (bfwcomphdr_iq_width*2);
                 unsigned num_trx = num_weights_pairs;
                 int bit_offset = offset*8;
 
@@ -2031,11 +2030,12 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
 
                     /* I value */
                     /* Get bits, and convert to float. */
-                    uint32_t bits = tvb_get_bits(tvb, bit_offset, iq_width, ENC_BIG_ENDIAN);
-                    float value = decompress_value(bits, bfwcomphdr_comp_meth, iq_width, exponent);
+                    uint32_t bits = tvb_get_bits(tvb, bit_offset, bfwcomphdr_iq_width, ENC_BIG_ENDIAN);
+                    float value = decompress_value(bits, bfwcomphdr_comp_meth, bfwcomphdr_iq_width, exponent);
                     /* Add to tree. */
-                    proto_tree_add_float_format_value(bfw_tree, hf_oran_bfw_i, tvb, bit_offset/8, (iq_width+7)/8, value, "%f", value);
-                    bit_offset += iq_width;
+                    proto_tree_add_float_format_value(bfw_tree, hf_oran_bfw_i, tvb, bit_offset/8,
+                                                      (bfwcomphdr_iq_width+7)/8, value, "%f", value);
+                    bit_offset += bfwcomphdr_iq_width;
                     proto_item_append_text(bfw_ti, "I=%f ", value);
 
                     /* Leave a gap between I and Q values */
@@ -2043,11 +2043,12 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
 
                     /* Q value */
                     /* Get bits, and convert to float. */
-                    bits = tvb_get_bits(tvb, bit_offset, iq_width, ENC_BIG_ENDIAN);
-                    value = decompress_value(bits, bfwcomphdr_comp_meth, iq_width, exponent);
+                    bits = tvb_get_bits(tvb, bit_offset, bfwcomphdr_iq_width, ENC_BIG_ENDIAN);
+                    value = decompress_value(bits, bfwcomphdr_comp_meth, bfwcomphdr_iq_width, exponent);
                     /* Add to tree. */
-                    proto_tree_add_float_format_value(bfw_tree, hf_oran_bfw_q, tvb, bit_offset/8, (iq_width+7)/8, value, "%f", value);
-                    bit_offset += iq_width;
+                    proto_tree_add_float_format_value(bfw_tree, hf_oran_bfw_q, tvb, bit_offset/8,
+                                                      (bfwcomphdr_iq_width+7)/8, value, "%f", value);
+                    bit_offset += bfwcomphdr_iq_width;
                     proto_item_append_text(bfw_ti, "Q=%f", value);
 
                     proto_item_append_text(bfw_ti, ")");
@@ -2398,10 +2399,6 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                     offset = dissect_bfwCompHdr(tvb, extension_tree, offset,
                                                 &bfwcomphdr_iq_width, &bfwcomphdr_comp_meth, &comp_meth_ti);
 
-                    /* Look up width of samples. */
-                    uint8_t iq_width = !bfwcomphdr_iq_width ? 16 : bfwcomphdr_iq_width;
-
-
                     /* Work out number of bundles, but take care not to divide by zero. */
                     if (numBundPrb == 0) {
                         break;
@@ -2419,7 +2416,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                                                     (ext11_settings.ext21_set) ?
                                                         numPrbc :
                                                         pref_num_weights_per_bundle,
-                                                    iq_width,
+                                                    bfwcomphdr_iq_width,
                                                     b,                                 /* bundle number */
                                                     ext11_settings.bundles[b].start,
                                                     ext11_settings.bundles[b].end,
@@ -2728,9 +2725,6 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                             offset = dissect_bfwCompParam(tvb, port_tree, pinfo, offset, comp_meth_ti,
                                                           bfwcomphdr_comp_meth, &exponent, &compression_method_supported);
 
-                            /* Look up width of samples. */
-                            uint8_t iq_width = !bfwcomphdr_iq_width ? 16 : bfwcomphdr_iq_width;
-
                             int bit_offset = offset*8;
                             int bfw_offset;
 
@@ -2739,7 +2733,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
 
                                 /* Create BFW subtree */
                                 bfw_offset = bit_offset / 8;
-                                uint8_t bfw_extent = ((bit_offset + (iq_width*2)) / 8) - bfw_offset;
+                                uint8_t bfw_extent = ((bit_offset + (bfwcomphdr_iq_width*2)) / 8) - bfw_offset;
                                 proto_item *bfw_ti = proto_tree_add_string_format(port_tree, hf_oran_bfw,
                                                                                   tvb, bfw_offset, bfw_extent,
                                                                                   "", "TRX %u: (", b);
@@ -2747,20 +2741,22 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
 
                                 /* I */
                                 /* Get bits, and convert to float. */
-                                uint32_t bits = tvb_get_bits(tvb, bit_offset, iq_width, ENC_BIG_ENDIAN);
-                                float value = decompress_value(bits, bfwcomphdr_comp_meth, iq_width, exponent);
+                                uint32_t bits = tvb_get_bits(tvb, bit_offset, bfwcomphdr_iq_width, ENC_BIG_ENDIAN);
+                                float value = decompress_value(bits, bfwcomphdr_comp_meth, bfwcomphdr_iq_width, exponent);
                                 /* Add to tree. */
-                                proto_tree_add_float_format_value(bfw_tree, hf_oran_bfw_i, tvb, bit_offset/8, (iq_width+7)/8, value, "#%u=%f", b, value);
-                                bit_offset += iq_width;
+                                proto_tree_add_float_format_value(bfw_tree, hf_oran_bfw_i, tvb, bit_offset/8,
+                                                                  (bfwcomphdr_iq_width+7)/8, value, "#%u=%f", b, value);
+                                bit_offset += bfwcomphdr_iq_width;
                                 proto_item_append_text(bfw_ti, "I%u=%f ", b, value);
 
                                 /* Q */
                                 /* Get bits, and convert to float. */
-                                bits = tvb_get_bits(tvb, bit_offset, iq_width, ENC_BIG_ENDIAN);
-                                value = decompress_value(bits, bfwcomphdr_comp_meth, iq_width, exponent);
+                                bits = tvb_get_bits(tvb, bit_offset, bfwcomphdr_iq_width, ENC_BIG_ENDIAN);
+                                value = decompress_value(bits, bfwcomphdr_comp_meth, bfwcomphdr_iq_width, exponent);
                                 /* Add to tree. */
-                                proto_tree_add_float_format_value(bfw_tree, hf_oran_bfw_q, tvb, bit_offset/8, (iq_width+7)/8, value, "#%u=%f", b, value);
-                                bit_offset += iq_width;
+                                proto_tree_add_float_format_value(bfw_tree, hf_oran_bfw_q, tvb, bit_offset/8,
+                                                                  (bfwcomphdr_iq_width+7)/8, value, "#%u=%f", b, value);
+                                bit_offset += bfwcomphdr_iq_width;
                                 proto_item_append_text(bfw_ti, "Q%u=%f)", b, value);
                             }
 
@@ -3457,7 +3453,8 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
                                 uint32_t bits = tvb_get_bits(tvb, bit_offset, bfwcomphdr_iq_width, ENC_BIG_ENDIAN);
                                 float value = decompress_value(bits, bfwcomphdr_comp_meth, bfwcomphdr_iq_width, exponent);
                                 /* Add to tree. */
-                                proto_tree_add_float_format_value(bfw_tree, hf_oran_bfw_i, tvb, bit_offset/8, (bfwcomphdr_iq_width+7)/8, value, "%f", value);
+                                proto_tree_add_float_format_value(bfw_tree, hf_oran_bfw_i, tvb, bit_offset/8,
+                                                                  (bfwcomphdr_iq_width+7)/8, value, "%f", value);
                                 bit_offset += bfwcomphdr_iq_width;
                                 proto_item_append_text(bfw_ti, "I=%f ", value);
 
@@ -3469,7 +3466,8 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
                                 bits = tvb_get_bits(tvb, bit_offset, bfwcomphdr_iq_width, ENC_BIG_ENDIAN);
                                 value = decompress_value(bits, bfwcomphdr_comp_meth, bfwcomphdr_iq_width, exponent);
                                 /* Add to tree. */
-                                proto_tree_add_float_format_value(bfw_tree, hf_oran_bfw_q, tvb, bit_offset/8, (bfwcomphdr_iq_width+7)/8, value, "%f", value);
+                                proto_tree_add_float_format_value(bfw_tree, hf_oran_bfw_q, tvb, bit_offset/8,
+                                                                  (bfwcomphdr_iq_width+7)/8, value, "%f", value);
                                 bit_offset += bfwcomphdr_iq_width;
                                 proto_item_append_text(bfw_ti, "Q=%f", value);
 
