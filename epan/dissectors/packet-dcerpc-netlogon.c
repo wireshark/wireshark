@@ -7501,7 +7501,6 @@ netlogon_dissect_opaque_buffer_block(tvbuff_t *tvb, int offset, int length,
     int orig_offset = offset;
     unsigned char is_server = 0;
     netlogon_auth_vars *vars;
-    netlogon_auth_key key;
     gcry_error_t err;
     gcry_cipher_hd_t cipher_hd = NULL;
     uint8_t *buffer = NULL;
@@ -7516,12 +7515,7 @@ netlogon_dissect_opaque_buffer_block(tvbuff_t *tvb, int offset, int length,
         return offset;
     }
 
-    generate_hash_key(pinfo,is_server,&key);
-    vars = (netlogon_auth_vars *)wmem_map_lookup(netlogon_auths,(const void **) &key);
-
-    while(vars != NULL && vars->next_start != -1 && vars->next_start <  (int)pinfo->num ) {
-        vars = vars->next;
-    }
+    vars = find_global_netlogon_auth_vars(pinfo, is_server);
     if (vars == NULL ) {
         debugprintf("Vars not found %d (packet_data)\n",wmem_map_size(netlogon_auths));
         expert_add_info_format(pinfo, proto_tree_get_parent(tree),
