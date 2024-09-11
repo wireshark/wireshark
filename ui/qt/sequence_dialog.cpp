@@ -67,6 +67,7 @@ SequenceDialog::SequenceDialog(QWidget &parent, CaptureFile &cf, SequenceInfo *i
     packet_num_(0),
     sequence_w_(1),
     axis_pressed_(false),
+    current_rtp_sai_selected_(nullptr),
     current_rtp_sai_hovered_(nullptr),
     voipFeaturesEnabled(voipFeatures)
 {
