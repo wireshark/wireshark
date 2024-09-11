@@ -1613,7 +1613,7 @@ const range_string gmpls_switching_type_rvals[] = {
     { 150, 150, "Lambda-Switch Capable (LSC)" },
     { 151, 151, "WSON-LSC"},
     { 152, 152, "Flexi-Grid-LSC"},
-    { 153, 169, "Unassigned" },
+    { 153, 199, "Unassigned" },
     { 200, 200, "Fiber-Switch Capable (FSC)" },
     { 201, 255, "Unassigned" },
     {   0,   0, NULL }
