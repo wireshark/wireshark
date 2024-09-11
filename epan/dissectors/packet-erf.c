@@ -2914,7 +2914,7 @@ dissect_meta_record_tags(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
         /* Name */
         proto_tree_add_item(tag_tree, tag_info->extra->hf_values[1], tvb, offset + 4 + addr_len, taglength - addr_len, ENC_UTF_8);
         if (pi) {
-          proto_item_fill_label(PITEM_FINFO(pi), pi_label);
+          proto_item_fill_label(PITEM_FINFO(pi), pi_label, NULL);
           /* Set top level label e.g IPv4 Name: hostname Address: 1.2.3.4 */
           /* TODO: Name is unescaped here but escaped in actual field */
           proto_item_append_text(tag_pi, ": %s, %s",

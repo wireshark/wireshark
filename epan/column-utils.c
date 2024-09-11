@@ -371,6 +371,7 @@ void col_custom_set_edt(epan_dissect_t *edt, column_info *cinfo)
         col_item->col_data = col_item->col_buf;
         cinfo->col_expr.col_expr[i] = epan_custom_set(edt, col_item->col_custom_fields_ids,
                                      col_item->col_custom_occurrence,
+                                     get_column_display_format(i) == COLUMN_DISPLAY_DETAILS,
                                      col_item->col_buf,
                                      cinfo->col_expr.col_expr_val[i],
                                      COL_MAX_LEN);
@@ -398,6 +399,7 @@ col_custom_set(proto_tree *tree, column_info *cinfo)
         col_item->col_data = col_item->col_buf;
         cinfo->col_expr.col_expr[i] = proto_custom_set(tree, col_item->col_custom_fields_ids,
                                      col_item->col_custom_occurrence,
+                                     get_column_display_format(i) == COLUMN_DISPLAY_DETAILS,
                                      col_item->col_buf,
                                      cinfo->col_expr.col_expr_val[i],
                                      COL_MAX_LEN);
@@ -421,7 +423,11 @@ col_custom_prime_edt(epan_dissect_t *edt, column_info *cinfo)
 
     if (col_item->fmt_matx[COL_CUSTOM] &&
         col_item->col_custom_dfilter) {
-      epan_dissect_prime_with_dfilter(edt, col_item->col_custom_dfilter);
+      if (get_column_display_format(i) == COLUMN_DISPLAY_DETAILS) {
+        epan_dissect_prime_with_dfilter_print(edt, col_item->col_custom_dfilter);
+      } else {
+        epan_dissect_prime_with_dfilter(edt, col_item->col_custom_dfilter);
+      }
     }
   }
 }

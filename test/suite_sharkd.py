@@ -77,19 +77,19 @@ class TestSharkd:
         ), (
             {"jsonrpc":"2.0","id":1,"result":{"frames":0,"duration":0.000000000,"columns":["No.","Time","Source","Destination","Protocol","Length","Info"],
                 "column_info":[{
-                    "title":"No.","format": "%m","visible":True, "resolved":True
+                    "title":"No.","format": "%m","visible":True, "display": "R"
                 },{
-                    "title": "Time", "format": "%t", "visible":True, "resolved":True
+                    "title": "Time", "format": "%t", "visible":True, "display": "R"
                 },{
-                    "title": "Source", "format": "%s", "visible":True, "resolved":True
+                    "title": "Source", "format": "%s", "visible":True, "display": "R"
                 },{
-                    "title": "Destination", "format": "%d", "visible":True, "resolved":True
+                    "title": "Destination", "format": "%d", "visible":True, "display": "R"
                 },{
-                    "title": "Protocol", "format": "%p", "visible":True, "resolved":True
+                    "title": "Protocol", "format": "%p", "visible":True, "display": "R"
                 },{
-                    "title": "Length", "format": "%L", "visible":True, "resolved":True
+                    "title": "Length", "format": "%L", "visible":True, "display": "R"
                 },{
-                    "title": "Info", "format": "%i", "visible":True, "resolved":True
+                    "title": "Info", "format": "%i", "visible":True, "display": "R"
                 }]
             }},
         ))
@@ -106,19 +106,19 @@ class TestSharkd:
                 "filename": "dhcp.pcap", "filesize": 1400,
                 "columns":["No.","Time","Source","Destination","Protocol","Length","Info"],
                 "column_info":[{
-                    "title":"No.","format": "%m","visible":True, "resolved":True
+                    "title":"No.","format": "%m","visible":True, "display": "R"
                 },{
-                    "title": "Time", "format": "%t", "visible":True, "resolved":True
+                    "title": "Time", "format": "%t", "visible":True, "display": "R"
                 },{
-                    "title": "Source", "format": "%s", "visible":True, "resolved":True
+                    "title": "Source", "format": "%s", "visible":True, "display": "R"
                 },{
-                    "title": "Destination", "format": "%d", "visible":True, "resolved":True
+                    "title": "Destination", "format": "%d", "visible":True, "display": "R"
                 },{
-                    "title": "Protocol", "format": "%p", "visible":True, "resolved":True
+                    "title": "Protocol", "format": "%p", "visible":True, "display": "R"
                 },{
-                    "title": "Length", "format": "%L", "visible":True, "resolved":True
+                    "title": "Length", "format": "%L", "visible":True, "display": "R"
                 },{
-                    "title": "Info", "format": "%i", "visible":True, "resolved":True
+                    "title": "Info", "format": "%i", "visible":True, "display": "R"
                 }]
             }},
         ))

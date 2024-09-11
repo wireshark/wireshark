@@ -289,7 +289,7 @@ parse_column_format(fmt_data *cfmt, const char *fmt)
     int col_fmt;
     char *col_custom_fields = NULL;
     long col_custom_occurrence = 0;
-    bool col_resolved = true;
+    char col_display = COLUMN_DISPLAY_STRINGS;
 
     /*
      * Is this a custom column?
@@ -329,7 +329,7 @@ parse_column_format(fmt_data *cfmt, const char *fmt)
         }
         if (cust_format_info->len > 2) {
             p = cust_format_info->pdata[2];
-            col_resolved = (p[0] == 'U') ? false : true;
+            col_display = p[0];
         }
         g_free(fmt_copy);
         g_ptr_array_unref(cust_format_info);
@@ -342,7 +342,7 @@ parse_column_format(fmt_data *cfmt, const char *fmt)
     cfmt->fmt = col_fmt;
     cfmt->custom_fields = col_custom_fields;
     cfmt->custom_occurrence = (int)col_custom_occurrence;
-    cfmt->resolved = col_resolved;
+    cfmt->display = col_display;
     return true;
 }
 
@@ -835,8 +835,8 @@ set_column_visible(const int col, bool visible)
   cfmt->visible = visible;
 }
 
-bool
-get_column_resolved(const int col)
+char
+get_column_display_format(const int col)
 {
   GList    *clp = g_list_nth(prefs.col_list, col);
   fmt_data *cfmt;
@@ -846,11 +846,11 @@ get_column_resolved(const int col)
 
   cfmt = (fmt_data *) clp->data;
 
-  return(cfmt->resolved);
+  return(cfmt->display);
 }
 
 void
-set_column_resolved(const int col, bool resolved)
+set_column_display_format(const int col, char display)
 {
   GList    *clp = g_list_nth(prefs.col_list, col);
   fmt_data *cfmt;
@@ -860,7 +860,7 @@ set_column_resolved(const int col, bool resolved)
 
   cfmt = (fmt_data *) clp->data;
 
-  cfmt->resolved = resolved;
+  cfmt->display = display;
 }
 
 const char *
@@ -996,7 +996,7 @@ get_column_text(column_info *cinfo, const int col)
   ws_assert(cinfo);
   ws_assert(col < cinfo->num_cols);
 
-  if (!get_column_resolved(col) && cinfo->col_expr.col_expr_val[col]) {
+  if ((get_column_display_format(col) == COLUMN_DISPLAY_VALUES) && cinfo->col_expr.col_expr_val[col]) {
       /* Use the unresolved value in col_expr_val */
       return cinfo->col_expr.col_expr_val[col];
   }

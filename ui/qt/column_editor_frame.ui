@@ -106,15 +106,16 @@
     <widget class="SyntaxLineEdit" name="occurrenceLineEdit"/>
    </item>
    <item>
-    <widget class="QCheckBox" name="resolvedCheckBox">
+    <widget class="QLabel" name="displayLabel">
      <property name="text">
-      <string>Resolve Names:</string>
+      <string>Display as:</string>
      </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QComboBox" name="displayComboBox">
      <property name="toolTip">
-      <string>&lt;html&gt;&lt;head/&gt;&lt;p&gt;Show human-readable strings instead of raw values for fields. Only applicable to custom columns with fields that have value strings.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-     </property>
-     <property name="layoutDirection">
-      <enum>Qt::RightToLeft</enum>
+      <string>&lt;html&gt;&lt;head/&gt;&lt;p&gt;Values will show the raw values for fields.&lt;p&gt;Strings will show human-readable strings instead of raw values for fields. Only applicable to custom columns with fields that have value strings and custom columns which can be resolved to strings.&lt;p&gt;Details will show the values using the same format as in Packet Details. Only applicable to custom columns.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
      </property>
     </widget>
    </item>

@@ -66,7 +66,7 @@ ColumnPreferencesFrame::ColumnPreferencesFrame(QWidget *parent) :
     ui->columnTreeView->resizeColumnToContents(ColumnListModel::COL_TITLE);
     ui->columnTreeView->resizeColumnToContents(ColumnListModel::COL_TYPE);
     ui->columnTreeView->resizeColumnToContents(ColumnListModel::COL_OCCURRENCE);
-    ui->columnTreeView->resizeColumnToContents(ColumnListModel::COL_RESOLVED);
+    ui->columnTreeView->resizeColumnToContents(ColumnListModel::COL_DISPLAY);
 
     connect(ui->columnTreeView->selectionModel(), &QItemSelectionModel::selectionChanged,
         this, &ColumnPreferencesFrame::selectionChanged);

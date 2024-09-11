@@ -1161,7 +1161,7 @@ already_added:
 
 
 set_label:
-	if (pi_value) proto_item_fill_label(PITEM_FINFO(pi_value), label);
+	if (pi_value) proto_item_fill_label(PITEM_FINFO(pi_value), label, NULL);
 
 	if (oid_info && oid_info->name) {
 		if (oid_left >= 1) {

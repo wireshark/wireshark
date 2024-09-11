@@ -745,6 +745,12 @@ epan_dissect_prime_with_dfilter(epan_dissect_t *edt, const dfilter_t* dfcode)
 }
 
 void
+epan_dissect_prime_with_dfilter_print(epan_dissect_t *edt, const dfilter_t* dfcode)
+{
+	dfilter_prime_proto_tree_print(dfcode, edt->tree);
+}
+
+void
 epan_dissect_prime_with_hfid(epan_dissect_t *edt, int hfid)
 {
 	proto_tree_prime_with_hfid(edt->tree, hfid);
@@ -765,10 +771,11 @@ epan_dissect_prime_with_hfid_array(epan_dissect_t *edt, GArray *hfids)
 const char *
 epan_custom_set(epan_dissect_t *edt, GSList *field_ids,
 			     int occurrence,
+			     bool display_details,
 			     char *result,
 			     char *expr, const int size )
 {
-	return proto_custom_set(edt->tree, field_ids, occurrence, result, expr, size);
+	return proto_custom_set(edt->tree, field_ids, occurrence, display_details, result, expr, size);
 }
 
 void

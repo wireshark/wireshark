@@ -775,7 +775,7 @@ static int TreeItem_get_text(lua_State* L) {
 
         if (!fi->rep) {
             label_ptr = label_str;
-            proto_item_fill_label(fi, label_str);
+            proto_item_fill_label(fi, label_str, NULL);
         } else
             label_ptr = fi->rep->representation;
 

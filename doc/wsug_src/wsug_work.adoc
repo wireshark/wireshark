@@ -91,8 +91,17 @@ Open the column editor toolbar for this column.
 |menu:Resize To Contents[] |
 Resize the column to fit its values.
 
-|menu:Resolve Names[] |
-If this column contains addresses, resolve them.
+|menu:Display as Values[] |
+Display the raw values for fields.
+
+|menu:Display as Strings[] |
+Display human-readable strings instead of raw values for fields.
+Only applicable to custom columns with fields that have value strings
+and custom columns which can be resolved to strings.
+
+|menu:Display as packet Details[] |
+Display the values using the same format as in Packet Details.
+Only applicable to custom columns.
 
 | _No., Time, Source, et al._ |
 Show or hide a column by selecting its item.

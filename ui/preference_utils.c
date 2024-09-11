@@ -177,7 +177,11 @@ column_prefs_add_custom(int fmt, const char *title, const char *custom_fields, i
     cfmt->fmt = fmt;
     cfmt->custom_fields = g_strdup(custom_fields);
     cfmt->custom_occurrence = 0;
-    cfmt->resolved = true;
+    if (column_prefs_custom_display_strings(custom_fields)) {
+        cfmt->display = COLUMN_DISPLAY_STRINGS;
+    } else {
+        cfmt->display = COLUMN_DISPLAY_VALUES;
+    }
 
     colnr = g_list_length(prefs.col_list);
 
@@ -228,7 +232,7 @@ column_prefs_has_custom(const char *custom_field)
 }
 
 bool
-column_prefs_custom_resolve(const char* custom_field)
+column_prefs_custom_display_strings(const char* custom_field)
 {
     char **fields;
     header_field_info *hfi;
@@ -241,13 +245,39 @@ column_prefs_custom_resolve(const char* custom_field)
     for (unsigned i = 0; i < g_strv_length(fields); i++) {
         if (fields[i] && *fields[i]) {
             hfi = proto_registrar_get_byname(fields[i]);
-            if (hfi && ((hfi->type == FT_OID) || (hfi->type == FT_REL_OID) || (hfi->type == FT_ETHER) || (hfi->type == FT_IPv4) || (hfi->type == FT_IPv6) || (hfi->type == FT_FCWWN) || (hfi->type == FT_BOOLEAN) ||
+            if (hfi && ((hfi->type == FT_OID) || (hfi->type == FT_REL_OID) || (hfi->type == FT_ETHER) || (hfi->type == FT_BYTES) || (hfi->type == FT_IPv4) || (hfi->type == FT_IPv6) || (hfi->type == FT_FCWWN) || (hfi->type == FT_BOOLEAN) ||
                     ((hfi->strings != NULL) &&
                      (FT_IS_INT(hfi->type) || FT_IS_UINT(hfi->type)))))
                 {
                     resolve = true;
                     break;
                 }
+        }
+    }
+
+    g_strfreev(fields);
+
+    return resolve;
+}
+
+bool
+column_prefs_custom_display_details(const char* custom_field)
+{
+    char **fields;
+    header_field_info *hfi;
+    bool resolve = false;
+
+    fields = g_regex_split_simple(COL_CUSTOM_PRIME_REGEX, custom_field,
+                                  (GRegexCompileFlags) (G_REGEX_RAW),
+                                  0);
+
+    for (unsigned i = 0; i < g_strv_length(fields); i++) {
+        if (fields[i] && *fields[i]) {
+            hfi = proto_registrar_get_byname(fields[i]);
+            if (hfi && !(hfi->display & BASE_NO_DISPLAY_VALUE)) {
+                resolve = true;
+                break;
+            }
         }
     }
 

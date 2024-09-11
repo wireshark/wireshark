@@ -34,7 +34,8 @@ class PacketListModel : public QAbstractItemModel
 public:
 
     enum {
-        HEADER_CAN_RESOLVE = Qt::UserRole,
+        HEADER_CAN_DISPLAY_STRINGS = Qt::UserRole,
+        HEADER_CAN_DISPLAY_DETAILS,
     };
 
     explicit PacketListModel(QObject *parent = 0, capture_file *cf = NULL);

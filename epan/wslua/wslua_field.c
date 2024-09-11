@@ -241,7 +241,7 @@ static int FieldInfo_get_display(lua_State* L) {
 
     if (!fi->ws_fi->rep) {
         label_ptr = label_str;
-        proto_item_fill_label(fi->ws_fi, label_str);
+        proto_item_fill_label(fi->ws_fi, label_str, NULL);
     } else
         label_ptr = fi->ws_fi->rep->representation;
 

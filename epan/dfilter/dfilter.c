@@ -712,6 +712,14 @@ dfilter_prime_proto_tree(const dfilter_t *df, proto_tree *tree)
 	}
 }
 
+void
+dfilter_prime_proto_tree_print(const dfilter_t *df, proto_tree *tree)
+{
+	for (int i = 0; i < df->num_interesting_fields; i++) {
+		proto_tree_prime_with_hfid_print(tree, df->interesting_fields[i]);
+	}
+}
+
 bool
 dfilter_has_interesting_fields(const dfilter_t *df)
 {

@@ -1241,7 +1241,7 @@ sharkd_session_process_load(const char *buf, const jsmntok_t *tokens, int count)
  *                      'title'    - column title
  *                      'format'   - column format (%x or %Cus:<expr>:<occurrence> if COL_CUSTOM)
  *                      'visible'  - true if column is visible
- *                      'resolved' - true if column is resolved
+ *                      'display'  - column display format; 'U', 'R' or 'D'
  */
 static void
 sharkd_session_process_status(void)
@@ -1289,7 +1289,7 @@ sharkd_session_process_status(void)
                 sharkd_json_value_stringf("format", "%s:%s:%d", col_format_to_string(fmt), get_column_custom_fields(i), get_column_custom_occurrence(i));
             }
             sharkd_json_value_anyf("visible", get_column_visible(i) ? "true" : "false");
-            sharkd_json_value_anyf("resolved", get_column_resolved(i) ? "true" : "false");
+            sharkd_json_value_stringf("display", "%c", get_column_display_format(i));
             sharkd_json_object_close();
         }
         sharkd_json_array_close();
@@ -4080,7 +4080,7 @@ sharkd_session_process_frame_cb_tree(const char *key, epan_dissect_t *edt, proto
             char label_str[ITEM_LABEL_LENGTH];
 
             label_str[0] = '\0';
-            proto_item_fill_label(finfo, label_str);
+            proto_item_fill_label(finfo, label_str, NULL);
             sharkd_json_value_string("l", label_str);
         }
         else

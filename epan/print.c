@@ -188,7 +188,7 @@ proto_tree_print_node(proto_node *node, void *data)
     }
     else { /* no, make a generic label */
         label_ptr = label_str;
-        proto_item_fill_label(fi, label_str);
+        proto_item_fill_label(fi, label_str, NULL);
     }
 
     if (proto_item_is_generated(node))
@@ -550,7 +550,7 @@ proto_tree_write_node_pdml(proto_node *node, void *data)
             print_escaped_xml(pdata->fh, fi->rep->representation);
         } else {
             label_ptr = label_str;
-            proto_item_fill_label(fi, label_str);
+            proto_item_fill_label(fi, label_str, NULL);
             fputs("\" showname=\"", pdata->fh);
             print_escaped_xml(pdata->fh, label_ptr);
         }
@@ -1057,7 +1057,7 @@ write_json_proto_node_no_value(proto_node *node, write_json_data *pdata)
             json_dumper_value_string(pdata->dumper, fi->rep->representation);
         } else {
             char label_str[ITEM_LABEL_LENGTH];
-            proto_item_fill_label(fi, label_str);
+            proto_item_fill_label(fi, label_str, NULL);
             json_dumper_value_string(pdata->dumper, label_str);
         }
     } else {
@@ -1328,7 +1328,7 @@ ek_write_field_value(field_info *fi, write_json_data* pdata)
                 json_dumper_value_string(pdata->dumper, fi->rep->representation);
             }
             else {
-                proto_item_fill_label(fi, label_str);
+                proto_item_fill_label(fi, label_str, NULL);
                 json_dumper_value_string(pdata->dumper, label_str);
             }
             break;

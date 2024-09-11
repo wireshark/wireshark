@@ -3338,7 +3338,7 @@ match_subtree_text(proto_node *node, void *data)
         } else {
             /* no, make a generic label */
             label_ptr = label_str;
-            proto_item_fill_label(fi, label_str);
+            proto_item_fill_label(fi, label_str, NULL);
         }
 
         if (cf->regex) {
@@ -3432,7 +3432,7 @@ match_subtree_text_reverse(proto_node *node, void *data)
     } else {
         /* no, make a generic label */
         label_ptr = label_str;
-        proto_item_fill_label(fi, label_str);
+        proto_item_fill_label(fi, label_str, NULL);
     }
 
     if (cf->regex) {

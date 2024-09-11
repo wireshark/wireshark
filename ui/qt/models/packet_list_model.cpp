@@ -959,8 +959,10 @@ QVariant PacketListModel::headerData(int section, Qt::Orientation orientation,
             return QVariant::fromValue(QString(get_column_title(section)));
         case Qt::ToolTipRole:
             return QVariant::fromValue(gchar_free_to_qstring(get_column_tooltip(section)));
-        case PacketListModel::HEADER_CAN_RESOLVE:
-            return (bool)resolve_column(section, cap_file_);
+        case PacketListModel::HEADER_CAN_DISPLAY_STRINGS:
+            return (bool)display_column_strings(section, cap_file_);
+        case PacketListModel::HEADER_CAN_DISPLAY_DETAILS:
+            return (bool)display_column_details(section, cap_file_);
         default:
             break;
         }

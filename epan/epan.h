@@ -231,6 +231,11 @@ WS_DLL_PUBLIC
 void
 epan_dissect_prime_with_dfilter(epan_dissect_t *edt, const struct epan_dfilter *dfcode);
 
+/** Prime an epan_dissect_t's proto_tree using the fields/protocols used in a dfilter, marked for print. */
+WS_DLL_PUBLIC
+void
+epan_dissect_prime_with_dfilter_print(epan_dissect_t *edt, const struct epan_dfilter *dfcode);
+
 /** Prime an epan_dissect_t's proto_tree with a field/protocol specified by its hfid */
 WS_DLL_PUBLIC
 void
@@ -264,7 +269,7 @@ epan_dissect_free(epan_dissect_t* edt);
 
 /** Sets custom column */
 const char *
-epan_custom_set(epan_dissect_t *edt, GSList *ids, int occurrence,
+epan_custom_set(epan_dissect_t *edt, GSList *ids, int occurrence, bool display_details,
 				char *result, char *expr, const int size);
 
 /**

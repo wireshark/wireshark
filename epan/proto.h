@@ -805,6 +805,8 @@ typedef struct hf_register_info {
 /** string representation, if one of the proto_tree_add_..._format() functions used */
 typedef struct _item_label_t {
     char representation[ITEM_LABEL_LENGTH];
+    size_t value_pos;  /**< position of the value in the string */
+    size_t value_len;  /**< length of the value in the string */
 } item_label_t;
 
 /** Contains the field information for the proto_item. */
@@ -2541,9 +2543,10 @@ proto_tree_add_debug_text(proto_tree *tree, const char *format,
 /** Fill given label_str with a simple string representation of field.
  @param finfo the item to get the info from
  @param label_str the string to fill
+ @param value_offset offset to the value in label_str
  @todo think about changing the parameter profile */
 WS_DLL_PUBLIC void
-proto_item_fill_label(const field_info *finfo, char *label_str);
+proto_item_fill_label(const field_info *finfo, char *label_str, size_t *value_offset);
 
 /** Fill the given display_label_str with the string representation of a field
  * formatted according to its type and field display specifier.
@@ -3508,12 +3511,14 @@ proto_check_field_name_lower(const char *field_name);
  @param tree the tree to append this item to
  @param field_id the field ids used for custom column
  @param occurrence the occurrence of the field used for custom column
+ @param display_details if true, use formatted field value
  @param result the buffer to fill with the field string
  @param expr the filter expression
  @param size the size of the string buffer */
 const char *
 proto_custom_set(proto_tree* tree, GSList *field_id,
                              int occurrence,
+                             bool display_details,
                              char *result,
                              char *expr, const int size );
 

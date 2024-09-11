@@ -2311,7 +2311,7 @@ void WiresharkMainWindow::copySelectedItems(WiresharkMainWindow::CopySelected se
     {
         if (clip.length() == 0) {
             /* If no representation then... Try to read the value */
-            proto_item_fill_label(capture_file_.capFile()->finfo_selected, label_str);
+            proto_item_fill_label(capture_file_.capFile()->finfo_selected, label_str, NULL);
             clip.append(label_str);
         }
 

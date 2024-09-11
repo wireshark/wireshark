@@ -491,7 +491,7 @@ dissect_diameter_3gpp2_exp_res(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 	if (tree) {
 		pi = proto_tree_add_item(tree, hf_diameter_3gpp2_exp_res, tvb, 0, 4, ENC_BIG_ENDIAN);
 		diam_sub_dis->avp_str = (char *)wmem_alloc(pinfo->pool, ITEM_LABEL_LENGTH+1);
-		proto_item_fill_label(PITEM_FINFO(pi), diam_sub_dis->avp_str);
+		proto_item_fill_label(PITEM_FINFO(pi), diam_sub_dis->avp_str, NULL);
 		diam_sub_dis->avp_str = strstr(diam_sub_dis->avp_str,": ")+2;
 	}
 
@@ -506,7 +506,7 @@ dissect_diameter_other_vendor_exp_res(diam_ctx_t *c, tvbuff_t *tvb, proto_tree *
 	if (tree) {
 		pi = proto_tree_add_item(tree, hf_diameter_other_vendor_exp_res, tvb, 0, 4, ENC_BIG_ENDIAN);
 		diam_sub_dis->avp_str = (char *)wmem_alloc(c->pinfo->pool, ITEM_LABEL_LENGTH+1);
-		proto_item_fill_label(PITEM_FINFO(pi), diam_sub_dis->avp_str);
+		proto_item_fill_label(PITEM_FINFO(pi), diam_sub_dis->avp_str, NULL);
 		diam_sub_dis->avp_str = strstr(diam_sub_dis->avp_str,": ")+2;
 	}
 }
@@ -1042,7 +1042,7 @@ address_rfc_avp(diam_ctx_t *c, diam_avp_t *a, tvbuff_t *tvb, diam_sub_dis_t *dia
 
 	if (c->tree) {
 		label = (char *)wmem_alloc(c->pinfo->pool, ITEM_LABEL_LENGTH+1);
-		proto_item_fill_label(PITEM_FINFO(pi), label);
+		proto_item_fill_label(PITEM_FINFO(pi), label, NULL);
 		label = strstr(label,": ")+2;
 	}
 
@@ -1089,7 +1089,7 @@ time_avp(diam_ctx_t *c, diam_avp_t *a, tvbuff_t *tvb, diam_sub_dis_t *diam_sub_d
 	if (c->tree) {
 		label = (char *)wmem_alloc(c->pinfo->pool, ITEM_LABEL_LENGTH+1);
 		pi = proto_tree_add_item(c->tree, (a->hf_value), tvb, 0, 4, ENC_TIME_SECS_NTP|ENC_BIG_ENDIAN);
-		proto_item_fill_label(PITEM_FINFO(pi), label);
+		proto_item_fill_label(PITEM_FINFO(pi), label, NULL);
 		label = strstr(label,": ")+2;
 	}
 
@@ -1123,7 +1123,7 @@ address_radius_avp(diam_ctx_t *c, diam_avp_t *a, tvbuff_t *tvb, diam_sub_dis_t *
 
 	if (c->tree) {
 		label = (char *)wmem_alloc(c->pinfo->pool, ITEM_LABEL_LENGTH+1);
-		proto_item_fill_label(PITEM_FINFO(pi), label);
+		proto_item_fill_label(PITEM_FINFO(pi), label, NULL);
 		label = strstr(label,": ")+2;
 	}
 
@@ -1138,7 +1138,7 @@ simple_avp(diam_ctx_t *c, diam_avp_t *a, tvbuff_t *tvb, diam_sub_dis_t *diam_sub
 	if (c->tree) {
 		proto_item *pi = proto_tree_add_item(c->tree,a->hf_value,tvb,0,tvb_reported_length(tvb),ENC_BIG_ENDIAN);
 		label = (char *)wmem_alloc(c->pinfo->pool, ITEM_LABEL_LENGTH+1);
-		proto_item_fill_label(PITEM_FINFO(pi), label);
+		proto_item_fill_label(PITEM_FINFO(pi), label, NULL);
 		label = strstr(label,": ")+2;
 	}
 
@@ -1153,7 +1153,7 @@ utf8_avp(diam_ctx_t *c, diam_avp_t *a, tvbuff_t *tvb, diam_sub_dis_t *diam_sub_d
 	if (c->tree) {
 		proto_item *pi = proto_tree_add_item(c->tree,a->hf_value,tvb,0,tvb_reported_length(tvb),ENC_UTF_8|ENC_BIG_ENDIAN);
 		label = (char *)wmem_alloc(c->pinfo->pool, ITEM_LABEL_LENGTH+1);
-		proto_item_fill_label(PITEM_FINFO(pi), label);
+		proto_item_fill_label(PITEM_FINFO(pi), label, NULL);
 		label = strstr(label,": ")+2;
 	}
 
@@ -1172,7 +1172,7 @@ integer32_avp(diam_ctx_t *c, diam_avp_t *a, tvbuff_t *tvb, diam_sub_dis_t *diam_
 		if (c->tree) {
 			pi= proto_tree_add_item(c->tree, a->hf_value, tvb, 0, length, ENC_BIG_ENDIAN);
 			label = (char *)wmem_alloc(c->pinfo->pool, ITEM_LABEL_LENGTH+1);
-			proto_item_fill_label(PITEM_FINFO(pi), label);
+			proto_item_fill_label(PITEM_FINFO(pi), label, NULL);
 			label = strstr(label,": ")+2;
 		}
 	}
@@ -1200,7 +1200,7 @@ integer64_avp(diam_ctx_t *c, diam_avp_t *a, tvbuff_t *tvb, diam_sub_dis_t *diam_
 		if (c->tree) {
 			pi= proto_tree_add_item(c->tree, a->hf_value, tvb, 0, length, ENC_BIG_ENDIAN);
 			label = (char *)wmem_alloc(c->pinfo->pool, ITEM_LABEL_LENGTH+1);
-			proto_item_fill_label(PITEM_FINFO(pi), label);
+			proto_item_fill_label(PITEM_FINFO(pi), label, NULL);
 			label = strstr(label,": ")+2;
 		}
 	}
@@ -1228,7 +1228,7 @@ unsigned32_avp(diam_ctx_t *c, diam_avp_t *a, tvbuff_t *tvb, diam_sub_dis_t *diam
 		if (c->tree) {
 			diam_sub_dis_inf->item = pi = proto_tree_add_item(c->tree, a->hf_value, tvb, 0, length, ENC_BIG_ENDIAN);
 			label = (char *)wmem_alloc(c->pinfo->pool, ITEM_LABEL_LENGTH+1);
-			proto_item_fill_label(PITEM_FINFO(pi), label);
+			proto_item_fill_label(PITEM_FINFO(pi), label, NULL);
 			label = strstr(label,": ")+2;
 		}
 	}
@@ -1256,7 +1256,7 @@ unsigned64_avp(diam_ctx_t *c, diam_avp_t *a, tvbuff_t *tvb, diam_sub_dis_t *diam
 		if (c->tree) {
 			pi= proto_tree_add_item(c->tree, a->hf_value, tvb, 0, length, ENC_BIG_ENDIAN);
 			label = (char *)wmem_alloc(c->pinfo->pool, ITEM_LABEL_LENGTH+1);
-			proto_item_fill_label(PITEM_FINFO(pi), label);
+			proto_item_fill_label(PITEM_FINFO(pi), label, NULL);
 			label = strstr(label,": ")+2;
 		}
 	}
@@ -1284,7 +1284,7 @@ float32_avp(diam_ctx_t *c, diam_avp_t *a, tvbuff_t *tvb, diam_sub_dis_t *diam_su
 		if (c->tree) {
 			pi= proto_tree_add_item(c->tree,a->hf_value, tvb, 0, length, ENC_BIG_ENDIAN);
 			label = (char *)wmem_alloc(c->pinfo->pool, ITEM_LABEL_LENGTH+1);
-			proto_item_fill_label(PITEM_FINFO(pi), label);
+			proto_item_fill_label(PITEM_FINFO(pi), label, NULL);
 			label = strstr(label,": ")+2;
 		}
 	}
@@ -1312,7 +1312,7 @@ float64_avp(diam_ctx_t *c, diam_avp_t *a, tvbuff_t *tvb, diam_sub_dis_t *diam_su
 		if (c->tree) {
 			pi= proto_tree_add_item(c->tree, a->hf_value, tvb, 0, length, ENC_BIG_ENDIAN);
 			label = (char *)wmem_alloc(c->pinfo->pool, ITEM_LABEL_LENGTH+1);
-			proto_item_fill_label(PITEM_FINFO(pi), label);
+			proto_item_fill_label(PITEM_FINFO(pi), label, NULL);
 			label = strstr(label,": ")+2;
 		}
 	}

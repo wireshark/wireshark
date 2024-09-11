@@ -1122,7 +1122,7 @@ dissect_gbcs_message_element(proto_tree *tree, int hfindex, tvbuff_t *tvb, unsig
             char *label;
 
             label = (char*)wmem_alloc(wmem_packet_scope(), ITEM_LABEL_LENGTH+1);
-            proto_item_fill_label(PITEM_FINFO(value_ti), label);
+            proto_item_fill_label(PITEM_FINFO(value_ti), label, NULL);
             proto_item_append_text(tree_ti, "%s", label);
         }
         *offset += len;
@@ -1151,7 +1151,7 @@ dissect_gbcs_message_element_transaction_id(proto_tree *tree, int hfindex_cra_fl
             char *label;
 
             label = (char*)wmem_alloc(wmem_packet_scope(), ITEM_LABEL_LENGTH+1);
-            proto_item_fill_label(PITEM_FINFO(value_ti), label);
+            proto_item_fill_label(PITEM_FINFO(value_ti), label, NULL);
             label = strstr(label, ": ") + 2;
             proto_item_append_text(tree_ti, "Transaction ID: %s", label);
         }
@@ -1162,7 +1162,7 @@ dissect_gbcs_message_element_transaction_id(proto_tree *tree, int hfindex_cra_fl
             char *label;
 
             label = (char*)wmem_alloc(wmem_packet_scope(), ITEM_LABEL_LENGTH+1);
-            proto_item_fill_label(PITEM_FINFO(value_ti), label);
+            proto_item_fill_label(PITEM_FINFO(value_ti), label, NULL);
             label = strstr(label, ": ") + 2;
             proto_item_append_text(tree_ti, ", %s", label);
         }
@@ -1195,7 +1195,7 @@ dissect_gbcs_message_element_date_time(proto_tree *tree, int hfindex, tvbuff_t *
             char *label;
 
             label = (char*)wmem_alloc(wmem_packet_scope(), ITEM_LABEL_LENGTH+1);
-            proto_item_fill_label(PITEM_FINFO(value_ti), label);
+            proto_item_fill_label(PITEM_FINFO(value_ti), label, NULL);
             proto_item_append_text(tree_ti, "%s", label);
         }
         *offset += GBCS_MESSAGE_DLMS_DATE_TIME_LENGTH;

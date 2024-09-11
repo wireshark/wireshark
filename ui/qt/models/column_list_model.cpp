@@ -34,7 +34,7 @@ struct ListElement
     int width;
     char xalign;
     bool displayed;
-    bool resolved;
+    char display;
 };
 
 static QList<ListElement> store_;
@@ -83,6 +83,21 @@ QString ColumnTypeDelegate::alignDesc(char xalign)
     }
 }
 
+QString ColumnTypeDelegate::displayDesc(char display)
+{
+    switch (display) {
+    case COLUMN_DISPLAY_VALUES:
+        return QObject::tr("Values");
+    case COLUMN_DISPLAY_STRINGS:
+        return QObject::tr("Strings");
+    case COLUMN_DISPLAY_DETAILS:
+        return QObject::tr("Details");
+    default:
+        return QObject::tr("Unknown");
+    }
+}
+
+
 QWidget *ColumnTypeDelegate::createEditor(QWidget *parent,
                                        const QStyleOptionViewItem &option,
                                        const QModelIndex &index) const
@@ -111,12 +126,32 @@ QWidget *ColumnTypeDelegate::createEditor(QWidget *parent,
         editor = ff_editor;
     }
     else if (index.column() == ColumnListModel::COL_OCCURRENCE ||
-        index.column() == ColumnListModel::COL_WIDTH)
+             index.column() == ColumnListModel::COL_WIDTH)
     {
         SyntaxLineEdit * sl_editor = new SyntaxLineEdit(parent);
         connect(sl_editor, &SyntaxLineEdit::textChanged, sl_editor, &SyntaxLineEdit::checkInteger);
         sl_editor->setText(index.data().toString());
         editor = sl_editor;
+    }
+    else if (index.column() == ColumnListModel::COL_DISPLAY)
+    {
+        bool displayStrings = false, displayDetails = false;
+        if (!ColumnListModel::displayEnabled(index, displayStrings, displayDetails)) {
+            return nullptr;
+        }
+
+        QComboBox *cb_editor = new QComboBox(parent);
+
+        cb_editor->addItem(displayDesc(COLUMN_DISPLAY_VALUES), QVariant(COLUMN_DISPLAY_VALUES));
+        if (displayStrings) {
+            cb_editor->addItem(displayDesc(COLUMN_DISPLAY_STRINGS), QVariant(COLUMN_DISPLAY_STRINGS));
+        }
+        if (displayDetails) {
+            cb_editor->addItem(displayDesc(COLUMN_DISPLAY_DETAILS), QVariant(COLUMN_DISPLAY_DETAILS));
+        }
+        cb_editor->setCurrentIndex(cb_editor->findText(index.data().toString()));
+        cb_editor->setFrame(false);
+        editor = cb_editor;
     }
     else if (index.column() == ColumnListModel::COL_XALIGN)
     {
@@ -143,10 +178,13 @@ void ColumnTypeDelegate::setEditorData(QWidget *editor,
 {
     QVariant data = index.model()->data(index);
     if (index.column() == ColumnListModel::COL_TYPE ||
+        index.column() == ColumnListModel::COL_DISPLAY ||
         index.column() == ColumnListModel::COL_XALIGN)
     {
-        QComboBox *comboBox = static_cast<QComboBox*>(editor);
-        comboBox->setCurrentText(data.toString());
+        if (qobject_cast<QComboBox *>(editor)) {
+            QComboBox *comboBox = qobject_cast<QComboBox *>(editor);
+            comboBox->setCurrentText(data.toString());
+        }
     }
     else if (index.column() == ColumnListModel::COL_FIELDS)
     {
@@ -154,7 +192,7 @@ void ColumnTypeDelegate::setEditorData(QWidget *editor,
             qobject_cast<FieldFilterEdit *>(editor)->setText(data.toString());
     }
     else if (index.column() == ColumnListModel::COL_OCCURRENCE ||
-        index.column() == ColumnListModel::COL_WIDTH)
+             index.column() == ColumnListModel::COL_WIDTH)
     {
         if (qobject_cast<SyntaxLineEdit *>(editor))
             qobject_cast<SyntaxLineEdit *>(editor)->setText(data.toString());
@@ -170,6 +208,7 @@ void ColumnTypeDelegate::setModelData(QWidget *editor, QAbstractItemModel *model
                                    const QModelIndex &index) const
 {
     if (index.column() == ColumnListModel::COL_TYPE ||
+        index.column() == ColumnListModel::COL_DISPLAY ||
         index.column() == ColumnListModel::COL_XALIGN)
     {
         QComboBox *comboBox = static_cast<QComboBox*>(editor);
@@ -264,6 +303,18 @@ ColumnListModel::ColumnListModel(QObject * parent):
     populate();
 }
 
+bool ColumnListModel::displayEnabled(const QModelIndex &index, bool &displayStrings, bool &displayDetails)
+{
+    if (get_column_format(index.row()) == COL_CUSTOM) {
+        QModelIndex fieldsIndex = index.sibling(index.row(), ColumnListModel::COL_FIELDS);
+
+        displayStrings = column_prefs_custom_display_strings(fieldsIndex.data().toString().toUtf8().constData());
+        displayDetails = column_prefs_custom_display_details(fieldsIndex.data().toString().toUtf8().constData());
+    }
+
+    return (displayStrings || displayDetails);
+}
+
 QVariant ColumnListModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
     if (section > ColumnListModel::COL_XALIGN || orientation != Qt::Horizontal ||
@@ -297,8 +348,8 @@ QString ColumnListModel::headerTitle(int section) const
             return tr("Fields");
         case ColumnListModel::COL_OCCURRENCE:
             return tr("Field Occurrence");
-        case ColumnListModel::COL_RESOLVED:
-            return tr("Resolved");
+        case ColumnListModel::COL_DISPLAY:
+            return tr("Display Format");
         case ColumnListModel::COL_WIDTH:
             return tr("Width");
         case ColumnListModel::COL_XALIGN:
@@ -323,7 +374,7 @@ void ColumnListModel::populate()
         ne.type = ne.originalType = cfmt->fmt;
         ne.customFields = cfmt->custom_fields;
         ne.occurrence = cfmt->custom_occurrence;
-        ne.resolved = cfmt->resolved;
+        ne.display = cfmt->display;
 
         ne.width = recent_get_column_width(nr);
         ne.xalign = recent_get_column_xalign(nr);
@@ -345,7 +396,6 @@ QVariant ColumnListModel::data(const QModelIndex &index, int role) const
         switch (index.column())
         {
             case COL_DISPLAYED:
-            case COL_RESOLVED:
                 return QVariant();
             case ColumnListModel::COL_TITLE:
                 return ne.title;
@@ -355,6 +405,14 @@ QVariant ColumnListModel::data(const QModelIndex &index, int role) const
                 return ne.customFields;
             case ColumnListModel::COL_OCCURRENCE:
                 return ne.customFields.length() > 0 ? QVariant::fromValue(ne.occurrence) : QVariant();
+            case ColumnListModel::COL_DISPLAY:
+            {
+                bool displayStrings = false, displayDetails = false;
+                if (displayEnabled(index, displayStrings, displayDetails)) {
+                    return ColumnTypeDelegate::displayDesc(ne.display);
+                }
+                return QVariant();
+            }
             case ColumnListModel::COL_WIDTH:
                 return ne.width;
             case ColumnListModel::COL_XALIGN:
@@ -367,19 +425,13 @@ QVariant ColumnListModel::data(const QModelIndex &index, int role) const
         {
             return ne.displayed ? Qt::Checked : Qt::Unchecked;
         }
-        else if (index.column() == COL_RESOLVED)
-        {
-            QModelIndex fieldsIndex = index.sibling(index.row(), ColumnListModel::COL_FIELDS);
-            if (column_prefs_custom_resolve(fieldsIndex.data().toString().toUtf8().constData())) {
-                return ne.resolved ? Qt::Checked : Qt::Unchecked;
-            }
-        }
     }
     else if (role == Qt::ToolTipRole)
     {
-        if (index.column() == COL_RESOLVED)
+        if ((index.column() == COL_DISPLAY) &&
+            (get_column_format(index.row()) == COL_CUSTOM))
         {
-            return tr("<html>Show human-readable strings instead of raw values for fields. Only applicable to custom columns with fields that have value strings.</html>");
+            return tr("<html>Values will show the raw values for fields.<p>Strings will show human-readable strings instead of raw values for fields. Only applicable to custom columns with fields that have value strings and custom columns which can be resolved to strings.<p>Details will show the values using the same format as in Packet Details. Only applicable to custom columns.</html>");
         }
     }
     else if (role == OriginalType)
@@ -399,7 +451,7 @@ Qt::ItemFlags ColumnListModel::flags(const QModelIndex &index) const
 
         Qt::ItemFlags flags = Qt::ItemIsDragEnabled | Qt::ItemIsDropEnabled | defaultFlags;
 
-        if (index.column() == COL_DISPLAYED || index.column() == COL_RESOLVED) {
+        if (index.column() == COL_DISPLAYED) {
             flags |= Qt::ItemIsUserCheckable;
         } else {
             flags |= Qt::ItemIsEditable;
@@ -509,9 +561,12 @@ bool ColumnListModel::setData(const QModelIndex &index, const QVariant &value, i
         if (ok)
             store_[index.row()].occurrence = val;
     }
-    else if (role == Qt::CheckStateRole && index.column() == ColumnListModel::COL_RESOLVED)
+    else if (index.column() == ColumnListModel::COL_DISPLAY)
     {
-        store_[index.row()].resolved = value.toInt() == Qt::Checked ? true : false;
+        bool ok = false;
+        int val = value.toInt(&ok);
+        if (ok)
+            store_[index.row()].display = static_cast<char>(val);
     }
     else if (index.column() == ColumnListModel::COL_WIDTH)
     {
@@ -546,12 +601,30 @@ void ColumnListModel::saveColumns()
         cfmt->title = qstring_strdup(elem.title);
         cfmt->visible = elem.displayed;
         cfmt->fmt = elem.type;
-        cfmt->resolved = true;
         if (cfmt->fmt == COL_CUSTOM)
         {
             cfmt->custom_fields = qstring_strdup(elem.customFields);
             cfmt->custom_occurrence = elem.occurrence;
-            cfmt->resolved = elem.resolved;
+
+            // Check if display is allowed for the custom fields
+            if ((elem.display == COLUMN_DISPLAY_DETAILS) &&
+                !column_prefs_custom_display_details(cfmt->custom_fields))
+            {
+                cfmt->display = COLUMN_DISPLAY_VALUES;
+            }
+            else if ((elem.display == COLUMN_DISPLAY_STRINGS) &&
+                     !column_prefs_custom_display_strings(cfmt->custom_fields))
+            {
+                cfmt->display = COLUMN_DISPLAY_VALUES;
+            }
+            else
+            {
+                cfmt->display = elem.display;
+            }
+        }
+        else
+        {
+            cfmt->display = COLUMN_DISPLAY_STRINGS;
         }
 
         new_col_list = g_list_append(new_col_list, cfmt);
@@ -583,7 +656,7 @@ void ColumnListModel::addEntry()
     elem.type = elem.originalType = COL_NUMBER;
     elem.occurrence = 0;
     elem.customFields = QString();
-    elem.resolved = true;
+    elem.display = COLUMN_DISPLAY_STRINGS;
     elem.width = -1;
     elem.xalign = COLUMN_XALIGN_DEFAULT;
     store_ << elem;

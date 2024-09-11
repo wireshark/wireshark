@@ -73,7 +73,7 @@ QString ProtoNode::labelText() const
     }
     else { /* no, make a generic label */
         char label_str[ITEM_LABEL_LENGTH];
-        proto_item_fill_label(fi, label_str);
+        proto_item_fill_label(fi, label_str, NULL);
         label = label_str;
     }
 

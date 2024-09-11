@@ -39,10 +39,10 @@ protected slots:
     void columnVisibilityTriggered();
 
     void setAlignment(QAction *);
+    void setDisplayFormat(QAction *);
 
     void showColumnPrefs();
     void doEditColumn();
-    void doResolveNames();
     void resizeToContent();
     void removeColumn();
     void resizeToWidth();

@@ -1555,7 +1555,7 @@ static uint32_t dissect_ies(tvbuff_t *tvb, packet_info *pinfo, uint32_t offset,
                               ie_finfo->rep->representation);
         else {
           uint8_t *ie_val = (uint8_t *)wmem_alloc(pinfo->pool, ITEM_LABEL_LENGTH);
-          proto_item_fill_label(ie_finfo, ie_val);
+          proto_item_fill_label(ie_finfo, ie_val, NULL);
           proto_item_set_text(ti, "Information Element: %s",
                               ie_val);
         }

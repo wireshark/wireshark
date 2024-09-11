@@ -27,14 +27,24 @@ extern "C" {
 bool right_justify_column (int col, capture_file *cf);
 
 /**
- * Check to see if a column's data should be resolved.
+ * Check to see if a column's data can be displayed as strings.
  *
  * @param [in] col The column number.
  * @param [in] cf The capture file containing the packet data.
  *
- * @return true if resolution is required, false otherwise.
+ * @return true if name displayed as strings is allowed, false otherwise.
  */
-bool resolve_column (int col, capture_file *cf);
+bool display_column_strings (int col, capture_file *cf);
+
+/**
+ * Check to see if a column's data can be displayed as packet details.
+ *
+ * @param [in] col The column number.
+ * @param [in] cf The capture file containing the packet data.
+ *
+ * @return true if displayed as details is allowed, false otherwise.
+ */
+bool display_column_details (int col, capture_file *cf);
 
 /**
  * @brief The following methods have to be implemented by any class that

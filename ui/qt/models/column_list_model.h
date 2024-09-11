@@ -35,6 +35,7 @@ class ColumnTypeDelegate : public QStyledItemDelegate
 public:
     ColumnTypeDelegate(QObject * parent = Q_NULLPTR);
 
+    static QString displayDesc(char display);
     static QString alignDesc(char xalign);
 
     QWidget * createEditor(QWidget *parent, const QStyleOptionViewItem &option,
@@ -61,7 +62,7 @@ public:
         COL_TYPE,
         COL_FIELDS,
         COL_OCCURRENCE,
-        COL_RESOLVED,
+        COL_DISPLAY,
         COL_WIDTH,
         COL_XALIGN
     };
@@ -70,6 +71,8 @@ public:
         OriginalType = Qt::UserRole,
         DisplayedState
     };
+
+    static bool displayEnabled(const QModelIndex &index, bool &displayStrings, bool &displayDetails);
 
     void saveColumns();
 

@@ -86,7 +86,7 @@ int column_prefs_has_custom(const char *custom_field);
  * resolved or unresolved, e.g. it has a field with a value string.
  *
  * This is for when adding or editing custom columns. Compare with
- * resolve_column() in packet_list_utils.h, which is for columns
+ * display_column_strings() in packet_list_utils.h, which is for columns
  * that have already been added.
  *
  * @param custom_field column custom field
@@ -95,7 +95,18 @@ int column_prefs_has_custom(const char *custom_field);
  * would support being displayed differently resolved or unresolved,
  * false otherwise.
  */
-bool column_prefs_custom_resolve(const char *custom_field);
+bool column_prefs_custom_display_strings(const char *custom_field);
+
+/** Check if a custom column's data can be displayed with details,
+ * e.g. it has a field.
+ *
+ * This is for when adding or editing custom columns.
+ *
+ * @param custom_field column custom field
+ *
+ * @return true if a custom column has at least one single field.
+ */
+bool column_prefs_custom_display_details(const char *custom_field);
 
 /** Remove a column.
  *
