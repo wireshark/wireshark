@@ -7865,6 +7865,13 @@ decode_prefix_MP(proto_tree *tree, int hf_path_id, int hf_addr4, int hf_addr6,
             case SAFNUM_LAB_VPNUNICAST:
             case SAFNUM_LAB_VPNMULCAST:
             case SAFNUM_LAB_VPNUNIMULC:
+                end = offset + tlen;
+                /* Heuristic to detect if IPv4 prefix are using Path Identifiers */
+                if (detect_add_path_prefix46(tvb, offset, end, 255)) {
+                    /* snarf path identifier */
+                    offset += 4;
+                    total_length += 4;
+                }
                 plen =  tvb_get_uint8(tvb, offset);
                 stack_strbuf = wmem_strbuf_create(pinfo->pool);
                 labnum = decode_MPLS_stack(tvb, offset + 1, stack_strbuf);
@@ -7890,13 +7897,17 @@ decode_prefix_MP(proto_tree *tree, int hf_path_id, int hf_addr4, int hf_addr6,
                                                  (offset + 8 + length) - start_offset,
                                                  ett_bgp_prefix, NULL, "BGP Prefix");
 
+                if (total_length > 0) {
+                    proto_tree_add_item(prefix_tree, hf_path_id, tvb, start_offset, 4, ENC_BIG_ENDIAN);
+                    start_offset += 4;
+                }
                 proto_tree_add_item(prefix_tree, hf_bgp_prefix_length, tvb, start_offset, 1, ENC_NA);
                 proto_tree_add_string(prefix_tree, hf_bgp_label_stack, tvb, start_offset + 1, 3 * labnum, wmem_strbuf_get_str(stack_strbuf));
                 proto_tree_add_string(prefix_tree, hf_bgp_rd, tvb, start_offset + 1 + 3 * labnum, 8, decode_bgp_rd(pinfo->pool, tvb, offset));
 
                 proto_tree_add_ipv4(prefix_tree, hf_addr4, tvb, offset + 8, length, ip4addr);
 
-                total_length = (1 + labnum * 3 + 8) + length;
+                total_length += (1 + labnum * 3 + 8) + length;
                 break;
 
            case SAFNUM_FSPEC_RULE:
@@ -8056,6 +8067,13 @@ decode_prefix_MP(proto_tree *tree, int hf_path_id, int hf_addr4, int hf_addr6,
             case SAFNUM_LAB_VPNUNICAST:
             case SAFNUM_LAB_VPNMULCAST:
             case SAFNUM_LAB_VPNUNIMULC:
+                end = offset + tlen;
+                /* Heuristic to detect if IPv6 prefix are using Path Identifiers */
+                if (detect_add_path_prefix46(tvb, offset, end, 255)) {
+                    /* snarf path identifier */
+                    offset += 4;
+                    total_length += 4;
+                }
                 plen =  tvb_get_uint8(tvb, offset);
                 stack_strbuf = wmem_strbuf_create(pinfo->pool);
                 labnum = decode_MPLS_stack(tvb, offset + 1, stack_strbuf);
@@ -8076,6 +8094,10 @@ decode_prefix_MP(proto_tree *tree, int hf_path_id, int hf_addr4, int hf_addr6,
                     return -1;
                 }
 
+                if (total_length > 0) {
+                    proto_tree_add_item(tree, hf_path_id, tvb, start_offset, 4, ENC_BIG_ENDIAN);
+                    start_offset += 4;
+                }
                 proto_tree_add_item(tree, hf_bgp_prefix_length, tvb, start_offset, 1, ENC_NA);
                 proto_tree_add_string(tree, hf_bgp_label_stack, tvb, start_offset + 1, labnum * 3, wmem_strbuf_get_str(stack_strbuf));
                 proto_tree_add_string(tree, hf_bgp_rd, tvb, offset, 8, decode_bgp_rd(pinfo->pool, tvb, offset));
@@ -8085,7 +8107,7 @@ decode_prefix_MP(proto_tree *tree, int hf_path_id, int hf_addr4, int hf_addr6,
                 proto_tree_add_ipv6_format_value(tree, hf_addr6, tvb, offset + 8, length,
                                                  &ip6addr, "%s/%u", address_to_str(pinfo->pool, &addr), plen);
 
-                total_length = (1 + labnum * 3 + 8) + length;
+                total_length += (1 + labnum * 3 + 8) + length;
 
                 break;
             case SAFNUM_FSPEC_RULE:
