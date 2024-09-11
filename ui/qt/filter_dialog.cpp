@@ -82,12 +82,12 @@ FilterDialog::FilterDialog(QWidget *parent, FilterType filter_type, QString new_
             ws_assert_not_reached();
     }
 
-    if (new_filter_.length() > 0)
-        model_->addFilter(newFilterText, new_filter_);
-
     ui->filterTreeView->setModel(model_);
 
     ui->filterTreeView->setItemDelegate(new FilterTreeDelegate(this, filter_type));
+
+    if (new_filter_.length() > 0)
+        addFilter(newFilterText, new_filter_, true);
 
     ui->filterTreeView->resizeColumnToContents(FilterListModel::ColumnName);
 
@@ -112,8 +112,11 @@ void FilterDialog::addFilter(QString name, QString filter, bool start_editing)
     if (model_)
     {
         QModelIndex idx = model_->addFilter(name, filter);
+        ui->filterTreeView->scrollTo(idx);
         if (start_editing)
             ui->filterTreeView->edit(idx);
+        else
+            ui->filterTreeView->selectionModel()->select(idx,QItemSelectionModel::ClearAndSelect|QItemSelectionModel::Rows);
     }
 }
 
