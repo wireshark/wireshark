@@ -414,7 +414,7 @@ dissect_sane_word(tvb_sane_reader *r, proto_tree *tree, int hfindex, int *word) 
                         ENC_BIG_ENDIAN);
     // safe to ignore the return value here, we're guaranteed to have enough bytes to
     // read a word.
-    tvb_read_sane_word(r, word);
+    (void)tvb_read_sane_word(r, word);
     return item;
 }
 
@@ -558,7 +558,7 @@ dissect_sane_status(tvb_sane_reader *r, packet_info *pinfo, proto_tree *tree, un
 
     // Safe to ignore the return value here, we're guaranteed to have enough bytes to
     // read a word.
-    tvb_read_sane_word(r, &status);
+    (void)tvb_read_sane_word(r, &status);
 
     proto_item_append_text(tree, " (%s)", val_to_str(status, status_values, "Unknown status (%u)"));
     col_append_fstr(pinfo->cinfo, COL_INFO, " (%s)", val_to_str(status, status_values, "Unknown (%u)"));
