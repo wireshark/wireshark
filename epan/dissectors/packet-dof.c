@@ -3735,7 +3735,6 @@ static const uint8_t OALString_HexChar[] = { '0', '1', '2', '3', '4', '5', '6', 
 #define ObjectID_DataToStringLength( data, dataSize ) ObjectID_DataToString( (data), (dataSize), NULL )
 #define OALString_HexDigitToChar(c)     (OALString_HexChar[(c)])
 #define DOFObjectIDAttribute_IsValid( attribute ) ((attribute).id < DOFOBJECTIDATTRIBUTE_INVALID)
-#define DOFOBJECTID_HEADER_SIZE     (offsetof( DOFObjectID_t, oid ))
 #define DOFObjectIDAttribute_GetValueSize( attribute ) ((attribute).dataSize)
 #define DOFObjectIDAttribute_GetValue( attribute ) ((attribute).data)
 #define DOFObjectIDAttribute_GetType( attribute ) ((DOFObjectIDAttributeType)(attribute).id)
@@ -3774,7 +3773,7 @@ typedef struct DOFObjectID_t
 {
     uint32_t refCount;
     uint16_t len;                /* Actual length of oid's wire representation. Max is 32707: 4 + 1 + 63 + (127 * 257). */
-    uint8_t oid[1];             /* Extends beyond end of this defined structure, so oid MUST be last structure member! */
+    uint8_t oid[];               /* Extends beyond end of this defined structure, so oid MUST be last structure member! */
 } DOFObjectID_t;
 
 typedef DOFObjectID_t *DOFObjectID;
@@ -4047,7 +4046,7 @@ static DOFObjectID DOFObjectID_Create_Unmarshal(uint32_t *length, const uint8_t 
                     /* Legal OID described at buffer must have enough buffer bytes, final check. */
                     if (len >= computedSize)
                     {
-                        DOFObjectID newObjID = (DOFObjectID)wmem_alloc0(wmem_packet_scope(), DOFOBJECTID_HEADER_SIZE + computedSize + 1);
+                        DOFObjectID newObjID = (DOFObjectID)wmem_alloc0(wmem_packet_scope(), sizeof(DOFObjectID_t) + (sizeof(uint8_t) * (computedSize + 1)));
                         /* Adds space for null-terminator, just in case. */
 
                         *length = computedSize;
