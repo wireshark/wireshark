@@ -338,9 +338,9 @@ dissect_ippusb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
                         }
                     }
                 }
-
-                pinfo->fragmented = save_fragmented;
             }
+
+            pinfo->fragmented = save_fragmented;
         }
         else {
             /* Not the first time this segment is seen */
