@@ -546,7 +546,7 @@ static const range_string laaMsgTypes[] = {
     {4, 4,  "LBT_Buffer_Error - O-RU to O-DU response, reporting buffer overflow"},
     {5, 5,  "LBT_CWCONFIG_REQ - O-DU to O-RU request, congestion window configuration"},
     {6, 6,  "LBT_CWCONFIG_RST - O-RU to O-DU request, congestion window config, response"},
-    {8, 15, "reserved for future methods"},
+    {7, 15, "reserved for future methods"},
     {0, 0, NULL}
 };
 
