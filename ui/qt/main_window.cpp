@@ -221,6 +221,7 @@ void MainWindow::addDisplayFilterTranslationActions(QMenu *copy_menu) {
     char **df_translators = get_dfilter_translator_list();
 
     if (df_translators == NULL || df_translators[0] == NULL) {
+        g_free(df_translators);
         return;
     }
 
