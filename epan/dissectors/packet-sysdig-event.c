@@ -2809,7 +2809,7 @@ static inline const char *format_param_str(tvbuff_t *tvb, int offset, int len) {
 /* Code to actually dissect the packets */
 
 static int
-dissect_header_lens_v1(tvbuff_t *tvb, proto_tree *tree, int encoding, int * const *hf_indexes)
+dissect_header_lens_v1(tvbuff_t *tvb, proto_tree *tree, unsigned encoding, int * const *hf_indexes)
 {
     int param_count;
     proto_item *ti;
@@ -2829,7 +2829,7 @@ dissect_header_lens_v1(tvbuff_t *tvb, proto_tree *tree, int encoding, int * cons
 }
 
 static int
-dissect_header_lens_v2(tvbuff_t *tvb, wtap_syscall_header* syscall_header, proto_tree *tree, int encoding)
+dissect_header_lens_v2(tvbuff_t *tvb, wtap_syscall_header* syscall_header, proto_tree *tree, unsigned encoding)
 {
     uint32_t param_count;
     proto_item *ti;
@@ -2847,7 +2847,7 @@ dissect_header_lens_v2(tvbuff_t *tvb, wtap_syscall_header* syscall_header, proto
 }
 
 static int
-dissect_header_lens_v2_large(tvbuff_t *tvb, wtap_syscall_header* syscall_header, proto_tree *tree, int encoding)
+dissect_header_lens_v2_large(tvbuff_t *tvb, wtap_syscall_header* syscall_header, proto_tree *tree, unsigned encoding)
 {
     uint32_t param_count;
     proto_item *ti;
@@ -2867,7 +2867,7 @@ dissect_header_lens_v2_large(tvbuff_t *tvb, wtap_syscall_header* syscall_header,
 /* Dissect events */
 
 static int
-dissect_event_params(tvbuff_t *tvb, packet_info *pinfo, const char **event_name, wtap_syscall_header* syscall_header, proto_tree *tree, int encoding, int * const *hf_indexes, sysdig_event_param_data *event_param_data)
+dissect_event_params(tvbuff_t *tvb, packet_info *pinfo, const char **event_name, wtap_syscall_header* syscall_header, proto_tree *tree, unsigned encoding, int * const *hf_indexes, sysdig_event_param_data *event_param_data)
 {
     int len_offset = 0;
     int param_offset;
@@ -2933,7 +2933,7 @@ dissect_sysdig_event(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     proto_item *ti;
     proto_tree *se_tree, *syscall_tree;
     unsigned    event_type = pinfo->rec->rec_header.syscall_header.event_type;
-    int         encoding = pinfo->rec->rec_header.syscall_header.byte_order == G_BIG_ENDIAN ? ENC_BIG_ENDIAN : ENC_LITTLE_ENDIAN;
+    unsigned    encoding = pinfo->rec->rec_header.syscall_header.byte_order == G_BIG_ENDIAN ? ENC_BIG_ENDIAN : ENC_LITTLE_ENDIAN;
     const struct _event_col_info *cur_col_info;
     const struct _event_tree_info *cur_tree_info;
 
