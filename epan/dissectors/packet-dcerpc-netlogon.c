@@ -2733,6 +2733,48 @@ static void generate_hash_key(packet_info *pinfo,unsigned char is_server,netlogo
 
 }
 
+static netlogon_auth_vars *create_global_netlogon_auth_vars(packet_info *pinfo,
+                                                            const char *computer_name,
+                                                            unsigned char is_server)
+{
+    netlogon_auth_vars *vars = NULL;
+    netlogon_auth_vars *existing_vars = NULL;
+    netlogon_auth_key key;
+
+    vars = wmem_new0(wmem_file_scope(), netlogon_auth_vars);
+    vars->client_name = wmem_strdup(wmem_file_scope(), computer_name);
+    vars->start = pinfo->num;
+    vars->auth_fd_num = -1;
+    vars->next_start = -1;
+    vars->next = NULL;
+
+    generate_hash_key(pinfo, is_server, &key);
+    existing_vars = (netlogon_auth_vars *)wmem_map_lookup(netlogon_auths, &key);
+    if (!existing_vars) {
+        netlogon_auth_key *k = (netlogon_auth_key *)wmem_memdup(wmem_file_scope(), &key, sizeof(netlogon_auth_key));
+        copy_address_wmem(wmem_file_scope(), &k->client, &key.client);
+        copy_address_wmem(wmem_file_scope(), &k->server, &key.server);
+        ws_debug("Adding initial vars with this start packet = %d",vars->start);
+        wmem_map_insert(netlogon_auths, k, vars);
+    } else {
+        while(existing_vars->next != NULL && existing_vars->start < vars->start) {
+            ws_debug("Looping to find existing vars ...");
+            existing_vars = existing_vars->next;
+        }
+        if(existing_vars->next != NULL || existing_vars->start == vars->start) {
+            ws_debug("It seems that I already record this vars start packet = %d",vars->start);
+            wmem_free(wmem_file_scope(), vars);
+        }
+        else {
+            ws_debug("Adding a new entry with this start packet = %d",vars->start);
+            existing_vars->next_start = pinfo->num;
+            existing_vars->next = vars;
+        }
+    }
+
+    return vars;
+}
+
 static netlogon_auth_vars *find_global_netlogon_auth_vars(packet_info *pinfo, unsigned char is_server)
 {
     netlogon_auth_vars *lvars = NULL;
@@ -2839,8 +2881,6 @@ netlogon_dissect_netrserverreqchallenge_rqst(tvbuff_t *tvb, int offset,
 {
     /*int oldoffset = offset;*/
     netlogon_auth_vars *vars;
-    netlogon_auth_vars *existing_vars;
-    netlogon_auth_key key;
     dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
 
     offset = netlogon_dissect_LOGONSRV_HANDLE(tvb, offset, pinfo, tree, di, drep);
@@ -2852,42 +2892,12 @@ netlogon_dissect_netrserverreqchallenge_rqst(tvbuff_t *tvb, int offset,
         GINT_TO_POINTER(CB_STR_COL_INFO |CB_STR_SAVE | 1));
 
     ws_debug("1)Len %d offset %d txt %s",(int) strlen((char *)dcv->private_data),offset,(char*)dcv->private_data);
-    vars = wmem_new0(wmem_file_scope(), netlogon_auth_vars);
-    vars->client_name = wmem_strdup(wmem_file_scope(), (char *)dcv->private_data);
+    vars = create_global_netlogon_auth_vars(pinfo, (char*)dcv->private_data, 0);
     ws_debug("2)Len %d offset %d txt %s",(int) strlen((char *)dcv->private_data),offset,vars->client_name);
 
     offset = dissect_dcerpc_8bytes(tvb, offset, pinfo, tree, drep,
                                    hf_client_challenge,&vars->client_challenge);
 
-    vars->start = pinfo->num;
-    vars->auth_fd_num = -1;
-    vars->next_start = -1;
-    vars->next = NULL;
-
-    generate_hash_key(pinfo,0,&key);
-    existing_vars = (netlogon_auth_vars *)wmem_map_lookup(netlogon_auths, &key);
-    if (!existing_vars) {
-        netlogon_auth_key *k = (netlogon_auth_key *)wmem_memdup(wmem_file_scope(), &key, sizeof(netlogon_auth_key));
-        copy_address_wmem(wmem_file_scope(), &k->client, &key.client);
-        copy_address_wmem(wmem_file_scope(), &k->server, &key.server);
-        ws_debug("Adding initial vars with this start packet = %d",vars->start);
-        wmem_map_insert(netlogon_auths, k, vars);
-    }
-    else {
-        while(existing_vars->next != NULL && existing_vars->start < vars->start) {
-            ws_debug("Looping to find existing vars ...");
-            existing_vars = existing_vars->next;
-        }
-        if(existing_vars->next != NULL || existing_vars->start == vars->start) {
-            ws_debug("It seems that I already record this vars start packet = %d",vars->start);
-            wmem_free(wmem_file_scope(), vars);
-        }
-        else {
-            ws_debug("Adding a new entry with this start packet = %d",vars->start);
-            existing_vars->next_start = pinfo->num;
-            existing_vars->next = vars;
-        }
-    }
     return offset;
 }
 
