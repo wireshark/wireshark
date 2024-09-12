@@ -19,10 +19,12 @@
 #define WS_LOG_DOMAIN "packet-cose"
 
 #include "packet-cose.h"
+#include "packet-media-type.h"
 #include <epan/wscbor.h>
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/proto.h>
+#include <epan/media_params.h>
 #include <epan/expert.h>
 #include <epan/exceptions.h>
 #include <inttypes.h>
@@ -44,18 +46,13 @@ static dissector_handle_t handle_cbor;
 /// Dissector handles
 static dissector_handle_t handle_cose_msg_hdr;
 static dissector_handle_t handle_cose_msg_tagged;
+static dissector_handle_t handle_cose_media_type;
 static dissector_handle_t handle_cose_sign;
-static dissector_handle_t handle_cose_sign_media_type;
 static dissector_handle_t handle_cose_sign1;
-static dissector_handle_t handle_cose_sign1_media_type;
 static dissector_handle_t handle_cose_encrypt;
-static dissector_handle_t handle_cose_encrypt_media_type;
 static dissector_handle_t handle_cose_encrypt0;
-static dissector_handle_t handle_cose_encrypt0_media_type;
 static dissector_handle_t handle_cose_mac;
-static dissector_handle_t handle_cose_mac_media_type;
 static dissector_handle_t handle_cose_mac0;
-static dissector_handle_t handle_cose_mac0_media_type;
 static dissector_handle_t handle_cose_key;
 static dissector_handle_t handle_cose_key_set;
 
@@ -63,6 +60,7 @@ static dissector_handle_t handle_cose_key_set;
 static dissector_table_t table_media;
 /// Dissect extension items
 static dissector_table_t table_cose_msg_tag;
+static dissector_table_t table_cose_media_subtype;
 static dissector_table_t table_header;
 static dissector_table_t table_keyparam;
 
@@ -710,10 +708,7 @@ static int dissect_cose_sign(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
     return offset;
 }
-static int dissect_cose_sign_media_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_) {
-    /* data does *not* point to a wscbor_tag_t */
-    return dissect_cose_sign(tvb, pinfo, tree, NULL);
-}
+
 static int dissect_cose_sign1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data) {
     int offset = 0;
 
@@ -732,10 +727,7 @@ static int dissect_cose_sign1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 
     return offset;
 }
-static int dissect_cose_sign1_media_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_) {
-    /* data does *not* point to a wscbor_tag_t */
-    return dissect_cose_sign1(tvb, pinfo, tree, NULL);
-}
+
 static int dissect_cose_encrypt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data) {
     int offset = 0;
 
@@ -754,10 +746,7 @@ static int dissect_cose_encrypt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 
     return offset;
 }
-static int dissect_cose_encrypt_media_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_) {
-    /* data does *not* point to a wscbor_tag_t */
-    return dissect_cose_encrypt(tvb, pinfo, tree, NULL);
-}
+
 static int dissect_cose_encrypt0(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data) {
     int offset = 0;
 
@@ -775,10 +764,7 @@ static int dissect_cose_encrypt0(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 
     return offset;
 }
-static int dissect_cose_encrypt0_media_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_) {
-    /* data does *not* point to a wscbor_tag_t */
-    return dissect_cose_encrypt0(tvb, pinfo, tree, NULL);
-}
+
 static int dissect_cose_mac(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data) {
     int offset = 0;
 
@@ -798,10 +784,7 @@ static int dissect_cose_mac(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     return offset;
 }
-static int dissect_cose_mac_media_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_) {
-    /* data does *not* point to a wscbor_tag_t */
-    return dissect_cose_mac(tvb, pinfo, tree, NULL);
-}
+
 static int dissect_cose_mac0(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data) {
     int offset = 0;
 
@@ -820,10 +803,6 @@ static int dissect_cose_mac0(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
     return offset;
 }
-static int dissect_cose_mac0_media_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_) {
-    /* data does *not* point to a wscbor_tag_t */
-    return dissect_cose_mac0(tvb, pinfo, tree, NULL);
-}
 
 /** Dissect a tagged COSE message.
  */
@@ -840,14 +819,41 @@ static int dissect_cose_msg_tagged(tvbuff_t *tvb, packet_info *pinfo, proto_tree
         if (!dissector) {
             continue;
         }
-        ws_info("main dissector using tag %" PRIu64, tag->value);
         int sublen = call_dissector_only(dissector, tvb, pinfo, tree, tag);
         if (sublen > 0) {
             return sublen;
         }
     }
 
-    ws_warning("main dissector did not match any known tag");
+    proto_item *item_msg = proto_tree_add_item(tree, proto_cose, tvb, 0, -1, ENC_NA);
+    expert_add_info(pinfo, item_msg, &ei_invalid_tag);
+    return -1;
+}
+
+/** Dissect the application/cose media type with optional parameters.
+ */
+static int dissect_cose_media_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data) {
+    const media_content_info_t *content_info = (media_content_info_t *)data;
+
+    const char *subtype = NULL;
+    if (content_info->media_str) {
+        subtype = ws_find_media_type_parameter(pinfo->pool, content_info->media_str, "cose-type");
+    }
+
+    dissector_handle_t dissector;
+    if (subtype) {
+        dissector = dissector_get_string_handle(table_cose_media_subtype, subtype);
+    }
+    else {
+        // no media type parameter, require tagged message
+        dissector = handle_cose_msg_tagged;
+    }
+
+    int sublen = call_dissector_only(dissector, tvb, pinfo, tree, NULL);
+    if (sublen > 0) {
+        return sublen;
+    }
+
     proto_item *item_msg = proto_tree_add_item(tree, proto_cose, tvb, 0, -1, ENC_NA);
     expert_add_info(pinfo, item_msg, &ei_invalid_tag);
     return -1;
@@ -1264,17 +1270,14 @@ static int dissect_keyparam_k(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     return offset;
 }
 
-
 /** Register a message dissector.
  */
-static void register_msg_dissector(dissector_handle_t dis_h, dissector_handle_t dis_h_media_type, uint64_t tag_int, const char *media) {
+static void register_msg_dissector(dissector_handle_t dis_h, uint64_t tag_int, const char *media_subtype) {
     uint64_t *key_int = g_new(uint64_t, 1);
     *key_int = tag_int;
     dissector_add_custom_table_handle("cose.msgtag", key_int, dis_h);
 
-    if (media) {
-        dissector_add_string("media_type", media, dis_h_media_type);
-    }
+    dissector_add_string("cose.mediasub", media_subtype, dis_h);
 }
 
 /** Register a header dissector.
@@ -1344,24 +1347,24 @@ void proto_register_cose(void) {
     handle_cose_msg_hdr = register_dissector("cose.msg.headers", dissect_cose_msg_header_map, proto_cose);
 
     table_cose_msg_tag = register_custom_dissector_table("cose.msgtag", "COSE Message Tag", proto_cose, g_int64_hash, g_int64_equal, g_free);
+    table_cose_media_subtype = register_dissector_table("cose.mediasub", "COSE Media Subtype", proto_cose, FT_STRINGZ, STRING_CASE_INSENSITIVE);
+
     handle_cose_msg_tagged = register_dissector("cose", dissect_cose_msg_tagged, proto_cose_params);
-    handle_cose_sign = register_dissector("cose_sign", dissect_cose_sign, proto_cose);
-    handle_cose_sign_media_type = register_dissector("cose_sign_media_type", dissect_cose_sign_media_type, proto_cose);
-    handle_cose_sign1 = register_dissector("cose_sign1", dissect_cose_sign1, proto_cose);
-    handle_cose_sign1_media_type = register_dissector("cose_sign1_media_type", dissect_cose_sign1_media_type, proto_cose);
-    handle_cose_encrypt = register_dissector("cose_encrypt", dissect_cose_encrypt, proto_cose);
-    handle_cose_encrypt_media_type = register_dissector("cose_encrypt_media_type", dissect_cose_encrypt_media_type, proto_cose);
-    handle_cose_encrypt0 = register_dissector("cose_encrypt0", dissect_cose_encrypt0, proto_cose);
-    handle_cose_encrypt0_media_type = register_dissector("cose_encrypt0_media_type", dissect_cose_encrypt0_media_type, proto_cose);
-    handle_cose_mac = register_dissector("cose_mac", dissect_cose_mac, proto_cose);
-    handle_cose_mac_media_type = register_dissector("cose_mac_media_type", dissect_cose_mac_media_type, proto_cose);
-    handle_cose_mac0 = register_dissector("cose_mac0", dissect_cose_mac0, proto_cose);
-    handle_cose_mac0_media_type = register_dissector("cose_mac0_media_type", dissect_cose_mac0_media_type, proto_cose);
+    handle_cose_media_type = create_dissector_handle_with_name(dissect_cose_media_type, proto_cose, "cose");
+
+    // RFC 9052 data item names (Table 1)
+    handle_cose_sign = register_dissector_with_description("cose_sign", "COSE_Sign", dissect_cose_sign, proto_cose);
+    handle_cose_sign1 = register_dissector_with_description("cose_sign1", "COSE_Sign1", dissect_cose_sign1, proto_cose);
+    handle_cose_encrypt = register_dissector_with_description("cose_encrypt", "COSE_Encrypt", dissect_cose_encrypt, proto_cose);
+    handle_cose_encrypt0 = register_dissector_with_description("cose_encrypt0", "COSE_Encrypt0", dissect_cose_encrypt0, proto_cose);
+    handle_cose_mac = register_dissector_with_description("cose_mac", "COSE_Mac", dissect_cose_mac, proto_cose);
+    handle_cose_mac0 = register_dissector_with_description("cose_mac0", "COSE_Mac0", dissect_cose_mac0, proto_cose);
 
     table_header = register_custom_dissector_table("cose.header", "COSE Header Parameter", proto_cose, cose_param_key_hash, cose_param_key_equal, cose_param_key_free);
 
-    handle_cose_key = register_dissector("cose_key", dissect_cose_key, proto_cose);
-    handle_cose_key_set = register_dissector("cose_key_set", dissect_cose_key_set, proto_cose);
+    // RFC 9052 data item names (Section 11.3.2)
+    handle_cose_key = register_dissector_with_description("cose_key", "COSE_Key", dissect_cose_key, proto_cose);
+    handle_cose_key_set = register_dissector_with_description("cose_key_set", "COSE_KeySet", dissect_cose_key_set, proto_cose);
 
     table_keyparam = register_custom_dissector_table("cose.keyparam", "COSE Key Parameter", proto_cose, cose_param_key_hash, cose_param_key_equal, cose_param_key_free);
 
@@ -1373,19 +1376,18 @@ void proto_reg_handoff_cose(void) {
     table_media = find_dissector_table("media_type");
     handle_cbor = find_dissector("cbor");
 
-    dissector_add_string("media_type", "application/cose", handle_cose_msg_tagged);
-    dissector_add_string("media_type.suffix", "cose", handle_cose_msg_tagged);
-    // RFC 8152 tags and names (Table 26)
-    register_msg_dissector(handle_cose_sign, handle_cose_sign_media_type, 98, "application/cose; cose-type=\"cose-sign\"");
-    register_msg_dissector(handle_cose_sign1, handle_cose_sign1_media_type, 18, "application/cose; cose-type=\"cose-sign1\"");
-    register_msg_dissector(handle_cose_encrypt, handle_cose_encrypt_media_type, 96, "application/cose; cose-type=\"cose-encrypt\"");
-    register_msg_dissector(handle_cose_encrypt0, handle_cose_encrypt0_media_type, 16, "application/cose; cose-type=\"cose-encrypt0\"");
-    register_msg_dissector(handle_cose_mac, handle_cose_mac_media_type, 97, "application/cose; cose-type=\"cose-mac\"");
-    register_msg_dissector(handle_cose_mac_media_type, handle_cose_mac_media_type, 97, "application/cose; cose-type=\"cose-mac\"");
-    register_msg_dissector(handle_cose_mac0, handle_cose_mac0_media_type, 17, "application/cose; cose-type=\"cose-mac0\"");
-    register_msg_dissector(handle_cose_mac0_media_type, handle_cose_mac0_media_type, 17, "application/cose; cose-type=\"cose-mac0\"");
+    dissector_add_string("media_type", "application/cose", handle_cose_media_type);
+    dissector_add_string("media_type.suffix", "cose", handle_cose_media_type);
 
-    // RFC 8152 header labels
+    // RFC 9052 tags and media type "cose-type" names (Table 1)
+    register_msg_dissector(handle_cose_sign, 98, "cose-sign");
+    register_msg_dissector(handle_cose_sign1, 18, "cose-sign1");
+    register_msg_dissector(handle_cose_encrypt, 96, "cose-encrypt");
+    register_msg_dissector(handle_cose_encrypt0, 16, "cose-encrypt0");
+    register_msg_dissector(handle_cose_mac, 97, "cose-mac");
+    register_msg_dissector(handle_cose_mac0, 17, "cose-mac0");
+
+    // RFC 9053 header labels
     register_header_dissector(dissect_header_salt, g_variant_new_int64(-20), "salt");
     register_header_dissector(dissect_header_static_key, g_variant_new_int64(-2), "static key");
     register_header_dissector(dissect_header_ephem_key, g_variant_new_int64(-1), "ephemeral key");
@@ -1403,7 +1405,7 @@ void proto_reg_handoff_cose(void) {
 
     dissector_add_string("media_type", "application/cose-key", handle_cose_key);
     dissector_add_string("media_type", "application/cose-key-set", handle_cose_key_set);
-    // RFC 8152 key parameter labels
+    // RFC 9052 key parameter labels
     register_keyparam_dissector(dissect_keyparam_kty, NULL, g_variant_new_int64(1), "kty");
     register_keyparam_dissector(dissect_header_kid, NULL, g_variant_new_int64(2), "kid");
     register_keyparam_dissector(dissect_header_alg, NULL, g_variant_new_int64(3), "alg");
