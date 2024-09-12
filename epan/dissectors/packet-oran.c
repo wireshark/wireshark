@@ -343,6 +343,7 @@ static expert_field ei_oran_numslots_not_zero;
 static expert_field ei_oran_version_unsupported;
 static expert_field ei_oran_laa_msg_type_unsupported;
 static expert_field ei_oran_se_on_unsupported_st;
+static expert_field ei_oran_unexpected_sequence_number;
 
 
 /* These are the message types handled by this dissector */
@@ -621,7 +622,7 @@ static AllowedCTs_t ext_cts[HIGHEST_EXTTYPE] = {
 static bool se_allowed_in_st(unsigned se, unsigned ct)
 {
     if (se==0 || se>HIGHEST_EXTTYPE) {
-        /* Don't know about SE, so assume ok.. */
+        /* Don't know about new SE, so don't complain.. */
         return true;
     }
 
@@ -1068,11 +1069,21 @@ static void ext11_work_out_bundles(unsigned startPrbc,
     }
 }
 
+#define ORAN_C_PLANE 0
+#define ORAN_U_PLANE 1
+
+typedef struct {
+    unsigned eaxc_id : 16;
+    unsigned plane : 1;
+    unsigned direction : 1;
+    /* TODO: address/interface info? */
+} flow_key_t;
 
 
 /*******************************************************/
-/* Overall state of a flow (eAxC)                      */
+/* Overall state of a flow (eAxC/plane/dir)            */
 typedef struct {
+    /* TODO: not using yet */
     uint32_t last_cplane_frame;
     nstime_t last_cplane_frame_ts;
     /* TODO: add udCompHdr info for subsequent U-Plane frames? */
@@ -1080,10 +1091,24 @@ typedef struct {
     /* First U-PLane frame following 'last_cplane' frame */
     uint32_t first_uplane_frame;
     nstime_t first_uplane_frame_ts;
+
+    /* State for sequence analysis */
+    uint32_t last_frame;
+    uint8_t  next_expected_sequence_number;
 } flow_state_t;
 
-/* Table maintained on first pass from eAxC (uint16_t) -> flow_state_t* */
+/* Table maintained on first pass from flow_key -> flow_state_t* */
 static wmem_tree_t *flow_states_table;
+
+typedef struct {
+    /* Sequence analysis */
+    bool     unexpected_seq_number;
+    uint8_t  expected_sequence_number;
+    uint32_t previous_frame;
+} flow_result_t;
+
+/* Table consulted on subsequent passes: frame_num -> flow_result_t* */
+static wmem_tree_t *flow_results_table;
 
 
 
@@ -1213,24 +1238,27 @@ addPcOrRtcid(tvbuff_t *tvb, proto_tree *tree, int *offset, int hf, uint16_t *eAx
 }
 
 /* 5.1.3.2.8  ecpriSeqid (message identifier) */
-static void
-addSeqid(tvbuff_t *tvb, proto_tree *oran_tree, int *offset)
+static int
+addSeqid(tvbuff_t *tvb, proto_tree *oran_tree, int offset, uint8_t *seq_id, proto_item **seq_id_ti)
 {
     /* Subtree */
-    proto_item *seqIdItem = proto_tree_add_item(oran_tree, hf_oran_ecpri_seqid, tvb, *offset, 2, ENC_NA);
+    proto_item *seqIdItem = proto_tree_add_item(oran_tree, hf_oran_ecpri_seqid, tvb, offset, 2, ENC_NA);
     proto_tree *oran_seqid_tree = proto_item_add_subtree(seqIdItem, ett_oran_ecpri_seqid);
     uint32_t seqId, subSeqId, e = 0;
-    /* Sequence ID */
-    proto_tree_add_item_ret_uint(oran_seqid_tree, hf_oran_sequence_id, tvb, *offset, 1, ENC_NA, &seqId);
-    *offset += 1;
+    /* Sequence ID (8 bits) */
+    *seq_id_ti = proto_tree_add_item_ret_uint(oran_seqid_tree, hf_oran_sequence_id, tvb, offset, 1, ENC_NA, &seqId);
+    *seq_id = seqId;
+    offset += 1;
     /* E bit */
-    proto_tree_add_item_ret_uint(oran_seqid_tree, hf_oran_e_bit, tvb, *offset, 1, ENC_NA, &e);
-    /* Subsequence ID */
-    proto_tree_add_item_ret_uint(oran_seqid_tree, hf_oran_subsequence_id, tvb, *offset, 1, ENC_NA, &subSeqId);
-    *offset += 1;
+    proto_tree_add_item_ret_uint(oran_seqid_tree, hf_oran_e_bit, tvb, offset, 1, ENC_NA, &e);
+    /* Subsequence ID (7 bits) */
+    proto_tree_add_item_ret_uint(oran_seqid_tree, hf_oran_subsequence_id, tvb, offset, 1, ENC_NA, &subSeqId);
+    offset += 1;
 
     /* Summary */
     proto_item_append_text(seqIdItem, " (SeqId: %3d, E: %d, SubSeqId: %d)", seqId, e, subSeqId);
+
+    return offset;
 }
 
 /* 7.7.1.2 bfwCompHdr (beamforming weight compression header) */
@@ -3100,7 +3128,9 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
     }
 
     /* Message identifier */
-    addSeqid(tvb, oran_tree, &offset);
+    uint8_t seq_id;
+    proto_item *seq_id_ti;
+    offset = addSeqid(tvb, oran_tree, offset, &seq_id, &seq_id_ti);
 
     proto_item *sectionHeading;
 
@@ -3706,15 +3736,10 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
     uint16_t eAxC;
     addPcOrRtcid(tvb, oran_tree, &offset, hf_oran_ecpri_pcid, &eAxC);
 
-    if (!PINFO_FD_VISITED(pinfo)) {
-        /* TODO: create or update conversation for stream eAxC */
-    }
-    else {
-        /* TODO: show stored state for this stream */
-    }
-
     /* Message identifier */
-    addSeqid(tvb, oran_tree, &offset);
+    uint8_t seq_id;
+    proto_item *seq_id_ti;
+    offset = addSeqid(tvb, oran_tree, offset, &seq_id, &seq_id_ti);
 
     /* Common header for time reference */
     proto_item *timingHeader;
@@ -3759,6 +3784,47 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
     unsigned sample_bit_width;
     int compression;
     bool includeUdCompHeader;
+
+    if (!PINFO_FD_VISITED(pinfo)) {
+        flow_key_t flow = { eAxC, ORAN_C_PLANE, direction };
+        uint32_t key = *(uint32_t*)(&flow);
+        flow_state_t* state;
+
+        /* Create or update conversation for stream eAxC+plane+direction */
+        if (wmem_tree_contains32(flow_states_table, key)) {
+            state = (flow_state_t*)wmem_tree_lookup32(flow_states_table, key);
+        }
+        else {
+            /* Allocate new state */
+            state = wmem_new0(wmem_file_scope(), flow_state_t);
+            wmem_tree_insert32(flow_states_table, key, state);
+        }
+
+        /* Check sequence analysis status */
+        if (seq_id != state->next_expected_sequence_number) {
+            /* Store this result */
+            flow_result_t *result = wmem_new0(wmem_file_scope(), flow_result_t);
+            result->unexpected_seq_number = true;
+            result->expected_sequence_number = state->next_expected_sequence_number;
+            result->previous_frame = state->last_frame;
+            wmem_tree_insert32(flow_results_table, pinfo->num, result);
+        }
+        /* Update conversation info */
+        state->last_frame = pinfo->num;
+        state->next_expected_sequence_number = (seq_id+1) % 256;
+    }
+    else {
+        /* Show any issues associated with this frame number */
+        if (wmem_tree_contains32(flow_results_table, pinfo->num)) {
+            flow_result_t *result = wmem_tree_lookup32(flow_results_table, pinfo->num);
+            if (result->unexpected_seq_number) {
+                expert_add_info_format(pinfo, seq_id_ti, &ei_oran_unexpected_sequence_number,
+                                       "Sequence number %u expected, but got %u",
+                                       result->expected_sequence_number, seq_id);
+                /* TODO: could add previous frame (in seqId tree?) ? */
+            }
+        }
+    }
 
     if (direction == DIR_UPLINK) {
         sample_bit_width = pref_sample_bit_width_uplink;
@@ -4016,7 +4082,7 @@ proto_register_oran(void)
           { "Subsequence ID", "oran_fh_cus.subsequence_id",
             FT_UINT8, BASE_DEC,
             NULL, 0x7f,
-            "The subsequence identifier",
+            "The subsequence ID (for eCPRI layer fragmentation)",
             HFILL }
         },
 
@@ -5595,7 +5661,8 @@ proto_register_oran(void)
         { &ei_oran_numslots_not_zero, { "oran_fh_cus.numslots_not_zero", PI_MALFORMED, PI_WARN, "For ST4 TIME_DOMAIN_BEAM_WEIGHTS, numSlots should be 0", EXPFILL }},
         { &ei_oran_version_unsupported, { "oran_fh_cus.version_unsupported", PI_UNDECODED, PI_WARN, "Protocol version unsupported", EXPFILL }},
         { &ei_oran_laa_msg_type_unsupported, { "oran_fh_cus.laa_msg_type_unsupported", PI_UNDECODED, PI_WARN, "laaMsgType unsupported", EXPFILL }},
-        { &ei_oran_se_on_unsupported_st, { "oran_fh_cus.se_on_unsupported_st", PI_MALFORMED, PI_WARN, "Section Extension should not appear on this Section Type", EXPFILL }}
+        { &ei_oran_se_on_unsupported_st, { "oran_fh_cus.se_on_unsupported_st", PI_MALFORMED, PI_WARN, "Section Extension should not appear on this Section Type", EXPFILL }},
+        { &ei_oran_unexpected_sequence_number, { "oran_fh_cus.unexpected_seq_no", PI_SEQUENCE, PI_WARN, "Unexpected sequence number seen", EXPFILL }}
     };
 
     /* Register the protocol name and description */
@@ -5656,6 +5723,7 @@ proto_register_oran(void)
     prefs_register_obsolete_preference(oran_module, "oran.num_bf_weights");
 
     flow_states_table = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
+    flow_results_table = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
 }
 
 /* Simpler form of proto_reg_handoff_oran which can be used if there are
