@@ -20,6 +20,7 @@
 
 #include <wsutil/wsgcrypt.h>
 #include <wsutil/wslog.h>
+#include <wsutil/str_util.h>
 
 /* for dissect_mscldap_string */
 #include "packet-ldap.h"
@@ -126,6 +127,9 @@ static int hf_netlogon_rc;
 static int hf_netlogon_dos_rc;
 static int hf_netlogon_werr_rc;
 static int hf_netlogon_len;
+static int hf_netlogon_password_version_reserved;
+static int hf_netlogon_password_version_number;
+static int hf_netlogon_password_version_present;
 static int hf_netlogon_sensitive_data_flag;
 static int hf_netlogon_sensitive_data_len;
 static int hf_netlogon_sensitive_data;
@@ -209,6 +213,7 @@ static int hf_netlogon_auditing_mode;
 static int hf_netlogon_max_audit_event_count;
 static int hf_netlogon_event_audit_option;
 static int hf_netlogon_unknown_string;
+static int hf_netlogon_new_password;
 static int hf_netlogon_trust_extension;
 static int hf_netlogon_trust_max;
 static int hf_netlogon_trust_offset;
@@ -426,7 +431,8 @@ static int ett_authenticate_flags;
 static int ett_CYPHER_VALUE;
 static int ett_UNICODE_MULTI;
 static int ett_DOMAIN_CONTROLLER_INFO;
-static int ett_UNICODE_STRING_512;
+static int ett_netr_CryptPassword;
+static int ett_NL_PASSWORD_VERSION;
 static int ett_TYPE_50;
 static int ett_TYPE_52;
 static int ett_DELTA_ID_UNION;
@@ -468,6 +474,9 @@ typedef struct _netlogon_auth_vars {
     int next_start;
     struct _netlogon_auth_vars *next;
 } netlogon_auth_vars;
+
+static gcry_error_t prepare_session_key_cipher(netlogon_auth_vars *vars,
+                                               gcry_cipher_hd_t *_cipher_hd);
 
 typedef struct _seen_packet {
     bool isseen;
@@ -6295,30 +6304,220 @@ netlogon_dissect_DOMAIN_INFORMATION(tvbuff_t *tvb, int offset,
 }
 
 static int
-netlogon_dissect_UNICODE_STRING_512(tvbuff_t *tvb, int offset,
+netlogon_dissect_netr_CryptPassword(tvbuff_t *tvb, int offset,
                                     packet_info *pinfo, proto_tree *parent_tree,
                                     dcerpc_info *di, uint8_t *drep)
 {
+    int ret_offset = offset + 516;
     proto_item *item=NULL;
     proto_tree *tree=NULL;
-    int old_offset=offset;
-    int i;
+    netlogon_auth_vars *vars = NULL;
+    uint32_t pw_len;
+    char *pw = NULL;
+    uint32_t confounder_len;
+    bool version_present = false;
+
+    /*
+     * We have
+     * uint16 array[256];
+     * uint32 length;
+     *
+     * All these 516 bytes are potentially encrypted.
+     *
+     * The unencrypted length is in bytes in
+     * instead of uint16 units, so it's a multiple
+     * of 2 and it should be smaller than 512 -
+     * SIZEOF(NL_PASSWORD_VERSION), so it's 500
+     * as SIZEOF(NL_PASSWORD_VERSION) is 12.
+     * The confounder should also be there with
+     * a few bytes.
+     *
+     * Real clients typically use 28 or 240,
+     * which means 14 or 120 uint16 characters.
+     *
+     * So if the value is larger than 500 or
+     * bit 1 is set it's very likely an
+     * encrypted value.
+     */
+    tvb_ensure_bytes_exist(tvb, offset, 516);
 
     if(parent_tree){
-        tree = proto_tree_add_subtree(parent_tree, tvb, offset, 0,
-                                   ett_UNICODE_STRING_512, &item, "UNICODE_STRING_512:");
+        tree = proto_tree_add_subtree(parent_tree, tvb, offset, 516,
+                                      ett_netr_CryptPassword, &item,
+                                      "netr_CryptPassword:");
     }
 
-    for(i=0;i<256;i++){
-        offset = dissect_ndr_uint16(tvb, offset, pinfo, tree, di, drep,
-                                    hf_netlogon_unknown_short, NULL);
+    vars = find_global_netlogon_auth_vars(pinfo, 0);
+    pw_len = tvb_get_uint32(tvb, offset+512, DREP_ENC_INTEGER(drep));
+    if (pw_len > 500 || pw_len & 0x1) {
+        gcry_error_t err;
+        gcry_cipher_hd_t cipher_hd = NULL;
+        uint8_t *buffer = NULL;
+        tvbuff_t *dectvb = NULL;
+
+        proto_tree_add_bytes_format(tree, hf_netlogon_blob,
+                                    tvb, offset, 516, NULL,
+                                    "Encrypted netr_CryptPassword");
+
+        if (vars == NULL) {
+                expert_add_info_format(pinfo, proto_tree_get_parent(tree),
+                                       &ei_netlogon_session_key,
+                                       "No session key found");
+                return ret_offset;
+        }
+
+        err = prepare_session_key_cipher(vars, &cipher_hd);
+        if (err != 0) {
+            expert_add_info_format(pinfo, proto_tree_get_parent(tree),
+                                   &ei_netlogon_session_key,
+                                   "Decryption not possible (%s/%s) with "
+                                   "session key learned in frame %d ("
+                                   "%02x%02x%02x%02x"
+                                   ") from %s",
+                                   gcry_strsource(err),
+                                   gcry_strerror(err),
+                                   vars->auth_fd_num,
+                                   vars->session_key[0] & 0xFF,
+                                   vars->session_key[1] & 0xFF,
+                                   vars->session_key[2] & 0xFF,
+                                   vars->session_key[3] & 0xFF,
+                                   vars->nthash.key_origin);
+            ws_warning("GCRY: prepare_session_key_cipher %s/%s\n",
+                       gcry_strsource(err), gcry_strerror(err));
+            return ret_offset;
+        }
+
+        buffer = (uint8_t*)tvb_memdup(pinfo->pool, tvb, offset, 516);
+        if (buffer == NULL) {
+            gcry_cipher_close(cipher_hd);
+            return ret_offset;
+        }
+
+        err = gcry_cipher_decrypt(cipher_hd, buffer, 516, NULL, 0);
+        gcry_cipher_close(cipher_hd);
+        if (err != 0) {
+            ws_warning("GCRY: gcry_cipher_decrypt %s/%s\n",
+                       gcry_strsource(err), gcry_strerror(err));
+            return ret_offset;
+        }
+
+        dectvb = tvb_new_child_real_data(tvb, buffer, 516, 516);
+        if (dectvb == NULL) {
+            return ret_offset;
+        }
+
+        pw_len = tvb_get_uint32(dectvb, 512, DREP_ENC_INTEGER(drep));
+        if (pw_len > 500 || pw_len & 0x1) {
+            expert_add_info_format(pinfo, proto_tree_get_parent(tree),
+                                   &ei_netlogon_session_key,
+                                   "Unusable session key learned in frame %d ("
+                                   "%02x%02x%02x%02x"
+                                   ") from %s",
+                                   vars->auth_fd_num,
+                                   vars->session_key[0] & 0xFF,
+                                   vars->session_key[1] & 0xFF,
+                                   vars->session_key[2] & 0xFF,
+                                   vars->session_key[3] & 0xFF,
+                                   vars->nthash.key_origin);
+            return ret_offset;
+        }
+
+        expert_add_info_format(pinfo, proto_tree_get_parent(tree),
+                               &ei_netlogon_session_key,
+                               "Used session key learned in frame %d ("
+                               "%02x%02x%02x%02x"
+                               ") from %s",
+                               vars->auth_fd_num,
+                               vars->session_key[0] & 0xFF,
+                               vars->session_key[1] & 0xFF,
+                               vars->session_key[2] & 0xFF,
+                               vars->session_key[3] & 0xFF,
+                               vars->nthash.key_origin);
+        add_new_data_source(pinfo, dectvb, "netr_CryptPassword (Decrypted)");
+        tvb = dectvb;
+        offset = 0;
+        proto_tree_add_bytes_format(tree, hf_netlogon_blob,
+                                    tvb, offset, 516, NULL,
+                                    "Decrypted netr_CryptPassword");
+    } else {
+        proto_tree_add_bytes_format(tree, hf_netlogon_blob,
+                                    tvb, offset, 516, NULL,
+                                    "Unencryption netr_CryptPassword");
+        if (vars != NULL) {
+            expert_add_info_format(pinfo, proto_tree_get_parent(tree),
+                                   &ei_netlogon_session_key,
+                                   "Not encrypted with session key learned in frame %d ("
+                                   "%02x%02x%02x%02x"
+                                   ") from %s",
+                                   vars->auth_fd_num,
+                                   vars->session_key[0] & 0xFF,
+                                   vars->session_key[1] & 0xFF,
+                                   vars->session_key[2] & 0xFF,
+                                   vars->session_key[3] & 0xFF,
+                                   vars->nthash.key_origin);
+        } else {
+            expert_add_info_format(pinfo, proto_tree_get_parent(tree),
+                                   &ei_netlogon_session_key,
+                                   "Not encrypted and no session key found nor needed");
+        }
     }
+
+    confounder_len = 512 - pw_len;
+    if (confounder_len >= 12) {
+        uint32_t voffset = confounder_len - 12;
+        uint32_t rf;
+        uint32_t vp;
+
+        rf = tvb_get_uint32(tvb, voffset+0, DREP_ENC_INTEGER(drep));
+        vp = tvb_get_uint32(tvb, voffset+8, DREP_ENC_INTEGER(drep));
+        if (rf == 0 && vp == 0x02231968) {
+            confounder_len -= 12;
+            version_present = true;
+        }
+    }
+
+    if (confounder_len > 0) {
+        proto_tree_add_bytes_format(tree, hf_netlogon_blob,
+                                    tvb, offset, confounder_len,
+                                    NULL, "Confounder: %"PRIu32" byte%s",
+                                    confounder_len,
+                                    plurality(confounder_len, "", "s"));
+        offset += confounder_len;
+    }
+
+    if (version_present) {
+        proto_item *vitem=NULL;
+        proto_tree *vtree=NULL;
+
+        if (tree) {
+            vtree = proto_tree_add_subtree(tree, tvb, offset, 12,
+                                           ett_NL_PASSWORD_VERSION, &vitem,
+                                           "NL_PASSWORD_VERSION:");
+        }
+
+        offset = dissect_ndr_uint32(tvb, offset, pinfo, vtree, di, drep,
+                                    hf_netlogon_password_version_reserved, NULL);
+        offset = dissect_ndr_uint32(tvb, offset, pinfo, vtree, di, drep,
+                                    hf_netlogon_password_version_number, NULL);
+        offset = dissect_ndr_uint32(tvb, offset, pinfo, vtree, di, drep,
+                                    hf_netlogon_password_version_present, NULL);
+    }
+
+    proto_tree_add_bytes_format(tree, hf_netlogon_blob,
+                                tvb, offset, pw_len, NULL,
+                                "Raw Password Bytes: %"PRIu32" byte%s",
+                                pw_len,
+                                plurality(pw_len, "", "s"));
+    pw = (char *)tvb_get_string_enc(pinfo->pool, tvb, offset, pw_len,
+                                    ENC_UTF_16|DREP_ENC_INTEGER(drep));
+    proto_tree_add_string(tree, hf_netlogon_new_password, tvb, offset,
+                          pw_len, pw);
+    offset += pw_len;
 
     offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
-                                hf_netlogon_unknown_long, NULL);
+                                hf_netlogon_len, NULL);
 
-    proto_item_set_len(item, offset-old_offset);
-    return offset;
+    return ret_offset;
 }
 
 static int
@@ -7353,7 +7552,7 @@ netlogon_dissect_netrserverpasswordset2_rqst(tvbuff_t *tvb, int offset,
                                  netlogon_dissect_AUTHENTICATOR, NDR_POINTER_REF,
                                  "AUTHENTICATOR: credential", -1);
 
-    offset = netlogon_dissect_UNICODE_STRING_512(tvb, offset,
+    offset = netlogon_dissect_netr_CryptPassword(tvb, offset,
                                                  pinfo, tree, di, drep);
 
     return offset;
@@ -8930,6 +9129,18 @@ proto_register_dcerpc_netlogon(void)
                 "Len", "netlogon.len", FT_UINT32, BASE_DEC,
                 NULL, 0, "Length", HFILL }},
 
+        { &hf_netlogon_password_version_reserved, {
+                "ReservedField", "netlogon.password_version.reservedfield", FT_UINT32, BASE_HEX,
+                NULL, 0, "ReservedField zero", HFILL }},
+
+        { &hf_netlogon_password_version_number, {
+                "PasswordVersionNumber", "netlogon.password_version.reservedfield", FT_UINT32, BASE_HEX,
+                NULL, 0, "PasswordVersionNumber trust", HFILL }},
+
+        { &hf_netlogon_password_version_present, {
+                "PasswordVersionPresent", "netlogon.password_version.reservedfield", FT_UINT32, BASE_HEX,
+                NULL, 0, "PasswordVersionPresent magic", HFILL }},
+
         { &hf_netlogon_priv, {
                 "Priv", "netlogon.priv", FT_UINT32, BASE_DEC,
                 NULL, 0, NULL, HFILL }},
@@ -8977,6 +9188,10 @@ proto_register_dcerpc_netlogon(void)
         { &hf_netlogon_unknown_string,
           { "Unknown string", "netlogon.unknown_string", FT_STRING, BASE_NONE,
             NULL, 0, "Unknown string. If you know what this is, contact wireshark developers.", HFILL }},
+
+        { &hf_netlogon_new_password,
+          { "New Password", "netlogon.new_password", FT_STRING, BASE_NONE,
+            NULL, 0, "New Password for Computer or Trust", HFILL }},
 
         { &hf_netlogon_TrustedDomainName_string,
           { "TrustedDomainName", "netlogon.TrustedDomainName", FT_STRING, BASE_NONE,
@@ -10236,7 +10451,8 @@ proto_register_dcerpc_netlogon(void)
         &ett_DELTA_ENUM,
         &ett_UNICODE_MULTI,
         &ett_DOMAIN_CONTROLLER_INFO,
-        &ett_UNICODE_STRING_512,
+        &ett_netr_CryptPassword,
+        &ett_NL_PASSWORD_VERSION,
         &ett_TYPE_50,
         &ett_TYPE_52,
         &ett_DELTA_ID_UNION,
