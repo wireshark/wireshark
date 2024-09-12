@@ -2841,7 +2841,6 @@ netlogon_dissect_netrserverreqchallenge_rqst(tvbuff_t *tvb, int offset,
     netlogon_auth_vars *vars;
     netlogon_auth_vars *existing_vars;
     netlogon_auth_key key;
-    uint8_t tab[8] = { 0,0,0,0,0,0,0,0};
     dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
 
     offset = netlogon_dissect_LOGONSRV_HANDLE(tvb, offset, pinfo, tree, di, drep);
@@ -2859,7 +2858,6 @@ netlogon_dissect_netrserverreqchallenge_rqst(tvbuff_t *tvb, int offset,
 
     offset = dissect_dcerpc_8bytes(tvb, offset, pinfo, tree, drep,
                                    hf_client_challenge,&vars->client_challenge);
-    memcpy(tab,&vars->client_challenge,8);
 
     vars->start = pinfo->num;
     vars->auth_fd_num = -1;
