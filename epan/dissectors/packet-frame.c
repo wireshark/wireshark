@@ -1054,8 +1054,8 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 		proto_tree_add_uint(fh_tree, hf_frame_number, tvb,
 				    0, 0, pinfo->num);
 
-		item = proto_tree_add_uint_format(fh_tree, hf_frame_len, tvb,
-						  0, 0, frame_len, "Frame Length: %u byte%s (%u bits)",
+		item = proto_tree_add_uint_format_value(fh_tree, hf_frame_len, tvb,
+						  0, 0, frame_len, "%u byte%s (%u bits)",
 						  frame_len, frame_plurality, frame_len * 8);
 		if (frame_len < cap_len) {
 			/*
@@ -1066,8 +1066,8 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 			expert_add_info(pinfo, item, &ei_len_lt_caplen);
 		}
 
-		proto_tree_add_uint_format(fh_tree, hf_frame_capture_len, tvb,
-					   0, 0, cap_len, "Capture Length: %u byte%s (%u bits)",
+		proto_tree_add_uint_format_value(fh_tree, hf_frame_capture_len, tvb,
+					   0, 0, cap_len, "%u byte%s (%u bits)",
 					   cap_len, cap_plurality, cap_len * 8);
 
 		if (WTAP_OPTTYPE_SUCCESS == wtap_block_get_uint64_option_value(fr_data->pkt_block, OPT_PKT_DROPCOUNT, &drop_count)) {
@@ -1580,14 +1580,14 @@ proto_register_frame(void)
 		    NULL, HFILL }},
 
 		{ &hf_frame_len,
-		  { "Frame length on the wire", "frame.len",
+		  { "Frame Length", "frame.len",
 		    FT_UINT32, BASE_DEC, NULL, 0x0,
-		    NULL, HFILL }},
+		    "Frame length on the wire", HFILL }},
 
 		{ &hf_frame_capture_len,
-		  { "Frame length stored into the capture file", "frame.cap_len",
+		  { "Capture Length", "frame.cap_len",
 		    FT_UINT32, BASE_DEC, NULL, 0x0,
-		    NULL, HFILL }},
+		    "Frame length stored into the capture file", HFILL }},
 
 		{ &hf_frame_md5_hash,
 		  { "Frame MD5 Hash", "frame.md5_hash",

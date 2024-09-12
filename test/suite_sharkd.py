@@ -186,7 +186,7 @@ class TestSharkd:
         ), (
             {"jsonrpc":"2.0","id":1,"result":{}},
             {"jsonrpc":"2.0","id":2,"result":{"field": MatchList(
-                {"f": "frame.len", "t": 7, "n": "Frame length on the wire"}, match_element=any)}
+                {"f": "frame.len", "t": 7, "n": "Frame Length"}, match_element=any)}
             },
             {"jsonrpc":"2.0","id":3,"result":{"field": []}},
         ))
