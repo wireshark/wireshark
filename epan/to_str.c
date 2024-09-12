@@ -155,6 +155,83 @@ snprint_abs_time_secs(wmem_allocator_t *scope,
     return buf;
 }
 
+static char *
+snprint_abs_time_iso8601(wmem_allocator_t *scope,
+                        field_display_e fmt, struct tm *tmp,
+                        const char *nsecs_str, int flags)
+{
+    char *buf;
+    bool add_quotes = flags & ABS_TIME_TO_STR_ADD_DQUOTES;
+    bool add_zone = flags & ABS_TIME_TO_STR_SHOW_ZONE;
+    if (fmt != ABSOLUTE_TIME_LOCAL && flags & ABS_TIME_TO_STR_SHOW_UTC_ONLY) {
+        add_zone = true;
+    }
+
+    switch (fmt) {
+        case ABSOLUTE_TIME_DOY_UTC:
+            /* ISO 8601 4.1.3 Ordinal date */
+            buf = wmem_strdup_printf(scope,
+                    "%s%04d-%03dT%02d:%02d:%02d%s%s%s",
+                    add_quotes ? "\"" : "",
+                    tmp->tm_year + 1900,
+                    tmp->tm_yday + 1,
+                    tmp->tm_hour,
+                    tmp->tm_min,
+                    tmp->tm_sec,
+                    nsecs_str,
+                    add_zone ? "Z" : "",
+                    add_quotes ? "\"" : "");
+            break;
+        case ABSOLUTE_TIME_NTP_UTC:	/* FALLTHROUGH */
+        case ABSOLUTE_TIME_UTC:		/* FALLTHROUGH */
+            buf = wmem_strdup_printf(scope,
+                    "%s%d-%02d-%02dT%02d:%02d:%02d%s%s%s",
+                    add_quotes ? "\"" : "",
+                    tmp->tm_year + 1900,
+                    tmp->tm_mon + 1,
+                    tmp->tm_mday,
+                    tmp->tm_hour,
+                    tmp->tm_min,
+                    tmp->tm_sec,
+                    nsecs_str,
+                    add_zone ? "Z" : "",
+                    add_quotes ? "\"" : "");
+            break;
+        case ABSOLUTE_TIME_LOCAL:
+        {
+            char zone_buf[8] = "";
+            if (add_zone) {
+                /*
+                 * C11 requires that strftime supports %z; unfortunately
+                 * it doesn't put the ':' in the timezone as strict ISO 8601
+                 * would require (no mixing "basic" and "extended" formats.)
+                 * XXX - Should we add in the ":"?
+                 *
+                 * We could also use _get_timezone on Windows, or on Linux and
+                 * *BSD tm_gmtoff (if HAVE_STRUCT_TM_TM_GMTOFF).
+                 */
+                strftime(zone_buf, 8, "%z", tmp);
+            }
+            buf = wmem_strdup_printf(scope,
+                    "%s%d-%02d-%02dT%02d:%02d:%02d%s%s%s",
+                    add_quotes ? "\"" : "",
+                    tmp->tm_year + 1900,
+                    tmp->tm_mon + 1,
+                    tmp->tm_mday,
+                    tmp->tm_hour,
+                    tmp->tm_min,
+                    tmp->tm_sec,
+                    nsecs_str,
+                    zone_buf,
+                    add_quotes ? "\"" : "");
+            break;
+        }
+        default:
+            ws_assert_not_reached();
+    }
+    return buf;
+}
+
 char *
 abs_time_to_str_ex(wmem_allocator_t *scope, const nstime_t *abs_time, field_display_e fmt,
                     int flags)
@@ -185,6 +262,10 @@ abs_time_to_str_ex(wmem_allocator_t *scope, const nstime_t *abs_time, field_disp
     *buf_nsecs = '\0';
     if (abs_time->nsecs != INT_MAX) {
         snprintf(buf_nsecs, sizeof(buf_nsecs), ".%09d", abs_time->nsecs);
+    }
+
+    if (flags & ABS_TIME_TO_STR_ISO8601) {
+        return snprint_abs_time_iso8601(scope, fmt, tmp, buf_nsecs, flags);
     }
 
     tzone_sep = "";

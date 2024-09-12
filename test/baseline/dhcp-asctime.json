@@ -7,8 +7,8 @@
       "layers": {
         "frame": {
           "frame.encap_type": "1",
-          "frame.time": "2004-12-05T19:16:24.317453000+0000",
-          "frame.time_utc": "2004-12-05T19:16:24.317453000Z",
+          "frame.time": "Dec  5, 2004 19:16:24.317453000 UTC",
+          "frame.time_utc": "Dec  5, 2004 19:16:24.317453000 UTC",
           "frame.time_epoch": "1102274184.317453000",
           "frame.offset_shift": "0.000000000",
           "frame.time_delta": "0.000000000",
@@ -164,8 +164,8 @@
       "layers": {
         "frame": {
           "frame.encap_type": "1",
-          "frame.time": "2004-12-05T19:16:24.317748000+0000",
-          "frame.time_utc": "2004-12-05T19:16:24.317748000Z",
+          "frame.time": "Dec  5, 2004 19:16:24.317748000 UTC",
+          "frame.time_utc": "Dec  5, 2004 19:16:24.317748000 UTC",
           "frame.time_epoch": "1102274184.317748000",
           "frame.offset_shift": "0.000000000",
           "frame.time_delta": "0.000295000",
@@ -331,8 +331,8 @@
       "layers": {
         "frame": {
           "frame.encap_type": "1",
-          "frame.time": "2004-12-05T19:16:24.387484000+0000",
-          "frame.time_utc": "2004-12-05T19:16:24.387484000Z",
+          "frame.time": "Dec  5, 2004 19:16:24.387484000 UTC",
+          "frame.time_utc": "Dec  5, 2004 19:16:24.387484000 UTC",
           "frame.time_epoch": "1102274184.387484000",
           "frame.offset_shift": "0.000000000",
           "frame.time_delta": "0.069736000",
@@ -494,8 +494,8 @@
       "layers": {
         "frame": {
           "frame.encap_type": "1",
-          "frame.time": "2004-12-05T19:16:24.387798000+0000",
-          "frame.time_utc": "2004-12-05T19:16:24.387798000Z",
+          "frame.time": "Dec  5, 2004 19:16:24.387798000 UTC",
+          "frame.time_utc": "Dec  5, 2004 19:16:24.387798000 UTC",
           "frame.time_epoch": "1102274184.387798000",
           "frame.offset_shift": "0.000000000",
           "frame.time_delta": "0.000314000",

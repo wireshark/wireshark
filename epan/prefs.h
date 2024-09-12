@@ -143,6 +143,12 @@ typedef enum {
     COPY_FORMAT_HTML
 } copy_format_e;
 
+typedef enum {
+    ABS_TIME_ASCII_NEVER,
+    ABS_TIME_ASCII_TREE,
+    ABS_TIME_ASCII_COLUMN,
+    ABS_TIME_ASCII_ALWAYS,
+} abs_time_format_e;
 
 /*
  * Update channel.
@@ -224,6 +230,7 @@ typedef struct _e_prefs {
   unsigned     tap_update_interval;
   bool         display_hidden_proto_items;
   bool         display_byte_fields_with_spaces;
+  abs_time_format_e display_abs_time_ascii;
   bool         enable_incomplete_dissectors_check;
   bool         incomplete_dissectors_check_debug;
   bool         strict_conversation_tracking_heuristics;

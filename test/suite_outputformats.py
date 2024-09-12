@@ -50,6 +50,11 @@ class TestOutputFormats:
         '''Decode some captures into json'''
         check_outputformat("json", expected="dhcp.json", env=base_env)
 
+    def test_outputformat_json_asctime(self, check_outputformat, base_env):
+        '''Decode some captures into json, with absolute times like asctime, for backwards compatibility '''
+        check_outputformat("json", extra_args=['-o', 'protocols.display_abs_time_ascii:ALWAYS'],
+            expected="dhcp-asctime.json", env=base_env)
+
     def test_outputformat_jsonraw(self, check_outputformat, base_env):
         '''Decode some captures into jsonraw'''
         check_outputformat("jsonraw", expected="dhcp.jsonraw", env=base_env)

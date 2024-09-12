@@ -40,6 +40,15 @@ The following features are either new or have been significantly updated since v
 //* The Windows installers now ship with Qt 6.5.2.
 //  They previously shipped with Qt 6.2.3.
 
+* The default format for absolute times when output with -T fields, -T json,
+  and the "show" field of -T pdml, or when in custom columns (including CSV
+  output of columns) has been changed to ISO 8601. (This was already the case
+  for -T ek.) For backwards compatibility, a preference has been added,
+  protocols.display_abs_time_ascii. This can be set to continue to format
+  times in a manner similar to asctime. (E.g., Dec 18, 2017 05:28:39.071704055 EST.)
+  This preference can also be set to never use ascii time and to use ISO 8601 time
+  in the protocol tree (Packet Details) as well.
+
 * Mergecap, Editcap, TShark and Text2pcap have an `--compress` option to
   compress output to different formats. For now, it supports the gzip
   and LZ4 compression formats. When the option is not given, the desired

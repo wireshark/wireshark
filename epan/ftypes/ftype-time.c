@@ -14,6 +14,7 @@
 #include <stdlib.h>
 #include <math.h>
 
+#include <epan/prefs.h>
 #include <epan/to_str.h>
 #include <wsutil/time_util.h>
 #include <wsutil/ws_strptime.h>
@@ -436,41 +437,22 @@ value_get(fvalue_t *fv)
 }
 
 static char *
-abs_time_to_ftrepr_dfilter(wmem_allocator_t *scope,
-			const nstime_t *nstime, bool use_utc)
-{
-	struct tm *tm;
-	char datetime_format[128];
-	char nsecs_buf[32];
-
-	if (use_utc) {
-		tm = gmtime(&nstime->secs);
-		if (tm != NULL)
-			strftime(datetime_format, sizeof(datetime_format), "\"%Y-%m-%d %H:%M:%S%%sZ\"", tm);
-		else
-			snprintf(datetime_format, sizeof(datetime_format), "Not representable");
-	}
-	else {
-		tm = localtime(&nstime->secs);
-		/* Displaying the timezone could be made into a preference. */
-		if (tm != NULL)
-			strftime(datetime_format, sizeof(datetime_format), "\"%Y-%m-%d %H:%M:%S%%s%z\"", tm);
-		else
-			snprintf(datetime_format, sizeof(datetime_format), "Not representable");
-	}
-
-	if (nstime->nsecs == 0)
-		return wmem_strdup_printf(scope, datetime_format, "");
-
-	snprintf(nsecs_buf, sizeof(nsecs_buf), ".%09d", nstime->nsecs);
-
-	return wmem_strdup_printf(scope, datetime_format, nsecs_buf);
-}
-
-static char *
 absolute_val_to_repr(wmem_allocator_t *scope, const fvalue_t *fv, ftrepr_t rtype, int field_display)
 {
-	char *rep;
+	int flags = ABS_TIME_TO_STR_SHOW_ZONE;
+	/*
+	 * There could be a preference not to show the time zone for local
+	 * time. (I.e., to use ABS_TIME_TO_STR_SHOW_UTC_ONLY instead.)
+	 */
+
+	/*
+	 * Backwards compatibility preference. Note below we'll always use
+	 * ISO 8601 when generating a filter, although filters do support
+	 * the older format.
+	 */
+	if (prefs.display_abs_time_ascii != ABS_TIME_ASCII_ALWAYS) {
+		flags |= ABS_TIME_TO_STR_ISO8601;
+	}
 
 	if (field_display == BASE_NONE)
 		field_display = ABSOLUTE_TIME_LOCAL;
@@ -478,21 +460,24 @@ absolute_val_to_repr(wmem_allocator_t *scope, const fvalue_t *fv, ftrepr_t rtype
 	switch (rtype) {
 		case FTREPR_DISPLAY:
 		case FTREPR_JSON:
-			rep = abs_time_to_str_ex(scope, &fv->value.time,
-					field_display, ABS_TIME_TO_STR_SHOW_ZONE);
 			break;
 
 		case FTREPR_DFILTER:
-			if (field_display == ABSOLUTE_TIME_UNIX) {
-				rep = abs_time_to_unix_str(scope, &fv->value.time);
+			/*
+			 * Display filters don't handle DOY or the special NULL
+			 * NTP time representation. Normalize.
+			 */
+			switch (field_display) {
+			case BASE_NONE:
+			case ABSOLUTE_TIME_LOCAL:
+			case ABSOLUTE_TIME_UNIX:
+			case ABSOLUTE_TIME_UTC:
+				break;
+			default:
+				field_display = ABSOLUTE_TIME_UTC;
 			}
-			else {
-				/* Only ABSOLUTE_TIME_LOCAL and ABSOLUTE_TIME_UTC
-				 * are supported. Normalize the field_display value. */
-				if (field_display != ABSOLUTE_TIME_LOCAL)
-					field_display = ABSOLUTE_TIME_UTC;
-				rep = abs_time_to_ftrepr_dfilter(scope, &fv->value.time, field_display != ABSOLUTE_TIME_LOCAL);
-			}
+			flags |= ABS_TIME_TO_STR_ADD_DQUOTES;
+			flags |= ABS_TIME_TO_STR_ISO8601;
 			break;
 
 		default:
@@ -500,7 +485,7 @@ absolute_val_to_repr(wmem_allocator_t *scope, const fvalue_t *fv, ftrepr_t rtype
 			break;
 	}
 
-	return rep;
+	return abs_time_to_str_ex(scope, &fv->value.time, field_display, flags);
 }
 
 static char *

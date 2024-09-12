@@ -4299,13 +4299,18 @@ proto_tree_add_item_ret_time_string(proto_tree *tree, int hfindex,
 	header_field_info *hfinfo;
 	field_info	  *new_fi;
 	nstime_t    time_stamp;
+	int flags;
 
 	PROTO_REGISTRAR_GET_NTH(hfindex, hfinfo);
 
 	switch (hfinfo->type) {
 	case FT_ABSOLUTE_TIME:
 		get_time_value(tree, tvb, start, length, encoding, &time_stamp, false);
-		*retval = abs_time_to_str(scope, &time_stamp, hfinfo->display, true);
+		flags = ABS_TIME_TO_STR_SHOW_ZONE;
+		if (prefs.display_abs_time_ascii < ABS_TIME_ASCII_TREE) {
+			flags |= ABS_TIME_TO_STR_ISO8601;
+		}
+		*retval = abs_time_to_str_ex(scope, &time_stamp, hfinfo->display, flags);
 		break;
 	case FT_RELATIVE_TIME:
 		get_time_value(tree, tvb, start, length, encoding, &time_stamp, true);
@@ -6968,10 +6973,16 @@ proto_item_fill_display_label(const field_info *finfo, char *display_label_str, 
 			break;
 
 		case FT_ABSOLUTE_TIME:
-			tmp_str = abs_time_to_str(NULL, fvalue_get_time(finfo->value), hfinfo->display, true);
+		{
+			int flags = ABS_TIME_TO_STR_SHOW_ZONE;
+			if (prefs.display_abs_time_ascii < ABS_TIME_ASCII_COLUMN) {
+				flags |= ABS_TIME_TO_STR_ISO8601;
+			}
+			tmp_str = abs_time_to_str_ex(NULL, fvalue_get_time(finfo->value), hfinfo->display, flags);
 			label_len = protoo_strlcpy(display_label_str, tmp_str, label_str_size);
 			wmem_free(NULL, tmp_str);
 			break;
+		}
 
 		case FT_RELATIVE_TIME:
 			tmp_str = rel_time_to_secs_str(NULL, fvalue_get_time(finfo->value));
@@ -9989,11 +10000,16 @@ proto_item_fill_label(const field_info *fi, char *label_str)
 			break;
 
 		case FT_ABSOLUTE_TIME:
-			tmp = abs_time_to_str(NULL, fvalue_get_time(fi->value), hfinfo->display, true);
+		{
+			int flags = ABS_TIME_TO_STR_SHOW_ZONE;
+			if (prefs.display_abs_time_ascii < ABS_TIME_ASCII_TREE) {
+				flags |= ABS_TIME_TO_STR_ISO8601;
+			}
+			tmp = abs_time_to_str_ex(NULL, fvalue_get_time(fi->value), hfinfo->display, flags);
 			label_fill(label_str, 0, hfinfo, tmp);
 			wmem_free(NULL, tmp);
 			break;
-
+		}
 		case FT_RELATIVE_TIME:
 			tmp = rel_time_to_str(NULL, fvalue_get_time(fi->value));
 			label_fill(label_str, 0, hfinfo, tmp);

@@ -122,6 +122,7 @@ WS_DLL_PUBLIC char* tvb_address_var_to_str(wmem_allocator_t *scope, tvbuff_t *tv
 #define ABS_TIME_TO_STR_SHOW_ZONE       (1U << 0)
 #define ABS_TIME_TO_STR_ADD_DQUOTES     (1U << 1)
 #define ABS_TIME_TO_STR_SHOW_UTC_ONLY   (1U << 2)
+#define ABS_TIME_TO_STR_ISO8601         (1U << 3)
 
 WS_DLL_PUBLIC char *abs_time_to_str_ex(wmem_allocator_t *scope,
                                         const nstime_t *, field_display_e fmt,

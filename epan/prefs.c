@@ -180,6 +180,14 @@ static const enum_val_t conv_deint_options[] = {
     {NULL, NULL, -1}
 };
 
+static const enum_val_t abs_time_format_options[] = {
+    {"NEVER", "Never", ABS_TIME_ASCII_NEVER},
+    {"TREE", "Protocol tree only", ABS_TIME_ASCII_TREE},
+    {"COLUMN", "Protocol tree and columns", ABS_TIME_ASCII_COLUMN},
+    {"ALWAYS", "Always", ABS_TIME_ASCII_ALWAYS},
+    {NULL, NULL, -1}
+};
+
 #if defined(HAVE_PCAP_CREATE)
 /* Can set monitor mode and buffer size. */
 static int num_capture_cols = 7;
@@ -4012,6 +4020,15 @@ prefs_register_modules(void)
                                    "Display all byte fields with a space character between each byte in the packet list.",
                                    &prefs.display_byte_fields_with_spaces);
 
+    /*
+     * Note the -t /  option only affects the display of the packet timestamp
+     * in the default time column; this is for all other absolute times.
+     */
+    prefs_register_enum_preference(protocols_module, "display_abs_time_ascii",
+                                   "Format absolute times like asctime",
+                                   "When to format absolute times similar to asctime instead of ISO 8601, for backwards compatibility with older Wireshark.",
+                                   (int*)&prefs.display_abs_time_ascii, abs_time_format_options, false);
+
     prefs_register_bool_preference(protocols_module, "enable_incomplete_dissectors_check",
                                    "Look for incomplete dissectors",
                                    "Look for dissectors that left some bytes undecoded.",
@@ -4481,6 +4498,7 @@ pre_init_prefs(void)
     /* protocols */
     prefs.display_hidden_proto_items = false;
     prefs.display_byte_fields_with_spaces = false;
+    prefs.display_abs_time_ascii = ABS_TIME_ASCII_TREE;
     prefs.ignore_dup_frames = false;
     prefs.ignore_dup_frames_cache_entries = 10000;
 
