@@ -2775,6 +2775,56 @@ static netlogon_auth_vars *create_global_netlogon_auth_vars(packet_info *pinfo,
     return vars;
 }
 
+static netlogon_auth_vars *find_tmp_netlogon_auth_vars(packet_info *pinfo, unsigned char is_server)
+{
+    netlogon_auth_vars *lvars = NULL;
+    netlogon_auth_vars *avars = NULL;
+    netlogon_auth_key akey;
+
+    generate_hash_key(pinfo, is_server, &akey);
+    lvars = (netlogon_auth_vars *)wmem_map_lookup(netlogon_auths, &akey);
+
+    for (; lvars != NULL; lvars = lvars->next) {
+        int fd_num = (int) pinfo->num;
+
+        if (fd_num <= lvars->start) {
+            /*
+             * Before it even started,
+             * can't be used..., keep
+             * avars if we already found
+             * one.
+             */
+            break;
+        }
+        /*
+         * remember the current match,
+         * but try to find a better one...
+         */
+        avars = lvars;
+        if (lvars->auth_fd_num == -1) {
+            /*
+             * No ServerAuthenticate{,1,3}, keep
+             * avars if we already found one,
+             * but try to find a better one...
+             */
+            continue;
+        }
+        if (fd_num <= lvars->auth_fd_num) {
+            /*
+             * Before ServerAuthenticate{,1,3},
+             * take it...
+             */
+            break;
+        }
+        /*
+         * try to find a better one...
+         */
+        avars = NULL;
+    }
+
+    return avars;
+}
+
 static netlogon_auth_vars *find_global_netlogon_auth_vars(packet_info *pinfo, unsigned char is_server)
 {
     netlogon_auth_vars *lvars = NULL;
@@ -2906,11 +2956,9 @@ netlogon_dissect_netrserverreqchallenge_reply(tvbuff_t *tvb, int offset,
                                               packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
     netlogon_auth_vars *vars;
-    netlogon_auth_key key;
     uint64_t server_challenge;
 
-    generate_hash_key(pinfo,1,&key);
-    vars = (netlogon_auth_vars *)wmem_map_lookup(netlogon_auths,(const void **) &key);
+    vars = find_tmp_netlogon_auth_vars(pinfo, 1);
 
     offset = dissect_dcerpc_8bytes(tvb, offset, pinfo, tree, drep,
                                    hf_server_challenge, &server_challenge);
@@ -2921,19 +2969,7 @@ netlogon_dissect_netrserverreqchallenge_reply(tvbuff_t *tvb, int offset,
     offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep,
                               hf_netlogon_rc, NULL);
     if(vars != NULL) {
-        while(vars !=NULL && vars->next_start != -1 && vars->next_start < (int)pinfo->num )
-        {
-            vars = vars->next;
-            ws_debug("looping challenge reply... %d %d ", vars->next_start, pinfo->num);
-        }
-        if(vars == NULL)
-        {
-            ws_debug("Something strange happened while searching for challenge_reply");
-        }
-        else
-        {
-            vars->server_challenge = server_challenge;
-        }
+        vars->server_challenge = server_challenge;
     }
 /*
   else
@@ -7206,7 +7242,6 @@ netlogon_dissect_netrserverauthenticate023_reply(tvbuff_t *tvb, int offset,
 {
     uint32_t flags = 0;
     netlogon_auth_vars *vars;
-    netlogon_auth_key key;
     uint64_t server_cred;
 
     offset = dissect_dcerpc_8bytes(tvb, offset, pinfo, tree, drep,
@@ -7225,19 +7260,10 @@ netlogon_dissect_netrserverauthenticate023_reply(tvbuff_t *tvb, int offset,
     offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep,
                               hf_netlogon_rc, NULL);
 
-    generate_hash_key(pinfo, 1 , &key);
-
-    vars = (netlogon_auth_vars *)wmem_map_lookup(netlogon_auths, &key);
+    vars = find_tmp_netlogon_auth_vars(pinfo, 1);
     if(vars != NULL) {
         ws_debug("Found some vars (ie. server/client challenges), let's see if I can get a session key");
-        while(vars != NULL && vars->next_start != -1 && vars->next_start < (int) pinfo->num ) {
-            ws_debug("looping auth reply...");
-            vars = vars->next;
-        }
-        if(vars == NULL ) {
-            ws_debug("Something strange happened while searching for authenticate_reply");
-        }
-        else {
+        {
             md4_pass *pass_list=NULL;
             const md4_pass *used_md4 = NULL;
             const char *used_method = NULL;
