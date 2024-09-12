@@ -469,6 +469,7 @@ void
 proto_reg_handoff_nts_ke(void)
 {
     dissector_add_uint_with_preference("tls.port", TLS_PORT, nts_ke_handle);
+    dissector_add_string("tls.alpn", "ntske/1", nts_ke_handle);
 }
 
 /*
