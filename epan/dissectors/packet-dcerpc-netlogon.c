@@ -7226,6 +7226,8 @@ static int
 netlogon_dissect_netrserverauthenticatekerberos_rqst(tvbuff_t *tvb, int offset,
                                                      packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
+    netlogon_auth_vars *vars = NULL;
+    dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
     uint32_t flags;
     offset = netlogon_dissect_LOGONSRV_HANDLE(tvb, offset,
                                               pinfo, tree, di, drep);
@@ -7245,8 +7247,17 @@ netlogon_dissect_netrserverauthenticatekerberos_rqst(tvbuff_t *tvb, int offset,
 
     ALIGN_TO_5_BYTES
 
-    offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, di, drep,
-                                          NDR_POINTER_REF, "Computer Name", hf_netlogon_computer_name, 0);
+    dcv = (dcerpc_call_value *)di->call_data;
+    offset = dissect_ndr_pointer_cb(
+        tvb, offset, pinfo, tree, di, drep,
+        dissect_ndr_wchar_cvstring, NDR_POINTER_REF,
+        "Computer Name", hf_netlogon_computer_name,
+        cb_wstr_postprocess,
+        GINT_TO_POINTER(CB_STR_COL_INFO |CB_STR_SAVE | 1));
+
+    ws_debug("1)Len %d offset %d txt %s",(int) strlen((char *)dcv->private_data),offset,(char*)dcv->private_data);
+    vars = create_global_netlogon_auth_vars(pinfo, (char*)dcv->private_data, 0);
+    ws_debug("2)Len %d offset %d txt %s",(int) strlen((char *)dcv->private_data),offset,vars->client_name);
 
     ALIGN_TO_4_BYTES;
 
@@ -7255,6 +7266,9 @@ netlogon_dissect_netrserverauthenticatekerberos_rqst(tvbuff_t *tvb, int offset,
     seen.isseen = false;
     seen.num = 0;
     offset +=4;
+
+    vars->flags = flags;
+
     return offset;
 }
 
@@ -7520,6 +7534,7 @@ netlogon_dissect_netrserverauthenticatekerberos_reply(tvbuff_t *tvb, int offset,
                                                       dcerpc_info *di,
                                                       uint8_t *drep)
 {
+    netlogon_auth_vars *vars = NULL;
     uint32_t flags = 0;
 
     flags = tvb_get_letohl (tvb, offset);
@@ -7530,6 +7545,20 @@ netlogon_dissect_netrserverauthenticatekerberos_reply(tvbuff_t *tvb, int offset,
                                    hf_server_rid, NULL);
     offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep,
                               hf_netlogon_rc, NULL);
+
+    vars = find_tmp_netlogon_auth_vars(pinfo, 1);
+    if (vars != NULL) {
+        vars->flags = flags;
+        snprintf(vars->nthash.key_origin, NTLMSSP_MAX_ORIG_LEN,
+                 "ServerAuthenticateKerberos(%s) at frame %d",
+                 vars->client_name, pinfo->num);
+        vars->auth_fd_num = pinfo->num;
+        expert_add_info_format(pinfo, proto_tree_get_parent(tree),
+                               &ei_netlogon_session_key,
+                               "zero session key");
+    } else {
+        ws_debug("ServerAuthenticateKerberos request not found !");
+    }
 
     return offset;
 }
