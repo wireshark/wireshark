@@ -1019,7 +1019,7 @@ WSLUA_FUNCTION wslua_dissect_tcp_pdus(lua_State* L) {
        determined from a fixed minimum portion, such as HTTP or Telnet.
      */
 #define WSLUA_ARG_dissect_tcp_pdus_TVB 1 /* The Tvb buffer to dissect PDUs from. */
-#define WSLUA_ARG_dissect_tcp_pdus_TREE 2 /* The Tvb buffer to dissect PDUs from. */
+#define WSLUA_ARG_dissect_tcp_pdus_TREE 2 /* `TreeItem` object passed to the `dissect_func`. */
 #define WSLUA_ARG_dissect_tcp_pdus_MIN_HEADER_SIZE 3 /* The number of bytes
                         in the fixed-length part of the PDU. */
 #define WSLUA_ARG_dissect_tcp_pdus_GET_LEN_FUNC 4 /* A Lua function that will be
