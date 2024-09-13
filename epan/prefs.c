@@ -4545,13 +4545,6 @@ reset_pref(pref_t *pref)
 
     case PREF_ENUM:
     case PREF_PROTO_TCP_SNDAMB_ENUM:
-        /*
-         * For now, we save the "description" value, so that if we
-         * save the preferences older versions of Wireshark can at
-         * least read preferences that they supported; we support
-         * either the short name or the description when reading
-         * the preferences file or a "-o" option.
-         */
         *pref->varp.enump = pref->default_val.enumval;
         break;
 
@@ -6707,12 +6700,24 @@ prefs_pref_type_description(pref_t *pref)
     {
         const enum_val_t *enum_valp = pref->info.enum_info.enumvals;
         GString *enum_str = g_string_new("One of: ");
+        GString *desc_str = g_string_new("\nEquivalently, one of: ");
+        bool distinct = false;
         while (enum_valp->name != NULL) {
-            g_string_append(enum_str, enum_valp->description);
+            g_string_append(enum_str, enum_valp->name);
+            g_string_append(desc_str, enum_valp->description);
+            if (g_strcmp0(enum_valp->name, enum_valp->description) != 0) {
+                distinct = true;
+            }
             enum_valp++;
-            if (enum_valp->name != NULL)
+            if (enum_valp->name != NULL) {
                 g_string_append(enum_str, ", ");
+                g_string_append(desc_str, ", ");
+            }
         }
+        if (distinct) {
+            g_string_append(enum_str, desc_str->str);
+        }
+        g_string_free(desc_str, TRUE);
         g_string_append(enum_str, "\n(case-insensitive).");
         return g_string_free(enum_str, FALSE);
     }
@@ -6909,17 +6914,10 @@ prefs_pref_to_str(pref_t *pref, pref_source_t source) {
     case PREF_PROTO_TCP_SNDAMB_ENUM:
     {
         int pref_enumval = *(int *) valp;
-        /*
-         * For now, we return the "description" value, so that if we
-         * save the preferences older versions of Wireshark can at
-         * least read preferences that they supported; we support
-         * either the short name or the description when reading
-         * the preferences file or a "-o" option.
-         */
         const enum_val_t *enum_valp = pref->info.enum_info.enumvals;
         while (enum_valp->name != NULL) {
             if (enum_valp->value == pref_enumval)
-                return g_strdup(enum_valp->description);
+                return g_strdup(enum_valp->name);
             enum_valp++;
         }
         break;
