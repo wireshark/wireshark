@@ -69,9 +69,9 @@ static const char *global_rlc_kasumi_key;
 static int global_rlc_li_size = RLC_LI_UPPERLAYER;
 
 static const enum_val_t li_size_enumvals[] = {
-    {"7 bits", "7 bits", RLC_LI_7BITS},
-    {"15 bits", "15 bits", RLC_LI_15BITS},
-    {"Let upper layers decide", "Let upper layers decide", RLC_LI_UPPERLAYER},
+    {"7", "7 bits", RLC_LI_7BITS},
+    {"15", "15 bits", RLC_LI_15BITS},
+    {"per_upper_layer", "Let upper layers decide", RLC_LI_UPPERLAYER},
     {NULL, NULL, -1}};
 
 /* fields */

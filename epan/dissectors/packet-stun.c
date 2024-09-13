@@ -128,8 +128,8 @@ static int stun_network_version = NET_VER_5389;
 static const enum_val_t stun_network_version_vals[] = {
         { "Auto", "Auto",     NET_VER_AUTO},
         { "MS-TURN",  "MS-TURN", NET_VER_MS_TURN },
-        { "RFC3489 and earlier", "RFC3489 and earlier",     NET_VER_3489},
-        { "RFC5389 and later",  "RFC5389 and later", NET_VER_5389 },
+        { "RFC3489", "RFC3489 and earlier",     NET_VER_3489},
+        { "RFC5389",  "RFC5389 and later", NET_VER_5389 },
         { NULL, NULL, 0 }
 };
 

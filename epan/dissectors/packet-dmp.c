@@ -760,7 +760,7 @@ static const value_string sec_pol[] = {
  * for value we use the DMP value for National Policy Identifier.
  */
 static const enum_val_t dmp_national_values[] = {
-  { "???",  "None", 0x00 },
+  { "xxx",  "None", 0x00 },
   { "alb",  "Albania", 0x1B },
   { "arm",  "Armenia", 0x20 },
   { "aut",  "Austria", 0x21 },

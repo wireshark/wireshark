@@ -169,15 +169,15 @@ static const enum_val_t enum_addressing[] = {
 
 /* Encoding */
 static const enum_val_t enum_flexray_addressing[] = {
-    {"1 Byte", "1 byte addressing", ONE_BYTE_ADDRESSING},
-    {"2 Byte", "2 byte addressing", TWO_BYTE_ADDRESSING},
+    {"1", "1 byte addressing", ONE_BYTE_ADDRESSING},
+    {"2", "2 byte addressing", TWO_BYTE_ADDRESSING},
     {NULL, NULL, 0}
 };
 
 static const enum_val_t enum_ipdum_addressing[] = {
-    {"0 Byte", "0 byte addressing", ZERO_BYTE_ADDRESSING},
-    {"1 Byte", "1 byte addressing", ONE_BYTE_ADDRESSING},
-    {"2 Byte", "2 byte addressing", TWO_BYTE_ADDRESSING},
+    {"0", "0 byte addressing", ZERO_BYTE_ADDRESSING},
+    {"1", "1 byte addressing", ONE_BYTE_ADDRESSING},
+    {"2", "2 byte addressing", TWO_BYTE_ADDRESSING},
     {NULL, NULL, 0}
 };
 

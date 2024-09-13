@@ -2807,8 +2807,8 @@ static const enum_val_t dmx_display_view[] = {
 };
 
 static const enum_val_t dmx_display_line_format[] = {
-  { "20 per line", "20 per line",     ACN_PREF_DMX_DISPLAY_20PL  },
-  { "16 per line", "16 per line",     ACN_PREF_DMX_DISPLAY_16PL  },
+  { "20", "20 per line",     ACN_PREF_DMX_DISPLAY_20PL  },
+  { "16", "16 per line",     ACN_PREF_DMX_DISPLAY_16PL  },
   { NULL, NULL, 0 }
 };
 

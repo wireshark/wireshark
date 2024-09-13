@@ -97,8 +97,8 @@ static uint16_t mac_tsn_size = 6;
 static int global_mac_tsn_size = MAC_TSN_6BITS;
 int get_mac_tsn_size(void) { return global_mac_tsn_size; }
 static const enum_val_t tsn_size_enumvals[] = {
-    {"6 bits",  "6 bits",  MAC_TSN_6BITS},
-    {"14 bits", "14 bits", MAC_TSN_14BITS},
+    {"6",  "6 bits",  MAC_TSN_6BITS},
+    {"14", "14 bits", MAC_TSN_14BITS},
     {NULL, NULL, -1}};
 enum mac_is_fragment_type {
     MAC_IS_HEAD,

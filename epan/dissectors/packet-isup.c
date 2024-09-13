@@ -12238,12 +12238,12 @@ proto_register_isup(void)
   };
 
   static const enum_val_t isup_variants[] = {
-    {"ITU Standard",              "ITU Standard",              ISUP_ITU_STANDARD_VARIANT},
-    {"French National Standard",  "French National Standard",  ISUP_FRENCH_VARIANT},
-    {"Israeli National Standard", "Israeli National Standard", ISUP_ISRAELI_VARIANT},
-    {"Russian National Standard", "Russian National Standard", ISUP_RUSSIAN_VARIANT},
-    {"Japan National Standard",   "Japan National Standard",   ISUP_JAPAN_VARIANT},
-    {"Japan National Standard (TTC)",   "Japan National Standard (TTC)",   ISUP_JAPAN_TTC_VARIANT},
+    {"ITU",         "ITU Standard",              ISUP_ITU_STANDARD_VARIANT},
+    {"French",      "French National Standard",  ISUP_FRENCH_VARIANT},
+    {"Israeli",     "Israeli National Standard", ISUP_ISRAELI_VARIANT},
+    {"Russian",     "Russian National Standard", ISUP_RUSSIAN_VARIANT},
+    {"Japan",       "Japan National Standard",   ISUP_JAPAN_VARIANT},
+    {"Japan_TTC",   "Japan National Standard (TTC)",   ISUP_JAPAN_TTC_VARIANT},
     {NULL, NULL, -1}
   };
 

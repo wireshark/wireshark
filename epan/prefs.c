@@ -1351,6 +1351,18 @@ prefs_register_enum_preference(module_t *module, const char *name,
 {
     pref_t *preference;
 
+    /* Validate that the "name one would use on the command line for the value"
+     * doesn't require quoting, etc. It's all treated case-insensitively so we
+     * don't care about upper vs lower case.
+     */
+    for (size_t i = 0; enumvals[i].name != NULL; i++) {
+        for (const char *p = enumvals[i].name; *p != '\0'; p++)
+            if (!(g_ascii_isalnum(*p) || *p == '_' || *p == '.' || *p == '-'))
+                ws_error("Preference \"%s.%s\" enum value name \"%s\" contains invalid characters",
+                    module->name, name, enumvals[i].name);
+    }
+
+
     preference = register_preference(module, name, title, description,
                                      PREF_ENUM);
     preference->varp.enump = var;
@@ -6915,9 +6927,18 @@ prefs_pref_to_str(pref_t *pref, pref_source_t source) {
     {
         int pref_enumval = *(int *) valp;
         const enum_val_t *enum_valp = pref->info.enum_info.enumvals;
+        /*
+         * TODO - We write the "description" value, because the "name" values
+         * weren't validated to be command line friendly until 5.0, and a few
+         * of them had to be changed. This allows older versions of Wireshark
+         * to read preferences that they supported, as we supported either
+         * the short name or the description when reading the preference files
+         * or an "-o" option. Once 5.0 is the oldest supported version, switch
+         * to writing the name below.
+         */
         while (enum_valp->name != NULL) {
             if (enum_valp->value == pref_enumval)
-                return g_strdup(enum_valp->name);
+                return g_strdup(enum_valp->description);
             enum_valp++;
         }
         break;

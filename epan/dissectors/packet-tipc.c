@@ -3081,10 +3081,10 @@ proto_register_tipc(void)
 
 	/* options for the enum in the protocol preferences */
 	static const enum_val_t handle_v2_as_options[] = {
-		{ "all",          "ALL",          V2_AS_ALL },
-		{ "tipc l.5/1.6", "TIPC 1.5/1.6", V2_AS_1_6 },
-		{ "tipc 1.7",     "TIPC 1.7",     V2_AS_1_7 },
-		{ NULL,           NULL,           0 }
+		{ "all",     "ALL",          V2_AS_ALL },
+		{ "1.5_1.6", "TIPC 1.5/1.6", V2_AS_1_6 },
+		{ "1.7",     "TIPC 1.7",     V2_AS_1_7 },
+		{ NULL,      NULL,           0 }
 	};
 
 	/* Register the protocol name and description */

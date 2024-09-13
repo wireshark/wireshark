@@ -3370,9 +3370,9 @@ void proto_register_gsm_map(void) {
   };
 
   static const enum_val_t application_context_modes[] = {
-    {"Treat as AC 1", "Treat as AC 1", 1},
-    {"Treat as AC 2", "Treat as AC 2", 2},
-    {"Treat as AC 3", "Treat as AC 3", 3},
+    {"1", "Treat as AC 1", 1},
+    {"2", "Treat as AC 2", 2},
+    {"3", "Treat as AC 3", 3},
     {NULL, NULL, -1}
   };
 

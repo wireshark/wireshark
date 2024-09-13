@@ -1030,10 +1030,10 @@ proto_register_websocket(void)
   };
 
   static const enum_val_t text_types[] = {
-      {"None",            "No subdissection", WEBSOCKET_NONE},
-      {"Line based text", "Line based text",  WEBSOCKET_TEXT},
-      {"As JSON",         "As json",          WEBSOCKET_JSON},
-      {"As SIP",         "As SIP",          WEBSOCKET_SIP},
+      {"None", "No subdissection", WEBSOCKET_NONE},
+      {"Text", "Line based text",  WEBSOCKET_TEXT},
+      {"JSON", "As json",          WEBSOCKET_JSON},
+      {"SIP",  "As SIP",           WEBSOCKET_SIP},
       {NULL, NULL, -1}
   };
 

@@ -89,11 +89,11 @@ typedef enum {
 
 static const enum_val_t pref_hsp_role[] = {
     { "Unknown",        "Unknown vendor",   PTP_VENDOR_UNKNOWN },
-    { "Eastman Kodak",  "Eastman Kodak",    PTP_VENDOR_EASTMAN_KODAK},
+    { "Eastman_Kodak",  "Eastman Kodak",    PTP_VENDOR_EASTMAN_KODAK},
     { "Canon",          "Canon",            PTP_VENDOR_CANON },
     { "Nikon",          "Nikon",            PTP_VENDOR_NIKON },
     { "Casio",          "Casio EX-F1",      PTP_VENDOR_CASIO },
-    { "Microsoft / MTP","Microsoft / MTP",  PTP_VENDOR_MTP },
+    { "MTP",            "Microsoft / MTP",  PTP_VENDOR_MTP },
     { "Olympus",        "Olympus E series", PTP_VENDOR_OLYMPUS },
     { NULL, NULL, 0 }
 };

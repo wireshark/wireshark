@@ -1685,9 +1685,9 @@ proto_register_ansi_tcap(void)
     expert_module_t* expert_ansi_tcap;
 
     static const enum_val_t ansi_tcap_response_matching_type_values[] = {
-        {"Only Transaction ID will be used in Invoke/response matching",                        "Transaction ID only", ANSI_TCAP_TID_ONLY},
-        {"Transaction ID and Source will be used in Invoke/response matching",                  "Transaction ID and Source", ANSI_TCAP_TID_AND_SOURCE},
-        {"Transaction ID Source and Destination will be used in Invoke/response matching",      "Transaction ID Source and Destination", ANSI_TCAP_TID_SOURCE_AND_DEST},
+        {"tid",                  "Transaction ID only", ANSI_TCAP_TID_ONLY},
+        {"tid_source",           "Transaction ID and Source", ANSI_TCAP_TID_AND_SOURCE},
+        {"tid_source_dest",      "Transaction ID Source and Destination", ANSI_TCAP_TID_SOURCE_AND_DEST},
         {NULL, NULL, -1}
     };
 

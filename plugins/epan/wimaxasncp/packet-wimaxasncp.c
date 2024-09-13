@@ -440,9 +440,9 @@ static const ver_value_string wimaxasncp_accounting_msg_vals_r1v121[] =
 
 /* supported NWG versions */
 static const enum_val_t wimaxasncp_nwg_versions[] = {
-    { "Release 1.0, Version 1.0.0" , "R1.0 v1.0.0" , WIMAXASNCP_NWGVER_R10_V100  },
-    { "Release 1.0, Version 1.2.0" , "R1.0 v1.2.0" , WIMAXASNCP_NWGVER_R10_V120  },
-    { "Release 1.0, Version 1.2.1" , "R1.0 v1.2.1" , WIMAXASNCP_NWGVER_R10_V121  },
+    { "R1.0_v1.0.0", "Release 1.0, Version 1.0.0", WIMAXASNCP_NWGVER_R10_V100  },
+    { "R1.0_v1.2.0", "Release 1.0, Version 1.2.0", WIMAXASNCP_NWGVER_R10_V120  },
+    { "R1.0_v1.2.1", "Release 1.0, Version 1.2.1", WIMAXASNCP_NWGVER_R10_V121  },
     { NULL, NULL, 0 }
 };
 

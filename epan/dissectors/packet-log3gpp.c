@@ -48,13 +48,13 @@ static int nas_eps_prot_version = REL8;
 
 static const enum_val_t lte_rrc_dissector_version[] = {
   {"FD1", "FD1", FD1},
-  {"Rel8 dec 2008", "Rel8 dec 2008", REL8}, /* Add new dissector version after */
+  {"Rel8", "Rel8 dec 2008", REL8}, /* Add new dissector version after */
   {NULL, NULL, -1}
 };
 
 static const enum_val_t nas_eps_dissector_version[] = {
   {"FD1", "FD1", FD1},
-  {"Rel8 dec 2008", "Rel8 dec 2008", REL8}, /* Add new dissector version after */
+  {"Rel8", "Rel8 dec 2008", REL8}, /* Add new dissector version after */
   {NULL, NULL, -1}
 };
 

@@ -1037,8 +1037,8 @@ void proto_register_q932(void) {
   expert_module_t* expert_q932;
 
   static const enum_val_t facility_encoding[] = {
-    {"Facility as QSIG", "Dissect facility as QSIG", FACILITY_QSIG},
-    {"Facility as ETSI", "Dissect facility as ETSI", FACILITY_ETSI},
+    {"QSIG", "Dissect facility as QSIG", FACILITY_QSIG},
+    {"ETSI", "Dissect facility as ETSI", FACILITY_ETSI},
     {NULL, NULL, -1}
   };
 

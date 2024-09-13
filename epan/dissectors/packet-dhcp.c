@@ -1033,8 +1033,8 @@ static bool novell_string;
 static int dhcp_uuid_endian = ENC_LITTLE_ENDIAN;
 
 static const enum_val_t dhcp_uuid_endian_vals[] = {
-	{ "Little Endian", "Little Endian",	ENC_LITTLE_ENDIAN},
-	{ "Big Endian",	 "Big Endian", ENC_BIG_ENDIAN },
+	{ "LE", "Little Endian",	ENC_LITTLE_ENDIAN},
+	{ "BE",	"Big Endian", ENC_BIG_ENDIAN },
 	{ NULL, NULL, 0 }
 };
 
@@ -1044,8 +1044,8 @@ static int dhcp_secs_endian = DHCP_SECS_ENDIAN_AUTODETECT;
 
 static const enum_val_t dhcp_secs_endian_vals[] = {
 	{ "Autodetect", "Autodetect", DHCP_SECS_ENDIAN_AUTODETECT},
-	{ "Little Endian", "Little Endian", ENC_LITTLE_ENDIAN},
-	{ "Big Endian", "Big Endian", ENC_BIG_ENDIAN },
+	{ "LE", "Little Endian", ENC_LITTLE_ENDIAN},
+	{ "BE", "Big Endian", ENC_BIG_ENDIAN },
 	{ NULL, NULL, 0 }
 };
 

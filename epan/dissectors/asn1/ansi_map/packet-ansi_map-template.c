@@ -5407,9 +5407,9 @@ void proto_register_ansi_map(void) {
     expert_module_t* expert_ansi_map;
 
     static const enum_val_t ansi_map_response_matching_type_values[] = {
-        {"Only Transaction ID will be used in Invoke/response matching",                    "Transaction ID only", ANSI_MAP_TID_ONLY},
-        {"Transaction ID and Source will be used in Invoke/response matching",                "Transaction ID and Source", ANSI_MAP_TID_AND_SOURCE},
-        {"Transaction ID Source and Destination will be used in Invoke/response matching",    "Transaction ID Source and Destination", ANSI_MAP_TID_SOURCE_AND_DEST},
+        {"tid",                "Transaction ID only", ANSI_MAP_TID_ONLY},
+        {"tid_source",         "Transaction ID and Source", ANSI_MAP_TID_AND_SOURCE},
+        {"tid_source_dest",    "Transaction ID Source and Destination", ANSI_MAP_TID_SOURCE_AND_DEST},
         {NULL, NULL, -1}
     };
 

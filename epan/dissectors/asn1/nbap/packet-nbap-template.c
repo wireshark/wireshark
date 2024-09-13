@@ -402,9 +402,9 @@ enum ib_sg_enc_type {
 };
 
 static const enum_val_t ib_sg_enc_vals[] = {
-  {"Encoding Variant 1 (TS 25.433 Annex D.2)",
+  {"Variant1",
    "Encoding Variant 1 (TS 25.433 Annex D.2)", IB_SG_DATA_ENC_VAR_1},
-  {"Encoding Variant 2 (TS 25.433 Annex D.3)",
+  {"Variant2",
    "Encoding Variant 2 (TS 25.433 Annex D.3)", IB_SG_DATA_ENC_VAR_2},
   {NULL, NULL, -1}
 };

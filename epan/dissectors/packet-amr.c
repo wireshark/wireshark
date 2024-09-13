@@ -825,10 +825,10 @@ proto_register_amr(void)
     };
 
     static const enum_val_t encoding_types[] = {
-        {"RFC 3267 Byte aligned", "RFC 3267 octet aligned", AMR_OA},
-        {"RFC 3267 Bandwidth-efficient", "RFC 3267 BW-efficient", AMR_BE},
-        {"AMR IF1", "AMR IF1", AMR_IF1},
-        {"AMR IF2", "AMR IF2", AMR_IF2},
+        {"octet_aligned", "RFC 3267 octet aligned", AMR_OA},
+        {"bw_efficient", "RFC 3267 BW-efficient", AMR_BE},
+        {"IF1", "AMR IF1", AMR_IF1},
+        {"IF2", "AMR IF2", AMR_IF2},
         {NULL, NULL, -1}
     };
 
