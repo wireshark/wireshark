@@ -28,7 +28,6 @@
 /* N.B. dissector preferences are taking the place of (some) M-plane parameters, so unfortunately it can be
  * fiddly to get the preferences into a good state to decode a given capture..
  * TODO:
- * - sequence analysis based on sequence Id.  N.B. separate counts per antenna for spatial stream (eAxC Id), plane, direction
  * - tap stats by flow?
  * - for U-Plane, track back to last C-Plane frame for that eAxC
  *     - use upCompHdr values from C-Plane if not overridden by U-Plane?
@@ -39,7 +38,6 @@
  * - for section extensions, check more constraints (which other extension types appear with them, order)
  * - when section extensions are present, some section header fields are effectively ignored - flag?
  * - re-order items (decl and hf definitions) to match spec order
- * - map forward/backwards between acknack requests (SE-22 or ST4 <-> ST8 responses)
  * - add hf items to use as roots for remaining subtrees (blurb more useful than filter..)
  */
 
@@ -263,6 +261,12 @@ static int hf_oran_number_of_nacks;
 static int hf_oran_ackid;
 static int hf_oran_nackid;
 
+static int hf_oran_acknack_request_frame;
+static int hf_oran_acknack_request_time;
+static int hf_oran_acknack_request_type;
+static int hf_oran_acknack_response_frame;
+static int hf_oran_acknack_response_time;
+
 static int hf_oran_disable_tdbfns;
 static int hf_oran_td_beam_group;
 static int hf_oran_disable_tdbfws;
@@ -345,7 +349,7 @@ static expert_field ei_oran_laa_msg_type_unsupported;
 static expert_field ei_oran_se_on_unsupported_st;
 static expert_field ei_oran_cplane_unexpected_sequence_number;
 static expert_field ei_oran_uplane_unexpected_sequence_number;
-
+static expert_field ei_oran_acknack_no_request;
 
 /* These are the message types handled by this dissector */
 #define ECPRI_MT_IQ_DATA            0
@@ -1076,30 +1080,52 @@ static void ext11_work_out_bundles(unsigned startPrbc,
 typedef struct {
     unsigned eaxc_id : 16;
     unsigned plane : 1;
-    unsigned direction : 1;
-    /* TODO: address/interface info? */
+    /* TODO: not including address/interface info - assuming single namespace of eAxC IDs in 1 capture */
 } flow_key_t;
 
 
 /*******************************************************/
-/* Overall state of a flow (eAxC/plane/dir)            */
+/* Overall state of a flow (eAxC/plane)                */
 typedef struct {
-    /* TODO: not using yet */
-    uint32_t last_cplane_frame;
-    nstime_t last_cplane_frame_ts;
-    /* TODO: add udCompHdr info for subsequent U-Plane frames? */
+    /* State for sequence analysis (each direction) */
+    uint32_t last_frame[2];
+    uint8_t  next_expected_sequence_number[2];
 
-    /* First U-PLane frame following 'last_cplane' frame */
-    uint32_t first_uplane_frame;
-    nstime_t first_uplane_frame_ts;
-
-    /* State for sequence analysis */
-    uint32_t last_frame;
-    uint8_t  next_expected_sequence_number;
+    /* Table recording ackNack requests (ackNackId -> ack_nack_request_t*)
+       Note that this assumes that the same ackNackId will not be reused,
+       which may well not be valid */
+    wmem_tree_t *ack_nack_requests;
 } flow_state_t;
+
+typedef struct {
+    uint32_t request_frame_number;
+    nstime_t request_frame_time;
+    enum {
+        SE22,
+        ST4Cmd1,
+        ST4Cmd2,
+        ST4Cmd3,
+        ST4Cmd4
+    } requestType;
+
+    uint32_t response_frame_number;
+    nstime_t response_frame_time;
+} ack_nack_request_t;
+
+static const value_string acknack_type_vals[] = {
+    { SE22,    "SE 22" },
+    { ST4Cmd1, "ST4 (TIME_DOMAIN_BEAM_CONFIG)" },
+    { ST4Cmd2, "ST4 (TDD_CONFIG_PATTERN)" },
+    { ST4Cmd3, "ST4 (TRX_CONTROL)" },
+    { ST4Cmd4, "ST4 (ASM)" },
+    { 0, NULL}
+};
 
 /* Table maintained on first pass from flow_key -> flow_state_t* */
 static wmem_tree_t *flow_states_table;
+
+/* Table consulted on subsequent passes: frame_num -> flow_result_t* */
+static wmem_tree_t *flow_results_table;
 
 typedef struct {
     /* Sequence analysis */
@@ -1108,8 +1134,9 @@ typedef struct {
     uint32_t previous_frame;
 } flow_result_t;
 
-/* Table consulted on subsequent passes: frame_num -> flow_result_t* */
-static wmem_tree_t *flow_results_table;
+static void show_link_to_acknack_response(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
+                                          ack_nack_request_t *response);
+
 
 
 
@@ -1609,6 +1636,7 @@ static unsigned dissect_csf(proto_item *tree, tvbuff_t *tvb, unsigned bit_offset
 /* Section 7.
  * N.B. these are the green parts of the tables showing Section Types, differing by section Type */
 static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
+                                  flow_state_t* state,
                                   uint32_t sectionType, proto_item *protocol_item,
                                   uint32_t subframeId, uint32_t slotId,
                                   uint8_t ci_iq_width, uint8_t ci_comp_meth, unsigned ci_comp_opt)
@@ -2905,9 +2933,31 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
             }
 
             case 22:  /* SE 22: ACK/NACK request */
-                proto_tree_add_item(extension_tree, hf_oran_ack_nack_req_id, tvb, offset, 2, ENC_BIG_ENDIAN);
+            {
+                uint32_t ack_nack_req_id;
+                proto_tree_add_item_ret_uint(extension_tree, hf_oran_ack_nack_req_id, tvb, offset, 2,
+                                             ENC_BIG_ENDIAN, &ack_nack_req_id);
                 offset += 2;
+
+                if (!PINFO_FD_VISITED(pinfo)) {
+                    /* Add this request into conversation state on first pass */
+                    ack_nack_request_t *request_details = wmem_new0(wmem_file_scope(), ack_nack_request_t);
+                    request_details->request_frame_number = pinfo->num;
+                    request_details->request_frame_time = pinfo->abs_ts;
+                    request_details->requestType = SE22;
+                    /* Insert into flow's tree */
+                    wmem_tree_insert32(state->ack_nack_requests, ack_nack_req_id, request_details);
+                }
+                else {
+                    /* Try to link forward to ST8 response */
+                    if (wmem_tree_contains32(state->ack_nack_requests, ack_nack_req_id)) {
+                        ack_nack_request_t *response = wmem_tree_lookup32(state->ack_nack_requests,
+                                                                          ack_nack_req_id);
+                        show_link_to_acknack_response(extension_tree, tvb, pinfo, response);
+                    }
+                }
                 break;
+            }
 
             case 23:  /* SE 23: Arbitrary symbol pattern modulation compression parameters */
                 /* TODO: for now dropping through! */
@@ -3100,6 +3150,62 @@ static void dissect_payload_version(proto_tree *tree, tvbuff_t *tvb, packet_info
     }
 }
 
+static void show_link_to_acknack_request(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
+                                         ack_nack_request_t *request)
+{
+    /* Request frame */
+    proto_item *ti = proto_tree_add_uint(tree, hf_oran_acknack_request_frame,
+                                         tvb, 0, 0, request->request_frame_number);
+    PROTO_ITEM_SET_GENERATED(ti);
+
+    /* Work out gap between frames (in ms) */
+    int seconds_between_packets = (int)
+          (pinfo->abs_ts.secs - request->request_frame_time.secs);
+    int nseconds_between_packets =
+          pinfo->abs_ts.nsecs - request->request_frame_time.nsecs;
+
+    int total_gap = (seconds_between_packets*1000) +
+                     ((nseconds_between_packets+500000) / 1000000);
+
+    ti = proto_tree_add_uint(tree, hf_oran_acknack_request_time,
+                             tvb, 0, 0, total_gap);
+    PROTO_ITEM_SET_GENERATED(ti);
+
+    /* Type of request */
+    ti = proto_tree_add_uint(tree, hf_oran_acknack_request_type,
+                             tvb, 0, 0, request->requestType);
+    PROTO_ITEM_SET_GENERATED(ti);
+}
+
+static void show_link_to_acknack_response(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
+                                          ack_nack_request_t *response)
+{
+    if (response->response_frame_number == 0) {
+        /* Requests may not get a response, and can't always tell when  to expect one */
+        return;
+    }
+
+    /* Response frame */
+    proto_item *ti = proto_tree_add_uint(tree, hf_oran_acknack_response_frame,
+                                         tvb, 0, 0, response->response_frame_number);
+    PROTO_ITEM_SET_GENERATED(ti);
+
+    /* Work out gap between frames (in ms) */
+    int seconds_between_packets = (int)
+          (response->response_frame_time.secs - pinfo->abs_ts.secs);
+    int nseconds_between_packets =
+          response->response_frame_time.nsecs - pinfo->abs_ts.nsecs;
+
+    int total_gap = (seconds_between_packets*1000) +
+                     ((nseconds_between_packets+500000) / 1000000);
+
+    ti = proto_tree_add_uint(tree, hf_oran_acknack_response_time,
+                             tvb, 0, 0, total_gap);
+    PROTO_ITEM_SET_GENERATED(ti);
+}
+
+
+
 /* Control plane dissector (section 7). */
 static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
@@ -3142,34 +3248,36 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
     uint32_t direction = 0;
     proto_tree_add_item_ret_uint(section_tree, hf_oran_data_direction, tvb, offset, 1, ENC_NA, &direction);
 
+    /* Look up any existing conversation state for eAxC+plane+direction */
+    flow_state_t* state = NULL;
+    flow_key_t flow = { eAxC, ORAN_C_PLANE };
+    uint32_t key = *(uint32_t*)(&flow);
+    if (wmem_tree_contains32(flow_states_table, key)) {
+        state = (flow_state_t*)wmem_tree_lookup32(flow_states_table, key);
+    }
+
     /* Update/report status of conversion */
     if (!PINFO_FD_VISITED(pinfo)) {
-        flow_key_t flow = { eAxC, ORAN_C_PLANE, direction };
-        uint32_t key = *(uint32_t*)(&flow);
-        flow_state_t* state;
 
-        /* Create or update conversation for stream eAxC+plane+direction */
-        if (wmem_tree_contains32(flow_states_table, key)) {
-            state = (flow_state_t*)wmem_tree_lookup32(flow_states_table, key);
-        }
-        else {
+        if (state == NULL) {
             /* Allocate new state */
             state = wmem_new0(wmem_file_scope(), flow_state_t);
+            state->ack_nack_requests = wmem_tree_new(wmem_epan_scope());
             wmem_tree_insert32(flow_states_table, key, state);
         }
 
         /* Check sequence analysis status */
-        if (seq_id != state->next_expected_sequence_number) {
+        if (seq_id != state->next_expected_sequence_number[direction]) {
             /* Store this result */
             flow_result_t *result = wmem_new0(wmem_file_scope(), flow_result_t);
             result->unexpected_seq_number = true;
-            result->expected_sequence_number = state->next_expected_sequence_number;
-            result->previous_frame = state->last_frame;
+            result->expected_sequence_number = state->next_expected_sequence_number[direction];
+            result->previous_frame = state->last_frame[direction];
             wmem_tree_insert32(flow_results_table, pinfo->num, result);
         }
         /* Update conversation info */
-        state->last_frame = pinfo->num;
-        state->next_expected_sequence_number = (seq_id+1) % 256;
+        state->last_frame[direction] = pinfo->num;
+        state->next_expected_sequence_number[direction] = (seq_id+1) % 256;
     }
     else {
         /* Show any issues associated with this frame number */
@@ -3292,9 +3400,7 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
             break;
 
         case SEC_C_SLOT_CONTROL: /* Section Type 4 */
-        {
             break;
-        }
 
         case SEC_C_PRACH:       /* Section Type 3 */
             /* timeOffset */
@@ -3335,18 +3441,60 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
             proto_tree_add_item_ret_uint(section_tree, hf_oran_number_of_nacks, tvb, offset, 1, ENC_BIG_ENDIAN, &number_of_nacks);
             offset += 1;
 
-            /* Show ACKs and NACKs */
+            /* Show ACKs and NACKs. For both, try to link back to request. */
             for (unsigned int n=1; n <= number_of_acks; n++) {
-                proto_tree_add_item(section_tree, hf_oran_ackid, tvb, offset, 2, ENC_BIG_ENDIAN);
+                uint32_t ackid;
+                proto_item *ack_ti;
+                ack_ti = proto_tree_add_item_ret_uint(section_tree, hf_oran_ackid, tvb, offset, 2, ENC_BIG_ENDIAN, &ackid);
                 offset += 2;
+
+                /* Look up request table in state. */
+                if (wmem_tree_contains32(state->ack_nack_requests, ackid)) {
+                    ack_nack_request_t *request = wmem_tree_lookup32(state->ack_nack_requests, ackid);
+                    /* On first pass, update with this response */
+                    if (!PINFO_FD_VISITED(pinfo)) {
+                        request->response_frame_number = pinfo->num;
+                        request->response_frame_time = pinfo->abs_ts;
+                    }
+
+                    /* Show request details */
+                    show_link_to_acknack_request(section_tree, tvb, pinfo, request);
+                }
+                else {
+                    /* Request not found */
+                    expert_add_info_format(pinfo, ack_ti, &ei_oran_acknack_no_request,
+                                           "Response for ackId=%u received, but no request found",
+                                           ackid);
+                }
+
             }
             for (unsigned int m=1; m <= number_of_nacks; m++) {
-                uint32_t nack_id;
-                proto_item *nack_ti = proto_tree_add_item_ret_uint(section_tree, hf_oran_nackid, tvb, offset, 2, ENC_BIG_ENDIAN, &nack_id);
+                uint32_t nackid;
+                proto_item *nack_ti = proto_tree_add_item_ret_uint(section_tree, hf_oran_nackid, tvb, offset, 2, ENC_BIG_ENDIAN, &nackid);
+                offset += 2;
+
                 expert_add_info_format(pinfo, nack_ti, &ei_oran_st8_nackid,
                                        "Received Nack for ackNackId=%u",
-                                       nack_id);
-                offset += 2;
+                                       nackid);
+
+                /* Look up request table in state. */
+                if (wmem_tree_contains32(state->ack_nack_requests, nackid)) {
+                    ack_nack_request_t *request = wmem_tree_lookup32(state->ack_nack_requests, nackid);
+                    /* On first pass, update with this response */
+                    if (!PINFO_FD_VISITED(pinfo)) {
+                        request->response_frame_number = pinfo->num;
+                        request->response_frame_time = pinfo->abs_ts;
+                    }
+
+                    /* Show request details */
+                    show_link_to_acknack_request(section_tree, tvb, pinfo, request);
+                }
+                else {
+                    /* Request not found */
+                    expert_add_info_format(pinfo, nack_ti, &ei_oran_acknack_no_request,
+                                           "Response for nackId=%u received, but no request found",
+                                           nackid);
+                }
             }
             break;
     };
@@ -3703,13 +3851,34 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
 
             /* Set end of command tree */
             proto_item_set_end(command_ti, tvb, offset);
+
+            if (!PINFO_FD_VISITED(pinfo)) {
+                /* Add this request into conversation state on first pass */
+                ack_nack_request_t *request_details = wmem_new0(wmem_file_scope(), ack_nack_request_t);
+                request_details->request_frame_number = pinfo->num;
+                request_details->request_frame_time = pinfo->abs_ts;
+                request_details->requestType = ST4Cmd1+st4_cmd_type-1;
+
+                wmem_tree_insert32(state->ack_nack_requests,
+                                   ack_nack_req_id,
+                                   request_details);
+            }
+            else {
+                /* On later passes, try to link forward to ST8 response */
+                if (wmem_tree_contains32(state->ack_nack_requests, ack_nack_req_id)) {
+                    ack_nack_request_t *response = wmem_tree_lookup32(state->ack_nack_requests,
+                                                                      ack_nack_req_id);
+                    show_link_to_acknack_response(section_tree, tvb, pinfo, response);
+                }
+            }
+
         }
     }
 
     /* Dissect each C section */
     for (uint32_t i = 0; i < nSections; ++i) {
         tvbuff_t *section_tvb = tvb_new_subset_length_caplen(tvb, offset, -1, -1);
-        offset += dissect_oran_c_section(section_tvb, oran_tree, pinfo, sectionType, protocol_item,
+        offset += dissect_oran_c_section(section_tvb, oran_tree, pinfo, state, sectionType, protocol_item,
                                          subframeId, slotId,
                                          bit_width, ci_comp_method, ci_comp_opt);
     }
@@ -3824,11 +3993,11 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 
     /* Update/report status of conversion */
     if (!PINFO_FD_VISITED(pinfo)) {
-        flow_key_t flow = { eAxC, ORAN_U_PLANE, direction };
+        flow_key_t flow = { eAxC, ORAN_U_PLANE };
         uint32_t key = *(uint32_t*)(&flow);
         flow_state_t* state;
 
-        /* Create or update conversation for stream eAxC+plane+direction */
+        /* Create or update conversation for stream eAxC+plane */
         if (wmem_tree_contains32(flow_states_table, key)) {
             state = (flow_state_t*)wmem_tree_lookup32(flow_states_table, key);
         }
@@ -3839,17 +4008,17 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
         }
 
         /* Check sequence analysis status */
-        if (seq_id != state->next_expected_sequence_number) {
+        if (seq_id != state->next_expected_sequence_number[direction]) {
             /* Store this result */
             flow_result_t *result = wmem_new0(wmem_file_scope(), flow_result_t);
             result->unexpected_seq_number = true;
-            result->expected_sequence_number = state->next_expected_sequence_number;
-            result->previous_frame = state->last_frame;
+            result->expected_sequence_number = state->next_expected_sequence_number[direction];
+            result->previous_frame = state->last_frame[direction];
             wmem_tree_insert32(flow_results_table, pinfo->num, result);
         }
         /* Update conversation info */
-        state->last_frame = pinfo->num;
-        state->next_expected_sequence_number = (seq_id+1) % 256;
+        state->last_frame[direction] = pinfo->num;
+        state->next_expected_sequence_number[direction] = (seq_id+1) % 256;
     }
     else {
         /* Show any issues associated with this frame number */
@@ -5547,6 +5716,44 @@ proto_register_oran(void)
           NULL,
           HFILL}
         },
+
+        /* Links between acknack requests & responses */
+        {&hf_oran_acknack_request_frame,
+         {"Request Frame", "oran_fh_cus.ackNackId.request-frame",
+          FT_FRAMENUM, BASE_NONE,
+          FRAMENUM_TYPE(FT_FRAMENUM_REQUEST), 0x0,
+          NULL,
+          HFILL}
+        },
+        {&hf_oran_acknack_request_time,
+         {"Time since request in ms", "oran_fh_cus.ackNackId.time-since-request",
+          FT_UINT32, BASE_DEC,
+          NULL, 0x0,
+          "Time between request and response",
+          HFILL}
+        },
+        {&hf_oran_acknack_request_type,
+         {"Request Type", "oran_fh_cus.ackNackId.request-type",
+          FT_UINT32, BASE_DEC,
+          VALS(acknack_type_vals), 0x0,
+          NULL,
+          HFILL}
+        },
+        {&hf_oran_acknack_response_frame,
+         {"Response Frame", "oran_fh_cus.ackNackId.response-frame",
+          FT_FRAMENUM, BASE_NONE,
+          FRAMENUM_TYPE(FT_FRAMENUM_RESPONSE), 0x0,
+          NULL,
+          HFILL}
+        },
+        {&hf_oran_acknack_response_time,
+         {"Time to response in ms", "oran_fh_cus.ackNackId.time-to-response",
+          FT_UINT32, BASE_DEC,
+          NULL, 0x0,
+          "Time between request and response",
+          HFILL}
+        },
+
         /* 7.5.3.43 */
         {&hf_oran_disable_tdbfns,
          {"disableTDBFNs", "oran_fh_cus.disableTDBFNs",
@@ -5701,7 +5908,8 @@ proto_register_oran(void)
         { &ei_oran_laa_msg_type_unsupported, { "oran_fh_cus.laa_msg_type_unsupported", PI_UNDECODED, PI_WARN, "laaMsgType unsupported", EXPFILL }},
         { &ei_oran_se_on_unsupported_st, { "oran_fh_cus.se_on_unsupported_st", PI_MALFORMED, PI_WARN, "Section Extension should not appear on this Section Type", EXPFILL }},
         { &ei_oran_cplane_unexpected_sequence_number, { "oran_fh_cus.unexpected_seq_no_cplane", PI_SEQUENCE, PI_WARN, "Unexpected sequence number seen in C-Plane", EXPFILL }},
-        { &ei_oran_uplane_unexpected_sequence_number, { "oran_fh_cus.unexpected_seq_no_uplane", PI_SEQUENCE, PI_WARN, "Unexpected sequence number seen in U-Plane", EXPFILL }}
+        { &ei_oran_uplane_unexpected_sequence_number, { "oran_fh_cus.unexpected_seq_no_uplane", PI_SEQUENCE, PI_WARN, "Unexpected sequence number seen in U-Plane", EXPFILL }},
+        { &ei_oran_acknack_no_request, { "oran_fh_cus.acknack_no_request", PI_SEQUENCE, PI_WARN, "Have ackNackId response, but no request", EXPFILL }}
     };
 
     /* Register the protocol name and description */
