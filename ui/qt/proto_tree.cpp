@@ -172,7 +172,7 @@ void ProtoTree::ctxCopySelectedInfo()
         {
             epan_dissect_t *edt = cap_file_ ? cap_file_->edt : edt_;
             char* field_str = get_node_field_value(finfo.fieldInfo(), edt);
-            clip.append(field_str);
+            clip.append(field_str[0] ? field_str : "(null)");
             g_free(field_str);
         }
         break;
