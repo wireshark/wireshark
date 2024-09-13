@@ -4296,6 +4296,7 @@ tls13_exporter_common(int algo, const StringInfo *secret, const char *label, uin
     }
 
     /* HKDF-Expand-Label(..., "exporter", Hash(context_value), key_length) */
+    gcry_md_reset(hd);
     gcry_md_write(hd, context, context_length);
     hash_value = gcry_md_read(hd, 0);
     tls13_hkdf_expand_label_context(algo, &derived_secret, label_prefix, "exporter", hash_value, hash_len, key_length, out);
