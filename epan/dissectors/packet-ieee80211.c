@@ -58200,7 +58200,7 @@ proto_register_ieee80211(void)
        FT_UINT64, BASE_DEC, NULL, 0, NULL, HFILL }},
 
     {&hf_ieee80211_tag_twt_target_wake_time_short,
-      {"Target Wake Time", "wlan.twt.target_wake_time",
+      {"Target Wake Time", "wlan.twt.target_wake_time_short",
        FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
 
     {&hf_ieee80211_tag_twt_nom_min_twt_wake_dur,
