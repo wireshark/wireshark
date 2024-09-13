@@ -851,6 +851,7 @@ boolean_to_repr(wmem_allocator_t *scope, const fvalue_t *fv, ftrepr_t rtype, int
 			str = val ? "True" : "False";
 			break;
 		case FTREPR_JSON:
+		case FTREPR_RAW:
 			str = val ? "1" : "0";
 			break;
 	}

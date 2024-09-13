@@ -49,7 +49,7 @@ string_fvalue_set_strbuf(fvalue_t *fv, wmem_strbuf_t *value)
 static char *
 string_to_repr(wmem_allocator_t *scope, const fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_)
 {
-	if (rtype == FTREPR_DISPLAY || rtype == FTREPR_JSON) {
+	if (rtype == FTREPR_DISPLAY || rtype == FTREPR_JSON || rtype == FTREPR_RAW) {
 		/* XXX: This escapes NUL with "\0", but JSON (neither RFC 8259 nor
 		 * ECMA-404) does not allow that, it must be "\u0000".
 		 */

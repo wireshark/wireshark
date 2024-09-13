@@ -7411,7 +7411,7 @@ proto_custom_set(proto_tree* tree, GSList *field_ids, int occurrence,
 						expr[--offset_e] = '\0'; /* Remove the added trailing ',' again */
 					}
 				} else {
-					str = fvalue_to_string_repr(NULL, finfo->value, FTREPR_DISPLAY, finfo->hfinfo->display);
+					str = fvalue_to_string_repr(NULL, finfo->value, FTREPR_RAW, finfo->hfinfo->display);
 					offset_e += protoo_strlcpy(expr+offset_e, str, size-offset_e);
 					wmem_free(NULL, str);
 				}

@@ -460,6 +460,7 @@ absolute_val_to_repr(wmem_allocator_t *scope, const fvalue_t *fv, ftrepr_t rtype
 	switch (rtype) {
 		case FTREPR_DISPLAY:
 		case FTREPR_JSON:
+		case FTREPR_RAW:
 			break;
 
 		case FTREPR_DFILTER:

@@ -174,6 +174,7 @@ enum ftrepr {
 	FTREPR_DISPLAY,
 	FTREPR_DFILTER,
 	FTREPR_JSON,
+	FTREPR_RAW,
 };
 
 typedef enum ftrepr ftrepr_t;
