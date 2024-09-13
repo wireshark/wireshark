@@ -472,7 +472,7 @@ update-mime-database %{_datadir}/mime &> /dev/null || :
 %endif
 %endif
 
-%{_libdir}/lib*.so*
+%{_libdir}/lib*.so.*
 %{_libdir}/wireshark
 # Don't pick up the wireshark (GUI) man page here
 %exclude %{_mandir}/man1/wireshark.*
@@ -505,6 +505,7 @@ update-mime-database %{_datadir}/mime &> /dev/null || :
 
 %files devel
 %{_includedir}/wireshark
+%{_libdir}/lib*.so
 %{_libdir}/cmake/wireshark
 %{_libdir}/pkgconfig/wireshark.pc
 %if %{with guides}
