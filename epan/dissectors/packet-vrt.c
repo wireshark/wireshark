@@ -718,7 +718,7 @@ static int dissect_context_assoc_lists(proto_tree *tree, tvbuff_t *tvb, int offs
     uint32_t vec_size = word2 >> 16;
     bool a_bit = (word2 & 0x8000) != 0;
     uint32_t asy_size = word2 & 0x7FFF;
-    uint32_t num_words = src_size + sys_size + vec_size + asy_size + a_bit*asy_size;
+    uint32_t num_words = src_size + sys_size + vec_size + asy_size + (a_bit ? asy_size : 0);
 
     proto_tree *assoc_tree = proto_tree_add_subtree(tree, tvb, offset, 8 + num_words*4, ETT_IDX_ASSOC_LISTS, NULL,
                                                     "Context association lists");
