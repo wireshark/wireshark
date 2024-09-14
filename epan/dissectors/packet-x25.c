@@ -1799,7 +1799,7 @@ dissect_x25_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                             (pkt_type & X25_MBIT_MOD8) ? " M" : "");
             else
                 col_add_fstr(pinfo->cinfo, COL_INFO,
-                            "Data VC:%d P(S):%d P(R):%d %s", vc,
+                            "Data VC:%d P(R):%d P(S):%d %s", vc,
                             tvb_get_uint8(tvb, localoffset+1) >> 1,
                             pkt_type >> 1,
                             (tvb_get_uint8(tvb, localoffset+1) & X25_MBIT_MOD128) ? " M" : "");
@@ -1815,11 +1815,11 @@ dissect_x25_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                             localoffset, 1, pkt_type);
                 }
                 else {
-                    proto_tree_add_uint(x25_tree, hf_x25_p_r_mod128, tvb,
+                    proto_tree_add_uint(x25_tree, hf_x25_p_s_mod128, tvb,
                             localoffset, 1, pkt_type);
                     proto_tree_add_uint(x25_tree, hf_x25_type_data, tvb,
                             localoffset, 1, pkt_type);
-                    proto_tree_add_item(x25_tree, hf_x25_p_s_mod128, tvb,
+                    proto_tree_add_item(x25_tree, hf_x25_p_r_mod128, tvb,
                             localoffset+1, 1, ENC_NA);
                     proto_tree_add_item(x25_tree, hf_x25_mbit_mod128, tvb,
                             localoffset+1, 1, ENC_NA);
