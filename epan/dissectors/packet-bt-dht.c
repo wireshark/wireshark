@@ -511,12 +511,16 @@ dissect_bencoded_dict_entry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         proto_tree_add_item(sub_tree, hf_port, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
       }
+      else if (len == 18)
+      {
+        proto_tree_add_item(sub_tree, hf_ip6, tvb, offset, 16, ENC_NA);
+        val = tvb_ip6_to_str(pinfo->pool, tvb, offset);
+        offset += 16;
+
+        proto_tree_add_item(sub_tree, hf_port, tvb, offset, 2, ENC_BIG_ENDIAN);
+        offset += 2;
+      }
       else {
-        /* XXX: BEP 42 doesn't mention IPv6 and predates the IPv6 DHT;
-         * it doesn't make sense for IPv6 because the purpose is to tell
-         * the requestor its own publicly routable IP address and port
-         * (working around NAT). So any other length than 6 is unexpected.
-         */
         offset = dissect_bencoded_string( tvb, pinfo, sub_tree, old_offset, &val, true, "Value" );
       }
     }
