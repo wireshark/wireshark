@@ -1833,7 +1833,7 @@ is_in_header_context(tvbuff_t *tvb, packet_info *pinfo, http2_session_t* h2sessi
    Allocates file-scoped string when called as its only called when the header population is done.
 */
 static char*
-get_content_type_only(const char *content_type, int content_type_str_len) {
+get_content_type_only(const char *content_type, size_t content_type_str_len) {
     char *cp = wmem_strndup(wmem_file_scope(), content_type, content_type_str_len);
     char *start = cp;
 
@@ -1855,7 +1855,7 @@ get_content_type_only(const char *content_type, int content_type_str_len) {
    Allocates file-scoped string when called as its only called when the header population is done.
 */
 static char*
-get_content_type_parameters_only(const char *content_type, int content_type_str_len) {
+get_content_type_parameters_only(const char *content_type, size_t content_type_str_len) {
     char *cp = wmem_strndup(wmem_file_scope(), content_type, content_type_str_len);
 
     /* Get past the first part of the content type EG: "text/html" */
@@ -1886,12 +1886,17 @@ get_content_type_parameters_only(const char *content_type, int content_type_str_
  * populate information for the promised stream id.
  */
 static void
-populate_http_header_tracking(tvbuff_t *tvb, packet_info *pinfo, http2_session_t *h2session, int header_value_length,
+populate_http_header_tracking(tvbuff_t *tvb, packet_info *pinfo, http2_session_t *h2session,
                                    const char *header_name, const char *header_value, uint32_t stream_id, const bool override)
 {
     http2_stream_info_t *stream_info = get_stream_info_for_id(pinfo, h2session, false, stream_id);
     http2_data_stream_body_info_t *body_info = get_data_stream_body_info_for_id(pinfo, h2session, stream_id);
     http2_data_stream_reassembly_info_t *reassembly_info = get_data_reassembly_info_for_id(pinfo, h2session, stream_id);
+
+    /* header_value is after validation as UTF-8, so the length may have
+     * changed due to REPLACEMENT CHARACTERS on packets with errors.
+     */
+    size_t header_value_length = strlen(header_value);
 
     /* Populate the content encoding used so we can uncompress the body later if required */
     if (strcmp(header_name, HTTP2_HEADER_CONTENT_ENCODING) == 0) {
@@ -2344,7 +2349,7 @@ inflate_http2_header_block(tvbuff_t *tvb, packet_info *pinfo, unsigned offset, p
          * http2_frame_num_t points to. */
         uint32_t header_stream_id;
         if (!PINFO_FD_VISITED(pinfo) && (header_stream_id = is_in_header_context(tvb, pinfo, h2session))) {
-            populate_http_header_tracking(tvb, pinfo, h2session, header_value_length, header_name, header_value, header_stream_id, false);
+            populate_http_header_tracking(tvb, pinfo, h2session, header_name, header_value, header_stream_id, false);
         }
 
         /* Add encoding representation */
@@ -2468,7 +2473,7 @@ try_init_stream_with_fake_headers(tvbuff_t* tvb, packet_info* pinfo, http2_sessi
                 continue;
             }
 
-            populate_http_header_tracking(tvb, pinfo, h2session, (int)strlen(fake_header->header_value),
+            populate_http_header_tracking(tvb, pinfo, h2session,
                 fake_header->header_name, fake_header->header_value, h2session->current_stream_id, fake_header->override);
 
             wmem_array_append(header_stream_info->fake_headers, &fake_header, 1);
