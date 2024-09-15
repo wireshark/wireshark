@@ -851,6 +851,8 @@ dissect_irdmaep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
     else
         epd = (irdmaep_analysis_t *) conversation_get_proto_data(conv, proto_irdmaep);
 
+    DISSECTOR_ASSERT(epd != NULL);
+
     if (pinfo->num > conv->last_frame)
         conv->last_frame = pinfo->num;
 
