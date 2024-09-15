@@ -689,7 +689,8 @@ static expert_field ei_hci_revision_changed;
 static expert_field ei_lmp_subversion_changed;
 static expert_field ei_bad_link_type;
 
-static dissector_table_t vendor_dissector_table;
+static dissector_table_t hci_cmd_vendor_dissector_table;
+static dissector_table_t hci_evt_vendor_dissector_table;
 static dissector_table_t hci_vendor_table;
 
 static int hf_bthci_evt_ext_advts_event_type;
@@ -2330,7 +2331,7 @@ dissect_bthci_evt_command_status(tvbuff_t *tvb, int offset, packet_info *pinfo,
     if (ogf == HCI_OGF_VENDOR_SPECIFIC) {
         col_append_fstr(pinfo->cinfo, COL_INFO, " (Vendor Command 0x%04X [(opcode 0x%04X])", opcode & 0x03ff, opcode);
 
-        if (!dissector_try_payload_new(vendor_dissector_table, tvb, pinfo, main_tree, true, bluetooth_data)) {
+        if (!dissector_try_payload_new(hci_cmd_vendor_dissector_table, tvb, pinfo, main_tree, true, bluetooth_data)) {
             if (bluetooth_data) {
                 hci_vendor_data_t  *hci_vendor_data;
                 wmem_tree_key_t     key[3];
@@ -3785,7 +3786,7 @@ dissect_bthci_evt_command_complete(tvbuff_t *tvb, int offset,
     if (ogf == HCI_OGF_VENDOR_SPECIFIC) {
         col_append_fstr(pinfo->cinfo, COL_INFO, " (Vendor Command 0x%04X [opcode 0x%04X])", opcode & 0x03ff, opcode);
 
-        if (!dissector_try_payload_new(vendor_dissector_table, tvb, pinfo, main_tree, true, bluetooth_data)) {
+        if (!dissector_try_payload_new(hci_cmd_vendor_dissector_table, tvb, pinfo, main_tree, true, bluetooth_data)) {
             if (bluetooth_data) {
                 hci_vendor_data_t  *hci_vendor_data;
 
@@ -6817,7 +6818,11 @@ dissect_bthci_evt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
             break;
 
         case 0xff: /* Vendor-Specific */
-            if (!dissector_try_payload_new(vendor_dissector_table, tvb, pinfo, tree, true, bluetooth_data)) {
+        {
+            tvbuff_t *vendor_payload_tvb;
+            vendor_payload_tvb = tvb_new_subset_remaining(tvb, 2); // Bytes after length byte.
+
+            if (!dissector_try_payload_new(hci_evt_vendor_dissector_table, vendor_payload_tvb, pinfo, tree, true, bluetooth_data)) {
                 if (bluetooth_data) {
                     hci_vendor_data_t  *hci_vendor_data;
                     wmem_tree_key_t     key[3];
@@ -6849,7 +6854,7 @@ dissect_bthci_evt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
             proto_tree_add_expert(bthci_evt_tree, pinfo, &ei_event_undecoded, tvb, offset, tvb_captured_length_remaining(tvb, offset));
 
             return tvb_captured_length(tvb);
-
+        }
         default:
             proto_tree_add_expert(bthci_evt_tree, pinfo, &ei_event_unknown_event, tvb, offset, tvb_captured_length_remaining(tvb, offset));
             offset += tvb_reported_length_remaining(tvb, offset);
@@ -10164,13 +10169,16 @@ proto_register_bthci_evt(void)
             "Version of protocol supported by this dissector.");
 
     register_decode_as(&bthci_evt_vendor_da);
+
+    hci_evt_vendor_dissector_table = register_decode_as_next_proto(proto_bthci_evt, "bthci_evt.vendor",
+                                                           "BT HCI Event Vendor", bthci_evt_vendor_prompt);
 }
 
 
 void
 proto_reg_handoff_bthci_evt(void)
 {
-    vendor_dissector_table = find_dissector_table("bthci_cmd.vendor");
+    hci_cmd_vendor_dissector_table = find_dissector_table("bthci_cmd.vendor");
     hci_vendor_table = find_dissector_table("bluetooth.vendor");
 
     dissector_add_uint("hci_h4.type", HCI_H4_TYPE_EVT, bthci_evt_handle);
