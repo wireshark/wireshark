@@ -808,6 +808,24 @@ typedef enum
     LL_CTRL_OPCODE_CHANNEL_REPORTING_IND = 0x28,
     LL_CTRL_OPCODE_CHANNEL_STATUS_IND = 0x29,
     LL_CTRL_OPCODE_PERIODIC_SYNC_WR_IND = 0x2A,
+    LL_CTRL_OPCODE_LL_FEATURE_EXT_REQ = 0x2B,
+    LL_CTRL_OPCODE_LL_FEATURE_EXT_RSP = 0x2C,
+    LL_CTRL_OPCODE_LL_CS_SEC_RSP = 0x2D,
+    LL_CTRL_OPCODE_LL_CS_CAPABILITIES_REQ = 0x2E,
+    LL_CTRL_OPCODE_LL_CS_CAPABILITIES_RSP = 0x2F,
+    LL_CTRL_OPCODE_LL_CS_CONFIG_REQ = 0x30,
+    LL_CTRL_OPCODE_LL_CS_CONFIG_RSP = 0x31,
+    LL_CTRL_OPCODE_LL_CS_REQ = 0x32,
+    LL_CTRL_OPCODE_LL_CS_RSP = 0x33,
+    LL_CTRL_OPCODE_LL_CS_IND = 0x34,
+    LL_CTRL_OPCODE_LL_CS_TERMINATE_REQ = 0x35,
+    LL_CTRL_OPCODE_LL_CS_FAE_REQ = 0x36,
+    LL_CTRL_OPCODE_LL_CS_FAE_RSP = 0x37,
+    LL_CTRL_OPCODE_LL_CS_CHANNEL_MAP_IND = 0x38,
+    LL_CTRL_OPCODE_LL_CS_SEQ_REQ = 0x39,
+    LL_CTRL_OPCODE_LL_CS_TERMINATE_RSP = 0x3A,
+    LL_CTRL_OPCODE_LL_FRAME_SPACE_REQ = 0x3B,
+    LL_CTRL_OPCODE_LL_FRAME_SPACE_RSP = 0x3C,
 } ll_ctrl_proc_opcodes_t;
 
 static const value_string control_opcode_vals[] = {
@@ -854,6 +872,24 @@ static const value_string control_opcode_vals[] = {
     { LL_CTRL_OPCODE_CHANNEL_REPORTING_IND, "LL_CHANNEL_REPORTING_IND" },
     { LL_CTRL_OPCODE_CHANNEL_STATUS_IND, "LL_CHANNEL_STATUS_IND" },
     { LL_CTRL_OPCODE_PERIODIC_SYNC_WR_IND, "LL_PERIODIC_SYNC_WR_IND" },
+    { LL_CTRL_OPCODE_LL_FEATURE_EXT_REQ, "LL_CTRL_OPCODE_LL_FEATURE_EXT_REQ" },
+    { LL_CTRL_OPCODE_LL_FEATURE_EXT_RSP, "LL_CTRL_OPCODE_LL_FEATURE_EXT_RSP" },
+    { LL_CTRL_OPCODE_LL_CS_SEC_RSP, "LL_CTRL_OPCODE_LL_CS_SEC_RSP" },
+    { LL_CTRL_OPCODE_LL_CS_CAPABILITIES_REQ, "LL_CTRL_OPCODE_LL_CS_CAPABILITIES_REQ" },
+    { LL_CTRL_OPCODE_LL_CS_CAPABILITIES_RSP, "LL_CTRL_OPCODE_LL_CS_CAPABILITIES_RSP" },
+    { LL_CTRL_OPCODE_LL_CS_CONFIG_REQ, "LL_CTRL_OPCODE_LL_CS_CONFIG_REQ" },
+    { LL_CTRL_OPCODE_LL_CS_CONFIG_RSP, "LL_CTRL_OPCODE_LL_CS_CONFIG_RSP" },
+    { LL_CTRL_OPCODE_LL_CS_REQ, "LL_CTRL_OPCODE_LL_CS_REQ" },
+    { LL_CTRL_OPCODE_LL_CS_RSP, "LL_CTRL_OPCODE_LL_CS_RSP" },
+    { LL_CTRL_OPCODE_LL_CS_IND, "LL_CTRL_OPCODE_LL_CS_IND" },
+    { LL_CTRL_OPCODE_LL_CS_TERMINATE_REQ, "LL_CTRL_OPCODE_LL_CS_TERMINATE_REQ" },
+    { LL_CTRL_OPCODE_LL_CS_FAE_REQ, "LL_CTRL_OPCODE_LL_CS_FAE_REQ" },
+    { LL_CTRL_OPCODE_LL_CS_FAE_RSP, "LL_CTRL_OPCODE_LL_CS_FAE_RSP" },
+    { LL_CTRL_OPCODE_LL_CS_CHANNEL_MAP_IND, "LL_CTRL_OPCODE_LL_CS_CHANNEL_MAP_IND" },
+    { LL_CTRL_OPCODE_LL_CS_SEQ_REQ, "LL_CTRL_OPCODE_LL_CS_SEQ_REQ" },
+    { LL_CTRL_OPCODE_LL_CS_TERMINATE_RSP, "LL_CTRL_OPCODE_LL_CS_TERMINATE_RSP" },
+    { LL_CTRL_OPCODE_LL_FRAME_SPACE_REQ, "LL_CTRL_OPCODE_LL_FRAME_SPACE_REQ" },
+    { LL_CTRL_OPCODE_LL_FRAME_SPACE_RSP, "LL_CTRL_OPCODE_LL_FRAME_SPACE_RSP" },
     { 0, NULL }
 };
 static value_string_ext control_opcode_vals_ext = VALUE_STRING_EXT_INIT(control_opcode_vals);
@@ -4299,6 +4335,202 @@ dissect_btle_acl_or_iso(tvbuff_t *tvb,
                 /* Procedure completes in the same frame. */
                 if (proc_info) {
                     proc_info->last_frame = pinfo->num;
+                }
+            }
+            break;
+        case LL_CTRL_OPCODE_LL_FEATURE_EXT_REQ:
+            if (connection_info && !btle_frame_info->retransmit && direction != BTLE_DIR_UNKNOWN) {
+                control_proc_start(tvb, pinfo, btle_tree, control_proc_item,
+                                    connection_info->direction_info[direction].control_procs,
+                                    last_control_proc[other_direction],
+                                    control_opcode);
+            }
+            break;
+        case LL_CTRL_OPCODE_LL_FEATURE_EXT_RSP:
+            if (connection_info && !btle_frame_info->retransmit && direction != BTLE_DIR_UNKNOWN) {
+                if (control_proc_can_add_frame(pinfo,
+                                                last_control_proc[other_direction],
+                                                LL_CTRL_OPCODE_LL_FEATURE_EXT_REQ, 1)) {
+                    control_proc_add_last_frame(tvb,
+                                                pinfo,
+                                                btle_tree,
+                                                control_opcode,
+                                                direction,
+                                                last_control_proc[other_direction],
+                                                last_control_proc[direction],
+                                                1);
+                } else {
+                    expert_add_info(pinfo, control_proc_item, &ei_control_proc_wrong_seq);
+                }
+            }
+            break;
+        case LL_CTRL_OPCODE_LL_CS_SEQ_REQ:
+            if (connection_info && !btle_frame_info->retransmit) {
+                /* The LL_CTRL_OPCODE_LL_CS_SEQ_REQ can only be sent from central to peripheral. */
+                if (direction == BTLE_DIR_CENTRAL_PERIPHERAL) {
+                    control_proc_start(tvb, pinfo, btle_tree, control_proc_item,
+                                        connection_info->direction_info[BTLE_DIR_CENTRAL_PERIPHERAL].control_procs,
+                                        last_control_proc[other_direction],
+                                        control_opcode);
+                } else if (direction == BTLE_DIR_PERIPHERAL_CENTRAL) {
+                    expert_add_info(pinfo, control_proc_item, &ei_control_proc_wrong_seq);
+                }
+            }
+            break;
+        case LL_CTRL_OPCODE_LL_CS_SEC_RSP:
+            if (connection_info && !btle_frame_info->retransmit && direction != BTLE_DIR_UNKNOWN) {
+                if (control_proc_can_add_frame(pinfo,
+                                                last_control_proc[other_direction],
+                                                LL_CTRL_OPCODE_LL_CS_SEQ_REQ, 1)) {
+                    control_proc_add_last_frame(tvb,
+                                                pinfo,
+                                                btle_tree,
+                                                control_opcode,
+                                                direction,
+                                                last_control_proc[other_direction],
+                                                last_control_proc[direction],
+                                                1);
+                } else {
+                    expert_add_info(pinfo, control_proc_item, &ei_control_proc_wrong_seq);
+                }
+            }
+            break;
+        case LL_CTRL_OPCODE_LL_CS_CAPABILITIES_REQ:
+            if (connection_info && !btle_frame_info->retransmit && direction != BTLE_DIR_UNKNOWN) {
+                control_proc_start(tvb, pinfo, btle_tree, control_proc_item,
+                                    connection_info->direction_info[direction].control_procs,
+                                    last_control_proc[other_direction],
+                                    control_opcode);
+            }
+            break;
+        case LL_CTRL_OPCODE_LL_CS_CAPABILITIES_RSP:
+            if (connection_info && !btle_frame_info->retransmit && direction != BTLE_DIR_UNKNOWN) {
+                if (control_proc_can_add_frame(pinfo,
+                                                last_control_proc[other_direction],
+                                                LL_CTRL_OPCODE_LL_CS_CAPABILITIES_REQ, 1)) {
+                    control_proc_add_last_frame(tvb,
+                                                pinfo,
+                                                btle_tree,
+                                                control_opcode,
+                                                direction,
+                                                last_control_proc[other_direction],
+                                                last_control_proc[direction],
+                                                1);
+                } else {
+                    expert_add_info(pinfo, control_proc_item, &ei_control_proc_wrong_seq);
+                }
+            }
+            break;
+        case LL_CTRL_OPCODE_LL_CS_CONFIG_REQ:
+            if (connection_info && !btle_frame_info->retransmit && direction != BTLE_DIR_UNKNOWN) {
+                control_proc_start(tvb, pinfo, btle_tree, control_proc_item,
+                                    connection_info->direction_info[direction].control_procs,
+                                    last_control_proc[other_direction],
+                                    control_opcode);
+            }
+            break;
+        case LL_CTRL_OPCODE_LL_CS_CONFIG_RSP:
+            if (connection_info && !btle_frame_info->retransmit && direction != BTLE_DIR_UNKNOWN) {
+                if (control_proc_can_add_frame(pinfo,
+                                                last_control_proc[other_direction],
+                                                LL_CTRL_OPCODE_LL_CS_CONFIG_REQ, 1)) {
+                    control_proc_add_last_frame(tvb,
+                                                pinfo,
+                                                btle_tree,
+                                                control_opcode,
+                                                direction,
+                                                last_control_proc[other_direction],
+                                                last_control_proc[direction],
+                                                1);
+                } else {
+                    expert_add_info(pinfo, control_proc_item, &ei_control_proc_wrong_seq);
+                }
+            }
+            break;
+        case LL_CTRL_OPCODE_LL_CS_REQ:
+        case LL_CTRL_OPCODE_LL_CS_RSP:
+        case LL_CTRL_OPCODE_LL_CS_IND:
+            /* TODO: Parse channel sounding start procedure PDUs and
+             * procedure termination. */
+            break;
+        case LL_CTRL_OPCODE_LL_CS_TERMINATE_REQ:
+            if (connection_info && !btle_frame_info->retransmit && direction != BTLE_DIR_UNKNOWN) {
+                control_proc_start(tvb, pinfo, btle_tree, control_proc_item,
+                                    connection_info->direction_info[direction].control_procs,
+                                    last_control_proc[other_direction],
+                                    control_opcode);
+            }
+            break;
+        case LL_CTRL_OPCODE_LL_CS_TERMINATE_RSP:
+            if (connection_info && !btle_frame_info->retransmit && direction != BTLE_DIR_UNKNOWN) {
+                if (control_proc_can_add_frame(pinfo,
+                                                last_control_proc[other_direction],
+                                                LL_CTRL_OPCODE_LL_CS_TERMINATE_REQ, 1)) {
+                    control_proc_add_last_frame(tvb,
+                                                pinfo,
+                                                btle_tree,
+                                                control_opcode,
+                                                direction,
+                                                last_control_proc[other_direction],
+                                                last_control_proc[direction],
+                                                1);
+                } else {
+                    expert_add_info(pinfo, control_proc_item, &ei_control_proc_wrong_seq);
+                }
+            }
+            break;
+        case LL_CTRL_OPCODE_LL_CS_FAE_REQ:
+            if (connection_info && !btle_frame_info->retransmit && direction != BTLE_DIR_UNKNOWN) {
+                control_proc_start(tvb, pinfo, btle_tree, control_proc_item,
+                                    connection_info->direction_info[direction].control_procs,
+                                    last_control_proc[other_direction],
+                                    control_opcode);
+            }
+            break;
+        case LL_CTRL_OPCODE_LL_CS_FAE_RSP:
+            if (connection_info && !btle_frame_info->retransmit && direction != BTLE_DIR_UNKNOWN) {
+                if (control_proc_can_add_frame(pinfo,
+                                                last_control_proc[other_direction],
+                                                LL_CTRL_OPCODE_LL_CS_FAE_REQ, 1)) {
+                    control_proc_add_last_frame(tvb,
+                                                pinfo,
+                                                btle_tree,
+                                                control_opcode,
+                                                direction,
+                                                last_control_proc[other_direction],
+                                                last_control_proc[direction],
+                                                1);
+                } else {
+                    expert_add_info(pinfo, control_proc_item, &ei_control_proc_wrong_seq);
+                }
+            }
+            break;
+        case LL_CTRL_OPCODE_LL_CS_CHANNEL_MAP_IND:
+            /* TODO: Parse Channel Sounding Channel Map Update procedu PDU
+             * and procedure termination. */
+        case LL_CTRL_OPCODE_LL_FRAME_SPACE_REQ:
+            if (connection_info && !btle_frame_info->retransmit && direction != BTLE_DIR_UNKNOWN) {
+                control_proc_start(tvb, pinfo, btle_tree, control_proc_item,
+                                    connection_info->direction_info[direction].control_procs,
+                                    last_control_proc[other_direction],
+                                    control_opcode);
+            }
+            break;
+        case LL_CTRL_OPCODE_LL_FRAME_SPACE_RSP:
+            if (connection_info && !btle_frame_info->retransmit && direction != BTLE_DIR_UNKNOWN) {
+                if (control_proc_can_add_frame(pinfo,
+                                                last_control_proc[other_direction],
+                                                LL_CTRL_OPCODE_LL_FRAME_SPACE_REQ, 1)) {
+                    control_proc_add_last_frame(tvb,
+                                                pinfo,
+                                                btle_tree,
+                                                control_opcode,
+                                                direction,
+                                                last_control_proc[other_direction],
+                                                last_control_proc[direction],
+                                                1);
+                } else {
+                    expert_add_info(pinfo, control_proc_item, &ei_control_proc_wrong_seq);
                 }
             }
             break;
