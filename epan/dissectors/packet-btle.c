@@ -693,6 +693,7 @@ static const value_string pdu_type_vals[] = {
     { 0x06, "ADV_SCAN_IND" },
     { 0x07, "ADV_EXT_IND" },
     { 0x08, "AUX_CONNECT_RSP" },
+    { 0x09, "ADV_DECISION_IND" },
     { 0, NULL }
 };
 static value_string_ext pdu_type_vals_ext = VALUE_STRING_EXT_INIT(pdu_type_vals);
@@ -2064,6 +2065,7 @@ dissect_btle_adv(tvbuff_t *tvb,
         break;
     case 0x07: /* ADV_EXT_IND / AUX_ADV_IND / AUX_SYNC_IND / AUX_CHAIN_IND / AUX_SCAN_RSP */
     case 0x08: /* AUX_CONNECT_RSP */
+    case 0x09: /* ADV_DECISION_IND */
     {
         /* 0 + header, 1 = len, 2 = ext_len/adv-mode, 3 = flags */
         uint8_t ext_header_flags = tvb_get_uint8(tvb, offset + 3);
@@ -2354,6 +2356,7 @@ dissect_btle_adv(tvbuff_t *tvb,
     }
     case 0x07: /* ADV_EXT_IND / AUX_ADV_IND / AUX_SYNC_IND / AUX_CHAIN_IND / AUX_SCAN_RSP */
     case 0x08: /* AUX_CONNECT_RSP */
+    case 0x09: /* ADV_DECISION_IND */
     {
         uint8_t tmp, ext_header_len, flags, acad_len;
         proto_item  *ext_header_item, *ext_flags_item;
@@ -2573,7 +2576,9 @@ dissect_btle_adv(tvbuff_t *tvb,
         }
         if (tvb_reported_length_remaining(tvb, offset) > 3) {
             bool ad_processed = false;
-            if (btle_context && pdu_type == 0x07 && btle_context->aux_pdu_type_valid) {
+            if (btle_context &&
+                (pdu_type == 0x07 || pdu_type == 0x09) &&
+                btle_context->aux_pdu_type_valid) {
                 bool ad_reassembled = false;
                 ae_had_info_t *ae_had_info = NULL;
 
