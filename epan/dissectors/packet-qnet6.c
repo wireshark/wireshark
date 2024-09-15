@@ -2908,12 +2908,12 @@ dissect_qnet6_kif_msgsend_msg_notify(tvbuff_t * tvb, packet_info * pinfo _U_, pr
           event = tvb_get_uint16(tvb, *poffset + 4, encoding);
           revent = tvb_get_uint16(tvb, *poffset + 4 + 2, encoding);
           sevent[0] = srevent[0] = 0;
-          for (j = 1, n = 0, m = 0; j < 8; j = j << 1)
+          for (j = n = m = 0; j < 3; j++)
             {
-              if (event & j)
-                n += snprintf(sevent + n, sizeof(sevent) - n, "%s", qnet6_kif_msg_io_notify_event_str[j >> 1]);
-              if (revent & j)
-                m += snprintf(srevent + m, sizeof(srevent) - m, "%s", qnet6_kif_msg_io_notify_event_str[j >> 1]);
+              if (event & (1<<j))
+                n += snprintf(sevent + n, sizeof(sevent) - n, "%s", qnet6_kif_msg_io_notify_event_str[j]);
+              if (revent & (1<<j))
+                m += snprintf(srevent + m, sizeof(srevent) - m, "%s", qnet6_kif_msg_io_notify_event_str[j]);
             }
           proto_tree_add_string_format_value(stree, hf_qnet6_kif_msg_io_notify_fds, tvb, *poffset, 8, NULL, "fd:%" PRId32 " " "event:0x%x %s" "revent:0x%x %s", fd, event, sevent, revent, srevent);
           *poffset += 8;
