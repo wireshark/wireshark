@@ -7512,6 +7512,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>…YAML olarak</translation>
     </message>
     <message>
+        <source>…as HTML</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Decode As…</source>
         <translation>Kodu Çöz…</translation>
     </message>
@@ -14380,6 +14384,10 @@ a:üzerine gelin{
     <message>
         <source>As &amp;YAML</source>
         <translation>&amp;YAML olarak</translation>
+    </message>
+    <message>
+        <source>As &amp;HTML</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>All Visible Items</source>

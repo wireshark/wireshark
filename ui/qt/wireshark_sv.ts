@@ -7536,6 +7536,10 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <translation>… som YAML</translation>
     </message>
     <message>
+        <source>…as HTML</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Decode As…</source>
         <translation>Avkoda som …</translation>
     </message>
@@ -14416,6 +14420,10 @@ a:hover {
     <message>
         <source>As &amp;YAML</source>
         <translation>Som &amp;YAML</translation>
+    </message>
+    <message>
+        <source>As &amp;HTML</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>All Visible Items</source>

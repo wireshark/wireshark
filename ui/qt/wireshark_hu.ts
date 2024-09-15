@@ -7419,6 +7419,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>…as HTML</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Decode As…</source>
         <translation type="unfinished"></translation>
     </message>
@@ -14164,6 +14168,10 @@ a:hover {
     </message>
     <message>
         <source>As &amp;YAML</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>As &amp;HTML</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

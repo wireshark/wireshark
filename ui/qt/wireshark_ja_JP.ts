@@ -7515,6 +7515,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>YAMLとして…</translation>
     </message>
     <message>
+        <source>…as HTML</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Decode As…</source>
         <translation>…としてデコード</translation>
     </message>
@@ -14383,6 +14387,10 @@ a:hover {
     <message>
         <source>As &amp;YAML</source>
         <translation>YAMLとして(&amp;Y)</translation>
+    </message>
+    <message>
+        <source>As &amp;HTML</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>All Visible Items</source>

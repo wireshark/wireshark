@@ -1573,7 +1573,7 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
     </message>
     <message>
         <source>Stop capturing after the specified number of files have been created.</source>
-        <translation>Arrête la capture après avoir créé le nombre de fichiers indiqués.</translation>
+        <translation>Arrête la capture après avoir créé le nombre de fichiers indiqué.</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Stop capturing after the specified amount of data has been captured.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -3672,7 +3672,7 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
         <source>%Ln total stream(s).</source>
         <translation>
             <numerusform>%Ln flux.</numerusform>
-            <numerusform>%Ln total flux.</numerusform>
+            <numerusform>%Ln flux totaux.</numerusform>
         </translation>
     </message>
     <message numerus="yes">
@@ -7535,6 +7535,10 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
         <translation>…comme YAML</translation>
     </message>
     <message>
+        <source>…as HTML</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Decode As…</source>
         <translation>Décoder comme…</translation>
     </message>
@@ -9049,7 +9053,7 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
     <name>ResizeHeaderView</name>
     <message>
         <source>Resize all %1 to contents</source>
-        <translation>Redimensionner tous les %1 au contenus</translation>
+        <translation>Redimensionner tous les %1 aux contenus</translation>
     </message>
 </context>
 <context>
@@ -14414,6 +14418,10 @@ a:hover {
     <message>
         <source>As &amp;YAML</source>
         <translation>Comme &amp;YAML</translation>
+    </message>
+    <message>
+        <source>As &amp;HTML</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>All Visible Items</source>

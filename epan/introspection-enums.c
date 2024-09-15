@@ -181,6 +181,7 @@ static ws_enum_t const all_enums[] = {
     ENUM(FTREPR_DFILTER),
     ENUM(FTREPR_DISPLAY),
     ENUM(FTREPR_JSON),
+    ENUM(FTREPR_RAW),
     ENUM(FT_ABSOLUTE_TIME),
     ENUM(FT_AX25),
     ENUM(FT_AX25_ADDR_LEN),
