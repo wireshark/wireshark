@@ -49,6 +49,14 @@ The following features are either new or have been significantly updated since v
   This preference can also be set to never use ascii time and to use ISO 8601 time
   in the protocol tree (Packet Details) as well.
 
+* The TShark `-G` option for generating glossary reports does not need to be the
+  first option given on the command line anymore. In addition, the reports now
+  are affected by other command line options such as `-o`, `-d`, and
+  `--disable-protocol`, in addition to the `-C` option, which was already supported.
+  (The `defaultprefs` report remains unaffected by any other options.)
+  As a part of this change, `-G` with no argument, which was previously deprecated,
+  is no longer supported. Use `tshark -G fields` to produce the same report.
+
 // === Removed Features and Support
 
 

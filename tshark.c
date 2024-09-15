@@ -879,6 +879,105 @@ about_folders(void)
 
 }
 
+static int
+dump_glossary(const char* glossary, const char* elastic_mapping_filter)
+{
+    int exit_status = EXIT_SUCCESS;
+    /* If invoked with the "-G" flag, we dump out information based on
+       the argument to the "-G" flag.
+     */
+
+    /* This is now called after the preferences are loaded and all
+     * the command line options are handled, including -o, -d,
+     * --[enable|disable]-[protocol|heuristic].
+     * Some UATs can register new fields (e.g. HTTP/2), so for most
+     * cases load everything.
+     *
+     * prefs_reset() is used for defaultprefs to get the default values.
+     * Note that makes it difficult to use defaultprefs in concert with
+     * any other glossary (we could do it last.)
+     */
+    proto_initialize_all_prefixes();
+
+    if (strcmp(glossary, "column-formats") == 0)
+        column_dump_column_formats();
+    else if (strcmp(glossary, "currentprefs") == 0) {
+        write_prefs(NULL);
+    }
+    else if (strcmp(glossary, "decodes") == 0) {
+        dissector_dump_decodes();
+    } else if (strcmp(glossary, "defaultprefs") == 0) {
+        prefs_reset();
+        write_prefs(NULL);
+    } else if (strcmp(glossary, "dissector-tables") == 0)
+        dissector_dump_dissector_tables();
+    else if (strcmp(glossary, "dissectors") == 0)
+        dissector_dump_dissectors();
+    else if (strcmp(glossary, "elastic-mapping") == 0)
+        proto_registrar_dump_elastic(elastic_mapping_filter);
+    else if (strncmp(glossary, "elastic-mapping,", strlen("elastic-mapping,")) == 0) {
+        elastic_mapping_filter = glossary + strlen("elastic-mapping,");
+        proto_registrar_dump_elastic(elastic_mapping_filter);
+    }
+    else if (strcmp(glossary, "fieldcount") == 0) {
+        /* return value for the test suite */
+        exit_status = proto_registrar_dump_fieldcount();
+    }
+    else if (strcmp(glossary, "fields") == 0) {
+        proto_registrar_dump_fields();
+    }
+    else if (strncmp(glossary, "fields,", strlen("fields,")) == 0) {
+        const char* prefix = glossary + strlen("fields,");
+        bool matched = proto_registrar_dump_field_completions(prefix);
+        if (!matched) {
+            cmdarg_err("No field or protocol begins with \"%s\"", prefix);
+            exit_status = EXIT_FAILURE;
+        }
+    }
+    else if (strcmp(glossary, "folders") == 0) {
+        about_folders();
+    } else if (strcmp(glossary, "ftypes") == 0)
+        proto_registrar_dump_ftypes();
+    else if (strcmp(glossary, "heuristic-decodes") == 0) {
+        dissector_dump_heur_decodes();
+    } else if (strcmp(glossary, "manuf") == 0)
+        ws_manuf_dump(stdout);
+    else if (strcmp(glossary, "enterprises") == 0)
+        global_enterprises_dump(stdout);
+    else if (strcmp(glossary, "services") == 0)
+        global_services_dump(stdout);
+    else if (strcmp(glossary, "plugins") == 0) {
+#ifdef HAVE_PLUGINS
+        codecs_init();
+        plugins_dump_all();
+#endif
+#ifdef HAVE_LUA
+        wslua_plugins_dump_all();
+#endif
+        extcap_dump_all();
+    }
+    else if (strcmp(glossary, "protocols") == 0) {
+        proto_registrar_dump_protocols();
+    } else if (strcmp(glossary, "values") == 0)
+        proto_registrar_dump_values();
+    else if (strcmp(glossary, "help") == 0)
+        glossary_option_help();
+    /* These are supported only for backwards compatibility and may or may not work
+     * for a given user in a given directory on a given operating system with a given
+     * command-line interpreter.
+     */
+    else if (strcmp(glossary, "?") == 0)
+        glossary_option_help();
+    else if (strcmp(glossary, "-?") == 0)
+        glossary_option_help();
+    else {
+        cmdarg_err("Invalid \"%s\" option for -G flag, enter -G help for more help.", glossary);
+        exit_status = WS_EXIT_INVALID_OPTION;
+    }
+
+    return exit_status;
+}
+
 static bool
 must_do_dissection(dfilter_t *rfcode, dfilter_t *dfcode,
         char *volatile pdu_export_arg)
@@ -1015,6 +1114,7 @@ main(int argc, char *argv[])
     char                 *volatile exp_pdu_filename = NULL;
     const char           *volatile tls_session_keys_file = NULL;
     exp_pdu_t             exp_pdu_tap_data;
+    const char*           glossary = NULL;
     const char*           elastic_mapping_filter = NULL;
     wtap_compression_type volatile compression_type = WTAP_UNKNOWN_COMPRESSION;
 
@@ -1132,7 +1232,9 @@ main(int argc, char *argv[])
     ws_opterr = 0;
 
     /*  We should check at first if we should use a global profile before
-        parsing the profile name */
+        parsing the profile name
+        XXX - We could check this in the next ws_getopt_long, and save the
+        profile name and only apply it after finishing the loop.  */
     while ((opt = ws_getopt_long(argc, argv, optstring, long_options, NULL)) != -1) {
         switch (opt) {
             case LONGOPT_GLOBAL_PROFILE:
@@ -1185,6 +1287,14 @@ main(int argc, char *argv[])
                 }
                 break;
             case 'G':
+                if (glossary != NULL) {
+                    /* Multiple glossaries are difficult especially due to defaultprefs */
+                    cmdarg_err("Multiple glossary reports (-G) are unsupported");
+                    exit_status = WS_EXIT_INVALID_OPTION;
+                    goto clean_exit;
+                } else {
+                    glossary = ws_optarg;
+                }
                 if (g_str_has_suffix(ws_optarg, "prefs")) {
                     has_extcap_options = true;
                 }
@@ -1226,9 +1336,6 @@ main(int argc, char *argv[])
             case 'h':
             case 'v':
                 is_capturing = false;
-                break;
-            case LONGOPT_ELASTIC_MAPPING_FILTER:
-                elastic_mapping_filter = ws_optarg;
                 break;
             default:
                 break;
@@ -1280,6 +1387,15 @@ main(int argc, char *argv[])
 
     /* Register extcap preferences only when needed. */
     if (has_extcap_options || is_capturing) {
+        /*
+         * XXX - We don't properly handle the capture_no_extcap preference.
+         * To make it work, before registering the extcap preferences we'd
+         * have to read at least that preference for the chosen profile, and
+         * also check to make sure an "-o" option didn't override it.
+         * Then, after registering the extcap preferences, we'd have to
+         * set the extcap preferences from the preferences file and "-o"
+         * options on the command line.
+         */
         extcap_register_preferences();
     }
 
@@ -1288,116 +1404,6 @@ main(int argc, char *argv[])
     srt_table_iterate_tables(register_srt_tables, NULL);
     rtd_table_iterate_tables(register_rtd_tables, NULL);
     stat_tap_iterate_tables(register_simple_stat_tables, NULL);
-
-    /* If invoked with the "-G" flag, we dump out information based on
-       the argument to the "-G" flag; if no argument is specified,
-       for backwards compatibility we dump out a glossary of display
-       filter symbols.
-
-       XXX - we do this here, for now, to support "-G" with no arguments.
-       If none of our build or other processes uses "-G" with no arguments,
-       we can just process it with the other arguments. */
-
-    /* NOTE: This is before the preferences are loaded with
-     * epan_load_settings() below, so if you add a new report
-     * and it depends on the profile settings, call epan_load_settings()
-     * first.
-     *
-     * It is after addr_resolv_init() is called (done by epan_init()),
-     * so "manuf", "enterprises", and "services" have the values from
-     * the global and personal profile files already loaded.
-     */
-    if (argc >= 2 && strcmp(argv[1], "-G") == 0) {
-        proto_initialize_all_prefixes();
-
-        if (argc == 2) {
-            cmdarg_err("-G with no argument is deprecated and will removed in a future version.");
-            cmdarg_err_cont("Generating fields glossary.");
-            proto_registrar_dump_fields();
-        } else {
-            if (strcmp(argv[2], "column-formats") == 0)
-                column_dump_column_formats();
-            else if (strcmp(argv[2], "currentprefs") == 0) {
-                epan_load_settings();
-                write_prefs(NULL);
-            }
-            else if (strcmp(argv[2], "decodes") == 0) {
-                epan_load_settings();
-                dissector_dump_decodes();
-            } else if (strcmp(argv[2], "defaultprefs") == 0)
-                write_prefs(NULL);
-            else if (strcmp(argv[2], "dissector-tables") == 0)
-                dissector_dump_dissector_tables();
-            else if (strcmp(argv[2], "dissectors") == 0)
-                dissector_dump_dissectors();
-            else if (strcmp(argv[2], "elastic-mapping") == 0)
-                proto_registrar_dump_elastic(elastic_mapping_filter);
-            else if (strcmp(argv[2], "fieldcount") == 0) {
-                /* return value for the test suite */
-                exit_status = proto_registrar_dump_fieldcount();
-                goto clean_exit;
-            }
-            else if (strcmp(argv[2], "fields") == 0) {
-                if (argc >= 4) {
-                    bool matched = proto_registrar_dump_field_completions(argv[3]);
-                    if (!matched) {
-                        cmdarg_err("No field or protocol begins with \"%s\"", argv[3]);
-                        exit_status = EXIT_FAILURE;
-                        goto clean_exit;
-                    }
-                }
-                else {
-                    proto_registrar_dump_fields();
-                }
-            }
-            else if (strcmp(argv[2], "folders") == 0) {
-                epan_load_settings();
-                about_folders();
-            } else if (strcmp(argv[2], "ftypes") == 0)
-                proto_registrar_dump_ftypes();
-            else if (strcmp(argv[2], "heuristic-decodes") == 0) {
-                epan_load_settings();
-                dissector_dump_heur_decodes();
-            } else if (strcmp(argv[2], "manuf") == 0)
-                ws_manuf_dump(stdout);
-            else if (strcmp(argv[2], "enterprises") == 0)
-                global_enterprises_dump(stdout);
-            else if (strcmp(argv[2], "services") == 0)
-                global_services_dump(stdout);
-            else if (strcmp(argv[2], "plugins") == 0) {
-#ifdef HAVE_PLUGINS
-                codecs_init();
-                plugins_dump_all();
-#endif
-#ifdef HAVE_LUA
-                wslua_plugins_dump_all();
-#endif
-                extcap_dump_all();
-            }
-            else if (strcmp(argv[2], "protocols") == 0) {
-                epan_load_settings();
-                proto_registrar_dump_protocols();
-            } else if (strcmp(argv[2], "values") == 0)
-                proto_registrar_dump_values();
-            else if (strcmp(argv[2], "help") == 0)
-                glossary_option_help();
-            /* These are supported only for backwards compatibility and may or may not work
-             * for a given user in a given directory on a given operating system with a given
-             * command-line interpreter.
-             */
-            else if (strcmp(argv[2], "?") == 0)
-                glossary_option_help();
-            else if (strcmp(argv[2], "-?") == 0)
-                glossary_option_help();
-            else {
-                cmdarg_err("Invalid \"%s\" option for -G flag, enter -G help for more help.", argv[2]);
-                exit_status = WS_EXIT_INVALID_OPTION;
-                goto clean_exit;
-            }
-        }
-        exit_status = EXIT_SUCCESS;
-        goto clean_exit;
-    }
 
     ws_debug("tshark reading settings");
 
@@ -1562,9 +1568,7 @@ main(int argc, char *argv[])
                 }
                 break;
             case 'G':
-                cmdarg_err("-G only valid as first option");
-                exit_status = WS_EXIT_INVALID_OPTION;
-                goto clean_exit;
+                /* already processed; just ignore it now */
                 break;
             case 'j':
                 if (!protocolfilter_add_opt(ws_optarg, PF_NONE)) {
@@ -1877,6 +1881,14 @@ main(int argc, char *argv[])
             case LONGOPT_NO_DUPLICATE_KEYS:
                 no_duplicate_keys = true;
                 node_children_grouper = proto_node_group_children_by_json_key;
+                break;
+            case LONGOPT_ELASTIC_MAPPING_FILTER:
+                /*
+                 * XXX - A long option that exists to alter one other option
+                 * (-G elastic-mapping) and for no other reason seems verbose.
+                 * Deprecate in favor of -G elastic-mapping,<filter> ?
+                 */
+                elastic_mapping_filter = ws_optarg;
                 break;
             case LONGOPT_CAPTURE_COMMENT:  /* capture comment */
                 if (capture_comments == NULL) {
@@ -2417,6 +2429,17 @@ main(int argc, char *argv[])
 
     /* Build the column format array */
     build_column_format_array(&cfile.cinfo, prefs_p->num_cols, true);
+
+    /* Everything is setup, dump glossaries now if that's what we're doing.
+     * We want to do this after protocols and heuristic dissectors are
+     * enabled and disabled. Doing it after building the column format
+     * array might make it easier to add a report that describes the
+     * current list of columns and how to add a new one (#17332).
+     */
+    if (glossary != NULL) {
+        exit_status = dump_glossary(glossary, elastic_mapping_filter);
+        goto clean_exit;
+    }
 
 #ifdef HAVE_LIBPCAP
     capture_opts_trim_snaplen(&global_capture_opts, MIN_PACKET_SIZE);

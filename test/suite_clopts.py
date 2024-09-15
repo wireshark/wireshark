@@ -95,13 +95,14 @@ class TestTsharkOptions:
     # XXX Should we generate individual test functions instead of looping?
     def test_tshark_invalid_chars(self, cmd_tshark, test_env):
         '''Invalid tshark parameters'''
-        for char_arg in 'ABCEFHJKMNORTUWXYZabcdefijkmorstuwyz':
+        # Most of these are valid but require a mandatory parameter
+        for char_arg in 'ABCEFGHJKMNORTUWXYZabcdefijkmorstuwyz':
             process = subprocesstest.run((cmd_tshark, '-' + char_arg), env=test_env)
             assert process.returncode == ExitCodes.COMMAND_LINE
 
     # XXX Should we generate individual test functions instead of looping?
     def test_tshark_valid_chars(self, cmd_tshark, test_env):
-        for char_arg in 'Ghv':
+        for char_arg in 'hv':
             process = subprocesstest.run((cmd_tshark, '-' + char_arg), env=test_env)
             assert process.returncode == ExitCodes.OK
 
