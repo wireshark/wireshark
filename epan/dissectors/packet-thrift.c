@@ -1577,7 +1577,7 @@ dissect_thrift_b_linear(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
     /* Create the sub-tree. */
     if (nested_count >= thrift_opt->nested_type_depth) {
         expert_add_info(pinfo, proto_tree_get_parent(tree), &ei_thrift_too_many_subtypes);
-        return THRIFT_REQUEST_REASSEMBLY;
+        return THRIFT_SUBDISSECTOR_ERROR;
     }
     p_set_proto_depth(pinfo, proto_thrift, nested_count + 1);
     container_pi = proto_tree_add_item(tree, hf_id, tvb, offset, -1, ENC_BIG_ENDIAN);
@@ -1703,7 +1703,7 @@ dissect_thrift_c_list_set(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
     /* Create the sub-tree. */
     if (nested_count >= thrift_opt->nested_type_depth) {
         expert_add_info(pinfo, proto_tree_get_parent(tree), &ei_thrift_too_many_subtypes);
-        return THRIFT_REQUEST_REASSEMBLY;
+        return THRIFT_SUBDISSECTOR_ERROR;
     }
     p_set_proto_depth(pinfo, proto_thrift, nested_count + 1);
     container_pi = proto_tree_add_item(tree, hf_id, tvb, offset, -1, ENC_BIG_ENDIAN);
@@ -1859,7 +1859,7 @@ dissect_thrift_t_map(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int of
         /* Create the sub-tree. */
         if (nested_count >= thrift_opt->nested_type_depth) {
             expert_add_info(pinfo, proto_tree_get_parent(tree), &ei_thrift_too_many_subtypes);
-            return THRIFT_REQUEST_REASSEMBLY;
+            return THRIFT_SUBDISSECTOR_ERROR;
         }
         p_set_proto_depth(pinfo, proto_thrift, nested_count + 1);
         container_pi = proto_tree_add_item(tree, hf_id, tvb, len_offset, -1, ENC_BIG_ENDIAN);
@@ -1962,7 +1962,7 @@ dissect_thrift_t_struct_expert(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
         /* Add the struct to the tree. */
         if (nested_count >= thrift_opt->nested_type_depth) {
             expert_add_info(pinfo, proto_tree_get_parent(tree), &ei_thrift_too_many_subtypes);
-            return THRIFT_REQUEST_REASSEMBLY;
+            return THRIFT_SUBDISSECTOR_ERROR;
         }
         p_set_proto_depth(pinfo, proto_thrift, nested_count + 1);
         type_pi = proto_tree_add_item(tree, hf_id, tvb, offset, -1, ENC_BIG_ENDIAN);
@@ -3196,6 +3196,8 @@ dissect_thrift_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
             return 0;
         }
         /* else { Fallback to dissect using the generic dissector. } */
+        /* Reset proto depth as the sub-dissector might have failed within a sub-structure and changed its value. */
+        p_set_proto_depth(pinfo, proto_thrift, 0);
     } /* else len = 0, no specific sub-dissector. */
 
     /***********************/
