@@ -444,6 +444,7 @@ static int hf_smb2_domain_name;
 static int hf_smb2_host_name;
 static int hf_smb2_auth_frame;
 static int hf_smb2_tcon_frame;
+static int hf_smb2_tdcon_frame;
 static int hf_smb2_share_type;
 static int hf_smb2_signature;
 static int hf_smb2_credit_charge;
@@ -4423,7 +4424,7 @@ dissect_smb2_tree_connect_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 	}
 
 	if (buf) {
-		col_append_fstr(pinfo->cinfo, COL_INFO, " Tree: %s",
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Tree: '%s'",
 		    format_text(pinfo->pool, buf, strlen(buf)));
 	}
 
@@ -4471,6 +4472,9 @@ dissect_smb2_tree_connect_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 		si->saved->extra_info = NULL;
 	}
 
+	if (si->tree)
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Tree: '%s'", si->tree->name);
+
 	/* share flags */
 	offset = dissect_smb2_share_flags(tree, tvb, offset);
 
@@ -4489,6 +4493,9 @@ dissect_smb2_tree_disconnect_request(tvbuff_t *tvb, packet_info *pinfo _U_, prot
 	/* buffer code */
 	offset = dissect_smb2_buffercode(tree, tvb, offset, NULL);
 
+	if (si->tree)
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Tree: '%s'", si->tree->name);
+
 	/* reserved */
 	proto_tree_add_item(tree, hf_smb2_reserved, tvb, offset, 2, ENC_NA);
 	offset += 2;
@@ -4503,9 +4510,17 @@ dissect_smb2_tree_disconnect_response(tvbuff_t *tvb, packet_info *pinfo _U_, pro
 
 	switch (si->status) {
 	/* buffer code */
-	case 0x00000000: offset = dissect_smb2_buffercode(tree, tvb, offset, NULL); break;
+	case 0x00000000:
+		offset = dissect_smb2_buffercode(tree, tvb, offset, NULL);
+		break;
+
 	default: offset = dissect_smb2_error_response(tvb, pinfo, tree, offset, si, &continue_dissection);
 		if (!continue_dissection) return offset;
+	}
+
+	if (si->tree) {
+		si->tree->disconnect_frame = pinfo->fd->num;
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Tree: '%s'", si->tree->name);
 	}
 
 	/* reserved */
@@ -11460,6 +11475,10 @@ dissect_smb2_tid_sesid(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *tvb, 
 
 		item = proto_tree_add_uint(tid_tree, hf_smb2_tcon_frame, tvb, tid_offset, 0, si->tree->connect_frame);
 		proto_item_set_generated(item);
+
+		item = proto_tree_add_uint(tid_tree, hf_smb2_tdcon_frame, tvb, tid_offset, 0, si->tree->disconnect_frame);
+		proto_item_set_generated(item);
+
 	}
 
 	return offset;
@@ -13606,6 +13625,11 @@ proto_register_smb2(void)
 		{ &hf_smb2_tcon_frame,
 			{ "Connected in Frame", "smb2.tcon_frame", FT_FRAMENUM, BASE_NONE,
 			NULL, 0, "Which frame this share was connected in", HFILL }
+		},
+
+		{ &hf_smb2_tdcon_frame,
+			{ "Disconnected in Frame", "smb2.tdcon_frame", FT_FRAMENUM, BASE_NONE,
+			NULL, 0, "Which frame this share was disconnected in", HFILL }
 		},
 
 		{ &hf_smb2_tag,
