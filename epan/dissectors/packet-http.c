@@ -950,13 +950,16 @@ determine_http_location_target(wmem_allocator_t *scope, const char *base_url, co
 			char *netloc_end;
 			int netloc_length;
 
-			scheme_end = strstr(base_url_no_query, "://") + 3;
-			/* The following code was the only way to stop VS dereferencing errors. */
+			scheme_end = strstr(base_url_no_query, "://");
+			if (!(scheme_end)) {
+				return NULL;
+			}
+			scheme_end += strlen("://");
 			if (!(*scheme_end)) {
 				return NULL;
 			}
 			netloc_end = strstr(scheme_end, "/");
-			if (!(*netloc_end)) {
+			if (!(netloc_end)) {
 				return NULL;
 			}
 			netloc_length = (int) (netloc_end - base_url_no_query);
@@ -4402,7 +4405,7 @@ dissect_http_heur_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
 }
 
 static int
-dissect_http_tls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
+dissect_http_tls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
 	conversation_t *conversation;
 	http_conv_t *conv_data;
