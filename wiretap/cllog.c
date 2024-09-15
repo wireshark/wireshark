@@ -451,8 +451,11 @@ static bool parseColumnHeaderFields( cCLLog_logFileInfo_t *pInfo, char *pColLine
             finalField = 1;
         }
 
-        /* Replace separator with string termination */
-        *pFieldEnd = '\0';
+        /* Replace separator or terminator with string termination */
+        if (pFieldEnd != NULL)
+        {
+            *pFieldEnd = '\0';
+        }
 
         /* Set field number */
         if( strcmp( pFieldStart, "Timestamp" ) == 0 )  { pInfo->parseFieldFunc[ fieldNo ] = parseFieldTS; resultFlag = true; }
