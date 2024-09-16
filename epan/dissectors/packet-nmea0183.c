@@ -63,6 +63,18 @@ static int hf_nmea0183_gll_time_second;
 static int hf_nmea0183_gll_status;
 static int hf_nmea0183_gll_mode;
 
+static int hf_nmea0183_gst_time;
+static int hf_nmea0183_gst_time_hour;
+static int hf_nmea0183_gst_time_minute;
+static int hf_nmea0183_gst_time_second;
+static int hf_nmea0183_gst_rms_total_sd;
+static int hf_nmea0183_gst_ellipse_major_sd;
+static int hf_nmea0183_gst_ellipse_minor_sd;
+static int hf_nmea0183_gst_ellipse_orientation;
+static int hf_nmea0183_gst_latitude_sd;
+static int hf_nmea0183_gst_longitude_sd;
+static int hf_nmea0183_gst_altitude_sd;
+
 static int hf_nmea0183_rot_rate_of_turn;
 static int hf_nmea0183_rot_valid;
 
@@ -125,6 +137,7 @@ static int ett_nmea0183_gga_longitude;
 static int ett_nmea0183_gll_time;
 static int ett_nmea0183_gll_latitude;
 static int ett_nmea0183_gll_longitude;
+static int ett_nmea0183_gst_time;
 
 static expert_field ei_nmea0183_invalid_first_character;
 static expert_field ei_nmea0183_missing_checksum_character;
@@ -916,6 +929,33 @@ dissect_nmea0183_sentence_gll(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     return tvb_captured_length(tvb);
 }
 
+/* Dissect a GST sentence. The time field is split into individual parts. */
+static int
+dissect_nmea0183_sentence_gst(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+    int offset = 0;
+
+    proto_tree *subtree = proto_tree_add_subtree(tree, tvb, offset,
+                                                 tvb_captured_length(tvb), ett_nmea0183_sentence,
+                                                 NULL, "GST sentence - GPS Pseudorange Noise Statistics");
+
+    offset += dissect_nmea0183_field_time(tvb, pinfo, subtree, offset, hf_nmea0183_gst_time,
+                                          hf_nmea0183_gst_time_hour, hf_nmea0183_gst_time_minute,
+                                          hf_nmea0183_gst_time_second, ett_nmea0183_gst_time);
+
+    offset += dissect_nmea0183_field(tvb, pinfo, subtree, offset, hf_nmea0183_gst_rms_total_sd, "");
+
+    offset += dissect_nmea0183_field(tvb, pinfo, subtree, offset, hf_nmea0183_gst_ellipse_major_sd, "meter");
+    offset += dissect_nmea0183_field(tvb, pinfo, subtree, offset, hf_nmea0183_gst_ellipse_minor_sd, "meter");
+    offset += dissect_nmea0183_field(tvb, pinfo, subtree, offset, hf_nmea0183_gst_ellipse_orientation, "degree (true north)");
+
+    offset += dissect_nmea0183_field(tvb, pinfo, subtree, offset, hf_nmea0183_gst_latitude_sd, "meter");
+    offset += dissect_nmea0183_field(tvb, pinfo, subtree, offset, hf_nmea0183_gst_longitude_sd, "meter");
+    dissect_nmea0183_field(tvb, pinfo, subtree, offset, hf_nmea0183_gst_altitude_sd, "meter");
+
+    return tvb_captured_length(tvb);
+}
+
 /* Dissect a HDT sentence. */
 static int
 dissect_nmea0183_sentence_hdt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -1197,6 +1237,10 @@ dissect_nmea0183(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
     else if (g_ascii_strcasecmp(sentence_id, "GLL") == 0)
     {
         offset += dissect_nmea0183_sentence_gll(data_tvb, pinfo, nmea0183_tree);
+    }
+    else if (g_ascii_strcasecmp(sentence_id, "GST") == 0)
+    {
+        offset += dissect_nmea0183_sentence_gst(data_tvb, pinfo, nmea0183_tree);
     }
     else if (g_ascii_strcasecmp(sentence_id, "HDT") == 0)
     {
@@ -1495,6 +1539,61 @@ void proto_register_nmea0183(void)
           FT_STRING, BASE_NONE,
           NULL, 0x0,
           "NMEA 0183 GLL FAA mode indicator (NMEA 2.3 and later)", HFILL}},
+        {&hf_nmea0183_gst_time,
+         {"UTC Time of position", "nmea0183.gst_time",
+          FT_NONE, BASE_NONE,
+          NULL, 0x0,
+          NULL, HFILL}},
+        {&hf_nmea0183_gst_time_hour,
+         {"Hour", "nmea0183.gst_time_hour",
+          FT_STRING, BASE_NONE,
+          NULL, 0x0,
+          NULL, HFILL}},
+        {&hf_nmea0183_gst_time_minute,
+         {"Minute", "nmea0183.gst_time_minute",
+          FT_STRING, BASE_NONE,
+          NULL, 0x0,
+          NULL, HFILL}},
+        {&hf_nmea0183_gst_time_second,
+         {"Second", "nmea0183.gst_time_second",
+          FT_STRING, BASE_NONE,
+          NULL, 0x0,
+          NULL, HFILL}},
+        {&hf_nmea0183_gst_rms_total_sd,
+         {"Total RMS standard deviation", "nmea0183.gst_sd_rms_total",
+          FT_STRING, BASE_NONE,
+          NULL, 0x0,
+          "NMEA 0183 GST Total RMS standard deviation of ranges inputs to the navigation solution", HFILL}},
+        {&hf_nmea0183_gst_ellipse_major_sd,
+         {"Standard deviation of semi-major axis of error", "nmea0183.gst_ellipse_major_sd",
+          FT_STRING, BASE_NONE,
+          NULL, 0x0,
+          NULL, HFILL}},
+        {&hf_nmea0183_gst_ellipse_minor_sd,
+         {"Standard deviation of semi-minor axis of error ellipse", "nmea0183.gst_ellipse_minor_sd",
+          FT_STRING, BASE_NONE,
+          NULL, 0x0,
+          NULL, HFILL}},
+        {&hf_nmea0183_gst_ellipse_orientation,
+         {"Orientation of semi-major axis of error ellipse", "nmea0183.gst_ellipse_orientation",
+          FT_STRING, BASE_NONE,
+          NULL, 0x0,
+          "NMEA 0183 GST Orientation of semi-major axis of error ellipse (true north degrees)", HFILL}},
+        {&hf_nmea0183_gst_latitude_sd,
+         {"Standard deviation of latitude error", "nmea0183.gst_sd_latitude",
+          FT_STRING, BASE_NONE,
+          NULL, 0x0,
+          NULL, HFILL}},
+        {&hf_nmea0183_gst_longitude_sd,
+         {"Standard deviation of longitude error", "nmea0183.gst_sd_longitude",
+          FT_STRING, BASE_NONE,
+          NULL, 0x0,
+          NULL, HFILL}},
+        {&hf_nmea0183_gst_altitude_sd,
+         {"Standard deviation of altitude error", "nmea0183.gst_sd_altitude",
+          FT_STRING, BASE_NONE,
+          NULL, 0x0,
+          NULL, HFILL}},
         {&hf_nmea0183_hdt_heading,
          {"True heading", "nmea0183.hdt_heading",
           FT_STRING, BASE_NONE,
