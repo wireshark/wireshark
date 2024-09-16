@@ -49,12 +49,6 @@ The following features are either new or have been significantly updated since v
   This preference can also be set to never use ascii time and to use ISO 8601 time
   in the protocol tree (Packet Details) as well.
 
-* Mergecap, Editcap, TShark and Text2pcap have an `--compress` option to
-  compress output to different formats. For now, it supports the gzip
-  and LZ4 compression formats. When the option is not given, the desired
-  compression format can also be deduced from the output filename
-  extension, e.g. gzip for .gz.
-
 // === Removed Features and Support
 
 
