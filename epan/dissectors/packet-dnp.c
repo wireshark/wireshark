@@ -363,6 +363,7 @@
 #define AL_OBJ_CTLOP_BLK   0x0C01   /* 12 01 Control Relay Output Block */
 #define AL_OBJ_CTL_PCB     0x0C02   /* 12 02 Pattern Control Block */
 #define AL_OBJ_CTL_PMASK   0x0C03   /* 12 03 Pattern Mask */
+#define AL_OBJ_BOE_ALL     0x0D00   /* 13 00 Binary Output Command Event Default Variation */
 #define AL_OBJ_BOE_NOTIME  0x0D01   /* 13 01 Binary Output Command Event Without Time */
 #define AL_OBJ_BOE_TIME    0x0D02   /* 13 02 Binary Output Command Event With Time */
 
@@ -477,6 +478,7 @@
 #define AL_OBJ_AI_16NF     0x1E04   /* 30 04 16-Bit Analog Input Without Flag */
 #define AL_OBJ_AI_FLT      0x1E05   /* 30 05 32-Bit Floating Point Input */
 #define AL_OBJ_AI_DBL      0x1E06   /* 30 06 64-Bit Floating Point Input */
+#define AL_OBJ_AIF_ALL     0x1F00   /* 31 00 Frozen Analog Input Default Variation */
 #define AL_OBJ_AIFC_32     0x1F01   /* 31 01 32-Bit Frozen Analog Input */
 #define AL_OBJ_AIFC_16     0x1F02   /* 31 02 16-Bit Frozen Analog Input */
 #define AL_OBJ_AIFC_32TOF  0x1F03   /* 31 03 32-Bit Frozen Analog Input w/ Time of Freeze */
@@ -494,6 +496,7 @@
 #define AL_OBJ_AIC_DBLNT   0x2006   /* 32 06 64-Bit Floating Point Change Event w/o Time*/
 #define AL_OBJ_AIC_FLTT    0x2007   /* 32 07 32-Bit Floating Point Change Event w/ Time*/
 #define AL_OBJ_AIC_DBLT    0x2008   /* 32 08 64-Bit Floating Point Change Event w/ Time*/
+#define AL_OBJ_AIFC_ALL    0x2100   /* 33 00 Frozen Analog Event Default Variation */
 #define AL_OBJ_AIFC_32NT   0x2101   /* 33 01 32-Bit Frozen Analog Event w/o Time */
 #define AL_OBJ_AIFC_16NT   0x2102   /* 33 02 16-Bit Frozen Analog Event w/o Time */
 #define AL_OBJ_AIFC_32T    0x2103   /* 33 03 32-Bit Frozen Analog Event w/ Time */
@@ -543,9 +546,9 @@
 #define AL_OBJ_AOC_32EVTT  0x2B03   /* 43 03 32-Bit Analog Output Command Event w/ Time */
 #define AL_OBJ_AOC_16EVTT  0x2B04   /* 43 04 16-Bit Analog Output Command Event w/ Time */
 #define AL_OBJ_AOC_FLTEVNT 0x2B05   /* 43 05 32-Bit Floating Point Analog Output Command Event w/o Time */
-#define AL_OBJ_AOC_DBLEVNT 0x2B06   /* 43 06 64-Bit Floating PointAnalog Output Command Event w/o Time */
+#define AL_OBJ_AOC_DBLEVNT 0x2B06   /* 43 06 64-Bit Floating Point Analog Output Command Event w/o Time */
 #define AL_OBJ_AOC_FLTEVTT 0x2B07   /* 43 07 32-Bit Floating Point Analog Output Command Event w/ Time */
-#define AL_OBJ_AOC_DBLEVTT 0x2B08   /* 43 08 64-Bit Floating PointAnalog Output Command Event w/ Time */
+#define AL_OBJ_AOC_DBLEVTT 0x2B08   /* 43 08 64-Bit Floating Point Analog Output Command Event w/ Time */
 
 /* Analog Output Quality Flags */
 #define AL_OBJ_AO_FLAG0    0x01     /* Point Online (0=Offline; 1=Online) */
@@ -712,8 +715,6 @@ static int hf_dnp3_bocs_bit;
 
 /* static int hf_dnp3_al_objq;*/
 /* static int hf_dnp3_al_nobj; */
-/* XXX - unused
-static int hf_dnp3_al_ptnum; */
 static int hf_dnp3_al_biq_b0;
 static int hf_dnp3_al_biq_b1;
 static int hf_dnp3_al_biq_b2;
@@ -834,6 +835,29 @@ static int hf_dnp3_al_sa_usrn;
 static int hf_dnp3_al_sa_usrnl;
 static int hf_dnp3_al_sa_assoc_id;
 
+static int hf_dnp3_al_bi_index;
+static int hf_dnp3_al_bi_static_index;
+static int hf_dnp3_al_bi_event_index;
+static int hf_dnp3_al_dbi_index;
+static int hf_dnp3_al_dbi_static_index;
+static int hf_dnp3_al_dbi_event_index;
+static int hf_dnp3_al_bo_index;
+static int hf_dnp3_al_bo_static_index;
+static int hf_dnp3_al_bo_event_index;
+static int hf_dnp3_al_bo_cmnd_index;
+static int hf_dnp3_al_counter_index;
+static int hf_dnp3_al_counter_static_index;
+static int hf_dnp3_al_counter_event_index;
+static int hf_dnp3_al_ai_index;
+static int hf_dnp3_al_ai_static_index;
+static int hf_dnp3_al_ai_event_index;
+static int hf_dnp3_al_ao_index;
+static int hf_dnp3_al_ao_static_index;
+static int hf_dnp3_al_ao_event_index;
+static int hf_dnp3_al_ao_cmnd_index;
+static int hf_dnp3_al_os_index;
+static int hf_dnp3_al_os_static_index;
+static int hf_dnp3_al_os_event_index;
 /* Generated from convert_proto_tree_add_text.pl */
 static int hf_dnp3_al_point_index;
 static int hf_dnp3_al_da_value;
@@ -1768,10 +1792,11 @@ dnp3_al_process_iin(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *a
 /* and Point address.                                         */
 /**************************************************************/
 static int
-dnp3_al_obj_procprefix(tvbuff_t *tvb, int offset, uint8_t al_objq_prefix, uint32_t *al_ptaddr, proto_tree *item_tree)
+dnp3_al_obj_procprefix(tvbuff_t *tvb, int offset, uint16_t al_obj, uint8_t al_objq_prefix, uint32_t *al_ptaddr, proto_tree *item_tree)
 {
   int         prefixbytes = 0;
   proto_item *prefix_item;
+  proto_item *index_item = 0, *type_index_item = 0;
 
   switch (al_objq_prefix)
   {
@@ -1811,6 +1836,86 @@ dnp3_al_obj_procprefix(tvbuff_t *tvb, int offset, uint8_t al_objq_prefix, uint32
       prefixbytes = 4;
       break;
   }
+
+  if (al_objq_prefix <= AL_OBJQL_PREFIX_4O) {
+    switch (al_obj & 0xff00) {
+      case AL_OBJ_BI_ALL:
+        index_item = proto_tree_add_uint(item_tree, hf_dnp3_al_bi_index, tvb, offset, prefixbytes, *al_ptaddr);
+        type_index_item = proto_tree_add_uint(item_tree, hf_dnp3_al_bi_static_index, tvb, offset, prefixbytes, *al_ptaddr);
+        break;
+      case AL_OBJ_BIC_ALL:
+        index_item = proto_tree_add_uint(item_tree, hf_dnp3_al_bi_index, tvb, offset, prefixbytes, *al_ptaddr);
+        type_index_item = proto_tree_add_uint(item_tree, hf_dnp3_al_bi_event_index, tvb, offset, prefixbytes, *al_ptaddr);
+        break;
+      case AL_OBJ_2BI_ALL:
+        index_item = proto_tree_add_uint(item_tree, hf_dnp3_al_dbi_index, tvb, offset, prefixbytes, *al_ptaddr);
+        type_index_item = proto_tree_add_uint(item_tree, hf_dnp3_al_dbi_static_index, tvb, offset, prefixbytes, *al_ptaddr);
+        break;
+      case AL_OBJ_2BIC_ALL:
+        index_item = proto_tree_add_uint(item_tree, hf_dnp3_al_dbi_index, tvb, offset, prefixbytes, *al_ptaddr);
+        type_index_item = proto_tree_add_uint(item_tree, hf_dnp3_al_dbi_event_index, tvb, offset, prefixbytes, *al_ptaddr);
+        break;
+      case AL_OBJ_CTR_ALL:
+      case AL_OBJ_FCTR_ALL:
+        index_item = proto_tree_add_uint(item_tree, hf_dnp3_al_counter_index, tvb, offset, prefixbytes, *al_ptaddr);
+        type_index_item = proto_tree_add_uint(item_tree, hf_dnp3_al_counter_static_index, tvb, offset, prefixbytes, *al_ptaddr);
+        break;
+      case AL_OBJ_CTRC_ALL:
+      case AL_OBJ_FCTRC_ALL:
+        index_item = proto_tree_add_uint(item_tree, hf_dnp3_al_counter_index, tvb, offset, prefixbytes, *al_ptaddr);
+        type_index_item = proto_tree_add_uint(item_tree, hf_dnp3_al_counter_event_index, tvb, offset, prefixbytes, *al_ptaddr);
+        break;
+      case AL_OBJ_BO_ALL:
+        index_item = proto_tree_add_uint(item_tree, hf_dnp3_al_bo_index, tvb, offset, prefixbytes, *al_ptaddr);
+        type_index_item = proto_tree_add_uint(item_tree, hf_dnp3_al_bo_static_index, tvb, offset, prefixbytes, *al_ptaddr);
+        break;
+      case AL_OBJ_BOC_ALL:
+      case AL_OBJ_BOE_ALL:
+        index_item = proto_tree_add_uint(item_tree, hf_dnp3_al_bo_index, tvb, offset, prefixbytes, *al_ptaddr);
+        type_index_item = proto_tree_add_uint(item_tree, hf_dnp3_al_bo_event_index, tvb, offset, prefixbytes, *al_ptaddr);
+        break;
+      case AL_OBJ_CTLOP_BLK & 0xff00:
+        index_item = proto_tree_add_uint(item_tree, hf_dnp3_al_bo_index, tvb, offset, prefixbytes, *al_ptaddr);
+        type_index_item = proto_tree_add_uint(item_tree, hf_dnp3_al_bo_cmnd_index, tvb, offset, prefixbytes, *al_ptaddr);
+        break;
+      case AL_OBJ_AI_ALL:
+      case AL_OBJ_AIF_ALL:
+        index_item = proto_tree_add_uint(item_tree, hf_dnp3_al_ai_index, tvb, offset, prefixbytes, *al_ptaddr);
+        type_index_item = proto_tree_add_uint(item_tree, hf_dnp3_al_ai_static_index, tvb, offset, prefixbytes, *al_ptaddr);
+        break;
+      case AL_OBJ_AIC_ALL:
+      case AL_OBJ_AIFC_ALL:
+        index_item = proto_tree_add_uint(item_tree, hf_dnp3_al_ai_index, tvb, offset, prefixbytes, *al_ptaddr);
+        type_index_item = proto_tree_add_uint(item_tree, hf_dnp3_al_ai_event_index, tvb, offset, prefixbytes, *al_ptaddr);
+        break;
+      case AL_OBJ_AO_ALL:
+        index_item = proto_tree_add_uint(item_tree, hf_dnp3_al_ao_index, tvb, offset, prefixbytes, *al_ptaddr);
+        type_index_item = proto_tree_add_uint(item_tree, hf_dnp3_al_ao_static_index, tvb, offset, prefixbytes, *al_ptaddr);
+        break;
+      case AL_OBJ_AO_32OPB & 0xff00:
+        index_item = proto_tree_add_uint(item_tree, hf_dnp3_al_ao_index, tvb, offset, prefixbytes, *al_ptaddr);
+        type_index_item = proto_tree_add_uint(item_tree, hf_dnp3_al_ao_cmnd_index, tvb, offset, prefixbytes, *al_ptaddr);
+        break;
+      case AL_OBJ_AOC_ALL:
+        index_item = proto_tree_add_uint(item_tree, hf_dnp3_al_ao_index, tvb, offset, prefixbytes, *al_ptaddr);
+        type_index_item = proto_tree_add_uint(item_tree, hf_dnp3_al_ao_event_index, tvb, offset, prefixbytes, *al_ptaddr);
+        break;
+      case AL_OBJ_OCT:
+        index_item = proto_tree_add_uint(item_tree, hf_dnp3_al_os_index, tvb, offset, prefixbytes, *al_ptaddr);
+        type_index_item = proto_tree_add_uint(item_tree, hf_dnp3_al_os_static_index, tvb, offset, prefixbytes, *al_ptaddr);
+        break;
+      case AL_OBJ_OCT_EVT:
+        index_item = proto_tree_add_uint(item_tree, hf_dnp3_al_os_index, tvb, offset, prefixbytes, *al_ptaddr);
+        type_index_item = proto_tree_add_uint(item_tree, hf_dnp3_al_os_event_index, tvb, offset, prefixbytes, *al_ptaddr);
+        break;
+    }
+
+    if (al_objq_prefix == AL_OBJQL_PREFIX_NI) {
+      proto_item_set_generated(index_item);
+      proto_item_set_generated(type_index_item);
+    }
+  }
+
   return prefixbytes;
 }
 
@@ -2187,7 +2292,7 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset,
       }
 
       data_pos   = offset;
-      prefixbytes = dnp3_al_obj_procprefix(tvb, offset, al_objq_prefix, &al_ptaddr, point_tree);
+      prefixbytes = dnp3_al_obj_procprefix(tvb, offset, al_obj, al_objq_prefix, &al_ptaddr, point_tree);
 
       /* If this is an 'empty' object type as the num_items field is not equal to zero,
          then the packet is potentially malicious */
@@ -5543,6 +5648,29 @@ proto_register_dnp3(void)
         FT_UINT32, BASE_DEC, NULL, 0x0,
         "The total length of the reassembled payload", HFILL }
     },
+    { &hf_dnp3_al_bi_index, { "Binary Input Index", "dnp3.al.bi.index", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+    { &hf_dnp3_al_bi_static_index, { "Binary Input Static Index", "dnp3.al.bi.static.index", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+    { &hf_dnp3_al_bi_event_index, { "Binary Input Event Index", "dnp3.al.bi.event.index", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+    { &hf_dnp3_al_dbi_index, { "Double-Bit Input Index", "dnp3.al.dbi.index", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+    { &hf_dnp3_al_dbi_static_index, { "Double-Bit Input Static Index", "dnp3.al.dbi.static.index", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+    { &hf_dnp3_al_dbi_event_index, { "Double-Bit Input Event Index", "dnp3.al.dbi.event.index", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+    { &hf_dnp3_al_bo_index, { "Binary Output Index", "dnp3.al.bo.index", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+    { &hf_dnp3_al_bo_static_index, { "Binary Output Static Index", "dnp3.al.bo.static.index", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+    { &hf_dnp3_al_bo_event_index, { "Binary Output Event Index", "dnp3.al.bo.event.index", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+    { &hf_dnp3_al_bo_cmnd_index, { "Binary Output Command Index", "dnp3.al.bo.cmnd.index", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+    { &hf_dnp3_al_counter_index, { "Counter Index", "dnp3.al.counter.index", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+    { &hf_dnp3_al_counter_static_index, { "Counter Static Index", "dnp3.al.counter.static.index", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+    { &hf_dnp3_al_counter_event_index, { "Counter Input Event Index", "dnp3.al.counter.event.index", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+    { &hf_dnp3_al_ai_index, { "Analog Input Index", "dnp3.al.ai.index", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+    { &hf_dnp3_al_ai_static_index, { "Analog Input Static Index", "dnp3.al.ai.static.index", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+    { &hf_dnp3_al_ai_event_index, { "Analog Input Event Index", "dnp3.al.ai.event.index", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+    { &hf_dnp3_al_ao_index, { "Analog Output Index", "dnp3.al.ao.index", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+    { &hf_dnp3_al_ao_static_index, { "Analog Output Static Index", "dnp3.al.ao.static.index", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+    { &hf_dnp3_al_ao_event_index, { "Analog Output Event Index", "dnp3.al.ao.event.index", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+    { &hf_dnp3_al_ao_cmnd_index, { "Analog Output Command Index", "dnp3.al.ao.cmnd.index", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+    { &hf_dnp3_al_os_index, { "Octet String Index", "dnp3.al.os.index", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+    { &hf_dnp3_al_os_static_index, { "Octet String Static Index", "dnp3.al.os.static.index", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+    { &hf_dnp3_al_os_event_index, { "Octet String Event Index", "dnp3.al.os.event.index", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
     /* Generated from convert_proto_tree_add_text.pl */
     { &hf_dnp3_al_point_index, { "Point Index", "dnp3.al.point_index", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
     { &hf_dnp3_al_da_value, { "Value", "dnp3.al.da.value", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
