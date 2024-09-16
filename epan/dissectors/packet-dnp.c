@@ -479,12 +479,12 @@
 #define AL_OBJ_AI_FLT      0x1E05   /* 30 05 32-Bit Floating Point Input */
 #define AL_OBJ_AI_DBL      0x1E06   /* 30 06 64-Bit Floating Point Input */
 #define AL_OBJ_AIF_ALL     0x1F00   /* 31 00 Frozen Analog Input Default Variation */
-#define AL_OBJ_AIFC_32     0x1F01   /* 31 01 32-Bit Frozen Analog Input */
-#define AL_OBJ_AIFC_16     0x1F02   /* 31 02 16-Bit Frozen Analog Input */
-#define AL_OBJ_AIFC_32TOF  0x1F03   /* 31 03 32-Bit Frozen Analog Input w/ Time of Freeze */
-#define AL_OBJ_AIFC_16TOF  0x1F04   /* 31 04 16-Bit Frozen Analog Input w/ Time of Freeze */
-#define AL_OBJ_AIFC_32NF   0x1F05   /* 31 05 32-Bit Frozen Analog Input Without Flag */
-#define AL_OBJ_AIFC_16NF   0x1F06   /* 31 06 16-Bit Frozen Analog Input Without Flag */
+#define AL_OBJ_AIF_32      0x1F01   /* 31 01 32-Bit Frozen Analog Input */
+#define AL_OBJ_AIF_16      0x1F02   /* 31 02 16-Bit Frozen Analog Input */
+#define AL_OBJ_AIF_32TOF   0x1F03   /* 31 03 32-Bit Frozen Analog Input w/ Time of Freeze */
+#define AL_OBJ_AIF_16TOF   0x1F04   /* 31 04 16-Bit Frozen Analog Input w/ Time of Freeze */
+#define AL_OBJ_AIF_32NF    0x1F05   /* 31 05 32-Bit Frozen Analog Input Without Flag */
+#define AL_OBJ_AIF_16NF    0x1F06   /* 31 06 16-Bit Frozen Analog Input Without Flag */
 #define AL_OBJ_AIF_FLT     0x1F07   /* 31 07 32-Bit Frozen Floating Point Input */
 #define AL_OBJ_AIF_DBL     0x1F08   /* 31 08 64-Bit Frozen Floating Point Input */
 #define AL_OBJ_AIC_ALL     0x2000   /* 32 00 Analog Input Change Default Variation */
@@ -1155,12 +1155,12 @@ static const value_string dnp3_al_obj_vals[] = {
   { AL_OBJ_AI_16NF,        "16-Bit Analog Input Without Flag (Obj:30, Var:04)" },
   { AL_OBJ_AI_FLT,         "32-Bit Floating Point Input (Obj:30, Var:05)" },
   { AL_OBJ_AI_DBL,         "64-Bit Floating Point Input (Obj:30, Var:06)" },
-  { AL_OBJ_AIFC_32,        "32-Bit Frozen Analog Input (Obj:31, Var:01)" },
-  { AL_OBJ_AIFC_16,        "16-Bit Frozen Analog Input (Obj:31, Var:02)" },
-  { AL_OBJ_AIFC_32TOF,     "32-Bit Frozen Analog Input w/ Time of Freeze (Obj:31, Var:03)" },
-  { AL_OBJ_AIFC_16TOF,     "16-Bit Frozen Analog Input w/ Time of Freeze (Obj:31, Var:04)" },
-  { AL_OBJ_AIFC_32NF,      "32-Bit Frozen Analog Input Without Flag (Obj:31, Var:05)" },
-  { AL_OBJ_AIFC_16NF,      "16-Bit Frozen Analog Input Without Flag (Obj:31, Var:06)" },
+  { AL_OBJ_AIF_32,         "32-Bit Frozen Analog Input (Obj:31, Var:01)" },
+  { AL_OBJ_AIF_16,         "16-Bit Frozen Analog Input (Obj:31, Var:02)" },
+  { AL_OBJ_AIF_32TOF,      "32-Bit Frozen Analog Input w/ Time of Freeze (Obj:31, Var:03)" },
+  { AL_OBJ_AIF_16TOF,      "16-Bit Frozen Analog Input w/ Time of Freeze (Obj:31, Var:04)" },
+  { AL_OBJ_AIF_32NF,       "32-Bit Frozen Analog Input Without Flag (Obj:31, Var:05)" },
+  { AL_OBJ_AIF_16NF,       "16-Bit Frozen Analog Input Without Flag (Obj:31, Var:06)" },
   { AL_OBJ_AIF_FLT,        "32-Bit Frozen Floating Point Input (Obj:31, Var:07)" },
   { AL_OBJ_AIF_DBL,        "64-Bit Frozen Floating Point Input (Obj:31, Var:08)" },
   { AL_OBJ_AIC_ALL,        "Analog Input Change Default Variation (Obj:32, Var:Default)" },
@@ -3009,12 +3009,12 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset,
             case AL_OBJ_AI_16NF:      /* 16-Bit Analog Input Without Flag (Obj:30, Var:04) */
             case AL_OBJ_AI_FLT:       /* 32-Bit Floating Point Input (Obj:30, Var:05) */
             case AL_OBJ_AI_DBL:       /* 64-Bit Floating Point Input (Obj:30, Var:06) */
-            case AL_OBJ_AIFC_32:      /* 32-Bit Frozen Analog Input (Obj:31, Var:01) */
-            case AL_OBJ_AIFC_16:      /* 16-Bit Frozen Analog Input (Obj:31, Var:02) */
-            case AL_OBJ_AIFC_32TOF:   /* 32-Bit Frozen Analog Input w/ Time of Freeze (Obj:31, Var:03) */
-            case AL_OBJ_AIFC_16TOF:   /* 16-Bit Frozen Analog Input w/ Time of Freeze (Obj:31, Var:04) */
-            case AL_OBJ_AIFC_32NF:    /* 32-Bit Frozen Analog Input Without Flag (Obj:31, Var:05) */
-            case AL_OBJ_AIFC_16NF:    /* 16-Bit Frozen Analog Input Without Flag (Obj:31, Var:06) */
+            case AL_OBJ_AIF_32:       /* 32-Bit Frozen Analog Input (Obj:31, Var:01) */
+            case AL_OBJ_AIF_16:       /* 16-Bit Frozen Analog Input (Obj:31, Var:02) */
+            case AL_OBJ_AIF_32TOF:    /* 32-Bit Frozen Analog Input w/ Time of Freeze (Obj:31, Var:03) */
+            case AL_OBJ_AIF_16TOF:    /* 16-Bit Frozen Analog Input w/ Time of Freeze (Obj:31, Var:04) */
+            case AL_OBJ_AIF_32NF:     /* 32-Bit Frozen Analog Input Without Flag (Obj:31, Var:05) */
+            case AL_OBJ_AIF_16NF:     /* 16-Bit Frozen Analog Input Without Flag (Obj:31, Var:06) */
             case AL_OBJ_AIF_FLT:      /* 32-Bit Frozen Floating Point Input (Obj:31, Var:07) */
             case AL_OBJ_AIF_DBL:      /* 64-Bit Frozen Floating Point Input (Obj:31, Var:08) */
             case AL_OBJ_AIC_32NT:     /* 32-Bit Analog Change Event w/o Time (Obj:32, Var:01) */
@@ -3042,8 +3042,8 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset,
               {
                 case AL_OBJ_AI_32NF:
                 case AL_OBJ_AI_16NF:
-                case AL_OBJ_AIFC_32NF:
-                case AL_OBJ_AIFC_16NF:
+                case AL_OBJ_AIF_32NF:
+                case AL_OBJ_AIF_16NF:
                 case AL_OBJ_AIDB_16:
                 case AL_OBJ_AIDB_32:
                 case AL_OBJ_AIDB_FLT:
@@ -3060,9 +3060,9 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset,
               {
                 case AL_OBJ_AI_32:
                 case AL_OBJ_AI_32NF:
-                case AL_OBJ_AIFC_32:
-                case AL_OBJ_AIFC_32TOF:
-                case AL_OBJ_AIFC_32NF:
+                case AL_OBJ_AIF_32:
+                case AL_OBJ_AIF_32TOF:
+                case AL_OBJ_AIF_32NF:
                 case AL_OBJ_AIC_32NT:
                 case AL_OBJ_AIC_32T:
                 case AL_OBJ_AIFC_32NT:
@@ -3077,9 +3077,9 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset,
 
                 case AL_OBJ_AI_16:
                 case AL_OBJ_AI_16NF:
-                case AL_OBJ_AIFC_16:
-                case AL_OBJ_AIFC_16TOF:
-                case AL_OBJ_AIFC_16NF:
+                case AL_OBJ_AIF_16:
+                case AL_OBJ_AIF_16TOF:
+                case AL_OBJ_AIF_16NF:
                 case AL_OBJ_AIC_16NT:
                 case AL_OBJ_AIC_16T:
                 case AL_OBJ_AIFC_16NT:
@@ -3138,8 +3138,8 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset,
                   data_pos += 6;
                   break;
 
-                case AL_OBJ_AIFC_32TOF:
-                case AL_OBJ_AIFC_16TOF:
+                case AL_OBJ_AIF_32TOF:
+                case AL_OBJ_AIF_16TOF:
 
                   dnp3_al_get_timestamp(&al_abstime, tvb, data_pos);
                   proto_item_append_text(point_item, ", Time of Freeze: %s", abs_time_to_str(pinfo->pool, &al_abstime, ABSOLUTE_TIME_UTC, false));
