@@ -401,8 +401,11 @@ static bool parseLogLine(cCLLog_logFileInfo_t *pInfo, char *pLine, cCLLog_messag
             finalField = 1;
         }
 
-        /* Replace separator with string termination */
-        *pFieldEnd = '\0';
+        /* Replace separator or terminator with string termination */
+        if (pFieldEnd != NULL)
+        {
+            *pFieldEnd = '\0';
+        }
 
         /* Is parse function assigned to field? */
         if (pInfo->parseFieldFunc[fieldNo] != NULL)
