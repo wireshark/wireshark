@@ -19840,12 +19840,12 @@ mapi_dissect_struct_SNotRestriction(tvbuff_t *tvb _U_, int offset _U_, packet_in
 
 
 /* IDL: bitmap { */
-/* IDL: 	FL_FULLSTRING =  0x00000 , */
-/* IDL: 	FL_SUBSTRING =  0x00001 , */
-/* IDL: 	FL_PREFIX =  0x00002 , */
-/* IDL: 	FL_IGNORECASE =  0x10000 , */
-/* IDL: 	FL_IGNORENONSPACE =  0x20000 , */
-/* IDL: 	FL_LOOSE =  0x40000 , */
+/* IDL: 	FL_FULLSTRING =  0x00000000 , */
+/* IDL: 	FL_SUBSTRING =  0x00000001 , */
+/* IDL: 	FL_PREFIX =  0x00000002 , */
+/* IDL: 	FL_IGNORECASE =  0x00010000 , */
+/* IDL: 	FL_IGNORENONSPACE =  0x00020000 , */
+/* IDL: 	FL_LOOSE =  0x00040000 , */
 /* IDL: } */
 
 int
@@ -20027,13 +20027,13 @@ mapi_dissect_struct_SBitmaskRestriction(tvbuff_t *tvb _U_, int offset _U_, packe
 
 
 /* IDL: enum { */
-/* IDL: 	RELOP_LT=0x0, */
-/* IDL: 	RELOP_LE=0x1, */
-/* IDL: 	RELOP_GT=0x2, */
-/* IDL: 	RELOP_GE=0x3, */
-/* IDL: 	RELOP_EQ=0x4, */
-/* IDL: 	RELOP_NE=0x5, */
-/* IDL: 	RELOP_RE=0x6, */
+/* IDL: 	RELOP_LT=0x00, */
+/* IDL: 	RELOP_LE=0x01, */
+/* IDL: 	RELOP_GT=0x02, */
+/* IDL: 	RELOP_GE=0x03, */
+/* IDL: 	RELOP_EQ=0x04, */
+/* IDL: 	RELOP_NE=0x05, */
+/* IDL: 	RELOP_RE=0x06, */
 /* IDL: } */
 
 int
@@ -21001,9 +21001,9 @@ mapi_dissect_struct_Restrict_repl(tvbuff_t *tvb _U_, int offset _U_, packet_info
 
 
 /* IDL: enum { */
-/* IDL: 	TBL_ADVANCE=0x0, */
-/* IDL: 	TBL_NOADVANCE=0x1, */
-/* IDL: 	TBL_ENABLEPACKEDBUFFERS=0x2, */
+/* IDL: 	TBL_ADVANCE=0x00, */
+/* IDL: 	TBL_NOADVANCE=0x01, */
+/* IDL: 	TBL_ENABLEPACKEDBUFFERS=0x02, */
 /* IDL: } */
 
 int
@@ -21368,9 +21368,9 @@ mapi_dissect_struct_QueryPosition_repl(tvbuff_t *tvb _U_, int offset _U_, packet
 
 /* IDL: enum { */
 /* IDL: 	BOOKMARK_BEGINNING=0x0, */
-/* IDL: 	BOOKMARK_CURRENT=0x1, */
-/* IDL: 	BOOKMARK_END=0x2, */
-/* IDL: 	BOOKMARK_USER=0x3, */
+/* IDL: 	BOOKMARK_CURRENT=0x01, */
+/* IDL: 	BOOKMARK_END=0x02, */
+/* IDL: 	BOOKMARK_USER=0x03, */
 /* IDL: } */
 
 int
@@ -22623,12 +22623,12 @@ mapi_dissect_struct_GetMessageStatus_req(tvbuff_t *tvb _U_, int offset _U_, pack
 
 
 /* IDL: bitmap { */
-/* IDL: 	MSGSTATUS_HIGHLIGHTED =  0x1 , */
-/* IDL: 	MSGSTATUS_TAGGED =  0x2 , */
-/* IDL: 	MSGSTATUS_HIDDEN =  0x4 , */
-/* IDL: 	MSGSTATUS_DELMARKED =  0x8 , */
-/* IDL: 	MSGSTATUS_REMOTE_DOWNLOAD =  0x1000 , */
-/* IDL: 	MSGSTATUS_REMOTE_DELETE =  0x2000 , */
+/* IDL: 	MSGSTATUS_HIGHLIGHTED =  0x00000001 , */
+/* IDL: 	MSGSTATUS_TAGGED =  0x00000002 , */
+/* IDL: 	MSGSTATUS_HIDDEN =  0x00000004 , */
+/* IDL: 	MSGSTATUS_DELMARKED =  0x00000008 , */
+/* IDL: 	MSGSTATUS_REMOTE_DOWNLOAD =  0x00001000 , */
+/* IDL: 	MSGSTATUS_REMOTE_DELETE =  0x00002000 , */
 /* IDL: } */
 
 int
@@ -23739,16 +23739,16 @@ mapi_dissect_struct_RegisterNotification_repl(tvbuff_t *tvb _U_, int offset _U_,
 
 
 /* IDL: bitmap { */
-/* IDL: 	MSGFLAG_READ =  0x1 , */
-/* IDL: 	MSGFLAG_UNMODIFIED =  0x2 , */
-/* IDL: 	MSGFLAG_SUBMIT =  0x4 , */
-/* IDL: 	MSGFLAG_UNSENT =  0x8 , */
-/* IDL: 	MSGFLAG_HASATTACH =  0x10 , */
-/* IDL: 	MSGFLAG_FROMME =  0x20 , */
-/* IDL: 	MSGFLAG_ASSOCIATED =  0x40 , */
-/* IDL: 	MSGFLAG_RESEND =  0x80 , */
-/* IDL: 	MSGFLAG_RN_PENDING =  0x100 , */
-/* IDL: 	MSGFLAG_NRN_PENDING =  0x200 , */
+/* IDL: 	MSGFLAG_READ =  0x00000001 , */
+/* IDL: 	MSGFLAG_UNMODIFIED =  0x00000002 , */
+/* IDL: 	MSGFLAG_SUBMIT =  0x00000004 , */
+/* IDL: 	MSGFLAG_UNSENT =  0x00000008 , */
+/* IDL: 	MSGFLAG_HASATTACH =  0x00000010 , */
+/* IDL: 	MSGFLAG_FROMME =  0x00000020 , */
+/* IDL: 	MSGFLAG_ASSOCIATED =  0x00000040 , */
+/* IDL: 	MSGFLAG_RESEND =  0x00000080 , */
+/* IDL: 	MSGFLAG_RN_PENDING =  0x00000100 , */
+/* IDL: 	MSGFLAG_NRN_PENDING =  0x00000200 , */
 /* IDL: } */
 
 int
@@ -23900,11 +23900,11 @@ mapi_dissect_struct_GID(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U
 
 
 /* IDL: enum { */
-/* IDL: 	TABLE_CHANGED=0x1, */
-/* IDL: 	TABLE_ROW_ADDED=0x3, */
-/* IDL: 	TABLE_ROW_DELETED=0x4, */
-/* IDL: 	TABLE_ROW_MODIFIED=0x5, */
-/* IDL: 	TABLE_RESTRICT_DONE=0x7, */
+/* IDL: 	TABLE_CHANGED=0x0001, */
+/* IDL: 	TABLE_ROW_ADDED=0x0003, */
+/* IDL: 	TABLE_ROW_DELETED=0x0004, */
+/* IDL: 	TABLE_ROW_MODIFIED=0x0005, */
+/* IDL: 	TABLE_RESTRICT_DONE=0x0007, */
 /* IDL: } */
 
 int
@@ -34321,10 +34321,10 @@ mapi_dissect_enum_SynchronizationType(tvbuff_t *tvb _U_, int offset _U_, packet_
 
 
 /* IDL: bitmap { */
-/* IDL: 	SendOptions_Unicode =  0x1 , */
-/* IDL: 	SendOptions_ForUpload =  0x3 , */
-/* IDL: 	SendOptions_RecoverMode =  0x4 , */
-/* IDL: 	SendOptions_ForceUnicode =  0x8 , */
+/* IDL: 	SendOptions_Unicode =  0x01 , */
+/* IDL: 	SendOptions_ForUpload =  0x02 , */
+/* IDL: 	SendOptions_RecoverMode =  0x04 , */
+/* IDL: 	SendOptions_ForceUnicode =  0x08 , */
 /* IDL: 	SendOptions_Partial =  0x10 , */
 /* IDL: } */
 
@@ -34350,8 +34350,8 @@ mapi_dissect_bitmap_SendOptions(tvbuff_t *tvb _U_, int offset _U_, packet_info *
 	if (!flags)
 		proto_item_append_text(item, ": (No values set)");
 
-	if (flags & (~0x00000020)) {
-		flags &= (~0x00000020);
+	if (flags & (~0x0000001f)) {
+		flags &= (~0x0000001f);
 		proto_item_append_text(item, "Unknown bitmap value 0x%x", flags);
 	}
 
@@ -34360,14 +34360,14 @@ mapi_dissect_bitmap_SendOptions(tvbuff_t *tvb _U_, int offset _U_, packet_info *
 
 
 /* IDL: bitmap { */
-/* IDL: 	SynchronizationFlag_Unicode =  0x1 , */
-/* IDL: 	SynchronizationFlag_NoDeletions =  0x2 , */
-/* IDL: 	SynchronizationFlag_NoSoftDeletions =  0x4 , */
-/* IDL: 	SynchronizationFlag_ReadState =  0x8 , */
-/* IDL: 	SynchronizationFlag_FAI =  0x10 , */
-/* IDL: 	SynchronizationFlag_Normal =  0x20 , */
-/* IDL: 	SynchronizationFlag_OnlySpecifiedProperties =  0x80 , */
-/* IDL: 	SynchronizationFlag_NoForeignIdentifiers =  0x100 , */
+/* IDL: 	SynchronizationFlag_Unicode =  0x0001 , */
+/* IDL: 	SynchronizationFlag_NoDeletions =  0x0002 , */
+/* IDL: 	SynchronizationFlag_NoSoftDeletions =  0x0004 , */
+/* IDL: 	SynchronizationFlag_ReadState =  0x0008 , */
+/* IDL: 	SynchronizationFlag_FAI =  0x0010 , */
+/* IDL: 	SynchronizationFlag_Normal =  0x0020 , */
+/* IDL: 	SynchronizationFlag_OnlySpecifiedProperties =  0x0080 , */
+/* IDL: 	SynchronizationFlag_NoForeignIdentifiers =  0x0100 , */
 /* IDL: 	SynchronizationFlag_Reserved =  0x1000 , */
 /* IDL: 	SynchronizationFlag_BestBody =  0x2000 , */
 /* IDL: 	SynchronizationFlag_IgnoreSpecifiedOnFAI =  0x4000 , */
@@ -35560,7 +35560,7 @@ mapi_dissect_struct_DeletePropertiesNoReplicate_repl(tvbuff_t *tvb _U_, int offs
 
 
 /* IDL: bitmap { */
-/* IDL: 	STORE_HAS_SEARCHES =  0x010000000 , */
+/* IDL: 	STORE_HAS_SEARCHES =  0x01000000 , */
 /* IDL: } */
 
 
@@ -36809,13 +36809,13 @@ mapi_dissect_enum_LogonFlags(tvbuff_t *tvb _U_, int offset _U_, packet_info *pin
 
 
 /* IDL: bitmap { */
-/* IDL: 	PUBLIC =  0x2 , */
-/* IDL: 	HOME_LOGON =  0x4 , */
-/* IDL: 	TAKE_OWNERSHIP =  0x8 , */
-/* IDL: 	ALTERNATE_SERVER =  0x100 , */
-/* IDL: 	IGNORE_HOME_MDB =  0x200 , */
-/* IDL: 	NO_MAIL =  0x400 , */
-/* IDL: 	USE_PER_MDB_REPLID_MAPPING =  0x010000000 , */
+/* IDL: 	PUBLIC =  0x00000002 , */
+/* IDL: 	HOME_LOGON =  0x00000004 , */
+/* IDL: 	TAKE_OWNERSHIP =  0x00000008 , */
+/* IDL: 	ALTERNATE_SERVER =  0x00000100 , */
+/* IDL: 	IGNORE_HOME_MDB =  0x00000200 , */
+/* IDL: 	NO_MAIL =  0x00000400 , */
+/* IDL: 	USE_PER_MDB_REPLID_MAPPING =  0x01000000 , */
 /* IDL: } */
 
 
@@ -46648,25 +46648,25 @@ void proto_register_dcerpc_mapi(void)
 	{ &hf_mapi_MoveFolder_req_WantAsynchronous,
 	  { "WantAsynchronous", "mapi.MoveFolder_req.WantAsynchronous", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_mapi_MsgFlags_MSGFLAG_ASSOCIATED,
-	  { "MSGFLAG ASSOCIATED", "mapi.MsgFlags.MSGFLAG_ASSOCIATED", FT_BOOLEAN, 32, TFS(&MsgFlags_MSGFLAG_ASSOCIATED_tfs), ( 0x40 ), NULL, HFILL }},
+	  { "MSGFLAG ASSOCIATED", "mapi.MsgFlags.MSGFLAG_ASSOCIATED", FT_BOOLEAN, 32, TFS(&MsgFlags_MSGFLAG_ASSOCIATED_tfs), ( 0x00000040 ), NULL, HFILL }},
 	{ &hf_mapi_MsgFlags_MSGFLAG_FROMME,
-	  { "MSGFLAG FROMME", "mapi.MsgFlags.MSGFLAG_FROMME", FT_BOOLEAN, 32, TFS(&MsgFlags_MSGFLAG_FROMME_tfs), ( 0x20 ), NULL, HFILL }},
+	  { "MSGFLAG FROMME", "mapi.MsgFlags.MSGFLAG_FROMME", FT_BOOLEAN, 32, TFS(&MsgFlags_MSGFLAG_FROMME_tfs), ( 0x00000020 ), NULL, HFILL }},
 	{ &hf_mapi_MsgFlags_MSGFLAG_HASATTACH,
-	  { "MSGFLAG HASATTACH", "mapi.MsgFlags.MSGFLAG_HASATTACH", FT_BOOLEAN, 32, TFS(&MsgFlags_MSGFLAG_HASATTACH_tfs), ( 0x10 ), NULL, HFILL }},
+	  { "MSGFLAG HASATTACH", "mapi.MsgFlags.MSGFLAG_HASATTACH", FT_BOOLEAN, 32, TFS(&MsgFlags_MSGFLAG_HASATTACH_tfs), ( 0x00000010 ), NULL, HFILL }},
 	{ &hf_mapi_MsgFlags_MSGFLAG_NRN_PENDING,
-	  { "MSGFLAG NRN PENDING", "mapi.MsgFlags.MSGFLAG_NRN_PENDING", FT_BOOLEAN, 32, TFS(&MsgFlags_MSGFLAG_NRN_PENDING_tfs), ( 0x200 ), NULL, HFILL }},
+	  { "MSGFLAG NRN PENDING", "mapi.MsgFlags.MSGFLAG_NRN_PENDING", FT_BOOLEAN, 32, TFS(&MsgFlags_MSGFLAG_NRN_PENDING_tfs), ( 0x00000200 ), NULL, HFILL }},
 	{ &hf_mapi_MsgFlags_MSGFLAG_READ,
-	  { "MSGFLAG READ", "mapi.MsgFlags.MSGFLAG_READ", FT_BOOLEAN, 32, TFS(&MsgFlags_MSGFLAG_READ_tfs), ( 0x1 ), NULL, HFILL }},
+	  { "MSGFLAG READ", "mapi.MsgFlags.MSGFLAG_READ", FT_BOOLEAN, 32, TFS(&MsgFlags_MSGFLAG_READ_tfs), ( 0x00000001 ), NULL, HFILL }},
 	{ &hf_mapi_MsgFlags_MSGFLAG_RESEND,
-	  { "MSGFLAG RESEND", "mapi.MsgFlags.MSGFLAG_RESEND", FT_BOOLEAN, 32, TFS(&MsgFlags_MSGFLAG_RESEND_tfs), ( 0x80 ), NULL, HFILL }},
+	  { "MSGFLAG RESEND", "mapi.MsgFlags.MSGFLAG_RESEND", FT_BOOLEAN, 32, TFS(&MsgFlags_MSGFLAG_RESEND_tfs), ( 0x00000080 ), NULL, HFILL }},
 	{ &hf_mapi_MsgFlags_MSGFLAG_RN_PENDING,
-	  { "MSGFLAG RN PENDING", "mapi.MsgFlags.MSGFLAG_RN_PENDING", FT_BOOLEAN, 32, TFS(&MsgFlags_MSGFLAG_RN_PENDING_tfs), ( 0x100 ), NULL, HFILL }},
+	  { "MSGFLAG RN PENDING", "mapi.MsgFlags.MSGFLAG_RN_PENDING", FT_BOOLEAN, 32, TFS(&MsgFlags_MSGFLAG_RN_PENDING_tfs), ( 0x00000100 ), NULL, HFILL }},
 	{ &hf_mapi_MsgFlags_MSGFLAG_SUBMIT,
-	  { "MSGFLAG SUBMIT", "mapi.MsgFlags.MSGFLAG_SUBMIT", FT_BOOLEAN, 32, TFS(&MsgFlags_MSGFLAG_SUBMIT_tfs), ( 0x4 ), NULL, HFILL }},
+	  { "MSGFLAG SUBMIT", "mapi.MsgFlags.MSGFLAG_SUBMIT", FT_BOOLEAN, 32, TFS(&MsgFlags_MSGFLAG_SUBMIT_tfs), ( 0x00000004 ), NULL, HFILL }},
 	{ &hf_mapi_MsgFlags_MSGFLAG_UNMODIFIED,
-	  { "MSGFLAG UNMODIFIED", "mapi.MsgFlags.MSGFLAG_UNMODIFIED", FT_BOOLEAN, 32, TFS(&MsgFlags_MSGFLAG_UNMODIFIED_tfs), ( 0x2 ), NULL, HFILL }},
+	  { "MSGFLAG UNMODIFIED", "mapi.MsgFlags.MSGFLAG_UNMODIFIED", FT_BOOLEAN, 32, TFS(&MsgFlags_MSGFLAG_UNMODIFIED_tfs), ( 0x00000002 ), NULL, HFILL }},
 	{ &hf_mapi_MsgFlags_MSGFLAG_UNSENT,
-	  { "MSGFLAG UNSENT", "mapi.MsgFlags.MSGFLAG_UNSENT", FT_BOOLEAN, 32, TFS(&MsgFlags_MSGFLAG_UNSENT_tfs), ( 0x8 ), NULL, HFILL }},
+	  { "MSGFLAG UNSENT", "mapi.MsgFlags.MSGFLAG_UNSENT", FT_BOOLEAN, 32, TFS(&MsgFlags_MSGFLAG_UNSENT_tfs), ( 0x00000008 ), NULL, HFILL }},
 	{ &hf_mapi_NewMailNotification_FID,
 	  { "FID", "mapi.NewMailNotification.FID", FT_UINT64, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_mapi_NewMailNotification_MID,
@@ -46760,19 +46760,19 @@ void proto_register_dcerpc_mapi(void)
 	{ &hf_mapi_OpenEmbeddedMessage_req_OpenModeFlags,
 	  { "OpenModeFlags", "mapi.OpenEmbeddedMessage_req.OpenModeFlags", FT_UINT8, BASE_HEX, VALS(mapi_OpenEmbeddedMessage_OpenModeFlags_vals), 0, NULL, HFILL }},
 	{ &hf_mapi_OpenFlags_ALTERNATE_SERVER,
-	  { "ALTERNATE SERVER", "mapi.OpenFlags.ALTERNATE_SERVER", FT_BOOLEAN, 32, TFS(&OpenFlags_ALTERNATE_SERVER_tfs), ( 0x100 ), NULL, HFILL }},
+	  { "ALTERNATE SERVER", "mapi.OpenFlags.ALTERNATE_SERVER", FT_BOOLEAN, 32, TFS(&OpenFlags_ALTERNATE_SERVER_tfs), ( 0x00000100 ), NULL, HFILL }},
 	{ &hf_mapi_OpenFlags_HOME_LOGON,
-	  { "HOME LOGON", "mapi.OpenFlags.HOME_LOGON", FT_BOOLEAN, 32, TFS(&OpenFlags_HOME_LOGON_tfs), ( 0x4 ), NULL, HFILL }},
+	  { "HOME LOGON", "mapi.OpenFlags.HOME_LOGON", FT_BOOLEAN, 32, TFS(&OpenFlags_HOME_LOGON_tfs), ( 0x00000004 ), NULL, HFILL }},
 	{ &hf_mapi_OpenFlags_IGNORE_HOME_MDB,
-	  { "IGNORE HOME MDB", "mapi.OpenFlags.IGNORE_HOME_MDB", FT_BOOLEAN, 32, TFS(&OpenFlags_IGNORE_HOME_MDB_tfs), ( 0x200 ), NULL, HFILL }},
+	  { "IGNORE HOME MDB", "mapi.OpenFlags.IGNORE_HOME_MDB", FT_BOOLEAN, 32, TFS(&OpenFlags_IGNORE_HOME_MDB_tfs), ( 0x00000200 ), NULL, HFILL }},
 	{ &hf_mapi_OpenFlags_NO_MAIL,
-	  { "NO MAIL", "mapi.OpenFlags.NO_MAIL", FT_BOOLEAN, 32, TFS(&OpenFlags_NO_MAIL_tfs), ( 0x400 ), NULL, HFILL }},
+	  { "NO MAIL", "mapi.OpenFlags.NO_MAIL", FT_BOOLEAN, 32, TFS(&OpenFlags_NO_MAIL_tfs), ( 0x00000400 ), NULL, HFILL }},
 	{ &hf_mapi_OpenFlags_PUBLIC,
-	  { "PUBLIC", "mapi.OpenFlags.PUBLIC", FT_BOOLEAN, 32, TFS(&OpenFlags_PUBLIC_tfs), ( 0x2 ), NULL, HFILL }},
+	  { "PUBLIC", "mapi.OpenFlags.PUBLIC", FT_BOOLEAN, 32, TFS(&OpenFlags_PUBLIC_tfs), ( 0x00000002 ), NULL, HFILL }},
 	{ &hf_mapi_OpenFlags_TAKE_OWNERSHIP,
-	  { "TAKE OWNERSHIP", "mapi.OpenFlags.TAKE_OWNERSHIP", FT_BOOLEAN, 32, TFS(&OpenFlags_TAKE_OWNERSHIP_tfs), ( 0x8 ), NULL, HFILL }},
+	  { "TAKE OWNERSHIP", "mapi.OpenFlags.TAKE_OWNERSHIP", FT_BOOLEAN, 32, TFS(&OpenFlags_TAKE_OWNERSHIP_tfs), ( 0x00000008 ), NULL, HFILL }},
 	{ &hf_mapi_OpenFlags_USE_PER_MDB_REPLID_MAPPING,
-	  { "USE PER MDB REPLID MAPPING", "mapi.OpenFlags.USE_PER_MDB_REPLID_MAPPING", FT_BOOLEAN, 32, TFS(&OpenFlags_USE_PER_MDB_REPLID_MAPPING_tfs), ( 0x010000000 ), NULL, HFILL }},
+	  { "USE PER MDB REPLID MAPPING", "mapi.OpenFlags.USE_PER_MDB_REPLID_MAPPING", FT_BOOLEAN, 32, TFS(&OpenFlags_USE_PER_MDB_REPLID_MAPPING_tfs), ( 0x01000000 ), NULL, HFILL }},
 	{ &hf_mapi_OpenFolder_Replicas_CheapServerCount,
 	  { "CheapServerCount", "mapi.OpenFolder_Replicas.CheapServerCount", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_mapi_OpenFolder_Replicas_ServerCount,
@@ -47728,15 +47728,15 @@ void proto_register_dcerpc_mapi(void)
 	{ &hf_mapi_SeekStream_req_Origin,
 	  { "Origin", "mapi.SeekStream_req.Origin", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_mapi_SendOptions_SendOptions_ForUpload,
-	  { "SendOptions ForUpload", "mapi.SendOptions.SendOptions_ForUpload", FT_BOOLEAN, 8, TFS(&SendOptions_SendOptions_ForUpload_tfs), ( 0x3 ), NULL, HFILL }},
+	  { "SendOptions ForUpload", "mapi.SendOptions.SendOptions_ForUpload", FT_BOOLEAN, 8, TFS(&SendOptions_SendOptions_ForUpload_tfs), ( 0x02 ), NULL, HFILL }},
 	{ &hf_mapi_SendOptions_SendOptions_ForceUnicode,
-	  { "SendOptions ForceUnicode", "mapi.SendOptions.SendOptions_ForceUnicode", FT_BOOLEAN, 8, TFS(&SendOptions_SendOptions_ForceUnicode_tfs), ( 0x8 ), NULL, HFILL }},
+	  { "SendOptions ForceUnicode", "mapi.SendOptions.SendOptions_ForceUnicode", FT_BOOLEAN, 8, TFS(&SendOptions_SendOptions_ForceUnicode_tfs), ( 0x08 ), NULL, HFILL }},
 	{ &hf_mapi_SendOptions_SendOptions_Partial,
 	  { "SendOptions Partial", "mapi.SendOptions.SendOptions_Partial", FT_BOOLEAN, 8, TFS(&SendOptions_SendOptions_Partial_tfs), ( 0x10 ), NULL, HFILL }},
 	{ &hf_mapi_SendOptions_SendOptions_RecoverMode,
-	  { "SendOptions RecoverMode", "mapi.SendOptions.SendOptions_RecoverMode", FT_BOOLEAN, 8, TFS(&SendOptions_SendOptions_RecoverMode_tfs), ( 0x4 ), NULL, HFILL }},
+	  { "SendOptions RecoverMode", "mapi.SendOptions.SendOptions_RecoverMode", FT_BOOLEAN, 8, TFS(&SendOptions_SendOptions_RecoverMode_tfs), ( 0x04 ), NULL, HFILL }},
 	{ &hf_mapi_SendOptions_SendOptions_Unicode,
-	  { "SendOptions Unicode", "mapi.SendOptions.SendOptions_Unicode", FT_BOOLEAN, 8, TFS(&SendOptions_SendOptions_Unicode_tfs), ( 0x1 ), NULL, HFILL }},
+	  { "SendOptions Unicode", "mapi.SendOptions.SendOptions_Unicode", FT_BOOLEAN, 8, TFS(&SendOptions_SendOptions_Unicode_tfs), ( 0x01 ), NULL, HFILL }},
 	{ &hf_mapi_SetCollapseState_repl_bookmark,
 	  { "Bookmark", "mapi.SetCollapseState_repl.bookmark", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_mapi_SetCollapseState_req_CollapseState,
@@ -47824,7 +47824,7 @@ void proto_register_dcerpc_mapi(void)
 	{ &hf_mapi_SpoolerLockMessage_req_MessageId,
 	  { "MessageId", "mapi.SpoolerLockMessage_req.MessageId", FT_UINT64, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_mapi_StoreState_STORE_HAS_SEARCHES,
-	  { "STORE HAS SEARCHES", "mapi.StoreState.STORE_HAS_SEARCHES", FT_BOOLEAN, 32, TFS(&StoreState_STORE_HAS_SEARCHES_tfs), ( 0x010000000 ), NULL, HFILL }},
+	  { "STORE HAS SEARCHES", "mapi.StoreState.STORE_HAS_SEARCHES", FT_BOOLEAN, 32, TFS(&StoreState_STORE_HAS_SEARCHES_tfs), ( 0x01000000 ), NULL, HFILL }},
 	{ &hf_mapi_String_lpszA,
 	  { "LpszA", "mapi.String.lpszA", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_mapi_String_lpszW,
@@ -47906,27 +47906,27 @@ void proto_register_dcerpc_mapi(void)
 	{ &hf_mapi_SynchronizationFlag_SynchronizationFlag_BestBody,
 	  { "SynchronizationFlag BestBody", "mapi.SynchronizationFlag.SynchronizationFlag_BestBody", FT_BOOLEAN, 16, TFS(&SynchronizationFlag_SynchronizationFlag_BestBody_tfs), ( 0x2000 ), NULL, HFILL }},
 	{ &hf_mapi_SynchronizationFlag_SynchronizationFlag_FAI,
-	  { "SynchronizationFlag FAI", "mapi.SynchronizationFlag.SynchronizationFlag_FAI", FT_BOOLEAN, 16, TFS(&SynchronizationFlag_SynchronizationFlag_FAI_tfs), ( 0x10 ), NULL, HFILL }},
+	  { "SynchronizationFlag FAI", "mapi.SynchronizationFlag.SynchronizationFlag_FAI", FT_BOOLEAN, 16, TFS(&SynchronizationFlag_SynchronizationFlag_FAI_tfs), ( 0x0010 ), NULL, HFILL }},
 	{ &hf_mapi_SynchronizationFlag_SynchronizationFlag_IgnoreSpecifiedOnFAI,
 	  { "SynchronizationFlag IgnoreSpecifiedOnFAI", "mapi.SynchronizationFlag.SynchronizationFlag_IgnoreSpecifiedOnFAI", FT_BOOLEAN, 16, TFS(&SynchronizationFlag_SynchronizationFlag_IgnoreSpecifiedOnFAI_tfs), ( 0x4000 ), NULL, HFILL }},
 	{ &hf_mapi_SynchronizationFlag_SynchronizationFlag_NoDeletions,
-	  { "SynchronizationFlag NoDeletions", "mapi.SynchronizationFlag.SynchronizationFlag_NoDeletions", FT_BOOLEAN, 16, TFS(&SynchronizationFlag_SynchronizationFlag_NoDeletions_tfs), ( 0x2 ), NULL, HFILL }},
+	  { "SynchronizationFlag NoDeletions", "mapi.SynchronizationFlag.SynchronizationFlag_NoDeletions", FT_BOOLEAN, 16, TFS(&SynchronizationFlag_SynchronizationFlag_NoDeletions_tfs), ( 0x0002 ), NULL, HFILL }},
 	{ &hf_mapi_SynchronizationFlag_SynchronizationFlag_NoForeignIdentifiers,
-	  { "SynchronizationFlag NoForeignIdentifiers", "mapi.SynchronizationFlag.SynchronizationFlag_NoForeignIdentifiers", FT_BOOLEAN, 16, TFS(&SynchronizationFlag_SynchronizationFlag_NoForeignIdentifiers_tfs), ( 0x100 ), NULL, HFILL }},
+	  { "SynchronizationFlag NoForeignIdentifiers", "mapi.SynchronizationFlag.SynchronizationFlag_NoForeignIdentifiers", FT_BOOLEAN, 16, TFS(&SynchronizationFlag_SynchronizationFlag_NoForeignIdentifiers_tfs), ( 0x0100 ), NULL, HFILL }},
 	{ &hf_mapi_SynchronizationFlag_SynchronizationFlag_NoSoftDeletions,
-	  { "SynchronizationFlag NoSoftDeletions", "mapi.SynchronizationFlag.SynchronizationFlag_NoSoftDeletions", FT_BOOLEAN, 16, TFS(&SynchronizationFlag_SynchronizationFlag_NoSoftDeletions_tfs), ( 0x4 ), NULL, HFILL }},
+	  { "SynchronizationFlag NoSoftDeletions", "mapi.SynchronizationFlag.SynchronizationFlag_NoSoftDeletions", FT_BOOLEAN, 16, TFS(&SynchronizationFlag_SynchronizationFlag_NoSoftDeletions_tfs), ( 0x0004 ), NULL, HFILL }},
 	{ &hf_mapi_SynchronizationFlag_SynchronizationFlag_Normal,
-	  { "SynchronizationFlag Normal", "mapi.SynchronizationFlag.SynchronizationFlag_Normal", FT_BOOLEAN, 16, TFS(&SynchronizationFlag_SynchronizationFlag_Normal_tfs), ( 0x20 ), NULL, HFILL }},
+	  { "SynchronizationFlag Normal", "mapi.SynchronizationFlag.SynchronizationFlag_Normal", FT_BOOLEAN, 16, TFS(&SynchronizationFlag_SynchronizationFlag_Normal_tfs), ( 0x0020 ), NULL, HFILL }},
 	{ &hf_mapi_SynchronizationFlag_SynchronizationFlag_OnlySpecifiedProperties,
-	  { "SynchronizationFlag OnlySpecifiedProperties", "mapi.SynchronizationFlag.SynchronizationFlag_OnlySpecifiedProperties", FT_BOOLEAN, 16, TFS(&SynchronizationFlag_SynchronizationFlag_OnlySpecifiedProperties_tfs), ( 0x80 ), NULL, HFILL }},
+	  { "SynchronizationFlag OnlySpecifiedProperties", "mapi.SynchronizationFlag.SynchronizationFlag_OnlySpecifiedProperties", FT_BOOLEAN, 16, TFS(&SynchronizationFlag_SynchronizationFlag_OnlySpecifiedProperties_tfs), ( 0x0080 ), NULL, HFILL }},
 	{ &hf_mapi_SynchronizationFlag_SynchronizationFlag_Progress,
 	  { "SynchronizationFlag Progress", "mapi.SynchronizationFlag.SynchronizationFlag_Progress", FT_BOOLEAN, 16, TFS(&SynchronizationFlag_SynchronizationFlag_Progress_tfs), ( 0x8000 ), NULL, HFILL }},
 	{ &hf_mapi_SynchronizationFlag_SynchronizationFlag_ReadState,
-	  { "SynchronizationFlag ReadState", "mapi.SynchronizationFlag.SynchronizationFlag_ReadState", FT_BOOLEAN, 16, TFS(&SynchronizationFlag_SynchronizationFlag_ReadState_tfs), ( 0x8 ), NULL, HFILL }},
+	  { "SynchronizationFlag ReadState", "mapi.SynchronizationFlag.SynchronizationFlag_ReadState", FT_BOOLEAN, 16, TFS(&SynchronizationFlag_SynchronizationFlag_ReadState_tfs), ( 0x0008 ), NULL, HFILL }},
 	{ &hf_mapi_SynchronizationFlag_SynchronizationFlag_Reserved,
 	  { "SynchronizationFlag Reserved", "mapi.SynchronizationFlag.SynchronizationFlag_Reserved", FT_BOOLEAN, 16, TFS(&SynchronizationFlag_SynchronizationFlag_Reserved_tfs), ( 0x1000 ), NULL, HFILL }},
 	{ &hf_mapi_SynchronizationFlag_SynchronizationFlag_Unicode,
-	  { "SynchronizationFlag Unicode", "mapi.SynchronizationFlag.SynchronizationFlag_Unicode", FT_BOOLEAN, 16, TFS(&SynchronizationFlag_SynchronizationFlag_Unicode_tfs), ( 0x1 ), NULL, HFILL }},
+	  { "SynchronizationFlag Unicode", "mapi.SynchronizationFlag.SynchronizationFlag_Unicode", FT_BOOLEAN, 16, TFS(&SynchronizationFlag_SynchronizationFlag_Unicode_tfs), ( 0x0001 ), NULL, HFILL }},
 	{ &hf_mapi_TableFlags_TableFlags_DeferredErrors,
 	  { "TableFlags DeferredErrors", "mapi.TableFlags.TableFlags_DeferredErrors", FT_BOOLEAN, 8, TFS(&TableFlags_TableFlags_DeferredErrors_tfs), ( 0x8 ), NULL, HFILL }},
 	{ &hf_mapi_TableFlags_TableFlags_Depth,
@@ -47978,15 +47978,15 @@ void proto_register_dcerpc_mapi(void)
 	{ &hf_mapi_decrypted_data,
 	  { "Decrypted data", "mapi.decrypted.data", FT_BYTES, BASE_NONE, NULL, 0, "NULL", HFILL }},
 	{ &hf_mapi_fuzzyLevel_FL_IGNORECASE,
-	  { "FL IGNORECASE", "mapi.fuzzyLevel.FL_IGNORECASE", FT_BOOLEAN, 32, TFS(&fuzzyLevel_FL_IGNORECASE_tfs), ( 0x10000 ), NULL, HFILL }},
+	  { "FL IGNORECASE", "mapi.fuzzyLevel.FL_IGNORECASE", FT_BOOLEAN, 32, TFS(&fuzzyLevel_FL_IGNORECASE_tfs), ( 0x00010000 ), NULL, HFILL }},
 	{ &hf_mapi_fuzzyLevel_FL_IGNORENONSPACE,
-	  { "FL IGNORENONSPACE", "mapi.fuzzyLevel.FL_IGNORENONSPACE", FT_BOOLEAN, 32, TFS(&fuzzyLevel_FL_IGNORENONSPACE_tfs), ( 0x20000 ), NULL, HFILL }},
+	  { "FL IGNORENONSPACE", "mapi.fuzzyLevel.FL_IGNORENONSPACE", FT_BOOLEAN, 32, TFS(&fuzzyLevel_FL_IGNORENONSPACE_tfs), ( 0x00020000 ), NULL, HFILL }},
 	{ &hf_mapi_fuzzyLevel_FL_LOOSE,
-	  { "FL LOOSE", "mapi.fuzzyLevel.FL_LOOSE", FT_BOOLEAN, 32, TFS(&fuzzyLevel_FL_LOOSE_tfs), ( 0x40000 ), NULL, HFILL }},
+	  { "FL LOOSE", "mapi.fuzzyLevel.FL_LOOSE", FT_BOOLEAN, 32, TFS(&fuzzyLevel_FL_LOOSE_tfs), ( 0x00040000 ), NULL, HFILL }},
 	{ &hf_mapi_fuzzyLevel_FL_PREFIX,
-	  { "FL PREFIX", "mapi.fuzzyLevel.FL_PREFIX", FT_BOOLEAN, 32, TFS(&fuzzyLevel_FL_PREFIX_tfs), ( 0x00002 ), NULL, HFILL }},
+	  { "FL PREFIX", "mapi.fuzzyLevel.FL_PREFIX", FT_BOOLEAN, 32, TFS(&fuzzyLevel_FL_PREFIX_tfs), ( 0x00000002 ), NULL, HFILL }},
 	{ &hf_mapi_fuzzyLevel_FL_SUBSTRING,
-	  { "FL SUBSTRING", "mapi.fuzzyLevel.FL_SUBSTRING", FT_BOOLEAN, 32, TFS(&fuzzyLevel_FL_SUBSTRING_tfs), ( 0x00001 ), NULL, HFILL }},
+	  { "FL SUBSTRING", "mapi.fuzzyLevel.FL_SUBSTRING", FT_BOOLEAN, 32, TFS(&fuzzyLevel_FL_SUBSTRING_tfs), ( 0x00000001 ), NULL, HFILL }},
 	{ &hf_mapi_hyperbool_ID,
 	  { "ID", "mapi.hyperbool.ID", FT_UINT64, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_mapi_mapi_EcDoAsyncConnectEx_cxh,
@@ -48404,17 +48404,17 @@ void proto_register_dcerpc_mapi(void)
 	{ &hf_mapi_recipient_type_SMTP,
 	  { "SMTP", "mapi.recipient_type.SMTP", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_mapi_ulMessageStatus_MSGSTATUS_DELMARKED,
-	  { "MSGSTATUS DELMARKED", "mapi.ulMessageStatus.MSGSTATUS_DELMARKED", FT_BOOLEAN, 32, TFS(&ulMessageStatus_MSGSTATUS_DELMARKED_tfs), ( 0x8 ), NULL, HFILL }},
+	  { "MSGSTATUS DELMARKED", "mapi.ulMessageStatus.MSGSTATUS_DELMARKED", FT_BOOLEAN, 32, TFS(&ulMessageStatus_MSGSTATUS_DELMARKED_tfs), ( 0x00000008 ), NULL, HFILL }},
 	{ &hf_mapi_ulMessageStatus_MSGSTATUS_HIDDEN,
-	  { "MSGSTATUS HIDDEN", "mapi.ulMessageStatus.MSGSTATUS_HIDDEN", FT_BOOLEAN, 32, TFS(&ulMessageStatus_MSGSTATUS_HIDDEN_tfs), ( 0x4 ), NULL, HFILL }},
+	  { "MSGSTATUS HIDDEN", "mapi.ulMessageStatus.MSGSTATUS_HIDDEN", FT_BOOLEAN, 32, TFS(&ulMessageStatus_MSGSTATUS_HIDDEN_tfs), ( 0x00000004 ), NULL, HFILL }},
 	{ &hf_mapi_ulMessageStatus_MSGSTATUS_HIGHLIGHTED,
-	  { "MSGSTATUS HIGHLIGHTED", "mapi.ulMessageStatus.MSGSTATUS_HIGHLIGHTED", FT_BOOLEAN, 32, TFS(&ulMessageStatus_MSGSTATUS_HIGHLIGHTED_tfs), ( 0x1 ), NULL, HFILL }},
+	  { "MSGSTATUS HIGHLIGHTED", "mapi.ulMessageStatus.MSGSTATUS_HIGHLIGHTED", FT_BOOLEAN, 32, TFS(&ulMessageStatus_MSGSTATUS_HIGHLIGHTED_tfs), ( 0x00000001 ), NULL, HFILL }},
 	{ &hf_mapi_ulMessageStatus_MSGSTATUS_REMOTE_DELETE,
-	  { "MSGSTATUS REMOTE DELETE", "mapi.ulMessageStatus.MSGSTATUS_REMOTE_DELETE", FT_BOOLEAN, 32, TFS(&ulMessageStatus_MSGSTATUS_REMOTE_DELETE_tfs), ( 0x2000 ), NULL, HFILL }},
+	  { "MSGSTATUS REMOTE DELETE", "mapi.ulMessageStatus.MSGSTATUS_REMOTE_DELETE", FT_BOOLEAN, 32, TFS(&ulMessageStatus_MSGSTATUS_REMOTE_DELETE_tfs), ( 0x00002000 ), NULL, HFILL }},
 	{ &hf_mapi_ulMessageStatus_MSGSTATUS_REMOTE_DOWNLOAD,
-	  { "MSGSTATUS REMOTE DOWNLOAD", "mapi.ulMessageStatus.MSGSTATUS_REMOTE_DOWNLOAD", FT_BOOLEAN, 32, TFS(&ulMessageStatus_MSGSTATUS_REMOTE_DOWNLOAD_tfs), ( 0x1000 ), NULL, HFILL }},
+	  { "MSGSTATUS REMOTE DOWNLOAD", "mapi.ulMessageStatus.MSGSTATUS_REMOTE_DOWNLOAD", FT_BOOLEAN, 32, TFS(&ulMessageStatus_MSGSTATUS_REMOTE_DOWNLOAD_tfs), ( 0x00001000 ), NULL, HFILL }},
 	{ &hf_mapi_ulMessageStatus_MSGSTATUS_TAGGED,
-	  { "MSGSTATUS TAGGED", "mapi.ulMessageStatus.MSGSTATUS_TAGGED", FT_BOOLEAN, 32, TFS(&ulMessageStatus_MSGSTATUS_TAGGED_tfs), ( 0x2 ), NULL, HFILL }},
+	  { "MSGSTATUS TAGGED", "mapi.ulMessageStatus.MSGSTATUS_TAGGED", FT_BOOLEAN, 32, TFS(&ulMessageStatus_MSGSTATUS_TAGGED_tfs), ( 0x00000002 ), NULL, HFILL }},
 	{ &hf_mapi_werror,
 	  { "Windows Error", "mapi.werror", FT_UINT32, BASE_HEX|BASE_EXT_STRING, &WERR_errors_ext, 0, NULL, HFILL }},
 	};

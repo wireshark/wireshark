@@ -20,14 +20,14 @@ import "misc/misc.idl";
 	 */
 
 	typedef [bitmap32bit] bitmap {
-		KEY_QUERY_VALUE 		= 0x00001,
-		KEY_SET_VALUE 			= 0x00002,
-		KEY_CREATE_SUB_KEY 		= 0x00004,
-		KEY_ENUMERATE_SUB_KEYS		= 0x00008,
-		KEY_NOTIFY			= 0x00010,
-		KEY_CREATE_LINK 		= 0x00020,
-		KEY_WOW64_64KEY 		= 0x00100,
-		KEY_WOW64_32KEY 		= 0x00200
+                KEY_QUERY_VALUE 		= 0x00000001,
+                KEY_SET_VALUE 			= 0x00000002,
+                KEY_CREATE_SUB_KEY 		= 0x00000004,
+                KEY_ENUMERATE_SUB_KEYS		= 0x00000008,
+                KEY_NOTIFY			= 0x00000010,
+                KEY_CREATE_LINK 		= 0x00000020,
+                KEY_WOW64_64KEY 		= 0x00000100,
+                KEY_WOW64_32KEY 		= 0x00000200
 	} winreg_AccessMask;
 
 	const int REG_KEY_READ = (	STANDARD_RIGHTS_READ_ACCESS	|

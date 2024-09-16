@@ -18,9 +18,9 @@
 #define WITNESS_UNSPECIFIED_VERSION (0xFFFFFFFF)
 extern const value_string witness_witness_version_vals[];
 int witness_dissect_enum_version(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t *param _U_);
-#define WITNESS_STATE_UNKNOWN (0x00)
-#define WITNESS_STATE_AVAILABLE (0x01)
-#define WITNESS_STATE_UNAVAILABLE (0xff)
+#define WITNESS_STATE_UNKNOWN (0x0000)
+#define WITNESS_STATE_AVAILABLE (0x0001)
+#define WITNESS_STATE_UNAVAILABLE (0x00ff)
 extern const value_string witness_witness_interfaceInfo_state_vals[];
 int witness_dissect_enum_interfaceInfo_state(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint16_t *param _U_);
 int witness_dissect_bitmap_interfaceInfo_flags(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);

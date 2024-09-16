@@ -286,7 +286,7 @@ static const value_string nbd_error_vals[] = {
 	{0, NULL}
 };
 
-#define NBD_FLAG_NO_ZEROES 0x0002
+#define NBD_FLAG_NO_ZEROES 0x00000002
 
 static bool
 nbd_from_server(packet_info *pinfo)
@@ -1317,7 +1317,7 @@ void proto_register_nbd(void)
 		    NULL, 0x0, NULL, HFILL }},
 		{ &hf_nbd_hnd_flags_fixed_new,
 		  { "Fixed Newstyle", "nbd.hnd.flags.fixed_new", FT_BOOLEAN, 16,
-		    TFS(&tfs_set_notset), 0x0001, NULL, HFILL }},
+		   TFS(&tfs_set_notset), 0x0001, NULL, HFILL }},
 		{ &hf_nbd_hnd_flags_no_zeroes,
 		  { "No Zeroes", "nbd.hnd.flags.no_zeroes", FT_BOOLEAN, 16,
 		    TFS(&tfs_set_notset), NBD_FLAG_NO_ZEROES, NULL, HFILL }},
@@ -1326,7 +1326,7 @@ void proto_register_nbd(void)
 		    NULL, 0x0, NULL, HFILL }},
 		{ &hf_nbd_cli_flags_fixed_new,
 		  { "Fixed Newstyle", "nbd.cli.flags.fixed_new", FT_BOOLEAN, 32,
-		    TFS(&tfs_set_notset), 0x0001, NULL, HFILL }},
+		    TFS(&tfs_set_notset), 0x00000001, NULL, HFILL }},
 		{ &hf_nbd_cli_flags_no_zeroes,
 		  { "No Zeroes", "nbd.cli.flags.no_zeroes", FT_BOOLEAN, 32,
 		    TFS(&tfs_set_notset), NBD_FLAG_NO_ZEROES, NULL, HFILL }},

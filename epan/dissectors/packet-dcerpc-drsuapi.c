@@ -194,7 +194,6 @@ static int hf_drsuapi_drsuapi_DrsOptions_DRSUAPI_DRS_ADD_REF;
 static int hf_drsuapi_drsuapi_DrsOptions_DRSUAPI_DRS_ASYNC_OP;
 static int hf_drsuapi_drsuapi_DrsOptions_DRSUAPI_DRS_ASYNC_REP;
 static int hf_drsuapi_drsuapi_DrsOptions_DRSUAPI_DRS_CRITICAL_ONLY;
-static int hf_drsuapi_drsuapi_DrsOptions_DRSUAPI_DRS_DEL_REF;
 static int hf_drsuapi_drsuapi_DrsOptions_DRSUAPI_DRS_DISABLE_AUTO_SYNC;
 static int hf_drsuapi_drsuapi_DrsOptions_DRSUAPI_DRS_DISABLE_PERIODIC_SYNC;
 static int hf_drsuapi_drsuapi_DrsOptions_DRSUAPI_DRS_FULL_SYNC_IN_PROGRESS;
@@ -204,20 +203,15 @@ static int hf_drsuapi_drsuapi_DrsOptions_DRSUAPI_DRS_GETCHG_CHECK;
 static int hf_drsuapi_drsuapi_DrsOptions_DRSUAPI_DRS_GET_ALL_GROUP_MEMBERSHIP;
 static int hf_drsuapi_drsuapi_DrsOptions_DRSUAPI_DRS_GET_ANC;
 static int hf_drsuapi_drsuapi_DrsOptions_DRSUAPI_DRS_GET_NC_SIZE;
-static int hf_drsuapi_drsuapi_DrsOptions_DRSUAPI_DRS_IGNORE_ERROR;
 static int hf_drsuapi_drsuapi_DrsOptions_DRSUAPI_DRS_INIT_SYNC;
 static int hf_drsuapi_drsuapi_DrsOptions_DRSUAPI_DRS_INIT_SYNC_NOW;
-static int hf_drsuapi_drsuapi_DrsOptions_DRSUAPI_DRS_LOCAL_ONLY;
 static int hf_drsuapi_drsuapi_DrsOptions_DRSUAPI_DRS_MAIL_REP;
 static int hf_drsuapi_drsuapi_DrsOptions_DRSUAPI_DRS_NEVER_NOTIFY;
 static int hf_drsuapi_drsuapi_DrsOptions_DRSUAPI_DRS_NEVER_SYNCED;
 static int hf_drsuapi_drsuapi_DrsOptions_DRSUAPI_DRS_NONGC_RO_REP;
-static int hf_drsuapi_drsuapi_DrsOptions_DRSUAPI_DRS_NO_DISCARD;
-static int hf_drsuapi_drsuapi_DrsOptions_DRSUAPI_DRS_NO_SOURCE;
 static int hf_drsuapi_drsuapi_DrsOptions_DRSUAPI_DRS_PER_SYNC;
 static int hf_drsuapi_drsuapi_DrsOptions_DRSUAPI_DRS_PREEMPTED;
 static int hf_drsuapi_drsuapi_DrsOptions_DRSUAPI_DRS_REF_GCSPN;
-static int hf_drsuapi_drsuapi_DrsOptions_DRSUAPI_DRS_REF_OK;
 static int hf_drsuapi_drsuapi_DrsOptions_DRSUAPI_DRS_SPECIAL_SECRET_PROCESSING;
 static int hf_drsuapi_drsuapi_DrsOptions_DRSUAPI_DRS_SYNC_ALL;
 static int hf_drsuapi_drsuapi_DrsOptions_DRSUAPI_DRS_SYNC_BYNAME;
@@ -226,7 +220,6 @@ static int hf_drsuapi_drsuapi_DrsOptions_DRSUAPI_DRS_SYNC_PAS;
 static int hf_drsuapi_drsuapi_DrsOptions_DRSUAPI_DRS_SYNC_REQUEUE;
 static int hf_drsuapi_drsuapi_DrsOptions_DRSUAPI_DRS_SYNC_URGENT;
 static int hf_drsuapi_drsuapi_DrsOptions_DRSUAPI_DRS_TWOWAY_SYNC;
-static int hf_drsuapi_drsuapi_DrsOptions_DRSUAPI_DRS_UPDATE_NOTIFICATION;
 static int hf_drsuapi_drsuapi_DrsOptions_DRSUAPI_DRS_USE_COMPRESSION;
 static int hf_drsuapi_drsuapi_DrsOptions_DRSUAPI_DRS_WRIT_REP;
 static int hf_drsuapi_drsuapi_DrsUpdate_DRSUAPI_DRS_UPDATE_ADDRESS;
@@ -953,7 +946,6 @@ static int hf_drsuapi_drsuapi_SupportedExtensions_DRSUAPI_SUPPORTED_EXTENSION_DC
 static int hf_drsuapi_drsuapi_SupportedExtensions_DRSUAPI_SUPPORTED_EXTENSION_DCINFO_V2;
 static int hf_drsuapi_drsuapi_SupportedExtensions_DRSUAPI_SUPPORTED_EXTENSION_GETCHGREPLY_V5;
 static int hf_drsuapi_drsuapi_SupportedExtensions_DRSUAPI_SUPPORTED_EXTENSION_GETCHGREPLY_V6;
-static int hf_drsuapi_drsuapi_SupportedExtensions_DRSUAPI_SUPPORTED_EXTENSION_GETCHGREPLY_V7;
 static int hf_drsuapi_drsuapi_SupportedExtensions_DRSUAPI_SUPPORTED_EXTENSION_GETCHGREQ_V10;
 static int hf_drsuapi_drsuapi_SupportedExtensions_DRSUAPI_SUPPORTED_EXTENSION_GETCHGREQ_V5;
 static int hf_drsuapi_drsuapi_SupportedExtensions_DRSUAPI_SUPPORTED_EXTENSION_GETCHGREQ_V6;
@@ -973,7 +965,6 @@ static int hf_drsuapi_drsuapi_SupportedExtensions_DRSUAPI_SUPPORTED_EXTENSION_RE
 static int hf_drsuapi_drsuapi_SupportedExtensions_DRSUAPI_SUPPORTED_EXTENSION_RESTORE_USN_OPTIMIZATION;
 static int hf_drsuapi_drsuapi_SupportedExtensions_DRSUAPI_SUPPORTED_EXTENSION_STRONG_ENCRYPTION;
 static int hf_drsuapi_drsuapi_SupportedExtensions_DRSUAPI_SUPPORTED_EXTENSION_TRANSITIVE_MEMBERSHIP;
-static int hf_drsuapi_drsuapi_SupportedExtensions_DRSUAPI_SUPPORTED_EXTENSION_VERIFY_OBJECT;
 static int hf_drsuapi_drsuapi_SupportedExtensions_DRSUAPI_SUPPORTED_EXTENSION_XPRESS_COMPRESS;
 static int hf_drsuapi_opnum;
 static int hf_drsuapi_werror;
@@ -996,10 +987,6 @@ static const true_false_string drsuapi_DrsOptions_DRSUAPI_DRS_GETCHG_CHECK_tfs =
    "DRSUAPI_DRS_GETCHG_CHECK is SET",
    "DRSUAPI_DRS_GETCHG_CHECK is NOT SET",
 };
-static const true_false_string drsuapi_DrsOptions_DRSUAPI_DRS_UPDATE_NOTIFICATION_tfs = {
-   "DRSUAPI_DRS_UPDATE_NOTIFICATION is SET",
-   "DRSUAPI_DRS_UPDATE_NOTIFICATION is NOT SET",
-};
 static const true_false_string drsuapi_DrsOptions_DRSUAPI_DRS_ADD_REF_tfs = {
    "DRSUAPI_DRS_ADD_REF is SET",
    "DRSUAPI_DRS_ADD_REF is NOT SET",
@@ -1007,10 +994,6 @@ static const true_false_string drsuapi_DrsOptions_DRSUAPI_DRS_ADD_REF_tfs = {
 static const true_false_string drsuapi_DrsOptions_DRSUAPI_DRS_SYNC_ALL_tfs = {
    "DRSUAPI_DRS_SYNC_ALL is SET",
    "DRSUAPI_DRS_SYNC_ALL is NOT SET",
-};
-static const true_false_string drsuapi_DrsOptions_DRSUAPI_DRS_DEL_REF_tfs = {
-   "DRSUAPI_DRS_DEL_REF is SET",
-   "DRSUAPI_DRS_DEL_REF is NOT SET",
 };
 static const true_false_string drsuapi_DrsOptions_DRSUAPI_DRS_WRIT_REP_tfs = {
    "DRSUAPI_DRS_WRIT_REP is SET",
@@ -1032,10 +1015,6 @@ static const true_false_string drsuapi_DrsOptions_DRSUAPI_DRS_ASYNC_REP_tfs = {
    "DRSUAPI_DRS_ASYNC_REP is SET",
    "DRSUAPI_DRS_ASYNC_REP is NOT SET",
 };
-static const true_false_string drsuapi_DrsOptions_DRSUAPI_DRS_IGNORE_ERROR_tfs = {
-   "DRSUAPI_DRS_IGNORE_ERROR is SET",
-   "DRSUAPI_DRS_IGNORE_ERROR is NOT SET",
-};
 static const true_false_string drsuapi_DrsOptions_DRSUAPI_DRS_TWOWAY_SYNC_tfs = {
    "DRSUAPI_DRS_TWOWAY_SYNC is SET",
    "DRSUAPI_DRS_TWOWAY_SYNC is NOT SET",
@@ -1052,10 +1031,6 @@ static const true_false_string drsuapi_DrsOptions_DRSUAPI_DRS_GET_NC_SIZE_tfs = 
    "DRSUAPI_DRS_GET_NC_SIZE is SET",
    "DRSUAPI_DRS_GET_NC_SIZE is NOT SET",
 };
-static const true_false_string drsuapi_DrsOptions_DRSUAPI_DRS_LOCAL_ONLY_tfs = {
-   "DRSUAPI_DRS_LOCAL_ONLY is SET",
-   "DRSUAPI_DRS_LOCAL_ONLY is NOT SET",
-};
 static const true_false_string drsuapi_DrsOptions_DRSUAPI_DRS_NONGC_RO_REP_tfs = {
    "DRSUAPI_DRS_NONGC_RO_REP is SET",
    "DRSUAPI_DRS_NONGC_RO_REP is NOT SET",
@@ -1064,17 +1039,9 @@ static const true_false_string drsuapi_DrsOptions_DRSUAPI_DRS_SYNC_BYNAME_tfs = 
    "DRSUAPI_DRS_SYNC_BYNAME is SET",
    "DRSUAPI_DRS_SYNC_BYNAME is NOT SET",
 };
-static const true_false_string drsuapi_DrsOptions_DRSUAPI_DRS_REF_OK_tfs = {
-   "DRSUAPI_DRS_REF_OK is SET",
-   "DRSUAPI_DRS_REF_OK is NOT SET",
-};
 static const true_false_string drsuapi_DrsOptions_DRSUAPI_DRS_FULL_SYNC_NOW_tfs = {
    "DRSUAPI_DRS_FULL_SYNC_NOW is SET",
    "DRSUAPI_DRS_FULL_SYNC_NOW is NOT SET",
-};
-static const true_false_string drsuapi_DrsOptions_DRSUAPI_DRS_NO_SOURCE_tfs = {
-   "DRSUAPI_DRS_NO_SOURCE is SET",
-   "DRSUAPI_DRS_NO_SOURCE is NOT SET",
 };
 static const true_false_string drsuapi_DrsOptions_DRSUAPI_DRS_FULL_SYNC_IN_PROGRESS_tfs = {
    "DRSUAPI_DRS_FULL_SYNC_IN_PROGRESS is SET",
@@ -1095,10 +1062,6 @@ static const true_false_string drsuapi_DrsOptions_DRSUAPI_DRS_SYNC_URGENT_tfs = 
 static const true_false_string drsuapi_DrsOptions_DRSUAPI_DRS_REF_GCSPN_tfs = {
    "DRSUAPI_DRS_REF_GCSPN is SET",
    "DRSUAPI_DRS_REF_GCSPN is NOT SET",
-};
-static const true_false_string drsuapi_DrsOptions_DRSUAPI_DRS_NO_DISCARD_tfs = {
-   "DRSUAPI_DRS_NO_DISCARD is SET",
-   "DRSUAPI_DRS_NO_DISCARD is NOT SET",
 };
 static const true_false_string drsuapi_DrsOptions_DRSUAPI_DRS_NEVER_SYNCED_tfs = {
    "DRSUAPI_DRS_NEVER_SYNCED is SET",
@@ -1271,14 +1234,6 @@ static const true_false_string drsuapi_SupportedExtensions_DRSUAPI_SUPPORTED_EXT
 static const true_false_string drsuapi_SupportedExtensions_DRSUAPI_SUPPORTED_EXTENSION_ADDENTRYREPLY_V3_tfs = {
    "DRSUAPI_SUPPORTED_EXTENSION_ADDENTRYREPLY_V3 is SET",
    "DRSUAPI_SUPPORTED_EXTENSION_ADDENTRYREPLY_V3 is NOT SET",
-};
-static const true_false_string drsuapi_SupportedExtensions_DRSUAPI_SUPPORTED_EXTENSION_GETCHGREPLY_V7_tfs = {
-   "DRSUAPI_SUPPORTED_EXTENSION_GETCHGREPLY_V7 is SET",
-   "DRSUAPI_SUPPORTED_EXTENSION_GETCHGREPLY_V7 is NOT SET",
-};
-static const true_false_string drsuapi_SupportedExtensions_DRSUAPI_SUPPORTED_EXTENSION_VERIFY_OBJECT_tfs = {
-   "DRSUAPI_SUPPORTED_EXTENSION_VERIFY_OBJECT is SET",
-   "DRSUAPI_SUPPORTED_EXTENSION_VERIFY_OBJECT is NOT SET",
 };
 static const true_false_string drsuapi_SupportedExtensions_DRSUAPI_SUPPORTED_EXTENSION_XPRESS_COMPRESS_tfs = {
    "DRSUAPI_SUPPORTED_EXTENSION_XPRESS_COMPRESS is SET",
@@ -2704,32 +2659,25 @@ drsuapi_dissect_bitmap_security_GroupAttrs(tvbuff_t *tvb _U_, int offset _U_, pa
 /* IDL: bitmap { */
 /* IDL: 	DRSUAPI_DRS_ASYNC_OP =  0x00000001 , */
 /* IDL: 	DRSUAPI_DRS_GETCHG_CHECK =  0x00000002 , */
-/* IDL: 	DRSUAPI_DRS_UPDATE_NOTIFICATION =  0x00000002 , */
 /* IDL: 	DRSUAPI_DRS_ADD_REF =  0x00000004 , */
 /* IDL: 	DRSUAPI_DRS_SYNC_ALL =  0x00000008 , */
-/* IDL: 	DRSUAPI_DRS_DEL_REF =  0x00000008 , */
 /* IDL: 	DRSUAPI_DRS_WRIT_REP =  0x00000010 , */
 /* IDL: 	DRSUAPI_DRS_INIT_SYNC =  0x00000020 , */
 /* IDL: 	DRSUAPI_DRS_PER_SYNC =  0x00000040 , */
 /* IDL: 	DRSUAPI_DRS_MAIL_REP =  0x00000080 , */
 /* IDL: 	DRSUAPI_DRS_ASYNC_REP =  0x00000100 , */
-/* IDL: 	DRSUAPI_DRS_IGNORE_ERROR =  0x00000100 , */
 /* IDL: 	DRSUAPI_DRS_TWOWAY_SYNC =  0x00000200 , */
 /* IDL: 	DRSUAPI_DRS_CRITICAL_ONLY =  0x00000400 , */
 /* IDL: 	DRSUAPI_DRS_GET_ANC =  0x00000800 , */
 /* IDL: 	DRSUAPI_DRS_GET_NC_SIZE =  0x00001000 , */
-/* IDL: 	DRSUAPI_DRS_LOCAL_ONLY =  0x00001000 , */
 /* IDL: 	DRSUAPI_DRS_NONGC_RO_REP =  0x00002000 , */
 /* IDL: 	DRSUAPI_DRS_SYNC_BYNAME =  0x00004000 , */
-/* IDL: 	DRSUAPI_DRS_REF_OK =  0x00004000 , */
 /* IDL: 	DRSUAPI_DRS_FULL_SYNC_NOW =  0x00008000 , */
-/* IDL: 	DRSUAPI_DRS_NO_SOURCE =  0x00008000 , */
 /* IDL: 	DRSUAPI_DRS_FULL_SYNC_IN_PROGRESS =  0x00010000 , */
 /* IDL: 	DRSUAPI_DRS_FULL_SYNC_PACKET =  0x00020000 , */
 /* IDL: 	DRSUAPI_DRS_SYNC_REQUEUE =  0x00040000 , */
 /* IDL: 	DRSUAPI_DRS_SYNC_URGENT =  0x00080000 , */
 /* IDL: 	DRSUAPI_DRS_REF_GCSPN =  0x00100000 , */
-/* IDL: 	DRSUAPI_DRS_NO_DISCARD =  0x00100000 , */
 /* IDL: 	DRSUAPI_DRS_NEVER_SYNCED =  0x00200000 , */
 /* IDL: 	DRSUAPI_DRS_SPECIAL_SECRET_PROCESSING =  0x00400000 , */
 /* IDL: 	DRSUAPI_DRS_INIT_SYNC_NOW =  0x00800000 , */
@@ -2750,32 +2698,25 @@ drsuapi_dissect_bitmap_DrsOptions(tvbuff_t *tvb _U_, int offset _U_, packet_info
 	static int * const drsuapi_drsuapi_DrsOptions_fields[] = {
 		&hf_drsuapi_drsuapi_DrsOptions_DRSUAPI_DRS_ASYNC_OP,
 		&hf_drsuapi_drsuapi_DrsOptions_DRSUAPI_DRS_GETCHG_CHECK,
-		&hf_drsuapi_drsuapi_DrsOptions_DRSUAPI_DRS_UPDATE_NOTIFICATION,
 		&hf_drsuapi_drsuapi_DrsOptions_DRSUAPI_DRS_ADD_REF,
 		&hf_drsuapi_drsuapi_DrsOptions_DRSUAPI_DRS_SYNC_ALL,
-		&hf_drsuapi_drsuapi_DrsOptions_DRSUAPI_DRS_DEL_REF,
 		&hf_drsuapi_drsuapi_DrsOptions_DRSUAPI_DRS_WRIT_REP,
 		&hf_drsuapi_drsuapi_DrsOptions_DRSUAPI_DRS_INIT_SYNC,
 		&hf_drsuapi_drsuapi_DrsOptions_DRSUAPI_DRS_PER_SYNC,
 		&hf_drsuapi_drsuapi_DrsOptions_DRSUAPI_DRS_MAIL_REP,
 		&hf_drsuapi_drsuapi_DrsOptions_DRSUAPI_DRS_ASYNC_REP,
-		&hf_drsuapi_drsuapi_DrsOptions_DRSUAPI_DRS_IGNORE_ERROR,
 		&hf_drsuapi_drsuapi_DrsOptions_DRSUAPI_DRS_TWOWAY_SYNC,
 		&hf_drsuapi_drsuapi_DrsOptions_DRSUAPI_DRS_CRITICAL_ONLY,
 		&hf_drsuapi_drsuapi_DrsOptions_DRSUAPI_DRS_GET_ANC,
 		&hf_drsuapi_drsuapi_DrsOptions_DRSUAPI_DRS_GET_NC_SIZE,
-		&hf_drsuapi_drsuapi_DrsOptions_DRSUAPI_DRS_LOCAL_ONLY,
 		&hf_drsuapi_drsuapi_DrsOptions_DRSUAPI_DRS_NONGC_RO_REP,
 		&hf_drsuapi_drsuapi_DrsOptions_DRSUAPI_DRS_SYNC_BYNAME,
-		&hf_drsuapi_drsuapi_DrsOptions_DRSUAPI_DRS_REF_OK,
 		&hf_drsuapi_drsuapi_DrsOptions_DRSUAPI_DRS_FULL_SYNC_NOW,
-		&hf_drsuapi_drsuapi_DrsOptions_DRSUAPI_DRS_NO_SOURCE,
 		&hf_drsuapi_drsuapi_DrsOptions_DRSUAPI_DRS_FULL_SYNC_IN_PROGRESS,
 		&hf_drsuapi_drsuapi_DrsOptions_DRSUAPI_DRS_FULL_SYNC_PACKET,
 		&hf_drsuapi_drsuapi_DrsOptions_DRSUAPI_DRS_SYNC_REQUEUE,
 		&hf_drsuapi_drsuapi_DrsOptions_DRSUAPI_DRS_SYNC_URGENT,
 		&hf_drsuapi_drsuapi_DrsOptions_DRSUAPI_DRS_REF_GCSPN,
-		&hf_drsuapi_drsuapi_DrsOptions_DRSUAPI_DRS_NO_DISCARD,
 		&hf_drsuapi_drsuapi_DrsOptions_DRSUAPI_DRS_NEVER_SYNCED,
 		&hf_drsuapi_drsuapi_DrsOptions_DRSUAPI_DRS_SPECIAL_SECRET_PROCESSING,
 		&hf_drsuapi_drsuapi_DrsOptions_DRSUAPI_DRS_INIT_SYNC_NOW,
@@ -2799,11 +2740,6 @@ drsuapi_dissect_bitmap_DrsOptions(tvbuff_t *tvb _U_, int offset _U_, packet_info
 
 	if (!flags)
 		proto_item_append_text(item, ": (No values set)");
-
-	if (flags & (~0x10010d109)) {
-		flags &= (~0x10010d109);
-		proto_item_append_text(item, "Unknown bitmap value 0x%x", flags);
-	}
 
 	return offset;
 }
@@ -2906,8 +2842,6 @@ drsuapi_dissect_bitmap_DrsUpdate(tvbuff_t *tvb _U_, int offset _U_, packet_info 
 /* IDL: 	DRSUAPI_SUPPORTED_EXTENSION_GETCHGREPLY_V5 =  0x02000000 , */
 /* IDL: 	DRSUAPI_SUPPORTED_EXTENSION_GETCHGREPLY_V6 =  0x04000000 , */
 /* IDL: 	DRSUAPI_SUPPORTED_EXTENSION_ADDENTRYREPLY_V3 =  0x08000000 , */
-/* IDL: 	DRSUAPI_SUPPORTED_EXTENSION_GETCHGREPLY_V7 =  0x08000000 , */
-/* IDL: 	DRSUAPI_SUPPORTED_EXTENSION_VERIFY_OBJECT =  0x08000000 , */
 /* IDL: 	DRSUAPI_SUPPORTED_EXTENSION_XPRESS_COMPRESS =  0x10000000 , */
 /* IDL: 	DRSUAPI_SUPPORTED_EXTENSION_GETCHGREQ_V10 =  0x20000000 , */
 /* IDL: 	DRSUAPI_SUPPORTED_EXTENSION_RESERVED_PART2 =  0x40000000 , */
@@ -2947,8 +2881,6 @@ drsuapi_dissect_bitmap_SupportedExtensions(tvbuff_t *tvb _U_, int offset _U_, pa
 		&hf_drsuapi_drsuapi_SupportedExtensions_DRSUAPI_SUPPORTED_EXTENSION_GETCHGREPLY_V5,
 		&hf_drsuapi_drsuapi_SupportedExtensions_DRSUAPI_SUPPORTED_EXTENSION_GETCHGREPLY_V6,
 		&hf_drsuapi_drsuapi_SupportedExtensions_DRSUAPI_SUPPORTED_EXTENSION_ADDENTRYREPLY_V3,
-		&hf_drsuapi_drsuapi_SupportedExtensions_DRSUAPI_SUPPORTED_EXTENSION_GETCHGREPLY_V7,
-		&hf_drsuapi_drsuapi_SupportedExtensions_DRSUAPI_SUPPORTED_EXTENSION_VERIFY_OBJECT,
 		&hf_drsuapi_drsuapi_SupportedExtensions_DRSUAPI_SUPPORTED_EXTENSION_XPRESS_COMPRESS,
 		&hf_drsuapi_drsuapi_SupportedExtensions_DRSUAPI_SUPPORTED_EXTENSION_GETCHGREQ_V10,
 		&hf_drsuapi_drsuapi_SupportedExtensions_DRSUAPI_SUPPORTED_EXTENSION_RESERVED_PART2,
@@ -2965,11 +2897,6 @@ drsuapi_dissect_bitmap_SupportedExtensions(tvbuff_t *tvb _U_, int offset _U_, pa
 
 	if (!flags)
 		proto_item_append_text(item, ": (No values set)");
-
-	if (flags & (~0x10fffffff)) {
-		flags &= (~0x10fffffff);
-		proto_item_append_text(item, "Unknown bitmap value 0x%x", flags);
-	}
 
 	return offset;
 }
@@ -19213,8 +19140,6 @@ void proto_register_dcerpc_drsuapi(void)
 	  { "DRSUAPI DRS ASYNC REP", "drsuapi.drsuapi_DrsOptions.DRSUAPI_DRS_ASYNC_REP", FT_BOOLEAN, 32, TFS(&drsuapi_DrsOptions_DRSUAPI_DRS_ASYNC_REP_tfs), ( 0x00000100 ), NULL, HFILL }},
 	{ &hf_drsuapi_drsuapi_DrsOptions_DRSUAPI_DRS_CRITICAL_ONLY,
 	  { "DRSUAPI DRS CRITICAL ONLY", "drsuapi.drsuapi_DrsOptions.DRSUAPI_DRS_CRITICAL_ONLY", FT_BOOLEAN, 32, TFS(&drsuapi_DrsOptions_DRSUAPI_DRS_CRITICAL_ONLY_tfs), ( 0x00000400 ), NULL, HFILL }},
-	{ &hf_drsuapi_drsuapi_DrsOptions_DRSUAPI_DRS_DEL_REF,
-	  { "DRSUAPI DRS DEL REF", "drsuapi.drsuapi_DrsOptions.DRSUAPI_DRS_DEL_REF", FT_BOOLEAN, 32, TFS(&drsuapi_DrsOptions_DRSUAPI_DRS_DEL_REF_tfs), ( 0x00000008 ), NULL, HFILL }},
 	{ &hf_drsuapi_drsuapi_DrsOptions_DRSUAPI_DRS_DISABLE_AUTO_SYNC,
 	  { "DRSUAPI DRS DISABLE AUTO SYNC", "drsuapi.drsuapi_DrsOptions.DRSUAPI_DRS_DISABLE_AUTO_SYNC", FT_BOOLEAN, 32, TFS(&drsuapi_DrsOptions_DRSUAPI_DRS_DISABLE_AUTO_SYNC_tfs), ( 0x04000000 ), NULL, HFILL }},
 	{ &hf_drsuapi_drsuapi_DrsOptions_DRSUAPI_DRS_DISABLE_PERIODIC_SYNC,
@@ -19233,14 +19158,10 @@ void proto_register_dcerpc_drsuapi(void)
 	  { "DRSUAPI DRS GET ANC", "drsuapi.drsuapi_DrsOptions.DRSUAPI_DRS_GET_ANC", FT_BOOLEAN, 32, TFS(&drsuapi_DrsOptions_DRSUAPI_DRS_GET_ANC_tfs), ( 0x00000800 ), NULL, HFILL }},
 	{ &hf_drsuapi_drsuapi_DrsOptions_DRSUAPI_DRS_GET_NC_SIZE,
 	  { "DRSUAPI DRS GET NC SIZE", "drsuapi.drsuapi_DrsOptions.DRSUAPI_DRS_GET_NC_SIZE", FT_BOOLEAN, 32, TFS(&drsuapi_DrsOptions_DRSUAPI_DRS_GET_NC_SIZE_tfs), ( 0x00001000 ), NULL, HFILL }},
-	{ &hf_drsuapi_drsuapi_DrsOptions_DRSUAPI_DRS_IGNORE_ERROR,
-	  { "DRSUAPI DRS IGNORE ERROR", "drsuapi.drsuapi_DrsOptions.DRSUAPI_DRS_IGNORE_ERROR", FT_BOOLEAN, 32, TFS(&drsuapi_DrsOptions_DRSUAPI_DRS_IGNORE_ERROR_tfs), ( 0x00000100 ), NULL, HFILL }},
 	{ &hf_drsuapi_drsuapi_DrsOptions_DRSUAPI_DRS_INIT_SYNC,
 	  { "DRSUAPI DRS INIT SYNC", "drsuapi.drsuapi_DrsOptions.DRSUAPI_DRS_INIT_SYNC", FT_BOOLEAN, 32, TFS(&drsuapi_DrsOptions_DRSUAPI_DRS_INIT_SYNC_tfs), ( 0x00000020 ), NULL, HFILL }},
 	{ &hf_drsuapi_drsuapi_DrsOptions_DRSUAPI_DRS_INIT_SYNC_NOW,
 	  { "DRSUAPI DRS INIT SYNC NOW", "drsuapi.drsuapi_DrsOptions.DRSUAPI_DRS_INIT_SYNC_NOW", FT_BOOLEAN, 32, TFS(&drsuapi_DrsOptions_DRSUAPI_DRS_INIT_SYNC_NOW_tfs), ( 0x00800000 ), NULL, HFILL }},
-	{ &hf_drsuapi_drsuapi_DrsOptions_DRSUAPI_DRS_LOCAL_ONLY,
-	  { "DRSUAPI DRS LOCAL ONLY", "drsuapi.drsuapi_DrsOptions.DRSUAPI_DRS_LOCAL_ONLY", FT_BOOLEAN, 32, TFS(&drsuapi_DrsOptions_DRSUAPI_DRS_LOCAL_ONLY_tfs), ( 0x00001000 ), NULL, HFILL }},
 	{ &hf_drsuapi_drsuapi_DrsOptions_DRSUAPI_DRS_MAIL_REP,
 	  { "DRSUAPI DRS MAIL REP", "drsuapi.drsuapi_DrsOptions.DRSUAPI_DRS_MAIL_REP", FT_BOOLEAN, 32, TFS(&drsuapi_DrsOptions_DRSUAPI_DRS_MAIL_REP_tfs), ( 0x00000080 ), NULL, HFILL }},
 	{ &hf_drsuapi_drsuapi_DrsOptions_DRSUAPI_DRS_NEVER_NOTIFY,
@@ -19249,18 +19170,12 @@ void proto_register_dcerpc_drsuapi(void)
 	  { "DRSUAPI DRS NEVER SYNCED", "drsuapi.drsuapi_DrsOptions.DRSUAPI_DRS_NEVER_SYNCED", FT_BOOLEAN, 32, TFS(&drsuapi_DrsOptions_DRSUAPI_DRS_NEVER_SYNCED_tfs), ( 0x00200000 ), NULL, HFILL }},
 	{ &hf_drsuapi_drsuapi_DrsOptions_DRSUAPI_DRS_NONGC_RO_REP,
 	  { "DRSUAPI DRS NONGC RO REP", "drsuapi.drsuapi_DrsOptions.DRSUAPI_DRS_NONGC_RO_REP", FT_BOOLEAN, 32, TFS(&drsuapi_DrsOptions_DRSUAPI_DRS_NONGC_RO_REP_tfs), ( 0x00002000 ), NULL, HFILL }},
-	{ &hf_drsuapi_drsuapi_DrsOptions_DRSUAPI_DRS_NO_DISCARD,
-	  { "DRSUAPI DRS NO DISCARD", "drsuapi.drsuapi_DrsOptions.DRSUAPI_DRS_NO_DISCARD", FT_BOOLEAN, 32, TFS(&drsuapi_DrsOptions_DRSUAPI_DRS_NO_DISCARD_tfs), ( 0x00100000 ), NULL, HFILL }},
-	{ &hf_drsuapi_drsuapi_DrsOptions_DRSUAPI_DRS_NO_SOURCE,
-	  { "DRSUAPI DRS NO SOURCE", "drsuapi.drsuapi_DrsOptions.DRSUAPI_DRS_NO_SOURCE", FT_BOOLEAN, 32, TFS(&drsuapi_DrsOptions_DRSUAPI_DRS_NO_SOURCE_tfs), ( 0x00008000 ), NULL, HFILL }},
 	{ &hf_drsuapi_drsuapi_DrsOptions_DRSUAPI_DRS_PER_SYNC,
 	  { "DRSUAPI DRS PER SYNC", "drsuapi.drsuapi_DrsOptions.DRSUAPI_DRS_PER_SYNC", FT_BOOLEAN, 32, TFS(&drsuapi_DrsOptions_DRSUAPI_DRS_PER_SYNC_tfs), ( 0x00000040 ), NULL, HFILL }},
 	{ &hf_drsuapi_drsuapi_DrsOptions_DRSUAPI_DRS_PREEMPTED,
 	  { "DRSUAPI DRS PREEMPTED", "drsuapi.drsuapi_DrsOptions.DRSUAPI_DRS_PREEMPTED", FT_BOOLEAN, 32, TFS(&drsuapi_DrsOptions_DRSUAPI_DRS_PREEMPTED_tfs), ( 0x01000000 ), NULL, HFILL }},
 	{ &hf_drsuapi_drsuapi_DrsOptions_DRSUAPI_DRS_REF_GCSPN,
 	  { "DRSUAPI DRS REF GCSPN", "drsuapi.drsuapi_DrsOptions.DRSUAPI_DRS_REF_GCSPN", FT_BOOLEAN, 32, TFS(&drsuapi_DrsOptions_DRSUAPI_DRS_REF_GCSPN_tfs), ( 0x00100000 ), NULL, HFILL }},
-	{ &hf_drsuapi_drsuapi_DrsOptions_DRSUAPI_DRS_REF_OK,
-	  { "DRSUAPI DRS REF OK", "drsuapi.drsuapi_DrsOptions.DRSUAPI_DRS_REF_OK", FT_BOOLEAN, 32, TFS(&drsuapi_DrsOptions_DRSUAPI_DRS_REF_OK_tfs), ( 0x00004000 ), NULL, HFILL }},
 	{ &hf_drsuapi_drsuapi_DrsOptions_DRSUAPI_DRS_SPECIAL_SECRET_PROCESSING,
 	  { "DRSUAPI DRS SPECIAL SECRET PROCESSING", "drsuapi.drsuapi_DrsOptions.DRSUAPI_DRS_SPECIAL_SECRET_PROCESSING", FT_BOOLEAN, 32, TFS(&drsuapi_DrsOptions_DRSUAPI_DRS_SPECIAL_SECRET_PROCESSING_tfs), ( 0x00400000 ), NULL, HFILL }},
 	{ &hf_drsuapi_drsuapi_DrsOptions_DRSUAPI_DRS_SYNC_ALL,
@@ -19277,8 +19192,6 @@ void proto_register_dcerpc_drsuapi(void)
 	  { "DRSUAPI DRS SYNC URGENT", "drsuapi.drsuapi_DrsOptions.DRSUAPI_DRS_SYNC_URGENT", FT_BOOLEAN, 32, TFS(&drsuapi_DrsOptions_DRSUAPI_DRS_SYNC_URGENT_tfs), ( 0x00080000 ), NULL, HFILL }},
 	{ &hf_drsuapi_drsuapi_DrsOptions_DRSUAPI_DRS_TWOWAY_SYNC,
 	  { "DRSUAPI DRS TWOWAY SYNC", "drsuapi.drsuapi_DrsOptions.DRSUAPI_DRS_TWOWAY_SYNC", FT_BOOLEAN, 32, TFS(&drsuapi_DrsOptions_DRSUAPI_DRS_TWOWAY_SYNC_tfs), ( 0x00000200 ), NULL, HFILL }},
-	{ &hf_drsuapi_drsuapi_DrsOptions_DRSUAPI_DRS_UPDATE_NOTIFICATION,
-	  { "DRSUAPI DRS UPDATE NOTIFICATION", "drsuapi.drsuapi_DrsOptions.DRSUAPI_DRS_UPDATE_NOTIFICATION", FT_BOOLEAN, 32, TFS(&drsuapi_DrsOptions_DRSUAPI_DRS_UPDATE_NOTIFICATION_tfs), ( 0x00000002 ), NULL, HFILL }},
 	{ &hf_drsuapi_drsuapi_DrsOptions_DRSUAPI_DRS_USE_COMPRESSION,
 	  { "DRSUAPI DRS USE COMPRESSION", "drsuapi.drsuapi_DrsOptions.DRSUAPI_DRS_USE_COMPRESSION", FT_BOOLEAN, 32, TFS(&drsuapi_DrsOptions_DRSUAPI_DRS_USE_COMPRESSION_tfs), ( 0x10000000 ), NULL, HFILL }},
 	{ &hf_drsuapi_drsuapi_DrsOptions_DRSUAPI_DRS_WRIT_REP,
@@ -20731,8 +20644,6 @@ void proto_register_dcerpc_drsuapi(void)
 	  { "DRSUAPI SUPPORTED EXTENSION GETCHGREPLY V5", "drsuapi.drsuapi_SupportedExtensions.DRSUAPI_SUPPORTED_EXTENSION_GETCHGREPLY_V5", FT_BOOLEAN, 32, TFS(&drsuapi_SupportedExtensions_DRSUAPI_SUPPORTED_EXTENSION_GETCHGREPLY_V5_tfs), ( 0x02000000 ), NULL, HFILL }},
 	{ &hf_drsuapi_drsuapi_SupportedExtensions_DRSUAPI_SUPPORTED_EXTENSION_GETCHGREPLY_V6,
 	  { "DRSUAPI SUPPORTED EXTENSION GETCHGREPLY V6", "drsuapi.drsuapi_SupportedExtensions.DRSUAPI_SUPPORTED_EXTENSION_GETCHGREPLY_V6", FT_BOOLEAN, 32, TFS(&drsuapi_SupportedExtensions_DRSUAPI_SUPPORTED_EXTENSION_GETCHGREPLY_V6_tfs), ( 0x04000000 ), NULL, HFILL }},
-	{ &hf_drsuapi_drsuapi_SupportedExtensions_DRSUAPI_SUPPORTED_EXTENSION_GETCHGREPLY_V7,
-	  { "DRSUAPI SUPPORTED EXTENSION GETCHGREPLY V7", "drsuapi.drsuapi_SupportedExtensions.DRSUAPI_SUPPORTED_EXTENSION_GETCHGREPLY_V7", FT_BOOLEAN, 32, TFS(&drsuapi_SupportedExtensions_DRSUAPI_SUPPORTED_EXTENSION_GETCHGREPLY_V7_tfs), ( 0x08000000 ), NULL, HFILL }},
 	{ &hf_drsuapi_drsuapi_SupportedExtensions_DRSUAPI_SUPPORTED_EXTENSION_GETCHGREQ_V10,
 	  { "DRSUAPI SUPPORTED EXTENSION GETCHGREQ V10", "drsuapi.drsuapi_SupportedExtensions.DRSUAPI_SUPPORTED_EXTENSION_GETCHGREQ_V10", FT_BOOLEAN, 32, TFS(&drsuapi_SupportedExtensions_DRSUAPI_SUPPORTED_EXTENSION_GETCHGREQ_V10_tfs), ( 0x20000000 ), NULL, HFILL }},
 	{ &hf_drsuapi_drsuapi_SupportedExtensions_DRSUAPI_SUPPORTED_EXTENSION_GETCHGREQ_V5,
@@ -20771,8 +20682,6 @@ void proto_register_dcerpc_drsuapi(void)
 	  { "DRSUAPI SUPPORTED EXTENSION STRONG ENCRYPTION", "drsuapi.drsuapi_SupportedExtensions.DRSUAPI_SUPPORTED_EXTENSION_STRONG_ENCRYPTION", FT_BOOLEAN, 32, TFS(&drsuapi_SupportedExtensions_DRSUAPI_SUPPORTED_EXTENSION_STRONG_ENCRYPTION_tfs), ( 0x00008000 ), NULL, HFILL }},
 	{ &hf_drsuapi_drsuapi_SupportedExtensions_DRSUAPI_SUPPORTED_EXTENSION_TRANSITIVE_MEMBERSHIP,
 	  { "DRSUAPI SUPPORTED EXTENSION TRANSITIVE MEMBERSHIP", "drsuapi.drsuapi_SupportedExtensions.DRSUAPI_SUPPORTED_EXTENSION_TRANSITIVE_MEMBERSHIP", FT_BOOLEAN, 32, TFS(&drsuapi_SupportedExtensions_DRSUAPI_SUPPORTED_EXTENSION_TRANSITIVE_MEMBERSHIP_tfs), ( 0x00020000 ), NULL, HFILL }},
-	{ &hf_drsuapi_drsuapi_SupportedExtensions_DRSUAPI_SUPPORTED_EXTENSION_VERIFY_OBJECT,
-	  { "DRSUAPI SUPPORTED EXTENSION VERIFY OBJECT", "drsuapi.drsuapi_SupportedExtensions.DRSUAPI_SUPPORTED_EXTENSION_VERIFY_OBJECT", FT_BOOLEAN, 32, TFS(&drsuapi_SupportedExtensions_DRSUAPI_SUPPORTED_EXTENSION_VERIFY_OBJECT_tfs), ( 0x08000000 ), NULL, HFILL }},
 	{ &hf_drsuapi_drsuapi_SupportedExtensions_DRSUAPI_SUPPORTED_EXTENSION_XPRESS_COMPRESS,
 	  { "DRSUAPI SUPPORTED EXTENSION XPRESS COMPRESS", "drsuapi.drsuapi_SupportedExtensions.DRSUAPI_SUPPORTED_EXTENSION_XPRESS_COMPRESS", FT_BOOLEAN, 32, TFS(&drsuapi_SupportedExtensions_DRSUAPI_SUPPORTED_EXTENSION_XPRESS_COMPRESS_tfs), ( 0x10000000 ), NULL, HFILL }},
 	{ &hf_drsuapi_opnum,

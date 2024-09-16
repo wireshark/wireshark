@@ -4011,13 +4011,13 @@ static const value_string krb5_msg_types[] = {
 	{ 0, NULL },
 };
 
-#define KRB5_GSS_C_DELEG_FLAG             0x01
-#define KRB5_GSS_C_MUTUAL_FLAG            0x02
-#define KRB5_GSS_C_REPLAY_FLAG            0x04
-#define KRB5_GSS_C_SEQUENCE_FLAG          0x08
-#define KRB5_GSS_C_CONF_FLAG              0x10
-#define KRB5_GSS_C_INTEG_FLAG             0x20
-#define KRB5_GSS_C_DCE_STYLE            0x1000
+#define KRB5_GSS_C_DELEG_FLAG             0x00000001
+#define KRB5_GSS_C_MUTUAL_FLAG            0x00000002
+#define KRB5_GSS_C_REPLAY_FLAG            0x00000004
+#define KRB5_GSS_C_SEQUENCE_FLAG          0x00000008
+#define KRB5_GSS_C_CONF_FLAG              0x00000010
+#define KRB5_GSS_C_INTEG_FLAG             0x00000020
+#define KRB5_GSS_C_DCE_STYLE              0x00001000
 
 static const true_false_string tfs_gss_flags_deleg = {
 	"Delegate credentials to remote peer",

@@ -45,7 +45,7 @@ static uint32_t wmio_signature = 0x12345678;
 #define WBEM_FLAVOR_AMENDED                         0x80
 
 #define CIM_ARRAY_FLAG 0x2000
-#define INHERITED_PROPERTY_TYPE 0x4000
+#define INHERITED_PROPERTY_TYPE 0x00004000
 
 /* CimType
  *   https://learn.microsoft.com/de-de/openspecs/windows_protocols/ms-wmio/e137e6c6-c1cc-449e-a0b4-76fabf534480

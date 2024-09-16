@@ -310,7 +310,8 @@ sub Bitmap($$$$)
 		}
 	}
 
-	if ($element_count > 0) {
+	# Note that if bitmask is full, some compilers would complain about flags &= (~0xffffffff)
+	if ($element_count > 0 && $element_count < 32) {
 		my $total_ev_hex = sprintf("0x%08x", $total_ev);
 		$self->pidl_code("if (flags & (~$total_ev_hex)) {");
 		$self->pidl_code("\tflags &= (~$total_ev_hex);");

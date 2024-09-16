@@ -1297,7 +1297,7 @@ static dissector_handle_t avb17221_handle;
 #define AECP_SIGNATURE_ID_MASK                  0x0fff
 #define AECP_SIGNATURE_INFO_MASK                0x00f0
 #define AECP_SIGNATURE_LENGTH_MASK              0x3ff
-#define AECP_UNLOCK_FLAG_MASK                   0x00000001
+#define AECP_UNLOCK_FLAG_MASK                   0x01
 #define AECP_U_FLAG_MASK                        0x80
 #define AECP_MSRP_MAPPINGS_COUNT_MASK           0x00
 #define AECP_AS_CAPABLE_FLAG_MASK               0x01
@@ -1365,14 +1365,14 @@ static dissector_handle_t avb17221_handle;
 #define AECP_COUNTERS_VALID_ENTITY_SPECIFIC_2      0x40000000
 #define AECP_COUNTERS_VALID_ENTITY_SPECIFIC_1      0x80000000
 
-#define AEM_CLOCK_SYNC_SOURCE_FLAG_MASK         0x00000001
-#define AEM_ASYNC_SAMPLE_RATE_CONV_FLAG_MASK    0x00000002
-#define AEM_SYNC_SAMPLE_RATE_CONV_FLAG_MASK     0x00000004
+#define AEM_CLOCK_SYNC_SOURCE_FLAG_MASK         0x0001
+#define AEM_ASYNC_SAMPLE_RATE_CONV_FLAG_MASK    0x0002
+#define AEM_SYNC_SAMPLE_RATE_CONV_FLAG_MASK     0x0004
 
 #define AEM_BASE_FREQUENCY_MASK                 0x1fffffff
-#define AEM_CAPTIVE_FLAG_MASK                   0x00000002
-#define AEM_CLASS_A_FLAG_MASK                   0x00000002
-#define AEM_CLASS_B_FLAG_MASK                   0x00000004
+#define AEM_CAPTIVE_FLAG_MASK                   0x0002
+#define AEM_CLASS_A_FLAG_MASK                   0x0002
+#define AEM_CLASS_B_FLAG_MASK                   0x0004
 
 #define AEM_MASK_B                              0x80
 #define AEM_MASK_BPP                            0x3F

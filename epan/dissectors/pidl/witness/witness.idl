@@ -22,15 +22,15 @@ interface witness
 	/* Function 0x00 */
 
 	typedef [enum16bit] enum {
-		WITNESS_STATE_UNKNOWN     = 0x00,
-		WITNESS_STATE_AVAILABLE   = 0x01,
-		WITNESS_STATE_UNAVAILABLE = 0xff
+		WITNESS_STATE_UNKNOWN     = 0x0000,
+		WITNESS_STATE_AVAILABLE   = 0x0001,
+		WITNESS_STATE_UNAVAILABLE = 0x00ff
 	} witness_interfaceInfo_state;
 
 	typedef [bitmap32bit] bitmap {
-		WITNESS_INFO_IPv4_VALID = 0x01,
-		WITNESS_INFO_IPv6_VALID = 0x02,
-		WITNESS_INFO_WITNESS_IF = 0x04
+		WITNESS_INFO_IPv4_VALID = 0x00000001,
+		WITNESS_INFO_IPv6_VALID = 0x00000002,
+		WITNESS_INFO_WITNESS_IF = 0x00000004
 	} witness_interfaceInfo_flags;
 
 	typedef struct {
@@ -92,10 +92,10 @@ interface witness
 	} witness_ResourceChange;
 
 	typedef [bitmap32bit] bitmap {
-		WITNESS_IPADDR_V4      = 0x01,
-		WITNESS_IPADDR_V6      = 0x02,
-		WITNESS_IPADDR_ONLINE  = 0x08,
-		WITNESS_IPADDR_OFFLINE = 0x10
+                WITNESS_IPADDR_V4      = 0x00000001,
+                WITNESS_IPADDR_V6      = 0x00000002,
+                WITNESS_IPADDR_ONLINE  = 0x00000008,
+                WITNESS_IPADDR_OFFLINE = 0x00000010
 	} witness_IPaddrInfo_flags;
 
 	typedef [flag(NDR_NOALIGN|NDR_LITTLE_ENDIAN),gensize] struct {
@@ -135,8 +135,8 @@ interface witness
 	/* Function 0x04 */
 
 	typedef [bitmap32bit] bitmap {
-		WITNESS_REGISTER_NONE            = 0x00,
-		WITNESS_REGISTER_IP_NOTIFICATION = 0x01
+	        WITNESS_REGISTER_NONE            = 0x00000000,
+		WITNESS_REGISTER_IP_NOTIFICATION = 0x00000001
 	} witness_RegisterEx_flags;
 
 	WERROR witness_RegisterEx(

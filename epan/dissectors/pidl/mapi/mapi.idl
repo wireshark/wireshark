@@ -1105,12 +1105,12 @@ import "nspi.idl";
   } mapi_SNotRestriction;
 
   typedef [noprint, bitmap32bit] bitmap {
-    FL_FULLSTRING   = 0x00000,
-    FL_SUBSTRING    = 0x00001,
-    FL_PREFIX   = 0x00002,
-    FL_IGNORECASE   = 0x10000,
-    FL_IGNORENONSPACE = 0x20000,
-    FL_LOOSE    = 0x40000
+    FL_FULLSTRING     = 0x00000000,
+    FL_SUBSTRING      = 0x00000001,
+    FL_PREFIX         = 0x00000002,
+    FL_IGNORECASE     = 0x00010000,
+    FL_IGNORENONSPACE = 0x00020000,
+    FL_LOOSE          = 0x00040000
   } fuzzyLevel;
 
   typedef [flag(NDR_NOALIGN)] struct {
@@ -1131,13 +1131,13 @@ import "nspi.idl";
   } mapi_SBitmaskRestriction;
 
   typedef [enum8bit, flag(NDR_PAHEX)] enum {
-    RELOP_LT = 0x0,   /* <  */
-    RELOP_LE = 0x1,   /* <= */
-    RELOP_GT = 0x2,   /* >  */
-    RELOP_GE = 0x3,   /* >= */
-    RELOP_EQ = 0x4,   /* == */
-    RELOP_NE = 0x5,   /* != */
-    RELOP_RE = 0x6    /* LIKE (Regular expression) */
+    RELOP_LT = 0x00,   /* <  */
+    RELOP_LE = 0x01,   /* <= */
+    RELOP_GT = 0x02,   /* >  */
+    RELOP_GE = 0x03,   /* >= */
+    RELOP_EQ = 0x04,   /* == */
+    RELOP_NE = 0x05,   /* != */
+    RELOP_RE = 0x06    /* LIKE (Regular expression) */
   } CompareRelop;
 
   typedef [flag(NDR_NOALIGN)] struct {
@@ -1231,9 +1231,9 @@ import "nspi.idl";
   /**************************/
   /* ROP: RopQueryRows(0x15) */
   typedef [enum8bit] enum {
-    TBL_ADVANCE   = 0x0,
-    TBL_NOADVANCE   = 0x1,
-    TBL_ENABLEPACKEDBUFFERS = 0x2
+    TBL_ADVANCE             = 0x00,
+    TBL_NOADVANCE           = 0x01,
+    TBL_ENABLEPACKEDBUFFERS = 0x02
   } QueryRowsFlags;
 
   typedef [flag(NDR_NOALIGN)] struct {
@@ -1277,9 +1277,9 @@ import "nspi.idl";
   /* ROP: RopSeekRow(0x18) */
   typedef [enum8bit] enum {
     BOOKMARK_BEGINNING  = 0x0,
-    BOOKMARK_CURRENT  = 0x1,
-    BOOKMARK_END    = 0x2,
-    BOOKMARK_USER   = 0x3
+    BOOKMARK_CURRENT    = 0x01,
+    BOOKMARK_END        = 0x02,
+    BOOKMARK_USER       = 0x03
   } BOOKMARK;
 
   typedef [flag(NDR_NOALIGN)] struct {
@@ -1429,12 +1429,12 @@ import "nspi.idl";
   /**************************/
   /* ROP: RopSetMessageStatus(0x20) */
   typedef [bitmap32bit] bitmap {
-    MSGSTATUS_HIGHLIGHTED   = 0x1,
-    MSGSTATUS_TAGGED    = 0x2,
-    MSGSTATUS_HIDDEN    = 0x4,
-    MSGSTATUS_DELMARKED   = 0x8,
-    MSGSTATUS_REMOTE_DOWNLOAD = 0x1000,
-    MSGSTATUS_REMOTE_DELETE   = 0x2000
+    MSGSTATUS_HIGHLIGHTED     = 0x00000001,
+    MSGSTATUS_TAGGED          = 0x00000002,
+    MSGSTATUS_HIDDEN          = 0x00000004,
+    MSGSTATUS_DELMARKED       = 0x00000008,
+    MSGSTATUS_REMOTE_DOWNLOAD = 0x00001000,
+    MSGSTATUS_REMOTE_DELETE   = 0x00002000
   } ulMessageStatus;
 
   typedef [flag(NDR_NOALIGN)] struct {
@@ -1581,16 +1581,16 @@ import "nspi.idl";
   /*************************/
   /* ROP: RopNotify(0x2a) */
   typedef [bitmap32bit] bitmap {
-    MSGFLAG_READ    = 0x1,
-    MSGFLAG_UNMODIFIED  = 0x2,
-    MSGFLAG_SUBMIT    = 0x4,
-    MSGFLAG_UNSENT    = 0x8,
-    MSGFLAG_HASATTACH = 0x10,
-    MSGFLAG_FROMME    = 0x20,
-    MSGFLAG_ASSOCIATED  = 0x40,
-    MSGFLAG_RESEND    = 0x80,
-    MSGFLAG_RN_PENDING  = 0x100,
-    MSGFLAG_NRN_PENDING = 0x200
+    MSGFLAG_READ        = 0x00000001,
+    MSGFLAG_UNMODIFIED  = 0x00000002,
+    MSGFLAG_SUBMIT      = 0x00000004,
+    MSGFLAG_UNSENT      = 0x00000008,
+    MSGFLAG_HASATTACH   = 0x00000010,
+    MSGFLAG_FROMME      = 0x00000020,
+    MSGFLAG_ASSOCIATED  = 0x00000040,
+    MSGFLAG_RESEND      = 0x00000080,
+    MSGFLAG_RN_PENDING  = 0x00000100,
+    MSGFLAG_NRN_PENDING = 0x00000200
   } MsgFlags;
 
   typedef [nodiscriminant, flag(NDR_NOALIGN)] union {
@@ -1604,11 +1604,11 @@ import "nspi.idl";
   } GID;
 
   typedef [enum16bit] enum {
-    TABLE_CHANGED   = 0x1,
-    TABLE_ROW_ADDED   = 0x3,
-    TABLE_ROW_DELETED = 0x4,
-    TABLE_ROW_MODIFIED  = 0x5,
-    TABLE_RESTRICT_DONE = 0x7
+    TABLE_CHANGED       = 0x0001,
+    TABLE_ROW_ADDED     = 0x0003,
+    TABLE_ROW_DELETED   = 0x0004,
+    TABLE_ROW_MODIFIED  = 0x0005,
+    TABLE_RESTRICT_DONE = 0x0007
   } RichTableNotificationType;
 
   /* NewMailNotification: case 0x2 and 0x8002 */
@@ -2796,32 +2796,32 @@ import "nspi.idl";
   } SynchronizationType;
 
   typedef [bitmap8bit] bitmap {
-    SendOptions_Unicode   = 0x1,
-    SendOptions_ForUpload   = 0x3,
-    SendOptions_RecoverMode   = 0x4,
-    SendOptions_ForceUnicode  = 0x8,
-    SendOptions_Partial   = 0x10
+    SendOptions_Unicode       = 0x01,
+    SendOptions_ForUpload     = 0x02,
+    SendOptions_RecoverMode   = 0x04,
+    SendOptions_ForceUnicode  = 0x08,
+    SendOptions_Partial       = 0x10
   } SendOptions;
 
   typedef [bitmap16bit] bitmap {
-    SynchronizationFlag_Unicode     = 0x1,
-    SynchronizationFlag_NoDeletions     = 0x2,
-    SynchronizationFlag_NoSoftDeletions   = 0x4,
-    SynchronizationFlag_ReadState     = 0x8,
-    SynchronizationFlag_FAI       = 0x10,
-    SynchronizationFlag_Normal      = 0x20,
-    SynchronizationFlag_OnlySpecifiedProperties = 0x80,
-    SynchronizationFlag_NoForeignIdentifiers  = 0x100,
-    SynchronizationFlag_Reserved      = 0x1000,
-    SynchronizationFlag_BestBody      = 0x2000,
-    SynchronizationFlag_IgnoreSpecifiedOnFAI  = 0x4000,
-    SynchronizationFlag_Progress      = 0x8000
+    SynchronizationFlag_Unicode                 = 0x0001,
+    SynchronizationFlag_NoDeletions             = 0x0002,
+    SynchronizationFlag_NoSoftDeletions         = 0x0004,
+    SynchronizationFlag_ReadState               = 0x0008,
+    SynchronizationFlag_FAI                     = 0x0010,
+    SynchronizationFlag_Normal                  = 0x0020,
+    SynchronizationFlag_OnlySpecifiedProperties = 0x0080,
+    SynchronizationFlag_NoForeignIdentifiers    = 0x0100,
+    SynchronizationFlag_Reserved                = 0x1000,
+    SynchronizationFlag_BestBody                = 0x2000,
+    SynchronizationFlag_IgnoreSpecifiedOnFAI    = 0x4000,
+    SynchronizationFlag_Progress                = 0x8000
   } SynchronizationFlag;
 
   typedef [bitmap32bit] bitmap {
-    Eid     = 0x00000001,
-    MessageSize   = 0x00000002,
-    Cn      = 0x00000004,
+    Eid                 = 0x00000001,
+    MessageSize         = 0x00000002,
+    Cn                  = 0x00000004,
     OrderByDeliveryTime = 0x00000008
   } SynchronizationExtraFlags;
 
@@ -2976,7 +2976,7 @@ import "nspi.idl";
   /*************************/
   /* ROP: RopGetStoreState(0x7b) */
   typedef [public,bitmap32bit] bitmap {
-    STORE_HAS_SEARCHES    = 0x010000000
+    STORE_HAS_SEARCHES    = 0x01000000
   } StoreState;
 
   typedef [flag(NDR_NOALIGN)] struct {
@@ -3148,13 +3148,13 @@ import "nspi.idl";
   } LogonFlags;
 
   typedef [flag(NDR_NOALIGN),public,bitmap32bit] bitmap {
-    PUBLIC        = 0x2,
-    HOME_LOGON      = 0x4,
-    TAKE_OWNERSHIP      = 0x8,
-    ALTERNATE_SERVER    = 0x100,
-    IGNORE_HOME_MDB     = 0x200,
-    NO_MAIL       = 0x400,
-    USE_PER_MDB_REPLID_MAPPING  = 0x010000000
+    PUBLIC                      = 0x00000002,
+    HOME_LOGON                  = 0x00000004,
+    TAKE_OWNERSHIP              = 0x00000008,
+    ALTERNATE_SERVER            = 0x00000100,
+    IGNORE_HOME_MDB             = 0x00000200,
+    NO_MAIL                     = 0x00000400,
+    USE_PER_MDB_REPLID_MAPPING  = 0x01000000
   } OpenFlags;
 
   typedef [enum8bit] enum {

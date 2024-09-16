@@ -662,14 +662,14 @@ winreg_dissect_bitmap_security_secinfo(tvbuff_t *tvb _U_, int offset _U_, packet
 
 
 /* IDL: bitmap { */
-/* IDL: 	KEY_QUERY_VALUE =  0x00001 , */
-/* IDL: 	KEY_SET_VALUE =  0x00002 , */
-/* IDL: 	KEY_CREATE_SUB_KEY =  0x00004 , */
-/* IDL: 	KEY_ENUMERATE_SUB_KEYS =  0x00008 , */
-/* IDL: 	KEY_NOTIFY =  0x00010 , */
-/* IDL: 	KEY_CREATE_LINK =  0x00020 , */
-/* IDL: 	KEY_WOW64_64KEY =  0x00100 , */
-/* IDL: 	KEY_WOW64_32KEY =  0x00200 , */
+/* IDL: 	KEY_QUERY_VALUE =  0x00000001 , */
+/* IDL: 	KEY_SET_VALUE =  0x00000002 , */
+/* IDL: 	KEY_CREATE_SUB_KEY =  0x00000004 , */
+/* IDL: 	KEY_ENUMERATE_SUB_KEYS =  0x00000008 , */
+/* IDL: 	KEY_NOTIFY =  0x00000010 , */
+/* IDL: 	KEY_CREATE_LINK =  0x00000020 , */
+/* IDL: 	KEY_WOW64_64KEY =  0x00000100 , */
+/* IDL: 	KEY_WOW64_32KEY =  0x00000200 , */
 /* IDL: } */
 
 
@@ -4800,21 +4800,21 @@ void proto_register_dcerpc_winreg(void)
 	{ &hf_winreg_winreg_AbortSystemShutdown_server,
 	  { "Server", "winreg.winreg_AbortSystemShutdown.server", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_winreg_winreg_AccessMask_KEY_CREATE_LINK,
-	  { "KEY CREATE LINK", "winreg.winreg_AccessMask.KEY_CREATE_LINK", FT_BOOLEAN, 32, TFS(&winreg_AccessMask_KEY_CREATE_LINK_tfs), ( 0x00020 ), NULL, HFILL }},
+	  { "KEY CREATE LINK", "winreg.winreg_AccessMask.KEY_CREATE_LINK", FT_BOOLEAN, 32, TFS(&winreg_AccessMask_KEY_CREATE_LINK_tfs), ( 0x00000020 ), NULL, HFILL }},
 	{ &hf_winreg_winreg_AccessMask_KEY_CREATE_SUB_KEY,
-	  { "KEY CREATE SUB KEY", "winreg.winreg_AccessMask.KEY_CREATE_SUB_KEY", FT_BOOLEAN, 32, TFS(&winreg_AccessMask_KEY_CREATE_SUB_KEY_tfs), ( 0x00004 ), NULL, HFILL }},
+	  { "KEY CREATE SUB KEY", "winreg.winreg_AccessMask.KEY_CREATE_SUB_KEY", FT_BOOLEAN, 32, TFS(&winreg_AccessMask_KEY_CREATE_SUB_KEY_tfs), ( 0x00000004 ), NULL, HFILL }},
 	{ &hf_winreg_winreg_AccessMask_KEY_ENUMERATE_SUB_KEYS,
-	  { "KEY ENUMERATE SUB KEYS", "winreg.winreg_AccessMask.KEY_ENUMERATE_SUB_KEYS", FT_BOOLEAN, 32, TFS(&winreg_AccessMask_KEY_ENUMERATE_SUB_KEYS_tfs), ( 0x00008 ), NULL, HFILL }},
+	  { "KEY ENUMERATE SUB KEYS", "winreg.winreg_AccessMask.KEY_ENUMERATE_SUB_KEYS", FT_BOOLEAN, 32, TFS(&winreg_AccessMask_KEY_ENUMERATE_SUB_KEYS_tfs), ( 0x00000008 ), NULL, HFILL }},
 	{ &hf_winreg_winreg_AccessMask_KEY_NOTIFY,
-	  { "KEY NOTIFY", "winreg.winreg_AccessMask.KEY_NOTIFY", FT_BOOLEAN, 32, TFS(&winreg_AccessMask_KEY_NOTIFY_tfs), ( 0x00010 ), NULL, HFILL }},
+	  { "KEY NOTIFY", "winreg.winreg_AccessMask.KEY_NOTIFY", FT_BOOLEAN, 32, TFS(&winreg_AccessMask_KEY_NOTIFY_tfs), ( 0x00000010 ), NULL, HFILL }},
 	{ &hf_winreg_winreg_AccessMask_KEY_QUERY_VALUE,
-	  { "KEY QUERY VALUE", "winreg.winreg_AccessMask.KEY_QUERY_VALUE", FT_BOOLEAN, 32, TFS(&winreg_AccessMask_KEY_QUERY_VALUE_tfs), ( 0x00001 ), NULL, HFILL }},
+	  { "KEY QUERY VALUE", "winreg.winreg_AccessMask.KEY_QUERY_VALUE", FT_BOOLEAN, 32, TFS(&winreg_AccessMask_KEY_QUERY_VALUE_tfs), ( 0x00000001 ), NULL, HFILL }},
 	{ &hf_winreg_winreg_AccessMask_KEY_SET_VALUE,
-	  { "KEY SET VALUE", "winreg.winreg_AccessMask.KEY_SET_VALUE", FT_BOOLEAN, 32, TFS(&winreg_AccessMask_KEY_SET_VALUE_tfs), ( 0x00002 ), NULL, HFILL }},
+	  { "KEY SET VALUE", "winreg.winreg_AccessMask.KEY_SET_VALUE", FT_BOOLEAN, 32, TFS(&winreg_AccessMask_KEY_SET_VALUE_tfs), ( 0x00000002 ), NULL, HFILL }},
 	{ &hf_winreg_winreg_AccessMask_KEY_WOW64_32KEY,
-	  { "KEY WOW64 32KEY", "winreg.winreg_AccessMask.KEY_WOW64_32KEY", FT_BOOLEAN, 32, TFS(&winreg_AccessMask_KEY_WOW64_32KEY_tfs), ( 0x00200 ), NULL, HFILL }},
+	  { "KEY WOW64 32KEY", "winreg.winreg_AccessMask.KEY_WOW64_32KEY", FT_BOOLEAN, 32, TFS(&winreg_AccessMask_KEY_WOW64_32KEY_tfs), ( 0x00000200 ), NULL, HFILL }},
 	{ &hf_winreg_winreg_AccessMask_KEY_WOW64_64KEY,
-	  { "KEY WOW64 64KEY", "winreg.winreg_AccessMask.KEY_WOW64_64KEY", FT_BOOLEAN, 32, TFS(&winreg_AccessMask_KEY_WOW64_64KEY_tfs), ( 0x00100 ), NULL, HFILL }},
+	  { "KEY WOW64 64KEY", "winreg.winreg_AccessMask.KEY_WOW64_64KEY", FT_BOOLEAN, 32, TFS(&winreg_AccessMask_KEY_WOW64_64KEY_tfs), ( 0x00000100 ), NULL, HFILL }},
 	{ &hf_winreg_winreg_CreateKey_action_taken,
 	  { "Action Taken", "winreg.winreg_CreateKey.action_taken", FT_UINT32, BASE_DEC, VALS(winreg_winreg_CreateAction_vals), 0, NULL, HFILL }},
 	{ &hf_winreg_winreg_CreateKey_keyclass,
