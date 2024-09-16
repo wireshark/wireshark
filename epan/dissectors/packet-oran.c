@@ -1074,15 +1074,6 @@ static void ext11_work_out_bundles(unsigned startPrbc,
     }
 }
 
-#define ORAN_C_PLANE 0
-#define ORAN_U_PLANE 1
-
-typedef struct {
-    unsigned eaxc_id : 16;
-    unsigned plane : 1;
-    /* TODO: not including address/interface info - assuming single namespace of eAxC IDs in 1 capture */
-} flow_key_t;
-
 
 /*******************************************************/
 /* Overall state of a flow (eAxC/plane)                */
@@ -1121,7 +1112,16 @@ static const value_string acknack_type_vals[] = {
     { 0, NULL}
 };
 
-/* Table maintained on first pass from flow_key -> flow_state_t* */
+#define ORAN_C_PLANE 0
+#define ORAN_U_PLANE 1
+
+static uint32_t make_flow_key(uint16_t eaxc_id, uint8_t plane)
+{
+    return eaxc_id | (plane << 16);
+}
+
+
+/* Table maintained on first pass from flow_key(uint32_t) -> flow_state_t* */
 static wmem_tree_t *flow_states_table;
 
 /* Table consulted on subsequent passes: frame_num -> flow_result_t* */
@@ -3250,8 +3250,7 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
 
     /* Look up any existing conversation state for eAxC+plane+direction */
     flow_state_t* state = NULL;
-    flow_key_t flow = { eAxC, ORAN_C_PLANE };
-    uint32_t key = *(uint32_t*)(&flow);
+    uint32_t key = make_flow_key(eAxC, ORAN_C_PLANE);
     if (wmem_tree_contains32(flow_states_table, key)) {
         state = (flow_state_t*)wmem_tree_lookup32(flow_states_table, key);
     }
@@ -3287,7 +3286,7 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
                 expert_add_info_format(pinfo, seq_id_ti, &ei_oran_cplane_unexpected_sequence_number,
                                        "Sequence number %u expected, but got %u",
                                        result->expected_sequence_number, seq_id);
-                /* TODO: could add previous frame (in seqId tree?) ? */
+                /* TODO: could add previous/next frames (in seqId tree?) ? */
             }
         }
     }
@@ -3328,7 +3327,7 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
         proto_tree_add_item(section_tree, hf_oran_symbolId, tvb, offset, 1, ENC_NA);
     }
     else if (sectionType != SEC_C_LAA) {
-         /* startSymbolId */
+         /* startSymbolId is in most section types */
         ssid_ti = proto_tree_add_item_ret_uint(section_tree, hf_oran_start_symbol_id, tvb, offset, 1, ENC_NA, &startSymbolId);
     }
     offset++;
@@ -3557,8 +3556,12 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
             offset += 1;
 
             /* ackNackReqId */
-            proto_tree_add_item_ret_uint(hdr_tree, hf_oran_st4_cmd_ack_nack_req_id, tvb, offset, 2, ENC_NA, &ack_nack_req_id);
+            proto_item *ack_nack_req_id_ti;
+            ack_nack_req_id_ti = proto_tree_add_item_ret_uint(hdr_tree, hf_oran_st4_cmd_ack_nack_req_id, tvb, offset, 2, ENC_NA, &ack_nack_req_id);
             offset += 2;
+            if (ack_nack_req_id == 0) {
+                proto_item_append_text(ack_nack_req_id_ti, " (no Section type 8 response expected)");
+            }
 
             /* reserved (16 bits) */
             proto_tree_add_item(hdr_tree, hf_oran_reserved_16bits, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -3852,26 +3855,27 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
             /* Set end of command tree */
             proto_item_set_end(command_ti, tvb, offset);
 
-            if (!PINFO_FD_VISITED(pinfo)) {
-                /* Add this request into conversation state on first pass */
-                ack_nack_request_t *request_details = wmem_new0(wmem_file_scope(), ack_nack_request_t);
-                request_details->request_frame_number = pinfo->num;
-                request_details->request_frame_time = pinfo->abs_ts;
-                request_details->requestType = ST4Cmd1+st4_cmd_type-1;
+            if (ack_nack_req_id != 0) {
+                if (!PINFO_FD_VISITED(pinfo)) {
+                    /* Add this request into conversation state on first pass */
+                    ack_nack_request_t *request_details = wmem_new0(wmem_file_scope(), ack_nack_request_t);
+                    request_details->request_frame_number = pinfo->num;
+                    request_details->request_frame_time = pinfo->abs_ts;
+                    request_details->requestType = ST4Cmd1+st4_cmd_type-1;
 
-                wmem_tree_insert32(state->ack_nack_requests,
-                                   ack_nack_req_id,
-                                   request_details);
-            }
-            else {
-                /* On later passes, try to link forward to ST8 response */
-                if (wmem_tree_contains32(state->ack_nack_requests, ack_nack_req_id)) {
-                    ack_nack_request_t *response = wmem_tree_lookup32(state->ack_nack_requests,
-                                                                      ack_nack_req_id);
-                    show_link_to_acknack_response(section_tree, tvb, pinfo, response);
+                    wmem_tree_insert32(state->ack_nack_requests,
+                                       ack_nack_req_id,
+                                       request_details);
+                }
+                else {
+                    /* On later passes, try to link forward to ST8 response */
+                    if (wmem_tree_contains32(state->ack_nack_requests, ack_nack_req_id)) {
+                        ack_nack_request_t *response = wmem_tree_lookup32(state->ack_nack_requests,
+                                                                          ack_nack_req_id);
+                        show_link_to_acknack_response(section_tree, tvb, pinfo, response);
+                    }
                 }
             }
-
         }
     }
 
@@ -3993,8 +3997,7 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 
     /* Update/report status of conversion */
     if (!PINFO_FD_VISITED(pinfo)) {
-        flow_key_t flow = { eAxC, ORAN_U_PLANE };
-        uint32_t key = *(uint32_t*)(&flow);
+        uint32_t key = make_flow_key(eAxC, ORAN_U_PLANE);
         flow_state_t* state;
 
         /* Create or update conversation for stream eAxC+plane */
