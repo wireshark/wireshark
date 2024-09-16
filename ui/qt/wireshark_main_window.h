@@ -212,7 +212,7 @@ private:
     void fileAddExtension(QString &file_name, int file_type, wtap_compression_type compression_type);
 #endif // Q_OS_WIN
     bool testCaptureFileClose(QString before_what, FileCloseContext context = Default);
-    void captureStop();
+    void captureStop(bool discard = false);
 
     void findTextCodecs();
 

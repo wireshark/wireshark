@@ -273,9 +273,10 @@ capture_input_read_all(capture_session *cap_session, bool is_tempfile,
             break;
 
         case CF_READ_ABORTED:
-            /* User wants to quit program. Exit by leaving the main loop,
-               so that any quit functions we registered get called. */
-            exit_application(0);
+            /* The user asked to abort the read, but that might be to
+               restart the capture, so let the caller decide whether
+               to exit. */
+            //exit_application(0);
             return false;
     }
 
@@ -809,9 +810,10 @@ capture_input_closed(capture_session *cap_session, char *msg)
                     break;
 
                 case CF_READ_ABORTED:
-                    /* Exit by leaving the main loop, so that any quit functions
-                       we registered get called. */
-                    exit_application(0);
+                    /* The user asked to abort the read, but that might be to
+                       restart the capture, so let the caller decide whether
+                       to exit. */
+                    //exit_application(0);
                     break;
             }
         } else if (((capture_file*)cap_session->cf)->state == FILE_READ_PENDING) {
@@ -823,6 +825,19 @@ capture_input_closed(capture_session *cap_session, char *msg)
                 capture_input_read_all(cap_session, cf_is_tempfile((capture_file *)cap_session->cf),
                         cf_get_drops_known((capture_file *)cap_session->cf), cf_get_drops((capture_file *)cap_session->cf));
             }
+        } else {
+            /* First, tell the GUI we are not capturing nor stopping a capture
+               anymore. We need to do this if we're aborting the capture but
+               not quitting the program (e.g., restarting the capture.) */
+            capture_callback_invoke(capture_cb_capture_failed, cap_session);
+
+            if (cap_session->frame_cksum != NULL) {
+                fifo_string_cache_free(&cap_session->frame_dup_cache);
+                g_checksum_free(cap_session->frame_cksum);
+                cap_session->frame_cksum = NULL;
+            }
+
+            cf_close((capture_file *)cap_session->cf);
         }
     }
 
