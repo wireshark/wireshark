@@ -38,6 +38,7 @@ TARGET=""
 QUIET="--quiet"
 SUPPRESSIONS="--suppressions-list=$CPPCHECK_DIR/suppressions"
 INCLUDES="--includes-file=$CPPCHECK_DIR/includes"
+LIBRARIES="--library=gtk --library=qt --library=$CPPCHECK_DIR/glib-patches.cfg --library=$CPPCHECK_DIR/ws-includes.cfg"
 MODE="gcc"
 COLORIZE_HTML_MODE="no"
 OPEN_FILES="no"
@@ -136,7 +137,7 @@ fi
 
 # shellcheck disable=SC2086
 $CPPCHECK --force --enable=style $QUIET    \
-    $SUPPRESSIONS $INCLUDES \
+    $SUPPRESSIONS $INCLUDES $LIBRARIES \
     -i doc/ \
     -i epan/dissectors/asn1/ \
     --std=c11 --template=$TEMPLATE   \
