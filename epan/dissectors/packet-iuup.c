@@ -319,8 +319,29 @@ iuup_proto_tree_add_bits(packet_info *pinfo, proto_tree* tree, int hf, tvbuff_t*
     return pi;
 }
 
-static void dissect_iuup_payload(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, unsigned rfci_id, int offset, uint32_t circuit_id) {
-    iuup_circuit_t* iuup_circuit;
+static iuup_circuit_t *find_iuup_circuit(packet_info *pinfo)
+{
+    iuup_circuit_t *iuup_circuit;
+    conversation_t *p_conv;
+
+    if (two_byte_pseudoheader) {
+        uint32_t circuit_id = conversation_get_id_from_elements(pinfo, CONVERSATION_IUUP, USE_LAST_ENDPOINT);
+        iuup_circuit = (iuup_circuit_t *)wmem_map_lookup(circuits,GUINT_TO_POINTER(circuit_id));
+        return iuup_circuit;
+    }
+
+    p_conv = find_conversation(pinfo->num,
+                               &pinfo->net_dst, &pinfo->net_src,
+                               CONVERSATION_IUUP,
+                               pinfo->destport, pinfo->srcport, 0);
+    if (!p_conv)
+        return NULL;
+    iuup_circuit = (iuup_circuit_t *)conversation_get_proto_data(p_conv, proto_iuup);
+    return iuup_circuit;
+}
+
+static void dissect_iuup_payload(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, unsigned rfci_id, int offset) {
+    iuup_circuit_t *iuup_circuit;
     iuup_rfci_t *rfci;
     int last_offset = tvb_reported_length(tvb) - 1;
     unsigned bit_offset = 0;
@@ -331,10 +352,9 @@ static void dissect_iuup_payload(tvbuff_t* tvb, packet_info* pinfo, proto_tree* 
 
     pi = proto_tree_add_item(tree,hf_iuup_payload,tvb,offset,-1,ENC_NA);
 
-    if ( ! dissect_fields ) {
+    if (!dissect_fields)
         return;
-    } else if ( ! circuit_id
-                || ! ( iuup_circuit  = (iuup_circuit_t *)wmem_map_lookup(circuits,GUINT_TO_POINTER(circuit_id)) ) ) {
+    if (!(iuup_circuit = find_iuup_circuit(pinfo))) {
         expert_add_info(pinfo, pi, &ei_iuup_payload_undecoded);
         return;
     }
@@ -379,13 +399,14 @@ static void dissect_iuup_payload(tvbuff_t* tvb, packet_info* pinfo, proto_tree* 
     } while (offset <= last_offset);
 }
 
-static unsigned dissect_rfcis(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree, int* offset, iuup_circuit_t* iuup_circuit) {
+static unsigned dissect_rfcis(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree, int* offset, iuup_circuit_t *iuup_circuit) {
     proto_item* pi;
     proto_tree* pt;
     uint8_t oct;
     unsigned c = 0;
     unsigned i;
 
+    DISSECTOR_ASSERT(iuup_circuit);
     do {
         iuup_rfci_t *rfci = wmem_new0(wmem_file_scope(), iuup_rfci_t);
         unsigned len = 0;
@@ -439,7 +460,7 @@ static unsigned dissect_rfcis(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree*
     return c - 1;
 }
 
-static void dissect_iuup_init(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, uint32_t circuit_id) {
+static void dissect_iuup_init(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree) {
     int offset = 4;
     uint8_t oct = tvb_get_uint8(tvb,offset);
     unsigned n = (oct & 0x0e) >> 1;
@@ -449,27 +470,33 @@ static void dissect_iuup_init(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tre
     proto_item* pi;
     proto_tree* support_tree = NULL;
     proto_tree* iptis_tree;
-    iuup_circuit_t* iuup_circuit = NULL;
+    iuup_circuit_t *iuup_circuit = NULL;
+    uint32_t circuit_id = 0;
 
-    if (circuit_id) {
-        iuup_circuit = (iuup_circuit_t *)wmem_map_lookup(circuits,GUINT_TO_POINTER(circuit_id));
-
+    if (two_byte_pseudoheader) {
+        iuup_circuit = find_iuup_circuit(pinfo);
         if (iuup_circuit) {
-            wmem_map_remove(circuits,GUINT_TO_POINTER(circuit_id));
+            circuit_id = iuup_circuit->id;
+            wmem_map_remove(circuits,GUINT_TO_POINTER(iuup_circuit->id));
+            iuup_circuit = NULL;
+        } else {
+            circuit_id = conversation_get_id_from_elements(pinfo, CONVERSATION_IUUP, USE_LAST_ENDPOINT);
         }
-
-        iuup_circuit = wmem_new0(wmem_file_scope(), iuup_circuit_t);
-    } else {
-        iuup_circuit = wmem_new0(pinfo->pool, iuup_circuit_t);
     }
 
+    iuup_circuit = wmem_new0(wmem_file_scope(), iuup_circuit_t);
     iuup_circuit->id = circuit_id;
     iuup_circuit->num_of_subflows = n;
     iuup_circuit->rfcis = NULL;
     iuup_circuit->last_rfci = NULL;
 
-    if (circuit_id) {
-        wmem_map_insert(circuits,GUINT_TO_POINTER(iuup_circuit->id),iuup_circuit);
+    if (two_byte_pseudoheader) {
+        wmem_map_insert(circuits,GUINT_TO_POINTER(circuit_id),iuup_circuit);
+    } else {
+        conversation_t *p_conv;
+        p_conv = conversation_new(pinfo->num, &pinfo->net_dst, &pinfo->net_src, CONVERSATION_IUUP,
+                                  pinfo->destport, pinfo->srcport, 0);
+        conversation_add_proto_data(p_conv, proto_iuup, iuup_circuit);
     }
 
     if (tree) {
@@ -629,7 +656,7 @@ static int dissect_iuup(tvbuff_t* tvb_in, packet_info* pinfo, proto_tree* tree, 
             proto_tree_add_item(iuup_tree,hf_iuup_rfci,tvb,1,1,ENC_BIG_ENDIAN);
             add_hdr_crc(tvb, pinfo, iuup_tree);
             add_payload_crc(tvb, pinfo, iuup_tree);
-            dissect_iuup_payload(tvb,pinfo,iuup_tree,second_octet & 0x3f,4, conversation_get_id_from_elements(pinfo, CONVERSATION_IUUP, USE_LAST_ENDPOINT));
+            dissect_iuup_payload(tvb,pinfo,iuup_tree,second_octet & 0x3f, 4);
             return tvb_captured_length(tvb);
         case PDUTYPE_DATA_NO_CRC:
             col_append_fstr(pinfo->cinfo, COL_INFO," RFCI %u", (unsigned)(second_octet & 0x3f));
@@ -643,7 +670,7 @@ static int dissect_iuup(tvbuff_t* tvb_in, packet_info* pinfo, proto_tree* tree, 
 
             proto_tree_add_item(iuup_tree,hf_iuup_rfci,tvb,1,1,ENC_BIG_ENDIAN);
             add_hdr_crc(tvb, pinfo, iuup_tree);
-            dissect_iuup_payload(tvb,pinfo,iuup_tree,second_octet & 0x3f,3, conversation_get_id_from_elements(pinfo, CONVERSATION_IUUP, USE_LAST_ENDPOINT));
+            dissect_iuup_payload(tvb,pinfo,iuup_tree,second_octet & 0x3f, 3);
             return tvb_captured_length(tvb);
         case PDUTYPE_DATA_CONTROL_PROC:
             if (tree) {
@@ -694,7 +721,7 @@ static int dissect_iuup(tvbuff_t* tvb_in, packet_info* pinfo, proto_tree* tree, 
             switch( second_octet & PROCEDURE_MASK ) {
                 case PROC_INIT:
                     add_payload_crc(tvb, pinfo, iuup_tree);
-                    dissect_iuup_init(tvb,pinfo,iuup_tree, conversation_get_id_from_elements(pinfo, CONVERSATION_IUUP, USE_LAST_ENDPOINT));
+                    dissect_iuup_init(tvb,pinfo,iuup_tree);
                     return tvb_captured_length(tvb);
                 case PROC_RATE:
                     add_payload_crc(tvb, pinfo, iuup_tree);
