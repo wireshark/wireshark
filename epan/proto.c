@@ -12118,7 +12118,7 @@ proto_registrar_dump_fields(void)
  * of fields.
  */
 bool
-proto_registrar_dump_field_completions(char *prefix)
+proto_registrar_dump_field_completions(const char *prefix)
 {
 	header_field_info *hfinfo;
 	int		   i, len;

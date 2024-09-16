@@ -2913,7 +2913,7 @@ WS_DLL_PUBLIC bool proto_registrar_dump_fieldcount(void);
 WS_DLL_PUBLIC void proto_registrar_dump_fields(void);
 
 /** Dumps protocol and field abbreviations to STDOUT which start with prefix. */
-WS_DLL_PUBLIC bool proto_registrar_dump_field_completions(char *prefix);
+WS_DLL_PUBLIC bool proto_registrar_dump_field_completions(const char *prefix);
 
 /** Dumps a glossary field types and descriptive names to STDOUT */
 WS_DLL_PUBLIC void proto_registrar_dump_ftypes(void);
