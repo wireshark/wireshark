@@ -261,6 +261,10 @@ CaptureOptionsDialog::CaptureOptionsDialog(QWidget *parent) :
     ui->stopMBSpinBox->setMinimum(1);
     ui->stopSecsSpinBox->setMinimum(1);
 
+    // Capture size maximum depends on units. Initial unit is kB.
+    ui->MBSpinBox->setMaximum(2000000000);
+    ui->stopMBSpinBox->setMaximum(2000000000);
+
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     connect(ui->MBComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &CaptureOptionsDialog::MBComboBoxIndexChanged);
     connect(ui->stopMBComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &CaptureOptionsDialog::stopMBComboBoxIndexChanged);
