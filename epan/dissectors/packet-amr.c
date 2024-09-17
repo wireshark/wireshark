@@ -81,6 +81,7 @@ static int ett_amr_toc;
 static expert_field ei_amr_spare_bit_not0;
 static expert_field ei_amr_not_enough_data_for_frames;
 static expert_field ei_amr_superfluous_data;
+static expert_field ei_amr_reserved_bits_not0;
 static expert_field ei_amr_padding_bits_not0;
 static expert_field ei_amr_padding_bits_correct;
 static expert_field ei_amr_reserved;
@@ -442,6 +443,8 @@ dissect_amr_oa(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int amr_
     uint8_t     octet;
     proto_tree *toc_tree;
 
+    octet = tvb_get_uint8(tvb,offset);
+
     if (amr_mode == AMR_NB) {
         proto_tree_add_bits_item(tree, hf_amr_nb_cmr, tvb, bit_offset, 4, ENC_BIG_ENDIAN);
     } else {
@@ -450,6 +453,9 @@ dissect_amr_oa(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int amr_
 
     bit_offset += 4;
     proto_tree_add_item(tree, hf_amr_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
+    if (octet & 0x0f) {
+        proto_tree_add_expert(tree, pinfo, &ei_amr_reserved_bits_not0, tvb, offset, 1);
+    }
     offset     += 1;
     bit_offset += 4;
     /*
@@ -483,7 +489,10 @@ dissect_amr_oa(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int amr_
         bit_offset += 4;
         proto_tree_add_bits_item(toc_tree, hf_amr_toc_q, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
         bit_offset += 1;
-        /* 2 padding bits */
+        /* 2 padding bits: */
+        if (octet & 0x02) {
+            proto_tree_add_expert(tree, pinfo, &ei_amr_padding_bits_not0, tvb, offset, 1);
+        }
         bit_offset += 2;
         offset     += 1;
     } while ((octet & 0x80) == 0x80);
@@ -829,6 +838,7 @@ proto_register_amr(void)
         { &ei_amr_spare_bit_not0, { "amr.spare_bit_not0", PI_PROTOCOL, PI_WARN, "Error:Spare bits not 0", EXPFILL }},
         { &ei_amr_not_enough_data_for_frames, { "amr.not_enough_data_for_frames", PI_MALFORMED, PI_ERROR, "Not enough data for the frames according to TOC", EXPFILL }},
         { &ei_amr_superfluous_data, { "amr.superfluous_data", PI_MALFORMED, PI_ERROR, "Superfluous data remaining", EXPFILL }},
+        { &ei_amr_reserved_bits_not0, { "amr.reserved_bits_not0", PI_MALFORMED, PI_ERROR, "Reserved bits error - MUST be 0", EXPFILL }},
         { &ei_amr_padding_bits_not0, { "amr.padding_bits_not0", PI_MALFORMED, PI_ERROR, "Padding bits error - MUST be 0", EXPFILL }},
         { &ei_amr_padding_bits_correct, { "amr.padding_bits_correct", PI_PROTOCOL, PI_NOTE, "Padding bits correct", EXPFILL }},
         { &ei_amr_reserved, { "amr.reserved.not_zero", PI_PROTOCOL, PI_WARN, "Reserved != 0, wrongly encoded or not octet aligned. Decoding as bandwidth-efficient mode", EXPFILL }},
