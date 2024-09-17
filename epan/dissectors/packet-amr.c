@@ -434,65 +434,23 @@ dissect_amr_be(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int amr_mode
     }
 }
 
-/* Code to actually dissect the packets */
 static void
-dissect_amr_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int amr_mode, unsigned encoding)
+dissect_amr_oa(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int amr_mode)
 {
     int         offset     = 0;
     int         bit_offset = 0;
     uint8_t     octet;
-    proto_item *item;
     bool        first_time;
+    proto_tree *toc_tree;
 
-/* Set up structures needed to add the protocol subtree and manage it */
-    proto_item *ti;
-    proto_tree *amr_tree, *toc_tree;
-
-    ti = proto_tree_add_item(tree, proto_amr, tvb, 0, -1, ENC_NA);
-    amr_tree = proto_item_add_subtree(ti, ett_amr);
-
-    item = proto_tree_add_uint(amr_tree, hf_amr_payload_decoded_as, tvb, offset, 4, encoding);
-    proto_item_set_len(item, tvb_reported_length(tvb));
-    proto_item_set_generated(item);
-
-    switch (encoding) {
-    case AMR_OA: /* RFC 3267 Octet aligned */
-        break;
-    case AMR_BE: /* RFC 3267 Bandwidth-efficient */
-        dissect_amr_be(tvb, pinfo, amr_tree, amr_mode);
-        return;
-    case AMR_IF1:
-        if (amr_mode == AMR_NB)
-            dissect_amr_nb_if1(tvb, pinfo, amr_tree, NULL);
-        else
-            dissect_amr_wb_if1(tvb, pinfo, amr_tree, NULL);
-        return;
-    case AMR_IF2:
-        if (amr_mode == AMR_NB)
-            dissect_amr_nb_if2(tvb, pinfo, amr_tree, NULL);
-        else
-            dissect_amr_wb_if2(tvb, pinfo, amr_tree, NULL);
-        return;
-    default:
-        break;
+    if (amr_mode == AMR_NB) {
+        proto_tree_add_bits_item(tree, hf_amr_nb_cmr, tvb, bit_offset, 4, ENC_BIG_ENDIAN);
+    } else {
+        proto_tree_add_bits_item(tree, hf_amr_wb_cmr, tvb, bit_offset, 4, ENC_BIG_ENDIAN);
     }
-
-    octet = tvb_get_uint8(tvb,offset) & 0x0f;
-    if ( octet != 0  ) {
-        item = proto_tree_add_item(amr_tree, hf_amr_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
-        expert_add_info(pinfo, item, &ei_amr_reserved);
-        proto_item_set_generated(item);
-        dissect_amr_be(tvb, pinfo, amr_tree, amr_mode);
-        return;
-    }
-
-    if (amr_mode == AMR_NB)
-        proto_tree_add_bits_item(amr_tree, hf_amr_nb_cmr, tvb, bit_offset, 4, ENC_BIG_ENDIAN);
-    else
-        proto_tree_add_bits_item(amr_tree, hf_amr_wb_cmr, tvb, bit_offset, 4, ENC_BIG_ENDIAN);
 
     bit_offset += 4;
-    proto_tree_add_item(amr_tree, hf_amr_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_amr_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset     += 1;
     bit_offset += 4;
     /*
@@ -512,7 +470,7 @@ dissect_amr_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int amr_
      *   P bits: padding bits, MUST be set to zero.
      */
     octet = tvb_get_uint8(tvb,offset);
-    toc_tree = proto_tree_add_subtree(amr_tree, tvb, offset, -1, ett_amr_toc, NULL, "Payload Table of Contents");
+    toc_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_amr_toc, NULL, "Payload Table of Contents");
 
     first_time = true;
     while ((( octet& 0x80 ) == 0x80) || (first_time == true)) {
@@ -521,10 +479,11 @@ dissect_amr_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int amr_
 
         proto_tree_add_bits_item(toc_tree, hf_amr_toc_f, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
         bit_offset += 1;
-        if (amr_mode == AMR_NB)
+        if (amr_mode == AMR_NB) {
             proto_tree_add_bits_item(toc_tree, hf_amr_nb_toc_ft, tvb, bit_offset, 4, ENC_BIG_ENDIAN);
-        else
+        } else {
             proto_tree_add_bits_item(toc_tree, hf_amr_wb_toc_ft, tvb, bit_offset, 4, ENC_BIG_ENDIAN);
+        }
         bit_offset += 4;
         proto_tree_add_bits_item(toc_tree, hf_amr_toc_q, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
         bit_offset += 1;
@@ -532,7 +491,62 @@ dissect_amr_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int amr_
         bit_offset += 2;
         offset     += 1;
     }
+}
 
+/* Code to actually dissect the packets */
+static void
+dissect_amr_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int amr_mode, unsigned encoding)
+{
+    int         offset     = 0;
+    uint8_t     octet;
+    proto_item *item;
+
+/* Set up structures needed to add the protocol subtree and manage it */
+    proto_item *ti;
+    proto_tree *amr_tree;
+
+    ti = proto_tree_add_item(tree, proto_amr, tvb, 0, -1, ENC_NA);
+    amr_tree = proto_item_add_subtree(ti, ett_amr);
+
+    item = proto_tree_add_uint(amr_tree, hf_amr_payload_decoded_as, tvb, offset, 4, encoding);
+    proto_item_set_len(item, tvb_reported_length(tvb));
+    proto_item_set_generated(item);
+
+    switch (encoding) {
+    case AMR_OA: /* RFC 3267 Octet aligned */
+        break;
+    case AMR_BE: /* RFC 3267 Bandwidth-efficient */
+        dissect_amr_be(tvb, pinfo, amr_tree, amr_mode);
+        return;
+    case AMR_IF1:
+        if (amr_mode == AMR_NB) {
+            dissect_amr_nb_if1(tvb, pinfo, amr_tree, NULL);
+        } else {
+            dissect_amr_wb_if1(tvb, pinfo, amr_tree, NULL);
+        }
+        return;
+    case AMR_IF2:
+        if (amr_mode == AMR_NB) {
+            dissect_amr_nb_if2(tvb, pinfo, amr_tree, NULL);
+        } else {
+            dissect_amr_wb_if2(tvb, pinfo, amr_tree, NULL);
+        }
+        return;
+    default:
+        break;
+    }
+
+    octet = tvb_get_uint8(tvb,offset) & 0x0f;
+    if (octet != 0) {
+        item = proto_tree_add_item(amr_tree, hf_amr_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
+        expert_add_info(pinfo, item, &ei_amr_reserved);
+        proto_item_set_generated(item);
+        dissect_amr_be(tvb, pinfo, amr_tree, amr_mode);
+        return;
+    }
+
+    dissect_amr_oa(tvb, pinfo, amr_tree, amr_mode);
+    return;
 }
 
 /* Code to actually dissect the packets */
