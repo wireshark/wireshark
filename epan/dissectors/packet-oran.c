@@ -1237,6 +1237,7 @@ addPcOrRtcid(tvbuff_t *tvb, proto_tree *tree, int *offset, int hf, uint16_t *eAx
     if (!((pref_du_port_id_bits > 0) && (pref_bandsector_id_bits > 0) && (pref_cc_id_bits > 0) && (pref_ru_port_id_bits > 0) &&
          ((pref_du_port_id_bits + pref_bandsector_id_bits + pref_cc_id_bits + pref_ru_port_id_bits) == 16))) {
         expert_add_info(NULL, tree, &ei_oran_invalid_eaxc_bit_width);
+        *eAxC = 0;
         *offset += 2;
         return;
     }
