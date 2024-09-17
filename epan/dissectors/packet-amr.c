@@ -217,6 +217,16 @@ static const true_false_string amr_sti_vals = {
 
 static wmem_map_t *amr_default_fmtp;
 
+/* Number of bits per frame for AMR-NB, see Table 1 RFC3267*/
+/* Values taken for GSM-EFR SID, TDMA-EFR SID and PDC-EFR SID from 3GPP 26.101 Table A.1b */
+
+/*               Frame type     0   1   2   3   4   5   6   7  8  9  10 11 12 13 14 15 */
+static const uint8_t Framebits_NB[] = {95, 103, 118, 134, 148, 159, 204, 244, 39, 43, 38, 37, 0, 0, 0, 0};
+
+/* Number of bits per frame for AMR-WB, see 3GPP TS 26.201 Table 2*/
+/*               Frame type     0   1   2   3   4   5   6   7   8   9  10 11 12 13 14 15 */
+static const unsigned int Framebits_WB[] = {132, 177, 253, 285, 317, 365, 397, 461, 477, 40, 0, 0, 0, 0, 0, 0};
+
 static void
 amr_apply_prefs(void) {
     wmem_map_insert(amr_default_fmtp, "octet-align", (amr_encoding_type == AMR_OA) ? "1" : "0");
@@ -335,17 +345,6 @@ dissect_amr_be(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int amr_mode
     int         bytes_needed_for_frames;
     uint8_t     f_bit;
 
-    /* Number of bits per frame for AMR-NB, see Table 1 RFC3267*/
-    /* Values taken for GSM-EFR SID, TDMA-EFR SID and PDC-EFR SID from 3GPP 26.101 Table A.1b */
-
-    /*               Frame type     0   1   2   3   4   5   6   7  8  9  10 11 12 13 14 15 */
-    unsigned char Framebits_NB[] = {95,103,118,134,148,159,204,244,39,43,38,37, 0, 0, 0, 0};
-
-    /* Number of bits per frame for AMR-WB, see 3GPP TS 26.201 Table 2*/
-    /*               Frame type     0   1   2   3   4   5   6   7   8   9  10 11 12 13 14 15 */
-    unsigned int Framebits_WB[] = {132,177,253,285,317,365,397,461,477, 40, 0, 0, 0, 0, 0, 0,};
-
-
     /* Chapter 4.3 */
 
     bitcount = 3;
@@ -434,6 +433,10 @@ dissect_amr_oa(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int amr_
     int         offset     = 0;
     int         bit_offset = 0;
     uint8_t     octet;
+    int         ft;
+    int         ft_payload_bits = 0;
+    int         bits_used_for_frames = 0;
+    int         bytes_needed_for_frames = 0;
     proto_tree *toc_tree;
 
     octet = tvb_get_uint8(tvb,offset);
@@ -472,14 +475,22 @@ dissect_amr_oa(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int amr_
     do {
         octet = tvb_get_uint8(tvb,offset);
 
+        /* F bit: */
         proto_tree_add_bits_item(toc_tree, hf_amr_toc_f, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
         bit_offset += 1;
+        /* FT bits: */
+        ft = tvb_get_bits8(tvb, bit_offset, 4);
         if (amr_mode == AMR_NB) {
             proto_tree_add_bits_item(toc_tree, hf_amr_nb_toc_ft, tvb, bit_offset, 4, ENC_BIG_ENDIAN);
+            ft_payload_bits = Framebits_NB[ft];
         } else {
             proto_tree_add_bits_item(toc_tree, hf_amr_wb_toc_ft, tvb, bit_offset, 4, ENC_BIG_ENDIAN);
+            ft_payload_bits = Framebits_WB[ft];
         }
+        bits_used_for_frames += ft_payload_bits;
+        bytes_needed_for_frames += (bits_used_for_frames + 7)/8;
         bit_offset += 4;
+        /* Q bit: */
         proto_tree_add_bits_item(toc_tree, hf_amr_toc_q, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
         bit_offset += 1;
         /* 2 padding bits: */
@@ -489,6 +500,36 @@ dissect_amr_oa(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int amr_
         bit_offset += 2;
         offset     += 1;
     } while ((octet & 0x80) == 0x80);
+
+    /* Check if we have enough data available for our frames */
+    if (tvb_reported_length_remaining(tvb, offset) < bytes_needed_for_frames) {
+        proto_tree_add_expert_format(tree, pinfo, &ei_amr_not_enough_data_for_frames,
+                                     tvb, offset, bytes_needed_for_frames,
+                                     "Error: %d Bytes available, %d would be needed!",
+                                     tvb_reported_length_remaining(tvb, offset),
+                                     bytes_needed_for_frames);
+    } else {
+        proto_tree_add_item(tree, hf_amr_frame_data, tvb, offset, bytes_needed_for_frames, ENC_NA);
+    }
+
+    offset += bytes_needed_for_frames;
+
+    if (tvb_reported_length_remaining(tvb, offset) > 0) {
+        proto_tree_add_expert_format(tree, pinfo, &ei_amr_superfluous_data,
+                                     tvb, offset, tvb_reported_length_remaining(tvb, offset),
+                                     "Error: %d Bytes remaining - should be 0!",
+                                     tvb_reported_length_remaining(tvb, offset));
+
+        /* Now check the paddings (FIXME: only last speech data block is checked here) */
+        if (ft_payload_bits%8 != 0) {
+            uint8_t last_byte = tvb_get_uint8(tvb, offset - 1);
+            if ((1 << (8 -(ft_payload_bits%8)-1)) & last_byte) {
+                proto_tree_add_expert(tree, pinfo, &ei_amr_padding_bits_correct, tvb, offset - 1, 1);
+            } else {
+                proto_tree_add_expert(tree, pinfo, &ei_amr_padding_bits_not0, tvb, offset - 1, 1);
+            }
+        }
+    }
 }
 
 /* Code to actually dissect the packets */
