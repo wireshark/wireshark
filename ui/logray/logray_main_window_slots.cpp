@@ -137,6 +137,7 @@ DIAG_ON(frame-larger-than=)
 #include <QFileInfo>
 #include <QMessageBox>
 #include <QMetaObject>
+#include <QMimeData>
 #include <QToolBar>
 #include <QDesktopServices>
 #include <QUrl>
@@ -1829,6 +1830,9 @@ void LograyMainWindow::connectEditMenuActions()
     connect(main_ui_->actionCopyListAsYAML, &QAction::triggered, this,
             [this]() { copySelectedItems(CopyListAsYAML); });
 
+    connect(main_ui_->actionCopyListAsHTML, &QAction::triggered, this,
+            [this]() { copySelectedItems(CopyListAsHTML); });
+
     connect(main_ui_->actionCopyAllVisibleSelectedTreeItems, &QAction::triggered, this,
             [this]() { copySelectedItems(CopyAllVisibleSelectedTreeItems); });
 
@@ -1983,61 +1987,115 @@ void LograyMainWindow::copySelectedItems(LograyMainWindow::CopySelected selectio
     case CopyListAsText:
     case CopyListAsCSV:
     case CopyListAsYAML:
+    case CopyListAsHTML:
+
         if (packet_list_->selectedRows().count() > 0)
         {
             QList<int> rows = packet_list_->selectedRows();
-            QStringList content;
+            QStringList content, htmlContent;
 
             PacketList::SummaryCopyType copyType = PacketList::CopyAsText;
             if (selection_type == CopyListAsCSV)
                 copyType = PacketList::CopyAsCSV;
             else if (selection_type == CopyListAsYAML)
                 copyType = PacketList::CopyAsYAML;
+            else if (selection_type == CopyListAsHTML)
+                copyType = PacketList::CopyAsHTML;
 
-            if ((copyType == PacketList::CopyAsText) ||
-                (copyType == PacketList::CopyAsCSV)) {
-                QString headerEntry = packet_list_->createHeaderSummaryText(copyType);
-                content << headerEntry;
+            QStringList hdr_parts;
+            QList<int> align_parts, size_parts;
+
+            if (copyType == PacketList::CopyAsText || copyType == PacketList::CopyAsHTML) {
+                if (prefs.gui_packet_list_copy_text_with_aligned_columns) {
+                    hdr_parts = packet_list_->createHeaderPartsForAligned();
+                    align_parts = packet_list_->createAlignmentPartsForAligned();
+                    size_parts = packet_list_->createSizePartsForAligned(true, hdr_parts, rows);
+                    content << packet_list_->createHeaderSummaryForAligned(hdr_parts, align_parts, size_parts);
+                }
+                else {
+                    content << packet_list_->createHeaderSummaryText(PacketList::CopyAsText);
+                }
+                if (copyType == PacketList::CopyAsHTML) {
+                    htmlContent << packet_list_->createDefaultStyleForHtml();
+                    htmlContent << packet_list_->createOpeningTagForHtml();
+                    htmlContent << packet_list_->createHeaderSummaryForHtml();
+                }
             }
+            else if (copyType == PacketList::CopyAsCSV) {
+                content << packet_list_->createHeaderSummaryText(copyType);
+            }
+
             foreach (int row, rows)
             {
                 QModelIndex idx = packet_list_->model()->index(row, 0);
                 if (! idx.isValid())
                     continue;
 
-                QString entry = packet_list_->createSummaryText(idx, copyType);
-                content << entry;
+                if (copyType == PacketList::CopyAsText || copyType == PacketList::CopyAsHTML) {
+                    if (prefs.gui_packet_list_copy_text_with_aligned_columns)
+                        content << packet_list_->createSummaryForAligned(idx, align_parts, size_parts);
+                    else
+                        content << packet_list_->createSummaryText(idx, PacketList::CopyAsText);
+                    if (copyType == PacketList::CopyAsHTML)
+                        htmlContent << packet_list_->createSummaryForHtml(idx);
+                }
+                else {
+                    content << packet_list_->createSummaryText(idx, copyType);
+                }
             }
 
-            if (content.count() > 0) {
-                clip = content.join("\n");
-                //
-                // Each YAML item ends with a newline, so the string
-                // ends with a newline already if it's CopyListAsYAML.
-                // If we add a newline, there'd be an extra blank
-                // line.
-                //
-                // Otherwise, we've used newlines as separators, not
-                // terminators, so there's no final newline.  Add it.
-                //
-                if (selection_type != CopyListAsYAML)
-                    clip += "\n";
+            if (selection_type == CopyListAsHTML) {
+                // htmlContent will never be empty as they will always have style and table tags
+                QMimeData *mimeData = new QMimeData;
+                htmlContent << packet_list_->createClosingTagForHtml();
+                mimeData->setHtml(htmlContent.join('\n'));
+                mimeData->setText(content.join('\n').append("\n"));
+                mainApp->clipboard()->setMimeData(mimeData, QClipboard::Clipboard);
+            }
+            else {
+                if (content.count() > 0) {
+                    //
+                    // Each YAML item ends with a newline, hence it is not
+                    // joined with a newline else a blank line is created
+                    // before start of entry (or ---) from second packet
+                    // when multiple packets are copied.
+                    //
+                    // Each YAML item ends with a newline, so the string
+                    // ends with a newline already if it's CopyListAsYAML.
+                    // If we add a newline, there'd be an extra blank
+                    // line.
+                    //
+                    // Otherwise, we've used newlines as separators, not
+                    // terminators, so there's no final newline.  Add it.
+                    //
+                    if (selection_type == CopyListAsYAML) {
+                        clip = content.join("");
+                    }
+                    else {
+                        clip = content.join("\n");
+                        clip += "\n";
+                    }
+                }
             }
         }
+
         break;
     }
 
-    if (clip.length() == 0) {
-        /* If no representation then... Try to read the value */
-        proto_item_fill_label(capture_file_.capFile()->finfo_selected, label_str);
-        clip.append(label_str);
-    }
+    if (selection_type != CopyListAsHTML)
+    {
+        if (clip.length() == 0) {
+            /* If no representation then... Try to read the value */
+            proto_item_fill_label(capture_file_.capFile()->finfo_selected, label_str);
+            clip.append(label_str);
+        }
 
-    if (clip.length()) {
-        mainApp->clipboard()->setText(clip);
-    } else {
-        QString err = tr("Couldn't copy text. Try another item.");
-        mainApp->pushStatus(WiresharkApplication::TemporaryStatus, err);
+        if (clip.length()) {
+            mainApp->clipboard()->setText(clip);
+        } else {
+            QString err = tr("Couldn't copy text. Try another item.");
+            mainApp->pushStatus(WiresharkApplication::TemporaryStatus, err);
+        }
     }
 }
 
