@@ -4464,6 +4464,7 @@ dissect_smb2_tree_connect_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 		tid->tid = si->tid;
 		tid->name = (char *)si->saved->extra_info;
 		tid->connect_frame = pinfo->num;
+		tid->disconnect_frame = 0;
 		tid->share_type = share_type;
 
 		wmem_map_insert(si->session->tids, tid, tid);
