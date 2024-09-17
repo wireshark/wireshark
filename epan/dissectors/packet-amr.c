@@ -328,13 +328,12 @@ dissect_amr_wb_if2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 
 static void
 dissect_amr_be(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int amr_mode) {
-    proto_item *item;
     int         ft;
     int         bit_offset = 0;
     int         bitcount;       /*bitcounter, MSB = bit 0, over bytes*/
     int         bits_used_for_frames = 0;
     int         bytes_needed_for_frames;
-    uint8_t     f_bit, q_bit;
+    uint8_t     f_bit;
 
     /* Number of bits per frame for AMR-NB, see Table 1 RFC3267*/
     /* Values taken for GSM-EFR SID, TDMA-EFR SID and PDC-EFR SID from 3GPP 26.101 Table A.1b */
@@ -380,23 +379,18 @@ dissect_amr_be(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int amr_mode
         /* Check FT bits */
         ft = tvb_get_bits8(tvb, bit_offset, 4);
         if (amr_mode == AMR_NB) {
-            item = proto_tree_add_bits_item(tree, hf_amr_nb_toc_ft, tvb, bit_offset, 4, ENC_BIG_ENDIAN);
+            proto_tree_add_bits_item(tree, hf_amr_nb_toc_ft, tvb, bit_offset, 4, ENC_BIG_ENDIAN);
             bits_used_for_frames += Framebits_NB[ft];
         } else {
-            item = proto_tree_add_bits_item(tree, hf_amr_wb_toc_ft, tvb, bit_offset, 4, ENC_BIG_ENDIAN);
+            proto_tree_add_bits_item(tree, hf_amr_wb_toc_ft, tvb, bit_offset, 4, ENC_BIG_ENDIAN);
             bits_used_for_frames += Framebits_WB[ft];
         }
         bit_offset += 4;
         bitcount   += 4;
         /* Check Q bit */
-        q_bit = tvb_get_bits8(tvb, bit_offset, 1);
         proto_tree_add_bits_item(tree, hf_amr_toc_q, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
         bit_offset += 1;
         bitcount   += 1;
-        if (q_bit == 1)
-            proto_item_append_text(item, " / Frame OK");
-        else
-            proto_item_append_text(item, " / Frame damaged");
     } while ((f_bit == 1) && (tvb_reported_length_remaining(tvb, bitcount/8) > 2));
 
     if (bits_used_for_frames > 0)
