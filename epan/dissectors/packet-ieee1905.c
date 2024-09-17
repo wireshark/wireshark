@@ -1815,41 +1815,32 @@ dissect_device_bridging_capabilities(tvbuff_t *tvb, packet_info *pinfo _U_,
  * Dissect the non 1905 neighbor device list TLV
  */
 static int
-dissect_non_1905_neighbor_device_list(tvbuff_t *tvb, packet_info *pinfo,
+dissect_non_1905_neighbor_device_list(tvbuff_t *tvb, packet_info *pinfo _U_,
         proto_tree *tree, unsigned offset, uint16_t len)
 {
     proto_tree *neighbor_list = NULL;
     proto_item *pi = NULL;
     unsigned start;
+    int remaining = len;
 
-    start = offset;
+    proto_tree_add_item(tree, hf_ieee1905_local_interface_mac, tvb,
+                        offset, 6, ENC_NA);
+
+    remaining -= 6;
+    offset += 6;
+
     neighbor_list = proto_tree_add_subtree(tree, tvb, offset, -1,
                                 ett_non_1905_neighbor_list,
                                 &pi, "Non IEEE1905 neighbor devices");
 
-    while (len >= 12) {
-        proto_tree_add_item(neighbor_list, hf_ieee1905_local_interface_mac, tvb,
-                        offset, 6, ENC_NA);
+    start = offset;
 
-        len -= 6;
+    while (remaining > 0) {
+        proto_tree_add_item(neighbor_list, hf_ieee1905_neighbor_al_mac_addr,
+                            tvb, offset, 6, ENC_NA);
+
+        remaining -= 6;
         offset += 6;
-
-        proto_tree_add_item(neighbor_list, hf_ieee1905_non_1905_neighbor_mac,
-                        tvb, offset, 6, ENC_NA);
-
-        len -= 6;
-        offset += 6;
-
-    }
-
-    if (len > 0) {
-        proto_item *ei;
-
-        ei = proto_tree_add_item(tree, hf_ieee1905_extra_tlv_data, tvb, offset,
-                             len, ENC_NA);
-        expert_add_info(pinfo, ei, &ei_ieee1905_extraneous_tlv_data);
-        offset += len; /* Skip the extras. */
-
     }
 
     proto_item_set_len(pi, offset - start);
@@ -1864,8 +1855,8 @@ static int
 dissect_1905_neighbor_device(tvbuff_t *tvb, packet_info *pinfo _U_,
         proto_tree *tree, unsigned offset, uint16_t len)
 {
+    proto_tree *neighbor_list = NULL;
     proto_item *pi = NULL;
-    proto_item *neighbor_list = NULL;
     unsigned start;
     int remaining = len;
     static int * const flags[] = {
