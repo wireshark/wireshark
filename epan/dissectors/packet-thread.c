@@ -5130,8 +5130,15 @@ proto_reg_handoff_thread(void)
 {
     /* Thread Content-Format is opaque byte string, i.e. application/octet-stream */
     /* Enable decoding "Internet media type" as Thread over CoAP */
-    // dissector_add_for_decode_as("media_type", thread_coap_handle);
-    dissector_add_string("media_type", "application/octet-stream", thread_coap_handle);
+    dissector_add_for_decode_as("media_type", thread_coap_handle);
+    /* Do NOT add the thread dissector to the generic media_type table for
+     * "application/octet-stream", which is for "arbitrary binary data":
+     * https://www.iana.org/assignments/media-types/application/octet-stream
+     * Doing so hijacks *all* "application/octet-stream", including in HTTP, etc.
+     * That is why there is a separate coap_tmf_media_type table and a
+     * special CoAP-TMF dissector. (#14729).
+     */
+    //dissector_add_string("media_type", "application/octet-stream", thread_coap_handle);
 
     proto_coap = proto_get_id_by_filter_name("coap");
 }
