@@ -38,6 +38,7 @@
 #define UTF8_MIDDLE_DOT                     "\xc2\xb7"      /*   183 /   0xb7 */
 #define UTF8_RIGHT_POINTING_DOUBLE_ANGLE_QUOTATION_MARK "\xc2\xbb" /* 187 / 0xbb */
 
+#define UTF8_CAPITAL_DELTA                  "\xce\x94"      /*   916 /  0x394 */
 #define UTF8_CAPITAL_OMEGA                  "\xce\xa9"      /*   937 /  0x3a9 */
 #define UTF8_OMEGA                          "\xcf\x89"      /*   969 /  0x3c9 */
 
