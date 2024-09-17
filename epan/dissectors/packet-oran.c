@@ -36,7 +36,7 @@
  * - Detect/indicate signs of application layer fragmentation?
  * - Not handling M-plane setting for "little endian byte order" as applied to IQ samples and beam weights
  * - for section extensions, check more constraints (which other extension types appear with them, order)
- * - when section extensions are present, some section header fields are effectively ignored - flag?
+ * - when some section extensions are present, some section header fields are effectively ignored - flag?
  * - re-order items (decl and hf definitions) to match spec order
  * - add hf items to use as roots for remaining subtrees (blurb more useful than filter..)
  */
@@ -350,6 +350,8 @@ static expert_field ei_oran_se_on_unsupported_st;
 static expert_field ei_oran_cplane_unexpected_sequence_number;
 static expert_field ei_oran_uplane_unexpected_sequence_number;
 static expert_field ei_oran_acknack_no_request;
+static expert_field ei_oran_udpcomphdr_should_be_zero;
+
 
 /* These are the message types handled by this dissector */
 #define ECPRI_MT_IQ_DATA            0
@@ -2290,12 +2292,16 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                 uint32_t rbgSize;
                 proto_tree_add_item_ret_uint(extension_tree, hf_oran_rbgSize, tvb, offset, 1, ENC_BIG_ENDIAN, &rbgSize);
                 if (rbgSize == 0) {
+                    /* N.B. this is only true if "se6-rb-bit-supported" is set... */
                     expert_add_info_format(pinfo, extlen_ti, &ei_oran_rbg_size_reserved,
                                            "rbgSize value of 0 is reserved");
                 }
                 /* rbgMask (28 bits) */
                 uint32_t rbgMask;
-                proto_tree_add_item_ret_uint(extension_tree, hf_oran_rbgMask, tvb, offset, 4, ENC_BIG_ENDIAN, &rbgMask);
+                proto_item *rbgmask_ti = proto_tree_add_item_ret_uint(extension_tree, hf_oran_rbgMask, tvb, offset, 4, ENC_BIG_ENDIAN, &rbgMask);
+                if (rbgSize == 0) {
+                    proto_item_append_text(rbgmask_ti, " (value ignored since rbgSize is 0)");
+                }
                 offset += 4;
                 /* priority */
                 proto_tree_add_item(extension_tree, hf_oran_noncontig_priority, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -2867,10 +2873,10 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                     proto_tree_add_item(pattern_tree, hf_oran_puncReMask, tvb, offset, 2, ENC_BIG_ENDIAN);
                     offset += 1;
                     /* rb (1 bit) */
-                    proto_tree_add_item(pattern_tree, hf_oran_rb, tvb, offset, 1, ENC_BIG_ENDIAN);
+                    proto_item *rb_ti = proto_tree_add_item(pattern_tree, hf_oran_rb, tvb, offset, 1, ENC_BIG_ENDIAN);
                     /* reserved (2 bits? - spec says 1) */
                     proto_tree_add_bits_item(pattern_tree, hf_oran_reserved, tvb, offset*8, 2, ENC_BIG_ENDIAN);
-                    /* rbgIncl */
+                    /* rbgIncl (1 bit) */
                     bool rbgIncl;
                     proto_tree_add_item_ret_boolean(pattern_tree, hf_oran_RbgIncl, tvb, offset, 1, ENC_BIG_ENDIAN, &rbgIncl);
                     offset += 1;
@@ -2883,6 +2889,8 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                         /* rbgMask (28 bits) */
                         proto_tree_add_item(pattern_tree, hf_oran_rbgMask, tvb, offset, 4, ENC_BIG_ENDIAN);
                         offset += 4;
+
+                        proto_item_append_text(rb_ti, " (ignored)");
                     }
 
                     proto_item_set_len(pattern_ti, offset-pattern_start_offset);
@@ -2995,7 +3003,8 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
 
 /* Dissect udCompHdr (user data compression header, 7.5.2.10) */
 /* bit_width and comp_meth are out params */
-static int dissect_udcomphdr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned offset,
+static int dissect_udcomphdr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset,
+                             bool ignore,
                              unsigned *bit_width, unsigned *comp_meth)
 {
     /* Subtree */
@@ -3016,12 +3025,22 @@ static int dissect_udcomphdr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
     if (comp_meth) {
         *comp_meth = ud_comp_meth;
     }
-    offset += 1;
 
     /* Summary */
-    proto_item_append_text(udcomphdr_ti, " (IqWidth=%u, udCompMeth=%s)",
-                           *bit_width, rval_to_str_const(ud_comp_meth, ud_comp_header_meth, "Unknown"));
-    return offset;
+    if (!ignore) {
+        proto_item_append_text(udcomphdr_ti, " (IqWidth=%u, udCompMeth=%s)",
+                               *bit_width, rval_to_str_const(ud_comp_meth, ud_comp_header_meth, "Unknown"));
+    }
+    else {
+        proto_item_append_text(udcomphdr_ti, " (ignored)");
+        if (hdr_iq_width || ud_comp_meth) {
+            expert_add_info_format(pinfo, udcomphdr_ti, &ei_oran_udpcomphdr_should_be_zero,
+                                   "udCompHdr in C-Plane for DL should be 0 - found %02x",
+                                   tvb_get_uint8(tvb, offset));
+        }
+
+    }
+    return offset+1;
 }
 
 /* Dissect udCompParam (user data compression parameter, 8.3.3.15) */
@@ -3245,6 +3264,7 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
     sectionType = tvb_get_uint8(tvb, offset+5);
 
     uint32_t scs = 0;
+    proto_item *scs_ti = NULL;
 
     /* dataDirection */
     uint32_t direction = 0;
@@ -3294,7 +3314,7 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
     /* filterIndex */
     if (sectionType == SEC_C_SLOT_CONTROL || sectionType == SEC_C_ACK_NACK_FEEDBACK) {
         /* scs (for ST4 and ST8) */
-        proto_tree_add_item_ret_uint(section_tree, hf_oran_frameStructure_subcarrier_spacing, tvb, offset, 1, ENC_NA, &scs);
+        scs_ti = proto_tree_add_item_ret_uint(section_tree, hf_oran_frameStructure_subcarrier_spacing, tvb, offset, 1, ENC_NA, &scs);
     }
     else if (sectionType != SEC_C_LAA) {
         /* filterIndex (most common case) */
@@ -3350,7 +3370,11 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
         proto_tree_add_item(section_tree, hf_oran_reserved_7bits, tvb, offset, 1, ENC_NA);
         /* ready (1 bit) */
         /* TODO: when set, ready in slotId+1.. */
-        proto_tree_add_item(section_tree, hf_oran_ready, tvb, offset, 1, ENC_NA);
+        bool ready;
+        proto_tree_add_item_ret_boolean(section_tree, hf_oran_ready, tvb, offset, 1, ENC_NA, &ready);
+        if (!ready) {
+            proto_item_append_text(scs_ti, " (ignored)");
+        }
     }
     else if (sectionType != SEC_C_LAA) {
         proto_tree_add_item_ret_uint(section_tree, hf_oran_numberOfSections, tvb, offset, 1, ENC_NA, &nSections);
@@ -3389,7 +3413,9 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
         case SEC_C_NORMAL:      /* Section Type 1 */
         case SEC_C_UE_SCHED:    /* Section Type 5 */
             /* udCompHdr */
-            offset = dissect_udcomphdr(tvb, pinfo, section_tree, offset, &bit_width, NULL);
+            offset = dissect_udcomphdr(tvb, pinfo, section_tree, offset,
+                                       (direction==1), /* whether to ignore */
+                                       &bit_width, NULL);
             /* reserved */
             proto_tree_add_item(section_tree, hf_oran_reserved_8bits, tvb, offset, 1, ENC_NA);
             offset += 1;
@@ -3409,7 +3435,9 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
             proto_tree_add_item(section_tree, hf_oran_cpLength, tvb, offset, 2, ENC_BIG_ENDIAN);
             offset += 2;
             /* udCompHdr */
-            offset = dissect_udcomphdr(tvb, pinfo, section_tree, offset, &bit_width, NULL);
+            offset = dissect_udcomphdr(tvb, pinfo, section_tree, offset,
+                                       (direction==1), /* whether to ignore */
+                                       &bit_width, NULL);
             break;
 
         case SEC_C_CH_INFO:     /* Section Type 6 */
@@ -4089,7 +4117,7 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
         if (includeUdCompHeader) {
             /* 7.5.2.10 */
             /* Extract these values to inform how wide IQ samples in each PRB will be. */
-            offset = dissect_udcomphdr(tvb, pinfo, section_tree, offset, &sample_bit_width, &compression);
+            offset = dissect_udcomphdr(tvb, pinfo, section_tree, offset, false, &sample_bit_width, &compression);
 
             /* Not part of udCompHdr */
             proto_tree_add_item(section_tree, hf_oran_reserved_8bits, tvb, offset, 1, ENC_NA);
@@ -5910,7 +5938,8 @@ proto_register_oran(void)
         { &ei_oran_se_on_unsupported_st, { "oran_fh_cus.se_on_unsupported_st", PI_MALFORMED, PI_WARN, "Section Extension should not appear on this Section Type", EXPFILL }},
         { &ei_oran_cplane_unexpected_sequence_number, { "oran_fh_cus.unexpected_seq_no_cplane", PI_SEQUENCE, PI_WARN, "Unexpected sequence number seen in C-Plane", EXPFILL }},
         { &ei_oran_uplane_unexpected_sequence_number, { "oran_fh_cus.unexpected_seq_no_uplane", PI_SEQUENCE, PI_WARN, "Unexpected sequence number seen in U-Plane", EXPFILL }},
-        { &ei_oran_acknack_no_request, { "oran_fh_cus.acknack_no_request", PI_SEQUENCE, PI_WARN, "Have ackNackId response, but no request", EXPFILL }}
+        { &ei_oran_acknack_no_request, { "oran_fh_cus.acknack_no_request", PI_SEQUENCE, PI_WARN, "Have ackNackId response, but no request", EXPFILL }},
+        { &ei_oran_udpcomphdr_should_be_zero, { "oran_fh_cus.udcomphdr_should_be_zero", PI_MALFORMED, PI_WARN, "C-Plane udCompHdr in DL should be set to 0", EXPFILL }}
     };
 
     /* Register the protocol name and description */
