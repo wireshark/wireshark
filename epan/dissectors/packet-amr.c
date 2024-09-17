@@ -94,7 +94,7 @@ static int   pref_amr_mode             = AMR_NB;
 /* static bool octet_aligned = true; */
 
 static const value_string amr_encoding_type_value[] = {
-    {AMR_OA, "RFC 3267"},
+    {AMR_OA, "RFC 3267 octet-aligned mode"},
     {AMR_BE, "RFC 3267 bandwidth-efficient mode"},
     {AMR_IF1, "AMR IF 1"},
     {AMR_IF2, "AMR IF 2"},
