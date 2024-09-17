@@ -133,16 +133,12 @@ ssl_export_sessions(size_t *length)
         if ((value = g_hash_table_lookup(mk_map->tls13_client_appdata, key))) {
             tls_export_client_randoms_func(key, value, (void *)keylist, "CLIENT_TRAFFIC_SECRET_0 ");
         }
-#if 0
-        /* We don't use the EARLY_EXPORT_SECRET or EXPORTER_SECRET now so don't
-           export, but we may in the future. */
         if ((value = g_hash_table_lookup(mk_map->tls13_early_exporter, key))) {
             tls_export_client_randoms_func(key, value, (void *)keylist, "EARLY_EXPORTER_SECRET ");
         }
         if ((value = g_hash_table_lookup(mk_map->tls13_exporter, key))) {
             tls_export_client_randoms_func(key, value, (void *)keylist, "EXPORTER_SECRET ");
         }
-#endif
     }
 
     *length = keylist->len;
