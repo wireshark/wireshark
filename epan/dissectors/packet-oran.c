@@ -2939,21 +2939,23 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                                              ENC_BIG_ENDIAN, &ack_nack_req_id);
                 offset += 2;
 
-                if (!PINFO_FD_VISITED(pinfo)) {
-                    /* Add this request into conversation state on first pass */
-                    ack_nack_request_t *request_details = wmem_new0(wmem_file_scope(), ack_nack_request_t);
-                    request_details->request_frame_number = pinfo->num;
-                    request_details->request_frame_time = pinfo->abs_ts;
-                    request_details->requestType = SE22;
-                    /* Insert into flow's tree */
-                    wmem_tree_insert32(state->ack_nack_requests, ack_nack_req_id, request_details);
-                }
-                else {
-                    /* Try to link forward to ST8 response */
-                    if (wmem_tree_contains32(state->ack_nack_requests, ack_nack_req_id)) {
+                if (state) {
+                    if (!PINFO_FD_VISITED(pinfo)) {
+                        /* Add this request into conversation state on first pass */
+                        ack_nack_request_t *request_details = wmem_new0(wmem_file_scope(), ack_nack_request_t);
+                        request_details->request_frame_number = pinfo->num;
+                        request_details->request_frame_time = pinfo->abs_ts;
+                        request_details->requestType = SE22;
+                        /* Insert into flow's tree */
+                        wmem_tree_insert32(state->ack_nack_requests, ack_nack_req_id, request_details);
+                    }
+                    else {
+                        /* Try to link forward to ST8 response */
                         ack_nack_request_t *response = wmem_tree_lookup32(state->ack_nack_requests,
                                                                           ack_nack_req_id);
-                        show_link_to_acknack_response(extension_tree, tvb, pinfo, response);
+                        if (response) {
+                            show_link_to_acknack_response(extension_tree, tvb, pinfo, response);
+                        }
                     }
                 }
                 break;
@@ -3248,14 +3250,11 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
     uint32_t direction = 0;
     proto_tree_add_item_ret_uint(section_tree, hf_oran_data_direction, tvb, offset, 1, ENC_NA, &direction);
 
-    /* Look up any existing conversation state for eAxC+plane+direction */
-    flow_state_t* state = NULL;
+    /* Look up any existing conversation state for eAxC+plane */
     uint32_t key = make_flow_key(eAxC, ORAN_C_PLANE);
-    if (wmem_tree_contains32(flow_states_table, key)) {
-        state = (flow_state_t*)wmem_tree_lookup32(flow_states_table, key);
-    }
+    flow_state_t* state = (flow_state_t*)wmem_tree_lookup32(flow_states_table, key);
 
-    /* Update/report status of conversion */
+    /* Update/report status of conversation */
     if (!PINFO_FD_VISITED(pinfo)) {
 
         if (state == NULL) {
@@ -3280,14 +3279,12 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
     }
     else {
         /* Show any issues associated with this frame number */
-        if (wmem_tree_contains32(flow_results_table, pinfo->num)) {
-            flow_result_t *result = wmem_tree_lookup32(flow_results_table, pinfo->num);
-            if (result->unexpected_seq_number) {
-                expert_add_info_format(pinfo, seq_id_ti, &ei_oran_cplane_unexpected_sequence_number,
-                                       "Sequence number %u expected, but got %u",
-                                       result->expected_sequence_number, seq_id);
-                /* TODO: could add previous/next frames (in seqId tree?) ? */
-            }
+        flow_result_t *result = wmem_tree_lookup32(flow_results_table, pinfo->num);
+        if (result!=NULL && result->unexpected_seq_number) {
+            expert_add_info_format(pinfo, seq_id_ti, &ei_oran_cplane_unexpected_sequence_number,
+                                   "Sequence number %u expected, but got %u",
+                                   result->expected_sequence_number, seq_id);
+            /* TODO: could add previous/next frames (in seqId tree?) ? */
         }
     }
 
@@ -3447,25 +3444,26 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
                 ack_ti = proto_tree_add_item_ret_uint(section_tree, hf_oran_ackid, tvb, offset, 2, ENC_BIG_ENDIAN, &ackid);
                 offset += 2;
 
-                /* Look up request table in state. */
-                if (wmem_tree_contains32(state->ack_nack_requests, ackid)) {
+                /* Look up request table in state (which really should be set by now, but test anyway). */
+                if (state) {
                     ack_nack_request_t *request = wmem_tree_lookup32(state->ack_nack_requests, ackid);
-                    /* On first pass, update with this response */
-                    if (!PINFO_FD_VISITED(pinfo)) {
-                        request->response_frame_number = pinfo->num;
-                        request->response_frame_time = pinfo->abs_ts;
+                    if (request != NULL) {
+                        /* On first pass, update with this response */
+                        if (!PINFO_FD_VISITED(pinfo)) {
+                            request->response_frame_number = pinfo->num;
+                            request->response_frame_time = pinfo->abs_ts;
+                        }
+
+                        /* Show request details */
+                        show_link_to_acknack_request(section_tree, tvb, pinfo, request);
                     }
-
-                    /* Show request details */
-                    show_link_to_acknack_request(section_tree, tvb, pinfo, request);
+                    else {
+                        /* Request not found */
+                        expert_add_info_format(pinfo, ack_ti, &ei_oran_acknack_no_request,
+                                               "Response for ackId=%u received, but no request found",
+                                               ackid);
+                    }
                 }
-                else {
-                    /* Request not found */
-                    expert_add_info_format(pinfo, ack_ti, &ei_oran_acknack_no_request,
-                                           "Response for ackId=%u received, but no request found",
-                                           ackid);
-                }
-
             }
             for (unsigned int m=1; m <= number_of_nacks; m++) {
                 uint32_t nackid;
@@ -3477,22 +3475,24 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
                                        nackid);
 
                 /* Look up request table in state. */
-                if (wmem_tree_contains32(state->ack_nack_requests, nackid)) {
+                if (state) {
                     ack_nack_request_t *request = wmem_tree_lookup32(state->ack_nack_requests, nackid);
-                    /* On first pass, update with this response */
-                    if (!PINFO_FD_VISITED(pinfo)) {
-                        request->response_frame_number = pinfo->num;
-                        request->response_frame_time = pinfo->abs_ts;
-                    }
+                    if (request) {
+                        /* On first pass, update with this response */
+                        if (!PINFO_FD_VISITED(pinfo)) {
+                            request->response_frame_number = pinfo->num;
+                            request->response_frame_time = pinfo->abs_ts;
+                        }
 
-                    /* Show request details */
-                    show_link_to_acknack_request(section_tree, tvb, pinfo, request);
-                }
-                else {
-                    /* Request not found */
-                    expert_add_info_format(pinfo, nack_ti, &ei_oran_acknack_no_request,
-                                           "Response for nackId=%u received, but no request found",
-                                           nackid);
+                        /* Show request details */
+                        show_link_to_acknack_request(section_tree, tvb, pinfo, request);
+                    }
+                    else {
+                        /* Request not found */
+                        expert_add_info_format(pinfo, nack_ti, &ei_oran_acknack_no_request,
+                                               "Response for nackId=%u received, but no request found",
+                                               nackid);
+                    }
                 }
             }
             break;
@@ -3869,9 +3869,9 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
                 }
                 else {
                     /* On later passes, try to link forward to ST8 response */
-                    if (wmem_tree_contains32(state->ack_nack_requests, ack_nack_req_id)) {
-                        ack_nack_request_t *response = wmem_tree_lookup32(state->ack_nack_requests,
-                                                                          ack_nack_req_id);
+                    ack_nack_request_t *response = wmem_tree_lookup32(state->ack_nack_requests,
+                                                                      ack_nack_req_id);
+                    if (response) {
                         show_link_to_acknack_response(section_tree, tvb, pinfo, response);
                     }
                 }
@@ -4001,10 +4001,8 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
         flow_state_t* state;
 
         /* Create or update conversation for stream eAxC+plane */
-        if (wmem_tree_contains32(flow_states_table, key)) {
-            state = (flow_state_t*)wmem_tree_lookup32(flow_states_table, key);
-        }
-        else {
+        state = (flow_state_t*)wmem_tree_lookup32(flow_states_table, key);
+        if (!state)  {
             /* Allocate new state */
             state = wmem_new0(wmem_file_scope(), flow_state_t);
             wmem_tree_insert32(flow_states_table, key, state);
@@ -4025,8 +4023,8 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
     }
     else {
         /* Show any issues associated with this frame number */
-        if (wmem_tree_contains32(flow_results_table, pinfo->num)) {
-            flow_result_t *result = wmem_tree_lookup32(flow_results_table, pinfo->num);
+        flow_result_t *result = wmem_tree_lookup32(flow_results_table, pinfo->num);
+        if (result) {
             if (result->unexpected_seq_number) {
                 expert_add_info_format(pinfo, seq_id_ti, &ei_oran_uplane_unexpected_sequence_number,
                                        "Sequence number %u expected, but got %u",
