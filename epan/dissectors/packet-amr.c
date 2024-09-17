@@ -377,18 +377,17 @@ dissect_amr_be(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int amr_mode
         f_bit = tvb_get_bits8(tvb, bit_offset, 1);
         proto_tree_add_bits_item(tree, hf_amr_toc_f, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
         bit_offset += 1;
+        /* Check FT bits */
         ft = tvb_get_bits8(tvb, bit_offset, 4);
-        if (amr_mode == AMR_NB)
+        if (amr_mode == AMR_NB) {
             item = proto_tree_add_bits_item(tree, hf_amr_nb_toc_ft, tvb, bit_offset, 4, ENC_BIG_ENDIAN);
-        else
+            bits_used_for_frames += Framebits_NB[ft];
+        } else {
             item = proto_tree_add_bits_item(tree, hf_amr_wb_toc_ft, tvb, bit_offset, 4, ENC_BIG_ENDIAN);
-
+            bits_used_for_frames += Framebits_WB[ft];
+        }
         bit_offset += 4;
         bitcount   += 4;
-        if (amr_mode == AMR_NB)
-            bits_used_for_frames += Framebits_NB[ft];
-        else
-            bits_used_for_frames += Framebits_WB[ft];
         /* Check Q bit */
         q_bit = tvb_get_bits8(tvb, bit_offset, 1);
         proto_tree_add_bits_item(tree, hf_amr_toc_q, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
