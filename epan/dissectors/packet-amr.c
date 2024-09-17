@@ -440,7 +440,6 @@ dissect_amr_oa(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int amr_
     int         offset     = 0;
     int         bit_offset = 0;
     uint8_t     octet;
-    bool        first_time;
     proto_tree *toc_tree;
 
     if (amr_mode == AMR_NB) {
@@ -469,12 +468,9 @@ dissect_amr_oa(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int amr_
      *
      *   P bits: padding bits, MUST be set to zero.
      */
-    octet = tvb_get_uint8(tvb,offset);
     toc_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_amr_toc, NULL, "Payload Table of Contents");
 
-    first_time = true;
-    while ((( octet& 0x80 ) == 0x80) || (first_time == true)) {
-        first_time = false;
+    do {
         octet = tvb_get_uint8(tvb,offset);
 
         proto_tree_add_bits_item(toc_tree, hf_amr_toc_f, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
@@ -490,7 +486,7 @@ dissect_amr_oa(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int amr_
         /* 2 padding bits */
         bit_offset += 2;
         offset     += 1;
-    }
+    } while ((octet & 0x80) == 0x80);
 }
 
 /* Code to actually dissect the packets */
