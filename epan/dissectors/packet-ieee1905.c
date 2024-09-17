@@ -746,6 +746,24 @@ static int hf_ieee1905_controller_capa_flags;
 static int hf_ieee1905_controller_capa_reserved;
 static int hf_ieee1905_controller_capa_early_ap_capa;
 static int hf_ieee1905_controller_capa_kbmb_counter;
+static int hf_ieee1905_affiliated_sta_metrics_sta_mac_addr;
+static int hf_ieee1905_affiliated_sta_metrics_bytes_sent;
+static int hf_ieee1905_affiliated_sta_metrics_bytes_rcvd;
+static int hf_ieee1905_affiliated_sta_metrics_packets_sent;
+static int hf_ieee1905_affiliated_sta_metrics_packets_rcvd;
+static int hf_ieee1905_affiliated_sta_metrics_packets_sent_errors;
+static int hf_ieee1905_affiliated_sta_metrics_reserved;
+static int hf_ieee1905_affiliated_ap_metrics_bssid;
+static int hf_ieee1905_affiliated_ap_metrics_packets_sent;
+static int hf_ieee1905_affiliated_ap_metrics_packets_rcvd;
+static int hf_ieee1905_affiliated_ap_metrics_packets_sent_errors;
+static int hf_ieee1905_affiliated_ap_metrics_ucast_bytes_sent;
+static int hf_ieee1905_affiliated_ap_metrics_ucast_bytes_rcvd;
+static int hf_ieee1905_affiliated_ap_metrics_mcast_bytes_sent;
+static int hf_ieee1905_affiliated_ap_metrics_mcast_bytes_rcvd;
+static int hf_ieee1905_affiliated_ap_metrics_bcast_bytes_sent;
+static int hf_ieee1905_affiliated_ap_metrics_bcast_bytes_rcvd;
+static int hf_ieee1905_affiliated_ap_metrics_reserved;
 
 static int ett_ieee1905;
 static int ett_ieee1905_flags;
@@ -1221,6 +1239,8 @@ static value_string_ext ieee1905_message_type_vals_ext = VALUE_STRING_EXT_INIT(i
 #define QOS_MANAGEMENT_POLICY_TLV               0xDB
 #define QOS_MANAGEMENT_DESCRIPTOR_TLV           0xDC
 #define CONTROLLER_CAPABILITY_TLV               0xDD
+#define AFFILIATED_STA_METRICS_TLV              0xE4
+#define AFFILIATED_AP_METRICS_TLV               0xE5
 
 static const value_string ieee1905_tlv_types_vals[] = {
   { EOM_TLV,                                 "End of message" },
@@ -1347,6 +1367,8 @@ static const value_string ieee1905_tlv_types_vals[] = {
   { QOS_MANAGEMENT_POLICY_TLV,               "QoS Management Policy" },
   { QOS_MANAGEMENT_DESCRIPTOR_TLV,           "QoS Management Descriptor" },
   { CONTROLLER_CAPABILITY_TLV,               "Controller Capability" },
+  { AFFILIATED_STA_METRICS_TLV,              "Affiliated STA Metrics" },
+  { AFFILIATED_AP_METRICS_TLV,               "Affiliated AP Metrics" },
 
   { 0, NULL }
 };
@@ -7986,6 +8008,110 @@ dissect_controller_capability(tvbuff_t *tvb, packet_info *pinfo _U_,
 }
 
 /*
+ * Dissect an Affiliated STA Metrics TLV:
+ */
+static int
+dissect_affiliated_sta_metrics(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
+        proto_tree *tree, unsigned offset, uint16_t len)
+{
+    unsigned end = offset + len;
+
+    proto_tree_add_item(tree, hf_ieee1905_affiliated_sta_metrics_sta_mac_addr,
+                        tvb, offset, 6, ENC_NA);
+    offset += 6;
+
+    proto_tree_add_item(tree, hf_ieee1905_affiliated_sta_metrics_bytes_sent,
+                        tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+
+    proto_tree_add_item(tree, hf_ieee1905_affiliated_sta_metrics_bytes_rcvd,
+                        tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+
+    proto_tree_add_item(tree, hf_ieee1905_affiliated_sta_metrics_packets_sent,
+                        tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+
+    proto_tree_add_item(tree, hf_ieee1905_affiliated_sta_metrics_packets_rcvd,
+                        tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+
+    proto_tree_add_item(tree, hf_ieee1905_affiliated_sta_metrics_packets_sent_errors,
+                        tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+
+    /* EM R6 adds N (>=0) reserved bytes */
+    if (end > offset) {
+        proto_tree_add_item(tree, hf_ieee1905_affiliated_sta_metrics_reserved,
+                            tvb, offset, end - offset, ENC_NA);
+
+        offset = end;
+    }
+
+    return offset;
+}
+
+/*
+ * Dissect an Affiliated AP Metrics TLV:
+ */
+static int
+dissect_affiliated_ap_metrics(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
+        proto_tree *tree, unsigned offset, uint16_t len)
+{
+    unsigned end = offset + len;
+
+    proto_tree_add_item(tree, hf_ieee1905_affiliated_ap_metrics_bssid,
+                        tvb, offset, 6, ENC_NA);
+    offset += 6;
+
+    proto_tree_add_item(tree, hf_ieee1905_affiliated_ap_metrics_packets_sent,
+                        tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+
+    proto_tree_add_item(tree, hf_ieee1905_affiliated_ap_metrics_packets_rcvd,
+                        tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+
+    proto_tree_add_item(tree, hf_ieee1905_affiliated_ap_metrics_packets_sent_errors,
+                        tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+
+    proto_tree_add_item(tree, hf_ieee1905_affiliated_ap_metrics_ucast_bytes_sent,
+                        tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+
+    proto_tree_add_item(tree, hf_ieee1905_affiliated_ap_metrics_ucast_bytes_rcvd,
+                        tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+
+    proto_tree_add_item(tree, hf_ieee1905_affiliated_ap_metrics_mcast_bytes_sent,
+                        tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+
+    proto_tree_add_item(tree, hf_ieee1905_affiliated_ap_metrics_mcast_bytes_rcvd,
+                        tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+
+    proto_tree_add_item(tree, hf_ieee1905_affiliated_ap_metrics_bcast_bytes_sent,
+                        tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+
+    proto_tree_add_item(tree, hf_ieee1905_affiliated_ap_metrics_bcast_bytes_rcvd,
+                        tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+
+    /* EM R6 adds N (>=0) reserved bytes */
+    if (end > offset) {
+        proto_tree_add_item(tree, hf_ieee1905_affiliated_ap_metrics_reserved,
+                            tvb, offset, end - offset, ENC_NA);
+
+        offset = end;
+    }
+
+    return offset;
+}
+
+/*
  * Dissect each of the TLV types we know about
  */
 static int
@@ -8535,6 +8661,16 @@ dissect_ieee1905_tlv_data(tvbuff_t *tvb, packet_info *pinfo,
 
     case CONTROLLER_CAPABILITY_TLV:
         offset = dissect_controller_capability(tvb, pinfo, tree, offset,
+                                               tlv_len);
+        break;
+
+    case AFFILIATED_STA_METRICS_TLV:
+        offset = dissect_affiliated_sta_metrics(tvb, pinfo, tree, offset,
+                                                tlv_len);
+        break;
+
+    case AFFILIATED_AP_METRICS_TLV:
+        offset = dissect_affiliated_ap_metrics(tvb, pinfo, tree, offset,
                                                tlv_len);
         break;
 
@@ -11857,6 +11993,78 @@ proto_register_ieee1905(void)
           { "KiBMiB Counter",
             "ieee1905.controller_capa.kbmb_counter",
             FT_BOOLEAN, 8, NULL, 0x80, NULL, HFILL }},
+
+        { &hf_ieee1905_affiliated_sta_metrics_sta_mac_addr,
+          { "STA MAC Address", "ieee1905.affiliated_sta_metrics.sta_mac_addr",
+            FT_ETHER, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_ieee1905_affiliated_sta_metrics_bytes_sent,
+          { "Bytes Sent", "ieee1905.affiliated_sta_metrics.bytes_sent",
+            FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+        { &hf_ieee1905_affiliated_sta_metrics_bytes_rcvd,
+          { "Bytes Received", "ieee1905.affiliated_sta_metrics.bytes_rcvd",
+            FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+        { &hf_ieee1905_affiliated_sta_metrics_packets_sent,
+          { "Packets Sent", "ieee1905.affiliated_sta_metrics.packets_sent",
+            FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+        { &hf_ieee1905_affiliated_sta_metrics_packets_rcvd,
+          { "Packets Received", "ieee1905.affiliated_sta_metrics.packets_rcvd",
+            FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+        { &hf_ieee1905_affiliated_sta_metrics_packets_sent_errors,
+          { "Packets Sent Errors", "ieee1905.affiliated_sta_metrics.packets_sent_errors",
+            FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+        { &hf_ieee1905_affiliated_sta_metrics_reserved,
+          { "Reserved", "ieee1905.affiliated_sta_metrics.reserved",
+            FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_ieee1905_affiliated_ap_metrics_bssid,
+          { "BSSID", "ieee1905.affiliated_ap_metrics.bssid",
+            FT_ETHER, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_ieee1905_affiliated_ap_metrics_packets_sent,
+          { "Packets Sent", "ieee1905.affiliated_ap_metrics.packets_sent",
+            FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+        { &hf_ieee1905_affiliated_ap_metrics_packets_rcvd,
+          { "Packets Received", "ieee1905.affiliated_ap_metrics.packets_rcvd",
+            FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+        { &hf_ieee1905_affiliated_ap_metrics_packets_sent_errors,
+          { "Packets Sent Errors", "ieee1905.affiliated_ap_metrics.packets_sent_errors",
+            FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+        { &hf_ieee1905_affiliated_ap_metrics_ucast_bytes_sent,
+          { "Unicast Bytes Sent", "ieee1905.affiliated_ap_metrics.ucast_bytes_sent",
+            FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+        { &hf_ieee1905_affiliated_ap_metrics_ucast_bytes_rcvd,
+          { "Unicast Bytes Received", "ieee1905.affiliated_ap_metrics.ucast_bytes_rcvd",
+            FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+        { &hf_ieee1905_affiliated_ap_metrics_mcast_bytes_sent,
+          { "Multicast Bytes Sent", "ieee1905.affiliated_ap_metrics.mcast_bytes_sent",
+            FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+        { &hf_ieee1905_affiliated_ap_metrics_mcast_bytes_rcvd,
+          { "Multicast Bytes Received", "ieee1905.affiliated_ap_metrics.mcast_bytes_rcvd",
+            FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+        { &hf_ieee1905_affiliated_ap_metrics_bcast_bytes_sent,
+          { "Broadcast Bytes Sent", "ieee1905.affiliated_ap_metrics.bcast_bytes_sent",
+            FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+        { &hf_ieee1905_affiliated_ap_metrics_bcast_bytes_rcvd,
+          { "Broadcast Bytes Received", "ieee1905.affiliated_ap_metrics.bcast_bytes_rcvd",
+            FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+        { &hf_ieee1905_affiliated_ap_metrics_reserved,
+          { "Reserved", "ieee1905.affiliated_ap_metrics.reserved",
+            FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
         { &hf_ieee1905_extra_tlv_data,
           { "Extraneous TLV data", "ieee1905.extra_tlv_data",
