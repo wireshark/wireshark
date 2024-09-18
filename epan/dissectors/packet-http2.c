@@ -1485,7 +1485,7 @@ http2_get_stream_id(packet_info *pinfo)
     return h2session->current_stream_id;
 }
 
-const char*
+static const char*
 http2_get_request_full_uri(packet_info *pinfo, http2_session_t *http2_session, uint32_t stream_id)
 {
     const char* uri = NULL;
@@ -1511,7 +1511,7 @@ http2_get_stream_id(packet_info *pinfo _U_)
     return 0;
 }
 
-const char*
+static const char*
 http2_get_request_full_uri(packet_info *pinfo _U_, http2_session_t *http2_session _U_, uint32_t stream_id _U_)
 {
     return NULL;
