@@ -1968,7 +1968,7 @@ void LograyMainWindow::copySelectedItems(LograyMainWindow::CopySelected selectio
     case CopySelectedValue:
         if (finfo_selected && capture_file_.capFile()->edt != 0) {
             char* field_str = get_node_field_value(finfo_selected, capture_file_.capFile()->edt);
-            clip.append(field_str);
+            clip.append(field_str[0] ? field_str : "(null)");
             g_free(field_str);
         }
         break;
