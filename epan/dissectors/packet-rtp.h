@@ -50,6 +50,7 @@ struct _rtp_info {
 	wmem_map_t    *info_payload_fmtp_map;
 	bool          info_is_ed137;
 	const char    *info_ed137_info;    /* pointer to static string, no freeing is required */
+	bool          info_is_iuup;
 	/*
 	* info_data: pointer to raw rtp data = header + payload incl. padding.
 	* That should be safe because the "epan_dissect_t" constructed for the packet

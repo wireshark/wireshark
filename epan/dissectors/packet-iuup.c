@@ -28,6 +28,8 @@
 #include <wsutil/crc10.h>
 #include <wsutil/crc6.h>
 
+#include "packet-rtp.h"
+
 void proto_reg_handoff_iuup(void);
 void proto_register_iuup(void);
 
@@ -742,10 +744,11 @@ static int dissect_iuup_control(tvbuff_t* tvb, packet_info* pinfo,
     return tvb_captured_length(tvb);
 }
 
-static int dissect_iuup(tvbuff_t* tvb_in, packet_info* pinfo, proto_tree* tree, void* data _U_) {
+static int dissect_iuup(tvbuff_t *tvb_in, packet_info *pinfo, proto_tree *tree, void *data) {
     proto_item* iuup_item = NULL;
     proto_item* pdutype_item = NULL;
     proto_tree* iuup_tree = NULL;
+    struct _rtp_info *rtp_info = NULL;
     uint8_t first_octet;
     uint8_t pdutype;
     unsigned phdr = 0;
@@ -766,6 +769,10 @@ static int dissect_iuup(tvbuff_t* tvb_in, packet_info* pinfo, proto_tree* tree, 
         conversation_set_elements_by_id(pinfo, CONVERSATION_IUUP, phdr);
 
         tvb = tvb_new_subset_length(tvb_in,2,len);
+    } else if (data) {
+        /* Coming from RTP */
+        rtp_info = (struct _rtp_info*)data;
+        rtp_info->info_is_iuup = true;
     }
 
     first_octet = tvb_get_uint8(tvb,0);

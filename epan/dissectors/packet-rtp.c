@@ -2307,6 +2307,7 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
     rtp_info->info_payload_fmtp_map = NULL;
     rtp_info->info_is_ed137 = false;
     rtp_info->info_ed137_info = NULL;
+    rtp_info->info_is_iuup = false;
 
     /*
      * Do we have all the data?
@@ -2784,6 +2785,7 @@ dissect_rtp_shim_header(tvbuff_t *tvb, int start, packet_info *pinfo _U_, proto_
         rtp_info->info_payload_fmtp_map = NULL;
         rtp_info->info_is_ed137 = false;
         rtp_info->info_ed137_info = NULL;
+        rtp_info->info_is_iuup = false;
     }
 
     if ( tree ) {
