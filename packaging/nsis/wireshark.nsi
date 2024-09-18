@@ -1098,6 +1098,9 @@ File "${STAGING_DIR}\plugins\${MAJOR_VERSION}.${MINOR_VERSION}\codecs\ilbc.dll"
 !ifdef OPUS_FOUND
 File "${STAGING_DIR}\plugins\${MAJOR_VERSION}.${MINOR_VERSION}\codecs\opus_dec.dll"
 !endif
+!ifdef AMRNB_FOUND
+File "${STAGING_DIR}\plugins\${MAJOR_VERSION}.${MINOR_VERSION}\codecs\amrnb.dll"
+!endif
 
 ; This should be a function or macro
 SetOutPath '$INSTDIR\profiles\Bluetooth'
