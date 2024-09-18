@@ -1088,6 +1088,12 @@ typedef struct {
        Note that this assumes that the same ackNackId will not be reused,
        which may well not be valid */
     wmem_tree_t *ack_nack_requests;
+
+    /* Store udCompHdr seen in C-Plane for UL - can be looked up and used by U-PLane */
+    /* TODO: could these really be different by section? */
+    bool     ul_ud_comp_hdr_set;
+    unsigned ul_ud_comp_hdr_bit_width;
+    int      ul_ud_comp_hdr_compression;
 } flow_state_t;
 
 typedef struct {
@@ -3388,8 +3394,9 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
 
     /* Section-specific fields (white entries in Section Type diagrams) */
     unsigned bit_width = 0;
+    int      comp_meth = 0;
     unsigned ci_comp_method = 0;
-    uint8_t ci_comp_opt = 0;
+    uint8_t  ci_comp_opt = 0;
 
     uint32_t num_ues = 0;
     uint32_t number_of_acks = 0, number_of_nacks = 0;
@@ -3415,8 +3422,8 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
         case SEC_C_UE_SCHED:    /* Section Type 5 */
             /* udCompHdr */
             offset = dissect_udcomphdr(tvb, pinfo, section_tree, offset,
-                                       (direction==1), /* whether to ignore */
-                                       &bit_width, NULL);
+                                       (direction==1), /* ignore for DL */
+                                       &bit_width, &comp_meth);
             /* reserved */
             proto_tree_add_item(section_tree, hf_oran_reserved_8bits, tvb, offset, 1, ENC_NA);
             offset += 1;
@@ -3437,8 +3444,8 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
             offset += 2;
             /* udCompHdr */
             offset = dissect_udcomphdr(tvb, pinfo, section_tree, offset,
-                                       (direction==1), /* whether to ignore */
-                                       &bit_width, NULL);
+                                       (direction==1), /* ignore for DL */
+                                       &bit_width, &comp_meth);
             break;
 
         case SEC_C_CH_INFO:     /* Section Type 6 */
@@ -3526,6 +3533,22 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
             }
             break;
     };
+
+    /* Update udCompHdr details in state for UL U-Plane */
+    if (!PINFO_FD_VISITED(pinfo) && state && direction==0) {
+        switch (sectionType) {
+            case SEC_C_NORMAL:    /* Section Type 1 */
+            case SEC_C_PRACH:     /* Section Type 3 */
+            case SEC_C_UE_SCHED:  /* Section Type 5 */
+                state->ul_ud_comp_hdr_set = true;
+                state->ul_ud_comp_hdr_bit_width = bit_width;
+                state->ul_ud_comp_hdr_compression = comp_meth;
+                break;
+            default:
+                break;
+        }
+    }
+
 
     proto_item_append_text(sectionHeading, "%d, %s, Frame: %d, Subframe: %d, Slot: %d, StartSymbol: %d",
                            sectionType, val_to_str_const(direction, data_direction_vals, "Unknown"),
@@ -4024,13 +4047,12 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
     int compression;
     bool includeUdCompHeader;
 
-    /* Update/report status of conversion */
-    if (!PINFO_FD_VISITED(pinfo)) {
-        uint32_t key = make_flow_key(eAxC, ORAN_U_PLANE);
-        flow_state_t* state;
+    /* Update/report status of conversation */
+    uint32_t key = make_flow_key(eAxC, ORAN_U_PLANE);
+    flow_state_t* state = (flow_state_t*)wmem_tree_lookup32(flow_states_table, key);
 
-        /* Create or update conversation for stream eAxC+plane */
-        state = (flow_state_t*)wmem_tree_lookup32(flow_states_table, key);
+    if (!PINFO_FD_VISITED(pinfo)) {
+        /* Create conversation if doesn't exist yet */
         if (!state)  {
             /* Allocate new state */
             state = wmem_new0(wmem_file_scope(), flow_state_t);
@@ -4046,7 +4068,7 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
             result->previous_frame = state->last_frame[direction];
             wmem_tree_insert32(flow_results_table, pinfo->num, result);
         }
-        /* Update conversation info */
+        /* Update sequence analysis state */
         state->last_frame[direction] = pinfo->num;
         state->next_expected_sequence_number[direction] = (seq_id+1) % 256;
     }
@@ -4073,11 +4095,26 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
         includeUdCompHeader = pref_includeUdCompHeaderDownlink;
     }
 
+    /* If uplink, load any udCompHdr settings written by C-Plane */
+    bool sample_width_from_cplane = false;
+    if (state && direction == 0) {
+        /* Initialise settings from udpCompHdr from C-Plane */
+        if (state->ul_ud_comp_hdr_set) {
+            sample_bit_width = state->ul_ud_comp_hdr_bit_width;
+            compression =      state->ul_ud_comp_hdr_compression;
+
+            sample_width_from_cplane = true;
+        }
+    }
+
     /* Need a valid value (e.g. 9, 14).  0 definitely won't work, as won't progress around loop! */
+    /* N.B. may yet be overwritten by udCompHdr settings in sections below! */
     if (sample_bit_width == 0) {
         expert_add_info_format(pinfo, protocol_item, &ei_oran_invalid_sample_bit_width,
-                               "%cL Sample bit width from preference (%u) not valid, so can't decode sections",
-                               (direction == DIR_UPLINK) ? 'U' : 'D', sample_bit_width);
+                               "%cL Sample bit width from %s (%u) not valid, so can't decode sections",
+                               (direction == DIR_UPLINK) ? 'U' : 'D',
+                               !sample_width_from_cplane ? "preference" : "C-Plane",
+                               sample_bit_width);
         return offset;
     }
 
