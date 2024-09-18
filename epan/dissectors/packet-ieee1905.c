@@ -1417,8 +1417,9 @@ static const value_string ieee1905_media_type_1_vals[] = {
   { 4, "IEEE 802.11n (5 GHz)" },
   { 5, "IEEE 802.11ac (5 GHz)" },
   { 6, "IEEE 802.11ad (60 GHz)" },
-  { 7, "IEEE 802.11ax (2.4 GHz)" },
-  { 8, "IEEE 802.11ax (5 GHz)" },
+  { 7, "IEEE 802.11af (whitespace)" },
+  { 8, "IEEE 802.11ax" },
+  { 9, "IEEE 802.11be" },
   { 0, NULL }
 };
 
@@ -1452,6 +1453,7 @@ static const value_string ieee1905_freq_band_vals[] = {
   { 0, "802.11 2.4 GHz" },
   { 1, "802.11 5 GHz" },
   { 2, "802.11 60 GHz" },
+  { 3, "802.11 6 GHz" },
   { 0, NULL }
 };
 
