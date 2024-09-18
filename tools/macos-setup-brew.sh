@@ -24,7 +24,7 @@ function print_usage() {
     printf "\\t--install-sparkle-deps: install the Sparkle automatic updater\\n"
     printf "\\t--install-all: install everything\\n"
     printf "\\t--install-logray: install everything to compile Logray and falco bridge\\n"
-    printf "\\t[other]: other options are passed as-is to apt\\n"
+    printf "\\t[other]: other options are passed as-is to brew\\n"
 }
 
 INSTALLED_FORMULAE=$( brew list --formulae )

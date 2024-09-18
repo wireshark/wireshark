@@ -14,13 +14,13 @@
 
 The following must be installed in order to build Wireshark:
 
-* a C compiler and a C++ compiler;
-* the Flex lexical analyzer;
+* A C compiler and a C++ compiler;
+* The Flex lexical analyzer;
 * Python 3;
 * CMake;
-* several required libraries.
+* Several required libraries.
 
-Either make or Ninja can be used to build Wireshark; at least one of
+Either make or https://ninja-build.org/[Ninja] can be used to build Wireshark; at least one of
 those must be installed.
 
 To build the manual pages, Developer's Guide and User's Guide, Asciidoctor, Xsltproc, and DocBook must be installed.
@@ -93,12 +93,26 @@ The setup script is `tools/rpm-setup.sh`; its options are:
 
 You must first install Xcode.
 
-After installing Xcode, the setup script `tools/macos-setup.sh` will
-install the rest of the tools and libraries required to build Wireshark,
-except for Qt 6, as well as the additional tools required to build the
-documentation and the libraries required for all Wireshark features.  If
-you're using Homebrew, the script `tools/macos-setup-brew.sh` will
-install the same tools and libraries from Homebrew.
+There are two scripts available for macOS which will install the packages and libraries required to build Wireshark and its documentation:
+`tools/macos-setup-brew.sh`, which will use the https://brew.sh/[Homebrew] package manager and `tools/macos-setup.sh`, which will build any required libraries and tools locally, except for Qt 6.
+
+`tools/macos-setup-brew.sh` supports the following options:
+
+* `--install-optional` install optional software as well
+* `--install-dmg-deps` install packages required to build the .dmg file
+* `--install-sparkle-deps` install the Sparkle automatic updater
+* `--install-all` install everything
+* `--install-logray` install everything to compile Logray and falco bridge
+* `[other]` other options are passed as-is to brew
+
+`tools/macos-setup.sh` supports the following options:
+
+* `-n` dry run; don't build or install any packages
+* `-p` specifiy the installation prefix; _/usr/local_ is the default
+* `-t` specify the minimum macOS target version
+* `-u` uninstall packages
+
+We recommend `tools/macos-setup-brew.sh` if you're using Homebrew and you don't need to worry about backward compatibility with older macOS releases.
 
 If you will be building Wireshark with Qt 6, which is the default for
 Wireshark 4.0 and later, you will also have to install Qt; the
@@ -152,7 +166,7 @@ and Ninja. Building with make took nearly 2x time as Ninja in one
 experiment.
 
 CMake builds are best done in a separate build directory, such as a
-`build` subdirectory of the top-level source directory.  +
+`build` subdirectory of the top-level source directory.
 If that directory is a subdirectory of the top-level source directory,
 to generate the build files, change to the build directory and enter the
 following command:
