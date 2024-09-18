@@ -31,6 +31,7 @@
 #include <epan/sequence_analysis.h>
 #include <epan/tap.h>
 #include <epan/capture_dissectors.h>
+#include <epan/unit_strings.h>
 #include <epan/proto_data.h>
 #include <epan/strutil.h>
 #include <epan/tfs.h>
@@ -6132,7 +6133,7 @@ proto_register_icmpv6(void)
            { "Default Lifetime", "icmpv6.rpl.opt.config.def_lifetime", FT_UINT8, BASE_DEC, NULL, 0x0,
               "This is the lifetime that is used as default for all RPL routes", HFILL }},
         { &hf_icmpv6_rpl_opt_config_lifetime_unit,
-           { "Lifetime Unit", "icmpv6.rpl.opt.config.lifetime_unit", FT_UINT16, BASE_DEC, NULL, 0x0,
+           { "Lifetime Unit", "icmpv6.rpl.opt.config.lifetime_unit", FT_UINT16, BASE_DEC|BASE_UNIT_STRING, UNS(&units_seconds), 0x0,
               "Provides the unit in seconds that is used to express route lifetimes in RPL", HFILL }},
         { &hf_icmpv6_rpl_opt_target_flag,
            { "Reserved", "icmpv6.rpl.opt.target.flag", FT_NONE, BASE_NONE, NULL, 0x0,
