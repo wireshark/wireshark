@@ -1136,14 +1136,8 @@ main(int argc, char *argv[])
     while ((opt = ws_getopt_long(argc, argv, optstring, long_options, NULL)) != -1) {
         switch (opt) {
             case LONGOPT_GLOBAL_PROFILE:
-                {
-                    char *global_dir;
-
-                    global_dir = get_global_profiles_dir();
-                    set_persconffile_dir(global_dir);
-                    g_free(global_dir);
+                    set_persconffile_dir(get_datafile_dir());
                     break;
-                }
             default:
                 break;
         }
