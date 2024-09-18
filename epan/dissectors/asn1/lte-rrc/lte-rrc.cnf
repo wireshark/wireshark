@@ -4264,6 +4264,23 @@ SR-NPRACH-Resource-NB-r15/p0-SR-r15 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UN
     mapping->ul_priority_present = true;
   }
 
+#.FN_BODY MCC-MNC-Digit VAL_PTR=&value
+  uint32_t value;
+%(DEFAULT_BODY)s
+  if (actx->value_ptr && value <= 9) {
+    wmem_strbuf_t *plmn_str = (wmem_strbuf_t *)actx->value_ptr;
+    wmem_strbuf_append_c(plmn_str, '0' + value);
+  }
+
+#.FN_BODY PLMN-Identity
+  wmem_strbuf_t *plmn_str = wmem_strbuf_new(actx->pinfo->pool, "");
+  actx->value_ptr = plmn_str;
+%(DEFAULT_BODY)s
+  if (wmem_strbuf_get_len(plmn_str) > 0) {
+    proto_item_append_text(actx->created_item, ": %%s", wmem_strbuf_get_str(plmn_str));
+  }
+  actx->value_ptr = NULL;
+
 #.TYPE_ATTR
 UplinkPowerControlCommon-NB-r13/p0-NominalNPUSCH-r13 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_dbm)
 
