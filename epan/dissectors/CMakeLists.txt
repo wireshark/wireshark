@@ -454,6 +454,7 @@ set(DISSECTOR_PUBLIC_HEADERS
 	packet-isobus-parameters.h
 	packet-isup.h
 	packet-its.h
+	packet-iuup.h
 	packet-iwarp-ddp-rdmap.h
 	packet-json.h
 	packet-juniper.h

@@ -29,31 +29,10 @@
 #include <wsutil/crc6.h>
 
 #include "packet-rtp.h"
+#include "packet-iuup.h"
 
 void proto_reg_handoff_iuup(void);
 void proto_register_iuup(void);
-
-#define ACKNACK_MASK  0x0c
-#define PROCEDURE_MASK  0x0f
-#define FQC_MASK 0xc0
-#define PDUTYPE_MASK 0xf0
-
-typedef struct _iuup_rfci_t {
-    unsigned id;
-    unsigned sum_len;
-    unsigned num_of_subflows;
-    struct {
-        unsigned len;
-    } subflow[8];
-    struct _iuup_rfci_t* next;
-} iuup_rfci_t;
-
-typedef struct {
-    uint32_t id;
-    unsigned num_of_subflows;
-    iuup_rfci_t* rfcis;
-    iuup_rfci_t* last_rfci;
-} iuup_circuit_t;
 
 static int proto_iuup;
 
@@ -137,10 +116,6 @@ static dissector_handle_t iuup_handle;
 
 static bool dissect_fields;
 static bool two_byte_pseudoheader;
-
-#define PDUTYPE_DATA_WITH_CRC 0
-#define PDUTYPE_DATA_NO_CRC 1
-#define PDUTYPE_DATA_CONTROL_PROC 14
 
 static const value_string iuup_pdu_types[] = {
     {PDUTYPE_DATA_WITH_CRC,"Data with CRC"},
