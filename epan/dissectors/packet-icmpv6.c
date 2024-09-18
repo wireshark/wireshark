@@ -1357,6 +1357,12 @@ static const value_string rpl_metric_vals[] = {
   { 0, NULL }
 };
 
+static const value_string rpl_ocp_vals[] = {
+    { 0, "Objective Function Zero (OF0)" },
+    { 1, "Minimum Rank with Hysteresis Objective Function (MRHOF)" },
+    { 0, NULL }
+};
+
 /* RFC 7400 */
 #define ND_OPT_6CIO_FLAG_G          0x0001
 #define ND_OPT_6CIO_FLAG_UNASSIGNED 0xFFFE
@@ -6117,7 +6123,7 @@ proto_register_icmpv6(void)
            { "MinHopRankInc", "icmpv6.rpl.opt.config.min_hop_rank_inc", FT_UINT16, BASE_DEC, NULL, 0x0,
               "Used to configure MinHopRankIncrease", HFILL }},
         { &hf_icmpv6_rpl_opt_config_ocp,
-           { "OCP (Objective Code Point)","icmpv6.rpl.opt.config.ocp", FT_UINT16, BASE_DEC, NULL, 0x0,
+           { "OCP (Objective Code Point)","icmpv6.rpl.opt.config.ocp", FT_UINT16, BASE_DEC, VALS(rpl_ocp_vals), 0x0,
               "The OCP field identifies the OF and is managed by the IANA", HFILL }},
         { &hf_icmpv6_rpl_opt_config_rsv,
            { "Reserved", "icmpv6.rpl.opt.config.rsv", FT_UINT8, BASE_DEC, NULL, 0x0,
