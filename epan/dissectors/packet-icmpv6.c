@@ -3060,6 +3060,7 @@ dissect_icmpv6_rpl_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
                     &hf_icmpv6_rpl_opt_config_pcs,
                     NULL
                 };
+                proto_item *pi;
 
                 /* Flags */
                 proto_tree_add_bitmask(icmp6opt_tree, tvb, opt_offset, hf_icmpv6_rpl_opt_config_flag,
@@ -3095,7 +3096,8 @@ dissect_icmpv6_rpl_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
                 opt_offset += 1;
 
                 /* Default Lifetime */
-                proto_tree_add_item(icmp6opt_tree, hf_icmpv6_rpl_opt_config_def_lifetime, tvb, opt_offset, 1, ENC_BIG_ENDIAN);
+                pi = proto_tree_add_item(icmp6opt_tree, hf_icmpv6_rpl_opt_config_def_lifetime, tvb, opt_offset, 1, ENC_BIG_ENDIAN);
+                proto_item_append_text(pi, " (%us)", tvb_get_uint8(tvb, opt_offset) * tvb_get_ntohs(tvb, opt_offset + 1));
                 opt_offset += 1;
 
                 /* Lifetime Unit */
