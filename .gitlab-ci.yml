@@ -984,8 +984,8 @@ Clang Static Analyzer:
   needs: []
   script:
     - source /clang-latest.env
-    - scan-build-${CLANG_VERSION} cmake -DCMAKE_BUILD_TYPE=Debug -DENABLE_WERROR=OFF -G Ninja ..
-    - scan-build-${CLANG_VERSION} -o ../sbout ninja
+    - scan-build-${CLANG_VERSION} --exclude tools cmake -DCMAKE_BUILD_TYPE=Debug -DENABLE_WERROR=OFF -G Ninja ..
+    - scan-build-${CLANG_VERSION} --exclude tools -o ../sbout ninja
     - cd ../sbout
     - RAW_DIR=$( find ../sbout -type d -name "20??-??-??-*" -printf "%P\n" | head )
     - SB_DIR="scan-build-$RAW_DIR"
