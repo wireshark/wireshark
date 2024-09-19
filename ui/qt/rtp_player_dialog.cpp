@@ -1563,7 +1563,7 @@ void RtpPlayerDialog::outputNotify()
 #endif
     double secs = usecs / 1000000.0;
 
-    if (ui->skipSilenceButton->isChecked()) {
+    if (ui->skipSilenceButton->isChecked() && !playing_streams_.isEmpty()) {
         // We should check whether we can skip some silence
         // We must calculate in time domain as every stream can use different
         // play rate
