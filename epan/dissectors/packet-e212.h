@@ -56,6 +56,10 @@ int dissect_e212_mcc_mnc_in_utf8_address(tvbuff_t *tvb, packet_info *pinfo _U_, 
  *
  * Note a tvbuff content of 0xf is considered a 'filler' and will end the
  * conversion.
+ *
+ * When skip_first is true, the high bit of the skipped nibble is treated as a odd/even indicator,
+ * according to Figure 10.5.4/3GPP TS 24.008 Mobile Identity information element
+ *
  * A wmem allocated string will be returned.
  */
 WS_DLL_PUBLIC

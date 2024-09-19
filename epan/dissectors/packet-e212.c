@@ -3827,13 +3827,27 @@ dissect_e212_imsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offse
     proto_item *item;
     proto_tree *subtree;
     const uint8_t *imsi_str;
+    uint8_t   oct;
 
     /* Fetch the BCD encoded digits from tvb indicated half byte, formating the digits according to
      * a default digit set of 0-9 returning "?" for overdecadic digits a pointer to the wmem
      * allocated string will be returned.
      */
     if (skip_first) {
-        item = proto_tree_add_item_ret_string(tree, hf_E212_imsi, tvb, offset, length, ENC_BCD_DIGITS_0_9 | ENC_LITTLE_ENDIAN | ENC_BCD_SKIP_FIRST, pinfo->pool, &imsi_str);
+        oct = tvb_get_uint8(tvb, offset);
+
+        /* Check whether IMSI has even or odd number of digits.
+         * The format is specified in Figure 10.5.4/3GPP TS 24.008 Mobile Identity information element
+         */
+        if (oct & 0x08) {
+            item = proto_tree_add_item_ret_string(tree, hf_E212_imsi, tvb, offset, length, ENC_BCD_DIGITS_0_9 | ENC_LITTLE_ENDIAN | ENC_BCD_SKIP_FIRST, pinfo->pool, &imsi_str);
+        } else {
+            /* See tvb_get_bcd_string(...) documentation.
+             *     Note that if both skip_first and odd are true, then both the first and last semi-octet are skipped,
+             *     i.e. an even number of nibbles are considered.
+             */
+            item = proto_tree_add_item_ret_string(tree, hf_E212_imsi, tvb, offset, length, ENC_BCD_DIGITS_0_9 | ENC_LITTLE_ENDIAN | ENC_BCD_SKIP_FIRST | ENC_BCD_ODD_NUM_DIG, pinfo->pool, &imsi_str);
+        }
     } else {
         item = proto_tree_add_item_ret_string(tree, hf_E212_imsi, tvb, offset, length, ENC_BCD_DIGITS_0_9 | ENC_LITTLE_ENDIAN, pinfo->pool, &imsi_str);
     }
