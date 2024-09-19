@@ -84,6 +84,7 @@ typedef struct _goose_chk_data{
 static expert_field ei_goose_mal_utctime;
 static expert_field ei_goose_zero_pdu;
 static expert_field ei_goose_invalid_sim;
+static expert_field ei_goose_bogus_length;
 
 #define SINGLE_FLOAT_EXP_BITS	8
 #define FLOAT_ENC_LENGTH		5
@@ -148,6 +149,7 @@ dissect_goose(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 	uint32_t length;
 	uint32_t reserve1_val;
 	proto_item *item = NULL;
+	proto_item *tree_item = NULL;
 	proto_tree *tree = NULL;
 	goose_chk_data_t *data_chk = NULL;
 	asn1_ctx_t asn1_ctx;
@@ -164,8 +166,8 @@ dissect_goose(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, GOOSE_PNAME);
 	col_clear(pinfo->cinfo, COL_INFO);
 
-	item = proto_tree_add_item(parent_tree, proto_goose, tvb, 0, -1, ENC_NA);
-	tree = proto_item_add_subtree(item, ett_goose);
+	tree_item = proto_tree_add_item(parent_tree, proto_goose, tvb, 0, -1, ENC_NA);
+	tree = proto_item_add_subtree(tree_item, ett_goose);
 	add_ber_encoded_label(tvb, pinfo, parent_tree);
 
 
@@ -173,8 +175,13 @@ dissect_goose(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 	proto_tree_add_item(tree, hf_goose_appid, tvb, offset, 2, ENC_BIG_ENDIAN);
 
 	/* Length */
-	proto_tree_add_item_ret_uint(tree, hf_goose_length, tvb, offset + 2, 2,
-						ENC_BIG_ENDIAN, &length);
+	item = proto_tree_add_item_ret_uint(tree, hf_goose_length, tvb, offset + 2, 2,
+                                            ENC_BIG_ENDIAN, &length);
+        if (length < 8) {
+            expert_add_info(pinfo, item, &ei_goose_bogus_length);
+        }
+        set_actual_length(tvb, length);
+        proto_item_set_len(tree_item, length);
 
 	/* Reserved 1 */
 	reserve1_val = tvb_get_uint16(tvb, offset + 4, ENC_BIG_ENDIAN);
@@ -556,6 +563,9 @@ void proto_register_goose(void) {
 		{ &ei_goose_invalid_sim,
 		{ "goose.invalid_sim", PI_PROTOCOL, PI_WARN,
 		  "Invalid GOOSE: S bit set and Simulation attribute clear", EXPFILL }},
+		{ &ei_goose_bogus_length,
+		{ "goose.bogus_length", PI_PROTOCOL, PI_ERROR,
+		  "GOOSE length must be at least 8 (includes header)", EXPFILL }},
 	};
 
 	expert_module_t* expert_goose;
