@@ -797,6 +797,8 @@ static int hf_ieee1905_affiliated_ap_metrics_mcast_bytes_rcvd;
 static int hf_ieee1905_affiliated_ap_metrics_bcast_bytes_sent;
 static int hf_ieee1905_affiliated_ap_metrics_bcast_bytes_rcvd;
 static int hf_ieee1905_affiliated_ap_metrics_reserved;
+static int hf_ieee1905_available_spectrum_inquiry_request_object;
+static int hf_ieee1905_available_spectrum_inquiry_response_object;
 
 static int ett_ieee1905;
 static int ett_ieee1905_flags;
@@ -1076,6 +1078,7 @@ static expert_field ei_ieee1905_extraneous_tlv_data;
 #define ANTICIPATED_CHANNEL_USAGE_MESSAGE              0x8036
 #define QOS_MANAGEMENT_NOTIFICATION_MESSAGE            0x8037
 #define EARLY_AP_CAPABILITY_REPORT_MESSAGE             0x8043
+#define AVAILABLE_SPECTRUM_INQUIRY_MESSAGE             0x8049
 
 static const value_string ieee1905_message_type_vals[] = {
   { TOPOLOGY_DISCOVERY_MESSAGE,                  "Topology discovery" },
@@ -1153,6 +1156,7 @@ static const value_string ieee1905_message_type_vals[] = {
   { ANTICIPATED_CHANNEL_USAGE_MESSAGE,           "Anticipated Channel Usage" },
   { QOS_MANAGEMENT_NOTIFICATION_MESSAGE,         "QoS Management Notification" },
   { EARLY_AP_CAPABILITY_REPORT_MESSAGE,          "Early AP Capability Report" },
+  { AVAILABLE_SPECTRUM_INQUIRY_MESSAGE,          "Available Spectrum Inquiry Message" },
   { 0, NULL }
 };
 static value_string_ext ieee1905_message_type_vals_ext = VALUE_STRING_EXT_INIT(ieee1905_message_type_vals);
@@ -1284,6 +1288,8 @@ static value_string_ext ieee1905_message_type_vals_ext = VALUE_STRING_EXT_INIT(i
 #define WIFI7_AGENT_CAPABILITIES_TLV            0xDF
 #define AFFILIATED_STA_METRICS_TLV              0xE4
 #define AFFILIATED_AP_METRICS_TLV               0xE5
+#define AVAILABLE_SPECTRUM_INQUIRY_REQUEST_TLV  0xE8
+#define AVAILABLE_SPECTRUM_INQUIRY_RESPONSE_TLV 0xE9
 
 static const value_string ieee1905_tlv_types_vals[] = {
   { EOM_TLV,                                 "End of message" },
@@ -1413,7 +1419,8 @@ static const value_string ieee1905_tlv_types_vals[] = {
   { WIFI7_AGENT_CAPABILITIES_TLV,            "Wi-Fi 7 Agent Capabilities" },
   { AFFILIATED_STA_METRICS_TLV,              "Affiliated STA Metrics" },
   { AFFILIATED_AP_METRICS_TLV,               "Affiliated AP Metrics" },
-
+  { AVAILABLE_SPECTRUM_INQUIRY_REQUEST_TLV,  "Available Spectrum Inquiry Request" },
+  { AVAILABLE_SPECTRUM_INQUIRY_RESPONSE_TLV, "Available Spectrum Inquiry Response" },
   { 0, NULL }
 };
 static value_string_ext ieee1905_tlv_types_vals_ext = VALUE_STRING_EXT_INIT(ieee1905_tlv_types_vals);
@@ -8340,6 +8347,36 @@ dissect_affiliated_ap_metrics(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
 }
 
 /*
+ * Dissect an Available Spectrum Inquiry Request TLV:
+ */
+static int
+dissect_available_spectrum_inquiry_request(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
+        proto_tree *tree, unsigned offset, uint16_t len)
+{
+    /* Content is a JSON message */
+    proto_tree_add_item(tree, hf_ieee1905_available_spectrum_inquiry_request_object,
+                        tvb, offset, len, ENC_ASCII);
+    offset += len;
+
+    return offset;
+}
+
+/*
+ * Dissect an Available Spectrum Inquiry Response TLV:
+ */
+static int
+dissect_available_spectrum_inquiry_response(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
+        proto_tree *tree, unsigned offset, uint16_t len)
+{
+    /* Content is a JSON message */
+    proto_tree_add_item(tree, hf_ieee1905_available_spectrum_inquiry_response_object,
+                        tvb, offset, len, ENC_ASCII);
+    offset += len;
+
+    return offset;
+}
+
+/*
  * Dissect each of the TLV types we know about
  */
 static int
@@ -8905,6 +8942,16 @@ dissect_ieee1905_tlv_data(tvbuff_t *tvb, packet_info *pinfo,
     case AFFILIATED_AP_METRICS_TLV:
         offset = dissect_affiliated_ap_metrics(tvb, pinfo, tree, offset,
                                                tlv_len);
+        break;
+
+    case AVAILABLE_SPECTRUM_INQUIRY_REQUEST_TLV:
+        offset = dissect_available_spectrum_inquiry_request(tvb, pinfo, tree, offset,
+                                                            tlv_len);
+        break;
+
+    case AVAILABLE_SPECTRUM_INQUIRY_RESPONSE_TLV:
+        offset = dissect_available_spectrum_inquiry_response(tvb, pinfo, tree, offset,
+                                                             tlv_len);
         break;
 
     default:
@@ -12430,6 +12477,14 @@ proto_register_ieee1905(void)
         { &hf_ieee1905_affiliated_ap_metrics_reserved,
           { "Reserved", "ieee1905.affiliated_ap_metrics.reserved",
             FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_ieee1905_available_spectrum_inquiry_request_object,
+          { "Object", "ieee1905.available_spectrum_inquiry_request.object",
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
+
+        { &hf_ieee1905_available_spectrum_inquiry_response_object,
+          { "Object", "ieee1905.available_spectrum_inquiry_response.object",
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
 
         { &hf_ieee1905_extra_tlv_data,
           { "Extraneous TLV data", "ieee1905.extra_tlv_data",
