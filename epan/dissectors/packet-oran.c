@@ -1089,8 +1089,9 @@ typedef struct {
        which may well not be valid */
     wmem_tree_t *ack_nack_requests;
 
-    /* Store udCompHdr seen in C-Plane for UL - can be looked up and used by U-PLane */
-    /* TODO: could these really be different by section? */
+    /* Store udCompHdr seen in C-Plane for UL - can be looked up and used by U-PLane.
+       Note that this appears in the common section header parts of ST1, ST3, ST5,
+       so can still be over-written by sectionId in the U-Plane */
     bool     ul_ud_comp_hdr_set;
     unsigned ul_ud_comp_hdr_bit_width;
     int      ul_ud_comp_hdr_compression;
@@ -4056,6 +4057,7 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
         if (!state)  {
             /* Allocate new state */
             state = wmem_new0(wmem_file_scope(), flow_state_t);
+            state->ack_nack_requests = wmem_tree_new(wmem_epan_scope());
             wmem_tree_insert32(flow_states_table, key, state);
         }
 
@@ -4096,14 +4098,14 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
     }
 
     /* If uplink, load any udCompHdr settings written by C-Plane */
-    bool sample_width_from_cplane = false;
+    bool ud_cmp_hdr_cplane = false;
     if (state && direction == 0) {
         /* Initialise settings from udpCompHdr from C-Plane */
         if (state->ul_ud_comp_hdr_set) {
             sample_bit_width = state->ul_ud_comp_hdr_bit_width;
             compression =      state->ul_ud_comp_hdr_compression;
 
-            sample_width_from_cplane = true;
+            ud_cmp_hdr_cplane = true;
         }
     }
 
@@ -4113,7 +4115,7 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
         expert_add_info_format(pinfo, protocol_item, &ei_oran_invalid_sample_bit_width,
                                "%cL Sample bit width from %s (%u) not valid, so can't decode sections",
                                (direction == DIR_UPLINK) ? 'U' : 'D',
-                               !sample_width_from_cplane ? "preference" : "C-Plane",
+                               !ud_cmp_hdr_cplane ? "preference" : "C-Plane",
                                sample_bit_width);
         return offset;
     }
@@ -4165,12 +4167,12 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
             /* Showing comp values from prefs */
             /* iqWidth */
             proto_item *iq_width_item = proto_tree_add_uint(section_tree, hf_oran_udCompHdrIqWidth_pref, tvb, 0, 0, sample_bit_width);
-            proto_item_append_text(iq_width_item, " (from preferences)");
+            proto_item_append_text(iq_width_item, (ud_cmp_hdr_cplane) ? " (from c-plane)" : " (from preferences)");
             proto_item_set_generated(iq_width_item);
 
             /* udCompMethod */
             proto_item *ud_comp_meth_item = proto_tree_add_uint(section_tree, hf_oran_udCompHdrMeth_pref, tvb, 0, 0, compression);
-            proto_item_append_text(ud_comp_meth_item, " (from preferences)");
+            proto_item_append_text(ud_comp_meth_item, (ud_cmp_hdr_cplane) ? " (from c-plane)" : " (from preferences)");
             proto_item_set_generated(ud_comp_meth_item);
         }
 
