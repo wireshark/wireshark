@@ -852,29 +852,31 @@ void commandline_options_reapply(void) {
 void commandline_options_apply_extcap(void) {
     char *errmsg = NULL;
     GSList *entry = NULL;
+    char *pref_arg;
 
     if (prefs.capture_no_extcap)
         return;
 
     for (entry = global_commandline_info.user_opts; entry != NULL; entry = g_slist_next(entry)) {
-        if (g_str_has_prefix((char *)entry->data, "extcap.")) {
-            switch (prefs_set_pref(ws_optarg, &errmsg)) {
+        pref_arg = (char *)entry->data;
+        if (g_str_has_prefix(pref_arg, "extcap.")) {
+            switch (prefs_set_pref(pref_arg, &errmsg)) {
                 case PREFS_SET_OK:
                     break;
                 case PREFS_SET_SYNTAX_ERR:
-                    cmdarg_err("Invalid -o flag \"%s\"%s%s", ws_optarg,
+                    cmdarg_err("Invalid -o flag \"%s\"%s%s", pref_arg,
                             errmsg ? ": " : "", errmsg ? errmsg : "");
                     g_free(errmsg);
                     exit_application(1);
                     break;
                 case PREFS_SET_NO_SUCH_PREF:
                     cmdarg_err("-o flag \"%s\" specifies unknown preference/recent value",
-                               ws_optarg);
+                               pref_arg);
                     exit_application(1);
                     break;
                 case PREFS_SET_OBSOLETE:
                     cmdarg_err("-o flag \"%s\" specifies obsolete preference",
-                               ws_optarg);
+                               pref_arg);
                     exit_application(1);
                     break;
                 default:
