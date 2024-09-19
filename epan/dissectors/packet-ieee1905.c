@@ -779,6 +779,62 @@ static int hf_ieee1905_wifi_7_agent_capabilities_radio_record_id;
 static int hf_ieee1905_wifi_7_agent_capabilities_radio_record_flags;
 static int hf_ieee1905_wifi_7_agent_capabilities_radio_record_flags_freq_separation;
 static int hf_ieee1905_wifi_7_agent_capabilities_radio_record_flags_reserved;
+static int hf_ieee1905_agent_ap_mld_configuration_ap_mld_num;
+static int hf_ieee1905_agent_ap_mld_configuration_ap_mld_flags;
+static int hf_ieee1905_agent_ap_mld_configuration_ap_mld_flags_ap_mld_mac_addr_valid;
+static int hf_ieee1905_agent_ap_mld_configuration_ap_mld_flags_reserved;
+static int hf_ieee1905_agent_ap_mld_configuration_ap_mld_ssid_len;
+static int hf_ieee1905_agent_ap_mld_configuration_ap_mld_ssid;
+static int hf_ieee1905_agent_ap_mld_configuration_ap_mld_mac_addr;
+static int hf_ieee1905_agent_ap_mld_configuration_ap_mld_flags2;
+static int hf_ieee1905_agent_ap_mld_configuration_ap_mld_flags2_str;
+static int hf_ieee1905_agent_ap_mld_configuration_ap_mld_flags2_nstr;
+static int hf_ieee1905_agent_ap_mld_configuration_ap_mld_flags2_emlsr;
+static int hf_ieee1905_agent_ap_mld_configuration_ap_mld_flags2_emlmr;
+static int hf_ieee1905_agent_ap_mld_configuration_ap_mld_flags2_reserved;
+static int hf_ieee1905_agent_ap_mld_configuration_ap_mld_reserved;
+static int hf_ieee1905_agent_ap_mld_configuration_ap_mld_affiliated_ap_num;
+static int hf_ieee1905_agent_ap_mld_configuration_ap_mld_affiliated_ap_flags;
+static int hf_ieee1905_agent_ap_mld_configuration_ap_mld_affiliated_ap_flags_affiliated_ap_mac_addr_valid;
+static int hf_ieee1905_agent_ap_mld_configuration_ap_mld_affiliated_ap_flags_link_id_valid;
+static int hf_ieee1905_agent_ap_mld_configuration_ap_mld_affiliated_ap_flags_reserved;
+static int hf_ieee1905_agent_ap_mld_configuration_ap_mld_affiliated_ap_radio_id;
+static int hf_ieee1905_agent_ap_mld_configuration_ap_mld_affiliated_ap_mac_addr;
+static int hf_ieee1905_agent_ap_mld_configuration_ap_mld_affiliated_ap_link_id;
+static int hf_ieee1905_agent_ap_mld_configuration_ap_mld_affiliated_ap_reserved;
+static int hf_ieee1905_backhaul_sta_mld_configuration_flags;
+static int hf_ieee1905_backhaul_sta_mld_configuration_flags_bsta_mld_mac_addr_valid;
+static int hf_ieee1905_backhaul_sta_mld_configuration_flags_ap_mld_mac_addr_valid;
+static int hf_ieee1905_backhaul_sta_mld_configuration_flags_reserved;
+static int hf_ieee1905_backhaul_sta_mld_configuration_bsta_mld_mac_addr;
+static int hf_ieee1905_backhaul_sta_mld_configuration_ap_mld_mac_addr;
+static int hf_ieee1905_backhaul_sta_mld_configuration_flags2;
+static int hf_ieee1905_backhaul_sta_mld_configuration_flags2_str;
+static int hf_ieee1905_backhaul_sta_mld_configuration_flags2_nstr;
+static int hf_ieee1905_backhaul_sta_mld_configuration_flags2_emlsr;
+static int hf_ieee1905_backhaul_sta_mld_configuration_flags2_emlmr;
+static int hf_ieee1905_backhaul_sta_mld_configuration_flags2_reserved;
+static int hf_ieee1905_backhaul_sta_mld_configuration_reserved;
+static int hf_ieee1905_backhaul_sta_mld_configuration_affiliated_bsta_num;
+static int hf_ieee1905_backhaul_sta_mld_configuration_affiliated_bsta_flags;
+static int hf_ieee1905_backhaul_sta_mld_configuration_affiliated_bsta_flags_affiliated_bsta_mac_addr_valid;
+static int hf_ieee1905_backhaul_sta_mld_configuration_affiliated_bsta_flags_reserved;
+static int hf_ieee1905_backhaul_sta_mld_configuration_affiliated_bsta_radio_id;
+static int hf_ieee1905_backhaul_sta_mld_configuration_affiliated_bsta_mac_addr;
+static int hf_ieee1905_backhaul_sta_mld_configuration_affiliated_bsta_reserved;
+static int hf_ieee1905_associated_sta_mld_configuration_sta_mld_mac_addr;
+static int hf_ieee1905_associated_sta_mld_configuration_ap_mld_mac_addr;
+static int hf_ieee1905_associated_sta_mld_configuration_flags;
+static int hf_ieee1905_associated_sta_mld_configuration_flags_str;
+static int hf_ieee1905_associated_sta_mld_configuration_flags_nstr;
+static int hf_ieee1905_associated_sta_mld_configuration_flags_emlsr;
+static int hf_ieee1905_associated_sta_mld_configuration_flags_emlmr;
+static int hf_ieee1905_associated_sta_mld_configuration_flags_reserved;
+static int hf_ieee1905_associated_sta_mld_configuration_reserved;
+static int hf_ieee1905_associated_sta_mld_configuration_affiliated_sta_num;
+static int hf_ieee1905_associated_sta_mld_configuration_affiliated_sta_bssid;
+static int hf_ieee1905_associated_sta_mld_configuration_affiliated_sta_mac_addr;
+static int hf_ieee1905_associated_sta_mld_configuration_affiliated_sta_reserved;
 static int hf_ieee1905_affiliated_sta_metrics_sta_mac_addr;
 static int hf_ieee1905_affiliated_sta_metrics_bytes_sent;
 static int hf_ieee1905_affiliated_sta_metrics_bytes_rcvd;
@@ -996,6 +1052,21 @@ static int ett_wifi_7_agent_capabilities_radio_flags;
 static int ett_wifi_7_agent_capabilities_radio_record_list;
 static int ett_wifi_7_agent_capabilities_radio_record;
 static int ett_wifi_7_agent_capabilities_radio_record_flags;
+static int ett_agent_ap_mld_configuration_ap_mld_list;
+static int ett_agent_ap_mld_configuration_ap_mld;
+static int ett_agent_ap_mld_configuration_ap_mld_flags;
+static int ett_agent_ap_mld_configuration_ap_mld_flags2;
+static int ett_agent_ap_mld_configuration_ap_mld_affiliated_ap_list;
+static int ett_agent_ap_mld_configuration_ap_mld_affiliated_ap;
+static int ett_agent_ap_mld_configuration_ap_mld_affiliated_ap_flags;
+static int ett_backhaul_sta_mld_configuration_flags;
+static int ett_backhaul_sta_mld_configuration_flags2;
+static int ett_backhaul_sta_mld_configuration_affiliated_bsta_list;
+static int ett_backhaul_sta_mld_configuration_affiliated_bsta;
+static int ett_backhaul_sta_mld_configuration_affiliated_bsta_flags;
+static int ett_associated_sta_mld_configuration_flags;
+static int ett_associated_sta_mld_configuration_affiliated_sta_list;
+static int ett_associated_sta_mld_configuration_affiliated_sta;
 
 static int ett_ieee1905_fragment;
 static int ett_ieee1905_fragments;
@@ -1078,6 +1149,10 @@ static expert_field ei_ieee1905_extraneous_tlv_data;
 #define ANTICIPATED_CHANNEL_USAGE_MESSAGE              0x8036
 #define QOS_MANAGEMENT_NOTIFICATION_MESSAGE            0x8037
 #define EARLY_AP_CAPABILITY_REPORT_MESSAGE             0x8043
+#define AP_MLD_CONFIGURATION_REQUEST_MESSAGE           0x8044
+#define AP_MLD_CONFIGURATION_RESPONSE_MESSAGE          0x8045
+#define BSTA_MLD_CONFIGURATION_REQUEST_MESSAGE         0x8046
+#define BSTA_MLD_CONFIGURATION_RESPONSE_MESSAGE        0x8047
 #define AVAILABLE_SPECTRUM_INQUIRY_MESSAGE             0x8049
 
 static const value_string ieee1905_message_type_vals[] = {
@@ -1156,6 +1231,10 @@ static const value_string ieee1905_message_type_vals[] = {
   { ANTICIPATED_CHANNEL_USAGE_MESSAGE,           "Anticipated Channel Usage" },
   { QOS_MANAGEMENT_NOTIFICATION_MESSAGE,         "QoS Management Notification" },
   { EARLY_AP_CAPABILITY_REPORT_MESSAGE,          "Early AP Capability Report" },
+  { AP_MLD_CONFIGURATION_REQUEST_MESSAGE,        "AP MLD Configuration Request" },
+  { AP_MLD_CONFIGURATION_RESPONSE_MESSAGE,       "AP MLD Configuration Response" },
+  { BSTA_MLD_CONFIGURATION_REQUEST_MESSAGE,      "BSTA MLD Configuration Request" },
+  { BSTA_MLD_CONFIGURATION_RESPONSE_MESSAGE,     "BSTA MLD Configuration Response" },
   { AVAILABLE_SPECTRUM_INQUIRY_MESSAGE,          "Available Spectrum Inquiry Message" },
   { 0, NULL }
 };
@@ -1286,6 +1365,9 @@ static value_string_ext ieee1905_message_type_vals_ext = VALUE_STRING_EXT_INIT(i
 #define QOS_MANAGEMENT_DESCRIPTOR_TLV           0xDC
 #define CONTROLLER_CAPABILITY_TLV               0xDD
 #define WIFI7_AGENT_CAPABILITIES_TLV            0xDF
+#define AGENT_AP_MLD_CONFIGURATION_TLV          0xE0
+#define BACKHAUL_STA_MLD_CONFIGURATION_TLV      0xE1
+#define ASSOCIATED_STA_MLD_CONFIGURATION_TLV    0xE2
 #define AFFILIATED_STA_METRICS_TLV              0xE4
 #define AFFILIATED_AP_METRICS_TLV               0xE5
 #define AVAILABLE_SPECTRUM_INQUIRY_REQUEST_TLV  0xE8
@@ -1417,6 +1499,9 @@ static const value_string ieee1905_tlv_types_vals[] = {
   { QOS_MANAGEMENT_DESCRIPTOR_TLV,           "QoS Management Descriptor" },
   { CONTROLLER_CAPABILITY_TLV,               "Controller Capability" },
   { WIFI7_AGENT_CAPABILITIES_TLV,            "Wi-Fi 7 Agent Capabilities" },
+  { AGENT_AP_MLD_CONFIGURATION_TLV,          "Agent AP MLD Configuration" },
+  { BACKHAUL_STA_MLD_CONFIGURATION_TLV,      "Backhaul STA MLD Configuration" },
+  { ASSOCIATED_STA_MLD_CONFIGURATION_TLV,    "Associated STA MLD Configuration" },
   { AFFILIATED_STA_METRICS_TLV,              "Affiliated STA Metrics" },
   { AFFILIATED_AP_METRICS_TLV,               "Affiliated AP Metrics" },
   { AVAILABLE_SPECTRUM_INQUIRY_REQUEST_TLV,  "Available Spectrum Inquiry Request" },
@@ -8243,6 +8328,322 @@ dissect_wifi_7_agent_capabilities(tvbuff_t *tvb, packet_info *pinfo _U_,
 }
 
 /*
+ * Dissect an Agent AP MLD Configuration TLV:
+ */
+static int* const agent_ap_mld_configuration_ap_mld_flags_headers[] = {
+    &hf_ieee1905_agent_ap_mld_configuration_ap_mld_flags_ap_mld_mac_addr_valid,
+    &hf_ieee1905_agent_ap_mld_configuration_ap_mld_flags_reserved,
+    NULL
+};
+
+static int* const agent_ap_mld_configuration_ap_mld_flags2_headers[] = {
+    &hf_ieee1905_agent_ap_mld_configuration_ap_mld_flags2_str,
+    &hf_ieee1905_agent_ap_mld_configuration_ap_mld_flags2_nstr,
+    &hf_ieee1905_agent_ap_mld_configuration_ap_mld_flags2_emlsr,
+    &hf_ieee1905_agent_ap_mld_configuration_ap_mld_flags2_emlmr,
+    &hf_ieee1905_agent_ap_mld_configuration_ap_mld_flags2_reserved,
+    NULL
+};
+
+static int* const agent_ap_mld_configuration_ap_mld_affiliated_ap_flags_headers[] = {
+    &hf_ieee1905_agent_ap_mld_configuration_ap_mld_affiliated_ap_flags_affiliated_ap_mac_addr_valid,
+    &hf_ieee1905_agent_ap_mld_configuration_ap_mld_affiliated_ap_flags_link_id_valid,
+    &hf_ieee1905_agent_ap_mld_configuration_ap_mld_affiliated_ap_flags_reserved,
+    NULL
+};
+
+static int
+dissect_agent_agent_ap_mld_configuration(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
+        proto_tree *tree, unsigned offset, uint16_t len _U_)
+{
+    proto_tree *ap_mld_list = NULL;
+    proto_item *amli = NULL;
+    uint32_t ap_mld_count = 0, ap_mld_num = 0;
+    unsigned ap_mld_list_start = 0;
+
+    proto_tree_add_item_ret_uint(tree, hf_ieee1905_agent_ap_mld_configuration_ap_mld_num,
+                                 tvb, offset, 1, ENC_NA, &ap_mld_count);
+    offset++;
+
+    ap_mld_list = proto_tree_add_subtree(tree, tvb, offset, -1,
+                                         ett_agent_ap_mld_configuration_ap_mld_list,
+                                         &amli, "AP MLD List");
+
+    ap_mld_list_start = offset;
+
+    while (ap_mld_num < ap_mld_count) {
+        proto_tree *ap_mld_tree = NULL;
+        proto_item *ami = NULL;
+        uint32_t ssid_len;
+        proto_tree *aff_ap_list = NULL;
+        proto_item *aali = NULL;
+        uint32_t aff_ap_count = 0, aff_ap_num = 0;
+        unsigned aff_ap_list_start = 0;
+
+        ap_mld_tree = proto_tree_add_subtree_format(ap_mld_list, tvb, offset,
+                                                    -1, ett_agent_ap_mld_configuration_ap_mld,
+                                                    &ami, "AP MLD %u", ap_mld_num);
+
+        proto_tree_add_bitmask(ap_mld_tree, tvb, offset,
+                               hf_ieee1905_agent_ap_mld_configuration_ap_mld_flags,
+                               ett_agent_ap_mld_configuration_ap_mld_flags,
+                               agent_ap_mld_configuration_ap_mld_flags_headers, ENC_NA);
+        offset++;
+
+        proto_tree_add_item_ret_uint(ap_mld_tree, hf_ieee1905_agent_ap_mld_configuration_ap_mld_ssid_len,
+                                     tvb, offset, 1, ENC_NA, &ssid_len);
+        offset++;
+
+        proto_tree_add_item(ap_mld_tree, hf_ieee1905_agent_ap_mld_configuration_ap_mld_ssid,
+                            tvb, offset, ssid_len, ENC_ASCII);
+        offset += ssid_len;
+
+        proto_tree_add_item(ap_mld_tree, hf_ieee1905_agent_ap_mld_configuration_ap_mld_mac_addr,
+                            tvb, offset, 6, ENC_NA);
+        offset += 6;
+
+        proto_tree_add_bitmask(ap_mld_tree, tvb, offset,
+                               hf_ieee1905_agent_ap_mld_configuration_ap_mld_flags2,
+                               ett_agent_ap_mld_configuration_ap_mld_flags2,
+                               agent_ap_mld_configuration_ap_mld_flags2_headers, ENC_NA);
+        offset++;
+
+        proto_tree_add_item(ap_mld_tree, hf_ieee1905_agent_ap_mld_configuration_ap_mld_reserved, tvb, offset,
+                            20, ENC_NA);
+        offset += 20;
+
+        proto_tree_add_item_ret_uint(ap_mld_tree, hf_ieee1905_agent_ap_mld_configuration_ap_mld_affiliated_ap_num,
+                                     tvb, offset, 1, ENC_NA, &aff_ap_count);
+        offset++;
+
+        aff_ap_list = proto_tree_add_subtree(ap_mld_tree, tvb, offset, -1,
+                                             ett_agent_ap_mld_configuration_ap_mld_affiliated_ap_list,
+                                             &aali, "Affiliated AP List");
+
+        aff_ap_list_start = offset;
+
+        while (aff_ap_num < aff_ap_count) {
+            proto_tree *aff_ap_tree = NULL;
+            proto_item *aai = NULL;
+
+            aff_ap_tree = proto_tree_add_subtree_format(aff_ap_list, tvb, offset,
+                                                        -1, ett_agent_ap_mld_configuration_ap_mld_affiliated_ap,
+                                                        &aai, "Affiliated AP %u", aff_ap_num);
+
+            proto_tree_add_bitmask(aff_ap_tree, tvb, offset,
+                                   hf_ieee1905_agent_ap_mld_configuration_ap_mld_affiliated_ap_flags,
+                                   ett_agent_ap_mld_configuration_ap_mld_affiliated_ap_flags,
+                                   agent_ap_mld_configuration_ap_mld_affiliated_ap_flags_headers, ENC_NA);
+            offset++;
+
+            proto_tree_add_item(aff_ap_tree, hf_ieee1905_agent_ap_mld_configuration_ap_mld_affiliated_ap_radio_id,
+                                tvb, offset, 6, ENC_NA);
+            offset += 6;
+
+            proto_tree_add_item(aff_ap_tree, hf_ieee1905_agent_ap_mld_configuration_ap_mld_affiliated_ap_mac_addr,
+                                tvb, offset, 6, ENC_NA);
+            offset += 6;
+
+            proto_tree_add_item(aff_ap_tree, hf_ieee1905_agent_ap_mld_configuration_ap_mld_affiliated_ap_link_id,
+                                tvb, offset, 1, ENC_NA);
+            offset++;
+
+            proto_tree_add_item(aff_ap_tree, hf_ieee1905_agent_ap_mld_configuration_ap_mld_affiliated_ap_reserved,
+                                tvb, offset, 18, ENC_NA);
+            offset += 18;
+
+            aff_ap_num++;
+        }
+
+        proto_item_set_len(aali, offset - aff_ap_list_start);
+        ap_mld_num++;
+    }
+
+    proto_item_set_len(amli, offset - ap_mld_list_start);
+
+    return offset;
+}
+
+/*
+ * Dissect a Backhaul STA MLD Configuration TLV:
+ */
+static int* const backhaul_sta_mld_configuration_flags_headers[] = {
+    &hf_ieee1905_backhaul_sta_mld_configuration_flags_bsta_mld_mac_addr_valid,
+    &hf_ieee1905_backhaul_sta_mld_configuration_flags_ap_mld_mac_addr_valid,
+    &hf_ieee1905_backhaul_sta_mld_configuration_flags_reserved,
+    NULL
+};
+
+static int* const backhaul_sta_mld_configuration_flags2_headers[] = {
+    &hf_ieee1905_backhaul_sta_mld_configuration_flags2_str,
+    &hf_ieee1905_backhaul_sta_mld_configuration_flags2_nstr,
+    &hf_ieee1905_backhaul_sta_mld_configuration_flags2_emlsr,
+    &hf_ieee1905_backhaul_sta_mld_configuration_flags2_emlmr,
+    &hf_ieee1905_backhaul_sta_mld_configuration_flags2_reserved,
+    NULL
+};
+
+static int* const backhaul_sta_mld_configuration_affiliated_bsta_flags_headers[] = {
+    &hf_ieee1905_backhaul_sta_mld_configuration_affiliated_bsta_flags_affiliated_bsta_mac_addr_valid,
+    &hf_ieee1905_backhaul_sta_mld_configuration_affiliated_bsta_flags_reserved,
+    NULL
+};
+
+static int
+dissect_backhaul_sta_mld_configuration(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
+        proto_tree *tree, unsigned offset, uint16_t len _U_)
+{
+    proto_tree *aff_bsta_list = NULL;
+    proto_item *abli = NULL;
+    uint32_t aff_bsta_count = 0, aff_bsta_num = 0;
+    unsigned aff_bsta_list_start = 0;
+
+    proto_tree_add_bitmask(tree, tvb, offset,
+                           hf_ieee1905_backhaul_sta_mld_configuration_flags,
+                           ett_backhaul_sta_mld_configuration_flags,
+                           backhaul_sta_mld_configuration_flags_headers, ENC_NA);
+    offset++;
+
+    proto_tree_add_item(tree, hf_ieee1905_backhaul_sta_mld_configuration_bsta_mld_mac_addr,
+                        tvb, offset, 6, ENC_NA);
+    offset += 6;
+
+    proto_tree_add_item(tree, hf_ieee1905_backhaul_sta_mld_configuration_ap_mld_mac_addr,
+                        tvb, offset, 6, ENC_NA);
+    offset += 6;
+
+    proto_tree_add_bitmask(tree, tvb, offset,
+                           hf_ieee1905_backhaul_sta_mld_configuration_flags2,
+                           ett_backhaul_sta_mld_configuration_flags2,
+                           backhaul_sta_mld_configuration_flags2_headers, ENC_NA);
+    offset++;
+
+    proto_tree_add_item(tree, hf_ieee1905_backhaul_sta_mld_configuration_reserved,
+                        tvb, offset, 17, ENC_NA);
+    offset += 17;
+
+    proto_tree_add_item_ret_uint(tree, hf_ieee1905_backhaul_sta_mld_configuration_affiliated_bsta_num,
+                                 tvb, offset, 1, ENC_NA, &aff_bsta_count);
+    offset++;
+
+    aff_bsta_list = proto_tree_add_subtree(tree, tvb, offset, -1,
+                                           ett_backhaul_sta_mld_configuration_affiliated_bsta_list,
+                                           &abli, "Affiliated bSTA List");
+
+    aff_bsta_list_start = offset;
+
+    while (aff_bsta_num < aff_bsta_count) {
+        proto_tree *aff_bsta_tree = NULL;
+        proto_item *abi = NULL;
+
+        aff_bsta_tree = proto_tree_add_subtree_format(aff_bsta_list, tvb, offset,
+                                                      -1, ett_backhaul_sta_mld_configuration_affiliated_bsta,
+                                                       &abi, "Affiliated bSTA %u", aff_bsta_num);
+
+        proto_tree_add_bitmask(aff_bsta_tree, tvb, offset,
+                               hf_ieee1905_backhaul_sta_mld_configuration_affiliated_bsta_flags,
+                               ett_backhaul_sta_mld_configuration_affiliated_bsta_flags,
+                               backhaul_sta_mld_configuration_affiliated_bsta_flags_headers, ENC_NA);
+        offset++;
+
+        proto_tree_add_item(aff_bsta_tree, hf_ieee1905_backhaul_sta_mld_configuration_affiliated_bsta_radio_id,
+                            tvb, offset, 6, ENC_NA);
+        offset += 6;
+
+        proto_tree_add_item(aff_bsta_tree, hf_ieee1905_backhaul_sta_mld_configuration_affiliated_bsta_mac_addr,
+                            tvb, offset, 6, ENC_NA);
+        offset += 6;
+
+        proto_tree_add_item(aff_bsta_tree, hf_ieee1905_backhaul_sta_mld_configuration_affiliated_bsta_reserved,
+                            tvb, offset, 19, ENC_NA);
+        offset += 19;
+
+        aff_bsta_num++;
+    }
+
+    proto_item_set_len(abli, offset - aff_bsta_list_start);
+
+    return offset;
+}
+
+/*
+ * Dissect a Associated STA MLD Configuration TLV:
+ */
+static int* const associated_sta_mld_configuration_flags_headers[] = {
+    &hf_ieee1905_associated_sta_mld_configuration_flags_str,
+    &hf_ieee1905_associated_sta_mld_configuration_flags_nstr,
+    &hf_ieee1905_associated_sta_mld_configuration_flags_emlsr,
+    &hf_ieee1905_associated_sta_mld_configuration_flags_emlmr,
+    &hf_ieee1905_associated_sta_mld_configuration_flags_reserved,
+    NULL
+};
+
+static int
+dissect_associated_sta_mld_configuration(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
+        proto_tree *tree, unsigned offset, uint16_t len _U_)
+{
+    proto_tree *aff_sta_list = NULL;
+    proto_item *asli = NULL;
+    uint32_t aff_sta_count = 0, aff_sta_num = 0;
+    unsigned aff_sta_list_start = 0;
+
+    proto_tree_add_item(tree, hf_ieee1905_associated_sta_mld_configuration_sta_mld_mac_addr,
+                        tvb, offset, 6, ENC_NA);
+    offset += 6;
+
+    proto_tree_add_item(tree, hf_ieee1905_associated_sta_mld_configuration_ap_mld_mac_addr,
+                        tvb, offset, 6, ENC_NA);
+    offset += 6;
+
+    proto_tree_add_bitmask(tree, tvb, offset,
+                           hf_ieee1905_associated_sta_mld_configuration_flags,
+                           ett_associated_sta_mld_configuration_flags,
+                           associated_sta_mld_configuration_flags_headers, ENC_NA);
+    offset++;
+
+    proto_tree_add_item(tree, hf_ieee1905_associated_sta_mld_configuration_reserved,
+                        tvb, offset, 18, ENC_NA);
+    offset += 18;
+
+    proto_tree_add_item_ret_uint(tree, hf_ieee1905_associated_sta_mld_configuration_affiliated_sta_num,
+                                 tvb, offset, 1, ENC_NA, &aff_sta_count);
+    offset++;
+
+    aff_sta_list = proto_tree_add_subtree(tree, tvb, offset, -1,
+                                          ett_associated_sta_mld_configuration_affiliated_sta_list,
+                                          &asli, "Affiliated STA List");
+
+    aff_sta_list_start = offset;
+
+    while (aff_sta_num < aff_sta_count) {
+        proto_tree *aff_sta_tree = NULL;
+        proto_item *asi = NULL;
+
+        aff_sta_tree = proto_tree_add_subtree_format(aff_sta_list, tvb, offset,
+                                                     -1, ett_associated_sta_mld_configuration_affiliated_sta,
+                                                      &asi, "Affiliated STA %u", aff_sta_num);
+
+        proto_tree_add_item(aff_sta_tree, hf_ieee1905_associated_sta_mld_configuration_affiliated_sta_bssid,
+                            tvb, offset, 6, ENC_NA);
+        offset += 6;
+
+        proto_tree_add_item(aff_sta_tree, hf_ieee1905_associated_sta_mld_configuration_affiliated_sta_mac_addr,
+                            tvb, offset, 6, ENC_NA);
+        offset += 6;
+
+        proto_tree_add_item(aff_sta_tree, hf_ieee1905_associated_sta_mld_configuration_affiliated_sta_reserved,
+                            tvb, offset, 19, ENC_NA);
+        offset += 19;
+
+        aff_sta_num++;
+    }
+
+    proto_item_set_len(asli, offset - aff_sta_list_start);
+
+    return offset;
+}
+
+/*
  * Dissect an Affiliated STA Metrics TLV:
  */
 static int
@@ -8932,6 +9333,21 @@ dissect_ieee1905_tlv_data(tvbuff_t *tvb, packet_info *pinfo,
     case WIFI7_AGENT_CAPABILITIES_TLV:
         offset = dissect_wifi_7_agent_capabilities(tvb, pinfo, tree, offset,
                                                    tlv_len);
+        break;
+
+    case AGENT_AP_MLD_CONFIGURATION_TLV:
+        offset = dissect_agent_agent_ap_mld_configuration(tvb, pinfo, tree, offset,
+                                                          tlv_len);
+        break;
+
+    case BACKHAUL_STA_MLD_CONFIGURATION_TLV:
+        offset = dissect_backhaul_sta_mld_configuration(tvb, pinfo, tree, offset,
+                                                        tlv_len);
+        break;
+
+    case ASSOCIATED_STA_MLD_CONFIGURATION_TLV:
+        offset = dissect_associated_sta_mld_configuration(tvb, pinfo, tree, offset,
+                                                          tlv_len);
         break;
 
     case AFFILIATED_STA_METRICS_TLV:
@@ -12406,6 +12822,230 @@ proto_register_ieee1905(void)
           { "Reserved", "ieee1905.wifi_7_agent_capabilities.radio_record_flags.reserved",
             FT_UINT8, BASE_HEX, NULL, 0x07, NULL, HFILL }},
 
+       { &hf_ieee1905_agent_ap_mld_configuration_ap_mld_num,
+          { "Number of AP MLDs", "ieee1905.agent_ap_mld_configuration.ap_mld_num",
+            FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_ieee1905_agent_ap_mld_configuration_ap_mld_flags,
+          { "Flags", "ieee1905.agent_ap_mld_configuration.flags",
+            FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_ieee1905_agent_ap_mld_configuration_ap_mld_flags_ap_mld_mac_addr_valid,
+          { "AP MLD MAC Addr Valid", "ieee1905.agent_ap_mld_configuration.flags.ap_mld_mac_addr_valid",
+            FT_UINT8, BASE_DEC, NULL, 0x80, NULL, HFILL }},
+
+        { &hf_ieee1905_agent_ap_mld_configuration_ap_mld_flags_reserved,
+          { "Reserved", "ieee1905.agent_ap_mld_configuration.flags.reserved",
+            FT_UINT8, BASE_DEC, NULL, 0x7f, NULL, HFILL }},
+
+        { &hf_ieee1905_agent_ap_mld_configuration_ap_mld_ssid_len,
+          { "SSID Length", "ieee1905.agent_ap_mld_configuration.ssid_length",
+            FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+        { &hf_ieee1905_agent_ap_mld_configuration_ap_mld_ssid,
+          { "SSID", "ieee1905.agent_ap_mld_configuration.ssid",
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
+
+        { &hf_ieee1905_agent_ap_mld_configuration_ap_mld_mac_addr,
+          { "AP MLD MAC Addr", "ieee1905.agent_ap_mld_configuration.ap_mld_mac_addr",
+            FT_ETHER, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_ieee1905_agent_ap_mld_configuration_ap_mld_flags2,
+          { "Flags2", "ieee1905.agent_ap_mld_configuration.flags2",
+            FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_ieee1905_agent_ap_mld_configuration_ap_mld_flags2_str,
+          { "STR", "ieee1905.agent_ap_mld_configuration.flags2.str",
+            FT_UINT8, BASE_DEC, NULL, 0x80, NULL, HFILL }},
+
+        { &hf_ieee1905_agent_ap_mld_configuration_ap_mld_flags2_nstr,
+          { "NSTR", "ieee1905.agent_ap_mld_configuration.flags2.nstr",
+            FT_UINT8, BASE_DEC, NULL, 0x40, NULL, HFILL }},
+
+        { &hf_ieee1905_agent_ap_mld_configuration_ap_mld_flags2_emlsr,
+          { "EMLSR", "ieee1905.agent_ap_mld_configuration.flags2.emlsr",
+            FT_UINT8, BASE_DEC, NULL, 0x20, NULL, HFILL }},
+
+        { &hf_ieee1905_agent_ap_mld_configuration_ap_mld_flags2_emlmr,
+          { "EMLMR", "ieee1905.agent_ap_mld_configuration.flags2.emlmr",
+            FT_UINT8, BASE_DEC, NULL, 0x10, NULL, HFILL }},
+
+        { &hf_ieee1905_agent_ap_mld_configuration_ap_mld_flags2_reserved,
+          { "Reserved", "ieee1905.agent_ap_mld_configuration.flags2.reserved",
+            FT_UINT8, BASE_HEX, NULL, 0x0f, NULL, HFILL }},
+
+        { &hf_ieee1905_agent_ap_mld_configuration_ap_mld_reserved,
+          { "Reserved", "ieee1905.agent_ap_mld_configuration.reserved",
+            FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_ieee1905_agent_ap_mld_configuration_ap_mld_affiliated_ap_num,
+          { "Number of Affiliated APs", "ieee1905.agent_ap_mld_configuration.ap_mld_affiliated_ap_num",
+            FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_ieee1905_agent_ap_mld_configuration_ap_mld_affiliated_ap_flags,
+          { "Flags", "ieee1905.agent_ap_mld_configuration.affiliated_ap_flags",
+            FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_ieee1905_agent_ap_mld_configuration_ap_mld_affiliated_ap_flags_affiliated_ap_mac_addr_valid,
+          { "Affiliated AP MAC Addr Valid", "ieee1905.agent_ap_mld_configuration.affiliated_ap_flags.affiliated_ap_mac_addr_valid",
+            FT_UINT8, BASE_DEC, NULL, 0x80, NULL, HFILL }},
+
+        { &hf_ieee1905_agent_ap_mld_configuration_ap_mld_affiliated_ap_flags_link_id_valid,
+          { "Link ID Valid", "ieee1905.agent_ap_mld_configuration.affiliated_ap_flags.link_id_valid",
+            FT_UINT8, BASE_DEC, NULL, 0x40, NULL, HFILL }},
+
+        { &hf_ieee1905_agent_ap_mld_configuration_ap_mld_affiliated_ap_flags_reserved,
+          { "Reserved", "ieee1905.agent_ap_mld_configuration.affiliated_ap_flags.reserved",
+            FT_UINT8, BASE_HEX, NULL, 0x3f, NULL, HFILL }},
+
+        { &hf_ieee1905_agent_ap_mld_configuration_ap_mld_affiliated_ap_radio_id,
+          { "Radio Unique ID", "ieee1905.agent_ap_mld_configuration.affiliated_ap_radio_id",
+            FT_ETHER, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_ieee1905_agent_ap_mld_configuration_ap_mld_affiliated_ap_mac_addr,
+          { "Affiliated AP MAC Addr", "ieee1905.agent_ap_mld_configuration.affiliated_ap_mac_addr",
+            FT_ETHER, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_ieee1905_agent_ap_mld_configuration_ap_mld_affiliated_ap_link_id,
+          { "Link ID", "ieee1905.agent_ap_mld_configuration.ap_mld_affiliated_ap_link_id",
+            FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_ieee1905_agent_ap_mld_configuration_ap_mld_affiliated_ap_reserved,
+          { "Reserved", "ieee1905.agent_ap_mld_configuration.ap_mld_affiliated_ap_reserved",
+            FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_ieee1905_backhaul_sta_mld_configuration_flags,
+          { "Flags", "ieee1905.backhaul_sta_mld_configuration.flags",
+            FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_ieee1905_backhaul_sta_mld_configuration_flags_bsta_mld_mac_addr_valid,
+          { "bSTA MLD MAC Addr Valid", "ieee1905.backhaul_sta_mld_configuration.flags.bsta_mld_mac_addr_valid",
+            FT_UINT8, BASE_DEC, NULL, 0x80, NULL, HFILL }},
+
+        { &hf_ieee1905_backhaul_sta_mld_configuration_flags_ap_mld_mac_addr_valid,
+          { "AP MLD MAC Addr Valid", "ieee1905.backhaul_sta_mld_configuration.flags.ap_mld_mac_addr_valid",
+            FT_UINT8, BASE_DEC, NULL, 0x40, NULL, HFILL }},
+
+        { &hf_ieee1905_backhaul_sta_mld_configuration_flags_reserved,
+          { "Reserved", "ieee1905.backhaul_sta_mld_configuration.flags.reserved",
+            FT_UINT8, BASE_HEX, NULL, 0x3f, NULL, HFILL }},
+
+        { &hf_ieee1905_backhaul_sta_mld_configuration_bsta_mld_mac_addr,
+          { "bSTA MLD MAC Addr", "ieee1905.backhaul_sta_mld_configuration.bsta_mld_mac_addr",
+            FT_ETHER, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_ieee1905_backhaul_sta_mld_configuration_ap_mld_mac_addr,
+          { "AP MLD MAC Addr", "ieee1905.backhaul_sta_mld_configuration.ap_mld_mac_addr",
+            FT_ETHER, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_ieee1905_backhaul_sta_mld_configuration_flags2,
+          { "Flags2", "ieee1905.backhaul_sta_mld_configuration.flags2",
+            FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_ieee1905_backhaul_sta_mld_configuration_flags2_str,
+          { "STR", "ieee1905.backhaul_sta_mld_configuration.flags2.str",
+            FT_UINT8, BASE_DEC, NULL, 0x80, NULL, HFILL }},
+
+        { &hf_ieee1905_backhaul_sta_mld_configuration_flags2_nstr,
+          { "NSTR", "ieee1905.backhaul_sta_mld_configuration.flags2.nstr",
+            FT_UINT8, BASE_DEC, NULL, 0x40, NULL, HFILL }},
+
+        { &hf_ieee1905_backhaul_sta_mld_configuration_flags2_emlsr,
+          { "EMLSR", "ieee1905.backhaul_sta_mld_configuration.flags2.emlsr",
+            FT_UINT8, BASE_DEC, NULL, 0x20, NULL, HFILL }},
+
+        { &hf_ieee1905_backhaul_sta_mld_configuration_flags2_emlmr,
+          { "EMLMR", "ieee1905.backhaul_sta_mld_configuration.flags2.emlmr",
+            FT_UINT8, BASE_DEC, NULL, 0x10, NULL, HFILL }},
+
+        { &hf_ieee1905_backhaul_sta_mld_configuration_flags2_reserved,
+          { "Reserved", "ieee1905.backhaul_sta_mld_configuration.flags2.reserved",
+            FT_UINT8, BASE_HEX, NULL, 0x0f, NULL, HFILL }},
+
+        { &hf_ieee1905_backhaul_sta_mld_configuration_reserved,
+          { "Reserved", "ieee1905.backhaul_sta_mld_configuration.reserved",
+            FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_ieee1905_backhaul_sta_mld_configuration_affiliated_bsta_num,
+          { "Number of Affiliated bSTAs", "ieee1905.backhaul_sta_mld_configuration.affiliated_bsta_num",
+            FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_ieee1905_backhaul_sta_mld_configuration_affiliated_bsta_flags,
+          { "Flags", "ieee1905.backhaul_sta_mld_configuration.affiliated_bsta_flags",
+            FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_ieee1905_backhaul_sta_mld_configuration_affiliated_bsta_flags_affiliated_bsta_mac_addr_valid,
+          { "AP MLD MAC Addr Valid", "ieee1905.backhaul_sta_mld_configuration.affiliated_bsta_flags.bsta_mac_addr_valid",
+            FT_UINT8, BASE_DEC, NULL, 0x40, NULL, HFILL }},
+
+        { &hf_ieee1905_backhaul_sta_mld_configuration_affiliated_bsta_flags_reserved,
+          { "Reserved", "ieee1905.backhaul_sta_mld_configuration.affiliated_bsta_flags.reserved",
+            FT_UINT8, BASE_HEX, NULL, 0x3f, NULL, HFILL }},
+
+        { &hf_ieee1905_backhaul_sta_mld_configuration_affiliated_bsta_radio_id,
+          { "Radio Unique ID", "ieee1905.backhaul_sta_mld_configuration.affiliated_bsta_radio_id",
+            FT_ETHER, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_ieee1905_backhaul_sta_mld_configuration_affiliated_bsta_mac_addr,
+          { "Affiliated bSTA MAC Addr", "ieee1905.backhaul_sta_mld_configuration.affiliated_bsta_mac_addr",
+            FT_ETHER, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_ieee1905_backhaul_sta_mld_configuration_affiliated_bsta_reserved,
+          { "Reserved", "ieee1905.backhaul_sta_mld_configuration.affiliated_bsta_reserved",
+            FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_ieee1905_associated_sta_mld_configuration_sta_mld_mac_addr,
+          { "STA MLD MAC Addr", "ieee1905.associated_sta_mld_configuration.sta_mld_mac_addr",
+            FT_ETHER, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_ieee1905_associated_sta_mld_configuration_ap_mld_mac_addr,
+          { "AP MLD MAC Addr", "ieee1905.associated_sta_mld_configuration.ap_mld_mac_addr",
+            FT_ETHER, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_ieee1905_associated_sta_mld_configuration_flags,
+          { "Flags", "ieee1905.associated_sta_mld_configuration.flags",
+            FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_ieee1905_associated_sta_mld_configuration_flags_str,
+          { "STR", "ieee1905.associated_sta_mld_configuration.flags.str",
+            FT_UINT8, BASE_DEC, NULL, 0x80, NULL, HFILL }},
+
+        { &hf_ieee1905_associated_sta_mld_configuration_flags_nstr,
+          { "NSTR", "ieee1905.associated_sta_mld_configuration.flags.nstr",
+            FT_UINT8, BASE_DEC, NULL, 0x40, NULL, HFILL }},
+
+        { &hf_ieee1905_associated_sta_mld_configuration_flags_emlsr,
+          { "EMLSR", "ieee1905.associated_sta_mld_configuration.flags.emlsr",
+            FT_UINT8, BASE_DEC, NULL, 0x20, NULL, HFILL }},
+
+        { &hf_ieee1905_associated_sta_mld_configuration_flags_emlmr,
+          { "EMLMR", "ieee1905.associated_sta_mld_configuration.flags.emlmr",
+            FT_UINT8, BASE_DEC, NULL, 0x10, NULL, HFILL }},
+
+        { &hf_ieee1905_associated_sta_mld_configuration_flags_reserved,
+          { "Reserved", "ieee1905.associated_sta_mld_configuration.flags.reserved",
+            FT_UINT8, BASE_HEX, NULL, 0x0f, NULL, HFILL }},
+
+        { &hf_ieee1905_associated_sta_mld_configuration_reserved,
+          { "Reserved", "ieee1905.associated_sta_mld_configuration.reserved",
+            FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_ieee1905_associated_sta_mld_configuration_affiliated_sta_num,
+          { "Number of Affiliated STAs", "ieee1905.associated_sta_mld_configuration.affiliated_sta_num",
+            FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_ieee1905_associated_sta_mld_configuration_affiliated_sta_bssid,
+          { "BSSID", "ieee1905.associated_sta_mld_configuration.affiliated_sta_bssid",
+            FT_ETHER, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_ieee1905_associated_sta_mld_configuration_affiliated_sta_mac_addr,
+          { "Affiliated STA MAC Addr", "ieee1905.associated_sta_mld_configuration.affiliated_sta_mac_addr",
+            FT_ETHER, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_ieee1905_associated_sta_mld_configuration_affiliated_sta_reserved,
+          { "Reserved", "ieee1905.associated_sta_mld_configuration.affiliated_sta_reserved",
+            FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+
         { &hf_ieee1905_affiliated_sta_metrics_sta_mac_addr,
           { "STA MAC Address", "ieee1905.affiliated_sta_metrics.sta_mac_addr",
             FT_ETHER, BASE_NONE, NULL, 0x0, NULL, HFILL }},
@@ -12733,6 +13373,21 @@ proto_register_ieee1905(void)
         &ett_wifi_7_agent_capabilities_radio_record_list,
         &ett_wifi_7_agent_capabilities_radio_record,
         &ett_wifi_7_agent_capabilities_radio_record_flags,
+        &ett_agent_ap_mld_configuration_ap_mld_list,
+        &ett_agent_ap_mld_configuration_ap_mld,
+        &ett_agent_ap_mld_configuration_ap_mld_flags,
+        &ett_agent_ap_mld_configuration_ap_mld_flags2,
+        &ett_agent_ap_mld_configuration_ap_mld_affiliated_ap_list,
+        &ett_agent_ap_mld_configuration_ap_mld_affiliated_ap,
+        &ett_agent_ap_mld_configuration_ap_mld_affiliated_ap_flags,
+        &ett_backhaul_sta_mld_configuration_flags,
+        &ett_backhaul_sta_mld_configuration_flags2,
+        &ett_backhaul_sta_mld_configuration_affiliated_bsta_list,
+        &ett_backhaul_sta_mld_configuration_affiliated_bsta,
+        &ett_backhaul_sta_mld_configuration_affiliated_bsta_flags,
+        &ett_associated_sta_mld_configuration_flags,
+        &ett_associated_sta_mld_configuration_affiliated_sta_list,
+        &ett_associated_sta_mld_configuration_affiliated_sta,
         &ett_ieee1905_fragment,
         &ett_ieee1905_fragments,
     };
