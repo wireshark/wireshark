@@ -1058,7 +1058,7 @@ void proto_register_e2ap(void) {
      { &ei_e2ap_ran_function_names_no_match, { "e2ap.ran-function-names-no-match", PI_PROTOCOL, PI_WARN, "RAN Function name doesn't match known service models", EXPFILL }},
      { &ei_e2ap_ran_function_id_not_mapped,   { "e2ap.ran-function-id-not-known", PI_PROTOCOL, PI_WARN, "Service Model not known for RANFunctionID", EXPFILL }},
      { &ei_e2ap_ran_function_dissector_mismatch,   { "e2ap.ran-function-dissector-version-mismatch", PI_PROTOCOL, PI_WARN, "Available dissector does not match signalled", EXPFILL }},
-     { &ei_e2ap_ran_function_max_dissectors_registered,   { "e2ap.ran-function-max-dissectors-registered", PI_PROTOCOL, PI_WARN, "Available dissector does not match signalled", EXPFILL }},
+     { &ei_e2ap_ran_function_max_dissectors_registered,   { "e2ap.ran-function-max-dissectors-registered", PI_PROTOCOL, PI_WARN, "Max dissectors already registered in table", EXPFILL }},
 
   };
 

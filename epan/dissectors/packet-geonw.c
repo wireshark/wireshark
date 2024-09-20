@@ -3586,7 +3586,7 @@ proto_register_geonw(void)
         { &ei_geonw_nz_reserved, { "geonw.reserved_not_zero", PI_PROTOCOL, PI_WARN, "Incorrect, should be 0", EXPFILL }},
         { &ei_geonw_version_err, { "geonw.bogus_version", PI_MALFORMED, PI_ERROR, "Bogus GeoNetworking Version", EXPFILL }},
         { &ei_geonw_rhl_lncb,    { "geonw.rhl.lncb", PI_SEQUENCE, PI_NOTE, "Remaining Hop Limit", EXPFILL }},
-        { &ei_geonw_rhl_too_low, { "geonw.rhl.too_small", PI_SEQUENCE, PI_NOTE, "Remaining Hop Limit", EXPFILL }},
+        { &ei_geonw_rhl_too_low, { "geonw.rhl.too_small", PI_SEQUENCE, PI_NOTE, "Remaining Hop Limit Too Low", EXPFILL }},
         { &ei_geonw_mhl_lt_rhl,  { "geonw.rhl.ht_mhl", PI_SEQUENCE, PI_WARN, "Remaining Hop Limit To Live", EXPFILL }},
         { &ei_geonw_scc_too_big, { "geonw.scc_too_big", PI_MALFORMED, PI_ERROR, "Country code should be less than 1000", EXPFILL }},
         { &ei_geonw_analysis_duplicate, { "geonw.analysis_duplicate", PI_SEQUENCE, PI_NOTE, "Duplicate packet", EXPFILL }},

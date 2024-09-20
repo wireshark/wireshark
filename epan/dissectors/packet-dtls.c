@@ -3059,7 +3059,7 @@ proto_register_dtls(void)
      { &ei_dtls_msg_len_diff_fragment, { "dtls.msg_len_diff_fragment", PI_PROTOCOL, PI_ERROR, "Message length differs from value in earlier fragment", EXPFILL }},
      { &ei_dtls_heartbeat_payload_length, { "dtls.heartbeat_message.payload_length.invalid", PI_MALFORMED, PI_ERROR, "Invalid heartbeat payload length", EXPFILL }},
      { &ei_dtls_cid_invalid_content_type, { "dtls.cid.content_type.invalid", PI_MALFORMED, PI_ERROR, "Invalid real content type", EXPFILL }},
-     { &ei_dtls_use_srtp_profiles_length, { "dtls.use_srtp.protection_profiles_length.invalid", PI_PROTOCOL, PI_ERROR, "Invalid real content type", EXPFILL }},
+     { &ei_dtls_use_srtp_profiles_length, { "dtls.use_srtp.protection_profiles_length.invalid", PI_PROTOCOL, PI_ERROR, "Invalid protection profiles length", EXPFILL }},
 #if 0
      { &ei_dtls_cid_invalid_enc_content, { "dtls.cid.enc_content.invalid", PI_MALFORMED, PI_ERROR, "Invalid encrypted content", EXPFILL }},
 #endif
