@@ -452,7 +452,7 @@ void RtpPlayerDialog::retapPackets()
         row_stream->clearPackets();
     }
 
-    // destroyCheck is protection againts destroying dialog during recap.
+    // destroyCheck is protection against destroying dialog during recap.
     // It stores dialog pointer in data() and if dialog destroyed, it
     // returns null
     QPointer<RtpPlayerDialog> destroyCheck=this;

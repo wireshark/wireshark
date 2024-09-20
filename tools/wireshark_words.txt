@@ -267,6 +267,7 @@ btmesh
 btsdp
 btsnoop
 btxnq
+bucketmap
 bucuresti
 buenos
 bugzilla
@@ -358,6 +359,7 @@ checkbox
 checkout
 checksum
 chinese
+chipset
 chksum
 chmod
 choco
@@ -529,6 +531,7 @@ cyphering
 cyrillic
 daintree
 dallas
+daoack
 darwin
 datagram
 datagrams
@@ -615,6 +618,7 @@ demultiplexed
 demultiplexer
 demultiplexers
 demultiplexing
+denom
 denso
 deobfuscated
 deobfuscation
@@ -652,6 +656,7 @@ destip
 destport
 determinant
 deutschland
+devaddr
 devcap
 devel
 devfs
@@ -718,6 +723,7 @@ dnssrv
 docomo
 docsis
 dodag
+doneconf
 doppler
 dot11Qos
 dot1q
@@ -771,6 +777,7 @@ elided
 elink
 ellipsoid
 elsif
+emlmr
 emlsr
 emulates
 emule
@@ -1007,6 +1014,7 @@ globals
 gluster
 gmail
 gmprs
+gnbdu
 gnodeb
 gnutls
 goaway
@@ -1097,9 +1105,11 @@ hungarian
 hutchison
 hysteresis
 hytec
+iabtnl
 ibsdh
 icapability
 icmpv
+icontrol
 iconv
 icount
 idempotent
@@ -1119,6 +1129,7 @@ iface
 ifconfig
 ifdef
 ifindex
+iflags
 ifname
 ifndef
 iftype
@@ -1381,6 +1392,7 @@ lquota
 lsarpc
 lscap
 lsflags
+lsgsn
 lspping
 lstat
 ltype
@@ -1509,6 +1521,7 @@ móviles
 mozilla
 mp4ves
 mpath
+mpdcch
 mpeg4
 mplstp
 mpquic
@@ -1697,6 +1710,7 @@ obfuscated
 objectid
 objkey
 obsoleted
+obsspd
 octal
 octet
 octets
@@ -2176,6 +2190,7 @@ reserved2
 reserved3
 reserved4
 reserved5
+resid
 resize
 resized
 resolvable
@@ -2316,6 +2331,7 @@ sendto
 seoul
 separability
 separators
+seqid
 seqlen
 seqno
 seqnr
@@ -2893,6 +2909,7 @@ unvoiced
 updatability
 updatable
 upiri
+uplanet
 uplink
 upload
 uploaded
@@ -2934,6 +2951,7 @@ varbyte
 varint
 vbucket
 vbuckets
+vcard
 vcpkg
 vcredist
 vcxproj
@@ -2955,6 +2973,7 @@ version7
 versioned
 versioning
 vfinforecord
+vflags
 vhdset
 viavi
 viettel
@@ -2977,6 +2996,7 @@ voltype
 vserver
 vtotal
 vxlan
+waitpid
 wakeup
 wapforum
 wbxml
@@ -3061,6 +3081,7 @@ ze3dd
 zeroes
 zigbee
 zlibng
+zoneset
 zsssr
 zugtyp
 zürich

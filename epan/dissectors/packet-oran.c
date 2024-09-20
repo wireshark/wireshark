@@ -1303,7 +1303,7 @@ addSeqid(tvbuff_t *tvb, proto_tree *oran_tree, int offset, int plane, uint8_t *s
         }
     }
     else {
-        /* TODO: Re-assembly of any radio-fragmenation on U-Plane */
+        /* TODO: Re-assembly of any radio-fragmentation on U-Plane */
     }
 
     /* Summary */

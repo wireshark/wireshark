@@ -413,7 +413,7 @@ dissect_greb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
         proto_tree_add_item(attrb_tree, hf_greb_attr_length, tvb, offset + 1, 2, ENC_BIG_ENDIAN);
         offset += 3;
 
-        // bound attrb_length to not exced packet
+        // bound attrb_length to not exceed packet
         if (attrb_length > (unsigned) tvb_reported_length_remaining(tvb, offset))
             attrb_length = tvb_reported_length_remaining(tvb, offset);
 

@@ -275,7 +275,7 @@ static const value_string nbd_reply_type_vals[] = {
 
 static const value_string nbd_error_vals[] = {
 	{NBD_SUCCESS,	"Success"},
-	{NBD_EPERM,	"Operation not pemitted"},
+	{NBD_EPERM,	"Operation not permitted"},
 	{NBD_EIO,	"Input/output error"},
 	{NBD_ENOMEM,	"Cannot allocate memory"},
 	{NBD_EINVAL,	"Invalid argument"},
@@ -1473,7 +1473,7 @@ void proto_register_nbd(void)
 		  { "Maximum Payload Size", "nbd.payload_size.max", FT_UINT32, BASE_DEC,
 		    NULL, 0x0, NULL, HFILL }},
 		{ &hf_nbd_meta_context_id,
-		  { "Metadat Context ID", "nbd.meta_context.id", FT_UINT32, BASE_DEC,
+		  { "Metadata Context ID", "nbd.meta_context.id", FT_UINT32, BASE_DEC,
 		    NULL, 0x0, NULL, HFILL }},
 		{ &hf_nbd_meta_context_name,
 		  { "Metadata Context Name", "nbd.meta_context.name", FT_STRING, BASE_NONE,

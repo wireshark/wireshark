@@ -3763,7 +3763,7 @@ rcpi_hysteresis_custom(char *result, uint8_t rcpi_hysteresis)
 }
 
 /*
- * Dissect a Metric Reporing Policy TLV
+ * Dissect a Metric Reporting Policy TLV
  */
 static int
 dissect_metric_reporting_policy(tvbuff_t *tvb, packet_info *pinfo _U_,
@@ -10899,7 +10899,7 @@ proto_register_ieee1905(void)
             FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
 
         { &hf_ieee1905_metric_reporting_policy_radio_id,
-          { "Radio ID", "ieee1905.metric_reporing_policy.radio_id",
+          { "Radio ID", "ieee1905.metric_reporting_policy.radio_id",
             FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
 
         { &hf_ieee1905_metric_reporting_radio_count,

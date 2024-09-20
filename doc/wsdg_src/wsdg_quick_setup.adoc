@@ -108,7 +108,7 @@ There are two scripts available for macOS which will install the packages and li
 `tools/macos-setup.sh` supports the following options:
 
 * `-n` dry run; don't build or install any packages
-* `-p` specifiy the installation prefix; _/usr/local_ is the default
+* `-p` specify the installation prefix; _/usr/local_ is the default
 * `-t` specify the minimum macOS target version
 * `-u` uninstall packages
 
