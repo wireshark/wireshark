@@ -309,7 +309,7 @@
         <number>0</number>
        </property>
        <property name="maximum">
-        <double>500.000000000000000</double>
+        <double>2000.000000000000000</double>
        </property>
        <property name="singleStep">
         <double>5.000000000000000</double>
