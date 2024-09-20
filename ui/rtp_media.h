@@ -51,27 +51,6 @@ typedef struct _rtp_packet {
  */
 GHashTable *rtp_decoder_hash_table_new(void);
 
-/** Decode payload from an RTP packet
- * For RTP packets with dynamic payload types, the payload name, clock rate,
- * and number of audio channels (e.g., from the SDP) can be provided.
- * Note that the output sample rate and number of channels might not be the
- * same as that of the input.
- *
- * @param payload_type Payload number
- * @param payload_type_str Payload name, can be NULL
- * @param payload_rate Sample rate, can be 0 for codec default
- * @param payload_channels Audio channels, can be 0 for codec default
- * @param payload_fmtp_map Map of format parameters for the media type
- * @param payload_data Payload
- * @param payload_len Length of payload
- * @param out_buff Output audio samples.
- * @param decoders_hash Hash table created with rtp_decoder_hash_table_new.
- * @param channels_ptr If non-NULL, receives the number of channels in the sample.
- * @param sample_rate_ptr If non-NULL, receives the sample rate.
- * @return The number of decoded bytes on success, 0 on failure.
- */
-size_t decode_rtp_packet_payload(uint8_t payload_type, const char *payload_type_str, int payload_rate, int payload_channels, wmem_map_t *payload_fmtp_map, uint8_t *payload_data, size_t payload_len, SAMPLE **out_buff, GHashTable *decoders_hash, unsigned *channels_ptr, unsigned *sample_rate_ptr);
-
 /** Decode an RTP packet
  *
  * @param rp Wrapper for per-packet RTP tap data.
