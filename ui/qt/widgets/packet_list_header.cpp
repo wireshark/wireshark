@@ -183,7 +183,7 @@ void PacketListHeader::contextMenuEvent(QContextMenuEvent *event)
     contextMenu->setProperty("column", QVariant::fromValue(sectionIdx));
 
     QActionGroup * alignmentActions = new QActionGroup(contextMenu);
-    alignmentActions->setExclusive(false);
+    alignmentActions->setExclusionPolicy(QActionGroup::ExclusionPolicy::ExclusiveOptional);
     alignmentActions->setProperty("column", QVariant::fromValue(sectionIdx));
     action = alignmentActions->addAction(tr("Align Left"));
     action->setCheckable(true);
