@@ -2570,7 +2570,6 @@ de_nas_5gs_mm_eps_nas_msg_cont(tvbuff_t *tvb, proto_tree *tree, packet_info *pin
 {
     /* an EPS NAS message as specified in 3GPP TS 24.301 */
     if (nas_eps_handle) {
-        col_append_str(pinfo->cinfo, COL_PROTOCOL, "/");
         col_set_fence(pinfo->cinfo, COL_PROTOCOL);
         call_dissector(nas_eps_handle, tvb_new_subset_length(tvb, offset, len), pinfo, tree);
     }
