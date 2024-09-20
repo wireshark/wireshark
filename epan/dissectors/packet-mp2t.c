@@ -23,6 +23,8 @@
 #include <epan/expert.h>
 #include <epan/reassemble.h>
 #include <epan/proto_data.h>
+#include <epan/exported_pdu.h>
+#include <epan/tap.h>
 #include <epan/exceptions.h>
 #include <epan/show_exception.h>
 #include "packet-l2tp.h"
@@ -41,6 +43,8 @@ static dissector_handle_t mpeg_pes_handle;
 static dissector_handle_t mpeg_sect_handle;
 
 static heur_dissector_list_t heur_subdissector_list;
+
+static int exported_pdu_tap;
 
 static int proto_mp2t;
 static int ett_mp2t;
@@ -1469,6 +1473,18 @@ dissect_tsp(tvbuff_t *tvb, int offset, packet_info *pinfo,
     }
 }
 
+static void
+export_pdu(tvbuff_t *tvb, packet_info *pinfo)
+{
+    if (have_tap_listener(exported_pdu_tap)) {
+        exp_pdu_data_t *exp_pdu_data = wmem_new0(pinfo->pool, exp_pdu_data_t);
+
+        exp_pdu_data->tvb_captured_length = tvb_captured_length(tvb);
+        exp_pdu_data->tvb_reported_length = tvb_reported_length(tvb);
+        exp_pdu_data->pdu_tvb = tvb;
+        tap_queue_packet(exported_pdu_tap, pinfo, exp_pdu_data);
+    }
+}
 
 static int
 dissect_mp2t( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_ )
@@ -1514,6 +1530,7 @@ dissect_mp2t( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
          * data.
          */
         saved_proto = pinfo->current_proto;
+        export_pdu(tvb_new_subset_length(tvb, offset, MP2T_PACKET_SIZE), pinfo);
         TRY {
             mp2t_data = get_mp2t_conversation_data(stream);
             dissect_tsp(tvb, offset, pinfo, tree, mp2t_data);
@@ -1848,6 +1865,8 @@ proto_register_mp2t(void)
         &mp2t_reassembly_table_functions);
 
     mp2t_stream_hashtable = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), mp2t_stream_hash, mp2t_stream_equal);
+
+    exported_pdu_tap = register_export_pdu_tap_with_encap("MP2T", WTAP_ENCAP_MPEG_2_TS);
 }
 
 
