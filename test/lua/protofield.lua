@@ -202,26 +202,42 @@ end
 
 -- Test expected text with singular and plural forms
 function test_proto.dissector(tvb, pinfo, tree)
-    local ti
+    local ti_time
+    local ti_distance
     testlib.countPacket(FRAME)
 
     local tvb1 = ByteArray.new("00 00"):tvb("Tvb1")
-    ti = tree:add(test_proto.fields.time_field, tvb1())
-    testlib.test(PER_FRAME,"Time: 0 secs", ti.text == "Time: 0 secs")
-    ti = tree:add(test_proto.fields.dist_field, tvb1())
-    testlib.test(PER_FRAME,"Distance: 0 km", ti.text == "Distance: 0 km")
+    ti_time = tree:add(test_proto.fields.time_field, tvb1())
+    ti_distance = tree:add(test_proto.fields.dist_field, tvb1())
+    if tree.visible then
+        testlib.test(PER_FRAME,"Time: 0 secs", ti_time.text == "Time: 0 secs")
+        testlib.test(PER_FRAME,"Distance: 0 km", ti_distance.text == "Distance: 0 km")
+    else
+        testlib.test(PER_FRAME,"Time: 0 secs", ti_time.text == nil)
+        testlib.test(PER_FRAME,"Distance: 0 km", ti_distance.text == nil)
+    end
 
     local tvb2 = ByteArray.new("00 01"):tvb("Tvb2")
-    ti = tree:add(test_proto.fields.time_field, tvb2())
-    testlib.test(PER_FRAME,"Time: 1 sec", ti.text == "Time: 1 sec")
-    ti = tree:add(test_proto.fields.dist_field, tvb2())
-    testlib.test(PER_FRAME,"Distance: 1 km", ti.text == "Distance: 1 km")
+    ti_time = tree:add(test_proto.fields.time_field, tvb2())
+    ti_distance = tree:add(test_proto.fields.dist_field, tvb2())
+    if tree.visible then
+        testlib.test(PER_FRAME,"Time: 1 sec", ti_time.text == "Time: 1 sec")
+        testlib.test(PER_FRAME,"Distance: 1 km", ti_distance.text == "Distance: 1 km")
+    else
+        testlib.test(PER_FRAME,"Time: 1 sec", ti_time.text == nil)
+        testlib.test(PER_FRAME,"Distance: 1 km", ti_distance.text == nil)
+    end
 
     local tvb3 = ByteArray.new("ff ff"):tvb("Tvb3")
-    ti = tree:add(test_proto.fields.time_field, tvb3())
-    testlib.test(PER_FRAME,"Time: 65535 secs", ti.text == "Time: 65535 secs")
-    ti = tree:add(test_proto.fields.dist_field, tvb3())
-    testlib.test(PER_FRAME,"Distance: 65535 km", ti.text == "Distance: 65535 km")
+    ti_time = tree:add(test_proto.fields.time_field, tvb3())
+    ti_distance = tree:add(test_proto.fields.dist_field, tvb3())
+    if tree.visible then
+        testlib.test(PER_FRAME,"Time: 65535 secs", ti_time.text == "Time: 65535 secs")
+        testlib.test(PER_FRAME,"Distance: 65535 km", ti_distance.text == "Distance: 65535 km")
+    else
+        testlib.test(PER_FRAME,"Time: 65535 secs", ti_time.text == nil)
+        testlib.test(PER_FRAME,"Distance: 65535 km", ti_distance.text == nil)
+    end
 
     ti = tree:add(test_proto.fields.filtered_field, tvb2())
     -- Note that this file should be loaded in tshark twice. Once with a visible

@@ -368,15 +368,6 @@ proto_reg_handoff_mate(void)
 				 */
 				set_postdissector_wanted_hfids(mate_handle,
 				    mc->wanted_hfids);
-				/* XXX: Due to #17877, any protocol added to the tree with length -1
-				 * that changes its length later (and there are many, such as TCP)
-				 * doesn't actually change its length unless the tree is visible,
-				 * which means that entire range checking work in MATE to split up
-				 * multiple PDUs of the target protocol in the same frame doesn't
-				 * work. Set the tree as visible as with Lua postdissectors that
-				 * need all fields. It's overkill and bad for performance, though.
-				 */
-				epan_set_always_visible(true);
 
 				initialize_mate_runtime(mc);
 			}

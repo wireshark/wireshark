@@ -125,14 +125,10 @@ struct ptvcursor {
 	   (think proto_item_add_subtree()) will still have somewhere	\
 	   to attach to or else filtering will not work (they would be	\
 	   ignored since tree would be NULL).				\
-	   DON'T try to fake a node where PTREE_FINFO(tree) is NULL	\
-	   since dissectors that want to do proto_item_set_len() or	\
-	   other operations that dereference this would crash.		\
 	   DON'T try to fake a node where PTREE_FINFO(tree) is visible	\
 	   because that means we can change its length or repr, and we	\
 	   don't want to do so with calls intended for this faked new	\
 	   item, so this item needs a new (hidden) child node.		\
-	   (PROTO_ITEM_IS_HIDDEN(tree) checks both conditions.)		\
 	   We fake FT_PROTOCOL unless some clients have requested us	\
 	   not to do so.						\
 	*/								\
@@ -157,8 +153,8 @@ struct ptvcursor {
 			    && (hfinfo->type != FT_PROTOCOL ||		\
 				PTREE_DATA(tree)->fake_protocols)) {	\
 				free_block;				\
-				/* just return tree back to the caller */\
-				return tree;				\
+				/* return fake node with no field info */\
+				return proto_tree_add_fake_node(tree, hfinfo);	\
 			}						\
 		}							\
 	}
@@ -176,6 +172,8 @@ struct ptvcursor {
  @param pi the created protocol item we're about to return */
 #define TRY_TO_FAKE_THIS_REPR(pi)	\
 	ws_assert(pi);			\
+	if (!PITEM_FINFO(pi))		\
+		return pi;		\
 	if (!(PTREE_DATA(pi)->visible) && \
 	      PROTO_ITEM_IS_HIDDEN(pi)) { \
 		/* If the tree (GUI) or item isn't visible it's pointless for \
@@ -184,7 +182,7 @@ struct ptvcursor {
 	}
 /* Same as above but returning void */
 #define TRY_TO_FAKE_THIS_REPR_VOID(pi)	\
-	if (!pi)			\
+	if (!pi || !PITEM_FINFO(pi))	\
 		return;			\
 	if (!(PTREE_DATA(pi)->visible) && \
 	      PROTO_ITEM_IS_HIDDEN(pi)) { \
@@ -194,7 +192,7 @@ struct ptvcursor {
 	}
 /* Similar to above, but allows a NULL tree */
 #define TRY_TO_FAKE_THIS_REPR_NESTED(pi)	\
-	if ((pi == NULL) || (!(PTREE_DATA(pi)->visible) && \
+	if ((pi == NULL) || (PITEM_FINFO(pi) == NULL) || (!(PTREE_DATA(pi)->visible) && \
 		PROTO_ITEM_IS_HIDDEN(pi))) { \
 		/* If the tree (GUI) or item isn't visible it's pointless for \
 		 * us to generate the protocol item's string representation */ \
@@ -275,6 +273,9 @@ static void proto_cleanup_base(void);
 
 static proto_item *
 proto_tree_add_node(proto_tree *tree, field_info *fi);
+
+static proto_item *
+proto_tree_add_fake_node(proto_tree *tree, const header_field_info *hfinfo);
 
 static void
 get_hfi_length(header_field_info *hfinfo, tvbuff_t *tvb, const int start, int *length,
@@ -838,8 +839,10 @@ proto_tree_free_node(proto_node *node, void *data _U_)
 
 	proto_tree_children_foreach(node, proto_tree_free_node, NULL);
 
-	fvalue_free(finfo->value);
-	finfo->value = NULL;
+	if (finfo) {
+		fvalue_free(finfo->value);
+		finfo->value = NULL;
+	}
 }
 
 void
@@ -6393,6 +6396,74 @@ proto_tree_add_mac48_detail(const mac_hf_list_t *list_specific,
 	return ret_val;
 }
 
+static proto_item *
+proto_tree_add_fake_node(proto_tree *tree, const header_field_info *hfinfo)
+{
+	proto_node *pnode, *tnode, *sibling;
+	field_info *tfi;
+	unsigned depth = 1;
+
+	ws_assert(tree);
+
+	/*
+	 * Restrict our depth. proto_tree_traverse_pre_order and
+	 * proto_tree_traverse_post_order (and possibly others) are recursive
+	 * so we need to be mindful of our stack size.
+	 */
+	if (tree->first_child == NULL) {
+		for (tnode = tree; tnode != NULL; tnode = tnode->parent) {
+			depth++;
+			if (G_UNLIKELY(depth > prefs.gui_max_tree_depth)) {
+				THROW_MESSAGE(DissectorError, wmem_strdup_printf(PNODE_POOL(tree),
+						     "Maximum tree depth %d exceeded for \"%s\" - \"%s\" (%s:%u) (Maximum depth can be increased in advanced preferences)",
+						     prefs.gui_max_tree_depth,
+						     hfinfo->name, hfinfo->abbrev, G_STRFUNC, __LINE__));
+			}
+		}
+	}
+
+	/*
+	 * Make sure "tree" is ready to have subtrees under it, by
+	 * checking whether it's been given an ett_ value.
+	 *
+	 * "PNODE_FINFO(tnode)" may be null; that's the case for the root
+	 * node of the protocol tree.  That node is not displayed,
+	 * so it doesn't need an ett_ value to remember whether it
+	 * was expanded.
+	 */
+	tnode = tree;
+	tfi = PNODE_FINFO(tnode);
+	if (tfi != NULL && (tfi->tree_type < 0 || tfi->tree_type >= num_tree_types)) {
+		REPORT_DISSECTOR_BUG("\"%s\" - \"%s\" tfi->tree_type: %d invalid (%s:%u)",
+				     hfinfo->name, hfinfo->abbrev, tfi->tree_type, __FILE__, __LINE__);
+		/* XXX - is it safe to continue here? */
+	}
+
+	pnode = wmem_new(PNODE_POOL(tree), proto_node);
+	PROTO_NODE_INIT(pnode);
+	pnode->parent = tnode;
+	PNODE_HFINFO(pnode) = hfinfo;
+	PNODE_FINFO(pnode) = NULL; // Faked
+	pnode->tree_data = PTREE_DATA(tree);
+
+	if (tnode->last_child != NULL) {
+		sibling = tnode->last_child;
+		DISSECTOR_ASSERT(sibling->next == NULL);
+		sibling->next = pnode;
+	} else
+		tnode->first_child = pnode;
+	tnode->last_child = pnode;
+
+	/* We should not be adding a fake node for an interesting field */
+	ws_assert(hfinfo->ref_type != HF_REF_TYPE_DIRECT && hfinfo->ref_type != HF_REF_TYPE_PRINT);
+
+	/* XXX - Should the proto_item have a header_field_info member, at least
+	 * for faked items, to know what hfi was faked? (Some dissectors look at
+	 * the tree items directly.)
+	 */
+	return (proto_item *)pnode;
+}
+
 /* Add a field_info struct to the proto_tree, encapsulating it in a proto_node */
 static proto_item *
 proto_tree_add_node(proto_tree *tree, field_info *fi)
@@ -6400,6 +6471,8 @@ proto_tree_add_node(proto_tree *tree, field_info *fi)
 	proto_node *pnode, *tnode, *sibling;
 	field_info *tfi;
 	unsigned depth = 1;
+
+	ws_assert(tree);
 
 	/*
 	 * Restrict our depth. proto_tree_traverse_pre_order and
@@ -6445,6 +6518,7 @@ proto_tree_add_node(proto_tree *tree, field_info *fi)
 	pnode = wmem_new(PNODE_POOL(tree), proto_node);
 	PROTO_NODE_INIT(pnode);
 	pnode->parent = tnode;
+	PNODE_HFINFO(pnode) = fi->hfinfo;
 	PNODE_FINFO(pnode) = fi;
 	pnode->tree_data = PTREE_DATA(tree);
 
@@ -7806,11 +7880,8 @@ proto_item_set_len(proto_item *pi, const int length)
 {
 	field_info *fi;
 
-	/* If the item is not visible, we can't set the length because
-	 * we can't distinguish which proto item this is being called
-	 * on, since faked items share proto items. (#17877)
-	 */
-	TRY_TO_FAKE_THIS_REPR_VOID(pi);
+	if (pi == NULL)
+		return;
 
 	fi = PITEM_FINFO(pi);
 	if (fi == NULL)
@@ -7832,8 +7903,8 @@ proto_item_set_end(proto_item *pi, tvbuff_t *tvb, int end)
 	field_info *fi;
 	int length;
 
-	/* As with proto_item_set_len() above */
-	TRY_TO_FAKE_THIS_REPR_VOID(pi);
+	if (pi == NULL)
+		return;
 
 	fi = PITEM_FINFO(pi);
 	if (fi == NULL)
@@ -7997,28 +8068,13 @@ proto_item_get_subtree(proto_item *pi) {
 	if (!pi)
 		return NULL;
 	fi = PITEM_FINFO(pi);
-	if ( (!fi) || (fi->tree_type == -1) )
+	if ( (fi) && (fi->tree_type == -1) )
 		return NULL;
 	return (proto_tree *)pi;
 }
 
 proto_item *
 proto_item_get_parent(const proto_item *ti) {
-	/* XXX: If we're faking items, this will return the parent of the
-	 * faked item, which may not be the logical parent expected.
-	 * We have no way of knowing exactly which real item the fake
-	 * item refers to here (the original item or one of its children
-	 * using it as a fake), and thus whether the parent should be the
-	 * faked item itself or the faked item's parent.
-	 *
-	 * In that case, there's a good chance we end up returning the
-	 * root node of the protocol tree, which has "PNODE_FINFO()" null.
-	 *
-	 * If we later add items to _that_, they will not be faked even though
-	 * they _should_ be, hurting performance (#8069). Also protocol
-	 * hierarchy stats (which fakes everything but protocols) may
-	 * behave oddly if unexpected items are added under the root node.
-	 */
 	if (!ti)
 		return NULL;
 	return ti->parent;
@@ -8026,7 +8082,6 @@ proto_item_get_parent(const proto_item *ti) {
 
 proto_item *
 proto_item_get_parent_nth(proto_item *ti, int gen) {
-	/* XXX: Same issue as above, even more so. */
 	if (!ti)
 		return NULL;
 	while (gen--) {
@@ -8047,7 +8102,6 @@ proto_tree_get_parent(proto_tree *tree) {
 
 proto_tree *
 proto_tree_get_parent_tree(proto_tree *tree) {
-	/* XXX: Same issue as proto_item_get_parent */
 	if (!tree)
 		return NULL;
 

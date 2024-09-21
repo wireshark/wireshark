@@ -2464,14 +2464,14 @@ static void proto_tree_get_node_field_values(proto_node *node, void *data)
     call_data = (write_field_data_t *)data;
     fi = PNODE_FINFO(node);
 
-    /* dissection with an invisible proto tree? */
-    ws_assert(fi);
-
-    field_index = g_hash_table_lookup(call_data->fields->field_indicies, fi->hfinfo->abbrev);
-    if (NULL != field_index) {
-        format_field_values(call_data->fields, field_index,
-                            get_node_field_value(fi, call_data->edt) /* g_ alloc'd string */
-            );
+    /* check for a faked item with an invisible tree */
+    if (fi) {
+        field_index = g_hash_table_lookup(call_data->fields->field_indicies, fi->hfinfo->abbrev);
+        if (NULL != field_index) {
+            format_field_values(call_data->fields, field_index,
+                                get_node_field_value(fi, call_data->edt) /* g_ alloc'd string */
+                );
+        }
     }
 
     /* Recurse here. */

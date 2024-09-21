@@ -283,7 +283,7 @@ static int dissect_block_asb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
         dissector_handle_t ctx_dis = dissector_get_custom_table_handle(secctx_dissectors, ctxid);
         const char *dis_name = dissector_handle_get_description(ctx_dis);
         if (dis_name) {
-            const header_field_info *hfinfo = item_ctxid->finfo->hfinfo;
+            const header_field_info *hfinfo = PITEM_HFINFO(item_ctxid);
             proto_item_set_text(item_ctxid, "%s: %s (%" PRId64 ")", hfinfo ? hfinfo->name : NULL, dis_name, *ctxid);
         }
     }

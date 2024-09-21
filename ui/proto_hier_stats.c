@@ -79,6 +79,15 @@ find_stat_node(GNode *parent_stat_node, const header_field_info *needle_hfinfo)
     return needle_stat_node;
 }
 
+static bool
+ph_node_is_proto(proto_node *ptree_node)
+{
+    if (!PNODE_FINFO(ptree_node))
+        return false;
+
+    const header_field_info *hfinfo = PNODE_FINFO(ptree_node)->hfinfo;
+    return proto_registrar_is_protocol(hfinfo->id) && hfinfo->id != pc_proto_id;
+}
 
     static void
 process_node(proto_node *ptree_node, GNode *parent_stat_node, ph_stats_t *ps)
@@ -90,8 +99,6 @@ process_node(proto_node *ptree_node, GNode *parent_stat_node, ph_stats_t *ps)
 
     finfo = PNODE_FINFO(ptree_node);
     /* We don't fake protocol nodes we expect them to have a field_info.
-     * Even with a faked proto tree, we don't fake nodes when PTREE_FINFO(tree)
-     * is NULL in order to avoid crashes here and elsewhere. (See epan/proto.c)
      */
     ws_assert(finfo);
 
@@ -121,7 +128,10 @@ process_node(proto_node *ptree_node, GNode *parent_stat_node, ph_stats_t *ps)
      * the tree to pick up embedded protocols not added to the toplevel of
      * the tree.
      */
-    while (proto_sibling_node && !proto_registrar_is_protocol(PNODE_FINFO(proto_sibling_node)->hfinfo->id)) {
+    while (proto_sibling_node) {
+        if (ph_node_is_proto(proto_sibling_node)) {
+            break;
+        }
         proto_sibling_node = proto_sibling_node->next;
     }
 
@@ -146,7 +156,10 @@ process_tree(proto_tree *protocol_tree, ph_stats_t* ps)
      * "Packet comments" item that steals items from "Frame".
      */
     ptree_node = ((proto_node *)protocol_tree)->first_child;
-    while (ptree_node && (ptree_node->finfo->hfinfo->id == pc_proto_id || !proto_registrar_is_protocol(ptree_node->finfo->hfinfo->id))) {
+    while (ptree_node) {
+        if (ph_node_is_proto(ptree_node)) {
+            break;
+        }
         ptree_node = ptree_node->next;
     }
 

@@ -91,6 +91,10 @@ protohierstat_packet(void *prs, packet_info *pinfo, epan_dissect_t *edt, const v
 	for (node=edt->tree->first_child; node; node=node->next) {
 		fi = PNODE_FINFO(node);
 
+		if (!fi || !(fi->hfinfo)) {
+			continue;
+		}
+
 		/*
 		 * If the first child is a tree of comments, skip over it.
 		 * This keeps us from having a top-level "pkt_comment"

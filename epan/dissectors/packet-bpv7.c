@@ -926,7 +926,7 @@ static void label_type_field(const uint64_t *type_code, dissector_handle_t type_
         proto_item_append_text(item_parent, ": Type %" PRIu64, *type_code);
         type_name = "Unknown";
     }
-    proto_item_set_text(item_type, "%s: %s (%" PRIu64 ")", PITEM_FINFO(item_type)->hfinfo->name, type_name, *type_code);
+    proto_item_set_text(item_type, "%s: %s (%" PRIu64 ")", PITEM_HFINFO(item_type)->name, type_name, *type_code);
 }
 
 /** Show read-in and actual CRC information.

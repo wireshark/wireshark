@@ -2124,7 +2124,7 @@ static int dissect_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
     proto_item *item_tcpcl;
     proto_tree *tree_tcpcl;
     if (tree && (tree->last_child)
-            && (tree->last_child->finfo->hfinfo->id == proto_tcpcl)) {
+            && (PITEM_HFINFO(tree->last_child)->id == proto_tcpcl)) {
         item_tcpcl = tree->last_child;
         tree_tcpcl = proto_item_get_subtree(item_tcpcl);
     }

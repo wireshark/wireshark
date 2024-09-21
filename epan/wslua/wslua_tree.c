@@ -770,7 +770,7 @@ static int TreeItem_get_text(lua_State* L) {
     char label_str[ITEM_LABEL_LENGTH+1];
     char *label_ptr;
 
-    if (ti->item) {
+    if (ti->item && PITEM_FINFO(ti->item)) {
         field_info *fi = PITEM_FINFO(ti->item);
 
         if (!fi->rep) {

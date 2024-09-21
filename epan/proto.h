@@ -903,6 +903,7 @@ typedef struct _proto_node {
     struct _proto_node *last_child;
     struct _proto_node *next;
     struct _proto_node *parent;
+    const header_field_info *hfinfo;
     field_info         *finfo;
     tree_data_t        *tree_data;
 } proto_node;
@@ -983,6 +984,15 @@ typedef proto_node proto_item;
 /** Retrieve the field_info from a proto_tree */
 #define PTREE_FINFO(proto_tree)  PNODE_FINFO(proto_tree)
 
+/** Retrieve the header_field_info from a proto_node */
+#define PNODE_HFINFO(proto_node)  ((proto_node)->hfinfo)
+
+/** Retrieve the header_field_info from a proto_item */
+#define PITEM_HFINFO(proto_item)  PNODE_HFINFO(proto_item)
+
+/** Retrieve the header_field_info from a proto_tree */
+#define PTREE_HFINFO(proto_tree)  PNODE_HFINFO(proto_tree)
+
 /** Retrieve the tree_data_t from a proto_tree */
 #define PTREE_DATA(proto_tree)   ((proto_tree)->tree_data)
 
@@ -995,10 +1005,11 @@ typedef proto_node proto_item;
  * @return true if the item is hidden, false otherwise.
  */
 static inline bool proto_item_is_hidden(proto_item *ti) {
-    if (ti) {
+    if (ti && PITEM_FINFO(ti)) {
         return FI_GET_FLAG(PITEM_FINFO(ti), FI_HIDDEN);
     }
-    return false;
+    /* XXX - Is a NULL item hidden? */
+    return true;
 }
 #define PROTO_ITEM_IS_HIDDEN(ti) proto_item_is_hidden((ti))
 
