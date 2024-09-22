@@ -561,6 +561,7 @@ static dissector_handle_t btl2cap_handle;
 
 static wmem_tree_t *connection_info_tree;
 static wmem_tree_t *periodic_adv_info_tree;
+static wmem_tree_t *connectediso_connection_info_tree;
 static wmem_tree_t *broadcastiso_connection_info_tree;
 static wmem_tree_t *connection_parameter_info_tree;
 static wmem_tree_t *adi_to_first_frame_tree;
@@ -687,6 +688,19 @@ typedef struct _connection_info_t {
     unsigned first_data_frame_seen : 1;
     direction_info_t direction_info[3];  /* UNKNOWN, CENTRAL_PERIPHERAL and PERIPHERAL_CENTRAL */
 } connection_info_t;
+
+
+/* Store information about a connected ISO connection */
+typedef struct _connectediso_connection_info_t {
+    /* Address information */
+    uint32_t interface_id;
+    uint32_t adapter_id;
+    uint32_t access_address;
+
+    uint8_t  central_bd_addr[6];
+    uint8_t  peripheral_bd_addr[6];
+} connectediso_connection_info_t;
+
 
 /* Store information about a broadcast isochronous connection */
 typedef struct _broadcastiso_connection_info_t {
@@ -4141,8 +4155,7 @@ dissect_btle_acl(tvbuff_t *tvb,
             break;
         case LL_CTRL_OPCODE_CIS_IND:
             if (!pinfo->fd->visited) {
-                connection_info_t *nconnection_info;
-                connection_parameter_info_t *connection_parameter_info;
+                connectediso_connection_info_t *nconnection_info;
 
                 connection_access_address = tvb_get_uint32(tvb, offset, ENC_LITTLE_ENDIAN);
 
@@ -4157,7 +4170,7 @@ dissect_btle_acl(tvbuff_t *tvb,
                 key[4].length = 0;
                 key[4].key = NULL;
 
-                nconnection_info = wmem_new0(wmem_file_scope(), connection_info_t);
+                nconnection_info = wmem_new0(wmem_file_scope(), connectediso_connection_info_t);
                 nconnection_info->interface_id   = interface_id;
                 nconnection_info->adapter_id     = adapter_id;
                 nconnection_info->access_address = connection_access_address;
@@ -4167,21 +4180,7 @@ dissect_btle_acl(tvbuff_t *tvb,
                     memcpy(nconnection_info->peripheral_bd_addr,  connection_info->peripheral_bd_addr,  6);
                 }
 
-                /* We don't create control procedure context trees for BTLE_DIR_UNKNOWN,
-                    * as the direction must be known for request/response matching. */
-                nconnection_info->direction_info[BTLE_DIR_CENTRAL_PERIPHERAL].control_procs =
-                    wmem_tree_new(wmem_file_scope());
-                nconnection_info->direction_info[BTLE_DIR_PERIPHERAL_CENTRAL].control_procs =
-                    wmem_tree_new(wmem_file_scope());
-
-                wmem_tree_insert32_array(connection_info_tree, key, nconnection_info);
-
-                connection_parameter_info = wmem_new0(wmem_file_scope(), connection_parameter_info_t);
-                connection_parameter_info->parameters_frame = pinfo->num;
-
-                key[3].length = 1;
-                key[3].key = &pinfo->num;
-                wmem_tree_insert32_array(connection_parameter_info_tree, key, connection_parameter_info);
+                wmem_tree_insert32_array(connectediso_connection_info_tree, key, nconnection_info);
             }
             offset = dissect_cis_ind(tvb, btle_tree, offset);
             if (connection_info && !btle_frame_info->retransmit && direction != BTLE_DIR_UNKNOWN) {
@@ -4613,7 +4612,7 @@ dissect_btle_connected_iso(tvbuff_t *tvb,
     proto_item           *sub_item;
     int                   offset = 0;
     uint32_t              length;
-    connection_info_t     *connection_info = NULL;
+    connectediso_connection_info_t *connection_info = NULL;
     wmem_tree_t           *wmem_tree;
     wmem_tree_key_t        key[5];
 
@@ -4644,7 +4643,7 @@ dissect_btle_connected_iso(tvbuff_t *tvb,
     oct = tvb_get_uint8(tvb, offset);
     wmem_tree = (wmem_tree_t *) wmem_tree_lookup32_array(connection_info_tree, key);
     if (wmem_tree) {
-        connection_info = (connection_info_t *) wmem_tree_lookup32_le(wmem_tree, pinfo->num);
+        connection_info = (connectediso_connection_info_t *) wmem_tree_lookup32_le(wmem_tree, pinfo->num);
         if (connection_info) {
             char   *str_addr_src, *str_addr_dst;
             /* longest possible string */
@@ -6625,6 +6624,7 @@ proto_register_btle(void)
 
     connection_info_tree = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
     periodic_adv_info_tree = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
+    connectediso_connection_info_tree = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
     broadcastiso_connection_info_tree = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
     connection_parameter_info_tree = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
     adi_to_first_frame_tree = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
