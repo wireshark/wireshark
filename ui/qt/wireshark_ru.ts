@@ -7561,7 +7561,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>…as HTML</source>
-        <translation type="unfinished"></translation>
+        <translation>…как HTML</translation>
     </message>
     <message>
         <source>Decode As…</source>
@@ -13578,23 +13578,23 @@ a:hover {
     </message>
     <message>
         <source>As &amp;CSV…</source>
-        <translation>В виде &amp;CSV…</translation>
+        <translation>Как &amp;CSV…</translation>
     </message>
     <message>
         <source>As &quot;C&quot; &amp;Arrays…</source>
-        <translation>В виде &amp;массива C…</translation>
+        <translation>Как &amp;Массивы &quot;C&quot;…</translation>
     </message>
     <message>
         <source>As P&amp;SML XML…</source>
-        <translation>В виде P&amp;SML XML…</translation>
+        <translation>Как P&amp;SML XML…</translation>
     </message>
     <message>
         <source>As P&amp;DML XML…</source>
-        <translation>В виде P&amp;DML XML…</translation>
+        <translation>Как P&amp;DML XML…</translation>
     </message>
     <message>
         <source>As &amp;JSON…</source>
-        <translation>В виде &amp;JSON…</translation>
+        <translation>Как &amp;JSON…</translation>
     </message>
     <message>
         <source>Description</source>
@@ -13610,7 +13610,7 @@ a:hover {
     </message>
     <message>
         <source>As Filter</source>
-        <translation>В виде фильтра</translation>
+        <translation>Как Фильтр</translation>
     </message>
     <message>
         <source>Close this capture file</source>
@@ -13767,7 +13767,7 @@ a:hover {
     </message>
     <message>
         <source>Apply as Column</source>
-        <translation>Использовать в качестве столбца</translation>
+        <translation>Применить как Столбец</translation>
     </message>
     <message>
         <source>Create a packet list column from the selected field.</source>
@@ -14443,23 +14443,23 @@ a:hover {
     </message>
     <message>
         <source>As Plain &amp;Text…</source>
-        <translation>В виде обычного &amp;текста…</translation>
+        <translation>Как Обычный &amp;Текст…</translation>
     </message>
     <message>
         <source>As Plain &amp;Text</source>
-        <translation>В виде обычного &amp;текста</translation>
+        <translation>Как Обычный &amp;Текст</translation>
     </message>
     <message>
         <source>As &amp;CSV</source>
-        <translation>В виде &amp;CSV</translation>
+        <translation>Как &amp;CSV</translation>
     </message>
     <message>
         <source>As &amp;YAML</source>
-        <translation>В виде &amp;YAML</translation>
+        <translation>Как &amp;YAML</translation>
     </message>
     <message>
         <source>As &amp;HTML</source>
-        <translation type="unfinished"></translation>
+        <translation>Как &amp;HTML</translation>
     </message>
     <message>
         <source>All Visible Items</source>

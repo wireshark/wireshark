@@ -6,8 +6,8 @@
  *
  * List of PCI ID's
  *
- * Version: 2024.09.12
- * Date:    2024-09-12 03:15:02
+ * Version: 2024.09.20
+ * Date:    2024-09-20 03:15:02
  *
  * Maintained by Albert Pool, Martin Mares, and other volunteers from
  * the PCI ID Project at https://pci-ids.ucw.cz/.
@@ -30533,7 +30533,7 @@ static pci_id_t const pci_vid_1BB1[] = {
 {0x1BB1, 0x5012, 0xFFFF, 0xFFFF, "FireCuda/IronWolf 510 SSD(0x5012)"},
 {0x1BB1, 0x5013, 0xFFFF, 0xFFFF, "BarraCuda Q5 NVMe SSD (DRAM-less)(0x5013)"},
 {0x1BB1, 0x5016, 0xFFFF, 0xFFFF, "FireCuda 520/IronWolf 525 SSD(0x5016)"},
-{0x1BB1, 0x5018, 0xFFFF, 0xFFFF, "FireCuda 530 SSD(0x5018)"},
+{0x1BB1, 0x5018, 0xFFFF, 0xFFFF, "E18 PCIe SSD(0x5018)"},
 {0x1BB1, 0x5019, 0xFFFF, 0xFFFF, "BarraCuda PCIe SSD (DRAM-less)(0x5019)"},
 {0x1BB1, 0x5021, 0xFFFF, 0xFFFF, "FireCuda 520 SSD(0x5021)"},
 {0x1BB1, 0x5026, 0xFFFF, 0xFFFF, "FireCuda 540 SSD(0x5026)"},

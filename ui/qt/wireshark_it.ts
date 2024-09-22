@@ -7537,7 +7537,7 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>…as HTML</source>
-        <translation type="unfinished"></translation>
+        <translation>…come HTML</translation>
     </message>
     <message>
         <source>Decode As…</source>
@@ -14418,7 +14418,7 @@ a:hover {
     </message>
     <message>
         <source>As &amp;HTML</source>
-        <translation type="unfinished"></translation>
+        <translation>Come &amp;HTML</translation>
     </message>
     <message>
         <source>All Visible Items</source>

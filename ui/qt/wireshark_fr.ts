@@ -7536,7 +7536,7 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
     </message>
     <message>
         <source>…as HTML</source>
-        <translation type="unfinished"></translation>
+        <translation>...en HTML</translation>
     </message>
     <message>
         <source>Decode As…</source>
@@ -14421,7 +14421,7 @@ a:hover {
     </message>
     <message>
         <source>As &amp;HTML</source>
-        <translation type="unfinished"></translation>
+        <translation>En &amp;HTML</translation>
     </message>
     <message>
         <source>All Visible Items</source>
