@@ -42,6 +42,7 @@ typedef void (*tap_finish_cb)(void *tapdata);
 #define TL_REQUIRES_PROTO_TREE      0x00000001	    /**< non-NULL protocol tree */
 #define TL_REQUIRES_COLUMNS         0x00000002	    /**< columns */
 #define TL_REQUIRES_ERROR_PACKETS   0x00000004	    /**< include packet even if pinfo->flags.in_error_pkt is set */
+#define TL_REQUIRES_PROTOCOLS       0x00000020	    /**< don't fake protocols */
 
 /** TL_REQUIRES_PROTO_TREE does not generate the full protocol tree;
  * any fields not referenced (e.g., in a filter) will still be "faked."

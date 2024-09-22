@@ -3754,8 +3754,9 @@ sharkd_session_process_tap(char *buf, const jsmntok_t *tokens, int count)
 
             rs = new_phs_t(NULL, tap_filter);
 
-            tap_error = register_tap_listener("frame", rs, tap_filter, TL_REQUIRES_PROTO_TREE, NULL,
-                                              protohierstat_packet,
+            tap_error = register_tap_listener("frame", rs, tap_filter,
+                                              TL_REQUIRES_PROTO_TREE|TL_REQUIRES_PROTOCOLS,
+                                              NULL, protohierstat_packet,
                                               sharkd_session_process_tap_phs_cb, NULL);
 
             tap_data = rs;

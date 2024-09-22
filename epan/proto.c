@@ -903,7 +903,8 @@ proto_tree_set_visible(proto_tree *tree, bool visible)
 void
 proto_tree_set_fake_protocols(proto_tree *tree, bool fake_protocols)
 {
-	PTREE_DATA(tree)->fake_protocols = fake_protocols;
+	if (tree)
+		PTREE_DATA(tree)->fake_protocols = fake_protocols;
 }
 
 /* Assume dissector set only its protocol fields.

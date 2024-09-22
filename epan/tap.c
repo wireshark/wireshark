@@ -263,6 +263,7 @@ tap_queue_packet(int tap_id, packet_info *pinfo, const void *tap_specific_data)
 void tap_build_interesting (epan_dissect_t *edt)
 {
 	tap_listener_t *tl;
+	bool need_protocols = false;
 
 	/* nothing to do, just return */
 	if(!tap_listener_queue){
@@ -275,6 +276,12 @@ void tap_build_interesting (epan_dissect_t *edt)
 		if(tl->code){
 			epan_dissect_prime_with_dfilter(edt, tl->code);
 		}
+		if(tl->flags & TL_REQUIRES_PROTOCOLS){
+			need_protocols = true;
+		}
+	}
+	if (need_protocols) {
+		epan_dissect_fake_protocols(edt, false);
 	}
 }
 
@@ -553,6 +560,12 @@ register_tap_listener(const char *tapname, void *tapdata, const char *fstring,
 	tl=g_new0(tap_listener_t, 1);
 	tl->needs_redraw=true;
 	tl->failed=false;
+	if (flags & TL_REQUIRES_PROTOCOLS) {
+		/* Requiring protocols implies needing a protocol tree.
+		 * XXX - Warn?
+		 */
+		flags |= TL_REQUIRES_PROTO_TREE;
+	}
 	tl->flags=flags;
 	if(fstring && *fstring){
 		if(!dfilter_compile(fstring, &code, &df_err)){

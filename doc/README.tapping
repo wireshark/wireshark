@@ -136,6 +136,14 @@ is a set of flags for the tap listener.  The flags that can be set are:
         set if your tap listener should be updated even when pinfo->flags.in_error_pkt is set
         e.g. if it is inside an ICMP unreachable packet.
 
+    TL_REQUIRES_PROTOCOLS
+
+        set if your tap listener requires that the protocol tree be built
+        and that all FT_PROTOCOL fields are actually present in the tree
+        and not faked. This is used by the protocol hierarchy statistics.
+        This implies needing a protocol tree, as the option doesn't make
+        sense otherwise.
+
     If no flags are needed, use TL_REQUIRES_NOTHING.
 
 void (*reset)(void *tapdata)

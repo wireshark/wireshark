@@ -399,83 +399,88 @@ class TestSharkd:
                     "type":"phs",
                     "filter":"",
                     "protos":[{
-                        "proto":"eth",
+                        "proto":"frame",
                         "frames":115,
                         "bytes":22186,
                         "protos":[{
-                            "proto":"ipv6",
-                            "frames":39,
-                            "bytes":7566,
+                            "proto":"eth",
+                            "frames":115,
+                            "bytes":22186,
                             "protos":[{
-                                "proto":"icmpv6",
-                                "frames":36,
-                                "bytes":3684
-                            },{
-                                "proto":"udp",
-                                "frames":3,
-                                "bytes":3882,
+                                "proto":"ipv6",
+                                "frames":39,
+                                "bytes":7566,
                                 "protos":[{
-                                    "proto":"data",
+                                    "proto":"icmpv6",
+                                    "frames":36,
+                                    "bytes":3684
+                                },{
+                                    "proto":"udp",
                                     "frames":3,
-                                    "bytes":3882
-                                }]
-                            }]
-                        },{
-                            "proto":"ip",
-                            "frames":70,
-                            "bytes":14260,
-                            "protos":[{
-                                "proto":"udp",
-                                "frames":60,
-                                "bytes":13658,
-                                "protos":[{
-                                    "proto":"mdns",
-                                    "frames":1,
-                                    "bytes":138
-                                },{
-                                    "proto":"ssdp",
-                                    "frames":30,
-                                    "bytes":8828
-                                },{
-                                    "proto":"nbns",
-                                    "frames":20,
-                                    "bytes":2200
-                                },{
-                                    "proto":"nbdgm",
-                                    "frames":1,
-                                    "bytes":248,
+                                    "bytes":3882,
                                     "protos":[{
-                                        "proto":"smb",
+                                        "proto":"data",
+                                        "frames":3,
+                                        "bytes":3882
+                                    }]
+                                }]
+                            },{
+                                "proto":"ip",
+                                "frames":70,
+                                "bytes":14260,
+                                "protos":[{
+                                    "proto":"udp",
+                                    "frames":60,
+                                    "bytes":13658,
+                                    "protos":[{
+                                        "proto":"mdns",
+                                        "frames":1,
+                                        "bytes":138
+                                    },{
+                                        "proto":"ssdp",
+                                        "frames":30,
+                                        "bytes":8828
+                                    },{
+                                        "proto":"nbns",
+                                        "frames":20,
+                                        "bytes":2200
+                                    },{
+                                        "proto":"nbdgm",
                                         "frames":1,
                                         "bytes":248,
                                         "protos":[{
-                                            "proto":"mailslot",
+                                            "proto":"smb",
                                             "frames":1,
                                             "bytes":248,
                                             "protos":[{
-                                                "proto":"browser",
+                                                "proto":"mailslot",
                                                 "frames":1,
-                                                "bytes":248
+                                                "bytes":248,
+                                                "protos":[{
+                                                    "proto":"browser",
+                                                    "frames":1,
+                                                    "bytes":248
+                                                }]
                                             }]
                                         }]
+                                    },{"proto":"dhcp",
+                                       "frames":4,
+                                       "bytes":1864
+                                       },{
+                                        "proto":"dns",
+                                        "frames":4,
+                                        "bytes":380
                                     }]
-                                },{"proto":"dhcp",
-                                   "frames":4,
-                                   "bytes":1864
-                                   },{
-                                    "proto":"dns",
-                                    "frames":4,
-                                    "bytes":380
+                                },{
+                                    "proto":"igmp",
+                                    "frames":10,
+                                    "bytes":602
                                 }]
                             },{
-                                "proto":"igmp",
-                                "frames":10,
-                                "bytes":602
+                                "proto":"arp",
+                                "frames":6,
+                                "bytes":360
                             }]
-                        },{
-                            "proto":"arp",
-                            "frames":6,
-                            "bytes":360
                         }]
                     }]
                 }]
@@ -487,83 +492,88 @@ class TestSharkd:
                     "type":"phs",
                     "filter":"",
                     "protos":[{
-                        "proto":"eth",
+                        "proto":"frame",
                         "frames":115,
                         "bytes":22186,
                         "protos":[{
-                            "proto":"ipv6",
-                            "frames":39,
-                            "bytes":7566,
+                            "proto":"eth",
+                            "frames":115,
+                            "bytes":22186,
                             "protos":[{
-                                "proto":"icmpv6",
-                                "frames":36,
-                                "bytes":3684
-                            },{
-                                "proto":"udp",
-                                "frames":3,
-                                "bytes":3882,
+                                "proto":"ipv6",
+                                "frames":39,
+                                "bytes":7566,
                                 "protos":[{
-                                    "proto":"data",
+                                    "proto":"icmpv6",
+                                    "frames":36,
+                                    "bytes":3684
+                                },{
+                                    "proto":"udp",
                                     "frames":3,
-                                    "bytes":3882
-                                }]
-                            }]
-                        },{
-                            "proto":"ip",
-                            "frames":70,
-                            "bytes":14260,
-                            "protos":[{
-                                "proto":"udp",
-                                "frames":60,
-                                "bytes":13658,
-                                "protos":[{
-                                    "proto":"mdns",
-                                    "frames":1,
-                                    "bytes":138
-                                },{
-                                    "proto":"ssdp",
-                                    "frames":30,
-                                    "bytes":8828
-                                },{
-                                    "proto":"nbns",
-                                    "frames":20,
-                                    "bytes":2200
-                                },{
-                                    "proto":"nbdgm",
-                                    "frames":1,
-                                    "bytes":248,
+                                    "bytes":3882,
                                     "protos":[{
-                                        "proto":"smb",
+                                        "proto":"data",
+                                        "frames":3,
+                                        "bytes":3882
+                                    }]
+                                }]
+                            },{
+                                "proto":"ip",
+                                "frames":70,
+                                "bytes":14260,
+                                "protos":[{
+                                    "proto":"udp",
+                                    "frames":60,
+                                    "bytes":13658,
+                                    "protos":[{
+                                        "proto":"mdns",
+                                        "frames":1,
+                                        "bytes":138
+                                    },{
+                                        "proto":"ssdp",
+                                        "frames":30,
+                                        "bytes":8828
+                                    },{
+                                        "proto":"nbns",
+                                        "frames":20,
+                                        "bytes":2200
+                                    },{
+                                        "proto":"nbdgm",
                                         "frames":1,
                                         "bytes":248,
                                         "protos":[{
-                                            "proto":"mailslot",
+                                            "proto":"smb",
                                             "frames":1,
                                             "bytes":248,
                                             "protos":[{
-                                                "proto":"browser",
+                                                "proto":"mailslot",
                                                 "frames":1,
-                                                "bytes":248
+                                                "bytes":248,
+                                                "protos":[{
+                                                    "proto":"browser",
+                                                    "frames":1,
+                                                    "bytes":248
+                                                }]
                                             }]
                                         }]
+                                    },{"proto":"dhcp",
+                                       "frames":4,
+                                       "bytes":1864
+                                       },{
+                                        "proto":"dns",
+                                        "frames":4,
+                                        "bytes":380
                                     }]
-                                },{"proto":"dhcp",
-                                   "frames":4,
-                                   "bytes":1864
-                                   },{
-                                    "proto":"dns",
-                                    "frames":4,
-                                    "bytes":380
+                                },{
+                                    "proto":"igmp",
+                                    "frames":10,
+                                    "bytes":602
                                 }]
                             },{
-                                "proto":"igmp",
-                                "frames":10,
-                                "bytes":602
+                                "proto":"arp",
+                                "frames":6,
+                                "bytes":360
                             }]
-                        },{
-                            "proto":"arp",
-                            "frames":6,
-                            "bytes":360
                         }]
                     }]
                 }]
@@ -576,23 +586,28 @@ class TestSharkd:
                     "protos": [{
                         "bytes": 7566,
                         "frames": 39,
-                        "proto": "eth",
+                        "proto": "frame",
                         "protos": [{
                             "bytes": 7566,
                             "frames": 39,
-                            "proto": "ipv6",
+                            "proto": "eth",
                             "protos": [{
-                                "bytes": 3684,
-                                "frames": 36,
-                                "proto": "icmpv6"
-                            },{
-                                "bytes": 3882,
-                                "frames": 3,
-                                "proto": "udp",
+                                "bytes": 7566,
+                                "frames": 39,
+                                "proto": "ipv6",
                                 "protos": [{
+                                    "bytes": 3684,
+                                    "frames": 36,
+                                    "proto": "icmpv6"
+                                },{
                                     "bytes": 3882,
                                     "frames": 3,
-                                    "proto": "data"
+                                    "proto": "udp",
+                                    "protos": [{
+                                        "bytes": 3882,
+                                        "frames": 3,
+                                        "proto": "data"
+                                    }]
                                 }]
                             }]
                         }]
