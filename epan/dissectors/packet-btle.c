@@ -671,10 +671,6 @@ typedef struct _connection_parameter_info_t {
 
 /* Store information about a connection */
 typedef struct _connection_info_t {
-    /* Address information */
-    uint32_t interface_id;
-    uint32_t adapter_id;
-    uint32_t access_address;
     uint32_t crc_init;
 
     uint8_t  central_bd_addr[6];
@@ -692,11 +688,6 @@ typedef struct _connection_info_t {
 
 /* Store information about a connected ISO connection */
 typedef struct _connectediso_connection_info_t {
-    /* Address information */
-    uint32_t interface_id;
-    uint32_t adapter_id;
-    uint32_t access_address;
-
     uint8_t  central_bd_addr[6];
     uint8_t  peripheral_bd_addr[6];
 } connectediso_connection_info_t;
@@ -704,11 +695,6 @@ typedef struct _connectediso_connection_info_t {
 
 /* Store information about a broadcast isochronous connection */
 typedef struct _broadcastiso_connection_info_t {
-    /* Address information */
-    uint32_t interface_id;
-    uint32_t adapter_id;
-    uint32_t access_address;
-
     uint8_t  central_bd_addr[6];
 } broadcastiso_connection_info_t;
 
@@ -1958,9 +1944,6 @@ dissect_ad_eir(tvbuff_t *tvb, uint32_t interface_id, uint32_t adapter_id, uint32
             key[4].key = NULL;
 
             nconnection_info = wmem_new0(wmem_file_scope(), broadcastiso_connection_info_t);
-            nconnection_info->interface_id   = interface_id;
-            nconnection_info->adapter_id     = adapter_id;
-            nconnection_info->access_address = seed_access_address;
 
             if (src_bd_addr)
                 memcpy(nconnection_info->central_bd_addr, src_bd_addr, 6);
@@ -2404,9 +2387,6 @@ dissect_btle_adv(tvbuff_t *tvb,
             key[4].key = NULL;
 
             connection_info = wmem_new0(wmem_file_scope(), connection_info_t);
-            connection_info->interface_id   = interface_id;
-            connection_info->adapter_id     = adapter_id;
-            connection_info->access_address = connection_access_address;
             connection_info->crc_init       = connect_ind_crc_init;
 
             memcpy(connection_info->central_bd_addr, src_bd_addr, 6);
@@ -2573,9 +2553,6 @@ dissect_btle_adv(tvbuff_t *tvb,
                 key[4].key = NULL;
 
                 connection_info = wmem_new0(wmem_file_scope(), connection_info_t);
-                connection_info->interface_id   = interface_id;
-                connection_info->adapter_id     = adapter_id;
-                connection_info->access_address = connection_access_address;
 
                 if (flags & 0x01)
                     memcpy(connection_info->central_bd_addr, src_bd_addr, 6);
@@ -2884,21 +2861,21 @@ dissect_btle_acl(tvbuff_t *tvb,
 
             switch (direction) {
             case BTLE_DIR_CENTRAL_PERIPHERAL:
-                snprintf(str_addr_src, str_addr_len, "Central_0x%08x", connection_info->access_address);
-                snprintf(str_addr_dst, str_addr_len, "Peripheral_0x%08x", connection_info->access_address);
+                snprintf(str_addr_src, str_addr_len, "Central_0x%08x", access_address);
+                snprintf(str_addr_dst, str_addr_len, "Peripheral_0x%08x", access_address);
                 set_address(&pinfo->dl_src, AT_ETHER, sizeof(connection_info->central_bd_addr), connection_info->central_bd_addr);
                 set_address(&pinfo->dl_dst, AT_ETHER, sizeof(connection_info->peripheral_bd_addr), connection_info->peripheral_bd_addr);
                 break;
             case BTLE_DIR_PERIPHERAL_CENTRAL:
-                snprintf(str_addr_src, str_addr_len, "Peripheral_0x%08x", connection_info->access_address);
-                snprintf(str_addr_dst, str_addr_len, "Central_0x%08x", connection_info->access_address);
+                snprintf(str_addr_src, str_addr_len, "Peripheral_0x%08x", access_address);
+                snprintf(str_addr_dst, str_addr_len, "Central_0x%08x", access_address);
                 set_address(&pinfo->dl_src, AT_ETHER, sizeof(connection_info->peripheral_bd_addr), connection_info->peripheral_bd_addr);
                 set_address(&pinfo->dl_dst, AT_ETHER, sizeof(connection_info->central_bd_addr), connection_info->central_bd_addr);
                 break;
             default:
                 /* BTLE_DIR_UNKNOWN */
-                snprintf(str_addr_src, str_addr_len, "Unknown_0x%08x", connection_info->access_address);
-                snprintf(str_addr_dst, str_addr_len, "Unknown_0x%08x", connection_info->access_address);
+                snprintf(str_addr_src, str_addr_len, "Unknown_0x%08x", access_address);
+                snprintf(str_addr_dst, str_addr_len, "Unknown_0x%08x", access_address);
                 clear_address(&pinfo->dl_src);
                 clear_address(&pinfo->dl_dst);
                 break;
@@ -4171,10 +4148,6 @@ dissect_btle_acl(tvbuff_t *tvb,
                 key[4].key = NULL;
 
                 nconnection_info = wmem_new0(wmem_file_scope(), connectediso_connection_info_t);
-                nconnection_info->interface_id   = interface_id;
-                nconnection_info->adapter_id     = adapter_id;
-                nconnection_info->access_address = connection_access_address;
-
                 if (connection_info) {
                     memcpy(nconnection_info->central_bd_addr, connection_info->central_bd_addr, 6);
                     memcpy(nconnection_info->peripheral_bd_addr,  connection_info->peripheral_bd_addr,  6);
@@ -4660,21 +4633,21 @@ dissect_btle_connected_iso(tvbuff_t *tvb,
 
             switch (direction) {
             case BTLE_DIR_CENTRAL_PERIPHERAL:
-                snprintf(str_addr_src, str_addr_len, "Central_0x%08x", connection_info->access_address);
-                snprintf(str_addr_dst, str_addr_len, "Peripheral_0x%08x", connection_info->access_address);
+                snprintf(str_addr_src, str_addr_len, "Central_0x%08x", access_address);
+                snprintf(str_addr_dst, str_addr_len, "Peripheral_0x%08x", access_address);
                 set_address(&pinfo->dl_src, AT_ETHER, sizeof(connection_info->central_bd_addr), connection_info->central_bd_addr);
                 set_address(&pinfo->dl_dst, AT_ETHER, sizeof(connection_info->peripheral_bd_addr), connection_info->peripheral_bd_addr);
                 break;
             case BTLE_DIR_PERIPHERAL_CENTRAL:
-                snprintf(str_addr_src, str_addr_len, "Peripheral_0x%08x", connection_info->access_address);
-                snprintf(str_addr_dst, str_addr_len, "Central_0x%08x", connection_info->access_address);
+                snprintf(str_addr_src, str_addr_len, "Peripheral_0x%08x", access_address);
+                snprintf(str_addr_dst, str_addr_len, "Central_0x%08x", access_address);
                 set_address(&pinfo->dl_src, AT_ETHER, sizeof(connection_info->peripheral_bd_addr), connection_info->peripheral_bd_addr);
                 set_address(&pinfo->dl_dst, AT_ETHER, sizeof(connection_info->central_bd_addr), connection_info->central_bd_addr);
                 break;
             default:
                 /* BTLE_DIR_UNKNOWN */
-                snprintf(str_addr_src, str_addr_len, "Unknown_0x%08x", connection_info->access_address);
-                snprintf(str_addr_dst, str_addr_len, "Unknown_0x%08x", connection_info->access_address);
+                snprintf(str_addr_src, str_addr_len, "Unknown_0x%08x", access_address);
+                snprintf(str_addr_dst, str_addr_len, "Unknown_0x%08x", access_address);
                 clear_address(&pinfo->dl_src);
                 clear_address(&pinfo->dl_dst);
                 break;
@@ -4797,7 +4770,7 @@ dissect_btle_broadcast_iso(tvbuff_t *tvb,
             sub_item = proto_tree_add_ether(btle_tree, hf_central_bd_addr, tvb, 0, 0, broadcastiso_connection_info->central_bd_addr);
             proto_item_set_generated(sub_item);
 
-            snprintf(str_addr_src, str_addr_len, "Central_0x%08x", broadcastiso_connection_info->access_address);
+            snprintf(str_addr_src, str_addr_len, "Central_0x%08x", access_address);
             set_address(&pinfo->dl_src, AT_ETHER, sizeof(broadcastiso_connection_info->central_bd_addr), broadcastiso_connection_info->central_bd_addr);
             clear_address(&pinfo->dl_dst);
 
