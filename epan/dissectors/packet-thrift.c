@@ -33,11 +33,26 @@
 #include "packet-tls.h"
 #include "packet-thrift.h"
 
-/* Line  30: Constants and early declarations. */
-/* Line 180: Protocol data structure and helper functions. */
-/* Line 300: Helper functions to use within custom sub-dissectors. */
-/* Line 630: Generic functions to dissect TBinaryProtocol message content. */
-/* Line 900: Generic functions to dissect Thrift message header. */
+/* Line   40: Constants and macros declarations. */
+/* Line  200: Protocol data structure and early declarations. */
+/* Line  340: Generic helper functions for various purposes. */
+/* Line  900: Helper functions to use within custom sub-dissectors (with some mutualization function). */
+/* Line 2100: Generic functions to dissect TBinaryProtocol message content. */
+/* Line 2420: Generic functions to dissect TCompactProtocol message content. */
+/* Line 2900: Generic functions to dissect Thrift message header. */
+
+/* ==== Note about the use of THRIFT_REQUEST_REASSEMBLY and THRIFT_SUBDISSECTOR_ERROR. ==== */
+/* From the sub-dissection code, only the return value gives an information about the type of error.
+ * In this case, THRIFT_REQUEST_REASSEMBLY is used for reassembly and THRIFT_SUBDISSECTOR_ERROR for everything else.
+ *
+ * From the generic dissection code (dissect_thrift_binary_* and dissect_thrift_compact_*) the functions also update
+ * the offset passed as a reference. In this case, THRIFT_REQUEST_REASSEMBLY is the only error code used in order to
+ * simplify propagation and the reference offset indicates the type of issue:
+ * - THRIFT_REQUEST_REASSEMBLY indicates reassembly is required.
+ * - Any positive value indicates where the non-reassembly error happened
+ *   and the Thrift dissector consumes all the data available until now.
+ */
+
 
 void proto_register_thrift(void);
 void proto_reg_handoff_thrift(void);
