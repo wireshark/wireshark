@@ -135,6 +135,7 @@ static int hf_oran_reserved_16bits;
 static int hf_oran_reserved_15bits;
 
 static int hf_oran_ext11_reserved;
+static int hf_oran_laa_msgtype0_reserved;
 
 static int hf_oran_bfwCompHdr;
 static int hf_oran_bfwCompHdr_iqWidth;
@@ -351,6 +352,8 @@ static expert_field ei_oran_cplane_unexpected_sequence_number;
 static expert_field ei_oran_uplane_unexpected_sequence_number;
 static expert_field ei_oran_acknack_no_request;
 static expert_field ei_oran_udpcomphdr_should_be_zero;
+static expert_field ei_oran_radio_fragmentation_c_plane;
+
 
 
 /* These are the message types handled by this dissector */
@@ -358,13 +361,13 @@ static expert_field ei_oran_udpcomphdr_should_be_zero;
 #define ECPRI_MT_RT_CTRL_DATA       2
 
 
-/* Preference settings. */
-static unsigned pref_du_port_id_bits = 2;
-static unsigned pref_bandsector_id_bits = 6;
-static unsigned pref_cc_id_bits = 4;
-static unsigned pref_ru_port_id_bits = 4;
+/* Preference settings - try to set reasonable defaults */
+static unsigned pref_du_port_id_bits    = 4;
+static unsigned pref_bandsector_id_bits = 4;
+static unsigned pref_cc_id_bits         = 4;
+static unsigned pref_ru_port_id_bits    = 4;
 
-static unsigned pref_sample_bit_width_uplink = 14;
+static unsigned pref_sample_bit_width_uplink   = 14;
 static unsigned pref_sample_bit_width_downlink = 14;
 
 /* Compression schemes */
@@ -390,13 +393,13 @@ static bool pref_showIQSampleValues = true;
 
 
 static const enum_val_t compression_options[] = {
-    { "COMP_NONE",                             "No Compression",                   COMP_NONE },
-    { "COMP_BLOCK_FP",                         "Block Floating Point Compression", COMP_BLOCK_FP },
-    { "COMP_BLOCK_SCALE",                      "Block Scaling Compression",        COMP_BLOCK_SCALE },
-    { "COMP_U_LAW",                            "u-Law Compression",                COMP_U_LAW },
-    { "COMP_MODULATION",                       "Modulation Compression",           COMP_MODULATION },
-    { "BFP_AND_SELECTIVE_RE",                  "BFP + selective RE sending",       BFP_AND_SELECTIVE_RE },
-    { "MOD_COMPR_AND_SELECTIVE_RE",            "mod-compr + selective RE sending", MOD_COMPR_AND_SELECTIVE_RE },
+    { "COMP_NONE",                             "No Compression",                                                COMP_NONE },
+    { "COMP_BLOCK_FP",                         "Block Floating Point Compression",                              COMP_BLOCK_FP },
+    { "COMP_BLOCK_SCALE",                      "Block Scaling Compression",                                     COMP_BLOCK_SCALE },
+    { "COMP_U_LAW",                            "u-Law Compression",                                             COMP_U_LAW },
+    { "COMP_MODULATION",                       "Modulation Compression",                                        COMP_MODULATION },
+    { "BFP_AND_SELECTIVE_RE",                  "BFP + selective RE sending",                                    BFP_AND_SELECTIVE_RE },
+    { "MOD_COMPR_AND_SELECTIVE_RE",            "mod-compr + selective RE sending",                              MOD_COMPR_AND_SELECTIVE_RE },
     { "BFP_AND_SELECTIVE_RE_WITH_MASKS",       "BFP + selective RE sending with masks in section header",       BFP_AND_SELECTIVE_RE_WITH_MASKS },
     { "MOD_COMPR_AND_SELECTIVE_RE_WITH_MASKS", "mod-compr + selective RE sending with masks in section header", MOD_COMPR_AND_SELECTIVE_RE },
     { NULL, NULL, 0 }
@@ -763,16 +766,16 @@ static const value_string lbtTrafficClass_vals[] = {
 };
 
 static const value_string lbtPdschRes_vals[] = {
-    {0, "not sensing – indicates that the O-RU is transmitting data"},
-    {1, "currently sensing – indicates the O-RU has not yet acquired the channel"},
-    {2, "success – indicates that the channel was successfully acquired"},
-    {3, "Failure – indicates expiration of the LBT timer. The LBT process should be reset"},
+    {0,   "not sensing – indicates that the O-RU is transmitting data"},
+    {1,   "currently sensing – indicates the O-RU has not yet acquired the channel"},
+    {2,   "success – indicates that the channel was successfully acquired"},
+    {3,   "Failure – indicates expiration of the LBT timer. The LBT process should be reset"},
     {0,   NULL}
 };
 
 static const value_string ci_comp_opt_vals[] = {
-    {0, "compression per UE, one ciCompParam exists before the I/Q value of each UE"},
-    {1, "compression per PRB, one ciCompParam exists before the I/Q value of each PRB"},
+    {0,   "compression per UE, one ciCompParam exists before the I/Q value of each UE"},
+    {1,   "compression per PRB, one ciCompParam exists before the I/Q value of each PRB"},
     {0,   NULL}
 };
 
@@ -792,7 +795,7 @@ static const range_string st4_cmd_type_vals[] = {
     {3, 3,   "TRX_CONTROL"},
     {4, 4,   "ASM"},
     {5, 255, "reserved for future command types"},
-    {0, 0,  NULL}
+    {0, 0,   NULL}
 };
 
 /* Table 7.5.3.51-1 */
@@ -813,7 +816,7 @@ static const value_string log2maskbits_vals[] = {
     {13, "8192 bits"},
     {14, "16384 bits"},
     {15, "reserved"},
-    {0,   NULL}
+    {0,  NULL}
 };
 
 /* Table 16.1-1 Sleep modes */
@@ -822,7 +825,7 @@ static const value_string sleep_mode_trx_vals[] = {
     { 1, "TRXC-mode1-wake-up-duration (L)"},
     { 2, "TRXC-mode2-wake-up-duration (M)"},
     { 3, "TRXC-mode3-wake-up-duration (N)"},
-    {0,   NULL}
+    { 0, NULL}
 };
 
 static const value_string sleep_mode_asm_vals[] = {
@@ -830,7 +833,7 @@ static const value_string sleep_mode_asm_vals[] = {
     { 1, "ASM-mode1-wake-up-duration (L)"},
     { 2, "ASM-mode2-wake-up-duration (M)"},
     { 3, "ASM-mode3-wake-up-duration (N)"},
-    {0,   NULL}
+    { 0, NULL}
 };
 
 /* 7.7.21.3.1 */
@@ -839,7 +842,7 @@ static const value_string prg_size_st5_vals[] = {
     { 1, "Precoding resource block group size as WIDEBAND"},
     { 2, "Precoding resource block group size 2"},
     { 3, "Precoding resource block group size 4"},
-    {0,   NULL}
+    { 0, NULL}
 };
 
 static const value_string prg_size_st6_vals[] = {
@@ -847,7 +850,7 @@ static const value_string prg_size_st6_vals[] = {
     { 1, "Precoding resource block group size as WIDEBAND"},
     { 2, "Precoding resource block group size 2"},
     { 3, "Precoding resource block group size 4"},
-    {0,   NULL}
+    { 0, NULL}
 };
 
 
@@ -1277,7 +1280,7 @@ addPcOrRtcid(tvbuff_t *tvb, proto_tree *tree, int *offset, int hf, uint16_t *eAx
 
 /* 5.1.3.2.8  ecpriSeqid (message identifier) */
 static int
-addSeqid(tvbuff_t *tvb, proto_tree *oran_tree, int offset, uint8_t *seq_id, proto_item **seq_id_ti)
+addSeqid(tvbuff_t *tvb, proto_tree *oran_tree, int offset, int plane, uint8_t *seq_id, proto_item **seq_id_ti)
 {
     /* Subtree */
     proto_item *seqIdItem = proto_tree_add_item(oran_tree, hf_oran_ecpri_seqid, tvb, offset, 2, ENC_NA);
@@ -1292,6 +1295,16 @@ addSeqid(tvbuff_t *tvb, proto_tree *oran_tree, int offset, uint8_t *seq_id, prot
     /* Subsequence ID (7 bits) */
     proto_tree_add_item_ret_uint(oran_seqid_tree, hf_oran_subsequence_id, tvb, offset, 1, ENC_NA, &subSeqId);
     offset += 1;
+
+    /* radio-transport fragmentation not allowed for C-Plane messages */
+    if (plane == ORAN_C_PLANE) {
+        if (e !=1 || subSeqId != 0) {
+            expert_add_info(NULL, seqIdItem, &ei_oran_radio_fragmentation_c_plane);
+        }
+    }
+    else {
+        /* TODO: Re-assembly of any radio-fragmenation on U-Plane */
+    }
 
     /* Summary */
     proto_item_append_text(seqIdItem, " (SeqId: %3d, E: %d, SubSeqId: %d)", seqId, e, subSeqId);
@@ -1894,7 +1907,8 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                 offset += 1;
                 /* lbtMode  (2 bits) */
                 proto_tree_add_bits_item(c_section_tree, hf_oran_lbtMode, tvb, offset*8, 2, ENC_BIG_ENDIAN);
-                /* TODO: reserved (1 bit) */
+                /* reserved (1 bit) */
+                proto_tree_add_item(c_section_tree, hf_oran_laa_msgtype0_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
                 /* lbtDeferFactor (3 bits) */
                 proto_tree_add_item(c_section_tree, hf_oran_lbtDeferFactor, tvb, offset, 1, ENC_BIG_ENDIAN);
                 offset += 1;
@@ -3259,7 +3273,7 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
     /* Message identifier */
     uint8_t seq_id;
     proto_item *seq_id_ti;
-    offset = addSeqid(tvb, oran_tree, offset, &seq_id, &seq_id_ti);
+    offset = addSeqid(tvb, oran_tree, offset, ORAN_C_PLANE, &seq_id, &seq_id_ti);
 
     proto_item *sectionHeading;
 
@@ -4002,7 +4016,7 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
     /* Message identifier */
     uint8_t seq_id;
     proto_item *seq_id_ti;
-    offset = addSeqid(tvb, oran_tree, offset, &seq_id, &seq_id_ti);
+    offset = addSeqid(tvb, oran_tree, offset, ORAN_U_PLANE, &seq_id, &seq_id_ti);
 
     /* Common header for time reference */
     proto_item *timingHeader;
@@ -4349,7 +4363,7 @@ proto_register_oran(void)
           { "E Bit", "oran_fh_cus.e_bit",
             FT_UINT8, BASE_DEC,
             VALS(e_bit), 0x80,
-            "One bit (the \"E-bit\") is reserved to indicate the last message of a subsequence",
+            "Indicate the last message of a subsequence (U-Plane only)",
             HFILL }
         },
 
@@ -4913,6 +4927,14 @@ proto_register_oran(void)
          {"Reserved", "oran_fh_cus.reserved",
           FT_UINT8, BASE_HEX,
           NULL, 0x3f,
+          NULL,
+          HFILL}
+        },
+        /* Table 7.4.9-2 */
+        {&hf_oran_laa_msgtype0_reserved,
+         {"Reserved", "oran_fh_cus.reserved",
+          FT_UINT8, BASE_HEX,
+          NULL, 0x08,
           NULL,
           HFILL}
         },
@@ -5891,6 +5913,7 @@ proto_register_oran(void)
           HFILL}
         },
 
+        /* 5.1.3.2.7 */
         {&hf_oran_ecpri_pcid,
          {"ecpriPcid", "oran_fh_cus.ecpriPcid",
           FT_NONE, BASE_NONE,
@@ -5905,6 +5928,7 @@ proto_register_oran(void)
           "Real time control data identifier",
           HFILL}
         },
+        /* 5.1.3.2.8 */
         {&hf_oran_ecpri_seqid,
          {"ecpriSeqid", "oran_fh_cus.ecpriSeqid",
           FT_NONE, BASE_NONE,
@@ -5979,7 +6003,8 @@ proto_register_oran(void)
         { &ei_oran_cplane_unexpected_sequence_number, { "oran_fh_cus.unexpected_seq_no_cplane", PI_SEQUENCE, PI_WARN, "Unexpected sequence number seen in C-Plane", EXPFILL }},
         { &ei_oran_uplane_unexpected_sequence_number, { "oran_fh_cus.unexpected_seq_no_uplane", PI_SEQUENCE, PI_WARN, "Unexpected sequence number seen in U-Plane", EXPFILL }},
         { &ei_oran_acknack_no_request, { "oran_fh_cus.acknack_no_request", PI_SEQUENCE, PI_WARN, "Have ackNackId response, but no request", EXPFILL }},
-        { &ei_oran_udpcomphdr_should_be_zero, { "oran_fh_cus.udcomphdr_should_be_zero", PI_MALFORMED, PI_WARN, "C-Plane udCompHdr in DL should be set to 0", EXPFILL }}
+        { &ei_oran_udpcomphdr_should_be_zero, { "oran_fh_cus.udcomphdr_should_be_zero", PI_MALFORMED, PI_WARN, "C-Plane udCompHdr in DL should be set to 0", EXPFILL }},
+        { &ei_oran_radio_fragmentation_c_plane, { "oran_fh_cus.radio_fragmentation_c_plane", PI_MALFORMED, PI_ERROR, "Radio fragmentation not allowed in C-PLane", EXPFILL }},
     };
 
     /* Register the protocol name and description */
