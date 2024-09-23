@@ -23,6 +23,7 @@
 #include <epan/tfs.h>
 
 #include "packet-rtp.h"
+#include "packet-amr.h"
 
 void proto_register_amr(void);
 void proto_reg_handoff_amr(void);
@@ -222,6 +223,31 @@ static const uint8_t Framebits_NB[] = {95, 103, 118, 134, 148, 159, 204, 244, 39
 /* Number of bits per frame for AMR-WB, see 3GPP TS 26.201 Table 2*/
 /*               Frame type     0   1   2   3   4   5   6   7   8   9  10 11 12 13 14 15 */
 static const unsigned int Framebits_WB[] = {132, 177, 253, 285, 317, 365, 397, 461, 477, 40, 0, 0, 0, 0, 0, 0};
+
+
+/** Return AMR narrowband Frame Type (FT) based on AMR speech data payload size.
+ * The input size is the size of an octet aligned payload without the
+ * CMR and TOC octets.
+ *
+ * @return AMR Frame Type (FT)
+ */
+
+int amr_nb_bytes_to_ft(uint8_t bytes)
+{
+    int ft;
+
+    for (ft = 0; ft < AMR_FT_PDC_EFR_SID; ft++) {
+        if ((Framebits_NB[ft] + 7) / 8 == bytes) {
+            return ft;
+        }
+    }
+    /* 12-14 not used, jump to 15 (AMR_FT_NO_DATA): */
+    if (Framebits_NB[AMR_FT_NO_DATA] == bytes) {
+        return AMR_FT_NO_DATA;
+    }
+
+	return -1;
+}
 
 static void
 amr_apply_prefs(void) {

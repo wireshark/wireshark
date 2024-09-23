@@ -274,6 +274,7 @@ set(DISSECTOR_PUBLIC_HEADERS
 	packet-afp.h
 	packet-alcap.h
 	packet-amp.h
+	packet-amr.h
 	packet-ansi_a.h
 	packet-ansi_map.h
 	packet-ansi_tcap.h
