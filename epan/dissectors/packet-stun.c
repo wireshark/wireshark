@@ -1186,8 +1186,8 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bool h
             } else {
                 att_tree = proto_tree_add_expert_format(att_all_tree, pinfo, &ei_stun_unknown_attribute, tvb,
                                                         offset, ATTR_HDR_LEN + att_length_pad, "Unknown attribute 0x%04x", att_type_display);
-                ti = proto_tree_add_uint_format_value(att_tree, hf_stun_att_type, tvb,
-                                                      offset, 2, att_type, "0x%04x", att_type_display);
+                proto_tree_add_uint_format_value(att_tree, hf_stun_att_type, tvb,
+                                                 offset, 2, att_type, "0x%04x", att_type_display);
             }
             offset += 2;
 
