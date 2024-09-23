@@ -853,6 +853,25 @@ static int hf_ieee1905_affiliated_ap_metrics_mcast_bytes_rcvd;
 static int hf_ieee1905_affiliated_ap_metrics_bcast_bytes_sent;
 static int hf_ieee1905_affiliated_ap_metrics_bcast_bytes_rcvd;
 static int hf_ieee1905_affiliated_ap_metrics_reserved;
+static int hf_ieee1905_eht_operations_reserved;
+static int hf_ieee1905_eht_operations_radio_num;
+static int hf_ieee1905_eht_operations_radio_id;
+static int hf_ieee1905_eht_operations_radio_reserved;
+static int hf_ieee1905_eht_operations_radio_bss_num;
+static int hf_ieee1905_eht_operations_radio_bss_bssid;
+static int hf_ieee1905_eht_operations_radio_bss_reserved;
+static int hf_ieee1905_eht_operations_radio_bss_flags;
+static int hf_ieee1905_eht_operations_radio_bss_flags_eht_operation_information_valid;
+static int hf_ieee1905_eht_operations_radio_bss_flags_disabled_subchannel_valid;
+static int hf_ieee1905_eht_operations_radio_bss_flags_eht_default_pe_duration;
+static int hf_ieee1905_eht_operations_radio_bss_flags_group_addr_bu_indication_limit;
+static int hf_ieee1905_eht_operations_radio_bss_flags_group_addr_bu_indication_exponent;
+static int hf_ieee1905_eht_operations_radio_bss_flags_reserved;
+static int hf_ieee1905_eht_operations_radio_bss_basic_eht_nss_mcs_set;
+static int hf_ieee1905_eht_operations_radio_bss_control;
+static int hf_ieee1905_eht_operations_radio_bss_ccfs0;
+static int hf_ieee1905_eht_operations_radio_bss_ccfs1;
+static int hf_ieee1905_eht_operations_radio_bss_disabled_subchannel_bitmap;
 static int hf_ieee1905_available_spectrum_inquiry_request_object;
 static int hf_ieee1905_available_spectrum_inquiry_response_object;
 
@@ -1067,6 +1086,11 @@ static int ett_backhaul_sta_mld_configuration_affiliated_bsta_flags;
 static int ett_associated_sta_mld_configuration_flags;
 static int ett_associated_sta_mld_configuration_affiliated_sta_list;
 static int ett_associated_sta_mld_configuration_affiliated_sta;
+static int ett_eht_operations_radio_list;
+static int ett_eht_operations_radio;
+static int ett_eht_operations_radio_bss_list;
+static int ett_eht_operations_radio_bss;
+static int ett_eht_operations_radio_bss_flags;
 
 static int ett_ieee1905_fragment;
 static int ett_ieee1905_fragments;
@@ -1370,6 +1394,7 @@ static value_string_ext ieee1905_message_type_vals_ext = VALUE_STRING_EXT_INIT(i
 #define ASSOCIATED_STA_MLD_CONFIGURATION_TLV    0xE2
 #define AFFILIATED_STA_METRICS_TLV              0xE4
 #define AFFILIATED_AP_METRICS_TLV               0xE5
+#define EHT_OPERATIONS_TLV                      0xE7
 #define AVAILABLE_SPECTRUM_INQUIRY_REQUEST_TLV  0xE8
 #define AVAILABLE_SPECTRUM_INQUIRY_RESPONSE_TLV 0xE9
 
@@ -1504,6 +1529,7 @@ static const value_string ieee1905_tlv_types_vals[] = {
   { ASSOCIATED_STA_MLD_CONFIGURATION_TLV,    "Associated STA MLD Configuration" },
   { AFFILIATED_STA_METRICS_TLV,              "Affiliated STA Metrics" },
   { AFFILIATED_AP_METRICS_TLV,               "Affiliated AP Metrics" },
+  { EHT_OPERATIONS_TLV,                      "EHT Operations" },
   { AVAILABLE_SPECTRUM_INQUIRY_REQUEST_TLV,  "Available Spectrum Inquiry Request" },
   { AVAILABLE_SPECTRUM_INQUIRY_RESPONSE_TLV, "Available Spectrum Inquiry Response" },
   { 0, NULL }
@@ -8748,6 +8774,127 @@ dissect_affiliated_ap_metrics(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
 }
 
 /*
+ * Dissect an EHT Operations TLV:
+ */
+static int* const eht_operations_radio_bss_flags_headers[] = {
+    &hf_ieee1905_eht_operations_radio_bss_flags_eht_operation_information_valid,
+    &hf_ieee1905_eht_operations_radio_bss_flags_disabled_subchannel_valid,
+    &hf_ieee1905_eht_operations_radio_bss_flags_eht_default_pe_duration,
+    &hf_ieee1905_eht_operations_radio_bss_flags_group_addr_bu_indication_limit,
+    &hf_ieee1905_eht_operations_radio_bss_flags_group_addr_bu_indication_exponent,
+    &hf_ieee1905_eht_operations_radio_bss_flags_reserved,
+    NULL
+};
+
+static int
+dissect_eht_operations_tlv(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
+        proto_tree *tree, unsigned offset, uint16_t len _U_)
+{
+    proto_tree *radio_list = NULL;
+    proto_item *rli = NULL;
+    uint32_t radio_count = 0, radio_num = 0;
+    unsigned radio_list_start = 0;
+
+    proto_tree_add_item(tree, hf_ieee1905_eht_operations_reserved,
+                        tvb, offset, 32, ENC_NA);
+    offset += 32;
+
+    proto_tree_add_item_ret_uint(tree, hf_ieee1905_eht_operations_radio_num,
+                                 tvb, offset, 1, ENC_NA, &radio_count);
+    offset++;
+
+    radio_list = proto_tree_add_subtree(tree, tvb, offset, -1,
+                                        ett_eht_operations_radio_list,
+                                        &rli, "Radio List");
+
+    radio_list_start = offset;
+
+    while (radio_num < radio_count) {
+        proto_tree *radio_tree = NULL;
+        proto_item *ri = NULL;
+        proto_tree *bss_list = NULL;
+        proto_item *bli = NULL;
+        uint32_t bss_count = 0, bss_num = 0;
+        unsigned bss_list_start = 0;
+
+        radio_tree = proto_tree_add_subtree_format(radio_list, tvb, offset,
+                                                   -1, ett_eht_operations_radio,
+                                                    &ri, "Radio %u", radio_num);
+
+        proto_tree_add_item(radio_tree, hf_ieee1905_eht_operations_radio_id,
+                            tvb, offset, 6, ENC_NA);
+        offset += 6;
+
+        proto_tree_add_item_ret_uint(radio_tree, hf_ieee1905_eht_operations_radio_bss_num,
+                                     tvb, offset, 1, ENC_NA, &bss_count);
+        offset++;
+
+        bss_list = proto_tree_add_subtree(radio_tree, tvb, offset, -1,
+                                          ett_eht_operations_radio_bss_list,
+                                          &bli, "BSS List");
+
+        bss_list_start = offset;
+
+        while (bss_num < bss_count) {
+            proto_tree *bss_tree = NULL;
+            proto_item *bi = NULL;
+
+            bss_tree = proto_tree_add_subtree_format(bss_list, tvb, offset,
+                                                     -1, ett_eht_operations_radio_bss,
+                                                     &bi, "BSS %u", bss_num);
+
+            proto_tree_add_item(bss_tree, hf_ieee1905_eht_operations_radio_bss_bssid,
+                                tvb, offset, 6, ENC_NA);
+            offset += 6;
+
+            proto_tree_add_bitmask(bss_tree, tvb, offset,
+                                   hf_ieee1905_eht_operations_radio_bss_flags,
+                                   ett_eht_operations_radio_bss_flags,
+                                   eht_operations_radio_bss_flags_headers, ENC_NA);
+            offset++;
+
+            proto_tree_add_item(bss_tree, hf_ieee1905_eht_operations_radio_bss_basic_eht_nss_mcs_set,
+                                tvb, offset, 4, ENC_BIG_ENDIAN);
+            offset += 4;
+
+            proto_tree_add_item(bss_tree, hf_ieee1905_eht_operations_radio_bss_control,
+                                tvb, offset, 1, ENC_NA);
+            offset++;
+
+            proto_tree_add_item(bss_tree, hf_ieee1905_eht_operations_radio_bss_ccfs0,
+                                tvb, offset, 1, ENC_NA);
+            offset++;
+
+            proto_tree_add_item(bss_tree, hf_ieee1905_eht_operations_radio_bss_ccfs1,
+                                tvb, offset, 1, ENC_NA);
+            offset++;
+
+            proto_tree_add_item(bss_tree, hf_ieee1905_eht_operations_radio_bss_disabled_subchannel_bitmap,
+                                tvb, offset, 2, ENC_BIG_ENDIAN);
+            offset += 2;
+
+            proto_tree_add_item(bss_tree, hf_ieee1905_eht_operations_radio_bss_reserved,
+                                tvb, offset, 16, ENC_NA);
+            offset += 16;
+
+            bss_num++;
+        }
+
+        proto_item_set_len(bli, offset - bss_list_start);
+
+        proto_tree_add_item(radio_tree, hf_ieee1905_eht_operations_radio_reserved,
+                            tvb, offset, 25, ENC_NA);
+        offset += 25;
+
+        radio_num++;
+    }
+
+    proto_item_set_len(rli, offset - radio_list_start);
+
+    return offset;
+}
+
+/*
  * Dissect an Available Spectrum Inquiry Request TLV:
  */
 static int
@@ -9358,6 +9505,11 @@ dissect_ieee1905_tlv_data(tvbuff_t *tvb, packet_info *pinfo,
     case AFFILIATED_AP_METRICS_TLV:
         offset = dissect_affiliated_ap_metrics(tvb, pinfo, tree, offset,
                                                tlv_len);
+        break;
+
+    case EHT_OPERATIONS_TLV:
+        offset = dissect_eht_operations_tlv(tvb, pinfo, tree, offset,
+                                            tlv_len);
         break;
 
     case AVAILABLE_SPECTRUM_INQUIRY_REQUEST_TLV:
@@ -13118,6 +13270,82 @@ proto_register_ieee1905(void)
           { "Reserved", "ieee1905.affiliated_ap_metrics.reserved",
             FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
+        { &hf_ieee1905_eht_operations_reserved,
+          { "Reserved", "ieee1905.eht_operations.reserved",
+            FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_ieee1905_eht_operations_radio_num,
+          { "Number of Radios", "ieee1905.eht_operations.num_radios",
+            FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_ieee1905_eht_operations_radio_id,
+          { "Radio Unique ID", "ieee1905.eht_operations.radio_id",
+            FT_ETHER, BASE_NONE, NULL, 0, NULL, HFILL }},
+
+        { &hf_ieee1905_eht_operations_radio_bss_num,
+          { "Number of BSS", "ieee1905.eht_operations.radio.num_bss",
+            FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_ieee1905_eht_operations_radio_reserved,
+          { "Reserved", "ieee1905.eht_operations.radio.reserved",
+            FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_ieee1905_eht_operations_radio_bss_bssid,
+          { "BSSID", "ieee1905.eht_operations.radio.bss.bssid",
+            FT_ETHER, BASE_NONE, NULL, 0, NULL, HFILL }},
+
+        { &hf_ieee1905_eht_operations_radio_bss_flags,
+          { "Flags", "ieee1905.eht_operations.radio.bss.flags",
+            FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_ieee1905_eht_operations_radio_bss_flags_eht_operation_information_valid,
+          { "EHT Operation Information Valid", "ieee1905.eht_operations.radio.bss.flags.eht_operation_information_valid",
+            FT_UINT8, BASE_DEC, NULL, 0x80, NULL, HFILL }},
+
+        { &hf_ieee1905_eht_operations_radio_bss_flags_disabled_subchannel_valid,
+          { "Disabled Subchannel Valid", "ieee1905.eht_operations.radio.bss.flags.disabled_subchannel_valid",
+            FT_UINT8, BASE_DEC, NULL, 0x40, NULL, HFILL }},
+
+        { &hf_ieee1905_eht_operations_radio_bss_flags_eht_default_pe_duration,
+          { "EHT Default PE Duration", "ieee1905.eht_operations.radio.bss.flags.eht_default_pe_duration",
+            FT_UINT8, BASE_DEC, NULL, 0x20, NULL, HFILL }},
+
+        { &hf_ieee1905_eht_operations_radio_bss_flags_group_addr_bu_indication_limit,
+          { "Group Addr BU Indication Limit", "ieee1905.eht_operations.radio.bss.flags.group_addr_bu_indication_limit",
+            FT_UINT8, BASE_DEC, NULL, 0x10, NULL, HFILL }},
+
+        { &hf_ieee1905_eht_operations_radio_bss_flags_group_addr_bu_indication_exponent,
+          { "Group Addr BU Indication Exponent", "ieee1905.eht_operations.radio.bss.flags.group_addr_bu_indication_exponent",
+            FT_UINT8, BASE_DEC, NULL, 0x0C, NULL, HFILL }},
+
+        { &hf_ieee1905_eht_operations_radio_bss_flags_reserved,
+          { "Reserved", "ieee1905.eht_operations.radio.bss.flags.reserved",
+            FT_UINT8, BASE_HEX, NULL, 0x03, NULL, HFILL }},
+
+        { &hf_ieee1905_eht_operations_radio_bss_basic_eht_nss_mcs_set,
+          { "Basic EHT NSS MCS Set", "ieee1905.eht_operations.radio.bss.basic_eht_nss_mcs_set",
+            FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_ieee1905_eht_operations_radio_bss_control,
+          { "Control", "ieee1905.eht_operations.radio.bss.control",
+            FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_ieee1905_eht_operations_radio_bss_ccfs0,
+          { "CCFS0", "ieee1905.eht_operations.radio.bss.ccfs0",
+            FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_ieee1905_eht_operations_radio_bss_ccfs1,
+          { "CCFS1", "ieee1905.eht_operations.radio.bss.ccfs1",
+            FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_ieee1905_eht_operations_radio_bss_disabled_subchannel_bitmap,
+          { "Disabled Subchannel Bitmap", "ieee1905.eht_operations.radio.bss.disabled_subchannel_bitmap",
+            FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_ieee1905_eht_operations_radio_bss_reserved,
+          { "Reserved", "ieee1905.eht_operations.radio.bss.reserved",
+            FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+
         { &hf_ieee1905_available_spectrum_inquiry_request_object,
           { "Object", "ieee1905.available_spectrum_inquiry_request.object",
             FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
@@ -13388,6 +13616,11 @@ proto_register_ieee1905(void)
         &ett_associated_sta_mld_configuration_flags,
         &ett_associated_sta_mld_configuration_affiliated_sta_list,
         &ett_associated_sta_mld_configuration_affiliated_sta,
+        &ett_eht_operations_radio_list,
+        &ett_eht_operations_radio,
+        &ett_eht_operations_radio_bss_list,
+        &ett_eht_operations_radio_bss,
+        &ett_eht_operations_radio_bss_flags,
         &ett_ieee1905_fragment,
         &ett_ieee1905_fragments,
     };
