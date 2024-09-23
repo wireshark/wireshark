@@ -8,7 +8,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
- * References: 3GPP TS 38.473 V18.2.0 (2024-06)
+ * References: 3GPP TS 38.473 V18.3.0 (2024-09)
  */
 
 #include "config.h"
@@ -127,6 +127,7 @@ static int ett_f1ap_SIB13_message;
 static int ett_f1ap_SIB14_message;
 static int ett_f1ap_SIB15_message;
 static int ett_f1ap_SIB17_message;
+static int ett_f1ap_SIB17bis_message;
 static int ett_f1ap_SIB20_message;
 static int ett_f1ap_SIB22_message;
 static int ett_f1ap_SIB23_message;
@@ -901,6 +902,7 @@ void proto_register_f1ap(void) {
     &ett_f1ap_SIB14_message,
     &ett_f1ap_SIB15_message,
     &ett_f1ap_SIB17_message,
+    &ett_f1ap_SIB17bis_message,
     &ett_f1ap_SIB20_message,
     &ett_f1ap_SIB22_message,
     &ett_f1ap_SIB23_message,

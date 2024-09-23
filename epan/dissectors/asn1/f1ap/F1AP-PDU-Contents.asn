@@ -1,4 +1,4 @@
--- 3GPP TS 38.473 V18.2.0 (2024-06)
+-- 3GPP TS 38.473 V18.3.0 (2024-09)
 -- 9.4.4	PDU Definitions
 -- **************************************************************
 --
@@ -1907,7 +1907,8 @@ UEContextReleaseCommandIEs F1AP-PROTOCOL-IES ::= {
 	{ ID id-targetCellsToCancel				CRITICALITY reject	TYPE TargetCellList					PRESENCE optional}|
 	{ ID id-PosContextRevIndication			CRITICALITY ignore	TYPE PosContextRevIndication			PRESENCE optional}|
 	{ ID id-CG-SDTKeptIndicator				CRITICALITY ignore	TYPE CG-SDTKeptIndicator			PRESENCE optional}|
-	{ ID id-LTMCells-ToBeReleased-List		CRITICALITY reject	TYPE LTMCells-ToBeReleased-List		PRESENCE optional	},
+	{ ID id-LTMCells-ToBeReleased-List		CRITICALITY reject	TYPE LTMCells-ToBeReleased-List		PRESENCE optional	}|
+	{ ID id-DLLBTFailureInformationRequest	CRITICALITY ignore	TYPE DLLBTFailureInformationRequest	PRESENCE optional},
 	...
 }
 
@@ -4194,8 +4195,7 @@ PositioningActivationRequestIEs F1AP-PROTOCOL-IES ::= {
 	{ ID id-gNB-CU-UE-F1AP-ID		CRITICALITY reject	TYPE GNB-CU-UE-F1AP-ID			PRESENCE mandatory	}|
 	{ ID id-gNB-DU-UE-F1AP-ID		CRITICALITY reject	TYPE GNB-DU-UE-F1AP-ID			PRESENCE mandatory	}|
 	{ ID id-SRSType					CRITICALITY reject	TYPE SRSType					PRESENCE mandatory	}|
-	{ ID id-ActivationTime			CRITICALITY ignore	TYPE RelativeTime1900		PRESENCE optional	}|
-	{ ID id-AggregatedPosSRSResourceSetList	CRITICALITY ignore TYPE AggregatedPosSRSResourceSetList	PRESENCE optional},
+	{ ID id-ActivationTime			CRITICALITY ignore	TYPE RelativeTime1900		PRESENCE optional	},
 	...
 }
 
@@ -4217,7 +4217,8 @@ SemipersistentSRS ::= SEQUENCE {
 }
 
 SemipersistentSRS-ExtIEs F1AP-PROTOCOL-EXTENSION ::= {
-	{ ID id-SRSSpatialRelationPerSRSResource	CRITICALITY ignore	EXTENSION SpatialRelationPerSRSResource PRESENCE optional},
+	{ ID id-SRSSpatialRelationPerSRSResource	CRITICALITY ignore	EXTENSION SpatialRelationPerSRSResource PRESENCE optional}|
+	{ ID id-AggregatedPosSRSResourceSetList	CRITICALITY ignore EXTENSION AggregatedPosSRSResourceSetList	PRESENCE optional},
 	...
 }
 
@@ -4229,6 +4230,7 @@ AperiodicSRS ::= SEQUENCE {
 }
 
 AperiodicSRS-ExtIEs F1AP-PROTOCOL-EXTENSION ::= {
+	{ ID id-AggregatedPosSRSResourceSetList	CRITICALITY ignore EXTENSION AggregatedPosSRSResourceSetList	PRESENCE optional},
 	...
 }
 
@@ -4851,7 +4853,7 @@ UEIdentity-List-For-Paging-List	 ::= SEQUENCE (SIZE(1.. maxnoofUEIDforPaging)) O
 
 
 UEIdentity-List-For-Paging-ItemIEs F1AP-PROTOCOL-IES ::= {
-	{ ID id-UEIdentity-List-For-Paging-Item	CRITICALITY ignore	TYPE UEIdentity-List-For-Paging-Item 			PRESENCE optional }	,
+	{ ID id-UEIdentity-List-For-Paging-Item	CRITICALITY ignore	TYPE UEIdentity-List-For-Paging-Item 			PRESENCE mandatory }	,
 	...
 }
 
@@ -5206,7 +5208,8 @@ MulticastContextNotificationRefuse ::= SEQUENCE {
 MulticastContextNotificationRefuseIEs F1AP-PROTOCOL-IES ::= {
 	{ ID id-gNB-CU-MBS-F1AP-ID					CRITICALITY reject	TYPE GNB-CU-MBS-F1AP-ID							PRESENCE mandatory	}|
 	{ ID id-gNB-DU-MBS-F1AP-ID					CRITICALITY reject	TYPE GNB-DU-MBS-F1AP-ID							PRESENCE mandatory	}|
-	{ ID id-CriticalityDiagnostics				CRITICALITY ignore	TYPE CriticalityDiagnostics						PRESENCE optional		},
+	{ ID id-CriticalityDiagnostics				CRITICALITY ignore	TYPE CriticalityDiagnostics						PRESENCE optional		}|
+	{ ID id-Cause								CRITICALITY ignore	TYPE Cause										PRESENCE mandatory	},
 	...
 }
 

@@ -1,4 +1,4 @@
--- 3GPP TS 38.473 V18.2.0 (2024-06)
+-- 3GPP TS 38.473 V18.3.0 (2024-09)
 -- 9.4.5	Information Element Definitions
 -- **************************************************************
 --
@@ -272,6 +272,11 @@ IMPORTS
 	id-E-CID-MeasuredResultsAssociatedInfoList,
 	id-XR-Bcast-Information,
 	id-MaxDataBurstVolume,
+	id-BarringExemptionforEmerCallInfo,
+	id-SIB17bis-message,
+	id-ReportingIntervalIMs,
+	id-Transmission-Bandwidth-asymmetric,
+	id-TagIDPointer,
 	maxNRARFCN,
 	maxnoofErrors,
 	maxnoofBPLMNs,
@@ -400,7 +405,8 @@ IMPORTS
 	maxnoofTimeWindowMea,
 	maxnoPreconfiguredSRS,
 	maxnoHopsMinusOne,
-	maxnoAggCombinations
+	maxnoAggCombinations,
+	maxnoAggregatedPosSRSCombinations
 
 
 
@@ -431,6 +437,7 @@ AbortTransmission ::= CHOICE {
 }
 
 AbortTransmission-ExtIEs F1AP-PROTOCOL-IES ::= {
+	{ ID id-AggregatedPosSRSResourceSetList	CRITICALITY ignore TYPE AggregatedPosSRSResourceSetList	PRESENCE mandatory },
 	...
 }
 
@@ -593,12 +600,10 @@ Aggregated-PosSRS-Resource-ID-Item-ExtIEs F1AP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
-AggregatedPosSRSResourceSetList ::= SEQUENCE (SIZE(1..maxnoAggregatedPosSRSResourceSets)) OF AggregatedPosSRSResourceSet-Item
+AggregatedPosSRSResourceSetList ::= SEQUENCE (SIZE(1.. maxnoAggregatedPosSRSCombinations)) OF AggregatedPosSRSResourceSet-Item
 
 AggregatedPosSRSResourceSet-Item ::= SEQUENCE {
-	pointA							INTEGER (0..3279165),
-	nRPCI							NRPCI				OPTIONAL,
-	posSRSResourceSetID				INTEGER(0..15),
+	combined-posSRSResourceSet-List			Combined-PosSRSResourceSet-List,
 	iE-Extensions					ProtocolExtensionContainer { { AggregatedPosSRSResourceSet-Item-ExtIEs} } OPTIONAL,
 	...
 }
@@ -606,6 +611,23 @@ AggregatedPosSRSResourceSet-Item ::= SEQUENCE {
 AggregatedPosSRSResourceSet-Item-ExtIEs F1AP-PROTOCOL-EXTENSION ::= {
 	...
 }
+
+Combined-PosSRSResourceSet-List ::= SEQUENCE (SIZE (2..maxnoAggregatedPosSRSResourceSets)) OF Combined-PosSRSResourceSet-Item
+
+
+Combined-PosSRSResourceSet-Item::= SEQUENCE {
+	pointA							INTEGER (0..3279165),
+	nRPCI							NRPCI				OPTIONAL,
+	posSRSResourceSetID				INTEGER(0..15),
+	scs-specificCarrier				SCS-SpecificCarrier,
+	iE-Extensions					ProtocolExtensionContainer { { Combined-PosSRSResourceSet-Item-ExtIEs} } OPTIONAL,
+	...
+}
+
+Combined-PosSRSResourceSet-Item-ExtIEs F1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
 
 
 AggregatedPRSResourceSetList ::= SEQUENCE (SIZE (1..maxnoAggCombinations)) OF AggregatedPRSResourceSet-Item
@@ -866,6 +888,8 @@ BAPRoutingID ::= SEQUENCE {
 BAPRoutingIDExtIEs	F1AP-PROTOCOL-EXTENSION ::= {
 	...
 }
+
+BarringExemptionforEmerCallInfo ::= ENUMERATED {true, ...}
 
 BCBearerContextF1U-TNLInfo ::= CHOICE {
 	locationindpendent				MBSF1UInformation,
@@ -1181,7 +1205,7 @@ BroadcastMRBs-ToBeSetup-Item ::= SEQUENCE {
 	mRB-QoSInformation				QoSFlowLevelQoSParameters,
 	mBS-Flows-Mapped-To-MRB-List	MBS-Flows-Mapped-To-MRB-List,
 	bcBearerCtxtF1U-TNLInfoatCU		BCBearerContextF1U-TNLInfo	,
-	iE-Extensions					ProtocolExtensionContainer { { BroadcastMRBs-ToBeSetup-Item-ExtIEs} },
+	iE-Extensions					ProtocolExtensionContainer { { BroadcastMRBs-ToBeSetup-Item-ExtIEs} } OPTIONAL,
 	...
 }
 
@@ -1194,7 +1218,7 @@ BroadcastMRBs-ToBeSetupMod-Item ::= SEQUENCE {
 	mRB-QoSInformation				QoSFlowLevelQoSParameters,
 	mBS-Flows-Mapped-To-MRB-List	MBS-Flows-Mapped-To-MRB-List,
 	bcBearerCtxtF1U-TNLInfoatCU		BCBearerContextF1U-TNLInfo,
-	iE-Extensions					ProtocolExtensionContainer { { BroadcastMRBs-ToBeSetupMod-Item-ExtIEs} },
+	iE-Extensions					ProtocolExtensionContainer { { BroadcastMRBs-ToBeSetupMod-Item-ExtIEs} } OPTIONAL,
 	...
 }
 
@@ -3437,7 +3461,8 @@ GNB-DU-System-Information-ExtIEs F1AP-PROTOCOL-EXTENSION ::= {
 	{ ID id-SIB15-message		CRITICALITY ignore	EXTENSION SIB15-message		PRESENCE optional}|
 	{ ID id-SIB24-message		CRITICALITY ignore	EXTENSION SIB24-message		PRESENCE optional}|
 	{ ID id-SIB22-message		CRITICALITY ignore	EXTENSION SIB22-message		PRESENCE optional}|
-	{ ID id-SIB23-message		CRITICALITY ignore	EXTENSION SIB23-message		PRESENCE optional},
+	{ ID id-SIB23-message		CRITICALITY ignore	EXTENSION SIB23-message		PRESENCE optional}|
+	{ ID id-SIB17bis-message	CRITICALITY ignore	EXTENSION SIB17bis-message	PRESENCE optional},
 	...
 }
 
@@ -4148,7 +4173,7 @@ LTMInformation-Modify-ExtIEs F1AP-PROTOCOL-EXTENSION ::= {
 
 LTMIndicator ::= ENUMERATED {true, ...}
 
-CompleteConfigurationIndicator	::= ENUMERATED {complete, ...}
+CompleteCandidateConfigurationIndicator	::= ENUMERATED {complete, ...}
 
 LTMConfigurationID ::=  INTEGER (1..8)
 ReferenceConfigurationInformation ::= OCTET STRING
@@ -4156,7 +4181,7 @@ ReferenceConfigurationInformation ::= OCTET STRING
 LTMConfiguration	::= SEQUENCE {
 	sSBInformation					SSBInformation,
 	referenceConfigurationInformation 	ReferenceConfigurationInformation			OPTIONAL,
-	completeConfigurationIndicator		CompleteConfigurationIndicator 				OPTIONAL,
+	completeCandidateConfigurationIndicator		CompleteCandidateConfigurationIndicator 				OPTIONAL,
 	lTMCFRAResourceConfig				LTMCFRAResourceConfig						OPTIONAL,
 	lTMCFRAResourceConfigSUL			LTMCFRAResourceConfig						OPTIONAL,
 	iE-Extensions						ProtocolExtensionContainer { { LTMConfiguration-ExtIEs } }	OPTIONAL,
@@ -4845,7 +4870,7 @@ MulticastMRBs-ToBeSetup-Item ::= SEQUENCE {
 	mRB-QoSInformation				QoSFlowLevelQoSParameters,
 	mBS-Flows-Mapped-To-MRB-List	MBS-Flows-Mapped-To-MRB-List,
 	mBS-DL-PDCP-SN-Length			PDCPSNLength,
-	iE-Extensions					ProtocolExtensionContainer { { MulticastMRBs-ToBeSetup-Item-ExtIEs} },
+	iE-Extensions					ProtocolExtensionContainer { { MulticastMRBs-ToBeSetup-Item-ExtIEs} } OPTIONAL,
 	...
 }
 
@@ -4858,7 +4883,7 @@ MulticastMRBs-ToBeSetupMod-Item ::= SEQUENCE {
 	mRB-QoSInformation				QoSFlowLevelQoSParameters,
 	mBS-Flows-Mapped-To-MRB-List	MBS-Flows-Mapped-To-MRB-List,
 	mBS-DL-PDCP-SN-Length			PDCPSNLength,
-	iE-Extensions					ProtocolExtensionContainer { { MulticastMRBs-ToBeSetupMod-Item-ExtIEs} },
+	iE-Extensions					ProtocolExtensionContainer { { MulticastMRBs-ToBeSetupMod-Item-ExtIEs} } OPTIONAL,
 	...
 }
 
@@ -6236,7 +6261,6 @@ PosSRSResourceSet-Item ::= SEQUENCE {
 }
 
 PosSRSResourceSet-Item-ExtIEs F1AP-PROTOCOL-EXTENSION ::= {
-	{ ID id-AggregatedPosSRSResourceSetList	CRITICALITY ignore EXTENSION AggregatedPosSRSResourceSetList	PRESENCE optional},
 	...
 }
 
@@ -6405,8 +6429,7 @@ PRSResource-Item  ::= SEQUENCE {
 }
 
 PRSResource-Item-ExtIEs F1AP-PROTOCOL-EXTENSION ::= {
-	{ ID id-ExtendedResourceSymbolOffset		CRITICALITY ignore EXTENSION ExtendedResourceSymbolOffset 	PRESENCE optional}|
-	{ID id-AggregatedPRSResourceSetList	CRITICALITY ignore EXTENSION AggregatedPRSResourceSetList	PRESENCE optional},
+	{ ID id-ExtendedResourceSymbolOffset		CRITICALITY ignore EXTENSION ExtendedResourceSymbolOffset 	PRESENCE optional},
 	...
 }
 
@@ -7395,13 +7418,15 @@ ResponseTime-ExtIEs F1AP-PROTOCOL-EXTENSION ::= {
 
 RACHConfiguration ::= OCTET STRING
 
-RequestforRACHConfiguration  ::= ENUMERATED {true, ...}
+RequestforRACHConfiguration ::= ENUMERATED {true, ...}
 
 RequestforLowerLayerConfiguration::= ENUMERATED {true, ...}
 
 
 
 RxTxTimingErrorMargin ::= ENUMERATED {tc0dot5, tc1, tc2, tc4, tc8, tc12, tc16, tc20, tc24, tc32, tc40, tc48, tc64, tc80, tc96, tc128, ...}
+
+ReportingIntervalIMs  ::= INTEGER (1.. 999)
 
 -- S
 
@@ -7475,7 +7500,7 @@ SCPAC-Request ::= ENUMERATED {initiation, ...}
 
 S-CPAC-Configuration	::= SEQUENCE {
 	referenceConfigurationInformation 	ReferenceConfigurationInformation			OPTIONAL,
-	completeConfigurationIndicator		CompleteConfigurationIndicator 	OPTIONAL,
+	completeCandidateConfigurationIndicator		CompleteCandidateConfigurationIndicator 	OPTIONAL,
 	iE-Extensions						ProtocolExtensionContainer { { S-CPAC-Configuration-ExtIEs } }	OPTIONAL,
 	...
 }
@@ -7630,7 +7655,8 @@ Served-Cell-Information-ExtIEs F1AP-PROTOCOL-EXTENSION ::= {
 	{	ID id-Supported-MBS-FSA-ID-List				CRITICALITY ignore	EXTENSION Supported-MBS-FSA-ID-List						PRESENCE optional }|
 	{	ID id-Redcap-Bcast-Information		CRITICALITY ignore	EXTENSION Redcap-Bcast-Information	PRESENCE optional }|
 	{	ID id-ERedcap-Bcast-Information		CRITICALITY ignore	EXTENSION ERedcap-Bcast-Information	PRESENCE optional }|
-	{	ID id-XR-Bcast-Information			CRITICALITY ignore	EXTENSION XR-Bcast-Information			PRESENCE optional },
+	{	ID id-XR-Bcast-Information			CRITICALITY ignore	EXTENSION XR-Bcast-Information			PRESENCE optional }|
+	{	ID id-BarringExemptionforEmerCallInfo				CRITICALITY ignore	EXTENSION BarringExemptionforEmerCallInfo				PRESENCE optional },
 	...
 }
 
@@ -7751,6 +7777,8 @@ SIB24-message ::= OCTET STRING
 SIB22-message ::= OCTET STRING
 
 SIB23-message ::= OCTET STRING
+
+SIB17bis-message ::= OCTET STRING
 
 SItype ::= INTEGER (1..32, ...)
 
@@ -8408,6 +8436,7 @@ SRSConfiguration ::= SEQUENCE {
 }
 
 SRSConfiguration-ExtIEs F1AP-PROTOCOL-EXTENSION ::= {
+	{ ID id-AggregatedPosSRSResourceSetList	CRITICALITY ignore EXTENSION AggregatedPosSRSResourceSetList	PRESENCE optional},
 	...
 }
 
@@ -8578,7 +8607,7 @@ SSB-Index ::= INTEGER(0..63)
 
 SSB-subcarrierSpacing ::=  ENUMERATED {kHz15, kHz30, kHz120, kHz240, spare3, spare2, spare1, ...}
 
-SSB-transmissionPeriodicity	::= ENUMERATED {sf10, sf20, sf40, sf80, sf160, sf320, sf640, ...}
+SSB-transmissionPeriodicity	::= ENUMERATED {sf10, sf20, sf40, sf80, sf160, sf320, sf640, ..., sf5}
 
 SSB-transmissionTimingOffset ::= INTEGER (0..127, ...)
 
@@ -8862,7 +8891,8 @@ TDD-Info ::= SEQUENCE {
 TDD-Info-ExtIEs F1AP-PROTOCOL-EXTENSION ::= {
 	{ID	id-IntendedTDD-DL-ULConfig	CRITICALITY ignore	EXTENSION	IntendedTDD-DL-ULConfig	PRESENCE optional}|
 	{ID id-TDD-UL-DLConfigCommonNR	CRITICALITY ignore	EXTENSION TDD-UL-DLConfigCommonNR	PRESENCE optional }|
-	{ID id-CarrierList				CRITICALITY ignore	EXTENSION NRCarrierList				PRESENCE optional },
+	{ID id-CarrierList				CRITICALITY ignore	EXTENSION NRCarrierList				PRESENCE optional }|
+	{ID id-Transmission-Bandwidth-asymmetric	CRITICALITY ignore	EXTENSION Transmission-Bandwidth-asymmetric		PRESENCE optional },
 	...
 }
 
@@ -9105,6 +9135,17 @@ Transmission-Bandwidth ::= SEQUENCE {
 }
 
 Transmission-Bandwidth-ExtIEs F1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+Transmission-Bandwidth-asymmetric ::= SEQUENCE {
+	ul-Transmission-Bandwidth	Transmission-Bandwidth,
+	dl-Transmission-Bandwidth	Transmission-Bandwidth,
+	iE-Extensions				ProtocolExtensionContainer { { Transmission-Bandwidth-asymmetric-ExtIEs} } OPTIONAL,
+	...
+}
+
+Transmission-Bandwidth-asymmetric-ExtIEs F1AP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
@@ -9597,7 +9638,7 @@ TwoPHRModeSCG ::= ENUMERATED {enabled, ...}
 
 TxHoppingConfiguration ::= SEQUENCE {
 	overlapValue						ENUMERATED {rb0, rb1, rb2, rb4},
-	numberOfHops						INTEGER (1..6),
+	numberOfHops						INTEGER (2..6),
 	slotOffsetForRemainingHopsList		SlotOffsetForRemainingHopsList,
 	iE-extensions		ProtocolExtensionContainer { { TxHoppingConfiguration-ExtIEs } }	OPTIONAL,
 	...
@@ -9617,7 +9658,8 @@ TAInformation-Item	::= SEQUENCE {
 }
 
 TAInformation-Item-ExtIEs F1AP-PROTOCOL-EXTENSION ::= {
-	...
+	{ ID	id-TagIDPointer	CRITICALITY ignore	EXTENSION	TagIDPointer	PRESENCE optional},
+...
 }
 
 
@@ -9836,8 +9878,11 @@ UEReportingInformation::= SEQUENCE {
 
 
 UEReportingInformation-ExtIEs F1AP-PROTOCOL-EXTENSION ::= {
+	{ ID id-ReportingIntervalIMs			CRITICALITY ignore EXTENSION ReportingIntervalIMs 	PRESENCE optional },
 	...
 }
+
+
 UlTxDirectCurrentMoreCarrierInformation::= OCTET STRING
 
 UL-AoA ::= SEQUENCE {
@@ -9908,7 +9953,11 @@ UL-RTOA-MeasurementItem ::= CHOICE {
 
 UL-RTOA-MeasurementItem-ExtIEs F1AP-PROTOCOL-IES ::= {
 	{ID id-ReportingGranularitykminus1 	CRITICALITY ignore TYPE ReportingGranularitykminus1 PRESENCE mandatory}|
-	{ID id-ReportingGranularitykminus2 	CRITICALITY ignore TYPE ReportingGranularitykminus2 PRESENCE mandatory },
+	{ID id-ReportingGranularitykminus2 	CRITICALITY ignore TYPE ReportingGranularitykminus2 PRESENCE mandatory }|
+	{ID id-ReportingGranularitykminus3 	CRITICALITY ignore TYPE ReportingGranularitykminus3 PRESENCE mandatory}|
+	{ID id-ReportingGranularitykminus4 	CRITICALITY ignore TYPE ReportingGranularitykminus4 PRESENCE mandatory}|
+	{ID id-ReportingGranularitykminus5 	CRITICALITY ignore TYPE ReportingGranularitykminus5 PRESENCE mandatory}|
+	{ID id-ReportingGranularitykminus6 	CRITICALITY ignore TYPE ReportingGranularitykminus6 PRESENCE mandatory},
 	...
 }
 

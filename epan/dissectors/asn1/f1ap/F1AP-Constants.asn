@@ -1,4 +1,4 @@
--- 3GPP TS 38.473 V18.2.0 (2024-06)
+-- 3GPP TS 38.473 V18.3.0 (2024-09)
 -- 9.4.7	Constant Definitions
 -- **************************************************************
 --
@@ -289,13 +289,15 @@ maxnoofLBTFailureInformation			INTEGER ::= 64
 maxnoofRSPPQoSFlows						INTEGER ::= 2048
 maxnoVACell								INTEGER ::= 32
 maxnoAggregatedSRS-Resources			INTEGER ::= 3
-maxnoAggregatedPosSRSResourceSets		INTEGER ::= 48
+maxnoAggregatedPosSRSResourceSets		INTEGER ::= 3
 maxnoAggregatedPosPRSResourceSets		INTEGER ::= 3
 maxnoofTimeWindowSRS					INTEGER ::= 16
 maxnoofTimeWindowMea					INTEGER ::= 16
 maxnoPreconfiguredSRS					INTEGER ::= 16
 maxnoHopsMinusOne						INTEGER ::= 5
 maxnoAggCombinations					INTEGER ::= 2
+maxnoAggregatedPosSRSCombinations		INTEGER ::= 32
+
 
 
 
@@ -1167,6 +1169,11 @@ id-LTMCFRAResourceConfig-List						ProtocolIE-ID ::= 845
 id-F1U-PathFailure									ProtocolIE-ID ::= 846
 id-MeasBasedOnAggregatedResources					ProtocolIE-ID ::= 847
 id-SIB23-message									ProtocolIE-ID ::= 848
+id-BarringExemptionforEmerCallInfo					ProtocolIE-ID ::= 849
+id-SIB17bis-message									ProtocolIE-ID ::= 850
+id-ReportingIntervalIMs								ProtocolIE-ID ::= 851
+id-Transmission-Bandwidth-asymmetric				ProtocolIE-ID ::= 852
+id-TagIDPointer										ProtocolIE-ID ::= 853
 
 
 

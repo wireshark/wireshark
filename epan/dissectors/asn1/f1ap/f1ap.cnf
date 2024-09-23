@@ -1041,6 +1041,12 @@ id-LTMCFRAResourceConfig-List                        ProtocolIE-ID
 id-F1U-PathFailure                                   ProtocolIE-ID
 id-MeasBasedOnAggregatedResources                    ProtocolIE-ID
 id-SIB23-message                                     ProtocolIE-ID
+id-BarringExemptionforEmerCallInfo                   ProtocolIE-ID
+id-SIB17bis-message                                  ProtocolIE-ID
+id-ReportingIntervalIMs                              ProtocolIE-ID
+id-Transmission-Bandwidth-asymmetric                 ProtocolIE-ID
+id-TagIDPointer                                      ProtocolIE-ID
+
 #.END
 
 #.REGISTER
@@ -1877,6 +1883,11 @@ NRPCI                                             N f1ap.extension id-NR-PCI
 PeerUE-ID                                         N f1ap.extension id-PeerUE-ID
 MeasBasedOnAggregatedResources                    N f1ap.extension id-MeasBasedOnAggregatedResources
 SIB23-message                                     N f1ap.extension id-SIB23-message
+BarringExemptionforEmerCallInfo                   N f1ap.extension id-BarringExemptionforEmerCallInfo
+SIB17bis-message                                  N f1ap.extension id-SIB17bis-message
+ReportingIntervalIMs                              N f1ap.extension id-ReportingIntervalIMs
+Transmission-Bandwidth-asymmetric                 N f1ap.extension id-Transmission-Bandwidth-asymmetric
+TagIDPointer                                      N f1ap.extension id-TagIDPointer
 
 #F1AP-ELEMENTARY-PROCEDURE
 Reset                                    N f1ap.proc.imsg id-Reset
@@ -3009,6 +3020,14 @@ Periodicity DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_microseconds)
   if (param_tvb) {
     proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_f1ap_SIB17_message);
     dissect_nr_rrc_SIB17_r17_PDU(param_tvb, actx->pinfo, subtree, NULL);
+  }
+
+#.FN_BODY SIB17bis-message VAL_PTR = &param_tvb
+  tvbuff_t *param_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (param_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_f1ap_SIB17bis_message);
+    dissect_nr_rrc_SIB17bis_r18_PDU(param_tvb, actx->pinfo, subtree, NULL);
   }
 
 #.FN_BODY SIB20-message VAL_PTR = &param_tvb
