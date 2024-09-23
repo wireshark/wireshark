@@ -15,9 +15,12 @@
 #include "config.h"
 
 #include <wsutil/codecs.h>
+#include <wsutil/wslog.h>
 
 #include <epan/rtp_pt.h>
 #include <epan/dissectors/packet-rtp.h>
+#include <epan/dissectors/packet-iuup.h>
+#include <epan/dissectors/packet-amr.h>
 
 #include <ui/rtp_media.h>
 
@@ -134,6 +137,108 @@ decode_rtp_packet_payload(rtp_decoder_t *decoder, uint8_t *payload_data, size_t 
 }
 
 /****************************************************************************/
+/** Prepend an AMR NB Octet-Aligned header (2 bytes) to the AMR payload.
+ * A new buffer is allocated, filled and returned. The caller is responsible of freeing it.
+ *
+ * @return The callee-allocated buffer containing the AMR OA header + payload
+ */
+static uint8_t *
+prepend_amr_oa_hdr(uint8_t amr_ft, uint8_t amr_q, const uint8_t *amr_payload, uint8_t amr_payload_len)
+{
+    uint8_t *amr_hdr;
+
+    amr_hdr = (uint8_t *)g_malloc(AMR_NB_OA_HDR_LEN + amr_payload_len);
+    amr_hdr[0] = 0xf0; /* CMR = 15 = "no change" */
+    amr_hdr[1] = (0 << 7) | /* F=0 */
+                 ((amr_ft & 0x0f) << 3) |
+                 (amr_q && 0x01) << 2;
+    memcpy(amr_hdr + AMR_NB_OA_HDR_LEN, amr_payload, amr_payload_len);
+    return amr_hdr;
+}
+
+/****************************************************************************/
+/** Parse IuUP header to obtain the AMR payload, generate a octet-aligned AMR
+ * buffer which the AMR decoder can digest and decode it.
+ *
+ * @return Number of decoded bytes
+ */
+
+size_t
+decode_iuup_packet(rtp_packet_t *rp, SAMPLE **out_buff, GHashTable *decoders_hash, unsigned *channels_ptr,
+                  unsigned *sample_rate_ptr)
+{
+    uint8_t iuup_pdu_type;
+    uint8_t iuup_frame_nr;
+    uint8_t iuup_fqc;
+    uint8_t iuup_hdr_len;
+    uint8_t *iuup_payload;
+    uint8_t iuup_payload_len;
+    int amr_ft;
+    uint8_t *amr_hdr;
+    rtp_decoder_t *decoder;
+    size_t decoded_bytes;
+
+    if (rp->info->info_payload_len < 1)
+        goto ret_err;
+
+    /* Parse the IuUP header into struct iuup_decoded dt: */
+    iuup_pdu_type = rp->payload_data[0] >> 4;
+    switch (iuup_pdu_type) {
+    case PDUTYPE_DATA_WITH_CRC:
+        iuup_hdr_len = PDUTYPE_DATA_WITH_CRC_HDR_LEN;
+        break;
+    case PDUTYPE_DATA_NO_CRC:
+        iuup_hdr_len = PDUTYPE_DATA_NO_CRC_HDR_LEN;
+        break;
+    default:
+        goto ret_err;
+    }
+
+    if (rp->info->info_payload_len < iuup_hdr_len)
+        goto ret_err;
+
+    iuup_frame_nr = rp->payload_data[0] & 0x0f;
+    iuup_fqc = rp->payload_data[1] >> 6;
+    iuup_payload = rp->payload_data + iuup_hdr_len;
+    iuup_payload_len = rp->info->info_payload_len - iuup_hdr_len;
+    ws_assert(rp->info->info_payload_len - iuup_hdr_len < sizeof(uint8_t));
+
+    /* Figure out AMR FT from size: */
+    amr_ft = amr_nb_bytes_to_ft(iuup_payload_len);
+    if (amr_ft < 0) {
+        ws_log(LOG_DOMAIN_QTUI, LOG_LEVEL_MESSAGE,
+               "#%u: IuUP with unknown AMR payload format: frame_nr=%u bytes=%u\n",
+               rp->frame_num, iuup_frame_nr, iuup_payload_len);
+		goto ret_err;
+	}
+
+    /* Prepend an octet-aligned header to the AMR payload, so that the decoder can digest it: */
+    amr_hdr = prepend_amr_oa_hdr(amr_ft, !iuup_fqc, iuup_payload, iuup_payload_len);
+
+    /* Look for registered codecs */
+    decoder = decode_rtp_find_decoder(rp->info->info_payload_type, decoders_hash);
+    if (!decoder) {
+            wmem_map_t *iuup_decode_amr_fmtp = wmem_map_new(wmem_epan_scope(), wmem_str_hash, g_str_equal);
+            wmem_map_insert(iuup_decode_amr_fmtp, "octet-align", "1");
+            decoder = decode_rtp_create_decoder(rp->info->info_payload_type,
+                                                "amr",
+                                                rp->info->info_payload_rate,
+                                                rp->info->info_payload_channels,
+                                                iuup_decode_amr_fmtp,
+                                                decoders_hash);
+            ws_assert(decoder);
+    }
+    decoded_bytes = decode_rtp_packet_payload(decoder, amr_hdr, AMR_NB_OA_HDR_LEN + iuup_payload_len,
+                                              out_buff, channels_ptr, sample_rate_ptr);
+    g_free(amr_hdr);
+    return decoded_bytes;
+
+ret_err:
+    *out_buff = NULL;
+    return 0;
+}
+
+/****************************************************************************/
 /*
  * @return Number of decoded bytes
  */
@@ -147,6 +252,9 @@ decode_rtp_packet(rtp_packet_t *rp, SAMPLE **out_buff, GHashTable *decoders_hash
     if ((rp->payload_data == NULL) || (rp->info->info_payload_len == 0) ) {
         return 0;
     }
+
+    if (rp->info->info_is_iuup)
+        return decode_iuup_packet(rp, out_buff, decoders_hash, channels_ptr, sample_rate_ptr);
 
     /* Look for registered codecs */
     decoder = decode_rtp_find_or_create_decoder(rp->info->info_payload_type,

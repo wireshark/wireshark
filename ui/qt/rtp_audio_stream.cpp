@@ -311,6 +311,14 @@ void RtpAudioStream::decodeAudio(QAudioDeviceInfo out_device)
             // G.722 sample rate is 16kHz, but RTP clock rate is 8kHz
             // for historic reasons.
             rtp_clock_rate = 8000;
+        } else if (rtp_packet->info->info_is_iuup) {
+            /* IuUP uses a fixed RTP clock rate of 16kHz, regardless of the payload's codec sample rate.
+             * See: 3GPP TS 25.414 section 5.1.3.3.1.8
+             *      "A clock frequency of 16000 Hz shall be used."
+             * See: https://www.iana.org/assignments/media-types/audio/vnd.3gpp.iufp
+             *      "A fixed RTP clock rate of 16000 is used.""
+             */
+            rtp_clock_rate = 16000;
         }
 
         // Length 2 for PT_PCM mean silence packet probably, ignore

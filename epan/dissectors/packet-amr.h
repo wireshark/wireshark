@@ -33,6 +33,9 @@
 /* version 16.0.0 Release 16: 12-14 for future use */
 #define AMR_FT_NO_DATA		15	/* NO_DATA */
 
+/* 1B Payload Header + 1B ToC: */
+#define AMR_NB_OA_HDR_LEN 2
+
 WS_DLL_PUBLIC
 int amr_nb_bytes_to_ft(uint8_t bytes);
 
