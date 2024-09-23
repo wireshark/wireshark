@@ -1737,7 +1737,7 @@ id-MIAB-MT-BAP-Address                                              ProtocolIE-I
 id-MobileIABCell                                                    ProtocolIE-ID
 id-sk-Counter                                                       ProtocolIE-ID
 id-Source-M-NG-RANnodeID                                            ProtocolIE-ID
-id-S-CPAC-CompleteConfig-Indicator                                  ProtocolIE-ID
+id-ProtocolIE-ID458-NotToBeUsed                                     ProtocolIE-ID
 id-SourceSN-to-TargetSN-QMCInfo                                     ProtocolIE-ID
 id-RegistrationRequestForDataCollection                             ProtocolIE-ID
 id-ReportCharacteristicsForDataCollection                           ProtocolIE-ID
@@ -1750,6 +1750,10 @@ id-MaximumDataBurstVolume                                           ProtocolIE-I
 id-CPAC-Preparation-Type                                            ProtocolIE-ID
 id-UserPlaneFailureIndication                                       ProtocolIE-ID
 id-MN-only-MDT-collection                                           ProtocolIE-ID
+id-BarringExemptionforEmerCallInfo                                  ProtocolIE-ID
+id-Transmission-Bandwidth-asymmetric                                ProtocolIE-ID
+id-SRSPositioningConfigOrActivationRequest                          ProtocolIE-ID
+id-NRPPaPositioningInformation                                      ProtocolIE-ID
 
 
 #.REGISTER
@@ -2068,6 +2072,7 @@ ReportCharacteristicsForDataCollection            N xnap.ies id-ReportCharacteri
 ReportingPeriodicityForDataCollection             N xnap.ies id-ReportingPeriodicityForDataCollection
 NodeAssociatedInfoResult                          N xnap.ies id-NodeAssociatedInfoResult
 SLPositioning-Ranging-Services-Info               N xnap.ies id-SLPositioning-Ranging-Services-Info
+SRSPositioningConfigOrActivationRequest           N xnap.ies id-SRSPositioningConfigOrActivationRequest
 
 #XNAP-PROTOCOL-EXTENSION
 Additional-UL-NG-U-TNLatUPF-List                                 N xnap.extension id-Additional-UL-NG-U-TNLatUPF-List
@@ -2221,13 +2226,15 @@ ECNMarkingorCongestionInformationReportingRequest                N xnap.extensio
 TAISliceUnavailableCellList                                      N xnap.extension id-TAISliceUnavailableCellList
 MobileIABCell                                                    N xnap.extension id-MobileIABCell
 SK-COUNTER                                                       N xnap.extension id-sk-Counter
-CompleteConfig-Indicator                                         N xnap.extension id-S-CPAC-CompleteConfig-Indicator
 XR-Bcast-Information                                             N xnap.extension id-XR-Bcast-Information
 PDUSessionsListToBeReleased-UPError                              N xnap.extension id-PDUSessionsListToBeReleased-UPError
 MaximumDataBurstVolume                                           N xnap.extension id-MaximumDataBurstVolume
 CPAC-Preparation-Type                                            N xnap.extension id-CPAC-Preparation-Type
 UserPlaneFailureIndication                                       N xnap.extension id-UserPlaneFailureIndication
 MN-only-MDT-collection                                           N xnap.extension id-MN-only-MDT-collection
+BarringExemptionforEmerCallInfo                                  N xnap.extension id-BarringExemptionforEmerCallInfo
+Transmission-Bandwidth-asymmetric                                N xnap.extension id-Transmission-Bandwidth-asymmetric
+NRPPaPositioningInformation                                      N xnap.extension id-NRPPaPositioningInformation
 
 #XNAP-ELEMENTARY-PROCEDURE
 HandoverRequest                            N xnap.proc.imsg id-handoverPreparation

@@ -1,4 +1,4 @@
--- 3GPP TS 38.423 V18.2.0 (2024-06)
+-- 3GPP TS 38.423 V18.3.0 (2024-09)
 -- 9.3.4	PDU Definitions
 -- **************************************************************
 --
@@ -292,7 +292,10 @@ IMPORTS
 	NodeAssociatedInfoResult,
 	SLPositioning-Ranging-Services-Info,
 	PDUSessionsListToBeReleased-UPError,
-	UserPlaneFailureIndication
+	UserPlaneFailureIndication,
+	SRSPositioningConfigOrActivationRequest,
+	NRPPaPositioningInformation
+
 
 
 
@@ -637,7 +640,8 @@ FROM XnAP-Containers
 	id-SLPositioning-Ranging-Services-Info,
 	id-PDUSessionsListToBeReleased-UPError,
 	id-UserPlaneFailureIndication,
-
+	id-SRSPositioningConfigOrActivationRequest,
+	id-NRPPaPositioningInformation,
 
 
 
@@ -986,7 +990,8 @@ RetrieveUEContextRequest-IEs XNAP-PROTOCOL-IES ::= {
 	{ ID id-MAC-I									CRITICALITY reject		TYPE MAC-I											PRESENCE mandatory}|
 	{ ID id-new-NG-RAN-Cell-Identity				CRITICALITY reject		TYPE NG-RAN-Cell-Identity						PRESENCE mandatory}|
 	{ ID id-RRCResumeCause							CRITICALITY ignore		TYPE RRCResumeCause									PRESENCE optional }|
-	{ ID id-SDTSupportRequest						CRITICALITY ignore		TYPE SDTSupportRequest							PRESENCE optional },
+	{ ID id-SDTSupportRequest						CRITICALITY ignore		TYPE SDTSupportRequest							PRESENCE optional }|
+	{ ID id-SRSPositioningConfigOrActivationRequest	CRITICALITY ignore	TYPE SRSPositioningConfigOrActivationRequest	PRESENCE optional },
 	...
 }
 
@@ -1436,9 +1441,9 @@ PDUSessionsToBeModified-SNModRequest-Item ::= SEQUENCE {
 }
 
 PDUSessionsToBeModified-SNModRequest-Item-ExtIEs XNAP-PROTOCOL-EXTENSION ::= {
-	{ID id-S-NSSAI		CRITICALITY reject	EXTENSION S-NSSAI		PRESENCE optional}|
-	{ID id-PDUSessionExpectedUEActivityBehaviour		CRITICALITY ignore	EXTENSION ExpectedUEActivityBehaviour		PRESENCE optional }|
-	{ID id-UserPlaneFailureIndication					CRITICALITY ignore	EXTENSION UserPlaneFailureIndication			PRESENCE optional },
+	{ ID id-S-NSSAI										CRITICALITY reject	EXTENSION S-NSSAI									PRESENCE optional }|
+	{ ID id-PDUSessionExpectedUEActivityBehaviour		CRITICALITY ignore	EXTENSION ExpectedUEActivityBehaviour		PRESENCE optional }|
+	{ ID id-UserPlaneFailureIndication					CRITICALITY ignore	EXTENSION UserPlaneFailureIndication			PRESENCE optional },
 	...
 }
 
@@ -1627,8 +1632,8 @@ SNodeModificationRequired-IEs XNAP-PROTOCOL-IES ::= {
 	{ ID id-SCGreconfigNotification					CRITICALITY ignore		TYPE SCGreconfigNotification					PRESENCE optional }|
 	{ ID id-SPRAvailability							CRITICALITY ignore		TYPE SPRAvailability								PRESENCE optional }|
 	{ ID id-QMCCoordinationRequest					CRITICALITY ignore		TYPE QMCCoordinationRequest						PRESENCE optional }|
-	{ ID id-SourceSN-to-TargetSN-QMCInfo			CRITICALITY ignore		TYPE QMCConfigInfo									PRESENCE optional }|
-	{ ID id-S-CPAC-Request							CRITICALITY reject		TYPE S-CPAC-Request									PRESENCE	optional },
+	{ ID id-S-CPAC-Request							CRITICALITY reject		TYPE S-CPAC-Request									PRESENCE	optional }|
+	{ ID id-PDUSessionsListToBeReleased-UPError		CRITICALITY ignore		TYPE PDUSessionsListToBeReleased-UPError	PRESENCE optional },
 	...
 }
 PDUSessionToBeModifiedSNModRequired::= SEQUENCE (SIZE (1.. maxnoofPDUSessions)) OF	PDUSessionToBeModifiedSNModRequired-Item
@@ -1645,7 +1650,6 @@ PDUSessionToBeModifiedSNModRequired-Item ::= SEQUENCE {
 }
 
 PDUSessionToBeModifiedSNModRequired-Item-ExtIEs XNAP-PROTOCOL-EXTENSION ::= {
-	{ ID id-PDUSessionsListToBeReleased-UPError	CRITICALITY ignore			EXTENSION PDUSessionsListToBeReleased-UPError			PRESENCE optional },
 	...
 }
 
@@ -1831,7 +1835,8 @@ SNodeReleaseRequired-IEs XNAP-PROTOCOL-IES ::= {
 -- WS modification: define a dedicated type
 --	{ ID id-SN-to-MN-Container						CRITICALITY ignore		TYPE OCTET STRING									PRESENCE optional }|
 	{ ID id-SN-to-MN-Container						CRITICALITY ignore		TYPE SN-to-MN-Container									PRESENCE optional }|
-	{ ID id-SCGUEHistoryInformation					CRITICALITY ignore		TYPE SCGUEHistoryInformation					PRESENCE optional },
+	{ ID id-SCGUEHistoryInformation					CRITICALITY ignore		TYPE SCGUEHistoryInformation					PRESENCE optional }|
+	{ ID id-PDUSessionsListToBeReleased-UPError		CRITICALITY ignore		TYPE PDUSessionsListToBeReleased-UPError	PRESENCE optional },
 	...
 }
 
@@ -1842,7 +1847,6 @@ PDUSessionToBeReleasedList-RelRqd ::= SEQUENCE {
 }
 
 PDUSessionToBeReleasedList-RelRqd-ExtIEs XNAP-PROTOCOL-EXTENSION ::= {
-{ ID id-PDUSessionsListToBeReleased-UPError		CRITICALITY ignore			EXTENSION PDUSessionsListToBeReleased-UPError			PRESENCE optional },
 	...
 }
 

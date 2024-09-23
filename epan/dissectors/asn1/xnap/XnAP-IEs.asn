@@ -1,4 +1,4 @@
--- 3GPP TS 38.423 V18.2.0 (2024-06)
+-- 3GPP TS 38.423 V18.3.0 (2024-09)
 -- 9.3.5	Information Element definitions
 -- **************************************************************
 --
@@ -161,7 +161,6 @@ IMPORTS
 	id-S-CPAC-ReferenceConfigRequest,
 	id-S-CPAC-InterSN-ExecutionNotify,
 	id-S-CPAC-dataforwardinginfofromSource,
-	id-S-CPAC-CompleteConfig-Indicator,
 	id-CPACcandidatePSCells-wotherInfo-list,
 	id-eRedcap-Bcast-Information,
 	id-NRPagingLongeDRXInformationforRRCINACTIVE,
@@ -180,6 +179,9 @@ IMPORTS
 	id-MaximumDataBurstVolume,
 	id-CPAC-Preparation-Type,
 	id-MN-only-MDT-collection,
+	id-BarringExemptionforEmerCallInfo,
+	id-Transmission-Bandwidth-asymmetric,
+	id-NRPPaPositioningInformation,
 	maxEARFCN,
 	maxnoofAllowedAreas,
 	maxnoofAMFRegions,
@@ -750,6 +752,7 @@ BAPControlPDURLCCH-Item ::= SEQUENCE {
 BAPControlPDURLCCH-Item-ExtIEs XNAP-PROTOCOL-EXTENSION ::= {
 	...
 }
+BarringExemptionforEmerCallInfo::= ENUMERATED {true,...}
 
 
 BluetoothMeasurementConfiguration ::= SEQUENCE {
@@ -1478,7 +1481,7 @@ CHO-Candidate-PSCells-Item-ExtIEs XNAP-PROTOCOL-EXTENSION ::={
 
 CNsubgroupID ::= INTEGER (0..7, ...)
 
-CompleteConfig-Indicator ::= ENUMERATED {complete-config, ...}
+CompleteCandidateConfig-Indicator ::= ENUMERATED {complete-candidate-config, ...}
 
 Conditional-Reconfig-List ::= SEQUENCE (SIZE(1..maxnoofPSCellCandidates)) OF Conditional-Reconfig-Item
 
@@ -1579,7 +1582,6 @@ CPACcandidatePSCells-item ::= SEQUENCE {
 }
 
 CPACcandidatePSCells-item-ExtIEs XNAP-PROTOCOL-EXTENSION ::= {
-	{ ID id-S-CPAC-CompleteConfig-Indicator		CRITICALITY ignore	EXTENSION CompleteConfig-Indicator		PRESENCE		optional},
 	...
 }
 
@@ -1587,7 +1589,7 @@ CPACcandidatePSCells-wotherInfo-list ::= SEQUENCE (SIZE(1..maxnoofPSCellCandidat
 
 CPACcandidatePSCells-wotherInfo-item ::= SEQUENCE {
 	pscell-id							NR-CGI,
-	s-CPAC-CompleteConfig-Indicator		CompleteConfig-Indicator		OPTIONAL,
+	s-CPAC-CompleteCandidateConfig-Indicator		CompleteCandidateConfig-Indicator		OPTIONAL,
 	iE-Extensions					ProtocolExtensionContainer { {CPACcandidatePSCells-wotherInfo-item-ExtIEs}}	OPTIONAL,
 	...
 }
@@ -1750,6 +1752,7 @@ CPACInformationModRequired ::= SEQUENCE {
 }
 
 CPACInformationModRequired-ExtIEs XNAP-PROTOCOL-EXTENSION ::= {
+	{ ID id-CPACcandidatePSCells-wotherInfo-list	CRITICALITY reject		EXTENSION CPACcandidatePSCells-wotherInfo-list		PRESENCE optional},
 	...
 }
 
@@ -4841,7 +4844,8 @@ NRModeInfoTDD-ExtIEs XNAP-PROTOCOL-EXTENSION ::= {
 	{ ID id-IntendedTDD-DL-ULConfiguration-NR		CRITICALITY ignore	EXTENSION IntendedTDD-DL-ULConfiguration-NR		PRESENCE optional }|
 	{ ID id-TDDULDLConfigurationCommonNR			CRITICALITY ignore	EXTENSION TDDULDLConfigurationCommonNR			PRESENCE optional }|
 	{ ID id-CarrierList								CRITICALITY ignore	EXTENSION NRCarrierList									PRESENCE optional }|
-	{ ID id-tdd-GNB-DU-Cell-Resource-Configuration	CRITICALITY ignore	EXTENSION GNB-DU-Cell-Resource-Configuration	PRESENCE optional },
+	{ ID id-tdd-GNB-DU-Cell-Resource-Configuration	CRITICALITY ignore	EXTENSION GNB-DU-Cell-Resource-Configuration	PRESENCE optional }|
+	{ ID id-Transmission-Bandwidth-asymmetric		CRITICALITY ignore	EXTENSION Transmission-Bandwidth-asymmetric		PRESENCE optional },
 	...
 }
 
@@ -4933,7 +4937,30 @@ NRTransmissionBandwidth	::= SEQUENCE {
 	...
 }
 
+NRPPaPositioningInformation ::= SEQUENCE {
+	routingID											RoutingID,
+	nRPPaTransactionID									INTEGER (0..32767),
+	iE-Extension 				ProtocolExtensionContainer { { NRPPaPositioningInformation-ExtIEs} } OPTIONAL,
+	...
+}
+
+NRPPaPositioningInformation-ExtIEs XNAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+
 NRTransmissionBandwidth-ExtIEs XNAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+Transmission-Bandwidth-asymmetric ::= SEQUENCE {
+	ul-Transmission-Bandwidth	NRTransmissionBandwidth,
+	dl-Transmission-Bandwidth	NRTransmissionBandwidth,
+	iE-Extensions				ProtocolExtensionContainer { { Transmission-Bandwidth-asymmetric-ExtIEs} } OPTIONAL,
+	...
+}
+
+Transmission-Bandwidth-asymmetric-ExtIEs XNAP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
@@ -6388,7 +6415,7 @@ SN-to-MN-QMCCoordResponseList-Item-ExtIEs XNAP-PROTOCOL-EXTENSION ::= {
 QoERVQoEReportingPaths ::= SEQUENCE {
 	qoEReportingPath					ENUMERATED{srb4, srb5, ...}	OPTIONAL,
 	rVQoEReportingPath					ENUMERATED{srb4, srb5, ...}	OPTIONAL,
-	iE-Extensions						ProtocolExtensionContainer { {QoERVQoEReportingPaths-ExtIEs} },
+	iE-Extensions						ProtocolExtensionContainer { {QoERVQoEReportingPaths-ExtIEs} } OPTIONAL,
 	...
 }
 
@@ -6399,7 +6426,7 @@ QoERVQoEReportingPaths-ExtIEs XNAP-PROTOCOL-EXTENSION ::= {
 RVQoEConfig ::= SEQUENCE {
 	availableRANVisibleQoEMetrics		AvailableRVQoEMetrics			OPTIONAL,
 	reportingPeriodicity				RVQoEReportingPeriodicity		OPTIONAL,
-	iE-Extensions						ProtocolExtensionContainer { {RVQoEConfig-ExtIEs} },
+	iE-Extensions						ProtocolExtensionContainer { {RVQoEConfig-ExtIEs} } OPTIONAL,
 	...
 }
 
@@ -7438,7 +7465,8 @@ ServedCellInformation-NR-ExtIEs XNAP-PROTOCOL-EXTENSION ::= {
 	{ ID id-Redcap-Bcast-Information		CRITICALITY ignore	EXTENSION Redcap-Bcast-Information			PRESENCE optional }|
 	{ ID id-eRedcap-Bcast-Information		CRITICALITY ignore	EXTENSION ERedcap-Bcast-Information			PRESENCE optional }|
 	{ ID id-MobileIABCell					CRITICALITY ignore	EXTENSION MobileIABCell							PRESENCE optional }|
-	{ ID id-XR-Bcast-Information			CRITICALITY ignore	EXTENSION XR-Bcast-Information					PRESENCE optional },
+	{ ID id-XR-Bcast-Information			CRITICALITY ignore	EXTENSION XR-Bcast-Information					PRESENCE optional }|
+	{ ID id-BarringExemptionforEmerCallInfo	CRITICALITY ignore	EXTENSION BarringExemptionforEmerCallInfo	PRESENCE optional },
 	...
 }
 
@@ -7828,6 +7856,9 @@ SplitSRBsTypes ::= ENUMERATED {srb1, srb2, srb1and2, ...}
 
 SPRAvailability ::= ENUMERATED {spr-available, ...}
 
+SRSPositioningConfigOrActivationRequest::= ENUMERATED {true, ...}
+
+
 SRSConfiguration ::= OCTET STRING
 
 SSBAreaCapacityValue-List ::= SEQUENCE (SIZE(1..maxnoofSSBAreas)) OF SSBAreaCapacityValue-List-Item
@@ -7947,7 +7978,7 @@ SSBToReport-List-Item-ExtIEs XNAP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
-SSB-transmissionPeriodicity	::= ENUMERATED {sf10, sf20, sf40, sf80, sf160, sf320, sf640, ...}
+SSB-transmissionPeriodicity	::= ENUMERATED {sf10, sf20, sf40, sf80, sf160, sf320, sf640, ..., sf5}
 
 SSB-transmissionTimingOffset ::= INTEGER (0..127, ...)
 
@@ -8662,7 +8693,8 @@ UEContextInfoRetrUECtxtResp-ExtIEs XNAP-PROTOCOL-EXTENSION ::= {
 	{ ID id-UESliceMaximumBitRateList				CRITICALITY ignore	EXTENSION UESliceMaximumBitRateList						PRESENCE optional }|
 	{ ID id-PositioningInformation					CRITICALITY ignore	EXTENSION PositioningInformation							PRESENCE optional }|
 	{ ID id-NRA2XUEPC5AggregateMaximumBitRate		CRITICALITY ignore	EXTENSION NRUESidelinkAggregateMaximumBitRate			PRESENCE optional }|
-	{ ID id-LTEA2XUEPC5AggregateMaximumBitRate		CRITICALITY ignore	EXTENSION LTEUESidelinkAggregateMaximumBitRate			PRESENCE optional },
+	{ ID id-LTEA2XUEPC5AggregateMaximumBitRate		CRITICALITY ignore	EXTENSION LTEUESidelinkAggregateMaximumBitRate			PRESENCE optional }|
+	{ ID id-NRPPaPositioningInformation				CRITICALITY ignore	EXTENSION NRPPaPositioningInformation						PRESENCE optional },
 	...
 }
 

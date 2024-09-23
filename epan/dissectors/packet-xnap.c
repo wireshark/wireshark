@@ -15,7 +15,7 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
  * Ref:
- * 3GPP TS 38.423 V18.2.0 (2024-06)
+ * 3GPP TS 38.423 V18.3.0 (2024-09)
  */
 
 #include "config.h"
@@ -699,7 +699,7 @@ typedef enum _ProtocolIE_ID_enum {
   id_MobileIABCell = 455,
   id_sk_Counter = 456,
   id_Source_M_NG_RANnodeID = 457,
-  id_S_CPAC_CompleteConfig_Indicator = 458,
+  id_ProtocolIE_ID458_NotToBeUsed = 458,
   id_SourceSN_to_TargetSN_QMCInfo = 459,
   id_RegistrationRequestForDataCollection = 460,
   id_ReportCharacteristicsForDataCollection = 461,
@@ -711,7 +711,11 @@ typedef enum _ProtocolIE_ID_enum {
   id_MaximumDataBurstVolume = 467,
   id_CPAC_Preparation_Type = 468,
   id_UserPlaneFailureIndication = 469,
-  id_MN_only_MDT_collection = 470
+  id_MN_only_MDT_collection = 470,
+  id_BarringExemptionforEmerCallInfo = 471,
+  id_Transmission_Bandwidth_asymmetric = 472,
+  id_SRSPositioningConfigOrActivationRequest = 473,
+  id_NRPPaPositioningInformation = 474
 } ProtocolIE_ID_enum;
 
 typedef enum _GlobalNG_RANNode_ID_enum {
@@ -797,6 +801,7 @@ static int hf_xnap_AssistanceInformationQoE_Meas_PDU;  /* AssistanceInformationQ
 static int hf_xnap_BAPAddress_PDU;                /* BAPAddress */
 static int hf_xnap_BeamMeasurementIndicationM1_PDU;  /* BeamMeasurementIndicationM1 */
 static int hf_xnap_BeamMeasurementsReportConfiguration_PDU;  /* BeamMeasurementsReportConfiguration */
+static int hf_xnap_BarringExemptionforEmerCallInfo_PDU;  /* BarringExemptionforEmerCallInfo */
 static int hf_xnap_BPLMN_ID_Info_EUTRA_PDU;       /* BPLMN_ID_Info_EUTRA */
 static int hf_xnap_BPLMN_ID_Info_NR_PDU;          /* BPLMN_ID_Info_NR */
 static int hf_xnap_BitRate_PDU;                   /* BitRate */
@@ -826,7 +831,6 @@ static int hf_xnap_CHOinformation_AddReqAck_PDU;  /* CHOinformation_AddReqAck */
 static int hf_xnap_CHOinformation_ModReq_PDU;     /* CHOinformation_ModReq */
 static int hf_xnap_CHO_Maxnoof_CondReconfig_PDU;  /* CHO_Maxnoof_CondReconfig */
 static int hf_xnap_CHO_CPAC_Information_PDU;      /* CHO_CPAC_Information */
-static int hf_xnap_CompleteConfig_Indicator_PDU;  /* CompleteConfig_Indicator */
 static int hf_xnap_Conditional_Reconfig_List_PDU;  /* Conditional_Reconfig_List */
 static int hf_xnap_ConfiguredTACIndication_PDU;   /* ConfiguredTACIndication */
 static int hf_xnap_CoverageModificationCause_PDU;  /* CoverageModificationCause */
@@ -968,6 +972,8 @@ static int hf_xnap_NRA2XServicesAuthorized_PDU;   /* NRA2XServicesAuthorized */
 static int hf_xnap_NRPagingeDRXInformation_PDU;   /* NRPagingeDRXInformation */
 static int hf_xnap_NRPagingeDRXInformationforRRCINACTIVE_PDU;  /* NRPagingeDRXInformationforRRCINACTIVE */
 static int hf_xnap_NRPagingLongeDRXInformationforRRCINACTIVE_PDU;  /* NRPagingLongeDRXInformationforRRCINACTIVE */
+static int hf_xnap_NRPPaPositioningInformation_PDU;  /* NRPPaPositioningInformation */
+static int hf_xnap_Transmission_Bandwidth_asymmetric_PDU;  /* Transmission_Bandwidth_asymmetric */
 static int hf_xnap_NG_RANTraceID_PDU;             /* NG_RANTraceID */
 static int hf_xnap_NonGBRResources_Offered_PDU;   /* NonGBRResources_Offered */
 static int hf_xnap_NRV2XServicesAuthorized_PDU;   /* NRV2XServicesAuthorized */
@@ -1069,6 +1075,7 @@ static int hf_xnap_SNTriggered_PDU;               /* SNTriggered */
 static int hf_xnap_SplitSessionIndicator_PDU;     /* SplitSessionIndicator */
 static int hf_xnap_SplitSRBsTypes_PDU;            /* SplitSRBsTypes */
 static int hf_xnap_SPRAvailability_PDU;           /* SPRAvailability */
+static int hf_xnap_SRSPositioningConfigOrActivationRequest_PDU;  /* SRSPositioningConfigOrActivationRequest */
 static int hf_xnap_SRSConfiguration_PDU;          /* SRSConfiguration */
 static int hf_xnap_SSB_PositionsInBurst_PDU;      /* SSB_PositionsInBurst */
 static int hf_xnap_SSBOffsets_List_PDU;           /* SSBOffsets_List */
@@ -1495,7 +1502,7 @@ static int hf_xnap_sSB_Coverage_Modification_List;  /* SSB_Coverage_Modification
 static int hf_xnap_endpointIPAddress;             /* TransportLayerAddress */
 static int hf_xnap_CPACcandidatePSCells_list_item;  /* CPACcandidatePSCells_item */
 static int hf_xnap_CPACcandidatePSCells_wotherInfo_list_item;  /* CPACcandidatePSCells_wotherInfo_item */
-static int hf_xnap_s_CPAC_CompleteConfig_Indicator;  /* CompleteConfig_Indicator */
+static int hf_xnap_s_CPAC_CompleteCandidateConfig_Indicator;  /* CompleteCandidateConfig_Indicator */
 static int hf_xnap_cpacCandidateCell_List;        /* CPACCandidateCell_List */
 static int hf_xnap_CPACCandidateCell_List_item;   /* CPACCandidateCell_Item */
 static int hf_xnap_cpacCandidateCellID;           /* GlobalNG_RANCell_ID */
@@ -2037,9 +2044,11 @@ static int hf_xnap_nRPaging_long_eDRX_Cycle_Inactive;  /* NRPaging_long_eDRX_Cyc
 static int hf_xnap_nRPaging_Time_Window_Inactive;  /* NRPaging_Time_Window_Inactive */
 static int hf_xnap_nRSCS;                         /* NRSCS */
 static int hf_xnap_nRNRB;                         /* NRNRB */
-static int hf_xnap_requestedSRSTransmissionCharacteristics;  /* RequestedSRSTransmissionCharacteristics */
 static int hf_xnap_routingID;                     /* RoutingID */
 static int hf_xnap_nRPPaTransactionID;            /* INTEGER_0_32767 */
+static int hf_xnap_ul_Transmission_Bandwidth;     /* NRTransmissionBandwidth */
+static int hf_xnap_dl_Transmission_Bandwidth;     /* NRTransmissionBandwidth */
+static int hf_xnap_requestedSRSTransmissionCharacteristics;  /* RequestedSRSTransmissionCharacteristics */
 static int hf_xnap_pER_Scalar;                    /* PER_Scalar */
 static int hf_xnap_pER_Exponent;                  /* PER_Exponent */
 static int hf_xnap_cNsubgroupID;                  /* CNsubgroupID */
@@ -3236,6 +3245,8 @@ static int ett_xnap_NRPagingeDRXInformation;
 static int ett_xnap_NRPagingeDRXInformationforRRCINACTIVE;
 static int ett_xnap_NRPagingLongeDRXInformationforRRCINACTIVE;
 static int ett_xnap_NRTransmissionBandwidth;
+static int ett_xnap_NRPPaPositioningInformation;
+static int ett_xnap_Transmission_Bandwidth_asymmetric;
 static int ett_xnap_NRV2XServicesAuthorized;
 static int ett_xnap_NRUESidelinkAggregateMaximumBitRate;
 static int ett_xnap_PositioningInformation;
@@ -4532,7 +4543,7 @@ static const value_string xnap_ProtocolIE_ID_vals[] = {
   { id_MobileIABCell, "id-MobileIABCell" },
   { id_sk_Counter, "id-sk-Counter" },
   { id_Source_M_NG_RANnodeID, "id-Source-M-NG-RANnodeID" },
-  { id_S_CPAC_CompleteConfig_Indicator, "id-S-CPAC-CompleteConfig-Indicator" },
+  { id_ProtocolIE_ID458_NotToBeUsed, "id-ProtocolIE-ID458-NotToBeUsed" },
   { id_SourceSN_to_TargetSN_QMCInfo, "id-SourceSN-to-TargetSN-QMCInfo" },
   { id_RegistrationRequestForDataCollection, "id-RegistrationRequestForDataCollection" },
   { id_ReportCharacteristicsForDataCollection, "id-ReportCharacteristicsForDataCollection" },
@@ -4545,6 +4556,10 @@ static const value_string xnap_ProtocolIE_ID_vals[] = {
   { id_CPAC_Preparation_Type, "id-CPAC-Preparation-Type" },
   { id_UserPlaneFailureIndication, "id-UserPlaneFailureIndication" },
   { id_MN_only_MDT_collection, "id-MN-only-MDT-collection" },
+  { id_BarringExemptionforEmerCallInfo, "id-BarringExemptionforEmerCallInfo" },
+  { id_Transmission_Bandwidth_asymmetric, "id-Transmission-Bandwidth-asymmetric" },
+  { id_SRSPositioningConfigOrActivationRequest, "id-SRSPositioningConfigOrActivationRequest" },
+  { id_NRPPaPositioningInformation, "id-NRPPaPositioningInformation" },
   { 0, NULL }
 };
 
@@ -7621,6 +7636,21 @@ dissect_xnap_BAPControlPDURLCCH_List(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx
 }
 
 
+static const value_string xnap_BarringExemptionforEmerCallInfo_vals[] = {
+  {   0, "true" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_xnap_BarringExemptionforEmerCallInfo(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     1, NULL, true, 0, NULL);
+
+  return offset;
+}
+
+
 static const value_string xnap_BluetoothMeasConfig_vals[] = {
   {   0, "setup" },
   { 0, NULL }
@@ -9986,14 +10016,14 @@ dissect_xnap_CNsubgroupID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
 }
 
 
-static const value_string xnap_CompleteConfig_Indicator_vals[] = {
-  {   0, "complete-config" },
+static const value_string xnap_CompleteCandidateConfig_Indicator_vals[] = {
+  {   0, "complete-candidate-config" },
   { 0, NULL }
 };
 
 
 static int
-dissect_xnap_CompleteConfig_Indicator(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_xnap_CompleteCandidateConfig_Indicator(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
                                      1, NULL, true, 0, NULL);
 
@@ -10282,7 +10312,7 @@ dissect_xnap_CPACcandidatePSCells_list(tvbuff_t *tvb _U_, int offset _U_, asn1_c
 
 static const per_sequence_t CPACcandidatePSCells_wotherInfo_item_sequence[] = {
   { &hf_xnap_pscell_id      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_xnap_NR_CGI },
-  { &hf_xnap_s_CPAC_CompleteConfig_Indicator, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_CompleteConfig_Indicator },
+  { &hf_xnap_s_CPAC_CompleteCandidateConfig_Indicator, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_CompleteCandidateConfig_Indicator },
   { &hf_xnap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_ProtocolExtensionContainer },
   { NULL, 0, 0, NULL }
 };
@@ -14099,6 +14129,7 @@ static const value_string xnap_SSB_transmissionPeriodicity_vals[] = {
   {   4, "sf160" },
   {   5, "sf320" },
   {   6, "sf640" },
+  {   7, "sf5" },
   { 0, NULL }
 };
 
@@ -14106,7 +14137,7 @@ static const value_string xnap_SSB_transmissionPeriodicity_vals[] = {
 static int
 dissect_xnap_SSB_transmissionPeriodicity(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     7, NULL, true, 0, NULL);
+                                     7, NULL, true, 1, NULL);
 
   return offset;
 }
@@ -18875,6 +18906,58 @@ dissect_xnap_NRPagingLongeDRXInformationforRRCINACTIVE(tvbuff_t *tvb _U_, int of
 }
 
 
+
+static int
+dissect_xnap_RoutingID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
+                                       NO_BOUND, NO_BOUND, false, NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_xnap_INTEGER_0_32767(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            0U, 32767U, NULL, false);
+
+  return offset;
+}
+
+
+static const per_sequence_t NRPPaPositioningInformation_sequence[] = {
+  { &hf_xnap_routingID      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_xnap_RoutingID },
+  { &hf_xnap_nRPPaTransactionID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_xnap_INTEGER_0_32767 },
+  { &hf_xnap_iE_Extension   , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_xnap_NRPPaPositioningInformation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_xnap_NRPPaPositioningInformation, NRPPaPositioningInformation_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t Transmission_Bandwidth_asymmetric_sequence[] = {
+  { &hf_xnap_ul_Transmission_Bandwidth, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_xnap_NRTransmissionBandwidth },
+  { &hf_xnap_dl_Transmission_Bandwidth, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_xnap_NRTransmissionBandwidth },
+  { &hf_xnap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_xnap_Transmission_Bandwidth_asymmetric(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_xnap_Transmission_Bandwidth_asymmetric, Transmission_Bandwidth_asymmetric_sequence);
+
+  return offset;
+}
+
+
 static const value_string xnap_NumberOfAntennaPorts_E_UTRA_vals[] = {
   {   0, "an1" },
   {   1, "an2" },
@@ -18992,26 +19075,6 @@ static int
 dissect_xnap_RequestedSRSTransmissionCharacteristics(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        NO_BOUND, NO_BOUND, false, NULL);
-
-  return offset;
-}
-
-
-
-static int
-dissect_xnap_RoutingID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
-                                       NO_BOUND, NO_BOUND, false, NULL);
-
-  return offset;
-}
-
-
-
-static int
-dissect_xnap_INTEGER_0_32767(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            0U, 32767U, NULL, false);
 
   return offset;
 }
@@ -21389,7 +21452,7 @@ dissect_xnap_RVQoEReportingPeriodicity(tvbuff_t *tvb _U_, int offset _U_, asn1_c
 static const per_sequence_t RVQoEConfig_sequence[] = {
   { &hf_xnap_availableRANVisibleQoEMetrics, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_AvailableRVQoEMetrics },
   { &hf_xnap_reportingPeriodicity, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_RVQoEReportingPeriodicity },
-  { &hf_xnap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_xnap_ProtocolExtensionContainer },
+  { &hf_xnap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_ProtocolExtensionContainer },
   { NULL, 0, 0, NULL }
 };
 
@@ -21852,7 +21915,7 @@ dissect_xnap_T_rVQoEReportingPath(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t 
 static const per_sequence_t QoERVQoEReportingPaths_sequence[] = {
   { &hf_xnap_qoEReportingPath, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_T_qoEReportingPath },
   { &hf_xnap_rVQoEReportingPath, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_T_rVQoEReportingPath },
-  { &hf_xnap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_xnap_ProtocolExtensionContainer },
+  { &hf_xnap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_xnap_ProtocolExtensionContainer },
   { NULL, 0, 0, NULL }
 };
 
@@ -23959,6 +24022,21 @@ static const value_string xnap_SPRAvailability_vals[] = {
 
 static int
 dissect_xnap_SPRAvailability(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     1, NULL, true, 0, NULL);
+
+  return offset;
+}
+
+
+static const value_string xnap_SRSPositioningConfigOrActivationRequest_vals[] = {
+  {   0, "true" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_xnap_SRSPositioningConfigOrActivationRequest(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
                                      1, NULL, true, 0, NULL);
 
@@ -29212,6 +29290,14 @@ static int dissect_BeamMeasurementsReportConfiguration_PDU(tvbuff_t *tvb _U_, pa
   offset += 7; offset >>= 3;
   return offset;
 }
+static int dissect_BarringExemptionforEmerCallInfo_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
+  offset = dissect_xnap_BarringExemptionforEmerCallInfo(tvb, offset, &asn1_ctx, tree, hf_xnap_BarringExemptionforEmerCallInfo_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
 static int dissect_BPLMN_ID_Info_EUTRA_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
@@ -29441,14 +29527,6 @@ static int dissect_CHO_CPAC_Information_PDU(tvbuff_t *tvb _U_, packet_info *pinf
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_xnap_CHO_CPAC_Information(tvb, offset, &asn1_ctx, tree, hf_xnap_CHO_CPAC_Information_PDU);
-  offset += 7; offset >>= 3;
-  return offset;
-}
-static int dissect_CompleteConfig_Indicator_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
-  int offset = 0;
-  asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
-  offset = dissect_xnap_CompleteConfig_Indicator(tvb, offset, &asn1_ctx, tree, hf_xnap_CompleteConfig_Indicator_PDU);
   offset += 7; offset >>= 3;
   return offset;
 }
@@ -30580,6 +30658,22 @@ static int dissect_NRPagingLongeDRXInformationforRRCINACTIVE_PDU(tvbuff_t *tvb _
   offset += 7; offset >>= 3;
   return offset;
 }
+static int dissect_NRPPaPositioningInformation_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
+  offset = dissect_xnap_NRPPaPositioningInformation(tvb, offset, &asn1_ctx, tree, hf_xnap_NRPPaPositioningInformation_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_Transmission_Bandwidth_asymmetric_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
+  offset = dissect_xnap_Transmission_Bandwidth_asymmetric(tvb, offset, &asn1_ctx, tree, hf_xnap_Transmission_Bandwidth_asymmetric_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
 static int dissect_NG_RANTraceID_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
@@ -31385,6 +31479,14 @@ static int dissect_SPRAvailability_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_xnap_SPRAvailability(tvb, offset, &asn1_ctx, tree, hf_xnap_SPRAvailability_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_SRSPositioningConfigOrActivationRequest_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
+  offset = dissect_xnap_SRSPositioningConfigOrActivationRequest(tvb, offset, &asn1_ctx, tree, hf_xnap_SRSPositioningConfigOrActivationRequest_PDU);
   offset += 7; offset >>= 3;
   return offset;
 }
@@ -33394,6 +33496,10 @@ void proto_register_xnap(void) {
       { "BeamMeasurementsReportConfiguration", "xnap.BeamMeasurementsReportConfiguration_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
+    { &hf_xnap_BarringExemptionforEmerCallInfo_PDU,
+      { "BarringExemptionforEmerCallInfo", "xnap.BarringExemptionforEmerCallInfo",
+        FT_UINT32, BASE_DEC, VALS(xnap_BarringExemptionforEmerCallInfo_vals), 0,
+        NULL, HFILL }},
     { &hf_xnap_BPLMN_ID_Info_EUTRA_PDU,
       { "BPLMN-ID-Info-EUTRA", "xnap.BPLMN_ID_Info_EUTRA",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -33509,10 +33615,6 @@ void proto_register_xnap(void) {
     { &hf_xnap_CHO_CPAC_Information_PDU,
       { "CHO-CPAC-Information", "xnap.CHO_CPAC_Information_element",
         FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_xnap_CompleteConfig_Indicator_PDU,
-      { "CompleteConfig-Indicator", "xnap.CompleteConfig_Indicator",
-        FT_UINT32, BASE_DEC, VALS(xnap_CompleteConfig_Indicator_vals), 0,
         NULL, HFILL }},
     { &hf_xnap_Conditional_Reconfig_List_PDU,
       { "Conditional-Reconfig-List", "xnap.Conditional_Reconfig_List",
@@ -34078,6 +34180,14 @@ void proto_register_xnap(void) {
       { "NRPagingLongeDRXInformationforRRCINACTIVE", "xnap.NRPagingLongeDRXInformationforRRCINACTIVE_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
+    { &hf_xnap_NRPPaPositioningInformation_PDU,
+      { "NRPPaPositioningInformation", "xnap.NRPPaPositioningInformation_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_xnap_Transmission_Bandwidth_asymmetric_PDU,
+      { "Transmission-Bandwidth-asymmetric", "xnap.Transmission_Bandwidth_asymmetric_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
     { &hf_xnap_NG_RANTraceID_PDU,
       { "NG-RANTraceID", "xnap.NG_RANTraceID",
         FT_BYTES, BASE_NONE, NULL, 0,
@@ -34481,6 +34591,10 @@ void proto_register_xnap(void) {
     { &hf_xnap_SPRAvailability_PDU,
       { "SPRAvailability", "xnap.SPRAvailability",
         FT_UINT32, BASE_DEC, VALS(xnap_SPRAvailability_vals), 0,
+        NULL, HFILL }},
+    { &hf_xnap_SRSPositioningConfigOrActivationRequest_PDU,
+      { "SRSPositioningConfigOrActivationRequest", "xnap.SRSPositioningConfigOrActivationRequest",
+        FT_UINT32, BASE_DEC, VALS(xnap_SRSPositioningConfigOrActivationRequest_vals), 0,
         NULL, HFILL }},
     { &hf_xnap_SRSConfiguration_PDU,
       { "SRSConfiguration", "xnap.SRSConfiguration",
@@ -36186,10 +36300,10 @@ void proto_register_xnap(void) {
       { "CPACcandidatePSCells-wotherInfo-item", "xnap.CPACcandidatePSCells_wotherInfo_item_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-    { &hf_xnap_s_CPAC_CompleteConfig_Indicator,
-      { "s-CPAC-CompleteConfig-Indicator", "xnap.s_CPAC_CompleteConfig_Indicator",
-        FT_UINT32, BASE_DEC, VALS(xnap_CompleteConfig_Indicator_vals), 0,
-        "CompleteConfig_Indicator", HFILL }},
+    { &hf_xnap_s_CPAC_CompleteCandidateConfig_Indicator,
+      { "s-CPAC-CompleteCandidateConfig-Indicator", "xnap.s_CPAC_CompleteCandidateConfig_Indicator",
+        FT_UINT32, BASE_DEC, VALS(xnap_CompleteCandidateConfig_Indicator_vals), 0,
+        "CompleteCandidateConfig_Indicator", HFILL }},
     { &hf_xnap_cpacCandidateCell_List,
       { "cpacCandidateCell-List", "xnap.cpacCandidateCell_List",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -38354,10 +38468,6 @@ void proto_register_xnap(void) {
       { "nRNRB", "xnap.nRNRB",
         FT_UINT32, BASE_DEC|BASE_EXT_STRING, &xnap_NRNRB_vals_ext, 0,
         NULL, HFILL }},
-    { &hf_xnap_requestedSRSTransmissionCharacteristics,
-      { "requestedSRSTransmissionCharacteristics", "xnap.requestedSRSTransmissionCharacteristics",
-        FT_BYTES, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
     { &hf_xnap_routingID,
       { "routingID", "xnap.routingID",
         FT_BYTES, BASE_NONE, NULL, 0,
@@ -38366,6 +38476,18 @@ void proto_register_xnap(void) {
       { "nRPPaTransactionID", "xnap.nRPPaTransactionID",
         FT_UINT32, BASE_DEC, NULL, 0,
         "INTEGER_0_32767", HFILL }},
+    { &hf_xnap_ul_Transmission_Bandwidth,
+      { "ul-Transmission-Bandwidth", "xnap.ul_Transmission_Bandwidth_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "NRTransmissionBandwidth", HFILL }},
+    { &hf_xnap_dl_Transmission_Bandwidth,
+      { "dl-Transmission-Bandwidth", "xnap.dl_Transmission_Bandwidth_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "NRTransmissionBandwidth", HFILL }},
+    { &hf_xnap_requestedSRSTransmissionCharacteristics,
+      { "requestedSRSTransmissionCharacteristics", "xnap.requestedSRSTransmissionCharacteristics",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
     { &hf_xnap_pER_Scalar,
       { "pER-Scalar", "xnap.pER_Scalar",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -41684,6 +41806,8 @@ void proto_register_xnap(void) {
     &ett_xnap_NRPagingeDRXInformationforRRCINACTIVE,
     &ett_xnap_NRPagingLongeDRXInformationforRRCINACTIVE,
     &ett_xnap_NRTransmissionBandwidth,
+    &ett_xnap_NRPPaPositioningInformation,
+    &ett_xnap_Transmission_Bandwidth_asymmetric,
     &ett_xnap_NRV2XServicesAuthorized,
     &ett_xnap_NRUESidelinkAggregateMaximumBitRate,
     &ett_xnap_PositioningInformation,
@@ -42584,6 +42708,7 @@ proto_reg_handoff_xnap(void)
   dissector_add_uint("xnap.ies", id_ReportingPeriodicityForDataCollection, create_dissector_handle(dissect_ReportingPeriodicityForDataCollection_PDU, proto_xnap));
   dissector_add_uint("xnap.ies", id_NodeAssociatedInfoResult, create_dissector_handle(dissect_NodeAssociatedInfoResult_PDU, proto_xnap));
   dissector_add_uint("xnap.ies", id_SLPositioning_Ranging_Services_Info, create_dissector_handle(dissect_SLPositioning_Ranging_Services_Info_PDU, proto_xnap));
+  dissector_add_uint("xnap.ies", id_SRSPositioningConfigOrActivationRequest, create_dissector_handle(dissect_SRSPositioningConfigOrActivationRequest_PDU, proto_xnap));
   dissector_add_uint("xnap.extension", id_Additional_UL_NG_U_TNLatUPF_List, create_dissector_handle(dissect_Additional_UL_NG_U_TNLatUPF_List_PDU, proto_xnap));
   dissector_add_uint("xnap.extension", id_SecondarydataForwardingInfoFromTarget_List, create_dissector_handle(dissect_SecondarydataForwardingInfoFromTarget_List_PDU, proto_xnap));
   dissector_add_uint("xnap.extension", id_LastE_UTRANPLMNIdentity, create_dissector_handle(dissect_PLMN_Identity_PDU, proto_xnap));
@@ -42735,13 +42860,15 @@ proto_reg_handoff_xnap(void)
   dissector_add_uint("xnap.extension", id_TAISliceUnavailableCellList, create_dissector_handle(dissect_TAISliceUnavailableCellList_PDU, proto_xnap));
   dissector_add_uint("xnap.extension", id_MobileIABCell, create_dissector_handle(dissect_MobileIABCell_PDU, proto_xnap));
   dissector_add_uint("xnap.extension", id_sk_Counter, create_dissector_handle(dissect_SK_COUNTER_PDU, proto_xnap));
-  dissector_add_uint("xnap.extension", id_S_CPAC_CompleteConfig_Indicator, create_dissector_handle(dissect_CompleteConfig_Indicator_PDU, proto_xnap));
   dissector_add_uint("xnap.extension", id_XR_Bcast_Information, create_dissector_handle(dissect_XR_Bcast_Information_PDU, proto_xnap));
   dissector_add_uint("xnap.extension", id_PDUSessionsListToBeReleased_UPError, create_dissector_handle(dissect_PDUSessionsListToBeReleased_UPError_PDU, proto_xnap));
   dissector_add_uint("xnap.extension", id_MaximumDataBurstVolume, create_dissector_handle(dissect_MaximumDataBurstVolume_PDU, proto_xnap));
   dissector_add_uint("xnap.extension", id_CPAC_Preparation_Type, create_dissector_handle(dissect_CPAC_Preparation_Type_PDU, proto_xnap));
   dissector_add_uint("xnap.extension", id_UserPlaneFailureIndication, create_dissector_handle(dissect_UserPlaneFailureIndication_PDU, proto_xnap));
   dissector_add_uint("xnap.extension", id_MN_only_MDT_collection, create_dissector_handle(dissect_MN_only_MDT_collection_PDU, proto_xnap));
+  dissector_add_uint("xnap.extension", id_BarringExemptionforEmerCallInfo, create_dissector_handle(dissect_BarringExemptionforEmerCallInfo_PDU, proto_xnap));
+  dissector_add_uint("xnap.extension", id_Transmission_Bandwidth_asymmetric, create_dissector_handle(dissect_Transmission_Bandwidth_asymmetric_PDU, proto_xnap));
+  dissector_add_uint("xnap.extension", id_NRPPaPositioningInformation, create_dissector_handle(dissect_NRPPaPositioningInformation_PDU, proto_xnap));
   dissector_add_uint("xnap.proc.imsg", id_handoverPreparation, create_dissector_handle(dissect_HandoverRequest_PDU, proto_xnap));
   dissector_add_uint("xnap.proc.sout", id_handoverPreparation, create_dissector_handle(dissect_HandoverRequestAcknowledge_PDU, proto_xnap));
   dissector_add_uint("xnap.proc.uout", id_handoverPreparation, create_dissector_handle(dissect_HandoverPreparationFailure_PDU, proto_xnap));

@@ -1,4 +1,4 @@
--- 3GPP TS 38.423 V18.2.0 (2024-06)
+-- 3GPP TS 38.423 V18.3.0 (2024-09)
 -- 9.3.7	Constant definitions
 -- **************************************************************
 --
@@ -680,7 +680,7 @@ id-MIAB-MT-BAP-Address																				ProtocolIE-ID ::= 454
 id-MobileIABCell																					ProtocolIE-ID ::= 455
 id-sk-Counter																						ProtocolIE-ID ::= 456
 id-Source-M-NG-RANnodeID																			ProtocolIE-ID ::= 457
-id-S-CPAC-CompleteConfig-Indicator																	ProtocolIE-ID ::= 458
+id-ProtocolIE-ID458-NotToBeUsed																		ProtocolIE-ID ::= 458
 id-SourceSN-to-TargetSN-QMCInfo																		ProtocolIE-ID ::= 459
 id-RegistrationRequestForDataCollection																ProtocolIE-ID ::= 460
 id-ReportCharacteristicsForDataCollection															ProtocolIE-ID ::= 461
@@ -693,7 +693,10 @@ id-MaximumDataBurstVolume																			ProtocolIE-ID ::= 467
 id-CPAC-Preparation-Type																			ProtocolIE-ID ::= 468
 id-UserPlaneFailureIndication																		ProtocolIE-ID ::= 469
 id-MN-only-MDT-collection																			ProtocolIE-ID ::= 470
-
+id-BarringExemptionforEmerCallInfo																	ProtocolIE-ID ::= 471
+id-Transmission-Bandwidth-asymmetric																ProtocolIE-ID ::= 472
+id-SRSPositioningConfigOrActivationRequest															ProtocolIE-ID ::= 473
+id-NRPPaPositioningInformation																		ProtocolIE-ID ::= 474
 
 
 END
