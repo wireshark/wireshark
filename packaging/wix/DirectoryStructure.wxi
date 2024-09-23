@@ -13,9 +13,7 @@
         <Directory Id="INSTALLFOLDER" Name="$(var.WiresharkName)">
           <Directory Id="dirDtds" Name="dtds"/>
           <Directory Id="dirDiameter" Name="diameter"/>
-          <Directory Id="dirExtcap" Name="extcap">
-            <Directory Id="dirExtcapWireshark" Name="wireshark"/>
-          </Directory>
+          <Directory Id="dirExtcap" Name="extcap"/>
           <Directory Id="dirHelp" Name="help"/>
           <Directory Id="dirRadius" Name="radius"/>
           <Directory Id="dirPlugins" Name="plugins">
