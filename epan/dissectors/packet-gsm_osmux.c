@@ -1,6 +1,8 @@
 /* packet-gsm_osmux.c
  * Routines for packet dissection of Osmux voice/signalling multiplex protocol
- * Copyright 2016 sysmocom s.f.m.c Daniel Willmann <dwillmann@sysmocom.de>
+ * Copyright 2016-2024 sysmocom s.f.m.c. GmbH <info@sysmocom.de>
+ * Written by Daniel Willmann <dwillmann@sysmocom.de>,
+ *            Pau Espin Pedrol <pespin@sysmocom.de>
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -20,11 +22,16 @@
 
 #include <string.h>
 
+#include <epan/conversation.h>
 #include <epan/packet.h>
 #include <epan/stats_tree.h>
 #include <epan/tap.h>
 #include <epan/to_str.h>
 #include <epan/strutil.h>
+
+/* un-comment the following as well as this line in conversation.c, to enable debug printing */
+/* #define DEBUG_CONVERSATION */
+#include "conversation_debug.h"
 
 void proto_register_osmux(void);
 void proto_reg_handoff_osmux(void);
@@ -463,6 +470,45 @@ static tap_packet_status osmux_stats_tree_packet(stats_tree *st,
     }
 
     return TAP_PACKET_REDRAW;
+}
+
+/* Set up an Osmux conversation. Called from MGCP/SDP dissector to set
+ * appropriate dissector for the set up MGW endpoint. */
+void
+osmux_add_address(packet_info *pinfo, address *addr, int port, int other_port, uint32_t setup_frame_number)
+{
+    address null_addr;
+    conversation_t* p_conv;
+
+    /*
+     * If this isn't the first time this packet has been processed,
+     * we've already done this work, so we don't need to do it
+     * again.
+     */
+    if (pinfo->fd->visited)
+        return;
+
+    clear_address(&null_addr);
+
+    /*
+     * Check if the ip address and port combination is not
+     * already registered as a conversation.
+     */
+    p_conv = find_conversation(setup_frame_number, addr, &null_addr, CONVERSATION_UDP, port, other_port,
+                               NO_ADDR_B | (!other_port ? NO_PORT_B : 0));
+
+    /*
+     * If not, create a new conversation.
+     */
+    if (!p_conv || p_conv->setup_frame != setup_frame_number) {
+        /* XXX - If setup_frame_number < pinfo->num, creating this conversation
+         * can mean that the dissection is different on later passes.
+         */
+        p_conv = conversation_new(setup_frame_number, addr, &null_addr, CONVERSATION_UDP,
+                                  (uint32_t)port, (uint32_t)other_port,
+                                  NO_ADDR2 | (!other_port ? NO_PORT2 : 0));
+    }
+    conversation_set_dissector(p_conv, osmux_handle);
 }
 
 void proto_register_osmux(void)

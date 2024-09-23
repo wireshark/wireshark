@@ -37,8 +37,8 @@
 /* #define DEBUG_CONVERSATION */
 #include "conversation_debug.h"
 
+#include "packet-gsm_osmux.h"
 #include "packet-rtp.h"
-
 #include "packet-rtcp.h"
 #include "packet-t38.h"
 #include "packet-msrp.h"
@@ -2347,7 +2347,13 @@ apply_sdp_transport(packet_info *pinfo, transport_info_t *transport_info, int re
                                  media_desc->media.rtp_dyn_payload, srtp_info,
                                  setup_info);
                 DENDENT();
-            } else if (!setup_info || !setup_info->is_osmux) {
+            } else if (setup_info && setup_info->is_osmux) {
+                DPRINT(("calling osmux_add_address, channel=%d, media_port=%d",
+                        i, media_desc->media_port));
+                DINDENT();
+                osmux_add_address(pinfo, &media_desc->conn_addr, media_desc->media_port, 0, establish_frame);
+                DENDENT();
+            } else {
                 DPRINT(("calling rtp_add_address, channel=%d, media_port=%d",
                         i, media_desc->media_port));
                 DINDENT();
