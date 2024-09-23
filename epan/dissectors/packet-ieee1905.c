@@ -11869,7 +11869,7 @@ proto_register_ieee1905(void)
             FT_UINT8, BASE_HEX, NULL, 0xE0, NULL, HFILL }},
 
         { &hf_ieee1905_default_802_1q_settings_reserved,
-          { "Reserved", "ieee1905.service_prioritization_rule.fkags.reserved",
+          { "Reserved", "ieee1905.service_prioritization_rule.flags.reserved",
             FT_UINT8, BASE_HEX, NULL, 0x1F, NULL, HFILL }},
 
         { &hf_ieee1905_ap_radio_advanced_capa_radio_id,
