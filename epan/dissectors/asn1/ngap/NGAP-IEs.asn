@@ -1,4 +1,4 @@
--- 3GPP TS 38.413 V18.2.0 (2024-06)
+-- 3GPP TS 38.413 V18.3.0 (2024-09)
 -- 9.4.5	Information Element Definitions
 -- **************************************************************
 --
@@ -5213,7 +5213,8 @@ PDUSessionResourceModifyIndicationTransfer-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
 	{ ID id-SecurityResult									CRITICALITY ignore	EXTENSION SecurityResult						PRESENCE optional	}|
 	{ ID id-RedundantDLQosFlowPerTNLInformation				CRITICALITY ignore	EXTENSION QosFlowPerTNLInformation			PRESENCE optional	}|
 	{ ID id-AdditionalRedundantDLQosFlowPerTNLInformation	CRITICALITY ignore	EXTENSION QosFlowPerTNLInformationList		PRESENCE optional	}|
-	{ ID id-GlobalRANNodeID 								CRITICALITY ignore	EXTENSION GlobalRANNodeID						PRESENCE optional	},
+	{ ID id-GlobalRANNodeID 								CRITICALITY ignore	EXTENSION GlobalRANNodeID						PRESENCE optional	}|
+	{ ID id-ECNMarkingorCongestionInformationReportingStatus	CRITICALITY ignore	EXTENSION ECNMarkingorCongestionInformationReportingStatus		PRESENCE optional },
 	...
 }
 
@@ -5847,7 +5848,7 @@ QoEReference ::= OCTET STRING (SIZE(6))
 QoERVQoEReportingPaths ::= SEQUENCE {
 	qoEReportingPath					ENUMERATED{srb4, srb5, ...}	OPTIONAL,
 	rVQoEReportingPath					ENUMERATED{srb4, srb5, ...}	OPTIONAL,
-	iE-Extensions						ProtocolExtensionContainer { {QoERVQoEReportingPaths-ExtIEs} },
+	iE-Extensions						ProtocolExtensionContainer { {QoERVQoEReportingPaths-ExtIEs} }		OPTIONAL,
 	...
 }
 
@@ -7915,7 +7916,7 @@ UserPlaneFailureIndication-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
 }
 
 UserPlaneFailureIndicationReport ::= ENUMERATED {
-	tunnel-to-be-released,
+	qos-flows-and-tunnel-to-be-released,
 	qoS-flows-to-be-moved,
 	new-transport-address-allocated,
 	...

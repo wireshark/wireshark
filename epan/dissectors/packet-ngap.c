@@ -14,7 +14,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
- * References: 3GPP TS 38.413 v18.2.0 (2024-06)
+ * References: 3GPP TS 38.413 v18.3.0 (2024-09)
  */
 
 #include "config.h"
@@ -20205,7 +20205,7 @@ dissect_ngap_T_rVQoEReportingPath(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t 
 static const per_sequence_t QoERVQoEReportingPaths_sequence[] = {
   { &hf_ngap_qoEReportingPath, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ngap_T_qoEReportingPath },
   { &hf_ngap_rVQoEReportingPath, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ngap_T_rVQoEReportingPath },
-  { &hf_ngap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ngap_ProtocolExtensionContainer },
+  { &hf_ngap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ngap_ProtocolExtensionContainer },
   { NULL, 0, 0, NULL }
 };
 
@@ -23695,7 +23695,7 @@ dissect_ngap_UserPlaneFailureIndication(tvbuff_t *tvb _U_, int offset _U_, asn1_
 
 
 static const value_string ngap_UserPlaneFailureIndicationReport_vals[] = {
-  {   0, "tunnel-to-be-released" },
+  {   0, "qos-flows-and-tunnel-to-be-released" },
   {   1, "qoS-flows-to-be-moved" },
   {   2, "new-transport-address-allocated" },
   { 0, NULL }
