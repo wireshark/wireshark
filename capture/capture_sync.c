@@ -1046,6 +1046,18 @@ sync_pipe_run_command_actual(char **argv, char **data, char **primary_msg,
     GString *data_buf = NULL;
     ssize_t count;
 
+    if (buffer == NULL) {
+        /* g_malloc is supposed to terminate the program if this fails, but,
+         * at least on a RELEASE build, some versions of gcc don't think that
+         * happens.
+         */
+        *primary_msg = ws_strdup_printf("Couldn't allocate memory for dumpcap output buffer: %s",
+                                        g_strerror(errno));
+        *secondary_msg = NULL;
+        *data = NULL;
+        return -1;
+    }
+
     ret = sync_pipe_open_command(argv, &data_pipe_read_fd, &sync_pipe_read_io, NULL,
                                  &fork_child, NULL, &msg, update_cb);
     if (ret == -1) {
