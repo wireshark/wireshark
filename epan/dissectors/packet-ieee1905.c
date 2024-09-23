@@ -922,6 +922,7 @@ static int ett_ieee1905_unsuccessful_associations;
 static int ett_assoc_control_list;
 static int ett_ieee1905_steering_request_flags;
 static int ett_ieee1905_association_event_flags;
+static int ett_client_capability_ies;
 static int ett_radio_basic_class_list;
 static int ett_ap_radio_basic_cap_class_tree;
 static int ett_radio_basic_non_op_list;
@@ -1821,6 +1822,11 @@ static const value_string ieee1905_error_code_vals[] = {
  * header.
  */
 #define IEEE1905_MIN_LENGTH 11
+
+/*
+ * Size of the fixed parameters in 802.11 management frames
+ */
+#define ASSOC_REQ_BODY_FIXED_SIZE 4
 
 static int
 dissect_media_type(tvbuff_t *tvb, packet_info *pinfo _U_,
@@ -4654,6 +4660,20 @@ dissect_client_info(tvbuff_t *tvb, packet_info *pinfo _U_,
  * Dissect a client capability report TLV
  */
 static int
+dissect_80211_information_elements(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int len)
+{
+    int offset_end = offset + len;
+    while (offset < offset_end) {
+        int tlen = add_tagged_field(pinfo, tree, tvb, offset, 0, NULL, 0, NULL);
+        if (tlen == 0) {
+            break;
+        }
+        offset += tlen;
+    }
+    return offset;
+}
+
+static int
 dissect_client_capability_report(tvbuff_t *tvb, packet_info *pinfo _U_,
         proto_tree *tree, unsigned offset, uint16_t len)
 {
@@ -4669,9 +4689,33 @@ dissect_client_capability_report(tvbuff_t *tvb, packet_info *pinfo _U_,
     offset++;
 
     if (len > 1) { /* Must be the frame body of most recent assoc req */
+        len--;
         proto_tree_add_item(tree, hf_ieee1905_client_capability_frame, tvb,
-                            offset, len - 1, ENC_NA);
-        offset += len - 1;
+                            offset, len, ENC_NA);
+
+        /* Attempt to decode Information Elements from the Assoc Request.
+         *
+         * According to the EM standard, the frame can either be an Assoc or a Reassoc Request.
+         * The data starts at the "Fixed Parameters", which have length 4 for an Assoc Request and
+         * 10 for a Reassoc Request.
+         *
+         * => The problem is that you don't know which of the 2 it is and where the IE start
+         * => Assume the most occuring case and thus useful case (Assoc Request)
+         */
+        if (len >= ASSOC_REQ_BODY_FIXED_SIZE) {
+            proto_tree *ie_tree;
+            proto_item *ie;
+            unsigned ie_offset = offset + ASSOC_REQ_BODY_FIXED_SIZE;
+            unsigned ie_len = len - ASSOC_REQ_BODY_FIXED_SIZE;
+
+            ie_tree = proto_tree_add_subtree_format(tree, tvb, offset, -1,
+                                                    ett_client_capability_ies,
+                                                    &ie, "Information Elements (%d bytes)", ie_len);
+
+            dissect_80211_information_elements(tvb, pinfo, ie_tree, ie_offset, ie_len);
+        }
+
+        offset += len;
     }
 
     return offset;
@@ -13452,6 +13496,7 @@ proto_register_ieee1905(void)
         &ett_assoc_control_list,
         &ett_ieee1905_steering_request_flags,
         &ett_ieee1905_association_event_flags,
+        &ett_client_capability_ies,
         &ett_radio_basic_class_list,
         &ett_ap_radio_basic_cap_class_tree,
         &ett_radio_basic_non_op_list,
