@@ -649,8 +649,14 @@ configuration_init_w32(const char* arg0 _U_)
          */
         progfile_dir = g_path_get_dirname(prog_pathname);
         if (progfile_dir != NULL) {
+            /* We succeeded. */
             trim_progfile_dir();
-            /* we succeeded */
+            /* Now try to figure out if we're running in a build directory. */
+            char *wsutil_lib = g_build_filename(progfile_dir, "wsutil.lib", (char *)NULL);
+            if (file_exists(wsutil_lib)) {
+                running_in_build_directory_flag = true;
+            }
+            g_free(wsutil_lib);
         } else {
             /*
              * OK, no. What do we do now?
@@ -1375,14 +1381,17 @@ init_extcap_dir(void)
         extcap_dir = g_build_filename(install_prefix, EXTCAP_DIR, (char *)NULL);
     }
 #elif defined(_WIN32)
-    else {
         /*
          * On Windows, extcap utilities are stored in "extcap/<program name>"
-         * in the program file directory in both the build and installation
-         * directories.
+         * in the build directory and in "extcap" in the installation
+         * directory.
          */
+    else if (running_in_build_directory_flag) {
         extcap_dir = g_build_filename(get_progfile_dir(), EXTCAP_DIR_NAME,
             CONFIGURATION_NAMESPACE_LOWER, (char *)NULL);
+    } else {
+        extcap_dir = g_build_filename(get_progfile_dir(), EXTCAP_DIR_NAME,
+            (char *)NULL);
     }
 #else
 #ifdef ENABLE_APPLICATION_BUNDLE
