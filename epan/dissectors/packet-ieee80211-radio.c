@@ -1928,7 +1928,7 @@ void proto_register_ieee80211_radio(void)
         "No fec type information was available, assuming bcc fec.", EXPFILL }},
 
     { &ei_wlan_radio_11be_num_users,
-      { "wlan_radio.assumed.bcc_fec", PI_MALFORMED, PI_WARN,
+      { "wlan_radio.11be_num_users", PI_MALFORMED, PI_WARN,
         "Number of users in the 802.11be header exceeds available slots.", EXPFILL }},
   };
 

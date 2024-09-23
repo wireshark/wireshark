@@ -1672,8 +1672,8 @@ proto_register_isis_hello(void)
     };
 
     static ei_register_info ei[] = {
-        { &ei_isis_hello_short_pdu, { "isis.lsp.hello_pdu", PI_MALFORMED, PI_ERROR, "PDU length less than header length", EXPFILL }},
-        { &ei_isis_hello_long_pdu, { "isis.lsp.hello_pdu", PI_MALFORMED, PI_ERROR, "PDU length greater than packet length", EXPFILL }},
+        { &ei_isis_hello_short_pdu, { "isis.lsp.hello_pdu.bad_length", PI_MALFORMED, PI_ERROR, "PDU length less than header length", EXPFILL }},
+        { &ei_isis_hello_long_pdu, { "isis.lsp.hello_pdu.bad_length", PI_MALFORMED, PI_ERROR, "PDU length greater than packet length", EXPFILL }},
         { &ei_isis_hello_bad_checksum, { "isis.hello.bad_checksum", PI_CHECKSUM, PI_ERROR, "Bad checksum", EXPFILL }},
         { &ei_isis_hello_subtlv, { "isis.hello.subtlv.unknown", PI_PROTOCOL, PI_WARN, "Unknown Sub-TLV", EXPFILL }},
         { &ei_isis_hello_authentication, { "isis.hello.authentication.unknown", PI_PROTOCOL, PI_WARN, "Unknown authentication type", EXPFILL }},

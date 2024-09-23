@@ -5731,7 +5731,7 @@ proto_register_capwap_control(void)
         { &ei_capwap_message_element_type, { "capwap.message_element.type.undecoded", PI_UNDECODED, PI_NOTE, "Dissector for CAPWAP message element Type not implemented, Contact Wireshark developers if you want this supported", EXPFILL }},
         { &ei_capwap_fortinet_mac_len, { "capwap.control.fortinet.mac.length.bad", PI_MALFORMED, PI_ERROR, "Bad length: Should be a multiple of 6", EXPFILL }},
         { &ei_capwap_message_element_fortinet_type, { "capwap.message_element.type.fortinet.undecoded", PI_UNDECODED, PI_NOTE, "Dissector for CAPWAP message element Fortinet Type not implemented", EXPFILL }},
-        { &ei_capwap_message_element_cisco_type, { "capwap.message_element.type.fortinet.undecoded", PI_UNDECODED, PI_NOTE, "Dissector for CAPWAP message element Cisco Type not implemented", EXPFILL }}
+        { &ei_capwap_message_element_cisco_type, { "capwap.message_element.type.cisco.undecoded", PI_UNDECODED, PI_NOTE, "Dissector for CAPWAP message element Cisco Type not implemented", EXPFILL }}
     };
 
     expert_module_t* expert_capwap;
