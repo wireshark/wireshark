@@ -32,7 +32,7 @@ WSLUA_FUNCTION wslua_wtap_file_type_subtype_description(lua_State* LS) {
     value for that file type.
     */
 #define WSLUA_ARG_wtap_file_type_subtype_description_FILETYPE 1 /* The type for which the description is to be fetched - a number returned by `wtap_name_to_file_type_subtype()`. */
-    lua_Number filetype = luaL_checknumber(LS,WSLUA_ARG_wtap_file_type_subtype_description_FILETYPE);
+    lua_Integer filetype = luaL_checkinteger(LS,WSLUA_ARG_wtap_file_type_subtype_description_FILETYPE);
     /* wtap_file_type_subtype_description()'s name isn't really descriptive. */
     if (filetype > INT_MAX) {
         /* Too big. */
@@ -53,7 +53,7 @@ WSLUA_FUNCTION wslua_wtap_file_type_subtype_name(lua_State* LS) {
     value for that file type.
     */
 #define WSLUA_ARG_wtap_file_type_subtype_name_FILETYPE 1 /* The type for which the name is to be fetched - a number returned by `wtap_name_to_file_type_subtype()`. */
-    lua_Number filetype = luaL_checknumber(LS,WSLUA_ARG_wtap_file_type_subtype_name_FILETYPE);
+    lua_Integer filetype = luaL_checkinteger(LS,WSLUA_ARG_wtap_file_type_subtype_name_FILETYPE);
     /* wtap_file_type_subtype_description()'s name isn't really descriptive. */
     if (filetype > INT_MAX) {
         /* Too big. */
@@ -75,7 +75,7 @@ WSLUA_FUNCTION wslua_wtap_name_to_file_type_subtype(lua_State* LS) {
     */
 #define WSLUA_ARG_wtap_name_to_file_type_subtype_NAME 1 /* The name of a file type. */
     const char* name = luaL_checkstring(LS,WSLUA_ARG_wtap_name_to_file_type_subtype_NAME);
-    lua_Number filetype = wtap_name_to_file_type_subtype(name);
+    lua_Integer filetype = wtap_name_to_file_type_subtype(name);
     if (filetype == -1)
         lua_pushnil(LS);
     else
@@ -85,21 +85,21 @@ WSLUA_FUNCTION wslua_wtap_name_to_file_type_subtype(lua_State* LS) {
 
 WSLUA_FUNCTION wslua_wtap_pcap_file_type_subtype(lua_State* LS) {
     /* Get the filetype value for pcap files. */
-    lua_Number filetype = wtap_pcap_file_type_subtype();
+    lua_Integer filetype = wtap_pcap_file_type_subtype();
     lua_pushinteger(LS,filetype);
     WSLUA_RETURN(1); /* The filetype value for pcap files. */
 }
 
 WSLUA_FUNCTION wslua_wtap_pcap_nsec_file_type_subtype(lua_State* LS) {
     /* Get the filetype value for nanosecond-resolution pcap files. */
-    lua_Number filetype = wtap_pcap_nsec_file_type_subtype();
+    lua_Integer filetype = wtap_pcap_nsec_file_type_subtype();
     lua_pushinteger(LS,filetype);
     WSLUA_RETURN(1); /* The filetype value for nanosecond-resolution pcap files. */
 }
 
 WSLUA_FUNCTION wslua_wtap_pcapng_file_type_subtype(lua_State* LS) {
     /* Get the filetype value for pcapng files. */
-    lua_Number filetype = wtap_pcapng_file_type_subtype();
+    lua_Integer filetype = wtap_pcapng_file_type_subtype();
     lua_pushinteger(LS,filetype);
     WSLUA_RETURN(1); /* The filetype value for pcapng files. */
 }
