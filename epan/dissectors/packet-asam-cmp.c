@@ -451,11 +451,11 @@ static int ett_asam_cmp_status_stream_ids;
 #define CMP_UART_CL_8                       0x03
 #define CMP_UART_CL_9                       0x04
 
-/* CMP UART/RS-232 Data Message DT Values */
-#define CMP_UART_DATA_MSG_DL_16             0x00
-#define CMP_UART_DATA_MSG_DL_32             0x01
-#define CMP_UART_DATA_MSG_DL_RES1           0x02
-#define CMP_UART_DATA_MSG_DL_RES2           0x03
+/* CMP Analog Data Message DT Values */
+#define CMP_ANALOG_DATA_MSG_DL_16           0x00
+#define CMP_ANALOG_DATA_MSG_DL_32           0x01
+#define CMP_ANALOG_DATA_MSG_DL_RES1         0x02
+#define CMP_ANALOG_DATA_MSG_DL_RES2         0x03
 
 /* CMP Control Message Payload Type Names */
 #define CMP_CTRL_MSG_INVALID                0x00
@@ -552,10 +552,10 @@ static const value_string uart_cl_names[] = {
 };
 
 static const value_string analog_sample_dt[] = {
-    {CMP_UART_DATA_MSG_DL_16,               "A_INT16"},
-    {CMP_UART_DATA_MSG_DL_32,               "A_INT32"},
-    {CMP_UART_DATA_MSG_DL_RES1,             "Reserved"},
-    {CMP_UART_DATA_MSG_DL_RES2,             "Reserved"},
+    {CMP_ANALOG_DATA_MSG_DL_16,             "A_INT16"},
+    {CMP_ANALOG_DATA_MSG_DL_32,             "A_INT32"},
+    {CMP_ANALOG_DATA_MSG_DL_RES1,           "Reserved"},
+    {CMP_ANALOG_DATA_MSG_DL_RES2,           "Reserved"},
     {0, NULL}
 };
 
