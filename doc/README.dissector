@@ -736,11 +736,12 @@ For example:
 The middle pane of the main window, and the topmost pane of a packet
 popup window, are constructed from the "protocol tree" for a packet.
 
-The protocol tree, or proto_tree, is a GNode, the N-way tree structure
-available within GLIB. Of course the protocol dissectors don't care
-what a proto_tree really is; they just pass the proto_tree pointer as an
-argument to the routines which allow them to add items and new branches
-to the tree.
+The protocol tree, or proto_tree, is an N-way tree structure of proto_nodes.
+Of course the protocol dissectors don't care what a proto_tree really is;
+they just pass the proto_tree pointer as an argument to the routines which
+allow them to add items and new branches to the tree. (Some protocol dissectors
+do access struct members directly instead of calling routines; this is
+deprecated.)
 
 When a packet is selected in the packet-list pane, or a packet popup
 window is created, a new logical protocol tree (proto_tree) is created.
@@ -3680,6 +3681,8 @@ not save the old working tree.
 
 2.12 Optimizations
 
+2.12.1 Null Protocol Trees
+
 A protocol dissector may be called in 2 different ways - with, or
 without a non-null "tree" argument.
 
@@ -3688,32 +3691,68 @@ the protocol tree information from your dissector, and therefore is
 passing the dissector a null "tree" argument so that it doesn't
 need to do work necessary to build the protocol tree.
 
-In the interest of speed, if "tree" is NULL, avoid building a
+In the interest of speed, if "tree" is NULL, one can avoid building a
 protocol tree and adding stuff to it, or even looking at any packet
 data needed only if you're building the protocol tree, if possible.
+In particular, string operations and complex calculations that produce
+values which will be added as text to the tree and used nowhere else
+should be omitted when the tree is NULL.
 
 Note, however, that you must fill in column information, create
 conversations, reassemble packets, do calls to "expert" functions,
 build any other persistent state needed for dissection, and call
-subdissectors regardless of whether "tree" is NULL or not.
-
-This might be inconvenient to do without doing most of the
-dissection work; the routines for adding items to the protocol tree
-can be passed a null protocol tree pointer, in which case they'll
-return a null item pointer, and "proto_item_add_subtree()" returns
-a null tree pointer if passed a null item pointer, so, if you're
-careful not to dereference any null tree or item pointers, you can
-accomplish this by doing all the dissection work. This might not
-be as efficient as skipping that work if you're not building a
-protocol tree, but if the code would have a lot of tests whether
-"tree" is null if you skipped that work, you might still be better
-off just doing all that work regardless of whether "tree" is null
-or not.
-
-Note also that there is no guarantee, the first time the dissector is
+subdissectors regardless of whether "tree" is NULL or not. Note
+also that there is no guarantee, the first time the dissector is
 called, whether "tree" will be null or not; your dissector must work
 correctly, building or updating whatever state information is
 necessary, in either case.
+
+Doing this properly generally means structuring the dissection so that
+the functions for adding items to the protocol tree are interleaved with
+the functions that must be called even when the tree is NULL. This
+allows dissection to occur without backtracking to an earlier offset,
+which ensures that in the case of invalid or truncated data that aborts
+dissection as much information is added to the protocol tree as possible.
+
+This can be inconvenient. Fortunately, the routines for adding items to
+the protocol tree can be passed a null protocol tree pointer, in which
+case they'll return a null item pointer, and "proto_item_add_subtree()"
+returns a null tree pointer if passed a null item pointer. Functions
+like "proto_tree_add_item_ret_XXX()" still return the requested value
+if there is a null protocol tree, but skip the rest of the work.
+
+So, if you call the API routines and are careful not to dereference any
+null tree or item pointers directly, you can ignore whether or not "tree"
+is null and do the dissection normally and still get some optimization
+benefits. This almost certainly results in easier to read code and lowers
+the chance of making subtle errors, and is thus recommended for initial
+implementations. It might not be as efficient as skipping that work if
+you're not building a protocol tree, but if the code would have a lot of
+tests whether "tree" is null to skip that work, you might still be better
+off just doing all that work regardless.
+
+2.12.2 Faked Protocol Items
+
+If the "tree" parameter is not NULL, Wireshark needs to use protocol tree
+information from your dissector. However, it may not need to use protocol
+tree information from *all* fields, because the full set of tree details
+will not be displayed or printed (the tree is not "visible"). Wireshark
+may be dissecting the packet in order to see if a particular filter matches,
+or to determine the value of custom columns that depend on field values,
+or to tap values from certain fields (on packets that only match a filter).
+
+In such cases, Wireshark will keep track of which fields are referenced,
+and when the API routines are called avoid actually creating a field_info
+struct and extracting data from the frame, instead returning a "faked"
+protocol item. Passing this faked protocol item to other API routines
+like proto_item_set_len() or proto_item_append_text() will have no effect.
+API routines that return a value, such as proto_tree_add_item_ret_string(),
+will still extract data from the string as necessary to return. Thus the
+typical dissector can ignore whether items are faked or not and simply
+benefit from the optimization. Dissectors that examine the protocol tree
+and protocol items and their field_info structs after creation directly
+may have unexpected results; this is best avoided in favor of using the
+API routines.
 
 /*
  * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
