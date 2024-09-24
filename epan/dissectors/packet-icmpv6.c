@@ -23,6 +23,8 @@
 
 #include "config.h"
 
+#include <math.h>
+
 #include <epan/packet.h>
 #include <epan/in_cksum.h>
 #include <epan/ipproto.h>
@@ -3069,12 +3071,12 @@ dissect_icmpv6_rpl_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
 
                 /* DIOIntervalDoublings */
                 pi = proto_tree_add_item(icmp6opt_tree, hf_icmpv6_rpl_opt_config_doublings, tvb, opt_offset, 1, ENC_BIG_ENDIAN);
-                proto_item_append_text(pi, " (Imax=%"PRIu64"ms)", UINT64_C(1) << (tvb_get_uint8(tvb, opt_offset + 1) + tvb_get_uint8(tvb, opt_offset)));
+                proto_item_append_text(pi, " (Imax=%.0fms)", pow(2, tvb_get_uint8(tvb, opt_offset + 1) + tvb_get_uint8(tvb, opt_offset)));
                 opt_offset += 1;
 
                 /* DIOIntervalMin */
                 pi = proto_tree_add_item(icmp6opt_tree, hf_icmpv6_rpl_opt_config_min_interval, tvb, opt_offset, 1, ENC_BIG_ENDIAN);
-                proto_item_append_text(pi, " (Imin=%"PRIu64"ms)", UINT64_C(1) << tvb_get_uint8(tvb, opt_offset));
+                proto_item_append_text(pi, " (Imin=%.0fms)", pow(2, tvb_get_uint8(tvb, opt_offset)));
                 opt_offset += 1;
 
                 /* DIORedundancyConstant */
