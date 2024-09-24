@@ -9442,7 +9442,9 @@ dissect_gtpv2_ie_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, 
             proto_tree_add_item(ie_tree, hf_gtpv2_instance, tvb, offset, 1, ENC_BIG_ENDIAN);
 
             /* Add Info element on IE types with multiple instances in same group */
-            if (message_type > 0) {
+            if (tree && message_type > 0) {
+                /* XXX - This has 250+ entries and should really be a different
+                 * data structure, perhaps lazily creating a table. */
                 for (info_elem = 0; info_elem < NUM_GTPV2_IE_INFO_ELEM_INSTANCES; info_elem++) {
                     if (gtpv2_information_element_instance_vals[info_elem].message_type == message_type &&
                         gtpv2_information_element_instance_vals[info_elem].parent_ie == parent_ie &&
