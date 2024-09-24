@@ -12,7 +12,7 @@
 
  /*
   * This is a dissector for the Capture Module Protocol standardized by the ASAM.
-  * ASAM CMP is the standardized a successor of TECMP.
+  * ASAM CMP is the standardized successor of TECMP.
   */
 
 #include "config.h"
@@ -21,6 +21,7 @@
 #include <epan/uat.h>
 #include <epan/expert.h>
 #include <epan/tfs.h>
+#include <epan/unit_strings.h>
 
 #include "packet-socketcan.h"
 #include "packet-flexray.h"
@@ -1508,7 +1509,7 @@ dissect_asam_cmp_data_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_tr
                     ti = proto_tree_add_double(asam_cmp_data_msg_payload_tree, hf_cmp_analog_sample, tvb, offset, 2, ((double)data_sample * sample_scalar + sample_offset));
 
                     if (unit_symbol != NULL) {
-                        proto_item_append_text(ti, " %s", unit_symbol);
+                        proto_item_append_text(ti, "%s", unit_symbol);
                     }
 
                     data_left -= 2;
@@ -1521,7 +1522,7 @@ dissect_asam_cmp_data_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_tr
                     ti = proto_tree_add_double(asam_cmp_data_msg_payload_tree, hf_cmp_analog_sample, tvb, offset, 4, ((double)data_sample * sample_scalar + sample_offset));
 
                     if (unit_symbol != NULL) {
-                        proto_item_append_text(ti, " %s", unit_symbol);
+                        proto_item_append_text(ti, "%s", unit_symbol);
                     }
 
                     data_left -= 4;
@@ -2416,7 +2417,7 @@ proto_register_asam_cmp(void) {
         { &hf_cmp_analog_flags,                     { "Flags", "asam-cmp.msg.analog.flags", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
         { &hf_cmp_analog_reserved,                  { "Reserved", "asam-cmp.msg.analog.reserved",  FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL } },
         { &hf_cmp_analog_unit,                      { "Unit", "asam-cmp.msg.analog.unit", FT_UINT8, BASE_HEX, VALS(analog_units), 0x0, NULL, HFILL } },
-        { &hf_cmp_analog_sample_interval,           { "Sample Interval", "asam-cmp.msg.analog.sample_interval", FT_FLOAT, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_cmp_analog_sample_interval,           { "Sample Interval", "asam-cmp.msg.analog.sample_interval", FT_FLOAT, BASE_NONE|BASE_UNIT_STRING, UNS(&units_seconds), 0x0, NULL, HFILL } },
         { &hf_cmp_analog_sample_offset,             { "Sample Offset", "asam-cmp.msg.analog.sample_offset", FT_FLOAT, BASE_NONE, NULL, 0x0, NULL, HFILL } },
         { &hf_cmp_analog_sample_scalar,             { "Sample Scalar", "asam-cmp.msg.analog.sample_scalar", FT_FLOAT, BASE_NONE, NULL, 0x0, NULL, HFILL } },
         { &hf_cmp_analog_sample,                    { "Sample", "asam-cmp.msg.analog.sample", FT_DOUBLE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
