@@ -830,8 +830,10 @@ static const value_string mf_dfs[] = {
 static const value_string mf_efs[] = {
 #endif
 	{ 0x2f00, "EF.DIR" },
-	{ 0x2f05, "EF.ELP" },
-	{ 0x2f06, "EF.PL" },
+//	{ 0x2f05, "EF.ELP" },
+	{ 0x2f05, "EF.PL" },
+	{ 0x2f06, "EF.ARR" },
+	{ 0x2f08, "EF.UMPC" },
 	{ 0x2fe2, "EF.ICCID" },
 #if 0
 	{ 0, NULL }
