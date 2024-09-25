@@ -423,7 +423,7 @@ static uint64_t get_mask(lua_State* L, int idx, uint64_t default_value) {
 
     switch(lua_type(L, idx)) {
         case LUA_TNUMBER:
-            mask = (uint64_t)wslua_optuint32(L, idx, (lua_Number)default_value);
+            mask = wslua_optuint64(L, idx, (lua_Number)default_value);
             break;
         case LUA_TSTRING:
         case LUA_TUSERDATA:
