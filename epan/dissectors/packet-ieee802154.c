@@ -2972,7 +2972,10 @@ ieee802154_dissect_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, u
     }
 
     /* Existence of the Auxiliary Security Header is controlled by the Security Enabled Field */
-    if ((packet->security_enable) && (packet->version != IEEE802154_VERSION_2003) && !(options & IEEE802154_DISSECT_HEADER_OPTION_NO_AUX_SEC_HDR)) {
+    if (packet->security_enable &&
+        ((packet->frame_type == IEEE802154_FCF_MULTIPURPOSE) || (packet->version != IEEE802154_VERSION_2003)) &&
+        !(options & IEEE802154_DISSECT_HEADER_OPTION_NO_AUX_SEC_HDR))
+    {
         dissect_ieee802154_aux_sec_header_and_key(tvb, pinfo, ieee802154_tree, packet, &offset);
     }
 
@@ -2981,7 +2984,7 @@ ieee802154_dissect_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, u
      *
      */
     /* All of the beacon fields, except the beacon payload are considered nonpayload. */
-    if (((packet->version == IEEE802154_VERSION_2003) || (packet->version == IEEE802154_VERSION_2006)) && (packet->frame_type != IEEE802154_FCF_MULTIPURPOSE)) {
+    if ((packet->frame_type != IEEE802154_FCF_MULTIPURPOSE) && ((packet->version == IEEE802154_VERSION_2003) || (packet->version == IEEE802154_VERSION_2006))) {
         if (packet->frame_type == IEEE802154_FCF_BEACON) { /* Regular Beacon. Some are not present in frame version (Enhanced) Beacons */
             dissect_ieee802154_superframe(tvb, pinfo, ieee802154_tree, &offset); /* superframe spec */
             dissect_ieee802154_gtsinfo(tvb, pinfo, ieee802154_tree, &offset);    /* GTS information fields */
@@ -3011,7 +3014,8 @@ ieee802154_dissect_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, u
     }
 
     /* IEEE 802.15.4-2003 may have security information pre-pended to payload */
-    if (packet->security_enable && (packet->version == IEEE802154_VERSION_2003)) {
+    if (packet->security_enable && (packet->frame_type != IEEE802154_FCF_MULTIPURPOSE) && (packet->version == IEEE802154_VERSION_2003))
+    {
         /* Store security suite preference in the 2006 security level identifier to simplify 2003 integration! */
         packet->security_level = (ieee802154_security_level)ieee802154_sec_suite;
 
@@ -5382,7 +5386,7 @@ dissect_ieee802154_decrypt(tvbuff_t *tvb,
     }
 
     /* Create the CCM* initial block for decryption (Adata=0, M=0, counter=0). */
-    if (packet->version == IEEE802154_VERSION_2003)
+    if ((packet->frame_type != IEEE802154_FCF_MULTIPURPOSE) && (packet->version == IEEE802154_VERSION_2003))
         ccm_init_block(tmp, false, 0, srcAddr, packet->frame_counter, packet->key_sequence_counter, 0, NULL);
     else
         ccm_init_block(tmp, false, 0, srcAddr, packet->frame_counter, packet->security_level, 0, generic_nonce_ptr);
@@ -5445,12 +5449,12 @@ dissect_ieee802154_decrypt(tvbuff_t *tvb,
             l_a += l_m;
             l_m = 0;
         }
-        else if ((packet->version == IEEE802154_VERSION_2003) && !ieee802154_extend_auth)
+        else if ((packet->frame_type != IEEE802154_FCF_MULTIPURPOSE) && (packet->version == IEEE802154_VERSION_2003) && !ieee802154_extend_auth)
             l_a -= 5;   /* Exclude Frame Counter (4 bytes) and Key Sequence Counter (1 byte) from authentication data */
 
 
         /* Create the CCM* initial block for authentication (Adata!=0, M!=0, counter=l(m)). */
-        if (packet->version == IEEE802154_VERSION_2003)
+        if ((packet->frame_type != IEEE802154_FCF_MULTIPURPOSE) && (packet->version == IEEE802154_VERSION_2003))
             ccm_init_block(tmp, true, M, srcAddr, packet->frame_counter, packet->key_sequence_counter, l_m, NULL);
         else
             ccm_init_block(tmp, true, M, srcAddr, packet->frame_counter, packet->security_level, l_m, generic_nonce_ptr);
