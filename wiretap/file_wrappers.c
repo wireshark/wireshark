@@ -1163,8 +1163,8 @@ lz4_fill_out_buffer(FILE_T state)
             return false;
         }
 
-        state->in.next  += inBufSize;
-        state->in.avail -= inBufSize;
+        state->in.next  += (unsigned)inBufSize;
+        state->in.avail -= (unsigned)inBufSize;
 
         if (compressedSize == 0) {
             /* End of Frame */
@@ -1234,12 +1234,12 @@ lz4_fill_out_buffer(FILE_T state)
             state->err_info = LZ4F_getErrorName(ret);
             return false;
         }
-        state->in.next  += inBufSize;
-        state->in.avail -= inBufSize;
+        state->in.next  += (unsigned)inBufSize;
+        state->in.avail -= (unsigned)inBufSize;
         compressedSize -= inBufSize;
 
-        state->out.next += outBufSize;
-        state->out.avail += outBufSize;
+        state->out.next += (unsigned)outBufSize;
+        state->out.avail += (unsigned)outBufSize;
     } while (compressedSize != 0);
 
     state->out.next  = state->out.buf;
@@ -1407,8 +1407,8 @@ check_for_lz4_compression(FILE_T state)
          * block size is bigger than state->size. Also we could fail
          * on unknown values?
          */
-        state->in.avail -= inBufSize;
-        state->in.next += inBufSize;
+        state->in.avail -= (unsigned)inBufSize;
+        state->in.next += (unsigned)inBufSize;
 
         fast_seek_header(state, state->raw_pos - state->in.avail, state->pos, LZ4);
         state->compression = LZ4;
@@ -2995,7 +2995,7 @@ static bool
 lz4_write_out(LZ4WFILE_T state, size_t len)
 {
     if (len > 0) {
-        ssize_t got = ws_write(state->fd, state->out, len);
+        ssize_t got = ws_write(state->fd, state->out, (unsigned)len);
         if (got < 0) {
             state->err = errno;
             return false;
