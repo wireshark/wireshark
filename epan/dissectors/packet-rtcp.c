@@ -1296,8 +1296,8 @@ dissect_rtcp_rtpfb_ccfb_fci( tvbuff_t *tvb, int offset, packet_info *pinfo, prot
       const uint16_t metric_block = tvb_get_uint16( tvb, offset, ENC_BIG_ENDIAN);
       const uint16_t received = RTCP_CCFB_RECEIVED(metric_block);
       const uint16_t ecn = RTCP_CCFB_ECN(metric_block);
-      float ato = RTCP_CCFB_ATO(metric_block);
-      float ato_ms = ato / 1024 * 1000;
+      const uint16_t ato = RTCP_CCFB_ATO(metric_block);
+      float ato_ms = (float)ato / 1024 * 1000;
 
       metric_block_tree =
         proto_tree_add_subtree_format( metric_blocks_tree, tvb, 0, 0, ett_rtcp_rtpfb_ccfb_metric_block, NULL,
