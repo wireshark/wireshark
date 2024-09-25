@@ -576,8 +576,11 @@ if( CMAKE_C_COMPILER_ID MATCHES "MSVC")
 		add_definitions("/D_BIND_TO_CURRENT_CRT_VERSION=1")
 	endif()
 
+	# TODO: Re-enable /W3. It was disabled for a year and some warnings crept
+	# in that will fail with /Wx.
 	set(LOCAL_CFLAGS
 		/MP
+		/W2
 	)
 
 	set(WS_LINK_FLAGS "/LARGEADDRESSAWARE /MANIFEST:NO /INCREMENTAL:NO /RELEASE")
