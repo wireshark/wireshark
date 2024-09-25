@@ -3443,14 +3443,14 @@ blf_read_ethernet_status(blf_params_t* params, int* err, char** err_info, int64_
     tmpbuf[15] = (ethernet_status_header.bitrate & 0x000000ff);
 
     if (object_version >= 1) {
-        tmpbuf[16] = (linkUpDuration & UINT64_C(0xff00000000000000)) >> 56;
-        tmpbuf[17] = (linkUpDuration & UINT64_C(0x00ff000000000000)) >> 48;
-        tmpbuf[18] = (linkUpDuration & UINT64_C(0x0000ff0000000000)) >> 40;
-        tmpbuf[19] = (linkUpDuration & UINT64_C(0x000000ff00000000)) >> 32;
-        tmpbuf[20] = (linkUpDuration & UINT64_C(0x00000000ff000000)) >> 24;
-        tmpbuf[21] = (linkUpDuration & UINT64_C(0x0000000000ff0000)) >> 16;
-        tmpbuf[22] = (linkUpDuration & UINT64_C(0x000000000000ff00)) >> 8;
-        tmpbuf[23] = (linkUpDuration & UINT64_C(0x00000000000000ff));
+        tmpbuf[16] = (uint8_t)((linkUpDuration & UINT64_C(0xff00000000000000)) >> 56);
+        tmpbuf[17] = (uint8_t)((linkUpDuration & UINT64_C(0x00ff000000000000)) >> 48);
+        tmpbuf[18] = (uint8_t)((linkUpDuration & UINT64_C(0x0000ff0000000000)) >> 40);
+        tmpbuf[19] = (uint8_t)((linkUpDuration & UINT64_C(0x000000ff00000000)) >> 32);
+        tmpbuf[20] = (uint8_t)((linkUpDuration & UINT64_C(0x00000000ff000000)) >> 24);
+        tmpbuf[21] = (uint8_t)((linkUpDuration & UINT64_C(0x0000000000ff0000)) >> 16);
+        tmpbuf[22] = (uint8_t)((linkUpDuration & UINT64_C(0x000000000000ff00)) >> 8);
+        tmpbuf[23] = (uint8_t)((linkUpDuration & UINT64_C(0x00000000000000ff)));
     }
 
     wtap_buffer_append_epdu_string(params->buf, EXP_PDU_TAG_DISSECTOR_NAME, "blf-ethernetstatus-obj");
