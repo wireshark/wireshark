@@ -192,16 +192,16 @@ static const value_string nbd_info_vals[] = {
 #define NBD_REP_SERVER	2
 #define NBD_REP_INFO	3
 #define NBD_REP_META_CONTEXT	4
-#define NBD_REP_ERR_UNSUP	UINT32_C((1 << 31) + 1)
-#define NBD_REP_ERR_POLICY	UINT32_C((1 << 31) + 2)
-#define NBD_REP_ERR_INVALID	UINT32_C((1 << 31) + 3)
-#define NBD_REP_ERR_PLATFORM	UINT32_C((1 << 31) + 4)
-#define NBD_REP_ERR_TLS_REQD	UINT32_C((1 << 31) + 5)
-#define NBD_REP_ERR_UNKNOWN	UINT32_C((1 << 31) + 6)
-#define NBD_REP_ERR_SHUTDOWN	UINT32_C((1 << 31) + 7)
-#define NBD_REP_ERR_BLOCK_SIZE_REQD	UINT32_C((1 << 31) + 8)
-#define NBD_REP_ERR_TOO_BIG	UINT32_C((1 << 31) + 9)
-#define NBD_REP_ERR_EXT_HEADER_REQD	UINT32_C((1 << 31) + 10)
+#define NBD_REP_ERR_UNSUP	UINT32_C((1U << 31) + 1)
+#define NBD_REP_ERR_POLICY	UINT32_C((1U << 31) + 2)
+#define NBD_REP_ERR_INVALID	UINT32_C((1U << 31) + 3)
+#define NBD_REP_ERR_PLATFORM	UINT32_C((1U << 31) + 4)
+#define NBD_REP_ERR_TLS_REQD	UINT32_C((1U << 31) + 5)
+#define NBD_REP_ERR_UNKNOWN	UINT32_C((1U << 31) + 6)
+#define NBD_REP_ERR_SHUTDOWN	UINT32_C((1U << 31) + 7)
+#define NBD_REP_ERR_BLOCK_SIZE_REQD	UINT32_C((1U << 31) + 8)
+#define NBD_REP_ERR_TOO_BIG	UINT32_C((1U << 31) + 9)
+#define NBD_REP_ERR_EXT_HEADER_REQD	UINT32_C((1U << 31) + 10)
 
 static const value_string nbd_hnd_reply_vals[] = {
 	{NBD_REP_ACK,	"ACK"},
