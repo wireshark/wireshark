@@ -21,7 +21,7 @@
 extern bool parse_as_guid(const char *guid_text, GUID *guid);
 
 /* Get the friendly name for the given GUID */
-extern char *get_interface_friendly_name_from_device_guid(GUID *guid);
+extern char *get_interface_friendly_name_from_device_guid(__in GUID *guid);
 
 /*
  * Given an interface name, try to extract the GUID from it and parse it.
