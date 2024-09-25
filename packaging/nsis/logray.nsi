@@ -884,19 +884,11 @@ Section "${PROGRAM_NAME}" SecLograyQt
 ; by default, Logray.exe is installed
 SetOutPath $INSTDIR
 File "${QT_DIR}\${PROGRAM_NAME_PATH}"
+File /r "${QT_DIR}\translations"
 ; Write an entry for ShellExecute
 WriteRegStr HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\App Paths\${PROGRAM_NAME_PATH}" "" '$INSTDIR\${PROGRAM_NAME_PATH}'
 WriteRegStr HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\App Paths\${PROGRAM_NAME_PATH}" "Path" '$INSTDIR'
 !include logray-qt-manifest.nsh
-
-${!defineifexist} TRANSLATIONS_FOLDER "${QT_DIR}\translations"
-SetOutPath $INSTDIR
-!ifdef TRANSLATIONS_FOLDER
-  ; Starting from Qt 5.5, *.qm files are put in a translations subfolder
-  File /r "${QT_DIR}\translations"
-!else
-  File "${QT_DIR}\*.qm"
-!endif
 
 ; Is the Start Menu check box checked?
 ${If} $START_MENU_STATE == ${BST_CHECKED}
