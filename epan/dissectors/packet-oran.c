@@ -3805,7 +3805,7 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
                     }
                     else {
                         /* Time should be rounded up according to SCS */
-                        float total = num_slots + num_slots_ext;
+                        float total = (float)(num_slots + num_slots_ext);
                         /* From table 7.5.2.13-3 */
                         float slot_length_by_scs[16] = { 1000, 500, 250, 125, 62.5, 31.25,
                                                          0, 0, 0, 0, 0, 0,  /* reserved */
