@@ -986,9 +986,9 @@ max(tcp.srcport, tcp.dstport) <= 1024
 
 ==== Field References
 
-An expression of the form ${some.proto.field} is called a field reference.
+An expression of the form ${proto.field} is called a field reference.
 Its value is read from the corresponding field in the currently selected
-field in the GUI. This is a powerful way to build dynamic filters, such
+frame in the GUI. This is a powerful way to build dynamic filters, such
 as frames since the last five minutes to the selected frame:
 
 ----
