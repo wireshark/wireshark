@@ -55,8 +55,9 @@ macro(ADD_LEMON_FILES _source _generated)
 		list(APPEND ${_source} ${_in})
 		list(APPEND ${_generated} ${_out}.c)
 
+		# Our Lemon generated code has unused parameters. Turn that warning off.
 		if(CMAKE_C_COMPILER_ID MATCHES "MSVC")
-			set_source_files_properties(${_out}.c PROPERTIES COMPILE_OPTIONS "/w")
+			set_source_files_properties(${_out}.c PROPERTIES COMPILE_OPTIONS "/wd4100")
 		elseif(CMAKE_C_COMPILER_ID MATCHES "GNU|Clang")
 			set_source_files_properties(${_out}.c PROPERTIES COMPILE_OPTIONS "-Wno-unused-parameter")
 		else()
