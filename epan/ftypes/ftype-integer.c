@@ -105,7 +105,7 @@ char_to_repr(wmem_allocator_t *scope, const fvalue_t *fv, ftrepr_t rtype _U_, in
 		default:
 			if (field_display == BASE_HEX) {
 				*buf++ = 'x';
-				buf = uint8_to_hex(buf, fv->value.uinteger64);
+				buf = uint8_to_hex(buf, (uint8_t)fv->value.uinteger64);
 			}
 			else {
 				*buf++ = ((fv->value.uinteger64 >> 6) & 0x7) + '0';
@@ -520,16 +520,16 @@ uinteger64_to_repr(wmem_allocator_t *scope, const fvalue_t *fv, ftrepr_t rtype _
 		switch (fv->ftype->ftype) {
 
 		case FT_UINT8:
-			buf = uint8_to_hex(buf, fv->value.uinteger64);
+			buf = uint8_to_hex(buf, (uint8_t)fv->value.uinteger64);
 			break;
 
 		case FT_UINT16:
-			buf = word_to_hex(buf, fv->value.uinteger64);
+			buf = word_to_hex(buf, (uint16_t)fv->value.uinteger64);
 			break;
 
 		case FT_UINT24:
-			buf = uint8_to_hex(buf, (fv->value.uinteger64 & 0x00ff0000) >> 16);
-			buf = word_to_hex(buf, (fv->value.uinteger64 & 0x0000ffff));
+			buf = uint8_to_hex(buf, (uint8_t)((fv->value.uinteger64 & 0x00ff0000) >> 16));
+			buf = word_to_hex(buf, (uint16_t)(fv->value.uinteger64 & 0x0000ffff));
 			break;
 
 		case FT_UINT32:
