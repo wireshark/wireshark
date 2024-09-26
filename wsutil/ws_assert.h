@@ -17,6 +17,34 @@
 #include <wsutil/wslog.h>
 #include <wsutil/wmem/wmem.h>
 
+/*
+ * XXX - WS_ASSERT_ENABLED is tested in various if statements
+ * below, so that we don't test various assertions unless
+ * assertions are enabled. Compilers will often partially
+ * evaluate (CONSTANT && (expression)) at compile time, so
+ * that if CONSTANT is 0 the rest of the test isn't evaluated
+ * and assumed to result in a false result, with the code in
+ * the if branch being removed, and if CONSTANT is 1, the
+ * code is treated as an if that tests the expression.
+ *
+ * This could mean that, if "defined but not used" tests are
+ * being done, any variable tested in the expression may be warked
+ * as "defined but not used" if WS_ASSERT_ENABLED is 0, causing
+ * a pile of warnings if the variable isn't marked as unused
+ * (especially true of parametre variables).
+ *
+ * However, some compilers - Clang, in my tests, and probably GCC,
+ * due to tests in builds not failing - treate "if (0 && (expression))"
+ * specially, pretending hat all variables in the expression are used,
+ * even if they aren't used in the generated code. (At least in
+ * Apple clang version 15.0.0 (clang-1500.1.0.2.5), it must be
+ * exactly 0 - (0) doesn't have the same effect.)
+ *
+ * That's all very well, but, unfortunately Microsoft Visual Studio's
+ * C compiler doesn't do that, so the variables have to be marked as
+ * unused, which may cause warnings "used, but marked as unused"
+ * warnings if the code is compiled with assertions enabled.
+ */
 #if defined(ENABLE_ASSERT)
 #define WS_ASSERT_ENABLED       1
 #elif defined(NDEBUG)
