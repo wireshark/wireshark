@@ -21,6 +21,7 @@
 #include <epan/prefs.h>
 #include <epan/expert.h>
 #include <epan/strutil.h>
+#include <wsutil/array.h>
 #include "proto_data.h"
 
 #if defined(HAVE_ZLIB) && !defined(HAVE_ZLIBNG)
@@ -342,7 +343,7 @@ decompress(packet_info* pinfo, proto_tree* tree, tvbuff_t* tvb, int offset, int 
 	decompress_stream->avail_in = length;
 	decompress_stream->next_out = decompress_buffer;
 	decompress_stream->avail_out = buffer_size;
-	uLong start = decompress_stream->total_out;
+	size_t start = decompress_stream->total_out;
 	int err = ZLIB_PREFIX(inflate)(decompress_stream, Z_NO_FLUSH);
 	if(err != Z_OK) {
 		proto_item* field = proto_tree_add_string(tree, hf_blip_message_body, tvb, offset, tvb_reported_length_remaining(tvb, offset), "<Error decompressing data>");
