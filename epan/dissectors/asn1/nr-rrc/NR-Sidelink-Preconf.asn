@@ -1,4 +1,4 @@
--- 3GPP TS 38.331 V18.2.0 (2024-06)
+-- 3GPP TS 38.331 V18.3.0 (2024-09)
 
 NR-Sidelink-Preconf DEFINITIONS AUTOMATIC TAGS ::=
 
@@ -61,6 +61,9 @@ SidelinkPreconfigNR-r16 ::=                 SEQUENCE {
     sl-SyncTxMultiFreq-r18                      ENUMERATED {true}                                                     OPTIONAL,
     sl-PreconfigDiscConfig-v1800                SL-PreconfigDiscConfig-v1800                                          OPTIONAL,
     sl-PosPreconfigFreqInfoList-r18             SEQUENCE (SIZE (1..maxNrofFreqSL-r16)) OF SL-FreqConfigCommon-r16     OPTIONAL
+    ]],
+    [[
+    t400-U2U-r18                                ENUMERATED {ms200, ms400, ms600, ms800, ms1200, ms2000, ms3000, ms4000} OPTIONAL
     ]]
 }
 

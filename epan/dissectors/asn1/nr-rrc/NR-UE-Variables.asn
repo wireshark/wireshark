@@ -1,4 +1,4 @@
--- 3GPP TS 38.331 V18.2.0 (2024-06)
+-- 3GPP TS 38.331 V18.3.0 (2024-09)
 
 NR-UE-Variables DEFINITIONS AUTOMATIC TAGS ::=
 
@@ -87,7 +87,7 @@ FROM NR-RRC-Definitions;
 -- NR-UE-VARIABLES-STOP
 -- TAG-VARAPPLAYERIDLECONFIG-START
 
-VarAppLayerIdleConfig-r18-IEs ::= SEQUENCE {
+VarAppLayerIdleConfig-r18 ::=     SEQUENCE {
     appLayerIdleConfigList-r18        SEQUENCE (SIZE (1..maxNrofAppLayerMeas-r17)) OF VarAppLayerIdle-r18
 }
 
@@ -101,7 +101,7 @@ VarAppLayerIdle-r18 ::=           SEQUENCE {
 -- TAG-VARAPPLAYERIDLECONFIG-STOP
 -- TAG-VARAPPLAYERPLMN-LISTCONFIG-START
 
-VarAppLayerPLMN-ListConfig-r18-IEs ::= SEQUENCE {
+VarAppLayerPLMN-ListConfig-r18 ::=     SEQUENCE {
     plmnConfigList-r18                     SEQUENCE (SIZE (1..maxNrofAppLayerMeas-r17)) OF VarAppLayerPLMN-List-r18
 }
 
@@ -144,7 +144,7 @@ VarConnEstFailReportList-r17 ::= SEQUENCE {
 -- TAG-VARCONNESTFAILREPORTLIST-STOP
 -- TAG-VARLOGMEASCONFIG-START
 
-VarLogMeasConfig-r16-IEs ::= SEQUENCE {
+VarLogMeasConfig-r16 ::=     SEQUENCE {
     areaConfiguration-r16        AreaConfiguration-r16        OPTIONAL,
     bt-NameList-r16              BT-NameList-r16              OPTIONAL,
     wlan-NameList-r16            WLAN-NameList-r16            OPTIONAL,
@@ -177,14 +177,14 @@ VarLogMeasReport-r16 ::=     SEQUENCE {
 -- TAG-VARLOGMEASREPORT-STOP
 -- TAG-VARLTM-SERVINGCELLNORESETID-START
 
-VarLTM-ServingCellNoResetID-r18-IEs ::= SEQUENCE {
+VarLTM-ServingCellNoResetID-r18 ::=     SEQUENCE {
     ltm-ServingCellNoResetID-r18            INTEGER (1..maxNrofLTM-Configs-plus1-r18)                         OPTIONAL
 }
 
 -- TAG-VARLTM-SERVINGCELLNORESETID-STOP
 -- TAG-VARLTM-SERVINGCELLUE-MEASUREDTA-ID-START
 
-VarLTM-ServingCellUeMeasuredTA-ID-r18-IEs ::= SEQUENCE {
+VarLTM-ServingCellUE-MeasuredTA-ID-r18 ::=    SEQUENCE {
     ltm-ServingCellUE-MeasuredTA-ID-r18           INTEGER (1..maxNrofLTM-Configs-plus1-r18)                    OPTIONAL
 }
 
@@ -303,7 +303,7 @@ VarMobilityHistoryReport-r16 ::= VisitedCellInfoList-r16
 
 VarMobilityHistoryReport-r17 ::= SEQUENCE {
     visitedCellInfoList-r16          VisitedCellInfoList-r16,
-    visitedPSCellInfoListReport-r17  VisitedPSCellInfoList-r17         OPTIONAL
+    visitedPSCellInfoList-r17        VisitedPSCellInfoList-r17         OPTIONAL
 }
 
 -- TAG-VARMOBILITYHISTORYREPORT-STOP
@@ -363,7 +363,7 @@ VarShortMAC-Input   ::=                 SEQUENCE {
 -- TAG-VARSHORTMAC-INPUT-STOP
 -- TAG-VARSUCCESSHO-Report-START
 
-VarSuccessHO-Report-r17-IEs ::= SEQUENCE {
+VarSuccessHO-Report-r17 ::=     SEQUENCE {
     successHO-Report-r17            SuccessHO-Report-r17,
     identityList-r18                CHOICE {
         plmn-IdentityList-r18           PLMN-IdentityList2-r16,
@@ -373,7 +373,7 @@ VarSuccessHO-Report-r17-IEs ::= SEQUENCE {
 -- TAG-VARSUCCESSHO-Report-STOP
 -- TAG-VARSUCCESSPSCELL-Report-START
 
-VarSuccessPSCell-Report-r18-IEs ::= SEQUENCE {
+VarSuccessPSCell-Report-r18 ::=     SEQUENCE {
     successPSCell-Report-r18        SuccessPSCell-Report-r18,
     identityList-r18                CHOICE {
         plmn-IdentityList-r18           PLMN-IdentityList2-r16,
