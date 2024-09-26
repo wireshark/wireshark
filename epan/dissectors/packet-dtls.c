@@ -1398,9 +1398,9 @@ static bool dtls13_create_aad(tvbuff_t *tvb, SslDecryptSession *ssl, bool is_fro
   }
 
   if (seq_length == 2) {
-    phton16(&dec->dtls13_aad.data[1 + cid_length], sequence_number);
+    phton16(&dec->dtls13_aad.data[1 + cid_length], (uint16_t)sequence_number);
   } else {
-    dec->dtls13_aad.data[1 + cid_length] = sequence_number;
+    dec->dtls13_aad.data[1 + cid_length] = (uint8_t)sequence_number;
   }
   if (hdr_flags & DTLS13_L_BIT_MASK) {
       phton16(&dec->dtls13_aad.data[1 + cid_length + seq_length], dtls_record_length);
@@ -1741,9 +1741,10 @@ dissect_dtls13_record(tvbuff_t *tvb, packet_info *pinfo _U_,
     /* on first pass add seq suffix decrypted info */
     if (ssl) {
       if (is_from_server && ssl->server) {
-        record->dtls13_seq_suffix = ssl->server->seq;
+        // XXX - Should the cast depend on seq_length ?
+        record->dtls13_seq_suffix = (uint16_t)ssl->server->seq;
       } else if (ssl->client) {
-        record->dtls13_seq_suffix = ssl->client->seq;
+        record->dtls13_seq_suffix = (uint16_t)ssl->client->seq;
       }
     }
 
