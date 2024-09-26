@@ -670,12 +670,14 @@ void PacketList::contextMenuEvent(QContextMenuEvent *event)
 
     // Code for custom context menus from Lua's register_packet_menu()
     MainWindow * mainWindow = qobject_cast<MainWindow *>(mainApp->mainWindow());
-    // N.B., Only want to call for a single frame selection.
-    // Testing finfo_array as a proxy, because mainWindow->hasUniqueSelection() doesn't detect multiple selections...
-    if (cap_file_ && cap_file_->edt && cap_file_->edt->tree && mainWindow && finfo_array) {
-        bool insertedPacketMenu = mainWindow->addPacketMenus(ctx_menu, finfo_array);
-        if (insertedPacketMenu) {
-            ctx_menu->addSeparator();
+    // N.B., will only call for a single frame selection,
+    if (cap_file_ && cap_file_->edt && cap_file_->edt->tree) {
+        finfo_array = proto_all_finfos(cap_file_->edt->tree);
+        if (mainWindow) {
+            bool insertedPacketMenu = mainWindow->addPacketMenus(ctx_menu, finfo_array);
+            if (insertedPacketMenu) {
+                ctx_menu->addSeparator();
+            }
         }
     }
 
@@ -760,13 +762,13 @@ void PacketList::contextMenuEvent(QContextMenuEvent *event)
     frameData->setParent(submenu);
 
     if (is_packet_configuration_namespace()) {
+        /* i.e., Wireshark only */
         ctx_menu->addSeparator();
         QMenu *proto_prefs_menus = new QMenu(ProtocolPreferencesMenu::tr("Protocol Preferences"), ctx_menu);
 
         if (cap_file_ && cap_file_->edt && cap_file_->edt->tree) {
-            finfo_array = proto_all_finfos(cap_file_->edt->tree);
             QList<QString> added_proto_prefs;
-
+            // N.B. finfo_array will be assigned above
             for (unsigned i = 0; i < finfo_array->len; i++) {
                 field_info *fi = (field_info *)g_ptr_array_index (finfo_array, i);
                 const header_field_info *hfinfo =  fi->hfinfo;
