@@ -1409,15 +1409,11 @@ static uint32_t compute_crc_s5_short_data(uint32_t pid_seed, uint16_t rollover_v
     return timestamp_crc;
 }
 
-static uint32_t compute_crc_s5_long_data(uint32_t pid_seed, uint16_t rollover_value, uint8_t mode_byte_mask, uint16_t timestamp_value, uint8_t *comp_buf, int len)
+static uint32_t compute_crc_s5_long_data(uint32_t pid_seed, uint16_t rollover_value, uint8_t mode_byte_mask, uint16_t timestamp_value, const uint8_t *comp_buf, int len)
 {
-    int i;
     uint32_t rollover_crc = crc32_0x5D6DCB_seed((uint8_t*)&rollover_value, 2, pid_seed);
     uint32_t mode_byte_crc = crc32_0x5D6DCB_seed(&mode_byte_mask, 1, rollover_crc);
     uint32_t comp_data_crc, timestamp_crc;
-
-    for (i = 0; i < len; i++)
-        comp_buf[i] ^= 0xFF;
 
     comp_data_crc = crc32_0x5D6DCB_seed(comp_buf, len, mode_byte_crc);
     timestamp_crc = crc32_0x5D6DCB_seed((uint8_t*)&timestamp_value, 2, comp_data_crc);
@@ -1840,8 +1836,7 @@ static void dissect_extended_format_3_to_250_byte_data(packet_info* pinfo, proto
          packet_data->rollover_value,
          mode_byte & MODE_BYTE_CRC_S5_EXTENDED_MASK,
          timestamp,
-         /* I/O data is duplicated because it will be complemented inline */
-         (uint8_t*)tvb_memdup(pinfo->pool, tvb, 0, io_data_size),
+         tvb_get_ptr(tvb, io_data_size + 3, io_data_size),
          io_data_size);
    }
    validate_crc_s5(pinfo, tree, tvb, compute_crc, crc_s5_0, crc_s5_1, crc_s5_2, computed_crc_s5);
@@ -1929,14 +1924,10 @@ void add_safety_data_type_to_info_column(packet_info *pinfo, enum enip_connid_ty
 static void
 dissect_cip_safety_data( proto_tree *tree, proto_item *item, tvbuff_t *tvb, int item_length, packet_info *pinfo, cip_safety_info_t* safety_info)
 {
-   int base_length, io_data_size;
    bool multicast = in4_addr_is_multicast(pntoh32(pinfo->dst.data));
    bool server_dir = false;
    enum enip_connid_type conn_type = ECIDT_UNKNOWN;
    enum cip_safety_format_type format = CIP_SAFETY_BASE_FORMAT;
-   uint16_t timestamp;
-   uint8_t mode_byte;
-   bool short_format = true;
    bool compute_crc = ((safety_info != NULL) && (safety_info->compute_crc == true));
    cip_connection_triad_t connection_triad = {0};
 
@@ -1952,7 +1943,7 @@ dissect_cip_safety_data( proto_tree *tree, proto_item *item, tvbuff_t *tvb, int 
    }
 
    /* compute the base packet length to determine what is actual I/O data */
-   base_length = multicast ? 12 : 6;
+   int base_length = multicast ? 12 : 6;
 
    if (item_length < base_length) {
       expert_add_info(pinfo, item, &ei_mal_io);
@@ -2003,6 +1994,7 @@ dissect_cip_safety_data( proto_tree *tree, proto_item *item, tvbuff_t *tvb, int 
          }
       }
 
+      bool short_format = true;
       if (item_length-base_length > 2)
          short_format = false;
 
@@ -2015,8 +2007,8 @@ dissect_cip_safety_data( proto_tree *tree, proto_item *item, tvbuff_t *tvb, int 
       case CIP_SAFETY_BASE_FORMAT:
          if (short_format)
          {
-            io_data_size = item_length-base_length;
-            mode_byte = tvb_get_uint8(tvb, io_data_size);
+            int io_data_size = item_length-base_length;
+            uint8_t mode_byte = tvb_get_uint8(tvb, io_data_size);
 
             dissect_base_format_1_or_2_byte_data(pinfo, tree, tvb, io_data_size, compute_crc, &connection_triad);
             dissect_base_format_time_stamp_section(pinfo, tree, tvb, io_data_size + 3, compute_crc, mode_byte, &connection_triad);
@@ -2036,8 +2028,8 @@ dissect_cip_safety_data( proto_tree *tree, proto_item *item, tvbuff_t *tvb, int 
                return;
             }
 
-            io_data_size = multicast ? ((item_length-14)/2) : ((item_length-8)/2);
-            mode_byte = tvb_get_uint8(tvb, io_data_size);
+            int io_data_size = multicast ? ((item_length-14)/2) : ((item_length-8)/2);
+            uint8_t mode_byte = tvb_get_uint8(tvb, io_data_size);
 
             dissect_base_format_3_to_250_byte_data(pinfo, tree, tvb, io_data_size, compute_crc, &connection_triad);
             dissect_base_format_time_stamp_section(pinfo, tree, tvb, (io_data_size * 2) + 5, compute_crc, mode_byte, &connection_triad);
@@ -2050,6 +2042,9 @@ dissect_cip_safety_data( proto_tree *tree, proto_item *item, tvbuff_t *tvb, int 
          break;
       case CIP_SAFETY_EXTENDED_FORMAT:
       {
+         int io_data_size;
+         uint16_t timestamp;
+
          if (short_format)
          {
             io_data_size = item_length-base_length;

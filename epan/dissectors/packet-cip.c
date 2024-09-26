@@ -701,6 +701,7 @@ static int hf_cip_cc_packet_keepalive_hop_count;
 static int hf_cip_cc_packet_reserved;
 static int hf_cip_cc_packet_seq_number;
 static int hf_cip_cc_crc;
+static int hf_cip_cc_crc_status;
 
 // Parameters for Concurrent Extended Network Segment
 static int hf_ext_net_seg_hops_count;
@@ -720,6 +721,7 @@ static int ett_cc_header;
 static int ett_cc_hop;
 
 static expert_field ei_cc_invalid_header_type;
+static expert_field ei_cc_crc;
 
 static const value_string cc_link_adr_type[] = {
     { 0, "8-bit numeric link addresses" },
@@ -7600,6 +7602,85 @@ static int dissect_cip_cc_hop(packet_info* pinfo, tvbuff_t* tvb, int offset, pro
     return parsed;
 }
 
+// From ODVA Volume 1
+static const uint32_t crc32_cc_table[256] =
+{
+   0x00000000U, 0x29800005U, 0x5300000AU, 0x7A80000FU,
+   0xA6000014U, 0x8F800011U, 0xF500001EU, 0xDC80001BU,
+   0xCC000019U, 0xE580001CU, 0x9F000013U, 0xB6800016U,
+   0x6A00000DU, 0x43800008U, 0x39000007U, 0x10800002U,
+   0x18000003U, 0x31800006U, 0x4B000009U, 0x6280000CU,
+   0xBE000017U, 0x97800012U, 0xED00001DU, 0xC4800018U,
+   0xD400001AU, 0xFD80001FU, 0x87000010U, 0xAE800015U,
+   0x7200000EU, 0x5B80000BU, 0x21000004U, 0x08800001U,
+   0x30000006U, 0x19800003U, 0x6300000CU, 0x4A800009U,
+   0x96000012U, 0xBF800017U, 0xC5000018U, 0xEC80001DU,
+   0xFC00001FU, 0xD580001AU, 0xAF000015U, 0x86800010U,
+   0x5A00000BU, 0x7380000EU, 0x09000001U, 0x20800004U,
+   0x28000005U, 0x01800000U, 0x7B00000FU, 0x5280000AU,
+   0x8E000011U, 0xA7800014U, 0xDD00001BU, 0xF480001EU,
+   0xE400001CU, 0xCD800019U, 0xB7000016U, 0x9E800013U,
+   0x42000008U, 0x6B80000DU, 0x11000002U, 0x38800007U,
+   0x6000000CU, 0x49800009U, 0x33000006U, 0x1A800003U,
+   0xC6000018U, 0xEF80001DU, 0x95000012U, 0xBC800017U,
+   0xAC000015U, 0x85800010U, 0xFF00001FU, 0xD680001AU,
+   0x0A000001U, 0x23800004U, 0x5900000BU, 0x7080000EU,
+   0x7800000FU, 0x5180000AU, 0x2B000005U, 0x02800000U,
+   0xDE00001BU, 0xF780001EU, 0x8D000011U, 0xA4800014U,
+   0xB4000016U, 0x9D800013U, 0xE700001CU, 0xCE800019U,
+   0x12000002U, 0x3B800007U, 0x41000008U, 0x6880000DU,
+   0x5000000AU, 0x7980000FU, 0x03000000U, 0x2A800005U,
+   0xF600001EU, 0xDF80001BU, 0xA5000014U, 0x8C800011U,
+   0x9C000013U, 0xB5800016U, 0xCF000019U, 0xE680001CU,
+   0x3A000007U, 0x13800002U, 0x6900000DU, 0x40800008U,
+   0x48000009U, 0x6180000CU, 0x1B000003U, 0x32800006U,
+   0xEE00001DU, 0xC7800018U, 0xBD000017U, 0x94800012U,
+   0x84000010U, 0xAD800015U, 0xD700001AU, 0xFE80001FU,
+   0x22000004U, 0x0B800001U, 0x7100000EU, 0x5880000BU,
+   0xC0000018U, 0xE980001DU, 0x93000012U, 0xBA800017U,
+   0x6600000CU, 0x4F800009U, 0x35000006U, 0x1C800003U,
+   0x0C000001U, 0x25800004U, 0x5F00000BU, 0x7680000EU,
+   0xAA000015U, 0x83800010U, 0xF900001FU, 0xD080001AU,
+   0xD800001BU, 0xF180001EU, 0x8B000011U, 0xA2800014U,
+   0x7E00000FU, 0x5780000AU, 0x2D000005U, 0x04800000U,
+   0x14000002U, 0x3D800007U, 0x47000008U, 0x6E80000DU,
+   0xB2000016U, 0x9B800013U, 0xE100001CU, 0xC8800019U,
+   0xF000001EU, 0xD980001BU, 0xA3000014U, 0x8A800011U,
+   0x5600000AU, 0x7F80000FU, 0x05000000U, 0x2C800005U,
+   0x3C000007U, 0x15800002U, 0x6F00000DU, 0x46800008U,
+   0x9A000013U, 0xB3800016U, 0xC9000019U, 0xE080001CU,
+   0xE800001DU, 0xC1800018U, 0xBB000017U, 0x92800012U,
+   0x4E000009U, 0x6780000CU, 0x1D000003U, 0x34800006U,
+   0x24000004U, 0x0D800001U, 0x7700000EU, 0x5E80000BU,
+   0x82000010U, 0xAB800015U, 0xD100001AU, 0xF880001FU,
+   0xA0000014U, 0x89800011U, 0xF300001EU, 0xDA80001BU,
+   0x06000000U, 0x2F800005U, 0x5500000AU, 0x7C80000FU,
+   0x6C00000DU, 0x45800008U, 0x3F000007U, 0x16800002U,
+   0xCA000019U, 0xE380001CU, 0x99000013U, 0xB0800016U,
+   0xB8000017U, 0x91800012U, 0xEB00001DU, 0xC2800018U,
+   0x1E000003U, 0x37800006U, 0x4D000009U, 0x6480000CU,
+   0x7400000EU, 0x5D80000BU, 0x27000004U, 0x0E800001U,
+   0xD200001AU, 0xFB80001FU, 0x81000010U, 0xA8800015U,
+   0x90000012U, 0xB9800017U, 0xC3000018U, 0xEA80001DU,
+   0x36000006U, 0x1F800003U, 0x6500000CU, 0x4C800009U,
+   0x5C00000BU, 0x7580000EU, 0x0F000001U, 0x26800004U,
+   0xFA00001FU, 0xD380001AU, 0xA9000015U, 0x80800010U,
+   0x88000011U, 0xA1800014U, 0xDB00001BU, 0xF280001EU,
+   0x2E000005U, 0x07800000U, 0x7D00000FU, 0x5480000AU,
+   0x44000008U, 0x6D80000DU, 0x17000002U, 0x3E800007U,
+   0xE200001CU, 0xCB800019U, 0xB1000016U, 0x98800013L
+};
+
+static uint32_t compute_crc_cc(const uint8_t* pData, size_t size)
+{
+   uint32_t crc = 0xFFFFFFFF;
+   for (; size > 0; --size)
+   {
+      crc = crc32_cc_table[*pData++ ^ (uint8_t)crc] ^ (crc >> 8);
+   }
+   return crc;
+}
+
 #define CC_PACKET_TYPE_MASK (0x001F)
 int dissect_concurrent_connection_packet(packet_info* pinfo, tvbuff_t* tvb, int offset, proto_tree* tree)
 {
@@ -7631,7 +7712,12 @@ int dissect_concurrent_connection_packet(packet_info* pinfo, tvbuff_t* tvb, int 
         col_append_fstr(pinfo->cinfo, COL_INFO, ", CC_SEQ=%010u", ccSeq);
         parsed_len += 4;
 
-        proto_tree_add_item(CC_tree, hf_cip_cc_crc, tvb, offset + CC_frame_length, CC_CRC_LENGTH, ENC_LITTLE_ENDIAN);
+        const uint8_t* payloadToCRC = tvb_get_ptr(tvb, offset, CC_frame_length);
+        uint32_t computed_cc_crc = compute_crc_cc(payloadToCRC, CC_frame_length);
+
+        proto_tree_add_checksum(CC_tree, tvb, offset + CC_frame_length,
+          hf_cip_cc_crc, hf_cip_cc_crc_status, &ei_cc_crc, pinfo,
+          computed_cc_crc, ENC_LITTLE_ENDIAN, PROTO_CHECKSUM_VERIFY);
         proto_tree_set_appendix(CC_tree, tvb, offset + CC_frame_length, CC_CRC_LENGTH);
     }
     else
@@ -7660,6 +7746,7 @@ void proto_register_cc(void)
         { &hf_cip_cc_packet_reserved,{ "Reserved", "cip.cc.packet.reserved", FT_UINT16, BASE_HEX, NULL, 0xFE00, NULL, HFILL } },
         { &hf_cip_cc_packet_seq_number,{ "Concurrent Connection Sequence Count", "cip.cc.packet.sequence_count", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL } },
         { &hf_cip_cc_crc,{ "CRC", "cip.cc.crc", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL } },
+        { &hf_cip_cc_crc_status, { "CC CRC Status", "cip.cc.crc.status", FT_UINT8, BASE_NONE, VALS(proto_checksum_vals), 0, NULL, HFILL } },
 
         // Concurrent Connection Path
         { &hf_ext_net_seg_hops_count,{ "Hops Count", "cip.cc.netsegment.hopsCount", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL } },
@@ -7677,6 +7764,7 @@ void proto_register_cc(void)
 
     static ei_register_info ei_cc[] = {
         { &ei_cc_invalid_header_type, { "cip.cc.invalid_packet_type", PI_MALFORMED, PI_ERROR, "Invalid Concurrent Connections Packet Type", EXPFILL }},
+        { &ei_cc_crc, { "cip.cc.crc.incorrect", PI_PROTOCOL, PI_ERROR, "CC CRC incorrect", EXPFILL }},
     };
 
     proto_cc = proto_register_protocol("Concurrent Connection Packet",
