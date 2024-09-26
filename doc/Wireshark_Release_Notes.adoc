@@ -25,7 +25,10 @@ If you or your organization would like to contribute or become a sponsor, please
 
 The following changes have been made since version 4.7.2:
 
-* Nothing of note.
+* Display filter operators' English forms like "and" and "or" are case-insensitive.
+* Display filter string literals can be surrounded by appropriate pairs of
+  directional ("smart" or "curly") double quotes instead of straight double
+  quotes.
 
 The following changes have been made since version 4.7.1:
 
@@ -38,7 +41,6 @@ The following changes have been made since version 4.7.1:
   Follow Stream is implemented. wsbuglink:20610[].
   Export Objects is implemented.
   Request/response tracking is implemented.
-* Display filter operators' English forms like "and" and "or" are case-insensitive.
 
 The following changes have been made since version 4.7.0:
 

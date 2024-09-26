@@ -666,6 +666,13 @@ Alternatively, a raw string syntax can be used. Such strings are prefixed with `
 backslash as a literal character.
 +
 `http.user_agent matches r"\(X11;"`
++
+Paired directional ("smart" or "curly") double quotes can be used in lieu
+of straight double quotes. This is mostly to handle example filters copied from
+webpages that _helpfully_ replace straight quotes, but it possible to
+include straight double quotes unescaped in directional double quote
+enclosed raw string literals. A right directional double quote can be
+escaped in a string literal opened by a left directional double quote.
 
 Date and time::
 `frame.time == "Sep 26, 2004 23:18:04.954975"`

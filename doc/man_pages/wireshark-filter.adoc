@@ -510,6 +510,13 @@ and character constants:
     \uNNNN      Unicode codepoint U+NNNN
     \UNNNNNNNN  Unicode codepoint U+NNNNNNNN
 
+Paired directional ("smart" or "curly") double quotes can be used in lieu
+of straight double quotes. This is mostly to handle example filters copied from
+webpages that _helpfully_ replace straight quotes, but it possible to
+include straight double quotes unescaped in directional double quote
+enclosed raw string literals. A right directional double quote can be
+escaped in a string literal opened by a left directional double quote.
+
 Date and time values can be given in ISO 8601 format or using a legacy
 month-year-time format:
 

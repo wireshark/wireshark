@@ -32,6 +32,25 @@ class TestDfilterScanner:
         dfilter = r'http.request.method == "\HEAD"'
         checkDFilterFail(dfilter, 'not a valid character escape sequence')
 
+    def test_dquote_7(self, checkDFilterCount):
+        # UCNs for ASCII are legal now
+        dfilter = 'http.request.method == "\\u0048EAD"'
+        checkDFilterCount(dfilter, 1)
+
+    def test_dquote_8(self, checkDFilterCount):
+        # UCNs for ASCII, long version
+        dfilter = 'http.request.method == "\\U00000048EAD"'
+        checkDFilterCount(dfilter, 1)
+
+    def test_smartquote_1(self, checkDFilterCount):
+        dfilter = 'http.request.method == \u201cHEAD\u201d'
+        checkDFilterCount(dfilter, 1)
+
+    def test_smartquote_2(self, checkDFilterFail):
+        # Mixed straight and directional quotes are not supported
+        dfilter = 'http.request.method == "HEAD\u201d'
+        checkDFilterFail(dfilter, "The final quote was missing")
+
     def test_case_insensitive_1(self, checkDFilterSucceed):
         # Token matching is case insensitive
         dfilter = 'tcp AnD http'
@@ -53,5 +72,5 @@ class TestDfilterScanner:
         # A lower case \u UCN has exactly four hex digits; the rest are
         # ASCII literals. Also, a UCN is allowed to represent a value in
         # the basic character set inside a quoted string literal.
-        dfilter = 'http.request.uri.query.parameter == "\u0030307011208"'
+        dfilter = r'http.request.uri.query.parameter == "\u0030307011208"'
         checkDFilterSucceed(dfilter)
