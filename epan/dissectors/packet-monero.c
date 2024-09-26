@@ -157,11 +157,11 @@ static unsigned
 get_monero_pdu_length(packet_info *pinfo _U_, tvbuff_t *tvb,
                        int offset, void *data _U_)
 {
-  uint32_t length;
+  unsigned length;
   length = MONERO_HEADER_LENGTH;
 
   /* add payload length */
-  length += tvb_get_letoh64(tvb, offset+8);
+  length += (unsigned)tvb_get_letoh64(tvb, offset+8);
 
   return length;
 }
@@ -331,7 +331,7 @@ static int dissect_encoded_value(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
       offset += length;
 
       proto_tree_add_item(tree, hf_monero_payload_item_value_string, tvb, offset, (int) string_length, ENC_NA);
-      offset += string_length;
+      offset += (int)string_length;
       break;
 
     case MONERO_PAYLOAD_TYPE_BOOLEAN:
