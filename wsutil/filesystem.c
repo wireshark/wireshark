@@ -1598,7 +1598,13 @@ get_persconffile_dir_no_profile(void)
     env = g_getenv(config_dir_envar);
 #ifdef _WIN32
     if (env == NULL) {
-        /* for backward compatibility */
+        /*
+         * The PortableApps launcher sets this environment variable.
+         * XXX - That's only for the GUI. We don't have launchers/batch
+         * scripts for the command line tools, and just package the same
+         * binaries as built for NSIS and WiX, so if the user is running
+         * tshark from the PortableApps directory, how do we tell? (#20095)
+         */
         env = g_getenv("WIRESHARK_APPDATA");
     }
 #endif
