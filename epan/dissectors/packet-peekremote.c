@@ -455,7 +455,7 @@ dissect_peekremote_new(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
         phdr.phy_info.info_11ax.has_bwru = true;
         phdr.phy_info.info_11ax.bwru = bandwidth_he;
         phdr.phy_info.info_11ax.has_mcs_index = true;
-        phdr.phy_info.info_11ax.mcs = mcs_index;
+        phdr.phy_info.info_11ax.mcs = (uint8_t)mcs_index;
         phdr.phy_info.info_11ax.nsts = nss;
 
       } else {
@@ -477,7 +477,7 @@ dissect_peekremote_new(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
           phdr.phy_info.info_11ac.has_stbc = true;
           phdr.phy_info.info_11ac.stbc    = 0;
           /* Peekremote does not have per-user fields, so fill data as if it is SU and for user0 */
-          phdr.phy_info.info_11ac.mcs[0]  = mcs_index;
+          phdr.phy_info.info_11ac.mcs[0]  = (uint8_t)mcs_index;
           phdr.phy_info.info_11ac.nss[0]  = nss;
 
         } else { /* 11n */
