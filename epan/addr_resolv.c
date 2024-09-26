@@ -1871,7 +1871,7 @@ add_manuf_name(const uint8_t *addr, unsigned int mask, char *name, char *longnam
  * tables.
  */
 static hashmanuf_t *
-manuf_name_lookup(const uint8_t *addr, size_t size)
+manuf_name_lookup(const uint8_t *addr, size_t size _U_/* Satisfy MSVC */)
 {
     uint32_t      manuf_key;
     uint8_t      oct;
