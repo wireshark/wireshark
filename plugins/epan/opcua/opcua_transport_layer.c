@@ -205,7 +205,7 @@ void get_encryption_info(packet_info *pinfo, enum ua_message_mode *mode, uint8_t
             *sig_len = g_opcua_default_sig_len;
         } else {
             *mode = (enum ua_message_mode)(data & 0xff);
-            *sig_len = (uintptr_t)(data >> 8);
+            *sig_len = (uint8_t)(uintptr_t)(data >> 8);
         }
     }
 }
