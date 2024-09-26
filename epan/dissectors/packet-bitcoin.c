@@ -1047,7 +1047,7 @@ dissect_bitcoin_msg_tx_common(tvbuff_t *tvb, uint32_t offset, packet_info *pinfo
         offset += component_size_length;
 
         proto_tree_add_item(subsubtree, hf_msg_tx_witness_component_data, tvb, offset, (int) component_size, ENC_NA);
-        offset += component_size;
+        offset += (uint32_t)component_size;
       }
 
       proto_item_set_end(ti, tvb, offset);
