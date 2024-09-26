@@ -186,8 +186,8 @@ static int dissect_ubx_gal_inav(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
     tvbuff_t *next_tvb;
 
     bool sar_start, sar_long_rlm;
-    uint32_t inav_type, even_page_type, odd_page_type;
-    uint64_t data_122_67, data_66_17, data_16_1;
+    uint32_t inav_type = 0, even_page_type, odd_page_type;
+    uint64_t data_122_67 = 0, data_66_17 = 0, data_16_1 = 0;
     uint8_t *word;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "Galileo E1-B I/NAV");
@@ -248,7 +248,7 @@ static int dissect_ubx_gal_inav(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
     if (even_page_type == 0 && odd_page_type == 0) {
         // create new tvb with the data word
         word = wmem_alloc(pinfo->pool, 16);
-        phton16(word + 14, data_16_1);
+        phton16(word + 14, (uint16_t)data_16_1);
         phton64(word + 6, data_66_17);
         phton64(word, (((uint64_t) inav_type) << 58) | (data_122_67 << 2) | (data_66_17 >> 48));
 
