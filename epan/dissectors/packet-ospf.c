@@ -191,7 +191,7 @@ static const value_string auth_vals[] = {
 #define OSPF_V3_LSTYPE_E_AS_EXTERNAL       37
 // Not to be used per RFC 8362             38
 #define OSPF_V3_LSTYPE_E_TYPE_7            39
-#define OSPF_v3_LSTYPE_E_LINK              40
+#define OSPF_V3_LSTYPE_E_LINK              40
 #define OSPF_V3_LSTYPE_E_INTRA_AREA_PREFIX 41
 
 /* Opaque LSA types */
@@ -422,9 +422,13 @@ static const value_string v3_ls_type_vals[] = {
     {OSPF_V3_LSTYPE_NSSA,                 "NSSA-LSA"                     },
     {OSPF_V3_LSTYPE_LINK,                 "Link-LSA"                     },
     {OSPF_V3_LSTYPE_INTRA_AREA_PREFIX,    "Intra-Area-Prefix-LSA"        },
+    {OSPF_V3_LSTYPE_E_ROUTER,             "E-Router-LSA"                 },
+    {OSPF_V3_LSTYPE_E_NETWORK,            "E-Network-LSA"                },
+    {OSPF_V3_LSTYPE_E_INTER_AREA_PREFIX,  "E-Inter-Area-Prefix-LSA"      },
+    {OSPF_V3_LSTYPE_E_INTER_AREA_ROUTER,  "E-Inter-Area-Router-LSA"      },
+    {OSPF_V3_LSTYPE_E_AS_EXTERNAL,        "E-AS-External-LSA"            },
+    {OSPF_V3_LSTYPE_E_LINK,               "E-Link-LSA"                  },
     {OSPF_V3_LSTYPE_E_INTRA_AREA_PREFIX,  "E-Intra-Area-Prefix-LSA"     },
-    {OSPF_V3_LSTYPE_E_ROUTER,             "E-Router-LSA"                },
-    {OSPF_v3_LSTYPE_E_LINK,               "E-Link-LSA"                  },
     {OSPF_V3_LSTYPE_OPAQUE_RI,            "Router Information Opaque-LSA"},
     {0,                                   NULL                           }
 };
@@ -3027,6 +3031,28 @@ static void dissect_ospf6_e_lsa_tlv(tvbuff_t *tvb, packet_info *pinfo, int offse
                 proto_tree_add_item(tlv_tree, hf_ospf_v3_lsa_link_local_interface_address, tvb, offset + 4, 16, ENC_NA);
                 offset +=  4 + WS_ROUNDUP_4(tlv_length);
             break;
+            case OSPF6_TLV_ATTACHED_ROUTERS:
+                proto_tree_add_item(tlv_tree, hf_ospf_v3_lsa_attached_router, tvb, offset+4, 4, ENC_BIG_ENDIAN);
+                offset +=  4 + WS_ROUNDUP_4(tlv_length);
+            break;
+            case OSPF6_TLV_EXTERNAL_PREFIX:
+                /* FIXME: first 8 bits unclear in RFC 8362. */
+                proto_tree_add_bitmask(tlv_tree, tvb, offset+4, hf_ospf_v3_as_external_flag, ett_ospf_v3_as_external_flags, bf_v3_as_external_flags, ENC_BIG_ENDIAN);
+
+                /* metric */
+                proto_tree_add_item(tlv_tree, hf_ospf_metric, tvb, offset+5, 3, ENC_BIG_ENDIAN);
+                /* prefix length */
+                prefix_length=tvb_get_uint8(tvb, offset+8);
+                proto_tree_add_item(tlv_tree, hf_ospf_prefix_length, tvb, offset+8, 1, ENC_BIG_ENDIAN);
+
+                /* prefix options */
+                proto_tree_add_bitmask(tlv_tree, tvb, offset + 9, hf_ospf_v3_prefix_option, ett_ospf_v3_prefix_options, bf_v3_prefix_options, ENC_BIG_ENDIAN);
+
+                /* address_prefix */
+                dissect_ospf_v3_address_prefix(tvb, pinfo, offset + 12, prefix_length, tlv_tree, address_family);
+                offset +=  4 + WS_ROUNDUP_4(tlv_length);
+
+            break;
             default:
                 offset +=  4 + WS_ROUNDUP_4(tlv_length);
             break;
@@ -4049,6 +4075,22 @@ dissect_ospf_v2_lsa(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *t
     return offset;
 }
 
+/* dissect common elements of the Network E-LSA and LSA */
+void dissect_ospf_v3_network_lsa_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ospf_lsa_tree, int *offset, uint16_t *ls_length)
+{
+    /* reserved field */
+    uint8_t reserved = tvb_get_uint8(tvb, *offset);
+    proto_item *ti = proto_tree_add_item(ospf_lsa_tree, hf_ospf_header_reserved, tvb, *offset, 1, ENC_NA);
+    if (reserved != 0)
+        expert_add_info(pinfo, ti, &ei_ospf_header_reserved);
+
+    /* options field in an network-lsa */
+    proto_tree_add_bitmask(ospf_lsa_tree, tvb, *offset + 1, hf_ospf_v3_options, ett_ospf_v3_options, bf_v3_options, ENC_BIG_ENDIAN);
+
+    *offset += 4;
+    *ls_length-=4;
+}
+
 static int
 dissect_ospf_v3_lsa(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tree,
                     bool disassemble_body, uint8_t address_family)
@@ -4168,17 +4210,7 @@ dissect_ospf_v3_lsa(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *t
 
     case OSPF_V3_LSTYPE_NETWORK:
 
-        /* reserved field */
-        reserved = tvb_get_uint8(tvb, offset);
-        ti = proto_tree_add_item(ospf_lsa_tree, hf_ospf_header_reserved, tvb, offset, 1, ENC_NA);
-        if (reserved != 0)
-            expert_add_info(pinfo, ti, &ei_ospf_header_reserved);
-
-        /* options field in an network-lsa */
-        proto_tree_add_bitmask(ospf_lsa_tree, tvb, offset + 1, hf_ospf_v3_options, ett_ospf_v3_options, bf_v3_options, ENC_BIG_ENDIAN);
-
-        offset += 4;
-        ls_length-=4;
+        dissect_ospf_v3_network_lsa_common(tvb, pinfo, ospf_lsa_tree, &offset, &ls_length);
 
         while (ls_length > 0 ) {
             proto_tree_add_item(ospf_lsa_tree, hf_ospf_v3_lsa_attached_router, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -4427,7 +4459,23 @@ dissect_ospf_v3_lsa(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *t
         offset += ls_length;
         break;
 
-    case OSPF_v3_LSTYPE_E_LINK:
+    case OSPF_V3_LSTYPE_E_NETWORK:
+
+        /* reserved field & options */
+        dissect_ospf_v3_network_lsa_common(tvb, pinfo, ospf_lsa_tree, &offset, &ls_length);
+
+        /* Attached-Routers TLV */
+        dissect_ospf6_e_lsa_tlv(tvb, pinfo, offset, ospf_lsa_tree, ls_length, address_family);
+        offset += ls_length;
+        break;
+
+    case OSPF_V3_LSTYPE_E_AS_EXTERNAL:
+
+        /* External-Prefix TLV */
+        dissect_ospf6_e_lsa_tlv(tvb, pinfo, offset, ospf_lsa_tree, ls_length, address_family);
+        offset += ls_length;
+    break;
+    case OSPF_V3_LSTYPE_E_LINK:
 
         /* router priority */
         proto_tree_add_item(ospf_lsa_tree, hf_ospf_v3_lsa_router_priority, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -4441,9 +4489,6 @@ dissect_ospf_v3_lsa(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *t
         dissect_ospf6_e_lsa_tlv(tvb, pinfo, offset, ospf_lsa_tree, ls_length, address_family);
         offset += ls_length;
         break;
-
-
-    break;
 
     default:
         /* unknown LSA type */
