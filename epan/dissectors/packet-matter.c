@@ -26,6 +26,7 @@
 
 #include <epan/expert.h>
 #include <epan/packet.h>
+#include <wsutil/array.h>
 
 /* Prototypes */
 /* (Required to prevent [-Wmissing-prototypes] warnings */
@@ -450,7 +451,7 @@ dissect_matter_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
             proto_tree_add_item_ret_uint64(tree_element, hf_matter_tlv_elem_length, tvb, offset, size, ENC_LITTLE_ENDIAN, &str_length);
             offset += size;
             proto_tree_add_item(tree_element, hf_matter_tlv_elem_value_bytes, tvb, offset, (int)str_length, ENC_NA);
-            offset += str_length;
+            offset += (int)str_length;
             break;
         }
         case 0x14: // Null
