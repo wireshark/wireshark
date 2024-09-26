@@ -14,6 +14,9 @@
 **
 ** Author: Gerhard Gappmeier <gerhard.gappmeier@ascolab.com>
 ******************************************************************************/
+#ifndef OPCUA_IDENTIFIERS_H
+#define OPCUA_IDENTIFIERS_H
+
 #include "opcua_identifiers.h"
 
 /* simple header fields */
@@ -113,3 +116,4 @@ void parseResultMask(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *p
 
 void dispatchExtensionObjectType(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset, int TypeId);
 
+#endif /* OPCUA_IDENTIFIERS_H */

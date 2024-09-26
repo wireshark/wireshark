@@ -33,6 +33,29 @@ int parseOpenSecureChannel(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, 
 int parseCloseSecureChannel(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset, struct ua_metadata *data);
 void registerTransportLayerTypes(int proto);
 
-enum ua_message_mode;
+/*
+ * The per-conversation encryption information is stored in a pointer
+ * value; here are functions to construct the pointer value, as a
+ * uintptr_t and extract values from the pointer value.
+ */
+#include "opcua_simpletypes.h"
+static inline uintptr_t
+construct_encryption_info(enum ua_message_mode mode, uint8_t sig_len)
+{
+    return ((uintptr_t)sig_len << 8) | (uintptr_t)mode;
+}
+
+static inline enum ua_message_mode
+extract_message_mode(uintptr_t data)
+{
+    return (enum ua_message_mode)(data & 0xff);
+}
+
+static inline uint8_t
+extract_signature_length(uintptr_t data)
+{
+    return (uint8_t)(data >> 8);
+}
+
 void store_encryption_info(packet_info *pinfo, enum ua_message_mode mode, uint8_t sig_len);
 void get_encryption_info(packet_info *pinfo, enum ua_message_mode *mode, uint8_t *sig_len);

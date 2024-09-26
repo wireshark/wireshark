@@ -188,8 +188,8 @@ void store_encryption_info(packet_info *pinfo, enum ua_message_mode mode, uint8_
 {
     conversation_t *conv = find_conversation_pinfo(pinfo, 0);
     if (conv) {
-        uintptr_t data = (uintptr_t)mode;
-        data |= ((uintptr_t)sig_len << 8);
+        uintptr_t data;
+        data = construct_encryption_info(mode, sig_len);;
         conversation_add_proto_data(conv, proto_opcua, (void *)data);
     }
 }
@@ -204,8 +204,8 @@ void get_encryption_info(packet_info *pinfo, enum ua_message_mode *mode, uint8_t
             *mode = g_opcua_default_sig_len ? UA_MessageMode_MaybeEncrypted : UA_MessageMode_None;
             *sig_len = g_opcua_default_sig_len;
         } else {
-            *mode = (enum ua_message_mode)(data & 0xff);
-            *sig_len = (uint8_t)(uintptr_t)(data >> 8);
+            *mode = extract_message_mode(data);
+            *sig_len = extract_signature_length(data);
         }
     }
 }
