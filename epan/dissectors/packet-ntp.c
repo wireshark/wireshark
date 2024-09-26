@@ -1131,7 +1131,7 @@ tvb_ntp_fmt_ts_sec(tvbuff_t *tvb, int offset)
 	return buff;
 }
 
-tvbuff_t*
+static tvbuff_t*
 ntp_decrypt_nts(tvbuff_t *parent_tvb, packet_info *pinfo, uint8_t *nonce, uint32_t nonce_len,
 				uint8_t *ciphertext, uint32_t ciphertext_len, uint8_t *aad, uint32_t aad_len,
 				const nts_aead *aead, uint8_t *key)

@@ -4076,7 +4076,7 @@ dissect_ospf_v2_lsa(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *t
 }
 
 /* dissect common elements of the Network E-LSA and LSA */
-void dissect_ospf_v3_network_lsa_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ospf_lsa_tree, int *offset, uint16_t *ls_length)
+static void dissect_ospf_v3_network_lsa_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ospf_lsa_tree, int *offset, uint16_t *ls_length)
 {
     /* reserved field */
     uint8_t reserved = tvb_get_uint8(tvb, *offset);
