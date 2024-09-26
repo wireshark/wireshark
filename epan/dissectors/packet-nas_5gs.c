@@ -5284,7 +5284,7 @@ de_nas_5gs_mm_on_demand_nssai(tvbuff_t* tvb, proto_tree* tree, packet_info* pinf
         proto_tree_add_item_ret_uint(subtree, hf_nas_5gs_mm_length, tvb, curr_offset, 1, ENC_BIG_ENDIAN, &ret_len);
         curr_offset++;
         curr_offset += de_nas_5gs_cmn_s_nssai(tvb, subtree, pinfo, curr_offset, ret_len, NULL, 0);
-        if ((curr_offset < start_offset) < (length + 1)) {
+        if ((curr_offset - start_offset) < (length + 1)) {
             proto_tree_add_item(subtree, hf_nas_5gs_mm_on_demand_nssai_slice_dereg_inactiv_timer, tvb, curr_offset, 2, ENC_BIG_ENDIAN);
             curr_offset += 2;
         }
