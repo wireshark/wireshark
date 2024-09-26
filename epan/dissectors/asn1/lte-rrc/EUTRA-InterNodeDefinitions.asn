@@ -1,4 +1,4 @@
--- 3GPP TS 36.331 V18.2.0 (2024-06)
+-- 3GPP TS 36.331 V18.3.0 (2024-09)
 
 EUTRA-InterNodeDefinitions DEFINITIONS AUTOMATIC TAGS ::=
 
@@ -126,7 +126,7 @@ HandoverPreparationInformation-r8-IEs ::= SEQUENCE {
 HandoverPreparationInformation-v920-IEs	::= SEQUENCE {
 	ue-ConfigRelease-r9					ENUMERATED {
 										rel9, rel10, rel11, rel12, v10j0, v11e0,
-										v1280, rel13, ..., rel14, rel15, rel16, rel17}		OPTIONAL,	-- Cond HO2
+										v1280, rel13, ..., rel14, rel15, rel16, rel17, rel18}		OPTIONAL,	-- Cond HO2
 	nonCriticalExtension				HandoverPreparationInformation-v9d0-IEs		OPTIONAL
 }
 

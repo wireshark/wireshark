@@ -1,4 +1,4 @@
--- 3GPP TS 36.331 V18.2.0 (2024-06)
+-- 3GPP TS 36.331 V18.3.0 (2024-09)
 
 EUTRA-RRC-Definitions DEFINITIONS AUTOMATIC TAGS ::=
 
@@ -5631,12 +5631,17 @@ SystemInformationBlockType32-r17 ::= SEQUENCE {
 	lateNonCriticalExtension			OCTET STRING					OPTIONAL,
 	...,
 	[[	satelliteInfoList-v1800			SatelliteInfoList-v1800	OPTIONAL	-- Need OR
+	]],
+	[[	satelliteInfoList-v1830			SatelliteInfoList-v1830	OPTIONAL	-- Need OR
 	]]
+
 }
 
 SatelliteInfoList-r17 ::=	SEQUENCE (SIZE (1..maxSat-r17)) OF SatelliteInfo-r17
 
 SatelliteInfoList-v1800 ::=	SEQUENCE (SIZE (1..maxSat-r17)) OF CarrierFreqList-v1800
+
+SatelliteInfoList-v1830 ::=	SEQUENCE (SIZE (1..maxSat-r17)) OF CarrierFreqList-v1830
 
 SatelliteInfo-r17 ::=			SEQUENCE {
 	satelliteId-r17				INTEGER (0..255),
@@ -5658,6 +5663,10 @@ SatelliteInfo-r17 ::=			SEQUENCE {
 }
 
 CarrierFreqList-v1800 ::=		SEQUENCE (SIZE (1..maxFreq)) OF ARFCN-ValueEUTRA
+
+CarrierFreqList-v1830 ::=		SEQUENCE {
+	carrierFreqList-r18				SEQUENCE (SIZE (1..maxFreq)) OF ARFCN-ValueEUTRA-r9
+}
 
 
 SystemInformationBlockType33-r18 ::= SEQUENCE {
@@ -13573,6 +13582,11 @@ UE-EUTRA-Capability-v1800-IEs ::= SEQUENCE {
 	sl-Parameters-v1800						SL-Parameters-v1800						OPTIONAL,
 	son-Parameters-v1800					SON-Parameters-v1800,
 	ue-BasedNetwPerfMeasParameters-v1800	UE-BasedNetwPerfMeasParameters-v1800,
+	nonCriticalExtension					UE-EUTRA-Capability-v1830-IEs			OPTIONAL
+}
+
+UE-EUTRA-Capability-v1830-IEs ::= SEQUENCE {
+	ntn-Parameters-v1830					NTN-Parameters-v1830,
 	nonCriticalExtension					SEQUENCE {}								OPTIONAL
 }
 
@@ -13803,6 +13817,10 @@ NTN-Parameters-v1800 ::=		SEQUENCE {
 	ntn-Autonomous-GNSS-Fix-r18						ENUMERATED {supported}			OPTIONAL,
 	ntn-UplinkTxExtension-r18						ENUMERATED {supported}			OPTIONAL,
 	ntn-GNSS-EnhScenarioSupport-r18					ENUMERATED {ngso,gso}			OPTIONAL
+}
+
+NTN-Parameters-v1830 ::=		SEQUENCE {
+	satelliteInfoConfigDedicated-r18				ENUMERATED {supported}			OPTIONAL
 }
 
 ProcessingTimelineSet-r15 ::=		ENUMERATED {set1, set2}

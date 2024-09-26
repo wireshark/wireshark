@@ -1,4 +1,4 @@
--- 3GPP TS 36.331 V18.2.0 (2024-06)
+-- 3GPP TS 36.331 V18.3.0 (2024-09)
 
 NBIOT-RRC-Definitions DEFINITIONS AUTOMATIC TAGS ::=
 
@@ -1664,7 +1664,15 @@ SystemInformationBlockType32-NB-r17 ::= SEQUENCE {
 	lateNonCriticalExtension			OCTET STRING					OPTIONAL,
 	...,
 	[[	satelliteInfoList-v1800			SatelliteInfoList-v1800	OPTIONAL	-- Need OR
+	]],
+	[[	satelliteInfoList-v1830			SatelliteInfoList-NB-v1830	OPTIONAL	-- Need OR
 	]]
+}
+
+SatelliteInfoList-NB-v1830 ::=			SEQUENCE (SIZE (1..maxSat-r17)) OF CarrierFreqList-NB-r18
+
+CarrierFreqList-NB-r18 ::=				SEQUENCE {
+	carrierFreqList-r18						SEQUENCE (SIZE (1..maxFreq)) OF CarrierFreq-NB-r13
 }
 
 
