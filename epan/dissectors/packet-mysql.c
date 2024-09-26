@@ -2216,7 +2216,7 @@ mysql_dissect_exec_string(tvbuff_t *tvb, packet_info *pinfo _U_, int *param_offs
 			proto_tree_add_item(field_tree, hf_mysql_exec_field_string,
 				tvb, *param_offset, (int)param_len, encoding);
 	}
-	*param_offset += param_len;
+	*param_offset += (int)param_len;
 }
 
 static void
@@ -2231,7 +2231,7 @@ mysql_dissect_exec_bit(tvbuff_t *tvb, packet_info *pinfo _U_, int *param_offset,
 
 	proto_tree_add_item(field_tree, hf_mysql_exec_field_bit,
 			    tvb, *param_offset, (int)param_len, ENC_NA);
-	*param_offset += param_len;
+	*param_offset += (int)param_len;
 }
 
 static void
@@ -2246,7 +2246,7 @@ mysql_dissect_exec_blob(tvbuff_t *tvb, packet_info *pinfo _U_, int *param_offset
 
 	proto_tree_add_item(field_tree, hf_mysql_exec_field_blob,
 			    tvb, *param_offset, (int)param_len, ENC_NA);
-	*param_offset += param_len;
+	*param_offset += (int)param_len;
 }
 
 static void
@@ -2261,7 +2261,7 @@ mysql_dissect_exec_geometry(tvbuff_t *tvb, packet_info *pinfo _U_, int *param_of
 
 	proto_tree_add_item(field_tree, hf_mysql_exec_field_geometry,
 			    tvb, *param_offset, (int)param_len, ENC_NA);
-	*param_offset += param_len;
+	*param_offset += (int)param_len;
 }
 
 static void
@@ -2279,7 +2279,7 @@ mysql_dissect_exec_json(tvbuff_t *tvb, packet_info *pinfo, int *param_offset, pr
 
 	next_tvb = tvb_new_subset_length(tvb, *param_offset, (int)param_len);
 	call_dissector_only(json_handle, next_tvb, pinfo, field_tree, NULL);
-	*param_offset += param_len;
+	*param_offset += (int)param_len;
 }
 
 static void
@@ -2448,7 +2448,7 @@ mysql_dissect_exec_param(proto_item *req_tree, tvbuff_t *tvb, int *offset,
 		*offset += lenfle;
 		if (param_name_len>0) {
 			proto_tree_add_item(field_tree, hf_mysql_param_name, tvb, *offset, (int)param_name_len, ENC_ASCII);
-			*offset += param_name_len;
+			*offset += (int)param_name_len;
 		}
 	}
 
@@ -2481,7 +2481,7 @@ mysql_exec_param_offset(tvbuff_t *tvb, proto_tree *req_tree, int offset, int par
 	for (int i = 0; i<param_count; i++) {
 		offset += 2; // param type
 		lenfle = tvb_get_fle(tvb, req_tree, offset, &param_length, NULL);
-		offset += lenfle + param_length;
+		offset += lenfle + (int)param_length;
 	}
 
 	return offset;
@@ -2855,7 +2855,7 @@ mysql_dissect_request(tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *
 			}
 			if (param_count != 0) {
 				uint8_t stmt_bound;
-				offset += (param_count + 7) / 8; /* NULL bitmap */
+				offset += (int)(param_count + 7) / 8; /* NULL bitmap */
 				proto_tree_add_item(req_tree, hf_mysql_new_parameter_bound_flag, tvb, offset, 1, ENC_NA);
 				stmt_bound = tvb_get_uint8(tvb, offset);
 				offset += 1;
