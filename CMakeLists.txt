@@ -87,13 +87,11 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 message(STATUS "Generating build using CMake ${CMAKE_VERSION}")
 
 if(USE_MSYSTEM)
-	# Use the deprecated FindPythonInterp.cmake module to Work around bugs and odd behavior in MSYS2 CMake
-	# searching in the wrong paths for python3.exe using FindPython3.cmake
-	find_package(PythonInterp REQUIRED)
-	set(Python3_EXECUTABLE ${PYTHON_EXECUTABLE} CACHE FILEPATH "")
-else()
-	find_package(Python3 3.6 REQUIRED)
+	# Prevent FindPython3.cmake from using the Python path in the registry,
+	# only use the $PATH environment variable (which is set up for MSYS2).
+	set(Python3_FIND_REGISTRY NEVER)
 endif()
+find_package(Python3 3.6 REQUIRED)
 
 # Set a default build type if none was specified
 set(_default_build_type "RelWithDebInfo")
