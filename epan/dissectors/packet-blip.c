@@ -21,7 +21,6 @@
 #include <epan/prefs.h>
 #include <epan/expert.h>
 #include <epan/strutil.h>
-#include <wsutil/array.h>
 #include "proto_data.h"
 
 #if defined(HAVE_ZLIB) && !defined(HAVE_ZLIBNG)
@@ -383,7 +382,7 @@ decompress(packet_info* pinfo, proto_tree* tree, tvbuff_t* tvb, int offset, int 
 
 	// Shrink the buffer so that there is not wasted space on the end of it since
 	// it will be long lived in the file scope
-	uLong bodyLength = decompress_stream->total_out - start;
+	size_t bodyLength = decompress_stream->total_out - start;
 	Bytef* shortened_buffer = (Bytef *)wmem_memdup(wmem_file_scope(), decompress_buffer, bodyLength);
 
 	tvbuff_t* decompressedChild = tvb_new_child_real_data(tvb, shortened_buffer, (unsigned)bodyLength, (int)bodyLength);
