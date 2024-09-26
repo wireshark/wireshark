@@ -677,6 +677,12 @@ dissect_bitcoin_msg_addrv2(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
         proto_tree_add_item(subtree, hf_msg_addrv2_address_other, tvb, offset, (unsigned) address_length, ENC_NA);
         break;
     }
+
+    /*
+     * The above should make sure that the addition won't overflow.
+     * XXX - but what if address length fits in an unsigned int but
+     * not a signed int?
+     */
     offset += (int)address_length;
 
     proto_tree_add_item(subtree, hf_msg_addrv2_port, tvb, offset, 2, ENC_BIG_ENDIAN);
