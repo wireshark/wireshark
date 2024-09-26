@@ -3824,6 +3824,14 @@ static const value_string artnet_port_type_vals[] = {
 #define ARTNET_AC_MERGE_LTP1     0x11
 #define ARTNET_AC_MERGE_LTP2     0x12
 #define ARTNET_AC_MERGE_LTP3     0x13
+#define ARTNET_AC_DIR_TX0        0x20
+#define ARTNET_AC_DIR_TX1        0x21
+#define ARTNET_AC_DIR_TX2        0x22
+#define ARTNET_AC_DIR_TX3        0x23
+#define ARTNET_AC_DIR_RX0        0x30
+#define ARTNET_AC_DIR_RX1        0x31
+#define ARTNET_AC_DIR_RX2        0x32
+#define ARTNET_AC_DIR_RX3        0x33
 #define ARTNET_AC_MERGE_HTP0     0x50
 #define ARTNET_AC_MERGE_HTP1     0x51
 #define ARTNET_AC_MERGE_HTP2     0x52
@@ -3856,6 +3864,22 @@ static const value_string artnet_port_type_vals[] = {
 #define ARTNET_AC_RDM_DISABLE1   0xD1
 #define ARTNET_AC_RDM_DISABLE2   0xD2
 #define ARTNET_AC_RDM_DISABLE3   0xD3
+#define ARTNET_AC_BQP0           0xE0
+#define ARTNET_AC_BQP1           0xE1
+#define ARTNET_AC_BQP2           0xE2
+#define ARTNET_AC_BQP3           0xE3
+#define ARTNET_AC_BQP4           0xE4
+#define ARTNET_AC_BQP5           0xE5
+#define ARTNET_AC_BQP6           0xE6
+#define ARTNET_AC_BQP7           0xE7
+#define ARTNET_AC_BQP8           0xE8
+#define ARTNET_AC_BQP9           0xE9
+#define ARTNET_AC_BQP10          0xEA
+#define ARTNET_AC_BQP11          0xEB
+#define ARTNET_AC_BQP12          0xEC
+#define ARTNET_AC_BQP13          0xED
+#define ARTNET_AC_BQP14          0xEE
+#define ARTNET_AC_BQP15          0xEF
 
 static const value_string artnet_address_command_vals[] = {
   { ARTNET_AC_NONE,            "No Action" },
@@ -3875,6 +3899,14 @@ static const value_string artnet_address_command_vals[] = {
   { ARTNET_AC_MERGE_LTP1,      "DMX port 2 LTP" },
   { ARTNET_AC_MERGE_LTP2,      "DMX port 3 LTP" },
   { ARTNET_AC_MERGE_LTP3,      "DMX port 4 LTP" },
+  { ARTNET_AC_DIR_TX0,         "Set Port 0 direction to output" },
+  { ARTNET_AC_DIR_TX1,         "Set Port 1 direction to output (deprecated)" },
+  { ARTNET_AC_DIR_TX2,         "Set Port 2 direction to output (deprecated)" },
+  { ARTNET_AC_DIR_TX3,         "Set Port 3 direction to output (deprecated)" },
+  { ARTNET_AC_DIR_RX0,         "Set Port 0 direction to input" },
+  { ARTNET_AC_DIR_RX1,         "Set Port 1 direction to input (deprecated)" },
+  { ARTNET_AC_DIR_RX2,         "Set Port 2 direction to input (deprecated)" },
+  { ARTNET_AC_DIR_RX3,         "Set Port 3 direction to input (deprecated)" },
   { ARTNET_AC_MERGE_HTP0,      "DMX port 1 HTP" },
   { ARTNET_AC_MERGE_HTP1,      "DMX port 2 HTP" },
   { ARTNET_AC_MERGE_HTP2,      "DMX port 3 HTP" },
@@ -3907,6 +3939,22 @@ static const value_string artnet_address_command_vals[] = {
   { ARTNET_AC_RDM_DISABLE1,    "DMX port 2 disable RDM" },
   { ARTNET_AC_RDM_DISABLE2,    "DMX port 3 disable RDM" },
   { ARTNET_AC_RDM_DISABLE3,    "DMX port 4 disable RDM" },
+  { ARTNET_AC_BQP0,            "Set BackgroundQueuePolicy to 0 (Collect using STATUS_NONE)" },
+  { ARTNET_AC_BQP1,            "Set BackgroundQueuePolicy to 1 (Collect using STATUS_ADVISORY)" },
+  { ARTNET_AC_BQP2,            "Set BackgroundQueuePolicy to 2 (Collect using STATUS_WARNING)" },
+  { ARTNET_AC_BQP3,            "Set BackgroundQueuePolicy to 3 (Collect using STATUS_ERROR)" },
+  { ARTNET_AC_BQP4,            "Set BackgroundQueuePolicy to 4 (Disabled)" },
+  { ARTNET_AC_BQP5,            "Set BackgroundQueuePolicy to 5 (user defined)" },
+  { ARTNET_AC_BQP6,            "Set BackgroundQueuePolicy to 6 (user defined)" },
+  { ARTNET_AC_BQP7,            "Set BackgroundQueuePolicy to 7 (user defined)" },
+  { ARTNET_AC_BQP8,            "Set BackgroundQueuePolicy to 8 (user defined)" },
+  { ARTNET_AC_BQP9,            "Set BackgroundQueuePolicy to 9 (user defined)" },
+  { ARTNET_AC_BQP10,           "Set BackgroundQueuePolicy to 10 (user defined)" },
+  { ARTNET_AC_BQP11,           "Set BackgroundQueuePolicy to 11 (user defined)" },
+  { ARTNET_AC_BQP12,           "Set BackgroundQueuePolicy to 12 (user defined)" },
+  { ARTNET_AC_BQP13,           "Set BackgroundQueuePolicy to 13 (user defined)" },
+  { ARTNET_AC_BQP14,           "Set BackgroundQueuePolicy to 14 (user defined)" },
+  { ARTNET_AC_BQP15,           "Set BackgroundQueuePolicy to 15 (user defined)" },
   { 0,                         NULL }
 };
 
@@ -4066,6 +4114,17 @@ static const value_string vals_artnet_poll_reply_node_report_status_code[] = {
   { 0x0000, NULL }
 };
 
+static const range_string vals_artnet_poll_reply_bg_queue_policy[] = {
+  {   0,   0, "Collect using STATUS_NONE" },
+  {   1,   1, "Collect using STATUS_ADVISORY" },
+  {   2,   2, "Collect using STATUS_WARNING" },
+  {   3,   3, "Collect using STATUS_ERROR" },
+  {   4,   4, "Collection disabled" },
+  {   5, 250, "Manufacturer defined" },
+  { 251, 255, "Reserved" },
+  {   0,   0, NULL}
+};
+
 /* Define the artnet proto */
 static int proto_artnet;
 expert_module_t* expert_artnet;
@@ -4212,6 +4271,9 @@ static int hf_artnet_poll_reply_status2_squawking;
 static int hf_artnet_poll_reply_status2_output_switching_supported;
 static int hf_artnet_poll_reply_status2_control_rdm_supported;
 static int hf_artnet_poll_reply_status3;
+static int hf_artnet_poll_reply_status3_prog_bg_discovery_supported;
+static int hf_artnet_poll_reply_status3_bg_queue_supported;
+static int hf_artnet_poll_reply_status3_rdmnet_supported;
 static int hf_artnet_poll_reply_status3_switching_port_supported;
 static int hf_artnet_poll_reply_status3_llrp_supported;
 static int hf_artnet_poll_reply_status3_failover_supported;
@@ -4267,6 +4329,7 @@ static int hf_artnet_poll_reply_swremote_8;
 
 static int hf_artnet_poll_reply_user;
 static int hf_artnet_poll_reply_refreshrate;
+static int hf_artnet_poll_reply_bg_queue_policy;
 
 static int * const artnet_poll_reply_status_fields[] = {
   &hf_artnet_poll_reply_status_ubea_present,
@@ -4321,6 +4384,9 @@ static int * const artnet_poll_reply_status2_fields[] = {
 };
 
 static int * const artnet_poll_reply_status3_fields[] = {
+  &hf_artnet_poll_reply_status3_prog_bg_discovery_supported,
+  &hf_artnet_poll_reply_status3_bg_queue_supported,
+  &hf_artnet_poll_reply_status3_rdmnet_supported,
   &hf_artnet_poll_reply_status3_switching_port_supported,
   &hf_artnet_poll_reply_status3_llrp_supported,
   &hf_artnet_poll_reply_status3_failover_supported,
@@ -4501,6 +4567,8 @@ static int hf_artnet_rdm_address;
 static int hf_artnet_rdm_sc;
 
 static int hf_artnet_rdm_rdmver;
+static int hf_artnet_rdm_fifo_avail;
+static int hf_artnet_rdm_fifo_max;
 static int hf_artnet_rdm_net;
 
 /* ArtRdmSub */
@@ -4826,6 +4894,7 @@ dissect_artnet_poll_reply(tvbuff_t *tvb, unsigned offset, proto_tree *tree, pack
   uint32_t bind_ip_address;
   GRegex *regex = NULL;
   GMatchInfo *match_info = NULL;
+  bool bg_queue_supported;
 
   proto_tree_add_item(tree, hf_artnet_poll_reply_ip_address, tvb,
                       offset, 4, ENC_BIG_ENDIAN);
@@ -5190,6 +5259,7 @@ dissect_artnet_poll_reply(tvbuff_t *tvb, unsigned offset, proto_tree *tree, pack
                          ENC_BIG_ENDIAN);
   offset += 1;
 
+  bg_queue_supported = (bool)tvb_get_bits(tvb, offset*8+6, 1, ENC_NA);
   proto_tree_add_bitmask(tree, tvb, offset, hf_artnet_poll_reply_status3,
                          ett_artnet_poll_reply_status3,
                          artnet_poll_reply_status3_fields,
@@ -5205,7 +5275,12 @@ dissect_artnet_poll_reply(tvbuff_t *tvb, unsigned offset, proto_tree *tree, pack
   proto_tree_add_item(tree, hf_artnet_poll_reply_refreshrate, tvb, offset, 2, ENC_BIG_ENDIAN);
   offset += 2;
 
-  /* There are additional 11 bytes filler reserved for future use */
+  if(bg_queue_supported) {
+    proto_tree_add_item(tree, hf_artnet_poll_reply_bg_queue_policy, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
+  }
+
+  /* There are additional filler bytes reserved for future use */
   if (offset < tvb_reported_length(tvb))
   {
     proto_tree_add_item(tree, hf_artnet_filler, tvb, offset, -1, ENC_NA);
@@ -5874,8 +5949,16 @@ dissect_artnet_rdm(tvbuff_t *tvb, unsigned offset, proto_tree *tree,  packet_inf
     offset += 1;
 
     proto_tree_add_item(tree, hf_artnet_spare, tvb,
-                        offset, 7, ENC_NA);
-    offset += 7;
+                        offset, 5, ENC_NA);
+    offset += 5;
+
+    proto_tree_add_item(tree, hf_artnet_rdm_fifo_avail, tvb,
+                        offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
+
+    proto_tree_add_item(tree, hf_artnet_rdm_fifo_max, tvb,
+                        offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
 
     proto_tree_add_item(tree, hf_artnet_rdm_net, tvb,
                         offset, 1, ENC_BIG_ENDIAN);
@@ -7978,6 +8061,24 @@ proto_register_artnet(void) {
         FT_UINT8, BASE_HEX, NULL, 0x0,
         NULL, HFILL }},
 
+    { &hf_artnet_poll_reply_status3_prog_bg_discovery_supported,
+      { "Programmable background discovery",
+        "artnet.poll_reply.bgdiscovery",
+        FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x01,
+        NULL, HFILL }},
+
+    { &hf_artnet_poll_reply_status3_bg_queue_supported,
+      { "Background Queue",
+        "artnet.poll_reply.bg_queue",
+        FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x02,
+        NULL, HFILL }},
+
+    { &hf_artnet_poll_reply_status3_rdmnet_supported,
+      { "RDMnet",
+        "artnet.poll_reply.rdmnet",
+        FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x04,
+        NULL, HFILL }},
+
     { &hf_artnet_poll_reply_status3_switching_port_supported,
       { "Input/Output switching",
         "artnet.poll_reply.switch_ports",
@@ -8036,6 +8137,12 @@ proto_register_artnet(void) {
       { "Refresh rate",
         "artnet.poll_reply.refreshrate",
         FT_UINT16, BASE_DEC|BASE_UNIT_STRING, UNS(&units_hz), 0,
+        NULL, HFILL }},
+
+    { &hf_artnet_poll_reply_bg_queue_policy,
+      { "Background Queue Policy",
+        "artnet.poll_reply.bg_queue_policy",
+        FT_UINT8, BASE_DEC|BASE_RANGE_STRING, RVALS(vals_artnet_poll_reply_bg_queue_policy), 0x0,
         NULL, HFILL }},
 
     /* ArtOutput */
@@ -8726,6 +8833,18 @@ proto_register_artnet(void) {
       { "RDM Version",
         "artnet.rdm.rdmver",
         FT_UINT8, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }},
+
+    { &hf_artnet_rdm_fifo_avail,
+      { "Transmit Queue Available",
+        "artnet.rdm.fifo_avail",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }},
+
+    { &hf_artnet_rdm_fifo_max,
+      { "Transmit Queue Maximum",
+        "artnet.rdm.fifo_max",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
         NULL, HFILL }},
 
     { &hf_artnet_rdm_net,
