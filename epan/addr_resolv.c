@@ -1869,9 +1869,18 @@ add_manuf_name(const uint8_t *addr, unsigned int mask, char *name, char *longnam
  * 36 bit MA-M or MA-S. So it returns those as unresolved. For EUI-48 and
  * EUI-64, MA-M and MA-S should be checked for separately in the global
  * tables.
+ *
+ * XXX - size_t is used only in a ws_return_val_if() that checks
+ * whether the argument has at least 3 bytes; that's done only if
+ * assertions are enabled, so it's used only if assertions are
+ * enabled.  This means that, if assertions aren't enabled, a
+ * warning that the argument is unused will be issued by at least
+ * some compilers, so we mark it as unused.  Should we do that
+ * check unconditionally, and just emit a warning if assertions
+ * are enabled?
  */
 static hashmanuf_t *
-manuf_name_lookup(const uint8_t *addr, size_t size _U_/* Satisfy MSVC */)
+manuf_name_lookup(const uint8_t *addr, size_t size _U_)
 {
     uint32_t      manuf_key;
     uint8_t      oct;
