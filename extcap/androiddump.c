@@ -568,11 +568,12 @@ static socket_handle_t adb_connect(const char *server_ip, unsigned short *server
             fd_set fdset;
             FD_ZERO(&fdset);
             FD_SET(sock, &fdset);
-            if ((select(sock+1, NULL, &fdset, NULL, &timeout) != 0) && (FD_ISSET(sock, &fdset))) {
 #ifdef _WIN32
+            if ((select(0, NULL, &fdset, NULL, &timeout) != 0) && (FD_ISSET(sock, &fdset))) {
                 status = 0;
                 break;
 #else
+            if ((select(sock+1, NULL, &fdset, NULL, &timeout) != 0) && (FD_ISSET(sock, &fdset))) {
                 length = sizeof(result);
                 getsockopt(sock, SOL_SOCKET, SO_ERROR, &result, &length);
                 if (result == 0) {
