@@ -2479,9 +2479,15 @@ mysql_exec_param_offset(tvbuff_t *tvb, proto_tree *req_tree, int offset, int par
 	uint64_t param_length;
 
 	for (int i = 0; i<param_count; i++) {
-		offset += 2; // param type
+		// param type
+		tvb_ensure_bytes_exist(tvb, offset, 2);
+		offset += 2;
+		// param length
 		lenfle = tvb_get_fle(tvb, req_tree, offset, &param_length, NULL);
-		offset += lenfle + (int)param_length;
+		offset += lenfle;
+		// param data
+		tvb_ensure_bytes_exist(tvb, offset, (int)param_length);
+		offset += (int)param_length;
 	}
 
 	return offset;
@@ -2855,7 +2861,11 @@ mysql_dissect_request(tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *
 			}
 			if (param_count != 0) {
 				uint8_t stmt_bound;
-				offset += (int)(param_count + 7) / 8; /* NULL bitmap */
+				int null_bitmap_length;
+				/* NULL bitmap */
+				null_bitmap_length = (int)((param_count + 7) / 8);
+				tvb_ensure_bytes_exist(tvb, offset, null_bitmap_length);
+				offset += null_bitmap_length;
 				proto_tree_add_item(req_tree, hf_mysql_new_parameter_bound_flag, tvb, offset, 1, ENC_NA);
 				stmt_bound = tvb_get_uint8(tvb, offset);
 				offset += 1;
