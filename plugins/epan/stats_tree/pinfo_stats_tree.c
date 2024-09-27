@@ -86,7 +86,9 @@ static void uat_plen_record_post_update_cb(void) {
 		{
 			uat_plen_record_t rec;
 
-			convert_ret_t result = range_convert_str(NULL, &rec.packet_range, default_range[i], UINT32_MAX);
+			/* When asserts are disabled, some compilers optimize the assertion
+			 * out of existence, but then complain that result is not used. */
+			_U_ convert_ret_t result = range_convert_str(NULL, &rec.packet_range, default_range[i], UINT32_MAX);
 			ws_assert(result == CVT_NO_ERROR);
 			uat_add_record(plen_uat, &rec, true);
 			wmem_free(NULL, rec.packet_range);
