@@ -681,7 +681,6 @@ Commit Check:
     # Adding notes (comments) to a merge request depends on a valid GitLab CI_JOB_TOKEN
     # variable. Trying to do so will fail when run under outside projects until
     # https://gitlab.com/gitlab-org/gitlab/-/issues/464591 is fixed.
-    - if ! command -V glab 2> /dev/null ; then (cd /tmp ; curl -JLO https://gitlab.com/gitlab-org/cli/-/releases/v1.34.0/downloads/glab_1.34.0_Linux_x86_64.deb ; dpkg --install /tmp/glab_1.34.0_Linux_x86_64.deb ) ; fi
     - glab auth status
     - glab auth status 2>&1 | grep 'Logged in to gitlab.com as' > /dev/null || echo "Unable to post merge request comments from $CI_PROJECT_PATH"
     - >
