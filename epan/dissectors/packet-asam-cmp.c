@@ -256,9 +256,10 @@ static int hf_cmp_analog_flag_reserved;
 static int hf_cmp_analog_reserved;
 static int hf_cmp_analog_unit;
 static int hf_cmp_analog_sample_interval;
-static int hf_cmp_analog_sample_scalar;
 static int hf_cmp_analog_sample_offset;
+static int hf_cmp_analog_sample_scalar;
 static int hf_cmp_analog_sample;
+static int hf_cmp_analog_sample_raw;
 
 /* Ethernet */
 static int hf_cmp_eth_flags;
@@ -401,6 +402,7 @@ static int ett_asam_cmp_lin_pid;
 static int ett_asam_cmp_can_id;
 static int ett_asam_cmp_can_crc;
 static int ett_asam_cmp_uart_data;
+static int ett_asam_cmp_analog_sample;
 static int ett_asam_cmp_status_cm_flags;
 static int ett_asam_cmp_status_cm_uptime;
 static int ett_asam_cmp_status_timeloss_flags;
@@ -1507,10 +1509,15 @@ dissect_asam_cmp_data_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_tr
                 while (data_left >= 2) {
                     int16_t data_sample = tvb_get_int16(tvb, offset, ENC_BIG_ENDIAN);
                     ti = proto_tree_add_double(asam_cmp_data_msg_payload_tree, hf_cmp_analog_sample, tvb, offset, 2, ((double)data_sample * sample_scalar + sample_offset));
+                    PROTO_ITEM_SET_GENERATED(ti);
 
                     if (unit_symbol != NULL) {
                         proto_item_append_text(ti, "%s", unit_symbol);
                     }
+
+                    proto_tree *sample_tree = proto_item_add_subtree(ti, ett_asam_cmp_analog_sample);
+                    ti = proto_tree_add_item(sample_tree, hf_cmp_analog_sample_raw, tvb, offset, 2, ENC_BIG_ENDIAN);
+                    PROTO_ITEM_SET_HIDDEN(ti);
 
                     data_left -= 2;
                     offset += 2;
@@ -1520,10 +1527,15 @@ dissect_asam_cmp_data_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_tr
                 while (data_left >= 4) {
                     int32_t data_sample = tvb_get_int32(tvb, offset, ENC_BIG_ENDIAN);
                     ti = proto_tree_add_double(asam_cmp_data_msg_payload_tree, hf_cmp_analog_sample, tvb, offset, 4, ((double)data_sample * sample_scalar + sample_offset));
+                    PROTO_ITEM_SET_GENERATED(ti);
 
                     if (unit_symbol != NULL) {
                         proto_item_append_text(ti, "%s", unit_symbol);
                     }
+
+                    proto_tree *sample_tree = proto_item_add_subtree(ti, ett_asam_cmp_analog_sample);
+                    ti = proto_tree_add_item(sample_tree, hf_cmp_analog_sample_raw, tvb, offset, 4, ENC_BIG_ENDIAN);
+                    PROTO_ITEM_SET_HIDDEN(ti);
 
                     data_left -= 4;
                     offset += 4;
@@ -2421,6 +2433,7 @@ proto_register_asam_cmp(void) {
         { &hf_cmp_analog_sample_offset,             { "Sample Offset", "asam-cmp.msg.analog.sample_offset", FT_FLOAT, BASE_NONE, NULL, 0x0, NULL, HFILL } },
         { &hf_cmp_analog_sample_scalar,             { "Sample Scalar", "asam-cmp.msg.analog.sample_scalar", FT_FLOAT, BASE_NONE, NULL, 0x0, NULL, HFILL } },
         { &hf_cmp_analog_sample,                    { "Sample", "asam-cmp.msg.analog.sample", FT_DOUBLE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_cmp_analog_sample_raw,                { "Sample Raw", "asam-cmp.msg.analog.sample_raw", FT_INT32, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 
         { &hf_cmp_analog_flag_sample_dt,            { "Sample Datatype", "asam-cmp.msg.analog.flags.sample_dt", FT_UINT16, BASE_HEX, VALS(analog_sample_dt), 0x0003, NULL, HFILL }},
         { &hf_cmp_analog_flag_reserved,             { "Reserved", "asam-cmp.msg.analog.flags.reserved", FT_UINT16, BASE_HEX, NULL, 0xfffc, NULL, HFILL }},
@@ -2563,6 +2576,7 @@ proto_register_asam_cmp(void) {
         &ett_asam_cmp_can_id,
         &ett_asam_cmp_can_crc,
         &ett_asam_cmp_uart_data,
+        &ett_asam_cmp_analog_sample,
         &ett_asam_cmp_status_cm_flags,
         &ett_asam_cmp_status_cm_uptime,
         &ett_asam_cmp_status_timeloss_flags,
