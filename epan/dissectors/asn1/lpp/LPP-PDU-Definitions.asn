@@ -1,4 +1,4 @@
--- 3GPP TS 37.355 V18.2.0 (2024-06)
+-- 3GPP TS 37.355 V18.3.0 (2024-09)
 
 LPP-PDU-Definitions
 DEFINITIONS AUTOMATIC TAGS ::=
@@ -1746,8 +1746,8 @@ DL-PRS-MeasurementWithRxFH-RRC-Connected-r18 ::=SEQUENCE {
 		processingDurationT3-r18				ENUMERATED {ms8, ms16, ms20, ms30, ms40, ms80,
 															ms160, ms320, ms640, ms1280}
 	}																					OPTIONAL,
-	rf-RxRetunTimeFR1-r18						ENUMERATED {n70,n140,n210}				OPTIONAL,
-	rf-RxRetunTimeFR2-r18						ENUMERATED {n35,n70,n140}				OPTIONAL,
+	rf-RxRetuneTimeFR1-r18						ENUMERATED {n70,n140,n210}				OPTIONAL,
+	rf-RxRetuneTimeFR2-r18						ENUMERATED {n35,n70,n140}				OPTIONAL,
 	numOfOverlappingPRB-r18						ENUMERATED {n0,n1,n2,n4}				OPTIONAL,
 	...
 }
@@ -2518,19 +2518,21 @@ PosSRS-SP-RRC-Inactive-InInitialUL-BWP-r17 ::= SEQUENCE {
 	...
 }
 
-PosSRS-TxFrequencyHoppingRRC-Connected-r18 ::=SEQUENCE {
+PosSRS-TxFrequencyHoppingRRC-Connected-r18 ::= SEQUENCE {
 	maximumSRS-BandwidthAcrossAllHopsFR1-r18	ENUMERATED {mhz40, mhz50, mhz80, mhz100}
 																						OPTIONAL,
 	maximumSRS-BandwidthAcrossAllHopsFR2-r18	ENUMERATED {mhz100, mhz200, mhz400}		OPTIONAL,
-	maximumTxFH-Hops-r18							ENUMERATED {n2, n3, n4, n5, n6}		OPTIONAL,
-	rf-TxRetunTimeFR1-r18	ENUMERATED {n70, n140, n210}								OPTIONAL,
-	rf-TxRetunTimeFR2-r18	ENUMERATED {n35, n70, n140}									OPTIONAL,
+	maximumTxFH-Hops-r18						ENUMERATED {n2, n3, n4, n5, n6}			OPTIONAL,
+	rf-TxRetuneTimeFR1-r18						ENUMERATED {n70, n140, n210}			OPTIONAL,
+	rf-TxRetuneTimeFR2-r18						ENUMERATED {n35, n70, n140}				OPTIONAL,
 	switchTimeBetweenActiveBWP-FrequencyHop-r18	ENUMERATED {n100, n140,n200,n300,n500}	OPTIONAL,
-	numOfOverlappingPRB-r18	ENUMERATED {n0, n1, n2, n4}									OPTIONAL,
-	maximumSRS-ResourcePeriodic-r18		ENUMERATED {n1, n2, n4, n8, n16, n32, n64}		OPTIONAL,
-	maximumSRS-ResourceAperiodic-r18	ENUMERATED {n0,n1, n2, n4, n8, n16, n32, n64}	OPTIONAL,
-	maximumSRS-ResourceSemipersistent-r18	ENUMERATED {n0,n1, n2, n4, n8, n16, n32, n64}
-																					OPTIONAL,
+	numOfOverlappingPRB-r18						ENUMERATED {n0, n1, n2, n4}				OPTIONAL,
+	maximumSRS-ResourcePeriodic-r18				ENUMERATED {n1, n2, n4, n8, n16, n32, n64}
+																						OPTIONAL,
+	maximumSRS-ResourceAperiodic-r18			ENUMERATED {n0, n1, n2, n4, n8, n16, n32, n64}
+																						OPTIONAL,
+	maximumSRS-ResourceSemipersistent-r18		ENUMERATED {n0, n1, n2, n4, n8, n16, n32, n64}
+																						OPTIONAL,
 	...
 }
 
@@ -2538,87 +2540,99 @@ PosSRS-TxFrequencyHoppingRRC-Inactive-r18 ::=SEQUENCE {
 	maximumSRS-BandwidthAcrossAllHopsFR1-r18	ENUMERATED {mhz40, mhz50, mhz80, mhz100}
 																						OPTIONAL,
 	maximumSRS-BandwidthAcrossAllHopsFR2-r18	ENUMERATED {mhz100, mhz200, mhz400}		OPTIONAL,
-	maximumTxFH-Hops-r18							ENUMERATED {n2, n3, n4, n5, n6}		OPTIONAL,
-	rf-TxRetunTimeFR1-r18	ENUMERATED {n70, n140, n210}								OPTIONAL,
-	rf-TxRetunTimeFR2-r18	ENUMERATED {n35, n70, n140}									OPTIONAL,
+	maximumTxFH-Hops-r18						ENUMERATED {n2, n3, n4, n5, n6}			OPTIONAL,
+	rf-TxRetuneTimeFR1-r18						ENUMERATED {n70, n140, n210}			OPTIONAL,
+	rf-TxRetuneTimeFR2-r18						ENUMERATED {n35, n70, n140}				OPTIONAL,
 	switchTimeBetweenActiveBWP-FrequencyHop-r18	ENUMERATED {n100, n140,n200,n300,n500}	OPTIONAL,
-	numOfOverlappingPRB-r18	ENUMERATED {n0, n1, n2, n4}									OPTIONAL,
-	maximumSRS-ResourcePeriodic-r18		ENUMERATED {n1, n2, n4, n8, n16, n32, n64}		OPTIONAL,
-	maximumSRS-ResourceSemipersistent-r18	ENUMERATED {n0,n1, n2, n4, n8, n16, n32, n64}
-																					OPTIONAL,
+	numOfOverlappingPRB-r18						ENUMERATED {n0, n1, n2, n4}				OPTIONAL,
+	maximumSRS-ResourcePeriodic-r18				ENUMERATED {n1, n2, n4, n8, n16, n32, n64}
+																						OPTIONAL,
+	maximumSRS-ResourceSemipersistent-r18		ENUMERATED {n0, n1, n2, n4, n8, n16, n32, n64}
+																						OPTIONAL,
 	...
 }
 
 PosSRS-BWA-RRC-Connected-r18 ::=SEQUENCE {
-	numOfCarriersIntraBandContiguous-r18	ENUMERATED {two, three, twoandthree},
-	maximumAggregatedBW-TwoCarriersFR1-r18	ENUMERATED {mhz20, mhz40, mhz50, mhz80, mhz100, mhz160,
-													mhz180, mhz190, mhz200}			OPTIONAL,
-	maximumAggregatedBW-TwoCarriersFR2-r18	ENUMERATED {mhz50, mhz100, mhz200, mhz400, mhz600,
-														mhz800}						OPTIONAL,
+	numOfCarriersIntraBandContiguous-r18		ENUMERATED {two, three, twoandthree},
+	maximumAggregatedBW-TwoCarriersFR1-r18		ENUMERATED {mhz20, mhz40, mhz50, mhz80, mhz100,
+															mhz160, mhz180, mhz190, mhz200}
+																						OPTIONAL,
+	maximumAggregatedBW-TwoCarriersFR2-r18		ENUMERATED {mhz50, mhz100, mhz200, mhz400, mhz600,
+															mhz800}						OPTIONAL,
 	maximumAggregatedBW-ThreeCarriersFR1-r18	ENUMERATED {mhz80, mhz100, mhz160, mhz200, mhz240,
-															mhz300}					OPTIONAL,
+															mhz300}						OPTIONAL,
 	maximumAggregatedBW-ThreeCarriersFR2-r18	ENUMERATED {mhz50, mhz100, mhz200, mhz300, mhz400,
-												mhz600, mhz800, mhz1000, mhz1200}		OPTIONAL,
+															mhz600, mhz800, mhz1000, mhz1200}
+																						OPTIONAL,
 	maximumAggregatedResourceSet-r18			ENUMERATED {n1, n2, n4, n8, n12, n16},
 	maximumAggregatedResourcePeriodic-r18		ENUMERATED {n1, n2, n4, n8, n16, n32, n64},
 	maximumAggregatedResourceAperiodic-r18		ENUMERATED {n0, n1, n2, n4, n8, n16, n32, n64},
 	maximumAggregatedResourceSemi-r18			ENUMERATED {n0, n1, n2, n4, n8, n16, n32, n64},
-	maximumAggregatedResourcePeriodicPerSlot-r18		ENUMERATED {n1, n2, n3, n4, n5, n6,
-														n8, n10, n12, n14},
-	maximumAggregatedResourceAperiodicPerSlot-r18		ENUMERATED {n0, n1, n2, n3, n4,
-														n5, n6, n8, n10, n12, n14},
-	maximumAggregatedResourceSemiPerSlot-r18			ENUMERATED {n0, n1, n2, n3, n4,
-														n5, n6, n8, n10, n12, n14},
+	maximumAggregatedResourcePeriodicPerSlot-r18
+												ENUMERATED {n1, n2, n3, n4, n5, n6, n8, n10,
+															n12, n14},
+	maximumAggregatedResourceAperiodicPerSlot-r18
+												ENUMERATED {n0, n1, n2, n3, n4, n5, n6, n8, n10,
+															n12, n14},
+	maximumAggregatedResourceSemiPerSlot-r18	ENUMERATED {n0, n1, n2, n3, n4, n5, n6, n8, n10,
+															n12, n14},
 	...
 }
 
 PosSRS-BWA-IndependentCA-RRC-Connected-r18 ::=SEQUENCE {
-	numOfCarriersIntraBandContiguous-r18	ENUMERATED {two, three, twoandthree},
-	maximumAggregatedBW-TwoCarriersFR1-r18	ENUMERATED {mhz20, mhz40, mhz50, mhz80, mhz100, mhz160,
-													mhz180, mhz190, mhz200}		OPTIONAL,
-	maximumAggregatedBW-TwoCarriersFR2-r18	ENUMERATED {mhz50, mhz100, mhz200, mhz400, mhz600,
-														mhz800}							OPTIONAL,
+	numOfCarriersIntraBandContiguous-r18		ENUMERATED {two, three, twoandthree},
+	maximumAggregatedBW-TwoCarriersFR1-r18		ENUMERATED {mhz20, mhz40, mhz50, mhz80, mhz100,
+															mhz160, mhz180, mhz190, mhz200}
+																						OPTIONAL,
+	maximumAggregatedBW-TwoCarriersFR2-r18		ENUMERATED {mhz50, mhz100, mhz200, mhz400, mhz600,
+															mhz800}						OPTIONAL,
 	maximumAggregatedBW-ThreeCarriersFR1-r18	ENUMERATED {mhz80, mhz100, mhz160, mhz200, mhz240,
 															mhz300}						OPTIONAL,
 	maximumAggregatedBW-ThreeCarriersFR2-r18	ENUMERATED {mhz50, mhz100, mhz200, mhz300, mhz400,
-													mhz600, mhz800, mhz1000, mhz1200}	OPTIONAL,
-	maximumAggregatedResourceSet-r18	ENUMERATED {n1, n2, n4, n8, n12, n16},
+															mhz600, mhz800, mhz1000, mhz1200}
+																						OPTIONAL,
+	maximumAggregatedResourceSet-r18			ENUMERATED {n1, n2, n4, n8, n12, n16},
 	maximumAggregatedResourcePeriodic-r18		ENUMERATED {n1, n2, n4, n8, n16, n32, n64},
 	maximumAggregatedResourceAperiodic-r18		ENUMERATED {n0, n1, n2, n4, n8, n16, n32, n64},
 	maximumAggregatedResourceSemi-r18			ENUMERATED {n0, n1, n2, n4, n8, n16, n32, n64},
-	maximumAggregatedResourcePeriodicPerSlot-r18		ENUMERATED {n1, n2, n3, n4, n5,
-																n6, n8, n10, n12, n14},
-	maximumAggregatedResourceAperiodicPerSlot-r18		ENUMERATED {n0, n1, n2, n3, n4,
-															n5, n6, n8, n10, n12, n14},
-	maximumAggregatedResourceSemiPerSlot-r18			ENUMERATED {n0, n1, n2, n3, n4,
-															n5, n6, n8, n10, n12, n14},
-	guardPeriod-r18			ENUMERATED {n0, n30, n100, n140, n200},
-	powerClassForTwoAggregatedCarriers-r18			ENUMERATED {pc2, pc3}			OPTIONAL,
-	powerClassForThreeAggregatedCarriers-r18		ENUMERATED {pc2, pc3}			OPTIONAL,
-...
+	maximumAggregatedResourcePeriodicPerSlot-r18
+												ENUMERATED {n1, n2, n3, n4, n5, n6, n8, n10,
+															n12, n14},
+	maximumAggregatedResourceAperiodicPerSlot-r18
+												ENUMERATED {n0, n1, n2, n3, n4, n5, n6, n8, n10,
+															n12, n14},
+	maximumAggregatedResourceSemiPerSlot-r18	ENUMERATED {n0, n1, n2, n3, n4, n5, n6, n8, n10,
+															n12, n14},
+	guardPeriod-r18								ENUMERATED {n0, n30, n100, n140, n200},
+	powerClassForTwoAggregatedCarriers-r18		ENUMERATED {pc2, pc3}					OPTIONAL,
+	powerClassForThreeAggregatedCarriers-r18	ENUMERATED {pc2, pc3}					OPTIONAL,
+	...
 }
 
 PosSRS-BWA-RRC-Inactive-r18 ::=SEQUENCE {
-	numOfCarriersIntraBandContiguous-r18	ENUMERATED {two, three, twoandthree},
-	maximumAggregatedBW-TwoCarriersFR1-r18	ENUMERATED {mhz20, mhz40, mhz50, mhz80, mhz100, mhz160,
-													mhz180, mhz190, mhz200}		OPTIONAL,
-	maximumAggregatedBW-TwoCarriersFR2-r18	ENUMERATED {mhz50, mhz100, mhz200, mhz400, mhz600,
-														mhz800}						OPTIONAL,
+	numOfCarriersIntraBandContiguous-r18		ENUMERATED {two, three, twoandthree},
+	maximumAggregatedBW-TwoCarriersFR1-r18		ENUMERATED {mhz20, mhz40, mhz50, mhz80, mhz100,
+															mhz160, mhz180, mhz190, mhz200}
+																						OPTIONAL,
+	maximumAggregatedBW-TwoCarriersFR2-r18		ENUMERATED {mhz50, mhz100, mhz200, mhz400, mhz600,
+															mhz800}						OPTIONAL,
 	maximumAggregatedBW-ThreeCarriersFR1-r18	ENUMERATED {mhz80, mhz100, mhz160, mhz200, mhz240,
 															mhz300}						OPTIONAL,
 	maximumAggregatedBW-ThreeCarriersFR2-r18	ENUMERATED {mhz50, mhz100, mhz200, mhz300, mhz400,
-												mhz600, mhz800, mhz1000, mhz1200}		OPTIONAL,
-	maximumAggregatedResourceSet-r18	ENUMERATED {n1, n2, n4, n8, n12, n16},
+															mhz600, mhz800, mhz1000, mhz1200}
+																						OPTIONAL,
+	maximumAggregatedResourceSet-r18			ENUMERATED {n1, n2, n4, n8, n12, n16},
 	maximumAggregatedResourcePeriodic-r18		ENUMERATED {n1, n2, n4, n8, n16, n32, n64},
 	maximumAggregatedResourceSemi-r18			ENUMERATED {n0, n1, n2, n4, n8, n16, n32, n64},
-	maximumAggregatedResourcePeriodicPerSlot-r18		ENUMERATED {n1, n2, n3, n4,
-																	n5, n6, n8, n10, n12, n14},
-	maximumAggregatedResourceSemiPerSlot-r18			ENUMERATED {n0, n1, n2, n3, n4,
-																n5, n6, n8, n10, n12, n14},
-	guardPeriod-r18				ENUMERATED {n0, n30, n100, n140, n200},
-	powerClassForTwoAggregatedCarriers-r18			ENUMERATED {pc2, pc3}			OPTIONAL,
-	powerClassForThreeAggregatedCarriers-r18		ENUMERATED {pc2, pc3}			OPTIONAL,
-...
+	maximumAggregatedResourcePeriodicPerSlot-r18
+												ENUMERATED {n1, n2, n3, n4, n5, n6, n8, n10,
+															n12, n14},
+	maximumAggregatedResourceSemiPerSlot-r18	ENUMERATED {n0, n1, n2, n3, n4, n5, n6, n8, n10,
+															n12, n14},
+	guardPeriod-r18								ENUMERATED {n0, n30, n100, n140, n200},
+	powerClassForTwoAggregatedCarriers-r18		ENUMERATED {pc2, pc3}					OPTIONAL,
+	powerClassForThreeAggregatedCarriers-r18	ENUMERATED {pc2, pc3}					OPTIONAL,
+	...
 }
 
 
@@ -8193,6 +8207,9 @@ NR-Multi-RTT-RequestLocationInformation-r16 ::= SEQUENCE {
 	}																		OPTIONAL,	-- Need ON
 	nr-DL-PRS-MeasurementTimeWindowsConfig-r18
 								NR-DL-PRS-MeasurementTimeWindowsConfig-r18	OPTIONAL	-- Need ON
+	]],
+	[[
+	nr-NTN-UE-RxTxMeasurementsRequest-r18	ENUMERATED { requested }		OPTIONAL	-- Need ON
 	]]
 }
 

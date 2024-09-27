@@ -13,7 +13,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
- * Ref 3GPP TS 37.355 version 18.2.0 Release 18
+ * Ref 3GPP TS 37.355 version 18.3.0 Release 18
  * http://www.3gpp.org
  */
 
@@ -788,8 +788,8 @@ static int hf_lpp_maximumFH_Hops_r18;             /* T_maximumFH_Hops_r18 */
 static int hf_lpp_processingDuration_r18;         /* T_processingDuration_r18 */
 static int hf_lpp_processingPRS_SymbolsDurationN3_r18;  /* T_processingPRS_SymbolsDurationN3_r18 */
 static int hf_lpp_processingDurationT3_r18;       /* T_processingDurationT3_r18 */
-static int hf_lpp_rf_RxRetunTimeFR1_r18;          /* T_rf_RxRetunTimeFR1_r18 */
-static int hf_lpp_rf_RxRetunTimeFR2_r18;          /* T_rf_RxRetunTimeFR2_r18 */
+static int hf_lpp_rf_RxRetuneTimeFR1_r18;         /* T_rf_RxRetuneTimeFR1_r18 */
+static int hf_lpp_rf_RxRetuneTimeFR2_r18;         /* T_rf_RxRetuneTimeFR2_r18 */
 static int hf_lpp_numOfOverlappingPRB_r18;        /* T_numOfOverlappingPRB_r18 */
 static int hf_lpp_dl_PRS_QCL_ProcessingCapabilityBandList_r16;  /* SEQUENCE_SIZE_1_nrMaxBands_r16_OF_DL_PRS_QCL_ProcessingCapabilityPerBand_r16 */
 static int hf_lpp_dl_PRS_QCL_ProcessingCapabilityBandList_r16_item;  /* DL_PRS_QCL_ProcessingCapabilityPerBand_r16 */
@@ -1090,8 +1090,8 @@ static int hf_lpp_maxNumOfSemiPersistentSRSposResourcesPerSlot_r17_01;  /* T_max
 static int hf_lpp_maximumSRS_BandwidthAcrossAllHopsFR1_r18;  /* T_maximumSRS_BandwidthAcrossAllHopsFR1_r18 */
 static int hf_lpp_maximumSRS_BandwidthAcrossAllHopsFR2_r18;  /* T_maximumSRS_BandwidthAcrossAllHopsFR2_r18 */
 static int hf_lpp_maximumTxFH_Hops_r18;           /* T_maximumTxFH_Hops_r18 */
-static int hf_lpp_rf_TxRetunTimeFR1_r18;          /* T_rf_TxRetunTimeFR1_r18 */
-static int hf_lpp_rf_TxRetunTimeFR2_r18;          /* T_rf_TxRetunTimeFR2_r18 */
+static int hf_lpp_rf_TxRetuneTimeFR1_r18;         /* T_rf_TxRetuneTimeFR1_r18 */
+static int hf_lpp_rf_TxRetuneTimeFR2_r18;         /* T_rf_TxRetuneTimeFR2_r18 */
 static int hf_lpp_switchTimeBetweenActiveBWP_FrequencyHop_r18;  /* T_switchTimeBetweenActiveBWP_FrequencyHop_r18 */
 static int hf_lpp_numOfOverlappingPRB_r18_01;     /* T_numOfOverlappingPRB_r18_01 */
 static int hf_lpp_maximumSRS_ResourcePeriodic_r18;  /* T_maximumSRS_ResourcePeriodic_r18 */
@@ -1100,8 +1100,8 @@ static int hf_lpp_maximumSRS_ResourceSemipersistent_r18;  /* T_maximumSRS_Resour
 static int hf_lpp_maximumSRS_BandwidthAcrossAllHopsFR1_r18_01;  /* T_maximumSRS_BandwidthAcrossAllHopsFR1_r18_01 */
 static int hf_lpp_maximumSRS_BandwidthAcrossAllHopsFR2_r18_01;  /* T_maximumSRS_BandwidthAcrossAllHopsFR2_r18_01 */
 static int hf_lpp_maximumTxFH_Hops_r18_01;        /* T_maximumTxFH_Hops_r18_01 */
-static int hf_lpp_rf_TxRetunTimeFR1_r18_01;       /* T_rf_TxRetunTimeFR1_r18_01 */
-static int hf_lpp_rf_TxRetunTimeFR2_r18_01;       /* T_rf_TxRetunTimeFR2_r18_01 */
+static int hf_lpp_rf_TxRetuneTimeFR1_r18_01;      /* T_rf_TxRetuneTimeFR1_r18_01 */
+static int hf_lpp_rf_TxRetuneTimeFR2_r18_01;      /* T_rf_TxRetuneTimeFR2_r18_01 */
 static int hf_lpp_switchTimeBetweenActiveBWP_FrequencyHop_r18_01;  /* T_switchTimeBetweenActiveBWP_FrequencyHop_r18_01 */
 static int hf_lpp_numOfOverlappingPRB_r18_02;     /* T_numOfOverlappingPRB_r18_02 */
 static int hf_lpp_maximumSRS_ResourcePeriodic_r18_01;  /* T_maximumSRS_ResourcePeriodic_r18_01 */
@@ -3167,6 +3167,7 @@ static int hf_lpp_fr1_04;                         /* T_fr1_04 */
 static int hf_lpp_fr2_04;                         /* T_fr2_04 */
 static int hf_lpp_nr_DL_PRS_JointMeasurementRequest_r18_01;  /* T_nr_DL_PRS_JointMeasurementRequest_r18_01 */
 static int hf_lpp_nr_DL_PRS_JointMeasurementRequestedPFL_List_r18_01;  /* T_nr_DL_PRS_JointMeasurementRequestedPFL_List_r18_01 */
+static int hf_lpp_nr_NTN_UE_RxTxMeasurementsRequest_r18;  /* T_nr_NTN_UE_RxTxMeasurementsRequest_r18 */
 static int hf_lpp_maxDL_PRS_RxTxTimeDiffMeasPerTRP_r16;  /* INTEGER_1_4 */
 static int hf_lpp_nr_Multi_RTT_PRS_Capability_r16;  /* NR_DL_PRS_ResourcesCapability_r16 */
 static int hf_lpp_nr_Multi_RTT_MeasurementCapability_r16;  /* NR_Multi_RTT_MeasurementCapability_r16 */
@@ -13479,7 +13480,7 @@ dissect_lpp_T_processingDuration_r18(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx
 }
 
 
-static const value_string lpp_T_rf_RxRetunTimeFR1_r18_vals[] = {
+static const value_string lpp_T_rf_RxRetuneTimeFR1_r18_vals[] = {
   {   0, "n70" },
   {   1, "n140" },
   {   2, "n210" },
@@ -13488,7 +13489,7 @@ static const value_string lpp_T_rf_RxRetunTimeFR1_r18_vals[] = {
 
 
 static int
-dissect_lpp_T_rf_RxRetunTimeFR1_r18(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lpp_T_rf_RxRetuneTimeFR1_r18(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
                                      3, NULL, false, 0, NULL);
 
@@ -13496,7 +13497,7 @@ dissect_lpp_T_rf_RxRetunTimeFR1_r18(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_
 }
 
 
-static const value_string lpp_T_rf_RxRetunTimeFR2_r18_vals[] = {
+static const value_string lpp_T_rf_RxRetuneTimeFR2_r18_vals[] = {
   {   0, "n35" },
   {   1, "n70" },
   {   2, "n140" },
@@ -13505,7 +13506,7 @@ static const value_string lpp_T_rf_RxRetunTimeFR2_r18_vals[] = {
 
 
 static int
-dissect_lpp_T_rf_RxRetunTimeFR2_r18(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lpp_T_rf_RxRetuneTimeFR2_r18(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
                                      3, NULL, false, 0, NULL);
 
@@ -13536,8 +13537,8 @@ static const per_sequence_t DL_PRS_MeasurementWithRxFH_RRC_Connected_r18_sequenc
   { &hf_lpp_maximumPRS_BandwidthAcrossAllHopsFR2_r18, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lpp_T_maximumPRS_BandwidthAcrossAllHopsFR2_r18 },
   { &hf_lpp_maximumFH_Hops_r18, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lpp_T_maximumFH_Hops_r18 },
   { &hf_lpp_processingDuration_r18, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lpp_T_processingDuration_r18 },
-  { &hf_lpp_rf_RxRetunTimeFR1_r18, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lpp_T_rf_RxRetunTimeFR1_r18 },
-  { &hf_lpp_rf_RxRetunTimeFR2_r18, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lpp_T_rf_RxRetunTimeFR2_r18 },
+  { &hf_lpp_rf_RxRetuneTimeFR1_r18, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lpp_T_rf_RxRetuneTimeFR1_r18 },
+  { &hf_lpp_rf_RxRetuneTimeFR2_r18, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lpp_T_rf_RxRetuneTimeFR2_r18 },
   { &hf_lpp_numOfOverlappingPRB_r18, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lpp_T_numOfOverlappingPRB_r18 },
   { NULL, 0, 0, NULL }
 };
@@ -14534,7 +14535,7 @@ dissect_lpp_T_maximumTxFH_Hops_r18(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t
 }
 
 
-static const value_string lpp_T_rf_TxRetunTimeFR1_r18_vals[] = {
+static const value_string lpp_T_rf_TxRetuneTimeFR1_r18_vals[] = {
   {   0, "n70" },
   {   1, "n140" },
   {   2, "n210" },
@@ -14543,7 +14544,7 @@ static const value_string lpp_T_rf_TxRetunTimeFR1_r18_vals[] = {
 
 
 static int
-dissect_lpp_T_rf_TxRetunTimeFR1_r18(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lpp_T_rf_TxRetuneTimeFR1_r18(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
                                      3, NULL, false, 0, NULL);
 
@@ -14551,7 +14552,7 @@ dissect_lpp_T_rf_TxRetunTimeFR1_r18(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_
 }
 
 
-static const value_string lpp_T_rf_TxRetunTimeFR2_r18_vals[] = {
+static const value_string lpp_T_rf_TxRetuneTimeFR2_r18_vals[] = {
   {   0, "n35" },
   {   1, "n70" },
   {   2, "n140" },
@@ -14560,7 +14561,7 @@ static const value_string lpp_T_rf_TxRetunTimeFR2_r18_vals[] = {
 
 
 static int
-dissect_lpp_T_rf_TxRetunTimeFR2_r18(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lpp_T_rf_TxRetuneTimeFR2_r18(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
                                      3, NULL, false, 0, NULL);
 
@@ -14674,8 +14675,8 @@ static const per_sequence_t PosSRS_TxFrequencyHoppingRRC_Connected_r18_sequence[
   { &hf_lpp_maximumSRS_BandwidthAcrossAllHopsFR1_r18, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lpp_T_maximumSRS_BandwidthAcrossAllHopsFR1_r18 },
   { &hf_lpp_maximumSRS_BandwidthAcrossAllHopsFR2_r18, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lpp_T_maximumSRS_BandwidthAcrossAllHopsFR2_r18 },
   { &hf_lpp_maximumTxFH_Hops_r18, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lpp_T_maximumTxFH_Hops_r18 },
-  { &hf_lpp_rf_TxRetunTimeFR1_r18, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lpp_T_rf_TxRetunTimeFR1_r18 },
-  { &hf_lpp_rf_TxRetunTimeFR2_r18, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lpp_T_rf_TxRetunTimeFR2_r18 },
+  { &hf_lpp_rf_TxRetuneTimeFR1_r18, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lpp_T_rf_TxRetuneTimeFR1_r18 },
+  { &hf_lpp_rf_TxRetuneTimeFR2_r18, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lpp_T_rf_TxRetuneTimeFR2_r18 },
   { &hf_lpp_switchTimeBetweenActiveBWP_FrequencyHop_r18, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lpp_T_switchTimeBetweenActiveBWP_FrequencyHop_r18 },
   { &hf_lpp_numOfOverlappingPRB_r18_01, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lpp_T_numOfOverlappingPRB_r18_01 },
   { &hf_lpp_maximumSRS_ResourcePeriodic_r18, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lpp_T_maximumSRS_ResourcePeriodic_r18 },
@@ -14747,7 +14748,7 @@ dissect_lpp_T_maximumTxFH_Hops_r18_01(tvbuff_t *tvb _U_, int offset _U_, asn1_ct
 }
 
 
-static const value_string lpp_T_rf_TxRetunTimeFR1_r18_01_vals[] = {
+static const value_string lpp_T_rf_TxRetuneTimeFR1_r18_01_vals[] = {
   {   0, "n70" },
   {   1, "n140" },
   {   2, "n210" },
@@ -14756,7 +14757,7 @@ static const value_string lpp_T_rf_TxRetunTimeFR1_r18_01_vals[] = {
 
 
 static int
-dissect_lpp_T_rf_TxRetunTimeFR1_r18_01(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lpp_T_rf_TxRetuneTimeFR1_r18_01(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
                                      3, NULL, false, 0, NULL);
 
@@ -14764,7 +14765,7 @@ dissect_lpp_T_rf_TxRetunTimeFR1_r18_01(tvbuff_t *tvb _U_, int offset _U_, asn1_c
 }
 
 
-static const value_string lpp_T_rf_TxRetunTimeFR2_r18_01_vals[] = {
+static const value_string lpp_T_rf_TxRetuneTimeFR2_r18_01_vals[] = {
   {   0, "n35" },
   {   1, "n70" },
   {   2, "n140" },
@@ -14773,7 +14774,7 @@ static const value_string lpp_T_rf_TxRetunTimeFR2_r18_01_vals[] = {
 
 
 static int
-dissect_lpp_T_rf_TxRetunTimeFR2_r18_01(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lpp_T_rf_TxRetuneTimeFR2_r18_01(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
                                      3, NULL, false, 0, NULL);
 
@@ -14865,8 +14866,8 @@ static const per_sequence_t PosSRS_TxFrequencyHoppingRRC_Inactive_r18_sequence[]
   { &hf_lpp_maximumSRS_BandwidthAcrossAllHopsFR1_r18_01, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lpp_T_maximumSRS_BandwidthAcrossAllHopsFR1_r18_01 },
   { &hf_lpp_maximumSRS_BandwidthAcrossAllHopsFR2_r18_01, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lpp_T_maximumSRS_BandwidthAcrossAllHopsFR2_r18_01 },
   { &hf_lpp_maximumTxFH_Hops_r18_01, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lpp_T_maximumTxFH_Hops_r18_01 },
-  { &hf_lpp_rf_TxRetunTimeFR1_r18_01, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lpp_T_rf_TxRetunTimeFR1_r18_01 },
-  { &hf_lpp_rf_TxRetunTimeFR2_r18_01, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lpp_T_rf_TxRetunTimeFR2_r18_01 },
+  { &hf_lpp_rf_TxRetuneTimeFR1_r18_01, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lpp_T_rf_TxRetuneTimeFR1_r18_01 },
+  { &hf_lpp_rf_TxRetuneTimeFR2_r18_01, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lpp_T_rf_TxRetuneTimeFR2_r18_01 },
   { &hf_lpp_switchTimeBetweenActiveBWP_FrequencyHop_r18_01, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lpp_T_switchTimeBetweenActiveBWP_FrequencyHop_r18_01 },
   { &hf_lpp_numOfOverlappingPRB_r18_02, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lpp_T_numOfOverlappingPRB_r18_02 },
   { &hf_lpp_maximumSRS_ResourcePeriodic_r18_01, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lpp_T_maximumSRS_ResourcePeriodic_r18_01 },
@@ -36636,6 +36637,34 @@ dissect_lpp_NR_Multi_RTT_RequestLocationInformation_r16_eag_2(tvbuff_t *tvb _U_,
 }
 
 
+static const value_string lpp_T_nr_NTN_UE_RxTxMeasurementsRequest_r18_vals[] = {
+  {   0, "requested" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_lpp_T_nr_NTN_UE_RxTxMeasurementsRequest_r18(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     1, NULL, false, 0, NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t NR_Multi_RTT_RequestLocationInformation_r16_eag_3_sequence[] = {
+  { &hf_lpp_nr_NTN_UE_RxTxMeasurementsRequest_r18, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lpp_T_nr_NTN_UE_RxTxMeasurementsRequest_r18 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_lpp_NR_Multi_RTT_RequestLocationInformation_r16_eag_3(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence_eag(tvb, offset, actx, tree, NR_Multi_RTT_RequestLocationInformation_r16_eag_3_sequence);
+
+  return offset;
+}
+
+
 static const per_sequence_t NR_Multi_RTT_RequestLocationInformation_r16_sequence[] = {
   { &hf_lpp_nr_UE_RxTxTimeDiffMeasurementInfoRequest_r16, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lpp_T_nr_UE_RxTxTimeDiffMeasurementInfoRequest_r16 },
   { &hf_lpp_nr_RequestedMeasurements_r16_01, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lpp_T_nr_RequestedMeasurements_r16_01 },
@@ -36644,6 +36673,7 @@ static const per_sequence_t NR_Multi_RTT_RequestLocationInformation_r16_sequence
   { &hf_lpp_additionalPaths_r16_01, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lpp_T_additionalPaths_r16_01 },
   { &dummy_hf_lpp_eag_field , ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL, dissect_lpp_NR_Multi_RTT_RequestLocationInformation_r16_eag_1 },
   { &dummy_hf_lpp_eag_field , ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL, dissect_lpp_NR_Multi_RTT_RequestLocationInformation_r16_eag_2 },
+  { &dummy_hf_lpp_eag_field , ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL, dissect_lpp_NR_Multi_RTT_RequestLocationInformation_r16_eag_3 },
   { NULL, 0, 0, NULL }
 };
 
@@ -45090,13 +45120,13 @@ void proto_register_lpp(void) {
       { "processingDurationT3-r18", "lpp.processingDurationT3_r18",
         FT_UINT32, BASE_DEC, VALS(lpp_T_processingDurationT3_r18_vals), 0,
         NULL, HFILL }},
-    { &hf_lpp_rf_RxRetunTimeFR1_r18,
-      { "rf-RxRetunTimeFR1-r18", "lpp.rf_RxRetunTimeFR1_r18",
-        FT_UINT32, BASE_DEC, VALS(lpp_T_rf_RxRetunTimeFR1_r18_vals), 0,
+    { &hf_lpp_rf_RxRetuneTimeFR1_r18,
+      { "rf-RxRetuneTimeFR1-r18", "lpp.rf_RxRetuneTimeFR1_r18",
+        FT_UINT32, BASE_DEC, VALS(lpp_T_rf_RxRetuneTimeFR1_r18_vals), 0,
         NULL, HFILL }},
-    { &hf_lpp_rf_RxRetunTimeFR2_r18,
-      { "rf-RxRetunTimeFR2-r18", "lpp.rf_RxRetunTimeFR2_r18",
-        FT_UINT32, BASE_DEC, VALS(lpp_T_rf_RxRetunTimeFR2_r18_vals), 0,
+    { &hf_lpp_rf_RxRetuneTimeFR2_r18,
+      { "rf-RxRetuneTimeFR2-r18", "lpp.rf_RxRetuneTimeFR2_r18",
+        FT_UINT32, BASE_DEC, VALS(lpp_T_rf_RxRetuneTimeFR2_r18_vals), 0,
         NULL, HFILL }},
     { &hf_lpp_numOfOverlappingPRB_r18,
       { "numOfOverlappingPRB-r18", "lpp.numOfOverlappingPRB_r18",
@@ -46298,13 +46328,13 @@ void proto_register_lpp(void) {
       { "maximumTxFH-Hops-r18", "lpp.maximumTxFH_Hops_r18",
         FT_UINT32, BASE_DEC, VALS(lpp_T_maximumTxFH_Hops_r18_vals), 0,
         NULL, HFILL }},
-    { &hf_lpp_rf_TxRetunTimeFR1_r18,
-      { "rf-TxRetunTimeFR1-r18", "lpp.rf_TxRetunTimeFR1_r18",
-        FT_UINT32, BASE_DEC, VALS(lpp_T_rf_TxRetunTimeFR1_r18_vals), 0,
+    { &hf_lpp_rf_TxRetuneTimeFR1_r18,
+      { "rf-TxRetuneTimeFR1-r18", "lpp.rf_TxRetuneTimeFR1_r18",
+        FT_UINT32, BASE_DEC, VALS(lpp_T_rf_TxRetuneTimeFR1_r18_vals), 0,
         NULL, HFILL }},
-    { &hf_lpp_rf_TxRetunTimeFR2_r18,
-      { "rf-TxRetunTimeFR2-r18", "lpp.rf_TxRetunTimeFR2_r18",
-        FT_UINT32, BASE_DEC, VALS(lpp_T_rf_TxRetunTimeFR2_r18_vals), 0,
+    { &hf_lpp_rf_TxRetuneTimeFR2_r18,
+      { "rf-TxRetuneTimeFR2-r18", "lpp.rf_TxRetuneTimeFR2_r18",
+        FT_UINT32, BASE_DEC, VALS(lpp_T_rf_TxRetuneTimeFR2_r18_vals), 0,
         NULL, HFILL }},
     { &hf_lpp_switchTimeBetweenActiveBWP_FrequencyHop_r18,
       { "switchTimeBetweenActiveBWP-FrequencyHop-r18", "lpp.switchTimeBetweenActiveBWP_FrequencyHop_r18",
@@ -46338,14 +46368,14 @@ void proto_register_lpp(void) {
       { "maximumTxFH-Hops-r18", "lpp.maximumTxFH_Hops_r18",
         FT_UINT32, BASE_DEC, VALS(lpp_T_maximumTxFH_Hops_r18_01_vals), 0,
         "T_maximumTxFH_Hops_r18_01", HFILL }},
-    { &hf_lpp_rf_TxRetunTimeFR1_r18_01,
-      { "rf-TxRetunTimeFR1-r18", "lpp.rf_TxRetunTimeFR1_r18",
-        FT_UINT32, BASE_DEC, VALS(lpp_T_rf_TxRetunTimeFR1_r18_01_vals), 0,
-        "T_rf_TxRetunTimeFR1_r18_01", HFILL }},
-    { &hf_lpp_rf_TxRetunTimeFR2_r18_01,
-      { "rf-TxRetunTimeFR2-r18", "lpp.rf_TxRetunTimeFR2_r18",
-        FT_UINT32, BASE_DEC, VALS(lpp_T_rf_TxRetunTimeFR2_r18_01_vals), 0,
-        "T_rf_TxRetunTimeFR2_r18_01", HFILL }},
+    { &hf_lpp_rf_TxRetuneTimeFR1_r18_01,
+      { "rf-TxRetuneTimeFR1-r18", "lpp.rf_TxRetuneTimeFR1_r18",
+        FT_UINT32, BASE_DEC, VALS(lpp_T_rf_TxRetuneTimeFR1_r18_01_vals), 0,
+        "T_rf_TxRetuneTimeFR1_r18_01", HFILL }},
+    { &hf_lpp_rf_TxRetuneTimeFR2_r18_01,
+      { "rf-TxRetuneTimeFR2-r18", "lpp.rf_TxRetuneTimeFR2_r18",
+        FT_UINT32, BASE_DEC, VALS(lpp_T_rf_TxRetuneTimeFR2_r18_01_vals), 0,
+        "T_rf_TxRetuneTimeFR2_r18_01", HFILL }},
     { &hf_lpp_switchTimeBetweenActiveBWP_FrequencyHop_r18_01,
       { "switchTimeBetweenActiveBWP-FrequencyHop-r18", "lpp.switchTimeBetweenActiveBWP_FrequencyHop_r18",
         FT_UINT32, BASE_DEC, VALS(lpp_T_switchTimeBetweenActiveBWP_FrequencyHop_r18_01_vals), 0,
@@ -54606,6 +54636,10 @@ void proto_register_lpp(void) {
       { "nr-DL-PRS-JointMeasurementRequestedPFL-List-r18", "lpp.nr_DL_PRS_JointMeasurementRequestedPFL_List_r18",
         FT_UINT32, BASE_DEC, NULL, 0,
         "T_nr_DL_PRS_JointMeasurementRequestedPFL_List_r18_01", HFILL }},
+    { &hf_lpp_nr_NTN_UE_RxTxMeasurementsRequest_r18,
+      { "nr-NTN-UE-RxTxMeasurementsRequest-r18", "lpp.nr_NTN_UE_RxTxMeasurementsRequest_r18",
+        FT_UINT32, BASE_DEC, VALS(lpp_T_nr_NTN_UE_RxTxMeasurementsRequest_r18_vals), 0,
+        "T_nr_NTN_UE_RxTxMeasurementsRequest_r18", HFILL }},
     { &hf_lpp_maxDL_PRS_RxTxTimeDiffMeasPerTRP_r16,
       { "maxDL-PRS-RxTxTimeDiffMeasPerTRP-r16", "lpp.maxDL_PRS_RxTxTimeDiffMeasPerTRP_r16",
         FT_UINT32, BASE_DEC, NULL, 0,
