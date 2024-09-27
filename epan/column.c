@@ -346,6 +346,24 @@ parse_column_format(fmt_data *cfmt, const char *fmt)
     return true;
 }
 
+char *
+column_fmt_data_to_str(const fmt_data *cfmt)
+{
+    if (!cfmt) {
+        return NULL;
+    }
+
+    if ((cfmt->fmt == COL_CUSTOM) && (cfmt->custom_fields)) {
+        return ws_strdup_printf("%s:%s:%d:%c",
+            col_format_to_string(cfmt->fmt),
+            cfmt->custom_fields,
+            cfmt->custom_occurrence,
+            cfmt->display);
+    }
+
+    return ws_strdup(col_format_to_string(cfmt->fmt));
+}
+
 void
 try_convert_to_custom_column(char **fmt)
 {
@@ -374,7 +392,11 @@ column_dump_column_formats(void)
     printf("%s\t%s\n", col_format_to_string(fmt), col_format_desc(fmt));
   }
 
-  printf("\nFor example, to print Wireshark's default columns with tshark:\n\n"
+  /* XXX - Actually retrieve the default values from prefs. We could also
+   * then output the default columns for Logray, if this is Logray. (tray?)
+   */
+  printf("\nThese format strings are used to specify a column format in preferences.\n"
+    "For example, to print Wireshark's default columns with tshark:\n\n"
 #ifdef _WIN32
   "tshark.exe -o \"gui.column.format:"
     "\\\"No.\\\",\\\"%%m\\\","
@@ -394,6 +416,32 @@ column_dump_column_formats(void)
     "\"Length\",\"%%L\","
     "\"Info\",\"%%i\"'\n");
 #endif
+
+  if (prefs.col_list) {
+    fmt_data *cfmt;
+    char *prefs_fmt;
+    GString *current_cols = g_string_new(NULL);
+    for (GList *elem = g_list_first(prefs.col_list); elem != NULL; elem = elem->next) {
+      cfmt = (fmt_data*)elem->data;
+      prefs_fmt = column_fmt_data_to_str(cfmt);
+      if (current_cols->len != 0) {
+        g_string_append_c(current_cols, ',');
+      }
+#ifdef _WIN32
+      g_string_append_printf(current_cols, "\\\"%s\\\",\\\"%s\\\"", cfmt->title, prefs_fmt);
+#else
+      g_string_append_printf(current_cols, "\"%s\",\"%s\"", cfmt->title, prefs_fmt);
+#endif
+      g_free(prefs_fmt);
+    }
+    printf("\nand to print the current configuration profile's columns with tshark:\n\n"
+#ifdef _WIN32
+    "tshark -o \"gui.column.format:%s\"\n", current_cols->str);
+#else
+    "tshark -o 'gui.column.format:%s'\n", current_cols->str);
+#endif
+    g_string_free(current_cols, TRUE);
+  }
 }
 
 /* Marks each array element true if it can be substituted for the given

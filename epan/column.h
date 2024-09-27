@@ -119,6 +119,19 @@ void                 column_dump_column_formats(void);
 WS_DLL_PUBLIC
 bool parse_column_format(fmt_data *cfmt, const char *fmt);
 
+/** Given a fmt_data struct, returns the column format string that should
+ * be written to the preferences to generate the fmt_data struct.
+ * The inverse of parse_column_format() above.
+ *
+ * @param[in] cfmt The fmt_data struct.
+ *
+ * @return A column format string that corresponds to the fmt_data.
+ * This string is owned by the caller, and must be freed. Returns
+ * NULL if cfmt is NULL.
+ */
+extern
+char * column_fmt_data_to_str(const fmt_data *cfmt);
+
 /** Checks a column format string to see if it is a deprecated column
  * that has been migrated to a custom column, and converts the format
  * to the corresponding custom column format if so, otherwise leaving

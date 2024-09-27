@@ -440,6 +440,9 @@ There is one record per line.  The fields are tab-delimited.
 Field 1:: format string (e.g. "%rD")
 Field 2:: text description of format string (e.g. "Dest port (resolved)")
 
+This report is followed by a usage example that demonstrates how to change
+the columns by overriding the `gui.column.format` preference value with *-o*.
+
 *currentprefs*  Dumps a copy of the current preferences file to stdout.
 
 *decodes* Dumps the "layer type"/"decode as" associations to stdout.
@@ -712,6 +715,12 @@ from a preference file.  The argument to the option is a string of the
 form __prefname:value__, where __prefname__ is the name of the
 preference (which is the same name that would appear in the preference
 file), and __value__ is the value to which it should be set.
+
+NOTE: *TShark* does not save preferences, so use this for temporary changes
+for a single execution. To permanently set a preference, change it in the
+*Wireshark* GUI or edit the preference file directly, creating multiple
+configuration profiles if you need different preference sets for different
+occasions.
 --
 
 -O  <protocols>::

@@ -2702,21 +2702,13 @@ column_hidden_fmt_to_str_cb(pref_t* pref, bool default_val)
     while (clp) {
         char *prefs_fmt;
         cfmt = (fmt_data *) clp->data;
-        if ((cfmt->fmt == COL_CUSTOM) && (cfmt->custom_fields)) {
-            prefs_fmt = ws_strdup_printf("%s:%s:%d:%c",
-                    col_format_to_string(cfmt->fmt),
-                    cfmt->custom_fields,
-                    cfmt->custom_occurrence,
-                    cfmt->display);
-        } else {
-            prefs_fmt = g_strdup(col_format_to_string(cfmt->fmt));
-        }
         if (!cfmt->visible) {
             if (cols_hidden->len)
                 g_string_append (cols_hidden, ",");
+            prefs_fmt = column_fmt_data_to_str(cfmt);
             g_string_append(cols_hidden, prefs_fmt);
+            g_free(prefs_fmt);
         }
-        g_free(prefs_fmt);
         clp = clp->next;
     }
 
@@ -2978,23 +2970,13 @@ column_format_to_str_cb(pref_t* pref, bool default_val)
     GList       *clp = g_list_first(pref_l);
     GList       *col_l;
     fmt_data    *cfmt;
-    char        *prefs_fmt;
     char        *column_format_str;
 
     col_l = NULL;
     while (clp) {
         cfmt = (fmt_data *) clp->data;
         col_l = g_list_append(col_l, g_strdup(cfmt->title));
-        if ((cfmt->fmt == COL_CUSTOM) && (cfmt->custom_fields)) {
-            prefs_fmt = ws_strdup_printf("%s:%s:%d:%c",
-                    col_format_to_string(cfmt->fmt),
-                    cfmt->custom_fields,
-                    cfmt->custom_occurrence,
-                    cfmt->display);
-        } else {
-            prefs_fmt = g_strdup(col_format_to_string(cfmt->fmt));
-        }
-        col_l = g_list_append(col_l, prefs_fmt);
+        col_l = g_list_append(col_l, column_fmt_data_to_str(cfmt));
         clp = clp->next;
     }
 
