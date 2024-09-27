@@ -2,12 +2,12 @@ General Information
 -------------------
 
 Wireshark is a network traffic analyzer, or "sniffer", for Linux, macOS,
-\*BSD and other Unix and Unix-like operating systems and for Windows.
+\*BSD, and other Unix and Unix-like operating systems and for Windows.
 It uses Qt, a graphical user interface library, and libpcap and npcap as
 packet capture and filtering libraries.
 
 The Wireshark distribution also comes with TShark, which is a
-line-oriented sniffer (similar to Sun's snoop or tcpdump) that uses the
+line-oriented sniffer (similar to Sun's snoop, or tcpdump) that uses the
 same dissection, capture-file reading and writing, and packet filtering
 code as Wireshark, and with editcap, which is a program to read capture
 files and write the packets from that capture file, possibly in a
@@ -36,7 +36,7 @@ operating systems and Linux distributions including Debian, Ubuntu, Fedora,
 CentOS, RHEL, Arch, Gentoo, openSUSE, FreeBSD, DragonFly BSD, NetBSD, and
 OpenBSD.
 
-Additionally it is available through many third-party packaging systems
+Additionally, it is available through many third-party packaging systems
 such as pkgsrc, OpenCSW, Homebrew, and MacPorts.
 
 It should run on other Unix-ish systems without too much trouble.
@@ -119,7 +119,7 @@ line of ISDN routers (TR-600 and TR-650). You can telnet to the router
 and start a dump session with `snoop dump`.
 
 CoSine L2 debug output can also be read by Wireshark. To get the L2
-debug output first enter the diags mode and then use
+debug output, first enter the diags mode and then use
 `create-pkt-log-profile` and `apply-pkt-lozg-profile` commands under
 layer-2 category. For more detail how to use these commands, you
 should examine the help command by `layer-2 create ?` or `layer-2 apply ?`.
@@ -218,7 +218,7 @@ License
 -------
 
 Wireshark is distributed under the GNU GPLv2. See the file COPYING for
-the full text of the license. When in doubt the full text is the legally
+the full text of the license. When in doubt, the full text is the legally
 binding part. These notes are just to make it easier for people that are not
 familiar with the GPLv2.
 
