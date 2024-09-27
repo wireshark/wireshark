@@ -639,7 +639,7 @@ glossary_option_help(void)
     fprintf(output, "  -G elastic-mapping       dump ElasticSearch mapping file\n");
     fprintf(output, "  -G enterprises           dump IANA Private Enterprise Number (PEN) table\n");
     fprintf(output, "  -G fieldcount            dump count of header fields and exit\n");
-    fprintf(output, "  -G fields [prefix]       dump fields glossary and exit\n");
+    fprintf(output, "  -G fields,[prefix]       dump fields glossary and exit\n");
     fprintf(output, "  -G ftypes                dump field type basic and descriptive names\n");
     fprintf(output, "  -G heuristic-decodes     dump heuristic dissector tables\n");
     fprintf(output, "  -G manuf                 dump ethernet manufacturer tables\n");
@@ -1338,16 +1338,17 @@ main(int argc, char *argv[])
                 goto clean_exit;
             }
             else if (strcmp(argv[2], "fields") == 0) {
-                if (argc >= 4) {
-                    bool matched = proto_registrar_dump_field_completions(argv[3]);
-                    if (!matched) {
-                        cmdarg_err("No field or protocol begins with \"%s\"", argv[3]);
-                        exit_status = EXIT_FAILURE;
-                        goto clean_exit;
-                    }
-                }
-                else {
-                    proto_registrar_dump_fields();
+                epan_load_settings();
+                proto_registrar_dump_fields();
+            }
+            else if (strncmp(argv[2], "fields,", strlen("fields,")) == 0) {
+                epan_load_settings();
+                char* prefix = argv[2] + strlen("fields,");
+                bool matched = proto_registrar_dump_field_completions(prefix);
+                if (!matched) {
+                    cmdarg_err("No field or protocol begins with \"%s\"", prefix);
+                    exit_status = EXIT_FAILURE;
+                    goto clean_exit;
                 }
             }
             else if (strcmp(argv[2], "folders") == 0) {

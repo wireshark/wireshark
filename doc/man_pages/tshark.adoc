@@ -482,7 +482,7 @@ falling in the default case (string) won't be mapped.
 
 *fieldcount*  Dumps the number of header fields to stdout.
 
-*fields*  Dumps the contents of the registration database to
+*fields*[,__prefix__]  Dumps the contents of the registration database to
 stdout.  An independent program can take this output and format it into nice
 tables or HTML or whatever.  There is one record per line.  Each record is
 either a protocol or a header field, differentiated by the first field.

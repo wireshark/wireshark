@@ -42,7 +42,9 @@ The following bugs have been fixed:
 
 === New and Updated Features
 
-There are no new or updated features in this release.
+* The TShark syntax for dumping only fields with a certain prefix has changed
+  from `-G fields prefix` to `-G fields,prefix`. This allows `tshark -G fields`
+  to again support also specifying the configuration profile to use.
 
 // === Removed Features and Support
 
