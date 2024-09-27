@@ -182,6 +182,17 @@ void PacketListHeader::contextMenuEvent(QContextMenuEvent *event)
     contextMenu->setAttribute(Qt::WA_DeleteOnClose);
     contextMenu->setProperty("column", QVariant::fromValue(sectionIdx));
 
+    action = contextMenu->addAction(tr("Column Preferences…"));
+    connect(action, &QAction::triggered, this, &PacketListHeader::showColumnPrefs);
+    action = contextMenu->addAction(tr("Edit Column"));
+    connect(action, &QAction::triggered, this, &PacketListHeader::doEditColumn);
+    action = contextMenu->addAction(tr("Resize to Contents"));
+    connect(action, &QAction::triggered, this, &PacketListHeader::resizeToContent);
+    action = contextMenu->addAction(tr("Resize Column to Width…"));
+    connect(action, &QAction::triggered, this, &PacketListHeader::resizeToWidth);
+
+    contextMenu->addSeparator();
+
     QActionGroup * alignmentActions = new QActionGroup(contextMenu);
 #if QT_VERSION >= QT_VERSION_CHECK(5, 14 ,0)
     alignmentActions->setExclusionPolicy(QActionGroup::ExclusionPolicy::ExclusiveOptional);
@@ -204,17 +215,6 @@ void PacketListHeader::contextMenuEvent(QContextMenuEvent *event)
     connect(alignmentActions, &QActionGroup::triggered, this, &PacketListHeader::setAlignment);
 
     contextMenu->addActions(alignmentActions->actions());
-    contextMenu->addSeparator();
-
-    action = contextMenu->addAction(tr("Column Preferences…"));
-    connect(action, &QAction::triggered, this, &PacketListHeader::showColumnPrefs);
-    action = contextMenu->addAction(tr("Edit Column"));
-    connect(action, &QAction::triggered, this, &PacketListHeader::doEditColumn);
-    action = contextMenu->addAction(tr("Resize to Contents"));
-    connect(action, &QAction::triggered, this, &PacketListHeader::resizeToContent);
-    action = contextMenu->addAction(tr("Resize Column to Width…"));
-    connect(action, &QAction::triggered, this, &PacketListHeader::resizeToWidth);
-
     contextMenu->addSeparator();
 
     bool canDisplayStrings = model()->headerData(sectionIdx, Qt::Horizontal, PacketListModel::HEADER_CAN_DISPLAY_STRINGS).toBool();
