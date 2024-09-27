@@ -225,11 +225,7 @@ dissect_rx_abort(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int
 	int old_offset=offset;
 
 	col_add_fstr(pinfo->cinfo, COL_INFO,
-			"ABORT  "
-			"Seq: %lu  "
-			"Call: %lu  "
-			"Source Port: %s  "
-			"Destination Port: %s  ",
+			"ABORT  Seq: %lu  Call: %lu  Source Port: %s  Destination Port: %s  ",
 			(unsigned long)seq,
 			(unsigned long)callnumber,
 			udp_port_to_display(pinfo->pool, pinfo->srcport),
@@ -257,11 +253,7 @@ dissect_rx_challenge(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 	int old_offset=offset;
 
 	col_add_fstr(pinfo->cinfo, COL_INFO,
-			"CHALLENGE  "
-			"Seq: %lu  "
-			"Call: %lu  "
-			"Source Port: %s  "
-			"Destination Port: %s  ",
+			"CHALLENGE  Seq: %lu  Call: %lu  Source Port: %s  Destination Port: %s  ",
 			(unsigned long)seq,
 			(unsigned long)callnumber,
 			udp_port_to_display(pinfo->pool, pinfo->srcport),
@@ -515,11 +507,7 @@ dissect_rx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *dat
 	case RX_PACKET_TYPE_ACKALL:
 		/* does not contain any payload */
 		col_add_fstr(pinfo->cinfo, COL_INFO,
-				"ACKALL  "
-				"Seq: %lu  "
-				"Call: %lu  "
-				"Source Port: %s  "
-				"Destination Port: %s  ",
+				"ACKALL  Seq: %lu  Call: %lu  Source Port: %s  Destination Port: %s  ",
 				(unsigned long)seq,
 				(unsigned long)callnumber,
 				udp_port_to_display(pinfo->pool, pinfo->srcport),
@@ -534,11 +522,7 @@ dissect_rx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *dat
 		    version_type = "request";
 
 		col_add_fstr(pinfo->cinfo, COL_INFO,
-				"VERSION %s  "
-				"Seq: %lu  "
-				"Call: %lu  "
-				"Source Port: %s  "
-				"Destination Port: %s  ",
+				"VERSION %s  Seq: %lu  Call: %lu  Source Port: %s  Destination Port: %s  ",
 				version_type,
 				(unsigned long)seq,
 				(unsigned long)callnumber,
