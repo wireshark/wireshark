@@ -56,6 +56,8 @@ The following features are either new or have been significantly updated since v
   (The `defaultprefs` report remains unaffected by any other options.)
   As a part of this change, `-G` with no argument, which was previously deprecated,
   is no longer supported. Use `tshark -G fields` to produce the same report.
+  Also, the syntax for only listing fields with a certain prefix has changed to
+  `tshark -G fields,prefix`.
 
 * Wireshark can now decrypt NTP packets using NTS (Network Time Security). To decrypt packets,
   the NTS-KE (Network Time Security Key Establishment Protocol) packets need to be present,
