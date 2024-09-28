@@ -1093,13 +1093,13 @@ void MainApplication::refreshLocalInterfaces()
 #ifdef HAVE_LIBPCAP
 GList* MainApplication::getInterfaceList() const
 {
-     return interface_list_copy(cached_if_list_);
+    return interface_list_copy(cached_if_list_);
 }
 
 void MainApplication::setInterfaceList(GList *if_list)
 {
-     free_interface_list(cached_if_list_);
-     cached_if_list_ = interface_list_copy(if_list);
+    free_interface_list(cached_if_list_);
+    cached_if_list_ = interface_list_copy(if_list);
 }
 #endif
 

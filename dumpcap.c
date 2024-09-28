@@ -5797,6 +5797,12 @@ main(int argc, char *argv[])
             for (GList *if_entry = if_list; if_entry != NULL; if_entry = g_list_next(if_entry)) {
                 if_info = (if_info_t *)if_entry->data;
 
+                /*
+                 * XXX - If on the command line we had the options -i <interface> -I,
+                 * we should retrieve the link-types for the interface in monitor mode.
+                 * We've already copied that information to global_capture_opts, but
+                 * the below statement wipes it away.
+                 */
                 interface_opts = interface_opts_from_if_info(&global_capture_opts, if_info);
 
                 if_info->caps = get_if_capabilities(interface_opts, &open_status, &open_status_str);

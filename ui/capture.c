@@ -984,6 +984,9 @@ capture_interface_stat_start(capture_options *capture_opts _U_, GList **if_list)
      * mechanism, so opening all the devices and presenting packet
      * counts might not always be a good idea.
      */
+    /* XXX - We should use capture_opts to control whether we request
+     * the monitor_mode version of the supported link-types for interfaces.
+     */
     int status;
     iface_mon_enable(false);
     status = sync_interface_stats_open(&stat_fd, &fork_child, &data, &msg, NULL);
