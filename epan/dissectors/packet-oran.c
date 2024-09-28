@@ -134,7 +134,9 @@ static int hf_oran_reserved_8bits;
 static int hf_oran_reserved_16bits;
 static int hf_oran_reserved_15bits;
 
-static int hf_oran_ext11_reserved;
+static int hf_oran_bundle_offset;
+static int hf_oran_cont_ind;
+
 static int hf_oran_laa_msgtype0_reserved;
 
 static int hf_oran_bfwCompHdr;
@@ -1516,6 +1518,9 @@ static uint32_t dissect_bfw_bundle(tvbuff_t *tvb, proto_tree *tree, packet_info 
     int bfw_offset;
     int prb_offset = offset;
 
+    /* contInd */
+    proto_tree_add_item(bundle_tree, hf_oran_cont_ind,
+                        tvb, offset, 1, ENC_BIG_ENDIAN);
     /* beamId */
     uint32_t beam_id;
     proto_tree_add_item_ret_uint(bundle_tree, hf_oran_beam_id, tvb, offset, 2, ENC_BIG_ENDIAN, &beam_id);
@@ -2454,8 +2459,8 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                 /* RAD */
                 proto_tree_add_item_ret_boolean(extension_tree, hf_oran_rad,
                                     tvb, offset, 1, ENC_BIG_ENDIAN, &rad);
-                /* 6 reserved bits */
-                proto_tree_add_item(extension_tree, hf_oran_ext11_reserved, tvb,
+                /* bundleOffset (6 bits) */
+                proto_tree_add_item(extension_tree, hf_oran_bundle_offset, tvb,
                                     offset, 1, ENC_BIG_ENDIAN);
                 offset++;
 
@@ -2530,6 +2535,9 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                     num_bundles = ext11_settings.num_bundles;
 
                     for (unsigned n=0; n < num_bundles; n++) {
+                        /* contInd */
+                        proto_tree_add_item(extension_tree, hf_oran_cont_ind,
+                                            tvb, offset, 1, ENC_BIG_ENDIAN);
                         /* beamId */
                         proto_item *ti = proto_tree_add_item(extension_tree, hf_oran_beam_id,
                                                              tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -2942,7 +2950,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                         ext11_settings.ext21_set = true;
                         ext11_settings.ext21_ci_prb_group_size = ci_prb_group_size;
 
-                        if (numPrbc ==0) {
+                        if (numPrbc == 0) {
                             expert_add_info(pinfo, numprbc_ti, &ei_oran_numprbc_ext21_zero);
                         }
                         break;
@@ -2951,7 +2959,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                 /* reserved (6 bits) */
                 proto_tree_add_item(extension_tree, hf_oran_reserved_6bits, tvb, offset, 1, ENC_BIG_ENDIAN);
 
-                /* prgSize (2 bits). Interpretation depends upon section type (5 or 6), but also mplane features? */
+                /* prgSize (2 bits). Interpretation depends upon section type (5 or 6), but also mplane parameters? */
                 if (sectionType == SEC_C_UE_SCHED) {             /* Section Type 5 */
                     proto_tree_add_item(extension_tree, hf_oran_prg_size_st5, tvb, offset, 1, ENC_BIG_ENDIAN);
                 }
@@ -4922,14 +4930,24 @@ proto_register_oran(void)
         },
 
 
-        /* 7.7.11 */
-        {&hf_oran_ext11_reserved,
-         {"Reserved", "oran_fh_cus.reserved",
-          FT_UINT8, BASE_HEX,
+        /* 7.7.11.10 */
+        {&hf_oran_bundle_offset,
+         {"BundleOffset", "oran_fh_cus.bundleOffset",
+          FT_UINT8, BASE_DEC,
           NULL, 0x3f,
-          NULL,
+          "offset between start of first PRB bundle and first PRB in section",
           HFILL}
         },
+        /* 7.7.11.9 */
+        {&hf_oran_cont_ind,
+         {"contInd", "oran_fh_cus.contInd",
+          FT_UINT8, BASE_DEC,
+          NULL, 0x80,
+          "PRB region continuity flag",
+          HFILL}
+        },
+
+
         /* Table 7.4.9-2 */
         {&hf_oran_laa_msgtype0_reserved,
          {"Reserved", "oran_fh_cus.reserved",
