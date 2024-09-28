@@ -87,6 +87,7 @@ static int hf_tecmp_payload_timestamp_res;
 static int hf_tecmp_payload_length;
 static int hf_tecmp_payload_data;
 static int hf_tecmp_payload_data_length;
+static int hf_tecmp_payload_samples;
 
 /* TECMP Payload flags */
 /* Generic */
@@ -204,6 +205,19 @@ static int hf_tecmp_payload_data_analog_value_amp;
 static int hf_tecmp_payload_data_analog_value_watt;
 static int hf_tecmp_payload_data_analog_value_amp_hour;
 static int hf_tecmp_payload_data_analog_value_celsius;
+
+/* Analog Alt */
+static int hf_tecmp_payload_analog_alt_flags;
+static int hf_tecmp_payload_analog_alt_flag_sample_dt;
+static int hf_tecmp_payload_analog_alt_flag_reserved;
+
+static int hf_tecmp_payload_analog_alt_reserved;
+static int hf_tecmp_payload_analog_alt_unit;
+static int hf_tecmp_payload_analog_alt_sample_interval;
+static int hf_tecmp_payload_analog_alt_sample_offset;
+static int hf_tecmp_payload_analog_alt_sample_scalar;
+static int hf_tecmp_payload_analog_alt_sample_raw;
+static int hf_tecmp_payload_analog_alt_sample;
 
 /* ILaS */
 static int hf_tecmp_payload_data_ilas_decoded_command;
@@ -324,6 +338,8 @@ static int ett_tecmp_payload_dataflags;
 static int ett_tecmp_payload_instruction_address;
 static int ett_tecmp_payload_data_id;
 static int ett_tecmp_payload_lin_id;
+static int ett_tecmp_payload_analog_alt_flags;
+static int ett_tecmp_payload_analog_alt_sample;
 static int ett_tecmp_payload_eth_raw;
 static int ett_tecmp_payload_eth_raw_frame;
 static int ett_tecmp_status_bus_data;
@@ -383,6 +399,7 @@ static const value_string msg_type_names[] = {
 #define TECMP_DATA_TYPE_RS232_SLA          0x0012
 #define TECMP_DATA_TYPE_ANALOG             0x0020
 #define TECMP_DATA_TYPE_ANALOG_SLA         0x0021
+#define TECMP_DATA_TYPE_ANALOG_ALT         0x0028
 #define TECMP_DATA_TYPE_ETH                0x0080
 #define TECMP_DATA_TYPE_ETH_RAW            0x0081
 #define TECMP_DATA_TYPE_ETH_10BASE_T1S     0x0082
@@ -413,6 +430,7 @@ static const value_string tecmp_msgtype_names[] = {
     {TECMP_DATA_TYPE_RS232_SLA,            "UART/RS232_SLA"},
     {TECMP_DATA_TYPE_ANALOG,               "Analog"},
     {TECMP_DATA_TYPE_ANALOG_SLA,           "Analog_SLA"},
+    {TECMP_DATA_TYPE_ANALOG_ALT,           "Analog Alternative"},
     {TECMP_DATA_TYPE_ETH,                  "Ethernet II"},
     {TECMP_DATA_TYPE_ETH_RAW,              "Ethernet Raw"},
     {TECMP_DATA_TYPE_ETH_10BASE_T1S,       "Ethernet 10BASE-T1S"},
@@ -601,6 +619,25 @@ static const value_string tecmp_payload_analog_unit_types[] = {
     {0x5, "undefined value"},
     {0x6, "undefined value"},
     {0x7, "undefined value"},
+    {0, NULL}
+};
+
+static const value_string analog_alt_units[] = {
+    {0x04, "A"},
+    {0x0e, "W"},
+    {0x0f, "C"},
+    {0x10, "V"},
+    {0x17, "°C"},
+    {0, NULL}
+};
+
+/* TECMP Analog Alt Data Message DT Values */
+#define TECMP_ANALOG_ALT_DATA_MSG_DL_16     0x00
+#define TECMP_ANALOG_ALT_DATA_MSG_DL_32     0x01
+
+static const value_string analog_alt_sample_dt[] = {
+    {TECMP_ANALOG_ALT_DATA_MSG_DL_16,       "A_INT16"},
+    {TECMP_ANALOG_ALT_DATA_MSG_DL_32,       "A_INT32"},
     {0, NULL}
 };
 
@@ -2092,7 +2129,7 @@ dissect_tecmp_log_or_replay_stream(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                 break;
 
             case TECMP_DATA_TYPE_ANALOG:
-                ti_tecmp = proto_tree_add_item(tecmp_tree, hf_tecmp_payload_data, sub_tvb, offset2, length, ENC_NA);
+                ti_tecmp = proto_tree_add_item(tecmp_tree, hf_tecmp_payload_samples, sub_tvb, offset2, length, ENC_NA);
                 tecmp_tree = proto_item_add_subtree(ti_tecmp, ett_tecmp_payload_data);
 
                 analog_value_scale_factor = tecmp_payload_analog_scale_factor_values[((dataflags & TECMP_DATAFLAGS_FACTOR_MASK) >> TECMP_DATAFLAGS_FACTOR_SHIFT)];
@@ -2134,6 +2171,92 @@ dissect_tecmp_log_or_replay_stream(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                     offset2 += 2;
                 }
                 break;
+
+            case TECMP_DATA_TYPE_ANALOG_ALT:
+            {
+                /* TECMP_DATA_TYPE_ANALOG_ALT is a backport of packet-asam-cmp.c CMP_DATA_MSG_ANALOG */
+
+                static int * const analog_alt_flags[] = {
+                    &hf_tecmp_payload_analog_alt_flag_reserved,
+                    &hf_tecmp_payload_analog_alt_flag_sample_dt,
+                    NULL
+                };
+
+                uint64_t flags;
+                proto_tree_add_bitmask_ret_uint64(tecmp_tree, sub_tvb, offset2, hf_tecmp_payload_analog_alt_flags, ett_tecmp_payload_analog_alt_flags, analog_alt_flags, ENC_BIG_ENDIAN, &flags);
+                offset2 += 2;
+
+                proto_tree_add_item(tecmp_tree, hf_tecmp_payload_analog_alt_reserved, sub_tvb, offset2, 1, ENC_NA);
+                offset2 += 1;
+
+                unsigned analog_unit;
+                proto_tree_add_item_ret_uint(tecmp_tree, hf_tecmp_payload_analog_alt_unit, sub_tvb, offset2, 1, ENC_NA, &analog_unit);
+                const char *unit_symbol;
+                unit_symbol = try_val_to_str(analog_unit, analog_alt_units);
+                offset2 += 1;
+
+                proto_tree_add_item(tecmp_tree, hf_tecmp_payload_analog_alt_sample_interval, sub_tvb, offset2, 4, ENC_BIG_ENDIAN);
+                offset2 += 4;
+
+                float sample_offset;
+                proto_tree_add_item(tecmp_tree, hf_tecmp_payload_analog_alt_sample_offset, sub_tvb, offset2, 4, ENC_BIG_ENDIAN);
+                sample_offset = tvb_get_ieee_float(sub_tvb, offset2, ENC_BIG_ENDIAN);
+                offset2 += 4;
+
+                float sample_scalar;
+                proto_tree_add_item(tecmp_tree, hf_tecmp_payload_analog_alt_sample_scalar, sub_tvb, offset2, 4, ENC_BIG_ENDIAN);
+                sample_scalar = tvb_get_ieee_float(sub_tvb, offset2, ENC_BIG_ENDIAN);
+                offset2 += 4;
+
+                ti_tecmp = proto_tree_add_item(tecmp_tree, hf_tecmp_payload_samples, sub_tvb, offset2, length - offset2, ENC_NA);
+                tecmp_tree = proto_item_add_subtree(ti_tecmp, ett_tecmp_payload_data);
+
+                int data_left = length - offset2;
+                if (data_left > 0) {
+
+                    switch (flags & 0x03) {
+                    case 0: /* INT16 */
+                        while (data_left >= 2) {
+                            double sample_value = ((double)tvb_get_int16(sub_tvb, offset2, ENC_BIG_ENDIAN) * sample_scalar + sample_offset);
+                            ti = proto_tree_add_double(tecmp_tree, hf_tecmp_payload_analog_alt_sample, sub_tvb, offset2, 2, sample_value);
+                            if (unit_symbol == NULL) {
+                                proto_item_append_text(ti, " (%.9f)", sample_value);
+                            } else {
+                                proto_item_append_text(ti, "%s (%.9f%s)", unit_symbol, sample_value, unit_symbol);
+                            }
+                            PROTO_ITEM_SET_GENERATED(ti);
+
+                            proto_tree *sample_tree = proto_item_add_subtree(ti, ett_tecmp_payload_analog_alt_sample);
+                            proto_tree_add_item(sample_tree, hf_tecmp_payload_analog_alt_sample_raw, sub_tvb, offset2, 2, ENC_BIG_ENDIAN);
+                            PROTO_ITEM_SET_HIDDEN(ti);
+
+                            data_left -= 2;
+                            offset2 += 2;
+                        }
+                        break;
+                    case 1: /* INT32 */
+                        while (data_left >= 4) {
+                            double sample_value = ((double)tvb_get_int32(sub_tvb, offset2, ENC_BIG_ENDIAN) * sample_scalar + sample_offset);
+                            ti = proto_tree_add_double(tecmp_tree, hf_tecmp_payload_analog_alt_sample, sub_tvb, offset2, 4, sample_value);
+                            if (unit_symbol == NULL) {
+                                proto_item_append_text(ti, " (%.9f)", sample_value);
+                            } else {
+                                proto_item_append_text(ti, "%s (%.9f%s)", unit_symbol, sample_value, unit_symbol);
+                            }
+                            PROTO_ITEM_SET_GENERATED(ti);
+
+                            proto_tree *sample_tree = proto_item_add_subtree(ti, ett_tecmp_payload_analog_alt_sample);
+                            ti = proto_tree_add_item(sample_tree, hf_tecmp_payload_analog_alt_sample_raw, sub_tvb, offset2, 4, ENC_BIG_ENDIAN);
+                            PROTO_ITEM_SET_HIDDEN(ti);
+
+                            data_left -= 4;
+                            offset2 += 4;
+                        }
+                        break;
+                    }
+                }
+            }
+            break;
 
             case TECMP_DATA_TYPE_ETH_RAW:
             {
@@ -2424,6 +2547,9 @@ proto_register_tecmp_payload(void) {
         { &hf_tecmp_payload_data,
             { "Data", "tecmp.payload.data",
             FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_tecmp_payload_samples,
+            { "Samples", "tecmp.payload.samples",
+            FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 
         { &hf_tecmp_payload_data_ethernet_raw_data,
             { "Raw Data", "tecmp.payload.ethernet_raw.data",
@@ -2564,7 +2690,7 @@ proto_register_tecmp_payload(void) {
         { &hf_tecmp_payload_ctrl_msg_10baset1s_10m_reserved,
             { "Reserved", "tecmp.payload.ctrl_msg.10baset1s.reserved",
             FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL } },
-            { &hf_tecmp_payload_ctrl_msg_10baset1s_10m_events,
+        { &hf_tecmp_payload_ctrl_msg_10baset1s_10m_events,
             { "Events/Errors", "tecmp.payload.ctrl_msg.10baset1s.events",
             FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL } },
         { &hf_tecmp_payload_ctrl_msg_10baset1s_10m_events_5b_decode_error,
@@ -2848,7 +2974,7 @@ proto_register_tecmp_payload(void) {
             { "Parity Error", "tecmp.payload.data_flags.parity_error",
             FT_BOOLEAN, 16, NULL, 0x0001, NULL, HFILL }},
 
-        /* Analog  */
+        /* Analog */
         { &hf_tecmp_payload_data_flags_sample_time,
             { "Sample Time", "tecmp.payload.data_flags.sample_time",
             FT_UINT16, BASE_DEC, VALS(tecmp_payload_analog_sample_time_types), 0x7800, NULL, HFILL }},
@@ -2885,6 +3011,39 @@ proto_register_tecmp_payload(void) {
         { &hf_tecmp_payload_data_analog_value_celsius,
             { "Analog Value", "tecmp.payload.data.analog_value_celsius",
             FT_DOUBLE, BASE_NONE | BASE_UNIT_STRING, UNS(&units_degree_celsius), 0x0, NULL, HFILL }},
+
+        /* Analog Alt */
+        { &hf_tecmp_payload_analog_alt_flags,
+            { "Flags", "tecmp.payload.analog_alt.flags",
+            FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+        { &hf_tecmp_payload_analog_alt_flag_sample_dt,
+            { "Sample Datatype", "tecmp.payload.analog_alt.flags.sample_dt",
+            FT_UINT16, BASE_HEX, VALS(analog_alt_sample_dt), 0x0003, NULL, HFILL } },
+        { &hf_tecmp_payload_analog_alt_flag_reserved,
+            { "Reserved", "tecmp.payload.analog_alt.flags.reserved",
+            FT_UINT16, BASE_HEX, NULL, 0xfffc, NULL, HFILL } },
+
+        { &hf_tecmp_payload_analog_alt_reserved,
+            { "Reserved", "tecmp.payload.analog_alt.reserved",
+            FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+        { &hf_tecmp_payload_analog_alt_unit,
+            { "Unit", "tecmp.payload.analog_alt.unit",
+            FT_UINT8, BASE_HEX, VALS(analog_alt_units), 0x0, NULL, HFILL } },
+        { &hf_tecmp_payload_analog_alt_sample_interval,
+            { "Sample Interval", "tecmp.payload.analog_alt.sample_interval",
+            FT_FLOAT, BASE_NONE | BASE_UNIT_STRING, UNS(&units_seconds), 0x0, NULL, HFILL } },
+        { &hf_tecmp_payload_analog_alt_sample_offset,
+            { "Sample Offset", "tecmp.payload.analog_alt.sample_offset",
+            FT_FLOAT, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_tecmp_payload_analog_alt_sample_scalar,
+            { "Sample Scalar", "tecmp.payload.analog_alt.sample_scalar",
+            FT_FLOAT, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_tecmp_payload_analog_alt_sample_raw,
+            { "Sample Raw", "tecmp.payload.analog_alt.sample_raw",
+            FT_INT32, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+        { &hf_tecmp_payload_analog_alt_sample,
+            { "Sample", "tecmp.payload.analog_alt.sample",
+            FT_DOUBLE, BASE_EXP, NULL, 0x0, NULL, HFILL } },
 
         /* ILaS */
         { &hf_tecmp_payload_data_ilas_decoded_command,
@@ -2961,6 +3120,8 @@ proto_register_tecmp_payload(void) {
         &ett_tecmp_payload_instruction_address,
         &ett_tecmp_payload_data_id,
         &ett_tecmp_payload_lin_id,
+        &ett_tecmp_payload_analog_alt_flags,
+        &ett_tecmp_payload_analog_alt_sample,
         &ett_tecmp_payload_eth_raw,
         &ett_tecmp_payload_eth_raw_frame,
         &ett_tecmp_status_dev_vendor_data,
