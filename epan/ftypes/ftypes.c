@@ -13,7 +13,7 @@
 #include <wsutil/ws_assert.h>
 
 /* Keep track of ftype_t's via their ftenum number */
-const ftype_t* type_list[FT_NUM_TYPES];
+const ftype_t* type_list[FT_ENUM_SIZE + 1];
 
 /* Initialize the ftype module. */
 void

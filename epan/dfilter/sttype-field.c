@@ -128,6 +128,7 @@ sttype_field_ftenum(stnode_t *node)
 		return FT_BYTES;
 	if (field->value_string)
 		return FT_STRING;
+	ws_assert(field->hfinfo->type < FT_NUM_TYPES);
 	return field->hfinfo->type;
 }
 
