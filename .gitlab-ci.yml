@@ -678,68 +678,106 @@ Commit Check:
   variables:
     GITLAB_REPO: "$CI_MERGE_REQUEST_PROJECT_URL"
   script:
-    # Adding notes (comments) to a merge request depends on a valid GitLab CI_JOB_TOKEN
-    # variable. Trying to do so will fail when run under outside projects until
-    # https://gitlab.com/gitlab-org/gitlab/-/issues/464591 is fixed.
-    - glab auth status || true
-    - glab auth status 2>&1 | grep 'Logged in to gitlab.com as' > /dev/null || echo "Unable to post merge request comments from $CI_PROJECT_PATH"
-    - >
-      if [[ $NUM_COMMITS > 1 ]] ; then
-        MESSAGE="ℹ️ This merge request has more than one commit. Please squash any trivial ones:
-        ~~~
-        $(git log --oneline --no-decorate "${CI_COMMIT_SHA}~$NUM_COMMITS..${CI_COMMIT_SHA}")
-        ~~~
-        "
-        glab mr note $CI_MERGE_REQUEST_IID --unique --message "$MESSAGE" || echo "$MESSAGE"
-      fi
     # build-ubuntu puts us in `build`.
     - cd ..
     - git status
+    # We have the following options for displaying information in a merge request
+    # from a pipleline job:
+    #
+    # - The Notes API, which requires a valid GitLab CI_JOB_TOKEN variable, which
+    #   isn't available for outside projects:
+    #   https://gitlab.com/gitlab-org/gitlab/-/issues/464591.
+    #
+    # - Code Quality, which requires extra configuration, using a special container
+    #   image, and writing a custom plugin:
+    #   https://docs.gitlab.com/ee/ci/testing/code_quality.html.
+    #
+    # - Unit test reports, which must be formatted as JUnit XML:
+    #   https://docs.gitlab.com/ee/ci/testing/unit_test_reports.html
+    #   https://www.ibm.com/docs/en/developer-for-zos/14.2?topic=formats-junit-xml-format
+    #
+    # Let's generate a unit test report, even if that means wondering which life choices
+    # led us to assemlbing an XML document from fragments in a shell script which is
+    # embedded in YAML.
+    - FAILURE_COUNT=0
+    - TESTCASES="<testcase class='commit_checks.num_commits' name='num_commits' time='1.0'"
+    - |
+      if [[ $NUM_COMMITS -gt 1 ]] ; then
+        TESTCASES+="><failure>ℹ️ This merge request has more than one commit. Please squash any trivial ones:
+
+        $(git log --oneline --no-decorate "${CI_COMMIT_SHA}~$NUM_COMMITS..${CI_COMMIT_SHA}")
+        </failure></testcase>"
+        FAILURE_COUNT=$(( FAILURE_COUNT + 1 ))
+      else
+        TESTCASES+="/>"
+      fi
     - PC_EXIT_CODE=0
     - ANALYSIS_MESSAGE=$( ./tools/pre-commit "${CI_COMMIT_SHA}~$NUM_COMMITS" ) || PC_EXIT_CODE=1
-    - >
+    - TESTCASES+="<testcase class='commit_checks.pre_commit' name='tools/pre-commit' time='1.0'"
+    - |
       if [ -n "$ANALYSIS_MESSAGE" ] ; then
-        MESSAGE="Pre-commit check results:
-        ~~~
+        TESTCASES+="><failure>Pre-commit check results:
+
         $ANALYSIS_MESSAGE
-        ~~~
-        "
-        glab mr note $CI_MERGE_REQUEST_IID --unique --message "$MESSAGE" || echo "$MESSAGE"
+        </failure></testcase>"
+        FAILURE_COUNT=$(( FAILURE_COUNT + 1 ))
+      else
+        TESTCASES+="/>"
       fi
     - VC_EXIT_CODE=0
     - ANALYSIS_MESSAGE=$( tools/validate-commit.py ) || VC_EXIT_CODE=1
-    - >
+    - TESTCASES+="<testcase class='commit_checks.validate_commit' name='tools/validate-commit.py' time='1.0'"
+    - |
       if [[ $VC_EXIT_CODE != 0 ]] ; then
-        MESSAGE="Commit validation failure:
-        ~~~
+        TESTCASES+="><failure>Validate-commit check results:
+
         $ANALYSIS_MESSAGE
-        ~~~
-        "
-        glab mr note $CI_MERGE_REQUEST_IID --unique --message "$MESSAGE" || echo "$MESSAGE"
+        </failure></testcase>"
+        FAILURE_COUNT=$(( FAILURE_COUNT + 1 ))
+      else
+        TESTCASES+="/>"
       fi
     - LC_EXIT_CODE=0
     - ANALYSIS_MESSAGE=$( python3 tools/checklicenses.py ) || LC_EXIT_CODE=1
-    - >
+    - TESTCASES+="<testcase class='commit_checks.check_licenses' name='tools/checklicenses.py' time='1.0'"
+    - |
       if [[ $LC_EXIT_CODE != 0 ]] ; then
-        MESSAGE="License check failure:
-        ~~~
+        TESTCASES+="><failure>License check failure:
+
         $ANALYSIS_MESSAGE
-        ~~~
-        "
-        glab mr note $CI_MERGE_REQUEST_IID --unique --message "$MESSAGE" || echo "$MESSAGE"
+        </failure></testcase>"
+        FAILURE_COUNT=$(( FAILURE_COUNT + 1 ))
+      else
+        TESTCASES+="/>"
       fi
     - HC_EXIT_CODE=0
     - ANALYSIS_MESSAGE=$( python3 tools/check_help_urls.py ) || HC_EXIT_CODE=1
-    - >
+    - TESTCASES+="<testcase class='commit_checks.check_help_urls' name='tools/check_help_urls.py' time='1.0'"
+    - |
       if [[ $HC_EXIT_CODE != 0 ]] ; then
-        MESSAGE="Help URL check failure:
-        ~~~
+        TESTCASES+="><failure>Help URL check failure:
+
         $ANALYSIS_MESSAGE
-        ~~~
-        "
-        glab mr note $CI_MERGE_REQUEST_IID --unique --message "$MESSAGE" || echo "$MESSAGE"
+        </failure></testcase>"
+        FAILURE_COUNT=$(( FAILURE_COUNT + 1 ))
+      else
+        TESTCASES+="/>"
       fi
+    - |
+      cat > commit_checks.xml <<FIN
+      <?xml version="1.0" encoding="utf-8"?>
+      <testsuites><testsuite name="Commit Checks" errors="0" failures="$FAILURE_COUNT" skipped="0" tests="5" time="5">
+      $TESTCASES
+      </testsuite></testsuites>
+      FIN
+    # - cat commit_checks.xml
     - exit $(( PC_EXIT_CODE || VC_EXIT_CODE || LC_EXIT_CODE || HC_EXIT_CODE ))
+  artifacts:
+    when: always
+    paths:
+      - commit_checks.xml
+    reports:
+      junit: commit_checks.xml
 
 Ubuntu GCC Build:
   extends: .build-ubuntu
