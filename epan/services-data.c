@@ -5893,6 +5893,7 @@ static ws_services_entry_t global_tcp_services_table[] = {
     { 26257, "cockroach",       "CockroachDB" },
     { 26486, "exoline-tcp",     "EXOline-TCP" },
     { 27010, "flex-lmadmin",    "A protocol for managing license services" },
+    { 27016, "chlenix",         "Cloud hosting environment network" },
     { 27017, "mongodb",         "Mongo database system" },
     { 27876, "astrolink",       "Astrolink Protocol" },
     { 28001, "pqsp",            "PQ Service" },

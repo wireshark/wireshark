@@ -7978,6 +7978,7 @@ static const value_string usb_products_vals[] = {
     { 0x04a9330c, "Canon EOS R8" },
     { 0x04a9330d, "Canon EOS R50" },
     { 0x04a93312, "Canon EOS R100" },
+    { 0x04a93314, "Canon EOS 5Rm2" },
     { 0x04ad2501, "Bluetooth Device" },
     { 0x04b00102, "Coolpix 990" },
     { 0x04b00103, "Coolpix 880" },
