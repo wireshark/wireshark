@@ -764,15 +764,18 @@ Ubuntu GCC Build:
     - chown -R user .
     - if [ -f run/dumpcap ]; then setcap cap_net_raw,cap_net_admin+eip run/dumpcap; fi
     - if [ -f run/dumpcap ]; then su user -c "run/dumpcap -D" ; fi
-    - su user -c pytest-3
+    - su user -c "pytest-3 --junitxml=../ubuntu_tests.xml"
     # Test CMake install code and CPack config code. Select any one of the archive generators.
     - ninja user_guide_html
     - ninja developer_guide_html
     - cpack -G TZST .
     - ls wireshark-*.tar.zst{,.sha256}
   artifacts:
+    when: always
     paths:
       - gcc_report.html
+    reports:
+      junit: ubuntu_tests.xml
 
 Fedora MinGW Build:
   extends: .build-mingw
@@ -868,8 +871,11 @@ Windows Build:
     - cmake -G "Visual Studio 17 2022" -A x64 -DENABLE_LTO=off ..
     - msbuild /verbosity:minimal /maxcpucount /property:Configuration=Debug Wireshark.sln
     - msbuild /verbosity:minimal /maxcpucount /property:Configuration=Debug test-programs.vcxproj
-    - C:\Windows\py.exe -m pytest --disable-gui --build-type=Debug
-
+    - C:\Windows\py.exe -m pytest --disable-gui --build-type=Debug --junitxml=../windows_tests.xml
+  artifacts:
+    when: always
+    reports:
+      junit: windows_tests.xml
 
 Windows Qt5 Build:
   extends: .build-windows
@@ -897,7 +903,11 @@ macOS Build:
     - printf "\e[0Ksection_end:%s:cmake_section\r\e[0K" "$( date +%s)"
     - ninja
     - ninja test-programs
-    - pytest --disable-capture
+    - pytest --disable-capture --junitxml=../macos_tests.xml
+  artifacts:
+    when: always
+    reports:
+      junit: macos_tests.xml
   needs: [ 'Commit Check' ]
 
 # Adapted from https://www.synopsys.com/blogs/software-security/integrating-coverity-scan-with-gitlab-ci/
