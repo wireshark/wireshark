@@ -9,7 +9,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
- * References: 3GPP TS 24.501 18.7.0
+ * References: 3GPP TS 24.501 18.8.0
  */
 
 #include "config.h"
@@ -9074,8 +9074,8 @@ nas_5gs_sm_pdu_ses_est_acc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _
     ELEM_OPT_TLV_E(0x71, NAS_5GS_PDU_TYPE_SM, DE_NAS_5GS_SM_REC_MBS_CONT, NULL);
     /* 70    N3QAI    N3QAI 9.11.4.36    O    TLV-E    9-n */
     ELEM_OPT_TLV_E(0x70, NAS_5GS_PDU_TYPE_SM, DE_NAS_5GS_SM_N3QAI, NULL);
-    /* 36    Protocol description    Protocol description 9.11.4.39    O    TLV-E    6-n */
-    ELEM_OPT_TLV_E(0x36, NAS_5GS_PDU_TYPE_SM, DE_NAS_5GS_SM_PROT_DESC, NULL);
+    /* 73    Protocol description    Protocol description 9.11.4.39    O    TLV-E    6-n */
+    ELEM_OPT_TLV_E(0x73, NAS_5GS_PDU_TYPE_SM, DE_NAS_5GS_SM_PROT_DESC, NULL);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_nas_5gs_extraneous_data);
 
@@ -9341,8 +9341,8 @@ nas_5gs_sm_pdu_ses_mod_cmd(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _
     ELEM_OPT_TLV(0x5A, NAS_5GS_PDU_TYPE_COMMON, DE_NAS_5GS_CMN_S_NSSAI, " - Alternative S-NSSAI");
     /* 70    N3QAI    N3QAI 9.11.4.36    O    TLV-E    9-n */
     ELEM_OPT_TLV_E(0x70, NAS_5GS_PDU_TYPE_SM, DE_NAS_5GS_SM_N3QAI, NULL);
-    /* 38    Protocol description    Protocol description 9.11.4.39    O    TLV-E    6-n */
-    ELEM_OPT_TLV_E(0x38, NAS_5GS_PDU_TYPE_SM, DE_NAS_5GS_SM_PROT_DESC, NULL);
+    /* 73    Protocol description    Protocol description 9.11.4.39    O    TLV-E    6-n */
+    ELEM_OPT_TLV_E(0x73, NAS_5GS_PDU_TYPE_SM, DE_NAS_5GS_SM_PROT_DESC, NULL);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_nas_5gs_extraneous_data);
 
