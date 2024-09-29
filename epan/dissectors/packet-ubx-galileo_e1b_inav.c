@@ -83,6 +83,17 @@ static int hf_ubx_gal_inav_word3_c_rc;
 static int hf_ubx_gal_inav_word3_c_rs;
 static int hf_ubx_gal_inav_word3_sisa_e1_e5b;
 
+static int hf_ubx_gal_inav_word4;
+static int hf_ubx_gal_inav_word4_iodnav;
+static int hf_ubx_gal_inav_word4_svid;
+static int hf_ubx_gal_inav_word4_c_ic;
+static int hf_ubx_gal_inav_word4_c_is;
+static int hf_ubx_gal_inav_word4_t_0c;
+static int hf_ubx_gal_inav_word4_a_f0;
+static int hf_ubx_gal_inav_word4_a_f1;
+static int hf_ubx_gal_inav_word4_a_f2;
+static int hf_ubx_gal_inav_word4_spare;
+
 static dissector_table_t ubx_gal_inav_word_dissector_table;
 
 static int ett_ubx_gal_inav;
@@ -90,6 +101,7 @@ static int ett_ubx_gal_inav_word0;
 static int ett_ubx_gal_inav_word1;
 static int ett_ubx_gal_inav_word2;
 static int ett_ubx_gal_inav_word3;
+static int ett_ubx_gal_inav_word4;
 static int ett_ubx_gal_inav_sar;
 
 static const value_string GAL_PAGE_TYPE[] = {
@@ -105,8 +117,15 @@ static const value_string GAL_SSP[] = {
     {0, NULL},
 };
 
+/* Format clock correction (with scale factor 60) for
+ * t_0c
+ */
+static void fmt_clk_correction(char *label, uint32_t c) {
+    snprintf(label, ITEM_LABEL_LENGTH, "%u s", 60 * c);
+}
+
 /* Format radians (with 2^-29 scale factor) for
- * amplitude of latitude correction terms
+ * amplitude of harmonic correction terms
  */
 static void fmt_lat_correction(char *label, int16_t c) {
     snprintf(label, ITEM_LABEL_LENGTH, "%d * 2^-29 radians", c);
@@ -163,6 +182,27 @@ static void fmt_sisa(char *label, uint8_t i) {
     else { // i == 255
         snprintf(label, ITEM_LABEL_LENGTH, "No Accuracy Prediction Available (NAPA)");
     }
+}
+
+/* Format SV clock bias (with 2^-34 scale factor) for
+ * a_f0
+ */
+static void fmt_sv_clk_bias(char *label, int32_t c) {
+    snprintf(label, ITEM_LABEL_LENGTH, "%d * 2^-34 s", c);
+}
+
+/* Format SV clock drift (with 2^-46 scale factor) for
+ * a_f1
+ */
+static void fmt_sv_clk_drift(char *label, int32_t c) {
+    snprintf(label, ITEM_LABEL_LENGTH, "%d * 2^-46 s/s", c);
+}
+
+/* Format SV clock drift rate (with 2^-59 scale factor) for
+ * a_f1
+ */
+static void fmt_sv_clk_drift_rate(char *label, int32_t c) {
+    snprintf(label, ITEM_LABEL_LENGTH, "%d * 2^-59 s/s" UTF8_SUPERSCRIPT_TWO, c);
 }
 
 /* Format eccentricity */
@@ -336,6 +376,27 @@ static int dissect_ubx_gal_inav_word3(tvbuff_t *tvb, packet_info *pinfo _U_, pro
     return tvb_captured_length(tvb);
 }
 
+/* Dissect word 4 - Ephemeris (4/4) */
+static int dissect_ubx_gal_inav_word4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_) {
+    col_append_str(pinfo->cinfo, COL_INFO, "Word 4 (Ephemeris (4/4))");
+
+    proto_item *ti = proto_tree_add_item(tree, hf_ubx_gal_inav_word4, tvb, 0, 16, ENC_NA);
+    proto_tree *word_tree = proto_item_add_subtree(ti, ett_ubx_gal_inav_word4);
+
+    proto_tree_add_item(word_tree, hf_ubx_gal_inav_word_type,    tvb,  0, 1, ENC_NA);
+    proto_tree_add_item(word_tree, hf_ubx_gal_inav_word4_iodnav, tvb,  0, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(word_tree, hf_ubx_gal_inav_word4_svid,   tvb,  2, 1, ENC_NA);
+    proto_tree_add_item(word_tree, hf_ubx_gal_inav_word4_c_ic,   tvb,  2, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(word_tree, hf_ubx_gal_inav_word4_c_is,   tvb,  4, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(word_tree, hf_ubx_gal_inav_word4_t_0c,   tvb,  6, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(word_tree, hf_ubx_gal_inav_word4_a_f0,   tvb,  8, 8, ENC_BIG_ENDIAN);
+    proto_tree_add_item(word_tree, hf_ubx_gal_inav_word4_a_f1,   tvb, 12, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(word_tree, hf_ubx_gal_inav_word4_a_f2,   tvb, 12, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(word_tree, hf_ubx_gal_inav_word4_spare,  tvb, 15, 1, ENC_NA);
+
+    return tvb_captured_length(tvb);
+}
+
 void proto_register_ubx_gal_inav(void) {
 
     static hf_register_info hf[] = {
@@ -395,6 +456,18 @@ void proto_register_ubx_gal_inav(void) {
         {&hf_ubx_gal_inav_word3_c_rc,        {"Amplitude of the cosine harmonic correction term to the orbit radius (C_RC)",         "gal_inav.word3.c_rc",        FT_INT16,  BASE_CUSTOM, CF_FUNC(&fmt_orbit_correction),  0xffff,     NULL, HFILL}},
         {&hf_ubx_gal_inav_word3_c_rs,        {"Amplitude of the sine harmonic correction term to the orbit radius (C_RS)",           "gal_inav.word3.c_rs",        FT_INT16,  BASE_CUSTOM, CF_FUNC(&fmt_orbit_correction),  0xffff,     NULL, HFILL}},
         {&hf_ubx_gal_inav_word3_sisa_e1_e5b, {"Signal-in-Space Accuracy (SISA(E1,E5b))",                                             "gal_inav.word3.sisa_e1_e5b", FT_UINT8,  BASE_CUSTOM, CF_FUNC(&fmt_sisa),              0xff,       NULL, HFILL}},
+
+        // Word 4
+        {&hf_ubx_gal_inav_word4,             {"Word 4 (Ephemeris (4/4))",                                                            "gal_inav.word4",             FT_NONE,   BASE_NONE,   NULL,                            0x0,        NULL, HFILL}},
+        {&hf_ubx_gal_inav_word4_iodnav,      {"IOD_nav",                                                                             "gal_inav.word4.iod_nav",     FT_UINT16, BASE_DEC,    NULL,                            0x03ff,     NULL, HFILL}},
+        {&hf_ubx_gal_inav_word4_svid,        {"SVID",                                                                                "gal_inav.word4.svid",        FT_UINT8,  BASE_DEC,    NULL,                            0xfc,       NULL, HFILL}},
+        {&hf_ubx_gal_inav_word4_c_ic,        {"Amplitude of the cosine harmonic correction term to the angle of inclination (C_IC)", "gal_inav.word4.c_ic",        FT_INT32,  BASE_CUSTOM, CF_FUNC(&fmt_lat_correction),    0x03fffc00, NULL, HFILL}},
+        {&hf_ubx_gal_inav_word4_c_is,        {"Amplitude of the sine harmonic correction term to the angle of inclination (C_IS)",   "gal_inav.word4.c_is",        FT_INT32,  BASE_CUSTOM, CF_FUNC(&fmt_lat_correction),    0x03fffc00, NULL, HFILL}},
+        {&hf_ubx_gal_inav_word4_t_0c,        {"Clock correction data reference Time of Week (t_0c)",                                 "gal_inav.word4.t_0c",        FT_UINT32, BASE_CUSTOM, CF_FUNC(&fmt_clk_correction),    0x03fff000, NULL, HFILL}},
+        {&hf_ubx_gal_inav_word4_a_f0,        {"SV clock bias correction coefficient (a_f0)",                                         "gal_inav.word4.a_f0",        FT_INT64,  BASE_CUSTOM, CF_FUNC(&fmt_sv_clk_bias),       0x0fffffffe0000000, NULL, HFILL}},
+        {&hf_ubx_gal_inav_word4_a_f1,        {"SV clock drift correction coefficient (a_f1)",                                        "gal_inav.word4.a_f1",        FT_INT32,  BASE_CUSTOM, CF_FUNC(&fmt_sv_clk_drift),      0x1fffff00, NULL, HFILL}},
+        {&hf_ubx_gal_inav_word4_a_f2,        {"SV clock drift rate correction coefficient (a_f2)",                                   "gal_inav.word4.a_f2",        FT_INT32,  BASE_CUSTOM, CF_FUNC(&fmt_sv_clk_drift_rate), 0x000000fc, NULL, HFILL}},
+        {&hf_ubx_gal_inav_word4_spare,       {"Spare",                                                                               "gal_inav.word4.spare",       FT_UINT8,  BASE_HEX,    NULL,                            0x03,       NULL, HFILL}},
     };
 
     static int *ett[] = {
@@ -403,6 +476,7 @@ void proto_register_ubx_gal_inav(void) {
         &ett_ubx_gal_inav_word1,
         &ett_ubx_gal_inav_word2,
         &ett_ubx_gal_inav_word3,
+        &ett_ubx_gal_inav_word4,
         &ett_ubx_gal_inav_sar,
     };
 
@@ -424,4 +498,5 @@ void proto_reg_handoff_ubx_gal_inav(void) {
     dissector_add_uint("ubx.rxm.sfrbx.gal_inav.word", 1, create_dissector_handle(dissect_ubx_gal_inav_word1, proto_ubx_gal_inav));
     dissector_add_uint("ubx.rxm.sfrbx.gal_inav.word", 2, create_dissector_handle(dissect_ubx_gal_inav_word2, proto_ubx_gal_inav));
     dissector_add_uint("ubx.rxm.sfrbx.gal_inav.word", 3, create_dissector_handle(dissect_ubx_gal_inav_word3, proto_ubx_gal_inav));
+    dissector_add_uint("ubx.rxm.sfrbx.gal_inav.word", 4, create_dissector_handle(dissect_ubx_gal_inav_word4, proto_ubx_gal_inav));
 }
