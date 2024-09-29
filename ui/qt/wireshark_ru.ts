@@ -1862,12 +1862,32 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Вхождение:</translation>
     </message>
     <message>
+        <source>Display as:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;p&gt;Values will show the raw values for fields.&lt;p&gt;Strings will show human-readable strings instead of raw values for fields. Only applicable to custom columns with fields that have value strings and custom columns which can be resolved to strings.&lt;p&gt;Details will show the values using the same format as in Packet Details. Only applicable to custom columns.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Resolve Names:</source>
-        <translation>Разрешать имена:</translation>
+        <translation type="vanished">Разрешать имена:</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;p&gt;Show human-readable strings instead of raw values for fields. Only applicable to custom columns with fields that have value strings.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;p&gt;Отображать человекочитаемые строки вместо необработанных значений полей. Может применяться только к дополнительным столбцам с полями, содержащими строки значений.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;p&gt;Отображать человекочитаемые строки вместо необработанных значений полей. Может применяться только к дополнительным столбцам с полями, содержащими строки значений.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <source>Values</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Strings</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Details</source>
+        <translation type="unfinished">Подробности</translation>
     </message>
     <message>
         <source>Missing fields.</source>
@@ -1905,8 +1925,16 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Вхождение поля</translation>
     </message>
     <message>
+        <source>Display Format</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;Values will show the raw values for fields.&lt;p&gt;Strings will show human-readable strings instead of raw values for fields. Only applicable to custom columns with fields that have value strings and custom columns which can be resolved to strings.&lt;p&gt;Details will show the values using the same format as in Packet Details. Only applicable to custom columns.&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Resolved</source>
-        <translation>Разрешено</translation>
+        <translation type="vanished">Разрешено</translation>
     </message>
     <message>
         <source>Width</source>
@@ -1918,7 +1946,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>&lt;html&gt;Show human-readable strings instead of raw values for fields. Only applicable to custom columns with fields that have value strings.&lt;/html&gt;</source>
-        <translation>&lt;html&gt;Показывать человекочитаемые строки вместо необработанных значений полей. Может применяться только к дополнительным столбцам с полями, содержащими строки значений.&lt;/html&gt;</translation>
+        <translation type="vanished">&lt;html&gt;Показывать человекочитаемые строки вместо необработанных значений полей. Может применяться только к дополнительным столбцам с полями, содержащими строки значений.&lt;/html&gt;</translation>
     </message>
     <message>
         <source>New Column</source>
@@ -7603,6 +7631,22 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Размер по содержимому</translation>
     </message>
     <message>
+        <source>&lt;html&gt;Values will show the raw values for fields.&lt;p&gt;Strings will show human-readable strings instead of raw values for fields. Only applicable to custom columns with fields that have value strings and custom columns which can be resolved to strings.&lt;p&gt;Details will show the values using the same format as in Packet Details. Only applicable to custom columns.&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Display as Values</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Display as Strings</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Display as packet Details</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Column Preferences…</source>
         <translation>Параметры столбца…</translation>
     </message>
@@ -7612,7 +7656,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Resolve Names</source>
-        <translation>Выполнить разрешение имён</translation>
+        <translation type="vanished">Выполнить разрешение имён</translation>
     </message>
     <message>
         <source>Remove this Column</source>
@@ -8854,6 +8898,18 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Unknown</source>
         <translation>Неизвестно</translation>
+    </message>
+    <message>
+        <source>Values</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Strings</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Details</source>
+        <translation type="unfinished">Подробности</translation>
     </message>
     <message>
         <source>UE Id</source>
