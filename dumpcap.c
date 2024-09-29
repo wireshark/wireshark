@@ -5815,7 +5815,7 @@ main(int argc, char *argv[])
                     if (if_info->caps == NULL) {
                         if_info->caps = g_new0(if_capabilities_t, 1);
                         if_info->caps->primary_msg = open_status_str;
-                        if_info->caps->secondary_msg = g_strdup(get_pcap_failure_secondary_error_message(open_status, open_status_str));
+                        if_info->caps->secondary_msg = get_pcap_failure_secondary_error_message(open_status, open_status_str);
                     }
                     if_info->caps->status = open_status;
                 }
