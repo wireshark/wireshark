@@ -4602,7 +4602,6 @@ dissect_btle_connected_iso(tvbuff_t *tvb,
     }
 
     btle_frame_info_t *btle_frame_info = NULL;
-    btle_frame_info_t empty_btle_frame_info = {0, 0, 0, 0, 0};
 
     key[0].length = 1;
     key[0].key = &interface_id;
@@ -4678,10 +4677,6 @@ dissect_btle_connected_iso(tvbuff_t *tvb,
                 btle_frame_info = (btle_frame_info_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_btle, pinfo->curr_layer_num);
             }
         }
-    }
-
-    if (btle_frame_info == NULL) {
-        btle_frame_info = &empty_btle_frame_info;
     }
 
     data_header_item = proto_tree_add_item(btle_tree,  hf_data_header, tvb, offset, 2, ENC_NA);
