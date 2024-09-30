@@ -20,6 +20,7 @@
 #include "main_application.h"
 
 #include "extcap.h"
+#include "capture_opts.h"
 
 #ifdef HAVE_LIBPCAP
 
@@ -475,18 +476,14 @@ void CaptureOptionsDialog::interfaceItemChanged(QTreeWidgetItem *item, int colum
 
         if (caps != Q_NULLPTR) {
 
-            for (int i = static_cast<int>(g_list_length(device->links)) - 1; i >= 0; i--) {
-                GList* rem = g_list_nth(device->links, static_cast<unsigned>(i));
-                device->links = g_list_remove_link(device->links, rem);
-                g_list_free_1(rem);
-            }
+            g_list_free_full(g_steal_pointer(&device->links), capture_opts_free_link_row);
             device->active_dlt = -1;
             device->monitor_mode_supported = caps->can_set_rfmon;
             device->monitor_mode_enabled = monitor_mode && caps->can_set_rfmon;
             GList *lt_list = device->monitor_mode_enabled ? caps->data_link_types_rfmon : caps->data_link_types;
 
             for (GList *lt_entry = lt_list; lt_entry != Q_NULLPTR; lt_entry = gxx_list_next(lt_entry)) {
-                link_row *linkr = new link_row();
+                link_row *linkr = g_new(link_row, 1);
                 data_link_info_t *data_link_info = gxx_list_data(data_link_info_t *, lt_entry);
                 /*
                  * For link-layer types libpcap/WinPcap/Npcap doesn't know
