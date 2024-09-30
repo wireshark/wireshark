@@ -22,6 +22,7 @@
 
 #include "capture/capture_session.h"
 #include "capture/capture_sync.h"
+#include "capture/iface_monitor.h"
 #include "extcap.h"
 
 #include <capture/capture-pcap-util.h>
@@ -399,8 +400,10 @@ capture_get_if_capabilities(const char *ifname, bool monitor_mode,
     }
 
     /* Try to get our interface list */
+    iface_mon_enable(false);
     err = sync_if_capabilities_open(ifname, monitor_mode, auth_string, &data,
                                     &primary_msg, &secondary_msg, update_cb);
+    iface_mon_enable(true);
     if (err != 0) {
         ws_info("Capture Interface Capabilities failed. Error %d, %s",
               err, primary_msg ? primary_msg : "no message");
@@ -509,8 +512,10 @@ capture_get_if_list_capabilities(GList *if_cap_queries,
     local_queries = g_list_reverse(local_queries);
 
     /* Try to get our interface list */
+    iface_mon_enable(false);
     err = sync_if_list_capabilities_open(local_queries, &data,
                                     &primary_msg, &secondary_msg, update_cb);
+    iface_mon_enable(true);
     g_list_free(local_queries);
     if (err != 0) {
         ws_info("Capture Interface Capabilities failed. Error %d, %s",

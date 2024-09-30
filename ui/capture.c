@@ -28,6 +28,7 @@
 #include "ui/capture.h"
 #include "capture/capture_ifinfo.h"
 #include <capture/capture_sync.h>
+#include "capture/iface_monitor.h"
 #include "ui/capture_info.h"
 #include "ui/capture_ui_utils.h"
 #include "ui/iface_lists.h"
@@ -133,9 +134,11 @@ capture_start(capture_options *capture_opts, GPtrArray *capture_comments,
     source = get_iface_list_string(capture_opts, IFLIST_SHOW_FILTER);
     cf_set_tempfile_source((capture_file *)cap_session->cf, source->str);
     g_string_free(source, TRUE);
+    iface_mon_enable(false);
     /* try to start the capture child process */
     if (!sync_pipe_start(capture_opts, capture_comments, cap_session,
                          cap_data, update_cb)) {
+        iface_mon_enable(true);
         /* We failed to start the capture child. */
         if(capture_opts->save_file != NULL) {
             g_free(capture_opts->save_file);
@@ -982,7 +985,9 @@ capture_interface_stat_start(capture_options *capture_opts _U_, GList **if_list)
      * counts might not always be a good idea.
      */
     int status;
+    iface_mon_enable(false);
     status = sync_interface_stats_open(&stat_fd, &fork_child, &data, &msg, NULL);
+    iface_mon_enable(true);
     /* In order to initialize the stat cache (below), we need to have
      * filled in capture_opts->all_ifaces
      *

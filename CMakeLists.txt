@@ -3172,6 +3172,7 @@ if(BUILD_tshark)
 		caputils
 		wiretap
 		epan
+		iface_monitor
 		wsutil
 		${APPLE_CORE_FOUNDATION_LIBRARY}
 		${APPLE_SYSTEM_CONFIGURATION_LIBRARY}
