@@ -155,7 +155,7 @@ void ManageInterfacesDialog::populateExistingRemotes()
         return;
     }
 
-    foreach(QJsonValue value, document.array()) {
+    for (const auto &value : document.array()) {
         addRemote(value.toObject().toVariantMap());
     }
 
@@ -488,7 +488,7 @@ void ManageInterfacesDialog::updateRemoteInterfaceList(GList* rlist, remote_opti
 #endif
             for (lt_entry = lt_list; lt_entry != NULL; lt_entry = gxx_list_next(lt_entry)) {
                 data_link_info = gxx_list_data(data_link_info_t *, lt_entry);
-                linkr = new link_row;
+                linkr = g_new(link_row, 1);
                 /*
                  * For link-layer types libpcap/WinPcap/Npcap doesn't know
                  * about, the name will be "DLT n", and the description will
@@ -509,6 +509,7 @@ void ManageInterfacesDialog::updateRemoteInterfaceList(GList* rlist, remote_opti
                 device.links = g_list_append(device.links, linkr);
                 linktype_count++;
             } /* for link_types */
+            free_if_capabilities(caps);
         } else {
 #if defined(HAVE_PCAP_CREATE)
             device.monitor_mode_enabled = false;
