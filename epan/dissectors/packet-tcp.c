@@ -2803,7 +2803,7 @@ finished_fwd:
             t = (pinfo->abs_ts.secs - tcpd->rev->tcp_analyze_seq_info->lastacktime.secs)*1000000000;
             t += pinfo->abs_ts.nsecs - tcpd->rev->tcp_analyze_seq_info->lastacktime.nsecs;
         }
-        else if( (pinfo->abs_ts.nsecs == tcpd->rev->tcp_analyze_seq_info->lastacktime.nsecs) &&
+        else if( (pinfo->abs_ts.secs == tcpd->rev->tcp_analyze_seq_info->lastacktime.secs) &&
                  (pinfo->abs_ts.nsecs > tcpd->rev->tcp_analyze_seq_info->lastacktime.nsecs) ) {
             t = pinfo->abs_ts.nsecs - tcpd->rev->tcp_analyze_seq_info->lastacktime.nsecs;
         }
