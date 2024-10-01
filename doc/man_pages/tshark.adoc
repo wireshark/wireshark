@@ -439,6 +439,7 @@ There is one record per line.  The fields are tab-delimited.
 [horizontal]
 Field 1:: format string (e.g. "%rD")
 Field 2:: text description of format string (e.g. "Dest port (resolved)")
+Field 3:: field abbreviation used for the column text (e.g. "_ws.col.res_dst_port")
 
 This report is followed by a usage example that demonstrates how to change
 the columns by overriding the `gui.column.format` preference value with *-o*.
