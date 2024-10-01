@@ -476,7 +476,11 @@ void CaptureOptionsDialog::interfaceItemChanged(QTreeWidgetItem *item, int colum
 
         if (caps != Q_NULLPTR) {
 
+#if GLIB_CHECK_VERSION(2, 68, 0)
             g_list_free_full(g_steal_pointer(&device->links), capture_opts_free_link_row);
+#else
+            g_list_free_full((GList*)g_steal_pointer(&device->links), capture_opts_free_link_row);
+#endif
             device->active_dlt = -1;
             device->monitor_mode_supported = caps->can_set_rfmon;
             device->monitor_mode_enabled = monitor_mode && caps->can_set_rfmon;
