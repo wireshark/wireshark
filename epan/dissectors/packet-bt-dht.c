@@ -59,6 +59,8 @@ static int hf_truncated_data;
 
 static expert_field ei_int_string;
 static expert_field ei_invalid_len;
+static expert_field ei_duplicate_dict_keys;
+static expert_field ei_unsorted_dict_keys;
 
 /* tree types */
 static int ett_bt_dht;
@@ -430,23 +432,21 @@ dissect_bt_dht_nodes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsign
 
 static int
 // NOLINTNEXTLINE(misc-no-recursion)
-dissect_bencoded_dict_entry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset )
+dissect_bencoded_dict_entry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset, const char **key)
 {
   proto_item *ti;
   proto_tree *sub_tree;
   bool        tohex;
-  const char *key;
   const char *val;
   unsigned    orig_offset = offset;
 
-  key = NULL;
   val = NULL;
 
   ti       = proto_tree_add_item( tree, hf_bencoded_dict_entry, tvb, offset, 0, ENC_NA );
   sub_tree = proto_item_add_subtree( ti, ett_bencoded_dict_entry);
 
   /* dissect the key, it must be a string */
-  offset   = dissect_bencoded_string( tvb, pinfo, sub_tree, offset, &key, false, "Key" );
+  offset   = dissect_bencoded_string( tvb, pinfo, sub_tree, offset, key, false, "Key" );
   if (offset == 0)
   {
     proto_tree_add_expert_format(sub_tree, pinfo, &ei_int_string, tvb, offset, -1, "Invalid string for Key");
@@ -464,9 +464,9 @@ dissect_bencoded_dict_entry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     val    = dict_str;
     break;
   case 'l':
-    if( strcmp(key,"e")==0 )
+    if( strcmp(*key,"e")==0 )
       offset = dissect_bt_dht_error( tvb, pinfo, sub_tree, offset, &val, "Value" );
-    else if( strcmp(key,"values")==0 )
+    else if( strcmp(*key,"values")==0 )
       offset = dissect_bt_dht_values( tvb, pinfo, sub_tree, offset, &val, "Value" );
     /* other unfamiliar lists */
     else
@@ -481,15 +481,15 @@ dissect_bencoded_dict_entry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   /* it's a string */
   default:
     /* special process */
-    if( strcmp(key,"nodes")==0 )
+    if( strcmp(*key,"nodes")==0 )
     {
       offset = dissect_bt_dht_nodes( tvb, pinfo, sub_tree, offset, &val, "Value", 0 );
     }
-    else if( strcmp(key,"nodes6")==0 )
+    else if( strcmp(*key,"nodes6")==0 )
     {
       offset = dissect_bt_dht_nodes( tvb, pinfo, sub_tree, offset, &val, "Value", 1 );
     }
-    else if( strcmp(key,"ip")==0 )
+    else if( strcmp(*key,"ip")==0 )
     {
       /*
        * BEP 42 DHT Security extension
@@ -527,9 +527,9 @@ dissect_bencoded_dict_entry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     else
     {
       /* some need to return hex string */
-      tohex = strcmp(key,"id")==0 || strcmp(key,"target")==0
-           || strcmp(key,"info_hash")==0 || strcmp(key,"t")==0
-           || strcmp(key,"v")==0 || strcmp(key,"token")==0;
+      tohex = strcmp(*key,"id")==0 || strcmp(*key,"target")==0
+           || strcmp(*key,"info_hash")==0 || strcmp(*key,"t")==0
+           || strcmp(*key,"v")==0 || strcmp(*key,"token")==0;
       offset = dissect_bencoded_string( tvb, pinfo, sub_tree, offset, &val, tohex, "Value" );
     }
   }
@@ -540,21 +540,22 @@ dissect_bencoded_dict_entry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     return 0;
   }
 
-  if(key && strcmp(key,"q")==0 && strlen(val)>1 )
+  if(*key && strcmp(*key,"q")==0 && strlen(val)>1 )
     col_prepend_fstr(pinfo->cinfo, COL_INFO, "%c%s", g_ascii_toupper(val[0]), val + 1);
-  if(key && strcmp(key,"r")==0 )
+  if(*key && strcmp(*key,"r")==0 )
     col_prepend_fstr(pinfo->cinfo, COL_INFO, "Response");
-  if(key && strcmp(key,"e")==0 )
+  if(*key && strcmp(*key,"e")==0 )
     col_prepend_fstr(pinfo->cinfo, COL_INFO, "Error");
-  if(key && (strcmp(key,"info_hash")==0 || strcmp(key,"target")==0) )
-    col_append_fstr(pinfo->cinfo, COL_INFO, " %c%s=%s", g_ascii_toupper(key[0]), key + 1, val);
+  if(*key && (strcmp(*key,"info_hash")==0 || strcmp(*key,"target")==0) )
+    col_append_fstr(pinfo->cinfo, COL_INFO, " %c%s=%s", g_ascii_toupper((*key)[0]), *key + 1, val);
 
-  if(key && strlen(key)==1 )
-    key = val_to_str_const( key[0], short_key_name_value_string, key );
+  const char * printable_key = *key;
+  if(key && strlen(*key)==1 )
+    printable_key = val_to_str_const( (*key)[0], short_key_name_value_string, *key );
   if(val && strlen(val)==1 )
     val = val_to_str_const( val[0], short_val_name_value_string, val );
 
-  proto_item_set_text( ti, "%s: %s", key, val );
+  proto_item_set_text( ti, "%s: %s", printable_key, val );
   proto_item_set_len( ti, offset-orig_offset );
 
   return offset;
@@ -588,16 +589,34 @@ dissect_bencoded_dict(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsig
     return 0;
   offset += 1;
 
+  const char * prev_key = NULL;
+  unsigned prev_key_offset = 0;
   while (tvb_captured_length_remaining(tvb, offset) > 0) {
     if (tvb_get_uint8(tvb, offset) == 'e')
       break;
 
-    offset = dissect_bencoded_dict_entry( tvb, pinfo, sub_tree, offset );
+    const char * key = NULL;
+    const unsigned entry_start = offset;
+    offset = dissect_bencoded_dict_entry( tvb, pinfo, sub_tree, offset, &key );
     if (offset == 0)
     {
       proto_tree_add_expert(sub_tree, pinfo, &ei_int_string, tvb, offset, -1);
       return 0;
     }
+
+    if (prev_key != NULL && key != NULL) {
+      const int ordering = strcmp(key, prev_key);
+      if (ordering < 0) {
+        proto_tree_add_expert(
+          sub_tree, pinfo, &ei_unsorted_dict_keys, tvb, prev_key_offset, offset - prev_key_offset);
+      } else if (ordering == 0) {
+        proto_tree_add_expert(
+          sub_tree, pinfo, &ei_duplicate_dict_keys, tvb, prev_key_offset, offset - prev_key_offset);
+      }
+    }
+
+    prev_key = key;
+    prev_key_offset = entry_start;
   }
 
   if (tvb_captured_length_remaining(tvb, offset) == 0)
@@ -763,6 +782,10 @@ proto_register_bt_dht(void)
     "String must contain an integer", EXPFILL }},
     { &ei_invalid_len, { "bt-dht.invalid_length", PI_MALFORMED, PI_ERROR,
     "Invalid length", EXPFILL }},
+    { &ei_duplicate_dict_keys, { "bt-dht.bencoding.dict_duplicate_key", PI_PROTOCOL, PI_WARN,
+    "Dictionary has duplicate keys", EXPFILL }},
+    { &ei_unsorted_dict_keys, { "bt-dht.bencoding.dict_out_of_order", PI_PROTOCOL, PI_CHAT,
+    "Dictionary keys are not in sorted order", EXPFILL }},
   };
 
   /* Setup protocol subtree array */
