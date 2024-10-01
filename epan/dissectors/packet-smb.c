@@ -486,7 +486,7 @@ static int hf_smb_nt_create_options_non_directory_file;
 static int hf_smb_nt_create_options_create_tree_connection;
 static int hf_smb_nt_create_options_complete_if_oplocked;
 static int hf_smb_nt_create_options_no_ea_knowledge;
-static int hf_smb_nt_create_options_eight_dot_three_only;
+static int hf_smb_nt_create_options_file_open_for_recovery;
 static int hf_smb_nt_create_options_random_access;
 static int hf_smb_nt_create_options_delete_on_close;
 static int hf_smb_nt_create_options_open_by_fileid;
@@ -4067,7 +4067,7 @@ dissect_nt_create_options_bits(tvbuff_t *tvb, proto_tree *parent_tree,
 		&hf_smb_nt_create_options_create_tree_connection,
 		&hf_smb_nt_create_options_complete_if_oplocked,
 		&hf_smb_nt_create_options_no_ea_knowledge,
-		&hf_smb_nt_create_options_eight_dot_three_only,
+		&hf_smb_nt_create_options_file_open_for_recovery,
 		&hf_smb_nt_create_options_random_access,
 		&hf_smb_nt_create_options_delete_on_close,
 		&hf_smb_nt_create_options_open_by_fileid,
@@ -8742,8 +8742,8 @@ dissect_nt_security_flags(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
  * The "Sync I/O Alert" and "Sync I/O Nonalert" are given the bit
  * values one would infer from their position in the list of flags for
  * "ZwOpenFile()".  Most of the others probably have those values
- * as well, although "8.3 only" would collide with FILE_OPEN_FOR_RECOVERY,
- * which might go over the wire (for the benefit of backup/restore software).
+ * as well, although "8.3 only" has been replaced by option FILE_OPEN_FOR_RECOVERY
+ * which the server must ignore.).
  */
 static const true_false_string tfs_nt_create_options_directory = {
 	"File being created/opened must be a directory",
@@ -8785,9 +8785,9 @@ static const true_false_string tfs_nt_create_options_no_ea_knowledge = {
 	"The client does not understand extended attributes",
 	"The client understands extended attributes"
 };
-static const true_false_string tfs_nt_create_options_eight_dot_three_only = {
-	"The client understands only 8.3 file names",
-	"The client understands long file names"
+static const true_false_string tfs_nt_create_options_file_open_for_recovery = {
+	"The file is being opened for recovery",
+	"The file is not being opened for recovery"
 };
 static const true_false_string tfs_nt_create_options_random_access = {
 	"The file will be accessed randomly",
@@ -20102,9 +20102,9 @@ proto_register_smb(void)
 		{ "No EA Knowledge", "smb.nt.create_options.no_ea_knowledge", FT_BOOLEAN, 32,
 		TFS(&tfs_nt_create_options_no_ea_knowledge), 0x00000200, "Does the client not understand extended attributes?", HFILL }},
 
-	{ &hf_smb_nt_create_options_eight_dot_three_only,
-		{ "8.3 Only", "smb.nt.create_options.eight_dot_three_only", FT_BOOLEAN, 32,
-		TFS(&tfs_nt_create_options_eight_dot_three_only), 0x00000400, "Does the client understand only 8.3 filenames?", HFILL }},
+	{ &hf_smb_nt_create_options_file_open_for_recovery,
+		{ "Opened for recovery", "smb.nt.create_options.file_open_for_recovery", FT_BOOLEAN, 32,
+		TFS(&tfs_nt_create_options_file_open_for_recovery), 0x00000400, "This option must be ignored by the server", HFILL }},
 
 	{ &hf_smb_nt_create_options_random_access,
 		{ "Random Access", "smb.nt.create_options.random_access", FT_BOOLEAN, 32,
