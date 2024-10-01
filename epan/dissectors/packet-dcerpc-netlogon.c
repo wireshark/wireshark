@@ -5925,18 +5925,18 @@ dissect_ndr_trust_extension(tvbuff_t *tvb, int offset,
                             packet_info *pinfo, proto_tree *tree,
                             dcerpc_info *di, uint8_t *drep)
 {
-    uint32_t len,max;
+    uint64_t len,max;
 
     if(di->conformant_run){
         return offset;
     }
-    offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
-                                hf_netlogon_trust_max, &max);
+    offset = dissect_ndr_uint3264(tvb, offset, pinfo, tree, di, drep,
+                                  hf_netlogon_trust_max, &max);
 
-    offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
+    offset = dissect_ndr_uint3264(tvb, offset, pinfo, tree, di, drep,
                                 hf_netlogon_trust_offset, NULL);
 
-    offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
+    offset = dissect_ndr_uint3264(tvb, offset, pinfo, tree, di, drep,
                                 hf_netlogon_trust_len, &len);
 
     if( max * 2 == 16 ) {
@@ -6195,7 +6195,7 @@ netlogon_dissect_WORKSTATION_INFO(tvbuff_t *tvb , int offset ,
                                 hf_netlogon_workstation_flags, NULL);
 
     offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
-                                hf_netlogon_dummy2_long, NULL);
+                                hf_netlogon_supportedenctypes, NULL);
 
     offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
                                 hf_netlogon_dummy3_long, NULL);
@@ -6272,17 +6272,22 @@ netlogon_dissect_DOMAIN_INFORMATION(tvbuff_t *tvb, int offset,
                                     packet_info *pinfo, proto_tree *tree,
                                     dcerpc_info *di, uint8_t *drep)
 {
-    uint32_t level = 0;
+    uint32_t level;
 
-    offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
-                                hf_netlogon_level, &level);
+    UNION_ALIGN_TO_5_BYTES;
+    offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_netlogon_level, &level);
+    UNION_ALIGN_TO_5_BYTES;
 
-    ALIGN_TO_4_BYTES;
-    switch(level){
+    switch (level) {
     case 1:
         offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, di, drep,
                                      netlogon_dissect_DOMAIN_INFO, NDR_POINTER_UNIQUE,
                                      "DOMAIN_INFO", -1);
+        break;
+    case 2:
+        offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, di, drep,
+                                     netlogon_dissect_LSA_POLICY_INFO, NDR_POINTER_UNIQUE,
+                                     "LSA_POLICY_INFO", -1);
         break;
     }
 
@@ -6563,24 +6568,17 @@ netlogon_dissect_WORKSTATION_BUFFER(tvbuff_t *tvb, int offset,
 {
     uint32_t level;
 
-    offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
-                                hf_netlogon_level, &level);
-    if (level == 2) {
-        /* Specs are not very clear (as usual ...) it seems that the
-         * structure in both case is a NETLOGON_WORKSTATION_INFO
-         * but in this case only the LSA POLICY INFO will contain
-         * something
-         */
-        offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, di, drep,
-                                     netlogon_dissect_WORKSTATION_INFORMATION, NDR_POINTER_UNIQUE,
-                                     "LSA POLICY INFO", -1);
+    UNION_ALIGN_TO_5_BYTES;
+    offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_netlogon_level, &level);
+    UNION_ALIGN_TO_5_BYTES;
+
+    switch (level) {
+    case 1:
+    case 2:
+        offset = netlogon_dissect_WORKSTATION_INFORMATION(tvb, offset, pinfo, tree, di, drep);
+        break;
     }
-    else {
-        if (level == 1) {
-            offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, di, drep,
-                                         netlogon_dissect_WORKSTATION_INFORMATION, NDR_POINTER_UNIQUE,
-                                         "WORKSTATION INFORMATION", -1);}
-    }
+
     return offset;
 }
 
@@ -7306,6 +7304,8 @@ netlogon_dissect_netrlogongetdomaininfo_rqst(tvbuff_t *tvb, int offset,
     offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, di, drep,
                                  netlogon_dissect_AUTHENTICATOR, NDR_POINTER_REF,
                                  "AUTHENTICATOR: return_authenticator", -1);
+    offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
+                                hf_netlogon_level, NULL);
     offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, di, drep,
                                  netlogon_dissect_WORKSTATION_BUFFER, NDR_POINTER_REF,
                                  "WORKSTATION_BUFFER", -1);
