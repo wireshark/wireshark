@@ -829,7 +829,7 @@ capture_input_closed(capture_session *cap_session, char *msg)
             /* First, tell the GUI we are not capturing nor stopping a capture
                anymore. We need to do this if we're aborting the capture but
                not quitting the program (e.g., restarting the capture.) */
-            capture_callback_invoke(capture_cb_capture_failed, cap_session);
+            capture_callback_invoke(capture_cb_capture_update_finished, cap_session);
 
             if (cap_session->frame_cksum != NULL) {
                 fifo_string_cache_free(&cap_session->frame_dup_cache);
