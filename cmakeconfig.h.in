@@ -37,6 +37,9 @@
 /* Enable AddressSanitizer (and LeakSanitizer on clang/gcc) */
 #cmakedefine ENABLE_ASAN 1
 
+/* Enable LeakSanitizer standalone */
+#cmakedefine ENABLE_LSAN 1
+
 /* Enable AirPcap */
 #cmakedefine HAVE_AIRPCAP 1
 

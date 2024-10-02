@@ -136,7 +136,7 @@ static bool signal_pipe_check_running(void);
 #endif
 static int sync_pipe_fd = 2;
 
-#ifdef ENABLE_ASAN
+#if defined (ENABLE_ASAN) || defined (ENABLE_LSAN)
 /* This has public visibility so that if compiled with shared libasan (the
  * gcc default) function interposition occurs.
  */
@@ -207,6 +207,16 @@ __asan_default_options(void)
     /* By default don't override our exit code if there's a leak or error.
      * We particularly don't want to do this if running as a capture child,
      * because capture/capture_sync doesn't expect the ASan exit codes.
+     */
+    return "exitcode=0";
+}
+
+WS_DLL_PUBLIC const char*
+__lsan_default_options(void)
+{
+    /* By default don't override our exit code if there's a leak or error.
+     * We particularly don't want to do this if running as a capture child,
+     * because capture/capture_sync doesn't expect the LSan exit codes.
      */
     return "exitcode=0";
 }
