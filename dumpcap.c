@@ -776,6 +776,10 @@ show_filter_code(capture_options *capture_opts)
     /* If using libcap: we can now remove NET_RAW and NET_ADMIN capabilities  */
     /*  (euid/egid have already previously been set to ruid/rgid.             */
     /* (See comment in main() for details)                                    */
+    /* XXX - On Linux, if we're capturing on a mac80211 device and enabling   */
+    /* rfmon via libpcap with libnl support, that creates a new monitor mode  */
+    /* device that libpcap will attempt to delete when capture is done. That  */
+    /* will fail with EPERM because we dropped privileges.                    */
 #ifndef HAVE_LIBCAP
     relinquish_special_privs_perm();
 #else
