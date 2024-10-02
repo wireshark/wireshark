@@ -7350,9 +7350,38 @@ netlogon_dissect_netrserverauthenticate023_reply(tvbuff_t *tvb, int offset,
             }
             else
             {
-                /*Not implemented*/
-                ws_debug("Else case not implemented");
-                memset(session_key,0,16);
+                uint32_t c1 = (uint32_t)(vars->client_challenge & UINT32_MAX);
+                uint32_t c2 = (uint32_t)((vars->client_challenge >> 32) & UINT32_MAX);
+                uint32_t s1 = (uint32_t)(vars->server_challenge & UINT32_MAX);
+                uint32_t s2 = (uint32_t)((vars->server_challenge >> 32) & UINT32_MAX);
+                uint32_t sum1 = c1 + s1;
+                uint32_t sum2 = c2 + s2;
+                uint64_t sum = (uint64_t)sum1 | ((uint64_t)sum2 << 32);
+
+                used_method = "DES";
+                printnbyte(pinfo->pool, (uint8_t*)&sum, 8,"SUM for DES:");
+                printnbyte(pinfo->pool, (uint8_t*)&vars->client_challenge,8,"Client challenge:");
+                printnbyte(pinfo->pool, (uint8_t*)&vars->server_challenge,8,"Server challenge:");
+                printnbyte(pinfo->pool, (uint8_t*)&server_cred,8,"Server creds:");
+                for(i=0;i<list_size;i++)
+                {
+                    uint8_t buf[8] = { 0 };
+                    uint64_t calculated_cred;
+
+                    memset(session_key, 0, 16);
+
+                    used_md4 = &pass_list[i];
+                    crypt_des_ecb(buf, (unsigned char*)&sum, used_md4->md4);
+                    crypt_des_ecb((unsigned char*)session_key, buf, used_md4->md4+9);
+
+                    crypt_des_ecb(buf,(unsigned char*)&vars->server_challenge,session_key);
+                    crypt_des_ecb((unsigned char*)&calculated_cred,buf,session_key+7);
+                    printnbyte(pinfo->pool, (uint8_t*)&calculated_cred,8,"Calculated creds:");
+                    if(calculated_cred==server_cred) {
+                        found = 1;
+                        break;
+                    }
+                }
             }
             if(found) {
                 vars->nthash = *used_md4;
@@ -8901,7 +8930,7 @@ static uint64_t uncrypt_sequence_aes(uint8_t* session_key,uint64_t checksum,uint
     return enc_seq;
 }
 
-static uint64_t uncrypt_sequence_strong(uint8_t* session_key,uint64_t checksum,uint64_t enc_seq,unsigned char is_server _U_)
+static uint64_t uncrypt_sequence_md5(uint8_t* session_key,uint64_t checksum,uint64_t enc_seq,unsigned char is_server _U_)
 {
     uint8_t zeros[4] = { 0 };
     uint8_t buf[HASH_MD5_LENGTH];
@@ -8941,11 +8970,7 @@ static uint64_t uncrypt_sequence(uint32_t flags, uint8_t* session_key,uint64_t c
         return uncrypt_sequence_aes(session_key, checksum, enc_seq, is_server);
     }
 
-    if (flags & NETLOGON_FLAG_STRONGKEY) {
-        return uncrypt_sequence_strong(session_key, checksum, enc_seq, is_server);
-    }
-
-    return 0;
+    return uncrypt_sequence_md5(session_key, checksum, enc_seq, is_server);
 }
 
 static gcry_error_t prepare_decryption_cipher_aes(netlogon_auth_vars *vars,
@@ -8987,8 +9012,8 @@ static gcry_error_t prepare_decryption_cipher_aes(netlogon_auth_vars *vars,
     return 0;
 }
 
-static gcry_error_t prepare_decryption_cipher_strong(netlogon_auth_vars *vars,
-                                                     gcry_cipher_hd_t *_cipher_hd)
+static gcry_error_t prepare_decryption_cipher_md5(netlogon_auth_vars *vars,
+                                                  gcry_cipher_hd_t *_cipher_hd)
 {
     gcry_error_t err;
     gcry_cipher_hd_t cipher_hd = NULL;
@@ -9036,11 +9061,7 @@ static gcry_error_t prepare_decryption_cipher(netlogon_auth_vars *vars,
         return prepare_decryption_cipher_aes(vars, _cipher_hd);
     }
 
-    if (vars->flags & NETLOGON_FLAG_STRONGKEY) {
-        return prepare_decryption_cipher_strong(vars, _cipher_hd);
-    }
-
-    return GPG_ERR_UNSUPPORTED_ALGORITHM;
+    return prepare_decryption_cipher_md5(vars, _cipher_hd);
 }
 
 static tvbuff_t *
