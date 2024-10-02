@@ -176,6 +176,7 @@ private:
     static QString window_title_separator_;
     QList<AppSignal> app_signals_;
     int active_captures_;
+    bool refresh_interfaces_pending_;
 
 #if defined(HAVE_SOFTWARE_UPDATE) && defined(Q_OS_WIN)
     bool software_update_ok_;
