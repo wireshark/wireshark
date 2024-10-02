@@ -4041,7 +4041,7 @@ prefs_register_modules(void)
 
     prefs_register_enum_preference(protocols_module, "conversation_deinterlacing_key",
                                    "Deinterlacing conversations key",
-                                   "Use this key for deinterlacing conversations.",
+                                   "Separate into different conversations frames that look like duplicates but have different Interface, MAC, or VLAN field values.",
                                    (int *)&prefs.conversation_deinterlacing_key, conv_deint_options, false);
 
     prefs_register_uint_preference(protocols_module, "ignore_dup_frames_cache_entries",
