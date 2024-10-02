@@ -680,7 +680,7 @@ void proto_register_mms(void) {
     expert_register_field_array(expert_mms, ei, array_length(ei));
 
     /* Setting to enable/disable the IEC-61850 mapping on MMS */
-    module_t* mms_module = prefs_register_protocol(proto_mms, proto_reg_handoff_mms);
+    module_t* mms_module = prefs_register_protocol(proto_mms, NULL);
 
     prefs_register_bool_preference(mms_module, "use_iec61850_mapping",
         "Dissect MMS as IEC-61850",

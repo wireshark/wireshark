@@ -220,7 +220,7 @@ AlterEventEnrollment-Response/currentState/state    ABBREV=alterEventEnrollment-
 
 %(DEFAULT_BODY)s
     mms_actx_private_data_t *mms_priv = (mms_actx_private_data_t *)actx->private_data;
-    if(tree){
+    if(tree && mms_priv){
         mms_priv->pdu_item = (proto_item*)tree->last_child;
     }
 
@@ -229,12 +229,12 @@ AlterEventEnrollment-Response/currentState/state    ABBREV=alterEventEnrollment-
 
 %(DEFAULT_BODY)s
     mms_actx_private_data_t *mms_priv = (mms_actx_private_data_t *)actx->private_data;
-    if(tree){
+    if(tree && mms_priv){
         mms_priv->pdu_item = (proto_item*)tree->last_child;
     }
 #.FN_BODY Unconfirmed-PDU
    mms_actx_private_data_t *mms_priv = (mms_actx_private_data_t *)actx->private_data;
-    if (!mms_priv->mms_trans_p) {
+    if (mms_priv && !mms_priv->mms_trans_p) {
         /* create a "fake" mms_trans structure */
         mms_priv->mms_trans_p=wmem_new0(actx->pinfo->pool, mms_transaction_t);
         mms_priv->mms_trans_p->req_time = actx->pinfo->fd->abs_ts;
@@ -242,14 +242,14 @@ AlterEventEnrollment-Response/currentState/state    ABBREV=alterEventEnrollment-
     }
 
 %(DEFAULT_BODY)s
-    if(tree){
+    if(tree && mms_priv){
         mms_priv->pdu_item = (proto_item*)tree->last_child;
     }
 #.FN_BODY Confirmed-RequestPDU
 
 %(DEFAULT_BODY)s
     mms_actx_private_data_t *mms_priv = (mms_actx_private_data_t *)actx->private_data;
-    if(tree){
+    if(tree && mms_priv){
         mms_priv->pdu_item = (proto_item*)tree->last_child;
     }
 
@@ -257,7 +257,7 @@ AlterEventEnrollment-Response/currentState/state    ABBREV=alterEventEnrollment-
 
 %(DEFAULT_BODY)s
     mms_actx_private_data_t *mms_priv = (mms_actx_private_data_t *)actx->private_data;
-    if(tree){
+    if(tree && mms_priv){
         mms_priv->pdu_item = (proto_item*)tree->last_child;
     }
 
