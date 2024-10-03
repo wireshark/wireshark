@@ -291,6 +291,17 @@ static int hf_oran_prb_pattern;
 static int hf_oran_prb_block_offset;
 static int hf_oran_prb_block_size;
 
+static int hf_oran_codebook_index;
+static int hf_oran_layerid;
+static int hf_oran_numlayers;
+static int hf_oran_txscheme;
+static int hf_oran_crs_remask;
+static int hf_oran_crs_shift;
+static int hf_oran_crs_symnum;
+static int hf_oran_beamid_ap1;
+static int hf_oran_beamid_ap2;
+static int hf_oran_beamid_ap3;
+
 /* Computed fields */
 static int hf_oran_c_eAxC_ID;
 static int hf_oran_refa;
@@ -2228,14 +2239,57 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                 break;
             }
 
-            //case 3: /* SE 3: TODO: DL precoding parameters */
+            case 3: /* SE 3: TODO: DL precoding parameters */
+            {
                 /* codebookindex */
-                //offset += 1;
+                proto_tree_add_item(extension_tree, hf_oran_codebook_index, tvb, offset, 1, ENC_BIG_ENDIAN);
+                offset += 1;
                 /* layerid */
+                uint32_t layerid;
+                proto_tree_add_item_ret_uint(extension_tree, hf_oran_layerid, tvb, offset, 1, ENC_BIG_ENDIAN, &layerid);
                 /* numLayers */
-                //offset += 1;
-                /* TODO: stop here for non-first data layer? */
-                //break;
+                proto_tree_add_item(extension_tree, hf_oran_numlayers, tvb, offset, 1, ENC_BIG_ENDIAN);
+                offset += 1;
+
+                /* Stop here for non-first data layer */
+                if (layerid != 0 && layerid != 0xf) {
+                    break;
+                }
+
+                /* First data layer case */
+                /* txScheme */
+                proto_tree_add_item(extension_tree, hf_oran_txscheme, tvb, offset, 1, ENC_BIG_ENDIAN);
+                /* crsReMask */
+                proto_tree_add_item(extension_tree, hf_oran_crs_remask, tvb, offset, 2, ENC_BIG_ENDIAN);
+                offset += 2;
+
+                /* crsShift (1 bit) */
+                proto_tree_add_item(extension_tree, hf_oran_crs_shift, tvb, offset, 1, ENC_BIG_ENDIAN);
+                /* reserved (3 bits) */
+                /* crsSymNum (4 bits) */
+                proto_tree_add_item(extension_tree, hf_oran_crs_symnum, tvb, offset, 1, ENC_BIG_ENDIAN);
+                offset += 1;
+                /* reserved */
+                proto_tree_add_item(extension_tree, hf_oran_reserved_8bits, tvb, offset, 1, ENC_BIG_ENDIAN);
+                offset += 1;
+
+                /* reserved (1 bit) */
+                proto_tree_add_item(extension_tree, hf_oran_reserved_1bit, tvb, offset, 1, ENC_BIG_ENDIAN);
+                /* beamIdAP1 */
+                proto_tree_add_item(extension_tree, hf_oran_beamid_ap1, tvb, offset, 2, ENC_BIG_ENDIAN);
+                offset += 2;
+                /* reserved (1 bit) */
+                proto_tree_add_item(extension_tree, hf_oran_reserved_1bit, tvb, offset, 1, ENC_BIG_ENDIAN);
+                /* beamIdAP2 */
+                proto_tree_add_item(extension_tree, hf_oran_beamid_ap2, tvb, offset, 2, ENC_BIG_ENDIAN);
+                offset += 2;
+                /* reserved (1 bit) */
+                proto_tree_add_item(extension_tree, hf_oran_reserved_1bit, tvb, offset, 1, ENC_BIG_ENDIAN);
+                /* beamIdAP3 */
+                proto_tree_add_item(extension_tree, hf_oran_beamid_ap3, tvb, offset, 2, ENC_BIG_ENDIAN);
+                offset += 2;
+                break;
+            }
 
             case 4: /* SE 4: Modulation compression params (5.4.7.4) */
             {
@@ -6105,8 +6159,86 @@ proto_register_oran(void)
           HFILL}
         },
 
-
-
+        /* 7.7.3.2 */
+        {&hf_oran_codebook_index,
+         {"codebookIndex", "oran_fh_cus.codebookIndex",
+          FT_UINT8, BASE_DEC,
+          NULL, 0x0,
+          "precoder codebook used for transmission",
+          HFILL}
+        },
+        /* 7.7.3.3 */
+        {&hf_oran_layerid,
+         {"layerID", "oran_fh_cus.layerID",
+          FT_UINT8, BASE_DEC,
+          NULL, 0xf0,
+          "Layer ID for DL transmission",
+          HFILL}
+        },
+        /* 7.7.3.5 */
+        {&hf_oran_numlayers,
+         {"numLayers", "oran_fh_cus.numLayers",
+          FT_UINT8, BASE_DEC,
+          NULL, 0x0f,
+          "number of layers for DL transmission",
+          HFILL}
+        },
+        /* 7.7.3.4 */
+        {&hf_oran_txscheme,
+         {"txScheme", "oran_fh_cus.txScheme",
+          FT_UINT8, BASE_DEC,
+          NULL, 0xf0,
+          "transmission scheme",
+          HFILL}
+        },
+        /* 7.7.3.6 */
+        {&hf_oran_crs_remask,
+         {"crsReMask", "oran_fh_cus.crsReMask",
+          FT_UINT16, BASE_HEX,
+          NULL, 0x0fff,
+          "CRS resource element mask",
+          HFILL}
+        },
+        /* 7.7.3.8 */
+        {&hf_oran_crs_shift,
+         {"crsShift", "oran_fh_cus.crsShift",
+          FT_UINT8, BASE_HEX,
+          NULL, 0x80,
+          "CRS resource element mask",
+          HFILL}
+        },
+        /* 7.7.3.7 */
+        {&hf_oran_crs_symnum,
+         {"crsSymNum", "oran_fh_cus.crsSymNum",
+          FT_UINT8, BASE_DEC,
+          NULL, 0x0f,
+          "CRS symbol number indication",
+          HFILL}
+        },
+        /* 7.7.3.9 */
+        {&hf_oran_beamid_ap1,
+         {"beamIdAP1", "oran_fh_cus.beamIdAP1",
+          FT_UINT16, BASE_DEC,
+          NULL, 0x7f,
+          "beam id to be used for antenna port 1",
+          HFILL}
+        },
+        /* 7.7.3.10 */
+        {&hf_oran_beamid_ap2,
+         {"beamIdAP2", "oran_fh_cus.beamIdAP2",
+          FT_UINT16, BASE_DEC,
+          NULL, 0x7f,
+          "beam id to be used for antenna port 2",
+          HFILL}
+        },
+        /* 7.7.3.11 */
+        {&hf_oran_beamid_ap3,
+         {"beamIdAP3", "oran_fh_cus.beamIdAP3",
+          FT_UINT16, BASE_DEC,
+          NULL, 0x7f,
+          "beam id to be used for antenna port 3",
+          HFILL}
+        }
     };
 
     /* Setup protocol subtree array */
