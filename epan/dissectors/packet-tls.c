@@ -4394,11 +4394,15 @@ ssldecrypt_uat_fld_protocol_chk_cb(void* r _U_, const char* p, unsigned len _U_,
     }
 
     if (!ssl_find_appdata_dissector(p)) {
-        if (proto_get_id_by_filter_name(p) != -1) {
-            *err = ws_strdup_printf("While '%s' is a valid dissector filter name, that dissector is not configured"
+        if (find_dissector(p)) {
+            // ssl_find_appdata_dissector accepts any valid dissector name so
+            // this path cannot happen
+            *err = ws_strdup_printf("While '%s' is a valid dissector name, that dissector is not configured"
                                    " to support TLS decryption.\n\n"
                                    "If you need to decrypt '%s' over TLS, please contact the Wireshark development team.", p, p);
         } else {
+            // The GUI validates dissector names now so this path shouldn't
+            // occur either. (Perhaps if the UAT is hand-edited it might?)
             char* ssl_str = ssl_association_info("tls.port", "TCP");
             *err = ws_strdup_printf("Could not find dissector for: '%s'\nCommonly used TLS dissectors include:\n%s", p, ssl_str);
             g_free(ssl_str);
@@ -4849,7 +4853,7 @@ proto_register_tls(void)
         static uat_field_t sslkeylist_uats_flds[] = {
             UAT_FLD_CSTRING_OTHER(sslkeylist_uats, ipaddr, "IP address", ssldecrypt_uat_fld_ip_chk_cb, "IPv4 or IPv6 address (unused)"),
             UAT_FLD_CSTRING_OTHER(sslkeylist_uats, port, "Port", ssldecrypt_uat_fld_port_chk_cb, "Port Number (optional)"),
-            UAT_FLD_CSTRING_OTHER(sslkeylist_uats, protocol, "Protocol", ssldecrypt_uat_fld_protocol_chk_cb, "Application Layer Protocol (optional)"),
+            UAT_FLD_DISSECTOR_OTHER(sslkeylist_uats, protocol, "Protocol", ssldecrypt_uat_fld_protocol_chk_cb, "Application Layer Protocol (optional)"),
             UAT_FLD_FILENAME_OTHER(sslkeylist_uats, keyfile, "Key File", ssldecrypt_uat_fld_fileopen_chk_cb, "Private keyfile."),
             UAT_FLD_CSTRING_OTHER(sslkeylist_uats, password,"Password", ssldecrypt_uat_fld_password_chk_cb, "Password (for PCKS#12 keyfile)"),
             UAT_END_FIELDS

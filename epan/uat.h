@@ -772,6 +772,9 @@ static void basename ## _ ## field_name ## _tostr_cb(void* rec, char** out_ptr, 
 #define UAT_FLD_DISSECTOR(basename,field_name,title,desc) \
     {#field_name, title, PT_TXTMOD_DISSECTOR,{uat_fld_chk_proto,basename ## _ ## field_name ## _set_cb,basename ## _ ## field_name ## _tostr_cb},{0,0,0},0,desc,FLDFILL}
 
+#define UAT_FLD_DISSECTOR_OTHER(basename,field_name,title,chk,desc) \
+    {#field_name, title, PT_TXTMOD_DISSECTOR,{chk,basename ## _ ## field_name ## _set_cb,basename ## _ ## field_name ## _tostr_cb},{0,0,0},0,desc,FLDFILL}
+
 /*
  * RANGE macros
  */

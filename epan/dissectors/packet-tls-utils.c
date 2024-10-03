@@ -6039,6 +6039,9 @@ ssl_find_appdata_dissector(const char *name)
     /* Accept 'http' for backwards compatibility and sanity. */
     if (!strcmp(name, "http"))
         name = "http-over-tls";
+    /* XXX - Should this check to see if the dissector is actually added for
+     * Decode As in the appropriate table?
+     */
     return find_dissector(name);
 }
 
@@ -7112,11 +7115,11 @@ ssl_association_info_(const char *table _U_, void *handle, void *user_data)
 {
     ssl_association_info_callback_data_t* data = (ssl_association_info_callback_data_t*)user_data;
     const int l = (const int)strlen(data->str);
-    snprintf(data->str+l, SSL_ASSOC_MAX_LEN-l, "'%s' %s\n", dissector_handle_get_description((dissector_handle_t)handle), data->table_protocol);
+    snprintf(data->str+l, SSL_ASSOC_MAX_LEN-l, "'%s' (%s)\n", dissector_handle_get_dissector_name((dissector_handle_t)handle), dissector_handle_get_description((dissector_handle_t)handle));
 }
 
 /**
- * @return an information string on the SSL protocol associations. The string has ephemeral lifetime/scope.
+ * @return an information string on the SSL protocol associations. The string must be freed.
  */
 char*
 ssl_association_info(const char* dissector_table_name, const char* table_protocol)
