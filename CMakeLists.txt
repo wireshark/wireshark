@@ -1524,7 +1524,7 @@ ws_find_package(OPUS ENABLE_OPUS HAVE_OPUS)
 
 if (BUILD_logray)
 	# libsinsp+libscap, required for falco-bridge
-	ws_find_package(Sinsp ENABLE_SINSP HAVE_SINSP)
+	ws_find_package(Sinsp ENABLE_SINSP HAVE_SINSP "0.17.1")
 endif()
 
 # CMake 3.9 and below used 'LIBXML2_LIBRARIES' as the name of the cache entry

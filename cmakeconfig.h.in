@@ -360,6 +360,15 @@
 /* Define to 1 if we are using the msys2 environment to build. */
 #cmakedefine HAVE_MSYSTEM 1
 
+/* Define if we have sinsp and scap */
+#cmakedefine HAVE_SINSP 1
+
+#ifdef HAVE_SINSP
+#define SINSP_VERSION_MAJOR ${SINSP_VERSION_MAJOR}
+#define SINSP_VERSION_MINOR ${SINSP_VERSION_MINOR}
+#define SINSP_VERSION_MICRO ${SINSP_VERSION_MICRO}
+#endif
+
 #if defined(_MSC_VER)
 #  define strncasecmp strnicmp
 #  define popen       _popen
