@@ -196,6 +196,8 @@ static const value_string zbee_zcl_cmd_names[] = {
     { ZBEE_ZCL_CMD_WRITE_ATTR_STRUCT_RESP,  "Write Attributes Structured Response" },
     { ZBEE_ZCL_CMD_DISCOVER_CMDS_REC,       "Discover Commands Received" },
     { ZBEE_ZCL_CMD_DISCOVER_CMDS_REC_RESP,  "Discover Commands Received Response" },
+    { ZBEE_ZCL_CMD_DISCOVER_CMDS_GEN,       "Discover Commands Generated" },
+    { ZBEE_ZCL_CMD_DISCOVER_CMDS_GEN_RESP,  "Discover Commands Generated Response" },
     { ZBEE_ZCL_CMD_DISCOVER_ATTR_EXTENDED,       "Discover Attributes Extended" },
     { ZBEE_ZCL_CMD_DISCOVER_ATTR_EXTENDED_RESP,  "Discover Attributes Extended Response" },
     { 0, NULL }
@@ -1732,8 +1734,7 @@ static void dissect_zcl_discover_attr_resp(tvbuff_t *tvb, packet_info *pinfo _U_
     unsigned i = 0;
     bool client_attr = direction == ZBEE_ZCL_FCF_TO_SERVER;
 
-    /* XXX - tree is never available!!!*/
-    dissect_zcl_attr_uint8(tvb, sub_tree, offset, &hf_zbee_zcl_attr_dis);
+    dissect_zcl_attr_uint8(tvb, tree, offset, &hf_zbee_zcl_attr_dis);
 
     tvb_len = tvb_captured_length(tvb);
     while ( *offset < tvb_len && i < ZBEE_ZCL_NUM_ATTR_ETT ) {
@@ -1863,17 +1864,22 @@ static void dissect_zcl_discover_cmd_rec(tvbuff_t *tvb, packet_info *pinfo _U_, 
     dissect_zcl_attr_uint8(tvb, tree, offset, &hf_zbee_zcl_cmd_maxnum);
     return;
 }
+
 static void dissect_zcl_discover_cmd_rec_resp(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned *offset)
 {
+    proto_tree* sub_tree = NULL;
     unsigned tvb_len;
     unsigned i = 0;
-    int discovery_complete = -1;
-    discovery_complete = dissect_zcl_attr_uint8(tvb, tree, offset, &hf_zbee_zcl_attr_dis);
-    if(discovery_complete == 0){
-        tvb_len = tvb_captured_length(tvb);
+
+    /* Discovery Complete */
+    dissect_zcl_attr_uint8(tvb, tree, offset, &hf_zbee_zcl_attr_dis);
+
+    tvb_len = tvb_captured_length(tvb);
+    if ( *offset < tvb_len ) {
+        sub_tree = proto_tree_add_subtree(tree, tvb, *offset, *offset - tvb_len, ett_zbee_zcl_attr[i], NULL, "Command Identifiers");
         while ( *offset < tvb_len && i < (tvb_len-1) ) {
             /* Dissect the command identifiers */
-            dissect_zcl_attr_uint8(tvb, tree, offset, &hf_zbee_zcl_cs_cmd_id);
+            dissect_zcl_attr_uint8(tvb, sub_tree, offset, &hf_zbee_zcl_cs_cmd_id);
             i++;
         }
     }
