@@ -190,6 +190,7 @@ static ws_enum_t const all_enums[] = {
     ENUM(FT_BYTES),
     ENUM(FT_CHAR),
     ENUM(FT_DOUBLE),
+    ENUM(FT_ENUM_SIZE),
     ENUM(FT_ERROR),
     ENUM(FT_ETHER),
     ENUM(FT_ETHER_LEN),
