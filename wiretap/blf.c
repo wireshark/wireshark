@@ -794,15 +794,9 @@ blf_pull_logcontainer_into_memory(blf_params_t *params, blf_log_container_t *con
     if (container->compression_method == BLF_COMPRESSION_NONE) {
         unsigned char* buf = g_try_malloc((size_t)container->real_length);
         if (buf == NULL) {
-            /*
-             * XXX - our caller will turn this into an EOF.
-             * How *should* it be treated?
-             * For now, we turn it into Yet Another Internal Error,
-             * pending having better documentation of the file
-             * format.
-             */
             *err = WTAP_ERR_INTERNAL;
             *err_info = ws_strdup("blf_pull_logcontainer_into_memory: cannot allocate memory");
+            return false;
         }
         if (!wtap_read_bytes_or_eof(params->fh, buf, (unsigned int)data_length, err, err_info)) {
             g_free(buf);
@@ -826,6 +820,11 @@ blf_pull_logcontainer_into_memory(blf_params_t *params, blf_log_container_t *con
     else if (container->compression_method == BLF_COMPRESSION_ZLIB) {
 #if defined (HAVE_ZLIB) || defined (HAVE_ZLIBNG)
         unsigned char *compressed_data = g_try_malloc((size_t)data_length);
+        if (compressed_data == NULL) {
+            *err = WTAP_ERR_INTERNAL;
+            *err_info = ws_strdup("blf_pull_logcontainer_into_memory: cannot allocate memory");
+            return false;
+        }
         if (!wtap_read_bytes_or_eof(params->fh, compressed_data, (unsigned int)data_length, err, err_info)) {
             g_free(compressed_data);
             if (*err == WTAP_ERR_SHORT_READ) {
@@ -844,15 +843,10 @@ blf_pull_logcontainer_into_memory(blf_params_t *params, blf_log_container_t *con
 
         unsigned char *buf = g_try_malloc((size_t)container->real_length);
         if (buf == NULL) {
-            /*
-             * XXX - our caller will turn this into an EOF.
-             * How *should* it be treated?
-             * For now, we turn it into Yet Another Internal Error,
-             * pending having better documentation of the file
-             * format.
-             */
+            g_free(compressed_data);
             *err = WTAP_ERR_INTERNAL;
             *err_info = ws_strdup("blf_pull_logcontainer_into_memory: cannot allocate memory");
+            return false;
         }
         zlib_stream infstream = {0};
 
@@ -3265,6 +3259,10 @@ blf_read_apptextmessage(blf_params_t *params, int *err, char **err_info, int64_t
 
     /* Add an extra byte for a terminating '\0' */
     char* text = g_try_malloc((size_t)apptextheader.textLength + 1);
+    if (text == NULL) {
+        ws_debug("cannot allocate memory");
+        return BLF_APPTEXT_FAILED;
+    }
 
     if (!blf_read_bytes(params, data_start + sizeof(apptextheader), text, apptextheader.textLength, err, err_info)) {
         ws_debug("not enough bytes for apptext text in file");
