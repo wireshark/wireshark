@@ -439,6 +439,11 @@ cfile_write_failure_message(const char *in_filename, const char *out_filename,
         g_free(err_info);
         break;
 
+    case WTAP_ERR_SHORT_WRITE:
+        cmdarg_err("A full write couldn't be done to the %s.",
+                   out_file_string);
+        break;
+
     case WTAP_ERR_INTERNAL:
         cmdarg_err("An internal error occurred while writing record%s to the %s.\n(%s)",
                    in_frame_string, out_file_string,
@@ -459,11 +464,6 @@ cfile_write_failure_message(const char *in_filename, const char *out_filename,
                    out_file_string);
   break;
 #endif
-
-    case WTAP_ERR_SHORT_WRITE:
-        cmdarg_err("A full write couldn't be done to the %s.",
-                   out_file_string);
-        break;
 
     default:
         cmdarg_err("An error occurred while writing to the %s: %s.",
@@ -508,20 +508,6 @@ cfile_close_failure_message(const char *filename, int err, char *err_info)
 
     switch (err) {
 
-    case ENOSPC:
-        cmdarg_err("Not all the packets could be written to the %s because there is "
-                   "no space left on the file system.",
-                   file_string);
-    break;
-
-#ifdef EDQUOT
-    case EDQUOT:
-        cmdarg_err("Not all the packets could be written to the %s because you are "
-                   "too close to, or over your disk quota.",
-                   file_string);
-  break;
-#endif
-
     case WTAP_ERR_CANT_CLOSE:
         cmdarg_err("The %s couldn't be closed for some unknown reason.",
                    file_string);
@@ -539,6 +525,20 @@ cfile_close_failure_message(const char *filename, int err, char *err_info)
                    err_info != NULL ? err_info : "no information supplied");
         g_free(err_info);
         break;
+
+    case ENOSPC:
+        cmdarg_err("Not all the packets could be written to the %s because there is "
+                   "no space left on the file system.",
+                   file_string);
+    break;
+
+#ifdef EDQUOT
+    case EDQUOT:
+        cmdarg_err("Not all the packets could be written to the %s because you are "
+                   "too close to, or over your disk quota.",
+                   file_string);
+    break;
+#endif
 
     default:
         cmdarg_err("An error occurred while closing the file %s: %s.",

@@ -388,16 +388,6 @@ cfile_write_failure_alert_box(const char *in_filename, const char *out_filename,
                         wtap_file_type_subtype_description(file_type_subtype));
             break;
 
-        case WTAP_ERR_INTERNAL:
-            out_display_basename = g_filename_display_basename(out_filename);
-            simple_error_message_box(
-                        "An internal error occurred while writing to the file \"%s\".\n(%s)",
-                        out_display_basename,
-                        err_info != NULL ? err_info : "no information supplied");
-            g_free(out_display_basename);
-            g_free(err_info);
-            break;
-
         case WTAP_ERR_PACKET_TOO_LARGE:
             /*
              * This is a problem with the particular frame we're writing and
@@ -443,6 +433,16 @@ cfile_write_failure_alert_box(const char *in_filename, const char *out_filename,
                         "A full write couldn't be done to the file \"%s\".",
                         out_display_basename);
             g_free(out_display_basename);
+            break;
+
+        case WTAP_ERR_INTERNAL:
+            out_display_basename = g_filename_display_basename(out_filename);
+            simple_error_message_box(
+                        "An internal error occurred while writing to the file \"%s\".\n(%s)",
+                        out_display_basename,
+                        err_info != NULL ? err_info : "no information supplied");
+            g_free(out_display_basename);
+            g_free(err_info);
             break;
 
         default:
