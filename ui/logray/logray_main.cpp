@@ -666,6 +666,13 @@ int main(int argc, char *qt_argv[])
     QApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
 #endif
 
+    // This function must be called before creating the application object.
+    // Qt::HighDpiScaleFactorRoundingPolicy::PassThrough is the default in Qt6,
+    // so this doesn't have any effect (Round is the default in 5.14 & 5.15)
+#if QT_VERSION >= QT_VERSION_CHECK(5, 14, 0) && defined(Q_OS_WIN)
+    QGuiApplication::setHighDpiScaleFactorRoundingPolicy(Qt::HighDpiScaleFactorRoundingPolicy::PassThrough);
+#endif
+
     /* Create The Logray app */
     LograyApplication ls_app(argc, qt_argv);
 
