@@ -280,11 +280,11 @@ WSLUA_CONSTRUCTOR Dumper_new(lua_State* L) {
             break;
 
         case WTAP_ERR_INTERNAL:
-             luaL_error(L,"An internal error occurred creating the file \"%s\" (%s)",
-                        filename,
-                        err_info != NULL ? err_info : "no information supplied");
-             g_free(err_info);
-             break;
+            luaL_error(L,"An internal error occurred creating the file \"%s\" (%s)",
+                       filename,
+                       err_info != NULL ? err_info : "no information supplied");
+            g_free(err_info);
+            break;
 
         default:
             luaL_error(L,"error while opening \"%s\": %s",
