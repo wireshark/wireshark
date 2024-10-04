@@ -1118,7 +1118,7 @@ static void ext11_work_out_bundles(unsigned startPrbc,
 /*******************************************************/
 /* Overall state of a flow (eAxC/plane)                */
 typedef struct {
-    /* State for sequence analysis (each direction) */
+    /* State for sequence analysis [each direction] */
     uint32_t last_frame[2];
     uint8_t  next_expected_sequence_number[2];
 
@@ -3481,15 +3481,14 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
         state->last_frame[direction] = pinfo->num;
         state->next_expected_sequence_number[direction] = (seq_id+1) % 256;
     }
-    else {
-        /* Show any issues associated with this frame number */
-        flow_result_t *result = wmem_tree_lookup32(flow_results_table, pinfo->num);
-        if (result!=NULL && result->unexpected_seq_number) {
-            expert_add_info_format(pinfo, seq_id_ti, &ei_oran_cplane_unexpected_sequence_number,
-                                   "Sequence number %u expected, but got %u",
-                                   result->expected_sequence_number, seq_id);
-            /* TODO: could add previous/next frames (in seqId tree?) ? */
-        }
+
+    /* Show any issues associated with this frame number */
+    flow_result_t *result = wmem_tree_lookup32(flow_results_table, pinfo->num);
+    if (result!=NULL && result->unexpected_seq_number) {
+        expert_add_info_format(pinfo, seq_id_ti, &ei_oran_cplane_unexpected_sequence_number,
+                               "Sequence number %u expected, but got %u",
+                               result->expected_sequence_number, seq_id);
+        /* TODO: could add previous/next frames (in seqId tree?) ? */
     }
 
     /* payloadVersion */
@@ -4250,16 +4249,15 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
         state->last_frame[direction] = pinfo->num;
         state->next_expected_sequence_number[direction] = (seq_id+1) % 256;
     }
-    else {
-        /* Show any issues associated with this frame number */
-        flow_result_t *result = wmem_tree_lookup32(flow_results_table, pinfo->num);
-        if (result) {
-            if (result->unexpected_seq_number) {
-                expert_add_info_format(pinfo, seq_id_ti, &ei_oran_uplane_unexpected_sequence_number,
-                                       "Sequence number %u expected, but got %u",
-                                       result->expected_sequence_number, seq_id);
-                /* TODO: could add previous frame (in seqId tree?) ? */
-            }
+
+    /* Show any issues associated with this frame number */
+    flow_result_t *result = wmem_tree_lookup32(flow_results_table, pinfo->num);
+    if (result) {
+        if (result->unexpected_seq_number) {
+            expert_add_info_format(pinfo, seq_id_ti, &ei_oran_uplane_unexpected_sequence_number,
+                                   "Sequence number %u expected, but got %u",
+                                   result->expected_sequence_number, seq_id);
+            /* TODO: could add previous frame (in seqId tree?) ? */
         }
     }
 
