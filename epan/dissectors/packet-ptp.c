@@ -42,6 +42,8 @@
  *   - Improvements/corrections for cumulativeScaledRateOffset
  * - Prashant Tripathi 31-07-2024 <prashant_tripathi@selinc.com>
  *   - Corrections to timeOfNextJump field in ATOI TLV
+ * - Patrik Thunström 24.09.2024 <patrik.thunstroem@technica-engineering.de>
+ *   - Fix analysis association (Sync to Follow_Up etc.) in case of sequenceId resets
 
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -1950,9 +1952,16 @@ static expert_field ei_ptp_v2_period_invalid;
 
 /* Config for Analysis features */
 static bool ptp_analyze_messages = true;
+static unsigned ptp_analysis_max_consecutive_delta = 10;
 
 /* Definitions for Analysis features */
-#define PTP_ANALYSIS_MAX_ALLOWED_DELTA_SECS 60
+
+/* 1588 defines related messages (with matching seqIds) should be sent "as soon as possible".
+ * 802.1AS formalizes a requirement of max 10ms for the same in "Annex B - Performance requirements".
+ * A 1 second threshold gives good margin, while not causing analysis issues in case of resets.
+ * In case of rapid sequence number resets <1s apart, incorrect message associations can still happen.
+*/
+#define PTP_ANALYSIS_MAX_ALLOWED_DELTA_SECS 1.0
 
 typedef struct ptp_frame_info_sync {
     uint32_t sync_frame_num;
@@ -2050,7 +2059,7 @@ calculate_frame_key(uint8_t ptp_major, uint8_t ptp_minor, uint8_t majorsdoid, ui
 }
 
 static ptp_frame_info_t *
-get_frame_info_and_opt_create(packet_info *pinfo, uint8_t ptp_major, uint8_t ptp_minor, uint8_t majorsdoid, uint8_t minorsdoid, uint8_t messagetype, uint8_t domain, uint64_t clockidentity, uint16_t portid, uint16_t seqid, bool create_missing)
+get_frame_info_and_opt_create(packet_info *pinfo, uint8_t ptp_major, uint8_t ptp_minor, uint8_t majorsdoid, uint8_t minorsdoid, uint8_t messagetype, uint8_t domain, uint64_t clockidentity, uint16_t portid, uint16_t seqid, bool create_missing, double delta_cutoff)
 {
     DISSECTOR_ASSERT(ptp_clocks != NULL);
 
@@ -2074,11 +2083,12 @@ get_frame_info_and_opt_create(packet_info *pinfo, uint8_t ptp_major, uint8_t ptp
     if (tmp != NULL)
     {
         /* Is this a real match or did have wrapped the ptp seqid? */
+        /* This check also handles sequenceIds resets due to restarts. */
         nstime_t delta_time;
         nstime_delta(&delta_time, &(pinfo->abs_ts), &(tmp->ref_time));
         double delta_secs = nstime_to_sec(&delta_time);
 
-        if (fabs(delta_secs) > PTP_ANALYSIS_MAX_ALLOWED_DELTA_SECS)
+        if (fabs(delta_secs) > delta_cutoff)
         {
             /* Not our match! */
             tmp = NULL;
@@ -2103,10 +2113,10 @@ get_frame_info_and_opt_create(packet_info *pinfo, uint8_t ptp_major, uint8_t ptp
 static ptp_frame_info_t *
 create_frame_info(packet_info *pinfo, uint8_t ptp_major, uint8_t ptp_minor, uint8_t majorsdoid, uint8_t minorsdoid, uint8_t messagetype, uint8_t domain, uint64_t clockidentity, uint16_t portid, uint16_t seqid)
 {
-    ptp_frame_info_t *ret = get_frame_info_and_opt_create(pinfo, ptp_major, ptp_minor, majorsdoid, minorsdoid, messagetype, domain, clockidentity, portid, seqid, true);
+    ptp_frame_info_t *ret = get_frame_info_and_opt_create(pinfo, ptp_major, ptp_minor, majorsdoid, minorsdoid, messagetype, domain, clockidentity, portid, seqid, true, PTP_ANALYSIS_MAX_ALLOWED_DELTA_SECS);
 
     uint16_t seqid_prev = seqid == 0 ? UINT16_MAX : seqid - 1;
-    ret->prev = get_frame_info_and_opt_create(pinfo, ptp_major, ptp_minor, majorsdoid, minorsdoid, messagetype, domain, clockidentity, portid, seqid_prev, false);
+    ret->prev = get_frame_info_and_opt_create(pinfo, ptp_major, ptp_minor, majorsdoid, minorsdoid, messagetype, domain, clockidentity, portid, seqid_prev, false, (double)ptp_analysis_max_consecutive_delta);
 
     return ret;
 }
@@ -3053,6 +3063,7 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bool ptpv2_o
                 frame_info->messagetype = PTP_V2_SYNC_MESSAGE;
                 frame_info->sync.sync_two_step = (ptp_v2_flags & PTP_V2_FLAGS_TWO_STEP_BITMASK) == PTP_V2_FLAGS_TWO_STEP_BITMASK;
                 frame_info->sync.sync_ts = pinfo->abs_ts;
+                /* Rapid sequence number resets can be detected here checking for non-zero frame_info->sync.sync_frame_num */
                 frame_info->sync.sync_frame_num = pinfo->num;
 
                 if (!frame_info->sync.sync_two_step) {
@@ -8055,6 +8066,11 @@ proto_register_ptp(void)
     prefs_register_bool_preference(ptp_module, "analyze_ptp_messages", "Analyze PTP messages",
                                    "Make the PTP dissector analyze PTP messages. Accurate Capture Timestamps required!",
                                    &ptp_analyze_messages);
+
+    prefs_register_uint_preference(ptp_module, "analyze_ptp_delta", "Analysis: Max message delta",
+                                   "Maximum allowed time between messages of same type when finding "
+                                   "consecutive messages for analysis calculations.",
+                                   10, &ptp_analysis_max_consecutive_delta);
 
 /* Setup analysis data structures */
     ptp_clocks = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), g_direct_hash, g_direct_equal);
