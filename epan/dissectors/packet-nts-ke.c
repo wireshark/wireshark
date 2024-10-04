@@ -69,32 +69,54 @@ static bool nts_ke_chrony_compat_mode = false;
 static int ett_nts_ke;
 static int ett_nts_ke_record;
 
-#define RECORD_TYPE_END         0x0000
-#define RECORD_TYPE_NEXT        0x0001
-#define RECORD_TYPE_ERR         0x0002
-#define RECORD_TYPE_WARN        0x0003
-#define RECORD_TYPE_AEAD        0x0004
-#define RECORD_TYPE_COOKIE      0x0005
-#define RECORD_TYPE_NEG_SRV     0x0006
-#define RECORD_TYPE_NEG_PORT    0x0007
+#define RECORD_TYPE_END             0
+#define RECORD_TYPE_NEXT            1
+#define RECORD_TYPE_ERR             2
+#define RECORD_TYPE_WARN            3
+#define RECORD_TYPE_AEAD            4
+#define RECORD_TYPE_COOKIE          5
+#define RECORD_TYPE_NEG_SRV         6
+#define RECORD_TYPE_NEG_PORT        7
+#define RECORD_TYPE_UA_1_LOW        8
+#define RECORD_TYPE_UA_1_HIGH    1023
+#define RECORD_TYPE_COMP_GCM     1024
+#define RECORD_TYPE_UA_2_LOW     1025
+#define RECORD_TYPE_UA_2_HIGH   16383
+#define RECORD_TYPE_RES_LOW     16384
+#define RECORD_TYPE_RES_HIGH    32767
 
-static const value_string nts_ke_record_types[] = {
-    { RECORD_TYPE_END,      "End of Message" },
-    { RECORD_TYPE_NEXT,     "NTS Next Protocol Negotiation" },
-    { RECORD_TYPE_ERR,      "Error" },
-    { RECORD_TYPE_WARN,     "Warning" },
-    { RECORD_TYPE_AEAD,     "AEAD Algorithm Negotiation" },
-    { RECORD_TYPE_COOKIE,   "New Cookie for NTPv4" },
-    { RECORD_TYPE_NEG_SRV,  "NTPv4 Server Negotiation" },
-    { RECORD_TYPE_NEG_PORT, "NTPv4 Port Negotiation" },
-    { 0,                    NULL }
+/* https://www.iana.org/assignments/nts/nts.xhtml#nts-key-establishment-record-types */
+static const range_string nts_ke_record_types[] = {
+    { RECORD_TYPE_END,      RECORD_TYPE_END,       "End of Message" },
+    { RECORD_TYPE_NEXT,     RECORD_TYPE_NEXT,      "NTS Next Protocol Negotiation" },
+    { RECORD_TYPE_ERR,      RECORD_TYPE_ERR,       "Error" },
+    { RECORD_TYPE_WARN,     RECORD_TYPE_WARN,      "Warning" },
+    { RECORD_TYPE_AEAD,     RECORD_TYPE_AEAD,      "AEAD Algorithm Negotiation" },
+    { RECORD_TYPE_COOKIE,   RECORD_TYPE_COOKIE,    "New Cookie for NTPv4" },
+    { RECORD_TYPE_NEG_SRV,  RECORD_TYPE_NEG_SRV,   "NTPv4 Server Negotiation" },
+    { RECORD_TYPE_NEG_PORT, RECORD_TYPE_NEG_PORT,  "NTPv4 Port Negotiation" },
+    { RECORD_TYPE_UA_1_LOW, RECORD_TYPE_UA_1_HIGH, "Unassigned" },
+    { RECORD_TYPE_COMP_GCM, RECORD_TYPE_COMP_GCM,  "Compliant AES-128-GCM-SIV Exporter Context" },
+    { RECORD_TYPE_UA_2_LOW, RECORD_TYPE_UA_2_HIGH, "Unassigned" },
+    { RECORD_TYPE_RES_LOW,  RECORD_TYPE_RES_HIGH,  "Reserved" },
+    { 0,                    0,                     NULL }
 };
 
-static const value_string nts_ke_error_codes[] = {
-    { 0x0000, "Unrecognized Critical Record" },
-    { 0x0001, "Bad Request" },
-    { 0x0002, "Internal Server Error" },
-    { 0,      NULL }
+/* https://www.iana.org/assignments/nts/nts.xhtml#nts-error-codes */
+static const range_string nts_ke_error_codes[] = {
+    {     0,     0, "Unrecognized Critical Record" },
+    {     1,     1, "Bad Request" },
+    {     2,     2, "Internal Server Error" },
+    {     3, 32767, "Unassigned" },
+    { 32768, 65535, "Reserved" },
+    {     0,     0, NULL }
+};
+
+/* https://www.iana.org/assignments/nts/nts.xhtml#nts-warning-codes */
+static const range_string nts_ke_warning_codes[] = {
+    {     0, 32767, "Unassigned" },
+    { 32768, 65535, "Reserved" },
+    {     0,     0, NULL }
 };
 
 /* https://www.iana.org/assignments/nts/nts.xhtml#nts-next-protocols */
@@ -495,7 +517,7 @@ dissect_nts_ke(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 
         type = tvb_get_uint16(tvb, offset, ENC_BIG_ENDIAN) & TYPE_MASK;
         proto_tree_add_uint(record_tree, hf_nts_ke_record_type, tvb, offset, 2, type);
-        proto_item_append_text(ti_record, " (%s)", val_to_str_const(type, nts_ke_record_types, "Unknown Record Type"));
+        proto_item_append_text(ti_record, " (%s)", rval_to_str_const(type, nts_ke_record_types, "Unknown Record Type"));
         offset += 2;
 
         proto_tree_add_item_ret_uint(record_tree, hf_nts_ke_body_length, tvb, offset, 2, ENC_BIG_ENDIAN, &body_length);
@@ -736,37 +758,37 @@ proto_register_nts_ke(void)
         },
         { &hf_nts_ke_record_type,
             { "Record Type", "nts-ke.type",
-            FT_UINT16, BASE_DEC,
-            VALS(nts_ke_record_types), TYPE_MASK,
+            FT_UINT16, BASE_DEC | BASE_RANGE_STRING,
+            RVALS(nts_ke_record_types), TYPE_MASK,
             NULL, HFILL }
         },
         { &hf_nts_ke_body_length,
             { "Body Length", "nts-ke.body_length",
-            FT_UINT16, BASE_DEC|BASE_UNIT_STRING,
+            FT_UINT16, BASE_DEC | BASE_UNIT_STRING,
             UNS(&units_byte_bytes), 0x0,
             NULL, HFILL }
         },
         { &hf_nts_ke_next_proto,
             { "Next Protocol ID", "nts-ke.next_proto",
-            FT_UINT16, BASE_HEX | BASE_RANGE_STRING,
+            FT_UINT16, BASE_DEC | BASE_RANGE_STRING,
             RVALS(nts_ke_next_proto_rvals), 0x0,
             NULL, HFILL }
         },
         { &hf_nts_ke_error,
             { "Error Code", "nts-ke.error",
-            FT_UINT16, BASE_HEX,
-            VALS(nts_ke_error_codes), 0x0,
+            FT_UINT16, BASE_DEC | BASE_RANGE_STRING,
+            RVALS(nts_ke_error_codes), 0x0,
             NULL, HFILL }
         },
         { &hf_nts_ke_warning,
             { "Warning Code", "nts-ke.warning",
-            FT_UINT16, BASE_HEX,
-            NULL, 0x0,
+            FT_UINT16, BASE_DEC | BASE_RANGE_STRING,
+            RVALS(nts_ke_warning_codes), 0x0,
             NULL, HFILL }
         },
         { &hf_nts_ke_aead_algo,
             { "AEAD Algorithm", "nts-ke.aead_algo",
-            FT_UINT16, BASE_HEX | BASE_RANGE_STRING,
+            FT_UINT16, BASE_DEC | BASE_RANGE_STRING,
             RVALS(nts_ke_aead_rvals), 0x0,
             NULL, HFILL }
         },
