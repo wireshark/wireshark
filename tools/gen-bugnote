@@ -35,14 +35,11 @@ if [ -z "$issue_id" ] ; then
 fi
 
 issue_title=$(
-    curl -s -o - "${gitlab_issue_url_pfx}/$issue_id" \
-    | jq '.title'
+    curl --silent "${gitlab_issue_url_pfx}/$issue_id" \
+    | jq --raw-output '.title'
     )
 
-# We can escape backslashes in jq's --raw-output or we can trim quotes off
-# its plain output.
-issue_title="${issue_title%\"}"
-issue_title="${issue_title#\"}"
+issue_title="${issue_title//\\/\{backslash\}}"
 trailing_period=""
 if [[ ! ${issue_title: -1} =~ [[:punct:]] ]] ; then
     trailing_period="."
