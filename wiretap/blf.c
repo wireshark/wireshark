@@ -27,6 +27,7 @@
 #include <epan/value_string.h>
 #include <wsutil/wslog.h>
 #include <wsutil/exported_pdu_tlvs.h>
+#include <wsutil/report_message.h>
 #include <wsutil/strtoi.h>
 #include "file_wrappers.h"
 #include "wtap-int.h"
@@ -1138,20 +1139,38 @@ blf_find_next_logcontainer(blf_params_t* params, int* err, char** err_info) {
 }
 
 static bool
+// NOLINTNEXTLINE(misc-no-recursion)
 blf_pull_next_logcontainer(blf_params_t* params, int* err, char** err_info) {
     blf_log_container_t* container;
+
     if (!blf_find_next_logcontainer(params, err, err_info)) {
         return false;
     }
+
     /* Is there a next log container to pull? */
     if (params->blf_data->log_containers->len == 0) {
         /* No. */
         return false;
     }
+
     container = &g_array_index(params->blf_data->log_containers, blf_log_container_t, params->blf_data->log_containers->len - 1);
     if (!blf_pull_logcontainer_into_memory(params, container, err, err_info)) {
+        if (*err == WTAP_ERR_DECOMPRESS) {
+            report_warning("Error while decompressing BLF log container number %u (file pos. 0x%" PRIx64 "): %s",
+                            params->blf_data->log_containers->len - 1, container->infile_start_pos, *err_info ? *err_info : "(none)");
+            *err = 0;
+            g_free(*err_info);
+            *err_info = NULL;
+
+            /* Skip this log container and try to get the next one. */
+            g_array_remove_index(params->blf_data->log_containers, params->blf_data->log_containers->len - 1);
+            /* Calling blf_pull_logcontainer_into_memory advances the file pointer. Eventually we will reach the end of the file and stop recursing. */
+            return blf_pull_next_logcontainer(params, err, err_info);
+        }
+
         return false;
     }
+
     return true;
 }
 
@@ -3558,6 +3577,7 @@ blf_read_block(blf_params_t *params, int64_t start_pos, int *err, char **err_inf
                     /* we have found the end that is not a short read therefore. */
                     *err = 0;
                     g_free(*err_info);
+                    *err_info = NULL;
                 }
                 return false;
             }
