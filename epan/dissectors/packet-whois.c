@@ -207,12 +207,12 @@ proto_register_whois(void)
               NULL, HFILL }
         },
         { &hf_whois_answer_in,
-            { "Answer In", "whois.answer_in", FT_FRAMENUM, BASE_NONE, NULL,
+            { "Answer In", "whois.answer_in", FT_FRAMENUM, BASE_NONE, FRAMENUM_TYPE(FT_FRAMENUM_RESPONSE),
               0x0, "The answer to this WHOIS query is in this frame",
               HFILL }
         },
         { &hf_whois_answer_to,
-            { "Query In", "whois.answer_to", FT_FRAMENUM, BASE_NONE, NULL,
+            { "Query In", "whois.answer_to", FT_FRAMENUM, BASE_NONE, FRAMENUM_TYPE(FT_FRAMENUM_REQUEST),
               0x0, "This is the answer to the WHOIS query in this frame",
               HFILL }
         },

@@ -3112,12 +3112,12 @@ proto_register_btavrcp(void)
         },
         { &hf_btavrcp_command_in_frame,
             { "Command in frame",                "btavrcp.command_in_frame",
-            FT_FRAMENUM, BASE_NONE, NULL, 0x00,
+            FT_FRAMENUM, BASE_NONE, FRAMENUM_TYPE(FT_FRAMENUM_REQUEST), 0x00,
             NULL, HFILL }
         },
         { &hf_btavrcp_response_in_frame,
             { "Response in frame",               "btavrcp.response_in_frame",
-            FT_FRAMENUM, BASE_NONE, NULL, 0x00,
+            FT_FRAMENUM, BASE_NONE, FRAMENUM_TYPE(FT_FRAMENUM_RESPONSE), 0x00,
             NULL, HFILL }
         },
         { &hf_btavrcp_data,

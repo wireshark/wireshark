@@ -8443,13 +8443,13 @@ void proto_register_camel(void) {
     { &hf_camelsrt_RequestFrame,
       { "Requested Frame",
         "camel.srt.reqframe",
-        FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+        FT_FRAMENUM, BASE_NONE, FRAMENUM_TYPE(FT_FRAMENUM_REQUEST), 0x0,
         "SRT Request Frame", HFILL }
     },
     { &hf_camelsrt_ResponseFrame,
       { "Response Frame",
         "camel.srt.rspframe",
-        FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+        FT_FRAMENUM, BASE_NONE, FRAMENUM_TYPE(FT_FRAMENUM_RESPONSE), 0x0,
         "SRT Response Frame", HFILL }
     },
     //{ &hf_camelsrt_DeltaTime,

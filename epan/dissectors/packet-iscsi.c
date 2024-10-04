@@ -2660,7 +2660,7 @@ proto_register_iscsi(void)
     static hf_register_info hf[] = {
         { &hf_iscsi_request_frame,
           { "Request in", "iscsi.request_frame",
-            FT_FRAMENUM, BASE_NONE, NULL, 0,
+            FT_FRAMENUM, BASE_NONE, FRAMENUM_TYPE(FT_FRAMENUM_REQUEST), 0,
             "Frame number of the request", HFILL }},
 
         { &hf_iscsi_time,
@@ -2690,7 +2690,7 @@ proto_register_iscsi(void)
 
         { &hf_iscsi_response_frame,
           { "Response in", "iscsi.response_frame",
-            FT_FRAMENUM, BASE_NONE, NULL, 0,
+            FT_FRAMENUM, BASE_NONE, FRAMENUM_TYPE(FT_FRAMENUM_RESPONSE), 0,
             "Frame number of the response", HFILL }},
         { &hf_iscsi_AHS_length,
           { "AHS Length", "iscsi.ahs.length",

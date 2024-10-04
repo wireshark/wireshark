@@ -4105,10 +4105,10 @@ proto_register_rpc(void)
 	static hf_register_info hf[] = {
 		{ &hf_rpc_reqframe, {
 			"Request Frame", "rpc.reqframe", FT_FRAMENUM, BASE_NONE,
-			NULL, 0, NULL, HFILL }},
+			FRAMENUM_TYPE(FT_FRAMENUM_REQUEST), 0, NULL, HFILL }},
 		{ &hf_rpc_repframe, {
 			"Reply Frame", "rpc.repframe", FT_FRAMENUM, BASE_NONE,
-			NULL, 0, NULL, HFILL }},
+			FRAMENUM_TYPE(FT_FRAMENUM_RESPONSE), 0, NULL, HFILL }},
 		{ &hf_rpc_lastfrag, {
 			"Last Fragment", "rpc.lastfrag", FT_BOOLEAN, 32,
 			TFS(&tfs_yes_no), RPC_RM_LASTFRAG, NULL, HFILL }},

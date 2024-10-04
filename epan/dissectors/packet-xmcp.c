@@ -1101,12 +1101,12 @@ proto_register_xmcp(void)
     },
     { &hf_xmcp_response_in,
       { "Response In",          "xmcp.response-in",
-        FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+        FT_FRAMENUM, BASE_NONE, FRAMENUM_TYPE(FT_FRAMENUM_RESPONSE), 0x0,
         "The response to this XMCP request is in this frame",   HFILL }
     },
     { &hf_xmcp_response_to,
       { "Response To",          "xmcp.response-to",
-        FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+        FT_FRAMENUM, BASE_NONE, FRAMENUM_TYPE(FT_FRAMENUM_REQUEST), 0x0,
         "This is a response to the XMCP request in this frame", HFILL }
     },
     { &hf_xmcp_time,

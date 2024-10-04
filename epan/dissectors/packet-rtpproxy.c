@@ -1385,7 +1385,7 @@ proto_register_rtpproxy(void)
                 "rtpproxy.request_in",
                 FT_FRAMENUM,
                 BASE_NONE,
-                NULL,
+                FRAMENUM_TYPE(FT_FRAMENUM_REQUEST),
                 0x0,
                 NULL,
                 HFILL
@@ -1399,7 +1399,7 @@ proto_register_rtpproxy(void)
                 "rtpproxy.response_in",
                 FT_FRAMENUM,
                 BASE_NONE,
-                NULL,
+                FRAMENUM_TYPE(FT_FRAMENUM_RESPONSE),
                 0x0,
                 NULL,
                 HFILL

@@ -7037,7 +7037,7 @@ proto_register_usb(void)
 
         { &hf_usb_request_in,
           { "Request in", "usb.request_in",
-            FT_FRAMENUM, BASE_NONE,  NULL, 0,
+            FT_FRAMENUM, BASE_NONE,  FRAMENUM_TYPE(FT_FRAMENUM_REQUEST), 0,
             "The request to this packet is in this packet", HFILL }},
 
         { &hf_usb_time,
@@ -7047,7 +7047,7 @@ proto_register_usb(void)
 
         { &hf_usb_response_in,
           { "Response in", "usb.response_in",
-            FT_FRAMENUM, BASE_NONE,  NULL, 0,
+            FT_FRAMENUM, BASE_NONE,  FRAMENUM_TYPE(FT_FRAMENUM_RESPONSE), 0,
             "The response to this packet is in this packet", HFILL }},
 
         { &hf_usb_bFirstInterface,

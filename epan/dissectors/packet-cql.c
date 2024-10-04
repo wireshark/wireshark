@@ -2457,7 +2457,7 @@ proto_register_cql(void)
 			{
 				"Response in", "cql.response_in",
 				FT_FRAMENUM, BASE_NONE,
-				NULL, 0x0,
+				FRAMENUM_TYPE(FT_FRAMENUM_RESPONSE), 0x0,
 				"The response to this CQL request is in this frame", HFILL
 			}
 		},
@@ -2466,7 +2466,7 @@ proto_register_cql(void)
 			{
 				"Request in", "cql.response_to",
 				FT_FRAMENUM, BASE_NONE,
-				NULL, 0x0,
+				FRAMENUM_TYPE(FT_FRAMENUM_REQUEST), 0x0,
 				"This is a response to the CQL request in this fame", HFILL
 			}
 		},

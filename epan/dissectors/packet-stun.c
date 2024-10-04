@@ -1906,11 +1906,11 @@ proto_register_stun(void)
         },
         { &hf_stun_response_in,
           { "Response In", "stun.response-in", FT_FRAMENUM,
-            BASE_NONE, NULL, 0x0, "The response to this STUN query is in this frame", HFILL }
+            BASE_NONE, FRAMENUM_TYPE(FT_FRAMENUM_RESPONSE), 0x0, "The response to this STUN query is in this frame", HFILL }
         },
         { &hf_stun_response_to,
           { "Request In", "stun.response-to", FT_FRAMENUM,
-            BASE_NONE, NULL, 0x0, "This is a response to the STUN Request in this frame", HFILL }
+            BASE_NONE, FRAMENUM_TYPE(FT_FRAMENUM_REQUEST), 0x0, "This is a response to the STUN Request in this frame", HFILL }
         },
         { &hf_stun_time,
           { "Time", "stun.time", FT_RELATIVE_TIME,

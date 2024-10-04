@@ -4317,12 +4317,12 @@ proto_register_reload(void)
   static hf_register_info hf[] = {
     { &hf_reload_response_in,
       { "Response in",  "reload.response-in", FT_FRAMENUM,
-        BASE_NONE, NULL, 0x0, "The response to this RELOAD Request is in this frame", HFILL
+        BASE_NONE, FRAMENUM_TYPE(FT_FRAMENUM_RESPONSE), 0x0, "The response to this RELOAD Request is in this frame", HFILL
       }
     },
     { &hf_reload_response_to,
       { "Request in", "reload.response-to", FT_FRAMENUM,
-        BASE_NONE, NULL, 0x0, "This is a response to the RELOAD Request in this frame", HFILL
+        BASE_NONE, FRAMENUM_TYPE(FT_FRAMENUM_REQUEST), 0x0, "This is a response to the RELOAD Request in this frame", HFILL
       }
     },
     { &hf_reload_time,

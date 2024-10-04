@@ -922,12 +922,12 @@ proto_register_fcp(void)
 
         { &hf_fcp_request_in,
           { "Request In", "fcp.request_in",
-            FT_FRAMENUM, BASE_NONE, NULL, 0,
+            FT_FRAMENUM, BASE_NONE, FRAMENUM_TYPE(FT_FRAMENUM_REQUEST), 0,
             "The frame number for the request", HFILL }},
 
         { &hf_fcp_response_in,
           { "Response In", "fcp.response_in",
-            FT_FRAMENUM, BASE_NONE, NULL, 0,
+            FT_FRAMENUM, BASE_NONE, FRAMENUM_TYPE(FT_FRAMENUM_RESPONSE), 0,
             "The frame number of the response", HFILL }},
 
         { &hf_fcp_time,

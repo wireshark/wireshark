@@ -2416,10 +2416,10 @@ void proto_register_snmp(void) {
 	/* List of fields */
 	static hf_register_info hf[] = {
 		{ &hf_snmp_response_in,
-		{ "Response In", "snmp.response_in", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+		{ "Response In", "snmp.response_in", FT_FRAMENUM, BASE_NONE, FRAMENUM_TYPE(FT_FRAMENUM_RESPONSE), 0x0,
 			"The response to this SNMP request is in this frame", HFILL }},
 		{ &hf_snmp_response_to,
-		{ "Response To", "snmp.response_to", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+		{ "Response To", "snmp.response_to", FT_FRAMENUM, BASE_NONE, FRAMENUM_TYPE(FT_FRAMENUM_REQUEST), 0x0,
 			"This is a response to the SNMP request in this frame", HFILL }},
 		{ &hf_snmp_time,
 		{ "Time", "snmp.time", FT_RELATIVE_TIME, BASE_NONE, NULL, 0x0,

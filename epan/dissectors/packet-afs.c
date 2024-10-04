@@ -3620,9 +3620,9 @@ proto_register_afs(void)
 	{ &hf_afs_ubik_isclone, { "Is Clone", "afs.ubik.isclone",
 		FT_UINT32, BASE_HEX, 0, 0, NULL, HFILL }},
 	{ &hf_afs_reqframe, { "Request Frame", "afs.reqframe",
-		FT_FRAMENUM, BASE_NONE, NULL, 0, NULL, HFILL }},
+		FT_FRAMENUM, BASE_NONE, FRAMENUM_TYPE(FT_FRAMENUM_REQUEST), 0, NULL, HFILL }},
 	{ &hf_afs_repframe, { "Reply Frame", "afs.repframe",
-		FT_FRAMENUM, BASE_NONE,	NULL, 0, NULL, HFILL }},
+		FT_FRAMENUM, BASE_NONE,	FRAMENUM_TYPE(FT_FRAMENUM_RESPONSE), 0, NULL, HFILL }},
 	{ &hf_afs_time, { "Time from request", "afs.time",
 		FT_RELATIVE_TIME, BASE_NONE, NULL, 0, "Time between Request and Reply for AFS calls", HFILL }},
 

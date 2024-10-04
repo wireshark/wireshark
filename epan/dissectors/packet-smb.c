@@ -18644,7 +18644,7 @@ proto_register_smb(void)
 
 	{ &hf_smb_response_to,
 		{ "Response to", "smb.response_to", FT_FRAMENUM, BASE_NONE,
-		NULL, 0, "This packet is a response to the packet in this frame", HFILL }},
+		FRAMENUM_TYPE(FT_FRAMENUM_REQUEST), 0, "This packet is a response to the packet in this frame", HFILL }},
 
 	{ &hf_smb_time,
 		{ "Time from request", "smb.time", FT_RELATIVE_TIME, BASE_NONE,
@@ -18652,7 +18652,7 @@ proto_register_smb(void)
 
 	{ &hf_smb_response_in,
 		{ "Response in", "smb.response_in", FT_FRAMENUM, BASE_NONE,
-		NULL, 0, "The response to this packet is in this packet", HFILL }},
+		FRAMENUM_TYPE(FT_FRAMENUM_RESPONSE), 0, "The response to this packet is in this packet", HFILL }},
 
 	{ &hf_smb_continuation_of,
 		{ "Continuation of", "smb.continuation_of", FT_FRAMENUM, BASE_NONE,

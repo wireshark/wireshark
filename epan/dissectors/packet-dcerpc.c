@@ -6812,10 +6812,10 @@ proto_register_dcerpc(void)
     static hf_register_info hf[] = {
         { &hf_dcerpc_request_in,
           { "Request in frame", "dcerpc.request_in", FT_FRAMENUM, BASE_NONE,
-            NULL, 0, "This packet is a response to the packet with this number", HFILL }},
+            FRAMENUM_TYPE(FT_FRAMENUM_REQUEST), 0, "This packet is a response to the packet with this number", HFILL }},
         { &hf_dcerpc_response_in,
           { "Response in frame", "dcerpc.response_in", FT_FRAMENUM, BASE_NONE,
-            NULL, 0, "This packet will be responded in the packet with this number", HFILL }},
+            FRAMENUM_TYPE(FT_FRAMENUM_RESPONSE), 0, "This packet will be responded in the packet with this number", HFILL }},
         { &hf_dcerpc_referent_id32,
           { "Referent ID", "dcerpc.referent_id", FT_UINT32, BASE_HEX,
             NULL, 0, "Referent ID for this NDR encoded pointer", HFILL }},

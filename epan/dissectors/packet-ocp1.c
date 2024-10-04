@@ -2825,13 +2825,13 @@ proto_register_ocp1(void)
         { &hf_ocp1_response_in,
             { "Response in", "ocp1.response_in",
             FT_FRAMENUM, BASE_NONE,
-            NULL, 0x0,
+            FRAMENUM_TYPE(FT_FRAMENUM_RESPONSE), 0x0,
             NULL, HFILL }
         },
         { &hf_ocp1_response_to,
             { "Request in", "ocp1.response_to",
             FT_FRAMENUM, BASE_NONE,
-            NULL, 0x0,
+            FRAMENUM_TYPE(FT_FRAMENUM_REQUEST), 0x0,
             NULL, HFILL }
         },
 

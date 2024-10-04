@@ -1316,10 +1316,10 @@ proto_register_ctdb(void)
 	  NULL, 0x0, NULL, HFILL }},
 	{ &hf_ctdb_request_in, {
 	  "Request In", "ctdb.request_in", FT_FRAMENUM, BASE_NONE,
-	  NULL, 0x0, NULL, HFILL }},
+	  FRAMENUM_TYPE(FT_FRAMENUM_REQUEST), 0x0, NULL, HFILL }},
 	{ &hf_ctdb_response_in, {
 	  "Response In", "ctdb.response_in", FT_FRAMENUM, BASE_NONE,
-	  NULL, 0x0, NULL, HFILL }},
+	  FRAMENUM_TYPE(FT_FRAMENUM_RESPONSE), 0x0, NULL, HFILL }},
 	{ &hf_ctdb_time, {
 	  "Time since request", "ctdb.time", FT_RELATIVE_TIME, BASE_NONE,
 	  NULL, 0x0, NULL, HFILL }},

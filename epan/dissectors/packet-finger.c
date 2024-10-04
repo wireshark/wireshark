@@ -160,12 +160,12 @@ proto_register_finger(void)
               NULL, HFILL }
         },
         { &hf_finger_response_in,
-            { "Response In", "finger.response_in", FT_FRAMENUM, BASE_NONE, NULL,
+            { "Response In", "finger.response_in", FT_FRAMENUM, BASE_NONE, FRAMENUM_TYPE(FT_FRAMENUM_RESPONSE),
               0x0, "The response to this FINGER query is in this frame",
               HFILL }
         },
         { &hf_finger_response_to,
-            { "Request In", "finger.response_to", FT_FRAMENUM, BASE_NONE, NULL,
+            { "Request In", "finger.response_to", FT_FRAMENUM, BASE_NONE, FRAMENUM_TYPE(FT_FRAMENUM_REQUEST),
               0x0, "This is a response to the FINGER query in this frame",
               HFILL }
         },

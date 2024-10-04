@@ -3406,7 +3406,7 @@ proto_register_ndmp(void)
 
 	{ &hf_ndmp_response_frame, {
 		"Response In", "ndmp.response_frame", FT_FRAMENUM, BASE_NONE,
-		NULL, 0, "The response to this NDMP command is in this frame", HFILL }},
+		FRAMENUM_TYPE(FT_FRAMENUM_RESPONSE), 0, "The response to this NDMP command is in this frame", HFILL }},
 
 	{ &hf_ndmp_time, {
 		"Time from request", "ndmp.time", FT_RELATIVE_TIME, BASE_NONE,
@@ -3414,7 +3414,7 @@ proto_register_ndmp(void)
 
 	{ &hf_ndmp_request_frame, {
 		"Request In", "ndmp.request_frame", FT_FRAMENUM, BASE_NONE,
-		NULL, 0, "The request to this NDMP command is in this frame", HFILL }},
+		FRAMENUM_TYPE(FT_FRAMENUM_REQUEST), 0, "The request to this NDMP command is in this frame", HFILL }},
 
 	{ &hf_ndmp_sequence, {
 		"Sequence", "ndmp.sequence", FT_UINT32, BASE_DEC,

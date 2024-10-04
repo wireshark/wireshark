@@ -1424,11 +1424,11 @@ proto_register_iso14443(void)
         },
         { &hf_iso14443_resp_in,
             { "Response In", "iso14443.resp_in",
-                FT_FRAMENUM, BASE_NONE, NULL, 0x0, NULL, HFILL }
+                FT_FRAMENUM, BASE_NONE, FRAMENUM_TYPE(FT_FRAMENUM_RESPONSE), 0x0, NULL, HFILL }
         },
         { &hf_iso14443_resp_to,
             { "Response To", "iso14443.resp_to",
-                FT_FRAMENUM, BASE_NONE, NULL, 0x0, NULL, HFILL }
+                FT_FRAMENUM, BASE_NONE, FRAMENUM_TYPE(FT_FRAMENUM_REQUEST), 0x0, NULL, HFILL }
         },
         { &hf_iso14443_short_frame,
             { "Short frame", "iso14443.short_frame",

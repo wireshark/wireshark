@@ -6366,13 +6366,13 @@ proto_register_icmpv6(void)
 
         /* Conversation-related [generated] header fields */
         { &hf_icmpv6_resp_in,
-            { "Response In", "icmpv6.resp_in", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+            { "Response In", "icmpv6.resp_in", FT_FRAMENUM, BASE_NONE, FRAMENUM_TYPE(FT_FRAMENUM_RESPONSE), 0x0,
               "The response to this request is in this frame", HFILL }},
         {&hf_icmpv6_no_resp,
             {"No response seen", "icmpv6.no_resp", FT_NONE, BASE_NONE, NULL, 0x0,
              "No corresponding response frame was seen", HFILL}},
         { &hf_icmpv6_resp_to,
-            { "Response To", "icmpv6.resp_to", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+            { "Response To", "icmpv6.resp_to", FT_FRAMENUM, BASE_NONE, FRAMENUM_TYPE(FT_FRAMENUM_REQUEST), 0x0,
               "This is the response to the request in this frame", HFILL }},
         { &hf_icmpv6_resptime,
             { "Response Time", "icmpv6.resptime", FT_DOUBLE, BASE_NONE, NULL, 0x0,

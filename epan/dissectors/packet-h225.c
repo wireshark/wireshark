@@ -8242,11 +8242,11 @@ void proto_register_h225(void) {
 
   { &hf_h225_ras_req_frame,
     { "RAS Request Frame", "h225.ras.reqframe", FT_FRAMENUM, BASE_NONE,
-    NULL, 0, NULL, HFILL }},
+    FRAMENUM_TYPE(FT_FRAMENUM_REQUEST), 0, NULL, HFILL }},
 
   { &hf_h225_ras_rsp_frame,
     { "RAS Response Frame", "h225.ras.rspframe", FT_FRAMENUM, BASE_NONE,
-    NULL, 0, NULL, HFILL }},
+    FRAMENUM_TYPE(FT_FRAMENUM_RESPONSE), 0, NULL, HFILL }},
 
   { &hf_h225_ras_dup,
     { "Duplicate RAS Message", "h225.ras.dup", FT_UINT32, BASE_DEC,

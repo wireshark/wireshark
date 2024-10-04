@@ -874,12 +874,12 @@ proto_register_iso7816(void)
         },
         { &hf_iso7816_resp_in,
             { "Response In", "iso7816.resp_in",
-                FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+                FT_FRAMENUM, BASE_NONE, FRAMENUM_TYPE(FT_FRAMENUM_RESPONSE), 0x0,
                 "The response to this command is in this frame", HFILL }
         },
         { &hf_iso7816_resp_to,
             { "Response To", "iso7816.resp_to",
-                FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+                FT_FRAMENUM, BASE_NONE, FRAMENUM_TYPE(FT_FRAMENUM_REQUEST), 0x0,
                 "This is the response to the command in this frame", HFILL }
         },
         { &hf_iso7816_cla,

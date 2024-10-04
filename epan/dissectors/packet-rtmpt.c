@@ -2934,11 +2934,11 @@ proto_register_rtmpt(void)
 
                 { &hf_rtmpt_function_call,
                   { "Response to this call in frame", "rtmpt.function.call", FT_FRAMENUM, BASE_NONE,
-                    NULL, 0x0, "RTMPT function call", HFILL }},
+                    FRAMENUM_TYPE(FT_FRAMENUM_RESPONSE), 0x0, "RTMPT function call", HFILL }},
 
                 { &hf_rtmpt_function_response,
                   { "Call for this response in frame", "rtmpt.function.response", FT_FRAMENUM, BASE_NONE,
-                    NULL, 0x0, "RTMPT function response", HFILL }},
+                    FRAMENUM_TYPE(FT_FRAMENUM_REQUEST), 0x0, "RTMPT function response", HFILL }},
 
 /* Audio packets */
                 { &hf_rtmpt_audio_control,

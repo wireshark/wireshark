@@ -1428,12 +1428,12 @@ proto_register_ftdi_mpsse(void)
         },
         { &hf_mpsse_command_in,
           { "Command in", "ftdi-mpsse.command.in",
-            FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+            FT_FRAMENUM, BASE_NONE, FRAMENUM_TYPE(FT_FRAMENUM_REQUEST), 0x0,
             NULL, HFILL }
         },
         { &hf_mpsse_response_in,
           { "Response in", "ftdi-mpsse.response.in",
-            FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+            FT_FRAMENUM, BASE_NONE, FRAMENUM_TYPE(FT_FRAMENUM_RESPONSE), 0x0,
             NULL, HFILL }
         },
         { &hf_mpsse_length_uint8,

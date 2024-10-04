@@ -5588,7 +5588,7 @@ proto_register_afp(void)
 
 		{ &hf_afp_response_to,
 		  { "Response to",	"afp.response_to",
-		    FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+		    FT_FRAMENUM, BASE_NONE, FRAMENUM_TYPE(FT_FRAMENUM_REQUEST), 0x0,
 		    "This packet is a response to the packet in this frame", HFILL }},
 
 		{ &hf_afp_time,
@@ -5598,7 +5598,7 @@ proto_register_afp(void)
 
 		{ &hf_afp_response_in,
 		  { "Response in",	"afp.response_in",
-		    FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+		    FT_FRAMENUM, BASE_NONE, FRAMENUM_TYPE(FT_FRAMENUM_RESPONSE), 0x0,
 		    "The response to this packet is in this packet", HFILL }},
 
 		{ &hf_afp_login_flags,

@@ -338,12 +338,12 @@ proto_register_djiuav(void)
 
 	/* Request - Response tracking */
 		{ &hf_djiuav_response_in,
-		{ "Response In", "djiuav.response_in", FT_FRAMENUM, BASE_NONE, NULL,
+		{ "Response In", "djiuav.response_in", FT_FRAMENUM, BASE_NONE, FRAMENUM_TYPE(FT_FRAMENUM_RESPONSE),
 			0x0, "Matching response in frame", HFILL }},
 
 		{ &hf_djiuav_response_to,
 		{ "Request In", "djiuav.response_to",
-			FT_FRAMENUM, BASE_NONE, NULL,
+			FT_FRAMENUM, BASE_NONE, FRAMENUM_TYPE(FT_FRAMENUM_REQUEST),
 			0x0, "Matching command in frame", HFILL }},
 
 		{ &hf_djiuav_response_time,
