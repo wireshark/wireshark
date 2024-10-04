@@ -888,8 +888,9 @@ blf_pull_logcontainer_into_memory(blf_params_t *params, blf_log_container_t *con
                 break;
 
             case Z_STREAM_ERROR:
-                *err = WTAP_ERR_DECOMPRESS;
-                *err_info = (infstream.msg != NULL) ? ws_strdup(infstream.msg) : NULL;
+                *err = WTAP_ERR_INTERNAL;
+                *err_info = ws_strdup_printf("blf_pull_logcontainer_into_memory: Z_STREAM_ERROR from inflate(), message \"%s\"",
+                                             (infstream.msg != NULL) ? infstream.msg : "(none)");
                 break;
 
             case Z_MEM_ERROR:
