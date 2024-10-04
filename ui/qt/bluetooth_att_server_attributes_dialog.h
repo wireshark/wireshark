@@ -77,7 +77,11 @@ private slots:
     void tableContextMenu(const QPoint &pos);
     void interfaceCurrentIndexChanged(int index);
     void deviceCurrentIndexChanged(int index);
+#if QT_VERSION >= QT_VERSION_CHECK(6, 7, 0)
+    void removeDuplicatesStateChanged(Qt::CheckState state);
+#else
     void removeDuplicatesStateChanged(int state);
+#endif
 };
 
 #endif // BLUETOOTH_ATT_SERVER_ATTRIBUTES_DIALOG_H

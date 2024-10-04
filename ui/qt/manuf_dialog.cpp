@@ -72,7 +72,11 @@ ManufDialog::ManufDialog(QWidget &parent, CaptureFile &cf) :
     connect(ui->radioButtonGroup, QOverload<QAbstractButton *>::of(&QButtonGroup::buttonClicked), this, &ManufDialog::on_searchToggled);
     connect(ui->radioButtonGroup, QOverload<QAbstractButton *>::of(&QButtonGroup::buttonClicked), this, &ManufDialog::on_editingFinished);
 #endif
-    connect(ui->checkShortNameButton, &QCheckBox::stateChanged, this, &ManufDialog::on_shortNameStateChanged);
+#if QT_VERSION >= QT_VERSION_CHECK(6, 7, 0)
+    connect(ui->checkShortNameButton, &QCheckBox::checkStateChanged, this, &ManufDialog::shortNameStateChanged);
+#else
+    connect(ui->checkShortNameButton, &QCheckBox::stateChanged, this, &ManufDialog::shortNameStateChanged);
+#endif
 
     ui->manufLineEdit->setPlaceholderText(tr(PLACEHOLDER_SEARCH_ADDR));
 
@@ -164,9 +168,13 @@ void ManufDialog::on_editingFinished(void)
         ws_assert_not_reached();
 }
 
-void ManufDialog::on_shortNameStateChanged(int state)
+#if QT_VERSION >= QT_VERSION_CHECK(6, 7, 0)
+void ManufDialog::shortNameStateChanged(Qt::CheckState state)
+#else
+void ManufDialog::shortNameStateChanged(int state)
+#endif
 {
-    ui->manufTableView->setColumnHidden(ManufTableModel::COL_SHORT_NAME, state ? false : true);
+    ui->manufTableView->setColumnHidden(ManufTableModel::COL_SHORT_NAME, state == Qt::Checked ? false : true);
 }
 
 void ManufDialog::clearFilter()

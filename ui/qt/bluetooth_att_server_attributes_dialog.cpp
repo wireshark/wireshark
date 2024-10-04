@@ -80,7 +80,11 @@ BluetoothAttServerAttributesDialog::BluetoothAttServerAttributesDialog(QWidget &
     connect(ui->tableTreeWidget, &QTreeWidget::customContextMenuRequested, this, &BluetoothAttServerAttributesDialog::tableContextMenu);
     connect(ui->interfaceComboBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, &BluetoothAttServerAttributesDialog::interfaceCurrentIndexChanged);
     connect(ui->deviceComboBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, &BluetoothAttServerAttributesDialog::deviceCurrentIndexChanged);
+#if QT_VERSION >= QT_VERSION_CHECK(6, 7, 0)
+    connect(ui->removeDuplicatesCheckBox, &QCheckBox::checkStateChanged, this, &BluetoothAttServerAttributesDialog::removeDuplicatesStateChanged);
+#else
     connect(ui->removeDuplicatesCheckBox, &QCheckBox::stateChanged, this, &BluetoothAttServerAttributesDialog::removeDuplicatesStateChanged);
+#endif
 
     ui->tableTreeWidget->sortByColumn(column_number_handle, Qt::AscendingOrder);
 
@@ -366,8 +370,11 @@ void BluetoothAttServerAttributesDialog::deviceCurrentIndexChanged(int)
     cap_file_.retapPackets();
 }
 
-
+#if QT_VERSION >= QT_VERSION_CHECK(6, 7, 0)
+void BluetoothAttServerAttributesDialog::removeDuplicatesStateChanged(Qt::CheckState)
+#else
 void BluetoothAttServerAttributesDialog::removeDuplicatesStateChanged(int)
+#endif
 {
     cap_file_.retapPackets();
 }

@@ -42,7 +42,11 @@ signals:
 
 private slots:
     void on_buttonBox_helpRequested();
+#if QT_VERSION >= QT_VERSION_CHECK(6, 7, 0)
+    void viewVisibilityStateChanged(Qt::CheckState);
+#else
     void viewVisibilityStateChanged(int);
+#endif
     void layoutChanged(int);
 
     void setHintText(FieldInformation *);
