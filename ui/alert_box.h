@@ -134,6 +134,11 @@ extern void write_failure_alert_box(const char *filename, int err);
 extern void rename_failure_alert_box(const char *old_filename,
                                      const char *new_filename, int err);
 
+/*
+ * Register these routines with the report_message mechanism.
+ */
+extern void init_report_alert_box(const char *friendly_program_name);
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */

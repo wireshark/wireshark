@@ -23,7 +23,6 @@
 #include <wsutil/strtoi.h>
 #include <wsutil/filesystem.h>
 #include <wsutil/privileges.h>
-#include <wsutil/report_message.h>
 #include <wsutil/please_report_bug.h>
 #include <wsutil/wslog.h>
 #include <wsutil/cmdarg_err.h>
@@ -2502,19 +2501,6 @@ static int capture_android_tcpdump(char *interface, char *fifo,
 
 int main(int argc, char *argv[]) {
     char            *err_msg;
-    static const struct report_message_routines androiddummp_report_routines = {
-        failure_message,
-        failure_message,
-        open_failure_message,
-        read_failure_message,
-        write_failure_message,
-        rename_failure_message,
-        cfile_open_failure_message,
-        cfile_dump_open_failure_message,
-        cfile_read_failure_message,
-        cfile_write_failure_message,
-        cfile_close_failure_message
-    };
     int              ret = EXIT_CODE_GENERIC;
     int              option_idx = 0;
     int              result;
@@ -2560,7 +2546,7 @@ int main(int argc, char *argv[]) {
         g_free(err_msg);
     }
 
-    init_report_message("androiddump", &androiddummp_report_routines);
+    init_report_failure_message("androiddump");
 
     extcap_conf = g_new0(extcap_parameters, 1);
 

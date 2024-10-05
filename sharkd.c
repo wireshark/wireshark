@@ -28,7 +28,6 @@
 #include <wsutil/filesystem.h>
 #include <wsutil/file_util.h>
 #include <wsutil/privileges.h>
-#include <wsutil/report_message.h>
 #include <wsutil/wslog.h>
 #include <wsutil/version_info.h>
 #include <wiretap/wtap_opttypes.h>
@@ -103,19 +102,6 @@ main(int argc, char *argv[])
     char                *err_msg = NULL;
     e_prefs             *prefs_p;
     int                  ret = EXIT_SUCCESS;
-    static const struct report_message_routines sharkd_report_routines = {
-        failure_message,
-        failure_message,
-        open_failure_message,
-        read_failure_message,
-        write_failure_message,
-        rename_failure_message,
-        cfile_open_failure_message,
-        cfile_dump_open_failure_message,
-        cfile_read_failure_message,
-        cfile_write_failure_message,
-        cfile_close_failure_message
-    };
 
     cmdarg_err_init(sharkd_cmdarg_err, sharkd_cmdarg_err_cont);
 
@@ -157,7 +143,7 @@ main(int argc, char *argv[])
         goto clean_exit;
     }
 
-    init_report_message("sharkd", &sharkd_report_routines);
+    init_report_failure_message("sharkd");
 
     timestamp_set_type(TS_RELATIVE);
     timestamp_set_precision(TS_PREC_AUTO);

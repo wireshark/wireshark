@@ -35,7 +35,6 @@
 #include <wsutil/filesystem.h>
 #include <wsutil/file_util.h>
 #include <wsutil/privileges.h>
-#include <wsutil/report_message.h>
 #include <wsutil/wslog.h>
 #include <wsutil/ws_assert.h>
 #include <cli_main.h>
@@ -308,19 +307,6 @@ main(int argc, char *argv[])
 #define OPTSTRING "+2C:d:e:E:hK:lo:O:qQr:R:S:t:T:u:vVxX:Y:z:"
 
     static const char    optstring[] = OPTSTRING;
-    static const struct report_message_routines tfshark_report_routines = {
-        failure_message,
-        failure_message,
-        open_failure_message,
-        read_failure_message,
-        write_failure_message,
-        rename_failure_message,
-        cfile_open_failure_message,
-        cfile_dump_open_failure_message,
-        cfile_read_failure_message,
-        cfile_write_failure_message,
-        cfile_close_failure_message
-    };
 
     /*
      * Set the C-language locale to the native environment and set the
@@ -451,7 +437,7 @@ main(int argc, char *argv[])
     if (print_summary == -1)
         print_summary = (print_details || print_hex) ? false : true;
 
-    init_report_message("tfshark", &tfshark_report_routines);
+    init_report_failure_message("tfshark");
 
     timestamp_set_type(TS_RELATIVE);
     timestamp_set_precision(TS_PREC_AUTO);

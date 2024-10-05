@@ -77,7 +77,6 @@
 #include <wsutil/version_info.h>
 #include <ui/failure_message.h>
 #include <wsutil/clopts_common.h>
-#include <wsutil/report_message.h>
 #include <wsutil/inet_addr.h>
 #include <wsutil/cpu_info.h>
 #include <wsutil/os_version_info.h>
@@ -1053,19 +1052,6 @@ int
 main(int argc, char *argv[])
 {
     char  *configuration_init_error;
-    static const struct report_message_routines text2pcap_report_routines = {
-        failure_message,
-        failure_message,
-        open_failure_message,
-        read_failure_message,
-        write_failure_message,
-        rename_failure_message,
-        cfile_open_failure_message,
-        cfile_dump_open_failure_message,
-        cfile_read_failure_message,
-        cfile_write_failure_message,
-        cfile_close_failure_message
-    };
     int ret = EXIT_SUCCESS;
     text_import_info_t info;
     wtap_dump_params params;
@@ -1097,7 +1083,7 @@ main(int argc, char *argv[])
         g_free(configuration_init_error);
     }
 
-    init_report_message("text2pcap", &text2pcap_report_routines);
+    init_report_failure_message("text2pcap");
     wtap_init(true);
 
     memset(&info, 0, sizeof(info));

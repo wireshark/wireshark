@@ -132,6 +132,11 @@ extern void cfile_write_failure_message(const char *in_filename,
 extern void cfile_close_failure_message(const char *filename, int err,
                                         char *err_info);
 
+/*
+ * Register these routines with the report_message mechanism.
+ */
+extern void init_report_failure_message(const char *friendly_program_name);
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */

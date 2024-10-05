@@ -68,7 +68,6 @@
 #include <wsutil/plugins.h>
 #endif
 
-#include <wsutil/report_message.h>
 #include <wsutil/str_util.h>
 #include <wsutil/to_str.h>
 #include <wsutil/file_util.h>
@@ -1485,19 +1484,6 @@ int
 main(int argc, char *argv[])
 {
     char  *configuration_init_error;
-    static const struct report_message_routines capinfos_report_routines = {
-        failure_message,
-        failure_message,
-        open_failure_message,
-        read_failure_message,
-        write_failure_message,
-        rename_failure_message,
-        cfile_open_failure_message,
-        cfile_dump_open_failure_message,
-        cfile_read_failure_message,
-        cfile_write_failure_message,
-        cfile_close_failure_message
-    };
     bool need_separator = false;
     int    opt;
     int    overall_error_status = EXIT_SUCCESS;
@@ -1556,7 +1542,7 @@ main(int argc, char *argv[])
         g_free(configuration_init_error);
     }
 
-    init_report_message("capinfos", &capinfos_report_routines);
+    init_report_failure_message("capinfos");
 
     wtap_init(true);
 

@@ -562,3 +562,26 @@ cfile_close_failure_message(const char *filename, int err, char *err_info)
     }
     g_free(file_string);
 }
+
+/*
+ * Register these routines with the report_message mechanism.
+ */
+void
+init_report_failure_message(const char *friendly_program_name)
+{
+    static const struct report_message_routines report_failure_routines = {
+        failure_message,
+        failure_message,
+        open_failure_message,
+        read_failure_message,
+        write_failure_message,
+        rename_failure_message,
+        cfile_open_failure_message,
+        cfile_dump_open_failure_message,
+        cfile_read_failure_message,
+        cfile_write_failure_message,
+        cfile_close_failure_message
+    };
+
+    init_report_message(friendly_program_name, &report_failure_routines);
+}

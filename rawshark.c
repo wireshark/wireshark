@@ -49,7 +49,6 @@
 #include <wsutil/file_util.h>
 #include <wsutil/socket.h>
 #include <wsutil/privileges.h>
-#include <wsutil/report_message.h>
 #include <wsutil/please_report_bug.h>
 #include <wsutil/wslog.h>
 #include <wsutil/clopts_common.h>
@@ -431,19 +430,6 @@ main(int argc, char *argv[])
 #define OPTSTRING_INIT OPTSTRING_DISSECT_COMMON OPTSTRING_READ_CAPTURE_COMMON "F:hlm:o:psS:v"
 
     static const char    optstring[] = OPTSTRING_INIT;
-    static const struct report_message_routines rawshark_report_routines = {
-      failure_message,
-      failure_message,
-      open_failure_message,
-      read_failure_message,
-      write_failure_message,
-      rename_failure_message,
-      cfile_open_failure_message,
-      cfile_dump_open_failure_message,
-      cfile_read_failure_message,
-      cfile_write_failure_message,
-      cfile_close_failure_message
-    };
 
     /*
      * Set the C-language locale to the native environment and set the
@@ -502,7 +488,7 @@ main(int argc, char *argv[])
                 err_msg);
     }
 
-    init_report_message("rawshark", &rawshark_report_routines);
+    init_report_failure_message("rawshark");
 
     timestamp_set_type(TS_RELATIVE);
     timestamp_set_precision(TS_PREC_AUTO);

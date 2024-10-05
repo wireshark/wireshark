@@ -15,6 +15,7 @@
 
 #include <wiretap/wtap.h>
 #include <wsutil/filesystem.h>
+#include <wsutil/report_message.h>
 
 #include "ui/alert_box.h"
 
@@ -639,4 +640,27 @@ rename_failure_alert_box(const char *old_filename, const char *new_filename,
     }
     g_free(old_display_basename);
     g_free(new_display_basename);
+}
+
+/*
+ * Register these routines with the report_message mechanism.
+ */
+void
+init_report_alert_box(const char *friendly_program_name)
+{
+    static const struct report_message_routines report_alert_box_routines = {
+        vfailure_alert_box,
+        vwarning_alert_box,
+        open_failure_alert_box,
+        read_failure_alert_box,
+        write_failure_alert_box,
+        rename_failure_alert_box,
+        cfile_open_failure_alert_box,
+        cfile_dump_open_failure_alert_box,
+        cfile_read_failure_alert_box,
+        cfile_write_failure_alert_box,
+        cfile_close_failure_alert_box
+    };
+
+    init_report_message(friendly_program_name, &report_alert_box_routines);
 }

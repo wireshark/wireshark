@@ -53,7 +53,6 @@
 #include <wsutil/file_util.h>
 #include <wsutil/plugins.h>
 #include <wsutil/privileges.h>
-#include <wsutil/report_message.h>
 #include <wsutil/strnatcmp.h>
 #include <wsutil/str_util.h>
 #include <cli_main.h>
@@ -1301,19 +1300,6 @@ int
 main(int argc, char *argv[])
 {
     char         *configuration_init_error;
-    static const struct report_message_routines editcap_report_routines = {
-        failure_message,
-        failure_message,
-        open_failure_message,
-        read_failure_message,
-        write_failure_message,
-        rename_failure_message,
-        cfile_open_failure_message,
-        cfile_dump_open_failure_message,
-        cfile_read_failure_message,
-        cfile_write_failure_message,
-        cfile_close_failure_message
-    };
     wtap         *wth = NULL;
     int           i, j, read_err, write_err;
     char         *read_err_info, *write_err_info;
@@ -1421,7 +1407,7 @@ main(int argc, char *argv[])
         g_free(configuration_init_error);
     }
 
-    init_report_message("editcap", &editcap_report_routines);
+    init_report_failure_message("editcap");
 
     wtap_init(true);
 

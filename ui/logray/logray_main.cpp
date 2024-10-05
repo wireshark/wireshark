@@ -32,7 +32,6 @@
 #ifdef HAVE_PLUGINS
 #include <wsutil/plugins.h>
 #endif
-#include <wsutil/report_message.h>
 #include <wsutil/please_report_bug.h>
 #include <wsutil/unicode-utils.h>
 #include <wsutil/version_info.h>
@@ -451,19 +450,6 @@ int main(int argc, char *qt_argv[])
 #endif
     /* Start time in microseconds */
     uint64_t start_time = g_get_monotonic_time();
-    static const struct report_message_routines wireshark_report_routines = {
-        vfailure_alert_box,
-        vwarning_alert_box,
-        open_failure_alert_box,
-        read_failure_alert_box,
-        write_failure_alert_box,
-        rename_failure_alert_box,
-        cfile_open_failure_alert_box,
-        cfile_dump_open_failure_alert_box,
-        cfile_read_failure_alert_box,
-        cfile_write_failure_alert_box,
-        cfile_close_failure_alert_box
-    };
 
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     /*
@@ -625,7 +611,7 @@ int main(int argc, char *qt_argv[])
     ws_init_version_info("Logray", gather_wireshark_qt_compiled_info,
                          gather_wireshark_runtime_info);
 
-    init_report_message("Logray", &wireshark_report_routines);
+    init_report_alert_box("Logray");
 
     /* Create the user profiles directory */
     if (create_profiles_dir(&rf_path) == -1) {

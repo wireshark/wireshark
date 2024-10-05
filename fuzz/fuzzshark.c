@@ -25,7 +25,6 @@
 #include <ui/failure_message.h>
 #include <wsutil/filesystem.h>
 #include <wsutil/privileges.h>
-#include <wsutil/report_message.h>
 #include <wsutil/wslog.h>
 #include <wsutil/version_info.h>
 
@@ -155,19 +154,6 @@ fuzz_init(int argc _U_, char **argv)
 {
 	char                *configuration_init_error;
 
-	static const struct report_message_routines fuzzshark_report_routines = {
-		failure_message,
-		failure_message,
-		open_failure_message,
-		read_failure_message,
-		write_failure_message,
-		rename_failure_message,
-		cfile_open_failure_message,
-		cfile_dump_open_failure_message,
-		cfile_read_failure_message,
-		cfile_write_failure_message,
-		cfile_close_failure_message
-	};
 
 	char                *err_msg = NULL;
 	e_prefs             *prefs_p;
@@ -271,7 +257,7 @@ fuzz_init(int argc _U_, char **argv)
 	ws_init_version_info("OSS Fuzzshark",
 	    epan_gather_compile_info, epan_gather_runtime_info);
 
-	init_report_message("fuzzshark", &fuzzshark_report_routines);
+	init_report_failure_message("fuzzshark");
 
 	timestamp_set_type(TS_RELATIVE);
 	timestamp_set_precision(TS_PREC_AUTO);

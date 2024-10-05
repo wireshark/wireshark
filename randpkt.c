@@ -30,7 +30,6 @@
 #include <wsutil/plugins.h>
 #endif
 
-#include <wsutil/report_message.h>
 #include <wsutil/wslog.h>
 
 #include <wsutil/ws_getopt.h>
@@ -124,19 +123,6 @@ int
 main(int argc, char *argv[])
 {
     char *configuration_init_error;
-    static const struct report_message_routines randpkt_report_routines = {
-        failure_message,
-        failure_message,
-        open_failure_message,
-        read_failure_message,
-        write_failure_message,
-        rename_failure_message,
-        cfile_open_failure_message,
-        cfile_dump_open_failure_message,
-        cfile_read_failure_message,
-        cfile_write_failure_message,
-        cfile_close_failure_message
-    };
     int opt;
     int produce_type = -1;
     char *produce_filename = NULL;
@@ -181,7 +167,7 @@ main(int argc, char *argv[])
         g_free(configuration_init_error);
     }
 
-    init_report_message("randpkt", &randpkt_report_routines);
+    init_report_failure_message("randpkt");
 
     wtap_init(true);
 
