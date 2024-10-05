@@ -33,10 +33,34 @@ const int num_font_pangrams_ = array_length(font_pangrams_);
 
 FontColorPreferencesFrame::FontColorPreferencesFrame(QWidget *parent) :
     QFrame(parent),
-    ui(new Ui::FontColorPreferencesFrame)
+    ui(new Ui::FontColorPreferencesFrame),
+    colorSchemeComboBox_(nullptr)
 {
     ui->setupUi(this);
 
+#if QT_VERSION >= QT_VERSION_CHECK(6, 8, 0) && (defined(Q_OS_WIN) || defined(Q_OS_MAC))
+    // This doesn't work under most Linux platforms.
+    // KDE doesn't have color scheme as a separate option from theme,
+    // and requires changing the theme. GTK4/libadwaita does have color
+    // scheme as a separate option, but Qt doesn't fully work with it.
+    // On Linux should this be invisible, disabled, or have a warning
+    // label that it probably won't work?
+    QHBoxLayout *colorSchemeLayout = new QHBoxLayout();
+    QLabel *colorSchemeLabel = new QLabel(tr("Color Scheme:"));
+    colorSchemeLayout->addWidget(colorSchemeLabel);
+    colorSchemeComboBox_ = new QComboBox();
+    colorSchemeComboBox_->addItem(tr("System Default"), COLOR_SCHEME_DEFAULT);
+    colorSchemeComboBox_->addItem(tr("Light Mode"), COLOR_SCHEME_LIGHT);
+    colorSchemeComboBox_->addItem(tr("Dark Mode"), COLOR_SCHEME_DARK);
+    connect(colorSchemeComboBox_, &QComboBox::currentIndexChanged,
+        this, &FontColorPreferencesFrame::colorSchemeIndexChanged);
+    colorSchemeLayout->addWidget(colorSchemeComboBox_);
+    colorSchemeLayout->addStretch();
+
+    ui->verticalLayout->insertLayout(ui->verticalLayout->indexOf(ui->colorsLabel), colorSchemeLayout);
+#endif
+
+    pref_color_scheme_ = prefFromPrefPtr(&prefs.gui_color_scheme);
     pref_qt_gui_font_name_ = prefFromPrefPtr(&prefs.gui_font_name);
     pref_active_fg_ = prefFromPrefPtr(&prefs.gui_active_fg);
     pref_active_bg_ = prefFromPrefPtr(&prefs.gui_active_bg);
@@ -111,6 +135,10 @@ void FontColorPreferencesFrame::updateWidgets()
         "  color: %1;"
         "  background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1 stop: 0 %3, stop: 0.5 %2, stop: 1 %3);"
         "}";
+
+    if (colorSchemeComboBox_) {
+        colorSchemeComboBox_->setCurrentIndex(colorSchemeComboBox_->findData(prefs_get_enum_value(pref_color_scheme_, pref_stashed)));
+    }
 
     //
     // Sample active selected item
@@ -313,6 +341,15 @@ void FontColorPreferencesFrame::colorChanged(pref_t *pref, const QColor &cc)
     new_color.blue = cc.blue() << 8 | cc.blue();
     prefs_set_color_value(pref, new_color, pref_stashed);
     updateWidgets();
+}
+
+void FontColorPreferencesFrame::colorSchemeIndexChanged(int)
+{
+    if (colorSchemeComboBox_) {
+        prefs_set_enum_value(pref_color_scheme_, colorSchemeComboBox_->currentData().toInt(), pref_stashed);
+        // COLOR_SCHEME_DEFAULT is 0 so we don't need to check failure
+        updateWidgets();
+    }
 }
 
 void FontColorPreferencesFrame::on_fontPushButton_clicked()

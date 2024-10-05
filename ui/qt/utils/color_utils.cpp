@@ -15,6 +15,7 @@
 
 #if QT_VERSION >= QT_VERSION_CHECK(6, 5, 0)
 #include <QStyleHints>
+#include <epan/prefs.h>
 #endif
 
 // Colors we use in various parts of the UI.
@@ -159,6 +160,27 @@ bool ColorUtils::themeIsDark()
 #endif
     return qApp->palette().windowText().color().lightness() > qApp->palette().window().color().lightness();
 }
+
+#if QT_VERSION >= QT_VERSION_CHECK(6, 8, 0)
+void ColorUtils::setScheme(int scheme)
+{
+    switch (scheme) {
+    case COLOR_SCHEME_LIGHT:
+        qApp->styleHints()->setColorScheme(Qt::ColorScheme::Light);
+        break;
+    case COLOR_SCHEME_DARK:
+        qApp->styleHints()->setColorScheme(Qt::ColorScheme::Dark);
+        break;
+    case COLOR_SCHEME_DEFAULT:
+    default:
+        qApp->styleHints()->setColorScheme(Qt::ColorScheme::Unknown);
+    }
+}
+#else
+void ColorUtils::setScheme(int)
+{
+}
+#endif
 
 // Qt < 5.12.6 on macOS always uses Qt::blue for the link color, which is
 // unreadable when using a dark theme. Changing the application palette

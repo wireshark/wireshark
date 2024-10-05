@@ -12,6 +12,7 @@
 
 #include <QFrame>
 #include <QFont>
+#include <QComboBox>
 
 #include <epan/prefs.h>
 
@@ -32,7 +33,9 @@ protected:
 
 private:
     Ui::FontColorPreferencesFrame *ui;
+    QComboBox *colorSchemeComboBox_;
 
+    pref_t *pref_color_scheme_;
     pref_t *pref_qt_gui_font_name_;
     pref_t *pref_active_fg_;
     pref_t *pref_active_bg_;
@@ -58,6 +61,7 @@ private:
 
 private slots:
     void colorChanged(pref_t *pref, const QColor &cc);
+    void colorSchemeIndexChanged(int index);
     void on_fontPushButton_clicked();
 
     void on_activeFGPushButton_clicked();

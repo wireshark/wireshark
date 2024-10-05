@@ -155,6 +155,13 @@ static const enum_val_t gui_selection_style[] = {
     {NULL, NULL, -1}
 };
 
+static const enum_val_t gui_color_scheme[] = {
+    {"system",  "System Default",   COLOR_SCHEME_DEFAULT},
+    {"light",   "Light Mode",       COLOR_SCHEME_LIGHT},
+    {"dark",    "Dark Mode",        COLOR_SCHEME_DARK},
+    {NULL, NULL, -1}
+};
+
 static const enum_val_t gui_packet_list_copy_format_options_for_keyboard_shortcut[] = {
     {"TEXT", "Text", COPY_FORMAT_TEXT},
     {"CSV",  "CSV",  COPY_FORMAT_CSV},
@@ -3357,6 +3364,9 @@ prefs_register_modules(void)
     gui_color_module = prefs_register_subtree(gui_module, "Colors", "Colors", NULL);
     unsigned gui_color_effect_flags = gui_effect_flags | PREF_EFFECT_GUI_COLOR;
     prefs_set_module_effect_flags(gui_color_module, gui_color_effect_flags);
+
+    prefs_register_enum_preference(gui_color_module, "color_scheme", "Color scheme", "Color scheme",
+        &prefs.gui_color_scheme, gui_color_scheme, false);
 
     prefs_register_color_preference(gui_color_module, "active_frame.fg", "Foreground color for an active selected item",
         "Foreground color for an active selected item", &prefs.gui_active_fg);

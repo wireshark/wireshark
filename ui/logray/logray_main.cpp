@@ -948,6 +948,8 @@ int main(int argc, char *qt_argv[])
     ws_log(LOG_DOMAIN_MAIN, LOG_LEVEL_INFO, "Calling prefs_apply_all, elapsed time %" PRIu64 " us \n", g_get_monotonic_time() - start_time);
 #endif
     prefs_apply_all();
+    ColorUtils::setScheme(prefs.gui_color_scheme);
+    lwApp->emitAppSignal(LograyApplication::ColorsChanged);
     lwApp->emitAppSignal(LograyApplication::PreferencesChanged);
 
 #ifdef HAVE_LIBPCAP

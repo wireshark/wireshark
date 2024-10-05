@@ -496,6 +496,7 @@ void MainApplication::setConfigurationProfile(const char *profile_name, bool wri
 #endif
 
     setMonospaceFont(prefs.gui_font_name);
+    ColorUtils::setScheme(prefs.gui_color_scheme);
 
     // Freeze the packet list early to avoid updating column data before doing a
     // full redissection. The packet list will be thawed when redissection is done.

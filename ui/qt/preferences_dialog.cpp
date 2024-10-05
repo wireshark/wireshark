@@ -25,6 +25,7 @@
 #include <extcap.h>
 
 #include <ui/qt/utils/qt_ui_utils.h>
+#include <ui/qt/utils/color_utils.h>
 
 #include "main_application.h"
 
@@ -321,6 +322,7 @@ void PreferencesDialog::apply()
     mainApp->setMonospaceFont(prefs.gui_font_name);
 
     if (redissect_flags & (PREF_EFFECT_GUI_COLOR)) {
+        ColorUtils::setScheme(prefs.gui_color_scheme);
         mainApp->emitAppSignal(MainApplication::ColorsChanged);
     }
 

@@ -83,6 +83,10 @@ char string_to_name_resolve(const char *string, struct _e_addr_resolve *name_res
 
 #define COLOR_STYLE_ALPHA       0.25
 
+#define COLOR_SCHEME_DEFAULT    0
+#define COLOR_SCHEME_LIGHT      1
+#define COLOR_SCHEME_DARK       2
+
 /*
  * Types of layout of summary/details/hex panes.
  */
@@ -166,6 +170,7 @@ typedef struct _e_prefs {
   bool         restore_filter_after_following_stream;
   int          gui_toolbar_main_style;
   char        *gui_font_name;
+  int          gui_color_scheme;
   color_t      gui_active_fg;
   color_t      gui_active_bg;
   int          gui_active_style;

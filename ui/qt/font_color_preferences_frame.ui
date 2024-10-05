@@ -65,7 +65,7 @@
     </widget>
    </item>
    <item>
-    <widget class="QLabel" name="label_3">
+    <widget class="QLabel" name="colorsLabel">
      <property name="text">
       <string>Colors:</string>
      </property>
