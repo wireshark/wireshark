@@ -123,6 +123,17 @@ extern void read_failure_alert_box(const char *filename, int err);
  */
 extern void write_failure_alert_box(const char *filename, int err);
 
+/*
+ * Alert box for a failed attempt to rename a file.
+ * "err" is assumed to be a UNIX-style errno.
+ *
+ * XXX - whether we mention the source pathname, the target pathname,
+ * or both depends on the error and on what we find if we look for
+ * one or both of them.
+ */
+extern void rename_failure_alert_box(const char *old_filename,
+                                     const char *new_filename, int err);
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */

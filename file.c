@@ -130,8 +130,6 @@ static match_result match_time_reference(capture_file *cf, frame_data *fdata,
 static bool find_packet(capture_file *cf, ws_match_function match_function,
         void *criterion, search_direction dir);
 
-static void cf_rename_failure_alert_box(const char *filename, int err);
-
 /* Seconds spent processing packets between pushing UI updates. */
 #define PROGBAR_UPDATE_INTERVAL 0.150
 
@@ -5640,7 +5638,7 @@ cf_save_records(capture_file *cf, const char *fname, unsigned save_format,
                        be if we didn't have permission to remove the file from
                        the temporary directory, and that might be fixable - but
                        is it worth requiring the user to go off and fix it?) */
-                    cf_rename_failure_alert_box(fname, errno);
+                    rename_failure_alert_box(cf->filename, fname, errno);
                     goto fail;
                 }
             }
@@ -5768,7 +5766,7 @@ cf_save_records(capture_file *cf, const char *fname, unsigned save_format,
         /* Now do the rename. */
         if (ws_rename(fname_new, fname) == -1) {
             /* Well, the rename failed. */
-            cf_rename_failure_alert_box(fname, errno);
+            rename_failure_alert_box(fname_new, fname, errno);
 #ifdef _WIN32
             /* Attempt to reopen the random file descriptor using the
                current file's filename.  (At this point, the sequential
@@ -6026,7 +6024,7 @@ cf_export_specified_packets(capture_file *cf, const char *fname,
            on Windows.  Do the rename. */
         if (ws_rename(fname_new, fname) == -1) {
             /* Well, the rename failed. */
-            cf_rename_failure_alert_box(fname, errno);
+            rename_failure_alert_box(fname_new, fname, errno);
             goto fail;
         }
         g_free(fname_new);
@@ -6049,44 +6047,6 @@ fail:
     wtap_dump_params_cleanup(&params);
 
     return CF_WRITE_ERROR;
-}
-
-/*
- * XXX - whether we mention the source pathname, the target pathname,
- * or both depends on the error and on what we find if we look for
- * one or both of them.
- */
-static void
-cf_rename_failure_alert_box(const char *filename, int err)
-{
-    char *display_basename;
-
-    display_basename = g_filename_display_basename(filename);
-    switch (err) {
-
-        case ENOENT:
-            /* XXX - should check whether the source exists and, if not,
-               report it as the problem and, if so, report the destination
-               as the problem. */
-            simple_error_message_box("The path to the file \"%s\" doesn't exist.",
-                    display_basename);
-            break;
-
-        case EACCES:
-            /* XXX - if we're doing a rename after a safe save, we should
-               probably say something else. */
-            simple_error_message_box("You don't have permission to move the capture file to \"%s\".",
-                    display_basename);
-            break;
-
-        default:
-            /* XXX - this should probably mention both the source and destination
-               pathnames. */
-            simple_error_message_box("The file \"%s\" could not be moved: %s.",
-                    display_basename, wtap_strerror(err));
-            break;
-    }
-    g_free(display_basename);
 }
 
 /* Reload the current capture file. */

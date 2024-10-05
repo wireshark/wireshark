@@ -595,3 +595,48 @@ write_failure_alert_box(const char *filename, int err)
                        file_write_error_message(err), display_basename);
     g_free(display_basename);
 }
+
+/*
+ * Alert box for a failed attempt to rename a file.
+ * "err" is assumed to be a UNIX-style errno.
+ *
+ * XXX - whether we mention the source pathname, the target pathname,
+ * or both depends on the error and on what we find if we look for
+ * one or both of them.
+ */
+void
+rename_failure_alert_box(const char *old_filename, const char *new_filename,
+                         int err)
+{
+    char *old_display_basename, *new_display_basename;
+
+    old_display_basename = g_filename_display_basename(old_filename);
+    new_display_basename = g_filename_display_basename(new_filename);
+    switch (err) {
+
+    case ENOENT:
+        /* XXX - should check whether the source exists and, if not,
+           report it as the problem and, if so, report the destination
+           as the problem. */
+        simple_error_message_box("The path to the file \"%s\" doesn't exist.",
+                                 old_display_basename);
+        break;
+
+    case EACCES:
+        /* XXX - if we're doing a rename after a safe save, we should
+           probably say something else. */
+        simple_error_message_box("You don't have permission to move the capture file from \"%s\" to \"%s\".",
+                                 old_display_basename, new_display_basename);
+        break;
+
+    default:
+        /* XXX - this should probably mention both the source and destination
+           pathnames. */
+        simple_error_message_box("The file \"%s\" could not be moved to \"%s\": %s.",
+                                 old_display_basename, new_display_basename,
+                                 wtap_strerror(err));
+        break;
+    }
+    g_free(old_display_basename);
+    g_free(new_display_basename);
+}
