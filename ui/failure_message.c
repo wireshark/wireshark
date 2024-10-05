@@ -69,6 +69,21 @@ write_failure_message(const char *filename, int err)
                filename, g_strerror(err));
 }
 
+/*
+ * Error message for a failed attempt to rename a file other than
+ * a capture file.
+ * "old_filename" is the name of the file being renamed; "new_filename"
+ * is the name to which it's being renamed; "err" is assumed to be a
+ * UNIX-style errno.
+ */
+void
+rename_failure_message(const char *old_filename, const char *new_filename,
+                       int err)
+{
+    cmdarg_err("An error occurred while renaming the file \"%s\" to \"%s\": %s.",
+               old_filename, new_filename, g_strerror(err));
+}
+
 static char *
 input_file_description(const char *fname)
 {

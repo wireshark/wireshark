@@ -1055,6 +1055,7 @@ main(int argc, char *argv[])
         open_failure_message,
         read_failure_message,
         write_failure_message,
+        rename_failure_message,
         cfile_open_failure_message,
         cfile_dump_open_failure_message,
         cfile_read_failure_message,

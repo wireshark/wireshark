@@ -457,6 +457,7 @@ int main(int argc, char *qt_argv[])
         open_failure_alert_box,
         read_failure_alert_box,
         write_failure_alert_box,
+        rename_failure_alert_box,
         cfile_open_failure_alert_box,
         cfile_dump_open_failure_alert_box,
         cfile_read_failure_alert_box,
