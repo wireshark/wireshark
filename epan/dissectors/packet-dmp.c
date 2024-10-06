@@ -36,6 +36,7 @@
 #include <epan/strutil.h>
 #include <epan/uat.h>
 #include <epan/proto_data.h>
+#include <epan/exceptions.h>
 
 #include <wsutil/str_util.h>
 
@@ -3100,6 +3101,9 @@ static gint dissect_dmp_message (tvbuff_t *tvb, packet_info *pinfo,
   len = tvb_reported_length_remaining (tvb, offset);
   if (dmp.checksum) {
     len -= 2;
+    if (len < 0) {
+      THROW_MESSAGE(ReportedBoundsError, "Packet length too short");
+    }
   }
 
   if (compr_alg == ALGORITHM_ZLIB) {
