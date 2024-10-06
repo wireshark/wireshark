@@ -1314,6 +1314,9 @@ void MainApplication::captureEventHandler(CaptureEvent ev)
     case CaptureEvent::Fixed:
         switch (ev.eventType())
         {
+        case CaptureEvent::Prepared:
+            iface_mon_enable(true);
+            break;
         case CaptureEvent::Started:
             active_captures_++;
             emit captureActive(active_captures_);

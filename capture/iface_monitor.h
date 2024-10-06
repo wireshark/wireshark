@@ -65,6 +65,17 @@ iface_mon_get_sock(void);
 void
 iface_mon_event(void);
 
+/*
+ * Temporarily enable or disable watching for interface changes. This has
+ * no effect if interface monitoring has not been started.
+ *
+ * This is for Linux, where setting rfmon mode on an interface can create
+ * or destroy another (virtual) interface on the same wiphy, to avoid infinite
+ * loops. It is a no-op on other platforms.
+ */
+void
+iface_mon_enable(bool enable);
+
 #endif /* HAVE_LIBPCAP */
 
 #ifdef __cplusplus

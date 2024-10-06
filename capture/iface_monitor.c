@@ -179,6 +179,19 @@ iface_mon_stop(void)
     iface_mon_sock = NULL;
 }
 
+void
+iface_mon_enable(bool enable)
+{
+    if (!iface_mon_sock)
+        return;
+
+    if (enable) {
+        nl_socket_add_membership(iface_mon_sock, RTNLGRP_LINK);
+    } else {
+        nl_socket_drop_membership(iface_mon_sock, RTNLGRP_LINK);
+    }
+}
+
 #elif defined(__APPLE__)
 
 /*
@@ -358,6 +371,11 @@ iface_mon_event(void)
     }
 }
 
+void
+iface_mon_enable(bool enable _U_)
+{
+}
+
 #elif defined(__FreeBSD__) || defined(__NetBSD__) || defined(__OpenBSD__) || defined(__DragonFly__)
 
 /*
@@ -528,6 +546,11 @@ iface_mon_event(void)
     }
 }
 
+void
+iface_mon_enable(bool enable _U_)
+{
+}
+
 #else /* don't have something we support */
 
 int
@@ -549,6 +572,11 @@ iface_mon_get_sock(void)
 
 void
 iface_mon_event(void)
+{
+}
+
+void
+iface_mon_enable(bool enable _U_)
 {
 }
 
