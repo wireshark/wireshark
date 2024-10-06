@@ -5739,7 +5739,7 @@ int dissect_nt_sid_ret_item(tvbuff_t *tvb, int offset, proto_tree *parent_tree,
 
 /* Generic rights */
 
-#define GENERIC_RIGHTS_MASK    0xF0000000
+#define GENERIC_RIGHTS_MASK    0xFF000000
 
 #define GENERIC_ALL_ACCESS     0x10000000
 #define GENERIC_EXECUTE_ACCESS 0x20000000
