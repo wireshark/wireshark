@@ -12,6 +12,7 @@
 #include "config.h"
 
 #include <string.h>
+#include <errno.h>
 
 #include <wiretap/wtap.h>
 #include <wsutil/filesystem.h>
