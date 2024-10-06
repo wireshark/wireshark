@@ -69,6 +69,7 @@ static int hf_gsmtap_tetra_channel_type;
 static int hf_gsmtap_gmr1_channel_type;
 static int hf_gsmtap_rrc_sub_type;
 static int hf_gsmtap_e1t1_sub_type;
+static int hf_gsmtap_sim_sub_type;
 static int hf_gsmtap_antenna;
 
 static int hf_sacch_l1h_power_lev;
@@ -497,6 +498,18 @@ static const value_string gsmtap_um_e1t1_types[] = {
 	{ 0,					NULL },
 };
 
+static const value_string gsmtap_sim_types[] = {
+	{ GSMTAP_SIM_APDU,	"APDU" },
+	{ GSMTAP_SIM_ATR,	"ATR" },
+	{ GSMTAP_SIM_PPS_REQ,	"PPS request" },
+	{ GSMTAP_SIM_PPS_RSP,	"PPS response" },
+	{ GSMTAP_SIM_TPDU_HDR,	"TPDU command header" },
+	{ GSMTAP_SIM_TPDU_CMD,	"TPDU command body" },
+	{ GSMTAP_SIM_TPDU_RSP,	"TPDU response body" },
+	{ GSMTAP_SIM_TPDU_SW,	"TPDU response trailer" },
+	{ 0,			NULL },
+};
+
 /* dissect a SACCH L1 header which is included in the first 2 bytes
  * of every SACCH frame (according to TS 04.04) */
 static void
@@ -898,61 +911,67 @@ dissect_gsmtap_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 	conversation_set_elements_by_id(pinfo, CONVERSATION_GSMTAP, (timeslot << 3) | subslot);
 
 	if (tree) {
-		uint8_t channel;
-		const char *channel_str;
-		channel = tvb_get_uint8(tvb, offset+12);
-		if (type == GSMTAP_TYPE_TETRA_I1)
-			channel_str = val_to_str(channel, gsmtap_tetra_channels, "Unknown: %d");
-		else if (type == GSMTAP_TYPE_GMR1_UM)
-			channel_str = val_to_str(channel, gsmtap_gmr1_channels, "Unknown: %d");
-		else
-			channel_str = val_to_str(channel, gsmtap_channels, "Unknown: %d");
+		if (type == GSMTAP_TYPE_SIM) {
+			/* Skip parsing radio fields for SIM type. */
+			proto_tree_add_item(gsmtap_tree, hf_gsmtap_sim_sub_type,
+					tvb, offset+12, 1, ENC_BIG_ENDIAN);
+		} else {
+			uint8_t channel;
+			const char *channel_str;
+			channel = tvb_get_uint8(tvb, offset+12);
+			if (type == GSMTAP_TYPE_TETRA_I1)
+				channel_str = val_to_str(channel, gsmtap_tetra_channels, "Unknown: %d");
+			else if (type == GSMTAP_TYPE_GMR1_UM)
+				channel_str = val_to_str(channel, gsmtap_gmr1_channels, "Unknown: %d");
+			else
+				channel_str = val_to_str(channel, gsmtap_channels, "Unknown: %d");
 
-		proto_item_append_text(ti, ", ARFCN: %u (%s), TS: %u, Channel: %s (%u)",
-			arfcn & GSMTAP_ARFCN_MASK,
-			arfcn & GSMTAP_ARFCN_F_UPLINK ? "Uplink" : "Downlink",
-			tvb_get_uint8(tvb, offset+3),
-			channel_str,
-			tvb_get_uint8(tvb, offset+14));
-		proto_tree_add_item(gsmtap_tree, hf_gsmtap_timeslot,
-				    tvb, offset+3, 1, ENC_BIG_ENDIAN);
-		proto_tree_add_item(gsmtap_tree, hf_gsmtap_arfcn,
-				    tvb, offset+4, 2, ENC_BIG_ENDIAN);
-		proto_tree_add_item(gsmtap_tree, hf_gsmtap_uplink,
-				    tvb, offset+4, 2, ENC_BIG_ENDIAN);
-		proto_tree_add_item(gsmtap_tree, hf_gsmtap_pcs,
-				    tvb, offset+4, 2, ENC_BIG_ENDIAN);
-		proto_tree_add_item(gsmtap_tree, hf_gsmtap_signal_dbm,
-				    tvb, offset+6, 1, ENC_BIG_ENDIAN);
-		proto_tree_add_item(gsmtap_tree, hf_gsmtap_snr_db,
-				    tvb, offset+7, 1, ENC_BIG_ENDIAN);
-		proto_tree_add_item(gsmtap_tree, hf_gsmtap_frame_nr,
-				    tvb, offset+8, 4, ENC_BIG_ENDIAN);
-		if (type == GSMTAP_TYPE_UM_BURST)
-			proto_tree_add_item(gsmtap_tree, hf_gsmtap_burst_type,
-					    tvb, offset+12, 1, ENC_BIG_ENDIAN);
-		else if (type == GSMTAP_TYPE_UM)
-			proto_tree_add_item(gsmtap_tree, hf_gsmtap_channel_type,
-					    tvb, offset+12, 1, ENC_BIG_ENDIAN);
-		else if (type == GSMTAP_TYPE_TETRA_I1)
-			proto_tree_add_item(gsmtap_tree, hf_gsmtap_tetra_channel_type,
-					    tvb, offset+12, 1, ENC_BIG_ENDIAN);
-		else if (type == GSMTAP_TYPE_WMX_BURST)
-			proto_tree_add_item(gsmtap_tree, hf_gsmtap_burst_type,
-					    tvb, offset+12, 1, ENC_BIG_ENDIAN);
-		else if (type == GSMTAP_TYPE_GMR1_UM)
-			proto_tree_add_item(gsmtap_tree, hf_gsmtap_gmr1_channel_type,
-					    tvb, offset+12, 1, ENC_BIG_ENDIAN);
-		else if (type == GSMTAP_TYPE_UMTS_RRC)
-			proto_tree_add_item(gsmtap_tree, hf_gsmtap_rrc_sub_type,
-					    tvb, offset+12, 1, ENC_BIG_ENDIAN);
-		else if (type == GSMTAP_TYPE_E1T1)
-			proto_tree_add_item(gsmtap_tree, hf_gsmtap_e1t1_sub_type,
-					    tvb, offset+12, 1, ENC_BIG_ENDIAN);
-		proto_tree_add_item(gsmtap_tree, hf_gsmtap_antenna,
-				    tvb, offset+13, 1, ENC_BIG_ENDIAN);
-		proto_tree_add_item(gsmtap_tree, hf_gsmtap_subslot,
-				    tvb, offset+14, 1, ENC_BIG_ENDIAN);
+			proto_item_append_text(ti, ", ARFCN: %u (%s), TS: %u, Channel: %s (%u)",
+				arfcn & GSMTAP_ARFCN_MASK,
+				arfcn & GSMTAP_ARFCN_F_UPLINK ? "Uplink" : "Downlink",
+				tvb_get_uint8(tvb, offset+3),
+				channel_str,
+				tvb_get_uint8(tvb, offset+14));
+			proto_tree_add_item(gsmtap_tree, hf_gsmtap_timeslot,
+					tvb, offset+3, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(gsmtap_tree, hf_gsmtap_arfcn,
+					tvb, offset+4, 2, ENC_BIG_ENDIAN);
+			proto_tree_add_item(gsmtap_tree, hf_gsmtap_uplink,
+					tvb, offset+4, 2, ENC_BIG_ENDIAN);
+			proto_tree_add_item(gsmtap_tree, hf_gsmtap_pcs,
+					tvb, offset+4, 2, ENC_BIG_ENDIAN);
+			proto_tree_add_item(gsmtap_tree, hf_gsmtap_signal_dbm,
+					tvb, offset+6, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(gsmtap_tree, hf_gsmtap_snr_db,
+					tvb, offset+7, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(gsmtap_tree, hf_gsmtap_frame_nr,
+					tvb, offset+8, 4, ENC_BIG_ENDIAN);
+			if (type == GSMTAP_TYPE_UM_BURST)
+				proto_tree_add_item(gsmtap_tree, hf_gsmtap_burst_type,
+						tvb, offset+12, 1, ENC_BIG_ENDIAN);
+			else if (type == GSMTAP_TYPE_UM)
+				proto_tree_add_item(gsmtap_tree, hf_gsmtap_channel_type,
+						tvb, offset+12, 1, ENC_BIG_ENDIAN);
+			else if (type == GSMTAP_TYPE_TETRA_I1)
+				proto_tree_add_item(gsmtap_tree, hf_gsmtap_tetra_channel_type,
+						tvb, offset+12, 1, ENC_BIG_ENDIAN);
+			else if (type == GSMTAP_TYPE_WMX_BURST)
+				proto_tree_add_item(gsmtap_tree, hf_gsmtap_burst_type,
+						tvb, offset+12, 1, ENC_BIG_ENDIAN);
+			else if (type == GSMTAP_TYPE_GMR1_UM)
+				proto_tree_add_item(gsmtap_tree, hf_gsmtap_gmr1_channel_type,
+						tvb, offset+12, 1, ENC_BIG_ENDIAN);
+			else if (type == GSMTAP_TYPE_UMTS_RRC)
+				proto_tree_add_item(gsmtap_tree, hf_gsmtap_rrc_sub_type,
+						tvb, offset+12, 1, ENC_BIG_ENDIAN);
+			else if (type == GSMTAP_TYPE_E1T1)
+				proto_tree_add_item(gsmtap_tree, hf_gsmtap_e1t1_sub_type,
+						tvb, offset+12, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(gsmtap_tree, hf_gsmtap_antenna,
+					tvb, offset+13, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(gsmtap_tree, hf_gsmtap_subslot,
+					tvb, offset+14, 1, ENC_BIG_ENDIAN);
+		}
 	}
 
 	switch (type) {
@@ -1266,6 +1285,8 @@ proto_register_gsmtap(void)
 		  FT_UINT8, BASE_DEC, VALS(rrc_sub_types), 0, NULL, HFILL }},
 		{ &hf_gsmtap_e1t1_sub_type, { "Channel Type", "gsmtap.e1t1_sub_type",
 		  FT_UINT8, BASE_DEC, VALS(gsmtap_um_e1t1_types), 0, NULL, HFILL }},
+		{ &hf_gsmtap_sim_sub_type, { "SIM Type", "gsmtap.sim_sub_type",
+		  FT_UINT8, BASE_DEC, VALS(gsmtap_sim_types), 0, NULL, HFILL }},
 		{ &hf_gsmtap_antenna, { "Antenna Number", "gsmtap.antenna",
 		  FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL } },
 		{ &hf_gsmtap_subslot, { "Sub-Slot", "gsmtap.sub_slot",
