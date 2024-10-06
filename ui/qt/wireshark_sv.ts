@@ -1863,14 +1863,6 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Resolve Names:</source>
-        <translation type="vanished">Slå upp namn:</translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;p&gt;Show human-readable strings instead of raw values for fields. Only applicable to custom columns with fields that have value strings.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;p&gt;Visa mänskligt läsbara strängar istället för råa värden för fält. Endast tillämpligt på anpassade kolumner med fält som har värdesträngar.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
         <source>Values</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1926,20 +1918,12 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Resolved</source>
-        <translation type="vanished">Uppslagen</translation>
-    </message>
-    <message>
         <source>Width</source>
         <translation>Bredd</translation>
     </message>
     <message>
         <source>Alignment</source>
         <translation>Justering</translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;Show human-readable strings instead of raw values for fields. Only applicable to custom columns with fields that have value strings.&lt;/html&gt;</source>
-        <translation type="vanished">&lt;html&gt;Visa mänskligt läsbara strängar istället för råa värden för fält. Endast tillämpligt på anpassade kolumner med fält som har värdesträngar.&lt;/html&gt;</translation>
     </message>
     <message>
         <source>New Column</source>
@@ -7629,10 +7613,6 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     <message>
         <source>Resize Column to Width…</source>
         <translation>Ändra kolumnstorlek till bredden …</translation>
-    </message>
-    <message>
-        <source>Resolve Names</source>
-        <translation type="vanished">Slå upp namn</translation>
     </message>
     <message>
         <source>Remove this Column</source>

@@ -1856,14 +1856,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Resolve Names:</source>
-        <translation type="vanished">İsimleri Çöz:</translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;p&gt;Show human-readable strings instead of raw values for fields. Only applicable to custom columns with fields that have value strings.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;p&gt;Alanlar için ham değerler yerine insan tarafından okunabilir dizeleri gösterin. Yalnızca değer dizeleri olan alanlara sahip özel sütunlar için geçerlidir.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
         <source>Values</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1919,20 +1911,12 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Resolved</source>
-        <translation type="vanished">Çözüldü</translation>
-    </message>
-    <message>
         <source>Width</source>
         <translation>Genişlik</translation>
     </message>
     <message>
         <source>Alignment</source>
         <translation>Hizalama</translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;Show human-readable strings instead of raw values for fields. Only applicable to custom columns with fields that have value strings.&lt;/html&gt;</source>
-        <translation type="vanished">&lt;html&gt;Alanlar için ham değerler yerine insan tarafından okunabilir dizeleri gösterin. Yalnızca değer dizeleri olan alanlara sahip özel sütunlar için geçerlidir.&lt;/html&gt;</translation>
     </message>
     <message>
         <source>New Column</source>
@@ -7605,10 +7589,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Resize Column to Width…</source>
         <translation>Sütunu Genişliğe Yeniden Boyutlandır…</translation>
-    </message>
-    <message>
-        <source>Resolve Names</source>
-        <translation type="vanished">Adları Çöz</translation>
     </message>
     <message>
         <source>Remove this Column</source>

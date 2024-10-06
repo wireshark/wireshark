@@ -1867,10 +1867,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Resolve Names:</source>
-        <translation type="vanished">Rozwiąż nazwy:</translation>
-    </message>
-    <message>
         <source>Values</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1924,10 +1920,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>&lt;html&gt;Values will show the raw values for fields.&lt;p&gt;Strings will show human-readable strings instead of raw values for fields. Only applicable to custom columns with fields that have value strings and custom columns which can be resolved to strings.&lt;p&gt;Details will show the values using the same format as in Packet Details. Only applicable to custom columns.&lt;/html&gt;</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Resolved</source>
-        <translation type="vanished">Rozwiązane</translation>
     </message>
     <message>
         <source>Width</source>
@@ -7635,10 +7627,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Resize Column to Width…</source>
         <translation>Zmień rozmiar kolumny do szerokości…</translation>
-    </message>
-    <message>
-        <source>Resolve Names</source>
-        <translation type="vanished">Rozwiązuj nazwy</translation>
     </message>
     <message>
         <source>Remove this Column</source>

@@ -24165,6 +24165,7 @@ static const value_string usb_products_vals[] = {
     { 0x26720047, "GoPro HERO7 Black" },
     { 0x26720049, "GoPro HERO8 Black" },
     { 0x2672004D, "GoPro HERO9 Black" },
+    { 0x2672004b, "GoPro Max" },
     { 0x26720056, "GoPro HERO10 Black" },
     { 0x26720059, "GoPro HERO11 Black" },
     { 0x2672005a, "GoPro HERO11 Black mini" },

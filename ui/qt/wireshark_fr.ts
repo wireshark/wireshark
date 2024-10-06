@@ -1856,31 +1856,23 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
     </message>
     <message>
         <source>Display as:</source>
-        <translation type="unfinished"></translation>
+        <translation>Afficher en:</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;p&gt;Values will show the raw values for fields.&lt;p&gt;Strings will show human-readable strings instead of raw values for fields. Only applicable to custom columns with fields that have value strings and custom columns which can be resolved to strings.&lt;p&gt;Details will show the values using the same format as in Packet Details. Only applicable to custom columns.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Resolve Names:</source>
-        <translation type="vanished">Résoudre les noms&#xa0;:</translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;p&gt;Show human-readable strings instead of raw values for fields. Only applicable to custom columns with fields that have value strings.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;p&gt;Afficher des chaînes lisibles par l&apos;homme au lieu de valeurs brutes pour les champs. Applicable uniquement aux colonnes personnalisées avec des champs contenant des chaînes de valeur.&lt;/body&gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;p&gt;Valeurs affichera les valeurs brutes pour les champs.&lt;p&gt;Chaines de caractères affichera du texte intelligible par un humain au lieu de la valeur brute. Applicable seulement au colonnes personnalisées avec des champs qui ont la valeur chaines de caractères et des colonnes personnalisées qui peuvent être résolues en chaines de caractères.&lt;p&gt;Détails affichera les valeurs en utilisant le même format que dans les Détails Paquets. Seulement applicable aux colonnes personnalisées.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Values</source>
-        <translation type="unfinished"></translation>
+        <translation>Valeurs</translation>
     </message>
     <message>
         <source>Strings</source>
-        <translation type="unfinished"></translation>
+        <translation>Chaines de Caractères</translation>
     </message>
     <message>
         <source>Details</source>
-        <translation type="unfinished">Détails</translation>
+        <translation>Détails</translation>
     </message>
     <message>
         <source>Missing fields.</source>
@@ -1919,15 +1911,11 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
     </message>
     <message>
         <source>Display Format</source>
-        <translation type="unfinished"></translation>
+        <translation>Format d&apos;Affichage</translation>
     </message>
     <message>
         <source>&lt;html&gt;Values will show the raw values for fields.&lt;p&gt;Strings will show human-readable strings instead of raw values for fields. Only applicable to custom columns with fields that have value strings and custom columns which can be resolved to strings.&lt;p&gt;Details will show the values using the same format as in Packet Details. Only applicable to custom columns.&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Resolved</source>
-        <translation type="vanished">Résolu</translation>
+        <translation>&lt;html&gt;Valeurs affichera les valeurs brutes pour les champs.&lt;p&gt;Chaines de caractères affichera du texte intelligible par un humain au lieu de la valeur brute. Applicable seulement au colonnes personnalisées avec des champs qui ont la valeur chaines de caractères et des colonnes personnalisées qui peuvent être résolues en chaines de caractères.&lt;p&gt;Détails affichera les valeurs en utilisant le même format que dans les Détails Paquets. Seulement applicable aux colonnes personnalisées.&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Width</source>
@@ -1936,10 +1924,6 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
     <message>
         <source>Alignment</source>
         <translation>Alignement</translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;Show human-readable strings instead of raw values for fields. Only applicable to custom columns with fields that have value strings.&lt;/html&gt;</source>
-        <translation type="vanished">&lt;html&gt;Afficher des chaînes lisibles par l&apos;homme au lieu de valeurs brutes pour les champs. Applicable uniquement aux colonnes personnalisées avec des champs contenant des chaînes de valeur.</translation>
     </message>
     <message>
         <source>New Column</source>
@@ -7607,19 +7591,19 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
     </message>
     <message>
         <source>&lt;html&gt;Values will show the raw values for fields.&lt;p&gt;Strings will show human-readable strings instead of raw values for fields. Only applicable to custom columns with fields that have value strings and custom columns which can be resolved to strings.&lt;p&gt;Details will show the values using the same format as in Packet Details. Only applicable to custom columns.&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;Valeurs affichera les valeurs brutes pour les champs.&lt;p&gt;Chaines de caractères affichera du texte intelligible par un humain au lieu de la valeur brute. Applicable seulement au colonnes personnalisées avec des champs qui ont la valeur chaines de caractères et des colonnes personnalisées qui peuvent être résolues en chaines de caractères.&lt;p&gt;Détails affichera les valeurs en utilisant le même format que dans les Détails Paquets. Seulement applicable aux colonnes personnalisées.&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Display as Values</source>
-        <translation type="unfinished"></translation>
+        <translation>Afficher en Valeurs</translation>
     </message>
     <message>
         <source>Display as Strings</source>
-        <translation type="unfinished"></translation>
+        <translation>Afficher en Chaines de Caractères</translation>
     </message>
     <message>
         <source>Display as packet Details</source>
-        <translation type="unfinished"></translation>
+        <translation>Afficher comme Détails de paquet</translation>
     </message>
     <message>
         <source>Column Preferences…</source>
@@ -7628,10 +7612,6 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
     <message>
         <source>Resize Column to Width…</source>
         <translation>Redimensionner la colonne à la largeur…</translation>
-    </message>
-    <message>
-        <source>Resolve Names</source>
-        <translation type="vanished">Résoudre les noms</translation>
     </message>
     <message>
         <source>Remove this Column</source>
@@ -8869,15 +8849,15 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
     </message>
     <message>
         <source>Values</source>
-        <translation type="unfinished"></translation>
+        <translation>Valeurs</translation>
     </message>
     <message>
         <source>Strings</source>
-        <translation type="unfinished"></translation>
+        <translation>Chaines de Caractères</translation>
     </message>
     <message>
         <source>Details</source>
-        <translation type="unfinished">Détails</translation>
+        <translation>Détails</translation>
     </message>
     <message>
         <source>UE Id</source>

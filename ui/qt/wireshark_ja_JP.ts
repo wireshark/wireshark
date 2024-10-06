@@ -1848,31 +1848,23 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Display as:</source>
-        <translation type="unfinished"></translation>
+        <translation>として表示:</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;p&gt;Values will show the raw values for fields.&lt;p&gt;Strings will show human-readable strings instead of raw values for fields. Only applicable to custom columns with fields that have value strings and custom columns which can be resolved to strings.&lt;p&gt;Details will show the values using the same format as in Packet Details. Only applicable to custom columns.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Resolve Names:</source>
-        <translation type="vanished">名前解決:</translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;p&gt;Show human-readable strings instead of raw values for fields. Only applicable to custom columns with fields that have value strings.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;p&gt;raw(無加工)のフィールド値の代わりに人が読むことのできる文字列を表示します。有効な文字列を含むフィールドを持つカスタム列へ適用する場合にのみ適用できます。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;p&gt;値はフィールドの生の値を表示します。&lt;p&gt;文字列はフィールドの生の値の代わりに人が読める文字列を表示します。文字列を持つフィールドのカスタム列および文字列に解決できるカスタム列にのみ適用されます。&lt;p&gt; 詳細には、パケット詳細で使用されているのと同じ形式で値が表示されます。カスタム列にのみ適用されます。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Values</source>
-        <translation type="unfinished"></translation>
+        <translation>値</translation>
     </message>
     <message>
         <source>Strings</source>
-        <translation type="unfinished"></translation>
+        <translation>文字列</translation>
     </message>
     <message>
         <source>Details</source>
-        <translation type="unfinished">詳細</translation>
+        <translation>詳細</translation>
     </message>
     <message>
         <source>Missing fields.</source>
@@ -1911,15 +1903,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Display Format</source>
-        <translation type="unfinished"></translation>
+        <translation>表示形式</translation>
     </message>
     <message>
         <source>&lt;html&gt;Values will show the raw values for fields.&lt;p&gt;Strings will show human-readable strings instead of raw values for fields. Only applicable to custom columns with fields that have value strings and custom columns which can be resolved to strings.&lt;p&gt;Details will show the values using the same format as in Packet Details. Only applicable to custom columns.&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Resolved</source>
-        <translation type="vanished">解決済</translation>
+        <translation>&lt;html&gt; 値はフィールドの生の値を表示します。&lt;p&gt; 文字列はフィールドの生の値の代わりに人が読める文字列を表示します。 文字列を持つフィールドのカスタム列および文字列に解決できるカスタム列にのみ適用されます&lt;p&gt; 詳細には、パケット詳細で使用されているのと同じ形式で値が表示されます。カスタム列にのみ適用されます。&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Width</source>
@@ -1928,10 +1916,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Alignment</source>
         <translation>揃え</translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;Show human-readable strings instead of raw values for fields. Only applicable to custom columns with fields that have value strings.&lt;/html&gt;</source>
-        <translation type="vanished">&lt;html&gt;123raw(無加工)のフィールド値の代わりに人が読むことのできる文字列を表示します。有効な文字列を含むフィールドを持つカスタム列へ適用する場合にのみ適用できます。&lt;/html&gt;</translation>
     </message>
     <message>
         <source>New Column</source>
@@ -7587,19 +7571,19 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>&lt;html&gt;Values will show the raw values for fields.&lt;p&gt;Strings will show human-readable strings instead of raw values for fields. Only applicable to custom columns with fields that have value strings and custom columns which can be resolved to strings.&lt;p&gt;Details will show the values using the same format as in Packet Details. Only applicable to custom columns.&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt; 値はフィールドの生の値を表示します。&lt;p&gt; 文字列はフィールドの生の値の代わりに人が読める文字列を表示します。 文字列を持つフィールドのカスタム列および文字列に解決できるカスタム列にのみ適用されます&lt;p&gt; 詳細には、パケット詳細で使用されているのと同じ形式で値が表示されます。カスタム列にのみ適用されます。&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Display as Values</source>
-        <translation type="unfinished"></translation>
+        <translation>値として表示</translation>
     </message>
     <message>
         <source>Display as Strings</source>
-        <translation type="unfinished"></translation>
+        <translation>文字列として表示</translation>
     </message>
     <message>
         <source>Display as packet Details</source>
-        <translation type="unfinished"></translation>
+        <translation>パケット詳細として表示</translation>
     </message>
     <message>
         <source>Column Preferences…</source>
@@ -7608,10 +7592,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Resize Column to Width…</source>
         <translation>内容に合わせて列幅を揃える…</translation>
-    </message>
-    <message>
-        <source>Resolve Names</source>
-        <translation type="vanished">名前を解決</translation>
     </message>
     <message>
         <source>Remove this Column</source>
@@ -8842,15 +8822,15 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Values</source>
-        <translation type="unfinished"></translation>
+        <translation>値</translation>
     </message>
     <message>
         <source>Strings</source>
-        <translation type="unfinished"></translation>
+        <translation>文字列</translation>
     </message>
     <message>
         <source>Details</source>
-        <translation type="unfinished">詳細</translation>
+        <translation>詳細</translation>
     </message>
     <message>
         <source>UE Id</source>

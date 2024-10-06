@@ -7547,10 +7547,6 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
         <translation>Redimensionar columna a anchura…</translation>
     </message>
     <message>
-        <source>Resolve Names</source>
-        <translation type="vanished">Resolver nombres</translation>
-    </message>
-    <message>
         <source>Remove this Column</source>
         <translation>Borrar esta columna</translation>
     </message>

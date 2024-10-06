@@ -1863,14 +1863,6 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Resolve Names:</source>
-        <translation type="vanished">Namen auflösen:</translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;p&gt;Show human-readable strings instead of raw values for fields. Only applicable to custom columns with fields that have value strings.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;p&gt;In Feldern menschenleserliche Zeichenketten anstatt Rohwerte anzeigen. Nur auf benutzerdefinierte Spalten mit Zeichenketten anwendbar.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
         <source>Values</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1926,20 +1918,12 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Resolved</source>
-        <translation type="vanished">Aufgelöst</translation>
-    </message>
-    <message>
         <source>Width</source>
         <translation>Breite</translation>
     </message>
     <message>
         <source>Alignment</source>
         <translation>Ausrichtung</translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;Show human-readable strings instead of raw values for fields. Only applicable to custom columns with fields that have value strings.&lt;/html&gt;</source>
-        <translation type="vanished">&lt;html&gt;In Feldern menschenleserliche Zeichenketten anstatt Rohwerte anzeigen. Nur auf benutzerdefinierte Spalten mit Zeichenketten anwendbar.&lt;/html&gt;</translation>
     </message>
     <message>
         <source>New Column</source>
@@ -7629,10 +7613,6 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     <message>
         <source>Resize Column to Width…</source>
         <translation>Spaltenbreite an Inhalt anpassen…</translation>
-    </message>
-    <message>
-        <source>Resolve Names</source>
-        <translation type="vanished">Namen auflösen</translation>
     </message>
     <message>
         <source>Remove this Column</source>

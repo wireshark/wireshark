@@ -1863,31 +1863,23 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Display as:</source>
-        <translation type="unfinished"></translation>
+        <translation>Отображать как:</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;p&gt;Values will show the raw values for fields.&lt;p&gt;Strings will show human-readable strings instead of raw values for fields. Only applicable to custom columns with fields that have value strings and custom columns which can be resolved to strings.&lt;p&gt;Details will show the values using the same format as in Packet Details. Only applicable to custom columns.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Resolve Names:</source>
-        <translation type="vanished">Разрешать имена:</translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;p&gt;Show human-readable strings instead of raw values for fields. Only applicable to custom columns with fields that have value strings.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;p&gt;Отображать человекочитаемые строки вместо необработанных значений полей. Может применяться только к дополнительным столбцам с полями, содержащими строки значений.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;p&gt;Значения будут отображать необработанные значения для полей.&lt;p&gt;В строках будут отображаться человекочитаемые строки вместо необработанных значений для полей. Применимо только к пользовательским столбцам с полями, содержащими строки значений, и пользовательским столбцам, которые могут быть преобразованы в строки.&lt;p&gt;В разделе &quot;Подробности&quot; значения будут отображаться в том же формате, что и в разделе &quot;Подробная информация о пакете&quot;. Применимо только к пользовательским столбцам.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Values</source>
-        <translation type="unfinished"></translation>
+        <translation>Значения</translation>
     </message>
     <message>
         <source>Strings</source>
-        <translation type="unfinished"></translation>
+        <translation>Строки</translation>
     </message>
     <message>
         <source>Details</source>
-        <translation type="unfinished">Подробности</translation>
+        <translation>Подробности</translation>
     </message>
     <message>
         <source>Missing fields.</source>
@@ -1926,15 +1918,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Display Format</source>
-        <translation type="unfinished"></translation>
+        <translation>Формат отображения</translation>
     </message>
     <message>
         <source>&lt;html&gt;Values will show the raw values for fields.&lt;p&gt;Strings will show human-readable strings instead of raw values for fields. Only applicable to custom columns with fields that have value strings and custom columns which can be resolved to strings.&lt;p&gt;Details will show the values using the same format as in Packet Details. Only applicable to custom columns.&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Resolved</source>
-        <translation type="vanished">Разрешено</translation>
+        <translation>&lt;html&gt;Значения будут отображать необработанные значения для полей.&lt;p&gt;В строках будут отображаться человекочитаемые строки вместо необработанных значений для полей. Применимо только к пользовательским столбцам с полями, содержащими строки значений, и пользовательским столбцам, которые могут быть преобразованы в строки.&lt;p&gt;В разделе &quot;Подробности&quot; значения будут отображаться в том же формате, что и в разделе &quot;Подробная информация о пакете&quot;. Применимо только к пользовательским столбцам.&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Width</source>
@@ -1943,10 +1931,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Alignment</source>
         <translation>Выравнивание</translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;Show human-readable strings instead of raw values for fields. Only applicable to custom columns with fields that have value strings.&lt;/html&gt;</source>
-        <translation type="vanished">&lt;html&gt;Показывать человекочитаемые строки вместо необработанных значений полей. Может применяться только к дополнительным столбцам с полями, содержащими строки значений.&lt;/html&gt;</translation>
     </message>
     <message>
         <source>New Column</source>
@@ -7632,19 +7616,19 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>&lt;html&gt;Values will show the raw values for fields.&lt;p&gt;Strings will show human-readable strings instead of raw values for fields. Only applicable to custom columns with fields that have value strings and custom columns which can be resolved to strings.&lt;p&gt;Details will show the values using the same format as in Packet Details. Only applicable to custom columns.&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;Значения будут отображать необработанные значения для полей.&lt;p&gt;В строках будут отображаться человекочитаемые строки вместо необработанных значений для полей. Применимо только к пользовательским столбцам с полями, содержащими строки значений, и пользовательским столбцам, которые могут быть преобразованы в строки.&lt;p&gt;В разделе &quot;Подробности&quot; значения будут отображаться в том же формате, что и в разделе &quot;Подробная информация о пакете&quot;. Применимо только к пользовательским столбцам.&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Display as Values</source>
-        <translation type="unfinished"></translation>
+        <translation>Отображать как значения</translation>
     </message>
     <message>
         <source>Display as Strings</source>
-        <translation type="unfinished"></translation>
+        <translation>Отображать как строки</translation>
     </message>
     <message>
         <source>Display as packet Details</source>
-        <translation type="unfinished"></translation>
+        <translation>Отображать как описание пакета</translation>
     </message>
     <message>
         <source>Column Preferences…</source>
@@ -7653,10 +7637,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Resize Column to Width…</source>
         <translation>Изменить размер столбцов по ширине…</translation>
-    </message>
-    <message>
-        <source>Resolve Names</source>
-        <translation type="vanished">Выполнить разрешение имён</translation>
     </message>
     <message>
         <source>Remove this Column</source>
@@ -8901,15 +8881,15 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Values</source>
-        <translation type="unfinished"></translation>
+        <translation>Значения</translation>
     </message>
     <message>
         <source>Strings</source>
-        <translation type="unfinished"></translation>
+        <translation>Строки</translation>
     </message>
     <message>
         <source>Details</source>
-        <translation type="unfinished">Подробности</translation>
+        <translation>Подробности</translation>
     </message>
     <message>
         <source>UE Id</source>

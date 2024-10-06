@@ -1856,31 +1856,23 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>Display as:</source>
-        <translation type="unfinished"></translation>
+        <translation>Visualizza come:</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;p&gt;Values will show the raw values for fields.&lt;p&gt;Strings will show human-readable strings instead of raw values for fields. Only applicable to custom columns with fields that have value strings and custom columns which can be resolved to strings.&lt;p&gt;Details will show the values using the same format as in Packet Details. Only applicable to custom columns.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Resolve Names:</source>
-        <translation type="vanished">Risolvi nomi:</translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;p&gt;Show human-readable strings instead of raw values for fields. Only applicable to custom columns with fields that have value strings.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;p&gt;Mostra stringhe comprensibili invece che i valori grezzi dei campi. Applicabile solo alle colonne personalizzate con campi che hanno stringhe con valori.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;p&gt;I valori mostreranno i valori grezzi per i campi. &lt;p&gt;Le stringhe mostreranno stringhe leggibili dall&apos;uomo anziché valori grezzi per i campi. Applicabile solo alle colonne personalizzate con campi che hanno stringhe di valore e colonne personalizzate che possono essere risolte in stringhe. &lt;p&gt;I dettagli mostreranno i valori utilizzando lo stesso formato di Dettagli pacchetto. Applicabile solo alle colonne personalizzate.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Values</source>
-        <translation type="unfinished"></translation>
+        <translation>Valori</translation>
     </message>
     <message>
         <source>Strings</source>
-        <translation type="unfinished"></translation>
+        <translation>Stringhe</translation>
     </message>
     <message>
         <source>Details</source>
-        <translation type="unfinished">Dettagli</translation>
+        <translation>Dettagli</translation>
     </message>
     <message>
         <source>Missing fields.</source>
@@ -1919,15 +1911,11 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>Display Format</source>
-        <translation type="unfinished"></translation>
+        <translation>Formato di visualizzazione</translation>
     </message>
     <message>
         <source>&lt;html&gt;Values will show the raw values for fields.&lt;p&gt;Strings will show human-readable strings instead of raw values for fields. Only applicable to custom columns with fields that have value strings and custom columns which can be resolved to strings.&lt;p&gt;Details will show the values using the same format as in Packet Details. Only applicable to custom columns.&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Resolved</source>
-        <translation type="vanished">Risolto</translation>
+        <translation>&lt;html&gt;I valori mostreranno i valori grezzi per i campi. &lt;p&gt;Le stringhe mostreranno stringhe leggibili dall&apos;uomo anziché valori grezzi per i campi. Applicabile solo alle colonne personalizzate con campi che hanno stringhe di valore e colonne personalizzate che possono essere risolte in stringhe. &lt;p&gt;I dettagli mostreranno i valori utilizzando lo stesso formato di Dettagli pacchetto. Applicabile solo alle colonne personalizzate.&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Width</source>
@@ -1936,10 +1924,6 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     <message>
         <source>Alignment</source>
         <translation>Allineamento</translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;Show human-readable strings instead of raw values for fields. Only applicable to custom columns with fields that have value strings.&lt;/html&gt;</source>
-        <translation type="vanished">&lt;html&gt;Mostra stringhe comprensibili invece che i valori grezzi dei campi. Applicabile solo alle colonne personalizzate con campi che hanno stringhe con valori.&lt;/html&gt;</translation>
     </message>
     <message>
         <source>New Column</source>
@@ -7608,19 +7592,19 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>&lt;html&gt;Values will show the raw values for fields.&lt;p&gt;Strings will show human-readable strings instead of raw values for fields. Only applicable to custom columns with fields that have value strings and custom columns which can be resolved to strings.&lt;p&gt;Details will show the values using the same format as in Packet Details. Only applicable to custom columns.&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;I valori mostreranno i valori grezzi per i campi.&lt;p&gt;Le stringhe mostreranno stringhe leggibili dall&apos;uomo anziché valori grezzi per i campi. Applicabile solo alle colonne personalizzate con campi che hanno stringhe di valore e colonne personalizzate che possono essere risolte in stringhe.&lt;p&gt;I dettagli mostreranno i valori usando lo stesso formato di Dettagli pacchetto. Applicabile solo alle colonne personalizzate.&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Display as Values</source>
-        <translation type="unfinished"></translation>
+        <translation>Visualizza come valori</translation>
     </message>
     <message>
         <source>Display as Strings</source>
-        <translation type="unfinished"></translation>
+        <translation>Visualizza come stringhe</translation>
     </message>
     <message>
         <source>Display as packet Details</source>
-        <translation type="unfinished"></translation>
+        <translation>Visualizza come dettagli del pacchetto</translation>
     </message>
     <message>
         <source>Column Preferences…</source>
@@ -7629,10 +7613,6 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     <message>
         <source>Resize Column to Width…</source>
         <translation>Ridimensiona colonna alla larghezza...</translation>
-    </message>
-    <message>
-        <source>Resolve Names</source>
-        <translation type="vanished">Risolvi nomi</translation>
     </message>
     <message>
         <source>Remove this Column</source>
@@ -8870,15 +8850,15 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>Values</source>
-        <translation type="unfinished"></translation>
+        <translation>Valori</translation>
     </message>
     <message>
         <source>Strings</source>
-        <translation type="unfinished"></translation>
+        <translation>Stringhe</translation>
     </message>
     <message>
         <source>Details</source>
-        <translation type="unfinished">Dettagli</translation>
+        <translation>Dettagli</translation>
     </message>
     <message>
         <source>UE Id</source>
