@@ -4557,6 +4557,7 @@ print_columns(capture_file *cf, const epan_dissect_t *edt)
         const char* col_text = get_column_text(&cf->cinfo, i);
         switch (col_item->col_fmt) {
             case COL_NUMBER:
+            case COL_NUMBER_DIS:
                 column_len = col_len = strlen(col_text);
                 if (column_len < 5)
                     column_len = 5;

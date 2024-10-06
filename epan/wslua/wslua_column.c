@@ -47,6 +47,7 @@ struct col_names_t {
 // Duplicated below in Columns__newindex.
 static const struct col_names_t colnames[] = {
     {"number",COL_NUMBER},
+    {"number_displayed",COL_NUMBER_DIS},
     {"abs_time",COL_ABS_TIME},
     {"utc_time",COL_UTC_TIME},
     {"cls_time",COL_CLS_TIME},

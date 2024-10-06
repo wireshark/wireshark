@@ -68,19 +68,20 @@ col_format_to_string(const int fmt) {
     "%nd",                                      /* 30) COL_DEF_NET_DST */
     "%ns",                                      /* 31) COL_DEF_NET_SRC */
     "%m",                                       /* 32) COL_NUMBER */
-    "%L",                                       /* 33) COL_PACKET_LENGTH */
-    "%p",                                       /* 34) COL_PROTOCOL */
-    "%Rt",                                      /* 35) COL_REL_TIME */
-    "%s",                                       /* 36) COL_DEF_SRC */
-    "%S",                                       /* 37) COL_DEF_SRC_PORT */
-    "%rs",                                      /* 38) COL_RES_SRC */
-    "%us",                                      /* 39) COL_UNRES_SRC */
-    "%rS",                                      /* 40) COL_RES_SRC_PORT */
-    "%uS",                                      /* 41) COL_UNRES_SRC_PORT */
-    "%Yut",                                     /* 42) COL_UTC_YMD_TIME */
-    "%YDOYut",                                  /* 43) COL_UTC_YDOY_TIME */
-    "%Aut",                                     /* 44) COL_UTC_TIME */
-    "%t"                                        /* 45) COL_CLS_TIME */
+    "%md",                                      /* 33) COL_NUMBER_DIS */
+    "%L",                                       /* 34) COL_PACKET_LENGTH */
+    "%p",                                       /* 35) COL_PROTOCOL */
+    "%Rt",                                      /* 36) COL_REL_TIME */
+    "%s",                                       /* 37) COL_DEF_SRC */
+    "%S",                                       /* 38) COL_DEF_SRC_PORT */
+    "%rs",                                      /* 39) COL_RES_SRC */
+    "%us",                                      /* 40) COL_UNRES_SRC */
+    "%rS",                                      /* 41) COL_RES_SRC_PORT */
+    "%uS",                                      /* 42) COL_UNRES_SRC_PORT */
+    "%Yut",                                     /* 43) COL_UTC_YMD_TIME */
+    "%YDOYut",                                  /* 44) COL_UTC_YDOY_TIME */
+    "%Aut",                                     /* 45) COL_UTC_TIME */
+    "%t",                                       /* 46) COL_CLS_TIME */
   };
 
  /* Note the formats in migrated_columns[] below have been used in deprecated
@@ -137,6 +138,7 @@ col_format_desc(const int fmt_num) {
     { COL_DEF_NET_DST, "Network dest addr" },
     { COL_DEF_NET_SRC, "Network src addr" },
     { COL_NUMBER, "Number" },
+    { COL_NUMBER_DIS, "Number displayed" },
     { COL_PACKET_LENGTH, "Packet length (bytes)" },
     { COL_PROTOCOL, "Protocol" },
     { COL_REL_TIME, "Relative time" },
@@ -172,14 +174,15 @@ col_format_abbrev(const int fmt_num) {
     { COL_ABS_TIME, COLUMN_FIELD_FILTER"abs_time" },
 #if 0
     /* Don't have abbreviations or register fields for these columns, because
-     * they don't work. Cumulative Bytes and Delta Time Displayed depend on
-     * whether the current field and previous fields are displayed, and so
+     * they don't work. Cumulative Bytes, Delta Time Displayed and Number Displayed
+     * depend on whether the current field and previous fields are displayed, and so
      * aren't idempotent. We might want to do custom columns in the future,
      * though the implementation is harder.
      */
     { COL_CUMULATIVE_BYTES, COLUMN_FIELD_FILTER"cumulative_bytes" },
     { COL_CUSTOM, COLUMN_FIELD_FILTER"custom" },
     { COL_DELTA_TIME_DIS, COLUMN_FIELD_FILTER"delta_time_dis" },
+    { COL_NUMBER_DIS, COLUMN_FIELD_FILTER"number_displayed" },
 #endif
     { COL_DELTA_TIME, COLUMN_FIELD_FILTER"delta_time" },
     { COL_RES_DST, COLUMN_FIELD_FILTER"res_dst" },
@@ -709,6 +712,7 @@ get_column_longest_string(const int format)
 {
   switch (format) {
     case COL_NUMBER:
+    case COL_NUMBER_DIS:
       return "0000000";
     case COL_CLS_TIME:
       return get_timestamp_column_longest_string(timestamp_get_type(), timestamp_get_precision());

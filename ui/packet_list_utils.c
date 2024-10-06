@@ -31,6 +31,7 @@ right_justify_column (int col, capture_file *cf)
     switch (cf->cinfo.columns[col].col_fmt) {
 
         case COL_NUMBER:
+        case COL_NUMBER_DIS:
         case COL_PACKET_LENGTH:
         case COL_CUMULATIVE_BYTES:
         case COL_DSCP_VALUE:

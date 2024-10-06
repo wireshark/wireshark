@@ -2571,7 +2571,7 @@ print_packet(capture_file *cf, frame_data *fdata, wtap_rec *rec, Buffer *buf,
             }
 
             /* Right-justify the packet number column. */
-            if (col_item->col_fmt == COL_NUMBER)
+            if (col_item->col_fmt == COL_NUMBER || col_item->col_fmt == COL_NUMBER_DIS)
                 snprintf(cp, column_len+1, "%*s", args->col_widths[i], col_text);
             else
                 snprintf(cp, column_len+1, "%-*s", args->col_widths[i], col_text);
@@ -2758,7 +2758,7 @@ cf_print_packets(capture_file *cf, print_args_t *print_args,
             }
 
             /* Right-justify the packet number column. */
-/*          if (cf->cinfo.col_fmt[i] == COL_NUMBER)
+/*          if (cf->cinfo.col_fmt[i] == COL_NUMBER || cf->cinfo.col_fmt[i] == COL_NUMBER_DIS)
                 snprintf(cp, column_len+1, "%*s", callback_args.col_widths[visible_col_count], cf->cinfo.columns[i].col_title);
             else*/
             snprintf(cp, column_len+1, "%-*s", callback_args.col_widths[visible_col_count], cf->cinfo.columns[i].col_title);

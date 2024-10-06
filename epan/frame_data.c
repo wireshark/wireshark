@@ -99,6 +99,9 @@ frame_data_compare(const struct epan_session *epan, const frame_data *fdata1, co
   case COL_NUMBER:
     return COMPARE_FRAME_NUM();
 
+  case COL_NUMBER_DIS:
+    return COMPARE_NUM(dis_num);
+
   case COL_CLS_TIME:
     switch (timestamp_get_type()) {
     case TS_ABSOLUTE:

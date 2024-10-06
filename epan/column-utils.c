@@ -1813,6 +1813,7 @@ col_based_on_frame_data(column_info *cinfo, const int col)
 
   switch (cinfo->columns[col].col_fmt) {
   case COL_NUMBER:
+  case COL_NUMBER_DIS:
   case COL_CLS_TIME:
   case COL_ABS_TIME:
   case COL_ABS_YMD_TIME:
@@ -1840,6 +1841,11 @@ col_fill_in_frame_data(const frame_data *fd, column_info *cinfo, const int col, 
   switch (col_item->col_fmt) {
   case COL_NUMBER:
     uint32_to_str_buf(fd->num, col_item->col_buf, COL_MAX_LEN);
+    col_item->col_data = col_item->col_buf;
+    break;
+
+  case COL_NUMBER_DIS:
+    uint32_to_str_buf(fd->dis_num, col_item->col_buf, COL_MAX_LEN);
     col_item->col_data = col_item->col_buf;
     break;
 
@@ -1899,6 +1905,7 @@ col_fill_in_frame_data(const frame_data *fd, column_info *cinfo, const int col, 
     break;
 
   case COL_CUMULATIVE_BYTES:
+  case COL_NUMBER_DIS:
     break;
 
   default:
