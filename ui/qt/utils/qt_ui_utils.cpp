@@ -246,7 +246,14 @@ void desktop_show_in_folder(const QString file_path)
     // If that failed, perhaps we are sandboxed.  Try using Portal Services.
     // https://flatpak.github.io/xdg-desktop-portal/docs/doc-org.freedesktop.portal.OpenURI.html
     if (!success) {
-        const int fd = ws_open(QFile::encodeName(file_path), O_CLOEXEC | O_PATH, 0000);
+        const int flags =
+#ifdef O_PATH
+            O_CLOEXEC | O_PATH; /* Get an fd, but refrain from opening the file for I/O. */
+#else
+            O_CLOEXEC | O_RDONLY;
+#endif
+
+        const int fd = ws_open(QFile::encodeName(file_path), flags, 0000);
         if (fd != -1) {
             QDBusUnixFileDescriptor descriptor;
             descriptor.giveFileDescriptor(fd);
