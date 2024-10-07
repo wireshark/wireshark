@@ -1078,7 +1078,12 @@ static int hf_pfcp_bbf_up_function_features_o7_b0_pppoe;
 static int hf_pfcp_bbf_logical_port_id;
 static int hf_pfcp_bbf_logical_port_id_str;
 
-static int hf_pfcp_bbf_outer_hdr_desc;
+
+static int hf_pfcp_bbf_outer_hdr_creation_desc_spare;
+static int hf_pfcp_bbf_outer_hdr_creation_desc_o7_b4_ppp;
+static int hf_pfcp_bbf_outer_hdr_creation_desc_o7_b3_l2tp;
+static int hf_pfcp_bbf_outer_hdr_creation_desc_o7_b2_traffic_endpoint;
+static int hf_pfcp_bbf_outer_hdr_creation_desc_o7_b1_crp_nsh;
 static int hf_pfcp_bbf_outer_hdr_creation_tunnel_id;
 static int hf_pfcp_bbf_outer_hdr_creation_session_id;
 
@@ -11277,35 +11282,36 @@ dissect_pfcp_enterprise_bbf_logical_port(tvbuff_t *tvb, packet_info *pinfo, prot
 }
 
 /*
- * TR-459: 6.6.3 BBF Outer Header Creation
+ * TR-459i2: 6.9.3 BBF Outer Header Creation
  */
-
-static const value_string pfcp_bbf_outer_hdr_desc_vals[] = {
-
-    { 0x000100, "CPR-NSH " },
-    { 0x000200, "Traffic-Endpoint " },
-    { 0x000300, "L2TP " },
-    { 0x000400, "PPP " },
-    { 0, NULL }
-};
-
 static int
 dissect_pfcp_enterprise_bbf_outer_header_creation(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
     int offset = 0;
-    uint32_t value;
+    uint64_t value;
 
-    /* Octet 7  Outer Header Creation Description */
-    proto_tree_add_item_ret_uint(tree, hf_pfcp_bbf_outer_hdr_desc, tvb, offset, 2, ENC_BIG_ENDIAN, &value);
+    static int * const outer_hdr_desc[] = {
+        &hf_pfcp_bbf_outer_hdr_creation_desc_o7_b4_ppp,
+        &hf_pfcp_bbf_outer_hdr_creation_desc_o7_b3_l2tp,
+        &hf_pfcp_bbf_outer_hdr_creation_desc_o7_b2_traffic_endpoint,
+        &hf_pfcp_bbf_outer_hdr_creation_desc_o7_b1_crp_nsh,
+        &hf_pfcp_bbf_outer_hdr_creation_desc_spare,
+        NULL
+    };
+
+    /* Octet 7-8  Outer Header Creation Description */
+    proto_tree_add_bitmask_list_ret_uint64(tree, tvb, offset, 2, outer_hdr_desc, ENC_BIG_ENDIAN, &value);
     offset += 2;
 
-    /* Octet 9 to 10  Tunnel ID */
-    proto_tree_add_item(tree, hf_pfcp_bbf_outer_hdr_creation_tunnel_id, tvb, offset, 2, ENC_BIG_ENDIAN);
-    offset += 2;
+    if ((value & 0x0400) != 0) {
+        /* Octet 9 to 10  Tunnel ID */
+        proto_tree_add_item(tree, hf_pfcp_bbf_outer_hdr_creation_tunnel_id, tvb, offset, 2, ENC_BIG_ENDIAN);
+        offset += 2;
 
-    /* Octet 10 to 11  Session ID */
-    proto_tree_add_item(tree, hf_pfcp_bbf_outer_hdr_creation_session_id, tvb, offset, 2, ENC_BIG_ENDIAN);
-    offset += 2;
+        /* Octet 10 to 11  Session ID */
+        proto_tree_add_item(tree, hf_pfcp_bbf_outer_hdr_creation_session_id, tvb, offset, 2, ENC_BIG_ENDIAN);
+        offset += 2;
+    }
 
     return offset;
 }
@@ -17336,9 +17342,29 @@ proto_register_pfcp(void)
             NULL, HFILL }
         },
 
-        { &hf_pfcp_bbf_outer_hdr_desc,
-        { "BBF Outer Header Creation Description", "pfcp.bbf.outer_hdr_desc",
-            FT_UINT16, BASE_DEC, VALS(pfcp_bbf_outer_hdr_desc_vals), 0x0,
+        { &hf_pfcp_bbf_outer_hdr_creation_desc_spare,
+        { "Spare", "pfcp.bbf.outer_hdr_creation.desc.spare",
+            FT_BOOLEAN, 16, NULL, 0xf0ff,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_bbf_outer_hdr_creation_desc_o7_b4_ppp,
+        { "PPP", "pfcp.bbf.outer_hdr_creation.desc.ppp",
+            FT_BOOLEAN, 16, NULL, 0x0800,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_bbf_outer_hdr_creation_desc_o7_b3_l2tp,
+        { "L2TP", "pfcp.bbf.outer_hdr_creation.desc.l2tp",
+            FT_BOOLEAN, 16, NULL, 0x0400,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_bbf_outer_hdr_creation_desc_o7_b2_traffic_endpoint,
+        { "Traffic-Endpoint", "pfcp.bbf.outer_hdr_creation.desc.trfep",
+            FT_BOOLEAN, 16, NULL, 0x0200,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_bbf_outer_hdr_creation_desc_o7_b1_crp_nsh,
+        { "CPR-NSH", "pfcp.bbf.outer_hdr_creation.desc.cpr_nsh",
+            FT_BOOLEAN, 16, NULL, 0x0100,
             NULL, HFILL }
         },
         { &hf_pfcp_bbf_outer_hdr_creation_tunnel_id,
