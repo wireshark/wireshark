@@ -1001,9 +1001,9 @@ Currently only the IPv4, ICMP and ICMPv6 dissector use this preference.
 Selecting _Ignore duplicate frames_ causes a duplicate frame to appear in the packet list, but flagged as ignored, hence not dissected.
 The determination of a duplicate frame is made based on the SHA256 hash of the bytes in the frame.
 
-The preference _Deinterlacing conversations key_ gives you options for deinterlacing the conversations. As opposed to _hardware duplicates_ which show
-absolutely similar frames, _capture duplicates_ are the consequence of the capture method (capture on multiple interfaces for example) and show similar payloads
-with one or more different fields.
+The preference _Deinterlacing conversations key_ gives you options for deinterlacing the conversations, for the Ethernet encapsulation only.
+As opposed to _hardware duplicates_ which show absolutely similar frames, _capture duplicates_ are the consequence of the capture method
+(capture on multiple interfaces for example) and show similar payloads with one or more different fields.
 While _NONE_ keeps the historical behaviour, the other options are built on three keys with the following meanings:
  _V_ (VLAN), _M_ (MAC Address), _I_ (Interface).
 The presence of packets which seem to be duplicates because they have the same payload but aren't filtered by the other preference _Ignore duplicate frames_,

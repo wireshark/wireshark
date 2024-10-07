@@ -1061,7 +1061,10 @@ conversation_new_strat(packet_info *pinfo, const conversation_type ctype, const 
     conversation_t *conversation = NULL;
     bool is_ordinary_conv = true;
 
-    if(prefs.conversation_deinterlacing_key>0) {
+    /* deinterlacing is only supported for the Ethernet wtap for now */
+    if( (pinfo->pseudo_header != NULL)
+        && (pinfo->rec->rec_header.packet_header.pkt_encap == WTAP_ENCAP_ETHERNET)
+        && (prefs.conversation_deinterlacing_key>0)) {
         conversation_t *underlying_conv = find_conversation_deinterlacer_pinfo(pinfo);
         if(underlying_conv) {
             is_ordinary_conv = false;
@@ -2251,7 +2254,10 @@ find_conversation_strat(const packet_info *pinfo, const conversation_type ctype,
 {
   conversation_t *conv=NULL;
 
-  if(prefs.conversation_deinterlacing_key>0) {
+  /* deinterlacing is only supported for the Ethernet wtap for now */
+  if( (pinfo->pseudo_header != NULL)
+      && (pinfo->rec->rec_header.packet_header.pkt_encap == WTAP_ENCAP_ETHERNET)
+      && (prefs.conversation_deinterlacing_key>0)) {
     conversation_t *underlying_conv = find_conversation_deinterlacer_pinfo(pinfo);
     if(underlying_conv) {
         conv = find_conversation_deinterlaced(pinfo->num, &pinfo->src, &pinfo->dst, ctype, pinfo->srcport, pinfo->destport, underlying_conv->conv_index, options);
