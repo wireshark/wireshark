@@ -41,6 +41,9 @@ The following bugs have been fixed:
 //* cveidlink:2014-2486[]
 //* Wireshark grabs your ID at 3 am, goes to Waffle House, and insults people.
 
+* html2text.py doesn't handle the `<sup>` tag. wsbuglink:20020[].
+* Fuzz job assertion: randpkt-2024-10-05-7200.pcap. wsbuglink:20110[].
+
 === New and Updated Features
 
 There are no new or updated features in this release.
@@ -57,18 +60,28 @@ There are no new protocols in this release.
 === Updated Protocol Support
 
 // Add one protocol per line between the -- delimiters.
-// ag -A1 '(define PSNAME|proto_register_protocol[^_])' $(git diff --name-only v4.2.7.. | ag packet- | sort -u)
+// ag -A1 '(define PSNAME|proto_register_protocol[^_])' $(git diff --name-only v4.2.8.. | ag packet- | sort -u)
 [commaize]
 --
+DMP
+GTP
+HTTP
+LwM2M-TLV
+SSyncP
+TCP
+Thrift
 --
 
 === New and Updated Capture File Support
 
-There is no new or updated capture file support in this release.
+// There is no new or updated capture file support in this release.
 // Add one file type per line between the -- delimiters.
-// [commaize]
-// --
-// --
+[commaize]
+--
+BLF
+ERF
+pcap
+--
 
 === Updated File Format Decoding Support
 
