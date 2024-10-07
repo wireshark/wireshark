@@ -4209,6 +4209,7 @@ proto_reg_handoff_f5ethtrailer(void)
  *
  * https://my.f5.com/manage/s/article/K9476
  * https://my.f5.com/manage/s/article/K86001294
+ * https://my.f5.com/manage/s/article/K4309
  */
 
 static const string_string f5info_platform_strings[] = {
@@ -4217,6 +4218,13 @@ static const string_string f5info_platform_strings[] = {
     {"C129", "F5 r5000 Series (r5600, r5800, r5900)"},
     {"C130", "F5 r2000 Series (r2600, r2800)"},
     {"C131", "F5 r4000 Series (r4600, r4800)"},
+    {"C136", "F5 r5920-DF"},
+    {"C137", "F5 r10920-DF"},
+    {"C138", "F5 r12000 Series (r12600-DS, r12800-DS, r12900-DS)"},
+
+    /* VELOS */
+    {"F101", "VELOS CX410 Chassis"},
+    {"R100", "VELOS CX1610 Chassis"},
 
     /* iSeries */
     {"C115", "BIG-IP i4000 Series (i4600, i4800)"},
@@ -4274,13 +4282,14 @@ static const string_string f5info_platform_strings[] = {
 };
     /* It currently looks like these do not apply. Kept for completeness only */
 #if 0
+    {"A118", "VELOS BX110 Blade"},
+    {"A119", "VELOS BX520 Blade"},
     {"C21",  "FirePass 1200"},
     {"D46",  "FirePass 4100"},
     {"D63",  "BIG-IP 6400-NEBS"},
     {"D101", "FirePass 4300"},
     {"D114", "VIPRION C2200 Chassis"},
     {"F100", "VIPRION C2400 Chassis"},
-    {"F101", "VELOS CX410 Chassis"},
     {"J100", "VIPRION C4400 Chassis"},
     {"J101", "VIPRION C4400N Chassis"},
     {"J102", "VIPRION C4480 Chassis"},
