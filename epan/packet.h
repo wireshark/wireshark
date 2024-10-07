@@ -871,6 +871,11 @@ WS_DLL_PUBLIC void set_data_source_media_type(struct data_source *src, data_sour
 WS_DLL_PUBLIC void remove_last_data_source(packet_info *pinfo);
 
 /*
+ * Return the data source name.
+ */
+WS_DLL_PUBLIC const char *get_data_source_name(const struct data_source *src);
+
+/*
  * Return the data source description.
  */
 WS_DLL_PUBLIC char *get_data_source_description(const struct data_source *src);

@@ -483,6 +483,15 @@ get_data_source_description(const struct data_source *src)
 				plurality(length, "", "s"));
 }
 
+const char *
+get_data_source_name(const struct data_source *src)
+{
+	if (src) {
+		return src->name;
+	}
+	return NULL;
+}
+
 tvbuff_t *
 get_data_source_tvb(const struct data_source *src)
 {
