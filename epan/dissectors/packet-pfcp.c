@@ -41,6 +41,7 @@ void proto_register_pfcp(void);
 void proto_reg_handoff_pfcp(void);
 
 static dissector_handle_t pfcp_handle;
+static dissector_handle_t gtpv2_uli_handle;
 
 #define UDP_PORT_PFCP  8805 /* IANA-registered */
 
@@ -1307,6 +1308,18 @@ static int hf_pfcp_nokia_access_line_params_act_inter_delay_down;
 static int hf_pfcp_nokia_access_line_params_access_loop_encap;
 static int hf_pfcp_nokia_acct_session_id;
 static int hf_pfcp_nokia_fsg_template_name;
+static int hf_pfcp_nokia_up_profile;
+static int hf_pfcp_nokia_default_qos_id;
+static int hf_pfcp_nokia_serving_node_id_flags;
+static int hf_pfcp_nokia_serving_node_id_flg_b2_uuid;
+static int hf_pfcp_nokia_serving_node_id_flg_b1_v6;
+static int hf_pfcp_nokia_serving_node_id_flg_b0_v4;
+static int hf_pfcp_nokia_serving_node_id_ipv4;
+static int hf_pfcp_nokia_serving_node_id_ipv6;
+static int hf_pfcp_nokia_serving_node_id_uuid;
+static int hf_pfcp_nokia_pcc_rule_name;
+static int hf_pfcp_nokia_calltrace_profile;
+static int hf_pfcp_nokia_custom_charging_group;
 
 
 static int ett_pfcp;
@@ -1347,6 +1360,7 @@ static int ett_pfcp_nokia_pfcpsmreq_flags;
 static int ett_pfcp_nokia_pfcphb_flags;
 static int ett_pfcp_nokia_l2tp_tunnel_params_flags;
 static int ett_pfcp_nokia_access_line_params_flags;
+static int ett_pfcp_nokia_serving_node_id_flags;
 
 static expert_field ei_pfcp_ie_reserved;
 static expert_field ei_pfcp_ie_data_not_decoded;
@@ -12900,6 +12914,96 @@ static int dissect_pfcp_nokia_fsg_template(tvbuff_t *tvb, packet_info *pinfo, pr
     return dissect_pfcp_string_ie(tvb, pinfo, tree, hf_pfcp_nokia_fsg_template_name);
 }
 
+static int dissect_pfcp_nokia_up_profiles(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+{
+    return dissect_pfcp_string_ie(tvb, pinfo, tree, hf_pfcp_nokia_up_profile);
+}
+
+static int dissect_pfcp_nokia_uli(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+{
+    return call_dissector(gtpv2_uli_handle, tvb, pinfo, tree);
+}
+
+static int dissect_pfcp_nokia_default_qos_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+{
+    uint32_t id;
+
+    proto_tree_add_item_ret_uint(tree, hf_pfcp_nokia_default_qos_id, tvb, 0, 1, ENC_BIG_ENDIAN, &id);
+    proto_item_append_text(proto_tree_get_parent(tree), " : %u", id);
+
+    return 1;
+}
+
+static int dissect_pfcp_nokia_serving_node_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+{
+    int offset = 0;
+    uint64_t serving_node_id_flags_val;
+    bool firstField = true;
+
+    static int * const pfcp_serving_node_id_flags[] = {
+        &hf_pfcp_spare_b7_b3,
+        &hf_pfcp_nokia_serving_node_id_flg_b2_uuid,
+        &hf_pfcp_nokia_serving_node_id_flg_b1_v6,
+        &hf_pfcp_nokia_serving_node_id_flg_b0_v4,
+        NULL
+    };
+
+    /* Octet 7  Spare  Spare  Spare  Spare  Spare  UUID  V6  V4 */
+    proto_tree_add_bitmask_with_flags_ret_uint64(tree, tvb, offset, hf_pfcp_nokia_serving_node_id_flags,
+        ett_pfcp_nokia_serving_node_id_flags, pfcp_serving_node_id_flags, ENC_BIG_ENDIAN, BMT_NO_FALSE | BMT_NO_INT | BMT_NO_TFS, &serving_node_id_flags_val);
+    offset++;
+
+    /* The following flags are coded within Octet 5:
+     * Bit 1 - V4: If this bit is set to "1", then the IPv4 address field shall be present,
+     *         otherwise the IPv4 address field shall not be present.
+     * Bit 2 - V6: If this bit is set to "1", then the IPv6 address field shall be present,
+     *         otherwise the IPv6 address field shall not be present.
+     * Bit 3 - UUID: If this bit is set to "1", then the UUID field shall be present,
+     *         otherwise the UUID field shall not be present.
+     */
+    if (serving_node_id_flags_val & 0x1) {
+        /* 0 to 3    IPv4 address */
+        proto_tree_add_item(tree, hf_pfcp_nokia_serving_node_id_ipv4, tvb, offset, 4, ENC_NA);
+        proto_item_append_text(proto_tree_get_parent(tree), "%s IPv4 %s", firstField ? " :" : ",", tvb_ip_to_str(pinfo->pool, tvb, offset));
+        firstField = false;
+        offset += 4;
+    }
+    if (serving_node_id_flags_val & 0x2) {
+        /* m to (m+15)   IPv6 address */
+        proto_tree_add_item(tree, hf_pfcp_nokia_serving_node_id_ipv6, tvb, offset, 16, ENC_NA);
+        proto_item_append_text(proto_tree_get_parent(tree), "%s IPv6 %s", firstField ? " :" : ",", tvb_ip6_to_str(pinfo->pool, tvb, offset));
+        firstField = false;
+        offset += 16;
+    }
+    if (serving_node_id_flags_val & 0x4) {
+        /* p to (p+15)   UUID */
+        e_guid_t guid;
+
+        proto_tree_add_item(tree, hf_pfcp_nokia_serving_node_id_uuid, tvb, offset, 16, ENC_NA);
+        tvb_get_guid(tvb, offset, &guid, ENC_BIG_ENDIAN);
+        proto_item_append_text(proto_tree_get_parent(tree), "%s UUID %s", firstField ? " :" : ",", guid_to_str(pinfo->pool, &guid));
+        firstField = false;
+        offset += 16;
+    }
+
+    return offset;
+}
+
+static int dissect_pfcp_nokia_pcc_rule_name(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+{
+    return dissect_pfcp_string_ie(tvb, pinfo, tree, hf_pfcp_nokia_pcc_rule_name);
+}
+
+static int dissect_pfcp_nokia_calltrace_profile(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+{
+    return dissect_pfcp_string_ie(tvb, pinfo, tree, hf_pfcp_nokia_calltrace_profile);
+}
+
+static int dissect_pfcp_nokia_custom_charging_group(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+{
+    return dissect_pfcp_string_ie(tvb, pinfo, tree, hf_pfcp_nokia_custom_charging_group);
+}
+
 static pfcp_generic_ie_t pfcp_nokia_ies[] = {
     {VENDOR_NOKIA, 32774, "UP Aggregate Route",                dissect_pfcp_grouped_ie_wrapper, -1},
     {VENDOR_NOKIA, 32775, "SAP Template",                      dissect_pfcp_nokia_sap_template, -1},
@@ -12940,6 +13044,13 @@ static pfcp_generic_ie_t pfcp_nokia_ies[] = {
     {VENDOR_NOKIA, 32822, "Access Line Params",                dissect_pfcp_nokia_access_line_params, -1},
     {VENDOR_NOKIA, 32823, "Accounting Session Id",             dissect_pfcp_nokia_acct_session_id, -1},
     {VENDOR_NOKIA, 32830, "FSG Template",                      dissect_pfcp_nokia_fsg_template, -1},
+    {VENDOR_NOKIA, 32832, "UP Profiles",                       dissect_pfcp_nokia_up_profiles, -1},
+    {VENDOR_NOKIA, 32833, "User Location Information",         dissect_pfcp_nokia_uli, -1},
+    {VENDOR_NOKIA, 32834, "Default Qos Id",                    dissect_pfcp_nokia_default_qos_id, -1},
+    {VENDOR_NOKIA, 32835, "Serving Node Id",                   dissect_pfcp_nokia_serving_node_id, -1},
+    {VENDOR_NOKIA, 32836, "PCC Rule Name",                     dissect_pfcp_nokia_pcc_rule_name, -1},
+    {VENDOR_NOKIA, 32837, "Calltrace Profile",                 dissect_pfcp_nokia_calltrace_profile, -1},
+    {VENDOR_NOKIA, 32838, "Custom Charging Group",             dissect_pfcp_nokia_custom_charging_group, -1},
 };
 
 static void
@@ -18382,6 +18493,66 @@ proto_register_pfcp(void)
             FT_STRING, BASE_NONE, NULL, 0,
             NULL, HFILL }
         },
+        { &hf_pfcp_nokia_up_profile,
+        { "UP Profiles", "pfcp.nokia.up_profiles",
+            FT_STRING, BASE_NONE, NULL, 0,
+		    NULL, HFILL }
+        },
+        { &hf_pfcp_nokia_default_qos_id,
+        { "Default Qos Id", "pfcp.nokia.default_qos_id",
+            FT_UINT8, BASE_DEC, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_nokia_serving_node_id_flags,
+        { "Flags", "pfcp.nokia.serving_node_id.flags",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_nokia_serving_node_id_flg_b2_uuid,
+        { "UUID", "pfcp.nokia.serving_node_id.flags.uuid",
+            FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x04,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_nokia_serving_node_id_flg_b1_v6,
+        { "V6 (IPv6)", "pfcp.nokia.serving_node_id.flags.v6",
+            FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x02,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_nokia_serving_node_id_flg_b0_v4,
+        { "V4 (IPv4)", "pfcp.nokia.serving_node_id.flags.v4",
+            FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x01,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_nokia_serving_node_id_ipv4,
+        { "IPv4 address", "pfcp.nokia.serving_node_id.ipv4_addr",
+            FT_IPv4, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_nokia_serving_node_id_ipv6,
+        { "IPv6 address", "pfcp.nokia.serving_node_id.ipv6_addr",
+            FT_IPv6, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_nokia_serving_node_id_uuid,
+        { "UUID", "pfcp.nokia.serving_node_id.uuid",
+            FT_GUID, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_nokia_pcc_rule_name,
+        { "PCC Rule Name", "pfcp.nokia.pcc_rule_name",
+            FT_STRING, BASE_NONE, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_nokia_calltrace_profile,
+        { "Calltrace Profile", "pfcp.nokia.calltrace_profile",
+            FT_STRING, BASE_NONE, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_nokia_custom_charging_group,
+        { "Custom Charging Group", "pfcp.nokia.custom_charging_group",
+            FT_STRING, BASE_NONE, NULL, 0,
+            NULL, HFILL }
+        },
     };
 
     /* Setup protocol subtree array */
@@ -18424,6 +18595,7 @@ proto_register_pfcp(void)
         &ett_pfcp_nokia_pfcphb_flags,
         &ett_pfcp_nokia_l2tp_tunnel_params_flags,
         &ett_pfcp_nokia_access_line_params_flags,
+        &ett_pfcp_nokia_serving_node_id_flags,
     };
 
     // Each IE gets its own subtree
@@ -18478,6 +18650,8 @@ proto_reg_handoff_pfcp(void)
 {
     dissector_add_uint_with_preference("udp.port", UDP_PORT_PFCP, pfcp_handle);
     dissector_add_string("media_type", "application/vnd.3gpp.pfcp", pfcp_handle);
+
+    gtpv2_uli_handle = find_dissector("gtpv2.uli");
 }
 
 /*
