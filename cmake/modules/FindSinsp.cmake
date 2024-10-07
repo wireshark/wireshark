@@ -221,6 +221,11 @@ find_package_handle_standard_args(Sinsp
 )
 
 if(SINSP_FOUND)
+  if (SINSP_VERSION VERSION_EQUAL 0.0.0)
+    # https://github.com/falcosecurity/libs/blob/master/README.md#versioning
+    message(WARNING "libsinsp version is 0.0.0. If you built it outside of git, did you set FALCOSECURITY_LIBS_VERSION?")
+  endif()
+
   string(REGEX MATCH "([0-9]+)\.([0-9]+)\.([0-9]+)" _ ${SINSP_VERSION})
   # Should we cache these?
   set(SINSP_VERSION_MAJOR ${CMAKE_MATCH_1})

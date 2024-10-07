@@ -2580,7 +2580,8 @@ install_falco_libs() {
 	patch -p1 < "${topdir}/tools/macos-setup-patches/falco-include-dirs.patch"
         mkdir build_dir
         cd build_dir
-        "${DO_CMAKE[@]}" -DBUILD_SHARED_LIBS=ON -DMINIMAL_BUILD=ON -DCREATE_TEST_TARGETS=OFF \
+        "${DO_CMAKE[@]}" -DFALCOSECURITY_LIBS_VERSION="$FALCO_LIBS_VERSION" \
+            -DBUILD_SHARED_LIBS=ON -DMINIMAL_BUILD=ON -DCREATE_TEST_TARGETS=OFF \
             -DUSE_BUNDLED_DEPS=ON -DUSE_BUNDLED_CARES=OFF -DUSE_BUNDLED_ZLIB=OFF \
             -DUSE_BUNDLED_JSONCPP=OFF -DUSE_BUNDLED_TBB=OFF -DUSE_BUNDLED_RE2=OFF \
             ..
