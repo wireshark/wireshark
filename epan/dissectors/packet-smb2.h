@@ -72,6 +72,7 @@ typedef struct _smb2_saved_info_t {
 	uint32_t		bytes_moved;	/* needed for eo_smb */
 	void *extra_info;
 	smb2_extra_info_t extra_info_type;
+	uint32_t fid_hash;
 } smb2_saved_info_t;
 
 typedef struct _smb2_tid_info_t {
