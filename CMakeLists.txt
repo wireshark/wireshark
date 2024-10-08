@@ -15,14 +15,8 @@ if(DEFINED ENV{FORCE_CMAKE_NINJA_NON_VERBOSE})
 	unset(CMAKE_VERBOSE_MAKEFILE CACHE)
 endif()
 
-# Needed for add_custom_command() WORKING_DIRECTORY generator expressions
-cmake_minimum_required(VERSION 3.13)
-if(POLICY CMP0083)
-	cmake_policy(SET CMP0083 NEW)
-endif()
-if(POLICY CMP0092)
-	cmake_policy(SET CMP0092 NEW)
-endif()
+# https://doc.qt.io/qt-6/cmake-supported-cmake-versions.html
+cmake_minimum_required(VERSION 3.16)
 if(POLICY CMP0135)
 	cmake_policy(SET CMP0135 NEW)
 endif()

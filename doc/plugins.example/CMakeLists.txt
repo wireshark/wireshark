@@ -7,8 +7,7 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 #
 
-cmake_minimum_required(VERSION 3.12)
-cmake_policy(SET CMP0048 NEW)
+cmake_minimum_required(VERSION 3.16)
 
 project(Hello VERSION 0.0.1 DESCRIPTION "Wireshark Hello Plugin" LANGUAGES C)
 
