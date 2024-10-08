@@ -99,6 +99,7 @@ typedef struct _bluetooth_data_t {
     wmem_tree_t *chandle_sessions;
     wmem_tree_t *chandle_to_bdaddr;
     wmem_tree_t *chandle_to_mode;
+    wmem_tree_t *cs_configurations;
     wmem_tree_t *shandle_to_chandle;
     wmem_tree_t *bdaddr_to_name;
     wmem_tree_t *bdaddr_to_role;
@@ -156,6 +157,11 @@ typedef struct _stream_connection_handle_pair_t {
     int32_t  chandle;
     uint32_t change_in_frame;
 } stream_connection_handle_pair_t;
+
+typedef struct _cs_configuration_t {
+    uint8_t cs_role;
+    uint8_t rtt_type;
+} cs_configuration_t;
 
 #define ROLE_UNKNOWN    0
 #define ROLE_CENTRAL    1
@@ -311,12 +317,18 @@ extern int dissect_bd_addr(int hf_bd_addr, packet_info *pinfo, proto_tree *tree,
         tvbuff_t *tvb, int offset, bool is_local_bd_addr,
         uint32_t interface_id, uint32_t adapter_id, uint8_t *bdaddr);
 
+extern void bluetooth_unit_0p625_ms(char *buf, uint32_t value);
 extern void bluetooth_unit_1p25_ms(char *buf, uint32_t value);
+extern void bluetooth_unit_0p01_sec(char *buf, uint32_t value);
 extern void bluetooth_unit_0p125_ms(char *buf, uint32_t value);
 
 extern bluetooth_uuid_t  get_bluetooth_uuid(tvbuff_t *tvb, int offset, int size);
 WS_DLL_PUBLIC const char   *print_bluetooth_uuid(wmem_allocator_t *pool, bluetooth_uuid_t *uuid);
 WS_DLL_PUBLIC const char   *print_numeric_bluetooth_uuid(wmem_allocator_t *pool, bluetooth_uuid_t *uuid);
+
+WS_DLL_PUBLIC const value_string bluetooth_procedure_count_special[];
+WS_DLL_PUBLIC const value_string bluetooth_not_supported_0x00_special[];
+WS_DLL_PUBLIC const value_string bluetooth_not_used_0xff_special[];
 
 extern void save_local_device_name_from_eir_ad(tvbuff_t *tvb, int offset,
         packet_info *pinfo, uint8_t size, bluetooth_data_t *bluetooth_data);

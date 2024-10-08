@@ -64,6 +64,7 @@ static wmem_tree_t *bdaddr_to_role;
 static wmem_tree_t *localhost_name;
 static wmem_tree_t *localhost_bdaddr;
 static wmem_tree_t *hci_vendors;
+static wmem_tree_t *cs_configurations;
 
 wmem_tree_t *bluetooth_uuids;
 
@@ -5304,13 +5305,36 @@ dissect_bd_addr(int hf_bd_addr, packet_info *pinfo, proto_tree *tree,
     return offset;
 }
 
+void bluetooth_unit_0p625_ms(char *buf, uint32_t value) {
+    snprintf(buf, ITEM_LABEL_LENGTH, "%g ms (%u slots)", 0.625 * value, value);
+}
+
 void bluetooth_unit_1p25_ms(char *buf, uint32_t value) {
-    snprintf(buf, ITEM_LABEL_LENGTH, "%g ms (%u)", 1.25 * value, value);
+    snprintf(buf, ITEM_LABEL_LENGTH, "%g ms (%u slot-pairs)", 1.25 * value, value);
+}
+
+void bluetooth_unit_0p01_sec(char *buf, uint32_t value) {
+    snprintf(buf, ITEM_LABEL_LENGTH, "%g sec (%u)", 0.01 * value, value);
 }
 
 void bluetooth_unit_0p125_ms(char *buf, uint32_t value) {
     snprintf(buf, ITEM_LABEL_LENGTH, "%g ms (%u)", 0.125 * value, value);
 }
+
+const value_string bluetooth_procedure_count_special[] = {
+    {0x0, "Infinite, Continue until disabled"},
+    {0, NULL}
+};
+
+const value_string bluetooth_not_supported_0x00_special[] = {
+    {0x0, "Not Supported"},
+    {0, NULL}
+};
+
+const value_string bluetooth_not_used_0xff_special[] = {
+    {0xff, "Not used"},
+    {0, NULL}
+};
 
 void
 save_local_device_name_from_eir_ad(tvbuff_t *tvb, int offset, packet_info *pinfo,
@@ -5628,6 +5652,7 @@ dissect_bluetooth_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     bluetooth_data->localhost_bdaddr             = localhost_bdaddr;
     bluetooth_data->localhost_name               = localhost_name;
     bluetooth_data->hci_vendors                  = hci_vendors;
+    bluetooth_data->cs_configurations            = cs_configurations;
 
     if (have_tap_listener(bluetooth_tap)) {
         bluetooth_tap_data_t  *bluetooth_tap_data;
@@ -5884,6 +5909,7 @@ proto_register_bluetooth(void)
     localhost_bdaddr         = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
     localhost_name           = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
     hci_vendors              = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
+    cs_configurations        = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
 
     hci_vendor_table = register_dissector_table("bluetooth.vendor", "HCI Vendor", proto_bluetooth, FT_UINT16, BASE_HEX);
     bluetooth_uuids          = wmem_tree_new(wmem_epan_scope());

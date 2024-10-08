@@ -38,6 +38,11 @@ extern value_string_ext bthci_cmd_clock_accuray_vals_ext;
 extern value_string_ext bthci_cmd_slot_durations_vals_ext;
 extern value_string_ext bthci_cmd_phy_and_coding_vals_ext;
 extern value_string_ext bthci_cmd_framing_vals_ext;
+extern value_string_ext bthci_cmd_cs_role_vals_ext;
+extern value_string_ext bthci_cmd_aci_vals_ext;
+extern value_string_ext bthci_cmd_cs_rtt_type_vals_ext;
+extern value_string_ext bthci_cmd_cs_ch_selection_type_vals_ext;
+extern value_string_ext bthci_cmd_cs_shape_vals_ext;
 
 extern const value_string bthci_cmd_io_capability_vals[];
 extern const value_string bthci_cmd_oob_data_present_vals[];
