@@ -3170,9 +3170,9 @@ dissect_dhcpopt_vi_vendor_class(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 	int offset = 0;
 	uint32_t enterprise = 0;
 	uint32_t option_data_len = 0;
-	uint32_t data_len = 0;
+	int data_len = 0;
 	int s_end;
-	proto_item *eti;
+	proto_item *eti, *expert_ti;
 	proto_tree *e_tree;
 	proto_tree *vcdi_tree;
 
@@ -3197,11 +3197,27 @@ dissect_dhcpopt_vi_vendor_class(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 
 		while (offset < s_end) {
 			tvbuff_t *enterprise_tvb = tvb_new_subset_length(tvb, offset, option_data_len);
+			/* XXX - Do we really want to try the dissector table for *each*
+			 * vendor-class-data for the same enterprise? This tvb is too long on
+			 * subsequent iterations. Only giving the table dissector one attempt
+			 * (and skipping past bytes it doesn't dissect to s_end) might be simpler.
+			 */
 			int bytes_dissected = dissector_try_uint(dhcp_enterprise_class_table, enterprise, enterprise_tvb, pinfo, e_tree);
 			if (bytes_dissected == 0) {
 				vcdi_tree = proto_tree_add_subtree(e_tree, tvb, offset, option_data_len, ett_dhcp_option124_vendor_class_data_item, NULL, "Vendor Class Data Item");
-
-				proto_tree_add_item_ret_uint(vcdi_tree, hf_dhcp_option_vi_class_data_item_length, tvb, offset, 1, ENC_NA, &data_len);
+				/* According to RFC 3925, *each* vendor-class-data instance has
+				 * its own length, but in practice some vendors have only included
+				 * the overall per-enterprise option length. See the dhcwg m-l:
+				 * https://mailarchive.ietf.org/arch/msg/dhcwg/B4fNsvUR0EHxcrKDsKCf7lBrc3s/
+				 */
+				data_len = tvb_get_uint8(tvb, offset);
+				if (offset + data_len >= s_end) {
+					expert_ti = proto_tree_add_item(vcdi_tree, hf_dhcp_option_vi_class_data_item_data, tvb, offset, s_end - offset, ENC_NA);
+					expert_add_info(pinfo, expert_ti, &ei_dhcp_nonstd_option_data);
+					offset = s_end;
+					break;
+				}
+				proto_tree_add_item(vcdi_tree, hf_dhcp_option_vi_class_data_item_length, tvb, offset, 1, ENC_NA);
 				offset += 1;
 				proto_tree_add_item(vcdi_tree, hf_dhcp_option_vi_class_data_item_data, tvb, offset, data_len, ENC_NA);
 
