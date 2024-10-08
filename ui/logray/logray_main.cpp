@@ -229,6 +229,12 @@ gather_wireshark_qt_compiled_info(feature_list l)
 #else
     without_feature(l, "Minizip");
 #endif
+
+#ifdef HAVE_SINSP
+    with_feature(l, "falcosecurity-libs sinsp/scap %d.%d.%d", SINSP_VERSION_MAJOR, SINSP_VERSION_MINOR, SINSP_VERSION_MICRO);
+#else
+    without_feature(l, "falcosecurity-libs sinsp/scap");
+#endif
 }
 
 void
