@@ -132,7 +132,7 @@ blf_calc_key_value(int pkt_encap, uint16_t channel, uint16_t hwchannel) {
  * but just to check if the values are plausible.
  */
 static uint64_t
-blf_get_start_offset_ns(blf_date_t* start_date) {
+blf_get_start_offset_ns(const blf_date_t* start_date) {
     struct tm timestamp;
     time_t start_offset_s;
 
@@ -242,7 +242,7 @@ blf_add_interface(blf_params_t *params, int pkt_encap, uint32_t channel, uint16_
  */
 static bool
 // NOLINTNEXTLINE(misc-no-recursion)
-blf_prepare_interface_name(blf_params_t* params, int pkt_encap, uint16_t channel, uint16_t hwchannel, char* name, bool force_new_name) {
+blf_prepare_interface_name(blf_params_t* params, int pkt_encap, uint16_t channel, uint16_t hwchannel, const char* name, bool force_new_name) {
     int64_t key = blf_calc_key_value(pkt_encap, channel, hwchannel);
     char* old_name;
     char* new_name;
@@ -676,8 +676,8 @@ blf_init_logcontainer(blf_log_container_t *tmp) {
 
 int
 blf_logcontainers_cmp(const void *a, const void *b) {
-    blf_log_container_t* container_a = (blf_log_container_t*)a;
-    blf_log_container_t* container_b = (blf_log_container_t*)b;
+    const blf_log_container_t* container_a = (blf_log_container_t*)a;
+    const blf_log_container_t* container_b = (blf_log_container_t*)b;
 
     if (container_a->real_start_pos < container_b->real_start_pos) {
         return -1;
@@ -692,7 +692,7 @@ blf_logcontainers_cmp(const void *a, const void *b) {
 
 int
 blf_logcontainers_search(const void *a, const void *b) {
-    blf_log_container_t* container_a = (blf_log_container_t*)a;
+    const blf_log_container_t* container_a = (blf_log_container_t*)a;
     uint64_t pos = *(uint64_t*)b;
 
     if (container_a->real_start_pos > pos) {
@@ -991,7 +991,7 @@ blf_find_next_logcontainer(blf_params_t* params, int* err, char** err_info) {
         current_real_start = 0;
     }
     else {
-        blf_log_container_t* container = &g_array_index(params->blf_data->log_containers, blf_log_container_t, params->blf_data->log_containers->len - 1);
+        const blf_log_container_t* container = &g_array_index(params->blf_data->log_containers, blf_log_container_t, params->blf_data->log_containers->len - 1);
         current_real_start = container->real_start_pos + container->real_length;
     }
 
@@ -2920,7 +2920,7 @@ bool blf_parse_xml_port(const char* start, const char* end, char** name, uint16_
     char* text;
     size_t len;
     char** tokens;
-    char* token;
+    const char* token;
 
     if (start == NULL || end == NULL || name == NULL || end <= start) {
         return false;
@@ -3187,10 +3187,8 @@ blf_set_xml_channels(blf_params_t* params, const char* text, size_t len) {
         ports_start = blf_strmem(search_start, channel_end, ports_start_magic);
         if (ports_start == NULL) {
             /* Not an error, channel has no ports */
-            if (channel_name) {
-                g_free(channel_name);
-                channel_name = NULL;
-            }
+            g_free(channel_name);
+            channel_name = NULL;
             search_start = channel_end + strlen(channel_end_magic);
             continue;
         }
@@ -3200,10 +3198,8 @@ blf_set_xml_channels(blf_params_t* params, const char* text, size_t len) {
         ports_end = blf_strmem(search_start, channel_end, ports_end_magic);
         if (ports_end == NULL) {
             ws_debug("channel with malformed ports tag found in xml");
-            if (channel_name) {
-                g_free(channel_name);
-                channel_name = NULL;
-            }
+            g_free(channel_name);
+            channel_name = NULL;
             search_start = channel_end + strlen(channel_end_magic);
             continue;
         }
@@ -3241,10 +3237,8 @@ blf_set_xml_channels(blf_params_t* params, const char* text, size_t len) {
             search_start = port_end + strlen(port_end_magic);
         }
 
-        if (channel_name) {
-            g_free(channel_name);
-            channel_name = NULL;
-        }
+        g_free(channel_name);
+        channel_name = NULL;
 
         search_start = channel_end + strlen(channel_end_magic);
     }
