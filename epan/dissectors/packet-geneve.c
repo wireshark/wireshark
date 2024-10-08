@@ -2,6 +2,9 @@
  * Routines for Geneve - Generic Network Virtualization Encapsulation
  * https://tools.ietf.org/html/draft-ietf-nvo3-geneve
  *
+ * Copyright (c) 2024 cPacket Networks, Inc. All Rights Reserved.
+ * Author: Martin Greenberg <mgreenberg@cpacket.com>
+ *
  * Copyright (c) 2014 VMware, Inc. All Rights Reserved.
  * Author: Jesse Gross <jesse@nicira.com>
  *
@@ -53,7 +56,9 @@ static const range_string class_id_names[] = {
     { 0x0130, 0x0131, "Cisco Systems, Inc." },
     { 0x0132, 0x0135, "Google LLC" },
     { 0x0136, 0x0136, "InfoQuick Global Connection Tech Ltd." },
-    { 0x0137, 0xFEFF, "Unassigned" },
+    { 0x0137, 0x0163, "Unssigned" },
+    { 0x0164, 0x0164, "cPacket Networks, Inc." },
+    { 0x0165, 0xFEFF, "Unassigned" },
     { 0xFFF0, 0xFFFF, "Experimental" },
     { 0, 0, NULL }
 };
@@ -61,11 +66,13 @@ static const range_string class_id_names[] = {
 #define GENEVE_GCP_VNID     0x013201
 #define GENEVE_GCP_ENDPOINT 0x013202
 #define GENEVE_GCP_PROFILE  0x013203
+#define GENEVE_CPACKET_METADATA  0x016400
 
 static const val64_string option_names[] = {
   { GENEVE_GCP_VNID,     "GCP Virtual Network ID" },
   { GENEVE_GCP_ENDPOINT, "GCP Endpoint ID" },
   { GENEVE_GCP_PROFILE,  "GCP Profile ID" },
+  { GENEVE_CPACKET_METADATA,  "cPacket Meta-data" },
   { 0, NULL }
 };
 
@@ -97,6 +104,17 @@ static int hf_geneve_opt_gcp_reserved;
 static int hf_geneve_opt_gcp_direction;
 static int hf_geneve_opt_gcp_endpoint;
 static int hf_geneve_opt_gcp_profile;
+static int hf_geneve_opt_cpkt_seqnum;
+static int hf_geneve_opt_cpkt_origlen;
+static int hf_geneve_opt_cpkt_reserved;
+static int hf_geneve_opt_cpkt_timestamp;
+static int hf_geneve_opt_cpkt_ts_sec;
+static int hf_geneve_opt_cpkt_ts_nsec;
+static int hf_geneve_opt_cpkt_ts_fracns;
+static int hf_geneve_opt_cpkt_version;
+static int hf_geneve_opt_cpkt_devid;
+static int hf_geneve_opt_cpkt_portid;
+
 static int hf_geneve_opt_unknown_data;
 
 static int ett_geneve;
@@ -192,6 +210,39 @@ dissect_option(wmem_allocator_t *scope, tvbuff_t *tvb, proto_tree *opts_tree, in
         case GENEVE_GCP_PROFILE:
             proto_tree_add_item(opt_tree, hf_geneve_opt_gcp_profile, tvb, offset,
                                 len - 4, ENC_BIG_ENDIAN);
+            break;
+        case GENEVE_CPACKET_METADATA:
+            proto_tree_add_item(opt_tree, hf_geneve_opt_cpkt_seqnum, tvb, offset,
+                                4, ENC_BIG_ENDIAN);
+            offset += 4;
+            proto_tree_add_item(opt_tree, hf_geneve_opt_cpkt_origlen, tvb, offset,
+                                2, ENC_BIG_ENDIAN);
+            offset += 2;
+            proto_tree_add_item(opt_tree, hf_geneve_opt_cpkt_reserved, tvb, offset,
+                                1, ENC_BIG_ENDIAN);
+            offset += 1;
+            proto_tree_add_item(opt_tree, hf_geneve_opt_cpkt_version, tvb, offset,
+                                1, ENC_BIG_ENDIAN);
+            offset += 1;
+            // PTPv2 timestamp has more resolution than NStime supports/displays,
+            // but parse appropriate subsection of into NStime for user convenience
+            proto_tree_add_time_item(opt_tree, hf_geneve_opt_cpkt_timestamp, tvb, offset+2, 8,
+                                     ENC_TIME_SECS_NSECS, NULL, NULL, NULL);
+            proto_tree_add_item(opt_tree, hf_geneve_opt_cpkt_ts_sec, tvb, offset,
+                                6, ENC_BIG_ENDIAN);
+            offset += 6;
+            proto_tree_add_item(opt_tree, hf_geneve_opt_cpkt_ts_nsec, tvb, offset,
+                                4, ENC_BIG_ENDIAN);
+            offset += 4;
+            proto_tree_add_item(opt_tree, hf_geneve_opt_cpkt_ts_fracns, tvb, offset,
+                                2, ENC_BIG_ENDIAN);
+            offset += 2;
+            proto_tree_add_item(opt_tree, hf_geneve_opt_cpkt_devid, tvb, offset,
+                                2, ENC_BIG_ENDIAN);
+            offset += 2;
+            proto_tree_add_item(opt_tree, hf_geneve_opt_cpkt_portid, tvb, offset,
+                                2, ENC_BIG_ENDIAN);
+            offset += 2;
             break;
         default:
             proto_tree_add_item(opt_tree, hf_geneve_opt_unknown_data, tvb, offset,
@@ -435,6 +486,56 @@ proto_register_geneve(void)
           { "GCP Profile ID", "geneve.option.gcp.profile",
             FT_UINT64, BASE_DEC, NULL, 0x00,
             NULL, HFILL }
+        },
+        { &hf_geneve_opt_cpkt_seqnum,
+         { "cPacket Packet ID", "geneve.option.cPacket.packetid",
+           FT_UINT32, BASE_DEC, NULL, 0x00,
+           NULL, HFILL }
+        },
+        { &hf_geneve_opt_cpkt_origlen,
+         { "cPacket Original length", "geneve.option.cPacket.orig_len",
+           FT_UINT16, BASE_DEC, NULL, 0x00,
+           NULL, HFILL }
+        },
+        { &hf_geneve_opt_cpkt_reserved,
+         { "cPacket Reserved", "geneve.option.cPacket.reserved",
+           FT_UINT8, BASE_HEX, NULL, 0x00,
+           NULL, HFILL }
+        },
+        { &hf_geneve_opt_cpkt_version,
+         { "cPacket Metadata version", "geneve.option.cPacket.version",
+           FT_UINT8, BASE_DEC, NULL, 0x00,
+           NULL, HFILL }
+        },
+        { &hf_geneve_opt_cpkt_timestamp,
+         { "cPacket Timestamp", "geneve.option.cPacket.timestamp",
+           FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL, 0x00,
+           NULL, HFILL }
+        },
+        { &hf_geneve_opt_cpkt_ts_sec,
+         { "cPacket Timestamp (s)", "geneve.option.cPacket.ts_sec",
+           FT_UINT48, BASE_DEC, NULL, 0x00,
+           NULL, HFILL }
+        },
+        { &hf_geneve_opt_cpkt_ts_nsec,
+         { "cPacket Timestamp (ns)", "geneve.option.cPacket.ts_nsec",
+           FT_UINT32, BASE_DEC, NULL, 0x00,
+           NULL, HFILL }
+        },
+        { &hf_geneve_opt_cpkt_ts_fracns,
+         { "cPacket Timestamp (frac. ns)", "geneve.option.cPacket.ts_fracns",
+           FT_UINT16, BASE_DEC, NULL, 0x00,
+           NULL, HFILL }
+        },
+        { &hf_geneve_opt_cpkt_devid,
+         { "cPacket Device ID", "geneve.option.cPacket.device_id",
+           FT_UINT16, BASE_DEC, NULL, 0x00,
+           NULL, HFILL }
+        },
+        { &hf_geneve_opt_cpkt_portid,
+         { "cPacket Port ID", "geneve.option.cPacket.port_id",
+           FT_UINT16, BASE_DEC, NULL, 0x00,
+           NULL, HFILL }
         },
         { &hf_geneve_opt_unknown_data,
           { "Unknown Option Data", "geneve.option.unknown.data",
