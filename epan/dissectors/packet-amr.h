@@ -49,7 +49,7 @@ struct amr_oa_hdr {
 	uint8_t f:1, ft:4, q:1, pad2:2;
 #endif
 	uint8_t data[0];
-} __attribute__((packed));
+};
 
 WS_DLL_PUBLIC
 int amr_nb_bytes_to_ft(uint8_t bytes);
