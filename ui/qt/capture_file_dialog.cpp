@@ -746,8 +746,17 @@ QStringList CaptureFileDialog::buildFileSaveAsTypeList(bool must_support_all_com
             if (default_ft_ < 1)
                 default_ft_ = ft; /* first file type is the default */
             QString type_name(wtap_file_type_subtype_description(ft));
-            filters << type_name + fileType(ft, type_suffixes_[type_name]);
+            QString filter(type_name + fileType(ft, type_suffixes_[type_name]));
+            /* Before Qt 6.8, selectedNameFilter() returns the current filter
+               text; i.e., as we set HideNameFilterDetails it does not include
+               the parenthetical extension list.
+               As of 6.8, hidden details are included.
+               https://bugreports.qt.io/browse/QTBUG-127924
+               One simple approach is to just add both to the hash.
+             */
+            type_hash_[filter] = ft;
             type_hash_[type_name] = ft;
+            filters << filter;
         }
         g_array_free(savable_file_types_subtypes, true);
     }
