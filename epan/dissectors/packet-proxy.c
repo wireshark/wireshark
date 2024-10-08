@@ -198,7 +198,7 @@ dissect_proxy_proxied(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree,
         if (addresses_equal(&pinfo->src, conversation_key_addr1(conv->key_ptr)) &&
             (pinfo->srcport == conversation_key_port1(conv->key_ptr))) {
             conversation_set_conv_addr_port_endpoints(pinfo, &proxy_info->src, &proxy_info->dst,
-                conversation_pt_to_conversation_type(proxy_info->ptype), proxy_info->srcport,
+                CONVERSATION_PROXY, proxy_info->srcport,
                 proxy_info->dstport);
             srcport = proxy_info->srcport;
             dstport = proxy_info->dstport;
@@ -206,7 +206,7 @@ dissect_proxy_proxied(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree,
         }
         else {
             conversation_set_conv_addr_port_endpoints(pinfo, &proxy_info->dst, &proxy_info->src,
-                conversation_pt_to_conversation_type(proxy_info->ptype), proxy_info->dstport,
+                CONVERSATION_PROXY, proxy_info->dstport,
                 proxy_info->srcport);
             srcport = proxy_info->dstport;
             dstport = proxy_info->srcport;
