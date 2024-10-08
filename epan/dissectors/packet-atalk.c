@@ -232,9 +232,18 @@ static int hf_asp_attn_code;
 static int hf_asp_seq;
 static int hf_asp_size;
 
+/*
+ * Structure used to represent a DDP address; gives the layout of the
+ * data pointed to by an Appletalk "address" structure.
+ */
+struct atalk_ddp_addr {
+  uint16_t net;
+  uint8_t node;
+};
+
 typedef struct {
   uint32_t conversation;
-  uint8_t src[4];
+  uint8_t src[sizeof(struct atalk_ddp_addr)];
   uint16_t tid;
 } asp_request_key;
 
@@ -502,6 +511,10 @@ static const value_string asp_error_vals[] = {
   {0,                   NULL } };
 value_string_ext asp_error_vals_ext = VALUE_STRING_EXT_INIT(asp_error_vals);
 
+static bool is_ddp_address(address *addr) {
+  return addr->type == atalk_address_type && addr->len == sizeof(struct atalk_ddp_addr);
+}
+
 /*
  * hf_index must be a FT_UINT_STRING type
  * Are these always in a Mac extended character set?  Should we have a
@@ -744,6 +757,12 @@ dissect_atp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
   conversation_t  *conversation;
   asp_request_val *request_val   = NULL;
 
+  // ATP is carried over DDP
+  if (!(is_ddp_address(&pinfo->src) && is_ddp_address(&pinfo->dst))) {
+    return 0;
+  }
+
+
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "ATP");
 
   ctrlinfo = tvb_get_uint8(tvb, offset);
@@ -770,7 +789,7 @@ dissect_atp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     asp_request_key request_key;
 
     request_key.conversation = conversation->conv_index;
-    memcpy(request_key.src, (!atp_asp_dsi_info.reply)?pinfo->src.data:pinfo->dst.data, 4);
+    memcpy(request_key.src, (!atp_asp_dsi_info.reply)?pinfo->src.data:pinfo->dst.data, sizeof(struct atalk_ddp_addr));
     request_key.tid = atp_asp_dsi_info.tid;
 
     request_val = (asp_request_val *) wmem_map_lookup(atp_request_hash, &request_key);
@@ -1018,7 +1037,7 @@ get_transaction(tvbuff_t *tvb, packet_info *pinfo, struct atp_asp_dsi_info *atp_
   conversation = find_or_create_conversation(pinfo);
 
   request_key.conversation = conversation->conv_index;
-  memcpy(request_key.src, (!atp_asp_dsi_info->reply)?pinfo->src.data:pinfo->dst.data, 4);
+  memcpy(request_key.src, (!atp_asp_dsi_info->reply)?pinfo->src.data:pinfo->dst.data, sizeof(struct atalk_ddp_addr));
   request_key.tid = atp_asp_dsi_info->tid;
 
   request_val = (asp_request_val *) wmem_map_lookup(asp_request_hash, &request_key);
@@ -1050,6 +1069,11 @@ dissect_asp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
   /* Reject the packet if data is NULL */
   if (data == NULL)
     return 0;
+
+  // ASP is carried over ATP/DDP
+  if (!(is_ddp_address(&pinfo->src) && is_ddp_address(&pinfo->dst))) {
+    return 0;
+  }
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "ASP");
   col_clear(pinfo->cinfo, COL_INFO);
@@ -1183,15 +1207,6 @@ dissect_asp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 /* -----------------------------
    ZIP protocol cf. inside appletalk chap. 8
 */
-/*
- * Structure used to represent a DDP address; gives the layout of the
- * data pointed to by an Appletalk "address" structure.
- */
-struct atalk_ddp_addr {
-    uint16_t net;
-    uint8_t node;
-};
-
 
 static int atalk_str_len(const address* addr _U_)
 {
@@ -1240,6 +1255,11 @@ dissect_atp_zip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
   /* Reject the packet if data is NULL */
   if (data == NULL)
     return 0;
+
+  // ATP ZIP is carried over DDP
+  if (!(is_ddp_address(&pinfo->src) && is_ddp_address(&pinfo->dst))) {
+    return 0;
+  }
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "ZIP");
   col_clear(pinfo->cinfo, COL_INFO);
