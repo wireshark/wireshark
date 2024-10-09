@@ -69,6 +69,9 @@ The following features are either new or have been significantly updated since v
 * Custom columns have an option to show the values using the same format as
   in Packet Details.
 
+* The Windows installers now ship with Npcap 1.80.
+  They previously shipped with Npcap 1.79.
+
 // === Removed Features and Support
 
 
