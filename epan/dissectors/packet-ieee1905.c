@@ -641,7 +641,6 @@ static int hf_ieee1905_encap_dpp_sta_mac;
 static int hf_ieee1905_dpp_encap_frame_type;
 static int hf_ieee1905_dpp_encap_frame_length;
 static int hf_ieee1905_dpp_encap_dpp_oui;
-static int hf_ieee1905_dpp_encap_category;
 static int hf_ieee1905_dpp_encap_public_action;
 static int hf_ieee1905_dpp_encap_dpp_subtype;
 static int hf_ieee1905_dpp_bootstrapping_uri_radio_id;
@@ -685,7 +684,6 @@ static int hf_ieee1905_metric_collection_interval;
 static int hf_ieee1905_max_reporting_rate;
 static int hf_ieee1905_bss_configuration_request;
 static int hf_ieee1905_bss_configuration_response;
-static int hf_ieee1905_dpp_message_category;
 static int hf_ieee1905_dpp_message_public_action;
 static int hf_ieee1905_spatial_reuse_req_radio_id;
 static int hf_ieee1905_spatial_reuse_color_flags;
@@ -7613,26 +7611,18 @@ dissect_1905_encap_dpp(tvbuff_t *tvb, packet_info *pinfo,
         uint8_t code;
         tvbuff_t *new_tvb;
 
-        proto_tree_add_item(tree, hf_ieee1905_dpp_message_category, tvb,
-                            offset, 1, ENC_NA);
-        offset += 1;
-
         code = tvb_get_uint8(tvb, offset);
         proto_tree_add_item(tree, hf_ieee1905_dpp_message_public_action, tvb,
                             offset, 1, ENC_NA);
         offset += 1;
 
-        new_tvb = tvb_new_subset_length(tvb, offset, frame_length - 2);
+        new_tvb = tvb_new_subset_length(tvb, offset, frame_length - 1);
 
         add_ff_action_public_fields(tree, new_tvb, pinfo, 0, code);
 
-        offset += frame_length - 2;
+        offset += frame_length - 1;
     } else {
         tvbuff_t *new_tvb;
-
-        proto_tree_add_item(tree, hf_ieee1905_dpp_encap_category, tvb,
-                            offset, 1, ENC_NA);
-        offset += 1;
 
         proto_tree_add_item(tree, hf_ieee1905_dpp_encap_public_action, tvb,
                             offset, 1, ENC_NA);
@@ -7646,10 +7636,10 @@ dissect_1905_encap_dpp(tvbuff_t *tvb, packet_info *pinfo,
                             offset, 1, ENC_NA);
         offset += 1;
 
-        new_tvb = tvb_new_subset_length(tvb, offset, frame_length - 6);
+        new_tvb = tvb_new_subset_length(tvb, offset, frame_length - 5);
         dissect_wifi_dpp_public_action(new_tvb, pinfo, tree, NULL);
 
-        offset += (frame_length - 6);
+        offset += (frame_length - 5);
     }
 
     return offset;
@@ -7871,20 +7861,16 @@ dissect_dpp_message(tvbuff_t *tvb, packet_info *pinfo,
     uint8_t code;
     tvbuff_t *new_tvb;
 
-    proto_tree_add_item(tree, hf_ieee1905_dpp_message_category, tvb,
-                        offset, 1, ENC_NA);
-    offset += 1;
-
     code = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(tree, hf_ieee1905_dpp_message_public_action, tvb,
                         offset, 1, ENC_NA);
     offset += 1;
 
-    new_tvb = tvb_new_subset_length(tvb, offset, len - 2);
+    new_tvb = tvb_new_subset_length(tvb, offset, len - 1);
 
     add_ff_action_public_fields(tree, new_tvb, pinfo, 0, code);
 
-    offset += len -2;
+    offset += len -1;
 
     return offset;
 }
@@ -12406,10 +12392,6 @@ proto_register_ieee1905(void)
           { "OUI", "ieee1905.1905_encap_dpp.oui",
             FT_UINT24, BASE_OUI, NULL, 0, NULL, HFILL }},
 
-        { &hf_ieee1905_dpp_encap_category,
-          { "Category", "ieee1905.1905_encap_dpp.category",
-            FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
-
         { &hf_ieee1905_dpp_encap_public_action,
           { "Public Action", "ieee1905.1905_encap_dpp.public_action",
             FT_UINT8, BASE_HEX|BASE_EXT_STRING, &ff_pa_action_codes_ext, 0,
@@ -12599,11 +12581,6 @@ proto_register_ieee1905(void)
           { "Configuration Response Object",
             "ieee1905.bss_configuration_response.configuration_response_object",
             FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-
-        { &hf_ieee1905_dpp_message_category,
-          { "Category", "ieee1905.dpp_message.category",
-            FT_UINT8, BASE_HEX, NULL, 0,
-            NULL, HFILL }},
 
         { &hf_ieee1905_dpp_message_public_action,
           { "Public Action", "ieee1905.dpp_message.public_action",
