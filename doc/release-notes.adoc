@@ -20,20 +20,7 @@ If you or your organization would like to contribute or become a sponsor, please
 
 === Bug Fixes
 
-// If you are upgrading Wireshark 4.2.0 or 4.2.1 on Windows you will need to https://www.wireshark.org/download.html[download and install] Wireshark {wireshark-version} or later by hand.
-
 The following vulnerabilities have been fixed:
-
-* wssalink:2024-13[]
-AppleTalk and RELOAD Framing dissector crashes.
-wsbuglink:20114[].
-// cveidlink:2024-xxx[].
-// Fixed in master: 3de741321f, 636ab9da8b, 692f9bed05
-// Fixed in release-4.4: 418fd5fe4b, d17a2febc5, 9f33105c74
-// Fixed in release-4.2: cad248ce3b, 681cb0521e, 1c5e4b8cf4
-// CVSS AV:L/AC:L/PR:N/UI:R/S:U/C:H/I:H/A:H
-// CWE-230
-// * Fuzz job crash: fuzz-2024-10-08-7201.pcap. wsbuglink:20114[].
 
 // * wssalink:2024-14[]
 // Foo dissector {crash,infinite loop,memory leak}.
@@ -51,9 +38,6 @@ The following bugs have been fixed:
 //* wsbuglink:6000[Wireshark bug]
 //* cveidlink:2014-2486[]
 //* Wireshark grabs your ID at 3 am, goes to Waffle House, and insults people.
-
-* html2text.py doesn't handle the `<sup>` tag. wsbuglink:20020[].
-* Fuzz job assertion: randpkt-2024-10-05-7200.pcap. wsbuglink:20110[].
 
 === New and Updated Features
 
@@ -74,27 +58,15 @@ There are no new protocols in this release.
 // ag -A1 '(define PSNAME|proto_register_protocol[^_])' $(git diff --name-only v4.2.8.. | ag packet- | sort -u)
 [commaize]
 --
-AppleTalk
-DMP
-GTP
-HTTP
-LwM2M-TLV
-RELOAD Framing
-SSyncP
-TCP
-Thrift
 --
 
 === New and Updated Capture File Support
 
-// There is no new or updated capture file support in this release.
+There is no new or updated capture file support in this release.
 // Add one file type per line between the -- delimiters.
-[commaize]
---
-BLF
-ERF
-pcap
---
+// [commaize]
+// --
+// --
 
 === Updated File Format Decoding Support
 
@@ -115,6 +87,7 @@ There is no updated file format support in this release.
 This document only describes the changes introduced in Wireshark {wireshark-version}.
 You can find release notes for prior versions at the following locations:
 
+* https://www.wireshark.org/docs/relnotes/wireshark-4.2.8.html[Wireshark 4.2.8]
 * https://www.wireshark.org/docs/relnotes/wireshark-4.2.7.html[Wireshark 4.2.7]
 * https://www.wireshark.org/docs/relnotes/wireshark-4.2.6.html[Wireshark 4.2.6]
 * https://www.wireshark.org/docs/relnotes/wireshark-4.2.5.html[Wireshark 4.2.5]
