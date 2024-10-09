@@ -402,10 +402,13 @@ static bool calc_key_cmac(uint8_t *secret, uint8_t *nwk_key, uint32_t tag_b_pack
     uint8_t *rand_a = key_exchange_context.rand_a;
     uint8_t *rand_b = key_exchange_context.rand_b;
 
-    rf4ce_key_dk_tag_t k_dk_data;
-    rf4ce_key_dk_tag_t k_dk_data_reversed;
+    uint8_t k_dk_data[RF4CE_PROFILE_CMD_KEY_EXCHANGE_RAND_A_LENGTH +
+                      RF4CE_PROFILE_CMD_KEY_EXCHANGE_RAND_B_LENGTH];
+    uint8_t k_dk_data_reversed[RF4CE_PROFILE_CMD_KEY_EXCHANGE_RAND_B_LENGTH +
+                               RF4CE_PROFILE_CMD_KEY_EXCHANGE_RAND_A_LENGTH];
 
-    rf4ce_key_context_t context_data;
+    uint8_t context_data[CONTEXT_STR_LEN + RF4CE_IEEE_ADDR_LEN +
+                         RF4CE_IEEE_ADDR_LEN + KEY_LEN];
 
     uint8_t k_dk_key[KEY_LEN];
     uint8_t new_key[KEY_LEN];
@@ -413,36 +416,46 @@ static bool calc_key_cmac(uint8_t *secret, uint8_t *nwk_key, uint32_t tag_b_pack
     uint8_t dummy[KEY_LEN];
     uint32_t tag_b_calc;
 
+    uint8_t *data_ptr;
+
     reverse(mac_a, key_exchange_context.mac_a, RF4CE_IEEE_ADDR_LEN);
     reverse(mac_b, key_exchange_context.mac_b, RF4CE_IEEE_ADDR_LEN);
 
-    memcpy(k_dk_data.a, rand_a, RF4CE_PROFILE_CMD_KEY_EXCHANGE_RAND_A_LENGTH);
-    memcpy(k_dk_data.b, rand_b, RF4CE_PROFILE_CMD_KEY_EXCHANGE_RAND_B_LENGTH);
+    data_ptr = k_dk_data;
+    memcpy(data_ptr, rand_a, RF4CE_PROFILE_CMD_KEY_EXCHANGE_RAND_A_LENGTH);
+    data_ptr += RF4CE_PROFILE_CMD_KEY_EXCHANGE_RAND_A_LENGTH;
+    memcpy(data_ptr, rand_b, RF4CE_PROFILE_CMD_KEY_EXCHANGE_RAND_B_LENGTH);
 
-    memcpy(k_dk_data_reversed.a, rand_b, RF4CE_PROFILE_CMD_KEY_EXCHANGE_RAND_B_LENGTH);
-    memcpy(k_dk_data_reversed.b, rand_a, RF4CE_PROFILE_CMD_KEY_EXCHANGE_RAND_A_LENGTH);
+    data_ptr = k_dk_data_reversed;
+    memcpy(data_ptr, rand_b, RF4CE_PROFILE_CMD_KEY_EXCHANGE_RAND_B_LENGTH);
+    data_ptr += RF4CE_PROFILE_CMD_KEY_EXCHANGE_RAND_B_LENGTH;
+    memcpy(data_ptr, rand_a, RF4CE_PROFILE_CMD_KEY_EXCHANGE_RAND_A_LENGTH);
 
-    memcpy(context_data.context, CONTEXT_STR, CONTEXT_STR_LEN);
-    memcpy(context_data.mac_a, mac_a, RF4CE_IEEE_ADDR_LEN);
-    memcpy(context_data.mac_b, mac_b, RF4CE_IEEE_ADDR_LEN);
-    memcpy(context_data.pairing_key, nwk_key, KEY_LEN);
+    data_ptr = context_data;
+    memcpy(data_ptr, CONTEXT_STR, CONTEXT_STR_LEN);
+    data_ptr += CONTEXT_STR_LEN;
+    memcpy(data_ptr, mac_a, RF4CE_IEEE_ADDR_LEN);
+    data_ptr += RF4CE_IEEE_ADDR_LEN;
+    memcpy(data_ptr, mac_b, RF4CE_IEEE_ADDR_LEN);
+    data_ptr += RF4CE_IEEE_ADDR_LEN;
+    memcpy(data_ptr, nwk_key, KEY_LEN);
 
     /* Generic Device Profile Version 2.0
      * 7.4.2 Key generation
      * Calculate derivation key
      * K_dk = AES-128-CMAC (RAND-A || RAND-B, Shared secret)
      */
-    rf4ce_aes_cmac(secret, SEC_STR_LEN, (uint8_t *)&k_dk_data, k_dk_key);
+    rf4ce_aes_cmac(secret, SEC_STR_LEN, k_dk_data, k_dk_key);
 
     /* Calculate new link key
      * Link key = AES-128-CMAC (K_dk, context || label || pairing key)
      */
-    rf4ce_aes_cmac((uint8_t *)&context_data, sizeof(context_data), k_dk_key, new_key);
+    rf4ce_aes_cmac(context_data, sizeof(context_data), k_dk_key, new_key);
 
     /* Calculate TAG-B value
      * TAG-B = AES-128-CMAC(link key, RAND-B || RAND-A)
      */
-    rf4ce_aes_cmac((uint8_t *)&k_dk_data_reversed, sizeof(k_dk_data_reversed), new_key, dummy);
+    rf4ce_aes_cmac(k_dk_data_reversed, sizeof(k_dk_data_reversed), new_key, dummy);
     memcpy((uint8_t *)&tag_b_calc, dummy, RF4CE_PROFILE_CMD_KEY_EXCHANGE_TAG_A_LENGTH);
 
     RF4CE_PRINT_ARR("tag_b_calc", (uint8_t *)&tag_b_calc, 4);
@@ -618,27 +631,37 @@ bool decrypt_data(
     {
         if (nwk_key_storage[idx].is_used)
         {
-            /* Form the nonce (3.5.11.3 Outgoing frame security) */
-            rf4ce_secur_ccm_nonce_t nonce =
-                (rf4ce_secur_ccm_nonce_t){
-                    .secur_control = RF4CE_SECUR_CONTROL};
+            uint8_t *data_ptr;
 
-            /* Fetch counter from the packet (don't check) */
-            memcpy(&(nonce.frame_counter), in + 1, sizeof(uint32_t));
-            reverse(&(nonce.source_address[0]), src_ieee, 8);
+            /* Form the nonce (3.5.11.3 Outgoing frame security) */
+            uint8_t nonce[RF4CE_IEEE_ADDR_LEN + 4 + 1];
+
+            data_ptr = nonce;
+            /* Source IEEE address */
+            reverse(data_ptr, src_ieee, RF4CE_IEEE_ADDR_LEN);
+            data_ptr += RF4CE_IEEE_ADDR_LEN;
+            /* Fetch frame counter from the packet (don't check) */
+            memcpy(data_ptr, in + 1, 4);
+            data_ptr += 4;
+            /* Security level */
+            *data_ptr = RF4CE_SECUR_CONTROL;
 
             /* Form the auth string (3.5.11.3 Outgoing frame security) */
-            rf4ce_secur_ccm_auth_t auth =
-                (rf4ce_secur_ccm_auth_t){
-                    .frame_control = frame_control};
+            uint8_t auth[1 + 4 + RF4CE_IEEE_ADDR_LEN];
 
-            /* Fetch counter from the packet (don't check) */
-            memcpy(&(auth.frame_counter), in + 1, sizeof(uint32_t));
-            reverse(&(auth.dest_address[0]), dst_ieee, 8);
+            data_ptr = auth;
+            /* Frame control field */
+            *data_ptr = frame_control;
+            data_ptr += 1;
+            /* Fetch frame counter from the packet (don't check) */
+            memcpy(data_ptr, in + 1, 4);
+            data_ptr += 4;
+            /* Destination IEEE address */
+            reverse(data_ptr, dst_ieee, RF4CE_IEEE_ADDR_LEN);
 
             ret = zbee_sec_ccm_decrypt(nwk_key_storage[idx].nwk_key,
-                                       (uint8_t *)&nonce,
-                                       (uint8_t *)&auth,
+                                       nonce,
+                                       auth,
                                        in + payload_offset,
                                        out,
                                        sizeof(auth),

@@ -83,39 +83,6 @@ typedef struct key_exchange_context_s {
     bool is_proc_started;
 } key_exchange_context_t;
 
-typedef struct
-#if defined(_MSC_VER)
-# pragma pack(push, 1)
-#else
-__attribute__((__packed__))
-#endif
-rf4ce_key_dk_tag_s
-{
-    uint8_t a[RF4CE_PROFILE_CMD_KEY_EXCHANGE_RAND_A_LENGTH];
-    uint8_t b[RF4CE_PROFILE_CMD_KEY_EXCHANGE_RAND_B_LENGTH];
-} rf4ce_key_dk_tag_t;
-#ifdef _MSC_VER
-# pragma pack(pop)
-#endif
-
-typedef struct
-#if defined(_MSC_VER)
-# pragma pack(push, 1)
-#else
-__attribute__((__packed__))
-#endif
-rf4ce_key_context_s
-{
-    uint8_t context[CONTEXT_STR_LEN];
-    uint8_t mac_a[RF4CE_IEEE_ADDR_LEN];
-    uint8_t mac_b[RF4CE_IEEE_ADDR_LEN];
-    uint8_t pairing_key[KEY_LEN];
-}
-rf4ce_key_context_t;
-#ifdef _MSC_VER
-# pragma pack(pop)
-#endif
-
 void rf4ce_aes_cmac(unsigned char *input, unsigned long length, unsigned char *key, unsigned char *mac_value);
 
 typedef struct addr_entry_s {
@@ -172,38 +139,6 @@ void vendor_secret_storage_add_entry(uint8_t *secret);
 void vendor_secret_storage_release_entry(uint8_t *secret);
 
 void rf4ce_secur_cleanup(void);
-
-typedef struct
-#if defined(_MSC_VER)
-# pragma pack(push, 1)
-#else
-__attribute__((__packed__))
-#endif
-rf4ce_secur_ccm_nonce_s
-{
-    uint8_t source_address[RF4CE_IEEE_ADDR_LEN];     /*!< Extended Source */
-    uint32_t frame_counter;                          /*!< Frame Counter */
-    uint8_t secur_control;                           /*!< Security Control Field */
-} rf4ce_secur_ccm_nonce_t;
-#ifdef _MSC_VER
-# pragma pack(pop)
-#endif
-
-typedef struct
-#if defined(_MSC_VER)
-# pragma pack(push, 1)
-#else
-__attribute__((__packed__))
-#endif
-rf4ce_secur_ccm_auth_s
-{
-    uint8_t frame_control;                           /*!< Security Control Field */
-    uint32_t frame_counter;                          /*!< Frame Counter */
-    uint8_t dest_address[RF4CE_IEEE_ADDR_LEN];       /*!< Extended Source */
-} rf4ce_secur_ccm_auth_t;
-#ifdef _MSC_VER
-# pragma pack(pop)
-#endif
 
 bool decrypt_data(
     const uint8_t *in,
