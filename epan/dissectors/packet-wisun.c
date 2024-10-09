@@ -109,10 +109,12 @@ static reassembly_table netricity_reassembly_table;
 
 #define WISUN_EAPOL_RELAY_UDP_PORT 10253
 
-#define WISUN_WSIE_NODE_ROLE_ID_FFN_BR  0x00
-#define WISUN_WSIE_NODE_ROLE_ID_FFN     0x01
-#define WISUN_WSIE_NODE_ROLE_ID_LFN     0x02
-#define WISUN_WSIE_NODE_ROLE_MASK       0x03
+#define WISUN_WSIE_NODE_ROLE_ID_FFN_BR          0x00
+#define WISUN_WSIE_NODE_ROLE_ID_FFN             0x01
+#define WISUN_WSIE_NODE_ROLE_ID_LFN             0x02
+#define WISUN_WSIE_NODE_ROLE_ID_MASK            0x07
+#define WISUN_WSIE_NODE_ROLE_ID_RESERVED        0x78
+#define WISUN_WSIE_NODE_ROLE_LBATS_IMPLEMENTED  0x80
 
 #define WISUN_PIE_PHY_OPERATING_MODES_MASK   0x0F
 #define WISUN_PIE_PHY_TYPE                   0xF0
@@ -153,6 +155,8 @@ static int hf_wisun_lbtie_slot;
 static int hf_wisun_lbtie_bio;
 static int hf_wisun_nrie;
 static int hf_wisun_nrie_nr_id;
+static int hf_wisun_nrie_reserved_bits;
+static int hf_wisun_nrie_lbats;
 static int hf_wisun_nrie_timing_accuracy;
 static int hf_wisun_nrie_listening_interval_min;
 static int hf_wisun_nrie_listening_interval_max;
@@ -662,6 +666,7 @@ static expert_field ei_wisun_wsie_unsupported;
 static expert_field ei_wisun_usie_channel_plan_invalid;
 static expert_field ei_wisun_edfe_start_not_found;
 static expert_field ei_wisun_usie_explicit_reserved_bits_not_zero;
+static expert_field ei_wisun_nrie_reserved_bits_not_zero;
 static expert_field ei_wisun_jmie_metric_unsupported;
 
 static unsigned
@@ -853,9 +858,19 @@ static int
 dissect_wisun_nrie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned offset)
 {
     unsigned start_offset = offset;
-    uint8_t node_role = tvb_get_uint8(tvb, offset) & WISUN_WSIE_NODE_ROLE_MASK;
+    uint8_t bitmask = tvb_get_uint8(tvb, offset);
+    uint8_t node_role = bitmask & WISUN_WSIE_NODE_ROLE_ID_MASK;
+    int *const nrie_bitmask[] = {
+        &hf_wisun_nrie_lbats,
+        &hf_wisun_nrie_reserved_bits,
+        &hf_wisun_nrie_nr_id,
+        NULL
+    };
 
-    proto_tree_add_item(tree, hf_wisun_nrie_nr_id, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_bitmask_list(tree, tvb, offset, 1, nrie_bitmask, ENC_LITTLE_ENDIAN);
+    if ((bitmask & ~(WISUN_WSIE_NODE_ROLE_LBATS_IMPLEMENTED|WISUN_WSIE_NODE_ROLE_ID_MASK)) != 0) {
+        expert_add_info(pinfo, tree, &ei_wisun_nrie_reserved_bits_not_zero);
+    }
     offset++;
 
     proto_tree_add_item(tree, hf_wisun_usie_clock_drift, tvb, offset, 1, ENC_LITTLE_ENDIAN);
@@ -1941,7 +1956,17 @@ void proto_register_wisun(void)
         },
 
         { &hf_wisun_nrie_nr_id,
-          { "Node Role ID", "wisun.nrie.nr_id", FT_UINT8, BASE_DEC|BASE_SPECIAL_VALS, VALS(wisun_wsie_node_role_vals), 0x0,
+          { "Node Role ID", "wisun.nrie.nr_id", FT_UINT8, BASE_DEC, VALS(wisun_wsie_node_role_vals), WISUN_WSIE_NODE_ROLE_ID_MASK,
+            NULL, HFILL }
+        },
+
+        { &hf_wisun_nrie_reserved_bits,
+          { "Reserved", "wisun.nrie.reserved", FT_UINT8, BASE_DEC, NULL, WISUN_WSIE_NODE_ROLE_ID_RESERVED,
+            NULL, HFILL }
+        },
+
+        { &hf_wisun_nrie_lbats,
+          { "LBATS Implemented", "wisun.nrie.lbats", FT_BOOLEAN, 8, NULL, WISUN_WSIE_NODE_ROLE_LBATS_IMPLEMENTED,
             NULL, HFILL }
         },
 
@@ -2733,6 +2758,8 @@ void proto_register_wisun(void)
         { &ei_wisun_edfe_start_not_found, { "wisun.edfe.start_not_found", PI_SEQUENCE, PI_WARN,
                 "EDFE Transfer: start frame not found", EXPFILL }},
         { &ei_wisun_usie_explicit_reserved_bits_not_zero, { "wisun.usie.explicit.reserved.invalid", PI_MALFORMED, PI_ERROR,
+                "Reserved bits not zero", EXPFILL }},
+        { &ei_wisun_nrie_reserved_bits_not_zero, { "wisun.nrie.reserved.invalid", PI_MALFORMED, PI_ERROR,
                 "Reserved bits not zero", EXPFILL }},
         { &ei_wisun_jmie_metric_unsupported, { "wisun.jmie.metric.unsupported", PI_PROTOCOL, PI_WARN,
                 "Unsupported Metric ID", EXPFILL }},
