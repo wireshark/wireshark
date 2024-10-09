@@ -2784,7 +2784,7 @@ proto_register_btavdtp(void)
         },
         { &hf_btavdtp_vendor_specific_value,
             { "Value",                          "btavdtp.codec.vendor.value",
-            FT_NONE, BASE_NONE, NULL, 0x0,
+            FT_BYTES, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_btavdtp_vendor_specific_apt_codec_id,
