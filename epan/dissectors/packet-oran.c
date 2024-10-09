@@ -12,11 +12,12 @@
  /*
    * Dissector for the O-RAN Fronthaul CUS protocol specification.
    * See https://specifications.o-ran.org/specifications, WG4, Fronthaul Interfaces Workgroup
-   * The current implementation is based on the
-   * ORAN-WG4.CUS.0-v10.00 specification, dated 2022/07/23 (plus some enums from v13, ST4+ST8 from v15)
-   *
+   * The current implementation is based on the ORAN-WG4.CUS.0-v15.00 specification
    */
+
 #include <config.h>
+
+#include <math.h>
 
 #include <epan/packet.h>
 #include <epan/expert.h>
@@ -36,7 +37,7 @@
  * - Detect/indicate signs of application layer fragmentation?
  * - Not handling M-plane setting for "little endian byte order" as applied to IQ samples and beam weights
  * - for section extensions, check more constraints (which other extension types appear with them, order)
- * - when some section extensions are present, some section header fields are effectively ignored - flag?
+ * - when some section extensions are present, some section header fields are effectively ignored - flag any remaining?
  * - re-order items (decl and hf definitions) to match spec order
  * - add hf items to use as roots for remaining subtrees (blurb more useful than filter..)
  */
@@ -377,7 +378,7 @@ static expert_field ei_oran_acknack_no_request;
 static expert_field ei_oran_udpcomphdr_should_be_zero;
 static expert_field ei_oran_radio_fragmentation_c_plane;
 static expert_field ei_oran_radio_fragmentation_u_plane;
-
+static expert_field ei_oran_lastRbdid_out_of_range;
 
 
 /* These are the message types handled by this dissector */
@@ -909,6 +910,11 @@ static const true_false_string continuity_indication_tfs = {
 static const true_false_string prb_mode_tfs = {
   "PRB-BLOCK mode",
   "PRB-MASK mode"
+};
+
+static const true_false_string ready_tfs = {
+  "message is a \"ready\" message",
+  "message is a ACK message"
 };
 
 
@@ -2394,10 +2400,11 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                 proto_tree_add_bits_item(extension_tree, hf_oran_repetition, tvb, offset*8, 1, ENC_BIG_ENDIAN);
                 /* rbgSize */
                 uint32_t rbgSize;
-                proto_tree_add_item_ret_uint(extension_tree, hf_oran_rbgSize, tvb, offset, 1, ENC_BIG_ENDIAN, &rbgSize);
+                proto_item *rbg_size_ti;
+                rbg_size_ti = proto_tree_add_item_ret_uint(extension_tree, hf_oran_rbgSize, tvb, offset, 1, ENC_BIG_ENDIAN, &rbgSize);
                 if (rbgSize == 0) {
                     /* N.B. this is only true if "se6-rb-bit-supported" is set... */
-                    expert_add_info_format(pinfo, extlen_ti, &ei_oran_rbg_size_reserved,
+                    expert_add_info_format(pinfo, rbg_size_ti, &ei_oran_rbg_size_reserved,
                                            "rbgSize value of 0 is reserved");
                 }
                 /* rbgMask (28 bits) */
@@ -2406,6 +2413,8 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                 if (rbgSize == 0) {
                     proto_item_append_text(rbgmask_ti, " (value ignored since rbgSize is 0)");
                 }
+
+                /* TODO: if receiver detects non-zero bits outside the valid range, those shall be ignored. */
                 offset += 4;
                 /* priority */
                 proto_tree_add_item(extension_tree, hf_oran_noncontig_priority, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -2440,6 +2449,17 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                         ext11_settings.ext6_bits_set[ext11_settings.ext6_num_bits_set++] = n;
                     }
                 }
+
+                if (rbgSize != 0) {
+                    /* The O-DU shall not use combinations of startPrbc, numPrbc and rbgSize leading to a value of lastRbgid larger than 27 */
+                    uint32_t lastRbgid = (uint32_t)ceil((numPrbc + (startPrbc % rbgSize)) / rbgSize) - 1;
+                    if (lastRbgid > 27) {
+                        expert_add_info_format(pinfo, rbg_size_ti, &ei_oran_lastRbdid_out_of_range,
+                                               "SE6: rbgSize (%u) not compatible with startPrbc(%u) and numPrbc(%u)",
+                                               rbgSize, startPrbc, numPrbc);
+                    }
+                }
+
                 break;
             }
 
@@ -2523,6 +2543,12 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
 
             case 11: /* SE 11: Flexible Weights Extension Type */
             {
+                /* beamId in section header should be ignored. Guard against appending multiple times.. */
+                if (beamId_ti && !beamId_ignored) {
+                    proto_item_append_text(beamId_ti, " (ignored)");
+                    beamId_ignored = true;
+                }
+
                 bool disableBFWs;
                 uint32_t numBundPrb;
                 bool rad;
@@ -3538,6 +3564,7 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
     proto_item_set_generated(pi);
 
     uint32_t cmd_scope = 0;
+    bool st8_ready = false;
 
     /* numberOfSections (or whatever section has instead) */
     uint32_t nSections = 0;
@@ -3553,9 +3580,9 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
         proto_tree_add_item(section_tree, hf_oran_reserved_7bits, tvb, offset, 1, ENC_NA);
         /* ready (1 bit) */
         /* TODO: when set, ready in slotId+1.. */
-        bool ready;
-        proto_tree_add_item_ret_boolean(section_tree, hf_oran_ready, tvb, offset, 1, ENC_NA, &ready);
-        if (!ready) {
+        proto_tree_add_item_ret_boolean(section_tree, hf_oran_ready, tvb, offset, 1, ENC_NA, &st8_ready);
+        if (!st8_ready) {
+            /* SCS value is ignored, and may be set to any value by O-RU */
             proto_item_append_text(scs_ti, " (ignored)");
         }
     }
@@ -3735,6 +3762,12 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
     /* Set actual length of C-Plane section header */
     proto_item_set_len(section_tree, offset - section_tree_offset);
 
+    if (sectionType == SEC_C_ACK_NACK_FEEDBACK) {
+        write_pdu_label_and_info(oran_tree, section_tree, pinfo,
+                                 (st8_ready) ? " (Ready)" : " (ACK)");
+    }
+
+
     /* Section type 4 doesn't have normal sections, so deal with here before normal sections */
     if (sectionType == SEC_C_SLOT_CONTROL) {
         /* numberOfST4Cmds */
@@ -3842,6 +3875,7 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
                     proto_tree_add_item(command_tree, hf_oran_reserved_2bits, tvb, offset, 1, ENC_BIG_ENDIAN);
                     /* symbolMask (14 bits) */
                     proto_tree_add_item(command_tree, hf_oran_symbolMask, tvb, offset, 2, ENC_BIG_ENDIAN);
+                    /* TODO: Symbol bits before 'startSymbolId' in Section Type 4 common header should be set to 0 by O-DU and shall be ignored by O-RU */
                     offset += 2;
 
                     /* disableTDBFNs */
@@ -5936,11 +5970,11 @@ proto_register_oran(void)
           "which antennas should sleep or wake-up",
           HFILL}
         },
-
+        /* 7.5.3.55 */
         {&hf_oran_ready,
          {"ready", "oran_fh_cus.ready",
           FT_BOOLEAN, 8,
-          NULL, 0x01,
+          TFS(&ready_tfs), 0x01,
           "wake-up ready indicator",
           HFILL}
         },
@@ -6306,7 +6340,10 @@ proto_register_oran(void)
         { &ei_oran_acknack_no_request, { "oran_fh_cus.acknack_no_request", PI_SEQUENCE, PI_WARN, "Have ackNackId response, but no request", EXPFILL }},
         { &ei_oran_udpcomphdr_should_be_zero, { "oran_fh_cus.udcomphdr_should_be_zero", PI_MALFORMED, PI_WARN, "C-Plane udCompHdr in DL should be set to 0", EXPFILL }},
         { &ei_oran_radio_fragmentation_c_plane, { "oran_fh_cus.radio_fragmentation_c_plane", PI_MALFORMED, PI_ERROR, "Radio fragmentation not allowed in C-PLane", EXPFILL }},
-        { &ei_oran_radio_fragmentation_u_plane, { "oran_fh_cus.radio_fragmentation_u_plane", PI_UNDECODED, PI_WARN, "Radio fragmentation in C-PLane not yet supported", EXPFILL }}
+        { &ei_oran_radio_fragmentation_u_plane, { "oran_fh_cus.radio_fragmentation_u_plane", PI_UNDECODED, PI_WARN, "Radio fragmentation in C-PLane not yet supported", EXPFILL }},
+        { &ei_oran_lastRbdid_out_of_range, { "oran_fh_cus.lastrbdid_out_of_range", PI_MALFORMED, PI_WARN, "SE 6 has bad rbgSize", EXPFILL }}
+
+
     };
 
     /* Register the protocol name and description */
