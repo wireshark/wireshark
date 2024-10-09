@@ -40,10 +40,7 @@ The following bugs have been fixed:
 //* cveidlink:2014-2486[]
 //* Wireshark took a bite out of each of your freshly baked muffins until it found the perfect one.
 
-== Known Bugs
-
-* Wireshark 4.4.0 / macOS 14.6.1 wifi if monitor mode. wsbuglink:20051[].
-* Opening Wireshark 4.4.0 on macOS 15.0 disconnects iPhone Mirroring. wsbuglink:20082[].
+// == Known Bugs
 
 === New and Updated Features
 
@@ -117,6 +114,7 @@ wsbuglink:20114[].
 * OER dissector is not considering the preamble if ASN.1 SEQUENCE definition includes extension marker but no OPTIONAL items. wsbuglink:20044[].
 * Bluetooth classic L2CAP incorrect dissection with connectionless reception channel. wsbuglink:20047[].
 * Profile auto switch filters : Grayed Display Filter Expression dialog box when opened from Configuration Profiles dialog box. wsbuglink:20049[].
+* Wireshark 4.4.0 / macOS 14.6.1 wifi if monitor mode. wsbuglink:20051[].
 * TECMP Data Type passes too much data to sub dissectors. wsbuglink:20052[].
 * Wireshark and tshark 4.4.0 ignore extcap options specified on the command line. wsbuglink:20054[].
 * Cannot open release notes due to incorrect path with duplicated directory components. wsbuglink:20055[].
@@ -125,6 +123,7 @@ wsbuglink:20114[].
 * Wireshark 4.4.0 extcap path change breaks third party extcap installers. wsbuglink:20069[].
 * Fuzz job UTF-8 encoding issue: fuzz-2024-09-10-7618.pcap. wsbuglink:20071[].
 * Unable to create larger files than 99 size units. wsbuglink:20079[].
+* Opening Wireshark 4.4.0 on macOS 15.0 disconnects iPhone Mirroring. wsbuglink:20082[].
 * PRP trailer not shown for L2 IEC 61850 GOOSE packets in 4.4.0 (was working in 4.2.7) wsbuglink:20088[].
 * GUI lags because NetworkManager keeps turning 802.11 monitor mode off. wsbuglink:20090[].
 * Error while getting Bluetooth application process id by <shell:ps -A | grep com.*android.bluetooth> wsbuglink:20100[].
