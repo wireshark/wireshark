@@ -192,10 +192,12 @@ dissect_reload_framing_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
   transaction_id_key[0].key = &sequence; /* sequence number */
 
   /* When the wmem_tree_* functions iterate through the keys, they
-   * perform pointer arithmetic with guint32s, so we have to divide
-   * our length fields by that to make things work, but we still want
-   * to g_malloc and memcpy the entire amounts, since those both operate
-   * in raw bytes. */
+   * perform pointer arithmetic with guint32s (which requires copying
+   * the address, at least on some platforms, as there's no guarantee
+   * that the address structure data field is 4-byte aligned), so we
+   * have to divide our length fields by that to make things work, but
+   * we still want to wmem_alloc and memcpy the entire amounts, since
+   * those both operate in raw bytes. */
   if (type==DATA) {
     transaction_id_key[1].length = 1;
     transaction_id_key[1].key    = &pinfo->srcport;
@@ -268,7 +270,7 @@ dissect_reload_framing_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     transaction_id_key[2].key    = key_save;
     transaction_id_key[2].length = len_save;
   }
-  g_free(transaction_id_key[2].key);
+  wmem_free(wmem_file_scope(), transaction_id_key[2].key);
 
   if (!reload_frame) {
     /* create a "fake" pana_trans structure */
