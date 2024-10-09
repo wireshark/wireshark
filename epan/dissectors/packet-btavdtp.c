@@ -83,6 +83,7 @@
 #define VENDOR_APT_CODEC_ID_APT_X       0x0001
 #define VENDOR_APT_CODEC_ID_APT_X_HD    0x0024
 #define VENDOR_SONY_CODEC_ID_LDAC       0x00AA
+#define VENDOR_GOOGLE_CODEC_ID_OPUS     0x0001
 
 #define CODEC_H263_BASELINE   0x01
 #define CODEC_MPEG4_VSP       0x02
@@ -265,6 +266,13 @@ static int hf_btavdtp_vendor_specific_ldac_rfa2;
 static int hf_btavdtp_vendor_specific_ldac_channel_mode_mono;
 static int hf_btavdtp_vendor_specific_ldac_channel_mode_dual_channel;
 static int hf_btavdtp_vendor_specific_ldac_channel_mode_stereo;
+static int hf_btavdtp_vendor_specific_opus_sampling_frequency_48000;
+static int hf_btavdtp_vendor_specific_opus_rfa;
+static int hf_btavdtp_vendor_specific_opus_frame_duration_20;
+static int hf_btavdtp_vendor_specific_opus_frame_duration_10;
+static int hf_btavdtp_vendor_specific_opus_channel_mode_dual;
+static int hf_btavdtp_vendor_specific_opus_channel_mode_stereo;
+static int hf_btavdtp_vendor_specific_opus_channel_mode_mono;
 static int hf_btavdtp_h263_level_10;
 static int hf_btavdtp_h263_level_20;
 static int hf_btavdtp_h263_level_30;
@@ -279,6 +287,7 @@ static int hf_btavdtp_vendor_specific_codec_id;
 static int hf_btavdtp_vendor_specific_value;
 static int hf_btavdtp_vendor_apt_codec_id;
 static int hf_btavdtp_vendor_sony_codec_id;
+static int hf_btavdtp_vendor_google_codec_id;
 static int hf_btavdtp_capabilities;
 static int hf_btavdtp_service;
 static int hf_btavdtp_service_multiplexing_entry;
@@ -613,6 +622,11 @@ static const value_string vendor_apt_codec_vals[] = {
 
 static const value_string vendor_sony_codec_vals[] = {
     { VENDOR_SONY_CODEC_ID_LDAC,  "LDAC" },
+    { 0, NULL }
+};
+
+static const value_string vendor_google_codec_vals[] = {
+    { VENDOR_GOOGLE_CODEC_ID_OPUS,  "Opus" },
     { 0, NULL }
 };
 
@@ -1128,6 +1142,45 @@ dissect_codec(tvbuff_t *tvb, packet_info *pinfo, proto_item *service_item, proto
                                 proto_tree_add_item(tree, hf_btavdtp_vendor_specific_value, tvb, offset + 6, losc - 6, ENC_NA);
                             }
                             break;
+                        case 0x00E0: /* Google */
+                            proto_tree_add_item_ret_uint(tree, hf_btavdtp_vendor_google_codec_id, tvb, offset + 4, 2, ENC_LITTLE_ENDIAN, &vendor_codec_id);
+                            switch (vendor_codec_id) {
+                            case VENDOR_GOOGLE_CODEC_ID_OPUS:
+                                proto_tree_add_item(tree, hf_btavdtp_vendor_specific_opus_sampling_frequency_48000, tvb, offset + 6, 1, ENC_NA);
+                                proto_tree_add_item(tree, hf_btavdtp_vendor_specific_opus_rfa, tvb, offset + 6, 1, ENC_NA);
+                                proto_tree_add_item(tree, hf_btavdtp_vendor_specific_opus_frame_duration_20, tvb, offset + 6, 1, ENC_NA);
+                                proto_tree_add_item(tree, hf_btavdtp_vendor_specific_opus_frame_duration_10, tvb, offset + 6, 1, ENC_NA);
+                                proto_tree_add_item(tree, hf_btavdtp_vendor_specific_opus_channel_mode_dual, tvb, offset + 6, 1, ENC_NA);
+                                proto_tree_add_item(tree, hf_btavdtp_vendor_specific_opus_channel_mode_stereo, tvb, offset + 6, 1, ENC_NA);
+                                proto_tree_add_item(tree, hf_btavdtp_vendor_specific_opus_channel_mode_mono, tvb, offset + 6, 1, ENC_NA);
+
+                                col_append_fstr(pinfo->cinfo, COL_INFO, " (%s -",
+                                    val_to_str_const(vendor_codec_id, vendor_google_codec_vals, "unknown codec"));
+                                proto_item_append_text(service_item, " (%s -",
+                                    val_to_str_const(vendor_codec_id, vendor_google_codec_vals, "unknown codec"));
+
+                                value = tvb_get_uint8(tvb, offset + 6);
+                                if (value) {
+                                    col_append_fstr(pinfo->cinfo, COL_INFO, "%s%s,%s%s%s%s)",
+                                        (value & 0x80) ? " 48000" : "",
+                                        (value & 0x80) ? "" : " not set",
+                                        (value & 0x04) ? " Dual" : "",
+                                        (value & 0x02) ? " Stereo" : "",
+                                        (value & 0x01) ? " Mono" : "",
+                                        (value & 0x07) ? "" : " not set");
+
+                                    proto_item_append_text(service_item, "%s%s,%s%s%s%s)",
+                                        (value & 0x80) ? " 48000" : "",
+                                        (value & 0x80) ? "" : " not set",
+                                        (value & 0x04) ? " Dual" : "",
+                                        (value & 0x02) ? " Stereo" : "",
+                                        (value & 0x01) ? " Mono" : "",
+                                        (value & 0x07) ? "" : " not set");
+                                } else {
+                                    col_append_str(pinfo->cinfo, COL_INFO, " none)");
+                                    proto_item_append_text(service_item, " none)");
+                                }
+                                break;
                             default:
                                 proto_tree_add_item(tree, hf_btavdtp_vendor_specific_value, tvb, offset + 6, losc - 6, ENC_NA);
                             }
@@ -2944,6 +2997,46 @@ proto_register_btavdtp(void)
         },
         { &hf_btavdtp_vendor_specific_ldac_channel_mode_stereo,
             { "Channel Mode Stereo",            "btavdtp.codec.ldac.channel_mode.stereo",
+            FT_BOOLEAN, 8, NULL, 0x01,
+            NULL, HFILL }
+        },
+        { &hf_btavdtp_vendor_google_codec_id,
+            { "Codec",                          "btavdtp.codec.vendor.codec_id",
+            FT_UINT16, BASE_HEX, VALS(vendor_google_codec_vals), 0x00,
+            NULL, HFILL }
+        },
+        { &hf_btavdtp_vendor_specific_opus_sampling_frequency_48000,
+            { "Sampling Frequency 48000 Hz",    "btavdtp.codec.opus.sampling_frequency.48000",
+            FT_BOOLEAN, 8, NULL, 0x80,
+            NULL, HFILL }
+        },
+        { &hf_btavdtp_vendor_specific_opus_rfa,
+            { "RFA",                            "btavdtp.codec.opus.rfa1",
+            FT_UINT8, BASE_HEX, NULL, 0x60,
+            NULL, HFILL }
+        },
+        { &hf_btavdtp_vendor_specific_opus_frame_duration_20,
+            { "Frame Duration 20 ms",           "btavdtp.codec.opus.frame_duration.20",
+            FT_BOOLEAN, 8, NULL, 0x10,
+            NULL, HFILL }
+        },
+        { &hf_btavdtp_vendor_specific_opus_frame_duration_10,
+            { "Frame Duration 10 ms",           "btavdtp.codec.opus.frame_duration.10",
+            FT_BOOLEAN, 8, NULL, 0x08,
+            NULL, HFILL }
+        },
+        { &hf_btavdtp_vendor_specific_opus_channel_mode_dual,
+            { "Channel Mode Dual",              "btavdtp.codec.opus.channel_mode.dual",
+            FT_BOOLEAN, 8, NULL, 0x04,
+            NULL, HFILL }
+        },
+        { &hf_btavdtp_vendor_specific_opus_channel_mode_stereo,
+            { "Channel Mode Stereo",            "btavdtp.codec.opus.channel_mode.stereo",
+            FT_BOOLEAN, 8, NULL, 0x02,
+            NULL, HFILL }
+        },
+        { &hf_btavdtp_vendor_specific_opus_channel_mode_mono,
+            { "Channel Mode Mono",              "btavdtp.codec.opus.channel_mode.mono",
             FT_BOOLEAN, 8, NULL, 0x01,
             NULL, HFILL }
         },
