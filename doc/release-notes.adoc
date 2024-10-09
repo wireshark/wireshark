@@ -22,28 +22,6 @@ If you or your organization would like to contribute or become a sponsor, please
 
 The following vulnerabilities have been fixed:
 
-* wssalink:2024-12[]
-ITS dissector crash.
-wsbuglink:20026[].
-// cveidlink:2024-xxx[].
-// Fixed in master: 6d22bfced6
-// Fixed in release-4.4: 733544bb66
-// Fixed in release-4.2: n/a
-// CVSS AV:L/AC:L/PR:N/UI:R/S:U/C:H/I:H/A:H
-// CWE-456
-// * Fuzz job crash: fuzz-2024-08-29-7609.pcap. wsbuglink:20026[].
-
-* wssalink:2024-13[]
-AppleTalk and RELOAD Framing dissector crashes.
-wsbuglink:20114[].
-// cveidlink:2024-xxx[].
-// Fixed in master: 3de741321f, 636ab9da8b, 692f9bed05
-// Fixed in release-4.4: 418fd5fe4b, d17a2febc5, 9f33105c74
-// Fixed in release-4.2: cad248ce3b, 681cb0521e, 1c5e4b8cf4
-// CVSS AV:L/AC:L/PR:N/UI:R/S:U/C:H/I:H/A:H
-// CWE-230
-// * Fuzz job crash: fuzz-2024-10-08-7201.pcap. wsbuglink:20114[].
-
 // * wssalink:2024-14[]
 // Foo dissector {crash,infinite loop,memory leak}.
 // wsbuglink:xxx[].
@@ -61,32 +39,6 @@ The following bugs have been fixed:
 //* wsbuglink:6000[Wireshark bug]
 //* cveidlink:2014-2486[]
 //* Wireshark took a bite out of each of your freshly baked muffins until it found the perfect one.
-
-* Refresh interface during live-capture leads to corrupt interface handling. wsbuglink:11176[].
-* Media type "application/octet-stream" registered for both Thread and UASIP. wsbuglink:14729[].
-* Extcap toolbar stops working when new interface is added. wsbuglink:19854[].
-* Decoding error ITS CPM version 2.1.1. wsbuglink:19886[].
-* Build error in 4.3.0: sync_pipe_run_command_actual error: argument 2 is null but the corresponding size argument 3 value is 512004 [-Werror=nonnull] wsbuglink:19930[].
-* html2text.py doesn't handle the `<sup>` tag. wsbuglink:20020[].
-* Incorrect NetFlow v8 TOS AS aggregation dissection. wsbuglink:20021[].
-* The Windows packages don't ship with the IP address plugin. wsbuglink:20030[].
-* O_PATH is Linux-and-FreeBSD-specific. wsbuglink:20031[].
-* Wireshark 4.4.0 doesn't install USBcap USBcapCMD.exe in the correct directory. wsbuglink:20040[].
-* OER dissector is not considering the preamble if ASN.1 SEQUENCE definition includes extension marker but no OPTIONAL items. wsbuglink:20044[].
-* Bluetooth classic L2CAP incorrect dissection with connectionless reception channel. wsbuglink:20047[].
-* Profile auto switch filters : Grayed Display Filter Expression dialog box when opened from Configuration Profiles dialog box. wsbuglink:20049[].
-* TECMP Data Type passes too much data to sub dissectors. wsbuglink:20052[].
-* Wireshark and tshark 4.4.0 ignore extcap options specified on the command line. wsbuglink:20054[].
-* Cannot open release notes due to incorrect path with duplicated directory components. wsbuglink:20055[].
-* Unable to open "Release Notes" from the "Help" menu. wsbuglink:20056[].
-* No capture interfaces if Wireshark is started from command line with certain paths. wsbuglink:20057[].
-* Wireshark 4.4.0 extcap path change breaks third party extcap installers. wsbuglink:20069[].
-* Fuzz job UTF-8 encoding issue: fuzz-2024-09-10-7618.pcap. wsbuglink:20071[].
-* Unable to create larger files than 99 size units. wsbuglink:20079[].
-* PRP trailer not shown for L2 IEC 61850 GOOSE packets in 4.4.0 (was working in 4.2.7) wsbuglink:20088[].
-* GUI lags because NetworkManager keeps turning 802.11 monitor mode off. wsbuglink:20090[].
-* Error while getting Bluetooth application process id by <shell:ps -A | grep com.*android.bluetooth> wsbuglink:20100[].
-* Fuzz job assertion: randpkt-2024-10-05-7200.pcap. wsbuglink:20110[].
 
 == Known Bugs
 
@@ -113,69 +65,15 @@ There are no new protocols in this release.
 // ag -A1 '(define PSNAME|proto_register_protocol[^_])' $(git diff --name-only v4.4.0.. | ag packet- | sort -u)
 [commaize]
 --
-AppleTalk
-ARTNET
-BGP
-BT L2CAP
-CoAP
-CIGI
-CIP Motion
-COSE
-DISTCC
-DMP
-Ethernet OAM PDU
-F5 FILEINFO
-GIOP
-GOOSE
-GSM Management
-GSM SIM
-GTP
-HTTP
-HTTP2
-ID3v2
-IDN
-IEEE 1609.2
-IEEE 802.11
-IPPUSB
-iRDMA
-ISystemActivator
-ITS
-Kerberos
-LwM2M-TLV
-MMS
-MQ
-MySQL
-NCP SSS
-NetFlow
-OER
-OWAMP
-QNET
-RELOAD Framing
-RTCP
-RTLS
-SANE
-SMB2
-SSyncP
-Sysdig Event
-T.124
-TECMP
-Thread
-Thrift
-TWAMP
 --
 
 === New and Updated Capture File Support
 
-// There is no new or updated capture file support in this release.
+There is no new or updated capture file support in this release.
 // Add one file type per line between the -- delimiters.
-[commaize]
---
-BLF
-CLLOG
-CommView
-ERF
-pcap
---
+// [commaize]
+// --
+// --
 
 === Updated File Format Decoding Support
 
@@ -193,8 +91,44 @@ There is no updated file format support in this release.
 
 == Prior Versions
 
-This document only describes the changes introduced in Wireshark {wireshark-version}.
-You can find release notes for prior versions at the following locations:
+Wireshark 4.4.1 included the following changes.
+See the
+https://www.wireshark.org/docs/relnotes/wireshark-4.4.1.html[release notes]
+for details:
+
+* wssalink:2024-12[]
+ITS dissector crash.
+wsbuglink:20026[].
+
+* wssalink:2024-13[]
+AppleTalk and RELOAD Framing dissector crashes.
+wsbuglink:20114[].
+
+* Refresh interface during live-capture leads to corrupt interface handling. wsbuglink:11176[].
+* Media type "application/octet-stream" registered for both Thread and UASIP. wsbuglink:14729[].
+* Extcap toolbar stops working when new interface is added. wsbuglink:19854[].
+* Decoding error ITS CPM version 2.1.1. wsbuglink:19886[].
+* Build error in 4.3.0: sync_pipe_run_command_actual error: argument 2 is null but the corresponding size argument 3 value is 512004 [-Werror=nonnull] wsbuglink:19930[].
+* html2text.py doesn't handle the `<sup>` tag. wsbuglink:20020[].
+* Incorrect NetFlow v8 TOS AS aggregation dissection. wsbuglink:20021[].
+* The Windows packages don't ship with the IP address plugin. wsbuglink:20030[].
+* O_PATH is Linux-and-FreeBSD-specific. wsbuglink:20031[].
+* Wireshark 4.4.0 doesn't install USBcap USBcapCMD.exe in the correct directory. wsbuglink:20040[].
+* OER dissector is not considering the preamble if ASN.1 SEQUENCE definition includes extension marker but no OPTIONAL items. wsbuglink:20044[].
+* Bluetooth classic L2CAP incorrect dissection with connectionless reception channel. wsbuglink:20047[].
+* Profile auto switch filters : Grayed Display Filter Expression dialog box when opened from Configuration Profiles dialog box. wsbuglink:20049[].
+* TECMP Data Type passes too much data to sub dissectors. wsbuglink:20052[].
+* Wireshark and tshark 4.4.0 ignore extcap options specified on the command line. wsbuglink:20054[].
+* Cannot open release notes due to incorrect path with duplicated directory components. wsbuglink:20055[].
+* Unable to open "Release Notes" from the "Help" menu. wsbuglink:20056[].
+* No capture interfaces if Wireshark is started from command line with certain paths. wsbuglink:20057[].
+* Wireshark 4.4.0 extcap path change breaks third party extcap installers. wsbuglink:20069[].
+* Fuzz job UTF-8 encoding issue: fuzz-2024-09-10-7618.pcap. wsbuglink:20071[].
+* Unable to create larger files than 99 size units. wsbuglink:20079[].
+* PRP trailer not shown for L2 IEC 61850 GOOSE packets in 4.4.0 (was working in 4.2.7) wsbuglink:20088[].
+* GUI lags because NetworkManager keeps turning 802.11 monitor mode off. wsbuglink:20090[].
+* Error while getting Bluetooth application process id by <shell:ps -A | grep com.*android.bluetooth> wsbuglink:20100[].
+* Fuzz job assertion: randpkt-2024-10-05-7200.pcap. wsbuglink:20110[].
 
 Wireshark 4.4.0 included the following changes.
 See the
