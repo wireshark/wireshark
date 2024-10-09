@@ -650,26 +650,26 @@ dissect_ccid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         break;
 
     case RDR_PC_PARAMS:
-        proto_tree_add_item(ccid_tree, hf_ccid_dwLength, tvb, 1, 4, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item_ret_uint(ccid_tree, hf_ccid_dwLength, tvb, 1, 4, ENC_LITTLE_ENDIAN, &payload_len);
         proto_tree_add_item(ccid_tree, hf_ccid_bSlot, tvb, 5, 1, ENC_LITTLE_ENDIAN);
         proto_tree_add_item(ccid_tree, hf_ccid_bSeq, tvb, 6, 1, ENC_LITTLE_ENDIAN);
         proto_tree_add_bitmask(ccid_tree, tvb, 7, hf_ccid_bStatus, ett_ccid_status, bStatus_fields, ENC_LITTLE_ENDIAN);
         proto_tree_add_item(ccid_tree, hf_ccid_bError, tvb, 8, 1, ENC_LITTLE_ENDIAN);
         proto_tree_add_item(ccid_tree, hf_ccid_bProtocolNum, tvb, 9, 1, ENC_LITTLE_ENDIAN);
 
-        payload_len = tvb_get_letohl(tvb, 1);
-
         /* abProtocolDataStructure */
         bProtocolNum = tvb_get_uint8(tvb, 9);
         switch (bProtocolNum)
         {
             case 0: /* T=0 */
-                protocol_tree = proto_tree_add_subtree(tree, tvb, 10, payload_len, ett_ccid_protocol_data_structure, NULL, "Protocol Data Structure for Protocol T=0");
-                proto_tree_add_item(protocol_tree, hf_ccid_bmFindexDindex, tvb, 10, 1, ENC_LITTLE_ENDIAN);
-                proto_tree_add_item(protocol_tree, hf_ccid_bmTCCKST0, tvb, 11, 1, ENC_LITTLE_ENDIAN);
-                proto_tree_add_item(protocol_tree, hf_ccid_bGuardTimeT0, tvb, 12, 1, ENC_LITTLE_ENDIAN);
-                proto_tree_add_item(protocol_tree, hf_ccid_bWaitingIntegerT0, tvb, 13, 1, ENC_LITTLE_ENDIAN);
-                proto_tree_add_item(protocol_tree, hf_ccid_bClockStop, tvb, 14, 1, ENC_LITTLE_ENDIAN);
+                if (payload_len > 0) {
+                    protocol_tree = proto_tree_add_subtree(tree, tvb, 10, payload_len, ett_ccid_protocol_data_structure, NULL, "Protocol Data Structure for Protocol T=0");
+                    proto_tree_add_item(protocol_tree, hf_ccid_bmFindexDindex, tvb, 10, 1, ENC_LITTLE_ENDIAN);
+                    proto_tree_add_item(protocol_tree, hf_ccid_bmTCCKST0, tvb, 11, 1, ENC_LITTLE_ENDIAN);
+                    proto_tree_add_item(protocol_tree, hf_ccid_bGuardTimeT0, tvb, 12, 1, ENC_LITTLE_ENDIAN);
+                    proto_tree_add_item(protocol_tree, hf_ccid_bWaitingIntegerT0, tvb, 13, 1, ENC_LITTLE_ENDIAN);
+                    proto_tree_add_item(protocol_tree, hf_ccid_bClockStop, tvb, 14, 1, ENC_LITTLE_ENDIAN);
+                }
                 break;
 
             case 1: /* T=1 */
