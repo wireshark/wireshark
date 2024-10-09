@@ -33,6 +33,27 @@ wsbuglink:20026[].
 // CWE-456
 // * Fuzz job crash: fuzz-2024-08-29-7609.pcap. wsbuglink:20026[].
 
+* wssalink:2024-13[]
+AppleTalk and RELOAD Framing dissector crashes.
+wsbuglink:20114[].
+// cveidlink:2024-xxx[].
+// Fixed in master: 3de741321f, 636ab9da8b, 692f9bed05
+// Fixed in release-4.4: 418fd5fe4b, d17a2febc5, 9f33105c74
+// Fixed in release-4.2: cad248ce3b, 681cb0521e, 1c5e4b8cf4
+// CVSS AV:L/AC:L/PR:N/UI:R/S:U/C:H/I:H/A:H
+// CWE-230
+// * Fuzz job crash: fuzz-2024-10-08-7201.pcap. wsbuglink:20114[].
+
+// * wssalink:2024-14[]
+// Foo dissector {crash,infinite loop,memory leak}.
+// wsbuglink:xxx[].
+// cveidlink:2024-xxx[].
+// Fixed in master: xxx
+// Fixed in release-4.4: xxx
+// Fixed in release-4.2: xxx
+// CVSS AV:L/AC:L/PR:N/UI:R/S:U/C:H/I:H/A:H
+// CWE-824
+
 The following bugs have been fixed:
 
 //The following bugs have been fixed:
@@ -92,6 +113,7 @@ There are no new protocols in this release.
 // ag -A1 '(define PSNAME|proto_register_protocol[^_])' $(git diff --name-only v4.4.0.. | ag packet- | sort -u)
 [commaize]
 --
+AppleTalk
 ARTNET
 BGP
 BT L2CAP
@@ -128,6 +150,7 @@ NetFlow
 OER
 OWAMP
 QNET
+RELOAD Framing
 RTCP
 RTLS
 SANE
