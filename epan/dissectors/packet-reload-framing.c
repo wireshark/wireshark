@@ -124,8 +124,14 @@ dissect_reload_framing_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
   effective_length = tvb_captured_length(tvb);
 
   /* First, make sure we have enough data to do the check. */
-  if (effective_length < MIN_HDR_LENGTH)
+  if (effective_length < MIN_HDR_LENGTH) {
     return 0;
+  }
+
+  /* Next, make sure we can create transaction ID keys. */
+  if (!(pinfo->src.data && pinfo->dst.data)) {
+    return 0;
+  }
 
   conversation = find_conversation_pinfo(pinfo, 0);
   if (conversation)
@@ -194,14 +200,14 @@ dissect_reload_framing_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     transaction_id_key[1].length = 1;
     transaction_id_key[1].key    = &pinfo->srcport;
     transaction_id_key[2].length = (pinfo->src.len) / (unsigned)sizeof(uint32_t);
-    transaction_id_key[2].key    = (uint32_t *)g_malloc(pinfo->src.len);
+    transaction_id_key[2].key    = (uint32_t *)wmem_alloc(wmem_file_scope(), pinfo->src.len);
     memcpy(transaction_id_key[2].key, pinfo->src.data, pinfo->src.len);
   }
   else {
     transaction_id_key[1].length = 1;
     transaction_id_key[1].key    = &pinfo->destport;
     transaction_id_key[2].length = (pinfo->dst.len) / (unsigned)sizeof(uint32_t);
-    transaction_id_key[2].key    = (uint32_t *)g_malloc(pinfo->dst.len);
+    transaction_id_key[2].key    = (uint32_t *)wmem_alloc(wmem_file_scope(), pinfo->dst.len);
     memcpy(transaction_id_key[2].key, pinfo->dst.data, pinfo->dst.len);
   }
   transaction_id_key[3].length=0;
