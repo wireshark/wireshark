@@ -111,7 +111,7 @@ static const struct ieee80211_radiotap_namespace radiotap_ns = {
  * iterator.this_arg for type "type" safely on all arches.
  *
  * Example code:
- * See Documentation/networking/radiotap-headers.txt
+ * See https://www.kernel.org/doc/Documentation/networking/radiotap-headers.txt
  */
 
 int ieee80211_radiotap_iterator_init(
