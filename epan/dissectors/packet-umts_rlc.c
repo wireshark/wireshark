@@ -435,7 +435,7 @@ rlc_frag_delete(void *data)
     struct rlc_frag *frag = (struct rlc_frag *)data;
 
     if (frag->data) {
-        g_free(frag->data);
+        wmem_free(wmem_file_scope(), frag->data);
         frag->data = NULL;
     }
 }
@@ -449,7 +449,7 @@ rlc_sdu_frags_delete(void *data)
     frag = sdu->frags;
     while (frag) {
         if (frag->data) {
-            g_free(frag->data);
+            wmem_free(wmem_file_scope(), frag->data);
         }
         frag->data = NULL;
         frag = frag->next;
@@ -861,8 +861,10 @@ reassemble_data(struct rlc_channel *ch, struct rlc_sdu *sdu, struct rlc_frag *fr
     sdu->data = (uint8_t *)wmem_alloc(wmem_file_scope(), sdu->len);
     temp = sdu->frags;
     while (temp && ((offs + temp->len) <= sdu->len)) {
-        memcpy(sdu->data + offs, temp->data, temp->len);
-        wmem_free(wmem_file_scope(), temp->data);
+        if (temp->data) {
+            memcpy(sdu->data + offs, temp->data, temp->len);
+            wmem_free(wmem_file_scope(), temp->data);
+        }
         temp->data = NULL;
         /* mark this fragment in reassembled table */
         g_hash_table_insert(reassembled_table, temp, sdu);
