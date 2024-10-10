@@ -299,7 +299,7 @@ and if the build breaks, please re-read this guide carefully.
 
 Known traps are:
 
-. Not using the correct (x64 or x86) version of the Visual Studio command prompt.
+. Not using the correct (x64 or arm64) version of the Visual Studio command prompt.
 
 . Not using a supported version of Windows. Please check
   https://support.microsoft.com/en-gb/help/13853/windows-lifecycle-fact-sheet[here]

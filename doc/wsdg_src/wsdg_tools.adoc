@@ -448,7 +448,7 @@ Visual {cpp} 2015 and later use the _Universal CRT_ (UCRT).
 The Universal CRT comes standard with Windows 10 and is installed as part
 of Windows Update on earlier versions of Windows. The Wireshark .exe
 installers include redistributables (_vc_redist.x64.exe_ or
-_vc_redist.x86.exe_) which ensure that the Universal CRT is installed and
+_vc_redist.arm64.exe_) which ensure that the Universal CRT is installed and
 up to date.
 
 [NOTE]
@@ -465,7 +465,7 @@ interested reader:
 
 https://docs.microsoft.com/en-us/cpp/windows/redistributing-visual-cpp-files[Redistributing Visual {cpp} Files]
 
-In all cases where _vc_redist.x64.exe_ or _vc_redist.x86.exe_ is
+In all cases where _vc_redist.x64.exe_ or _vc_redist.arm64.exe_ is
 downloaded it should be downloaded to the directory into which the
 support libraries for Wireshark have been downloaded and installed. This
 directory is specified by the `WIRESHARK_BASE_DIR` or
