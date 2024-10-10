@@ -36,11 +36,22 @@ find_library( CARES_LIBRARY
 )
 
 # Try to retrieve version from header if found
+# Adapted from https://stackoverflow.com/a/47084079/82195
 if(CARES_INCLUDE_DIR)
-  set(_version_regex "^#define[ \t]+ARES_VERSION_STR[ \t]+\"([^\"]+)\".*")
-  file(STRINGS "${CARES_INCLUDE_DIR}/ares_version.h" CARES_VERSION REGEX "${_version_regex}")
-  string(REGEX REPLACE "${_version_regex}" "\\1" CARES_VERSION "${CARES_VERSION}")
-  unset(_version_regex)
+  file(READ "${CARES_INCLUDE_DIR}/ares_version.h" _ares_version_h)
+
+  string(REGEX MATCH "#[\t ]*define[ \t]+ARES_VERSION_MAJOR[ \t]+([0-9]+)" _ ${_ares_version_h})
+  set(_ares_version_major ${CMAKE_MATCH_1})
+  string(REGEX MATCH "#[\t ]*define[ \t]+ARES_VERSION_MINOR[ \t]+([0-9]+)" _ ${_ares_version_h})
+  set(_ares_version_minor ${CMAKE_MATCH_1})
+  string(REGEX MATCH "#[\t ]*define[ \t]+ARES_VERSION_PATCH[ \t]+([0-9]+)" _ ${_ares_version_h})
+  set(_ares_version_patch ${CMAKE_MATCH_1})
+  set(CARES_VERSION ${_ares_version_major}.${_ares_version_minor}.${_ares_version_patch})
+
+  unset(_ares_version_h)
+  unset(_ares_version_major)
+  unset(_ares_version_minor)
+  unset(_ares_version_patch)
 endif()
 
 # handle the QUIETLY and REQUIRED arguments and set CARES_FOUND to TRUE if
