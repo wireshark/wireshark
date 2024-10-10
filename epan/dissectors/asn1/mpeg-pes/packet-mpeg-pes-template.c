@@ -13,6 +13,7 @@
 
 #include <epan/packet.h>
 #include <epan/asn1.h>
+#include <epan/expert.h>
 
 #include <wsutil/array.h>
 
@@ -68,6 +69,8 @@ static int hf_mpeg_video_group_of_pictures;
 static int hf_mpeg_video_picture;
 static int hf_mpeg_video_quantization_matrix;
 static int hf_mpeg_video_data;
+
+static expert_field ei_mpeg_pes_length_zero;
 
 static dissector_handle_t mpeg_handle;
 
@@ -497,7 +500,7 @@ dissect_mpeg_pes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 				offset / 8, padding_length, ENC_NA);
 	} else if (stream == STREAM_PRIVATE1
 			|| stream >= STREAM_AUDIO) {
-		int length = tvb_get_ntohs(tvb, 4);
+		int length = tvb_get_ntohs(tvb, offset / 8);
 
 		if ((tvb_get_uint8(tvb, 6) & 0xc0) == 0x80) {
 			int header_length;
@@ -522,7 +525,7 @@ dissect_mpeg_pes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 			 * from a video elementary stream contained in
 			 * Transport Stream packets."
 			 */
-			if(length !=0 && stream != STREAM_VIDEO){
+			if (length !=0) {
 				/*
 				 * XXX - note that ISO/IEC 13818-1:2007
 				 * says that the length field is *not*
@@ -552,6 +555,8 @@ dissect_mpeg_pes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 				 * the formats of those payloads specified?)
 				 */
 				length -= ((offset - save_offset) / 8) - 2;
+			} else if (stream != STREAM_VIDEO) {
+				proto_tree_add_expert(tree, pinfo, &ei_mpeg_pes_length_zero, tvb, save_offset / 8, 2);
 			}
 
 			header_length = tvb_get_uint8(tvb, 8);
@@ -562,7 +567,7 @@ dissect_mpeg_pes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 				dissect_mpeg_pes_header_data(header_data, pinfo, tree, flags);
 				offset += header_length * 8;
 				 /* length may be zero for Video stream */
-				if(length !=0 && stream != STREAM_VIDEO){
+				if (length !=0) {
 					length -= header_length;
 				}
 			}
@@ -571,7 +576,7 @@ dissect_mpeg_pes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 			if(length==0){
 				es = tvb_new_subset_remaining(tvb, offset / 8);
 			} else {
-				es = tvb_new_subset_length_caplen(tvb, offset / 8, -1, length);
+				es = tvb_new_subset_length(tvb, offset / 8, length);
 			}
 			if (!dissector_try_uint_new(stream_type_table, stream_type, es, pinfo, tree, true, NULL)) {
 				/* If we didn't get a stream type, then assume
@@ -586,13 +591,12 @@ dissect_mpeg_pes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 							0, -1, ENC_NA);
 			}
 		} else {
-			unsigned int data_length = tvb_get_ntohs(tvb, offset / 8);
 			proto_tree_add_item(tree, hf_mpeg_pes_length, tvb,
 					offset / 8, 2, ENC_BIG_ENDIAN);
 			offset += 2 * 8;
 
 			proto_tree_add_item(tree, hf_mpeg_pes_data, tvb,
-					offset / 8, data_length, ENC_NA);
+					offset / 8, length, ENC_NA);
 		}
 	} else if (stream != STREAM_END) {
 		proto_tree_add_item(tree, hf_mpeg_pes_data, tvb,
@@ -740,6 +744,12 @@ proto_register_mpeg_pes(void)
 		&ett_mpeg_pes_trick_mode
 	};
 
+	static ei_register_info ei_pes[] = {
+	    { &ei_mpeg_pes_length_zero, { "mpeg-pes.length.zero", PI_PROTOCOL, PI_WARN, "Length 0 is allowed only in packets whose payload is from a video elementary stream", EXPFILL }},
+	};
+
+	expert_module_t* expert_mpeg_pes;
+
 	proto_mpeg = proto_register_protocol("Moving Picture Experts Group", "MPEG", "mpeg");
 	mpeg_handle = register_dissector("mpeg", dissect_mpeg, proto_mpeg);
 	heur_subdissector_list = register_heur_dissector_list_with_description("mpeg", "MPEG payload", proto_mpeg);
@@ -748,6 +758,8 @@ proto_register_mpeg_pes(void)
 	proto_register_field_array(proto_mpeg_pes, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 	register_dissector("mpeg-pes", dissect_mpeg_pes, proto_mpeg_pes);
+	expert_mpeg_pes = expert_register_protocol(proto_mpeg_pes);
+	expert_register_field_array(expert_mpeg_pes, ei_pes, array_length(ei_pes));
 
 	stream_type_table = register_dissector_table("mpeg-pes.stream", "MPEG PES stream type", proto_mpeg_pes, FT_UINT8, BASE_HEX);
 }
