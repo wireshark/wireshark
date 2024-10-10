@@ -14402,6 +14402,10 @@ a:üzerine gelin{
         <translation type="unfinished">Ekran Filtreleri</translation>
     </message>
     <message>
+        <source>Display Filter Reference</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Capture &amp;Filters…</source>
         <translation>Yakalama &amp;Filtreleri…</translation>
     </message>

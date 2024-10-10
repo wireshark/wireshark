@@ -701,6 +701,7 @@ main_ui_->goToLineEdit->setValidator(goToLineQiv);
     /* Show tooltips on menu items that go to websites */
     main_ui_->actionHelpMPWireshark->setToolTip(gchar_free_to_qstring(topic_action_url(LOCALPAGE_MAN_WIRESHARK)));
     main_ui_->actionHelpMPWireshark_Filter->setToolTip(gchar_free_to_qstring(topic_action_url(LOCALPAGE_MAN_WIRESHARK_FILTER)));
+    main_ui_->actionHelpMPWireshark_FilterReference->setToolTip(gchar_free_to_qstring(topic_action_url(ONLINEPAGE_DFILTER_REF)));
     main_ui_->actionHelpMPCapinfos->setToolTip(gchar_free_to_qstring(topic_action_url(LOCALPAGE_MAN_CAPINFOS)));
     main_ui_->actionHelpMPDumpcap->setToolTip(gchar_free_to_qstring(topic_action_url(LOCALPAGE_MAN_DUMPCAP)));
     main_ui_->actionHelpMPEditcap->setToolTip(gchar_free_to_qstring(topic_action_url(LOCALPAGE_MAN_EDITCAP)));
@@ -717,6 +718,7 @@ main_ui_->goToLineEdit->setValidator(goToLineQiv);
     main_ui_->actionHelpDownloads->setToolTip(gchar_free_to_qstring(topic_action_url(ONLINEPAGE_DOWNLOAD)));
     main_ui_->actionHelpWiki->setToolTip(gchar_free_to_qstring(topic_action_url(ONLINEPAGE_WIKI)));
     main_ui_->actionHelpSampleCaptures->setToolTip(gchar_free_to_qstring(topic_action_url(ONLINEPAGE_SAMPLE_CAPTURES)));
+    main_ui_->actionHelpReleaseNotes->setToolTip(gchar_free_to_qstring(topic_action_url(LOCALPAGE_RELEASE_NOTES)));
 
     showWelcome();
 }

@@ -14261,6 +14261,10 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Display Filter Reference</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Capture &amp;Filters…</source>
         <translation>Фільтри &amp;Захоплення...</translation>
     </message>

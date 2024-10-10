@@ -9193,7 +9193,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <source># Comments
 #
 # </source>
-        <translation># 주석 
+        <translation># 주석
 #
 # </translation>
     </message>
@@ -14400,6 +14400,10 @@ a:hover {
     <message>
         <source>Display Filters</source>
         <translation>표시 필터</translation>
+    </message>
+    <message>
+        <source>Display Filter Reference</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Capture &amp;Filters…</source>

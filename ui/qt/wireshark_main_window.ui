@@ -229,6 +229,7 @@
      </property>
      <addaction name="actionHelpMPWireshark"/>
      <addaction name="actionHelpMPWireshark_Filter"/>
+     <addaction name="actionHelpMPWireshark_FilterReference"/>
      <addaction name="separator"/>
      <addaction name="actionHelpMPCapinfos"/>
      <addaction name="actionHelpMPDumpcap"/>
@@ -921,6 +922,11 @@
   <action name="actionHelpMPWireshark_Filter">
    <property name="text">
     <string>Display Filters</string>
+   </property>
+  </action>
+  <action name="actionHelpMPWireshark_FilterReference">
+   <property name="text">
+    <string>Display Filter Reference</string>
    </property>
   </action>
   <action name="actionHelpMPTShark">

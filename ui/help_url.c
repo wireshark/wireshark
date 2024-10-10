@@ -104,6 +104,9 @@ topic_action_url(topic_action_e action)
     case(ONLINEPAGE_SECURITY):
         url = g_strdup(WS_WIKI_URL("Security"));
         break;
+    case(ONLINEPAGE_DFILTER_REF):
+        url = g_strdup(WS_DOCS_URL "dfref/");
+        break;
 
     /* local manual pages */
     case(LOCALPAGE_MAN_WIRESHARK):

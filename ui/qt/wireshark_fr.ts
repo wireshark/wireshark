@@ -14436,6 +14436,10 @@ a:hover {
         <translation>Filtres d&apos;affichage</translation>
     </message>
     <message>
+        <source>Display Filter Reference</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Capture &amp;Filters…</source>
         <translation>&amp;Filtres de Capture...</translation>
     </message>

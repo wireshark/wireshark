@@ -38,6 +38,7 @@ typedef enum {
     ONLINEPAGE_SAMPLE_CAPTURES,
     ONLINEPAGE_SECURITY,
     ONLINEPAGE_ASK,
+    ONLINEPAGE_DFILTER_REF,
 
     /* local manual pages */
     LOCALPAGE_MAN_WIRESHARK = 100,

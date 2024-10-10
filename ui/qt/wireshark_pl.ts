@@ -9812,7 +9812,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
 &lt;strong&gt;Uniterrupted Mode&lt;/strong&gt;: Ignore the RTP Timestamp. Play the stream as it is completed. This is useful when the RTP timestamp is missing.</oldsource>
         <translation>&lt;strong&gt;Buforowanie Jitter&lt;/strong&gt;: Używa buforowania jitter by symulować strumień RTP jaki byłby słyszalny przez użytkownika końcowego.
 &lt;br/&gt;
-&lt;strong&gt;RTP Timestamp&lt;/strong&gt;: Używa znaczników czasu RTP zamiast czasu przyjścia pakietu. To nie spowoduje że strumień będzie taki sam jak słyszał go użytkownik końcowy, ale jest to użyteczne gdy strumień RTP jest tunelowany i czasy przyjścia pakietów zostały utracone. 
+&lt;strong&gt;RTP Timestamp&lt;/strong&gt;: Używa znaczników czasu RTP zamiast czasu przyjścia pakietu. To nie spowoduje że strumień będzie taki sam jak słyszał go użytkownik końcowy, ale jest to użyteczne gdy strumień RTP jest tunelowany i czasy przyjścia pakietów zostały utracone.
 &lt;br/&gt;
 &lt;strong&gt;Tryb ciągły&lt;/strong&gt;: Ignoruje wszelkie znaczniki czasu i odgrywa strumień poskładany z przychodzących pakietów.</translation>
     </message>
@@ -14457,6 +14457,10 @@ a:hover {
     <message>
         <source>Display Filters</source>
         <translation>Filtry wyświetlania</translation>
+    </message>
+    <message>
+        <source>Display Filter Reference</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Capture &amp;Filters…</source>
