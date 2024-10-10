@@ -442,8 +442,10 @@ update-mime-database %{_datadir}/mime &> /dev/null || :
 %{_docdir}/wireshark
 %docdir %{_docdir}/wireshark
 
-# Don't pick up any of the wireshark (GUI) binaries here
+# Don't pick up any of the wireshark (GUI) binaries or devtools here
 %exclude %{_bindir}/wireshark*
+%exclude %{_bindir}/dftest
+%exclude %{_bindir}/idl2wrs
 %{_bindir}/*
 
 # This generates a warning because dumpcap is listed twice. That's
@@ -504,6 +506,8 @@ update-mime-database %{_datadir}/mime &> /dev/null || :
 %endif
 
 %files devel
+%{_bindir}/dftest
+%{_bindir}/idl2wrs
 %{_includedir}/wireshark
 %{_libdir}/lib*.so
 %{_libdir}/cmake/wireshark

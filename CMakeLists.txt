@@ -3272,6 +3272,12 @@ if(BUILD_dftest)
 	add_executable(dftest ${dftest_FILES})
 	set_extra_executable_properties(dftest "Tests")
 	target_link_libraries(dftest ${dftest_LIBS})
+
+	install(TARGETS dftest RUNTIME
+		DESTINATION ${CMAKE_INSTALL_BINDIR}
+		COMPONENT "Development"
+		EXCLUDE_FROM_ALL
+	)
 endif()
 
 if(BUILD_randpkt)
@@ -3518,7 +3524,11 @@ if(BUILD_dcerpcidl2wrs)
 	set_target_properties(idl2wrs PROPERTIES FOLDER "Executables")
 	set_extra_executable_properties(idl2wrs "Executables")
 	target_link_libraries(idl2wrs ${idl2wrs_LIBS})
-	install(TARGETS idl2wrs RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+	install(TARGETS idl2wrs RUNTIME
+		DESTINATION ${CMAKE_INSTALL_BINDIR}
+		COMPONENT "Development"
+		EXCLUDE_FROM_ALL
+	)
 endif()
 
 if(WIN32)
