@@ -907,7 +907,7 @@ dissect_eap_identity_wlan(tvbuff_t *tvb, packet_info* pinfo, proto_tree* tree, i
      * identities use Base64 encoding and should therefore be ASCII-compliant.
     */
     if (tvb_ascii_isprint(tvb, offset + 1, size - 1) == false) {
-      item = proto_tree_add_item(tree, hf_eap_identity, tvb, offset + 1, size - 1, ENC_ASCII || ENC_NA);
+      item = proto_tree_add_item(tree, hf_eap_identity, tvb, offset + 1, size - 1, ENC_ASCII);
       expert_add_info(pinfo, item, &ei_eap_identity_nonascii);
       goto end;
     }
@@ -922,7 +922,7 @@ dissect_eap_identity_wlan(tvbuff_t *tvb, packet_info* pinfo, proto_tree* tree, i
   } else {
     /* Check if identity string complies with ASCII character set */
     if (tvb_ascii_isprint(tvb, offset, size) == false) {
-      item = proto_tree_add_item(tree, hf_eap_identity, tvb, offset, size, ENC_ASCII || ENC_NA);
+      item = proto_tree_add_item(tree, hf_eap_identity, tvb, offset, size, ENC_ASCII);
       expert_add_info(pinfo, item, &ei_eap_identity_nonascii);
       goto end;
     }
@@ -978,7 +978,7 @@ dissect_eap_identity_wlan(tvbuff_t *tvb, packet_info* pinfo, proto_tree* tree, i
 
   switch(eap_identity_prefix) {
     case 0x00: /* Encrypted IMSI */
-      proto_tree_add_item(eap_identity_tree, hf_eap_identity_full, tvb, offset + 1, size - 1, ENC_ASCII || ENC_NA);
+      proto_tree_add_item(eap_identity_tree, hf_eap_identity_full, tvb, offset + 1, size - 1, ENC_ASCII);
       /* Account for wide characters that increase the byte count
        * despite the character count (i.e., strlen() fails to return
        * the proper character count, leading to offset errors. */
@@ -987,33 +987,33 @@ dissect_eap_identity_wlan(tvbuff_t *tvb, packet_info* pinfo, proto_tree* tree, i
     case '0': /* EAP-AKA Permanent */
     case '1': /* EAP-SIM Permanent */
     case '6': /* EAP-AKA' Permanent */
-      proto_tree_add_item(eap_identity_tree, hf_eap_identity_full, tvb, offset + 1, size - 1, ENC_ASCII || ENC_NA);
+      proto_tree_add_item(eap_identity_tree, hf_eap_identity_full, tvb, offset + 1, size - 1, ENC_ASCII);
       dissect_e212_utf8_imsi(tvb, pinfo, eap_identity_tree, offset + 1, (unsigned)strlen(tokens[0]) - 1);
       break;
     case '2': /* EAP-AKA Pseudonym */
     case '3': /* EAP-SIM Pseudonym */
     case '7': /* EAP-AKA' Pseudonym */
-      proto_tree_add_item(eap_identity_tree, hf_eap_identity_full, tvb, offset + 1, size - 1, ENC_ASCII || ENC_NA);
+      proto_tree_add_item(eap_identity_tree, hf_eap_identity_full, tvb, offset + 1, size - 1, ENC_ASCII);
       proto_tree_add_item(eap_identity_tree, hf_eap_identity, tvb, offset + 1, (unsigned)strlen(tokens[0]) - 1, ENC_ASCII);
       break;
     case '4': /* EAP-AKA Reauth ID */
     case '5': /* EAP-SIM Reauth ID */
     case '8': /* EAP-AKA' Reauth ID */
-      proto_tree_add_item(eap_identity_tree, hf_eap_identity_full, tvb, offset + 1, size - 1, ENC_ASCII || ENC_NA);
+      proto_tree_add_item(eap_identity_tree, hf_eap_identity_full, tvb, offset + 1, size - 1, ENC_ASCII);
       proto_tree_add_item(eap_identity_tree, hf_eap_identity, tvb, offset + 1, (unsigned)strlen(tokens[0]) - 1, ENC_ASCII);
       break;
     case 'C': /* Conservative Peer */
-      proto_tree_add_item(eap_identity_tree, hf_eap_identity_full, tvb, offset + 1, size - 1, ENC_ASCII || ENC_NA);
+      proto_tree_add_item(eap_identity_tree, hf_eap_identity_full, tvb, offset + 1, size - 1, ENC_ASCII);
       proto_tree_add_item(eap_identity_tree, hf_eap_identity, tvb, offset + 1, (unsigned)strlen(tokens[0]) - 1, ENC_ASCII);
       break;
     case 'a': /* Anonymous User */
-      proto_tree_add_item(eap_identity_tree, hf_eap_identity_full, tvb, offset, size, ENC_ASCII || ENC_NA);
+      proto_tree_add_item(eap_identity_tree, hf_eap_identity_full, tvb, offset, size, ENC_ASCII);
       proto_tree_add_item(eap_identity_tree, hf_eap_identity, tvb, offset, (unsigned)strlen(tokens[0]), ENC_ASCII);
       break;
     case 'G': /* TODO: 'G' Unknown */
     case 'I': /* TODO: 'I' Unknown */
     default:
-      proto_tree_add_item(eap_identity_tree, hf_eap_identity_full, tvb, offset + 1, size - 1, ENC_ASCII || ENC_NA);
+      proto_tree_add_item(eap_identity_tree, hf_eap_identity_full, tvb, offset + 1, size - 1, ENC_ASCII);
       proto_tree_add_item(eap_identity_tree, hf_eap_identity, tvb, offset + 1, (unsigned)strlen(tokens[0]) - 1, ENC_ASCII);
       expert_add_info(pinfo, item, &ei_eap_identity_invalid);
   }
