@@ -1210,7 +1210,7 @@ of this protocol conversation.
 
 [#ChDissectStats]
 
-=== How to produce protocol statistics (stats)
+==== How to produce protocol statistics (stats)
 
 Given that you have a tap interface for the protocol, you can use this
 to produce some interesting statistics (well presumably interesting!) from
@@ -1306,6 +1306,117 @@ Notice that stats trees and pivots are identified by their name string,
 _not_ by the identifier returned by
 `stats_tree_create_node()`/`stats_tree_create_pivot()`.
 ====
+
+[#ChDissectFollowStream]
+
+==== How to follow protocol streams
+
+Now that you’re familiar with how taps work, you can also use them to allow your
+dissector to follow *streams*, if your protocol has that concept, using the
+menu:Analyze[Follow] menu or `tshark -z follow`.
+
+[NOTE]
+====
+You cannot re-use a previously defined tap for this purpose.
+You will need to define a separate tap.
+====
+
+.Registering a follow tap
+[source,c]
+----
+#include <epan/packet.h>
+#include <epan/tap.h>
+#include <epan/follow.h>
+
+static int foo_follow_tap;
+
+static int
+dissect_foo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+{
+       ...
+    /* We only tap the packet if we're being asked to. */
+    if (have_tap_listener(foo_follow_tap)) {
+
+        /* For a follow tap, the userdata argument is
+        * the tvbuff containing your protocol's payload data.
+        * That may *not* be the entire tvbuff, as it is here.
+        */
+        tap_queue_packet(foo_follow_tap, pinfo, tvb);
+    }
+
+    return tvb_captured_length(tvb);
+}
+
+void proto_register_foo(void)
+{
+       ...
+    foo_follow_tap = register_tap("foo_follow");
+    register_follow_stream(proto_foo, "foo_follow",
+            foo_follow_conv_filter,
+            foo_follow_index_filter,
+            foo_follow_address_filter,
+            foo_port_to_display,
+            foo_follow_tap_listener,
+            get_foo_stream_count,
+            foo_get_substream_id);
+
+----
+
+The arguments to `register_follow_stream()` are an integer, a string,
+and several callback functions:
+
+. The integer protocol identifier returned from `proto_register_protocol()`.
+
+. The string name of your dedicated follow tap.
+
+. A callback function which will return a display filter string.
+  The filter should follow a stream based on the *conversation*
+  that the current packet belongs to.
+
+. A callback function which will return a display filter string.
+  The filter should follow a stream based on its *stream index*,
+  if your protocol has such a concept.
+
+. A callback function which will return a display filter string.
+  The filter should follow a stream based on its *address/port pairs*.
+
+. A callback function that will take a port number and resolve it
+  to a string identifying the service, or else return the port
+  as a string.
+
+. A callback function that will handle reading the tvbuff information
+  provided by the tap when it is called.
+
+. A callback function that will return the total number of unique
+  streams of your protocol in the current capture file.
+  May be `NULL`.
+
+. A callback function that will identify whether the current packet
+  contains a substream of your protocol, if it has such a concept.
+  May be `NULL`.
+
+If your protocol is carried over TCP or UDP, and its streams can be found
+using IP addresses and ports, then you may be able to use some or all of
+the standard callback functions defined for this purpose:
+
+.Standard callbacks for following streams
+[cols="1,4,4"]
+|====
+|Argument|TCP Function               |UDP Function
+
+|3       |`tcp_follow_conv_filter`   |`udp_follow_conv_filter`
+|4       |`tcp_follow_index_filter`  |`udp_follow_index_filter`
+|5       |`tcp_follow_address_filter`|`udp_follow_address_filter`
+|6       |`tcp_port_to_display`      |`udp_port_to_display`
+|7       |`follow_tvb_tap_listener`  |`follow_tvb_tap_listener`
+|8       |`get_tcp_stream_count`     |`get_udp_stream_count`
+|9       |`NULL`                     |`NULL`
+|====
+
+If your protocol is not carried over TCP or UDP, or if you have more
+complex needs than these functions can provide, you can create your own
+callbacks. Refer to the above functions in the source code to see
+their arguments, return types, and what they do.
 
 [#ChDissectConversation]
 
