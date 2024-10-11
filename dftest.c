@@ -101,6 +101,7 @@ print_usage(int status)
     fprintf(fp, "Usage: dftest [OPTIONS] -- EXPRESSION\n");
     fprintf(fp, "Options:\n");
     fprintf(fp, "  -V, --verbose       enable verbose mode\n");
+    fprintf(fp, "  -C <config profile> run with specified configuration profile\n");
     fprintf(fp, "  -d, --debug[=N]     increase or set debug level\n");
     fprintf(fp, "  -D                  set maximum debug level\n");
     fprintf(fp, "  -f, --flex          enable Flex debug trace\n");
@@ -279,9 +280,26 @@ main(int argc, char **argv)
 
     ws_noisy("Finished log init and parsing command line log arguments");
 
+    /*
+     * Get credential information for later use.
+     */
+    init_process_policies();
+
+    /*
+     * Attempt to get the pathname of the directory containing the
+     * executable file.
+     */
+    configuration_init_error = configuration_init(argv[0], NULL);
+    if (configuration_init_error != NULL) {
+        fprintf(stderr, "Error: Can't get pathname of directory containing "
+                        "the dftest program: %s.\n",
+            configuration_init_error);
+        g_free(configuration_init_error);
+    }
+
     ws_init_version_info("DFTest", NULL, NULL);
 
-    const char *optstring = "hvdDflsmrtV0";
+    const char *optstring = "hvC:dDflsmrtV0";
     static struct ws_option long_options[] = {
         { "help",     ws_no_argument,   0,  'h' },
         { "version",  ws_no_argument,   0,  'v' },
@@ -317,6 +335,14 @@ main(int argc, char **argv)
                     opt_debug_level++;
                 }
                 opt_show_types = 1;
+                break;
+            case 'C':   /* Configuration Profile */
+                if (profile_exists (ws_optarg, false)) {
+                    set_profile_name (ws_optarg);
+                } else {
+                    cmdarg_err("Configuration Profile \"%s\" does not exist", ws_optarg);
+                    print_usage(WS_EXIT_INVALID_OPTION);
+                }
                 break;
             case 'D':
                 opt_debug_level = 9;
@@ -386,24 +412,6 @@ main(int argc, char **argv)
         /* Also enable some dfilter logs with flex/lemon traces for context. */
         ws_log_set_debug_filter(LOG_DOMAIN_DFILTER);
     }
-
-    /*
-     * Get credential information for later use.
-     */
-    init_process_policies();
-
-    /*
-     * Attempt to get the pathname of the directory containing the
-     * executable file.
-     */
-    configuration_init_error = configuration_init(argv[0], NULL);
-    if (configuration_init_error != NULL) {
-        fprintf(stderr, "Error: Can't get pathname of directory containing "
-                        "the dftest program: %s.\n",
-            configuration_init_error);
-        g_free(configuration_init_error);
-    }
-
 
     init_report_failure_message("dftest");
 
