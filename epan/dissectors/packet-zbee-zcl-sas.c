@@ -879,6 +879,9 @@ static const value_string warning_mode_values[] = {
   { 1, "Burglar" },
   { 2, "Fire" },
   { 3, "Emergency" },
+  { 4, "Police Panic" },
+  { 5, "Fire Panic" },
+  { 6, "Emergency Panic" },
   { 0, NULL }
 };
 
