@@ -15,7 +15,6 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#include "epan/packet.h"
 #include "ws_symbol_export.h"
 
 /* According to TS 26.101 Table A.1b: */
@@ -33,23 +32,6 @@
 #define AMR_FT_PDC_EFR_SID	11	/* PDC-EFR SID */
 /* version 16.0.0 Release 16: 12-14 for future use */
 #define AMR_FT_NO_DATA		15	/* NO_DATA */
-
-struct amr_oa_hdr {
-#if G_BYTE_ORDER == G_LITTLE_ENDIAN
-	/* Payload Header */
-	uint8_t pad1:4,
-		cmr:4;	/* Codec Mode Request */
-	/* Table of Contents */
-	uint8_t pad2:2,
-		q:1,	/* OK (not damaged) at origin? */
-		ft:4,	/* coding mode */
-		f:1;	/* followed by another speech frame? */
-#else
-	uint8_t cmr:4, pad1:4;
-	uint8_t f:1, ft:4, q:1, pad2:2;
-#endif
-	uint8_t data[0];
-};
 
 WS_DLL_PUBLIC
 int amr_nb_bytes_to_ft(uint8_t bytes);
