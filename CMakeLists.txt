@@ -1355,8 +1355,8 @@ if(BUILD_wireshark OR BUILD_logray)
 				Widgets
 				Concurrent
 				Core5Compat
-				DBus
 			OPTIONAL_COMPONENTS
+				DBus
 				Multimedia
 		)
 
