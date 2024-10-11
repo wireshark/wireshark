@@ -2082,6 +2082,7 @@ looks_like_rpc_call(tvbuff_t *tvb, int offset)
 			return NULL;
 
 		rpc_prog = wmem_new0(wmem_packet_scope(), rpc_prog_info_value);
+		rpc_prog->proto_id = proto_rpc_unknown;
 		rpc_prog->ett = ett_rpc_unknown_program;
 		rpc_prog->progname = wmem_strdup_printf(wmem_packet_scope(), "Unknown RPC program %u", rpc_prog_key);
 	}
