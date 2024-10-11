@@ -800,6 +800,9 @@ proto_register_zbee_zcl_window_covering(void)
             { "Go to", "zbee_zcl_closures.window_covering.go_to", FT_UINT8, BASE_DEC, NULL,
             0x00, NULL, HFILL } },
 
+        { &hf_zbee_zcl_window_covering_srv_rx_cmd_id,
+            { "Command", "zbee_zcl_closures.window_covering.cmd.srv_rx.id", FT_UINT8, BASE_HEX, VALS(zbee_zcl_window_covering_srv_rx_cmd_names),
+            0x00, NULL, HFILL } },
     };
 
     /* ZCL Window Covering subtrees */
