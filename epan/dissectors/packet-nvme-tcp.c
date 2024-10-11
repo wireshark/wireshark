@@ -69,6 +69,9 @@ enum nvme_tcp_pdu_type {
     nvme_tcp_h2c_data = 0x6,
     nvme_tcp_c2h_data = 0x7,
     nvme_tcp_r2t = 0x9,
+    nvme_tcp_kdreq = 0xa,
+    nvme_tcp_kdresp = 0xb,
+    NVMET_MAX_PDU_TYPE = nvme_tcp_kdresp
 };
 
 static const value_string nvme_tcp_pdu_type_vals[] = {
@@ -81,6 +84,8 @@ static const value_string nvme_tcp_pdu_type_vals[] = {
     { nvme_tcp_h2c_data, "H2CData" },
     { nvme_tcp_c2h_data, "C2HData" },
     { nvme_tcp_r2t, "Ready To Transfer" },
+    { nvme_tcp_kdreq, "Kickstart Discovery Request" },
+    { nvme_tcp_kdresp, "Kickstart Discovery Response" },
     { 0, NULL }
 };
 
@@ -776,7 +781,7 @@ dissect_nvme_tcp_pdu(tvbuff_t *tvb,
             ENC_NA);
 
     pdu_flags = tvb_get_uint8(tvb, offset + 1);
-    proto_tree_add_bitmask_value(nvme_tcp_tree, tvb, 0, hf_nvme_tcp_flags,
+    proto_tree_add_bitmask_value(nvme_tcp_tree, tvb, offset + 1, hf_nvme_tcp_flags,
             ett_nvme_tcp, nvme_tcp_pdu_flags, (uint64_t)pdu_flags);
 
     hlen = tvb_get_int8(tvb, offset + 2);
@@ -876,6 +881,7 @@ dissect_nvme_tcp_pdu(tvbuff_t *tvb,
         dissect_nvme_tcp_c2htermreq(tvb, pinfo, tree, plen, offset);
         break;
     default:
+        // TODO: nvme_tcp_kdreq, nvme_tcp_kdresp
         proto_tree_add_item(nvme_tcp_tree, hf_nvme_tcp_unknown_data, tvb,
                 offset, plen, ENC_NA);
         break;
@@ -896,6 +902,66 @@ dissect_nvme_tcp(tvbuff_t *tvb,
             get_nvme_tcp_pdu_len, dissect_nvme_tcp_pdu, data);
 
     return tvb_reported_length(tvb);
+}
+
+static bool
+test_nvme(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_)
+{
+    /* This is not the strongest heuristic, but the port is IANA assigned,
+     * so this is not a normal heuristic dissector but simply to distinguish
+     * between NVMe/TCP and NVMe/TLS/TCP, and also to detect PDU starts.
+     */
+    if (tvb_captured_length_remaining(tvb, offset) < NVME_TCP_HEADER_SIZE) {
+        return false;
+    }
+
+    if (tvb_get_uint8(tvb, offset) > NVMET_MAX_PDU_TYPE) {
+        return false;
+    }
+
+    offset += 2;
+    if (tvb_get_uint8(tvb, offset) < NVME_TCP_HEADER_SIZE) {
+        // Header length - we could strengthen by using the PDU type.
+        return false;
+    }
+
+    // Next byte is PDU Data Offset. Reserved in most types. (Does that
+    // mean zero? That would strengthen the heuristic.)
+
+    offset += 2;
+    if (tvb_get_uint32(tvb, offset, ENC_LITTLE_ENDIAN) < NVME_TCP_HEADER_SIZE) {
+        // PDU Length (inc. header) - could strengthen by using the PDU type.
+        return false;
+    }
+
+    return true;
+}
+
+static int
+dissect_nvme_tcp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
+{
+    /* NVMe/TCP allows PDUs to span TCP segments (see Figure 5 of the NVMe/TCP
+     * Transport Specification.) Also, some connections are over TLS.
+     * Luckily, the PDU types for NVMe/TCP occupy the first byte, same as
+     * the Content Type for TLS Records, and while these PDU types go to 11,
+     * TLS Content Types start at 20 (and won't change, to enable multiplexing,
+     * see RFC 9443.)
+     *
+     * So if this doesn't look like the start of a NVMe/TCP PDU, reject it.
+     * It might be TLS, or it might be the middle of a PDU.
+     */
+    if (!test_nvme(pinfo, tvb, 0, data)) {
+        return 0;
+        /* The TLS heuristic dissector should catch the TLS version. */
+    }
+
+    /* The start of a PDU. Set the other handle for this connection.
+     * We can call tcp_dissect_pdus safely starting from here.
+     */
+    conversation_t *conversation = find_or_create_conversation(pinfo);
+    conversation_set_dissector_from_frame_number(conversation, pinfo->num, nvmet_tls_handle);
+
+    return dissect_nvme_tcp(tvb, pinfo, tree, data);
 }
 
 void proto_register_nvme_tcp(void) {
@@ -1087,7 +1153,12 @@ void proto_register_nvme_tcp(void) {
     proto_register_field_array(proto_nvme_tcp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
-    nvmet_tcp_handle = register_dissector("nvme-tcp", dissect_nvme_tcp,
+    /* These names actually work for their purpose. Note if we're already
+     * over TLS we don't need to do heuristics (it can't be more TLS instead
+     * instead, and since we managed to decrypt the TLS we shouldn't have
+     * missing frames and thus aren't in the middle of a PDU.)
+     */
+    nvmet_tcp_handle = register_dissector("nvme-tcp", dissect_nvme_tcp_heur,
             proto_nvme_tcp);
     nvmet_tls_handle = register_dissector_with_description("nvme-tls",
             "NVMe-over-TCP with TLS", dissect_nvme_tcp, proto_nvme_tcp);
