@@ -87,6 +87,10 @@ static bool tls_desegment          = true;
 static bool tls_desegment_app_data = true;
 static bool tls_ignore_mac_failed;
 
+#define PORT_HEUR_DEFAULT "443"
+/* Try heuristic dissectors before dissectors assigned to a port.
+ * Dissectors assigned via ALPN always take precedence. */
+static range_t *tls_try_heuristic_first;
 
 /*********************************************************************
  *
@@ -1890,19 +1894,26 @@ process_ssl_payload(tvbuff_t *tvb, int offset, packet_info *pinfo,
 {
     tvbuff_t *next_tvb;
     heur_dtbl_entry_t *hdtbl_entry;
-    uint16_t saved_match_port;
+    uint16_t saved_match_port, app_port;
+    bool heur_first;
 
     tlsinfo->app_handle = &session->app_handle;
 
     next_tvb = tvb_new_subset_remaining(tvb, offset);
 
-    /* If the appdata proto is not yet known (no STARTTLS), try heuristics
-     * first, then ports-based dissectors. Port 443 is too overloaded... */
+    if (ssl_packet_from_server(session, ssl_associations, pinfo)) {
+        app_port = pinfo->srcport;
+    } else {
+        app_port = pinfo->destport;
+    }
+    /* If the appdata proto is not yet known (no STARTTLS or ALPN), try
+     * heuristics and ports-based dissectors, order depending on preference. */
     if (!session->app_handle) {
+        heur_first = value_is_in_range(tls_try_heuristic_first, app_port);
         /* The heuristics dissector should set the app_handle via tlsinfo
          * if it wants to be called in the future. */
-        if (dissector_try_heuristic(ssl_heur_subdissector_list, next_tvb,
-                                    pinfo, proto_tree_get_root(tree), &hdtbl_entry,
+        if (heur_first && dissector_try_heuristic(ssl_heur_subdissector_list,
+                                    next_tvb, pinfo, proto_tree_get_root(tree), &hdtbl_entry,
                                     tlsinfo)) {
             ssl_debug_printf("%s: found heuristics dissector %s, app_handle is %p (%s)\n",
                              G_STRFUNC, hdtbl_entry->short_name,
@@ -1920,6 +1931,17 @@ process_ssl_payload(tvbuff_t *tvb, int offset, packet_info *pinfo,
                              (void *)app_handle_port,
                              dissector_handle_get_dissector_name(app_handle_port));
             session->app_handle = app_handle_port;
+        } else if (!heur_first && dissector_try_heuristic(ssl_heur_subdissector_list,
+                                    next_tvb, pinfo, proto_tree_get_root(tree), &hdtbl_entry,
+                                    tlsinfo)) {
+            ssl_debug_printf("%s: found heuristics dissector %s, app_handle is %p (%s)\n",
+                             G_STRFUNC, hdtbl_entry->short_name,
+                             (void *)session->app_handle,
+                             dissector_handle_get_dissector_name(session->app_handle));
+            if (have_tap_listener(exported_pdu_tap)) {
+                export_pdu_packet(next_tvb, pinfo, EXP_PDU_TAG_HEUR_DISSECTOR_NAME, hdtbl_entry->short_name);
+            }
+            return;
         } else {
             /* No heuristics, no port-based proto, unknown protocol. */
             ssl_debug_printf("%s: no appdata dissector found\n", G_STRFUNC);
@@ -1937,11 +1959,7 @@ process_ssl_payload(tvbuff_t *tvb, int offset, packet_info *pinfo,
                           dissector_handle_get_dissector_name(session->app_handle));
     }
     saved_match_port = pinfo->match_uint;
-    if (ssl_packet_from_server(session, ssl_associations, pinfo)) {
-        pinfo->match_uint = pinfo->srcport;
-    } else {
-        pinfo->match_uint = pinfo->destport;
-    }
+    pinfo->match_uint = app_port;
     call_dissector_with_data(session->app_handle, next_tvb, pinfo, proto_tree_get_root(tree), tlsinfo);
     pinfo->match_uint = saved_match_port;
 }
@@ -4906,6 +4924,14 @@ proto_register_tls(void)
              "Message Authentication Code (MAC), ignore \"mac failed\"",
              "For troubleshooting ignore the mac check result and decrypt also if the Message Authentication Code (MAC) fails.",
              &tls_ignore_mac_failed);
+
+        /* Port 443 is too overloaded... */
+        range_convert_str(wmem_epan_scope(), &tls_try_heuristic_first, PORT_HEUR_DEFAULT, 65535);
+        prefs_register_range_preference(ssl_module,
+             "try_heuristic_first",
+             "Try heuristic sub-dissectors first on ports",
+             "Try to decode a packet using an heuristic sub-dissector before using a sub-dissector registered to a specific port for these ports, e.g. the overloaded port 443. An ALPN for a connection always has precedence.",
+             &tls_try_heuristic_first, 65535);
         ssl_common_register_options(ssl_module, &ssl_options, false);
     }
 
