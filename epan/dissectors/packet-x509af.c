@@ -20,6 +20,8 @@
 #include <epan/oids.h>
 #include <epan/asn1.h>
 #include <epan/strutil.h>
+#include <epan/export_object.h>
+#include <epan/proto_data.h>
 #include <wsutil/array.h>
 
 #include "packet-ber.h"
@@ -41,6 +43,8 @@ void proto_register_x509af(void);
 void proto_reg_handoff_x509af(void);
 
 static dissector_handle_t pkix_crl_handle;
+
+static int x509af_eo_tap;
 
 /* Initialize the protocol and registered fields */
 static int proto_x509af;
@@ -161,6 +165,13 @@ static const char *algorithm_id;
 static void
 x509af_export_publickey(tvbuff_t *tvb, asn1_ctx_t *actx, int offset, int len);
 
+typedef struct _x509af_eo_t {
+  const char *subjectname;
+  char *serialnum;
+  tvbuff_t *payload;
+} x509af_eo_t;
+
+
 const value_string x509af_Version_vals[] = {
   {   0, "v1" },
   {   1, "v2" },
@@ -181,8 +192,18 @@ dissect_x509af_Version(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_,
 
 int
 dissect_x509af_CertificateSerialNumber(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  int start_offset = offset;
   offset = dissect_ber_integer64(implicit_tag, actx, tree, tvb, offset, hf_index,
                                                 NULL);
+
+  x509af_eo_t *eo_info = p_get_proto_data(actx->pinfo->pool, actx->pinfo, proto_x509af, 0);
+  if (eo_info) {
+    uint32_t len;
+    start_offset = get_ber_identifier(tvb, start_offset, NULL, NULL, NULL);
+    start_offset = get_ber_length(tvb, start_offset, &len, NULL);
+    eo_info->serialnum = tvb_bytes_to_str(actx->pinfo->pool, tvb, start_offset, len);
+  }
+
 
   return offset;
 }
@@ -325,6 +346,10 @@ dissect_x509af_SubjectName(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 
   str = x509if_get_last_dn();
   proto_item_append_text(proto_item_get_parent(tree), " (%s)", str?str:"");
+  x509af_eo_t *eo_info = p_get_proto_data(actx->pinfo->pool, actx->pinfo, proto_x509af, 0);
+  if (eo_info) {
+    eo_info->subjectname = str;
+  }
 
 
   return offset;
@@ -488,8 +513,23 @@ static const ber_sequence_t Certificate_sequence[] = {
 
 int
 dissect_x509af_Certificate(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+  int start_offset = offset;
+  x509af_eo_t *eo_info = NULL;
+  if (have_tap_listener(x509af_eo_tap)) {
+    eo_info = wmem_new0(actx->pinfo->pool, x509af_eo_t);
+    p_add_proto_data(actx->pinfo->pool, actx->pinfo, proto_x509af, 0, eo_info);
+  }
+
+    offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    Certificate_sequence, hf_index, ett_x509af_Certificate);
+
+
+  if (eo_info) {
+    eo_info->payload = tvb_new_subset_length(tvb, start_offset, offset - start_offset);
+    tap_queue_packet(x509af_eo_tap, actx->pinfo, eo_info);
+  }
+
+
 
   return offset;
 }
@@ -932,6 +972,39 @@ static int dissect_Userid_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_t
 }
 
 
+static tap_packet_status
+x509af_eo_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_, const void *data, tap_flags_t flags _U_)
+{
+  export_object_list_t *object_list = (export_object_list_t *)tapdata;
+  const x509af_eo_t *eo_info = (const x509af_eo_t *)data;
+  export_object_entry_t *entry;
+
+  if (data) {
+    entry = g_new0(export_object_entry_t, 1);
+
+    entry->pkt_num = pinfo->num;
+
+    // There should be a commonName
+    char *name = strstr(eo_info->subjectname, "id-at-commonName=");
+    if (name) {
+      name += strlen("id-at-commonName=");
+      entry->hostname = g_strndup(name, strcspn(name, ","));
+    }
+    entry->content_type = g_strdup("application/pkix-cert");
+
+    entry->filename = g_strdup_printf("%s.cer", eo_info->serialnum);
+
+    entry->payload_len = tvb_captured_length(eo_info->payload);
+    entry->payload_data = (uint8_t *)tvb_memdup(NULL, eo_info->payload, 0, entry->payload_len);
+
+    object_list->add_entry(object_list->gui_data, entry);
+
+    return TAP_PACKET_REDRAW;
+  } else {
+    return TAP_PACKET_DONT_REDRAW;
+  }
+}
+
 /* Exports the SubjectPublicKeyInfo structure as gnutls_datum_t.
  * actx->private_data is assumed to be a gnutls_datum_t pointer which will be
  * filled in if non-NULL. */
@@ -1338,6 +1411,8 @@ void proto_register_x509af(void) {
   /* Register fields and subtrees */
   proto_register_field_array(proto_x509af, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+
+  x509af_eo_tap = register_export_object(proto_x509af, x509af_eo_packet, NULL);
 
   register_cleanup_routine(&x509af_cleanup_protocol);
 

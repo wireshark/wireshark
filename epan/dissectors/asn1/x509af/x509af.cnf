@@ -67,6 +67,22 @@ IssuerSerial/issuer			issuerName
 CertificateList/signedCertificateList/revokedCertificates/_item/userCertificate		revokedUserCertificate
 #.END
 
+#.FN_BODY Certificate
+  int start_offset = offset;
+  x509af_eo_t *eo_info = NULL;
+  if (have_tap_listener(x509af_eo_tap)) {
+    eo_info = wmem_new0(actx->pinfo->pool, x509af_eo_t);
+    p_add_proto_data(actx->pinfo->pool, actx->pinfo, proto_x509af, 0, eo_info);
+  }
+
+  %(DEFAULT_BODY)s
+
+  if (eo_info) {
+    eo_info->payload = tvb_new_subset_length(tvb, start_offset, offset - start_offset);
+    tap_queue_packet(x509af_eo_tap, actx->pinfo, eo_info);
+  }
+
+
 #.FN_PARS AlgorithmIdentifier/algorithmId
   FN_VARIANT = _str  HF_INDEX = hf_x509af_algorithm_id  VAL_PTR = &actx->external.direct_reference
 
@@ -166,6 +182,10 @@ CertificateList/signedCertificateList/revokedCertificates/_item/userCertificate	
 
   str = x509if_get_last_dn();
   proto_item_append_text(proto_item_get_parent(tree), " (%%s)", str?str:"");
+  x509af_eo_t *eo_info = p_get_proto_data(actx->pinfo->pool, actx->pinfo, proto_x509af, 0);
+  if (eo_info) {
+    eo_info->subjectname = str;
+  }
 
 #.TYPE_ATTR
 CertificateSerialNumber TYPE = FT_BYTES  DISPLAY = BASE_NONE
@@ -173,6 +193,17 @@ DSS-Params/p TYPE = FT_BYTES  DISPLAY = BASE_NONE
 DSS-Params/q TYPE = FT_BYTES  DISPLAY = BASE_NONE
 DSS-Params/g TYPE = FT_BYTES  DISPLAY = BASE_NONE
 
-#.FN_PARS CertificateSerialNumber FN_VARIANT = 64
+# This INTEGER can be up to 20 octets, so extract the bytes manually
+
+#.FN_BODY CertificateSerialNumber FN_VARIANT = 64
+  int start_offset = offset;
+%(DEFAULT_BODY)s
+  x509af_eo_t *eo_info = p_get_proto_data(actx->pinfo->pool, actx->pinfo, proto_x509af, 0);
+  if (eo_info) {
+    uint32_t len;
+    start_offset = get_ber_identifier(tvb, start_offset, NULL, NULL, NULL);
+    start_offset = get_ber_length(tvb, start_offset, &len, NULL);
+    eo_info->serialnum = tvb_bytes_to_str(actx->pinfo->pool, tvb, start_offset, len);
+  }
 
 #.END
