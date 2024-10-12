@@ -1,4 +1,4 @@
-See also https://gitlab.com/wireshark/wireshark/-/wikis/Development
+See also https://wiki.wireshark.org/Development/
 and the Developer's Guide located at https://www.wireshark.org/docs/
 and in the doc/ subdirectory.
 
@@ -15,11 +15,14 @@ https://www.wireshark.org/docs/ for those.
 1. If you wish to build Wireshark, make sure you have the Qt and GLib
    development packages installed. Try running
    'pkg-config glib-2.0 --modversion' to see if you have GLib 2.x
-   installed.  Then try running 'pkg-config Qt5Widgets --modversion'
-   to see if you have Qt installed. Wireshark requires Qt 5.9 or later,
-   but the most recent LTS release is strongly recommended. It needs
-   version 2.50.0 or above of GLib.  If you need to install or
-   re-install GLIB, you can find the packages at:
+   installed.  Then try running 'pkg-config Qt6Widgets --modversion'
+   to see if you have Qt 6 installed.  If not, then try running
+   'pkg-config Qt5Widgets --modversion' to see if you have Qt 5.
+   Wireshark requires Qt 5.12 or later, but the most recent LTS release
+   is strongly recommended.  Building against Qt 5 will require the
+   CMake option '-DUSE_qt6=OFF'.  Wireshark requires version 2.54.0 or
+   above of GLib.  If you need to install or re-install GLib, you can
+   find the packages at:
 
         https://download.gnome.org/sources/glib/
 
@@ -116,6 +119,10 @@ https://www.wireshark.org/docs/ for those.
     -DBUILD_rawshark=OFF
         By default the program used to dump and analyze raw libpcap data
         is built. Use this switch to avoid building it.
+
+    -DUSE_qt6=OFF
+        By default if Qt is needed CMake tries to find the Qt 6 libraries.
+        Use this switch to search for and build with Qt 5 instead.
 
     -DDUMPCAP_INSTALL_OPTION=suid
     -DDUMPCAP_INSTALL_OPTION=capabilities
