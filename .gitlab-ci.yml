@@ -601,6 +601,7 @@ macOS Intel Package:
     - ninja logray_dmg
     - cd run
     - xcrun notarytool submit Wireshark?[1-9]*.dmg --apple-id "$MACOS_NOTARIZATION_APPLE_ID" --team-id "$MACOS_NOTARIZATION_TEAM_ID" --password "$MACOS_NOTARIZATION_PWD" --wait --timeout 10m
+    - xcrun stapler staple Wireshark?[1-9]*.dmg
     - xcrun notarytool submit Logray?[0-9]*.dmg --apple-id "$MACOS_NOTARIZATION_APPLE_ID" --team-id "$MACOS_NOTARIZATION_TEAM_ID" --password "$MACOS_NOTARIZATION_PWD" --wait --timeout 10m
     - xcrun stapler staple Logray?[0-9]*.dmg
     - spctl --assess --type open --context context:primary-signature --verbose=2 Wireshark?[1-9]*.dmg Logray?[0-9]*.dmg
