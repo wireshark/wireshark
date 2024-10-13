@@ -129,7 +129,9 @@ enum {
 	STREAM_PADDING = 0xbe,
 	STREAM_PRIVATE2 = 0xbf,
 	STREAM_AUDIO = 0xc0,
-	STREAM_VIDEO = 0xe0
+	STREAM_AUDIO_MAX = 0xdf,
+	STREAM_VIDEO = 0xe0,
+	STREAM_VIDEO_MAX = 0xef
 };
 
 enum {
@@ -555,7 +557,7 @@ dissect_mpeg_pes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 				 * the formats of those payloads specified?)
 				 */
 				length -= ((offset - save_offset) / 8) - 2;
-			} else if (stream != STREAM_VIDEO) {
+			} else if (stream < STREAM_VIDEO || stream > STREAM_VIDEO_MAX) {
 				proto_tree_add_expert(tree, pinfo, &ei_mpeg_pes_length_zero, tvb, save_offset / 8, 2);
 			}
 

@@ -106,7 +106,53 @@ static const value_string mpeg_pes_T_stream_vals[] = {
   { 190, "padding-stream" },
   { 191, "private-stream-2" },
   { 192, "audio-stream" },
+  { 193, "audio-stream-1" },
+  { 194, "audio-stream-2" },
+  { 195, "audio-stream-3" },
+  { 196, "audio-stream-4" },
+  { 197, "audio-stream-5" },
+  { 198, "audio-stream-6" },
+  { 199, "audio-stream-7" },
+  { 200, "audio-stream-8" },
+  { 201, "audio-stream-9" },
+  { 202, "audio-stream-10" },
+  { 203, "audio-stream-11" },
+  { 204, "audio-stream-12" },
+  { 205, "audio-stream-13" },
+  { 206, "audio-stream-14" },
+  { 207, "audio-stream-15" },
+  { 208, "audio-stream-16" },
+  { 209, "audio-stream-17" },
+  { 210, "audio-stream-18" },
+  { 211, "audio-stream-19" },
+  { 212, "audio-stream-20" },
+  { 213, "audio-stream-21" },
+  { 214, "audio-stream-22" },
+  { 215, "audio-stream-23" },
+  { 216, "audio-stream-24" },
+  { 217, "audio-stream-25" },
+  { 218, "audio-stream-26" },
+  { 219, "audio-stream-27" },
+  { 220, "audio-stream-28" },
+  { 221, "audio-stream-29" },
+  { 222, "audio-stream-30" },
+  { 223, "audio-stream-31" },
   { 224, "video-stream" },
+  { 225, "video-stream-1" },
+  { 226, "video-stream-2" },
+  { 227, "video-stream-3" },
+  { 228, "video-stream-4" },
+  { 229, "video-stream-5" },
+  { 230, "video-stream-6" },
+  { 231, "video-stream-7" },
+  { 232, "video-stream-8" },
+  { 233, "video-stream-9" },
+  { 234, "video-stream-10" },
+  { 235, "video-stream-11" },
+  { 236, "video-stream-12" },
+  { 237, "video-stream-13" },
+  { 238, "video-stream-14" },
+  { 239, "video-stream-15" },
   { 0, NULL }
 };
 
@@ -549,7 +595,9 @@ enum {
 	STREAM_PADDING = 0xbe,
 	STREAM_PRIVATE2 = 0xbf,
 	STREAM_AUDIO = 0xc0,
-	STREAM_VIDEO = 0xe0
+	STREAM_AUDIO_MAX = 0xdf,
+	STREAM_VIDEO = 0xe0,
+	STREAM_VIDEO_MAX = 0xef
 };
 
 enum {
@@ -975,7 +1023,7 @@ dissect_mpeg_pes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 				 * the formats of those payloads specified?)
 				 */
 				length -= ((offset - save_offset) / 8) - 2;
-			} else if (stream != STREAM_VIDEO) {
+			} else if (stream < STREAM_VIDEO || stream > STREAM_VIDEO_MAX) {
 				proto_tree_add_expert(tree, pinfo, &ei_mpeg_pes_length_zero, tvb, save_offset / 8, 2);
 			}
 
