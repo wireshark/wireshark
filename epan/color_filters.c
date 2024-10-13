@@ -34,6 +34,16 @@
 #include <epan/prefs.h>
 #include <epan/epan_dissect.h>
 
+/*
+ * Each line in the colorfilters file has the following format:
+ *
+ * @<filter name>@<filter string>@[<background>][<foreground>]
+ * Background and foreground colors are 16-bit comma-separated RGB
+ * triplets. Colors are 16 bits because that's what GdkColor used.
+ * We might want to use a more standard, copy+paste-able color scheme
+ * such as #RRGGBB instead.
+ */
+
 #define RED_COMPONENT(x)   (uint16_t) (((((x) >> 16) & 0xff) * 65535 / 255))
 #define GREEN_COMPONENT(x) (uint16_t) (((((x) >>  8) & 0xff) * 65535 / 255))
 #define BLUE_COMPONENT(x)  (uint16_t) ( (((x)        & 0xff) * 65535 / 255))
