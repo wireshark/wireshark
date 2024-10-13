@@ -230,7 +230,7 @@ def prefix_to_oui(prefix, prefix_map):
     return '{}/{:d}'.format(oui, int(pfx_len)), kind
 
 def main():
-    manuf_path = os.path.join('epan', 'manuf-data.c')
+    manuf_path = os.path.join(os.path.dirname(__file__), '..', 'epan', 'manuf-data.c')
 
     ieee_d = {
         'OUI':   { 'url': ["https://standards-oui.ieee.org/oui/", "oui.csv"], 'min_entries': 1000 },
