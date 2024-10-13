@@ -8788,6 +8788,7 @@ static const value_string usb_products_vals[] = {
     { 0x04cb02f0, "Fuji Fujifilm X-H2S" },
     { 0x04cb02f2, "Fuji Fujifilm X-H2" },
     { 0x04cb02fc, "Fuji Fujifilm X-T5" },
+    { 0x04cb02fe, "Fuji Fujifilm GFX100 II" },
     { 0x04cb0305, "Fuji Fujifilm X100VI" },
     { 0x04cb5006, "ASK-300" },
     { 0x04cb5007, "DX100" },

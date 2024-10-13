@@ -3816,6 +3816,18 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>겉표지보다 큰 몇 향수류</translation>
     </message>
     <message>
+        <source>Color Scheme:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Light Mode</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Dark Mode</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Font</source>
         <translation>글꼴</translation>
     </message>
@@ -9193,7 +9205,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <source># Comments
 #
 # </source>
-        <translation># 주석
+        <translation># 주석 
 #
 # </translation>
     </message>
