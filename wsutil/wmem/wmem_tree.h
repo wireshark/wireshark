@@ -112,9 +112,10 @@ WS_DLL_PUBLIC
 void *
 wmem_tree_lookup32_le(wmem_tree_t *tree, uint32_t key);
 
-/** Remove a node in the tree indexed by a uint32_t integer value. This is not
- * really a remove, but the value is set to NULL so that wmem_tree_lookup32
- * not will find it.
+/** Remove a node in the tree indexed by a uint32_t integer value. This
+ * now is a real remove. This returns the value stored at that key. If
+ * the tree memory is managed manually (NULL allocator), it is the
+ * responsibility of the caller to free it.
  */
 WS_DLL_PUBLIC
 void *
