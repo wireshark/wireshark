@@ -860,6 +860,10 @@ set_target_properties(qtui PROPERTIES
 
 if(MSVC)
 	set_target_properties(qtui PROPERTIES LINK_FLAGS_DEBUG "${WS_MSVC_DEBUG_LINK_FLAGS}")
+	# https://bugreports.qt.io/browse/QTBUG-118993
+	if(Qt${qtver}Widgets_VERSION VERSION_LESS "6.5.4")
+		target_compile_definitions(qtui PUBLIC _SILENCE_STDEXT_ARR_ITERS_DEPRECATION_WARNING)
+	endif()
 endif()
 
 CHECKAPI(
