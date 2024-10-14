@@ -816,6 +816,24 @@ Ubuntu GCC Build:
     reports:
       junit: ubuntu_tests.xml
 
+Ubuntu Qt5 Build:
+  extends: .build-ubuntu
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+      interruptible: true
+      changes:
+        - "ui/**/*"
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+      when: manual
+      allow_failure: true
+  needs: [ 'Commit Check' ]
+  script:
+    - printf "\e[0Ksection_start:%s:cmake_section[collapsed=true]\r\e[0KRunning CMake" "$( date +%s)"
+    - cmake -G Ninja -DENABLE_CCACHE=ON -DENABLE_WERROR=ON -DUSE_qt6=OFF ..
+    - printf "\e[0Ksection_end:%s:cmake_section\r\e[0K" "$( date +%s)"
+    - ninja
+    - run/wireshark -v
+
 Fedora MinGW Build:
   extends: .build-mingw
   rules: !reference [.if-merge-request]
@@ -915,23 +933,6 @@ Windows Build:
     when: always
     reports:
       junit: windows_tests.xml
-
-Windows Qt5 Build:
-  extends: .build-windows
-  rules:
-    - if: '$CI_PIPELINE_SOURCE == "merge_request_event" && $CI_PROJECT_URL =~ /.*gitlab.com\/wireshark\/wireshark/'
-      changes:
-        - "ui/**/*"
-    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
-      when: manual
-      allow_failure: true
-  tags:
-    - wireshark-windows-merge-req
-  needs: [ 'Commit Check' ]
-  script:
-    - $env:CMAKE_PREFIX_PATH = "C:\qt\5.15.2\msvc2019_64"
-    - cmake -G "Visual Studio 17 2022" -A x64 -DUSE_qt6=OFF -DENABLE_LTO=off ..
-    - msbuild /verbosity:minimal /maxcpucount ui\qt\qtui.vcxproj
 
 macOS Build:
   extends: .build-macos
