@@ -79,20 +79,6 @@ if(WIN32)
 endif()
 
 option(ENABLE_PCAP       "Enable libpcap support (required for capturing)" ON)
-#
-# AirPcap support is available only on Windows.  It might be nice to have it
-# check whether the AirPcap SDK is available, and turn AirPcap support on
-# only if it is.
-#
-if(WIN32)
-	if(MINGW)
-		# AirPcap SDK is not widely available or supported with MinGW.
-		set(_enable_airpcap OFF)
-	else()
-		set(_enable_airpcap ON)
-	endif()
-	option(ENABLE_AIRPCAP    "Enable AirPcap support" ${_enable_airpcap})
-endif()
 option(ENABLE_STATIC            "Build Wireshark libraries statically" OFF)
 option(USE_STATIC               "Always link statically with external libraries" OFF)
 option(ENABLE_PLUGINS           "Build with plugins" ON)

@@ -852,8 +852,6 @@ the build using MSVC:
 
 * Enhanced Kerberos dissection with decryption is not available.
 
-* AirPcap is not supported.
-
 [#ChSetupCross]
 
 ==== Cross-compilation using Linux
@@ -911,8 +909,6 @@ If successful the installer can be found in `$CMAKE_BINARY_DIR/packaging/nsis`.
 * The Event Tracing for Windows (ETW) extcap cannot be compiled using MinGW-w64.
 
 * Enhanced Kerberos dissection with decryption is not available.
-
-* AirPcap is not supported.
 
 ===== Using Arch Linux
 

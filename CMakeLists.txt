@@ -1325,7 +1325,6 @@ endif()
 ws_find_package(LIBSSH ENABLE_LIBSSH HAVE_LIBSSH "0.8.5")
 
 ws_find_package(PCAP ENABLE_PCAP HAVE_LIBPCAP)
-ws_find_package(AIRPCAP ENABLE_AIRPCAP HAVE_AIRPCAP)
 ws_find_package(Systemd BUILD_sdjournal HAVE_SYSTEMD)
 
 # Build one of the Qt GUIs?
@@ -2311,9 +2310,6 @@ if(USE_REPOSITORY)
 	# Third party DLLs and PDBs.
 	set (THIRD_PARTY_DLLS)
 	set (THIRD_PARTY_PDBS)
-	if (AIRPCAP_FOUND)
-		list (APPEND THIRD_PARTY_DLLS "${AIRPCAP_DLL_DIR}/${AIRPCAP_DLL}")
-	endif(AIRPCAP_FOUND)
 	list (APPEND THIRD_PARTY_DLLS "${CARES_DLL_DIR}/${CARES_DLL}")
 	list (APPEND THIRD_PARTY_PDBS "${CARES_DLL_DIR}/${CARES_PDB}")
 	# vcpkg's libmaxminddb is static-only for now. This can be uncommented when
@@ -3460,9 +3456,6 @@ if(BUILD_dumpcap AND PCAP_FOUND)
 	list(APPEND CAPUTILS_SRC
 		capture/capture-pcap-util.c
 	)
-	if (AIRPCAP_FOUND)
-		list(APPEND CAPUTILS_SRC capture/airpcap_loader.c)
-	endif()
 	set(dumpcap_FILES
 		capture_opts.c
 		cli_main.c

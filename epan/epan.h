@@ -71,26 +71,6 @@ Plugins - Some of the protocol dissectors are implemented as plugins. Source cod
 
 Display-Filters - the display filter engine at epan/dfilter
 
-
-
-Ref2 for further edits - delete when done
-	\section Introduction
-
-	This document describes the data structures and the functions exported by the CACE Technologies AirPcap library.
-	The AirPcap library provides low-level access to the AirPcap driver including advanced capabilities such as channel setting,
-	link type control and WEP configuration.<br>
-	This manual includes the following sections:
-
-	\note throughout this documentation, \e device refers to a physical USB AirPcap device, while \e adapter is an open API
-	instance. Most of the AirPcap API operations are adapter-specific but some of them, like setting the channel, are
-	per-device and will be reflected on all the open adapters. These functions will have "Device" in their name, e.g.
-	AirpcapSetDeviceChannel().
-
-	\b Sections:
-
-	- \ref airpcapfuncs
-	- \ref airpcapdefs
-	- \ref radiotap
 */
 
 /**

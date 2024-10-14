@@ -295,16 +295,6 @@ void PreferencesDialog::apply()
 
     write_language_prefs();
     mainApp->loadLanguage(QString(language));
-
-#ifdef HAVE_AIRPCAP
-  /*
-   * Load the Wireshark decryption keys (just set) and save
-   * the changes to the adapters' registry
-   */
-  //airpcap_load_decryption_keys(airpcap_if_list);
-#endif
-
-    // gtk/prefs_dlg.c:prefs_main_apply_all
     /*
      * Apply the protocol preferences first - "gui_prefs_apply()" could
      * cause redissection, and we have to make sure the protocol
@@ -314,10 +304,6 @@ void PreferencesDialog::apply()
 
     /* Fill in capture options with values from the preferences */
     prefs_to_capture_opts();
-
-#ifdef HAVE_AIRPCAP
-//    prefs_airpcap_update();
-#endif
 
     mainApp->setMonospaceFont(prefs.gui_font_name);
 

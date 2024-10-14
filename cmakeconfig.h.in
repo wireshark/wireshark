@@ -40,9 +40,6 @@
 /* Enable LeakSanitizer standalone */
 #cmakedefine ENABLE_LSAN 1
 
-/* Enable AirPcap */
-#cmakedefine HAVE_AIRPCAP 1
-
 /* Define to 1 if you have the <arpa/inet.h> header file. */
 #cmakedefine HAVE_ARPA_INET_H 1
 

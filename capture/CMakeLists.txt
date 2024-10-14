@@ -26,13 +26,6 @@ set(CAPUTILS_SRC
 	capture-pcap-util.c
 )
 
-if (AIRPCAP_FOUND)
-	set(CAPUTILS_SRC
-		${CAPUTILS_SRC}
-		airpcap_loader.c
-	)
-endif()
-
 set_source_files_properties(
 	${CAPUTILS_SRC}
 	PROPERTIES

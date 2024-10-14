@@ -36,7 +36,6 @@ enum ws80211_channel_type {
 #define CHAN_VHT80P80	"VHT80+80"
 #define CHAN_VHT160	"VHT160"
 
-/* XXX This doesn't match AirpcapValidationType. Should it? */
 enum ws80211_fcs_validation {
 	WS80211_FCS_ALL,
 	WS80211_FCS_VALID,
@@ -63,8 +62,6 @@ struct ws80211_iface_info {
 
 /** Initialize the 802.11 environment.
  * On Linux this initializes an nl80211_state struct.
- * On Windows this checks the AirPcap status. It does *not* load the
- * AirPcap DLL. That happens when the program starts.
  *
  * @return WS80211_INIT_OK on success, WS80211_INIT_NOT_SUPPORTED if the
  * 802.11 environment isn't supported, or the negative of an errno value
@@ -122,7 +119,7 @@ int ws80211_set_fcs_validation(const char *name, enum ws80211_fcs_validation fcs
 
 /** Get the path to a helper application.
  * Return the path to a separate 802.11 helper application, e.g.
- * the AirPcap control panel or the GNOME Network Manager.
+ * the GNOME Network Manager.
  *
  * @return The path to the helper on success, NULL on failure.
  */

@@ -1403,7 +1403,8 @@ bytes.
 image::images/ws-wireless-key-examples.png[{screenshot-attrs}]
 
 ////
-AirPcap was discontinued so this sections from the Wiki isn't relevant for many people currently
+AirPcap was discontinued so this sections from the Wiki isn't relevant for many people currently.
+As of 2024-10-14 AirPcap code has been removed from master.
 ==== Adding Keys: Wireless Toolbar
 
 If you are using the Windows version of Wireshark and you have an [AirPcap](/AirPcap) adapter you can add decryption keys using the wireless toolbar. If the toolbar isn't visible, you can show it by selecting *View-\>Wireless Toolbar*. Click on the *Decryption Keys...* button on the toolbar:

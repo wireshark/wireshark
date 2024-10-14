@@ -71,7 +71,6 @@ $ErrorActionPreference = "Stop"
 
 # Archive file / SHA256
 $X64Archives = @{
-    "AirPcap/AirPcap_Devpack_4_1_0_1622.zip" = "09d637f28a79b1d2ecb09f35436271a90c0f69bd0a1ee82b803abaaf63c18a69";
     "bcg729/bcg729-1.0.4-win64ws.zip" = "9a095fda4c39860d96f0c568830faa6651cd17635f68e27aa6de46c689aa0ee2";
     "brotli/brotli-1.0.9-1-win64ws.zip" = "3f8d24aec8668201994327ff8d8542fe507d1d468a500a1aec50d0415f695aab";
     "c-ares/c-ares-1.28.1-1-x64-windows-ws.zip" = "6509df8e15ed67e87fac84a3b0acaa7b804b59f272fdf9decfb6157d241e73da";

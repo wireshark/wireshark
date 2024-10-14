@@ -51,9 +51,6 @@ ALLOWED_LICENSES = [
 
 
 PATH_SPECIFIC_ALLOWED_LICENSES = {
-    'caputils/airpcap.h': [
-        'BSD-3-Clause',
-    ],
     'wsutil/strnatcmp.c': [
         'Zlib',
     ],
