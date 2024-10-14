@@ -80,6 +80,12 @@ static bool try_heuristic_first;
 /* Interpret the reserved flag as security flag (RFC 3514) */
 static bool ip_security_flag;
 
+/* Assign unique stream numbers to each IP conversation. This increases
+ * resource use (CPU and memory) because of having to lookup and create
+ * conversations.
+ */
+static bool ip_track_conv_id = true;
+
 /* Aggregate subnets in Statistics Endpoints/Conversations Dialogs
  * defaults to false to not impact resources
  */
@@ -531,11 +537,13 @@ ip_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, c
     /* Try aggregating into subnets if asked so,
      * if no subnets are found it will still end in calling xxx_with_conv_id()
      */
-    if(ip_conv_agg_flag) {
+    if (!ip_track_conv_id) {
+        add_conversation_table_data(hash, &iph->ip_src, &iph->ip_dst, 0, 0, 1, pinfo->fd->pkt_len,
+                                                 &pinfo->rel_ts, &pinfo->abs_ts, &ip_ct_dissector_info, CONVERSATION_IP);
+    } else if(ip_conv_agg_flag) {
         add_conversation_table_data_ipv4_subnet(hash, &iph->ip_src, &iph->ip_dst, 0, 0, (conv_id_t)iph->ip_stream, 1, pinfo->fd->pkt_len,
                                                 &pinfo->rel_ts, &pinfo->abs_ts, &ip_ct_dissector_info, CONVERSATION_IP);
-    }
-    else {
+    } else {
         add_conversation_table_data_with_conv_id(hash, &iph->ip_src, &iph->ip_dst, 0, 0, (conv_id_t)iph->ip_stream, 1, pinfo->fd->pkt_len,
                                                  &pinfo->rel_ts, &pinfo->abs_ts, &ip_ct_dissector_info, CONVERSATION_IP);
     }
@@ -2381,32 +2389,42 @@ dissect_ip_v4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
     }
   }
 
-  conversation_t *conv;
+#if 0
+  /* This would be automatic, but have the side effect that the stream IDs
+   * would depend on the order in which packets were dissected with a visible
+   * tree (e.g., clicking on them in Wireshark) instead of always being the
+   * same for a given file, which is probably unexpected.
+   */
+  if (proto_field_is_referenced(tree, hf_stream_id) || have_tap_listener(ip_tap)) {
+#endif
+  if (ip_track_conv_id) {
+    conversation_t *conv;
 
-  /* find (and extend) an existing conversation, or create a new one */
-  conv = find_conversation_strat(pinfo, CONVERSATION_IP, NO_PORT_X);
-  if(!conv) {
-    conv=conversation_new_strat(pinfo, CONVERSATION_IP, NO_PORTS);
-  }
-  else {
-    /*
-     * while not strictly necessary because there is only 1
-     * conversation between 2 IPs, we still move the last frame
-     * indicator as being a usual practice.
-     */
-    if (!(pinfo->fd->visited)) {
-      if (pinfo->num > conv->last_frame) {
-        conv->last_frame = pinfo->num;
+    /* find (and extend) an existing conversation, or create a new one */
+    conv = find_conversation_strat(pinfo, CONVERSATION_IP, NO_PORT_X);
+    if(!conv) {
+      conv=conversation_new_strat(pinfo, CONVERSATION_IP, NO_PORTS);
+    }
+    else {
+      /*
+       * while not strictly necessary because there is only 1
+       * conversation between 2 IPs, we still move the last frame
+       * indicator as being a usual practice.
+       */
+      if (!(pinfo->fd->visited)) {
+        if (pinfo->num > conv->last_frame) {
+          conv->last_frame = pinfo->num;
+        }
       }
     }
-  }
 
-  ipd = get_ip_conversation_data(conv, pinfo);
-  if(ipd) {
-    iph->ip_stream = ipd->stream;
+    ipd = get_ip_conversation_data(conv, pinfo);
+    if(ipd) {
+      iph->ip_stream = ipd->stream;
 
-    item = proto_tree_add_uint(ip_tree, hf_ip_stream, tvb, offset, 0, ipd->stream);
-    proto_item_set_generated(item);
+      item = proto_tree_add_uint(ip_tree, hf_ip_stream, tvb, offset, 0, ipd->stream);
+      proto_item_set_generated(item);
+    }
   }
 
   if (next_tvb == NULL) {
@@ -3123,9 +3141,14 @@ proto_register_ip(void)
     "Try to decode a packet using an heuristic sub-dissector before using a sub-dissector registered to a specific port",
     &try_heuristic_first);
 
+  prefs_register_bool_preference(ip_module, "conv_id",
+    "Assign IPv4 conversation IDs",
+    "Whether to assign unique numbers to each IPv4 conversation (increases resource consumption)",
+    &ip_track_conv_id);
+
   prefs_register_bool_preference(ip_module, "conv_agg_flag" ,
     "Aggregate subnets in Statistics Dialogs",
-    "Whether to group conversations based on the subnets file",
+    "Whether to group conversations based on the subnets file; requires \"Assign IPv4 conversation IDs\"",
     &ip_conv_agg_flag);
 
   prefs_register_static_text_preference(ip_module, "text_use_geoip",

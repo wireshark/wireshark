@@ -567,6 +567,36 @@ static expert_field ei_ipv6_embed_ipv4_u_value;
 
 static dissector_handle_t ipv6_handle;
 
+/* Reassemble fragmented datagrams */
+static bool ipv6_reassemble = true;
+
+/* Place IPv6 summary in proto tree */
+static bool ipv6_summary_in_tree = true;
+
+/* Show expanded information about IPv6 address */
+static bool ipv6_address_detail = true;
+
+/* Perform strict RFC adherence checking */
+static bool g_ipv6_rpl_srh_strict_rfc_checking;
+
+/* Use heuristics to determine subdissector */
+static bool try_heuristic_first;
+
+/* Display IPv6 extension headers under the root tree */
+static bool ipv6_exthdr_under_root;
+
+/* Hide extension header generated field for length */
+static bool ipv6_exthdr_hide_len_oct_field;
+
+/* Assume TSO and correct zero-length IP packets */
+static bool ipv6_tso_supported;
+
+/* Assign unique ID numbers to each IPv6 conversation. This increases
+ * resource US because of having to lookup and create conversations
+ * (which aren't otherwise needed.)
+ */
+static bool ipv6_track_conv_id = true;
+
 #define set_address_ipv6(dst, src_ip6) \
     set_address((dst), AT_IPv6, IPv6_ADDR_SIZE, (src_ip6))
 
@@ -666,9 +696,15 @@ ipv6_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_,
 
     const ipv6_tap_info_t *ip6 = (const ipv6_tap_info_t *)vip;
 
-    add_conversation_table_data_with_conv_id(hash, &ip6->ip6_src, &ip6->ip6_dst, 0, 0,
-            (conv_id_t)ip6->ip6_stream, 1, pinfo->fd->pkt_len,
-            &pinfo->rel_ts, &pinfo->abs_ts, &ipv6_ct_dissector_info, CONVERSATION_IPV6);
+    if (!ipv6_track_conv_id) {
+        add_conversation_table_data(hash, &ip6->ip6_src, &ip6->ip6_dst, 0, 0,
+                1, pinfo->fd->pkt_len, &pinfo->rel_ts, &pinfo->abs_ts,
+                &ipv6_ct_dissector_info, CONVERSATION_IPV6);
+    } else {
+        add_conversation_table_data_with_conv_id(hash, &ip6->ip6_src, &ip6->ip6_dst, 0, 0,
+                (conv_id_t)ip6->ip6_stream, 1, pinfo->fd->pkt_len,
+                &pinfo->rel_ts, &pinfo->abs_ts, &ipv6_ct_dissector_info, CONVERSATION_IPV6);
+    }
 
     return TAP_PACKET_REDRAW;
 }
@@ -826,30 +862,6 @@ static const fragment_items ipv6_frag_items = {
 
 static dissector_table_t ip_dissector_table;
 static dissector_table_t ipv6_routing_dissector_table;
-
-/* Reassemble fragmented datagrams */
-static bool ipv6_reassemble = true;
-
-/* Place IPv6 summary in proto tree */
-static bool ipv6_summary_in_tree = true;
-
-/* Show expanded information about IPv6 address */
-static bool ipv6_address_detail = true;
-
-/* Perform strict RFC adherence checking */
-static bool g_ipv6_rpl_srh_strict_rfc_checking;
-
-/* Use heuristics to determine subdissector */
-static bool try_heuristic_first;
-
-/* Display IPv6 extension headers under the root tree */
-static bool ipv6_exthdr_under_root;
-
-/* Hide extension header generated field for length */
-static bool ipv6_exthdr_hide_len_oct_field;
-
-/* Assume TSO and correct zero-length IP packets */
-static bool ipv6_tso_supported;
 
 /*
  * defragmentation of IPv6
@@ -3719,33 +3731,36 @@ dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
                     "IPv6 payload length exceeds framing length (%d bytes)", reported_plen);
     }
 
-    /* conversation management */
-    conversation_t *conv;
 
-    /* find (and extend) an existing conversation, or create a new one */
-    conv = find_conversation_strat(pinfo, CONVERSATION_IPV6, NO_PORT_X);
-    if(!conv) {
-        conv=conversation_new_strat(pinfo, CONVERSATION_IPV6, NO_PORTS);
-    }
-    else {
-        /*
-         * while not strictly necessary because there is only 1
-         * conversation between 2 IPs, we still move the last frame
-         * indicator as being a usual practice.
-         */
-        if (!(pinfo->fd->visited)) {
-            if (pinfo->num > conv->last_frame) {
-                conv->last_frame = pinfo->num;
+    if (ipv6_track_conv_id) {
+        /* conversation management */
+        conversation_t *conv;
+
+        /* find (and extend) an existing conversation, or create a new one */
+        conv = find_conversation_strat(pinfo, CONVERSATION_IPV6, NO_PORT_X);
+        if(!conv) {
+            conv=conversation_new_strat(pinfo, CONVERSATION_IPV6, NO_PORTS);
+        }
+        else {
+            /*
+             * while not strictly necessary because there is only 1
+             * conversation between 2 IPs, we still move the last frame
+             * indicator as being a usual practice.
+             */
+            if (!(pinfo->fd->visited)) {
+                if (pinfo->num > conv->last_frame) {
+                    conv->last_frame = pinfo->num;
+                }
             }
         }
-    }
 
-    ipv6d = get_ipv6_conversation_data(conv, pinfo);
-    if(ipv6d) {
-      iph->ip6_stream = ipv6d->stream;
+        ipv6d = get_ipv6_conversation_data(conv, pinfo);
+        if(ipv6d) {
+          iph->ip6_stream = ipv6d->stream;
 
-      ipv6_item = proto_tree_add_uint(ipv6_tree, hf_ipv6_stream, tvb, 0, 0, ipv6d->stream);
-      proto_item_set_generated(ipv6_item);
+          ipv6_item = proto_tree_add_uint(ipv6_tree, hf_ipv6_stream, tvb, 0, 0, ipv6d->stream);
+          proto_item_set_generated(ipv6_item);
+        }
     }
 
     /* Fill in IP header fields for subdissectors */
@@ -5606,6 +5621,11 @@ proto_register_ipv6(void)
     prefs_register_static_text_preference(ipv6_module, "text_use_geoip" ,
                                    "IP geolocation settings can be changed in the Name Resolution preferences",
                                    "IP geolocation settings can be changed in the Name Resolution preferences");
+
+    prefs_register_bool_preference(ipv6_module, "conv_id",
+                                   "Assign IPv6 conversation IDs",
+                                   "Whether to assign unique numbers to each IPv6 conversation (increases resource consumption)",
+                                   &ipv6_track_conv_id);
 
     static uat_field_t nat64_uats_flds[] = {
         UAT_FLD_CSTRING_OTHER(nat64_prefix_uats, ipaddr, "NAT64 Prefix", nat64_prefix_uat_fld_ip_chk_cb, "IPv6 prefix address"),
