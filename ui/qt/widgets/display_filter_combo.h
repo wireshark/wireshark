@@ -25,8 +25,8 @@ public:
 protected:
 #if QT_VERSION < QT_VERSION_CHECK(5, 15, 0)
     void rowsAboutToBeInserted(const QModelIndex&, int, int);
-    void rowsInserted(const QModelIndex&, int, int);
 #endif
+    void rowsInserted(const QModelIndex&, int, int);
     virtual bool event(QEvent *event);
 
 private:
@@ -41,7 +41,7 @@ public slots:
 
 private slots:
     void updateMaxCount();
-    void onActivated(int index);
+    void filterApplied(QString filter, bool force);
 };
 
 #endif // DISPLAY_FILTER_COMBO_H
