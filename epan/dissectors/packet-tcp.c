@@ -4659,7 +4659,8 @@ again:
                      * Out of Order from this perspective (#10725, #13843)
                      */
                     if((tcpd->ta->flags&TCP_A_SPURIOUS_RETRANSMISSION) == TCP_A_SPURIOUS_RETRANSMISSION ||
-                      ((tcpd->ta->flags&TCP_A_RETRANSMISSION) == TCP_A_RETRANSMISSION)) {
+                        (tcpd->ta->flags & TCP_A_RETRANSMISSION) == TCP_A_RETRANSMISSION ||
+                        (tcpd->ta->flags & TCP_A_FAST_RETRANSMISSION) == TCP_A_FAST_RETRANSMISSION) {
                         tcpd->ta->flags |= TCP_A_OLD_DATA;
                     }
                 }
@@ -7744,7 +7745,8 @@ decode_tcp_ports(tvbuff_t *tvb, int offset, packet_info *pinfo,
     }
 
     if (tcp_no_subdissector_on_error && !(tcp_desegment && tcp_reassemble_out_of_order) &&
-        tcpd && tcpd->ta && tcpd->ta->flags & (TCP_A_RETRANSMISSION | TCP_A_OUT_OF_ORDER)) {
+        tcpd && tcpd->ta && tcpd->ta->flags & (TCP_A_RETRANSMISSION | TCP_A_FAST_RETRANSMISSION |
+            TCP_A_SPURIOUS_RETRANSMISSION | TCP_A_OUT_OF_ORDER)) {
         /* Don't try to dissect a retransmission high chance that it will mess
          * subdissectors for protocols that require in-order delivery of the
          * PDUs. (i.e. DCE/RPCoverHTTP and encryption)
