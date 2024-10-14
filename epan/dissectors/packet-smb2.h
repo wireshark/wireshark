@@ -73,6 +73,7 @@ typedef struct _smb2_saved_info_t {
 	void *extra_info;
 	smb2_extra_info_t extra_info_type;
 	uint32_t fid_hash;
+	uint16_t num_matched;
 } smb2_saved_info_t;
 
 typedef struct _smb2_tid_info_t {

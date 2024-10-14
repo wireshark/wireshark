@@ -698,6 +698,7 @@ static int hf_smb2_fscc_refs_snapshot_query_delta_buffer_flags;
 static int hf_smb2_fscc_refs_snapshot_query_delta_buffer_reserved;
 static int hf_smb2_flush_reserved2;
 static int hf_smb2_file_id_hash;
+static int hf_smb2_num_matched;
 
 static int ett_smb2;
 static int ett_smb2_olb;
@@ -5502,6 +5503,8 @@ dissect_smb2_find_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, smb2
 {
 	smb2_find_dissector_t *dis = smb2_find_dissectors;
 
+	si->saved->num_matched = 0;
+
 	while (dis->dissector) {
 		if (si && si->saved) {
 			if (dis->level == si->saved->infolevel) {
@@ -5510,7 +5513,9 @@ dissect_smb2_find_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, smb2
 			}
 		}
 		dis++;
+	        si->saved->num_matched++;
 	}
+
 
 	proto_tree_add_item(tree, hf_smb2_unknown, tvb, 0, tvb_captured_length(tvb), ENC_NA);
 }
@@ -5535,14 +5540,10 @@ dissect_smb2_find_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 		proto_item_set_generated(item);
 	}
 
-	if (!pinfo->fd->visited && si->saved && si->saved->extra_info_type == SMB2_EI_FINDPATTERN) {
-		col_append_fstr(pinfo->cinfo, COL_INFO, " %s Pattern: %s",
+	if (si->saved && si->saved->extra_info_type == SMB2_EI_FINDPATTERN) {
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s Pattern: %s",
 				val_to_str(si->saved->infolevel, smb2_find_info_levels, "(Level:0x%02x)"),
 				(const char *)si->saved->extra_info);
-
-		wmem_free(wmem_file_scope(), si->saved->extra_info);
-		si->saved->extra_info_type = SMB2_EI_NONE;
-		si->saved->extra_info = NULL;
 	}
 
 	switch (si->status) {
@@ -5559,6 +5560,13 @@ dissect_smb2_find_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 	dissect_smb2_olb_buffer(pinfo, tree, tvb, &olb, si, dissect_smb2_find_data);
 
 	offset = dissect_smb2_olb_tvb_max_offset(offset, &olb);
+
+	item = proto_tree_add_uint_format(tree, hf_smb2_num_matched, tvb, 0, 0,
+		si->saved->num_matched, "Matched: %u names", si->saved->num_matched);
+	proto_item_set_generated(item);
+
+	col_append_fstr(
+		pinfo->cinfo, COL_INFO, ", %u matches", si->saved->num_matched);
 
 	return offset;
 }
@@ -11830,7 +11838,7 @@ dissect_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, bool fi
 		/* first packet */
 		col_clear(pinfo->cinfo, COL_INFO);
 	} else {
-		col_append_str(pinfo->cinfo, COL_INFO, ";");
+		col_append_str(pinfo->cinfo, COL_INFO, "; ");
 	}
 
 	item = proto_tree_add_item(parent_tree, proto_smb2, tvb, offset, -1, ENC_NA);
@@ -12385,6 +12393,12 @@ proto_register_smb2(void)
 			{ "FileId Hash", "smb2.fid_hash", FT_UINT32, BASE_HEX,
 			NULL, 0, "Used to find all instances of a File ID", HFILL }
 		},
+
+		{ &hf_smb2_num_matched,
+			{ "Matched pattern", "smb2.num_matched", FT_UINT16, BASE_DEC,
+			NULL, 0, "Number of files matching the find pattern", HFILL }
+		},
+
 
 		{ &hf_smb2_replace_if,
 			{ "Replace If", "smb2.rename.replace_if", FT_BOOLEAN, 8,
