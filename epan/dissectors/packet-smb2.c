@@ -10684,7 +10684,7 @@ static const smb2_function smb2_dissector[256] = {
   /* 0x08 Read*/
 	{dissect_smb2_read_request,
 	 dissect_smb2_read_response},
-  /* 0x09 Writew*/
+  /* 0x09 Write*/
 	{dissect_smb2_write_request,
 	 dissect_smb2_write_response},
   /* 0x0a Lock */
