@@ -3269,7 +3269,7 @@ static void
 add_ipv6_address(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset,
                         struct ipv6_addr_info_s *addr_info)
 {
-    address addr;
+    ws_in6_addr addr;
     const char *name;
     proto_item *ti, *vis, *invis;
 
@@ -3277,13 +3277,18 @@ add_ipv6_address(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset
     invis = proto_tree_add_item(tree, hf_ipv6_addr, tvb, offset, IPv6_ADDR_SIZE, ENC_NA);
     proto_item_set_hidden(invis);
 
-    set_address_ipv6_tvb(&addr, tvb, offset);
-    name = address_to_display(pinfo->pool, &addr);
-
     if (ipv6_address_detail) {
         add_ipv6_address_detail(pinfo, vis, invis, tvb, offset, addr_info);
     }
 
+    if (!proto_field_is_referenced(tree, *addr_info->hf_host) &&
+        !proto_field_is_referenced(tree, hf_ipv6_host)) {
+
+        return;
+    }
+
+    tvb_get_ipv6(tvb, offset, &addr);
+    name = get_hostname6_wmem(pinfo->pool, &addr);
     ti = proto_tree_add_string(tree, *addr_info->hf_host, tvb, offset, IPv6_ADDR_SIZE, name);
     proto_item_set_generated(ti);
     proto_item_set_hidden(ti);

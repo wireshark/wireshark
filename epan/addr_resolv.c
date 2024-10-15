@@ -3372,7 +3372,18 @@ const char *
 get_hostname(const unsigned addr)
 {
     /* XXX why do we call this if we're not resolving? To create hash entries?
-     * Why?
+     * Why? So that we can return a const char*?
+     *
+     * Note the returned string is in addr_resolv_scope, which has a similar
+     * life to the global file scope (slightly larger, in that the resolved
+     * addresses need to be available during dissector registration, e.g.
+     * for RADIUS and enterprises), so if not copied it is possible to use
+     * it after freeing.
+     *
+     * Should this be deprecated in favor of get_hostname_wmem so that
+     * host name lookups don't increase persistent memory usage even when
+     * hostname lookups are disabled? (An alternative would be to return
+     * NULL when lookups are disabled, but callers don't expect that.)
      */
     hashipv4_t *tp = host_lookup(addr);
 
@@ -3384,13 +3395,25 @@ get_hostname(const unsigned addr)
     return tp->name;
 }
 
+char *
+get_hostname_wmem(wmem_allocator_t *allocator, const unsigned addr)
+{
+    if (!gbl_resolv_flags.network_name)
+        return ip_addr_to_str(allocator, &addr);
+
+    hashipv4_t *tp = host_lookup(addr);
+
+    tp->flags |= RESOLVED_ADDRESS_USED;
+
+    return wmem_strdup(allocator, tp->name);
+}
 /* -------------------------- */
 
 const char *
 get_hostname6(const ws_in6_addr *addr)
 {
     /* XXX why do we call this if we're not resolving? To create hash entries?
-     * Why?
+     * Why? The same comments as get_hostname above apply.
      */
     hashipv6_t *tp = host_lookup6(addr);
 
@@ -3402,6 +3425,18 @@ get_hostname6(const ws_in6_addr *addr)
     return tp->name;
 }
 
+char *
+get_hostname6_wmem(wmem_allocator_t *allocator, const ws_in6_addr *addr)
+{
+    if (!gbl_resolv_flags.network_name)
+        return ip6_to_str(allocator, addr);
+
+    hashipv6_t *tp = host_lookup6(addr);
+
+    tp->flags |= RESOLVED_ADDRESS_USED;
+
+    return wmem_strdup(allocator, tp->name);
+}
 /* -------------------------- */
 void
 add_ipv4_name(const unsigned addr, const char *name, bool static_entry)

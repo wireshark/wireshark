@@ -210,11 +210,33 @@ WS_DLL_PUBLIC void disable_name_resolution(void);
  */
 WS_DLL_PUBLIC bool host_name_lookup_process(void);
 
-/* get_hostname returns the host name or "%d.%d.%d.%d" if not found */
+/* get_hostname returns the host name or "%d.%d.%d.%d" if not found.
+ * The string does not have to be freed; it will be freed when the
+ * address hashtables are emptied (e.g., when preferences change or
+ * redissection.) However, this increases persistent memory usage
+ * even when host name lookups are off.
+ *
+ * This might get deprecated in the future for get_hostname_wmem.
+ */
 WS_DLL_PUBLIC const char *get_hostname(const unsigned addr);
 
-/* get_hostname6 returns the host name, or numeric addr if not found */
+/* get_hostname_wmem returns the host name or "%d.%d.%d.%d" if not found
+ * The returned string is allocated according to the wmem scope allocator. */
+WS_DLL_PUBLIC char *get_hostname_wmem(wmem_allocator_t *allocator, const unsigned addr);
+
+/* get_hostname6 returns the host name, or numeric addr if not found.
+ * The string does not have to be freed; it will be freed when the
+ * address hashtables are emptied (e.g., when preferences change or
+ * upon redissection.) However, this increases persistent memory usage
+ * even when host name lookups are off.
+ *
+ * This might get deprecated in the future for get_hostname6_wmem.
+ */
 WS_DLL_PUBLIC const char *get_hostname6(const ws_in6_addr *ad);
+
+/* get_hostname6 returns the host name, or numeric addr if not found.
+ * The returned string is allocated according to the wmem scope allocator. */
+WS_DLL_PUBLIC char *get_hostname6_wmem(wmem_allocator_t *allocator, const ws_in6_addr *ad);
 
 /* get_ether_name returns the logical name if found in ethers files else
    "<vendor>_%02x:%02x:%02x" if the vendor code is known else

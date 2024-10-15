@@ -1187,7 +1187,12 @@ dissect_option_route(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, int of
                                      tvb_ip_to_str(pinfo->pool, tvb, offset));
   else
     proto_tree_add_ipv4(tree, hf, tvb, offset, 4, route);
-  ti = proto_tree_add_string(tree, hf_host, tvb, offset, 4, get_hostname(route));
+
+  if (!proto_field_is_referenced(tree, hf_host)) {
+    return;
+  }
+
+  ti = proto_tree_add_string(tree, hf_host, tvb, offset, 4, get_hostname_wmem(pinfo->pool, route));
   proto_item_set_generated(ti);
   proto_item_set_hidden(ti);
 }
@@ -1235,20 +1240,22 @@ dissect_ipopt_route(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int pro
       const char *dst_host;
 
       addr = tvb_get_ipv4(tvb, offset + optoffset);
-      dst_host = get_hostname(addr);
       proto_tree_add_ipv4(field_tree, hf_ip_dst, tvb,
                           offset + optoffset, 4, addr);
       item = proto_tree_add_ipv4(field_tree, hf_ip_addr, tvb,
                                  offset + optoffset, 4, addr);
       proto_item_set_hidden(item);
-      item = proto_tree_add_string(field_tree, hf_ip_dst_host, tvb,
-                                   offset + optoffset, 4, dst_host);
-      proto_item_set_generated(item);
-      proto_item_set_hidden(item);
-      item = proto_tree_add_string(field_tree, hf_ip_host, tvb,
-                                   offset + optoffset, 4, dst_host);
-      proto_item_set_generated(item);
-      proto_item_set_hidden(item);
+      if (proto_field_is_referenced(field_tree, hf_ip_dst_host) || proto_field_is_referenced(field_tree, hf_ip_host)) {
+        dst_host = get_hostname_wmem(pinfo->pool, addr);
+        item = proto_tree_add_string(field_tree, hf_ip_dst_host, tvb,
+                                     offset + optoffset, 4, dst_host);
+        proto_item_set_generated(item);
+        proto_item_set_hidden(item);
+        item = proto_tree_add_string(field_tree, hf_ip_host, tvb,
+                                     offset + optoffset, 4, dst_host);
+        proto_item_set_generated(item);
+        proto_item_set_hidden(item);
+      }
     } else if ((optoffset + 1) < ptr) {
       /* This is also a recorded route */
       dissect_option_route(field_tree, pinfo, tvb, offset + optoffset, hf_ip_rec_rt,
@@ -1442,8 +1449,10 @@ dissect_ipopt_timestamp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
         break;
       }
       addr = tvb_get_ipv4(tvb, offset + optoffset);
-      proto_tree_add_ipv4_format_value(field_tree, hf_ip_opt_time_stamp_addr, tvb, offset + optoffset, 4, addr,
-            "%s", ((addr == 0) ? "-" : get_hostname(addr)));
+      if (proto_field_is_referenced(field_tree, hf_ip_opt_time_stamp_addr)) {
+        proto_tree_add_ipv4_format_value(field_tree, hf_ip_opt_time_stamp_addr, tvb, offset + optoffset, 4, addr,
+              "%s", ((addr == 0) ? "-" : get_hostname_wmem(pinfo->pool, addr)));
+      }
       optoffset += 4;
       optlen -= 4;
 
@@ -2211,21 +2220,23 @@ dissect_ip_v4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
     const char *src_host;
 
     memcpy(&addr, iph->ip_src.data, 4);
-    src_host = get_hostname(addr);
     if (ip_summary_in_tree) {
       proto_item_append_text(ti, ", Src: %s", address_with_resolution_to_str(pinfo->pool, &iph->ip_src));
     }
     proto_tree_add_ipv4(ip_tree, hf_ip_src, tvb, offset + 12, 4, addr);
     item = proto_tree_add_ipv4(ip_tree, hf_ip_addr, tvb, offset + 12, 4, addr);
     proto_item_set_hidden(item);
-    item = proto_tree_add_string(ip_tree, hf_ip_src_host, tvb, offset + 12, 4,
-                                 src_host);
-    proto_item_set_generated(item);
-    proto_item_set_hidden(item);
-    item = proto_tree_add_string(ip_tree, hf_ip_host, tvb, offset + 12, 4,
-                                 src_host);
-    proto_item_set_generated(item);
-    proto_item_set_hidden(item);
+    if (proto_field_is_referenced(ip_tree, hf_ip_src_host) || proto_field_is_referenced(ip_tree, hf_ip_host)) {
+      src_host = get_hostname_wmem(pinfo->pool, addr);
+      item = proto_tree_add_string(ip_tree, hf_ip_src_host, tvb, offset + 12, 4,
+                                   src_host);
+      proto_item_set_generated(item);
+      proto_item_set_hidden(item);
+      item = proto_tree_add_string(ip_tree, hf_ip_host, tvb, offset + 12, 4,
+                                   src_host);
+      proto_item_set_generated(item);
+      proto_item_set_hidden(item);
+    }
   }
 
   /* If there's an IP strict or loose source routing option, then the final
@@ -2278,7 +2289,6 @@ dissect_ip_v4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
     const char *dst_host;
 
     memcpy(&addr, iph->ip_dst.data, 4);
-    dst_host = get_hostname(addr);
     if (ip_summary_in_tree) {
       proto_item_append_text(ti, ", Dst: %s", address_with_resolution_to_str(pinfo->pool, &iph->ip_dst));
     }
@@ -2292,24 +2302,29 @@ dissect_ip_v4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
             tvb_address_with_resolution_to_str(pinfo->pool, tvb, AT_IPv4, offset + 16));
       }
       proto_tree_add_ipv4(ip_tree, hf_ip_cur_rt, tvb, offset + 16, 4, cur_rt);
-      item = proto_tree_add_string(ip_tree, hf_ip_cur_rt_host, tvb,
-                                   offset + 16, 4, get_hostname(cur_rt));
-      proto_item_set_generated(item);
-      proto_item_set_hidden(item);
+      if (proto_field_is_referenced(ip_tree, hf_ip_cur_rt_host)) {
+        item = proto_tree_add_string(ip_tree, hf_ip_cur_rt_host, tvb,
+                                     offset + 16, 4, get_hostname_wmem(pinfo->pool, cur_rt));
+        proto_item_set_generated(item);
+        proto_item_set_hidden(item);
+      }
     }
     else {
       proto_tree_add_ipv4(ip_tree, hf_ip_dst, tvb, offset + 16, 4, addr);
       item = proto_tree_add_ipv4(ip_tree, hf_ip_addr, tvb, offset + 16, 4,
                                  addr);
       proto_item_set_hidden(item);
-      item = proto_tree_add_string(ip_tree, hf_ip_dst_host, tvb, offset + 16,
-                                   4, dst_host);
-      proto_item_set_generated(item);
-      proto_item_set_hidden(item);
-      item = proto_tree_add_string(ip_tree, hf_ip_host, tvb,
-                                   offset + 16 + dst_off, 4, dst_host);
-      proto_item_set_generated(item);
-      proto_item_set_hidden(item);
+      if (proto_field_is_referenced(ip_tree, hf_ip_dst_host) || proto_field_is_referenced(ip_tree, hf_ip_host)) {
+        dst_host = get_hostname_wmem(pinfo->pool, addr);
+        item = proto_tree_add_string(ip_tree, hf_ip_dst_host, tvb, offset + 16,
+                                     4, dst_host);
+        proto_item_set_generated(item);
+        proto_item_set_hidden(item);
+        item = proto_tree_add_string(ip_tree, hf_ip_host, tvb,
+                                     offset + 16 + dst_off, 4, dst_host);
+        proto_item_set_generated(item);
+        proto_item_set_hidden(item);
+      }
     }
 
     if (gbl_resolv_flags.maxmind_geoip) {

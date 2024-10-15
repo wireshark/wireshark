@@ -38,6 +38,23 @@ struct _address_type_t {
     /* XXX - Some sort of compare functions (like ftype)? ***/
 };
 
+/*
+ * For address types that do have resolution (ETHER, IPv4, IPv6),
+ * addr_name_res_str returns a string that is the same as what
+ * addr_to_str returns even if resolution is off; this ends up
+ * allocating persistent memory for the resolution result even so.
+ * This affects address_to_name, address_to_display, etc.
+ *
+ * Perhaps it should return NULL in such cases.
+ *
+ * As other address types don't support resolution, callers that use
+ * addr_name_res_str (e.g. address_to_name, address_to_display, etc.)
+ * must be prepared to handle NULL already. Note that the header
+ * documentation for address_to_name() claims that if name resolution
+ * is disabled then it returns NULL for such types, but as a result of
+ * the above it does not.
+ */
+
 #define MAX_DISSECTOR_ADDR_TYPE     30
 #define MAX_ADDR_TYPE_VALUE (AT_END_OF_LIST+MAX_DISSECTOR_ADDR_TYPE)
 
@@ -911,7 +928,9 @@ address_to_name(const address *addr)
     /*
      * XXX - addr_name_res_str is expected to return a string from
      * a persistent database, so that it lives a long time, past
-     * the lifetime of addr itself.
+     * the lifetime of addr itself. That string is addr_resolv scope,
+     * which is roughly that of file scope, so in unusual circumstances
+     * it can be freed before addr.
      *
      * We'd like to avoid copying, so this is what we do here.
      */
