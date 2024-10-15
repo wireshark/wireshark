@@ -63,20 +63,20 @@ set(WIRESHARK_WIDGET_HEADERS
 	${CMAKE_SOURCE_DIR}/ui/qt/widgets/wireshark_file_dialog.h
 )
 
-set (LOGRAY_WIDGET_HEADERS ${WIRESHARK_WIDGET_HEADERS})
+set (STRATOSHARK_WIDGET_HEADERS ${WIRESHARK_WIDGET_HEADERS})
 
 set(WIRESHARK_3RD_PARTY_WIDGET_HEADERS
 	${CMAKE_SOURCE_DIR}/ui/qt/widgets/qcustomplot.h
 )
 
-set (LOGRAY_3RD_PARTY_WIDGET_HEADERS ${WIRESHARK_3RD_PARTY_WIDGET_HEADERS})
+set (STRATOSHARK_3RD_PARTY_WIDGET_HEADERS ${WIRESHARK_3RD_PARTY_WIDGET_HEADERS})
 
 set(WIRESHARK_MANAGER_HEADERS
 	${CMAKE_SOURCE_DIR}/ui/qt/manager/preference_manager.h
 	${CMAKE_SOURCE_DIR}/ui/qt/manager/wireshark_preference.h
 )
 
-set (LOGRAY_MANAGER_HEADERS ${WIRESHARK_MANAGER_HEADERS})
+set (STRATOSHARK_MANAGER_HEADERS ${WIRESHARK_MANAGER_HEADERS})
 
 set(WIRESHARK_UTILS_HEADERS
 	${CMAKE_SOURCE_DIR}/ui/qt/utils/color_utils.h
@@ -94,7 +94,7 @@ set(WIRESHARK_UTILS_HEADERS
 	${CMAKE_SOURCE_DIR}/ui/qt/utils/wireshark_zip_helper.h
 )
 
-set (LOGRAY_UTILS_HEADERS ${WIRESHARK_UTILS_HEADERS})
+set (STRATOSHARK_UTILS_HEADERS ${WIRESHARK_UTILS_HEADERS})
 
 set(WIRESHARK_MODEL_HEADERS
 	${CMAKE_SOURCE_DIR}/ui/qt/models/astringlist_list_model.h
@@ -135,7 +135,7 @@ set(WIRESHARK_MODEL_HEADERS
 	${CMAKE_SOURCE_DIR}/ui/qt/models/url_link_delegate.h
 )
 
-set (LOGRAY_MODEL_HEADERS ${WIRESHARK_MODEL_HEADERS})
+set (STRATOSHARK_MODEL_HEADERS ${WIRESHARK_MODEL_HEADERS})
 
 # All .h files which inherit from QObject aka which use the Q_OBJECT macro
 # need to go here.
@@ -249,9 +249,9 @@ if(ENABLE_PCAP)
 	endif()
 endif()
 
-set (LOGRAY_QT_HEADERS
-	logray_application.h
-	logray_main_window.h
+set (STRATOSHARK_QT_HEADERS
+	stratoshark_application.h
+	stratoshark_main_window.h
 	${WIRESHARK_QT_HEADERS}
 )
 
@@ -303,20 +303,20 @@ set(WIRESHARK_WIDGET_SRCS
 	${CMAKE_SOURCE_DIR}/ui/qt/widgets/wireshark_file_dialog.cpp
 )
 
-set (LOGRAY_WIDGET_SRCS ${WIRESHARK_WIDGET_SRCS})
+set (STRATOSHARK_WIDGET_SRCS ${WIRESHARK_WIDGET_SRCS})
 
 set(WIRESHARK_3RD_PARTY_WIDGET_SRCS
 	${CMAKE_SOURCE_DIR}/ui/qt/widgets/qcustomplot.cpp
 )
 
-set (LOGRAY_3RD_PARTY_WIDGET_SRCS ${WIRESHARK_3RD_PARTY_WIDGET_SRCS})
+set (STRATOSHARK_3RD_PARTY_WIDGET_SRCS ${WIRESHARK_3RD_PARTY_WIDGET_SRCS})
 
 set(WIRESHARK_MANAGER_SRCS
 	${CMAKE_SOURCE_DIR}/ui/qt/manager/preference_manager.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/manager/wireshark_preference.cpp
 )
 
-set (LOGRAY_MANAGER_SRCS ${WIRESHARK_MANAGER_SRCS})
+set (STRATOSHARK_MANAGER_SRCS ${WIRESHARK_MANAGER_SRCS})
 
 set(WIRESHARK_UTILS_SRCS
 	${CMAKE_SOURCE_DIR}/ui/qt/utils/color_utils.cpp
@@ -331,7 +331,7 @@ set(WIRESHARK_UTILS_SRCS
 	${CMAKE_SOURCE_DIR}/ui/qt/utils/wireshark_zip_helper.cpp
 )
 
-set (LOGRAY_UTILS_SRCS ${WIRESHARK_UTILS_SRCS})
+set (STRATOSHARK_UTILS_SRCS ${WIRESHARK_UTILS_SRCS})
 
 set(WIRESHARK_MODEL_SRCS
 	${CMAKE_SOURCE_DIR}/ui/qt/models/astringlist_list_model.cpp
@@ -371,7 +371,7 @@ set(WIRESHARK_MODEL_SRCS
 	${CMAKE_SOURCE_DIR}/ui/qt/models/url_link_delegate.cpp
 )
 
-set (LOGRAY_MODEL_SRCS ${WIRESHARK_MODEL_SRCS})
+set (STRATOSHARK_MODEL_SRCS ${WIRESHARK_MODEL_SRCS})
 
 set(WIRESHARK_QT_SRC
 	${CMAKE_SOURCE_DIR}/ui/qt/about_dialog.cpp
@@ -482,11 +482,11 @@ if(ENABLE_PCAP)
 	endif()
 endif()
 
-set (LOGRAY_QT_SRC
-	logray_application.cpp
-	logray_main.cpp
-	logray_main_window.cpp
-	logray_main_window_slots.cpp
+set (STRATOSHARK_QT_SRC
+	stratoshark_application.cpp
+	stratoshark_main.cpp
+	stratoshark_main_window.cpp
+	stratoshark_main_window_slots.cpp
 	${WIRESHARK_QT_SRC})
 
 set(WIRESHARK_QT_TAP_SRC
@@ -497,14 +497,14 @@ set(WIRESHARK_QT_TAP_SRC
 	${WIRESHARK_CUSTOM_TAP_SRC}
 )
 
-set (LOGRAY_QT_TAP_SRC ${WIRESHARK_QT_TAP_SRC})
+set (STRATOSHARK_QT_TAP_SRC ${WIRESHARK_QT_TAP_SRC})
 
 set(WIRESHARK_QT_FILES
 	${WIRESHARK_QT_SRC}
 	${WIRESHARK_QT_TAP_SRC}
 )
 
-set (LOGRAY_QT_FILES ${WIRESHARK_QT_FILES})
+set (STRATOSHARK_QT_FILES ${WIRESHARK_QT_FILES})
 
 set(WIRESHARK_QT_UI
 	${CMAKE_SOURCE_DIR}/ui/qt/about_dialog.ui
@@ -575,8 +575,8 @@ if(HAVE_PCAP_REMOTE)
 	)
 endif()
 
-set (LOGRAY_QT_UI
-	logray_main_window.ui
+set (STRATOSHARK_QT_UI
+	stratoshark_main_window.ui
 	${WIRESHARK_QT_UI}
 )
 
@@ -595,12 +595,12 @@ set(WIRESHARK_QT_TS
 	${CMAKE_SOURCE_DIR}/ui/qt/wireshark_zh_CN.ts
 )
 
-set(LOGRAY_QT_TS
-	logray_en.ts
+set(STRATOSHARK_QT_TS
+	stratoshark_en.ts
 	${WIRESHARK_QT_TS}
 )
 
-foreach(_file ${LOGRAY_QT_TS})
+foreach(_file ${STRATOSHARK_QT_TS})
 	get_filename_component(_qresource ${_file} NAME_WE)
 	set(_qresource_qm "${_qresource}.qm")
 	set(i18n_qresource "${i18n_qresource}\n    <file>${_qresource_qm}</file>")
@@ -625,7 +625,7 @@ add_custom_command(
 		${CMAKE_SOURCE_DIR}/AUTHORS
 )
 
-set(LOGRAY_QT_QRC
+set(STRATOSHARK_QT_QRC
 	${CMAKE_SOURCE_DIR}/resources/about.qrc
 	${CMAKE_SOURCE_DIR}/resources/languages/languages.qrc
 	${CMAKE_SOURCE_DIR}/resources/layout.qrc
@@ -653,73 +653,73 @@ if(NOT Qt${qtver}Widgets_VERSION VERSION_LESS "5.9")
 endif()
 
 if (USE_qt6)
-	QT6_ADD_TRANSLATION(LOGRAY_QT_QM ${LOGRAY_QT_TS} OPTIONS -silent)
+	QT6_ADD_TRANSLATION(STRATOSHARK_QT_QM ${STRATOSHARK_QT_TS} OPTIONS -silent)
 else()
-	QT5_ADD_TRANSLATION(LOGRAY_QT_QM ${LOGRAY_QT_TS} OPTIONS -silent)
+	QT5_ADD_TRANSLATION(STRATOSHARK_QT_QM ${STRATOSHARK_QT_TS} OPTIONS -silent)
 endif()
 
 add_custom_target(
-	logray_translations
+	stratoshark_translations
 	DEPENDS
-		${LOGRAY_QT_QM}
+		${STRATOSHARK_QT_QM}
 )
-set_target_properties(logray_translations PROPERTIES FOLDER "UI")
+set_target_properties(stratoshark_translations PROPERTIES FOLDER "UI")
 
 set_source_files_properties(
-	${LOGRAY_QT_FILES}
+	${STRATOSHARK_QT_FILES}
 	PROPERTIES
 	COMPILE_FLAGS "${WERROR_COMMON_FLAGS}"
 )
 
 set_source_files_properties(
-	logray-tap-register.c
+	stratoshark-tap-register.c
 	PROPERTIES
 	SKIP_AUTOGEN ON
 )
 
 add_definitions(${QT_DEFINITIONS})
 
-register_tap_files(logray-tap-register.c
-	${LOGRAY_QT_TAP_SRC}
+register_tap_files(stratoshark-tap-register.c
+	${STRATOSHARK_QT_TAP_SRC}
 )
 
-source_group("ui\\UIC Files" FILES ${LOGRAY_QT_UI})
-source_group("ui\\qrc" FILES ${LOGRAY_QT_QRC})
-source_group("ui\\Header" FILES ${LOGRAY_QT_HEADERS})
-source_group("ui\\Widget Header" FILES ${LOGRAY_WIDGET_HEADERS})
-source_group("ui\\Widget Source" FILES ${LOGRAY_WIDGET_SRCS})
-source_group("ui\\Utils Headers Files" FILES ${LOGRAY_UTILS_HEADERS})
-source_group("ui\\Utils Source" FILES ${LOGRAY_UTILS_SRCS})
-source_group("ui\\Models Headers" FILES ${LOGRAY_MODEL_HEADERS})
-source_group("ui\\Models Source" FILES ${LOGRAY_MODEL_SRCS})
-source_group("ui\\Manager Headers" FILES ${LOGRAY_MANAGER_HEADERS})
-source_group("ui\\Manager Source" FILES ${LOGRAY_MANAGER_SRCS})
+source_group("ui\\UIC Files" FILES ${STRATOSHARK_QT_UI})
+source_group("ui\\qrc" FILES ${STRATOSHARK_QT_QRC})
+source_group("ui\\Header" FILES ${STRATOSHARK_QT_HEADERS})
+source_group("ui\\Widget Header" FILES ${STRATOSHARK_WIDGET_HEADERS})
+source_group("ui\\Widget Source" FILES ${STRATOSHARK_WIDGET_SRCS})
+source_group("ui\\Utils Headers Files" FILES ${STRATOSHARK_UTILS_HEADERS})
+source_group("ui\\Utils Source" FILES ${STRATOSHARK_UTILS_SRCS})
+source_group("ui\\Models Headers" FILES ${STRATOSHARK_MODEL_HEADERS})
+source_group("ui\\Models Source" FILES ${STRATOSHARK_MODEL_SRCS})
+source_group("ui\\Manager Headers" FILES ${STRATOSHARK_MANAGER_HEADERS})
+source_group("ui\\Manager Source" FILES ${STRATOSHARK_MANAGER_SRCS})
 
-add_library(ui_logray OBJECT
+add_library(ui_stratoshark OBJECT
 	#Included so that Visual Studio can properly put header files in solution
-	${LOGRAY_QT_HEADERS}
-	${LOGRAY_WIDGET_HEADERS}
-	${LOGRAY_3RD_PARTY_WIDGET_HEADERS}
-	${LOGRAY_MANAGER_HEADERS}
-	${LOGRAY_UTILS_HEADERS}
-	${LOGRAY_MODEL_HEADERS}
+	${STRATOSHARK_QT_HEADERS}
+	${STRATOSHARK_WIDGET_HEADERS}
+	${STRATOSHARK_3RD_PARTY_WIDGET_HEADERS}
+	${STRATOSHARK_MANAGER_HEADERS}
+	${STRATOSHARK_UTILS_HEADERS}
+	${STRATOSHARK_MODEL_HEADERS}
 
-	${LOGRAY_QT_SRC}
-	${LOGRAY_WIDGET_SRCS}
-	${LOGRAY_3RD_PARTY_WIDGET_SRCS}
-	${LOGRAY_MANAGER_SRCS}
-	${LOGRAY_UTILS_SRCS}
-	${LOGRAY_MODEL_SRCS}
+	${STRATOSHARK_QT_SRC}
+	${STRATOSHARK_WIDGET_SRCS}
+	${STRATOSHARK_3RD_PARTY_WIDGET_SRCS}
+	${STRATOSHARK_MANAGER_SRCS}
+	${STRATOSHARK_UTILS_SRCS}
+	${STRATOSHARK_MODEL_SRCS}
 
 	# For AUTOUIC and AUTORCC.
-	${LOGRAY_QT_UI}
-	${LOGRAY_QT_QRC}
+	${STRATOSHARK_QT_UI}
+	${STRATOSHARK_QT_QRC}
 
-	${LOGRAY_QT_TAP_SRC}
-	logray-tap-register.c
+	${STRATOSHARK_QT_TAP_SRC}
+	stratoshark-tap-register.c
 )
 
-target_include_directories(ui_logray
+target_include_directories(ui_stratoshark
 	SYSTEM PRIVATE
 		# Include Qt before anything else, see the comment about
 		# QT5_INCLUDE_DIRS in the top-level CMakeLists.txt
@@ -739,63 +739,63 @@ target_include_directories(ui_logray
 )
 
 if(USE_qt6)
-	target_link_libraries(ui_logray PUBLIC
+	target_link_libraries(ui_stratoshark PUBLIC
 		Qt6::Widgets
 		Qt6::Core5Compat
 		Qt6::Concurrent
 		Qt6::PrintSupport
 	)
 	if(Qt6Multimedia_FOUND)
-		target_link_libraries(ui_logray PUBLIC Qt6::Multimedia)
+		target_link_libraries(ui_stratoshark PUBLIC Qt6::Multimedia)
 	endif()
 	if(Qt6DBus_FOUND)
-		target_link_libraries(ui_logray PUBLIC Qt6::DBus)
+		target_link_libraries(ui_stratoshark PUBLIC Qt6::DBus)
 	endif()
 endif()
 
-target_compile_definitions(ui_logray
+target_compile_definitions(ui_stratoshark
 	PUBLIC
 		${QT5_COMPILE_DEFINITIONS}
 )
 
-set_target_properties(ui_logray PROPERTIES
+set_target_properties(ui_stratoshark PROPERTIES
 	LINK_FLAGS "${WS_LINK_FLAGS}"
 	FOLDER "UI"
 	AUTOMOC ON
 	AUTOUIC ON
 	AUTORCC ON
 	# Ensure .qm files are generated before autogenerating i18n.qrc
-	AUTOGEN_TARGET_DEPENDS "${LOGRAY_QT_QM}"
+	AUTOGEN_TARGET_DEPENDS "${STRATOSHARK_QT_QM}"
 )
 
 if(MSVC)
-	set_target_properties(ui_logray PROPERTIES LINK_FLAGS_DEBUG "${WS_MSVC_DEBUG_LINK_FLAGS}")
+	set_target_properties(ui_stratoshark PROPERTIES LINK_FLAGS_DEBUG "${WS_MSVC_DEBUG_LINK_FLAGS}")
 	# https://bugreports.qt.io/browse/QTBUG-118993
 	if(Qt${qtver}Widgets_VERSION VERSION_LESS "6.5.4")
-	       target_compile_definitions(ui_logray PUBLIC _SILENCE_STDEXT_ARR_ITERS_DEPRECATION_WARNING)
+	       target_compile_definitions(ui_stratoshark PUBLIC _SILENCE_STDEXT_ARR_ITERS_DEPRECATION_WARNING)
 	endif()
 endif()
 
 CHECKAPI(
 	NAME
-		ui-qt-logray
+		ui-qt-stratoshark
 	SWITCHES
 		--nocheck-shadow
 	SOURCES
-		# QCustomPlot (LOGRAY_3RD_PARTY_WIDGET_{HEADERS,SRCS}) uses
+		# QCustomPlot (STRATOSHARK_3RD_PARTY_WIDGET_{HEADERS,SRCS}) uses
 		# prohibited APIs.
-		${LOGRAY_QT_HEADERS}
-		${LOGRAY_WIDGET_HEADERS}
-		${LOGRAY_MANAGER_HEADERS}
-		${LOGRAY_UTILS_HEADERS}
-		${LOGRAY_MODEL_HEADERS}
+		${STRATOSHARK_QT_HEADERS}
+		${STRATOSHARK_WIDGET_HEADERS}
+		${STRATOSHARK_MANAGER_HEADERS}
+		${STRATOSHARK_UTILS_HEADERS}
+		${STRATOSHARK_MODEL_HEADERS}
 
-		${LOGRAY_QT_SRC}
-		${LOGRAY_WIDGET_SRCS}
-		${LOGRAY_MANAGER_SRCS}
-		${LOGRAY_UTILS_SRCS}
-		${LOGRAY_MODEL_SRCS}
-		${LOGRAY_QT_TAP_SRC}
+		${STRATOSHARK_QT_SRC}
+		${STRATOSHARK_WIDGET_SRCS}
+		${STRATOSHARK_MANAGER_SRCS}
+		${STRATOSHARK_UTILS_SRCS}
+		${STRATOSHARK_MODEL_SRCS}
+		${STRATOSHARK_QT_TAP_SRC}
 )
 
 #

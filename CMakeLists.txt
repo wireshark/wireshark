@@ -2991,7 +2991,7 @@ endif()
 if(BUILD_logray AND QT_FOUND)
 	set(logray_LIBS
 		ui
-		ui_logray
+		ui_stratoshark
 		capchild
 		caputils
 		iface_monitor

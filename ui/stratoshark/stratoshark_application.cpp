@@ -7,7 +7,7 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-#include "logray_application.h"
+#include "stratoshark_application.h"
 
 #include "extcap.h"
 #include "ui/iface_lists.h"

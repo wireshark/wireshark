@@ -15,14 +15,14 @@
 #pragma warning(disable:4996)
 #endif
 
-#include "logray_main_window.h"
+#include "stratoshark_main_window.h"
 
 /*
  * The generated Ui_LograyMainWindow::setupUi() can grow larger than our configured limit,
- * so turn off -Wframe-larger-than= for ui_logray_main_window.h.
+ * so turn off -Wframe-larger-than= for ui_stratoshark_window.h.
  */
 DIAG_OFF(frame-larger-than=)
-#include <ui_logray_main_window.h>
+#include <ui_stratoshark_main_window.h>
 DIAG_ON(frame-larger-than=)
 
 #ifdef _WIN32
