@@ -200,7 +200,7 @@ bool SupportedProtocolsProxyModel::lessThan(const QModelIndex &left, const QMode
     SupportedProtocolsItem* right_item = static_cast<SupportedProtocolsItem*>(right.internalPointer());
 
     if ((left_item != NULL) && (right_item != NULL)) {
-        int compare_ret = left_item->name().compare(right_item->name());
+        int compare_ret =  QString::compare(left_item->name(), right_item->name(), Qt::CaseInsensitive);
         if (compare_ret < 0)
             return true;
     }
