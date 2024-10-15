@@ -1821,7 +1821,7 @@ elseif(BUILD_wireshark AND USE_qt6)
 endif()
 
 if(BUILD_logray AND QT_FOUND)
-	add_subdirectory( ui/logray )
+	add_subdirectory( ui/stratoshark )
 endif()
 
 # Location of our plugins. PLUGIN_DIR should allow running

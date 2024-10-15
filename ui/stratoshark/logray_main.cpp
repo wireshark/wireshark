@@ -80,11 +80,11 @@
 #include "ui/qt/coloring_rules_dialog.h"
 #include "ui/qt/endpoint_dialog.h"
 #include "ui/qt/glib_mainloop_on_qeventloop.h"
-#include "ui/logray/logray_main_window.h"
+#include "ui/stratoshark/logray_main_window.h"
 #include "ui/qt/simple_dialog.h"
 #include "ui/qt/simple_statistics_dialog.h"
 #include <ui/qt/widgets/splash_overlay.h>
-#include "ui/logray/logray_application.h"
+#include "ui/stratoshark/logray_application.h"
 
 #include "capture/capture-pcap-util.h"
 
