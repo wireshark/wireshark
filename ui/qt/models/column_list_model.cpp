@@ -653,10 +653,10 @@ void ColumnListModel::addEntry()
     elem.nr = rowCount();
     elem.title = tr("New Column");
     elem.displayed = true;
-    elem.type = elem.originalType = COL_NUMBER;
+    elem.type = elem.originalType = COL_CUSTOM;
     elem.occurrence = 0;
     elem.customFields = QString();
-    elem.display = COLUMN_DISPLAY_STRINGS;
+    elem.display = COLUMN_DISPLAY_VALUES;
     elem.width = -1;
     elem.xalign = COLUMN_XALIGN_DEFAULT;
     store_ << elem;
