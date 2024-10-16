@@ -1328,7 +1328,7 @@ ws_find_package(PCAP ENABLE_PCAP HAVE_LIBPCAP)
 ws_find_package(Systemd BUILD_sdjournal HAVE_SYSTEMD)
 
 # Build one of the Qt GUIs?
-if(BUILD_wireshark OR BUILD_logray)
+if(BUILD_wireshark OR BUILD_stratoshark)
 	if(USE_qt6)
 		set(qtver 6)
 		if(DEFINED ENV{WIRESHARK_QT6_PREFIX_PATH})
@@ -1515,7 +1515,7 @@ ws_find_package(ILBC ENABLE_ILBC HAVE_ILBC)
 
 ws_find_package(OPUS ENABLE_OPUS HAVE_OPUS)
 
-if (BUILD_logray)
+if (BUILD_stratoshark)
 	# libsinsp+libscap, required for falco-bridge
 	ws_find_package(Sinsp ENABLE_SINSP HAVE_SINSP "0.17.1")
 endif()
@@ -1553,7 +1553,7 @@ find_package( XSLTPROC )
 find_package(DOXYGEN)
 
 # The SpeexDSP resampler is required iff building wireshark or sharkd.
-if(BUILD_wireshark OR BUILD_logray OR BUILD_sharkd)
+if(BUILD_wireshark OR BUILD_stratoshark OR BUILD_sharkd)
 	find_package(SpeexDSP REQUIRED)
 endif()
 
@@ -1716,12 +1716,12 @@ include( UseCheckAPI )
 # target property.
 if(WIN32 AND NOT USE_MSYSTEM)
 	set(EXTCAP_INSTALL_LIBDIR "extcap/${PROJECT_NAME}" CACHE INTERNAL "The Wireshark extcap dir")
-	if (BUILD_logray)
+	if (BUILD_stratoshark)
 		set(LOG_EXTCAP_INSTALL_LIBDIR "extcap/${LOG_PROJECT_NAME}" CACHE INTERNAL "The Logray extcap dir")
 	endif()
 else()
 	set(EXTCAP_INSTALL_LIBDIR "${CMAKE_INSTALL_LIBDIR}/${PROJECT_NAME}/extcap" CACHE INTERNAL "The Wireshark extcap dir")
-	if (BUILD_logray)
+	if (BUILD_stratoshark)
 		set(LOG_EXTCAP_INSTALL_LIBDIR "${CMAKE_INSTALL_LIBDIR}/${LOG_PROJECT_NAME}/extcap" CACHE INTERNAL "The Logray extcap dir")
 	endif()
 endif()
@@ -1820,7 +1820,7 @@ elseif(BUILD_wireshark AND USE_qt6)
 	message(VERBOSE "To use Qt5 instead of Qt6 use CMake option USE_qt6=OFF.")
 endif()
 
-if(BUILD_logray AND QT_FOUND)
+if(BUILD_stratoshark AND QT_FOUND)
 	add_subdirectory( ui/stratoshark )
 endif()
 
@@ -1854,9 +1854,9 @@ if(ENABLE_PLUGINS)
 		plugins/codecs/l16_mono
 		${CUSTOM_PLUGIN_SRC_DIR}
 	)
-	set(LOGRAY_PLUGIN_SRC_DIRS)
+	set(STRATOSHARK_PLUGIN_SRC_DIRS)
 	if(SINSP_FOUND)
-		list(APPEND LOGRAY_PLUGIN_SRC_DIRS
+		list(APPEND STRATOSHARK_PLUGIN_SRC_DIRS
 			plugins/epan/falco_bridge
 		)
 	endif()
@@ -1901,7 +1901,7 @@ if(ENABLE_PLUGINS)
 
 else()
 	set(PLUGIN_SRC_DIRS )
-	set(LOGRAY_PLUGIN_SRC_DIRS )
+	set(STRATOSHARK_PLUGIN_SRC_DIRS )
 endif()
 
 if(ENABLE_APPLICATION_BUNDLE)
@@ -1925,9 +1925,9 @@ else()
 	set(_logray_plugin_dir ${_plugin_dir})
 endif()
 set (PLUGIN_DIR ${_plugin_dir} CACHE INTERNAL "Build time plugin location.")
-set (LOGRAY_PLUGIN_DIR ${_logray_plugin_dir} CACHE INTERNAL "Build time Logray plugin location.")
+set (STRATOSHARK_PLUGIN_DIR ${_logray_plugin_dir} CACHE INTERNAL "Build time Logray plugin location.")
 
-foreach(_plugin_src_dir ${PLUGIN_SRC_DIRS} ${LOGRAY_PLUGIN_SRC_DIRS})
+foreach(_plugin_src_dir ${PLUGIN_SRC_DIRS} ${STRATOSHARK_PLUGIN_SRC_DIRS})
 	add_subdirectory( ${_plugin_src_dir} )
 endforeach()
 
@@ -1975,7 +1975,7 @@ set(CFG_OUT_FILES
 	resources/wireshark.rc
 )
 
-if(BUILD_logray)
+if(BUILD_stratoshark)
 	list(APPEND CFG_OUT_FILES
 		packaging/macosx/LograyInfo.plist
 		packaging/macosx/logray-app.dmgbuild
@@ -2207,7 +2207,7 @@ set(DOC_FILES
 	doc/ws.css
 )
 
-if (BUILD_logray)
+if (BUILD_stratoshark)
 	set(LOG_INSTALL_DIRS
 		resources/share/logray/profiles
 	)
@@ -2256,7 +2256,7 @@ if (ASCIIDOCTOR_FOUND)
 			${CMAKE_BINARY_DIR}/doc/man_pages/idl2deb.html
 		)
 	endif()
-	if (BUILD_logray)
+	if (BUILD_stratoshark)
 		list(APPEND DOC_FILES
 			${CMAKE_BINARY_DIR}/doc/man_pages/falcodump.html
 		)
@@ -2537,7 +2537,7 @@ foreach(_install_file ${INSTALL_FILES} ${DOC_FILES})
 	list(APPEND copy_data_files_depends "${_output_file}")
 endforeach()
 
-if (BUILD_logray)
+if (BUILD_stratoshark)
 	if (ENABLE_APPLICATION_BUNDLE)
 		foreach(_install_file ${LOG_INSTALL_FILES})
 			get_filename_component(_install_file_src "${_install_file}" ABSOLUTE)
@@ -2687,7 +2687,7 @@ add_custom_command(
 )
 
 set (_log_profiles_data_files)
-if (BUILD_logray AND ENABLE_APPLICATION_BUNDLE)
+if (BUILD_stratoshark AND ENABLE_APPLICATION_BUNDLE)
 	set(_profiles_src_dir ${CMAKE_SOURCE_DIR}/resources/share/logray)
 	file(GLOB _profiles_src_files RELATIVE ${_profiles_src_dir} ${_profiles_src_dir}/profiles/*/*)
 	foreach(_data_file ${_profiles_src_files})
@@ -2747,8 +2747,8 @@ if(BUILD_wireshark AND QT_FOUND)
 	set_executable_resources(wireshark "Wireshark" UNIQUE_RC)
 endif()
 
-if(BUILD_logray AND QT_FOUND)
-	set(LOGRAY_SRC
+if(BUILD_stratoshark AND QT_FOUND)
+	set(STRATOSHARK_SRC
 		file.c
 		fileset.c
 		extcap.c
@@ -2757,7 +2757,7 @@ if(BUILD_logray AND QT_FOUND)
 	set(logray_FILES
 		$<TARGET_OBJECTS:capture_opts>
 		$<TARGET_OBJECTS:shark_common>
-		${LOGRAY_SRC}
+		${STRATOSHARK_SRC}
 		${PLATFORM_UI_RC_FILES}
 	)
 	set_executable_resources(logray "Logray" UNIQUE_RC)
@@ -2831,46 +2831,46 @@ if(ENABLE_APPLICATION_BUNDLE)
 	# Add files to the Logray application bundle
 	# Logray.app/Contents
 	file(WRITE ${CMAKE_BINARY_DIR}/packaging/macosx/logray/PkgInfo "APPLLgry\n")
-	set(LOGRAY_BUNDLE_CONTENTS_FILES
+	set(STRATOSHARK_BUNDLE_CONTENTS_FILES
 		${CMAKE_BINARY_DIR}/packaging/macosx/logray/PkgInfo
 	)
-	set_source_files_properties(${LOGRAY_BUNDLE_CONTENTS_FILES} PROPERTIES
+	set_source_files_properties(${STRATOSHARK_BUNDLE_CONTENTS_FILES} PROPERTIES
 		MACOSX_PACKAGE_LOCATION .
 	)
 
 	# Logray.app/Contents/Resources
-	set(LOGRAY_BUNDLE_RESOURCE_FILES
+	set(STRATOSHARK_BUNDLE_RESOURCE_FILES
 		${CMAKE_SOURCE_DIR}/packaging/macosx/Logray.icns
 		${CMAKE_SOURCE_DIR}/packaging/macosx/Wiresharkdoc.icns
 	)
-	set_source_files_properties(${LOGRAY_BUNDLE_RESOURCE_FILES} PROPERTIES
+	set_source_files_properties(${STRATOSHARK_BUNDLE_RESOURCE_FILES} PROPERTIES
 		MACOSX_PACKAGE_LOCATION Resources
 	)
 
 	# Logray.app/Contents/Resources/share/man/man1
-	set_source_files_properties(${LOGRAY_BUNDLE_RESOURCE_SHARE_MAN1_FILES} PROPERTIES
+	set_source_files_properties(${STRATOSHARK_BUNDLE_RESOURCE_SHARE_MAN1_FILES} PROPERTIES
 		MACOSX_PACKAGE_LOCATION Resources/share/man/man1
 		GENERATED 1
 	)
 
 	# Logray.app/Contents/Resources/share/man/man4
-	set_source_files_properties(${LOGRAY_BUNDLE_RESOURCE_SHARE_MAN4_FILES} PROPERTIES
+	set_source_files_properties(${STRATOSHARK_BUNDLE_RESOURCE_SHARE_MAN4_FILES} PROPERTIES
 		MACOSX_PACKAGE_LOCATION Resources/share/man/man4
 		GENERATED 1
 	)
 
 	# INSTALL_FILES and INSTALL_DIRS are handled by copy_data_files
 
-	set(EXTRA_LOGRAY_BUNDLE_FILES
-		${LOGRAY_BUNDLE_CONTENTS_FILES}
-		${LOGRAY_BUNDLE_RESOURCE_FILES}
-		${LOGRAY_BUNDLE_RESOURCE_SHARE_MAN1_FILES}
-		${LOGRAY_BUNDLE_RESOURCE_SHARE_MAN4_FILES}
+	set(EXTRA_STRATOSHARK_BUNDLE_FILES
+		${STRATOSHARK_BUNDLE_CONTENTS_FILES}
+		${STRATOSHARK_BUNDLE_RESOURCE_FILES}
+		${STRATOSHARK_BUNDLE_RESOURCE_SHARE_MAN1_FILES}
+		${STRATOSHARK_BUNDLE_RESOURCE_SHARE_MAN4_FILES}
 	)
 
 else()
 	set(EXTRA_WIRESHARK_BUNDLE_FILES)
-	set(EXTRA_LOGRAY_BUNDLE_FILES)
+	set(EXTRA_STRATOSHARK_BUNDLE_FILES)
 endif()
 
 if(BUILD_wireshark AND QT_FOUND)
@@ -2988,7 +2988,7 @@ if(BUILD_wireshark AND QT_FOUND)
 	endif(QT_WINDEPLOYQT_EXECUTABLE)
 endif()
 
-if(BUILD_logray AND QT_FOUND)
+if(BUILD_stratoshark AND QT_FOUND)
 	set(logray_LIBS
 		ui
 		ui_stratoshark
@@ -3015,7 +3015,7 @@ if(BUILD_logray AND QT_FOUND)
 		${MINIZIPNG_LIBRARIES}
 	)
 
-	add_executable(logray WIN32 MACOSX_BUNDLE ${logray_FILES} ${EXTRA_LOGRAY_BUNDLE_FILES})
+	add_executable(logray WIN32 MACOSX_BUNDLE ${logray_FILES} ${EXTRA_STRATOSHARK_BUNDLE_FILES})
 	if(WIN32 AND NOT BUILD_wireshark)
 		set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT logray)
 	endif()
@@ -3038,7 +3038,7 @@ if(BUILD_logray AND QT_FOUND)
 	if(ENABLE_APPLICATION_BUNDLE)
 		if(ASCIIDOCTOR_FOUND)
 			# Make sure to generate files referenced by
-			# LOGRAY_BUNDLE_RESOURCE_SHARE_MAN1_FILES
+			# STRATOSHARK_BUNDLE_RESOURCE_SHARE_MAN1_FILES
 			add_dependencies(logray manpages)
 		endif()
 		set_target_properties(
@@ -3097,13 +3097,13 @@ if(BUILD_logray AND QT_FOUND)
 	endif(QT_WINDEPLOYQT_EXECUTABLE AND NOT BUILD_wireshark)
 endif()
 
-if (BUILD_logray AND FALCO_PLUGINS)
+if (BUILD_stratoshark AND FALCO_PLUGINS)
 	add_custom_target(copy_falco_plugins)
 	add_custom_command(TARGET copy_falco_plugins
 		# XXX Falco plugins should probably be installed in a path that reflects
 		# the Falco version or its plugin API version.
-		COMMAND ${CMAKE_COMMAND} -E make_directory ${LOGRAY_PLUGIN_DIR}/../falco
-		COMMAND ${CMAKE_COMMAND} -E copy_if_different ${FALCO_PLUGINS} ${LOGRAY_PLUGIN_DIR}/../falco
+		COMMAND ${CMAKE_COMMAND} -E make_directory ${STRATOSHARK_PLUGIN_DIR}/../falco
+		COMMAND ${CMAKE_COMMAND} -E copy_if_different ${FALCO_PLUGINS} ${STRATOSHARK_PLUGIN_DIR}/../falco
 		VERBATIM
 	)
 	add_dependencies(logray copy_falco_plugins)
@@ -3497,7 +3497,7 @@ if(BUILD_dumpcap AND PCAP_FOUND)
 			endif()"
 		)
 	endif()
-	if(BUILD_logray AND ENABLE_APPLICATION_BUNDLE)
+	if(BUILD_stratoshark AND ENABLE_APPLICATION_BUNDLE)
 		add_custom_command(TARGET dumpcap POST_BUILD
 			COMMAND ${CMAKE_COMMAND} -E copy_if_different
 				$<TARGET_FILE:dumpcap> run/Logray.app/Contents/MacOS/dumpcap
@@ -3765,7 +3765,7 @@ if(ENABLE_APPLICATION_BUNDLE AND BUILD_wireshark)
 
 endif()
 
-if(ENABLE_APPLICATION_BUNDLE AND BUILD_logray)
+if(ENABLE_APPLICATION_BUNDLE AND BUILD_stratoshark)
 	add_custom_target(logray_app_bundle)
 	set_target_properties(logray_app_bundle PROPERTIES FOLDER "Copy Tasks")
 	add_custom_command(TARGET logray_app_bundle
@@ -4025,7 +4025,7 @@ if(BUILD_wireshark AND QT_FOUND AND LINUXDEPLOY_EXECUTABLE AND _linuxdeploy_plug
 	)
 endif()
 
-if(BUILD_logray AND QT_FOUND AND LINUXDEPLOY_EXECUTABLE AND _linuxdeploy_plugin_qt AND APPIMAGETOOL_EXECUTABLE)
+if(BUILD_stratoshark AND QT_FOUND AND LINUXDEPLOY_EXECUTABLE AND _linuxdeploy_plugin_qt AND APPIMAGETOOL_EXECUTABLE)
 	configure_file(packaging/appimage/Logray-AppRun.in ${CMAKE_BINARY_DIR}/packaging/appimage/Logray-AppRun @ONLY)
 	# Require production builds (/usr + Release).
 	if (CMAKE_BUILD_TYPE STREQUAL "Release" AND CMAKE_INSTALL_PREFIX STREQUAL "/usr" )
@@ -4123,7 +4123,7 @@ install(
 		${CMAKE_INSTALL_DATADIR}/${PROJECT_NAME}
 )
 
-if (BUILD_logray)
+if (BUILD_stratoshark)
 	install(
 		FILES
 			${LOG_INSTALL_FILES}
@@ -4203,7 +4203,7 @@ if(BUILD_wireshark AND QT_FOUND AND NOT APPLE AND (NOT WIN32 OR USE_MSYSTEM))
 	endforeach()
 endif()
 
-if(BUILD_logray AND QT_FOUND AND NOT APPLE AND (NOT WIN32 OR USE_MSYSTEM))
+if(BUILD_stratoshark AND QT_FOUND AND NOT APPLE AND (NOT WIN32 OR USE_MSYSTEM))
 	install(FILES resources/freedesktop/org.wireshark.Logray-mime.xml
 		DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/mime/packages"
 		RENAME org.wireshark.Logray.xml
@@ -4252,7 +4252,7 @@ install(
 	PATTERN "Makefile.*" EXCLUDE
 )
 
-if (BUILD_logray)
+if (BUILD_stratoshark)
 	install(
 		DIRECTORY
 			${LOG_INSTALL_DIRS}

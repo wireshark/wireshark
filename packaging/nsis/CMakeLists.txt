@@ -29,20 +29,20 @@ set(WIRESHARK_NSIS_FILES
 	PARENT_SCOPE
 )
 
-set(LOGRAY_NSIS_GENERATED_FILES
+set(STRATOSHARK_NSIS_GENERATED_FILES
 	${CMAKE_CURRENT_BINARY_DIR}/logray-manifest.nsh
 	${CMAKE_CURRENT_BINARY_DIR}/logray-config.nsh
 	${CMAKE_CURRENT_BINARY_DIR}/logray-qt-manifest.nsh
 )
-set(LOGRAY_NSIS_GENERATED_FILES ${LOGRAY_NSIS_GENERATED_FILES} PARENT_SCOPE)
+set(STRATOSHARK_NSIS_GENERATED_FILES ${STRATOSHARK_NSIS_GENERATED_FILES} PARENT_SCOPE)
 
-set(LOGRAY_NSIS_FILES
+set(STRATOSHARK_NSIS_FILES
 	logray.nsi
 	logray-common.nsh
 	servicelib.nsh
 	NpcapPage.ini
 	USBPcapPage.ini
-	${LOGRAY_NSIS_GENERATED_FILES}
+	${STRATOSHARK_NSIS_GENERATED_FILES}
 	PARENT_SCOPE
 )
 
@@ -62,7 +62,7 @@ set (MMDBRESOLVE_EXE ${MAXMINDDB_FOUND})
 set (PRODUCT_VERSION ${PROJECT_MAJOR_VERSION}.${PROJECT_MINOR_VERSION}.${PROJECT_PATCH_VERSION}.${PROJECT_BUILD_VERSION})
 set (LOG_PRODUCT_VERSION ${LOG_PROJECT_MAJOR_VERSION}.${LOG_PROJECT_MINOR_VERSION}.${PROJECT_PATCH_VERSION}.${PROJECT_BUILD_VERSION})
 
-if((BUILD_wireshark OR BUILD_logray) AND QT_FOUND)
+if((BUILD_wireshark OR BUILD_stratoshark) AND QT_FOUND)
 	set (QT_DIR "\${STAGING_DIR}")
 endif()
 
@@ -179,7 +179,7 @@ if (BUILD_wireshark)
 	file(WRITE "${_all_manifest}" "${_all_manifest_contents}")
 endif()
 
-if (BUILD_logray)
+if (BUILD_stratoshark)
 	# Ideally we would generate this at compile time using a separate cmake
 	# module, e.g. cmake/modules/configure_nsis_file.cmake. However we would
 	# have to figure out a clean way to pass in the variables above.
@@ -314,7 +314,7 @@ macro( ADD_NSIS_PACKAGE_TARGETS )
 		)
 	endif()
 
-	if(BUILD_logray)
+	if(BUILD_stratoshark)
 		# logray-qt-manifest.nsh. Created using Wireshark.exe.
 		add_custom_command(OUTPUT ${_nsis_binary_dir}/logray-qt-manifest.nsh
 			COMMAND set "PATH=${QT_BIN_PATH};%PATH%"
@@ -330,7 +330,7 @@ macro( ADD_NSIS_PACKAGE_TARGETS )
 		# any dependencies that might clobber any signed executables.
 		add_custom_target(logray_nsis_prep
 			DEPENDS
-				${LOGRAY_NSIS_FILES}
+				${STRATOSHARK_NSIS_FILES}
 				copy_data_files
 				user_guide_html
 				faq_html

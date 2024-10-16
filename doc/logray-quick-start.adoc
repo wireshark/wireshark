@@ -46,7 +46,7 @@ In order to build Logray, do the following:
 +
 --
 [horizontal]
-BUILD_logray:: Must be enabled, e.g. set to ON
+BUILD_stratoshark:: Must be enabled, e.g. set to ON
 BUILD_falcodump:: Must be enabled, e.g. set to ON
 CMAKE_PREFIX_PATH:: If you installed libsinsp and libscap to a non-standard directory, https://cmake.org/cmake/help/latest/variable/CMAKE_PREFIX_PATH.html[this should point there].
 FALCO_PLUGINS:: Semicolon-separated paths to individual Falco plugins, e.g. `/path/to/libcloudtrail.so`.
@@ -58,7 +58,7 @@ FALCO_PLUGINS:: Semicolon-separated paths to individual Falco plugins, e.g. `/pa
 # This assumes that falcosecurity-libs and the CloudTral plugin were installed in
 # `/opt/falco-libs/0.17.1`.
 cmake \
-  -DBUILD_logray=ON \
+  -DBUILD_stratoshark=ON \
   -DBUILD_falcodump=ON \
   -DCMAKE_PREFIX_PATH=/opt/falco-libs/0.17.1 \
   -DFALCO_PLUGINS=/opt/falco-libs/0.17.1/lib/falcosecurity/plugins/libcloudtrail.so \

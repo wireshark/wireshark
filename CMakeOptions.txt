@@ -1,8 +1,8 @@
 # Build options for use by CMake
 
 option(BUILD_wireshark     "Build Wireshark" ON)
-option(BUILD_logray        "Build Logray" OFF)
-if(BUILD_wireshark OR BUILD_logray)
+option(BUILD_stratoshark   "Build Stratoshark" OFF)
+if(BUILD_wireshark OR BUILD_stratoshark)
 	option(USE_qt6     "Use Qt6 (preferred) instead of Qt5" ON)
 endif()
 option(BUILD_tshark        "Build tshark" ON)

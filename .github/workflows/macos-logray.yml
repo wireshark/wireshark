@@ -28,7 +28,7 @@ jobs:
         run: mkdir build
       - name: Cmake
         working-directory: build
-        run: cmake -GNinja -DBUILD_logray=ON -DBUILD_falcodump=ON -DBUILD_androiddump=OFF -DBUILD_ciscodump=OFF -DBUILD_mmdbresolve=OFF -DBUILD_randpkt=OFF -DBUILD_randpktdump=OFF -DBUILD_sharkd=OFF -DBUILD_sshdump=OFF -DBUILD_tshark=OFF -DBUILD_wifidump=OFF -DBUILD_wireshark=OFF ..
+        run: cmake -GNinja -DBUILD_stratoshark=ON -DBUILD_falcodump=ON -DBUILD_androiddump=OFF -DBUILD_ciscodump=OFF -DBUILD_mmdbresolve=OFF -DBUILD_randpkt=OFF -DBUILD_randpktdump=OFF -DBUILD_sharkd=OFF -DBUILD_sshdump=OFF -DBUILD_tshark=OFF -DBUILD_wifidump=OFF -DBUILD_wireshark=OFF ..
       - name: Build
         run: ninja
         working-directory: build
