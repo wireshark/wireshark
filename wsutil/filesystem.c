@@ -65,7 +65,7 @@
 enum configuration_namespace_e {
     CONFIGURATION_NAMESPACE_UNINITIALIZED,
     CONFIGURATION_NAMESPACE_WIRESHARK,
-    CONFIGURATION_NAMESPACE_LOGRAY
+    CONFIGURATION_NAMESPACE_STRATOSHARK
 };
 enum configuration_namespace_e configuration_namespace = CONFIGURATION_NAMESPACE_UNINITIALIZED;
 
@@ -312,9 +312,9 @@ set_configuration_namespace(const char *namespace_name)
     {
         configuration_namespace = CONFIGURATION_NAMESPACE_WIRESHARK;
     }
-    else if (g_ascii_strcasecmp(namespace_name, "logray") == 0)
+    else if (g_ascii_strcasecmp(namespace_name, "stratoshark") == 0)
     {
-        configuration_namespace = CONFIGURATION_NAMESPACE_LOGRAY;
+        configuration_namespace = CONFIGURATION_NAMESPACE_STRATOSHARK;
     }
     else
     {
@@ -332,7 +332,7 @@ get_configuration_namespace(void)
 
 bool is_packet_configuration_namespace(void)
 {
-    return configuration_namespace != CONFIGURATION_NAMESPACE_LOGRAY;
+    return configuration_namespace != CONFIGURATION_NAMESPACE_STRATOSHARK;
 }
 
 #ifndef _WIN32

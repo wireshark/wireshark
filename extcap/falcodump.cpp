@@ -767,7 +767,7 @@ static int show_syscall_config(void)
         "{call=--include-capture-processes}"
         "{display=Include capture processes}"
         "{type=boolean}"
-        "{tooltip=Include system calls made by any capture processes (falcodump, dumpcap, and Logray)}"
+        "{tooltip=Include system calls made by any capture processes (falcodump, dumpcap, and Stratoshark)}"
         "{required=false}"
         "{group=Capture}\n"
 
@@ -804,7 +804,7 @@ static const std::string syscall_capture_filter(const struct syscall_configurati
     }
 
     if (!syscall_config.include_capture_processes) {
-        // We want to exclude Logray and any of its children, including
+        // We want to exclude Stratoshark and any of its children, including
         // this one (falcodump).
 
         std::string pid, comm, _s, ppid;
@@ -818,7 +818,7 @@ static const std::string syscall_capture_filter(const struct syscall_configurati
         }
         stat_stream.close();
 
-        // If our parent is Logray, exclude it and its direct children.
+        // If our parent is Stratoshark, exclude it and its direct children.
         std::ifstream pstat_stream("/proc/" + ppid + "/stat");
         pstat_stream >> _s >> comm;
         if (comm == "(logray)") {
@@ -938,7 +938,7 @@ int main(int argc, char **argv)
      * Attempt to get the pathname of the directory containing the
      * executable file.
      */
-    configuration_init_error = configuration_init(argv[0], "Logray");
+    configuration_init_error = configuration_init(argv[0], "Stratoshark");
     if (configuration_init_error != NULL) {
         ws_warning("Can't get pathname of directory containing the extcap program: %s.",
                 configuration_init_error);
