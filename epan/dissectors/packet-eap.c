@@ -68,6 +68,11 @@ static int hf_eap_aka_subtype_type;
 static int hf_eap_aka_subtype_length;
 static int hf_eap_aka_notification_type;
 static int hf_eap_aka_error_code_type;
+static int hf_eap_aka_rand;
+static int hf_eap_aka_autn;
+static int hf_eap_aka_res_len;
+static int hf_eap_aka_res;
+static int hf_eap_aka_auts;
 static int hf_eap_aka_subtype_value;
 
 static int hf_eap_leap_version;
@@ -320,8 +325,13 @@ References:
   3) RFC4187
   4) RFC5448
   5) 3GPP TS 24.302
+  6) RFC9048
 */
 
+#define AT_RAND 1
+#define AT_AUTN 2
+#define AT_RES 3
+#define AT_AUTS 4
 #define AT_NOTIFICATION 12
 #define AT_IDENTITY 14
 #define AT_CLIENT_ERROR_CODE 22
@@ -1244,6 +1254,7 @@ dissect_eap_aka(proto_tree *eap_tree, tvbuff_t *tvb, packet_info* pinfo, int off
   /* Rest of EAP-AKA data is in Type-Len-Value format. */
   while (left >= 2) {
     uint8_t      type, length;
+    uint32_t     actual_length;
     int          padding;
     proto_item  *pi;
     proto_tree  *attr_tree;
@@ -1273,17 +1284,38 @@ dissect_eap_aka(proto_tree *eap_tree, tvbuff_t *tvb, packet_info* pinfo, int off
     aleft   -= 1;
 
     switch(type){
+      case AT_RAND:
+        proto_tree_add_item(attr_tree, hf_eap_aka_reserved, tvb, aoffset, 2, ENC_BIG_ENDIAN);
+        aoffset += 2;
+        aleft   -= 2;
+        proto_tree_add_item(attr_tree, hf_eap_aka_rand, tvb, aoffset, 2, ENC_NA);
+        break;
+      case AT_AUTN:
+        proto_tree_add_item(attr_tree, hf_eap_aka_reserved, tvb, aoffset, 2, ENC_BIG_ENDIAN);
+        aoffset += 2;
+        aleft   -= 2;
+        proto_tree_add_item(attr_tree, hf_eap_aka_autn, tvb, aoffset, 2, ENC_NA);
+        break;
+      case AT_RES:
+        proto_tree_add_item_ret_uint(attr_tree, hf_eap_aka_res_len, tvb, aoffset, 2, ENC_BIG_ENDIAN, &actual_length);
+        aoffset += 2;
+        aleft   -= 2;
+        proto_tree_add_bits_item(attr_tree, hf_eap_aka_res, tvb, aoffset << 3, actual_length, ENC_NA);
+        break;
+      case AT_AUTS:
+        proto_tree_add_item(attr_tree, hf_eap_aka_auts, tvb, aoffset, aleft, ENC_NA);
+        break;
       case AT_IDENTITY:
-        proto_tree_add_item(attr_tree, hf_eap_identity_actual_len, tvb, aoffset, 2, ENC_BIG_ENDIAN);
-        dissect_eap_identity(tvb, pinfo, attr_tree, aoffset + 2, tvb_get_ntohs(tvb, aoffset));
+        proto_tree_add_item_ret_uint(attr_tree, hf_eap_identity_actual_len, tvb, aoffset, 2, ENC_BIG_ENDIAN, &actual_length);
+        dissect_eap_identity(tvb, pinfo, attr_tree, aoffset + 2, actual_length);
         /* If we have a disparity between the EAP-AKA length (minus the
          * first 4 bytes of header fields) * 4 and the Identity Actual
          * Length then it's padding and we need to adjust for that
          * accurately before looking at the next EAP-AKA attribute. */
-        padding = ((length - 1) * 4) - tvb_get_ntohs(tvb, aoffset);
+        padding = ((length - 1) * 4) - actual_length;
         if (padding != 0) {
           proto_tree_add_item(attr_tree, hf_eap_identity_padding, tvb,
-            aoffset + 2 + tvb_get_ntohs(tvb, aoffset), padding, ENC_NA);
+            aoffset + 2 + actual_length, padding, ENC_NA);
         }
         break;
       case AT_NOTIFICATION:
@@ -2800,6 +2832,31 @@ proto_register_eap(void)
     { &hf_eap_aka_error_code_type, {
       "EAP-AKA Error Code", "eap.aka.error_code",
       FT_UINT16, BASE_DEC, VALS(eap_sim_aka_client_error_codes), 0x0,
+      NULL, HFILL }},
+
+    { &hf_eap_aka_rand, {
+      "EAP-AKA RAND", "eap.aka.rand",
+      FT_BYTES, BASE_NONE, NULL, 0x0,
+      NULL, HFILL }},
+
+    { &hf_eap_aka_autn, {
+      "EAP-AKA AUTN", "eap.aka.autn",
+      FT_BYTES, BASE_NONE, NULL, 0x0,
+      NULL, HFILL }},
+
+    { &hf_eap_aka_res_len, {
+      "EAP-AKA RES Length", "eap.aka.res.len",
+      FT_UINT16, BASE_DEC|BASE_UNIT_STRING, UNS(&units_bit_bits), 0x0,
+      NULL, HFILL }},
+
+    { &hf_eap_aka_res, {
+      "EAP-AKA RES", "eap.aka.res",
+      FT_BYTES, BASE_NONE, NULL, 0x0,
+      NULL, HFILL }},
+
+    { &hf_eap_aka_auts, {
+      "EAP-AKA AUTS", "eap.aka.auts",
+      FT_BYTES, BASE_NONE, NULL, 0x0,
       NULL, HFILL }},
 
     { &hf_eap_aka_subtype_value, {
