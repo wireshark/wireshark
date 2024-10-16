@@ -204,7 +204,8 @@ static int hf_vrt_context_spectrum_resolution; /* 64-bit number of resolution po
 static int hf_vrt_context_spectrum_span; /* 64-bit number of span (bandwidth) */
 static int hf_vrt_context_spectrum_num_averages; /* 32-bit number of averages */
 static int hf_vrt_context_spectrum_weighting_factor; /* 32-bit weighting factor */
-static int hf_vrt_context_spectrum_spectrum_f1_f2_indices; /* 64-bit F1-F2 indices */
+static int hf_vrt_context_spectrum_spectrum_f1_index; /* 32-bit F1 index */
+static int hf_vrt_context_spectrum_spectrum_f2_index; /* 32-bit F2 index */
 static int hf_vrt_context_spectrum_window_time_delta; /* 32-bit window time-delta */
 static int hf_vrt_context_io32; /* 32-bit discrete I/O */
 static int hf_vrt_context_io64; /* 64-bit discrete I/O */
@@ -1001,7 +1002,8 @@ static int dissect_context_spectrum(proto_tree *tree, tvbuff_t *tvb, int offset)
     proto_tree_add_item(spectrum_tree, hf_vrt_context_spectrum_span, tvb, offset + 24, 8, ENC_BIG_ENDIAN);
     proto_tree_add_item(spectrum_tree, hf_vrt_context_spectrum_num_averages, tvb, offset + 32, 4, ENC_BIG_ENDIAN);
     proto_tree_add_item(spectrum_tree, hf_vrt_context_spectrum_weighting_factor, tvb, offset + 36, 4, ENC_BIG_ENDIAN);
-    proto_tree_add_item(spectrum_tree, hf_vrt_context_spectrum_spectrum_f1_f2_indices, tvb, offset + 40, 8, ENC_BIG_ENDIAN);
+    proto_tree_add_item(spectrum_tree, hf_vrt_context_spectrum_spectrum_f1_index, tvb, offset + 40, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(spectrum_tree, hf_vrt_context_spectrum_spectrum_f2_index, tvb, offset + 44, 4, ENC_BIG_ENDIAN);
     proto_tree_add_item(spectrum_tree, hf_vrt_context_spectrum_window_time_delta, tvb, offset + 48, 4, ENC_BIG_ENDIAN);
     return 0;
 }
@@ -2258,9 +2260,15 @@ proto_register_vrt(void)
             NULL, 0x00,
             NULL, HFILL }
         },
-        { &hf_vrt_context_spectrum_spectrum_f1_f2_indices,
-            { "F1-F2 Indices", "vrt.context.spectrum.spectrum_f1_f2_indices",
-            FT_UINT64, BASE_DEC,
+        { &hf_vrt_context_spectrum_spectrum_f1_index,
+            { "F1 index", "vrt.context.spectrum.spectrum_f1_index",
+            FT_INT32, BASE_DEC,
+            NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_vrt_context_spectrum_spectrum_f2_index,
+            { "F2 index", "vrt.context.spectrum.spectrum_f2_index",
+            FT_INT32, BASE_DEC,
             NULL, 0x00,
             NULL, HFILL }
         },
