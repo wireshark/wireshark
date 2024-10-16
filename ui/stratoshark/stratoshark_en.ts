@@ -12,11 +12,11 @@
 <context>
     <name>AboutDialog</name>
     <message>
-        <source>About Logray</source>
+        <source>About Stratoshark</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Logray</source>
+        <source>Stratoshark</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -860,12 +860,12 @@
     </message>
     <message>
         <source>Open Capture File</source>
-        <oldsource>Logray: Open Capture File</oldsource>
+        <oldsource>Stratoshark: Open Capture File</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Save Capture File As</source>
-        <oldsource>Logray: Save Capture File As</oldsource>
+        <oldsource>Stratoshark: Save Capture File As</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -874,7 +874,7 @@
     </message>
     <message>
         <source>Export Specified Packets</source>
-        <oldsource>Logray: Export Specified Packets</oldsource>
+        <oldsource>Stratoshark: Export Specified Packets</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -883,7 +883,7 @@
     </message>
     <message>
         <source>Merge Capture File</source>
-        <oldsource>Logray: Merge Capture File</oldsource>
+        <oldsource>Stratoshark: Merge Capture File</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -891,7 +891,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Please report this as a Logray issue at https://gitlab.com/wireshark/wireshark/-/issues.</source>
+        <source>Please report this as a Stratoshark issue at https://gitlab.com/wireshark/wireshark/-/issues.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1128,7 +1128,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Created by Logray %1
+        <source>Created by Stratoshark %1
 
 </source>
         <translation type="unfinished"></translation>
@@ -1672,7 +1672,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Logray doesn&apos;t recognize one or more of your coloring rules. They have been disabled.</source>
+        <source>Stratoshark doesn&apos;t recognize one or more of your coloring rules. They have been disabled.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -2469,7 +2469,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <name>ExportDissectionDialog</name>
     <message>
         <source>Export Packet Dissections</source>
-        <oldsource>Logray: Export Packet Dissections</oldsource>
+        <oldsource>Stratoshark: Export Packet Dissections</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -3789,7 +3789,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Logray I/O Graphs: %1</source>
+        <source>Stratoshark I/O Graphs: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -4148,7 +4148,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Import a standard hex dump as exported by Logray</source>
+        <source>Import a standard hex dump as exported by Stratoshark</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -4559,7 +4559,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>This version of Logray was built without packet capture support.</source>
+        <source>This version of Stratoshark was built without packet capture support.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -6073,7 +6073,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
 <context>
     <name>MainWindow</name>
     <message>
-        <source>Logray</source>
+        <source>Stratoshark</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -6197,7 +6197,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Quit Logray</source>
+        <source>Quit Stratoshark</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -6225,7 +6225,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Logray Filter</source>
+        <source>Stratoshark Filter</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -6269,7 +6269,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>&amp;About Logray</source>
+        <source>&amp;About Stratoshark</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -6704,7 +6704,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Manage Logray&apos;s preferences</source>
+        <source>Manage Stratoshark&apos;s preferences</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -7700,7 +7700,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Please report this as a Logray issue at https://gitlab.com/wireshark/wireshark/-/issues.</source>
+        <source>Please report this as a Stratoshark issue at https://gitlab.com/wireshark/wireshark/-/issues.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -7734,7 +7734,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>There is no &quot;rtp.ssrc&quot; field in this version of Logray.</source>
+        <source>There is no &quot;rtp.ssrc&quot; field in this version of Stratoshark.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -7760,7 +7760,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>The Logray System Call and Log Analyzer</source>
+        <source>The Stratoshark System Call and Log Analyzer</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -7882,7 +7882,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Please wait while Logray is initializing…</source>
+        <source>Please wait while Stratoshark is initializing…</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -8093,15 +8093,15 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>This version of Logray does not save pipe settings.</source>
+        <source>This version of Stratoshark does not save pipe settings.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>This version of Logray does not save remote settings.</source>
+        <source>This version of Stratoshark does not save remote settings.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>This version of Logray does not support remote interfaces.</source>
+        <source>This version of Stratoshark does not support remote interfaces.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -11001,7 +11001,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
 <context>
     <name>SCTPAllAssocsDialog</name>
     <message>
-        <source>Logray - SCTP Associations</source>
+        <source>Stratoshark - SCTP Associations</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -11288,7 +11288,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
 <context>
     <name>SCTPAssocAnalyseDialog</name>
     <message>
-        <source>Logray - Analyse Association</source>
+        <source>Stratoshark - Analyse Association</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -13423,7 +13423,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:large;&quot;&gt;Welcome to Logray&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:large;&quot;&gt;Welcome to Stratoshark&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -13520,11 +13520,11 @@ a:hover {
         </translation>
     </message>
     <message>
-        <source>You are sniffing the glue that holds the Internet together using Logray </source>
+        <source>You are sniffing the glue that holds the Internet together using Stratoshark </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>You are running Logray </source>
+        <source>You are running Stratoshark </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -13587,7 +13587,7 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Wireless controls are not supported in this version of Logray.</source>
+        <source>Wireless controls are not supported in this version of Stratoshark.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

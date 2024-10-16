@@ -1,14 +1,13 @@
 /** @file
  *
- * Logray - Event log analyzer
+ * Stratoshark - System call and event log analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-#ifndef LOGRAY_MAIN_WINDOW_H
-#define LOGRAY_MAIN_WINDOW_H
+#pragma once
 
 /** @defgroup main_window_group Main window
  * The main window has the following submodules:
@@ -31,7 +30,7 @@
  */
 
 /** @file
- *  The Logray main window
+ *  The Stratoshark main window
  *  @ingroup main_window_group
  *  @ingroup windows_group
  */
@@ -88,19 +87,19 @@ class QAction;
 class QActionGroup;
 
 namespace Ui {
-    class LograyMainWindow;
+    class StratosharkMainWindow;
 }
 
 Q_DECLARE_METATYPE(ts_type)
 Q_DECLARE_METATYPE(ts_precision)
 
-class LograyMainWindow : public MainWindow
+class StratosharkMainWindow : public MainWindow
 {
     Q_OBJECT
 
 public:
-    explicit LograyMainWindow(QWidget *parent = nullptr);
-    ~LograyMainWindow();
+    explicit StratosharkMainWindow(QWidget *parent = nullptr);
+    ~StratosharkMainWindow();
 
 #ifdef HAVE_LIBPCAP
     capture_session *captureSession() { return &cap_session_; }
@@ -147,7 +146,7 @@ private:
         Update
     };
 
-    Ui::LograyMainWindow *main_ui_;
+    Ui::StratosharkMainWindow *main_ui_;
     CaptureFile capture_file_;
     QFont mono_font_;
     QMap<QString, QTextCodec *> text_codec_map_;
@@ -386,7 +385,7 @@ private slots:
     void printFile();
 
     void connectEditMenuActions();
-    void copySelectedItems(LograyMainWindow::CopySelected selection_type);
+    void copySelectedItems(StratosharkMainWindow::CopySelected selection_type);
     void findPacket();
     void editTimeShift();
     void editConfigurationProfiles();
@@ -466,5 +465,3 @@ private slots:
 
     friend class MainApplication;
 };
-
-#endif // LOGRAY_MAIN_WINDOW_H

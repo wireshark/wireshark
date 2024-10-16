@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>LograyMainWindow</class>
- <widget class="QMainWindow" name="LograyMainWindow">
+ <class>StratosharkMainWindow</class>
+ <widget class="QMainWindow" name="StratosharkMainWindow">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -2259,7 +2259,7 @@
   <connection>
    <sender>actionFileQuit</sender>
    <signal>triggered()</signal>
-   <receiver>LograyMainWindow</receiver>
+   <receiver>StratosharkMainWindow</receiver>
    <slot>close()</slot>
    <hints>
     <hint type="sourcelabel">

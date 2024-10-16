@@ -1,6 +1,6 @@
-/* logray_main.cpp
+/* stratoshark_main.cpp
  *
- * Logray - Event log analyzer
+ * Stratoshark - System call and event log analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
@@ -117,12 +117,12 @@
 /* update the main window */
 void main_window_update(void)
 {
-    LograyApplication::processEvents();
+    StratosharkApplication::processEvents();
 }
 
 void exit_application(int status) {
-    if (lwApp) {
-        lwApp->quit();
+    if (ssApp) {
+        ssApp->quit();
     }
     exit(status);
 }
@@ -130,7 +130,7 @@ void exit_application(int status) {
 /*
  * Report an error in command-line arguments.
  *
- * On Windows, Logray is built for the Windows subsystem, and runs
+ * On Windows, Stratoshark is built for the Windows subsystem, and runs
  * without a console, so we create a console on Windows to receive the
  * output.
  *
@@ -139,25 +139,25 @@ void exit_application(int status) {
  *
  * On UN*Xes:
  *
- *  If Logray is run from the command line, its output either goes
+ *  If Stratoshark is run from the command line, its output either goes
  *  to the terminal or to wherever the standard error was redirected.
  *
- *  If Logray is run by executing it as a remote command, e.g. with
+ *  If Stratoshark is run by executing it as a remote command, e.g. with
  *  ssh, its output either goes to whatever socket was set up for the
  *  remote command's standard error or to wherever the standard error
  *  was redirected.
  *
- *  If Logray was run from the GUI, e.g. by double-clicking on its
+ *  If Stratoshark was run from the GUI, e.g. by double-clicking on its
  *  icon or on a file that it opens, there are no guarantees as to
  *  where the standard error went.  It could be going to /dev/null
  *  (current macOS), or to a socket to systemd for the journal, or
  *  to a log file in the user's home directory, or to the "console
  *  device" ("workstation console"), or....
  *
- *  Part of determining that, at least for locally-run Logray,
+ *  Part of determining that, at least for locally-run Stratoshark,
  *  is to try to open /dev/tty to determine whether the process
  *  has a controlling terminal.  (It fails, at a minimum, for
- *  Logray launched from the GUI under macOS, Ubuntu with GNOME,
+ *  Stratoshark launched from the GUI under macOS, Ubuntu with GNOME,
  *  and Ubuntu with KDE; in all cases, an attempt to open /dev/tty
  *  fails with ENXIO.)  If it does have a controlling terminal,
  *  write to the standard error, otherwise assume that the standard
@@ -169,12 +169,12 @@ void exit_application(int status) {
  */
 // xxx copied from ../gtk/main.c
 static void
-logray_cmdarg_err(const char *fmt, va_list ap)
+stratoshark_cmdarg_err(const char *fmt, va_list ap)
 {
 #ifdef _WIN32
     create_console();
 #endif
-    fprintf(stderr, "logray: ");
+    fprintf(stderr, "stratoshark: ");
     vfprintf(stderr, fmt, ap);
     fprintf(stderr, "\n");
 }
@@ -185,7 +185,7 @@ logray_cmdarg_err(const char *fmt, va_list ap)
  */
 // xxx copied from ../gtk/main.c
 static void
-logray_cmdarg_err_cont(const char *fmt, va_list ap)
+stratoshark_cmdarg_err_cont(const char *fmt, va_list ap)
 {
 #ifdef _WIN32
     create_console();
@@ -314,7 +314,7 @@ check_and_warn_user_startup()
         simple_message_box(ESD_TYPE_WARN, &recent.privs_warn_if_elevated,
         "Running as user \"%s\" and group \"%s\".\n"
         "This could be dangerous.\n\n"
-        "If you're running Logray this way in order to perform live capture, "
+        "If you're running Stratoshark this way in order to perform live capture, "
         "you may want to be aware that there is a better way documented at\n"
         WS_WIKI_URL("CaptureSetup/CapturePrivileges"), cur_user, cur_group);
         g_free(cur_user);
@@ -333,7 +333,7 @@ check_and_warn_user_startup()
 //
 // and
 //
-// - You install Logray that was built on a machine with Qt version
+// - You install Stratoshark that was built on a machine with Qt version
 //   5.x.z installed in the default location.
 //
 // Qt5Core.dll will load qwindows.dll from your local C:\Qt\5.x\...\plugins
@@ -407,7 +407,7 @@ macos_enable_layer_backing(void)
 static GList *
 capture_opts_get_interface_list(int *err _U_, char **err_str _U_)
 {
-    // logray only wants the IF_EXTCAP interfaces, so there's no point
+    // Stratoshark only wants the IF_EXTCAP interfaces, so there's no point
     // in spawning dumpcap to retrieve the other types of interfaces.
 #if 0
     if (mainApp) {
@@ -427,7 +427,7 @@ capture_opts_get_interface_list(int *err _U_, char **err_str _U_)
 /* And now our feature presentation... [ fade to music ] */
 int main(int argc, char *qt_argv[])
 {
-    LograyMainWindow *main_w;
+    StratosharkMainWindow *main_w;
 
 #ifdef _WIN32
     LPWSTR              *wc_argv;
@@ -489,10 +489,10 @@ int main(int argc, char *qt_argv[])
     macos_enable_layer_backing();
 #endif
 
-    cmdarg_err_init(logray_cmdarg_err, logray_cmdarg_err_cont);
+    cmdarg_err_init(stratoshark_cmdarg_err, stratoshark_cmdarg_err_cont);
 
     /* Initialize log handler early so we can have proper logging during startup. */
-    ws_log_init("logray", vcmdarg_err);
+    ws_log_init("stratoshark", vcmdarg_err);
     /* For backward compatibility with GLib logging and Wireshark 3.4. */
     ws_log_console_writer_set_use_stdout(true);
 
@@ -614,10 +614,10 @@ int main(int argc, char *qt_argv[])
 #endif /* _WIN32 */
 
     /* Get the compile-time version information string */
-    ws_init_version_info("Logray", gather_wireshark_qt_compiled_info,
+    ws_init_version_info("Stratoshark", gather_wireshark_qt_compiled_info,
                          gather_wireshark_runtime_info);
 
-    init_report_alert_box("Logray");
+    init_report_alert_box("Stratoshark");
 
     /* Create the user profiles directory */
     if (create_profiles_dir(&rf_path) == -1) {
@@ -666,8 +666,8 @@ int main(int argc, char *qt_argv[])
     QGuiApplication::setHighDpiScaleFactorRoundingPolicy(Qt::HighDpiScaleFactorRoundingPolicy::PassThrough);
 #endif
 
-    /* Create The Logray app */
-    LograyApplication ls_app(argc, qt_argv);
+    /* Create The Stratoshark app */
+    StratosharkApplication ss_app(argc, qt_argv);
 
     /* initialize the funnel mini-api */
     // xxx qtshark
@@ -698,25 +698,25 @@ int main(int argc, char *qt_argv[])
                       rf_path, g_strerror(rf_open_errno));
         g_free(rf_path);
     }
-    lwApp->applyCustomColorsFromRecent();
+    ssApp->applyCustomColorsFromRecent();
 
     // Initialize our language
     read_language_prefs();
-    lwApp->loadLanguage(language);
+    ssApp->loadLanguage(language);
 
     /* ws_log(LOG_DOMAIN_MAIN, LOG_LEVEL_DEBUG, "Translator %s", language); */
 
     // Init the main window (and splash)
-    main_w = new(LograyMainWindow);
+    main_w = new(StratosharkMainWindow);
     main_w->show();
     // Setup GLib mainloop on Qt event loop to enable GLib and GIO watches
     GLibMainloopOnQEventLoop::setup(main_w);
     // We may not need a queued connection here but it would seem to make sense
     // to force the issue.
-    main_w->connect(&ls_app, SIGNAL(openCaptureFile(QString,QString,unsigned int)),
+    main_w->connect(&ss_app, SIGNAL(openCaptureFile(QString,QString,unsigned int)),
             main_w, SLOT(openCaptureFile(QString,QString,unsigned int)));
-    main_w->connect(&ls_app, &LograyApplication::openCaptureOptions,
-            main_w, &LograyMainWindow::showCaptureOptionsDialog);
+    main_w->connect(&ss_app, &StratosharkApplication::openCaptureOptions,
+            main_w, &StratosharkMainWindow::showCaptureOptionsDialog);
 
     /*
      * If we have a saved "last directory in which a file was opened"
@@ -777,7 +777,7 @@ int main(int argc, char *qt_argv[])
                       rf_path, g_strerror(rf_open_errno));
         g_free(rf_path);
     }
-    lwApp->refreshRecentCaptures();
+    ssApp->refreshRecentCaptures();
 
     splash_update(RA_LISTENERS, NULL, NULL);
 #ifdef DEBUG_STARTUP_TIME
@@ -804,7 +804,7 @@ int main(int argc, char *qt_argv[])
 #endif
 
     /* Read the preferences, but don't apply them yet. */
-    global_commandline_info.prefs_p = ls_app.readConfigurationFiles(false);
+    global_commandline_info.prefs_p = ss_app.readConfigurationFiles(false);
 
     /* Now let's see if any of preferences were overridden at the command
      * line, and store them. We have to do this before applying the
@@ -936,9 +936,9 @@ int main(int argc, char *qt_argv[])
         /* Allow only extcap interfaces to be found */
         GList * filter_list = NULL;
         filter_list = g_list_append(filter_list, GUINT_TO_POINTER((unsigned) IF_EXTCAP));
-        // The below starts the stats; we don't need that since Logray only
+        // The below starts the stats; we don't need that since Stratoshark only
         // supports extcaps.
-        //lwApp->scanLocalInterfaces(filter_list);
+        //ssApp->scanLocalInterfaces(filter_list);
         fill_in_local_interfaces_filtered(filter_list, main_window_update);
         g_list_free(filter_list);
     }
@@ -955,8 +955,8 @@ int main(int argc, char *qt_argv[])
 #endif
     prefs_apply_all();
     ColorUtils::setScheme(prefs.gui_color_scheme);
-    lwApp->emitAppSignal(LograyApplication::ColorsChanged);
-    lwApp->emitAppSignal(LograyApplication::PreferencesChanged);
+    ssApp->emitAppSignal(StratosharkApplication::ColorsChanged);
+    ssApp->emitAppSignal(StratosharkApplication::PreferencesChanged);
 
 #ifdef HAVE_LIBPCAP
     if ((global_capture_opts.num_selected == 0) &&
@@ -984,10 +984,10 @@ int main(int argc, char *qt_argv[])
     }
 
     build_column_format_array(&CaptureFile::globalCapFile()->cinfo, global_commandline_info.prefs_p->num_cols, true);
-    lwApp->emitAppSignal(LograyApplication::ColumnsChanged); // We read "recent" widths above.
-    lwApp->emitAppSignal(LograyApplication::RecentPreferencesRead); // Must be emitted after PreferencesChanged.
+    ssApp->emitAppSignal(StratosharkApplication::ColumnsChanged); // We read "recent" widths above.
+    ssApp->emitAppSignal(StratosharkApplication::RecentPreferencesRead); // Must be emitted after PreferencesChanged.
 
-    lwApp->setMonospaceFont(prefs.gui_font_name);
+    ssApp->setMonospaceFont(prefs.gui_font_name);
 
     /* For update of WindowTitle (When use gui.window_title preference) */
     main_w->setWSWindowTitle();
@@ -997,8 +997,8 @@ int main(int argc, char *qt_argv[])
         g_free(err_msg);
     }
 
-    lwApp->allSystemsGo();
-    ws_log(LOG_DOMAIN_MAIN, LOG_LEVEL_INFO, "Logray is up and ready to go, elapsed time %.3fs", (float) (g_get_monotonic_time() - start_time) / 1000000);
+    ssApp->allSystemsGo();
+    ws_log(LOG_DOMAIN_MAIN, LOG_LEVEL_INFO, "Stratoshark is up and ready to go, elapsed time %.3fs", (float) (g_get_monotonic_time() - start_time) / 1000000);
     SimpleDialog::displayQueuedMessages(main_w);
 
     /* User could specify filename, or display filter, or both */
@@ -1086,10 +1086,10 @@ int main(int argc, char *qt_argv[])
 
     profile_store_persconffiles(false);
 
-    // If the lwApp->exec() event loop exits cleanly, we call
-    // LograyApplication::cleanup().
-    ret_val = lwApp->exec();
-    lwApp = NULL;
+    // If the ssApp->exec() event loop exits cleanly, we call
+    // StratosharkApplication::cleanup().
+    ret_val = ssApp->exec();
+    ssApp = NULL;
 
     // Many widgets assume that they always have valid epan data, so this
     // must be called before epan_cleanup().

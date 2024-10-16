@@ -1,14 +1,13 @@
 /** @file
  *
- * Logray - Event log analyzer
+ * Stratoshark - System call and event log analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-#ifndef LOGRAY_APPLICATION_H
-#define LOGRAY_APPLICATION_H
+#pragma once
 
 #include <main_application.h>
 
@@ -16,11 +15,11 @@
 // - Remove SequenceDiagram dependency on RTPStreamDialog
 // - Remove PacketListModel dependency on WirelessTimeline
 
-class LograyApplication : public MainApplication
+class StratosharkApplication : public MainApplication
 {
 public:
-    explicit LograyApplication(int &argc, char **argv);
-    ~LograyApplication();
+    explicit StratosharkApplication(int &argc, char **argv);
+    ~StratosharkApplication();
 
     void refreshLocalInterfaces() override;
 
@@ -28,6 +27,4 @@ private:
     void initializeIcons() override;
 };
 
-extern LograyApplication *lwApp;
-
-#endif // LOGRAY_APPLICATION_H
+extern StratosharkApplication *ssApp;

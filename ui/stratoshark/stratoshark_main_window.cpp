@@ -1,6 +1,6 @@
-/* logray_main_window.cpp
+/* stratoshark_main_window.cpp
  *
- * Logray - Event log analyzer
+ * Stratoshark - System call and event log analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
@@ -11,7 +11,7 @@
 #include "stratoshark_main_window.h"
 
 /*
- * The generated Ui_LograyMainWindow::setupUi() can grow larger than our configured limit,
+ * The generated Ui_StratosharkMainWindow::setupUi() can grow larger than our configured limit,
  * so turn off -Wframe-larger-than= for ui_stratoshark_main_window.h.
  */
 DIAG_OFF(frame-larger-than=)
@@ -92,7 +92,7 @@ DIAG_ON(frame-larger-than=)
 //menu_recent_file_write_all
 
 // If we ever add support for multiple windows this will need to be replaced.
-static LograyMainWindow *gbl_cur_main_window_;
+static StratosharkMainWindow *gbl_cur_main_window_;
 
 static void plugin_if_mainwindow_apply_filter(GHashTable * data_set)
 {
@@ -297,7 +297,7 @@ static void mainwindow_remove_toolbar(const char *menu_title)
     }
 }
 
-QMenu* LograyMainWindow::findOrAddMenu(QMenu *parent_menu, const QStringList& menu_parts) {
+QMenu* StratosharkMainWindow::findOrAddMenu(QMenu *parent_menu, const QStringList& menu_parts) {
     for (auto const & menu_text : menu_parts) {
         bool found = false;
         for (auto const & action : parent_menu->actions()) {
@@ -315,9 +315,9 @@ QMenu* LograyMainWindow::findOrAddMenu(QMenu *parent_menu, const QStringList& me
     return parent_menu;
 }
 
-LograyMainWindow::LograyMainWindow(QWidget *parent) :
+StratosharkMainWindow::StratosharkMainWindow(QWidget *parent) :
     MainWindow(parent),
-    main_ui_(new Ui::LograyMainWindow),
+    main_ui_(new Ui::StratosharkMainWindow),
     previous_focus_(NULL),
     file_set_dialog_(NULL),
     show_hide_actions_(NULL),
@@ -338,7 +338,7 @@ LograyMainWindow::LograyMainWindow(QWidget *parent) :
 #endif
 {
     if (!gbl_cur_main_window_) {
-        connect(mainApp, &MainApplication::openStatCommandDialog, this, &LograyMainWindow::openStatCommandDialog);
+        connect(mainApp, &MainApplication::openStatCommandDialog, this, &StratosharkMainWindow::openStatCommandDialog);
         connect(mainApp, &MainApplication::openTapParameterDialog,
                 this, [=](const QString cfg_str, const QString arg, void *userdata) {openTapParameterDialog(cfg_str, arg, userdata);});
     }
@@ -374,36 +374,36 @@ LograyMainWindow::LograyMainWindow(QWidget *parent) :
 
     qRegisterMetaType<FilterAction::Action>("FilterAction::Action");
     qRegisterMetaType<FilterAction::ActionType>("FilterAction::ActionType");
-    connect(this, &LograyMainWindow::filterAction, this, &LograyMainWindow::queuedFilterAction, Qt::QueuedConnection);
+    connect(this, &StratosharkMainWindow::filterAction, this, &StratosharkMainWindow::queuedFilterAction, Qt::QueuedConnection);
 
     //To prevent users use features before initialization complete
     //Otherwise unexpected problems may occur
     setFeaturesEnabled(false);
     connect(mainApp, &MainApplication::appInitialized, this, [this]() { setFeaturesEnabled(); });
-    connect(mainApp, &MainApplication::appInitialized, this, &LograyMainWindow::applyGlobalCommandLineOptions);
-    connect(mainApp, &MainApplication::appInitialized, this, &LograyMainWindow::zoomText);
-    connect(mainApp, &MainApplication::appInitialized, this, &LograyMainWindow::initViewColorizeMenu);
-    connect(mainApp, &MainApplication::appInitialized, this, &LograyMainWindow::addStatsPluginsToMenu);
-    connect(mainApp, &MainApplication::appInitialized, this, &LograyMainWindow::addDynamicMenus);
-    connect(mainApp, &MainApplication::appInitialized, this, &LograyMainWindow::addPluginIFStructures);
-    connect(mainApp, &MainApplication::appInitialized, this, &LograyMainWindow::initConversationMenus);
-    connect(mainApp, &MainApplication::appInitialized, this, &LograyMainWindow::initFollowStreamMenus);
+    connect(mainApp, &MainApplication::appInitialized, this, &StratosharkMainWindow::applyGlobalCommandLineOptions);
+    connect(mainApp, &MainApplication::appInitialized, this, &StratosharkMainWindow::zoomText);
+    connect(mainApp, &MainApplication::appInitialized, this, &StratosharkMainWindow::initViewColorizeMenu);
+    connect(mainApp, &MainApplication::appInitialized, this, &StratosharkMainWindow::addStatsPluginsToMenu);
+    connect(mainApp, &MainApplication::appInitialized, this, &StratosharkMainWindow::addDynamicMenus);
+    connect(mainApp, &MainApplication::appInitialized, this, &StratosharkMainWindow::addPluginIFStructures);
+    connect(mainApp, &MainApplication::appInitialized, this, &StratosharkMainWindow::initConversationMenus);
+    connect(mainApp, &MainApplication::appInitialized, this, &StratosharkMainWindow::initFollowStreamMenus);
     connect(mainApp, &MainApplication::appInitialized, this,
             [=]() { addDisplayFilterTranslationActions(main_ui_->menuEditCopy); });
 
-    connect(mainApp, &MainApplication::profileChanging, this, &LograyMainWindow::saveWindowGeometry);
-    connect(mainApp, &MainApplication::preferencesChanged, this, &LograyMainWindow::layoutPanes);
-    connect(mainApp, &MainApplication::preferencesChanged, this, &LograyMainWindow::layoutToolbars);
-    connect(mainApp, &MainApplication::preferencesChanged, this, &LograyMainWindow::updatePreferenceActions);
-    connect(mainApp, &MainApplication::preferencesChanged, this, &LograyMainWindow::zoomText);
-    connect(mainApp, &MainApplication::preferencesChanged, this, &LograyMainWindow::updateTitlebar);
+    connect(mainApp, &MainApplication::profileChanging, this, &StratosharkMainWindow::saveWindowGeometry);
+    connect(mainApp, &MainApplication::preferencesChanged, this, &StratosharkMainWindow::layoutPanes);
+    connect(mainApp, &MainApplication::preferencesChanged, this, &StratosharkMainWindow::layoutToolbars);
+    connect(mainApp, &MainApplication::preferencesChanged, this, &StratosharkMainWindow::updatePreferenceActions);
+    connect(mainApp, &MainApplication::preferencesChanged, this, &StratosharkMainWindow::zoomText);
+    connect(mainApp, &MainApplication::preferencesChanged, this, &StratosharkMainWindow::updateTitlebar);
 
-    connect(mainApp, &MainApplication::updateRecentCaptureStatus, this, &LograyMainWindow::updateRecentCaptures);
-    connect(mainApp, &MainApplication::preferencesChanged, this, &LograyMainWindow::updateRecentCaptures);
+    connect(mainApp, &MainApplication::updateRecentCaptureStatus, this, &StratosharkMainWindow::updateRecentCaptures);
+    connect(mainApp, &MainApplication::preferencesChanged, this, &StratosharkMainWindow::updateRecentCaptures);
     updateRecentCaptures();
 
 #if defined(HAVE_SOFTWARE_UPDATE) && defined(Q_OS_WIN)
-    connect(mainApp, &MainApplication::softwareUpdateRequested, this, &LograyMainWindow::softwareUpdateRequested,
+    connect(mainApp, &MainApplication::softwareUpdateRequested, this, &StratosharkMainWindow::softwareUpdateRequested,
         Qt::BlockingQueuedConnection);
 #endif
 
@@ -411,11 +411,11 @@ LograyMainWindow::LograyMainWindow(QWidget *parent) :
 
     funnel_statistics_ = new FunnelStatistics(this, capture_file_);
     connect(df_combo_box_, &QComboBox::editTextChanged, funnel_statistics_, &FunnelStatistics::displayFilterTextChanged);
-    connect(funnel_statistics_, &FunnelStatistics::setDisplayFilter, this, &LograyMainWindow::setDisplayFilter);
+    connect(funnel_statistics_, &FunnelStatistics::setDisplayFilter, this, &StratosharkMainWindow::setDisplayFilter);
     connect(funnel_statistics_, &FunnelStatistics::openCaptureFile, this,
             [=](QString cf_path, QString filter) { openCaptureFile(cf_path, filter); });
 
-    connect(df_combo_box_, &QComboBox::editTextChanged, this, &LograyMainWindow::updateDisplayFilterTranslationActions);
+    connect(df_combo_box_, &QComboBox::editTextChanged, this, &StratosharkMainWindow::updateDisplayFilterTranslationActions);
 
     file_set_dialog_ = new FileSetDialog(this);
     connect(file_set_dialog_, &FileSetDialog::fileSetOpenCaptureFile, this, [=](QString cf_path) { openCaptureFile(cf_path); });
@@ -428,9 +428,9 @@ LograyMainWindow::LograyMainWindow(QWidget *parent) :
     // larger toolbar. We do this by adding them to a child toolbar.
     // https://bugreports.qt.io/browse/QTBUG-2472
     FilterExpressionToolBar *filter_expression_toolbar_ = new FilterExpressionToolBar(this);
-    connect(filter_expression_toolbar_, &FilterExpressionToolBar::filterPreferences, this, &LograyMainWindow::onFilterPreferences);
-    connect(filter_expression_toolbar_, &FilterExpressionToolBar::filterSelected, this, &LograyMainWindow::onFilterSelected);
-    connect(filter_expression_toolbar_, &FilterExpressionToolBar::filterEdit, this, &LograyMainWindow::onFilterEdit);
+    connect(filter_expression_toolbar_, &FilterExpressionToolBar::filterPreferences, this, &StratosharkMainWindow::onFilterPreferences);
+    connect(filter_expression_toolbar_, &FilterExpressionToolBar::filterSelected, this, &StratosharkMainWindow::onFilterSelected);
+    connect(filter_expression_toolbar_, &FilterExpressionToolBar::filterEdit, this, &StratosharkMainWindow::onFilterEdit);
 
     main_ui_->displayFilterToolBar->addWidget(filter_expression_toolbar_);
 
@@ -475,8 +475,8 @@ LograyMainWindow::LograyMainWindow(QWidget *parent) :
 
 #endif // Q_OS_MAC
 
-    connect(main_ui_->goToGo, &QPushButton::pressed, this, &LograyMainWindow::goToGoClicked);
-    connect(main_ui_->goToCancel, &QPushButton::pressed, this, &LograyMainWindow::goToCancelClicked);
+    connect(main_ui_->goToGo, &QPushButton::pressed, this, &StratosharkMainWindow::goToGoClicked);
+    connect(main_ui_->goToCancel, &QPushButton::pressed, this, &StratosharkMainWindow::goToCancelClicked);
 
 // A billion-1 is equivalent to the inputMask 900000000 previously used
 // Avoid QValidator::Intermediate values by using a top value of all 9's
@@ -488,7 +488,7 @@ main_ui_->goToLineEdit->setValidator(goToLineQiv);
 #ifdef HAVE_SOFTWARE_UPDATE
     QAction *update_sep = main_ui_->menuHelp->insertSeparator(main_ui_->actionHelpAbout);
     main_ui_->menuHelp->insertAction(update_sep, update_action_);
-    connect(update_action_, &QAction::triggered, this, &LograyMainWindow::checkForUpdates);
+    connect(update_action_, &QAction::triggered, this, &StratosharkMainWindow::checkForUpdates);
 #endif
     master_split_.setObjectName("splitterMaster");
     extra_split_.setObjectName("splitterExtra");
@@ -500,13 +500,13 @@ main_ui_->goToLineEdit->setValidator(goToLineQiv);
     empty_pane_.setVisible(false);
 
     packet_list_ = new PacketList(&master_split_);
-    connect(packet_list_, &PacketList::framesSelected, this, &LograyMainWindow::setMenusForSelectedPacket);
-    connect(packet_list_, &PacketList::framesSelected, this, &LograyMainWindow::framesSelected);
+    connect(packet_list_, &PacketList::framesSelected, this, &StratosharkMainWindow::setMenusForSelectedPacket);
+    connect(packet_list_, &PacketList::framesSelected, this, &StratosharkMainWindow::framesSelected);
 
     QAction *action = main_ui_->menuPacketComment->addAction(tr("Add New Comment…"));
-    connect(action, &QAction::triggered, this, &LograyMainWindow::addPacketComment);
+    connect(action, &QAction::triggered, this, &StratosharkMainWindow::addPacketComment);
     action->setShortcut(QKeySequence(Qt::CTRL | Qt::ALT | Qt::Key_C));
-    connect(main_ui_->menuPacketComment, &QMenu::aboutToShow, this, &LograyMainWindow::setEditCommentsMenu);
+    connect(main_ui_->menuPacketComment, &QMenu::aboutToShow, this, &StratosharkMainWindow::setEditCommentsMenu);
 
     proto_tree_ = new ProtoTree(&master_split_);
     proto_tree_->installEventFilter(this);
@@ -520,18 +520,18 @@ main_ui_->goToLineEdit->setValidator(goToLineQiv);
     main_status_bar_ = main_ui_->statusBar;
 
     connect(proto_tree_, &ProtoTree::fieldSelected,
-            this, &LograyMainWindow::fieldSelected);
+            this, &StratosharkMainWindow::fieldSelected);
     connect(packet_list_, &PacketList::fieldSelected,
-            this, &LograyMainWindow::fieldSelected);
-    connect(this, &LograyMainWindow::fieldSelected,
-            this, &LograyMainWindow::setMenusForSelectedTreeRow);
-    connect(this, &LograyMainWindow::fieldSelected,
+            this, &StratosharkMainWindow::fieldSelected);
+    connect(this, &StratosharkMainWindow::fieldSelected,
+            this, &StratosharkMainWindow::setMenusForSelectedTreeRow);
+    connect(this, &StratosharkMainWindow::fieldSelected,
             main_ui_->statusBar, &MainStatusBar::selectedFieldChanged);
 
-    connect(this, &LograyMainWindow::fieldHighlight,
+    connect(this, &StratosharkMainWindow::fieldHighlight,
             main_ui_->statusBar, &MainStatusBar::highlightedFieldChanged);
     connect(mainApp, &WiresharkApplication::captureActive,
-            this, &LograyMainWindow::captureActive);
+            this, &StratosharkMainWindow::captureActive);
 
     byte_view_tab_ = new ByteViewTab(&master_split_);
 
@@ -550,7 +550,7 @@ main_ui_->goToLineEdit->setValidator(goToLineQiv);
     setTabOrder(df_combo_box_->lineEdit(), packet_list_);
     setTabOrder(packet_list_, proto_tree_);
 
-    connect(&capture_file_, &CaptureFile::captureEvent, this, &LograyMainWindow::captureEventHandler);
+    connect(&capture_file_, &CaptureFile::captureEvent, this, &StratosharkMainWindow::captureEventHandler);
     connect(&capture_file_, &CaptureFile::captureEvent, mainApp, &WiresharkApplication::captureEventHandler);
     connect(&capture_file_, &CaptureFile::captureEvent, main_ui_->statusBar, &MainStatusBar::captureEventHandler);
     connect(&capture_file_, &CaptureFile::captureEvent, profile_switcher_, &ProfileSwitcher::captureEventHandler);
@@ -559,38 +559,38 @@ main_ui_->goToLineEdit->setValidator(goToLineQiv);
     connect(mainApp, &MainApplication::columnsChanged, packet_list_, &PacketList::columnsChanged);
     connect(mainApp, &MainApplication::colorsChanged, packet_list_, &PacketList::colorsChanged);
     connect(mainApp, &MainApplication::preferencesChanged, packet_list_, &PacketList::preferencesChanged);
-    connect(mainApp, &MainApplication::recentPreferencesRead, this, &LograyMainWindow::applyRecentPaneGeometry);
-    connect(mainApp, &MainApplication::recentPreferencesRead, this, &LograyMainWindow::updateRecentActions);
-    connect(mainApp, &MainApplication::packetDissectionChanged, this, &LograyMainWindow::redissectPackets, Qt::QueuedConnection);
+    connect(mainApp, &MainApplication::recentPreferencesRead, this, &StratosharkMainWindow::applyRecentPaneGeometry);
+    connect(mainApp, &MainApplication::recentPreferencesRead, this, &StratosharkMainWindow::updateRecentActions);
+    connect(mainApp, &MainApplication::packetDissectionChanged, this, &StratosharkMainWindow::redissectPackets, Qt::QueuedConnection);
 
-    connect(mainApp, &MainApplication::checkDisplayFilter, this, &LograyMainWindow::checkDisplayFilter);
-    connect(mainApp, &MainApplication::fieldsChanged, this, &LograyMainWindow::fieldsChanged);
-    connect(mainApp, &MainApplication::reloadLuaPlugins, this, &LograyMainWindow::reloadLuaPlugins);
+    connect(mainApp, &MainApplication::checkDisplayFilter, this, &StratosharkMainWindow::checkDisplayFilter);
+    connect(mainApp, &MainApplication::fieldsChanged, this, &StratosharkMainWindow::fieldsChanged);
+    connect(mainApp, &MainApplication::reloadLuaPlugins, this, &StratosharkMainWindow::reloadLuaPlugins);
 
-    connect(main_ui_->mainStack, &QStackedWidget::currentChanged, this, &LograyMainWindow::mainStackChanged);
+    connect(main_ui_->mainStack, &QStackedWidget::currentChanged, this, &StratosharkMainWindow::mainStackChanged);
 
     connect(welcome_page_, &WelcomePage::startCapture, this, [this](QStringList) { startCapture(); });
     connect(welcome_page_, &WelcomePage::recentFileActivated, this, [this](QString cfile) { openCaptureFile(cfile); });
 
     connect(main_ui_->addressEditorFrame, &AddressEditorFrame::redissectPackets,
-            this, &LograyMainWindow::redissectPackets);
+            this, &StratosharkMainWindow::redissectPackets);
     connect(main_ui_->addressEditorFrame, &AddressEditorFrame::showNameResolutionPreferences,
-            this, &LograyMainWindow::showPreferencesDialog);
+            this, &StratosharkMainWindow::showPreferencesDialog);
     connect(main_ui_->preferenceEditorFrame, &PreferenceEditorFrame::showProtocolPreferences,
-            this, &LograyMainWindow::showPreferencesDialog);
+            this, &StratosharkMainWindow::showPreferencesDialog);
     connect(main_ui_->filterExpressionFrame, &FilterExpressionFrame::showPreferencesDialog,
-            this, &LograyMainWindow::showPreferencesDialog);
+            this, &StratosharkMainWindow::showPreferencesDialog);
     connect(main_ui_->filterExpressionFrame, &FilterExpressionFrame::filterExpressionsChanged,
             filter_expression_toolbar_, &FilterExpressionToolBar::filterExpressionsChanged);
 
     /* Connect change of capture file */
-    connect(this, &LograyMainWindow::setCaptureFile,
+    connect(this, &StratosharkMainWindow::setCaptureFile,
             main_ui_->searchFrame, &SearchFrame::setCaptureFile);
-    connect(this, &LograyMainWindow::setCaptureFile,
+    connect(this, &StratosharkMainWindow::setCaptureFile,
             main_ui_->statusBar, &MainStatusBar::setCaptureFile);
-    connect(this, &LograyMainWindow::setCaptureFile,
+    connect(this, &StratosharkMainWindow::setCaptureFile,
             packet_list_, &PacketList::setCaptureFile);
-    connect(this, &LograyMainWindow::setCaptureFile,
+    connect(this, &StratosharkMainWindow::setCaptureFile,
             proto_tree_, &ProtoTree::setCaptureFile);
 
     connect(mainApp, &MainApplication::zoomMonospaceFont, packet_list_, &PacketList::setMonospaceFont);
@@ -606,18 +606,18 @@ main_ui_->goToLineEdit->setValidator(goToLineQiv);
     connectToolsMenuActions();
     connectHelpMenuActions();
 
-    connect(packet_list_, &PacketList::packetDissectionChanged, this, &LograyMainWindow::redissectPackets);
-    connect(packet_list_, &PacketList::showColumnPreferences, this, &LograyMainWindow::showPreferencesDialog);
-    connect(packet_list_, &PacketList::showProtocolPreferences, this, &LograyMainWindow::showPreferencesDialog);
+    connect(packet_list_, &PacketList::packetDissectionChanged, this, &StratosharkMainWindow::redissectPackets);
+    connect(packet_list_, &PacketList::showColumnPreferences, this, &StratosharkMainWindow::showPreferencesDialog);
+    connect(packet_list_, &PacketList::showProtocolPreferences, this, &StratosharkMainWindow::showPreferencesDialog);
     connect(packet_list_, SIGNAL(editProtocolPreference(preference*, pref_module*)),
             main_ui_->preferenceEditorFrame, SLOT(editPreference(preference*, pref_module*)));
-    connect(packet_list_, &PacketList::editColumn, this, &LograyMainWindow::showColumnEditor);
+    connect(packet_list_, &PacketList::editColumn, this, &StratosharkMainWindow::showColumnEditor);
     connect(main_ui_->columnEditorFrame, &ColumnEditorFrame::columnEdited, packet_list_, &PacketList::columnsChanged);
     connect(packet_list_, &QAbstractItemView::doubleClicked, this, [=](const QModelIndex &){ openPacketDialog(); });
     connect(packet_list_, &PacketList::packetListScrolled, main_ui_->actionGoAutoScroll, &QAction::setChecked);
 
-    connect(proto_tree_, &ProtoTree::openPacketInNewWindow, this, &LograyMainWindow::openPacketDialog);
-    connect(proto_tree_, &ProtoTree::showProtocolPreferences, this, &LograyMainWindow::showPreferencesDialog);
+    connect(proto_tree_, &ProtoTree::openPacketInNewWindow, this, &StratosharkMainWindow::openPacketDialog);
+    connect(proto_tree_, &ProtoTree::showProtocolPreferences, this, &StratosharkMainWindow::showPreferencesDialog);
     connect(proto_tree_, SIGNAL(editProtocolPreference(preference*, pref_module*)),
             main_ui_->preferenceEditorFrame, SLOT(editPreference(preference*, pref_module*)));
 
@@ -632,20 +632,20 @@ main_ui_->goToLineEdit->setValidator(goToLineQiv);
             main_ui_->actionStatisticsCaptureFileProperties, &QAction::trigger);
 
     connect(main_ui_->menuApplyAsFilter, &QMenu::aboutToShow,
-            this, &LograyMainWindow::filterMenuAboutToShow);
+            this, &StratosharkMainWindow::filterMenuAboutToShow);
     connect(main_ui_->menuPrepareAFilter, &QMenu::aboutToShow,
-            this, &LograyMainWindow::filterMenuAboutToShow);
+            this, &StratosharkMainWindow::filterMenuAboutToShow);
 
 #ifdef HAVE_LIBPCAP
     QTreeWidget *iface_tree = findChild<QTreeWidget *>("interfaceTree");
     if (iface_tree) {
-        connect(iface_tree, &QTreeWidget::itemSelectionChanged, this, &LograyMainWindow::interfaceSelectionChanged);
+        connect(iface_tree, &QTreeWidget::itemSelectionChanged, this, &StratosharkMainWindow::interfaceSelectionChanged);
     }
     connect(main_ui_->welcomePage, &WelcomePage::captureFilterSyntaxChanged,
-            this, &LograyMainWindow::captureFilterSyntaxChanged);
+            this, &StratosharkMainWindow::captureFilterSyntaxChanged);
 
-    connect(this, &LograyMainWindow::showExtcapOptions, this, &LograyMainWindow::showExtcapOptionsDialog);
-    connect(this->welcome_page_, &WelcomePage::showExtcapOptions, this, &LograyMainWindow::showExtcapOptionsDialog);
+    connect(this, &StratosharkMainWindow::showExtcapOptions, this, &StratosharkMainWindow::showExtcapOptionsDialog);
+    connect(this->welcome_page_, &WelcomePage::showExtcapOptions, this, &StratosharkMainWindow::showExtcapOptionsDialog);
 
 #endif // HAVE_LIBPCAP
 
@@ -687,11 +687,11 @@ main_ui_->goToLineEdit->setValidator(goToLineQiv);
     showWelcome();
 }
 
-LograyMainWindow::~LograyMainWindow()
+StratosharkMainWindow::~StratosharkMainWindow()
 {
     disconnect(main_ui_->mainStack, 0, 0, 0);
     if (previous_focus_ != nullptr) {
-        disconnect(previous_focus_, &QWidget::destroyed, this, &LograyMainWindow::resetPreviousFocus);
+        disconnect(previous_focus_, &QWidget::destroyed, this, &StratosharkMainWindow::resetPreviousFocus);
     }
 
 #ifndef Q_OS_MAC
@@ -709,7 +709,7 @@ LograyMainWindow::~LograyMainWindow()
     delete main_ui_;
 }
 
-QMenu *LograyMainWindow::createPopupMenu()
+QMenu *StratosharkMainWindow::createPopupMenu()
 {
     QMenu *menu = new QMenu();
     menu->addAction(main_ui_->actionViewMainToolbar);
@@ -738,7 +738,7 @@ QMenu *LograyMainWindow::createPopupMenu()
     return menu;
 }
 
-void LograyMainWindow::addInterfaceToolbar(const iface_toolbar *toolbar_entry)
+void StratosharkMainWindow::addInterfaceToolbar(const iface_toolbar *toolbar_entry)
 {
     QMenu *menu = main_ui_->menuInterfaceToolbars;
     bool visible = g_list_find_custom(recent.interface_toolbars, toolbar_entry->menu_title, (GCompareFunc)strcmp) ? true : false;
@@ -781,7 +781,7 @@ void LograyMainWindow::addInterfaceToolbar(const iface_toolbar *toolbar_entry)
     menu->menuAction()->setVisible(true);
 }
 
-void LograyMainWindow::removeInterfaceToolbar(const char *menu_title)
+void StratosharkMainWindow::removeInterfaceToolbar(const char *menu_title)
 {
     QMenu *menu = main_ui_->menuInterfaceToolbars;
     QAction *action = NULL;
@@ -810,7 +810,7 @@ void LograyMainWindow::removeInterfaceToolbar(const char *menu_title)
     menu->menuAction()->setVisible(!menu->actions().isEmpty());
 }
 
-void LograyMainWindow::updateStyleSheet()
+void StratosharkMainWindow::updateStyleSheet()
 {
 #ifdef Q_OS_MAC
     // TODO: The event type QEvent::ApplicationPaletteChange is not sent to all child widgets.
@@ -827,7 +827,7 @@ void LograyMainWindow::updateStyleSheet()
 #endif
 }
 
-bool LograyMainWindow::eventFilter(QObject *obj, QEvent *event) {
+bool StratosharkMainWindow::eventFilter(QObject *obj, QEvent *event) {
 
     // The user typed some text. Start filling in a filter.
     // We may need to be more choosy here. We just need to catch events for the packet list,
@@ -845,7 +845,7 @@ bool LograyMainWindow::eventFilter(QObject *obj, QEvent *event) {
     return QMainWindow::eventFilter(obj, event);
 }
 
-bool LograyMainWindow::event(QEvent *event)
+bool StratosharkMainWindow::event(QEvent *event)
 {
     switch (event->type()) {
     case QEvent::ApplicationPaletteChange:
@@ -859,7 +859,7 @@ bool LograyMainWindow::event(QEvent *event)
     return QMainWindow::event(event);
 }
 
-void LograyMainWindow::keyPressEvent(QKeyEvent *event) {
+void StratosharkMainWindow::keyPressEvent(QKeyEvent *event) {
 
     // Explicitly focus on the display filter combo.
     if (event->modifiers() & Qt::ControlModifier && event->key() == Qt::Key_Slash) {
@@ -889,7 +889,7 @@ void LograyMainWindow::keyPressEvent(QKeyEvent *event) {
     QMainWindow::keyPressEvent(event);
 }
 
-void LograyMainWindow::closeEvent(QCloseEvent *event) {
+void StratosharkMainWindow::closeEvent(QCloseEvent *event) {
     saveWindowGeometry();
 
     /* If we're in the middle of stopping a capture, don't do anything;
@@ -930,7 +930,7 @@ void LograyMainWindow::closeEvent(QCloseEvent *event) {
 // XXX On windows the drag description is "Copy". It should be "Open" or
 // "Merge" as appropriate. It looks like we need access to IDataObject in
 // order to set DROPDESCRIPTION.
-void LograyMainWindow::dragEnterEvent(QDragEnterEvent *event)
+void StratosharkMainWindow::dragEnterEvent(QDragEnterEvent *event)
 {
     if (!event->mimeData()->hasUrls())
     {
@@ -961,7 +961,7 @@ void LograyMainWindow::dragEnterEvent(QDragEnterEvent *event)
     }
 }
 
-void LograyMainWindow::dropEvent(QDropEvent *event)
+void StratosharkMainWindow::dropEvent(QDropEvent *event)
 {
     if (!event->mimeData()->hasUrls())
     {
@@ -1023,7 +1023,7 @@ void LograyMainWindow::dropEvent(QDropEvent *event)
 // Note we might end up with unexpected screen geometries if the user
 // unplugs or plugs in a monitor:
 // https://bugreports.qt.io/browse/QTBUG-44213
-void LograyMainWindow::loadWindowGeometry()
+void StratosharkMainWindow::loadWindowGeometry()
 {
     int min_sensible_dimension = 200;
 
@@ -1070,7 +1070,7 @@ void LograyMainWindow::loadWindowGeometry()
     }
 }
 
-void LograyMainWindow::saveWindowGeometry()
+void StratosharkMainWindow::saveWindowGeometry()
 {
     if (prefs.gui_geometry_save_position ||
         prefs.gui_geometry_save_size ||
@@ -1124,7 +1124,7 @@ void LograyMainWindow::saveWindowGeometry()
 //
 // We might want to do this any time the main status bar progress frame is
 // shown and hidden.
-void LograyMainWindow::freeze()
+void StratosharkMainWindow::freeze()
 {
     freeze_focus_ = mainApp->focusWidget();
 
@@ -1137,7 +1137,7 @@ void LograyMainWindow::freeze()
     main_ui_->centralWidget->setEnabled(false);
 }
 
-void LograyMainWindow::thaw()
+void StratosharkMainWindow::thaw()
 {
     main_ui_->centralWidget->setEnabled(true);
     for (int i = 0; i < freeze_actions_.size(); i++) {
@@ -1148,7 +1148,7 @@ void LograyMainWindow::thaw()
     freeze_focus_ = NULL;
 }
 
-void LograyMainWindow::mergeCaptureFile()
+void StratosharkMainWindow::mergeCaptureFile()
 {
     QString file_name = "";
     QString read_filter = "";
@@ -1298,7 +1298,7 @@ void LograyMainWindow::mergeCaptureFile()
 
 }
 
-void LograyMainWindow::importCaptureFile() {
+void StratosharkMainWindow::importCaptureFile() {
     ImportTextDialog import_dlg;
 
     QString before_what(tr(" before importing a capture"));
@@ -1315,7 +1315,7 @@ void LograyMainWindow::importCaptureFile() {
     openCaptureFile(import_dlg.capfileName(), QString(), WTAP_TYPE_AUTO, true);
 }
 
-bool LograyMainWindow::saveCaptureFile(capture_file *cf, bool dont_reopen) {
+bool StratosharkMainWindow::saveCaptureFile(capture_file *cf, bool dont_reopen) {
     QString file_name;
     bool discard_comments;
 
@@ -1425,7 +1425,7 @@ bool LograyMainWindow::saveCaptureFile(capture_file *cf, bool dont_reopen) {
     return true;
 }
 
-bool LograyMainWindow::saveAsCaptureFile(capture_file *cf, bool must_support_comments, bool dont_reopen) {
+bool StratosharkMainWindow::saveAsCaptureFile(capture_file *cf, bool must_support_comments, bool dont_reopen) {
     QString file_name = "";
     int file_type;
     wtap_compression_type compression_type;
@@ -1481,7 +1481,7 @@ bool LograyMainWindow::saveAsCaptureFile(capture_file *cf, bool must_support_com
 
             msg_dialog.setIcon(QMessageBox::Critical);
             msg_dialog.setText(tr("Unknown file type returned by merge dialog."));
-            msg_dialog.setInformativeText(tr("Please report this as a Logray issue at https://gitlab.com/wireshark/wireshark/-/issues."));
+            msg_dialog.setInformativeText(tr("Please report this as a Stratoshark issue at https://gitlab.com/wireshark/wireshark/-/issues."));
             msg_dialog.exec();
             return false;
 	}
@@ -1542,7 +1542,7 @@ bool LograyMainWindow::saveAsCaptureFile(capture_file *cf, bool must_support_com
     return true;
 }
 
-void LograyMainWindow::exportSelectedPackets() {
+void StratosharkMainWindow::exportSelectedPackets() {
     QString file_name = "";
     int file_type;
     wtap_compression_type compression_type;
@@ -1632,7 +1632,7 @@ void LograyMainWindow::exportSelectedPackets() {
 
             msg_box.setIcon(QMessageBox::Critical);
             msg_box.setText(tr("Unknown file type returned by export dialog."));
-            msg_box.setInformativeText(tr("Please report this as a Logray issue at https://gitlab.com/wireshark/wireshark/-/issues."));
+            msg_box.setInformativeText(tr("Please report this as a Stratoshark issue at https://gitlab.com/wireshark/wireshark/-/issues."));
             msg_box.exec();
             goto cleanup;
 	}
@@ -1682,7 +1682,7 @@ cleanup:
     packet_range_cleanup(&range);
 }
 
-void LograyMainWindow::exportDissections(export_type_e export_type) {
+void StratosharkMainWindow::exportDissections(export_type_e export_type) {
     capture_file *cf = capture_file_.capFile();
     g_return_if_fail(cf);
 
@@ -1699,7 +1699,7 @@ void LograyMainWindow::exportDissections(export_type_e export_type) {
     ed_dlg->show();
 }
 
-bool LograyMainWindow::testCaptureFileClose(QString before_what, FileCloseContext context) {
+bool StratosharkMainWindow::testCaptureFileClose(QString before_what, FileCloseContext context) {
     bool capture_in_progress = false;
     bool do_close_file = false;
 
@@ -1737,7 +1737,7 @@ bool LograyMainWindow::testCaptureFileClose(QString before_what, FileCloseContex
                 // We're being called from the software update window;
                 // don't spawn yet another dialog. Just try again later.
                 // XXX: The WinSparkle dialogs *aren't* modal, and a user
-                // can bring Logray to the foreground, close/save the
+                // can bring Stratoshark to the foreground, close/save the
                 // file, and then click "Install Update" again, but it
                 // seems like many users don't expect that (and also don't
                 // know that Help->Check for Updates... exist, only knowing
@@ -1934,7 +1934,7 @@ bool LograyMainWindow::testCaptureFileClose(QString before_what, FileCloseContex
     return true; /* File closed */
 }
 
-void LograyMainWindow::captureStop() {
+void StratosharkMainWindow::captureStop() {
     stopCapture();
 
     while (capture_file_.capFile() && (capture_file_.capFile()->state == FILE_READ_IN_PROGRESS ||
@@ -1943,7 +1943,7 @@ void LograyMainWindow::captureStop() {
     }
 }
 
-void LograyMainWindow::findTextCodecs() {
+void StratosharkMainWindow::findTextCodecs() {
     const QList<int> mibs = QTextCodec::availableMibs();
     QRegularExpression ibmRegExp("^IBM([0-9]+).*$");
     QRegularExpression iso8859RegExp("^ISO-8859-([0-9]+).*$");
@@ -1993,7 +1993,7 @@ void LograyMainWindow::findTextCodecs() {
     }
 }
 
-void LograyMainWindow::initMainToolbarIcons()
+void StratosharkMainWindow::initMainToolbarIcons()
 {
     // Normally 16 px. Reflects current GTK+ behavior and other Windows apps.
     int icon_size = style()->pixelMetric(QStyle::PM_SmallIconSize);
@@ -2013,7 +2013,7 @@ void LograyMainWindow::initMainToolbarIcons()
     main_ui_->actionCaptureRestart->setIcon(StockIcon("x-capture-restart-circle"));
     main_ui_->actionCaptureOptions->setIcon(StockIcon("x-capture-options"));
 
-    // Menu icons are disabled in logray_main_window.ui for these File-> items.
+    // Menu icons are disabled in stratoshark_main_window.ui for these File-> items.
     main_ui_->actionFileOpen->setIcon(StockIcon("document-open"));
     main_ui_->actionFileSave->setIcon(StockIcon("x-capture-file-save"));
     main_ui_->actionFileClose->setIcon(StockIcon("x-capture-file-close"));
@@ -2049,7 +2049,7 @@ void LograyMainWindow::initMainToolbarIcons()
     main_ui_->actionNewDisplayFilterExpression->setIcon(StockIcon("list-add"));
 }
 
-void LograyMainWindow::initShowHideMainWidgets()
+void StratosharkMainWindow::initShowHideMainWidgets()
 {
     if (show_hide_actions_) {
         return;
@@ -2077,10 +2077,10 @@ void LograyMainWindow::initShowHideMainWidgets()
     /* Initially hide the additional toolbars menus */
     main_ui_->menuAdditionalToolbars->menuAction()->setVisible(false);
 
-    connect(show_hide_actions_, &QActionGroup::triggered, this, &LograyMainWindow::showHideMainWidgets);
+    connect(show_hide_actions_, &QActionGroup::triggered, this, &StratosharkMainWindow::showHideMainWidgets);
 }
 
-void LograyMainWindow::initTimeDisplayFormatMenu()
+void StratosharkMainWindow::initTimeDisplayFormatMenu()
 {
     if (time_display_actions_) {
         return;
@@ -2104,10 +2104,10 @@ void LograyMainWindow::initTimeDisplayFormatMenu()
         time_display_actions_->addAction(tda);
     }
 
-    connect(time_display_actions_, &QActionGroup::triggered, this, &LograyMainWindow::setTimestampFormat);
+    connect(time_display_actions_, &QActionGroup::triggered, this, &StratosharkMainWindow::setTimestampFormat);
 }
 
-void LograyMainWindow::initTimePrecisionFormatMenu()
+void StratosharkMainWindow::initTimePrecisionFormatMenu()
 {
     if (time_precision_actions_) {
         return;
@@ -2132,12 +2132,12 @@ void LograyMainWindow::initTimePrecisionFormatMenu()
         time_precision_actions_->addAction(tpa);
     }
 
-    connect(time_precision_actions_, &QActionGroup::triggered, this, &LograyMainWindow::setTimestampPrecision);
+    connect(time_precision_actions_, &QActionGroup::triggered, this, &StratosharkMainWindow::setTimestampPrecision);
 }
 
 // Menu items which will be disabled when we freeze() and whose state will
 // be restored when we thaw(). Add to the list as needed.
-void LograyMainWindow::initFreezeActions()
+void StratosharkMainWindow::initFreezeActions()
 {
     QList<QAction *> freeze_actions = QList<QAction *>()
             << main_ui_->actionFileClose
@@ -2156,7 +2156,7 @@ void LograyMainWindow::initFreezeActions()
     }
 }
 
-void LograyMainWindow::initConversationMenus()
+void StratosharkMainWindow::initConversationMenus()
 {
     int i;
 
@@ -2178,8 +2178,8 @@ void LograyMainWindow::initConversationMenus()
         ConversationAction *conv_action = new ConversationAction(main_ui_->menuConversationFilter, conv_filter);
         main_ui_->menuConversationFilter->addAction(conv_action);
 
-        connect(this, &LograyMainWindow::packetInfoChanged, conv_action, &ConversationAction::setPacketInfo);
-        connect(conv_action, &ConversationAction::triggered, this, &LograyMainWindow::applyConversationFilter, Qt::QueuedConnection);
+        connect(this, &StratosharkMainWindow::packetInfoChanged, conv_action, &ConversationAction::setPacketInfo);
+        connect(conv_action, &ConversationAction::triggered, this, &StratosharkMainWindow::applyConversationFilter, Qt::QueuedConnection);
 
         // Packet list context menu items
         packet_list_->conversationMenu()->addAction(conv_action);
@@ -2193,15 +2193,15 @@ void LograyMainWindow::initConversationMenus()
             conv_action->setIcon(cc_action->icon());
             conv_action->setColorNumber(i++);
             submenu->addAction(conv_action);
-            connect(this, &LograyMainWindow::packetInfoChanged, conv_action, &ConversationAction::setPacketInfo);
-            connect(conv_action, &ConversationAction::triggered, this, &LograyMainWindow::colorizeActionTriggered);
+            connect(this, &StratosharkMainWindow::packetInfoChanged, conv_action, &ConversationAction::setPacketInfo);
+            connect(conv_action, &ConversationAction::triggered, this, &StratosharkMainWindow::colorizeActionTriggered);
         }
 
         conv_action = new ConversationAction(submenu, conv_filter);
         conv_action->setText(main_ui_->actionViewColorizeNewColoringRule->text());
         submenu->addAction(conv_action);
-        connect(this, &LograyMainWindow::packetInfoChanged, conv_action, &ConversationAction::setPacketInfo);
-        connect(conv_action, &ConversationAction::triggered, this, &LograyMainWindow::colorizeActionTriggered);
+        connect(this, &StratosharkMainWindow::packetInfoChanged, conv_action, &ConversationAction::setPacketInfo);
+        connect(conv_action, &ConversationAction::triggered, this, &StratosharkMainWindow::colorizeActionTriggered);
 
         // Proto tree conversation menu is filled in in ProtoTree::contextMenuEvent.
         // We should probably do that here.
@@ -2216,21 +2216,21 @@ void LograyMainWindow::initConversationMenus()
         colorize_action->setIcon(cc_action->icon());
         colorize_action->setColorNumber(i++);
         proto_tree_->colorizeMenu()->addAction(colorize_action);
-        connect(this, &LograyMainWindow::fieldFilterChanged, colorize_action, &ColorizeAction::setFieldFilter);
-        connect(colorize_action, &ColorizeAction::triggered, this, &LograyMainWindow::colorizeActionTriggered);
+        connect(this, &StratosharkMainWindow::fieldFilterChanged, colorize_action, &ColorizeAction::setFieldFilter);
+        connect(colorize_action, &ColorizeAction::triggered, this, &StratosharkMainWindow::colorizeActionTriggered);
     }
 
     colorize_action = new ColorizeAction(proto_tree_->colorizeMenu());
     colorize_action->setText(main_ui_->actionViewColorizeNewColoringRule->text());
     proto_tree_->colorizeMenu()->addAction(colorize_action);
-    connect(this, &LograyMainWindow::fieldFilterChanged, colorize_action, &ColorizeAction::setFieldFilter);
-    connect(colorize_action, &ColorizeAction::triggered, this, &LograyMainWindow::colorizeActionTriggered);
+    connect(this, &StratosharkMainWindow::fieldFilterChanged, colorize_action, &ColorizeAction::setFieldFilter);
+    connect(colorize_action, &ColorizeAction::triggered, this, &StratosharkMainWindow::colorizeActionTriggered);
 }
 
-bool LograyMainWindow::addFollowStreamMenuItem(const void *key _U_, void *value, void *userdata)
+bool StratosharkMainWindow::addFollowStreamMenuItem(const void *key _U_, void *value, void *userdata)
 {
     register_follow_t *follow = (register_follow_t*)value;
-    LograyMainWindow *window = (LograyMainWindow*)userdata;
+    StratosharkMainWindow *window = (StratosharkMainWindow*)userdata;
 
     FollowStreamAction *follow_action = new FollowStreamAction(window->main_ui_->menuFollow, follow);
     window->main_ui_->menuFollow->addAction(follow_action);
@@ -2273,20 +2273,20 @@ bool LograyMainWindow::addFollowStreamMenuItem(const void *key _U_, void *value,
     return false;
 }
 
-void LograyMainWindow::initFollowStreamMenus()
+void StratosharkMainWindow::initFollowStreamMenus()
 {
     /* This puts them all in the menus in alphabetical order.  */
     follow_iterate_followers(addFollowStreamMenuItem, this);
 }
 
 // Titlebar
-void LograyMainWindow::setTitlebarForCaptureFile()
+void StratosharkMainWindow::setTitlebarForCaptureFile()
 {
     use_capturing_title_ = false;
     updateTitlebar();
 }
 
-QString LograyMainWindow::replaceWindowTitleVariables(QString title)
+QString StratosharkMainWindow::replaceWindowTitleVariables(QString title)
 {
     title.replace("%P", get_profile_name());
     title.replace("%V", get_lr_vcs_version_info());
@@ -2341,10 +2341,10 @@ QString LograyMainWindow::replaceWindowTitleVariables(QString title)
     return title;
 }
 
-void LograyMainWindow::setWSWindowTitle(QString title)
+void StratosharkMainWindow::setWSWindowTitle(QString title)
 {
     if (title.isEmpty()) {
-        title = tr("The Logray System Call and Log Analyzer");
+        title = tr("The Stratoshark System Call and Log Analyzer");
     }
 
     if (prefs.gui_prepend_window_title && prefs.gui_prepend_window_title[0]) {
@@ -2370,13 +2370,13 @@ void LograyMainWindow::setWSWindowTitle(QString title)
     setWindowFilePath(NULL);
 }
 
-void LograyMainWindow::setTitlebarForCaptureInProgress()
+void StratosharkMainWindow::setTitlebarForCaptureInProgress()
 {
     use_capturing_title_ = true;
     updateTitlebar();
 }
 
-void LograyMainWindow::updateTitlebar()
+void StratosharkMainWindow::updateTitlebar()
 {
     if (use_capturing_title_ && capture_file_.capFile()) {
         setWSWindowTitle(tr("Capturing from %1").arg(cf_get_tempfile_source(capture_file_.capFile())));
@@ -2405,7 +2405,7 @@ void LograyMainWindow::updateTitlebar()
 /* Enable or disable menu items based on whether you have a capture file
    you've finished reading and, if you have one, whether it's been saved
    and whether it could be saved except by copying the raw packet data. */
-void LograyMainWindow::setMenusForCaptureFile(bool force_disable)
+void StratosharkMainWindow::setMenusForCaptureFile(bool force_disable)
 {
     bool enable = true;
     bool can_write = false;
@@ -2449,7 +2449,7 @@ void LograyMainWindow::setMenusForCaptureFile(bool force_disable)
 #endif
 }
 
-void LograyMainWindow::setMenusForCaptureInProgress(bool capture_in_progress) {
+void StratosharkMainWindow::setMenusForCaptureInProgress(bool capture_in_progress) {
     /* Either a capture was started or stopped; in either case, it's not
        in the process of stopping, so allow quitting. */
 
@@ -2491,7 +2491,7 @@ void LograyMainWindow::setMenusForCaptureInProgress(bool capture_in_progress) {
 
 }
 
-void LograyMainWindow::setMenusForCaptureStopping() {
+void StratosharkMainWindow::setMenusForCaptureStopping() {
     main_ui_->actionFileQuit->setEnabled(false);
 #ifdef HAVE_SOFTWARE_UPDATE
     update_action_->setEnabled(false);
@@ -2504,7 +2504,7 @@ void LograyMainWindow::setMenusForCaptureStopping() {
 #endif /* HAVE_LIBPCAP */
 }
 
-void LograyMainWindow::setForCapturedPackets(bool have_captured_packets)
+void StratosharkMainWindow::setForCapturedPackets(bool have_captured_packets)
 {
     main_ui_->actionFilePrint->setEnabled(have_captured_packets);
 
@@ -2533,7 +2533,7 @@ void LograyMainWindow::setForCapturedPackets(bool have_captured_packets)
     main_ui_->actionStatisticsIOGraph->setEnabled(have_captured_packets);
 }
 
-void LograyMainWindow::setMenusForFileSet(bool enable_list_files) {
+void StratosharkMainWindow::setMenusForFileSet(bool enable_list_files) {
     bool enable_next = fileset_get_next() != NULL && enable_list_files;
     bool enable_prev = fileset_get_previous() != NULL && enable_list_files;
 
@@ -2542,17 +2542,17 @@ void LograyMainWindow::setMenusForFileSet(bool enable_list_files) {
     main_ui_->actionFileSetPreviousFile->setEnabled(enable_prev);
 }
 
-void LograyMainWindow::setWindowIcon(const QIcon &icon) {
+void StratosharkMainWindow::setWindowIcon(const QIcon &icon) {
     mainApp->setWindowIcon(icon);
     QMainWindow::setWindowIcon(icon);
 }
 
-void LograyMainWindow::updateForUnsavedChanges() {
+void StratosharkMainWindow::updateForUnsavedChanges() {
     updateTitlebar();
     setMenusForCaptureFile();
 }
 
-void LograyMainWindow::changeEvent(QEvent* event)
+void StratosharkMainWindow::changeEvent(QEvent* event)
 {
     if (0 != event)
     {
@@ -2584,7 +2584,7 @@ void LograyMainWindow::changeEvent(QEvent* event)
 }
 
 /* Update main window items based on whether there's a capture in progress. */
-void LograyMainWindow::setForCaptureInProgress(bool capture_in_progress, bool handle_toolbars, GArray *ifaces)
+void StratosharkMainWindow::setForCaptureInProgress(bool capture_in_progress, bool handle_toolbars, GArray *ifaces)
 {
     setMenusForCaptureInProgress(capture_in_progress);
 
@@ -2606,7 +2606,7 @@ void LograyMainWindow::setForCaptureInProgress(bool capture_in_progress, bool ha
     }
 }
 
-void LograyMainWindow::addMenuActions(QList<QAction *> &actions, int menu_group)
+void StratosharkMainWindow::addMenuActions(QList<QAction *> &actions, int menu_group)
 {
     foreach(QAction *action, actions) {
         switch (menu_group) {
@@ -2655,7 +2655,7 @@ void LograyMainWindow::addMenuActions(QList<QAction *> &actions, int menu_group)
     }
 }
 
-void LograyMainWindow::removeMenuActions(QList<QAction *> &actions, int menu_group)
+void StratosharkMainWindow::removeMenuActions(QList<QAction *> &actions, int menu_group)
 {
     foreach(QAction *action, actions) {
         switch (menu_group) {
@@ -2690,7 +2690,7 @@ void LograyMainWindow::removeMenuActions(QList<QAction *> &actions, int menu_gro
     }
 }
 
-void LograyMainWindow::addDynamicMenus()
+void StratosharkMainWindow::addDynamicMenus()
 {
     // Fill in each menu
     foreach(register_stat_group_t menu_group, menu_groups_) {
@@ -2699,7 +2699,7 @@ void LograyMainWindow::addDynamicMenus()
     }
 }
 
-void LograyMainWindow::reloadDynamicMenus()
+void StratosharkMainWindow::reloadDynamicMenus()
 {
     foreach(register_stat_group_t menu_group, menu_groups_) {
         QList<QAction *>actions = mainApp->removedMenuGroupItems(menu_group);
@@ -2713,7 +2713,7 @@ void LograyMainWindow::reloadDynamicMenus()
     mainApp->clearRemovedMenuGroupItems();
 }
 
-void LograyMainWindow::externalMenuHelper(ext_menu_t * menu, QMenu  * subMenu, int depth)
+void StratosharkMainWindow::externalMenuHelper(ext_menu_t * menu, QMenu  * subMenu, int depth)
 {
     QAction * itemAction = Q_NULLPTR;
     ext_menubar_t * item = Q_NULLPTR;
@@ -2739,7 +2739,7 @@ void LograyMainWindow::externalMenuHelper(ext_menu_t * menu, QMenu  * subMenu, i
             itemAction = subMenu->addAction(item->name);
             itemAction->setData(QVariant::fromValue(static_cast<void *>(item)));
             itemAction->setText(item->label);
-            connect(itemAction, &QAction::triggered, this, &LograyMainWindow::externalMenuItemTriggered);
+            connect(itemAction, &QAction::triggered, this, &StratosharkMainWindow::externalMenuItemTriggered);
         }
 
         /* Iterate Loop */
@@ -2747,7 +2747,7 @@ void LograyMainWindow::externalMenuHelper(ext_menu_t * menu, QMenu  * subMenu, i
     }
 }
 
-QMenu * LograyMainWindow::searchSubMenu(QString objectName)
+QMenu * StratosharkMainWindow::searchSubMenu(QString objectName)
 {
     QList<QMenu*> lst;
 
@@ -2764,7 +2764,7 @@ QMenu * LograyMainWindow::searchSubMenu(QString objectName)
     return 0;
 }
 
-void LograyMainWindow::addPluginIFStructures()
+void StratosharkMainWindow::addPluginIFStructures()
 {
     GList *user_menu = ext_menubar_get_entries();
 
@@ -2852,7 +2852,7 @@ void LograyMainWindow::addPluginIFStructures()
         tbMenu->menuAction()->setVisible(true);
 }
 
-void LograyMainWindow::removeAdditionalToolbar(QString toolbarName)
+void StratosharkMainWindow::removeAdditionalToolbar(QString toolbarName)
 {
     if (toolbarName.length() == 0)
         return;
@@ -2881,12 +2881,12 @@ void LograyMainWindow::removeAdditionalToolbar(QString toolbarName)
 
 }
 
-QString LograyMainWindow::getMwFileName()
+QString StratosharkMainWindow::getMwFileName()
 {
     return mwFileName_;
 }
 
-void LograyMainWindow::setMwFileName(QString fileName)
+void StratosharkMainWindow::setMwFileName(QString fileName)
 {
     mwFileName_ = fileName;
     return;
