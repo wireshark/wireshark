@@ -58462,7 +58462,7 @@ proto_register_ieee80211(void)
       FT_BOOLEAN, 16, NULL, 0x0080, NULL, HFILL }},
 
     {&hf_ieee80211_eht_multi_link_control_mld_capa,
-     {"MDL Capabilities Present",
+     {"MLD Capabilities Present",
       "wlan.eht.multi_link.control.basic.mld_capabilities_present",
       FT_BOOLEAN, 16, NULL, 0x0100, NULL, HFILL }},
 
