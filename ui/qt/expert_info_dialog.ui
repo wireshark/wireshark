@@ -114,8 +114,8 @@
         <widget class="QMenu" name="menuShowExpert">
           <addaction name="actionShowError"/>
           <addaction name="actionShowWarning"/>
-          <addaction name="actionShowChat"/>
           <addaction name="actionShowNote"/>
+          <addaction name="actionShowChat"/>
           <addaction name="actionShowComment"/>
         </widget>
       </widget>
