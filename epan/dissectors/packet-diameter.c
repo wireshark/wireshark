@@ -555,10 +555,11 @@ static int
 dissect_diameter_user_name(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
 	diam_sub_dis_t *diam_sub_dis = (diam_sub_dis_t*)data;
-	uint32_t application_id = 0, str_len;
+	uint32_t application_id = 0, cmd_code = 0, str_len;
 
 	if (diam_sub_dis) {
 		application_id = diam_sub_dis->application_id;
+		cmd_code = diam_sub_dis->cmd_code;
 	}
 
 	switch (application_id) {
@@ -569,6 +570,18 @@ dissect_diameter_user_name(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 		str_len = tvb_reported_length(tvb);
 		dissect_e212_utf8_imsi(tvb, pinfo, tree, 0, str_len);
 		return str_len;
+	case DIAM_APPID_3GPP_SWX:
+		if (cmd_code != 305) {
+			str_len = tvb_reported_length(tvb);
+			dissect_e212_utf8_imsi(tvb, pinfo, tree, 0, str_len);
+			return str_len;
+		}
+		// cmd_code 305 (Push-Profile), can be either a User Profile
+		// Update (8.1.2.3), in which case User-Name is an IMSI as
+		// above, or an HSS Reset Indication (8.1.2.4.1), in which
+		// case User-Name is a User List containing a wild card
+		// or leading digits of IMSI series.
+		break;
 	}
 
 	return 0;
