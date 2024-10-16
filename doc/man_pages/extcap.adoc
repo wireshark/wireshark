@@ -29,7 +29,7 @@ The extcap subsystem is made of multiple extcap binaries that are automatically
 called by the GUI in a row. In the following chapters we will refer to them as
 "the extcaps".
 
-Extcaps may be any binary or script within the _extcap/wireshark_ or _extcap/logray_ directories.
+Extcaps may be any binary or script within the _extcap/wireshark_ or _extcap/stratoshark_ directories.
 Please note that scripts need to be executable without prefacing a script interpreter before the call.
 
 WINDOWS USERS: Because of restrictions directly calling the script may not always work.

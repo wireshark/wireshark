@@ -101,7 +101,7 @@ Set a log file to log messages in addition to the console
 == SYSTEM CALL OPTIONS
 
 --include-capture-processes::
-Include system calls for capture processes (falcodump, dumpcap, and Logray) if TRUE.
+Include system calls for capture processes (falcodump, dumpcap, and Stratoshark) if TRUE.
 Defaults to FALSE.
 
 --include-switch-calls::
@@ -214,12 +214,12 @@ NOTE: kbd:[CTRL+C] should be used to stop the capture in order to ensure clean t
 == SEE ALSO
 
 xref:wireshark.html[wireshark](1), xref:tshark.html[tshark](1), xref:dumpcap.html[dumpcap](1), xref:extcap.html[extcap](4)
-//, xref:logray.html[logray](1)
+//, xref:stratoshark.html[stratoshark](1)
 
 == NOTES
 
-*falcodump* is part of the *Logray* distribution.
-The latest version of *Logray* can be found at https://www.wireshark.org.
+*falcodump* is part of the *Stratoshark* distribution.
+The latest version of *Stratoshark* can be found at https://www.wireshark.org.
 
 HTML versions of the Wireshark project man pages are available at
 https://www.wireshark.org/docs/man-pages.
