@@ -17,6 +17,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/expert.h>
 #include <epan/strutil.h>
 
 #include "packet-syslog.h"
@@ -116,6 +117,8 @@ static int ett_syslog;
 static int ett_syslog_sd;
 static int ett_syslog_sd_element;
 static int ett_syslog_sd_param;
+
+static expert_field ei_syslog_msg_nonconformant;
 
 static dissector_handle_t syslog_handle;
 static dissector_handle_t syslog_handle_tcp;
@@ -301,17 +304,17 @@ static bool dissect_syslog_sd(proto_tree* tree, tvbuff_t* tvb, packet_info *pinf
 }
 
 /* Dissect message as defined in RFC5424 */
-static void
+static unsigned
 dissect_rfc5424_syslog_message(proto_tree* tree, tvbuff_t* tvb, packet_info *pinfo, unsigned offset)
 {
   int end_offset;
 
   if (!dissect_syslog_info(tree, tvb, &offset, hf_syslog_version))
-    return;
+    return offset;
 
   end_offset = tvb_find_uint8(tvb, offset, -1, CHR_SPACE);
   if (end_offset == -1)
-    return;
+    return offset;
   if ((unsigned)end_offset != offset) {
     /* do not call proto_tree_add_time_item with a length of 0 */
     proto_tree_add_time_item(tree, hf_syslog_timestamp, tvb, offset, end_offset - offset, ENC_ISO_8601_DATE_TIME,
@@ -320,17 +323,17 @@ dissect_rfc5424_syslog_message(proto_tree* tree, tvbuff_t* tvb, packet_info *pin
   offset = end_offset + 1;
 
   if (!dissect_syslog_info(tree, tvb, &offset, hf_syslog_hostname))
-    return;
+    return offset;
   if (!dissect_syslog_info(tree, tvb, &offset, hf_syslog_appname))
-    return;
+    return offset;
   if (!dissect_syslog_info(tree, tvb, &offset, hf_syslog_procid))
-    return;
+    return offset;
   if (!dissect_syslog_info(tree, tvb, &offset, hf_syslog_msgid))
-    return;
+    return offset;
 
   /* STRUCTURED DATA */
   if (!dissect_syslog_sd(tree, tvb, pinfo, &offset))
-    return;
+    return offset;
 
   /* Check for BOM and read in the rest of msg*/
   if (tvb_reported_length_remaining(tvb, offset) > 3 && tvb_get_uint24(tvb, offset, ENC_BIG_ENDIAN) == MSG_BOM) {
@@ -341,11 +344,11 @@ dissect_rfc5424_syslog_message(proto_tree* tree, tvbuff_t* tvb, packet_info *pin
   } else {
     proto_tree_add_item(tree, hf_syslog_msg, tvb, offset, tvb_reported_length_remaining(tvb, offset), ENC_ASCII);
   }
-
+  return tvb_reported_length(tvb);
 }
 
 /* Dissect message as defined in RFC3164 */
-static void
+static unsigned
 dissect_rfc3164_syslog_message(proto_tree* tree, tvbuff_t* tvb, unsigned offset)
 {
   unsigned tvb_offset = 0;
@@ -361,11 +364,11 @@ dissect_rfc3164_syslog_message(proto_tree* tree, tvbuff_t* tvb, unsigned offset)
     proto_tree_add_item(tree, hf_syslog_timestamp_old, tvb, offset, 15, ENC_ASCII);
     offset += 16;
   } else {
-    return;
+    return offset;
   }
 
   if (!dissect_syslog_info(tree, tvb, &offset, hf_syslog_hostname))
-    return;
+    return offset;
 
   /* RFC 3164 MSG section */
 
@@ -383,6 +386,7 @@ dissect_rfc3164_syslog_message(proto_tree* tree, tvbuff_t* tvb, unsigned offset)
   /* CONTENT */
   /* Read in the rest as msg */
   proto_tree_add_item(tree, hf_syslog_msg, tvb, offset, tvb_reported_length_remaining(tvb, offset), ENC_ASCII);
+  return tvb_reported_length(tvb);
 }
 
 /* Checks if Octet Counting Framing is used and return entire PDU length */
@@ -513,10 +517,16 @@ dissect_syslog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
   *  followed by a space (0x3120). Otherwise the message is probably
   *  a RFC3164 message.
   */
+  unsigned offset = msg_off;
   if (msg_len > 2 && tvb_get_ntohs(tvb, msg_off) == RFC5424_V) {
-    dissect_rfc5424_syslog_message(syslog_tree, tvb, pinfo, msg_off);
+    offset = dissect_rfc5424_syslog_message(syslog_tree, tvb, pinfo, msg_off);
   } else if ( msg_len > 15) {
-    dissect_rfc3164_syslog_message(syslog_tree, tvb, msg_off);
+    offset = dissect_rfc3164_syslog_message(syslog_tree, tvb, msg_off);
+  }
+  if (offset < tvb_reported_length(tvb)) {
+    ti = proto_tree_add_item(syslog_tree, hf_syslog_msg, tvb, offset,
+      tvb_reported_length_remaining(tvb, offset), ENC_ASCII);
+    expert_add_info(pinfo, ti, &ei_syslog_msg_nonconformant);
   }
 
   if (mtp3_tvb) {
@@ -662,12 +672,21 @@ void proto_register_syslog(void)
     &ett_syslog_sd_param
   };
 
+  static ei_register_info ei[] = {
+    { &ei_syslog_msg_nonconformant, { "syslog.msg.nonconformant", PI_PROTOCOL, PI_NOTE, "Message conforms to neither RFC 5424 nor RFC 3164; trailing data appended", EXPFILL }}
+  };
+
+  expert_module_t *expert_syslog;
+
   /* Register the protocol name and description */
   proto_syslog = proto_register_protocol("Syslog Message", "Syslog", "syslog");
 
   /* Required function calls to register the header fields and subtrees used */
   proto_register_field_array(proto_syslog, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+
+  expert_syslog = expert_register_protocol(proto_syslog);
+  expert_register_field_array(expert_syslog, ei, array_length(ei));
 
   syslog_handle = register_dissector("syslog", dissect_syslog, proto_syslog);
   syslog_handle_tcp = register_dissector("syslog.tcp", dissect_syslog_tcp, proto_syslog);
