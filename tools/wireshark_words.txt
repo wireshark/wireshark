@@ -2484,6 +2484,7 @@ steinigke
 stevens
 stmin
 stnode
+stratoshark
 strawberryperl
 strbuf
 strcmp

@@ -411,7 +411,7 @@ column_dump_column_formats(void)
     "must be configured in preferences for it to be filterable.\n");
 
   /* XXX - Actually retrieve the default values from prefs. We could also
-   * then output the default columns for Logray, if this is Logray. (tray?)
+   * then output the default columns for Stratoshark, if this is Stratoshark. (stshark?)
    */
   printf("\nThese format strings are used to specify a column format in preferences.\n"
     "For example, to print Wireshark's default columns with tshark:\n\n"

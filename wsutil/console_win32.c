@@ -166,7 +166,7 @@ do a FreeConsole() first. */
             if (is_packet_configuration_namespace()) {
                 SetConsoleTitle(_T("Wireshark Debug Console"));
             } else {
-                SetConsoleTitle(_T("Logray Debug Console"));
+                SetConsoleTitle(_T("Stratoshark Debug Console"));
             }
         } else {
             /* On Windows XP, this still fails; FreeConsole() apparently

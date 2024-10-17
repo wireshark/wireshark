@@ -5,7 +5,7 @@
 
 # We keep translation files in the following locations:
 # ui/qt/*.ts (Qt)
-# ui/logray/*.ts (Qt)
+# ui/stratoshark/*.ts (Qt)
 # packaging/debian/po/ (Gettext)
 
 NO_PUSH="False"

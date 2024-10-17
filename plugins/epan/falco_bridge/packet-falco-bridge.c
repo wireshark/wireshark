@@ -800,7 +800,7 @@ fd_tap_listener(void *tapdata, packet_info *pinfo,
 
 uint32_t get_fd_stream_count(void)
 {
-    // This effectively disables the "streams" dropdown, which is we don't really care about for the moment in logray.
+    // This effectively disables the "streams" dropdown, which is we don't really care about for the moment in stratoshark.
     return 1;
 }
 
