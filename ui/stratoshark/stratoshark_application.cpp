@@ -19,7 +19,7 @@ StratosharkApplication::StratosharkApplication(int &argc, char **argv) :
     MainApplication(argc, argv)
 {
     ssApp = this;
-    Q_INIT_RESOURCE(lricon);
+    Q_INIT_RESOURCE(ssicon);
     setApplicationName("Logray");
     setDesktopFileName(QStringLiteral("org.wireshark.Logray"));
 }

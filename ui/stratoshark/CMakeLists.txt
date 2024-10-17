@@ -629,7 +629,7 @@ set(STRATOSHARK_QT_QRC
 	${CMAKE_SOURCE_DIR}/resources/about.qrc
 	${CMAKE_SOURCE_DIR}/resources/languages/languages.qrc
 	${CMAKE_SOURCE_DIR}/resources/layout.qrc
-	${CMAKE_SOURCE_DIR}/resources/lricon.qrc
+	${CMAKE_SOURCE_DIR}/resources/ssicon.qrc
 	${CMAKE_SOURCE_DIR}/resources/stock_icons.qrc
 	${CMAKE_CURRENT_BINARY_DIR}/i18n.qrc
 	${CMAKE_CURRENT_BINARY_DIR}/authors.qrc
