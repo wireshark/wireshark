@@ -469,7 +469,7 @@ static dissector_handle_t  cip_implicit_handle;
 static dissector_handle_t  cip_handle;
 static dissector_handle_t  enip_tcp_handle;
 static dissector_handle_t  enip_udp_handle;
-static dissector_handle_t  cipio_handle;
+static dissector_handle_t  enip_cipio_handle;
 static dissector_handle_t  cip_class1_handle;
 static dissector_handle_t  dtls_handle;
 static dissector_handle_t  dlr_handle;
@@ -3496,7 +3496,7 @@ dissect_enip_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 
 /* Code to actually dissect the io packets*/
 static int
-dissect_cipio(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
+dissect_enip_cipio(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
    /* Set up structures needed to add the protocol subtree and manage it */
    proto_item *ti;
@@ -3506,7 +3506,7 @@ dissect_cipio(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
    col_set_str(pinfo->cinfo, COL_PROTOCOL, "CIP I/O");
 
    /* create display subtree for the protocol */
-   ti = proto_tree_add_item(tree, proto_cipio, tvb, 0, -1, ENC_NA );
+   ti = proto_tree_add_item(tree, proto_enip, tvb, 0, -1, ENC_NA );
 
    enip_tree = proto_item_add_subtree(ti, ett_enip);
 
@@ -5307,7 +5307,7 @@ proto_register_enip(void)
 
    enip_tcp_handle = register_dissector("enip", dissect_enip_tcp, proto_enip);
    enip_udp_handle = register_dissector("enip.udp", dissect_enip_udp, proto_enip);
-   cipio_handle = register_dissector("cipio", dissect_cipio, proto_cipio);
+   enip_cipio_handle = register_dissector_with_description("cipio", "ENIP CIP I/O", dissect_enip_cipio, proto_enip);
    cip_class1_handle = register_dissector("cipio_class1", dissect_cip_class1, proto_cip_class1);
    cip_io_generic_handle = register_dissector("cipgenericio", dissect_cip_io_generic, proto_cipio);
 
@@ -5428,11 +5428,11 @@ proto_reg_handoff_enip(void)
    dissector_add_uint_with_preference("udp.port", ENIP_ENCAP_PORT, enip_udp_handle);
 
    /* Register for EtherNet/IP IO data (UDP) */
-   dissector_add_uint_with_preference("udp.port", ENIP_IO_PORT, cipio_handle);
+   dissector_add_uint_with_preference("udp.port", ENIP_IO_PORT, enip_cipio_handle);
 
    /* Register for EtherNet/IP TLS */
    ssl_dissector_add(ENIP_SECURE_PORT, enip_tcp_handle);
-   dtls_dissector_add(ENIP_SECURE_PORT, cipio_handle);
+   dtls_dissector_add(ENIP_SECURE_PORT, enip_cipio_handle);
    dtls_handle = find_dissector("dtls");
 
    // Allow DecodeAs for DTLS --> ENIP. This supports "UDP-only EtherNet/IP transport profile" over
