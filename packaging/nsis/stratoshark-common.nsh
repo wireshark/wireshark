@@ -18,7 +18,7 @@ ManifestDPIAware true
 !addincludedir ${NSIS_INCLUDE_DIR}
 !endif
 
-!include "logray-config.nsh"
+!include "stratoshark-config.nsh"
 
 !define DISPLAY_NAME "${PROGRAM_NAME} ${VERSION} ${WIRESHARK_TARGET_PLATFORM}"
 Name "${DISPLAY_NAME}"

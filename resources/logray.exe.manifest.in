@@ -33,7 +33,7 @@
     <application>
       <!-- This should match the following:
            - The NTDDI_VERSION and _WIN32_WINNT parts of cmakeconfig.h.in
-           - The WinVer parts of packaging\nsis\logray.nsi
+           - The WinVer parts of packaging\nsis\stratoshark.nsi
       -->
       <!-- Windows 10 & 11 -->
       <supportedOS Id="{8e0f7a12-bfb3-4fe8-b9a5-48fd50a15a9a}"/>

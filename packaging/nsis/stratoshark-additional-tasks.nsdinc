@@ -62,7 +62,7 @@ Function fnc_AdditionalTasksPage_Create
   SendMessage $hCtl_AdditionalTasksPage_CreateShortcutsLabel ${WM_SETFONT} $hCtl_AdditionalTasksPage_Font1 0
 
   ; CreateFunctionCustomScript
-  ; Defined in logray.nsi
+  ; Defined in stratoshark.nsi
   Call InitAdditionalTasksPage
 
 

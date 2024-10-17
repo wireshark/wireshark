@@ -1,5 +1,5 @@
 ;
-; logray.nsi
+; stratoshark.nsi
 ;
 
 ; Set the compression mechanism first.
@@ -10,7 +10,7 @@
 SetCompressor /SOLID lzma
 SetCompressorDictSize 64 ; MB
 
-!include "logray-common.nsh"
+!include "stratoshark-common.nsh"
 !include 'LogicLib.nsh'
 !include "StrFunc.nsh"
 !include "WordFunc.nsh"
@@ -117,7 +117,7 @@ Page custom DisplayAdditionalTasksPage LeaveAdditionalTasksPage
   ; https://nsis.sourceforge.io/Docs/Modern%20UI%202/Readme.html
   ; https://nsis.sourceforge.io/Docs/nsDialogs/Readme.html
   !ifdef QT_DIR
-  !include "logray-additional-tasks.nsdinc"
+  !include "stratoshark-additional-tasks.nsdinc"
   !endif
 
 ; ============================================================================
@@ -444,7 +444,7 @@ File "${STAGING_DIR}\libwiretap.dll"
 File "${STAGING_DIR}\libwireshark.dll"
 File "${STAGING_DIR}\libwsutil.dll"
 
-!include logray-manifest.nsh
+!include stratoshark-manifest.nsh
 
 File "${STAGING_DIR}\COPYING.txt"
 ; File "${STAGING_DIR}\NEWS.txt"
@@ -888,7 +888,7 @@ File /r "${QT_DIR}\translations"
 ; Write an entry for ShellExecute
 WriteRegStr HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\App Paths\${PROGRAM_NAME_PATH}" "" '$INSTDIR\${PROGRAM_NAME_PATH}'
 WriteRegStr HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\App Paths\${PROGRAM_NAME_PATH}" "Path" '$INSTDIR'
-!include logray-qt-manifest.nsh
+!include stratoshark-qt-manifest.nsh
 
 ; Is the Start Menu check box checked?
 ${If} $START_MENU_STATE == ${BST_CHECKED}
