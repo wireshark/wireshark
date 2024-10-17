@@ -25,13 +25,13 @@ Windows application icon file with 16x16, 24x24 32x32, 48x48, and 256x256 pixel 
 wiresharkdoc.ico::
 Windows document icon file with 16 and 32 pixel 3D logo icons, high and low color.
 
-lricon.svg::
-Vector source for the Logray icon.
+ssicon.svg::
+Vector source for the Stratoshark icon.
 
-lricon16.png ... lricon1024.png::
-Logray application icons in various sizes.
+ssicon16.png ... ssicon1024.png::
+Stratoshark application icons in various sizes.
 
-logray.ico::
+stratoshark.ico::
 Windows application icon file with 16x16, 32x32, 48x48, and 256x256 pixel images.
 
 *.rc.in::

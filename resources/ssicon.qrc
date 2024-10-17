@@ -1,20 +1,20 @@
 <RCC>
-    <qresource prefix="/lricon">
-        <file alias="lriconcap16.png">icons/lriconcap16.png</file>
-        <file alias="lriconcap32.png">icons/lriconcap32.png</file>
-        <file alias="lriconcap48.png">icons/lriconcap48.png</file>
-        <file alias="lriconcap64.png">icons/lriconcap64.png</file>
-        <file alias="lriconcap128.png">icons/lriconcap128.png</file>
-        <file alias="lriconcap256.png">icons/lriconcap256.png</file>
-        <file alias="lriconcap512.png">icons/lriconcap512.png</file>
-        <file alias="lriconcap1024.png">icons/lriconcap1024.png</file>
-        <file alias="lricon16.png">icons/lricon16.png</file>
-        <file alias="lricon32.png">icons/lricon32.png</file>
-        <file alias="lricon48.png">icons/lricon48.png</file>
-        <file alias="lricon64.png">icons/lricon64.png</file>
-        <file alias="lricon128.png">icons/lricon128.png</file>
-        <file alias="lricon256.png">icons/lricon256.png</file>
-        <file alias="lricon512.png">icons/lricon512.png</file>
-        <file alias="lricon1024.png">icons/lricon1024.png</file>
+    <qresource prefix="/ssicon">
+        <file alias="ssiconcap16.png">icons/ssiconcap16.png</file>
+        <file alias="ssiconcap32.png">icons/ssiconcap32.png</file>
+        <file alias="ssiconcap48.png">icons/ssiconcap48.png</file>
+        <file alias="ssiconcap64.png">icons/ssiconcap64.png</file>
+        <file alias="ssiconcap128.png">icons/ssiconcap128.png</file>
+        <file alias="ssiconcap256.png">icons/ssiconcap256.png</file>
+        <file alias="ssiconcap512.png">icons/ssiconcap512.png</file>
+        <file alias="ssiconcap1024.png">icons/ssiconcap1024.png</file>
+        <file alias="ssicon16.png">icons/ssicon16.png</file>
+        <file alias="ssicon32.png">icons/ssicon32.png</file>
+        <file alias="ssicon48.png">icons/ssicon48.png</file>
+        <file alias="ssicon64.png">icons/ssicon64.png</file>
+        <file alias="ssicon128.png">icons/ssicon128.png</file>
+        <file alias="ssicon256.png">icons/ssicon256.png</file>
+        <file alias="ssicon512.png">icons/ssicon512.png</file>
+        <file alias="ssicon1024.png">icons/ssicon1024.png</file>
     </qresource>
 </RCC>

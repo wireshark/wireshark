@@ -4060,7 +4060,7 @@ if(BUILD_stratoshark AND QT_FOUND AND LINUXDEPLOY_EXECUTABLE AND _linuxdeploy_pl
 			--appdir=${_stratoshark_ai_appdir}
 			${_stratoshark_appimage_exe_args}
 			--desktop-file=${_stratoshark_ai_appdir}/usr/share/applications/org.wireshark.Logray.desktop
-			--icon-file=${CMAKE_SOURCE_DIR}/resources/icons/lricon256.png
+			--icon-file=${CMAKE_SOURCE_DIR}/resources/icons/ssicon256.png
 			--custom-apprun=${CMAKE_BINARY_DIR}/packaging/appimage/Stratoshark-AppRun
 			--plugin=qt
 		DEPENDS logray_appimage_appdir
@@ -4216,14 +4216,14 @@ if(BUILD_stratoshark AND QT_FOUND AND NOT APPLE AND (NOT WIN32 OR USE_MSYSTEM))
 			DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/applications")
 	endif()
 	foreach(size 16 32 48 64 128 256)
-		install(FILES resources/icons/lricon${size}.png
+		install(FILES resources/icons/ssicon${size}.png
 			DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/icons/hicolor/${size}x${size}/apps"
 			RENAME org.wireshark.Logray.png)
 		install(FILES resources/icons/WiresharkDoc-${size}.png
 			DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/icons/hicolor/${size}x${size}/mimetypes"
 			RENAME org.wireshark.Logray-mimetype.png)
 	endforeach()
-	install(FILES resources/icons/lricon.svg
+	install(FILES resources/icons/ssicon.svg
 		DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/icons/hicolor/scalable/apps"
 		RENAME org.wireshark.Logray.svg)
 endif()
