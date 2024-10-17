@@ -4888,6 +4888,9 @@ static void dissect_smb2_file_directory_info(tvbuff_t *tvb, packet_info *pinfo, 
 
 		proto_item_set_len(item, offset-old_offset);
 
+		if (si && si->saved)
+			si->saved->num_matched++;
+
 		if (next_offset == 0) {
 			return;
 		}
@@ -4978,6 +4981,9 @@ static void dissect_smb2_full_directory_info(tvbuff_t *tvb, packet_info *pinfo, 
 		}
 
 		proto_item_set_len(item, offset-old_offset);
+
+		if (si && si->saved)
+			si->saved->num_matched++;
 
 		if (next_offset == 0) {
 			return;
@@ -5087,6 +5093,9 @@ static void dissect_smb2_both_directory_info(tvbuff_t *tvb, packet_info *pinfo, 
 
 		proto_item_set_len(item, offset-old_offset);
 
+		if (si && si->saved)
+			si->saved->num_matched++;
+
 		if (next_offset == 0) {
 			return;
 		}
@@ -5140,6 +5149,9 @@ static void dissect_smb2_file_name_info(tvbuff_t *tvb, packet_info *pinfo, proto
 			proto_item_append_text(item, ": %s", display_string);
 			offset += file_name_len;
 		}
+
+		if (si && si->saved)
+			si->saved->num_matched++;
 
 		proto_item_set_len(item, offset-old_offset);
 
@@ -5259,6 +5271,9 @@ static void dissect_smb2_id_both_directory_info(tvbuff_t *tvb, packet_info *pinf
 
 		proto_item_set_len(item, offset-old_offset);
 
+		if (si && si->saved)
+			si->saved->num_matched++;
+
 		if (next_offset == 0) {
 			return;
 		}
@@ -5359,6 +5374,9 @@ static void dissect_smb2_id_full_directory_info(tvbuff_t *tvb, packet_info *pinf
 
 		proto_item_set_len(item, offset-old_offset);
 
+		if (si && si->saved)
+			si->saved->num_matched++;
+
 		if (next_offset == 0) {
 			return;
 		}
@@ -5428,6 +5446,9 @@ static int dissect_smb2_posix_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
 	/* Owner and Group SID */
 	offset = dissect_nt_sid(tvb, offset, tree, "Owner SID", NULL, -1);
 	offset = dissect_nt_sid(tvb, offset, tree, "Group SID", NULL, -1);
+
+	if (si && si->saved)
+		si->saved->num_matched++;
 
 	return offset;
 }
@@ -5503,7 +5524,8 @@ dissect_smb2_find_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, smb2
 {
 	smb2_find_dissector_t *dis = smb2_find_dissectors;
 
-	si->saved->num_matched = 0;
+	if (si && si-> saved)
+		si->saved->num_matched = 0;
 
 	while (dis->dissector) {
 		if (si && si->saved) {
@@ -5513,7 +5535,6 @@ dissect_smb2_find_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, smb2
 			}
 		}
 		dis++;
-	        si->saved->num_matched++;
 	}
 
 
