@@ -160,7 +160,7 @@ install_formulae "${ACTUAL_LIST[@]}"
 
 if [ $INSTALL_DMG_DEPS -ne 0 ] ; then
     printf "Sorry, you'll have to install dmgbuild yourself for the time being.\\n"
-    # pip3 install dmgbuild
+    # pip3 install "dmgbuild[badge_icons]"
 fi
 
 if [ $INSTALL_SPARKLE_DEPS -ne 0 ] ; then
