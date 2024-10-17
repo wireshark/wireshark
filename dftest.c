@@ -31,6 +31,7 @@
 #include <wsutil/plugins.h>
 #endif
 #include <wsutil/filesystem.h>
+#include <wsutil/file_util.h>
 #include <wsutil/privileges.h>
 #include <wsutil/wslog.h>
 #include <wsutil/ws_getopt.h>
@@ -79,6 +80,24 @@ dftest_cmdarg_err_cont(const char *fmt, va_list ap)
     fprintf(stderr, "\n");
 }
 
+#ifndef HAVE_GETLINE
+/* Maximum supported line length of a filter. */
+#define MAX_LINELEN     4096
+
+/** Read a line without trailing (CR)LF. Returns -1 on failure.  */
+static int
+fgetline(char *buf, int size, FILE *fp)
+{
+    if (fgets(buf, size, fp)) {
+        int len = (int)strcspn(buf, "\r\n");
+        buf[len] = '\0';
+        return len;
+    }
+    return -1;
+
+} /* fgetline */
+#endif /* HAVE_GETLINE */
+
 static void
 putloc(FILE *fp, df_loc_t loc)
 {
@@ -117,6 +136,7 @@ print_usage(int status)
      * development the --refs option to dftest is useless because it will just
      * print empty reference vectors. */
     fprintf(fp, "      --refs          dump some runtime data structures\n");
+    fprintf(fp, "      --file <path>   read filters line-by-line from a file (use '-' for stdin)\n");
     fprintf(fp, "  -h, --help          display this help and exit\n");
     fprintf(fp, "  -v, --version       print version\n");
     fprintf(fp, "\n");
@@ -251,13 +271,71 @@ optarg_to_digit(const char *arg)
     return digit;
 }
 
+static int
+test_filter(const char *text)
+{
+    char        *expanded_text = NULL;
+    dfilter_t   *df = NULL;
+
+    printf("Filter:\n %s\n\n", text);
+
+    /* Expand macros. */
+    expanded_text = expand_filter(text);
+    if (expanded_text == NULL) {
+        goto fail;
+    }
+
+    if (strcmp(text, expanded_text) != 0)
+        printf("Filter (after expansion):\n %s\n\n", expanded_text);
+
+    /* Compile it */
+    if (!compile_filter(expanded_text, &df)) {
+        goto fail;
+    }
+
+    /* If logging is enabled add an empty line. */
+    if (opt_debug_level > 0) {
+        printf("\n");
+    }
+
+    if (df == NULL) {
+        printf("Filter is empty.\n");
+        goto fail;
+    }
+
+    if (opt_syntax_tree)
+        print_syntax_tree(df);
+
+    uint16_t dump_flags = 0;
+    if (opt_show_types)
+        dump_flags |= DF_DUMP_SHOW_FTYPE;
+    if (opt_dump_refs)
+        dump_flags |= DF_DUMP_REFERENCES;
+
+    dfilter_dump(stdout, df, dump_flags);
+
+    print_warnings(df);
+
+    if (opt_timer)
+        print_elapsed();
+
+    g_free(expanded_text);
+    dfilter_free(df);
+
+    return EXIT_SUCCESS;
+
+fail:
+    g_free(expanded_text);
+    dfilter_free(df);
+    return WS_EXIT_INVALID_FILTER;
+}
+
 int
 main(int argc, char **argv)
 {
     char		*configuration_init_error;
+    char        *path = NULL;
     char        *text = NULL;
-    char        *expanded_text = NULL;
-    dfilter_t   *df = NULL;
     int          exit_status = EXIT_FAILURE;
 
     /*
@@ -314,6 +392,7 @@ main(int argc, char **argv)
         { "optimize", ws_required_argument, 0, 1000 },
         { "types",    ws_no_argument,   0, 2000 },
         { "refs",     ws_no_argument,   0, 3000 },
+        { "file",     ws_required_argument, 0, 4000 },
         { NULL,       0,                0,  0   }
     };
     int opt;
@@ -380,6 +459,9 @@ main(int argc, char **argv)
             case 3000:
                 opt_dump_refs = 1;
                 break;
+            case 4000:
+                path = ws_optarg;
+                break;
             case 'v':
                 show_version();
                 exit(EXIT_SUCCESS);
@@ -398,7 +480,7 @@ main(int argc, char **argv)
     /* Check for filter on command line. */
     if (argv[ws_optind] == NULL) {
         /* If not printing macros we need a filter expression to compile. */
-        if (!opt_dump_macros) {
+        if (!opt_dump_macros && !path) {
             printf("Error: Missing argument.\n");
             print_usage(EXIT_FAILURE);
         }
@@ -448,12 +530,6 @@ main(int argc, char **argv)
         }
     }
 
-    /* Check again for filter on command line */
-    if (argv[ws_optind] == NULL) {
-        printf("Error: Missing argument.\n");
-        print_usage(EXIT_FAILURE);
-    }
-
     /* This is useful to prevent confusion with option parsing.
      * Skips printing options and argv[0]. */
     if (opt_verbose) {
@@ -463,60 +539,57 @@ main(int argc, char **argv)
         fprintf(stderr, "\n");
     }
 
-    /* Get filter text */
-    text = get_args_as_string(argc, argv, ws_optind);
+    if (path) {
+        FILE *filter_p;
+        if (strcmp(path, "-") == 0) {
+            filter_p = stdin;
+        } else {
+            filter_p = ws_fopen(path, "r");
+            if (filter_p == NULL) {
+                open_failure_message(path, errno, false);
+                exit_status = WS_EXIT_INVALID_FILE;
+                goto out;
+            }
+        }
+        bool first = true;
+#ifdef HAVE_GETLINE
+        char *line = NULL;
+        size_t len = 0;
+        while (getline(&line, &len, filter_p) >= 0) {
+#else
+        char line[MAX_LINELEN];
+        while (fgetline(line, sizeof(line), filter_p) >= 0) {
+#endif
+            if (first) {
+                first = false;
+            } else {
+                printf("\n");
+            }
+            exit_status = test_filter(line);
+            /* A keep going option could be added. */
+            if (exit_status != EXIT_SUCCESS)
+                break;
+        }
+#ifdef HAVE_GETLINE
+        g_free(line);
+#endif
+        fclose(filter_p);
+    } else {
 
-    printf("Filter:\n %s\n\n", text);
+        /* Check again for filter on command line */
+        if (argv[ws_optind] == NULL) {
+            printf("Error: Missing argument.\n");
+            print_usage(EXIT_FAILURE);
+        }
 
-    /* Expand macros. */
-    expanded_text = expand_filter(text);
-    if (expanded_text == NULL) {
-        exit_status = WS_EXIT_INVALID_FILTER;
-        goto out;
+        /* Get filter text */
+        text = get_args_as_string(argc, argv, ws_optind);
+
+        exit_status = test_filter(text);
     }
-
-    if (strcmp(text, expanded_text) != 0)
-        printf("Filter (after expansion):\n %s\n\n", expanded_text);
-
-    /* Compile it */
-    if (!compile_filter(expanded_text, &df)) {
-        exit_status = WS_EXIT_INVALID_FILTER;
-        goto out;
-    }
-
-    /* If logging is enabled add an empty line. */
-    if (opt_debug_level > 0) {
-        printf("\n");
-    }
-
-    if (df == NULL) {
-        printf("Filter is empty.\n");
-        exit_status = WS_EXIT_INVALID_FILTER;
-        goto out;
-    }
-
-    if (opt_syntax_tree)
-        print_syntax_tree(df);
-
-    uint16_t dump_flags = 0;
-    if (opt_show_types)
-        dump_flags |= DF_DUMP_SHOW_FTYPE;
-    if (opt_dump_refs)
-        dump_flags |= DF_DUMP_REFERENCES;
-
-    dfilter_dump(stdout, df, dump_flags);
-
-    print_warnings(df);
-
-    if (opt_timer)
-        print_elapsed();
-
-    exit_status = 0;
 
 out:
     epan_cleanup();
-    dfilter_free(df);
     g_free(text);
-    g_free(expanded_text);
     exit(exit_status);
 }
