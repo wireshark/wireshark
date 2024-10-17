@@ -142,13 +142,13 @@ void WelcomePage::setReleaseLabel()
         if (is_packet_configuration_namespace()) {
             full_release = tr("You are sniffing the glue that holds the Internet together using Wireshark ");
         } else {
-            full_release = tr("You are sniffing the glue that holds your system together using Logray ");
+            full_release = tr("You are sniffing the glue that holds your system together using Stratoshark ");
         }
     } else {
         if (is_packet_configuration_namespace()) {
             full_release = tr("You are running Wireshark ");
         } else {
-            full_release = tr("You are running Logray ");
+            full_release = tr("You are running Stratoshark ");
         }
     }
     full_release += is_packet_configuration_namespace() ? get_ws_vcs_version_info() : get_lr_vcs_version_info();

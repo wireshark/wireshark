@@ -14,7 +14,7 @@
    <bool>true</bool>
   </property>
   <property name="windowTitle">
-   <string>Logray</string>
+   <string>Stratoshark</string>
   </property>
   <property name="unifiedTitleAndToolBarOnMac">
    <bool>true</bool>
@@ -603,7 +603,7 @@
     <string>&amp;Quit</string>
    </property>
    <property name="toolTip">
-    <string>Quit Logray</string>
+    <string>Quit Stratoshark</string>
    </property>
    <property name="shortcut">
     <string notr="true">Ctrl+Q</string>
@@ -749,7 +749,7 @@
   </action>
   <action name="actionHelpAbout">
    <property name="text">
-    <string>&amp;About Logray</string>
+    <string>&amp;About Stratoshark</string>
    </property>
    <property name="menuRole">
     <enum>QAction::AboutRole</enum>
@@ -1397,7 +1397,7 @@
     <string>&amp;Preferences…</string>
    </property>
    <property name="toolTip">
-    <string>Manage Logray's preferences</string>
+    <string>Manage Stratoshark's preferences</string>
    </property>
    <property name="shortcut">
     <string notr="true">Ctrl+Shift+P</string>

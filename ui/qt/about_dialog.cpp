@@ -296,8 +296,8 @@ AboutDialog::AboutDialog(QWidget *parent) :
     QFile f_license;
 
     if (!is_packet_configuration_namespace()) {
-        setWindowTitle(tr("About Logray"));
-        ui->tabWidget->setTabText(ui->tabWidget->indexOf(ui->tab_wireshark), tr("Logray"));
+        setWindowTitle(tr("About Stratoshark"));
+        ui->tabWidget->setTabText(ui->tabWidget->indexOf(ui->tab_wireshark), tr("Stratoshark"));
     }
 
     /* Wireshark tab */
