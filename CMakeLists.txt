@@ -3708,8 +3708,6 @@ if(ENABLE_APPLICATION_BUNDLE AND BUILD_wireshark)
 
 	add_custom_target(wireshark_dmg_prep DEPENDS wireshark_app_bundle)
 
-	FILE(MAKE_DIRECTORY packaging/macosx/wireshark)
-
 	set(_wireshark_read_me_first "packaging/macosx/wireshark/Read me first.html")
 	ADD_CUSTOM_COMMAND(
 	OUTPUT
@@ -3775,8 +3773,6 @@ if(ENABLE_APPLICATION_BUNDLE AND BUILD_stratoshark)
 	)
 
 	add_custom_target(logray_dmg_prep DEPENDS logray_app_bundle)
-
-	FILE(MAKE_DIRECTORY packaging/macosx/logray)
 
 	set(_stratoshark_read_me_first "packaging/macosx/logray/Read me first.html")
 	ADD_CUSTOM_COMMAND(
