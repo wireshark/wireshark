@@ -1978,8 +1978,8 @@ set(CFG_OUT_FILES
 if(BUILD_stratoshark)
 	list(APPEND CFG_OUT_FILES
 		packaging/macosx/LograyInfo.plist
-		packaging/macosx/logray-app.dmgbuild
-		packaging/macosx/logray-dsym.dmgbuild
+		packaging/macosx/stratoshark-app.dmgbuild
+		packaging/macosx/stratoshark-dsym.dmgbuild
 		resources/logray.exe.manifest
 	)
 endif()
@@ -2840,7 +2840,7 @@ if(ENABLE_APPLICATION_BUNDLE)
 
 	# Logray.app/Contents/Resources
 	set(STRATOSHARK_BUNDLE_RESOURCE_FILES
-		${CMAKE_SOURCE_DIR}/packaging/macosx/Logray.icns
+		${CMAKE_SOURCE_DIR}/packaging/macosx/Stratoshark.icns
 		${CMAKE_SOURCE_DIR}/packaging/macosx/Wiresharkdoc.icns
 	)
 	set_source_files_properties(${STRATOSHARK_BUNDLE_RESOURCE_FILES} PROPERTIES
@@ -3787,9 +3787,9 @@ if(ENABLE_APPLICATION_BUNDLE AND BUILD_stratoshark)
 		--out-file ${_stratoshark_read_me_first}
 		--attribute include-dir=${CMAKE_SOURCE_DIR}/doc
 		--attribute min-macos-version=${MIN_MACOS_VERSION}
-		${CMAKE_CURRENT_SOURCE_DIR}/packaging/macosx/Logray_read_me_first.adoc
+		${CMAKE_CURRENT_SOURCE_DIR}/packaging/macosx/Stratoshark_read_me_first.adoc
 	DEPENDS
-		${CMAKE_CURRENT_SOURCE_DIR}/packaging/macosx/Logray_read_me_first.adoc
+		${CMAKE_CURRENT_SOURCE_DIR}/packaging/macosx/Stratoshark_read_me_first.adoc
 	)
 
 	set(_stratoshark_dsym_installation "packaging/macosx/logray/Debugging symbols installation.html")
@@ -3800,9 +3800,9 @@ if(ENABLE_APPLICATION_BUNDLE AND BUILD_stratoshark)
 		--backend html
 		--out-file ${_stratoshark_dsym_installation}
 		--attribute include-dir=${CMAKE_SOURCE_DIR}/doc
-		${CMAKE_CURRENT_SOURCE_DIR}/packaging/macosx/Logray_dsym_installation.adoc
+		${CMAKE_CURRENT_SOURCE_DIR}/packaging/macosx/Stratoshark_dsym_installation.adoc
 	DEPENDS
-		${CMAKE_CURRENT_SOURCE_DIR}/packaging/macosx/Logray_dsym_installation.adoc
+		${CMAKE_CURRENT_SOURCE_DIR}/packaging/macosx/Stratoshark_dsym_installation.adoc
 	)
 
 	add_custom_target(logray_dmg_readmes DEPENDS ${_stratoshark_read_me_first} ${_stratoshark_dsym_installation} )

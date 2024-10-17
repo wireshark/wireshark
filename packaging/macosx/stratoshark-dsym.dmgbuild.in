@@ -17,24 +17,20 @@ import os.path
 
 # .. Useful stuff ..............................................................
 
-lr_version = '@LOG_PROJECT_VERSION@'
-lr_volname = 'Logray ' + lr_version
-lr_srcdir = '@CMAKE_SOURCE_DIR@'
-lr_bindir = '@CMAKE_BINARY_DIR@'
-lr_app = 'Logray.app'
-lr_readme = 'Read me first.html'
-lr_install_chmodbpf = 'Install ChmodBPF.pkg'
-lr_uninstall_chmodbpf = 'Uninstall ChmodBPF.pkg'
-lr_install_path_helper = 'Add Logray to the system path.pkg'
-lr_uninstall_path_helper = 'Remove Logray from the system path.pkg'
+lw_version = '@LOG_PROJECT_VERSION@'
+lw_volname = 'Logray Debugging Symbols' + lw_version
+lw_srcdir = '@CMAKE_SOURCE_DIR@'
+lw_bindir = '@CMAKE_BINARY_DIR@'
+lw_app_dsym = 'Logray.dSYM'
+lw_readme_dsym = 'Debugging symbols installation.html'
 
 # .. Basics ....................................................................
 
 # Uncomment to override the output filename
-# filename = lr_volname + ' Intel 64.dmg'
+# filename = lw_volname + ' Intel 64.dmg'
 
 # Uncomment to override the output volume name
-# volume_name = 'Logray ' + lr_version
+# volume_name = 'Logray ' + lw_version
 
 # From the hdiutil man page:
 # UDZO - UDIF zlib-compressed image
@@ -43,9 +39,10 @@ lr_uninstall_path_helper = 'Remove Logray from the system path.pkg'
 # ULMO - UDIF lzma-compressed image (macOS 10.15+ only)
 # Volume format (see hdiutil create -help)
 
+# dSYMs are huge, so compress them with UDBZ despite what
 # https://developer.apple.com/forums/thread/128166
-# currently (Jan 2023) says to use UDZO
-format = defines.get('format', 'UDZO')
+# currently (Jan 2023) says.
+format = defines.get('format', 'UDBZ')
 
 # Compression level (if relevant)
 compression_level = 9
@@ -55,8 +52,8 @@ size = None
 
 # Files to include
 files = [
-    os.path.join(lr_bindir, 'run', lr_app),
-    os.path.join(lr_bindir, 'packaging', 'macosx', 'logray', lr_readme),
+    os.path.join(lw_bindir, 'run', lw_app_dsym),
+    os.path.join(lw_bindir, 'packaging', 'macosx', 'logray', lw_readme_dsym),
 ]
 
 # Symlinks to create
@@ -70,18 +67,14 @@ symlinks = {
 # image, *or* you can define badge_icon, in which case the icon file you specify
 # will be used to badge the system's Removable Disk icon
 #
-badge_icon = os.path.join(lr_srcdir, 'packaging', 'macosx', 'lriconvol.icns')
+badge_icon = os.path.join(lw_srcdir, 'packaging', 'macosx', 'ssiconvol.icns')
 #badge_icon = icon_from_app(application)
 
 # Where to put the icons
 icon_locations = {
-    lr_app:                     ( 80,  64),
+    lw_app_dsym:                     ( 80,  64),
     'Applications':             (240,  64),
-    lr_readme:                  (160, 170),
-    lr_install_chmodbpf:        ( 80, 276),
-    lr_uninstall_chmodbpf:      (250, 276),
-    lr_install_path_helper:     ( 80, 382),
-    lr_uninstall_path_helper:   (250, 382),
+    lw_readme_dsym:                  (160, 170),
     }
 
 # .. Window configuration ......................................................
@@ -106,7 +99,7 @@ icon_locations = {
 #
 # Other color components may be expressed either in the range 0 to 1, or
 # as percentages (e.g. 60% is equivalent to 0.6).
-background = os.path.join(lr_srcdir, 'packaging', 'macosx', 'dmg_background.png')
+background = os.path.join(lw_srcdir, 'packaging', 'macosx', 'dmg_background.png')
 
 show_status_bar = False
 show_tab_view = False
@@ -116,7 +109,7 @@ show_sidebar = False
 sidebar_width = 180
 
 # Window position in ((x, y), (w, h)) format
-window_rect = ((600, 200), (350, 525))
+window_rect = ((600, 200), (350, 325))
 
 # Select the default view; must be one of
 #

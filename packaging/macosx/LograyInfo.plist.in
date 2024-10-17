@@ -7,7 +7,7 @@
 	<key>CFBundleExecutable</key>
 	<string>Logray</string>
 	<key>CFBundleIconFile</key>
-	<string>Logray.icns</string>
+	<string>Stratoshark.icns</string>
 	<key>CFBundleIdentifier</key>
 	<string>org.wireshark.Logray</string>
 	<key>CFBundleDocumentTypes</key>
