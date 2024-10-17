@@ -4026,7 +4026,7 @@ if(BUILD_wireshark AND QT_FOUND AND LINUXDEPLOY_EXECUTABLE AND _linuxdeploy_plug
 endif()
 
 if(BUILD_stratoshark AND QT_FOUND AND LINUXDEPLOY_EXECUTABLE AND _linuxdeploy_plugin_qt AND APPIMAGETOOL_EXECUTABLE)
-	configure_file(packaging/appimage/Logray-AppRun.in ${CMAKE_BINARY_DIR}/packaging/appimage/Logray-AppRun @ONLY)
+	configure_file(packaging/appimage/Stratoshark-AppRun.in ${CMAKE_BINARY_DIR}/packaging/appimage/Stratoshark-AppRun @ONLY)
 	# Require production builds (/usr + Release).
 	if (CMAKE_BUILD_TYPE STREQUAL "Release" AND CMAKE_INSTALL_PREFIX STREQUAL "/usr" )
 		add_custom_target(logray_appimage_prerequisites)
@@ -4061,7 +4061,7 @@ if(BUILD_stratoshark AND QT_FOUND AND LINUXDEPLOY_EXECUTABLE AND _linuxdeploy_pl
 			${_stratoshark_appimage_exe_args}
 			--desktop-file=${_stratoshark_ai_appdir}/usr/share/applications/org.wireshark.Logray.desktop
 			--icon-file=${CMAKE_SOURCE_DIR}/resources/icons/lricon256.png
-			--custom-apprun=${CMAKE_BINARY_DIR}/packaging/appimage/Logray-AppRun
+			--custom-apprun=${CMAKE_BINARY_DIR}/packaging/appimage/Stratoshark-AppRun
 			--plugin=qt
 		DEPENDS logray_appimage_appdir
 	)
@@ -4457,7 +4457,7 @@ if(SHELLCHECK_EXECUTABLE)
 		COMMAND shellcheck --external-sources
 			resources/stock_icons/svg-to-png.sh
 			resources/stock_icons/layouts-to-png.sh
-			packaging/appimage/Logray-AppRun.in
+			packaging/appimage/Stratoshark-AppRun.in
 			packaging/appimage/Wireshark-AppRun.in
 			"packaging/macosx/ChmodBPF/root/Library/Application Support/Wireshark/ChmodBPF/ChmodBPF"
 			packaging/macosx/osx-app.sh.in
