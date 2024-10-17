@@ -1306,6 +1306,16 @@ dissect_gsm_apdu(uint8_t ins, uint8_t p1, uint8_t p2, uint8_t p3, tvbuff_t *tvb,
 	col_append_fstr(pinfo->cinfo, COL_INFO, "%s ",
 			val_to_str(ins, apdu_ins_vals, "%02x"));
 
+	/*
+	 * If isSIMtrace is true, we expect the response data to follow in
+	 * many of these commands. However, if there's no data (the status
+	 * word having already been removed) it might be that the command
+	 * failed, in which case we don't want to try to add the data and
+	 * throw an exception; displaying the status word is more useful.
+	 *
+	 * XXX - What if there's a partial response? Perhaps we should always
+	 * just add what data we have and not throw an exception.
+	 */
 	switch (ins) {
 	case 0xA4: /* SELECT */
 		if (p3 < 2)
@@ -1355,7 +1365,7 @@ dissect_gsm_apdu(uint8_t ins, uint8_t p1, uint8_t p2, uint8_t p3, tvbuff_t *tvb,
 			proto_tree_add_item(tree, hf_bin_offset, tvb, offset+P1_OFFS, 2, ENC_BIG_ENDIAN);
 		}
 		proto_tree_add_item(tree, hf_le, tvb, offset+P3_OFFS, 1, ENC_BIG_ENDIAN);
-		if (isSIMtrace) {
+		if (isSIMtrace && tvb_reported_length_remaining(tvb, offset+DATA_OFFS)) {
 			proto_tree_add_item(tree, hf_apdu_data, tvb, offset+DATA_OFFS, p3, ENC_NA);
 		}
 		break;
@@ -1374,7 +1384,7 @@ dissect_gsm_apdu(uint8_t ins, uint8_t p1, uint8_t p2, uint8_t p3, tvbuff_t *tvb,
 		col_append_fstr(pinfo->cinfo, COL_INFO, "RecordNr=%u ", p1);
 		proto_tree_add_item(tree, hf_record_nr, tvb, offset+P1_OFFS, 1, ENC_BIG_ENDIAN);
 		proto_tree_add_item(tree, hf_le, tvb, offset+P3_OFFS, 1, ENC_BIG_ENDIAN);
-		if (isSIMtrace) {
+		if (isSIMtrace && tvb_reported_length_remaining(tvb, offset+DATA_OFFS)) {
 			proto_tree_add_item(tree, hf_apdu_data, tvb, offset+DATA_OFFS, p3, ENC_NA);
 		}
 		break;
@@ -1404,10 +1414,14 @@ dissect_gsm_apdu(uint8_t ins, uint8_t p1, uint8_t p2, uint8_t p3, tvbuff_t *tvb,
 		/* FIXME: actual PIN/PUK code */
 		break;
 	case 0x88: /* RUN GSM ALGO */
+		/* XXX - See ETSI TS 131 102 7.1 AUTHENTICATE and
+		 * ETSI TS 102 221 11.1.16 AUTHENTICATE, this needs to
+		 * be updated for non GSM (#17299)
+		 */
 		offset += DATA_OFFS;
 		proto_tree_add_item(tree, hf_auth_rand, tvb, offset, 16, ENC_NA);
 		offset += 16;
-		if (isSIMtrace) {
+		if (isSIMtrace && tvb_reported_length_remaining(tvb, offset)) {
 			proto_tree_add_item(tree, hf_auth_sres, tvb, offset, 4, ENC_NA);
 			offset += 4;
 			proto_tree_add_item(tree, hf_auth_kc, tvb, offset, 8, ENC_NA);
@@ -1456,7 +1470,7 @@ dissect_gsm_apdu(uint8_t ins, uint8_t p1, uint8_t p2, uint8_t p3, tvbuff_t *tvb,
 		break;
 	case 0x12: /* FETCH */
 		proto_tree_add_item(tree, hf_le, tvb, offset+P3_OFFS, 1, ENC_BIG_ENDIAN);
-		if (isSIMtrace) {
+		if (isSIMtrace && tvb_reported_length_remaining(tvb, offset+DATA_OFFS)) {
 			subtvb = tvb_new_subset_length(tvb, offset+DATA_OFFS, (p3 == 0) ? 256 : p3);
 			dissect_bertlv(subtvb, pinfo, tree, NULL);
 		}
@@ -1484,7 +1498,7 @@ dissect_gsm_apdu(uint8_t ins, uint8_t p1, uint8_t p2, uint8_t p3, tvbuff_t *tvb,
 	case 0xC0: /* GET RESPONSE */
 	case 0xCA: /* GET DATA */
 		proto_tree_add_item(tree, hf_le, tvb, offset+P3_OFFS, 1, ENC_BIG_ENDIAN);
-		if (isSIMtrace) {
+		if (isSIMtrace && tvb_reported_length_remaining(tvb, offset+DATA_OFFS)) {
 			proto_tree_add_item(tree, hf_apdu_data, tvb, offset+DATA_OFFS, p3, ENC_NA);
 		}
 		break;
@@ -1524,6 +1538,8 @@ dissect_rsp_apdu_tvb(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *
 	sw = tvb_get_ntohs(tvb, offset);
 	proto_tree_add_uint_format(sim_tree, hf_apdu_sw, tvb, offset, 2, sw,
 							"Status Word: %04x %s", sw, get_sw_string(pinfo->pool, sw));
+	/* XXX - Add a PI_RESPONSE_CODE expert info for a non normal sw */
+
 	offset += 2;
 
 	if (ti) {
@@ -1592,7 +1608,18 @@ dissect_cmd_apdu_tvb(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *
 				val_to_str(cla>>4, apdu_cla_coding_vals, "%01x"));
 	}
 
-	rc = dissect_gsm_apdu(ins, p1, p2, p3, tvb, offset, pinfo, sim_tree, isSIMtrace);
+	/* If isSIMtrace is true, then the tvb contains the command followed by
+	 * the response. The response consists of response data followed by the
+	 * 2 octet status word. The interpretation of the response data depends
+	 * on the command, so for ease we dissect it in dissect_gsm_apdu.
+	 * Slice off the status word first, though.
+	 */
+	tvbuff_t *next_tvb = tvb;
+	if (isSIMtrace) {
+		/* We already retrieved ins, p1, p2, so tvb_len > 2 */
+		next_tvb = tvb_new_subset_length(tvb, 0, tvb_len - 2);
+	}
+	rc = dissect_gsm_apdu(ins, p1, p2, p3, next_tvb, offset, pinfo, sim_tree, isSIMtrace);
 
 	if (rc == -1 && sim_tree) {
 		/* default dissector */
