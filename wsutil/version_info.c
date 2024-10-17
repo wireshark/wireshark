@@ -536,7 +536,7 @@ get_ws_vcs_version_info(void)
 }
 
 const char *
-get_lr_vcs_version_info(void)
+get_ss_vcs_version_info(void)
 {
 #ifdef VCS_COMMIT_ID
 	return LOG_VERSION " (" VCS_NUM_COMMITS "-" VCS_COMMIT_ID ")";

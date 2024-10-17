@@ -151,7 +151,7 @@ void WelcomePage::setReleaseLabel()
             full_release = tr("You are running Stratoshark ");
         }
     }
-    full_release += is_packet_configuration_namespace() ? get_ws_vcs_version_info() : get_lr_vcs_version_info();
+    full_release += is_packet_configuration_namespace() ? get_ws_vcs_version_info() : get_ss_vcs_version_info();
     full_release += ".";
 #ifdef HAVE_SOFTWARE_UPDATE
     if (prefs.gui_update_enabled) {

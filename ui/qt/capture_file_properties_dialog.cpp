@@ -664,7 +664,7 @@ void CaptureFilePropertiesDialog::on_buttonBox_clicked(QAbstractButton *button)
         if (is_packet_configuration_namespace()) {
             details = tr("Created by Wireshark %1\n\n").arg(get_ws_vcs_version_info());
         } else {
-            details = tr("Created by Stratoshark %1\n\n").arg(get_lr_vcs_version_info());
+            details = tr("Created by Stratoshark %1\n\n").arg(get_ss_vcs_version_info());
         }
         details.append(ui->detailsTextEdit->toPlainText());
         clipboard->setText(details);

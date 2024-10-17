@@ -108,7 +108,7 @@ const char *get_ws_vcs_version_info(void);
  * something identifying what version was checked out.
  */
 WS_DLL_PUBLIC
-const char *get_lr_vcs_version_info(void);
+const char *get_ss_vcs_version_info(void);
 
 /*
  * Shorter version of get_ws_vcs_version_info().
