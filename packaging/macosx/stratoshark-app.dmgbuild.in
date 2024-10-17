@@ -18,15 +18,15 @@ import os.path
 # .. Useful stuff ..............................................................
 
 lr_version = '@LOG_PROJECT_VERSION@'
-lr_volname = 'Logray ' + lr_version
+lr_volname = 'Stratoshark ' + lr_version
 lr_srcdir = '@CMAKE_SOURCE_DIR@'
 lr_bindir = '@CMAKE_BINARY_DIR@'
-lr_app = 'Logray.app'
+lr_app = 'Stratoshark.app'
 lr_readme = 'Read me first.html'
 lr_install_chmodbpf = 'Install ChmodBPF.pkg'
 lr_uninstall_chmodbpf = 'Uninstall ChmodBPF.pkg'
-lr_install_path_helper = 'Add Logray to the system path.pkg'
-lr_uninstall_path_helper = 'Remove Logray from the system path.pkg'
+lr_install_path_helper = 'Add Stratoshark to the system path.pkg'
+lr_uninstall_path_helper = 'Remove Stratoshark from the system path.pkg'
 
 # .. Basics ....................................................................
 
@@ -34,7 +34,7 @@ lr_uninstall_path_helper = 'Remove Logray from the system path.pkg'
 # filename = lr_volname + ' Intel 64.dmg'
 
 # Uncomment to override the output volume name
-# volume_name = 'Logray ' + lr_version
+# volume_name = 'Stratoshark ' + lr_version
 
 # From the hdiutil man page:
 # UDZO - UDIF zlib-compressed image
@@ -56,7 +56,7 @@ size = None
 # Files to include
 files = [
     os.path.join(lr_bindir, 'run', lr_app),
-    os.path.join(lr_bindir, 'packaging', 'macosx', 'logray', lr_readme),
+    os.path.join(lr_bindir, 'packaging', 'macosx', 'stratoshark', lr_readme),
 ]
 
 # Symlinks to create

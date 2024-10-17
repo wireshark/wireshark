@@ -102,7 +102,7 @@ There are two scripts available for macOS which will install the packages and li
 * `--install-dmg-deps` install packages required to build the .dmg file
 * `--install-sparkle-deps` install the Sparkle automatic updater
 * `--install-all` install everything
-* `--install-logray` install everything to compile Logray and falco bridge
+* `--install-stratoshark` install everything to compile Stratoshark and Falco bridge
 * `[other]` other options are passed as-is to brew
 
 `tools/macos-setup.sh` supports the following options:
@@ -257,7 +257,7 @@ https://appimage.org[AppImage] package::
   Build the `wireshark_appimage` target.
 
 macOS .dmg package containing an application bundle::
-  Build the `wireshark_dmg` or `logray_dmg` targets.
+  Build the `wireshark_dmg` or `stratoshark_dmg` targets.
 
 Installable packages typically require building Wireshark first.
 

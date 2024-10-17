@@ -1,4 +1,4 @@
-# This file was created by Logray. Edit with care.
+# This file was created by Stratoshark. Edit with care.
 @Failed Syscall@(evt.failed == True) && !(evt.res == "EAGAIN") && !(evt.res == "EALREADY")@[56797,28270,24158][0,0,0]
 @Falco Notifications@sysdig.event_name == "notification"@[0,0,0][65535,65535,65535]
 @Command Executions@evt.type == "execve"@[38807,57568,17990][0,0,0]

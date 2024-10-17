@@ -152,7 +152,7 @@ msgstr ""
 msgid ""
 "The falcodump external capture utility (extcap) can be installed in a way "
 "that allows members of the \"scap\" system group to capture system calls. "
-"This is recommended over the alternative of running Logray directly as root, "
+"This is recommended over the alternative of running Stratoshark directly as root, "
 "because less of the code will run with elevated privileges."
 msgstr ""
 
@@ -166,15 +166,15 @@ msgstr ""
 #. Description
 #: ../templates:8001
 msgid ""
-"The \"scap\" group does not exist, and creating it failed, so Logray cannot "
-"be configured to capture system calls as an unprivileged user."
+"The \"scap\" group does not exist, and creating it failed, so Stratoshark "
+"cannot be configured to capture system calls as an unprivileged user."
 msgstr ""
 
 #. Type: error
 #. Description
 #: ../templates:8001
 msgid ""
-"Please create the \"scap\" system group and try configuring logray again."
+"Please create the \"scap\" system group and try configuring stratoshark again."
 msgstr ""
 
 #. Type: error
@@ -195,6 +195,6 @@ msgstr ""
 #. Description
 #: ../templates:9001
 msgid ""
-"As a result, purging logray will not remove the \"scap\" group, but "
+"As a result, purging stratoshark will not remove the \"scap\" group, but "
 "everything else should work properly."
 msgstr ""

@@ -5,11 +5,11 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>English</string>
 	<key>CFBundleExecutable</key>
-	<string>Logray</string>
+	<string>Stratoshark</string>
 	<key>CFBundleIconFile</key>
 	<string>Stratoshark.icns</string>
 	<key>CFBundleIdentifier</key>
-	<string>org.wireshark.Logray</string>
+	<string>org.wireshark.Stratoshark</string>
 	<key>CFBundleDocumentTypes</key>
 	<array>
 		<dict>
@@ -51,7 +51,7 @@
 
 	<!-- Sparkle settings https://sparkle-project.org/documentation/customization/ -->
 	<key>SUFeedURL</key>
-	<string>https://www.wireshark.org/update/0/Logray/@LOG_PROJECT_MAJOR_VERSION@.@LOG_PROJECT_MINOR_VERSION@.@PROJECT_PATCH_VERSION@/macOS/x86-64/en-US/stable.xml</string>
+	<string>https://www.wireshark.org/update/0/Stratoshark/@LOG_PROJECT_MAJOR_VERSION@.@LOG_PROJECT_MINOR_VERSION@.@PROJECT_PATCH_VERSION@/macOS/x86-64/en-US/stable.xml</string>
 	<key>SUEnableAutomaticChecks</key>
 	<false/>
 	<key>SUPublicEDKey</key>

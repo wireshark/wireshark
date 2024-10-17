@@ -319,24 +319,24 @@ macro( ADD_NSIS_PACKAGE_TARGETS )
 		add_custom_command(OUTPUT ${_nsis_binary_dir}/stratoshark-qt-manifest.nsh
 			COMMAND set "PATH=${QT_BIN_PATH};%PATH%"
 			COMMAND ${POWERSHELL_COMMAND} "${_nsis_source_dir}/windeployqt-to-nsis.ps1"
-				-Executable $<TARGET_FILE:logray>
+				-Executable $<TARGET_FILE:stratoshark>
 				-FilePath ${_nsis_binary_dir}/stratoshark-qt-manifest.nsh
 				$<$<CONFIG:Debug>:-DebugConfig>
 			DEPENDS "${_nsis_source_dir}/windeployqt-to-nsis.ps1"
 		)
 
 		# Build NSIS package dependencies. We build the package in
-		# two stages so that logray_nsis below doesn't trigger
+		# two stages so that stratoshark_nsis below doesn't trigger
 		# any dependencies that might clobber any signed executables.
-		add_custom_target(logray_nsis_prep
+		add_custom_target(stratoshark_nsis_prep
 			DEPENDS
 				${STRATOSHARK_NSIS_FILES}
 				copy_data_files
 				user_guide_html
 				faq_html
-				${DATAFILE_DIR}/uninstall-logray.exe
+				${DATAFILE_DIR}/uninstall-stratoshark.exe
 		)
-		set_target_properties(logray_nsis_prep PROPERTIES
+		set_target_properties(stratoshark_nsis_prep PROPERTIES
 			FOLDER "Packaging"
 			EXCLUDE_FROM_DEFAULT_BUILD True
 		)
@@ -344,13 +344,13 @@ macro( ADD_NSIS_PACKAGE_TARGETS )
 		# Dump the installer into
 		# ${CMAKE_CURRENT_SOURCE_DIR}/packaging/nsis
 		# Note that executables and DLLs *must* be built separately
-		add_custom_target(logray_nsis
+		add_custom_target(stratoshark_nsis
 			COMMAND ${MAKENSIS_EXECUTABLE} ${NSIS_OPTIONS}
 				$<$<CONFIG:Debug>:-DBUNDLE_DEBUG_DLLS>
 				stratoshark.nsi
 			WORKING_DIRECTORY ${_nsis_source_dir}
 		)
-		set_target_properties(logray_nsis PROPERTIES
+		set_target_properties(stratoshark_nsis PROPERTIES
 			FOLDER "Packaging"
 			EXCLUDE_FROM_DEFAULT_BUILD True
 		)
@@ -363,8 +363,8 @@ set(CLEAN_FILES
 	wireshark-config.nsh
 	wireshark-manifest.nsh
 	wireshark-qt-manifest.nsh
-	${DATAFILE_DIR}/uninstall-logray.exe
-	logray-${VERSION}-${WIRESHARK_TARGET_PLATFORM}.exe
+	${DATAFILE_DIR}/uninstall-stratoshark.exe
+	stratoshark-${VERSION}-${WIRESHARK_TARGET_PLATFORM}.exe
 	stratoshark-config.nsh
 	stratoshark-manifest.nsh
 	stratoshark-qt-manifest.nsh

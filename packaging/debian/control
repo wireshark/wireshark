@@ -56,7 +56,7 @@ Build-Depends: asciidoctor,
                qt6-tools-dev,
                quilt,
                xsltproc,
-               libfalcosecurity0-dev <pkg.wireshark.logray>
+               libfalcosecurity0-dev <pkg.wireshark.stratoshark>
 Build-Conflicts: libsnmp4.2-dev, libsnmp-dev
 Vcs-Git: https://salsa.debian.org/debian/wireshark -b debian/master
 Vcs-Browser: https://salsa.debian.org/debian/wireshark.git
@@ -97,8 +97,8 @@ Description: network traffic analyzer - graphical interface
  here.
 
 # We override the binary version, so use the source version here.
-Package: logray
-Build-Profiles: <pkg.wireshark.logray>
+Package: stratoshark
+Build-Profiles: <pkg.wireshark.stratoshark>
 Architecture: any
 Depends: ${shlibs:Depends},
          ${misc:Depends},
@@ -107,7 +107,7 @@ Depends: ${shlibs:Depends},
          libqt6svg6
 # Recommends: libqt6multimedia6
 Description: system call and log analyzer - graphical interface
- Logray is a system call and log analyzer. It can capture and analyze
+ Stratoshark is a system call and log analyzer. It can capture and analyze
  system calls on Linux and capture and analyze log data from other sources.
 
 Package: tshark

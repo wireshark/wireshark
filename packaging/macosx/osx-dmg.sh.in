@@ -65,7 +65,7 @@ else
 	exit 1
 fi
 
-if [[ $app_name = Log* ]] ; then
+if [[ $app_name = Strato* ]] ; then
 	version=$log_version
 	app_settings_file="@CMAKE_BINARY_DIR@/packaging/macosx/stratoshark-app.dmgbuild"
 	dsym_settings_file="@CMAKE_BINARY_DIR@/packaging/macosx/stratoshark-dsym.dmgbuild"

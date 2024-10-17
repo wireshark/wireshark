@@ -12,18 +12,18 @@ set -e
 # Hopefully at some point we'll be able to switch to capabilities.
 # https://falco.org/docs/install-operate/running/#least-privileged
 
-# There's no corresponding logray.postrm script because the "scap" group
+# There's no corresponding stratoshark.postrm script because the "scap" group
 # might be shared with falcosecurity-scap-dkms, so we don't want to
 # remove it here.
 # Also, there are arguments against removing groups in general:
 # https://wiki.debian.org/AccountHandlingInMaintainerScripts
 
 . /usr/share/debconf/confmodule
-PROGRAM=$(dpkg-divert --truename /usr/lib/@DEB_HOST_MULTIARCH@/logray/extcap/falcodump)
+PROGRAM=$(dpkg-divert --truename /usr/lib/@DEB_HOST_MULTIARCH@/stratoshark/extcap/falcodump)
 GROUP=scap
 
 if ! dpkg-statoverride --list $PROGRAM > /dev/null; then
-    db_get logray/install-setuid
+    db_get stratoshark/install-setuid
     if [ -e "$PROGRAM" ]; then
         if [ "$RET" = "false" ] ; then
             chown root:root $PROGRAM
@@ -31,11 +31,11 @@ if ! dpkg-statoverride --list $PROGRAM > /dev/null; then
         else
             if ! addgroup --quiet --system $GROUP; then
                 if ! getent group $GROUP > /dev/null; then
-                    db_input high logray/addgroup-failed || true
+                    db_input high stratoshark/addgroup-failed || true
                     db_go
                     exit 1
                 else
-                    db_input high logray/group-is-user-group || true
+                    db_input high stratoshark/group-is-user-group || true
                     db_go
                 fi
             fi

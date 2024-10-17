@@ -821,7 +821,7 @@ static const std::string syscall_capture_filter(const struct syscall_configurati
         // If our parent is Stratoshark, exclude it and its direct children.
         std::ifstream pstat_stream("/proc/" + ppid + "/stat");
         pstat_stream >> _s >> comm;
-        if (comm == "(logray)") {
+        if (comm == "(stratoshark)") {
             // XXX Use proc.apid instead?
             process_filter = "proc.pid != " + ppid + " and proc.ppid != " + ppid;
         }

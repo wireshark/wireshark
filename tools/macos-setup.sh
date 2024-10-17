@@ -4146,11 +4146,11 @@ echo
 echo "mkdir build; cd build"
 if [ -n "$NINJA_VERSION" ]; then
     echo "cmake -G Ninja .."
-    echo "ninja wireshark_app_bundle logray_app_bundle # (Modify as needed)"
+    echo "ninja wireshark_app_bundle stratoshark_app_bundle # (Modify as needed)"
     echo "ninja install/strip"
 else
     echo "cmake .."
-    echo "make ${MAKE_BUILD_OPTS[*]} wireshark_app_bundle logray_app_bundle # (Modify as needed)"
+    echo "make ${MAKE_BUILD_OPTS[*]} wireshark_app_bundle stratoshark_app_bundle # (Modify as needed)"
     echo "make install/strip"
 fi
 echo

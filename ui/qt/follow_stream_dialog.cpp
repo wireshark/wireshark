@@ -192,9 +192,9 @@ void FollowStreamDialog::fillHintLabel(int pkt)
 {
     QString hint;
 
-    bool is_logray = strcmp(get_configuration_namespace(), "Logray") == 0;
+    bool is_stratoshark = strcmp(get_configuration_namespace(), "Stratoshark") == 0;
 
-    if (is_logray)  {
+    if (is_stratoshark)  {
         if (pkt > 0) {
             hint = QString(tr("Event %1. ")).arg(pkt);
         }
@@ -1094,9 +1094,9 @@ bool FollowStreamDialog::follow(QString previous_filter, bool use_stream_index, 
 
     removeTapListeners();
 
-    bool is_logray = strcmp(get_configuration_namespace(), "Logray") == 0;
+    bool is_stratoshark = strcmp(get_configuration_namespace(), "Stratoshark") == 0;
 
-    if (is_logray)  {
+    if (is_stratoshark)  {
         server_to_client_string =
                 tr("Read activity(%6)")
                 .arg(gchar_free_to_qstring(format_size(

@@ -69,9 +69,9 @@ enum configuration_namespace_e {
 };
 enum configuration_namespace_e configuration_namespace = CONFIGURATION_NAMESPACE_UNINITIALIZED;
 
-#define CONFIGURATION_NAMESPACE_PROPER (configuration_namespace == CONFIGURATION_NAMESPACE_WIRESHARK ? "Wireshark" : "Logray")
-#define CONFIGURATION_NAMESPACE_LOWER (configuration_namespace == CONFIGURATION_NAMESPACE_WIRESHARK ? "wireshark" : "logray")
-#define CONFIGURATION_ENVIRONMENT_VARIABLE(suffix) (configuration_namespace == CONFIGURATION_NAMESPACE_WIRESHARK ? "WIRESHARK_" suffix : "LOGRAY_" suffix)
+#define CONFIGURATION_NAMESPACE_PROPER (configuration_namespace == CONFIGURATION_NAMESPACE_WIRESHARK ? "Wireshark" : "Stratoshark")
+#define CONFIGURATION_NAMESPACE_LOWER (configuration_namespace == CONFIGURATION_NAMESPACE_WIRESHARK ? "wireshark" : "stratoshark")
+#define CONFIGURATION_ENVIRONMENT_VARIABLE(suffix) (configuration_namespace == CONFIGURATION_NAMESPACE_WIRESHARK ? "WIRESHARK_" suffix : "STRATOSHARK_" suffix)
 
 char *persconffile_dir;
 char *datafile_dir;
@@ -1064,7 +1064,7 @@ get_datafile_dir(void)
         /*
          * The user specified a different directory for data files
          * and we aren't running with special privileges.
-         * Let {WIRESHARK,LOGRAY}_DATA_DIR take precedence.
+         * Let {WIRESHARK,STRATOSHARK}_DATA_DIR take precedence.
          * XXX - We might be able to dispense with the priv check
          */
         datafile_dir = g_strdup(g_getenv(data_dir_envar));
@@ -1234,7 +1234,7 @@ init_plugin_dir(void)
         /*
          * The user specified a different directory for plugins
          * and we aren't running with special privileges.
-         * Let {WIRESHARK,LOGRAY}_PLUGIN_DIR take precedence.
+         * Let {WIRESHARK,STRATOSHARK}_PLUGIN_DIR take precedence.
          */
         plugin_dir = g_strdup(g_getenv(plugin_dir_envar));
     }
@@ -1626,7 +1626,7 @@ get_persconffile_dir_no_profile(void)
     const char *persconf_namespace = CONFIGURATION_NAMESPACE_PROPER;
     if (env != NULL) {
         /*
-         * Concatenate %APPDATA% with "\Wireshark" or "\Logray".
+         * Concatenate %APPDATA% with "\Wireshark" or "\Stratoshark".
          */
         persconffile_dir = g_build_filename(env, persconf_namespace, NULL);
         return persconffile_dir;
@@ -1687,7 +1687,7 @@ get_persconffile_dir_no_profile(void)
         }
     }
     path = g_build_filename(homedir,
-                            configuration_namespace == CONFIGURATION_NAMESPACE_WIRESHARK ? ".wireshark" : ".logray",
+                            configuration_namespace == CONFIGURATION_NAMESPACE_WIRESHARK ? ".wireshark" : ".stratoshark",
                             NULL);
     if (g_file_test(path, G_FILE_TEST_IS_DIR)) {
         g_free(xdg_path);

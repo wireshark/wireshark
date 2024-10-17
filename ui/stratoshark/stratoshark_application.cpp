@@ -20,8 +20,8 @@ StratosharkApplication::StratosharkApplication(int &argc, char **argv) :
 {
     ssApp = this;
     Q_INIT_RESOURCE(ssicon);
-    setApplicationName("Logray");
-    setDesktopFileName(QStringLiteral("org.wireshark.Logray"));
+    setApplicationName("Stratoshark");
+    setDesktopFileName(QStringLiteral("org.wireshark.Stratoshark"));
 }
 
 StratosharkApplication::~StratosharkApplication()
@@ -41,7 +41,7 @@ void StratosharkApplication::refreshLocalInterfaces()
     filter_list = g_list_append(filter_list, GUINT_TO_POINTER((unsigned) IF_EXTCAP));
 
     // We don't need to (re)start the stats (which calls dumpcap) because
-    // Logray only uses extcaps now. If that changes, do the below instead.
+    // Stratoshark only uses extcaps now. If that changes, do the below instead.
 #if 0
     emit scanLocalInterfaces(filter_list);
 #endif

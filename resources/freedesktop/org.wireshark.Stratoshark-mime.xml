@@ -24,13 +24,13 @@
 
 
     NOTE: if you do add a MIME type here, don't forget to add it to the list
-    of MIME types handled by Wireshark in org.wireshark.Logray.desktop.
+    of MIME types handled by Wireshark in org.wireshark.Stratoshark.desktop.
 -->
 
 <mime-info xmlns="http://www.freedesktop.org/standards/shared-mime-info">
   <mime-type type="application/x-scap">
     <comment>Sysdig Capture (scap)</comment>
-    <generic-icon name="org.wireshark.Logray-mimetype"/>
+    <generic-icon name="org.wireshark.Stratoshark-mimetype"/>
     <magic>
       <match type="big32"      offset="0" value="0x0a0d0d0a">
 	<match type="big32"    offset="8" value="0x1a2b3c4d"/>

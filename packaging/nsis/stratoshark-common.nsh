@@ -26,14 +26,14 @@ Name "${DISPLAY_NAME}"
 !define PROGRAM_FULL_NAME "The ${PROGRAM_NAME} System Call and Log Analyzer"
 !define PROGRAM_NAME_PATH "${PROGRAM_NAME}.exe"
 
-!define UNINSTALLER_NAME "uninstall-logray.exe"
+!define UNINSTALLER_NAME "uninstall-stratoshark.exe"
 
 VIAddVersionKey "ProductName" "${PROGRAM_NAME}"
 VIAddVersionKey "Comments" "My manta ray is all right."
 VIAddVersionKey "CompanyName" "${PROGRAM_NAME} development team"
 ; NSIS handles U+00a9 but not a UTF-8 encoded copyright symbol.
 VIAddVersionKey "LegalCopyright" "${U+00a9} Gerald Combs and many others"
-VIAddVersionKey "LegalTrademarks" "Logray and the 'ray' logo are registered trademarks"
+VIAddVersionKey "LegalTrademarks" "Stratoshark and the 'ray' logo are registered trademarks"
 VIAddVersionKey "FileDescription" "${PROGRAM_NAME} installer for Windows on ${WIRESHARK_TARGET_PLATFORM}"
 VIAddVersionKey "Language" "English"
 VIAddVersionKey "ProductVersion" "${PRODUCT_VERSION}"
@@ -88,8 +88,8 @@ Exec '"$SYSDIR\ie4uinit.exe" -ClearIconCache'
 ; probably don't want to grab JPEG or MP3 files.
 ; ============================================================================
 
-; Used to add associations between file extensions and Logray
-!define LOGRAY_ASSOC "logray-log-file"
+; Used to add associations between file extensions and Stratoshark
+!define STRATOSHARK_ASSOC "stratoshark-log-file"
 
 !define FILE_EXTENSION_MARKER "FILE_EXTENSION_MARKER"
 
@@ -98,8 +98,8 @@ Exec '"$SYSDIR\ie4uinit.exe" -ClearIconCache'
   Push ".scap"
 !macroend
 
-!macro IsLograyRunning
-; See if Logray is running
+!macro IsStratosharkRunning
+; See if Stratoshark is running
 ; https://nsis.sourceforge.io/Check_whether_your_application_is_running
 ${Do}
 

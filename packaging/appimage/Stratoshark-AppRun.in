@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # Custom AppRun entry point that allows symlinking multiple
-# executables, e.g. logray, tshark, dumpcap, editcap, etc.
+# executables, e.g. stratoshark, tshark, dumpcap, editcap, etc.
 
 # Adapted from
 # https://github.com/probonopd/ippsample/blob/feature/appimage/appimage/AppRun
@@ -14,16 +14,16 @@ export LD_LIBRARY_PATH="${APPDIR}/usr/lib:${LD_LIBRARY_PATH}"
 
 # We should probably set these relative to the program path in
 # wsutil/filesystem.c
-if [ -z "$LOGRAY_DATA_DIR" ] ; then
-    export LOGRAY_DATA_DIR="$APPDIR@CMAKE_INSTALL_PREFIX@/@CMAKE_INSTALL_DATADIR@/logray"
+if [ -z "$STRATOSHARK_DATA_DIR" ] ; then
+    export STRATOSHARK_DATA_DIR="$APPDIR@CMAKE_INSTALL_PREFIX@/@CMAKE_INSTALL_DATADIR@/stratoshark"
 fi
 
-if [ -z "$LOGRAY_EXTCAP_DIR" ] ; then
-    export LOGRAY_EXTCAP_DIR="$APPDIR@CMAKE_INSTALL_PREFIX@/@CMAKE_INSTALL_LIBDIR@/logray/extcap"
+if [ -z "$STRATOSHARK_EXTCAP_DIR" ] ; then
+    export STRATOSHARK_EXTCAP_DIR="$APPDIR@CMAKE_INSTALL_PREFIX@/@CMAKE_INSTALL_LIBDIR@/stratoshark/extcap"
 fi
 
-if [ -z "$LOGRAY_PLUGIN_DIR" ] ; then
-    export LOGRAY_PLUGIN_DIR="$APPDIR@CMAKE_INSTALL_PREFIX@/@CMAKE_INSTALL_LIBDIR@/logray/plugins"
+if [ -z "$STRATOSHARK_PLUGIN_DIR" ] ; then
+    export STRATOSHARK_PLUGIN_DIR="$APPDIR@CMAKE_INSTALL_PREFIX@/@CMAKE_INSTALL_LIBDIR@/stratoshark/plugins"
 fi
 
 # See if we were called by runtime.c, which sets APPIMAGE, ARGV0,
@@ -37,5 +37,5 @@ fi
 if [ -e "$HERE/usr/bin/$BINARY_NAME" ] ; then
     exec "$HERE/usr/bin/$BINARY_NAME" "$@"
 else
-    exec "$HERE/usr/bin/logray" "$@"
+    exec "$HERE/usr/bin/stratoshark" "$@"
 fi

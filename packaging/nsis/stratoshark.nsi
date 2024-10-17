@@ -55,7 +55,7 @@ Icon "${TOP_SRC_DIR}\resources\icons\stratosharkinst.ico"
 
 !define MUI_ICON "${TOP_SRC_DIR}\resources\icons\stratosharkinst.ico"
 !define MUI_UNICON "${TOP_SRC_DIR}\resources\icons\stratosharkinst.ico"
-BrandingText "Logray${U+00ae} Installer"
+BrandingText "Stratoshark${U+00ae} Installer"
 
 !define MUI_COMPONENTSPAGE_SMALLDESC
 !define MUI_FINISHPAGE_NOAUTOCLOSE
@@ -70,7 +70,7 @@ BrandingText "Logray${U+00ae} Installer"
 ; !define MUI_FINISHPAGE_SHOWREADME "$INSTDIR\NEWS.txt"
 ; !define MUI_FINISHPAGE_SHOWREADME_TEXT "Show News"
 ; !define MUI_FINISHPAGE_SHOWREADME_NOTCHECKED
-; NSIS runs as Administrator and will run Logray as Administrator
+; NSIS runs as Administrator and will run Stratoshark as Administrator
 ; if these are enabled.
 ;!define MUI_FINISHPAGE_RUN "$INSTDIR\${PROGRAM_NAME_PATH}"
 ;!define MUI_FINISHPAGE_RUN_NOTCHECKED
@@ -81,7 +81,7 @@ BrandingText "Logray${U+00ae} Installer"
 
 !insertmacro MUI_PAGE_WELCOME
 
-!define MUI_LICENSEPAGE_TEXT_TOP "Logray is distributed under the GNU General Public License."
+!define MUI_LICENSEPAGE_TEXT_TOP "Stratoshark is distributed under the GNU General Public License."
 !define MUI_LICENSEPAGE_TEXT_BOTTOM "This is not an end user license agreement (EULA). It is provided here for informational purposes only."
 !define MUI_LICENSEPAGE_BUTTON "Noted"
 !insertmacro MUI_PAGE_LICENSE "${STAGING_DIR}\COPYING.txt"
@@ -139,7 +139,7 @@ Page custom DisplayAdditionalTasksPage LeaveAdditionalTasksPage
   SetOutPath $INSTDIR
   File "${STAGING_DIR}\${EXTCAP_NAME}.html"
   SetOutPath $INSTDIR\extcap
-  File "${STAGING_DIR}\extcap\logray\${EXTCAP_NAME}.exe"
+  File "${STAGING_DIR}\extcap\stratoshark\${EXTCAP_NAME}.exe"
 
 !macroend
 
@@ -223,7 +223,7 @@ Function Associate
 
 Associate.doRegister:
     ;The extension is not associated to any program, we can do the link
-    WriteRegStr HKCR $EXTENSION "" ${LOGRAY_ASSOC}
+    WriteRegStr HKCR $EXTENSION "" ${STRATOSHARK_ASSOC}
     DetailPrint "Registered file type: $EXTENSION"
 
 Associate.end:
@@ -263,14 +263,14 @@ Function .onInit
   !if ${WIRESHARK_TARGET_PLATFORM} == "x64"
     ; http://forums.winamp.com/printthread.php?s=16ffcdd04a8c8d52bee90c0cae273ac5&threadid=262873
     ${IfNot} ${RunningX64}
-      MessageBox MB_OK "Logray only runs on 64-bit machines." /SD IDOK
+      MessageBox MB_OK "Stratoshark only runs on 64-bit machines." /SD IDOK
       Abort
     ${EndIf}
   !endif
 
   !if ${WIRESHARK_TARGET_PLATFORM} == "arm64"
     ${IfNot} ${IsNativeARM64}
-      MessageBox MB_OK "You're trying to install the Arm64 version of Logray on an x64 system.$\nTry the native x64 installer instead." /SD IDOK
+      MessageBox MB_OK "You're trying to install the Arm64 version of Stratoshark on an x64 system.$\nTry the native x64 installer instead." /SD IDOK
       Abort
     ${EndIf}
   !endif
@@ -290,7 +290,7 @@ ${OrIf} ${AtMostWin2012R2}
   Quit
 ${EndIf}
 
-!insertmacro IsLograyRunning
+!insertmacro IsStratosharkRunning
 
   ; Default control values.
   StrCpy $START_MENU_STATE ${BST_CHECKED}
@@ -366,7 +366,7 @@ check_wix:
       "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\$TMP_PRODUCT_GUID" \
       "DisplayName"
     ; MessageBox MB_OK|MB_ICONINFORMATION "Reading HKLM SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\$1 DisplayName = $2"
-    ; Look for "Logray".
+    ; Look for "Stratoshark".
     StrCmp $WIX_DISPLAYNAME "${PROGRAM_NAME}" wix_found wix_reg_enum_loop
 
     wix_found:
@@ -452,7 +452,7 @@ File "${STAGING_DIR}\README.txt"
 File "${STAGING_DIR}\wka"
 File "${STAGING_DIR}\pdml2html.xsl"
 File "${STAGING_DIR}\ws.css"
-;File "${STAGING_DIR}\logray.html"
+;File "${STAGING_DIR}\stratoshark.html"
 File "${STAGING_DIR}\wireshark-filter.html"
 File "${STAGING_DIR}\dumpcap.exe"
 File "${STAGING_DIR}\dumpcap.html"
@@ -494,9 +494,9 @@ Delete "$INSTDIR\${VCREDIST_EXE}"
 
 
 ; Global config files
-File "${TOP_SRC_DIR}\resources\share\logray\colorfilters"
-File "${TOP_SRC_DIR}\resources\share\logray\dfilter_buttons"
-;File "${TOP_SRC_DIR}\resources\share\logray\dfilters"
+File "${TOP_SRC_DIR}\resources\share\stratoshark\colorfilters"
+File "${TOP_SRC_DIR}\resources\share\stratoshark\dfilter_buttons"
+;File "${TOP_SRC_DIR}\resources\share\stratoshark\dfilters"
 File "${STAGING_DIR}\smi_modules"
 
 
@@ -848,7 +848,7 @@ WriteRegStr HKEY_LOCAL_MACHINE "${UNINSTALL_PATH}" "DisplayName" "${DISPLAY_NAME
 WriteRegStr HKEY_LOCAL_MACHINE "${UNINSTALL_PATH}" "DisplayVersion" "${VERSION}"
 WriteRegStr HKEY_LOCAL_MACHINE "${UNINSTALL_PATH}" "HelpLink" "https://ask.wireshark.org/"
 WriteRegStr HKEY_LOCAL_MACHINE "${UNINSTALL_PATH}" "InstallLocation" "$INSTDIR"
-WriteRegStr HKEY_LOCAL_MACHINE "${UNINSTALL_PATH}" "Publisher" "The Logray developer community, https://www.wireshark.org"
+WriteRegStr HKEY_LOCAL_MACHINE "${UNINSTALL_PATH}" "Publisher" "The Stratoshark developer community, https://www.wireshark.org"
 WriteRegStr HKEY_LOCAL_MACHINE "${UNINSTALL_PATH}" "URLInfoAbout" "https://www.wireshark.org"
 WriteRegStr HKEY_LOCAL_MACHINE "${UNINSTALL_PATH}" "URLUpdateInfo" "https://www.wireshark.org/download.html"
 
@@ -867,9 +867,9 @@ Delete "$SMPROGRAMS\${PROGRAM_NAME}\Wireshark Web Site.lnk"
 ; Create file extensions if the Associated Tasks page check box
 ; is checked.
 ${If} $FILE_ASSOCIATE_STATE == ${BST_CHECKED}
-WriteRegStr HKCR ${LOGRAY_ASSOC} "" "Logray log file"
-WriteRegStr HKCR "${LOGRAY_ASSOC}\Shell\open\command" "" '"$INSTDIR\${PROGRAM_NAME_PATH}" "%1"'
-WriteRegStr HKCR "${LOGRAY_ASSOC}\DefaultIcon" "" '"$INSTDIR\${PROGRAM_NAME_PATH}",1'
+WriteRegStr HKCR ${STRATOSHARK_ASSOC} "" "Stratoshark log file"
+WriteRegStr HKCR "${STRATOSHARK_ASSOC}\Shell\open\command" "" '"$INSTDIR\${PROGRAM_NAME_PATH}" "%1"'
+WriteRegStr HKCR "${STRATOSHARK_ASSOC}\DefaultIcon" "" '"$INSTDIR\${PROGRAM_NAME_PATH}",1'
 ; We refresh the icon cache down in -Finally.
 Call Associate
 ; If you add something here be sure to sync it with the uninstall section and the
@@ -879,9 +879,9 @@ ${Endif}
 SectionEnd ; "Required"
 
 !ifdef QT_DIR
-Section "${PROGRAM_NAME}" SecLograyQt
+Section "${PROGRAM_NAME}" SecStratosharkQt
 ;-------------------------------------------
-; by default, Logray.exe is installed
+; by default, Stratoshark.exe is installed
 SetOutPath $INSTDIR
 File "${QT_DIR}\${PROGRAM_NAME_PATH}"
 File /r "${QT_DIR}\translations"
@@ -899,7 +899,7 @@ ${If} $DESKTOP_ICON_STATE == ${BST_CHECKED}
   CreateShortCut "$DESKTOP\${PROGRAM_NAME}.lnk" "$INSTDIR\${PROGRAM_NAME_PATH}" "" "$INSTDIR\${PROGRAM_NAME_PATH}" 0 "" "" "${PROGRAM_FULL_NAME}"
 ${Endif}
 
-SectionEnd ; "SecLograyQt"
+SectionEnd ; "SecStratosharkQt"
 !endif
 
 
@@ -930,12 +930,12 @@ File "${STAGING_DIR}\plugins\${MAJOR_VERSION}.${MINOR_VERSION}\epan\mate.dll"
 ;-------------------------------------------
 ; This should be a function or macro
 SetOutPath '$INSTDIR\profiles\CloudTrail'
-File "${TOP_SRC_DIR}\resources\share\logray\profiles\CloudTrail\colorfilters"
-; File "${TOP_SRC_DIR}\resources\share\logray\profiles\CloudTrail\preferences"
+File "${TOP_SRC_DIR}\resources\share\stratoshark\profiles\CloudTrail\colorfilters"
+; File "${TOP_SRC_DIR}\resources\share\stratoshark\profiles\CloudTrail\preferences"
 ; SetOutPath '$INSTDIR\profiles\Classic'
-; File "${TOP_SRC_DIR}\resources\share\logray\profiles\Classic\colorfilters"
+; File "${TOP_SRC_DIR}\resources\share\stratoshark\profiles\Classic\colorfilters"
 ; SetOutPath '$INSTDIR\profiles\No Reassembly'
-; File "${TOP_SRC_DIR}\resources\share\logray\profiles\No Reassembly\preferences"
+; File "${TOP_SRC_DIR}\resources\share\stratoshark\profiles\No Reassembly\preferences"
 
 
 !ifdef SMI_DIR
@@ -1052,10 +1052,10 @@ Function un.Disassociate
   Pop $EXTENSION
   ${DoUntil} $EXTENSION == ${FILE_EXTENSION_MARKER}
     ReadRegStr $R0 HKCR $EXTENSION ""
-    StrCmp $R0 ${LOGRAY_ASSOC} un.Disassociate.doDeregister
+    StrCmp $R0 ${STRATOSHARK_ASSOC} un.Disassociate.doDeregister
     Goto un.Disassociate.end
 un.Disassociate.doDeregister:
-    ; The extension is associated with Logray so, we must destroy this!
+    ; The extension is associated with Stratoshark so, we must destroy this!
     DeleteRegKey HKCR $EXTENSION
     DetailPrint "Deregistered file type: $EXTENSION"
 un.Disassociate.end:
@@ -1079,7 +1079,7 @@ Section "Uninstall" un.SecUinstall
 SectionIn 1 2
 SetShellVarContext all
 
-!insertmacro IsLograyRunning
+!insertmacro IsStratosharkRunning
 
 Push "${EXECUTABLE_MARKER}"
 Push "${PROGRAM_NAME}"
@@ -1103,7 +1103,7 @@ Push "mmdbresolve"
 Pop $EXECUTABLE
 ${DoUntil} $EXECUTABLE == ${EXECUTABLE_MARKER}
 
-  ; IsLograyRunning should make sure everything is closed down so we *shouldn't* run
+  ; IsStratosharkRunning should make sure everything is closed down so we *shouldn't* run
   ; into any problems here.
   Delete "$INSTDIR\$EXECUTABLE.exe"
   IfErrors 0 deletionSuccess
@@ -1122,9 +1122,9 @@ DeleteRegKey HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\App P
 
 Call un.Disassociate
 
-DeleteRegKey HKCR ${LOGRAY_ASSOC}
-DeleteRegKey HKCR "${LOGRAY_ASSOC}\Shell\open\command"
-DeleteRegKey HKCR "${LOGRAY_ASSOC}\DefaultIcon"
+DeleteRegKey HKCR ${STRATOSHARK_ASSOC}
+DeleteRegKey HKCR "${STRATOSHARK_ASSOC}\Shell\open\command"
+DeleteRegKey HKCR "${STRATOSHARK_ASSOC}\DefaultIcon"
 
 Delete "$INSTDIR\*.dll"
 Delete "$INSTDIR\*.exe"
@@ -1264,8 +1264,8 @@ SectionEnd
 
 ; Sign our installer and uninstaller during compilation.
 !ifdef ENABLE_SIGNED_NSIS
-!finalize 'sign-logray.bat "%1"' = 0 ; %1 is replaced by the installer exe to be signed.
-!uninstfinalize 'sign-logray.bat "%1"' = 0 ; %1 is replaced by the uninstaller exe to be signed.
+!finalize 'sign-stratoshark.bat "%1"' = 0 ; %1 is replaced by the installer exe to be signed.
+!uninstfinalize 'sign-stratoshark.bat "%1"' = 0 ; %1 is replaced by the uninstaller exe to be signed.
 !endif
 
 ; ============================================================================
@@ -1273,7 +1273,7 @@ SectionEnd
 ; ============================================================================
 !insertmacro MUI_FUNCTION_DESCRIPTION_BEGIN
 !ifdef QT_DIR
-  !insertmacro MUI_DESCRIPTION_TEXT ${SecLograyQt} "The main syscall and log analyzer application."
+  !insertmacro MUI_DESCRIPTION_TEXT ${SecStratosharkQt} "The main syscall and log analyzer application."
 !endif
   !insertmacro MUI_DESCRIPTION_TEXT ${SecTShark} "Text based network protocol analyzer."
 
@@ -1307,7 +1307,7 @@ Function InitAdditionalTasksPage
   ${NSD_SetState} $hCtl_AdditionalTasksPage_AssociateExtensionsCheckBox $FILE_ASSOCIATE_STATE
 
   StrCpy $QT_SELECTED 0
-  ${If} ${SectionIsSelected} ${SecLograyQt}
+  ${If} ${SectionIsSelected} ${SecStratosharkQt}
     StrCpy $QT_SELECTED 1
   ${Endif}
   EnableWindow $hCtl_AdditionalTasksPage_CreateShortcutsLabel $QT_SELECTED

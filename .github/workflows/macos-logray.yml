@@ -1,4 +1,4 @@
-name: Build Logray macOS
+name: Build Stratoshark macOS
 
 on: [push]
 
@@ -19,7 +19,7 @@ jobs:
           go-version: '1.22.x'
           check-latest: true
       - name: Install deps
-        run: ./tools/macos-setup-brew.sh --install-optional --install-doc-deps --install-dmg-deps --install-test-deps --install-logray
+        run: ./tools/macos-setup-brew.sh --install-optional --install-doc-deps --install-dmg-deps --install-test-deps --install-stratoshark
         env:
           HOMEBREW_NO_AUTO_UPDATE: 1
       - name: Install dmgbuild
@@ -33,7 +33,7 @@ jobs:
         run: ninja
         working-directory: build
       - name: Create falco plugin dir
-        run: mkdir run/Logray.app/Contents/PlugIns/logray/falco
+        run: mkdir run/Stratoshark.app/Contents/PlugIns/stratoshark/falco
         working-directory: build
       - name: Build libcloudtrail
         shell: bash
@@ -43,7 +43,7 @@ jobs:
           tar xzf plugins-cloudtrail-${CLOUDTRAIL_VERSION?}.tar.gz
           cd plugins-cloudtrail-${CLOUDTRAIL_VERSION?}/plugins/cloudtrail
           make
-          cp libcloudtrail.so ../../../build/run/Logray.app/Contents/PlugIns/logray/falco/libcloudtrail.so
+          cp libcloudtrail.so ../../../build/run/Stratoshark.app/Contents/PlugIns/stratoshark/falco/libcloudtrail.so
       - name: Build libgcpaudit
         shell: bash
         run: |
@@ -52,9 +52,9 @@ jobs:
           tar xzf plugins-plugins-gcpaudit-v${GCPAUDIT_VERSION?}.tar.gz
           cd plugins-plugins-gcpaudit-v${GCPAUDIT_VERSION?}/plugins/gcpaudit
           make
-          cp libgcpaudit.so ../../../build/run/Logray.app/Contents/PlugIns/logray/falco/libgcpaudit.so
+          cp libgcpaudit.so ../../../build/run/Stratoshark.app/Contents/PlugIns/stratoshark/falco/libgcpaudit.so
       - name: Build dmg
-        run: ninja logray_dmg
+        run: ninja stratoshark_dmg
         working-directory: build
       - name: Upload dmg packages
         uses: actions/upload-artifact@v4

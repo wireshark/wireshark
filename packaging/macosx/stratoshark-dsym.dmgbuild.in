@@ -18,10 +18,10 @@ import os.path
 # .. Useful stuff ..............................................................
 
 lw_version = '@LOG_PROJECT_VERSION@'
-lw_volname = 'Logray Debugging Symbols' + lw_version
+lw_volname = 'Stratoshark Debugging Symbols' + lw_version
 lw_srcdir = '@CMAKE_SOURCE_DIR@'
 lw_bindir = '@CMAKE_BINARY_DIR@'
-lw_app_dsym = 'Logray.dSYM'
+lw_app_dsym = 'Stratoshark.dSYM'
 lw_readme_dsym = 'Debugging symbols installation.html'
 
 # .. Basics ....................................................................
@@ -30,7 +30,7 @@ lw_readme_dsym = 'Debugging symbols installation.html'
 # filename = lw_volname + ' Intel 64.dmg'
 
 # Uncomment to override the output volume name
-# volume_name = 'Logray ' + lw_version
+# volume_name = 'Stratoshark ' + lw_version
 
 # From the hdiutil man page:
 # UDZO - UDIF zlib-compressed image
@@ -53,7 +53,7 @@ size = None
 # Files to include
 files = [
     os.path.join(lw_bindir, 'run', lw_app_dsym),
-    os.path.join(lw_bindir, 'packaging', 'macosx', 'logray', lw_readme_dsym),
+    os.path.join(lw_bindir, 'packaging', 'macosx', 'stratoshark', lw_readme_dsym),
 ]
 
 # Symlinks to create
