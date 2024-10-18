@@ -680,7 +680,13 @@ wisun_add_wbxml_uint(tvbuff_t *tvb, proto_tree *tree, int hf, unsigned offset)
         val = (val << 7) | (b & 0x7f);
     } while (b & 0x80 && len < 2);
     proto_tree_add_uint(tree, hf, tvb, offset, len, val);
-    return len;
+    return val;
+}
+
+static unsigned
+wisun_vidlen(unsigned vid)
+{
+    return vid > 0x7f ? 2 : 1;
 }
 
 static void
@@ -830,8 +836,8 @@ dissect_wisun_rslie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, uns
 static int
 dissect_wisun_vhie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset)
 {
-    unsigned vidlen = wisun_add_wbxml_uint(tvb, tree, hf_wisun_vhie_vid, offset);
-    call_data_dissector(tvb_new_subset_remaining(tvb, offset + vidlen), pinfo, tree);
+    unsigned vid = wisun_add_wbxml_uint(tvb, tree, hf_wisun_vhie_vid, offset);
+    call_data_dissector(tvb_new_subset_remaining(tvb, offset + wisun_vidlen(vid)), pinfo, tree);
     return tvb_reported_length(tvb);
 }
 
@@ -1282,13 +1288,13 @@ dissect_wisun_vpie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void
 {
     proto_item *item;
     proto_tree *subtree;
-    unsigned vidlen;
+    unsigned vid;
 
     item = proto_tree_add_item(tree, hf_wisun_vpie, tvb, 0, tvb_reported_length(tvb), ENC_NA);
     subtree = proto_item_add_subtree(item, ett_wisun_vpie);
 
-    vidlen = wisun_add_wbxml_uint(tvb, subtree, hf_wisun_vpie_vid, 2);
-    call_data_dissector(tvb_new_subset_remaining(tvb, 2 + vidlen), pinfo, subtree);
+    vid = wisun_add_wbxml_uint(tvb, subtree, hf_wisun_vpie_vid, 2);
+    call_data_dissector(tvb_new_subset_remaining(tvb, 2 + wisun_vidlen(vid)), pinfo, subtree);
     return tvb_reported_length(tvb);
 }
 
