@@ -146,6 +146,15 @@ static dissector_table_t ip_dissector_table;
 #define IPSEC_ENCRYPT_AES_GCM_12  10
 #define IPSEC_ENCRYPT_AES_GCM_16  11
 
+/* Encryption algorithm defined in RFC 4106 & RFC 8750 */
+#define IPSEC_ENCRYPT_AES_GCM_16_IIV 12
+
+/* Encryption algorithm defined in RFC 7634 */
+#define IPSEC_ENCRYPT_CHACHA20_POLY1305 13
+
+/* Encryption algorithm defined in RFC 7634 & RFC 8750 */
+#define IPSEC_ENCRYPT_CHACHA20_POLY1305_IIV 14
+
 /* Authentication algorithms defined in RFC 4305 */
 #define IPSEC_AUTH_NULL 0
 #define IPSEC_AUTH_HMAC_SHA1_96 1
@@ -173,6 +182,7 @@ static dissector_table_t ip_dissector_table;
 #define IPSEC_STRLEN_IPV4 8
 #define IPSEC_SA_IPV4 1
 #define IPSEC_SA_IPV6 2
+#define IPSEC_SA_ANY 3
 #define IPSEC_SA_UNKNOWN -1
 #define IPSEC_SA_WILDCARDS_ANY '*'
 /* the maximum number of bytes (10)(including the terminating nul character(11)) */
@@ -212,6 +222,9 @@ static const value_string esp_encryption_type_vals[] = {
   { IPSEC_ENCRYPT_AES_GCM_8,  "AES-GCM with 8 octet ICV [RFC4106]" },
   { IPSEC_ENCRYPT_AES_GCM_12, "AES-GCM with 12 octet ICV [RFC4106]" },
   { IPSEC_ENCRYPT_AES_GCM_16, "AES-GCM with 16 octet ICV [RFC4106]" },
+  { IPSEC_ENCRYPT_AES_GCM_16_IIV, "AES-GCM with IIV and 16 octet ICV [RFC4106 & RFC8750]" },
+  { IPSEC_ENCRYPT_CHACHA20_POLY1305, "ChaCha20 with Poly1305 [RFC7634]" },
+  { IPSEC_ENCRYPT_CHACHA20_POLY1305_IIV, "ChaCha20 with Poly1305 and IIV [RFC7634 & RFC8750]" },
   { 0x00, NULL }
 };
 
@@ -1034,11 +1047,13 @@ filter_address_match(char *addr, char *filter, int typ)
           return false;
       if (!get_full_ipv4_addr(filter_hex, filter))
           return false;
-  } else {
+  } else if(typ == IPSEC_SA_IPV6) {
       if (get_full_ipv6_addr(addr_hex, addr))
           return false;
       if (get_full_ipv6_addr(filter_hex, filter))
           return false;
+  } else if(typ == IPSEC_SA_ANY) {
+      return true;
   }
 
   addr_len = (unsigned)strlen(addr_hex);
@@ -1175,9 +1190,9 @@ get_esp_sa(int protocol_typ, char *src,  char *dst,  unsigned spi,
       record = &uat_esp_sa_records[i++];
     }
 
-    if((protocol_typ == record->protocol)
-       && filter_address_match(src, record->srcIP, protocol_typ)
-       && filter_address_match(dst, record->dstIP, protocol_typ)
+    if((protocol_typ == record->protocol || record->protocol == IPSEC_SA_ANY)
+       && (filter_address_match(src, record->srcIP, protocol_typ) || record->protocol == IPSEC_SA_ANY)
+       && (filter_address_match(dst, record->dstIP, protocol_typ) || record->protocol == IPSEC_SA_ANY)
        && filter_spi_match(spi, record->spi))
     {
       found = true;
@@ -1505,6 +1520,7 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
   int auth_algo_libgcrypt = 0;
   char *esp_icv_expected = NULL; /* as readable hex string, for error messages */
   unsigned char ctr_block[16];
+  unsigned char nonce[12]; /* nonce for decrypting ChaCha20-Poly1305 */
 
 
   uint32_t sequence_number;
@@ -2043,6 +2059,86 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 
           break;
 
+        case IPSEC_ENCRYPT_AES_GCM_16_IIV:
+          esp_iv_len = 0; // Implicit IV - First Byte after SEQ is Data
+          esp_icv_len = 16; // ICV is 16 bytes long
+          crypt_mode_libgcrypt = GCRY_CIPHER_MODE_GCM;
+
+          /* The key includes a 4 byte nonce following the key, which is used as the salt */
+          esp_salt_len = 4;
+          esp_encr_key_len -= esp_salt_len;
+
+          switch(esp_encr_key_len * 8)
+          {
+          case 128:
+            crypt_algo_libgcrypt = GCRY_CIPHER_AES128;
+            decrypt_using_libgcrypt = true;
+            break;
+
+          case 192:
+            crypt_algo_libgcrypt = GCRY_CIPHER_AES192;
+            decrypt_using_libgcrypt = true;
+            break;
+
+          case 256:
+            crypt_algo_libgcrypt = GCRY_CIPHER_AES256;
+            decrypt_using_libgcrypt = true;
+            break;
+
+          default:
+            REPORT_DISSECTOR_BUG("<ESP Preferences> Error in Encryption Algorithm AES_GCM16: Bad Keylen (%u Bits)\n",
+                                 esp_encr_key_len * 8);
+            decrypt_ok = false;
+          }
+
+          break;
+
+        case IPSEC_ENCRYPT_CHACHA20_POLY1305:
+          esp_iv_len = 8; // IV is 8 byte long
+          esp_icv_len = 16; // AEAD Mode - ICV is Associated Data
+          crypt_algo_libgcrypt = GCRY_CIPHER_CHACHA20;
+          crypt_mode_libgcrypt = GCRY_CIPHER_MODE_POLY1305;
+          icv_type = ICV_TYPE_AEAD;
+          auth_algo_libgcrypt = GCRY_MAC_POLY1305;
+
+          /* The key includes a 4 byte nonce following the key, which is used as the salt */
+          esp_salt_len = 4;
+          esp_encr_key_len -= esp_salt_len;
+
+          if (esp_encr_key_len != gcry_cipher_get_algo_keylen (crypt_algo_libgcrypt))
+          {
+            REPORT_DISSECTOR_BUG("<ESP Preferences> Error in Encryption Algorithm CHACHA20_POLY1305: Bad Keylen (%u Bits, need %lu)\n",
+                                 esp_encr_key_len * 8, (unsigned long) gcry_cipher_get_algo_keylen (crypt_algo_libgcrypt) * 8);
+            decrypt_ok = false;
+          }
+          else
+            decrypt_using_libgcrypt = true;
+
+          break;
+
+        case IPSEC_ENCRYPT_CHACHA20_POLY1305_IIV:
+          esp_iv_len = 0; // Implicit IV - First Byte after SEQ is Data
+          esp_icv_len = 16; // AEAD Mode - ICV is Associated Data
+          crypt_algo_libgcrypt = GCRY_CIPHER_CHACHA20;
+          crypt_mode_libgcrypt = GCRY_CIPHER_MODE_POLY1305;
+          icv_type = ICV_TYPE_AEAD;
+          auth_algo_libgcrypt = GCRY_MAC_POLY1305;
+
+          /* The counter mode key includes a 4 byte nonce following the key, which is used as the salt */
+          esp_salt_len = 4;
+          esp_encr_key_len -= esp_salt_len;
+
+          if (esp_encr_key_len != gcry_cipher_get_algo_keylen (crypt_algo_libgcrypt))
+          {
+            REPORT_DISSECTOR_BUG("<ESP Preferences> Error in Encryption Algorithm CHACHA20_POLY1305_IIV: Bad Keylen (%u Bits, need %lu)\n",
+                                 esp_encr_key_len * 8, (unsigned long) gcry_cipher_get_algo_keylen (crypt_algo_libgcrypt) * 8);
+            decrypt_ok = false;
+          }
+          else
+            decrypt_using_libgcrypt = true;
+
+          break;
+
         case IPSEC_ENCRYPT_NULL :
         default :
           /* Fix parameters */
@@ -2189,6 +2285,29 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
               err = gcry_cipher_setiv(*cipher_hd, ctr_block, esp_salt_len + esp_iv_len);
             }
           }
+          else if (esp_encr_algo == IPSEC_ENCRYPT_CHACHA20_POLY1305_IIV || esp_encr_algo == IPSEC_ENCRYPT_AES_GCM_16_IIV)
+          {
+            // Implicit IV, see https://www.rfc-editor.org/rfc/rfc8750.html
+            unsigned int nonce_size = sizeof(nonce);
+            memset(nonce, 0, nonce_size);
+            memcpy(nonce, esp_encr_key + esp_encr_key_len, esp_salt_len);
+            nonce[8] = (sequence_number >> 24) & 0xff;
+            nonce[9] = (sequence_number >> 16) & 0xff;
+            nonce[10] = (sequence_number >> 8) & 0xff;
+            nonce[11] = sequence_number & 0xff;
+            err = gcry_cipher_setiv(*cipher_hd, nonce, 12);
+          }
+          else if (esp_encr_algo == IPSEC_ENCRYPT_CHACHA20_POLY1305)
+          {
+            // see https://www.rfc-editor.org/rfc/rfc7634.html
+            unsigned int nonce_size = sizeof(nonce);
+
+            memset(nonce, 0, nonce_size);
+            memcpy(nonce, esp_encr_key + esp_encr_key_len, esp_salt_len);
+            memcpy(nonce + esp_salt_len, esp_iv, esp_iv_len);
+
+            err = gcry_cipher_setiv(*cipher_hd, nonce, esp_salt_len + esp_iv_len);
+          }
           else
           {
             err = gcry_cipher_setiv(*cipher_hd, esp_iv, esp_iv_len);
@@ -2244,7 +2363,7 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
               unsigned char *esp_icv_computed;
               int tag_len;
 
-              tag_len = (int)gcry_cipher_get_algo_blklen(crypt_algo_libgcrypt);
+	      tag_len = (auth_algo_libgcrypt == GCRY_MAC_POLY1305) ? 16 : (int)gcry_cipher_get_algo_blklen(crypt_algo_libgcrypt);
 
               if (tag_len < esp_icv_len) {
                 fprintf (stderr, "<IPsec/ESP Dissector> Error in Algorithm %s, tag length (%d) is less than icv length (%d)\n",
@@ -2607,6 +2726,7 @@ proto_register_ipsec(void)
   static const value_string esp_proto_type_vals[] = {
     { IPSEC_SA_IPV4, "IPv4" },
     { IPSEC_SA_IPV6, "IPv6" },
+    { IPSEC_SA_ANY, "Any" },
     { 0x00, NULL }
   };
 
