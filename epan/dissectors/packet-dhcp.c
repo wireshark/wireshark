@@ -5243,6 +5243,30 @@ static const value_string option43_alcatel_app_type_vals[] = {
 	{ 0, NULL}
 };
 
+/* If an Alcatel-Lucent Option 43 suboption has a known fixed length,
+ * return that length. Returns 0 for variable length options and unknown
+ * options.
+ */
+static unsigned
+get_alcatel_suboption_len(unsigned subopt)
+{
+	switch(subopt) {
+	case 58:  /* 0x3A - Alcatel-Lucent AVA VLAN Id */
+		return 2;
+	case 64:  /* 0x40 - Alcatel-Lucent TFTP1 */
+		return 4;
+	case 65:  /* 0x41 - Alcatel-Lucent TFTP2 */
+		return 4;
+	case 66:  /* 0x42 - Alcatel-Lucent APPLICATION TYPE */
+		return 1;
+	case 0:   /* Alcatel-Lucent Padding */
+	case 67:  /* 0x43 - Alcatel-Lucent SIP URL */
+	case 255: /* Alcatel-Lucent End */
+	default:
+		return 0;
+	}
+}
+
 /* Look for 'encapsulated vendor-specific options' */
 static bool
 test_encapsulated_vendor_options(tvbuff_t *tvb, int optoff, int optend)
@@ -5265,6 +5289,19 @@ test_encapsulated_vendor_options(tvbuff_t *tvb, int optoff, int optend)
 		if (optoff >= optend)
 			return false;
 		subopt_len = tvb_get_uint8(tvb, optoff);
+
+		/* This part is Alcatel-Lucent specific. To handle other
+		 * (or generic) encapsulation options (e.g. NEC - #13953),
+		 * add a parameter.
+		 *
+		 * XXX - This rejects packets with non Alcatel lengths for
+		 * options. To accept them, we'd need a "Decode As Payload"
+		 * table to use instead of heuristics so a user could force
+		 * the decode.
+		 */
+		unsigned expected_subopt_len = get_alcatel_suboption_len(subopt);
+		if (expected_subopt_len && expected_subopt_len != subopt_len)
+			return false;
 		optoff++;
 
 		/* Check remaining room for suboption in option */
@@ -5318,37 +5355,23 @@ dissect_vendor_alcatel_suboption(packet_info *pinfo, proto_item *v_ti, proto_tre
 		return (optend);
 	}
 
+	unsigned subopt_len_expected = get_alcatel_suboption_len(subopt);
+	if (subopt_len_expected && subopt_len_expected != subopt_len) {
+		expert_add_info_format(pinfo, vti, &ei_dhcp_bad_length, "length isn't %u", subopt_len_expected);
+		return optend;
+	}
 	switch (subopt)
 	{
 	case 58: /* 0x3A - Alcatel-Lucent AVA VLAN Id */
-		if (subopt_len != 2) {
-			expert_add_info_format(pinfo, vti, &ei_dhcp_bad_length, "length isn't 2");
-			return (optend);
-		}
-
 		proto_tree_add_item(o43alcatel_v_tree, hf_dhcp_option43_alcatel_vlan_id, tvb, suboptoff, 2, ENC_BIG_ENDIAN);
 		break;
 	case 64: /* 0x40 - Alcatel-Lucent TFTP1 */
-		if (subopt_len != 4) {
-			expert_add_info_format(pinfo, vti, &ei_dhcp_bad_length, "length isn't 4");
-			return (optend);
-		}
-
 		proto_tree_add_item(o43alcatel_v_tree, hf_dhcp_option43_alcatel_tftp1, tvb, suboptoff, 4, ENC_BIG_ENDIAN);
 		break;
 	case 65: /* 0x41 - Alcatel-Lucent TFTP2 */
-		if (subopt_len != 4) {
-			expert_add_info_format(pinfo, vti, &ei_dhcp_bad_length, "length isn't 4");
-			return (optend);
-		}
-
 		proto_tree_add_item(o43alcatel_v_tree, hf_dhcp_option43_alcatel_tftp2, tvb, suboptoff, 4, ENC_BIG_ENDIAN);
 		break;
 	case 66: /* 0x42 - Alcatel-Lucent APPLICATION TYPE */
-		if (subopt_len != 1) {
-			expert_add_info_format(pinfo, vti, &ei_dhcp_bad_length, "length isn't 1");
-			return (optend);
-		}
 		proto_tree_add_item(o43alcatel_v_tree, hf_dhcp_option43_alcatel_app_type, tvb, suboptoff, 1, ENC_BIG_ENDIAN);
 		break;
 	case 67: /* 0x43 - Alcatel-Lucent SIP URL */
