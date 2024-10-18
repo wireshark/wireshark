@@ -1288,13 +1288,13 @@ dissect_eap_aka(proto_tree *eap_tree, tvbuff_t *tvb, packet_info* pinfo, int off
         proto_tree_add_item(attr_tree, hf_eap_aka_reserved, tvb, aoffset, 2, ENC_BIG_ENDIAN);
         aoffset += 2;
         aleft   -= 2;
-        proto_tree_add_item(attr_tree, hf_eap_aka_rand, tvb, aoffset, 2, ENC_NA);
+        proto_tree_add_item(attr_tree, hf_eap_aka_rand, tvb, aoffset, aleft, ENC_NA);
         break;
       case AT_AUTN:
         proto_tree_add_item(attr_tree, hf_eap_aka_reserved, tvb, aoffset, 2, ENC_BIG_ENDIAN);
         aoffset += 2;
         aleft   -= 2;
-        proto_tree_add_item(attr_tree, hf_eap_aka_autn, tvb, aoffset, 2, ENC_NA);
+        proto_tree_add_item(attr_tree, hf_eap_aka_autn, tvb, aoffset, aleft, ENC_NA);
         break;
       case AT_RES:
         proto_tree_add_item_ret_uint(attr_tree, hf_eap_aka_res_len, tvb, aoffset, 2, ENC_BIG_ENDIAN, &actual_length);
