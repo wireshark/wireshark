@@ -40,6 +40,9 @@ static dissector_handle_t eapol_handle;  // for the eapol relay
 
 static dissector_handle_t ieee802154_nofcs_handle;  // for Netricity Segment Control
 
+static dissector_table_t vhie_dissector_table;
+static dissector_table_t vpie_dissector_table;
+
 static reassembly_table netricity_reassembly_table;
 
 
@@ -837,7 +840,10 @@ static int
 dissect_wisun_vhie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset)
 {
     unsigned vid = wisun_add_wbxml_uint(tvb, tree, hf_wisun_vhie_vid, offset);
-    call_data_dissector(tvb_new_subset_remaining(tvb, offset + wisun_vidlen(vid)), pinfo, tree);
+    if (!dissector_try_uint(vhie_dissector_table, vid,
+                            tvb_new_subset_remaining(tvb, offset + wisun_vidlen(vid)),
+                            pinfo, tree))
+        call_data_dissector(tvb_new_subset_remaining(tvb, offset + wisun_vidlen(vid)), pinfo, tree);
     return tvb_reported_length(tvb);
 }
 
@@ -1294,7 +1300,10 @@ dissect_wisun_vpie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void
     subtree = proto_item_add_subtree(item, ett_wisun_vpie);
 
     vid = wisun_add_wbxml_uint(tvb, subtree, hf_wisun_vpie_vid, 2);
-    call_data_dissector(tvb_new_subset_remaining(tvb, 2 + wisun_vidlen(vid)), pinfo, subtree);
+    if (!dissector_try_uint(vpie_dissector_table, vid,
+                            tvb_new_subset_remaining(tvb, 2 + wisun_vidlen(vid)),
+                            pinfo, subtree))
+        call_data_dissector(tvb_new_subset_remaining(tvb, 2 + wisun_vidlen(vid)), pinfo, subtree);
     return tvb_reported_length(tvb);
 }
 
@@ -2792,6 +2801,11 @@ void proto_register_wisun(void)
 
     register_dissector("wisun.netricity.sc", dissect_wisun_netricity_sc, proto_wisun_netricity_sc);
     reassembly_table_register(&netricity_reassembly_table, &addresses_reassembly_table_functions);
+
+    vhie_dissector_table = register_dissector_table("wisun.vhie.vid", "Wi-SUN Vendor Header IEs",
+                                                    proto_wisun, FT_UINT16, BASE_DEC);
+    vpie_dissector_table = register_dissector_table("wisun.vpie.vid", "Wi-SUN Vendor Payload IEs",
+                                                    proto_wisun, FT_UINT16, BASE_DEC);
 }
 
 void proto_reg_handoff_wisun(void)
