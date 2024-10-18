@@ -678,7 +678,7 @@ wisun_add_wbxml_uint(tvbuff_t *tvb, proto_tree *tree, int hf, unsigned offset)
     do {
         b = tvb_get_uint8(tvb, offset + len++);
         val = (val << 7) | (b & 0x7f);
-    } while (b & 0x80);
+    } while (b & 0x80 && len < 2);
     proto_tree_add_uint(tree, hf, tvb, offset, len, val);
     return len;
 }
@@ -1906,7 +1906,7 @@ void proto_register_wisun(void)
         },
 
         { &hf_wisun_vhie_vid,
-          { "Vendor ID", "wisun.vhie.vid", FT_UINT32, BASE_DEC, NULL, 0x0,
+          { "Vendor ID", "wisun.vhie.vid", FT_UINT16, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
 
@@ -2297,7 +2297,7 @@ void proto_register_wisun(void)
         },
 
         { &hf_wisun_vpie_vid,
-          { "Vendor ID", "wisun.vpie.vid", FT_UINT32, BASE_DEC, NULL, 0x0,
+          { "Vendor ID", "wisun.vpie.vid", FT_UINT16, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
 
