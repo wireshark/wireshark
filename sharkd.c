@@ -47,7 +47,7 @@
 #include "wsutil/filter_files.h"
 #include "ui/tap_export_pdu.h"
 #include "ui/failure_message.h"
-#include "wtap.h"
+#include <wiretap/wtap.h>
 #include <epan/epan_dissect.h>
 #include <epan/tap.h>
 #include <epan/uat-int.h>
