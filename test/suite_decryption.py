@@ -83,6 +83,16 @@ class TestDecrypt80211:
         assert grep_output(stdout, 'DHCP Request')          # Verifies TK is correct
         assert grep_output(stdout, r'Echo \(ping\) request') # Verifies TK is correct
 
+    def test_80211_wpa2_psk_ccmp_tkip(self, cmd_tshark, capture_file, features, test_env):
+        '''IEEE 802.11 decode WPA2 PSK CCMP/TKIP'''
+        # Included in git sources test/captures/wpa2-psk-ccmp-tkip.pcapng.gz
+        stdout = subprocess.check_output((cmd_tshark,
+                '-o', 'wlan.enable_decryption: TRUE',
+                '-r', capture_file('wpa2-psk-ccmp-tkip.pcapng.gz'),
+                '-Y', 'wlan.analysis.tk == 79712dd69a793c86a04b51e6aab91690 || wlan.analysis.gtk == c72aa2501e3be7d774badbd3b6c2bbe9',
+                ), encoding='utf-8', env=test_env)
+        assert count_output(stdout, r'ICMP.*Echo \(ping\)') == 5 # Verify unicast and broadcast frame decryption
+
     def test_80211_wpa_tdls(self, cmd_tshark, capture_file, features, test_env):
         '''WPA decode traffic in a TDLS (Tunneled Direct-Link Setup) session (802.11z)'''
         # Included in git sources test/captures/wpa-test-decode-tdls.pcap.gz
