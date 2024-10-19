@@ -344,17 +344,17 @@ endpoint_to_interface(urb_info_t *urb)
 {
     switch (urb->endpoint)
     {
-    case 0x01: /* A OUT */
-    case 0x02: /* A IN */
+    case 0x81: /* A IN */
+    case 0x02: /* A OUT */
         return FTDI_INTERFACE_A;
-    case 0x03: /* B OUT */
-    case 0x04: /* B IN */
+    case 0x83: /* B IN */
+    case 0x04: /* B OUT */
         return FTDI_INTERFACE_B;
-    case 0x05: /* C OUT */
-    case 0x06: /* C IN */
+    case 0x85: /* C IN */
+    case 0x06: /* C OUT */
         return FTDI_INTERFACE_C;
-    case 0x07: /* D OUT */
-    case 0x08: /* D IN */
+    case 0x87: /* D IN */
+    case 0x08: /* D OUT */
         return FTDI_INTERFACE_D;
     default:
         return FTDI_INTERFACE_UNKNOWN;
