@@ -996,6 +996,11 @@ static void ext11_work_out_bundles(unsigned startPrbc,
              n < (settings->ext6_num_bits_set * settings->ext6_rbg_size) / numBundPrb;
              n++) {
 
+            /* Watch out for array bound */
+            if (n >= 28) {
+                break;
+            }
+
             /* For each bundle... */
 
             /* TODO: Work out where first PRB is */
