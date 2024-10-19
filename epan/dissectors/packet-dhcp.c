@@ -257,6 +257,7 @@ static int hf_dhcp_option_nis_domain;				/* 40 */
 static int hf_dhcp_option_nis_server;				/* 41 */
 static int hf_dhcp_option_ntp_server;				/* 42 */
 
+static int hf_dhcp_option43_suboption;					/* 43 unknown vendor suboption */
 static int hf_dhcp_option43_value;					/* 43 suboption value */
 static int hf_dhcp_option43_value_8;				/* 43 suboption value */
 static int hf_dhcp_option43_value_32;				/* 43 suboption value */
@@ -2195,16 +2196,116 @@ dissect_dhcpopt_static_route(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	return tvb_captured_length(tvb);
 }
 
+typedef unsigned(*test_option_len_t)(unsigned);
+
+/* Look for 'encapsulated vendor-specific options' */
+static bool
+test_encapsulated_vendor_options(tvbuff_t *tvb, int optoff, int optend, test_option_len_t test_len)
+{
+	uint8_t	subopt;
+	uint8_t	subopt_len;
+
+	while (optoff < optend) {
+		subopt = tvb_get_uint8(tvb, optoff);
+		optoff++;
+
+		/* Skip padding */
+		if (subopt == 0)
+			continue;
+		/* We are done, skip any remaining bytes */
+		if (subopt == 255)
+			break;
+
+		/* We expect a length byte next */
+		if (optoff >= optend)
+			return false;
+		subopt_len = tvb_get_uint8(tvb, optoff);
+
+		if (test_len) {
+			unsigned expected_subopt_len = test_len(subopt);
+			if (expected_subopt_len && expected_subopt_len != subopt_len)
+				return false;
+		}
+		optoff++;
+
+		/* Check remaining room for suboption in option */
+		if (optoff + subopt_len > optend)
+			return false;
+		optoff += subopt_len;
+	}
+	return true;
+}
+
+/* Note that Option 43 encapsulated vendor-specific options (RFC 2132 8.4)
+ * treat option 0 as padding and option 255 as end of suboptions, unlike
+ * Option 125 which does not treat them specially (RFC 3925 4).
+ */
+static int
+dissect_option43_generic_suboption(packet_info *pinfo, proto_item *v_ti, proto_tree *v_tree,
+				 tvbuff_t *tvb)
+{
+	unsigned    suboptoff = 0;
+	unsigned    optend = tvb_reported_length(tvb);
+	uint8_t	    subopt;
+	uint32_t	    subopt_len;
+	proto_item *item;
+	proto_tree *sub_tree;
+
+	item = proto_tree_add_item(v_tree, hf_dhcp_option43_suboption, tvb, suboptoff, 1, ENC_NA);
+	subopt = tvb_get_uint8(tvb, suboptoff);
+
+	suboptoff+=1;
+
+	if (subopt == 0) {
+		/* Padding */
+		return suboptoff;
+	}
+
+	if (subopt == 255) {
+		/* END */
+		/* XXX - Should there be expert info if there are more bytes? */
+		return optend;
+	}
+
+	if (suboptoff >= optend) {
+		expert_add_info_format(pinfo, v_ti, &ei_dhcp_missing_subopt_length,
+									"Suboption %d: no room left in option for suboption length", subopt);
+		return optend;
+	}
+
+	sub_tree = proto_item_add_subtree(item, ett_dhcp_option43_suboption);
+	proto_tree_add_item_ret_uint(sub_tree, hf_dhcp_suboption_length, tvb, suboptoff, 1, ENC_NA, &subopt_len);
+	suboptoff++;
+
+	if (suboptoff+subopt_len > optend) {
+		expert_add_info_format(pinfo, item, &ei_dhcp_missing_subopt_value,
+						"Suboption %d: no room left in option for suboption value", subopt);
+		return optend;
+	}
+
+	proto_tree_add_item(sub_tree, hf_dhcp_option43_value, tvb, suboptoff, subopt_len, ENC_NA);
+	suboptoff+= subopt_len;
+
+	return suboptoff;
+
+}
+
 static int
 dissect_dhcpopt_vendor_specific_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
 	heur_dtbl_entry_t *hdtbl_entry;
-	proto_tree *vendor_tree;
 
 	if (!dissector_try_heuristic(dhcp_vendor_info_subdissector, tvb, pinfo, tree, &hdtbl_entry, data)) {
-		/* Default Vendor-Specific Info.. display in bytes */
-		vendor_tree = proto_item_add_subtree(tree, ett_dhcp_option);
-		proto_tree_add_item(vendor_tree, hf_dhcp_option43_value, tvb, 0, tvb_reported_length(tvb), ENC_NA);
+		int offset = 0;
+		if (test_encapsulated_vendor_options(tvb, offset, tvb_reported_length(tvb), NULL)) {
+			/* Generic encapsulated options per RFC 2132 8.4 */
+			while (tvb_reported_length_remaining(tvb, offset)) {
+				offset = dissect_option43_generic_suboption(pinfo, proto_tree_get_parent(tree), tree, tvb_new_subset_remaining(tvb, offset));
+			}
+		} else {
+			/* Default Vendor-Specific Info.. display in bytes */
+			proto_tree_add_item(tree, hf_dhcp_option43_value, tvb, offset, tvb_reported_length(tvb), ENC_NA);
+		}
 	}
 
 	return tvb_captured_length(tvb);
@@ -5267,51 +5368,6 @@ get_alcatel_suboption_len(unsigned subopt)
 	}
 }
 
-/* Look for 'encapsulated vendor-specific options' */
-static bool
-test_encapsulated_vendor_options(tvbuff_t *tvb, int optoff, int optend)
-{
-	uint8_t	subopt;
-	uint8_t	subopt_len;
-
-	while (optoff < optend) {
-		subopt = tvb_get_uint8(tvb, optoff);
-		optoff++;
-
-		/* Skip padding */
-		if (subopt == 0)
-			continue;
-		/* We are done, skip any remaining bytes */
-		if (subopt == 255)
-			break;
-
-		/* We expect a length byte next */
-		if (optoff >= optend)
-			return false;
-		subopt_len = tvb_get_uint8(tvb, optoff);
-
-		/* This part is Alcatel-Lucent specific. To handle other
-		 * (or generic) encapsulation options (e.g. NEC - #13953),
-		 * add a parameter.
-		 *
-		 * XXX - This rejects packets with non Alcatel lengths for
-		 * options. To accept them, we'd need a "Decode As Payload"
-		 * table to use instead of heuristics so a user could force
-		 * the decode.
-		 */
-		unsigned expected_subopt_len = get_alcatel_suboption_len(subopt);
-		if (expected_subopt_len && expected_subopt_len != subopt_len)
-			return false;
-		optoff++;
-
-		/* Check remaining room for suboption in option */
-		if (optoff + subopt_len > optend)
-			return false;
-		optoff += subopt_len;
-	}
-	return true;
-}
-
 static int
 dissect_vendor_alcatel_suboption(packet_info *pinfo, proto_item *v_ti, proto_tree *v_tree,
 				 tvbuff_t *tvb, int optoff, int optend)
@@ -5399,7 +5455,7 @@ dissect_alcatel_lucent_vendor_info_heur( tvbuff_t *tvb, packet_info *pinfo, prot
 	s_option = tvb_get_uint8(tvb, offset);
 	if ((s_option==58 || s_option==64 || s_option==65
 		|| s_option==66 || s_option==67)
-		&& test_encapsulated_vendor_options(tvb, offset, tvb_reported_length(tvb))) {
+		&& test_encapsulated_vendor_options(tvb, offset, tvb_reported_length(tvb), get_alcatel_suboption_len)) {
 
 		/* Alcatel-Lucent DHCP Extensions */
 		proto_item_append_text(tree, " (Alcatel-Lucent)");
@@ -8390,6 +8446,10 @@ proto_register_dhcp(void)
 		    FT_IPv4, BASE_NONE, NULL, 0x00,
 		    "Option 42: Network Time Protocol Server", HFILL }},
 
+		{ &hf_dhcp_option43_suboption,
+		  { "Option 43 Suboption", "dhcp.option.vendor.suboption",
+		    FT_UINT8, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }},
 
 		{ &hf_dhcp_option43_value,
 		  { "Value", "dhcp.option.vendor.value",
