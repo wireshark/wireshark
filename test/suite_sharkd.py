@@ -1447,8 +1447,13 @@ class TestSharkd:
             },
         ), (
             {"jsonrpc":"2.0","id":1,"result":{"status":"OK"}},
+            # There are two used CLIENT RANDOM secrets, we don't know
+            # the order they will appear when iterating a hash table,
+            # and it can be different on Big-Endian systems than L-E.
+            # Check the Base64 for both "CLIENT_RANDOM f67a" and
+            # "CLIENT_RANDOM 1e0d".
             {"jsonrpc":"2.0","id":2,"result":{"file": "keylog.txt", "mime": "text/plain",
-                "data": MatchRegExp(r'Q0xJRU5UX1JBTkRPTSBm.+')}
+                "data": MatchRegExp(r'Q0xJRU5UX1JBTkRP(TSBmNjdh|TSAxZTBk).+')}
             },
         ))
 
