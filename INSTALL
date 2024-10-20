@@ -18,7 +18,7 @@ https://www.wireshark.org/docs/ for those.
    installed.  Then try running 'pkg-config Qt6Widgets --modversion'
    to see if you have Qt 6 installed.  If not, then try running
    'pkg-config Qt5Widgets --modversion' to see if you have Qt 5.
-   Wireshark requires Qt 5.12 or later, but the most recent LTS release
+   Wireshark requires Qt 5.15 or later, but the most recent LTS release
    is strongly recommended.  Building against Qt 5 will require the
    CMake option '-DUSE_qt6=OFF'.  Wireshark requires version 2.54.0 or
    above of GLib.  If you need to install or re-install GLib, you can

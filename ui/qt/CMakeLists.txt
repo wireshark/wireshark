@@ -721,34 +721,18 @@ add_custom_command(
 # Use the number of dashes for each argument as documented at
 # https://doc.qt.io/qt-6/rcc.html.
 set(CMAKE_AUTORCC_OPTIONS --format-version 1)
-if(Qt${qtver}Widgets_VERSION VERSION_GREATER_EQUAL "5.13")
-	list(APPEND CMAKE_AUTORCC_OPTIONS -compress-algo zlib)
-endif()
+list(APPEND CMAKE_AUTORCC_OPTIONS -compress-algo zlib)
 
-if(Qt${qtver}Widgets_VERSION VERSION_GREATER_EQUAL "5.15")
-	qt_add_resources(WIRESHARK_QT_QRC
-		../../resources/about.qrc
-		../../resources/languages/languages.qrc
-		../../resources/layout.qrc
-		../../resources/stock_icons.qrc
-		../../resources/wsicon.qrc
-		${CMAKE_CURRENT_BINARY_DIR}/i18n.qrc
-		${CMAKE_CURRENT_BINARY_DIR}/authors.qrc
-		OPTIONS ${CMAKE_AUTORCC_OPTIONS}
-	)
-else()
-	# The unversions qt_add_resources was added in Qt 5.15
-	qt5_add_resources(WIRESHARK_QT_QRC
-		../../resources/about.qrc
-		../../resources/languages/languages.qrc
-		../../resources/layout.qrc
-		../../resources/stock_icons.qrc
-		../../resources/wsicon.qrc
-		${CMAKE_CURRENT_BINARY_DIR}/i18n.qrc
-		${CMAKE_CURRENT_BINARY_DIR}/authors.qrc
-		OPTIONS ${CMAKE_AUTORCC_OPTIONS}
-	)
-endif()
+qt_add_resources(WIRESHARK_QT_QRC
+	../../resources/about.qrc
+	../../resources/languages/languages.qrc
+	../../resources/layout.qrc
+	../../resources/stock_icons.qrc
+	../../resources/wsicon.qrc
+	${CMAKE_CURRENT_BINARY_DIR}/i18n.qrc
+	${CMAKE_CURRENT_BINARY_DIR}/authors.qrc
+	OPTIONS ${CMAKE_AUTORCC_OPTIONS}
+)
 
 if (USE_qt6)
 	QT6_ADD_TRANSLATION(WIRESHARK_QT_QM ${WIRESHARK_QT_TS} OPTIONS -silent)

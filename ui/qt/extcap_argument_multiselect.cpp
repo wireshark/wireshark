@@ -115,11 +115,7 @@ QWidget * ExtArgMultiSelect::createEditor(QWidget * parent)
     /* Value can be empty if no items are checked */
     if (_argument->pref_valptr && (*_argument->pref_valptr))
     {
-#if QT_VERSION >= QT_VERSION_CHECK(5, 15, 0)
         checked = QString(*_argument->pref_valptr).split(",", Qt::SkipEmptyParts);
-#else
-        checked = QString(*_argument->pref_valptr).split(",", QString::SkipEmptyParts);
-#endif
     }
 
     viewModel = new QStandardItemModel();
@@ -219,11 +215,7 @@ void ExtArgMultiSelect::setDefaultValue()
 {
     QStringList checked;
 
-#if QT_VERSION >= QT_VERSION_CHECK(5, 15, 0)
     checked = defaultValue().split(",", Qt::SkipEmptyParts);
-#else
-    checked = defaultValue().split(",", QString::SkipEmptyParts);
-#endif
     for (int row = 0; row < viewModel->rowCount(); row++)
         checkItemsWalker(((QStandardItemModel*)viewModel)->item(row), checked);
 }

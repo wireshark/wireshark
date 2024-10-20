@@ -376,19 +376,16 @@ macos_enable_layer_backing(void)
 {
     // At the time of this writing, the QTBUG-87014 for layerEnabledByMacOS is...
     //
-    // ...in https://github.com/qt/qtbase/blob/5.12/src/plugins/platforms/cocoa/qnsview_drawing.mm
-    // ...not in https://github.com/qt/qtbase/blob/5.12.10/src/plugins/platforms/cocoa/qnsview_drawing.mm
     // ...in https://github.com/qt/qtbase/blob/5.15/src/plugins/platforms/cocoa/qnsview_drawing.mm
     // ...not in https://github.com/qt/qtbase/blob/5.15.2/src/plugins/platforms/cocoa/qnsview_drawing.mm
     // ...not in https://github.com/qt/qtbase/blob/6.0/src/plugins/platforms/cocoa/qnsview_drawing.mm
     // ...not in https://github.com/qt/qtbase/blob/6.0.0/src/plugins/platforms/cocoa/qnsview_drawing.mm
     //
-    // We'll assume that it will be fixed in 5.12.11, 5.15.3, and 6.0.1.
+    // We'll assume that it will be fixed in 5.15.3, 6.0.1, and >= 6.1
     // Note that we only ship LTS versions of Qt with our macOS packages.
     // Feel free to add other versions if needed.
 #if  \
-        (QT_VERSION >= QT_VERSION_CHECK(5, 12, 0) && QT_VERSION < QT_VERSION_CHECK(5, 12, 11) \
-        || (QT_VERSION >= QT_VERSION_CHECK(5, 15, 0) &&  QT_VERSION < QT_VERSION_CHECK(5, 15, 3)) \
+        ((QT_VERSION >= QT_VERSION_CHECK(5, 15, 0) &&  QT_VERSION < QT_VERSION_CHECK(5, 15, 3)) \
         || (QT_VERSION >= QT_VERSION_CHECK(6, 0, 0) &&  QT_VERSION < QT_VERSION_CHECK(6, 0, 1)) \
     )
     QOperatingSystemVersion os_ver = QOperatingSystemVersion::current();
@@ -662,7 +659,7 @@ int main(int argc, char *qt_argv[])
     // This function must be called before creating the application object.
     // Qt::HighDpiScaleFactorRoundingPolicy::PassThrough is the default in Qt6,
     // so this doesn't have any effect (Round is the default in 5.14 & 5.15)
-#if QT_VERSION >= QT_VERSION_CHECK(5, 14, 0) && defined(Q_OS_WIN)
+#if defined(Q_OS_WIN)
     QGuiApplication::setHighDpiScaleFactorRoundingPolicy(Qt::HighDpiScaleFactorRoundingPolicy::PassThrough);
 #endif
 

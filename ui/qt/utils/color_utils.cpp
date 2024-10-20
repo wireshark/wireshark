@@ -182,25 +182,8 @@ void ColorUtils::setScheme(int)
 }
 #endif
 
-// Qt < 5.12.6 on macOS always uses Qt::blue for the link color, which is
-// unreadable when using a dark theme. Changing the application palette
-// via ...Application::setPalette is problematic, since QGuiApplication
-// sets a flag (ApplicationPaletteExplicitlySet) which keeps us from
-// catching theme changes.
-//
-// themeLinkBrush and themeLinkStyle provide convenience routines for
-// fetching the link brush and style.
-//
-// We could also override MainApplication::palette, but keeping the
-// routines together here seemed to make more sense.
 QBrush ColorUtils::themeLinkBrush()
 {
-#if QT_VERSION < QT_VERSION_CHECK(5, 12, 6)
-    // https://bugreports.qt.io/browse/QTBUG-71740
-    if (themeIsDark()) {
-        return QBrush(tango_sky_blue_2);
-    }
-#endif
     return qApp->palette().link();
 }
 

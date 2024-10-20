@@ -420,11 +420,7 @@ void WirelessTimeline::wheelEvent(QWheelEvent *event)
         zoom_level += steps;
         if (zoom_level < 0) zoom_level = 0;
         if (zoom_level > TIMELINE_MAX_ZOOM) zoom_level = TIMELINE_MAX_ZOOM;
-#if QT_VERSION >= QT_VERSION_CHECK(5, 15, 0)
         zoom(event->position().x() / width());
-#else
-        zoom(event->posF().x() / width());
-#endif
     }
 }
 

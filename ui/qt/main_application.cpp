@@ -100,9 +100,7 @@
 #endif
 #include <QMimeDatabase>
 
-#if QT_VERSION >= QT_VERSION_CHECK(5, 13, 0)
 #include <QStyleHints>
-#endif
 
 #if QT_VERSION >= QT_VERSION_CHECK(6, 5, 0) && defined(Q_OS_WIN)
 #include <QStyleFactory>
@@ -693,9 +691,7 @@ MainApplication::MainApplication(int &argc,  char **argv) :
     // Throw various settings at the wall with the hope that one of them will
     // enable context menu shortcuts QTBUG-69452, QTBUG-109590
     setAttribute(Qt::AA_DontShowShortcutsInContextMenus, false);
-#if QT_VERSION >= QT_VERSION_CHECK(5, 13, 0)
     styleHints()->setShowShortcutsInContextMenus(true);
-#endif
 
     //
     // XXX - this means we try to check for the existence of all files

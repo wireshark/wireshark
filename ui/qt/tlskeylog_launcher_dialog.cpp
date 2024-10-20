@@ -86,54 +86,6 @@ void TLSKeylogDialog::on_saveActivated()
     prefs_main_write();
 }
 
-#if (QT_VERSION < QT_VERSION_CHECK(5, 15, 0))
-// Splits the string \a command into a list of tokens, and returns the list.
-//
-// Tokens with spaces can be surrounded by double quotes; three
-// consecutive double quotes represent the quote character itself.
-//
-// Copied from Qt 5.15.2
-static QStringList splitCommand(QStringView command)
-{
-    QStringList args;
-    QString tmp;
-    int quoteCount = 0;
-    bool inQuote = false;
-
-    // handle quoting. tokens can be surrounded by double quotes
-    // "hello world". three consecutive double quotes represent
-    // the quote character itself.
-    for (int i = 0; i < command.size(); ++i) {
-        if (command.at(i) == QLatin1Char('"')) {
-            ++quoteCount;
-            if (quoteCount == 3) {
-                // third consecutive quote
-                quoteCount = 0;
-                tmp += command.at(i);
-            }
-            continue;
-        }
-        if (quoteCount) {
-            if (quoteCount == 1)
-                inQuote = !inQuote;
-            quoteCount = 0;
-        }
-        if (!inQuote && command.at(i).isSpace()) {
-            if (!tmp.isEmpty()) {
-                args += tmp;
-                tmp.clear();
-            }
-        } else {
-            tmp += command.at(i);
-        }
-    }
-    if (!tmp.isEmpty())
-        args += tmp;
-
-    return args;
-}
-#endif
-
 void TLSKeylogDialog::on_launchActivated()
 {
     QProcess externalProcess;
@@ -145,11 +97,7 @@ void TLSKeylogDialog::on_launchActivated()
     QString command = ui->commandLineEdit->text();
     if (command.isEmpty())
         return;
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 15, 0))
     QStringList commandArgs = QProcess::splitCommand(command);
-#else
-    QStringList commandArgs = splitCommand(command);
-#endif
     if (commandArgs.isEmpty())
         return;
 

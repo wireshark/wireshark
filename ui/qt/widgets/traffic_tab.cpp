@@ -496,11 +496,7 @@ TrafficTab::writeGeoIPMapFile(QFile * fp, bool json_only, TrafficDataFilterProxy
         QTextStream in(&ipmap);
         QString line;
         while (in.readLineInto(&line)) {
-#if QT_VERSION >= QT_VERSION_CHECK(5, 14, 0)
             out << line << Qt::endl;
-#else
-            out << line << endl;
-#endif
         }
 
         out << QString("<script id=\"ipmap-data\" type=\"application/json\">\n");

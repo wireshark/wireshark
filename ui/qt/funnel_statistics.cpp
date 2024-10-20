@@ -142,11 +142,7 @@ void FunnelAction::setPacketRequiredFields(const char *required_fields_str) {
     // Also remove leading and trailing spaces, in case someone writes
     // "http, dns" instead of "http,dns"
     QString requiredFieldsJoined = QString(required_fields_str);
-#if QT_VERSION >= QT_VERSION_CHECK(5, 15, 0)
     QStringList requiredFieldsSplit = requiredFieldsJoined.split(",", Qt::SkipEmptyParts);
-#else
-    QStringList requiredFieldsSplit = requiredFieldsJoined.split(",", QString::SkipEmptyParts);
-#endif
     foreach (QString requiredField, requiredFieldsSplit) {
         QString trimmedFieldName = requiredField.trimmed();
         if (! trimmedFieldName.isEmpty()) {

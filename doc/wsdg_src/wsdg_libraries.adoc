@@ -47,7 +47,7 @@ You may also set the library directory to a custom value with the environment va
 === Qt
 
 The Qt library is used to build the UI for Wireshark and is used to provide a platform independent UI.
-Wireshark can be built with Qt 5.12 or later, but Qt 6 is the default and recommended version.
+Wireshark can be built with Qt 5.15 or later, but Qt 6 is the default and recommended version.
 
 To enable builds with Qt 5, the command-line option `-DUSE_qt6=OFF` has to be set for CMake.
 

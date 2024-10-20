@@ -1617,11 +1617,7 @@ void StratosharkMainWindow::addStatsPluginsToMenu() {
 
             parent_menu = main_ui_->menuStatistics;
             // gtk/main_menubar.c compresses double slashes, hence SkipEmptyParts
-#if QT_VERSION >= QT_VERSION_CHECK(5, 15, 0)
             QStringList cfg_name_parts = QString(cfg->path).split(STATS_TREE_MENU_SEPARATOR, Qt::SkipEmptyParts);
-#else
-            QStringList cfg_name_parts = QString(cfg->path).split(STATS_TREE_MENU_SEPARATOR, QString::SkipEmptyParts);
-#endif
             if (cfg_name_parts.isEmpty()) continue;
 
             QString stat_name = cfg_name_parts.takeLast().trimmed();
