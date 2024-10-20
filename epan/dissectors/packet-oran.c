@@ -379,6 +379,7 @@ static expert_field ei_oran_udpcomphdr_should_be_zero;
 static expert_field ei_oran_radio_fragmentation_c_plane;
 static expert_field ei_oran_radio_fragmentation_u_plane;
 static expert_field ei_oran_lastRbdid_out_of_range;
+static expert_field ei_oran_rbgMask_beyond_last_rbdid;
 
 
 /* These are the message types handled by this dissector */
@@ -927,6 +928,7 @@ typedef struct {
 
     uint8_t  ext6_num_bits_set;
     uint8_t  ext6_bits_set[28];  /* Which bit position this entry has */
+    /* TODO: store an f value for each bit position? */
 
     /* Ext 12 config */
     bool     ext12_set;
@@ -948,13 +950,13 @@ typedef struct {
     bool     ext21_set;
     uint8_t  ext21_ci_prb_group_size;
 
-    /* Results (after calling ext11_work_out_bundles()) */
+    /* Results/settings (after calling ext11_work_out_bundles()) */
     uint32_t num_bundles;
 #define MAX_BFW_BUNDLES 512
     struct {
         uint32_t start;      /* first prb of bundle */
         uint32_t end;        /* last prb of bundle*/
-        bool     is_orphan;  /* true if not complete (i.e., < numBundPrb) */
+        bool     is_orphan;  /* true if not complete (i.e., end-start < numBundPrb) */
     } bundles[MAX_BFW_BUNDLES];
 } ext11_settings_t;
 
@@ -964,7 +966,6 @@ typedef struct {
 static void ext11_work_out_bundles(unsigned startPrbc,
                                    unsigned numPrbc,
                                    unsigned numBundPrb,             /* number of PRBs pre (full) bundle */
-                                   bool rad _U_,
                                    ext11_settings_t *settings)
 {
     /* Allocation configured by ext 6 */
@@ -2403,7 +2404,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
 
                 /* repetition */
                 proto_tree_add_bits_item(extension_tree, hf_oran_repetition, tvb, offset*8, 1, ENC_BIG_ENDIAN);
-                /* rbgSize */
+                /* rbgSize (PRBs per bit set in rbgMask) */
                 uint32_t rbgSize;
                 proto_item *rbg_size_ti;
                 rbg_size_ti = proto_tree_add_item_ret_uint(extension_tree, hf_oran_rbgSize, tvb, offset, 1, ENC_BIG_ENDIAN, &rbgSize);
@@ -2448,23 +2449,52 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                         ext11_settings.ext6_rbg_size = 16; break;
                     /* N.B., encoded in 3 bits, so no other values are possible */
                 }
-                /* Record which bits (and count) are set in rbgMask */
-                for (unsigned n=0; n < 28 && ext11_settings.ext6_num_bits_set < 28; n++) {
-                    if ((rbgMask >> n) & 0x01) {
-                        ext11_settings.ext6_bits_set[ext11_settings.ext6_num_bits_set++] = n;
-                    }
-                }
 
+                /* Set to looked-up value */
+                rbgSize = ext11_settings.ext6_rbg_size;
+
+                uint32_t lastRbgid = 0;
                 if (rbgSize != 0) {
                     /* The O-DU shall not use combinations of startPrbc, numPrbc and rbgSize leading to a value of lastRbgid larger than 27 */
-                    uint32_t lastRbgid = (uint32_t)ceil((numPrbc + (startPrbc % rbgSize)) / rbgSize) - 1;
+                    /* i.e., leftmost bit used should not need to go off left end of rbgMask! */
+                    lastRbgid = (uint32_t)ceil((numPrbc + (startPrbc % rbgSize)) / (float)rbgSize) - 1;
                     if (lastRbgid > 27) {
                         expert_add_info_format(pinfo, rbg_size_ti, &ei_oran_lastRbdid_out_of_range,
                                                "SE6: rbgSize (%u) not compatible with startPrbc(%u) and numPrbc(%u)",
                                                rbgSize, startPrbc, numPrbc);
+                        break;
                     }
                 }
 
+                /* Record (and count) which bits are set in rbgMask */
+                bool first_seen = false;
+                unsigned first_seen_pos=0, last_seen_pos=0;
+                for (unsigned n=0; n < 28 && ext11_settings.ext6_num_bits_set < 28; n++) {
+                    if ((rbgMask >> n) & 0x01) {
+                        ext11_settings.ext6_bits_set[ext11_settings.ext6_num_bits_set++] = n;
+                        if (!first_seen) {
+                            first_seen = true;
+                            first_seen_pos = n;
+                        }
+                        last_seen_pos = n;
+                    }
+                }
+
+                /* Show how many bits were set in rbgMask */
+                proto_item_append_text(rbgmask_ti, " (%u bits set)", ext11_settings.ext6_num_bits_set);
+                /* Also, that is the range of bits */
+                if (first_seen) {
+                    proto_item_append_text(rbgmask_ti, " (%u bits spread)", last_seen_pos-first_seen_pos+1);
+                }
+
+                /* Complain if last set bit is beyond lastRbgid */
+                if (first_seen) {
+                    if (last_seen_pos > lastRbgid) {
+                        expert_add_info_format(pinfo, rbgmask_ti, &ei_oran_rbgMask_beyond_last_rbdid,
+                                               "SE6: rbgMask (0x%07x) has bit %u set, but lastRbgId is %u",
+                                               rbgMask, last_seen_pos, lastRbgid);
+                    }
+                }
                 break;
             }
 
@@ -2564,6 +2594,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                 if (disableBFWs) {
                     proto_item_append_text(extension_ti, " (disableBFWs)");
                 }
+
                 /* RAD */
                 proto_tree_add_item_ret_boolean(extension_tree, hf_oran_rad,
                                     tvb, offset, 1, ENC_BIG_ENDIAN, &rad);
@@ -2603,7 +2634,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                     }
 
                     /* Work out bundles! */
-                    ext11_work_out_bundles(startPrbc, numPrbc, numBundPrb, rad, &ext11_settings);
+                    ext11_work_out_bundles(startPrbc, numPrbc, numBundPrb, &ext11_settings);
                     num_bundles = ext11_settings.num_bundles;
 
                     /* Add (complete) bundles */
@@ -2639,7 +2670,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                         break;
                     }
 
-                    ext11_work_out_bundles(startPrbc, numPrbc, numBundPrb, rad, &ext11_settings);
+                    ext11_work_out_bundles(startPrbc, numPrbc, numBundPrb, &ext11_settings);
                     num_bundles = ext11_settings.num_bundles;
 
                     for (unsigned n=0; n < num_bundles; n++) {
@@ -6346,9 +6377,8 @@ proto_register_oran(void)
         { &ei_oran_udpcomphdr_should_be_zero, { "oran_fh_cus.udcomphdr_should_be_zero", PI_MALFORMED, PI_WARN, "C-Plane udCompHdr in DL should be set to 0", EXPFILL }},
         { &ei_oran_radio_fragmentation_c_plane, { "oran_fh_cus.radio_fragmentation_c_plane", PI_MALFORMED, PI_ERROR, "Radio fragmentation not allowed in C-PLane", EXPFILL }},
         { &ei_oran_radio_fragmentation_u_plane, { "oran_fh_cus.radio_fragmentation_u_plane", PI_UNDECODED, PI_WARN, "Radio fragmentation in C-PLane not yet supported", EXPFILL }},
-        { &ei_oran_lastRbdid_out_of_range, { "oran_fh_cus.lastrbdid_out_of_range", PI_MALFORMED, PI_WARN, "SE 6 has bad rbgSize", EXPFILL }}
-
-
+        { &ei_oran_lastRbdid_out_of_range, { "oran_fh_cus.lastrbdid_out_of_range", PI_MALFORMED, PI_WARN, "SE 6 has bad rbgSize", EXPFILL }},
+        { &ei_oran_rbgMask_beyond_last_rbdid, { "oran_fh_cus.rbgmask_beyond_lastrbdid", PI_MALFORMED, PI_WARN, "rbgMask has bits set beyond lastRbgId", EXPFILL }}
     };
 
     /* Register the protocol name and description */
