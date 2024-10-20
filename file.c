@@ -4598,6 +4598,7 @@ find_packet(capture_file *cf, ws_match_function match_function,
     progdlg_t   *progbar = NULL;
     GTimer      *prog_timer = g_timer_new();
     int          count;
+    bool         wrap = prefs.gui_find_wrap;
     bool         succeeded;
     float        progbar_val;
     char         status_str[100];
@@ -4611,6 +4612,7 @@ find_packet(capture_file *cf, ws_match_function match_function,
         prev_framenum = start_fd->num;
     } else {
         prev_framenum = 0;  /* No start packet selected. */
+        wrap = false;
     }
 
     /* Iterate through the list of packets, starting at the packet we've
@@ -4618,6 +4620,12 @@ find_packet(capture_file *cf, ws_match_function match_function,
        it matches, and stop if so.  */
     count = 0;
     framenum = prev_framenum;
+    if (framenum == 0 && dir == SD_BACKWARD) {
+        /* If we have no start packet selected, and we're going backwards,
+         * start at the end (even if wrap is off.)
+         */
+        framenum = cf->count + 1;
+    }
 
     g_timer_start(prog_timer);
     /* Progress so far. */
@@ -4675,9 +4683,10 @@ find_packet(capture_file *cf, ws_match_function match_function,
                  * {Verb} and "Cancel".
                  */
 
-                if (prefs.gui_find_wrap) {
+                if (wrap) {
                     statusbar_push_temporary_msg("Search reached the beginning. Continuing at end.");
                     framenum = cf->count;     /* wrap around */
+                    wrap = false;
                 } else {
                     statusbar_push_temporary_msg("Search reached the beginning.");
                     framenum = prev_framenum; /* stay on previous packet */
@@ -4687,9 +4696,10 @@ find_packet(capture_file *cf, ws_match_function match_function,
         } else {
             /* Go on to the next frame. */
             if (framenum == cf->count) {
-                if (prefs.gui_find_wrap) {
+                if (wrap) {
                     statusbar_push_temporary_msg("Search reached the end. Continuing at beginning.");
                     framenum = 1;             /* wrap around */
+                    wrap = false;
                 } else {
                     statusbar_push_temporary_msg("Search reached the end.");
                     framenum = prev_framenum; /* stay on previous packet */
