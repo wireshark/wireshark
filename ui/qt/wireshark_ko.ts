@@ -80,12 +80,17 @@
         <translation>라이선스</translation>
     </message>
     <message>
-        <source>About Logray</source>
-        <translation>Logray 정보</translation>
+        <source>About Stratoshark</source>
+        <oldsource>About Logray</oldsource>
+        <translation type="unfinished">Logray 정보</translation>
     </message>
     <message>
         <source>Logray</source>
-        <translation>Logray</translation>
+        <translation type="vanished">Logray</translation>
+    </message>
+    <message>
+        <source>Stratoshark</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>The directory does not exist</source>
@@ -1199,10 +1204,13 @@
 </translation>
     </message>
     <message>
-        <source>Created by Logray %1
+        <source>Created by Stratoshark %1
 
 </source>
-        <translation>Logray %1에서 생성됨
+        <oldsource>Created by Logray %1
+
+</oldsource>
+        <translation type="unfinished">Logray %1에서 생성됨
 
 </translation>
     </message>
@@ -13089,16 +13097,18 @@ a:hover {
         <translation>Wireshark를 사용하여 인터넷을 고정하는 접착제의 냄새를 맡고(스니핑) 있습니다 </translation>
     </message>
     <message>
-        <source>You are sniffing the glue that holds your system together using Logray </source>
-        <translation>Logray를 사용하여 시스템을 고정하는 접착제의 냄새를 맡고(스니핑) 있습니다 </translation>
+        <source>You are sniffing the glue that holds your system together using Stratoshark </source>
+        <oldsource>You are sniffing the glue that holds your system together using Logray </oldsource>
+        <translation type="unfinished">Logray를 사용하여 시스템을 고정하는 접착제의 냄새를 맡고(스니핑) 있습니다 </translation>
     </message>
     <message>
         <source>You are running Wireshark </source>
         <translation>실행 중인 Wireshark 버전: </translation>
     </message>
     <message>
-        <source>You are running Logray </source>
-        <translation>실행 중인 Logray 버전: </translation>
+        <source>You are running Stratoshark </source>
+        <oldsource>You are running Logray </oldsource>
+        <translation type="unfinished">실행 중인 Logray 버전: </translation>
     </message>
     <message>
         <source> You receive automatic updates.</source>
@@ -13177,11 +13187,11 @@ a:hover {
     </message>
     <message>
         <source>AirPcap Control Panel</source>
-        <translation>AirPcap 제어판</translation>
+        <translation type="vanished">AirPcap 제어판</translation>
     </message>
     <message>
         <source>Open the AirPcap Control Panel</source>
-        <translation>AirPcap 제어판 열기</translation>
+        <translation type="vanished">AirPcap 제어판 열기</translation>
     </message>
     <message>
         <source>Unable to set channel or offset.</source>

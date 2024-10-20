@@ -80,12 +80,17 @@
         <translation>Lisans</translation>
     </message>
     <message>
-        <source>About Logray</source>
-        <translation>Logray Hakkında</translation>
+        <source>About Stratoshark</source>
+        <oldsource>About Logray</oldsource>
+        <translation type="unfinished">Logray Hakkında</translation>
     </message>
     <message>
         <source>Logray</source>
-        <translation>Logray</translation>
+        <translation type="vanished">Logray</translation>
+    </message>
+    <message>
+        <source>Stratoshark</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>The directory does not exist</source>
@@ -1199,10 +1204,13 @@
 </translation>
     </message>
     <message>
-        <source>Created by Logray %1
+        <source>Created by Stratoshark %1
 
 </source>
-        <translation>Logray %1 tarafından oluşturuldu
+        <oldsource>Created by Logray %1
+
+</oldsource>
+        <translation type="unfinished">Logray %1 tarafından oluşturuldu
 
 </translation>
     </message>
@@ -13089,7 +13097,8 @@ a:üzerine gelin{
         <translation>Wireshark kullanarak interneti bir arada tutan yapıştırıcıyı kokluyorsunuz </translation>
     </message>
     <message>
-        <source>You are sniffing the glue that holds your system together using Logray </source>
+        <source>You are sniffing the glue that holds your system together using Stratoshark </source>
+        <oldsource>You are sniffing the glue that holds your system together using Logray </oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -13097,7 +13106,8 @@ a:üzerine gelin{
         <translation>Wireshark&apos;ı çalıştırıyorsunuz </translation>
     </message>
     <message>
-        <source>You are running Logray </source>
+        <source>You are running Stratoshark </source>
+        <oldsource>You are running Logray </oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -13177,11 +13187,11 @@ a:üzerine gelin{
     </message>
     <message>
         <source>AirPcap Control Panel</source>
-        <translation>AirPcap Kontrol Paneli</translation>
+        <translation type="vanished">AirPcap Kontrol Paneli</translation>
     </message>
     <message>
         <source>Open the AirPcap Control Panel</source>
-        <translation>AirPcap Kontrol Panelini açın</translation>
+        <translation type="vanished">AirPcap Kontrol Panelini açın</translation>
     </message>
     <message>
         <source>Unable to set channel or offset.</source>

@@ -80,12 +80,17 @@
         <translation>Лицензия</translation>
     </message>
     <message>
-        <source>About Logray</source>
-        <translation>О журнале Logray</translation>
+        <source>About Stratoshark</source>
+        <oldsource>About Logray</oldsource>
+        <translation type="unfinished">О журнале Logray</translation>
     </message>
     <message>
         <source>Logray</source>
-        <translation>Журнал</translation>
+        <translation type="vanished">Журнал</translation>
+    </message>
+    <message>
+        <source>Stratoshark</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>The directory does not exist</source>
@@ -1213,10 +1218,13 @@
 </translation>
     </message>
     <message>
-        <source>Created by Logray %1
+        <source>Created by Stratoshark %1
 
 </source>
-        <translation>Создано журналом Logray %1
+        <oldsource>Created by Logray %1
+
+</oldsource>
+        <translation type="unfinished">Создано журналом Logray %1
 
 </translation>
     </message>
@@ -3851,15 +3859,15 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Color Scheme:</source>
-        <translation type="unfinished"></translation>
+        <translation>Цветовая схема:</translation>
     </message>
     <message>
         <source>Light Mode</source>
-        <translation type="unfinished"></translation>
+        <translation>Светлый режим</translation>
     </message>
     <message>
         <source>Dark Mode</source>
-        <translation type="unfinished"></translation>
+        <translation>Темный режим</translation>
     </message>
     <message>
         <source>Font</source>
@@ -13161,16 +13169,18 @@ a:hover {
         <translation>Все составные звенья Интернета анализировать поможет Wireshark </translation>
     </message>
     <message>
-        <source>You are sniffing the glue that holds your system together using Logray </source>
-        <translation>Вы нюхаете клей, который держит вашу систему вместе, используя Logray </translation>
+        <source>You are sniffing the glue that holds your system together using Stratoshark </source>
+        <oldsource>You are sniffing the glue that holds your system together using Logray </oldsource>
+        <translation type="unfinished">Вы нюхаете клей, который держит вашу систему вместе, используя Logray </translation>
     </message>
     <message>
         <source>You are running Wireshark </source>
         <translation>Работа производится в Wireshark </translation>
     </message>
     <message>
-        <source>You are running Logray </source>
-        <translation>Вы используете Logray </translation>
+        <source>You are running Stratoshark </source>
+        <oldsource>You are running Logray </oldsource>
+        <translation type="unfinished">Вы используете Logray </translation>
     </message>
     <message>
         <source> You receive automatic updates.</source>
@@ -13249,11 +13259,11 @@ a:hover {
     </message>
     <message>
         <source>AirPcap Control Panel</source>
-        <translation>Панель управления AirPcap</translation>
+        <translation type="vanished">Панель управления AirPcap</translation>
     </message>
     <message>
         <source>Open the AirPcap Control Panel</source>
-        <translation>Открыть панель управления AirPcap</translation>
+        <translation type="vanished">Открыть панель управления AirPcap</translation>
     </message>
     <message>
         <source>Unable to set channel or offset.</source>
@@ -14487,7 +14497,7 @@ a:hover {
     </message>
     <message>
         <source>Display Filter Reference</source>
-        <translation type="unfinished"></translation>
+        <translation>Ссылка на фильтр дисплея</translation>
     </message>
     <message>
         <source>Capture &amp;Filters…</source>

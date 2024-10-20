@@ -80,12 +80,17 @@
         <translation>Licence</translation>
     </message>
     <message>
-        <source>About Logray</source>
-        <translation>À propos de Logray</translation>
+        <source>About Stratoshark</source>
+        <oldsource>About Logray</oldsource>
+        <translation type="unfinished">À propos de Logray</translation>
     </message>
     <message>
         <source>Logray</source>
-        <translation>Logray</translation>
+        <translation type="vanished">Logray</translation>
+    </message>
+    <message>
+        <source>Stratoshark</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>The directory does not exist</source>
@@ -1206,10 +1211,13 @@
 </translation>
     </message>
     <message>
-        <source>Created by Logray %1
+        <source>Created by Stratoshark %1
 
 </source>
-        <translation>Créé par Logray %1
+        <oldsource>Created by Logray %1
+
+</oldsource>
+        <translation type="unfinished">Créé par Logray %1
 
 </translation>
     </message>
@@ -13123,16 +13131,18 @@ a:hover {
         <translation>Vous reniflez la colle qui maintient Internet ensemble à l&apos;aide de Wireshark </translation>
     </message>
     <message>
-        <source>You are sniffing the glue that holds your system together using Logray </source>
-        <translation>Vous reniflez la colle qui maintient votre système ensemble à l&apos;aide de Logray</translation>
+        <source>You are sniffing the glue that holds your system together using Stratoshark </source>
+        <oldsource>You are sniffing the glue that holds your system together using Logray </oldsource>
+        <translation type="unfinished">Vous reniflez la colle qui maintient votre système ensemble à l&apos;aide de Logray</translation>
     </message>
     <message>
         <source>You are running Wireshark </source>
         <translation>Vous exécutez Wireshark </translation>
     </message>
     <message>
-        <source>You are running Logray </source>
-        <translation>Vous exécutez Logray</translation>
+        <source>You are running Stratoshark </source>
+        <oldsource>You are running Logray </oldsource>
+        <translation type="unfinished">Vous exécutez Logray</translation>
     </message>
     <message>
         <source> You receive automatic updates.</source>
@@ -13211,11 +13221,11 @@ a:hover {
     </message>
     <message>
         <source>AirPcap Control Panel</source>
-        <translation>Panneau de Configuration AirPcap</translation>
+        <translation type="vanished">Panneau de Configuration AirPcap</translation>
     </message>
     <message>
         <source>Open the AirPcap Control Panel</source>
-        <translation>Ouvrir le Panneau de Configuration AirPcap</translation>
+        <translation type="vanished">Ouvrir le Panneau de Configuration AirPcap</translation>
     </message>
     <message>
         <source>Unable to set channel or offset.</source>

@@ -80,11 +80,12 @@
         <translation>许可</translation>
     </message>
     <message>
-        <source>About Logray</source>
+        <source>About Stratoshark</source>
+        <oldsource>About Logray</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Logray</source>
+        <source>Stratoshark</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1197,9 +1198,12 @@
         <translation>通过 Wireshark 创建 %1</translation>
     </message>
     <message>
-        <source>Created by Logray %1
+        <source>Created by Stratoshark %1
 
 </source>
+        <oldsource>Created by Logray %1
+
+</oldsource>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -13024,7 +13028,8 @@ a:hover {
         <translation>你正在使用 Wireshark 嗅探互联网的联机</translation>
     </message>
     <message>
-        <source>You are sniffing the glue that holds your system together using Logray </source>
+        <source>You are sniffing the glue that holds your system together using Stratoshark </source>
+        <oldsource>You are sniffing the glue that holds your system together using Logray </oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -13032,7 +13037,8 @@ a:hover {
         <translation>正在运行 Wireshark</translation>
     </message>
     <message>
-        <source>You are running Logray </source>
+        <source>You are running Stratoshark </source>
+        <oldsource>You are running Logray </oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -13112,11 +13118,11 @@ a:hover {
     </message>
     <message>
         <source>AirPcap Control Panel</source>
-        <translation>AirPcap 控制面板</translation>
+        <translation type="vanished">AirPcap 控制面板</translation>
     </message>
     <message>
         <source>Open the AirPcap Control Panel</source>
-        <translation>打开 AirPcap 控制面板</translation>
+        <translation type="vanished">打开 AirPcap 控制面板</translation>
     </message>
     <message>
         <source>Unable to set channel or offset.</source>

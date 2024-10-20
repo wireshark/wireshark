@@ -80,12 +80,17 @@
         <translation>Ліцензія</translation>
     </message>
     <message>
-        <source>About Logray</source>
-        <translation>Про Logray</translation>
+        <source>About Stratoshark</source>
+        <oldsource>About Logray</oldsource>
+        <translation type="unfinished">Про Logray</translation>
     </message>
     <message>
         <source>Logray</source>
-        <translation>Logray</translation>
+        <translation type="vanished">Logray</translation>
+    </message>
+    <message>
+        <source>Stratoshark</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>The directory does not exist</source>
@@ -1187,9 +1192,12 @@
 </translation>
     </message>
     <message>
-        <source>Created by Logray %1
+        <source>Created by Stratoshark %1
 
 </source>
+        <oldsource>Created by Logray %1
+
+</oldsource>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -12948,7 +12956,8 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>You are sniffing the glue that holds your system together using Logray </source>
+        <source>You are sniffing the glue that holds your system together using Stratoshark </source>
+        <oldsource>You are sniffing the glue that holds your system together using Logray </oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -12956,7 +12965,8 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>You are running Logray </source>
+        <source>You are running Stratoshark </source>
+        <oldsource>You are running Logray </oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -13032,14 +13042,6 @@ a:hover {
     </message>
     <message>
         <source>802.11 Preferences</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>AirPcap Control Panel</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Open the AirPcap Control Panel</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

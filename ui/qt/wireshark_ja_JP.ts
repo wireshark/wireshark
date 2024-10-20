@@ -80,12 +80,17 @@
         <translation>ライセンス</translation>
     </message>
     <message>
-        <source>About Logray</source>
-        <translation>Lograyについて</translation>
+        <source>About Stratoshark</source>
+        <oldsource>About Logray</oldsource>
+        <translation type="unfinished">Lograyについて</translation>
     </message>
     <message>
         <source>Logray</source>
-        <translation>Logray</translation>
+        <translation type="vanished">Logray</translation>
+    </message>
+    <message>
+        <source>Stratoshark</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>The directory does not exist</source>
@@ -1199,10 +1204,13 @@
 </translation>
     </message>
     <message>
-        <source>Created by Logray %1
+        <source>Created by Stratoshark %1
 
 </source>
-        <translation>Logray %1 によって作成されました
+        <oldsource>Created by Logray %1
+
+</oldsource>
+        <translation type="unfinished">Logray %1 によって作成されました
 
 </translation>
     </message>
@@ -3816,15 +3824,15 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Color Scheme:</source>
-        <translation type="unfinished"></translation>
+        <translation>配色:</translation>
     </message>
     <message>
         <source>Light Mode</source>
-        <translation type="unfinished"></translation>
+        <translation>ライトモード</translation>
     </message>
     <message>
         <source>Dark Mode</source>
-        <translation type="unfinished"></translation>
+        <translation>ダークモード</translation>
     </message>
     <message>
         <source>Font</source>
@@ -13092,16 +13100,18 @@ a:hover {
         <translation>あなたはWiresharkを使ってインターネットを互いにつなぐ膠をキャプチャしています</translation>
     </message>
     <message>
-        <source>You are sniffing the glue that holds your system together using Logray </source>
-        <translation>あなたはLograyを使ってシステムを互いに繋ぐ膠をキャプチャしています</translation>
+        <source>You are sniffing the glue that holds your system together using Stratoshark </source>
+        <oldsource>You are sniffing the glue that holds your system together using Logray </oldsource>
+        <translation type="unfinished">あなたはLograyを使ってシステムを互いに繋ぐ膠をキャプチャしています</translation>
     </message>
     <message>
         <source>You are running Wireshark </source>
         <translation>Wiresharkを起動中</translation>
     </message>
     <message>
-        <source>You are running Logray </source>
-        <translation>Lograyを起動中です </translation>
+        <source>You are running Stratoshark </source>
+        <oldsource>You are running Logray </oldsource>
+        <translation type="unfinished">Lograyを起動中です </translation>
     </message>
     <message>
         <source> You receive automatic updates.</source>
@@ -13180,11 +13190,11 @@ a:hover {
     </message>
     <message>
         <source>AirPcap Control Panel</source>
-        <translation>AirPcapコントロールパネル</translation>
+        <translation type="vanished">AirPcapコントロールパネル</translation>
     </message>
     <message>
         <source>Open the AirPcap Control Panel</source>
-        <translation>AirPcapコントロールパネルを開く</translation>
+        <translation type="vanished">AirPcapコントロールパネルを開く</translation>
     </message>
     <message>
         <source>Unable to set channel or offset.</source>
@@ -14418,7 +14428,7 @@ a:hover {
     </message>
     <message>
         <source>Display Filter Reference</source>
-        <translation type="unfinished"></translation>
+        <translation>表示フィルタ参照</translation>
     </message>
     <message>
         <source>Capture &amp;Filters…</source>
