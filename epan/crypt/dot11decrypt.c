@@ -933,7 +933,7 @@ Dot11DecryptUsingUserTk(
 
         for (int i = 0; ciphers_to_try[i] != 0; i++) {
             sa->wpa.cipher = ciphers_to_try[i];
-            if (sa->wpa.cipher == 2 /* TKIP */) {
+            if (sa->wpa.cipher == DOT11DECRYPT_CIPHER_TKIP) {
                 sa->wpa.key_ver = 1;
                 memcpy(DOT11DECRYPT_GET_TK_TKIP(sa->wpa.ptk),
                        key->Tk.Tk, key->Tk.Len);
@@ -1271,7 +1271,9 @@ Dot11DecryptRsnaMng(
            /* remove MIC and ICV from the end of packet */
            *decrypt_len -= DOT11DECRYPT_TKIP_MICLEN + DOT11DECRYPT_WEP_ICV;
            break;
-       } else if (sa->wpa.cipher == 8 || sa->wpa.cipher == 9) {
+       } else if (sa->wpa.cipher == DOT11DECRYPT_CIPHER_GCMP ||
+                  sa->wpa.cipher == DOT11DECRYPT_CIPHER_GCMP256)
+       {
            ws_noisy("GCMP");
 
            if (*decrypt_len < DOT11DECRYPT_GCMP_TRAILER) {
