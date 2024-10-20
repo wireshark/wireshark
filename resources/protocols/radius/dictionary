@@ -120,6 +120,16 @@ $INCLUDE dictionary.rfc8559
 #
 $INCLUDE dictionary.iana
 
+#       [wireshark: The following is a subset of the ascend illegal dictionary
+#       with those attributes in the IETF RFC 6929 extended attribute space
+#       (i.e., 241..246). These attributes are still used by some vendors.
+#       Set the preference "Disable Extended Attribute Space (RFC 6929)" to
+#       true to dissect these.
+#       Uncommented because these are ignored unless that preference is changed
+#       from the default. Note the other illegal dictionaries do not use
+#       values in the RFC 6929 space.]
+$INCLUDE dictionary.ascend.illegal.extended
+
 #
 #	These dictionaries define attributes in the IETF managed space.
 #	(i.e. 1..255). This is wrong.  We include them here to allow them.

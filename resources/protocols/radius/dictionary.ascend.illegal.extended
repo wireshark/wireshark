@@ -1,0 +1,35 @@
+# -*- text -*-
+# Copyright (C) 2019 The FreeRADIUS Server project and contributors
+# This work is licensed under CC-BY version 4.0 https://creativecommons.org/licenses/by/4.0
+#
+##############################################################################
+#
+#	Ascend dictionary that illegally uses the RFC space.
+#	Subset in the RFC 6929 extended attribute space.
+#
+##############################################################################
+#
+#	Ascend specific extensions
+#	Used by ASCEND MAX/Pipeline products
+#
+#	This next block is renamed because they share the same
+#	names as the vendor-specific attributes, BUT they occur
+#	in the lower (1-255) RADIUS attribute space.
+#
+#	This subset uses the RFC 6929 extended attribute space (241..246).
+#	Some software still sends these instead of supporting RFC 6929.
+#	Set the preference "Disable Extended Attribute Space (RFC 6929)"
+#	to true in order to dissect these.
+#
+ATTRIBUTE	X-Ascend-Remove-Seconds			241	integer
+ATTRIBUTE	X-Ascend-Data-Filter			242	abinary
+ATTRIBUTE	X-Ascend-Call-Filter			243	abinary
+ATTRIBUTE	X-Ascend-Idle-Limit			244	integer
+ATTRIBUTE	X-Ascend-Preempt-Limit			245	integer
+ATTRIBUTE	X-Ascend-Callback			246	integer
+
+#  VALUEs for X-Ascend-* attributes, copied verbatim from the
+#  VALUEs above, for the VSA versions of Ascend-*.
+#
+VALUE	X-Ascend-Callback		Callback-No		0
+VALUE	X-Ascend-Callback		Callback-Yes		1

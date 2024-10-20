@@ -11,6 +11,8 @@
 #	draft-sterman-aaa-sip-00.txt
 #
 #	This is bad... at some point the IETF will allocate these.
+#	[wireshark: These are the experimental values from 00 of the draft RFC,
+#	later registered in RFC 5090 with real values. Comment out?]
 #
 ATTRIBUTE	Digest-Response				206	string
 ATTRIBUTE	Digest-Attributes			207	octets	# stupid format
