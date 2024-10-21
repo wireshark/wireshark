@@ -362,6 +362,7 @@ set(DISSECTOR_PUBLIC_HEADERS
 	packet-dtls.h
 	packet-dvbci.h
 	packet-e1ap.h
+	packet-eap.h
 	packet-enip.h
 	packet-erf.h
 	packet-e164.h

@@ -60,6 +60,7 @@
 #include "packet-dtls.h"
 #include "packet-e212.h"
 #include "packet-e164.h"
+#include "packet-eap.h"
 
 void proto_register_diameter(void);
 void proto_reg_handoff_diameter(void);
@@ -581,6 +582,28 @@ dissect_diameter_user_name(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 		// above, or an HSS Reset Indication (8.1.2.4.1), in which
 		// case User-Name is a User List containing a wild card
 		// or leading digits of IMSI series.
+		break;
+	case DIAM_APPID_3GPP_SWM:
+	case DIAM_APPID_3GPP_STA:
+	case DIAM_APPID_3GPP_S6B:
+		if (cmd_code == 268) {
+			// 3GPP TS 29.273 - For cmd_code 268 (Diameter-EAP),
+			// "The identity shall be represented in NAI form as
+			// specified in IETF RFC 4282 [15] and shall be formatted
+			// as defined in clause 19 of 3GPP TS 23.003 [14]. This
+			// IE shall include the leading digit used to
+			// differentiate between authentication schemes."
+			//
+			// Note that SWa uses the STa application ID, and
+			// SWd uses the application ID associated with
+			// the proxied command (STa here as well).
+			//
+			// For other command codes, the User-Name is different
+			// and does *not* include the leading digit as in EAP.
+			str_len = tvb_reported_length(tvb);
+			dissect_eap_identity_3gpp(tvb, pinfo, tree, 0, str_len);
+			return str_len;
+		}
 		break;
 	}
 
