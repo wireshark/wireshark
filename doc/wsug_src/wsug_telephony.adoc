@@ -216,30 +216,31 @@ Integrated Service User Part (ISUP) protocol provides voice and non-voice signal
 
 [#ChTelLTE]
 
-=== LTE
+=== 3GPP Uu
 
 [#ChTelLTEMACTraffic]
 
-==== LTE MAC Traffic Statistics Window
+==== 3GPP MAC Traffic Statistics Window
 
-Statistics of the captured LTE MAC traffic. This window will summarize the LTE
+Statistics of the captured LTE or NR MAC traffic. This window will summarize the
 MAC traffic found in the capture.
 
-.The “LTE MAC Traffic Statistics” window
+.The “3GPP MAC Traffic Statistics” window
 image::images/ws-stats-lte-mac-traffic.png[{screenshot-attrs}]
 
-The top pane shows statistics for common channels. Each row in the middle pane
-shows statistical highlights for exactly one UE/C-RNTI. In the lower pane, you
-can see the for the currently selected UE/C-RNTI the traffic broken down by
-individual channel.
+Each row in the top pane
+shows statistical highlights for exactly one UE/C-RNTI. Opening a UE item shows details of each logical channel identifier of that UE.
+
+The bottom pane shows statistics for common channels, and controls to apply more detailed display filters to the packet list.
 
 [#ChTelLTERLCGraph]
 
-==== LTE RLC Graph Window
+==== 3GPP RLC Graph Window
 
-The LTE RLC Graph menu launches a graph which shows LTE Radio Link Control protocol sequence numbers changing over time along with acknowledgements which are received in the opposite direction.
+The RLC Graph menu launches a graph which shows LTE/NR Radio Link Control protocol sequence numbers changing over time along with (for AM) acknowledgements
+received in the opposite direction.
 
-NOTE: That graph shows data of a single bearer and direction. The user can also launch it from the `RLC Statistics` window.
+NOTE: That graph shows data of a single bearer and direction. This graph may also be launched from the `RLC Statistics` window.
 
 .The RLC Graph window
 image::images/ws-rlc-graph.png[{screenshot-attrs}]
@@ -248,23 +249,23 @@ image::images/ws-rlc-graph.png[{screenshot-attrs}]
 
 [#ChTelLTERLCTraffic]
 
-==== LTE RLC Traffic Statistics Window
+==== RLC Statistics Window
 
-Statistics of the captured LTE RLC traffic. This window will summarize the LTE
+Statistics of the captured LTE/NR RLC traffic. This window will summarize the
 RLC traffic found in the capture.
 
 .The “LTE RLC Traffic Statistics” window
 image::images/ws-stats-lte-rlc-traffic.png[{screenshot-attrs}]
 
-At the top, the check-box allows this window to include RLC PDUs found within
+A check-box controls whether this window should include RLC PDUs logged within
 MAC PDUs or not. This will affect both the PDUs counted as well as the display
 filters generated (see below).
 
-The upper list shows summaries of each active UE. Each row in the lower list
-shows statistical highlights for individual channels within the selected UE.
+The upper list shows summaries of each active UE. Opening up a UE entry will
+show the same information broken down by individual bearers.
 
 The lower part of the windows allows display filters to be generated and set for
-the selected channel. Note that in the case of Acknowledged Mode channels, if a
+the selected bearer/channel. Note that in the case of Acknowledged Mode channels, if a
 single direction is chosen, the generated filter will show data in that
 direction and control PDUs in the opposite direction.
 
