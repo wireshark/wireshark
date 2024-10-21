@@ -8162,8 +8162,6 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     tcph->th_ack = tcph->th_rawack;
     th_off_x2 = tvb_get_uint8(tvb, offset + 12);
     tcpinfo.flags = tcph->th_flags = tvb_get_ntohs(tvb, offset + 12) & TH_MASK;
-    tcph->th_win = tvb_get_ntohs(tvb, offset + 14);
-    real_window = tcph->th_win;
     tcph->th_hlen = hi_nibble(th_off_x2) * 4;  /* TCP header length, in bytes */
 
     /* find(or create if needed) the conversation for this tcp session
@@ -8455,22 +8453,15 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
             proto_item_set_generated(pi);
 
             /* handle TCP seq# analysis parse all new segments we see */
-            if(tcp_analyze_seq) {
+            /* We need the window size to perform sequence analysis.
+             * (Zero is a possible value treated specially. */
+            if(tcp_analyze_seq && tvb_bytes_exist(tvb, offset + 14, 2)) {
+
+                /* Get it on every pass so that dissection is the same. */
+                tcph->th_win = tvb_get_ntohs(tvb, offset + 14);
+
                 if(!(pinfo->fd->visited)) {
                     tcp_analyze_sequence_number(pinfo, tcph->th_rawseq, tcph->th_rawack, tcph->th_seglen, tcph->th_flags, tcph->th_win, tcpd, tcppd);
-                }
-            }
-
-            /* re-calculate window size, based on scaling factor */
-            if (!(tcph->th_flags&TH_SYN)) {   /* SYNs are never scaled */
-                if (tcpd && (tcpd->fwd->win_scale>=0)) {
-                    (tcph->th_win)<<=tcpd->fwd->win_scale;
-                }
-                else if (tcpd && (tcpd->fwd->win_scale == -1)) {
-                    /* i.e. Unknown, but wasn't signalled with no scaling, so use preference setting instead! */
-                    if (tcp_default_window_scaling>=0) {
-                        (tcph->th_win)<<=tcp_default_window_scaling;
-                    }
                 }
             }
 
@@ -8499,8 +8490,6 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     tcp_info_append_uint(pinfo, "Seq", tcph->th_seq);
     if (tcph->th_flags&TH_ACK)
         tcp_info_append_uint(pinfo, "Ack", tcph->th_ack);
-
-    tcp_info_append_uint(pinfo, "Win", tcph->th_win);
 
     if (tcp_summary_in_tree) {
         proto_item_append_text(ti, ", Seq: %u", tcph->th_seq);
@@ -8548,10 +8537,10 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
      * Add a CLEANUP function so that the tap_queue_packet gets called
      * if any exception is thrown.
      *
-     * XXX: Could we move this earlier, before the window size and urgent
-     * pointer, for example? Probably, but if so, remember to
-     * CLEANUP_CALL_AND_POP before any return statements, such as the
-     * one above.
+     * XXX - We haven't necessarily retrieved the window size yet. We'll
+     * try to do so before sending it to the tap, but if the header is
+     * truncated to 14 octets, the taps will receive a window size of 0.
+     * Can they handle it with minimal problems?
      */
 
     tcp_tap_cleanup_t *cleanup = wmem_new(pinfo->pool, tcp_tap_cleanup_t);
@@ -8705,48 +8694,6 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 
         tf = proto_tree_add_string(field_tree, hf_tcp_flags_str, tvb, offset + 12, 2, flags_str_first_letter);
         proto_item_set_generated(tf);
-        /* As discussed in bug 5541, it is better to use two separate
-         * fields for the real and calculated window size.
-         */
-        proto_tree_add_uint(tcp_tree, hf_tcp_window_size_value, tvb, offset + 14, 2, real_window);
-        scaled_pi = proto_tree_add_uint(tcp_tree, hf_tcp_window_size, tvb, offset + 14, 2, tcph->th_win);
-        proto_item_set_generated(scaled_pi);
-
-        if( !(tcph->th_flags&TH_SYN) && tcpd ) {
-            switch (tcpd->fwd->win_scale) {
-
-            case -1:
-                /* Unknown */
-                {
-                    int16_t win_scale = tcpd->fwd->win_scale;
-                    bool override_with_pref = false;
-
-                    /* Use preference setting (if set) */
-                    if (tcp_default_window_scaling != WindowScaling_NotKnown) {
-                        win_scale = (1 << tcp_default_window_scaling);
-                        override_with_pref = true;
-                    }
-
-                    scaled_pi = proto_tree_add_int_format_value(tcp_tree, hf_tcp_window_size_scalefactor, tvb, offset + 14, 2,
-                                                          win_scale, "%d (%s)",
-                                                          win_scale,
-                                                          (override_with_pref) ? "missing - taken from preference" : "unknown");
-                    proto_item_set_generated(scaled_pi);
-                }
-                break;
-
-            case -2:
-                /* No window scaling used */
-                scaled_pi = proto_tree_add_int_format_value(tcp_tree, hf_tcp_window_size_scalefactor, tvb, offset + 14, 2, tcpd->fwd->win_scale, "%d (no window scaling used)", tcpd->fwd->win_scale);
-                proto_item_set_generated(scaled_pi);
-                break;
-
-            default:
-                /* Scaling from signalled value */
-                scaled_pi = proto_tree_add_int_format_value(tcp_tree, hf_tcp_window_size_scalefactor, tvb, offset + 14, 2, 1<<tcpd->fwd->win_scale, "%d", 1<<tcpd->fwd->win_scale);
-                proto_item_set_generated(scaled_pi);
-            }
-        }
     }
 
     if(tcph->th_flags & TH_SYN) {
@@ -8789,14 +8736,6 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
         /* XXX - find a way to know the server port and output only that one */
         expert_add_info(pinfo, tf_rst, &ei_tcp_connection_rst);
 
-        /* Check if the window value of this reset packet is in the NetScaler error code range */
-        const char *tcp_ns_reset_window_error_descr = try_val_to_str(real_window, netscaler_reset_window_error_code_vals);
-        if (tcp_ns_reset_window_error_descr != NULL) { /* If its in the Netscaler range, add tree */
-            item = proto_tree_add_string(tcp_tree, hf_tcp_ns_reset_window_error_code, tvb,
-                   offset + 14, 2,tcp_ns_reset_window_error_descr);
-            proto_item_set_generated(item);
-        }
-
     }
     if(tcp_analyze_seq
             && (tcph->th_flags & (TH_SYN|TH_ACK)) == TH_ACK
@@ -8821,6 +8760,77 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
             && (tcph->th_flags & (TH_SYN|TH_ACK)) == TH_ACK) {
         if(tcpd->fwd->is_first_ack) {
             tcpd->fwd->is_first_ack = false;
+        }
+    }
+
+    tcph->th_win = tvb_get_ntohs(tvb, offset + 14);
+    real_window = tcph->th_win;
+    /* re-calculate window size based on scaling factor */
+    if (!(tcph->th_flags&TH_SYN)) {   /* SYNs are never scaled */
+        if (tcpd && (tcpd->fwd->win_scale>=0)) {
+            (tcph->th_win)<<=tcpd->fwd->win_scale;
+        }
+        else if (tcpd && (tcpd->fwd->win_scale == -1)) {
+            /* i.e. Unknown, but wasn't signalled with no scaling, so use preference setting instead! */
+            if (tcp_default_window_scaling>=0) {
+                (tcph->th_win)<<=tcp_default_window_scaling;
+            }
+        }
+    }
+
+    tcp_info_append_uint(pinfo, "Win", tcph->th_win);
+
+    if (tree) {
+        /* As discussed in bug 5541, it is better to use two separate
+         * fields for the real and calculated window size.
+         */
+        proto_tree_add_uint(tcp_tree, hf_tcp_window_size_value, tvb, offset + 14, 2, real_window);
+        if(tcph->th_flags & TH_RST){
+            /* Check if the window value of this reset packet is in the NetScaler error code range */
+            const char *tcp_ns_reset_window_error_descr = try_val_to_str(real_window, netscaler_reset_window_error_code_vals);
+            if (tcp_ns_reset_window_error_descr != NULL) { /* If its in the Netscaler range, add tree */
+                item = proto_tree_add_string(tcp_tree, hf_tcp_ns_reset_window_error_code, tvb,
+                       offset + 14, 2, tcp_ns_reset_window_error_descr);
+                proto_item_set_generated(item);
+            }
+        }
+        scaled_pi = proto_tree_add_uint(tcp_tree, hf_tcp_window_size, tvb, offset + 14, 2, tcph->th_win);
+        proto_item_set_generated(scaled_pi);
+
+        if( !(tcph->th_flags&TH_SYN) && tcpd ) {
+            switch (tcpd->fwd->win_scale) {
+
+            case -1:
+                /* Unknown */
+                {
+                    int16_t win_scale = tcpd->fwd->win_scale;
+                    bool override_with_pref = false;
+
+                    /* Use preference setting (if set) */
+                    if (tcp_default_window_scaling != WindowScaling_NotKnown) {
+                        win_scale = (1 << tcp_default_window_scaling);
+                        override_with_pref = true;
+                    }
+
+                    scaled_pi = proto_tree_add_int_format_value(tcp_tree, hf_tcp_window_size_scalefactor, tvb, offset + 14, 2,
+                                                          win_scale, "%d (%s)",
+                                                          win_scale,
+                                                          (override_with_pref) ? "missing - taken from preference" : "unknown");
+                    proto_item_set_generated(scaled_pi);
+                }
+                break;
+
+            case -2:
+                /* No window scaling used */
+                scaled_pi = proto_tree_add_int_format_value(tcp_tree, hf_tcp_window_size_scalefactor, tvb, offset + 14, 2, tcpd->fwd->win_scale, "%d (no window scaling used)", tcpd->fwd->win_scale);
+                proto_item_set_generated(scaled_pi);
+                break;
+
+            default:
+                /* Scaling from signalled value */
+                scaled_pi = proto_tree_add_int_format_value(tcp_tree, hf_tcp_window_size_scalefactor, tvb, offset + 14, 2, 1<<tcpd->fwd->win_scale, "%d", 1<<tcpd->fwd->win_scale);
+                proto_item_set_generated(scaled_pi);
+            }
         }
     }
 
