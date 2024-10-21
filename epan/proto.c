@@ -7782,7 +7782,7 @@ finfo_set_len(field_info *fi, const int length)
 
 	/* If we have an FT_PROTOCOL we need to set the length of the fvalue tvbuff as well. */
 	if (fvalue_type_ftenum(fi->value) == FT_PROTOCOL) {
-		fvalue_set_protocol(fi->value, NULL, NULL, fi->length);
+		fvalue_set_protocol_length(fi->value, fi->length);
 	}
 
 	/*

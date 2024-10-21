@@ -432,6 +432,10 @@ fvalue_set_protocol(fvalue_t *fv, tvbuff_t *value, const char *name, int length)
 
 WS_DLL_PUBLIC
 void
+fvalue_set_protocol_length(fvalue_t *fv, int length);
+
+WS_DLL_PUBLIC
+void
 fvalue_set_uinteger(fvalue_t *fv, uint32_t value);
 
 WS_DLL_PUBLIC
