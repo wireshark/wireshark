@@ -125,7 +125,7 @@ Package: wireshark-dev
 Architecture: any
 Section: devel
 Depends: ${misc:Depends}, omniidl (>= 4.0.1-2), libpcap0.8-dev,
- libglib2.0-dev, python3:any, python3-ply, snacc,
+ libglib2.0-dev, python3:any, python3-ply, esnacc,
  libwireshark-dev, libwiretap-dev
 Description: network traffic analyzer - development tools
  Wireshark is a network "sniffer" - a tool that captures and analyzes
