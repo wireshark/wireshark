@@ -4,7 +4,7 @@
 # Debian GNU/Linux packages from ASN.1 files for Wireshark.
 # Copyright 2004, W. Borgert
 
-# ASN.1 module for Wireshark, use of snacc type table:
+# ASN.1 module for Wireshark, use of esnacc type table:
 # Copyright 2003, Matthijs Melchior <matthijs.melchior@xs4all.nl>
 #
 # Wireshark - Network traffic analyzer
@@ -61,7 +61,7 @@ Section: net
 Priority: optional
 Maintainer: %s <%s>
 Standards-Version: 3.6.1.0
-Build-Depends: snacc, autotools-dev, debhelper, cdbs
+Build-Depends: esnacc, autotools-dev, debhelper, cdbs
 
 Package: wireshark-asn1-%s
 Architecture: all
