@@ -2300,7 +2300,7 @@ dissect_dhcpopt_vendor_specific_info(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 		if (test_encapsulated_vendor_options(tvb, offset, tvb_reported_length(tvb), NULL)) {
 			/* Generic encapsulated options per RFC 2132 8.4 */
 			while (tvb_reported_length_remaining(tvb, offset)) {
-				offset = dissect_option43_generic_suboption(pinfo, proto_tree_get_parent(tree), tree, tvb_new_subset_remaining(tvb, offset));
+				offset += dissect_option43_generic_suboption(pinfo, proto_tree_get_parent(tree), tree, tvb_new_subset_remaining(tvb, offset));
 			}
 		} else {
 			/* Default Vendor-Specific Info.. display in bytes */
