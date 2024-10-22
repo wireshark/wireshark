@@ -1222,6 +1222,9 @@ wmem_test_tree(void)
     if (rand_int > 0) {
         g_assert_true(wmem_tree_lookup32_le(tree, rand_int) == GINT_TO_POINTER(rand_int - 1));
     }
+    if (rand_int + 1 < CONTAINER_ITERS) {
+        g_assert_true(wmem_tree_lookup32_ge(tree, rand_int) == GINT_TO_POINTER(rand_int + 1));
+    }
     g_assert_true(wmem_tree_count(tree) == CONTAINER_ITERS - 1);
     wmem_free_all(allocator);
 

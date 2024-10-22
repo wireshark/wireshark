@@ -121,6 +121,23 @@ WS_DLL_PUBLIC
 void *
 wmem_tree_lookup32_le_full(wmem_tree_t *tree, uint32_t key, uint32_t *orig_key);
 
+/** Look up a node in the tree indexed by a uint32_t integer value.
+ * Returns the node that has the smallest key that is greater than or equal
+ * to the search key, or NULL if no such key exists.
+ */
+WS_DLL_PUBLIC
+void *
+wmem_tree_lookup32_ge(wmem_tree_t *tree, uint32_t key);
+
+/** Look up a node in the tree indexed by a uint32_t integer value.
+ * Returns the node that has the smallest key that is greater than or equal
+ * to the search key, or NULL if no such key exists. Also returns the
+ * least upper bound key if it exists.
+ */
+WS_DLL_PUBLIC
+void *
+wmem_tree_lookup32_ge_full(wmem_tree_t *tree, uint32_t key, uint32_t *orig_key);
+
 /** Remove a node in the tree indexed by a uint32_t integer value. This
  * now is a real remove. This returns the value stored at that key. If
  * the tree memory is managed manually (NULL allocator), it is the

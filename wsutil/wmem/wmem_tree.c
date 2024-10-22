@@ -808,6 +808,95 @@ wmem_tree_lookup32_le_full(wmem_tree_t *tree, uint32_t key, uint32_t *orig_key)
     return node->data;
 }
 
+static wmem_tree_node_t*
+wmem_tree_lookup32_ge_node(wmem_tree_t *tree, uint32_t key)
+{
+    if (!tree) {
+        return NULL;
+    }
+
+    wmem_tree_node_t *node = tree->root;
+
+    while (node) {
+        if (key == GPOINTER_TO_UINT(node->key)) {
+            return node;
+        }
+        else if (key < GPOINTER_TO_UINT(node->key)) {
+            if (node->left == NULL) {
+                break;
+            }
+            node = node->left;
+        }
+        else if (key > GPOINTER_TO_UINT(node->key)) {
+            if (node->right == NULL) {
+                break;
+            }
+            node = node->right;
+        }
+    }
+
+    if (!node) {
+        return NULL;
+    }
+
+    /* If we are still at the root of the tree this means that this node
+     * is either greater than the search key and then we return this
+     * node or else there is no greater key available and then
+     * we return NULL.
+     */
+    if (node->parent == NULL) {
+        if (key < GPOINTER_TO_UINT(node->key)) {
+            return node;
+        } else {
+            return NULL;
+        }
+    }
+
+    if (GPOINTER_TO_UINT(node->key) >= key) {
+        /* if our key is >= the search key, we have the right node */
+        return node;
+    }
+    else if (node == node->parent->right) {
+        /* our key is smaller than the search key and we're a right child,
+         * we have to check if any of our ancestors are bigger. */
+        while (node) {
+            if (key < GPOINTER_TO_UINT(node->key)) {
+                return node;
+            }
+            node=node->parent;
+        }
+        return NULL;
+    }
+    else {
+        /* our key is smaller than the search key and we're a left child,
+         * our parent is the one we want */
+        return node->parent;
+    }
+}
+
+void *
+wmem_tree_lookup32_ge(wmem_tree_t *tree, uint32_t key)
+{
+    wmem_tree_node_t *node = wmem_tree_lookup32_ge_node(tree, key);
+    if (node == NULL) {
+        return NULL;
+    }
+
+    return node->data;
+}
+
+void *
+wmem_tree_lookup32_ge_full(wmem_tree_t *tree, uint32_t key, uint32_t *orig_key)
+{
+    wmem_tree_node_t *node = wmem_tree_lookup32_ge_node(tree, key);
+    if (node == NULL) {
+        return NULL;
+    }
+
+    *orig_key = GPOINTER_TO_UINT(node->key);
+    return node->data;
+}
+
 void *
 wmem_tree_remove32(wmem_tree_t *tree, uint32_t key)
 {
