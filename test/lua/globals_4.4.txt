@@ -1,4 +1,4 @@
--- Wireshark version: 4.3.0
+-- Wireshark version: 4.5.0
 {
     ["Address"] = {
         ["ether"] = '<function 1>',
@@ -538,6 +538,7 @@
         ["FT_BYTES"] = 30,
         ["FT_CHAR"] = 3,
         ["FT_DOUBLE"] = 23,
+        ["FT_ENUM_SIZE"] = 47,
         ["FT_ERROR"] = 3,
         ["FT_ETHER"] = 29,
         ["FT_ETHER_LEN"] = 6,
@@ -585,6 +586,7 @@
         ["FTREPR_DFILTER"] = 1,
         ["FTREPR_DISPLAY"] = 0,
         ["FTREPR_JSON"] = 2,
+        ["FTREPR_RAW"] = 3,
         ["FT_SCALAR"] = 47,
         ["FT_STRING"] = 26,
         ["FT_STRINGZ"] = 27,
@@ -610,6 +612,7 @@
         ["HF_REF_TYPE_NONE"] = 0,
         ["HF_REF_TYPE_PRINT"] = 3,
         ["IP_PROTO_3PC"] = 34,
+        ["IP_PROTO_AGGFRAG"] = 144,
         ["IP_PROTO_AH"] = 51,
         ["IP_PROTO_AN"] = 107,
         ["IP_PROTO_ARGUS"] = 13,
@@ -694,6 +697,7 @@
         ["IP_PROTO_NCS_HEARTBEAT"] = 224,
         ["IP_PROTO_NONE"] = 59,
         ["IP_PROTO_NSFNETIGP"] = 85,
+        ["IP_PROTO_NSH"] = 145,
         ["IP_PROTO_NVPII"] = 11,
         ["IP_PROTO_OSPF"] = 89,
         ["IP_PROTO_PGM"] = 113,
@@ -1017,6 +1021,7 @@
         ["BYTES"] = 30,
         ["CHAR"] = 3,
         ["DOUBLE"] = 23,
+        ["ENUM_SIZE"] = 47,
         ["ERROR"] = 3,
         ["ETHER"] = 29,
         ["ETHER_LEN"] = 6,
@@ -2116,6 +2121,7 @@
         ["K12_PORT_DS0S"] = 65544,
         ["K12_PORT_DS1"] = 1048584,
         ["LLCP_PHDR_FLAG_SENT"] = 0,
+        ["MAXDNSNAMELEN"] = 256,
         ["MAX_ERF_EHDR"] = 16,
         ["MAXNAMELEN"] = 64,
         ["MTP2_ANNEX_A_NOT_USED"] = 0,
@@ -2188,6 +2194,7 @@
         ["PHDR_802_11_BANDWIDTH_80_80L"] = 12,
         ["PHDR_802_11_BANDWIDTH_80_80U"] = 13,
         ["PHDR_802_11_BANDWIDTH_80_MHZ"] = 4,
+        ["PHDR_802_11BE_MAX_USERS"] = 4,
         ["PHDR_802_11_DATA_NOT_CAPTURED"] = 1,
         ["PHDR_802_11G_MODE_NORMAL"] = 0,
         ["PHDR_802_11G_MODE_SUPER_G"] = 1,
@@ -2581,6 +2588,7 @@
         ["WTAP_TSPREC_USEC"] = 6,
         ["WTAP_TYPE_AUTO"] = 0,
         ["WTAP_UNCOMPRESSED"] = 0,
+        ["WTAP_UNKNOWN_COMPRESSION"] = 4,
         ["WTAP_ZSTD_COMPRESSED"] = 2
     },
     ["wtap_comments"] = {

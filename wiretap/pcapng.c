@@ -2523,8 +2523,8 @@ pcapng_read_simple_packet_block(FILE_T fh, pcapng_block_header_t *bh,
 #define NRES_IP4RECORD 1
 #define NRES_IP6RECORD 2
 #define PADDING4(x) ((((x + 3) >> 2) << 2) - x)
-/* IPv6 + MAXNAMELEN */
-#define INITIAL_NRB_REC_SIZE (16 + 64)
+/* IPv6 + MAXDNSNAMELEN */
+#define INITIAL_NRB_REC_SIZE (16 + MAXDNSNAMELEN)
 
 /*
  * Find the end of the NUL-terminated name the beginning of which is pointed
@@ -2745,7 +2745,7 @@ pcapng_read_name_resolution_block(FILE_T fh, pcapng_block_header_t *bh,
                     }
                     hashipv4_t *tp = g_new0(hashipv4_t, 1);
                     tp->addr = v4_addr;
-                    (void) g_strlcpy(tp->name, namep, MAXNAMELEN);
+                    (void) g_strlcpy(tp->name, namep, MAXDNSNAMELEN);
                     nrb_mand->ipv4_addr_list = g_list_prepend(nrb_mand->ipv4_addr_list, tp);
                 }
 
@@ -2806,7 +2806,7 @@ pcapng_read_name_resolution_block(FILE_T fh, pcapng_block_header_t *bh,
                     }
                     hashipv6_t *tp = g_new0(hashipv6_t, 1);
                     memcpy(tp->addr, ws_buffer_start_ptr(&nrb_rec), sizeof tp->addr);
-                    (void) g_strlcpy(tp->name, namep, MAXNAMELEN);
+                    (void) g_strlcpy(tp->name, namep, MAXDNSNAMELEN);
                     nrb_mand->ipv6_addr_list = g_list_prepend(nrb_mand->ipv6_addr_list, tp);
                 }
 

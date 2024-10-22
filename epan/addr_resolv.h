@@ -32,11 +32,15 @@ extern "C" {
 #endif /* __cplusplus */
 
 #ifndef MAXNAMELEN
-#define MAXNAMELEN  	64	/* max name length (hostname and port name) */
+#define MAXNAMELEN  	64	/* max name length (most names: DNS labels, services, eth) */
 #endif
 
 #ifndef MAXVLANNAMELEN
 #define MAXVLANNAMELEN  	128	/* max vlan name length */
+#endif
+
+#ifndef MAXDNSNAMELEN
+#define MAXDNSNAMELEN	256	/* max total length of a domain name in the DNS */
 #endif
 
 #define BASE_ENTERPRISES     BASE_CUSTOM
@@ -80,8 +84,9 @@ typedef struct serv_port {
   const char       *numeric;
 } serv_port_t;
 
+/* Used for manually edited DNS resolved names */
 typedef struct _resolved_name {
-    char             name[MAXNAMELEN];
+    char             name[MAXDNSNAMELEN];
 } resolved_name_t;
 
 /*

@@ -80,6 +80,7 @@ static ws_enum_t const all_enums[] = {
     ENUM(K12_PORT_DS0S),
     ENUM(K12_PORT_DS1),
     ENUM(LLCP_PHDR_FLAG_SENT),
+    ENUM(MAXDNSNAMELEN),
     ENUM(MAXNAMELEN),
     ENUM(MAX_ERF_EHDR),
     ENUM(MTP2_ANNEX_A_NOT_USED),

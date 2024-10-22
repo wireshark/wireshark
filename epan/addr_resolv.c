@@ -1233,9 +1233,9 @@ fill_dummy_ip4(const unsigned addr, hashipv4_t* volatile tp)
         }
 
         /* There are more efficient ways to do this, but this is safe if we
-         * trust snprintf and MAXNAMELEN
+         * trust snprintf and MAXDNSNAMELEN
          */
-        snprintf(tp->name, MAXNAMELEN, "%s%s", subnet_entry.name, paddr);
+        snprintf(tp->name, MAXDNSNAMELEN, "%s%s", subnet_entry.name, paddr);
 
         /* Evaluate the subnet in CIDR notation
          * Reuse buffers built above
@@ -1253,10 +1253,10 @@ fill_dummy_ip4(const unsigned addr, hashipv4_t* volatile tp)
         cidr_covered = true;
     } else {
         /* XXX: This means we end up printing "1.2.3.4 (1.2.3.4)" in many cases */
-        ip_addr_to_str_buf(&addr, tp->name, MAXNAMELEN);
+        ip_addr_to_str_buf(&addr, tp->name, MAXDNSNAMELEN);
 
         /* IP does not belong to any known subnet, just indicate this IP without "/.32" */
-        ip_addr_to_str_buf(&addr, tp->cidr_addr, MAXNAMELEN);
+        ip_addr_to_str_buf(&addr, tp->cidr_addr, MAXDNSNAMELEN);
     }
     return cidr_covered;
 }
@@ -1268,7 +1268,7 @@ static void
 fill_dummy_ip6(hashipv6_t* volatile tp)
 {
     /* Overwrite if we get async DNS reply */
-    (void) g_strlcpy(tp->name, tp->ip6, MAXNAMELEN);
+    (void) g_strlcpy(tp->name, tp->ip6, MAXDNSNAMELEN);
 }
 
 static void
@@ -2766,7 +2766,7 @@ add_ip_name_from_string (const char *addr, const char *name)
         if (resolved_entry)
         {
             // If we found a previous matching key (IP address), then just update the value (custom hostname);
-            (void) g_strlcpy(resolved_entry->name, name, MAXNAMELEN);
+            (void) g_strlcpy(resolved_entry->name, name, MAXDNSNAMELEN);
         }
         else
         {
@@ -2775,7 +2775,7 @@ add_ip_name_from_string (const char *addr, const char *name)
             memcpy(addr_key, &host_addr.ip6_addr, sizeof(ws_in6_addr));
 
             resolved_entry = wmem_new(wmem_epan_scope(), resolved_name_t);
-            (void) g_strlcpy(resolved_entry->name, name, MAXNAMELEN);
+            (void) g_strlcpy(resolved_entry->name, name, MAXDNSNAMELEN);
 
             wmem_map_insert(manually_resolved_ipv6_list, addr_key, resolved_entry);
         }
@@ -2784,13 +2784,13 @@ add_ip_name_from_string (const char *addr, const char *name)
         if (resolved_entry)
         {
             // If we found a previous matching key (IP address), then just update the value (custom hostname);
-            (void) g_strlcpy(resolved_entry->name, name, MAXNAMELEN);
+            (void) g_strlcpy(resolved_entry->name, name, MAXDNSNAMELEN);
         }
         else
         {
             // Add a new mapping entry, if this IP address isn't already in the list.
             resolved_entry = wmem_new(wmem_epan_scope(), resolved_name_t);
-            (void) g_strlcpy(resolved_entry->name, name, MAXNAMELEN);
+            (void) g_strlcpy(resolved_entry->name, name, MAXDNSNAMELEN);
 
             wmem_map_insert(manually_resolved_ipv4_list, GUINT_TO_POINTER(host_addr.ip4_addr), resolved_entry);
         }
@@ -3457,7 +3457,7 @@ add_ipv4_name(const unsigned addr, const char *name, bool static_entry)
     }
 
     if (g_ascii_strcasecmp(tp->name, name) && (static_entry || !(tp->flags & STATIC_HOSTNAME))) {
-        (void) g_strlcpy(tp->name, name, MAXNAMELEN);
+        (void) g_strlcpy(tp->name, name, MAXDNSNAMELEN);
         new_resolved_objects = true;
         if (static_entry)
             tp->flags |= STATIC_HOSTNAME;
@@ -3489,7 +3489,7 @@ add_ipv6_name(const ws_in6_addr *addrp, const char *name, const bool static_entr
     }
 
     if (g_ascii_strcasecmp(tp->name, name) && (static_entry || !(tp->flags & STATIC_HOSTNAME))) {
-        (void) g_strlcpy(tp->name, name, MAXNAMELEN);
+        (void) g_strlcpy(tp->name, name, MAXDNSNAMELEN);
         new_resolved_objects = true;
         if (static_entry)
             tp->flags |= STATIC_HOSTNAME;
