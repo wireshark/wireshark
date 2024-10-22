@@ -626,44 +626,44 @@ print_stats(const char *filename, capture_info *cf_info)
                     show_option_string("Capture comment:     ", str);
                 }
             }
-
-            if (pkt_comments && cf_info->pkt_cmts != NULL) {
-              for (p = cf_info->pkt_cmts; p != NULL; prev = p, p = p->next, g_free(prev)) {
-                if (machine_readable){
-                  printf("Packet %d Comment:    %s\n", p->recno, g_strescape(p->cmt, NULL));
-                } else {
-                  printf("Packet %d Comment:    %s\n", p->recno, p->cmt);
-                }
-                g_free(p->cmt);
-              }
-            }
-
-            if (cap_file_idb && cf_info->num_interfaces != 0) {
-                unsigned int i;
-                ws_assert(cf_info->num_interfaces == cf_info->idb_info_strings->len);
-                printf     ("Number of interfaces in file: %u\n", cf_info->num_interfaces);
-                for (i = 0; i < cf_info->idb_info_strings->len; i++) {
-                    char *s = g_array_index(cf_info->idb_info_strings, char*, i);
-                    uint32_t packet_count = 0;
-                    if (i < cf_info->interface_packet_counts->len)
-                        packet_count = g_array_index(cf_info->interface_packet_counts, uint32_t, i);
-                    printf   ("Interface #%u info:\n", i);
-                    printf   ("%s", s);
-                    printf   ("                     Number of packets = %u\n", packet_count);
-                }
-            }
         }
+    }
 
-        if (cap_file_nrb) {
-            if (num_ipv4_addresses != 0)
-                printf   ("Number of resolved IPv4 addresses in file: %u\n", num_ipv4_addresses);
-            if (num_ipv6_addresses != 0)
-                printf   ("Number of resolved IPv6 addresses in file: %u\n", num_ipv6_addresses);
+    if (pkt_comments && cf_info->pkt_cmts != NULL) {
+      for (p = cf_info->pkt_cmts; p != NULL; prev = p, p = p->next, g_free(prev)) {
+        if (machine_readable){
+          printf("Packet %d Comment:    %s\n", p->recno, g_strescape(p->cmt, NULL));
+        } else {
+          printf("Packet %d Comment:    %s\n", p->recno, p->cmt);
         }
-        if (cap_file_dsb) {
-            if (num_decryption_secrets != 0)
-                printf   ("Number of decryption secrets in file: %u\n", num_decryption_secrets);
+        g_free(p->cmt);
+      }
+    }
+
+    if (cap_file_idb && cf_info->num_interfaces != 0) {
+        unsigned int i;
+        ws_assert(cf_info->num_interfaces == cf_info->idb_info_strings->len);
+        printf     ("Number of interfaces in file: %u\n", cf_info->num_interfaces);
+        for (i = 0; i < cf_info->idb_info_strings->len; i++) {
+            char *s = g_array_index(cf_info->idb_info_strings, char*, i);
+            uint32_t packet_count = 0;
+            if (i < cf_info->interface_packet_counts->len)
+                packet_count = g_array_index(cf_info->interface_packet_counts, uint32_t, i);
+            printf   ("Interface #%u info:\n", i);
+            printf   ("%s", s);
+            printf   ("                     Number of packets = %u\n", packet_count);
         }
+    }
+
+    if (cap_file_nrb) {
+        if (num_ipv4_addresses != 0)
+            printf   ("Number of resolved IPv4 addresses in file: %u\n", num_ipv4_addresses);
+        if (num_ipv6_addresses != 0)
+            printf   ("Number of resolved IPv6 addresses in file: %u\n", num_ipv6_addresses);
+    }
+    if (cap_file_dsb) {
+        if (num_decryption_secrets != 0)
+            printf   ("Number of decryption secrets in file: %u\n", num_decryption_secrets);
     }
 }
 
