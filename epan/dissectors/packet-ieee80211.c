@@ -36952,14 +36952,14 @@ dissect_ieee80211_block_ack_details(tvbuff_t *tvb, packet_info *pinfo _U_,
       ba_bitmap_tree = proto_item_add_subtree(ba_bitmap_item,
                           ett_block_ack_bitmap);
       for (i = 0; i < (bytes * 8); i += 64) {
-        bmap = tvb_get_letoh64(tvb, offset);
+        bmap = tvb_get_letoh64(tvb, offset + i/8);
         for (f = 0; f < 64; f++) {
           if (bmap & (UINT64_C(1) << f))
             continue;
           proto_tree_add_uint_format_value(ba_bitmap_tree,
                           hf_ieee80211_block_ack_bitmap_missing_frame,
-                          tvb, offset + (f/8), 1, ssn + f, "%u",
-                          (ssn + f) & 0x0fff);
+                          tvb, offset + ((f + i)/8), 1, ssn + f + i, "%u",
+                          (ssn + f + i) & 0x0fff);
         }
       }
       offset += bytes;
