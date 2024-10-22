@@ -100,7 +100,7 @@
 #define SEGMENT_ROUTING_LB       22
 #define NODE_MSD                 23            /* rfc8491 */
 #define SRV6_CAP                 25            /* rfc9352 */
-#define FLEX_ALGO_DEF            26            /* draft-ietf-lsr-flex-algo-16 */
+#define FLEX_ALGO_DEF            26            /* rfc9350 */
 
 
 /*Sub-TLVs under Group Address TLV*/
@@ -132,12 +132,15 @@
 #define IGP_MSD_TYPE_H_ENCAP        44
 #define IGP_MSD_TYPE_END_D          45
 
-/* Flex Algo Definition Sub-TLV (draft-ietf-lsr-flex-algo-16) */
+/* Flex Algo Definition Sub-TLV (rfc9350) */
 #define FAD_EXCLUDE_AG              1
 #define FAD_INCLUDE_ANY_AG          2
 #define FAD_INCLUDE_ALL_AG          3
 #define FAD_DEF_FLAGS               4
 #define FAD_EXCLUDE_SRLG            5
+
+/* Flex Algo Definition Flags (rfc9350) */
+#define FAD_DEF_FLAGS_M             0x80
 
 /* Prefix Attribute Flags Sub-TLV (rfc7794)*/
 #define ISIS_LSP_PFX_ATTR_FLAG_X    0x80
@@ -437,6 +440,9 @@ static int hf_isis_lsp_clv_flex_algo_algorithm;
 static int hf_isis_lsp_clv_flex_algo_metric_type;
 static int hf_isis_lsp_clv_flex_algo_calc_type;
 static int hf_isis_lsp_clv_flex_algo_priority;
+static int hf_isis_lsp_clv_flex_algo_def_flags;
+static int hf_isis_lsp_clv_flex_algo_def_flags_m;
+static int hf_isis_lsp_clv_flex_algo_srlg_value;
 static int hf_isis_lsp_clv_srv6_endx_sid_system_id;
 static int hf_isis_lsp_clv_srv6_endx_sid_flags;
 static int hf_isis_lsp_clv_srv6_endx_sid_flags_b;
@@ -1704,10 +1710,12 @@ dissect_isis_trill_clv(tvbuff_t *tvb, packet_info* pinfo _U_,
 {
     uint16_t rt_block;
     proto_tree *rt_tree, *cap_tree, *subtree;
+    proto_item *tree_item = NULL;
     uint16_t root_id;
     uint8_t tlv_type, tlv_len;
     int i;
-    int local_offset;
+    int local_offset, local_len;
+    uint8_t flags;
 
     switch (subtype) {
 
@@ -1968,7 +1976,7 @@ dissect_isis_trill_clv(tvbuff_t *tvb, packet_info* pinfo _U_,
             offset += 2;
             subtree = proto_tree_add_subtree_format(rt_tree, tvb, offset-2, tlv_len+2,
                                                     ett_isis_lsp_clv_flex_algo_def_sub_tlv,
-                                                    NULL, "%s (t=%u, l=%u)",
+                                                    &tree_item, "%s (t=%u, l=%u)",
                                                     val_to_str_const(tlv_type, isis_lsp_flex_algo_sub_tlv_vals, "Unknown"),
                                                     tlv_type, tlv_len);
             switch (tlv_type) {
@@ -1976,6 +1984,23 @@ dissect_isis_trill_clv(tvbuff_t *tvb, packet_info* pinfo _U_,
             case FAD_INCLUDE_ANY_AG:
             case FAD_INCLUDE_ALL_AG:
                 dissect_subclv_ext_admin_group(tvb, subtree, offset, tlv_type, tlv_len);
+                break;
+            case FAD_DEF_FLAGS:
+                flags = tvb_get_uint8(tvb, offset);
+                proto_tree_add_item(subtree, hf_isis_lsp_clv_flex_algo_def_flags_m, tvb, offset, 1, ENC_NA);
+                if (tree_item) {
+                    proto_item_append_text(tree_item, ": Flags:%c",
+                                           ((flags & FAD_DEF_FLAGS_M) != 0) ? 'M' : '-');
+                }
+                break;
+            case FAD_EXCLUDE_SRLG:
+                local_offset = offset;
+                local_len = sublen;
+                while (local_len >= 4) {
+                    proto_tree_add_item(subtree, hf_isis_lsp_clv_flex_algo_srlg_value, tvb, local_offset, 4, ENC_BIG_ENDIAN);
+                    local_len -= 4;
+                    local_offset += 4;
+                }
                 break;
             default:
                 break;
@@ -6677,7 +6702,7 @@ proto_register_isis_lsp(void)
             NULL, HFILL }
         },
 
-        /* draft-ietf-lsr-flex-algo-16 */
+        /* rfc9350 */
         { &hf_isis_lsp_clv_flex_algo_algorithm,
           { "Flex-Algorithm", "isis.lsp.flex_algorithm.algorithm",
             FT_UINT8, BASE_DEC, NULL, 0x0,
@@ -6697,6 +6722,21 @@ proto_register_isis_lsp(void)
           { "Priority", "isis.lsp.flex_algorithm.priority",
             FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
+        },
+        { &hf_isis_lsp_clv_flex_algo_def_flags,
+            { "Flexible Algorithm Definition Flags", "isis.lsp.flex_algorithm.definition_flags",
+              FT_UINT8, BASE_HEX, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_clv_flex_algo_def_flags_m,
+            { "M-flag (M)", "isis.lsp.flex_algorithm.definition_flags.m",
+              FT_BOOLEAN, 8, TFS(&tfs_set_notset), FAD_DEF_FLAGS_M,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_clv_flex_algo_srlg_value,
+            { "Shared Risk Link Group", "isis.lsp.flex_algorithm.srlg",
+              FT_UINT32, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }
         },
 
         /* rfc6232 */
