@@ -1241,7 +1241,15 @@ Dot11DecryptRsnaMng(
        /* copy the encrypted data into a temp buffer */
        memcpy(try_data, decrypt_data, *decrypt_len);
 
-       if (sa->wpa.key_ver==1) {
+       /* Select decryption method based on EAPOL Key Descriptor Version and negotiated AKM
+        * with selected cipher suite. Refer to IEEE 802.11-2020:
+        * 12.7.2 EAPOL-Key frames
+        * 12.2.4 RSNA establishment
+        * 12.7 Keys and key distribution
+        * Table 9-149-Cipher suite selectors
+        */
+
+       if (sa->wpa.key_ver == 1 || sa->wpa.cipher == DOT11DECRYPT_CIPHER_TKIP) {
            /* CCMP -> HMAC-MD5 is the EAPOL-Key MIC, RC4 is the EAPOL-Key encryption algorithm */
            ws_noisy("TKIP");
            DEBUG_DUMP("ptk", sa->wpa.ptk, 64, LOG_LEVEL_NOISY);
