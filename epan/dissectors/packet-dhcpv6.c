@@ -724,6 +724,11 @@ static const value_string opttype_vals[] = {
 };
 static value_string_ext opttype_vals_ext = VALUE_STRING_EXT_INIT(opttype_vals);
 
+static const value_string infinity_val[] = {
+    { DHCPV6_LEASEDURATION_INFINITY, "infinity" },
+    { 0, NULL }
+};
+
 static const value_string statuscode_vals[] =
 {
     { 0, "Success" },
@@ -2246,21 +2251,8 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
         }
         proto_tree_add_string(subtree, hf_iaid, tvb, off,
                                     4, tvb_arphrdaddr_to_str(pinfo->pool, tvb, off, 4, opttype));  /* XXX: IAID is opaque ? review ... */
-        if (tvb_get_ntohl(tvb, off+4) == DHCPV6_LEASEDURATION_INFINITY) {
-            proto_tree_add_uint_format_value(subtree, hf_iaid_t1, tvb, off+4,
-                                    4, DHCPV6_LEASEDURATION_INFINITY, "infinity");
-        } else {
-            proto_tree_add_item(subtree, hf_iaid_t1, tvb, off+4,
-                                    4, ENC_BIG_ENDIAN);
-        }
-
-        if (tvb_get_ntohl(tvb, off+8) == DHCPV6_LEASEDURATION_INFINITY) {
-            proto_tree_add_uint_format_value(subtree, hf_iaid_t2, tvb, off+8,
-                                    4, DHCPV6_LEASEDURATION_INFINITY, "infinity");
-        } else {
-            proto_tree_add_item(subtree, hf_iaid_t2, tvb, off+8,
-                                    4, ENC_BIG_ENDIAN);
-        }
+        proto_tree_add_item(subtree, hf_iaid_t1, tvb, off+4, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_item(subtree, hf_iaid_t2, tvb, off+8, 4, ENC_BIG_ENDIAN);
 
         temp_optlen = 12;
         while ((optlen - temp_optlen) > 0) {
@@ -2291,8 +2283,6 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
         break;
     case OPTION_IAADDR:
     {
-        uint32_t preferred_lifetime, valid_lifetime;
-
         if (optlen < 24) {
             expert_add_info_format(pinfo, option_item, &ei_dhcpv6_malformed_option, "IA_TA: malformed option");
             break;
@@ -2301,23 +2291,8 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
         proto_tree_add_item(subtree, hf_iaaddr_ip, tvb, off, 16, ENC_NA);
         col_append_fstr(pinfo->cinfo, COL_INFO, "IAA: %s ", tvb_ip6_to_str(pinfo->pool, tvb, off));
 
-        preferred_lifetime = tvb_get_ntohl(tvb, off + 16);
-        valid_lifetime = tvb_get_ntohl(tvb, off + 20);
-
-        if (preferred_lifetime == DHCPV6_LEASEDURATION_INFINITY) {
-            proto_tree_add_uint_format_value(subtree, hf_iaaddr_pref_lifetime, tvb, off+16,
-                                    4, DHCPV6_LEASEDURATION_INFINITY, "infinity");
-        } else {
-            proto_tree_add_item(subtree, hf_iaaddr_pref_lifetime, tvb, off+16,
-                                    4, ENC_BIG_ENDIAN);
-        }
-        if (valid_lifetime == DHCPV6_LEASEDURATION_INFINITY) {
-            proto_tree_add_uint_format(subtree, hf_iaaddr_valid_lifetime, tvb, off+20,
-                                    4, DHCPV6_LEASEDURATION_INFINITY, "Preferred lifetime: infinity");
-        } else {
-            proto_tree_add_item(subtree, hf_iaaddr_valid_lifetime, tvb, off+20,
-                                    4, ENC_BIG_ENDIAN);
-        }
+        proto_tree_add_item(subtree, hf_iaaddr_pref_lifetime, tvb, off+16, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_item(subtree, hf_iaaddr_valid_lifetime, tvb, off+20, 4, ENC_BIG_ENDIAN);
 
         temp_optlen = 24;
         while ((optlen - temp_optlen) > 0) {
@@ -2815,20 +2790,8 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
             break;
         }
 
-        if (tvb_get_ntohl(tvb, off) == DHCPV6_LEASEDURATION_INFINITY) {
-            proto_tree_add_uint_format_value(subtree, hf_iaprefix_pref_lifetime, tvb, off,
-                                    4, DHCPV6_LEASEDURATION_INFINITY, "infinity");
-        } else {
-            proto_tree_add_item(subtree, hf_iaprefix_pref_lifetime, tvb, off,
-                                    4, ENC_BIG_ENDIAN);
-        }
-        if (tvb_get_ntohl(tvb, off + 4) == DHCPV6_LEASEDURATION_INFINITY) {
-            proto_tree_add_uint_format_value(subtree, hf_iaprefix_valid_lifetime, tvb, off+4,
-                                    4, DHCPV6_LEASEDURATION_INFINITY, "infinity");
-        } else {
-            proto_tree_add_item(subtree, hf_iaprefix_valid_lifetime, tvb, off+4,
-                                    4, ENC_BIG_ENDIAN);
-        }
+        proto_tree_add_item(subtree, hf_iaprefix_pref_lifetime, tvb, off, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_item(subtree, hf_iaprefix_valid_lifetime, tvb, off+4, 4, ENC_BIG_ENDIAN);
         proto_tree_add_item(subtree, hf_iaprefix_pref_len, tvb, off+8, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(subtree, hf_iaprefix_pref_addr, tvb, off+9, 16, ENC_NA);
         temp_optlen = 25;
@@ -3438,17 +3401,17 @@ proto_register_dhcpv6(void)
         { &hf_iaid,
           { "IAID", "dhcpv6.iaid", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL}},
         { &hf_iaid_t1,
-          { "T1", "dhcpv6.iaid.t1", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL}},
+          { "T1", "dhcpv6.iaid.t1", FT_UINT32, BASE_DEC|BASE_SPECIAL_VALS, VALS(infinity_val), 0, NULL, HFILL}},
         { &hf_iaid_t2,
-          { "T2", "dhcpv6.iaid.t2", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL}},
+          { "T2", "dhcpv6.iaid.t2", FT_UINT32, BASE_DEC|BASE_SPECIAL_VALS, VALS(infinity_val), 0, NULL, HFILL}},
         { &hf_iata,
           { "IATA", "dhcpv6.iata", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL}},
         { &hf_iaaddr_ip,
           { "IPv6 address", "dhcpv6.iaaddr.ip", FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL}},
         { &hf_iaaddr_pref_lifetime,
-          { "Preferred lifetime", "dhcpv6.iaaddr.pref_lifetime", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL}},
+          { "Preferred lifetime", "dhcpv6.iaaddr.pref_lifetime", FT_UINT32, BASE_DEC|BASE_SPECIAL_VALS, VALS(infinity_val), 0, NULL, HFILL}},
         { &hf_iaaddr_valid_lifetime,
-          { "Valid lifetime", "dhcpv6.iaaddr.valid_lifetime", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL}},
+          { "Valid lifetime", "dhcpv6.iaaddr.valid_lifetime", FT_UINT32, BASE_DEC|BASE_SPECIAL_VALS, VALS(infinity_val), 0, NULL, HFILL}},
         { &hf_requested_option_code,
           { "Requested Option code", "dhcpv6.requested_option_code", FT_UINT16, BASE_DEC | BASE_EXT_STRING, &opttype_vals_ext, 0, NULL, HFILL }},
         { &hf_option_preference,
@@ -3548,9 +3511,9 @@ proto_register_dhcpv6(void)
         { &hf_aftr_name,
           { "DS-Lite AFTR Name", "dhcpv6.aftr_name", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
         { &hf_iaprefix_pref_lifetime,
-          { "Preferred lifetime", "dhcpv6.iaprefix.pref_lifetime", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL}},
+          { "Preferred lifetime", "dhcpv6.iaprefix.pref_lifetime", FT_UINT32, BASE_DEC|BASE_SPECIAL_VALS, VALS(infinity_val), 0, NULL, HFILL}},
         { &hf_iaprefix_valid_lifetime,
-          { "Valid lifetime", "dhcpv6.iaprefix.valid_lifetime", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL}},
+          { "Valid lifetime", "dhcpv6.iaprefix.valid_lifetime", FT_UINT32, BASE_DEC|BASE_SPECIAL_VALS, VALS(infinity_val), 0, NULL, HFILL}},
         { &hf_iaprefix_pref_len,
           { "Prefix length", "dhcpv6.iaprefix.pref_len", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
         { &hf_iaprefix_pref_addr,
