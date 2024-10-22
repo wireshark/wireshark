@@ -797,6 +797,18 @@ wmem_tree_lookup32_le(wmem_tree_t *tree, uint32_t key)
 }
 
 void *
+wmem_tree_lookup32_le_full(wmem_tree_t *tree, uint32_t key, uint32_t *orig_key)
+{
+    wmem_tree_node_t *node = wmem_tree_lookup32_le_node(tree, key);
+    if (node == NULL) {
+        return NULL;
+    }
+
+    *orig_key = GPOINTER_TO_UINT(node->key);
+    return node->data;
+}
+
+void *
 wmem_tree_remove32(wmem_tree_t *tree, uint32_t key)
 {
     wmem_tree_node_t *node = wmem_tree_lookup32_node(tree, key);

@@ -1189,6 +1189,7 @@ wmem_test_tree(void)
     uint32_t            rand_int;
     int                 seen_values = 0;
     int                 j;
+    uint32_t            int_key;
     char               *str_key;
 #define WMEM_TREE_MAX_KEY_COUNT 8
 #define WMEM_TREE_MAX_KEY_LEN   4
@@ -1206,7 +1207,8 @@ wmem_test_tree(void)
     for (i=0; i<CONTAINER_ITERS; i++) {
         g_assert_true(wmem_tree_lookup32(tree, i) == NULL);
         if (i > 0) {
-            g_assert_true(wmem_tree_lookup32_le(tree, i) == GINT_TO_POINTER(i-1));
+            g_assert_true(wmem_tree_lookup32_le_full(tree, i, &int_key) == GINT_TO_POINTER(i-1));
+            g_assert_true(int_key == i - 1);
         }
         wmem_tree_insert32(tree, i, GINT_TO_POINTER(i));
         g_assert_true(wmem_tree_lookup32(tree, i) == GINT_TO_POINTER(i));
