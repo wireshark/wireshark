@@ -908,7 +908,7 @@ void WiresharkMainWindow::keyPressEvent(QKeyEvent *event) {
     }
 
     if (mainApp->focusWidget() == main_ui_->goToLineEdit) {
-        if (event->modifiers() == Qt::NoModifier) {
+        if (event->modifiers() == Qt::NoModifier || event->modifiers() == Qt::KeypadModifier) {
             if (event->key() == Qt::Key_Escape) {
                 goToCancelClicked();
             } else if (event->key() == Qt::Key_Enter || event->key() == Qt::Key_Return) {
