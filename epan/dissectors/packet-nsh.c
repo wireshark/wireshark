@@ -64,13 +64,13 @@ static int hf_nsh_service_index;
 static int hf_nsh_context_header;
 static int hf_nsh_metadata_class;
 static int hf_nsh_metadata_type;
-static int hf_nsh_metadata_unassignedbit;
 static int hf_nsh_metadata_length;
 static int hf_nsh_metadata;
 
 static expert_field ei_nsh_length_invalid;
 
 static int ett_nsh;
+static int ett_nsh_tlv;
 
 static dissector_table_t subdissector_table;
 
@@ -95,30 +95,25 @@ dissect_nsh_md_type_1(tvbuff_t *tvb, proto_tree *nsh_tree, int offset)
 static void
 dissect_nsh_md_type_2(tvbuff_t *tvb, proto_tree *nsh_tree, int offset, int nsh_bytes_len)
 {
-
-	uint32_t type2_metadata_len = 0;
-	int pad_len;
-
 	while (offset < nsh_bytes_len) {
+		uint16_t tlv_class = tvb_get_uint16(tvb, offset, ENC_BIG_ENDIAN);
+		uint8_t  tlv_type = tvb_get_uint8(tvb, offset + 2);
+		uint8_t  tlv_len = tvb_get_uint8(tvb, offset + 3) & 0x7F;
 
-		proto_tree_add_item(nsh_tree, hf_nsh_metadata_class, tvb, offset, 2, ENC_BIG_ENDIAN);
-		proto_tree_add_item(nsh_tree, hf_nsh_metadata_type, tvb, offset + 2, 1, ENC_BIG_ENDIAN);
+		proto_item *tlv_item;
+		proto_tree *tlv_tree = proto_tree_add_subtree_format(nsh_tree, tvb, offset, 4 + tlv_len, ett_nsh_tlv, &tlv_item, "TLV: Class %u Type %u", tlv_class, tlv_type);
 
-		/* Bit 24 is unassigned */
-		proto_tree_add_item(nsh_tree, hf_nsh_metadata_unassignedbit, tvb, offset + 3, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(tlv_tree, hf_nsh_metadata_class, tvb, offset, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(tlv_tree, hf_nsh_metadata_type, tvb, offset + 2, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(tlv_tree, hf_nsh_metadata_length, tvb, offset + 3, 1, ENC_BIG_ENDIAN);
+		offset += 4;
 
-		/* Bits 25-31 represent variable length metadata byte count */
-		proto_tree_add_item_ret_uint(nsh_tree, hf_nsh_metadata_length, tvb, offset + 3, 1, ENC_BIG_ENDIAN, &type2_metadata_len);
-
-		if (type2_metadata_len > 0)
-			proto_tree_add_item(nsh_tree, hf_nsh_metadata, tvb, offset + 4, type2_metadata_len, ENC_NA);
-
-		pad_len = (type2_metadata_len % 4) ? (4 - (type2_metadata_len % 4)) : 0;
-		offset = offset + 4 + type2_metadata_len + pad_len;
-
+		if (tlv_len > 0)
+		{
+			proto_tree_add_item(tlv_tree, hf_nsh_metadata, tvb, offset, tlv_len, ENC_NA);
+			offset += ((tlv_len + 3) / 4) * 4; // aligned up on 4-byte boundary
+		}
 	}
-
-
 }
 
 
@@ -345,13 +340,6 @@ proto_register_nsh(void)
 		},
 
 
-		{ &hf_nsh_metadata_unassignedbit,
-		{ "Unassigned Bit", "nsh.metadataunassignedbit",
-		FT_UINT8, BASE_HEX, NULL, 0x80,
-		"Unassigned Bit within Variable Length Metadata header", HFILL }
-		},
-
-
 		{ &hf_nsh_metadata_length,
 		{ "Length", "nsh.metadatalen",
 		FT_UINT8, BASE_HEX, NULL, 0x7F,
@@ -370,6 +358,7 @@ proto_register_nsh(void)
 
 	static int *ett[] = {
 		&ett_nsh,
+		&ett_nsh_tlv,
 	};
 
 	static ei_register_info ei[] = {
