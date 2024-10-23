@@ -588,6 +588,7 @@ static int hf_sflow_24_flow_sample_multiple_outputs;
 static int hf_sflow_5_extended_user_source_user_string_length;
 static int hf_sflow_5_extended_80211_payload_length;
 static int hf_sflow_24_flow_sample_output_interface_format;
+static int hf_sflow_5_flow_sample_output_interface_expanded_format;
 static int hf_sflow_245_ethernet_packet_type;
 static int hf_sflow_counters_sample_expanded_source_id_type;
 static int hf_sflow_245_ip_source_port;
@@ -617,6 +618,7 @@ static int hf_sflow_counters_sample_counters_records;
 static int hf_sflow_5_extended_mpls_tunnel_cos_value;
 static int hf_sflow_5_extended_mpls_vc_id;
 static int hf_sflow_24_flow_sample_output_interface_value;
+static int hf_sflow_5_flow_sample_output_interface_expanded_value;
 static int hf_sflow_5_extended_user_destination_user;
 static int hf_sflow_245_as_type;
 static int hf_sflow_counters_sample_index;
@@ -2144,9 +2146,9 @@ dissect_sflow_5_expanded_flow_sample(tvbuff_t *tvb, packet_info *pinfo,
     offset += 4;
     proto_tree_add_item(tree, hf_sflow_flow_sample_input_interface_value, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
-    proto_tree_add_item(tree, hf_sflow_24_flow_sample_output_interface_format, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_sflow_5_flow_sample_output_interface_expanded_format, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
-    proto_tree_add_item(tree, hf_sflow_24_flow_sample_output_interface_value, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_sflow_5_flow_sample_output_interface_expanded_value, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
     records = tvb_get_ntohl(tvb, offset);
     proto_tree_add_item(tree, hf_sflow_flow_sample_flow_record, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -3461,6 +3463,11 @@ proto_register_sflow(void) {
           FT_UINT32, BASE_DEC, NULL, 0x7fffffff,
           NULL, HFILL }
       },
+      { &hf_sflow_5_flow_sample_output_interface_expanded_format,
+        { "Output interface expanded format", "sflow.flow_sample.output_interface.expanded.format",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
       { &hf_sflow_24_flow_sample_output_interface,
         { "Output interface (ifIndex)", "sflow.flow_sample.output_interface",
           FT_UINT32, BASE_DEC, NULL, 0x7fffffff,
@@ -3528,6 +3535,11 @@ proto_register_sflow(void) {
       },
       { &hf_sflow_24_flow_sample_output_interface_value,
         { "Output interface value", "sflow.flow_sample.output_interface_value",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_sflow_5_flow_sample_output_interface_expanded_value,
+        { "Output interface expanded value", "sflow.flow_sample.output_interface_expanded.value",
           FT_UINT32, BASE_DEC, NULL, 0x0,
           NULL, HFILL }
       },
