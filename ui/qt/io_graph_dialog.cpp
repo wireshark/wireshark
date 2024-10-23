@@ -447,6 +447,8 @@ IOGraphDialog::IOGraphDialog(QWidget &parent, CaptureFile &cf, QString displayFi
 
     ui->actionLegend->setChecked(prefs.gui_io_graph_enable_legend);
     connect(ui->actionLegend, &QAction::triggered, this, &IOGraphDialog::actionLegendTriggered);
+    connect(ui->actionTimeOfDay, &QAction::triggered, this, &IOGraphDialog::actionTimeOfDayTriggered);
+    connect(ui->actionLogScale, &QAction::triggered, this, &IOGraphDialog::actionLogScaleTriggered);
 
     stat_timer_ = new QTimer(this);
     connect(stat_timer_, SIGNAL(timeout()), this, SLOT(updateStatistics()));
@@ -512,6 +514,8 @@ IOGraphDialog::IOGraphDialog(QWidget &parent, CaptureFile &cf, QString displayFi
     ctx_menu_.addSeparator();
     ctx_menu_.addAction(ui->actionDragZoom);
     ctx_menu_.addAction(ui->actionToggleTimeOrigin);
+    ctx_menu_.addAction(ui->actionTimeOfDay);
+    ctx_menu_.addAction(ui->actionLogScale);
     ctx_menu_.addAction(ui->actionCrosshairs);
     ctx_menu_.addAction(ui->actionLegend);
     set_action_shortcuts_visible_in_context_menu(ctx_menu_.actions());
@@ -1337,6 +1341,17 @@ void IOGraphDialog::showContextMenu(const QPoint &pos)
         menu->addAction(tr("Move to bottom right"), this, &IOGraphDialog::moveLegend)->setData(static_cast<Qt::Alignment::Int>(Qt::AlignBottom|Qt::AlignRight));
 #endif
         menu->popup(ui->ioPlot->mapToGlobal(pos));
+    } else if (ui->ioPlot->xAxis->selectTest(pos, false, nullptr) >= 0) {
+        QMenu *menu = new QMenu(this);
+        menu->setAttribute(Qt::WA_DeleteOnClose);
+        // XXX - actionToggleTimeOrigin doesn't actually work so don't add it
+        menu->addAction(ui->actionTimeOfDay);
+        menu->popup(ui->ioPlot->mapToGlobal(pos));
+    } else if (ui->ioPlot->yAxis->selectTest(pos, false, nullptr) >= 0) {
+        QMenu *menu = new QMenu(this);
+        menu->setAttribute(Qt::WA_DeleteOnClose);
+        menu->addAction(ui->actionLogScale);
+        menu->popup(ui->ioPlot->mapToGlobal(pos));
     } else {
         ctx_menu_.popup(ui->ioPlot->mapToGlobal(pos));
     }
@@ -1893,6 +1908,8 @@ void IOGraphDialog::on_zoomRadioButton_toggled(bool checked)
 
 void IOGraphDialog::on_logCheckBox_toggled(bool checked)
 {
+    ui->actionLogScale->setChecked(checked);
+
     QCustomPlot *iop = ui->ioPlot;
     QSharedPointer<QCPAxisTickerSi> si_ticker = qSharedPointerDynamicCast<QCPAxisTickerSi>(iop->yAxis->ticker());
     if (si_ticker != nullptr) {
@@ -2102,6 +2119,16 @@ void IOGraphDialog::buttonBoxClicked(QAbstractButton *button)
 void IOGraphDialog::actionLegendTriggered(bool checked)
 {
     ui->enableLegendCheckBox->setChecked(checked);
+}
+
+void IOGraphDialog::actionLogScaleTriggered(bool checked)
+{
+    ui->logCheckBox->setChecked(checked);
+}
+
+void IOGraphDialog::actionTimeOfDayTriggered(bool checked)
+{
+    ui->todCheckBox->setChecked(checked);
 }
 
 void IOGraphDialog::makeCsv(QTextStream &stream) const

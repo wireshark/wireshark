@@ -303,6 +303,8 @@ private slots:
     void on_buttonBox_accepted();
     void buttonBoxClicked(QAbstractButton *button);
     void actionLegendTriggered(bool checked);
+    void actionTimeOfDayTriggered(bool checked);
+    void actionLogScaleTriggered(bool checked);
 };
 
 #endif // IO_GRAPH_DIALOG_H

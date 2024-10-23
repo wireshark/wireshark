@@ -457,6 +457,28 @@
     <string>T</string>
    </property>
   </action>
+  <action name="actionTimeOfDay">
+   <property name="text">
+    <string>Time of day</string>
+   </property>
+   <property name="toolTip">
+    <string>Toggle X-axis between relative time and time of day</string>
+   </property>
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+  </action>
+  <action name="actionLogScale">
+   <property name="text">
+    <string>Log scale</string>
+   </property>
+   <property name="toolTip">
+    <string>Toggle Y-axis between logarithmic and linear scale</string>
+   </property>
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+  </action>
   <action name="actionCrosshairs">
    <property name="text">
     <string>Crosshairs</string>
