@@ -30,6 +30,8 @@
 #define MD_TYPE_1 1
 #define MD_TYPE_2 2
 
+#define MD_MAX_VERSION 0
+
 /* Prototypes */
 void proto_reg_handoff_nsh(void);
 void proto_register_nsh(void);
@@ -224,6 +226,34 @@ dissect_nsh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 
 }
 
+static bool
+dissect_nsh_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+{
+	const int tvb_length = tvb_captured_length(tvb);
+	if (tvb_length < 8) return false;
+
+	const uint8_t version = tvb_get_uint8(tvb, 0) >> 6;
+	const uint8_t length  = tvb_get_uint8(tvb, 1) & 0x3F;
+	const uint8_t md_type = tvb_get_uint8(tvb, 2) & 0x0F;
+	const uint8_t proto   = tvb_get_uint8(tvb, 3);
+
+	if (version > MD_MAX_VERSION)     return false;
+	if (md_type != 1 && md_type != 2) return false;
+	if (md_type == 1 && length != 6)  return false;
+	if (md_type == 2 && length <  2)  return false;
+	if (length == 0)                  return false;
+	if (length * 4 > tvb_length)      return false;
+	if (proto == 0)                   return false;
+	if (proto > NSH_MAX_PROTOCOL)     return false;
+
+	// Note: md_type = 0x0 and md_type = 0xf are strictly speaking also valid.
+	// For the heuristic to work as good as possible, it is best to restrict
+	// as much as possible and only allow md_type 1 and 2.
+
+	dissect_nsh(tvb, pinfo, tree, data);
+	return true;
+}
+
 void
 proto_register_nsh(void)
 {
@@ -367,6 +397,8 @@ proto_reg_handoff_nsh(void)
 	dissector_add_uint("vxlan.next_proto", VXLAN_NSH, nsh_handle);
 	dissector_add_uint("nsh.next_proto", NSH_NSH, nsh_handle);
 	dissector_add_uint("ip.proto", IP_PROTO_NSH, nsh_handle);
+
+	heur_dissector_add("gtp.tpdu", dissect_nsh_heur, "NSH over GTP", "nsh_gtp.tpdu", proto_nsh, HEURISTIC_ENABLE);
 }
 
 /*
