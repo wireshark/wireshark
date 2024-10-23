@@ -445,6 +445,9 @@ IOGraphDialog::IOGraphDialog(QWidget &parent, CaptureFile &cf, QString displayFi
 
     ui->enableLegendCheckBox->setChecked(prefs.gui_io_graph_enable_legend ? true : false);
 
+    ui->actionLegend->setChecked(prefs.gui_io_graph_enable_legend);
+    connect(ui->actionLegend, &QAction::triggered, this, &IOGraphDialog::actionLegendTriggered);
+
     stat_timer_ = new QTimer(this);
     connect(stat_timer_, SIGNAL(timeout()), this, SLOT(updateStatistics()));
     stat_timer_->start(stat_update_interval_);
@@ -510,6 +513,7 @@ IOGraphDialog::IOGraphDialog(QWidget &parent, CaptureFile &cf, QString displayFi
     ctx_menu_.addAction(ui->actionDragZoom);
     ctx_menu_.addAction(ui->actionToggleTimeOrigin);
     ctx_menu_.addAction(ui->actionCrosshairs);
+    ctx_menu_.addAction(ui->actionLegend);
     set_action_shortcuts_visible_in_context_menu(ctx_menu_.actions());
 
     iop->setContextMenuPolicy(Qt::CustomContextMenu);
@@ -1927,6 +1931,9 @@ void IOGraphDialog::on_enableLegendCheckBox_toggled(bool checked)
 
     prefs_main_write();
 
+    // We connect to the "triggered" signal for the QAction, which is
+    // not emitted when setChecked() is called.
+    ui->actionLegend->setChecked(checked);
     ui->ioPlot->legend->layer()->replot();
 }
 
@@ -2090,6 +2097,11 @@ void IOGraphDialog::buttonBoxClicked(QAbstractButton *button)
     default:
         break;
     }
+}
+
+void IOGraphDialog::actionLegendTriggered(bool checked)
+{
+    ui->enableLegendCheckBox->setChecked(checked);
 }
 
 void IOGraphDialog::makeCsv(QTextStream &stream) const

@@ -302,6 +302,7 @@ private slots:
     void on_buttonBox_helpRequested();
     void on_buttonBox_accepted();
     void buttonBoxClicked(QAbstractButton *button);
+    void actionLegendTriggered(bool checked);
 };
 
 #endif // IO_GRAPH_DIALOG_H
