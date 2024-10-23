@@ -468,6 +468,17 @@
     <string>Space</string>
    </property>
   </action>
+  <action name="actionLegend">
+   <property name="text">
+    <string>Legend</string>
+   </property>
+   <property name="toolTip">
+    <string>Toggle legend</string>
+   </property>
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+  </action>
   <action name="actionZoomInX">
    <property name="text">
     <string>Zoom In X Axis</string>
