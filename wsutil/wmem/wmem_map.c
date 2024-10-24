@@ -408,6 +408,30 @@ wmem_map_foreach(wmem_map_t *map, GHFunc foreach_func, void * user_data)
     }
 }
 
+void*
+wmem_map_find(wmem_map_t *map, GHRFunc foreach_func, void * user_data)
+{
+    wmem_map_item_t **item;
+    unsigned i;
+
+    /* Make sure we have a table */
+    if (map == NULL || map->table == NULL) {
+        return 0;
+    }
+
+    for (i = 0; i < CAPACITY(map); i++) {
+        item = &(map->table[i]);
+        while (*item) {
+            if (foreach_func((void *)(*item)->key, (void *)(*item)->value, user_data)) {
+                return (*item)->value;
+            } else {
+                item = &((*item)->next);
+            }
+        }
+    }
+    return NULL;
+}
+
 unsigned
 wmem_map_foreach_remove(wmem_map_t *map, GHRFunc foreach_func, void * user_data)
 {

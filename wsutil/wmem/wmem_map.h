@@ -179,6 +179,22 @@ WS_DLL_PUBLIC
 unsigned
 wmem_map_foreach_remove(wmem_map_t *map, GHRFunc foreach_func, void * user_data);
 
+/** Run a function against all key/value pairs in the map until the
+ * function returns true, at which point the value of matching pair
+ * is returned. If no pair that matches the function is found, NULL
+ * is returned. The order of the calls is unpredictable, since it is
+ * based on the internal storage of data.
+ *
+ * @param map The map to use. May be NULL.
+ * @param foreach_func the function to call for each key/value pair
+ * @param user_data user data to pass to the function
+ * @return The value of the first key/value pair found for which foreach_func
+ * returns TRUE. NULL if no matching pair is found.
+ */
+WS_DLL_PUBLIC
+void *
+wmem_map_find(wmem_map_t *map, GHRFunc foreach_func, void * user_data);
+
 /** Return the number of elements of the map.
  *
  * @param map The map to use

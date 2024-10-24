@@ -998,7 +998,7 @@ wmem_test_map(void)
         wmem_map_insert(map, str_key, GINT_TO_POINTER(2));
     }
     wmem_map_foreach(map, check_val_map, GINT_TO_POINTER(2));
-
+    g_assert_true(wmem_map_find(map, equal_val_map, GINT_TO_POINTER(2)) == GINT_TO_POINTER(2));
     wmem_map_foreach_remove(map, equal_val_map, GINT_TO_POINTER(2));
     g_assert_true(wmem_map_size(map) == 0);
 
