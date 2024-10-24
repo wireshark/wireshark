@@ -14,12 +14,17 @@
 #include <epan/packet.h>
 #include <epan/asn1.h>
 #include <epan/expert.h>
+#include <epan/tap.h>
+#include <epan/addr_resolv.h>
+#include <epan/follow.h>
 
 #include <wsutil/array.h>
 
 #include <wiretap/wtap.h>
 
 #include "packet-per.h"
+#include "packet-mp2t.h"
+#include "packet-udp.h"
 
 #include "packet-mpeg-pes-hf.c"
 #include "packet-mpeg-pes-ett.c"
@@ -75,6 +80,8 @@ static expert_field ei_mpeg_pes_length_zero;
 static dissector_handle_t mpeg_handle;
 
 static dissector_table_t stream_type_table;
+
+static int mpeg_pes_follow_tap;
 
 enum { PES_PREFIX = 1 };
 
@@ -580,6 +587,20 @@ dissect_mpeg_pes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 			} else {
 				es = tvb_new_subset_length(tvb, offset / 8, length);
 			}
+			if (have_tap_listener(mpeg_pes_follow_tap)) {
+				tap_queue_packet(mpeg_pes_follow_tap, pinfo, es);
+			}
+                        /* Try to dissect according to the stream type, if
+                         * we have it. For video in DVB an access unit starts
+                         * immediately after the PES header, access units are
+                         * contained within one PES packet and multiple access
+                         * units shall not be sent per PES packet unless they
+                         * fit in the same transport packet (ETSI TS 101 154).
+                         * This is not guaranteed for audio frames, so proper
+                         * dissction there should involve looking for frame
+                         * sync and reassembling across PES packet boundaries
+                         * if necessary.
+                         */
 			if (!dissector_try_uint_new(stream_type_table, stream_type, es, pinfo, tree, true, NULL)) {
 				/* If we didn't get a stream type, then assume
 				 * MPEG-1/2 Audio or Video.
@@ -764,6 +785,12 @@ proto_register_mpeg_pes(void)
 	expert_register_field_array(expert_mpeg_pes, ei_pes, array_length(ei_pes));
 
 	stream_type_table = register_dissector_table("mpeg-pes.stream", "MPEG PES stream type", proto_mpeg_pes, FT_UINT8, BASE_HEX);
+
+	mpeg_pes_follow_tap = register_tap("mpeg-pes_follow");
+
+        /* MPEG2 TS is sometimes carried on UDP or RTP on UDP, so using the UDP
+         * address filter is better than nothing for tshark. */
+	register_follow_stream(proto_mpeg_pes, "mpeg-pes_follow", mp2t_follow_conv_filter, mp2t_follow_index_filter, udp_follow_address_filter, udp_port_to_display, follow_tvb_tap_listener, mp2t_get_stream_count, mp2t_get_sub_stream_id);
 }
 
 void

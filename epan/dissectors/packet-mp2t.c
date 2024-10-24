@@ -25,9 +25,12 @@
 #include <epan/proto_data.h>
 #include <epan/exported_pdu.h>
 #include <epan/tap.h>
+#include <epan/follow.h>
 #include <epan/exceptions.h>
 #include <epan/show_exception.h>
+#include <epan/addr_resolv.h>
 #include "packet-l2tp.h"
+#include "packet-udp.h"
 #include "packet-mp2t.h"
 
 void proto_register_mp2t(void);
@@ -45,6 +48,7 @@ static dissector_handle_t mpeg_sect_handle;
 static heur_dissector_list_t heur_subdissector_list;
 
 static int exported_pdu_tap;
+static int mp2t_follow_tap;
 
 static int proto_mp2t;
 static int ett_mp2t;
@@ -53,6 +57,7 @@ static int ett_mp2t_af;
 static int ett_mp2t_analysis;
 static int ett_stuff;
 
+static int hf_mp2t_stream;
 static int hf_mp2t_header;
 static int hf_mp2t_sync_byte;
 static int hf_mp2t_tei;
@@ -158,6 +163,7 @@ static int hf_mp2t_pointer;
  * the stream information is at pinfo->pool, they don't actually clash.
  */
 #define MP2T_PROTO_DATA_STREAM 1
+#define MP2T_PROTO_DATA_PID 2
 
 static const value_string mp2t_sync_byte_vals[] = {
     { MP2T_SYNC_BYTE, "Correct" },
@@ -288,6 +294,8 @@ static const fragment_items mp2t_msg_frag_items = {
 
 static wmem_map_t *mp2t_stream_hashtable;
 
+static uint32_t mp2t_stream_count;
+
 typedef struct {
     const conversation_t* conv;
     int dir;
@@ -330,6 +338,8 @@ typedef struct mp2t_analysis_data {
      *
      */
     wmem_tree_t    *frame_table;
+
+    uint32_t stream;
 
     /* Total counters per conversation / multicast stream */
     uint32_t total_skips;
@@ -396,6 +406,7 @@ init_mp2t_conversation_data(void)
 
     mp2t_data = wmem_new0(wmem_file_scope(), struct mp2t_analysis_data);
 
+    mp2t_data->stream = mp2t_stream_count++;
     mp2t_data->pid_table = wmem_tree_new(wmem_file_scope());
 
     mp2t_data->frame_table = wmem_tree_new(wmem_file_scope());
@@ -462,6 +473,72 @@ get_pid_analysis(mp2t_analysis_data_t *mp2t_data, uint32_t pid)
         wmem_tree_insert32(mp2t_data->pid_table, pid, (void *)pid_data);
     }
     return pid_data;
+}
+
+uint32_t
+mp2t_get_stream_count(void)
+{
+    return mp2t_stream_count;
+}
+
+static void
+mp2t_init(void)
+{
+    mp2t_stream_count = 0;
+}
+
+static gboolean
+mp2t_stream_find(void *key _U_, void *value, void *user_data)
+{
+    uint32_t stream = GPOINTER_TO_UINT(user_data);
+    mp2t_analysis_data_t *mp2t_data = (mp2t_analysis_data_t*)value;
+    if (mp2t_data->stream == stream) {
+        return true;
+    }
+    return false;
+}
+
+bool
+mp2t_get_sub_stream_id(unsigned stream, unsigned sub_stream, bool le, unsigned *sub_stream_out)
+{
+    mp2t_analysis_data_t *mp2t_data = wmem_map_find(mp2t_stream_hashtable, mp2t_stream_find, GUINT_TO_POINTER(stream));
+    pid_analysis_data_t *pid_data;
+    if (!mp2t_data) {
+        return false;
+    }
+    if (le) {
+        pid_data = wmem_tree_lookup32_le(mp2t_data->pid_table, sub_stream);
+    } else {
+        pid_data = wmem_tree_lookup32_ge(mp2t_data->pid_table, sub_stream);
+    }
+    if (!pid_data) {
+        return false;
+    }
+
+    *sub_stream_out = pid_data->pid;
+    return true;
+}
+
+char *mp2t_follow_conv_filter(epan_dissect_t *edt _U_, packet_info *pinfo, unsigned *stream, unsigned *sub_stream)
+{
+    char *filter = NULL;
+    mp2t_stream_key *stream_key;
+    unsigned pid;
+
+    stream_key = (mp2t_stream_key *)p_get_proto_data(pinfo->pool, pinfo, proto_mp2t, MP2T_PROTO_DATA_STREAM);
+    if (stream_key) {
+        mp2t_analysis_data_t *mp2t_data = get_mp2t_conversation_data(stream_key);
+        pid = GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_mp2t, MP2T_PROTO_DATA_PID));
+        *stream = mp2t_data->stream;
+        *sub_stream = pid;
+        filter = ws_strdup_printf("mp2t.stream == %u && mp2t.pid == 0x%04x", *stream, pid);
+    }
+    return filter;
+}
+
+char *mp2t_follow_index_filter(unsigned stream, unsigned sub_stream)
+{
+    return ws_strdup_printf("mp2t.stream == %u && mp2t.pid == 0x%04x", stream, sub_stream);
 }
 
 /* Structure to handle packets, spanned across
@@ -565,6 +642,10 @@ static void
 mp2t_dissect_packet(tvbuff_t *tvb, const pid_analysis_data_t *pid_analysis,
             packet_info *pinfo, proto_tree *tree)
 {
+    if (have_tap_listener(mp2t_follow_tap)) {
+        tap_queue_packet(mp2t_follow_tap, pinfo, tvb);
+    }
+
     switch (pid_analysis->pload_type) {
         case pid_pload_docsis:
             call_dissector(docsis_handle, tvb, pinfo, tree);
@@ -1395,8 +1476,12 @@ dissect_tsp(tvbuff_t *tvb, int offset, packet_info *pinfo,
     afc = (header & MP2T_AFC_MASK) >> MP2T_AFC_SHIFT;
     cc  = (header & MP2T_CC_MASK)  >> MP2T_CC_SHIFT;
 
+    p_add_proto_data(pinfo->pool, pinfo, proto_mp2t, MP2T_PROTO_DATA_PID, GUINT_TO_POINTER(pid));
     proto_item_append_text(ti, " PID=0x%x CC=%d", pid, cc);
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "MPEG TS");
+
+    hi = proto_tree_add_uint(mp2t_tree, hf_mp2t_stream, tvb, 0, 0, mp2t_data->stream);
+    proto_item_set_generated(hi);
 
     hi = proto_tree_add_item( mp2t_tree, hf_mp2t_header, tvb, offset, 4, ENC_BIG_ENDIAN);
     mp2t_header_tree = proto_item_add_subtree( hi, ett_mp2t_header );
@@ -1583,6 +1668,10 @@ void
 proto_register_mp2t(void)
 {
     static hf_register_info hf[] = {
+        { &hf_mp2t_stream, {
+            "Stream index", "mp2t.stream",
+            FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL
+        } } ,
         { &hf_mp2t_header, {
             "Header", "mp2t.header",
             FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL
@@ -1866,7 +1955,14 @@ proto_register_mp2t(void)
 
     mp2t_stream_hashtable = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), mp2t_stream_hash, mp2t_stream_equal);
 
+    register_init_routine(mp2t_init);
+
     exported_pdu_tap = register_export_pdu_tap_with_encap("MP2T", WTAP_ENCAP_MPEG_2_TS);
+    mp2t_follow_tap = register_tap("mp2t_follow");
+
+    /* MPEG2 TS is sometimes carried on UDP or RTP over UDP so using the UDP
+     * address filter is better than nothing for tshark. */
+    register_follow_stream(proto_mp2t, "mp2t_follow", mp2t_follow_conv_filter, mp2t_follow_index_filter, udp_follow_address_filter, udp_port_to_display, follow_tvb_tap_listener, mp2t_get_stream_count, mp2t_get_sub_stream_id);
 }
 
 

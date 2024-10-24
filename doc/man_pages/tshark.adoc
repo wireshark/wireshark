@@ -1461,6 +1461,8 @@ __prot__ specifies the transport protocol.  It can be one of:
   http  HTTP streams
   http2 HTTP/2 streams
   quic  QUIC streams
+  mp2t  MPEG-2 TS PIDs
+  mpeg-pes MPEG-2 Packetized Element Stream
 
 NOTE: While the usage help presents sip as an option, the proper
 stream filters are not implemented so SIP calls cannot be followed
@@ -1488,18 +1490,20 @@ __filter__ specifies the stream to be displayed. There are three formats:
   stream-index,substream-index
 
 The first format specifies IP addresses and TCP, UDP, or DCCP port pairs.
-(TCP ports are used for TLS, HTTP, and HTTP2; UDP ports are used for QUIC.)
-Note that this format will include all streams multiplexed on the same
-address and port 5-tuple for HTTP/2 and QUIC. In addition, for QUIC this
-format will include all connections sharing the same 5-tuple, and will
-not follow connection migration.
+(TCP ports are used for TLS, HTTP, and HTTP2; UDP ports are used for QUIC,
+MP2T, and MPEG-PS.) Note that this format will include all streams multiplexed
+on the same address and port 5-tuple for transports with substreams such
+as HTTP/2, QUIC, and MP2T. In addition, for QUIC this format will include
+all connections sharing the same 5-tuple, and will not follow connection
+migration.
 
 The second format specifies stream indices, and is used for TCP, UDP, DCCP,
 TLS, and HTTP. (TLS and HTTP use TCP stream indices.)
 
-The third format, specifying streams and substreams, is used for HTTP/2 and
-QUIC due to their use of multiplexing. (TCP stream and HTTP/2 stream indices
-for HTTP/2, QUIC connection number and stream ID for QUIC.)
+The third format, specifying streams and substreams, is used for HTTP/2,
+QUIC, MP2T, and MPEG-PES due to their use of multiplexing. (TCP stream and
+HTTP/2 stream indices for HTTP/2, QUIC connection number and stream ID for
+QUIC, MP2T stream and PID for MP2T and MPEG-PS.)
 
 __range__ optionally specifies which "chunks" of the stream should be displayed.
 

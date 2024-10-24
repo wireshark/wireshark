@@ -22,4 +22,13 @@
 extern void
 mp2t_add_stream_type(packet_info *pinfo, uint32_t pid, uint32_t stream_type);
 
+WS_DLL_PUBLIC uint32_t
+mp2t_get_stream_count(void);
+
+WS_DLL_PUBLIC bool
+mp2t_get_sub_stream_id(unsigned stream, unsigned sub_stream, bool le, unsigned *sub_stream_out);
+
+extern char *mp2t_follow_conv_filter(epan_dissect_t *edt, packet_info *pinfo, unsigned *stream, unsigned *sub_stream);
+extern char *mp2t_follow_index_filter(unsigned stream, unsigned sub_stream);
+
 #endif /* __PACKET_MP2T_H__ */
