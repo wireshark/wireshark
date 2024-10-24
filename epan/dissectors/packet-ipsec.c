@@ -1042,18 +1042,24 @@ filter_address_match(char *addr, char *filter, int typ)
   unsigned addr_len;
   unsigned filter_len;
 
-  if (typ == IPSEC_SA_IPV4) {
-      if (!get_full_ipv4_addr(addr_hex, addr))
-          return false;
-      if (!get_full_ipv4_addr(filter_hex, filter))
-          return false;
-  } else if(typ == IPSEC_SA_IPV6) {
-      if (get_full_ipv6_addr(addr_hex, addr))
-          return false;
-      if (get_full_ipv6_addr(filter_hex, filter))
-          return false;
-  } else if(typ == IPSEC_SA_ANY) {
-      return true;
+  switch(typ) {
+      case IPSEC_SA_ANY:
+        return true;
+      case IPSEC_SA_IPV4:
+        if (!get_full_ipv4_addr(addr_hex, addr))
+            return false;
+        if (!get_full_ipv4_addr(filter_hex, filter))
+            return false;
+        break;
+      case IPSEC_SA_IPV6:
+        if (get_full_ipv6_addr(addr_hex, addr))
+            return false;
+        if (get_full_ipv6_addr(filter_hex, filter))
+            return false;
+        break;
+      case IPSEC_SA_UNKNOWN:
+      default:
+        return false;
   }
 
   addr_len = (unsigned)strlen(addr_hex);
