@@ -196,12 +196,14 @@ typedef struct Header {
 } Header;
 
 /* For options that take a number argument, gets the number  */
-static int getnum (const gchar **fmt, int df) {
+static int getnum (lua_State *L, const gchar **fmt, int df) {
   if (!g_ascii_isdigit(**fmt))  /* no number? */
     return df;  /* return default value */
   else {
     int a = 0;
     do {
+      if (a > (INT_MAX / 10) || a * 10 > (INT_MAX - (**fmt - '0')))
+        luaL_error(L, "integral size overflow");
       a = a*10 + *((*fmt)++) - '0';
     } while (g_ascii_isdigit(**fmt));
     return a;
@@ -222,11 +224,11 @@ static size_t optsize (lua_State *L, gchar opt, const gchar **fmt) {
     case 'T': return sizeof(size_t);
     case 'f': return sizeof(gfloat);
     case 'd': return sizeof(gdouble);
-    case 'x': return getnum(fmt, 1);
-    case 'X': return getnum(fmt, MAXALIGN);
-    case 'c': return getnum(fmt, 1);
+    case 'x': return getnum(L, fmt, 1);
+    case 'X': return getnum(L, fmt, MAXALIGN);
+    case 'c': return getnum(L, fmt, 1);
     case 'i': case 'I': {
-      int sz = getnum(fmt, sizeof(int));
+      int sz = getnum(L, fmt, sizeof(int));
       if (sz > MAXINTSIZE)
         luaL_error(L, "integral size %d is larger than limit of %d",
                        sz, MAXINTSIZE);
@@ -269,7 +271,7 @@ static void controloptions (lua_State *L, int opt, const gchar **fmt,
     case '(': h->noassign = TRUE; return;
     case ')': h->noassign = FALSE; return;
     case '!': {
-      int a = getnum(fmt, MAXALIGN);
+      int a = getnum(L, fmt, MAXALIGN);
       if (!isp2(a))
         luaL_error(L, "alignment %d is not a power of 2", a);
       h->align = a;
