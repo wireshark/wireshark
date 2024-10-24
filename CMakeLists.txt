@@ -1412,8 +1412,8 @@ if(BUILD_wireshark OR BUILD_stratoshark)
 			list(APPEND QT5_COMPILE_DEFINITIONS ${${_qt5_package}_COMPILE_DEFINITIONS})
 		endforeach()
 
-		if (Qt5Widgets_VERSION VERSION_LESS 5.12)
-			message(FATAL_ERROR "Qt 5.12 or later is required. Qt 6 is recommended.")
+		if (Qt5Widgets_VERSION VERSION_LESS 5.15)
+			message(FATAL_ERROR "Qt 5.15 or later is required. Qt 6 is recommended.")
 		endif()
 
 		if(APPLE AND "/usr/local/opt/qt5/lib/QtCore.framework" IN_LIST Qt5Core_INCLUDE_DIRS)
