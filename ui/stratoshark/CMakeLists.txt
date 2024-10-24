@@ -625,31 +625,43 @@ add_custom_command(
 		${CMAKE_SOURCE_DIR}/AUTHORS
 )
 
-set(STRATOSHARK_QT_QRC
-	${CMAKE_SOURCE_DIR}/resources/about.qrc
-	${CMAKE_SOURCE_DIR}/resources/languages/languages.qrc
-	${CMAKE_SOURCE_DIR}/resources/layout.qrc
-	${CMAKE_SOURCE_DIR}/resources/ssicon.qrc
-	${CMAKE_SOURCE_DIR}/resources/stock_icons.qrc
-	${CMAKE_CURRENT_BINARY_DIR}/i18n.qrc
-	${CMAKE_CURRENT_BINARY_DIR}/authors.qrc
-	${CMAKE_CURRENT_BINARY_DIR}/authors.csv
-)
+# Drop the file modification time of source files from generated files
+# to help with reproducible builds. We do not use QFileInfo.lastModified
+# so this has no unwanted side effects. This mtime started appearing in
+# Qt 5.8. The option to force the old file format without mtime was
+# added in Qt 5.9. See https://bugreports.qt.io/browse/QTBUG-58769.
+# Force the compression algorithm to zlib, since zstd requires format
+# version 3. See https://gitlab.com/wireshark/wireshark/-/issues/18100.
+# Use the number of dashes for each argument as documented at
+# https://doc.qt.io/qt-6/rcc.html.
+set(CMAKE_AUTORCC_OPTIONS --format-version 1)
+if(Qt${qtver}Widgets_VERSION VERSION_GREATER_EQUAL "5.13")
+	list(APPEND CMAKE_AUTORCC_OPTIONS -compress-algo zlib)
+endif()
 
-if(NOT Qt${qtver}Widgets_VERSION VERSION_LESS "5.9")
-	# Drop the file modification time of source files from generated files
-	# to help with reproducible builds. We do not use QFileInfo.lastModified
-	# so this has no unwanted side effects. This mtime started appearing in
-	# Qt 5.8. The option to force the old file format without mtime was
-	# added in Qt 5.9. See https://bugreports.qt.io/browse/QTBUG-58769.
-	# Force the compression algorithm to zlib, since zstd requires format
-	# version 3. See https://gitlab.com/wireshark/wireshark/-/issues/18100.
-	# Use the number of dashes for each argument as documented at
-	# https://doc.qt.io/qt-6/rcc.html.
-	set(CMAKE_AUTORCC_OPTIONS --format-version 1)
-	if(Qt${qtver}Widgets_VERSION VERSION_GREATER_EQUAL "5.13")
-		list(APPEND CMAKE_AUTORCC_OPTIONS -compress-algo zlib)
-	endif()
+if(Qt${qtver}Widgets_VERSION VERSION_GREATER_EQUAL "5.15")
+	qt_add_resources(STRATOSHARK_QT_QRC
+		${CMAKE_SOURCE_DIR}/resources/about.qrc
+		${CMAKE_SOURCE_DIR}/resources/languages/languages.qrc
+		${CMAKE_SOURCE_DIR}/resources/layout.qrc
+		${CMAKE_SOURCE_DIR}/resources/ssicon.qrc
+		${CMAKE_SOURCE_DIR}/resources/stock_icons.qrc
+		${CMAKE_CURRENT_BINARY_DIR}/i18n.qrc
+		${CMAKE_CURRENT_BINARY_DIR}/authors.qrc
+		OPTIONS ${CMAKE_AUTORCC_OPTIONS}
+	)
+else()
+	# The unversioned qt_add_resources was added in Qt 5.15
+	qt5_add_resources(STRATOSHARK_QT_QRC
+		${CMAKE_SOURCE_DIR}/resources/about.qrc
+		${CMAKE_SOURCE_DIR}/resources/languages/languages.qrc
+		${CMAKE_SOURCE_DIR}/resources/layout.qrc
+		${CMAKE_SOURCE_DIR}/resources/ssicon.qrc
+		${CMAKE_SOURCE_DIR}/resources/stock_icons.qrc
+		${CMAKE_CURRENT_BINARY_DIR}/i18n.qrc
+		${CMAKE_CURRENT_BINARY_DIR}/authors.qrc
+		OPTIONS ${CMAKE_AUTORCC_OPTIONS}
+	)
 endif()
 
 if (USE_qt6)
@@ -763,7 +775,8 @@ set_target_properties(ui_stratoshark PROPERTIES
 	FOLDER "UI"
 	AUTOMOC ON
 	AUTOUIC ON
-	AUTORCC ON
+	# AUTORCC not needed with qt_add_resources
+	#AUTORCC ON
 	# Ensure .qm files are generated before autogenerating i18n.qrc
 	AUTOGEN_TARGET_DEPENDS "${STRATOSHARK_QT_QM}"
 )
