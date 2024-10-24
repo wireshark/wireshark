@@ -490,7 +490,10 @@ enum section_c_types {
     SEC_C_UE_SCHED = 5,
     SEC_C_CH_INFO = 6,
     SEC_C_LAA = 7,
-    SEC_C_ACK_NACK_FEEDBACK = 8
+    SEC_C_ACK_NACK_FEEDBACK = 8,
+    SEC_C_SINR_REPORTING = 9,
+    SEC_C_RRM_MEAS_REPORTS = 10,
+    SEC_C_REQUEST_RRM_MEAS = 11
 };
 
 static const range_string section_types[] = {
@@ -503,7 +506,10 @@ static const range_string section_types[] = {
     { SEC_C_CH_INFO,           SEC_C_CH_INFO,           "Channel information" },
     { SEC_C_LAA,               SEC_C_LAA,               "LAA (License Assisted Access)" },
     { SEC_C_ACK_NACK_FEEDBACK, SEC_C_ACK_NACK_FEEDBACK, "ACK/NACK Feedback" },
-    { 9,                       255,                     "Reserved for future use" },
+    { SEC_C_SINR_REPORTING,    SEC_C_SINR_REPORTING,    "SINR Reporting" },
+    { SEC_C_RRM_MEAS_REPORTS,  SEC_C_RRM_MEAS_REPORTS,  "RRM Measurement Reports" },
+    { SEC_C_REQUEST_RRM_MEAS,  SEC_C_REQUEST_RRM_MEAS,  "Request RRM Measurements" },
+    { 12,                      255,                     "Reserved for future use" },
     { 0, 0, NULL} };
 
 static const range_string section_types_short[] = {
@@ -516,7 +522,10 @@ static const range_string section_types_short[] = {
     { SEC_C_CH_INFO,           SEC_C_CH_INFO,           "(Channel info)      " },
     { SEC_C_LAA,               SEC_C_LAA,               "(LAA)               " },
     { SEC_C_ACK_NACK_FEEDBACK, SEC_C_ACK_NACK_FEEDBACK, "(ACK/NACK)          " },
-    { 9,                       255,                     "Reserved for future use" },
+    { SEC_C_SINR_REPORTING,    SEC_C_SINR_REPORTING,    "(SINR Reporting)    " },
+    { SEC_C_RRM_MEAS_REPORTS,  SEC_C_RRM_MEAS_REPORTS,  "(RRM Meas Reports)  " },
+    { SEC_C_REQUEST_RRM_MEAS,  SEC_C_REQUEST_RRM_MEAS,  "(Req RRM Meas)      " },
+    { 12,                      255,                     "Reserved for future use" },
     { 0, 0, NULL }
 };
 
@@ -613,46 +622,58 @@ static const value_string exttype_vals[] = {
     {21,    "Variable PRB group size for channel information"},
     {22,    "ACK/NACK request"},
     {23,    "Multiple symbol modulation compression parameters"},
+    {24,    "PUSCH DMRS configuration"},
+    {25,    "Symbol reordering for DMRS-BF"},
+    {26,    "Frequency offset feedback"},
+    {27,    "O-DU controlled dimensionality reduction"},
     {0, NULL}
 };
 
 /**************************************************************************************/
 /* Keep track for each Section Extension, which section types are allowed to carry it */
-#define HIGHEST_EXTTYPE 23
+#define HIGHEST_EXTTYPE 27
 typedef struct {
     bool ST0;
     bool ST1;
     bool ST3;
     bool ST5;
     bool ST6;
+    bool ST10;
+    bool ST11;
 } AllowedCTs_t;
 
 
 static AllowedCTs_t ext_cts[HIGHEST_EXTTYPE] = {
-    /* ST0    ST1    ST3    ST5    ST6     */
-    { false, true,  true,  false, false },  // SE 1      (1,3)
-    { false, true,  true,  false, false },  // SE 2      (1,3)
-    { false, true,  true,  false, false },  // SE 3      (1,3)
-    { false, true,  true,  true,  false },  // SE 4      (1,3,5)
-    { false, true,  true,  true,  false },  // SE 5      (1,3,5)
-    { false, true,  true,  true,  false },  // SE 6      (1,3,5)
-    { true,  false, false, false, false },  // SE 7      (0)
-    { false, false, false, true,  false },  // SE 8      (5)
-    { true,  true,  true,  true,  true  },  // SE 9      (all)
-    { false, true,  true,  true,  false },  // SE 10     (1,3,5)
-    { false, true,  true,  false, false },  // SE 11     (1,3)
-    { false, true,  true,  true,  false },  // SE 12     (1,3,5)
-    { false, true,  true,  true,  false },  // SE 13     (1,3,5)
-    { false, false, false, true,  false },  // SE 14     (5)
-    { false, false, false, true,  true  },  // SE 15     (5,6)
-    { false, false, false, true,  false },  // SE 16     (5)
-    { false, false, false, true,  false },  // SE 17     (5)
-    { false, true,  true,  true,  false },  // SE 18     (1,3,5)
-    { false, true,  true,  false, false },  // SE 19     (1,3)
-    { true,  true,  true,  true,  true  },  // SE 20     (all)
-    { false, false, false, true,  true  },  // SE 21     (5,6)
-    { true,  true,  true,  true,  true  },  // SE 22     (all?)
-    { false, true,  true,  true,  false },  // SE 23     (1,3,5)
+    /* ST0    ST1    ST3    ST5    ST6   ST10    ST11 */
+    { false, true,  true,  false, false, false, false},   // SE 1      (1,3)
+    { false, true,  true,  false, false, false, false},   // SE 2      (1,3)
+    { false, true,  true,  false, false, false, false},   // SE 3      (1,3)
+    { false, true,  true,  true,  false, false, false},   // SE 4      (1,3,5)
+    { false, true,  true,  true,  false, false, false},   // SE 5      (1,3,5)
+    { false, true,  true,  true,  false, false, false},   // SE 6      (1,3,5)
+    { true,  false, false, false, false, false, false},   // SE 7      (0)
+    { false, false, false, true,  false, false, false},   // SE 8      (5)
+    { true,  true,  true,  true,  true,  true,  true },   // SE 9      (all)
+    { false, true,  true,  true,  false, false, false},   // SE 10     (1,3,5)
+    { false, true,  true,  false, false, false, false},   // SE 11     (1,3)
+    { false, true,  true,  true,  false, false, false},   // SE 12     (1,3,5)
+    { false, true,  true,  true,  false, false, false},   // SE 13     (1,3,5)
+    { false, false, false, true,  false, false, false},   // SE 14     (5)
+    { false, false, false, true,  true,  false, false},   // SE 15     (5,6)
+    { false, false, false, true,  false, false, false},   // SE 16     (5)
+    { false, false, false, true,  false, false, false},   // SE 17     (5)
+    { false, true,  true,  true,  false, false, false},   // SE 18     (1,3,5)
+    { false, true,  true,  false, false, false, false},   // SE 19     (1,3)
+    { true,  true,  true,  true,  true,  false, false},   // SE 20     (0,1,3,5)
+    { false, false, false, true,  true,  false, false},   // SE 21     (5,6)
+    { true,  true,  true,  true,  true,  true,  true },   // SE 22     (all)
+    { false, true,  true,  true,  false, false, false},   // SE 23     (1,3,5)
+    { false, false, false, true,  false, false, false },  // SE 24     (5)
+    { false, false, false, true,  false, false, false },  // SE 25     (5)
+    { false, false, false, true,  false, false, false },  // SE 26     (5)
+    { false, false, false, true,  false, false, false },  // SE 27     (5)
+
+
 };
 
 static bool se_allowed_in_st(unsigned se, unsigned ct)
