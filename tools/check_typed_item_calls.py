@@ -1002,6 +1002,12 @@ class ExpertEntry:
             print('Warning:', filename, 'Expert info label', '"' + label + '"', 'for', name, 'ends with space')
             warnings_found += 1
 
+        # The summary field is shown in the expert window without substituting args..
+        if label.find('%') != -1:
+            print('Warning:', filename, 'Expert info label', '"' + label + '"', 'for', name, 'has format specifiers in it?')
+            warnings_found += 1
+
+
 
 # Collection of entries for this dissector
 class ExpertEntries:
