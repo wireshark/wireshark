@@ -66,13 +66,20 @@ static int hf_nsh_metadata_class;
 static int hf_nsh_metadata_type;
 static int hf_nsh_metadata_length;
 static int hf_nsh_metadata;
+static int hf_nsh_bbf_logical_port_id;
+static int hf_nsh_bbf_logical_port_id_str;
+static int hf_nsh_bbf_mac;
+static int hf_nsh_bbf_network_instance;
+static int hf_nsh_bbf_interface_id;
 
 static expert_field ei_nsh_length_invalid;
+static expert_field ei_nsh_tlv_incomplete_dissection;
 
 static int ett_nsh;
 static int ett_nsh_tlv;
 
 static dissector_table_t subdissector_table;
+static dissector_table_t tlv_table;
 
 /*
  *Dissect Fixed Length Context headers
@@ -93,7 +100,7 @@ dissect_nsh_md_type_1(tvbuff_t *tvb, proto_tree *nsh_tree, int offset)
  */
 
 static void
-dissect_nsh_md_type_2(tvbuff_t *tvb, proto_tree *nsh_tree, int offset, int nsh_bytes_len)
+dissect_nsh_md_type_2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *nsh_tree, int offset, int nsh_bytes_len)
 {
 	while (offset < nsh_bytes_len) {
 		uint16_t tlv_class = tvb_get_uint16(tvb, offset, ENC_BIG_ENDIAN);
@@ -110,7 +117,16 @@ dissect_nsh_md_type_2(tvbuff_t *tvb, proto_tree *nsh_tree, int offset, int nsh_b
 
 		if (tlv_len > 0)
 		{
-			proto_tree_add_item(tlv_tree, hf_nsh_metadata, tvb, offset, tlv_len, ENC_NA);
+			tvbuff_t *tlv_tvb = tvb_new_subset_length(tvb, offset, tlv_len);
+			const uint32_t key = ((uint32_t) tlv_class << 8) | tlv_type;
+			int dissected = dissector_try_uint(tlv_table, key, tlv_tvb, pinfo, tlv_tree);
+
+			if (dissected == 0) {
+				proto_tree_add_item(tlv_tree, hf_nsh_metadata, tlv_tvb, 0, -1, ENC_NA);
+			} else if (dissected > 0 && (unsigned) dissected != tlv_len) {
+				expert_add_info_format(pinfo, tlv_tree, &ei_nsh_tlv_incomplete_dissection, "TLV dissector did not dissect the whole data (%d != %d)", dissected, tlv_len);
+			}
+
 			offset += ((tlv_len + 3) / 4) * 4; // aligned up on 4-byte boundary
 		}
 	}
@@ -191,7 +207,7 @@ dissect_nsh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 		}
 		/* MD Type 2 indicates ZERO or more Variable Length Context headers*/
 		if (nsh_bytes_len > 8)
-			dissect_nsh_md_type_2(tvb, nsh_tree, offset, nsh_bytes_len);
+			dissect_nsh_md_type_2(tvb, pinfo, nsh_tree, offset, nsh_bytes_len);
 		break;
 
 	default:
@@ -219,6 +235,79 @@ dissect_nsh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 
 	return tvb_captured_length(tvb);
 
+}
+
+typedef struct {
+	uint16_t    class;
+	uint8_t     type;
+	const char* name;
+	dissector_t dissector;
+} nsh_tlv;
+
+static int dissect_tlv_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data, void *cb_data)
+{
+	const nsh_tlv* tlv = cb_data;
+	proto_item_set_text(proto_tree_get_parent(tree), "TLV: %s", tlv->name);
+	return tlv->dissector(tvb, pinfo, tree, data);
+}
+
+static int dissect_tlv_logical_port(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+{
+	if (tvb_ascii_isprint(tvb, 0, -1))
+	{
+		const uint8_t* string_value;
+		proto_tree_add_item_ret_string(tree, hf_nsh_bbf_logical_port_id_str, tvb, 0, -1, ENC_ASCII | ENC_NA, pinfo->pool, &string_value);
+		proto_item_append_text(proto_tree_get_parent(tree), ": %s", string_value);
+	}
+	else
+	{
+		proto_tree_add_item(tree, hf_nsh_bbf_logical_port_id, tvb, 0, -1, ENC_NA);
+	}
+
+	return tvb_reported_length(tvb);
+}
+
+static int dissect_tlv_mac(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+{
+	proto_tree_add_item(tree, hf_nsh_bbf_mac, tvb, 0, 6, ENC_NA);
+	return 6;
+}
+
+static int dissect_tlv_network_instance(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+{
+	const uint8_t* string_value;
+	proto_tree_add_item_ret_string(tree, hf_nsh_bbf_network_instance, tvb, 0, -1, ENC_ASCII | ENC_NA, pinfo->pool, &string_value);
+	proto_item_append_text(proto_tree_get_parent(tree), ": %s", string_value);
+	return tvb_reported_length(tvb);
+}
+
+static int dissect_tlv_iface_identifier(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+{
+	proto_tree_add_item(tree, hf_nsh_bbf_interface_id, tvb, 0, 8, ENC_NA);
+	return 8;
+}
+
+static void register_tlv_dissectors(void)
+{
+	/* The TLV subdissector table contains all dissectors for the TLV data.
+	   The key for the dissector is a combination of class + type.
+	   In order to be able to use a dissector-table easily, these 2 bytes are combined into a
+	   24-bit integer, containing the concatenation of class and type (as they appear on the wire in network-order).
+
+	   Relevant RFC section: https://datatracker.ietf.org/doc/html/rfc8300#section-9.1.4
+	   */
+	static const nsh_tlv tlvs[] = {
+		// TLVs defined by BBF in TR-459i2:
+		{0x0200, 0x00, "Logical Port",         dissect_tlv_logical_port},
+		{0x0200, 0x01, "MAC",                  dissect_tlv_mac},
+		{0x0200, 0x02, "Network Instance",     dissect_tlv_network_instance},
+		{0x0200, 0x03, "Interface Identifier", dissect_tlv_iface_identifier},
+	};
+
+	for (unsigned i = 0; i < sizeof(tlvs)/sizeof(tlvs[0]); i++) {
+		const uint32_t key = ((uint32_t) tlvs[i].class << 8) | tlvs[i].type;
+		dissector_add_uint("nsh.tlv", key, create_dissector_handle_with_data(dissect_tlv_data, -1, (void*) &tlvs[i]));
+	}
 }
 
 static bool
@@ -353,6 +442,32 @@ proto_register_nsh(void)
 		"Variable length metadata", HFILL }
 		},
 
+		{ &hf_nsh_bbf_logical_port_id,
+		{ "Logical Port", "nsh.tlv.bbf.logical_port_id",
+			FT_BYTES, BASE_NONE, NULL, 0x0,
+			NULL, HFILL }
+		},
+		{ &hf_nsh_bbf_logical_port_id_str,
+		{ "Logical Port", "nsh.tlv.bbf.logical_port_id_str",
+			FT_STRING, BASE_NONE, NULL, 0x0,
+			NULL, HFILL }
+		},
+		{ &hf_nsh_bbf_mac,
+		{ "MAC Address", "nsh.tlv.bbf.mac",
+			FT_ETHER, BASE_NONE, NULL, 0x0,
+			NULL, HFILL }
+		},
+		{ &hf_nsh_bbf_network_instance,
+		{ "Network Instance", "nsh.tlv.bbf.network_instance",
+			FT_STRING, BASE_NONE, NULL, 0x0,
+			NULL, HFILL }
+		},
+		{ &hf_nsh_bbf_interface_id,
+		{ "Interface Identifier", "nsh.tlv.bbf.interface_id",
+			FT_BYTES, BASE_NONE, NULL, 0x0,
+			NULL, HFILL }
+		},
+
 	};
 
 
@@ -363,6 +478,7 @@ proto_register_nsh(void)
 
 	static ei_register_info ei[] = {
 		{ &ei_nsh_length_invalid, { "nsh.length.invalid", PI_PROTOCOL, PI_WARN, "Invalid total length", EXPFILL }},
+		{ &ei_nsh_tlv_incomplete_dissection, { "nsh.tlv.incomplete", PI_PROTOCOL, PI_WARN, "Incomplete TLV dissection", EXPFILL }},
 	};
 
 	proto_nsh = proto_register_protocol("Network Service Header", "NSH", "nsh");
@@ -373,6 +489,9 @@ proto_register_nsh(void)
 	expert_register_field_array(expert_nsh, ei, array_length(ei));
 
 	subdissector_table = register_dissector_table("nsh.next_proto", "NSH Next Protocol", proto_nsh, FT_UINT32, BASE_DEC);
+	tlv_table = register_dissector_table("nsh.tlv", "NSH TLV", proto_nsh, FT_UINT24, BASE_HEX);
+
+	register_tlv_dissectors();
 
 	nsh_handle = register_dissector("nsh", dissect_nsh, proto_nsh);
 }
