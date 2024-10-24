@@ -13,7 +13,7 @@
 /*
   http://wiki.mikrotik.com/wiki/Manual:IP/Neighbor_discovery
   TODO:
-  - Find out about first 4 bytes
+  - Find out about first 4 bytes (are the first 2 simply part of the sequence number?)
   - Find out about additional TLVs
   - Find out about unpack values
  */
@@ -145,7 +145,6 @@ dissect_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *mndp_tree,
 
 	tlv_type = tvb_get_ntohs(tvb, offset);
 	tlv_length = tvb_get_ntohs(tvb, offset + 2);
-	/* DISSECTOR_ASSERT(tlv_length >= 4); */
 	tlv_tree = proto_tree_add_subtree_format(mndp_tree, tvb,
 		offset, tlv_length+4, ett_mndp_tlv_header, NULL,
 		"T %d, L %d: %s",
@@ -162,8 +161,6 @@ dissect_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *mndp_tree,
 	proto_tree_add_item(tlv_tree, hf_mndp_tlv_length,
 		tvb, offset, 2, ENC_BIG_ENDIAN);
 	offset += 2;
-
-	/* tlv_length -= 4; */
 
 	if (tlv_length == 0)
 		return offset;
@@ -237,11 +234,41 @@ dissect_mndp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static bool
 test_mndp(tvbuff_t *tvb)
 {
+	/* Observed captures of MNDP always seem to have port 5678 as both
+	 * the source and destination port, and have a broadcast destination IP
+	 * and destination MAC address (if we have those layers.)
+	 * The TLVs are also transmitted in increasing type order.
+	 * TLV type 1 (MAC-Address) appears to be mandatory (and thus first),
+	 * and always has length 6.
+	 * We could also step through all the TLVs to see if the types and
+	 * lengths are reasonable.
+	 * Any of these could be used to strengthen the heuristic further.
+	 */
+	int offset = 0;
+	int type, length;
 	/* Minimum of 8 bytes, 4 Bytes header + 1 TLV-header */
-	if ( tvb_captured_length(tvb) < 8
-		    || tvb_get_uint8(tvb, 4) != 0
-		    || tvb_get_uint8(tvb, 6) != 0
-	) {
+	if ( tvb_captured_length(tvb) < 8) {
+		return false;
+	}
+	offset += 4;
+	type = tvb_get_uint16(tvb, offset, ENC_BIG_ENDIAN);
+	if (type != 1) {
+		return false;
+	}
+	offset += 2;
+	length = tvb_get_uint16(tvb, offset, ENC_BIG_ENDIAN);
+	if (length != 6) {
+		return false;
+	}
+	offset += 2;
+	/* Length does *not* include the type and length fields. */
+	if (tvb_reported_length_remaining(tvb, offset) < length) {
+		return false;
+	}
+	offset += length;
+	/* If there's more data left, it should be another TLV. */
+	if (tvb_reported_length_remaining(tvb, offset) > 0 &&
+	    tvb_reported_length_remaining(tvb, offset) < 4) {
 		return false;
 	}
 	return true;
