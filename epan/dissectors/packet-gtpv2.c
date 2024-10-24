@@ -2666,7 +2666,7 @@ dissect_gtpv2_mm_ctx_for_cs_to_ps_srvcc(tvbuff_t *tvb, packet_info *pinfo _U_, p
  * and APN Operator Identifier being present as specified in 3GPP TS 23.003 [2]
  * subclauses 9.1.1 and 9.1.2, 3GPP TS 23.060 [35] Annex A and 3GPP TS 23.401 [3] subclauses 4.3.8.1.
  */
-static void
+void
 dissect_gtpv2_apn(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item, uint16_t length, uint8_t message_type _U_, uint8_t instance _U_, session_args_t * args _U_)
 {
     const uint8_t *apn    = NULL;
@@ -2682,7 +2682,7 @@ dissect_gtpv2_apn(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto
  * 8.7 Aggregate Maximum Bit Rate (AMBR)
  */
 
-static void
+void
 dissect_gtpv2_ambr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, uint16_t length _U_, uint8_t message_type _U_, uint8_t instance _U_, session_args_t * args _U_)
 {
     int offset = 0;
@@ -2740,7 +2740,7 @@ dissect_gtpv2_ip_address(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
  * with an end mark coded as '1111'.
  */
 
-static void
+void
 dissect_gtpv2_mei(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item, uint16_t length, uint8_t message_type _U_, uint8_t instance _U_, session_args_t * args _U_)
 {
     int          offset = 0;
@@ -3040,8 +3040,9 @@ static const value_string gtpv2_pdn_type_vals[] = {
     {5, "Ethernet"},
     {0, NULL}
 };
+value_string_ext gtpv2_pdn_type_vals_ext = VALUE_STRING_EXT_INIT(gtpv2_pdn_type_vals);
 
-static void
+void
 dissect_gtpv2_paa(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, uint16_t length, uint8_t message_type _U_, uint8_t instance _U_, session_args_t * args _U_)
 {
     int    offset = 0;
@@ -3119,7 +3120,7 @@ dissect_gtpv2_paa(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto
  * 8.15 Bearer Quality of Service (Bearer QoS)
  */
 
-static void
+void
 dissect_gtpv2_bearer_qos(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, uint16_t length _U_, uint8_t message_type _U_, uint8_t instance _U_, session_args_t * args _U_)
 {
     int offset = 0;
@@ -3190,7 +3191,7 @@ static const value_string gtpv2_rat_type_vals[] = {
     {22, "LTE-M(OTHERSAT)"},
     {0, NULL}
 };
-static value_string_ext gtpv2_rat_type_vals_ext = VALUE_STRING_EXT_INIT(gtpv2_rat_type_vals);
+value_string_ext gtpv2_rat_type_vals_ext = VALUE_STRING_EXT_INIT(gtpv2_rat_type_vals);
 
 
 static void
@@ -4098,7 +4099,7 @@ dissect_gtpv2_pdn_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, prot
     proto_tree_add_bits_item(tree, hf_gtpv2_spare_bits, tvb, offset << 3, 5, ENC_BIG_ENDIAN);
     pdn = tvb_get_uint8(tvb, offset)& 0x7;
     proto_tree_add_item(tree, hf_gtpv2_pdn_type, tvb, offset, length, ENC_BIG_ENDIAN);
-    proto_item_append_text(item, "%s", val_to_str_const(pdn, gtpv2_pdn_type_vals, "Unknown"));
+    proto_item_append_text(item, "%s", val_to_str_ext_const(pdn, &gtpv2_pdn_type_vals_ext, "Unknown"));
 
 }
 
@@ -10310,7 +10311,7 @@ void proto_register_gtpv2(void)
 
         { &hf_gtpv2_pdn_type,
           {"PDN Type", "gtpv2.pdn_type",
-           FT_UINT8, BASE_DEC, VALS(gtpv2_pdn_type_vals), 0x07,
+           FT_UINT8, BASE_DEC|BASE_EXT_STRING, &gtpv2_pdn_type_vals_ext, 0x07,
            NULL, HFILL}
         },
 #if 0

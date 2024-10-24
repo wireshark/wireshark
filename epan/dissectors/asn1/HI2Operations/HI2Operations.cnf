@@ -93,8 +93,184 @@ GSMLocation/geoCoordinates/longitude geoCoordinates_longitude
 
   dissect_q931_bearer_capability_ie(parameter_tvb, 0, tvb_reported_length_remaining(parameter_tvb,0), tree);
 
+#.FN_BODY EPS-GTPV2-SpecificParameters/pDNAddressAllocation
+  proto_tree *eps_paa_tree;
+  unsigned tvb_len;
+
+  /*
+   * 8.14 PDN Address Allocation (PAA)
+   * 3GPP TS 29.274
+   */
+
+  tvb_len = tvb_reported_length(tvb);
+  eps_paa_tree = proto_tree_add_subtree(tree, tvb, 0, tvb_len, ett_HI2Operations_eps_paa, NULL, "pDNAddressAllocation");
+
+  dissect_gtpv2_paa(tvb, actx->pinfo, eps_paa_tree, NULL, tvb_len, 0, 0, NULL);
+
+  offset = tvb_len;
+
+#.FN_BODY EPS-GTPV2-SpecificParameters/rATType VAL_PTR =&parameter_tvb
+  tvbuff_t *parameter_tvb=NULL;
+  unsigned tvb_len;
+
+%(DEFAULT_BODY)s
+
+  if (!parameter_tvb)
+    return offset;
+
+  /*
+   * 8.17 RAT Type
+   * 3GPP TS 29.274
+   */
+
+  tvb_len = tvb_reported_length(parameter_tvb);
+	uint8_t *ascii = (uint8_t*)tvb_memdup(actx->pinfo->pool, parameter_tvb, 0, tvb_len);
+  proto_item_append_text(actx->created_item, " (%%s)", val_to_str_ext_const((uint32_t)g_ascii_strtoll(ascii, NULL, 10), &gtpv2_rat_type_vals_ext, "Unknown"));
+
+#.FN_BODY EPS-GTPV2-SpecificParameters/ePSBearerQoS
+  proto_tree *eps_qos_tree;
+  unsigned tvb_len;
+
+  /*
+   * 8.15 Bearer Quality of Service (Bearer QoS)
+   * 3GPP TS 29.274
+   */
+
+  tvb_len = tvb_reported_length(tvb);
+  eps_qos_tree = proto_tree_add_subtree(tree, tvb, 0, tvb_len, ett_HI2Operations_eps_qos, NULL, "ePSBearerQoS");
+
+  dissect_gtpv2_bearer_qos(tvb, actx->pinfo, eps_qos_tree, NULL, tvb_len, 0, 0, NULL);
+
+  offset = tvb_len;
+
+#.FN_BODY EPS-GTPV2-SpecificParameters/aPN-AMBR
+  proto_tree *eps_apn_ambr_tree;
+  unsigned tvb_len;
+
+  /*
+   * 8.7 Aggregate Maximum Bit Rate (AMBR)
+   * 3GPP TS 29.274
+   */
+
+  tvb_len = tvb_reported_length(tvb);
+  eps_apn_ambr_tree = proto_tree_add_subtree(tree, tvb, 0, tvb_len, ett_HI2Operations_eps_apn_ambr, NULL, "aPN-AMBR");
+
+  dissect_gtpv2_ambr(tvb, actx->pinfo, eps_apn_ambr_tree, NULL, tvb_len, 0, 0, NULL);
+
+  offset = tvb_len;
+
+#.FN_BODY EPSLocation/userLocationInfo
+  proto_tree *eps_uli_tree;
+  unsigned tvb_len;
+
+  /*
+   * 8.22 User Location Info (ULI)
+   * 3GPP TS 29.274
+   */
+
+  tvb_len = tvb_reported_length(tvb);
+  eps_uli_tree = proto_tree_add_subtree(tree, tvb, 0, tvb_len, ett_HI2Operations_eps_uli, NULL, "userLocationInfo");
+
+  dissect_gtpv2_uli(tvb, actx->pinfo, eps_uli_tree, NULL, tvb_len, 0, 0, NULL);
+
+  offset = tvb_len;
+
+#.FN_BODY EPS-GTPV2-SpecificParameters/pDNType VAL_PTR =&parameter_tvb
+  tvbuff_t *parameter_tvb=NULL;
+  unsigned tvb_len;
+
+%(DEFAULT_BODY)s
+
+  if (!parameter_tvb)
+    return offset;
+
+  /*
+   * 8.34 PDN Type
+   * 3GPP TS 29.274
+   */
+
+  tvb_len = tvb_reported_length(parameter_tvb);
+	uint8_t *ascii = (uint8_t*)tvb_memdup(actx->pinfo->pool, parameter_tvb, 0, tvb_len);
+  proto_item_append_text(actx->created_item, " (%%s)", val_to_str_ext_const((uint32_t)g_ascii_strtoll(ascii, NULL, 10), &gtpv2_pdn_type_vals_ext, "Unknown"));
+
+#.FN_BODY EPS-GTPV2-SpecificParameters/tFT
+  proto_tree *eps_tft_tree;
+  unsigned tvb_len;
+
+  /*
+  * 8.19 EPS Bearer Level Traffic Flow Template (Bearer TFT)
+   * 3GPP TS 29.274
+   */
+
+  tvb_len = tvb_reported_length(tvb);
+  eps_tft_tree = proto_tree_add_subtree(tree, tvb, 0, tvb_len, ett_HI2Operations_eps_tft, NULL, "tFT");
+
+  /* The detailed coding of Traffic Aggregate
+   * Description is specified in 3GPP TS 24.008 [5] ,
+   * clause 10.5.6.12, beginning with octet 3..
+   * Use the decoding in packet-gsm_a_gm.c
+   */
+  de_sm_tflow_temp(tvb, eps_tft_tree, actx->pinfo, 0, tvb_len, NULL, 0);
+
+  offset = tvb_len;
+
+#.FN_BODY Network-Identifier/operator-Identifier
+  proto_tree *network_operator_id_tree;
+  unsigned tvb_len;
+
+  /*
+   * 8.18 Serving Network
+   * 3GPP TS 29.274
+   */
+
+  tvb_len = tvb_reported_length(tvb);
+  network_operator_id_tree = proto_tree_add_subtree(tree, tvb, 0, tvb_len, ett_HI2Operations_eps_network, NULL, "operator-Identifier");
+
+  dissect_e212_mcc_mnc_wmem_packet_str(tvb, actx->pinfo, network_operator_id_tree, 0, E212_NONE, true);
+
+  offset = tvb_len;
+
+  #.FN_BODY PartyInformation/partyIdentity/imei
+  unsigned tvb_len;
+
+  /*
+   * Mobile Equipment Identity (MEI)
+   */
+
+  tvb_len = tvb_reported_length(tvb);
+  /* IMEISV is 16 digits, but often transmitted BCD coded in 8 octets.
+    Some implementations use IMEI (15 digits) instead of IMEISV */
+  if (tvb_len == 8) {
+    proto_tree_add_item(tree, hf_HI2Operations_imei, tvb, offset, tvb_len, ENC_BCD_DIGITS_0_9|ENC_LITTLE_ENDIAN|ENC_NA);
+  } else {
+    proto_tree_add_item(tree, hf_HI2Operations_imei, tvb, offset, tvb_len, ENC_ASCII);
+  }
+
+  offset = tvb_len;
+
+#.FN_BODY PartyInformation/partyIdentity/imsi
+  unsigned tvb_len;
+
+  /*
+   * See MAP format TS GSM 09.02 [32] International Mobile
+	 * Station Identity E.212 number beginning with Mobile Country Code
+   */
+
+  tvb_len = tvb_reported_length(tvb);
+
+  dissect_e212_imsi(tvb, actx->pinfo, tree,  offset, tvb_len, false);
+
+  offset = tvb_len;
+
 #.FIELD_ATTR
 GSMLocation/geoCoordinates/latitude ABBREV=geoCoordinates.latitude
 GSMLocation/geoCoordinates/longitude ABBREV=geoCoordinates.longitude
+IRI-Parameters/lawfulInterceptionIdentifier TYPE = FT_STRING  DISPLAY = BASE_NONE
+IRI-Parameters/ePSCorrelationNumber TYPE = FT_STRING  DISPLAY = BASE_NONE
+EPS-GTPV2-SpecificParameters/aPN TYPE = FT_STRING  DISPLAY = BASE_NONE
+EPS-GTPV2-SpecificParameters/ePSBearerIdentity TYPE = FT_STRING  DISPLAY = BASE_NONE
+EPS-GTPV2-SpecificParameters/rATType TYPE = FT_STRING  DISPLAY = BASE_NONE
+EPS-GTPV2-SpecificParameters/pDNType TYPE = FT_STRING  DISPLAY = BASE_NONE
+EPS-GTPV2-SpecificParameters/linkedEPSBearerId TYPE = FT_STRING  DISPLAY = BASE_NONE
 #.END
 
