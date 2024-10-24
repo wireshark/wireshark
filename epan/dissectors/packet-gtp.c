@@ -81,6 +81,8 @@ static dissector_table_t gtp_hdr_ext_dissector_table;
 static dissector_handle_t gtp_handle, gtp_prime_handle;
 static dissector_handle_t nrup_handle;
 
+static heur_dissector_list_t heur_subdissector_list;
+
 #define GTPv0_PORT  3386
 #define GTPv1C_PORT 2123    /* 3G Control PDU */
 #define GTPv1U_PORT 2152    /* 3G T-PDU */
@@ -10317,7 +10319,6 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
     unsigned         ext_hdr_length;
     uint32_t         ext_hdr_pdcpsn, value;
     char            *tid_str;
-    uint8_t          sub_proto;
     uint8_t          acfield_len      = 0;
     gtp_msg_hash_t  *gcrp             = NULL;
     conversation_t  *conversation;
@@ -10929,51 +10930,16 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 
     if ((gtp_hdr->message == GTP_MSG_TPDU) && (tvb_reported_length_remaining(tvb, offset) > 0)) {
         switch (dissect_tpdu_as) {
-        case GTP_TPDU_AS_TPDU_HEUR:
-            sub_proto = tvb_get_uint8(tvb, offset);
-
-            if ((sub_proto >= 0x45) && (sub_proto <= 0x4e)) {
-                /* this is most likely an IPv4 packet
-                * we can exclude 0x40 - 0x44 because the minimum header size is 20 octets
-                * 0x4f is excluded because PPP protocol type "IPv6 header compression"
-                * with protocol field compression is more likely than a plain IPv4 packet with 60 octet header size */
-
-                dissect_gtp_tpdu_by_handle(ip_handle, tvb, pinfo, tree, offset);
-
-            } else if ((sub_proto & 0xf0) == 0x60) {
-                /* this is most likely an IPv6 packet */
-                dissect_gtp_tpdu_by_handle(ipv6_handle, tvb, pinfo, tree, offset);
+        case GTP_TPDU_AS_TPDU_HEUR: {
+            heur_dtbl_entry_t *hdtbl_entry;
+            tvbuff_t *next_tvb = tvb_new_subset_remaining(tvb, offset);
+            if (dissector_try_heuristic(heur_subdissector_list, next_tvb, pinfo, tree, &hdtbl_entry, NULL)) {
+                col_prepend_fstr(pinfo->cinfo, COL_PROTOCOL, "GTP/");
             } else {
-                if (tvb_reported_length_remaining(tvb, offset)>14) {
-                    uint16_t eth_type;
-                    eth_type = tvb_get_ntohs(tvb, offset+12);
-                    if (eth_type == ETHERTYPE_ARP || eth_type == ETHERTYPE_IPv6 || eth_type == ETHERTYPE_IP) {
-                        /* guess this is an ethernet PDU based on the eth type field */
-                        dissect_gtp_tpdu_by_handle(eth_handle, tvb, pinfo, tree, offset);
-                    }
-                } else {
-#if 0
-                    /* This turns out not to be true, remove the code and try to improve it if we get bug reports */
-                    /* this seems to be a PPP packet */
-
-                    if (sub_proto == 0xff) {
-                        uint8_t          control_field;
-                        /* this might be an address field, even it shouldn't be here */
-                        control_field = tvb_get_uint8(tvb, offset + 1);
-                        if (control_field == 0x03)
-                            /* now we are pretty sure that address and control field are mistakenly inserted -> ignore it for PPP dissection */
-                            acfield_len = 2;
-                    }
-
-                    next_tvb = tvb_new_subset_remaining(tvb, offset + acfield_len);
-                    call_dissector(ppp_handle, next_tvb, pinfo, tree);
-#endif
-                    proto_tree_add_item(tree, hf_gtp_tpdu_data, tvb, offset, -1, ENC_NA);
-
-                    col_prepend_fstr(pinfo->cinfo, COL_PROTOCOL, "GTP/");
-                }
+                proto_tree_add_item(tree, hf_gtp_tpdu_data, next_tvb, 0, -1, ENC_NA);
             }
             break;
+        }
         case GTP_TPDU_AS_PDCP_LTE:
             dissect_gtp_tpdu_as_pdcp_lte_info(tvb, pinfo, tree, gtp_hdr, offset);
             break;
@@ -11045,6 +11011,59 @@ dissect_gtp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
     }
 
     return dissect_gtp_common(tvb, pinfo, tree);
+}
+
+// Very minimal heuristic dissector for ethernet that recognizes ethernet with a limited
+// set of protocols, optionally with a set of vlan tags.
+// This dissector is not implemented in the packet-eth.c file as it is too simplistic
+// for general purpose.
+static bool
+dissect_eth_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+{
+    int offset;
+    uint16_t ethertype;
+
+    if (tvb_reported_length(tvb) < 14) {
+        return false;
+    }
+
+    // skip both mac-addresses, no information to be gained from them
+    offset = 12;
+
+    ethertype = tvb_get_uint16(tvb, offset, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    if (ethertype == ETHERTYPE_QINQ_OLD || ethertype == ETHERTYPE_IEEE_802_1AD)
+    {
+        if (tvb_reported_length_remaining(tvb, offset) < 4) {
+            return false;
+        }
+        ethertype = tvb_get_uint16(tvb, offset + 2, ENC_BIG_ENDIAN);
+        if (ethertype != ETHERTYPE_VLAN) {
+            return false;
+        }
+        offset += 4;
+    }
+    while (ethertype == ETHERTYPE_VLAN)
+    {
+        if (tvb_reported_length_remaining(tvb, offset) < 4) {
+            return false;
+        }
+        ethertype = tvb_get_uint16(tvb, offset + 2, ENC_BIG_ENDIAN);
+        offset += 4;
+    }
+
+    switch (ethertype) {
+    case ETHERTYPE_IP:
+    case ETHERTYPE_IPv6:
+    case ETHERTYPE_ARP:
+    case ETHERTYPE_PPPOED:
+    case ETHERTYPE_PPPOES:
+        call_dissector(eth_handle, tvb, pinfo, tree);
+        return true;
+    }
+
+    return false;
 }
 
 static void
@@ -13134,6 +13153,8 @@ proto_register_gtp(void)
     gtpv1_tap = register_tap("gtpv1");
 
     register_srt_table(proto_gtp, NULL, 1, gtpstat_packet, gtpstat_init, NULL);
+
+    heur_subdissector_list = register_heur_dissector_list("gtp.tpdu", proto_gtp);
 }
 /* TS 132 295 V9.0.0 (2010-02)
  * 5.1.3 Port usage
@@ -13182,6 +13203,10 @@ proto_reg_handoff_gtp(void)
         dissector_add_uint("diameter.3gpp", 904, create_dissector_handle(dissect_gtp_mbms_ses_dur, proto_gtp));
         /* AVP Code: 911 MBMS-Time-To-Data-Transfer */
         dissector_add_uint("diameter.3gpp", 911, create_dissector_handle(dissect_gtp_mbms_time_to_data_tr, proto_gtp));
+
+        // TPDU payload detection
+        int eth_proto_id = dissector_handle_get_protocol_index(eth_handle);
+        heur_dissector_add("gtp.tpdu", dissect_eth_heur, "Ethernet over GTP", "eth_gtp.tpdu", eth_proto_id, HEURISTIC_ENABLE);
 
         Initialized = true;
     } else {

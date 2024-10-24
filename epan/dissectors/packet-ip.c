@@ -3246,6 +3246,7 @@ proto_reg_handoff_ip(void)
 
   heur_dissector_add("tipc", dissect_ip_heur, "IP over TIPC", "ip_tipc", proto_ip, HEURISTIC_ENABLE);
   heur_dissector_add("zbee_zcl_se.tun", dissect_ip_heur, "IP over ZigBee SE Tunneling", "ip_zbee_zcl_se.tun", proto_ip, HEURISTIC_ENABLE);
+  heur_dissector_add("gtp.tpdu", dissect_ip_heur, "IP over GTP", "ip_gtp.tpdu", proto_ip, HEURISTIC_ENABLE);
 
   capture_dissector_add_uint("ethertype", ETHERTYPE_IP, ip_cap_handle);
   capture_dissector_add_uint("ax25.pid", AX25_P_IP, ip_cap_handle);
