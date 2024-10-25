@@ -956,7 +956,8 @@ def findExpertItems(filename, macros):
                 matches = re.finditer(r'\{\s*&([a-zA-Z0-9_]*)\s*\,\s*\{\s*\"(.*?)\"\s*\,\s*([A-Z_]*)\,\s*([A-Z_]*)\,\s*\"(.*?)\"\s*\,\s*EXPFILL\s*\}\s*\}',
                                     entries, re.MULTILINE|re.DOTALL)
                 for match in matches:
-                    expertEntry = ExpertEntry(filename, match.group(1), match.group(2), match.group(3), match.group(4), match.group(5))
+                    expertEntry = ExpertEntry(filename, name=match.group(1), filter=match.group(2), group=match.group(3),
+                                              severity=match.group(4), summary=match.group(5))
                     expertEntries.AddEntry(expertEntry)
 
             return expertEntries
@@ -977,12 +978,12 @@ valid_levels = set(['PI_COMMENT', 'PI_CHAT', 'PI_NOTE',
 
 # An individual entry
 class ExpertEntry:
-    def __init__(self, filename, name, filter, group, severity, label):
+    def __init__(self, filename, name, filter, group, severity, summary):
         self.name = name
         self.filter = filter
         self.group = group
         self.severity = severity
-        self.label = label
+        self.summary = summary
 
         global errors_found, warnings_found
 
@@ -995,16 +996,17 @@ class ExpertEntry:
             print('Error:', filename, 'Expert severity', severity, 'is not in', valid_levels)
             errors_found += 1
 
-        if label.startswith(' '):
-            print('Warning:', filename, 'Expert info label', '"' + label + '"', 'for', name, 'starts with space')
+        # Checks on the summary field
+        if summary.startswith(' '):
+            print('Warning:', filename, 'Expert info summary', '"' + summary + '"', 'for', name, 'starts with space')
             warnings_found += 1
-        if label.endswith(' '):
-            print('Warning:', filename, 'Expert info label', '"' + label + '"', 'for', name, 'ends with space')
+        if summary.endswith(' '):
+            print('Warning:', filename, 'Expert info summary', '"' + summary + '"', 'for', name, 'ends with space')
             warnings_found += 1
 
         # The summary field is shown in the expert window without substituting args..
-        if label.find('%') != -1:
-            print('Warning:', filename, 'Expert info label', '"' + label + '"', 'for', name, 'has format specifiers in it?')
+        if summary.find('%') != -1:
+            print('Warning:', filename, 'Expert info summary', '"' + summary + '"', 'for', name, 'has format specifiers in it?')
             warnings_found += 1
 
 
@@ -1014,7 +1016,7 @@ class ExpertEntries:
     def __init__(self, filename):
         self.filename = filename
         self.entries = []
-        self.labels = set()  # key is (name, severity)
+        self.summaries = set()  # key is (name, severity)
         self.filters = set()
 
     def AddEntry(self, entry):
@@ -1022,15 +1024,15 @@ class ExpertEntries:
 
         global errors_found, warnings_found
 
-        # If these are not unique, can't tell apart from expert window (need to look into frame to see details)
-        if (entry.label, entry.severity) in self.labels:
-            print('Warning:', self.filename, 'Expert label', '"' + entry.label + '"', 'has already been seen (now in', entry.name+')')
+        # If summaries are not unique, can't tell apart from expert window (need to look into frame to see details)
+        if (entry.summary, entry.severity) in self.summaries:
+            print('Warning:', self.filename, 'Expert summary', '"' + entry.summary + '"', 'has already been seen (now in', entry.name+')')
             warnings_found += 1
-        self.labels.add((entry.label, entry.severity))
+        self.summaries.add((entry.summary, entry.severity))
 
         # Not sure if anyone ever filters on these, but check if are unique
         if entry.filter in self.filters:
-            print('Warning:', self.filename, 'Expert filter', '"' + entry.filter + '"', 'has already been seen (now in', entry.name+')')
+            print('Warning:', self.filename, 'Expert summary', '"' + entry.filter + '"', 'has already been seen (now in', entry.name+')')
             warnings_found += 1
         self.filters.add(entry.filter)
 
@@ -2037,7 +2039,7 @@ if args.all_checks:
     args.label = True
     args.label_vs_filter = True
     #args.extra_value_string_checks = True
-    #args.check_expert_items = True
+    args.check_expert_items = True
 
 if args.check_bitmask_fields:
     args.mask = True

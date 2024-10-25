@@ -2205,7 +2205,7 @@ void proto_register_ldap(void) {
 
   static ei_register_info ei[] = {
      { &ei_ldap_exceeded_filter_length, { "ldap.exceeded_filter_length", PI_UNDECODED, PI_ERROR, "Filter length exceeds number. Giving up", EXPFILL }},
-     { &ei_ldap_too_many_filter_elements, { "ldap.too_many_filter_elements", PI_UNDECODED, PI_ERROR, "Found more than %%u filter elements. Giving up.", EXPFILL }},
+     { &ei_ldap_too_many_filter_elements, { "ldap.too_many_filter_elements", PI_UNDECODED, PI_ERROR, "Found too many filter elements. Giving up.", EXPFILL }},
   };
 
   expert_module_t* expert_ldap;

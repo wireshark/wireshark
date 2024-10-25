@@ -4582,8 +4582,9 @@ proto_register_ldp(void)
         { &ei_ldp_gtsm_not_supported, { "ldp.gtsm_not_supported", PI_PROTOCOL, PI_CHAT, "GTSM is not supported by the source", EXPFILL }},
         { &ei_ldp_inv_length, { "ldp.invalid_length", PI_MALFORMED, PI_ERROR, "Length of the packet is malformed", EXPFILL }},
         { &ei_ldp_address_family_not_implemented, { "ldp.address_family_not_implemented", PI_UNDECODED, PI_WARN, "Support for Address Family not implemented", EXPFILL }},
-        { &ei_ldp_tlv_fec, { "ldp.msg.tlv.fec.error", PI_PROTOCOL, PI_ERROR, "Error in FEC Element %u", EXPFILL }},
-        { &ei_ldp_tlv_fec_len, { "ldp.msg.tlv.fec.len.invalid", PI_PROTOCOL, PI_ERROR, "Invalid prefix %u length for family %s", EXPFILL }},
+        { &ei_ldp_tlv_fec, { "ldp.msg.tlv.fec.error", PI_PROTOCOL, PI_ERROR, "Error in FEC Element", EXPFILL }},
+        /* N.B. this one is being used for lots of length-related and bytes-remaining conditions.. */
+        { &ei_ldp_tlv_fec_len, { "ldp.msg.tlv.fec.len.invalid", PI_PROTOCOL, PI_ERROR, "Length Error", EXPFILL }},
         { &ei_ldp_tlv_fec_vc_infolength, { "ldp.msg.tlv.fec.vc.infolength.invalid", PI_PROTOCOL, PI_ERROR, "VC FEC size format error", EXPFILL }},
         { &ei_ldp_malformed_interface_parameter, { "ldp.malformed_interface_parameter", PI_MALFORMED, PI_ERROR, "Malformed interface parameter", EXPFILL }},
         { &ei_ldp_malformed_data, { "ldp.malformed_data", PI_MALFORMED, PI_ERROR, "Malformed data", EXPFILL }},

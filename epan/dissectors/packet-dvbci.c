@@ -6325,7 +6325,7 @@ proto_register_dvbci(void)
                 "Invalid SB_value, must be 0x00 or 0x80", EXPFILL }},
         { &ei_dvbci_t_c_id,
             { "dvb-ci.t_c_id.invalid", PI_PROTOCOL, PI_WARN,
-                "Transport Connection ID mismatch, tcid is %d in the transport layer and %d in the link layer", EXPFILL }},
+                "Transport Connection ID mismatch the transport layer link layer", EXPFILL }},
         { &ei_dvbci_tpdu_status_tag,
             { "dvb-ci.tpdu.status_tag.invalid", PI_MALFORMED, PI_ERROR,
                 "Invalid status tag, this must always be T_SB (0x80)", EXPFILL }},
@@ -6363,7 +6363,7 @@ proto_register_dvbci(void)
                 "Invalid resource class for this apdu", EXPFILL }},
         { &ei_dvbci_bad_length,
             { "dvb-ci.apdu.bad_length", PI_MALFORMED, PI_ERROR,
-                "Invalid APDU length field, %s must be a multiple of 4 bytes",
+                "Invalid length field",
                 EXPFILL }},
         /* this is used for both MMI and operator profile */
         { &ei_dvbci_invalid_char_tbl,

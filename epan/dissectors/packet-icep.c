@@ -1272,7 +1272,7 @@ void proto_register_icep(void)
         { &ei_icep_context_too_long, { "icep.context.too_long", PI_PROTOCOL, PI_WARN, "too long context", EXPFILL }},
         { &ei_icep_params_missing, { "icep.params.missing", PI_MALFORMED, PI_ERROR, "params missing", EXPFILL }},
         { &ei_icep_params_size, { "icep.params.size.invalid", PI_PROTOCOL, PI_WARN, "params size too small", EXPFILL }},
-        { &ei_icep_params_encapsulated, { "icep.params.encapsulated.missing", PI_PROTOCOL, PI_WARN, "missing encapsulated data (%d bytes)", EXPFILL }},
+        { &ei_icep_params_encapsulated, { "icep.params.encapsulated.missing", PI_PROTOCOL, PI_WARN, "missing encapsulated data", EXPFILL }},
         { &ei_icep_length, { "icep.length_invalid", PI_MALFORMED, PI_ERROR, "Invalid length", EXPFILL }},
         { &ei_icep_mode_missing, { "icep.mode.missing", PI_MALFORMED, PI_ERROR, "mode field missing", EXPFILL }},
         { &ei_icep_batch_requests, { "icep.batch_requests.invalid", PI_PROTOCOL, PI_WARN, "too many batch requests", EXPFILL }},

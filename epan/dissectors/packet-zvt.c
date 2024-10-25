@@ -1473,7 +1473,7 @@ proto_register_zvt(void)
     static ei_register_info ei[] = {
         { &ei_invalid_apdu_len,
             { "zvt.apdu_len.invalid", PI_PROTOCOL, PI_WARN,
-                "The APDU length is too short. The minimum length is %d",
+                "The APDU length is too short",
                 EXPFILL }}
     };
 

@@ -4204,7 +4204,7 @@ proto_register_omron_fins(void)
 
     static ei_register_info ei[] = {
         { &ei_omron_command_code, { "omron.command.unknown", PI_UNDECODED, PI_WARN, "Unknown Command-Code", EXPFILL }},
-        { &ei_oomron_command_memory_area_code, { "omron.memory.area.read.unknown", PI_UNDECODED, PI_WARN, "Unknown Memory-Area-Code (%u)", EXPFILL }},
+        { &ei_oomron_command_memory_area_code, { "omron.memory.area.read.unknown", PI_UNDECODED, PI_WARN, "Unknown Memory-Area-Code", EXPFILL }},
         { &ei_omron_bad_length, { "omron.bad_length", PI_MALFORMED, PI_WARN, "Unexpected Length", EXPFILL }},
     };
 

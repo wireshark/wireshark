@@ -3995,8 +3995,8 @@ proto_register_llrp(void)
     };
 
     static ei_register_info ei[] = {
-        { &ei_llrp_invalid_length, { "llrp.invalid_length_of_string_claimed", PI_MALFORMED, PI_ERROR, "invalid length of string: claimed %u, available %u.", EXPFILL }},
-        { &ei_llrp_req_conf, { "llrp.req_conf.invalid", PI_PROTOCOL, PI_ERROR, "Unrecognized configuration request: %u", EXPFILL }},
+        { &ei_llrp_invalid_length, { "llrp.invalid_length_of_string_claimed", PI_MALFORMED, PI_ERROR, "Invalid Length", EXPFILL }},
+        { &ei_llrp_req_conf, { "llrp.req_conf.invalid", PI_PROTOCOL, PI_ERROR, "Unrecognized configuration request", EXPFILL }},
     };
 
     expert_module_t* expert_llrp;

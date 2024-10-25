@@ -3069,7 +3069,7 @@ proto_register_rlc(void)
         { &ei_rlc_kasumi_implementation_missing, { "rlc.kasumi_implementation_missing", PI_UNDECODED, PI_WARN, "Unable to decipher packet since KASUMI implementation is missing.", EXPFILL }},
         { &ei_rlc_li_reserved, { "rlc.li.reserved", PI_PROTOCOL, PI_WARN, "Uses reserved LI", EXPFILL }},
         { &ei_rlc_li_incorrect_warn, { "rlc.li.incorrect", PI_PROTOCOL, PI_WARN, "Incorrect LI value", EXPFILL }},
-        { &ei_rlc_li_incorrect_mal, { "rlc.li.incorrect", PI_MALFORMED, PI_ERROR, "Incorrect LI value 0x%x", EXPFILL }},
+        { &ei_rlc_li_incorrect_mal, { "rlc.li.incorrect", PI_MALFORMED, PI_ERROR, "Incorrect LI value", EXPFILL }},
         { &ei_rlc_li_too_many, { "rlc.li.too_many", PI_MALFORMED, PI_ERROR, "Too many LI entries", EXPFILL }},
         { &ei_rlc_header_only, { "rlc.header_only.expert", PI_SEQUENCE, PI_NOTE, "RLC PDU SDUs have been omitted", EXPFILL }},
         { &ei_rlc_sufi_len, { "rlc.sufi.len.invalid", PI_MALFORMED, PI_ERROR, "Invalid length", EXPFILL }},

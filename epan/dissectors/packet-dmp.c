@@ -4861,7 +4861,7 @@ void proto_register_dmp (void)
         "Recipient number too big", EXPFILL } },
     { &ei_ack_reason,
       { "dmp.ack_reason.expert", PI_RESPONSE_CODE, PI_NOTE,
-        "ACK reason: %s", EXPFILL } },
+        "ACK reason", EXPFILL } },
     { &ei_envelope_version_value,
       { "dmp.version_value.unsupported", PI_UNDECODED, PI_ERROR,
         "Unsupported DMP Version", EXPFILL } },

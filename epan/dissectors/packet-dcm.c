@@ -4220,7 +4220,7 @@ proto_register_dcm(void)
         { &ei_dcm_assoc_item_len, { "dicom.assoc.item.len.invalid", PI_MALFORMED, PI_ERROR, "Invalid Association Item Length", EXPFILL }},
         { &ei_dcm_pdv_ctx, { "dicom.pdv.ctx.invalid", PI_MALFORMED, PI_ERROR, "Invalid Presentation Context ID", EXPFILL }},
         { &ei_dcm_pdv_flags, { "dicom.pdv.flags.invalid", PI_MALFORMED, PI_ERROR, "Invalid Flags", EXPFILL }},
-        { &ei_dcm_status_msg, { "dicom.status_msg", PI_RESPONSE_CODE, PI_WARN, "%s", EXPFILL }},
+        { &ei_dcm_status_msg, { "dicom.status_msg", PI_RESPONSE_CODE, PI_WARN, "Status Message", EXPFILL }},
         { &ei_dcm_data_tag, { "dicom.data.tag.missing", PI_MALFORMED, PI_ERROR, "Early termination of tag. Data is missing", EXPFILL }},
         { &ei_dcm_pdv_len, { "dicom.pdv.len.invalid", PI_MALFORMED, PI_ERROR, "Invalid PDV length", EXPFILL }},
         { &ei_dcm_invalid_pdu_length, { "dicom.pdu_length.invalid", PI_MALFORMED, PI_ERROR, "Invalid PDU length", EXPFILL }},

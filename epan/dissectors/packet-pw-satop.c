@@ -499,7 +499,7 @@ void proto_register_pw_satop(void)
 		&ett_pw_satop
 	};
 	static ei_register_info ei[] = {
-		{ &ei_cw_packet_size_too_small, { "pwsatop.packet_size_too_small", PI_MALFORMED, PI_ERROR, "PW packet size (%d) is too small to carry sensible information", EXPFILL }},
+		{ &ei_cw_packet_size_too_small, { "pwsatop.packet_size_too_small", PI_MALFORMED, PI_ERROR, "PW packet size is too small to carry sensible information", EXPFILL }},
 		{ &ei_cw_bits03, { "pwsatop.cw.bits03.not_zero", PI_MALFORMED, PI_ERROR, "Bits 0..3 of Control Word must be 0", EXPFILL }},
 		{ &ei_cw_rsv, { "pwsatop.cw.rsv.not_zero", PI_MALFORMED, PI_ERROR, "RSV bits of Control Word must be 0", EXPFILL }},
 		{ &ei_cw_frg, { "pwsatop.cw.frag.not_allowed", PI_MALFORMED, PI_ERROR, "Fragmentation of payload is not allowed for SAToP", EXPFILL }},

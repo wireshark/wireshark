@@ -363,14 +363,14 @@ proto_register_mpls_y1711(void)
 
     static ei_register_info ei[] = {
         /* Generated from convert_proto_tree_add_text.pl */
-        { &ei_mpls_y1711_minimum_payload, { "mpls_y1711.minimum_payload", PI_MALFORMED, PI_ERROR, "Error: must have a minimum payload length of 44 bytes", EXPFILL }},
-        { &ei_mpls_y1711_no_OAM_alert_label, { "mpls_y1711.no_OAM_alert_label", PI_PROTOCOL, PI_WARN, "Warning: Y.1711 but no OAM alert label (%d) ?!", EXPFILL }},
-        { &ei_mpls_y1711_exp_bits_not_zero, { "mpls_y1711.exp_bits_not_0", PI_PROTOCOL, PI_WARN, "Warning: Exp bits should be 0 for Y.1711", EXPFILL }},
-        { &ei_mpls_y1711_s_bit_not_one, { "mpls_y1711.s_bit_not_1", PI_PROTOCOL, PI_WARN, "Warning: S bit should be 1 for Y.1711", EXPFILL }},
-        { &ei_mpls_y1711_ttl_not_one, { "mpls_y1711.ttl_not_1", PI_PROTOCOL, PI_WARN, "Warning: TTL should be 1 for Y.1711", EXPFILL }},
-        { &ei_mpls_y1711_reserved_not_zero, { "mpls_y1711.reserved_not_zero", PI_PROTOCOL, PI_WARN, "Error: these bytes are reserved and must be 0x00", EXPFILL }},
-        { &ei_mpls_y1711_padding_not_zero, { "mpls_y1711.padding_not_zero", PI_PROTOCOL, PI_WARN, "Error: these bytes are padding and must be 0x00", EXPFILL }},
-        { &ei_mpls_y1711_padding_not_ff, { "mpls_y1711.padding_not_ff", PI_PROTOCOL, PI_WARN, "Error: these bytes are padding and must be 0xFF", EXPFILL }},
+        { &ei_mpls_y1711_minimum_payload, { "mpls_y1711.minimum_payload", PI_MALFORMED, PI_ERROR, "Must have a minimum payload length of 44 bytes", EXPFILL }},
+        { &ei_mpls_y1711_no_OAM_alert_label, { "mpls_y1711.no_OAM_alert_label", PI_PROTOCOL, PI_WARN, "Y.1711 but no OAM alert label", EXPFILL }},
+        { &ei_mpls_y1711_exp_bits_not_zero, { "mpls_y1711.exp_bits_not_0", PI_PROTOCOL, PI_WARN, "Exp bits should be 0", EXPFILL }},
+        { &ei_mpls_y1711_s_bit_not_one, { "mpls_y1711.s_bit_not_1", PI_PROTOCOL, PI_WARN, "S bit should be 1", EXPFILL }},
+        { &ei_mpls_y1711_ttl_not_one, { "mpls_y1711.ttl_not_1", PI_PROTOCOL, PI_WARN, "TTL should be 1", EXPFILL }},
+        { &ei_mpls_y1711_reserved_not_zero, { "mpls_y1711.reserved_not_zero", PI_PROTOCOL, PI_WARN, "These bytes are reserved and must be 0x00", EXPFILL }},
+        { &ei_mpls_y1711_padding_not_zero, { "mpls_y1711.padding_not_zero", PI_PROTOCOL, PI_WARN, "These bytes are padding and must be 0x00", EXPFILL }},
+        { &ei_mpls_y1711_padding_not_ff, { "mpls_y1711.padding_not_ff", PI_PROTOCOL, PI_ERROR, "Error: these bytes are padding and must be 0xFF", EXPFILL }},
         { &ei_mpls_y1711_ttsi_not_preset, { "mpls_y1711.ttsi_not_preset", PI_PROTOCOL, PI_NOTE, "TTSI not preset (optional for FDI/BDI)", EXPFILL }},
         { &ei_mpls_y1711_unknown_pdu, { "mpls_y1711.unknown_pdu", PI_PROTOCOL, PI_WARN, "Unknown MPLS Y.1711 PDU", EXPFILL }},
     };

@@ -2441,10 +2441,10 @@ void proto_register_cotp(void)
     &ett_cotp_segments
   };
   static ei_register_info ei[] = {
-      { &ei_cotp_disconnect_request, { "cotp.disconnect_request", PI_SEQUENCE, PI_CHAT, "Disconnect Request(DR): 0x%x -> 0x%x", EXPFILL }},
-      { &ei_cotp_reject, { "cotp.reject", PI_SEQUENCE, PI_NOTE, "Reject(RJ): -> 0x%x", EXPFILL }},
-      { &ei_cotp_connection, { "cotp.connection", PI_SEQUENCE, PI_CHAT, "Connection %s: 0x%x -> 0x%x", EXPFILL }},
-      { &ei_cotp_disconnect_confirm, { "cotp.disconnect_confirm", PI_SEQUENCE, PI_CHAT, "Disconnect Confirm(DC): 0x%x -> 0x%x", EXPFILL }},
+      { &ei_cotp_disconnect_request, { "cotp.disconnect_request", PI_SEQUENCE, PI_CHAT, "Disconnect Request(DR)", EXPFILL }},
+      { &ei_cotp_reject, { "cotp.reject", PI_SEQUENCE, PI_NOTE, "Reject(RJ)", EXPFILL }},
+      { &ei_cotp_connection, { "cotp.connection", PI_SEQUENCE, PI_CHAT, "Connection", EXPFILL }},
+      { &ei_cotp_disconnect_confirm, { "cotp.disconnect_confirm", PI_SEQUENCE, PI_CHAT, "Disconnect Confirm(DC)", EXPFILL }},
       { &ei_cotp_multiple_tpdus, { "cotp.multiple_tpdus", PI_SEQUENCE, PI_NOTE, "Multiple TPDUs in one packet", EXPFILL }},
       { &ei_cotp_preferred_maximum_tpdu_size, { "cotp.preferred_maximum_tpdu_size.invalid", PI_PROTOCOL, PI_WARN, "Preferred maximum TPDU size: bogus length", EXPFILL }},
       { &ei_cotp_atn_extended_checksum, { "cotp.bad_checksum", PI_CHECKSUM, PI_ERROR, "Bad checksum", EXPFILL }},

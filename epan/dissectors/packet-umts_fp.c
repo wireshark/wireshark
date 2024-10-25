@@ -7031,17 +7031,17 @@ void proto_register_fp(void)
     };
 
     static ei_register_info ei[] = {
-        { &ei_fp_bad_header_checksum, { "fp.header.bad_checksum", PI_CHECKSUM, PI_WARN, "Bad header checksum.", EXPFILL }},
+        { &ei_fp_bad_header_checksum, { "fp.header.bad_checksum", PI_CHECKSUM, PI_WARN, "Bad header checksum", EXPFILL }},
         { &ei_fp_crci_no_subdissector, { "fp.crci.no_subdissector", PI_UNDECODED, PI_NOTE, "Not sent to subdissectors as CRCI is set", EXPFILL }},
         { &ei_fp_crci_error_bit_set_for_tb, { "fp.crci.error_bit_set_for_tb", PI_CHECKSUM, PI_WARN, "CRCI error bit set for TB", EXPFILL }},
-        { &ei_fp_spare_extension, { "fp.spare-extension.expert", PI_UNDECODED, PI_WARN, "Spare Extension present (%u bytes)", EXPFILL }},
-        { &ei_fp_bad_payload_checksum, { "fp.payload-crc.bad", PI_CHECKSUM, PI_WARN, "Bad payload checksum.", EXPFILL }},
+        { &ei_fp_spare_extension, { "fp.spare-extension.expert", PI_UNDECODED, PI_WARN, "Spare Extension present", EXPFILL }},
+        { &ei_fp_bad_payload_checksum, { "fp.payload-crc.bad", PI_CHECKSUM, PI_WARN, "Bad payload checksum", EXPFILL }},
         { &ei_fp_stop_hsdpa_transmission, { "fp.stop_hsdpa_transmission", PI_RESPONSE_CODE, PI_NOTE, "Stop HSDPA transmission", EXPFILL }},
-        { &ei_fp_timing_adjustment_reported, { "fp.timing_adjustment_reported", PI_SEQUENCE, PI_WARN, "Timing adjustment reported (%.3f ms)", EXPFILL }},
+        { &ei_fp_timing_adjustment_reported, { "fp.timing_adjustment_reported", PI_SEQUENCE, PI_WARN, "Timing adjustment reported", EXPFILL }},
         { &ei_fp_expecting_tdd, { "fp.expecting_tdd", PI_MALFORMED, PI_NOTE, "Error: expecting TDD-384 or TDD-768", EXPFILL }},
-        { &ei_fp_ddi_not_defined, { "fp.ddi_not_defined", PI_MALFORMED, PI_ERROR, "DDI %u not defined for this UE!", EXPFILL }},
+        { &ei_fp_ddi_not_defined, { "fp.ddi_not_defined", PI_MALFORMED, PI_ERROR, "DDI not defined for this UE!", EXPFILL }},
         { &ei_fp_unable_to_locate_ddi_entry, { "fp.unable_to_locate_ddi_entry", PI_UNDECODED, PI_ERROR, "Unable to locate DDI entry.", EXPFILL }},
-        { &ei_fp_mac_is_sdus_miscount, { "fp.mac_is_sdus.miscount", PI_MALFORMED, PI_ERROR, "Found too many (%u) MAC-is SDUs - header said there were %u", EXPFILL }},
+        { &ei_fp_mac_is_sdus_miscount, { "fp.mac_is_sdus.miscount", PI_MALFORMED, PI_ERROR, "Found too many MAC-is SDUs", EXPFILL }},
         { &ei_fp_e_rnti_t2_edch_frames, { "fp.e_rnti.t2_edch_frames", PI_MALFORMED, PI_ERROR, "E-RNTI not supposed to appear for T2 EDCH frames", EXPFILL }},
         { &ei_fp_e_rnti_first_entry, { "fp.e_rnti.first_entry", PI_MALFORMED, PI_ERROR, "E-RNTI must be first entry among descriptors", EXPFILL }},
         { &ei_fp_maybe_srb, { "fp.maybe_srb", PI_PROTOCOL, PI_NOTE, "Found MACd-Flow = 0 and not MUX detected. (This might be SRB)", EXPFILL }},
