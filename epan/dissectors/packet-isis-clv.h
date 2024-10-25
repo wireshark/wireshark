@@ -71,6 +71,7 @@
 #define ISIS_CLV_MT_IP_REACH         235 /* draft-ietf-isis-wg-multi-topology-05 */
 #define ISIS_CLV_IP6_REACH           236 /* draft-ietf-isis-ipv6-02 */
 #define ISIS_CLV_MT_IP6_REACH        237 /* draft-ietf-isis-wg-multi-topology-05 */
+#define ISIS_CLV_APPSPEC_SRLG        238 /* rfc9479 */
 #define ISIS_CLV_PTP_ADJ_STATE       240 /* rfc3373 */
 #define ISIS_CLV_IIH_SEQNR           241 /* draft-shen-isis-iih-sequence-00 */
 #define ISIS_CLV_RT_CAPABLE          242 /* rfc4971, rfc7176 */
