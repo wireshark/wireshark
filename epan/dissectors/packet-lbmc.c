@@ -3872,6 +3872,7 @@ typedef struct
 #define LBMC_UME_STOREID_MAX_STOREID 0x7FFF
 #define LBMC_UME_CAPABILITY_QC_FLAG 0x4000
 #define LBMC_UME_CAPABILITY_CLIENT_LIFETIME_FLAG 0x2000
+#define LBMC_UME_CAPABILITY_RANGED_RX_FLAG 0x1000
 #define LBMC_UME_PROXY_SRC_E_FLAG 0x4000
 #define LBMC_UME_PROXY_SRC_C_FLAG 0x2000
 #define LBMC_UME_RXREQ_T_FLAG 0x4000
@@ -4804,8 +4805,9 @@ static int hf_lbmc_ume_capability_next_hdr;
 static int hf_lbmc_ume_capability_hdr_len;
 static int hf_lbmc_ume_capability_flags;
 static int hf_lbmc_ume_capability_flags_ignore;
-static int hf_lbmc_ume_capability_flags_qc_flag;
 static int hf_lbmc_ume_capability_flags_client_lifetime_flag;
+static int hf_lbmc_ume_capability_flags_qc_flag;
+static int hf_lbmc_ume_capability_flags_ranged_rx_flag;
 static int hf_lbmc_ume_proxy_src;
 static int hf_lbmc_ume_proxy_src_next_hdr;
 static int hf_lbmc_ume_proxy_src_hdr_len;
@@ -7111,6 +7113,7 @@ static int dissect_nhdr_ume_capability(tvbuff_t * tvb, int offset, packet_info *
         &hf_lbmc_ume_capability_flags_ignore,
         &hf_lbmc_ume_capability_flags_qc_flag,
         &hf_lbmc_ume_capability_flags_client_lifetime_flag,
+        &hf_lbmc_ume_capability_flags_ranged_rx_flag,
         NULL
     };
 
@@ -12173,6 +12176,8 @@ void proto_register_lbmc(void)
             { "Quorum/Consensus Capabilities", "lbmc.ume_capability.flags.qc_flag", FT_BOOLEAN, L_LBMC_CNTL_UME_CAPABILITY_HDR_T_FLAGS * 8, TFS(&tfs_set_notset), LBMC_UME_CAPABILITY_QC_FLAG, "Set if quorum/consensus supported", HFILL } },
         { &hf_lbmc_ume_capability_flags_client_lifetime_flag,
             { "Client Lifetime Capabilities", "lbmc.ume_capability.flags.client_lifetime_flag", FT_BOOLEAN, L_LBMC_CNTL_UME_CAPABILITY_HDR_T_FLAGS * 8, TFS(&tfs_set_notset), LBMC_UME_CAPABILITY_CLIENT_LIFETIME_FLAG, "Set if client lifetime enabled", HFILL } },
+        { &hf_lbmc_ume_capability_flags_ranged_rx_flag,
+            { "Ranged RX Capability", "lbmc.ume_capability.flags.ranged_rx_flag", FT_BOOLEAN, L_LBMC_CNTL_UME_CAPABILITY_HDR_T_FLAGS * 8, TFS(&tfs_set_notset), LBMC_UME_CAPABILITY_RANGED_RX_FLAG, "Set if Ranged RX is supported", HFILL } },
         { &hf_lbmc_ume_proxy_src,
             { "UME Proxy Source", "lbmc.ume_proxy_src", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
         { &hf_lbmc_ume_proxy_src_next_hdr,

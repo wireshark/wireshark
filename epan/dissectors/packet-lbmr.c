@@ -1060,6 +1060,7 @@ typedef struct
 #define L_LBMR_LBMR_OPT_HDR_T (int) sizeof(lbmr_lbmr_opt_hdr_t)
 
 #define LBMR_LBMR_OPT_HDR_FLAG_IGNORE 0x8000
+#define LBMR_LBMR_OPT_HDR_FLAG_VIRAL  0x0001
 
 /* LBMR packet option length header */
 typedef struct
@@ -1442,7 +1443,7 @@ typedef struct
     lbm_uint16_t num_domains;
     lbm_uint32_t ip;
     lbm_uint16_t port;
-    lbm_uint16_t reserved;
+    lbm_uint16_t route_index;
     lbm_uint32_t length;
     /* lbm_uint32_t domains[num_domains]; */
 } lbmr_remote_domain_route_hdr_t;
@@ -1456,8 +1457,8 @@ typedef struct
 #define L_LBMR_REMOTE_DOMAIN_ROUTE_HDR_T_IP SIZEOF(lbmr_remote_domain_route_hdr_t, ip)
 #define O_LBMR_REMOTE_DOMAIN_ROUTE_HDR_T_PORT OFFSETOF(lbmr_remote_domain_route_hdr_t, port)
 #define L_LBMR_REMOTE_DOMAIN_ROUTE_HDR_T_PORT SIZEOF(lbmr_remote_domain_route_hdr_t, port)
-#define O_LBMR_REMOTE_DOMAIN_ROUTE_HDR_T_RESERVED OFFSETOF(lbmr_remote_domain_route_hdr_t, reserved)
-#define L_LBMR_REMOTE_DOMAIN_ROUTE_HDR_T_RESERVED SIZEOF(lbmr_remote_domain_route_hdr_t, reserved)
+#define O_LBMR_REMOTE_DOMAIN_ROUTE_HDR_T_ROUTE_INDEX OFFSETOF(lbmr_remote_domain_route_hdr_t, route_index)
+#define L_LBMR_REMOTE_DOMAIN_ROUTE_HDR_T_ROUTE_INDEX SIZEOF(lbmr_remote_domain_route_hdr_t, route_index)
 #define O_LBMR_REMOTE_DOMAIN_ROUTE_HDR_T_LENGTH OFFSETOF(lbmr_remote_domain_route_hdr_t, length)
 #define L_LBMR_REMOTE_DOMAIN_ROUTE_HDR_T_LENGTH SIZEOF(lbmr_remote_domain_route_hdr_t, length)
 #define L_LBMR_REMOTE_DOMAIN_ROUTE_HDR_T (int) sizeof(lbmr_remote_domain_route_hdr_t)
@@ -2477,6 +2478,7 @@ static int hf_lbmr_opt_local_domain_type;
 static int hf_lbmr_opt_local_domain_len;
 static int hf_lbmr_opt_local_domain_flags;
 static int hf_lbmr_opt_local_domain_flags_ignore;
+static int hf_lbmr_opt_local_domain_flags_viral;
 static int hf_lbmr_opt_local_domain_local_domain_id;
 static int hf_lbmr_opt_unknown;
 static int hf_lbmr_opt_unknown_type;
@@ -2567,7 +2569,7 @@ static int hf_lbmr_tnwg_opt_name_name;
 static int hf_lbmr_remote_domain_route_hdr_num_domains;
 static int hf_lbmr_remote_domain_route_hdr_ip;
 static int hf_lbmr_remote_domain_route_hdr_port;
-static int hf_lbmr_remote_domain_route_hdr_reserved;
+static int hf_lbmr_remote_domain_route_hdr_route_index;
 static int hf_lbmr_remote_domain_route_hdr_length;
 static int hf_lbmr_remote_domain_route_hdr_domain;
 static int hf_lbmr_rctxinfo_len;
@@ -4674,7 +4676,7 @@ static int dissect_lbmr_remote_domain_route(tvbuff_t * tvb, int offset, packet_i
     proto_tree_add_item(tree, hf_lbmr_remote_domain_route_hdr_num_domains, tvb, offset + O_LBMR_REMOTE_DOMAIN_ROUTE_HDR_T_NUM_DOMAINS, L_LBMR_REMOTE_DOMAIN_ROUTE_HDR_T_NUM_DOMAINS, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_lbmr_remote_domain_route_hdr_ip, tvb, offset + O_LBMR_REMOTE_DOMAIN_ROUTE_HDR_T_IP, L_LBMR_REMOTE_DOMAIN_ROUTE_HDR_T_IP, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_lbmr_remote_domain_route_hdr_port, tvb, offset + O_LBMR_REMOTE_DOMAIN_ROUTE_HDR_T_PORT, L_LBMR_REMOTE_DOMAIN_ROUTE_HDR_T_PORT, ENC_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_lbmr_remote_domain_route_hdr_reserved, tvb, offset + O_LBMR_REMOTE_DOMAIN_ROUTE_HDR_T_RESERVED, L_LBMR_REMOTE_DOMAIN_ROUTE_HDR_T_RESERVED, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_lbmr_remote_domain_route_hdr_route_index, tvb, offset + O_LBMR_REMOTE_DOMAIN_ROUTE_HDR_T_ROUTE_INDEX, L_LBMR_REMOTE_DOMAIN_ROUTE_HDR_T_ROUTE_INDEX, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_lbmr_remote_domain_route_hdr_length, tvb, offset + O_LBMR_REMOTE_DOMAIN_ROUTE_HDR_T_LENGTH, L_LBMR_REMOTE_DOMAIN_ROUTE_HDR_T_LENGTH, ENC_BIG_ENDIAN);
     len_dissected = L_LBMR_REMOTE_DOMAIN_ROUTE_HDR_T;
     ofs = offset + L_LBMR_REMOTE_DOMAIN_ROUTE_HDR_T;
@@ -4951,6 +4953,7 @@ static int dissect_lbmr_opt_local_domain(tvbuff_t * tvb, int offset, packet_info
     static int * const flags[] =
     {
         &hf_lbmr_opt_local_domain_flags_ignore,
+        &hf_lbmr_opt_local_domain_flags_viral,
         NULL
     };
 
@@ -6044,7 +6047,9 @@ void proto_register_lbmr(void)
         { &hf_lbmr_opt_local_domain_flags,
             { "Flags", "lbmr.opt.local_domain.flags", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL } },
         { &hf_lbmr_opt_local_domain_flags_ignore,
-            { "Ignore", "lbmr.opt.local_domain.flags.ignore", FT_BOOLEAN, L_LBMR_LBMR_OPT_LOCAL_DOMAIN_T_FLAGS * 8, TFS(&lbm_ignore_flag), LBMR_LBMR_OPT_VERSION_FLAG_IGNORE, NULL, HFILL } },
+            { "Ignore", "lbmr.opt.local_domain.flags.ignore", FT_BOOLEAN, L_LBMR_LBMR_OPT_LOCAL_DOMAIN_T_FLAGS * 8, TFS(&lbm_ignore_flag), LBMR_LBMR_OPT_HDR_FLAG_IGNORE, NULL, HFILL } },
+        { &hf_lbmr_opt_local_domain_flags_viral,
+            { "Viral", "lbmr.opt.local_domain.flags.viral", FT_BOOLEAN, L_LBMR_LBMR_OPT_LOCAL_DOMAIN_T_FLAGS * 8, TFS(&tfs_set_notset), LBMR_LBMR_OPT_HDR_FLAG_VIRAL, NULL, HFILL } },
         { &hf_lbmr_opt_local_domain_local_domain_id,
             { "Local Domain ID", "lbmr.opt.local_domain.local_domain_id", FT_UINT32, BASE_DEC_HEX, NULL, 0x0, NULL, HFILL } },
         { &hf_lbmr_opt_unknown,
@@ -6225,8 +6230,8 @@ void proto_register_lbmr(void)
             { "IP Address", "lbmr.remote_domain_route.ip", FT_IPv4, BASE_NONE, NULL, 0x0, NULL, HFILL } },
         { &hf_lbmr_remote_domain_route_hdr_port,
             { "Port", "lbmr.remote_domain_route.port", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-        { &hf_lbmr_remote_domain_route_hdr_reserved,
-            { "Reserved", "lbmr.remote_domain_route.reserved", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+        { &hf_lbmr_remote_domain_route_hdr_route_index,
+            { "Route Index", "lbmr.remote_domain_route.route_index", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
         { &hf_lbmr_remote_domain_route_hdr_length,
             { "Length", "lbmr.remote_domain_route.length", FT_UINT32, BASE_DEC_HEX, NULL, 0x0, NULL, HFILL } },
         { &hf_lbmr_remote_domain_route_hdr_domain,
