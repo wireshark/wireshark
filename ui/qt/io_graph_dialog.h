@@ -271,7 +271,6 @@ private slots:
 
     void on_logCheckBox_toggled(bool checked);
     void on_automaticUpdateCheckBox_toggled(bool checked);
-    void on_enableLegendCheckBox_toggled(bool checked);
     void on_newToolButton_clicked();
     void on_deleteToolButton_clicked();
     void on_copyToolButton_clicked();

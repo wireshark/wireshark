@@ -443,8 +443,6 @@ IOGraphDialog::IOGraphDialog(QWidget &parent, CaptureFile &cf, QString displayFi
 
     ui->automaticUpdateCheckBox->setChecked(prefs.gui_io_graph_automatic_update ? true : false);
 
-    ui->enableLegendCheckBox->setChecked(prefs.gui_io_graph_enable_legend ? true : false);
-
     ui->actionLegend->setChecked(prefs.gui_io_graph_enable_legend);
     connect(ui->actionLegend, &QAction::triggered, this, &IOGraphDialog::actionLegendTriggered);
     connect(ui->actionTimeOfDay, &QAction::triggered, this, &IOGraphDialog::actionTimeOfDayTriggered);
@@ -1323,8 +1321,12 @@ QRectF IOGraphDialog::getZoomRanges(QRect zoom_rect)
 void IOGraphDialog::showContextMenu(const QPoint &pos)
 {
     if (ui->ioPlot->legend->selectTest(pos, false) >= 0) {
+        // XXX - Should we check if the legend is visible before showing
+        // its context menu instead of the main context menu?
         QMenu *menu = new QMenu(this);
         menu->setAttribute(Qt::WA_DeleteOnClose);
+        menu->addAction(ui->actionLegend);
+        menu->addSeparator();
 #if QT_VERSION >= QT_VERSION_CHECK(6, 2, 0)
         menu->addAction(tr("Move to top left"), this, &IOGraphDialog::moveLegend)->setData((Qt::AlignTop|Qt::AlignLeft).toInt());
         menu->addAction(tr("Move to top center"), this, &IOGraphDialog::moveLegend)->setData((Qt::AlignTop|Qt::AlignHCenter).toInt());
@@ -1942,18 +1944,6 @@ void IOGraphDialog::on_automaticUpdateCheckBox_toggled(bool checked)
     }
 }
 
-void IOGraphDialog::on_enableLegendCheckBox_toggled(bool checked)
-{
-    prefs.gui_io_graph_enable_legend = checked ? true : false;
-
-    prefs_main_write();
-
-    // We connect to the "triggered" signal for the QAction, which is
-    // not emitted when setChecked() is called.
-    ui->actionLegend->setChecked(checked);
-    ui->ioPlot->legend->layer()->replot();
-}
-
 void IOGraphDialog::on_actionReset_triggered()
 {
     resetAxes();
@@ -2118,7 +2108,11 @@ void IOGraphDialog::buttonBoxClicked(QAbstractButton *button)
 
 void IOGraphDialog::actionLegendTriggered(bool checked)
 {
-    ui->enableLegendCheckBox->setChecked(checked);
+    prefs.gui_io_graph_enable_legend = checked ? true : false;
+
+    prefs_main_write();
+
+    ui->ioPlot->legend->layer()->replot();
 }
 
 void IOGraphDialog::actionLogScaleTriggered(bool checked)
