@@ -303,6 +303,8 @@ static int hf_oran_beamid_ap1;
 static int hf_oran_beamid_ap2;
 static int hf_oran_beamid_ap3;
 
+static int hf_oran_port_list_index;
+
 /* Computed fields */
 static int hf_oran_c_eAxC_ID;
 static int hf_oran_refa;
@@ -758,7 +760,7 @@ static const value_string beam_group_type_vals[] = {
     {0x0, "common beam"},
     {0x1, "beam matrix indication"},
     {0x2, "beam vector listing"},
-    {0x3, "reserved"},
+    {0x3, "beamId/ueId listing with associated port-list index"},
     {0, NULL}
 };
 
@@ -2137,6 +2139,8 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
             break;
         }
 
+        bool ext_unhandled = false;
+
         switch (exttype) {
 
             case 1:  /* SE 1: Beamforming Weights */
@@ -2584,10 +2588,38 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
 
                             proto_item_append_text(extension_ti, "%u ", id);
                         }
-                        proto_item_append_text(extension_ti, "]");
 
+                        proto_item_append_text(extension_ti, "]");
                         break;
                     }
+                    case 0x3: /* beamId/ueId listing with associated port-list index */
+                    {
+                        proto_item_append_text(extension_ti, " [ ");
+
+                        for (n=0; n < numPortc; n++) {
+                            /* postListIndex */
+                            uint32_t port_list_index;
+                            proto_tree_add_item_ret_uint(extension_tree, hf_oran_port_list_index, tvb,
+                                                         offset, 1, ENC_BIG_ENDIAN, &port_list_index);
+                            offset += 1;
+
+                            /* 1 reserved bit */
+                            proto_tree_add_item(extension_tree, hf_oran_reserved_1bit, tvb, offset, 1, ENC_BIG_ENDIAN);
+
+                            /* port beam ID (or UEID) */
+                            uint32_t id;
+                            proto_item *beamid_or_ueid_ti = proto_tree_add_item_ret_uint(extension_tree, hf_oran_beamId,
+                                                                                         tvb, offset, 2, ENC_BIG_ENDIAN, &id);
+                            proto_item_append_text(beamid_or_ueid_ti, " port #%u beam ID (or UEId) %u", n, id);
+                            offset += 2;
+
+                            proto_item_append_text(extension_ti, "%u:%u ", port_list_index, id);
+                        }
+
+                        proto_item_append_text(extension_ti, "]");
+                        break;
+                    }
+
 
                     default:
                         /* Warning for unsupported/reserved value */
@@ -3244,12 +3276,13 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                 expert_add_info_format(pinfo, exttype_ti, &ei_oran_unhandled_se,
                                        "SE %u (%s) not supported by dissector",
                                        exttype, val_to_str_const(exttype, exttype_vals, "Reserved"));
+                ext_unhandled = true;
                 break;
         }
 
         /* Check offset compared with extlen.  There should be 0-3 bytes of padding */
         int num_padding_bytes = (extension_start_offset + (extlen*4) - offset);
-        if ((num_padding_bytes<0) || (num_padding_bytes>3)) {
+        if (!ext_unhandled && ((num_padding_bytes<0) || (num_padding_bytes>3))) {
             expert_add_info_format(pinfo, extlen_ti, &ei_oran_extlen_wrong,
                                    "extlen signalled %u bytes (+ 0-3 bytes padding), but %u were dissected",
                                    extlen*4, offset-extension_start_offset);
@@ -6327,7 +6360,17 @@ proto_register_oran(void)
           NULL, 0x7f,
           "beam id to be used for antenna port 3",
           HFILL}
+        },
+
+        /* 7.7.10.3a */
+        {&hf_oran_port_list_index,
+         {"portListIndex", "oran_fh_cus.portListIndex",
+          FT_UINT8, BASE_DEC,
+          NULL, 0x0,
+          "the index of an eAxC_ID in the port-list",
+          HFILL}
         }
+
     };
 
     /* Setup protocol subtree array */
