@@ -147,6 +147,8 @@ double get_io_graph_item(const io_graph_item_t *items_, io_graph_item_unit_t val
     const io_graph_item_t *item;
     uint32_t   interval;
 
+    ws_return_val_if(idx < 0, 0);
+
     item = &items_[idx];
 
     // Basic units
