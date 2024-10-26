@@ -322,6 +322,11 @@ static int hf_oran_last_prb;
 static int hf_oran_low_papr_type;
 static int hf_oran_hopping_mode;
 
+static int hf_oran_tx_win_for_on_air_symbol_l;
+static int hf_oran_tx_win_for_on_air_symbol_r;
+
+static int hf_oran_num_fo_fb;
+static int hf_oran_freq_offset_fb;
 
 /* Computed fields */
 static int hf_oran_c_eAxC_ID;
@@ -615,6 +620,18 @@ static const range_string laaMsgTypes[] = {
     {7, 15, "reserved for future methods"},
     {0, 0, NULL}
 };
+
+static const range_string freq_offset_fb_values[] = {
+    {0,      0,        "no frequency offset"},
+    {8000,   8000,     "value not provided"},
+    {1,      30000,    "positive frequency offset, (0, +0.5] subcarrier"},
+    {0x8ad0, 0xffff,   "negative frequency offset, [-0.5, 0) subcarrier"},
+    {0x0,    0xffff,   "reserved"},
+    {0, 0, NULL}
+};
+
+
+
 
 /* Table 7.6.1-1 */
 static const value_string exttype_vals[] = {
@@ -3378,6 +3395,52 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                 }
                 break;
             }
+
+            case 25:  /* Symbol reordering for DMRS-BF */
+                /* Just dissect each available block of 7 bytes as the 14 symbols for a layer,
+                   where each layer could be one or apply to all layers. Could place layer under a subtree? */
+                while (offset+7 <= (extension_start_offset + extlen*4)) {
+                    /* All 14 symbols for a layer (or all layers) */
+                    for (unsigned s=0; s < 14; s++) {
+                        proto_item *sym_ti;
+                        sym_ti = proto_tree_add_item(extension_tree,
+                                                     (s % 2) ? hf_oran_tx_win_for_on_air_symbol_r : hf_oran_tx_win_for_on_air_symbol_l,
+                                                     tvb, offset, 1, ENC_BIG_ENDIAN);
+                        proto_item_append_text(sym_ti, " (sym %u)", s);
+                        if (s % 2) {
+                            offset += 1;
+                        }
+                    }
+                }
+                break;
+
+            case 26:  /* Frequency offset feedback */
+                /* Reserved (8 bits). N.B., added after draft? */
+                proto_tree_add_item(extension_tree, hf_oran_reserved_8bits, tvb, offset, 1, ENC_BIG_ENDIAN);
+                offset += 1;
+
+                /* Reserved (1 bit) */
+                proto_tree_add_item(extension_tree, hf_oran_reserved_1bit, tvb, offset, 1, ENC_BIG_ENDIAN);
+                /* numFoFb (7 bits) */
+                unsigned num_fo_fb;
+                proto_tree_add_item_ret_uint(extension_tree, hf_oran_num_fo_fb, tvb, offset, 1, ENC_BIG_ENDIAN, &num_fo_fb);
+                offset += 1;
+
+                /* Add each freqOffsetFb value */
+                for (unsigned n=0; n < num_fo_fb; n++) {
+                    unsigned freq_offset_fb;
+                    proto_item *offset_ti = proto_tree_add_item_ret_uint(extension_tree, hf_oran_freq_offset_fb,
+                                                                         tvb, offset, 2, ENC_BIG_ENDIAN, &freq_offset_fb);
+                    /* Show if maps onto a -ve number */
+                    if ((freq_offset_fb >= 0x8ad0) && (freq_offset_fb <= 0xffff)) {
+                        proto_item_append_text(offset_ti, "(value %d)", -1 - (0xffff-freq_offset_fb));
+                    }
+                    proto_item_append_text(offset_ti, " [#%u]", n+1);
+                    offset += 2;
+                }
+
+                break;
+
 
             default:
                 /* Other/unexpected extension types */
@@ -6617,6 +6680,37 @@ proto_register_oran(void)
           NULL,
           HFILL}
         },
+
+        {&hf_oran_tx_win_for_on_air_symbol_l,
+         {"txWinForOnAirSymbol", "oran_fh_cus.txWinForOnAirSymbol",
+          FT_UINT8, BASE_DEC,
+          NULL, 0xf0,
+          NULL,
+          HFILL}
+        },
+        {&hf_oran_tx_win_for_on_air_symbol_r,
+         {"txWinForOnAirSymbol", "oran_fh_cus.txWinForOnAirSymbol",
+          FT_UINT8, BASE_DEC,
+          NULL, 0x0f,
+          NULL,
+          HFILL}
+        },
+        /* 7.7.26.2 */
+        {&hf_oran_num_fo_fb,
+         {"numFoFb", "oran_fh_cus.numFoFb",
+          FT_UINT8, BASE_DEC,
+          NULL, 0x7f,
+          "number of frequency offset feedback",
+          HFILL}
+        },
+        /* 7.7.26.3 */
+        {&hf_oran_freq_offset_fb,
+         {"freqOffsetFb", "oran_fh_cus.freqOffsetFb",
+          FT_UINT16, BASE_HEX_DEC | BASE_RANGE_STRING,
+          RVALS(freq_offset_fb_values), 0x0,
+          "UE frequency offset feedback",
+          HFILL}
+        }
     };
 
     /* Setup protocol subtree array */
