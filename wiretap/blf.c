@@ -3432,7 +3432,7 @@ blf_read_ethernet_status(blf_params_t* params, int* err, char** err_info, int64_
             ws_debug("not enough bytes for ethernet_status_header header in file");
             return false;
         }
-        GUINT64_FROM_LE(linkUpDuration);
+        linkUpDuration = GUINT64_FROM_LE(linkUpDuration);
     }
 
     fix_endianness_blf_ethernet_status_header(&ethernet_status_header);
