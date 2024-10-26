@@ -393,6 +393,11 @@ typedef struct quic_follow_tap_data {
     bool from_server;
 } quic_follow_tap_data_t;
 
+typedef struct quic_endpoint {
+    address     server_address;
+    uint16_t    server_port;
+} quic_endpoint_t;
+
 /**
  * State for a single QUIC connection, identified by one or more Destination
  * Connection IDs (DCID).
@@ -401,8 +406,7 @@ typedef struct quic_info_data quic_info_data_t;
 struct quic_info_data {
     uint32_t        number;         /** Similar to "udp.stream", but for identifying QUIC connections across migrations. */
     uint32_t        version;
-    address         server_address;
-    uint16_t        server_port;
+    wmem_list_t     *server_endpoints; /**< List of server endpoints, primarily used with 0 length DCIDs */
     bool            skip_decryption : 1; /**< Set to 1 if no keys are available. */
     bool            client_dcid_set : 1; /**< Set to 1 if client_dcid_initial is set. */
     bool            client_loss_bits_recv : 1; /**< The client is able to read loss bits info */
@@ -1091,6 +1095,44 @@ quic_cids_is_known_length(const quic_cid_t *cid)
 }
 
 /**
+ * Checks if a address and port combination is associated with the server
+ * side of a connection. This is primarily useful when 0 length Destination
+ * Connection IDs are used.
+ * "Clients are responsible for initiating all migrations" (RFC 9000 Section 9),
+ * so this uses the destination address and port of the packet info.
+ */
+static bool
+quic_connection_from_server_endpoint(packet_info *pinfo, quic_info_data_t *conn)
+{
+    quic_endpoint_t *server_endpoint;
+    for (wmem_list_frame_t *frame = wmem_list_head(conn->server_endpoints); frame; frame = wmem_list_frame_next(frame)) {
+
+        server_endpoint = wmem_list_frame_data(frame);
+        if (server_endpoint->server_port == pinfo->srcport &&
+            addresses_equal(&server_endpoint->server_address, &pinfo->src)) {
+
+            return true;
+        }
+    }
+    return false;
+}
+
+/**
+ * Adds a server endpoint to the list of used server endpoints for the address.
+ * This is most useful when 0 length Destination Connection IDs are used.
+ * "Clients are responsible for initiating all migrations" (RFC 9000 Section 9),
+ * so this uses the destination address and port from pinfo as the server.
+ */
+static void
+quic_connection_add_server_endpoint(packet_info *pinfo, quic_info_data_t *conn)
+{
+    quic_endpoint_t *server_endpoint = wmem_new(wmem_file_scope(), quic_endpoint_t);
+    copy_address_wmem(wmem_file_scope(), &server_endpoint->server_address, &pinfo->dst);
+    server_endpoint->server_port = pinfo->destport;
+    wmem_list_append(conn->server_endpoints, server_endpoint);
+}
+
+/**
  * Returns the most recent QUIC connection for the current UDP stream. This may
  * return NULL after connection migration if the new UDP association was not
  * properly linked via a match based on the Connection ID.
@@ -1160,8 +1202,7 @@ quic_connection_find_dcid(packet_info *pinfo, quic_cid_t *dcid, bool *from_serve
     }
 
     if (check_ports) {
-        *from_server = conn->server_port == pinfo->srcport &&
-                addresses_equal(&conn->server_address, &pinfo->src);
+        *from_server = quic_connection_from_server_endpoint(pinfo, conn);
     }
 
     return conn;
@@ -1247,6 +1288,15 @@ quic_connection_find(packet_info *pinfo, uint8_t long_packet_type,
             if (conv) {
                 // attach the connection information to the conversation.
                 conversation_add_proto_data(conv, proto_quic, conn);
+                // Found this connection, but (especially if 0 length DCIDs
+                // are used for the client) we need to add the server endpoint
+                // to the list seen.
+                // XXX - RFC 9000 Section 9 appears to say that the client can
+                // migrate its own address freely, but should only migrate to
+                // a server address given in the preferred_address transport
+                // parameter in the TLS handshake. Should there be an expert
+                // info if this is an unknown address? (#20165)
+                quic_connection_add_server_endpoint(pinfo, conn);
             }
         }
     }
@@ -1264,8 +1314,8 @@ quic_connection_create(packet_info *pinfo, uint32_t version)
     wmem_list_append(quic_connections, conn);
     conn->number = quic_connections_count++;
     conn->version = version;
-    copy_address_wmem(wmem_file_scope(), &conn->server_address, &pinfo->dst);
-    conn->server_port = pinfo->destport;
+    conn->server_endpoints = wmem_list_new(wmem_file_scope());
+    quic_connection_add_server_endpoint(pinfo, conn);
 
     // For faster lookups without having to check DCID
     conv = find_or_create_conversation(pinfo);
@@ -3644,9 +3694,7 @@ quic_find_stateless_reset_token(packet_info *pinfo, tvbuff_t *tvb, bool *from_se
     const quic_cid_item_t *cids;
 
     while (conn) {
-        bool conn_from_server;
-        conn_from_server = conn->server_port == pinfo->srcport &&
-                addresses_equal(&conn->server_address, &pinfo->src);
+        bool conn_from_server = quic_connection_from_server_endpoint(pinfo, conn);
         cids = conn_from_server ? &conn->server_cids : &conn->client_cids;
         while (cids) {
             const quic_cid_t *cid = &cids->data;

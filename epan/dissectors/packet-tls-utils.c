@@ -8688,6 +8688,12 @@ ssl_dissect_hnd_hello_ext_quic_transport_parameters(ssl_common_dissect_t *hf, tv
                 proto_tree_add_item(parameter_tree, hf->hf.hs_ext_quictp_parameter_pa_ipv6port,
                                     tvb, offset, 2, ENC_BIG_ENDIAN);
                 offset += 2;
+                /* XXX - Should we add these addresses and ports as addresses that the client
+                 * is allowed / expected to migrate the server address to? Right now we don't
+                 * enforce that (see RFC 9000 Section 9, which implies that while the client
+                 * can migrate to whatever address it wants, it can only migrate the server
+                 * address to the Server's Preferred Address as in 9.6. Also Issue #20165.)
+                 */
 
                 if (!ssl_add_vector(hf, tvb, pinfo, parameter_tree, offset, offset_end, &connectionid_length,
                                     hf->hf.hs_ext_quictp_parameter_pa_connectionid_length, 0, 20)) {
