@@ -430,6 +430,18 @@ class TestDissectHttp2:
             ), encoding='utf-8', env=test_env)
         assert grep_output(stdout, 'DATA')
 
+    def test_http2_zstd_decompression(self, cmd_tshark, features, dirs, capture_file, test_env):
+        '''HTTP/2 zstd decompression'''
+        if not features.have_nghttp2:
+            pytest.skip('Requires nghttp2.')
+        if not features.have_zstd:
+            pytest.skip('Requires zstd.')
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('http2-zstd.pcapng'),
+                '-Y', 'http2.data.data matches "Your browser supports decompressing Zstandard."',
+            ), encoding='utf-8', env=test_env)
+        assert grep_output(stdout, 'DATA')
+
     def test_http2_follow_0(self, cmd_tshark, features, dirs, capture_file, test_env):
         '''Follow HTTP/2 Stream ID 0 test'''
         if not features.have_nghttp2:

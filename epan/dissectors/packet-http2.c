@@ -76,7 +76,7 @@ VALUE_STRING_ARRAY(http2_header_repr_type);
 /*
  * Decompression of zlib or brotli encoded entities.
  */
-#if defined(HAVE_ZLIB) || defined(HAVE_ZLIBNG)|| defined(HAVE_BROTLI)
+#if defined(HAVE_ZLIB) || defined(HAVE_ZLIBNG) || defined(HAVE_BROTLI) || defined(HAVE_ZSTD)
 static bool http2_decompress_body = true;
 #else
 static bool http2_decompress_body;
@@ -2804,7 +2804,8 @@ get_streaming_reassembly_info(packet_info* pinfo, http2_session_t* http2_session
 enum body_uncompression {
     BODY_UNCOMPRESSION_NONE,
     BODY_UNCOMPRESSION_ZLIB,
-    BODY_UNCOMPRESSION_BROTLI
+    BODY_UNCOMPRESSION_BROTLI,
+    BODY_UNCOMPRESSION_ZSTD
 };
 
 static enum body_uncompression
@@ -2815,6 +2816,8 @@ get_body_uncompression_info(packet_info *pinfo, http2_session_t* h2session)
 
     /* Check we have a content-encoding header appropriate as well as checking if this is partial content.
      * We can't decompress part of a gzip encoded entity */
+    /* XXX - Should there be an expert info if a body is compressed but support
+     * for that decompression method was not compiled in? */
     if (!http2_decompress_body || body_info->is_partial_content == true || content_encoding == NULL) {
         return BODY_UNCOMPRESSION_NONE;
     }
@@ -2831,6 +2834,11 @@ get_body_uncompression_info(packet_info *pinfo, http2_session_t* h2session)
 #ifdef HAVE_BROTLI
     if (strncmp(content_encoding, "br", 2) == 0) {
         return BODY_UNCOMPRESSION_BROTLI;
+    }
+#endif
+#ifdef HAVE_ZSTD
+    if (strncmp(content_encoding, "zstd", 4) == 0) {
+        return BODY_UNCOMPRESSION_ZSTD;
     }
 #endif
 
@@ -2962,6 +2970,8 @@ dissect_http2_data_full_body(tvbuff_t *tvb, packet_info *pinfo, http2_session_t*
             uncompressed_tvb = tvb_child_uncompress_zlib(tvb, tvb, 0, datalen);
         } else if (uncompression == BODY_UNCOMPRESSION_BROTLI) {
             uncompressed_tvb = tvb_child_uncompress_brotli(tvb, tvb, 0, datalen);
+        } else if (uncompression == BODY_UNCOMPRESSION_ZSTD) {
+            uncompressed_tvb = tvb_child_uncompress_zstd(tvb, tvb, 0, datalen);
         }
 
         http2_data_stream_body_info_t *body_info = get_data_stream_body_info(pinfo, h2session);

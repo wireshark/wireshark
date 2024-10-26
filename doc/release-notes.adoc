@@ -73,6 +73,8 @@ The following features are either new or have been significantly updated since v
   File->Export Objects menu in Wireshark (under the name "X509AF") and
   `--export-objects` in TShark (with the protocol name `x509af`.)
 
+* Zstandard Content-Encoding is supported in the HTTP and HTTP/2 dissectors.
+
 * The Windows installers now ship with Npcap 1.80.
   They previously shipped with Npcap 1.79.
 

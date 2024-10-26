@@ -2180,6 +2180,15 @@ dissecting_body:
 			}
 #endif
 
+#ifdef HAVE_ZSTD
+			if (http_decompress_body &&
+			    g_ascii_strcasecmp(headers->content_encoding, "zstd") == 0)
+			{
+				uncomp_tvb = tvb_child_uncompress_zstd(tvb, next_tvb, 0,
+				    tvb_captured_length(next_tvb));
+			}
+#endif
+
 			if (http_decompress_body &&
 			    g_ascii_strcasecmp(headers->content_encoding, "xpress") == 0)
 			{
