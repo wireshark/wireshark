@@ -58,8 +58,6 @@
  */
 %option prefix="Radius_"
 
-%option outfile="radius_dict.c"
-
 %{
 	/* radius_dict.l
 	*

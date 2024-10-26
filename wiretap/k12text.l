@@ -40,8 +40,6 @@
  */
 %option prefix="k12text_"
 
-%option outfile="k12text.c"
-
 /* Options useful for debugging				*/
 /* noline:  Prevent generation of #line directives	*/
 /*	    Seems to be required when using the		*/

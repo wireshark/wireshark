@@ -50,8 +50,6 @@
  */
 %option prefix="DiamDict_"
 
-%option outfile="diam_dict.c"
-
 /*
  * We have to override the memory allocators so that we don't get
  * "unused argument" warnings from the yyscanner argument (which

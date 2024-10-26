@@ -40,8 +40,6 @@
  */
 %option prefix="Dtd_Parse_"
 
-%option outfile="dtd_parse.c"
-
 /*
  * We have to override the memory allocators so that we don't get
  * "unused argument" warnings from the yyscanner argument (which

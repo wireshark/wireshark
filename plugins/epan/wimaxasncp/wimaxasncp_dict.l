@@ -63,8 +63,6 @@
  */
 %option prefix="WimaxasncpDict_"
 
-%option outfile="wimaxasncp_dict.c"
-
 %{
 	/*
 	 ** wimaxasncp_dict.h

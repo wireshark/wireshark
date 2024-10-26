@@ -45,8 +45,6 @@
  */
 %option prefix="Dtd_PreParse_"
 
-%option outfile="dtd_preparse.c"
-
 /*
  * We have to override the memory allocators so that we don't get
  * "unused argument" warnings from the yyscanner argument (which
