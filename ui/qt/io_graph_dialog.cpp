@@ -1363,18 +1363,28 @@ void IOGraphDialog::graphClicked(QMouseEvent *event)
 {
     QCustomPlot *iop = ui->ioPlot;
 
-    if (mouse_drags_) {
-        if (iop->axisRect()->rect().contains(event->pos())) {
-            iop->setCursor(QCursor(Qt::ClosedHandCursor));
+    switch (event->button()) {
+
+    case Qt::LeftButton:
+        if (mouse_drags_) {
+            if (iop->axisRect()->rect().contains(event->pos())) {
+                iop->setCursor(QCursor(Qt::ClosedHandCursor));
+            }
+            on_actionGoToPacket_triggered();
+        } else {
+            if (!rubber_band_) {
+                rubber_band_ = new QRubberBand(QRubberBand::Rectangle, iop);
+            }
+            rb_origin_ = event->pos();
+            rubber_band_->setGeometry(QRect(rb_origin_, QSize()));
+            rubber_band_->show();
         }
-        on_actionGoToPacket_triggered();
-    } else {
-        if (!rubber_band_) {
-            rubber_band_ = new QRubberBand(QRubberBand::Rectangle, iop);
+        break;
+
+    default:
+        if (mouse_drags_) {
+            iop->setCursor(QCursor(Qt::OpenHandCursor));
         }
-        rb_origin_ = event->pos();
-        rubber_band_->setGeometry(QRect(rb_origin_, QSize()));
-        rubber_band_->show();
     }
     iop->setFocus();
 }
@@ -1386,6 +1396,9 @@ void IOGraphDialog::mouseMoved(QMouseEvent *event)
 
     if (event->buttons().testFlag(Qt::LeftButton)) {
         if (mouse_drags_) {
+            // XXX - We might not actually be dragging. QCustomPlot iRangeDrag
+            // controls dragging, and it stops dragging when a button other
+            // than LeftButton is released (even if LeftButton is held down.)
             shape = Qt::ClosedHandCursor;
         } else {
             shape = Qt::CrossCursor;
@@ -1417,7 +1430,7 @@ void IOGraphDialog::mouseReleased(QMouseEvent *event)
 {
     QCustomPlot *iop = ui->ioPlot;
     auto_axes_ = false;
-    if (rubber_band_) {
+    if (rubber_band_ && event->button() == Qt::LeftButton) {
         rubber_band_->hide();
         if (!mouse_drags_) {
             QRectF zoom_ranges = getZoomRanges(QRect(rb_origin_, event->pos()));
@@ -1430,6 +1443,9 @@ void IOGraphDialog::mouseReleased(QMouseEvent *event)
             }
         }
     } else if (iop->cursor().shape() == Qt::ClosedHandCursor) {
+        // QCustomPlot iRangeDrag controls dragging, and it stops dragging
+        // when a button other than LeftButton is released (even if
+        // LeftButton is still held down.)
         iop->setCursor(QCursor(Qt::OpenHandCursor));
     }
 }
