@@ -192,7 +192,7 @@ QString ColorUtils::themeLinkStyle()
     QString link_style;
 
     if (themeIsDark()) {
-        link_style = QString("<style>a:link { color: %1; }</style>")
+        link_style = QStringLiteral("<style>a:link { color: %1; }</style>")
                 .arg(themeLinkBrush().color().name());
     }
     return link_style;

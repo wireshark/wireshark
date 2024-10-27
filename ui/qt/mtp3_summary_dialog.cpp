@@ -111,7 +111,7 @@ QString Mtp3SummaryDialog::summaryToHtml()
     QString format_str = wtap_file_type_subtype_description(summary.file_type);
     const char *compression_type_description = wtap_compression_type_description(summary.compression_type);
     if (compression_type_description != NULL) {
-        format_str += QString(" (%1)").arg(compression_type_description);
+        format_str += QStringLiteral(" (%1)").arg(compression_type_description);
     }
     out << table_row_begin
         << table_vheader_tmpl.arg(tr("Format"))
@@ -154,10 +154,10 @@ QString Mtp3SummaryDialog::summaryToHtml()
             unsigned int elapsed_time = (unsigned int)summary.elapsed_time;
             if (elapsed_time/86400)
             {
-                elapsed_str = QString("%1 days ").arg(elapsed_time / 86400);
+                elapsed_str = QStringLiteral("%1 days ").arg(elapsed_time / 86400);
             }
 
-            elapsed_str += QString("%1:%2:%3")
+            elapsed_str += QStringLiteral("%1:%2:%3")
                     .arg(elapsed_time % 86400 / 3600, 2, 10, QChar('0'))
                     .arg(elapsed_time % 3600 / 60, 2, 10, QChar('0'))
                     .arg(elapsed_time % 60, 2, 10, QChar('0'));
@@ -209,12 +209,12 @@ QString Mtp3SummaryDialog::summaryToHtml()
         total_bytes += si_bytes;
 
         if (seconds > 0) {
-            msus_s_str = QString("%1").arg(si_msus / seconds, 1, 'f', 1);
-            bytes_s_str = QString("%1").arg(si_bytes / seconds, 1, 'f', 1);
+            msus_s_str = QStringLiteral("%1").arg(si_msus / seconds, 1, 'f', 1);
+            bytes_s_str = QStringLiteral("%1").arg(si_bytes / seconds, 1, 'f', 1);
         }
 
         if (si_msus > 0) {
-            bytes_msu_str = QString("%1").arg((double) si_bytes / si_msus, 1, 'f', 1);
+            bytes_msu_str = QStringLiteral("%1").arg((double) si_bytes / si_msus, 1, 'f', 1);
         }
 
         out << table_row_begin
@@ -236,11 +236,11 @@ QString Mtp3SummaryDialog::summaryToHtml()
     QString total_bytes_s_str = n_a;
 
     if (seconds > 0) {
-        total_msus_s_str = QString("%1").arg(total_msus / seconds, 1, 'f', 1);
-        total_bytes_s_str = QString("%1").arg(total_bytes / seconds, 1, 'f', 1);
+        total_msus_s_str = QStringLiteral("%1").arg(total_msus / seconds, 1, 'f', 1);
+        total_bytes_s_str = QStringLiteral("%1").arg(total_bytes / seconds, 1, 'f', 1);
     }
     if (total_msus > 0) {
-        total_bytes_msu_str = QString("%1").arg((double) total_bytes / total_msus, 1, 'f', 1);
+        total_bytes_msu_str = QStringLiteral("%1").arg((double) total_bytes / total_msus, 1, 'f', 1);
     }
 
     out << section_tmpl.arg(tr("Totals"));

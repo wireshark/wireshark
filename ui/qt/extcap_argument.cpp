@@ -486,7 +486,7 @@ QString ExtArgBool::value()
 QString ExtArgBool::prefValue()
 {
     if (boolBox == NULL)
-        return QString("false");
+        return QStringLiteral("false");
     return QString(boolBox->checkState() == Qt::Checked ? "true" : "false");
 }
 
@@ -512,7 +512,7 @@ bool ExtArgBool::defaultBool()
 
 QString ExtArgBool::defaultValue()
 {
-    return defaultBool() ? QString("true") : QString("false");
+    return defaultBool() ? QStringLiteral("true") : QStringLiteral("false");
 }
 
 bool ExtArgBool::isSetDefaultValueSupported()
@@ -757,13 +757,13 @@ void ExtcapValue::setChildren(ExtcapValueList children)
 
 ExtcapArgument::ExtcapArgument(QObject *parent) :
         QObject(parent), _argument(0), _label(0), _number(0),
-        label_style(QString("QLabel { color: %1; }"))
+        label_style(QStringLiteral("QLabel { color: %1; }"))
 {
 }
 
 ExtcapArgument::ExtcapArgument(extcap_arg * argument, QObject *parent) :
         QObject(parent), _argument(argument), _label(0),
-        label_style(QString("QLabel { color: %1; }"))
+        label_style(QStringLiteral("QLabel { color: %1; }"))
 {
     _number = argument->arg_num;
 
@@ -777,7 +777,7 @@ ExtcapArgument::ExtcapArgument(extcap_arg * argument, QObject *parent) :
 
 ExtcapArgument::ExtcapArgument(const ExtcapArgument &obj) :
         QObject(obj.parent()), _argument(obj._argument), _label(0),
-        label_style(QString("QLabel { color: %1; }"))
+        label_style(QStringLiteral("QLabel { color: %1; }"))
 {
     _number = obj._argument->arg_num;
 

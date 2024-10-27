@@ -77,7 +77,7 @@ static QList<QTreeWidgetItem *> *generateProtocolTreeItems()
         if (!proto_is_protocol_enabled(protocol)) continue;
 
         QTreeWidgetItem *proto_ti = new QTreeWidgetItem(proto_type_);
-        QString label = QString("%1 " UTF8_MIDDLE_DOT " %3")
+        QString label = QStringLiteral("%1 " UTF8_MIDDLE_DOT " %3")
                 .arg(proto_get_protocol_short_name(protocol))
                 .arg(proto_get_protocol_long_name(protocol));
         proto_ti->setText(0, label);
@@ -103,7 +103,7 @@ static QList<QTreeWidgetItem *> *generateProtocolTreeItems()
             if (hfinfo->same_name_prev_id != -1) continue; // Ignore duplicate names.
 
             QTreeWidgetItem *field_ti = new QTreeWidgetItem(field_type_);
-            QString label = QString("%1 " UTF8_MIDDLE_DOT " %3").arg(hfinfo->abbrev).arg(hfinfo->name);
+            QString label = QStringLiteral("%1 " UTF8_MIDDLE_DOT " %3").arg(hfinfo->abbrev).arg(hfinfo->name);
             field_ti->setText(0, label);
             field_ti->setData(0, Qt::UserRole, VariantPointer<header_field_info>::asQVariant(hfinfo));
             field_list << field_ti;
@@ -262,17 +262,17 @@ void DisplayFilterExpressionDialog::updateWidgets()
                 range_enable = true;
             }
             enum_enable = ui->enumListWidget->count() > 0;
-            filter.append(QString(" %1").arg(rli->text()));
+            filter.append(QStringLiteral(" %1").arg(rli->text()));
         }
         if (value_enable && !ui->valueLineEdit->text().isEmpty()) {
             if (rli && rli->type() == in_op_) {
-                filter.append(QString(" {%1}").arg(ui->valueLineEdit->text()));
+                filter.append(QStringLiteral(" {%1}").arg(ui->valueLineEdit->text()));
                 enum_multi_enable = enum_enable;
             } else {
                 if (ftype_ == FT_STRING) {
-                    filter.append(QString(" \"%1\"").arg(ui->valueLineEdit->text()));
+                    filter.append(QStringLiteral(" \"%1\"").arg(ui->valueLineEdit->text()));
                 } else {
-                    filter.append(QString(" %1").arg(ui->valueLineEdit->text()));
+                    filter.append(QStringLiteral(" %1").arg(ui->valueLineEdit->text()));
                 }
             }
         }
@@ -317,9 +317,9 @@ void DisplayFilterExpressionDialog::updateWidgets()
 void DisplayFilterExpressionDialog::fillEnumBooleanValues(const true_false_string *tfs)
 {
     QListWidgetItem *eli = new QListWidgetItem(tfs_get_string(true, tfs), ui->enumListWidget);
-    eli->setData(Qt::UserRole, QString("1"));
+    eli->setData(Qt::UserRole, QStringLiteral("1"));
     eli = new QListWidgetItem(tfs_get_string(false, tfs), ui->enumListWidget);
-    eli->setData(Qt::UserRole, QString("0"));
+    eli->setData(Qt::UserRole, QStringLiteral("0"));
 }
 
 void DisplayFilterExpressionDialog::fillEnumIntValues(const _value_string *vals, int base)
@@ -351,7 +351,7 @@ void DisplayFilterExpressionDialog::fillEnumRangeValues(const _range_string *rva
 
         // Tell the user which values are valid here. Default to value_min below.
         if (rvals[i].value_min != rvals[i].value_max) {
-            range_text.append(QString(" (%1 valid)").arg(range_to_qstring(&rvals[i])));
+            range_text.append(QStringLiteral(" (%1 valid)").arg(range_to_qstring(&rvals[i])));
         }
 
         QListWidgetItem *eli = new QListWidgetItem(range_text, ui->enumListWidget);
@@ -469,7 +469,7 @@ void DisplayFilterExpressionDialog::on_fieldTreeWidget_itemSelectionChanged()
     }
 
     if (ftype_ != FT_NONE) {
-        ui->valueLabel->setText(QString("%1 (%2)")
+        ui->valueLabel->setText(QStringLiteral("%1 (%2)")
                                 .arg(value_label_pfx_)
                                 .arg(ftype_pretty_name(ftype_)));
     } else {

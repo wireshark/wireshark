@@ -230,7 +230,7 @@ void BluetoothDevicesDialog::on_actionCopy_Rows_triggered()
     items =  ui->tableTreeWidget->selectedItems();
 
     for (i_item = items.begin(); i_item != items.end(); ++i_item) {
-        copy += QString("%1  %2  %3  %4  %5  %6  %7  %8  %9\n")
+        copy += QStringLiteral("%1  %2  %3  %4  %5  %6  %7  %8  %9\n")
                 .arg((*i_item)->text(column_number_bd_addr), -20)
                 .arg((*i_item)->text(column_number_bd_addr_oui), -20)
                 .arg((*i_item)->text(column_number_name), -30)
@@ -288,7 +288,7 @@ tap_packet_status BluetoothDevicesDialog::tapPacket(void *tapinfo_ptr, packet_in
 
     if (tap_device->has_bd_addr) {
         for (int i = 0; i < 6; ++i) {
-            bd_addr += QString("%1:").arg(tap_device->bd_addr[i], 2, 16, QChar('0'));
+            bd_addr += QStringLiteral("%1:").arg(tap_device->bd_addr[i], 2, 16, QChar('0'));
         }
         bd_addr.chop(1); // remove extra character ":" from the end of the string
         manuf = get_ether_name(tap_device->bd_addr);
@@ -406,7 +406,7 @@ void BluetoothDevicesDialog::on_actionCopy_All_triggered()
 
     item = ui->tableTreeWidget->headerItem();
 
-    copy += QString("%1  %2  %3  %4  %5  %6  %7  %8  %9\n")
+    copy += QStringLiteral("%1  %2  %3  %4  %5  %6  %7  %8  %9\n")
             .arg(item->text(column_number_bd_addr), -20)
             .arg(item->text(column_number_bd_addr_oui), -20)
             .arg(item->text(column_number_name), -30)
@@ -419,7 +419,7 @@ void BluetoothDevicesDialog::on_actionCopy_All_triggered()
 
     while (*i_item) {
         item = static_cast<QTreeWidgetItem*>(*i_item);
-        copy += QString("%1  %2  %3  %4  %5  %6  %7  %8  %9\n")
+        copy += QStringLiteral("%1  %2  %3  %4  %5  %6  %7  %8  %9\n")
                 .arg(item->text(column_number_bd_addr), -20)
                 .arg(item->text(column_number_bd_addr_oui), -20)
                 .arg(item->text(column_number_name), -30)

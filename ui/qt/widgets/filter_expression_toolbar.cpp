@@ -422,7 +422,7 @@ bool FilterExpressionToolBar::filter_expression_add_action(const void *key _U_, 
     QAction *dfb_action = new QAction(label, data->toolbar);
     if (strlen(fe->comment) > 0)
     {
-        QString tooltip = QString("%1\n%2").arg(fe->comment).arg(fe->expression);
+        QString tooltip = QStringLiteral("%1\n%2").arg(fe->comment).arg(fe->expression);
         dfb_action->setToolTip(tooltip);
         dfb_action->setProperty(dfe_property_comment_, tooltip);
     }

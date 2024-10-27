@@ -140,7 +140,7 @@ void ConversationDialog::graphTcp()
 
     // XXX The GTK+ code opens the TCP Stream dialog. We might want
     // to open the I/O Graphs dialog instead.
-    QString filter = QString("tcp.stream eq %1").arg(convId);
+    QString filter = QStringLiteral("tcp.stream eq %1").arg(convId);
 
     tcp_graph_requested_ = true;
     // Apply the filter for this conversation. When the filter is active, we

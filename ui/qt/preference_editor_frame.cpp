@@ -70,12 +70,12 @@ void PreferenceEditorFrame::editPreference(preference *pref, pref_module *module
     ui->modulePreferencesToolButton->setText(tr("Open %1 preferences…").arg(module_->title));
 
     pref_stash(pref_, NULL);
-    ui->preferenceTitleLabel->setText(QString("%1:").arg(prefs_get_title(pref)));
+    ui->preferenceTitleLabel->setText(QStringLiteral("%1:").arg(prefs_get_title(pref)));
 
     // Convert the pref description from plain text to rich text.
     QString description = html_escape(prefs_get_description(pref));
     description.replace('\n', "<br>");
-    QString tooltip = QString("<span>%1</span>").arg(description);
+    QString tooltip = QStringLiteral("<span>%1</span>").arg(description);
     ui->preferenceTitleLabel->setToolTip(tooltip);
     ui->preferenceLineEdit->setToolTip(tooltip);
 

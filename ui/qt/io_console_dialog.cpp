@@ -41,7 +41,7 @@ IOConsoleDialog::IOConsoleDialog(QWidget &parent,
     ui->setupUi(this);
 
     if (title.isEmpty())
-        title = QString("Console");
+        title = QStringLiteral("Console");
 
     loadGeometry(0, 0, title);
     loadSplitterState(ui->splitter);
@@ -77,7 +77,7 @@ IOConsoleDialog::~IOConsoleDialog()
 
 void IOConsoleDialog::setHintText(const QString &text)
 {
-    ui->hintLabel->setText(QString("<small><i>%1.</i></small>").arg(text));
+    ui->hintLabel->setText(QStringLiteral("<small><i>%1.</i></small>").arg(text));
 }
 
 void IOConsoleDialog::clearHintText()

@@ -88,7 +88,7 @@ public:
         }
 
         setText(protocol_col_, ph_stats_node.hfinfo->name);
-        setToolTip(protocol_col_, QString("%1").arg(ph_stats_node.hfinfo->abbrev));
+        setToolTip(protocol_col_, QStringLiteral("%1").arg(ph_stats_node.hfinfo->abbrev));
         setData(pct_packets_col_, Qt::UserRole, percent_packets_);
         setText(packets_col_, QString::number(total_packets_));
         setData(pct_bytes_col_, Qt::UserRole, percent_bytes_);
@@ -371,7 +371,7 @@ void ProtocolHierarchyDialog::on_actionCopyAsCsv_triggered()
             if (!v.isValid()) {
                 separated_value << "\"\"";
             } else if (v.userType() == QMetaType::QString) {
-                separated_value << QString("\"%1\"").arg(v.toString());
+                separated_value << QStringLiteral("\"%1\"").arg(v.toString());
             } else {
                 separated_value << v.toString();
             }

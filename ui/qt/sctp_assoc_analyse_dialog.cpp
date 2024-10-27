@@ -106,10 +106,10 @@ void SCTPAssocAnalyseDialog::fillTabs(const sctp_assoc_info_t* selected_assoc)
     /* Statistics Tab */
 
     ui->checksumLabel->setText(selected_assoc->checksum_type);
-    ui->data12Label->setText(QString("%1").arg(selected_assoc->n_data_chunks_ep1));
-    ui->bytes12Label->setText(QString("%1").arg(selected_assoc->n_data_bytes_ep1));
-    ui->data21Label->setText(QString("%1").arg(selected_assoc->n_data_chunks_ep2));
-    ui->bytes21Label->setText(QString("%1").arg(selected_assoc->n_data_bytes_ep2));
+    ui->data12Label->setText(QStringLiteral("%1").arg(selected_assoc->n_data_chunks_ep1));
+    ui->bytes12Label->setText(QStringLiteral("%1").arg(selected_assoc->n_data_bytes_ep1));
+    ui->data21Label->setText(QStringLiteral("%1").arg(selected_assoc->n_data_chunks_ep2));
+    ui->bytes21Label->setText(QStringLiteral("%1").arg(selected_assoc->n_data_bytes_ep2));
 
     /* Tab Endpoint 1 */
 
@@ -139,26 +139,26 @@ void SCTPAssocAnalyseDialog::fillTabs(const sctp_assoc_info_t* selected_assoc)
         return;
     }
 
-    ui->label_221->setText(QString("%1").arg(selected_assoc->port1));
-    ui->label_222->setText(QString("0x%1").arg(selected_assoc->verification_tag1, 0, 16));
+    ui->label_221->setText(QStringLiteral("%1").arg(selected_assoc->port1));
+    ui->label_222->setText(QStringLiteral("0x%1").arg(selected_assoc->verification_tag1, 0, 16));
 
     if ((selected_assoc->init) ||
         ((selected_assoc->initack) && (selected_assoc->initack_dir == 1))) {
         ui->label_213->setText(QString(tr("Requested Number of Inbound Streams:")));
-        ui->label_223->setText(QString("%1").arg(selected_assoc->instream1));
+        ui->label_223->setText(QStringLiteral("%1").arg(selected_assoc->instream1));
         ui->label_214->setText(QString(tr("Minimum Number of Inbound Streams:")));
-        ui->label_224->setText(QString("%1").arg(((selected_assoc->instream1 > selected_assoc->outstream2) ?
+        ui->label_224->setText(QStringLiteral("%1").arg(((selected_assoc->instream1 > selected_assoc->outstream2) ?
                                                selected_assoc->outstream2 : selected_assoc->instream1)));
         ui->label_215->setText(QString(tr("Provided Number of Outbound Streams:")));
-        ui->label_225->setText(QString("%1").arg(selected_assoc->outstream1));
+        ui->label_225->setText(QStringLiteral("%1").arg(selected_assoc->outstream1));
         ui->label_216->setText(QString(tr("Minimum Number of Outbound Streams:")));
-        ui->label_226->setText(QString("%1").arg(((selected_assoc->outstream1 > selected_assoc->instream2) ?
+        ui->label_226->setText(QStringLiteral("%1").arg(((selected_assoc->outstream1 > selected_assoc->instream2) ?
                                                       selected_assoc->instream2 : selected_assoc->outstream1)));
     } else {
         ui->label_213->setText(QString(tr("Used Number of Inbound Streams:")));
-        ui->label_223->setText(QString("%1").arg(selected_assoc->instream1));
+        ui->label_223->setText(QStringLiteral("%1").arg(selected_assoc->instream1));
         ui->label_214->setText(QString(tr("Used Number of Outbound Streams:")));
-        ui->label_224->setText(QString("%1").arg(selected_assoc->outstream1));
+        ui->label_224->setText(QStringLiteral("%1").arg(selected_assoc->outstream1));
         ui->label_215->setText(QString(""));
         ui->label_225->setText(QString(""));
         ui->label_216->setText(QString(""));
@@ -191,25 +191,25 @@ void SCTPAssocAnalyseDialog::fillTabs(const sctp_assoc_info_t* selected_assoc)
         return;
     }
 
-    ui->label_321->setText(QString("%1").arg(selected_assoc->port2));
-    ui->label_322->setText(QString("0x%1").arg(selected_assoc->verification_tag2, 0, 16));
+    ui->label_321->setText(QStringLiteral("%1").arg(selected_assoc->port2));
+    ui->label_322->setText(QStringLiteral("0x%1").arg(selected_assoc->verification_tag2, 0, 16));
 
     if (selected_assoc->initack) {
         ui->label_313->setText(QString(tr("Requested Number of Inbound Streams:")));
-        ui->label_323->setText(QString("%1").arg(selected_assoc->instream2));
+        ui->label_323->setText(QStringLiteral("%1").arg(selected_assoc->instream2));
         ui->label_314->setText(QString(tr("Minimum Number of Inbound Streams:")));
-        ui->label_324->setText(QString("%1").arg(((selected_assoc->instream2 > selected_assoc->outstream1) ?
+        ui->label_324->setText(QStringLiteral("%1").arg(((selected_assoc->instream2 > selected_assoc->outstream1) ?
                                                selected_assoc->outstream1 : selected_assoc->instream2)));
         ui->label_315->setText(QString(tr("Provided Number of Outbound Streams:")));
-        ui->label_325->setText(QString("%1").arg(selected_assoc->outstream2));
+        ui->label_325->setText(QStringLiteral("%1").arg(selected_assoc->outstream2));
         ui->label_316->setText(QString(tr("Minimum Number of Outbound Streams:")));
-        ui->label_326->setText(QString("%1").arg(((selected_assoc->outstream2 > selected_assoc->instream1) ?
+        ui->label_326->setText(QStringLiteral("%1").arg(((selected_assoc->outstream2 > selected_assoc->instream1) ?
                                                       selected_assoc->instream1 : selected_assoc->outstream2)));
     } else {
         ui->label_313->setText(QString(tr("Used Number of Inbound Streams:")));
-        ui->label_323->setText(QString("%1").arg(selected_assoc->instream2));
+        ui->label_323->setText(QStringLiteral("%1").arg(selected_assoc->instream2));
         ui->label_314->setText(QString(tr("Used Number of Outbound Streams:")));
-        ui->label_324->setText(QString("%1").arg(selected_assoc->outstream2));
+        ui->label_324->setText(QStringLiteral("%1").arg(selected_assoc->outstream2));
         ui->label_315->setText(QString(""));
         ui->label_325->setText(QString(""));
         ui->label_316->setText(QString(""));
@@ -263,7 +263,7 @@ void SCTPAssocAnalyseDialog::on_chunkStatisticsButton_clicked()
 
 void SCTPAssocAnalyseDialog::on_setFilterButton_clicked()
 {
-    QString newFilter = QString("sctp.assoc_index==%1").arg(selected_assoc_id);
+    QString newFilter = QStringLiteral("sctp.assoc_index==%1").arg(selected_assoc_id);
     emit filterPackets(newFilter, false);
 }
 

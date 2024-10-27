@@ -873,7 +873,7 @@ void CaptureOptionsDialog::updateInterfaces()
             if (device->if_info.type == IF_EXTCAP) {
               ti->setIcon(col_extcap_,  QIcon(StockIcon("x-capture-options")));
               ti->setData(col_extcap_, Qt::UserRole, QString(device->if_info.name));
-              ti->setToolTip(col_extcap_, QString("Extcap interface settings"));
+              ti->setToolTip(col_extcap_, QStringLiteral("Extcap interface settings"));
             }
 
             ti->setText(col_interface_, device->display_name);
@@ -889,8 +889,8 @@ void CaptureOptionsDialog::updateInterfaces()
                 addr_ti->setText(0, addr_str);
                 addr_ti->setFlags(addr_ti->flags() ^ Qt::ItemIsSelectable);
                 addr_ti->setFirstColumnSpanned(true);
-                addr_ti->setToolTip(col_interface_, QString("<span>%1</span>").arg(addr_str));
-                ti->setToolTip(col_interface_, QString("<span>%1</span>").arg(addr_str));
+                addr_ti->setToolTip(col_interface_, QStringLiteral("<span>%1</span>").arg(addr_str));
+                ti->setToolTip(col_interface_, QStringLiteral("<span>%1</span>").arg(addr_str));
             } else {
                 ti->setToolTip(col_interface_, tr("no addresses"));
             }
@@ -1209,7 +1209,7 @@ bool CaptureOptionsDialog::saveOptionsToPreferences()
                 if (!device || device->active_dlt == -1) {
                     continue;
                 }
-                link_list << QString("%1(%2)").arg(device->name).arg(device->active_dlt);
+                link_list << QStringLiteral("%1(%2)").arg(device->name).arg(device->active_dlt);
             }
             g_free(prefs.capture_devices_linktypes);
             prefs.capture_devices_linktypes = qstring_strdup(link_list.join(","));
@@ -1227,7 +1227,7 @@ bool CaptureOptionsDialog::saveOptionsToPreferences()
                 if (!device || device->buffer == -1) {
                     continue;
                 }
-                buffer_size_list << QString("%1(%2)").arg(device->name).arg(device->buffer);
+                buffer_size_list << QStringLiteral("%1(%2)").arg(device->name).arg(device->buffer);
             }
             g_free(prefs.capture_devices_buffersize);
             prefs.capture_devices_buffersize = qstring_strdup(buffer_size_list.join(","));
@@ -1243,7 +1243,7 @@ bool CaptureOptionsDialog::saveOptionsToPreferences()
                 QString device_name = ti->data(col_interface_, Qt::UserRole).toString();
                 device = getDeviceByName(device_name);
                 if (!device) continue;
-                snaplen_list << QString("%1:%2(%3)")
+                snaplen_list << QStringLiteral("%1:%2(%3)")
                                 .arg(device->name)
                                 .arg(device->has_snaplen)
                                 .arg(device->has_snaplen ? device->snaplen : WTAP_MAX_PACKET_SIZE_STANDARD);
@@ -1263,7 +1263,7 @@ bool CaptureOptionsDialog::saveOptionsToPreferences()
                 if (!device || !device->pmode) {
                     continue;
                 }
-                pmode_list << QString("%1(%2)").arg(device->name).arg(device->pmode);
+                pmode_list << QStringLiteral("%1(%2)").arg(device->name).arg(device->pmode);
             }
             g_free(prefs.capture_devices_pmode);
             prefs.capture_devices_pmode = qstring_strdup(pmode_list.join(","));

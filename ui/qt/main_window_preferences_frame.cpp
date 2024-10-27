@@ -62,7 +62,7 @@ MainWindowPreferencesFrame::MainWindowPreferencesFrame(QWidget *parent) :
     ui->maxFilterLineEdit->setMaximumWidth(num_entry_size.width());
     ui->maxRecentLineEdit->setMaximumWidth(num_entry_size.width());
 
-    QString li_path = QString(":/languages/language%1.svg").arg(ColorUtils::themeIsDark() ? ".dark" : "");
+    QString li_path = QStringLiteral(":/languages/language%1.svg").arg(ColorUtils::themeIsDark() ? ".dark" : "");
     QIcon language_icon = QIcon(li_path);
     ui->languageComboBox->setItemIcon(0, language_icon);
 

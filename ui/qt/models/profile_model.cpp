@@ -590,7 +590,7 @@ QVariant ProfileModel::dataPath(const QModelIndex &index) const
                 }
 
                 if (appendix.length() > 0)
-                    msg.append(QString(" (%1)").arg(appendix));
+                    msg.append(QStringLiteral(" (%1)").arg(appendix));
             }
 
             return msg;
@@ -751,7 +751,7 @@ QModelIndex ProfileModel::addNewProfile(QString name)
     QString newName = name;
     while (findByNameAndVisibility(newName) >= 0)
     {
-        newName = QString("%1 %2").arg(name).arg(QString::number(cnt));
+        newName = QStringLiteral("%1 %2").arg(name).arg(QString::number(cnt));
         cnt++;
     }
 
@@ -812,13 +812,13 @@ QModelIndex ProfileModel::duplicateEntry(QModelIndex idx, int new_status)
     if (prof->is_global && findByNameAndVisibility(parentName) < 0)
         new_name = QString(prof->name);
     else
-        new_name = QString("%1 (%2)").arg(parentName).arg(tr("copy", "noun"));
+        new_name = QStringLiteral("%1 (%2)").arg(parentName).arg(tr("copy", "noun"));
 
     /* check if copy already exists and iterate, until an unused version is found */
     int cnt = 1;
     while (findByNameAndVisibility(new_name) >= 0)
     {
-        new_name = QString("%1 (%2 %3)").arg(parentName).arg(tr("copy", "noun")).arg(QString::number(cnt));
+        new_name = QStringLiteral("%1 (%2 %3)").arg(parentName).arg(tr("copy", "noun")).arg(QString::number(cnt));
         cnt++;
     }
 
@@ -1148,7 +1148,7 @@ bool ProfileModel::acceptFile(QString fileName, int fileSize)
 QString ProfileModel::cleanName(QString fileName)
 {
     QStringList parts = fileName.split("/");
-    QString temp = parts[parts.count() - 1].replace(QRegularExpression("[" + QRegularExpression::escape(illegalCharacters()) + "]"), QString("_") );
+    QString temp = parts[parts.count() - 1].replace(QRegularExpression("[" + QRegularExpression::escape(illegalCharacters()) + "]"), QStringLiteral("_") );
     temp = parts.join("/");
     return temp;
 }
@@ -1272,7 +1272,7 @@ bool ProfileModel::clearImported(QString *msg)
         {
             if (msg)
             {
-                QString errmsg = QString("%1\n\"%2\":\n%3").arg(tr("Can't delete profile directory")).arg(ret_path).arg(g_strerror(errno));
+                QString errmsg = QStringLiteral("%1\n\"%2\":\n%3").arg(tr("Can't delete profile directory")).arg(ret_path).arg(g_strerror(errno));
                 msg->append(errmsg);
             }
 
@@ -1287,7 +1287,7 @@ QString ProfileModel::illegalCharacters()
 {
 #ifdef _WIN32
     /* According to https://docs.microsoft.com/en-us/windows/win32/fileio/naming-a-file#naming-conventions */
-    return QString("<>:\"/\\|?*");
+    return QStringLiteral("<>:\"/\\|?*");
 #else
     return QDir::separator();
 #endif

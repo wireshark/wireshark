@@ -119,7 +119,7 @@ PacketDialog::PacketDialog(QWidget &parent, CaptureFile &cf, frame_data *fdata) 
     QStringList col_parts;
     for (int i = 0; i < cap_file_.capFile()->cinfo.num_cols; ++i) {
         // ElidedLabel doesn't support rich text / HTML
-        col_parts << QString("%1: %2")
+        col_parts << QStringLiteral("%1: %2")
                      .arg(get_column_title(i))
                      .arg(get_column_text(&cap_file_.capFile()->cinfo, i));
     }
@@ -205,7 +205,7 @@ void PacketDialog::setHintText(FieldInformation * finfo)
          } else {
              hint = QString(tr("Bytes %1-%2")).arg(pos.start).arg(pos.start + pos.length - 1);
          }
-         hint += QString(": %1 (%2)")
+         hint += QStringLiteral(": %1 (%2)")
                  .arg(finfo->headerInfo().name)
                  .arg(finfo->headerInfo().abbreviation);
      }

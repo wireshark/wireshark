@@ -175,7 +175,7 @@ void RsaKeysFrame::on_addFileButton_clicked()
             msg = error + "\n";
             error.clear();
         }
-        msg += QString("Enter the password to open %1").arg(file);
+        msg += QStringLiteral("Enter the password to open %1").arg(file);
 
         bool ok;
         password = QInputDialog::getText(this, tr("Select RSA private key file"), msg,

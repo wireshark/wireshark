@@ -75,10 +75,10 @@ LBMSubstreamEntry::LBMSubstreamEntry(uint64_t channel, uint32_t substream_id, co
     m_bytes(0),
     m_item(NULL)
 {
-    m_endpoint_a = QString("%1:%2")
+    m_endpoint_a = QStringLiteral("%1:%2")
         .arg(address_to_qstring(source_address))
         .arg(source_port);
-    m_endpoint_b = QString("%1:%2")
+    m_endpoint_b = QStringLiteral("%1:%2")
         .arg(address_to_qstring(destination_address))
         .arg(destination_port);
 }
@@ -112,14 +112,14 @@ void LBMSubstreamEntry::fillItem(bool update_only)
 {
     if (update_only == false)
     {
-        m_item->setText(Stream_Column, QString("%1.%2").arg(m_channel).arg(m_substream_id));
+        m_item->setText(Stream_Column, QStringLiteral("%1.%2").arg(m_channel).arg(m_substream_id));
         m_item->setText(EndpointA_Column, m_endpoint_a);
         m_item->setText(EndpointB_Column, m_endpoint_b);
     }
-    m_item->setText(Messages_Column, QString("%1").arg(m_messages));
-    m_item->setText(Bytes_Column, QString("%1").arg(m_bytes));
-    m_item->setText(FirstFrame_Column, QString("%1").arg(m_first_frame));
-    m_item->setText(LastFrame_Column, QString("%1").arg(m_flast_frame));
+    m_item->setText(Messages_Column, QStringLiteral("%1").arg(m_messages));
+    m_item->setText(Bytes_Column, QStringLiteral("%1").arg(m_bytes));
+    m_item->setText(FirstFrame_Column, QStringLiteral("%1").arg(m_first_frame));
+    m_item->setText(LastFrame_Column, QStringLiteral("%1").arg(m_flast_frame));
 }
 
 typedef QMap<uint32_t, LBMSubstreamEntry *> LBMSubstreamMap;
@@ -183,7 +183,7 @@ QString LBMStreamEntry::formatEndpoint(const packet_info * pinfo, const lbm_uim_
     }
     else
     {
-        return QString("%1:%2:%3")
+        return QStringLiteral("%1:%2:%3")
                .arg(endpoint->stream_info.dest.domain)
                .arg(address_to_str(pinfo->pool, &(endpoint->stream_info.dest.addr)))
                .arg(endpoint->stream_info.dest.port);
@@ -239,10 +239,10 @@ void LBMStreamEntry::fillItem(bool update_only)
         m_item->setText(EndpointA_Column, m_endpoint_a);
         m_item->setText(EndpointB_Column, m_endpoint_b);
     }
-    m_item->setText(Messages_Column, QString("%1").arg(m_messages));
-    m_item->setText(Bytes_Column, QString("%1").arg(m_bytes));
-    m_item->setText(FirstFrame_Column, QString("%1").arg(m_first_frame));
-    m_item->setText(LastFrame_Column, QString("%1").arg(m_flast_frame));
+    m_item->setText(Messages_Column, QStringLiteral("%1").arg(m_messages));
+    m_item->setText(Bytes_Column, QStringLiteral("%1").arg(m_bytes));
+    m_item->setText(FirstFrame_Column, QStringLiteral("%1").arg(m_first_frame));
+    m_item->setText(LastFrame_Column, QStringLiteral("%1").arg(m_flast_frame));
 }
 
 typedef QMap<uint64_t, LBMStreamEntry *> LBMStreamMap;

@@ -113,7 +113,7 @@ public:
             status = "Suspected duplicate (MAC address) only delta time calculated";
             bg_color = color_rtp_warn_;
         } else if (statinfo->flags & STAT_FLAG_REG_PT_CHANGE) {
-            status = QString("Payload changed to PT=%1").arg(statinfo->pt);
+            status = QStringLiteral("Payload changed to PT=%1").arg(statinfo->pt);
             if (statinfo->flags & STAT_FLAG_PT_T_EVENT) {
                 status.append(" telephone/event");
             }
@@ -130,7 +130,7 @@ public:
             status = "Marker missing?";
             bg_color = color_rtp_warn_;
         } else if (statinfo->flags & STAT_FLAG_PT_T_EVENT) {
-            status = QString("PT=%1 telephone/event").arg(statinfo->pt);
+            status = QStringLiteral("PT=%1 telephone/event").arg(statinfo->pt);
             /* XXX add color? */
             bg_color = color_pt_event_;
         } else {
@@ -343,7 +343,7 @@ int RtpAnalysisDialog::addTabUI(tab_info_t *new_tab)
     int new_tab_no;
     rtpstream_info_calc_t s_calc;
     rtpstream_info_calculate(&new_tab->stream, &s_calc);
-    new_tab->tab_name = new QString(QString("%1:%2 " UTF8_RIGHTWARDS_ARROW "\n%3:%4\n(%5)")
+    new_tab->tab_name = new QString(QStringLiteral("%1:%2 " UTF8_RIGHTWARDS_ARROW "\n%3:%4\n(%5)")
             .arg(s_calc.src_addr_str)
             .arg(s_calc.src_port)
             .arg(s_calc.dst_addr_str)
@@ -625,7 +625,7 @@ void RtpAnalysisDialog::on_actionSaveGraph_triggered()
     QString bmp_filter = tr("Windows Bitmap (*.bmp)");
     // Gaze upon my beautiful graph with lossy artifacts!
     QString jpeg_filter = tr("JPEG File Interchange Format (*.jpeg *.jpg)");
-    QString filter = QString("%1;;%2;;%3;;%4")
+    QString filter = QStringLiteral("%1;;%2;;%3;;%4")
             .arg(pdf_filter)
             .arg(png_filter)
             .arg(bmp_filter)
@@ -633,7 +633,7 @@ void RtpAnalysisDialog::on_actionSaveGraph_triggered()
 
     QString save_file = path.canonicalPath();
     if (!file_closed_) {
-        save_file += QString("/%1").arg(cap_file_.fileBaseName());
+        save_file += QStringLiteral("/%1").arg(cap_file_.fileBaseName());
     }
     file_name = WiresharkFileDialog::getSaveFileName(this, mainApp->windowTitleString(tr("Save Graph As…")),
                                              save_file, filter, &extension);
@@ -749,40 +749,40 @@ void RtpAnalysisDialog::updateStatistics()
 
         QString stats_tables = "<html><head><style>td{vertical-align:bottom;}</style></head><body>\n";
         stats_tables += "<h4>Stream</h4>\n";
-        stats_tables += QString("<p>%1:%2 " UTF8_RIGHTWARDS_ARROW)
+        stats_tables += QStringLiteral("<p>%1:%2 " UTF8_RIGHTWARDS_ARROW)
                 .arg(s_calc.src_addr_str)
                 .arg(s_calc.src_port);
-        stats_tables += QString("<br>%1:%2</p>\n")
+        stats_tables += QStringLiteral("<br>%1:%2</p>\n")
                 .arg(s_calc.dst_addr_str)
                 .arg(s_calc.dst_port);
         stats_tables += "<p><table>\n";
-        stats_tables += QString("<tr><th align=\"left\">SSRC</th><td>%1</td></tr>")
+        stats_tables += QStringLiteral("<tr><th align=\"left\">SSRC</th><td>%1</td></tr>")
                 .arg(int_to_qstring(s_calc.ssrc, 8, 16));
-        stats_tables += QString("<tr><th align=\"left\">Max Delta</th><td>%1 ms @ %2</td></tr>")
+        stats_tables += QStringLiteral("<tr><th align=\"left\">Max Delta</th><td>%1 ms @ %2</td></tr>")
                 .arg(s_calc.max_delta, 0, 'f', prefs.gui_decimal_places3)
                 .arg(s_calc.last_packet_num);
-        stats_tables += QString("<tr><th align=\"left\">Max Jitter</th><td>%1 ms</td></tr>")
+        stats_tables += QStringLiteral("<tr><th align=\"left\">Max Jitter</th><td>%1 ms</td></tr>")
                 .arg(s_calc.max_jitter, 0, 'f', prefs.gui_decimal_places3);
-        stats_tables += QString("<tr><th align=\"left\">Mean Jitter</th><td>%1 ms</td></tr>")
+        stats_tables += QStringLiteral("<tr><th align=\"left\">Mean Jitter</th><td>%1 ms</td></tr>")
                 .arg(s_calc.mean_jitter, 0, 'f', prefs.gui_decimal_places3);
-        stats_tables += QString("<tr><th align=\"left\">Max Skew</th><td>%1 ms</td></tr>")
+        stats_tables += QStringLiteral("<tr><th align=\"left\">Max Skew</th><td>%1 ms</td></tr>")
                 .arg(s_calc.max_skew, 0, 'f', prefs.gui_decimal_places3);
-        stats_tables += QString("<tr><th align=\"left\">RTP Packets</th><td>%1</td></tr>")
+        stats_tables += QStringLiteral("<tr><th align=\"left\">RTP Packets</th><td>%1</td></tr>")
                 .arg(s_calc.total_nr);
-        stats_tables += QString("<tr><th align=\"left\">Expected</th><td>%1</td></tr>")
+        stats_tables += QStringLiteral("<tr><th align=\"left\">Expected</th><td>%1</td></tr>")
                 .arg(s_calc.packet_expected);
-        stats_tables += QString("<tr><th align=\"left\">Lost</th><td>%1 (%2 %)</td></tr>")
+        stats_tables += QStringLiteral("<tr><th align=\"left\">Lost</th><td>%1 (%2 %)</td></tr>")
                 .arg(s_calc.lost_num).arg(s_calc.lost_perc, 0, 'f', prefs.gui_decimal_places1);
-        stats_tables += QString("<tr><th align=\"left\">Seq Errs</th><td>%1</td></tr>")
+        stats_tables += QStringLiteral("<tr><th align=\"left\">Seq Errs</th><td>%1</td></tr>")
                 .arg(s_calc.sequence_err);
-        stats_tables += QString("<tr><th align=\"left\">Start at</th><td>%1 s @ %2</td></tr>")
+        stats_tables += QStringLiteral("<tr><th align=\"left\">Start at</th><td>%1 s @ %2</td></tr>")
                 .arg(s_calc.start_time_ms, 0, 'f', 6)
                 .arg(s_calc.first_packet_num);
-        stats_tables += QString("<tr><th align=\"left\">Duration</th><td>%1 s</td></tr>")
+        stats_tables += QStringLiteral("<tr><th align=\"left\">Duration</th><td>%1 s</td></tr>")
                 .arg(s_calc.duration_ms, 0, 'f', prefs.gui_decimal_places1);
-        stats_tables += QString("<tr><th align=\"left\">Clock Drift</th><td>%1 ms</td></tr>")
+        stats_tables += QStringLiteral("<tr><th align=\"left\">Clock Drift</th><td>%1 ms</td></tr>")
                 .arg(s_calc.clock_drift_ms, 0, 'f', 0);
-        stats_tables += QString("<tr><th align=\"left\">Freq Drift</th><td>%1 Hz (%2 %)</td></tr>") // XXX Terminology?
+        stats_tables += QStringLiteral("<tr><th align=\"left\">Freq Drift</th><td>%1 Hz (%2 %)</td></tr>") // XXX Terminology?
                 .arg(s_calc.freq_drift_hz, 0, 'f', 0).arg(s_calc.freq_drift_perc, 0, 'f', 2);
         rtpstream_info_calc_free(&s_calc);
         stats_tables += "</table></p>\n";
@@ -856,7 +856,7 @@ void RtpAnalysisDialog::saveCsvHeader(QFile *save_file, QTreeWidget *tree)
         if (!v.isValid()) {
             values << "\"\"";
         } else if (v.userType() == QMetaType::QString) {
-            values << QString("\"%1\"").arg(v.toString());
+            values << QStringLiteral("\"%1\"").arg(v.toString());
         } else {
             values << v.toString();
         }
@@ -876,7 +876,7 @@ void RtpAnalysisDialog::saveCsvData(QFile *save_file, QTreeWidget *tree)
             if (!v.isValid()) {
                 values << "\"\"";
             } else if (v.userType() == QMetaType::QString) {
-                values << QString("\"%1\"").arg(v.toString());
+                values << QStringLiteral("\"%1\"").arg(v.toString());
             } else {
                 values << v.toString();
             }

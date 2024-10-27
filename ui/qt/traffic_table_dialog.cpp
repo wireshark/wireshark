@@ -43,8 +43,8 @@ TrafficTableDialog::TrafficTableDialog(QWidget &parent, CaptureFile &cf, const Q
     loadGeometry(parent.width(), parent.height() * 3 / 4);
 
     ui->absoluteTimeCheckBox->hide();
-    setWindowSubtitle(QString("%1s").arg(table_name));
-    ui->grpSettings->setTitle(QString("%1 Settings").arg(table_name));
+    setWindowSubtitle(QStringLiteral("%1s").arg(table_name));
+    ui->grpSettings->setTitle(QStringLiteral("%1 Settings").arg(table_name));
 
     copy_bt_ = buttonBox()->addButton(tr("Copy"), QDialogButtonBox::ActionRole);
     copy_bt_->setMenu(ui->trafficTab->createCopyMenu(copy_bt_));

@@ -148,39 +148,39 @@ public:
         if (showSR) {
             // Only applies to LTE.
             if (rat_ == MAC_RAT_LTE) {
-                filter_expr = QString("(mac-lte.sr-req and mac-lte.ueid == %1) or (").arg(ueid_);
+                filter_expr = QStringLiteral("(mac-lte.sr-req and mac-lte.ueid == %1) or (").arg(ueid_);
             }
         }
 
         if (showRACH) {
             if (rat_ == MAC_RAT_LTE) {
-                filter_expr += QString("(mac-lte.rar or (mac-lte.preamble-sent and mac-lte.ueid == %1)) or (").arg(ueid_);
+                filter_expr += QStringLiteral("(mac-lte.rar or (mac-lte.preamble-sent and mac-lte.ueid == %1)) or (").arg(ueid_);
             }
             else {
-                filter_expr += QString("mac-nr.rar or ");
+                filter_expr += QStringLiteral("mac-nr.rar or ");
             }
         }
 
         // Main expression matching this UE and direction
         if (rat_ == MAC_RAT_LTE) {
-            filter_expr += QString("mac-lte.ueid==%1 && mac-lte.rnti==%2 && mac-lte.direction==%3").
+            filter_expr += QStringLiteral("mac-lte.ueid==%1 && mac-lte.rnti==%2 && mac-lte.direction==%3").
                                   arg(ueid_).arg(rnti_).arg(direction);
         }
         else {
-            filter_expr += QString("mac-nr.ueid==%1 && mac-nr.rnti==%2 && mac-nr.direction==%3").
+            filter_expr += QStringLiteral("mac-nr.ueid==%1 && mac-nr.rnti==%2 && mac-nr.direction==%3").
                                   arg(ueid_).arg(rnti_).arg(direction);
         }
 
         // Close () if open because of SR
         if (showSR) {
             if (rat_ == MAC_RAT_LTE) {
-                filter_expr += QString(")");
+                filter_expr += QStringLiteral(")");
             }
         }
         // Close () if open because of RACH
         if (showRACH) {
             if (rat_ == MAC_RAT_LTE) {
-                filter_expr += QString(")");
+                filter_expr += QStringLiteral(")");
             }
         }
 
@@ -410,37 +410,37 @@ public:
 
         if (showSR) {
             if (rat_ == MAC_RAT_LTE) {
-                filter_expr = QString("(mac-lte.sr-req and mac-lte.ueid == %1) or (").arg(ueid_);
+                filter_expr = QStringLiteral("(mac-lte.sr-req and mac-lte.ueid == %1) or (").arg(ueid_);
             }
         }
 
         if (showRACH) {
             if (rat_ == MAC_RAT_LTE) {
-                filter_expr += QString("(mac-lte.rar or (mac-lte.preamble-sent and mac-lte.ueid == %1)) or (").arg(ueid_);
+                filter_expr += QStringLiteral("(mac-lte.rar or (mac-lte.preamble-sent and mac-lte.ueid == %1)) or (").arg(ueid_);
             }
             else {
-                filter_expr += QString("mac-nr.rar or ");
+                filter_expr += QStringLiteral("mac-nr.rar or ");
             }
         }
 
         // Main expression matching this UE
         if (rat_ == MAC_RAT_LTE) {
-            filter_expr += QString("mac-lte.ueid==%1 && mac-lte.rnti==%2").arg(ueid_).arg(rnti_);
+            filter_expr += QStringLiteral("mac-lte.ueid==%1 && mac-lte.rnti==%2").arg(ueid_).arg(rnti_);
         }
         else {
-            filter_expr += QString("mac-nr.ueid==%1 && mac-nr.rnti==%2").arg(ueid_).arg(rnti_);
+            filter_expr += QStringLiteral("mac-nr.ueid==%1 && mac-nr.rnti==%2").arg(ueid_).arg(rnti_);
         }
 
         // Close () if open because of SR
         if (showSR) {
             if (rat_ == MAC_RAT_LTE) {
-                filter_expr += QString(")");
+                filter_expr += QStringLiteral(")");
             }
         }
         // Close () if open because of RACH
         if (showRACH) {
             if (rat_ == MAC_RAT_LTE) {
-                filter_expr += QString(")");
+                filter_expr += QStringLiteral(")");
             }
         }
 
@@ -719,23 +719,23 @@ void LteMacStatisticsDialog::drawCommonStats()
 {
     if (!commonStatsCurrent_) {
         QString stats_tables = "<html><head></head><body>\n";
-        stats_tables += QString("<table>\n");
-        stats_tables += QString("<tr><th align=\"left\">System</th> <td align=\"left\"> Max UL UEs/TTI=%1</td>").arg(commonStats_.max_ul_ues_in_tti);
-        stats_tables += QString("<td align=\"left\">Max DL UEs/TTI=%1</td></tr>\n").arg(commonStats_.max_dl_ues_in_tti);
+        stats_tables += QStringLiteral("<table>\n");
+        stats_tables += QStringLiteral("<tr><th align=\"left\">System</th> <td align=\"left\"> Max UL UEs/TTI=%1</td>").arg(commonStats_.max_ul_ues_in_tti);
+        stats_tables += QStringLiteral("<td align=\"left\">Max DL UEs/TTI=%1</td></tr>\n").arg(commonStats_.max_dl_ues_in_tti);
 
-        stats_tables += QString("<tr><th align=\"left\">System broadcast</th><td align=\"left\">MIBs=%1</td>").arg(commonStats_.mib_frames);
-        stats_tables += QString("<td align=\"left\">SIBs=%1 (%2 bytes)</td></tr>\n").arg(commonStats_.sib_frames).arg(commonStats_.sib_bytes);
+        stats_tables += QStringLiteral("<tr><th align=\"left\">System broadcast</th><td align=\"left\">MIBs=%1</td>").arg(commonStats_.mib_frames);
+        stats_tables += QStringLiteral("<td align=\"left\">SIBs=%1 (%2 bytes)</td></tr>\n").arg(commonStats_.sib_frames).arg(commonStats_.sib_bytes);
 
-        stats_tables += QString("<tr><th align=\"left\">RACH</th><td align=\"left\">RARs=%1 frames (%2 RARs)</td></tr>\n").
+        stats_tables += QStringLiteral("<tr><th align=\"left\">RACH</th><td align=\"left\">RARs=%1 frames (%2 RARs)</td></tr>\n").
                                    arg(commonStats_.rar_frames).
                                    arg(commonStats_.rar_entries);
 
-        stats_tables += QString("<tr><th align=\"left\">Paging</th><td align=\"left\">PCH=%1 (%2 bytes, %3 IDs)</td></tr>\n").
+        stats_tables += QStringLiteral("<tr><th align=\"left\">Paging</th><td align=\"left\">PCH=%1 (%2 bytes, %3 IDs)</td></tr>\n").
                arg(commonStats_.pch_frames).
                arg(commonStats_.pch_bytes).
                arg(commonStats_.pch_paging_ids);
 
-        stats_tables += QString("</table>\n");
+        stats_tables += QStringLiteral("</table>\n");
         stats_tables += "</body>\n";
 
         commonStatsLabel_->setText(stats_tables);
@@ -843,7 +843,7 @@ void LteMacStatisticsDialog::tapDraw(void *ws_dlg_ptr)
     ws_dlg->drawCommonStats();
 
     // Update title
-    ws_dlg->setWindowSubtitle(QString("3GPP Mac Statistics (%1 UEs, %2 frames)").
+    ws_dlg->setWindowSubtitle(QStringLiteral("3GPP Mac Statistics (%1 UEs, %2 frames)").
                                   arg(ws_dlg->statsTreeWidget()->topLevelItemCount()).arg(ws_dlg->getFrameCount()));
 }
 

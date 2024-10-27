@@ -2350,7 +2350,7 @@ void StratosharkMainWindow::setWSWindowTitle(QString title)
     if (prefs.gui_prepend_window_title && prefs.gui_prepend_window_title[0]) {
         QString custom_title = replaceWindowTitleVariables(prefs.gui_prepend_window_title);
         if (custom_title.length() > 0) {
-            title.prepend(QString("[%1] ").arg(custom_title));
+            title.prepend(QStringLiteral("[%1] ").arg(custom_title));
         }
     }
 
@@ -2359,9 +2359,9 @@ void StratosharkMainWindow::setWSWindowTitle(QString title)
         if (custom_title.length() > 0) {
 #ifdef __APPLE__
             // On macOS we separate the titles with a unicode em dash
-            title.append(QString(" %1 %2").arg(UTF8_EM_DASH).arg(custom_title));
+            title.append(QStringLiteral(" %1 %2").arg(UTF8_EM_DASH).arg(custom_title));
 #else
-            title.append(QString(" [%1]").arg(custom_title));
+            title.append(QStringLiteral(" [%1]").arg(custom_title));
 #endif
         }
     }
@@ -2381,7 +2381,7 @@ void StratosharkMainWindow::updateTitlebar()
     if (use_capturing_title_ && capture_file_.capFile()) {
         setWSWindowTitle(tr("Capturing from %1").arg(cf_get_tempfile_source(capture_file_.capFile())));
     } else if (capture_file_.capFile() && capture_file_.capFile()->filename) {
-        setWSWindowTitle(QString("[*]%1").arg(capture_file_.fileDisplayName()));
+        setWSWindowTitle(QStringLiteral("[*]%1").arg(capture_file_.fileDisplayName()));
         //
         // XXX - on non-Mac platforms, put in the application
         // name?  Or do so only for temporary files?
@@ -2752,7 +2752,7 @@ QMenu * StratosharkMainWindow::searchSubMenu(QString objectName)
     QList<QMenu*> lst;
 
     if (objectName.length() > 0) {
-        QString searchName = QString("menu") + objectName;
+        QString searchName = QStringLiteral("menu") + objectName;
 
         lst = main_ui_->menuBar->findChildren<QMenu*>();
         foreach(QMenu* m, lst) {

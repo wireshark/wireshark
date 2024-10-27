@@ -39,12 +39,12 @@ ExpertPacketItem::~ExpertPacketItem()
 
 QString ExpertPacketItem::groupKey(bool group_by_summary, int severity, int group, QString protocol, int expert_hf)
 {
-    QString key = QString("%1|%2|%3")
+    QString key = QStringLiteral("%1|%2|%3")
             .arg(severity)
             .arg(group)
             .arg(protocol);
     if (group_by_summary) {
-        key += QString("|%1").arg(expert_hf);
+        key += QStringLiteral("|%1").arg(expert_hf);
     }
     return key;
 }

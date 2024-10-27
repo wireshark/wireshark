@@ -51,7 +51,7 @@ PrefsItem::PrefsItem(module_t *module, pref_t *pref, PrefsItem* parent)
     changed_(false)
 {
     if (pref_ != NULL) {
-        name_ += QString(".%1").arg(prefs_get_name(pref_));
+        name_ += QStringLiteral(".%1").arg(prefs_get_name(pref_));
     }
 }
 
@@ -145,7 +145,7 @@ void PrefsItem::setChanged(bool changed)
 
 PrefsModel::PrefsModel(QObject *parent) :
     QAbstractItemModel(parent),
-    root_(new PrefsItem(QString("ROOT"), NULL))
+    root_(new PrefsItem(QStringLiteral("ROOT"), NULL))
 {
     populate();
 }
@@ -356,31 +356,31 @@ QString PrefsModel::typeToHelp(int type)
     switch(type)
     {
         case Appearance:
-            helpStr = QString("ChCustPreferencesSection.html#_appearance");
+            helpStr = QStringLiteral("ChCustPreferencesSection.html#_appearance");
             break;
         case Columns:
-            helpStr = QString("ChCustPreferencesSection.html#_columns");
+            helpStr = QStringLiteral("ChCustPreferencesSection.html#_columns");
             break;
         case FontAndColors:
-            helpStr = QString("ChCustPreferencesSection.html#_font_and_colors");
+            helpStr = QStringLiteral("ChCustPreferencesSection.html#_font_and_colors");
             break;
         case Layout:
-            helpStr = QString("ChCustPreferencesSection.html#_layout");
+            helpStr = QStringLiteral("ChCustPreferencesSection.html#_layout");
             break;
         case Capture:
-            helpStr = QString("ChCustPreferencesSection.html#_capture");
+            helpStr = QStringLiteral("ChCustPreferencesSection.html#_capture");
             break;
         case Expert:
-            helpStr = QString("ChCustPreferencesSection.html#ChCustPrefsExpertSection");
+            helpStr = QStringLiteral("ChCustPreferencesSection.html#ChCustPrefsExpertSection");
             break;
         case FilterButtons:
-            helpStr = QString("ChCustPreferencesSection.html#ChCustFilterButtons");
+            helpStr = QStringLiteral("ChCustPreferencesSection.html#ChCustFilterButtons");
             break;
         case RSAKeys:
-            helpStr = QString("ChCustPreferencesSection.html#ChCustPrefsRSASection");
+            helpStr = QStringLiteral("ChCustPreferencesSection.html#ChCustPrefsRSASection");
             break;
         case Advanced:
-            helpStr = QString("ChCustPreferencesSection.html#_advanced");
+            helpStr = QStringLiteral("ChCustPreferencesSection.html#_advanced");
             break;
     }
 
@@ -465,9 +465,9 @@ QVariant AdvancedPrefsModel::data(const QModelIndex &dataindex, int role) const
         {
         case colName:
             if (item->getPref() == NULL)
-                return QString("<span>%1</span>").arg(item->getModule()->description);
+                return QStringLiteral("<span>%1</span>").arg(item->getModule()->description);
 
-            return QString("<span>%1</span>").arg(prefs_get_description(item->getPref()));
+            return QStringLiteral("<span>%1</span>").arg(prefs_get_description(item->getPref()));
         case colStatus:
             if (item->getPref() == NULL)
                 return QVariant();
@@ -478,7 +478,7 @@ QVariant AdvancedPrefsModel::data(const QModelIndex &dataindex, int role) const
                 return QVariant();
             } else {
                 QString type_desc = gchar_free_to_qstring(prefs_pref_type_description(item->getPref()));
-                return QString("<span>%1</span>").arg(type_desc);
+                return QStringLiteral("<span>%1</span>").arg(type_desc);
             }
             break;
         case colValue:
@@ -486,7 +486,7 @@ QVariant AdvancedPrefsModel::data(const QModelIndex &dataindex, int role) const
                 return QVariant();
             } else {
                 QString default_value = gchar_free_to_qstring(prefs_pref_to_str(item->getPref(), pref_stashed));
-                return QString("<span>%1</span>").arg(
+                return QStringLiteral("<span>%1</span>").arg(
                             default_value.isEmpty() ? default_value : QObject::tr("Default value is empty"));
             }
         default:
@@ -654,7 +654,7 @@ bool AdvancedPrefsModel::filterAcceptItem(PrefsItem& item) const
         tooltip = item.getModule()->description;
     } else {
         name = QString(item.getModule()->name ? item.getModule()->name : item.getModule()->parent->name);
-        name += QString(".%1").arg(prefs_get_name(item.getPref()));
+        name += QStringLiteral(".%1").arg(prefs_get_name(item.getPref()));
         tooltip = prefs_get_description(item.getPref());
     }
 

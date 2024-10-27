@@ -99,7 +99,7 @@ void AccordionFrame::updateStyleSheet()
         "  border-radius: 3px;"
         "  padding: 1px;"
         "}"
-    ).arg(ColorUtils::themeIsDark() ? QString("light") : QString("dark"));
+    ).arg(ColorUtils::themeIsDark() ? QStringLiteral("light") : QStringLiteral("dark"));
 #endif
 
     setStyleSheet(style_sheet);

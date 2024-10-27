@@ -235,7 +235,7 @@ void ColoringRulesDialog::updateHint(QModelIndex idx)
         //list is not guaranteed to be sorted, so force it
         std::sort(keys.begin(), keys.end());
         const QModelIndex& error_key = keys[0];
-        error_text = QString("%1: %2")
+        error_text = QStringLiteral("%1: %2")
                             .arg(colorRuleModel_.data(colorRuleModel_.index(error_key.row(), ColoringRulesModel::colName), Qt::DisplayRole).toString())
                             .arg(errors_[error_key]);
     }

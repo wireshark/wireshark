@@ -434,7 +434,7 @@ void ByteViewText::drawLine(QPainter *painter, const int offset, const int row_y
 
     // Offset.
     if (show_offset_) {
-        line = QString(" %1 ").arg(offset, offsetChars(false), 16, QChar('0'));
+        line = QStringLiteral(" %1 ").arg(offset, offsetChars(false), 16, QChar('0'));
         if (build_x_pos) {
             x_pos_to_column_.fill(-1, stringWidth(line));
         }

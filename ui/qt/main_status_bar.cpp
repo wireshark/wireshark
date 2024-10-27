@@ -228,7 +228,7 @@ void MainStatusBar::setFileName(CaptureFile &cf)
 {
     if (cf.isValid()) {
         popGenericStatus(STATUS_CTX_FILE);
-        QString msgtip = QString("%1 (%2)")
+        QString msgtip = QStringLiteral("%1 (%2)")
                 .arg(cf.capFile()->filename, file_size_to_qstring(cf.capFile()->f_datalen));
         pushGenericStatus(STATUS_CTX_FILE, cf.fileName(), msgtip);
     }
@@ -256,7 +256,7 @@ void MainStatusBar::setStatusbarForCaptureFile()
 {
     if (cap_file_ && cap_file_->filename && (cap_file_->state != FILE_CLOSED)) {
         popGenericStatus(STATUS_CTX_FILE);
-        QString msgtip = QString("%1 (%2)")
+        QString msgtip = QStringLiteral("%1 (%2)")
                 .arg(cap_file_->filename, file_size_to_qstring(cap_file_->f_datalen));
         pushGenericStatus(STATUS_CTX_FILE,
                 gchar_free_to_qstring(cf_get_display_name(cap_file_)), msgtip);
@@ -315,7 +315,7 @@ void MainStatusBar::highlightedFieldChanged(FieldInformation * finfo)
         } else {
             hint = tr("Bytes %1-%2").arg(pos.start).arg(pos.start + pos.length - 1);
         }
-        hint += QString(": %1 (%2)")
+        hint += QStringLiteral(": %1 (%2)")
                 .arg(finfo->headerInfo().name, finfo->headerInfo().abbreviation);
     }
 

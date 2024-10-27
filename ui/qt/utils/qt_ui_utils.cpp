@@ -97,7 +97,7 @@ const QString int_to_qstring(qint64 value, int field_width, int base)
         break;
     }
 
-    int_qstr += QString("%1").arg(value, field_width, base, QChar('0'));
+    int_qstr += QStringLiteral("%1").arg(value, field_width, base, QChar('0'));
     return int_qstr;
 }
 
@@ -149,7 +149,7 @@ const QString range_to_qstring(const range_string *range)
 {
     QString range_qstr = QString();
     if (range) {
-        range_qstr += QString("%1-%2").arg(range->value_min).arg(range->value_max);
+        range_qstr += QStringLiteral("%1-%2").arg(range->value_min).arg(range->value_max);
     }
     return range_qstr;
 }
@@ -322,7 +322,7 @@ QString make_filter_based_on_rtpstream_id(QVector<rtpstream_id_t *> stream_ids)
 
     foreach(rtpstream_id_t *id, stream_ids) {
         QString ip_proto = id->src_addr.type == AT_IPv6 ? "ipv6" : "ip";
-        stream_filters << QString("(%1.src==%2 && udp.srcport==%3 && %1.dst==%4 && udp.dstport==%5 && rtp.ssrc==0x%6)")
+        stream_filters << QStringLiteral("(%1.src==%2 && udp.srcport==%3 && %1.dst==%4 && udp.dstport==%5 && rtp.ssrc==0x%6)")
                          .arg(ip_proto) // %1
                          .arg(address_to_qstring(&id->src_addr)) // %2
                          .arg(id->src_port) // %3

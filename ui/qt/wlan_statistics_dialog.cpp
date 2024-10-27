@@ -178,7 +178,7 @@ public:
                 << auth_ << deauth_ << other_ << text(col_protection_);
     }
     const QString filterExpression() {
-        QString filter_expr = QString("wlan.addr==%1")
+        QString filter_expr = QStringLiteral("wlan.addr==%1")
                 .arg(address_to_qstring(&addr_));
         return filter_expr;
     }
@@ -443,10 +443,10 @@ public:
     }
 
     const QString filterExpression() {
-        QString filter_expr = QString("(wlan.bssid==%1")
+        QString filter_expr = QStringLiteral("(wlan.bssid==%1")
                 .arg(address_to_qstring(&bssid_));
         if (!ssid_.isEmpty() && ssid_[0] != '\0') {
-            filter_expr += QString(" || wlan.ssid==\"%1\"")
+            filter_expr += QStringLiteral(" || wlan.ssid==\"%1\"")
                     .arg(ssid_.constData());
         }
         filter_expr += ")";

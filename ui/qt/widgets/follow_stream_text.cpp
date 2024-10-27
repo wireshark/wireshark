@@ -89,7 +89,7 @@ void FollowStreamText::addText(QString text, bool is_from_server, uint32_t packe
 
 void FollowStreamText::addDeltaTime(double delta)
 {
-    QString delta_str = QString("\n%1s").arg(QString::number(delta, 'f', 6));
+    QString delta_str = QStringLiteral("\n%1s").arg(QString::number(delta, 'f', 6));
     if (truncated_) {
         return;
     }

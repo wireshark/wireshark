@@ -76,7 +76,7 @@ bool UatModel::applyChanges(QString &error)
         char *err = NULL;
 
         if (!uat_save(uat_, &err)) {
-            error = QString("Error while saving %1: %2").arg(uat_->name).arg(err);
+            error = QStringLiteral("Error while saving %1: %2").arg(uat_->name).arg(err);
             g_free(err);
         }
 
@@ -104,7 +104,7 @@ bool UatModel::revertChanges(QString &error)
         char *err = NULL;
         uat_clear(uat_);
         if (!uat_load(uat_, NULL, &err)) {
-            error = QString("Error while loading %1: %2").arg(uat_->name).arg(err);
+            error = QStringLiteral("Error while loading %1: %2").arg(uat_->name).arg(err);
             g_free(err);
         }
         return true;
@@ -331,9 +331,9 @@ QModelIndex UatModel::appendEntry(QVariantList rowData)
                 data = rowData[col].toString();
             } else {
                 if (rowData[col].toInt() == Qt::Checked) {
-                    data = QString("true");
+                    data = QStringLiteral("true");
                 } else {
-                    data = QString("false");
+                    data = QStringLiteral("false");
                 }
             }
         }

@@ -94,12 +94,12 @@ void ManufDialog::searchVendor(QString &text)
 
     name_re = QRegularExpression(text, QRegularExpression::CaseInsensitiveOption);
     if (!name_re.isValid()) {
-        ui->hintLabel->setText(QString("<small><i>Invalid regular expression: %1</i></small>").arg(name_re.errorString()));
+        ui->hintLabel->setText(QStringLiteral("<small><i>Invalid regular expression: %1</i></small>").arg(name_re.errorString()));
         return;
     }
 
     proxy_model_->setFilterName(name_re);
-    ui->hintLabel->setText(QString("<small><i>Found %1 matches for \"%2\"</i></small>").arg(proxy_model_->rowCount()).arg(text));
+    ui->hintLabel->setText(QStringLiteral("<small><i>Found %1 matches for \"%2\"</i></small>").arg(proxy_model_->rowCount()).arg(text));
 }
 
 static QByteArray convertMacAddressToByteArray(const QString &bytesString)
@@ -121,7 +121,7 @@ static QByteArray convertMacAddressToByteArray(const QString &bytesString)
 QString convertToMacAddress(const QByteArray& byteArray) {
     QString macAddress;
     for (int i = 0; i < byteArray.size(); ++i) {
-        macAddress += QString("%1").arg(static_cast<quint8>(byteArray[i]), 2, 16, QChar('0'));
+        macAddress += QStringLiteral("%1").arg(static_cast<quint8>(byteArray[i]), 2, 16, QChar('0'));
         if (i != byteArray.size() - 1) {
             macAddress += ":";
         }
@@ -135,12 +135,12 @@ void ManufDialog::searchPrefix(QString &text)
 
     addr = convertMacAddressToByteArray(text);
     if (addr.isEmpty()) {
-        ui->hintLabel->setText(QString("<small><i>\"%1\" is not a valid MAC address</i></small>").arg(text));
+        ui->hintLabel->setText(QStringLiteral("<small><i>\"%1\" is not a valid MAC address</i></small>").arg(text));
         return;
     }
 
     proxy_model_->setFilterAddress(addr);
-    ui->hintLabel->setText(QString("<small><i>Found %1 matches for \"%2\"</i></small>").arg(proxy_model_->rowCount()).arg(convertToMacAddress(addr)));
+    ui->hintLabel->setText(QStringLiteral("<small><i>Found %1 matches for \"%2\"</i></small>").arg(proxy_model_->rowCount()).arg(convertToMacAddress(addr)));
 }
 
 void ManufDialog::on_searchToggled(void)

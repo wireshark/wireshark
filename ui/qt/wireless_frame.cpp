@@ -193,7 +193,7 @@ void WirelessFrame::on_helperToolButton_clicked()
     const QString helper_path = ws80211_get_helper_path();
     if (helper_path.isEmpty()) return;
 
-    QString command = QString("\"%1\"").arg(helper_path);
+    QString command = QStringLiteral("\"%1\"").arg(helper_path);
     QProcess::startDetached(command, QStringList());
 }
 
@@ -226,7 +226,7 @@ void WirelessFrame::getInterfaceInfo()
             for (unsigned j = 0; j < iface->frequencies->len; j++) {
                 uint32_t frequency = g_array_index(iface->frequencies, uint32_t, j);
                 double ghz = frequency / 1000.0;
-                QString chan_str = QString("%1 " UTF8_MIDDLE_DOT " %2%3")
+                QString chan_str = QStringLiteral("%1 " UTF8_MIDDLE_DOT " %2%3")
                         .arg(ieee80211_mhz_to_chan(frequency))
                         .arg(ghz, 0, 'f', 3)
                         .arg(units);

@@ -425,7 +425,7 @@ QString PacketList::joinSummaryRow(QStringList col_parts, int row, SummaryCopyTy
         break;
     case CopyAsYAML:
         copy_text = "----\n";
-        copy_text += QString("# Packet %1 from %2\n").arg(row).arg(cap_file_->filename);
+        copy_text += QStringLiteral("# Packet %1 from %2\n").arg(row).arg(cap_file_->filename);
         copy_text += "- ";
         copy_text += col_parts.join("\n- ");
         copy_text += "\n";
@@ -925,7 +925,7 @@ void PacketList::mouseMoveEvent (QMouseEvent *event)
             filterData["description"] = name;
 
             mimeData->setData(WiresharkMimeData::DisplayFilterMimeType, QJsonDocument(filterData).toJson());
-            content = new DragLabel(QString("%1\n%2").arg(name, abbrev), this);
+            content = new DragLabel(QStringLiteral("%1\n%2").arg(name, abbrev), this);
         }
         else
         {
@@ -1489,11 +1489,11 @@ QString PacketList::getFilterFromRowAndColumn(QModelIndex idx)
 
                 if (filter.isEmpty()) {
                     if (is_string_value) {
-                        filter.append(QString("%1 == \"%2\"")
+                        filter.append(QStringLiteral("%1 == \"%2\"")
                                       .arg(cap_file_->cinfo.col_expr.col_expr[column])
                                       .arg(cap_file_->cinfo.col_expr.col_expr_val[column]));
                     } else {
-                        filter.append(QString("%1 == %2")
+                        filter.append(QStringLiteral("%1 == %2")
                                       .arg(cap_file_->cinfo.col_expr.col_expr[column])
                                       .arg(cap_file_->cinfo.col_expr.col_expr_val[column]));
                     }
@@ -2094,7 +2094,7 @@ QString PacketList::createHeaderSummaryForAligned(QStringList hdr_parts, QList<i
             hdr_text += hdr_parts[i].rightJustified(size_parts.at(i), ' ') + "  ";
         }
     }
-    return QString("-" + hdr_text).trimmed().mid(1);
+    return QStringLiteral("-%1").arg(hdr_text).trimmed().mid(1);
 }
 
 QString PacketList::createSummaryForAligned(QModelIndex idx, QList<int> align_parts, QList<int> size_parts)
@@ -2120,7 +2120,7 @@ QString PacketList::createSummaryForAligned(QModelIndex idx, QList<int> align_pa
         }
     }
 
-    return QString("-" + col_text).trimmed().mid(1);
+    return QStringLiteral("-%1").arg(col_text).trimmed().mid(1);
 }
 
 QString PacketList::createDefaultStyleForHtml()

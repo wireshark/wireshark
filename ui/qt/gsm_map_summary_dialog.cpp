@@ -107,7 +107,7 @@ QString GsmMapSummaryDialog::summaryToHtml()
     QString format_str = wtap_file_type_subtype_description(summary.file_type);
     const char *compression_type_description = wtap_compression_type_description(summary.compression_type);
     if (compression_type_description != NULL) {
-        format_str += QString(" (%1)").arg(compression_type_description);
+        format_str += QStringLiteral(" (%1)").arg(compression_type_description);
     }
     out << table_row_begin
         << table_vheader_tmpl.arg(tr("Format"))
@@ -150,10 +150,10 @@ QString GsmMapSummaryDialog::summaryToHtml()
             unsigned int elapsed_time = (unsigned int)summary.elapsed_time;
             if (elapsed_time/86400)
             {
-                elapsed_str = QString("%1 days ").arg(elapsed_time / 86400);
+                elapsed_str = QStringLiteral("%1 days ").arg(elapsed_time / 86400);
             }
 
-            elapsed_str += QString("%1:%2:%3")
+            elapsed_str += QStringLiteral("%1:%2:%3")
                     .arg(elapsed_time % 86400 / 3600, 2, 10, QChar('0'))
                     .arg(elapsed_time % 3600 / 60, 2, 10, QChar('0'))
                     .arg(elapsed_time % 60, 2, 10, QChar('0'));
@@ -206,20 +206,20 @@ QString GsmMapSummaryDialog::summaryToHtml()
      */
     if (summary.packet_count_ts > 1 && seconds > 0.0) {
         /* Total number of invokes per second */
-        invoke_rate_str = QString("%1").arg(invoke_count / seconds, 1, 'f', 1);
-        result_rate_str = QString("%1").arg(result_count / seconds, 1, 'f', 1);
-        total_rate_str = QString("%1").arg((total_count) / seconds, 1, 'f', 1);
+        invoke_rate_str = QStringLiteral("%1").arg(invoke_count / seconds, 1, 'f', 1);
+        result_rate_str = QStringLiteral("%1").arg(result_count / seconds, 1, 'f', 1);
+        total_rate_str = QStringLiteral("%1").arg((total_count) / seconds, 1, 'f', 1);
     }
 
     /* Average message sizes */
     if (invoke_count > 0) {
-        invoke_avg_size_str = QString("%1").arg((double) invoke_bytes / invoke_count, 1, 'f', 1);
+        invoke_avg_size_str = QStringLiteral("%1").arg((double) invoke_bytes / invoke_count, 1, 'f', 1);
     }
     if (result_count > 0) {
-        result_avg_size_str = QString("%1").arg((double) result_bytes / result_count, 1, 'f', 1);
+        result_avg_size_str = QStringLiteral("%1").arg((double) result_bytes / result_count, 1, 'f', 1);
     }
     if (total_count > 0) {
-        total_avg_size_str = QString("%1").arg((double) total_bytes / total_count, 1, 'f', 1);
+        total_avg_size_str = QStringLiteral("%1").arg((double) total_bytes / total_count, 1, 'f', 1);
     }
 
     // Invoke Section

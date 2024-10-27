@@ -451,7 +451,7 @@ QVariant EndpointDataModel::data(const QModelIndex &idx, int role) const
         case ENDP_COLUMN_PACKETS:
         {
             qlonglong packets = (qlonglong)(item->tx_frames + item->rx_frames);
-            return role == Qt::DisplayRole ? QString("%L1").arg(packets) : (QVariant)packets;
+            return role == Qt::DisplayRole ? QStringLiteral("%L1").arg(packets) : (QVariant)packets;
         }
         case ENDP_COLUMN_BYTES:
             return role == Qt::DisplayRole ? formatString((qlonglong)(item->tx_bytes + item->rx_bytes)) :
@@ -461,7 +461,7 @@ QVariant EndpointDataModel::data(const QModelIndex &idx, int role) const
             qlonglong packets = 0;
             if (showTotalColumn())
                 packets = item->tx_frames_total + item->rx_frames_total;
-            return role == Qt::DisplayRole ? QString("%L1").arg(packets) : (QVariant)packets;
+            return role == Qt::DisplayRole ? QStringLiteral("%L1").arg(packets) : (QVariant)packets;
         }
         case ENDP_COLUMN_BYTES_TOTAL:
         {
@@ -480,11 +480,11 @@ QVariant EndpointDataModel::data(const QModelIndex &idx, int role) const
             return role == Qt::DisplayRole ? rounded + "%" : QVariant(rounded.toDouble());
         }
         case ENDP_COLUMN_PKT_AB:
-            return role == Qt::DisplayRole ? QString("%L1").arg((qlonglong)item->tx_frames) : QVariant((qlonglong) item->tx_frames);
+            return role == Qt::DisplayRole ? QStringLiteral("%L1").arg((qlonglong)item->tx_frames) : QVariant((qlonglong) item->tx_frames);
         case ENDP_COLUMN_BYTES_AB:
             return role == Qt::DisplayRole ? formatString((qlonglong)item->tx_bytes) : QVariant((qlonglong)item->tx_bytes);
         case ENDP_COLUMN_PKT_BA:
-            return role == Qt::DisplayRole ? QString("%L1").arg((qlonglong)item->rx_frames) : QVariant((qlonglong) item->rx_frames);
+            return role == Qt::DisplayRole ? QStringLiteral("%L1").arg((qlonglong)item->rx_frames) : QVariant((qlonglong) item->rx_frames);
         case ENDP_COLUMN_BYTES_BA:
             return role == Qt::DisplayRole ? formatString((qlonglong)item->rx_bytes) : QVariant((qlonglong)item->rx_bytes);
         case ENDP_COLUMN_GEO_COUNTRY:
@@ -499,12 +499,12 @@ QVariant EndpointDataModel::data(const QModelIndex &idx, int role) const
             return QVariant();
         case ENDP_COLUMN_GEO_LATITUDE:
             if (mmdb_lookup && mmdb_lookup->found && mmdb_lookup->latitude >= -90.0 && mmdb_lookup->latitude <= 90.0) {
-                return role == Qt::DisplayRole ? QString("%L1" UTF8_DEGREE_SIGN).arg(mmdb_lookup->latitude) : QVariant(mmdb_lookup->latitude);
+                return role == Qt::DisplayRole ? QStringLiteral("%L1" UTF8_DEGREE_SIGN).arg(mmdb_lookup->latitude) : QVariant(mmdb_lookup->latitude);
             }
             return QVariant();
         case ENDP_COLUMN_GEO_LONGITUDE:
             if (mmdb_lookup && mmdb_lookup->found && mmdb_lookup->longitude >= -180.0 && mmdb_lookup->longitude <= 180.0) {
-                return role == Qt::DisplayRole ? QString("%L1" UTF8_DEGREE_SIGN).arg(mmdb_lookup->longitude) : QVariant(mmdb_lookup->longitude);
+                return role == Qt::DisplayRole ? QStringLiteral("%L1" UTF8_DEGREE_SIGN).arg(mmdb_lookup->longitude) : QVariant(mmdb_lookup->longitude);
             }
             return QVariant();
         case ENDP_COLUMN_GEO_AS_NUM:
@@ -723,7 +723,7 @@ QVariant ConversationDataModel::data(const QModelIndex &idx, int role) const
         case CONV_COLUMN_PACKETS:
         {
             qlonglong packets = conv_item->tx_frames + conv_item->rx_frames;
-            return role == Qt::DisplayRole ? QString("%L1").arg(packets) : (QVariant)packets;
+            return role == Qt::DisplayRole ? QStringLiteral("%L1").arg(packets) : (QVariant)packets;
         }
         case CONV_COLUMN_BYTES:
             return role == Qt::DisplayRole ? formatString((qlonglong)conv_item->tx_bytes + conv_item->rx_bytes) :
@@ -739,7 +739,7 @@ QVariant ConversationDataModel::data(const QModelIndex &idx, int role) const
             if (showTotalColumn())
                 packets = conv_item->tx_frames_total + conv_item->rx_frames_total;
 
-            return role == Qt::DisplayRole ? QString("%L1").arg(packets) : (QVariant)packets;
+            return role == Qt::DisplayRole ? QStringLiteral("%L1").arg(packets) : (QVariant)packets;
         }
         case CONV_COLUMN_BYTES_TOTAL:
         {
@@ -761,14 +761,14 @@ QVariant ConversationDataModel::data(const QModelIndex &idx, int role) const
         case CONV_COLUMN_PKT_AB:
         {
             qlonglong packets = conv_item->tx_frames;
-            return role == Qt::DisplayRole ? QString("%L1").arg(packets) : (QVariant)packets;
+            return role == Qt::DisplayRole ? QStringLiteral("%L1").arg(packets) : (QVariant)packets;
         }
         case CONV_COLUMN_BYTES_AB:
             return role == Qt::DisplayRole ? formatString((qlonglong)conv_item->tx_bytes) : QVariant((qlonglong)conv_item->tx_bytes);
         case CONV_COLUMN_PKT_BA:
         {
             qlonglong packets = conv_item->rx_frames;
-            return role == Qt::DisplayRole ? QString("%L1").arg(packets) : (QVariant)packets;
+            return role == Qt::DisplayRole ? QStringLiteral("%L1").arg(packets) : (QVariant)packets;
         }
         case CONV_COLUMN_BYTES_BA:
             return role == Qt::DisplayRole ? formatString((qlonglong)conv_item->rx_bytes) : QVariant((qlonglong)conv_item->rx_bytes);
@@ -815,7 +815,7 @@ QVariant ConversationDataModel::data(const QModelIndex &idx, int role) const
             case CONV_TCP_EXT_COLUMN_A:
                 {
                 qlonglong flows = (qlonglong)conv_item->ext_tcp.flows;
-                return role == Qt::DisplayRole ? QString("%L1").arg(flows) : (QVariant)flows; break;
+                return role == Qt::DisplayRole ? QStringLiteral("%L1").arg(flows) : (QVariant)flows; break;
                 }
             default :
                 ws_assert_not_reached(); break;

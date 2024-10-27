@@ -208,7 +208,7 @@ void PluginIFDemo_Main::on_cmbElements_currentTextChanged(const QString & newTex
     while ( walker && walker->data )
     {
         ext_toolbar_value_t * listItem = (ext_toolbar_value_t *)walker->data;
-        QString content = QString("%1: %2").arg(listItem->value).arg(listItem->display);
+        QString content = QStringLiteral("%1: %2").arg(listItem->value).arg(listItem->display);
         listModel->appendRow(new QStandardItem(content));
         indexModel->appendRow(new QStandardItem(listItem->value));
 
@@ -240,12 +240,12 @@ void PluginIFDemo_Main::on_btnAddItem_clicked()
     if ( ui->txtNewItemDisplay->text().length() <= 0 || ui->txtNewItemValue->text().length() <= 0 )
         return;
 
-    QString content = QString("%1: %2").arg(ui->txtNewItemValue->text()).arg(ui->txtNewItemDisplay->text());
+    QString content = QStringLiteral("%1: %2").arg(ui->txtNewItemValue->text()).arg(ui->txtNewItemDisplay->text());
 
     QList<QStandardItem *> items = listModel->findItems(content);
     if ( items.count() > 0 )
         return;
-    items = listModel->findItems(QString("%1: ").arg(ui->txtNewItemValue->text()), Qt::MatchStartsWith);
+    items = listModel->findItems(QStringLiteral("%1: ").arg(ui->txtNewItemValue->text()), Qt::MatchStartsWith);
     if ( items.count() > 0 )
         return;
 

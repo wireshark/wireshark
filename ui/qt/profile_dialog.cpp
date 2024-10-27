@@ -638,7 +638,7 @@ void ProfileDialog::exportProfiles(bool exportAllPersonalProfiles)
         {
             QString msg = tr("An error has occurred while exporting profiles");
              if (err.length() > 0)
-                 msg.append(QString("\n\n%1: %2").arg(tr("Error"), err));
+                 msg.append(QStringLiteral("\n\n%1: %2").arg(tr("Error"), err));
             QMessageBox::critical(this, tr("Exporting profiles"), msg);
         }
     }

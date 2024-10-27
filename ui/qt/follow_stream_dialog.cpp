@@ -887,16 +887,16 @@ void FollowStreamDialog::showBuffer(QByteArray &buffer, size_t nchars, bool is_f
         }
 
         if (packet_num != last_packet_) {
-            yaml_text.append(QString("  - packet: %1\n")
+            yaml_text.append(QStringLiteral("  - packet: %1\n")
                     .arg(packet_num));
-            yaml_text.append(QString("    peer: %1\n")
+            yaml_text.append(QStringLiteral("    peer: %1\n")
                     .arg(is_from_server ? 1 : 0));
-            yaml_text.append(QString("    index: %1\n")
+            yaml_text.append(QStringLiteral("    index: %1\n")
                     .arg(is_from_server ? server_buffer_count_++ : client_buffer_count_++));
-            yaml_text.append(QString("    timestamp: %1.%2\n")
+            yaml_text.append(QStringLiteral("    timestamp: %1.%2\n")
                     .arg(abs_ts.secs)
                     .arg(abs_ts.nsecs, 9, 10, QChar('0')));
-            yaml_text.append(QString("    data: !!binary |\n"));
+            yaml_text.append(QStringLiteral("    data: !!binary |\n"));
         }
         while (current_pos < nchars) {
             int len = current_pos + base64_raw_len < nchars ? base64_raw_len : (int) nchars - current_pos;
@@ -1001,12 +1001,12 @@ bool FollowStreamDialog::follow(QString previous_filter, bool use_stream_index, 
     previous_filter_ = previous_filter;
     /* append the negation */
     if (!previous_filter.isEmpty()) {
-        filter_out_filter_ = QString("%1 and !(%2)")
+        filter_out_filter_ = QStringLiteral("%1 and !(%2)")
                 .arg(previous_filter, follow_filter);
     }
     else
     {
-        filter_out_filter_ = QString("!(%1)").arg(follow_filter);
+        filter_out_filter_ = QStringLiteral("!(%1)").arg(follow_filter);
     }
 
     follow_info_.substream_id = sub_stream_num;
@@ -1113,7 +1113,7 @@ bool FollowStreamDialog::follow(QString previous_filter, bool use_stream_index, 
         port1 = get_follow_port_to_display(follower_)(NULL, follow_info_.server_port);
 
         server_to_client_string =
-                QString("%1:%2 %3 %4:%5 (%6)")
+                QStringLiteral("%1:%2 %3 %4:%5 (%6)")
                 .arg(hostname0, port0)
                 .arg(UTF8_RIGHTWARDS_ARROW)
                 .arg(hostname1, port1)
@@ -1122,7 +1122,7 @@ bool FollowStreamDialog::follow(QString previous_filter, bool use_stream_index, 
                                             FORMAT_SIZE_UNIT_BYTES, FORMAT_SIZE_PREFIX_SI)));
 
         client_to_server_string =
-                QString("%1:%2 %3 %4:%5 (%6)")
+                QStringLiteral("%1:%2 %3 %4:%5 (%6)")
                 .arg(hostname1, port1)
                 .arg(UTF8_RIGHTWARDS_ARROW)
                 .arg(hostname0, port0)

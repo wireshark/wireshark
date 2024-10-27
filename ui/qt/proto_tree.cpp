@@ -225,7 +225,7 @@ void ProtoTree::ctxOpenUrlWiki()
             if (protocol_field_selected)
             {
                 const QString proto_field_abbrev = proto_registrar_get_abbrev(finfo.headerInfo().id);
-                url.append(QString("#%1").arg(proto_field_abbrev));
+                url.append(QStringLiteral("#%1").arg(proto_field_abbrev));
             }
         } else {
             QMessageBox::information(this, tr("Not a field or protocol"),
@@ -384,7 +384,7 @@ void ProtoTree::contextMenuEvent(QContextMenuEvent *event)
         if (protocol_field_selected)
         {
             const QString proto_field_abbrev = proto_registrar_get_abbrev(finfo->headerInfo().id);
-            url.append(QString("#%1").arg(proto_field_abbrev));
+            url.append(QStringLiteral("#%1").arg(proto_field_abbrev));
         }
         action->setProperty("toolTip", url);
     }
@@ -797,7 +797,7 @@ QString ProtoTree::traverseTree(const QModelIndex & travTree, int identLevel) co
 
     if (travTree.isValid())
     {
-        result.append(QString("    ").repeated(identLevel));
+        result.append(QStringLiteral("    ").repeated(identLevel));
         result.append(travTree.data().toString());
         result.append("\n");
 
@@ -891,7 +891,7 @@ bool ProtoTree::eventFilter(QObject * obj, QEvent * event)
                     QDrag * drag = new QDrag(this);
                     drag->setMimeData(mimeData);
 
-                    QString lblTxt = QString("%1\n%2").arg(finfo.headerInfo().name, filter);
+                    QString lblTxt = QStringLiteral("%1\n%2").arg(finfo.headerInfo().name, filter);
 
                     DragLabel * content = new DragLabel(lblTxt, this);
 

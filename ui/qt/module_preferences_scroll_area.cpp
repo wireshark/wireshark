@@ -68,9 +68,9 @@ pref_show(pref_t *pref, void *user_data)
 
     // Convert the pref description from plain text to rich text.
     QString description = html_escape(prefs_get_description(pref));
-    QString name = QString("%1.%2").arg(data->moduleName).arg(prefs_get_name(pref));
+    QString name = QStringLiteral("%1.%2").arg(data->moduleName).arg(prefs_get_name(pref));
     description.replace('\n', "<br/>");
-    QString tooltip = QString("<span>%1</span><br/><br/>%2").arg(description).arg(name);
+    QString tooltip = QStringLiteral("<span>%1</span><br/><br/>%2").arg(description).arg(name);
 
     switch (prefs_get_type(pref)) {
     case PREF_UINT:

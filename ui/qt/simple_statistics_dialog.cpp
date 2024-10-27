@@ -27,7 +27,7 @@ static void
 simple_stat_init(const char *args, void*) {
     QStringList args_l = QString(args).split(',');
     if (args_l.length() > 1) {
-        QString simple_stat = QString("%1,%2").arg(args_l[0]).arg(args_l[1]);
+        QString simple_stat = QStringLiteral("%1,%2").arg(args_l[0]).arg(args_l[1]);
         QString filter;
         if (args_l.length() > 2) {
             filter = QStringList(args_l.mid(2)).join(",");

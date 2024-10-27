@@ -33,7 +33,7 @@ FunnelTextDialog::FunnelTextDialog(QWidget *parent, const QString &title) :
 {
     ui->setupUi(this);
     if (!title.isEmpty()) {
-        loadGeometry(0, 0, QString("Funnel %1").arg(title));
+        loadGeometry(0, 0, QStringLiteral("Funnel %1").arg(title));
     }
     setWindowTitle(mainApp->windowTitleString(title));
 

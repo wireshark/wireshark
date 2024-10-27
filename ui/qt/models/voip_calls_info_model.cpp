@@ -60,7 +60,7 @@ QVariant VoipCallsInfoModel::data(const QModelIndex &index, int role) const
     case Duration:
     {
         unsigned callDuration = nstime_to_sec(&(call_info->stop_fd->abs_ts)) - nstime_to_sec(&(call_info->start_fd->abs_ts));
-        return QString("%1:%2:%3").arg(callDuration / 3600, 2, 10, QChar('0')).arg((callDuration % 3600) / 60, 2, 10, QChar('0')).arg(callDuration % 60, 2, 10, QChar('0'));
+        return QStringLiteral("%1:%2:%3").arg(callDuration / 3600, 2, 10, QChar('0')).arg((callDuration % 3600) / 60, 2, 10, QChar('0')).arg(callDuration % 60, 2, 10, QChar('0'));
     }
     case Packets:
         return call_info->npackets;
@@ -72,7 +72,7 @@ QVariant VoipCallsInfoModel::data(const QModelIndex &index, int role) const
         case VOIP_ISUP:
         {
             isup_calls_info_t *isup_info = (isup_calls_info_t *)call_info->prot_info;
-            return QString("%1-%2 %3 %4-%5")
+            return QStringLiteral("%1-%2 %3 %4-%5")
                     .arg(isup_info->ni)
                     .arg(isup_info->opc)
                     .arg(UTF8_RIGHTWARDS_ARROW)

@@ -222,7 +222,7 @@ void ExportObjectDialog::on_buttonBox_clicked(QAbstractButton *button)
             QMimeDatabase mime_db;
             QMimeType mime_type = mime_db.mimeTypeForFile(temp, QMimeDatabase::MatchContent);
             if (mimeTypeIsPreviewable(mime_type.name())) {
-                QDesktopServices::openUrl(QUrl(QString("file:///").append(temp), QUrl::TolerantMode));
+                QDesktopServices::openUrl(QUrl(QStringLiteral("file:///").append(temp), QUrl::TolerantMode));
             } else {
                 desktop_show_in_folder(temp);
             }

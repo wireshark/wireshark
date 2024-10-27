@@ -47,7 +47,7 @@ ShowPacketBytesDialog::ShowPacketBytesDialog(QWidget &parent, CaptureFile &cf) :
     ui->setupUi(this);
     loadGeometry(parent.width() * 2 / 3, parent.height() * 3 / 4);
 
-    QString field_name = QString("%1 (%2)").arg(finfo_->hfinfo->name, finfo_->hfinfo->abbrev);
+    QString field_name = QStringLiteral("%1 (%2)").arg(finfo_->hfinfo->name, finfo_->hfinfo->abbrev);
     setWindowSubtitle (field_name);
 
     hint_label_ = tr("Frame %1, %2, %Ln byte(s).", "", finfo_->length)

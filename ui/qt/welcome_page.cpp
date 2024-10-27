@@ -302,13 +302,13 @@ void WelcomePage::updateRecentCaptures() {
             itemLabel.append(" (");
             if (ri->accessible) {
                 if (ri->size/1024/1024/1024 > 10) {
-                    itemLabel.append(QString("%1 GB").arg(ri->size/1024/1024/1024));
+                    itemLabel.append(QStringLiteral("%1 GB").arg(ri->size/1024/1024/1024));
                 } else if (ri->size/1024/1024 > 10) {
-                    itemLabel.append(QString("%1 MB").arg(ri->size/1024/1024));
+                    itemLabel.append(QStringLiteral("%1 MB").arg(ri->size/1024/1024));
                 } else if (ri->size/1024 > 10) {
-                    itemLabel.append(QString("%1 KB").arg(ri->size/1024));
+                    itemLabel.append(QStringLiteral("%1 KB").arg(ri->size/1024));
                 } else {
-                    itemLabel.append(QString("%1 Bytes").arg(ri->size));
+                    itemLabel.append(QStringLiteral("%1 Bytes").arg(ri->size));
                 }
             } else {
                 itemLabel.append(tr("not found"));

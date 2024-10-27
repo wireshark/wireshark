@@ -470,7 +470,7 @@ void DisplayFilterEdit::updateBookmarkMenu()
         QModelIndex nameIdx = model.index(row, FilterListModel::ColumnName);
         QString name = nameIdx.data().toString();
         QString expr = model.index(row, FilterListModel::ColumnExpression).data().toString();
-        QString prep_text = QString("%1: %2").arg(name).arg(expr);
+        QString prep_text = QStringLiteral("%1: %2").arg(name).arg(expr);
 
         prep_text = bb_menu->fontMetrics().elidedText(prep_text, Qt::ElideRight, one_em * 40);
         QAction * prep_action = bb_menu->addAction(prep_text);
@@ -508,7 +508,7 @@ void DisplayFilterEdit::buildCompletionList(const QString &field_word, const QSt
 
         header_field_info *hfinfo = proto_registrar_get_byname(field_word.toUtf8().constData());
         if (hfinfo) {
-            QString cursor_field_msg = QString("%1: %2")
+            QString cursor_field_msg = QStringLiteral("%1: %2")
                     .arg(hfinfo->name)
                     .arg(ftype_pretty_name(hfinfo->type));
             if (mainApp->mainWindow()->isActiveWindow())

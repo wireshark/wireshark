@@ -476,7 +476,7 @@ void SequenceDialog::mouseMoved(QMouseEvent *event)
                 current_rtp_sai_hovered_ = sai;
             }
             packet_num_ = sai->frame_number;
-            hint = QString("Packet %1: %2").arg(packet_num_).arg(sai->comment);
+            hint = QStringLiteral("Packet %1: %2").arg(packet_num_).arg(sai->comment);
         }
     }
 
@@ -488,7 +488,7 @@ void SequenceDialog::mouseMoved(QMouseEvent *event)
         if (!info_->sainfo()) {
             hint += tr("No data");
         } else {
-            hint += tr("%Ln node(s)", "", info_->sainfo()->num_nodes) + QString(", ")
+            hint += tr("%Ln node(s)", "", info_->sainfo()->num_nodes) + QStringLiteral(", ")
                     + tr("%Ln item(s)", "", num_items_);
         }
     }
@@ -533,13 +533,13 @@ void SequenceDialog::exportDiagram()
     QString jpeg_filter = tr("JPEG File Interchange Format (*.jpeg *.jpg)");
     QString ascii_filter = tr("ASCII (*.txt)");
 
-    QString filter = QString("%1;;%2;;%3;;%4")
+    QString filter = QStringLiteral("%1;;%2;;%3;;%4")
             .arg(pdf_filter)
             .arg(png_filter)
             .arg(bmp_filter)
             .arg(jpeg_filter);
     if (!file_closed_) {
-        filter.append(QString(";;%5").arg(ascii_filter));
+        filter.append(QStringLiteral(";;%5").arg(ascii_filter));
     }
 
     file_name = WiresharkFileDialog::getSaveFileName(this, mainApp->windowTitleString(tr("Save Graph As…")),

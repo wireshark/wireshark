@@ -276,7 +276,7 @@ QVariant DecodeAsModel::data(const QModelIndex &index, int role) const
                 return tr("<none>");
             } else if (selector_type == FT_GUID) {
                 if (item->selectorDCERPC() != NULL) {
-                    return QString("ctx_id");
+                    return QStringLiteral("ctx_id");
                 } else {
                     return tr("GUID");
                 }
@@ -603,7 +603,7 @@ QString DecodeAsModel::entryString(const char *table_name, const void *value)
                 ws_assert_not_reached();
                 break;
             }
-            entry_str = QString("%1").arg(int_to_qstring(num_val, width, 16));
+            entry_str = QStringLiteral("%1").arg(int_to_qstring(num_val, width, 16));
             break;
 
         case BASE_OCT:

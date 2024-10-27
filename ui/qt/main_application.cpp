@@ -1208,30 +1208,30 @@ void MainApplication::loadLanguage(const QString newLanguage)
 
     QLocale::setDefault(locale);
     switchTranslator(mainApp->translator,
-            QString("wireshark_%1.qm").arg(localeLanguage), QString(":/i18n/"));
-    if (QFile::exists(QString("%1/%2/wireshark_%3.qm")
+            QStringLiteral("wireshark_%1.qm").arg(localeLanguage), QStringLiteral(":/i18n/"));
+    if (QFile::exists(QStringLiteral("%1/%2/wireshark_%3.qm")
             .arg(get_datafile_dir()).arg("languages").arg(localeLanguage)))
         switchTranslator(mainApp->translator,
-                QString("wireshark_%1.qm").arg(localeLanguage), QString(get_datafile_dir()) + QString("/languages"));
-    if (QFile::exists(QString("%1/wireshark_%3.qm")
+                QStringLiteral("wireshark_%1.qm").arg(localeLanguage), QString(get_datafile_dir()) + QStringLiteral("/languages"));
+    if (QFile::exists(QStringLiteral("%1/wireshark_%3.qm")
             .arg(gchar_free_to_qstring(get_persconffile_path("languages", false))).arg(localeLanguage)))
         switchTranslator(mainApp->translator,
-                QString("wireshark_%1.qm").arg(localeLanguage), gchar_free_to_qstring(get_persconffile_path("languages", false)));
-    if (QFile::exists(QString("%1/qt_%2.qm")
+                QStringLiteral("wireshark_%1.qm").arg(localeLanguage), gchar_free_to_qstring(get_persconffile_path("languages", false)));
+    if (QFile::exists(QStringLiteral("%1/qt_%2.qm")
             .arg(get_datafile_dir()).arg(localeLanguage))) {
         switchTranslator(mainApp->translatorQt,
-                QString("qt_%1.qm").arg(localeLanguage), QString(get_datafile_dir()));
-    } else if (QFile::exists(QString("%1/qt_%2.qm")
+                QStringLiteral("qt_%1.qm").arg(localeLanguage), QString(get_datafile_dir()));
+    } else if (QFile::exists(QStringLiteral("%1/qt_%2.qm")
             .arg(get_datafile_dir()).arg(localeLanguage.left(localeLanguage.lastIndexOf('_'))))) {
         switchTranslator(mainApp->translatorQt,
-                QString("qt_%1.qm").arg(localeLanguage.left(localeLanguage.lastIndexOf('_'))), QString(get_datafile_dir()));
+                QStringLiteral("qt_%1.qm").arg(localeLanguage.left(localeLanguage.lastIndexOf('_'))), QString(get_datafile_dir()));
     } else {
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
         QString translationPath = QLibraryInfo::path(QLibraryInfo::TranslationsPath);
 #else
         QString translationPath = QLibraryInfo::location(QLibraryInfo::TranslationsPath);
 #endif
-        switchTranslator(mainApp->translatorQt, QString("qt_%1.qm").arg(localeLanguage), translationPath);
+        switchTranslator(mainApp->translatorQt, QStringLiteral("qt_%1.qm").arg(localeLanguage), translationPath);
     }
 }
 

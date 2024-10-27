@@ -86,7 +86,7 @@ public:
         setText(col_packets_s_, QString::number(avg_pps_, 'f', 2));
         setText(col_avg_bw_, bits_s_to_qstring(avg_bw_));
         setText(col_max_bw_, bits_s_to_qstring(max_bw_));
-        setText(col_max_burst_, QString("%1 / %2ms").arg(top_burst_size_).arg(mcast_stream_burstint));
+        setText(col_max_burst_, QStringLiteral("%1 / %2ms").arg(top_burst_size_).arg(mcast_stream_burstint));
         setText(col_burst_alarms_, QString::number(num_bursts_));
         setText(col_max_buffers_, bits_s_to_qstring(top_buff_usage_));
         setText(col_buffer_alarms_, QString::number(num_buff_alarms_));
@@ -142,7 +142,7 @@ public:
 
         if (src_addr_.type == AT_IPv6) ip_version = "v6";
 
-        const QString filter_expr = QString("(ip%1.src==%2 && udp.srcport==%3 && ip%1.dst==%4 && udp.dstport==%5)")
+        const QString filter_expr = QStringLiteral("(ip%1.src==%2 && udp.srcport==%3 && ip%1.dst==%4 && udp.dstport==%5)")
                 .arg(ip_version)
                 .arg(address_to_qstring(&src_addr_))
                 .arg(src_port_)

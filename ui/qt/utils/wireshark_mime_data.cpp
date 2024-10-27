@@ -33,7 +33,7 @@ QString ToolbarEntryMimeData::element() const
 
 QString ToolbarEntryMimeData::labelText() const
 {
-    return QString("%1").arg(element_);
+    return QStringLiteral("%1").arg(element_);
 }
 
 int ToolbarEntryMimeData::position() const

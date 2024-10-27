@@ -415,7 +415,7 @@ void CaptureFilterEdit::updateBookmarkMenu()
         QModelIndex nameIdx = model.index(row, FilterListModel::ColumnName);
         QString name = nameIdx.data().toString();
         QString expr = model.index(row, FilterListModel::ColumnExpression).data().toString();
-        QString prep_text = QString("%1: %2").arg(name).arg(expr);
+        QString prep_text = QStringLiteral("%1: %2").arg(name).arg(expr);
 
         prep_text = bb_menu->fontMetrics().elidedText(prep_text, Qt::ElideRight, one_em * 40);
         QAction * prep_action = bb_menu->addAction(prep_text);

@@ -378,7 +378,7 @@ QVariant InterfaceTreeModel::toolTipForInterface(int idx) const
     QString tt_str = "<p>";
     if (device->no_addresses > 0)
     {
-        tt_str += QString("%1: %2")
+        tt_str += QStringLiteral("%1: %2")
                 .arg(device->no_addresses > 1 ? tr("Addresses") : tr("Address"))
                 .arg(html_escape(device->addresses))
                 .replace('\n', ", ");
@@ -400,7 +400,7 @@ QVariant InterfaceTreeModel::toolTipForInterface(int idx) const
     }
     else
     {
-        tt_str += QString("%1: %2")
+        tt_str += QStringLiteral("%1: %2")
                 .arg(tr("Capture filter"))
                 .arg(html_escape(cfilter));
     }

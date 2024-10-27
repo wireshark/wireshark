@@ -53,7 +53,7 @@ bool DissectorTablesItem::lessThan(DissectorTablesItem &right) const
 
 
 IntegerTablesItem::IntegerTablesItem(unsigned int value, QString dissectorDescription, DissectorTablesItem* parent)
-    : DissectorTablesItem(QString("%1").arg(value), dissectorDescription, parent)
+    : DissectorTablesItem(QStringLiteral("%1").arg(value), dissectorDescription, parent)
     , value_(value)
 {
 }
@@ -84,7 +84,7 @@ bool IntegerTablesItem::lessThan(DissectorTablesItem &right) const
 
 DissectorTablesModel::DissectorTablesModel(QObject *parent) :
     QAbstractItemModel(parent),
-    root_(new DissectorTablesItem(QString("ROOT"), QString("ROOT"), NULL))
+    root_(new DissectorTablesItem(QStringLiteral("ROOT"), QStringLiteral("ROOT"), NULL))
 {
     populate();
 }
@@ -272,7 +272,7 @@ static void gatherHeurProtocolDecodes(const char *, struct heur_dtbl_entry *dtbl
         QString longName = proto_get_protocol_long_name(dtbl_entry->protocol);
         QString heurDisplayName = dtbl_entry->display_name;
         if (! heurDisplayName.isEmpty())
-            longName.append(QString(" (%1)").arg(heurDisplayName));
+            longName.append(QStringLiteral(" (%1)").arg(heurDisplayName));
 
         DissectorTablesItem *heur = new DissectorTablesItem(longName, proto_get_protocol_short_name(dtbl_entry->protocol), hdl_ptr);
         hdl_ptr->prependChild(heur);

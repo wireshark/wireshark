@@ -275,11 +275,11 @@ void ExpertInfoDialog::filterActionTriggered()
     if (hf_index > -1) {
         QString filter_string;
         if (fa->action() == FilterAction::ActionWebLookup) {
-            filter_string = QString("%1 %2")
+            filter_string = QStringLiteral("%1 %2")
                     .arg(proxyModel_->data(modelIndex.sibling(modelIndex.row(), ExpertInfoModel::colProtocol), Qt::DisplayRole).toString())
                     .arg(proxyModel_->data(modelIndex.sibling(modelIndex.row(), ExpertInfoModel::colSummary), Qt::DisplayRole).toString());
         } else if (fa->action() == FilterAction::ActionCopy) {
-            filter_string = QString("%1 %2: %3")
+            filter_string = QStringLiteral("%1 %2: %3")
                     .arg(proxyModel_->data(modelIndex.sibling(modelIndex.row(), ExpertInfoModel::colPacket), Qt::DisplayRole).toUInt())
                     .arg(proxyModel_->data(modelIndex.sibling(modelIndex.row(), ExpertInfoModel::colProtocol), Qt::DisplayRole).toString())
                     .arg(proxyModel_->data(modelIndex.sibling(modelIndex.row(), ExpertInfoModel::colSummary), Qt::DisplayRole).toString());

@@ -367,7 +367,7 @@ void InterfaceFrame::resetInterfaceTreeDisplay()
     if (!ui->warningLabel->text().isEmpty() && recent.sys_warn_if_no_capture)
     {
         QString warning_text = ui->warningLabel->text();
-        warning_text.append(QString("<p><a href=\"%1\">%2</a></p>")
+        warning_text.append(QStringLiteral("<p><a href=\"%1\">%2</a></p>")
                             .arg(no_capture_link)
                             .arg(SimpleDialog::dontShowThisAgain()));
         ui->warningLabel->setText(warning_text);

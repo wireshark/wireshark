@@ -291,7 +291,7 @@ void BluetoothDeviceDialog::on_actionCopy_Rows_triggered()
     items =  ui->tableWidget->selectedItems();
 
     for (i_item = items.begin(); i_item != items.end(); ++i_item) {
-        copy += QString("%1  %2  %3\n")
+        copy += QStringLiteral("%1  %2  %3\n")
                 .arg(ui->tableWidget->verticalHeaderItem((*i_item)->row())->text(), -40)
                 .arg(ui->tableWidget->item((*i_item)->row(), column_number_value)->text(), -50)
                 .arg(ui->tableWidget->item((*i_item)->row(), column_number_changes)->text(), -10);
@@ -305,7 +305,7 @@ void BluetoothDeviceDialog::on_actionCopy_All_triggered()
     QClipboard             *clipboard = QApplication::clipboard();
     QString                 copy;
 
-    copy += QString("%1  %2  %3\n")
+    copy += QStringLiteral("%1  %2  %3\n")
             .arg("Headers", -40)
             .arg(ui->tableWidget->horizontalHeaderItem(column_number_value)->text(), -50)
             .arg(ui->tableWidget->horizontalHeaderItem(column_number_changes)->text(), -10);
@@ -313,7 +313,7 @@ void BluetoothDeviceDialog::on_actionCopy_All_triggered()
     for (int i_row = 0; i_row < ui->tableWidget->rowCount(); i_row += 1) {
         for (int i_column = 0; i_column < ui->tableWidget->columnCount(); i_column += 1) {
 
-        copy += QString("%1  %2  %3\n")
+        copy += QStringLiteral("%1  %2  %3\n")
                 .arg(ui->tableWidget->verticalHeaderItem(i_row)->text(), -40)
                 .arg(ui->tableWidget->item(i_row, column_number_value)->text(), -50)
                 .arg(ui->tableWidget->item(i_row, column_number_changes)->text(), -10);
@@ -392,7 +392,7 @@ tap_packet_status BluetoothDeviceDialog::tapPacket(void *tapinfo_ptr, packet_inf
 
     if (tap_device->has_bd_addr) {
         for (int i = 0; i < 6; ++i) {
-            bd_addr += QString("%1:").arg(tap_device->bd_addr[i], 2, 16, QChar('0'));
+            bd_addr += QStringLiteral("%1:").arg(tap_device->bd_addr[i], 2, 16, QChar('0'));
         }
         bd_addr.chop(1); // remove extra character ":" from the end of the string
         if (!tap_device->is_local && bd_addr != tapinfo->bdAddr)
@@ -528,7 +528,7 @@ tap_packet_status BluetoothDeviceDialog::tapPacket(void *tapinfo_ptr, packet_inf
 
         break;
     case BLUETOOTH_DEVICE_VOICE_SETTING:
-        field = QString("%1").arg(tap_device->data.voice_setting, 4, 16, QChar('0'));
+        field = QStringLiteral("%1").arg(tap_device->data.voice_setting, 4, 16, QChar('0'));
         item = tableWidget->item(row_number_voice_setting, column_number_value);
         saveItemData(item, tap_device, pinfo);
         updateChanges(tableWidget, field, row_number_voice_setting, tapinfo->changes, pinfo);
@@ -536,7 +536,7 @@ tap_packet_status BluetoothDeviceDialog::tapPacket(void *tapinfo_ptr, packet_inf
 
         break;
     case BLUETOOTH_DEVICE_CLASS_OF_DEVICE:
-        field = QString("%1").arg(tap_device->data.class_of_device, 6, 16, QChar('0'));
+        field = QStringLiteral("%1").arg(tap_device->data.class_of_device, 6, 16, QChar('0'));
         item = tableWidget->item(row_number_class_of_device, column_number_value);
         saveItemData(item, tap_device, pinfo);
         updateChanges(tableWidget, field, row_number_class_of_device, tapinfo->changes, pinfo);

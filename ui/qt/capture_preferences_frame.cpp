@@ -111,7 +111,7 @@ void CapturePreferencesFrame::updateWidgets()
         // This also means that the capture.device
         QString item_text = device->display_name;
         if (!item_text.contains(device->name)) {
-            item_text.append(QString(" (%1)").arg(device->name));
+            item_text.append(QStringLiteral(" (%1)").arg(device->name));
         }
         ui->defaultInterfaceComboBox->addItem(item_text);
     }

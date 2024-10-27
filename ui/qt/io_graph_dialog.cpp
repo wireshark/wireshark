@@ -1136,7 +1136,7 @@ void IOGraphDialog::updateHint()
     // XXX: ElidedLabel doesn't support rich text / HTML, we
     // used to bold this error
     if (!hint_err_.isEmpty()) {
-        hint += QString("%1 ").arg(hint_err_);
+        hint += QStringLiteral("%1 ").arg(hint_err_);
     }
     if (mouse_drags_) {
         double ts = 0;
@@ -1158,11 +1158,11 @@ void IOGraphDialog::updateHint()
             if (interval_packet > 0) {
                 packet_num_ = (uint32_t) interval_packet;
                 if (is_packet_configuration_namespace()) {
-                    msg = QString("%1 %2")
+                    msg = QStringLiteral("%1 %2")
                             .arg(!file_closed_ ? tr("Click to select packet") : tr("Packet"))
                             .arg(packet_num_);
                 } else {
-                    msg = QString("%1 %2")
+                    msg = QStringLiteral("%1 %2")
                             .arg(!file_closed_ ? tr("Click to select event") : tr("Event"))
                             .arg(packet_num_);
                 }
@@ -2077,7 +2077,7 @@ void IOGraphDialog::on_buttonBox_accepted()
     // Gaze upon my beautiful graph with lossy artifacts!
     QString jpeg_filter = tr("JPEG File Interchange Format (*.jpeg *.jpg)");
     QString csv_filter = tr("Comma Separated Values (*.csv)");
-    QString filter = QString("%1;;%2;;%3;;%4;;%5")
+    QString filter = QStringLiteral("%1;;%2;;%3;;%4;;%5")
             .arg(pdf_filter)
             .arg(png_filter)
             .arg(bmp_filter)
@@ -2086,7 +2086,7 @@ void IOGraphDialog::on_buttonBox_accepted()
 
     QString save_file = path.canonicalPath();
     if (!file_closed_) {
-        save_file += QString("/%1").arg(cap_file_.fileBaseName());
+        save_file += QStringLiteral("/%1").arg(cap_file_.fileBaseName());
     }
     file_name = WiresharkFileDialog::getSaveFileName(this, mainApp->windowTitleString(tr("Save Graph As…")),
                                              save_file, filter, &extension);
@@ -2156,7 +2156,7 @@ void IOGraphDialog::makeCsv(QTextStream &stream) const
                 max_interval = ioGraphs_[row]->maxInterval();
             }
             QString name = ioGraphs_[row]->name().toUtf8();
-            name = QString("\"%1\"").arg(name.replace("\"", "\"\""));  // RFC 4180
+            name = QStringLiteral("\"%1\"").arg(name.replace("\"", "\"\""));  // RFC 4180
             stream << "," << name;
         }
     }
@@ -2312,7 +2312,7 @@ bool IOGraph::setFilter(const QString &filter)
         if (full_filter.isEmpty()) {
             full_filter = vu_field_;
         } else {
-            full_filter += QString(" && (%1)").arg(vu_field_);
+            full_filter += QStringLiteral(" && (%1)").arg(vu_field_);
         }
     }
 

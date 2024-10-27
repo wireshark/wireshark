@@ -664,7 +664,7 @@ QAudio::State RtpAudioStream::outputState() const
 
 const QString RtpAudioStream::formatDescription(const QAudioFormat &format)
 {
-    QString fmt_descr = QString("%1 Hz, ").arg(format.sampleRate());
+    QString fmt_descr = QStringLiteral("%1 Hz, ").arg(format.sampleRate());
 #if (QT_VERSION >= QT_VERSION_CHECK(6, 0, 0))
     switch (format.sampleFormat()) {
     case QAudioFormat::UInt8:
@@ -711,12 +711,12 @@ QString RtpAudioStream::getIDAsQString()
 {
     char *src_addr_str = address_to_display(NULL, &id_.src_addr);
     char *dst_addr_str = address_to_display(NULL, &id_.dst_addr);
-    QString str = QString("%1:%2 - %3:%4 %5")
+    QString str = QStringLiteral("%1:%2 - %3:%4 %5")
         .arg(src_addr_str)
         .arg(id_.src_port)
         .arg(dst_addr_str)
         .arg(id_.dst_port)
-        .arg(QString("0x%1").arg(id_.ssrc, 0, 16));
+        .arg(QStringLiteral("0x%1").arg(id_.ssrc, 0, 16));
     wmem_free(NULL, src_addr_str);
     wmem_free(NULL, dst_addr_str);
 

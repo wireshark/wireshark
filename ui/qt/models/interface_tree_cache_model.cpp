@@ -224,7 +224,7 @@ void InterfaceTreeCacheModel::save()
 
         content = getColumnContent(idx, IFTREE_COL_COMMENT);
         if (content.isValid() && content.toString().size() > 0)
-            prefStorage[&prefs.capture_devices_descr] << QString("%1(%2)").arg(device->name).arg(content.toString());
+            prefStorage[&prefs.capture_devices_descr] << QStringLiteral("%1(%2)").arg(device->name).arg(content.toString());
 
         bool allowExtendedColumns = true;
 
@@ -237,7 +237,7 @@ void InterfaceTreeCacheModel::save()
             if (content.isValid())
             {
                 bool value = static_cast<Qt::CheckState>(content.toInt()) == Qt::Checked;
-                prefStorage[&prefs.capture_devices_pmode]  << QString("%1(%2)").arg(device->name).arg(value ? 1 : 0);
+                prefStorage[&prefs.capture_devices_pmode]  << QStringLiteral("%1(%2)").arg(device->name).arg(value ? 1 : 0);
             }
 
 #ifdef HAVE_PCAP_CREATE
@@ -251,7 +251,7 @@ void InterfaceTreeCacheModel::save()
             {
                 int value = content.toInt();
                 prefStorage[&prefs.capture_devices_snaplen]  <<
-                        QString("%1:%2(%3)").arg(device->name).
+                        QStringLiteral("%1:%2(%3)").arg(device->name).
                         arg(device->has_snaplen ? 1 : 0).
                         arg(device->has_snaplen ? value : WTAP_MAX_PACKET_SIZE_STANDARD);
             }
@@ -264,7 +264,7 @@ void InterfaceTreeCacheModel::save()
                 if (value != -1)
                 {
                     prefStorage[&prefs.capture_devices_buffersize]  <<
-                            QString("%1(%2)").arg(device->name).
+                            QStringLiteral("%1(%2)").arg(device->name).
                             arg(value);
                 }
             }

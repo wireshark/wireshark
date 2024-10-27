@@ -24,7 +24,7 @@ ExportObjectAction::ExportObjectAction(QObject *parent, register_eo_t *eo) :
     eo_(eo)
 {
     if (eo_) {
-          setText(QString("%1%2").arg(proto_get_protocol_short_name(find_protocol_by_id(get_eo_proto_id(eo)))).arg(UTF8_HORIZONTAL_ELLIPSIS));
+          setText(QStringLiteral("%1%2").arg(proto_get_protocol_short_name(find_protocol_by_id(get_eo_proto_id(eo)))).arg(UTF8_HORIZONTAL_ELLIPSIS));
     }
 }
 

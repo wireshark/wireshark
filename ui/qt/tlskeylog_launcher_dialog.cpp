@@ -158,7 +158,7 @@ void TLSKeylogDialog::on_browseProgramPath()
 #ifdef Q_OS_MAC
     if (file_name.endsWith(".app")) {
         QString base_name = QFileInfo(file_name).baseName();
-        QString bundle_exe_name = QString("%1/Contents/MacOS/%2").arg(file_name, base_name);
+        QString bundle_exe_name = QStringLiteral("%1/Contents/MacOS/%2").arg(file_name, base_name);
         if (QFile::exists(bundle_exe_name)) {
             file_name = bundle_exe_name;
         }
@@ -167,7 +167,7 @@ void TLSKeylogDialog::on_browseProgramPath()
     // If the program contains spaces, quote it to ensure it is not broken up
     // into multiple arguments.
     if (file_name.contains(" ")) {
-        file_name = QString("\"%1\"").arg(file_name);
+        file_name = QStringLiteral("\"%1\"").arg(file_name);
     }
     ui->commandLineEdit->setText(file_name);
 }

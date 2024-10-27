@@ -164,7 +164,7 @@ QString CaptureFilePropertiesDialog::summaryToHtml()
     QString format_str = wtap_file_type_subtype_description(summary.file_type);
     const char *compression_type_description = wtap_compression_type_description(summary.compression_type);
     if (compression_type_description != nullptr) {
-        format_str += QString(" (%1)").arg(compression_type_description);
+        format_str += QStringLiteral(" (%1)").arg(compression_type_description);
     }
     out << table_row_begin
         << table_vheader_tmpl.arg(tr("Format"))
@@ -229,10 +229,10 @@ QString CaptureFilePropertiesDialog::summaryToHtml()
             unsigned int elapsed_time = (unsigned int)summary.elapsed_time;
             if (elapsed_time/86400)
             {
-                elapsed_str = QString("%1 days ").arg(elapsed_time / 86400);
+                elapsed_str = QStringLiteral("%1 days ").arg(elapsed_time / 86400);
             }
 
-            elapsed_str += QString("%1:%2:%3")
+            elapsed_str += QStringLiteral("%1:%2:%3")
                     .arg(elapsed_time % 86400 / 3600, 2, 10, QChar('0'))
                     .arg(elapsed_time % 3600 / 60, 2, 10, QChar('0'))
                     .arg(elapsed_time % 60, 2, 10, QChar('0'));
@@ -340,7 +340,7 @@ QString CaptureFilePropertiesDialog::summaryToHtml()
             /* Dropped count */
             QString interface_drops(unknown);
             if (iface.drops_known) {
-                interface_drops = QString("%1 (%2%)").arg(iface.drops).arg(QString::number(
+                interface_drops = QStringLiteral("%1 (%2%)").arg(iface.drops).arg(QString::number(
                     /* MSVC cannot convert from unsigned __int64 to float, so first convert to signed __int64 */
                     summary.packet_count ? (100.0 * (int64_t)iface.drops)/summary.packet_count : 0, 'f', 1));
             }
@@ -435,12 +435,12 @@ QString CaptureFilePropertiesDialog::summaryToHtml()
     // Packets
     displayed_str = marked_str = n_a;
     if (summary.filtered_count > 0 && summary.packet_count > 0) {
-            displayed_str = QString("%1 (%2%)")
+            displayed_str = QStringLiteral("%1 (%2%)")
             .arg(summary.filtered_count)
             .arg(100.0 * summary.filtered_count / summary.packet_count, 1, 'f', 1);
     }
     if (summary.packet_count > 0 && summary.marked_count > 0) {
-            marked_str = QString("%1 (%2%)")
+            marked_str = QStringLiteral("%1 (%2%)")
             .arg(summary.marked_count)
             .arg(100.0 * summary.marked_count / summary.packet_count, 1, 'f', 1);
     }
@@ -459,13 +459,13 @@ QString CaptureFilePropertiesDialog::summaryToHtml()
     // Time between first and last
     captured_str = displayed_str = marked_str = n_a;
     if (seconds > 0) {
-            captured_str = QString("%1").arg(seconds, 1, 'f', 3);
+            captured_str = QStringLiteral("%1").arg(seconds, 1, 'f', 3);
     }
     if (disp_seconds > 0) {
-            displayed_str = QString("%1").arg(disp_seconds, 1, 'f', 3);
+            displayed_str = QStringLiteral("%1").arg(disp_seconds, 1, 'f', 3);
     }
     if (marked_seconds > 0) {
-            marked_str = QString("%1").arg(marked_seconds, 1, 'f', 3);
+            marked_str = QStringLiteral("%1").arg(marked_seconds, 1, 'f', 3);
     }
     out << table_row_begin
         << table_data_tmpl.arg(tr("Time span, s"))
@@ -477,13 +477,13 @@ QString CaptureFilePropertiesDialog::summaryToHtml()
     // Average packets per second
     captured_str = displayed_str = marked_str = n_a;
     if (seconds > 0) {
-            captured_str = QString("%1").arg(summary.packet_count/seconds, 1, 'f', 1);
+            captured_str = QStringLiteral("%1").arg(summary.packet_count/seconds, 1, 'f', 1);
     }
     if (disp_seconds > 0) {
-            displayed_str = QString("%1").arg(summary.filtered_count/disp_seconds, 1, 'f', 1);
+            displayed_str = QStringLiteral("%1").arg(summary.filtered_count/disp_seconds, 1, 'f', 1);
     }
     if (marked_seconds > 0) {
-            marked_str = QString("%1").arg(summary.marked_count/marked_seconds, 1, 'f', 1);
+            marked_str = QStringLiteral("%1").arg(summary.marked_count/marked_seconds, 1, 'f', 1);
     }
     out << table_row_begin
         << table_data_tmpl.arg(tr("Average pps"))
@@ -517,12 +517,12 @@ QString CaptureFilePropertiesDialog::summaryToHtml()
     // Byte count
     displayed_str = marked_str = "0";
     if (summary.bytes > 0 && summary.filtered_bytes > 0) {
-        displayed_str = QString("%1 (%2%)")
+        displayed_str = QStringLiteral("%1 (%2%)")
                 .arg(summary.filtered_bytes)
                 .arg(100.0 * summary.filtered_bytes / summary.bytes, 1, 'f', 1);
     }
     if (summary.bytes > 0 && summary.marked_bytes > 0) {
-        marked_str = QString("%1 (%2%)")
+        marked_str = QStringLiteral("%1 (%2%)")
                 .arg(summary.marked_bytes)
                 .arg(100.0 * summary.marked_bytes / summary.bytes, 1, 'f', 1);
     }

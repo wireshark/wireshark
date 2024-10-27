@@ -135,7 +135,7 @@ void EndpointDialog::tabChanged(int idx)
             }
 
             QString protoname = proto_get_protocol_short_name(find_protocol_by_id(current_tab_data.protoId()));
-            if(is_pref_set && protoname.toUtf8().data()== QString("IPv4")) {
+            if(is_pref_set && protoname.toUtf8().data()== QStringLiteral("IPv4")) {
                 aggregated_ck_ ->setEnabled(true);
             }
             else {

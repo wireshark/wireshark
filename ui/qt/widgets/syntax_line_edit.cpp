@@ -151,7 +151,7 @@ QString SyntaxLineEdit::createSyntaxErrorMessageFull(
 
     if (loc_start >= 0 && loc_length >= 1) {
         // Add underlined location
-        msg = QString("<p>%1<pre>  %2\n  %3^%4</pre></p>")
+        msg = QStringLiteral("<p>%1<pre>  %2\n  %3^%4</pre></p>")
             .arg(msg)
             .arg(filter)
             .arg(QString(' ').repeated(static_cast<int>(loc_start)))

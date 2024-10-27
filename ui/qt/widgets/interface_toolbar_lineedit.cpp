@@ -114,7 +114,7 @@ void InterfaceToolbarLineEdit::updateStyleSheet(bool is_valid)
             "  border: 1px solid palette(%1);"
             "  border-radius: 3px;"
             "}"
-            ).arg(ColorUtils::themeIsDark() ? QString("light") : QString("dark"));
+            ).arg(ColorUtils::themeIsDark() ? QStringLiteral("light") : QStringLiteral("dark"));
 #endif
 
     setStyleSheet(style_sheet);

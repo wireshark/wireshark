@@ -115,7 +115,7 @@ QMenu * IOGraphAction::createMenu(const FieldInformation::HeaderInfo& headerinfo
     QMenu * submenu = new QMenu(title, parent);
 
     int one_em = submenu->fontMetrics().height();
-    QString prep_text = QString("%1: %2").arg(title).arg(headerinfo.abbreviation);
+    QString prep_text = QStringLiteral("%1: %2").arg(title).arg(headerinfo.abbreviation);
     prep_text = submenu->fontMetrics().elidedText(prep_text, Qt::ElideRight, one_em * 40);
     QAction * comment = submenu->addAction(prep_text);
     comment->setEnabled(false);

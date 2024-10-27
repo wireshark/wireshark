@@ -42,35 +42,35 @@ fill_named_table(void *key, void *value _U_, void *user_data)
             QString title;
             switch (cur_el->type) {
             case CE_ADDRESS:
-                title = QString("Address %1").arg(addr_count++);
+                title = QStringLiteral("Address %1").arg(addr_count++);
                 break;
             case CE_PORT:
-                title = QString("Port %1").arg(port_count++);
+                title = QStringLiteral("Port %1").arg(port_count++);
                 break;
             case CE_STRING:
-                title = QString("String %1").arg(string_count++);
+                title = QStringLiteral("String %1").arg(string_count++);
                 break;
             case CE_UINT:
-                title = QString("UInt %1").arg(uint_count++);
+                title = QStringLiteral("UInt %1").arg(uint_count++);
                 break;
             case CE_UINT64:
-                title = QString("UInt64 %1").arg(uint64_count++);
+                title = QStringLiteral("UInt64 %1").arg(uint64_count++);
                 break;
             case CE_INT:
-                title = QString("Int %1").arg(int_count++);
+                title = QStringLiteral("Int %1").arg(int_count++);
                 break;
             case CE_INT64:
-                title = QString("Int64 %1").arg(int64_count++);
+                title = QStringLiteral("Int64 %1").arg(int64_count++);
                 break;
             case CE_BLOB:
-                title = QString("Blob %1").arg(blob_count++);
+                title = QStringLiteral("Blob %1").arg(blob_count++);
                 break;
             case CE_CONVERSATION_TYPE:
-                html_table->append(QString("<th>Endpoint</th>"));
+                html_table->append(QStringLiteral("<th>Endpoint</th>"));
                 goto title_done;
                 break;
             }
-            html_table->append(QString("<th>%1</th>").arg(title));
+            html_table->append(QStringLiteral("<th>%1</th>").arg(title));
         }
 title_done:
         html_table->append("</tr>\n");
@@ -106,11 +106,11 @@ title_done:
             val = QString(QByteArray::fromRawData((const char *)cur_el->blob.val, (int)cur_el->blob.len).toHex());
             break;
         case CE_CONVERSATION_TYPE:
-            html_table->append(QString("<td>%1</td>").arg(QString::number(cur_el->conversation_type_val)));
+            html_table->append(QStringLiteral("<td>%1</td>").arg(QString::number(cur_el->conversation_type_val)));
             goto val_done;
             break;
         }
-        html_table->append(QString("<td>%1</td>").arg(val));
+        html_table->append(QStringLiteral("<td>%1</td>").arg(val));
     }
 val_done:
 
@@ -138,11 +138,11 @@ ConversationHashTablesDialog::ConversationHashTablesDialog(QWidget *parent) :
         wmem_map_t *table = static_cast<wmem_map_t *>(wmem_map_lookup(conversation_tables, table_name));
 
         if (!table) {
-            html += QString("<h3>%1, Error: table not found</h3>\n").arg(table_name);
+            html += QStringLiteral("<h3>%1, Error: table not found</h3>\n").arg(table_name);
             continue;
         }
 
-        html += QString("<h3>%1, %2 entries</h3>\n").arg(table_name).arg(wmem_map_size(table));
+        html += QStringLiteral("<h3>%1, %2 entries</h3>\n").arg(table_name).arg(wmem_map_size(table));
         QString html_table;
         html += "<table>\n";
         wmem_map_foreach(table, fill_named_table, &html_table);

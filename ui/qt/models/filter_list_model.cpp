@@ -193,7 +193,7 @@ QModelIndex FilterListModel::addFilter(QString name, QString expression)
         return QModelIndex();
 
     beginInsertRows(QModelIndex(), rowCount(), rowCount());
-    storage << QString("%1\n%2").arg(name).arg(expression);
+    storage << QStringLiteral("%1\n%2").arg(name).arg(expression);
     endInsertRows();
 
     return index(rowCount() - 1, 0);
@@ -206,7 +206,7 @@ QModelIndex FilterListModel::findByName(QString name)
 
     for (int cnt = 0; cnt < rowCount(); cnt++)
     {
-        if (storage.at(cnt).startsWith(QString("%1\n").arg(name)))
+        if (storage.at(cnt).startsWith(QStringLiteral("%1\n").arg(name)))
             return index(cnt, 0);
     }
 
@@ -220,7 +220,7 @@ QModelIndex FilterListModel::findByExpression(QString expression)
 
     for (int cnt = 0; cnt < rowCount(); cnt++)
     {
-        if (storage.at(cnt).endsWith(QString("\n%1").arg(expression)))
+        if (storage.at(cnt).endsWith(QStringLiteral("\n%1").arg(expression)))
             return index(cnt, 0);
     }
 
@@ -249,7 +249,7 @@ void FilterListModel::saveList()
         default: ws_assert_not_reached();
     }
 
-    filename = QString("%1%2%3").arg(ProfileModel::activeProfilePath()).arg("/").arg(cfile);
+    filename = QStringLiteral("%1%2%3").arg(ProfileModel::activeProfilePath()).arg("/").arg(cfile);
     QFile file(filename);
 
     if (! file.open(QIODevice::WriteOnly | QIODevice::Text))
@@ -258,8 +258,8 @@ void FilterListModel::saveList()
     QTextStream out(&file);
     for (int row = 0; row < rowCount(); row++)
     {
-        QString line = QString("\"%1\"").arg(index(row, ColumnName).data().toString().trimmed());
-        line.append(QString(" %1").arg(index(row, ColumnExpression).data().toString()));
+        QString line = QStringLiteral("\"%1\"").arg(index(row, ColumnName).data().toString().trimmed());
+        line.append(QStringLiteral(" %1").arg(index(row, ColumnExpression).data().toString()));
 
         out << line << Qt::endl;
     }

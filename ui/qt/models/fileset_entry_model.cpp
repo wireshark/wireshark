@@ -144,7 +144,7 @@ QString FilesetEntryModel::time_tToString(time_t clock) const
     // yyyy-MM-dd HH:mm:ss
     // The equivalent QDateTime call is pretty slow here, possibly related to QTBUG-21678
     // and/or QTBUG-41714.
-    return QString("%1-%2-%3 %4:%5:%6")
+    return QStringLiteral("%1-%2-%3 %4:%5:%6")
             .arg(local->tm_year + 1900, 4, 10, QChar('0'))
             .arg(local->tm_mon+1, 2, 10, QChar('0'))
             .arg(local->tm_mday, 2, 10, QChar('0'))

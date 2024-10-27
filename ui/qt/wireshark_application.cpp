@@ -31,9 +31,9 @@ void WiresharkApplication::initializeIcons()
     // MimeDatabaseInitThread to do its work.
     QList<int> icon_sizes = QList<int>() << 16 << 24 << 32 << 48 << 64 << 128 << 256 << 512 << 1024;
     foreach (int icon_size, icon_sizes) {
-        QString icon_path = QString(":/wsicon/wsicon%1.png").arg(icon_size);
+        QString icon_path = QStringLiteral(":/wsicon/wsicon%1.png").arg(icon_size);
         normal_icon_.addFile(icon_path);
-        icon_path = QString(":/wsicon/wsiconcap%1.png").arg(icon_size);
+        icon_path = QStringLiteral(":/wsicon/wsiconcap%1.png").arg(icon_size);
         capture_icon_.addFile(icon_path);
     }
 }

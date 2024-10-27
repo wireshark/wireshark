@@ -232,10 +232,10 @@ bool WiresharkMainWindow::openCaptureFile(QString cf_path, QString read_filter, 
                selection box again once they dismiss the alert. */
                //bad_dfilter_alert_box(top_level, read_filter->str);
             QMessageBox::warning(this, tr("Invalid Display Filter"),
-                    QString("The filter expression ") +
+                    QStringLiteral("The filter expression ") +
                     read_filter +
-                    QString(" isn't a valid display filter. (") +
-                    df_err->msg + QString(")."),
+                    QStringLiteral(" isn't a valid display filter. (") +
+                    df_err->msg + QStringLiteral(")."),
                     QMessageBox::Ok);
             df_error_free(&df_err);
             if (!name_param) {
@@ -506,7 +506,7 @@ void WiresharkMainWindow::queuedFilterAction(QString action_filter, FilterAction
         break;
     case FilterAction::ActionWebLookup:
     {
-        QString url = QString("https://www.google.com/search?q=") + new_filter;
+        QString url = QStringLiteral("https://www.google.com/search?q=") + new_filter;
         QDesktopServices::openUrl(QUrl(url));
         break;
     }
@@ -998,8 +998,8 @@ void WiresharkMainWindow::pushLiveCaptureInProgress() {
     g_string_append(interface_names, " ");
 
     mainApp->popStatus(WiresharkApplication::FileStatus);
-    QString msg = QString("%1<live capture in progress>").arg(interface_names->str);
-    QString msgtip = QString("to file: ");
+    QString msg = QStringLiteral("%1<live capture in progress>").arg(interface_names->str);
+    QString msgtip = QStringLiteral("to file: ");
     if (capture_opts->save_file)
         msgtip += capture_opts->save_file;
     mainApp->pushStatus(WiresharkApplication::FileStatus, msg, msgtip);
@@ -1795,7 +1795,7 @@ void WiresharkMainWindow::onFilterEdit(int uatIndex)
 
 void WiresharkMainWindow::openStatCommandDialog(const QString &menu_path, const char *arg, void *userdata)
 {
-    QString slot = QString("statCommand%1").arg(menu_path);
+    QString slot = QStringLiteral("statCommand%1").arg(menu_path);
     QMetaObject::invokeMethod(this, slot.toLatin1().constData(), Q_ARG(const char *, arg), Q_ARG(void *, userdata));
 }
 
@@ -3431,7 +3431,7 @@ void WiresharkMainWindow::on_actionSCTPFilterThisAssociation_triggered()
 {
     const sctp_assoc_info_t* assoc = SCTPAssocAnalyseDialog::findAssocForPacket(capture_file_.capFile());
     if (assoc) {
-        QString newFilter = QString("sctp.assoc_index==%1").arg(assoc->assoc_id);
+        QString newFilter = QStringLiteral("sctp.assoc_index==%1").arg(assoc->assoc_id);
         assoc = NULL;
         emit filterPackets(newFilter, false);
     }

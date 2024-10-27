@@ -199,10 +199,10 @@ bool StratosharkMainWindow::openCaptureFile(QString cf_path, QString read_filter
                selection box again once they dismiss the alert. */
                //bad_dfilter_alert_box(top_level, read_filter->str);
             QMessageBox::warning(this, tr("Invalid Display Filter"),
-                    QString("The filter expression ") +
+                    QStringLiteral("The filter expression ") +
                     read_filter +
-                    QString(" isn't a valid display filter. (") +
-                    df_err->msg + QString(")."),
+                    QStringLiteral(" isn't a valid display filter. (") +
+                    df_err->msg + QStringLiteral(")."),
                     QMessageBox::Ok);
             df_error_free(&df_err);
 
@@ -468,7 +468,7 @@ void StratosharkMainWindow::queuedFilterAction(QString action_filter, FilterActi
         break;
     case FilterAction::ActionWebLookup:
     {
-        QString url = QString("https://www.google.com/search?q=") + new_filter;
+        QString url = QStringLiteral("https://www.google.com/search?q=") + new_filter;
         QDesktopServices::openUrl(QUrl(url));
         break;
     }
@@ -929,8 +929,8 @@ void StratosharkMainWindow::pushLiveCaptureInProgress() {
     g_string_append(interface_names, " ");
 
     mainApp->popStatus(WiresharkApplication::FileStatus);
-    QString msg = QString("%1<live capture in progress>").arg(interface_names->str);
-    QString msgtip = QString("to file: ");
+    QString msg = QStringLiteral("%1<live capture in progress>").arg(interface_names->str);
+    QString msgtip = QStringLiteral("to file: ");
     if (capture_opts->save_file)
         msgtip += capture_opts->save_file;
     mainApp->pushStatus(WiresharkApplication::FileStatus, msg, msgtip);
@@ -1687,7 +1687,7 @@ void StratosharkMainWindow::onFilterEdit(int uatIndex)
 
 void StratosharkMainWindow::openStatCommandDialog(const QString &menu_path, const char *arg, void *userdata)
 {
-    QString slot = QString("statCommand%1").arg(menu_path);
+    QString slot = QStringLiteral("statCommand%1").arg(menu_path);
     QMetaObject::invokeMethod(this, slot.toLatin1().constData(), Q_ARG(const char *, arg), Q_ARG(void *, userdata));
 }
 

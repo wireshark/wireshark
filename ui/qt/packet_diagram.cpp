@@ -169,7 +169,7 @@ public:
         updateLayout();
 
         if (finfo_->isValid()) {
-            setToolTip(QString("%1 (%2) = %3")
+            setToolTip(QStringLiteral("%1 (%2) = %3")
                        .arg(finfo_->headerInfo().name)
                        .arg(finfo_->headerInfo().abbreviation)
                        .arg(finfo_->toString()));

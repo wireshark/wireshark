@@ -359,7 +359,7 @@ AboutDialog::AboutDialog(QWidget *parent) :
     ui->tblPlugins->setModel(pluginTypeModel);
     ui->tblPlugins->setRootIsDecorated(false);
     UrlLinkDelegate *plugin_delegate = new UrlLinkDelegate(this);
-    script_pattern = QString("\\.(lua|py)$");
+    script_pattern = QStringLiteral("\\.(lua|py)$");
     plugin_delegate->setColCheck(3, script_pattern);
     ui->tblPlugins->setItemDelegateForColumn(3, plugin_delegate);
     ui->cmbType->addItems(pluginModel->typeNames());

@@ -106,10 +106,10 @@ public:
         setText(src_port_col_, QString::number(calc.src_port));
         setText(dst_addr_col_, calc.dst_addr_str);
         setText(dst_port_col_, QString::number(calc.dst_port));
-        setText(ssrc_col_, QString("0x%1").arg(calc.ssrc, 0, 16));
+        setText(ssrc_col_, QStringLiteral("0x%1").arg(calc.ssrc, 0, 16));
         if (tod_) {
             QDateTime abs_dt = QDateTime::fromMSecsSinceEpoch(nstime_to_msec(&stream_info_->start_fd->abs_ts));
-            setText(start_time_col_, QString("%1")
+            setText(start_time_col_, QStringLiteral("%1")
                 .arg(abs_dt.toString("yyyy-MM-dd hh:mm:ss.zzz")));
         } else {
           setText(start_time_col_, QString::number(calc.start_time_ms, 'f', 6));
@@ -207,7 +207,7 @@ public:
             ret = calc.problem ? "Problem" : "";
             break;
         case ssrc_fmt_col_:
-            ret = QString("0x%1").arg(calc.ssrc, 0, 16);
+            ret = QStringLiteral("0x%1").arg(calc.ssrc, 0, 16);
             break;
         case lost_perc_col_:
             ret = QString::number(calc.lost_perc, 'f', prefs.gui_decimal_places1);
@@ -697,8 +697,8 @@ QList<QVariant> RtpStreamDialog::streamRowData(int row) const
 
     // Add additional columns to export
     if (row < 0) {
-        row_data << QString("SSRC formatted");
-        row_data << QString("Lost percentage");
+        row_data << QStringLiteral("SSRC formatted");
+        row_data << QStringLiteral("Lost percentage");
     } else {
         RtpStreamTreeWidgetItem *rsti = static_cast<RtpStreamTreeWidgetItem*>(ui->streamTreeWidget->topLevelItem(row));
         if (rsti) {
@@ -755,7 +755,7 @@ void RtpStreamDialog::on_actionCopyAsCsv_triggered()
             if (!v.isValid()) {
                 rdsl << "\"\"";
             } else if (v.userType() == QMetaType::QString) {
-                rdsl << QString("\"%1\"").arg(v.toString());
+                rdsl << QStringLiteral("\"%1\"").arg(v.toString());
             } else {
                 rdsl << v.toString();
             }

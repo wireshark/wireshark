@@ -222,7 +222,7 @@ void InterfaceSortFilterModel::setInterfaceTypeVisible(int ifType, bool visible)
         QList<int>::const_iterator it = displayHiddenTypes.constBegin();
         while (it != displayHiddenTypes.constEnd())
         {
-            new_pref.append(QString("%1,").arg(*it));
+            new_pref.append(QStringLiteral("%1,").arg(*it));
             ++it;
         }
         if (new_pref.length() > 0)

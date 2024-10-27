@@ -278,65 +278,65 @@ public:
         // Are we taking RLC PDUs from MAC, or not?
         if (!recent.gui_rlc_use_pdus_from_mac) {
             if (rat_ == RLC_RAT_LTE) {
-                filter_expr += QString("not mac-lte and ");
+                filter_expr += QStringLiteral("not mac-lte and ");
             }
             else {
-                filter_expr += QString("not mac-nr and ");
+                filter_expr += QStringLiteral("not mac-nr and ");
             }
         }
         else {
             if (rat_ == RLC_RAT_LTE) {
-                filter_expr += QString("mac-lte and ");
+                filter_expr += QStringLiteral("mac-lte and ");
             }
             else {
-                filter_expr += QString("mac-nr and ");
+                filter_expr += QStringLiteral("mac-nr and ");
             }
         }
 
         if (showSR) {
             if (rat_ == RLC_RAT_LTE) {
-                filter_expr += QString("(mac-lte.sr-req and mac-lte.ueid == %1) or (").arg(ueid_);
+                filter_expr += QStringLiteral("(mac-lte.sr-req and mac-lte.ueid == %1) or (").arg(ueid_);
             }
         }
 
         if (showRACH) {
             if (rat_ == RLC_RAT_LTE) {
-                filter_expr += QString("(mac-lte.rar or (mac-lte.preamble-sent and mac-lte.ueid == %1)) or (").arg(ueid_);
+                filter_expr += QStringLiteral("(mac-lte.rar or (mac-lte.preamble-sent and mac-lte.ueid == %1)) or (").arg(ueid_);
             }
             else {
-                filter_expr += QString("(mac-nr.rar or ");
+                filter_expr += QStringLiteral("(mac-nr.rar or ");
             }
         }
 
         // Main part of expression.
         if (rat_ == RLC_RAT_LTE) {
-            filter_expr += QString("rlc-lte.ueid==%1 and rlc-lte.channel-type == %2").
+            filter_expr += QStringLiteral("rlc-lte.ueid==%1 and rlc-lte.channel-type == %2").
                                       arg(ueid_).arg(channelType_);
         }
         else {
-            filter_expr += QString("rlc-nr.ueid==%1 and rlc-nr.bearer-type == %2").
+            filter_expr += QStringLiteral("rlc-nr.ueid==%1 and rlc-nr.bearer-type == %2").
                                       arg(ueid_).arg(channelType_);
         }
         // Channel/bearer Id
         if ((channelType_ == CHANNEL_TYPE_SRB) || (channelType_ == CHANNEL_TYPE_DRB)) {
             if (rat_ == RLC_RAT_LTE) {
-                filter_expr += QString(" and rlc-lte.channel-id == %1").arg(channelId_);
+                filter_expr += QStringLiteral(" and rlc-lte.channel-id == %1").arg(channelId_);
             }
             else {
-                filter_expr += QString(" and rlc-nr.bearer-id == %1").arg(channelId_);
+                filter_expr += QStringLiteral(" and rlc-nr.bearer-id == %1").arg(channelId_);
             }
         }
 
         // Close () if open because of SR
         if (showSR) {
             if (rat_ == RLC_RAT_LTE) {
-                filter_expr += QString(")");
+                filter_expr += QStringLiteral(")");
             }
         }
         // Close () if open because of RACH
         if (showRACH) {
             if (rat_ == RLC_RAT_LTE) {
-                filter_expr += QString(")");
+                filter_expr += QStringLiteral(")");
             }
         }
 
@@ -553,7 +553,7 @@ public:
                                     &stats_.DL_time_stop,
                                     stats_.DL_total_bytes);
 
-        setText(col_rat_,    (rat_ == RLC_RAT_LTE) ? QString("LTE") : QString("NR"));
+        setText(col_rat_,    (rat_ == RLC_RAT_LTE) ? QStringLiteral("LTE") : QStringLiteral("NR"));
 
         // Uplink.
         setText(col_ul_frames_,  QString::number(stats_.UL_frames));
@@ -611,54 +611,54 @@ public:
         // Are we taking RLC PDUs from MAC, or not?
         if (!recent.gui_rlc_use_pdus_from_mac) {
             if (rat_ == RLC_RAT_LTE) {
-                filter_expr += QString("not mac-lte and ");
+                filter_expr += QStringLiteral("not mac-lte and ");
             }
             else {
-                filter_expr += QString("not mac-nr and ");
+                filter_expr += QStringLiteral("not mac-nr and ");
             }
         }
         else {
             if (rat_ == RLC_RAT_LTE) {
-                filter_expr += QString("mac-lte and ");
+                filter_expr += QStringLiteral("mac-lte and ");
             }
             else {
-                filter_expr += QString("mac-nr and ");
+                filter_expr += QStringLiteral("mac-nr and ");
             }
         }
 
         if (showSR) {
             if (rat_ == RLC_RAT_LTE) {
-                filter_expr += QString("(mac-lte.sr-req and mac-lte.ueid == %1) or (").arg(ueid_);
+                filter_expr += QStringLiteral("(mac-lte.sr-req and mac-lte.ueid == %1) or (").arg(ueid_);
             }
         }
 
         if (showRACH) {
             if (rat_ == RLC_RAT_LTE) {
-                filter_expr += QString("(mac-lte.rar or (mac-lte.preamble-sent and mac-lte.ueid == %1)) or (").arg(ueid_);
+                filter_expr += QStringLiteral("(mac-lte.rar or (mac-lte.preamble-sent and mac-lte.ueid == %1)) or (").arg(ueid_);
             }
             else {
-                filter_expr += QString("mac-nr.rar or ");
+                filter_expr += QStringLiteral("mac-nr.rar or ");
             }
         }
 
         // Must match UE
         if (rat_ == RLC_RAT_LTE) {
-            filter_expr += QString("rlc-lte.ueid==%1").arg(ueid_);
+            filter_expr += QStringLiteral("rlc-lte.ueid==%1").arg(ueid_);
         }
         else {
-            filter_expr += QString("rlc-nr.ueid==%1").arg(ueid_);
+            filter_expr += QStringLiteral("rlc-nr.ueid==%1").arg(ueid_);
         }
 
         // Close () if open because of SR
         if (showSR) {
             if (rat_ == RLC_RAT_LTE) {
-                filter_expr += QString(")");
+                filter_expr += QStringLiteral(")");
             }
         }
         // Close () if open because of RACH
         if (showRACH) {
             if (rat_ == RLC_RAT_LTE) {
-                filter_expr += QString(")");
+                filter_expr += QStringLiteral(")");
             }
         }
 
@@ -738,11 +738,11 @@ LteRlcStatisticsDialog::LteRlcStatisticsDialog(QWidget &parent, CaptureFile &cf,
     filter_controls_grid->setColumnStretch(5, 1);
 
     // Add individual controls into the grid
-    launchULGraph_ = new QPushButton(QString("Launch UL Graph"));
+    launchULGraph_ = new QPushButton(QStringLiteral("Launch UL Graph"));
     launchULGraph_->setEnabled(false);
     filter_controls_grid->addWidget(launchULGraph_);
     connect(launchULGraph_, SIGNAL(clicked()), this, SLOT(launchULGraphButtonClicked()));
-    launchDLGraph_ = new QPushButton(QString("Launch DL Graph"));
+    launchDLGraph_ = new QPushButton(QStringLiteral("Launch DL Graph"));
     launchDLGraph_->setEnabled(false);
     filter_controls_grid->addWidget(launchDLGraph_);
     connect(launchDLGraph_, SIGNAL(clicked()), this, SLOT(launchDLGraphButtonClicked()));
@@ -910,7 +910,7 @@ void LteRlcStatisticsDialog::tapDraw(void *ws_dlg_ptr)
     }
 
     // Update title
-    ws_dlg->setWindowSubtitle(QString("LTE RLC Statistics (%1 UEs, %2 frames)").
+    ws_dlg->setWindowSubtitle(QStringLiteral("LTE RLC Statistics (%1 UEs, %2 frames)").
                                   arg(ws_dlg->statsTreeWidget()->topLevelItemCount()).arg(ws_dlg->getFrameCount()));
 }
 

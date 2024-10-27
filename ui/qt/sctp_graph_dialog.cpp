@@ -209,7 +209,7 @@ void SCTPGraphDialog::drawSACKGraph(const sctp_assoc_info_t* selected_assoc)
     // Add SACK graph
     if (xs.size() > 0) {
         QCPGraph *gr = ui->sctpPlot->addGraph();
-        gr->setName(QString("SACK"));
+        gr->setName(QStringLiteral("SACK"));
         myScatter.setPen(QPen(Qt::red));
         myScatter.setBrush(Qt::red);
         ui->sctpPlot->graph(graphcount)->setScatterStyle(myScatter);
@@ -222,7 +222,7 @@ void SCTPGraphDialog::drawSACKGraph(const sctp_assoc_info_t* selected_assoc)
     // Add Gap Acks
     if (xg.size() > 0) {
         QCPGraph *gr = ui->sctpPlot->addGraph();
-        gr->setName(QString("GAP"));
+        gr->setName(QStringLiteral("GAP"));
         myScatter.setPen(QPen(Qt::green));
         myScatter.setBrush(Qt::green);
         ui->sctpPlot->graph(graphcount)->setScatterStyle(myScatter);
@@ -235,7 +235,7 @@ void SCTPGraphDialog::drawSACKGraph(const sctp_assoc_info_t* selected_assoc)
     // Add NR Gap Acks
     if (xn.size() > 0) {
         QCPGraph *gr = ui->sctpPlot->addGraph();
-        gr->setName(QString("NR_GAP"));
+        gr->setName(QStringLiteral("NR_GAP"));
         myScatter.setPen(QPen(Qt::blue));
         myScatter.setBrush(Qt::blue);
         ui->sctpPlot->graph(graphcount)->setScatterStyle(myScatter);
@@ -248,7 +248,7 @@ void SCTPGraphDialog::drawSACKGraph(const sctp_assoc_info_t* selected_assoc)
     // Add Duplicates
     if (xd.size() > 0) {
         QCPGraph *gr = ui->sctpPlot->addGraph();
-        gr->setName(QString("DUP"));
+        gr->setName(QStringLiteral("DUP"));
         myScatter.setPen(QPen(Qt::cyan));
         myScatter.setBrush(Qt::cyan);
         ui->sctpPlot->graph(graphcount)->setScatterStyle(myScatter);
@@ -304,7 +304,7 @@ void SCTPGraphDialog::drawTSNGraph(const sctp_assoc_info_t* selected_assoc)
     // Add TSN graph
     if (xt.size() > 0) {
         QCPGraph *gr = ui->sctpPlot->addGraph();
-        gr->setName(QString("TSN"));
+        gr->setName(QStringLiteral("TSN"));
         myScatter.setPen(QPen(Qt::black));
         myScatter.setBrush(Qt::black);
         ui->sctpPlot->graph(graphcount)->setScatterStyle(myScatter);
@@ -484,7 +484,7 @@ void SCTPGraphDialog::save_graph(QDialog *dlg, QCustomPlot *plot)
     QString bmp_filter = tr("Windows Bitmap (*.bmp)");
     // Gaze upon my beautiful graph with lossy artifacts!
     QString jpeg_filter = tr("JPEG File Interchange Format (*.jpeg *.jpg)");
-    QString filter = QString("%1;;%2;;%3;;%4")
+    QString filter = QStringLiteral("%1;;%2;;%3;;%4")
             .arg(pdf_filter)
             .arg(png_filter)
             .arg(bmp_filter)
