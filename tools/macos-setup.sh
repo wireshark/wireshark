@@ -2802,7 +2802,7 @@ install_minizip_ng() {
 
 uninstall_minizip_ng() {
     if [ -n "$installed_minizip_ng_version" ] ; then
-        echo "Uninstalling minizip:"
+        echo "Uninstalling minizip-ng:"
         cd minizip-ng-$installed_minizip_ng_version/contrib/minizip
         $DO_MAKE_UNINSTALL
         make distclean
