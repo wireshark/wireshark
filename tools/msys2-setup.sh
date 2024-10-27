@@ -25,6 +25,7 @@ function print_usage() {
 
 ADDITIONAL=0
 TESTDEPS=0
+NSISDEPS=0
 OPTIONS=
 for arg; do
 	case $arg in
