@@ -6,8 +6,8 @@
  *
  * List of PCI ID's
  *
- * Version: 2024.09.20
- * Date:    2024-09-20 03:15:02
+ * Version: 2024.10.24
+ * Date:    2024-10-24 03:15:02
  *
  * Maintained by Albert Pool, Martin Mares, and other volunteers from
  * the PCI ID Project at https://pci-ids.ucw.cz/.
@@ -33296,7 +33296,7 @@ static pci_id_t const pci_vid_1FE0[] = {
 }; /* pci_vid_1FE0[] */
 
 static pci_id_t const pci_vid_1FE1[] = {
-{0x1FE1, 0xFFFF, 0xFFFF, 0xFFFF, "Beijing Eswin Computing Technology Co., Ltd.(0x1FE1)"},
+{0x1FE1, 0xFFFF, 0xFFFF, 0xFFFF, "Beijing ESWIN Computing Technology Co., Ltd.(0x1FE1)"},
 }; /* pci_vid_1FE1[] */
 
 static pci_id_t const pci_vid_1FE4[] = {

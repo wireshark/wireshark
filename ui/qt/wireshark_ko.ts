@@ -4260,6 +4260,14 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Space</translation>
     </message>
     <message>
+        <source>Legend</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Toggle legend</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Zoom In X Axis</source>
         <translation>X축 확대</translation>
     </message>
