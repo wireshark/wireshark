@@ -286,8 +286,7 @@ static void update_payload_names(rtpstream_info_t *stream_info, const struct _rt
     if (stream_info->all_payload_type_names != NULL) {
         g_free(stream_info->all_payload_type_names);
     }
-    stream_info->all_payload_type_names = payload_type_names->str;
-    g_string_free(payload_type_names, FALSE);
+    stream_info->all_payload_type_names = g_string_free(payload_type_names, FALSE);
 }
 
 bool rtpstream_is_payload_used(const rtpstream_info_t *stream_info, const uint8_t payload_type)
