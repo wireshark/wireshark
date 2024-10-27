@@ -55,6 +55,7 @@
 #include "packet-tls-utils.h"
 #include "packet-tls.h"
 #include "packet-tcp.h"     /* used for STREAM reassembly. */
+#include "packet-udp.h"
 #include "packet-quic.h"
 #include <epan/reassemble.h>
 #include <epan/prefs.h>
@@ -4867,15 +4868,6 @@ quic_follow_index_filter(unsigned stream, unsigned sub_stream)
     return ws_strdup_printf("quic.connection.number eq %u and quic.stream.stream_id eq %u", stream, sub_stream);
 }
 
-static char *
-quic_follow_address_filter(address *src_addr _U_, address *dst_addr _U_, int src_port _U_, int dst_port _U_)
-{
-    // This appears to be solely used for tshark. Let's not support matching by
-    // IP addresses and UDP ports for now since that fails after connection
-    // migration. If necessary, use udp_follow_address_filter.
-    return NULL;
-}
-
 static tap_packet_status
 follow_quic_tap_listener(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_, const void *data, tap_flags_t flags _U_)
 {
@@ -5662,7 +5654,7 @@ proto_register_quic(void)
     register_init_routine(quic_init);
     register_cleanup_routine(quic_cleanup);
 
-    register_follow_stream(proto_quic, "quic_follow", quic_follow_conv_filter, quic_follow_index_filter, quic_follow_address_filter,
+    register_follow_stream(proto_quic, "quic_follow", quic_follow_conv_filter, quic_follow_index_filter, udp_follow_address_filter,
                            udp_port_to_display, follow_quic_tap_listener, get_quic_connections_count,
                            quic_get_sub_stream_id);
 

@@ -1488,8 +1488,11 @@ __filter__ specifies the stream to be displayed. There are three formats:
   stream-index,substream-index
 
 The first format specifies IP addresses and TCP, UDP, or DCCP port pairs.
-(TCP ports are used for TLS, HTTP, and HTTP2; QUIC does not support address
-and port matching because of connection migration.)
+(TCP ports are used for TLS, HTTP, and HTTP2; UDP ports are used for QUIC.)
+Note that this format will include all streams multiplexed on the same
+address and port 5-tuple for HTTP/2 and QUIC. In addition, for QUIC this
+format will include all connections sharing the same 5-tuple, and will
+not follow connection migration.
 
 The second format specifies stream indices, and is used for TCP, UDP, DCCP,
 TLS, and HTTP. (TLS and HTTP use TCP stream indices.)

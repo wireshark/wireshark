@@ -142,6 +142,8 @@ udp_dissect_pdus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                  unsigned (*get_pdu_len)(packet_info *, tvbuff_t *, int, void*),
                  dissector_t dissect_pdu, void* dissector_data);
 
+extern char *udp_follow_address_filter(address *src_addr, address *dst_addr, int src_port, int dst_port);
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */

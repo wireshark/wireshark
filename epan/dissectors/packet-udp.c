@@ -398,7 +398,7 @@ static char *udp_follow_index_filter(unsigned stream, unsigned sub_stream _U_)
     return ws_strdup_printf("udp.stream eq %u", stream);
 }
 
-static char *udp_follow_address_filter(address *src_addr, address *dst_addr, int src_port, int dst_port)
+char *udp_follow_address_filter(address *src_addr, address *dst_addr, int src_port, int dst_port)
 {
     const char   *ip_version = src_addr->type == AT_IPv6 ? "v6" : "";
     char          src_addr_str[WS_INET6_ADDRSTRLEN];
