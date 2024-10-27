@@ -127,7 +127,6 @@ static AVPL_Transf* new_transform_elem(AVPL* match, AVPL* replace, avpl_match_mo
 static char* recolonize(mate_config* mc, char* s) {
 	GString* str = g_string_new("");
 	char** vec;
-	char* r;
 	unsigned i,v;
 	char c;
 
@@ -167,11 +166,7 @@ static char* recolonize(mate_config* mc, char* s) {
 
 	g_string_erase(str,0,1);
 
-	r = str->str;
-
-	g_string_free(str,FALSE);
-
-	return r;
+	return g_string_free(str,FALSE);
 }
 
 DIAG_OFF_LEMON()
