@@ -537,6 +537,8 @@ macOS Arm Package:
   retry: 1
   script:
     - export CMAKE_PREFIX_PATH=/usr/local/Qt-6.5.3
+    # Not needed for Falco libs 0.19?
+    - export CXXFLAGS="-isystem /usr/local/include/falcosecurity"
     - export PATH="$PATH:$HOME/bin"
     - mkdir build
     - cd build
@@ -587,6 +589,8 @@ macOS Intel Package:
   retry: 1
   script:
     - export CMAKE_PREFIX_PATH=/usr/local/Qt-6.5.3
+    # Not needed for Falco libs 0.19?
+    - export CXXFLAGS="-isystem /usr/local/include/falcosecurity"
     - export PATH="$PATH:$HOME/bin"
     - mkdir build
     - cd build
