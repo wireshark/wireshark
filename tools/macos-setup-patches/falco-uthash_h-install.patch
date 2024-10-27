@@ -1,9 +1,12 @@
---- falco-libs-0.14.1/cmake/modules/libscap.cmake.orig	2024-03-25 22:46:40
-+++ falco-libs-0.14.1/cmake/modules/libscap.cmake	2024-03-25 22:46:10
-@@ -139,5 +139,6 @@
- 		FILES_MATCHING PATTERN "*.h")
- install(FILES ${PROJECT_BINARY_DIR}/libscap/scap_config.h DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${LIBS_PACKAGE_NAME}/libscap)
- install(FILES ${PROJECT_BINARY_DIR}/libscap/scap_strl_config.h DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${LIBS_PACKAGE_NAME}/libscap)
-+install(FILES ${PROJECT_BINARY_DIR}/uthash-prefix/src/uthash/src/uthash.h DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${LIBS_PACKAGE_NAME}/libscap)
- install(FILES ${PROJECT_BINARY_DIR}/libscap/libscap.pc DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig)
- endif()
+--- a/cmake/modules/libscap.cmake	2024-10-27 20:52:35
++++ b/cmake/modules/libscap.cmake	2024-10-27 20:54:48
+@@ -160,6 +160,9 @@
+ 	install(FILES ${PROJECT_BINARY_DIR}/libscap/scap_strl_config.h
+ 			DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${LIBS_PACKAGE_NAME}/libscap
+ 	)
++	install(FILES ${PROJECT_BINARY_DIR}/uthash-prefix/src/uthash/src/uthash.h
++		DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${LIBS_PACKAGE_NAME}/libscap
++	)
+ 	install(FILES ${PROJECT_BINARY_DIR}/libscap/libscap.pc
+ 			DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig
+ 	)
