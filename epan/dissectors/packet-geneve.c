@@ -242,7 +242,6 @@ dissect_option(wmem_allocator_t *scope, tvbuff_t *tvb, proto_tree *opts_tree, in
             offset += 2;
             proto_tree_add_item(opt_tree, hf_geneve_opt_cpkt_portid, tvb, offset,
                                 2, ENC_BIG_ENDIAN);
-            offset += 2;
             break;
         default:
             proto_tree_add_item(opt_tree, hf_geneve_opt_unknown_data, tvb, offset,
