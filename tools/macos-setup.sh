@@ -2570,8 +2570,8 @@ install_falco_libs() {
     if [ "$FALCO_LIBS_VERSION" ] && [ ! -f "falco-libs-$FALCO_LIBS_VERSION-done" ] ; then
         echo "Downloading, building, and installing libsinsp and libscap:"
         [ -f "falco-libs-$FALCO_LIBS_VERSION.tar.gz" ] || curl "${CURL_REMOTE_NAME_OPTS[@]}" --remote-header-name "https://github.com/falcosecurity/libs/archive/refs/tags/$FALCO_LIBS_VERSION.tar.gz"
+        [ -f "falco-libs-$FALCO_LIBS_VERSION.tar.gz" ] || mv "libs-$FALCO_LIBS_VERSION.tar.gz" "falco-libs-$FALCO_LIBS_VERSION.tar.gz"
         $no_build && echo "Skipping installation" && return
-        mv "libs-$FALCO_LIBS_VERSION.tar.gz" "falco-libs-$FALCO_LIBS_VERSION.tar.gz"
         echo "$FALCO_LIBS_SHA256  falco-libs-$FALCO_LIBS_VERSION.tar.gz" | shasum --algorithm 256 --check
         tar -xf "falco-libs-$FALCO_LIBS_VERSION.tar.gz"
         mv "libs-$FALCO_LIBS_VERSION" "falco-libs-$FALCO_LIBS_VERSION"
