@@ -12982,7 +12982,6 @@ static int dissect_pfcp_nokia_serving_node_id(tvbuff_t *tvb, packet_info *pinfo,
         proto_tree_add_item(tree, hf_pfcp_nokia_serving_node_id_uuid, tvb, offset, 16, ENC_NA);
         tvb_get_guid(tvb, offset, &guid, ENC_BIG_ENDIAN);
         proto_item_append_text(proto_tree_get_parent(tree), "%s UUID %s", firstField ? " :" : ",", guid_to_str(pinfo->pool, &guid));
-        firstField = false;
         offset += 16;
     }
 
