@@ -486,7 +486,6 @@ IOGraphDialog::IOGraphDialog(QWidget &parent, CaptureFile &cf, QString displayFi
     ui->intervalComboBox->addItem(tr("10 min"), SCALE * 600);
     ui->intervalComboBox->setCurrentIndex(18);
 
-    ui->todCheckBox->setChecked(false);
     iop->xAxis->setTicker(number_ticker_);
 
     ui->dragRadioButton->setChecked(mouse_drags_);
@@ -1245,11 +1244,11 @@ void IOGraphDialog::updateLegend()
         if (si_ticker) {
             si_ticker->setUnit(format_units);
         } else {
-            iop->yAxis->setTicker(QSharedPointer<QCPAxisTickerSi>(new QCPAxisTickerSi(format_units, QString(), ui->logCheckBox->isChecked())));
+            iop->yAxis->setTicker(QSharedPointer<QCPAxisTickerSi>(new QCPAxisTickerSi(format_units, QString(), ui->actionLogScale->isChecked())));
         }
     } else {
         if (si_ticker) {
-            if (ui->logCheckBox->isChecked()) {
+            if (ui->actionLogScale->isChecked()) {
                 iop->yAxis->setTicker(QSharedPointer<QCPAxisTickerLog>(new QCPAxisTickerLog));
             } else {
                 iop->yAxis->setTicker(QSharedPointer<QCPAxisTicker>(new QCPAxisTicker));
@@ -1657,26 +1656,6 @@ void IOGraphDialog::on_intervalComboBox_currentIndexChanged(int)
     }
 }
 
-void IOGraphDialog::on_todCheckBox_toggled(bool checked)
-{
-    nstime_t orig_start;
-    nstime_copy(&orig_start, &start_time_);
-    bool orig_auto = auto_axes_;
-
-    if (checked) {
-        ui->ioPlot->xAxis->setTicker(datetime_ticker_);
-    } else {
-        ui->ioPlot->xAxis->setTicker(number_ticker_);
-    }
-    auto_axes_ = false;
-    scheduleRecalc(true);
-    auto_axes_ = orig_auto;
-    getGraphInfo();
-    nstime_delta(&orig_start, &start_time_, &orig_start);
-    ui->ioPlot->xAxis->moveRange(nstime_to_sec(&orig_start));
-    updateHint();
-}
-
 void IOGraphDialog::modelRowsReset()
 {
     foreach(IOGraph* iog, ioGraphs_) {
@@ -1924,30 +1903,6 @@ void IOGraphDialog::on_zoomRadioButton_toggled(bool checked)
     ui->ioPlot->setInteractions(QCP::Interactions());
 }
 
-void IOGraphDialog::on_logCheckBox_toggled(bool checked)
-{
-    ui->actionLogScale->setChecked(checked);
-
-    QCustomPlot *iop = ui->ioPlot;
-    QSharedPointer<QCPAxisTickerSi> si_ticker = qSharedPointerDynamicCast<QCPAxisTickerSi>(iop->yAxis->ticker());
-    if (si_ticker != nullptr) {
-        si_ticker->setLog(checked);
-    }
-
-    if (checked) {
-        iop->yAxis->setScaleType(QCPAxis::stLogarithmic);
-        if (si_ticker == nullptr) {
-            iop->yAxis->setTicker(QSharedPointer<QCPAxisTickerLog>(new QCPAxisTickerLog));
-        }
-    } else {
-        iop->yAxis->setScaleType(QCPAxis::stLinear);
-        if (si_ticker == nullptr) {
-            iop->yAxis->setTicker(QSharedPointer<QCPAxisTicker>(new QCPAxisTicker));
-        }
-    }
-    iop->replot();
-}
-
 void IOGraphDialog::on_automaticUpdateCheckBox_toggled(bool checked)
 {
     prefs.gui_io_graph_automatic_update = checked ? true : false;
@@ -2133,12 +2088,44 @@ void IOGraphDialog::actionLegendTriggered(bool checked)
 
 void IOGraphDialog::actionLogScaleTriggered(bool checked)
 {
-    ui->logCheckBox->setChecked(checked);
+    QCustomPlot *iop = ui->ioPlot;
+    QSharedPointer<QCPAxisTickerSi> si_ticker = qSharedPointerDynamicCast<QCPAxisTickerSi>(iop->yAxis->ticker());
+    if (si_ticker != nullptr) {
+        si_ticker->setLog(checked);
+    }
+
+    if (checked) {
+        iop->yAxis->setScaleType(QCPAxis::stLogarithmic);
+        if (si_ticker == nullptr) {
+            iop->yAxis->setTicker(QSharedPointer<QCPAxisTickerLog>(new QCPAxisTickerLog));
+        }
+    } else {
+        iop->yAxis->setScaleType(QCPAxis::stLinear);
+        if (si_ticker == nullptr) {
+            iop->yAxis->setTicker(QSharedPointer<QCPAxisTicker>(new QCPAxisTicker));
+        }
+    }
+    iop->replot();
 }
 
 void IOGraphDialog::actionTimeOfDayTriggered(bool checked)
 {
-    ui->todCheckBox->setChecked(checked);
+    nstime_t orig_start;
+    nstime_copy(&orig_start, &start_time_);
+    bool orig_auto = auto_axes_;
+
+    if (checked) {
+        ui->ioPlot->xAxis->setTicker(datetime_ticker_);
+    } else {
+        ui->ioPlot->xAxis->setTicker(number_ticker_);
+    }
+    auto_axes_ = false;
+    scheduleRecalc(true);
+    auto_axes_ = orig_auto;
+    getGraphInfo();
+    nstime_delta(&orig_start, &start_time_, &orig_start);
+    ui->ioPlot->xAxis->moveRange(nstime_to_sec(&orig_start));
+    updateHint();
 }
 
 void IOGraphDialog::makeCsv(QTextStream &stream) const

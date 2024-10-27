@@ -266,10 +266,8 @@ private slots:
 
     void graphUatSelectionChanged(const QItemSelection &selected, const QItemSelection &deselected);
     void on_intervalComboBox_currentIndexChanged(int index);
-    void on_todCheckBox_toggled(bool checked);
     void on_graphUat_currentItemChanged(const QModelIndex &current, const QModelIndex &previous);
 
-    void on_logCheckBox_toggled(bool checked);
     void on_automaticUpdateCheckBox_toggled(bool checked);
     void on_newToolButton_clicked();
     void on_deleteToolButton_clicked();

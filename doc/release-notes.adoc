@@ -69,6 +69,11 @@ The following features are either new or have been significantly updated since v
 * Custom columns have an option to show the values using the same format as
   in Packet Details.
 
+* The minimum width of the I/O Graph dialog window is reduced, so it should
+  work better on small resolution desktops, especially in certain languages.
+  To enable this, some checkbox controls were moved to the graph right-click
+  context menu. wsbuglink:20147[]
+
 * X.509 certificates, used in TLS and elsewhere, can be exported via the
   File->Export Objects menu in Wireshark (under the name "X509AF") and
   `--export-objects` in TShark (with the protocol name `x509af`.)
