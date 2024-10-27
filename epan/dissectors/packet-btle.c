@@ -4672,10 +4672,6 @@ dissect_btle_connected_iso(tvbuff_t *tvb,
                 p_add_proto_data(wmem_file_scope(), pinfo, proto_bluetooth, BLUETOOTH_DATA_DST, addr);
                 p_add_proto_data(wmem_file_scope(), pinfo, proto_btle, pinfo->curr_layer_num, btle_frame_info);
             }
-            else {
-                /* Not the first pass */
-                btle_frame_info = (btle_frame_info_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_btle, pinfo->curr_layer_num);
-            }
         }
     }
 
