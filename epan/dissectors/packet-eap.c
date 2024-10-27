@@ -966,7 +966,7 @@ dissect_eap_identity_3gpp(tvbuff_t *tvb, packet_info* pinfo, proto_tree* tree, i
     item = proto_tree_add_item(tree, hf_eap_identity_full, tvb, offset + 1, size - 1, ENC_ASCII);
     eap_identity_tree = proto_item_add_subtree(item, ett_identity);
     proto_tree_add_item_ret_uint(eap_identity_tree, hf_eap_identity_prefix, tvb, offset, 1, ENC_NA, &eap_identity_prefix);
-    item = proto_tree_add_string(eap_identity_tree, hf_eap_identity_type,
+    proto_tree_add_string(eap_identity_tree, hf_eap_identity_type,
       tvb, offset, 1, val_to_str_const(eap_identity_prefix, eap_identity_prefix_vals, "Unknown"));
     offset += 1;
     size -= 1;
@@ -1299,7 +1299,6 @@ dissect_eap_aka(proto_tree *eap_tree, tvbuff_t *tvb, packet_info* pinfo, int off
       case AT_RES:
         proto_tree_add_item_ret_uint(attr_tree, hf_eap_aka_res_len, tvb, aoffset, 2, ENC_BIG_ENDIAN, &actual_length);
         aoffset += 2;
-        aleft   -= 2;
         proto_tree_add_bits_item(attr_tree, hf_eap_aka_res, tvb, aoffset << 3, actual_length, ENC_NA);
         break;
       case AT_AUTS:
