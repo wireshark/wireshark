@@ -351,8 +351,8 @@ typedef struct _tcp_flow_t {
 	uint32_t fin;		/* frame number of the final FIN */
 	uint32_t window;		/* last seen window */
 	int16_t	win_scale;	/* -1 is we don't know, -2 is window scaling is not used */
-	int16_t scps_capable;   /* flow advertised scps capabilities */
-	uint16_t maxsizeacked;   /* 0 if not yet known */
+	bool scps_capable;	/* flow advertised scps capabilities */
+	uint16_t maxsizeacked;  /* 0 if not yet known */
 	bool valid_bif;     /* if lost pkts, disable BiF until ACK is recvd */
 	uint32_t push_bytes_sent; /* bytes since the last PSH flag */
 	bool push_set_last; /* tracking last time PSH flag was set */
@@ -487,7 +487,7 @@ struct tcp_analysis {
 	/* Set when the client sends a SYN with data and the cookie in the Fast Open
 	 * option.
 	 */
-	uint8_t tfo_syn_data : 1;
+	bool tfo_syn_data;
 
 	/* Remembers which side is currently sending data. */
 	int8_t flow_direction : 2;

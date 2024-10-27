@@ -2036,8 +2036,8 @@ init_tcp_conversation_data(packet_info *pinfo, int direction)
     nstime_set_zero(&tcpd->ts_first_rtt);
     tcpd->ts_prev.secs=pinfo->abs_ts.secs;
     tcpd->ts_prev.nsecs=pinfo->abs_ts.nsecs;
-    tcpd->flow1.valid_bif = 1;
-    tcpd->flow2.valid_bif = 1;
+    tcpd->flow1.valid_bif = true;
+    tcpd->flow2.valid_bif = true;
     tcpd->flow1.push_bytes_sent = 0;
     tcpd->flow2.push_bytes_sent = 0;
     tcpd->flow1.push_set_last = false;
@@ -2046,6 +2046,7 @@ init_tcp_conversation_data(packet_info *pinfo, int direction)
     tcpd->flow2.closing_initiator = false;
     tcpd->stream = tcp_stream_count++;
     tcpd->server_port = 0;
+    tcpd->tfo_syn_data = false;
     tcpd->flow_direction = 0;
     tcpd->flow1.flow_count = 0;
     tcpd->flow2.flow_count = 0;
@@ -5587,7 +5588,7 @@ dissect_tcpopt_tfo_payload(tvbuff_t *tvb, int offset, unsigned optlen,
             if (tcph->th_have_seglen && tcph->th_seglen) {
                 tcpd = get_tcp_conversation_data(NULL, pinfo);
                 if (tcpd) {
-                    tcpd->tfo_syn_data = 1;
+                    tcpd->tfo_syn_data = true;
                 }
             }
         }
@@ -6977,7 +6978,7 @@ dissect_tcpopt_scps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
         proto_tree_add_item(field_tree, hf_tcp_scpsoption_connection_id, tvb,
                             offset + 3, 1, ENC_BIG_ENDIAN);
         connid = tvb_get_uint8(tvb, offset + 3);
-        flow->scps_capable = 1;
+        flow->scps_capable = true;
 
         if (connid)
             tcp_info_append_uint(pinfo, "Connection ID", connid);
@@ -6994,7 +6995,7 @@ dissect_tcpopt_scps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
         uint8_t binding_space;
         uint8_t extended_cap_length;
 
-        if (flow->scps_capable != 1) {
+        if (!flow->scps_capable) {
             /* There was no SCPS capabilities option preceding this */
             proto_item_set_text(item,
                                 "Illegal SCPS Extended Capabilities (%u bytes)",
@@ -7088,8 +7089,8 @@ verify_scps(packet_info *pinfo,  proto_item *tf_syn, struct tcp_analysis *tcpd)
 
     if(tcpd) {
         if ((!(tcpd->flow1.scps_capable)) || (!(tcpd->flow2.scps_capable))) {
-            tcpd->flow1.scps_capable = 0;
-            tcpd->flow2.scps_capable = 0;
+            tcpd->flow1.scps_capable = false;
+            tcpd->flow2.scps_capable = false;
         } else {
             expert_add_info(pinfo, tf_syn, &ei_tcp_scps_capable);
         }
