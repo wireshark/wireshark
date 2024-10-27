@@ -81,16 +81,11 @@
     </message>
     <message>
         <source>About Stratoshark</source>
-        <oldsource>About Logray</oldsource>
-        <translation type="unfinished">О журнале Logray</translation>
-    </message>
-    <message>
-        <source>Logray</source>
-        <translation type="vanished">Журнал</translation>
+        <translation>О Stratoshark</translation>
     </message>
     <message>
         <source>Stratoshark</source>
-        <translation type="unfinished"></translation>
+        <translation>Stratoshark</translation>
     </message>
     <message>
         <source>The directory does not exist</source>
@@ -1221,10 +1216,7 @@
         <source>Created by Stratoshark %1
 
 </source>
-        <oldsource>Created by Logray %1
-
-</oldsource>
-        <translation type="unfinished">Создано журналом Logray %1
+        <translation>Создано Stratoshark %1
 
 </translation>
     </message>
@@ -4186,7 +4178,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Enable legend</source>
-        <translation>Включить легенду</translation>
+        <translation type="vanished">Включить легенду</translation>
     </message>
     <message>
         <source>Reset Graph</source>
@@ -4322,6 +4314,14 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>T</translation>
     </message>
     <message>
+        <source>Toggle X-axis between relative time and time of day</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Toggle Y-axis between logarithmic and linear scale</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Crosshairs</source>
         <translation>Перекрестия</translation>
     </message>
@@ -4332,6 +4332,14 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Space</source>
         <translation>Пробел</translation>
+    </message>
+    <message>
+        <source>Legend</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Toggle legend</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Zoom In X Axis</source>
@@ -13170,17 +13178,15 @@ a:hover {
     </message>
     <message>
         <source>You are sniffing the glue that holds your system together using Stratoshark </source>
-        <oldsource>You are sniffing the glue that holds your system together using Logray </oldsource>
-        <translation type="unfinished">Вы нюхаете клей, который держит вашу систему вместе, используя Logray </translation>
+        <translation>С помощью Stratoshark вы обнаруживаете клей, на котором держится ваша система.</translation>
+    </message>
+    <message>
+        <source>You are running Stratoshark </source>
+        <translation>Вы запускаете Stratoshark</translation>
     </message>
     <message>
         <source>You are running Wireshark </source>
         <translation>Работа производится в Wireshark </translation>
-    </message>
-    <message>
-        <source>You are running Stratoshark </source>
-        <oldsource>You are running Logray </oldsource>
-        <translation type="unfinished">Вы используете Logray </translation>
     </message>
     <message>
         <source> You receive automatic updates.</source>
@@ -13256,14 +13262,6 @@ a:hover {
     <message>
         <source>802.11 Preferences</source>
         <translation>Параметры 802.11</translation>
-    </message>
-    <message>
-        <source>AirPcap Control Panel</source>
-        <translation type="vanished">Панель управления AirPcap</translation>
-    </message>
-    <message>
-        <source>Open the AirPcap Control Panel</source>
-        <translation type="vanished">Открыть панель управления AirPcap</translation>
     </message>
     <message>
         <source>Unable to set channel or offset.</source>
