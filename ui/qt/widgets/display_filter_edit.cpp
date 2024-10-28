@@ -263,16 +263,16 @@ void DisplayFilterEdit::setDefaultPlaceholderText()
     switch (type_) {
 
     case DisplayFilterToApply:
-        placeholder_text_ = QString(tr("Apply a display filter %1 <%2/>")).arg(UTF8_HORIZONTAL_ELLIPSIS)
+        placeholder_text_ = tr("Apply a display filter %1 <%2/>").arg(UTF8_HORIZONTAL_ELLIPSIS)
     .arg(DEFAULT_MODIFIER);
         break;
 
     case DisplayFilterToEnter:
-        placeholder_text_ = QString(tr("Enter a display filter %1")).arg(UTF8_HORIZONTAL_ELLIPSIS);
+        placeholder_text_ = tr("Enter a display filter %1").arg(UTF8_HORIZONTAL_ELLIPSIS);
         break;
 
     case ReadFilterToApply:
-        placeholder_text_ = QString(tr("Apply a read filter %1")).arg(UTF8_HORIZONTAL_ELLIPSIS);
+        placeholder_text_ = tr("Apply a read filter %1").arg(UTF8_HORIZONTAL_ELLIPSIS);
         break;
     }
     setPlaceholderText(placeholder_text_);

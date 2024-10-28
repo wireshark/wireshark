@@ -124,7 +124,7 @@ void TimeShiftDialog::checkFrameNumber(SyntaxLineEdit &frame_le)
     } else if (!frame_valid || !cap_file_ || frame_num < 1 || frame_num > cap_file_->count) {
         frame_le.setSyntaxState(SyntaxLineEdit::Invalid);
         if (cap_file_) {
-            syntax_err_ = QString(tr("Frame numbers must be between 1 and %1.").arg(cap_file_->count));
+            syntax_err_ = tr("Frame numbers must be between 1 and %1.").arg(cap_file_->count);
         } else {
             syntax_err_ = tr("Invalid frame number.");
         }

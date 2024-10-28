@@ -153,7 +153,7 @@ bool PrintDialog::printHeader()
     }
 
     if (pd_ui_->bannerCheckBox->isChecked()) {
-        QString banner = QString(tr("%1 %2 total packets, %3 shown"))
+        QString banner = tr("%1 %2 total packets, %3 shown")
                 .arg(cap_file_->filename)
                 .arg(cap_file_->count)
                 .arg(packet_range_count(&print_args_.range));
@@ -268,7 +268,7 @@ void PrintDialog::printPackets(QPrinter *printer, bool in_preview)
     cur_painter_ = &painter;
     if (!painter.begin(printer)) {
         QMessageBox::warning(this, tr("Print Error"),
-                             QString(tr("Unable to print to %1.")).arg(printer_.printerName()),
+                             tr("Unable to print to %1.").arg(printer_.printerName()),
                              QMessageBox::Ok);
         close();
     }

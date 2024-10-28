@@ -196,7 +196,7 @@ void FollowStreamDialog::fillHintLabel(int pkt)
 
     if (is_stratoshark)  {
         if (pkt > 0) {
-            hint = QString(tr("Event %1. ")).arg(pkt);
+            hint = tr("Event %1. ").arg(pkt);
         }
 
         hint += tr("%Ln <span style=\"color: %1; background-color:%2\">reads</span>, ", "", client_packet_count_)
@@ -208,7 +208,7 @@ void FollowStreamDialog::fillHintLabel(int pkt)
                 + tr("%Ln turn(s).", "", turns_);
     } else {
         if (pkt > 0) {
-            hint = QString(tr("Packet %1. ")).arg(pkt);
+            hint = tr("Packet %1. ").arg(pkt);
         }
 
         hint += tr("%Ln <span style=\"color: %1; background-color:%2\">client</span> pkt(s), ", "", client_packet_count_)
@@ -221,7 +221,7 @@ void FollowStreamDialog::fillHintLabel(int pkt)
     }
 
     if (pkt > 0) {
-        hint.append(QString(tr(" Click to select.")));
+        hint.append(tr(" Click to select."));
     }
 
     hint.prepend("<small><i>");

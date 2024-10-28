@@ -292,7 +292,7 @@ void CaptureFilterEdit::setConflict(bool conflict)
                       " Typing a filter here will override them. Doing nothing will"
                       " preserve them.</p>"));
     } else {
-        placeholder_text_ = QString(tr("Enter a capture filter %1")).arg(UTF8_HORIZONTAL_ELLIPSIS);
+        placeholder_text_ = tr("Enter a capture filter %1").arg(UTF8_HORIZONTAL_ELLIPSIS);
         setToolTip(QString());
     }
     setPlaceholderText(placeholder_text_);

@@ -67,7 +67,7 @@ FieldFilterEdit::FieldFilterEdit(QWidget *parent) :
 
 void FieldFilterEdit::setDefaultPlaceholderText()
 {
-    placeholder_text_ = QString(tr("Enter a field %1")).arg(UTF8_HORIZONTAL_ELLIPSIS);
+    placeholder_text_ = tr("Enter a field %1").arg(UTF8_HORIZONTAL_ELLIPSIS);
 
     setPlaceholderText(placeholder_text_);
 }

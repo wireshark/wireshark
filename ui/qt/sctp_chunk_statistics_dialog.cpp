@@ -42,7 +42,7 @@ SCTPChunkStatisticsDialog::SCTPChunkStatisticsDialog(QWidget *parent, const sctp
 
     ui->tableWidget->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
 
-    this->setWindowTitle(QString(tr("SCTP Chunk Statistics: %1 Port1 %2 Port2 %3"))
+    this->setWindowTitle(tr("SCTP Chunk Statistics: %1 Port1 %2 Port2 %3")
             .arg(gchar_free_to_qstring(cf_get_display_name(cap_file_)))
             .arg(assoc->port1).arg(assoc->port2));
 //    connect(ui->tableWidget->verticalHeader(), &QHeaderView::sectionMoved, this, &SCTPChunkStatisticsDialog::on_sectionMoved);
@@ -312,9 +312,9 @@ void SCTPChunkStatisticsDialog::on_actionChunkTypePreferences_triggered()
 
     ui->tableWidget->clear();
     ui->tableWidget->setRowCount(0);
-    ui->tableWidget->setHorizontalHeaderItem(0, new QTableWidgetItem(QString(tr("Association"))));
-    ui->tableWidget->setHorizontalHeaderItem(1, new QTableWidgetItem(QString(tr("Endpoint 1"))));
-    ui->tableWidget->setHorizontalHeaderItem(2, new QTableWidgetItem(QString(tr("Endpoint 2"))));
+    ui->tableWidget->setHorizontalHeaderItem(0, new QTableWidgetItem(tr("Association")));
+    ui->tableWidget->setHorizontalHeaderItem(1, new QTableWidgetItem(tr("Endpoint 1")));
+    ui->tableWidget->setHorizontalHeaderItem(2, new QTableWidgetItem(tr("Endpoint 2")));
     fillTable();
 }
 
@@ -322,9 +322,9 @@ void SCTPChunkStatisticsDialog::on_actionShowAllChunkTypes_triggered()
 {
     ui->tableWidget->clear();
     ui->tableWidget->setRowCount(0);
-    ui->tableWidget->setHorizontalHeaderItem(0, new QTableWidgetItem(QString(tr("Association"))));
-    ui->tableWidget->setHorizontalHeaderItem(1, new QTableWidgetItem(QString(tr("Endpoint 1"))));
-    ui->tableWidget->setHorizontalHeaderItem(2, new QTableWidgetItem(QString(tr("Endpoint 2"))));
+    ui->tableWidget->setHorizontalHeaderItem(0, new QTableWidgetItem(tr("Association")));
+    ui->tableWidget->setHorizontalHeaderItem(1, new QTableWidgetItem(tr("Endpoint 1")));
+    ui->tableWidget->setHorizontalHeaderItem(2, new QTableWidgetItem(tr("Endpoint 2")));
     initializeChunkMap();
     fillTable(true);
 }

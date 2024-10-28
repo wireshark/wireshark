@@ -40,7 +40,7 @@ SCTPGraphArwndDialog::SCTPGraphArwndDialog(QWidget *parent, const sctp_assoc_inf
             | Qt::WindowMaximizeButtonHint
             | Qt::WindowCloseButtonHint;
     this->setWindowFlags(flags);
-    this->setWindowTitle(QString(tr("SCTP Data and Adv. Rec. Window over Time: %1 Port1 %2 Port2 %3"))
+    this->setWindowTitle(tr("SCTP Data and Adv. Rec. Window over Time: %1 Port1 %2 Port2 %3")
             .arg(gchar_free_to_qstring(cf_get_display_name(cap_file_))).arg(assoc->port1).arg(assoc->port2));
     if ((direction == 1 && assoc->n_array_tsn1 == 0) || (direction == 2 && assoc->n_array_tsn2 == 0)) {
         QMessageBox msgBox;
@@ -107,7 +107,7 @@ void SCTPGraphArwndDialog::drawArwndGraph(const sctp_assoc_info_t *selected_asso
     // Add Arwnd graph
     if (xa.size() > 0) {
         QCPGraph *gr = ui->sctpPlot->addGraph(ui->sctpPlot->xAxis, ui->sctpPlot->yAxis);
-        gr->setName(QString(tr("Arwnd")));
+        gr->setName(tr("Arwnd"));
         myScatter.setPen(QPen(Qt::red));
         myScatter.setBrush(Qt::red);
         ui->sctpPlot->graph(0)->setScatterStyle(myScatter);
@@ -164,7 +164,7 @@ void SCTPGraphArwndDialog::graphClicked(QCPAbstractPlottable* plottable, int, QM
             cf_goto_frame(cap_file_, frame_num, false);
         }
 
-        ui->hintLabel->setText(QString(tr("<small><i>Graph %1: a_rwnd=%2 Time=%3 secs </i></small>"))
+        ui->hintLabel->setText(tr("<small><i>Graph %1: a_rwnd=%2 Time=%3 secs </i></small>")
                                .arg(plottable->name())
                                .arg(ya.value(i))
                                .arg(xa.value(i)));

@@ -385,7 +385,7 @@ QVariant InterfaceTreeModel::toolTipForInterface(int idx) const
     }
     else if (device->if_info.type == IF_EXTCAP)
     {
-        tt_str = QString(tr("Extcap interface: %1")).arg(get_basename(device->if_info.extcap));
+        tt_str = tr("Extcap interface: %1").arg(get_basename(device->if_info.extcap));
     }
     else
     {

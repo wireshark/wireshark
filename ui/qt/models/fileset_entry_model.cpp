@@ -73,7 +73,7 @@ QVariant FilesetEntryModel::data(const QModelIndex &index, int role) const
             break;
         }
     } else if (role == Qt::ToolTipRole) {
-        return QString(tr("Open this capture file"));
+        return tr("Open this capture file");
     } else if (role == Qt::TextAlignmentRole) {
         switch (index.column()) {
         case Size:

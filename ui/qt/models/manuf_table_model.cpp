@@ -136,11 +136,11 @@ QVariant ManufTableModel::headerData(int section, Qt::Orientation orientation, i
     if (orientation == Qt::Horizontal) {
         switch (section) {
             case COL_MAC_PREFIX:
-                return QString(tr("Address Block"));
+                return tr("Address Block");
             case COL_SHORT_NAME:
-                return QString(tr("Short Name"));
+                return tr("Short Name");
             case COL_VENDOR_NAME:
-                return QString(tr("Vendor Name"));
+                return tr("Vendor Name");
         }
     }
 

@@ -56,7 +56,7 @@ IOConsoleDialog::IOConsoleDialog(QWidget &parent,
     connect(clear_button, &QPushButton::clicked, this, &IOConsoleDialog::on_clearActivated);
 
     ui->inputTextEdit->setFont(mainApp->monospaceFont());
-    ui->inputTextEdit->setPlaceholderText(QString(tr("Use %1 to evaluate."))
+    ui->inputTextEdit->setPlaceholderText(tr("Use %1 to evaluate.")
             .arg(eval_button->shortcut().toString(QKeySequence::NativeText)));
 
     ui->outputTextEdit->setFont(mainApp->monospaceFont());

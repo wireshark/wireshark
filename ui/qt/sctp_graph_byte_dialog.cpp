@@ -39,7 +39,7 @@ SCTPGraphByteDialog::SCTPGraphByteDialog(QWidget *parent, const sctp_assoc_info_
             | Qt::WindowMaximizeButtonHint
             | Qt::WindowCloseButtonHint;
     this->setWindowFlags(flags);
-    this->setWindowTitle(QString(tr("SCTP Data and Adv. Rec. Window over Time: %1 Port1 %2 Port2 %3"))
+    this->setWindowTitle(tr("SCTP Data and Adv. Rec. Window over Time: %1 Port1 %2 Port2 %3")
             .arg(gchar_free_to_qstring(cf_get_display_name(cap_file_))).arg(assoc->port1).arg(assoc->port2));
     if ((direction == 1 && assoc->n_array_tsn1 == 0) || (direction == 2 && assoc->n_array_tsn2 == 0)) {
         QMessageBox msgBox;
@@ -107,7 +107,7 @@ void SCTPGraphByteDialog::drawBytesGraph(const sctp_assoc_info_t *selected_assoc
     // Add Bytes graph
     if (xb.size() > 0) {
         QCPGraph *gr = ui->sctpPlot->addGraph(ui->sctpPlot->xAxis, ui->sctpPlot->yAxis);
-        gr->setName(QString(tr("Bytes")));
+        gr->setName(tr("Bytes"));
         myScatter.setPen(QPen(Qt::red));
         myScatter.setBrush(Qt::red);
         ui->sctpPlot->graph(0)->setScatterStyle(myScatter);
@@ -167,7 +167,7 @@ void SCTPGraphByteDialog::graphClicked(QCPAbstractPlottable* plottable, int, QMo
             cf_goto_frame(cap_file_, frame_num, false);
         }
 
-        ui->hintLabel->setText(QString(tr("<small><i>Graph %1: Received bytes=%2 Time=%3 secs </i></small>"))
+        ui->hintLabel->setText(tr("<small><i>Graph %1: Received bytes=%2 Time=%3 secs </i></small>")
                                .arg(plottable->name())
                                .arg(yb.value(i))
                                .arg(xb.value(i)));

@@ -46,7 +46,7 @@ SCTPGraphDialog::SCTPGraphDialog(QWidget *parent, const sctp_assoc_info_t *assoc
             | Qt::WindowMaximizeButtonHint
             | Qt::WindowCloseButtonHint;
     this->setWindowFlags(flags);
-    this->setWindowTitle(QString(tr("SCTP TSNs and SACKs over Time: %1 Port1 %2 Port2 %3"))
+    this->setWindowTitle(tr("SCTP TSNs and SACKs over Time: %1 Port1 %2 Port2 %3")
             .arg(gchar_free_to_qstring(cf_get_display_name(cap_file_))).arg(assoc->port1).arg(assoc->port2));
     if ((direction == 1 && assoc->n_array_tsn1 == 0) || (direction == 2 && assoc->n_array_tsn2 == 0)) {
         QMessageBox msgBox;
@@ -215,7 +215,7 @@ void SCTPGraphDialog::drawSACKGraph(const sctp_assoc_info_t* selected_assoc)
         ui->sctpPlot->graph(graphcount)->setScatterStyle(myScatter);
         ui->sctpPlot->graph(graphcount)->setLineStyle(QCPGraph::lsNone);
         ui->sctpPlot->graph(graphcount)->setData(xs, ys);
-        typeStrings.insert(graphcount, QString(tr("CumTSNAck")));
+        typeStrings.insert(graphcount, tr("CumTSNAck"));
         graphcount++;
     }
 
@@ -228,7 +228,7 @@ void SCTPGraphDialog::drawSACKGraph(const sctp_assoc_info_t* selected_assoc)
         ui->sctpPlot->graph(graphcount)->setScatterStyle(myScatter);
         ui->sctpPlot->graph(graphcount)->setLineStyle(QCPGraph::lsNone);
         ui->sctpPlot->graph(graphcount)->setData(xg, yg);
-        typeStrings.insert(graphcount, QString(tr("Gap Ack")));
+        typeStrings.insert(graphcount, tr("Gap Ack"));
         graphcount++;
     }
 
@@ -241,7 +241,7 @@ void SCTPGraphDialog::drawSACKGraph(const sctp_assoc_info_t* selected_assoc)
         ui->sctpPlot->graph(graphcount)->setScatterStyle(myScatter);
         ui->sctpPlot->graph(graphcount)->setLineStyle(QCPGraph::lsNone);
         ui->sctpPlot->graph(graphcount)->setData(xn, yn);
-        typeStrings.insert(graphcount, QString(tr("NR Gap Ack")));
+        typeStrings.insert(graphcount, tr("NR Gap Ack"));
         graphcount++;
     }
 
@@ -254,7 +254,7 @@ void SCTPGraphDialog::drawSACKGraph(const sctp_assoc_info_t* selected_assoc)
         ui->sctpPlot->graph(graphcount)->setScatterStyle(myScatter);
         ui->sctpPlot->graph(graphcount)->setLineStyle(QCPGraph::lsNone);
         ui->sctpPlot->graph(graphcount)->setData(xd, yd);
-        typeStrings.insert(graphcount, QString(tr("Duplicate Ack")));
+        typeStrings.insert(graphcount, tr("Duplicate Ack"));
     }
 }
 
@@ -310,7 +310,7 @@ void SCTPGraphDialog::drawTSNGraph(const sctp_assoc_info_t* selected_assoc)
         ui->sctpPlot->graph(graphcount)->setScatterStyle(myScatter);
         ui->sctpPlot->graph(graphcount)->setLineStyle(QCPGraph::lsNone);
         ui->sctpPlot->graph(graphcount)->setData(xt, yt);
-        typeStrings.insert(graphcount, QString(tr("TSN")));
+        typeStrings.insert(graphcount, tr("TSN"));
     }
 }
 
@@ -469,7 +469,7 @@ void SCTPGraphDialog::graphClicked(QCPAbstractPlottable* plottable, int, QMouseE
     if (cap_file_ && frame_num > 0) {
         cf_goto_frame(cap_file_, frame_num, false);
     }
-    ui->hintLabel->setText(QString(tr("<small><i>%1: %2 Time: %3 secs </i></small>"))
+    ui->hintLabel->setText(tr("<small><i>%1: %2 Time: %3 secs </i></small>")
                            .arg(plottable->name())
                            .arg(floor(ui->sctpPlot->yAxis->pixelToCoord(event->pos().y()) + 0.5))
                            .arg(ui->sctpPlot->xAxis->pixelToCoord(event->pos().x())));

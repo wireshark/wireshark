@@ -338,7 +338,7 @@ QStringList CaptureFileDialog::buildFileOpenTypeList() {
      * the filter will be a bit long, so it *really* shouldn't be shown.
      * What about other platforms?
      */
-    filters << QString(tr("All Files (" ALL_FILES_WILDCARD ")"));
+    filters << tr("All Files (" ALL_FILES_WILDCARD ")");
 
     /*
      * Add an "All Capture Files" entry, with all the capture file

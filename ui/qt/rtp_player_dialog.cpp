@@ -763,7 +763,7 @@ void RtpPlayerDialog::addSingleRtpStream(rtpstream_id_t *id)
         } else {
             audio_routing.setChannel(channel_mono);
         }
-        ti->setToolTip(channel_col_, QString(tr("Double click on cell to change audio routing")));
+        ti->setToolTip(channel_col_, tr("Double click on cell to change audio routing"));
         formatAudioRouting(ti, audio_routing);
         audio_stream->setAudioRouting(audio_routing);
 

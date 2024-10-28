@@ -371,7 +371,7 @@ tap_packet_status BluetoothDevicesDialog::tapPacket(void *tapinfo_ptr, packet_in
         dialog->ui->tableTreeWidget->resizeColumnToContents(i);
     }
 
-    dialog->ui->hintLabel->setText(QString(tr("%1 items; Right click for more option; Double click for device details")).arg(dialog->ui->tableTreeWidget->topLevelItemCount()));
+    dialog->ui->hintLabel->setText(tr("%1 items; Right click for more option; Double click for device details").arg(dialog->ui->tableTreeWidget->topLevelItemCount()));
 
     return TAP_PACKET_REDRAW;
 }

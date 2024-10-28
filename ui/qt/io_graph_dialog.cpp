@@ -1271,7 +1271,7 @@ void IOGraphDialog::updateLegend()
     // Create a legend with a Title label at top.
     // Legend Title thanks to: https://www.qcustomplot.com/index.php/support/forum/443
     iop->legend->clearItems();
-    QCPStringLegendItem *legendTitle = new QCPStringLegendItem(iop->legend, QString(tr("%1 Intervals ").arg(intervalText)));
+    QCPStringLegendItem *legendTitle = new QCPStringLegendItem(iop->legend, tr("%1 Intervals ").arg(intervalText));
     iop->legend->insertRow(0);
     iop->legend->addElement(0, 0, legendTitle);
 

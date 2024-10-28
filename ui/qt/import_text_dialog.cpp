@@ -658,7 +658,7 @@ void ImportTextDialog::on_timestampFormatLineEdit_textChanged(const QString &tim
               cur_tm = &fallback;
             }
             strftime(time_str, sizeof time_str, timefmt.toUtf8(), cur_tm);
-            ti_ui_->timestampExampleLabel->setText(QString(tr(HINT_BEGIN "Example: %1" HINT_END)).arg(QString(time_str).toHtmlEscaped()));
+            ti_ui_->timestampExampleLabel->setText(tr(HINT_BEGIN "Example: %1" HINT_END).arg(QString(time_str).toHtmlEscaped()));
             timestamp_format_ok_ = true;
         }
         else {

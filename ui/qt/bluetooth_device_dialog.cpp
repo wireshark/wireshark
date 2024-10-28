@@ -161,7 +161,7 @@ void BluetoothDeviceDialog::setTitle(QString bdAddr, QString name)
     QString titleName;
 
     if (bdAddr.isEmpty())
-        titleBdAddr = QString(tr("Unknown"));
+        titleBdAddr = tr("Unknown");
     else
         titleBdAddr = bdAddr;
 
@@ -568,7 +568,7 @@ tap_packet_status BluetoothDeviceDialog::tapPacket(void *tapinfo_ptr, packet_inf
 
         break;
     case BLUETOOTH_DEVICE_PAGE_TIMEOUT:
-        field = QString(tr("%1 ms (%2 slots)")).arg(tap_device->data.page_timeout * 0.625).arg(tap_device->data.page_timeout);
+        field = tr("%1 ms (%2 slots)").arg(tap_device->data.page_timeout * 0.625).arg(tap_device->data.page_timeout);
         item = tableWidget->item(row_number_page_timeout, column_number_value);
         saveItemData(item, tap_device, pinfo);
         updateChanges(tableWidget, field, row_number_page_timeout, tapinfo->changes, pinfo);
@@ -637,7 +637,7 @@ tap_packet_status BluetoothDeviceDialog::tapPacket(void *tapinfo_ptr, packet_inf
         break;
     }
 
-    dialog->ui->hintLabel->setText(QString(tr("%1 changes")).arg(*tapinfo->changes));
+    dialog->ui->hintLabel->setText(tr("%1 changes").arg(*tapinfo->changes));
 
     return TAP_PACKET_REDRAW;
 }

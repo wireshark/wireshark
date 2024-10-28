@@ -563,7 +563,7 @@ void TCPStreamDialog::fillGraph(bool reset_axes, bool set_focus)
     disconnect(sp->yAxis, QOverload<const QCPRange&>::of(&QCPAxis::rangeChanged), sp->yAxis2, QOverload<const QCPRange&>::of(&QCPAxis::setRange));
 
     if (!cap_file_) {
-        QString dlg_title = QString(tr("No Capture Data"));
+        QString dlg_title = tr("No Capture Data");
         setWindowTitle(dlg_title);
         title_->setText(dlg_title);
         sp->setEnabled(false);
@@ -814,7 +814,7 @@ void TCPStreamDialog::resetAxes()
 
 void TCPStreamDialog::fillStevens()
 {
-    QString dlg_title = QString(tr("Sequence Numbers (Stevens)")) + streamDescription();
+    QString dlg_title = tr("Sequence Numbers (Stevens)") + streamDescription();
     setWindowTitle(dlg_title);
     title_->setText(dlg_title);
 
@@ -839,7 +839,7 @@ void TCPStreamDialog::fillStevens()
 
 void TCPStreamDialog::fillTcptrace()
 {
-    QString dlg_title = QString(tr("Sequence Numbers (tcptrace)")) + streamDescription();
+    QString dlg_title = tr("Sequence Numbers (tcptrace)") + streamDescription();
     setWindowTitle(dlg_title);
     title_->setText(dlg_title);
 
@@ -1204,11 +1204,11 @@ goodput_adjust_for_sacks(uint32_t *seglen, uint32_t last_ack,
 
 void TCPStreamDialog::fillThroughput()
 {
-    QString dlg_title = QString(tr("Throughput")) + streamDescription();
+    QString dlg_title = tr("Throughput") + streamDescription();
 #ifdef MA_1_SECOND
     dlg_title.append(tr(" (MA)"));
 #else
-    dlg_title.append(QString(tr(" (%1 Segment MA)")).arg(moving_avg_period_));
+    dlg_title.append(tr(" (%1 Segment MA)").arg(moving_avg_period_));
 #endif
     setWindowTitle(dlg_title);
     title_->setText(dlg_title);
@@ -1476,7 +1476,7 @@ rtt_selectively_ack_range(QVector<double>& x_vals, bool bySeqNumber,
 
 void TCPStreamDialog::fillRoundTripTime()
 {
-    QString dlg_title = QString(tr("Round Trip Time")) + streamDescription();
+    QString dlg_title = tr("Round Trip Time") + streamDescription();
     setWindowTitle(dlg_title);
     title_->setText(dlg_title);
 
@@ -1577,7 +1577,7 @@ void TCPStreamDialog::fillRoundTripTime()
 
 void TCPStreamDialog::fillWindowScale()
 {
-    QString dlg_title = QString(tr("Window Scaling")) + streamDescription();
+    QString dlg_title = tr("Window Scaling") + streamDescription();
     setWindowTitle(dlg_title);
     title_->setText(dlg_title);
 

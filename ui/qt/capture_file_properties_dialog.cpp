@@ -252,7 +252,7 @@ QString CaptureFilePropertiesDialog::summaryToHtml()
 
         // If we have more than one section, add headers for each section.
         if (wtap_file_get_num_shbs(cap_file_.capFile()->provider.wth) > 1)
-            out << section_tmpl_.arg(QString(tr("Section %1"))
+            out << section_tmpl_.arg(tr("Section %1")
                                      .arg(section_number + 1));
 
         wtap_block_t shb_inf = wtap_file_get_shb(cap_file_.capFile()->provider.wth, section_number);
@@ -350,10 +350,10 @@ QString CaptureFilePropertiesDialog::summaryToHtml()
             if (iface.cfilter && iface.cfilter[0] != '\0') {
                 interface_cfilter = iface.cfilter;
             } else if (iface.name) {
-                interface_cfilter = QString(tr("none"));
+                interface_cfilter = tr("none");
             }
 
-            QString interface_snaplen = QString(tr("%1 bytes").arg(iface.snap));
+            QString interface_snaplen = tr("%1 bytes").arg(iface.snap);
 
             out << table_row_begin
                 << table_data_tmpl.arg(interface_name)

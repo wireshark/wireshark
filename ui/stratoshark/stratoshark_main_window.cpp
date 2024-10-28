@@ -1175,7 +1175,7 @@ void StratosharkMainWindow::mergeCaptureFile()
                  * Format the message.
                  */
                 display_basename = g_filename_display_basename(capture_file_.capFile()->filename);
-                msg_dialog.setText(QString(tr("Save changes in \"%1\" before merging?")).arg(display_basename));
+                msg_dialog.setText(tr("Save changes in \"%1\" before merging?").arg(display_basename));
                 g_free(display_basename);
                 msg_dialog.setInformativeText(tr("Changes must be saved before the files can be merged."));
             }
@@ -1215,7 +1215,7 @@ void StratosharkMainWindow::mergeCaptureFile()
                    selection box again once they dismiss the alert. */
                 // Similar to commandline_info.jfilter section in main().
                 QMessageBox::warning(this, tr("Invalid Read Filter"),
-                                     QString(tr("The filter expression %1 isn't a valid read filter. (%2).").arg(read_filter, df_err->msg)),
+                                     tr("The filter expression %1 isn't a valid read filter. (%2).").arg(read_filter, df_err->msg),
                                      QMessageBox::Ok);
                 df_error_free(&df_err);
                 continue;
@@ -1616,7 +1616,7 @@ void StratosharkMainWindow::exportSelectedPackets() {
             char *display_basename = g_filename_display_basename(qUtf8Printable(file_name));
 
             msg_box.setIcon(QMessageBox::Critical);
-            msg_box.setText(QString(tr("Unable to export to \"%1\".").arg(display_basename)));
+            msg_box.setText(tr("Unable to export to \"%1\".").arg(display_basename));
             msg_box.setInformativeText(tr("You cannot export packets to the current capture file."));
             msg_box.setStandardButtons(QMessageBox::Ok);
             msg_box.setDefaultButton(QMessageBox::Ok);

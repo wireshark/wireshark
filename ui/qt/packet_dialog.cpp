@@ -201,9 +201,9 @@ void PacketDialog::setHintText(FieldInformation * finfo)
          QString field_str;
 
          if (pos.length < 2) {
-             hint = QString(tr("Byte %1")).arg(pos.start);
+             hint = tr("Byte %1").arg(pos.start);
          } else {
-             hint = QString(tr("Bytes %1-%2")).arg(pos.start).arg(pos.start + pos.length - 1);
+             hint = tr("Bytes %1-%2").arg(pos.start).arg(pos.start + pos.length - 1);
          }
          hint += QStringLiteral(": %1 (%2)")
                  .arg(finfo->headerInfo().name)

@@ -182,7 +182,7 @@ bool ColoringRulesModel::writeColors(QString& err)
         success = false;
     }
     if (!color_filters_write(cfl, &err_msg)) {
-        err = QString(tr("Unable to save coloring rules: %1").arg(g_strerror(errno)));
+        err = tr("Unable to save coloring rules: %1").arg(g_strerror(errno));
         success = false;
         g_free(err_msg);
     }

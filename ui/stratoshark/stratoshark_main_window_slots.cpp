@@ -739,7 +739,7 @@ void StratosharkMainWindow::captureFileReadStarted(const QString &action) {
 //    main_set_for_capture_file(true);
 
     mainApp->popStatus(WiresharkApplication::FileStatus);
-    QString msg = QString(tr("%1: %2")).arg(action).arg(capture_file_.fileName());
+    QString msg = tr("%1: %2").arg(action).arg(capture_file_.fileName());
     QString msgtip = QString();
     mainApp->pushStatus(WiresharkApplication::FileStatus, msg, msgtip);
     showCapture();
@@ -825,7 +825,7 @@ void StratosharkMainWindow::startCapture() {
 
     /* did the user ever select a capture interface before? */
     if (global_capture_opts.num_selected == 0) {
-        QString msg = QString(tr("No interface selected."));
+        QString msg = tr("No interface selected.");
         mainApp->pushStatus(WiresharkApplication::TemporaryStatus, msg);
         main_ui_->actionCaptureStart->setChecked(false);
         return;
@@ -850,7 +850,7 @@ void StratosharkMainWindow::startCapture() {
 
     /* If some of extcap was not configured, do not start with the capture */
     if (!can_start_capture) {
-        QString msg = QString(tr("Configure all extcaps before start of capture."));
+        QString msg = tr("Configure all extcaps before start of capture.");
         mainApp->pushStatus(WiresharkApplication::TemporaryStatus, msg);
         main_ui_->actionCaptureStart->setChecked(false);
         return;
@@ -860,7 +860,7 @@ void StratosharkMainWindow::startCapture() {
     // toolbar buttons and menu items. This may not be the
     // case, e.g. with QtMacExtras.
     if (!capture_filter_valid_) {
-        QString msg = QString(tr("Invalid capture filter."));
+        QString msg = tr("Invalid capture filter.");
         mainApp->pushStatus(WiresharkApplication::TemporaryStatus, msg);
         main_ui_->actionCaptureStart->setChecked(false);
         return;

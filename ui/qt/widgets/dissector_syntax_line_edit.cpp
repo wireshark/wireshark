@@ -57,7 +57,7 @@ void DissectorSyntaxLineEdit::updateDissectorNames()
 
 void DissectorSyntaxLineEdit::setDefaultPlaceholderText()
 {
-    placeholder_text_ = QString(tr("Enter a dissector %1")).arg(UTF8_HORIZONTAL_ELLIPSIS);
+    placeholder_text_ = tr("Enter a dissector %1").arg(UTF8_HORIZONTAL_ELLIPSIS);
 
     setPlaceholderText(placeholder_text_);
 }

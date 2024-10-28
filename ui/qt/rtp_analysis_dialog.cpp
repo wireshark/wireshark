@@ -400,7 +400,7 @@ int RtpAnalysisDialog::addTabUI(tab_info_t *new_tab)
     new_tab_no = ui->tabWidget->count() - 1;
     // Used when tab contains IPs
     //ui->tabWidget->insertTab(new_tab_no, tab, *new_tab->tab_name);
-    ui->tabWidget->insertTab(new_tab_no, tab, QString(tr("Stream %1")).arg(tab_seq - 1));
+    ui->tabWidget->insertTab(new_tab_no, tab, tr("Stream %1").arg(tab_seq - 1));
     ui->tabWidget->tabBar()->setTabTextColor(new_tab_no, color);
     ui->tabWidget->tabBar()->setTabToolTip(new_tab_no, *new_tab->tab_name);
     ui->tabWidget->setUpdatesEnabled(true);

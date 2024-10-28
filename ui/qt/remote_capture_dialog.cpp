@@ -82,7 +82,7 @@ void RemoteCaptureDialog::fillComboBox()
     if (remote_host_list_size > 0) {
         recent_remote_host_list_foreach(fillBox, ui->hostCombo);
         ui->hostCombo->insertSeparator(remote_host_list_size+1);
-        ui->hostCombo->addItem(QString(tr("Clear list")));
+        ui->hostCombo->addItem(tr("Clear list"));
     }
 }
 
