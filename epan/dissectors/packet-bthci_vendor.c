@@ -39,12 +39,36 @@ static int hf_broadcom_baudrate;
 static int hf_broadcom_status;
 static int hf_broadcom_bd_addr;
 static int hf_broadcom_max_advertising_instance;
+static int hf_broadcom_max_advertising_instance_reserved;
 static int hf_broadcom_resolvable_private_address_offloading;
+static int hf_broadcom_resolvable_private_address_offloading_reserved;
 static int hf_broadcom_total_scan_results;
 static int hf_broadcom_max_irk_list;
 static int hf_broadcom_filter_support;
 static int hf_broadcom_max_filter;
 static int hf_broadcom_energy_support;
+static int hf_broadcom_version_support;
+static int hf_broadcom_total_num_of_advt_tracked;
+static int hf_broadcom_extended_scan_support;
+static int hf_broadcom_debug_logging_support;
+static int hf_broadcom_le_address_generation_offloading_support;
+static int hf_broadcom_le_address_generation_offloading_support_reserved;
+static int hf_broadcom_a2dp_source_offload_capability_mask;
+static int hf_broadcom_a2dp_source_offload_capability_mask_sbc;
+static int hf_broadcom_a2dp_source_offload_capability_mask_aac;
+static int hf_broadcom_a2dp_source_offload_capability_mask_aptx;
+static int hf_broadcom_a2dp_source_offload_capability_mask_aptx_hd;
+static int hf_broadcom_a2dp_source_offload_capability_mask_ldac;
+static int hf_broadcom_a2dp_source_offload_capability_mask_reserved;
+static int hf_broadcom_bluetooth_quality_report_support;
+static int hf_broadcom_dynamic_audio_buffer_support_mask;
+static int hf_broadcom_dynamic_audio_buffer_support_mask_sbc;
+static int hf_broadcom_dynamic_audio_buffer_support_mask_aac;
+static int hf_broadcom_dynamic_audio_buffer_support_mask_aptx;
+static int hf_broadcom_dynamic_audio_buffer_support_mask_aptx_hd;
+static int hf_broadcom_dynamic_audio_buffer_support_mask_ldac;
+static int hf_broadcom_dynamic_audio_buffer_support_mask_reserved;
+static int hf_broadcom_a2dp_offload_v2_support;
 static int hf_broadcom_connection_handle;
 static int hf_broadcom_connection_priority;
 static int hf_broadcom_sleep_mode;
@@ -123,9 +147,32 @@ static int * const hfx_le_multi_advertising_channel_map[] = {
     NULL
 };
 
+static int * const hfx_broadcom_a2dp_source_offload_capability[] = {
+    &hf_broadcom_a2dp_source_offload_capability_mask_reserved,
+    &hf_broadcom_a2dp_source_offload_capability_mask_ldac,
+    &hf_broadcom_a2dp_source_offload_capability_mask_aptx_hd,
+    &hf_broadcom_a2dp_source_offload_capability_mask_aptx,
+    &hf_broadcom_a2dp_source_offload_capability_mask_aac,
+    &hf_broadcom_a2dp_source_offload_capability_mask_sbc,
+    NULL
+};
+
+static int * const hfx_broadcom_dynamic_audio_buffer_support[] = {
+    &hf_broadcom_dynamic_audio_buffer_support_mask_reserved,
+    &hf_broadcom_dynamic_audio_buffer_support_mask_ldac,
+    &hf_broadcom_dynamic_audio_buffer_support_mask_aptx_hd,
+    &hf_broadcom_dynamic_audio_buffer_support_mask_aptx,
+    &hf_broadcom_dynamic_audio_buffer_support_mask_aac,
+    &hf_broadcom_dynamic_audio_buffer_support_mask_sbc,
+    NULL
+};
+
 static int ett_broadcom;
 static int ett_broadcom_opcode;
 static int ett_broadcom_channel_map;
+static int ett_broadcom_a2dp_source_offload_capability_mask;
+static int ett_broadcom_dynamic_audio_buffer_support_mask;
+
 
 static expert_field ei_broadcom_undecoded;
 static expert_field ei_broadcom_unexpected_parameter;
@@ -901,10 +948,20 @@ dissect_bthci_vendor_broadcom(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
             case 0x0153: /* LE Get Vendor Capabilities */
                 if (status != STATUS_SUCCESS)
                     break;
-                proto_tree_add_item(main_tree, hf_broadcom_max_advertising_instance, tvb, offset, 1, ENC_NA);
+
+                uint16_t google_feature_spec_version = tvb_get_uint16(tvb, offset + 8, ENC_LITTLE_ENDIAN);
+                if (google_feature_spec_version < 0x0098) {
+                    proto_tree_add_item(main_tree, hf_broadcom_max_advertising_instance, tvb, offset, 1, ENC_NA);
+                } else {
+                    proto_tree_add_item(main_tree, hf_broadcom_max_advertising_instance_reserved, tvb, offset, 1, ENC_NA);
+                }
                 offset += 1;
 
-                proto_tree_add_item(main_tree, hf_broadcom_resolvable_private_address_offloading, tvb, offset, 1, ENC_NA);
+                if (google_feature_spec_version < 0x0098) {
+                    proto_tree_add_item(main_tree, hf_broadcom_resolvable_private_address_offloading, tvb, offset, 1, ENC_NA);
+                } else {
+                    proto_tree_add_item(main_tree, hf_broadcom_resolvable_private_address_offloading_reserved, tvb, offset, 1, ENC_NA);
+                }
                 offset += 1;
 
                 proto_tree_add_item(main_tree, hf_broadcom_total_scan_results, tvb, offset, 2, ENC_LITTLE_ENDIAN);
@@ -921,6 +978,39 @@ dissect_bthci_vendor_broadcom(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 
                 proto_tree_add_item(main_tree, hf_broadcom_energy_support, tvb, offset, 1, ENC_NA);
                 offset += 1;
+
+                proto_tree_add_item(main_tree, hf_broadcom_version_support, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                offset += 2;
+
+                proto_tree_add_item(main_tree, hf_broadcom_total_num_of_advt_tracked, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                offset += 2;
+
+                proto_tree_add_item(main_tree, hf_broadcom_extended_scan_support, tvb, offset, 1, ENC_NA);
+                offset += 1;
+
+                proto_tree_add_item(main_tree, hf_broadcom_debug_logging_support, tvb, offset, 1, ENC_NA);
+                offset += 1;
+
+                if (google_feature_spec_version < 0x0098) {
+                    proto_tree_add_item(main_tree, hf_broadcom_le_address_generation_offloading_support, tvb, offset, 1, ENC_NA);
+                } else {
+                    proto_tree_add_item(main_tree, hf_broadcom_le_address_generation_offloading_support_reserved, tvb, offset, 1, ENC_NA);
+                }
+                offset += 1;
+
+                proto_tree_add_bitmask(main_tree, tvb, offset, hf_broadcom_a2dp_source_offload_capability_mask, ett_broadcom_a2dp_source_offload_capability_mask, hfx_broadcom_a2dp_source_offload_capability, ENC_LITTLE_ENDIAN);
+                offset += 4;
+
+                proto_tree_add_item(main_tree, hf_broadcom_bluetooth_quality_report_support, tvb, offset, 1, ENC_NA);
+                offset += 1;
+
+                proto_tree_add_bitmask(main_tree, tvb, offset, hf_broadcom_dynamic_audio_buffer_support_mask, ett_broadcom_dynamic_audio_buffer_support_mask, hfx_broadcom_dynamic_audio_buffer_support, ENC_LITTLE_ENDIAN);
+                offset += 4;
+
+                if (tvb_captured_length_remaining(tvb, offset) > 0) {
+                    proto_tree_add_item(main_tree, hf_broadcom_a2dp_offload_v2_support, tvb, offset, 1, ENC_NA);
+                    offset += 1;
+                }
 
                 break;
             case 0x0154: /* LE Multi Advertising */
@@ -1130,9 +1220,19 @@ proto_register_bthci_vendor_broadcom(void)
             FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
+        { &hf_broadcom_max_advertising_instance_reserved,
+            { "Reserved",                                  "bthci_vendor.broadcom.max_advertising_instance_reserved",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
         { &hf_broadcom_resolvable_private_address_offloading,
             { "Resolvable Private Address Offloading",     "bthci_vendor.broadcom.resolvable_private_address_offloading",
             FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_broadcom_resolvable_private_address_offloading_reserved,
+            { "Reserved",                                  "bthci_vendor.broadcom.resolvable_private_address_offloading_reserved",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_broadcom_total_scan_results,
@@ -1141,7 +1241,7 @@ proto_register_bthci_vendor_broadcom(void)
             NULL, HFILL }
         },
         { &hf_broadcom_max_irk_list,
-            { "Max IRK List",                               "bthci_vendor.broadcom.max_irk_list",
+            { "Max IRK List",                              "bthci_vendor.broadcom.max_irk_list",
             FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
@@ -1157,6 +1257,116 @@ proto_register_bthci_vendor_broadcom(void)
         },
         { &hf_broadcom_energy_support,
             { "Energy Support",                            "bthci_vendor.broadcom.energy_support",
+            FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_broadcom_version_support,
+            { "Version Support",                           "bthci_vendor.broadcom.version_support",
+            FT_UINT16, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_broadcom_total_num_of_advt_tracked,
+            { "Total Number of Advertisers Tracked",       "bthci_vendor.broadcom.total_num_of_advt_tracked",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_broadcom_extended_scan_support,
+            { "Extended Scan Support",                     "bthci_vendor.broadcom.extended_scan_support",
+            FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_broadcom_debug_logging_support,
+            { "Debug Logging Support",                     "bthci_vendor.broadcom.debug_logging_support",
+            FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_broadcom_le_address_generation_offloading_support,
+            { "LE Address Generation Offloading Support",  "bthci_vendor.broadcom.le_address_generation_offloading_support",
+            FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_broadcom_le_address_generation_offloading_support_reserved,
+            { "Reserved",                                  "bthci_vendor.broadcom.le_address_generation_offloading_support_reserved",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_broadcom_a2dp_source_offload_capability_mask,
+            { "A2DP Source Offload Capability",            "bthci_vendor.broadcom.a2dp_source_offload_capability_mask",
+            FT_UINT32, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_broadcom_a2dp_source_offload_capability_mask_sbc,
+          { "SBC",                                         "bthci_vendor.broadcom.a2dp_source_offload_capability_mask.sbc",
+            FT_BOOLEAN, 32, NULL, 0x00000001,
+            NULL, HFILL }
+        },
+        { &hf_broadcom_a2dp_source_offload_capability_mask_aac,
+          { "AAC",                                         "bthci_vendor.broadcom.a2dp_source_offload_capability_mask.aac",
+            FT_BOOLEAN, 32, NULL, 0x00000002,
+            NULL, HFILL }
+        },
+        { &hf_broadcom_a2dp_source_offload_capability_mask_aptx,
+          { "APTX",                                        "bthci_vendor.broadcom.a2dp_source_offload_capability_mask.aptx",
+            FT_BOOLEAN, 32, NULL, 0x00000004,
+            NULL, HFILL }
+        },
+        { &hf_broadcom_a2dp_source_offload_capability_mask_aptx_hd,
+          { "APTX HD",                                     "bthci_vendor.broadcom.a2dp_source_offload_capability_mask.aptx_hd",
+            FT_BOOLEAN, 32, NULL, 0x00000008,
+            NULL, HFILL }
+        },
+        { &hf_broadcom_a2dp_source_offload_capability_mask_ldac,
+          { "LDAC",                                        "bthci_vendor.broadcom.a2dp_source_offload_capability_mask.ldac",
+            FT_BOOLEAN, 32, NULL, 0x00000010,
+            NULL, HFILL }
+        },
+        { &hf_broadcom_a2dp_source_offload_capability_mask_reserved,
+          { "Reserved",                                    "bthci_vendor.broadcom.a2dp_source_offload_capability_mask.reserved",
+            FT_UINT32, BASE_HEX, NULL, UINT32_C(0xFFFFFFE0),
+            NULL, HFILL }
+        },
+        { &hf_broadcom_bluetooth_quality_report_support,
+            { "Bluetooth Quality Report Support",          "bthci_vendor.broadcom.bluetooth_quality_report_support",
+            FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_broadcom_dynamic_audio_buffer_support_mask,
+            { "Dynamic Audio Buffer Support",              "bthci_vendor.broadcom.dynamic_audio_buffer_support_mask",
+            FT_UINT32, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_broadcom_dynamic_audio_buffer_support_mask_sbc,
+          { "SBC",                                         "bthci_vendor.broadcom.dynamic_audio_buffer_support_mask.sbc",
+            FT_BOOLEAN, 32, NULL, 0x00000001,
+            NULL, HFILL }
+        },
+        { &hf_broadcom_dynamic_audio_buffer_support_mask_aac,
+          { "AAC",                                         "bthci_vendor.broadcom.dynamic_audio_buffer_support_mask.aac",
+            FT_BOOLEAN, 32, NULL, 0x00000002,
+            NULL, HFILL }
+        },
+        { &hf_broadcom_dynamic_audio_buffer_support_mask_aptx,
+          { "APTX",                                        "bthci_vendor.broadcom.dynamic_audio_buffer_support_mask.aptx",
+            FT_BOOLEAN, 32, NULL, 0x00000004,
+            NULL, HFILL }
+        },
+        { &hf_broadcom_dynamic_audio_buffer_support_mask_aptx_hd,
+          { "APTX HD",                                     "bthci_vendor.broadcom.dynamic_audio_buffer_support_mask.aptx_hd",
+            FT_BOOLEAN, 32, NULL, 0x00000008,
+            NULL, HFILL }
+        },
+        { &hf_broadcom_dynamic_audio_buffer_support_mask_ldac,
+          { "LDAC",                                        "bthci_vendor.broadcom.dynamic_audio_buffer_support_mask.ldac",
+            FT_BOOLEAN, 32, NULL, 0x00000010,
+            NULL, HFILL }
+        },
+        { &hf_broadcom_dynamic_audio_buffer_support_mask_reserved,
+          { "Reserved",                                    "bthci_vendor.broadcom.dynamic_audio_buffer_support_mask.reserved",
+            FT_UINT32, BASE_HEX, NULL, UINT32_C(0xFFFFFFE0),
+            NULL, HFILL }
+        },
+        { &hf_broadcom_a2dp_offload_v2_support,
+            { "A2DP Offload V2 Support",                   "bthci_vendor.broadcom.a2dp_offload_v2_support",
             FT_BOOLEAN, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
@@ -1515,7 +1725,9 @@ proto_register_bthci_vendor_broadcom(void)
     static int *ett[] = {
         &ett_broadcom,
         &ett_broadcom_opcode,
-        &ett_broadcom_channel_map
+        &ett_broadcom_channel_map,
+        &ett_broadcom_a2dp_source_offload_capability_mask,
+        &ett_broadcom_dynamic_audio_buffer_support_mask,
     };
 
     static ei_register_info ei[] = {
