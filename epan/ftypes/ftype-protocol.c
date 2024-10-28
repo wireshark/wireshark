@@ -46,14 +46,12 @@ value_free(fvalue_t *fv)
 static void
 value_set(fvalue_t *fv, tvbuff_t *value, const char *name, int length)
 {
-	if (value != NULL) {
-		/* Free up the old value, if we have one */
-		value_free(fv);
+	/* Free up the old value, if we have one */
+	value_free(fv);
 
-		/* Set the protocol description and an (optional, nullable) tvbuff. */
-		fv->value.protocol.tvb = value;
-		fv->value.protocol.proto_string = g_strdup(name);
-	}
+	/* Set the protocol description and an (optional, nullable) tvbuff. */
+	fv->value.protocol.tvb = value;
+	fv->value.protocol.proto_string = g_strdup(name);
 	fv->value.protocol.length = length;
 }
 

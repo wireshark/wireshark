@@ -1012,6 +1012,14 @@ fvalue_set_protocol(fvalue_t *fv, tvbuff_t *value, const char *name, int length)
 }
 
 void
+fvalue_set_protocol_length(fvalue_t *fv, int length)
+{
+	ws_assert(fv->ftype->ftype == FT_PROTOCOL);
+	protocol_value_t *proto = &fv->value.protocol;
+	proto->length = length;
+}
+
+void
 fvalue_set_uinteger(fvalue_t *fv, uint32_t value)
 {
 	ws_assert(fv->ftype->ftype == FT_IEEE_11073_SFLOAT ||
