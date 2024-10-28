@@ -199,6 +199,8 @@ val_to_repr(wmem_allocator_t *scope, const fvalue_t *fv, ftrepr_t rtype, int fie
 static tvbuff_t *
 value_get(fvalue_t *fv)
 {
+	if (fv->value.protocol.tvb == NULL)
+		return NULL;
 	if (fv->value.protocol.length < 0)
 		return fv->value.protocol.tvb;
 	return tvb_new_subset_length_caplen(fv->value.protocol.tvb, 0, fv->value.protocol.length, fv->value.protocol.length);
