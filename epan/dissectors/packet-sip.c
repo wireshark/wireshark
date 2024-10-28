@@ -2760,7 +2760,7 @@ static void dissect_sip_via_header(tvbuff_t *tvb, proto_tree *tree, int start_of
                                     parameter_name_end + 1, current_offset - parameter_name_end - 1, &ts);
                                 proto_item_set_generated(ti);
                             }
-                        } else if (g_ascii_strcasecmp(param_name, "be-route") == 0) {
+                        } else if (sip_via_be_route_handle && g_ascii_strcasecmp(param_name, "be-route") == 0) {
                             tvbuff_t* next_tvb;
                             next_tvb = tvb_new_subset_length(tvb, parameter_name_end + 1, current_offset - parameter_name_end - 1);
                             call_dissector(sip_via_be_route_handle, next_tvb, pinfo, proto_item_add_subtree(via_parameter_item, ett_sip_via_be_route));
