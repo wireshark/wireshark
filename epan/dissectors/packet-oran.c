@@ -328,6 +328,9 @@ static int hf_oran_tx_win_for_on_air_symbol_r;
 static int hf_oran_num_fo_fb;
 static int hf_oran_freq_offset_fb;
 
+static int hf_oran_num_sinr_per_prb;
+static int hf_oran_sinr_value;
+
 /* Computed fields */
 static int hf_oran_c_eAxC_ID;
 static int hf_oran_refa;
@@ -630,6 +633,17 @@ static const range_string freq_offset_fb_values[] = {
     {0, 0, NULL}
 };
 
+static const value_string num_sinr_per_prb_vals[] = {
+    { 0,  "1" },
+    { 1,  "2" },
+    { 2,  "3" },
+    { 3,  "4" },
+    { 4,  "6" },
+    { 5,  "12" },
+    { 6,  "reserved" },
+    { 7,  "reserved" },
+    { 0, NULL}
+};
 
 
 
@@ -970,6 +984,12 @@ static const true_false_string prb_mode_tfs = {
   "PRB-BLOCK mode",
   "PRB-MASK mode"
 };
+
+/* Forward declaration */
+static int dissect_udcompparam(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned offset,
+                               unsigned comp_meth,
+                               uint32_t *exponent, uint16_t *sReSMask, bool for_sinr);
+
 
 static const true_false_string ready_tfs = {
   "message is a \"ready\" message",
@@ -1774,7 +1794,8 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                                   flow_state_t* state,
                                   uint32_t sectionType, proto_item *protocol_item,
                                   uint32_t subframeId, uint32_t slotId,
-                                  uint8_t ci_iq_width, uint8_t ci_comp_meth, unsigned ci_comp_opt)
+                                  uint8_t ci_iq_width, uint8_t ci_comp_meth, unsigned ci_comp_opt,
+                                  unsigned num_sinr_per_prb)
 {
     unsigned offset = 0;
     proto_tree *c_section_tree = NULL;
@@ -1783,8 +1804,8 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
     c_section_tree = proto_tree_add_subtree(tree, tvb, offset, 0, ett_oran_section, &sectionHeading, "Section");
     uint32_t sectionId = 0;
 
-    uint32_t startPrbc;
-    uint32_t numPrbc;
+    uint32_t startPrbc, startPrbu;
+    uint32_t numPrbc, numPrbu;
     uint32_t ueId = 0;
     uint32_t beamId = 0;
     proto_item *beamId_ti = NULL;
@@ -1798,8 +1819,8 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
 
     bool extension_flag = false;
 
-    /* These sections (ST0, ST1, ST2, ST3, ST5) are similar, so handle as common with per-type differences */
-    if ((sectionType <= SEC_C_UE_SCHED) && (sectionType != SEC_C_SLOT_CONTROL)) {
+    /* These sections (ST0, ST1, ST2, ST3, ST5, ST9) are similar, so handle as common with per-type differences */
+    if (((sectionType <= SEC_C_UE_SCHED) || (sectionType == SEC_C_SINR_REPORTING)) && (sectionType != SEC_C_SLOT_CONTROL)) {
         /* sectionID */
         proto_item *ti = proto_tree_add_item_ret_uint(c_section_tree, hf_oran_section_id, tvb, offset, 2, ENC_BIG_ENDIAN, &sectionId);
         if (sectionId == 4095) {
@@ -1812,43 +1833,65 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
         proto_tree_add_item_ret_uint(c_section_tree, hf_oran_rb, tvb, offset, 1, ENC_NA, &rb);
         /* symInc */
         proto_tree_add_item(c_section_tree, hf_oran_symInc, tvb, offset, 1, ENC_NA);
-        /* startPrbc (10 bits) */
-        proto_tree_add_item_ret_uint(c_section_tree, hf_oran_startPrbc, tvb, offset, 2, ENC_BIG_ENDIAN, &startPrbc);
-        offset += 2;
-        /* numPrbc */
-        numprbc_ti = proto_tree_add_item_ret_uint(c_section_tree, hf_oran_numPrbc, tvb, offset, 1, ENC_NA, &numPrbc);
-        if (numPrbc == 0) {
-            proto_item_append_text(numprbc_ti, " (all PRBs - configured as %u)", pref_data_plane_section_total_rbs);
+        /* startPrbx and numPrbx */
+        if (sectionType == SEC_C_SINR_REPORTING) {
+            /* startPrbu (10 bits) */
+            proto_tree_add_item_ret_uint(c_section_tree, hf_oran_startPrbu, tvb, offset, 2, ENC_BIG_ENDIAN, &startPrbu);
+            offset += 2;
+            /* numPrbu */
+            numprbc_ti = proto_tree_add_item_ret_uint(c_section_tree, hf_oran_numPrbu, tvb, offset, 1, ENC_NA, &numPrbu);
+            if (numPrbu == 0) {
+                proto_item_append_text(numprbc_ti, " (all PRBs - configured as %u)", pref_data_plane_section_total_rbs);
+                numPrbu = pref_data_plane_section_total_rbs;
+            }
+            offset += 1;
         }
-        offset += 1;
-        /* reMask */
-        proto_tree_add_item(c_section_tree, hf_oran_reMask, tvb, offset, 2, ENC_BIG_ENDIAN);
-        offset++;
-        /* numSymbol */
-        uint32_t numSymbol;
-        proto_tree_add_item_ret_uint(c_section_tree, hf_oran_numSymbol, tvb, offset, 1, ENC_NA, &numSymbol);
-        offset++;
-
-        /* [ef] (extension flag) */
-        switch (sectionType) {
-            case SEC_C_UNUSED_RB:         /* Section Type 0 */
-            case SEC_C_NORMAL:            /* Section Type 1 */
-            case SEC_C_PRACH:             /* Section Type 3 */
-            case SEC_C_UE_SCHED:          /* Section Type 5 */
-                proto_tree_add_item_ret_boolean(c_section_tree, hf_oran_ef, tvb, offset, 1, ENC_BIG_ENDIAN, &extension_flag);
-                break;
-            default:
-                /* Other section types don't support extensions */
-                break;
+        else {
+            /* startPrbc (10 bits) */
+            proto_tree_add_item_ret_uint(c_section_tree, hf_oran_startPrbc, tvb, offset, 2, ENC_BIG_ENDIAN, &startPrbc);
+            offset += 2;
+            /* numPrbc */
+            numprbc_ti = proto_tree_add_item_ret_uint(c_section_tree, hf_oran_numPrbc, tvb, offset, 1, ENC_NA, &numPrbc);
+            if (numPrbc == 0) {
+                proto_item_append_text(numprbc_ti, " (all PRBs - configured as %u)", pref_data_plane_section_total_rbs);
+            }
+            offset += 1;
         }
 
-        write_section_info(sectionHeading, pinfo, protocol_item, sectionId, startPrbc, numPrbc, rb);
-        proto_item_append_text(sectionHeading, ", Symbols: %2u", numSymbol);
+        if (sectionType != SEC_C_SINR_REPORTING) {
+            /* reMask */
+            proto_tree_add_item(c_section_tree, hf_oran_reMask, tvb, offset, 2, ENC_BIG_ENDIAN);
+            offset++;
+            /* numSymbol */
+            uint32_t numSymbol;
+            proto_tree_add_item_ret_uint(c_section_tree, hf_oran_numSymbol, tvb, offset, 1, ENC_NA, &numSymbol);
+            offset++;
 
-        if (numPrbc == 0) {
-            /* Special case for all PRBs */
-            numPrbc = pref_data_plane_section_total_rbs;
-            startPrbc = 0;  /* may already be 0... */
+            /* [ef] (extension flag) */
+            switch (sectionType) {
+                case SEC_C_UNUSED_RB:         /* Section Type 0 */
+                case SEC_C_NORMAL:            /* Section Type 1 */
+                case SEC_C_PRACH:             /* Section Type 3 */
+                case SEC_C_UE_SCHED:          /* Section Type 5 */
+                    proto_tree_add_item_ret_boolean(c_section_tree, hf_oran_ef, tvb, offset, 1, ENC_BIG_ENDIAN, &extension_flag);
+                    break;
+                default:
+                    /* Other section types don't support extensions */
+                    break;
+            }
+
+            write_section_info(sectionHeading, pinfo, protocol_item, sectionId, startPrbc, numPrbc, rb);
+            proto_item_append_text(sectionHeading, ", Symbols: %2u", numSymbol);
+
+            if (numPrbc == 0) {
+                /* Special case for all PRBs */
+                numPrbc = pref_data_plane_section_total_rbs;
+                startPrbc = 0;  /* may already be 0... */
+            }
+        }
+        else {
+            write_section_info(sectionHeading, pinfo, protocol_item, sectionId, startPrbu, numPrbu, rb);
+            proto_item_append_text(sectionHeading, ", numSinrPrPrb: %2u", num_sinr_per_prb);
         }
 
         /* Section type specific fields (after 'numSymbol') */
@@ -1895,6 +1938,42 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
 
                 proto_item_append_text(sectionHeading, ", UEId: %d", ueId);
                 break;
+
+            case SEC_C_SINR_REPORTING:   /* Section Type 9 - SINR Reporting */
+            {
+                unsigned bit_offset = offset+8;
+
+                /* TODO: alternates if 'rb' set? */
+                for (unsigned prb=startPrbu; prb < startPrbu+numPrbu; prb++) {
+                    /* TODO: create a subtree for each PRB entry with good summary? */
+
+                    /* Each prb starts bit-aligned */
+                    bit_offset = ((bit_offset+7)/8) * 8;
+
+                    /* N.B., using width/method from UL U-plane preferences, not certain that this is correct.. */
+
+                    /* sinrCompParam */
+                    uint32_t exponent;
+                    uint16_t sReSMask;
+                    offset = dissect_udcompparam(tvb, pinfo, c_section_tree, bit_offset/8,
+                                                 pref_iqCompressionUplink, &exponent, &sReSMask,
+                                                 true); /* last param is for_sinr */
+
+                    /* SINR Values for this PRB */
+                    for (unsigned n=0; n < num_sinr_per_prb; n++) {
+                        unsigned sinr_bits = tvb_get_bits(tvb, bit_offset, pref_sample_bit_width_uplink, ENC_BIG_ENDIAN);
+
+                        float value = decompress_value(sinr_bits, pref_iqCompressionUplink, pref_sample_bit_width_uplink, exponent);
+                        unsigned sample_len_in_bytes = ((bit_offset%8)+pref_sample_bit_width_uplink+7)/8;
+                        proto_item *val_ti = proto_tree_add_float(c_section_tree, hf_oran_sinr_value, tvb,
+                                                                   bit_offset/8, sample_len_in_bytes, value);
+                        proto_item_append_text(val_ti, "       (#%u for PRB=%u)", n+1, prb);
+
+                        bit_offset += pref_sample_bit_width_uplink;
+                    }
+                }
+                break;
+            }
 
             default:
                 break;
@@ -3518,7 +3597,8 @@ static int dissect_udcomphdr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 /* bit_width and comp_meth are out params */
 static int dissect_udcompparam(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned offset,
                                unsigned comp_meth,
-                               uint32_t *exponent, uint16_t *sReSMask)
+                               uint32_t *exponent, uint16_t *sReSMask,
+                               bool for_sinr)
 {
     if (comp_meth == COMP_NONE || comp_meth == COMP_MODULATION) {
         /* Not even creating a subtree */
@@ -3528,7 +3608,7 @@ static int dissect_udcompparam(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
     /* Subtree */
     proto_item *udcompparam_ti = proto_tree_add_string_format(tree, hf_oran_udCompParam,
                                                          tvb, offset, 1, "",
-                                                         "udCompHdr");
+                                                         (for_sinr) ? "sinrCompHdr" : "udCompHdr");
     proto_tree *udcompparam_tree = proto_item_add_subtree(udcompparam_ti, ett_oran_udcompparam);
 
     uint32_t param_exponent, param_sresmask;
@@ -3809,7 +3889,8 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
     /* startSymbolId */
     uint32_t startSymbolId = 0;
     proto_item *ssid_ti = NULL;
-    if (sectionType == SEC_C_ACK_NACK_FEEDBACK) {     /* Section Type 8 */
+    if ((sectionType == SEC_C_ACK_NACK_FEEDBACK) ||  /* Section Type 8 */
+        (sectionType == SEC_C_SINR_REPORTING)) {     /* Section Type 9 */
         /* symbolId */
         proto_tree_add_item(section_tree, hf_oran_symbolId, tvb, offset, 1, ENC_NA);
     }
@@ -3865,6 +3946,8 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
     uint32_t num_ues = 0;
     uint32_t number_of_acks = 0, number_of_nacks = 0;
 
+    uint32_t num_sinr_per_prb = 0;
+
     switch (sectionType) {
         case SEC_C_UNUSED_RB:   /* Section Type 0 */
             /* timeOffset */
@@ -3882,8 +3965,8 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
             offset += 1;
             break;
 
-        case SEC_C_NORMAL:      /* Section Type 1 */
-        case SEC_C_UE_SCHED:    /* Section Type 5 */
+        case SEC_C_NORMAL:       /* Section Type 1 */
+        case SEC_C_UE_SCHED:     /* Section Type 5 */
             /* udCompHdr */
             offset = dissect_udcomphdr(tvb, pinfo, section_tree, offset,
                                        (direction==1), /* ignore for DL */
@@ -3896,7 +3979,7 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
         case SEC_C_SLOT_CONTROL: /* Section Type 4 */
             break;
 
-        case SEC_C_PRACH:       /* Section Type 3 */
+        case SEC_C_PRACH:        /* Section Type 3 */
             /* timeOffset */
             proto_tree_add_item(section_tree, hf_oran_timeOffset, tvb, offset, 2, ENC_BIG_ENDIAN);
             offset += 2;
@@ -3996,6 +4079,31 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
                 }
             }
             break;
+
+        case SEC_C_SINR_REPORTING:     /* Section Type 9 */
+            /* numSinrPerPrb (3 bits) */
+            proto_tree_add_item_ret_uint(section_tree, hf_oran_num_sinr_per_prb, tvb, offset, 1, ENC_BIG_ENDIAN, &num_sinr_per_prb);
+            switch (num_sinr_per_prb) {
+                case 0:
+                    num_sinr_per_prb = 1; break;
+                case 1:
+                    num_sinr_per_prb = 2; break;
+                case 2:
+                    num_sinr_per_prb = 3; break;
+                case 3:
+                    num_sinr_per_prb = 4; break;
+                case 4:
+                    num_sinr_per_prb = 6; break;
+                case 5:
+                    num_sinr_per_prb = 12; break;
+            }
+
+            /* reserved (13 bits) */
+            offset += 1;
+            proto_tree_add_item(section_tree, hf_oran_reserved_8bits, tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset += 1;
+            break;
+
     };
 
     /* Update udCompHdr details in state for UL U-Plane */
@@ -4407,7 +4515,8 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
         tvbuff_t *section_tvb = tvb_new_subset_length_caplen(tvb, offset, -1, -1);
         offset += dissect_oran_c_section(section_tvb, oran_tree, pinfo, state, sectionType, protocol_item,
                                          subframeId, slotId,
-                                         bit_width, ci_comp_method, ci_comp_opt);
+                                         bit_width, ci_comp_method, ci_comp_opt,
+                                         num_sinr_per_prb);
     }
 
     /* Expert error if we are short of tvb by > 3 bytes */
@@ -4666,7 +4775,7 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 
             /* udCompParam (depends upon compression method) */
             int before = offset;
-            offset = dissect_udcompparam(tvb, pinfo, rb_tree, offset, compression, &exponent, &sresmask);
+            offset = dissect_udcompparam(tvb, pinfo, rb_tree, offset, compression, &exponent, &sresmask, false);
             int udcompparam_len = offset-before;
 
             /* Show PRB number in root */
@@ -6710,7 +6819,27 @@ proto_register_oran(void)
           RVALS(freq_offset_fb_values), 0x0,
           "UE frequency offset feedback",
           HFILL}
-        }
+        },
+
+        /* 7.5.2.19 */
+        {&hf_oran_num_sinr_per_prb,
+         {"numSinrPerPrb", "oran_fh_cus.numSinrPerPrb",
+          FT_UINT8, BASE_DEC,
+          VALS(num_sinr_per_prb_vals), 0xe0,
+          "number of SINR values per PRB",
+          HFILL}
+        },
+
+
+        /* Section 7.5.3.68 */
+        {&hf_oran_sinr_value,
+         {"sinrValue", "oran_fh_cus.sinrValue",
+          FT_FLOAT, BASE_NONE,
+          NULL, 0x0,
+          NULL,
+          HFILL}
+        },
+
     };
 
     /* Setup protocol subtree array */
