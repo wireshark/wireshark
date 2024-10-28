@@ -269,7 +269,6 @@ dot11decrypt_derive_pmk_r0(const uint8_t *xxkey, size_t xxkey_len,
     uint8_t sha256_res[32];
     size_t offset = 0;
     unsigned q = gcry_md_get_algo_dlen(hash_algo);
-    uint16_t mdid_le = GUINT16_TO_LE(*(uint16_t*)mdid);
 
     if (!xxkey || !ssid || !mdid || !r0kh_id || !s0kh_id ||
         !pmk_r0 || !pmk_r0_len || !pmk_r0_name)
@@ -289,7 +288,7 @@ dot11decrypt_derive_pmk_r0(const uint8_t *xxkey, size_t xxkey_len,
     context[offset++] = (uint8_t)ssid_len;
     memcpy(context + offset, ssid, ssid_len);
     offset += ssid_len;
-    memcpy(context + offset, &mdid_le, 2);
+    memcpy(context + offset, mdid, 2);
     offset += 2;
     context[offset++] = (uint8_t)r0kh_id_len;
     memcpy(context + offset, r0kh_id, r0kh_id_len);
