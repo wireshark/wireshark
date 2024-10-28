@@ -757,8 +757,9 @@ static int* const quality_field_bits_oct2[] = {
 };
 
 static int * const mms_iec61850_chec_bits[] = {
-    &hf_mms_iec61850_check_b1,
-    &hf_mms_iec61850_check_b0,
+    &hf_mms_iec61850_check_b15,
+    &hf_mms_iec61850_check_b14,
+    &hf_mms_iec61850_check_b13_b0,
     NULL
 };
     tvbuff_t *parameter_tvb = NULL;
