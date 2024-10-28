@@ -58,7 +58,7 @@ struct _wmem_tree_t {
 typedef int (*compare_func)(const void *a, const void *b);
 
 wmem_tree_node_t *
-wmem_tree_insert(wmem_tree_t *tree, const void *key, void *data, compare_func cmp);
+wmem_tree_insert_node(wmem_tree_t *tree, const void *key, void *data, compare_func cmp);
 
 typedef struct _wmem_range_t wmem_range_t;
 

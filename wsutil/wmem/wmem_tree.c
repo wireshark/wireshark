@@ -605,7 +605,7 @@ wmem_tree_lookup(wmem_tree_t *tree, const void *key, compare_func cmp)
 }
 
 wmem_tree_node_t *
-wmem_tree_insert(wmem_tree_t *tree, const void *key, void *data, compare_func cmp)
+wmem_tree_insert_node(wmem_tree_t *tree, const void *key, void *data, compare_func cmp)
 {
     wmem_tree_node_t *node = tree->root;
     wmem_tree_node_t *new_node = NULL;
@@ -929,7 +929,7 @@ wmem_tree_insert_string(wmem_tree_t* tree, const char* k, void* v, uint32_t flag
         cmp = (compare_func)strcmp;
     }
 
-    wmem_tree_insert(tree, key, v, cmp);
+    wmem_tree_insert_node(tree, key, v, cmp);
 }
 
 void *
