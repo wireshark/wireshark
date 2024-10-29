@@ -18,6 +18,10 @@
 #include <wsutil/array.h>
 
 #include "packet-ber.h"
+#include "packet-e164.h"
+#include "packet-e212.h"
+#include "packet-gsm_a_common.h"
+#include "packet-gtpv2.h"
 
 #define PNAME  "X2 xIRI payload"
 #define PSNAME "xIRI"
@@ -33,6 +37,7 @@ static dissector_handle_t lix2_handle;
 
 #include "packet-lix2-hf.c"
 
+static int ett_lix2_eps_indicationflags;
 #include "packet-lix2-ett.c"
 
 #include "packet-lix2-fn.c"

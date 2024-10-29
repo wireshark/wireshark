@@ -24,6 +24,7 @@ extern void dissect_gtpv2_fq_csid(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 extern void dissect_gtpv2_selec_mode(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item, uint16_t length _U_, uint8_t message_type _U_, uint8_t instance _U_, session_args_t * args _U_);
 extern void dissect_gtpv2_epc_timer(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item, uint16_t length _U_, uint8_t message_type _U_, uint8_t instance _U_, session_args_t * args _U_);
 extern void dissect_gtpv2_twan_identifier(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, uint16_t length _U_, uint8_t message_type _U_, uint8_t instance _U_, session_args_t * args _U_);
+extern void dissect_gtpv2_ind(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, uint16_t length, uint8_t message_type _U_, uint8_t instance _U_, session_args_t * args _U_);
 /*Used by custom dissector*/
 extern char* dissect_gtpv2_tai(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int *offset, bool is_5gs);
 int dissect_diameter_3gpp_uli(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data);

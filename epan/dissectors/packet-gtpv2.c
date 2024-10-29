@@ -2785,7 +2785,7 @@ dissect_gtpv2_msisdn(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, pr
 /*
  * 8.12 Indication
  */
-static void
+void
 dissect_gtpv2_ind(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, uint16_t length, uint8_t message_type _U_, uint8_t instance _U_, session_args_t * args _U_)
 {
     int offset = 0;

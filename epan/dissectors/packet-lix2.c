@@ -23,6 +23,10 @@
 #include <wsutil/array.h>
 
 #include "packet-ber.h"
+#include "packet-e164.h"
+#include "packet-e212.h"
+#include "packet-gsm_a_common.h"
+#include "packet-gtpv2.h"
 
 #define PNAME  "X2 xIRI payload"
 #define PSNAME "xIRI"
@@ -690,12 +694,12 @@ static int hf_lix2_s2aUePDGFTEID;                 /* FTEID */
 static int hf_lix2_fiveGSInterworkingIndicator;   /* FiveGSInterworkingIndicator */
 static int hf_lix2_fiveGSInterworkingWithoutN26;  /* FiveGSInterworkingWithoutN26 */
 static int hf_lix2_fiveGCNotRestrictedSupport;    /* FiveGCNotRestrictedSupport */
-static int hf_lix2_requestPCO;                    /* PDNPCO */
-static int hf_lix2_requestAPCO;                   /* PDNPCO */
-static int hf_lix2_requestEPCO;                   /* PDNPCO */
-static int hf_lix2_responsePCO;                   /* PDNPCO */
-static int hf_lix2_responseAPCO;                  /* PDNPCO */
-static int hf_lix2_responseEPCO;                  /* PDNPCO */
+static int hf_lix2_requestPCO;                    /* T_requestPCO */
+static int hf_lix2_requestAPCO;                   /* T_requestAPCO */
+static int hf_lix2_requestEPCO;                   /* T_requestEPCO */
+static int hf_lix2_responsePCO;                   /* T_responsePCO */
+static int hf_lix2_responseAPCO;                  /* T_responseAPCO */
+static int hf_lix2_responseEPCO;                  /* T_responseEPCO */
 static int hf_lix2_fiveGSGTPTunnels;              /* FiveGSGTPTunnels */
 static int hf_lix2_ePSGTPTunnels;                 /* EPSGTPTunnels */
 static int hf_lix2_payload;                       /* UPFCCPDUPayload */
@@ -1689,6 +1693,7 @@ static int hf_lix2_encodedASNValue;               /* ExternalASNValue */
 static int hf_lix2_bER;                           /* OCTET_STRING */
 static int hf_lix2_alignedPER;                    /* OCTET_STRING */
 
+static int ett_lix2_eps_indicationflags;
 static int ett_lix2_XIRIPayload;
 static int ett_lix2_XIRIEvent;
 static int ett_lix2_IRIPayload;
@@ -2437,9 +2442,18 @@ dissect_lix2_Slice(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn
 
 static int
 dissect_lix2_IMSI(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_NumericString,
-                                            actx, tree, tvb, offset, hf_index,
-                                            NULL);
+  unsigned tvb_len;
+
+  /*
+   * Derived from the International Mobile Subscription Identity defined in TS 23.003 [19] clause 2.1 and clause 2.2.
+   */
+
+  tvb_len = tvb_reported_length(tvb);
+
+  dissect_e212_utf8_imsi(tvb, actx->pinfo, tree, offset, tvb_len);
+
+  offset = tvb_len;
+
 
   return offset;
 }
@@ -2664,9 +2678,20 @@ dissect_lix2_PEI(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_
 
 static int
 dissect_lix2_MSISDN(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_NumericString,
-                                            actx, tree, tvb, offset, hf_index,
-                                            NULL);
+  unsigned tvb_len;
+
+  /*
+   * Derived from the MSISDN defined in TS 23.003 [19] clause 3.3.
+   */
+
+  tvb_len = tvb_reported_length(tvb);
+
+  //dissect_e212_utf8_imsi(tvb, actx->pinfo, tree, offset, tvb_len);
+  dissect_e164_msisdn(tvb, tree, offset, tvb_len, E164_ENC_UTF8);
+
+  offset = tvb_len;
+
+
 
   return offset;
 }
@@ -7629,21 +7654,113 @@ dissect_lix2_EPSPDNConnectionRequestType(bool implicit_tag _U_, tvbuff_t *tvb _U
 
 
 static int
-dissect_lix2_PDNPCO(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                       NULL);
+dissect_lix2_T_requestPCO(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  unsigned tvb_len;
+
+  tvb_len = tvb_reported_length(tvb);
+
+  actx->pinfo->link_dir = P2P_DIR_UL;
+  de_sm_pco(tvb, tree, actx->pinfo, 0, tvb_len, NULL, 0);
+
+  offset = tvb_len;
+
+
+  return offset;
+}
+
+
+
+static int
+dissect_lix2_T_requestAPCO(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  unsigned tvb_len;
+
+  tvb_len = tvb_reported_length(tvb);
+
+  actx->pinfo->link_dir = P2P_DIR_UL;
+  de_sm_pco(tvb, tree, actx->pinfo, 0, tvb_len, NULL, 0);
+
+  offset = tvb_len;
+
+
+  return offset;
+}
+
+
+
+static int
+dissect_lix2_T_requestEPCO(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  unsigned tvb_len;
+
+  tvb_len = tvb_reported_length(tvb);
+
+  actx->pinfo->link_dir = P2P_DIR_UL;
+  de_sm_pco(tvb, tree, actx->pinfo, 0, tvb_len, NULL, 0);
+
+  offset = tvb_len;
+
+
+  return offset;
+}
+
+
+
+static int
+dissect_lix2_T_responsePCO(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  unsigned tvb_len;
+
+  tvb_len = tvb_reported_length(tvb);
+
+  actx->pinfo->link_dir = P2P_DIR_DL;
+  de_sm_pco(tvb, tree, actx->pinfo, 0, tvb_len, NULL, 0);
+
+  offset = tvb_len;
+
+
+  return offset;
+}
+
+
+
+static int
+dissect_lix2_T_responseAPCO(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  unsigned tvb_len;
+
+  tvb_len = tvb_reported_length(tvb);
+
+  actx->pinfo->link_dir = P2P_DIR_DL;
+  de_sm_pco(tvb, tree, actx->pinfo, 0, tvb_len, NULL, 0);
+
+  offset = tvb_len;
+
+
+  return offset;
+}
+
+
+
+static int
+dissect_lix2_T_responseEPCO(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  unsigned tvb_len;
+
+  tvb_len = tvb_reported_length(tvb);
+
+  actx->pinfo->link_dir = P2P_DIR_DL;
+  de_sm_pco(tvb, tree, actx->pinfo, 0, tvb_len, NULL, 0);
+
+  offset = tvb_len;
+
 
   return offset;
 }
 
 
 static const ber_sequence_t PDNProtocolConfigurationOptions_sequence[] = {
-  { &hf_lix2_requestPCO     , BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_PDNPCO },
-  { &hf_lix2_requestAPCO    , BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_PDNPCO },
-  { &hf_lix2_requestEPCO    , BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_PDNPCO },
-  { &hf_lix2_responsePCO    , BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_PDNPCO },
-  { &hf_lix2_responseAPCO   , BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_PDNPCO },
-  { &hf_lix2_responseEPCO   , BER_CLASS_CON, 6, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_PDNPCO },
+  { &hf_lix2_requestPCO     , BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_T_requestPCO },
+  { &hf_lix2_requestAPCO    , BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_T_requestAPCO },
+  { &hf_lix2_requestEPCO    , BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_T_requestEPCO },
+  { &hf_lix2_responsePCO    , BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_T_responsePCO },
+  { &hf_lix2_responseAPCO   , BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_T_responseAPCO },
+  { &hf_lix2_responseEPCO   , BER_CLASS_CON, 6, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_T_responseEPCO },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -7777,8 +7894,21 @@ dissect_lix2_SEQUENCE_OF_EPSBearerContextForRemoval(bool implicit_tag _U_, tvbuf
 
 static int
 dissect_lix2_PDNConnectionIndicationFlags(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                       NULL);
+  proto_tree *eps_indicationFlags_tree;
+  unsigned tvb_len;
+
+  /*
+   * 8.22 User Location Info (ULI)
+   * 3GPP TS 29.274
+   */
+
+  tvb_len = tvb_reported_length(tvb);
+  eps_indicationFlags_tree = proto_tree_add_subtree(tree, tvb, 0, tvb_len, ett_lix2_eps_indicationflags, NULL, "indicationFlags");
+
+  dissect_gtpv2_ind(tvb, actx->pinfo, eps_indicationFlags_tree, NULL, tvb_len, 0, 0, NULL);
+
+  offset = tvb_len;
+
 
   return offset;
 }
@@ -22108,29 +22238,29 @@ void proto_register_lix2(void) {
         FT_BOOLEAN, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_lix2_requestPCO,
-      { "requestPCO", "lix2.requestPCO",
-        FT_BYTES, BASE_NONE, NULL, 0,
-        "PDNPCO", HFILL }},
+      { "requestPCO", "lix2.requestPCO_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
     { &hf_lix2_requestAPCO,
-      { "requestAPCO", "lix2.requestAPCO",
-        FT_BYTES, BASE_NONE, NULL, 0,
-        "PDNPCO", HFILL }},
+      { "requestAPCO", "lix2.requestAPCO_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
     { &hf_lix2_requestEPCO,
-      { "requestEPCO", "lix2.requestEPCO",
-        FT_BYTES, BASE_NONE, NULL, 0,
-        "PDNPCO", HFILL }},
+      { "requestEPCO", "lix2.requestEPCO_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
     { &hf_lix2_responsePCO,
-      { "responsePCO", "lix2.responsePCO",
-        FT_BYTES, BASE_NONE, NULL, 0,
-        "PDNPCO", HFILL }},
+      { "responsePCO", "lix2.responsePCO_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
     { &hf_lix2_responseAPCO,
-      { "responseAPCO", "lix2.responseAPCO",
-        FT_BYTES, BASE_NONE, NULL, 0,
-        "PDNPCO", HFILL }},
+      { "responseAPCO", "lix2.responseAPCO_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
     { &hf_lix2_responseEPCO,
-      { "responseEPCO", "lix2.responseEPCO",
-        FT_BYTES, BASE_NONE, NULL, 0,
-        "PDNPCO", HFILL }},
+      { "responseEPCO", "lix2.responseEPCO_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
     { &hf_lix2_fiveGSGTPTunnels,
       { "fiveGSGTPTunnels", "lix2.fiveGSGTPTunnels_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -22281,11 +22411,11 @@ void proto_register_lix2(void) {
         NULL, HFILL }},
     { &hf_lix2_iPv4Address,
       { "iPv4Address", "lix2.iPv4Address",
-        FT_BYTES, BASE_NONE, NULL, 0,
+        FT_IPv4, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_lix2_iPv6Address,
       { "iPv6Address", "lix2.iPv6Address",
-        FT_BYTES, BASE_NONE, NULL, 0,
+        FT_IPv6, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_lix2_fQDNList,
       { "fQDNList", "lix2.fQDNList",
@@ -23937,11 +24067,11 @@ void proto_register_lix2(void) {
         NULL, HFILL }},
     { &hf_lix2_IPv4Addresses_item,
       { "IPv4Address", "lix2.IPv4Address",
-        FT_BYTES, BASE_NONE, NULL, 0,
+        FT_IPv4, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_lix2_IPv6Addresses_item,
       { "IPv6Address", "lix2.IPv6Address",
-        FT_BYTES, BASE_NONE, NULL, 0,
+        FT_IPv6, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_lix2_eASId,
       { "eASId", "lix2.eASId",
@@ -25133,11 +25263,11 @@ void proto_register_lix2(void) {
         NULL, HFILL }},
     { &hf_lix2_iPv4Addr,
       { "iPv4Addr", "lix2.iPv4Addr",
-        FT_BYTES, BASE_NONE, NULL, 0,
+        FT_IPv4, BASE_NONE, NULL, 0,
         "IPv4Address", HFILL }},
     { &hf_lix2_iPv6Addr,
       { "iPv6Addr", "lix2.iPv6Addr",
-        FT_BYTES, BASE_NONE, NULL, 0,
+        FT_IPv6, BASE_NONE, NULL, 0,
         "IPv6Address", HFILL }},
     { &hf_lix2_aNNodeID,
       { "aNNodeID", "lix2.aNNodeID",

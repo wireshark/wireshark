@@ -13,6 +13,7 @@ MDTActivation
 MDTConfigurationEUTRA
 MDTConfigurationNR
 MDTMode
+PDNPCO
 RCSServerURI
 
 #.EXPORTS
@@ -24,7 +25,119 @@ XIRIPayload
 
 #.TYPE_RENAME
 
+#.FN_BODY IMSI
+  unsigned tvb_len;
+
+  /*
+   * Derived from the International Mobile Subscription Identity defined in TS 23.003 [19] clause 2.1 and clause 2.2.
+   */
+
+  tvb_len = tvb_reported_length(tvb);
+
+  dissect_e212_utf8_imsi(tvb, actx->pinfo, tree, offset, tvb_len);
+
+  offset = tvb_len;
+
+#.FN_BODY MSISDN
+  unsigned tvb_len;
+
+  /*
+   * Derived from the MSISDN defined in TS 23.003 [19] clause 3.3.
+   */
+
+  tvb_len = tvb_reported_length(tvb);
+
+  //dissect_e212_utf8_imsi(tvb, actx->pinfo, tree, offset, tvb_len);
+  dissect_e164_msisdn(tvb, tree, offset, tvb_len, E164_ENC_UTF8);
+
+  offset = tvb_len;
+
+#
+# GTPv2 8.13 Protocol Configuration Options (PCO)
+# Protocol Configuration Options (PCO) is transferred via GTP tunnels. The sending entity copies the value part of the
+# PCO into the Value field of the PCO IE. The detailed coding of the PCO field from octets 5 to (n+4) shall be specified
+# as per clause 10.5.6.3 of 3GPP TS 24.008 [5], starting with octet 3.
+#
+
+#.FN_BODY PDNProtocolConfigurationOptions/requestPCO
+  unsigned tvb_len;
+
+  tvb_len = tvb_reported_length(tvb);
+
+  actx->pinfo->link_dir = P2P_DIR_UL;
+  de_sm_pco(tvb, tree, actx->pinfo, 0, tvb_len, NULL, 0);
+
+  offset = tvb_len;
+
+#.FN_BODY PDNProtocolConfigurationOptions/requestAPCO
+  unsigned tvb_len;
+
+  tvb_len = tvb_reported_length(tvb);
+
+  actx->pinfo->link_dir = P2P_DIR_UL;
+  de_sm_pco(tvb, tree, actx->pinfo, 0, tvb_len, NULL, 0);
+
+  offset = tvb_len;
+
+#.FN_BODY PDNProtocolConfigurationOptions/requestEPCO
+  unsigned tvb_len;
+
+  tvb_len = tvb_reported_length(tvb);
+
+  actx->pinfo->link_dir = P2P_DIR_UL;
+  de_sm_pco(tvb, tree, actx->pinfo, 0, tvb_len, NULL, 0);
+
+  offset = tvb_len;
+
+#.FN_BODY PDNProtocolConfigurationOptions/responsePCO
+  unsigned tvb_len;
+
+  tvb_len = tvb_reported_length(tvb);
+
+  actx->pinfo->link_dir = P2P_DIR_DL;
+  de_sm_pco(tvb, tree, actx->pinfo, 0, tvb_len, NULL, 0);
+
+  offset = tvb_len;
+
+#.FN_BODY PDNProtocolConfigurationOptions/responseAPCO
+  unsigned tvb_len;
+
+  tvb_len = tvb_reported_length(tvb);
+
+  actx->pinfo->link_dir = P2P_DIR_DL;
+  de_sm_pco(tvb, tree, actx->pinfo, 0, tvb_len, NULL, 0);
+
+  offset = tvb_len;
+
+#.FN_BODY PDNProtocolConfigurationOptions/responseEPCO
+  unsigned tvb_len;
+
+  tvb_len = tvb_reported_length(tvb);
+
+  actx->pinfo->link_dir = P2P_DIR_DL;
+  de_sm_pco(tvb, tree, actx->pinfo, 0, tvb_len, NULL, 0);
+
+  offset = tvb_len;
+
+#.FN_BODY PDNConnectionIndicationFlags
+  proto_tree *eps_indicationFlags_tree;
+  unsigned tvb_len;
+
+  /*
+   * 8.22 User Location Info (ULI)
+   * 3GPP TS 29.274
+   */
+
+  tvb_len = tvb_reported_length(tvb);
+  eps_indicationFlags_tree = proto_tree_add_subtree(tree, tvb, 0, tvb_len, ett_lix2_eps_indicationflags, NULL, "indicationFlags");
+
+  dissect_gtpv2_ind(tvb, actx->pinfo, eps_indicationFlags_tree, NULL, tvb_len, 0, 0, NULL);
+
+  offset = tvb_len;
+
 #.TYPE_ATTR
+IPv4Address TYPE=FT_IPv4
+IPv6Address TYPE=FT_IPv6
 Timestamp  TYPE = FT_ABSOLUTE_TIME  DISPLAY = ABSOLUTE_TIME_UTC
 
 #.FIELD_RENAME
