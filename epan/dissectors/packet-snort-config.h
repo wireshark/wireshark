@@ -14,14 +14,6 @@
 
 #include <glib.h>
 
-/* #define SNORT_CONFIG_DEBUG */
-#ifdef  SNORT_CONFIG_DEBUG
-#include <stdio.h>
-#define snort_debug_printf printf
-#else
-#define snort_debug_printf(...)
-#endif
-
 /************************************************************************/
 /* Rule related data types                                              */
 

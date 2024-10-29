@@ -27,7 +27,9 @@
  */
 
 
+#define WS_LOG_DOMAIN "packet-snort"
 #include "config.h"
+#include <wireshark.h>
 
 #include <epan/packet.h>
 #include <epan/prefs.h>
@@ -778,7 +780,7 @@ static void snort_show_alert(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo
         }
     }
 
-    snort_debug_printf("Showing alert (sid=%u) in frame %u\n", alert->sid, pinfo->num);
+    ws_debug("Showing alert (sid=%u) in frame %u", alert->sid, pinfo->num);
 
     /* Show in expert info if configured to. */
     if (snort_show_alert_expert_info) {
@@ -1298,20 +1300,20 @@ static void snort_start(void)
     ws_statb64 binary_stat, config_stat;
 
     if (ws_stat64(pref_snort_binary_filename, &binary_stat) != 0) {
-        snort_debug_printf("Can't run snort - executable '%s' not found\n", pref_snort_binary_filename);
+        ws_debug("Can't run snort - executable '%s' not found", pref_snort_binary_filename);
         report_failure("Snort dissector: Can't run snort - executable '%s' not found\n", pref_snort_binary_filename);
         return;
     }
 
     if (ws_stat64(pref_snort_config_filename, &config_stat) != 0) {
-        snort_debug_printf("Can't run snort - config file '%s' not found\n", pref_snort_config_filename);
+        ws_debug("Can't run snort - config file '%s' not found", pref_snort_config_filename);
         report_failure("Snort dissector: Can't run snort - config file '%s' not found\n", pref_snort_config_filename);
         return;
     }
 
 #ifdef S_IXUSR
     if (!(binary_stat.st_mode & S_IXUSR)) {
-        snort_debug_printf("Snort binary '%s' is not executable\n", pref_snort_binary_filename);
+        ws_debug("Snort binary '%s' is not executable", pref_snort_binary_filename);
         report_failure("Snort dissector: Snort binary '%s' is not executable\n", pref_snort_binary_filename);
         return;
     }
@@ -1324,7 +1326,7 @@ static void snort_start(void)
 #endif
 
     /* Create snort process and set up pipes */
-    snort_debug_printf("\nRunning %s with config file %s\n", pref_snort_binary_filename, pref_snort_config_filename);
+    ws_debug("Running %s with config file %s", pref_snort_binary_filename, pref_snort_config_filename);
     if (!g_spawn_async_with_pipes(NULL,          /* working_directory */
                                   (char **)argv,
                                   NULL,          /* envp */
