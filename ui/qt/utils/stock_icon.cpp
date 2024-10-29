@@ -95,7 +95,7 @@ StockIcon::StockIcon(const QString icon_name) :
         // Templates should be monochrome as described at
         // https://developer.apple.com/design/human-interface-guidelines/macos/icons-and-images/custom-icons/
         // Transparency is supported.
-        QString icon_path_template = path_pfx_ + QStringLiteral("%1/%2.template.png").arg(type).arg(icon_name);
+        QString icon_path_template = QStringLiteral("%1%2/%3.template.png").arg(path_pfx_, type, icon_name);
         if (QFile::exists(icon_path_template)) {
             QIcon mask_icon = QIcon();
             mask_icon.addFile(icon_path_template);
@@ -125,7 +125,7 @@ StockIcon::StockIcon(const QString icon_name) :
         }
 
         // Regular full-color icons
-        QString icon_path = path_pfx_ + QStringLiteral("%1/%2.png").arg(type).arg(icon_name);
+        QString icon_path = QStringLiteral("%1%2/%3.png").arg(path_pfx_, type, icon_name);
         if (QFile::exists(icon_path)) {
             addFile(icon_path);
         }
@@ -134,17 +134,17 @@ StockIcon::StockIcon(const QString icon_name) :
         // "<name>.selected" for the Active and Selected modes, and
         // "<name>.on" to use for the on (checked) state.
         // XXX Allow more (or all) combinations.
-        QString icon_path_active = path_pfx_ + QStringLiteral("%1/%2.active.png").arg(type).arg(icon_name);
+        QString icon_path_active = QStringLiteral("%1%2/%3.active.png").arg(path_pfx_, type, icon_name);
         if (QFile::exists(icon_path_active)) {
             addFile(icon_path_active, QSize(), QIcon::Active, QIcon::On);
         }
 
-        QString icon_path_selected = path_pfx_ + QStringLiteral("%1/%2.selected.png").arg(type).arg(icon_name);
+        QString icon_path_selected = QStringLiteral("%1%2/%3.selected.png").arg(path_pfx_, type, icon_name);
         if (QFile::exists(icon_path_selected)) {
             addFile(icon_path_selected, QSize(), QIcon::Selected, QIcon::On);
         }
 
-        QString icon_path_on = path_pfx_ + QStringLiteral("%1/%2.on.png").arg(type).arg(icon_name);
+        QString icon_path_on = QStringLiteral("%1%2/%3.on.png").arg(path_pfx_, type, icon_name);
         if (QFile::exists(icon_path_on)) {
             addFile(icon_path_on, QSize(), QIcon::Normal, QIcon::On);
         }

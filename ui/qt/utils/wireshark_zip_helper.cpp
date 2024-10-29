@@ -99,12 +99,12 @@ bool WiresharkZipHelper::unzip(QString zipFile, QString directory, bool (*fileCh
                 {
                     QFileInfo fileName(fileInZip);
                     QFileInfo path(fileName.dir(), "");
-                    QString newFile = path.baseName() + "/" + fileName.baseName();
+                    QString newFile = QStringLiteral("%1/%2").arg(path.baseName(), fileName.baseName());
                     fileInZip = newFile;
                 }
 #endif
 
-                QString fullPath = di.path() + "/" + fileInZip;
+                QString fullPath = QStringLiteral("%1/%2").arg(di.path(), fileInZip);
                 QFileInfo fi(fullPath);
                 QString dirPath = fi.absolutePath();
 
@@ -117,7 +117,7 @@ bool WiresharkZipHelper::unzip(QString zipFile, QString directory, bool (*fileCh
                         int cnt = 1;
                         while (QFile::exists(tempPath))
                         {
-                            tempPath = cleanName(dirPath) + QString::number(cnt);
+                            tempPath = QStringLiteral("%1%2").arg(cleanName(dirPath)).arg(cnt);
                             cnt++;
                         }
                         cleanPaths.insert(dirPath, tempPath);

@@ -371,7 +371,9 @@ void TrafficTab::modelReset()
         if (qsfpm->rowCount() == 0)
             setTabText(tabIdx, tabData.name());
         else
-            setTabText(tabIdx, tabData.name() + QStringLiteral(" %1 %2").arg(UTF8_MIDDLE_DOT).arg(qsfpm->rowCount()));
+            setTabText(tabIdx, QStringLiteral("%1 %2 %3")
+                .arg(tabData.name(), UTF8_MIDDLE_DOT)
+                .arg(qsfpm->rowCount()));
     }
 
     emit tabDataChanged(tabIdx);

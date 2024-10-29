@@ -506,7 +506,7 @@ void WiresharkMainWindow::queuedFilterAction(QString action_filter, FilterAction
         break;
     case FilterAction::ActionWebLookup:
     {
-        QString url = QStringLiteral("https://www.google.com/search?q=") + new_filter;
+        QString url = QStringLiteral("https://www.google.com/search?q=%1").arg(new_filter);
         QDesktopServices::openUrl(QUrl(url));
         break;
     }

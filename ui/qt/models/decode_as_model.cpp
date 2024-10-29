@@ -603,11 +603,11 @@ QString DecodeAsModel::entryString(const char *table_name, const void *value)
                 ws_assert_not_reached();
                 break;
             }
-            entry_str = QStringLiteral("%1").arg(int_to_qstring(num_val, width, 16));
+            entry_str = int_to_qstring(num_val, width, 16);
             break;
 
         case BASE_OCT:
-            entry_str = "0" + QString::number(num_val, 8);
+            entry_str = QStringLiteral("0%1").arg(num_val, 0, 8);
             break;
         }
         break;

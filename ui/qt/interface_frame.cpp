@@ -340,7 +340,7 @@ void InterfaceFrame::resetInterfaceTreeDisplay()
         // used if __APPLE__ is defined, so that it reflects the
         // new message text.
         //
-        QString install_chmodbpf_path = mainApp->applicationDirPath() + "/../Resources/Extras/Install ChmodBPF.pkg";
+        QString install_chmodbpf_path = QStringLiteral("%1/../Resources/Extras/Install ChmodBPF.pkg").arg(mainApp->applicationDirPath());
         ui->warningLabel->setText(tr(
             "<p>"
             "You don't have permission to capture on local interfaces."

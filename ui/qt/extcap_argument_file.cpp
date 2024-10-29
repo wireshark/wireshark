@@ -116,7 +116,7 @@ void ExtcapArgumentFileSelection::openFileDialog()
     {
         /* UI should check that the file exists */
         filename = WiresharkFileDialog::getOpenFileName((QWidget*)(textBox->parent()),
-            QString().fromUtf8(_argument->display) + " " + tr("Open File"),
+            tr("%1 Open File").arg(QString::fromUtf8(_argument->display)),
             workingDir.absolutePath(), fileExt);
     }
     else
@@ -125,7 +125,7 @@ void ExtcapArgumentFileSelection::openFileDialog()
          * (e.g. boolflag argument if user wants to always overwrite the file)
          */
         filename = WiresharkFileDialog::getSaveFileName((QWidget*)(textBox->parent()),
-            QString().fromUtf8(_argument->display) + " " + tr("Select File"),
+            tr("%1 Select File").arg(QString::fromUtf8(_argument->display)),
             workingDir.absolutePath(), fileExt, nullptr, QFileDialog::Option::DontConfirmOverwrite);
     }
 

@@ -241,13 +241,14 @@ void DisplayFilterEdit::alignActionButtons()
         rightMargin = 0;
     }
 
-    SyntaxLineEdit::setStyleSheet(style_sheet_ + QStringLiteral(
-            "SyntaxLineEdit {"
-            "  padding-left: %1px;"
-            "  margin-left: %2px;"
-            "  margin-right: %3px;"
+    SyntaxLineEdit::setStyleSheet(QStringLiteral(
+            "%1SyntaxLineEdit {"
+            "  padding-left: %2px;"
+            "  margin-left: %3px;"
+            "  margin-right: %4px;"
             "}"
             )
+            .arg(style_sheet_)
             .arg(leftPadding)
             .arg(leftMargin)
             .arg(rightMargin)

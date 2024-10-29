@@ -1217,7 +1217,7 @@ void MainApplication::loadLanguage(const QString newLanguage)
     if (QFile::exists(QStringLiteral("%1/%2/wireshark_%3.qm")
             .arg(get_datafile_dir()).arg("languages").arg(localeLanguage)))
         switchTranslator(mainApp->translator,
-                QStringLiteral("wireshark_%1.qm").arg(localeLanguage), QString(get_datafile_dir()) + QStringLiteral("/languages"));
+                QStringLiteral("wireshark_%1.qm").arg(localeLanguage), QStringLiteral("%1/languages").arg(get_datafile_dir()));
     if (QFile::exists(QStringLiteral("%1/wireshark_%3.qm")
             .arg(gchar_free_to_qstring(get_persconffile_path("languages", false))).arg(localeLanguage)))
         switchTranslator(mainApp->translator,

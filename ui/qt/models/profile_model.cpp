@@ -1000,7 +1000,7 @@ bool ProfileModel::copyTempToProfile(QString tempPath, QString profilePath, bool
     foreach (QFileInfo finfo, files)
     {
         QString tempFile = finfo.absoluteFilePath();
-        QString profileFile = profilePath + "/" + finfo.fileName();
+        QString profileFile = QStringLiteral("%1/%2").arg(profilePath, finfo.fileName());
 
         if (! profile_files_.contains(finfo.fileName()))
         {
@@ -1148,7 +1148,8 @@ bool ProfileModel::acceptFile(QString fileName, int fileSize)
 QString ProfileModel::cleanName(QString fileName)
 {
     QStringList parts = fileName.split("/");
-    QString temp = parts[parts.count() - 1].replace(QRegularExpression("[" + QRegularExpression::escape(illegalCharacters()) + "]"), QStringLiteral("_") );
+    QString temp = parts[parts.count() - 1]
+        .replace(QRegularExpression(QStringLiteral("[%1]").arg(QRegularExpression::escape(illegalCharacters()))), QStringLiteral("_") );
     temp = parts.join("/");
     return temp;
 }
@@ -1194,7 +1195,7 @@ int ProfileModel::importProfilesFromDir(QString dirname, int * skippedCnt, bool 
             bool wasEmpty = true;
             bool success = false;
 
-            QString profilePath = profileDir.absolutePath() + "/" + fentry.fileName();
+            QString profilePath = QStringLiteral("%1/%2").arg(profileDir.absolutePath(), fentry.fileName());
             QString tempPath = fentry.absoluteFilePath();
 
             if (fentry.fileName().compare(DEFAULT_PROFILE, Qt::CaseInsensitive) == 0 || QFile::exists(profilePath))

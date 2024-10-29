@@ -714,7 +714,7 @@ void ProtoTree::itemDoubleClicked(const QModelIndex &index)
         QString url = finfo.url();
         if (!url.isEmpty()) {
             QApplication::clipboard()->setText(url);
-            QString push_msg = tr("Copied ") + url;
+            QString push_msg = tr("Copied %1").arg(url);
             mainApp->pushStatus(MainApplication::TemporaryStatus, push_msg);
         }
     }

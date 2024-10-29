@@ -2098,15 +2098,14 @@ QString PacketList::createSummaryForAligned(QModelIndex idx, QList<int> align_pa
 
 QString PacketList::createDefaultStyleForHtml()
 {
-    QString style_text;
-    style_text = "<style>";
     QString fontFamily = QString(prefs.gui_font_name).split(",")[0];
     QString fontSize = QString(prefs.gui_font_name).split(",")[1];
-    style_text += "table{font-family:" + fontFamily + ";font-size:" + fontSize + "pt;}";
-    style_text += "th{background-color:#000000;color:#ffffff;text-align:left;}";
-    style_text += "th,td{padding:" + QString::number(fontSize.toInt() / 2) + "pt}";
-    style_text += "</style>";
-    return style_text;
+
+    return QStringLiteral("<style>"
+        "table{font-family:%1;font-size:%2pt;}"
+        "th{background-color:#000000;color:#ffffff;text-align:left;}"
+        "th,td{padding:%3pt}"
+        "</style>").arg(fontFamily, fontSize).arg(fontSize.toInt() / 2);
 }
 
 QString PacketList::createOpeningTagForHtml()

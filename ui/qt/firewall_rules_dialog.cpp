@@ -141,7 +141,7 @@ void FirewallRulesDialog::addRule(QString description, syntax_func rule_func, ad
     rule_func(rule_str, addr_buf, port, ptype_, inbound, deny);
     ui->textBrowser->append(QString());
 
-    QString comment_line = comment_pfx + " " + description;
+    QString comment_line = QStringLiteral("%1 %2").arg(comment_pfx, description);
     ui->textBrowser->append(comment_line);
     ui->textBrowser->append(rule_str->str);
 

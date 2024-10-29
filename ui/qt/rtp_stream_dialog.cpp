@@ -790,7 +790,7 @@ void RtpStreamDialog::on_actionExportAsRtpDump_triggered()
     if (stream_info) {
         QString file_name;
         QDir path(mainApp->openDialogInitialDir());
-        QString save_file = path.canonicalPath() + "/" + cap_file_.fileBaseName();
+        QString save_file = QStringLiteral("%1/%2").arg(path.canonicalPath(), cap_file_.fileBaseName());
         QString extension;
         file_name = WiresharkFileDialog::getSaveFileName(this, mainApp->windowTitleString(tr("Save RTPDump As…")),
                                                  save_file, "RTPDump Format (*.rtp)", &extension);
