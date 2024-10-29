@@ -11,11 +11,10 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
-/* Just set me to activate debug #define DEBUG_NTLMSSP */
+
+#define WS_LOG_DOMAIN "packet-ntlmssp"
 #include "config.h"
-#ifdef DEBUG_NTLMSSP
-#include <stdio.h>
-#endif
+#include <wireshark.h>
 #include <string.h>
 
 #include <epan/packet.h>
@@ -324,32 +323,34 @@ typedef struct _ntlmssp_packet_info {
 static int
 dissect_ntlmssp_verf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_);
 
-#ifdef DEBUG_NTLMSSP
-static void printnbyte(const uint8_t* tab, int nb, const char* txt, const char* txt2)
+/* Debug function, log a hexdump of interesting memory */
+static void printnbyte(wmem_allocator_t *scratch, const uint8_t* tab, int nb, const char* txt)
 {
+  if (!ws_log_msg_is_active(WS_LOG_DOMAIN, LOG_LEVEL_DEBUG))
+  {
+    return;
+  }
+
+  char *hexdump = wmem_alloc0(scratch, nb*3 + 1);
   int i;
-  fprintf(stderr, "%s ", txt);
+
   for (i=0; i<nb; i++)
   {
-    fprintf(stderr, "%02X ", *(tab+i));
+    snprintf(hexdump+(i*3), 3, "%02X ", *(tab+i));
   }
-  fprintf(stderr, "%s", txt2);
+  hexdump[nb*3] = '\0';
+
+  ws_debug("%s %s", txt, hexdump);
 }
 #if 0
-static void printnchar(const uint8_t* tab, int nb, char* txt, char* txt2)
+static void printnchar(wmem_allocator_t *scratch, const uint8_t* tab, int nb, char* txt)
 {
-  int i;
-  fprintf(stderr, "%s ", txt);
-  for (i=0; i<nb; i++)
+  if (!ws_log_msg_is_active(WS_LOG_DOMAIN, LOG_LEVEL_DEBUG))
   {
-    fprintf(stderr, "%c", *(tab+i));
+    return;
   }
-  fprintf(stderr, "%s", txt2);
-}
-#endif
-#else
-static void printnbyte(const uint8_t* tab _U_, int nb _U_, const char* txt _U_, const char* txt2 _U_)
-{
+
+  ws_debug("%s %s", txt, wmem_strndup(scratch, tab, nb));
 }
 #endif
 
@@ -614,12 +615,10 @@ create_ntlmssp_v2_key(const uint8_t *serverchallenge, const uint8_t *clientchall
     return;
   }
   while (i < nb_pass) {
-    #ifdef DEBUG_NTLMSSP
-    fprintf(stderr, "Turn %d, ", i);
-    #endif
+    ws_debug("Turn %d", i);
     used_md4 = &pass_list[i];
     memcpy(nt_hash, pass_list[i].md4, NTLMSSP_KEY_LEN);
-    printnbyte(nt_hash, NTLMSSP_KEY_LEN, "Current NT hash: ", "\n");
+    printnbyte(pinfo->pool, nt_hash, NTLMSSP_KEY_LEN, "Current NT hash: ");
     i++;
     /* NTOWFv2 computation */
     memset(buf, 0, BUF_SIZE);
@@ -628,7 +627,7 @@ create_ntlmssp_v2_key(const uint8_t *serverchallenge, const uint8_t *clientchall
     if (ws_hmac_buffer(GCRY_MD_MD5, ntowfv2, buf, domain_len*2+user_len*2, nt_hash, NTLMSSP_KEY_LEN)) {
       return;
     }
-    printnbyte(ntowfv2, NTLMSSP_KEY_LEN, "NTOWFv2: ", "\n");
+    printnbyte(pinfo->pool, ntowfv2, NTLMSSP_KEY_LEN, "NTOWFv2: ");
 
     /* LM response */
     memset(buf, 0, BUF_SIZE);
@@ -638,7 +637,7 @@ create_ntlmssp_v2_key(const uint8_t *serverchallenge, const uint8_t *clientchall
       return;
     }
     memcpy(lm_challenge_response+NTLMSSP_KEY_LEN, clientchallenge, 8);
-    printnbyte(lm_challenge_response, 24, "LM Response: ", "\n");
+    printnbyte(pinfo->pool, lm_challenge_response, 24, "LM Response: ");
 
     /* NT proof = First NTLMSSP_KEY_LEN bytes of NT response */
     memset(buf, 0, BUF_SIZE);
@@ -647,7 +646,7 @@ create_ntlmssp_v2_key(const uint8_t *serverchallenge, const uint8_t *clientchall
     if (ws_hmac_buffer(GCRY_MD_MD5, nt_proof, buf, ntlm_response->length-8, ntowfv2, NTLMSSP_KEY_LEN)) {
       return;
     }
-    printnbyte(nt_proof, NTLMSSP_KEY_LEN, "NT proof: ", "\n");
+    printnbyte(pinfo->pool, nt_proof, NTLMSSP_KEY_LEN, "NT proof: ");
     if (!memcmp(nt_proof, ntlm_response->contents, NTLMSSP_KEY_LEN)) {
       found = true;
       break;
@@ -801,10 +800,10 @@ create_ntlmssp_v1_key(const uint8_t *serverchallenge, const uint8_t *clientchall
       nb_pass = get_md4pass_list(pinfo->pool, &pass_list);
       i = 0;
       while (i < nb_pass) {
-        /*fprintf(stderr, "Turn %d, ", i);*/
+        /*ws_debug("Turn %d", i);*/
         used_md4 = &pass_list[i];
         memcpy(nt_hash, pass_list[i].md4, NTLMSSP_KEY_LEN);
-        /*printnbyte(nt_hash, NTLMSSP_KEY_LEN, "Current NT hash: ", "\n");*/
+        /*printnbyte(pinfo->pool, nt_hash, NTLMSSP_KEY_LEN, "Current NT hash: ");*/
         i++;
         if(clientchallenge){
           memcpy(lm_challenge_response, clientchallenge, 8);
@@ -862,8 +861,8 @@ create_ntlmssp_v1_key(const uint8_t *serverchallenge, const uint8_t *clientchall
   }
 
   get_keyexchange_key(keyexchangekey, sessionbasekey, lm_challenge_response, flags);
-  /*printnbyte(nt_challenge_response, 24, "NT challenge response", "\n");
-  printnbyte(lm_challenge_response, 24, "LM challenge response", "\n");*/
+  /*printnbyte(pinfo->pool, nt_challenge_response, 24, "NT challenge response");
+  printnbyte(pinfo->pool, lm_challenge_response, 24, "LM challenge response");*/
   /* now decrypt session key if needed and setup sessionkey for decrypting further communications */
   if (flags & NTLMSSP_NEGOTIATE_KEY_EXCH)
   {
@@ -2415,7 +2414,7 @@ decrypt_data_payload(tvbuff_t *tvb, int offset, uint32_t encrypted_block_length,
     if (stored_packet_ntlmssp_info != NULL && stored_packet_ntlmssp_info->payload_decrypted == true) {
       /* Mat TBD (stderr, "Found a already decrypted packet\n");*/
       memcpy(packet_ntlmssp_info, stored_packet_ntlmssp_info, sizeof(ntlmssp_packet_info));
-      /* Mat TBD printnbyte(packet_ntlmssp_info->decrypted_payload, encrypted_block_length, "Data: ", "\n");*/
+      /* Mat TBD printnbyte(pinfo->pool, packet_ntlmssp_info->decrypted_payload, encrypted_block_length, "Data: ");*/
     }
     else {
       gcry_cipher_hd_t rc4_handle;
@@ -2456,7 +2455,7 @@ decrypt_data_payload(tvbuff_t *tvb, int offset, uint32_t encrypted_block_length,
       gcry_cipher_decrypt(rc4_handle, packet_ntlmssp_info->decrypted_payload, encrypted_block_length, NULL, 0);
 
       /* decrypt the verifier */
-      /*printnchar(packet_ntlmssp_info->decrypted_payload, encrypted_block_length, "data: ", "\n");*/
+      /*printnchar(pinfo->pool, packet_ntlmssp_info->decrypted_payload, encrypted_block_length, "data: ");*/
       /* We setup a temporary buffer so we can re-encrypt the payload after
          decryption.  This is to update the opposite peer's RC4 state
          it's useful when we have only one key for both conversation
@@ -2677,8 +2676,8 @@ decrypt_verifier(tvbuff_t *tvb, packet_info *pinfo)
           return;
         }
         /*
-        printnbyte(packet_ntlmssp_info->verifier, 8, "HMAC from packet: ", "\n");
-        printnbyte(calculated_md5, 8, "HMAC            : ", "\n");
+        printnbyte(pinfo->pool, packet_ntlmssp_info->verifier, 8, "HMAC from packet: ");
+        printnbyte(pinfo->pool, calculated_md5, 8, "HMAC            : ");
         */
       }
     }
@@ -2892,7 +2891,7 @@ static unsigned
 header_hash(const void *pointer)
 {
   uint32_t crc = ~crc32c_calculate(pointer, NTLMSSP_KEY_LEN, CRC32C_PRELOAD);
-  /* Mat TBD fprintf(stderr, "Val: %u\n", crc);*/
+  /* Mat TBD ws_debug("Val: %u", crc);*/
   return crc;
 }
 
