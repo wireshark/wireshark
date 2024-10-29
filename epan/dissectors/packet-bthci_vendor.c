@@ -138,6 +138,57 @@ static int hf_broadcom_target_id;
 static int hf_broadcom_build_base;
 static int hf_broadcom_build_number;
 static int hf_broadcom_data;
+static int hf_broadcom_a2dp_hardware_offload_subcode;
+static int hf_broadcom_a2dp_hardware_offload_start_legacy_codec;
+static int hf_broadcom_a2dp_hardware_offload_start_legacy_max_latency;
+static int hf_broadcom_a2dp_hardware_offload_start_legacy_scms_t_enable_flag;
+static int hf_broadcom_a2dp_hardware_offload_start_legacy_scms_t_enable_value;
+static int hf_broadcom_a2dp_hardware_offload_start_legacy_scms_t_enable_value_reserved;
+static int hf_broadcom_a2dp_hardware_offload_start_legacy_sampling_frequency;
+static int hf_broadcom_a2dp_hardware_offload_start_legacy_bits_per_sample;
+static int hf_broadcom_a2dp_hardware_offload_start_legacy_channel_mode;
+static int hf_broadcom_a2dp_hardware_offload_start_legacy_encoded_audio_bitrate;
+static int hf_broadcom_a2dp_hardware_offload_start_legacy_encoded_audio_bitrate_unspecified;
+static int hf_broadcom_a2dp_hardware_offload_start_legacy_encoded_audio_bitrate_reserved;
+static int hf_broadcom_a2dp_hardware_offload_start_legacy_connection_handle;
+static int hf_broadcom_a2dp_hardware_offload_start_legacy_l2cap_cid;
+static int hf_broadcom_a2dp_hardware_offload_start_legacy_l2cap_mtu_size;
+static int hf_broadcom_a2dp_hardware_offload_start_legacy_codec_information;
+static int hf_broadcom_a2dp_hardware_offload_start_legacy_codec_information_sbc_block_length;
+static int hf_broadcom_a2dp_hardware_offload_start_legacy_codec_information_sbc_subbands;
+static int hf_broadcom_a2dp_hardware_offload_start_legacy_codec_information_sbc_allocation_method;
+static int hf_broadcom_a2dp_hardware_offload_start_legacy_codec_information_sbc_min_bitpool;
+static int hf_broadcom_a2dp_hardware_offload_start_legacy_codec_information_sbc_max_bitpool;
+static int hf_broadcom_a2dp_hardware_offload_start_legacy_codec_information_sbc_sampling_frequency;
+static int hf_broadcom_a2dp_hardware_offload_start_legacy_codec_information_sbc_channel_mode;
+static int hf_broadcom_a2dp_hardware_offload_start_legacy_codec_information_sbc_reserved;
+static int hf_broadcom_a2dp_hardware_offload_start_legacy_codec_information_aac_object_type;
+static int hf_broadcom_a2dp_hardware_offload_start_legacy_codec_information_aac_vbr;
+static int hf_broadcom_a2dp_hardware_offload_start_legacy_codec_information_aac_reserved;
+static int hf_broadcom_a2dp_hardware_offload_start_legacy_codec_information_ldac_vendor_id;
+static int hf_broadcom_a2dp_hardware_offload_start_legacy_codec_information_ldac_codec_id;
+static int hf_broadcom_a2dp_hardware_offload_start_legacy_codec_information_ldac_bitrate_index;
+static int hf_broadcom_a2dp_hardware_offload_start_legacy_codec_information_ldac_bitrate_index_reserved;
+static int hf_broadcom_a2dp_hardware_offload_start_legacy_codec_information_ldac_channel_mode_mask;
+static int hf_broadcom_a2dp_hardware_offload_start_legacy_codec_information_ldac_channel_mode_mask_stereo;
+static int hf_broadcom_a2dp_hardware_offload_start_legacy_codec_information_ldac_channel_mode_mask_dual;
+static int hf_broadcom_a2dp_hardware_offload_start_legacy_codec_information_ldac_channel_mode_mask_mono;
+static int hf_broadcom_a2dp_hardware_offload_start_legacy_codec_information_ldac_channel_mode_mask_reserved;
+static int hf_broadcom_a2dp_hardware_offload_start_legacy_codec_information_ldac_reserved;
+static int hf_broadcom_a2dp_hardware_offload_start_legacy_codec_information_reserved;
+static int hf_broadcom_a2dp_hardware_offload_start_connection_handle;
+static int hf_broadcom_a2dp_hardware_offload_start_l2cap_cid;
+static int hf_broadcom_a2dp_hardware_offload_start_data_path_direction;
+static int hf_broadcom_a2dp_hardware_offload_start_peer_mtu;
+static int hf_broadcom_a2dp_hardware_offload_start_cp_enable_scmst;
+static int hf_broadcom_a2dp_hardware_offload_start_cp_header_scmst;
+static int hf_broadcom_a2dp_hardware_offload_start_cp_header_scmst_reserved;
+static int hf_broadcom_a2dp_hardware_offload_start_vendor_specific_parameters_length;
+static int hf_broadcom_a2dp_hardware_offload_start_vendor_specific_parameters;
+static int hf_broadcom_a2dp_hardware_offload_stop_connection_handle;
+static int hf_broadcom_a2dp_hardware_offload_stop_l2cap_cid;
+static int hf_broadcom_a2dp_hardware_offload_stop_data_path_direction;
+
 
 static int * const hfx_le_multi_advertising_channel_map[] = {
     &hf_broadcom_le_multi_advertising_channel_map_reserved,
@@ -167,12 +218,21 @@ static int * const hfx_broadcom_dynamic_audio_buffer_support[] = {
     NULL
 };
 
+static int * const hfx_broadcom_a2dp_hardware_offload_start_legacy_codec_information_ldac_channel_mode[] = {
+    &hf_broadcom_a2dp_hardware_offload_start_legacy_codec_information_ldac_channel_mode_mask_reserved,
+    &hf_broadcom_a2dp_hardware_offload_start_legacy_codec_information_ldac_channel_mode_mask_mono,
+    &hf_broadcom_a2dp_hardware_offload_start_legacy_codec_information_ldac_channel_mode_mask_dual,
+    &hf_broadcom_a2dp_hardware_offload_start_legacy_codec_information_ldac_channel_mode_mask_stereo,
+    NULL
+};
+
 static int ett_broadcom;
 static int ett_broadcom_opcode;
 static int ett_broadcom_channel_map;
 static int ett_broadcom_a2dp_source_offload_capability_mask;
 static int ett_broadcom_dynamic_audio_buffer_support_mask;
-
+static int ett_broadcom_a2dp_hardware_offload_start_legacy_codec_information;
+static int ett_broadcom_a2dp_hardware_offload_start_legacy_codec_information_ldac_channel_mode_mask;
 
 static expert_field ei_broadcom_undecoded;
 static expert_field ei_broadcom_unexpected_parameter;
@@ -209,7 +269,8 @@ static dissector_handle_t btcommon_ad_handle;
     { (base) | 0x0156,  "LE Batch Scan" }, \
     { (base) | 0x0157,  "LE Advertising Filter" }, \
     { (base) | 0x0158,  "LE Tracking Advertising" }, \
-    { (base) | 0x0159,  "LE Energy Info" }
+    { (base) | 0x0159,  "LE Energy Info" }, \
+    { (base) | 0x015D,  "A2DP Hardware Offload" }
 
 static const value_string broadcom_opcode_ocf_vals[] = {
     BROADCOM_OPCODE_VALS(0x0),
@@ -407,6 +468,105 @@ static const value_string broadcom_target_id_vals[] = {
     { 0, NULL }
 };
 
+static const value_string broadcom_a2dp_hardware_offload_vals[] = {
+    { 0x01,  "Start A2DP offload (legacy)" },
+    { 0x02,  "Stop A2DP offload (legacy)" },
+    { 0x03,  "Start A2DP offload" },
+    { 0x04,  "Stop A2DP offload" },
+    { 0, NULL }
+};
+
+static const value_string broadcom_a2dp_hardware_offload_start_legacy_codec_vals[] = {
+    { 0x01,  "SBC" },
+    { 0x02,  "AAC" },
+    { 0x04,  "APTX" },
+    { 0x08,  "APTX HD" },
+    { 0x10,  "LDAC" },
+    { 0, NULL }
+};
+
+static const value_string broadcom_a2dp_hardware_offload_start_legacy_sampling_frequency_vals[] = {
+    { 0x00000001,  "44100 Hz" },
+    { 0x00000002,  "48000 Hz" },
+    { 0x00000004,  "88200 Hz" },
+    { 0x00000008,  "96000 Hz" },
+    { 0, NULL }
+};
+
+static const value_string broadcom_a2dp_hardware_offload_start_legacy_bits_per_sample_vals[] = {
+    { 0x01,  "16 bits per sample" },
+    { 0x02,  "24 bits per sample" },
+    { 0x04,  "32 bits per sample" },
+    { 0, NULL }
+};
+
+static const value_string broadcom_a2dp_hardware_offload_start_legacy_channel_mode_vals[] = {
+    { 0x01,  "Mono" },
+    { 0x02,  "Stereo" },
+    { 0, NULL }
+};
+
+static const value_string broadcom_a2dp_hardware_offload_start_legacy_codec_information_sbc_block_length_vals[] = {
+    { 0x01,  "16" },
+    { 0x02,  "12" },
+    { 0x04,  "8" },
+    { 0x08,  "4" },
+    { 0, NULL }
+};
+
+static const value_string broadcom_a2dp_hardware_offload_start_legacy_codec_information_sbc_subbands_vals[] = {
+    { 0x01,  "8" },
+    { 0x02,  "4" },
+    { 0, NULL }
+};
+
+static const value_string broadcom_a2dp_hardware_offload_start_legacy_codec_information_sbc_allocation_method_vals[] = {
+    { 0x01,  "Loudness" },
+    { 0x02,  "SNR" },
+    { 0, NULL }
+};
+
+static const value_string broadcom_a2dp_hardware_offload_start_legacy_sbc_sampling_frequency_vals[] = {
+    { 0x01,  "48000 Hz" },
+    { 0x02,  "44100 Hz" },
+    { 0x04,  "32000 Hz" },
+    { 0x08,  "16000 Hz" },
+    { 0, NULL }
+};
+
+static const value_string broadcom_a2dp_hardware_offload_start_legacy_sbc_channel_mode_vals[] = {
+    { 0x01,  "Joint Stereo" },
+    { 0x02,  "Stereo" },
+    { 0x04,  "Dual Channel" },
+    { 0x08,  "Mono" },
+    { 0, NULL }
+};
+
+static const value_string broadcom_a2dp_hardware_offload_data_path_direction_vals[] = {
+    { 0x00,  "Output (AVDTP Source/Merge)" },
+    { 0x01,  "Input (AVDTP Sink/Split)" },
+    { 0, NULL }
+};
+
+static const value_string broadcom_a2dp_hardware_offload_start_legacy_aac_object_type_vals[] = {
+    { 0x01,  "RFA (b0)" },
+    { 0x02,  "RFA (b1)" },
+    { 0x04,  "RFA (b2)" },
+    { 0x08,  "RFA (b3)" },
+    { 0x10,  "MPEG-4 AAC scalable" },
+    { 0x20,  "MPEG-4 AAC LTP" },
+    { 0x40,  "MPEG-4 AAC LC" },
+    { 0x80,  "MPEG-2 AAC LC" },
+    { 0, NULL }
+};
+
+static const value_string broadcom_a2dp_hardware_offload_start_legacy_codec_information_ldac_bitrate_index_vals[] = {
+    { 0x00,  "High" },
+    { 0x01,  "Mid" },
+    { 0x02,  "Low" },
+    { 0x7f,  "ABR (Adaptive Bit Rate)" },
+    { 0, NULL }
+};
 
 void proto_register_bthci_vendor_broadcom(void);
 void proto_reg_handoff_bthci_vendor_broadcom(void);
@@ -432,6 +592,8 @@ dissect_bthci_vendor_broadcom(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     uint8_t            condition;
     uint32_t           interface_id;
     uint32_t           adapter_id;
+    proto_item        *codec_information_item;
+    proto_tree        *codec_information_tree;
 
     bluetooth_data = (bluetooth_data_t *) data;
     if (bluetooth_data) {
@@ -836,6 +998,188 @@ dissect_bthci_vendor_broadcom(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
                 expert_add_info(pinfo, sub_item, &ei_broadcom_unexpected_parameter);
             }
             break;
+        case 0x015D: /* A2DP Hardware Offload */
+            proto_tree_add_item(main_tree, hf_broadcom_a2dp_hardware_offload_subcode, tvb, offset, 1, ENC_NA);
+            subcode = tvb_get_uint8(tvb, offset);
+            offset += 1;
+
+            switch (subcode) {
+            case 0x01: {    /* Start A2DP offload (legacy) */
+                int codec_id = tvb_get_uint32(tvb, offset, ENC_LITTLE_ENDIAN);
+
+                proto_tree_add_item(main_tree, hf_broadcom_a2dp_hardware_offload_start_legacy_codec, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+                offset += 4;
+
+                proto_tree_add_item(main_tree, hf_broadcom_a2dp_hardware_offload_start_legacy_max_latency, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                offset += 2;
+
+                /* Flag is the LSB out of the two, read it first */
+                proto_tree_add_item(main_tree, hf_broadcom_a2dp_hardware_offload_start_legacy_scms_t_enable_flag, tvb, offset, 1, ENC_NA);
+                offset += 1;
+
+                bool scms_t_enabled = tvb_get_uint8(tvb, offset) == 0x01;
+                if (scms_t_enabled) {
+                    proto_tree_add_item(main_tree, hf_broadcom_a2dp_hardware_offload_start_legacy_scms_t_enable_value, tvb, offset, 1, ENC_NA);
+                } else {
+                    proto_tree_add_item(main_tree, hf_broadcom_a2dp_hardware_offload_start_legacy_scms_t_enable_value_reserved, tvb, offset, 1, ENC_NA);
+                }
+                offset += 1;
+
+                proto_tree_add_item(main_tree, hf_broadcom_a2dp_hardware_offload_start_legacy_sampling_frequency, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+                offset += 4;
+
+                proto_tree_add_item(main_tree, hf_broadcom_a2dp_hardware_offload_start_legacy_bits_per_sample, tvb, offset, 1, ENC_NA);
+                offset += 1;
+
+                proto_tree_add_item(main_tree, hf_broadcom_a2dp_hardware_offload_start_legacy_channel_mode, tvb, offset, 1, ENC_NA);
+                offset += 1;
+
+                uint32_t encoded_audio_bitrate = tvb_get_uint32(tvb, offset, ENC_LITTLE_ENDIAN);
+                if (encoded_audio_bitrate == 0x00000000) {
+                    proto_tree_add_item(main_tree, hf_broadcom_a2dp_hardware_offload_start_legacy_encoded_audio_bitrate_unspecified, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+                } else if (encoded_audio_bitrate >= 0x01000000) {
+                    proto_tree_add_item(main_tree, hf_broadcom_a2dp_hardware_offload_start_legacy_encoded_audio_bitrate_reserved, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+                } else {
+                    proto_tree_add_item(main_tree, hf_broadcom_a2dp_hardware_offload_start_legacy_encoded_audio_bitrate, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+                }
+                offset += 4;
+
+                proto_tree_add_item(main_tree, hf_broadcom_a2dp_hardware_offload_start_legacy_connection_handle, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                offset += 2;
+
+                proto_tree_add_item(main_tree, hf_broadcom_a2dp_hardware_offload_start_legacy_l2cap_cid, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                offset += 2;
+
+                proto_tree_add_item(main_tree, hf_broadcom_a2dp_hardware_offload_start_legacy_l2cap_mtu_size, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                offset += 2;
+
+                codec_information_item = proto_tree_add_item(main_tree, hf_broadcom_a2dp_hardware_offload_start_legacy_codec_information, tvb, offset, 32, ENC_NA);
+                codec_information_tree = proto_item_add_subtree(codec_information_item, ett_broadcom_a2dp_hardware_offload_start_legacy_codec_information);
+
+                switch (codec_id) {
+                    case 0x00000001:  /* SBC */
+                        proto_tree_add_item(codec_information_tree, hf_broadcom_a2dp_hardware_offload_start_legacy_codec_information_sbc_block_length, tvb, offset, 1, ENC_NA);
+                        proto_tree_add_item(codec_information_tree, hf_broadcom_a2dp_hardware_offload_start_legacy_codec_information_sbc_subbands, tvb, offset, 1, ENC_NA);
+                        proto_tree_add_item(codec_information_tree, hf_broadcom_a2dp_hardware_offload_start_legacy_codec_information_sbc_allocation_method, tvb, offset, 1, ENC_NA);
+                        offset += 1;
+
+                        proto_tree_add_item(codec_information_tree, hf_broadcom_a2dp_hardware_offload_start_legacy_codec_information_sbc_min_bitpool, tvb, offset, 1, ENC_NA);
+                        offset += 1;
+
+                        proto_tree_add_item(codec_information_tree, hf_broadcom_a2dp_hardware_offload_start_legacy_codec_information_sbc_max_bitpool, tvb, offset, 1, ENC_NA);
+                        offset += 1;
+
+                        proto_tree_add_item(codec_information_tree, hf_broadcom_a2dp_hardware_offload_start_legacy_codec_information_sbc_sampling_frequency, tvb, offset, 1, ENC_NA);
+                        proto_tree_add_item(codec_information_tree, hf_broadcom_a2dp_hardware_offload_start_legacy_codec_information_sbc_channel_mode, tvb, offset, 1, ENC_NA);
+                        offset += 1;
+
+                        proto_tree_add_item(codec_information_tree, hf_broadcom_a2dp_hardware_offload_start_legacy_codec_information_sbc_reserved, tvb, offset, 28, ENC_NA);
+                        offset += 28;
+                    break;
+                    case 0x00000002:  /* AAC */
+                        proto_tree_add_item(codec_information_tree, hf_broadcom_a2dp_hardware_offload_start_legacy_codec_information_aac_object_type, tvb, offset, 1, ENC_NA);
+                        offset += 1;
+
+                        proto_tree_add_item(codec_information_tree, hf_broadcom_a2dp_hardware_offload_start_legacy_codec_information_aac_vbr, tvb, offset, 1, ENC_NA);
+                        offset += 1;
+
+                        proto_tree_add_item(codec_information_tree, hf_broadcom_a2dp_hardware_offload_start_legacy_codec_information_aac_reserved, tvb, offset, 30, ENC_NA);
+                        offset += 30;
+                    break;
+                    case 0x00000010:  /* LDAC */
+                        proto_tree_add_item(codec_information_tree, hf_broadcom_a2dp_hardware_offload_start_legacy_codec_information_ldac_vendor_id, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+                        offset += 4;
+
+                        proto_tree_add_item(codec_information_tree, hf_broadcom_a2dp_hardware_offload_start_legacy_codec_information_ldac_codec_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                        offset += 2;
+
+                        uint8_t bitrate_index = tvb_get_uint8(tvb, offset);
+                        if (bitrate_index >= 0x03 && bitrate_index != 0x7F) {
+                            proto_tree_add_item(codec_information_tree, hf_broadcom_a2dp_hardware_offload_start_legacy_codec_information_ldac_bitrate_index_reserved, tvb, offset, 1, ENC_NA);
+                        } else {
+                            proto_tree_add_item(codec_information_tree, hf_broadcom_a2dp_hardware_offload_start_legacy_codec_information_ldac_bitrate_index, tvb, offset, 1, ENC_NA);
+                        }
+                        offset += 1;
+
+                        proto_tree_add_bitmask(main_tree, tvb, offset, hf_broadcom_a2dp_hardware_offload_start_legacy_codec_information_ldac_channel_mode_mask,
+                                               ett_broadcom_a2dp_hardware_offload_start_legacy_codec_information_ldac_channel_mode_mask, hfx_broadcom_a2dp_hardware_offload_start_legacy_codec_information_ldac_channel_mode, ENC_NA);
+                        offset += 1;
+
+                        proto_tree_add_item(codec_information_tree, hf_broadcom_a2dp_hardware_offload_start_legacy_codec_information_ldac_reserved, tvb, offset, 24, ENC_NA);
+                        offset += 24;
+                    break;
+                    default:    /* All other codecs */
+                        proto_tree_add_item(codec_information_tree, hf_broadcom_a2dp_hardware_offload_start_legacy_codec_information_reserved, tvb, offset, 32, ENC_NA);
+                        offset += 32;
+                    break;
+                }
+
+                break;
+            }
+            case 0x02: {    /* Stop A2DP offload (legacy) */
+                if (tvb_captured_length_remaining(tvb, offset) > 0) {
+                    sub_item = proto_tree_add_item(main_tree, hf_broadcom_data, tvb, offset, length, ENC_NA);
+                    expert_add_info(pinfo, sub_item, &ei_broadcom_unexpected_parameter);
+                    offset += tvb_captured_length_remaining(tvb, offset);
+                }
+                break;
+            }
+            case 0x03: {    /* Start A2DP offload */
+                proto_tree_add_item(main_tree, hf_broadcom_a2dp_hardware_offload_start_connection_handle, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                offset += 2;
+
+                proto_tree_add_item(main_tree, hf_broadcom_a2dp_hardware_offload_start_l2cap_cid, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                offset += 2;
+
+                proto_tree_add_item(main_tree, hf_broadcom_a2dp_hardware_offload_start_data_path_direction, tvb, offset, 1, ENC_NA);
+                offset += 1;
+
+                proto_tree_add_item(main_tree, hf_broadcom_a2dp_hardware_offload_start_peer_mtu, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                offset += 2;
+
+                bool cp_enable_scmst = tvb_get_uint8(tvb, offset) == 0x01;
+                proto_tree_add_item(main_tree, hf_broadcom_a2dp_hardware_offload_start_cp_enable_scmst, tvb, offset, 1, ENC_NA);
+                offset += 1;
+
+                if (cp_enable_scmst) {
+                    proto_tree_add_item(main_tree, hf_broadcom_a2dp_hardware_offload_start_cp_header_scmst, tvb, offset, 1, ENC_NA);
+                } else {
+                    proto_tree_add_item(main_tree, hf_broadcom_a2dp_hardware_offload_start_cp_header_scmst_reserved, tvb, offset, 1, ENC_NA);
+                }
+                offset += 1;
+
+                uint8_t vendor_specific_parameters_length = tvb_get_uint8(tvb, offset);
+                proto_tree_add_item(main_tree, hf_broadcom_a2dp_hardware_offload_start_vendor_specific_parameters_length, tvb, offset, 1, ENC_NA);
+                offset += 1;
+
+                if (vendor_specific_parameters_length > 0 && vendor_specific_parameters_length <= 128) {
+                    proto_tree_add_item(main_tree, hf_broadcom_a2dp_hardware_offload_start_vendor_specific_parameters, tvb, offset, vendor_specific_parameters_length, ENC_NA);
+                    offset += vendor_specific_parameters_length;
+                }
+                break;
+            }
+            case 0x04: {    /* Stop A2DP offload */
+                proto_tree_add_item(main_tree, hf_broadcom_a2dp_hardware_offload_stop_connection_handle, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                offset += 2;
+
+                proto_tree_add_item(main_tree, hf_broadcom_a2dp_hardware_offload_stop_l2cap_cid, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                offset += 2;
+
+                proto_tree_add_item(main_tree, hf_broadcom_a2dp_hardware_offload_stop_data_path_direction, tvb, offset, 1, ENC_NA);
+                offset += 1;
+
+                break;
+            }
+            default:
+                if (tvb_captured_length_remaining(tvb, offset) > 0) {
+                    sub_item = proto_tree_add_item(main_tree, hf_broadcom_data, tvb, offset, length, ENC_NA);
+                    expert_add_info(pinfo, sub_item, &ei_broadcom_unexpected_parameter);
+                    offset += tvb_captured_length_remaining(tvb, offset);
+                }
+                break;
+            }
+
+            break;
         default:
             if (length > 0) {
                 sub_item = proto_tree_add_item(main_tree, hf_broadcom_data, tvb, offset, length, ENC_NA);
@@ -1060,6 +1404,11 @@ dissect_bthci_vendor_broadcom(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
                     proto_tree_add_item(main_tree, hf_broadcom_le_energy_total_energy_used, tvb, offset, 1, ENC_NA);
                     offset += 1;
                 }
+
+                break;
+            case 0x015D: /* A2DP Hardware Offload */
+                proto_tree_add_item(main_tree, hf_broadcom_a2dp_hardware_offload_subcode, tvb, offset, 1, ENC_NA);
+                offset += 1;
 
                 break;
             case 0x0102: /* Enable WBS Modified */
@@ -1720,6 +2069,251 @@ proto_register_bthci_vendor_broadcom(void)
             FT_NONE, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
+        { &hf_broadcom_a2dp_hardware_offload_subcode,
+            { "Subcode",                                   "bthci_vendor.broadcom.a2dp_hardware_offload.subcode",
+            FT_UINT8, BASE_HEX, VALS(broadcom_a2dp_hardware_offload_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_broadcom_a2dp_hardware_offload_start_legacy_codec,
+            { "Codec",                                     "bthci_vendor.broadcom.a2dp_hardware_offload.start_legacy.codec",
+            FT_UINT32, BASE_HEX, VALS(broadcom_a2dp_hardware_offload_start_legacy_codec_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_broadcom_a2dp_hardware_offload_start_legacy_max_latency,
+            { "Max Latency",                               "bthci_vendor.broadcom.a2dp_hardware_offload.start_legacy.max_latency",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_broadcom_a2dp_hardware_offload_start_legacy_scms_t_enable_flag,
+            { "SCMS-T Enable",                             "bthci_vendor.broadcom.a2dp_hardware_offload.start_legacy.scms_t_enable_flag",
+            FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_broadcom_a2dp_hardware_offload_start_legacy_scms_t_enable_value,
+            { "SCMS-T Value",                              "bthci_vendor.broadcom.a2dp_hardware_offload.start_legacy.scms_t_enable_value",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_broadcom_a2dp_hardware_offload_start_legacy_scms_t_enable_value_reserved,
+            { "Reserved",                                  "bthci_vendor.broadcom.a2dp_hardware_offload.start_legacy.scms_t_enable_value_reserved",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_broadcom_a2dp_hardware_offload_start_legacy_sampling_frequency,
+            { "Sampling Frequency",                        "bthci_vendor.broadcom.a2dp_hardware_offload.start_legacy.sampling_frequency",
+            FT_UINT32, BASE_HEX, VALS(broadcom_a2dp_hardware_offload_start_legacy_sampling_frequency_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_broadcom_a2dp_hardware_offload_start_legacy_bits_per_sample,
+            { "Bits Per Sample",                           "bthci_vendor.broadcom.a2dp_hardware_offload.start_legacy.bits_per_sample",
+            FT_UINT8, BASE_HEX, VALS(broadcom_a2dp_hardware_offload_start_legacy_bits_per_sample_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_broadcom_a2dp_hardware_offload_start_legacy_channel_mode,
+            { "Channel Mode",                              "bthci_vendor.broadcom.a2dp_hardware_offload.start_legacy.channel_mode",
+            FT_UINT8, BASE_HEX, VALS(broadcom_a2dp_hardware_offload_start_legacy_channel_mode_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_broadcom_a2dp_hardware_offload_start_legacy_encoded_audio_bitrate,
+            { "Encoded Audio Bitrate",                     "bthci_vendor.broadcom.a2dp_hardware_offload.start_legacy.encoded_audio_bitrate",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_broadcom_a2dp_hardware_offload_start_legacy_encoded_audio_bitrate_unspecified,
+            { "Encoded Audio Bitrate Unspecified/Unused",  "bthci_vendor.broadcom.a2dp_hardware_offload.start_legacy.encoded_audio_bitrate_unspecified",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_broadcom_a2dp_hardware_offload_start_legacy_encoded_audio_bitrate_reserved,
+            { "Reserved",                                  "bthci_vendor.broadcom.a2dp_hardware_offload.start_legacy.encoded_audio_bitrate_reserved",
+            FT_UINT32, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_broadcom_a2dp_hardware_offload_start_legacy_connection_handle,
+            { "Connection Handle",                         "bthci_vendor.broadcom.a2dp_hardware_offload.start_legacy.connection_handle",
+            FT_UINT16, BASE_HEX_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_broadcom_a2dp_hardware_offload_start_legacy_l2cap_cid,
+            { "L2CAP CID",                                 "bthci_vendor.broadcom.a2dp_hardware_offload.start_legacy.l2cap_cid",
+            FT_UINT16, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_broadcom_a2dp_hardware_offload_start_legacy_l2cap_mtu_size,
+            { "L2CAP MTU Size",                            "bthci_vendor.broadcom.a2dp_hardware_offload.start_legacy.l2cap_mtu_size",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_broadcom_a2dp_hardware_offload_start_legacy_codec_information,
+            { "Codec Information",                         "bthci_vendor.broadcom.a2dp_hardware_offload.start_legacy.codec_information",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_broadcom_a2dp_hardware_offload_start_legacy_codec_information_sbc_block_length,
+          { "Block Length",                                "bthci_vendor.broadcom.a2dp_hardware_offload.start_legacy.codec_information.sbc.block_length",
+            FT_UINT8, BASE_HEX, VALS(broadcom_a2dp_hardware_offload_start_legacy_codec_information_sbc_block_length_vals), 0xf0,
+            NULL, HFILL }
+        },
+        { &hf_broadcom_a2dp_hardware_offload_start_legacy_codec_information_sbc_subbands,
+          { "Subbands",                                    "bthci_vendor.broadcom.a2dp_hardware_offload.start_legacy.codec_information.sbc.subbands",
+            FT_UINT8, BASE_HEX, VALS(broadcom_a2dp_hardware_offload_start_legacy_codec_information_sbc_subbands_vals), 0x0c,
+            NULL, HFILL }
+        },
+        { &hf_broadcom_a2dp_hardware_offload_start_legacy_codec_information_sbc_allocation_method,
+          { "Allocation Method",                           "bthci_vendor.broadcom.a2dp_hardware_offload.start_legacy.codec_information.sbc.allocation_method",
+            FT_UINT8, BASE_HEX, VALS(broadcom_a2dp_hardware_offload_start_legacy_codec_information_sbc_allocation_method_vals), 0x03,
+            NULL, HFILL }
+        },
+        { &hf_broadcom_a2dp_hardware_offload_start_legacy_codec_information_sbc_min_bitpool,
+          { "Min Bitpool",                                 "bthci_vendor.broadcom.a2dp_hardware_offload.start_legacy.codec_information.sbc.min_bitpool",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_broadcom_a2dp_hardware_offload_start_legacy_codec_information_sbc_max_bitpool,
+          { "Max Bitpool",                                 "bthci_vendor.broadcom.a2dp_hardware_offload.start_legacy.codec_information.sbc.max_bitpool",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_broadcom_a2dp_hardware_offload_start_legacy_codec_information_sbc_sampling_frequency,
+          { "Sampling Frequency",                          "bthci_vendor.broadcom.a2dp_hardware_offload.start_legacy.codec_information.sbc.sampling_frequency",
+            FT_UINT8, BASE_HEX, VALS(broadcom_a2dp_hardware_offload_start_legacy_sbc_sampling_frequency_vals), 0xf0,
+            NULL, HFILL }
+        },
+        { &hf_broadcom_a2dp_hardware_offload_start_legacy_codec_information_sbc_channel_mode,
+          { "Channel Mode",                                "bthci_vendor.broadcom.a2dp_hardware_offload.start_legacy.codec_information.sbc.channel_mode",
+            FT_UINT8, BASE_HEX, VALS(broadcom_a2dp_hardware_offload_start_legacy_sbc_channel_mode_vals), 0x0f,
+            NULL, HFILL }
+        },
+        { &hf_broadcom_a2dp_hardware_offload_start_legacy_codec_information_sbc_reserved,
+          { "Reserved",                                    "bthci_vendor.broadcom.a2dp_hardware_offload.start_legacy.codec_information.sbc.reserved",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_broadcom_a2dp_hardware_offload_start_legacy_codec_information_aac_object_type,
+          { "Object Type",                                 "bthci_vendor.broadcom.a2dp_hardware_offload.start_legacy.codec_information.aac.object_type",
+            FT_UINT8, BASE_HEX, VALS(broadcom_a2dp_hardware_offload_start_legacy_aac_object_type_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_broadcom_a2dp_hardware_offload_start_legacy_codec_information_aac_vbr,
+          { "VBR",                                         "bthci_vendor.broadcom.a2dp_hardware_offload.start_legacy.codec_information.aac.vbr",
+            FT_BOOLEAN, 8, NULL, 0x80,
+            NULL, HFILL }
+        },
+        { &hf_broadcom_a2dp_hardware_offload_start_legacy_codec_information_aac_reserved,
+          { "Reserved",                                    "bthci_vendor.broadcom.a2dp_hardware_offload.start_legacy.codec_information.aac.reserved",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_broadcom_a2dp_hardware_offload_start_legacy_codec_information_ldac_vendor_id,
+          { "Vendor ID",                                   "bthci_vendor.broadcom.a2dp_hardware_offload.start_legacy.codec_information.ldac.vendor_id",
+            FT_UINT32, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_broadcom_a2dp_hardware_offload_start_legacy_codec_information_ldac_codec_id,
+          { "Codec ID",                                    "bthci_vendor.broadcom.a2dp_hardware_offload.start_legacy.codec_information.ldac.codec_id",
+            FT_UINT16, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_broadcom_a2dp_hardware_offload_start_legacy_codec_information_ldac_bitrate_index,
+            { "Bitrate Index",                             "bthci_vendor.broadcom.a2dp_hardware_offload.start_legacy.codec_information.ldac.bitrate_index",
+            FT_UINT8, BASE_HEX, VALS(broadcom_a2dp_hardware_offload_start_legacy_codec_information_ldac_bitrate_index_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_broadcom_a2dp_hardware_offload_start_legacy_codec_information_ldac_bitrate_index_reserved,
+          { "Reserved",                                    "bthci_vendor.broadcom.a2dp_hardware_offload.start_legacy.codec_information.ldac.bitrate_index.reserved",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_broadcom_a2dp_hardware_offload_start_legacy_codec_information_ldac_channel_mode_mask,
+            { "Channel Mode",                              "bthci_vendor.broadcom.a2dp_hardware_offload.start_legacy.codec_information.ldac.channel_mode_mask",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_broadcom_a2dp_hardware_offload_start_legacy_codec_information_ldac_channel_mode_mask_stereo,
+          { "Stereo",                                      "bthci_vendor.broadcom.a2dp_hardware_offload.start_legacy.codec_information.ldac.channel_mode_mask.stereo",
+            FT_BOOLEAN, 8, NULL, 0x01,
+            NULL, HFILL }
+        },
+        { &hf_broadcom_a2dp_hardware_offload_start_legacy_codec_information_ldac_channel_mode_mask_dual,
+          { "Dual",                                         "bthci_vendor.broadcom.a2dp_hardware_offload.start_legacy.codec_information.ldac.channel_mode_mask.dual",
+            FT_BOOLEAN, 8, NULL, 0x02,
+            NULL, HFILL }
+        },
+        { &hf_broadcom_a2dp_hardware_offload_start_legacy_codec_information_ldac_channel_mode_mask_mono,
+          { "Mono",                                        "bthci_vendor.broadcom.a2dp_hardware_offload.start_legacy.codec_information.ldac.channel_mode_mask.mono",
+            FT_BOOLEAN, 8, NULL, 0x04,
+            NULL, HFILL }
+        },
+        { &hf_broadcom_a2dp_hardware_offload_start_legacy_codec_information_ldac_channel_mode_mask_reserved,
+          { "Reserved",                                    "bthci_vendor.broadcom.a2dp_hardware_offload.start_legacy.codec_information.ldac.channel_mode_mask.reserved",
+            FT_UINT8, BASE_HEX, NULL, UINT32_C(0xF8),
+            NULL, HFILL }
+        },
+        { &hf_broadcom_a2dp_hardware_offload_start_legacy_codec_information_ldac_reserved,
+          { "Reserved",                                    "bthci_vendor.broadcom.a2dp_hardware_offload.start_legacy.codec_information.ldac.reserved",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_broadcom_a2dp_hardware_offload_start_connection_handle,
+          { "Connection Handle",                           "bthci_vendor.broadcom.a2dp_hardware_offload.start.connection_handle",
+            FT_UINT16, BASE_HEX_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_broadcom_a2dp_hardware_offload_start_l2cap_cid,
+          { "L2CAP CID",                                   "bthci_vendor.broadcom.a2dp_hardware_offload.start.l2cap_cid",
+            FT_UINT16, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_broadcom_a2dp_hardware_offload_start_data_path_direction,
+          { "Data Path Direction",                         "bthci_vendor.broadcom.a2dp_hardware_offload.start.data_path_direction",
+            FT_UINT8, BASE_HEX, VALS(broadcom_a2dp_hardware_offload_data_path_direction_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_broadcom_a2dp_hardware_offload_start_peer_mtu,
+          { "Peer MTU",                                    "bthci_vendor.broadcom.a2dp_hardware_offload.start.peer_mtu",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_broadcom_a2dp_hardware_offload_start_cp_enable_scmst,
+          { "CP Enable SCMS-T",                            "bthci_vendor.broadcom.a2dp_hardware_offload.start.cp_enable_scmst",
+            FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_broadcom_a2dp_hardware_offload_start_cp_header_scmst,
+          { "CP Header SCMS-T",                            "bthci_vendor.broadcom.a2dp_hardware_offload.start.cp_header_scmst",
+            FT_UINT8, BASE_HEX_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_broadcom_a2dp_hardware_offload_start_cp_header_scmst_reserved,
+          { "Reserved",                                    "bthci_vendor.broadcom.a2dp_hardware_offload.start.cp_header_scmst_reserved",
+            FT_UINT16, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_broadcom_a2dp_hardware_offload_start_vendor_specific_parameters_length,
+          { "Vendor Specific Parameters Length",           "bthci_vendor.broadcom.a2dp_hardware_offload.start.vendor_specific_parameters_length",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_broadcom_a2dp_hardware_offload_start_vendor_specific_parameters,
+          { "Vendor Specific Parameters",                  "bthci_vendor.broadcom.a2dp_hardware_offload.start.vendor_specific_parameters",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_broadcom_a2dp_hardware_offload_stop_connection_handle,
+          { "Connection Handle",                           "bthci_vendor.broadcom.a2dp_hardware_offload.stop.connection_handle",
+            FT_UINT16, BASE_HEX_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_broadcom_a2dp_hardware_offload_stop_l2cap_cid,
+          { "L2CAP CID",                                   "bthci_vendor.broadcom.a2dp_hardware_offload.stop.l2cap_cid",
+            FT_UINT16, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_broadcom_a2dp_hardware_offload_stop_data_path_direction,
+          { "Data Path Direction",                         "bthci_vendor.broadcom.a2dp_hardware_offload.stop.data_path_direction",
+            FT_UINT8, BASE_HEX, VALS(broadcom_a2dp_hardware_offload_data_path_direction_vals), 0x0,
+            NULL, HFILL }
+        },
     };
 
     static int *ett[] = {
@@ -1728,6 +2322,8 @@ proto_register_bthci_vendor_broadcom(void)
         &ett_broadcom_channel_map,
         &ett_broadcom_a2dp_source_offload_capability_mask,
         &ett_broadcom_dynamic_audio_buffer_support_mask,
+        &ett_broadcom_a2dp_hardware_offload_start_legacy_codec_information,
+        &ett_broadcom_a2dp_hardware_offload_start_legacy_codec_information_ldac_channel_mode_mask,
     };
 
     static ei_register_info ei[] = {
