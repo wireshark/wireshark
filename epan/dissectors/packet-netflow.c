@@ -124,7 +124,9 @@
  * Includes updates for RFC8549
  */
 
+#define WS_LOG_DOMAIN "packet-netflow"
 #include "config.h"
+#include <wireshark.h>
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/ipproto.h>
@@ -147,12 +149,6 @@ void proto_register_netflow(void);
 void proto_reg_handoff_netflow(void);
 
 static int dissect_tcp_netflow(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data);
-
-#if 0
-#define ipfix_debug(...) ws_warning(__VA_ARGS__)
-#else
-#define ipfix_debug(...)
-#endif
 
 
 /* 4739 is IPFIX.
@@ -4377,11 +4373,11 @@ dissect_netflow(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
     dissect_pdu_t  *pduptr;
     uint32_t        flows_seen = 0;
 
-    ipfix_debug("dissect_netflow: start");
+    ws_debug("start");
 
     ver = tvb_get_ntohs(tvb, offset);
 
-    ipfix_debug("dissect_netflow: found version %d", ver);
+    ws_debug("found version %d", ver);
 
     switch (ver) {
     case 1:
@@ -4415,13 +4411,13 @@ dissect_netflow(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "CFLOW");
     col_clear(pinfo->cinfo, COL_INFO);
-    ipfix_debug("dissect_netflow: column cleared");
+    ws_debug("column cleared");
 
     if (tree) {
         ti = proto_tree_add_item(tree, proto_netflow, tvb, offset, -1, ENC_NA);
         netflow_tree = proto_item_add_subtree(ti, ett_netflow);
     }
-    ipfix_debug("dissect_netflow: tree added");
+    ws_debug("tree added");
 
     hdrinfo.vspec = ver;
     hdrinfo.src_id = 0;
