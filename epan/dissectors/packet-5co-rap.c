@@ -229,6 +229,7 @@ static hf_register_info hf_base[] = {
 /* are used for size and if higher bit is set, the next byte is also used and*/
 /* so on until a byte with higher bit is not set.                            */
 /*****************************************************************************/
+/* XXX - Replace with equivalent tvb_get_varint(..., ENC_VARINT_PROTOBUF)? */
 static int
 get_data_size(tvbuff_t *tvb, guint32 first_index, guint32 *p_header_len) {
 
@@ -622,6 +623,7 @@ dissect_frame(tvbuff_t *tvb, packet_info* pinfo, proto_tree* fiveco_frame_tree, 
                         } else {
                             proto_item_append_text(fiveco_routing_item,
                                 " Sub frame cannot be displayed because max number of subdevices that can be dissected is exceeded !");
+                            i += routing_header_len;
                         }
                         i += routing_size;
                         break;
