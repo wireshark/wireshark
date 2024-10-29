@@ -50,6 +50,9 @@
 
 #define FALCODUMP_PLUGIN_PLACEHOLDER "<plugin name>"
 
+#define SINSP_CHECK_VERSION(major, minor, micro) \
+    (((SINSP_VERSION_MAJOR << 16) + (SINSP_VERSION_MINOR << 8) + SINSP_VERSION_MICRO) >= ((major << 16) + (minor << 8) + micro))
+
 // We load our plugins and fetch their configs before we set our log level.
 // #define DEBUG_JSON_PARSING
 // #define DEBUG_SINSP
@@ -1179,7 +1182,11 @@ int main(int argc, char **argv)
                     ws_warning("%s", init_err.c_str());
                     goto end;
                 }
+#if SINSP_CHECK_VERSION(0, 18, 0)
+                inspector.open_plugin(extcap_conf->interface, plugin_source, sinsp_plugin_platform::SINSP_PLATFORM_HOSTINFO);
+#else
                 inspector.open_plugin(extcap_conf->interface, plugin_source);
+#endif
                 // scap_dump_open handles "-"
             } catch (sinsp_exception &e) {
                 ws_warning("%s", e.what());

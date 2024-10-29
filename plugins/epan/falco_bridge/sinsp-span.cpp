@@ -34,6 +34,8 @@
 // [ ] Move chunkify_string to a thread? For captures with large command lines,
 //     we spend a lot of time hashing strings.
 
+#define SINSP_CHECK_VERSION(major, minor, micro) \
+    (((SINSP_VERSION_MAJOR << 16) + (SINSP_VERSION_MINOR << 8) + SINSP_VERSION_MICRO) >= ((major << 16) + (minor << 8) + micro))
 
 // epan/address.h and driver/ppm_events_public.h both define PT_NONE, so
 // handle libsinsp calls here.
@@ -433,7 +435,11 @@ void create_sinsp_syscall_source(sinsp_span_t *sinsp_span, sinsp_source_info_t *
 
         for (int i = 0; i < fci->m_nfields; i++) {
             const filtercheck_field_info *ffi = &fci->m_fields[i];
+#if SINSP_CHECK_VERSION(0, 18, 1)
+            if (ffi->m_flags == filtercheck_field_flags::EPF_NONE || ffi->m_flags == filtercheck_field_flags::EPF_NO_PTR_STABILITY) {
+#else
             if (ffi->m_flags == filtercheck_field_flags::EPF_NONE) {
+#endif
                 // This is where we exclude fields that are not interesting in a wireshark-like use case.
                 if (skip_field(ffi)) {
                     continue;
@@ -443,6 +449,17 @@ void create_sinsp_syscall_source(sinsp_span_t *sinsp_span, sinsp_source_info_t *
                 if (!sfc) {
                     continue;
                 }
+#if SINSP_CHECK_VERSION(0, 18, 0)
+                if (ffi->m_name.compare("evt.category") == 0) {
+                    ssi->evt_category_idx = ssi->syscall_filter_fields.size();
+                }
+                if (ffi->m_name.compare("evt.cpu") == 0) {
+                    ssi->cpu_id_idx = (uint16_t) ssi->syscall_filter_fields.size();
+                }
+                if (ffi->m_name.compare("proc.pid") == 0) {
+                    ssi->proc_id_idx = (uint16_t) ssi->syscall_filter_fields.size();
+                }
+#else
                 if (strcmp(ffi->m_name, "evt.category") == 0) {
                     ssi->evt_category_idx = ssi->syscall_filter_fields.size();
                 }
@@ -452,6 +469,7 @@ void create_sinsp_syscall_source(sinsp_span_t *sinsp_span, sinsp_source_info_t *
                 if (strcmp(ffi->m_name, "proc.pid") == 0) {
                     ssi->proc_id_idx = (uint16_t) ssi->syscall_filter_fields.size();
                 }
+#endif
                 sfc->parse_field_name(ffi->m_name, true, false);
                 ssi->field_to_category.push_back(syscall_category);
                 ssi->syscall_event_filter_checks.push_back(std::move(sfc));
@@ -559,18 +577,33 @@ bool get_sinsp_source_field_info(sinsp_source_info_t *ssi, size_t field_num, sin
 
     if (ssi->source) {
         ffi = &ssi->source->fields()[field_num];
+#if SINSP_CHECK_VERSION(0, 18, 0)
+        g_strlcpy(field->abbrev, ffi->m_name.c_str(), sizeof(field->abbrev));
+#else
         g_strlcpy(field->abbrev, ffi->m_name, sizeof(field->abbrev));
+#endif
     } else {
         ffi = ssi->syscall_filter_fields[field_num];
         if (ssi->field_to_category[field_num] == SSC_OTHER) {
+#if SINSP_CHECK_VERSION(0, 18, 0)
+            snprintf(field->abbrev, sizeof(field->abbrev), FALCO_FIELD_NAME_PREFIX "%s", ffi->m_name.c_str());
+        } else {
+            g_strlcpy(field->abbrev, ffi->m_name.c_str(), sizeof(field->abbrev));
+#else
             snprintf(field->abbrev, sizeof(field->abbrev), FALCO_FIELD_NAME_PREFIX "%s", ffi->m_name);
         } else {
             g_strlcpy(field->abbrev, ffi->m_name, sizeof(field->abbrev));
+#endif
         }
     }
 
+#if SINSP_CHECK_VERSION(0, 18, 0)
+    g_strlcpy(field->display, ffi->m_display.c_str(), sizeof(field->display));
+    g_strlcpy(field->description, ffi->m_description.c_str(), sizeof(field->description));
+#else
     g_strlcpy(field->display, ffi->m_display, sizeof(field->display));
     g_strlcpy(field->description, ffi->m_description, sizeof(field->description));
+#endif
 
     field->is_hidden = ffi->m_flags & EPF_TABLE_ONLY;
     field->is_conversation = ffi->m_flags & EPF_CONVERSATION;
@@ -749,7 +782,12 @@ static void add_syscall_event_to_cache(sinsp_span_t *sinsp_span, sinsp_source_in
             continue;
         }
         auto ffi = ssi->syscall_filter_fields[fc_idx];
+
+#if SINSP_CHECK_VERSION(0, 18, 0)
+        if ((ffi->m_flags == filtercheck_field_flags::EPF_NONE || ffi->m_flags == filtercheck_field_flags::EPF_NO_PTR_STABILITY) && values[0].len > 0) {
+#else
         if (ffi->m_flags == filtercheck_field_flags::EPF_NONE && values[0].len > 0) {
+#endif
             if (sinsp_span->sfe_slab_offset + sfe_idx >= sfe_slab_prealloc) {
                 ws_error("Extracting too many fields for event %u (%d vs %d)", (unsigned) evt->get_num(), (int) sfe_idx, (int) ssi->syscall_event_filter_checks.size());
             }
