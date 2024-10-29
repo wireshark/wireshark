@@ -9,7 +9,9 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
+#define WS_LOG_DOMAIN "packet-snort-config"
 #include "config.h"
+#include <wireshark.h>
 
 #include <stdlib.h>
 #include <string.h>
@@ -368,7 +370,7 @@ static bool parse_variables_line(SnortConfig_t *snort_config, const char *line)
                 /* This can be relative or absolute. */
                 snort_config->rule_path = value;
                 snort_config->rule_path_is_absolute = g_path_is_absolute(value);
-                snort_debug_printf("rule_path set to %s (is_absolute=%d)\n",
+                ws_debug("rule_path set to %s (is_absolute=%d)",
                                    snort_config->rule_path, snort_config->rule_path_is_absolute);
             }
             g_hash_table_insert(snort_config->vars, variable_name, value);
@@ -445,7 +447,7 @@ char *expand_reference(SnortConfig_t *snort_config, char *reference)
     int accumulated_length = 0;
 
     /* Extract up to ',', then substitute prefix! */
-    snort_debug_printf("expand_reference(%s)\n", reference);
+    ws_debug("expand_reference(%s)", reference);
     char *prefix = read_token(reference, ',', &length, &accumulated_length, false);
 
     if (*prefix != '\0') {
@@ -561,7 +563,7 @@ static bool parse_include_file(SnortConfig_t *snort_config, const char *line, co
         /* Try to open the file. */
         new_config_fd = ws_fopen(substituted_filename, "r");
         if (new_config_fd == NULL) {
-            snort_debug_printf("Failed to open config file %s\n", substituted_filename);
+            ws_debug("Failed to open config file %s", substituted_filename);
             report_failure("Snort dissector: Failed to open config file %s\n", substituted_filename);
             g_free(substituted_filename);
             return false;
@@ -741,7 +743,7 @@ static bool parse_rule(SnortConfig_t *snort_config, char *line, const char *file
     /* Allocate the rule itself */
     rule = g_new(Rule_t, 1);
 
-    snort_debug_printf("looks like a rule: %s\n", line);
+    ws_debug("looks like a rule: %s", line);
     memset(rule, 0, sizeof(Rule_t));
 
     rule->rule_string = g_strdup(line);
@@ -754,7 +756,7 @@ static bool parse_rule(SnortConfig_t *snort_config, char *line, const char *file
     /* Find start of options. */
     options_start = strstr(line, "(");
     if (options_start == NULL) {
-        snort_debug_printf("start of options not found\n");
+        ws_debug("start of options not found");
         g_free(rule);
         return false;
     }
@@ -803,7 +805,7 @@ static bool parse_rule(SnortConfig_t *snort_config, char *line, const char *file
 
     /* Add rule to map of rules. */
     g_hash_table_insert(snort_config->rules, GUINT_TO_POINTER((unsigned)rule->sid), rule);
-    snort_debug_printf("Snort rule with SID=%u added to table\n", rule->sid);
+    ws_debug("Snort rule with SID=%u added to table", rule->sid);
 
     return true;
 }
@@ -832,7 +834,7 @@ static gboolean delete_rule(void *    key _U_,
         g_free(rule->references[n]);
     }
 
-    snort_debug_printf("Freeing rule at :%p\n", rule);
+    ws_debug("Freeing rule at :%p", rule);
     g_free(rule);
     return TRUE;
 }
@@ -849,7 +851,7 @@ static void parse_config_file(SnortConfig_t *snort_config, FILE *config_file_fd,
     char line[MAX_LINE_LENGTH];
     int  line_number = 0;
 
-    snort_debug_printf("parse_config_file(filename=%s, recursion_level=%d)\n", filename, recursion_level);
+    ws_debug("parse_config_file(filename=%s, recursion_level=%d)", filename, recursion_level);
 
     if (recursion_level > MAX_CONFIG_FILE_RECURSE_DEPTH) {
         return;
@@ -902,7 +904,7 @@ void create_config(SnortConfig_t **snort_config, const char *snort_config_file)
     char* basename;
     FILE *config_file_fd;
 
-    snort_debug_printf("create_config (%s)\n", snort_config_file);
+    ws_debug("create_config (%s)", snort_config_file);
 
     *snort_config = g_new(SnortConfig_t, 1);
     memset(*snort_config, 0, sizeof(SnortConfig_t));
@@ -925,7 +927,7 @@ void create_config(SnortConfig_t **snort_config, const char *snort_config_file)
     /* Attempt to open the config file */
     config_file_fd = ws_fopen(snort_config_file, "r");
     if (config_file_fd == NULL) {
-        snort_debug_printf("Failed to open config file %s\n", snort_config_file);
+        ws_debug("Failed to open config file %s", snort_config_file);
         report_failure("Snort dissector: Failed to open config file %s\n", snort_config_file);
     }
     else {
@@ -942,7 +944,7 @@ void create_config(SnortConfig_t **snort_config, const char *snort_config_file)
 /* Delete the entire config */
 void delete_config(SnortConfig_t **snort_config)
 {
-    snort_debug_printf("delete_config()\n");
+    ws_debug("delete_config()");
 
     /* Iterate over all rules, freeing each one! */
     g_hash_table_foreach_remove((*snort_config)->rules, delete_rule, NULL);
@@ -1180,7 +1182,7 @@ bool content_convert_pcre_for_regex(content_t *content)
                     /* TODO: handle other modifiers that will get seen? */
                     /* N.B. 'U' (match in decoded URI buffers) can't be handled, so don't store in flag. */
                     /* N.B. not sure if/how to handle 'R' (effectively distance:0) */
-                    snort_debug_printf("Unhandled pcre modifier '%c'\n", content->str[i]);
+                    ws_debug("Unhandled pcre modifier '%c'", content->str[i]);
                     break;
             }
         }
