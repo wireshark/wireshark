@@ -12,6 +12,7 @@
 
 #include "config.h"
 
+#define WS_LOG_DOMAIN "packet-dcerpc-netlogon"
 
 #include <epan/packet.h>
 #include <epan/expert.h>
@@ -41,23 +42,25 @@ void proto_reg_handoff_dcerpc_netlogon(void);
 
 static int netlogon_dissect_neg_options(tvbuff_t *tvb,proto_tree *tree,uint32_t flags,int offset);
 
-#ifdef DEBUG_NETLOGON
-#include <stdio.h>
-#define debugprintf(...) fprintf(stderr,__VA_ARGS__)
-static void printnbyte(const uint8_t* tab,int nb,const char* txt,const char* txt2)
+/* Debug function, log a hexdump of interesting memory */
+static void printnbyte(wmem_allocator_t *scratch, const uint8_t* tab,int nb,const char* txt)
 {
-    int i=0;
-    debugprintf("%s ",txt);
+    if (!ws_log_msg_is_active(WS_LOG_DOMAIN, LOG_LEVEL_DEBUG))
+    {
+        return;
+    }
+
+    char *hexdump = wmem_alloc0(scratch, nb*3 + 1);
+    int i;
+
     for(i=0;i<nb;i++)
     {
-        debugprintf("%02X ",*(tab+i));
+        snprintf(hexdump+(i*3), 3, "%02X ", *(tab+i));
     }
-    debugprintf("%s",txt2);
+    hexdump[nb*3] = '\0';
+
+    ws_debug("%s %s", txt, hexdump);
 }
-#else
-#define debugprintf(...)
-static void printnbyte(const uint8_t* tab _U_,int nb _U_,const char* txt _U_,const char* txt2 _U_) {}
-#endif
 
 #define NETLOGON_FLAG_80000000 0x80000000
 #define NETLOGON_FLAG_40000000 0x40000000
@@ -2837,10 +2840,10 @@ netlogon_dissect_netrserverreqchallenge_rqst(tvbuff_t *tvb, int offset,
         cb_wstr_postprocess,
         GINT_TO_POINTER(CB_STR_COL_INFO |CB_STR_SAVE | 1));
 
-    debugprintf("1)Len %d offset %d txt %s\n",(int) strlen((char *)dcv->private_data),offset,(char*)dcv->private_data);
+    ws_debug("1)Len %d offset %d txt %s",(int) strlen((char *)dcv->private_data),offset,(char*)dcv->private_data);
     vars = wmem_new0(wmem_file_scope(), netlogon_auth_vars);
     vars->client_name = wmem_strdup(wmem_file_scope(), (char *)dcv->private_data);
-    debugprintf("2)Len %d offset %d txt %s\n",(int) strlen((char *)dcv->private_data),offset,vars->client_name);
+    ws_debug("2)Len %d offset %d txt %s",(int) strlen((char *)dcv->private_data),offset,vars->client_name);
 
     offset = dissect_dcerpc_8bytes(tvb, offset, pinfo, tree, drep,
                                    hf_client_challenge,&vars->client_challenge);
@@ -2857,20 +2860,20 @@ netlogon_dissect_netrserverreqchallenge_rqst(tvbuff_t *tvb, int offset,
         netlogon_auth_key *k = (netlogon_auth_key *)wmem_memdup(wmem_file_scope(), &key, sizeof(netlogon_auth_key));
         copy_address_wmem(wmem_file_scope(), &k->client, &key.client);
         copy_address_wmem(wmem_file_scope(), &k->server, &key.server);
-        debugprintf("Adding initial vars with this start packet = %d\n",vars->start);
+        ws_debug("Adding initial vars with this start packet = %d",vars->start);
         wmem_map_insert(netlogon_auths, k, vars);
     }
     else {
         while(existing_vars->next != NULL && existing_vars->start < vars->start) {
-            debugprintf("Looping to find existing vars ...\n");
+            ws_debug("Looping to find existing vars ...");
             existing_vars = existing_vars->next;
         }
         if(existing_vars->next != NULL || existing_vars->start == vars->start) {
-            debugprintf("It seems that I already record this vars start packet = %d\n",vars->start);
+            ws_debug("It seems that I already record this vars start packet = %d",vars->start);
             wmem_free(wmem_file_scope(), vars);
         }
         else {
-            debugprintf("Adding a new entry with this start packet = %d\n",vars->start);
+            ws_debug("Adding a new entry with this start packet = %d",vars->start);
             existing_vars->next_start = pinfo->num;
             existing_vars->next = vars;
         }
@@ -2901,11 +2904,11 @@ netlogon_dissect_netrserverreqchallenge_reply(tvbuff_t *tvb, int offset,
         while(vars !=NULL && vars->next_start != -1 && vars->next_start < (int)pinfo->num )
         {
             vars = vars->next;
-            debugprintf("looping challenge reply... %d %d \n", vars->next_start, pinfo->num);
+            ws_debug("looping challenge reply... %d %d ", vars->next_start, pinfo->num);
         }
         if(vars == NULL)
         {
-            debugprintf("Something strange happened while searching for challenge_reply\n");
+            ws_debug("Something strange happened while searching for challenge_reply");
         }
         else
         {
@@ -2915,7 +2918,7 @@ netlogon_dissect_netrserverreqchallenge_reply(tvbuff_t *tvb, int offset,
 /*
   else
   {
-  debugprintf("Vars not found in challenge reply\n");
+  ws_debug("Vars not found in challenge reply");
   }
 */
     return offset;
@@ -7011,13 +7014,13 @@ netlogon_dissect_netrserverauthenticate023_reply(tvbuff_t *tvb, int offset,
 
     vars = (netlogon_auth_vars *)wmem_map_lookup(netlogon_auths, &key);
     if(vars != NULL) {
-        debugprintf("Found some vars (ie. server/client challenges), let's see if I can get a session key\n");
+        ws_debug("Found some vars (ie. server/client challenges), let's see if I can get a session key");
         while(vars != NULL && vars->next_start != -1 && vars->next_start < (int) pinfo->num ) {
-            debugprintf("looping auth reply...\n");
+            ws_debug("looping auth reply...");
             vars = vars->next;
         }
         if(vars == NULL ) {
-            debugprintf("Something strange happened while searching for authenticate_reply\n");
+            ws_debug("Something strange happened while searching for authenticate_reply");
         }
         else {
             md4_pass *pass_list=NULL;
@@ -7032,7 +7035,7 @@ netlogon_dissect_netrserverauthenticate023_reply(tvbuff_t *tvb, int offset,
             vars->flags = flags;
             vars->can_decrypt = false;
             list_size = get_md4pass_list(pinfo->pool, &pass_list);
-            debugprintf("Found %d passwords \n",list_size);
+            ws_debug("Found %d passwords ",list_size);
             if( flags & NETLOGON_FLAG_AES )
             {
                 uint8_t salt_buf[16] = { 0 };
@@ -7043,14 +7046,14 @@ netlogon_dissect_netrserverauthenticate023_reply(tvbuff_t *tvb, int offset,
                 memcpy(&salt_buf[8], (uint8_t*)&vars->server_challenge, 8);
 
                 used_method = "AES";
-                printnbyte((uint8_t*)&vars->client_challenge,8,"Client challenge:","\n");
-                printnbyte((uint8_t*)&vars->server_challenge,8,"Server challenge:","\n");
-                printnbyte((uint8_t*)&server_cred,8,"Server creds:","\n");
+                printnbyte(pinfo->pool, (uint8_t*)&vars->client_challenge, 8, "Client challenge:");
+                printnbyte(pinfo->pool, (uint8_t*)&vars->server_challenge, 8, "Server challenge:");
+                printnbyte(pinfo->pool, (uint8_t*)&server_cred, 8, "Server creds:");
                 for(i=0;i<list_size;i++)
                 {
                     used_md4 = &pass_list[i];
                     password = pass_list[i];
-                    printnbyte((uint8_t*)&password, 16,"NTHASH:","\n");
+                    printnbyte(pinfo->pool, (uint8_t*)&password, 16, "NTHASH:");
                     if (!ws_hmac_buffer(GCRY_MD_SHA256, sha256, salt_buf, sizeof(salt_buf), (uint8_t*) &password, 16)) {
                         gcry_error_t err;
                         gcry_cipher_hd_t cipher_hd = NULL;
@@ -7058,7 +7061,7 @@ netlogon_dissect_netrserverauthenticate023_reply(tvbuff_t *tvb, int offset,
 
                         /* truncate the session key to 16 bytes */
                         memcpy(session_key, sha256, 16);
-                        printnbyte((uint8_t*)session_key, 16,"Session Key","\n");
+                        printnbyte(pinfo->pool, (uint8_t*)session_key, 16, "Session Key:");
 
                         /* Open the cipher */
                         err = gcry_cipher_open(&cipher_hd, GCRY_CIPHER_AES128, GCRY_CIPHER_MODE_CFB8, 0);
@@ -7096,7 +7099,7 @@ netlogon_dissect_netrserverauthenticate023_reply(tvbuff_t *tvb, int offset,
                         /* Done with the cipher */
                         gcry_cipher_close(cipher_hd);
 
-                        printnbyte((uint8_t*)&calculated_cred,8,"Calculated creds:","\n");
+                        printnbyte(pinfo->pool, (uint8_t*)&calculated_cred, 8, "Calculated creds:");
 
                         if(calculated_cred==server_cred) {
                             found = 1;
@@ -7119,10 +7122,10 @@ netlogon_dissect_netrserverauthenticate023_reply(tvbuff_t *tvb, int offset,
                     memcpy(md5, gcry_md_read(md5_handle, 0), 16);
                     gcry_md_close(md5_handle);
                 }
-                printnbyte(md5,8,"MD5:","\n");
-                printnbyte((uint8_t*)&vars->client_challenge,8,"Client challenge:","\n");
-                printnbyte((uint8_t*)&vars->server_challenge,8,"Server challenge:","\n");
-                printnbyte((uint8_t*)&server_cred,8,"Server creds:","\n");
+                printnbyte(pinfo->pool, md5, 8, "MD5:");
+                printnbyte(pinfo->pool, (uint8_t*)&vars->client_challenge, 8, "Client challenge:");
+                printnbyte(pinfo->pool, (uint8_t*)&vars->server_challenge, 8, "Server challenge:");
+                printnbyte(pinfo->pool, (uint8_t*)&server_cred, 8, "Server creds:");
                 for(i=0;i<list_size;i++)
                 {
                     used_md4 = &pass_list[i];
@@ -7130,7 +7133,7 @@ netlogon_dissect_netrserverauthenticate023_reply(tvbuff_t *tvb, int offset,
                     if (!ws_hmac_buffer(GCRY_MD_MD5, session_key, md5, HASH_MD5_LENGTH, (uint8_t*) &password, 16)) {
                         crypt_des_ecb(buf,(unsigned char*)&vars->server_challenge,session_key);
                         crypt_des_ecb((unsigned char*)&calculated_cred,buf,session_key+7);
-                        printnbyte((uint8_t*)&calculated_cred,8,"Calculated creds:","\n");
+                        printnbyte(pinfo->pool, (uint8_t*)&calculated_cred, 8, "Calculated creds:");
                         if(calculated_cred==server_cred) {
                             found = 1;
                             break;
@@ -7141,14 +7144,14 @@ netlogon_dissect_netrserverauthenticate023_reply(tvbuff_t *tvb, int offset,
             else
             {
                 /*Not implemented*/
-                debugprintf("Else case not implemented\n");
+                ws_debug("Else case not implemented");
                 memset(session_key,0,16);
             }
             if(found) {
                 vars->nthash = *used_md4;
                 vars->auth_fd_num = pinfo->num;
                 memcpy(&vars->session_key,session_key,16);
-                debugprintf("Found the good session key !\n");
+                ws_debug("Found the good session key !");
                 expert_add_info_format(pinfo, proto_tree_get_parent(tree),
                          &ei_netlogon_auth_nthash,
                          "%s authenticated using %s (%02x%02x%02x%02x...)",
@@ -7173,7 +7176,7 @@ netlogon_dissect_netrserverauthenticate023_reply(tvbuff_t *tvb, int offset,
                          session_key[14] & 0xFF, session_key[15] & 0xFF);
             }
             else {
-                debugprintf("Session key not found !\n");
+                ws_debug("Session key not found !");
                 memset(&vars->session_key,0,16);
             }
         }
@@ -7517,7 +7520,7 @@ netlogon_dissect_opaque_buffer_block(tvbuff_t *tvb, int offset, int length,
 
     vars = find_global_netlogon_auth_vars(pinfo, is_server);
     if (vars == NULL ) {
-        debugprintf("Vars not found %d (packet_data)\n",wmem_map_size(netlogon_auths));
+        ws_debug("Vars not found %d (packet_data)",wmem_map_size(netlogon_auths));
         expert_add_info_format(pinfo, proto_tree_get_parent(tree),
             &ei_netlogon_session_key,
             "No session key found");
@@ -8304,7 +8307,7 @@ static int dissect_secchan_nl_auth_message(tvbuff_t *tvb, int offset,
     }
     else
     {
-        debugprintf("Vars not found (is null %d) %d (dissect_verf)\n",vars==NULL,wmem_map_size(netlogon_auths));
+        ws_debug("Vars not found (is null %d) %d (dissect_verf)",vars==NULL,wmem_map_size(netlogon_auths));
     }
 
     return offset;
@@ -8693,11 +8696,11 @@ dissect_packet_data(tvbuff_t *tvb ,tvbuff_t *auth_tvb _U_,
     tvbuff_t  *buf = NULL;
     uint8_t* decrypted;
     netlogon_auth_vars *vars;
-    /*debugprintf("Dissection of request data offset %d len=%d on packet %d\n",offset,tvb_length_remaining(tvb,offset),pinfo->num);*/
+    /*ws_debug("Dissection of request data offset %d len=%d on packet %d",offset,tvb_length_remaining(tvb,offset),pinfo->num);*/
 
     vars = find_or_create_schannel_netlogon_auth_vars(pinfo, auth_info, is_server);
     if (vars == NULL) {
-        debugprintf("Vars not found  %d (packet_data)\n",wmem_map_size(netlogon_auths));
+        ws_debug("Vars not found  %d (packet_data)",wmem_map_size(netlogon_auths));
         return(buf);
     }
 
@@ -8713,7 +8716,7 @@ dissect_packet_data(tvbuff_t *tvb ,tvbuff_t *auth_tvb _U_,
         }
         err = prepare_decryption_cipher(vars, &cipher_hd);
         if (err != 0) {
-            ws_warning("GCRY: prepare_decryption_cipher %s/%s\n",
+            ws_warning("GCRY: prepare_decryption_cipher %s/%s",
                       gcry_strsource(err), gcry_strerror(err));
             return NULL;
         }
@@ -8727,7 +8730,7 @@ dissect_packet_data(tvbuff_t *tvb ,tvbuff_t *auth_tvb _U_,
         buf = tvb_new_child_real_data(tvb, decrypted, data_len, data_len);
         /* Note: caller does add_new_data_source(...) */
     } else {
-        debugprintf("Session key not found can't decrypt ...\n");
+        ws_debug("Session key not found can't decrypt ...");
     }
 
     return(buf);
@@ -8800,13 +8803,13 @@ dissect_secchan_verf(tvbuff_t *tvb, int offset, packet_info *pinfo,
         update_vars = 1;
     }
 
-    /*debugprintf("Setting isseen to true, old packet %d new %d\n",seen.num,pinfo->num);*/
+    /*ws_debug("Setting isseen to true, old packet %d new %d",seen.num,pinfo->num);*/
     seen.isseen = true;
     seen.num = pinfo->num;
 
     vars = find_or_create_schannel_netlogon_auth_vars(pinfo, auth_info, is_server);
     if (vars == NULL) {
-        debugprintf("Vars not found %d (packet_data)\n",wmem_map_size(netlogon_auths));
+        ws_debug("Vars not found %d (packet_data)",wmem_map_size(netlogon_auths));
         return(offset);
     }
     if(update_vars) {
@@ -8820,7 +8823,7 @@ dissect_secchan_verf(tvbuff_t *tvb, int offset, packet_info *pinfo,
     }
     else
     {
-        debugprintf("get seal key returned 0\n");
+        ws_debug("get seal key returned 0");
     }
 
     if (vars->can_decrypt) {
