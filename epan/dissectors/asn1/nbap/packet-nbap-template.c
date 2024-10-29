@@ -11,8 +11,11 @@
  * Ref: 3GPP TS 25.433 version 6.6.0 Release 6
  */
 
+#define WS_LOG_DOMAIN "packet-nbap"
 #include "config.h"
+#include <wireshark.h>
 
+#include <epan/to_str.h>
 #include <epan/packet.h>
 #include <epan/sctpppids.h>
 #include <epan/asn1.h>
@@ -42,15 +45,6 @@
 
 
 #define NBAP_IGNORE_PORT 255
-
-/* Debug */
-#define DEBUG_NBAP 0
-#if DEBUG_NBAP
-#include <epan/to_str.h>
-#define nbap_debug(...) ws_warning(__VA_ARGS__)
-#else
-#define nbap_debug(...)
-#endif
 
 void proto_register_nbap(void);
 void proto_reg_handoff_nbap(void);
@@ -553,7 +547,7 @@ static uint32_t calculate_setup_conv_key(const uint32_t transaction_id, const ui
   key = transaction_id << 16;
   key |= (dd_mode & 0x03) << 14;
   key |= (channel_id & 0x3fff);
-  nbap_debug("\tCalculating key 0x%04x", key);
+  ws_debug("\tCalculating key 0x%04x", key);
   return key;
 }
 
@@ -563,7 +557,7 @@ static void add_setup_conv(const packet_info *pinfo _U_, const uint32_t transact
   nbap_setup_conv_t *new_conv = NULL;
   uint32_t key;
 
-  nbap_debug("Creating new setup conv\t TransactionID: %u\tddMode: %u\tChannelID: %u\t %s:%u",
+  ws_debug("Creating new setup conv\t TransactionID: %u\tddMode: %u\tChannelID: %u\t %s:%u",
   transaction_id, dd_mode, channel_id, address_to_str(pinfo->pool, addr), port);
 
   new_conv = wmem_new0(wmem_file_scope(), nbap_setup_conv_t);
@@ -587,16 +581,16 @@ static nbap_setup_conv_t* find_setup_conv(const packet_info *pinfo _U_, const ui
 {
   nbap_setup_conv_t *conv;
   uint32_t key;
-  nbap_debug("Looking for Setup Conversation match\t TransactionID: %u\t ddMode: %u\t ChannelID: %u", transaction_id, dd_mode, channel_id);
+  ws_debug("Looking for Setup Conversation match\t TransactionID: %u\t ddMode: %u\t ChannelID: %u", transaction_id, dd_mode, channel_id);
 
   key = calculate_setup_conv_key(transaction_id, dd_mode, channel_id);
 
   conv = (nbap_setup_conv_t*) wmem_map_lookup(nbap_setup_conv_table, GUINT_TO_POINTER(key));
 
   if(conv == NULL){
-    nbap_debug("\tDidn't find Setup Conversation match");
+    ws_debug("\tDidn't find Setup Conversation match");
   }else{
-    nbap_debug("\tFOUND Setup Conversation match\t TransactionID: %u\t ddMode: %u\t ChannelID: %u\t %s:%u",
+    ws_debug("\tFOUND Setup Conversation match\t TransactionID: %u\t ddMode: %u\t ChannelID: %u\t %s:%u",
          conv->transaction_id, conv->dd_mode, conv->channel_id, address_to_str(pinfo->pool, &(conv->addr)), conv->port);
   }
 
@@ -609,7 +603,7 @@ static void delete_setup_conv(nbap_setup_conv_t *conv)
 
   /* check if conversation exist */
   if(conv == NULL){
-    nbap_debug("Trying delete Setup Conversation that does not exist (ptr == NULL)\t");
+    ws_debug("Trying delete Setup Conversation that does not exist (ptr == NULL)\t");
     return;
   }
   key = calculate_setup_conv_key(conv->transaction_id, conv->dd_mode, conv->channel_id);
