@@ -85,7 +85,8 @@ void WiresharkDialog::dialogCleanup(bool closeDialog)
     }
 
     if (retap_depth_ < 1 && dialog_closed_) {
-        disconnect();
+        // Is this disconnection necessary?
+        disconnect(&cap_file_, &CaptureFile::captureEvent, this, &WiresharkDialog::captureEvent);
         deleteLater();
     }
 }
