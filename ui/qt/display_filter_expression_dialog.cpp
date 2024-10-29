@@ -77,9 +77,8 @@ static QList<QTreeWidgetItem *> *generateProtocolTreeItems()
         if (!proto_is_protocol_enabled(protocol)) continue;
 
         QTreeWidgetItem *proto_ti = new QTreeWidgetItem(proto_type_);
-        QString label = QStringLiteral("%1 " UTF8_MIDDLE_DOT " %3")
-                .arg(proto_get_protocol_short_name(protocol))
-                .arg(proto_get_protocol_long_name(protocol));
+        QString label = QStringLiteral("%1 %2 %3")
+            .arg(proto_get_protocol_short_name(protocol), UTF8_MIDDLE_DOT, proto_get_protocol_long_name(protocol));
         proto_ti->setText(0, label);
         proto_ti->setData(0, Qt::UserRole, QVariant::fromValue(proto_id));
         ptr_proto_list->append(proto_ti);
@@ -103,7 +102,7 @@ static QList<QTreeWidgetItem *> *generateProtocolTreeItems()
             if (hfinfo->same_name_prev_id != -1) continue; // Ignore duplicate names.
 
             QTreeWidgetItem *field_ti = new QTreeWidgetItem(field_type_);
-            QString label = QStringLiteral("%1 " UTF8_MIDDLE_DOT " %3").arg(hfinfo->abbrev).arg(hfinfo->name);
+            QString label = QStringLiteral("%1 %2 %3").arg(hfinfo->abbrev, UTF8_MIDDLE_DOT, hfinfo->name);
             field_ti->setText(0, label);
             field_ti->setData(0, Qt::UserRole, VariantPointer<header_field_info>::asQVariant(hfinfo));
             field_list << field_ti;

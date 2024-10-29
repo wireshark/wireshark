@@ -226,8 +226,9 @@ void WirelessFrame::getInterfaceInfo()
             for (unsigned j = 0; j < iface->frequencies->len; j++) {
                 uint32_t frequency = g_array_index(iface->frequencies, uint32_t, j);
                 double ghz = frequency / 1000.0;
-                QString chan_str = QStringLiteral("%1 " UTF8_MIDDLE_DOT " %2%3")
+                QString chan_str = QStringLiteral("%1 %2 %3%4")
                         .arg(ieee80211_mhz_to_chan(frequency))
+                        .arg(UTF8_MIDDLE_DOT)
                         .arg(ghz, 0, 'f', 3)
                         .arg(units);
                 ui->channelComboBox->addItem(chan_str, frequency);

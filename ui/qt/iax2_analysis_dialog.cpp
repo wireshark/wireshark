@@ -770,9 +770,10 @@ void Iax2AnalysisDialog::updateStatistics()
 #endif
 
     QString stats_tables = "<html><head></head><body>\n";
-    stats_tables += QStringLiteral("<p>%1:%2 " UTF8_LEFT_RIGHT_ARROW)
+    stats_tables += QStringLiteral("<p>%1:%2 %3")
             .arg(address_to_qstring(&fwd_id_.src_addr, true))
-            .arg(fwd_id_.src_port);
+            .arg(fwd_id_.src_port)
+            .arg(UTF8_LEFT_RIGHT_ARROW);
     stats_tables += QStringLiteral("<br>%1:%2</p>\n")
             .arg(address_to_qstring(&fwd_id_.dst_addr, true))
             .arg(fwd_id_.dst_port);

@@ -386,10 +386,10 @@ struct wlan_radio* WirelessTimeline::get_wlan_radio(uint32_t packet_num)
 void WirelessTimeline::doToolTip(struct wlan_radio *wr, QPoint pos, int x)
 {
     if (x < position(wr->start_tsf, 1.0)) {
-        QToolTip::showText(pos, QStringLiteral("Inter frame space %1 " UTF8_MICRO_SIGN "s").arg(wr->ifs));
+        QToolTip::showText(pos, QStringLiteral("Inter frame space %1 %2s").arg(wr->ifs).arg(UTF8_MICRO_SIGN));
     } else {
-        QToolTip::showText(pos, QStringLiteral("Total duration %1 " UTF8_MICRO_SIGN "s\nNAV %2 " UTF8_MICRO_SIGN "s")
-                           .arg(wr->end_tsf-wr->start_tsf).arg(wr->nav));
+        QToolTip::showText(pos, QStringLiteral("Total duration %1 %2s\nNAV %3 %2s")
+                           .arg(wr->end_tsf-wr->start_tsf).arg(UTF8_MICRO_SIGN).arg(wr->nav));
     }
 }
 

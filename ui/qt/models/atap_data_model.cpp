@@ -499,12 +499,12 @@ QVariant EndpointDataModel::data(const QModelIndex &idx, int role) const
             return QVariant();
         case ENDP_COLUMN_GEO_LATITUDE:
             if (mmdb_lookup && mmdb_lookup->found && mmdb_lookup->latitude >= -90.0 && mmdb_lookup->latitude <= 90.0) {
-                return role == Qt::DisplayRole ? QStringLiteral("%L1" UTF8_DEGREE_SIGN).arg(mmdb_lookup->latitude) : QVariant(mmdb_lookup->latitude);
+                return role == Qt::DisplayRole ? QStringLiteral("%L1%2").arg(mmdb_lookup->latitude).arg(UTF8_DEGREE_SIGN) : QVariant(mmdb_lookup->latitude);
             }
             return QVariant();
         case ENDP_COLUMN_GEO_LONGITUDE:
             if (mmdb_lookup && mmdb_lookup->found && mmdb_lookup->longitude >= -180.0 && mmdb_lookup->longitude <= 180.0) {
-                return role == Qt::DisplayRole ? QStringLiteral("%L1" UTF8_DEGREE_SIGN).arg(mmdb_lookup->longitude) : QVariant(mmdb_lookup->longitude);
+                return role == Qt::DisplayRole ? QStringLiteral("%L1%2").arg(mmdb_lookup->longitude).arg(UTF8_DEGREE_SIGN) : QVariant(mmdb_lookup->longitude);
             }
             return QVariant();
         case ENDP_COLUMN_GEO_AS_NUM:

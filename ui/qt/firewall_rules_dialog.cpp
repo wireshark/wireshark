@@ -168,8 +168,8 @@ void FirewallRulesDialog::on_denyCheckBox_toggled(bool)
 void FirewallRulesDialog::on_buttonBox_clicked(QAbstractButton *button)
 {
     if (button == ui->buttonBox->button(QDialogButtonBox::Save)) {
-        QString save_title = QStringLiteral("Save %1 rules as" UTF8_HORIZONTAL_ELLIPSIS)
-                .arg(firewall_product_name(prod_));
+        QString save_title = QStringLiteral("Save %1 rules as%2")
+            .arg(firewall_product_name(prod_), UTF8_HORIZONTAL_ELLIPSIS);
         QByteArray file_name = WiresharkFileDialog::getSaveFileName(this,
                                                  save_title,
                                                  mainApp->openDialogInitialDir().canonicalPath(),

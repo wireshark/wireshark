@@ -343,9 +343,10 @@ int RtpAnalysisDialog::addTabUI(tab_info_t *new_tab)
     int new_tab_no;
     rtpstream_info_calc_t s_calc;
     rtpstream_info_calculate(&new_tab->stream, &s_calc);
-    new_tab->tab_name = new QString(QStringLiteral("%1:%2 " UTF8_RIGHTWARDS_ARROW "\n%3:%4\n(%5)")
+    new_tab->tab_name = new QString(QStringLiteral("%1:%2 %3\n%4:%5\n(%6)")
             .arg(s_calc.src_addr_str)
             .arg(s_calc.src_port)
+            .arg(UTF8_RIGHTWARDS_ARROW)
             .arg(s_calc.dst_addr_str)
             .arg(s_calc.dst_port)
             .arg(int_to_qstring(s_calc.ssrc, 8, 16)));
@@ -749,9 +750,10 @@ void RtpAnalysisDialog::updateStatistics()
 
         QString stats_tables = "<html><head><style>td{vertical-align:bottom;}</style></head><body>\n";
         stats_tables += "<h4>Stream</h4>\n";
-        stats_tables += QStringLiteral("<p>%1:%2 " UTF8_RIGHTWARDS_ARROW)
+        stats_tables += QStringLiteral("<p>%1:%2 %3")
                 .arg(s_calc.src_addr_str)
-                .arg(s_calc.src_port);
+                .arg(s_calc.src_port)
+                .arg(UTF8_RIGHTWARDS_ARROW);
         stats_tables += QStringLiteral("<br>%1:%2</p>\n")
                 .arg(s_calc.dst_addr_str)
                 .arg(s_calc.dst_port);
