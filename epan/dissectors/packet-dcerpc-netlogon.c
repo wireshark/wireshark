@@ -1495,6 +1495,8 @@ netlogon_dissect_AUTHENTICATOR(tvbuff_t *tvb, int offset,
         return offset;
     }
 
+    ALIGN_TO_4_BYTES;
+
     offset = netlogon_dissect_CREDENTIAL(tvb, offset,
                                          pinfo, tree, di, drep);
 
@@ -1505,7 +1507,6 @@ netlogon_dissect_AUTHENTICATOR(tvbuff_t *tvb, int offset,
      * AUTHENTICATORs, but like random junk in "return_authenticator"
      * AUTHENTICATORs.
      */
-    ALIGN_TO_4_BYTES;
     proto_tree_add_item(tree, hf_netlogon_timestamp, tvb, offset, 4, ENC_TIME_SECS|ENC_LITTLE_ENDIAN);
     offset+= 4;
 
