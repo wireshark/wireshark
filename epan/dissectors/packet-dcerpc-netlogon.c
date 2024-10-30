@@ -41,7 +41,8 @@
 void proto_register_dcerpc_netlogon(void);
 void proto_reg_handoff_dcerpc_netlogon(void);
 
-static int netlogon_dissect_neg_options(tvbuff_t *tvb,proto_tree *tree,uint32_t flags,int offset);
+static proto_item *
+netlogon_dissect_neg_options(tvbuff_t *tvb,proto_tree *tree,uint32_t flags,int offset);
 
 /* Debug function, log a hexdump of interesting memory */
 static void printnbyte(wmem_allocator_t *scratch, const uint8_t* tab,int nb,const char* txt)
@@ -6707,16 +6708,19 @@ netlogon_dissect_TYPE_52_ptr(tvbuff_t *tvb, int offset,
 
 
 static int
-netlogon_dissect_ServerCapabilities(tvbuff_t *tvb, int offset,
+netlogon_dissect_Capabilities(tvbuff_t *tvb, int offset,
                          packet_info *pinfo, proto_tree *parent_tree,
                          dcerpc_info *di, uint8_t *drep)
 {
     proto_item *item=NULL;
     proto_tree *tree=NULL;
+    proto_item *pitem=NULL;
+    proto_item *nitem=NULL;
     int old_offset=offset;
     uint32_t level = 0;
 
     if(parent_tree){
+        pitem = proto_tree_get_parent(parent_tree);
         tree = proto_tree_add_subtree(parent_tree, tvb, offset, 0,
                                       ett_CAPABILITIES, &item,
                                       "Capabilities");
@@ -6730,14 +6734,20 @@ netlogon_dissect_ServerCapabilities(tvbuff_t *tvb, int offset,
     case 1: {
         uint32_t flags;
         dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, -1, &flags);
-        netlogon_dissect_neg_options(tvb,tree,flags,offset);
+        nitem = netlogon_dissect_neg_options(tvb,tree,flags,offset);
+        proto_item_set_text(nitem, "NegotiatedFlags: 0x%08x", flags);
+        proto_item_set_text(item, "ServerCapabilities");
+        proto_item_append_text(pitem, ": ServerCapabilities");
         offset +=4;
         }
         break;
     case 2: {
         uint32_t flags;
         dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, -1, &flags);
-        netlogon_dissect_neg_options(tvb,tree,flags,offset);
+        nitem = netlogon_dissect_neg_options(tvb,tree,flags,offset);
+        proto_item_set_text(nitem, "RequestedFlags: 0x%08x", flags);
+        proto_item_set_text(item, "RequestedFlags");
+        proto_item_append_text(pitem, ": RequestedFlags");
         offset +=4;
         }
         break;
@@ -6836,6 +6846,9 @@ static int
 netlogon_dissect_netrlogondummyroutine1_rqst(tvbuff_t *tvb, int offset,
                                              packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
+    uint32_t level = 0;
+    proto_item *litem = NULL;
+
     offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, di, drep,
                                           NDR_POINTER_REF, "Server Handle",
                                           hf_netlogon_logonsrv_handle, 0);
@@ -6853,7 +6866,17 @@ netlogon_dissect_netrlogondummyroutine1_rqst(tvbuff_t *tvb, int offset,
                                  "AUTHENTICATOR: return_authenticator", -1);
 
     offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
-                                hf_netlogon_level, NULL); // in_version
+                                -1, &level);
+    litem = proto_tree_add_item(tree, hf_netlogon_level, tvb, offset-4, 4,
+                                DREP_ENC_INTEGER(drep));
+    switch(level){
+    case 1:
+        proto_item_append_text(litem, " (ServerCapabilities)");
+        break;
+    case 2:
+        proto_item_append_text(litem, " (RequestedFlags)");
+        break;
+    }
 
     return offset;
 }
@@ -6868,8 +6891,8 @@ netlogon_dissect_netrlogondummyroutine1_reply(tvbuff_t *tvb, int offset,
                                  "AUTHENTICATOR: return_authenticator", -1);
 
     offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, di, drep,
-                                 netlogon_dissect_ServerCapabilities, NDR_POINTER_REF,
-                                 "ServerCapabilities", -1);
+                                 netlogon_dissect_Capabilities, NDR_POINTER_REF,
+                                 "Capabilities", -1);
 
     offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep,
                               hf_netlogon_rc, NULL);
@@ -7018,7 +7041,9 @@ netlogon_dissect_netrlogoncomputeclientdigest_reply(tvbuff_t *tvb, int offset,
 
     return offset;
 }
-static int netlogon_dissect_neg_options(tvbuff_t *tvb,proto_tree *tree,uint32_t flags,int offset)
+
+static proto_item *
+netlogon_dissect_neg_options(tvbuff_t *tvb,proto_tree *tree,uint32_t flags,int offset)
 {
     static int * const hf_flags[] = {
         &hf_netlogon_neg_flags_80000000,
@@ -7058,9 +7083,7 @@ static int netlogon_dissect_neg_options(tvbuff_t *tvb,proto_tree *tree,uint32_t 
         NULL
     };
 
-    proto_tree_add_bitmask_value_with_flags(tree, tvb, offset, hf_netlogon_neg_flags, ett_authenticate_flags, hf_flags, flags, BMT_NO_APPEND);
-
-    return 0;
+    return proto_tree_add_bitmask_value_with_flags(tree, tvb, offset, hf_netlogon_neg_flags, ett_authenticate_flags, hf_flags, flags, BMT_NO_APPEND);
 }
 
 static int
