@@ -3083,11 +3083,17 @@ http2_process_reassembled_data(tvbuff_t *tvb, const int offset, packet_info *pin
         else {
             /*
              * No.
-             * Return a tvbuff with the payload. next_tvb is from offset until end
-             * XXX - The length of next_tvb should be truncated to the data len
-             * given in the sole "fragment_" call (should be stored in fd_head.)
+             * Return a tvbuff with the payload, a subset of the tvbuff
+             * passed in.
              */
-            next_tvb = tvb_new_subset_remaining(tvb, offset);
+            int len;
+            if (fd_head->flags & FD_BLOCKSEQUENCE) {
+                len = fd_head->len;
+            } else {
+                // XXX Do the non-seq functions have this optimization?
+                len = fd_head->datalen;
+            }
+            next_tvb = tvb_new_subset_length(tvb, offset, len);
             pinfo->fragmented = false;	/* one-fragment packet */
             update_col_info = true;
         }

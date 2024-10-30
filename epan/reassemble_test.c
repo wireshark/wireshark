@@ -1178,7 +1178,7 @@ test_fragment_add_seq_802_11_0(void)
 
     /* check the contents of the structure */
     ASSERT_EQ(0,fd_head->frame);  /* unused */
-    ASSERT_EQ(0,fd_head->len);    /* unused */
+    ASSERT_EQ(50,fd_head->len); /* the length of the data */
     ASSERT_EQ(0,fd_head->datalen); /* unused */
     ASSERT_EQ(1,fd_head->reassembled_in);
     ASSERT_EQ(FD_DEFRAGMENTED|FD_BLOCKSEQUENCE,fd_head->flags);

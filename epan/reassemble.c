@@ -2231,6 +2231,12 @@ fragment_add_seq_common(reassembly_table *table, tvbuff_t *tvb,
 			 */
 			if (orig_keyp != NULL)
 				*orig_keyp = NULL;
+			/* To save memory, we don't actually copy the
+			 * fragment from the tvbuff to the fragment, and in
+			 * process_reassembled_data just return back a subset
+			 * of the original tvbuff (which must be passed in).
+			 */
+			fd_head->len = frag_data_len;
 			fd_head->reassembled_in=pinfo->num;
 			fd_head->reas_in_layer_num = pinfo->curr_layer_num;
 			return fd_head;
@@ -2881,11 +2887,21 @@ process_reassembled_data(tvbuff_t *tvb, const int offset, packet_info *pinfo,
 		} else {
 			/*
 			 * No.
-			 * Return a tvbuff with the payload. next_tvb is from offset until end
-			 * XXX - The length of next_tvb should be truncated to the data len
-			 * given in the sole "fragment_" call (should be stored in fd_head.)
+			 * Return a tvbuff with the payload, a subset of the
+			 * tvbuff passed in. (The dissector SHOULD pass in
+			 * the correct tvbuff and offset.)
 			 */
-			next_tvb = tvb_new_subset_remaining(tvb, offset);
+			int len;
+			/* For FD_BLOCKSEQUENCE, len is the length in bytes,
+			 * datalen is the number of fragments.
+			 */
+			if (fd_head->flags & FD_BLOCKSEQUENCE) {
+				len = fd_head->len;
+			} else {
+				// XXX Do the non-seq functions have this optimization?
+				len = fd_head->datalen;
+			}
+			next_tvb = tvb_new_subset_length(tvb, offset, len);
 			pinfo->fragmented = false;	/* one-fragment packet */
 			update_col_info = true;
 		}
