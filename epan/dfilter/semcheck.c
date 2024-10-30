@@ -1967,7 +1967,7 @@ check_arithmetic_LHS_TIME(dfwork_t *dfw, stnode_op_t st_op, stnode_t *st_node,
 			}
 			ftype2 = check_arithmetic(dfw, st_arg2, FT_SCALAR);
 			if (!FT_IS_SCALAR(ftype2)) {
-				FAIL(dfw, st_node, "Right hand side must be an integer ou float type, not %s.", ftype_pretty_name(ftype2));
+				FAIL(dfw, st_node, "Right hand side must be an integer or float type, not %s.", ftype_pretty_name(ftype2));
 			}
 			break;
 		default:
