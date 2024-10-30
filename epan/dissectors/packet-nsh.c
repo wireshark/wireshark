@@ -241,7 +241,6 @@ dissect_nsh_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 	if (md_type != 1 && md_type != 2) return false;
 	if (md_type == 1 && length != 6)  return false;
 	if (md_type == 2 && length <  2)  return false;
-	if (length == 0)                  return false;
 	if (length * 4 > tvb_length)      return false;
 	if (proto == 0)                   return false;
 	if (proto > NSH_MAX_PROTOCOL)     return false;
