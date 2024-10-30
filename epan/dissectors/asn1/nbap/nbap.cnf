@@ -1560,10 +1560,10 @@ nbap_private_data->dch_id = 0xFFFFFFFF;
                     umts_fp_conversation_info->dch_ids_in_flow_list[umts_fp_conversation_info->num_dch_in_flow] = i;
                     set_umts_fp_conv_data(conversation, umts_fp_conversation_info);
                 }
+                ws_debug("Frame %%u RL-Specific-DCH-Info-Item Start", actx->pinfo->num);
+                ws_debug("    Total no of ch in flow will be: %%d", umts_fp_conversation_info->num_dch_in_flow);
+                ws_debug("Frame %%u RL-Specific-DCH-Info-Item End", actx->pinfo->num);
             }
-            ws_debug("Frame %%u RL-Specific-DCH-Info-Item Start", actx->pinfo->num);
-            ws_debug("    Total no of ch in flow will be: %%d", umts_fp_conversation_info->num_dch_in_flow);
-            ws_debug("Frame %%u RL-Specific-DCH-Info-Item End", actx->pinfo->num);
         }
 
 #.FN_BODY RL-Specific-E-DCH-Information-Item
