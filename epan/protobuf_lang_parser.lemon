@@ -13,7 +13,7 @@
  *      https://developers.google.com/protocol-buffers/docs/reference/proto3-spec
  * 2) Protocol Buffers Version 2 Language Specification:
  *      https://developers.google.com/protocol-buffers/docs/reference/proto2-spec
- * There are some errors about 'proto', 'option' (value) and 'reserved' (fieldName) definitions on that sites.
+ * There are some errors about 'proto', 'option' (value), 'extensions',  and 'reserved' (fieldName) definitions on that sites.
  * This parser is created because Wireshark is mainly implemented in plain ANSI C but the official
  * Protocol Buffers Language parser is implemented in C++.
  */
@@ -468,8 +468,39 @@ mapField(A) ::= PT_MAP PT_LESS keyType(B) PT_COMMA type(C) PT_GREATER mapName(D)
           "fixed32" | "fixed64" | "sfixed32" | "sfixed64" | "bool" | "string" */
 keyType(A) ::= exIdent(B). { A = B->v; }
 
-/* v2 only: extensions = "extensions" ranges ";" */
+/* v2 only: Allow extension declarations which are not defined in official PBL specification, like:
+message UserContent {
+    extensions 100 to 199 [
+        declaration = {
+            number: 126,
+            full_name: ".kittens.kitten_videos",
+            type: ".kittens.Video",
+            repeated: true
+        },
+        // Ensures all field numbers in this extension range are declarations.
+        verification = DECLARATION
+    ];
+}
+
+For examples and explanations see:
+1) Extension Declarations Guide:
+     https://protobuf.dev/programming-guides/extension_declarations/
+2) Extensions section of the Protocol Buffers Version 2 Language Specification:
+     https://protobuf.dev/programming-guides/proto2/#ext-example
+*/
+
+/* v2 only: extensions = "extensions" ranges [ "[" declarations "]" ] ";" */
 extensions ::= PT_EXTENSIONS ranges PT_SEMICOLON.
+extensions ::= PT_EXTENSIONS ranges PT_LBRACKET declarations PT_RBRACKET PT_SEMICOLON.
+
+/* v2 only: declarations = declaration { , declaration } */
+declarations ::= declaration.
+declarations ::= declarations PT_COMMA declaration.
+
+/* v2 only: declaration = optionName "=" ( constant | customOptionValue ) */
+/* Simply reuse constant|customOptionValue, we don't care about the content, we just need to support the syntax generally. */
+declaration ::= optionName PT_ASSIGN constant.
+declaration ::= optionName PT_ASSIGN customOptionValue.
 
 /* v2/v3: reserved = "reserved" ( ranges | fieldNames ) ";" */
 reserved ::= PT_RESERVED ranges PT_SEMICOLON.
