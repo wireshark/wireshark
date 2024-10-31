@@ -524,6 +524,7 @@ curvezmq
 customizable
 customization
 customizing
+cwconfig
 cxxflags
 cyber
 cymru
@@ -1373,6 +1374,7 @@ lnpdqp
 localise
 locamation
 locoinfof
+log2mask
 log3gpp
 logcat
 loghans
@@ -1899,6 +1901,7 @@ polynom
 poolop
 popup
 portableapps
+portc
 portcounters
 portid
 portinfo

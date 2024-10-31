@@ -129,6 +129,7 @@ static int hf_oran_reserved;
 static int hf_oran_reserved_1bit;
 static int hf_oran_reserved_2bits;
 static int hf_oran_reserved_4bits;
+static int hf_oran_reserved_last_4bits;
 static int hf_oran_reserved_6bits;
 static int hf_oran_reserved_7bits;
 static int hf_oran_reserved_8bits;
@@ -331,6 +332,18 @@ static int hf_oran_freq_offset_fb;
 static int hf_oran_num_sinr_per_prb;
 static int hf_oran_sinr_value;
 
+static int hf_oran_measurement_report;
+static int hf_oran_mf;
+static int hf_oran_meas_data_size;;
+static int hf_oran_meas_type_id;
+static int hf_oran_ipn_power;
+static int hf_oran_ue_tae;
+static int hf_oran_ue_layer_power;
+static int hf_oran_num_elements;
+static int hf_oran_ant_dmrs_snr_val;
+static int hf_oran_ue_freq_offset;
+
+
 /* Computed fields */
 static int hf_oran_c_eAxC_ID;
 static int hf_oran_refa;
@@ -371,6 +384,7 @@ static int ett_oran_modcomp_param_set;
 static int ett_oran_st4_cmd_header;
 static int ett_oran_st4_cmd;
 static int ett_oran_sym_prb_pattern;
+static int ett_oran_measurement_report;
 
 
 
@@ -645,6 +659,15 @@ static const value_string num_sinr_per_prb_vals[] = {
     { 0, NULL}
 };
 
+static const value_string meas_type_id_vals[] = {
+    { 1,  "UE Timing Advance Error" },
+    { 2,  "UE Layer power" },
+    { 3,  "UE frequency offset" },
+    { 4,  "Interference plus Noise for allocated PRBs" },
+    { 5,  "Interference plus Noise for unallocated PRBs" },
+    { 6,  "DMRS SNR per antenna" },
+    { 0, NULL}
+};
 
 
 /* Table 7.6.1-1 */
@@ -1820,7 +1843,9 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
     bool extension_flag = false;
 
     /* These sections (ST0, ST1, ST2, ST3, ST5, ST9) are similar, so handle as common with per-type differences */
-    if (((sectionType <= SEC_C_UE_SCHED) || (sectionType == SEC_C_SINR_REPORTING)) && (sectionType != SEC_C_SLOT_CONTROL)) {
+    if (((sectionType <= SEC_C_UE_SCHED) || (sectionType == SEC_C_SINR_REPORTING) || (sectionType == SEC_C_RRM_MEAS_REPORTS)) &&
+         (sectionType != SEC_C_SLOT_CONTROL)) {
+
         /* sectionID */
         proto_item *ti = proto_tree_add_item_ret_uint(c_section_tree, hf_oran_section_id, tvb, offset, 2, ENC_BIG_ENDIAN, &sectionId);
         if (sectionId == 4095) {
@@ -1832,7 +1857,10 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
         uint32_t rb;
         proto_tree_add_item_ret_uint(c_section_tree, hf_oran_rb, tvb, offset, 1, ENC_NA, &rb);
         /* symInc */
-        proto_tree_add_item(c_section_tree, hf_oran_symInc, tvb, offset, 1, ENC_NA);
+        if (sectionType != SEC_C_RRM_MEAS_REPORTS) {
+            proto_tree_add_item(c_section_tree, hf_oran_symInc, tvb, offset, 1, ENC_NA);
+        }
+
         /* startPrbx and numPrbx */
         if (sectionType == SEC_C_SINR_REPORTING) {
             /* startPrbu (10 bits) */
@@ -1873,6 +1901,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                 case SEC_C_NORMAL:            /* Section Type 1 */
                 case SEC_C_PRACH:             /* Section Type 3 */
                 case SEC_C_UE_SCHED:          /* Section Type 5 */
+                case SEC_C_RRM_MEAS_REPORTS:  /* Section Type 10 */
                     proto_tree_add_item_ret_boolean(c_section_tree, hf_oran_ef, tvb, offset, 1, ENC_BIG_ENDIAN, &extension_flag);
                     break;
                 default:
@@ -1931,7 +1960,8 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                 break;
             }
 
-            case SEC_C_UE_SCHED:   /* Section Type 5 - Table 7.4.7-1 */
+            case SEC_C_UE_SCHED:          /* Section Type 5  - Table 7.4.7-1 */
+            case SEC_C_RRM_MEAS_REPORTS:  /* Section Type 10 - Table 7.4.12-1 */
                 /* ueId */
                 proto_tree_add_item_ret_uint(c_section_tree, hf_oran_ueId, tvb, offset, 2, ENC_NA, &ueId);
                 offset += 2;
@@ -3545,6 +3575,143 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
         proto_item_set_len(extension_ti, extlen*4);
     }
 
+    /* RRM measurement reports have measurement reports after extensions */
+    if (sectionType == SEC_C_RRM_MEAS_REPORTS)
+    {
+        bool mf;
+        do {
+            /* Measurement report subtree */
+            proto_item *mr_ti = proto_tree_add_item(tree, hf_oran_measurement_report,
+                                                    tvb, offset, 0, ENC_ASCII);
+            proto_tree *mr_tree = proto_item_add_subtree(mr_ti, ett_oran_measurement_report);
+
+
+            unsigned report_start_offset = offset;
+
+            /* mf (1 bit) */
+            proto_tree_add_item_ret_boolean(mr_tree, hf_oran_mf, tvb, offset, 1, ENC_BIG_ENDIAN, &mf);
+
+            /* measTypeId (7 bits) */
+            uint32_t meas_type_id;
+            proto_tree_add_item_ret_uint(mr_tree, hf_oran_meas_type_id, tvb, offset, 1, ENC_BIG_ENDIAN, &meas_type_id);
+            offset += 1;
+
+            /* Common to all measurement types */
+            unsigned num_elements = 0;
+            if (meas_type_id == 6) {
+                /* numElements */
+                proto_tree_add_item_ret_uint(mr_tree, hf_oran_num_elements, tvb, offset, 1, ENC_BIG_ENDIAN, &num_elements);
+            }
+            else {
+                proto_tree_add_item(mr_tree, hf_oran_reserved_8bits, tvb, offset, 1, ENC_BIG_ENDIAN);
+            }
+            offset += 1;
+            /* measDataSize. N.B. begins at mf field, i.e.  */
+            unsigned meas_data_size;
+            proto_item *meas_data_size_ti;
+            meas_data_size_ti = proto_tree_add_item_ret_uint(mr_tree, hf_oran_meas_data_size, tvb, offset, 2, ENC_BIG_ENDIAN, &meas_data_size);
+            meas_data_size *= 4;
+            proto_item_append_text(meas_data_size_ti, " (%u bytes)", meas_data_size);
+            offset += 2;
+
+            /* Summary for measurement report root */
+            proto_item_append_text(mr_ti, " (%s)", val_to_str_const(meas_type_id, meas_type_id_vals, "unknown"));
+            /* And section header */
+            proto_item_append_text(tree, " (%s)", val_to_str_const(meas_type_id, meas_type_id_vals, "unknown"));
+
+            switch (meas_type_id) {
+                case 1:
+                {
+                    /* ueTae */
+                    unsigned ue_tae;
+                    proto_item *ue_tae_ti;
+                    ue_tae_ti = proto_tree_add_item_ret_uint(mr_tree, hf_oran_ue_tae, tvb, offset, 2, ENC_BIG_ENDIAN, &ue_tae);
+                    /* Show if maps onto a -ve number */
+                    if ((ue_tae >= 0x8ad0) && (ue_tae <= 0xffff)) {
+                        proto_item_append_text(ue_tae_ti, "(value %d)", -1 - (0xffff-ue_tae));
+                    }
+                    offset += 2;
+
+                    /* Reserved (16 bits) */
+                    proto_tree_add_item(mr_tree, hf_oran_reserved_16bits, tvb, offset, 2, ENC_BIG_ENDIAN);
+                    offset += 2;
+                    break;
+                }
+                case 2:
+                    /* ueLayerPower entries (how many? for now just use up meas_data_size..) */
+                    for (unsigned n=0; n < (meas_data_size-4)/2; n++) {
+                        unsigned ue_layer_power;
+                        proto_item *ue_layer_power_ti;
+                        ue_layer_power_ti = proto_tree_add_item_ret_uint(mr_tree, hf_oran_ue_layer_power, tvb, offset, 2, ENC_BIG_ENDIAN, &ue_layer_power);
+                        /* Show if maps onto a -ve number */
+                        if ((ue_layer_power >= 0x8ad0) && (ue_layer_power <= 0xffff)) {
+                            proto_item_append_text(ue_layer_power_ti, "(value %d)", -1 - (0xffff-ue_layer_power));
+                        }
+                        offset += 2;
+                    }
+                    /* padding out to 4 bytes */
+                    break;
+                case 3:
+                {
+                    /* ueFreqOffset */
+                    unsigned ue_freq_offset;
+                    proto_item *ue_freq_offset_ti;
+                    ue_freq_offset_ti = proto_tree_add_item_ret_uint(mr_tree, hf_oran_ue_freq_offset, tvb, offset, 2, ENC_BIG_ENDIAN, &ue_freq_offset);
+                    /* Show if maps onto a -ve number */
+                    if ((ue_freq_offset >= 0x8ad0) && (ue_freq_offset <= 0xffff)) {
+                        proto_item_append_text(ue_freq_offset_ti, "(value %d)", -1 - (0xffff-ue_freq_offset));
+                    }
+                    offset += 2;
+
+                    /* Reserved (16 bits) */
+                    proto_tree_add_item(mr_tree, hf_oran_reserved_16bits, tvb, offset, 2, ENC_BIG_ENDIAN);
+                    offset += 2;
+                    break;
+                }
+                case 4:
+                case 5:
+                    /* symbolMask */
+                    offset += 2;
+                    /* 2 bytes for each PRB ipnPower */
+                    for (unsigned n=0; n < numPrbc; n++) {
+                        unsigned ipn_power;
+                        proto_item *ipn_power_ti;
+                        ipn_power_ti = proto_tree_add_item_ret_uint(mr_tree, hf_oran_ipn_power, tvb, offset, 2, ENC_BIG_ENDIAN, &ipn_power);
+                        proto_item_append_text(ipn_power_ti, " (PRB %3d)", startPrbc+n);
+                        /* Show if maps onto a -ve number */
+                        if ((ipn_power >= 0x8ad0) && (ipn_power <= 0xffff)) {
+                            proto_item_append_text(ipn_power_ti, " (value %d)", -1 - (0xffff-ipn_power));
+                        }
+                        offset += 2;
+                    }
+                    /* padding out to 4 bytes */
+                    break;
+                case 6:
+                    /* antDmrsSnrVal entries */
+                    for (unsigned n=0; n < num_elements; n++) {
+                        unsigned snr_value;
+                        proto_item *snr_value_ti;
+                        snr_value_ti = proto_tree_add_item_ret_uint(mr_tree, hf_oran_ant_dmrs_snr_val, tvb, offset, 2, ENC_BIG_ENDIAN, &snr_value);
+                        proto_item_append_text(snr_value_ti, " (elem %2u)", n+1);
+                        /* Show if maps onto a -ve number */
+                        if ((snr_value >= 0x8ad0) && (snr_value <= 0xffff)) {
+                            proto_item_append_text(snr_value_ti, " (value %d)", -1 - (0xffff-snr_value));
+                        }
+                        offset += 2;
+                    }
+                    break;
+            }
+
+            /* Pad out to next 4 bytes */
+            if ((offset-report_start_offset) % 4) {
+                offset += (4 - ((offset-report_start_offset) % 4));
+            }
+
+            /* End of measurement report tree */
+            proto_item_set_end(mr_ti, tvb, offset);
+        } while (mf);
+    }
+
     /* Set extent of overall section */
     proto_item_set_len(sectionHeading, offset);
 
@@ -3866,6 +4033,10 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
         /* scs (for ST4 and ST8) */
         scs_ti = proto_tree_add_item_ret_uint(section_tree, hf_oran_frameStructure_subcarrier_spacing, tvb, offset, 1, ENC_NA, &scs);
     }
+    else if (sectionType == SEC_C_RRM_MEAS_REPORTS) {
+        /* reserved (4 bits) */
+        proto_tree_add_item(section_tree, hf_oran_reserved_last_4bits, tvb, offset, 1, ENC_NA);
+    }
     else if (sectionType != SEC_C_LAA) {
         /* filterIndex (most common case) */
         proto_tree_add_item(section_tree, hf_oran_filter_index, tvb, offset, 1, ENC_NA);
@@ -4104,6 +4275,11 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
             offset += 1;
             break;
 
+        case SEC_C_RRM_MEAS_REPORTS:
+            /* reserved (16 bits) */
+            proto_tree_add_item(section_tree, hf_oran_reserved_16bits, tvb, offset, 2, ENC_BIG_ENDIAN);
+            offset += 2;
+            break;
     };
 
     /* Update udCompHdr details in state for UL U-Plane */
@@ -5449,6 +5625,14 @@ proto_register_oran(void)
           NULL,
           HFILL}
         },
+        {&hf_oran_reserved_last_4bits,
+         {"reserved", "oran_fh_cus.reserved",
+          FT_UINT8, BASE_HEX,
+          NULL, 0x0f,
+          NULL,
+          HFILL}
+        },
+
         {&hf_oran_reserved_6bits,
          {"reserved", "oran_fh_cus.reserved",
           FT_UINT8, BASE_HEX,
@@ -6831,7 +7015,7 @@ proto_register_oran(void)
         },
 
 
-        /* Section 7.5.3.68 */
+        /* 7.5.3.68 */
         {&hf_oran_sinr_value,
          {"sinrValue", "oran_fh_cus.sinrValue",
           FT_FLOAT, BASE_NONE,
@@ -6840,6 +7024,88 @@ proto_register_oran(void)
           HFILL}
         },
 
+        {&hf_oran_measurement_report,
+         {"Measurement Report", "oran_fh_cus.measurement-report",
+          FT_STRING, BASE_NONE,
+          NULL, 0x0,
+          NULL,
+          HFILL}
+        },
+        /* 7.5.3.57 */
+        {&hf_oran_mf,
+         {"mf", "oran_fh_cus.mf",
+          FT_BOOLEAN, 8,
+          NULL, 0x80,
+          "measurement flag",
+          HFILL}
+        },
+        /* 7.5.3.59 */
+        {&hf_oran_meas_data_size,
+         {"measDataSize", "oran_fh_cus.measDataSize",
+          FT_UINT16, BASE_DEC,
+          NULL, 0x0,
+          "measurement data size (in words)",
+          HFILL}
+        },
+
+        /* 7.5.3.58 */
+        {&hf_oran_meas_type_id,
+         {"measTypeId", "oran_fh_cus.measTypeId",
+          FT_UINT8, BASE_DEC,
+          VALS(meas_type_id_vals), 0x7F,
+          "measurement report type identifier",
+          HFILL}
+        },
+        /* 7.5.3.66 */
+        {&hf_oran_num_elements,
+         {"numElements", "oran_fh_cus.numElements",
+          FT_UINT8, BASE_DEC,
+          NULL, 0x0,
+          "measurement report type identifier",
+          HFILL}
+        },
+        /* 7.5.3.60 */
+        {&hf_oran_ue_tae,
+         {"ueTae", "oran_fh_cus.ueTae",
+          FT_UINT16, BASE_DEC | BASE_RANGE_STRING,
+          RVALS(freq_offset_fb_values), 0x0,
+          "UE Timing Advance Error",
+          HFILL}
+        },
+        /* 7.5.3.61 */
+        {&hf_oran_ue_layer_power,
+         {"ueLayerPower", "oran_fh_cus.ueLayerPower",
+          FT_UINT16, BASE_DEC | BASE_RANGE_STRING,
+          RVALS(freq_offset_fb_values), 0x0,
+          "UE Layer Power",
+          HFILL}
+        },
+
+        /* 7.5.3.62 */
+        {&hf_oran_ue_freq_offset,
+         {"ueFreqOffset", "oran_fh_cus.ueFreqOffset",
+          FT_UINT16, BASE_DEC | BASE_RANGE_STRING,
+          RVALS(freq_offset_fb_values), 0x0,
+          "UE frequency offset",
+          HFILL}
+        },
+        /* 7.5.3.63 */
+        {&hf_oran_ipn_power,
+         {"ipnPower", "oran_fh_cus.ipnPower",
+          FT_UINT16, BASE_DEC | BASE_RANGE_STRING,
+          RVALS(freq_offset_fb_values), 0x0,
+          "Interference plus Noise power",
+          HFILL}
+        },
+
+        /* 7.5.3.64 */
+        {&hf_oran_ant_dmrs_snr_val,
+         {"antDmrsSnrVal", "oran_fh_cus.antDmrsSnrVal",
+          FT_UINT16, BASE_DEC | BASE_RANGE_STRING,
+          RVALS(freq_offset_fb_values), 0x0,
+          "antenna DMRS-SNR",
+          HFILL}
+        }
     };
 
     /* Setup protocol subtree array */
