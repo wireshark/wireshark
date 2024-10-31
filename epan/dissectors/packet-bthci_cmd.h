@@ -57,6 +57,8 @@ WS_DLL_PUBLIC const value_string bthci_cmd_encrypt_mode_vals[];
 WS_DLL_PUBLIC const value_string bthci_cmd_authentication_enable_values[];
 WS_DLL_PUBLIC const value_string bthci_cmd_inq_modes[];
 
+extern bool bthci_vendor_android;
+extern const uint16_t bthci_vendor_manufacturer_android;
 
 typedef struct _bthci_cmd_data_t {
     uint32_t opcode;

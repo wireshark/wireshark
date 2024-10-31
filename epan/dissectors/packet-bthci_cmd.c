@@ -1548,6 +1548,9 @@ static dissector_table_t  bluetooth_eir_ad_manufacturer_company_id;
 static dissector_table_t  bluetooth_eir_ad_tds_organization_id;
 static dissector_table_t  bluetooth_eir_ad_service_uuid;
 
+bool bthci_vendor_android = false;
+const uint16_t bthci_vendor_manufacturer_android = 0x00e0; // Google LLC
+
 wmem_tree_t *bthci_cmds;
 
 extern value_string_ext ext_usb_vendors_vals;
@@ -6761,9 +6764,13 @@ dissect_bthci_cmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 
                 hci_vendor_data = (hci_vendor_data_t *) wmem_tree_lookup32_array(bluetooth_data->hci_vendors, key);
                 if (hci_vendor_data) {
-                    int sub_offset;
+                    int sub_offset = 0;
 
-                    sub_offset = dissector_try_uint_new(hci_vendor_table, hci_vendor_data->manufacturer, tvb, pinfo, tree, true, bluetooth_data);
+                    if (bthci_vendor_android) {
+                      sub_offset = dissector_try_uint_new(hci_vendor_table, bthci_vendor_manufacturer_android, tvb, pinfo, tree, true, bluetooth_data);
+                    } else {
+                      sub_offset = dissector_try_uint_new(hci_vendor_table, hci_vendor_data->manufacturer, tvb, pinfo, tree, true, bluetooth_data);
+                    }
 
                     if (sub_offset > 0 && sub_offset < tvb_captured_length_remaining(tvb, offset))
                         proto_tree_add_expert(bthci_cmd_tree, pinfo, &ei_command_parameter_unexpected, tvb, offset + sub_offset, tvb_captured_length_remaining(tvb, sub_offset + offset));
@@ -10912,6 +10919,10 @@ proto_register_bthci_cmd(void)
     prefs_register_static_text_preference(module, "hci_cmd.version",
             "Bluetooth HCI version: 4.0 (Core)",
             "Version of protocol supported by this dissector.");
+    prefs_register_bool_preference(module, "bthci_vendor_android",
+        "Android HCI Vendor Commands/Events",
+        "Whether HCI Vendor Commands/Events should be dissected as Android specific",
+        &bthci_vendor_android);
 
     vendor_dissector_table = register_decode_as_next_proto(proto_bthci_cmd, "bthci_cmd.vendor",
                                                            "BT HCI Command Vendor", bthci_cmd_vendor_prompt);
