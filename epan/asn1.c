@@ -229,7 +229,7 @@ double asn1_get_real(const uint8_t *real_ptr, int len) {
     DISSECTOR_ASSERT(lenE != 4);
 
     /* Ensure the buffer len and its content are coherent */
-    DISSECTOR_ASSERT(lenE < len - 1);
+    DISSECTOR_ASSERT(lenE < len);
 
     Eneg = ((*p) & 0x80) ? true : false;
     for (i = 0; i < lenE; i++) {
