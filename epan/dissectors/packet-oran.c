@@ -131,6 +131,7 @@ static int hf_oran_reserved_2bits;
 static int hf_oran_reserved_4bits;
 static int hf_oran_reserved_last_4bits;
 static int hf_oran_reserved_6bits;
+static int hf_oran_reserved_last_6bits;
 static int hf_oran_reserved_7bits;
 static int hf_oran_reserved_8bits;
 static int hf_oran_reserved_16bits;
@@ -342,6 +343,8 @@ static int hf_oran_ue_layer_power;
 static int hf_oran_num_elements;
 static int hf_oran_ant_dmrs_snr_val;
 static int hf_oran_ue_freq_offset;
+
+static int hf_oran_beam_type;
 
 
 /* Computed fields */
@@ -666,6 +669,12 @@ static const value_string meas_type_id_vals[] = {
     { 4,  "Interference plus Noise for allocated PRBs" },
     { 5,  "Interference plus Noise for unallocated PRBs" },
     { 6,  "DMRS SNR per antenna" },
+    { 0, NULL}
+};
+
+static const value_string beam_type_vals[] = {
+    { 0,  "List of beamId values" },
+    { 1,  "Range of beamId values" },
     { 0, NULL}
 };
 
@@ -3547,9 +3556,44 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                     proto_item_append_text(offset_ti, " [#%u]", n+1);
                     offset += 2;
                 }
-
                 break;
 
+            case 27: /* O-DU controlled dimensionality reduction */
+            {
+                /* beamType (2 bits) */
+                unsigned beam_type;
+                proto_tree_add_item_ret_uint(extension_tree, hf_oran_beam_type, tvb, offset, 1, ENC_BIG_ENDIAN, &beam_type);
+                /* reserved (6 bits) */
+                proto_tree_add_item(extension_tree, hf_oran_reserved_last_6bits, tvb, offset, 1, ENC_BIG_ENDIAN);
+                offset += 1;
+
+                /* numElements */
+                unsigned num_elements;
+                proto_tree_add_item_ret_uint(extension_tree, hf_oran_num_elements, tvb, offset, 1, ENC_BIG_ENDIAN, &num_elements);
+                offset += 1;
+
+                /* beamId value(s) */
+                switch (num_elements) {
+                    case 0:
+                        for (unsigned n=0; n < num_elements; n++) {
+                            /* reserved + beamId */
+                            proto_tree_add_item(extension_tree, hf_oran_reserved_1bit, tvb, offset, 1, ENC_BIG_ENDIAN);
+                            proto_tree_add_item(c_section_tree, hf_oran_beamId, tvb, offset, 2, ENC_BIG_ENDIAN);
+                            offset += 2;
+                        }
+                        break;
+                    case 1:
+                        /* reserved + beamId */
+                        proto_tree_add_item(extension_tree, hf_oran_reserved_1bit, tvb, offset, 1, ENC_BIG_ENDIAN);
+                        proto_tree_add_item(c_section_tree, hf_oran_beamId, tvb, offset, 2, ENC_BIG_ENDIAN);
+                        offset += 2;
+                        break;
+                    default:
+                        /* Unknown type... */
+                        break;
+                }
+                break;
+            }
 
             default:
                 /* Other/unexpected extension types */
@@ -5640,6 +5684,13 @@ proto_register_oran(void)
           NULL,
           HFILL}
         },
+        {&hf_oran_reserved_last_6bits,
+         {"reserved", "oran_fh_cus.reserved",
+          FT_UINT8, BASE_HEX,
+          NULL, 0x3f,
+          NULL,
+          HFILL}
+        },
         {&hf_oran_reserved_7bits,
          {"reserved", "oran_fh_cus.reserved",
           FT_UINT8, BASE_HEX,
@@ -7105,7 +7156,18 @@ proto_register_oran(void)
           RVALS(freq_offset_fb_values), 0x0,
           "antenna DMRS-SNR",
           HFILL}
-        }
+        },
+
+        /* 7.5.27.2 */
+        {&hf_oran_beam_type,
+         {"beamType", "oran_fh_cus.beamType",
+          FT_UINT16, BASE_DEC,
+          VALS(beam_type_vals), 0xc0,
+          NULL,
+          HFILL}
+        },
+
+
     };
 
     /* Setup protocol subtree array */
