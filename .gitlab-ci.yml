@@ -429,6 +429,16 @@ Ubuntu APT Test:
     GIT_STRATEGY: none
   needs: [ 'Ubuntu APT Package' ]
 
+Arch Linux :
+  extends: .build-linux
+  rules: !reference [.if-2x-daily-schedule]
+  image: registry.gitlab.com/wireshark/wireshark-containers/arch-dev
+  script:
+    - printf "\e[0Ksection_start:%s:cmake_section[collapsed=true]\r\e[0KRunning CMake" "$( date +%s)"
+    - cmake -G Ninja ..
+    - printf "\e[0Ksection_end:%s:cmake_section\r\e[0K" "$( date +%s)"
+    - ninja
+
 Windows x64 Package:
   extends: .build-windows
   rules: !reference [.if-w-w-only-merged]
