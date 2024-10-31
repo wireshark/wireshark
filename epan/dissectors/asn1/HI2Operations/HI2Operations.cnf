@@ -109,24 +109,6 @@ GSMLocation/geoCoordinates/longitude geoCoordinates_longitude
 
   offset = tvb_len;
 
-#.FN_BODY EPS-GTPV2-SpecificParameters/rATType VAL_PTR =&parameter_tvb
-  tvbuff_t *parameter_tvb=NULL;
-  unsigned tvb_len;
-
-%(DEFAULT_BODY)s
-
-  if (!parameter_tvb)
-    return offset;
-
-  /*
-   * 8.17 RAT Type
-   * 3GPP TS 29.274
-   */
-
-  tvb_len = tvb_reported_length(parameter_tvb);
-	uint8_t *ascii = (uint8_t*)tvb_memdup(actx->pinfo->pool, parameter_tvb, 0, tvb_len);
-  proto_item_append_text(actx->created_item, " (%%s)", val_to_str_ext_const((uint32_t)g_ascii_strtoll(ascii, NULL, 10), &gtpv2_rat_type_vals_ext, "Unknown"));
-
 #.FN_BODY EPS-GTPV2-SpecificParameters/ePSBearerQoS
   proto_tree *eps_qos_tree;
   unsigned tvb_len;
@@ -174,24 +156,6 @@ GSMLocation/geoCoordinates/longitude geoCoordinates_longitude
   dissect_gtpv2_uli(tvb, actx->pinfo, eps_uli_tree, NULL, tvb_len, 0, 0, NULL);
 
   offset = tvb_len;
-
-#.FN_BODY EPS-GTPV2-SpecificParameters/pDNType VAL_PTR =&parameter_tvb
-  tvbuff_t *parameter_tvb=NULL;
-  unsigned tvb_len;
-
-%(DEFAULT_BODY)s
-
-  if (!parameter_tvb)
-    return offset;
-
-  /*
-   * 8.34 PDN Type
-   * 3GPP TS 29.274
-   */
-
-  tvb_len = tvb_reported_length(parameter_tvb);
-	uint8_t *ascii = (uint8_t*)tvb_memdup(actx->pinfo->pool, parameter_tvb, 0, tvb_len);
-  proto_item_append_text(actx->created_item, " (%%s)", val_to_str_ext_const((uint32_t)g_ascii_strtoll(ascii, NULL, 10), &gtpv2_pdn_type_vals_ext, "Unknown"));
 
 #.FN_BODY EPS-GTPV2-SpecificParameters/tFT
   proto_tree *eps_tft_tree;
@@ -266,11 +230,12 @@ GSMLocation/geoCoordinates/longitude geoCoordinates_longitude
 GSMLocation/geoCoordinates/latitude ABBREV=geoCoordinates.latitude
 GSMLocation/geoCoordinates/longitude ABBREV=geoCoordinates.longitude
 IRI-Parameters/lawfulInterceptionIdentifier TYPE = FT_STRING  DISPLAY = BASE_NONE
-IRI-Parameters/ePSCorrelationNumber TYPE = FT_STRING  DISPLAY = BASE_NONE
+IRI-Parameters/ePSCorrelationNumber TYPE = FT_UINT8  DISPLAY = BASE_DEC
 EPS-GTPV2-SpecificParameters/aPN TYPE = FT_STRING  DISPLAY = BASE_NONE
-EPS-GTPV2-SpecificParameters/ePSBearerIdentity TYPE = FT_STRING  DISPLAY = BASE_NONE
-EPS-GTPV2-SpecificParameters/rATType TYPE = FT_STRING  DISPLAY = BASE_NONE
-EPS-GTPV2-SpecificParameters/pDNType TYPE = FT_STRING  DISPLAY = BASE_NONE
+EPS-GTPV2-SpecificParameters/ePSBearerIdentity TYPE = FT_UINT8  DISPLAY = BASE_DEC
+EPS-GTPV2-SpecificParameters/rATType TYPE = FT_UINT8  DISPLAY = BASE_DEC|BASE_EXT_STRING  STRINGS = &gtpv2_rat_type_vals_ext
+EPS-GTPV2-SpecificParameters/pDNType TYPE = FT_UINT8  DISPLAY = BASE_DEC|BASE_EXT_STRING  STRINGS = &gtpv2_pdn_type_vals_ext
 EPS-GTPV2-SpecificParameters/linkedEPSBearerId TYPE = FT_STRING  DISPLAY = BASE_NONE
+
 #.END
 

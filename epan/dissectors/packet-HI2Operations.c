@@ -293,7 +293,7 @@ static int hf_HI2Operations_protConfigOptions;    /* ProtConfigOptions */
 static int hf_HI2Operations_attachType;           /* OCTET_STRING_SIZE_1 */
 static int hf_HI2Operations_ePSBearerIdentity;    /* OCTET_STRING */
 static int hf_HI2Operations_detachType;           /* OCTET_STRING_SIZE_1 */
-static int hf_HI2Operations_rATType;              /* T_rATType */
+static int hf_HI2Operations_rATType;              /* OCTET_STRING_SIZE_1 */
 static int hf_HI2Operations_failedBearerActivationReason;  /* OCTET_STRING_SIZE_1 */
 static int hf_HI2Operations_ePSBearerQoS;         /* T_ePSBearerQoS */
 static int hf_HI2Operations_bearerActivationType;  /* TypeOfBearer */
@@ -310,7 +310,7 @@ static int hf_HI2Operations_servingMMEaddress;    /* OCTET_STRING */
 static int hf_HI2Operations_bearerDeactivationType;  /* TypeOfBearer */
 static int hf_HI2Operations_bearerDeactivationCause;  /* OCTET_STRING_SIZE_1 */
 static int hf_HI2Operations_ePSlocationOfTheTarget;  /* EPSLocation */
-static int hf_HI2Operations_pDNType;              /* T_pDNType */
+static int hf_HI2Operations_pDNType;              /* OCTET_STRING_SIZE_1 */
 static int hf_HI2Operations_requestType;          /* OCTET_STRING_SIZE_1 */
 static int hf_HI2Operations_uEReqPDNConnFailReason;  /* OCTET_STRING_SIZE_1 */
 static int hf_HI2Operations_extendedHandoverIndication;  /* OCTET_STRING_SIZE_1 */
@@ -2522,33 +2522,6 @@ dissect_HI2Operations_ProtConfigOptions(bool implicit_tag _U_, tvbuff_t *tvb _U_
 
 
 static int
-dissect_HI2Operations_T_rATType(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  tvbuff_t *parameter_tvb=NULL;
-  unsigned tvb_len;
-
-  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                       &parameter_tvb);
-
-
-  if (!parameter_tvb)
-    return offset;
-
-  /*
-   * 8.17 RAT Type
-   * 3GPP TS 29.274
-   */
-
-  tvb_len = tvb_reported_length(parameter_tvb);
-	uint8_t *ascii = (uint8_t*)tvb_memdup(actx->pinfo->pool, parameter_tvb, 0, tvb_len);
-  proto_item_append_text(actx->created_item, " (%s)", val_to_str_ext_const((uint32_t)g_ascii_strtoll(ascii, NULL, 10), &gtpv2_rat_type_vals_ext, "Unknown"));
-
-
-  return offset;
-}
-
-
-
-static int
 dissect_HI2Operations_T_ePSBearerQoS(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   proto_tree *eps_qos_tree;
   unsigned tvb_len;
@@ -2747,33 +2720,6 @@ dissect_HI2Operations_EPSLocation(bool implicit_tag _U_, tvbuff_t *tvb _U_, int 
 
 
 static int
-dissect_HI2Operations_T_pDNType(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  tvbuff_t *parameter_tvb=NULL;
-  unsigned tvb_len;
-
-  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                       &parameter_tvb);
-
-
-  if (!parameter_tvb)
-    return offset;
-
-  /*
-   * 8.34 PDN Type
-   * 3GPP TS 29.274
-   */
-
-  tvb_len = tvb_reported_length(parameter_tvb);
-	uint8_t *ascii = (uint8_t*)tvb_memdup(actx->pinfo->pool, parameter_tvb, 0, tvb_len);
-  proto_item_append_text(actx->created_item, " (%s)", val_to_str_ext_const((uint32_t)g_ascii_strtoll(ascii, NULL, 10), &gtpv2_pdn_type_vals_ext, "Unknown"));
-
-
-  return offset;
-}
-
-
-
-static int
 dissect_HI2Operations_OCTET_STRING_SIZE_8(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        NULL);
@@ -2846,7 +2792,7 @@ static const ber_sequence_t EPS_GTPV2_SpecificParameters_sequence[] = {
   { &hf_HI2Operations_attachType, BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_OCTET_STRING_SIZE_1 },
   { &hf_HI2Operations_ePSBearerIdentity, BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_OCTET_STRING },
   { &hf_HI2Operations_detachType, BER_CLASS_CON, 6, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_OCTET_STRING_SIZE_1 },
-  { &hf_HI2Operations_rATType, BER_CLASS_CON, 7, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_T_rATType },
+  { &hf_HI2Operations_rATType, BER_CLASS_CON, 7, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_OCTET_STRING_SIZE_1 },
   { &hf_HI2Operations_failedBearerActivationReason, BER_CLASS_CON, 8, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_OCTET_STRING_SIZE_1 },
   { &hf_HI2Operations_ePSBearerQoS, BER_CLASS_CON, 9, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_T_ePSBearerQoS },
   { &hf_HI2Operations_bearerActivationType, BER_CLASS_CON, 10, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_TypeOfBearer },
@@ -2863,7 +2809,7 @@ static const ber_sequence_t EPS_GTPV2_SpecificParameters_sequence[] = {
   { &hf_HI2Operations_bearerDeactivationType, BER_CLASS_CON, 21, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_TypeOfBearer },
   { &hf_HI2Operations_bearerDeactivationCause, BER_CLASS_CON, 22, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_OCTET_STRING_SIZE_1 },
   { &hf_HI2Operations_ePSlocationOfTheTarget, BER_CLASS_CON, 23, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_EPSLocation },
-  { &hf_HI2Operations_pDNType, BER_CLASS_CON, 24, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_T_pDNType },
+  { &hf_HI2Operations_pDNType, BER_CLASS_CON, 24, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_OCTET_STRING_SIZE_1 },
   { &hf_HI2Operations_requestType, BER_CLASS_CON, 25, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_OCTET_STRING_SIZE_1 },
   { &hf_HI2Operations_uEReqPDNConnFailReason, BER_CLASS_CON, 26, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_OCTET_STRING_SIZE_1 },
   { &hf_HI2Operations_extendedHandoverIndication, BER_CLASS_CON, 27, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_OCTET_STRING_SIZE_1 },
@@ -5231,7 +5177,7 @@ void proto_register_HI2Operations(void) {
         NULL, HFILL }},
     { &hf_HI2Operations_ePSCorrelationNumber,
       { "ePSCorrelationNumber", "HI2Operations.ePSCorrelationNumber",
-        FT_STRING, BASE_NONE, NULL, 0,
+        FT_UINT8, BASE_DEC, NULL, 0,
         NULL, HFILL }},
     { &hf_HI2Operations_ePSevent,
       { "ePSevent", "HI2Operations.ePSevent",
@@ -5691,7 +5637,7 @@ void proto_register_HI2Operations(void) {
         "OCTET_STRING_SIZE_1", HFILL }},
     { &hf_HI2Operations_ePSBearerIdentity,
       { "ePSBearerIdentity", "HI2Operations.ePSBearerIdentity",
-        FT_STRING, BASE_NONE, NULL, 0,
+        FT_UINT8, BASE_DEC, NULL, 0,
         "OCTET_STRING", HFILL }},
     { &hf_HI2Operations_detachType,
       { "detachType", "HI2Operations.detachType",
@@ -5699,8 +5645,8 @@ void proto_register_HI2Operations(void) {
         "OCTET_STRING_SIZE_1", HFILL }},
     { &hf_HI2Operations_rATType,
       { "rATType", "HI2Operations.rATType",
-        FT_STRING, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
+        FT_UINT8, BASE_DEC|BASE_EXT_STRING, &gtpv2_rat_type_vals_ext, 0,
+        "OCTET_STRING_SIZE_1", HFILL }},
     { &hf_HI2Operations_failedBearerActivationReason,
       { "failedBearerActivationReason", "HI2Operations.failedBearerActivationReason",
         FT_BYTES, BASE_NONE, NULL, 0,
@@ -5767,8 +5713,8 @@ void proto_register_HI2Operations(void) {
         "EPSLocation", HFILL }},
     { &hf_HI2Operations_pDNType,
       { "pDNType", "HI2Operations.pDNType",
-        FT_STRING, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
+        FT_UINT8, BASE_DEC|BASE_EXT_STRING, &gtpv2_pdn_type_vals_ext, 0,
+        "OCTET_STRING_SIZE_1", HFILL }},
     { &hf_HI2Operations_requestType,
       { "requestType", "HI2Operations.requestType",
         FT_BYTES, BASE_NONE, NULL, 0,
