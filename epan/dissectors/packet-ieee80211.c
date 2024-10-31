@@ -8530,6 +8530,7 @@ static int ett_pol_resp_cont_tree;
 static expert_field ei_ieee80211_bad_length;
 static expert_field ei_ieee80211_inv_val;
 static expert_field ei_ieee80211_vht_tpe_pwr_info_count;
+static expert_field ei_ieee80211_vht_tpe_pwr_info_unit;
 static expert_field ei_ieee80211_ff_query_response_length;
 static expert_field ei_ieee80211_ff_anqp_nai_realm_eap_len;
 static expert_field ei_hs20_anqp_nai_hrq_length;
@@ -22466,7 +22467,7 @@ dissect_vht_tx_pwr_envelope(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   int tag_len = tvb_reported_length(tvb);
   ieee80211_tagged_field_data_t* field_data = (ieee80211_tagged_field_data_t*)data;
   int offset = 0;
-  proto_item *tx_pwr_item, *ti;
+  proto_item *tx_pwr_item, *ti, *unit_ti;
   proto_tree *tx_pwr_info_tree;
   uint8_t opt_ie_cnt=0;
   uint8_t i;
@@ -22483,14 +22484,18 @@ dissect_vht_tx_pwr_envelope(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   tx_pwr_info_tree =  proto_item_add_subtree(tx_pwr_item, ett_vht_tpe_info_tree);
 
   ti = proto_tree_add_item(tx_pwr_info_tree, hf_ieee80211_vht_tpe_pwr_info_count, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(tx_pwr_info_tree, hf_ieee80211_vht_tpe_pwr_info_unit, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+  unit_ti = proto_tree_add_item(tx_pwr_info_tree, hf_ieee80211_vht_tpe_pwr_info_unit, tvb, offset, 1, ENC_LITTLE_ENDIAN);
   proto_tree_add_item(tx_pwr_info_tree, hf_ieee80211_vht_tpe_pwr_info_category, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 
   opt_ie_cnt = tvb_get_uint8(tvb, offset) & 0x07;
 
   offset += 1;
 
-  if (mtpi == 1 || mtpi == 3) { /* Is it a power spectral density? */
+  switch (mtpi) {
+
+  case 1:
+  case 3:
+    /* Is it a power spectral density? */
     /* Handle the zero case */
     if (opt_ie_cnt == 0) {
       proto_tree_add_item(tree, hf_ieee80211_vht_tpe_any_bw_psd, tvb, offset,
@@ -22527,7 +22532,10 @@ dissect_vht_tx_pwr_envelope(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                           tvb, offset, 1, ENC_NA);
       offset += 1;
     }
-  } else {
+    break;
+
+  case 0:
+  case 2:
     /* Power Constraint info is mandatory only for 20MHz, others are optional*/
     /* Power is expressed in terms of 0.5dBm from -64 to 63 and is encoded
      * as 8-bit 2's compliment */
@@ -22555,6 +22563,10 @@ dissect_vht_tx_pwr_envelope(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         break;
       }
     }
+    break;
+  default:
+    /* Reserved in 802.11ax-2021. 802.11be? */
+    expert_add_info(pinfo, unit_ti, &ei_ieee80211_vht_tpe_pwr_info_unit);
   }
 
   return offset;
@@ -60393,6 +60405,10 @@ proto_register_ieee80211(void)
     { &ei_ieee80211_vht_tpe_pwr_info_count,
       { "wlan.vht.tpe.pwr_info.count.invalid", PI_MALFORMED, PI_ERROR,
         "Max Tx Pwr Count is Incorrect, should be 0-7", EXPFILL }},
+
+    { &ei_ieee80211_vht_tpe_pwr_info_unit,
+      { "wlan.vht.tpe.pwr_info.unit.unknown", PI_UNDECODED, PI_WARN,
+        "Unknown Max Tx Pwr Unit Interpretation (not interpreted)", EXPFILL }},
 
     { &ei_ieee80211_missing_data,
       { "ieee80211.missing_data", PI_MALFORMED, PI_WARN,
