@@ -367,7 +367,7 @@ static const value_string ri_lsa_fad_metric_type_vals[] = {
     {0, NULL}
 };
 
-/* Flex Algo Definition Sub-TLV (draft-ietf-lsr-flex-algo-17) */
+/* Flex Algo Definition Sub-TLV (rfc9350) */
 #define FAD_EXCLUDE_AG              1
 #define FAD_INCLUDE_ANY_AG          2
 #define FAD_INCLUDE_ALL_AG          3
@@ -382,6 +382,9 @@ static const value_string ri_lsa_fad_stlv_type_vals[] = {
     { FAD_EXCLUDE_SRLG,     "Flexible Algorithm Exclude SRLG"},
     { 0, NULL }
 };
+
+/* Flex Algo Definition Flags (rfc9350) */
+#define FAD_DEF_FLAGS_M             0x80000000
 
 static const value_string ls_type_vals[] = {
     {OSPF_LSTYPE_ROUTER,                  "Router-LSA"                   },
@@ -616,6 +619,7 @@ static const value_string ext_link_tlv_type_vals[] = {
 #define SR_STLV_REMOTE_IPV4_ADDRESS       8
 #define SR_STLV_LOCAL_REMOTE_INTERFACE_ID 9
 #define SR_STLV_APP_SPEC_LINK_ATTR        10
+#define SR_STLV_SRLG                      11
 #define SR_STLV_UNIDIR_LINK_DELAY         12
 #define SR_STLV_UNIDIR_LINK_DELAY_MIN_MAX 13
 #define SR_STLV_UNIDIR_DELAY_VARIATION    14
@@ -639,6 +643,7 @@ static const value_string ext_link_stlv_type_vals[] = {
     {SR_STLV_REMOTE_IPV4_ADDRESS,         "Remote IPv4 Address"          },
     {SR_STLV_LOCAL_REMOTE_INTERFACE_ID,   "Local/Remote Interface ID"    },
     {SR_STLV_APP_SPEC_LINK_ATTR,          "Application-Specific Link Attributes"},
+    {SR_STLV_SRLG,                        "Shared Risk Link Group"       },
     {SR_STLV_UNIDIR_LINK_DELAY,           "Unidirectional Link Delay"    },
     {SR_STLV_UNIDIR_LINK_DELAY_MIN_MAX,   "Min/Max Unidirectional Link Delay"},
     {SR_STLV_UNIDIR_DELAY_VARIATION,      "Unidirectional Delay Variation"},
@@ -711,6 +716,7 @@ static int ett_ospf_lsa_srms_tlv;
 static int ett_ospf_lsa_node_msd_tlv;
 static int ett_ospf_lsa_fad_tlv;
 static int ett_ospf_lsa_fad_stlv;
+static int ett_ospf_lsa_fad_def_flags;
 static int ett_ospf_lsa_elink;
 static int ett_ospf_lsa_epfx;
 static int ett_ospf_lsa_elink_tlv;
@@ -901,6 +907,7 @@ static int hf_ospf_ls_app_sabm_bits_f;
 static int hf_ospf_ls_app_sabm_bits_x;
 static int hf_ospf_ls_app_udabm_bits;
 static int hf_ospf_ls_app_link_attrs_stlv;
+static int hf_ospf_ls_srlg;
 static int hf_ospf_ls_admin_group;
 static int hf_ospf_ls_ext_admin_group;
 static int hf_ospf_ls_unidir_link_flags;
@@ -982,6 +989,8 @@ static int hf_ospf_ls_fad_metric_type;
 static int hf_ospf_ls_fad_calc_type;
 static int hf_ospf_ls_fad_priority;
 static int hf_ospf_ls_fad_stlv;
+static int hf_ospf_ls_fad_def_flags;
+static int hf_ospf_ls_fad_def_flags_m;
 static int hf_ospf_unknown_tlv;
 static int hf_ospf_v2_grace_tlv;
 static int hf_ospf_v2_grace_period;
@@ -1317,6 +1326,10 @@ static int * const bf_ospf_app_sabm_bits[] = {
 static int * const unidir_link_flags[] = {
     &hf_ospf_ls_unidir_link_flags_a,
     &hf_ospf_ls_unidir_link_flags_reserved,
+    NULL,
+};
+static int * const bf_ospf_fad_def_flags[] = {
+    &hf_ospf_ls_fad_def_flags_m,
     NULL,
 };
 
@@ -3091,6 +3104,7 @@ dissect_ospf_lsa_opaque_ri(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_
     const char *stlv_name;
     uint32_t range_size;
     uint32_t reserved;
+    int i;
 
     ri_tree = proto_tree_add_subtree(tree, tvb, offset, length,
                              ett_ospf_lsa_opaque_ri, NULL, "Opaque Router Information LSA");
@@ -3224,7 +3238,7 @@ dissect_ospf_lsa_opaque_ri(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_
             break;
 
         case OPAQUE_TLV_FLEX_ALGO_DEF:
-            /* Flex Algo Definition (FAD) (draft-ietf-lsr-flex-algo-17) */
+            /* Flex Algo Definition (FAD) (rfc9350) */
             tlv_tree = proto_tree_add_subtree_format(ri_tree, tvb, offset, tlv_length + 4,
                                                      ett_ospf_lsa_fad_tlv, &ti_tree, "%s", tlv_name);
             proto_tree_add_item(tlv_tree, hf_ospf_tlv_type_opaque, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -3252,6 +3266,14 @@ dissect_ospf_lsa_opaque_ri(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_
                 case FAD_INCLUDE_ANY_AG:
                 case FAD_INCLUDE_ALL_AG:
                     dissect_ospf_subtlv_ext_admin_group(tvb, stlv_tree, stlv_offset + 4, stlv_type, stlv_length);
+                    break;
+                case FAD_DEF_FLAGS:
+                    proto_tree_add_bitmask(stlv_tree, tvb, stlv_offset + 4, hf_ospf_ls_fad_def_flags, ett_ospf_lsa_fad_def_flags, bf_ospf_fad_def_flags, ENC_BIG_ENDIAN);
+                    break;
+                case FAD_EXCLUDE_SRLG:
+                    for (i = 0; i < stlv_length; i += 4) {
+                        proto_tree_add_item(stlv_tree, hf_ospf_ls_srlg, tvb, stlv_offset + 4 + i, 4, ENC_BIG_ENDIAN);
+                    }
                     break;
                 default:
                     proto_tree_add_item(stlv_tree, hf_ospf_tlv_value, tvb, stlv_offset + 4, stlv_length, ENC_NA);
@@ -3462,6 +3484,7 @@ dissect_ospf_lsa_app_link_attributes(tvbuff_t *tvb, packet_info *pinfo _U_, int 
     const char *stlv_name;
     uint32_t delay, delay_min, delay_max, reserved;
     uint32_t admin_group, te_metric;
+    int i;
 
     while (stlv_offset < offset_end) {
         stlv_type = tvb_get_ntohs(tvb, stlv_offset);
@@ -3476,6 +3499,12 @@ dissect_ospf_lsa_app_link_attributes(tvbuff_t *tvb, packet_info *pinfo _U_, int 
         stlv_offset += 4;
 
         switch (stlv_type) {
+        case SR_STLV_SRLG:
+            /* 11: Shared Risk Link Group */
+            for (i = 0; i < stlv_length; i += 4) {
+                proto_tree_add_item(stlv_tree, hf_ospf_ls_srlg, tvb, stlv_offset + i, 4, ENC_BIG_ENDIAN);
+            }
+            break;
         case SR_STLV_UNIDIR_LINK_DELAY:
             /* 12: Unidirectional Link Delay (rfc7471) */
             ti = proto_tree_add_bitmask(stlv_tree, tvb, stlv_offset,
@@ -3718,7 +3747,7 @@ dissect_ospf_lsa_ext_link(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_t
                     break;
 
                 case SR_STLV_APP_SPEC_LINK_ATTR:
-                    /* Application-Specific Link Attributes Sub-TLV (rfc8920) */
+                    /* Application-Specific Link Attributes Sub-TLV (rfc9492) */
                     local_length = stlv_length;
                     local_offset = stlv_offset + 4;
                     proto_tree_add_item(stlv_tree, hf_ospf_ls_app_sabm_length, tvb, local_offset, 1, ENC_NA);
@@ -5091,7 +5120,7 @@ proto_register_ospf(void)
          { "Remote Interface ID", "ospf.tlv.remote_interface_id", FT_UINT32, BASE_DEC,
            NULL, 0x0, NULL, HFILL }},
 
-        /* Flex Algo Definition TLV (draft-ietf-lsr-flex-algo-17) */
+        /* Flex Algo Definition TLV (rfc9350) */
         {&hf_ospf_ls_fad_flex_algorithm,
          { "Flex-Algorithm", "ospf.tlv.fad.flex_algorithm", FT_UINT8, BASE_DEC,
            NULL, 0x0, NULL, HFILL }},
@@ -5107,6 +5136,12 @@ proto_register_ospf(void)
         {&hf_ospf_ls_fad_stlv,
          { "TLV Type", "ospf.tlv.fad.subtlv_type", FT_UINT16, BASE_DEC, VALS(ri_lsa_fad_stlv_type_vals), 0x0,
            NULL, HFILL }},
+        {&hf_ospf_ls_fad_def_flags,
+         { "Flags", "ospf.tlv.fad.definition_flags", FT_UINT32, BASE_HEX,
+           NULL, 0x0, NULL, HFILL }},
+        {&hf_ospf_ls_fad_def_flags_m,
+         { "M-flag (M)", "ospf.tlv.fad.definition_flags.m", FT_BOOLEAN, 32,
+           TFS(&tfs_set_notset), FAD_DEF_FLAGS_M, NULL, HFILL }},
 
         /* the Unknown TLV of the Opaque RI LSA */
         {&hf_ospf_unknown_tlv,
@@ -5196,7 +5231,7 @@ proto_register_ospf(void)
         {&hf_ospf_ls_adjsid_flag_unknown,
          { "(*) Unknown Flag", "ospf.tlv.adjsid.flags.unknown", FT_UINT8, BASE_HEX,
            NULL, SR_STLV_ADJSID_FLAG_UNKNOWN, NULL, HFILL }},
-        /* Application-Specific Link Attributes Sub-TLV (rfc8920) */
+        /* Application-Specific Link Attributes Sub-TLV (rfc9492) */
         {&hf_ospf_ls_app_sabm_length,
          { "SABM Length", "ospf.tlv.application.sabm.length",
            FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
@@ -5224,6 +5259,9 @@ proto_register_ospf(void)
         {&hf_ospf_ls_app_link_attrs_stlv,
          { "TLV Type", "ospf.tlv.application.subtlv_type",
            FT_UINT16, BASE_DEC, VALS(ext_link_stlv_type_vals), 0x0, NULL, HFILL }},
+        {&hf_ospf_ls_srlg,
+         { "Shared Risk Link Group", "ospf.tlv.srlg",
+           FT_UINT32, BASE_DEC_HEX, NULL, 0x0, NULL, HFILL }},
         /* OSPF Traffic Engineering (TE) Metric Extensions (rfc7471) */
         {&hf_ospf_ls_unidir_link_flags,
          { "Flags", "ospf.tlv.unidirectional_link_flags",
@@ -5449,6 +5487,7 @@ proto_register_ospf(void)
         &ett_ospf_lsa_node_msd_tlv,
         &ett_ospf_lsa_fad_tlv,
         &ett_ospf_lsa_fad_stlv,
+        &ett_ospf_lsa_fad_def_flags,
         &ett_ospf_lsa_unknown_tlv,
         &ett_ospf_lsa_epfx,
         &ett_ospf_lsa_elink,
