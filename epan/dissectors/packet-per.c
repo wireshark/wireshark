@@ -1756,9 +1756,6 @@ dissect_per_real(tvbuff_t *tvb, uint32_t offset, asn1_ctx_t *actx, proto_tree *t
 	double val = 0;
 
 	offset = dissect_per_length_determinant(tvb, offset, actx, tree, hf_per_real_length, &val_length, NULL);
-	if(val_length == 0){
-		dissect_per_not_decoded_yet(tree, actx->pinfo, tvb, "unexpected length");
-	}
 	if (actx->aligned) BYTE_ALIGN_OFFSET(offset);
 	val_tvb = tvb_new_octet_aligned(tvb, offset, val_length * 8);
 	/* Add new data source if the offet was unaligned */
