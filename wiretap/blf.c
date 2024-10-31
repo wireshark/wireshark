@@ -339,13 +339,14 @@ fix_endianness_blf_date(blf_date_t *date) {
 static void
 fix_endianness_blf_fileheader(blf_fileheader_t *header) {
     header->header_length = GUINT32_FROM_LE(header->header_length);
+    header->api_version = GUINT32_FROM_LE(header->api_version);
     header->len_compressed = GUINT64_FROM_LE(header->len_compressed);
     header->len_uncompressed = GUINT64_FROM_LE(header->len_uncompressed);
     header->obj_count = GUINT32_FROM_LE(header->obj_count);
-    header->obj_read = GUINT32_FROM_LE(header->obj_read);
+    header->application_build = GUINT32_FROM_LE(header->application_build);
     fix_endianness_blf_date(&(header->start_date));
     fix_endianness_blf_date(&(header->end_date));
-    header->length3 = GUINT32_FROM_LE(header->length3);
+    header->restore_point_offset = GUINT32_FROM_LE(header->restore_point_offset);
 }
 
 static void

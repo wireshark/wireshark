@@ -484,10 +484,18 @@ dissect_blf_header_date(proto_tree *tree, int hf, tvbuff_t *tvb, int offset, int
 
 static proto_item *
 dissect_blf_api_version(proto_tree *tree, int hf, tvbuff_t *tvb, int offset, int length) {
-    uint8_t major = tvb_get_uint8(tvb, offset + 0);
-    uint8_t minor = tvb_get_uint8(tvb, offset + 1);
-    uint8_t build = tvb_get_uint8(tvb, offset + 2);
-    uint8_t patch = tvb_get_uint8(tvb, offset + 3);
+    uint32_t api = tvb_get_uint32(tvb, offset, ENC_LITTLE_ENDIAN);
+
+    uint8_t patch = api % 100;
+    api /= 100;
+
+    uint8_t build = api % 100;
+    api /= 100;
+
+    uint8_t minor = api % 100;
+    api /= 100;
+
+    uint8_t major = api % 100;
 
     header_field_info *hfinfo = proto_registrar_get_nth(hf);
 

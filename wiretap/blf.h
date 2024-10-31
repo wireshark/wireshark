@@ -79,19 +79,23 @@ typedef struct blf_fileheader {
     uint8_t magic[4];               /* magic number - "LOGG" */
     uint32_t header_length;         /* length of the file header */
 
-    uint8_t applications[4];
-    uint8_t api[4];
+    uint32_t api_version;           /* decimal encoded */
+
+    uint8_t application;
+    uint8_t compression_level;
+    uint8_t application_major;
+    uint8_t application_minor;
 
     uint64_t len_compressed;        /* size of the file before uncompressing */
     uint64_t len_uncompressed;
 
     uint32_t obj_count;             /* number of objects in the file */
-    uint32_t obj_read;
+    uint32_t application_build;
 
     blf_date_t start_date;
     blf_date_t end_date;
 
-    uint32_t length3;
+    uint32_t restore_point_offset;
 } blf_fileheader_t;
 
 /* BLF Block Header */
