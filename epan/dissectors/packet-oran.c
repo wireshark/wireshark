@@ -345,6 +345,7 @@ static int hf_oran_ant_dmrs_snr_val;
 static int hf_oran_ue_freq_offset;
 
 static int hf_oran_beam_type;
+static int hf_oran_meas_cmd_size;
 
 
 /* Computed fields */
@@ -425,6 +426,7 @@ static expert_field ei_oran_radio_fragmentation_c_plane;
 static expert_field ei_oran_radio_fragmentation_u_plane;
 static expert_field ei_oran_lastRbdid_out_of_range;
 static expert_field ei_oran_rbgMask_beyond_last_rbdid;
+static expert_field ei_oran_unexpected_measTypeId;
 
 
 /* These are the message types handled by this dissector */
@@ -1852,7 +1854,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
     bool extension_flag = false;
 
     /* These sections (ST0, ST1, ST2, ST3, ST5, ST9) are similar, so handle as common with per-type differences */
-    if (((sectionType <= SEC_C_UE_SCHED) || (sectionType == SEC_C_SINR_REPORTING) || (sectionType == SEC_C_RRM_MEAS_REPORTS)) &&
+    if (((sectionType <= SEC_C_UE_SCHED) || (sectionType >= SEC_C_SINR_REPORTING)) &&
          (sectionType != SEC_C_SLOT_CONTROL)) {
 
         /* sectionID */
@@ -1865,8 +1867,8 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
         /* rb */
         uint32_t rb;
         proto_tree_add_item_ret_uint(c_section_tree, hf_oran_rb, tvb, offset, 1, ENC_NA, &rb);
-        /* symInc */
-        if (sectionType != SEC_C_RRM_MEAS_REPORTS) {
+        /* symInc (1 bit) */
+        if (sectionType != SEC_C_RRM_MEAS_REPORTS && sectionType != SEC_C_REQUEST_RRM_MEAS) {
             proto_tree_add_item(c_section_tree, hf_oran_symInc, tvb, offset, 1, ENC_NA);
         }
 
@@ -1911,6 +1913,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                 case SEC_C_PRACH:             /* Section Type 3 */
                 case SEC_C_UE_SCHED:          /* Section Type 5 */
                 case SEC_C_RRM_MEAS_REPORTS:  /* Section Type 10 */
+                case SEC_C_REQUEST_RRM_MEAS:  /* Section Type 11 */
                     proto_tree_add_item_ret_boolean(c_section_tree, hf_oran_ef, tvb, offset, 1, ENC_BIG_ENDIAN, &extension_flag);
                     break;
                 default:
@@ -2013,6 +2016,11 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                 }
                 break;
             }
+            case SEC_C_REQUEST_RRM_MEAS:
+                /* Reserved (15 bits) */
+                proto_tree_add_item(c_section_tree, hf_oran_reserved_15bits, tvb, offset, 2, ENC_NA);
+                offset += 2;
+                break;
 
             default:
                 break;
@@ -3628,8 +3636,6 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
             proto_item *mr_ti = proto_tree_add_item(tree, hf_oran_measurement_report,
                                                     tvb, offset, 0, ENC_ASCII);
             proto_tree *mr_tree = proto_item_add_subtree(mr_ti, ett_oran_measurement_report);
-
-
             unsigned report_start_offset = offset;
 
             /* mf (1 bit) */
@@ -3753,6 +3759,53 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
 
             /* End of measurement report tree */
             proto_item_set_end(mr_ti, tvb, offset);
+        } while (mf);
+    }
+
+    /*  Request for RRM Measurements has commands after extensions */
+    if (sectionType == SEC_C_REQUEST_RRM_MEAS)
+    {
+        bool mf;
+        do {
+            /* Measurement report subtree */
+            proto_item *mr_ti = proto_tree_add_item(tree, hf_oran_measurement_report,
+                                                    tvb, offset, 0, ENC_ASCII);
+            proto_tree *mr_tree = proto_item_add_subtree(mr_ti, ett_oran_measurement_report);
+
+            /* mf (1 bit) */
+            proto_tree_add_item_ret_boolean(mr_tree, hf_oran_mf, tvb, offset, 1, ENC_BIG_ENDIAN, &mf);
+
+            /* measTypeId (7 bits) */
+            uint32_t meas_type_id;
+            proto_item *meas_type_id_ti;
+            meas_type_id_ti = proto_tree_add_item_ret_uint(mr_tree, hf_oran_meas_type_id, tvb, offset, 1, ENC_BIG_ENDIAN, &meas_type_id);
+            offset += 1;
+
+            switch (meas_type_id) {
+                case 5:                           /* command for IpN for unallocated PRBs */
+                    /* reserved (1 byte) */
+                    proto_tree_add_item(mr_tree, hf_oran_reserved_8bits, tvb, offset, 1, ENC_BIG_ENDIAN);
+                    offset += 1;
+                    /* measCmdSize.  Not sure why this is here.. */
+                    proto_tree_add_item(mr_tree, hf_oran_meas_cmd_size, tvb, offset, 2, ENC_BIG_ENDIAN);
+                    offset += 2;
+                    /* reserved (2 bits) */
+                    proto_tree_add_item(mr_tree, hf_oran_reserved_2bits, tvb, offset, 1, ENC_BIG_ENDIAN);
+                    /* symbolMask (14 bits) */
+                    proto_tree_add_item(mr_tree, hf_oran_symbolMask, tvb, offset, 2, ENC_BIG_ENDIAN);
+                    offset += 2;
+                    /* reserved (16 bits) */
+                    proto_tree_add_item(mr_tree, hf_oran_reserved_16bits, tvb, offset, 2, ENC_BIG_ENDIAN);
+                    offset += 2;
+                    break;
+                default:
+                    /* Anything else is not expected */
+                    expert_add_info_format(pinfo, meas_type_id_ti, &ei_oran_unexpected_measTypeId,
+                                           "measTypeId %u (%s) not supported - only 5 is expected",
+                                           meas_type_id,
+                                           val_to_str_const(meas_type_id, meas_type_id_vals, "reserved"));
+                    break;
+            }
         } while (mf);
     }
 
@@ -4077,7 +4130,7 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
         /* scs (for ST4 and ST8) */
         scs_ti = proto_tree_add_item_ret_uint(section_tree, hf_oran_frameStructure_subcarrier_spacing, tvb, offset, 1, ENC_NA, &scs);
     }
-    else if (sectionType == SEC_C_RRM_MEAS_REPORTS) {
+    else if (sectionType == SEC_C_RRM_MEAS_REPORTS || sectionType == SEC_C_REQUEST_RRM_MEAS) {
         /* reserved (4 bits) */
         proto_tree_add_item(section_tree, hf_oran_reserved_last_4bits, tvb, offset, 1, ENC_NA);
     }
@@ -4320,6 +4373,7 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
             break;
 
         case SEC_C_RRM_MEAS_REPORTS:
+        case SEC_C_REQUEST_RRM_MEAS:
             /* reserved (16 bits) */
             proto_tree_add_item(section_tree, hf_oran_reserved_16bits, tvb, offset, 2, ENC_BIG_ENDIAN);
             offset += 2;
@@ -7148,7 +7202,6 @@ proto_register_oran(void)
           "Interference plus Noise power",
           HFILL}
         },
-
         /* 7.5.3.64 */
         {&hf_oran_ant_dmrs_snr_val,
          {"antDmrsSnrVal", "oran_fh_cus.antDmrsSnrVal",
@@ -7167,7 +7220,13 @@ proto_register_oran(void)
           HFILL}
         },
 
-
+        {&hf_oran_meas_cmd_size,
+         {"measCmdSize", "oran_fh_cus.measCmdSize",
+          FT_UINT16, BASE_DEC,
+          NULL, 0x0,
+          NULL,
+          HFILL}
+        }
     };
 
     /* Setup protocol subtree array */
@@ -7239,7 +7298,8 @@ proto_register_oran(void)
         { &ei_oran_radio_fragmentation_c_plane, { "oran_fh_cus.radio_fragmentation_c_plane", PI_MALFORMED, PI_ERROR, "Radio fragmentation not allowed in C-PLane", EXPFILL }},
         { &ei_oran_radio_fragmentation_u_plane, { "oran_fh_cus.radio_fragmentation_u_plane", PI_UNDECODED, PI_WARN, "Radio fragmentation in C-PLane not yet supported", EXPFILL }},
         { &ei_oran_lastRbdid_out_of_range, { "oran_fh_cus.lastrbdid_out_of_range", PI_MALFORMED, PI_WARN, "SE 6 has bad rbgSize", EXPFILL }},
-        { &ei_oran_rbgMask_beyond_last_rbdid, { "oran_fh_cus.rbgmask_beyond_lastrbdid", PI_MALFORMED, PI_WARN, "rbgMask has bits set beyond lastRbgId", EXPFILL }}
+        { &ei_oran_rbgMask_beyond_last_rbdid, { "oran_fh_cus.rbgmask_beyond_lastrbdid", PI_MALFORMED, PI_WARN, "rbgMask has bits set beyond lastRbgId", EXPFILL }},
+        { &ei_oran_unexpected_measTypeId, { "oran_fh_cus.unexpected_meastypeid", PI_MALFORMED, PI_WARN, "unexpected measTypeId", EXPFILL }},
     };
 
     /* Register the protocol name and description */
