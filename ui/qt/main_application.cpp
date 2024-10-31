@@ -794,6 +794,11 @@ MainApplication::MainApplication(int &argc,  char **argv) :
 
     // Application-wide style sheet
     QString app_style_sheet = qApp->styleSheet();
+    app_style_sheet += QStringLiteral(
+        "QMessageBox { "
+        "  messagebox-text-interaction-flags: %1;"
+        "}"
+        ).arg(Qt::TextSelectableByMouse);
     qApp->setStyleSheet(app_style_sheet);
 
     // If our window text is lighter than the window background, assume the theme is dark.
