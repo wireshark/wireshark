@@ -260,6 +260,7 @@ double asn1_get_real(const uint8_t *real_ptr, int len) {
     switch (octet & 0x3F) {
       case 0x00: val = HUGE_VAL; break;
       case 0x01: val = -HUGE_VAL; break;
+      case 0x02: val = NAN; break;
     }
   } else {  /* decimal encoding */
     buf = g_strndup(p, len);
