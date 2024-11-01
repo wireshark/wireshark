@@ -1562,6 +1562,7 @@ static int hf_gsm_map_lcs_verticalCoordinateRequest;  /* NULL */
 static int hf_gsm_map_lcs_vertical_accuracy;      /* Vertical_Accuracy */
 static int hf_gsm_map_lcs_responseTime;           /* ResponseTime */
 static int hf_gsm_map_lcs_velocityRequest;        /* NULL */
+static int hf_gsm_map_lcs_lcs_qos_class;          /* LCS_QoS_Class */
 static int hf_gsm_map_lcs_responseTimeCategory;   /* ResponseTimeCategory */
 static int hf_gsm_map_lcs_lcsCodewordString;      /* LCSCodewordString */
 static int hf_gsm_map_lcs_callSessionUnrelated;   /* PrivacyCheckRelatedAction */
@@ -1575,6 +1576,9 @@ static int hf_gsm_map_lcs_areaType;               /* AreaType */
 static int hf_gsm_map_lcs_areaIdentification;     /* AreaIdentification */
 static int hf_gsm_map_lcs_reportingAmount;        /* ReportingAmount */
 static int hf_gsm_map_lcs_reportingInterval;      /* ReportingInterval */
+static int hf_gsm_map_lcs_reportingOptionMilliseconds;  /* ReportingOptionMilliseconds */
+static int hf_gsm_map_lcs_reportingAmountMilliseconds;  /* ReportingAmountMilliseconds */
+static int hf_gsm_map_lcs_reportingIntervalMilliseconds;  /* ReportingIntervalMilliseconds */
 static int hf_gsm_map_lcs_plmn_ListPrioritized;   /* NULL */
 static int hf_gsm_map_lcs_plmn_List;              /* PLMNList */
 static int hf_gsm_map_lcs_PLMNList_item;          /* ReportingPLMN */
@@ -1842,7 +1846,10 @@ static int hf_gsm_ss_lcsRequestorID;              /* LCSRequestorID */
 static int hf_gsm_ss_lcsCodeword;                 /* LCSCodeword */
 static int hf_gsm_ss_lcsServiceTypeID;            /* LCSServiceTypeID */
 static int hf_gsm_ss_deferredLocationExt;         /* DeferredLocationExt */
+static int hf_gsm_ss_rangingSlExt;                /* RangingSlExt */
 static int hf_gsm_ss_verificationResponse;        /* VerificationResponse */
+static int hf_gsm_ss_locationPrivacyIndication;   /* LCS_LocationPrivacyIndication */
+static int hf_gsm_ss_validTimePeriod;             /* LCS_ValidTimePeriod */
 static int hf_gsm_ss_molr_Type;                   /* MOLR_Type */
 static int hf_gsm_ss_locationMethod;              /* LocationMethod */
 static int hf_gsm_ss_lcs_QoS;                     /* LCS_QoS */
@@ -1862,17 +1869,67 @@ static int hf_gsm_ss_terminationCause;            /* TerminationCause */
 static int hf_gsm_ss_mo_lrShortCircuit;           /* NULL */
 static int hf_gsm_ss_ganssAssistanceData;         /* GANSSAssistanceData */
 static int hf_gsm_ss_multiplePositioningProtocolPDUs;  /* MultiplePositioningProtocolPDUs */
-static int hf_gsm_ss_locationInfo;                /* Location_Info */
+static int hf_gsm_ss_locationInfo;                /* LocationInfo */
+static int hf_gsm_ss_scheduledLocTime;            /* DateTime */
 static int hf_gsm_ss_MultiplePositioningProtocolPDUs_item;  /* PositioningProtocolPDU */
 static int hf_gsm_ss_decipheringKeys;             /* DecipheringKeys */
 static int hf_gsm_ss_add_LocationEstimate;        /* Add_GeographicalInformation */
 static int hf_gsm_ss_reportingPLMNList;           /* ReportingPLMNList */
+static int hf_gsm_ss_timestampOfLocationEstimate;  /* DateTime */
 static int hf_gsm_ss_deferredLocationEventType;   /* DeferredLocationEventType */
 static int hf_gsm_ss_areaEventInfo;               /* AreaEventInfo */
+static int hf_gsm_ss_slmolr_Type;                 /* SLMOLR_Type */
+static int hf_gsm_ss_calculationAssistIndicator;  /* BOOLEAN */
+static int hf_gsm_ss_preferredRangingResult;      /* PreferredRangingResult */
+static int hf_gsm_ss_relatedUEInfo;               /* RelatedUEInfo */
+static int hf_gsm_ss_absoluteLocationIndicator;   /* BOOLEAN */
+static int hf_gsm_ss_absoluteVelocityIndicator;   /* BOOLEAN */
+static int hf_gsm_ss_relativeLocationIndicator;   /* BOOLEAN */
+static int hf_gsm_ss_rangeDirection;              /* BOOLEAN */
+static int hf_gsm_ss_relativeVelocityIndicator;   /* BOOLEAN */
+static int hf_gsm_ss_RelatedUEInfo_item;          /* RangingUEInfo */
+static int hf_gsm_ss_applicationLayerID;          /* OCTET_STRING */
+static int hf_gsm_ss_rangingRole;                 /* RangingRole */
+static int hf_gsm_ss_absoluteLocation;            /* Ext_GeographicalInformation */
+static int hf_gsm_ss_absoluteVelocity;            /* VelocityEstimate */
+static int hf_gsm_ss_relativeResult;              /* RelativeResult */
+static int hf_gsm_ss_ueOnlyRSLPosAllowed;         /* Duration */
+static int hf_gsm_ss_timestamp;                   /* DateTime */
+static int hf_gsm_ss_RelativeResult_item;         /* SingleRelativeResult */
+static int hf_gsm_ss_relativeLocation;            /* RelativeLocationCoordinates */
+static int hf_gsm_ss_rangeDirection_01;           /* RangeDirection */
+static int hf_gsm_ss_relativeVelocity;            /* VelocityEstimate */
+static int hf_gsm_ss_relative2D_LocationWithUncertaintyEllipse;  /* Relative2D_LocationWithUncertaintyEllipse */
+static int hf_gsm_ss_relative3D_LocationWithUncertaintyEllipsoid;  /* Relative3D_LocationWithUncertaintyEllipsoid */
+static int hf_gsm_ss_xCoordinates;                /* RangeXYCoordinates */
+static int hf_gsm_ss_yCoordinates;                /* RangeXYCoordinates */
+static int hf_gsm_ss_uncertaintySemiMajor;        /* Uncertainty */
+static int hf_gsm_ss_uncertaintySemiMinor;        /* Uncertainty */
+static int hf_gsm_ss_orientationMajorAxis;        /* OrientationMajorAxis */
+static int hf_gsm_ss_confidence;                  /* Confidence */
+static int hf_gsm_ss_zCoordinates;                /* RangeZCoordinates */
+static int hf_gsm_ss_uncertaintyAltitude;         /* Uncertainty */
+static int hf_gsm_ss_range;                       /* Range */
+static int hf_gsm_ss_azimuth;                     /* Azimuth */
+static int hf_gsm_ss_elevation;                   /* Elevation */
+static int hf_gsm_ss_rangeResult;                 /* RangeResult */
+static int hf_gsm_ss_uncertainty;                 /* Uncertainty */
+static int hf_gsm_ss_azimuthResult;               /* AzimuthResult */
+static int hf_gsm_ss_elevationResult;             /* ElevationResult */
 static int hf_gsm_ss_qoS;                         /* LCS_QoS */
 static int hf_gsm_ss_periodicLocation;            /* PeriodicLocation */
 static int hf_gsm_ss_areaEventReporting;          /* AreaEventReporting */
 static int hf_gsm_ss_motionEventReporting;        /* MotionEventReporting */
+static int hf_gsm_ss_referenceNumberExt;          /* LCS_ReferenceNumberExt */
+static int hf_gsm_ss_h_gmlc_callBackUri;          /* UTF8String */
+static int hf_gsm_ss_deferredRoutingIdentifier;   /* OCTET_STRING */
+static int hf_gsm_ss_reportingAccessTypes;        /* ReportingAccessTypes */
+static int hf_gsm_ss_controlPlane_CIoT_5GS_Optimisation;  /* ControlPlane_CIoT_5GS_Optimisation */
+static int hf_gsm_ss_eventReportAllowedArea;      /* AreaList */
+static int hf_gsm_ss_reportingInd;                /* ReportingInd */
+static int hf_gsm_ss_mappedQoS;                   /* LCS_QoS */
+static int hf_gsm_ss_userPlaneReportAFAddr;       /* LCS_UserPlaneReportAFAddr */
+static int hf_gsm_ss_cumulativeReportCriteria;    /* LCS_CumulativeReportCriteria */
 static int hf_gsm_ss_areaList;                    /* AreaList */
 static int hf_gsm_ss_occurrenceInfo;              /* OccurrenceInfo */
 static int hf_gsm_ss_intervalTime;                /* IntervalTime */
@@ -1882,10 +1939,54 @@ static int hf_gsm_ss_duration;                    /* Duration */
 static int hf_gsm_ss_AreaList_item;               /* Area */
 static int hf_gsm_ss_areaType;                    /* AreaType */
 static int hf_gsm_ss_areaIdentification;          /* AreaIdentification */
+static int hf_gsm_ss_areaIdentificationExt;       /* AreaIdentificationExt */
 static int hf_gsm_ss_linearDistance;              /* LinearDistance */
+static int hf_gsm_ss_eventType;                   /* EventType */
+static int hf_gsm_ss_userPlaneEventReportStat;    /* LCS_UserPlaneEventReportStat */
+static int hf_gsm_ss_maximumDuration;             /* MaximumDuration */
+static int hf_gsm_ss_maximumConsecutiveEventReports;  /* MaximumConsecutiveEventReports */
+static int hf_gsm_ss_af_Ipv4_Addrs;               /* Ipv4Addrs */
+static int hf_gsm_ss_af_Ipv6_Addrs;               /* Ipv6Addrs */
+static int hf_gsm_ss_af_Fqdn;                     /* FQDN */
+static int hf_gsm_ss_Ipv4Addrs_item;              /* Ipv4Addr */
+static int hf_gsm_ss_Ipv6Addrs_item;              /* Ipv6Addr */
+static int hf_gsm_ss_timerCriteria;               /* LCS_CumulativeReportTimerCriteria */
+static int hf_gsm_ss_counterCriteria;             /* LCS_CumulativeReportCounterCriteria */
+static int hf_gsm_ss_eventReportExpectedArea;     /* Ext_GeographicalInformation */
+static int hf_gsm_ss_areaUsageInd;                /* ReportingInd */
+static int hf_gsm_ss_startTime;                   /* DateTime */
+static int hf_gsm_ss_endTime;                     /* DateTime */
+static int hf_gsm_ss_associationType;             /* LCS_AssociationType */
+static int hf_gsm_ss_positioningCapabilities;     /* OCTET_STRING */
+static int hf_gsm_ss_locationOfPru;               /* Ext_GeographicalInformation */
+static int hf_gsm_ss_stateOfPru;                  /* LCS_StateOfPru */
+static int hf_gsm_ss_periodicUpdateTimer;         /* LCS_PeriodicUpdateTimer */
+static int hf_gsm_ss_updateTrigger;               /* LCS_PruUpdateTrigger */
+static int hf_gsm_ss_ackIndication;               /* BOOLEAN */
+static int hf_gsm_ss_newLmfRoutingId;             /* OCTET_STRING */
+static int hf_gsm_ss_slmtlr_Type;                 /* SLMTLR_Type */
+static int hf_gsm_ss_locatedUEselect;             /* LocatedUEselect */
+static int hf_gsm_ss_coordinateID;                /* CoordinateID */
+static int hf_gsm_ss_rangingSLPPList;             /* RangingSLPPList */
+static int hf_gsm_ss_RangingSLPPList_item;        /* RangingSLPPInfo */
+static int hf_gsm_ss_sLPPMsg;                     /* SlPosProtocolPDU */
+static int hf_gsm_ss_relatedUE;                   /* OCTET_STRING */
+static int hf_gsm_ss_ueBased;                     /* UEBased */
 /* named bits */
 static int hf_gsm_ss_DeferredLocationExt_motionEvent;
-static int hf_gsm_ss_Location_Info_locationEstimate;
+static int hf_gsm_ss_RangingSlExt_rangingIndication;
+static int hf_gsm_ss_LocationInfo_locationEstimate;
+static int hf_gsm_ss_ReportingAccessTypes_nR;
+static int hf_gsm_ss_ReportingAccessTypes_eUTRAConnectedTo5GC;
+static int hf_gsm_ss_ReportingAccessTypes_non3GPPConnectedTo5GC;
+static int hf_gsm_ss_ReportingAccessTypes_eUTRAConnectedToEPC;
+static int hf_gsm_ss_ReportingAccessTypes_nR_LEO;
+static int hf_gsm_ss_ReportingAccessTypes_nR_MEO;
+static int hf_gsm_ss_ReportingAccessTypes_nR_GEO;
+static int hf_gsm_ss_ReportingAccessTypes_nR_OTHER_SAT;
+static int hf_gsm_ss_LCS_PruUpdateTrigger_taiChange;
+static int hf_gsm_ss_LCS_PruUpdateTrigger_servingAmfChange;
+static int hf_gsm_ss_LCS_PruUpdateTrigger_pruStateChange;
 
 /* --- Module EricssonMAP --- --- ---                                         */
 
@@ -2563,6 +2664,7 @@ static int ett_gsm_map_lcs_AreaDefinition;
 static int ett_gsm_map_lcs_AreaList;
 static int ett_gsm_map_lcs_Area;
 static int ett_gsm_map_lcs_PeriodicLDRInfo;
+static int ett_gsm_map_lcs_ReportingOptionMilliseconds;
 static int ett_gsm_map_lcs_ReportingPLMNList;
 static int ett_gsm_map_lcs_PLMNList;
 static int ett_gsm_map_lcs_ReportingPLMN;
@@ -2690,11 +2792,26 @@ static int ett_gsm_ss_CallDeflectionArg;
 static int ett_gsm_ss_UserUserServiceArg;
 static int ett_gsm_ss_LocationNotificationArg;
 static int ett_gsm_ss_DeferredLocationExt;
+static int ett_gsm_ss_RangingSlExt;
 static int ett_gsm_ss_LocationNotificationRes;
 static int ett_gsm_ss_LCS_MOLRArg;
 static int ett_gsm_ss_MultiplePositioningProtocolPDUs;
 static int ett_gsm_ss_LCS_MOLRRes;
 static int ett_gsm_ss_LCS_AreaEventRequestArg;
+static int ett_gsm_ss_LCS_SLMOLRArg;
+static int ett_gsm_ss_PreferredRangingResult;
+static int ett_gsm_ss_RelatedUEInfo;
+static int ett_gsm_ss_RangingUEInfo;
+static int ett_gsm_ss_LCS_SLMOLRRes;
+static int ett_gsm_ss_RelativeResult;
+static int ett_gsm_ss_SingleRelativeResult;
+static int ett_gsm_ss_RelativeLocationCoordinates;
+static int ett_gsm_ss_Relative2D_LocationWithUncertaintyEllipse;
+static int ett_gsm_ss_Relative3D_LocationWithUncertaintyEllipsoid;
+static int ett_gsm_ss_RangeDirection;
+static int ett_gsm_ss_Range;
+static int ett_gsm_ss_Azimuth;
+static int ett_gsm_ss_Elevation;
 static int ett_gsm_ss_LCS_AreaEventReportArg;
 static int ett_gsm_ss_LCS_AreaEventCancellationArg;
 static int ett_gsm_ss_LCS_PeriodicLocationRequestArg;
@@ -2707,9 +2824,32 @@ static int ett_gsm_ss_PeriodicLocation;
 static int ett_gsm_ss_AreaEventReporting;
 static int ett_gsm_ss_AreaList;
 static int ett_gsm_ss_Area;
-static int ett_gsm_ss_Location_Info;
+static int ett_gsm_ss_LocationInfo;
 static int ett_gsm_ss_MotionEventReporting;
+static int ett_gsm_ss_ReportingAccessTypes;
 static int ett_gsm_ss_LCS_PeriodicTriggeredInvokeRes;
+static int ett_gsm_ss_LCS_EventReportArg;
+static int ett_gsm_ss_ControlPlane_CIoT_5GS_Optimisation;
+static int ett_gsm_ss_LCS_UserPlaneReportAFAddr;
+static int ett_gsm_ss_Ipv4Addrs;
+static int ett_gsm_ss_Ipv6Addrs;
+static int ett_gsm_ss_LCS_CumulativeReportCriteria;
+static int ett_gsm_ss_LCS_EventReportRes;
+static int ett_gsm_ss_LCS_CancelDeferredLocationArg;
+static int ett_gsm_ss_LCS_LocationPrivacySettingArg;
+static int ett_gsm_ss_LCS_ValidTimePeriod;
+static int ett_gsm_ss_LCS_PruAssociationArg;
+static int ett_gsm_ss_LCS_PruAssociationRes;
+static int ett_gsm_ss_LCS_PruUpdateTrigger;
+static int ett_gsm_ss_LCS_PruDisassociationArg;
+static int ett_gsm_ss_LCS_SLMTLRArg;
+static int ett_gsm_ss_LCS_SLMTLRRes;
+static int ett_gsm_ss_RangingSLPPList;
+static int ett_gsm_ss_RangingSLPPInfo;
+static int ett_gsm_ss_LCS_DLRSPPTransportArg;
+static int ett_gsm_ss_LCS_DLRSPPTransportRes;
+static int ett_gsm_ss_LCS_ULRSPPTransportArg;
+static int ett_gsm_ss_LCS_ULRSPPTransportRes;
 
 /* --- Module SS-Operations --- --- ---                                       */
 
@@ -16209,6 +16349,22 @@ dissect_gsm_map_lcs_ResponseTime(bool implicit_tag _U_, tvbuff_t *tvb _U_, int o
 }
 
 
+static const value_string gsm_map_lcs_LCS_QoS_Class_vals[] = {
+  {   0, "bestEffort" },
+  {   1, "assured" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_gsm_map_lcs_LCS_QoS_Class(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                  NULL);
+
+  return offset;
+}
+
+
 static const ber_sequence_t gsm_map_lcs_LCS_QoS_sequence[] = {
   { &hf_gsm_map_lcs_horizontal_accuracy, BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_lcs_Horizontal_Accuracy },
   { &hf_gsm_map_lcs_verticalCoordinateRequest, BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_lcs_NULL },
@@ -16216,6 +16372,7 @@ static const ber_sequence_t gsm_map_lcs_LCS_QoS_sequence[] = {
   { &hf_gsm_map_lcs_responseTime, BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_lcs_ResponseTime },
   { &hf_gsm_map_lcs_extensionContainer, BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_ExtensionContainer },
   { &hf_gsm_map_lcs_velocityRequest, BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_lcs_NULL },
+  { &hf_gsm_map_lcs_lcs_qos_class, BER_CLASS_CON, 6, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_lcs_LCS_QoS_Class },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -16451,9 +16608,45 @@ dissect_gsm_map_lcs_ReportingInterval(bool implicit_tag _U_, tvbuff_t *tvb _U_, 
 }
 
 
+
+static int
+dissect_gsm_map_lcs_ReportingAmountMilliseconds(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                                NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_gsm_map_lcs_ReportingIntervalMilliseconds(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                                NULL);
+
+  return offset;
+}
+
+
+static const ber_sequence_t gsm_map_lcs_ReportingOptionMilliseconds_sequence[] = {
+  { &hf_gsm_map_lcs_reportingAmountMilliseconds, BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_gsm_map_lcs_ReportingAmountMilliseconds },
+  { &hf_gsm_map_lcs_reportingIntervalMilliseconds, BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_gsm_map_lcs_ReportingIntervalMilliseconds },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_gsm_map_lcs_ReportingOptionMilliseconds(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   gsm_map_lcs_ReportingOptionMilliseconds_sequence, hf_index, ett_gsm_map_lcs_ReportingOptionMilliseconds);
+
+  return offset;
+}
+
+
 static const ber_sequence_t gsm_map_lcs_PeriodicLDRInfo_sequence[] = {
   { &hf_gsm_map_lcs_reportingAmount, BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_gsm_map_lcs_ReportingAmount },
   { &hf_gsm_map_lcs_reportingInterval, BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_gsm_map_lcs_ReportingInterval },
+  { &hf_gsm_map_lcs_reportingOptionMilliseconds, BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_lcs_ReportingOptionMilliseconds },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -19512,6 +19705,21 @@ dissect_gsm_ss_DeferredLocationExt(bool implicit_tag _U_, tvbuff_t *tvb _U_, int
 }
 
 
+static int * const gsm_ss_RangingSlExt_bits[] = {
+  &hf_gsm_ss_RangingSlExt_rangingIndication,
+  NULL
+};
+
+static int
+dissect_gsm_ss_RangingSlExt(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
+                                    gsm_ss_RangingSlExt_bits, 1, hf_index, ett_gsm_ss_RangingSlExt,
+                                    NULL);
+
+  return offset;
+}
+
+
 static const ber_sequence_t gsm_ss_LocationNotificationArg_sequence[] = {
   { &hf_gsm_ss_notificationType, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_gsm_map_ms_NotificationToMSUser },
   { &hf_gsm_ss_locationType , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_gsm_map_lcs_LocationType },
@@ -19521,6 +19729,7 @@ static const ber_sequence_t gsm_ss_LocationNotificationArg_sequence[] = {
   { &hf_gsm_ss_lcsCodeword  , BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_lcs_LCSCodeword },
   { &hf_gsm_ss_lcsServiceTypeID, BER_CLASS_CON, 6, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_LCSServiceTypeID },
   { &hf_gsm_ss_deferredLocationExt, BER_CLASS_CON, 7, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_ss_DeferredLocationExt },
+  { &hf_gsm_ss_rangingSlExt , BER_CLASS_CON, 8, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_ss_RangingSlExt },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -19549,8 +19758,53 @@ dissect_gsm_ss_VerificationResponse(bool implicit_tag _U_, tvbuff_t *tvb _U_, in
 }
 
 
+static const value_string gsm_ss_LCS_LocationPrivacyIndication_vals[] = {
+  {   0, "locationDisallowed" },
+  {   1, "locationAllowed" },
+  {   2, "rangingDisallowed" },
+  {   3, "rangingAllowed" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_gsm_ss_LCS_LocationPrivacyIndication(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                  NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_gsm_ss_DateTime(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                       NULL);
+
+  return offset;
+}
+
+
+static const ber_sequence_t gsm_ss_LCS_ValidTimePeriod_sequence[] = {
+  { &hf_gsm_ss_startTime    , BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_ss_DateTime },
+  { &hf_gsm_ss_endTime      , BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_ss_DateTime },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_gsm_ss_LCS_ValidTimePeriod(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   gsm_ss_LCS_ValidTimePeriod_sequence, hf_index, ett_gsm_ss_LCS_ValidTimePeriod);
+
+  return offset;
+}
+
+
 static const ber_sequence_t gsm_ss_LocationNotificationRes_sequence[] = {
   { &hf_gsm_ss_verificationResponse, BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_ss_VerificationResponse },
+  { &hf_gsm_ss_locationPrivacyIndication, BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_ss_LCS_LocationPrivacyIndication },
+  { &hf_gsm_ss_validTimePeriod, BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_ss_LCS_ValidTimePeriod },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -19623,6 +19877,8 @@ dissect_gsm_ss_GPSAssistanceData(bool implicit_tag _U_, tvbuff_t *tvb _U_, int o
 static const value_string gsm_ss_TerminationCause_vals[] = {
   {   0, "subscriberTermination" },
   {   1, "uETermination" },
+  {   2, "normalTermination" },
+  {   3, "networkTermination" },
   { 0, NULL }
 };
 
@@ -19669,15 +19925,15 @@ dissect_gsm_ss_MultiplePositioningProtocolPDUs(bool implicit_tag _U_, tvbuff_t *
 }
 
 
-static int * const gsm_ss_Location_Info_bits[] = {
-  &hf_gsm_ss_Location_Info_locationEstimate,
+static int * const gsm_ss_LocationInfo_bits[] = {
+  &hf_gsm_ss_LocationInfo_locationEstimate,
   NULL
 };
 
 static int
-dissect_gsm_ss_Location_Info(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_gsm_ss_LocationInfo(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                    gsm_ss_Location_Info_bits, 1, hf_index, ett_gsm_ss_Location_Info,
+                                    gsm_ss_LocationInfo_bits, 1, hf_index, ett_gsm_ss_LocationInfo,
                                     NULL);
 
   return offset;
@@ -19707,7 +19963,8 @@ static const ber_sequence_t gsm_ss_LCS_MOLRArg_sequence[] = {
   { &hf_gsm_ss_mo_lrShortCircuit, BER_CLASS_CON, 19, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_ss_NULL },
   { &hf_gsm_ss_ganssAssistanceData, BER_CLASS_CON, 20, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_ss_GANSSAssistanceData },
   { &hf_gsm_ss_multiplePositioningProtocolPDUs, BER_CLASS_CON, 21, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_ss_MultiplePositioningProtocolPDUs },
-  { &hf_gsm_ss_locationInfo , BER_CLASS_CON, 22, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_ss_Location_Info },
+  { &hf_gsm_ss_locationInfo , BER_CLASS_CON, 22, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_ss_LocationInfo },
+  { &hf_gsm_ss_scheduledLocTime, BER_CLASS_CON, 23, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_ss_DateTime },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -19739,6 +19996,7 @@ static const ber_sequence_t gsm_ss_LCS_MOLRRes_sequence[] = {
   { &hf_gsm_ss_h_gmlc_address, BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_GSN_Address },
   { &hf_gsm_ss_mo_lrShortCircuit, BER_CLASS_CON, 6, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_ss_NULL },
   { &hf_gsm_ss_reportingPLMNList, BER_CLASS_CON, 7, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_lcs_ReportingPLMNList },
+  { &hf_gsm_ss_timestampOfLocationEstimate, BER_CLASS_CON, 8, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_ss_DateTime },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -19763,6 +20021,377 @@ static int
 dissect_gsm_ss_LCS_AreaEventRequestArg(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    gsm_ss_LCS_AreaEventRequestArg_sequence, hf_index, ett_gsm_ss_LCS_AreaEventRequestArg);
+
+  return offset;
+}
+
+
+static const value_string gsm_ss_SLMOLR_Type_vals[] = {
+  {   0, "rangingSidelink" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_gsm_ss_SLMOLR_Type(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                  NULL);
+
+  return offset;
+}
+
+
+static const ber_sequence_t gsm_ss_PreferredRangingResult_sequence[] = {
+  { &hf_gsm_ss_absoluteLocationIndicator, BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_ss_BOOLEAN },
+  { &hf_gsm_ss_absoluteVelocityIndicator, BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_ss_BOOLEAN },
+  { &hf_gsm_ss_relativeLocationIndicator, BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_ss_BOOLEAN },
+  { &hf_gsm_ss_rangeDirection, BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_ss_BOOLEAN },
+  { &hf_gsm_ss_relativeVelocityIndicator, BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_ss_BOOLEAN },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_gsm_ss_PreferredRangingResult(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   gsm_ss_PreferredRangingResult_sequence, hf_index, ett_gsm_ss_PreferredRangingResult);
+
+  return offset;
+}
+
+
+
+static int
+dissect_gsm_ss_OCTET_STRING(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                       NULL);
+
+  return offset;
+}
+
+
+static const value_string gsm_ss_RangingRole_vals[] = {
+  {   0, "targetUE" },
+  {   1, "locatedUE" },
+  {   2, "slReferenceUE" },
+  {   3, "slServerUE" },
+  {   4, "slClientUE" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_gsm_ss_RangingRole(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                  NULL);
+
+  return offset;
+}
+
+
+static const ber_sequence_t gsm_ss_RangingUEInfo_sequence[] = {
+  { &hf_gsm_ss_applicationLayerID, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_gsm_ss_OCTET_STRING },
+  { &hf_gsm_ss_rangingRole  , BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_ss_RangingRole },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_gsm_ss_RangingUEInfo(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   gsm_ss_RangingUEInfo_sequence, hf_index, ett_gsm_ss_RangingUEInfo);
+
+  return offset;
+}
+
+
+static const ber_sequence_t gsm_ss_RelatedUEInfo_sequence_of[1] = {
+  { &hf_gsm_ss_RelatedUEInfo_item, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_gsm_ss_RangingUEInfo },
+};
+
+static int
+dissect_gsm_ss_RelatedUEInfo(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                      gsm_ss_RelatedUEInfo_sequence_of, hf_index, ett_gsm_ss_RelatedUEInfo);
+
+  return offset;
+}
+
+
+static const ber_sequence_t gsm_ss_LCS_SLMOLRArg_sequence[] = {
+  { &hf_gsm_ss_slmolr_Type  , BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_gsm_ss_SLMOLR_Type },
+  { &hf_gsm_ss_lcs_QoS      , BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_lcs_LCS_QoS },
+  { &hf_gsm_ss_lcsClientExternalID, BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_LCSClientExternalID },
+  { &hf_gsm_ss_mlc_Number   , BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_ISDN_AddressString },
+  { &hf_gsm_ss_supportedGADShapes, BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_lcs_SupportedGADShapes },
+  { &hf_gsm_ss_lcsServiceTypeID, BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_LCSServiceTypeID },
+  { &hf_gsm_ss_pseudonymIndicator, BER_CLASS_CON, 7, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_ss_NULL },
+  { &hf_gsm_ss_h_gmlc_address, BER_CLASS_CON, 8, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_GSN_Address },
+  { &hf_gsm_ss_calculationAssistIndicator, BER_CLASS_CON, 9, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_ss_BOOLEAN },
+  { &hf_gsm_ss_preferredRangingResult, BER_CLASS_CON, 10, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_ss_PreferredRangingResult },
+  { &hf_gsm_ss_relatedUEInfo, BER_CLASS_CON, 11, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_ss_RelatedUEInfo },
+  { NULL, 0, 0, 0, NULL }
+};
+
+int
+dissect_gsm_ss_LCS_SLMOLRArg(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   gsm_ss_LCS_SLMOLRArg_sequence, hf_index, ett_gsm_ss_LCS_SLMOLRArg);
+
+  return offset;
+}
+
+
+
+static int
+dissect_gsm_ss_RangeXYCoordinates(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                                NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_gsm_ss_Uncertainty(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                                NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_gsm_ss_OrientationMajorAxis(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                                NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_gsm_ss_Confidence(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                                NULL);
+
+  return offset;
+}
+
+
+static const ber_sequence_t gsm_ss_Relative2D_LocationWithUncertaintyEllipse_sequence[] = {
+  { &hf_gsm_ss_xCoordinates , BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_gsm_ss_RangeXYCoordinates },
+  { &hf_gsm_ss_yCoordinates , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_gsm_ss_RangeXYCoordinates },
+  { &hf_gsm_ss_uncertaintySemiMajor, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_gsm_ss_Uncertainty },
+  { &hf_gsm_ss_uncertaintySemiMinor, BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_gsm_ss_Uncertainty },
+  { &hf_gsm_ss_orientationMajorAxis, BER_CLASS_CON, 4, BER_FLAGS_IMPLTAG, dissect_gsm_ss_OrientationMajorAxis },
+  { &hf_gsm_ss_confidence   , BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_ss_Confidence },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_gsm_ss_Relative2D_LocationWithUncertaintyEllipse(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   gsm_ss_Relative2D_LocationWithUncertaintyEllipse_sequence, hf_index, ett_gsm_ss_Relative2D_LocationWithUncertaintyEllipse);
+
+  return offset;
+}
+
+
+
+static int
+dissect_gsm_ss_RangeZCoordinates(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                                NULL);
+
+  return offset;
+}
+
+
+static const ber_sequence_t gsm_ss_Relative3D_LocationWithUncertaintyEllipsoid_sequence[] = {
+  { &hf_gsm_ss_xCoordinates , BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_gsm_ss_RangeXYCoordinates },
+  { &hf_gsm_ss_yCoordinates , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_gsm_ss_RangeXYCoordinates },
+  { &hf_gsm_ss_zCoordinates , BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_gsm_ss_RangeZCoordinates },
+  { &hf_gsm_ss_uncertaintySemiMajor, BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_gsm_ss_Uncertainty },
+  { &hf_gsm_ss_uncertaintySemiMinor, BER_CLASS_CON, 4, BER_FLAGS_IMPLTAG, dissect_gsm_ss_Uncertainty },
+  { &hf_gsm_ss_orientationMajorAxis, BER_CLASS_CON, 5, BER_FLAGS_IMPLTAG, dissect_gsm_ss_OrientationMajorAxis },
+  { &hf_gsm_ss_uncertaintyAltitude, BER_CLASS_CON, 6, BER_FLAGS_IMPLTAG, dissect_gsm_ss_Uncertainty },
+  { &hf_gsm_ss_confidence   , BER_CLASS_CON, 7, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_ss_Confidence },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_gsm_ss_Relative3D_LocationWithUncertaintyEllipsoid(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   gsm_ss_Relative3D_LocationWithUncertaintyEllipsoid_sequence, hf_index, ett_gsm_ss_Relative3D_LocationWithUncertaintyEllipsoid);
+
+  return offset;
+}
+
+
+static const ber_sequence_t gsm_ss_RelativeLocationCoordinates_sequence[] = {
+  { &hf_gsm_ss_relative2D_LocationWithUncertaintyEllipse, BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_ss_Relative2D_LocationWithUncertaintyEllipse },
+  { &hf_gsm_ss_relative3D_LocationWithUncertaintyEllipsoid, BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_ss_Relative3D_LocationWithUncertaintyEllipsoid },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_gsm_ss_RelativeLocationCoordinates(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   gsm_ss_RelativeLocationCoordinates_sequence, hf_index, ett_gsm_ss_RelativeLocationCoordinates);
+
+  return offset;
+}
+
+
+
+static int
+dissect_gsm_ss_RangeResult(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                                NULL);
+
+  return offset;
+}
+
+
+static const ber_sequence_t gsm_ss_Range_sequence[] = {
+  { &hf_gsm_ss_rangeResult  , BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_gsm_ss_RangeResult },
+  { &hf_gsm_ss_uncertainty  , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_gsm_ss_Uncertainty },
+  { &hf_gsm_ss_confidence   , BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_ss_Confidence },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_gsm_ss_Range(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   gsm_ss_Range_sequence, hf_index, ett_gsm_ss_Range);
+
+  return offset;
+}
+
+
+
+static int
+dissect_gsm_ss_AzimuthResult(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                                NULL);
+
+  return offset;
+}
+
+
+static const ber_sequence_t gsm_ss_Azimuth_sequence[] = {
+  { &hf_gsm_ss_azimuthResult, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_gsm_ss_AzimuthResult },
+  { &hf_gsm_ss_uncertainty  , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_gsm_ss_Uncertainty },
+  { &hf_gsm_ss_confidence   , BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_ss_Confidence },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_gsm_ss_Azimuth(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   gsm_ss_Azimuth_sequence, hf_index, ett_gsm_ss_Azimuth);
+
+  return offset;
+}
+
+
+
+static int
+dissect_gsm_ss_ElevationResult(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                                NULL);
+
+  return offset;
+}
+
+
+static const ber_sequence_t gsm_ss_Elevation_sequence[] = {
+  { &hf_gsm_ss_elevationResult, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_gsm_ss_ElevationResult },
+  { &hf_gsm_ss_uncertainty  , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_gsm_ss_Uncertainty },
+  { &hf_gsm_ss_confidence   , BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_ss_Confidence },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_gsm_ss_Elevation(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   gsm_ss_Elevation_sequence, hf_index, ett_gsm_ss_Elevation);
+
+  return offset;
+}
+
+
+static const ber_sequence_t gsm_ss_RangeDirection_sequence[] = {
+  { &hf_gsm_ss_range        , BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_ss_Range },
+  { &hf_gsm_ss_azimuth      , BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_ss_Azimuth },
+  { &hf_gsm_ss_elevation    , BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_ss_Elevation },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_gsm_ss_RangeDirection(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   gsm_ss_RangeDirection_sequence, hf_index, ett_gsm_ss_RangeDirection);
+
+  return offset;
+}
+
+
+static const ber_sequence_t gsm_ss_SingleRelativeResult_sequence[] = {
+  { &hf_gsm_ss_relatedUEInfo, BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_ss_RelatedUEInfo },
+  { &hf_gsm_ss_relativeLocation, BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_ss_RelativeLocationCoordinates },
+  { &hf_gsm_ss_rangeDirection_01, BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_ss_RangeDirection },
+  { &hf_gsm_ss_relativeVelocity, BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_lcs_VelocityEstimate },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_gsm_ss_SingleRelativeResult(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   gsm_ss_SingleRelativeResult_sequence, hf_index, ett_gsm_ss_SingleRelativeResult);
+
+  return offset;
+}
+
+
+static const ber_sequence_t gsm_ss_RelativeResult_sequence_of[1] = {
+  { &hf_gsm_ss_RelativeResult_item, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_gsm_ss_SingleRelativeResult },
+};
+
+static int
+dissect_gsm_ss_RelativeResult(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                      gsm_ss_RelativeResult_sequence_of, hf_index, ett_gsm_ss_RelativeResult);
+
+  return offset;
+}
+
+
+
+static int
+dissect_gsm_ss_Duration(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                                NULL);
+
+  return offset;
+}
+
+
+static const ber_sequence_t gsm_ss_LCS_SLMOLRRes_sequence[] = {
+  { &hf_gsm_ss_absoluteLocation, BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_lcs_Ext_GeographicalInformation },
+  { &hf_gsm_ss_absoluteVelocity, BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_lcs_VelocityEstimate },
+  { &hf_gsm_ss_relativeResult, BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_ss_RelativeResult },
+  { &hf_gsm_ss_ueOnlyRSLPosAllowed, BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_ss_Duration },
+  { &hf_gsm_ss_timestamp    , BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_ss_DateTime },
+  { NULL, 0, 0, 0, NULL }
+};
+
+int
+dissect_gsm_ss_LCS_SLMOLRRes(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   gsm_ss_LCS_SLMOLRRes_sequence, hf_index, ett_gsm_ss_LCS_SLMOLRRes);
 
   return offset;
 }
@@ -19895,6 +20524,8 @@ dissect_gsm_ss_PeriodicLocation(bool implicit_tag _U_, tvbuff_t *tvb _U_, int of
 static const value_string gsm_ss_AreaType_vals[] = {
   {   0, "trackingArea" },
   {   1, "ecgi" },
+  {   2, "trackingArea5GS" },
+  {   3, "ncgi" },
   { 0, NULL }
 };
 
@@ -19918,9 +20549,20 @@ dissect_gsm_ss_AreaIdentification(bool implicit_tag _U_, tvbuff_t *tvb _U_, int 
 }
 
 
+
+static int
+dissect_gsm_ss_AreaIdentificationExt(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                       NULL);
+
+  return offset;
+}
+
+
 static const ber_sequence_t gsm_ss_Area_sequence[] = {
   { &hf_gsm_ss_areaType     , BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_gsm_ss_AreaType },
   { &hf_gsm_ss_areaIdentification, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_gsm_ss_AreaIdentification },
+  { &hf_gsm_ss_areaIdentificationExt, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_gsm_ss_AreaIdentificationExt },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -19946,6 +20588,22 @@ dissect_gsm_ss_AreaList(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_
 }
 
 
+static const value_string gsm_ss_OccurrenceInfo_vals[] = {
+  {   0, "oneTimeEvent" },
+  {   1, "multipleTimeEvent" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_gsm_ss_OccurrenceInfo(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                  NULL);
+
+  return offset;
+}
+
+
 
 static int
 dissect_gsm_ss_MaximumInterval(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
@@ -19966,25 +20624,15 @@ dissect_gsm_ss_SamplingInterval(bool implicit_tag _U_, tvbuff_t *tvb _U_, int of
 }
 
 
-
-static int
-dissect_gsm_ss_Duration(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                                NULL);
-
-  return offset;
-}
-
-
 static const ber_sequence_t gsm_ss_AreaEventReporting_sequence[] = {
   { &hf_gsm_ss_deferredLocationEventType, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_gsm_map_lcs_DeferredLocationEventType },
   { &hf_gsm_ss_areaList     , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_gsm_ss_AreaList },
-  { &hf_gsm_ss_occurrenceInfo, BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_lcs_OccurrenceInfo },
+  { &hf_gsm_ss_occurrenceInfo, BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_ss_OccurrenceInfo },
   { &hf_gsm_ss_intervalTime , BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_lcs_IntervalTime },
   { &hf_gsm_ss_maximumInterval, BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_ss_MaximumInterval },
   { &hf_gsm_ss_samplingInterval, BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_ss_SamplingInterval },
   { &hf_gsm_ss_duration     , BER_CLASS_CON, 6, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_ss_Duration },
-  { &hf_gsm_ss_locationInfo , BER_CLASS_CON, 7, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_ss_Location_Info },
+  { &hf_gsm_ss_locationInfo , BER_CLASS_CON, 7, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_ss_LocationInfo },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -20009,12 +20657,12 @@ dissect_gsm_ss_LinearDistance(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 
 static const ber_sequence_t gsm_ss_MotionEventReporting_sequence[] = {
   { &hf_gsm_ss_linearDistance, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_gsm_ss_LinearDistance },
-  { &hf_gsm_ss_occurrenceInfo, BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_lcs_OccurrenceInfo },
+  { &hf_gsm_ss_occurrenceInfo, BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_ss_OccurrenceInfo },
   { &hf_gsm_ss_intervalTime , BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_lcs_IntervalTime },
   { &hf_gsm_ss_maximumInterval, BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_ss_MaximumInterval },
   { &hf_gsm_ss_samplingInterval, BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_ss_SamplingInterval },
   { &hf_gsm_ss_duration     , BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_ss_Duration },
-  { &hf_gsm_ss_locationInfo , BER_CLASS_CON, 6, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_ss_Location_Info },
+  { &hf_gsm_ss_locationInfo , BER_CLASS_CON, 6, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_ss_LocationInfo },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -20022,6 +20670,207 @@ static int
 dissect_gsm_ss_MotionEventReporting(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    gsm_ss_MotionEventReporting_sequence, hf_index, ett_gsm_ss_MotionEventReporting);
+
+  return offset;
+}
+
+
+
+static int
+dissect_gsm_ss_LCS_ReferenceNumberExt(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                       NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_gsm_ss_UTF8String(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_UTF8String,
+                                            actx, tree, tvb, offset, hf_index,
+                                            NULL);
+
+  return offset;
+}
+
+
+static int * const gsm_ss_ReportingAccessTypes_bits[] = {
+  &hf_gsm_ss_ReportingAccessTypes_nR,
+  &hf_gsm_ss_ReportingAccessTypes_eUTRAConnectedTo5GC,
+  &hf_gsm_ss_ReportingAccessTypes_non3GPPConnectedTo5GC,
+  &hf_gsm_ss_ReportingAccessTypes_eUTRAConnectedToEPC,
+  &hf_gsm_ss_ReportingAccessTypes_nR_LEO,
+  &hf_gsm_ss_ReportingAccessTypes_nR_MEO,
+  &hf_gsm_ss_ReportingAccessTypes_nR_GEO,
+  &hf_gsm_ss_ReportingAccessTypes_nR_OTHER_SAT,
+  NULL
+};
+
+static int
+dissect_gsm_ss_ReportingAccessTypes(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
+                                    gsm_ss_ReportingAccessTypes_bits, 8, hf_index, ett_gsm_ss_ReportingAccessTypes,
+                                    NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_gsm_ss_MaximumDuration(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                                NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_gsm_ss_MaximumConsecutiveEventReports(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                                NULL);
+
+  return offset;
+}
+
+
+static const ber_sequence_t gsm_ss_ControlPlane_CIoT_5GS_Optimisation_sequence[] = {
+  { &hf_gsm_ss_maximumDuration, BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_ss_MaximumDuration },
+  { &hf_gsm_ss_maximumConsecutiveEventReports, BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_ss_MaximumConsecutiveEventReports },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_gsm_ss_ControlPlane_CIoT_5GS_Optimisation(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   gsm_ss_ControlPlane_CIoT_5GS_Optimisation_sequence, hf_index, ett_gsm_ss_ControlPlane_CIoT_5GS_Optimisation);
+
+  return offset;
+}
+
+
+static const value_string gsm_ss_ReportingInd_vals[] = {
+  {   0, "insideReporting" },
+  {   1, "outsideReporting" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_gsm_ss_ReportingInd(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                  NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_gsm_ss_Ipv4Addr(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                       NULL);
+
+  return offset;
+}
+
+
+static const ber_sequence_t gsm_ss_Ipv4Addrs_sequence_of[1] = {
+  { &hf_gsm_ss_Ipv4Addrs_item, BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_gsm_ss_Ipv4Addr },
+};
+
+static int
+dissect_gsm_ss_Ipv4Addrs(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                      gsm_ss_Ipv4Addrs_sequence_of, hf_index, ett_gsm_ss_Ipv4Addrs);
+
+  return offset;
+}
+
+
+
+static int
+dissect_gsm_ss_Ipv6Addr(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                       NULL);
+
+  return offset;
+}
+
+
+static const ber_sequence_t gsm_ss_Ipv6Addrs_sequence_of[1] = {
+  { &hf_gsm_ss_Ipv6Addrs_item, BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_gsm_ss_Ipv6Addr },
+};
+
+static int
+dissect_gsm_ss_Ipv6Addrs(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                      gsm_ss_Ipv6Addrs_sequence_of, hf_index, ett_gsm_ss_Ipv6Addrs);
+
+  return offset;
+}
+
+
+
+static int
+dissect_gsm_ss_FQDN(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                       NULL);
+
+  return offset;
+}
+
+
+static const ber_sequence_t gsm_ss_LCS_UserPlaneReportAFAddr_sequence[] = {
+  { &hf_gsm_ss_af_Ipv4_Addrs, BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_ss_Ipv4Addrs },
+  { &hf_gsm_ss_af_Ipv6_Addrs, BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_ss_Ipv6Addrs },
+  { &hf_gsm_ss_af_Fqdn      , BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_ss_FQDN },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_gsm_ss_LCS_UserPlaneReportAFAddr(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   gsm_ss_LCS_UserPlaneReportAFAddr_sequence, hf_index, ett_gsm_ss_LCS_UserPlaneReportAFAddr);
+
+  return offset;
+}
+
+
+
+static int
+dissect_gsm_ss_LCS_CumulativeReportTimerCriteria(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                                NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_gsm_ss_LCS_CumulativeReportCounterCriteria(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                                NULL);
+
+  return offset;
+}
+
+
+static const ber_sequence_t gsm_ss_LCS_CumulativeReportCriteria_sequence[] = {
+  { &hf_gsm_ss_timerCriteria, BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_ss_LCS_CumulativeReportTimerCriteria },
+  { &hf_gsm_ss_counterCriteria, BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_ss_LCS_CumulativeReportCounterCriteria },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_gsm_ss_LCS_CumulativeReportCriteria(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   gsm_ss_LCS_CumulativeReportCriteria_sequence, hf_index, ett_gsm_ss_LCS_CumulativeReportCriteria);
 
   return offset;
 }
@@ -20035,6 +20884,19 @@ static const ber_sequence_t gsm_ss_LCS_PeriodicTriggeredInvokeArg_sequence[] = {
   { &hf_gsm_ss_periodicLocation, BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_ss_PeriodicLocation },
   { &hf_gsm_ss_areaEventReporting, BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_ss_AreaEventReporting },
   { &hf_gsm_ss_motionEventReporting, BER_CLASS_CON, 6, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_ss_MotionEventReporting },
+  { &hf_gsm_ss_referenceNumberExt, BER_CLASS_CON, 7, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_ss_LCS_ReferenceNumberExt },
+  { &hf_gsm_ss_h_gmlc_callBackUri, BER_CLASS_CON, 8, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_ss_UTF8String },
+  { &hf_gsm_ss_supportedGADShapes, BER_CLASS_CON, 9, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_lcs_SupportedGADShapes },
+  { &hf_gsm_ss_deferredRoutingIdentifier, BER_CLASS_CON, 10, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_ss_OCTET_STRING },
+  { &hf_gsm_ss_reportingAccessTypes, BER_CLASS_CON, 11, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_ss_ReportingAccessTypes },
+  { &hf_gsm_ss_multiplePositioningProtocolPDUs, BER_CLASS_CON, 12, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_ss_MultiplePositioningProtocolPDUs },
+  { &hf_gsm_ss_controlPlane_CIoT_5GS_Optimisation, BER_CLASS_CON, 13, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_ss_ControlPlane_CIoT_5GS_Optimisation },
+  { &hf_gsm_ss_scheduledLocTime, BER_CLASS_CON, 14, BER_FLAGS_IMPLTAG, dissect_gsm_ss_DateTime },
+  { &hf_gsm_ss_eventReportAllowedArea, BER_CLASS_CON, 15, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_ss_AreaList },
+  { &hf_gsm_ss_reportingInd , BER_CLASS_CON, 16, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_ss_ReportingInd },
+  { &hf_gsm_ss_mappedQoS    , BER_CLASS_CON, 17, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_lcs_LCS_QoS },
+  { &hf_gsm_ss_userPlaneReportAFAddr, BER_CLASS_CON, 18, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_ss_LCS_UserPlaneReportAFAddr },
+  { &hf_gsm_ss_cumulativeReportCriteria, BER_CLASS_CON, 19, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_ss_LCS_CumulativeReportCriteria },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -20055,6 +20917,398 @@ static int
 dissect_gsm_ss_LCS_PeriodicTriggeredInvokeRes(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    gsm_ss_LCS_PeriodicTriggeredInvokeRes_sequence, hf_index, ett_gsm_ss_LCS_PeriodicTriggeredInvokeRes);
+
+  return offset;
+}
+
+
+static const value_string gsm_ss_EventType_vals[] = {
+  {   0, "periodicEvent" },
+  {   1, "enteringAreaEvent" },
+  {   2, "leavingAreaEvent" },
+  {   3, "beingInsideAreaEvent" },
+  {   4, "motionEvent" },
+  {   5, "maximumIntervalExpirationEvent" },
+  {   6, "locationCancellationEvent" },
+  {   7, "cumulativeEventReport" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_gsm_ss_EventType(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                  NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_gsm_ss_LCS_UserPlaneEventReportStat(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                                NULL);
+
+  return offset;
+}
+
+
+static const ber_sequence_t gsm_ss_LCS_EventReportArg_sequence[] = {
+  { &hf_gsm_ss_eventType    , BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_gsm_ss_EventType },
+  { &hf_gsm_ss_referenceNumberExt, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_gsm_ss_LCS_ReferenceNumberExt },
+  { &hf_gsm_ss_h_gmlc_callBackUri, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_gsm_ss_UTF8String },
+  { &hf_gsm_ss_locationInfo , BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_ss_LocationInfo },
+  { &hf_gsm_ss_supportedGADShapes, BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_lcs_SupportedGADShapes },
+  { &hf_gsm_ss_lcs_QoS      , BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_lcs_LCS_QoS },
+  { &hf_gsm_ss_multiplePositioningProtocolPDUs, BER_CLASS_CON, 6, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_ss_MultiplePositioningProtocolPDUs },
+  { &hf_gsm_ss_terminationCause, BER_CLASS_CON, 7, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_ss_TerminationCause },
+  { &hf_gsm_ss_userPlaneEventReportStat, BER_CLASS_CON, 8, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_ss_LCS_UserPlaneEventReportStat },
+  { NULL, 0, 0, 0, NULL }
+};
+
+int
+dissect_gsm_ss_LCS_EventReportArg(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   gsm_ss_LCS_EventReportArg_sequence, hf_index, ett_gsm_ss_LCS_EventReportArg);
+
+  return offset;
+}
+
+
+static const ber_sequence_t gsm_ss_LCS_EventReportRes_sequence[] = {
+  { &hf_gsm_ss_deferredRoutingIdentifier, BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_ss_OCTET_STRING },
+  { &hf_gsm_ss_terminationCause, BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_ss_TerminationCause },
+  { NULL, 0, 0, 0, NULL }
+};
+
+int
+dissect_gsm_ss_LCS_EventReportRes(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   gsm_ss_LCS_EventReportRes_sequence, hf_index, ett_gsm_ss_LCS_EventReportRes);
+
+  return offset;
+}
+
+
+static const ber_sequence_t gsm_ss_LCS_CancelDeferredLocationArg_sequence[] = {
+  { &hf_gsm_ss_referenceNumberExt, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_gsm_ss_LCS_ReferenceNumberExt },
+  { &hf_gsm_ss_h_gmlc_callBackUri, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_gsm_ss_UTF8String },
+  { NULL, 0, 0, 0, NULL }
+};
+
+int
+dissect_gsm_ss_LCS_CancelDeferredLocationArg(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   gsm_ss_LCS_CancelDeferredLocationArg_sequence, hf_index, ett_gsm_ss_LCS_CancelDeferredLocationArg);
+
+  return offset;
+}
+
+
+static const ber_sequence_t gsm_ss_LCS_LocationPrivacySettingArg_sequence[] = {
+  { &hf_gsm_ss_locationPrivacyIndication, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_gsm_ss_LCS_LocationPrivacyIndication },
+  { &hf_gsm_ss_validTimePeriod, BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_ss_LCS_ValidTimePeriod },
+  { &hf_gsm_ss_eventReportExpectedArea, BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_lcs_Ext_GeographicalInformation },
+  { &hf_gsm_ss_areaUsageInd , BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_ss_ReportingInd },
+  { NULL, 0, 0, 0, NULL }
+};
+
+int
+dissect_gsm_ss_LCS_LocationPrivacySettingArg(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   gsm_ss_LCS_LocationPrivacySettingArg_sequence, hf_index, ett_gsm_ss_LCS_LocationPrivacySettingArg);
+
+  return offset;
+}
+
+
+static const value_string gsm_ss_LCS_AssociationType_vals[] = {
+  {   0, "initialAssociation" },
+  {   1, "associationUpdate" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_gsm_ss_LCS_AssociationType(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                  NULL);
+
+  return offset;
+}
+
+
+static const value_string gsm_ss_LCS_StateOfPru_vals[] = {
+  {   0, "on" },
+  {   1, "off" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_gsm_ss_LCS_StateOfPru(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                  NULL);
+
+  return offset;
+}
+
+
+static const ber_sequence_t gsm_ss_LCS_PruAssociationArg_sequence[] = {
+  { &hf_gsm_ss_associationType, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_gsm_ss_LCS_AssociationType },
+  { &hf_gsm_ss_positioningCapabilities, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_gsm_ss_OCTET_STRING },
+  { &hf_gsm_ss_locationOfPru, BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_lcs_Ext_GeographicalInformation },
+  { &hf_gsm_ss_stateOfPru   , BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_ss_LCS_StateOfPru },
+  { NULL, 0, 0, 0, NULL }
+};
+
+int
+dissect_gsm_ss_LCS_PruAssociationArg(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   gsm_ss_LCS_PruAssociationArg_sequence, hf_index, ett_gsm_ss_LCS_PruAssociationArg);
+
+  return offset;
+}
+
+
+
+static int
+dissect_gsm_ss_LCS_PeriodicUpdateTimer(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                                NULL);
+
+  return offset;
+}
+
+
+static int * const gsm_ss_LCS_PruUpdateTrigger_bits[] = {
+  &hf_gsm_ss_LCS_PruUpdateTrigger_taiChange,
+  &hf_gsm_ss_LCS_PruUpdateTrigger_servingAmfChange,
+  &hf_gsm_ss_LCS_PruUpdateTrigger_pruStateChange,
+  NULL
+};
+
+static int
+dissect_gsm_ss_LCS_PruUpdateTrigger(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
+                                    gsm_ss_LCS_PruUpdateTrigger_bits, 3, hf_index, ett_gsm_ss_LCS_PruUpdateTrigger,
+                                    NULL);
+
+  return offset;
+}
+
+
+static const ber_sequence_t gsm_ss_LCS_PruAssociationRes_sequence[] = {
+  { &hf_gsm_ss_periodicUpdateTimer, BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_ss_LCS_PeriodicUpdateTimer },
+  { &hf_gsm_ss_updateTrigger, BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_ss_LCS_PruUpdateTrigger },
+  { NULL, 0, 0, 0, NULL }
+};
+
+int
+dissect_gsm_ss_LCS_PruAssociationRes(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   gsm_ss_LCS_PruAssociationRes_sequence, hf_index, ett_gsm_ss_LCS_PruAssociationRes);
+
+  return offset;
+}
+
+
+static const ber_sequence_t gsm_ss_LCS_PruDisassociationArg_sequence[] = {
+  { &hf_gsm_ss_ackIndication, BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_ss_BOOLEAN },
+  { &hf_gsm_ss_newLmfRoutingId, BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_ss_OCTET_STRING },
+  { NULL, 0, 0, 0, NULL }
+};
+
+int
+dissect_gsm_ss_LCS_PruDisassociationArg(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   gsm_ss_LCS_PruDisassociationArg_sequence, hf_index, ett_gsm_ss_LCS_PruDisassociationArg);
+
+  return offset;
+}
+
+
+static const value_string gsm_ss_SLMTLR_Type_vals[] = {
+  {   0, "rangingSidelink" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_gsm_ss_SLMTLR_Type(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                  NULL);
+
+  return offset;
+}
+
+
+static const value_string gsm_ss_LocatedUEselect_vals[] = {
+  {   0, "targetUESelect" },
+  {   1, "lmfselect" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_gsm_ss_LocatedUEselect(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                  NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_gsm_ss_CoordinateID(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                                NULL);
+
+  return offset;
+}
+
+
+static const ber_sequence_t gsm_ss_LCS_SLMTLRArg_sequence[] = {
+  { &hf_gsm_ss_slmtlr_Type  , BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_gsm_ss_SLMTLR_Type },
+  { &hf_gsm_ss_supportedGADShapes, BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_lcs_SupportedGADShapes },
+  { &hf_gsm_ss_relatedUEInfo, BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_ss_RelatedUEInfo },
+  { &hf_gsm_ss_locatedUEselect, BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_ss_LocatedUEselect },
+  { &hf_gsm_ss_coordinateID , BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_ss_CoordinateID },
+  { NULL, 0, 0, 0, NULL }
+};
+
+int
+dissect_gsm_ss_LCS_SLMTLRArg(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   gsm_ss_LCS_SLMTLRArg_sequence, hf_index, ett_gsm_ss_LCS_SLMTLRArg);
+
+  return offset;
+}
+
+
+
+static int
+dissect_gsm_ss_SlPosProtocolPDU(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                       NULL);
+
+  return offset;
+}
+
+
+static const ber_sequence_t gsm_ss_RangingSLPPInfo_sequence[] = {
+  { &hf_gsm_ss_sLPPMsg      , BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_gsm_ss_SlPosProtocolPDU },
+  { &hf_gsm_ss_relatedUE    , BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_ss_OCTET_STRING },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_gsm_ss_RangingSLPPInfo(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   gsm_ss_RangingSLPPInfo_sequence, hf_index, ett_gsm_ss_RangingSLPPInfo);
+
+  return offset;
+}
+
+
+static const ber_sequence_t gsm_ss_RangingSLPPList_sequence_of[1] = {
+  { &hf_gsm_ss_RangingSLPPList_item, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_gsm_ss_RangingSLPPInfo },
+};
+
+static int
+dissect_gsm_ss_RangingSLPPList(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                      gsm_ss_RangingSLPPList_sequence_of, hf_index, ett_gsm_ss_RangingSLPPList);
+
+  return offset;
+}
+
+
+static const ber_sequence_t gsm_ss_LCS_SLMTLRRes_sequence[] = {
+  { &hf_gsm_ss_relatedUEInfo, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_gsm_ss_RelatedUEInfo },
+  { &hf_gsm_ss_rangingSLPPList, BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_ss_RangingSLPPList },
+  { NULL, 0, 0, 0, NULL }
+};
+
+int
+dissect_gsm_ss_LCS_SLMTLRRes(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   gsm_ss_LCS_SLMTLRRes_sequence, hf_index, ett_gsm_ss_LCS_SLMTLRRes);
+
+  return offset;
+}
+
+
+static const value_string gsm_ss_UEBased_vals[] = {
+  {   0, "notcalculatedbyUE" },
+  {   1, "calculatedbyUE" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_gsm_ss_UEBased(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                  NULL);
+
+  return offset;
+}
+
+
+static const ber_sequence_t gsm_ss_LCS_DLRSPPTransportArg_sequence[] = {
+  { &hf_gsm_ss_rangingSLPPList, BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_ss_RangingSLPPList },
+  { &hf_gsm_ss_scheduledLocTime, BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_ss_DateTime },
+  { &hf_gsm_ss_ueBased      , BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_ss_UEBased },
+  { &hf_gsm_ss_relatedUEInfo, BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_ss_RelatedUEInfo },
+  { NULL, 0, 0, 0, NULL }
+};
+
+int
+dissect_gsm_ss_LCS_DLRSPPTransportArg(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   gsm_ss_LCS_DLRSPPTransportArg_sequence, hf_index, ett_gsm_ss_LCS_DLRSPPTransportArg);
+
+  return offset;
+}
+
+
+static const ber_sequence_t gsm_ss_LCS_DLRSPPTransportRes_sequence[] = {
+  { NULL, 0, 0, 0, NULL }
+};
+
+int
+dissect_gsm_ss_LCS_DLRSPPTransportRes(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   gsm_ss_LCS_DLRSPPTransportRes_sequence, hf_index, ett_gsm_ss_LCS_DLRSPPTransportRes);
+
+  return offset;
+}
+
+
+static const ber_sequence_t gsm_ss_LCS_ULRSPPTransportArg_sequence[] = {
+  { &hf_gsm_ss_rangingSLPPList, BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_ss_RangingSLPPList },
+  { NULL, 0, 0, 0, NULL }
+};
+
+int
+dissect_gsm_ss_LCS_ULRSPPTransportArg(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   gsm_ss_LCS_ULRSPPTransportArg_sequence, hf_index, ett_gsm_ss_LCS_ULRSPPTransportArg);
+
+  return offset;
+}
+
+
+static const ber_sequence_t gsm_ss_LCS_ULRSPPTransportRes_sequence[] = {
+  { NULL, 0, 0, 0, NULL }
+};
+
+int
+dissect_gsm_ss_LCS_ULRSPPTransportRes(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   gsm_ss_LCS_ULRSPPTransportRes_sequence, hf_index, ett_gsm_ss_LCS_ULRSPPTransportRes);
 
   return offset;
 }
@@ -22090,6 +23344,16 @@ const value_string gsm_map_opr_code_strings[] = {
 	{ 110, "lcs_LocationUpdate" },
 	{ 109, "lcs_PeriodicLocationCancellation" },
 	{ 108, "lcs_PeriodicTriggeredInvoke" },
+	{ 107, "lcs_EventReport" },
+	{ 106, "lcs_CancelDeferredLocation" },
+	{ 105, "lcs_MSCancelDeferredLocation" },
+	{ 104, "lcs_LocationPrivacySetting" },
+	{ 103, "lcs_PruAssociation" },
+	{ 102, "lcs_PruDisassociation" },
+	{ 101, "lcs_SLMOLR" },
+	{ 100, "lcs_SLMTLR" },
+	{ 99, "lcs_DLRSPPTransport" },
+	{ 98, "lcs_ULRSPPTransport" },
 
 /* --- Module EricssonMAP --- --- ---                                         */
 
@@ -22302,6 +23566,16 @@ static const value_string gsm_map_err_code_string_vals[] = {
 	{ 110, "lcs_LocationUpdate" },
 	{ 109, "lcs_PeriodicLocationCancellation" },
 	{ 108, "lcs_PeriodicTriggeredInvoke" },
+	{ 107, "lcs_EventReport" },
+	{ 106, "lcs_CancelDeferredLocation" },
+	{ 105, "lcs_MSCancelDeferredLocation" },
+	{ 104, "lcs_LocationPrivacySetting" },
+	{ 103, "lcs_PruAssociation" },
+	{ 102, "lcs_PruDisassociation" },
+	{ 101, "lcs_SLMOLR" },
+	{ 100, "lcs_SLMTLR" },
+	{ 99, "lcs_DLRSPPTransport" },
+	{ 98, "lcs_ULRSPPTransport" },
 
 /* --- Module EricssonMAP --- --- ---                                         */
 
@@ -30097,6 +31371,10 @@ void proto_register_gsm_map(void) {
       { "velocityRequest", "gsm_map.lcs.velocityRequest_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
+    { &hf_gsm_map_lcs_lcs_qos_class,
+      { "lcs-qos-class", "gsm_map.lcs.lcs_qos_class",
+        FT_UINT32, BASE_DEC, VALS(gsm_map_lcs_LCS_QoS_Class_vals), 0,
+        NULL, HFILL }},
     { &hf_gsm_map_lcs_responseTimeCategory,
       { "responseTimeCategory", "gsm_map.lcs.responseTimeCategory",
         FT_UINT32, BASE_DEC, VALS(gsm_map_lcs_ResponseTimeCategory_vals), 0,
@@ -30147,6 +31425,18 @@ void proto_register_gsm_map(void) {
         NULL, HFILL }},
     { &hf_gsm_map_lcs_reportingInterval,
       { "reportingInterval", "gsm_map.lcs.reportingInterval",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_gsm_map_lcs_reportingOptionMilliseconds,
+      { "reportingOptionMilliseconds", "gsm_map.lcs.reportingOptionMilliseconds_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_gsm_map_lcs_reportingAmountMilliseconds,
+      { "reportingAmountMilliseconds", "gsm_map.lcs.reportingAmountMilliseconds",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_gsm_map_lcs_reportingIntervalMilliseconds,
+      { "reportingIntervalMilliseconds", "gsm_map.lcs.reportingIntervalMilliseconds",
         FT_UINT32, BASE_DEC, NULL, 0,
         NULL, HFILL }},
     { &hf_gsm_map_lcs_plmn_ListPrioritized,
@@ -31177,10 +32467,22 @@ void proto_register_gsm_map(void) {
       { "deferredLocationExt", "gsm_ss.deferredLocationExt",
         FT_BYTES, BASE_NONE, NULL, 0,
         NULL, HFILL }},
+    { &hf_gsm_ss_rangingSlExt,
+      { "rangingSlExt", "gsm_ss.rangingSlExt",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
     { &hf_gsm_ss_verificationResponse,
       { "verificationResponse", "gsm_ss.verificationResponse",
         FT_UINT32, BASE_DEC, VALS(gsm_ss_VerificationResponse_vals), 0,
         NULL, HFILL }},
+    { &hf_gsm_ss_locationPrivacyIndication,
+      { "locationPrivacyIndication", "gsm_ss.locationPrivacyIndication",
+        FT_UINT32, BASE_DEC, VALS(gsm_ss_LCS_LocationPrivacyIndication_vals), 0,
+        "LCS_LocationPrivacyIndication", HFILL }},
+    { &hf_gsm_ss_validTimePeriod,
+      { "validTimePeriod", "gsm_ss.validTimePeriod_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "LCS_ValidTimePeriod", HFILL }},
     { &hf_gsm_ss_molr_Type,
       { "molr-Type", "gsm_ss.molr_Type",
         FT_UINT32, BASE_DEC, VALS(gsm_ss_MOLR_Type_vals), 0,
@@ -31260,7 +32562,11 @@ void proto_register_gsm_map(void) {
     { &hf_gsm_ss_locationInfo,
       { "locationInfo", "gsm_ss.locationInfo",
         FT_BYTES, BASE_NONE, NULL, 0,
-        "Location_Info", HFILL }},
+        NULL, HFILL }},
+    { &hf_gsm_ss_scheduledLocTime,
+      { "scheduledLocTime", "gsm_ss.scheduledLocTime",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "DateTime", HFILL }},
     { &hf_gsm_ss_MultiplePositioningProtocolPDUs_item,
       { "PositioningProtocolPDU", "gsm_ss.PositioningProtocolPDU",
         FT_BYTES, BASE_NONE, NULL, 0,
@@ -31277,6 +32583,10 @@ void proto_register_gsm_map(void) {
       { "reportingPLMNList", "gsm_ss.reportingPLMNList_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
+    { &hf_gsm_ss_timestampOfLocationEstimate,
+      { "timestampOfLocationEstimate", "gsm_ss.timestampOfLocationEstimate",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "DateTime", HFILL }},
     { &hf_gsm_ss_deferredLocationEventType,
       { "deferredLocationEventType", "gsm_ss.deferredLocationEventType",
         FT_BYTES, BASE_NONE, NULL, 0,
@@ -31284,6 +32594,158 @@ void proto_register_gsm_map(void) {
     { &hf_gsm_ss_areaEventInfo,
       { "areaEventInfo", "gsm_ss.areaEventInfo_element",
         FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_gsm_ss_slmolr_Type,
+      { "slmolr-Type", "gsm_ss.slmolr_Type",
+        FT_UINT32, BASE_DEC, VALS(gsm_ss_SLMOLR_Type_vals), 0,
+        NULL, HFILL }},
+    { &hf_gsm_ss_calculationAssistIndicator,
+      { "calculationAssistIndicator", "gsm_ss.calculationAssistIndicator",
+        FT_BOOLEAN, BASE_NONE, NULL, 0,
+        "BOOLEAN", HFILL }},
+    { &hf_gsm_ss_preferredRangingResult,
+      { "preferredRangingResult", "gsm_ss.preferredRangingResult_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_gsm_ss_relatedUEInfo,
+      { "relatedUEInfo", "gsm_ss.relatedUEInfo",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_gsm_ss_absoluteLocationIndicator,
+      { "absoluteLocationIndicator", "gsm_ss.absoluteLocationIndicator",
+        FT_BOOLEAN, BASE_NONE, NULL, 0,
+        "BOOLEAN", HFILL }},
+    { &hf_gsm_ss_absoluteVelocityIndicator,
+      { "absoluteVelocityIndicator", "gsm_ss.absoluteVelocityIndicator",
+        FT_BOOLEAN, BASE_NONE, NULL, 0,
+        "BOOLEAN", HFILL }},
+    { &hf_gsm_ss_relativeLocationIndicator,
+      { "relativeLocationIndicator", "gsm_ss.relativeLocationIndicator",
+        FT_BOOLEAN, BASE_NONE, NULL, 0,
+        "BOOLEAN", HFILL }},
+    { &hf_gsm_ss_rangeDirection,
+      { "rangeDirection", "gsm_ss.rangeDirection",
+        FT_BOOLEAN, BASE_NONE, NULL, 0,
+        "BOOLEAN", HFILL }},
+    { &hf_gsm_ss_relativeVelocityIndicator,
+      { "relativeVelocityIndicator", "gsm_ss.relativeVelocityIndicator",
+        FT_BOOLEAN, BASE_NONE, NULL, 0,
+        "BOOLEAN", HFILL }},
+    { &hf_gsm_ss_RelatedUEInfo_item,
+      { "RangingUEInfo", "gsm_ss.RangingUEInfo_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_gsm_ss_applicationLayerID,
+      { "applicationLayerID", "gsm_ss.applicationLayerID",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "OCTET_STRING", HFILL }},
+    { &hf_gsm_ss_rangingRole,
+      { "rangingRole", "gsm_ss.rangingRole",
+        FT_UINT32, BASE_DEC, VALS(gsm_ss_RangingRole_vals), 0,
+        NULL, HFILL }},
+    { &hf_gsm_ss_absoluteLocation,
+      { "absoluteLocation", "gsm_ss.absoluteLocation",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "Ext_GeographicalInformation", HFILL }},
+    { &hf_gsm_ss_absoluteVelocity,
+      { "absoluteVelocity", "gsm_ss.absoluteVelocity",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "VelocityEstimate", HFILL }},
+    { &hf_gsm_ss_relativeResult,
+      { "relativeResult", "gsm_ss.relativeResult",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_gsm_ss_ueOnlyRSLPosAllowed,
+      { "ueOnlyRSLPosAllowed", "gsm_ss.ueOnlyRSLPosAllowed",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "Duration", HFILL }},
+    { &hf_gsm_ss_timestamp,
+      { "timestamp", "gsm_ss.timestamp",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "DateTime", HFILL }},
+    { &hf_gsm_ss_RelativeResult_item,
+      { "SingleRelativeResult", "gsm_ss.SingleRelativeResult_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_gsm_ss_relativeLocation,
+      { "relativeLocation", "gsm_ss.relativeLocation_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "RelativeLocationCoordinates", HFILL }},
+    { &hf_gsm_ss_rangeDirection_01,
+      { "rangeDirection", "gsm_ss.rangeDirection_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_gsm_ss_relativeVelocity,
+      { "relativeVelocity", "gsm_ss.relativeVelocity",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "VelocityEstimate", HFILL }},
+    { &hf_gsm_ss_relative2D_LocationWithUncertaintyEllipse,
+      { "relative2D-LocationWithUncertaintyEllipse", "gsm_ss.relative2D_LocationWithUncertaintyEllipse_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_gsm_ss_relative3D_LocationWithUncertaintyEllipsoid,
+      { "relative3D-LocationWithUncertaintyEllipsoid", "gsm_ss.relative3D_LocationWithUncertaintyEllipsoid_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_gsm_ss_xCoordinates,
+      { "xCoordinates", "gsm_ss.xCoordinates",
+        FT_INT32, BASE_DEC, NULL, 0,
+        "RangeXYCoordinates", HFILL }},
+    { &hf_gsm_ss_yCoordinates,
+      { "yCoordinates", "gsm_ss.yCoordinates",
+        FT_INT32, BASE_DEC, NULL, 0,
+        "RangeXYCoordinates", HFILL }},
+    { &hf_gsm_ss_uncertaintySemiMajor,
+      { "uncertaintySemiMajor", "gsm_ss.uncertaintySemiMajor",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "Uncertainty", HFILL }},
+    { &hf_gsm_ss_uncertaintySemiMinor,
+      { "uncertaintySemiMinor", "gsm_ss.uncertaintySemiMinor",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "Uncertainty", HFILL }},
+    { &hf_gsm_ss_orientationMajorAxis,
+      { "orientationMajorAxis", "gsm_ss.orientationMajorAxis",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_gsm_ss_confidence,
+      { "confidence", "gsm_ss.confidence",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_gsm_ss_zCoordinates,
+      { "zCoordinates", "gsm_ss.zCoordinates",
+        FT_INT32, BASE_DEC, NULL, 0,
+        "RangeZCoordinates", HFILL }},
+    { &hf_gsm_ss_uncertaintyAltitude,
+      { "uncertaintyAltitude", "gsm_ss.uncertaintyAltitude",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "Uncertainty", HFILL }},
+    { &hf_gsm_ss_range,
+      { "range", "gsm_ss.range_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_gsm_ss_azimuth,
+      { "azimuth", "gsm_ss.azimuth_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_gsm_ss_elevation,
+      { "elevation", "gsm_ss.elevation_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_gsm_ss_rangeResult,
+      { "rangeResult", "gsm_ss.rangeResult",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_gsm_ss_uncertainty,
+      { "uncertainty", "gsm_ss.uncertainty",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_gsm_ss_azimuthResult,
+      { "azimuthResult", "gsm_ss.azimuthResult",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_gsm_ss_elevationResult,
+      { "elevationResult", "gsm_ss.elevationResult",
+        FT_UINT32, BASE_DEC, NULL, 0,
         NULL, HFILL }},
     { &hf_gsm_ss_qoS,
       { "qoS", "gsm_ss.qoS_element",
@@ -31301,13 +32763,53 @@ void proto_register_gsm_map(void) {
       { "motionEventReporting", "gsm_ss.motionEventReporting_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
+    { &hf_gsm_ss_referenceNumberExt,
+      { "referenceNumberExt", "gsm_ss.referenceNumberExt",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "LCS_ReferenceNumberExt", HFILL }},
+    { &hf_gsm_ss_h_gmlc_callBackUri,
+      { "h-gmlc-callBackUri", "gsm_ss.h_gmlc_callBackUri",
+        FT_STRING, BASE_NONE, NULL, 0,
+        "UTF8String", HFILL }},
+    { &hf_gsm_ss_deferredRoutingIdentifier,
+      { "deferredRoutingIdentifier", "gsm_ss.deferredRoutingIdentifier",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "OCTET_STRING", HFILL }},
+    { &hf_gsm_ss_reportingAccessTypes,
+      { "reportingAccessTypes", "gsm_ss.reportingAccessTypes",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_gsm_ss_controlPlane_CIoT_5GS_Optimisation,
+      { "controlPlane-CIoT-5GS-Optimisation", "gsm_ss.controlPlane_CIoT_5GS_Optimisation_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_gsm_ss_eventReportAllowedArea,
+      { "eventReportAllowedArea", "gsm_ss.eventReportAllowedArea",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "AreaList", HFILL }},
+    { &hf_gsm_ss_reportingInd,
+      { "reportingInd", "gsm_ss.reportingInd",
+        FT_UINT32, BASE_DEC, VALS(gsm_ss_ReportingInd_vals), 0,
+        NULL, HFILL }},
+    { &hf_gsm_ss_mappedQoS,
+      { "mappedQoS", "gsm_ss.mappedQoS_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "LCS_QoS", HFILL }},
+    { &hf_gsm_ss_userPlaneReportAFAddr,
+      { "userPlaneReportAFAddr", "gsm_ss.userPlaneReportAFAddr_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "LCS_UserPlaneReportAFAddr", HFILL }},
+    { &hf_gsm_ss_cumulativeReportCriteria,
+      { "cumulativeReportCriteria", "gsm_ss.cumulativeReportCriteria_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "LCS_CumulativeReportCriteria", HFILL }},
     { &hf_gsm_ss_areaList,
       { "areaList", "gsm_ss.areaList",
         FT_UINT32, BASE_DEC, NULL, 0,
         NULL, HFILL }},
     { &hf_gsm_ss_occurrenceInfo,
       { "occurrenceInfo", "gsm_ss.occurrenceInfo",
-        FT_UINT32, BASE_DEC, VALS(gsm_map_lcs_OccurrenceInfo_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(gsm_ss_OccurrenceInfo_vals), 0,
         NULL, HFILL }},
     { &hf_gsm_ss_intervalTime,
       { "intervalTime", "gsm_ss.intervalTime",
@@ -31337,17 +32839,193 @@ void proto_register_gsm_map(void) {
       { "areaIdentification", "gsm_ss.areaIdentification",
         FT_BYTES, BASE_NONE, NULL, 0,
         NULL, HFILL }},
+    { &hf_gsm_ss_areaIdentificationExt,
+      { "areaIdentificationExt", "gsm_ss.areaIdentificationExt",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
     { &hf_gsm_ss_linearDistance,
       { "linearDistance", "gsm_ss.linearDistance",
         FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_gsm_ss_eventType,
+      { "eventType", "gsm_ss.eventType",
+        FT_UINT32, BASE_DEC, VALS(gsm_ss_EventType_vals), 0,
+        NULL, HFILL }},
+    { &hf_gsm_ss_userPlaneEventReportStat,
+      { "userPlaneEventReportStat", "gsm_ss.userPlaneEventReportStat",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "LCS_UserPlaneEventReportStat", HFILL }},
+    { &hf_gsm_ss_maximumDuration,
+      { "maximumDuration", "gsm_ss.maximumDuration",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_gsm_ss_maximumConsecutiveEventReports,
+      { "maximumConsecutiveEventReports", "gsm_ss.maximumConsecutiveEventReports",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_gsm_ss_af_Ipv4_Addrs,
+      { "af-Ipv4-Addrs", "gsm_ss.af_Ipv4_Addrs",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "Ipv4Addrs", HFILL }},
+    { &hf_gsm_ss_af_Ipv6_Addrs,
+      { "af-Ipv6-Addrs", "gsm_ss.af_Ipv6_Addrs",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "Ipv6Addrs", HFILL }},
+    { &hf_gsm_ss_af_Fqdn,
+      { "af-Fqdn", "gsm_ss.af_Fqdn",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "FQDN", HFILL }},
+    { &hf_gsm_ss_Ipv4Addrs_item,
+      { "Ipv4Addr", "gsm_ss.Ipv4Addr",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_gsm_ss_Ipv6Addrs_item,
+      { "Ipv6Addr", "gsm_ss.Ipv6Addr",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_gsm_ss_timerCriteria,
+      { "timerCriteria", "gsm_ss.timerCriteria",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "LCS_CumulativeReportTimerCriteria", HFILL }},
+    { &hf_gsm_ss_counterCriteria,
+      { "counterCriteria", "gsm_ss.counterCriteria",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "LCS_CumulativeReportCounterCriteria", HFILL }},
+    { &hf_gsm_ss_eventReportExpectedArea,
+      { "eventReportExpectedArea", "gsm_ss.eventReportExpectedArea",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "Ext_GeographicalInformation", HFILL }},
+    { &hf_gsm_ss_areaUsageInd,
+      { "areaUsageInd", "gsm_ss.areaUsageInd",
+        FT_UINT32, BASE_DEC, VALS(gsm_ss_ReportingInd_vals), 0,
+        "ReportingInd", HFILL }},
+    { &hf_gsm_ss_startTime,
+      { "startTime", "gsm_ss.startTime",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "DateTime", HFILL }},
+    { &hf_gsm_ss_endTime,
+      { "endTime", "gsm_ss.endTime",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "DateTime", HFILL }},
+    { &hf_gsm_ss_associationType,
+      { "associationType", "gsm_ss.associationType",
+        FT_UINT32, BASE_DEC, VALS(gsm_ss_LCS_AssociationType_vals), 0,
+        "LCS_AssociationType", HFILL }},
+    { &hf_gsm_ss_positioningCapabilities,
+      { "positioningCapabilities", "gsm_ss.positioningCapabilities",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "OCTET_STRING", HFILL }},
+    { &hf_gsm_ss_locationOfPru,
+      { "locationOfPru", "gsm_ss.locationOfPru",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "Ext_GeographicalInformation", HFILL }},
+    { &hf_gsm_ss_stateOfPru,
+      { "stateOfPru", "gsm_ss.stateOfPru",
+        FT_UINT32, BASE_DEC, VALS(gsm_ss_LCS_StateOfPru_vals), 0,
+        "LCS_StateOfPru", HFILL }},
+    { &hf_gsm_ss_periodicUpdateTimer,
+      { "periodicUpdateTimer", "gsm_ss.periodicUpdateTimer",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "LCS_PeriodicUpdateTimer", HFILL }},
+    { &hf_gsm_ss_updateTrigger,
+      { "updateTrigger", "gsm_ss.updateTrigger",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "LCS_PruUpdateTrigger", HFILL }},
+    { &hf_gsm_ss_ackIndication,
+      { "ackIndication", "gsm_ss.ackIndication",
+        FT_BOOLEAN, BASE_NONE, NULL, 0,
+        "BOOLEAN", HFILL }},
+    { &hf_gsm_ss_newLmfRoutingId,
+      { "newLmfRoutingId", "gsm_ss.newLmfRoutingId",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "OCTET_STRING", HFILL }},
+    { &hf_gsm_ss_slmtlr_Type,
+      { "slmtlr-Type", "gsm_ss.slmtlr_Type",
+        FT_UINT32, BASE_DEC, VALS(gsm_ss_SLMTLR_Type_vals), 0,
+        NULL, HFILL }},
+    { &hf_gsm_ss_locatedUEselect,
+      { "locatedUEselect", "gsm_ss.locatedUEselect",
+        FT_UINT32, BASE_DEC, VALS(gsm_ss_LocatedUEselect_vals), 0,
+        NULL, HFILL }},
+    { &hf_gsm_ss_coordinateID,
+      { "coordinateID", "gsm_ss.coordinateID",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_gsm_ss_rangingSLPPList,
+      { "rangingSLPPList", "gsm_ss.rangingSLPPList",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_gsm_ss_RangingSLPPList_item,
+      { "RangingSLPPInfo", "gsm_ss.RangingSLPPInfo_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_gsm_ss_sLPPMsg,
+      { "sLPPMsg", "gsm_ss.sLPPMsg",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "SlPosProtocolPDU", HFILL }},
+    { &hf_gsm_ss_relatedUE,
+      { "relatedUE", "gsm_ss.relatedUE",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "OCTET_STRING", HFILL }},
+    { &hf_gsm_ss_ueBased,
+      { "ueBased", "gsm_ss.ueBased",
+        FT_UINT32, BASE_DEC, VALS(gsm_ss_UEBased_vals), 0,
         NULL, HFILL }},
     { &hf_gsm_ss_DeferredLocationExt_motionEvent,
       { "motionEvent", "gsm.ss.DeferredLocationExt.motionEvent",
         FT_BOOLEAN, 8, NULL, 0x80,
         NULL, HFILL }},
-    { &hf_gsm_ss_Location_Info_locationEstimate,
-      { "locationEstimate", "gsm.ss.Location.Info.locationEstimate",
+    { &hf_gsm_ss_RangingSlExt_rangingIndication,
+      { "rangingIndication", "gsm.ss.RangingSlExt.rangingIndication",
         FT_BOOLEAN, 8, NULL, 0x80,
+        NULL, HFILL }},
+    { &hf_gsm_ss_LocationInfo_locationEstimate,
+      { "locationEstimate", "gsm.ss.LocationInfo.locationEstimate",
+        FT_BOOLEAN, 8, NULL, 0x80,
+        NULL, HFILL }},
+    { &hf_gsm_ss_ReportingAccessTypes_nR,
+      { "nR", "gsm.ss.ReportingAccessTypes.nR",
+        FT_BOOLEAN, 8, NULL, 0x80,
+        NULL, HFILL }},
+    { &hf_gsm_ss_ReportingAccessTypes_eUTRAConnectedTo5GC,
+      { "eUTRAConnectedTo5GC", "gsm.ss.ReportingAccessTypes.eUTRAConnectedTo5GC",
+        FT_BOOLEAN, 8, NULL, 0x40,
+        NULL, HFILL }},
+    { &hf_gsm_ss_ReportingAccessTypes_non3GPPConnectedTo5GC,
+      { "non3GPPConnectedTo5GC", "gsm.ss.ReportingAccessTypes.non3GPPConnectedTo5GC",
+        FT_BOOLEAN, 8, NULL, 0x20,
+        NULL, HFILL }},
+    { &hf_gsm_ss_ReportingAccessTypes_eUTRAConnectedToEPC,
+      { "eUTRAConnectedToEPC", "gsm.ss.ReportingAccessTypes.eUTRAConnectedToEPC",
+        FT_BOOLEAN, 8, NULL, 0x10,
+        NULL, HFILL }},
+    { &hf_gsm_ss_ReportingAccessTypes_nR_LEO,
+      { "nR-LEO", "gsm.ss.ReportingAccessTypes.nR.LEO",
+        FT_BOOLEAN, 8, NULL, 0x08,
+        NULL, HFILL }},
+    { &hf_gsm_ss_ReportingAccessTypes_nR_MEO,
+      { "nR-MEO", "gsm.ss.ReportingAccessTypes.nR.MEO",
+        FT_BOOLEAN, 8, NULL, 0x04,
+        NULL, HFILL }},
+    { &hf_gsm_ss_ReportingAccessTypes_nR_GEO,
+      { "nR-GEO", "gsm.ss.ReportingAccessTypes.nR.GEO",
+        FT_BOOLEAN, 8, NULL, 0x02,
+        NULL, HFILL }},
+    { &hf_gsm_ss_ReportingAccessTypes_nR_OTHER_SAT,
+      { "nR-OTHER-SAT", "gsm.ss.ReportingAccessTypes.nR.OTHER.SAT",
+        FT_BOOLEAN, 8, NULL, 0x01,
+        NULL, HFILL }},
+    { &hf_gsm_ss_LCS_PruUpdateTrigger_taiChange,
+      { "taiChange", "gsm.ss.LCS.PruUpdateTrigger.taiChange",
+        FT_BOOLEAN, 8, NULL, 0x80,
+        NULL, HFILL }},
+    { &hf_gsm_ss_LCS_PruUpdateTrigger_servingAmfChange,
+      { "servingAmfChange", "gsm.ss.LCS.PruUpdateTrigger.servingAmfChange",
+        FT_BOOLEAN, 8, NULL, 0x40,
+        NULL, HFILL }},
+    { &hf_gsm_ss_LCS_PruUpdateTrigger_pruStateChange,
+      { "pruStateChange", "gsm.ss.LCS.PruUpdateTrigger.pruStateChange",
+        FT_BOOLEAN, 8, NULL, 0x20,
         NULL, HFILL }},
 
 /* --- Module EricssonMAP --- --- ---                                         */
@@ -32465,6 +34143,7 @@ void proto_register_gsm_map(void) {
     &ett_gsm_map_lcs_AreaList,
     &ett_gsm_map_lcs_Area,
     &ett_gsm_map_lcs_PeriodicLDRInfo,
+    &ett_gsm_map_lcs_ReportingOptionMilliseconds,
     &ett_gsm_map_lcs_ReportingPLMNList,
     &ett_gsm_map_lcs_PLMNList,
     &ett_gsm_map_lcs_ReportingPLMN,
@@ -32592,11 +34271,26 @@ void proto_register_gsm_map(void) {
     &ett_gsm_ss_UserUserServiceArg,
     &ett_gsm_ss_LocationNotificationArg,
     &ett_gsm_ss_DeferredLocationExt,
+    &ett_gsm_ss_RangingSlExt,
     &ett_gsm_ss_LocationNotificationRes,
     &ett_gsm_ss_LCS_MOLRArg,
     &ett_gsm_ss_MultiplePositioningProtocolPDUs,
     &ett_gsm_ss_LCS_MOLRRes,
     &ett_gsm_ss_LCS_AreaEventRequestArg,
+    &ett_gsm_ss_LCS_SLMOLRArg,
+    &ett_gsm_ss_PreferredRangingResult,
+    &ett_gsm_ss_RelatedUEInfo,
+    &ett_gsm_ss_RangingUEInfo,
+    &ett_gsm_ss_LCS_SLMOLRRes,
+    &ett_gsm_ss_RelativeResult,
+    &ett_gsm_ss_SingleRelativeResult,
+    &ett_gsm_ss_RelativeLocationCoordinates,
+    &ett_gsm_ss_Relative2D_LocationWithUncertaintyEllipse,
+    &ett_gsm_ss_Relative3D_LocationWithUncertaintyEllipsoid,
+    &ett_gsm_ss_RangeDirection,
+    &ett_gsm_ss_Range,
+    &ett_gsm_ss_Azimuth,
+    &ett_gsm_ss_Elevation,
     &ett_gsm_ss_LCS_AreaEventReportArg,
     &ett_gsm_ss_LCS_AreaEventCancellationArg,
     &ett_gsm_ss_LCS_PeriodicLocationRequestArg,
@@ -32609,9 +34303,32 @@ void proto_register_gsm_map(void) {
     &ett_gsm_ss_AreaEventReporting,
     &ett_gsm_ss_AreaList,
     &ett_gsm_ss_Area,
-    &ett_gsm_ss_Location_Info,
+    &ett_gsm_ss_LocationInfo,
     &ett_gsm_ss_MotionEventReporting,
+    &ett_gsm_ss_ReportingAccessTypes,
     &ett_gsm_ss_LCS_PeriodicTriggeredInvokeRes,
+    &ett_gsm_ss_LCS_EventReportArg,
+    &ett_gsm_ss_ControlPlane_CIoT_5GS_Optimisation,
+    &ett_gsm_ss_LCS_UserPlaneReportAFAddr,
+    &ett_gsm_ss_Ipv4Addrs,
+    &ett_gsm_ss_Ipv6Addrs,
+    &ett_gsm_ss_LCS_CumulativeReportCriteria,
+    &ett_gsm_ss_LCS_EventReportRes,
+    &ett_gsm_ss_LCS_CancelDeferredLocationArg,
+    &ett_gsm_ss_LCS_LocationPrivacySettingArg,
+    &ett_gsm_ss_LCS_ValidTimePeriod,
+    &ett_gsm_ss_LCS_PruAssociationArg,
+    &ett_gsm_ss_LCS_PruAssociationRes,
+    &ett_gsm_ss_LCS_PruUpdateTrigger,
+    &ett_gsm_ss_LCS_PruDisassociationArg,
+    &ett_gsm_ss_LCS_SLMTLRArg,
+    &ett_gsm_ss_LCS_SLMTLRRes,
+    &ett_gsm_ss_RangingSLPPList,
+    &ett_gsm_ss_RangingSLPPInfo,
+    &ett_gsm_ss_LCS_DLRSPPTransportArg,
+    &ett_gsm_ss_LCS_DLRSPPTransportRes,
+    &ett_gsm_ss_LCS_ULRSPPTransportArg,
+    &ett_gsm_ss_LCS_ULRSPPTransportRes,
 
 /* --- Module SS-Operations --- --- ---                                       */
 

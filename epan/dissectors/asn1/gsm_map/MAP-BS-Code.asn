@@ -1,9 +1,9 @@
--- 3GPP TS 29.002 V17.1.0 (2021-06)
+-- 3GPP TS 29.002 V18.0.0 (2023-09)
 -- 17.7.10	Bearer Service Codes
 
 MAP-BS-Code {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-BS-Code (20) version20 (20)}
+   gsm-Network (1) modules (3) map-BS-Code (20) version21 (21)}
 
 DEFINITIONS
 

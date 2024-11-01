@@ -1,10 +1,10 @@
--- 3GPP TS 29.002 V17.1.0 (2021-06)
+-- 3GPP TS 29.002 V18.0.0 (2023-09)
 --17.6.4	Supplementary service operations
 
 MAP-SupplementaryServiceOperations {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
    gsm-Network (1) modules (3) map-SupplementaryServiceOperations (8)
-   version20 (20)}
+   version21 (21)}
 
 DEFINITIONS
 
@@ -59,7 +59,7 @@ joint-iso-itu-t remote-operations(4)
 	facilityNotSupported
 FROM MAP-Errors {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-Errors (10) version20 (20)}
+   gsm-Network (1) modules (3) map-Errors (10) version21 (21)}
 
 	RegisterSS-Arg,
 	SS-Info,
@@ -77,12 +77,12 @@ FROM MAP-Errors {
 	EraseCC-EntryRes
 FROM MAP-SS-DataTypes {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-SS-DataTypes (14) version20 (20)}
+   gsm-Network (1) modules (3) map-SS-DataTypes (14) version21 (21)}
 
 	SS-Code
 FROM MAP-SS-Code {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-SS-Code (15) version20 (20)}
+   gsm-Network (1) modules (3) map-SS-Code (15) version21 (21)}
 ;
 
 

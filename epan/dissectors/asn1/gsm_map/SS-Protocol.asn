@@ -1,10 +1,10 @@
--- 3GPP TS 24.080 V15.0.0 (2018-06)
+-- 3GPP TS 24.080 V18.4.0 (2024-09)
 -- 4.5	Operations and errors implementation
 -- For the actual implementation of supplementary services, operations and errors have to be defined by value. The following ASN.1 module, imports operation from the ASN.1 module described in subclause 4.2 and operations and errors from MAP. 
 
 SS-Protocol {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Access (2) modules (3) ss-Protocol (3) version12 (12)}
+   gsm-Access (2) modules (3) ss-Protocol (3) version17 (17)}
 
 DEFINITIONS ::=
 
@@ -22,31 +22,37 @@ joint-iso-itu-t remote-operations(4) informationObjects(5) version1(0)}
 forwardCheckSS-Indication
 FROM MAP-MobileServiceOperations {
    itu-t identified-organization (4) etsi (0) mobileDomain (0) gsm-Network (1) modules (3)
-   map-MobileServiceOperations (5) version12 (12)}
+   map-MobileServiceOperations (5) version21 (21)}
 
 -- imports operations from MAP-SupplementaryServiceOperations
 registerSS, eraseSS, activateSS, deactivateSS, interrogateSS, registerPassword, getPassword,
 processUnstructuredSS-Request, unstructuredSS-Request, unstructuredSS-Notify, eraseCC-Entry
 FROM MAP-SupplementaryServiceOperations {
    itu-t identified-organization (4) etsi (0) mobileDomain (0) gsm-Network (1) modules (3)
-   map-SupplementaryServiceOperations (8) version12 (12)}
+   map-SupplementaryServiceOperations (8) version21 (21)}
 
 -- imports operations from SS-Operations
 processUnstructuredSS-Data, notifySS, forwardChargeAdvice, buildMPTY, holdMPTY, retrieveMPTY,
 splitMPTY, explicitCT, forwardCUG-Info, accessRegisterCCEntry, callDeflection, userUserService,
-lcs-LocationNotification, lcs-MOLR, lcs-AreaEventRequest, lcs-AreaEventReport, lcs-AreaEventCancellation, lcs-PeriodicLocationRequest, lcs-LocationUpdate, lcs-PeriodicLocationCancellation
+lcs-LocationNotification, lcs-MOLR, lcs-SLMOLR, lcs-AreaEventRequest, lcs-AreaEventReport,
+lcs-AreaEventCancellation, lcs-PeriodicLocationRequest, lcs-LocationUpdate,
+lcs-PeriodicLocationCancellation, lcs-PeriodicTriggeredInvoke, lcs-EventReport,
+lcs-CancelDeferredLocation, lcs-SLMTLR, lcs-DLRSPPTransport, lcs-ULRSPPTransport
 FROM SS-Operations {
    itu-t identified-organization (4) etsi (0) mobileDomain (0) gsm-Access (2) modules (3)
-   ss-Operations (0) version12 (12)} 
+   ss-Operations (0) version17 (17)}
 
 ;
 
-Supported-SS-Operations OPERATION ::= {forwardCheckSS-Indication | registerSS | eraseSS | 
-	activateSS | deactivateSS | interrogateSS | registerPassword | getPassword | 
-	processUnstructuredSS-Request | unstructuredSS-Request | unstructuredSS-Notify | eraseCC-Entry | 
-	processUnstructuredSS-Data | notifySS | forwardChargeAdvice | buildMPTY | holdMPTY | 
-	retrieveMPTY | splitMPTY | explicitCT | forwardCUG-Info | accessRegisterCCEntry | 
-	callDeflection | userUserService | lcs-LocationNotification | lcs-MOLR | lcs-AreaEventRequest |	lcs-AreaEventReport | lcs-AreaEventCancellation | lcs-PeriodicLocationRequest | lcs-LocationUpdate | lcs-PeriodicLocationCancellation | lcs-PeriodicTriggeredInvoke }
+Supported-SS-Operations OPERATION ::= {forwardCheckSS-Indication | registerSS | eraseSS |
+	activateSS | deactivateSS | interrogateSS | registerPassword | getPassword |
+	processUnstructuredSS-Request | unstructuredSS-Request | unstructuredSS-Notify | eraseCC-Entry |
+	processUnstructuredSS-Data | notifySS | forwardChargeAdvice | buildMPTY | holdMPTY |
+	retrieveMPTY | splitMPTY | explicitCT | forwardCUG-Info | accessRegisterCCEntry |
+	callDeflection | userUserService | lcs-LocationNotification | lcs-MOLR | lcs-SLMOLR | lcs-AreaEventRequest |
+	lcs-AreaEventReport | lcs-AreaEventCancellation | lcs-PeriodicLocationRequest |
+	lcs-LocationUpdate | lcs-PeriodicLocationCancellation | lcs-PeriodicTriggeredInvoke |
+	lcs-EventReport | lcs-CancelDeferredLocation | lcs-SLMTLR | lcs-DLRSPPTransport | lcs-ULRSPPTransport }
 
 
 

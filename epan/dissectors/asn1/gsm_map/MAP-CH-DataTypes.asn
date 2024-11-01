@@ -1,9 +1,9 @@
--- 3GPP TS 29.002 V17.1.0 (2021-06)
+-- 3GPP TS 29.002 V18.0.0 (2023-09)
 -- 17.7.3	Call handling data types
- 
+
 MAP-CH-DataTypes {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-CH-DataTypes (13) version20 (20)}
+   gsm-Network (1) modules (3) map-CH-DataTypes (13) version21 (21)}
 
 DEFINITIONS
 
@@ -57,14 +57,14 @@ IMPORTS
 	PagingArea
 FROM MAP-MS-DataTypes {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-MS-DataTypes (11) version20 (20)}
+   gsm-Network (1) modules (3) map-MS-DataTypes (11) version21 (21)}
 
 	ForwardingOptions,
 	SS-List,
 	CCBS-Feature
 FROM MAP-SS-DataTypes {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-SS-DataTypes (14) version20 (20)}
+   gsm-Network (1) modules (3) map-SS-DataTypes (14) version21 (21)}
 
 	ISDN-AddressString,
 	ISDN-SubaddressString,
@@ -80,12 +80,12 @@ FROM MAP-SS-DataTypes {
 	PLMN-Id
 FROM MAP-CommonDataTypes {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-CommonDataTypes (18) version20 (20)}
+   gsm-Network (1) modules (3) map-CommonDataTypes (18) version21 (21)}
 
 	ExtensionContainer
 FROM MAP-ExtensionDataTypes {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-ExtensionDataTypes (21) version20 (20)}
+   gsm-Network (1) modules (3) map-ExtensionDataTypes (21) version21 (21)}
 ;
 
 

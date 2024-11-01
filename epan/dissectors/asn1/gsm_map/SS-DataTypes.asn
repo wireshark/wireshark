@@ -1,8 +1,8 @@
--- 3GPP TS 24.080 V15.0.0 (2018-06)
+-- 3GPP TS 24.080 V18.4.0 (2024-09)
 -- 4.4.2	ASN.1 data types
 SS-DataTypes {
    itu-t identified-organization (4) etsi (0) mobileDomain (0) gsm-Access (2) modules (3)
-   ss-DataTypes (2) version12 (12)}
+   ss-DataTypes (2) version17 (17)}
 
 DEFINITIONS
 
@@ -17,20 +17,20 @@ IMPORTS
 SS-Code
 FROM MAP-SS-Code {
    itu-t identified-organization (4) etsi (0) mobileDomain (0) gsm-Network (1) modules (3)
-   map-SS-Code (15) version12 (12)}
+   map-SS-Code (15) version21 (21)}
 
 -- imports MAP-SS-DataTypes
 SS-Status, USSD-DataCodingScheme, USSD-String, CCBS-Feature
 -- USSD-DataCodingScheme, USSD-String were introduced because of CNAP.
 FROM MAP-SS-DataTypes {
    itu-t identified-organization (4) etsi (0) mobileDomain (0) gsm-Network (1) modules (3)
-   map-SS-DataTypes (14) version12 (12)}
+   map-SS-DataTypes (14) version21 (21)}
 
 CUG-Index,
 NotificationToMSUser
 FROM MAP-MS-DataTypes {
    itu-t identified-organization (4) etsi (0) mobileDomain (0) gsm-Network (1) modules (3)
-   map-MS-DataTypes (11) version12 (12)}
+   map-MS-DataTypes (11) version21 (21)}
 
 maxSignalInfoLength,
 ISDN-AddressString,
@@ -43,7 +43,7 @@ AgeOfLocationInformation,
 GSN-Address
 FROM MAP-CommonDataTypes {
    itu-t identified-organization (4) etsi (0) mobileDomain (0) gsm-Network (1) modules (3)
-   map-CommonDataTypes (18) version12 (12)}
+   map-CommonDataTypes (18) version21 (21)}
 
 LocationType,
 DeferredLocationEventType,
@@ -51,7 +51,7 @@ LCSClientName,
 LCS-QoS,
 Horizontal-Accuracy,
 ResponseTime,
-Ext-GeographicalInformation, 
+Ext-GeographicalInformation,
 VelocityEstimate,
 SupportedGADShapes,
 Add-GeographicalInformation,
@@ -62,12 +62,13 @@ AreaEventInfo,
 ReportingPLMNList,
 PeriodicLDRInfo,
 SequenceNumber,
-OccurrenceInfo,
+--WS modified, OccurrenceInfo exist already in this file
+--OccurrenceInfo,
 IntervalTime
 
 FROM MAP-LCS-DataTypes {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-LCS-DataTypes (25) version12 (12)}
+   gsm-Network (1) modules (3) map-LCS-DataTypes (25) version21 (21)}
 
 ;
 
@@ -76,20 +77,20 @@ FROM MAP-LCS-DataTypes {
 SS-UserData ::= IA5String (SIZE (1.. maxSignalInfoLength))
 
 NotifySS-Arg ::= SEQUENCE{
-	ss-Code			[1]	SS-Code OPTIONAL,
-	ss-Status			[4]	SS-Status OPTIONAL,
-	ss-Notification		[5]	SS-Notification OPTIONAL,
+	ss-Code		[1]	SS-Code OPTIONAL,
+	ss-Status		[4]	SS-Status OPTIONAL,
+	ss-Notification	[5]	SS-Notification OPTIONAL,
 	callIsWaiting-Indicator	[14]	NULL OPTIONAL,
 	callOnHold-Indicator	[15]	CallOnHold-Indicator OPTIONAL,
-	mpty-Indicator		[16]	NULL OPTIONAL,
-	cug-Index			[17]	CUG-Index OPTIONAL,
+	mpty-Indicator	[16]	NULL OPTIONAL,
+	cug-Index		[17]	CUG-Index OPTIONAL,
 	clirSuppressionRejected	[18]	NULL OPTIONAL,
 	... ,
-	ect-Indicator		[19]	ECT-Indicator OPTIONAL,
-	nameIndicator		[20]	NameIndicator OPTIONAL,
-	ccbs-Feature		[21]	CCBS-Feature OPTIONAL,
-	alertingPattern		[22]	AlertingPattern OPTIONAL,
-	multicall-Indicator		[23]	Multicall-Indicator OPTIONAL}
+	ect-Indicator	[19]	ECT-Indicator OPTIONAL,
+	nameIndicator	[20]	NameIndicator OPTIONAL,
+	ccbs-Feature	[21]	CCBS-Feature OPTIONAL,
+	alertingPattern	[22]	AlertingPattern OPTIONAL,
+	multicall-Indicator	[23]	Multicall-Indicator OPTIONAL}
 
 --  The nameIndicator is defined because of CNAP.
 
@@ -98,8 +99,8 @@ Multicall-Indicator	::= ENUMERATED {
 	nbr-Userexceeded (1)}
 
 ForwardChargeAdviceArg ::= SEQUENCE{
-	ss-Code			[0]	SS-Code,
-	chargingInformation		[1]	ChargingInformation,
+	ss-Code		[0]	SS-Code,
+	chargingInformation	[1]	ChargingInformation,
 	...}
 
 SS-Notification ::= OCTET STRING (SIZE (1))
@@ -153,13 +154,13 @@ E7 ::= INTEGER (0..max10TimesInitialTime)
 max10TimesInitialTime INTEGER ::= 8191
 
 CallOnHold-Indicator	::= ENUMERATED {
-		callRetrieved (0),
-		callOnHold (1)}
+	callRetrieved (0),
+	callOnHold (1)}
 
 ForwardCUG-InfoArg ::= SEQUENCE {
-	cug-Index		[0]	CUG-Index OPTIONAL,
+	cug-Index	[0]	CUG-Index OPTIONAL,
 	suppressPrefCUG	[1]	NULL OPTIONAL,
-	suppressOA		[2]	NULL OPTIONAL,
+	suppressOA	[2]	NULL OPTIONAL,
 	...}
 
 ECT-Indicator	::= SEQUENCE {
@@ -178,13 +179,13 @@ ECT-CallState	::= ENUMERATED {
 	Name ::= CHOICE {
 	namePresentationAllowed	[0] NameSet,
 	presentationRestricted	[1] NULL,
-	nameUnavailable		[2] NULL,
+	nameUnavailable	[2] NULL,
 	namePresentationRestricted	[3] NameSet}
 
 	NameSet ::= SEQUENCE {
 	dataCodingScheme	[0] USSD-DataCodingScheme,
 	lengthInCharacters	[1] INTEGER,
-	nameString		[2] USSD-String,
+	nameString	[2] USSD-String,
 	...}
 
 -- NameIndicator, Name and NameSet are defined because of CNAP.
@@ -194,13 +195,13 @@ ECT-CallState	::= ENUMERATED {
 --       | 0   0   0   0 | 1   1   1   1|
 
 RDN	::= CHOICE {
-	presentationAllowedAddress		[0]	RemotePartyNumber,
-	presentationRestricted			[1]	NULL,
+	presentationAllowedAddress	[0]	RemotePartyNumber,
+	presentationRestricted		[1]	NULL,
 	numberNotAvailableDueToInterworking	[2]	NULL,
-	presentationRestrictedAddress		[3]	RemotePartyNumber}
+	presentationRestrictedAddress	[3]	RemotePartyNumber}
 
 RemotePartyNumber	::= SEQUENCE {
-	partyNumber		[0]	ISDN-AddressString,
+	partyNumber	[0]	ISDN-AddressString,
 	partyNumberSubaddress	[1]	ISDN-SubaddressString OPTIONAL,
 	...}
 
@@ -231,65 +232,74 @@ LocationNotificationArg	::= SEQUENCE {
 	notificationType	[0]	NotificationToMSUser,
 	locationType	[1]	LocationType,
 	lcsClientExternalID	[2] LCSClientExternalID	OPTIONAL,
-	lcsClientName	[3]	LCSClientName		OPTIONAL,
+	lcsClientName	[3]	LCSClientName	OPTIONAL,
 	... ,
-	lcsRequestorID	[4] LCSRequestorID		OPTIONAL,
-	lcsCodeword		[5]	LCSCodeword		OPTIONAL,
+	lcsRequestorID	[4] LCSRequestorID	OPTIONAL,
+	lcsCodeword	[5]	LCSCodeword	OPTIONAL,
 	lcsServiceTypeID	[6]	LCSServiceTypeID	OPTIONAL,
-	deferredLocationExt	[7]	DeferredLocationExt	OPTIONAL }
+	deferredLocationExt	[7]	DeferredLocationExt	OPTIONAL,
+	rangingSlExt	[8]	RangingSlExt	OPTIONAL }
 
--- The notificationType may only be set to notifyLocationAllowed, 
--- notifyAndVerify-LocationAllowedIfNoResponse, 
+-- The notificationType may only be set to notifyLocationAllowed,
+-- notifyAndVerify-LocationAllowedIfNoResponse,
 -- or notifyAndVerify-LocationNotAllowedIfNoResponse.
--- The locationEstimateType field of the locationType may only be set to 
--- currentLocation, currentOrLastKnownLocation, 
+-- The locationEstimateType field of the locationType may only be set to
+-- currentLocation, currentOrLastKnownLocation,
 -- notificationVerificationOnly, or activateDeferredLocation.
--- The deferredLocationEventType field of the locationType may only be set to 
--- enteringIntoArea, and/or leavingFromArea, and/or beingInsideArea, 
+-- The deferredLocationEventType field of the locationType may only be set to
+-- enteringIntoArea, and/or leavingFromArea, and/or beingInsideArea,
 -- and/or periodicLDR.
--- For LCS location notification of MT-LR for current location, the 
+-- For LCS location notification of MT-LR for current location, the
 -- locationEstimateType field of the locationType shall be set to currentLocation.
--- For LCS location notification of MT-LR for current or last known location, the 
+-- For LCS location notification of MT-LR for current or last known location, the
 -- locationEstimateType field of the locationType shall be set to currentOrLastKnownLocation.
--- For the LCS location notification for the LDR of MS available event, 
+-- For the LCS location notification for the LDR of MS available event,
 -- the locationEstimateType field of the locationType shall be set to currentLocation.
--- For LCS location notification for the LDR of change of area event, 
+-- For LCS location notification for the LDR of change of area event,
 -- the locationEstimateType field of the locationType shall be set to
--- activateDeferredLocation, and the deferredLocationEventType shall be 
+-- activateDeferredLocation, and the deferredLocationEventType shall be
 -- set to enteringIntoArea, and/or leavingFromArea, and/or beingInsideArea.
--- For the post positioning LCS location notification, the locationEstimateType 
+-- For the post positioning LCS location notification, the locationEstimateType
 -- field of the locationType shall be set to notificationVerificationOnly.
--- For LCS location notification for the LDR of periodic location event, 
+-- For LCS location notification for the LDR of periodic location event,
 -- the locationEstimateType field of the locationType shall be set to
--- activateDeferredLocation, and the 
+-- activateDeferredLocation, and the
 -- deferredLocationEventType shall be set to periodicLDR.
--- For LCS location notification for the LDR of the motion event, 
+-- For LCS location notification for the LDR of the motion event,
 -- the locationEstimateType field of the locationType shall be set to
 -- activateDeferredLocation, the deferredLocationEventType shall be omitted
 -- and the deferredLocationExt shall be set to motionEvent.
 
 
 -- exception handling:
--- At reception of an unrecognised notificationType value the receiver shall reject the 
+-- At reception of an unrecognised notificationType value the receiver shall reject the
 -- operation with a return error cause of unexpected data value.
 -- At reception of an unrecognised locationType value the receiver shall reject the
--- operation with a return error cause of unexpected data value. 
+-- operation with a return error cause of unexpected data value.
 -- At reception of an unallowed notificationType value the receiver shall either ignore the
--- received operation or reject the operation with a return error cause of unexpected 
+-- received operation or reject the operation with a return error cause of unexpected
 -- data value.
 -- At reception of an unallowed locationType value the receiver shall either ignore the
--- received operation or reject the operation with a return error cause of unexpected 
+-- received operation or reject the operation with a return error cause of unexpected
 -- data value.
 
 DeferredLocationExt ::= BIT STRING {
-	motionEvent	(0) } (SIZE (1..16)) 
+	motionEvent	(0) } (SIZE (1..16))
 -- A bit set to one indicates that the corresponding deferred location type is present.
 -- A bit set to zero indicates that the corresponding deferred location type is absent.
 
+RangingSlExt ::= BIT STRING {
+	rangingIndication	(0) } (SIZE (1..16))
+-- A bit set to one indicates that the notification is for ranging and sidelink positioning.
 
 LocationNotificationRes	::= SEQUENCE {
 	verificationResponse	[0]	VerificationResponse OPTIONAL,
+	locationPrivacyIndication	[1] LCS-LocationPrivacyIndication	OPTIONAL,
+	validTimePeriod		[2] LCS-ValidTimePeriod	OPTIONAL,
 	...}
+-- Parameters locationPrivacyIndication or validTimePeriod may be included by a UE for 5GS
+-- access. Parameter validTimePeriod only may be included if parameter locatonPrivacyIndication
+-- is included.
 
 VerificationResponse::= ENUMERATED {
 	permissionDenied	(0),
@@ -300,40 +310,41 @@ VerificationResponse::= ENUMERATED {
 -- an unrecognized value shall be treated the same as value 0 (permissionDenied)
 
 LCS-MOLRArg	::= SEQUENCE {
-	molr-Type		[0]	MOLR-Type,
-	locationMethod	[1]	LocationMethod		OPTIONAL,
-	lcs-QoS		[2]	LCS-QoS			OPTIONAL,
+	molr-Type	[0]	MOLR-Type,
+	locationMethod	[1]	LocationMethod	OPTIONAL,
+	lcs-QoS	[2]	LCS-QoS		OPTIONAL,
 	lcsClientExternalID	[3] LCSClientExternalID	OPTIONAL,
-	mlc-Number		[4]	ISDN-AddressString	OPTIONAL,
+	mlc-Number	[4]	ISDN-AddressString	OPTIONAL,
 	gpsAssistanceData	[5]	GPSAssistanceData	OPTIONAL,
 	...,
 	supportedGADShapes	[6]	SupportedGADShapes	OPTIONAL,
 	lcsServiceTypeID	[7]	LCSServiceTypeID	OPTIONAL,
 	ageOfLocationInfo	[8]	AgeOfLocationInformation	OPTIONAL,
-	locationType	[9]	LocationType		OPTIONAL,
-	pseudonymIndicator	[10]	NULL			OPTIONAL,
-	h-gmlc-address	[11] GSN-Address		OPTIONAL,
+	locationType	[9]	LocationType	OPTIONAL,
+	pseudonymIndicator	[10]	NULL		OPTIONAL,
+	h-gmlc-address	[11] GSN-Address	OPTIONAL,
 	locationEstimate	[12] Ext-GeographicalInformation	OPTIONAL,
 	velocityEstimate	[13] VelocityEstimate	OPTIONAL,
 	referenceNumber	[14] LCS-ReferenceNumber	OPTIONAL,
 	periodicLDRInfo	[15] PeriodicLDRInfo	OPTIONAL,
-	locationUpdateRequest	[16]	NULL		OPTIONAL,
+	locationUpdateRequest	[16]	NULL	OPTIONAL,
 	sequenceNumber	[17] SequenceNumber 	OPTIONAL,
 	terminationCause	[18] TerminationCause	OPTIONAL,
-	mo-lrShortCircuit	[19]	NULL		OPTIONAL,
+	mo-lrShortCircuit	[19]	NULL	OPTIONAL,
 	ganssAssistanceData	[20] GANSSAssistanceData	OPTIONAL,
 	multiplePositioningProtocolPDUs	[21] MultiplePositioningProtocolPDUs	OPTIONAL,
-	locationInfo	[22] Location-Info		OPTIONAL }
--- The parameter locationMethod shall be included if and only if the molr-Type is set to value 
+	locationInfo	[22] LocationInfo	OPTIONAL,
+	scheduledLocTime	[23] DateTime OPTIONAL }
+-- The parameter locationMethod shall be included if and only if the molr-Type is set to value
 -- deCipheringKeys or assistanceData.
--- The parameter gpsAssistanceData shall be included if and only if the molr-Type is set to value 
+-- The parameter gpsAssistanceData shall be included if and only if the molr-Type is set to value
 -- assistanceData and locationMethod is set to value assistedGPS or assistedGPSandGANSS.
--- The parameter ganssAssistanceData shall be included if and only if the molr-Type is set to value 
+-- The parameter ganssAssistanceData shall be included if and only if the molr-Type is set to value
 -- assistanceData and locationMethod is set to value assistedGANSS or assistedGPSandGANSS.
 -- supportedGADShapes shall not be included for deferred MO-LR initiation or deferred MO-LR or MT-LR
--- responses 
+-- responses
 -- multiplePositioningProtocolPDUs may only be included for E-UTRAN access for an EPC-MO-LR.
--- locationMethod shall not be included for E-UTRAN access.
+-- locationMethod shall not be included for E-UTRAN and 5G access.
 -- gpsAssistanceData shall not be included for E-UTRAN access.
 -- velocityEstimate shall not be included for E-UTRAN access.
 -- periodicLDRInfo shall not be included for E-UTRAN access.
@@ -343,13 +354,14 @@ LCS-MOLRArg	::= SEQUENCE {
 -- ganssAssistanceData shall not be included for E-UTRAN access.
 -- locationInfo shall be included if available for E-UTRAN access for a periodic and triggered
 -- event report.
-
+-- Only mlc-number could be used to represent the address of H-GMLC of the UE, h-gmlc-address shall not be used for this purpose.
+-- if mappedQoSEps was received in LCS-PeriodicTriggeredInvokeArg to initiate deferred location event reporting from 5GS, lcs-QoS shall be set to the value of the received mappedQoSEps when a correspoding event is to be reported in EPS.
 
 
 MOLR-Type::= ENUMERATED {
-	locationEstimate		(0),
-	assistanceData		(1),
-	deCipheringKeys		(2),
+	locationEstimate	(0),
+	assistanceData	(1),
+	deCipheringKeys	(2),
 	... ,
 	deferredMo-lrTTTPInitiation	(3),
 	deferredMo-lrSelfLocationInitiation (4),
@@ -363,26 +375,26 @@ MOLR-Type::= ENUMERATED {
 	maximumIntervalExpirationEvent (12) }
 -- exception handling:
 -- an unrecognized value shall be rejected by the receiver with a return error cause of
--- unexpected data value. 
+-- unexpected data value.
 -- For E-UTRAN access, only locationEstimate, assistanceData, periodicEvent,
 -- deferredMt-lrOrmo-lrCancellation, enteringAreaEvent, leavingAreaEvent, beingInsideAreaEvent,
 -- motionEvent or maximumIntervalExpirationEvent shall be included
 
 
 LocationMethod::= ENUMERATED {
-	msBasedEOTD		(0),
+	msBasedEOTD	(0),
 	msAssistedEOTD	(1),
-	assistedGPS		(2),
+	assistedGPS	(2),
 	...,
 	msBasedOTDOA	(3),
 	assistedGANSS	(4),
 	assistedGPSandGANSS (5)
 	}
 -- exception handling:
--- When this parameter is received with value msBasedEOTD or msAssistedEOTD and the MS 
--- is camped on an UMTS Service Area then the receiver shall reject it 
+-- When this parameter is received with value msBasedEOTD or msAssistedEOTD and the MS
+-- is camped on an UMTS Service Area then the receiver shall reject it
 -- with a return error cause of unexpected data value.
--- When this parameter is received with value msBasedOTDOA and the MS 
+-- When this parameter is received with value msBasedOTDOA and the MS
 -- is camped on a GSM Cell then the receiver shall reject it with a return error cause of
 -- unexpected data value.
 -- an unrecognized value shall be rejected by the receiver with a return error cause of
@@ -399,7 +411,11 @@ GANSSAssistanceData::= OCTET STRING (SIZE (1..40))
 TerminationCause ::= ENUMERATED {
 	subscriberTermination  (0),
 	uETermination     (1),
-	...} 
+	...,
+	normalTermination  (2),
+	networkTermination  (3)}
+-- normalTermination shall be included for a normal end to periodic or triggered event
+-- reporting
 
 MultiplePositioningProtocolPDUs ::= SEQUENCE (SIZE (1..maxNumLPPMsg)) OF PositioningProtocolPDU
 
@@ -412,19 +428,20 @@ maxNumLPPMsg INTEGER ::= 3
 
 LCS-MOLRRes::= SEQUENCE {
 	locationEstimate	[0]	Ext-GeographicalInformation	OPTIONAL,
-	decipheringKeys		[1] DecipheringKeys			OPTIONAL,
+	decipheringKeys	[1] DecipheringKeys		OPTIONAL,
 	...,
 	add-LocationEstimate	[2]	Add-GeographicalInformation	OPTIONAL,
 	velocityEstimate	[3] VelocityEstimate	OPTIONAL,
 	referenceNumber	[4] LCS-ReferenceNumber	OPTIONAL,
-	h-gmlc-address		[5]	GSN-Address		OPTIONAL,
-	mo-lrShortCircuit	[6]	NULL			OPTIONAL,
-	reportingPLMNList	[7]	ReportingPLMNList	OPTIONAL
+	h-gmlc-address	[5]	GSN-Address	OPTIONAL,
+	mo-lrShortCircuit	[6]	NULL		OPTIONAL,
+	reportingPLMNList	[7]	ReportingPLMNList	OPTIONAL,
+	timestampOfLocationEstimate	[8]	DateTime	OPTIONAL
 	}
--- Parameters locationEstimate or add-LocationEstimate (one but not both) 
--- shall be included if and only if the 
+-- Parameters locationEstimate or add-LocationEstimate (one but not both)
+-- shall be included if and only if the
 -- molr-Type in LocationRequestArg was set to value locationEstimate.
--- Parameter add-LocationEstimate shall not be included if the supportedGADShapes 
+-- Parameter add-LocationEstimate shall not be included if the supportedGADShapes
 -- parameter was not received in the LCS-MOLRArg.
 -- The locationEstimate and the add-locationEstimate parameters shall not be sent if
 -- the supportedGADShapes parameter has been received in LCS-MOLRArg
@@ -446,25 +463,155 @@ LCS-MOLRRes::= SEQUENCE {
 
 DecipheringKeys::= OCTET STRING (SIZE (15))
 -- Octets in DecipheringKeys are coded in the same way as the octets 3 to 17 of Deciphering Key IE
--- in 3GPP TS 49.031 [14]. I.e. these octets contain Current Deciphering Key, Next Deciphering Key and 
+-- in 3GPP TS 49.031 [14]. I.e. these octets contain Current Deciphering Key, Next Deciphering Key and
 -- Ciphering Key Flag.
 LCS-AreaEventRequestArg	::= SEQUENCE {
-	referenceNumber		[0]	LCS-ReferenceNumber,
-	h-gmlc-address		[1]	GSN-Address,
+	referenceNumber	[0]	LCS-ReferenceNumber,
+	h-gmlc-address	[1]	GSN-Address,
 	deferredLocationEventType	[3] DeferredLocationEventType,
-	areaEventInfo		[4]	AreaEventInfo,
+	areaEventInfo	[4]	AreaEventInfo,
 	... }
 
--- the msAvailableValue in the DeferredLocationEventType is not applicable for this procedure 
+-- the msAvailableValue in the DeferredLocationEventType is not applicable for this procedure
+
+SLMOLR-Type::= ENUMERATED {
+	rangingSidelink (0),
+	...}
+-- exception handling:
+-- an unrecognized value shall be rejected by the receiver with a return error cause of
+-- unexpected data value.
+
+LCS-SLMOLRArg	::= SEQUENCE {
+	slmolr-Type	[0]	SLMOLR-Type,
+	lcs-QoS	[1]	LCS-QoS		OPTIONAL,
+	lcsClientExternalID	[2] LCSClientExternalID	OPTIONAL,
+	mlc-Number	[3]	ISDN-AddressString	OPTIONAL,
+	supportedGADShapes	[4]	SupportedGADShapes	OPTIONAL,
+	lcsServiceTypeID	[5]	LCSServiceTypeID	OPTIONAL,
+	pseudonymIndicator	[7]	NULL	OPTIONAL,
+	h-gmlc-address	[8] GSN-Address	OPTIONAL,
+	calculationAssistIndicator	[9] BOOLEAN	OPTIONAL,
+	preferredRangingResult	[10] PreferredRangingResult	OPTIONAL,
+	relatedUEInfo	[11] RelatedUEInfo	OPTIONAL,
+	...}
+-- The parameter slmolr-Type shall set to value rangingSidelink.
+-- Only mlc-number could be used to represent the address of H-GMLC of the UE, h-gmlc-address shall not be used for this purpose.
+
+PreferredRangingResult	::= SEQUENCE {
+	absoluteLocationIndicator	[0]	BOOLEAN	OPTIONAL,
+	absoluteVelocityIndicator	[1]	BOOLEAN	OPTIONAL,
+	relativeLocationIndicator	[2]	BOOLEAN	OPTIONAL,
+	rangeDirection	[3]	BOOLEAN	OPTIONAL,
+	relativeVelocityIndicator	[4]	BOOLEAN	OPTIONAL,
+	... }
+
+RelatedUEInfo	::= SEQUENCE SIZE (1..maxRelatedUE) OF RangingUEInfo
+
+maxRelatedUE	INTEGER ::= 16
+
+RangingUEInfo	::= SEQUENCE {
+	applicationLayerID	[0]	OCTET STRING,
+	rangingRole	[1]	RangingRole	OPTIONAL,
+	... }
+
+RangingRole	::= ENUMERATED {
+	targetUE (0),
+	locatedUE (1),
+	slReferenceUE (2),
+	slServerUE (3),
+	slClientUE (4),
+	... }
+
+LCS-SLMOLRRes::= SEQUENCE {
+	absoluteLocation	[0]	Ext-GeographicalInformation	OPTIONAL,
+	absoluteVelocity	[1]	VelocityEstimate	OPTIONAL,
+	relativeResult	[2]	RelativeResult	OPTIONAL,
+	ueOnlyRSLPosAllowed	[4]	Duration	OPTIONAL,
+	timestamp	[5]	DateTime	OPTIONAL,
+	... }
+
+RelativeResult	::= SEQUENCE SIZE (1..maxRelatedUE) OF SingleRelativeResult
+
+SingleRelativeResult	::= SEQUENCE {
+	relatedUEInfo	[0] RelatedUEInfo	OPTIONAL,
+	relativeLocation	[1]	RelativeLocationCoordinates	OPTIONAL,
+	rangeDirection	[2]	RangeDirection	OPTIONAL,
+	relativeVelocity	[3]	VelocityEstimate	OPTIONAL,
+	... }
+
+RelativeLocationCoordinates ::= SEQUENCE {
+	relative2D-LocationWithUncertaintyEllipse	[0]	Relative2D-LocationWithUncertaintyEllipse	OPTIONAL,
+	relative3D-LocationWithUncertaintyEllipsoid	[1]	Relative3D-LocationWithUncertaintyEllipsoid	OPTIONAL,
+	...}
+
+Relative2D-LocationWithUncertaintyEllipse ::=   SEQUENCE {
+	xCoordinates	[0]	RangeXYCoordinates,
+	yCoordinates	[1]	RangeXYCoordinates,
+	uncertaintySemiMajor	[2]	Uncertainty,
+	uncertaintySemiMinor	[3]	Uncertainty,
+	orientationMajorAxis	[4]	OrientationMajorAxis,
+	confidence	[5]	Confidence	OPTIONAL,
+	...}
+
+Relative3D-LocationWithUncertaintyEllipsoid ::=   SEQUENCE {
+	xCoordinates	[0]	RangeXYCoordinates,
+	yCoordinates	[1]	RangeXYCoordinates,
+	zCoordinates	[2]	RangeZCoordinates,
+	uncertaintySemiMajor	[3]	Uncertainty,
+	uncertaintySemiMinor	[4]	Uncertainty,
+	orientationMajorAxis	[5]	OrientationMajorAxis,
+	uncertaintyAltitude	[6]	Uncertainty,
+	confidence	[7]	Confidence	OPTIONAL,
+	...}
+
+RangeXYCoordinates	::= INTEGER (-134217728..134217727)
+
+RangeZCoordinates	::= INTEGER (-16777216..16777215)
+
+Uncertainty	::= INTEGER (0..255)
+
+OrientationMajorAxis	::= INTEGER (0..179)
+
+Confidence	::= INTEGER (0..100)
+
+RangeDirection ::= SEQUENCE {
+	range	[0]	Range	OPTIONAL,
+	azimuth	[1]	Azimuth	OPTIONAL,
+	elevation	[2]	Elevation	OPTIONAL,
+	...}
+
+Range ::= SEQUENCE {
+	rangeResult	[0]	RangeResult,
+	uncertainty	[1]	Uncertainty,
+	confidence	[2]	Confidence	OPTIONAL,
+	...}
+
+Azimuth::= SEQUENCE {
+	azimuthResult	[0]	AzimuthResult,
+	uncertainty	[1]	Uncertainty,
+	confidence	[2]	Confidence	OPTIONAL,
+	...}
+
+Elevation ::= SEQUENCE {
+	elevationResult	[0]	ElevationResult,
+	uncertainty	[1]	Uncertainty,
+	confidence	[2]	Confidence	OPTIONAL,
+	...}
+
+RangeResult	::= INTEGER (0..1048575)
+
+AzimuthResult	::= INTEGER (0..3599)
+
+ElevationResult	::= INTEGER (0..1800)
 
 LCS-AreaEventReportArg	::= SEQUENCE {
-	referenceNumber		[0]	LCS-ReferenceNumber,
-	h-gmlc-address		[1]	GSN-Address,
+	referenceNumber	[0]	LCS-ReferenceNumber,
+	h-gmlc-address	[1]	GSN-Address,
 	... }
 
 LCS-AreaEventCancellationArg	::= SEQUENCE {
-	referenceNumber		[0]	LCS-ReferenceNumber,
-	h-gmlc-address		[1]	GSN-Address,
+	referenceNumber	[0]	LCS-ReferenceNumber,
+	h-gmlc-address	[1]	GSN-Address,
 	... }
 
 
@@ -472,15 +619,15 @@ LCS-PeriodicLocationRequestArg	::= SEQUENCE {
 	referenceNumber	[0] LCS-ReferenceNumber,
 	periodicLDRInfo	[1]	PeriodicLDRInfo,
 	lcsClientExternalID	[2] LCSClientExternalID,
-	qoS			[3] LCS-QoS			OPTIONAL,
-	h-gmlc-address	[4]	GSN-Address		OPTIONAL,
-	mo-lrShortCircuit	[5]	NULL			OPTIONAL,
+	qoS		[3] LCS-QoS		OPTIONAL,
+	h-gmlc-address	[4]	GSN-Address	OPTIONAL,
+	mo-lrShortCircuit	[5]	NULL		OPTIONAL,
 	reportingPLMNList	[6]	ReportingPLMNList	OPTIONAL,
 	... }
 
 
 LCS-PeriodicLocationRequestRes	::= SEQUENCE {
-	mo-lrShortCircuit	[0]	NULL			OPTIONAL,
+	mo-lrShortCircuit	[0]	NULL		OPTIONAL,
 	... }
 
 
@@ -488,7 +635,7 @@ LCS-LocationUpdateArg	::= SEQUENCE {
 	referenceNumber	[0] LCS-ReferenceNumber	OPTIONAL,
 	add-LocationEstimate[1] Add-GeographicalInformation	OPTIONAL,
 	velocityEstimate	[2] VelocityEstimate	OPTIONAL,
-	sequenceNumber	[3]	SequenceNumber		OPTIONAL,
+	sequenceNumber	[3]	SequenceNumber	OPTIONAL,
 	... }
 -- add-LocationEstimate shall be included if and only if a location estimate was successfully
 -- transferred towards an External LCS Client or was successfully obtained for UE self location
@@ -500,35 +647,58 @@ LCS-LocationUpdateRes	::= SEQUENCE {
 
 LCS-PeriodicLocationCancellationArg	::= SEQUENCE {
 	referenceNumber	[0] LCS-ReferenceNumber,
-	h-gmlc-address	[1]	GSN-Address		OPTIONAL,
+	h-gmlc-address	[1]	GSN-Address	OPTIONAL,
 	... }
 
 LCS-PeriodicTriggeredInvokeArg	::= SEQUENCE {
-	referenceNumber		[0]	LCS-ReferenceNumber,
-	h-gmlc-address		[1]	GSN-Address,
-	qoS				[2] LCS-QoS			OPTIONAL,
-	reportingPLMNList		[3]	ReportingPLMNList	OPTIONAL,
-	periodicLocation		[4]	PeriodicLocation	OPTIONAL,
-	areaEventReporting		[5]	AreaEventReporting	OPTIONAL,
+	referenceNumber	[0]	LCS-ReferenceNumber,
+	h-gmlc-address	[1]	GSN-Address,
+	qoS		[2] LCS-QoS		OPTIONAL,
+	reportingPLMNList	[3]	ReportingPLMNList	OPTIONAL,
+	periodicLocation	[4]	PeriodicLocation	OPTIONAL,
+	areaEventReporting	[5]	AreaEventReporting	OPTIONAL,
 	motionEventReporting	[6]	MotionEventReporting	OPTIONAL,
-	... }
+	...,
+	referenceNumberExt	[7]	LCS-ReferenceNumberExt	OPTIONAL,
+	h-gmlc-callBackUri		[8] UTF8String	OPTIONAL,
+	supportedGADShapes	[9]	SupportedGADShapes	OPTIONAL,
+	deferredRoutingIdentifier	[10]	OCTET STRING	OPTIONAL,
+	reportingAccessTypes	[11]	ReportingAccessTypes	OPTIONAL,
+	multiplePositioningProtocolPDUs	[12] MultiplePositioningProtocolPDUs	OPTIONAL,
+	controlPlane-CIoT-5GS-Optimisation	[13] ControlPlane-CIoT-5GS-Optimisation	OPTIONAL,
+	scheduledLocTime	[14] DateTime,
+	eventReportAllowedArea	[15]	AreaList	OPTIONAL,
+	reportingInd	[16]	ReportingInd	OPTIONAL,
+	mappedQoS	[17] LCS-QoS	OPTIONAL,
+	userPlaneReportAFAddr	[18]	LCS-UserPlaneReportAFAddr	OPTIONAL, 
+	cumulativeReportCriteria	[19]	LCS-CumulativeReportCriteria	OPTIONAL }
 -- Only one of periodicLocation, areaEventReporting and motionEventReporting shall be included.
 -- responseTime and velocityRequest are not applicable in LCS-QoS.
 -- reportingPLMNList provides a list of PLMNs in which event reporting is allowed.
+-- If referenceNumberExt is included, an MS shall ignore referenceNumber.
+-- h-gmlc-address shall be ignored by a UE for 5GS access.
+-- referenceNumberExt, h-gmlc-callBackUri, supportedGADShapes, deferredRoutingIdentifier,
+-- reportingAccessTypes, multiplePositioningProtocolPDUs and controlPlane-CIoT-5GS-Optimisation
+-- shall not be included for E-UTRA access to EPC.
+-- reportingPLMNList shall not be included for 5GS access.
+-- scheduledLocTime is only applicable for periodic location reporting, which indicates a time in future for the first periodic location to be reported.
+-- If mappedQoS is included, it indicates UE to send the mapped QoS which appliable to EPS to MME when
+-- UE has moved from 5GS to EPS and detected an event to report to MME, for the service continuity from
+-- 5GS to EPS scenario with deferred MT-LR initiated in 5GS with multiple QoS calss case. 
 
 PeriodicLocation	::= SEQUENCE {
-	periodicLDRInfo		[0]	PeriodicLDRInfo,
+	periodicLDRInfo	[0]	PeriodicLDRInfo,
 	... }
 
 AreaEventReporting	::=	SEQUENCE {
 	deferredLocationEventType	[0] DeferredLocationEventType,
-	areaList			[1]	AreaList,
-	occurrenceInfo		[2]	OccurrenceInfo	OPTIONAL,
-	intervalTime		[3]	IntervalTime	OPTIONAL,
-	maximumInterval		[4]	MaximumInterval	OPTIONAL,
-	samplingInterval		[5] SamplingInterval	OPTIONAL,
-	duration			[6]	Duration		OPTIONAL,
-	locationInfo		[7]	Location-Info	OPTIONAL,
+	areaList		[1]	AreaList,
+	occurrenceInfo	[2]	OccurrenceInfo	OPTIONAL,
+	intervalTime	[3]	IntervalTime	OPTIONAL,
+	maximumInterval	[4]	MaximumInterval	OPTIONAL,
+	samplingInterval	[5] SamplingInterval	OPTIONAL,
+	duration		[6]	Duration	OPTIONAL,
+	locationInfo	[7]	LocationInfo	OPTIONAL,
 	... }
 -- msAvailable and periodicLDR in DeferredLocationEventType are not applicable.
 -- intervalTime and maximumInterval are not applicable when OccurenceInfo is present with
@@ -539,14 +709,18 @@ AreaList ::= SEQUENCE SIZE (1..maxAreas) OF Area
 maxAreas	INTEGER ::= 250
 
 Area ::= SEQUENCE {
-	areaType		[0]	AreaType,
+	areaType	[0]	AreaType,
 	areaIdentification	[1]	AreaIdentification,
-	...}
+	...,
+	areaIdentificationExt [2] AreaIdentificationExt }
 
 AreaType ::= ENUMERATED {
 	trackingArea (0),
 	ecgi (1),
-	... }
+	...,
+	trackingArea5GS (2),
+	ncgi (3) }
+-- trackingArea5GS and ncgi shall not be included for an MS without 5GS access
 
 AreaIdentification ::= OCTET STRING (SIZE (5..7))
 -- The internal structure is defined as follows:
@@ -554,11 +728,32 @@ AreaIdentification ::= OCTET STRING (SIZE (5..7))
 --         bits 8765	Mobile Country Code 2nd digit
 -- octet 2 bits 4321	Mobile Country Code 3rd digit
 --         bits 8765	Mobile Network Code 3rd digit if 3 digit MNC included
---		or filler (1111)
+--	or filler (1111)
 -- octet 3 bits 4321	Mobile Network Code 1st digit
 --         bits 8765	Mobile Network Code 2nd digit
--- octets 4 and 5	Tracking Area Code for a Tracking Area (bit 8 of octet 4 is the most significant bit and bit 1 of octet 5 the least significant bit) 
--- octets 4 until 7	E-UTRAN Cell Identity for an ECGI (bit 8 of octet 4 is the most significant bit and bit 5 of octet 7 the least significant bit)
+-- octets 4 and 5	Tracking Area Code for an EPS Tracking Area (bit 8 of octet 4 is the
+--		most significant bit and bit 1 of octet 5 the least significant bit)
+-- octets 4 until 7	E-UTRAN Cell Identity for an ECGI (bit 8 of octet 4 is the most
+--		significant bit and bit 5 of octet 7 the least significant bit)
+-- octets 4 until 6 	Tracking Area Code for a 5GS Tracking Area (bit 8 of octet 4 is the
+--		most significant bit and bit 1 of octet 6 the least significant bit)
+-- octets 4 until 7	    Cell Identity for an NCGI (bit 8 of octet 4 is the most
+--		significant bit and bit 1 of octet 7 the fifth least significant bit. The 4 least
+--          significant bits are included in areaIdentificationExt)
+
+AreaIdentificationExt ::= OCTET STRING (SIZE (1))
+-- contains the 4 least significant bits of an NCGI in bits 8765 with bit 8 containing the
+-- the most significant bit
+
+
+OccurrenceInfo ::= ENUMERATED {
+	oneTimeEvent (0),
+	multipleTimeEvent (1),
+	... }
+-- exception handling:
+-- an unrecognized value shall be rejected by the receiver with a return error cause of
+-- unexpected data value.
+
 
 MaximumInterval ::= INTEGER (1..86400)
 -- maximum time interval between consecutive event reports in seconds.
@@ -570,21 +765,21 @@ SamplingInterval ::= INTEGER (1..3600)
 Duration ::= INTEGER (1..8640000)
 -- maximum duration of event reporting by a UE, in seconds
 
-Location-Info ::= BIT STRING {
-	locationEstimate	(0) } (SIZE (1..32)) 
+LocationInfo ::= BIT STRING {
+	locationEstimate	(0) } (SIZE (1..32))
 -- A bit set to one indicates that the corresponding requirement is present.
 -- A bit set to zero indicates that the corresponding requirement is absent.
 -- The locationEstimate is a requirement to provide the UE location for an event report to
 -- the external client, but the location may be provided by either the UE or network.
 
 MotionEventReporting	::=	SEQUENCE {
-	linearDistance		[0]	LinearDistance,
-	occurrenceInfo		[1]	OccurrenceInfo	OPTIONAL,
-	intervalTime		[2]	IntervalTime	OPTIONAL,
-	maximumInterval		[3]	MaximumInterval	OPTIONAL,
-	samplingInterval		[4] SamplingInterval	OPTIONAL,
-	duration			[5]	Duration		OPTIONAL,
-	locationInfo		[6]	Location-Info	OPTIONAL,
+	linearDistance	[0]	LinearDistance,
+	occurrenceInfo	[1]	OccurrenceInfo	OPTIONAL,
+	intervalTime	[2]	IntervalTime	OPTIONAL,
+	maximumInterval	[3]	MaximumInterval	OPTIONAL,
+	samplingInterval	[4] SamplingInterval	OPTIONAL,
+	duration		[5]	Duration	OPTIONAL,
+	locationInfo	[6]	LocationInfo	OPTIONAL,
 	... }
 -- intervalTime and maximumInterval are not applicable when OccurenceInfo is present with
 -- the value of oneTimeEvent.
@@ -592,8 +787,218 @@ MotionEventReporting	::=	SEQUENCE {
 LinearDistance	::=	INTEGER (1..10000)
 -- the minimum straight line distance moved by a UE to trigger a motion event report, in meters.
 
+LCS-ReferenceNumberExt ::= OCTET STRING (SIZE (1..255))
+
+ReportingAccessTypes ::= BIT STRING {
+	nR			(0),
+	eUTRAConnectedTo5GC 	(1),
+	non3GPPConnectedTo5GC	(2),
+	eUTRAConnectedToEPC 	(3),
+	nR-LEO	(4),
+	nR-MEO	(5),
+	nR-GEO	(6),
+	nR-OTHER-SAT	(7) } (SIZE (1..16))
+-- A bit set to one indicates that the access type is allowed for event reporting.
+-- A bit set to zero or omitted indicates that the access types is not allowed.
+
+ReportingInd ::= ENUMERATED {
+	insideReporting (0),
+	outsideReporting (1),
+	... }
+
 LCS-PeriodicTriggeredInvokeRes	::= SEQUENCE {
 	...}
 
+LCS-EventReportArg	::= SEQUENCE {
+	eventType		[0]	EventType,
+	referenceNumberExt	[1]	LCS-ReferenceNumberExt,
+	h-gmlc-callBackUri		[2] UTF8String,
+	locationInfo	[3] LocationInfo	OPTIONAL,
+	supportedGADShapes	[4]	SupportedGADShapes	OPTIONAL,
+	lcs-QoS		[5]	LCS-QoS		OPTIONAL,
+	multiplePositioningProtocolPDUs	[6] MultiplePositioningProtocolPDUs	OPTIONAL,
+	terminationCause	[7] TerminationCause	OPTIONAL,
+	..., 
+	userPlaneEventReportStat	[8]	LCS-UserPlaneEventReportStat	OPTIONAL }
+-- inclusion of the terminationCause signifies termination of event reporting by the MS
+
+EventType ::= ENUMERATED {
+	periodicEvent (0),
+	enteringAreaEvent (1),
+	leavingAreaEvent (2),
+	beingInsideAreaEvent (3),
+	motionEvent (4),
+	maximumIntervalExpirationEvent (5),
+	locationCancellationEvent (6),
+	..., 
+	cumulativeEventReport (7) }
+-- exception handling:
+-- an unrecognized value shall be rejected by the receiver with a return error cause of
+-- unexpected data value.
+
+ControlPlane-CIoT-5GS-Optimisation ::= SEQUENCE {
+	maximumDuration			[0] MaximumDuration	OPTIONAL,
+	maximumConsecutiveEventReports	[1] MaximumConsecutiveEventReports	OPTIONAL,
+	... }
+
+MaximumDuration ::= INTEGER (1..10080)
+-- maximum duration for use of Control Plane CIoT 5GS Optimisation in minutes.
+
+MaximumConsecutiveEventReports ::= INTEGER (1..1023)
+-- maximum number of consecutive event reports for Control Plane CIoT 5GS Optimisation.
+
+LCS-UserPlaneEventReportStat ::= INTEGER (1..8639999)
+
+LCS-UserPlaneReportAFAddr ::= SEQUENCE {
+	af-Ipv4-Addrs	[0]	Ipv4Addrs	OPTIONAL,
+	af-Ipv6-Addrs	[1]	Ipv6Addrs	OPTIONAL,
+	af-Fqdn	[2]	FQDN	OPTIONAL }
+
+Ipv4Addrs ::= SEQUENCE SIZE (1..16) OF
+	Ipv4Addr
+
+Ipv6Addrs ::= SEQUENCE SIZE (1..16) OF
+	Ipv6Addr
+
+Ipv4Addr ::=  OCTET STRING (SIZE (4))
+
+Ipv6Addr ::=  OCTET STRING (SIZE (16))
+
+LCS-CumulativeReportCriteria ::= SEQUENCE {
+	timerCriteria	[0]	LCS-CumulativeReportTimerCriteria	OPTIONAL,
+	counterCriteria	[1]	LCS-CumulativeReportCounterCriteria	OPTIONAL }
+
+LCS-CumulativeReportTimerCriteria ::= INTEGER (1..8639999)
+
+LCS-CumulativeReportCounterCriteria ::= INTEGER (1..8639999)
+
+FQDN ::=  OCTET STRING (SIZE (4..253))
+
+LCS-EventReportRes::= SEQUENCE {
+	deferredRoutingIdentifier	[0]	OCTET STRING	OPTIONAL,
+	terminationCause	[1] TerminationCause	OPTIONAL,
+	... }
+
+LCS-CancelDeferredLocationArg ::= SEQUENCE {
+	referenceNumberExt	[0] LCS-ReferenceNumberExt,
+	h-gmlc-callBackUri	[2]	UTF8String,
+	... }
+
+LCS-LocationPrivacySettingArg ::= SEQUENCE {
+	locationPrivacyIndication	[0] LCS-LocationPrivacyIndication,
+	validTimePeriod		[1] LCS-ValidTimePeriod	OPTIONAL,
+	eventReportExpectedArea	[2] Ext-GeographicalInformation	OPTIONAL,
+	areaUsageInd	[3] ReportingInd	OPTIONAL,
+	... }
+
+LCS-LocationPrivacyIndication ::= ENUMERATED {
+	locationDisallowed (0),
+	locationAllowed (1),
+	...,
+	rangingDisallowed (2),
+	rangingAllowed (3) }
+
+LCS-ValidTimePeriod ::= SEQUENCE {
+	startTime	[0] DateTime	OPTIONAL,
+	endTime	[1] DateTime	OPTIONAL,
+	... }
+
+DateTime ::= OCTET STRING (SIZE (30))
+-- The timestamp at which certain event occurs. Octets are coded according to RFC 3339 [18]
+
+LCS-PruAssociationArg	::= SEQUENCE {
+	associationType	[0]	LCS-AssociationType,
+	positioningCapabilities	[1]	OCTET STRING,
+	locationOfPru	[2]	Ext-GeographicalInformation	OPTIONAL,
+	stateOfPru			[3]	LCS-StateOfPru 	OPTIONAL,
+	... }
+
+LCS-AssociationType	::= ENUMERATED {
+	initialAssociation	(0),
+	associationUpdate	(1),
+	... }
+
+LCS-StateOfPru	::= ENUMERATED {
+	on	(0),
+	off	(1),
+	... }
+
+LCS-PruAssociationRes	::= SEQUENCE {
+	periodicUpdateTimer	[0] LCS-PeriodicUpdateTimer	OPTIONAL,
+	updateTrigger	[1] LCS-PruUpdateTrigger	OPTIONAL,
+	... }
+
+LCS-PeriodicUpdateTimer	::= INTEGER (1..4294967295)
+
+LCS-PruUpdateTrigger	::= BIT STRING {
+	taiChange	(0),
+	servingAmfChange	(1),
+	pruStateChange		(2) } (SIZE (1..16))
+
+LCS-PruDisassociationArg	::= SEQUENCE {
+	ackIndication	[0]	BOOLEAN	OPTIONAL,
+	newLmfRoutingId	[1]	OCTET STRING	OPTIONAL,
+	... }
+
+SLMTLR-Type::= ENUMERATED {
+	rangingSidelink (0),
+	...}
+-- exception handling:
+-- an unrecognized value shall be rejected by the receiver with a return error cause of
+-- unexpected data value.
+
+LCS-SLMTLRArg	::= SEQUENCE {
+	slmtlr-Type	[0]	SLMTLR-Type,
+	supportedGADShapes	[1]	SupportedGADShapes	OPTIONAL,
+	relatedUEInfo	[2] RelatedUEInfo	OPTIONAL,
+	locatedUEselect	[3] LocatedUEselect	OPTIONAL,
+	coordinateID	[4] CoordinateID	OPTIONAL,
+	...}
+-- The parameter slmtlr-Type shall set to value rangingSidelink.
+
+LocatedUEselect	::= ENUMERATED {
+	targetUESelect	(0),
+	lmfselect	(1),
+	... }
+
+CoordinateID	::= INTEGER (0.. 511)
+
+LCS-SLMTLRRes::= SEQUENCE {
+	relatedUEInfo	[0]	RelatedUEInfo,
+	rangingSLPPList	[1]	RangingSLPPList	OPTIONAL,
+	... }
+
+RangingSLPPList	::= SEQUENCE (SIZE (1..maxNumSLPPMsg)) OF RangingSLPPInfo
+
+maxNumSLPPMsg INTEGER ::= 63
+
+RangingSLPPInfo ::= SEQUENCE {
+	sLPPMsg	[0]	SlPosProtocolPDU,
+	relatedUE	[1]	OCTET STRING	OPTIONAL }
+
+SlPosProtocolPDU::= OCTET STRING
+-- SlPosProtocol contains a SLPP message defined in 3GPP TS 38.355.
+
+UEBased	::= ENUMERATED {
+	notcalculatedbyUE	(0),
+	calculatedbyUE	(1),
+	... }
+
+LCS-DLRSPPTransportArg	::= SEQUENCE {	
+	rangingSLPPList	[0]	RangingSLPPList	OPTIONAL,
+	scheduledLocTime	[1] DateTime	OPTIONAL,
+	ueBased	[2] UEBased	OPTIONAL,
+	relatedUEInfo	[3] RelatedUEInfo	OPTIONAL,
+	...}
+
+LCS-DLRSPPTransportRes::= SEQUENCE {
+	}
+
+LCS-ULRSPPTransportArg	::= SEQUENCE {	
+	rangingSLPPList	[0]	RangingSLPPList	OPTIONAL,
+	...}
+
+LCS-ULRSPPTransportRes::= SEQUENCE {
+	}
 
 END

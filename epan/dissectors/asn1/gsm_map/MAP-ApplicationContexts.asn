@@ -1,10 +1,10 @@
 --17.3.3	ASN.1 Module for application-context-names
 --The following ASN.1 module summarises the application-context-name assigned to MAP application-contexts.
--- 3GPP TS 29.002 V15.5.0 (2019-06)
+-- 3GPP TS 29.002 V18.0.0 (2023-09)
 
 MAP-ApplicationContexts {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-ApplicationContexts (2) version18 (18)}
+   gsm-Network (1) modules (3) map-ApplicationContexts (2) version21 (21)}
 
 DEFINITIONS
 

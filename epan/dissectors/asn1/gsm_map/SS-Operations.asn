@@ -1,8 +1,8 @@
--- 3GPP TS 24.080 V15.0.0 (2018-06)
+-- 3GPP TS 24.080 V18.4.0 (2024-09)
 -- 4.2	Operation types
 SS-Operations {
    itu-t identified-organization (4) etsi (0) mobileDomain (0) gsm-Access (2) modules (3)
-   ss-Operations (0) version12 (12)}
+   ss-Operations (0) version17 (17)}
 
 DEFINITIONS ::=
 
@@ -14,7 +14,8 @@ EXPORTS
 
 -- operations defined in this specification
 processUnstructuredSS-Data, notifySS, forwardChargeAdvice, forwardCUG-Info, buildMPTY, holdMPTY, retrieveMPTY, splitMPTY, explicitCT, accessRegisterCCEntry, callDeflection, userUserService,
-lcs-LocationNotification, lcs-MOLR, lcs-AreaEventRequest, lcs-AreaEventReport, lcs-AreaEventCancellation, lcs-PeriodicLocationRequest, lcs-LocationUpdate, lcs-PeriodicLocationCancellation, lcs-PeriodicTriggeredInvoke;
+lcs-LocationNotification, lcs-MOLR, lcs-SLMOLR, lcs-AreaEventRequest, lcs-AreaEventReport, lcs-AreaEventCancellation, lcs-PeriodicLocationRequest, lcs-LocationUpdate, lcs-PeriodicLocationCancellation,
+ lcs-PeriodicTriggeredInvoke, lcs-EventReport, lcs-CancelDeferredLocation, lcs-MSCancelDeferredLocation, lcs-LocationPrivacySetting, lcs-PruAssociation, lcs-PruDisassociation, lcs-SLMTLR, lcs-DLRSPPTransport, lcs-ULRSPPTransport;
 
 IMPORTS
 
@@ -41,6 +42,8 @@ LocationNotificationArg,
 LocationNotificationRes,
 LCS-MOLRArg,
 LCS-MOLRRes,
+LCS-SLMOLRArg,
+LCS-SLMOLRRes,
 LCS-AreaEventRequestArg,
 LCS-AreaEventReportArg,
 LCS-AreaEventCancellationArg,
@@ -50,42 +53,55 @@ LCS-LocationUpdateArg,
 LCS-LocationUpdateRes,
 LCS-PeriodicLocationCancellationArg,
 LCS-PeriodicTriggeredInvokeArg,
-LCS-PeriodicTriggeredInvokeRes
+LCS-PeriodicTriggeredInvokeRes,
+LCS-EventReportArg,
+LCS-EventReportRes,
+LCS-CancelDeferredLocationArg,
+LCS-LocationPrivacySettingArg,
+LCS-PruAssociationArg,
+LCS-PruAssociationRes,
+LCS-PruDisassociationArg,
+LCS-SLMTLRArg,
+LCS-SLMTLRRes,
+LCS-DLRSPPTransportArg,
+LCS-DLRSPPTransportRes,
+LCS-ULRSPPTransportArg,
+LCS-ULRSPPTransportRes
 
 
 FROM SS-DataTypes {
    itu-t identified-organization (4) etsi (0) mobileDomain (0) gsm-Access (2) modules (3)
-   ss-DataTypes (2) version12 (12)}
+   ss-DataTypes (2) version17 (17)}
 
--- imports MAP-SS-data types 
+-- imports MAP-SS-data types
 RegisterCC-EntryRes
 FROM MAP-SS-DataTypes {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-SS-DataTypes (14) version12 (12)}
+   gsm-Network (1) modules (3) map-SS-DataTypes (14) version21 (21)}
 
 -- imports MAP-errors
 illegalSS-Operation, ss-ErrorStatus, ss-NotAvailable, ss-SubscriptionViolation,
 ss-Incompatibility, systemFailure, facilityNotSupported, callBarred, unexpectedDataValue, shortTermDenial, longTermDenial, dataMissing, forwardingViolation, forwardingFailed, positionMethodFailure, resourceLimitation
 FROM MAP-Errors {
    itu-t identified-organization (4) etsi (0) mobileDomain (0) gsm-Network (1) modules (3)
-   map-Errors (10) version12 (12)}
+   map-Errors (10) version21 (21)}
 
 -- imports SS-Errors
-resourcesNotAvailable, maxNumberOfMPTY-ParticipantsExceeded, deflectionToServedSubscriber, invalidDeflectedToNumber, specialServiceCode, rejectedByUser, rejectedByNetwork
+resourcesNotAvailable, maxNumberOfMPTY-ParticipantsExceeded, deflectionToServedSubscriber, invalidDeflectedToNumber, specialServiceCode, rejectedByUser, rejectedByNetwork, lcs-invalidPru, lcs-PruAssociationRej
 FROM SS-Errors {
    itu-t identified-organization (4) etsi (0) mobileDomain (0) gsm-Access (2) modules (3)
-   ss-Errors (1) version12 (12)}
+   ss-Errors (1) version17 (17)}
 ;
 
 -- operations definition
 
-processUnstructuredSS-Data	OPERATION ::= { -- Timer T(PUSSD)= 15s to 30s 
+processUnstructuredSS-Data	OPERATION ::= { -- Timer T(PUSSD)= 15s to 30s
 	ARGUMENT	SS-UserData
 	RESULT	SS-UserData
-		-- optional
+	-- optional
 	ERRORS	{
-		systemFailure |
-		unexpectedDataValue}
+	systemFailure |
+	unexpectedDataValue}
 	CODE	local:19 }
 
 notifySS	OPERATION ::= {
@@ -104,72 +120,72 @@ forwardCUG-Info	OPERATION ::= {
 buildMPTY	OPERATION ::= { -- Timer T(BuildMPTY)= 5s to 30s
 	RETURN RESULT TRUE
 	ERRORS	{
-		illegalSS-Operation |
-		ss-ErrorStatus |
-		ss-NotAvailable |
-		ss-Incompatibility |
-		systemFailure |
-		resourcesNotAvailable |
-		maxNumberOfMPTY-ParticipantsExceeded}
+	illegalSS-Operation |
+	ss-ErrorStatus |
+	ss-NotAvailable |
+	ss-Incompatibility |
+	systemFailure |
+	resourcesNotAvailable |
+	maxNumberOfMPTY-ParticipantsExceeded}
 	CODE	local:124 }
 
 holdMPTY	OPERATION ::= { -- Timer T(HoldMPTY)= 5s to 30s
 	RETURN RESULT TRUE
 	ERRORS	{
-		illegalSS-Operation |
-		ss-ErrorStatus |
-		ss-Incompatibility |
-		facilityNotSupported |
-		systemFailure}
+	illegalSS-Operation |
+	ss-ErrorStatus |
+	ss-Incompatibility |
+	facilityNotSupported |
+	systemFailure}
 	CODE	local:123 }
 
 retrieveMPTY	OPERATION ::= { -- Timer T(RetrieveMPTY)= 5s to 30s
 	RETURN RESULT TRUE
 	ERRORS	{
-		illegalSS-Operation |
-		ss-ErrorStatus |
-		ss-Incompatibility |
-		facilityNotSupported |
-		systemFailure}
+	illegalSS-Operation |
+	ss-ErrorStatus |
+	ss-Incompatibility |
+	facilityNotSupported |
+	systemFailure}
 	CODE	local:122 }
 
 splitMPTY	OPERATION ::= { -- Timer T(SplitMPTY)= 5s to 30s
 	RETURN RESULT TRUE
 	ERRORS	{
-		illegalSS-Operation |
-		ss-ErrorStatus |
-		ss-Incompatibility |
-		facilityNotSupported |
-		systemFailure}
+	illegalSS-Operation |
+	ss-ErrorStatus |
+	ss-Incompatibility |
+	facilityNotSupported |
+	systemFailure}
 	CODE	local:121 }
 
 explicitCT	OPERATION ::= { -- Timer T(ECT)= 5s to 15s
 	RETURN RESULT TRUE
 	ERRORS	{
-		illegalSS-Operation |
-		ss-ErrorStatus |
-		ss-NotAvailable |
-		ss-Incompatibility |
-		facilityNotSupported |
-		systemFailure |
-		resourcesNotAvailable |
-		callBarred}
+	illegalSS-Operation |
+	ss-ErrorStatus |
+	ss-NotAvailable |
+	ss-Incompatibility |
+	facilityNotSupported |
+	systemFailure |
+	resourcesNotAvailable |
+	callBarred}
 	CODE	local:126 }
 
 accessRegisterCCEntry	OPERATION ::= { -- Timer T(AccRegCCEntry)= 30s
 	ARGUMENT	AccessRegisterCCEntryArg
 	RESULT	RegisterCC-EntryRes
 	ERRORS	{
-		systemFailure |
-		dataMissing |
-		unexpectedDataValue |
-		callBarred |
-		illegalSS-Operation |
-		ss-ErrorStatus |
-		ss-Incompatibility |
-		shortTermDenial |
-		longTermDenial |
-		facilityNotSupported}
+	systemFailure |
+	dataMissing |
+	unexpectedDataValue |
+	callBarred |
+	illegalSS-Operation |
+	ss-ErrorStatus |
+	ss-Incompatibility |
+	shortTermDenial |
+	longTermDenial |
+	facilityNotSupported}
 	CODE	local:119 }
 
 -- the timer value is defined by T308, see also in TS 24.008 for definition of timer T308
@@ -178,19 +194,19 @@ callDeflection	OPERATION ::= { -- Timer T(CD)= 30s
 	ARGUMENT	CallDeflectionArg
 	RETURN RESULT TRUE
 	ERRORS	{
-		illegalSS-Operation |
-		ss-ErrorStatus |
-		ss-NotAvailable |
-		ss-Incompatibility |
-		facilityNotSupported |
-		systemFailure |
-		resourcesNotAvailable |
-		forwardingViolation |
-		callBarred |
-		deflectionToServedSubscriber |
-		invalidDeflectedToNumber |
-		specialServiceCode |
-		forwardingFailed}
+	illegalSS-Operation |
+	ss-ErrorStatus |
+	ss-NotAvailable |
+	ss-Incompatibility |
+	facilityNotSupported |
+	systemFailure |
+	resourcesNotAvailable |
+	forwardingViolation |
+	callBarred |
+	deflectionToServedSubscriber |
+	invalidDeflectedToNumber |
+	specialServiceCode |
+	forwardingFailed}
 	CODE	local:117 }
 
 -- the timer value is defined by T305, see also in TS 24.008 for definition of timer T305
@@ -200,15 +216,15 @@ userUserService	OPERATION ::= { -- Timer T(UUS3)= 10s
 	ARGUMENT	UserUserServiceArg
 	RETURN RESULT TRUE
 	ERRORS	{
-		illegalSS-Operation |
-		ss-ErrorStatus |
-		ss-NotAvailable |
-		ss-Incompatibility |
-		facilityNotSupported |
-		systemFailure |
-		resourcesNotAvailable |
-		rejectedByNetwork |
-		rejectedByUser}
+	illegalSS-Operation |
+	ss-ErrorStatus |
+	ss-NotAvailable |
+	ss-Incompatibility |
+	facilityNotSupported |
+	systemFailure |
+	resourcesNotAvailable |
+	rejectedByNetwork |
+	rejectedByUser}
 	CODE	local:118 }
 
 -- The timer value for UUS3 is 10s; it is applicable only if UUS3 is activated by FACILITY
@@ -218,12 +234,12 @@ userUserService	OPERATION ::= { -- Timer T(UUS3)= 10s
 -- extensionContainer shall not be used with this operation.
 
 
-lcs-LocationNotification	OPERATION ::= { -- Timer T(LCSN)= 10s to 20s 
+lcs-LocationNotification	OPERATION ::= { -- Timer T(LCSN)= 10s to 20s
 	ARGUMENT	LocationNotificationArg
 	RESULT	LocationNotificationRes
 	ERRORS	{
-		systemFailure |
-		unexpectedDataValue}
+	systemFailure |
+	unexpectedDataValue}
 	CODE	local:116 }
 
 
@@ -231,12 +247,12 @@ lcs-MOLR	OPERATION ::= { -- Timer T(LCSL)= 10s to 300s
 	ARGUMENT	LCS-MOLRArg
 	RESULT	LCS-MOLRRes
 	ERRORS	{
-		systemFailure |
-		unexpectedDataValue |
-		dataMissing |
-		facilityNotSupported |
-		ss-SubscriptionViolation |
-		positionMethodFailure}
+	systemFailure |
+	unexpectedDataValue |
+	dataMissing |
+	facilityNotSupported |
+	ss-SubscriptionViolation |
+	positionMethodFailure}
 	CODE	local:115 }
 
 
@@ -244,9 +260,9 @@ lcs-AreaEventRequest	OPERATION ::= { -- Timer T(LCSN)= 10s to 20s
 	ARGUMENT	LCS-AreaEventRequestArg
 	RETURN RESULT TRUE
 	ERRORS	{
-		systemFailure |
-		facilityNotSupported |
-		unexpectedDataValue}
+	systemFailure |
+	facilityNotSupported |
+	unexpectedDataValue}
 	CODE	local:114 }
 
 
@@ -254,9 +270,9 @@ lcs-AreaEventReport	OPERATION ::= { -- Timer T(LCSL)= 10s to 300s
 	ARGUMENT	LCS-AreaEventReportArg
 	RETURN RESULT TRUE
 	ERRORS	{
-		systemFailure |
-		unexpectedDataValue |
-		facilityNotSupported}
+	systemFailure |
+	unexpectedDataValue |
+	facilityNotSupported}
 	CODE	local:113 }
 
 
@@ -264,48 +280,139 @@ lcs-AreaEventCancellation	OPERATION ::= { -- Timer T(LCSN)= 10s to 20s
 	ARGUMENT	LCS-AreaEventCancellationArg
 	RETURN RESULT TRUE
 	ERRORS	{
-		systemFailure |
-		facilityNotSupported |
-		unexpectedDataValue}
+	systemFailure |
+	facilityNotSupported |
+	unexpectedDataValue}
 	CODE	local:112 }
 
-lcs-PeriodicLocationRequest	OPERATION ::= { -- Timer T(LCSN)= 10s to 20s 
+lcs-PeriodicLocationRequest	OPERATION ::= { -- Timer T(LCSN)= 10s to 20s
 	ARGUMENT	LCS-PeriodicLocationRequestArg
 	RESULT	LCS-PeriodicLocationRequestRes
 	ERRORS	{
-		systemFailure |
-		facilityNotSupported |
-		unexpectedDataValue |
-		dataMissing }
+	systemFailure |
+	facilityNotSupported |
+	unexpectedDataValue |
+	dataMissing }
 	CODE	local: 111 }
 
-lcs-LocationUpdate	OPERATION ::= { -- Timer T(LCSN)= 10s to 20s 
+lcs-LocationUpdate	OPERATION ::= { -- Timer T(LCSN)= 10s to 20s
 	ARGUMENT	LCS-LocationUpdateArg
 	RESULT	LCS-LocationUpdateRes
 	ERRORS	{
-		systemFailure |
-		unexpectedDataValue}
+	systemFailure |
+	unexpectedDataValue}
 	CODE	local: 110 }
 
-lcs-PeriodicLocationCancellation	OPERATION ::= { -- Timer T(LCSN)= 10s to 20s 
+lcs-PeriodicLocationCancellation	OPERATION ::= { -- Timer T(LCSN)= 10s to 20s
 	ARGUMENT	LCS-PeriodicLocationCancellationArg
 	RETURN RESULT TRUE
 	ERRORS	{
-		systemFailure |
-		unexpectedDataValue}
+	systemFailure |
+	unexpectedDataValue}
 	CODE	local: 109 }
 
 
-lcs-PeriodicTriggeredInvoke	OPERATION ::= { -- Timer T(LCSN)= 10s to 20s 
+lcs-PeriodicTriggeredInvoke	OPERATION ::= { -- Timer T(LCSN)= 10s to 20s
 	ARGUMENT	LCS-PeriodicTriggeredInvokeArg
 	RESULT	LCS-PeriodicTriggeredInvokeRes
 	ERRORS	{
-		systemFailure |
-		facilityNotSupported |
-		unexpectedDataValue |
-		dataMissing |
-		resourceLimitation }
+	systemFailure |
+	facilityNotSupported |
+	unexpectedDataValue |
+	dataMissing |
+	resourceLimitation }
 	CODE	local: 108 }
 
-END
+lcs-EventReport	OPERATION ::= { -- Timer T(LCSL)= 10s to 300s
+	ARGUMENT	LCS-EventReportArg
+	RESULT	LCS-EventReportRes
+	ERRORS	{
+	systemFailure |
+	facilityNotSupported |
+	ss-SubscriptionViolation |
+	unexpectedDataValue |
+	dataMissing |
+	resourceLimitation }
+	CODE	local: 107 }
 
+lcs-CancelDeferredLocation	OPERATION ::= { -- Timer T(LCSN)= 10s to 20s
+	ARGUMENT	LCS-CancelDeferredLocationArg
+	RETURN RESULT TRUE
+	ERRORS	{
+	systemFailure |
+	unexpectedDataValue}
+	CODE	local: 106 }
+
+lcs-MSCancelDeferredLocation	OPERATION ::= { -- Timer T(LCSN)= 10s to 20s
+	ARGUMENT	LCS-CancelDeferredLocationArg
+	RETURN RESULT TRUE
+	ERRORS	{
+	systemFailure |
+	unexpectedDataValue}
+	CODE	local: 105 }
+
+lcs-LocationPrivacySetting	OPERATION ::= { -- Timer T(LCSN)= 10s to 20s
+	ARGUMENT	LCS-LocationPrivacySettingArg
+	RETURN RESULT TRUE
+	ERRORS	{
+	systemFailure |
+	unexpectedDataValue}
+	CODE	local: 104 }
+
+lcs-PruAssociation	OPERATION ::= { -- Timer T(LCSN)= 10s to 20s
+	ARGUMENT	LCS-PruAssociationArg
+	RESULT	LCS-PruAssociationRes
+	ERRORS	{
+	lcs-invalidPru |
+    lcs-PruAssociationRej |
+	systemFailure |
+	unexpectedDataValue}
+	CODE	local: 103 }
+
+lcs-PruDisassociation	OPERATION ::= { -- Timer T(LCSN)= 10s to 20s
+	ARGUMENT	LCS-PruDisassociationArg
+	RETURN RESULT TRUE
+	ERRORS	{
+	systemFailure |
+	unexpectedDataValue}
+	CODE	local: 102 }
+
+lcs-SLMOLR	OPERATION ::= { -- Timer T(LCSL)= 10s to 300s
+	ARGUMENT	LCS-SLMOLRArg
+	RESULT	LCS-SLMOLRRes
+	ERRORS	{
+	systemFailure |
+	unexpectedDataValue |
+	dataMissing |
+	facilityNotSupported |
+	ss-SubscriptionViolation |
+	positionMethodFailure}
+	CODE	local:101 }
+
+lcs-SLMTLR	OPERATION ::= { -- Timer T(LCSL)= 10s to 300s
+	ARGUMENT	LCS-SLMTLRArg
+	RESULT	LCS-SLMTLRRes
+	ERRORS	{
+	systemFailure |
+	unexpectedDataValue |
+	dataMissing |
+	facilityNotSupported }
+	CODE	local:100 }
+
+lcs-DLRSPPTransport	OPERATION ::= { -- Timer T(LCSL)= 10s to 300s
+	ARGUMENT	LCS-DLRSPPTransportArg
+	RESULT	LCS-DLRSPPTransportRes
+	ERRORS	{
+	systemFailure |
+	facilityNotSupported }
+	CODE	local: 99 }
+
+lcs-ULRSPPTransport	OPERATION ::= { -- Timer T(LCSL)= 10s to 300s
+	ARGUMENT	LCS-ULRSPPTransportArg
+	RESULT	LCS-ULRSPPTransportRes
+	ERRORS	{
+	systemFailure |
+	facilityNotSupported }
+	CODE	local: 98 }
+
+END

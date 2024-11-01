@@ -1,13 +1,9 @@
--- MAP-LCS-DataTypes.asn
---
--- Taken from 3GPP TS 29.002 V17.1.0 (2021-06)
---
--- 17.7.13 Location service data types
---
+-- 3GPP TS 29.002 V18.0.0 (2023-09)
+-- 17.7.13	Location service data types
 
 MAP-LCS-DataTypes {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-LCS-DataTypes (25) version20 (20)}
+   gsm-Network (1) modules (3) map-LCS-DataTypes (25) version21 (21)}
 
 DEFINITIONS
 IMPLICIT TAGS
@@ -61,30 +57,30 @@ PLMN-Id,
 	DiameterIdentity
 FROM MAP-CommonDataTypes {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-CommonDataTypes (18) version20 (20)}
+   gsm-Network (1) modules (3) map-CommonDataTypes (18) version21 (21)}
 
 	ExtensionContainer,
 	SLR-ArgExtensionContainer
 FROM MAP-ExtensionDataTypes {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-ExtensionDataTypes (21) version20 (20)}
+   gsm-Network (1) modules (3) map-ExtensionDataTypes (21) version21 (21)}
 
 	USSD-DataCodingScheme,
 USSD-String
 FROM MAP-SS-DataTypes {
    itu-t identified-organization (4) etsi (0) mobileDomain (0) gsm-Network (1) modules (3)
-   map-SS-DataTypes (14) version20 (20)}
+   map-SS-DataTypes (14) version21 (21)}
 
 	APN,
 	SupportedLCS-CapabilitySets
 FROM MAP-MS-DataTypes {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-MS-DataTypes (11) version20 (20)}
+   gsm-Network (1) modules (3) map-MS-DataTypes (11) version21 (21)}
 
 	Additional-Number
 FROM MAP-SM-DataTypes {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-SM-DataTypes (16) version20 (20)}
+   gsm-Network (1) modules (3) map-SM-DataTypes (16) version21 (21)}
 ;
 
 
@@ -244,8 +240,11 @@ LCS-QoS ::= SEQUENCE {
 	vertical-accuracy	[2] Vertical-Accuracy	OPTIONAL,	responseTime	[3] ResponseTime	OPTIONAL,
 	extensionContainer	[4] ExtensionContainer	OPTIONAL,
 	...,
-	velocityRequest	[5] NULL	OPTIONAL
+	velocityRequest	[5] NULL	OPTIONAL,
+	lcs-qos-class	[6] LCS-QoS-Class	OPTIONAL
 }
+-- lcs-qos-class may only be included in MO-LR request sent by the UE to the network.
+
 
 Horizontal-Accuracy ::= OCTET STRING (SIZE (1))
 	-- bit 8 = 0
@@ -270,6 +269,13 @@ ResponseTimeCategory ::= ENUMERATED {
 	... }
 --	exception handling:
 --	an unrecognized value shall be treated the same as value 1 (delaytolerant)
+
+LCS-QoS-Class ::= ENUMERATED {
+	bestEffort  (0),
+	assured  (1),
+	... }
+--	exception handling:
+--	an unrecognized value shall be treated the same as value 0 (bestEffort)
 
 SupportedGADShapes ::= BIT STRING {
 	ellipsoidPoint  (0),
@@ -363,9 +369,13 @@ IntervalTime ::= INTEGER (1..32767)
 PeriodicLDRInfo ::= SEQUENCE {
 	reportingAmount	ReportingAmount,
 	reportingInterval	ReportingInterval,
-	...}
+	...,
+	reportingOptionMilliseconds	[0]	ReportingOptionMilliseconds	OPTIONAL
+}
 -- reportingInterval x reportingAmount shall not exceed 8639999 (99 days, 23 hours,
 -- 59 minutes and 59 seconds) for compatibility with OMA MLP and RLP
+-- When reportingOptionMilliseconds is provided and supported, reportingInterval & 
+-- reportingAmount shall be ignored.
 
 ReportingAmount ::= INTEGER (1..maxReportingAmount)
 
@@ -375,6 +385,21 @@ ReportingInterval ::= INTEGER (1..maxReportingInterval)
 -- ReportingInterval is in seconds
 
 maxReportingInterval INTEGER ::= 8639999
+
+ReportingOptionMilliseconds ::= SEQUENCE {
+	reportingAmountMilliseconds	ReportingAmountMilliseconds,
+	reportingIntervalMilliseconds	ReportingIntervalMilliseconds,
+	...}
+-- reportingAmountMilliseconds x reportingIntervalMilliseconds shall not exceed 8639999000 
+-- (99 days, 23 hours, 59 minutes and 59 seconds) for compatibility with OMA MLP and RLP
+
+ReportingAmountMilliseconds ::= INTEGER (1..maxReportingAmountMilliseconds)
+
+maxReportingAmountMilliseconds INTEGER ::= 8639999000
+
+ReportingIntervalMilliseconds ::= INTEGER (1..maxReportingIntervalMilliseconds)
+
+maxReportingIntervalMilliseconds INTEGER ::= 999
 
 ReportingPLMNList::= SEQUENCE {
 	plmn-ListPrioritized	[0] NULL		OPTIONAL,

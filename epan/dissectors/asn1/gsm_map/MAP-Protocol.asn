@@ -1,9 +1,9 @@
--- 3GPP TS 29.002 V17.1.0 (2021-06)
+-- 3GPP TS 29.002 V18.0.0 (2023-09)
 --17.5	MAP operation and error codes
 
 MAP-Protocol {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-Protocol (4) version20 (20)}
+   gsm-Network (1) modules (3) map-Protocol (4) version21 (21)}
 
 DEFINITIONS
 
@@ -50,7 +50,7 @@ authenticationFailureReport,
 FROM MAP-MobileServiceOperations {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
    gsm-Network (1) modules (3) map-MobileServiceOperations (5)
-   version20 (20)}
+   version21 (21)}
 
 	activateTraceMode,
 	deactivateTraceMode,
@@ -58,7 +58,7 @@ FROM MAP-MobileServiceOperations {
 FROM MAP-OperationAndMaintenanceOperations {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
    gsm-Network (1) modules (3) map-OperationAndMaintenanceOperations (6)
-   version20 (20)}
+   version21 (21)}
 
 	sendRoutingInfo,
 	provideRoamingNumber,
@@ -72,7 +72,7 @@ FROM MAP-OperationAndMaintenanceOperations {
 FROM MAP-CallHandlingOperations {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
    gsm-Network (1) modules (3) map-CallHandlingOperations (7)
-   version20 (20)}
+   version21 (21)}
 
 	registerSS,
 	eraseSS,
@@ -90,7 +90,7 @@ FROM MAP-CallHandlingOperations {
 FROM MAP-SupplementaryServiceOperations {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
    gsm-Network (1) modules (3) map-SupplementaryServiceOperations (8)
-   version20 (20)}
+   version21 (21)}
 
 	sendRoutingInfoForSM,
 	mo-ForwardSM,
@@ -103,7 +103,7 @@ FROM MAP-SupplementaryServiceOperations {
 FROM MAP-ShortMessageServiceOperations {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
    gsm-Network (1) modules (3) map-ShortMessageServiceOperations (9)
-   version20 (20)}
+   version21 (21)}
 
 	prepareGroupCall,
 	processGroupCallSignalling,
@@ -113,7 +113,7 @@ FROM MAP-ShortMessageServiceOperations {
 FROM MAP-Group-Call-Operations {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
    gsm-Network (1) modules (3) map-Group-Call-Operations (22)
-   version20 (20)}
+   version21 (21)}
 
 	provideSubscriberLocation,
 	sendRoutingInfoForLCS,
@@ -121,7 +121,7 @@ FROM MAP-Group-Call-Operations {
 FROM MAP-LocationServiceOperations {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
    gsm-Network (1) modules (3) map-LocationServiceOperations (24)
-   version20 (20)}
+   version21 (21)}
 
 
 ;
