@@ -46,7 +46,7 @@ typedef struct {
 
 typedef struct {
     int length;
-    int value;
+    uint32_t value;
     char string[9];
 } version_t;
 
