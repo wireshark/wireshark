@@ -113,5 +113,9 @@ class TestDfilterMembership:
 
     def test_membership_bad_rhs_string_2(self, checkDFilterFail):
         dfilter = 'eth.src in {11:12:13:14:15:16, 22-33-}'
-        error = 'Error: "22-33-" is not a valid protocol or protocol field.'
+        error = 'Error: "22-33-" contains too few bytes to be a valid Ethernet address.'
         checkDFilterFail(dfilter, error)
+
+    def test_membership_rhs_field(self, checkDFilterCount):
+        dfilter = 'eth.src in { eth.addr }'
+        checkDFilterCount(dfilter, 1)
