@@ -19,55 +19,113 @@ class TestDissectDtnTcpcl:
     def test_tcpclv3_xfer(self, cmd_tshark, capture_file, test_env):
         stdout = subprocess.check_output((cmd_tshark,
                 '-r', capture_file('dtn_tcpclv3_bpv6_transfer.pcapng'),
-                '-Tfields', '-etcpcl.ack.length',
+                '-Tfields',
+                '-etcpcl.ack.length',
             ), encoding='utf-8', env=test_env)
-        assert count_output(stdout, r'1064') == 2
+        assert stdout.split() == ['1064', '1064']
 
     def test_tcpclv4_xfer(self, cmd_tshark, capture_file, test_env):
         stdout = subprocess.check_output((cmd_tshark,
                 '-r', capture_file('dtn_tcpclv4_bpv7_transfer.pcapng'),
-                '-Tfields', '-etcpcl.v4.xfer_ack.ack_len',
+                '-Tfields',
+                '-etcpcl.v4.xfer_ack.ack_len',
             ), encoding='utf-8', env=test_env)
-        assert count_output(stdout, r'199') == 2
+        assert stdout.split() == ['100,199,100', '199']
 
 
 class TestDissectBpv7:
+    '''
+    The UDP test captures were generated from the BP/UDPCL example files with command:
+    for FN in test/captures/dtn_udpcl*.cbordiag; do python3 tools/generate_udp_pcap.py --dport 4556 --infile $FN --outfile ${FN%.cbordiag}.pcap; done
+    '''
     def test_bpv7_admin_status(self, cmd_tshark, capture_file, test_env):
         stdout = subprocess.check_output((cmd_tshark,
-                '-r', capture_file('dtn_udpcl_bpv7_bpsec_bib_admin.pcapng'),
-                '-Tfields', '-ebpv7.status_rep.identity',
+                '-r', capture_file('dtn_udpcl_bpv7_bpsec_bib_admin.pcap'),
+                '-Tfields',
+                '-ebpv7.status_rep.identity',
             ), encoding='utf-8', env=test_env)
-        assert grep_output(stdout, r'Source: ipn:93.185, DTN Time: 1396536125, Seq: 281')
+        assert stdout.strip() == 'Source: ipn:93.185, DTN Time: 1396536125, Seq: 281'
+
+    def test_bpv7_eid_dtn(self, cmd_tshark, capture_file, test_env):
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dtn_udpcl_bpv7_eid_schemes.pcap'),
+                '-Tfields',
+                '-ebpv7.primary.dst_uri',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.strip() == 'dtn://auth/svc'
+
+    def test_bpv7_eid_ipn(self, cmd_tshark, capture_file, test_env):
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dtn_udpcl_bpv7_eid_schemes.pcap'),
+                '-Tfields',
+                '-ebpv7.primary.src_uri',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.strip() == 'ipn:977000.5279.7390'
+
+    def test_bpv7_eid_unknown(self, cmd_tshark, capture_file, test_env):
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dtn_udpcl_bpv7_eid_schemes.pcap'),
+                '-Tfields',
+                '-ebpv7.primary.report_uri',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.strip() == ''
+
+    def test_bpv7_eid_ipn_update(self, cmd_tshark, capture_file, test_env):
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dtn_udpcl_bpv7_ipn_3comp.pcap'),
+                '-Tfields',
+                '-ebpv7.eid.uri',
+                '-ebpv7.eid.ipn_altform',
+            ), encoding='utf-8', env=test_env)
+        expect = [
+            'ipn:0.26622.12070,ipn:977000.5279.7390,ipn:4196183048196785.1111,ipn:93.185',
+            'ipn:26622.12070,ipn:4196183048197279.7390,ipn:977000.4785.1111,ipn:0.93.185',
+        ]
+        assert stdout.strip() == '\t'.join(expect)
+
+    def test_bpv7_eid_ipn_invalid(self, cmd_tshark, capture_file, test_env):
+        ''' URIs are absent, not NONE or <MISSING> '''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dtn_udpcl_bpv7_ipn_invalid.pcap'),
+                '-Tfields',
+                '-ebpv7.primary.src_uri',
+                '-ebpv7.primary.dst_uri',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.strip() == ''
 
     def test_bpv7_bpsec_bib(self, cmd_tshark, capture_file, test_env):
         stdout = subprocess.check_output((cmd_tshark,
-                '-r', capture_file('dtn_udpcl_bpv7_bpsec_bib_admin.pcapng'),
-                '-Tfields', '-ebpsec.asb.ctxid',
+                '-r', capture_file('dtn_udpcl_bpv7_bpsec_bib_admin.pcap'),
+                '-Tfields',
+                '-ebpsec.asb.ctxid',
             ), encoding='utf-8', env=test_env)
-        assert count_output(stdout, r'1') == 1
+        assert stdout.strip() == '1'
 
     def test_bpv7_bpsec_bib_admin_type(self, cmd_tshark, capture_file, test_env):
         # BIB doesn't alter payload
         stdout = subprocess.check_output((cmd_tshark,
-                '-r', capture_file('dtn_udpcl_bpv7_bpsec_bib_admin.pcapng'),
-                '-Tfields', '-ebpv7.admin_rec.type_code',
+                '-r', capture_file('dtn_udpcl_bpv7_bpsec_bib_admin.pcap'),
+                '-Tfields',
+                '-ebpv7.admin_rec.type_code',
             ), encoding='utf-8', env=test_env)
-        assert count_output(stdout, r'1') == 1
+        assert stdout.strip() == '1'
 
     def test_bpv7_bpsec_bcb(self, cmd_tshark, capture_file, test_env):
         stdout = subprocess.check_output((cmd_tshark,
-                '-r', capture_file('dtn_udpcl_bpv7_bpsec_bcb_admin.pcapng'),
-                '-Tfields', '-ebpsec.asb.ctxid',
+                '-r', capture_file('dtn_udpcl_bpv7_bpsec_bcb_admin.pcap'),
+                '-Tfields',
+                '-ebpsec.asb.ctxid',
             ), encoding='utf-8', env=test_env)
-        assert count_output(stdout, r'2') == 1
+        assert stdout.strip() == '2'
 
     def test_bpv7_bpsec_bcb_admin_type(self, cmd_tshark, capture_file, test_env):
         # BCB inhibits payload dissection
         stdout = subprocess.check_output((cmd_tshark,
-                '-r', capture_file('dtn_udpcl_bpv7_bpsec_bcb_admin.pcapng'),
-                '-Tfields', '-ebpv7.admin_rec.type_code',
+                '-r', capture_file('dtn_udpcl_bpv7_bpsec_bcb_admin.pcap'),
+                '-Tfields',
+                '-ebpv7.admin_rec.type_code',
             ), encoding='utf-8', env=test_env)
-        assert count_output(stdout, r'1') == 0
+        assert stdout.strip() == ''
 
 
 class TestDissectCose:

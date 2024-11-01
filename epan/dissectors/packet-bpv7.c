@@ -2,6 +2,7 @@
  * Routines for Bundle Protocol Version 7 dissection
  * References:
  *     RFC 9171: https://www.rfc-editor.org/rfc/rfc9171.html
+ *     https://www.ietf.org/archive/id/draft-ietf-dtn-ipn-update-14.html
  *
  * Copyright 2019-2021, Brian Sipos <brian.sipos@gmail.com>
  *
@@ -62,6 +63,7 @@ static dissector_handle_t handle_admin;
 static dissector_handle_t handle_cbor;
 static dissector_handle_t handle_cborseq;
 /// Extension sub-dissectors
+static dissector_table_t eid_dissectors;
 static dissector_table_t block_dissectors;
 static dissector_table_t payload_dissectors_dtn_wkssp;
 static dissector_table_t payload_dissectors_dtn_serv;
@@ -73,10 +75,33 @@ static heur_dissector_list_t btsd_heur;
 /// Fragment reassembly
 static reassembly_table bp_reassembly_table;
 
-static const val64_string eid_schemes[] = {
-    {EID_SCHEME_DTN, "dtn"},
-    {EID_SCHEME_IPN, "ipn"},
-    {0, NULL},
+static const range_string iana_eid_schemes[] = {
+    {0, 0, "Reserved"},
+    {1, 254, "Unassigned"},
+    {255, 65535, "Reserved"},
+    {0x10000, UINT64_MAX, "Private Use"},
+    {0, 0, NULL},
+};
+
+/// Allocations from IANA
+/// https://www.iana.org/assignments/uri-schemes/uri-schemes.xhtml#ipn-scheme-uri-allocator-identifiers
+static const range_string iana_ipn_alloc_names[] = {
+    {0, 0, "Default Allocator"},
+    {974848, 978943, "Example"},
+    {0x100000000, UINT64_MAX, "Reserved"},
+    {0,0, NULL},
+};
+
+/// Allocations from IANA
+/// https://www.iana.org/assignments/uri-schemes/uri-schemes.xhtml#ipn-scheme-uri-well-known-service-numbers-for-bpv7
+static const range_string iana_ipn_svc_names[] = {
+    {0, 0, "Administrative"},
+    {1, 127, "Private Use"},
+    {0x0100, 0x7FFF, "Private Use"},
+    {0xEEE0, 0xEEEF, "Example"},
+    {0x10000, 0xFFFFFFFF, "Private Use"},
+    {0x100000000, UINT64_MAX, "Reserved"},
+    {0,0, NULL},
 };
 
 static const val64_string crc_vals[] = {
@@ -161,12 +186,17 @@ static int hf_create_ts_time;
 static int hf_create_ts_seqno;
 
 static int hf_eid_scheme;
+static int hf_eid_uri;
 static int hf_eid_dtn_ssp_code;
 static int hf_eid_dtn_ssp_text;
-static int hf_eid_ipn_node;
-static int hf_eid_ipn_service;
 static int hf_eid_dtn_wkssp;
 static int hf_eid_dtn_serv;
+static int hf_eid_ipn_count;
+static int hf_eid_ipn_alloc;
+static int hf_eid_ipn_node;
+static int hf_eid_ipn_fqnn;
+static int hf_eid_ipn_service;
+static int hf_eid_ipn_altform;
 
 static int hf_primary_version;
 static int hf_primary_bundle_flags;
@@ -214,6 +244,7 @@ static int hf_canonical_data;
 static int hf_previous_node_nodeid;
 static int hf_previous_node_uri;
 static int hf_bundle_age_time;
+static int hf_bundle_age_exp;
 static int hf_hop_count_limit;
 static int hf_hop_count_current;
 
@@ -267,13 +298,19 @@ static hf_register_info fields[] = {
 
     {&hf_create_ts_time, {"Time", "bpv7.create_ts.time", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL}},
     {&hf_create_ts_seqno, {"Sequence Number", "bpv7.create_ts.seqno", FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL}},
-    {&hf_eid_scheme, {"Scheme Code", "bpv7.eid.scheme", FT_UINT64, BASE_DEC | BASE_VAL64_STRING, VALS64(eid_schemes), 0x0, NULL, HFILL}},
+
+    {&hf_eid_scheme, {"Scheme Code", "bpv7.eid.scheme", FT_UINT64, BASE_DEC | BASE_RANGE_STRING, RVALS(iana_eid_schemes), 0x0, NULL, HFILL}},
+    {&hf_eid_uri, {"EID as text URI", "bpv7.eid.uri", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL}},
     {&hf_eid_dtn_ssp_code, {"DTN SSP", "bpv7.eid.dtn_ssp_code", FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL}},
     {&hf_eid_dtn_ssp_text, {"DTN SSP", "bpv7.eid.dtn_ssp_text", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL}},
-    {&hf_eid_ipn_node, {"IPN Node Number", "bpv7.eid.ipn_node", FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL}},
-    {&hf_eid_ipn_service, {"IPN Service Number", "bpv7.eid.ipn_service", FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL}},
     {&hf_eid_dtn_wkssp, {"Well-known SSP", "bpv7.eid.wkssp", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL}},
     {&hf_eid_dtn_serv, {"Service Name", "bpv7.eid.serv", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL}},
+    {&hf_eid_ipn_count, {"IPN Element Count", "bpv7.eid.ipn_count", FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL}},
+    {&hf_eid_ipn_alloc, {"IPN Allocator", "bpv7.eid.ipn_alloc", FT_UINT64, BASE_DEC | BASE_RANGE_STRING, RVALS(iana_ipn_alloc_names), 0x0, NULL, HFILL}},
+    {&hf_eid_ipn_node, {"IPN Node Number", "bpv7.eid.ipn_node", FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL}},
+    {&hf_eid_ipn_fqnn, {"IPN Fully-Qualified Node Number", "bpv7.eid.ipn_fqnn", FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL}},
+    {&hf_eid_ipn_service, {"IPN Service Number", "bpv7.eid.ipn_service", FT_UINT64, BASE_DEC | BASE_RANGE_STRING, RVALS(iana_ipn_svc_names), 0x0, NULL, HFILL}},
+    {&hf_eid_ipn_altform, {"IPN Alternative Form URI", "bpv7.eid.ipn_altform", FT_STRING, BASE_NONE, NULL, 0x0, "The conversion to or from fully-qualified node number form", HFILL}},
 
     {&hf_primary_version, {"Version", "bpv7.primary.version", FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL}},
     {&hf_primary_bundle_flags, {"Bundle Flags", "bpv7.primary.bundle_flags", FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL}},
@@ -296,7 +333,7 @@ static hf_register_info fields[] = {
     {&hf_primary_create_ts, {"Creation Timestamp", "bpv7.primary.create_ts", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL}},
     {&hf_primary_lifetime, {"Lifetime", "bpv7.primary.lifetime", FT_UINT64, BASE_DEC | BASE_UNIT_STRING, UNS(&units_milliseconds), 0x0, NULL, HFILL}},
     {&hf_primary_lifetime_exp, {"Lifetime Expanded", "bpv7.primary.lifetime_exp", FT_RELATIVE_TIME, BASE_NONE, NULL, 0x0, NULL, HFILL}},
-    {&hf_primary_expire_ts, {"Expire Time", "bpv7.primary.expire_time", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL, 0x0, NULL, HFILL}},
+    {&hf_primary_expire_ts, {"Expire Time", "bpv7.primary.expire_time", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL, 0x0, "Lifetime duration after the Creation Time", HFILL}},
     {&hf_primary_frag_offset, {"Fragment Offset", "bpv7.primary.frag_offset", FT_UINT64, BASE_DEC | BASE_UNIT_STRING, UNS(&units_octet_octets), 0x0, NULL, HFILL}},
     {&hf_primary_total_length, {"Total Application Data Unit Length", "bpv7.primary.total_len", FT_UINT64, BASE_DEC | BASE_UNIT_STRING, UNS(&units_octet_octets), 0x0, NULL, HFILL}},
 
@@ -359,6 +396,7 @@ static hf_register_info fields[] = {
     {&hf_previous_node_uri, {"Previous URI", "bpv7.previous_node.uri", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL}},
 
     {&hf_bundle_age_time, {"Bundle Age", "bpv7.bundle_age.time", FT_UINT64, BASE_DEC | BASE_UNIT_STRING, UNS(&units_milliseconds), 0x0, NULL, HFILL}},
+    {&hf_bundle_age_exp, {"Bundle Age Expanded", "bpv7.bundle_age.exp", FT_RELATIVE_TIME, BASE_NONE, NULL, 0x0, NULL, HFILL}},
 
     {&hf_hop_count_limit, {"Hop Limit", "bpv7.hop_count.limit", FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL}},
     {&hf_hop_count_current, {"Hop Count", "bpv7.hop_count.current", FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL}},
@@ -409,6 +447,7 @@ static int ett_bundle;
 static int ett_bundle_flags;
 static int ett_block;
 static int ett_eid;
+static int ett_eid_ssp;
 static int ett_time;
 static int ett_create_ts;
 static int ett_ident;
@@ -425,6 +464,7 @@ static int *ett[] = {
     &ett_bundle_flags,
     &ett_block,
     &ett_eid,
+    &ett_eid_ssp,
     &ett_time,
     &ett_create_ts,
     &ett_ident,
@@ -462,13 +502,17 @@ static const fragment_items payload_frag_items = {
 
 static expert_field ei_invalid_framing;
 static expert_field ei_invalid_bp_version;
+static expert_field ei_eid_struct_invalid;
 static expert_field ei_eid_scheme_unknown;
 static expert_field ei_eid_ssp_type_invalid;
 static expert_field ei_eid_wkssp_unknown;
+static expert_field ei_eid_ipn_num_invalid;
 static expert_field ei_block_type_dupe;
 static expert_field ei_sub_type_unknown;
 static expert_field ei_sub_partial_decode;
 static expert_field ei_crc_type_unknown;
+static expert_field ei_frag_fields_missing;
+static expert_field ei_crc_value_missing;
 static expert_field ei_block_failed_crc;
 static expert_field ei_block_num_dupe;
 static expert_field ei_block_payload_index;
@@ -480,13 +524,17 @@ static expert_field ei_block_sec_bcb_tgt;
 static ei_register_info expertitems[] = {
     {&ei_invalid_framing, {"bpv7.invalid_framing", PI_MALFORMED, PI_WARN, "Invalid framing", EXPFILL}},
     {&ei_invalid_bp_version, {"bpv7.invalid_bp_version", PI_MALFORMED, PI_ERROR, "Invalid BP version", EXPFILL}},
-    {&ei_eid_scheme_unknown, {"bpv7.eid_scheme_unknown", PI_UNDECODED, PI_WARN, "Unknown Node ID scheme code", EXPFILL}},
+    {&ei_eid_struct_invalid, {"bpv7.eid_struct_invalid", PI_MALFORMED, PI_ERROR, "Invalid EID structure", EXPFILL}},
+    {&ei_eid_scheme_unknown, {"bpv7.eid_scheme_unknown", PI_UNDECODED, PI_WARN, "Unknown EID scheme code", EXPFILL}},
     {&ei_eid_ssp_type_invalid, {"bpv7.eid_ssp_type_invalid", PI_UNDECODED, PI_WARN, "Invalid scheme-specific part major type", EXPFILL}},
     {&ei_eid_wkssp_unknown, {"bpv7.eid_wkssp_unknown", PI_UNDECODED, PI_WARN, "Unknown well-known scheme-specific code point", EXPFILL}},
+    {&ei_eid_ipn_num_invalid, {"bpv7.eid_ipn_num_invalid", PI_PROTOCOL, PI_WARN, "IPN element too large (>=2^32)", EXPFILL}},
     {&ei_block_type_dupe, {"bpv7.block_type_dupe", PI_PROTOCOL, PI_WARN, "Too many blocks of this type", EXPFILL}},
     {&ei_sub_type_unknown, {"bpv7.sub_type_unknown", PI_UNDECODED, PI_WARN, "Unknown type code", EXPFILL}},
     {&ei_sub_partial_decode, {"bpv7.sub_partial_decode", PI_UNDECODED, PI_WARN, "Data not fully dissected", EXPFILL}},
     {&ei_crc_type_unknown, {"bpv7.crc_type_unknown", PI_UNDECODED, PI_WARN, "Unknown CRC Type code", EXPFILL}},
+    {&ei_frag_fields_missing, {"bpv7.frag_fields_missing", PI_MALFORMED, PI_ERROR, "Missing Fragmentation Fields", EXPFILL}},
+    {&ei_crc_value_missing, {"bpv7.crc_value_missing", PI_MALFORMED, PI_ERROR, "Missing CRC Value", EXPFILL}},
     {&ei_block_failed_crc, {"bpv7.block_failed_crc", PI_CHECKSUM, PI_WARN, "Block failed CRC", EXPFILL}},
     {&ei_block_num_dupe, {"bpv7.block_num_dupe", PI_PROTOCOL, PI_WARN, "Duplicate block number", EXPFILL}},
     {&ei_block_payload_index, {"bpv7.block_payload_index", PI_PROTOCOL, PI_WARN, "Payload must be the last block", EXPFILL}},
@@ -496,14 +544,6 @@ static ei_register_info expertitems[] = {
     {&ei_block_sec_bib_tgt, {"bpv7.bpsec.bib_target", PI_COMMENTS_GROUP, PI_COMMENT, "Block is an integrity target", EXPFILL}},
     {&ei_block_sec_bcb_tgt, {"bpv7.bpsec.bcb_target", PI_COMMENTS_GROUP, PI_COMMENT, "Block is a confidentiality target", EXPFILL}},
 };
-
-/** Delete an arbitrary object allocated under this file scope.
- *
- * @param ptr The object to delete.
- */
-static void file_scope_delete(void *ptr) {
-    wmem_free(wmem_file_scope(), ptr);
-}
 
 int bp_creation_ts_compare(const void *a, const void *b, void *user_data _U_) {
     const bp_creation_ts_t *ats = a;
@@ -527,15 +567,17 @@ int bp_creation_ts_compare(const void *a, const void *b, void *user_data _U_) {
 
 bp_eid_t * bp_eid_new(wmem_allocator_t *alloc) {
     bp_eid_t *obj = wmem_new0(alloc, bp_eid_t);
+    obj->alloc = alloc;
     clear_address(&(obj->uri));
     return obj;
 }
 
-void bp_eid_free(wmem_allocator_t *alloc, bp_eid_t *obj) {
-    wmem_free(alloc, (char *)(obj->dtn_wkssp));
-    wmem_free(alloc, (char *)(obj->dtn_serv));
-    wmem_free(alloc, (void *)(obj->ipn_serv));
-    wmem_free(alloc, obj);
+void bp_eid_free(bp_eid_t *obj) {
+    wmem_free(obj->alloc, (char *)(obj->uri.data));
+    wmem_free(obj->alloc, (char *)(obj->dtn_wkssp));
+    wmem_free(obj->alloc, (char *)(obj->dtn_serv));
+    wmem_free(obj->alloc, obj->ipn_serv);
+    wmem_free(obj->alloc, obj);
 }
 
 bool bp_eid_equal(const void *a, const void *b) {
@@ -560,9 +602,9 @@ void bp_block_primary_free(wmem_allocator_t *alloc, bp_block_primary_t *obj) {
     if (!obj) {
         return;
     }
-    bp_eid_free(alloc, obj->dst_eid);
-    bp_eid_free(alloc, obj->src_nodeid);
-    bp_eid_free(alloc, obj->rep_nodeid);
+    bp_eid_free(obj->dst_eid);
+    bp_eid_free(obj->src_nodeid);
+    bp_eid_free(obj->rep_nodeid);
     wmem_free(alloc, obj->frag_offset);
     wmem_free(alloc, obj->total_len);
     wmem_free(alloc, obj->sec.data_i);
@@ -693,6 +735,198 @@ static nstime_t dtn_to_utctime(const int64_t dtntime) {
     return utctime;
 }
 
+/** Label type-field items with sub-dissector name.
+ * This is similar to using val64_string labels but based on dissector name.
+ *
+ * @param type_code The dissected value, which must not be null.
+ * @param type_dissect The associated sub-dissector, which may be null.
+ * @param[in,out] item_type The item associated with the type field.
+ * @param[in,out] item_parent Optional parent item to label.
+ */
+static void label_type_field(const uint64_t *type_code, dissector_handle_t type_dissect, proto_item *item_type, proto_item *item_parent)
+{
+    if (!item_type) {
+        return;
+    }
+    const char *type_name = dissector_handle_get_description(type_dissect);
+    if (!type_name) {
+        type_name = "Unknown";
+    }
+
+    proto_item_set_text(item_type, "%s: %s (%" PRIu64 ")", PITEM_HFINFO(item_type)->name, type_name, *type_code);
+
+    if (item_parent) {
+        if (type_name) {
+            proto_item_append_text(item_parent, ": %s", type_name);
+        }
+        else {
+            proto_item_append_text(item_parent, ": Type %" PRIu64, *type_code);
+        }
+    }
+}
+
+/** Sub-dissector for dtn scheme EID.
+ */
+static int dissect_eid_dtn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data) {
+    bp_eid_t *eid = (bp_eid_t *)data;
+    DISSECTOR_ASSERT(eid);
+    wmem_allocator_t *alloc_eid = eid->alloc;
+    int offset = 0;
+    char *uribuf = NULL;
+
+    wscbor_chunk_t *chunk = wscbor_chunk_read(pinfo->pool, tvb, &offset);
+    switch (chunk->type_major) {
+        case CBOR_TYPE_UINT: {
+            const uint64_t *ssp_code = wscbor_require_uint64(pinfo->pool, chunk);
+            proto_item *item = proto_tree_add_cbor_uint64(tree, hf_eid_dtn_ssp_code, pinfo, tvb, chunk, ssp_code);
+
+            switch (*ssp_code) {
+                case 0:
+                    eid->dtn_wkssp = wmem_strdup(alloc_eid, "none");
+                    break;
+                default:
+                    expert_add_info(pinfo, item, &ei_eid_wkssp_unknown);
+                    break;
+            }
+            if (eid->dtn_wkssp) {
+                uribuf = wmem_strdup_printf(alloc_eid, "dtn:%s", eid->dtn_wkssp);
+            }
+            break;
+        }
+        case CBOR_TYPE_STRING: {
+            char *ssp = wscbor_require_tstr(pinfo->pool, chunk);
+            proto_tree_add_cbor_tstr(tree, hf_eid_dtn_ssp_text, pinfo, tvb, chunk);
+            uribuf = wmem_strdup_printf(alloc_eid, "dtn:%s", ssp);
+
+            char *path_sep;
+            if ((path_sep = strrchr(ssp, '/')) != NULL) {
+                eid->dtn_serv = wmem_strdup(alloc_eid, path_sep + 1);
+            }
+            else {
+                // no separator also means no authority part, so it's well-known
+                eid->dtn_wkssp = wmem_strdup(alloc_eid, ssp);
+            }
+
+            wmem_free(pinfo->pool, ssp);
+            break;
+        }
+        default: {
+            expert_add_info(pinfo, proto_tree_get_parent(tree), &ei_eid_ssp_type_invalid);
+
+            offset = chunk->start;
+            wscbor_skip_next_item(pinfo->pool, tvb, &offset);
+            tvbuff_t *sub_tvb = tvb_new_subset_length(tvb, chunk->start, offset);
+            call_dissector(handle_cbor, sub_tvb, pinfo, tree);
+            break;
+        }
+    }
+    if (eid->dtn_wkssp) {
+        proto_item *item = proto_tree_add_string(tree, hf_eid_dtn_wkssp, tvb, 0, offset, eid->dtn_wkssp);
+        proto_item_set_generated(item);
+    }
+    if (eid->dtn_serv) {
+        proto_item *item = proto_tree_add_string(tree, hf_eid_dtn_serv, tvb, 0, offset, eid->dtn_serv);
+        proto_item_set_generated(item);
+    }
+    if (uribuf) {
+        set_address(&(eid->uri), AT_STRINGZ, (int)strlen(uribuf) + 1, uribuf);
+    }
+
+    return offset;
+}
+
+/** Sub-dissector for ipn scheme EID.
+ */
+static int dissect_eid_ipn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data) {
+    bp_eid_t *eid = (bp_eid_t *)data;
+    DISSECTOR_ASSERT(eid);
+    wmem_allocator_t *alloc_eid = eid->alloc;
+    int offset = 0;
+    char *uribuf = NULL;
+
+    wscbor_chunk_t *chunk = wscbor_chunk_read(pinfo->pool, tvb, &offset);
+    wscbor_require_array_size(chunk, 2, 3);
+    const uint64_t ssp_count = chunk->head_value;
+    proto_tree_add_cbor_container(tree, hf_eid_ipn_count, pinfo, tvb, chunk);
+
+    if (wscbor_skip_if_errors(pinfo->pool, tvb, &offset, chunk)) {
+        // no deeper processing
+    }
+    else if (ssp_count == 2) {
+        chunk = wscbor_chunk_read(pinfo->pool, tvb, &offset);
+        const uint64_t *fqnn = wscbor_require_uint64(pinfo->pool, chunk);
+        proto_tree_add_cbor_uint64(tree, hf_eid_ipn_fqnn, pinfo, tvb, chunk, fqnn);
+
+        uint64_t alloc, node;
+        if (fqnn) {
+            // decompose qualified node number
+            alloc = *fqnn >> 32;
+            node = *fqnn & UINT32_MAX;
+            proto_item *item_alloc = proto_tree_add_uint64(tree, hf_eid_ipn_alloc, tvb, 0, 0, alloc);
+            proto_item_set_generated(item_alloc);
+            proto_item *item_node = proto_tree_add_uint64(tree, hf_eid_ipn_node, tvb, 0, 0, node);
+            proto_item_set_generated(item_node);
+        }
+
+        chunk = wscbor_chunk_read(pinfo->pool, tvb, &offset);
+        eid->ipn_serv = wscbor_require_uint64(alloc_eid, chunk);
+        proto_tree_add_cbor_uint64(tree, hf_eid_ipn_service, pinfo, tvb, chunk, eid->ipn_serv);
+
+        if (fqnn && eid->ipn_serv) {
+            const char *altform = wmem_strdup_printf(pinfo->pool, "ipn:%" PRIu64 ".%" PRIu64 ".%" PRIu64, alloc, node, *(eid->ipn_serv));
+            proto_item *item_alt = proto_tree_add_string(tree, hf_eid_ipn_altform, tvb, 0, offset, altform);
+            proto_item_set_generated(item_alt);
+
+            uribuf = wmem_strdup_printf(alloc_eid, "ipn:%" PRIu64 ".%" PRIu64, *fqnn, *(eid->ipn_serv));
+        }
+    }
+    else if (ssp_count == 3) {
+        chunk = wscbor_chunk_read(pinfo->pool, tvb, &offset);
+        const uint64_t *alloc = wscbor_require_uint64(pinfo->pool, chunk);
+        proto_item *item_alloc = proto_tree_add_cbor_uint64(tree, hf_eid_ipn_alloc, pinfo, tvb, chunk, alloc);
+        if (alloc && (*alloc > UINT32_MAX)) {
+            expert_add_info(pinfo, item_alloc, &ei_eid_ipn_num_invalid);
+            alloc = NULL;
+        }
+
+        chunk = wscbor_chunk_read(pinfo->pool, tvb, &offset);
+        const uint64_t *node = wscbor_require_uint64(pinfo->pool, chunk);
+        proto_item *item_node = proto_tree_add_cbor_uint64(tree, hf_eid_ipn_node, pinfo, tvb, chunk, node);
+        if (node && (*node > UINT32_MAX)) {
+            expert_add_info(pinfo, item_node, &ei_eid_ipn_num_invalid);
+            node = NULL;
+        }
+
+        uint64_t fqnn;
+        if (alloc && node) {
+            // compose qualified node number
+            fqnn = (*alloc << 32) | *node;
+            proto_item *item_qnode = proto_tree_add_uint64(tree, hf_eid_ipn_fqnn, tvb, 0, 0, fqnn);
+            proto_item_set_generated(item_qnode);
+        }
+
+        chunk = wscbor_chunk_read(pinfo->pool, tvb, &offset);
+        eid->ipn_serv = wscbor_require_uint64(alloc_eid, chunk);
+        proto_tree_add_cbor_uint64(tree, hf_eid_ipn_service, pinfo, tvb, chunk, eid->ipn_serv);
+
+        if (alloc && node && eid->ipn_serv) {
+            const char *altform = wmem_strdup_printf(pinfo->pool, "ipn:%" PRIu64 ".%" PRIu64, fqnn, *(eid->ipn_serv));
+            proto_item *item_alt = proto_tree_add_string(tree, hf_eid_ipn_altform, tvb, 0, offset, altform);
+            proto_item_set_generated(item_alt);
+
+            uribuf = wmem_strdup_printf(alloc_eid, "ipn:%" PRIu64 ".%" PRIu64 ".%" PRIu64, *alloc, *node, *(eid->ipn_serv));
+        }
+    }
+    if (uribuf) {
+        set_address(&(eid->uri), AT_STRINGZ, (int)strlen(uribuf) + 1, uribuf);
+    }
+    else {
+        clear_address(&(eid->uri));
+    }
+
+    return offset;
+}
+
 proto_item * proto_tree_add_cbor_eid(proto_tree *tree, int hfindex, int hfindex_uri, packet_info *pinfo, tvbuff_t *tvb, int *offset, bp_eid_t *eid) {
     wmem_allocator_t *alloc_eid = wmem_file_scope();
     proto_item *item_eid = proto_tree_add_item(tree, hfindex, tvb, *offset, -1, ENC_NA);
@@ -703,6 +937,7 @@ proto_item * proto_tree_add_cbor_eid(proto_tree *tree, int hfindex, int hfindex_
     wscbor_require_array_size(chunk, 2, 2);
     if (!chunk) {
         proto_item_set_len(item_eid, *offset - eid_start);
+        expert_add_info(pinfo, item_eid, &ei_eid_struct_invalid);
         return item_eid;
     }
 
@@ -711,123 +946,70 @@ proto_item * proto_tree_add_cbor_eid(proto_tree *tree, int hfindex, int hfindex_
     proto_item *item_scheme = proto_tree_add_cbor_uint64(tree_eid, hf_eid_scheme, pinfo, tvb, chunk, scheme);
     if (!scheme) {
         wscbor_skip_next_item(pinfo->pool, tvb, offset);
+        expert_add_info(pinfo, item_eid, &ei_eid_struct_invalid);
         return item_eid;
     }
 
-    wmem_strbuf_t *uribuf = wmem_strbuf_new(alloc_eid, NULL);
-    const char *dtn_wkssp = NULL;
-    const char *dtn_serv = NULL;
-    uint64_t *ipn_serv = NULL;
-    switch (*scheme) {
-        case EID_SCHEME_DTN: {
-            chunk = wscbor_chunk_read(pinfo->pool, tvb, offset);
-            switch (chunk->type_major) {
-                case CBOR_TYPE_UINT: {
-                    const uint64_t *ssp_code = wscbor_require_uint64(pinfo->pool, chunk);
-                    proto_item *item = proto_tree_add_cbor_uint64(tree_eid, hf_eid_dtn_ssp_code, pinfo, tvb, chunk, ssp_code);
+    // ensure some storage, even if local temporary
+    bp_eid_t *buf = NULL;
+    if (!eid)
+    {
+        eid = buf = bp_eid_new(alloc_eid);
+    }
+    eid->scheme = *scheme;
+    clear_address(&(eid->uri));
 
-                    switch (*ssp_code) {
-                        case 0:
-                            dtn_wkssp = wmem_strdup(alloc_eid, "none");
-                            break;
-                        default:
-                            expert_add_info(pinfo, item, &ei_eid_wkssp_unknown);
-                            break;
-                    }
-                    if (dtn_wkssp) {
-                        wmem_strbuf_append_printf(uribuf, "dtn:%s", dtn_wkssp);
-                    }
-                    break;
-                }
-                case CBOR_TYPE_STRING: {
-                    char *ssp = wscbor_require_tstr(pinfo->pool, chunk);
-                    proto_tree_add_cbor_tstr(tree_eid, hf_eid_dtn_ssp_text, pinfo, tvb, chunk);
-                    wmem_strbuf_append_printf(uribuf, "dtn:%s", ssp);
+    // Handle SSP in generic way
+    const int ssp_start = *offset;
+    proto_item *item_ssp;
+    proto_tree *tree_ssp = proto_tree_add_subtree(tree_eid, tvb, ssp_start, 0, ett_eid, &item_ssp, "Scheme-specific Part");
 
-                    char *path_sep;
-                    if ((path_sep = strrchr(ssp, '/')) != NULL) {
-                        dtn_serv = wmem_strdup(alloc_eid, path_sep + 1);
-                    }
-                    else {
-                        // no separator also means no authority part, so it's well-known
-                        dtn_wkssp = wmem_strdup(alloc_eid, ssp);
-                    }
+    if (!wscbor_skip_next_item(pinfo->pool, tvb, offset)) {
+        expert_add_info(pinfo, item_ssp, &ei_eid_struct_invalid);
+        return item_eid;
+    }
+    const int ssp_len = *offset - ssp_start;
+    tvbuff_t *ssp_tvb = tvb_new_subset_length(tvb, ssp_start, ssp_len);
 
-                    wmem_free(pinfo->pool, ssp);
-                    break;
-                }
-                default: {
-                    *offset = chunk->start;
-                    wscbor_skip_next_item(pinfo->pool, tvb, offset);
-                    tvbuff_t *sub_tvb = tvb_new_subset_length(tvb, chunk->start, *offset);
-                    call_dissector(handle_cbor, sub_tvb, pinfo, tree_eid);
-                    expert_add_info(pinfo, item_eid, &ei_eid_ssp_type_invalid);
-                    break;
-                }
-            }
-
-            break;
-        }
-        case EID_SCHEME_IPN: {
-            chunk = wscbor_chunk_read(pinfo->pool, tvb, offset);
-            wscbor_require_array_size(chunk, 2, 2);
-            if (!wscbor_skip_if_errors(pinfo->pool, tvb, offset, chunk)) {
-                chunk = wscbor_chunk_read(pinfo->pool, tvb, offset);
-                const uint64_t *node = wscbor_require_uint64(pinfo->pool, chunk);
-                proto_tree_add_cbor_uint64(tree_eid, hf_eid_ipn_node, pinfo, tvb, chunk, node);
-
-                chunk = wscbor_chunk_read(pinfo->pool, tvb, offset);
-                ipn_serv = wscbor_require_uint64(wmem_file_scope(), chunk);
-                proto_tree_add_cbor_uint64(tree_eid, hf_eid_ipn_service, pinfo, tvb, chunk, ipn_serv);
-
-                wmem_strbuf_append_printf(uribuf, "ipn:%" PRIu64 ".%" PRIu64, node ? *node : 0, ipn_serv ? *ipn_serv : 0);
-            }
-            break;
-        }
-        default:
-            wscbor_skip_next_item(pinfo->pool, tvb, offset);
-            expert_add_info(pinfo, item_scheme, &ei_eid_scheme_unknown);
-            break;
+    dissector_handle_t ssp_dissect = NULL;
+    if (eid->scheme <= UINT32_MAX) {
+        ssp_dissect = dissector_get_uint_handle(eid_dissectors, (uint32_t)(eid->scheme));
     }
 
-    if (dtn_wkssp) {
-        proto_item *item = proto_tree_add_string(tree_eid, hf_eid_dtn_wkssp, tvb, eid_start, *offset - eid_start, dtn_wkssp);
-        proto_item_set_generated(item);
-    }
-    if (dtn_serv) {
-        proto_item *item = proto_tree_add_string(tree_eid, hf_eid_dtn_serv, tvb, eid_start, *offset - eid_start, dtn_serv);
-        proto_item_set_generated(item);
-    }
-
-    char *uri = NULL;
-    if (wmem_strbuf_get_len(uribuf) > 0) {
-        uri = wmem_strbuf_finalize(uribuf);
-
-        proto_item *item_uri = proto_tree_add_string(tree_eid, hfindex_uri, tvb, eid_start, *offset - eid_start, uri);
-        proto_item_set_generated(item_uri);
-
-        proto_item_append_text(item_eid, ": %s", uri);
-    }
-
-    if (eid) {
-        eid->scheme = (scheme ? *scheme : 0);
-        if (uri) {
-            set_address(&(eid->uri), AT_STRINGZ, (int)strlen(uri) + 1, uri);
-        }
-        else {
-            clear_address(&(eid->uri));
-        }
-        eid->dtn_wkssp = dtn_wkssp;
-        eid->dtn_serv = dtn_serv;
-        eid->ipn_serv = ipn_serv;
+    int sublen;
+    if (ssp_dissect) {
+        label_type_field(&(eid->scheme), ssp_dissect, item_scheme, NULL);
+        sublen = call_dissector_only(ssp_dissect, ssp_tvb, pinfo, tree_ssp, eid);
     }
     else {
-        file_scope_delete(uri);
-        file_scope_delete((char *)dtn_wkssp);
-        file_scope_delete((char *)dtn_serv);
-        file_scope_delete(ipn_serv);
+        expert_add_info(pinfo, item_scheme, &ei_eid_scheme_unknown);
+        sublen = call_dissector(handle_cbor, ssp_tvb, pinfo, tree_ssp);
+    }
+    if (sublen == 0)
+    {
+        expert_add_info(pinfo, item_ssp, &ei_eid_struct_invalid);
     }
 
+    if (eid->uri.type == AT_STRINGZ) {
+        const int eid_len = *offset - eid_start;
+        const char *uribuf = (const char *)(eid->uri.data);
+
+        // Generic text URI field
+        proto_item *item_uri = proto_tree_add_string(tree_eid, hf_eid_uri, tvb, eid_start, eid_len, uribuf);
+        proto_item_set_generated(item_uri);
+
+        // More specific URI field
+        item_uri = proto_tree_add_string(tree_eid, hfindex_uri, tvb, eid_start, eid_len, uribuf);
+        proto_item_set_generated(item_uri);
+
+        proto_item_append_text(item_eid, ": %s", uribuf);
+    }
+
+    if (buf) {
+        bp_eid_free(buf);
+    }
+
+    proto_item_set_len(item_ssp, *offset - ssp_start);
     proto_item_set_len(item_eid, *offset - eid_start);
     return item_eid;
 }
@@ -903,30 +1085,6 @@ static void dissect_cbor_timestamp(proto_tree *tree, int hfindex, packet_info *p
         }
     }
     proto_item_set_len(item_ts, *offset - chunk_ts->start);
-}
-
-/** Label type-field items with sub-dissector name.
- * This is similar to using val64_string labels but based on dissector name.
- *
- * @param type_code The dissected value, which must not be null.
- * @param type_dissect The associated sub-dissector, which may be null.
- * @param[in,out] item_type The item associated with the type field.
- * @param[in,out] item_parent The parent item to label.
- */
-static void label_type_field(const uint64_t *type_code, dissector_handle_t type_dissect, proto_item *item_type, proto_item *item_parent)
-{
-    if (!item_type || !item_parent) {
-        return;
-    }
-    const char *type_name = dissector_handle_get_description(type_dissect);
-    if (type_name) {
-        proto_item_append_text(item_parent, ": %s", type_name);
-    }
-    else {
-        proto_item_append_text(item_parent, ": Type %" PRIu64, *type_code);
-        type_name = "Unknown";
-    }
-    proto_item_set_text(item_type, "%s: %s (%" PRIu64 ")", PITEM_HFINFO(item_type)->name, type_name, *type_code);
 }
 
 /** Show read-in and actual CRC information.
@@ -1021,9 +1179,6 @@ static int dissect_block_primary(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
     if (wscbor_skip_if_errors(pinfo->pool, tvb, &offset, chunk_block)) {
         return offset - start;
     }
-#if 0
-    proto_item_append_text(item_block, ", Items: %" PRIu64, chunk_block->head_value);
-#endif
 
     wscbor_chunk_t *chunk = wscbor_chunk_read(pinfo->pool, tvb, &offset);
     const uint64_t *version = wscbor_require_uint64(pinfo->pool, chunk);
@@ -1079,6 +1234,7 @@ static int dissect_block_primary(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
         proto_item *item_lifetime_exp = proto_tree_add_time(tree_block, hf_primary_lifetime_exp, tvb, chunk->start, chunk->head_length, &lifetime_exp);
         proto_item_set_generated(item_lifetime_exp);
 
+        // zero DTN Time is a sentinel value for "undefined"
         if (block->ts.abstime.dtntime > 0) {
             nstime_t expiretime;
             nstime_sum(&expiretime, &(block->ts.abstime.utctime), &lifetime_exp);
@@ -1091,6 +1247,8 @@ static int dissect_block_primary(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
     // optional items
     if (flags && (*flags & BP_BUNDLE_IS_FRAGMENT)) {
         if (!wscbor_require_array_size(chunk_block, field_ix + 1, field_ix + 3)) {
+            expert_add_info(pinfo, item_block, &ei_frag_fields_missing);
+
             // Skip whole array
             offset = start;
             wscbor_skip_next_item(pinfo->pool, tvb, &offset);
@@ -1115,6 +1273,8 @@ static int dissect_block_primary(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
         case BP_CRC_16:
         case BP_CRC_32: {
             if (!wscbor_require_array_size(chunk_block, field_ix + 1, field_ix + 1)) {
+                expert_add_info(pinfo, item_block, &ei_crc_value_missing);
+
                 // Skip whole array
                 offset = start;
                 wscbor_skip_next_item(pinfo->pool, tvb, &offset);
@@ -1541,6 +1701,10 @@ static int dissect_bp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
         }
         proto_item_append_text(item_bundle, ", Blocks: %" PRIu64, block_ix);
 
+        copy_address_wmem(pinfo->pool, &(pinfo->src), &(primary->src_nodeid->uri));
+        copy_address_wmem(pinfo->pool, &(pinfo->dst), &(primary->dst_eid->uri));
+        pinfo->ptype = PT_NONE;
+
         if ((primary->src_nodeid->uri.type != AT_NONE)
                 && (primary->dst_eid->uri.type != AT_NONE)) {
             // conversation starts in either order
@@ -1553,10 +1717,6 @@ static int dissect_bp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
                 addra = &(primary->dst_eid->uri);
                 addrb = &(primary->src_nodeid->uri);
             }
-
-            copy_address_shallow(&(pinfo->src), &(primary->src_nodeid->uri));
-            copy_address_shallow(&(pinfo->dst), &(primary->dst_eid->uri));
-            pinfo->ptype = PT_NONE;
 
             conversation_element_t *conv_el = wmem_alloc_array(pinfo->pool, conversation_element_t, 3);
             conv_el[0].type=CE_ADDRESS;
@@ -2033,8 +2193,8 @@ static int dissect_block_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
         payload_dissect = dissector_get_string_handle(payload_dissectors_dtn_serv, bundle->primary->dst_eid->dtn_serv);
     }
     else if (bundle->primary->dst_eid->ipn_serv &&
-        (*(bundle->primary->dst_eid->ipn_serv) <= UINT_MAX)) {
-        payload_dissect = dissector_get_uint_handle(payload_dissectors_ipn_serv, (unsigned)(*(bundle->primary->dst_eid->ipn_serv)));
+        (*(bundle->primary->dst_eid->ipn_serv) <= UINT32_MAX)) {
+        payload_dissect = dissector_get_uint_handle(payload_dissectors_ipn_serv, (uint32_t)(*(bundle->primary->dst_eid->ipn_serv)));
     }
 
     return dissect_carried_data(payload_dissect, context, tvb_payload, pinfo, tree_top, true);
@@ -2058,6 +2218,12 @@ static int dissect_block_bundle_age(tvbuff_t *tvb, packet_info *pinfo, proto_tre
     wscbor_chunk_t *chunk = wscbor_chunk_read(pinfo->pool, tvb, &offset);
     const uint64_t *age = wscbor_require_uint64(pinfo->pool, chunk);
     proto_tree_add_cbor_uint64(tree, hf_bundle_age_time, pinfo, tvb, chunk, age);
+
+    if (age) {
+        nstime_t age_exp = dtn_to_delta(*age);
+        proto_item *item_age_exp = proto_tree_add_time(tree, hf_bundle_age_exp, tvb, chunk->start, chunk->data_length, &age_exp);
+        proto_item_set_generated(item_age_exp);
+    }
 
     return offset;
 }
@@ -2196,8 +2362,8 @@ static void ipn_serv_prompt(packet_info *pinfo, char *result) {
 
     uint32_t serv = 0;
     if (bundle && bundle->primary->dst_eid->ipn_serv
-        && (*(bundle->primary->dst_eid->ipn_serv) <= UINT_MAX)) {
-        serv = (unsigned int) *(bundle->primary->dst_eid->ipn_serv);
+        && (*(bundle->primary->dst_eid->ipn_serv) <= UINT32_MAX)) {
+        serv = (uint32_t) *(bundle->primary->dst_eid->ipn_serv);
     }
 
     snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "dst (%u)", serv);
@@ -2206,8 +2372,8 @@ static void ipn_serv_prompt(packet_info *pinfo, char *result) {
 static void *ipn_serv_value(packet_info *pinfo) {
     const bp_bundle_t *bundle = p_get_proto_data(pinfo->pool, pinfo, proto_bp, PROTO_DATA_BUNDLE);
     if (bundle && bundle->primary->dst_eid->ipn_serv
-        && (*(bundle->primary->dst_eid->ipn_serv) <= UINT_MAX)) {
-        uint64_t serv = *(bundle->primary->dst_eid->ipn_serv);
+        && (*(bundle->primary->dst_eid->ipn_serv) <= UINT32_MAX)) {
+        uint32_t serv = (uint32_t) *(bundle->primary->dst_eid->ipn_serv);
         return GUINT_TO_POINTER(serv);
     }
     return 0;
@@ -2315,6 +2481,8 @@ void proto_register_bpv7(void) {
     expert_register_field_array(expert, expertitems, array_length(expertitems));
 
     register_dissector("bpv7", dissect_bp, proto_bp);
+
+    eid_dissectors = register_dissector_table("bpv7.eid", "BPv7 EID Scheme-Specific Part", proto_bp, FT_UINT32, 0);
     block_dissectors = register_custom_dissector_table("bpv7.block_type", "BPv7 Block", proto_bp, g_int64_hash, g_int64_equal, g_free);
     // Blocks don't count as protocol layers
     proto_blocktype = proto_register_protocol_in_name_only("BPv7 Block Type", "Block Type", "bpv7.block_type", proto_bp, FT_PROTOCOL);
@@ -2400,6 +2568,14 @@ void proto_reg_handoff_bpv7(void) {
     handle_cborseq = find_dissector("cborseq");
 
     /* Packaged extensions */
+    {
+        dissector_handle_t hdl = create_dissector_handle_with_name_and_description(dissect_eid_dtn, proto_bp, NULL, "DTN");
+        dissector_add_uint("bpv7.eid", EID_SCHEME_DTN, hdl);
+    }
+    {
+        dissector_handle_t hdl = create_dissector_handle_with_name_and_description(dissect_eid_ipn, proto_bp, NULL, "IPN");
+        dissector_add_uint("bpv7.eid", EID_SCHEME_IPN, hdl);
+    }
     {
         uint64_t *key = g_new(uint64_t, 1);
         *key = BP_BLOCKTYPE_PAYLOAD;

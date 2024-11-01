@@ -24,9 +24,16 @@ extern "C" {
 #endif
 
 /* This dissector defines two layers of protocol:
- * - The BPv7 bundle format and its block types.
+ * - The BPv7 bundle format, its endpoint naming and its block types.
  * - The BPv7 Administrative Record which is a bundle payload as indicated by
  *   a primary block flag.
+ *
+ * BPv7 endpoint identifier (EID) dissectors for the scheme-specific
+ * part (SSP) are registered with the dissector table "bpv7.eid".
+ * This table uses a `uint` key for the scheme number and uses bp_eid_t* as
+ * dissector user data to be populated by the SSP data.
+ * Specifically the bp_eid_t::uri should be populated by the text form
+ * of the EID (as an AT_STRINGZ value).
  *
  * BPv7 block-type-specific data (BTSD) dissectors are registered with the
  * dissector table "bpv7.block_type" and Administrative Record dissectors
@@ -158,8 +165,10 @@ typedef enum {
 
 /// Metadata from a Endpoint ID
 typedef struct {
+    /// Allocator for #uri text and optional members
+    wmem_allocator_t *alloc;
     /// Scheme ID number
-    int64_t scheme;
+    uint64_t scheme;
     /// Derived URI text as address
     address uri;
 
@@ -179,7 +188,7 @@ bp_eid_t * bp_eid_new(wmem_allocator_t *alloc);
 /** Function to match the GDestroyNotify signature.
  */
 WS_DLL_PUBLIC
-void bp_eid_free(wmem_allocator_t *alloc, bp_eid_t *obj);
+void bp_eid_free(bp_eid_t *obj);
 
 /** Function to match the GCompareFunc signature.
  */

@@ -280,7 +280,7 @@ tvbuff_t * wscbor_require_bstr(wmem_allocator_t *alloc, wscbor_chunk_t *chunk);
 
 /** Add an item representing an array or map container.
  * If the item is type FT_UINT* or FT_INT* the count of (array) items
- * or map (pairs) is used as the iterm value.
+ * or map (pairs) is used as the item value.
  */
 WS_DLL_PUBLIC
 proto_item * proto_tree_add_cbor_container(proto_tree *tree, int hfindex, packet_info *pinfo, tvbuff_t *tvb, const wscbor_chunk_t *chunk);
