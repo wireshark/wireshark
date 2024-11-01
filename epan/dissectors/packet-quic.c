@@ -689,7 +689,7 @@ static const value_string quic_v2_long_packet_type_vals[] = {
 #define FT_PATH_ACK_ECN             0x15228c01
 #define FT_PATH_ABANDON             0x15228c05
 #define FT_PATH_STATUS              0x15228c06 /* multipath-draft-05 */
-#define FT_PATH_STANDBY             0x15228c07 /* multipath-draft-06 */
+#define FT_PATH_BACKUP              0x15228c07 /* multipath-draft-06 */
 #define FT_PATH_AVAILABLE           0x15228c08 /* multipath-draft-06 */
 #define FT_PATH_NEW_CONNECTION_ID   0x15228c09 /* multipath-draft-07 */
 #define FT_PATH_RETIRE_CONNECTION_ID 0x15228c0a /* multipath-draft-07 */
@@ -732,7 +732,7 @@ static const range_string quic_frame_type_vals[] = {
     { 0x15228c00, 0x15228c01, "PATH_ACK" }, /* >= multipath-draft-05 */
     { 0x15228c05, 0x15228c05, "PATH_ABANDON" }, /* >= multipath-draft-05 */
     { 0x15228c06, 0x15228c06, "PATH_STATUS" }, /* = multipath-draft-05 */
-    { 0x15228c07, 0x15228c07, "PATH_STANDBY" }, /* >= multipath-draft-06 */
+    { 0x15228c07, 0x15228c07, "PATH_BACKUP" }, /* >= multipath-draft-06 */
     { 0x15228c08, 0x15228c08, "PATH_AVAILABLE" }, /* >= multipath-draft-06 */
     { 0x15228c09, 0x15228c09, "PATH_NEW_CONNECTION_ID" }, /* >= multipath-draft-07 */
     { 0x15228c0a, 0x15228c0a, "PATH_RETIRE_CONNECTION_ID" }, /* >= multipath-draft-07 */
@@ -2795,7 +2795,7 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
         }
         break;
         case FT_PATH_STATUS:
-        case FT_PATH_STANDBY:
+        case FT_PATH_BACKUP:
         case FT_PATH_AVAILABLE:{
             int32_t length;
 
