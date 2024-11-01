@@ -331,16 +331,16 @@ static void printnbyte(wmem_allocator_t *scratch, const uint8_t* tab, int nb, co
     return;
   }
 
-  char *hexdump = wmem_alloc0(scratch, nb*3 + 1);
+  wmem_strbuf_t *hexdump = wmem_strbuf_new_sized(scratch, nb*3 + 1);
   int i;
 
   for (i=0; i<nb; i++)
   {
-    snprintf(hexdump+(i*3), 3, "%02X ", *(tab+i));
+    wmem_strbuf_append_printf(hexdump, "%02X ", *(tab+i));
   }
-  hexdump[nb*3] = '\0';
 
-  ws_debug("%s %s", txt, hexdump);
+  ws_debug("%s %s", txt, wmem_strbuf_get_str(hexdump));
+  wmem_strbuf_destroy(hexdump);
 }
 #if 0
 static void printnchar(wmem_allocator_t *scratch, const uint8_t* tab, int nb, char* txt)
