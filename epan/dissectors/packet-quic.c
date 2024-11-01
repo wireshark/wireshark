@@ -189,9 +189,9 @@ static int hf_quic_crypto_fragment;
 static int hf_quic_crypto_fragment_count;
 
 /* multipath*/
-static int hf_quic_mp_nci_path_identifier;
+static int hf_quic_mp_pnci_path_identifier;
 static int hf_quic_mp_rc_path_identifier;
-static int hf_quic_mp_ack_path_identifier;
+static int hf_quic_mp_path_ack_path_identifier;
 static int hf_quic_mp_pa_path_identifier;
 static int hf_quic_mp_ps_path_identifier;
 static int hf_quic_mp_ps_path_status_sequence_number;
@@ -685,14 +685,14 @@ static const value_string quic_v2_long_packet_type_vals[] = {
 #define FT_DATAGRAM_LENGTH          0x31
 #define FT_IMMEDIATE_ACK_DRAFT05    0xac /* ack-frequency-draft-05 */
 #define FT_ACK_FREQUENCY            0xaf
-#define FT_MP_ACK                   0x15228c00
-#define FT_MP_ACK_ECN               0x15228c01
+#define FT_PATH_ACK                 0x15228c00
+#define FT_PATH_ACK_ECN             0x15228c01
 #define FT_PATH_ABANDON             0x15228c05
 #define FT_PATH_STATUS              0x15228c06 /* multipath-draft-05 */
 #define FT_PATH_STANDBY             0x15228c07 /* multipath-draft-06 */
 #define FT_PATH_AVAILABLE           0x15228c08 /* multipath-draft-06 */
-#define FT_MP_NEW_CONNECTION_ID     0x15228c09 /* multipath-draft-07 */
-#define FT_MP_RETIRE_CONNECTION_ID  0x15228c0a /* multipath-draft-07 */
+#define FT_PATH_NEW_CONNECTION_ID   0x15228c09 /* multipath-draft-07 */
+#define FT_PATH_RETIRE_CONNECTION_ID 0x15228c0a /* multipath-draft-07 */
 #define FT_MAX_PATHS                0x15228c0b /* multipath-draft-07 */
 #define FT_MAX_PATH_ID              0x15228c0c /* multipath-draft-09 */
 #define FT_TIME_STAMP               0x02F5
@@ -729,13 +729,13 @@ static const range_string quic_frame_type_vals[] = {
     { 0xbaba00, 0xbaba01, "ACK_MP" }, /* multipath-draft-04 */
     { 0xbaba05, 0xbaba05, "PATH_ABANDON" }, /* multipath-draft-04 */
     { 0xbaba06, 0xbaba06, "PATH_STATUS" }, /* multipath-draft-04 */
-    { 0x15228c00, 0x15228c01, "MP_ACK" }, /* >= multipath-draft-05 */
+    { 0x15228c00, 0x15228c01, "PATH_ACK" }, /* >= multipath-draft-05 */
     { 0x15228c05, 0x15228c05, "PATH_ABANDON" }, /* >= multipath-draft-05 */
     { 0x15228c06, 0x15228c06, "PATH_STATUS" }, /* = multipath-draft-05 */
     { 0x15228c07, 0x15228c07, "PATH_STANDBY" }, /* >= multipath-draft-06 */
     { 0x15228c08, 0x15228c08, "PATH_AVAILABLE" }, /* >= multipath-draft-06 */
-    { 0x15228c09, 0x15228c09, "MP_NEW_CONNECTION_ID" }, /* >= multipath-draft-07 */
-    { 0x15228c0a, 0x15228c0a, "MP_RETIRE_CONNECTION_ID" }, /* >= multipath-draft-07 */
+    { 0x15228c09, 0x15228c09, "PATH_NEW_CONNECTION_ID" }, /* >= multipath-draft-07 */
+    { 0x15228c0a, 0x15228c0a, "PATH_RETIRE_CONNECTION_ID" }, /* >= multipath-draft-07 */
     { 0x15228c0b, 0x15228c0b, "MAX_PATHS" }, /* >= multipath-draft-07 */
     { 0x15228c0c, 0x15228c0c, "MAX_PATH_ID" }, /* >= multipath-draft-09 */
     { 0,    0,        NULL },
@@ -2330,8 +2330,8 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
         break;
         case FT_ACK:
         case FT_ACK_ECN:
-        case FT_MP_ACK:
-        case FT_MP_ACK_ECN:{
+        case FT_PATH_ACK:
+        case FT_PATH_ACK_ECN:{
             uint64_t ack_range_count;
             int32_t lenvar;
 
@@ -2342,14 +2342,14 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
                 case FT_ACK_ECN:
                     col_append_str(pinfo->cinfo, COL_INFO, ", ACK_ECN");
                 break;
-                case FT_MP_ACK:
-                    col_append_str(pinfo->cinfo, COL_INFO, ", MP_ACK");
-                    proto_tree_add_item_ret_varint(ft_tree, hf_quic_mp_ack_path_identifier, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &lenvar);
+                case FT_PATH_ACK:
+                    col_append_str(pinfo->cinfo, COL_INFO, ", PATH_ACK");
+                    proto_tree_add_item_ret_varint(ft_tree, hf_quic_mp_path_ack_path_identifier, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &lenvar);
                     offset += lenvar;
                 break;
-                case FT_MP_ACK_ECN:
-                    col_append_str(pinfo->cinfo, COL_INFO, ", MP_ACK_ECN");
-                    proto_tree_add_item_ret_varint(ft_tree, hf_quic_mp_ack_path_identifier, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &lenvar);
+                case FT_PATH_ACK_ECN:
+                    col_append_str(pinfo->cinfo, COL_INFO, ", PATH_ACK_ECN");
+                    proto_tree_add_item_ret_varint(ft_tree, hf_quic_mp_path_ack_path_identifier, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &lenvar);
                     offset += lenvar;
                 break;
             }
@@ -2380,7 +2380,7 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
             }
 
             /* ECN Counts. */
-            if (frame_type == FT_ACK_ECN || frame_type == FT_MP_ACK_ECN ) {
+            if (frame_type == FT_ACK_ECN || frame_type == FT_PATH_ACK_ECN ) {
                 proto_tree_add_item_ret_varint(ft_tree, hf_quic_ack_ect0_count, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &lenvar);
                 offset += lenvar;
 
@@ -2608,7 +2608,7 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
         }
         break;
         case FT_NEW_CONNECTION_ID:
-        case FT_MP_NEW_CONNECTION_ID:{
+        case FT_PATH_NEW_CONNECTION_ID:{
             int32_t len_sequence;
             int32_t len_retire_prior_to;
             uint64_t seq_num = 0, path_id = 0;
@@ -2620,9 +2620,9 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
                 case FT_NEW_CONNECTION_ID:
                     col_append_str(pinfo->cinfo, COL_INFO, ", NCI");
                  break;
-                case FT_MP_NEW_CONNECTION_ID:
-                    col_append_str(pinfo->cinfo, COL_INFO, ", MP_NCI");
-                    proto_tree_add_item_ret_varint(ft_tree, hf_quic_mp_nci_path_identifier, tvb, offset, -1, ENC_VARINT_QUIC, &path_id, &lenvar);
+                case FT_PATH_NEW_CONNECTION_ID:
+                    col_append_str(pinfo->cinfo, COL_INFO, ", PNCI");
+                    proto_tree_add_item_ret_varint(ft_tree, hf_quic_mp_pnci_path_identifier, tvb, offset, -1, ENC_VARINT_QUIC, &path_id, &lenvar);
                     offset += lenvar;
                  break;
             }
@@ -2661,7 +2661,7 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
         }
         break;
         case FT_RETIRE_CONNECTION_ID:
-        case FT_MP_RETIRE_CONNECTION_ID:{
+        case FT_PATH_RETIRE_CONNECTION_ID:{
             int32_t len_sequence;
             int32_t lenvar;
 
@@ -2669,8 +2669,8 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
                 case FT_RETIRE_CONNECTION_ID:
                     col_append_str(pinfo->cinfo, COL_INFO, ", RC");
                 break;
-                case FT_MP_RETIRE_CONNECTION_ID:
-                    col_append_str(pinfo->cinfo, COL_INFO, ", MP_RC");
+                case FT_PATH_RETIRE_CONNECTION_ID:
+                    col_append_str(pinfo->cinfo, COL_INFO, ", PATH_RC");
                     proto_tree_add_item_ret_varint(ft_tree, hf_quic_mp_rc_path_identifier, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &lenvar);
                     offset += lenvar;
                 break;
@@ -5092,8 +5092,8 @@ proto_register_quic(void)
         },
 
         /* multipath */
-       { &hf_quic_mp_nci_path_identifier,
-          { "Path identifier", "quic.mp_nci_path_identifier",
+       { &hf_quic_mp_pnci_path_identifier,
+          { "Path identifier", "quic.mp_pnci_path_identifier",
             FT_UINT64, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
@@ -5102,8 +5102,8 @@ proto_register_quic(void)
             FT_UINT64, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
-       { &hf_quic_mp_ack_path_identifier,
-          { "Path Identifier", "quic.mp_ack_path_identifier",
+       { &hf_quic_mp_path_ack_path_identifier,
+          { "Path Identifier", "quic.mp_path_ack_path_identifier",
             FT_UINT64, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
