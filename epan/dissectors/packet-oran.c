@@ -2757,24 +2757,31 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                     {
                         proto_item_append_text(extension_ti, " [ ");
 
-                        for (n=0; n < numPortc; n++) {
-                            /* postListIndex */
+                        if (numPortc > 0) {
+                            /* first portListIndex */
                             uint32_t port_list_index;
                             proto_tree_add_item_ret_uint(extension_tree, hf_oran_port_list_index, tvb,
                                                          offset, 1, ENC_BIG_ENDIAN, &port_list_index);
                             offset += 1;
 
-                            /* 1 reserved bit */
-                            proto_tree_add_item(extension_tree, hf_oran_reserved_1bit, tvb, offset, 1, ENC_BIG_ENDIAN);
+                            for (n=0; n < numPortc-1; n++) {
+                                /* 1 reserved bit */
+                                proto_tree_add_item(extension_tree, hf_oran_reserved_1bit, tvb, offset, 1, ENC_BIG_ENDIAN);
 
-                            /* port beam ID (or UEID) */
-                            uint32_t id;
-                            proto_item *beamid_or_ueid_ti = proto_tree_add_item_ret_uint(extension_tree, hf_oran_beamId,
-                                                                                         tvb, offset, 2, ENC_BIG_ENDIAN, &id);
-                            proto_item_append_text(beamid_or_ueid_ti, " port #%u beam ID (or UEId) %u", n, id);
-                            offset += 2;
+                                /* port beam ID (or UEID) */
+                                uint32_t id;
+                                proto_item *beamid_or_ueid_ti = proto_tree_add_item_ret_uint(extension_tree, hf_oran_beamId,
+                                                                                             tvb, offset, 2, ENC_BIG_ENDIAN, &id);
+                                proto_item_append_text(beamid_or_ueid_ti, " port #%u beam ID (or UEId) %u", n, id);
+                                offset += 2;
 
-                            proto_item_append_text(extension_ti, "%u:%u ", port_list_index, id);
+                                /* portListIndex */
+                                proto_tree_add_item_ret_uint(extension_tree, hf_oran_port_list_index, tvb,
+                                                             offset, 1, ENC_BIG_ENDIAN, &port_list_index);
+                                offset += 1;
+
+                                proto_item_append_text(extension_ti, "%u:%u ", port_list_index, id);
+                            }
                         }
 
                         proto_item_append_text(extension_ti, "]");
@@ -7048,7 +7055,7 @@ proto_register_oran(void)
         /* 7.7.24.19 */
         {&hf_oran_first_prb,
          {"firstPrb", "oran_fh_cus.firstPrb",
-          FT_UINT16, BASE_HEX,
+          FT_UINT16, BASE_DEC,
           NULL, 0x03fe,
           NULL,
           HFILL}
@@ -7056,7 +7063,7 @@ proto_register_oran(void)
         /* 7.7.24.20 */
         {&hf_oran_last_prb,
          {"lastPrb", "oran_fh_cus.lastPrb",
-          FT_UINT16, BASE_HEX,
+          FT_UINT16, BASE_DEC,
           NULL, 0x01ff,
           NULL,
           HFILL}
