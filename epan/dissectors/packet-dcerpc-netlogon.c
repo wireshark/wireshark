@@ -7404,7 +7404,7 @@ netlogon_dissect_netrserverauthenticate023_reply(tvbuff_t *tvb, int offset,
                 }
             } else if ( flags & NETLOGON_FLAG_STRONGKEY ) {
                 uint8_t zeros[4] = { 0 };
-                uint8_t md5[HASH_MD5_LENGTH];
+                uint8_t md5[HASH_MD5_LENGTH] = { 0 };
                 gcry_md_hd_t md5_handle;
                 uint8_t buf[8] = { 0 };
                 uint64_t calculated_cred;
