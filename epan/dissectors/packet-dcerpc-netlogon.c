@@ -33,10 +33,6 @@
 #include "packet-dcerpc-misc.h"
 /* for keytab format */
 #include <epan/asn1.h>
-#include "packet-kerberos.h"
-/* for routines to read the keytab file */
-#include "read_keytab_file.h"
-/* for decoding */
 
 void proto_register_dcerpc_netlogon(void);
 void proto_reg_handoff_dcerpc_netlogon(void);
@@ -495,7 +491,7 @@ static e_guid_t uuid_dcerpc_netlogon = {
 static uint16_t ver_dcerpc_netlogon = 1;
 
 static int dissect_dcerpc_8bytes (tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
-                                   proto_tree *tree, uint8_t *drep,
+                                   proto_tree *tree, const uint8_t *drep,
                                    int hfindex, uint64_t *pdata)
 {
     uint64_t data;
@@ -5534,17 +5530,17 @@ static const value_string dc_address_types[] = {
 };
 
 
-#define RQ_ROOT_FOREST              0x0001
-#define RQ_DC_XFOREST               0x0002
-#define RQ_RODC_DIF_DOMAIN          0x0004
-#define RQ_NTLM_FROM_RODC           0x0008
+#define RQ_ROOT_FOREST              0x00000001
+#define RQ_DC_XFOREST               0x00000002
+#define RQ_RODC_DIF_DOMAIN          0x00000004
+#define RQ_NTLM_FROM_RODC           0x00000008
 
-#define DS_DOMAIN_IN_FOREST         0x0001
-#define DS_DOMAIN_DIRECT_OUTBOUND   0x0002
-#define DS_DOMAIN_TREE_ROOT         0x0004
-#define DS_DOMAIN_PRIMARY           0x0008
-#define DS_DOMAIN_NATIVE_MODE       0x0010
-#define DS_DOMAIN_DIRECT_INBOUND    0x0020
+#define DS_DOMAIN_IN_FOREST         0x00000001
+#define DS_DOMAIN_DIRECT_OUTBOUND   0x00000002
+#define DS_DOMAIN_TREE_ROOT         0x00000004
+#define DS_DOMAIN_PRIMARY           0x00000008
+#define DS_DOMAIN_NATIVE_MODE       0x00000010
+#define DS_DOMAIN_DIRECT_INBOUND    0x00000020
 
 static const true_false_string trust_inbound = {
     "There is a DIRECT INBOUND trust for the servers domain",
@@ -6483,7 +6479,7 @@ netlogon_dissect_netr_CryptPassword(tvbuff_t *tvb, int offset,
         }
 
         pw_len = tvb_get_uint32(dectvb, 512, DREP_ENC_INTEGER(drep));
-        if (pw_len > 500 || pw_len & 0x1) {
+        if ((pw_len > 500) || (pw_len & 0x1)) {
             expert_add_info_format(pinfo, proto_tree_get_parent(tree),
                                    &ei_netlogon_session_key,
                                    "Unusable session key learned in frame %d ("
@@ -7550,7 +7546,7 @@ netlogon_dissect_netrserverauthenticatekerberos_reply(tvbuff_t *tvb, int offset,
     if (vars != NULL) {
         vars->flags = flags;
         snprintf(vars->nthash.key_origin, NTLMSSP_MAX_ORIG_LEN,
-                 "ServerAuthenticateKerberos(%s) at frame %d",
+                 "ServerAuthenticateKerberos(%s) at frame %u",
                  vars->client_name, pinfo->num);
         vars->auth_fd_num = pinfo->num;
         expert_add_info_format(pinfo, proto_tree_get_parent(tree),
@@ -8980,11 +8976,10 @@ static const value_string seal_algs[] = {
 static int get_seal_key(const uint8_t *session_key,int key_len,uint8_t* seal_key)
 {
     uint8_t zero_sk[16] = { 0 };
-    int i = 0;
 
     memset(seal_key,0,16);
     if(memcmp(session_key,zero_sk,16)) {
-        for(i=0;i<key_len;i++) {
+        for(int i=0;i<key_len;i++) {
             seal_key[i] = session_key[i] ^ 0xF0;
         }
         return 1;
@@ -9277,7 +9272,7 @@ dissect_secchan_verf(tvbuff_t *tvb, int offset, packet_info *pinfo,
         offset = dissect_dcerpc_8bytes(tvb, offset, pinfo, subtree, drep,
                                        hf_netlogon_secchan_verf_digest, &digest);
 
-        /* In some cases the nonce if the data/signture are encrypted ("integrity/seal  in MS language")*/
+        /* In some cases the nonce if the data/signature are encrypted ("integrity/seal  in MS language")*/
 
         if (tvb_bytes_exist(tvb, offset, 8)) {
             offset = dissect_dcerpc_8bytes(tvb, offset, pinfo, subtree, drep,
@@ -9418,11 +9413,11 @@ proto_register_dcerpc_netlogon(void)
                 NULL, 0, "ReservedField zero", HFILL }},
 
         { &hf_netlogon_password_version_number, {
-                "PasswordVersionNumber", "netlogon.password_version.reservedfield", FT_UINT32, BASE_HEX,
+                "PasswordVersionNumber", "netlogon.password_version.number", FT_UINT32, BASE_HEX,
                 NULL, 0, "PasswordVersionNumber trust", HFILL }},
 
         { &hf_netlogon_password_version_present, {
-                "PasswordVersionPresent", "netlogon.password_version.reservedfield", FT_UINT32, BASE_HEX,
+                "PasswordVersionPresent", "netlogon.password_version.present", FT_UINT32, BASE_HEX,
                 NULL, 0, "PasswordVersionPresent magic", HFILL }},
 
         { &hf_netlogon_priv, {
