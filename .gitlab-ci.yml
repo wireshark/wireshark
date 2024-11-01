@@ -434,10 +434,47 @@ Arch Linux :
   rules: !reference [.if-2x-daily-schedule]
   image: registry.gitlab.com/wireshark/wireshark-containers/arch-dev
   script:
+    - COMMON_PACMAN_ARGS="--sync --refresh --sysupgrade --needed --noconfirm"
+    - ./tools/make-version.py --set-release --version-file=wireshark_version.txt .
+    - WIRESHARK_VERSION=$(cat wireshark_version.txt)
+    - WIRESHARK_PREFIX="/opt/wireshark-$WIRESHARK_VERSION"
+    # There are no falcosecurity/libs or falcosecurity/plugins packages for Arch,
+    # so just build them ourselves for now.
+    - pushd /tmp
+    # falcosecurity/plugins
+    - pacman $COMMON_PACMAN_ARGS go
+    - git clone https://github.com/falcosecurity/plugins.git falco-plugins
+    - pushd /tmp/falco-plugins/plugins/cloudtrail
+    - make
+    - popd
+    # falcosecurity/libs
+    - pacman $COMMON_PACMAN_ARGS uthash libelf onetbb jsoncpp re2
+    - export LDFLAGS=-Wl,-rpath,'$ORIGIN/../lib'
+    - git clone https://github.com/falcosecurity/libs.git falco-libs
+    - cd /tmp/falco-libs
+    - git switch -c 0.18.1 0.18.1
+    - printf "\e[0Ksection_start:%s:fslibs_cmake_section[collapsed=true]\r\e[0KRunning CMake" "$( date +%s)"
+    - cmake -B build -G Ninja -DBUILD_SHARED_LIBS=on -DMINIMAL_BUILD=on -DBUILD_DRIVER=off -DENABLE_ENGINE_KMOD=off -DBUILD_LIBSCAP_EXAMPLES=off -DUSE_BUNDLED_DEPS=off -DUSE_BUNDLED_VALIJSON=on -DCREATE_TEST_TARGETS=off -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_INSTALL_RPATH='$ORIGIN/../lib' -DCMAKE_INSTALL_PREFIX=$WIRESHARK_PREFIX
+    - printf "\e[0Ksection_end:%s:fslibs_cmake_section\r\e[0K" "$( date +%s)"
+    - ninja -C build
+    - ninja -C build install
+    - sed -i -e 's/-linstall_lib_link_libraries-NOTFOUND/-lscap_platform -lscap_platform_util/g' $WIRESHARK_PREFIX/lib/pkgconfig/libscap.pc
+    - popd
+    - export CMAKE_PREFIX_PATH=$WIRESHARK_PREFIX
+    - mkdir build
+    - cd build
     - printf "\e[0Ksection_start:%s:cmake_section[collapsed=true]\r\e[0KRunning CMake" "$( date +%s)"
-    - cmake -G Ninja ..
+    - cmake -G Ninja -DBUILD_stratoshark=on -DBUILD_falcodump=on -DFALCO_PLUGINS=/tmp/falco-plugins/plugins/cloudtrail/libcloudtrail.so -DCMAKE_INSTALL_PREFIX=$WIRESHARK_PREFIX ..
     - printf "\e[0Ksection_end:%s:cmake_section\r\e[0K" "$( date +%s)"
     - ninja
+    - ninja install
+    - install -v -D -m 755 -t $WIRESHARK_PREFIX/lib/stratoshark/plugins/4.5/epan run/plugins/4.5/epan/falco-bridge.so
+    - install -v -D -m 755 -t $WIRESHARK_PREFIX/lib/stratoshark/plugins/falco run/plugins/falco/*.so
+    # XXX Need to add an install prereqs script
+    - tar -C / -cJf $CI_PROJECT_DIR/wireshark-arch-$WIRESHARK_VERSION.tar.xz opt/wireshark-$WIRESHARK_VERSION
+  artifacts:
+    paths:
+      - $CI_PROJECT_DIR/wireshark-arch-*.tar.xz
 
 Windows x64 Package:
   extends: .build-windows
