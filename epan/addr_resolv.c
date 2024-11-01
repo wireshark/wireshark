@@ -2198,8 +2198,8 @@ eth_addr_resolve(hashether_t *tp) {
         /* Now try looking in the manufacturer table. */
         manuf_value = manuf_name_lookup(addr, addr_size);
         if ((manuf_value != NULL) && ((manuf_value->flags & NAME_RESOLVED) == NAME_RESOLVED)) {
-            snprintf(tp->resolved_name, MAXNAMELEN, "%s_%02x:%02x:%02x",
-                    manuf_value->resolved_name, addr[3], addr[4], addr[5]);
+            snprintf(tp->resolved_name, MAXNAMELEN, "%.*s_%02x:%02x:%02x",
+                    MAXNAMELEN - 10, manuf_value->resolved_name, addr[3], addr[4], addr[5]);
             tp->flags |= NAME_RESOLVED | NAME_RESOLVED_PREFIX;
             return tp;
         }
