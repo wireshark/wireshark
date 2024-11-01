@@ -1039,10 +1039,6 @@ check_relation_LHS_FIELD(dfwork_t *dfw, stnode_op_t st_op,
 					stnode_todisplay(st_arg2), ftype_pretty_name(ftype2));
 		}
 	}
-	else if (type2 == STTYPE_UNPARSED) {
-		resolve_unparsed(dfw, st_arg2, true);
-		ASSERT_STTYPE_NOT_REACHED(type2);
-	}
 	else {
 		ASSERT_STTYPE_NOT_REACHED(type2);
 	}
@@ -1106,10 +1102,6 @@ check_relation_LHS_FVALUE(dfwork_t *dfw, stnode_op_t st_op,
 			FAIL(dfw, st_arg2, "%s (type=%s) cannot participate in specified comparison.",
 					stnode_todisplay(st_arg2), ftype_pretty_name(ftype2));
 		}
-	}
-	else if (type2 == STTYPE_UNPARSED) {
-		resolve_unparsed(dfw, st_arg2, true);
-		ASSERT_STTYPE_NOT_REACHED(type2);
 	}
 	else {
 		ASSERT_STTYPE_NOT_REACHED(type2);
@@ -1236,10 +1228,6 @@ check_relation_LHS_SLICE(dfwork_t *dfw, stnode_op_t st_op _U_,
 					stnode_todisplay(st_arg2), ftype_pretty_name(ftype2));
 		}
 	}
-	else if (type2 == STTYPE_UNPARSED) {
-		resolve_unparsed(dfw, st_arg2, true);
-		ASSERT_STTYPE_NOT_REACHED(type2);
-	}
 	else {
 		ASSERT_STTYPE_NOT_REACHED(type2);
 	}
@@ -1350,10 +1338,6 @@ check_relation_LHS_FUNCTION(dfwork_t *dfw, stnode_op_t st_op _U_,
 					stnode_todisplay(st_arg2), ftype_pretty_name(ftype2));
 		}
 	}
-	else if (type2 == STTYPE_UNPARSED) {
-		resolve_unparsed(dfw, st_arg2, true);
-		ASSERT_STTYPE_NOT_REACHED(type2);
-	}
 	else {
 		ASSERT_STTYPE_NOT_REACHED(type2);
 	}
@@ -1455,10 +1439,6 @@ check_relation_LHS_ARITHMETIC(dfwork_t *dfw, stnode_op_t st_op _U_,
 			FAIL(dfw, st_arg2, "%s (type=%s) cannot participate in specified comparison.",
 					stnode_todisplay(st_arg2), ftype_pretty_name(ftype2));
 		}
-	}
-	else if (type2 == STTYPE_UNPARSED) {
-		resolve_unparsed(dfw, st_arg2, true);
-		ASSERT_STTYPE_NOT_REACHED(type2);
 	}
 	else {
 		ASSERT_STTYPE_NOT_REACHED(type2);
@@ -1638,6 +1618,7 @@ check_relation_in(dfwork_t *dfw, stnode_t *st_node _U_,
 	nodelist = stnode_data(st_arg2);
 	while (nodelist) {
 		node_left = nodelist->data;
+		resolve_unparsed(dfw, node_left, false);
 
 		/* Don't let a range on the RHS affect the LHS field. */
 		if (stnode_type_id(node_left) == STTYPE_SLICE) {
@@ -1649,6 +1630,7 @@ check_relation_in(dfwork_t *dfw, stnode_t *st_node _U_,
 		ws_assert(nodelist);
 		node_right = nodelist->data;
 		if (node_right) {
+			resolve_unparsed(dfw, node_right, false);
 			check_relation_LHS_FIELD(dfw, STNODE_OP_GE, ftype_can_cmp,
 					false, st_node, st_arg1, node_left);
 			check_relation_LHS_FIELD(dfw, STNODE_OP_LE, ftype_can_cmp,
