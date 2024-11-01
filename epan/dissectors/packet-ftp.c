@@ -7,6 +7,8 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
+ * https://www.iana.org/assignments/ftp-commands-extensions/ftp-commands-extensions.xhtml
+ *
  * Copied from packet-pop.c
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
@@ -207,9 +209,13 @@ uint32_t eo_row_count;
  * was completely captured. It might be possible to infer a successful
  * transfer with either the "SIZE" command or with a 226 response code
  * (indicating that the STOR or RETR command was successful), but there
- * is no guarantee that either of these are present. As such, this
- * implementation takes a best-effort approach of simply appending
- * all associated ftp-data packets to the export objects entry.
+ * is no guarantee that either of these are present. Similarly, an ALLOcate
+ * command could indicate the expected length, a RESTart indicates that
+ * the one entry isn't a full file, an APPEnd indicates that the entry might
+ * or might not be a full file, and the response to a STOUnique is necessary
+ * to know what the file name is on the receiving side, as opposed to on the
+ * sending side. This implementation takes a best-effort approach of simply
+ * appending all associated ftp-data packets to the export objects entry.
  */
 static tap_packet_status
 ftp_eo_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_, const void *data, tap_flags_t flags _U_)
@@ -218,8 +224,12 @@ ftp_eo_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_, const 
     const ftp_eo_t *eo_info = (const ftp_eo_t *)data;
 
     if(eo_info) { /* We have data waiting for us */
-        /* Only export files transferred with STOR or RETR*/
-        if (strncmp(eo_info->command, "STOR", 4) != 0 && strncmp(eo_info->command, "RETR", 4) != 0) {
+        /* Only export files transferred, not directory listings. */
+        if (strncmp(eo_info->command, "STOR", 4) != 0 &&
+            strncmp(eo_info->command, "RETR", 4) != 0 &&
+            strncmp(eo_info->command, "STOU", 4) != 0 &&
+            strncmp(eo_info->command, "APPE", 4) != 0) {
+
             return TAP_PACKET_DONT_REDRAW; /* State unchanged - no window updates needed */
         }
         /* Create the command_packet_to_eo_row hashtable for mapping the FTP
@@ -405,6 +415,19 @@ static void create_and_link_data_conversation(packet_info *pinfo,
                                 p_ftp_data_conv);
     p_ftp_conv->current_data_conv = p_ftp_data_conv;
     p_ftp_conv->current_data_setup_frame = pinfo->num;
+}
+
+static bool
+cmd_resp_is_data(const char *cmd)
+{
+    /* These are the commands which send a response on a data connection. */
+    return (strncmp(cmd, "RETR", 4) == 0 ||
+        strncmp(cmd, "STOR", 4) == 0 ||
+        strncmp(cmd, "STOU", 4) == 0 ||
+        strncmp(cmd, "APPE", 4) == 0 ||
+        strncmp(cmd, "LIST", 4) == 0 ||
+        strncmp(cmd, "NLST", 4) == 0 ||
+        strncmp(cmd, "MLSD", 4) == 0);
 }
 
 /********************************************************************/
@@ -1156,16 +1179,26 @@ dissect_ftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
                 p_ftp_conv->tls_requested = true;
         }
         /* And make sure set for FTP data conversation */
-        if (p_ftp_conv && p_ftp_conv->current_data_conv && !p_ftp_conv->current_data_conv->command) {
-            /* Store command and frame where it happened */
-            p_ftp_conv->current_data_conv->command = tvb_get_string_enc(wmem_file_scope(), tvb, 0, linelen, ENC_UTF_8);
-            p_ftp_conv->current_data_conv->command_frame = pinfo->num;
+        if (p_ftp_conv && p_ftp_conv->current_data_conv && !PINFO_FD_VISITED(pinfo)) {
+            /* Only certain commands send their responses on the data
+             * connection. If we haven't gotten a command at all though,
+             * save it as better than nothing. It will be replaced by a
+             * later command if present.
+             */
+            if (!p_ftp_conv->current_data_conv->command ||
+                (!cmd_resp_is_data(p_ftp_conv->current_data_conv->command) &&
+                  cmd_resp_is_data(p_ftp_conv->last_command))) {
 
-            /* Add to table to ftp-data response can be shown with this frame on later passes */
-            g_hash_table_insert(ftp_command_to_data_hash, GUINT_TO_POINTER(pinfo->num),
-                                p_ftp_conv->current_data_conv);
-            g_hash_table_insert(ftp_command_to_data_hash, GUINT_TO_POINTER(p_ftp_conv->current_data_setup_frame),
-                                p_ftp_conv->current_data_conv);
+                /* Store command and frame where it happened */
+                p_ftp_conv->current_data_conv->command = tvb_get_string_enc(wmem_file_scope(), tvb, 0, linelen, ENC_UTF_8);
+                p_ftp_conv->current_data_conv->command_frame = pinfo->num;
+
+                /* Add to table so ftp-data response can be shown with this frame on later passes */
+                g_hash_table_insert(ftp_command_to_data_hash, GUINT_TO_POINTER(pinfo->num),
+                                    p_ftp_conv->current_data_conv);
+                g_hash_table_insert(ftp_command_to_data_hash, GUINT_TO_POINTER(p_ftp_conv->current_data_setup_frame),
+                                    p_ftp_conv->current_data_conv);
+            }
         }
     } else {
         /*
