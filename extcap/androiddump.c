@@ -819,7 +819,12 @@ static int adb_send(socket_handle_t sock, const char *adb_service) {
     size_t   adb_service_length;
 
     adb_service_length = strlen(adb_service);
-    snprintf(buffer, sizeof(buffer), ADB_HEX4_FORMAT, adb_service_length);
+    result = snprintf(buffer, sizeof(buffer), ADB_HEX4_FORMAT, adb_service_length);
+    if ((size_t)result >= sizeof(buffer)) {
+        /* Truncation (or failure somehow) */
+        ws_warning("Service name too long when sending <%s> to ADB daemon", adb_service);
+        return EXIT_CODE_ERROR_WHILE_SENDING_ADB_PACKET_1;
+    }
 
     result = send(sock, buffer, ADB_HEX4_LEN, 0);
     if (result < ADB_HEX4_LEN) {
