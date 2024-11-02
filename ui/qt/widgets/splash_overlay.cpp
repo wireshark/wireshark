@@ -59,7 +59,7 @@ SplashOverlay::SplashOverlay(QWidget *parent) :
     setPalette(pal);
     setAutoFillBackground(true);
 
-    setStyleSheet(QString(
+    setStyleSheet(QStringLiteral(
                       "QFrame#progressBand {"
                       "  background: %1;"
                       "}"

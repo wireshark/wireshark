@@ -88,7 +88,7 @@ DisplayFilterEdit::DisplayFilterEdit(QWidget *parent, DisplayFilterEditType type
     setCompleter(new QCompleter(completion_model_, this));
     setCompletionTokenChars(fld_abbrev_chars_);
 
-    QString buttonStyle = QString(
+    QString buttonStyle = QStringLiteral(
         "QToolButton {"
         "  border: none;"
         "  background: transparent;" // Disables platform style on Windows.
@@ -222,7 +222,7 @@ void DisplayFilterEdit::alignActionButtons()
         rightMargin = 0;
     }
 
-    SyntaxLineEdit::setStyleSheet(style_sheet_ + QString(
+    SyntaxLineEdit::setStyleSheet(style_sheet_ + QStringLiteral(
             "SyntaxLineEdit {"
             "  padding-left: %1px;"
             "  margin-left: %2px;"

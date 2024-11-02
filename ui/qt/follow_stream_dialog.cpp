@@ -868,13 +868,13 @@ void FollowStreamDialog::showBuffer(QByteArray &buffer, size_t nchars, bool is_f
 
             addText("peers:\n", false, 0, false);
 
-            addText(QString(
+            addText(QStringLiteral(
                 "  - peer: 0\n"
                 "    host: %1\n"
                 "    port: %2\n")
                 .arg(hostname0, port0), false, 0);
 
-            addText(QString(
+            addText(QStringLiteral(
                 "  - peer: 1\n"
                 "    host: %1\n"
                 "    port: %2\n")

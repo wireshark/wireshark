@@ -117,7 +117,7 @@ void ApplyLineEdit::handleValidation(QString newText)
 {
     int frameWidth = style()->pixelMetric(QStyle::PM_DefaultFrameWidth);
 
-    QString style_sheet = QString(
+    QString style_sheet = QStringLiteral(
             "ApplyLineEdit {"
             "  padding-left: %1px;"
             "  padding-right: %2px;"

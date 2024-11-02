@@ -99,7 +99,7 @@ void InterfaceToolbarLineEdit::updateStyleSheet(bool is_valid)
     int frameWidth = style()->pixelMetric(QStyle::PM_DefaultFrameWidth);
     QSize apsz = apply_button_->sizeHint();
 
-    QString style_sheet = QString(
+    QString style_sheet = QStringLiteral(
             "InterfaceToolbarLineEdit {"
             "  padding-right: %1px;"
             "  background-color: %2;"
@@ -109,7 +109,7 @@ void InterfaceToolbarLineEdit::updateStyleSheet(bool is_valid)
             .arg(is_valid || !isEnabled() ? QString("") : ColorUtils::fromColorT(prefs.gui_text_invalid).name());
 
 #ifdef Q_OS_MAC
-    style_sheet += QString(
+    style_sheet += QStringLiteral(
             "InterfaceToolbarLineEdit {"
             "  border: 1px solid palette(%1);"
             "  border-radius: 3px;"

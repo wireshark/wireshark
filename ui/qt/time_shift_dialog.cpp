@@ -32,7 +32,7 @@ TimeShiftDialog::TimeShiftDialog(QWidget *parent, capture_file *cf) :
     QStyleOption style_opt;
     int rb_label_offset =  ts_ui_->shiftAllButton->style()->subElementRect(QStyle::SE_RadioButtonContents, &style_opt).left();
     int cb_label_offset =  ts_ui_->shiftAllButton->style()->subElementRect(QStyle::SE_CheckBoxContents, &style_opt).left();
-    setStyleSheet(QString(
+    setStyleSheet(QStringLiteral(
                       "QCheckBox#setTwoCheckBox {"
                       "  margin-left: %1px;"
                       "}"
@@ -101,7 +101,7 @@ void TimeShiftDialog::enableWidgets()
         ts_ui_->errorLabel->setStyleSheet(" QLabel { margin-top: 0.5em; }");
     } else {
         ts_ui_->errorLabel->setText(syntax_err_);
-        ts_ui_->errorLabel->setStyleSheet(QString(
+        ts_ui_->errorLabel->setStyleSheet(QStringLiteral(
                     "QLabel {"
                     "  margin-top: 0.5em;"
                     "  background-color: %2;"

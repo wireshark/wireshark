@@ -96,7 +96,7 @@ MainStatusBar::MainStatusBar(QWidget *parent) :
 #if defined(Q_OS_WIN)
     // Handles are the same color as widgets, at least on Windows 7.
     splitter->setHandleWidth(3);
-    splitter->setStyleSheet(QString(
+    splitter->setStyleSheet(QStringLiteral(
                                 "QSplitter::handle {"
                                 "  border-left: 1px solid palette(mid);"
                                 "  border-right: 1px solid palette(mid);"
@@ -635,7 +635,7 @@ void MainStatusBar::showProfileMenu(const QPoint &global_pos, Qt::MouseButton bu
 void MainStatusBar::toggleBackground(bool enabled)
 {
     if (enabled) {
-        setStyleSheet(QString(
+        setStyleSheet(QStringLiteral(
                           "QStatusBar {"
                           "  background-color: %2;"
                           "}"

@@ -451,7 +451,7 @@ void WelcomePage::on_helpLabel_clicked()
 
 void WelcomePage::updateStyleSheets()
 {
-    QString welcome_ss = QString(
+    QString welcome_ss = QStringLiteral(
                 "WelcomePage {"
                 "  padding: 1em;"
                 " }"
@@ -464,7 +464,7 @@ void WelcomePage::updateStyleSheets()
                 "}"
                 );
 #if !defined(Q_OS_WIN)
-    welcome_ss += QString(
+    welcome_ss += QStringLiteral(
                 "QAbstractItemView:item:hover {"
                 "  background-color: %1;"
                 "  color: palette(text);"
@@ -474,7 +474,7 @@ void WelcomePage::updateStyleSheets()
 #endif
     setStyleSheet(welcome_ss);
 
-    QString banner_ss = QString(
+    QString banner_ss = QStringLiteral(
                 "QLabel {"
                 "  border-radius: 0.33em;"
                 "  color: %1;"
@@ -486,7 +486,7 @@ void WelcomePage::updateStyleSheets()
             .arg(QColor(tango_sky_blue_2).name());   // Background color
     welcome_ui_->mainWelcomeBanner->setStyleSheet(banner_ss);
 
-    QString title_button_ss = QString(
+    QString title_button_ss = QStringLiteral(
             "QLabel {"
             "  color: %1;"
             "}"
@@ -508,7 +508,7 @@ void WelcomePage::updateStyleSheets()
         // - Add one or more classes, e.g. "note" or "warning" similar to
         //   SyntaxLineEdit, which we can then expose vi #defines.
         // - Just expose direct color values via #defines.
-        QString flavor_ss = QString(
+        QString flavor_ss = QStringLiteral(
                     "QLabel {"
                     "  border-radius: 0.25em;"
                     "  color: %1;"

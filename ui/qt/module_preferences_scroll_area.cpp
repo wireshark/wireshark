@@ -113,7 +113,7 @@ pref_show(pref_t *pref, void *user_data)
                 enum_rb->setToolTip(tooltip);
                 QStyleOption style_opt;
                 enum_rb->setProperty(pref_prop_, VariantPointer<pref_t>::asQVariant(pref));
-                enum_rb->setStyleSheet(QString(
+                enum_rb->setStyleSheet(QStringLiteral(
                                       "QRadioButton {"
                                       "  margin-left: %1px;"
                                       "}"
@@ -237,7 +237,7 @@ pref_show(pref_t *pref, void *user_data)
         QStyleOption style_opt;
         path_le->setProperty(pref_prop_, VariantPointer<pref_t>::asQVariant(pref));
         path_le->setMinimumWidth(path_le->fontMetrics().height() * 20);
-        path_le->setStyleSheet(QString(
+        path_le->setStyleSheet(QStringLiteral(
                               "QLineEdit {"
                               "  margin-left: %1px;"
                               "}"
@@ -274,7 +274,7 @@ pref_show(pref_t *pref, void *user_data)
                 enum_rb->setToolTip(tooltip);
                 QStyleOption style_opt;
                 enum_rb->setProperty(pref_prop_, VariantPointer<pref_t>::asQVariant(pref));
-                enum_rb->setStyleSheet(QString(
+                enum_rb->setStyleSheet(QStringLiteral(
                                       "QRadioButton {"
                                       "  margin-left: %1px;"
                                       "}"

@@ -131,7 +131,7 @@ CaptureFilterEdit::CaptureFilterEdit(QWidget *parent, bool plain) :
 
     setConflict(false);
 
-    QString buttonStyle = QString(
+    QString buttonStyle = QStringLiteral(
         "QToolButton {"
         "  border: none;"
         "  background: transparent;" // Disables platform style on Windows.
@@ -185,7 +185,7 @@ CaptureFilterEdit::CaptureFilterEdit(QWidget *parent, bool plain) :
     QSize apsz(0, 0);
     if (apply_button_) apsz = apply_button_->sizeHint();
 
-    setStyleSheet(QString(
+    setStyleSheet(QStringLiteral(
             "CaptureFilterEdit {"
             "  padding-left: %1px;"
             "  margin-left: %2px;"

@@ -113,12 +113,12 @@ ProgressFrame::ProgressFrame(QWidget *parent) :
     ui->label->setAttribute(Qt::WA_MacSmallSize, true);
 #endif
 
-    ui->label->setStyleSheet(QString(
+    ui->label->setStyleSheet(QStringLiteral(
             "QLabel {"
             "  background: transparent;"
             "}"));
 
-    ui->progressBar->setStyleSheet(QString(
+    ui->progressBar->setStyleSheet(QStringLiteral(
             "QProgressBar {"
             "  max-width: 20em;"
             "  min-height: 0.5em;"

@@ -91,7 +91,7 @@ void SyntaxLineEdit::setSyntaxState(SyntaxState state) {
     // distinguish for color blind folk.
     QColor busy_fg = ColorUtils::alphaBlend(QApplication::palette().text(), QApplication::palette().base(), 0.5);
 
-    state_style_sheet_ = QString(
+    state_style_sheet_ = QStringLiteral(
             "SyntaxLineEdit[syntaxState=\"%1\"] {"
             "  color: %2;"
             "  background-color: %3;"

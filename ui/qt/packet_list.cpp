@@ -331,7 +331,7 @@ void PacketList::colorsChanged()
 
     QString hover_style;
 #if !defined(Q_OS_WIN)
-    hover_style = QString(
+    hover_style = QStringLiteral(
         "QTreeView:item:hover {"
         "  background-color: %1;"
         "  color: palette(text);"

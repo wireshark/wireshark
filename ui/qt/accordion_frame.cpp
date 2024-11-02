@@ -93,7 +93,7 @@ void AccordionFrame::updateStyleSheet()
     );
 
 #ifdef Q_OS_MAC
-    style_sheet += QString(
+    style_sheet += QStringLiteral(
         "QLineEdit {"
         "  border: 1px solid palette(%1);"
         "  border-radius: 3px;"

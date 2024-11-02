@@ -26,31 +26,31 @@ PacketFormatGroupBox::PacketFormatGroupBox(QWidget *parent) :
     int cb_label_offset =  pf_ui_->detailsCheckBox->style()->subElementRect(QStyle::SE_CheckBoxContents, &style_opt).left();
 
     // Indent the checkbox under the "Packet summary" checkbox
-    pf_ui_->includeColumnHeadingsCheckBox->setStyleSheet(QString(
+    pf_ui_->includeColumnHeadingsCheckBox->setStyleSheet(QStringLiteral(
                       "QCheckBox {"
                       "  padding-left: %1px;"
                       "}"
                       ).arg(cb_label_offset));
 
     // Indent the radio buttons under the "Packet details" checkbox
-    pf_ui_->allCollapsedButton->setStyleSheet(QString(
+    pf_ui_->allCollapsedButton->setStyleSheet(QStringLiteral(
                       "QRadioButton {"
                       "  padding-left: %1px;"
                       "}"
                       ).arg(cb_label_offset));
-    pf_ui_->asDisplayedButton->setStyleSheet(QString(
+    pf_ui_->asDisplayedButton->setStyleSheet(QStringLiteral(
                       "QRadioButton {"
                       "  padding-left: %1px;"
                       "}"
                       ).arg(cb_label_offset));
-    pf_ui_->allExpandedButton->setStyleSheet(QString(
+    pf_ui_->allExpandedButton->setStyleSheet(QStringLiteral(
                       "QRadioButton {"
                       "  padding-left: %1px;"
                       "}"
                       ).arg(cb_label_offset));
 
     // Indent the checkbox under the "Bytes" checkbox
-    pf_ui_->includeDataSourcesCheckBox->setStyleSheet(QString(
+    pf_ui_->includeDataSourcesCheckBox->setStyleSheet(QStringLiteral(
                       "QCheckBox {"
                       "  padding-left: %1px;"
                       "}"

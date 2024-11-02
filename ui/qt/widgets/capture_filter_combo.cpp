@@ -79,13 +79,10 @@ void CaptureFilterCombo::updateStyleSheet()
 {
     const char *display_mode = ColorUtils::themeIsDark() ? "dark" : "light";
 
-    QString ss = QString(
-                "QComboBox {"
 #ifdef Q_OS_MAC
+    QString ss = QStringLiteral(
+                "QComboBox {"
                 "  border: 1px solid gray;"
-#else
-                "  border: 1px solid palette(shadow);"
-#endif
                 "  border-radius: 3px;"
                 "  padding: 0px 0px 0px 0px;"
                 "  margin-left: 0px;"
@@ -108,6 +105,33 @@ void CaptureFilterCombo::updateStyleSheet()
                 "  left: 1px;"
                 "}"
                 ).arg(display_mode);
+#else
+    QString ss = QStringLiteral(
+                "QComboBox {"
+                "  border: 1px solid palette(shadow);"
+                "  border-radius: 3px;"
+                "  padding: 0px 0px 0px 0px;"
+                "  margin-left: 0px;"
+                "  min-width: 20em;"
+                " }"
+
+                "QComboBox::drop-down {"
+                "  subcontrol-origin: padding;"
+                "  subcontrol-position: top right;"
+                "  width: 14px;"
+                "  border-left-width: 0px;"
+                " }"
+
+                "QComboBox::down-arrow {"
+                "  image: url(:/stock_icons/14x14/x-filter-dropdown.%1.png);"
+                " }"
+
+                "QComboBox::down-arrow:on { /* shift the arrow when popup is open */"
+                "  top: 1px;"
+                "  left: 1px;"
+                "}"
+                ).arg(display_mode);
+#endif
     setStyleSheet(ss);
 }
 

@@ -19,7 +19,7 @@ ClickableLabel::ClickableLabel(QWidget* parent)
     setMinimumWidth(0);
     setText(QString());
 
-    setStyleSheet(QString(
+    setStyleSheet(QStringLiteral(
                       "QLabel {"
                       "  margin-left: 0.5em;"
                       " }"

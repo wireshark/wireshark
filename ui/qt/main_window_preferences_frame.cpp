@@ -41,7 +41,7 @@ MainWindowPreferencesFrame::MainWindowPreferencesFrame(QWidget *parent) :
     pref_prepend_window_title_ = prefFromPrefPtr(&prefs.gui_prepend_window_title);
 
     QStyleOption style_opt;
-    QString indent_ss = QString(
+    QString indent_ss = QStringLiteral(
                 "QRadioButton, QLineEdit, QLabel {"
                 "  margin-left: %1px;"
                 "}"

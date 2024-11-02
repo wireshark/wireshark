@@ -55,7 +55,7 @@ void LabelStack::fillLabel() {
     si = labels_.first();
 
     if (si.ctx == temporary_ctx_) {
-        style_sheet += QString(
+        style_sheet += QStringLiteral(
                     "  border-radius: 0.25em;"
                     "  background-color: %2;"
                     )

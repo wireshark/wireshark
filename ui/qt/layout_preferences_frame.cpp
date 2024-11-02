@@ -40,7 +40,7 @@ LayoutPreferencesFrame::LayoutPreferencesFrame(QWidget *parent) :
     ui->layout6ToolButton->setStyleSheet(image_pad_ss);
 
     QStyleOption style_opt;
-    QString indent_ss = QString(
+    QString indent_ss = QStringLiteral(
              "QCheckBox, QLabel {"
              "  margin-left: %1px;"
              "}"

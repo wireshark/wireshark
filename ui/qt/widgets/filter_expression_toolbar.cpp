@@ -252,7 +252,7 @@ void FilterExpressionToolBar::updateStyleSheet()
 {
     // Try to draw 1-pixel-wide separator lines from the button label
     // ascent to its baseline.
-    setStyleSheet(QString(
+    setStyleSheet(QStringLiteral(
                 "QToolBar { background: none; border: none; spacing: 1px; }"
                 "QFrame { background: none; min-width: 1px; max-width: 1px; }"
                 ));

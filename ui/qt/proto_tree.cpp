@@ -65,7 +65,7 @@ ProtoTree::ProtoTree(QWidget *parent, epan_dissect_t *edt_fixed) :
     setHeaderHidden(true);
 
 #if !defined(Q_OS_WIN)
-    setStyleSheet(QString(
+    setStyleSheet(QStringLiteral(
         "QTreeView:item:hover {"
         "  background-color: %1;"
         "  color: palette(text);"

@@ -68,7 +68,7 @@ InterfaceFrame::InterfaceFrame(QWidget * parent)
 {
     ui->setupUi(this);
 
-    setStyleSheet(QString(
+    setStyleSheet(QStringLiteral(
                       "QFrame {"
                       "  border: 0;"
                       "}"
@@ -296,7 +296,7 @@ void InterfaceFrame::resetInterfaceTreeDisplay()
     ui->warningLabel->hide();
     ui->warningLabel->clear();
 
-    ui->warningLabel->setStyleSheet(QString(
+    ui->warningLabel->setStyleSheet(QStringLiteral(
                 "QLabel {"
                 "  border-radius: 0.5em;"
                 "  padding: 0.33em;"
