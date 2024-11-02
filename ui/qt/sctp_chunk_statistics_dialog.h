@@ -70,7 +70,7 @@ private:
         int row;
         int id;
         int hide;
-        char name[30];
+        char name[24];
     };
 
     QMap<int, struct chunkTypes> chunks, tempChunks;
