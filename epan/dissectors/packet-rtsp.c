@@ -1579,7 +1579,7 @@ proto_register_rtsp(void)
         { &ei_rtsp_rdtfeaturelevel_invalid,
           { "rtsp.rdt-feature-level.invalid", PI_MALFORMED, PI_ERROR, "Invalid RDTFeatureLevel", EXPFILL }},
         { &ei_rtsp_bad_server_ip_address,
-          { "rtsp.bad_client_ip_address", PI_MALFORMED, PI_ERROR, "Bad server IP address", EXPFILL }},
+          { "rtsp.bad_server_ip_address", PI_MALFORMED, PI_ERROR, "Bad server IP address", EXPFILL }},
         { &ei_rtsp_bad_client_ip_address,
           { "rtsp.bad_client_ip_address", PI_MALFORMED, PI_ERROR, "Bad client IP address", EXPFILL }}
     };
