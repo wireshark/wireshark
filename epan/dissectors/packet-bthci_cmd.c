@@ -2008,7 +2008,7 @@ value_string_ext bthci_cmd_ocf_testing_vals_ext = VALUE_STRING_EXT_INIT(bthci_cm
     { (base) | 0x098,  "LE Add Device To Monitored Advertisers List" }, \
     { (base) | 0x099,  "LE Remove Device From Monitored Advertisers List" }, \
     { (base) | 0x09A,  "LE Clear Monitored Advertisers List" }, \
-    { (base) | 0x09B,  "LE Read Monitored Advertisres List Size" }, \
+    { (base) | 0x09B,  "LE Read Monitored Advertisers List Size" }, \
     { (base) | 0x09C,  "LE Enable Monitored Advertisers" }, \
     { (base) | 0x09D,  "LE Frame Space Update" }
 
@@ -6597,7 +6597,7 @@ dissect_le_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, 
         case 0x0089: /* LE CS Read Local Supported Capabilities */
         case 0x0096: /* LE CS Test End */
         case 0x009A: /* LE Clear Monitored Advertisers List */
-        case 0x009B: /* LE Read Monitored Advertisres List Size */
+        case 0x009B: /* LE Read Monitored Advertisers List Size */
 
             /* NOTE: No parameters */
             break;
@@ -9769,7 +9769,7 @@ proto_register_bthci_cmd(void)
             NULL, HFILL }
         },
         { &hf_bthci_cmd_cs_subfeatures_supported,
-          { "Subfeatures Suported", "bthci_cmd.optional_cs_subfeatures",
+          { "Subfeatures Supported", "bthci_cmd.optional_cs_subfeatures",
             FT_UINT16, BASE_HEX, NULL, 0x0,
             NULL, HFILL }
         },

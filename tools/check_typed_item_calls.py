@@ -965,7 +965,7 @@ def findExpertItems(filename, macros):
 
 
 
-# These are the valid valies from expert.h
+# These are the valid values from expert.h
 valid_groups = set(['PI_GROUP_MASK', 'PI_CHECKSUM', 'PI_SEQUENCE',
                     'PI_RESPONSE_CODE', 'PI_REQUEST_CODE', 'PI_UNDECODED', 'PI_REASSEMBLE',
                     'PI_MALFORMED', 'PI_DEBUG', 'PI_PROTOCOL', 'PI_SECURITY', 'PI_COMMENTS_GROUP',
@@ -1299,7 +1299,7 @@ class Item:
         return (value & (0x1 << n)) != 0
 
     # Output a warning if non-contiguous bits are found in the mask (uint64_t).
-    # Note that this legimately happens in several dissectors where multiple reserved/unassigned
+    # Note that this legitimately happens in several dissectors where multiple reserved/unassigned
     # bits are conflated into one field.
     # - there is probably a cool/efficient way to check this (+1 => 1-bit set?)
     def check_contiguous_bits(self, mask):

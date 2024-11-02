@@ -286,7 +286,7 @@ static const value_string arista_subtypes[] = {
     {ARISTA_SUBTYPE_GREENT, "Postcard"},
     {ARISTA_SUBTYPE_DZGRE_A, "DzGRE (plan A)"},
     {ARISTA_SUBTYPE_DZGRE_B, "DzGRE (plan B)"},
-    {ARISTA_SUBTYPE_DZGRE_TS, "DzGRE (timesamped)"},
+    {ARISTA_SUBTYPE_DZGRE_TS, "DzGRE (timestamped)"},
     {ARISTA_SUBTYPE_TGEN, "TGen"},
     {0, NULL}
 };
@@ -1387,9 +1387,9 @@ void proto_register_avsp(void)
         &ett_avsp_dzgre_a_hdr,   /* subtree for DzGRE plan A */
         &ett_avsp_dzgre_b_hdr,   /* subtree for DzGRE plan B */
         &ett_avsp_dzgre_ts_hdr,  /* subtree for DzGRE with timestamps */
-        &ett_avsp_dzgre_ts_tai,  /* subrtee for DzGRE timestamp */
-        &ett_avsp_dzgre_ts_utc,  /* subrtee for DzGRE timestamp */
-        &ett_avsp_greent_hdr,    /* subtee for GREENT header */
+        &ett_avsp_dzgre_ts_tai,  /* subtree for DzGRE timestamp */
+        &ett_avsp_dzgre_ts_utc,  /* subtree for DzGRE timestamp */
+        &ett_avsp_greent_hdr,    /* subtree for GREENT header */
         &ett_avsp_greent_sample_hdr,    /* subtree for GREENT sample header */
         &ett_avsp_greent_sample_data,   /* subtree for GREENT sample data */
         &ett_avsp_tgen_hdr,      /* subtree for TGen header */

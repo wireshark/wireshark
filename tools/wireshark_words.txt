@@ -40,6 +40,7 @@ additionals
 additionsr
 addon
 addrbook
+addresp
 addrs
 addrtype
 addrv
@@ -568,6 +569,7 @@ debian
 debug
 debugger
 debuggers
+debuglog
 decapsulation
 decca
 december
@@ -710,7 +712,9 @@ diversifications
 diversifier
 divisor
 djiuav
+dlctrl
 dlmap
+dlmapc
 dlsch
 dlstatus
 dmacros
@@ -757,6 +761,7 @@ eapol
 earcfn
 earfcn
 eastat
+eattr
 ebcdic
 ecdhe
 ecdsa
@@ -869,6 +874,7 @@ exfunc
 exocet
 expandtab
 expansions
+expfill
 exponentials
 extapp
 extattr
@@ -1032,6 +1038,7 @@ gprsmeasurementparams3g
 gpsascii
 granularity
 greek
+greent
 greenwich
 gregex
 greyed
@@ -1054,6 +1061,7 @@ haptic
 harqid
 harris
 hartip
+hasattr
 hashed
 hashes
 hazelcast
@@ -1214,6 +1222,7 @@ intparam
 intra
 intrinsics
 intro
+intsize
 intval
 inuse
 invalidation
@@ -1334,7 +1343,9 @@ lempar
 lenbrook
 level1login
 lexer
+lexobj
 lexpos
+lextab
 lflags
 lfsck
 libcap
@@ -1718,6 +1729,7 @@ octet
 octets
 octetstring
 october
+odomain
 oextcap
 ofdma
 offloadability
@@ -1771,6 +1783,7 @@ openssl
 openstreetmap
 openvpn
 opflags
+oplist
 oplock
 opmode
 opnum
@@ -1851,6 +1864,8 @@ pcre2pattern
 pcrepattern
 pdcch
 pdelay
+pdict
+pdictrl
 pdsch
 pdulength
 pdustatus
@@ -2361,6 +2376,7 @@ setconf
 setkey
 setuid
 severities
+sfcrc
 sfiocr
 sflag
 sflow
@@ -2570,6 +2586,7 @@ symantec
 symbian
 symbl
 symlink
+symstack
 synchronisation
 synchronise
 synchronised
@@ -2704,6 +2721,7 @@ truphone
 trustdom
 truthiness
 tshark
+tspace
 tspec
 tsprec
 tstamp
@@ -2849,6 +2867,7 @@ unjoining
 unknown1
 unlink
 unlinked
+unlist
 unmanaged
 unmap
 unmappable

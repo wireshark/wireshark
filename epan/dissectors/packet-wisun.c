@@ -2262,7 +2262,7 @@ void proto_register_wisun(void)
         },
 
         { &hf_wisun_usie_hop_count,
-          { "Chanel Hop Count", "wisun.usie.hop_count", FT_UINT8, BASE_DEC, NULL, 0x0,
+          { "Channel Hop Count", "wisun.usie.hop_count", FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
 

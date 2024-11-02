@@ -3622,7 +3622,7 @@ static const value_string ansi_map_TDMAServiceCode_vals[]  = {
     {   0, NULL }
 };
 #if 0
-/* 6.5.2.j (IS-730) TDMATerminalCapability N.S0008-0 v 1.0 Updted with N.S0015-0 */
+/* 6.5.2.j (IS-730) TDMATerminalCapability N.S0008-0 v 1.0 Updated with N.S0015-0 */
 /* Supported Frequency Band (octet 1) */
 /* Voice Coder (octet 2) */
 /* Protocol Version (octet 3) N.S0015-0 */

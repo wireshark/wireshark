@@ -70,7 +70,7 @@ functions should suffice.
 */
 typedef struct decode_as_s {
     const char *name;                               /**< Protocol name */
-    const char *table_name;                        /**< Disector table name */
+    const char *table_name;                        /**< Dissector table name */
     unsigned num_items;                                /**< Number of index in the decode_as_value_t struct */
     unsigned default_index_value;                      /**< Which display function to use first, set to zero if only one function*/
     decode_as_value_t* values;                      /**< The array of function pointers, see decode_as_value_t */
