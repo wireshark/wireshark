@@ -3156,7 +3156,7 @@ static unsigned dissect_lbmsrs_cne(tvbuff_t * tvb, proto_tree * tree, unsigned o
     return (offset - start_offset);
 }
 
-void update_counts(struct epan_column_info* cinfo,proto_item* item)
+static void update_counts(struct epan_column_info* cinfo,proto_item* item)
 {
     gchar counts[1024] = "[ ";
     size_t i;
