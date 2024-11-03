@@ -804,7 +804,12 @@ static const value_string v9_v10_template_types[] = {
     { 500, "srhIPv6ActiveSegmentType" },
     { 501, "srhSegmentIPv6LocatorLength" },
     { 502, "srhSegmentIPv6EndpointBehavior" },
-
+    { 505, "gtpuFlags" },
+    { 506, "gtpuMsgType" },
+    { 507, "gtpuTEid" },
+    { 508, "gtpuSequenceNum" },
+    { 509, "gtpuQFI" },
+    { 510, "gtpuPduType" },
     /* Ericsson NAT Logging */
     { 24628, "NAT_LOG_FIELD_IDX_CONTEXT_ID" },
     { 24629, "NAT_LOG_FIELD_IDX_CONTEXT_NAME" },
@@ -2422,6 +2427,7 @@ static int      ett_subtemplate_list;
 static int      ett_resiliency;
 static int      ett_data_link_frame_sec;
 static int      ett_srhflagsipv6;
+static int      ett_gtpflags;
 
 /*
  * cflow header
@@ -2978,6 +2984,29 @@ static int      hf_cflow_srh_segment_ipv6_endpoint_behaviour;      /* ID: 502 */
 static int * const srh_flags_ipv6[] = {
         &hf_cflow_srh_flags_ipv6_reserved,
         &hf_cflow_srh_flags_ipv6_oflag,
+        NULL
+};
+
+static int      hf_cflow_gtpu_flags;      /* ID: 505 */
+static int      hf_gtpu_flags_version;
+static int      hf_gtpu_flags_pt;
+static int      hf_gtpu_flags_reserved;
+static int      hf_gtpu_flags_s;
+static int      hf_gtpu_flags_n;
+static int      hf_gtpu_flags_pn;
+static int      hf_cflow_gtpu_msg_type;      /* ID: 506 */
+static int      hf_cflow_gtpu_teid;      /* ID: 507 */
+static int      hf_cflow_gtpu_seq_num;      /* ID: 508 */
+static int      hf_cflow_gtpu_qfi;      /* ID: 509 */
+static int      hf_cflow_gtpu_pdu_type;      /* ID: 510 */
+
+static int * const gtpu_flags[] = {
+        &hf_gtpu_flags_version,
+        &hf_gtpu_flags_pt,
+        &hf_gtpu_flags_reserved,
+        &hf_gtpu_flags_s,
+        &hf_gtpu_flags_n,
+        &hf_gtpu_flags_pn,
         NULL
 };
 
@@ -8007,8 +8036,24 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
             ti = proto_tree_add_item(pdutree, hf_cflow_srh_segment_ipv6_endpoint_behaviour,
                                      tvb, offset, length, ENC_NA);
             break;
-
-
+        case 505:  /* gtpuFlags */
+          ti = proto_tree_add_bitmask(pdutree, tvb, offset, hf_cflow_gtpu_flags, ett_gtpflags, gtpu_flags, ENC_NA);
+          break;
+        case 506:  /* gtpuMsgType */
+          ti = proto_tree_add_item(pdutree, hf_cflow_gtpu_msg_type, tvb, offset, length, ENC_BIG_ENDIAN);
+          break;
+        case 507:  /* gtpuTEid */
+          ti = proto_tree_add_item(pdutree, hf_cflow_gtpu_teid, tvb, offset, length, ENC_BIG_ENDIAN);
+          break;
+        case 508:  /* gtpuSequenceNum */
+          ti = proto_tree_add_item(pdutree, hf_cflow_gtpu_seq_num, tvb, offset, length, ENC_BIG_ENDIAN);
+          break;
+        case 509:  /* gtpuQFI */
+          ti = proto_tree_add_item(pdutree, hf_cflow_gtpu_qfi, tvb, offset, length, ENC_BIG_ENDIAN);
+          break;
+        case 510:  /* gtpuPduType */
+          ti = proto_tree_add_item(pdutree, hf_cflow_gtpu_pdu_type, tvb, offset, length, ENC_BIG_ENDIAN);
+          break;
 #if 0
         case 33625: /* nic_id */
             ti = proto_tree_add_item(pdutree, hf_cflow_nic_id,
@@ -15970,7 +16015,66 @@ proto_register_netflow(void)
            FT_BYTES, BASE_NONE, NULL, 0x0,
            NULL, HFILL}
         },
-
+        { &hf_cflow_gtpu_flags,
+          {"GTPU Flags", "cflow.gtpu.flags",
+           FT_UINT8, BASE_HEX, NULL, 0x0,
+           NULL, HFILL}
+        },
+        { &hf_gtpu_flags_version,
+          {"Version", "cflow.gtpu.version",
+           FT_UINT8, BASE_HEX_DEC, NULL, 0xE0,
+           NULL, HFILL}
+        },
+        { &hf_gtpu_flags_pt,
+          {"Protocol Type", "cflow.gtpu.pt",
+           FT_BOOLEAN, 8, TFS(&tfs_used_notused), 0x10,
+           NULL, HFILL}
+        },
+        { &hf_gtpu_flags_reserved,
+          {"Reserved Bit", "cflow.gtpu.reserved",
+           FT_BOOLEAN, 8, TFS(&tfs_used_notused), 0x8,
+           NULL, HFILL}
+        },
+        { &hf_gtpu_flags_s,
+          {"S Bit", "cflow.gtpu.s",
+           FT_BOOLEAN, 8, TFS(&tfs_used_notused), 0x4,
+           NULL, HFILL}
+        },
+        { &hf_gtpu_flags_n,
+          {"N Bit", "cflow.gtpu.n",
+           FT_BOOLEAN, 8, TFS(&tfs_used_notused), 0x2,
+           NULL, HFILL}
+        },
+        { &hf_gtpu_flags_pn,
+          {"PN Bit", "cflow.gtpu.pn",
+           FT_BOOLEAN, 8, TFS(&tfs_used_notused), 0x1,
+           NULL, HFILL}
+        },
+        { &hf_cflow_gtpu_msg_type,
+          {"GTPU Message Type", "cflow.gtpu.msg_type",
+           FT_UINT8, BASE_HEX_DEC, NULL, 0x0,
+           NULL, HFILL}
+        },
+        { &hf_cflow_gtpu_teid,
+          {"GTPU TEID", "cflow.gtpu.teid",
+           FT_UINT32, BASE_HEX_DEC, NULL, 0x0,
+           NULL, HFILL}
+        },
+        { &hf_cflow_gtpu_seq_num,
+          {"GTPU Sequence Number", "cflow.gtpu.seq_num",
+           FT_UINT16, BASE_HEX_DEC, NULL, 0x0,
+           NULL, HFILL}
+        },
+        { &hf_cflow_gtpu_qfi,
+          {"GTPU QFI", "cflow.gtpu_qfi",
+           FT_UINT8, BASE_HEX_DEC, NULL, 0x0,
+           NULL, HFILL}
+        },
+        { &hf_cflow_gtpu_pdu_type,
+          {"GTPU PDU Type", "cflow.gtpu_pdu_type",
+           FT_UINT8, BASE_HEX_DEC, NULL, 0x0,
+           NULL, HFILL}
+        },
         /*
          * end pdu content storage
          */
@@ -22147,7 +22251,8 @@ proto_register_netflow(void)
         &ett_subtemplate_list,
         &ett_resiliency,
         &ett_data_link_frame_sec,
-        &ett_srhflagsipv6
+        &ett_srhflagsipv6,
+        &ett_gtpflags
     };
 
     static ei_register_info ei[] = {
