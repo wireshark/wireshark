@@ -228,7 +228,7 @@ private:
 
     void addMenuActions(QList<QAction *> &actions, int menu_group);
     void removeMenuActions(QList<QAction *> &actions, int menu_group);
-    void goToConversationFrame(bool go_next);
+    void goToConversationFrame(bool go_next, bool start_current = true);
     void colorizeWithFilter(QByteArray filter, int color_number = -1);
 
 signals:

@@ -253,6 +253,8 @@
     <addaction name="actionGoLastPacket"/>
     <addaction name="actionGoNextConversationPacket"/>
     <addaction name="actionGoPreviousConversationPacket"/>
+    <addaction name="actionGoFirstConversationPacket"/>
+    <addaction name="actionGoLastConversationPacket"/>
     <addaction name="actionGoNextHistoryPacket"/>
     <addaction name="actionGoPreviousHistoryPacket"/>
     <addaction name="separator"/>
@@ -853,6 +855,22 @@
    </property>
    <property name="shortcut">
     <string notr="true">Ctrl+End</string>
+   </property>
+  </action>
+  <action name="actionGoFirstConversationPacket">
+   <property name="text">
+    <string>First Event in Conversation</string>
+   </property>
+   <property name="toolTip">
+    <string>Go to the first event in this conversation</string>
+   </property>
+  </action>
+  <action name="actionGoLastConversationPacket">
+   <property name="text">
+    <string>Last Event in Conversation</string>
+   </property>
+   <property name="toolTip">
+    <string>Go to the last event in this conversation</string>
    </property>
   </action>
   <action name="actionViewExpandSubtrees">

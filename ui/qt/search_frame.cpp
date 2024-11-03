@@ -537,7 +537,7 @@ void SearchFrame::on_findButton_clicked()
         }
     } else {
         /* Search via display filter */
-        found_packet = cf_find_packet_dfilter(cap_file_, dfp, cap_file_->dir);
+        found_packet = cf_find_packet_dfilter(cap_file_, dfp, cap_file_->dir, true);
         dfilter_free(dfp);
         if (!found_packet) {
             err_string = tr("No packet matched that filter.");

@@ -127,7 +127,7 @@ static match_result match_marked(capture_file *cf, frame_data *fdata,
 static match_result match_time_reference(capture_file *cf, frame_data *fdata,
         wtap_rec *, Buffer *, void *criterion);
 static bool find_packet(capture_file *cf, ws_match_function match_function,
-        void *criterion, search_direction dir);
+        void *criterion, search_direction dir, bool start_current);
 
 /* Seconds spent processing packets between pushing UI updates. */
 #define PROGBAR_UPDATE_INTERVAL 0.150
@@ -3240,7 +3240,7 @@ cf_find_packet_protocol_tree(capture_file *cf, const char *string,
             return true;
         }
     }
-    return find_packet(cf, match_protocol_tree, &mdata, dir);
+    return find_packet(cf, match_protocol_tree, &mdata, dir, true);
 }
 
 field_info*
@@ -3484,7 +3484,7 @@ cf_find_packet_summary_line(capture_file *cf, const char *string,
 
     mdata.string = string;
     mdata.string_len = strlen(string);
-    return find_packet(cf, match_summary_line, &mdata, dir);
+    return find_packet(cf, match_summary_line, &mdata, dir, true);
 }
 
 static match_result
@@ -3599,7 +3599,7 @@ cf_find_packet_data(capture_file *cf, const uint8_t *string, size_t string_size,
     /* Regex, String or hex search? */
     if (cf->regex) {
         /* Regular Expression search */
-        match_function = (cf->dir == SD_FORWARD) ? match_regex : match_regex_reverse;
+        match_function = (dir == SD_FORWARD) ? match_regex : match_regex_reverse;
     } else if (cf->string) {
         /* String search - what type of string? */
         if (cf->case_type) {
@@ -3611,15 +3611,15 @@ cf_find_packet_data(capture_file *cf, const uint8_t *string, size_t string_size,
             switch (cf->scs_type) {
 
                 case SCS_NARROW_AND_WIDE:
-                    match_function = (cf->dir == SD_FORWARD) ? match_narrow_and_wide_case : match_narrow_and_wide_case_reverse;
+                    match_function = (dir == SD_FORWARD) ? match_narrow_and_wide_case : match_narrow_and_wide_case_reverse;
                     break;
 
                 case SCS_NARROW:
-                    match_function = (cf->dir == SD_FORWARD) ? match_narrow_case : match_narrow_case_reverse;
+                    match_function = (dir == SD_FORWARD) ? match_narrow_case : match_narrow_case_reverse;
                     break;
 
                 case SCS_WIDE:
-                    match_function = (cf->dir == SD_FORWARD) ? match_wide_case : match_wide_case_reverse;
+                    match_function = (dir == SD_FORWARD) ? match_wide_case : match_wide_case_reverse;
                     break;
 
                 default:
@@ -3631,17 +3631,17 @@ cf_find_packet_data(capture_file *cf, const uint8_t *string, size_t string_size,
             switch (cf->scs_type) {
 
                 case SCS_NARROW_AND_WIDE:
-                    match_function = (cf->dir == SD_FORWARD) ? match_narrow_and_wide : match_narrow_and_wide_reverse;
+                    match_function = (dir == SD_FORWARD) ? match_narrow_and_wide : match_narrow_and_wide_reverse;
                     break;
 
                 case SCS_NARROW:
                     /* Narrow, case-sensitive match is the same as looking
                      * for a converted hexstring. */
-                    match_function = (cf->dir == SD_FORWARD) ? match_binary : match_binary_reverse;
+                    match_function = (dir == SD_FORWARD) ? match_binary : match_binary_reverse;
                     break;
 
                 case SCS_WIDE:
-                    match_function = (cf->dir == SD_FORWARD) ? match_wide : match_wide_reverse;
+                    match_function = (dir == SD_FORWARD) ? match_wide : match_wide_reverse;
                     break;
 
                 default:
@@ -3650,7 +3650,7 @@ cf_find_packet_data(capture_file *cf, const uint8_t *string, size_t string_size,
             }
         }
     } else {
-        match_function = (cf->dir == SD_FORWARD) ? match_binary : match_binary_reverse;
+        match_function = (dir == SD_FORWARD) ? match_binary : match_binary_reverse;
     }
 
     if (multiple && cf->current_frame && (cf->search_pos || cf->search_len)) {
@@ -3675,7 +3675,7 @@ cf_find_packet_data(capture_file *cf, const uint8_t *string, size_t string_size,
     }
     cf->search_pos = 0; /* Reset the position */
     cf->search_len = 0; /* Reset length */
-    return find_packet(cf, match_function, &info, dir);
+    return find_packet(cf, match_function, &info, dir, true);
 }
 
 static match_result
@@ -4503,9 +4503,9 @@ match_regex_reverse(capture_file *cf, frame_data *fdata,
 
 bool
 cf_find_packet_dfilter(capture_file *cf, dfilter_t *sfcode,
-        search_direction dir)
+        search_direction dir, bool start_current)
 {
-    return find_packet(cf, match_dfilter, sfcode, dir);
+    return find_packet(cf, match_dfilter, sfcode, dir, start_current);
 }
 
 bool
@@ -4529,7 +4529,7 @@ cf_find_packet_dfilter_string(capture_file *cf, const char *filter,
          */
         return false;
     }
-    result = find_packet(cf, match_dfilter, sfcode, dir);
+    result = find_packet(cf, match_dfilter, sfcode, dir, true);
     dfilter_free(sfcode);
     return result;
 }
@@ -4561,7 +4561,7 @@ match_dfilter(capture_file *cf, frame_data *fdata,
 bool
 cf_find_packet_marked(capture_file *cf, search_direction dir)
 {
-    return find_packet(cf, match_marked, NULL, dir);
+    return find_packet(cf, match_marked, NULL, dir, true);
 }
 
 static match_result
@@ -4574,7 +4574,7 @@ match_marked(capture_file *cf _U_, frame_data *fdata, wtap_rec *rec _U_,
 bool
 cf_find_packet_time_reference(capture_file *cf, search_direction dir)
 {
-    return find_packet(cf, match_time_reference, NULL, dir);
+    return find_packet(cf, match_time_reference, NULL, dir, true);
 }
 
 static match_result
@@ -4586,7 +4586,7 @@ match_time_reference(capture_file *cf _U_, frame_data *fdata, wtap_rec *rec _U_,
 
 static bool
 find_packet(capture_file *cf, ws_match_function match_function,
-        void *criterion, search_direction dir)
+        void *criterion, search_direction dir, bool start_current)
 {
     frame_data  *start_fd;
     uint32_t     framenum;
@@ -4607,7 +4607,7 @@ find_packet(capture_file *cf, ws_match_function match_function,
     wtap_rec_init(&rec);
     ws_buffer_init(&buf, 1514);
 
-    start_fd = cf->current_frame;
+    start_fd = start_current ? cf->current_frame : NULL;
     if (start_fd != NULL)  {
         prev_framenum = start_fd->num;
     } else {
@@ -4666,7 +4666,9 @@ find_packet(capture_file *cf, ws_match_function match_function,
 
         if (cf->stop_flag) {
             /* Well, the user decided to abort the search.  Go back to the
-               frame where we started. */
+               frame where we started.
+               XXX - This ends up selecting the start packet and reporting
+               "success". Perhaps new_fd should stay NULL? */
             new_fd = start_fd;
             break;
         }
@@ -4717,7 +4719,9 @@ find_packet(capture_file *cf, ws_match_function match_function,
             result = (*match_function)(cf, fdata, &rec, &buf, criterion);
             if (result == MR_ERROR) {
                 /* Error; our caller has reported the error.  Go back to the frame
-                   where we started. */
+                   where we started.
+                   XXX - This ends up selecting the start packet and reporting
+                   "success." Perhaps new_fd should stay NULL? */
                 new_fd = start_fd;
                 break;
             } else if (result == MR_MATCHED) {

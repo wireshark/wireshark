@@ -564,10 +564,11 @@ bool cf_find_packet_data(capture_file *cf, const uint8_t *string,
  * @param cf the capture file
  * @param sfcode the display filter to match
  * @param dir direction in which to search
+ * @param start_current whether to start searching from the current frame
  * @return true if a packet was found, false otherwise
  */
 bool cf_find_packet_dfilter(capture_file *cf, dfilter_t *sfcode,
-                                search_direction dir);
+                                search_direction dir, bool start_current);
 
 /**
  * Find packet that matches a display filter given as a text string.

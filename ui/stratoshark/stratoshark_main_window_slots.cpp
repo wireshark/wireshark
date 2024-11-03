@@ -2719,6 +2719,12 @@ void StratosharkMainWindow::connectGoMenuActions()
     connect(main_ui_->actionGoPreviousConversationPacket, &QAction::triggered, this,
             [this]() { goToConversationFrame(false); });
 
+    connect(main_ui_->actionGoFirstConversationPacket, &QAction::triggered, this,
+            [this]() { goToConversationFrame(true, false); });
+
+    connect(main_ui_->actionGoLastConversationPacket, &QAction::triggered, this,
+            [this]() { goToConversationFrame(false, false); });
+
     connect(main_ui_->actionGoNextHistoryPacket, &QAction::triggered,
             packet_list_, &PacketList::goNextHistoryPacket);
 
@@ -2738,7 +2744,7 @@ void StratosharkMainWindow::connectGoMenuActions()
             [this](bool checked) { packet_list_->setVerticalAutoScroll(checked); });
 }
 
-void StratosharkMainWindow::goToConversationFrame(bool go_next) {
+void StratosharkMainWindow::goToConversationFrame(bool go_next, bool start_current) {
     char      *filter       = NULL;
     dfilter_t *dfcode       = NULL;
     bool       found_packet = false;
@@ -2766,7 +2772,7 @@ void StratosharkMainWindow::goToConversationFrame(bool go_next) {
         return;
     }
 
-    found_packet = cf_find_packet_dfilter(capture_file_.capFile(), dfcode, go_next ? SD_FORWARD : SD_BACKWARD);
+    found_packet = cf_find_packet_dfilter(capture_file_.capFile(), dfcode, go_next ? SD_FORWARD : SD_BACKWARD, start_current);
 
     if (!found_packet) {
         /* We didn't find a packet */
