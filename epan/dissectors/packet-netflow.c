@@ -12987,7 +12987,6 @@ dissect_v9_v10_template_fields(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
         }
 
         if (tmplt_p->fields_p[fields_type] != NULL) {
-            DISSECTOR_ASSERT (i < count);
             tmplt_p->fields_p[fields_type][i].type    = type;
             tmplt_p->fields_p[fields_type][i].length  = length;
             tmplt_p->fields_p[fields_type][i].pen     = pen;
