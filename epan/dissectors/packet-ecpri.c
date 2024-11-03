@@ -435,7 +435,7 @@ static int dissect_ecpri(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
         proto_tree_add_item(header_tree, hf_proto_rev, tvb, offset, 1, ENC_NA);
         /* Reserved */
         proto_tree_add_item(header_tree, hf_reserved, tvb, offset, 1, ENC_NA);
-        /* C(oncatenated */
+        /* Concatenated */
         ti_c_bit = proto_tree_add_item_ret_boolean(header_tree, hf_c_bit, tvb, offset, 1, ENC_NA, &concatenation_bit);
         offset += 1;
 
@@ -491,281 +491,283 @@ static int dissect_ecpri(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
                     /* N.B. if ORAN dissector is enabled, it will handle this type instead! */
                 case ECPRI_MT_BIT_SEQ:
                     /* 3.2.4.2 Bit Sequence */
-                    if (payload_size >= ECPRI_MSG_TYPE_0_1_PAYLOAD_MIN_LENGTH)
-                    {
-                        if (remaining_length >= ECPRI_MSG_TYPE_0_1_PAYLOAD_MIN_LENGTH)
-                        {
-                            proto_tree_add_item(payload_tree, hf_pc_id, tvb, offset, 2, ENC_BIG_ENDIAN);
-                            offset += 2;
-                            proto_tree_add_item(payload_tree, hf_seq_id, tvb, offset, 2, ENC_BIG_ENDIAN);
-                            offset += 2;
-                            remaining_length -= ECPRI_MSG_TYPE_0_1_PAYLOAD_MIN_LENGTH;
-                            if (remaining_length >= payload_size - ECPRI_MSG_TYPE_0_1_PAYLOAD_MIN_LENGTH)
-                            {
-                                proto_tree_add_item(payload_tree, hf_data, tvb, offset, payload_size - ECPRI_MSG_TYPE_0_1_PAYLOAD_MIN_LENGTH, ENC_NA);
-                                offset += payload_size - ECPRI_MSG_TYPE_0_1_PAYLOAD_MIN_LENGTH;
-                            }
-                        }
-                    }
-                    else
+                    if (payload_size < ECPRI_MSG_TYPE_0_1_PAYLOAD_MIN_LENGTH)
                     {
                         expert_add_info_format(pinfo, ti_payload_size, &ei_payload_size, "Payload Size %d is too small for encoding Message Type %d. Should be min. %d", payload_size, msg_type, ECPRI_MSG_TYPE_0_1_PAYLOAD_MIN_LENGTH);
+                        break;
+                    }
+
+                    if (remaining_length >= ECPRI_MSG_TYPE_0_1_PAYLOAD_MIN_LENGTH)
+                    {
+                        proto_tree_add_item(payload_tree, hf_pc_id, tvb, offset, 2, ENC_BIG_ENDIAN);
+                        offset += 2;
+                        proto_tree_add_item(payload_tree, hf_seq_id, tvb, offset, 2, ENC_BIG_ENDIAN);
+                        offset += 2;
+                        remaining_length -= ECPRI_MSG_TYPE_0_1_PAYLOAD_MIN_LENGTH;
+                        if (remaining_length >= payload_size - ECPRI_MSG_TYPE_0_1_PAYLOAD_MIN_LENGTH)
+                        {
+                            proto_tree_add_item(payload_tree, hf_data, tvb, offset, payload_size - ECPRI_MSG_TYPE_0_1_PAYLOAD_MIN_LENGTH, ENC_NA);
+                            offset += payload_size - ECPRI_MSG_TYPE_0_1_PAYLOAD_MIN_LENGTH;
+                        }
                     }
                     break;
+
                 case ECPRI_MT_RT_CTRL_DATA:
                     /* 3.2.4.3 Real-Time Control Data */
                     /* N.B. if ORAN dissector is enabled, it will handle this type instead! */
-                    if (payload_size >= ECPRI_MSG_TYPE_2_PAYLOAD_MIN_LENGTH)
-                    {
-                        if (remaining_length >= ECPRI_MSG_TYPE_2_PAYLOAD_MIN_LENGTH)
-                        {
-                            proto_tree_add_item(payload_tree, hf_rtc_id, tvb, offset, 2, ENC_BIG_ENDIAN);
-                            offset += 2;
-                            proto_tree_add_item(payload_tree, hf_seq_id, tvb, offset, 2, ENC_BIG_ENDIAN);
-                            offset += 2;
-                            remaining_length -= ECPRI_MSG_TYPE_2_PAYLOAD_MIN_LENGTH;
-                            if (remaining_length >= payload_size - ECPRI_MSG_TYPE_2_PAYLOAD_MIN_LENGTH)
-                            {
-                                proto_tree_add_item(payload_tree, hf_data, tvb, offset, payload_size - ECPRI_MSG_TYPE_2_PAYLOAD_MIN_LENGTH, ENC_NA);
-                                offset += payload_size - ECPRI_MSG_TYPE_2_PAYLOAD_MIN_LENGTH;
-                            }
-                        }
-                    }
-                    else
+                    if (payload_size < ECPRI_MSG_TYPE_2_PAYLOAD_MIN_LENGTH)
                     {
                         expert_add_info_format(pinfo, ti_payload_size, &ei_payload_size, "Payload Size %d is too small for encoding Message Type %d. Should be min. %d", payload_size, msg_type, ECPRI_MSG_TYPE_2_PAYLOAD_MIN_LENGTH);
+                        break;
+                    }
+
+                    if (remaining_length >= ECPRI_MSG_TYPE_2_PAYLOAD_MIN_LENGTH)
+                    {
+                        proto_tree_add_item(payload_tree, hf_rtc_id, tvb, offset, 2, ENC_BIG_ENDIAN);
+                        offset += 2;
+                        proto_tree_add_item(payload_tree, hf_seq_id, tvb, offset, 2, ENC_BIG_ENDIAN);
+                        offset += 2;
+                        remaining_length -= ECPRI_MSG_TYPE_2_PAYLOAD_MIN_LENGTH;
+                        if (remaining_length >= payload_size - ECPRI_MSG_TYPE_2_PAYLOAD_MIN_LENGTH)
+                        {
+                            proto_tree_add_item(payload_tree, hf_data, tvb, offset, payload_size - ECPRI_MSG_TYPE_2_PAYLOAD_MIN_LENGTH, ENC_NA);
+                            offset += payload_size - ECPRI_MSG_TYPE_2_PAYLOAD_MIN_LENGTH;
+                        }
                     }
                     break;
+
                 case ECPRI_MT_GEN_DATA_TFER:
                     /* 3.2.4.4 Generic Data Transfer */
-                    if (payload_size >= ECPRI_MSG_TYPE_3_PAYLOAD_MIN_LENGTH)
+                    if (payload_size < ECPRI_MSG_TYPE_3_PAYLOAD_MIN_LENGTH)
                     {
-                        if (remaining_length >= ECPRI_MSG_TYPE_3_PAYLOAD_MIN_LENGTH)
+                        expert_add_info_format(
+                            pinfo, ti_payload_size, &ei_payload_size,
+                            "Payload Size %d is too small for encoding Message Type %d. Should be min. %d",
+                            payload_size, msg_type, ECPRI_MSG_TYPE_3_PAYLOAD_MIN_LENGTH);
+                        break;
+                    }
+
+                    if (remaining_length >= ECPRI_MSG_TYPE_3_PAYLOAD_MIN_LENGTH)
+                    {
+                        proto_tree_add_item(payload_tree, hf_pc_id2, tvb, offset, 4, ENC_BIG_ENDIAN);
+                        offset += 4;
+                        proto_tree_add_item(payload_tree, hf_seq_id2, tvb, offset, 4, ENC_BIG_ENDIAN);
+                        offset += 4;
+                        remaining_length -= ECPRI_MSG_TYPE_3_PAYLOAD_MIN_LENGTH;
+                        if (remaining_length >= payload_size - ECPRI_MSG_TYPE_3_PAYLOAD_MIN_LENGTH)
                         {
-                            proto_tree_add_item(payload_tree, hf_pc_id2, tvb, offset, 4, ENC_BIG_ENDIAN);
-                            offset += 4;
-                            proto_tree_add_item(payload_tree, hf_seq_id2, tvb, offset, 4, ENC_BIG_ENDIAN);
-                            offset += 4;
-                            remaining_length -= ECPRI_MSG_TYPE_3_PAYLOAD_MIN_LENGTH;
-                            if (remaining_length >= payload_size - ECPRI_MSG_TYPE_3_PAYLOAD_MIN_LENGTH)
-                            {
-                                proto_tree_add_item(payload_tree, hf_data, tvb, offset, payload_size - ECPRI_MSG_TYPE_3_PAYLOAD_MIN_LENGTH, ENC_NA);
-                                offset += payload_size - ECPRI_MSG_TYPE_3_PAYLOAD_MIN_LENGTH;
-                            }
+                            proto_tree_add_item(payload_tree, hf_data, tvb, offset, payload_size - ECPRI_MSG_TYPE_3_PAYLOAD_MIN_LENGTH, ENC_NA);
+                            offset += payload_size - ECPRI_MSG_TYPE_3_PAYLOAD_MIN_LENGTH;
                         }
                     }
-                    else
-                    {
-                        expert_add_info_format(pinfo, ti_payload_size, &ei_payload_size, "Payload Size %d is too small for encoding Message Type %d. Should be min. %d", payload_size, msg_type, ECPRI_MSG_TYPE_3_PAYLOAD_MIN_LENGTH);
-                    }
                     break;
+
                 case ECPRI_MT_REM_MEM_ACC:
                     /* 3.2.4.5 Remote Memory Access */
-                    if (payload_size >= ECPRI_MSG_TYPE_4_PAYLOAD_MIN_LENGTH)
-                    {
-                        if (remaining_length >= ECPRI_MSG_TYPE_4_PAYLOAD_MIN_LENGTH)
-                        {
-                            proto_tree_add_item(payload_tree, hf_rma_id, tvb, offset, 1, ENC_NA);
-                            offset += 1;
-                            proto_tree_add_item(payload_tree, hf_read_write, tvb, offset, 1, ENC_NA);
-                            proto_tree_add_item(payload_tree, hf_request_response, tvb, offset, 1, ENC_NA);
-                            offset += 1;
-                            proto_tree_add_item(payload_tree, hf_element_id, tvb, offset, 2, ENC_BIG_ENDIAN);
-                            offset += 2;
-                            proto_tree_add_item(payload_tree, hf_address, tvb, offset, 6, ENC_NA);
-                            offset += 6;
-                            ti_data_length = proto_tree_add_item_ret_uint(payload_tree, hf_data_length, tvb, offset, 2, ENC_BIG_ENDIAN, &data_length);
-                            offset += 2;
-                            remaining_length -= ECPRI_MSG_TYPE_4_PAYLOAD_MIN_LENGTH;
-                            if (remaining_length >= payload_size - ECPRI_MSG_TYPE_4_PAYLOAD_MIN_LENGTH)
-                            {
-                                if (data_length == (uint32_t)(payload_size - ECPRI_MSG_TYPE_4_PAYLOAD_MIN_LENGTH))
-                                {
-                                    proto_tree_add_item(payload_tree, hf_data, tvb, offset, payload_size - ECPRI_MSG_TYPE_4_PAYLOAD_MIN_LENGTH, ENC_NA);
-                                    offset += payload_size - ECPRI_MSG_TYPE_4_PAYLOAD_MIN_LENGTH;
-                                }
-                                else if (data_length < (uint32_t)(payload_size - ECPRI_MSG_TYPE_4_PAYLOAD_MIN_LENGTH))
-                                {
-                                    expert_add_info_format(pinfo, ti_data_length, &ei_data_length, "Data Length %d is too small, should be %d", data_length, payload_size - ECPRI_MSG_TYPE_4_PAYLOAD_MIN_LENGTH);
-                                }
-                                else
-                                {
-                                    expert_add_info_format(pinfo, ti_data_length, &ei_data_length, "Data Length %d is too big, should be %d", data_length, payload_size - ECPRI_MSG_TYPE_4_PAYLOAD_MIN_LENGTH);
-                                }
-                            }
-                        }
-                    }
-                    else
+                    if (payload_size < ECPRI_MSG_TYPE_4_PAYLOAD_MIN_LENGTH)
                     {
                         expert_add_info_format(pinfo, ti_payload_size, &ei_payload_size, "Payload Size %d is too small for encoding Message Type %d. Should be min. %d", payload_size, msg_type, ECPRI_MSG_TYPE_4_PAYLOAD_MIN_LENGTH);
+                        break;
                     }
-                    break;
-                case ECPRI_MT_1WAY_DELAY:
-                    /* 3.2.4.6 One-way Delay Measurement */
-                    if (payload_size >= ECPRI_MSG_TYPE_5_PAYLOAD_MIN_LENGTH)
-                    {
-                        if (remaining_length >= ECPRI_MSG_TYPE_5_PAYLOAD_MIN_LENGTH)
-                        {
-                            proto_tree_add_item(payload_tree, hf_measurement_id, tvb, offset, 1, ENC_NA);
-                            offset += 1;
-                            proto_tree_add_item_ret_uint(payload_tree, hf_action_type, tvb, offset, 1, ENC_NA, &action_type);
-                            offset += 1;
-                            /* Time Stamp for seconds and nano-seconds */
-                            timestamp_item = proto_tree_add_item(payload_tree, hf_timestamp, tvb, offset, 10, ENC_NA);
-                            timestamp_tree = proto_item_add_subtree(timestamp_item, ett_ecpri_timestamp);
-                            proto_tree_add_item_ret_uint64(timestamp_tree, hf_timestamp_sec, tvb, offset, 6, ENC_BIG_ENDIAN, &time_stamp_s);
-                            offset += 6;
-                            proto_tree_add_item_ret_uint(timestamp_tree, hf_timestamp_nanosec, tvb, offset, 4, ENC_BIG_ENDIAN, &time_stamp_ns);
-                            offset += 4;
-                            if (action_type >= ECPRI_MSG_TYPE_5_RESERVED_MIN)
-                            {
-                                expert_add_info_format(pinfo, timestamp_item, &ei_time_stamp, "Time stamp is not defined for Action Type %d", action_type);
-                            }
-                            else if (action_type != ECPRI_MSG_TYPE_5_REQ && action_type != ECPRI_MSG_TYPE_5_RESPONSE && action_type != ECPRI_MSG_TYPE_5_FOLLOWUP && time_stamp_s != 0x0000000000000000 && time_stamp_ns != 0x00000000)
-                            {
-                                expert_add_info_format(pinfo, timestamp_item, &ei_time_stamp, "Time stamp is not defined for Action Type %d, should be 0", action_type);
-                            }
-                            ti_comp_val = proto_tree_add_item_ret_uint64(payload_tree, hf_compensation_value, tvb, offset, 8, ENC_BIG_ENDIAN, &comp_val);
-                            proto_item_append_text(ti_comp_val, " = %fns", comp_val / 65536.0);
 
-                            if (action_type >= ECPRI_MSG_TYPE_5_RESERVED_MIN)
-                            {
-                                expert_add_info_format(pinfo, timestamp_item, &ei_time_stamp, "Compensation Value is not defined for Action Type %d", action_type);
-                            }
-                            else if (action_type != ECPRI_MSG_TYPE_5_REQ && action_type != ECPRI_MSG_TYPE_5_RESPONSE && action_type != ECPRI_MSG_TYPE_5_FOLLOWUP && comp_val != 0x0000000000000000)
-                            {
-                                expert_add_info_format(pinfo, ti_comp_val, &ei_comp_val, "Compensation Value is not defined for Action Type %d, should be 0", action_type);
-                            }
-                            offset += 8;
-                            remaining_length -= ECPRI_MSG_TYPE_5_PAYLOAD_MIN_LENGTH;
-                            if (remaining_length >= payload_size - ECPRI_MSG_TYPE_5_PAYLOAD_MIN_LENGTH)
-                            {
-                                proto_tree_add_item(payload_tree, hf_data, tvb, offset, payload_size - ECPRI_MSG_TYPE_5_PAYLOAD_MIN_LENGTH, ENC_NA);
-                                offset += payload_size - ECPRI_MSG_TYPE_5_PAYLOAD_MIN_LENGTH;
-                            }
-                        }
-                    }
-                    else
+                    if (remaining_length >= ECPRI_MSG_TYPE_4_PAYLOAD_MIN_LENGTH)
                     {
-                        expert_add_info_format(pinfo, ti_payload_size, &ei_payload_size, "Payload Size %d is too small for encoding Message Type %d. Should be min. %d", payload_size, msg_type, ECPRI_MSG_TYPE_5_PAYLOAD_MIN_LENGTH);
-                    }
-                    break;
-                case ECPRI_MT_REM_RST:
-                    /* Remote Reset */
-                    if (payload_size >= ECPRI_MSG_TYPE_6_PAYLOAD_MIN_LENGTH)
-                    {
-                        if (remaining_length >= ECPRI_MSG_TYPE_6_PAYLOAD_MIN_LENGTH)
+                        proto_tree_add_item(payload_tree, hf_rma_id, tvb, offset, 1, ENC_NA);
+                        offset += 1;
+                        proto_tree_add_item(payload_tree, hf_read_write, tvb, offset, 1, ENC_NA);
+                        proto_tree_add_item(payload_tree, hf_request_response, tvb, offset, 1, ENC_NA);
+                        offset += 1;
+                        proto_tree_add_item(payload_tree, hf_element_id, tvb, offset, 2, ENC_BIG_ENDIAN);
+                        offset += 2;
+                        proto_tree_add_item(payload_tree, hf_address, tvb, offset, 6, ENC_NA);
+                        offset += 6;
+                        ti_data_length = proto_tree_add_item_ret_uint(payload_tree, hf_data_length, tvb, offset, 2, ENC_BIG_ENDIAN, &data_length);
+                        offset += 2;
+                        remaining_length -= ECPRI_MSG_TYPE_4_PAYLOAD_MIN_LENGTH;
+                        if (remaining_length >= payload_size - ECPRI_MSG_TYPE_4_PAYLOAD_MIN_LENGTH)
                         {
-                            proto_tree_add_item(payload_tree, hf_reset_id, tvb, offset, 2, ENC_BIG_ENDIAN);
-                            offset += 2;
-                            proto_tree_add_item(payload_tree, hf_reset_code, tvb, offset, 1, ENC_NA);
-                            offset += 1;
-                            remaining_length -= ECPRI_MSG_TYPE_6_PAYLOAD_MIN_LENGTH;
-                            if (remaining_length >= payload_size - ECPRI_MSG_TYPE_6_PAYLOAD_MIN_LENGTH)
+                            if (data_length == (uint32_t)(payload_size - ECPRI_MSG_TYPE_4_PAYLOAD_MIN_LENGTH))
                             {
-                                proto_tree_add_item(payload_tree, hf_data, tvb, offset, payload_size - ECPRI_MSG_TYPE_6_PAYLOAD_MIN_LENGTH, ENC_NA);
-                                offset += payload_size - ECPRI_MSG_TYPE_6_PAYLOAD_MIN_LENGTH;
+                                proto_tree_add_item(payload_tree, hf_data, tvb, offset, payload_size - ECPRI_MSG_TYPE_4_PAYLOAD_MIN_LENGTH, ENC_NA);
+                                offset += payload_size - ECPRI_MSG_TYPE_4_PAYLOAD_MIN_LENGTH;
                             }
-                        }
-                    }
-                    else
-                    {
-                        expert_add_info_format(pinfo, ti_payload_size, &ei_payload_size, "Payload Size %d is too small for encoding Message Type %d. Should be min. %d", payload_size, msg_type, ECPRI_MSG_TYPE_6_PAYLOAD_MIN_LENGTH);
-                    }
-                    break;
-                case ECPRI_MT_EVT_IND:
-                    /* Event Indication */
-                    if (payload_size >= ECPRI_MSG_TYPE_7_PAYLOAD_MIN_LENGTH)
-                    {
-                        if (remaining_length >= ECPRI_MSG_TYPE_7_PAYLOAD_MIN_LENGTH)
-                        {
-                            proto_tree_add_item(payload_tree, hf_event_id, tvb, offset, 1, ENC_NA);
-                            offset += 1;
-                            proto_tree_add_item_ret_uint(payload_tree, hf_event_type, tvb, offset, 1, ENC_NA, &event_type);
-                            offset += 1;
-                            proto_tree_add_item(payload_tree, hf_sequence_num, tvb, offset, 1, ENC_NA);
-                            offset += 1;
-                            ti_num_faults = proto_tree_add_item_ret_uint(payload_tree, hf_number_faults_notif, tvb, offset, 1, ENC_NA, &num_faults_notif);
-                            offset += 1;
-                            /* Only for Event Type Fault Indication (0x00) and Notification Indication (0x02) */
-                            if (event_type == ECPRI_MSG_TYPE_7_FAULT_INDICATION || event_type == ECPRI_MSG_TYPE_7_NOTIF_INDICATION)
+                            else if (data_length < (uint32_t)(payload_size - ECPRI_MSG_TYPE_4_PAYLOAD_MIN_LENGTH))
                             {
-                                /* These two Event Types should have notifications or faults */
-                                if (num_faults_notif > 0)
-                                {
-                                    /* Check Size of Elements */
-                                    if (payload_size == ECPRI_MSG_TYPE_7_PAYLOAD_MIN_LENGTH + num_faults_notif * ECPRI_MSG_TYPE_7_ELEMENT_SIZE)
-                                    {
-                                        /* Dissect elements in loop */
-                                        for (uint32_t i = 0; i < num_faults_notif; i++)
-                                        {
-                                            element_item = proto_tree_add_item(payload_tree, hf_element, tvb, offset, ECPRI_MSG_TYPE_7_ELEMENT_SIZE, ENC_NA);
-                                            proto_item_prepend_text(element_item, "#%d: ", i + 1);
-                                            element_tree =proto_item_add_subtree(element_item, ett_ecpri_element);
-
-                                            proto_tree_add_item(element_tree, hf_element_id2, tvb, offset, 2, ENC_BIG_ENDIAN);
-                                            offset += 2;
-                                            proto_tree_add_item(element_tree, hf_raise_cease, tvb, offset, 1, ENC_NA);
-                                            ti_fault_notif = proto_tree_add_item_ret_uint(element_tree, hf_fault_notif, tvb, offset, 2, ENC_BIG_ENDIAN, &fault_notif);
-                                            /* Faults and Notifications cannot be mixed */
-                                            if (event_type == ECPRI_MSG_TYPE_7_FAULT_INDICATION && !((fault_notif <= ECPRI_MSG_TYPE_7_FAULTS_MAX) || (fault_notif >= ECPRI_MSG_TYPE_7_VENDOR_MIN && fault_notif <= ECPRI_MSG_TYPE_7_VENDOR_MAX)))
-                                            {
-                                                expert_add_info_format(pinfo, ti_fault_notif, &ei_fault_notif, "Only Faults are permitted with Event Type Faults Indication (0x%.2X)", event_type);
-                                            }
-                                            else if (event_type == ECPRI_MSG_TYPE_7_NOTIF_INDICATION && !((fault_notif >= ECPRI_MSG_TYPE_7_NOTIF_MIN && fault_notif <= ECPRI_MSG_TYPE_7_NOTIF_MAX) || (fault_notif >= ECPRI_MSG_TYPE_7_VENDOR_MIN && fault_notif <= ECPRI_MSG_TYPE_7_VENDOR_MAX)))
-                                            {
-                                                expert_add_info_format(pinfo, ti_fault_notif, &ei_fault_notif, "Only Notifications are permitted with Event Type Notifications Indication (0x%.2X)", event_type);
-                                            }
-                                            offset += 2;
-                                            proto_tree_add_item(element_tree, hf_add_info, tvb, offset, 4, ENC_BIG_ENDIAN);
-                                            offset += 4;
-                                        }
-                                    }
-                                    else if (payload_size < ECPRI_MSG_TYPE_7_PAYLOAD_MIN_LENGTH + num_faults_notif * ECPRI_MSG_TYPE_7_ELEMENT_SIZE)
-                                    {
-                                        expert_add_info_format(pinfo, ti_num_faults, &ei_number_faults, "Number of Faults/Notif %d is maybe too big", num_faults_notif);
-                                        expert_add_info_format(pinfo, ti_payload_size, &ei_payload_size, "Payload Size is maybe too small");
-                                    }
-                                    else
-                                    {
-                                        expert_add_info_format(pinfo, ti_num_faults, &ei_number_faults, "Number of Faults/Notif %d is maybe too small", num_faults_notif);
-                                        expert_add_info_format(pinfo, ti_payload_size, &ei_payload_size, "Payload Size is maybe too big");
-                                    }
-                                }
-                                else
-                                {
-                                    expert_add_info_format(pinfo, ti_num_faults, &ei_number_faults, "Number of Faults/Notif %d should be > 0", num_faults_notif);
-                                }
-                            }
-                            else if (event_type == ECPRI_MSG_TYPE_7_FAULT_INDICATION_ACK || event_type == ECPRI_MSG_TYPE_7_SYNC_REQUEST || event_type == ECPRI_MSG_TYPE_7_SYNC_ACK || event_type == ECPRI_MSG_TYPE_7_SYNC_END_INDICATION)
-                            {
-                                /* Number of Faults/Notifs should be 0, only 4 Byte possible*/
-                                if (payload_size > 4)
-                                {
-                                    expert_add_info_format(pinfo, ti_payload_size, &ei_payload_size, "Payload Size %d should be 4", payload_size);
-                                }
-                                /* These Event Types shouldn't have faults or notifications */
-                                if (num_faults_notif != 0)
-                                {
-                                    expert_add_info_format(pinfo, ti_num_faults, &ei_number_faults, "Number of Faults/Notif %d should be 0", num_faults_notif);
-                                }
+                                expert_add_info_format(pinfo, ti_data_length, &ei_data_length, "Data Length %d is too small, should be %d", data_length, payload_size - ECPRI_MSG_TYPE_4_PAYLOAD_MIN_LENGTH);
                             }
                             else
                             {
-                                /* These Event Types are reserved, don't know how to decode */
-                                if (num_faults_notif != 0)
-                                {
-                                    expert_add_info_format(pinfo, ti_num_faults, &ei_number_faults, "Number of Faults/Notif %d, but no knowledge about encoding, because Event Type is reserved.", num_faults_notif);
-                                }
+                                expert_add_info_format(pinfo, ti_data_length, &ei_data_length, "Data Length %d is too big, should be %d", data_length, payload_size - ECPRI_MSG_TYPE_4_PAYLOAD_MIN_LENGTH);
                             }
                         }
                     }
-                    else
+                    break;
+
+                case ECPRI_MT_1WAY_DELAY:
+                    /* 3.2.4.6 One-way Delay Measurement */
+                    if (payload_size < ECPRI_MSG_TYPE_5_PAYLOAD_MIN_LENGTH)
                     {
-                        /* Minimal Length is bigger then actual Payload Size */
-                        expert_add_info_format(pinfo, ti_payload_size, &ei_payload_size, "Payload Size %d is too small for encoding Message Type %d. Should be min. %d", payload_size, msg_type, ECPRI_MSG_TYPE_7_PAYLOAD_MIN_LENGTH);
+                        expert_add_info_format(pinfo, ti_payload_size, &ei_payload_size, "Payload Size %d is too small for encoding Message Type %d. Should be min. %d", payload_size, msg_type, ECPRI_MSG_TYPE_5_PAYLOAD_MIN_LENGTH);
+                        break;
+                    }
+
+                    if (remaining_length >= ECPRI_MSG_TYPE_5_PAYLOAD_MIN_LENGTH)
+                    {
+                        proto_tree_add_item(payload_tree, hf_measurement_id, tvb, offset, 1, ENC_NA);
+                        offset += 1;
+                        proto_tree_add_item_ret_uint(payload_tree, hf_action_type, tvb, offset, 1, ENC_NA, &action_type);
+                        offset += 1;
+                        /* Time Stamp for seconds and nano-seconds */
+                        timestamp_item = proto_tree_add_item(payload_tree, hf_timestamp, tvb, offset, 10, ENC_NA);
+                        timestamp_tree = proto_item_add_subtree(timestamp_item, ett_ecpri_timestamp);
+                        proto_tree_add_item_ret_uint64(timestamp_tree, hf_timestamp_sec, tvb, offset, 6, ENC_BIG_ENDIAN, &time_stamp_s);
+                        offset += 6;
+                        proto_tree_add_item_ret_uint(timestamp_tree, hf_timestamp_nanosec, tvb, offset, 4, ENC_BIG_ENDIAN, &time_stamp_ns);
+                        offset += 4;
+                        if (action_type >= ECPRI_MSG_TYPE_5_RESERVED_MIN)
+                        {
+                            expert_add_info_format(pinfo, timestamp_item, &ei_time_stamp, "Time stamp is not defined for Action Type %d", action_type);
+                        }
+                        else if (action_type != ECPRI_MSG_TYPE_5_REQ && action_type != ECPRI_MSG_TYPE_5_RESPONSE && action_type != ECPRI_MSG_TYPE_5_FOLLOWUP && time_stamp_s != 0x0000000000000000 && time_stamp_ns != 0x00000000)
+                        {
+                            expert_add_info_format(pinfo, timestamp_item, &ei_time_stamp, "Time stamp is not defined for Action Type %d, should be 0", action_type);
+                        }
+                        ti_comp_val = proto_tree_add_item_ret_uint64(payload_tree, hf_compensation_value, tvb, offset, 8, ENC_BIG_ENDIAN, &comp_val);
+                        proto_item_append_text(ti_comp_val, " = %fns", comp_val / 65536.0);
+
+                        if (action_type >= ECPRI_MSG_TYPE_5_RESERVED_MIN)
+                        {
+                            expert_add_info_format(pinfo, timestamp_item, &ei_time_stamp, "Compensation Value is not defined for Action Type %d", action_type);
+                        }
+                        else if (action_type != ECPRI_MSG_TYPE_5_REQ && action_type != ECPRI_MSG_TYPE_5_RESPONSE && action_type != ECPRI_MSG_TYPE_5_FOLLOWUP && comp_val != 0x0000000000000000)
+                        {
+                            expert_add_info_format(pinfo, ti_comp_val, &ei_comp_val, "Compensation Value is not defined for Action Type %d, should be 0", action_type);
+                        }
+                        offset += 8;
+                        remaining_length -= ECPRI_MSG_TYPE_5_PAYLOAD_MIN_LENGTH;
+                        if (remaining_length >= payload_size - ECPRI_MSG_TYPE_5_PAYLOAD_MIN_LENGTH)
+                        {
+                            proto_tree_add_item(payload_tree, hf_data, tvb, offset, payload_size - ECPRI_MSG_TYPE_5_PAYLOAD_MIN_LENGTH, ENC_NA);
+                            offset += payload_size - ECPRI_MSG_TYPE_5_PAYLOAD_MIN_LENGTH;
+                        }
                     }
                     break;
+
+                case ECPRI_MT_REM_RST:
+                    /* Remote Reset */
+                    if (payload_size < ECPRI_MSG_TYPE_6_PAYLOAD_MIN_LENGTH)
+                    {
+                        expert_add_info_format(pinfo, ti_payload_size, &ei_payload_size, "Payload Size %d is too small for encoding Message Type %d. Should be min. %d", payload_size, msg_type, ECPRI_MSG_TYPE_6_PAYLOAD_MIN_LENGTH);
+                        break;
+                    }
+
+                    if (remaining_length >= ECPRI_MSG_TYPE_6_PAYLOAD_MIN_LENGTH)
+                    {
+                        proto_tree_add_item(payload_tree, hf_reset_id, tvb, offset, 2, ENC_BIG_ENDIAN);
+                        offset += 2;
+                        proto_tree_add_item(payload_tree, hf_reset_code, tvb, offset, 1, ENC_NA);
+                        offset += 1;
+                        remaining_length -= ECPRI_MSG_TYPE_6_PAYLOAD_MIN_LENGTH;
+                        if (remaining_length >= payload_size - ECPRI_MSG_TYPE_6_PAYLOAD_MIN_LENGTH)
+                        {
+                            proto_tree_add_item(payload_tree, hf_data, tvb, offset, payload_size - ECPRI_MSG_TYPE_6_PAYLOAD_MIN_LENGTH, ENC_NA);
+                            offset += payload_size - ECPRI_MSG_TYPE_6_PAYLOAD_MIN_LENGTH;
+                        }
+                    }
+                    break;
+
+                case ECPRI_MT_EVT_IND:
+                    /* Event Indication */
+                    if (payload_size < ECPRI_MSG_TYPE_7_PAYLOAD_MIN_LENGTH)
+                    {
+                        expert_add_info_format(pinfo, ti_payload_size, &ei_payload_size, "Payload Size %d is too small for encoding Message Type %d. Should be min. %d", payload_size, msg_type, ECPRI_MSG_TYPE_7_PAYLOAD_MIN_LENGTH);
+                        break;
+                    }
+
+                    if (remaining_length >= ECPRI_MSG_TYPE_7_PAYLOAD_MIN_LENGTH)
+                    {
+                        proto_tree_add_item(payload_tree, hf_event_id, tvb, offset, 1, ENC_NA);
+                        offset += 1;
+                        proto_tree_add_item_ret_uint(payload_tree, hf_event_type, tvb, offset, 1, ENC_NA, &event_type);
+                        offset += 1;
+                        proto_tree_add_item(payload_tree, hf_sequence_num, tvb, offset, 1, ENC_NA);
+                        offset += 1;
+                        ti_num_faults = proto_tree_add_item_ret_uint(payload_tree, hf_number_faults_notif, tvb, offset, 1, ENC_NA, &num_faults_notif);
+                        offset += 1;
+                        /* Only for Event Type Fault Indication (0x00) and Notification Indication (0x02) */
+                        if (event_type == ECPRI_MSG_TYPE_7_FAULT_INDICATION || event_type == ECPRI_MSG_TYPE_7_NOTIF_INDICATION)
+                        {
+                            /* These two Event Types should have notifications or faults */
+                            if (num_faults_notif == 0)
+                            {
+                                expert_add_info_format(pinfo, ti_num_faults, &ei_number_faults, "Number of Faults/Notif %d should be > 0", num_faults_notif);
+                                break;
+                            }
+
+                            /* Check Size of Elements */
+                            if (payload_size == ECPRI_MSG_TYPE_7_PAYLOAD_MIN_LENGTH + num_faults_notif * ECPRI_MSG_TYPE_7_ELEMENT_SIZE)
+                            {
+                                /* Dissect elements in loop */
+                                for (uint32_t i = 0; i < num_faults_notif; i++)
+                                {
+                                    element_item = proto_tree_add_item(payload_tree, hf_element, tvb, offset, ECPRI_MSG_TYPE_7_ELEMENT_SIZE, ENC_NA);
+                                    proto_item_prepend_text(element_item, "#%d: ", i + 1);
+                                    element_tree =proto_item_add_subtree(element_item, ett_ecpri_element);
+
+                                    proto_tree_add_item(element_tree, hf_element_id2, tvb, offset, 2, ENC_BIG_ENDIAN);
+                                    offset += 2;
+                                    proto_tree_add_item(element_tree, hf_raise_cease, tvb, offset, 1, ENC_NA);
+                                    ti_fault_notif = proto_tree_add_item_ret_uint(element_tree, hf_fault_notif, tvb, offset, 2, ENC_BIG_ENDIAN, &fault_notif);
+                                    /* Faults and Notifications cannot be mixed */
+                                    if (event_type == ECPRI_MSG_TYPE_7_FAULT_INDICATION && !((fault_notif <= ECPRI_MSG_TYPE_7_FAULTS_MAX) || (fault_notif >= ECPRI_MSG_TYPE_7_VENDOR_MIN && fault_notif <= ECPRI_MSG_TYPE_7_VENDOR_MAX)))
+                                    {
+                                        expert_add_info_format(pinfo, ti_fault_notif, &ei_fault_notif, "Only Faults are permitted with Event Type Faults Indication (0x%.2X)", event_type);
+                                    }
+                                    else if (event_type == ECPRI_MSG_TYPE_7_NOTIF_INDICATION && !((fault_notif >= ECPRI_MSG_TYPE_7_NOTIF_MIN && fault_notif <= ECPRI_MSG_TYPE_7_NOTIF_MAX) || (fault_notif >= ECPRI_MSG_TYPE_7_VENDOR_MIN && fault_notif <= ECPRI_MSG_TYPE_7_VENDOR_MAX)))
+                                    {
+                                        expert_add_info_format(pinfo, ti_fault_notif, &ei_fault_notif, "Only Notifications are permitted with Event Type Notifications Indication (0x%.2X)", event_type);
+                                    }
+                                    offset += 2;
+                                    proto_tree_add_item(element_tree, hf_add_info, tvb, offset, 4, ENC_BIG_ENDIAN);
+                                    offset += 4;
+                                }
+                            }
+                            else if (payload_size < ECPRI_MSG_TYPE_7_PAYLOAD_MIN_LENGTH + num_faults_notif * ECPRI_MSG_TYPE_7_ELEMENT_SIZE)
+                            {
+                                expert_add_info_format(pinfo, ti_num_faults, &ei_number_faults, "Number of Faults/Notif %d is maybe too big", num_faults_notif);
+                                expert_add_info_format(pinfo, ti_payload_size, &ei_payload_size, "Payload Size is maybe too small");
+                            }
+                            else
+                            {
+                                expert_add_info_format(pinfo, ti_num_faults, &ei_number_faults, "Number of Faults/Notif %d is maybe too small", num_faults_notif);
+                                expert_add_info_format(pinfo, ti_payload_size, &ei_payload_size, "Payload Size is maybe too big");
+                            }
+
+                        }
+                        else if (event_type == ECPRI_MSG_TYPE_7_FAULT_INDICATION_ACK || event_type == ECPRI_MSG_TYPE_7_SYNC_REQUEST || event_type == ECPRI_MSG_TYPE_7_SYNC_ACK || event_type == ECPRI_MSG_TYPE_7_SYNC_END_INDICATION)
+                        {
+                            /* Number of Faults/Notifs should be 0, only 4 Byte possible*/
+                            if (payload_size > 4)
+                            {
+                                expert_add_info_format(pinfo, ti_payload_size, &ei_payload_size, "Payload Size %d should be 4", payload_size);
+                            }
+                            /* These Event Types shouldn't have faults or notifications */
+                            if (num_faults_notif != 0)
+                            {
+                                expert_add_info_format(pinfo, ti_num_faults, &ei_number_faults, "Number of Faults/Notif %d should be 0", num_faults_notif);
+                            }
+                        }
+                        else
+                        {
+                            /* These Event Types are reserved, don't know how to decode */
+                            if (num_faults_notif != 0)
+                            {
+                                expert_add_info_format(pinfo, ti_num_faults, &ei_number_faults, "Number of Faults/Notif %d, but no knowledge about encoding, because Event Type is reserved.", num_faults_notif);
+                            }
+                        }
+                    }
+                    break;
+
                 case ECPRI_MT_IWF_STARTUP:
                     /* 3.2.4.9 IWF Start-Up */
                 case ECRPI_MT_IWF_OP:
