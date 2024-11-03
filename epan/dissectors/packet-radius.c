@@ -22,7 +22,11 @@
  * RFC 2869 - RADIUS Extensions
  * RFC 3162 - RADIUS and IPv6
  * RFC 3576 - Dynamic Authorization Extensions to RADIUS
+ * RFC 6613 - RADIUS over TCP
+ * RFC 6614 - RADIUS over TLS
  * RFC 6929 - Remote Authentication Dial-In User Service (RADIUS) Protocol Extensions
+ * RFC 7360 - RADIUS over DTLS
+ * draft-ietf-radext-radiusdtls-bis - (Datagram) Transport Layer Security (D)TLS Encryption for RADIUS
  *
  * See also
  *
@@ -61,7 +65,10 @@
 
 
 #include "packet-radius.h"
+#include "packet-dtls.h"
 #include "packet-e212.h"
+#include "packet-tcp.h"
+#include "packet-tls.h"
 
 void proto_register_radius(void);
 void proto_reg_handoff_radius(void);
@@ -100,12 +107,17 @@ typedef struct _radius_info_t
  * Default RADIUS ports:
  * 1645 (Authentication, pre RFC 2865)
  * 1646 (Accounting, pre RFC 2866)
- * 1812 (Authentication, RFC 2865)
- * 1813 (Accounting, RFC 2866)
+ * 1812 (Authentication, RFC 2865 and RFC 6613)
+ * 1813 (Accounting, RFC 2866 and RFC 6613)
  * 1700 (Dynamic Authorization Extensions, pre RFC 3576)
+ * 2083 (RADIUS over TLS in RFC 6614 and over DTLS in RFC 7360)
  * 3799 (Dynamic Authorization Extensions, RFC 3576)
 */
-#define DEFAULT_RADIUS_PORT_RANGE "1645,1646,1700,1812,1813,3799"
+#define DEFAULT_RADIUS_PORT_RANGE_UDP "1645,1646,1700,1812,1813,3799"
+#define DEFAULT_RADIUS_PORT_RANGE_TCP "1812,1813"
+#define DEFAULT_RADIUS_PORT_RANGE_TLS 2083
+
+static bool radius_desegment  = true;
 
 static radius_dictionary_t *dict;
 
@@ -202,10 +214,14 @@ static radius_vendor_info_t no_vendor = {"Unknown Vendor", 0, NULL, -1, 1, 1, fa
 static radius_attr_info_t no_dictionary_entry = {"Unknown-Attribute", { { 0, 0 } }, false, false, false, radius_octets, NULL, NULL, -1, -1, -1, -1, -1, -1, NULL };
 
 static dissector_handle_t eap_handle;
-static dissector_handle_t radius_handle;
+static dissector_handle_t radius_handle, radius_handle_pdu;
 
+static int proto_tls;
+static int proto_dtls;
 
-static const char *shared_secret = "";
+static const char *shared_secret0 = NULL;
+static const char *shared_secret_radsec = "radsec";
+static const char *shared_secret_radsec_dtls = "radius/dtls";
 static bool validate_authenticator;
 static bool show_length;
 static bool disable_extended_attributes;
@@ -897,6 +913,21 @@ dissect_rfc4675_egress_vlan_name(proto_tree *tree, tvbuff_t *tvb, packet_info *p
 				   val_to_str_const(tag, egress_vlan_tag_vals, "Unknown"), name);
 }
 
+static const char *
+get_shared_secret(packet_info *pinfo) {
+	const int prev_proto = GPOINTER_TO_INT(wmem_list_frame_data(wmem_list_frame_prev(wmem_list_tail(pinfo->layers))));
+	const char *secret = shared_secret0;
+	bool is_secure = prev_proto == proto_tls || prev_proto == proto_dtls;
+	bool is_dtls = prev_proto == proto_dtls;
+
+	/* we allow the user to override the default shared secret for RADSEC */
+	if (is_secure && *secret == '\0') {
+		secret = is_dtls ? shared_secret_radsec_dtls : shared_secret_radsec;
+	}
+
+	return secret;
+}
+
 static void
 radius_decrypt_avp(uint8_t *dest, packet_info *pinfo, tvbuff_t *tvb, int offset, int length, uint8_t *request_authenticator, uint8_t *salt, int salt_len, int type)
 {
@@ -905,6 +936,7 @@ radius_decrypt_avp(uint8_t *dest, packet_info *pinfo, tvbuff_t *tvb, int offset,
 	int i, j;
 	int padded_length;
 	uint8_t *pd;
+	const char *shared_secret = get_shared_secret(pinfo);
 
 	if (gcry_md_open(&md5_handle, GCRY_MD_MD5, 0)) {
 		return;
@@ -1300,7 +1332,7 @@ add_avp_to_tree(proto_tree *avp_tree, proto_item *avp_item, packet_info *pinfo, 
 	}
 
 	if (dictionary_entry->encrypt > 0) {
-		if (*shared_secret =='\0' || avp_length == 0 || !radius_call) {
+		if (!get_shared_secret(pinfo) || avp_length == 0 || !radius_call) {
 			proto_item_append_text(avp_item, "Encrypted");
 			proto_tree_add_item(avp_tree, dictionary_entry->hf_enc, tvb, offset, avp_length, ENC_NA);
 		} else {
@@ -1388,6 +1420,7 @@ valid_authenticator (packet_info *pinfo, tvbuff_t *tvb, uint8_t request_authenti
 	uint8_t rh_code;
 	uint8_t *payload;
 	uint8_t message_authenticator[AUTHENTICATOR_LENGTH];
+	const char *shared_secret = get_shared_secret(pinfo);
 
 	tvb_length = tvb_captured_length(tvb);
 
@@ -1890,7 +1923,7 @@ dissect_attribute_value_pairs(proto_tree *tree, packet_info *pinfo, tvbuff_t *tv
 			continue;
 		}
 
-		if (avp_type0 == RADIUS_ATTR_TYPE_MESSAGE_AUTHENTICATOR && validate_authenticator && *shared_secret != '\0' && radius_call) {
+		if (avp_type0 == RADIUS_ATTR_TYPE_MESSAGE_AUTHENTICATOR && validate_authenticator && get_shared_secret(pinfo) && radius_call) {
 			proto_item *authenticator_tree, *item;
 			int valid;
 
@@ -2105,7 +2138,7 @@ dissect_radius(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 				}
 
 				/* Accounting Request Authenticator Validation */
-				if (rh.rh_code == RADIUS_PKT_TYPE_ACCOUNTING_REQUEST && validate_authenticator && *shared_secret != '\0') {
+				if (rh.rh_code == RADIUS_PKT_TYPE_ACCOUNTING_REQUEST && validate_authenticator && get_shared_secret(pinfo)) {
 					proto_item *authenticator_tree, *item;
 					int valid;
 					valid = valid_authenticator(pinfo, tvb, radius_call->req_authenticator, false, 4);
@@ -2240,7 +2273,7 @@ dissect_radius(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 				item = proto_tree_add_time(radius_tree, hf_radius_time, tvb, 0, 0, &delta);
 				proto_item_set_generated(item);
 				/* Response Authenticator Validation */
-				if (validate_authenticator && *shared_secret != '\0') {
+				if (validate_authenticator && get_shared_secret(pinfo)) {
 					proto_item *authenticator_tree;
 					int valid;
 					valid = valid_authenticator(pinfo, tvb, radius_call->req_authenticator, false, 4);
@@ -2304,6 +2337,23 @@ dissect_radius(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 	}
 
 	return tvb_captured_length(tvb);
+}
+
+static unsigned
+get_dissect_radius_len(packet_info *pinfo _U_, tvbuff_t *tvb,
+		       int offset, void *data _U_)
+{
+	return tvb_get_ntohs(tvb, offset + 2);
+}
+
+static int
+dissect_radius_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+{
+	if (!tvb_bytes_exist(tvb, 0, RD_HDR_LENGTH))
+		return 0;
+	tcp_dissect_pdus(tvb, pinfo, tree, radius_desegment, RD_HDR_LENGTH,
+		get_dissect_radius_len, dissect_radius, data);
+	return tvb_reported_length(tvb);
 }
 
 void
@@ -2847,17 +2897,23 @@ proto_register_radius(void)
 
 	proto_radius = proto_register_protocol("RADIUS Protocol", "RADIUS", "radius");
 	radius_handle = register_dissector("radius", dissect_radius, proto_radius);
+	radius_handle_pdu = register_dissector("radius.pdu", dissect_radius_pdu, proto_radius);
 	register_shutdown_routine(radius_shutdown);
 	radius_module = prefs_register_protocol(proto_radius, NULL);
 	prefs_register_password_preference(radius_module, "shared_secret", "Shared Secret",
-					 "Shared secret used to decode User Passwords and validate Accounting Request and Response Authenticators",
-					 &shared_secret);
+					 "Shared secret used to decode User Passwords and validate Accounting Request and Response Authenticators; for (D)TLS/RADSEC and RADIUS/1.1 leave blank unless you wish to override default behaviour",
+					 &shared_secret0);
 	prefs_register_bool_preference(radius_module, "validate_authenticator", "Validate Authenticator and Message-Authenticator",
 				       "Whether to check or not if Authenticator and Message-Authenticator are correct. You need to define shared secret for this to work.",
 				       &validate_authenticator);
 	prefs_register_bool_preference(radius_module, "show_length", "Show AVP Lengths",
 				       "Whether to add or not to the tree the AVP's payload length",
 				       &show_length);
+	prefs_register_bool_preference(radius_module, "desegment",
+				       "Desegment all RADIUS messages spanning multiple TCP segments",
+				       "Whether the RADIUS dissector should desegment all messages spanning multiple TCP segments",
+				       &radius_desegment);
+
 	/*
 	 * For now this preference allows supporting legacy Ascend AVPs and others
 	 * who might use these attribute types (not complying with IANA allocation).
@@ -2891,8 +2947,13 @@ proto_register_radius(void)
 void
 proto_reg_handoff_radius(void)
 {
+	proto_tls = proto_get_id_by_short_name("TLS");
+	proto_dtls = proto_get_id_by_short_name("DTLS");
 	eap_handle = find_dissector_add_dependency("eap", proto_radius);
-	dissector_add_uint_range_with_preference("udp.port", DEFAULT_RADIUS_PORT_RANGE, radius_handle);
+	dissector_add_uint_range_with_preference("udp.port", DEFAULT_RADIUS_PORT_RANGE_UDP, radius_handle);
+	dissector_add_uint_range_with_preference("tcp.port", DEFAULT_RADIUS_PORT_RANGE_TCP, radius_handle_pdu);
+	dtls_dissector_add(DEFAULT_RADIUS_PORT_RANGE_TLS, radius_handle);
+	ssl_dissector_add(DEFAULT_RADIUS_PORT_RANGE_TLS, radius_handle_pdu);
 }
 
 /*
