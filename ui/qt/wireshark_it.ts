@@ -4160,10 +4160,6 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation>Aggiornamento automatico</translation>
     </message>
     <message>
-        <source>Enable legend</source>
-        <translation type="vanished">Abilita la legenda</translation>
-    </message>
-    <message>
         <source>Reset Graph</source>
         <translation>Ripristina il grafico</translation>
     </message>
@@ -4298,11 +4294,11 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>Toggle X-axis between relative time and time of day</source>
-        <translation type="unfinished"></translation>
+        <translation>Commuta l&apos;asse X tra tempo relativo e ora del giorno</translation>
     </message>
     <message>
         <source>Toggle Y-axis between logarithmic and linear scale</source>
-        <translation type="unfinished"></translation>
+        <translation>Commuta l&apos;asse Y tra scala logaritmica e lineare</translation>
     </message>
     <message>
         <source>Crosshairs</source>
@@ -4318,11 +4314,11 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>Legend</source>
-        <translation type="unfinished"></translation>
+        <translation>Legenda</translation>
     </message>
     <message>
         <source>Toggle legend</source>
-        <translation type="unfinished"></translation>
+        <translation>Commuta la legenda</translation>
     </message>
     <message>
         <source>Zoom In X Axis</source>

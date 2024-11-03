@@ -4158,10 +4158,6 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
         <translation>Automatisches aktualisieren</translation>
     </message>
     <message>
-        <source>Enable legend</source>
-        <translation type="vanished">Legende einschalten</translation>
-    </message>
-    <message>
         <source>Reset Graph</source>
         <translation>Graph zurücksetzen</translation>
     </message>

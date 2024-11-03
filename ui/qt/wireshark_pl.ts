@@ -4165,10 +4165,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Automatyczna aktualizacja</translation>
     </message>
     <message>
-        <source>Enable legend</source>
-        <translation type="vanished">Włącz legendę</translation>
-    </message>
-    <message>
         <source>Reset Graph</source>
         <translation>Resetuj wykres</translation>
     </message>

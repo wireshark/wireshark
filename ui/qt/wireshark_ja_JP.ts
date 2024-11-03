@@ -4142,10 +4142,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>自動アップデート</translation>
     </message>
     <message>
-        <source>Enable legend</source>
-        <translation type="vanished">凡例を有効化</translation>
-    </message>
-    <message>
         <source>Reset Graph</source>
         <translation>グラフをリセット</translation>
     </message>
@@ -4280,11 +4276,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Toggle X-axis between relative time and time of day</source>
-        <translation type="unfinished"></translation>
+        <translation>X軸を相対時間と時刻で切り替えます</translation>
     </message>
     <message>
         <source>Toggle Y-axis between logarithmic and linear scale</source>
-        <translation type="unfinished"></translation>
+        <translation>Y軸を対数スケールと線形スケールで切り替える</translation>
     </message>
     <message>
         <source>Crosshairs</source>
@@ -4300,11 +4296,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Legend</source>
-        <translation type="unfinished"></translation>
+        <translation>凡例</translation>
     </message>
     <message>
         <source>Toggle legend</source>
-        <translation type="unfinished"></translation>
+        <translation>凡例の表示を切り替える</translation>
     </message>
     <message>
         <source>Zoom In X Axis</source>

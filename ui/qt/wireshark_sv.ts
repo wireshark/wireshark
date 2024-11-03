@@ -4158,10 +4158,6 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <translation>Automatisk uppdatering</translation>
     </message>
     <message>
-        <source>Enable legend</source>
-        <translation type="vanished">Aktivera förklaring</translation>
-    </message>
-    <message>
         <source>Reset Graph</source>
         <translation>Återställ grafen</translation>
     </message>

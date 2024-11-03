@@ -4141,10 +4141,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>자동 업데이트</translation>
     </message>
     <message>
-        <source>Enable legend</source>
-        <translation type="vanished">범례 활성화</translation>
-    </message>
-    <message>
         <source>Reset Graph</source>
         <translation>그래프 초기화</translation>
     </message>

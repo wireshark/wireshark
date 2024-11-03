@@ -4160,10 +4160,6 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
         <translation>Mise à jour automatique</translation>
     </message>
     <message>
-        <source>Enable legend</source>
-        <translation type="vanished">Activer la légende</translation>
-    </message>
-    <message>
         <source>Reset Graph</source>
         <translation>Réinitialiser le Graphique</translation>
     </message>

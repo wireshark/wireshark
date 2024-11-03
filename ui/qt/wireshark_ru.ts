@@ -4177,10 +4177,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Автоматическое обновление</translation>
     </message>
     <message>
-        <source>Enable legend</source>
-        <translation type="vanished">Включить легенду</translation>
-    </message>
-    <message>
         <source>Reset Graph</source>
         <translation>Сбросить график</translation>
     </message>
