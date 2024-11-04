@@ -1210,7 +1210,7 @@ dissect_rtcp_rtpfb_tmmbr( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *rtc
     int offset = 0;
     proto_item *top_item = proto_tree_get_parent(rtcp_tree);
 
-    int packet_len = tvb_get_uint16( tvb, offset + 2, ENC_BIG_ENDIAN);
+    int packet_len = (tvb_get_uint16( tvb, offset + 2, ENC_BIG_ENDIAN) + 1) * 4;
 
     offset = dissect_rtcp_rtpfb_header(tvb, offset, rtcp_tree);
 
@@ -1235,7 +1235,7 @@ dissect_rtcp_rtpfb_tmmbn( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *rtc
     int offset = 0;
     proto_item *top_item = proto_tree_get_parent(rtcp_tree);
 
-    int packet_len = tvb_get_uint16( tvb, offset + 2, ENC_BIG_ENDIAN);
+    int packet_len = (tvb_get_uint16( tvb, offset + 2, ENC_BIG_ENDIAN) + 1) * 4;
 
     offset = dissect_rtcp_rtpfb_header(tvb, offset, rtcp_tree);
 
@@ -1326,7 +1326,7 @@ dissect_rtcp_rtpfb_ccfb( tvbuff_t *tvb, packet_info *pinfo, proto_tree *rtcp_tre
   proto_tree *fci_tree;
   proto_item *fci_item;
 
-  int packet_len = tvb_get_uint16( tvb, offset + 2, ENC_BIG_ENDIAN);
+  int packet_len = (tvb_get_uint16( tvb, offset + 2, ENC_BIG_ENDIAN) + 1) * 4;
 
   offset = dissect_rtcp_rtpfb_header( tvb, offset, rtcp_tree);
 
@@ -1802,7 +1802,7 @@ dissect_rtcp_rtpfb_transport_cc( tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 {
     int offset = 0;
 
-    int packet_len = tvb_get_uint16( tvb, offset + 2, ENC_BIG_ENDIAN);
+    int packet_len = (tvb_get_uint16( tvb, offset + 2, ENC_BIG_ENDIAN) + 1) * 4;
 
     offset = dissect_rtcp_rtpfb_header( tvb, offset, rtcp_tree);
 
@@ -1864,7 +1864,7 @@ dissect_rtcp_rtpfb_nack( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *rtcp
     int offset = 0;
     proto_item *top_item = proto_tree_get_parent(rtcp_tree);
 
-    int packet_len = tvb_get_uint16( tvb, offset + 2, ENC_BIG_ENDIAN);
+    int packet_len = (tvb_get_uint16( tvb, offset + 2, ENC_BIG_ENDIAN) + 1) * 4;
 
     offset = dissect_rtcp_rtpfb_header( tvb, offset, rtcp_tree);
 
@@ -1884,7 +1884,7 @@ static int
 dissect_rtcp_rtpfb_undecoded( tvbuff_t *tvb, packet_info *pinfo, proto_tree *rtcp_tree, void *data _U_)
 {
     int offset = 0;
-    int packet_len = tvb_get_uint16( tvb, offset + 2, ENC_BIG_ENDIAN);
+    int packet_len = (tvb_get_uint16( tvb, offset + 2, ENC_BIG_ENDIAN) + 1) * 4;
 
     offset = dissect_rtcp_rtpfb_header( tvb, offset, rtcp_tree);
 
