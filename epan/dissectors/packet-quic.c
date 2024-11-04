@@ -24,7 +24,7 @@
  * https://tools.ietf.org/html/draft-huitema-quic-ts-02
  * https://tools.ietf.org/html/draft-ietf-quic-ack-frequency-07 (and also draft-04/05)
  * https://tools.ietf.org/html/draft-banks-quic-cibir-01
- * https://tools.ietf.org/html/draft-ietf-quic-multipath-10 (and also >= draft-07)
+ * https://tools.ietf.org/html/draft-ietf-quic-multipath-11 (and also >= draft-07)
 
  *
  * Currently supported QUIC version(s): draft-21, draft-22, draft-23, draft-24,
@@ -193,6 +193,7 @@ static int hf_quic_mp_pnci_path_identifier;
 static int hf_quic_mp_rc_path_identifier;
 static int hf_quic_mp_path_ack_path_identifier;
 static int hf_quic_mp_pa_path_identifier;
+static int hf_quic_mp_pa_error_code;
 static int hf_quic_mp_ps_path_identifier;
 static int hf_quic_mp_ps_path_status_sequence_number;
 static int hf_quic_mp_ps_path_status;
@@ -695,6 +696,7 @@ static const value_string quic_v2_long_packet_type_vals[] = {
 #define FT_PATH_RETIRE_CONNECTION_ID 0x15228c0a /* multipath-draft-07 */
 #define FT_MAX_PATHS                0x15228c0b /* multipath-draft-07 */
 #define FT_MAX_PATH_ID              0x15228c0c /* multipath-draft-09 */
+#define FT_PATHS_BLOCKED            0x15228c0d /* multipath-draft-11 */
 #define FT_TIME_STAMP               0x02F5
 
 static const range_string quic_frame_type_vals[] = {
@@ -738,6 +740,7 @@ static const range_string quic_frame_type_vals[] = {
     { 0x15228c0a, 0x15228c0a, "PATH_RETIRE_CONNECTION_ID" }, /* >= multipath-draft-07 */
     { 0x15228c0b, 0x15228c0b, "MAX_PATHS" }, /* >= multipath-draft-07 */
     { 0x15228c0c, 0x15228c0c, "MAX_PATH_ID" }, /* >= multipath-draft-09 */
+    { 0x15228c0d, 0x15228c0d, "PATHS_BLOCKED" }, /* >= multipath-draft-11 */
     { 0,    0,        NULL },
 };
 
@@ -2332,7 +2335,7 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
         case FT_ACK_ECN:
         case FT_PATH_ACK:
         case FT_PATH_ACK_ECN:{
-            uint64_t ack_range_count;
+            uint64_t ack_range_count, path_id;
             int32_t lenvar;
 
             switch(frame_type){
@@ -2344,13 +2347,15 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
                 break;
                 case FT_PATH_ACK:
                     col_append_str(pinfo->cinfo, COL_INFO, ", PATH_ACK");
-                    proto_tree_add_item_ret_varint(ft_tree, hf_quic_mp_path_ack_path_identifier, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &lenvar);
+                    proto_tree_add_item_ret_varint(ft_tree, hf_quic_mp_path_ack_path_identifier, tvb, offset, -1, ENC_VARINT_QUIC, &path_id, &lenvar);
                     offset += lenvar;
+                    proto_item_append_text(ti_ft, " path_id=%" PRIu64, path_id);
                 break;
                 case FT_PATH_ACK_ECN:
                     col_append_str(pinfo->cinfo, COL_INFO, ", PATH_ACK_ECN");
-                    proto_tree_add_item_ret_varint(ft_tree, hf_quic_mp_path_ack_path_identifier, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &lenvar);
+                    proto_tree_add_item_ret_varint(ft_tree, hf_quic_mp_path_ack_path_identifier, tvb, offset, -1, ENC_VARINT_QUIC, &path_id, &lenvar);
                     offset += lenvar;
+                    proto_item_append_text(ti_ft, " path_id=%" PRIu64, path_id);
                 break;
             }
 
@@ -2624,6 +2629,7 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
                     col_append_str(pinfo->cinfo, COL_INFO, ", PNCI");
                     proto_tree_add_item_ret_varint(ft_tree, hf_quic_mp_pnci_path_identifier, tvb, offset, -1, ENC_VARINT_QUIC, &path_id, &lenvar);
                     offset += lenvar;
+                    proto_item_append_text(ti_ft, " path_id=%" PRIu64, path_id);
                  break;
             }
 
@@ -2664,6 +2670,7 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
         case FT_PATH_RETIRE_CONNECTION_ID:{
             int32_t len_sequence;
             int32_t lenvar;
+            uint64_t path_id;
 
             switch(frame_type){
                 case FT_RETIRE_CONNECTION_ID:
@@ -2671,8 +2678,9 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
                 break;
                 case FT_PATH_RETIRE_CONNECTION_ID:
                     col_append_str(pinfo->cinfo, COL_INFO, ", PATH_RC");
-                    proto_tree_add_item_ret_varint(ft_tree, hf_quic_mp_rc_path_identifier, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &lenvar);
+                    proto_tree_add_item_ret_varint(ft_tree, hf_quic_mp_rc_path_identifier, tvb, offset, -1, ENC_VARINT_QUIC, &path_id, &lenvar);
                     offset += lenvar;
+                    proto_item_append_text(ti_ft, " path_id=%" PRIu64, path_id);
                 break;
             }
 
@@ -2694,22 +2702,29 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
             offset += 8;
         }
         break;
-        case FT_CONNECTION_CLOSE_TPT:
-        case FT_CONNECTION_CLOSE_APP:
         case FT_PATH_ABANDON:{
+            int32_t lenvar, len_error_code;
+            uint64_t path_id, error_code;
+
+            col_append_str(pinfo->cinfo, COL_INFO, ", PA");
+            proto_tree_add_item_ret_varint(ft_tree, hf_quic_mp_pa_path_identifier, tvb, offset, -1, ENC_VARINT_QUIC, &path_id, &lenvar);
+            offset += lenvar;
+            proto_item_append_text(ti_ft, " path_id=%" PRIu64, path_id);
+
+            proto_tree_add_item_ret_varint(ft_tree, hf_quic_mp_pa_error_code, tvb, offset, -1, ENC_VARINT_QUIC, &error_code, &len_error_code);
+            offset += len_error_code;
+            proto_item_append_text(ti_ft, " Error code=%" PRIu64, error_code);
+        }
+        break;
+        case FT_CONNECTION_CLOSE_TPT:
+        case FT_CONNECTION_CLOSE_APP:{
             int32_t len_reasonphrase, len_frametype, len_error_code;
             uint64_t len_reason = 0;
             uint64_t error_code;
             const char *tls_alert = NULL;
 
-            if ( frame_type == FT_PATH_ABANDON) {
-                int32_t lenvar;
-                col_append_str(pinfo->cinfo, COL_INFO, ", PA");
-                proto_tree_add_item_ret_varint(ft_tree, hf_quic_mp_pa_path_identifier, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &lenvar);
-                offset += lenvar;
-            } else {
-                col_append_str(pinfo->cinfo, COL_INFO, ", CC");
-            }
+            col_append_str(pinfo->cinfo, COL_INFO, ", CC");
+
             if (frame_type == FT_CONNECTION_CLOSE_TPT) {
                 proto_tree_add_item_ret_varint(ft_tree, hf_quic_cc_error_code, tvb, offset, -1, ENC_VARINT_QUIC, &error_code, &len_error_code);
                 if ((error_code >> 8) == 1) {  // CRYPTO_ERROR (0x1XX)
@@ -2726,7 +2741,6 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
                 proto_tree_add_item_ret_varint(ft_tree, hf_quic_cc_error_code_app, tvb, offset, -1, ENC_VARINT_QUIC, &error_code, &len_error_code);
                 offset += len_error_code;
             }
-
 
             proto_tree_add_item_ret_varint(ft_tree, hf_quic_cc_reason_phrase_length, tvb, offset, -1, ENC_VARINT_QUIC, &len_reason, &len_reasonphrase);
             offset += len_reasonphrase;
@@ -2832,6 +2846,14 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
             int32_t length;
 
             col_append_str(pinfo->cinfo, COL_INFO, ", MPI");
+            proto_tree_add_item_ret_varint(ft_tree, hf_quic_mp_maximum_path_identifier, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &length);
+            offset += (uint32_t)length;
+        }
+        break;
+        case FT_PATHS_BLOCKED:{
+            int32_t length;
+
+            col_append_str(pinfo->cinfo, COL_INFO, ", PB");
             proto_tree_add_item_ret_varint(ft_tree, hf_quic_mp_maximum_path_identifier, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &length);
             offset += (uint32_t)length;
         }
@@ -5109,6 +5131,11 @@ proto_register_quic(void)
         },
        { &hf_quic_mp_pa_path_identifier,
           { "Path Identifier", "quic.mp_pa_path_identifier",
+            FT_UINT64, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+       { &hf_quic_mp_pa_error_code,
+          { "Error Code", "quic.mp_pa_error_code",
             FT_UINT64, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
