@@ -1024,7 +1024,7 @@ int main(int argc, char *qt_argv[])
                 if (!dfilter_compile(global_commandline_info.jfilter, &jump_to_filter, &df_err)) {
                     // Similar code in MainWindow::mergeCaptureFile().
                     QMessageBox::warning(main_w, QObject::tr("Invalid Display Filter"),
-                                         QObject::tr("The filter expression %1 isn't a valid display filter. (%2).")
+                                         QObject::tr("The filter expression \"%1\" isn't a valid display filter.\n(%2).")
                                                  .arg(global_commandline_info.jfilter, df_err->msg),
                                          QMessageBox::Ok);
                     df_error_free(&df_err);

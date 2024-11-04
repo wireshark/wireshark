@@ -1269,7 +1269,7 @@ void WiresharkMainWindow::mergeCaptureFile()
                    selection box again once they dismiss the alert. */
                 // Similar to commandline_info.jfilter section in main().
                 QMessageBox::warning(this, tr("Invalid Read Filter"),
-                                     tr("The filter expression %1 isn't a valid read filter. (%2).").arg(read_filter, df_err->msg),
+                                     tr("The filter expression \"%1\" isn't a valid read filter.\n(%2).").arg(read_filter, df_err->msg),
                                      QMessageBox::Ok);
                 df_error_free(&df_err);
                 continue;

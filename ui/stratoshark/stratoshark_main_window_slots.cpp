@@ -198,10 +198,10 @@ bool StratosharkMainWindow::openCaptureFile(QString cf_path, QString read_filter
             /* Not valid.  Tell the user, and go back and run the file
                selection box again once they dismiss the alert. */
                //bad_dfilter_alert_box(top_level, read_filter->str);
-            QMessageBox::warning(this, tr("Invalid Display Filter"),
-                    QStringLiteral("The filter expression ") +
+            QMessageBox::warning(this, tr("Invalid Read Filter"),
+                    QStringLiteral("The filter expression \"") +
                     read_filter +
-                    QStringLiteral(" isn't a valid display filter. (") +
+                    QStringLiteral("\" isn't a valid read filter.\n(") +
                     df_err->msg + QStringLiteral(")."),
                     QMessageBox::Ok);
             df_error_free(&df_err);
