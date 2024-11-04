@@ -1213,6 +1213,7 @@ dissect_sinsp_plugin(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* 
 
             if ((strcmp(hfinfo->abbrev, "ct.response") == 0 ||
                     strcmp(hfinfo->abbrev, "ct.request") == 0 ||
+                    strcmp(hfinfo->abbrev, "ct.additionaleventdata") == 0 ||
                     strcmp(hfinfo->abbrev, "ct.resources") == 0 ) &&
                     strcmp(sfe->res.str, "null") != 0) {
                tvbuff_t *json_tvb = tvb_new_child_real_data(tvb, sfe->res.str, (unsigned)strlen(sfe->res.str), (unsigned)strlen(sfe->res.str));
