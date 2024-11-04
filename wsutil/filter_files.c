@@ -119,12 +119,12 @@ ws_filter_list_read(filter_list_type_t list_type)
 
         case CFILTER_LIST:
             ff_name = CFILTER_FILE_NAME;
-            ff_description = "capture";
+            ff_description = "capture filter";
             break;
 
         case DFILTER_LIST:
             ff_name = DFILTER_FILE_NAME;
-            ff_description = "display";
+            ff_description = "display filter";
             break;
 
         case DMACROS_LIST:
@@ -146,7 +146,7 @@ ws_filter_list_read(filter_list_type_t list_type)
             /*
              * No.  Just give up.
              */
-            report_warning("Could not open your %s filter file\n\"%s\": %s.",
+            report_warning("Could not open your %s file\n\"%s\": %s.",
                     ff_description, ff_path, g_strerror(errno));
             g_free(ff_path);
             return list;
@@ -163,7 +163,7 @@ ws_filter_list_read(filter_list_type_t list_type)
              * Report an error if the file existed but we couldn't open it.
              */
             if (errno != ENOENT) {
-                report_warning("Could not open your %s filter file\n\"%s\": %s.",
+                report_warning("Could not open your %s file\n\"%s\": %s.",
                         ff_description, ff_path, g_strerror(errno));
             }
             g_free(ff_path);
@@ -318,7 +318,7 @@ ws_filter_list_read(filter_list_type_t list_type)
         flp = add_filter_entry(flp, filt_name, filt_expr);
     }
     if (ferror(ff)) {
-        report_warning("Error reading your %s filter file\n\"%s\": %s.",
+        report_warning("Error reading your %s file\n\"%s\": %s.",
                 ff_description, ff_path, g_strerror(errno));
     }
     g_free(ff_path);
@@ -386,17 +386,17 @@ ws_filter_list_write(filter_list_t *list)
 
         case CFILTER_LIST:
             ff_name = CFILTER_FILE_NAME;
-            ff_description = "capture";
+            ff_description = "capture filter";
             break;
 
         case DFILTER_LIST:
             ff_name = DFILTER_FILE_NAME;
-            ff_description = "display";
+            ff_description = "display filter";
             break;
 
         case DMACROS_LIST:
             ff_name = DMACROS_FILE_NAME;
-            ff_description = "display filter macros";
+            ff_description = "display filter macro";
             break;
 
         default:
@@ -423,7 +423,7 @@ ws_filter_list_write(filter_list_t *list)
 
     if ((ff = ws_fopen(ff_path_new, "w")) == NULL) {
         /* We had an error saving the filter. */
-        report_failure("Error saving your %s filter file\nCouldn't open \"%s\": %s.",
+        report_failure("Error saving your %s file\nCouldn't open \"%s\": %s.",
                 ff_description, ff_path_new, g_strerror(errno));
         g_free(ff_path_new);
         g_free(ff_path);
@@ -449,7 +449,7 @@ ws_filter_list_write(filter_list_t *list)
         /* Write out the filter expression and a newline. */
         fprintf(ff, "%s\n", filt->strval);
         if (ferror(ff)) {
-            report_failure("Error saving your %s filter file\nWrite to \"%s\" failed: %s.",
+            report_failure("Error saving your %s file\nWrite to \"%s\" failed: %s.",
                     ff_description, ff_path_new, g_strerror(errno));
             fclose(ff);
             ws_unlink(ff_path_new);
@@ -460,7 +460,7 @@ ws_filter_list_write(filter_list_t *list)
         flpp = flpp->next;
     }
     if (fclose(ff) == EOF) {
-        report_failure("Error saving your %s filter file\nWrite to \"%s\" failed: %s.",
+        report_failure("Error saving your %s file\nWrite to \"%s\" failed: %s.",
                 ff_description, ff_path_new, g_strerror(errno));
         ws_unlink(ff_path_new);
         g_free(ff_path_new);
@@ -484,7 +484,7 @@ ws_filter_list_write(filter_list_t *list)
         /* It failed for some reason other than "it's not there"; if
            it's not there, we don't need to remove it, so we just
            drive on. */
-        report_failure("Error saving your %s filter file\nCouldn't remove \"%s\": %s.",
+        report_failure("Error saving your %s file\nCouldn't remove \"%s\": %s.",
                 ff_description, ff_path, g_strerror(errno));
         ws_unlink(ff_path_new);
         g_free(ff_path_new);
@@ -494,7 +494,7 @@ ws_filter_list_write(filter_list_t *list)
 #endif
 
     if (ws_rename(ff_path_new, ff_path) < 0) {
-        report_failure("Error saving your %s filter file\nCouldn't rename \"%s\" to \"%s\": %s.",
+        report_failure("Error saving your %s file\nCouldn't rename \"%s\" to \"%s\": %s.",
                 ff_description, ff_path_new, ff_path, g_strerror(errno));
         ws_unlink(ff_path_new);
         g_free(ff_path_new);
