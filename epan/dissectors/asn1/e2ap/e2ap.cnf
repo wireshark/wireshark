@@ -270,9 +270,18 @@ SuccessfulOutcome/value successfulOutcome_value
       /* Have we found a match on the name? */
       if (tvb_strneql(parameter_tvb, m, g_ran_function_name_table[n], name_len) == 0) {
         /* We don't yet know the OID (should be OK),
-           so for now just call with the first/only available dissector for this RAN Function name */
+	   so for now, call with the last/only available dissector for this RAN Function name */
+
         if (g_ran_functions_available_dissectors[n].num_available_dissectors) {
-          g_ran_functions_available_dissectors[n].ran_function_dissectors[0]->functions.ran_function_definition_dissector(parameter_tvb, actx->pinfo, tree, NULL);
+	  /* Choose the one with the highest major version number */
+	  unsigned best_index=0, highest_version=0;
+	  for (unsigned d=0; d < g_ran_functions_available_dissectors[n].num_available_dissectors; d++) {
+	    if (g_ran_functions_available_dissectors[n].ran_function_dissectors[d]->major_version > highest_version) {
+	      best_index = d;
+	    }
+	  }
+	  /* Use it */
+	  g_ran_functions_available_dissectors[n].ran_function_dissectors[best_index]->functions.ran_function_definition_dissector(parameter_tvb, actx->pinfo, tree, NULL);
           found = true;
           found_index = n;
           break;

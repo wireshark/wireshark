@@ -106,6 +106,7 @@ set(ASN1_SRC_DIRS
 	q932-ros
 	qsig
 	ranap
+	rc-v3
 	rnsap
 	ros
 	rrc
