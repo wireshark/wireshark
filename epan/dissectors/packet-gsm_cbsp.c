@@ -21,6 +21,9 @@
 #include "packet-e212.h"
 #include "packet-gsm_map.h"
 #include "packet-cell_broadcast.h"
+#include "packet-tcp.h"    // tcp_dissect_pdus()
+
+#define FRAME_HEADER_LEN 4
 
 /***********************************************************************
  * TLV related definitions
@@ -797,8 +800,9 @@ dissect_cbsp_tlvs(tvbuff_t *tvb, int base_offs, int length, packet_info *pinfo, 
 	return offset;
 }
 
+/* This method dissects fully reassembled CBSP messages */
 static int
-dissect_cbsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
+dissect_cbsp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	int len_ind, offset = 0;
 	proto_item *ti;
@@ -818,7 +822,8 @@ dissect_cbsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 	col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", str);
 
 	if (tree) {
-		ti = proto_tree_add_protocol_format(tree, proto_cbsp, tvb, 0, len_ind+4, "CBSP %s", str);
+		ti = proto_tree_add_protocol_format(tree, proto_cbsp, tvb, 0,
+						    len_ind + FRAME_HEADER_LEN, "CBSP %s", str);
 		cbsp_tree = proto_item_add_subtree(ti, ett_cbsp);
 
 		proto_tree_add_item(cbsp_tree, hf_cbsp_msg_type,
@@ -832,6 +837,24 @@ dissect_cbsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 				  cbsp_tree);
 	}
 
+	return tvb_captured_length(tvb);
+}
+
+/* determine PDU length of protocol cbsp */
+static unsigned
+get_cbsp_message_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_)
+{
+	uint32_t len_ind =  tvb_get_uint24(tvb, offset + 1, ENC_BIG_ENDIAN);
+
+	return len_ind + FRAME_HEADER_LEN;
+}
+
+/* The main dissecting routine */
+static int
+dissect_cbsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+{
+	tcp_dissect_pdus(tvb, pinfo, tree, true, FRAME_HEADER_LEN,
+			 get_cbsp_message_len, dissect_cbsp_message, data);
 	return tvb_captured_length(tvb);
 }
 
