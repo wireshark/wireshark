@@ -157,7 +157,7 @@ dissect_turbocell(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
             col_append_fstr(pinfo->cinfo, COL_INFO, ", Network=\"%s\"", format_text(pinfo->pool, str_name, str_len-1));
 
             while(tvb_get_uint8(tvb, 0x34 + 8*i)==0x00 && (tvb_reported_length_remaining(tvb,0x34 + 8*i) > 6) && (i<32)) {
-                proto_tree_add_item(network_tree, hf_turbocell_station, tvb, 0x34+8*i, 6, ENC_NA);
+                proto_tree_add_item(network_tree, hf_turbocell_station, tvb, 0x34 + 8*i, 6, ENC_NA);
                 i++;
             }
 

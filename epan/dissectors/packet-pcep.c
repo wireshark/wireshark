@@ -2872,7 +2872,7 @@ dissect_pcep_end_point_obj(proto_tree *pcep_object_tree, packet_info *pinfo,
             proto_tree_add_item(pcep_object_tree, hf_pcep_end_point_obj_source_ipv4_address, tvb, offset2+4, 4, ENC_BIG_ENDIAN);
             dest_leafs = (obj_length - OBJ_HDR_LEN - 8)/4;
             for (i=0; i<dest_leafs; i++)
-                proto_tree_add_item(pcep_object_tree, hf_pcep_end_point_obj_destination_ipv4_address, tvb, offset2+8+4*i, 4, ENC_BIG_ENDIAN);
+                proto_tree_add_item(pcep_object_tree, hf_pcep_end_point_obj_destination_ipv4_address, tvb, offset2+8+(4*i), 4, ENC_BIG_ENDIAN);
             break;
 
        case IPv6_P2MP:

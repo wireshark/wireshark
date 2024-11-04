@@ -1028,15 +1028,15 @@ static int dissect_ubx_cfg_gnss(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
                 res_trk_ch, max_trk_ch);
 
         proto_tree_add_item(gnss_blk_tree, hf_ubx_cfg_gnss_blk_gnssid,
-            tvb,  4 + 8 * i, 1, ENC_NA);
+            tvb,  4 + (8 * i), 1, ENC_NA);
         proto_tree_add_item(gnss_blk_tree, hf_ubx_cfg_gnss_blk_restrkch,
-            tvb,  5 + 8 * i, 1, ENC_NA);
+            tvb,  5 + (8 * i), 1, ENC_NA);
         proto_tree_add_item(gnss_blk_tree, hf_ubx_cfg_gnss_blk_maxtrkch,
-            tvb,  6 + 8 * i, 1, ENC_NA);
+            tvb,  6 + (8 * i), 1, ENC_NA);
         proto_tree_add_item(gnss_blk_tree, hf_ubx_cfg_gnss_blk_reserved1,
-            tvb,  7 + 8 * i, 1, ENC_NA);
+            tvb,  7 + (8 * i), 1, ENC_NA);
         proto_tree_add_item(gnss_blk_tree, hf_ubx_cfg_gnss_blk_enable,
-            tvb,  8 + 8 * i, 4, ENC_LITTLE_ENDIAN);
+            tvb,  8 + (8 * i), 4, ENC_LITTLE_ENDIAN);
 
         int hf;
         switch (gnss_id) {
@@ -1065,7 +1065,7 @@ static int dissect_ubx_cfg_gnss(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
                 hf = hf_ubx_cfg_gnss_blk_sigcfgmask;
         }
         proto_tree_add_item(gnss_blk_tree, hf,
-            tvb,  8 + 8 * i, 4, ENC_LITTLE_ENDIAN);
+            tvb,  8 + (8 * i), 4, ENC_LITTLE_ENDIAN);
     }
 
     return tvb_captured_length(tvb);
@@ -1396,20 +1396,21 @@ static int dissect_ubx_nav_sat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
                 sv_id, used);
 
         proto_tree_add_item(sv_info_tree, hf_ubx_nav_sat_gnss_id,
-            tvb,  8 + 12 * i, 1, ENC_NA);
+            tvb,  8 + (12 * i), 1, ENC_NA);
         proto_tree_add_item(sv_info_tree, hf_ubx_nav_sat_sv_id,
-            tvb,  9 + 12 * i, 1, ENC_NA);
+            tvb,  9 + (12 * i), 1, ENC_NA);
         proto_tree_add_item(sv_info_tree, hf_ubx_nav_sat_cn0,
-            tvb, 10 + 12 * i, 1, ENC_NA);
+            tvb, 10 + (12 * i), 1, ENC_NA);
         proto_tree_add_item(sv_info_tree, hf_ubx_nav_sat_elev,
-            tvb, 11 + 12 * i, 1, ENC_NA);
+            tvb, 11 + (12 * i), 1, ENC_NA);
         proto_tree_add_item(sv_info_tree, hf_ubx_nav_sat_azim,
-            tvb, 12 + 12 * i, 2, ENC_LITTLE_ENDIAN);
+            tvb, 12 + (12 * i), 2, ENC_LITTLE_ENDIAN);
         proto_tree_add_item(sv_info_tree, hf_ubx_nav_sat_pr_res,
-            tvb, 14 + 12 * i, 2, ENC_LITTLE_ENDIAN);
-        proto_tree_add_bitmask(sv_info_tree, tvb, 16 + 12 * i,
-                hf_ubx_nav_sat_flags, ett_ubx_nav_sat_flags,
-                ubx_nav_sat_flags_fields, ENC_LITTLE_ENDIAN);
+            tvb, 14 + (12 * i), 2, ENC_LITTLE_ENDIAN);
+        proto_tree_add_bitmask(sv_info_tree,
+            tvb, 16 + (12 * i),
+            hf_ubx_nav_sat_flags, ett_ubx_nav_sat_flags,
+            ubx_nav_sat_flags_fields, ENC_LITTLE_ENDIAN);
     }
 
     return tvb_captured_length(tvb);
@@ -1448,27 +1449,27 @@ static int dissect_ubx_nav_sbas(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
         const uint8_t sv_id = tvb_get_uint8(tvb, 12 + 12 * i);
 
         proto_tree *sv_info_tree = proto_tree_add_subtree_format(ubx_nav_sbas_tree,
-                tvb, 12 + 12 * i, 12, ett_ubx_nav_sbas_sv_info[i], NULL,
+                tvb, 12 + (12 * i), 12, ett_ubx_nav_sbas_sv_info[i], NULL,
                 "SV ID %3d", sv_id);
 
         proto_tree_add_item(sv_info_tree, hf_ubx_nav_sbas_sv_id,
-            tvb,  12 + 12 * i, 1, ENC_NA);
+            tvb,  12 + (12 * i), 1, ENC_NA);
         proto_tree_add_item(sv_info_tree, hf_ubx_nav_sbas_flags,
-            tvb,  13 + 12 * i, 1, ENC_NA);
+            tvb,  13 + (12 * i), 1, ENC_NA);
         proto_tree_add_item(sv_info_tree, hf_ubx_nav_sbas_udre,
-            tvb,  14 + 12 * i, 1, ENC_NA);
+            tvb,  14 + (12 * i), 1, ENC_NA);
         proto_tree_add_item(sv_info_tree, hf_ubx_nav_sbas_sv_sys,
-            tvb,  15 + 12 * i, 1, ENC_NA);
+            tvb,  15 + (12 * i), 1, ENC_NA);
         proto_tree_add_item(sv_info_tree, hf_ubx_nav_sbas_sv_service,
-            tvb,  16 + 12 * i, 1, ENC_NA);
+            tvb,  16 + (12 * i), 1, ENC_NA);
         proto_tree_add_item(sv_info_tree, hf_ubx_nav_sbas_reserved2,
-            tvb,  17 + 12 * i, 1, ENC_NA);
+            tvb,  17 + (12 * i), 1, ENC_NA);
         proto_tree_add_item(sv_info_tree, hf_ubx_nav_sbas_prc,
-            tvb,  18 + 12 * i, 2, ENC_LITTLE_ENDIAN);
+            tvb,  18 + (12 * i), 2, ENC_LITTLE_ENDIAN);
         proto_tree_add_item(sv_info_tree, hf_ubx_nav_sbas_reserved3,
-            tvb,  20 + 12 * i, 2, ENC_LITTLE_ENDIAN);
+            tvb,  20 + (12 * i), 2, ENC_LITTLE_ENDIAN);
         proto_tree_add_item(sv_info_tree, hf_ubx_nav_sbas_ic,
-            tvb,  22 + 12 * i, 2, ENC_LITTLE_ENDIAN);
+            tvb,  22 + (12 * i), 2, ENC_LITTLE_ENDIAN);
     }
 
     return tvb_captured_length(tvb);
@@ -1698,34 +1699,35 @@ static int dissect_ubx_rxm_rawx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
                 sv_id, cn0);
 
         proto_tree_add_item(meas_tree, hf_ubx_rxm_rawx_prmes,
-                tvb, 16 + 32 * i, 8, ENC_LITTLE_ENDIAN);
+                tvb, 16 + (32 * i), 8, ENC_LITTLE_ENDIAN);
         proto_tree_add_item(meas_tree, hf_ubx_rxm_rawx_cpmes,
-                tvb, 24 + 32 * i, 8, ENC_LITTLE_ENDIAN);
+                tvb, 24 + (32 * i), 8, ENC_LITTLE_ENDIAN);
         proto_tree_add_item(meas_tree, hf_ubx_rxm_rawx_domes,
-                tvb, 32 + 32 * i, 4, ENC_LITTLE_ENDIAN);
+                tvb, 32 + (32 * i), 4, ENC_LITTLE_ENDIAN);
         proto_tree_add_item(meas_tree, hf_ubx_rxm_rawx_gnssid,
-                tvb, 36 + 32 * i, 1, ENC_NA);
+                tvb, 36 + (32 * i), 1, ENC_NA);
         proto_tree_add_item(meas_tree, hf_ubx_rxm_rawx_svid,
-                tvb, 37 + 32 * i, 1, ENC_NA);
+                tvb, 37 + (32 * i), 1, ENC_NA);
         proto_tree_add_item(meas_tree, hf_ubx_rxm_rawx_sigid,
-                tvb, 38 + 32 * i, 1, ENC_NA);
+                tvb, 38 + (32 * i), 1, ENC_NA);
         proto_tree_add_item(meas_tree, hf_ubx_rxm_rawx_freqid,
-                tvb, 39 + 32 * i, 1, ENC_NA);
+                tvb, 39 + (32 * i), 1, ENC_NA);
         proto_tree_add_item(meas_tree, hf_ubx_rxm_rawx_locktime,
-                tvb, 40 + 32 * i, 2, ENC_LITTLE_ENDIAN);
+                tvb, 40 + (32 * i), 2, ENC_LITTLE_ENDIAN);
         proto_tree_add_item(meas_tree, hf_ubx_rxm_rawx_cn0,
-                tvb, 42 + 32 * i, 1, ENC_NA);
+                tvb, 42 + (32 * i), 1, ENC_NA);
         proto_tree_add_item(meas_tree, hf_ubx_rxm_rawx_prstdev,
-                tvb, 43 + 32 * i, 1, ENC_NA);
+                tvb, 43 + (32 * i), 1, ENC_NA);
         proto_tree_add_item(meas_tree, hf_ubx_rxm_rawx_cpstdev,
-                tvb, 44 + 32 * i, 1, ENC_NA);
+                tvb, 44 + (32 * i), 1, ENC_NA);
         proto_tree_add_item(meas_tree, hf_ubx_rxm_rawx_dostdev,
-                tvb, 45 + 32 * i, 1, ENC_NA);
-        proto_tree_add_bitmask(meas_tree, tvb, 46,
+                tvb, 45 + (32 * i), 1, ENC_NA);
+        proto_tree_add_bitmask(meas_tree,
+                tvb, 46 + (32 * i),
                 hf_ubx_rxm_rawx_trkstat, ett_ubx_rxm_rawx_trkstat,
                 ubx_rxm_rawx_trkstat_fields, ENC_NA);
         proto_tree_add_item(meas_tree, hf_ubx_rxm_rawx_reserved2,
-                tvb, 47 + 32 * i, 1, ENC_NA);
+                tvb, 47 + (32 * i), 1, ENC_NA);
     }
 
     return tvb_captured_length(tvb);

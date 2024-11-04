@@ -5292,9 +5292,9 @@ decode_triplet(tvbuff_t * tvb, int offset, proto_tree * tree, uint16_t count)
     for (i = 0; i < count; i++) {
         ext_tree_trip = proto_tree_add_subtree_format(tree, tvb, offset + i * 28, 28, ett_gtp_trip, NULL, "Triplet no%x", i);
 
-        proto_tree_add_item(ext_tree_trip, hf_gtp_rand, tvb, offset + i * 28, 16, ENC_NA);
-        proto_tree_add_item(ext_tree_trip, hf_gtp_sres, tvb, offset + i * 28 + 16, 4, ENC_NA);
-        proto_tree_add_item(ext_tree_trip, hf_gtp_kc, tvb, offset + i * 28 + 20, 8, ENC_NA);
+        proto_tree_add_item(ext_tree_trip, hf_gtp_rand, tvb, offset + (i * 28),       16, ENC_NA);
+        proto_tree_add_item(ext_tree_trip, hf_gtp_sres, tvb, offset + (i * 28) + 16,  4,  ENC_NA);
+        proto_tree_add_item(ext_tree_trip, hf_gtp_kc, tvb,   offset + (i * 28) + 20,  8,  ENC_NA);
     }
 
     return count * 28;

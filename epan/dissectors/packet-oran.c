@@ -1763,15 +1763,15 @@ static int dissect_ciCompParam(tvbuff_t *tvb, proto_tree *tree, packet_info *pin
         case COMP_BLOCK_SCALE:
             /* Separate into integer and fractional bits? */
             proto_tree_add_item(cicompparam_tree, hf_oran_blockScaler,
-                                tvb, bit_offset*8, 1, ENC_BIG_ENDIAN);
+                                tvb, bit_offset/8, 1, ENC_BIG_ENDIAN);
             bit_offset += 8;
             break;
         case COMP_U_LAW:
             /* compBitWidth, compShift */
             proto_tree_add_item(cicompparam_tree, hf_oran_compBitWidth,
-                                tvb, bit_offset*8, 1, ENC_BIG_ENDIAN);
+                                tvb, bit_offset/8, 1, ENC_BIG_ENDIAN);
             proto_tree_add_item(cicompparam_tree, hf_oran_compShift,
-                                tvb, bit_offset*8, 1, ENC_BIG_ENDIAN);
+                                tvb, bit_offset/8, 1, ENC_BIG_ENDIAN);
             bit_offset += 8;
             break;
 
