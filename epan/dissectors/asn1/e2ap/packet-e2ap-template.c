@@ -454,13 +454,16 @@ static ran_function_dissector_t* lookup_ranfunction_dissector(packet_info *pinfo
                 ti = proto_tree_add_string(tree, hf_e2ap_frame_version, tvb, 0, 0, frame_version);
                 proto_item_set_generated(ti);
 
-                /* N.B. in case of RC this won't work! */
-                char *dissector_version = oid_resolved_from_string(pinfo->pool, table->entries[n].dissector->oid);
+                /* N.B. in case of RC, this won't work! Would also be nice to include minor_version, but string wouldn't match */
+                char dissector_version[16];
+                snprintf(dissector_version, 16, "%s v%u",
+                         ran_function_to_str(table->entries[n].ran_function),
+                         table->entries[n].dissector->major_version);
                 ti = proto_tree_add_string(tree, hf_e2ap_dissector_version, tvb, 0, 0, dissector_version);
                 proto_item_set_generated(ti);
 
-                if (strcmp(frame_version, dissector_version) != 0) {
-                    /* Expert info for version mismatch! */
+                if ((table->entries[n].ran_function != RC_RANFUNCTIONS) && (strcmp(frame_version, dissector_version) != 0)) {
+                    /* Expert info for version mismatch!  Have given up on RC though... */
                     expert_add_info_format(pinfo, ti, &ei_e2ap_ran_function_dissector_mismatch,
                                            "Dissector version mismatch - frame is %s but dissector is %s",
                                            frame_version, dissector_version);
@@ -825,17 +828,17 @@ proto_reg_handoff_e2ap(void)
 
   /* RC */
   // TODO: appears to be the same???  Asking for clarification from ORAN..
-  oid_add_from_string("RC  v1",         "1.3.6.1.4.1.53148.1.1.2.3");
-  //oid_add_from_string("RC  v3",         "1.3.6.1.4.1.53148.1.1.2.3");
-  //oid_add_from_string("RC  v4",         "1.3.6.1.4.1.53148.1.1.2.3");
+  oid_add_from_string("RC v1",         "1.3.6.1.4.1.53148.1.1.2.3");
+  //oid_add_from_string("RC v3",         "1.3.6.1.4.1.53148.1.1.2.3");
+  //oid_add_from_string("RC v4",         "1.3.6.1.4.1.53148.1.1.2.3");
 
   /* NI */
-  oid_add_from_string("NI  v1",         "1.3.6.1.4.1.53148.1.1.2.1");
-  oid_add_from_string("NI  v2",         "1.3.6.1.4.1.53148.1.2.2.1");
-  oid_add_from_string("NI  v3",         "1.3.6.1.4.1.53148.1.3.2.1");
-  oid_add_from_string("NI  v4",         "1.3.6.1.4.1.53148.1.4.2.1");
-  oid_add_from_string("NI  v5",         "1.3.6.1.4.1.53148.1.5.2.1");
-  oid_add_from_string("NI  v6",         "1.3.6.1.4.1.53148.1.6.2.1");
+  oid_add_from_string("NI v1",         "1.3.6.1.4.1.53148.1.1.2.1");
+  oid_add_from_string("NI v2",         "1.3.6.1.4.1.53148.1.2.2.1");
+  oid_add_from_string("NI v3",         "1.3.6.1.4.1.53148.1.3.2.1");
+  oid_add_from_string("NI v4",         "1.3.6.1.4.1.53148.1.4.2.1");
+  oid_add_from_string("NI v5",         "1.3.6.1.4.1.53148.1.5.2.1");
+  oid_add_from_string("NI v6",         "1.3.6.1.4.1.53148.1.6.2.1");
 
 
   /* CCC */
