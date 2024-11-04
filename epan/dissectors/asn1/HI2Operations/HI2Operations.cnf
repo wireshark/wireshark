@@ -194,7 +194,7 @@ GSMLocation/geoCoordinates/longitude geoCoordinates_longitude
 
   offset = tvb_len;
 
-  #.FN_BODY PartyInformation/partyIdentity/imei
+#.FN_BODY PartyInformation/partyIdentity/imei
   unsigned tvb_len;
 
   /*
@@ -230,12 +230,13 @@ GSMLocation/geoCoordinates/longitude geoCoordinates_longitude
 GSMLocation/geoCoordinates/latitude ABBREV=geoCoordinates.latitude
 GSMLocation/geoCoordinates/longitude ABBREV=geoCoordinates.longitude
 IRI-Parameters/lawfulInterceptionIdentifier TYPE = FT_STRING  DISPLAY = BASE_NONE
-IRI-Parameters/ePSCorrelationNumber TYPE = FT_UINT8  DISPLAY = BASE_DEC
+IRI-Parameters/ePSCorrelationNumber TYPE = FT_BYTES   DISPLAY = BASE_NONE
 EPS-GTPV2-SpecificParameters/aPN TYPE = FT_STRING  DISPLAY = BASE_NONE
 EPS-GTPV2-SpecificParameters/ePSBearerIdentity TYPE = FT_UINT8  DISPLAY = BASE_DEC
 EPS-GTPV2-SpecificParameters/rATType TYPE = FT_UINT8  DISPLAY = BASE_DEC|BASE_EXT_STRING  STRINGS = &gtpv2_rat_type_vals_ext
 EPS-GTPV2-SpecificParameters/pDNType TYPE = FT_UINT8  DISPLAY = BASE_DEC|BASE_EXT_STRING  STRINGS = &gtpv2_pdn_type_vals_ext
 EPS-GTPV2-SpecificParameters/linkedEPSBearerId TYPE = FT_STRING  DISPLAY = BASE_NONE
+PartyInformation/partyIdentity/imei TYPE = FT_STRING  DISPLAY = BASE_NONE
 
 #.END
 
