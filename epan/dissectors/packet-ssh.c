@@ -250,6 +250,7 @@ static int hf_ssh2_msg_code;
 static int hf_ssh2_kex_dh_msg_code;
 static int hf_ssh2_kex_dh_gex_msg_code;
 static int hf_ssh2_kex_ecdh_msg_code;
+static int hf_ssh2_kex_hybrid_msg_code;
 static int hf_ssh2_ext_ping_msg_code;
 
 /* Algorithm negotiation */
@@ -501,6 +502,9 @@ static const char *ssh_debug_file_name;
 #define SSH_MSG_KEX_ECDH_INIT       30
 #define SSH_MSG_KEX_ECDH_REPLY      31
 
+#define SSH_MSG_KEX_HYBRID_INIT     30
+#define SSH_MSG_KEX_HYBRID_REPLY    31
+
 /* User authentication protocol: generic (50-59) */
 #define SSH_MSG_USERAUTH_REQUEST    50
 #define SSH_MSG_USERAUTH_FAILURE    51
@@ -605,6 +609,12 @@ static const value_string ssh2_kex_ecdh_msg_vals[] = {
     { 0, NULL }
 };
 
+static const value_string ssh2_kex_hybrid_msg_vals[] = {
+    { SSH_MSG_KEX_HYBRID_INIT,           "PQ/T Hybrid Key Exchange Init" },
+    { SSH_MSG_KEX_HYBRID_REPLY,          "PQ/T Hybrid Key Exchange Reply" },
+    { 0, NULL }
+};
+
 static const value_string ssh2_ext_ping_msg_vals[] = {
     { SSH_MSG_PING,                     "Ping" },
     { SSH_MSG_PONG,                     "Pong" },
@@ -644,6 +654,9 @@ static int ssh_dissect_kex_dh_gex(uint8_t msg_code, tvbuff_t *tvb,
         packet_info *pinfo, int offset, proto_tree *tree,
         struct ssh_flow_data *global_data, unsigned *seq_num);
 static int ssh_dissect_kex_ecdh(uint8_t msg_code, tvbuff_t *tvb,
+        packet_info *pinfo, int offset, proto_tree *tree,
+        struct ssh_flow_data *global_data, unsigned *seq_num);
+static int ssh_dissect_kex_hybrid(uint8_t msg_code, tvbuff_t *tvb,
         packet_info *pinfo, int offset, proto_tree *tree,
         struct ssh_flow_data *global_data, unsigned *seq_num);
 static int ssh_dissect_protocol(tvbuff_t *tvb, packet_info *pinfo,
@@ -1593,6 +1606,20 @@ ssh_dissect_kex_ecdh(uint8_t msg_code, tvbuff_t *tvb,
     return offset;
 }
 
+static int ssh_dissect_kex_hybrid(uint8_t msg_code, tvbuff_t *tvb,
+        packet_info *pinfo, int offset, proto_tree *tree,
+        struct ssh_flow_data *global_data _U_, unsigned *seq_num)
+{
+    *seq_num = 0;
+    proto_tree_add_item(tree, hf_ssh2_kex_hybrid_msg_code, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
+
+    col_append_sep_str(pinfo->cinfo, COL_INFO, NULL,
+        val_to_str(msg_code, ssh2_kex_hybrid_msg_vals, "Unknown (%u)"));
+
+    return offset;
+}
+
 static ssh_message_info_t*
 ssh_get_message(packet_info *pinfo, int record_id)
 {
@@ -1828,6 +1855,12 @@ static void ssh_set_kex_specific_dissector(struct ssh_flow_data *global_data)
         strcmp(kex_name, "diffie-hellman-group14-sha1") == 0)
     {
         global_data->kex_specific_dissector = ssh_dissect_kex_dh;
+    }
+    else if (strcmp(kex_name, "mlkem768nistp256-sha256") == 0 ||
+        strcmp(kex_name, "mlkem768x25519-sha256") == 0 ||
+        strcmp(kex_name, "mlkem1024nistp384-sha384") == 0)
+    {
+        global_data->kex_specific_dissector = ssh_dissect_kex_hybrid;
     }
 }
 
@@ -5140,6 +5173,11 @@ proto_register_ssh(void)
         { &hf_ssh2_kex_ecdh_msg_code,
           { "Message Code", "ssh.message_code",
             FT_UINT8, BASE_DEC, VALS(ssh2_kex_ecdh_msg_vals), 0x0,
+            NULL, HFILL }},
+
+        { &hf_ssh2_kex_hybrid_msg_code,
+          { "Message Code", "ssh.message_code",
+            FT_UINT8, BASE_DEC, VALS(ssh2_kex_hybrid_msg_vals), 0x0,
             NULL, HFILL }},
 
         { &hf_ssh2_ext_ping_msg_code,
