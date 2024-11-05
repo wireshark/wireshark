@@ -845,7 +845,8 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-bthci_evt.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-bthci_iso.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-bthci_sco.c
-	${CMAKE_CURRENT_SOURCE_DIR}/packet-bthci_vendor.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-bthci_vendor_broadcom.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-bthci_vendor_intel.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-bthcrp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-bthfp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-bthid.c
