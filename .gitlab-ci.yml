@@ -467,7 +467,7 @@ Arch Linux :
     - mkdir build
     - cd build
     - printf "\e[0Ksection_start:%s:cmake_section[collapsed=true]\r\e[0KRunning CMake" "$( date +%s)"
-    - cmake -G Ninja -DBUILD_stratoshark=on -DBUILD_falcodump=on -DFALCO_PLUGINS=/tmp/falco-plugins/plugins/cloudtrail/libcloudtrail.so,/tmp/falco-plugins/plugins/gcpaudit/libgcpaudit.so -DCMAKE_INSTALL_PREFIX=$WIRESHARK_PREFIX ..
+    - cmake -G Ninja -DBUILD_stratoshark=on -DBUILD_falcodump=on -DFALCO_PLUGINS="/tmp/falco-plugins/plugins/cloudtrail/libcloudtrail.so;/tmp/falco-plugins/plugins/gcpaudit/libgcpaudit.so" -DCMAKE_INSTALL_PREFIX=$WIRESHARK_PREFIX ..
     - printf "\e[0Ksection_end:%s:cmake_section\r\e[0K" "$( date +%s)"
     - ninja
     - ninja install
