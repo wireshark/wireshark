@@ -79,9 +79,13 @@ private slots:
     void on_nameResolutionCheckBox_toggled(bool checked);
     void displayFilterCheckBoxToggled(bool checked);
     void aggregationSummaryOnlyCheckBoxToggled(bool checked);
+    void displayFilterSuccess(bool success);
     void captureEvent(CaptureEvent e);
 
     virtual void on_buttonBox_helpRequested() = 0;
+
+private:
+    void displayFilterUpdate(bool set_filter);
 };
 
 #endif // TRAFFIC_TABLE_DIALOG_H
