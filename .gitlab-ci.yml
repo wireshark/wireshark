@@ -826,6 +826,7 @@ Commit Check:
       </testsuite></testsuites>
       FIN
     # - cat commit_checks.xml
+    - grep '<failure' commit_checks.xml && xmllint --format --xpath '//*/failure' commit_checks.xml
     - exit $(( PC_EXIT_CODE || VC_EXIT_CODE || LC_EXIT_CODE || HC_EXIT_CODE ))
   artifacts:
     when: always
