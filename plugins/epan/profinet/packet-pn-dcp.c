@@ -562,8 +562,8 @@ dissect_PNDCP_Suboption_IP(tvbuff_t *tvb, int offset, packet_info *pinfo,
         proto_item_append_text(block_item, ", Gateway: %s", address_to_str(pinfo->pool, &addr));
         break;
     case PNDCP_SUBOPTION_IP_FULL_IP_SUITE:
-        pn_append_info(pinfo, dcp_item, ", MAC");
-        proto_item_append_text(block_item, "IP/MAC");
+        pn_append_info(pinfo, dcp_item, ", Full IP Suite");
+        proto_item_append_text(block_item, "IP/Full IP Suite");
 
         /* BlockInfo? */
         if (((service_id == PNDCP_SERVICE_ID_IDENTIFY) && is_response) ||
