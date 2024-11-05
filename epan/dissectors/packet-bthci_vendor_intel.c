@@ -376,7 +376,7 @@ dissect_bthci_vendor_intel(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
         adapter_id    = HCI_ADAPTER_DEFAULT;
     }
 
-    main_item = proto_tree_add_item(tree, proto_bthci_vendor_intel, tvb, 0, tvb_captured_length(tvb), ENC_NA);
+    main_item = proto_tree_add_item(tree, proto_bthci_vendor_intel, tvb, 0, -1, ENC_NA);
     main_tree = proto_item_add_subtree(main_item, ett_intel);
 
     switch (pinfo->p2p_dir) {
