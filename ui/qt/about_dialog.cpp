@@ -294,6 +294,7 @@ AboutDialog::AboutDialog(QWidget *parent) :
     if (!is_packet_configuration_namespace()) {
         setWindowTitle(tr("About Stratoshark"));
         ui->tabWidget->setTabText(ui->tabWidget->indexOf(ui->tab_wireshark), tr("Stratoshark"));
+        ui->label_title->setText(tr("<h3>System Call and Event Log Analyzer</h3>"));
     }
 
     /* Wireshark tab */
