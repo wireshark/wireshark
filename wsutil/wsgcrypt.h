@@ -89,13 +89,18 @@ hkdf_extract(int hashalgo, const uint8_t *salt, size_t salt_len, const uint8_t *
     return ws_hmac_buffer(hashalgo, prk, ikm, ikm_len, salt, salt_len);
 }
 
-WS_DLL_PUBLIC size_t
+/*
+ * Convenience functions for Hybrid Public Key Encryption (HPKE) according
+ * to RFC 9180. Note these lengths must fit into a 16-bit integer so
+ * that the I2OSP(L, 2) call in ExpandedLabel returns without error.
+*/
+WS_DLL_PUBLIC uint16_t
 hpke_hkdf_len(uint16_t kdf_id);
 
-WS_DLL_PUBLIC size_t
+WS_DLL_PUBLIC uint16_t
 hpke_aead_key_len(uint16_t aead_id);
 
-WS_DLL_PUBLIC size_t
+WS_DLL_PUBLIC uint16_t
 hpke_aead_nonce_len(uint16_t aead_id);
 
 WS_DLL_PUBLIC void

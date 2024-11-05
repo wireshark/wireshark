@@ -237,7 +237,7 @@ hpke_extract(uint16_t kdf_id, const uint8_t *salt, unsigned salt_len, const uint
     return GPG_ERR_NO_ERROR;
 }
 
-size_t
+uint16_t
 hpke_hkdf_len(uint16_t kdf_id)
 {
     switch (kdf_id) {
@@ -252,11 +252,11 @@ hpke_hkdf_len(uint16_t kdf_id)
     }
 }
 
-size_t
+uint16_t
 hpke_aead_key_len(uint16_t aead_id)
 {
     switch (aead_id) {
-		case HPKE_AEAD_AES_128_GCM:
+	case HPKE_AEAD_AES_128_GCM:
             return AEAD_AES_128_GCM_KEY_LENGTH;
         case HPKE_AEAD_AES_256_GCM:
             return AEAD_AES_256_GCM_KEY_LENGTH;
@@ -267,11 +267,11 @@ hpke_aead_key_len(uint16_t aead_id)
     }
 }
 
-size_t
+uint16_t
 hpke_aead_nonce_len(uint16_t aead_id)
 {
     switch (aead_id) {
-		case HPKE_AEAD_AES_128_GCM:
+	case HPKE_AEAD_AES_128_GCM:
         case HPKE_AEAD_AES_256_GCM:
         case HPKE_AEAD_CHACHA20POLY1305:
             return HPKE_AEAD_NONCE_LENGTH;
@@ -294,7 +294,7 @@ hpke_suite_id(uint16_t kem_id, uint16_t kdf_id, uint16_t aead_id, uint8_t *suite
     suite_id[offset++] = aead_id & 0xFF;
 }
 
-gcry_error_t
+static gcry_error_t
 hpke_expand(uint16_t kdf_id, const uint8_t *prk, const uint8_t *suite_id, const char *label,
             const uint8_t *info, uint8_t *out, uint16_t out_len)
 {
@@ -303,24 +303,24 @@ hpke_expand(uint16_t kdf_id, const uint8_t *prk, const uint8_t *suite_id, const 
     uint16_t out_len_be = GUINT16_TO_BE(out_len);
     gcry_error_t result;
     switch (kdf_id) {
-		case HPKE_HKDF_SHA256:
+	case HPKE_HKDF_SHA256:
             hashalgo = GCRY_MD_SHA256;
             break;
         case HPKE_HKDF_SHA384:
             hashalgo = GCRY_MD_SHA384;
             break;
-		case HPKE_HKDF_SHA512:
+	case HPKE_HKDF_SHA512:
             hashalgo = GCRY_MD_SHA512;
             break;
         default:
             return GPG_ERR_DIGEST_ALGO;
     }
-    g_byte_array_append(labeled_info, (guint8 *)&out_len_be, 2);
+    g_byte_array_append(labeled_info, (uint8_t *)&out_len_be, 2);
     g_byte_array_append(labeled_info, HPKE_VERSION_ID, sizeof(HPKE_VERSION_ID) - 1);
     g_byte_array_append(labeled_info, suite_id, HPKE_SUIT_ID_LEN);
-    g_byte_array_append(labeled_info, label, (guint)strlen(label));
-    g_byte_array_append(labeled_info, info, (guint)(1 + hpke_hkdf_len(kdf_id) * 2));
-    result = hkdf_expand(hashalgo, prk, (guint)hpke_hkdf_len(kdf_id), labeled_info->data, labeled_info->len, out, out_len);
+    g_byte_array_append(labeled_info, label, (unsigned)strlen(label));
+    g_byte_array_append(labeled_info, info, (unsigned)(1 + hpke_hkdf_len(kdf_id) * 2));
+    result = hkdf_expand(hashalgo, prk, (unsigned)hpke_hkdf_len(kdf_id), labeled_info->data, labeled_info->len, out, out_len);
     g_byte_array_free(labeled_info, TRUE);
     return result;
 }

@@ -9717,19 +9717,17 @@ ssl_dissect_hnd_hello_ext_ech(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_in
                 break;
             }
 
-            uint8_t kdf_len = hpke_hkdf_len(kdf_id);
-            if (kdf_len == 0) {
+            if (hpke_hkdf_len(kdf_id) == 0) {
                 ssl_debug_printf("Unsupported KDF\n");
                 break;
             }
 
-            uint8_t aead_key_len = hpke_aead_key_len(aead_id);
-            if (aead_key_len == 0) {
+            if (hpke_aead_key_len(aead_id) == 0) {
                 ssl_debug_printf("Unsupported AEAD\n");
                 break;
             }
 
-            uint8_t aead_nonce_len = hpke_aead_nonce_len(aead_id);
+            size_t aead_nonce_len = hpke_aead_nonce_len(aead_id);
 
             uint16_t version = GUINT16_FROM_BE(*(uint16_t *)ech_config->data);
             if (version != SSL_HND_HELLO_EXT_ENCRYPTED_CLIENT_HELLO) {
