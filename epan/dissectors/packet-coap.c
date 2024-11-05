@@ -31,6 +31,7 @@
 #include <epan/wmem_scopes.h>
 #include <epan/to_str.h>
 #include <epan/strutil.h>
+#include <wsutil/array.h>
 #include "packet-dtls.h"
 #include "packet-coap.h"
 #include "packet-media-type.h"
@@ -1244,8 +1245,8 @@ dissect_coap_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *coap_tree, p
 		/*
 		 * Try the media type dissector table for CoAP-TMF first.
 		 */
-		result = dissector_try_string(coap_tmf_media_type_dissector_table,
-		    coap_ctype_str_dis, payload_tvb, pinfo, parent_tree,
+		result = dissector_try_string_new(coap_tmf_media_type_dissector_table,
+		    coap_ctype_str_dis, payload_tvb, pinfo, parent_tree, true,
 		    &content_info);
 	}
 	if (result == 0) {
@@ -1253,8 +1254,8 @@ dissect_coap_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *coap_tree, p
 		 * That either failed or we didn't try it.
 		 * Now try the regular media type table.
 		 */
-		dissector_try_string(media_type_dissector_table,
-		    coap_ctype_str_dis, payload_tvb, pinfo, parent_tree,
+		dissector_try_string_new(media_type_dissector_table,
+		    coap_ctype_str_dis, payload_tvb, pinfo, parent_tree, true,
 		    &content_info);
 	}
 	if (coinfo->object_security && !oscore) {

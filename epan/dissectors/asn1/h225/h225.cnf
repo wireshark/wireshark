@@ -921,7 +921,7 @@ H221NonStandard/manufacturerCode  VAL_PTR = &manufacturerCode
   if (gefx) {
     ti = proto_tree_add_string(tree, hf_h225_debug_dissector_try_string, tvb, offset>>3, 0, gefx->key);
   proto_item_set_hidden(ti);
-    dissector_try_string(gef_content_dissector_table, gefx->key, value_tvb, actx->pinfo, %(TREE)s, actx);
+    dissector_try_string_new(gef_content_dissector_table, gefx->key, value_tvb, actx->pinfo, %(TREE)s, true, actx);
   }
 #.END
 

@@ -169,7 +169,7 @@ call_rtse_oid_callback(const char *oid, tvbuff_t *tvb, int offset, packet_info *
 
     next_tvb = tvb_new_subset_remaining(tvb, offset);
 
-    if ((len = dissector_try_string(rtse_oid_dissector_table, oid, next_tvb, pinfo, tree, data)) == 0) {
+    if ((len = dissector_try_string_new(rtse_oid_dissector_table, oid, next_tvb, pinfo, tree, true, data)) == 0) {
         proto_item *item;
         proto_tree *next_tree;
 

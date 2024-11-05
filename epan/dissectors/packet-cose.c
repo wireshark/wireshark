@@ -27,6 +27,7 @@
 #include <epan/media_params.h>
 #include <epan/expert.h>
 #include <epan/exceptions.h>
+#include <wsutil/array.h>
 #include <inttypes.h>
 
 void proto_register_cose(void);
@@ -1016,12 +1017,13 @@ static void dissect_value_x5cert(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
         char *info_text = wmem_strdup(pinfo->pool, col_get_text(pinfo->cinfo, COL_INFO));
 
         TRY {
-            dissector_try_string(
+            dissector_try_string_new(
                 table_media,
                 "application/pkix-cert",
                 tvb_item,
                 pinfo,
                 tree,
+                true,
                 NULL
             );
         }

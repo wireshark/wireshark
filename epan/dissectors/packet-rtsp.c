@@ -30,6 +30,7 @@
 #include <epan/addr_resolv.h>
 #include <wsutil/str_util.h>
 #include <wsutil/strtoi.h>
+#include <wsutil/array.h>
 
 #include "packet-rdt.h"
 #include "packet-rtp.h"
@@ -1335,9 +1336,9 @@ dissect_rtspmessage(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
         if (!is_request_or_reply){
             if (media_type_str_lower_case &&
-                dissector_try_string(media_type_dissector_table,
+                dissector_try_string_new(media_type_dissector_table,
                     media_type_str_lower_case,
-                    new_tvb, pinfo, rtsp_tree, NULL)){
+                    new_tvb, pinfo, rtsp_tree, true, NULL)){
 
             } else {
                 /*

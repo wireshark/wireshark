@@ -75,6 +75,7 @@
 #include "packet-tls.h"
 #include "packet-dtls.h"
 #include "packet-http2.h"
+#include <wsutil/array.h>
 
 // parent knob to turn on-off the entire query-response statistics (at runtime)
 // qr = Query-Response
@@ -4278,7 +4279,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
 
         sub_tvb=tvb_new_subset_length(tvb, cur_offset, tsig_siglen);
 
-        if (!dissector_try_string(dns_tsig_dissector_table, tsig_algname, sub_tvb, pinfo, mac_tree, NULL)) {
+        if (!dissector_try_string_new(dns_tsig_dissector_table, tsig_algname, sub_tvb, pinfo, mac_tree, true, NULL)) {
           expert_add_info_format(pinfo, mac_item, &ei_dns_tsig_alg,
                 "No dissector for algorithm:%s", name_out);
         }

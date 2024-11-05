@@ -754,12 +754,12 @@ decode_xmcp_attr_value (proto_tree *attr_tree, uint16_t attr_type,
       tok = strtok(test_string, " \t\r\n");
       if (tok && tok[0] == '<') {
         /* Looks like XML */
-        dissector_try_string(media_type_dissector_table, "application/xml",
-                             next_tvb, pinfo, attr_tree, NULL);
+        dissector_try_string_new(media_type_dissector_table, "application/xml",
+                             next_tvb, pinfo, attr_tree, true, NULL);
       } else {
         /* Try plain text */
-        dissector_try_string(media_type_dissector_table, "text/plain",
-                             next_tvb, pinfo, attr_tree, NULL);
+        dissector_try_string_new(media_type_dissector_table, "text/plain",
+                             next_tvb, pinfo, attr_tree, true, NULL);
       }
     }
     break;

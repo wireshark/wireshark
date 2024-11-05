@@ -309,17 +309,22 @@ WS_DLL_PUBLIC void dissector_reset_string(const char *name, const char *pattern)
  */
 WS_DLL_PUBLIC bool dissector_is_string_changed(dissector_table_t const subdissectors, const char *string);
 
-/* Look for a given string in a given dissector table and, if found, call
+
+/** Look for a given string in a given dissector table and, if found, call
    the dissector with the arguments supplied, and return the number of
    bytes consumed, otherwise return 0. */
-WS_DLL_PUBLIC int dissector_try_string(dissector_table_t sub_dissectors,
-    const char *string, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data);
+WS_DLL_PUBLIC int dissector_try_string_new(dissector_table_t sub_dissectors,
+	const char* string, tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, const bool add_proto_name, void* data);
 
 /* Look for a given string in a given dissector table and, if found, call
    the dissector with the arguments supplied, and return the number of
    bytes consumed, otherwise return 0. */
-WS_DLL_PUBLIC int dissector_try_string_new(dissector_table_t sub_dissectors,
-    const char *string, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, const bool add_proto_name,void *data);
+WS_DEPRECATED_X("Use dissector_try_string_new instead")
+static inline int
+dissector_try_string(dissector_table_t sub_dissectors, const char* string,\
+	tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data) \
+	{ return dissector_try_string_new(sub_dissectors, string, tvb, pinfo, tree, true, data); }
+
 
 /** Look for a given value in a given string dissector table and, if found,
  * return the current dissector handle for that value.

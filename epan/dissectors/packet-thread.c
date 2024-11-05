@@ -3219,7 +3219,7 @@ dissect_thread_coap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
     tokens = wmem_strsplit(pinfo->pool, uri, "/", 3);
     if (g_strv_length(tokens) == 3) {
         /* No need to create a subset as we are dissecting the tvb as it is. */
-        dissector_try_string(thread_coap_namespace, tokens[1], tvb, pinfo, tree, NULL);
+        dissector_try_string_new(thread_coap_namespace, tokens[1], tvb, pinfo, tree, true, NULL);
     }
 
     return tvb_captured_length(tvb);

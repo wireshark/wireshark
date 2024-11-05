@@ -217,7 +217,7 @@ dissect_btavctp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         uuid.data[0] = pid >> 8;
         uuid.data[1] = pid & 0xFF;
 
-        if (!dissector_try_string(bluetooth_uuid_table, print_numeric_bluetooth_uuid(pinfo->pool, &uuid), next_tvb, pinfo, tree, avctp_data)) {
+        if (!dissector_try_string_new(bluetooth_uuid_table, print_numeric_bluetooth_uuid(pinfo->pool, &uuid), next_tvb, pinfo, tree, true, avctp_data)) {
             call_data_dissector(next_tvb, pinfo, tree);
         }
 
@@ -382,7 +382,7 @@ dissect_btavctp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 uuid.data[0] = fragments->pid >> 8;
                 uuid.data[1] = fragments->pid & 0xFF;
 
-                if (!dissector_try_string(bluetooth_uuid_table, print_numeric_bluetooth_uuid(pinfo->pool, &uuid), next_tvb, pinfo, tree, avctp_data)) {
+                if (!dissector_try_string_new(bluetooth_uuid_table, print_numeric_bluetooth_uuid(pinfo->pool, &uuid), next_tvb, pinfo, tree, true, avctp_data)) {
                     call_data_dissector(next_tvb, pinfo, tree);
                 }
             }

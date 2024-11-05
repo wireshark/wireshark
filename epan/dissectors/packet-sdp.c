@@ -29,6 +29,7 @@
 
 #include <wsutil/strtoi.h>
 #include <wsutil/str_util.h>
+#include <wsutil/array.h>
 
 #include "packet-media-type.h"
 #include "packet-sdp.h"
@@ -918,10 +919,10 @@ static void dissect_key_mgmt(tvbuff_t *tvb, packet_info * pinfo, proto_item * ti
     add_new_data_source(pinfo, keymgmt_tvb, "Key Management Data");
 
     if ((prtcl_id != NULL) && (key_mgmt_dissector_table != NULL)) {
-        found_match = dissector_try_string(key_mgmt_dissector_table,
+        found_match = dissector_try_string_new(key_mgmt_dissector_table,
                                            (const char *)prtcl_id,
                                            keymgmt_tvb, pinfo,
-                                           key_tree, NULL);
+                                           key_tree, true, NULL);
     }
 
     if (found_match) {

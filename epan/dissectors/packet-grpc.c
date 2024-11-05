@@ -67,7 +67,7 @@
 #include "packet-http2.h"
 #include "packet-media-type.h"
 
-#include "wsutil/pint.h"
+#include <wsutil/array.h>
 
 #define GRPC_MESSAGE_HEAD_LEN 5
 
@@ -234,13 +234,13 @@ dissect_body_data(proto_tree *grpc_tree, packet_info *pinfo, tvbuff_t *tvb, cons
     * of a method is defined as an individual dissector, so we try dissect using
     * grpc_message_info first.
     */
-    dissected = dissector_try_string(grpc_message_type_subdissector_table, grpc_message_info,
-        next_tvb, pinfo, parent_tree, grpc_message_info);
+    dissected = dissector_try_string_new(grpc_message_type_subdissector_table, grpc_message_info,
+        next_tvb, pinfo, parent_tree, true, grpc_message_info);
 
     if (dissected == 0) {
         /* not dissected yet, we try common subdissector again. */
-        dissector_try_string(grpc_message_type_subdissector_table, http2_content_type,
-            next_tvb, pinfo, parent_tree, grpc_message_info);
+        dissector_try_string_new(grpc_message_type_subdissector_table, http2_content_type,
+            next_tvb, pinfo, parent_tree, true, grpc_message_info);
     }
 }
 

@@ -19,6 +19,7 @@
 #include <epan/ipproto.h>
 #include <epan/expert.h>
 #include <epan/tfs.h>
+#include <wsutil/array.h>
 
 #include "packet-eigrp.h"
 #include "packet-ipx.h"
@@ -1365,12 +1366,12 @@ dissect_eigrp_services (proto_item *ti, proto_tree *tree, tvbuff_t *tvb,
 
             if (tok && tok[0] == '<') {
                 /* Looks like XML */
-                dissector_try_string(media_type_table, "application/xml",
-                                     xml_tvb, pinfo, sub_tree, NULL);
+                dissector_try_string_new(media_type_table, "application/xml",
+                                     xml_tvb, pinfo, sub_tree, true, NULL);
             } else {
                 /* Try plain text */
-                dissector_try_string(media_type_table, "text/plain",
-                                     xml_tvb, pinfo, sub_tree, NULL);
+                dissector_try_string_new(media_type_table, "text/plain",
+                                     xml_tvb, pinfo, sub_tree, true, NULL);
             }
         }
         sub_offset += length;

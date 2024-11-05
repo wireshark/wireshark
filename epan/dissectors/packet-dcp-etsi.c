@@ -20,6 +20,7 @@
 #include <epan/reassemble.h>
 #include <epan/crc16-tvb.h>
 #include <epan/reedsolomon.h>
+#include <wsutil/array.h>
 
 /* forward reference */
 void proto_register_dcp_etsi(void);
@@ -145,7 +146,7 @@ dissect_dcp_etsi(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void * 
   dcp_tree = proto_item_add_subtree (ti, ett_edcp);
 
   sync = tvb_get_string_enc(pinfo->pool, tvb, 0, 2, ENC_ASCII);
-  dissector_try_string(dcp_dissector_table, (char*)sync, tvb, pinfo, dcp_tree, NULL);
+  dissector_try_string_new(dcp_dissector_table, (char*)sync, tvb, pinfo, dcp_tree, true, NULL);
 
   return tvb_captured_length(tvb);
 }
@@ -650,7 +651,7 @@ dissect_tpl(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data _
             "%s (%u bits)", tag, bits);
 
     next_tvb = tvb_new_subset_length(tvb, offset+8, bytes);
-    dissector_try_string(tpl_dissector_table, tag, next_tvb, pinfo, tree, NULL);
+    dissector_try_string_new(tpl_dissector_table, tag, next_tvb, pinfo, tree, true, NULL);
 
     offset += (8+bytes);
   }

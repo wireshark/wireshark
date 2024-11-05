@@ -23,6 +23,7 @@
 #include <config.h>
 #include <epan/packet.h>
 #include <epan/expert.h>
+#include <wsutil/array.h>
 #include <wsutil/mpeg-audio.h>
 
 void proto_reg_handoff_id3v2(void);
@@ -290,7 +291,7 @@ dissect_id3v2_apic_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, un
 	id3v2_dissect_textz_item(pinfo->pool, tvb, tree, &offset, id3_encoding, hf_id3v2_frame_apic_description);
 
 	image_tvb = tvb_new_subset_length(tvb, offset, (end - offset));
-	dissector_try_string(media_type_dissector_table, mime_type, image_tvb, pinfo, tree, NULL);
+	dissector_try_string_new(media_type_dissector_table, mime_type, image_tvb, pinfo, tree, true, NULL);
 }
 
 static char *

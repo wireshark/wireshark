@@ -198,7 +198,7 @@ call_ros_oid_callback(const char *oid, tvbuff_t *tvb, int offset, packet_info *p
 	next_tvb = tvb_new_subset_remaining(tvb, offset);
 
 	if(((len = ros_try_string(oid, next_tvb, pinfo, tree, session)) == 0) &&
-	   ((len = dissector_try_string(ros_oid_dissector_table, oid, next_tvb, pinfo, tree, session)) == 0)) {
+	   ((len = dissector_try_string_new(ros_oid_dissector_table, oid, next_tvb, pinfo, tree, true, session)) == 0)) {
 		proto_item *item;
 		proto_tree *next_tree;
 

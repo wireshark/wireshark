@@ -663,10 +663,10 @@ dissect_msrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
             /* give the content type parameters to sub dissectors */
 
             if ( media_type_str_lower_case != NULL ) {
-                found_match = dissector_try_string(media_type_dissector_table,
+                found_match = dissector_try_string_new(media_type_dissector_table,
                                                media_type_str_lower_case,
                                                next_tvb, pinfo,
-                                               msrp_data_tree, &content_info);
+                                               msrp_data_tree, true, &content_info);
                 /* If no match dump as text */
             }
             if ( found_match == 0 )

@@ -2329,8 +2329,8 @@ nbap_hsdsch_channel_info = nbap_get_private_data(actx->pinfo)->nbap_hsdsch_chann
 
 #.FN_PARS Common-MACFlow-ID VAL_PTR = &nbap_get_private_data(actx->pinfo)->common_macdflow_id
 
-/*hsdsch_macdflow_ids[nbap_get_private_data(actx->pinfo)->num_items-1] = nbap_get_private_data(actx->pinfo)->hsdsch_macdflow_id;*/
-/*THIS STUFF IST NOT DONE YET!*/
+# /*hsdsch_macdflow_ids[nbap_get_private_data(actx->pinfo)->num_items-1] = nbap_get_private_data(actx->pinfo)->hsdsch_macdflow_id;*/
+# /*THIS STUFF IST NOT DONE YET!*/
 #.FN_BODY CommonMACFlow-Specific-InfoItem
     address     dst_addr;
     uint32_t transportLayerAddress_ipv4;

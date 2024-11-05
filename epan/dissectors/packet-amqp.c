@@ -9840,7 +9840,7 @@ dissect_amqp_0_9_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 
         if (content_params != NULL && content_params->type != NULL) {
             body_tvb = tvb_new_subset_length(tvb, 7, length);
-            dissector_try_string(media_type_subdissector_table, content_params->type, body_tvb, pinfo, amqp_tree, NULL);
+            dissector_try_string_new(media_type_subdissector_table, content_params->type, body_tvb, pinfo, amqp_tree, true, NULL);
         }
         break;
     case AMQP_0_9_FRAME_TYPE_HEARTBEAT:

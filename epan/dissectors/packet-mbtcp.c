@@ -1051,7 +1051,7 @@ dissect_modbus_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint8_t
                 break;
 
         default:
-            if ( ! dissector_try_string(modbus_data_dissector_table, "data", next_tvb, pinfo, tree, NULL) )
+            if ( ! dissector_try_string_new(modbus_data_dissector_table, "data", next_tvb, pinfo, tree, true, NULL) )
                 proto_tree_add_item(tree, hf_modbus_data, tvb, payload_start, payload_len, ENC_NA);
             break;
         }

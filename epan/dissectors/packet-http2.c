@@ -57,6 +57,7 @@
 #include "wsutil/str_util.h"
 #include <wsutil/unicode-utils.h>
 #include <wsutil/wsjson.h>
+#include <wsutil/array.h>
 
 #ifdef HAVE_NGHTTP2
 #define http2_header_repr_type_VALUE_STRING_LIST(XXX)                   \
@@ -2885,9 +2886,9 @@ dissect_body_data(proto_tree *tree, packet_info *pinfo, http2_session_t* h2sessi
     if (content_type != NULL) {
         /* add it to STREAM level */
         proto_tree* ptree = proto_tree_get_parent_tree(tree);
-        dissector_try_string((streaming_mode ? streaming_content_type_dissector_table : media_type_dissector_table),
+        dissector_try_string_new((streaming_mode ? streaming_content_type_dissector_table : media_type_dissector_table),
             content_type, data_tvb, pinfo,
-            ptree, &metadata_used_for_media_type_handle);
+            ptree, true, &metadata_used_for_media_type_handle);
     } else {
         if (!dissector_try_uint_new(stream_id_content_type_dissector_table, stream_id,
             data_tvb, pinfo, proto_tree_get_parent_tree(tree), true, &metadata_used_for_media_type_handle))

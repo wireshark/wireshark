@@ -1085,9 +1085,9 @@ call_ber_oid_callback(const char *oid, tvbuff_t *tvb, int offset, packet_info *p
     if (oid == NULL ||
         ((((syntax = get_ber_oid_syntax(oid)) == NULL) ||
           /* First see if a syntax has been registered for this oid (user defined) */
-          (len = dissector_try_string(ber_syntax_dissector_table, syntax, next_tvb, pinfo, tree, data)) == 0) &&
+          (len = dissector_try_string_new(ber_syntax_dissector_table, syntax, next_tvb, pinfo, tree, true, data)) == 0) &&
          /* Then try registered oid's */
-         (len = dissector_try_string(ber_oid_dissector_table, oid, next_tvb, pinfo, tree, data)) == 0))
+         (len = dissector_try_string_new(ber_oid_dissector_table, oid, next_tvb, pinfo, tree, true, data)) == 0))
     {
         proto_item *item      = NULL;
         proto_tree *next_tree = NULL;
@@ -1145,7 +1145,7 @@ call_ber_syntax_callback(const char *syntax, tvbuff_t *tvb, int offset, packet_i
 
     next_tvb = tvb_new_subset_remaining(tvb, offset);
     if (syntax == NULL ||
-        (len = dissector_try_string(ber_syntax_dissector_table, syntax, next_tvb, pinfo, tree, NULL)) == 0)
+        (len = dissector_try_string_new(ber_syntax_dissector_table, syntax, next_tvb, pinfo, tree, true, NULL)) == 0)
     {
         proto_item *item = NULL;
 

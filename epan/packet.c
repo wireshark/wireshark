@@ -1970,13 +1970,6 @@ dissector_try_string_new(dissector_table_t sub_dissectors, const char *string,
 	return 0;
 }
 
-int
-dissector_try_string(dissector_table_t sub_dissectors, const char *string,
-		     tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
-{
-	return dissector_try_string_new(sub_dissectors, string, tvb, pinfo, tree, true, data);
-}
-
 /* Look for a given value in a given string dissector table and, if found,
    return the dissector handle for that value. */
 dissector_handle_t
