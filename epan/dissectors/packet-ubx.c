@@ -1804,7 +1804,7 @@ static int dissect_ubx_rxm_sfrbx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
     }
 
     // send the nav msg to the next dissector
-    if (!dissector_try_uint(ubx_gnssid_dissector_table, gnssid, next_tvb, pinfo, tree)) {
+    if (!dissector_try_uint_with_data(ubx_gnssid_dissector_table, gnssid, next_tvb, pinfo, tree, true, (void *)tvb_get_ptr(tvb, 1, 1))) {
         call_data_dissector(next_tvb, pinfo, tree);
     }
 
