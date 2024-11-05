@@ -29,6 +29,7 @@
 #include <epan/conversation.h>
 #include <wsutil/str_util.h>
 #include <wsutil/inet_addr.h>
+#include <wsutil/str_util.h>
 
 /* Prototypes */
 void proto_reg_handoff_srt(void);
@@ -467,6 +468,8 @@ static void dissect_srt_hs_ext_field(proto_tree* tree,
 static void format_text_reorder_32(proto_tree* tree, tvbuff_t* tvb, int hfinfo, int baseoff, int blocklen)
 {
     wmem_strbuf_t *sid = wmem_strbuf_create(wmem_packet_scope());
+    const char *str;
+    size_t len;
     for (int ii = 0; ii < blocklen; ii += 4)
     {
         //
@@ -495,8 +498,12 @@ static void format_text_reorder_32(proto_tree* tree, tvbuff_t* tvb, int hfinfo, 
     }
     if (!wmem_strbuf_utf8_validate(sid, NULL))
         wmem_strbuf_utf8_make_valid(sid);
-    proto_tree_add_string(tree, hfinfo, tvb,
-                          baseoff, blocklen, wmem_strbuf_get_str(sid));
+    str = wmem_strbuf_get_str(sid);
+    len = wmem_strbuf_get_len(sid);
+    while (len > 0 && str[len-1] == '\0')
+        len--;
+    proto_tree_add_string(tree, hfinfo, tvb, baseoff, blocklen,
+                          format_text(wmem_packet_scope(), str, len));
 }
 
 
