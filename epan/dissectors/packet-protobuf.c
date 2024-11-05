@@ -734,7 +734,12 @@ protobuf_dissect_field_value(proto_tree *value_tree, tvbuff_t *tvb, unsigned off
             proto_tree_add_int(pbf_tree, *hf_id_ptr, tvb, offset, length, int32_value);
         }
         if (field_desc && dumper) {
-            json_dumper_value_string(dumper, enum_value_name);
+            if (enum_value_name) {
+                json_dumper_value_string(dumper, enum_value_name);
+            } else {
+                /* The enum value is used if the name of the enum value is not specified in proto */
+                json_dumper_value_anyf(dumper, "%d", int32_value);
+            }
         }
         break;
 
