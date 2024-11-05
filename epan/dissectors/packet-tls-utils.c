@@ -8859,9 +8859,12 @@ ssl_dissect_hnd_hello_ext_quic_transport_parameters(ssl_common_dissect_t *hf, tv
             case SSL_HND_QUIC_TP_INITIAL_MAX_PATH_ID:
                 proto_tree_add_item_ret_varint(parameter_tree, hf->hf.hs_ext_quictp_parameter_initial_max_path_id,
                                                tvb, offset, -1, ENC_VARINT_QUIC, &value, &len);
-                if (value > 1) {
-                    quic_add_multipath(pinfo, QUIC_MP_PATH_ID);
-                }
+                /* multipath draft-09 and later: "If an endpoint receives an
+                * initial_max_path_id transport parameter with value 0, the
+                * peer aims to enable the multipath extension without allowing
+                * extra paths immediately."
+                */
+                quic_add_multipath(pinfo, QUIC_MP_PATH_ID);
                 offset += parameter_length;
             break;
             default:
