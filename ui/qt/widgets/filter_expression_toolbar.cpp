@@ -386,13 +386,15 @@ QMenu * FilterExpressionToolBar::findParentMenu(const QStringList tree, void *fe
         QAction *menuAction = new QAction(data->toolbar);
         menuAction->setText(parentName);
         menuAction->setMenu(parentMenu);
-        // QToolButton::MenuButtonPopup means that pressing the button text
-        // itself doesn't open the menu, only pressing the downwards pointing
-        // triangle does. This is difficult to change for the auto created
-        // QToolButton inside the QToolBar. But only auto created tool buttons
-        // will show up in the extension menu at narrow widths (#19887.)
+        // Change the auto created QToolButton inside the QToolBar pop-up
+        // behavior. Only auto created tool buttons will show up in the
+        // extension menu at narrow widths (#19887.)
         data->toolbar->addAction(menuAction);
-
+        QWidget* menuWidget = data->toolbar->widgetForAction(menuAction);
+        QToolButton* menuButton = qobject_cast<QToolButton*>(menuWidget);
+        if (menuButton != nullptr) {
+            menuButton->setPopupMode(QToolButton::InstantPopup);
+        }
         return findParentMenu(tree.mid(1), fed_data, parentMenu);
     }
     else if (parent)
