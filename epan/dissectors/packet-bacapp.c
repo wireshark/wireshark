@@ -46,8 +46,6 @@ static int bacapp_tap;
 #define BACAPP_SEGMENT_NAK 0x02
 #define BACAPP_SENT_BY 0x01
 
-#define BACAPP_MAX_RECURSION_DEPTH 50 // Arbitrary
-
 /**
  * dissect_bacapp ::= CHOICE {
  *  confirmed-request-PDU       [0] BACnet-Confirmed-Request-PDU,
@@ -6845,7 +6843,6 @@ static int ett_bacapp_value;
 static expert_field ei_bacapp_bad_length;
 static expert_field ei_bacapp_bad_tag;
 static expert_field ei_bacapp_opening_tag;
-static expert_field ei_bacapp_max_recursion_depth_reached;
 
 static int32_t propertyIdentifier = -1;
 static int32_t propertyArrayIndex = -1;
@@ -9147,12 +9144,7 @@ fAbstractSyntaxNType(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsign
         snprintf(ar, sizeof(ar), "Abstract Type: ");
     }
 
-    unsigned recursion_depth = p_get_proto_depth(pinfo, proto_bacapp);
-    if (recursion_depth > BACAPP_MAX_RECURSION_DEPTH) {
-        proto_tree_add_expert(tree, pinfo, &ei_bacapp_max_recursion_depth_reached, tvb, 0, 0);
-        return offset;
-    }
-    p_set_proto_depth(pinfo, proto_bacapp, recursion_depth + 1);
+    increment_dissection_depth(pinfo);
 
     while (tvb_reported_length_remaining(tvb, offset) > 0) {  /* exit loop if nothing happens inside */
         lastoffset = offset;
@@ -9911,8 +9903,7 @@ fAbstractSyntaxNType(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsign
     }
 
 cleanup:
-    recursion_depth = p_get_proto_depth(pinfo, proto_bacapp);
-    p_set_proto_depth(pinfo, proto_bacapp, recursion_depth);
+    decrement_dissection_depth(pinfo);
     return offset;
 }
 
@@ -17119,8 +17110,6 @@ proto_register_bacapp(void)
         { &ei_bacapp_bad_length, { "bacapp.bad_length", PI_MALFORMED, PI_ERROR, "Wrong length indicated", EXPFILL }},
         { &ei_bacapp_bad_tag, { "bacapp.bad_tag", PI_MALFORMED, PI_ERROR, "Wrong tag found", EXPFILL }},
         { &ei_bacapp_opening_tag, { "bacapp.bad_opening_tag", PI_MALFORMED, PI_ERROR, "Expected Opening Tag!", EXPFILL }},
-        { &ei_bacapp_max_recursion_depth_reached, { "bacapp.max_recursion_depth_reached",
-            PI_PROTOCOL, PI_WARN, "Maximum allowed recursion depth reached. Dissection stopped.", EXPFILL }}
     };
 
     expert_module_t* expert_bacapp;
