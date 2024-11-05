@@ -67,7 +67,8 @@ typedef enum {
     SSL_HND_COMPRESSED_CERTIFICATE = 25,
     /* Encrypted Extensions was NextProtocol in draft-agl-tls-nextprotoneg-03
      * and changed in draft 04. Not to be confused with TLS 1.3 EE. */
-    SSL_HND_ENCRYPTED_EXTS         = 67
+    SSL_HND_ENCRYPTED_EXTS         = 67,
+    SSL_HND_MESSAGE_HASH           = 254
 } HandshakeType;
 
 #define SSL2_HND_ERROR                 0x00
@@ -152,6 +153,7 @@ typedef enum {
 #define SSL_HND_HELLO_EXT_GREASE_DADA                   56026
 #define SSL_HND_HELLO_EXT_GREASE_EAEA                   60138
 #define SSL_HND_HELLO_EXT_GREASE_FAFA                   64250
+#define SSL_HND_HELLO_EXT_ECH_OUTER_EXTENSIONS          64768 /* 0xfd00 draft-ietf-tls-esni-16 */
 #define SSL_HND_HELLO_EXT_ENCRYPTED_CLIENT_HELLO        65037 /* 0xfe0d draft-ietf-tls-esni-16 */
 #define SSL_HND_HELLO_EXT_RENEGOTIATION_INFO            65281 /* 0xFF01 */
 #define SSL_HND_HELLO_EXT_QUIC_TRANSPORT_PARAMETERS     65445 /* 0xffa5 draft-ietf-quic-tls-13 */
@@ -466,10 +468,18 @@ typedef struct _SslSession {
     int compression;
     uint16_t version;
     unsigned char tls13_draft_version;
+    unsigned char _client_random[32];
     int8_t client_cert_type;
     int8_t server_cert_type;
     uint32_t client_ccs_frame;
     uint32_t server_ccs_frame;
+    uint32_t first_ch_ech_frame;
+    StringInfo client_random;
+    bool ech;
+    bool hrr_ech_declined;
+    unsigned char ech_confirmation[8];
+    unsigned char hrr_ech_confirmation[8];
+    unsigned char first_ech_auth_tag[16];
 
     /* The address/proto/port of the server as determined from heuristics
      * (e.g. ClientHello) or set externally (via ssl_set_master_secret()). */
@@ -544,6 +554,7 @@ typedef struct _SslDecryptSession {
     StringInfo app_data_segment;
     SslSession session;
     bool       has_early_data;
+    StringInfo ech_transcript;
 
 } SslDecryptSession;
 
@@ -584,6 +595,8 @@ typedef struct {
     GHashTable *tls13_server_appdata;
     GHashTable *tls13_early_exporter;
     GHashTable *tls13_exporter;
+    GHashTable *ech_secret;
+    GHashTable *ech_config;
 
     /* The hash tables above store the static keylog file contents and secrets
      * from any DSB, not all of which may be used, in addition to any master
@@ -881,6 +894,10 @@ typedef struct ssl_common_dissect {
         int hs_ext_supported_group;
         int hs_ext_supported_groups;
         int hs_ext_supported_groups_len;
+        int hs_ext_ech_outer_ext;
+        int hs_ext_ech_outer_ext_len;
+        int hs_ech_confirm;
+        int hs_ech_confirm_compute;
         int hs_ext_heartbeat_mode;
         int hs_ext_len;
         int hs_ext_npn_str;
@@ -1134,6 +1151,7 @@ typedef struct ssl_common_dissect {
         int ech_payload;
         int ech_confirmation;
         int ech_retry_configs;
+        int ech_padding_data;
 
         int hs_ext_alps_len;
         int hs_ext_alps_alpn_list;
@@ -1182,6 +1200,7 @@ typedef struct ssl_common_dissect {
         int ech_hpke_keyconfig;
         int ech_hpke_cipher_suites;
         int ech_hpke_cipher_suite;
+        int ech_decrypt;
         int hs_ext_token_binding_key_parameters;
 
         /* do not forget to update SSL_COMMON_ETT_LIST! */
@@ -1203,6 +1222,8 @@ typedef struct ssl_common_dissect {
         expert_field decompression_error;
 
         expert_field ech_echconfig_invalid_version;
+        expert_field ech_accepted;
+        expert_field ech_rejected;
 
         /* do not forget to update SSL_COMMON_EI_LIST! */
     } ei;
@@ -1284,12 +1305,12 @@ ssl_dissect_change_cipher_spec(ssl_common_dissect_t *hf, tvbuff_t *tvb,
                                bool is_from_server,
                                const SslDecryptSession *ssl);
 
-extern void
+extern gint
 ssl_dissect_hnd_cli_hello(ssl_common_dissect_t *hf, tvbuff_t *tvb,
                           packet_info *pinfo, proto_tree *tree, uint32_t offset,
                           uint32_t offset_end, SslSession *session,
                           SslDecryptSession *ssl,
-                          dtls_hfs_t *dtls_hfs);
+                          dtls_hfs_t *dtls_hfs, ssl_master_key_map_t *mk_map);
 
 extern void
 ssl_dissect_hnd_srv_hello(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_info* pinfo,
@@ -1407,6 +1428,26 @@ ssl_common_dissect_t name;
       { "Data", prefix ".handshake.extension.data",                     \
         FT_BYTES, BASE_NONE, NULL, 0x0,                                 \
         "Hello Extension data", HFILL }                                 \
+    },                                                                  \
+    { & name .hf.hs_ext_ech_outer_ext_len,                              \
+      { "Outer Extensions List Length", prefix ".handshake.extensions_ech_outer_extensions_length", \
+        FT_UINT8, BASE_DEC, NULL, 0x0,                                  \
+        NULL, HFILL }                                                   \
+    },                                                                  \
+    { & name .hf.hs_ext_ech_outer_ext,                                  \
+      { "Outer Extensions List", prefix ".handshake.extensions_ech_outer_extensions", \
+        FT_NONE, BASE_NONE, NULL, 0x0,                                  \
+        "List of extensions derived from Outer Client Hello", HFILL }   \
+    },                                                                  \
+    { & name .hf.hs_ech_confirm,                                        \
+      { "ECH Confirmation Bytes", prefix ".handshake.ech_confirm",      \
+        FT_BYTES, BASE_NONE, NULL, 0x0,                                  \
+        NULL, HFILL }                                                   \
+    },                                                                  \
+    { & name .hf.hs_ech_confirm_compute,                                \
+      { "Computed ECH Confirmation Bytes", prefix ".handshake.ech_confirm_compute", \
+        FT_BYTES, BASE_NONE, NULL, 0x0,                                \
+        NULL, HFILL }                                                   \
     },                                                                  \
     { & name .hf.hs_ext_supported_groups_len,                           \
       { "Supported Groups List Length", prefix ".handshake.extensions_supported_groups_length", \
@@ -2755,6 +2796,11 @@ ssl_common_dissect_t name;
         FT_NONE, BASE_NONE, NULL, 0x0,                                  \
         "ECHConfig structures for one-time use by the client in a retry connection", HFILL } \
     },                                                                  \
+    { & name .hf.ech_padding_data,                                      \
+      { "ECH Encrypted Padding", prefix ".ech.encrypted_padding",       \
+        FT_BYTES, BASE_NONE, NULL, 0x0,                                 \
+        "Must be zero", HFILL }                                         \
+    },                                                                  \
     { & name .hf.hs_ext_alps_len,                                       \
       { "ALPS Extension Length", prefix ".handshake.extensions_alps_len", \
         FT_UINT16, BASE_DEC, NULL, 0x0,                                 \
@@ -2822,6 +2868,7 @@ ssl_common_dissect_t name;
         & name .ett.ech_hpke_keyconfig,             \
         & name .ett.ech_hpke_cipher_suites,         \
         & name .ett.ech_hpke_cipher_suite,          \
+        & name .ett.ech_decrypt,                    \
         & name .ett.hs_ext_token_binding_key_parameters, \
 
 /* }}} */
@@ -2879,6 +2926,14 @@ ssl_common_dissect_t name;
     { & name .ei.ech_echconfig_invalid_version, \
         { prefix ".ech_echconfig_invalid_version", PI_PROTOCOL, PI_ERROR, \
         "Invalid/unknown ECHConfig version", EXPFILL } \
+    }, \
+    { & name .ei.ech_accepted, \
+        { prefix ".ech_accepted", PI_PROTOCOL, PI_NOTE, \
+        "Calculated ECH Confirmation matches Server Random bytes, ECH was accepted", EXPFILL } \
+    }, \
+    { & name .ei.ech_rejected, \
+        { prefix ".ech_rejected", PI_PROTOCOL, PI_WARN, \
+        "Calculated ECH Confirmation does not match Server Random bytes, ECH was rejected", EXPFILL } \
     }
 /* }}} */
 

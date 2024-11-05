@@ -2950,10 +2950,11 @@ dissect_tls_handshake_full(tvbuff_t *tvb, packet_info *pinfo,
                 if (ssl) {
                     /* ClientHello is first packet so set direction */
                     ssl_set_server(session, &pinfo->dst, pinfo->ptype, pinfo->destport);
+                    ssl_load_keyfile(ssl_options.keylog_filename, &ssl_keylog_file, &ssl_master_key_map);
                 }
                 ssl_dissect_hnd_cli_hello(&dissect_ssl3_hf, tvb, pinfo,
                         ssl_hand_tree, offset, offset + length, session, ssl,
-                        NULL);
+                        NULL, &ssl_master_key_map);
                 /*
                  * Cannot call tls13_change_key here with TLS_SECRET_HANDSHAKE
                  * since the server may not agree on using TLS 1.3. If
@@ -3113,6 +3114,8 @@ dissect_tls_handshake_full(tvbuff_t *tvb, packet_info *pinfo,
 
             case SSL_HND_ENCRYPTED_EXTS:
                 dissect_ssl3_hnd_encrypted_exts(tvb, ssl_hand_tree, offset);
+                break;
+            case SSL_HND_MESSAGE_HASH:
                 break;
         }
     }

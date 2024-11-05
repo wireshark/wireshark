@@ -2184,7 +2184,7 @@ dissect_dtls_handshake(tvbuff_t *tvb, packet_info *pinfo,
             }
             ssl_dissect_hnd_cli_hello(&dissect_dtls_hf, sub_tvb, pinfo,
                                       ssl_hand_tree, 0, length, session, ssl,
-                                      &dtls_hfs);
+                                      &dtls_hfs, NULL);
             if (ssl) {
                 tls_save_crandom(ssl, tls_get_master_key_map(false));
                 /* force DTLSv1.3 version if early data is seen */
@@ -2292,6 +2292,7 @@ dissect_dtls_handshake(tvbuff_t *tvb, packet_info *pinfo,
           case SSL_HND_ENCRYPTED_EXTS:
           case SSL_HND_END_OF_EARLY_DATA: /* TLS 1.3 */
           case SSL_HND_COMPRESSED_CERTIFICATE:
+          case SSL_HND_MESSAGE_HASH:
             break;
           case SSL_HND_ENCRYPTED_EXTENSIONS: /* TLS 1.3 */
             ssl_dissect_hnd_encrypted_extensions(&dissect_dtls_hf, sub_tvb, pinfo, ssl_hand_tree, 0, length, session, ssl, 1);

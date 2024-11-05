@@ -18,12 +18,31 @@
 #include <wireshark.h>
 #include <gcrypt.h>
 
-#define HASH_MD5_LENGTH      16
-#define HASH_SHA1_LENGTH     20
-#define HASH_SHA2_224_LENGTH 28
-#define HASH_SHA2_256_LENGTH 32
-#define HASH_SHA2_384_LENGTH 48
-#define HASH_SHA2_512_LENGTH 64
+#define HASH_MD5_LENGTH                    16
+#define HASH_SHA1_LENGTH                   20
+#define HASH_SHA2_224_LENGTH               28
+#define HASH_SHA2_256_LENGTH               32
+#define HASH_SHA2_384_LENGTH               48
+#define HASH_SHA2_512_LENGTH               64
+#define AEAD_AES_128_GCM_KEY_LENGTH        16
+#define AEAD_AES_256_GCM_KEY_LENGTH        32
+#define AEAD_CHACHA20POLY1305_KEY_LENGTH   32
+#define AEAD_MAX_KEY_LENGTH                32
+#define HPKE_AEAD_NONCE_LENGTH             12
+#define HPKE_HKDF_SHA256                    1
+#define HPKE_HKDF_SHA384                    2
+#define HPKE_HKDF_SHA512                    3
+#define HPKE_AEAD_AES_128_GCM               1
+#define HPKE_AEAD_AES_256_GCM               2
+#define HPKE_AEAD_CHACHA20POLY1305          3
+#define HPKE_SUIT_ID_LEN                   10
+#define HPKE_SUIT_PREFIX               "HPKE"
+#define HPKE_VERSION_ID             "HPKE-v1"
+#define HPKE_MAX_KDF_LEN HASH_SHA2_512_LENGTH
+#define HPKE_MODE_BASE                      0
+#define HPKE_MODE_PSK                       1
+#define HPKE_MODE_AUTH                      2
+#define HPKE_MODE_AUTH_PSK                  3
 
 /* Convenience function to calculate the HMAC from the data in BUFFER
    of size LENGTH with key KEY of size KEYLEN using the algorithm ALGO avoiding the creating of a
@@ -70,5 +89,26 @@ hkdf_extract(int hashalgo, const uint8_t *salt, size_t salt_len, const uint8_t *
     return ws_hmac_buffer(hashalgo, prk, ikm, ikm_len, salt, salt_len);
 }
 
+WS_DLL_PUBLIC size_t
+hpke_hkdf_len(uint16_t kdf_id);
+
+WS_DLL_PUBLIC size_t
+hpke_aead_key_len(uint16_t aead_id);
+
+WS_DLL_PUBLIC size_t
+hpke_aead_nonce_len(uint16_t aead_id);
+
+WS_DLL_PUBLIC void
+hpke_suite_id(uint16_t kem_id, uint16_t kdf_id, uint16_t aead_id, uint8_t *suite_id);
+
+WS_DLL_PUBLIC gcry_error_t
+hpke_key_schedule(uint16_t kdf_id, uint16_t aead_id, const uint8_t *salt, unsigned salt_len, const uint8_t *suite_id,
+                  const uint8_t *ikm, unsigned ikm_len, uint8_t mode, uint8_t *key, uint8_t *base_nonce);
+
+WS_DLL_PUBLIC gcry_error_t
+hpke_setup_aead(gcry_cipher_hd_t* cipher, uint16_t aead_id, uint8_t *key);
+
+WS_DLL_PUBLIC gcry_error_t
+hpke_set_nonce(gcry_cipher_hd_t cipher, uint64_t seq, uint8_t *base_nonce, size_t nonce_len);
 
 #endif /* __WSGCRYPT_H__ */
