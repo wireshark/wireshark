@@ -16,10 +16,9 @@ class WSBugLinkInlineMacro < Extensions::InlineMacroProcessor
 
   named :wsbuglink
   parse_content_as :text
-  name_positional_attributes 'bugtext'
 
   def process(parent, issueid, attrs)
-    bugtext = attrs['bugtext'] || %(Issue #{issueid})
+    bugtext = attrs['text'] || %(Issue #{issueid})
     target = %(https://gitlab.com/wireshark/wireshark/-/issues/#{issueid})
     create_doc_links(parent, target, bugtext)
   end
