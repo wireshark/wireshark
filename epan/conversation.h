@@ -112,6 +112,7 @@ typedef enum {
     CONVERSATION_VSPC_VMOTION,	/* VMware vSPC vMotion (Telnet) */
     CONVERSATION_OPENVPN,
     CONVERSATION_PROXY,
+    CONVERSATION_DNP3
 } conversation_type;
 
 /*

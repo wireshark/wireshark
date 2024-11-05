@@ -31,6 +31,8 @@
 #include <epan/unit_strings.h>
 #include <wsutil/crc16.h>
 #include <wsutil/str_util.h>
+#include <epan/conversation.h>
+#include <epan/proto_data.h>
 #include "packet-tls.h"
 
 /*
@@ -1615,6 +1617,22 @@ static uint16_t
 calculateCRCtvb(tvbuff_t *tvb, unsigned offset, unsigned len) {
   uint16_t crc = crc16_0x3D65_tvb_offset_seed(tvb, offset, len, 0);
   return ~crc;
+}
+
+/* calculate the extended sequence number - top 16 bits of the previous sequence number,
+ * plus our own; then correct for wrapping */
+static uint32_t
+calculate_extended_seqno(uint32_t previous_seqno, uint8_t raw_seqno)
+{
+  uint32_t seqno = (previous_seqno & 0xffffffc0) | raw_seqno;
+  if (seqno + 0x20 < previous_seqno) {
+    seqno += 0x40;
+  } else if (previous_seqno + 0x20 < seqno) {
+    /* we got an out-of-order packet which happened to go backwards over the
+     * wrap boundary */
+    seqno -= 0x40;
+  }
+  return seqno;
 }
 
 /*****************************************************************/
@@ -3915,6 +3933,9 @@ dissect_dnp3_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
     offset += 1;
 
   /* add destination and source addresses */
+  /* XXX - We could create AT_NUMERIC (or a newly registered address type)
+   * addressses from these, either just for a conversation table or even
+   * to set pinfo->src / dst. */
   proto_tree_add_item(dl_tree, hf_dnp3_dst, tvb, offset, 2, ENC_LITTLE_ENDIAN);
   hidden_item = proto_tree_add_item(dl_tree, hf_dnp3_addr, tvb, offset, 2, ENC_LITTLE_ENDIAN);
   proto_item_set_hidden(hidden_item);
@@ -3960,6 +3981,40 @@ dissect_dnp3_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
     tr_seq = tr_ctl & DNP3_TR_SEQ;
     tr_fir = tr_ctl & DNP3_TR_FIR;
     tr_fin = tr_ctl & DNP3_TR_FIN;
+
+    uint32_t ext_seq = tr_seq;
+
+    if (!PINFO_FD_VISITED(pinfo)) {
+      /* create a unidirectional conversation. Use the addresses (IP currently)
+       * as the reassembly functions use that anyway, and the DNP3.0 DL
+       * addresses but intentionally NOT the TCP or UDP ports. */
+      conversation_element_t* conv_key = wmem_alloc_array(pinfo->pool, conversation_element_t, 5);
+      conv_key[0].type = CE_ADDRESS;
+      copy_address_shallow(&(conv_key[0].addr_val), &pinfo->src);
+      conv_key[1].type = CE_ADDRESS;
+      copy_address_shallow(&(conv_key[1].addr_val), &pinfo->dst);
+      conv_key[2].type = CE_UINT;
+      conv_key[2].port_val = dl_src;
+      conv_key[3].type = CE_UINT;
+      conv_key[3].uint_val = dl_dst;
+      conv_key[4].type = CE_CONVERSATION_TYPE;
+      conv_key[4].conversation_type_val = CONVERSATION_DNP3;
+      conversation_t* conv = find_conversation_full(pinfo->num, conv_key);
+      uint32_t prev;
+      if (conv) {
+        prev = GPOINTER_TO_UINT(conversation_get_proto_data(conv, proto_dnp3));
+      } else {
+        prev = tr_seq;
+        conv = conversation_new_full(pinfo->num, conv_key);
+      }
+      ext_seq = calculate_extended_seqno(prev, tr_seq);
+      /* The only thing we store right now is the 32 bit extended sequence
+       * number, so we don't need a conversation_data type. */
+      conversation_add_proto_data(conv, proto_dnp3, GUINT_TO_POINTER(ext_seq));
+      p_add_proto_data(wmem_file_scope(), pinfo, proto_dnp3, 0, GUINT_TO_POINTER(ext_seq));
+    } else {
+      ext_seq = GPOINTER_TO_UINT(p_get_proto_data(wmem_file_scope(), pinfo, proto_dnp3, 0));
+    }
 
     /* Add Transport Layer Tree */
     tc = proto_tree_add_bitmask(dnp3_tree, tvb, offset, hf_dnp3_tr_ctl, ett_dnp3_tr_ctl, transport_flags, ENC_BIG_ENDIAN);
@@ -4029,21 +4084,20 @@ dissect_dnp3_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
       save_fragmented = pinfo->fragmented;
 
       /* Reassemble AL fragments */
-      static unsigned al_max_fragments = 60;
-      static unsigned al_fragment_aging = 64; /* sequence numbers only 6 bit */
+      static unsigned al_max_fragments = 60; /* In practice 9 - 2048 (AL) / 249 (AL Fragment) */
       fragment_head *frag_al = NULL;
       pinfo->fragmented = true;
       if (!pinfo->fd->visited)
       {
-        frag_al = fragment_add_seq_single_aging(&al_reassembly_table,
-            al_tvb, 0, pinfo, tr_seq, NULL,
+        frag_al = fragment_add_seq_single(&al_reassembly_table,
+            al_tvb, 0, pinfo, ext_seq, NULL,
             tvb_reported_length(al_tvb), /* As this is a constructed tvb, all of it is ok */
             tr_fir, tr_fin,
-            al_max_fragments, al_fragment_aging);
+            al_max_fragments);
       }
       else
       {
-        frag_al = fragment_get_reassembled_id(&al_reassembly_table, pinfo, tr_seq);
+        frag_al = fragment_get_reassembled_id(&al_reassembly_table, pinfo, ext_seq);
       }
       next_tvb = process_reassembled_data(al_tvb, 0, pinfo,
           "Reassembled DNP 3.0 Application Layer message", frag_al, &dnp3_frag_items,
