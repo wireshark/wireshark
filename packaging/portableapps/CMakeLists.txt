@@ -40,7 +40,10 @@ macro( ADD_PORTABLEAPPS_PACKAGE_TARGET )
 	set(_wireshark_portableapps_app_dir "${PORTABLEAPPS_LAUNCHER_STAGING_DIR}/App/${CMAKE_PROJECT_NAME}")
 	file(TO_NATIVE_PATH "${_wireshark_portableapps_app_dir}" _wireshark_portableapps_app_dir_native)
 	file(TO_NATIVE_PATH "${DATAFILE_DIR}" _datafile_dir_native)
-	file(TO_NATIVE_PATH "${CMAKE_SOURCE_DIR}/packaging/portableapps/xcopy-deploy-exclude.txt" _xcopy_deploy_exclude)
+	file(TO_NATIVE_PATH "${_wireshark_portableapps_app_dir}/extcap" _wireshark_portableapps_extcap_dir_native)
+	file(TO_NATIVE_PATH "${DATAFILE_DIR}/extcap/${CMAKE_PROJECT_NAME}" _extcap_dir_native)
+	file(TO_NATIVE_PATH "${CMAKE_SOURCE_DIR}/packaging/portableapps/xcopy-deploy-exclude-pdb.txt" _xcopy_deploy_exclude_pdb)
+	file(TO_NATIVE_PATH "${CMAKE_SOURCE_DIR}/packaging/portableapps/xcopy-deploy-exclude-other.txt" _xcopy_deploy_exclude_other)
 
 	add_custom_target(wireshark_portableapps_app_dir
 		# We "Deploy using XCopy," which is described at
@@ -48,7 +51,8 @@ macro( ADD_PORTABLEAPPS_PACKAGE_TARGET )
 		# We also assume that the project has been built at this point.
 		COMMAND ${CMAKE_COMMAND} -E remove_directory ${_wireshark_portableapps_app_dir}
 		COMMAND ${CMAKE_COMMAND} -E make_directory ${_wireshark_portableapps_app_dir}
-		COMMAND xcopy ${_datafile_dir_native} ${_wireshark_portableapps_app_dir_native} /D /I /E /Y /exclude:${_xcopy_deploy_exclude}
+		COMMAND xcopy ${_datafile_dir_native} ${_wireshark_portableapps_app_dir_native} /D /I /E /Y /exclude:${_xcopy_deploy_exclude_pdb}+${_xcopy_deploy_exclude_other}
+		COMMAND xcopy ${_extcap_dir_native} ${_wireshark_portableapps_extcap_dir_native} /D /I /E /Y /exclude:${_xcopy_deploy_exclude_pdb}
 	)
 
 	set_target_properties(wireshark_portableapps_app_dir PROPERTIES
