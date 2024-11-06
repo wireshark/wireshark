@@ -5708,7 +5708,7 @@ sharkd_rtp_download_decode(struct sharkd_download_rtp *req)
     /* based on RtpAudioStream::decode() 6e29d874f8b5e6ebc59f661a0bb0dab8e56f122a */
     /* TODO, for now only without silence (timing_mode_ = Uninterrupted) */
 
-    static const int sample_bytes_ = sizeof(SAMPLE) / sizeof(char);
+    static const int sample_bytes_ = SAMPLE_BYTES;
 
     uint32_t audio_out_rate_ = 0;
     struct _GHashTable *decoders_hash_ = rtp_decoder_hash_table_new();
