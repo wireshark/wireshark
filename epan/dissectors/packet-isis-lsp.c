@@ -449,6 +449,7 @@ static int hf_isis_lsp_clv_flex_algo_priority;
 static int hf_isis_lsp_clv_flex_algo_def_flags;
 static int hf_isis_lsp_clv_flex_algo_def_flags_m;
 static int hf_isis_lsp_clv_flex_algo_srlg_value;
+static int hf_isis_lsp_clv_flex_algo_prefix_metric;
 static int hf_isis_lsp_clv_srv6_endx_sid_system_id;
 static int hf_isis_lsp_clv_srv6_endx_sid_flags;
 static int hf_isis_lsp_clv_srv6_endx_sid_flags_b;
@@ -902,6 +903,7 @@ static const value_string isis_lsp_ext_is_reachability_code_vals[] = {
 #define IP_REACH_SUBTLV_64BIT_ADMIN_TAG 2
 #define IP_REACH_SUBTLV_PFX_SID         3
 #define IP_REACH_SUBTLV_PFX_ATTRIB_FLAG 4
+#define IP_REACH_SUBTLV_FAPM            6
 #define IP_REACH_SUBTLV_BIER_INFO       32
 
 static const value_string isis_lsp_ext_ip_reachability_code_vals[] = {
@@ -909,6 +911,7 @@ static const value_string isis_lsp_ext_ip_reachability_code_vals[] = {
     { IP_REACH_SUBTLV_64BIT_ADMIN_TAG, "64-bit Administrative Tag" },
     { IP_REACH_SUBTLV_PFX_SID,         "Prefix-SID" },
     { IP_REACH_SUBTLV_PFX_ATTRIB_FLAG, "Prefix Attribute Flags" },
+    { IP_REACH_SUBTLV_FAPM,            "Flexible Algorithm Prefix Metric" },
     { IP_REACH_SUBTLV_BIER_INFO,       "BIER Info" },
     { 0, NULL }
 };
@@ -1250,6 +1253,36 @@ dissect_prefix_attr_flags_subclv(tvbuff_t *tvb, packet_info *pinfo,
     }
 }
 
+/*
+ * Name: dissect_flex_algo_prefix_metric_subclv()
+ *
+ * Description:
+ *    Decodes a Flexible Algorithm Prefix Metric (FAPM) sub-TLV (RFC 9350)
+ *
+ * Input:
+ *   tvbuff_t * : tvbuffer for packet data
+ *   packet_info * : expert error misuse reporting
+ *   proto_tree * : proto tree to build on
+ *   int : current offset into packet data
+ *   int : type of this clv
+ *   int : length of this clv
+ *
+ * Output:
+ *    void, will modify proto_tree if not null.
+ */
+static void
+dissect_flex_algo_prefix_metric_subclv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+                                       int offset, int clv_code _U_, int clv_len)
+{
+    if (clv_len != 5) {
+        proto_tree_add_expert_format(tree, pinfo, &ei_isis_lsp_malformed_subtlv,
+                                     tvb, offset-2, 2,
+                                     "Invalid Sub-TLV Length %d (should be 5)", clv_len);
+        return;
+    }
+    proto_tree_add_item(tree, hf_isis_lsp_clv_flex_algo_algorithm, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_isis_lsp_clv_flex_algo_prefix_metric, tvb, offset+1, 4, ENC_BIG_ENDIAN);
+}
 
 /*
  * Name: dissect_ipreach_subclv ()
@@ -1312,6 +1345,10 @@ dissect_ipreach_subclv(tvbuff_t *tvb, packet_info *pinfo,  proto_tree *tree, pro
     case IP_REACH_SUBTLV_PFX_ATTRIB_FLAG:
         /* Prefix Attribute Flags */
         dissect_prefix_attr_flags_subclv(tvb, pinfo, tree, tree_item, offset, clv_code, clv_len);
+        break;
+    case IP_REACH_SUBTLV_FAPM:
+        /* Flexible Algorithm Prefix Metric (FAPM) */
+        dissect_flex_algo_prefix_metric_subclv(tvb, pinfo, tree, offset, clv_code, clv_len);
         break;
     case IP_REACH_SUBTLV_BIER_INFO:
         dissect_bierinfo_subtlv(tvb, pinfo, tree, offset, clv_len);
@@ -6924,6 +6961,11 @@ proto_register_isis_lsp(void)
         },
         { &hf_isis_lsp_clv_flex_algo_srlg_value,
             { "Shared Risk Link Group", "isis.lsp.flex_algorithm.srlg",
+              FT_UINT32, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_clv_flex_algo_prefix_metric,
+            { "Metric", "isis.lsp.flex_algorithm.prefix_metric",
               FT_UINT32, BASE_DEC, NULL, 0x0,
               NULL, HFILL }
         },
