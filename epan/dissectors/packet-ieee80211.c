@@ -101,10 +101,6 @@ static const unit_name_string units_tu_tus = { "TU", "TUs" };
 /* DIs are also used */
 static const unit_name_string units_di_dis = { "DI", "DIs" };
 
-static const unit_name_string units_ppm = { " ppm", NULL };
-
-static const unit_name_string units_ms = { "ms", NULL };
-
 /* az min/max time units */
 static const unit_name_string units_100_us = { " times 100 microseconds", NULL };
 static const unit_name_string units_10_ms = { " times 10 milliseconds", NULL };
@@ -57783,7 +57779,7 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_he_ops_duration,
      {"OPS Duration", "wlan.ext_tag.ops.ops_duration",
-      FT_UINT8, BASE_DEC|BASE_UNIT_STRING, UNS(&units_ms), 0x0, NULL, HFILL }},
+      FT_UINT8, BASE_DEC|BASE_UNIT_STRING, UNS(&units_milliseconds), 0x0, NULL, HFILL }},
 
     {&hf_ieee80211_he_uora_field,
      {"UL OFDMA-based Random Access Parameter SET", "wlan.ext_tag.uora_parameter_set.field",

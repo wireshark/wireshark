@@ -195,8 +195,6 @@ static const range_string dccp_feature_numbers_rvals[] = {
     {0, 0,   NULL}
 };
 
-static const unit_name_string units_bytes_sec = { "bytes/sec", NULL };
-
 static int proto_dccp;
 static int dccp_tap;
 static int dccp_follow_tap;
@@ -1922,7 +1920,7 @@ proto_register_dccp(void)
         { &hf_dccp_data_dropped, { "Data Dropped", "dccp.data_dropped", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
         { &hf_dccp_ccid3_loss_event_rate, { "CCID3 Loss Event Rate", "dccp.ccid3_loss_event_rate", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
         { &hf_dccp_ccid3_loss_intervals, { "CCID3 Loss Intervals", "dccp.ccid3_loss_intervals", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-        { &hf_dccp_ccid3_receive_rate, { "CCID3 Receive Rate", "dccp.ccid3_receive_rate", FT_UINT32, BASE_DEC|BASE_UNIT_STRING, UNS(&units_bytes_sec), 0x0, NULL, HFILL }},
+        { &hf_dccp_ccid3_receive_rate, { "CCID3 Receive Rate", "dccp.ccid3_receive_rate", FT_UINT32, BASE_DEC|BASE_UNIT_STRING, UNS(&units_byte_bytespsecond), 0x0, NULL, HFILL }},
         { &hf_dccp_option_reserved, { "Reserved", "dccp.option_reserved", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
         { &hf_dccp_ccid_option_data, { "CCID option", "dccp.ccid_option_data", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
         { &hf_dccp_option_unknown, { "Unknown", "dccp.option_unknown", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},

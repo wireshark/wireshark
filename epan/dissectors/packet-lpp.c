@@ -6581,8 +6581,6 @@ lpp_mbs_beaconMeasElt_codePhase_fmt(char *s, uint32_t v)
   snprintf(s, ITEM_LABEL_LENGTH, "%gms (%u)", codePhase, v);
 }
 
-static const unit_name_string units_pa = { "Pa", NULL };
-
 
 static const value_string lpp_Initiator_vals[] = {
   {   0, "locationServer" },
@@ -52466,7 +52464,7 @@ void proto_register_lpp(void) {
         NULL, HFILL }},
     { &hf_lpp_uncompensatedBarometricPressure_r13,
       { "uncompensatedBarometricPressure-r13", "lpp.uncompensatedBarometricPressure_r13",
-        FT_UINT32, BASE_DEC|BASE_UNIT_STRING, UNS(&units_pa), 0,
+        FT_UINT32, BASE_DEC|BASE_UNIT_STRING, UNS(&units_pascal), 0,
         "INTEGER_30000_115000", HFILL }},
     { &hf_lpp_uncertainty_r14,
       { "uncertainty-r14", "lpp.uncertainty_r14_element",
@@ -52474,7 +52472,7 @@ void proto_register_lpp(void) {
         NULL, HFILL }},
     { &hf_lpp_range_r14,
       { "range-r14", "lpp.range_r14",
-        FT_UINT32, BASE_DEC|BASE_UNIT_STRING, UNS(&units_pa), 0,
+        FT_UINT32, BASE_DEC|BASE_UNIT_STRING, UNS(&units_pascal), 0,
         "INTEGER_0_1000", HFILL }},
     { &hf_lpp_confidence_r14,
       { "confidence-r14", "lpp.confidence_r14",

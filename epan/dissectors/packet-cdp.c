@@ -276,8 +276,6 @@ static const value_string type_nrgyz_vals[] = {
     { 0, NULL }
 };
 
-static const unit_name_string units_mw = { "mW", NULL };
-
 static int
 dissect_cdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
@@ -1446,7 +1444,7 @@ proto_register_cdp(void)
       { &hf_cdp_duplex, { "Duplex", "cdp.duplex", FT_BOOLEAN, BASE_NONE, TFS(&tfs_full_half), 0x0, NULL, HFILL }},
       { &hf_cdp_data, { "Data", "cdp.data", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_cdp_voice_vlan, { "Voice VLAN", "cdp.voice_vlan", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_cdp_power_consumption, { "Power Consumption", "cdp.power_consumption", FT_UINT16, BASE_DEC|BASE_UNIT_STRING, UNS(&units_mw), 0x0, NULL, HFILL }},
+      { &hf_cdp_power_consumption, { "Power Consumption", "cdp.power_consumption", FT_UINT16, BASE_DEC|BASE_UNIT_STRING, UNS(&units_milliwatt), 0x0, NULL, HFILL }},
       { &hf_cdp_mtu, { "MTU", "cdp.mtu", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_cdp_trust_bitmap, { "Trust Bitmap", "cdp.trust_bitmap", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
       { &hf_cdp_untrusted_port_cos, { "Untrusted port CoS", "cdp.untrusted_port_cos", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
@@ -1456,8 +1454,8 @@ proto_register_cdp(void)
       { &hf_cdp_location, { "Location", "cdp.location", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_cdp_request_id, { "Request-ID", "cdp.request_id", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_cdp_management_id, { "Management-ID", "cdp.management_id", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_cdp_power_requested, { "Power Requested", "cdp.power_requested", FT_UINT32, BASE_DEC|BASE_UNIT_STRING, UNS(&units_mw), 0x0, NULL, HFILL }},
-      { &hf_cdp_power_available, { "Power Available", "cdp.power_available", FT_UINT32, BASE_DEC|BASE_UNIT_STRING, UNS(&units_mw), 0x0, NULL, HFILL }},
+      { &hf_cdp_power_requested, { "Power Requested", "cdp.power_requested", FT_UINT32, BASE_DEC|BASE_UNIT_STRING, UNS(&units_milliwatt), 0x0, NULL, HFILL }},
+      { &hf_cdp_power_available, { "Power Available", "cdp.power_available", FT_UINT32, BASE_DEC|BASE_UNIT_STRING, UNS(&units_milliwatt), 0x0, NULL, HFILL }},
       { &hf_cdp_encrypted_data, { "Encrypted Data", "cdp.encrypted_data", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_cdp_seen_sequence, { "Seen Sequence?", "cdp.seen_sequence", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_cdp_sequence_number, { "Sequence Number", "cdp.sequence_number", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},

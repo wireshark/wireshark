@@ -113,7 +113,9 @@ WS_DLL_PUBLIC const unit_name_string units_m_s;
 WS_DLL_PUBLIC const unit_name_string units_cm_s;
 WS_DLL_PUBLIC const unit_name_string units_mm_s;
 WS_DLL_PUBLIC const unit_name_string units_milliamps;
-WS_DLL_PUBLIC const unit_name_string units_microwatts;
+WS_DLL_PUBLIC const unit_name_string units_watt;
+WS_DLL_PUBLIC const unit_name_string units_milliwatt;
+WS_DLL_PUBLIC const unit_name_string units_microwatt;
 WS_DLL_PUBLIC const unit_name_string units_volt;
 WS_DLL_PUBLIC const unit_name_string units_grams_per_second;
 WS_DLL_PUBLIC const unit_name_string units_meter_sec;
@@ -122,15 +124,16 @@ WS_DLL_PUBLIC const unit_name_string units_bit_sec;
 WS_DLL_PUBLIC const unit_name_string units_segment_remaining;
 WS_DLL_PUBLIC const unit_name_string units_frame_frames;
 WS_DLL_PUBLIC const unit_name_string units_revolutions_per_minute;
+WS_DLL_PUBLIC const unit_name_string units_pascal;
 WS_DLL_PUBLIC const unit_name_string units_kilopascal;
 WS_DLL_PUBLIC const unit_name_string units_newton_metre;
 WS_DLL_PUBLIC const unit_name_string units_liter_per_hour;
 WS_DLL_PUBLIC const unit_name_string units_amp;
 WS_DLL_PUBLIC const unit_name_string units_watthour;
-WS_DLL_PUBLIC const unit_name_string units_watt;
 WS_DLL_PUBLIC const unit_name_string units_bpm;
 WS_DLL_PUBLIC const unit_name_string units_calorie;
 WS_DLL_PUBLIC const unit_name_string units_cycle_cycles;
+WS_DLL_PUBLIC const unit_name_string units_ppm;
 
 #ifdef __cplusplus
 }

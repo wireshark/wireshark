@@ -101,7 +101,9 @@ const unit_name_string units_cm_s = { "cm/s", NULL };
 const unit_name_string units_mm_s = { "mm/s", NULL };
 const unit_name_string units_bit_sec = { "bits/s", NULL };
 const unit_name_string units_milliamps = { "mA", NULL };
-const unit_name_string units_microwatts = { UTF8_MICRO_SIGN "W", NULL };
+const unit_name_string units_watt = { "W", NULL };
+const unit_name_string units_milliwatt = { "mW", NULL };
+const unit_name_string units_microwatt = { UTF8_MICRO_SIGN "W", NULL };
 const unit_name_string units_volt = { "V", NULL };
 const unit_name_string units_grams_per_second = { "g/s", NULL };
 const unit_name_string units_meter_sec = { "m/s", NULL };
@@ -109,15 +111,16 @@ const unit_name_string units_meter_sec_squared = { "m/s" UTF8_SUPERSCRIPT_TWO , 
 const unit_name_string units_segment_remaining = { " segment remaining", " segments remaining" };
 const unit_name_string units_frame_frames = { " frame", " frames" };
 const unit_name_string units_revolutions_per_minute = { "rpm", NULL };
+const unit_name_string units_pascal = { "Pa", NULL };
 const unit_name_string units_kilopascal = { "kPa", NULL };
 const unit_name_string units_newton_metre = { "Nm", NULL };
 const unit_name_string units_liter_per_hour = { "L/h", NULL };
 const unit_name_string units_amp = { "A", NULL };
 const unit_name_string units_watthour = { "Wh", NULL };
-const unit_name_string units_watt = { "W", NULL };
 const unit_name_string units_bpm = { " BPM", NULL };
 const unit_name_string units_calorie = { " cal", NULL };
 const unit_name_string units_cycle_cycles = { " cycle", " cycles" };
+const unit_name_string units_ppm = { " ppm", NULL };
 
 
 /*

@@ -80,7 +80,6 @@ static const value_string response_code_vals[] = {
     { 0, NULL }
 };
 
-static const unit_name_string units_ppm = { " ppm", NULL };
 
 void proto_register_btmcap(void);
 void proto_reg_handoff_btmcap(void);

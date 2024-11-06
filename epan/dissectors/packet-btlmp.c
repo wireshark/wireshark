@@ -532,8 +532,6 @@ static const value_string samupdatemode_vals[] = {
     { 0, NULL }
 };
 
-static const unit_name_string units_ppm = { " ppm", NULL };
-
 static const unit_name_string units_slots = { " slot", " slots" };
 
 static const unit_name_string units_slotpairs = { " slot pair", " slot pairs" };

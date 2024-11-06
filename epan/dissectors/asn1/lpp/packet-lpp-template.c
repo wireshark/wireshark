@@ -2060,8 +2060,6 @@ lpp_mbs_beaconMeasElt_codePhase_fmt(char *s, uint32_t v)
   snprintf(s, ITEM_LABEL_LENGTH, "%gms (%u)", codePhase, v);
 }
 
-static const unit_name_string units_pa = { "Pa", NULL };
-
 #include "packet-lpp-fn.c"
 
 int dissect_lpp_AssistanceDataSIBelement_r15_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, lpp_pos_sib_type_t pos_sib_type) {

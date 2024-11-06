@@ -1688,10 +1688,10 @@ MBS-BeaconMeasElement-r13/codePhaseRMSError-r13 DISPLAY=BASE_CUSTOM STRINGS=CF_F
 MBS-BeaconMeasElement-r13/eag_1/rssi-r14 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_dbm)
 
 #.TYPE_ATTR
-Sensor-MeasurementInformation-r13/uncompensatedBarometricPressure-r13 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_pa)
+Sensor-MeasurementInformation-r13/uncompensatedBarometricPressure-r13 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_pascal)
 
 #.TYPE_ATTR
-Sensor-MeasurementInformation-r13/eag_1/uncertainty-r14/range-r14 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_pa)
+Sensor-MeasurementInformation-r13/eag_1/uncertainty-r14/range-r14 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_pascal)
 
 #.TYPE_ATTR
 Sensor-MeasurementInformation-r13/eag_1/uncertainty-r14/confidence-r14 DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lpp_confidence_fmt)
