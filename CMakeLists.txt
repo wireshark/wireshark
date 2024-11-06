@@ -2535,7 +2535,7 @@ endforeach()
 
 if (BUILD_stratoshark)
 	if (ENABLE_APPLICATION_BUNDLE)
-		foreach(_install_file ${LOG_INSTALL_FILES})
+		foreach(_install_file ${LOG_INSTALL_FILES} ${DOC_FILES})
 			get_filename_component(_install_file_src "${_install_file}" ABSOLUTE)
 			get_filename_component(_install_basename "${_install_file}" NAME)
 			set(_output_file "${LOG_DATAFILE_DIR}/${_install_basename}")
