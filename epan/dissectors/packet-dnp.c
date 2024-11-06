@@ -31,6 +31,7 @@
 #include <epan/unit_strings.h>
 #include <wsutil/crc16.h>
 #include <wsutil/str_util.h>
+#include <wsutil/utf8_entities.h>
 #include <epan/conversation.h>
 #include <epan/proto_data.h>
 #include "packet-tls.h"
@@ -3864,8 +3865,9 @@ dissect_dnp3_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
   func_code_str = val_to_str(dl_func, dl_prm ? dnp3_ctl_func_pri_vals : dnp3_ctl_func_sec_vals,
            "Unknown function (0x%02x)");
 
-  /* Make sure source and dest are always in the info column */
-  col_append_fstr(pinfo->cinfo, COL_INFO, "from %u to %u", dl_src, dl_dst);
+  /* Make sure source and dest are always in the info column. This might not
+   * be the first DL segment (PDU) in the frame so add a separator. */
+  col_append_sep_fstr(pinfo->cinfo, COL_INFO, "; ", "%u " UTF8_RIGHTWARDS_ARROW " %u", dl_src, dl_dst);
   col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "len=%u, %s", dl_len, func_code_str);
 
   /* create display subtree for the protocol */
@@ -4099,14 +4101,15 @@ dissect_dnp3_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
       {
         frag_al = fragment_get_reassembled_id(&al_reassembly_table, pinfo, ext_seq);
       }
-      next_tvb = process_reassembled_data(al_tvb, 0, pinfo,
-          "Reassembled DNP 3.0 Application Layer message", frag_al, &dnp3_frag_items,
-          NULL, dnp3_tree);
 
       if (frag_al)
       {
-        if (pinfo->num == frag_al->reassembled_in && pinfo->curr_layer_num == frag_al->reas_in_layer_num)
+        /* This is the fragment in which reassembly occurred iff FIN is set. */
+        if (tr_fin)
         {
+          next_tvb = process_reassembled_data(al_tvb, 0, pinfo,
+            "Reassembled DNP 3.0 Application Layer message", frag_al, &dnp3_frag_items,
+            NULL, dnp3_tree);
           /* As a complete AL message will have cleared the info column,
              make sure source and dest are always in the info column */
           //col_append_fstr(pinfo->cinfo, COL_INFO, "from %u to %u", dl_src, dl_dst);
@@ -4115,6 +4118,8 @@ dissect_dnp3_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
         }
         else
         {
+          proto_tree_add_uint(dnp3_tree, hf_dnp3_fragment_reassembled_in, tvb, 0, 0,
+            frag_al->reassembled_in);
           /* Lock any column info set by the DL and TL */
           col_set_fence(pinfo->cinfo, COL_INFO);
           col_append_fstr(pinfo->cinfo, COL_INFO,
