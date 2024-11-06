@@ -1269,6 +1269,64 @@ tvb_get_uint64(tvbuff_t *tvb, const int offset, const unsigned encoding) {
 	}
 }
 
+uint64_t
+tvb_get_uint64_with_length(tvbuff_t *tvb, const int offset, unsigned length, const unsigned encoding)
+{
+	uint64_t value;
+
+	switch (length) {
+
+	case 1:
+		value = tvb_get_uint8(tvb, offset);
+		break;
+
+	case 2:
+		value = (encoding & ENC_LITTLE_ENDIAN) ? tvb_get_letohs(tvb, offset)
+						       : tvb_get_ntohs(tvb, offset);
+		break;
+
+	case 3:
+		value = (encoding & ENC_LITTLE_ENDIAN) ? tvb_get_letoh24(tvb, offset)
+						       : tvb_get_ntoh24(tvb, offset);
+		break;
+
+	case 4:
+		value = (encoding & ENC_LITTLE_ENDIAN) ? tvb_get_letohl(tvb, offset)
+						       : tvb_get_ntohl(tvb, offset);
+		break;
+
+	case 5:
+		value = (encoding & ENC_LITTLE_ENDIAN) ? tvb_get_letoh40(tvb, offset)
+						       : tvb_get_ntoh40(tvb, offset);
+		break;
+
+	case 6:
+		value = (encoding & ENC_LITTLE_ENDIAN) ? tvb_get_letoh48(tvb, offset)
+						       : tvb_get_ntoh48(tvb, offset);
+		break;
+
+	case 7:
+		value = (encoding & ENC_LITTLE_ENDIAN) ? tvb_get_letoh56(tvb, offset)
+						       : tvb_get_ntoh56(tvb, offset);
+		break;
+
+	case 8:
+		value = (encoding & ENC_LITTLE_ENDIAN) ? tvb_get_letoh64(tvb, offset)
+						       : tvb_get_ntoh64(tvb, offset);
+		break;
+
+	default:
+		if (length < 1) {
+			value = 0;
+		} else {
+			value = (encoding & ENC_LITTLE_ENDIAN) ? tvb_get_letoh64(tvb, offset)
+							       : tvb_get_ntoh64(tvb, offset);
+		}
+		break;
+	}
+	return value;
+}
+
 int64_t
 tvb_get_int64(tvbuff_t *tvb, const int offset, const unsigned encoding) {
 	if (encoding & ENC_LITTLE_ENDIAN) {
