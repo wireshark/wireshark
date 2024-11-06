@@ -150,6 +150,7 @@ ConversationHashTablesDialog::ConversationHashTablesDialog(QWidget *parent) :
         html += "</table>\n";
     }
     wmem_destroy_list(table_names);
+    ui->conversationTextEdit->setReadOnly(true);
     ui->conversationTextEdit->setHtml(html);
 }
 
