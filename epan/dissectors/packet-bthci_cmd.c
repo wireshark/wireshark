@@ -6751,7 +6751,7 @@ dissect_bthci_cmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     if (ogf == HCI_OGF_VENDOR_SPECIFIC) {
         col_append_fstr(pinfo->cinfo, COL_INFO, "Vendor Command 0x%04X (opcode 0x%04X)", ocf, opcode);
 
-        if (!dissector_try_payload_new(vendor_dissector_table, tvb, pinfo, tree, true, bluetooth_data)) {
+        if (!dissector_try_payload_with_data(vendor_dissector_table, tvb, pinfo, tree, true, bluetooth_data)) {
             if (bluetooth_data) {
                 hci_vendor_data_t  *hci_vendor_data;
 

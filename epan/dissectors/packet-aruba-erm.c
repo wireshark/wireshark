@@ -204,7 +204,7 @@ dissect_aruba_erm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 {
     int offset = 0;
 
-    if (!dissector_try_payload(aruba_erm_subdissector_table, tvb, pinfo, tree)) {
+    if (!dissector_try_payload_with_data(aruba_erm_subdissector_table, tvb, pinfo, tree, true, NULL)) {
 
         dissect_aruba_erm_common(tvb, pinfo, tree, &offset);
         /* Add Expert info how decode...*/

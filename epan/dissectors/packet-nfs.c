@@ -2406,7 +2406,7 @@ dissect_fhandle_data(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *
 		tvbuff_t *fh_tvb;
 
 		fh_tvb = tvb_new_subset_length_caplen(tvb, offset, fhlen, fhlen);
-		if (!dissector_try_payload(nfs_fhandle_table, fh_tvb, pinfo, tree))
+		if (!dissector_try_payload_with_data(nfs_fhandle_table, fh_tvb, pinfo, tree, true, NULL))
 			dissect_fhandle_data_unknown(fh_tvb, pinfo, tree, NULL);
 	}
 }

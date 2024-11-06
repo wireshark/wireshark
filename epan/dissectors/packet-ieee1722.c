@@ -2640,7 +2640,7 @@ static int dissect_1722_acf_can_common(tvbuff_t *tvb, packet_info *pinfo, proto_
 
     /*
     * CAN sub-dissectors expect several flags to be merged into ID that is passed
-    * to dissector_try_payload_new. Add them
+    * to dissector_try_payload_with_data. Add them
     */
     can_info.id = parsed.id;
     if (parsed.is_xtd)
@@ -2874,7 +2874,7 @@ static int dissect_1722_acf_lin(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
         col_append_str(pinfo->cinfo, COL_INFO, tvb_bytes_to_str_punct(pinfo->pool, tvb, offset, payload_length, ' '));
 
         /* at the moment, there's no global LIN sub-protocols support. Use our own. */
-        if (dissector_try_payload_new(avb1722_acf_lin_dissector_table, next_tvb, pinfo, tree, true, &lin_id) <= 0)
+        if (dissector_try_payload_with_data(avb1722_acf_lin_dissector_table, next_tvb, pinfo, tree, true, &lin_id) <= 0)
         {
             call_data_dissector(next_tvb, pinfo, tree);
         }

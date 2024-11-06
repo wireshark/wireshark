@@ -492,14 +492,14 @@ socketcan_call_subdissectors(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
     if (!dissector_try_uint_with_data(effective_can_id_dissector_table, effective_can_id, tvb, pinfo, tree, true, can_info)) {
         if (!use_heuristics_first) {
-            if (!dissector_try_payload_new(subdissector_table, tvb, pinfo, tree, true, can_info)) {
+            if (!dissector_try_payload_with_data(subdissector_table, tvb, pinfo, tree, true, can_info)) {
                 if (!dissector_try_heuristic(heur_subdissector_list, tvb, pinfo, tree, &heur_dtbl_entry, can_info)) {
                     return false;
                 }
             }
         } else {
             if (!dissector_try_heuristic(heur_subdissector_list, tvb, pinfo, tree, &heur_dtbl_entry, can_info)) {
-                if (!dissector_try_payload_new(subdissector_table, tvb, pinfo, tree, false, can_info)) {
+                if (!dissector_try_payload_with_data(subdissector_table, tvb, pinfo, tree, false, can_info)) {
                     return false;
                 }
             }

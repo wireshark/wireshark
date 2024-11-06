@@ -289,14 +289,14 @@ flexray_call_subdissectors(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
     }
 
     if (!use_heuristics_first) {
-        if (!dissector_try_payload_new(subdissector_table, tvb, pinfo, tree, false, flexray_info)) {
+        if (!dissector_try_payload_with_data(subdissector_table, tvb, pinfo, tree, false, flexray_info)) {
             if (!dissector_try_heuristic(heur_subdissector_list, tvb, pinfo, tree, &heur_dtbl_entry, flexray_info)) {
                 return false;
             }
         }
     } else {
         if (!dissector_try_heuristic(heur_subdissector_list, tvb, pinfo, tree, &heur_dtbl_entry, flexray_info)) {
-            if (!dissector_try_payload_new(subdissector_table, tvb, pinfo, tree, false, flexray_info)) {
+            if (!dissector_try_payload_with_data(subdissector_table, tvb, pinfo, tree, false, flexray_info)) {
                 return false;
             }
         }

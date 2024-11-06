@@ -193,7 +193,7 @@ dissect_rtacser_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (tvb_reported_length_remaining(tvb, offset) > 0) {
         payload_tvb = tvb_new_subset_remaining(tvb, RTACSER_HEADER_LEN);
 
-        if (!dissector_try_payload(subdissector_table, payload_tvb, pinfo, tree)){
+        if (!dissector_try_payload_with_data(subdissector_table, payload_tvb, pinfo, tree, true, NULL)){
             call_data_dissector(payload_tvb, pinfo, tree);
         }
     }

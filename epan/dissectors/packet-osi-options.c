@@ -363,8 +363,8 @@ dissect_osi_options(unsigned char opt_len, tvbuff_t *tvb, int offset, proto_tree
 
           case OSI_OPT_SEC_GLOBAL_UNIQUE:
               next_tvb = tvb_new_subset_length(tvb, offset + 1, parm_len - 1);
-              dissector_try_payload(subdissector_decode_as_opt_security_table,
-                                     next_tvb, pinfo, osi_option_tree);
+              dissector_try_payload_with_data(subdissector_decode_as_opt_security_table,
+                                     next_tvb, pinfo, osi_option_tree, true, NULL);
               break;
           }
           break;

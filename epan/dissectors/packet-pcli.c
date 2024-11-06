@@ -125,7 +125,7 @@ dissect_pcli_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int of
 
     next_tvb = tvb_new_subset_remaining(tvb, offset);
 
-    if (!dissector_try_payload(pcli_subdissector_table, next_tvb, pinfo, tree)) {
+    if (!dissector_try_payload_with_data(pcli_subdissector_table, next_tvb, pinfo, tree, true, NULL)) {
         call_data_dissector(next_tvb, pinfo, tree);
     }
 }

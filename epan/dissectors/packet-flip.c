@@ -357,7 +357,7 @@ dissect_flip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
 
         payload_tvb = tvb_new_subset_length(flip_tvb, offset, payload_len);
 
-        data_len = dissector_try_payload(subdissector_table, payload_tvb, pinfo, tree);
+        data_len = dissector_try_payload_with_data(subdissector_table, payload_tvb, pinfo, tree, true, NULL);
         if (data_len <= 0)
         {
             data_len = call_data_dissector(payload_tvb, pinfo, tree);

@@ -162,7 +162,7 @@ dissect_x75(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 
         col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", tvb_format_text(pinfo->pool, next_tvb, 0, len));
 
-	if (!dissector_try_payload_new(x75_subdissector_table, next_tvb, pinfo, tree, true, NULL)) {
+	if (!dissector_try_payload_with_data(x75_subdissector_table, next_tvb, pinfo, tree, true, NULL)) {
             call_dissector(data_handle, next_tvb, pinfo, tree);
 	}
     }

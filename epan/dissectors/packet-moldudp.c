@@ -108,7 +108,7 @@ dissect_moldudp_msgblk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     /* Functionality for choosing subdissector is controlled through Decode As as MoldUDP doesn't
        have a unique identifier to determine subdissector */
     next_tvb = tvb_new_subset_length(tvb, offset, real_msglen);
-    if (!dissector_try_payload_new(moldudp_payload_table, next_tvb, pinfo, tree, false, NULL))
+    if (!dissector_try_payload_with_data(moldudp_payload_table, next_tvb, pinfo, tree, false, NULL))
     {
         proto_tree_add_item(blk_tree, hf_moldudp_msgdata,
                 tvb, offset, real_msglen, ENC_NA);

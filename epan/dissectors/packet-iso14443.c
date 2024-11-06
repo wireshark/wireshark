@@ -1091,7 +1091,7 @@ dissect_iso14443_cmd_type_block(tvbuff_t *tvb, packet_info *pinfo,
                     &i_block_frag_items, NULL, tree);
 
             if (payload_tvb) {
-                if (!dissector_try_payload_new(iso14443_subdissector_table,
+                if (!dissector_try_payload_with_data(iso14443_subdissector_table,
                             payload_tvb, pinfo, tree, true, NULL)) {
                     call_data_dissector(payload_tvb, pinfo, tree);
                 }

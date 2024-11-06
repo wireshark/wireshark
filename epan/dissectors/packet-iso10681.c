@@ -402,7 +402,7 @@ dissect_iso10681(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t f
         iso10681data.target_address = target_addr;
         iso10681data.source_address = source_addr;
 
-        if (!complete || !dissector_try_payload_new(subdissector_table, next_tvb, pinfo, tree, true, &iso10681data)) {
+        if (!complete || !dissector_try_payload_with_data(subdissector_table, next_tvb, pinfo, tree, true, &iso10681data)) {
             call_data_dissector(next_tvb, pinfo, tree);
         }
     }

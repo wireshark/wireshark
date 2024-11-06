@@ -499,7 +499,7 @@ dissect_gre(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
         next_tvb = tvb_new_subset_remaining(tvb, offset);
         pinfo->flags.in_gre_pkt = true;
         if (!dissector_try_uint_with_data(gre_dissector_table, type, next_tvb, pinfo, tree, true, &gre_hdr_info))
-            if (!dissector_try_payload_new(gre_subdissector_table, next_tvb, pinfo, tree, true, &gre_hdr_info)) {
+            if (!dissector_try_payload_with_data(gre_subdissector_table, next_tvb, pinfo, tree, true, &gre_hdr_info)) {
               call_data_dissector(next_tvb, pinfo, gre_tree);
             }
     }

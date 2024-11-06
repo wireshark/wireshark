@@ -2749,7 +2749,7 @@ dissect_bthci_evt_command_status(tvbuff_t *tvb, int offset, packet_info *pinfo,
     if (ogf == HCI_OGF_VENDOR_SPECIFIC) {
         col_append_fstr(pinfo->cinfo, COL_INFO, " (Vendor Command 0x%04X [(opcode 0x%04X])", opcode & 0x03ff, opcode);
 
-        if (!dissector_try_payload_new(hci_cmd_vendor_dissector_table, tvb, pinfo, main_tree, true, bluetooth_data)) {
+        if (!dissector_try_payload_with_data(hci_cmd_vendor_dissector_table, tvb, pinfo, main_tree, true, bluetooth_data)) {
             if (bluetooth_data) {
                 hci_vendor_data_t  *hci_vendor_data;
                 wmem_tree_key_t     key[3];
@@ -4628,7 +4628,7 @@ dissect_bthci_evt_command_complete(tvbuff_t *tvb, int offset,
     if (ogf == HCI_OGF_VENDOR_SPECIFIC) {
         col_append_fstr(pinfo->cinfo, COL_INFO, " (Vendor Command 0x%04X [opcode 0x%04X])", opcode & 0x03ff, opcode);
 
-        if (!dissector_try_payload_new(hci_cmd_vendor_dissector_table, tvb, pinfo, main_tree, true, bluetooth_data)) {
+        if (!dissector_try_payload_with_data(hci_cmd_vendor_dissector_table, tvb, pinfo, main_tree, true, bluetooth_data)) {
             if (bluetooth_data) {
                 hci_vendor_data_t  *hci_vendor_data;
 
@@ -7684,7 +7684,7 @@ dissect_bthci_evt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
             tvbuff_t *vendor_payload_tvb;
             vendor_payload_tvb = tvb_new_subset_remaining(tvb, 2); // Bytes after length byte.
 
-            if (!dissector_try_payload_new(hci_evt_vendor_dissector_table, vendor_payload_tvb, pinfo, tree, true, bluetooth_data)) {
+            if (!dissector_try_payload_with_data(hci_evt_vendor_dissector_table, vendor_payload_tvb, pinfo, tree, true, bluetooth_data)) {
                 if (bluetooth_data) {
                     hci_vendor_data_t  *hci_vendor_data;
                     wmem_tree_key_t     key[3];

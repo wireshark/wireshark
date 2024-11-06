@@ -980,7 +980,7 @@ dissect_iso15765(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t b
     if (next_tvb) {
         iso15765data.len = frame_length;
 
-        if (!complete || !dissector_try_payload_new(subdissector_table, next_tvb, pinfo, tree, true, &iso15765data)) {
+        if (!complete || !dissector_try_payload_with_data(subdissector_table, next_tvb, pinfo, tree, true, &iso15765data)) {
             call_data_dissector(next_tvb, pinfo, tree);
         }
     }

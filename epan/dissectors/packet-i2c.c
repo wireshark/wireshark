@@ -205,7 +205,7 @@ dissect_i2c_linux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 				addr, "0x%02x%s", addr, addr ? "" : " (General Call)");
 		proto_tree_add_uint(i2c_tree, hf_i2c_flags, tvb, 0, 0, flags);
 
-		if (!dissector_try_payload(subdissector_table, tvb, pinfo, tree))
+		if (!dissector_try_payload_with_data(subdissector_table, tvb, pinfo, tree, true, NULL))
 		{
 			call_data_dissector(tvb, pinfo, tree);
 		}

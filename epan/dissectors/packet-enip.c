@@ -2844,7 +2844,7 @@ static void dissect_cip_class01_io(packet_info* pinfo, tvbuff_t* tvb, int offset
    else
    {
       // This handles the Decode As options
-      if (!dissector_try_payload(subdissector_decode_as_io_table, next_tvb, pinfo, dissector_tree))
+      if (!dissector_try_payload_with_data(subdissector_decode_as_io_table, next_tvb, pinfo, dissector_tree, true, NULL))
       {
          call_dissector_with_data(cip_io_generic_handle, next_tvb, pinfo, dissector_tree, NULL);
       }

@@ -105,7 +105,7 @@ dissect_moldudp64_msgblk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     offset += MOLDUDP64_MSGLEN_LEN;
 
     next_tvb = tvb_new_subset_length(tvb, offset, real_msglen);
-    if (!dissector_try_payload_new(moldudp64_payload_table, next_tvb, pinfo, tree, false, NULL))
+    if (!dissector_try_payload_with_data(moldudp64_payload_table, next_tvb, pinfo, tree, false, NULL))
     {
         proto_tree_add_item(blk_tree, hf_moldudp64_msgdata, tvb, offset, real_msglen, ENC_NA);
     }

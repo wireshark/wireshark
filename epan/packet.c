@@ -2178,16 +2178,7 @@ dissector_handle_t dissector_get_guid_handle(
 /* Use the currently assigned payload dissector for the dissector table and,
    if any, call the dissector with the arguments supplied, and return the
    number of bytes consumed, otherwise return 0. */
-int dissector_try_payload(dissector_table_t sub_dissectors,
-    tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
-{
-	return dissector_try_uint_with_data(sub_dissectors, 0, tvb, pinfo, tree, true, NULL);
-}
-
-/* Use the currently assigned payload dissector for the dissector table and,
-   if any, call the dissector with the arguments supplied, and return the
-   number of bytes consumed, otherwise return 0. */
-int dissector_try_payload_new(dissector_table_t sub_dissectors,
+int dissector_try_payload_with_data(dissector_table_t sub_dissectors,
     tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, const bool add_proto_name, void *data)
 {
 	return dissector_try_uint_with_data(sub_dissectors, 0, tvb, pinfo, tree, add_proto_name, data);
