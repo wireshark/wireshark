@@ -30,11 +30,7 @@
 #include <cli_main.h>
 
 static char* sshdump_extcap_interface;
-#ifdef _WIN32
-#define DEFAULT_SSHDUMP_EXTCAP_INTERFACE "sshdump.exe"
-#else
 #define DEFAULT_SSHDUMP_EXTCAP_INTERFACE "sshdump"
-#endif
 
 #define SSHDUMP_VERSION_MAJOR "1"
 #define SSHDUMP_VERSION_MINOR "2"
@@ -430,6 +426,9 @@ int main(int argc, char *argv[])
 	extcap_log_init("sshdump");
 
 	sshdump_extcap_interface = g_path_get_basename(argv[0]);
+	if (g_str_has_suffix(sshdump_extcap_interface, ".exe")) {
+		sshdump_extcap_interface[strlen(sshdump_extcap_interface) - 4] = '\0';
+	}
 
 	/*
 	 * Get credential information for later use.

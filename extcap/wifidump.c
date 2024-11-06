@@ -32,11 +32,7 @@
 #include <cli_main.h>
 
 static char* wifidump_extcap_interface;
-#ifdef _WIN32
-#define DEFAULT_WIFIDUMP_EXTCAP_INTERFACE "wifidump.exe"
-#else
 #define DEFAULT_WIFIDUMP_EXTCAP_INTERFACE "wifidump"
-#endif
 
 #define WIFIDUMP_VERSION_MAJOR "1"
 #define WIFIDUMP_VERSION_MINOR "0"
@@ -536,6 +532,9 @@ int main(int argc, char *argv[])
 	extcap_log_init("wifidump");
 
 	wifidump_extcap_interface = g_path_get_basename(argv[0]);
+	if (g_str_has_suffix(wifidump_extcap_interface, ".exe")) {
+		wifidump_extcap_interface[strlen(wifidump_extcap_interface) - 4] = '\0';
+	}
 
 	/*
 	 * Get credential information for later use.
