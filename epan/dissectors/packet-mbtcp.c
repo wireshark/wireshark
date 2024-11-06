@@ -931,7 +931,8 @@ dissect_modbus_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint8_t
                         ett_bit, NULL, "Bit %u : %u", reg_num, data_bool);
                     bitnum_ti = proto_tree_add_uint(bit_tree, hf_modbus_bitnum, next_tvb, 0, 0, reg_num);
                     proto_item_set_generated(bitnum_ti);
-                    proto_tree_add_boolean_bits_format_value(bit_tree, hf_modbus_bitval, next_tvb, 7 - ii, 1, data8, ENC_NA, "%s", tfs_get_true_false(data_bool));
+                    proto_tree_add_boolean_bits_format_value(bit_tree, hf_modbus_bitval, next_tvb, (data_offset << 3) + 7 - ii,
+                                                             1, data8, ENC_NA, "%s", tfs_get_true_false(data_bool));
                     reg_num++;
 
                     /* If all the requested bits have been read, stop now */
