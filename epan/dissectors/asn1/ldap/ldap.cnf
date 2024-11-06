@@ -465,7 +465,7 @@ ldap_conv_info_t *ldap_info;
     proto_tree_add_item (tree, *hf_id, next_tvb, 0, tvb_reported_length_remaining(next_tvb, 0), ENC_UTF_8|ENC_NA);
 
   /* if we have an attribute type that isn't binary see if there is a better dissector */
-  else if(!attr_type || !next_tvb || !dissector_try_string_new(ldap_name_dissector_table, attr_type, next_tvb, actx->pinfo, tree, false, NULL)) {
+  else if(!attr_type || !next_tvb || !dissector_try_string_with_data(ldap_name_dissector_table, attr_type, next_tvb, actx->pinfo, tree, false, NULL)) {
     offset = old_offset;
 
     /* do the default thing */

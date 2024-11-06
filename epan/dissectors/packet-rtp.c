@@ -1565,7 +1565,7 @@ process_rtp_payload(tvbuff_t *newtvb, packet_info *pinfo, proto_tree *tree,
             const char *payload_type_str = rtp_dyn_payload_get_name(p_packet_data->rtp_dyn_payload, payload_type);
             if (payload_type_str) {
                 int len;
-                len = dissector_try_string_new(rtp_dyn_pt_dissector_table,
+                len = dissector_try_string_with_data(rtp_dyn_pt_dissector_table,
                     payload_type_str, newtvb, pinfo, tree, true, rtp_info);
                 /* If payload type string set from conversation and
                 * no matching dissector found it's probably because no subdissector

@@ -3571,7 +3571,7 @@ dissect_h245_CapabilityIdentifier(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t 
   if (gefx) {
     ti = proto_tree_add_string(tree, hf_h245_debug_dissector_try_string, tvb, offset>>3, 0, gefx->key);
 	proto_item_set_hidden(ti);
-    dissector_try_string_new(gef_name_dissector_table, gefx->key, tvb_new_subset_length_caplen(tvb, offset>>3, 0, 0), actx->pinfo, tree, true, actx);
+    dissector_try_string_with_data(gef_name_dissector_table, gefx->key, tvb_new_subset_length_caplen(tvb, offset>>3, 0, 0), actx->pinfo, tree, true, actx);
   }
   actx->private_data = gefx;  /* subdissector could overwrite it */
   return offset;
@@ -3633,7 +3633,7 @@ dissect_h245_ParameterIdentifier(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
   if (gefx) {
     ti = proto_tree_add_string(tree, hf_h245_debug_dissector_try_string, tvb, offset>>3, 0, gefx->key);
 	proto_item_set_hidden(ti);
-    dissector_try_string_new(gef_name_dissector_table, gefx->key, tvb_new_subset_length_caplen(tvb, offset>>3, 0, 0), actx->pinfo, tree, false, actx);
+    dissector_try_string_with_data(gef_name_dissector_table, gefx->key, tvb_new_subset_length_caplen(tvb, offset>>3, 0, 0), actx->pinfo, tree, false, actx);
   }
   actx->private_data = gefx;  /* subdissector could overwrite it */
   return offset;
@@ -3660,7 +3660,7 @@ dissect_h245_T_booleanArray(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
     ti = proto_tree_add_string(tree, hf_h245_debug_dissector_try_string, tvb, offset>>3, 0, gefx->key);
 	proto_item_set_hidden(ti);
     add_new_data_source(actx->pinfo, value_tvb, "booleanArray");
-    dissector_try_string_new(gef_content_dissector_table, gefx->key, value_tvb, actx->pinfo, tree, false, actx);
+    dissector_try_string_with_data(gef_content_dissector_table, gefx->key, value_tvb, actx->pinfo, tree, false, actx);
   }
 
   return offset;
@@ -3687,7 +3687,7 @@ dissect_h245_T_unsignedMin(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
     ti = proto_tree_add_string(tree, hf_h245_debug_dissector_try_string, tvb, offset>>3, 0, gefx->key);
 	proto_item_set_hidden(ti);
     add_new_data_source(actx->pinfo, value_tvb, "unsignedMin");
-    dissector_try_string_new(gef_content_dissector_table, gefx->key, value_tvb, actx->pinfo, tree, true, actx);
+    dissector_try_string_with_data(gef_content_dissector_table, gefx->key, value_tvb, actx->pinfo, tree, true, actx);
   }
 
   return offset;
@@ -3714,7 +3714,7 @@ dissect_h245_T_unsignedMax(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
     ti = proto_tree_add_string(tree, hf_h245_debug_dissector_try_string, tvb, offset>>3, 0, gefx->key);
 	proto_item_set_hidden(ti);
     add_new_data_source(actx->pinfo, value_tvb, "unsignedMax");
-    dissector_try_string_new(gef_content_dissector_table, gefx->key, value_tvb, actx->pinfo, tree, true, actx);
+    dissector_try_string_with_data(gef_content_dissector_table, gefx->key, value_tvb, actx->pinfo, tree, true, actx);
   }
 
   return offset;
@@ -3741,7 +3741,7 @@ dissect_h245_T_unsigned32Min(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
     ti = proto_tree_add_string(tree, hf_h245_debug_dissector_try_string, tvb, offset>>3, 0, gefx->key);
 	proto_item_set_hidden(ti);
     add_new_data_source(actx->pinfo, value_tvb, "unsigned32Min");
-    dissector_try_string_new(gef_content_dissector_table, gefx->key, value_tvb, actx->pinfo, tree, true, actx);
+    dissector_try_string_with_data(gef_content_dissector_table, gefx->key, value_tvb, actx->pinfo, tree, true, actx);
   }
 
   return offset;
@@ -3768,7 +3768,7 @@ dissect_h245_T_unsigned32Max(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
     ti = proto_tree_add_string(tree, hf_h245_debug_dissector_try_string, tvb, offset>>3, 0, gefx->key);
 	proto_item_set_hidden(ti);
     add_new_data_source(actx->pinfo, value_tvb, "unsigned32Max");
-    dissector_try_string_new(gef_content_dissector_table, gefx->key, value_tvb, actx->pinfo, tree, true, actx);
+    dissector_try_string_with_data(gef_content_dissector_table, gefx->key, value_tvb, actx->pinfo, tree, true, actx);
   }
 
   return offset;
@@ -3789,7 +3789,7 @@ dissect_h245_T_octetString(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
   if (gefx) {
     ti = proto_tree_add_string(tree, hf_h245_debug_dissector_try_string, tvb, offset>>3, 0, gefx->key);
 	proto_item_set_hidden(ti);
-    dissector_try_string_new(gef_content_dissector_table, gefx->key, value_tvb, actx->pinfo, tree, true, actx);
+    dissector_try_string_with_data(gef_content_dissector_table, gefx->key, value_tvb, actx->pinfo, tree, true, actx);
   }
 
   return offset;
@@ -3948,7 +3948,7 @@ dissect_h245_T_nonCollapsingRaw(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
   if (gefx) {
     ti = proto_tree_add_string(tree, hf_h245_debug_dissector_try_string, tvb, offset>>3, 0, gefx->key);
 	proto_item_set_hidden(ti);
-    dissector_try_string_new(gef_content_dissector_table, gefx->key, value_tvb, actx->pinfo, tree, true, actx);
+    dissector_try_string_with_data(gef_content_dissector_table, gefx->key, value_tvb, actx->pinfo, tree, true, actx);
   }
   actx->private_data = parent_gefx;
 

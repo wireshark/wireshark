@@ -4555,7 +4555,7 @@ dissect_17221_aecp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *aecp_tree)
       next_tvb = tvb_new_subset_remaining(tvb, AECP_VUC_OFFSET_PROTOCOL_ID);
       vendor_unique_protocol_id = tvb_get_uint48(tvb, AECP_VUC_OFFSET_PROTOCOL_ID, ENC_BIG_ENDIAN);
       vendor_unique_protocol_id_string = wmem_strdup_printf(pinfo->pool, "%012" PRIx64, vendor_unique_protocol_id);
-      dissector_try_string_new(vendor_unique_protocol_dissector_table, vendor_unique_protocol_id_string, next_tvb, pinfo, aecp_tree, true, NULL);
+      dissector_try_string_with_data(vendor_unique_protocol_dissector_table, vendor_unique_protocol_id_string, next_tvb, pinfo, aecp_tree, true, NULL);
     }
 }
 

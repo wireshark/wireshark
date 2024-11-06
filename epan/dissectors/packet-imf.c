@@ -898,7 +898,7 @@ dissect_imf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     content_info.type = MEDIA_CONTAINER_OTHER;
     content_info.media_str = parameters;
     content_info.data = NULL;
-    dissector_try_string_new(media_type_dissector_table, content_type_str, next_tvb, pinfo, tree, true, (void*)&content_info);
+    dissector_try_string_with_data(media_type_dissector_table, content_type_str, next_tvb, pinfo, tree, true, (void*)&content_info);
   } else {
 
     /* just show the lines or highlight the rest of the buffer as message text */

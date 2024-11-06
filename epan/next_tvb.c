@@ -101,7 +101,7 @@ void next_tvb_call(next_tvb_list_t *list, packet_info *pinfo, proto_tree *tree, 
           dissector_try_uint(item->table, item->uint_val, item->tvb, pinfo, (item->tree) ? item->tree : tree);
           break;
         case NTVB_STRING:
-          dissector_try_string_new(item->table, item->string, item->tvb, pinfo, (item->tree) ? item->tree : tree, true, NULL);
+          dissector_try_string_with_data(item->table, item->string, item->tvb, pinfo, (item->tree) ? item->tree : tree, true, NULL);
           break;
       }
     }

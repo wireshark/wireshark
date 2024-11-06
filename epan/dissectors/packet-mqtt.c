@@ -1228,7 +1228,7 @@ static int dissect_mqtt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
       if (mqtt_properties.content_type)
       {
         tvbuff_t *msg_tvb = tvb_new_subset_length(tvb, offset, mqtt_payload_len);
-        int bytes_read = dissector_try_string_new(media_type_dissector_table, mqtt_properties.content_type,
+        int bytes_read = dissector_try_string_with_data(media_type_dissector_table, mqtt_properties.content_type,
                                               msg_tvb, pinfo, tree, true, NULL);
 
         msg_handled = msg_handled | (bytes_read != 0);

@@ -658,7 +658,7 @@ WSLUA_METHOD DissectorTable_try (lua_State *L) {
         if (type == FT_STRING) {
             const char* pattern = luaL_checkstring(L,WSLUA_ARG_DissectorTable_try_PATTERN);
 
-            len = dissector_try_string_new(dt->table,pattern,tvb->ws_tvb,pinfo->ws_pinfo,ti->tree, true, NULL);
+            len = dissector_try_string_with_data(dt->table,pattern,tvb->ws_tvb,pinfo->ws_pinfo,ti->tree, true, NULL);
             if (len > 0) {
                 handled = true;
             }
@@ -668,7 +668,7 @@ WSLUA_METHOD DissectorTable_try (lua_State *L) {
             const e_guid_t* guid = fvalue_get_guid(fval);
             guid_key gk = {*guid, 0};
 
-            len = dissector_try_guid(dt->table, &gk,tvb->ws_tvb,pinfo->ws_pinfo,ti->tree);
+            len = dissector_try_guid_with_data(dt->table, &gk,tvb->ws_tvb,pinfo->ws_pinfo,ti->tree, true, NULL);
             if (len > 0) {
                 handled = true;
             }

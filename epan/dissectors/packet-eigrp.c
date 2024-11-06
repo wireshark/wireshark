@@ -1366,11 +1366,11 @@ dissect_eigrp_services (proto_item *ti, proto_tree *tree, tvbuff_t *tvb,
 
             if (tok && tok[0] == '<') {
                 /* Looks like XML */
-                dissector_try_string_new(media_type_table, "application/xml",
+                dissector_try_string_with_data(media_type_table, "application/xml",
                                      xml_tvb, pinfo, sub_tree, true, NULL);
             } else {
                 /* Try plain text */
-                dissector_try_string_new(media_type_table, "text/plain",
+                dissector_try_string_with_data(media_type_table, "text/plain",
                                      xml_tvb, pinfo, sub_tree, true, NULL);
             }
         }

@@ -3155,7 +3155,7 @@ dissect_thrift_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
     }
 
     /***********************************************************/
-    /* Call method dissector here using dissector_try_string_new() */
+    /* Call method dissector here using dissector_try_string_with_data() */
     /* except in case of EXCEPTION for detailed dissection.    */
     /***********************************************************/
     thrift_opt->previous_field_id = 0;
@@ -3188,7 +3188,7 @@ dissect_thrift_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
     }
     if (thrift_opt->mtype != ME_THRIFT_T_EXCEPTION) {
         if (pinfo->can_desegment > 0) pinfo->can_desegment++;
-        len = dissector_try_string_new(thrift_method_name_dissector_table, method_str, msg_tvb, pinfo, tree, true, thrift_opt);
+        len = dissector_try_string_with_data(thrift_method_name_dissector_table, method_str, msg_tvb, pinfo, tree, true, thrift_opt);
         if (pinfo->can_desegment > 0) pinfo->can_desegment--;
     } else {
         /* Attach the expert_info to the method type as it is a protocol-level exception. */

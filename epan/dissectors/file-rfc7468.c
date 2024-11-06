@@ -329,7 +329,7 @@ dissect_rfc7468(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
         /*
          * Try to decode it based on the label.
          */
-        if (dissector_try_string_new(rfc7468_label_table, label, data_tvb, pinfo,
+        if (dissector_try_string_with_data(rfc7468_label_table, label, data_tvb, pinfo,
                                  tree, true, NULL) == 0) {
             proto_tree *data_tree;
 

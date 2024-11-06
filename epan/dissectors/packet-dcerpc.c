@@ -3803,7 +3803,7 @@ dcerpc_try_handoff(packet_info *pinfo, proto_tree *tree,
     /* Check the dissector table before the hash table.  Hopefully the hash table entries can
        all be converted to use dissector table */
     if ((dissector_data.sub_proto == NULL) ||
-        (!dissector_try_guid_new(uuid_dissector_table, &key, tvb, pinfo, tree, false, &dissector_data))) {
+        (!dissector_try_guid_with_data(uuid_dissector_table, &key, tvb, pinfo, tree, false, &dissector_data))) {
         /*
          * We don't have a dissector for this UUID, or the protocol
          * for that UUID is disabled.

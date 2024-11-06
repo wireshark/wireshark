@@ -384,7 +384,7 @@ dissect_netlink_generic(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 	if (family_name) {
 		int ret;
 		/* Invoke subdissector with genlmsghdr present. */
-		ret = dissector_try_string_new(genl_dissector_table, family_name, next_tvb, pinfo, tree, true, &info);
+		ret = dissector_try_string_with_data(genl_dissector_table, family_name, next_tvb, pinfo, tree, true, &info);
 		if (ret) {
 			return ret;
 		}

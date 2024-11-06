@@ -1336,7 +1336,7 @@ dissect_rtspmessage(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
         if (!is_request_or_reply){
             if (media_type_str_lower_case &&
-                dissector_try_string_new(media_type_dissector_table,
+                dissector_try_string_with_data(media_type_dissector_table,
                     media_type_str_lower_case,
                     new_tvb, pinfo, rtsp_tree, true, NULL)){
 

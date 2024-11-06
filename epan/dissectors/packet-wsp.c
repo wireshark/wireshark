@@ -4841,7 +4841,7 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                     /*
                      * Content type is a string.
                      */
-                    found_match = dissector_try_string_new(media_type_table,
+                    found_match = dissector_try_string_with_data(media_type_table,
                             contentTypeStr, tmp_tvb, pinfo, tree, true, NULL);
                 }
                 if (! found_match) {
@@ -4927,7 +4927,7 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                     /*
                      * Content type is a string.
                      */
-                    found_match = dissector_try_string_new(media_type_table,
+                    found_match = dissector_try_string_with_data(media_type_table,
                             contentTypeStr, tmp_tvb, pinfo, tree, true, NULL);
                 }
                 if (! found_match) {
@@ -5004,7 +5004,7 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                         dissect_sir(tree, tmp_tvb);
                     } else
                     */
-                    found_match = dissector_try_string_new(media_type_table,
+                    found_match = dissector_try_string_with_data(media_type_table,
                             contentTypeStr, tmp_tvb, pinfo, tree, true, NULL);
                 }
                 if (! found_match){
@@ -5535,7 +5535,7 @@ add_multipart_data (proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo)
             /*
              * Content type is a string.
              */
-            found_match = dissector_try_string_new(media_type_table,
+            found_match = dissector_try_string_with_data(media_type_table,
                     contentTypeStr, tmp_tvb, pinfo, mpart_tree, true, NULL);
         }
         if (! found_match) {

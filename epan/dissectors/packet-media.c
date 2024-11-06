@@ -53,7 +53,7 @@ dissect_media(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     if (pinfo->match_string &&
         (suffix = strrchr(pinfo->match_string, '+'))) {
 
-        if ((bytes = dissector_try_string_new(media_type_suffix_table,
+        if ((bytes = dissector_try_string_with_data(media_type_suffix_table,
                 suffix + 1, tvb, pinfo, tree, true, data)) > 0) {
             return bytes;
         }

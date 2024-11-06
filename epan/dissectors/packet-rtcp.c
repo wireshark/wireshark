@@ -3235,7 +3235,7 @@ dissect_rtcp_app( tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *tree
              */
             next_tvb = tvb_new_subset_length(tvb, offset - 8, app_length + 4);
             /* look for registered sub-dissectors */
-            if (dissector_try_string_new(rtcp_dissector_table, ascii_name, next_tvb, pinfo, tree, true, NULL)) {
+            if (dissector_try_string_with_data(rtcp_dissector_table, ascii_name, next_tvb, pinfo, tree, true, NULL)) {
                 /* found subdissector - return tvb_reported_length */
                 offset += 4;
                 packet_len -= 4;

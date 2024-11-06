@@ -800,13 +800,13 @@ process_body_part(proto_tree *tree, tvbuff_t *tvb,
             /*
              * First try the dedicated multipart dissector table
              */
-            dissected = dissector_try_string_new(multipart_media_subdissector_table,
+            dissected = dissector_try_string_with_data(multipart_media_subdissector_table,
                         content_type_str, tmp_tvb, pinfo, subtree, true, &content_info);
             if (! dissected) {
                 /*
                  * Fall back to the default media dissector table
                  */
-                dissected = dissector_try_string_new(media_type_dissector_table,
+                dissected = dissector_try_string_with_data(media_type_dissector_table,
                         content_type_str, tmp_tvb, pinfo, subtree, true, &content_info);
             }
             if (! dissected) {

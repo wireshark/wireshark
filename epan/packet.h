@@ -319,17 +319,23 @@ WS_DLL_PUBLIC bool dissector_is_string_changed(dissector_table_t const subdissec
 /** Look for a given string in a given dissector table and, if found, call
    the dissector with the arguments supplied, and return the number of
    bytes consumed, otherwise return 0. */
-WS_DLL_PUBLIC int dissector_try_string_new(dissector_table_t sub_dissectors,
+WS_DLL_PUBLIC int dissector_try_string_with_data(dissector_table_t sub_dissectors,
 	const char* string, tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, const bool add_proto_name, void* data);
 
 /* Look for a given string in a given dissector table and, if found, call
    the dissector with the arguments supplied, and return the number of
    bytes consumed, otherwise return 0. */
-WS_DEPRECATED_X("Use dissector_try_string_new instead")
+WS_DEPRECATED_X("Use dissector_try_string_with_data instead")
 static inline int
 dissector_try_string(dissector_table_t sub_dissectors, const char* string,\
 	tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data) \
-	{ return dissector_try_string_new(sub_dissectors, string, tvb, pinfo, tree, true, data); }
+	{ return dissector_try_string_with_data(sub_dissectors, string, tvb, pinfo, tree, true, data); }
+
+WS_DEPRECATED_X("Use dissector_try_string_with_data instead")
+static inline int
+dissector_try_string_new(dissector_table_t sub_dissectors, const char* string, \
+	tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, const bool add_proto_name, void* data) \
+{ return dissector_try_string_with_data(sub_dissectors, string, tvb, pinfo, tree, add_proto_name, data); }
 
 
 /** Look for a given value in a given string dissector table and, if found,
@@ -377,16 +383,10 @@ typedef struct _guid_key {
 WS_DLL_PUBLIC void dissector_add_guid(const char *name, guid_key* guid_val,
     dissector_handle_t handle);
 
-/* Look for a given value in a given guid dissector table and, if found,
+/** Look for a given value in a given guid dissector table and, if found,
    call the dissector with the arguments supplied, and return true,
    otherwise return false. */
-WS_DLL_PUBLIC int dissector_try_guid(dissector_table_t sub_dissectors,
-    guid_key* guid_val, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
-
-/* Look for a given value in a given guid dissector table and, if found,
-   call the dissector with the arguments supplied, and return true,
-   otherwise return false. */
-WS_DLL_PUBLIC int dissector_try_guid_new(dissector_table_t sub_dissectors,
+WS_DLL_PUBLIC int dissector_try_guid_with_data(dissector_table_t sub_dissectors,
     guid_key* guid_val, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, const bool add_proto_name, void *data);
 
 /* Delete a GUID from a dissector table. */

@@ -3639,7 +3639,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
                     if (ext_hdr_handle != NULL) {
                         tvbuff_t *next_tvb2;
                         next_tvb2 = tvb_new_subset_length(tvb, value_offset, value_len);
-                        dissector_try_string_new(ext_hdr_subdissector_table, header_name, next_tvb2, pinfo, ti_tree, true, NULL);
+                        dissector_try_string_with_data(ext_hdr_subdissector_table, header_name, next_tvb2, pinfo, ti_tree, true, NULL);
                     } else {
                         expert_add_info_format(pinfo, ti_c, &ei_sip_unrecognized_header,
                                                "Unrecognised SIP header (%s)",
@@ -4799,26 +4799,26 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
 
             /* XXX: why is this called even if setup_sdp_transport() was called before? That will
                     parse the SDP a second time, for 'application/sdp' media MIME bodies */
-            DPRINT(("calling dissector_try_string_new()"));
+            DPRINT(("calling dissector_try_string_with_data()"));
             DINDENT();
-            found_match = dissector_try_string_new(media_type_dissector_table,
+            found_match = dissector_try_string_with_data(media_type_dissector_table,
                                                media_type_str_lower_case,
                                                next_tvb, pinfo,
                                                message_body_tree, true, &content_info);
             DENDENT();
-            DPRINT(("done calling dissector_try_string_new() with found_match=%u", found_match));
+            DPRINT(("done calling dissector_try_string_with_data() with found_match=%u", found_match));
 
             if (!found_match &&
                 !strncmp(media_type_str_lower_case, "multipart/", sizeof("multipart/")-1)) {
-                DPRINT(("calling dissector_try_string_new() for multipart"));
+                DPRINT(("calling dissector_try_string_with_data() for multipart"));
                 DINDENT();
                 /* Try to decode the unknown multipart subtype anyway */
-                found_match = dissector_try_string_new(media_type_dissector_table,
+                found_match = dissector_try_string_with_data(media_type_dissector_table,
                                                    "multipart/",
                                                    next_tvb, pinfo,
                                                    message_body_tree, true, &content_info);
                 DENDENT();
-                DPRINT(("done calling dissector_try_string_new() with found_match=%u", found_match));
+                DPRINT(("done calling dissector_try_string_with_data() with found_match=%u", found_match));
             }
             /* If no match dump as text */
         }

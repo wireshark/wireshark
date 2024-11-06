@@ -1017,7 +1017,7 @@ static void dissect_value_x5cert(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
         char *info_text = wmem_strdup(pinfo->pool, col_get_text(pinfo->cinfo, COL_INFO));
 
         TRY {
-            dissector_try_string_new(
+            dissector_try_string_with_data(
                 table_media,
                 "application/pkix-cert",
                 tvb_item,

@@ -84,7 +84,7 @@ try_decode_payload(tvbuff_t *tvb, packet_info *pinfo, proto_item *tree)
             char *col_info_text = wmem_strdup(pinfo->pool, col_get_text(pinfo->cinfo, COL_INFO));
             char *col_protocol_text = wmem_strdup(pinfo->pool, col_get_text(pinfo->cinfo, COL_PROTOCOL));
 
-            int mp4_dis = dissector_try_string_new(media_type_dissector_table, "video/mp4", tvb, pinfo, tree, true, NULL);
+            int mp4_dis = dissector_try_string_with_data(media_type_dissector_table, "video/mp4", tvb, pinfo, tree, true, NULL);
             char *col_protocol_text_mp4 = wmem_strdup(pinfo->pool,col_get_text(pinfo->cinfo, COL_PROTOCOL));
 
             /* Restore Protocol and Info columns and add MP4 Protocol Info */

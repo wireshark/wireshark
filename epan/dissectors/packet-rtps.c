@@ -7551,7 +7551,7 @@ static bool rtps_util_try_dissector(proto_tree *tree,
       next_tvb = tvb_new_subset_remaining(tvb, offset);
 
       rtps_util_format_typename(pinfo->pool, type_mapping_object->type_name, &dissector_name);
-      return dissector_try_string_new(rtps_type_name_table, dissector_name,
+      return dissector_try_string_with_data(rtps_type_name_table, dissector_name,
               next_tvb, pinfo, tree, true, data);
       }
     }

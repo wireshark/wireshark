@@ -1980,7 +1980,7 @@ call_dop_oid_callback(const char *base_string, tvbuff_t *tvb, int offset, packet
 
   col_append_fstr(pinfo->cinfo, COL_INFO, " %s", col_info);
 
-  if (dissector_try_string_new(dop_dissector_table, binding_param, tvb, pinfo, tree, true, data)) {
+  if (dissector_try_string_with_data(dop_dissector_table, binding_param, tvb, pinfo, tree, true, data)) {
      offset = tvb_reported_length (tvb);
   } else {
      proto_item *item;

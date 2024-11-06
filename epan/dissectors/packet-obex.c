@@ -1963,7 +1963,7 @@ dissect_headers(proto_tree *tree, tvbuff_t *tvb, int offset, packet_info *pinfo,
                     if (value_length > 0 && obex_last_opcode_data &&
                             (obex_last_opcode_data->code == OBEX_CODE_VALS_GET || obex_last_opcode_data->code == OBEX_CODE_VALS_PUT) &&
                             obex_last_opcode_data->data.get_put.type &&
-                            dissector_try_string_new(media_type_dissector_table, obex_last_opcode_data->data.get_put.type, next_tvb, pinfo, tree, true, NULL) > 0) {
+                            dissector_try_string_with_data(media_type_dissector_table, obex_last_opcode_data->data.get_put.type, next_tvb, pinfo, tree, true, NULL) > 0) {
                         offset += value_length;
                     } else {
                         if (!tvb_strneql(tvb, offset, "<?xml", 5))

@@ -2886,7 +2886,7 @@ dissect_body_data(proto_tree *tree, packet_info *pinfo, http2_session_t* h2sessi
     if (content_type != NULL) {
         /* add it to STREAM level */
         proto_tree* ptree = proto_tree_get_parent_tree(tree);
-        dissector_try_string_new((streaming_mode ? streaming_content_type_dissector_table : media_type_dissector_table),
+        dissector_try_string_with_data((streaming_mode ? streaming_content_type_dissector_table : media_type_dissector_table),
             content_type, data_tvb, pinfo,
             ptree, true, &metadata_used_for_media_type_handle);
     } else {
