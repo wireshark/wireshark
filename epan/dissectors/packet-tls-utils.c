@@ -2735,6 +2735,7 @@ const val64_string quic_transport_parameter_id[] = {
     { SSL_HND_QUIC_TP_GOOGLE_QUIC_PARAMS, "google_quic_params" },
     { SSL_HND_QUIC_TP_GOOGLE_CONNECTION_OPTIONS, "google_connection_options" },
     { SSL_HND_QUIC_TP_FACEBOOK_PARTIAL_RELIABILITY, "facebook_partial_reliability" },
+    { SSL_HND_QUIC_TP_ADDRESS_DISCOVERY, "address_discovery" },
     { SSL_HND_QUIC_TP_MIN_ACK_DELAY_DRAFT_V1, "min_ack_delay (draft-01)" },
     { SSL_HND_QUIC_TP_MIN_ACK_DELAY_DRAFT05, "min_ack_delay (draft-05)" },
     { SSL_HND_QUIC_TP_MIN_ACK_DELAY, "min_ack_delay" },
@@ -2746,6 +2747,14 @@ const val64_string quic_transport_parameter_id[] = {
     { SSL_HND_QUIC_TP_INITIAL_MAX_PATH_ID_DRAFT11, "initial_max_path_id (draft-11)" },
     { SSL_HND_QUIC_TP_INITIAL_MAX_PATH_ID_DRAFT12, "initial_max_path_id (draft-12)" },
     { SSL_HND_QUIC_TP_INITIAL_MAX_PATH_ID, "initial_max_path_id" },
+    { 0, NULL }
+};
+
+/* https://tools.ietf.org/html/draft-ietf-quic-address-discovery-00 */
+const val64_string quic_address_discovery_vals[] = {
+    { 0, "The node is willing to provide address observations to its peer, but is not interested in receiving address observations itself" },
+    { 1, "The node is interested in receiving address observations, but it is not willing to provide address observations" },
+    { 2, "The node is interested in receiving address observations, and it is willing to provide address observations" },
     { 0, NULL }
 };
 
@@ -8926,6 +8935,11 @@ ssl_dissect_hnd_hello_ext_quic_transport_parameters(ssl_common_dissect_t *hf, tv
                     quic_add_loss_bits(pinfo, value);
                 }
                 offset += 1;
+            break;
+            case SSL_HND_QUIC_TP_ADDRESS_DISCOVERY:
+                proto_tree_add_item_ret_varint(parameter_tree, hf->hf.hs_ext_quictp_parameter_address_discovery,
+                                               tvb, offset, -1, ENC_VARINT_QUIC, NULL, &len);
+                offset += len;
             break;
             case SSL_HND_QUIC_TP_MIN_ACK_DELAY_OLD:
             case SSL_HND_QUIC_TP_MIN_ACK_DELAY_DRAFT_V1:

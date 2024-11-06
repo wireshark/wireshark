@@ -25,6 +25,7 @@
  * https://tools.ietf.org/html/draft-ietf-quic-ack-frequency-07 (and also draft-04/05)
  * https://tools.ietf.org/html/draft-banks-quic-cibir-01
  * https://tools.ietf.org/html/draft-ietf-quic-multipath-15 (and also >= draft-07)
+ * https://tools.ietf.org/html/draft-ietf-quic-address-discovery-00
 
  *
  * Currently supported QUIC version(s): draft-21, draft-22, draft-23, draft-24,
@@ -169,6 +170,10 @@ static int hf_quic_af_reordering_threshold;
 //static int hf_quic_af_ignore_order;
 //static int hf_quic_af_ignore_ce;
 static int hf_quic_ts;
+static int hf_quic_oa_seq_num;
+static int hf_quic_oa_ipv4;
+static int hf_quic_oa_ipv6;
+static int hf_quic_oa_port;
 static int hf_quic_unpredictable_bits;
 static int hf_quic_stateless_reset_token;
 static int hf_quic_reassembled_in;
@@ -707,6 +712,8 @@ static const value_string quic_v2_long_packet_type_vals[] = {
 #define FT_DATAGRAM_LENGTH          0x31
 #define FT_IMMEDIATE_ACK_DRAFT05    0xac /* ack-frequency-draft-05 */
 #define FT_ACK_FREQUENCY            0xaf
+#define FT_OBSERVED_ADDRESS_IPV4    0x9f81a6
+#define FT_OBSERVED_ADDRESS_IPV6    0x9f81a7
 #define FT_PATH_ACK                 0x15228c00
 #define FT_PATH_ACK_ECN             0x15228c01
 #define FT_PATH_ABANDON             0x15228c05
@@ -720,6 +727,8 @@ static const value_string quic_v2_long_packet_type_vals[] = {
 #define FT_PATHS_BLOCKED            0x15228c0d /* multipath-draft-11 */
 #define FT_PATH_CIDS_BLOCKED        0x15228c0e /* multipath-draft-12 */
 #define FT_TIME_STAMP               0x02F5
+
+
 
 static const range_string quic_frame_type_vals[] = {
     { 0x00, 0x00,   "PADDING" },
@@ -753,6 +762,8 @@ static const range_string quic_frame_type_vals[] = {
     { 0xbaba00, 0xbaba01, "ACK_MP" }, /* multipath-draft-04 */
     { 0xbaba05, 0xbaba05, "PATH_ABANDON" }, /* multipath-draft-04 */
     { 0xbaba06, 0xbaba06, "PATH_STATUS" }, /* multipath-draft-04 */
+    { 0x9f81a6, 0x9f81a6, "OBSERVED_ADDRESS (IPv4)" }, /* address-discovery-draft-04 */
+    { 0x9f81a7, 0x9f81a7, "OBSERVED_ADDRESS (IPv6)" }, /* address-discovery-draft-04 */
     { 0x15228c00, 0x15228c01, "PATH_ACK" }, /* >= multipath-draft-05 */
     { 0x15228c05, 0x15228c05, "PATH_ABANDON" }, /* >= multipath-draft-05 */
     { 0x15228c06, 0x15228c06, "PATH_STATUS" }, /* = multipath-draft-05 */
@@ -2969,6 +2980,28 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
             proto_tree_add_item_ret_varint(ft_tree, hf_quic_ts, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &length);
             offset += (uint32_t)length;
 
+        }
+        break;
+        case FT_OBSERVED_ADDRESS_IPV4:
+        case FT_OBSERVED_ADDRESS_IPV6:{
+            int32_t length;
+
+            col_append_str(pinfo->cinfo, COL_INFO, ", OA");
+            proto_tree_add_item_ret_varint(ft_tree, hf_quic_oa_seq_num, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &length);
+            offset += (uint32_t)length;
+
+            if (frame_type == FT_OBSERVED_ADDRESS_IPV4 ) {
+                proto_tree_add_item(ft_tree, hf_quic_oa_ipv4, tvb, offset, 4, ENC_NA);
+                proto_item_append_text(ti_ft, " IPv4=%s", tvb_ip_to_str(pinfo->pool, tvb, offset));
+                offset += 4;
+            } else {
+                proto_tree_add_item(ft_tree, hf_quic_oa_ipv6, tvb, offset, 16, ENC_NA);
+                proto_item_append_text(ti_ft, " IPv6=%s", tvb_ip6_to_str(pinfo->pool, tvb, offset));
+                offset += 16;
+            }
+            proto_tree_add_item(ft_tree, hf_quic_oa_port, tvb, offset, 2, ENC_BIG_ENDIAN);
+            proto_item_append_text(ti_ft, " PORT=%u", tvb_get_ntohs(tvb, offset));
+            offset += 2;
         }
         break;
         case FT_PATH_STATUS:
@@ -5745,6 +5778,28 @@ proto_register_quic(void)
         { &hf_quic_ts,
             { "Time Stamp", "quic.ts",
               FT_UINT64, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
+
+        /* OBSERVED_ADDRESS */
+        { &hf_quic_oa_seq_num,
+            { "Sequence Number", "quic.oa.seq_num",
+              FT_UINT64, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_quic_oa_ipv4,
+            { "IPv4", "quic.oa.ipv4",
+              FT_IPv4, BASE_NONE, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_quic_oa_ipv6,
+            { "IPv6", "quic.oa.ipv6",
+              FT_IPv6, BASE_NONE, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_quic_oa_port,
+            { "Port", "quic.oa.port",
+              FT_UINT16, BASE_DEC, NULL, 0x0,
               NULL, HFILL }
         },
 
