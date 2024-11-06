@@ -781,7 +781,7 @@ dissect_exteap(proto_tree *eap_tree, tvbuff_t *tvb, int offset,
   vendor_context->vendor_type = vendor_type;
 
   next_tvb = tvb_new_subset_remaining(tvb, offset);
-  if (!dissector_try_uint_new(eap_expanded_type_dissector_table,
+  if (!dissector_try_uint_with_data(eap_expanded_type_dissector_table,
     vendor_id, next_tvb, pinfo, eap_tree,
     false, vendor_context)) {
     call_data_dissector(next_tvb, pinfo, eap_tree);

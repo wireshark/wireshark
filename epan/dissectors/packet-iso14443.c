@@ -1320,7 +1320,7 @@ dissect_iso14443_msg(tvbuff_t *tvb, packet_info *pinfo,
     msg_tree = proto_tree_add_subtree(
             tree, tvb, 0, -1, ett_iso14443_msg, NULL, "Message");
 
-    ret = dissector_try_uint_new(iso14443_cmd_type_table, cmd,
+    ret = dissector_try_uint_with_data(iso14443_cmd_type_table, cmd,
             tvb, pinfo, msg_tree, false, GUINT_TO_POINTER((unsigned)crc_dropped));
     if (ret == 0) {
         proto_tree_add_expert(tree, pinfo, &ei_iso14443_unknown_cmd,

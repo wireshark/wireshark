@@ -3056,7 +3056,7 @@ de_u2u(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t offset, uns
     proto_tree_add_item(subtree, hf_gsm_a_dtap_data, tvb, curr_offset, len - 1, ENC_NA);
 
     u2u_tvb = tvb_new_subset_length(tvb, curr_offset, len - 1);
-    dissector_try_uint_new(u2u_dissector_table, proto_discr, u2u_tvb, pinfo, proto_tree_get_root(tree), true, NULL);
+    dissector_try_uint_with_data(u2u_dissector_table, proto_discr, u2u_tvb, pinfo, proto_tree_get_root(tree), true, NULL);
 
 
     return (len);

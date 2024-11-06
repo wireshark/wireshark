@@ -10961,7 +10961,7 @@ dissect_amqp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
      * tcp_dissect_pdus() to work as expected.
      */
     pinfo->can_desegment = pinfo->saved_can_desegment;
-    if (!dissector_try_uint_new(version_table, conn->version, tvb, pinfo, tree, false, data))
+    if (!dissector_try_uint_with_data(version_table, conn->version, tvb, pinfo, tree, false, data))
     {
         col_append_str(pinfo->cinfo, COL_INFO, "AMQP (unknown version)");
         col_set_fence(pinfo->cinfo, COL_INFO);

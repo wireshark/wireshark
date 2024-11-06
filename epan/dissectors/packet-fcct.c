@@ -198,7 +198,7 @@ dissect_fcct (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
      * Pass the fchdr* received from parent dissector through to sub-protocols
      */
     next_tvb = tvb_new_subset_remaining (tvb, 0);
-    if (!dissector_try_uint_new(fcct_gserver_table, server, next_tvb, pinfo,
+    if (!dissector_try_uint_with_data(fcct_gserver_table, server, next_tvb, pinfo,
                              tree, true, data)) {
         call_data_dissector(next_tvb, pinfo, tree);
     }

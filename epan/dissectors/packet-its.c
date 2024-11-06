@@ -240,7 +240,7 @@ static int dissect_regextval_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 {
     its_private_data_t *re = (its_private_data_t*)data;
     // XXX What to do when region_id = noRegion? Test length is zero?
-    if (!dissector_try_uint_new(regionid_subdissector_table, ((uint32_t) re->region_id<<16) + (uint32_t) re->type, tvb, pinfo, tree, false, NULL))
+    if (!dissector_try_uint_with_data(regionid_subdissector_table, ((uint32_t) re->region_id<<16) + (uint32_t) re->type, tvb, pinfo, tree, false, NULL))
         call_data_dissector(tvb, pinfo, tree);
     return tvb_captured_length(tvb);
 }
@@ -249,7 +249,7 @@ static int dissect_regextval_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 static int dissect_cpmcontainers_pdu(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_)
 {
     // XXX What to do when region_id = noRegion? Test length is zero?
-    if (!dissector_try_uint_new(cpmcontainer_subdissector_table, its_get_private_data(pinfo)->CpmContainerId, tvb, pinfo, tree, false, NULL))
+    if (!dissector_try_uint_with_data(cpmcontainer_subdissector_table, its_get_private_data(pinfo)->CpmContainerId, tvb, pinfo, tree, false, NULL))
         call_data_dissector(tvb, pinfo, tree);
     return tvb_captured_length(tvb);
 }
@@ -8281,7 +8281,7 @@ dissect_its_PtActivation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_its_PtActivation, its_PtActivation_sequence);
 
-  dissector_try_uint_new(cam_pt_activation_table, pta->type, pta->data, actx->pinfo, tree, true, NULL);
+  dissector_try_uint_with_data(cam_pt_activation_table, pta->type, pta->data, actx->pinfo, tree, true, NULL);
   actx->private_data = priv_data;
   return offset;
 }
@@ -8886,7 +8886,7 @@ dissect_itsv1_PtActivation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_itsv1_PtActivation, itsv1_PtActivation_sequence);
 
-  dissector_try_uint_new(cam_pt_activation_table, pta->type, pta->data, actx->pinfo, tree, true, NULL);
+  dissector_try_uint_with_data(cam_pt_activation_table, pta->type, pta->data, actx->pinfo, tree, true, NULL);
   actx->private_data = priv_data;
   return offset;
 }

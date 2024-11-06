@@ -24085,7 +24085,7 @@ static int dissect_invokeData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_
   case 126: /*SS-protocol explicitCT no Argument*/
     break;
   default:
-    if(!dissector_try_uint_new(map_prop_arg_opcode_table, (uint8_t)opcode, tvb, actx->pinfo, tree, true, actx->subtree.top_tree)){
+    if(!dissector_try_uint_with_data(map_prop_arg_opcode_table, (uint8_t)opcode, tvb, actx->pinfo, tree, true, actx->subtree.top_tree)){
         proto_tree_add_expert_format(tree, actx->pinfo, &ei_gsm_map_unknown_invokeData,
                                      tvb, offset, -1, "Unknown invokeData %d", opcode);
     }
@@ -24400,7 +24400,7 @@ static int dissect_returnResultData(proto_tree *tree, tvbuff_t *tvb, int offset,
     break;
 
  default:
-   if(!dissector_try_uint_new(map_prop_res_opcode_table, (uint8_t)opcode, tvb, actx->pinfo, tree, true, actx->subtree.top_tree)){
+   if(!dissector_try_uint_with_data(map_prop_res_opcode_table, (uint8_t)opcode, tvb, actx->pinfo, tree, true, actx->subtree.top_tree)){
         proto_tree_add_expert_format(tree, actx->pinfo, &ei_gsm_map_unknown_invokeData,
                                      tvb, offset, -1, "Unknown returnResultData %d", opcode);
    }
@@ -24567,7 +24567,7 @@ static int dissect_returnErrorData(proto_tree *tree, tvbuff_t *tvb, int offset, 
     offset=dissect_gsm_map_er_InformationNotAvailableParam(false, tvb, offset, actx, tree, -1);
     break;
   default:
-    if(!dissector_try_uint_new(map_prop_err_opcode_table, (uint8_t)opcode, tvb, actx->pinfo, tree, true, actx->subtree.top_tree)){
+    if(!dissector_try_uint_with_data(map_prop_err_opcode_table, (uint8_t)opcode, tvb, actx->pinfo, tree, true, actx->subtree.top_tree)){
         proto_tree_add_expert_format(tree, actx->pinfo, &ei_gsm_map_unknown_invokeData,
                                      tvb, offset, -1, "Unknown returnErrorData %d", opcode);
     }

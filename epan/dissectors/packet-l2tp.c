@@ -2006,7 +2006,7 @@ static void process_control_avps(tvbuff_t *tvb,
 
             } else {
                 /* Vendor-Specific AVP */
-                if (!dissector_try_uint_new(l2tp_vendor_avp_dissector_table, avp_vendor_id, avp_tvb, pinfo, l2tp_tree, false, l2tp_cntrl_data)){
+                if (!dissector_try_uint_with_data(l2tp_vendor_avp_dissector_table, avp_vendor_id, avp_tvb, pinfo, l2tp_tree, false, l2tp_cntrl_data)){
                     l2tp_avp_tree =  proto_tree_add_subtree_format(l2tp_tree, tvb, idx,
                                           avp_len, ett_l2tp_avp, NULL, "Vendor %s (%u) AVP Type %u",
                                           enterprises_lookup(avp_vendor_id, "Unknown"), avp_vendor_id,
@@ -2644,7 +2644,7 @@ process_l2tpv3_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     proto_item_set_len(l2tp_item, idx);
     p_add_proto_data(pinfo->pool, pinfo, proto_l2tp, 0, GUINT_TO_POINTER(pw_type));
 
-    if (!dissector_try_uint_new(pw_type_table, pw_type, next_tvb, pinfo, tree, false, GUINT_TO_POINTER(oam_cell)))
+    if (!dissector_try_uint_with_data(pw_type_table, pw_type, next_tvb, pinfo, tree, false, GUINT_TO_POINTER(oam_cell)))
     {
         call_data_dissector(next_tvb, pinfo, tree);
     }

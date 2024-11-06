@@ -2266,9 +2266,9 @@ dissect_sua_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *sua_t
   {
     /* Try subdissectors (if we found a valid SSN on the current message) */
     if ((dest_ssn == INVALID_SSN ||
-       !dissector_try_uint_new(sccp_ssn_dissector_table, dest_ssn, data_tvb, pinfo, tree, true, sccp_info))
+       !dissector_try_uint_with_data(sccp_ssn_dissector_table, dest_ssn, data_tvb, pinfo, tree, true, sccp_info))
        && (source_ssn == INVALID_SSN ||
-       !dissector_try_uint_new(sccp_ssn_dissector_table, source_ssn, data_tvb, pinfo, tree, true, sccp_info)))
+       !dissector_try_uint_with_data(sccp_ssn_dissector_table, source_ssn, data_tvb, pinfo, tree, true, sccp_info)))
     {
       /* try heuristic subdissector list to see if there are any takers */
       if (dissector_try_heuristic(heur_subdissector_list, data_tvb, pinfo, tree, &hdtbl_entry, sccp_info)) {

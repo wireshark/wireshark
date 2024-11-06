@@ -104,7 +104,7 @@ static void dissect_bthci_h1(tvbuff_t *tvb, packet_info *pinfo,
   proto_item_set_len (ti, 1);
 
   col_add_str (pinfo->cinfo, COL_INFO, val_to_str(pl_type, type_vals, "Unknown 0x%02x"));
-  if (!dissector_try_uint_new (hci_h1_table, bthci.channel,
+  if (!dissector_try_uint_with_data (hci_h1_table, bthci.channel,
           tvb, pinfo, tree, true, bluetooth_data)) {
     call_data_dissector (tvb, pinfo, tree);
   }

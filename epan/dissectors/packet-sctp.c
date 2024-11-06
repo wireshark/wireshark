@@ -2553,7 +2553,7 @@ dissect_payload(tvbuff_t *payload_tvb, packet_info *pinfo, proto_tree *tree, uin
 
     try_ppi = false;
     if (dissector_is_uint_changed(sctp_ppi_dissector_table, ppi)) {
-      if (dissector_try_uint_new(sctp_ppi_dissector_table, ppi, payload_tvb, pinfo, tree, true, GUINT_TO_POINTER(ppi))) {
+      if (dissector_try_uint_with_data(sctp_ppi_dissector_table, ppi, payload_tvb, pinfo, tree, true, GUINT_TO_POINTER(ppi))) {
         return true;
       }
     } else {
@@ -2564,7 +2564,7 @@ dissect_payload(tvbuff_t *payload_tvb, packet_info *pinfo, proto_tree *tree, uin
     try_low_port = false;
     if (low_port != 0) {
       if (dissector_is_uint_changed(sctp_port_dissector_table, low_port)) {
-        if (dissector_try_uint_new(sctp_port_dissector_table, low_port, payload_tvb, pinfo, tree, true, GUINT_TO_POINTER(ppi))) {
+        if (dissector_try_uint_with_data(sctp_port_dissector_table, low_port, payload_tvb, pinfo, tree, true, GUINT_TO_POINTER(ppi))) {
           return true;
         }
       } else {
@@ -2576,7 +2576,7 @@ dissect_payload(tvbuff_t *payload_tvb, packet_info *pinfo, proto_tree *tree, uin
     try_high_port = false;
     if (high_port != 0) {
       if (dissector_is_uint_changed(sctp_port_dissector_table, high_port)) {
-        if (dissector_try_uint_new(sctp_port_dissector_table, high_port, payload_tvb, pinfo, tree, true, GUINT_TO_POINTER(ppi))) {
+        if (dissector_try_uint_with_data(sctp_port_dissector_table, high_port, payload_tvb, pinfo, tree, true, GUINT_TO_POINTER(ppi))) {
           return true;
         }
       } else {
@@ -2607,14 +2607,14 @@ dissect_payload(tvbuff_t *payload_tvb, packet_info *pinfo, proto_tree *tree, uin
        although there is, of course, no guarantee that any such strategy
        will always pick the right port number. */
     if (try_ppi &&
-        dissector_try_uint_new(sctp_ppi_dissector_table, ppi, payload_tvb, pinfo, tree, true, GUINT_TO_POINTER(ppi)))
+        dissector_try_uint_with_data(sctp_ppi_dissector_table, ppi, payload_tvb, pinfo, tree, true, GUINT_TO_POINTER(ppi)))
       return true;
 
     if (try_low_port &&
-        dissector_try_uint_new(sctp_port_dissector_table, low_port, payload_tvb, pinfo, tree, true, GUINT_TO_POINTER(ppi)))
+        dissector_try_uint_with_data(sctp_port_dissector_table, low_port, payload_tvb, pinfo, tree, true, GUINT_TO_POINTER(ppi)))
       return true;
     if (try_high_port &&
-        dissector_try_uint_new(sctp_port_dissector_table, high_port, payload_tvb, pinfo, tree, true, GUINT_TO_POINTER(ppi)))
+        dissector_try_uint_with_data(sctp_port_dissector_table, high_port, payload_tvb, pinfo, tree, true, GUINT_TO_POINTER(ppi)))
       return true;
 
     if (!try_heuristic_first) {

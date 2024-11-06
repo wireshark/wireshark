@@ -2890,7 +2890,7 @@ dissect_body_data(proto_tree *tree, packet_info *pinfo, http2_session_t* h2sessi
             content_type, data_tvb, pinfo,
             ptree, true, &metadata_used_for_media_type_handle);
     } else {
-        if (!dissector_try_uint_new(stream_id_content_type_dissector_table, stream_id,
+        if (!dissector_try_uint_with_data(stream_id_content_type_dissector_table, stream_id,
             data_tvb, pinfo, proto_tree_get_parent_tree(tree), true, &metadata_used_for_media_type_handle))
         {
             /* Try heuristics */
@@ -2908,7 +2908,7 @@ dissect_body_data(proto_tree *tree, packet_info *pinfo, http2_session_t* h2sessi
                         body_info->content_type = wmem_strndup(wmem_file_scope(), "multipart/mixed", 15);
                         body_info->content_type_parameters = wmem_strdup_printf(wmem_file_scope(), "boundary=\"%s\"", boundary);
                         metadata_used_for_media_type_handle.media_str = body_info->content_type_parameters;
-                        dissector_try_uint_new(stream_id_content_type_dissector_table, stream_id,
+                        dissector_try_uint_with_data(stream_id_content_type_dissector_table, stream_id,
                             data_tvb, pinfo, proto_tree_get_parent_tree(tree), true, &metadata_used_for_media_type_handle);
                     }
                 }
@@ -2944,7 +2944,7 @@ dissect_body_data(proto_tree *tree, packet_info *pinfo, http2_session_t* h2sessi
                     if (handle) {
                         dissector_add_uint("http2.streamid", stream_info->stream_id, handle);
                     }
-                    dissector_try_uint_new(stream_id_content_type_dissector_table, stream_id,
+                    dissector_try_uint_with_data(stream_id_content_type_dissector_table, stream_id,
                         data_tvb, pinfo, proto_tree_get_parent_tree(tree), true, &metadata_used_for_media_type_handle);
                 }
                 return;

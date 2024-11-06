@@ -374,17 +374,17 @@ dissect_bssap_data_param(tvbuff_t *tvb, packet_info *pinfo,
     switch (bssap_info->proto) {
 
     case BSSAP:
-        if (dissector_try_uint_new(bssap_dissector_table, pdu_type, tvb, pinfo, tree, true, sccp_info))
+        if (dissector_try_uint_with_data(bssap_dissector_table, pdu_type, tvb, pinfo, tree, true, sccp_info))
             return;
         break;
 
     case BSSAP_LE:
-        if (dissector_try_uint_new(bssap_le_dissector_table, pdu_type, tvb, pinfo, tree, true, sccp_info))
+        if (dissector_try_uint_with_data(bssap_le_dissector_table, pdu_type, tvb, pinfo, tree, true, sccp_info))
             return;
         break;
 
     case BSAP:
-        if (dissector_try_uint_new(bsap_dissector_table, pdu_type, tvb, pinfo, tree, true, sccp_info))
+        if (dissector_try_uint_with_data(bsap_dissector_table, pdu_type, tvb, pinfo, tree, true, sccp_info))
             return;
         break;
     }

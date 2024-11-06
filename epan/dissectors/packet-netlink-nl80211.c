@@ -4231,7 +4231,7 @@ dissect_tag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int
     ieee80211_tagged_field_data_t field_data = { 0 };
     tvbuff_t *next_tvb = tvb_new_subset_length(tvb, offset, len);
     proto_tree *subtree = proto_tree_add_subtree(tree, next_tvb, 0, -1, ett_nl80211_tag, &item, "Attribute Value");
-    dissector_try_uint_new(ieee80211_tag_dissector_table, tag, next_tvb, pinfo, subtree, false, &field_data);
+    dissector_try_uint_with_data(ieee80211_tag_dissector_table, tag, next_tvb, pinfo, subtree, false, &field_data);
     return offset +  len;
 }
 

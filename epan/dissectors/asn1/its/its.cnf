@@ -968,7 +968,7 @@ CartesianAngleValue
   pta = wmem_new0(actx->pinfo->pool, its_pt_activation_data_t);
   actx->private_data = pta;
 #.FN_FTR
-  dissector_try_uint_new(cam_pt_activation_table, pta->type, pta->data, actx->pinfo, tree, true, NULL);
+  dissector_try_uint_with_data(cam_pt_activation_table, pta->type, pta->data, actx->pinfo, tree, true, NULL);
   actx->private_data = priv_data;
 #.END
 

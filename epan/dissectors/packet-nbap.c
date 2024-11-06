@@ -55442,14 +55442,14 @@ static int dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto
 {
   uint32_t protocol_ie_id;
   protocol_ie_id = nbap_get_private_data(pinfo)->protocol_ie_id;
-  return (dissector_try_uint_new(nbap_ies_dissector_table, protocol_ie_id, tvb, pinfo, tree, false, NULL)) ? tvb_captured_length(tvb) : 0;
+  return (dissector_try_uint_with_data(nbap_ies_dissector_table, protocol_ie_id, tvb, pinfo, tree, false, NULL)) ? tvb_captured_length(tvb) : 0;
 }
 
 static int dissect_ProtocolExtensionFieldExtensionValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
   uint32_t protocol_ie_id;
   protocol_ie_id = nbap_get_private_data(pinfo)->protocol_ie_id;
-  return (dissector_try_uint_new(nbap_extension_dissector_table, protocol_ie_id, tvb, pinfo, tree, false, NULL)) ? tvb_captured_length(tvb) : 0;
+  return (dissector_try_uint_with_data(nbap_extension_dissector_table, protocol_ie_id, tvb, pinfo, tree, false, NULL)) ? tvb_captured_length(tvb) : 0;
 }
 
 static int dissect_InitiatingMessageValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)

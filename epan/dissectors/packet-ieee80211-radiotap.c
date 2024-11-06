@@ -3755,7 +3755,7 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* u
 						    offset + 4, 2, ENC_LITTLE_ENDIAN);
 				ven_data_tvb = tvb_new_subset_length(tvb, offset + 6, iter.this_arg_size - 6);
 			}
-			if (!dissector_try_uint_new(vendor_dissector_table, ven_ns_id, ven_data_tvb, pinfo, ven_tree, true, NULL)) {
+			if (!dissector_try_uint_with_data(vendor_dissector_table, ven_ns_id, ven_data_tvb, pinfo, ven_tree, true, NULL)) {
 				proto_tree_add_item(ven_tree, hf_radiotap_ven_data, ven_data_tvb, 0, -1, ENC_NA);
 			}
 		}

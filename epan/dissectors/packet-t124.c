@@ -2397,7 +2397,7 @@ dissect_t124_T_userData(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_,
 
 	if(next_tvb) {
 
-	     dissector_try_uint_new(t124_sd_dissector_table, channelId, next_tvb, actx->pinfo, top_tree, false, NULL);
+	     dissector_try_uint_with_data(t124_sd_dissector_table, channelId, next_tvb, actx->pinfo, top_tree, false, NULL);
 
 	}
 

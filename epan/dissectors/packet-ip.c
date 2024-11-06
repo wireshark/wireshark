@@ -1876,7 +1876,7 @@ ip_try_dissect(bool heur_first, unsigned nxt, tvbuff_t *tvb, packet_info *pinfo,
     return true;
   }
 
-  if (dissector_try_uint_new(ip_dissector_table, nxt, tvb, pinfo,
+  if (dissector_try_uint_with_data(ip_dissector_table, nxt, tvb, pinfo,
                              tree, true, iph)) {
     return true;
   }

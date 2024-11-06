@@ -1513,11 +1513,11 @@ dissect_irdmaep_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             high_port = pinfo->srcport;
             }
 
-        if (dissector_try_uint_new(irdmaep_dissector_table, low_port,
+        if (dissector_try_uint_with_data(irdmaep_dissector_table, low_port,
                                    tvb, pinfo, tree, true, pdata))
             return;
 
-        if (dissector_try_uint_new(irdmaep_dissector_table, high_port,
+        if (dissector_try_uint_with_data(irdmaep_dissector_table, high_port,
                                    tvb, pinfo, tree, true, pdata))
             return;
         }

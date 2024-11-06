@@ -1129,7 +1129,7 @@ dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bool is_
         if( (fchdr->fctl&FC_FCTL_REL_OFFSET) && param ){
             call_data_dissector(next_tvb, pinfo, tree);
         } else {
-            if (!dissector_try_uint_new (fcftype_dissector_table, ftype,
+            if (!dissector_try_uint_with_data (fcftype_dissector_table, ftype,
                                 next_tvb, pinfo, tree, false, fchdr)) {
                 call_data_dissector(next_tvb, pinfo, tree);
             }

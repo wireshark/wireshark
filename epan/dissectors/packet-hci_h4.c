@@ -94,7 +94,7 @@ dissect_hci_h4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             val_to_str(type, hci_h4_type_vals, "Unknown HCI packet type 0x%02x"));
 
     next_tvb = tvb_new_subset_remaining(tvb, 1);
-    if (!dissector_try_uint_new(hci_h4_table, type, next_tvb, pinfo, tree, true, bluetooth_data)) {
+    if (!dissector_try_uint_with_data(hci_h4_table, type, next_tvb, pinfo, tree, true, bluetooth_data)) {
         call_data_dissector(next_tvb, pinfo, tree);
     }
 

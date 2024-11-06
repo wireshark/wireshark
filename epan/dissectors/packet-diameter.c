@@ -794,16 +794,16 @@ call_avp_subdissector(uint32_t vendorid, uint32_t code, tvbuff_t *subtvb, packet
 	TRY {
 		switch (vendorid) {
 		case 0:
-			dissector_try_uint_new(diameter_dissector_table, code, subtvb, pinfo, avp_tree, false, diam_sub_dis_inf);
+			dissector_try_uint_with_data(diameter_dissector_table, code, subtvb, pinfo, avp_tree, false, diam_sub_dis_inf);
 			break;
 		case VENDOR_ERICSSON:
-			dissector_try_uint_new(diameter_ericsson_avp_dissector_table, code, subtvb, pinfo, avp_tree, false, diam_sub_dis_inf);
+			dissector_try_uint_with_data(diameter_ericsson_avp_dissector_table, code, subtvb, pinfo, avp_tree, false, diam_sub_dis_inf);
 			break;
 		case VENDOR_VERIZON:
-			dissector_try_uint_new(diameter_verizon_avp_dissector_table, code, subtvb, pinfo, avp_tree, false, diam_sub_dis_inf);
+			dissector_try_uint_with_data(diameter_verizon_avp_dissector_table, code, subtvb, pinfo, avp_tree, false, diam_sub_dis_inf);
 			break;
 		case VENDOR_THE3GPP:
-			dissector_try_uint_new(diameter_3gpp_avp_dissector_table, code, subtvb, pinfo, avp_tree, false, diam_sub_dis_inf);
+			dissector_try_uint_with_data(diameter_3gpp_avp_dissector_table, code, subtvb, pinfo, avp_tree, false, diam_sub_dis_inf);
 			break;
 		default:
 			break;
@@ -990,7 +990,7 @@ dissect_diameter_avp(diam_ctx_t *c, tvbuff_t *tvb, int offset, diam_sub_dis_t *d
 		&& (diam_sub_dis_inf->vendor_id != VENDOR_THE3GPP))
 	{
 		/* call subdissector */
-		if (!dissector_try_uint_new(diameter_expr_result_vnd_table, diam_sub_dis_inf->vendor_id,
+		if (!dissector_try_uint_with_data(diameter_expr_result_vnd_table, diam_sub_dis_inf->vendor_id,
 					    subtvb, c->pinfo, avp_tree, false, diam_sub_dis_inf)) {
 			/* No subdissector for this vendor ID, use the generic one */
 			dissect_diameter_other_vendor_exp_res(c, subtvb, avp_tree, diam_sub_dis_inf);

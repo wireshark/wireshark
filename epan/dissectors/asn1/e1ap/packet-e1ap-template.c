@@ -149,7 +149,7 @@ static int dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto
   e1ap_ctx.ProcedureCode       = e1ap_data->procedure_code;
   e1ap_ctx.ProtocolIE_ID       = e1ap_data->protocol_ie_id;
 
-  return (dissector_try_uint_new(e1ap_ies_dissector_table, e1ap_data->protocol_ie_id, tvb, pinfo, tree, false, &e1ap_ctx)) ? tvb_captured_length(tvb) : 0;
+  return (dissector_try_uint_with_data(e1ap_ies_dissector_table, e1ap_data->protocol_ie_id, tvb, pinfo, tree, false, &e1ap_ctx)) ? tvb_captured_length(tvb) : 0;
 }
 
 static int dissect_ProtocolExtensionFieldExtensionValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
@@ -161,28 +161,28 @@ static int dissect_ProtocolExtensionFieldExtensionValue(tvbuff_t *tvb, packet_in
   e1ap_ctx.ProcedureCode       = e1ap_data->procedure_code;
   e1ap_ctx.ProtocolIE_ID       = e1ap_data->protocol_ie_id;
 
-  return (dissector_try_uint_new(e1ap_extension_dissector_table, e1ap_data->protocol_ie_id, tvb, pinfo, tree, false, &e1ap_ctx)) ? tvb_captured_length(tvb) : 0;
+  return (dissector_try_uint_with_data(e1ap_extension_dissector_table, e1ap_data->protocol_ie_id, tvb, pinfo, tree, false, &e1ap_ctx)) ? tvb_captured_length(tvb) : 0;
 }
 
 static int dissect_InitiatingMessageValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
   e1ap_private_data_t *e1ap_data = e1ap_get_private_data(pinfo);
 
-  return (dissector_try_uint_new(e1ap_proc_imsg_dissector_table, e1ap_data->procedure_code, tvb, pinfo, tree, false, data)) ? tvb_captured_length(tvb) : 0;
+  return (dissector_try_uint_with_data(e1ap_proc_imsg_dissector_table, e1ap_data->procedure_code, tvb, pinfo, tree, false, data)) ? tvb_captured_length(tvb) : 0;
 }
 
 static int dissect_SuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
   e1ap_private_data_t *e1ap_data = e1ap_get_private_data(pinfo);
 
-  return (dissector_try_uint_new(e1ap_proc_sout_dissector_table, e1ap_data->procedure_code, tvb, pinfo, tree, false, data)) ? tvb_captured_length(tvb) : 0;
+  return (dissector_try_uint_with_data(e1ap_proc_sout_dissector_table, e1ap_data->procedure_code, tvb, pinfo, tree, false, data)) ? tvb_captured_length(tvb) : 0;
 }
 
 static int dissect_UnsuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
   e1ap_private_data_t *e1ap_data = e1ap_get_private_data(pinfo);
 
-  return (dissector_try_uint_new(e1ap_proc_uout_dissector_table, e1ap_data->procedure_code, tvb, pinfo, tree, false, data)) ? tvb_captured_length(tvb) : 0;
+  return (dissector_try_uint_with_data(e1ap_proc_uout_dissector_table, e1ap_data->procedure_code, tvb, pinfo, tree, false, data)) ? tvb_captured_length(tvb) : 0;
 }
 
 

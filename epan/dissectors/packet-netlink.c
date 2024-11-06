@@ -504,7 +504,7 @@ dissect_netlink(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
 
 			next_tvb = tvb_new_subset_length(tvb, offset, pkt_len);
 
-			if (dissector_try_uint_new(netlink_dissector_table, protocol, next_tvb, pinfo, tree, true, &nl_data)) {
+			if (dissector_try_uint_with_data(netlink_dissector_table, protocol, next_tvb, pinfo, tree, true, &nl_data)) {
 				dissected = true;
 			}
 		}

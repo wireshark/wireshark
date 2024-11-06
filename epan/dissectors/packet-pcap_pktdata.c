@@ -391,7 +391,7 @@ dissect_pcap_pktdata(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
 
     next_tvb = tvb_new_subset_remaining(tvb, offset);
 
-    offset = dissector_try_uint_new(wtap_encap_table, pinfo->rec->rec_header.packet_header.pkt_encap, next_tvb, pinfo, tree, true, phdr);
+    offset = dissector_try_uint_with_data(wtap_encap_table, pinfo->rec->rec_header.packet_header.pkt_encap, next_tvb, pinfo, tree, true, phdr);
 
     return offset;
 }

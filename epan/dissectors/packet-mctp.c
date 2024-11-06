@@ -242,12 +242,12 @@ dissect_mctp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         proto_tree_add_item(type_tree, hf_mctp_msg_ic, next_tvb, 0, 1,
                             ENC_NA);
 
-        rc = dissector_try_uint_new(mctp_dissector_table, type & 0x7f,
+        rc = dissector_try_uint_with_data(mctp_dissector_table, type & 0x7f,
                                     next_tvb, pinfo, tree, true, NULL);
 
         if (!rc && !(type & 0x80)) {
             tvbuff_t *encap_tvb = tvb_new_subset_remaining(next_tvb, 1);
-            dissector_try_uint_new(mctp_encap_dissector_table, type,
+            dissector_try_uint_with_data(mctp_encap_dissector_table, type,
                                    encap_tvb, pinfo, tree, true, NULL);
         }
     }

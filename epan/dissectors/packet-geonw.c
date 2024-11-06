@@ -368,10 +368,10 @@ dissect_btpa(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
         high_port = dst_port;
     }
 
-    if (dissector_try_uint_new(btpa_subdissector_table, low_port, next_tvb, pinfo, tree, true, NULL))
+    if (dissector_try_uint_with_data(btpa_subdissector_table, low_port, next_tvb, pinfo, tree, true, NULL))
         return tvb_captured_length(tvb);
 
-    if (dissector_try_uint_new(btpa_subdissector_table, high_port, next_tvb, pinfo, tree, true, NULL))
+    if (dissector_try_uint_with_data(btpa_subdissector_table, high_port, next_tvb, pinfo, tree, true, NULL))
         return tvb_captured_length(tvb);
 
     if (dissector_try_heuristic(btpa_heur_subdissector_list, next_tvb, pinfo, tree, &hdtbl_entry, NULL))
@@ -419,7 +419,7 @@ dissect_btpb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
     if (have_tap_listener(btpb_follow_tap))
         tap_queue_packet(btpb_follow_tap, pinfo, next_tvb);
 
-    if (dissector_try_uint_new(btpb_subdissector_table, dst_port, next_tvb, pinfo, tree, true, NULL)) {
+    if (dissector_try_uint_with_data(btpb_subdissector_table, dst_port, next_tvb, pinfo, tree, true, NULL)) {
         return tvb_captured_length(tvb);
     }
     if (dissector_try_heuristic(btpb_heur_subdissector_list, next_tvb, pinfo, tree, &hdtbl_entry, NULL)) {

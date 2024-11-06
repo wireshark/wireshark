@@ -96,7 +96,7 @@ dissect_hci_h1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     proto_item_set_generated(ti);
 
     next_tvb = tvb_new_subset_remaining(tvb, 0);
-    if (!dissector_try_uint_new(hci_h1_table, type, next_tvb, pinfo, tree, true, bluetooth_data)) {
+    if (!dissector_try_uint_with_data(hci_h1_table, type, next_tvb, pinfo, tree, true, bluetooth_data)) {
         call_data_dissector(next_tvb, pinfo, tree);
     }
 

@@ -396,7 +396,7 @@ dissect_ipmi_trace(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 		arg.channel = chn_num;
 		arg.flags	= tvb_get_uint8(tvb, 8);
 
-		if (!dissector_try_uint_new(proto_dissector_table,
+		if (!dissector_try_uint_with_data(proto_dissector_table,
 				data_type, next_tvb, pinfo, tree, true, &arg)) {
 			call_data_dissector(next_tvb, pinfo, tree);
 		}

@@ -445,7 +445,7 @@ dissect_netmon_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void*
 		break;
 	}
 
-	if (!dissector_try_uint_new(wtap_encap_table,
+	if (!dissector_try_uint_with_data(wtap_encap_table,
 		pinfo->pseudo_header->netmon.sub_encap, tvb, pinfo, tree, true,
 		(void *)pinfo->pseudo_header)) {
 		call_data_dissector(tvb, pinfo, tree);

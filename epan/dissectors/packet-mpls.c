@@ -516,7 +516,7 @@ dissect_mpls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
      * Is there an explicit label-to-dissector binding?
      * If so, use it.
      */
-    found = dissector_try_uint_new(mpls_subdissector_table, label,
+    found = dissector_try_uint_with_data(mpls_subdissector_table, label,
                                next_tvb, pinfo, tree, false, &mplsinfo);
     if (found) {
         /* Yes, there is. */
@@ -538,7 +538,7 @@ dissect_mpls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
      * Use the 1st nibble logic (see BCP 128 (RFC 4928), RFC 4385 and 5586).
      * https://datatracker.ietf.org/doc/html/draft-ietf-mpls-1stnibble-06
      */
-    if (dissector_try_uint_new(mpls_pfn_subdissector_table, first_nibble,
+    if (dissector_try_uint_with_data(mpls_pfn_subdissector_table, first_nibble,
         next_tvb, pinfo, tree, false, &mplsinfo)) {
 
         payload_handle = dissector_get_uint_handle(mpls_pfn_subdissector_table, first_nibble);

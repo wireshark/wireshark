@@ -7780,7 +7780,7 @@ decode_tcp_ports(tvbuff_t *tvb, int offset, packet_info *pinfo,
     try_server_port = false;
     if (tcpd && tcpd->server_port != 0) {
         if (dissector_is_uint_changed(subdissector_table, tcpd->server_port)) {
-            if (dissector_try_uint_new(subdissector_table, tcpd->server_port, next_tvb, pinfo, tree, true, tcpinfo)) {
+            if (dissector_try_uint_with_data(subdissector_table, tcpd->server_port, next_tvb, pinfo, tree, true, tcpinfo)) {
                 pinfo->want_pdu_tracking -= !!(pinfo->want_pdu_tracking);
                 handle_export_pdu_dissection_table(pinfo, next_tvb, tcpd->server_port, tcpinfo);
                 return true;
@@ -7802,7 +7802,7 @@ decode_tcp_ports(tvbuff_t *tvb, int offset, packet_info *pinfo,
     try_low_port = false;
     if (low_port != 0) {
         if (dissector_is_uint_changed(subdissector_table, low_port)) {
-            if (dissector_try_uint_new(subdissector_table, low_port, next_tvb, pinfo, tree, true, tcpinfo)) {
+            if (dissector_try_uint_with_data(subdissector_table, low_port, next_tvb, pinfo, tree, true, tcpinfo)) {
                 pinfo->want_pdu_tracking -= !!(pinfo->want_pdu_tracking);
                 handle_export_pdu_dissection_table(pinfo, next_tvb, low_port, tcpinfo);
                 return true;
@@ -7816,7 +7816,7 @@ decode_tcp_ports(tvbuff_t *tvb, int offset, packet_info *pinfo,
     try_high_port = false;
     if (high_port != 0) {
         if (dissector_is_uint_changed(subdissector_table, high_port)) {
-            if (dissector_try_uint_new(subdissector_table, high_port, next_tvb, pinfo, tree, true, tcpinfo)) {
+            if (dissector_try_uint_with_data(subdissector_table, high_port, next_tvb, pinfo, tree, true, tcpinfo)) {
                 pinfo->want_pdu_tracking -= !!(pinfo->want_pdu_tracking);
                 handle_export_pdu_dissection_table(pinfo, next_tvb, high_port, tcpinfo);
                 return true;
@@ -7854,20 +7854,20 @@ decode_tcp_ports(tvbuff_t *tvb, int offset, packet_info *pinfo,
        number of 0 to disable the port. */
 
     if (try_server_port &&
-        dissector_try_uint_new(subdissector_table, tcpd->server_port, next_tvb, pinfo, tree, true, tcpinfo)) {
+        dissector_try_uint_with_data(subdissector_table, tcpd->server_port, next_tvb, pinfo, tree, true, tcpinfo)) {
         pinfo->want_pdu_tracking -= !!(pinfo->want_pdu_tracking);
         handle_export_pdu_dissection_table(pinfo, next_tvb, tcpd->server_port, tcpinfo);
         return true;
     }
 
     if (try_low_port &&
-        dissector_try_uint_new(subdissector_table, low_port, next_tvb, pinfo, tree, true, tcpinfo)) {
+        dissector_try_uint_with_data(subdissector_table, low_port, next_tvb, pinfo, tree, true, tcpinfo)) {
         pinfo->want_pdu_tracking -= !!(pinfo->want_pdu_tracking);
         handle_export_pdu_dissection_table(pinfo, next_tvb, low_port, tcpinfo);
         return true;
     }
     if (try_high_port &&
-        dissector_try_uint_new(subdissector_table, high_port, next_tvb, pinfo, tree, true, tcpinfo)) {
+        dissector_try_uint_with_data(subdissector_table, high_port, next_tvb, pinfo, tree, true, tcpinfo)) {
         pinfo->want_pdu_tracking -= !!(pinfo->want_pdu_tracking);
         handle_export_pdu_dissection_table(pinfo, next_tvb, high_port, tcpinfo);
         return true;

@@ -808,7 +808,7 @@ dissect_lnet_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
         case LNET_MSG_PUT:
             conv = get_lnet_conv(pinfo, match);
 
-            offset += dissector_try_uint_new(subdissector_table, tvb_get_letohl(tvb, LNET_PTL_INDEX_OFFSET_PUT),
+            offset += dissector_try_uint_with_data(subdissector_table, tvb_get_letohl(tvb, LNET_PTL_INDEX_OFFSET_PUT),
                                              next_tvb, pinfo, tree, true, conv);
             break;
         default:

@@ -246,7 +246,7 @@ static int dissect_j1939(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
     ti = proto_tree_add_uint(msg_tree, hf_j1939_pgn, tvb, 0, 0, pgn);
     proto_item_set_generated(ti);
 
-    if (!dissector_try_uint_new(subdissector_pgn_table, pgn, tvb, pinfo, msg_tree, true, data))
+    if (!dissector_try_uint_with_data(subdissector_pgn_table, pgn, tvb, pinfo, msg_tree, true, data))
     {
         proto_tree_add_item(msg_tree, hf_j1939_data, tvb, 0, tvb_reported_length(tvb), ENC_NA);
     }

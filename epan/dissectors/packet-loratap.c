@@ -216,7 +216,7 @@ dissect_loratap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void *d
 	p_add_proto_data(pinfo->pool, pinfo, proto_loratap, 0, GUINT_TO_POINTER((unsigned)syncword));
 	next_tvb = tvb_new_subset_length(tvb, current_offset, length);
 
-	if (!try_dissect || !dissector_try_uint_new(loratap_dissector_table, syncword, next_tvb, pinfo, tree, true, NULL)) {
+	if (!try_dissect || !dissector_try_uint_with_data(loratap_dissector_table, syncword, next_tvb, pinfo, tree, true, NULL)) {
 		call_data_dissector(next_tvb, pinfo, tree);
 	}
 

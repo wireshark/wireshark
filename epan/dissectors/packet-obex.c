@@ -1822,7 +1822,7 @@ dissect_headers(proto_tree *tree, tvbuff_t *tvb, int offset, packet_info *pinfo,
                 switch (hdr_id) {
                 case 0x4c: /* Application Parameters */
                     next_tvb = tvb_new_subset_length(tvb, offset, value_length);
-                    if (!(new_offset = dissector_try_uint_new(obex_profile_table, profile, next_tvb, pinfo, hdr_tree, true, NULL))) {
+                    if (!(new_offset = dissector_try_uint_with_data(obex_profile_table, profile, next_tvb, pinfo, hdr_tree, true, NULL))) {
                         new_offset = call_dissector(raw_application_parameters_handle, next_tvb, pinfo, hdr_tree);
                     }
                     offset += new_offset;

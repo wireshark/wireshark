@@ -329,35 +329,35 @@ static int dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto
 {
   struct xnap_private_data *xnap_data = xnap_get_private_data(pinfo);
 
-  return (dissector_try_uint_new(xnap_ies_dissector_table, xnap_data->protocol_ie_id, tvb, pinfo, tree, false, NULL)) ? tvb_captured_length(tvb) : 0;
+  return (dissector_try_uint_with_data(xnap_ies_dissector_table, xnap_data->protocol_ie_id, tvb, pinfo, tree, false, NULL)) ? tvb_captured_length(tvb) : 0;
 }
 
 static int dissect_ProtocolExtensionFieldExtensionValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
   struct xnap_private_data *xnap_data = xnap_get_private_data(pinfo);
 
-  return (dissector_try_uint_new(xnap_extension_dissector_table, xnap_data->protocol_ie_id, tvb, pinfo, tree, false, NULL)) ? tvb_captured_length(tvb) : 0;
+  return (dissector_try_uint_with_data(xnap_extension_dissector_table, xnap_data->protocol_ie_id, tvb, pinfo, tree, false, NULL)) ? tvb_captured_length(tvb) : 0;
 }
 
 static int dissect_InitiatingMessageValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
   struct xnap_private_data *xnap_data = xnap_get_private_data(pinfo);
 
-  return (dissector_try_uint_new(xnap_proc_imsg_dissector_table, xnap_data->procedure_code, tvb, pinfo, tree, false, NULL)) ? tvb_captured_length(tvb) : 0;
+  return (dissector_try_uint_with_data(xnap_proc_imsg_dissector_table, xnap_data->procedure_code, tvb, pinfo, tree, false, NULL)) ? tvb_captured_length(tvb) : 0;
 }
 
 static int dissect_SuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
   struct xnap_private_data *xnap_data = xnap_get_private_data(pinfo);
 
-  return (dissector_try_uint_new(xnap_proc_sout_dissector_table, xnap_data->procedure_code, tvb, pinfo, tree, false, NULL)) ? tvb_captured_length(tvb) : 0;
+  return (dissector_try_uint_with_data(xnap_proc_sout_dissector_table, xnap_data->procedure_code, tvb, pinfo, tree, false, NULL)) ? tvb_captured_length(tvb) : 0;
 }
 
 static int dissect_UnsuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
   struct xnap_private_data *xnap_data = xnap_get_private_data(pinfo);
 
-  return (dissector_try_uint_new(xnap_proc_uout_dissector_table, xnap_data->procedure_code, tvb, pinfo, tree, false, NULL)) ? tvb_captured_length(tvb) : 0;
+  return (dissector_try_uint_with_data(xnap_proc_uout_dissector_table, xnap_data->procedure_code, tvb, pinfo, tree, false, NULL)) ? tvb_captured_length(tvb) : 0;
 }
 
 static int

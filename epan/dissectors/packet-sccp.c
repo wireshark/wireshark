@@ -2483,11 +2483,11 @@ dissect_sccp_data_param(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, scc
   /* Save SSN for Decode As */
   p_add_proto_data(pinfo->pool, pinfo, proto_sccp, 0, GUINT_TO_POINTER((unsigned)ssn));
 
-  if ((ssn != INVALID_SSN) && dissector_try_uint_new(sccp_ssn_dissector_table, ssn, tvb, pinfo, tree, true, sccp_info)) {
+  if ((ssn != INVALID_SSN) && dissector_try_uint_with_data(sccp_ssn_dissector_table, ssn, tvb, pinfo, tree, true, sccp_info)) {
     return;
   }
 
-  if ((other_ssn != INVALID_SSN) && dissector_try_uint_new(sccp_ssn_dissector_table, other_ssn, tvb, pinfo, tree, true, sccp_info)) {
+  if ((other_ssn != INVALID_SSN) && dissector_try_uint_with_data(sccp_ssn_dissector_table, other_ssn, tvb, pinfo, tree, true, sccp_info)) {
     return;
   }
 

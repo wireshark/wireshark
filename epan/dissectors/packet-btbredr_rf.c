@@ -1525,7 +1525,7 @@ dissect_btbredr_rf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
 
                next_tvb = tvb_new_subset_remaining(tvb, offset);
                if (packet_type_table && packet_type > PACKET_TYPE_UNKNOWN &&
-                   dissector_try_uint_new(packet_type_table, packet_type, next_tvb, pinfo, tree, true, bluetooth_data)) {
+                   dissector_try_uint_with_data(packet_type_table, packet_type, next_tvb, pinfo, tree, true, bluetooth_data)) {
                    offset = tvb_reported_length(tvb);
                } else {
                    if (isochronous_length > 0 &&

@@ -3794,7 +3794,7 @@ dissect_someip_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 
         tvb_length = tvb_captured_length_remaining(subtvb, 0);
         if (tvb_length > 0) {
-            tmp = dissector_try_uint_new(someip_dissector_table, someip_messageid, subtvb, pinfo, tree, false, &someip_data);
+            tmp = dissector_try_uint_with_data(someip_dissector_table, someip_messageid, subtvb, pinfo, tree, false, &someip_data);
 
             /* if no subdissector was found, the generic payload dissector takes over. */
             if (tmp==0) {

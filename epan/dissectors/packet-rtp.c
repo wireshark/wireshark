@@ -1581,7 +1581,7 @@ process_rtp_payload(tvbuff_t *newtvb, packet_info *pinfo, proto_tree *tree,
     }
 
     /* if we don't found, it is static OR could be set static from the preferences */
-    if (dissector_try_uint_new(rtp_pt_dissector_table, payload_type, newtvb, pinfo, tree, true, rtp_info))
+    if (dissector_try_uint_with_data(rtp_pt_dissector_table, payload_type, newtvb, pinfo, tree, true, rtp_info))
         proto_item_set_hidden(rtp_data);
 }
 
@@ -2517,7 +2517,7 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                     pinfo, rtp_hext_tree);
             }
             else {
-                if ( !(dissector_try_uint_new(rtp_hdr_ext_dissector_table, hdr_extension_id, newtvb, pinfo, rtp_hext_tree, false, rtp_info)) ) {
+                if ( !(dissector_try_uint_with_data(rtp_hdr_ext_dissector_table, hdr_extension_id, newtvb, pinfo, rtp_hext_tree, false, rtp_info)) ) {
                     unsigned int hdrext_offset;
 
                     hdrext_offset = offset;

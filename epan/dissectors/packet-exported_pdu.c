@@ -505,7 +505,7 @@ dissect_exported_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
                 else {
                     col_clear(pinfo->cinfo, COL_INFO);
                 }
-                dissector_try_uint_new(dis_tbl, dissector_table_val, payload_tvb, pinfo, tree, true, dissector_data);
+                dissector_try_uint_with_data(dis_tbl, dissector_table_val, payload_tvb, pinfo, tree, true, dissector_data);
             }
         }
         default:

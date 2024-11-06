@@ -1373,8 +1373,8 @@ dissect_asam_cmp_data_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_tr
             lin_info.bus_id = ht_interface_config_to_bus_id(interface_id);
             lin_info.len = msg_payload_type_length;
 
-            if (!dissector_try_uint_new(lin_subdissector_table, lin_info.id | (lin_info.bus_id << 16), sub_tvb, pinfo, tree, false, &lin_info)) {
-                if (!dissector_try_uint_new(lin_subdissector_table, lin_info.id, sub_tvb, pinfo, tree, false, &lin_info)) {
+            if (!dissector_try_uint_with_data(lin_subdissector_table, lin_info.id | (lin_info.bus_id << 16), sub_tvb, pinfo, tree, false, &lin_info)) {
+                if (!dissector_try_uint_with_data(lin_subdissector_table, lin_info.id, sub_tvb, pinfo, tree, false, &lin_info)) {
                     call_data_dissector(sub_tvb, pinfo, tree);
                 }
             }

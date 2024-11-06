@@ -5323,7 +5323,7 @@ static int dissect_app_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
         col_add_fstr(pinfo->cinfo, COL_PROTOCOL, "APP(%u)", app);
 
         /* call the next dissector */
-        if (dissector_try_uint_new(app_dissectors, app, tvb, pinfo, tree, true, data))
+        if (dissector_try_uint_with_data(app_dissectors, app, tvb, pinfo, tree, true, data))
         {
             col_set_fence(pinfo->cinfo, COL_PROTOCOL);
             col_set_fence(pinfo->cinfo, COL_INFO);
@@ -5408,7 +5408,7 @@ static int dof_dissect_dpp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
         }
 
         /* call the next dissector */
-        if (dissector_try_uint_new(dof_dpp_dissectors, dpp_version, tvb, pinfo, dpp_root, false, data))
+        if (dissector_try_uint_with_data(dof_dpp_dissectors, dpp_version, tvb, pinfo, dpp_root, false, data))
         {
             col_set_fence(pinfo->cinfo, COL_PROTOCOL);
             col_set_fence(pinfo->cinfo, COL_INFO);
@@ -5446,7 +5446,7 @@ static int dof_dissect_dnp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
     proto_tree_add_item(dnp_tree, hf_2008_1_dnp_1_version, tvb, offset, 1, ENC_NA);
 
     /* call the next dissector */
-    if (dissector_try_uint_new(dnp_dissectors, dnp_version, tvb, pinfo, dnp_root, false, api_data))
+    if (dissector_try_uint_with_data(dnp_dissectors, dnp_version, tvb, pinfo, dnp_root, false, api_data))
     {
         /* Since the transport may have additional packets in this frame, protect our work. */
         col_set_fence(pinfo->cinfo, COL_PROTOCOL);

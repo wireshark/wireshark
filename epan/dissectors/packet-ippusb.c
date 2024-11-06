@@ -248,7 +248,7 @@ dissect_ippusb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
             ippusb_last_pdu = -1;
         }
 
-        ret = dissector_try_uint_new(ippusb_dissector_table, HTTP, tvb, pinfo, tree, true, data);
+        ret = dissector_try_uint_with_data(ippusb_dissector_table, HTTP, tvb, pinfo, tree, true, data);
     }
     else if (global_ippusb_reassemble) {
         /* If reassembly is wanted */
@@ -333,7 +333,7 @@ dissect_ippusb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
                         pinfo->can_desegment = 0;
 
                         if(processed_tvb){
-                            ret = dissector_try_uint_new(ippusb_dissector_table, HTTP, processed_tvb, pinfo, tree, true, data);
+                            ret = dissector_try_uint_with_data(ippusb_dissector_table, HTTP, processed_tvb, pinfo, tree, true, data);
                             col_append_str(pinfo->cinfo, COL_INFO, " Reassembled Data");
                         }
                     }
@@ -396,7 +396,7 @@ dissect_ippusb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
                 if (processed_tvb) {
                     pinfo->can_desegment = 0;
 
-                    ret = dissector_try_uint_new(ippusb_dissector_table, HTTP, processed_tvb, pinfo, tree, true, data);
+                    ret = dissector_try_uint_with_data(ippusb_dissector_table, HTTP, processed_tvb, pinfo, tree, true, data);
 
                     if (current_msp->document & MSP_DOCUMENT_TRUNCATED) {
                         col_append_str(pinfo->cinfo, COL_INFO, " Document Truncated");
@@ -415,7 +415,7 @@ dissect_ippusb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
                 if (processed_tvb) {
                     pinfo->can_desegment = 0;
 
-                    ret = dissector_try_uint_new(ippusb_dissector_table, HTTP, processed_tvb, pinfo, tree, true, data);
+                    ret = dissector_try_uint_with_data(ippusb_dissector_table, HTTP, processed_tvb, pinfo, tree, true, data);
 
                     col_append_str(pinfo->cinfo, COL_INFO, " Reassembled Data");
 

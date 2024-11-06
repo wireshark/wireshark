@@ -1067,7 +1067,7 @@ dissect_mpeg_pes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
                          * sync and reassembling across PES packet boundaries
                          * if necessary.
                          */
-			if (!dissector_try_uint_new(stream_type_table, stream_type, es, pinfo, tree, true, NULL)) {
+			if (!dissector_try_uint_with_data(stream_type_table, stream_type, es, pinfo, tree, true, NULL)) {
 				/* If we didn't get a stream type, then assume
 				 * MPEG-1/2 Audio or Video.
 				 */

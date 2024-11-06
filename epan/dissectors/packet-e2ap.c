@@ -14560,7 +14560,7 @@ static int dissect_E2SM_NI_RANfunction_Description_PDU(tvbuff_t *tvb _U_, packet
 static int dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
   struct e2ap_private_data *e2ap_data = e2ap_get_private_data(pinfo);
-  return (dissector_try_uint_new(e2ap_ies_dissector_table, e2ap_data->protocol_ie_id, tvb, pinfo, tree, false, NULL)) ? tvb_captured_length(tvb) : 0;
+  return (dissector_try_uint_with_data(e2ap_ies_dissector_table, e2ap_data->protocol_ie_id, tvb, pinfo, tree, false, NULL)) ? tvb_captured_length(tvb) : 0;
 }
 
 
@@ -14586,21 +14586,21 @@ static int dissect_InitiatingMessageValue(tvbuff_t *tvb, packet_info *pinfo, pro
 {
   struct e2ap_private_data *e2ap_data = e2ap_get_private_data(pinfo);
 
-  return (dissector_try_uint_new(e2ap_proc_imsg_dissector_table, e2ap_data->procedure_code, tvb, pinfo, tree, true, data)) ? tvb_captured_length(tvb) : 0;
+  return (dissector_try_uint_with_data(e2ap_proc_imsg_dissector_table, e2ap_data->procedure_code, tvb, pinfo, tree, true, data)) ? tvb_captured_length(tvb) : 0;
 }
 
 static int dissect_SuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
   struct e2ap_private_data *e2ap_data = e2ap_get_private_data(pinfo);
 
-  return (dissector_try_uint_new(e2ap_proc_sout_dissector_table, e2ap_data->procedure_code, tvb, pinfo, tree, true, data)) ? tvb_captured_length(tvb) : 0;
+  return (dissector_try_uint_with_data(e2ap_proc_sout_dissector_table, e2ap_data->procedure_code, tvb, pinfo, tree, true, data)) ? tvb_captured_length(tvb) : 0;
 }
 
 static int dissect_UnsuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
   struct e2ap_private_data *e2ap_data = e2ap_get_private_data(pinfo);
 
-  return (dissector_try_uint_new(e2ap_proc_uout_dissector_table, e2ap_data->procedure_code, tvb, pinfo, tree, true, data)) ? tvb_captured_length(tvb) : 0;
+  return (dissector_try_uint_with_data(e2ap_proc_uout_dissector_table, e2ap_data->procedure_code, tvb, pinfo, tree, true, data)) ? tvb_captured_length(tvb) : 0;
 }
 
 

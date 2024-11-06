@@ -1348,7 +1348,7 @@ awdl_add_tagged_field(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int o
   tag_tvb = tvb_new_subset_length(tvb, offset, tag_len);
   field_data.item_tag = ti;
   field_data.item_tag_length = ti_len;
-  if (!(parsed = dissector_try_uint_new(tagged_field_table, tag_no, tag_tvb, pinfo, tree, false, &field_data)))
+  if (!(parsed = dissector_try_uint_with_data(tagged_field_table, tag_no, tag_tvb, pinfo, tree, false, &field_data)))
   {
     proto_tree_add_item(tree, hf_awdl_tag_data, tag_tvb, 0, tag_len, ENC_NA);
     expert_add_info_format(pinfo, ti_tag, &ei_awdl_tag_data,

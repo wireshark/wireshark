@@ -219,52 +219,58 @@ WS_DLL_PUBLIC void dissector_add_uint(const char *name, const uint32_t pattern,
 WS_DLL_PUBLIC void dissector_add_uint_with_preference(const char *name, const uint32_t pattern,
     dissector_handle_t handle);
 
-/* Add an range of entries to a uint dissector table. */
+/** Add an range of entries to a uint dissector table. */
 WS_DLL_PUBLIC void dissector_add_uint_range(const char *abbrev, struct epan_range *range,
     dissector_handle_t handle);
 
-/* Add an range of entries to a uint dissector table with "preference" automatically added. */
+/** Add an range of entries to a uint dissector table with "preference" automatically added. */
 WS_DLL_PUBLIC void dissector_add_uint_range_with_preference(const char *abbrev, const char* range_str,
     dissector_handle_t handle);
 
-/* Delete the entry for a dissector in a uint dissector table
+/** Delete the entry for a dissector in a uint dissector table
    with a particular pattern. */
 WS_DLL_PUBLIC void dissector_delete_uint(const char *name, const uint32_t pattern,
     dissector_handle_t handle);
 
-/* Delete an range of entries from a uint dissector table. */
+/** Delete an range of entries from a uint dissector table. */
 WS_DLL_PUBLIC void dissector_delete_uint_range(const char *abbrev, struct epan_range *range,
     dissector_handle_t handle);
 
-/* Delete all entries from a dissector table. */
+/** Delete all entries from a dissector table. */
 WS_DLL_PUBLIC void dissector_delete_all(const char *name, dissector_handle_t handle);
 
-/* Change the entry for a dissector in a uint dissector table
+/** Change the entry for a dissector in a uint dissector table
    with a particular pattern to use a new dissector handle. */
 WS_DLL_PUBLIC void dissector_change_uint(const char *abbrev, const uint32_t pattern,
     dissector_handle_t handle);
 
-/* Reset an entry in a uint dissector table to its initial value. */
+/** Reset an entry in a uint dissector table to its initial value. */
 WS_DLL_PUBLIC void dissector_reset_uint(const char *name, const uint32_t pattern);
 
-/* Return true if an entry in a uint dissector table is found and has been
+/** Return true if an entry in a uint dissector table is found and has been
  * changed (i.e. dissector_change_uint() has been called, such as from
  * Decode As, prefs registered via dissector_add_uint_[range_]with_preference),
  * etc.), otherwise return false.
  */
 WS_DLL_PUBLIC bool dissector_is_uint_changed(dissector_table_t const sub_dissectors, const uint32_t uint_val);
 
-/* Look for a given value in a given uint dissector table and, if found,
+/** Look for a given value in a given uint dissector table and, if found,
    call the dissector with the arguments supplied, and return the number
    of bytes consumed, otherwise return 0. */
 WS_DLL_PUBLIC int dissector_try_uint(dissector_table_t sub_dissectors,
     const uint32_t uint_val, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
-/* Look for a given value in a given uint dissector table and, if found,
+/** Look for a given value in a given uint dissector table and, if found,
    call the dissector with the arguments supplied, and return the number
    of bytes consumed, otherwise return 0. */
-WS_DLL_PUBLIC int dissector_try_uint_new(dissector_table_t sub_dissectors,
+
+WS_DLL_PUBLIC int dissector_try_uint_with_data(dissector_table_t sub_dissectors,
     const uint32_t uint_val, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, const bool add_proto_name, void *data);
+
+WS_DEPRECATED_X("Use dissector_try_uint_with_data instead")
+static inline int dissector_try_uint_new(dissector_table_t sub_dissectors,
+	const uint32_t uint_val, tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, const bool add_proto_name, void* data) \
+{	return dissector_try_uint_with_data(sub_dissectors, uint_val, tvb, pinfo, tree, add_proto_name, data); }
 
 /** Look for a given value in a given uint dissector table and, if found,
  * return the current dissector handle for that value.

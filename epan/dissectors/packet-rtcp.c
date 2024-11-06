@@ -4162,7 +4162,7 @@ dissect_rtcp_profile_specific_extensions (packet_info *pinfo, tvbuff_t *tvb, pro
         extension_type = tvb_get_ntohs(tvb, offset);
         next_tvb = tvb_new_subset_length(tvb, offset, remaining);
         pse_tree = proto_tree_add_subtree(tree, tvb, offset, remaining, ett_pse, &pse_item, "Profile Specific Extension");
-        bytes_consumed = dissector_try_uint_new(rtcp_pse_dissector_table, extension_type, next_tvb, pinfo, pse_tree, false, NULL);
+        bytes_consumed = dissector_try_uint_with_data(rtcp_pse_dissector_table, extension_type, next_tvb, pinfo, pse_tree, false, NULL);
         if (!bytes_consumed) {
             proto_item_append_text(pse_item, " (Unknown)");
             col_append_str(pinfo->cinfo, COL_INFO, "PSE:Unknown ");

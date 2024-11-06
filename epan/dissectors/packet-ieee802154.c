@@ -3197,14 +3197,14 @@ unsigned ieee802154_dissect_frame_payload(tvbuff_t *tvb, packet_info *pinfo, pro
                     break;
                 }
                 /* Try the PANID dissector table for stateful dissection. */
-                if (dissector_try_uint_new(panid_dissector_table, packet->src_pan, payload_tvb, pinfo, tree, true, packet)) {
+                if (dissector_try_uint_with_data(panid_dissector_table, packet->src_pan, payload_tvb, pinfo, tree, true, packet)) {
                     break;
                 }
                 /* Try again with the destination PANID (if different) */
                 if (((packet->dst_addr_mode == IEEE802154_FCF_ADDR_SHORT) ||
                      (packet->dst_addr_mode == IEEE802154_FCF_ADDR_EXT)) &&
                         (packet->dst_pan != packet->src_pan) &&
-                        dissector_try_uint_new(panid_dissector_table, packet->src_pan, payload_tvb, pinfo, tree, true, packet)) {
+                        dissector_try_uint_with_data(panid_dissector_table, packet->src_pan, payload_tvb, pinfo, tree, true, packet)) {
                     break;
                 }
                 /* Try heuristic dissection. */
@@ -4502,7 +4502,7 @@ dissect_ieee802154_header_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
             consumed = 2 + length;
         } else {
             TRY {
-                consumed = dissector_try_uint_new(header_ie_dissector_table, id, ie_tvb, pinfo, ies_tree, false, packet);
+                consumed = dissector_try_uint_with_data(header_ie_dissector_table, id, ie_tvb, pinfo, ies_tree, false, packet);
                 if (consumed == 0) {
                     proto_tree *subtree = ieee802154_create_hie_tree(ie_tvb, ies_tree, hf_ieee802154_hie_unsupported,
                                                                 ett_ieee802154_hie_unsupported);
@@ -4613,7 +4613,7 @@ dissect_pie_mlme(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ies_tree, void *
 
         /* Pass the tvb off to a subdissector. */
         TRY {
-            unsigned consumed = dissector_try_uint_new(mlme_ie_dissector_table, psie_id, psie_tvb, pinfo, tree, false, data);
+            unsigned consumed = dissector_try_uint_with_data(mlme_ie_dissector_table, psie_id, psie_tvb, pinfo, tree, false, data);
             if (consumed == 0) {
                 proto_tree *subtree = ieee802154_create_psie_tree(psie_tvb, tree, hf_ieee802154_mlme_ie_unsupported, ett_ieee802154_mlme_unsupported);
                 if (tvb_reported_length(psie_tvb) > 2) {
@@ -4837,7 +4837,7 @@ dissect_ieee802154_payload_ie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
             consumed = 2;
         } else {
             TRY {
-                consumed = dissector_try_uint_new(payload_ie_dissector_table, id, ie_tvb, pinfo, ies_tree, false, packet);
+                consumed = dissector_try_uint_with_data(payload_ie_dissector_table, id, ie_tvb, pinfo, ies_tree, false, packet);
                 if (consumed == 0) {
                     proto_tree *subtree = ieee802154_create_pie_tree(ie_tvb, ies_tree, hf_ieee802154_pie_unsupported, ett_ieee802154_pie_unsupported);
                     proto_tree_add_item(subtree, hf_ieee802154_ie_unknown_content_payload, ie_tvb, 2, length, ENC_NA);
@@ -5248,7 +5248,7 @@ dissect_ieee802154_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
     {
         uint32_t oui = tvb_get_letoh24(tvb, 0);
         proto_tree_add_item(tree, hf_ieee802154_cmd_vendor_oui, tvb, 0, 3, ENC_LITTLE_ENDIAN);
-        if (!dissector_try_uint_new(cmd_vendor_dissector_table, oui, tvb_new_subset_remaining(tvb, 3), pinfo, tree, false, packet)) {
+        if (!dissector_try_uint_with_data(cmd_vendor_dissector_table, oui, tvb_new_subset_remaining(tvb, 3), pinfo, tree, false, packet)) {
             call_data_dissector(tvb_new_subset_remaining(tvb, 3), pinfo, tree);
         }
         break;

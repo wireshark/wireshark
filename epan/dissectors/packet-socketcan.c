@@ -490,7 +490,7 @@ socketcan_call_subdissectors(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     dissector_table_t effective_can_id_dissector_table = (can_info->id & CAN_EFF_FLAG) ? can_extended_id_dissector_table : can_id_dissector_table;
     uint32_t effective_can_id = (can_info->id & CAN_EFF_FLAG) ? can_info->id & CAN_EFF_MASK : can_info->id & CAN_SFF_MASK;
 
-    if (!dissector_try_uint_new(effective_can_id_dissector_table, effective_can_id, tvb, pinfo, tree, true, can_info)) {
+    if (!dissector_try_uint_with_data(effective_can_id_dissector_table, effective_can_id, tvb, pinfo, tree, true, can_info)) {
         if (!use_heuristics_first) {
             if (!dissector_try_payload_new(subdissector_table, tvb, pinfo, tree, true, can_info)) {
                 if (!dissector_try_heuristic(heur_subdissector_list, tvb, pinfo, tree, &heur_dtbl_entry, can_info)) {
@@ -671,7 +671,7 @@ dissect_socketcan_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, un
 
         next_tvb = tvb_new_subset_length(tvb, CANXL_DATA_OFFSET, can_info.len);
 
-        if (!dissector_try_uint_new(canxl_sdu_type_dissector_table, sdu_type, next_tvb, pinfo, tree, true, &can_info)) {
+        if (!dissector_try_uint_with_data(canxl_sdu_type_dissector_table, sdu_type, next_tvb, pinfo, tree, true, &can_info)) {
             call_data_dissector(next_tvb, pinfo, tree);
         }
 

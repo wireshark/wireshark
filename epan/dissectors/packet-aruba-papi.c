@@ -658,8 +658,8 @@ dissect_papi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
     }
 
     next_tvb = tvb_new_subset_remaining(tvb, offset);
-    if (!dissector_try_uint_new(papi_dissector_table, dest_port, next_tvb, pinfo, tree, true, NULL)) {
-        if (!dissector_try_uint_new(papi_dissector_table, src_port, next_tvb, pinfo, tree, true, NULL)) {
+    if (!dissector_try_uint_with_data(papi_dissector_table, dest_port, next_tvb, pinfo, tree, true, NULL)) {
+        if (!dissector_try_uint_with_data(papi_dissector_table, src_port, next_tvb, pinfo, tree, true, NULL)) {
             call_data_dissector(next_tvb, pinfo, tree);
         }
     }

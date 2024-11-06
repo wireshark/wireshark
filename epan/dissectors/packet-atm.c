@@ -930,7 +930,7 @@ dissect_reassembled_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
    * First check whether custom dissection table
    * was set up to dissect this VPI+VCI combination
    */
-  if (dissector_try_uint_new(atm_reassembled_vpi_vci_table,
+  if (dissector_try_uint_with_data(atm_reassembled_vpi_vci_table,
                              ((atm_info->vpi) << 16) | atm_info->vci,
                              next_tvb, pinfo, tree, true, atm_info))
   {
@@ -953,7 +953,7 @@ dissect_reassembled_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
   case AAL_5:
     if (!(atm_info->flags & ATM_REASSEMBLY_ERROR)) {
-      if (dissector_try_uint_new(atm_type_aal5_table, atm_info->type, next_tvb, pinfo, tree, true, atm_info))
+      if (dissector_try_uint_with_data(atm_type_aal5_table, atm_info->type, next_tvb, pinfo, tree, true, atm_info))
       {
         decoded = true;
       }
@@ -1339,7 +1339,7 @@ dissect_atm_cell_payload(tvbuff_t *tvb, int offset, packet_info *pinfo,
    * First check whether custom dissection table
    * was set up to dissect this VPI+VCI combination
    */
-  if (dissector_try_uint_new(atm_cell_payload_vpi_vci_table,
+  if (dissector_try_uint_with_data(atm_cell_payload_vpi_vci_table,
                              ((atm_info->vpi) << 16) | atm_info->vci,
                              next_tvb, pinfo, tree, true, atm_info))
   {

@@ -804,7 +804,7 @@ acdr_payload_handler(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
             return;
     }
     // check registered media types
-    if (dissector_try_uint_new(media_type_table, data->media_type, tvb, pinfo, tree, false, data))
+    if (dissector_try_uint_with_data(media_type_table, data->media_type, tvb, pinfo, tree, false, data))
         return;
     proto_tree_add_item(tree, hf_acdr_unknown_packet, tvb, 0, 0, ENC_NA);
 }

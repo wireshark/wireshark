@@ -130,7 +130,7 @@ dissect_eapol(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
   }
 
   next_tvb = tvb_new_subset_remaining(tvb, offset);
-  if (!dissector_try_uint_new(eapol_type_dissector_table,
+  if (!dissector_try_uint_with_data(eapol_type_dissector_table,
                             eapol_type, next_tvb, pinfo, tree,
                             false, eapol_tree)) {
     call_data_dissector(next_tvb, pinfo, tree);
@@ -160,7 +160,7 @@ dissect_eapol_key(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void*
     }
   }
 
-  if (!dissector_try_uint_new(eapol_keydes_type_dissector_table,
+  if (!dissector_try_uint_with_data(eapol_keydes_type_dissector_table,
                               keydesc_type, next_tvb, pinfo, eapol_tree,
                               false, NULL)) {
     proto_tree_add_item(eapol_tree, hf_eapol_keydes_body, tvb, offset, -1, ENC_NA);

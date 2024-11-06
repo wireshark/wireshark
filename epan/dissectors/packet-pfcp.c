@@ -10911,7 +10911,7 @@ dissect_pfcp_generic_enterprise_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree
             offset = dissect_pfcp_unknown_enterprise_ie(data_tvb, pinfo, tree, data);
         } else {
             // A dissector-table is provided from which an IE-specific dissector can be looked up
-            offset = dissector_try_uint_new(ie_table, ie_type, data_tvb, pinfo, tree, false, data);
+            offset = dissector_try_uint_with_data(ie_table, ie_type, data_tvb, pinfo, tree, false, data);
 
             // Fallback to unknown-ie dissector
             if (offset == 0) {
@@ -10996,7 +10996,7 @@ dissect_pfcp_ies_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, 
             ie_tvb = tvb_new_subset_length(tvb, offset, length_ie + 4);
 
             // Find a per-vendor dissector or fallback to the generic-enterprise-dissector without IE-table.
-            if (!dissector_try_uint_new(pfcp_enterprise_ies_dissector_table, enterprise_id, ie_tvb, pinfo, tree, false, pfcp_sub_dis_inf)) {
+            if (!dissector_try_uint_with_data(pfcp_enterprise_ies_dissector_table, enterprise_id, ie_tvb, pinfo, tree, false, pfcp_sub_dis_inf)) {
                 dissect_pfcp_generic_enterprise_ie(ie_tvb, pinfo, tree, pfcp_sub_dis_inf, NULL);
             }
             offset += (4 + length_ie);

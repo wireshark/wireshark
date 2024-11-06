@@ -30897,7 +30897,7 @@ static int dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto
   ngap_ctx.ProtocolIE_ID       = ngap_data->protocol_ie_id;
   ngap_ctx.ProtocolExtensionID = ngap_data->protocol_extension_id;
 
-  return (dissector_try_uint_new(ngap_ies_dissector_table, ngap_data->protocol_ie_id, tvb, pinfo, tree, false, &ngap_ctx)) ? tvb_captured_length(tvb) : 0;
+  return (dissector_try_uint_with_data(ngap_ies_dissector_table, ngap_data->protocol_ie_id, tvb, pinfo, tree, false, &ngap_ctx)) ? tvb_captured_length(tvb) : 0;
 }
 /* Currently not used
 static int dissect_ProtocolIEFieldPairFirstValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -30925,28 +30925,28 @@ static int dissect_ProtocolExtensionFieldExtensionValue(tvbuff_t *tvb, packet_in
   ngap_ctx.ProtocolIE_ID       = ngap_data->protocol_ie_id;
   ngap_ctx.ProtocolExtensionID = ngap_data->protocol_extension_id;
 
-  return (dissector_try_uint_new(ngap_extension_dissector_table, ngap_data->protocol_extension_id, tvb, pinfo, tree, true, &ngap_ctx)) ? tvb_captured_length(tvb) : 0;
+  return (dissector_try_uint_with_data(ngap_extension_dissector_table, ngap_data->protocol_extension_id, tvb, pinfo, tree, true, &ngap_ctx)) ? tvb_captured_length(tvb) : 0;
 }
 
 static int dissect_InitiatingMessageValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
   struct ngap_private_data *ngap_data = ngap_get_private_data(pinfo);
 
-  return (dissector_try_uint_new(ngap_proc_imsg_dissector_table, ngap_data->procedure_code, tvb, pinfo, tree, true, data)) ? tvb_captured_length(tvb) : 0;
+  return (dissector_try_uint_with_data(ngap_proc_imsg_dissector_table, ngap_data->procedure_code, tvb, pinfo, tree, true, data)) ? tvb_captured_length(tvb) : 0;
 }
 
 static int dissect_SuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
   struct ngap_private_data *ngap_data = ngap_get_private_data(pinfo);
 
-  return (dissector_try_uint_new(ngap_proc_sout_dissector_table, ngap_data->procedure_code, tvb, pinfo, tree, true, data)) ? tvb_captured_length(tvb) : 0;
+  return (dissector_try_uint_with_data(ngap_proc_sout_dissector_table, ngap_data->procedure_code, tvb, pinfo, tree, true, data)) ? tvb_captured_length(tvb) : 0;
 }
 
 static int dissect_UnsuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
   struct ngap_private_data *ngap_data = ngap_get_private_data(pinfo);
 
-  return (dissector_try_uint_new(ngap_proc_uout_dissector_table, ngap_data->procedure_code, tvb, pinfo, tree, true, data)) ? tvb_captured_length(tvb) : 0;
+  return (dissector_try_uint_with_data(ngap_proc_uout_dissector_table, ngap_data->procedure_code, tvb, pinfo, tree, true, data)) ? tvb_captured_length(tvb) : 0;
 }
 
 static int dissect_QosFlowAdditionalInfoListRel_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)

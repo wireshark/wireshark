@@ -151,7 +151,7 @@ ConferenceInviteResponse/result	InviteResponseResult
 
 	if(next_tvb) {
 
-	     dissector_try_uint_new(t124_sd_dissector_table, channelId, next_tvb, actx->pinfo, top_tree, false, NULL);
+	     dissector_try_uint_with_data(t124_sd_dissector_table, channelId, next_tvb, actx->pinfo, top_tree, false, NULL);
 
 	}
 

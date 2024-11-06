@@ -2392,7 +2392,7 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
         opt_tvb = tvb_new_subset_length(tvb, off, optlen);
 
         // Find a per-vendor dissector or fallback to the generic-enterprise-dissector.
-        if (!dissector_try_uint_new(dhcpv6_enterprise_opts_dissector_table, enterprise_no, opt_tvb, pinfo, subtree, false, &msgtype)) {
+        if (!dissector_try_uint_with_data(dhcpv6_enterprise_opts_dissector_table, enterprise_no, opt_tvb, pinfo, subtree, false, &msgtype)) {
             proto_tree_add_item(subtree, hf_vendoropts_enterprise, tvb, off, 4, ENC_BIG_ENDIAN);
             int optoffset = 0;
 

@@ -6667,7 +6667,7 @@ dissect_gtpv2_private_ext(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
     proto_item_append_text(item, "%s (%u)", enterprises_lookup(ext_id, "Unknown"), ext_id);
 
     next_tvb = tvb_new_subset_length(tvb, offset, length-2);
-    if (dissector_try_uint_new(gtpv2_priv_ext_dissector_table, ext_id, next_tvb, pinfo, tree, false, &gtpv2_inf)){
+    if (dissector_try_uint_with_data(gtpv2_priv_ext_dissector_table, ext_id, next_tvb, pinfo, tree, false, &gtpv2_inf)){
         return;
     }
 

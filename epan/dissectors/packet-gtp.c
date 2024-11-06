@@ -10854,7 +10854,7 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
                                 gtp_hdr_ext_info.hdr_ext_item = hdr_ext_item;
                                 /* NOTE Type and length included in the call */
                                 ext_hdr_tvb = tvb_new_subset_remaining(tvb, offset - 2);
-                                dissector_try_uint_new(gtp_hdr_ext_dissector_table, next_hdr, ext_hdr_tvb, pinfo, ext_tree, false, &gtp_hdr_ext_info);
+                                dissector_try_uint_with_data(gtp_hdr_ext_dissector_table, next_hdr, ext_hdr_tvb, pinfo, ext_tree, false, &gtp_hdr_ext_info);
                                 break;
                             }
                         }

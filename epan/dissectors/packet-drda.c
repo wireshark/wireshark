@@ -2489,7 +2489,7 @@ dissect_drda_collection(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
             proto_item_append_text(ti, " (%s)", val_to_str_ext(iParameterCP, &drda_opcode_vals_ext, "Unknown (0x%02x)"));
             proto_tree_add_item(drda_tree_sub, hf_drda_param_length, tvb, offset, 2, ENC_BIG_ENDIAN);
             proto_tree_add_item(drda_tree_sub, hf_drda_param_codepoint, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
-            if (!dissector_try_uint_new(drda_opcode_table, iParameterCP, tvb_new_subset_length(tvb, offset + 4, iLengthParam - 4), pinfo, drda_tree_sub, false, data)) {
+            if (!dissector_try_uint_with_data(drda_opcode_table, iParameterCP, tvb_new_subset_length(tvb, offset + 4, iLengthParam - 4), pinfo, drda_tree_sub, false, data)) {
                 proto_tree_add_item(drda_tree_sub, hf_drda_param_data, tvb, offset + 4, iLengthParam - 4, ENC_UTF_8);
                 proto_tree_add_item(drda_tree_sub, hf_drda_param_data_ebcdic, tvb, offset + 4, iLengthParam - 4, ENC_EBCDIC_CP500);
             }
@@ -2569,7 +2569,7 @@ dissect_drda_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
     pdu_info = drda_get_pdu_info(pinfo, correl, is_server);
 
     /* There are a few command objects treated differently, like SNDPKT */
-    if (!dissector_try_uint_new(drda_opcode_table, iCommand, tvb_new_subset_length(tvb, 10, iLength - 10), pinfo, drda_tree, false, pdu_info)) {
+    if (!dissector_try_uint_with_data(drda_opcode_table, iCommand, tvb_new_subset_length(tvb, 10, iLength - 10), pinfo, drda_tree, false, pdu_info)) {
         /* The number of attributes is variable */
         offset = 10;
         while (tvb_reported_length_remaining(tvb, offset) >= 2)
@@ -2585,7 +2585,7 @@ dissect_drda_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
                 proto_item_append_text(ti, " (%s)", val_to_str_ext(iParameterCP, &drda_opcode_vals_ext, "Unknown (0x%02x)"));
                 proto_tree_add_item(drda_tree_sub, hf_drda_param_length, tvb, offset, 2, ENC_BIG_ENDIAN);
                 proto_tree_add_item(drda_tree_sub, hf_drda_param_codepoint, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
-                if (!dissector_try_uint_new(drda_opcode_table, iParameterCP, tvb_new_subset_length(tvb, offset + 4, iLengthParam - 4), pinfo, drda_tree_sub, false, pdu_info)) {
+                if (!dissector_try_uint_with_data(drda_opcode_table, iParameterCP, tvb_new_subset_length(tvb, offset + 4, iLengthParam - 4), pinfo, drda_tree_sub, false, pdu_info)) {
                     proto_tree_add_item(drda_tree_sub, hf_drda_param_data, tvb, offset + 4, iLengthParam - 4, ENC_UTF_8);
                     proto_tree_add_item(drda_tree_sub, hf_drda_param_data_ebcdic, tvb, offset + 4, iLengthParam - 4, ENC_EBCDIC_CP500);
                 }

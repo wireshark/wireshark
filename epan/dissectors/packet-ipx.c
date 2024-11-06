@@ -424,11 +424,11 @@ dissect_ipx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 	tap_queue_packet(ipx_tap, pinfo, ipxh);
 
 	if (second_socket != IPX_SOCKET_NWLINK_SMB_NAMEQUERY) {
-		if (dissector_try_uint_new(ipx_socket_dissector_table, first_socket,
+		if (dissector_try_uint_with_data(ipx_socket_dissector_table, first_socket,
 			next_tvb, pinfo, tree, false, ipxh))
 			return tvb_captured_length(tvb);
 	}
-	if (dissector_try_uint_new(ipx_socket_dissector_table, second_socket,
+	if (dissector_try_uint_with_data(ipx_socket_dissector_table, second_socket,
 		next_tvb, pinfo, tree, false, ipxh))
 		return tvb_captured_length(tvb);
 
@@ -436,7 +436,7 @@ dissect_ipx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 	 * Neither of them are known; try the packet type, which will
 	 * at least let us, for example, dissect SPX packets as SPX.
 	 */
-	if (dissector_try_uint_new(ipx_type_dissector_table, ipxh->ipx_type, next_tvb,
+	if (dissector_try_uint_with_data(ipx_type_dissector_table, ipxh->ipx_type, next_tvb,
 		pinfo, tree, false, ipxh))
 		return tvb_captured_length(tvb);
 
@@ -822,12 +822,12 @@ dissect_spx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 		spx_infox.datastream_type = datastream_type;
 
 		next_tvb = tvb_new_subset_remaining(tvb, hdr_len);
-		if (dissector_try_uint_new(spx_socket_dissector_table, low_socket,
+		if (dissector_try_uint_with_data(spx_socket_dissector_table, low_socket,
 		    next_tvb, pinfo, tree, false, &spx_infox))
 		{
 			return tvb_captured_length(tvb);
 		}
-		if (dissector_try_uint_new(spx_socket_dissector_table, high_socket,
+		if (dissector_try_uint_with_data(spx_socket_dissector_table, high_socket,
 		    next_tvb, pinfo, tree, false, &spx_infox))
 		{
 			return tvb_captured_length(tvb);

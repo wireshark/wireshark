@@ -9995,7 +9995,7 @@ dissect_vendor_action_wifi_alliance(tvbuff_t *tvb, packet_info *pinfo, proto_tre
   offset += 1;
 
   subtvb = tvb_new_subset_remaining(tvb, offset);
-  dissected = dissector_try_uint_new(wifi_alliance_action_subtype_table, subtype, subtvb, pinfo, tree, false, NULL);
+  dissected = dissector_try_uint_with_data(wifi_alliance_action_subtype_table, subtype, subtvb, pinfo, tree, false, NULL);
   if (dissected <= 0)
   {
       call_data_dissector(subtvb, pinfo, tree);
@@ -11541,7 +11541,7 @@ dissect_vendor_wifi_alliance_anqp(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
   offset += 1;
 
   subtvb = tvb_new_subset_remaining(tvb, offset);
-  if (!dissector_try_uint_new(wifi_alliance_anqp_info_table, subtype, subtvb, pinfo, tree, false, data))
+  if (!dissector_try_uint_with_data(wifi_alliance_anqp_info_table, subtype, subtvb, pinfo, tree, false, data))
       call_data_dissector(subtvb, pinfo, tree);
 
   return tvb_captured_length(tvb);
@@ -11632,7 +11632,7 @@ dissect_anqp_info(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offse
 
     anqp_info.request = request;
     anqp_info.idx = idx;
-    if (!dissector_try_uint_new(vendor_specific_anqp_info_table, oui, vendor_tvb, pinfo, tree, false, &anqp_info))
+    if (!dissector_try_uint_with_data(vendor_specific_anqp_info_table, oui, vendor_tvb, pinfo, tree, false, &anqp_info))
     {
       proto_tree_add_item(tree, hf_ieee80211_ff_anqp_info, tvb, offset, len, ENC_NA);
     }
@@ -13296,7 +13296,7 @@ add_ff_action_public_fields(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
       proto_tree_add_item(tree, hf_ieee80211_tag_oui_wfa_subtype, tvb, offset, 1, ENC_NA);
       offset += 1;
       vendor_tvb = tvb_new_subset_remaining(tvb, offset);
-      dissected = dissector_try_uint_new(wifi_alliance_public_action_table, subtype, vendor_tvb, pinfo, tree, false, NULL);
+      dissected = dissector_try_uint_with_data(wifi_alliance_public_action_table, subtype, vendor_tvb, pinfo, tree, false, NULL);
       offset += dissected;
       break;
     default:
@@ -14662,7 +14662,7 @@ add_ff_action_vendor_specific(proto_tree *tree, tvbuff_t *tvb, packet_info *pinf
   offset += 3;
 
   vendor_tvb = tvb_new_subset_remaining(tvb, offset);
-  dissected = dissector_try_uint_new(vendor_specific_action_table, oui, vendor_tvb, pinfo, tree, false, NULL);
+  dissected = dissector_try_uint_with_data(vendor_specific_action_table, oui, vendor_tvb, pinfo, tree, false, NULL);
   if (dissected <= 0)
   {
       call_data_dissector(vendor_tvb, pinfo, tree);
@@ -20278,7 +20278,7 @@ dissect_vendor_ie_wfa(packet_info *pinfo, proto_item *item, tvbuff_t *tag_tvb)
   subtype = tvb_get_uint8(tag_tvb, 3);
   proto_item_append_text(item, ": %s", val_to_str_const(subtype, wfa_subtype_vals, "Unknown"));
   vendor_tvb = tvb_new_subset_length(tag_tvb, offset + 4, tag_len - 4);
-  dissector_try_uint_new(wifi_alliance_ie_table, subtype, vendor_tvb, pinfo, item, false, NULL);
+  dissector_try_uint_with_data(wifi_alliance_ie_table, subtype, vendor_tvb, pinfo, item, false, NULL);
 }
 
 static const range_string kde_selectors_rvals[] = {
@@ -29745,7 +29745,7 @@ ieee80211_tag_ssid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
    *
    * Also, we have to return a non-zero value here to prevent an ugly
    * undissected field warning. Since this code is only called from
-   * one place and is used in call to dissector_try_uint_new, it is
+   * one place and is used in call to dissector_try_uint_with_data, it is
    * OK to do so.
    */
   ssid_len = tvb_get_raw_bytes_as_string(tvb_new_subset_length(tvb, offset, tag_len), offset, ssid, MAX_SSID_LEN);
@@ -30777,7 +30777,7 @@ add_tagged_field_with_validation(packet_info *pinfo, proto_tree *tree, tvbuff_t 
   field_data.isDMG = isDMG;
   field_data.item_tag = ti;
   field_data.item_tag_length = ti_len;
-  if (!dissector_try_uint_new(tagged_field_table, tag_no, tag_tvb, pinfo, tree, false, &field_data))
+  if (!dissector_try_uint_with_data(tagged_field_table, tag_no, tag_tvb, pinfo, tree, false, &field_data))
   {
       proto_tree_add_item(tree, hf_ieee80211_tag_data, tvb, offset + 2, tag_len, ENC_NA);
       expert_add_info_format(pinfo, ti_tag, &ei_ieee80211_tag_data,

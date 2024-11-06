@@ -346,7 +346,7 @@ mcpe_dissect_batch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
                                val_to_str(packet_id, mcpe_packet_names, "Unknown packet ID: %#x"));
 
                 dissected =
-                    dissector_try_uint_new(mcpe_packet_dissectors, packet_id,
+                    dissector_try_uint_with_data(mcpe_packet_dissectors, packet_id,
                                            record_tvb, pinfo, record_tree, true, data);
                 if (!dissected) {
                     expert_add_info(pinfo, ti, &ei_mcpe_unknown_packet_id);

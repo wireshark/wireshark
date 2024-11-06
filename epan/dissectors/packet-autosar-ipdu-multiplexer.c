@@ -735,7 +735,7 @@ dissect_ipdum_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_tree, 
                     autosar_ipdu_multiplexer_info_t pdu_t_info;
                     pdu_t_info.pdu_id = config->items[i].pdu_id;
 
-                    dissector_try_uint_new(subdissector_table, config->items[i].pdu_id, subtvb, pinfo, root_tree, false, (void *)(&pdu_t_info));
+                    dissector_try_uint_with_data(subdissector_table, config->items[i].pdu_id, subtvb, pinfo, root_tree, false, (void *)(&pdu_t_info));
                 }
             }
         }

@@ -4969,7 +4969,7 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
     }
 
     service_uuid = get_service_uuid_from_handle(pinfo, handle, att_data->opcode, bluetooth_data);
-    offset = dissector_try_uint_new(att_service_dissector_table, service_uuid.bt_uuid, tvb, pinfo, tree, true, att_data);
+    offset = dissector_try_uint_with_data(att_service_dissector_table, service_uuid.bt_uuid, tvb, pinfo, tree, true, att_data);
     if (offset == tvb_captured_length(tvb))
         return old_offset + offset;
 
@@ -10664,7 +10664,7 @@ btatt_dissect_attribute_handle(uint16_t handle, tvbuff_t *tvb, packet_info *pinf
      * from its protocol name and then calls dissect_attribute_value().
      */
 
-    return dissector_try_uint_new(att_handle_dissector_table, handle, tvb, pinfo, tree, true, att_data);
+    return dissector_try_uint_with_data(att_handle_dissector_table, handle, tvb, pinfo, tree, true, att_data);
 }
 
 static int

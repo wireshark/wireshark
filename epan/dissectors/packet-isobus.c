@@ -334,13 +334,13 @@ call_isobus_subdissector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, co
     isobus_info.source_addr = source_addr;
 
     /* try PGN */
-    int ret = dissector_try_uint_new(subdissector_table_pgn, pgn, tvb, pinfo, tree, add_proto_name, &isobus_info);
+    int ret = dissector_try_uint_with_data(subdissector_table_pgn, pgn, tvb, pinfo, tree, add_proto_name, &isobus_info);
     if (ret > 0) {
         return ret;
     }
 
     /* try PDU Format */
-    return dissector_try_uint_new(subdissector_table_pdu_format, pdu_format, tvb, pinfo, tree, add_proto_name, &isobus_info);
+    return dissector_try_uint_with_data(subdissector_table_pdu_format, pdu_format, tvb, pinfo, tree, add_proto_name, &isobus_info);
 }
 
 /* Code to actually dissect the packets */

@@ -3192,7 +3192,7 @@ dissect_usb_configuration_descriptor(packet_info *pinfo _U_, proto_tree *parent_
             break;
         default:
             next_tvb = tvb_new_subset_length(tvb, offset, next_len);
-            if (dissector_try_uint_new(usb_descriptor_dissector_table, urb->conv->interfaceClass, next_tvb, pinfo, parent_tree, true, urb)) {
+            if (dissector_try_uint_with_data(usb_descriptor_dissector_table, urb->conv->interfaceClass, next_tvb, pinfo, parent_tree, true, urb)) {
                 offset += next_len;
             } else {
                 offset = dissect_usb_unknown_descriptor(pinfo, parent_tree, tvb, offset, urb);
@@ -4105,7 +4105,7 @@ try_dissect_next_protocol(proto_tree *tree, tvbuff_t *next_tvb, packet_info *pin
     }
 
     /* try dissect by "usb.device" */
-    ret = dissector_try_uint_new(device_to_dissector,
+    ret = dissector_try_uint_with_data(device_to_dissector,
             (uint32_t)(urb->bus_id<<16 | urb->device_address),
             next_tvb, pinfo, tree, true, urb);
     if (ret)
@@ -4130,7 +4130,7 @@ try_dissect_next_protocol(proto_tree *tree, tvbuff_t *next_tvb, packet_info *pin
     if (device_protocol_data &&
             device_protocol_data->bus_id == urb->bus_id &&
             device_protocol_data->device_address == urb->device_address) {
-                ret = dissector_try_uint_new(protocol_to_dissector,
+                ret = dissector_try_uint_with_data(protocol_to_dissector,
                         (uint32_t)device_protocol_data->protocol,
                         next_tvb, pinfo, tree, true, urb);
                 if (ret)
@@ -4141,7 +4141,7 @@ try_dissect_next_protocol(proto_tree *tree, tvbuff_t *next_tvb, packet_info *pin
 
     if (device_product_data && device_product_data->bus_id == urb->bus_id &&
             device_product_data->device_address == urb->device_address) {
-                ret = dissector_try_uint_new(product_to_dissector,
+                ret = dissector_try_uint_with_data(product_to_dissector,
                         (uint32_t)(device_product_data->vendor<<16 | device_product_data->product),
                         next_tvb, pinfo, tree, true, urb);
                 if (ret)
@@ -4254,7 +4254,7 @@ try_dissect_next_protocol(proto_tree *tree, tvbuff_t *next_tvb, packet_info *pin
     protocol = (urb->conv->interfaceClass & 0xFF) << 16 |
                (urb->conv->interfaceSubclass & 0xFF) << 8 |
                (urb->conv->interfaceProtocol & 0xFF);
-    ret = dissector_try_uint_new(protocol_to_dissector, protocol,
+    ret = dissector_try_uint_with_data(protocol_to_dissector, protocol,
                                  next_tvb, pinfo, tree, true, urb);
     if (ret)
         return tvb_captured_length(next_tvb);
@@ -4277,7 +4277,7 @@ try_dissect_next_protocol(proto_tree *tree, tvbuff_t *next_tvb, packet_info *pin
             usb_class = urb->conv->interfaceClass;
         }
 
-        ret = dissector_try_uint_new(usb_dissector_table, usb_class,
+        ret = dissector_try_uint_with_data(usb_dissector_table, usb_class,
                 next_tvb, pinfo, use_setup_tree ? setup_tree : tree, true, urb);
         if (ret)
             return tvb_captured_length(next_tvb);
@@ -4286,7 +4286,7 @@ try_dissect_next_protocol(proto_tree *tree, tvbuff_t *next_tvb, packet_info *pin
         usb_class = USB_PROTOCOL_KEY(urb->conv->interfaceClass,
                                      urb->conv->interfaceSubclass,
                                      urb->conv->interfaceProtocol);
-        ret = dissector_try_uint_new(usb_dissector_table, usb_class,
+        ret = dissector_try_uint_with_data(usb_dissector_table, usb_class,
                 next_tvb, pinfo, use_setup_tree ? setup_tree : tree, true, urb);
         if (ret)
             return tvb_captured_length(next_tvb);

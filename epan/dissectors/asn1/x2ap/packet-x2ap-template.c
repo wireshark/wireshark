@@ -310,14 +310,14 @@ static int dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto
 {
   struct x2ap_private_data *x2ap_data = x2ap_get_private_data(pinfo);
 
-  return (dissector_try_uint_new(x2ap_ies_dissector_table, x2ap_data->protocol_ie_id, tvb, pinfo, tree, false, NULL)) ? tvb_captured_length(tvb) : 0;
+  return (dissector_try_uint_with_data(x2ap_ies_dissector_table, x2ap_data->protocol_ie_id, tvb, pinfo, tree, false, NULL)) ? tvb_captured_length(tvb) : 0;
 }
 
 static int dissect_ProtocolExtensionFieldExtensionValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
   struct x2ap_private_data *x2ap_data = x2ap_get_private_data(pinfo);
 
-  return (dissector_try_uint_new(x2ap_extension_dissector_table, x2ap_data->protocol_ie_id, tvb, pinfo, tree, false, NULL)) ? tvb_captured_length(tvb) : 0;
+  return (dissector_try_uint_with_data(x2ap_extension_dissector_table, x2ap_data->protocol_ie_id, tvb, pinfo, tree, false, NULL)) ? tvb_captured_length(tvb) : 0;
 }
 
 static int dissect_InitiatingMessageValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
@@ -325,7 +325,7 @@ static int dissect_InitiatingMessageValue(tvbuff_t *tvb, packet_info *pinfo, pro
   struct x2ap_private_data *x2ap_data = x2ap_get_private_data(pinfo);
 
   x2ap_data->message_type = INITIATING_MESSAGE;
-  return (dissector_try_uint_new(x2ap_proc_imsg_dissector_table, x2ap_data->procedure_code, tvb, pinfo, tree, false, NULL)) ? tvb_captured_length(tvb) : 0;
+  return (dissector_try_uint_with_data(x2ap_proc_imsg_dissector_table, x2ap_data->procedure_code, tvb, pinfo, tree, false, NULL)) ? tvb_captured_length(tvb) : 0;
 }
 
 static int dissect_SuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
@@ -333,7 +333,7 @@ static int dissect_SuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, pro
   struct x2ap_private_data *x2ap_data = x2ap_get_private_data(pinfo);
 
   x2ap_data->message_type = SUCCESSFUL_OUTCOME;
-  return (dissector_try_uint_new(x2ap_proc_sout_dissector_table, x2ap_data->procedure_code, tvb, pinfo, tree, false, NULL)) ? tvb_captured_length(tvb) : 0;
+  return (dissector_try_uint_with_data(x2ap_proc_sout_dissector_table, x2ap_data->procedure_code, tvb, pinfo, tree, false, NULL)) ? tvb_captured_length(tvb) : 0;
 }
 
 static int dissect_UnsuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
@@ -341,7 +341,7 @@ static int dissect_UnsuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, p
   struct x2ap_private_data *x2ap_data = x2ap_get_private_data(pinfo);
 
   x2ap_data->message_type = UNSUCCESSFUL_OUTCOME;
-  return (dissector_try_uint_new(x2ap_proc_uout_dissector_table, x2ap_data->procedure_code, tvb, pinfo, tree, false, NULL)) ? tvb_captured_length(tvb) : 0;
+  return (dissector_try_uint_with_data(x2ap_proc_uout_dissector_table, x2ap_data->procedure_code, tvb, pinfo, tree, false, NULL)) ? tvb_captured_length(tvb) : 0;
 }
 
 static int

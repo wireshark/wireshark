@@ -1409,7 +1409,7 @@ dissect_raknet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 
     message_id = tvb_get_uint8(tvb, 0);
 
-    dissected = dissector_try_uint_new(raknet_offline_message_dissectors, message_id, tvb,
+    dissected = dissector_try_uint_with_data(raknet_offline_message_dissectors, message_id, tvb,
                                        pinfo, tree, true, data);
     if (!dissected) {
         raknet_dissect_connected_message(tvb, pinfo, tree, data);

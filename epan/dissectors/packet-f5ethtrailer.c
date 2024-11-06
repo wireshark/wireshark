@@ -2618,7 +2618,7 @@ dissect_dpt_trailer_noise(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
     pattern = tvb_get_ntohs(tvb, F5_DPT_V1_TLV_TYPE_OFF) << 16
               | tvb_get_ntohs(tvb, F5_DPT_V1_TLV_VERSION_OFF);
     return (
-        dissector_try_uint_new(noise_subdissector_table, pattern, tvb, pinfo, tree, false, data));
+        dissector_try_uint_with_data(noise_subdissector_table, pattern, tvb, pinfo, tree, false, data));
 } /* dissect_dpt_trailer_noise() */
 
 /*---------------------------------------------------------------------------*/
@@ -2732,7 +2732,7 @@ dissect_dpt_trailer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
         }
         provider_id = tvb_get_ntohs(tvb, o + F5_DPT_V1_TLV_PROVIDER_OFF);
         tvb_dpt_tlv = tvb_new_subset_length(tvb, o, tvb_dpt_tlv_len);
-        if (dissector_try_uint_new(
+        if (dissector_try_uint_with_data(
                 provider_subdissector_table, provider_id, tvb_dpt_tlv, pinfo, tree, false, data)
             == 0) {
             /* Render the TLV header as unknown */
@@ -3546,7 +3546,7 @@ dissect_dpt_trailer_tls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
     pattern = tvb_get_ntohs(tvb, F5_DPT_V1_TLV_TYPE_OFF) << 16
               | tvb_get_ntohs(tvb, F5_DPT_V1_TLV_VERSION_OFF);
     return (
-        dissector_try_uint_new(tls_subdissector_table, pattern, tvb, pinfo, tree, false, tls_data));
+        dissector_try_uint_with_data(tls_subdissector_table, pattern, tvb, pinfo, tree, false, tls_data));
 } /* dissect_f5dpt_tls() */
 
 /*-----------------------------------------------------------------------------------------------*/

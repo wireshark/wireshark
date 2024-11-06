@@ -4795,7 +4795,7 @@ dissect_btmesh_model_layer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
             proto_tree_add_item(sub_tree, hf_btmesh_model_layer_vendor, tvb, offset + 1, 2, ENC_LITTLE_ENDIAN);
             payload_tvb = tvb_new_subset_remaining(tvb, offset);
             col_set_str(pinfo->cinfo, COL_INFO, "Access Message - Vendor Opcode");
-            dissector_try_uint_new(btmesh_model_vendor_dissector_table, vendor, payload_tvb, pinfo, root_tree, true, GUINT_TO_POINTER(vendor));
+            dissector_try_uint_with_data(btmesh_model_vendor_dissector_table, vendor, payload_tvb, pinfo, root_tree, true, GUINT_TO_POINTER(vendor));
             offset+=3;
         } else {
             /* Two octet opcode */

@@ -377,7 +377,7 @@ dissect_dmx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 
 	next_tvb = tvb_new_subset_remaining(tvb, offset);
 
-	if (!dissector_try_uint_new(dmx_dissector_table, start_code, tvb, pinfo,
+	if (!dissector_try_uint_with_data(dmx_dissector_table, start_code, tvb, pinfo,
                              tree, true, NULL)) {
 		call_data_dissector(next_tvb, pinfo, tree);
 	}

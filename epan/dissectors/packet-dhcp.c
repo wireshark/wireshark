@@ -2150,7 +2150,7 @@ dhcp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 	option_data.vendor_class_id = *vendor_class_id_p;
 	option_data.orig_tvb = tvb;
 
-	if (!dissector_try_uint_new(dhcp_option_table, code, option_tvb, pinfo, v_tree, false, &option_data)) {
+	if (!dissector_try_uint_with_data(dhcp_option_table, code, option_tvb, pinfo, v_tree, false, &option_data)) {
 		/* hf_dhcp_option_value is already in tree, just make it visible */
 		proto_item_set_visible(ti_value);
 	}

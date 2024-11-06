@@ -8284,7 +8284,7 @@ static int dissect_nfapi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
 		col_append_fstr(pinfo->cinfo, COL_INFO, " %s ", message_str);
 	}
 
-	if (!dissector_try_uint_new(message_table, msg_id, tvb, pinfo, nfapi_tree, false, NULL))
+	if (!dissector_try_uint_with_data(message_table, msg_id, tvb, pinfo, nfapi_tree, false, NULL))
 	{
 		call_data_dissector(tvb, pinfo, nfapi_tree);
 	}

@@ -340,7 +340,7 @@ dissect_ma_wfp_capture_v4_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 
 	next_tvb = tvb_new_subset_remaining(tvb, offset);
 
-	if (!dissector_try_uint_new(ip_dissector_table, ip_proto, next_tvb, pinfo, tree, true, NULL)) {
+	if (!dissector_try_uint_with_data(ip_dissector_table, ip_proto, next_tvb, pinfo, tree, true, NULL)) {
 		call_data_dissector(next_tvb, pinfo, tree);
 	}
 
@@ -400,7 +400,7 @@ dissect_ma_wfp_capture_v6_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 
 	proto_item_set_len(ti, offset);
 
-	if (!dissector_try_uint_new(ip_dissector_table, ip_proto, next_tvb, pinfo, tree, true, NULL)) {
+	if (!dissector_try_uint_with_data(ip_dissector_table, ip_proto, next_tvb, pinfo, tree, true, NULL)) {
 		call_data_dissector(next_tvb, pinfo, tree);
 	}
 

@@ -1297,7 +1297,7 @@ dissect_scte35_splice_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
     offset += 4;
 
     /* We've reached the end. Run a child dissector for the splice command. */
-    dissector_try_uint_new(scte35_cmd_dissector_table, command_type, command_tvb, pinfo, tree,
+    dissector_try_uint_with_data(scte35_cmd_dissector_table, command_type, command_tvb, pinfo, tree,
         false, NULL);
 
     return offset;

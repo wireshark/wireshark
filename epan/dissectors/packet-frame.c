@@ -1261,7 +1261,7 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 					dissector_handle = docsis_handle;
 				} else {
 					/*
-					 * XXX - we don't use dissector_try_uint_new()
+					 * XXX - we don't use dissector_try_uint_with_data()
 					 * because we don't want to have to
 					 * treat a zero return from the dissector
 					 * as meaning "packet not accepted,
