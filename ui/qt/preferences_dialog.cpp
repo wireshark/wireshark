@@ -366,7 +366,7 @@ void PreferencesDialog::on_buttonBox_helpRequested()
     QString help_page = modulePrefsModel_.data(pd_ui_->prefsView->currentIndex(), ModulePrefsModel::ModuleHelp).toString();
     if (!help_page.isEmpty()) {
         QString url = gchar_free_to_qstring(user_guide_url(help_page.toUtf8().constData()));
-        QDesktopServices::openUrl(QUrl(url));
+        QDesktopServices::openUrl(QUrl(QDir::fromNativeSeparators(url)));
     } else {
         // Generic help
         mainApp->helpTopicAction(HELP_PREFERENCES_DIALOG);
