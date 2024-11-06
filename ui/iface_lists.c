@@ -636,7 +636,7 @@ update_local_interfaces(void)
 
     for (i = 0; i < global_capture_opts.all_ifaces->len; i++) {
         device = &g_array_index(global_capture_opts.all_ifaces, interface_t, i);
-        device->if_info.type = capture_dev_user_linktype_find(device->name);
+        device->active_dlt = capture_dev_user_linktype_find(device->name);
         g_free(device->display_name);
         descr = capture_dev_user_descr_find(device->name);
         device->display_name = get_iface_display_name(descr, &device->if_info);
