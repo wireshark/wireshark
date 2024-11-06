@@ -84,6 +84,9 @@ The following features are either new or have been significantly updated since v
   Packetized Elementary Streams contained within MPEG 2 TS. The latter
   can be used to extract audio or video for playback with other tools.
 
+* DNP 3 (Distributed Network Protocol 3) is now supported in the Conversations
+  and Endpoints table dialogs.
+
 * The Windows installers now ship with Npcap 1.80.
   They previously shipped with Npcap 1.79.
 
