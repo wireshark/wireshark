@@ -500,7 +500,7 @@ int main(int argc, char *qt_argv[])
 #endif
 
 #ifdef DEBUG_STARTUP_TIME
-    prefs.gui_console_open = console_open_always;
+    ws_log_console_open = LOG_CONSOLE_OPEN_ALWAYS;
 #endif /* DEBUG_STARTUP_TIME */
 
 #if defined(Q_OS_MAC)
@@ -758,7 +758,7 @@ int main(int argc, char *qt_argv[])
     }
 #ifdef DEBUG_STARTUP_TIME
     /* epan_init resets the preferences */
-    prefs.gui_console_open = console_open_always;
+    ws_log_console_open = LOG_CONSOLE_OPEN_ALWAYS;
     ws_log(LOG_DOMAIN_MAIN, LOG_LEVEL_INFO, "epan done, elapsed time %" PRIu64 " us \n", g_get_monotonic_time() - start_time);
 #endif
 
