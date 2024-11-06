@@ -304,7 +304,7 @@ static void register_tlv_dissectors(void)
 		{0x0200, 0x03, "Interface Identifier", dissect_tlv_iface_identifier},
 	};
 
-	for (unsigned i = 0; i < sizeof(tlvs)/sizeof(tlvs[0]); i++) {
+	for (unsigned i = 0; i < array_length(tlvs); i++) {
 		const uint32_t key = ((uint32_t) tlvs[i].class << 8) | tlvs[i].type;
 		dissector_add_uint("nsh.tlv", key, create_dissector_handle_with_data(dissect_tlv_data, -1, (void*) &tlvs[i]));
 	}
