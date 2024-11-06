@@ -208,7 +208,7 @@ proto_register_marker(void)
 
     /* Register the protocol name and description */
 
-    proto_marker = proto_register_protocol("Marker", "Link Aggregation Marker Protocol", "marker");
+    proto_marker = proto_register_protocol("Link Aggregation Marker Protocol", "Marker", "marker");
 
     /* Required function calls to register the header fields and subtrees used */
 

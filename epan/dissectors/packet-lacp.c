@@ -667,7 +667,7 @@ proto_register_lacp(void)
 
     /* Register the protocol name and description */
 
-    proto_lacp = proto_register_protocol("LACP", "Link Aggregation Control Protocol", "lacp");
+    proto_lacp = proto_register_protocol("Link Aggregation Control Protocol", "LACP", "lacp");
 
     /* Required function calls to register the header fields and subtrees used */
 

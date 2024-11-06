@@ -3221,7 +3221,7 @@ proto_register_oampdu(void)
 
     /* Register the protocol name and description */
 
-    proto_oampdu = proto_register_protocol("OAMPDU", "Ethernet OAM PDU", "oampdu");
+    proto_oampdu = proto_register_protocol("Ethernet OAM PDU", "OAMPDU", "oampdu");
 
     /* Required function calls to register the header fields and subtrees used */
 

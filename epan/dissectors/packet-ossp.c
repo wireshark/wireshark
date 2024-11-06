@@ -739,7 +739,7 @@ proto_register_ossp(void)
 
     /* Register the protocol name and description */
 
-    proto_ossp = proto_register_protocol("OSSP", "Organization Specific Slow Protocol", "ossp");
+    proto_ossp = proto_register_protocol("Organization Specific Slow Protocol", "OSSP", "ossp");
 
     /* Required function calls to register the header fields and subtrees used */
 

@@ -116,7 +116,7 @@ proto_register_slow_protocols(void)
 
     /* Register the protocol name and description */
 
-    proto_slow = proto_register_protocol("Slow Protocols", "802.3 Slow protocols", "slow");
+    proto_slow = proto_register_protocol("802.3 Slow protocols", "Slow Protocols", "slow");
 
     /* Required function calls to register the header fields and subtrees used */
 
