@@ -1633,7 +1633,7 @@ static const value_string nadm_attack_chance_vals[] = {
     {0x03, "Possible"},
     {0x04, "Likely"},
     {0x05, "Very Likely"},
-    {0x06, "Etremely Likely"},
+    {0x06, "Extremely Likely"},
     {0xff, "Unknown"},
     {0, NULL}
 };
@@ -11262,7 +11262,7 @@ proto_register_bthci_evt(void)
             NULL, HFILL }
         },
         { &hf_bthci_evt_cs_abort_reason_subevent,
-          { "Subevent Abort Reason", "bthci_evt.cs_abort_reason_subevet",
+          { "Subevent Abort Reason", "bthci_evt.cs_abort_reason_subevent",
             FT_UINT8, BASE_HEX, VALS(cs_subevent_abort_reason_vals), 0xF0,
             NULL, HFILL }
         },

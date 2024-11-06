@@ -1951,7 +1951,7 @@ void proto_register_awdl(void)
       }
     },
 
-    /* Synchronization Paramters */
+    /* Synchronization Parameters */
     { &hf_awdl_syncparams_awcounter,
       { "AW Sequence Number", "awdl.syncparams.awseqcounter",
         FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL

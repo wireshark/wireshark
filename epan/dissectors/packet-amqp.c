@@ -10093,7 +10093,7 @@ get_amqp_1_0_value_formatter(tvbuff_t *tvb,
         }
         else
         {
-            /* multi-type and custom fileds must be converted to a string */
+            /* multi-type and custom fields must be converted to a string */
             *length_size = element_type->formatter(tvb, offset, element_type->known_size, &value);
 
             if (code/16 > 0x9) /* variable width code is 0xa[0-9] or 0xb[0-9] */

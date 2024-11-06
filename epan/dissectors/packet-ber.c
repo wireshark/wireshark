@@ -295,7 +295,7 @@ static oid_user_t *oid_users;
 static unsigned num_oid_users;
 
 #define MAX_SYNTAX_NAMES 128
-/* Define non_const_value_string as a hack to prevent chackAPIs.pl from complaining */
+/* Define non_const_value_string as a hack to prevent checkAPIs.pl from complaining */
 #define non_const_value_string value_string
 static non_const_value_string syntax_names[MAX_SYNTAX_NAMES+1] = {
     {0, ""},
@@ -2246,7 +2246,7 @@ proto_tree_add_debug_text(tree, "SEQUENCE dissect_ber_sequence(%s) entered\n", n
         /*if (ind) {  this sequence was of indefinite length, if this is implicit indefinite impossible maybe
                     but ber dissector uses this to eat the tag length then pass into here... EOC still on there...*/
             if ((tvb_get_uint8(tvb, offset) == 0) && (tvb_get_uint8(tvb, offset+1) == 0)) {
-                /* If the first bytes is 00 00 of a indefenert length field it's a zero length field*/
+                /* If the first bytes is 00 00 of a indefinite length field it's a zero length field*/
                 offset = dissect_ber_identifier(actx->pinfo, tree, tvb, offset, &ber_class, &pc, &tag);
                 dissect_ber_length(actx->pinfo, tree, tvb, offset, &len, &ind);
                 proto_item_append_text(item, " 0 items");
@@ -3001,7 +3001,7 @@ proto_tree_add_debug_text(tree, "CHOICE dissect_ber_choice(%s) trying again\n", 
             }
             if (!(ch->flags & BER_FLAGS_NOOWNTAG)) {
                 if (ind) {
-                /* we are traversing a indfinite length choice where we did not pass the tag length */
+                /* we are traversing a indefinite length choice where we did not pass the tag length */
                 /* we need to eat the EOC */
                     if (show_internal_ber_fields) {
                         proto_tree_add_item(tree, hf_ber_choice_eoc, tvb, end_offset-2, 2, ENC_NA);

@@ -3849,7 +3849,7 @@ static const _gtp_mess_items umts_mess_items[] = {
             {GTP_EXT_TEID_CP, GTP_MANDATORY, NULL},
             {GTP_EXT_RANAP_CAUSE, GTP_MANDATORY, NULL},
             {GTP_EXT_PKT_FLOW_ID, GTP_OPTIONAL, NULL},
-            {GTP_EXT_CHRG_CHAR, GTP_OPTIONAL, NULL},     /* CharingCharacteristics Optional 7.7.23 */
+            {GTP_EXT_CHRG_CHAR, GTP_OPTIONAL, NULL},     /* ChargingCharacteristics Optional 7.7.23 */
             {GTP_EXT_MM_CNTXT, GTP_MANDATORY, NULL},
             {GTP_EXT_PDP_CNTXT, GTP_CONDITIONAL, NULL},
             {GTP_EXT_GSN_ADDR, GTP_MANDATORY, decode_gtp_sgsn_addr_for_control_plane},

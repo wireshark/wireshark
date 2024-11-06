@@ -1797,7 +1797,7 @@ dissect_sdp_media_attribute_path(packet_info *pinfo, tvbuff_t *tvb, uint8_t *att
 
         /* Port is after next ':' */
         port_offset = tvb_find_uint8(tvb, address_offset, -1, ':');
-        /* Check if port is present if not skipp */
+        /* Check if port is present, if not skip */
         if (port_offset!= -1) {
             /* Port ends with '/' */
             port_end_offset = tvb_find_uint8(tvb, port_offset, -1, '/');

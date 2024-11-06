@@ -1772,7 +1772,7 @@ dissect_infiniband_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
     /* The Headers Subtree */
     proto_tree *all_headers_tree;
 
-    /* BTH - Base Trasport Header */
+    /* BTH - Base Transport Header */
     bool dctBthHeader = false;
     int bthSize = 12;
 

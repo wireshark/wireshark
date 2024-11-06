@@ -224,7 +224,7 @@ dissect_per_open_type_internal(tvbuff_t *tvb, uint32_t offset, asn1_ctx_t *actx,
 			} else {
 				val_tvb = tvb_new_octet_aligned(pdu_tvb, pdu_offset, pdu_length * 8);
 			}
-			/* Add new data source if the offet was unaligned */
+			/* Add new data source if the offset was unaligned */
 			if ((pdu_offset & 7) != 0) {
 				add_new_data_source(actx->pinfo, val_tvb, "Unaligned OCTET STRING");
 			}
