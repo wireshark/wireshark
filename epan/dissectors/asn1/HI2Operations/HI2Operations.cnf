@@ -226,11 +226,24 @@ GSMLocation/geoCoordinates/longitude geoCoordinates_longitude
 
   offset = tvb_len;
 
+#.FN_BODY EPSCorrelationNumber
+  unsigned tvb_len;
+  proto_item *item;
+  uint64_t value;
+
+  tvb_len = tvb_reported_length(tvb);
+
+  item = proto_tree_add_item(tree, hf_HI2Operations_ePSCorrelationNumber, tvb, offset, tvb_len, ENC_NA);
+
+  value = tvb_get_uint64_with_length(tvb, offset, tvb_len, ENC_BIG_ENDIAN);
+  proto_item_append_text(item, " (%%"PRId64")", value);
+
+  offset = tvb_len;
+
 #.FIELD_ATTR
 GSMLocation/geoCoordinates/latitude ABBREV=geoCoordinates.latitude
 GSMLocation/geoCoordinates/longitude ABBREV=geoCoordinates.longitude
 IRI-Parameters/lawfulInterceptionIdentifier TYPE = FT_STRING  DISPLAY = BASE_NONE
-IRI-Parameters/ePSCorrelationNumber TYPE = FT_BYTES   DISPLAY = BASE_NONE
 EPS-GTPV2-SpecificParameters/aPN TYPE = FT_STRING  DISPLAY = BASE_NONE
 EPS-GTPV2-SpecificParameters/ePSBearerIdentity TYPE = FT_UINT8  DISPLAY = BASE_DEC
 EPS-GTPV2-SpecificParameters/rATType TYPE = FT_UINT8  DISPLAY = BASE_DEC|BASE_EXT_STRING  STRINGS = &gtpv2_rat_type_vals_ext
