@@ -924,6 +924,7 @@ static expert_field ei_rtcp_appl_extra_bytes;
 static expert_field ei_rtcp_appl_not_ascii;
 static expert_field ei_rtcp_appl_non_conformant;
 static expert_field ei_rtcp_appl_non_zero_pad;
+static expert_field ei_rtcp_sdes_missing_null_terminator;
 
 enum default_protocol_type {
     RTCP_PROTO_RTCP,
@@ -3357,6 +3358,7 @@ dissect_rtcp_sdes( tvbuff_t *tvb, int offset, proto_tree *tree, int count )
     unsigned int  item_len;
     unsigned int  sdes_type;
     unsigned int  prefix_len;
+    bool          terminator_found;
 
     chunk = 1;
     while ( chunk <= count ) {
@@ -3382,6 +3384,7 @@ dissect_rtcp_sdes( tvbuff_t *tvb, int offset, proto_tree *tree, int count )
          * Not every message is ended with "null" bytes, so check for
          * end of frame as well.
          */
+        terminator_found = false;
         while ( tvb_reported_length_remaining( tvb, offset ) > 0 ) {
             /* ID, 8 bits */
             sdes_type = tvb_get_uint8( tvb, offset );
@@ -3390,6 +3393,7 @@ dissect_rtcp_sdes( tvbuff_t *tvb, int offset, proto_tree *tree, int count )
 
             if ( sdes_type == RTCP_SDES_END ) {
                 /* End of list */
+                terminator_found = true;
                 break;
             }
 
@@ -3429,6 +3433,9 @@ dissect_rtcp_sdes( tvbuff_t *tvb, int offset, proto_tree *tree, int count )
             }
         }
 
+        if (!terminator_found) {
+            expert_add_info(NULL, ti, &ei_rtcp_sdes_missing_null_terminator);
+        }
         /* Set the length of the items subtree. */
         proto_item_set_len(ti, offset - items_start_offset);
 
@@ -4838,7 +4845,7 @@ dissect_rtcp_common( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
                 offset++;
                 /* Packet length in 32 bit words MINUS one, 16 bits */
                 offset = dissect_rtcp_length_field(rtcp_tree, tvb, offset);
-                offset = dissect_rtcp_sdes( tvb, offset, rtcp_tree, elem_count );
+                offset += dissect_rtcp_sdes( tvb_new_subset_length(tvb, offset, packet_length - 4), 0, rtcp_tree, elem_count);
                 break;
             case RTCP_BYE:
                 /* Source count, 5 bits */
@@ -8495,6 +8502,7 @@ proto_register_rtcp(void)
         { &ei_rtcp_appl_not_ascii, { "rtcp.appl.not_ascii", PI_PROTOCOL, PI_ERROR, "Application name is not a string", EXPFILL }},
         { &ei_rtcp_appl_non_conformant, { "rtcp.appl.non_conformant", PI_PROTOCOL, PI_ERROR, "Data not according to standards", EXPFILL }},
         { &ei_rtcp_appl_non_zero_pad, { "rtcp.appl.non_zero_pad", PI_PROTOCOL, PI_ERROR, "Non zero padding detected, faulty encoding?", EXPFILL }},
+        { &ei_rtcp_sdes_missing_null_terminator, { "rtcp.sdes.missing_null_terminator", PI_PROTOCOL, PI_WARN, "The list of items in each chunk MUST be terminated by one or more null octets (see RFC3550, section 6.5)", EXPFILL }},
     };
 
     module_t *rtcp_module, *srtcp_module;
