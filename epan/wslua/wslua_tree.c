@@ -369,6 +369,9 @@ WSLUA_METHOD TreeItem_add_packet_field(lua_State *L) {
         luaL_error(L,"TreeField:add_packet_field not passed a ProtoField");
         return 0;
     }
+    if (field->hfid == -2) {
+        luaL_error(L, "ProtoField %s unregistered (not added to a Proto.fields attribute)", field->abbrev);
+    }
     hfid = field->hfid;
     type = field->type;
     ett = field->ett;

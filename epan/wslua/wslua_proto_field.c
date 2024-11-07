@@ -26,7 +26,8 @@
 
 
 WSLUA_CLASS_DEFINE(ProtoField,FAIL_ON_NULL("null ProtoField"));
-    /* A Protocol field (to be used when adding items to the dissection tree). */
+    /* A Protocol field (to be used when adding items to the dissection tree).
+       It must be registered via being added to a `Proto.fields` table. */
 
 static const wslua_ft_types_t ftenums[] = {
     {"ftypes.NONE", FT_NONE},
