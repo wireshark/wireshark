@@ -4111,9 +4111,9 @@ dissect_dnp3_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
       /* The only thing we store right now is the 32 bit extended sequence
        * number, so we don't need a conversation_data type. */
       conversation_add_proto_data(conv, proto_dnp3, GUINT_TO_POINTER(ext_seq));
-      p_add_proto_data(wmem_file_scope(), pinfo, proto_dnp3, 0, GUINT_TO_POINTER(ext_seq));
+      p_add_proto_data(wmem_file_scope(), pinfo, proto_dnp3, tr_seq, GUINT_TO_POINTER(ext_seq));
     } else {
-      ext_seq = GPOINTER_TO_UINT(p_get_proto_data(wmem_file_scope(), pinfo, proto_dnp3, 0));
+      ext_seq = GPOINTER_TO_UINT(p_get_proto_data(wmem_file_scope(), pinfo, proto_dnp3, tr_seq));
     }
 
     /* Add Transport Layer Tree */
