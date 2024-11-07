@@ -4468,6 +4468,17 @@ proto_tree_add_bytes_item(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 			    "FT_UINT_BYTES type, but as ENC_STR_HEX");
 		}
 
+		unsigned hex_encoding = encoding;
+		if (!(encoding & ENC_SEP_MASK)) {
+			/* If none of the separator values are used,
+			 * assume no separator (the common case). */
+			hex_encoding |= ENC_SEP_NONE;
+#if 0
+			REPORT_DISSECTOR_BUG("proto_tree_add_bytes_item called "
+				"with ENC_STR_HEX but no ENC_SEP_XXX value");
+#endif
+		}
+
 		if (!bytes) {
 			/* caller doesn't care about return value, but we need it to
 			   call tvb_get_string_bytes() and set the tree later */
@@ -4479,7 +4490,7 @@ proto_tree_add_bytes_item(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 		 * error until later; if it's NULL, just note that
 		 * it failed.
 		 */
-		bytes = tvb_get_string_bytes(tvb, start, length, encoding, bytes, endoff);
+		bytes = tvb_get_string_bytes(tvb, start, length, hex_encoding, bytes, endoff);
 		if (bytes == NULL)
 			failed = true;
 	}

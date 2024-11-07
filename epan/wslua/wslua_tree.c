@@ -308,36 +308,37 @@ WSLUA_METHOD TreeItem_add_packet_field(lua_State *L) {
      tree_item:add_packet_field(proto_field [,tvbrange], encoding, ...)
      ----
 
-     In Wireshark version 1.11.3, this function was changed to return more than
-     just the new child <<lua_class_TreeItem,`TreeItem`>>. The child is the first return value, so that
-     function chaining will still work as before; but it now also returns more information.
-     The second return is the value of the extracted field (i.e., a number, `UInt64`, `Address`, etc.).
-     The third return is is the offset where data should be read next. This is useful when the length of the
-     field is not known in advance. The additional return values may be null if the field type
-     is not well supported in the Lua API.
+     This function returns more than just the new child <<lua_class_TreeItem,`TreeItem`>>.
+     The child is the first return value, so that function chaining will still work; but it
+     also returns more information. The second return is the value of the extracted field
+     (i.e., a number, `UInt64`, `Address`, etc.). The third return is is the offset where
+     data should be read next. This is useful when the length of the field is not known in
+     advance. The additional return values may be null if the field type is not well supported
+     in the Lua API.
 
-     Another new feature added to this function in Wireshark version 1.11.3 is the
-     ability to extract native number `ProtoField`++s++ from string encoding in the
-     `TvbRange`, for ASCII-based and similar string encodings. For example, a
-     <<lua_class_ProtoField,`ProtoField`>> of type `ftypes.UINT32` can be extracted from a `TvbRange`
-     containing the ASCII string "123", and it will correctly decode the ASCII to
-     the number `123`, both in the tree as well as for the second return value of
-     this function. To do so, you must set the `encoding` argument of this function
-     to the appropriate string `ENC_*` value, bitwise-or'd with the `ENC_STRING`
-     value. `ENC_STRING` is guaranteed to be a unique bit flag, and
-     thus it can added instead of bitwise-or'ed as well. Only single-byte ASCII digit
-     string encoding types can be used for this, such as `ENC_ASCII` and `ENC_UTF_8`.
+     This function can extract a <<lua_class_ProtoField,`ProtoField`>> of type `ftypes.BYTES`
+     or `ftypes.ABSOLUTE_TIME` from a string in the `TvbRange` in ASCII-based and similar
+     encodings. For example, a `ProtoField` of `ftypes.BYTES` can be extracted from a `TvbRange`
+     containing the ASCII string "a1b2c3d4e5f6", and it will correctly decode the ASCII both in the
+     tree as well as for the second return value, which will be a <<lua_class_ByteArray,`ByteArray`>>.
+     To do so, you must set the `encoding` argument of this function to the appropriate string `ENC_*`
+     value, bitwise-or'd (or added) with the `ENC_STR_HEX` value and one or more `ENC_SEP_XXX` values
+     indicating which encodings are allowed. For `ftypes.ABSOLUTE_TIME`, one of the `ENC_ISO_8601_*`
+     encodings or `ENC_IMF_DATE_TIME` must be used, and the second return value is a <<lua_class_NSTime,`NSTime`>>.
+     Only single-byte ASCII digit string encodings such as `ENC_ASCII` and `ENC_UTF_8` can be used for this.
 
-     For example, assuming the <<lua_class_Tvb,`Tvb`>> named "`tvb`" contains the string "123":
+     For example, assuming the <<lua_class_Tvb,`Tvb`>> named "`tvb`" contains the string "abcdef"
+     (61 62 63 64 65 66 in hex):
 
      [source,lua]
      ----
      -- this is done earlier in the script
-     local myfield = ProtoField.new("Transaction ID", "myproto.trans_id", ftypes.UINT16)
+     local myfield = ProtoField.new("Transaction ID", "myproto.trans_id", ftypes.BYTES)
+     myproto.fields = { myfield }
 
      -- this is done inside a dissector, post-dissector, or heuristic function
-     -- child will be the created child tree, and value will be the number 123 or nil on failure
-     local child, value = tree:add_packet_field(myfield, tvb:range(0,3), ENC_UTF_8 + ENC_STRING)
+     -- child will be the created child tree, and value will be the ByteArray "abcdef" or nil on failure
+     local child, value = tree:add_packet_field(myfield, tvb:range(0,6), ENC_UTF_8 + ENC_STR_HEX + ENC_SEP_NONE)
      ----
 
     */

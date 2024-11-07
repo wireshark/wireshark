@@ -1739,8 +1739,8 @@ For string-decoding, the passed-in encoding argument needs to specify the
 string encoding (e.g., ENC_ASCII, ENC_UTF_8) as well as the format. For
 some XXX types, the format is constrained - for example for the encoding format
 for proto_tree_add_time_item() can only be one of the ENC_ISO_8601_* ones
-or ENC_IMF_DATE_TIME. For proto_tree_add_bytes_item() it can only
-be ENC_STR_HEX bit-or'ed with one or more of the ENC_SEP_* separator types.
+or ENC_IMF_DATE_TIME. For proto_tree_add_bytes_item() if ENC_STR_HEX is used
+it must be bit-or'ed with one or more of the ENC_SEP_* separator types.
 
 proto_tree_add_protocol_format()
 --------------------------------
