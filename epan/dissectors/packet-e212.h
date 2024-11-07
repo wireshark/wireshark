@@ -33,6 +33,7 @@ typedef enum {
     E212_5GSTAI,
     E212_GUMMEI,
     E212_GUAMI,
+    E212_SERV_NET,
 } e212_number_type_t;
 
 char* dissect_e212_mcc_mnc_wmem_packet_str(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, e212_number_type_t number_type, bool little_endian);

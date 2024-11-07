@@ -17,6 +17,7 @@
 #include <epan/packet.h>
 
 #include <wsutil/strtoi.h>
+#include <wsutil/array.h>
 
 #include "packet-e212.h"
 #include "expert.h"
@@ -3340,6 +3341,7 @@ static int hf_E212_mcc_nrcgi;
 static int hf_E212_mcc_5gstai;
 static int hf_E212_mcc_gummei;
 static int hf_E212_mcc_guami;
+static int hf_E212_mcc_serv_net;
 static int hf_E212_mnc;
 static int hf_E212_mnc_lai;
 static int hf_E212_mnc_sai;
@@ -3351,6 +3353,7 @@ static int hf_E212_mnc_nrcgi;
 static int hf_E212_mnc_5gstai;
 static int hf_E212_mnc_gummei;
 static int hf_E212_mnc_guami;
+static int hf_E212_mnc_serv_net;
 
 static int ett_e212_imsi;
 
@@ -3467,6 +3470,10 @@ dissect_e212_mcc_mnc_wmem_packet_str(tvbuff_t *tvb, packet_info *pinfo, proto_tr
     case E212_GUAMI:
         hf_E212_mcc_id = hf_E212_mcc_guami;
         hf_E212_mnc_id = hf_E212_mnc_guami;
+        break;
+    case E212_SERV_NET:
+        hf_E212_mcc_id = hf_E212_mcc_serv_net;
+        hf_E212_mnc_id = hf_E212_mnc_serv_net;
         break;
     default:
         hf_E212_mcc_id = hf_E212_mcc;
@@ -3970,6 +3977,11 @@ proto_register_e212(void)
         FT_STRING, BASE_NONE, NULL, 0x0,
         "Mobile Country Code MCC", HFILL }
     },
+    { &hf_E212_mcc_serv_net,
+        { "Mobile Country Code (MCC)","e212.serv_net.mcc",
+        FT_STRING, BASE_NONE, NULL, 0x0,
+        "Mobile Country Code MCC", HFILL }
+    },
     { &hf_E212_mnc,
         { "Mobile Network Code (MNC)","e212.mnc",
         FT_STRING, BASE_NONE, NULL, 0x0,
@@ -4022,6 +4034,11 @@ proto_register_e212(void)
     },
     { &hf_E212_mnc_guami,
         { "Mobile Network Code (MNC)","e212.guami.mnc",
+        FT_STRING, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_E212_mnc_serv_net,
+        { "Mobile Network Code (MNC)","e212.serv_net.mnc",
         FT_STRING, BASE_NONE, NULL, 0x0,
         NULL, HFILL }
     },

@@ -1998,7 +1998,7 @@ dissect_HI2Operations_T_operator_Identifier(bool implicit_tag _U_, tvbuff_t *tvb
   tvb_len = tvb_reported_length(tvb);
   network_operator_id_tree = proto_tree_add_subtree(tree, tvb, 0, tvb_len, ett_HI2Operations_eps_network, NULL, "operator-Identifier");
 
-  dissect_e212_mcc_mnc_wmem_packet_str(tvb, actx->pinfo, network_operator_id_tree, 0, E212_NONE, true);
+  dissect_e212_mcc_mnc_wmem_packet_str(tvb, actx->pinfo, network_operator_id_tree, 0, E212_SERV_NET, true);
 
   offset = tvb_len;
 

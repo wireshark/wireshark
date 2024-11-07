@@ -3213,7 +3213,7 @@ dissect_gtpv2_serv_net(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, prot
 {
     char *mcc_mnc_str;
 
-    mcc_mnc_str = dissect_e212_mcc_mnc_wmem_packet_str(tvb, pinfo, tree, 0, E212_NONE, true);
+    mcc_mnc_str = dissect_e212_mcc_mnc_wmem_packet_str(tvb, pinfo, tree, 0, E212_SERV_NET, true);
     proto_item_append_text(item, "%s", mcc_mnc_str);
 }
 
