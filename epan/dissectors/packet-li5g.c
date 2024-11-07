@@ -238,7 +238,7 @@ proto_register_li5g(void)
         { &hf_li5g_payloadFormat, { "Payload Format", "li5g.pf", FT_UINT16, BASE_DEC, VALS(payload_format_vals), 0x0, NULL, HFILL }},
         { &hf_li5g_payloadDirection, { "Payload Direction", "li5g.pd", FT_UINT16, BASE_DEC, VALS(payload_dir_vals), 0x0, NULL, HFILL }},
         { &hf_li5g_xid, { "XID", "li5g.xid", FT_GUID, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-        { &hf_li5g_cid, { "Correlation ID", "li5g.cid", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_li5g_cid, { "Correlation ID", "li5g.cid", FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
         { &hf_li5g_attrType, { "Attribute Type", "li5g.attrType", FT_UINT16, BASE_DEC, VALS(attribute_type_vals), 0x0, NULL, HFILL }},
         { &hf_li5g_attrLen, { "Attribute Length", "li5g.attrLen", FT_UINT16, BASE_DEC|BASE_UNIT_STRING, UNS(&units_octet_octets), 0x0, NULL, HFILL }},
