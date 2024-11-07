@@ -4278,14 +4278,6 @@ static const _gtp_mess_items umts_mess_items[] = {
     }
 };
 
-/* Data structure attached to a  conversation,
-        to keep track of request/response-pairs
- */
-typedef struct gtp_conv_info_t {
-    wmem_map_t             *unmatched;
-    wmem_map_t             *matched;
-} gtp_conv_info_t;
-
 static unsigned
 gtp_sn_hash(const void *k)
 {
@@ -4485,13 +4477,13 @@ gtp_match_response(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, int s
 
 
 static int
-check_field_presence_and_decoder(uint8_t message, uint8_t field, int *position, ie_decoder **alt_decoder)
+check_field_presence_and_decoder(uint8_t version, uint8_t message, uint8_t field, int *position, ie_decoder **alt_decoder)
 {
 
     unsigned i = 0;
     const _gtp_mess_items *mess_items;
 
-    switch (gtp_version) {
+    switch (version) {
     case 0:
         mess_items = gprs_mess_items;
         break;
@@ -5182,9 +5174,7 @@ decode_gtp_ra_prio_lcs(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, prot
 
 }
 
-/* GPRS:        12.15 v7.6.0, chapter 7.3.3, page 45
- * UMTS:        33.015
- */
+/* TS 32.295, chapter 6.2.4.5.2, page 29 */
 static int
 decode_gtp_tr_comm(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_)
 {
@@ -9584,6 +9574,7 @@ decode_gtp_up_fun_sel_ind_flags(tvbuff_t * tvb, int offset, packet_info * pinfo 
     return 3 + length;
 }
 
+/* TS 32.295, chapter 6.2.4.5.4, page 30 */
 static int
 decode_gtp_rel_pack(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_)
 {
@@ -9770,15 +9761,15 @@ decode_gtp_data_req(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree 
     return 3 + length;
 }
 
-/* GPRS:        12.15
- * UMTS:        33.015
- */
+/* TS 32.295 */
 static int
-decode_gtp_data_resp(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_)
+decode_gtp_data_resp(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, session_args_t * args)
 {
 
-    uint16_t    length, n, number;
-    proto_tree *ext_tree_data_resp;
+    uint16_t        length, n;
+    proto_tree     *ext_tree_data_resp;
+    gtp_msg_hash_t *gcrp = NULL;
+    unsigned        request_responded_seq_no = 0;
 
     length = tvb_get_ntohs(tvb, offset + 1);
 
@@ -9789,10 +9780,22 @@ decode_gtp_data_resp(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_
 
     while (n < length) {
 
-        number = tvb_get_ntohs(tvb, offset + 3 + n);
-        proto_tree_add_uint_format(ext_tree_data_resp, hf_gtp_requests_responded, tvb, offset + 3 + n, 2, number, "%u", number);
+        proto_tree_add_item_ret_uint(ext_tree_data_resp, hf_gtp_requests_responded, tvb, offset + 3 + n, 2, ENC_BIG_ENDIAN, &request_responded_seq_no);
         n = n + 2;
 
+        /* Unlike GTP, sequence number inside GTP' header of response is not used to confirm request.
+         * Instead of this "Data Record Transfer Response" message includes IE "Requests Responded"
+         * with sequence numbers of requests to confirm.
+         */
+        uint8_t cause_aux = 128; /* Cause accepted by default. Only used when args is NULL */
+        if (args) {
+            cause_aux = args->last_cause;
+        }
+        gcrp = gtp_match_response(tvb, pinfo, tree, request_responded_seq_no, GTP_MSG_DATA_TRANSF_RESP, args->gtp_info, cause_aux);
+        /*pass packet to tap for response time reporting*/
+        if (gcrp) {
+            tap_queue_packet(gtp_tap, pinfo, gcrp);
+        }
     }
 
     return 3 + length;
@@ -10871,14 +10874,28 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
         }
     }
 
+    args->gtp_info = gtp_info;
     if (gtp_hdr->message != GTP_MSG_TPDU) {
+        uint8_t version = gtp_version;
+        /* GTP' protocol version has different meaning rather GTP.
+         * According to 3GPP TS 32.295:
+         * - GTP' version 1 is the same as version 0 but has, in addendum, the duplicate CDR prevention
+         *   mechanism, introduced in GSM 12.15 version 7.2.1 (1999-07) of the GPRS charging specification.
+         * - GTP' version 2 is the same as version 1, but the header is just 6 octets long
+         *
+         * Decode GTP' versions v1/v2 as v0.
+         */
+        if (gtp_prime) {
+            version = 0;
+        }
+
         /* Dissect IEs */
         mandatory = 0;      /* check order of GTP fields against ETSI */
         while (tvb_reported_length_remaining(tvb, offset) > 0) {
             decoder = NULL;
             ext_hdr_val = tvb_get_uint8(tvb, offset);
             if (g_gtp_etsi_order) {
-                checked_field = check_field_presence_and_decoder(gtp_hdr->message, ext_hdr_val, &mandatory, &decoder);
+                checked_field = check_field_presence_and_decoder(version, gtp_hdr->message, ext_hdr_val, &mandatory, &decoder);
                 switch (checked_field) {
                 case -2:
                     expert_add_info(pinfo, message_item, &ei_gtp_message_not_found);
@@ -10910,8 +10927,10 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
             /* We insert the lists inside the table*/
             fill_map(args->teid_list, args->ip_list, pinfo->num);
         }
-        /*Use sequence number to track Req/Resp pairs*/
-        if (has_SN) {
+        /* Use sequence number to track Req/Resp pairs except GTP' message "Data Record Transfer Response".
+         * For "Data Record Transfer Response" sequence numbers are analysed inside decoder of TLV "Requests Responded".
+         */
+        if (has_SN && gtp_hdr->message != GTP_MSG_DATA_TRANSF_RESP) {
             uint8_t cause_aux = 128; /* Cause accepted by default. Only used when args is NULL */
             if (args) {
                 cause_aux = args->last_cause;
@@ -12606,9 +12625,9 @@ proto_register_gtp(void)
       { &hf_gtp_number_of_data_records, { "Number of data records", "gtp.number_of_data_records", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_gtp_data_record_format, { "Data record format", "gtp.data_record_format", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_gtp_node_address_length, { "Node address length", "gtp.node_address_length", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_gtp_seq_num_released, { "Sequence number released", "gtp.seq_num_released", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_gtp_seq_num_canceled, { "Sequence number cancelled", "gtp.seq_num_canceled", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_gtp_requests_responded, { "Requests responded", "gtp.requests_responded", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_gtp_seq_num_released, { "Sequence number released", "gtp.seq_num_released", FT_UINT16, BASE_HEX_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_gtp_seq_num_canceled, { "Sequence number cancelled", "gtp.seq_num_canceled", FT_UINT16, BASE_HEX_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_gtp_requests_responded, { "Requests responded", "gtp.requests_responded", FT_UINT16, BASE_HEX_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_gtp_hyphen_separator, { "Hyphen separator: -", "gtp.hyphen_separator", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_gtp_ms_network_cap_content_len, { "Length of MS network capability contents", "gtp.ms_network_cap_content_len", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_gtp_iei, { "IEI", "gtp.iei", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},

@@ -147,6 +147,14 @@ typedef struct gtp_hdr_ext_info {
 } gtp_hdr_ext_info_t;
 
 
+/* Data structure attached to a  conversation,
+        to keep track of request/response-pairs
+ */
+typedef struct gtp_conv_info_t {
+    wmem_map_t             *unmatched;
+    wmem_map_t             *matched;
+} gtp_conv_info_t;
+
 
 /* Data structures to keep track of sessions */
 extern uint32_t gtp_session_count;
@@ -158,6 +166,7 @@ typedef struct session_args {
     uint32_t last_teid;
     address last_ip;
     uint8_t last_cause;
+    gtp_conv_info_t *gtp_info;
 } session_args_t;
 
 /* Relation between frame -> session */
