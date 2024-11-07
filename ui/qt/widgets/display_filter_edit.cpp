@@ -676,7 +676,9 @@ void DisplayFilterEdit::applyDisplayFilter()
 void DisplayFilterEdit::updateClearButton()
 {
     setDefaultPlaceholderText();
-    clear_button_->setVisible(!text().isEmpty());
+    if (clear_button_) {
+        clear_button_->setVisible(!text().isEmpty());
+    }
     alignActionButtons();
 }
 
