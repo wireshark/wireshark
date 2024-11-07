@@ -72,9 +72,10 @@ static int hf_radiotap_txflags_rts;
 static int hf_radiotap_txflags_noack;
 static int hf_radiotap_txflags_noseqno;
 static int hf_radiotap_txflags_order;
-static int hf_radiotap_xchannel_channel;
-static int hf_radiotap_xchannel_frequency;
 static int hf_radiotap_xchannel_flags;
+static int hf_radiotap_xchannel_frequency;
+static int hf_radiotap_xchannel_channel;
+static int hf_radiotap_xchannel_maxpower;
 static int hf_radiotap_xchannel_flags_turbo;
 static int hf_radiotap_xchannel_flags_cck;
 static int hf_radiotap_xchannel_flags_ofdm;
@@ -90,9 +91,6 @@ static int hf_radiotap_xchannel_flags_quarter;
 static int hf_radiotap_xchannel_flags_ht20;
 static int hf_radiotap_xchannel_flags_ht40u;
 static int hf_radiotap_xchannel_flags_ht40d;
-#if 0
-static int hf_radiotap_xchannel_maxpower;
-#endif
 static int hf_radiotap_fhss_hopset;
 static int hf_radiotap_fhss_pattern;
 static int hf_radiotap_datarate;
@@ -3398,21 +3396,15 @@ dissect_radiotap_xchannel(tvbuff_t *tvb, packet_info *pinfo _U_,
 			NULL
 		};
 
-		proto_tree_add_item(tree, hf_radiotap_xchannel_channel,
-					tvb, offset + 6, 1,
-					ENC_LITTLE_ENDIAN);
-		proto_tree_add_item(tree, hf_radiotap_xchannel_frequency,
-					tvb, offset + 4, 2, ENC_LITTLE_ENDIAN);
-
 		proto_tree_add_bitmask(tree, tvb, offset, hf_radiotap_xchannel_flags,
 					ett_radiotap_xchannel_flags,
 					xchannel_flags, ENC_LITTLE_ENDIAN);
-
-
-#if 0
-		proto_tree_add_uint(tree, hf_radiotap_xchannel_maxpower,
-					tvb, offset + 7, 1, maxpower);
-#endif
+		proto_tree_add_item(tree, hf_radiotap_xchannel_frequency,
+					tvb, offset + 4, 2, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(tree, hf_radiotap_xchannel_channel,
+					tvb, offset + 6, 1, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(tree, hf_radiotap_xchannel_maxpower,
+					tvb, offset + 7, 1, ENC_LITTLE_ENDIAN);
 	}
 }
 
@@ -4716,7 +4708,7 @@ void proto_register_radiotap(void)
 		  "Specifies if the data retries field is present", HFILL}},
 
 		{&hf_radiotap_present_xchannel,
-		 {"Channel+", "radiotap.present.xchannel",
+		 {"XChannel", "radiotap.present.xchannel",
 		  FT_BOOLEAN, 32, TFS(&tfs_present_absent), RADIOTAP_MASK(XCHANNEL),
 		  "Specifies if the extended channel info field is present", HFILL}},
 
@@ -4979,19 +4971,24 @@ void proto_register_radiotap(void)
 		  FT_BOOLEAN, 24, NULL, IEEE80211_RADIOTAP_F_TX_ORDER,
 		  "Frame must not be reordered relative to others with this flag", HFILL}},
 
-		{&hf_radiotap_xchannel_channel,
-		 {"Channel number", "radiotap.xchannel.channel",
-		  FT_UINT32, BASE_DEC, NULL, 0x0,
+		{&hf_radiotap_xchannel_flags,
+		 {"XChannel flags", "radiotap.xchannel.flags",
+		  FT_UINT32, BASE_HEX, NULL, 0x0,
 		  NULL, HFILL}},
 
 		{&hf_radiotap_xchannel_frequency,
-		 {"Channel frequency", "radiotap.xchannel.freq",
+		 {"XChannel frequency", "radiotap.xchannel.freq",
 		  FT_UINT32, BASE_DEC, NULL, 0x0,
 		  NULL, HFILL}},
 
-		{&hf_radiotap_xchannel_flags,
-		 {"Channel flags", "radiotap.xchannel.flags",
-		  FT_UINT32, BASE_HEX, NULL, 0x0,
+		{&hf_radiotap_xchannel_channel,
+		 {"XChannel number", "radiotap.xchannel.channel",
+		  FT_UINT32, BASE_DEC, NULL, 0x0,
+		  NULL, HFILL}},
+
+		{&hf_radiotap_xchannel_maxpower,
+		 {"XChannel Max transmit power", "radiotap.xchannel.maxpower",
+		  FT_UINT32, BASE_DEC, NULL, 0x0,
 		  NULL, HFILL}},
 
 		{&hf_radiotap_xchannel_flags_turbo,
@@ -5070,12 +5067,7 @@ void proto_register_radiotap(void)
 		 {"HT Channel (40MHz Channel Width with Extension channel below)", "radiotap.xchannel.flags.ht40d",
 		  FT_BOOLEAN, 24, NULL, 0x040000,
 		  "Channel Flags HT/40-", HFILL}},
-#if 0
-		{&hf_radiotap_xchannel_maxpower,
-		 {"Max transmit power", "radiotap.xchannel.maxpower",
-		  FT_UINT32, BASE_DEC, NULL, 0x0,
-		  NULL, HFILL}},
-#endif
+
 		{&hf_radiotap_fhss_hopset,
 		 {"FHSS Hop Set", "radiotap.fhss.hopset",
 		  FT_UINT8, BASE_DEC, NULL, 0x0,
