@@ -359,7 +359,7 @@
   </avp>
 
   <avp name="Access-Network-Charging-Identifier-Value" code="503" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
-    <type type-name="OctetString"/>
+    <type type-name="OctetStringOrUTF8"/>
   </avp>
 
   <avp name="AF-Application-Identifier" code="504" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
