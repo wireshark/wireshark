@@ -170,6 +170,7 @@ static dissector_handle_t mbtls_handle;
 static dissector_handle_t mbudp_handle;
 static dissector_handle_t mbrtu_handle;
 
+static dissector_table_t   modbus_func_code_dissector_table;
 static dissector_table_t   modbus_data_dissector_table;
 static dissector_table_t   modbus_dissector_table;
 
@@ -1052,7 +1053,9 @@ dissect_modbus_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint8_t
                 break;
 
         default:
-            if ( ! dissector_try_string_with_data(modbus_data_dissector_table, "data", next_tvb, pinfo, tree, true, NULL) )
+            // Dissect the data with another dissector
+            if (!dissector_try_string_with_data(modbus_data_dissector_table, "data", next_tvb, pinfo, tree, true, NULL) &&
+                !dissector_try_uint_with_data(modbus_func_code_dissector_table, function_code, next_tvb, pinfo, tree, true, NULL))
                 proto_tree_add_item(tree, hf_modbus_data, tvb, payload_start, payload_len, ENC_NA);
             break;
         }
@@ -1658,6 +1661,7 @@ dissect_modbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 req_unit_id = request_data->unit_id;
                 if ((pinfo->num > req_frame_num) && (req_function_code == function_code) &&
                     (req_transaction_id == modbus_data->mbtcp_transid) && (req_unit_id == modbus_data->unit_id)) {
+                    pkt_info->function_code = req_function_code;
                     pkt_info->reg_base = request_data->base_address;
                     pkt_info->num_reg = request_data->num_reg;
                     pkt_info->request_found = true;
@@ -2178,6 +2182,7 @@ proto_register_modbus(void)
     mbudp_handle = register_dissector("mbudp", dissect_mbudp, proto_mbudp);
 
     /* Registering subdissectors table */
+    modbus_func_code_dissector_table = register_dissector_table("modbus.func_code", "Modbus Function Code", proto_modbus, FT_UINT8, BASE_DEC);
     modbus_data_dissector_table = register_dissector_table("modbus.data", "Modbus Data", proto_modbus, FT_STRING, STRING_CASE_SENSITIVE);
     modbus_dissector_table = register_dissector_table("mbtcp.prot_id", "Modbus/TCP protocol identifier", proto_mbtcp, FT_UINT16, BASE_DEC);
 
