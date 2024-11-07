@@ -762,16 +762,18 @@ static const value_string icmpv6_type_val[] = {
 #define ICMP6_DST_UNREACH_INGR_EGR              5       /* source address failed ingress/egress policy */
 #define ICMP6_DST_UNREACH_REJECT                6       /* reject route to destination */
 #define ICMP6_DST_UNREACH_ERROR                 7       /* error in Source Routing Header */
+#define ICMP6_DST_UNREACH_HEADERS_TOO_LONG      8       /* headers too long */
 
 static const value_string icmpv6_unreach_code_val[] = {
-    { ICMP6_DST_UNREACH_NOROUTE,     "No route to destination" },
-    { ICMP6_DST_UNREACH_ADMIN,       "Administratively prohibited" },
-    { ICMP6_DST_UNREACH_BEYONDSCOPE, "Beyond scope of source address" },
-    { ICMP6_DST_UNREACH_ADDR,        "Address unreachable" },
-    { ICMP6_DST_UNREACH_NOPORT,      "Port unreachable" },
-    { ICMP6_DST_UNREACH_INGR_EGR,    "Source address failed ingress/egress policy" },
-    { ICMP6_DST_UNREACH_REJECT,      "Reject route to destination" },
-    { ICMP6_DST_UNREACH_ERROR,       "Error in Source Routing Header" }, /* [RFC6550] [RFC6554] */
+    { ICMP6_DST_UNREACH_NOROUTE,          "No route to destination" },
+    { ICMP6_DST_UNREACH_ADMIN,            "Administratively prohibited" },
+    { ICMP6_DST_UNREACH_BEYONDSCOPE,      "Beyond scope of source address" },
+    { ICMP6_DST_UNREACH_ADDR,             "Address unreachable" },
+    { ICMP6_DST_UNREACH_NOPORT,           "Port unreachable" },
+    { ICMP6_DST_UNREACH_INGR_EGR,         "Source address failed ingress/egress policy" },
+    { ICMP6_DST_UNREACH_REJECT,           "Reject route to destination" },
+    { ICMP6_DST_UNREACH_ERROR,            "Error in Source Routing Header" }, /* [RFC6550] [RFC6554] */
+    { ICMP6_DST_UNREACH_HEADERS_TOO_LONG, "Headers too long" }, /* [RFC8883] */
     { 0, NULL }
 };
 
@@ -788,12 +790,26 @@ static const value_string icmpv6_timeex_code_val[] = {
 #define ICMP6_PARAMPROB_NEXTHEADER              1       /* unrecognized next header */
 #define ICMP6_PARAMPROB_OPTION                  2       /* unrecognized option */
 #define ICMP6_PARAMPROB_FIRSTFRAG               3       /* IPv6 First Fragment has incomplete IPv6 Header Chain [RFC 7112] */
+#define ICMP6_PARAMPROB_HEADERERROR             4       /* SR Upper-layer Header Error [RFC8754] */
+#define ICMP6_PARAMPROB_NEXTHEADER_INTERMEDIATE 5       /* Unrecognized Next Header type encountered by intermediate node [RFC8883] */
+#define ICMP6_PARAMPROB_HEADER_TOO_BIG          6       /* Extension header too big [RFC8883] */
+#define ICMP6_PARAMPROB_HEADER_CHAIN_TOO_LONG   7       /* Extension header chain too long [RFC8883] */
+#define ICMP6_PARAMPROB_TOO_MANY_EXTENTIONS     8       /* Too many extension headers [RFC8883] */
+#define ICMP6_PARAMPROB_TOO_MANY_OPTIONS        9       /* Too many options in extension header [RFC8883] */
+#define ICMP6_PARAMPROB_OPTION_TOO_BIG         10       /* Option too big [RFC8883] */
 
 static const value_string icmpv6_paramprob_code_val[] = {
-    { ICMP6_PARAMPROB_HEADER,     "Erroneous header field encountered" },
-    { ICMP6_PARAMPROB_NEXTHEADER, "Unrecognized Next Header type encountered" },
-    { ICMP6_PARAMPROB_OPTION,     "Unrecognized IPv6 option encountered" },
-    { ICMP6_PARAMPROB_FIRSTFRAG,  "IPv6 First Fragment has incomplete IPv6 Header Chain" },
+    { ICMP6_PARAMPROB_HEADER,                  "Erroneous header field encountered" },
+    { ICMP6_PARAMPROB_NEXTHEADER,              "Unrecognized Next Header type encountered" },
+    { ICMP6_PARAMPROB_OPTION,                  "Unrecognized IPv6 option encountered" },
+    { ICMP6_PARAMPROB_FIRSTFRAG,               "IPv6 First Fragment has incomplete IPv6 Header Chain" },
+    { ICMP6_PARAMPROB_HEADERERROR,             "SR Upper-layer Header Error" },
+    { ICMP6_PARAMPROB_NEXTHEADER_INTERMEDIATE, "Unrecognized Next Header type encountered by intermediate node" },
+    { ICMP6_PARAMPROB_HEADER_TOO_BIG,          "Extension header too big" },
+    { ICMP6_PARAMPROB_HEADER_CHAIN_TOO_LONG,   "Extension header chain too long" },
+    { ICMP6_PARAMPROB_TOO_MANY_EXTENTIONS,     "Too many extension headers" },
+    { ICMP6_PARAMPROB_TOO_MANY_OPTIONS,        "Too many options in extension header" },
+    { ICMP6_PARAMPROB_OPTION_TOO_BIG,          "Option too big" },
     { 0, NULL }
 };
 
@@ -978,6 +994,10 @@ static const true_false_string tfs_ni_flag_a = {
 #define ND_OPT_6CIO                     36
 #define ND_OPT_CAPPORT                  37
 #define ND_OPT_PREF64                   38
+#define ND_OPT_CRYPTOID_PARAMETERS      39
+#define ND_OPT_NDP_SIGNATURE            40
+#define ND_OPT_RESOURCE_DIR_ADDRESS     41
+#define ND_OPT_CONSISTENT_UPTIME        42
 
 static const value_string option_vals[] = {
 /*  1 */   { ND_OPT_SOURCE_LINKADDR,           "Source link-layer address" },
@@ -1018,10 +1038,16 @@ static const value_string option_vals[] = {
 /* 36 */   { ND_OPT_6CIO,                      "6LoWPAN Capability Indication Option" },   /* [RFC7400] */
 /* 37 */   { ND_OPT_CAPPORT,                   "DHCP Captive-Portal" },                    /* [RFC7710] */
 /* 38 */   { ND_OPT_PREF64,                    "PREF64 Option" },                          /* [RFC8781] */
-/* 39-137  Unassigned */
+/* 39 */   { ND_OPT_CRYPTOID_PARAMETERS,       "Crypto-ID Parameters Option (CIPO)" },     /* [RFC8928] */
+/* 40 */   { ND_OPT_NDP_SIGNATURE,             "NDP Signature Option (NDPSO)" },           /* [RFC8928] */
+/* 41 */   { ND_OPT_RESOURCE_DIR_ADDRESS,      "Resource Directory Address Option" },      /* [RFC9176] */
+/* 42 */   { ND_OPT_CONSISTENT_UPTIME,         "Consistent Uptime Option" },               /* [RFC-ietf-6lo-multicast-registration-19] */
+/* 43-137  Unassigned */
    { 138,                              "CARD Request" },                           /* [RFC4065] */
    { 139,                              "CARD Reply" },                             /* [RFC4065] */
-/* 140-252 Unassigned */
+/* 140-143 Unassigned */
+   { 144,                              "Encrypted DNS Option" },                   /* [RFC9463] */
+/* 145-252 Unassigned */
    { 253,                              "RFC3692-style Experiment 1" },             /* [RFC4727] */
    { 254,                              "RFC3692-style Experiment 2" },             /* [RFC4727] */
    { 0,                                NULL }
