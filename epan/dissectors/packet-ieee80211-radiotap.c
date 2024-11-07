@@ -192,6 +192,7 @@ static int hf_radiotap_present_db_antnoise;
 static int hf_radiotap_present_hdrfcs;
 static int hf_radiotap_present_rxflags;
 static int hf_radiotap_present_txflags;
+static int hf_radiotap_present_reserved16;
 static int hf_radiotap_present_data_retries;
 static int hf_radiotap_present_xchannel;
 static int hf_radiotap_present_mcs;
@@ -200,10 +201,10 @@ static int hf_radiotap_present_vht;
 static int hf_radiotap_present_timestamp;
 static int hf_radiotap_present_he;
 static int hf_radiotap_present_he_mu;
+static int hf_radiotap_present_reserved25;
 static int hf_radiotap_present_0_length_psdu;
 static int hf_radiotap_present_l_sig;
 static int hf_radiotap_present_tlv;
-static int hf_radiotap_present_reserved;
 static int hf_radiotap_present_rtap_ns;
 static int hf_radiotap_present_vendor_ns;
 static int hf_radiotap_present_ext;
@@ -3659,6 +3660,9 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* u
 					    hf_radiotap_present_txflags, tvb,
 					    offset + 4, 4, ENC_LITTLE_ENDIAN);
 			proto_tree_add_item(present_word_tree,
+					    hf_radiotap_present_reserved16, tvb,
+					    offset + 4, 4, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(present_word_tree,
 					    hf_radiotap_present_data_retries, tvb,
 					    offset + 4, 4, ENC_LITTLE_ENDIAN);
 			proto_tree_add_item(present_word_tree,
@@ -3684,14 +3688,13 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* u
 					    hf_radiotap_present_he_mu, tvb,
 					    offset + 4, 4, ENC_LITTLE_ENDIAN);
 			proto_tree_add_item(present_word_tree,
+					    hf_radiotap_present_reserved25, tvb,
+					    offset + 4, 4, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(present_word_tree,
 					    hf_radiotap_present_0_length_psdu,
 					    tvb, offset + 4, 4, ENC_LITTLE_ENDIAN);
 			proto_tree_add_item(present_word_tree,
 					    hf_radiotap_present_l_sig, tvb,
-					    offset + 4, 4, ENC_LITTLE_ENDIAN);
-
-			ti = proto_tree_add_item(present_word_tree,
-					    hf_radiotap_present_reserved, tvb,
 					    offset + 4, 4, ENC_LITTLE_ENDIAN);
 			proto_tree_add_item(present_word_tree,
 					    hf_radiotap_present_tlv, tvb,
@@ -4697,6 +4700,11 @@ void proto_register_radiotap(void)
 		  FT_BOOLEAN, 32, TFS(&tfs_present_absent), RADIOTAP_MASK(TX_FLAGS),
 		  "Specifies if the TX flags field is present", HFILL}},
 
+		{&hf_radiotap_present_reserved16,
+		 {"Reserved bit16", "radiotap.present.reserved16",
+		  FT_BOOLEAN, 32, TFS(&tfs_present_absent), IEEE80211_RADIOTAP_RESERVED16,
+		  "Reserved present flag (Must be zero)", HFILL}},
+
 		{&hf_radiotap_present_hdrfcs,
 		 {"FCS in header", "radiotap.present.fcs",
 		  FT_BOOLEAN, 32, TFS(&tfs_present_absent), RADIOTAP_MASK(RX_FLAGS),
@@ -4742,6 +4750,11 @@ void proto_register_radiotap(void)
 		  FT_BOOLEAN, 32, TFS(&tfs_present_absent), RADIOTAP_MASK(HE_MU),
 		  "Specifies if the HE field is present", HFILL}},
 
+		{&hf_radiotap_present_reserved25,
+		 {"Reserved bit25", "radiotap.present.reserved25",
+		  FT_BOOLEAN, 32, TFS(&tfs_present_absent), IEEE80211_RADIOTAP_RESERVED25,
+		  "Reserved present flag (Must be zero)", HFILL}},
+
 		{&hf_radiotap_present_0_length_psdu,
 		 {"0 Length PSDU", "radiotap.present.0_length.psdu",
 		   FT_BOOLEAN, 32, TFS(&tfs_present_absent), RADIOTAP_MASK(0_LENGTH_PSDU),
@@ -4756,11 +4769,6 @@ void proto_register_radiotap(void)
 		 {"TLVs", "radiotap.present.tlv",
 		  FT_BOOLEAN, 32, TFS(&tfs_present_absent), RADIOTAP_MASK(TLVS),
 		  "Specifies switch to TLV fields", HFILL}},
-
-		{&hf_radiotap_present_reserved,
-		 {"Reserved", "radiotap.present.reserved",
-		  FT_UINT32, BASE_HEX, NULL, IEEE80211_RADIOTAP_NOTDEFINED,
-		  "Not (yet) defined present flags (Must be zero)", HFILL}},
 
 		{&hf_radiotap_present_rtap_ns,
 		 {"Radiotap NS next", "radiotap.present.rtap_ns",

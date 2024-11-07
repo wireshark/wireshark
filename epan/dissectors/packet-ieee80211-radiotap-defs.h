@@ -224,9 +224,11 @@ struct ieee80211_radiotap_tlv {
 #define IEEE80211_RADIOTAP_TLV_U_SIG      33
 #define IEEE80211_RADIOTAP_TLV_EHT        34
 
-/* not (yet) defined Radiotap present flag */
-/* Bit 25 is not defined (in binary : 0000 0010 0000 0000 0000 0000 0000 0000 */
-#define IEEE80211_RADIOTAP_NOTDEFINED 0x02000000
+/* Reserved (deprecated?) radiotap types */
+/* Bit 16 in binary : 0000 0000 0001 0000 0000 0000 0000 0000 */
+/* Bit 25 in binary : 0000 0010 0000 0000 0000 0000 0000 0000 */
+#define IEEE80211_RADIOTAP_RESERVED16 0x00010000
+#define IEEE80211_RADIOTAP_RESERVED25 0x02000000
 
 /* Channel flags. */
 /* 0x00000008 undefined (reserved?) */
