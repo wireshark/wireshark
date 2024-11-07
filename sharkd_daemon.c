@@ -43,10 +43,16 @@
 #include "sharkd.h"
 
 #ifdef _WIN32
-/* for windows support TCP sockets */
+/*
+ * TCP sockets can work on Linux and other systems, but is disabled by default
+ * because we do not want to encourage insecure setups. Unfiltered access to
+ * sharkd could potentially result in arbitrary command execution.
+ * On Windows, Unix sockets are not supported, so we enable it there.
+ */
 # define SHARKD_TCP_SUPPORT
-#else
-/* for other system support only local sockets */
+#endif
+
+#ifndef _WIN32
 # define SHARKD_UNIX_SUPPORT
 #endif
 
@@ -67,20 +73,24 @@ socket_init(char *path)
         return fd;
     }
 
-#ifdef SHARKD_UNIX_SUPPORT
     if (!strncmp(path, "unix:", 5))
     {
+#ifdef SHARKD_UNIX_SUPPORT
         struct sockaddr_un s_un;
         socklen_t s_un_len;
 
         path += 5;
 
-        if (strlen(path) + 1 > sizeof(s_un.sun_path))
+        if (strlen(path) + 1 > sizeof(s_un.sun_path)) {
+            fputs("Socket path too long.\n", stderr);
             return INVALID_SOCKET;
+        }
 
         fd = socket(AF_UNIX, SOCK_STREAM, 0);
-        if (fd == INVALID_SOCKET)
+        if (fd == INVALID_SOCKET) {
+            fprintf(stderr, "Failed to create socket: %s\n", g_strerror(errno));
             return INVALID_SOCKET;
+        }
 
         memset(&s_un, 0, sizeof(s_un));
         s_un.sun_family = AF_UNIX;
@@ -93,16 +103,16 @@ socket_init(char *path)
 
         if (bind(fd, (struct sockaddr *) &s_un, s_un_len))
         {
+            fprintf(stderr, "Failed to bind socket: %s\n", g_strerror(errno));
             closesocket(fd);
             return INVALID_SOCKET;
         }
-    }
-    else
+#else
+        fputs("Unix sockets are not available on Windows, use tcp instead.\n", stderr);
+        return INVALID_SOCKET;
 #endif
-
+    } else if (!strncmp(path, "tcp:", 4)) {
 #ifdef SHARKD_TCP_SUPPORT
-    if (!strncmp(path, "tcp:", 4))
-    {
         struct sockaddr_in s_in;
         int one = 1;
         char *port_sep;
@@ -111,13 +121,17 @@ socket_init(char *path)
         path += 4;
 
         port_sep = strchr(path, ':');
-        if (!port_sep)
+        if (!port_sep) {
+            fputs("Missing port number in socket path.\n", stderr);
             return INVALID_SOCKET;
+        }
 
         *port_sep = '\0';
 
-        if (ws_strtou16(port_sep + 1, NULL, &port) == false)
+        if (ws_strtou16(port_sep + 1, NULL, &port) == false) {
+            fputs("Invalid port number.\n", stderr);
             return INVALID_SOCKET;
+        }
 
 #ifdef _WIN32
         /* Need to use WSASocket() to disable overlapped I/O operations,
@@ -126,8 +140,16 @@ socket_init(char *path)
 #else
         fd = socket(AF_INET, SOCK_STREAM, 0);
 #endif
-        if (fd == INVALID_SOCKET)
+        if (fd == INVALID_SOCKET) {
+            fprintf(stderr, "Failed to open socket: %s\n",
+#ifdef _WIN32
+                    win32strerror(WSAGetLastError())
+#else
+                    g_strerror(errno)
+#endif
+                   );
             return INVALID_SOCKET;
+        }
 
         s_in.sin_family = AF_INET;
         ws_inet_pton4(path, (ws_in4_addr *)&(s_in.sin_addr.s_addr));
@@ -138,18 +160,24 @@ socket_init(char *path)
 
         if (bind(fd, (struct sockaddr *) &s_in, sizeof(struct sockaddr_in)))
         {
+            fprintf(stderr, "Failed to bind socket: %s\n", g_strerror(errno));
             closesocket(fd);
             return INVALID_SOCKET;
         }
+#else
+        fputs("TCP sockets are not available for security reasons, use Unix sockets instead.\n", stderr);
+        return INVALID_SOCKET;
+#endif
     }
     else
-#endif
     {
+        fprintf(stderr, "Unsupported socket path '%s', try unix:... for Unix sockets\n", path);
         return INVALID_SOCKET;
     }
 
     if (listen(fd, SOMAXCONN))
     {
+        fprintf(stderr, "Failed to listen on socket: %s\n", g_strerror(errno));
         closesocket(fd);
         return INVALID_SOCKET;
     }
@@ -161,36 +189,52 @@ static void
 print_usage(FILE* output)
 {
     fprintf(output, "\n");
-    fprintf(output, "Usage: sharkd [<classic_options>|<gold_options>]\n");
+    fprintf(output, "Usage: sharkd [options]\n");
+    fprintf(output, "  or   sharkd -\n");
 
     fprintf(output, "\n");
-    fprintf(output, "Classic (classic_options):\n");
-    fprintf(output, "  [-|<socket>]\n");
-    fprintf(output, "\n");
-    fprintf(output, "  <socket> examples:\n");
-#ifdef SHARKD_UNIX_SUPPORT
-    fprintf(output, "  - unix:/tmp/sharkd.sock - listen on unix file /tmp/sharkd.sock\n");
-#endif
-#ifdef SHARKD_TCP_SUPPORT
-    fprintf(output, "  - tcp:127.0.0.1:4446 - listen on TCP port 4446\n");
-#endif
-
-    fprintf(output, "\n");
-    fprintf(output, "Gold (gold_options):\n");
+    fprintf(output, "Options:\n");
     fprintf(output, "  -a <socket>, --api <socket>\n");
-    fprintf(output, "                           listen on this socket\n");
+    fprintf(output, "                           listen on this socket instead of the console\n");
+    fprintf(output, "  --foreground             do not detach from console\n");
     fprintf(output, "  -h, --help               show this help information\n");
     fprintf(output, "  -v, --version            show version information\n");
     fprintf(output, "  -C <config profile>, --config-profile <config profile>\n");
     fprintf(output, "                           start with specified configuration profile\n");
 
     fprintf(output, "\n");
-    fprintf(output, "  Examples:\n");
-    fprintf(output, "    sharkd -C myprofile\n");
-    fprintf(output, "    sharkd -a tcp:127.0.0.1:4446 -C myprofile\n");
+    fprintf(output, "Supported socket types:\n");
+#ifdef SHARKD_UNIX_SUPPORT
+    fprintf(output, "    unix:/tmp/sharkd.sock - listen on Unix domain socket file /tmp/sharkd.sock\n");
+    fprintf(output, "    unix:@sharkd          - listen on abstract Unix socket 'sharkd' (Linux-only)\n");
+#else
+    fprintf(output, "    (Unix domain sockets are unavailable on this platform.)\n");
+#endif
+#ifdef SHARKD_TCP_SUPPORT
+    fprintf(output, "    tcp:127.0.0.1:4446    - listen on TCP port 4446\n");
+#else
+    fprintf(output, "    (TCP sockets are disabled in this build)\n");
+#endif
 
     fprintf(output, "\n");
-    fprintf(output, "See the sharkd page of the Wireshark wiki for full details.\n");
+    fprintf(output, "If no socket option is provided, or if 'sharkd -' is used,\n");
+    fprintf(output, "sharkd will accept commands via console (standard input).\n");
+
+    fprintf(output, "\n");
+    fprintf(output, "Examples:\n");
+    fprintf(output, "    sharkd -\n");
+    fprintf(output, "    sharkd -C myprofile\n");
+#ifdef SHARKD_UNIX_SUPPORT
+    fprintf(output, "    sharkd -a unix:/tmp/sharkd.sock -C myprofile\n");
+#elif defined(SHARKD_TCP_SUPPORT)
+    fprintf(output, "    sharkd -a tcp:127.0.0.1:4446 -C myprofile\n");
+#endif
+
+    fprintf(output, "\n");
+    fprintf(output, "For security reasons, do not directly expose sharkd to the public Internet.\n");
+    fprintf(output, "Instead, have a separate backend service to interact with sharkd.\n");
+    fprintf(output, "\n");
+    fprintf(output, "For full details, see https://wiki.wireshark.org/Development/sharkd\n");
     fprintf(output, "\n");
 }
 
@@ -218,12 +262,13 @@ sharkd_init(int argc, char **argv)
      */
 
 #define OPTSTRING "+" "a:hmvC:"
+#define LONGOPT_FOREGROUND 4000
 
     static const char    optstring[] = OPTSTRING;
 
-    // right now we don't have any long options
     static const struct ws_option long_options[] = {
         {"api", ws_required_argument, NULL, 'a'},
+        {"foreground", ws_no_argument, NULL, LONGOPT_FOREGROUND},
         {"help", ws_no_argument, NULL, 'h'},
         {"version", ws_no_argument, NULL, 'v'},
         {"config-profile", ws_required_argument, NULL, 'C'},
@@ -236,6 +281,7 @@ sharkd_init(int argc, char **argv)
     pid_t pid;
 #endif
     socket_handle_t fd;
+    bool foreground = false;
 
     if (argc < 2)
     {
@@ -313,7 +359,7 @@ sharkd_init(int argc, char **argv)
 
                 case 'h':
                     show_help_header("Daemon variant of Wireshark");
-                    print_usage(stderr);
+                    print_usage(stdout);
                     exit(0);
                     break;
 
@@ -327,6 +373,10 @@ sharkd_init(int argc, char **argv)
                     exit(0);
                     break;
 
+                case LONGOPT_FOREGROUND:
+                    foreground = true;
+                    break;
+
                 default:
                     if (!ws_optopt)
                         fprintf(stderr, "This option isn't supported: %s\n", argv[ws_optind]);
@@ -337,7 +387,7 @@ sharkd_init(int argc, char **argv)
         } while (opt != -1);
     }
 
-    if (mode == SHARKD_MODE_CLASSIC_DAEMON || mode == SHARKD_MODE_GOLD_DAEMON)
+    if (!foreground && (mode == SHARKD_MODE_CLASSIC_DAEMON || mode == SHARKD_MODE_GOLD_DAEMON))
     {
         /* all good - try to daemonize */
 #ifndef _WIN32

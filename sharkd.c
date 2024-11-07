@@ -138,7 +138,7 @@ main(int argc, char *argv[])
 
     if (sharkd_init(argc, argv) < 0)
     {
-        printf("cannot initialize sharkd\n");
+        fputs("Cannot initialize sharkd.\n", stderr);
         ret = SHARKD_INIT_FAILED;
         goto clean_exit;
     }
