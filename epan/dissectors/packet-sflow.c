@@ -587,7 +587,6 @@ static int hf_sflow_5_extended_80211_tx_power;
 static int hf_sflow_24_flow_sample_multiple_outputs;
 static int hf_sflow_5_extended_user_source_user_string_length;
 static int hf_sflow_5_extended_80211_payload_length;
-static int hf_sflow_24_flow_sample_output_interface_format;
 static int hf_sflow_5_flow_sample_output_interface_expanded_format;
 static int hf_sflow_245_ethernet_packet_type;
 static int hf_sflow_counters_sample_expanded_source_id_type;
@@ -3456,11 +3455,6 @@ proto_register_sflow(void) {
       { &hf_sflow_24_flow_sample_multiple_outputs,
         { "Multiple outputs", "sflow.flow_sample.multiple_outputs",
           FT_UINT32, BASE_DEC, NULL, 0x0,
-          NULL, HFILL }
-      },
-      { &hf_sflow_24_flow_sample_output_interface_format,
-        { "Output interface format", "sflow.flow_sample.output_interface.format",
-          FT_UINT32, BASE_DEC, NULL, 0x7fffffff,
           NULL, HFILL }
       },
       { &hf_sflow_5_flow_sample_output_interface_expanded_format,
