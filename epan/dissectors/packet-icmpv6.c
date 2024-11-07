@@ -760,7 +760,7 @@ static const value_string icmpv6_type_val[] = {
 #define ICMP6_DST_UNREACH_ERROR                 7       /* error in Source Routing Header */
 
 static const value_string icmpv6_unreach_code_val[] = {
-    { ICMP6_DST_UNREACH_NOROUTE,     "no route to destination" },
+    { ICMP6_DST_UNREACH_NOROUTE,     "No route to destination" },
     { ICMP6_DST_UNREACH_ADMIN,       "Administratively prohibited" },
     { ICMP6_DST_UNREACH_BEYONDSCOPE, "Beyond scope of source address" },
     { ICMP6_DST_UNREACH_ADDR,        "Address unreachable" },
@@ -775,8 +775,8 @@ static const value_string icmpv6_unreach_code_val[] = {
 #define ICMP6_TIME_EXCEED_REASSEMBLY    1       /* ttl==0 in reass */
 
 static const value_string icmpv6_timeex_code_val[] = {
-    { ICMP6_TIME_EXCEED_TRANSIT,    "hop limit exceeded in transit" },
-    { ICMP6_TIME_EXCEED_REASSEMBLY, "fragment reassembly time exceeded" },
+    { ICMP6_TIME_EXCEED_TRANSIT,    "Hop limit exceeded in transit" },
+    { ICMP6_TIME_EXCEED_REASSEMBLY, "Fragment reassembly time exceeded" },
     { 0, NULL }
 };
 
@@ -786,9 +786,9 @@ static const value_string icmpv6_timeex_code_val[] = {
 #define ICMP6_PARAMPROB_FIRSTFRAG               3       /* IPv6 First Fragment has incomplete IPv6 Header Chain [RFC 7112] */
 
 static const value_string icmpv6_paramprob_code_val[] = {
-    { ICMP6_PARAMPROB_HEADER,     "erroneous header field encountered" },
-    { ICMP6_PARAMPROB_NEXTHEADER, "unrecognized Next Header type encountered" },
-    { ICMP6_PARAMPROB_OPTION,     "unrecognized IPv6 option encountered" },
+    { ICMP6_PARAMPROB_HEADER,     "Erroneous header field encountered" },
+    { ICMP6_PARAMPROB_NEXTHEADER, "Unrecognized Next Header type encountered" },
+    { ICMP6_PARAMPROB_OPTION,     "Unrecognized IPv6 option encountered" },
     { ICMP6_PARAMPROB_FIRSTFRAG,  "IPv6 First Fragment has incomplete IPv6 Header Chain" },
     { 0, NULL }
 };
