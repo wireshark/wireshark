@@ -9,7 +9,7 @@ See tools/asterix/README.md for details.
 
 Data source:
 https://zoranbosnjak.github.io/asterix-specs
-git revision: bfcc7329027fc840fc6d513e42b96a9dabc7eab3
+git revision: f61aad7a3bc19342cdad1a3512147f8ee599b893
 
 
 */
@@ -3574,7 +3574,163 @@ static const AsterixField I002_V1_1_100 = { FIXED, 8, 0, 0, &hf_002_V1_1_100, I0
 static int hf_002_V1_1_SP;
 static const AsterixField I002_V1_1_SP = { EXP, 0, 0, 1, &hf_002_V1_1_SP, NULL, { NULL } };
 
-/* Category 002, edition 1.1 (latest) */
+static const AsterixField * const I002_V1_1_uap[] = {
+    &I002_V1_1_010,
+    &I002_V1_1_000,
+    &I002_V1_1_020,
+    &I002_V1_1_030,
+    &I002_V1_1_041,
+    &I002_V1_1_050,
+    &I002_V1_1_060,
+    &I002_V1_1_070,
+    &I002_V1_1_100,
+    &I002_V1_1_090,
+    &I002_V1_1_080,
+    &IX_SPARE,
+    &I002_V1_1_SP,
+    NULL
+};
+static const AsterixField * const * const I002_V1_1[] = {
+    I002_V1_1_uap,
+    NULL
+};
+
+/* Category 002, edition 1.2 */
+static int hf_002_V1_2_000;
+static int hf_002_V1_2_000_VALUE;
+static const value_string valstr_002_V1_2_000_VALUE[] = {
+    { 1, "North marker message" },
+    { 2, "Sector crossing message" },
+    { 3, "South marker message" },
+    { 8, "Activation of blind zone filtering" },
+    { 9, "Stop of blind zone filtering" },
+    { 0, NULL }
+};
+static const FieldPart I002_V1_2_000_VALUE = { 8, 1.0, FIELD_PART_UINT, &hf_002_V1_2_000_VALUE, NULL };
+static const FieldPart * const I002_V1_2_000_PARTS[] = {
+    &I002_V1_2_000_VALUE,
+    NULL
+};
+static const AsterixField I002_V1_2_000 = { FIXED, 1, 0, 0, &hf_002_V1_2_000, I002_V1_2_000_PARTS, { NULL } };
+static int hf_002_V1_2_010;
+static int hf_002_V1_2_010_SAC;
+static const FieldPart I002_V1_2_010_SAC = { 8, 1.0, FIELD_PART_HEX, &hf_002_V1_2_010_SAC, NULL };
+static int hf_002_V1_2_010_SIC;
+static const FieldPart I002_V1_2_010_SIC = { 8, 1.0, FIELD_PART_HEX, &hf_002_V1_2_010_SIC, NULL };
+static const FieldPart * const I002_V1_2_010_PARTS[] = {
+    &I002_V1_2_010_SAC,
+    &I002_V1_2_010_SIC,
+    NULL
+};
+static const AsterixField I002_V1_2_010 = { FIXED, 2, 0, 0, &hf_002_V1_2_010, I002_V1_2_010_PARTS, { NULL } };
+static int hf_002_V1_2_020;
+static int hf_002_V1_2_020_VALUE;
+static const FieldPart I002_V1_2_020_VALUE = { 8, 1.40625, FIELD_PART_UFLOAT, &hf_002_V1_2_020_VALUE, NULL };
+static const FieldPart * const I002_V1_2_020_PARTS[] = {
+    &I002_V1_2_020_VALUE,
+    NULL
+};
+static const AsterixField I002_V1_2_020 = { FIXED, 1, 0, 0, &hf_002_V1_2_020, I002_V1_2_020_PARTS, { NULL } };
+static int hf_002_V1_2_030;
+static int hf_002_V1_2_030_VALUE;
+static const FieldPart I002_V1_2_030_VALUE = { 24, 0.0078125, FIELD_PART_UFLOAT, &hf_002_V1_2_030_VALUE, NULL };
+static const FieldPart * const I002_V1_2_030_PARTS[] = {
+    &I002_V1_2_030_VALUE,
+    NULL
+};
+static const AsterixField I002_V1_2_030 = { FIXED, 3, 0, 0, &hf_002_V1_2_030, I002_V1_2_030_PARTS, { NULL } };
+static int hf_002_V1_2_041;
+static int hf_002_V1_2_041_VALUE;
+static const FieldPart I002_V1_2_041_VALUE = { 16, 0.0078125, FIELD_PART_UFLOAT, &hf_002_V1_2_041_VALUE, NULL };
+static const FieldPart * const I002_V1_2_041_PARTS[] = {
+    &I002_V1_2_041_VALUE,
+    NULL
+};
+static const AsterixField I002_V1_2_041 = { FIXED, 2, 0, 0, &hf_002_V1_2_041, I002_V1_2_041_PARTS, { NULL } };
+static int hf_002_V1_2_050;
+static int hf_002_V1_2_050_Subitem;
+static const FieldPart I002_V1_2_050_Subitem = { 7, 1.0, FIELD_PART_HEX, &hf_002_V1_2_050_Subitem, NULL };
+static const FieldPart * const I002_V1_2_050_PARTS[] = {
+    &I002_V1_2_050_Subitem,
+    &IXXX_FX,
+    NULL
+};
+static const AsterixField I002_V1_2_050 = { FX, 0, 0, 0, &hf_002_V1_2_050, I002_V1_2_050_PARTS, { NULL } };
+static int hf_002_V1_2_060;
+static int hf_002_V1_2_060_Subitem;
+static const FieldPart I002_V1_2_060_Subitem = { 7, 1.0, FIELD_PART_HEX, &hf_002_V1_2_060_Subitem, NULL };
+static const FieldPart * const I002_V1_2_060_PARTS[] = {
+    &I002_V1_2_060_Subitem,
+    &IXXX_FX,
+    NULL
+};
+static const AsterixField I002_V1_2_060 = { FX, 0, 0, 0, &hf_002_V1_2_060, I002_V1_2_060_PARTS, { NULL } };
+static int hf_002_V1_2_070;
+static int hf_002_V1_2_070_A;
+static const value_string valstr_002_V1_2_070_A[] = {
+    { 0, "Counter for antenna 1" },
+    { 1, "Counter for antenna 2" },
+    { 0, NULL }
+};
+static const FieldPart I002_V1_2_070_A = { 1, 1.0, FIELD_PART_UINT, &hf_002_V1_2_070_A, NULL };
+static int hf_002_V1_2_070_IDENT;
+static const value_string valstr_002_V1_2_070_IDENT[] = {
+    { 1, "Sole primary plots" },
+    { 2, "Sole SSR plots" },
+    { 3, "Combined plots" },
+    { 0, NULL }
+};
+static const FieldPart I002_V1_2_070_IDENT = { 5, 1.0, FIELD_PART_UINT, &hf_002_V1_2_070_IDENT, NULL };
+static int hf_002_V1_2_070_COUNTER;
+static const FieldPart I002_V1_2_070_COUNTER = { 10, 1.0, FIELD_PART_UINT, &hf_002_V1_2_070_COUNTER, NULL };
+static const FieldPart * const I002_V1_2_070_PARTS[] = {
+    &I002_V1_2_070_A,
+    &I002_V1_2_070_IDENT,
+    &I002_V1_2_070_COUNTER,
+    NULL
+};
+static const AsterixField I002_V1_2_070 = { REPETITIVE, 2, 1, 0, &hf_002_V1_2_070, I002_V1_2_070_PARTS, { NULL } };
+static int hf_002_V1_2_080;
+static int hf_002_V1_2_080_Subitem;
+static const FieldPart I002_V1_2_080_Subitem = { 7, 1.0, FIELD_PART_HEX, &hf_002_V1_2_080_Subitem, NULL };
+static const FieldPart * const I002_V1_2_080_PARTS[] = {
+    &I002_V1_2_080_Subitem,
+    &IXXX_FX,
+    NULL
+};
+static const AsterixField I002_V1_2_080 = { FX, 0, 0, 0, &hf_002_V1_2_080, I002_V1_2_080_PARTS, { NULL } };
+static int hf_002_V1_2_090;
+static int hf_002_V1_2_090_RE;
+static const FieldPart I002_V1_2_090_RE = { 8, 0.0078125, FIELD_PART_FLOAT, &hf_002_V1_2_090_RE, NULL };
+static int hf_002_V1_2_090_AE;
+static const FieldPart I002_V1_2_090_AE = { 8, 0.02197265625, FIELD_PART_FLOAT, &hf_002_V1_2_090_AE, NULL };
+static const FieldPart * const I002_V1_2_090_PARTS[] = {
+    &I002_V1_2_090_RE,
+    &I002_V1_2_090_AE,
+    NULL
+};
+static const AsterixField I002_V1_2_090 = { FIXED, 2, 0, 0, &hf_002_V1_2_090, I002_V1_2_090_PARTS, { NULL } };
+static int hf_002_V1_2_100;
+static int hf_002_V1_2_100_RS;
+static const FieldPart I002_V1_2_100_RS = { 16, 0.0078125, FIELD_PART_UFLOAT, &hf_002_V1_2_100_RS, NULL };
+static int hf_002_V1_2_100_RE;
+static const FieldPart I002_V1_2_100_RE = { 16, 0.0078125, FIELD_PART_UFLOAT, &hf_002_V1_2_100_RE, NULL };
+static int hf_002_V1_2_100_TS;
+static const FieldPart I002_V1_2_100_TS = { 16, 0.0054931640625, FIELD_PART_UFLOAT, &hf_002_V1_2_100_TS, NULL };
+static int hf_002_V1_2_100_TE;
+static const FieldPart I002_V1_2_100_TE = { 16, 0.0054931640625, FIELD_PART_UFLOAT, &hf_002_V1_2_100_TE, NULL };
+static const FieldPart * const I002_V1_2_100_PARTS[] = {
+    &I002_V1_2_100_RS,
+    &I002_V1_2_100_RE,
+    &I002_V1_2_100_TS,
+    &I002_V1_2_100_TE,
+    NULL
+};
+static const AsterixField I002_V1_2_100 = { FIXED, 8, 0, 0, &hf_002_V1_2_100, I002_V1_2_100_PARTS, { NULL } };
+static int hf_002_V1_2_SP;
+static const AsterixField I002_V1_2_SP = { EXP, 0, 0, 1, &hf_002_V1_2_SP, NULL, { NULL } };
+
+/* Category 002, edition 1.2 (latest) */
 static int hf_002_000;
 static int hf_002_000_VALUE;
 static const value_string valstr_002_000_VALUE[] = {
@@ -3709,24 +3865,24 @@ static const AsterixField I002_100 = { FIXED, 8, 0, 0, &hf_002_100, I002_100_PAR
 static int hf_002_SP;
 static const AsterixField I002_SP = { EXP, 0, 0, 1, &hf_002_SP, NULL, { NULL } };
 
-static const AsterixField * const I002_V1_1_uap[] = {
-    &I002_V1_1_010,
-    &I002_V1_1_000,
-    &I002_V1_1_020,
-    &I002_V1_1_030,
-    &I002_V1_1_041,
-    &I002_V1_1_050,
-    &I002_V1_1_060,
-    &I002_V1_1_070,
-    &I002_V1_1_100,
-    &I002_V1_1_090,
-    &I002_V1_1_080,
+static const AsterixField * const I002_V1_2_uap[] = {
+    &I002_V1_2_010,
+    &I002_V1_2_000,
+    &I002_V1_2_020,
+    &I002_V1_2_030,
+    &I002_V1_2_041,
+    &I002_V1_2_050,
+    &I002_V1_2_060,
+    &I002_V1_2_070,
+    &I002_V1_2_100,
+    &I002_V1_2_090,
+    &I002_V1_2_080,
     &IX_SPARE,
-    &I002_V1_1_SP,
+    &I002_V1_2_SP,
     NULL
 };
-static const AsterixField * const * const I002_V1_1[] = {
-    I002_V1_1_uap,
+static const AsterixField * const * const I002_V1_2[] = {
+    I002_V1_2_uap,
     NULL
 };
 
@@ -46545,20 +46701,13 @@ static const FieldPart * const I062_V1_17_500_ARC_PARTS[] = {
 static const AsterixField I062_V1_17_500_ARC = { FIXED, 1, 0, 0, &hf_062_V1_17_500_ARC, I062_V1_17_500_ARC_PARTS, { NULL } };
 static const AsterixField I062_V1_17_500 = { COMPOUND, 0, 0, 0, &hf_062_V1_17_500, NULL, { &I062_V1_17_500_APC, &I062_V1_17_500_COV, &I062_V1_17_500_APW, &I062_V1_17_500_AGA, &I062_V1_17_500_ABA, &I062_V1_17_500_ATV, &I062_V1_17_500_AA, &I062_V1_17_500_ARC, NULL } };
 static int hf_062_V1_17_510;
-static int hf_062_V1_17_510_MIDENT;
-static const FieldPart I062_V1_17_510_MIDENT = { 8, 1.0, FIELD_PART_HEX, &hf_062_V1_17_510_MIDENT, NULL };
-static int hf_062_V1_17_510_MTRACK;
-static const FieldPart I062_V1_17_510_MTRACK = { 15, 1.0, FIELD_PART_HEX, &hf_062_V1_17_510_MTRACK, NULL };
-static int hf_062_V1_17_510_SIDENT;
-static const FieldPart I062_V1_17_510_SIDENT = { 8, 1.0, FIELD_PART_HEX, &hf_062_V1_17_510_SIDENT, NULL };
-static int hf_062_V1_17_510_STRACK;
-static const FieldPart I062_V1_17_510_STRACK = { 15, 1.0, FIELD_PART_HEX, &hf_062_V1_17_510_STRACK, NULL };
+static int hf_062_V1_17_510_IDENT;
+static const FieldPart I062_V1_17_510_IDENT = { 8, 1.0, FIELD_PART_HEX, &hf_062_V1_17_510_IDENT, NULL };
+static int hf_062_V1_17_510_TRACK;
+static const FieldPart I062_V1_17_510_TRACK = { 15, 1.0, FIELD_PART_HEX, &hf_062_V1_17_510_TRACK, NULL };
 static const FieldPart * const I062_V1_17_510_PARTS[] = {
-    &I062_V1_17_510_MIDENT,
-    &I062_V1_17_510_MTRACK,
-    &IXXX_FX,
-    &I062_V1_17_510_SIDENT,
-    &I062_V1_17_510_STRACK,
+    &I062_V1_17_510_IDENT,
+    &I062_V1_17_510_TRACK,
     &IXXX_FX,
     NULL
 };
@@ -48743,20 +48892,13 @@ static const FieldPart * const I062_V1_18_500_ARC_PARTS[] = {
 static const AsterixField I062_V1_18_500_ARC = { FIXED, 1, 0, 0, &hf_062_V1_18_500_ARC, I062_V1_18_500_ARC_PARTS, { NULL } };
 static const AsterixField I062_V1_18_500 = { COMPOUND, 0, 0, 0, &hf_062_V1_18_500, NULL, { &I062_V1_18_500_APC, &I062_V1_18_500_COV, &I062_V1_18_500_APW, &I062_V1_18_500_AGA, &I062_V1_18_500_ABA, &I062_V1_18_500_ATV, &I062_V1_18_500_AA, &I062_V1_18_500_ARC, NULL } };
 static int hf_062_V1_18_510;
-static int hf_062_V1_18_510_MIDENT;
-static const FieldPart I062_V1_18_510_MIDENT = { 8, 1.0, FIELD_PART_HEX, &hf_062_V1_18_510_MIDENT, NULL };
-static int hf_062_V1_18_510_MTRACK;
-static const FieldPart I062_V1_18_510_MTRACK = { 15, 1.0, FIELD_PART_HEX, &hf_062_V1_18_510_MTRACK, NULL };
-static int hf_062_V1_18_510_SIDENT;
-static const FieldPart I062_V1_18_510_SIDENT = { 8, 1.0, FIELD_PART_HEX, &hf_062_V1_18_510_SIDENT, NULL };
-static int hf_062_V1_18_510_STRACK;
-static const FieldPart I062_V1_18_510_STRACK = { 15, 1.0, FIELD_PART_HEX, &hf_062_V1_18_510_STRACK, NULL };
+static int hf_062_V1_18_510_IDENT;
+static const FieldPart I062_V1_18_510_IDENT = { 8, 1.0, FIELD_PART_HEX, &hf_062_V1_18_510_IDENT, NULL };
+static int hf_062_V1_18_510_TRACK;
+static const FieldPart I062_V1_18_510_TRACK = { 15, 1.0, FIELD_PART_HEX, &hf_062_V1_18_510_TRACK, NULL };
 static const FieldPart * const I062_V1_18_510_PARTS[] = {
-    &I062_V1_18_510_MIDENT,
-    &I062_V1_18_510_MTRACK,
-    &IXXX_FX,
-    &I062_V1_18_510_SIDENT,
-    &I062_V1_18_510_STRACK,
+    &I062_V1_18_510_IDENT,
+    &I062_V1_18_510_TRACK,
     &IXXX_FX,
     NULL
 };
@@ -50941,20 +51083,13 @@ static const FieldPart * const I062_V1_19_500_ARC_PARTS[] = {
 static const AsterixField I062_V1_19_500_ARC = { FIXED, 1, 0, 0, &hf_062_V1_19_500_ARC, I062_V1_19_500_ARC_PARTS, { NULL } };
 static const AsterixField I062_V1_19_500 = { COMPOUND, 0, 0, 0, &hf_062_V1_19_500, NULL, { &I062_V1_19_500_APC, &I062_V1_19_500_COV, &I062_V1_19_500_APW, &I062_V1_19_500_AGA, &I062_V1_19_500_ABA, &I062_V1_19_500_ATV, &I062_V1_19_500_AA, &I062_V1_19_500_ARC, NULL } };
 static int hf_062_V1_19_510;
-static int hf_062_V1_19_510_MIDENT;
-static const FieldPart I062_V1_19_510_MIDENT = { 8, 1.0, FIELD_PART_HEX, &hf_062_V1_19_510_MIDENT, NULL };
-static int hf_062_V1_19_510_MTRACK;
-static const FieldPart I062_V1_19_510_MTRACK = { 15, 1.0, FIELD_PART_HEX, &hf_062_V1_19_510_MTRACK, NULL };
-static int hf_062_V1_19_510_SIDENT;
-static const FieldPart I062_V1_19_510_SIDENT = { 8, 1.0, FIELD_PART_HEX, &hf_062_V1_19_510_SIDENT, NULL };
-static int hf_062_V1_19_510_STRACK;
-static const FieldPart I062_V1_19_510_STRACK = { 15, 1.0, FIELD_PART_HEX, &hf_062_V1_19_510_STRACK, NULL };
+static int hf_062_V1_19_510_IDENT;
+static const FieldPart I062_V1_19_510_IDENT = { 8, 1.0, FIELD_PART_HEX, &hf_062_V1_19_510_IDENT, NULL };
+static int hf_062_V1_19_510_TRACK;
+static const FieldPart I062_V1_19_510_TRACK = { 15, 1.0, FIELD_PART_HEX, &hf_062_V1_19_510_TRACK, NULL };
 static const FieldPart * const I062_V1_19_510_PARTS[] = {
-    &I062_V1_19_510_MIDENT,
-    &I062_V1_19_510_MTRACK,
-    &IXXX_FX,
-    &I062_V1_19_510_SIDENT,
-    &I062_V1_19_510_STRACK,
+    &I062_V1_19_510_IDENT,
+    &I062_V1_19_510_TRACK,
     &IXXX_FX,
     NULL
 };
@@ -53146,20 +53281,13 @@ static const FieldPart * const I062_V1_20_500_ARC_PARTS[] = {
 static const AsterixField I062_V1_20_500_ARC = { FIXED, 1, 0, 0, &hf_062_V1_20_500_ARC, I062_V1_20_500_ARC_PARTS, { NULL } };
 static const AsterixField I062_V1_20_500 = { COMPOUND, 0, 0, 0, &hf_062_V1_20_500, NULL, { &I062_V1_20_500_APC, &I062_V1_20_500_COV, &I062_V1_20_500_APW, &I062_V1_20_500_AGA, &I062_V1_20_500_ABA, &I062_V1_20_500_ATV, &I062_V1_20_500_AA, &I062_V1_20_500_ARC, NULL } };
 static int hf_062_V1_20_510;
-static int hf_062_V1_20_510_MIDENT;
-static const FieldPart I062_V1_20_510_MIDENT = { 8, 1.0, FIELD_PART_HEX, &hf_062_V1_20_510_MIDENT, NULL };
-static int hf_062_V1_20_510_MTRACK;
-static const FieldPart I062_V1_20_510_MTRACK = { 15, 1.0, FIELD_PART_HEX, &hf_062_V1_20_510_MTRACK, NULL };
-static int hf_062_V1_20_510_SIDENT;
-static const FieldPart I062_V1_20_510_SIDENT = { 8, 1.0, FIELD_PART_HEX, &hf_062_V1_20_510_SIDENT, NULL };
-static int hf_062_V1_20_510_STRACK;
-static const FieldPart I062_V1_20_510_STRACK = { 15, 1.0, FIELD_PART_HEX, &hf_062_V1_20_510_STRACK, NULL };
+static int hf_062_V1_20_510_IDENT;
+static const FieldPart I062_V1_20_510_IDENT = { 8, 1.0, FIELD_PART_HEX, &hf_062_V1_20_510_IDENT, NULL };
+static int hf_062_V1_20_510_TRACK;
+static const FieldPart I062_V1_20_510_TRACK = { 15, 1.0, FIELD_PART_HEX, &hf_062_V1_20_510_TRACK, NULL };
 static const FieldPart * const I062_V1_20_510_PARTS[] = {
-    &I062_V1_20_510_MIDENT,
-    &I062_V1_20_510_MTRACK,
-    &IXXX_FX,
-    &I062_V1_20_510_SIDENT,
-    &I062_V1_20_510_STRACK,
+    &I062_V1_20_510_IDENT,
+    &I062_V1_20_510_TRACK,
     &IXXX_FX,
     NULL
 };
@@ -55308,20 +55436,13 @@ static const FieldPart * const I062_500_ARC_PARTS[] = {
 static const AsterixField I062_500_ARC = { FIXED, 1, 0, 0, &hf_062_500_ARC, I062_500_ARC_PARTS, { NULL } };
 static const AsterixField I062_500 = { COMPOUND, 0, 0, 0, &hf_062_500, NULL, { &I062_500_APC, &I062_500_COV, &I062_500_APW, &I062_500_AGA, &I062_500_ABA, &I062_500_ATV, &I062_500_AA, &I062_500_ARC, NULL } };
 static int hf_062_510;
-static int hf_062_510_MIDENT;
-static const FieldPart I062_510_MIDENT = { 8, 1.0, FIELD_PART_HEX, &hf_062_510_MIDENT, NULL };
-static int hf_062_510_MTRACK;
-static const FieldPart I062_510_MTRACK = { 15, 1.0, FIELD_PART_HEX, &hf_062_510_MTRACK, NULL };
-static int hf_062_510_SIDENT;
-static const FieldPart I062_510_SIDENT = { 8, 1.0, FIELD_PART_HEX, &hf_062_510_SIDENT, NULL };
-static int hf_062_510_STRACK;
-static const FieldPart I062_510_STRACK = { 15, 1.0, FIELD_PART_HEX, &hf_062_510_STRACK, NULL };
+static int hf_062_510_IDENT;
+static const FieldPart I062_510_IDENT = { 8, 1.0, FIELD_PART_HEX, &hf_062_510_IDENT, NULL };
+static int hf_062_510_TRACK;
+static const FieldPart I062_510_TRACK = { 15, 1.0, FIELD_PART_HEX, &hf_062_510_TRACK, NULL };
 static const FieldPart * const I062_510_PARTS[] = {
-    &I062_510_MIDENT,
-    &I062_510_MTRACK,
-    &IXXX_FX,
-    &I062_510_SIDENT,
-    &I062_510_STRACK,
+    &I062_510_IDENT,
+    &I062_510_TRACK,
     &IXXX_FX,
     NULL
 };
@@ -58129,12 +58250,13 @@ static const enum_val_t I001_versions[] = {
     { NULL, NULL, 0 }
 };
 
-static const AsterixField * const * const * const I002all[] = { I002, I002_V1_1, I002_V1_0 };
+static const AsterixField * const * const * const I002all[] = { I002, I002_V1_2, I002_V1_1, I002_V1_0 };
 
 static const enum_val_t I002_versions[] = {
-    { "I002", "Version 1.1 (latest)", 0 },
-    { "I002_v1_1", "Version 1.1", 1 },
-    { "I002_v1_0", "Version 1.0", 2 },
+    { "I002", "Version 1.2 (latest)", 0 },
+    { "I002_v1_2", "Version 1.2", 1 },
+    { "I002_v1_1", "Version 1.1", 2 },
+    { "I002_v1_0", "Version 1.0", 3 },
     { NULL, NULL, 0 }
 };
 
@@ -59774,6 +59896,36 @@ void proto_register_asterix (void)
         { &hf_002_V1_1_100_TS, { "TS, Theta Start, [°]", "asterix.002_V1_1_100_TS", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_002_V1_1_100_TE, { "TE, Theta End, [°]", "asterix.002_V1_1_100_TE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_002_V1_1_SP, { "SP, Special Purpose Field", "asterix.002_V1_1_SP", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_002_V1_2_000, { "000, Message Type", "asterix.002_V1_2_000", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_002_V1_2_000_VALUE, { "Message Type", "asterix.002_V1_2_000_VALUE", FT_UINT8, BASE_DEC, VALS (valstr_002_V1_2_000_VALUE), 0x00, NULL, HFILL } },
+        { &hf_002_V1_2_010, { "010, Data Source Identifier", "asterix.002_V1_2_010", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_002_V1_2_010_SAC, { "SAC, System Area Code", "asterix.002_V1_2_010_SAC", FT_UINT8, BASE_HEX_DEC, NULL, 0x00, NULL, HFILL } },
+        { &hf_002_V1_2_010_SIC, { "SIC, System Identification Code", "asterix.002_V1_2_010_SIC", FT_UINT8, BASE_HEX_DEC, NULL, 0x00, NULL, HFILL } },
+        { &hf_002_V1_2_020, { "020, Sector Number", "asterix.002_V1_2_020", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_002_V1_2_020_VALUE, { "Sector Number, [°]", "asterix.002_V1_2_020_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_002_V1_2_030, { "030, Time of Day", "asterix.002_V1_2_030", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_002_V1_2_030_VALUE, { "Time of Day, [s]", "asterix.002_V1_2_030_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_002_V1_2_041, { "041, Antenna Rotation Speed", "asterix.002_V1_2_041", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_002_V1_2_041_VALUE, { "Antenna Rotation Speed, [s]", "asterix.002_V1_2_041_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_002_V1_2_050, { "050, Station Configuration Status", "asterix.002_V1_2_050", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_002_V1_2_050_Subitem, { "Subitem, Subitem", "asterix.002_V1_2_050_Subitem", FT_UINT8, BASE_DEC, NULL, 0xfe, NULL, HFILL } },
+        { &hf_002_V1_2_060, { "060, Station Processing Mode", "asterix.002_V1_2_060", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_002_V1_2_060_Subitem, { "Subitem, Subitem", "asterix.002_V1_2_060_Subitem", FT_UINT8, BASE_DEC, NULL, 0xfe, NULL, HFILL } },
+        { &hf_002_V1_2_070, { "070, Plot Count Values", "asterix.002_V1_2_070", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_002_V1_2_070_A, { "A, Aerial Identification", "asterix.002_V1_2_070_A", FT_UINT8, BASE_DEC, VALS (valstr_002_V1_2_070_A), 0x80, NULL, HFILL } },
+        { &hf_002_V1_2_070_IDENT, { "IDENT", "asterix.002_V1_2_070_IDENT", FT_UINT8, BASE_DEC, VALS (valstr_002_V1_2_070_IDENT), 0x7c, NULL, HFILL } },
+        { &hf_002_V1_2_070_COUNTER, { "COUNTER", "asterix.002_V1_2_070_COUNTER", FT_UINT16, BASE_DEC, NULL, 0x03ff, NULL, HFILL } },
+        { &hf_002_V1_2_080, { "080, Warning/Error Conditions", "asterix.002_V1_2_080", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_002_V1_2_080_Subitem, { "Subitem, Subitem", "asterix.002_V1_2_080_Subitem", FT_UINT8, BASE_DEC, NULL, 0xfe, NULL, HFILL } },
+        { &hf_002_V1_2_090, { "090, Collimation Error", "asterix.002_V1_2_090", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_002_V1_2_090_RE, { "RE, Range Error, [NM]", "asterix.002_V1_2_090_RE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_002_V1_2_090_AE, { "AE, Azimuth Error, [°]", "asterix.002_V1_2_090_AE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_002_V1_2_100, { "100, Dynamic Window Type 1", "asterix.002_V1_2_100", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_002_V1_2_100_RS, { "RS, Rho Start, [NM]", "asterix.002_V1_2_100_RS", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_002_V1_2_100_RE, { "RE, Rho End, [NM]", "asterix.002_V1_2_100_RE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_002_V1_2_100_TS, { "TS, Theta Start, [°]", "asterix.002_V1_2_100_TS", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_002_V1_2_100_TE, { "TE, Theta End, [°]", "asterix.002_V1_2_100_TE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_002_V1_2_SP, { "SP, Special Purpose Field", "asterix.002_V1_2_SP", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_002_000, { "000, Message Type", "asterix.002_000", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_002_000_VALUE, { "Message Type", "asterix.002_000_VALUE", FT_UINT8, BASE_DEC, VALS (valstr_002_000_VALUE), 0x00, NULL, HFILL } },
         { &hf_002_010, { "010, Data Source Identifier", "asterix.002_010", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
@@ -66889,10 +67041,8 @@ void proto_register_asterix (void)
         { &hf_062_V1_17_500_ARC, { "ARC, Estimated Accuracy Of Rate Of Climb/Descent", "asterix.062_V1_17_500_ARC", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_062_V1_17_500_ARC_VALUE, { "Estimated Accuracy Of Rate Of Climb/Descent, [ft/min]", "asterix.062_V1_17_500_ARC_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_062_V1_17_510, { "510, Composed Track Number", "asterix.062_V1_17_510", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_062_V1_17_510_MIDENT, { "MIDENT, Master System Unit Identification", "asterix.062_V1_17_510_MIDENT", FT_UINT8, BASE_HEX_DEC, NULL, 0x00, NULL, HFILL } },
-        { &hf_062_V1_17_510_MTRACK, { "MTRACK, Master System Track Number", "asterix.062_V1_17_510_MTRACK", FT_UINT16, BASE_DEC, NULL, 0xfffe, NULL, HFILL } },
-        { &hf_062_V1_17_510_SIDENT, { "SIDENT, Slave System Unit Identification", "asterix.062_V1_17_510_SIDENT", FT_UINT8, BASE_HEX_DEC, NULL, 0x00, NULL, HFILL } },
-        { &hf_062_V1_17_510_STRACK, { "STRACK, Slave System Track Number", "asterix.062_V1_17_510_STRACK", FT_UINT16, BASE_DEC, NULL, 0xfffe, NULL, HFILL } },
+        { &hf_062_V1_17_510_IDENT, { "IDENT, System Unit Identification", "asterix.062_V1_17_510_IDENT", FT_UINT8, BASE_HEX_DEC, NULL, 0x00, NULL, HFILL } },
+        { &hf_062_V1_17_510_TRACK, { "TRACK, System Track Number", "asterix.062_V1_17_510_TRACK", FT_UINT16, BASE_DEC, NULL, 0xfffe, NULL, HFILL } },
         { &hf_062_V1_17_RE, { "RE, Reserved Expansion Field", "asterix.062_V1_17_RE", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_062_V1_17_SP, { "SP, Special Purpose Field", "asterix.062_V1_17_SP", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_062_V1_18_010, { "010, Data Source Identifier", "asterix.062_V1_18_010", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
@@ -67286,10 +67436,8 @@ void proto_register_asterix (void)
         { &hf_062_V1_18_500_ARC, { "ARC, Estimated Accuracy Of Rate Of Climb/Descent", "asterix.062_V1_18_500_ARC", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_062_V1_18_500_ARC_VALUE, { "Estimated Accuracy Of Rate Of Climb/Descent, [ft/min]", "asterix.062_V1_18_500_ARC_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_062_V1_18_510, { "510, Composed Track Number", "asterix.062_V1_18_510", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_062_V1_18_510_MIDENT, { "MIDENT, Master System Unit Identification", "asterix.062_V1_18_510_MIDENT", FT_UINT8, BASE_HEX_DEC, NULL, 0x00, NULL, HFILL } },
-        { &hf_062_V1_18_510_MTRACK, { "MTRACK, Master System Track Number", "asterix.062_V1_18_510_MTRACK", FT_UINT16, BASE_DEC, NULL, 0xfffe, NULL, HFILL } },
-        { &hf_062_V1_18_510_SIDENT, { "SIDENT, Slave System Unit Identification", "asterix.062_V1_18_510_SIDENT", FT_UINT8, BASE_HEX_DEC, NULL, 0x00, NULL, HFILL } },
-        { &hf_062_V1_18_510_STRACK, { "STRACK, Slave System Track Number", "asterix.062_V1_18_510_STRACK", FT_UINT16, BASE_DEC, NULL, 0xfffe, NULL, HFILL } },
+        { &hf_062_V1_18_510_IDENT, { "IDENT, System Unit Identification", "asterix.062_V1_18_510_IDENT", FT_UINT8, BASE_HEX_DEC, NULL, 0x00, NULL, HFILL } },
+        { &hf_062_V1_18_510_TRACK, { "TRACK, System Track Number", "asterix.062_V1_18_510_TRACK", FT_UINT16, BASE_DEC, NULL, 0xfffe, NULL, HFILL } },
         { &hf_062_V1_18_RE, { "RE, Reserved Expansion Field", "asterix.062_V1_18_RE", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_062_V1_18_SP, { "SP, Special Purpose Field", "asterix.062_V1_18_SP", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_062_V1_19_010, { "010, Data Source Identifier", "asterix.062_V1_19_010", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
@@ -67683,10 +67831,8 @@ void proto_register_asterix (void)
         { &hf_062_V1_19_500_ARC, { "ARC, Estimated Accuracy Of Rate Of Climb/Descent", "asterix.062_V1_19_500_ARC", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_062_V1_19_500_ARC_VALUE, { "Estimated Accuracy Of Rate Of Climb/Descent, [ft/min]", "asterix.062_V1_19_500_ARC_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_062_V1_19_510, { "510, Composed Track Number", "asterix.062_V1_19_510", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_062_V1_19_510_MIDENT, { "MIDENT, Master System Unit Identification", "asterix.062_V1_19_510_MIDENT", FT_UINT8, BASE_HEX_DEC, NULL, 0x00, NULL, HFILL } },
-        { &hf_062_V1_19_510_MTRACK, { "MTRACK, Master System Track Number", "asterix.062_V1_19_510_MTRACK", FT_UINT16, BASE_DEC, NULL, 0xfffe, NULL, HFILL } },
-        { &hf_062_V1_19_510_SIDENT, { "SIDENT, Slave System Unit Identification", "asterix.062_V1_19_510_SIDENT", FT_UINT8, BASE_HEX_DEC, NULL, 0x00, NULL, HFILL } },
-        { &hf_062_V1_19_510_STRACK, { "STRACK, Slave System Track Number", "asterix.062_V1_19_510_STRACK", FT_UINT16, BASE_DEC, NULL, 0xfffe, NULL, HFILL } },
+        { &hf_062_V1_19_510_IDENT, { "IDENT, System Unit Identification", "asterix.062_V1_19_510_IDENT", FT_UINT8, BASE_HEX_DEC, NULL, 0x00, NULL, HFILL } },
+        { &hf_062_V1_19_510_TRACK, { "TRACK, System Track Number", "asterix.062_V1_19_510_TRACK", FT_UINT16, BASE_DEC, NULL, 0xfffe, NULL, HFILL } },
         { &hf_062_V1_19_RE, { "RE, Reserved Expansion Field", "asterix.062_V1_19_RE", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_062_V1_19_SP, { "SP, Special Purpose Field", "asterix.062_V1_19_SP", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_062_V1_20_010, { "010, Data Source Identifier", "asterix.062_V1_20_010", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
@@ -68081,10 +68227,8 @@ void proto_register_asterix (void)
         { &hf_062_V1_20_500_ARC, { "ARC, Estimated Accuracy Of Rate Of Climb/Descent", "asterix.062_V1_20_500_ARC", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_062_V1_20_500_ARC_VALUE, { "Estimated Accuracy Of Rate Of Climb/Descent, [ft/min]", "asterix.062_V1_20_500_ARC_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_062_V1_20_510, { "510, Composed Track Number", "asterix.062_V1_20_510", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_062_V1_20_510_MIDENT, { "MIDENT, Master System Unit Identification", "asterix.062_V1_20_510_MIDENT", FT_UINT8, BASE_HEX_DEC, NULL, 0x00, NULL, HFILL } },
-        { &hf_062_V1_20_510_MTRACK, { "MTRACK, Master System Track Number", "asterix.062_V1_20_510_MTRACK", FT_UINT16, BASE_DEC, NULL, 0xfffe, NULL, HFILL } },
-        { &hf_062_V1_20_510_SIDENT, { "SIDENT, Slave System Unit Identification", "asterix.062_V1_20_510_SIDENT", FT_UINT8, BASE_HEX_DEC, NULL, 0x00, NULL, HFILL } },
-        { &hf_062_V1_20_510_STRACK, { "STRACK, Slave System Track Number", "asterix.062_V1_20_510_STRACK", FT_UINT16, BASE_DEC, NULL, 0xfffe, NULL, HFILL } },
+        { &hf_062_V1_20_510_IDENT, { "IDENT, System Unit Identification", "asterix.062_V1_20_510_IDENT", FT_UINT8, BASE_HEX_DEC, NULL, 0x00, NULL, HFILL } },
+        { &hf_062_V1_20_510_TRACK, { "TRACK, System Track Number", "asterix.062_V1_20_510_TRACK", FT_UINT16, BASE_DEC, NULL, 0xfffe, NULL, HFILL } },
         { &hf_062_V1_20_RE, { "RE, Reserved Expansion Field", "asterix.062_V1_20_RE", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_062_V1_20_SP, { "SP, Special Purpose Field", "asterix.062_V1_20_SP", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_062_010, { "010, Data Source Identifier", "asterix.062_010", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
@@ -68479,10 +68623,8 @@ void proto_register_asterix (void)
         { &hf_062_500_ARC, { "ARC, Estimated Accuracy Of Rate Of Climb/Descent", "asterix.062_500_ARC", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_062_500_ARC_VALUE, { "Estimated Accuracy Of Rate Of Climb/Descent, [ft/min]", "asterix.062_500_ARC_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_062_510, { "510, Composed Track Number", "asterix.062_510", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_062_510_MIDENT, { "MIDENT, Master System Unit Identification", "asterix.062_510_MIDENT", FT_UINT8, BASE_HEX_DEC, NULL, 0x00, NULL, HFILL } },
-        { &hf_062_510_MTRACK, { "MTRACK, Master System Track Number", "asterix.062_510_MTRACK", FT_UINT16, BASE_DEC, NULL, 0xfffe, NULL, HFILL } },
-        { &hf_062_510_SIDENT, { "SIDENT, Slave System Unit Identification", "asterix.062_510_SIDENT", FT_UINT8, BASE_HEX_DEC, NULL, 0x00, NULL, HFILL } },
-        { &hf_062_510_STRACK, { "STRACK, Slave System Track Number", "asterix.062_510_STRACK", FT_UINT16, BASE_DEC, NULL, 0xfffe, NULL, HFILL } },
+        { &hf_062_510_IDENT, { "IDENT, System Unit Identification", "asterix.062_510_IDENT", FT_UINT8, BASE_HEX_DEC, NULL, 0x00, NULL, HFILL } },
+        { &hf_062_510_TRACK, { "TRACK, System Track Number", "asterix.062_510_TRACK", FT_UINT16, BASE_DEC, NULL, 0xfffe, NULL, HFILL } },
         { &hf_062_RE, { "RE, Reserved Expansion Field", "asterix.062_RE", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_062_SP, { "SP, Special Purpose Field", "asterix.062_SP", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_063_V1_6_010, { "010, Data Source Identifier", "asterix.063_V1_6_010", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },

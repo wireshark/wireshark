@@ -524,27 +524,32 @@ def part1(ctx, get_ref, catalogue):
 
     for item in catalogue:
         # adjust 'repetitive fx' item
-        if get_rule(item['rule'])['type'] == 'Repetitive' and get_rule(item['rule'])['rep']['type'] == 'Fx':
+        if get_rule(item['rule'])['type'] == 'Repetitive' and \
+           get_rule(item['rule'])['rep']['type'] == 'Fx':
             var = get_rule(item['rule'])['variation'].copy()
-            if var['type'] != 'Element':
-                raise Exception("Expecting 'Element'")
+            vt = var['type']
             item = item.copy()
+            if vt == 'Element':
+                items = [{
+                    'definition': None,
+                    'description': None,
+                    'name': 'Subitem',
+                    'remark': None,
+                    'spare': False,
+                    'title': 'Subitem',
+                    'rule': {
+                        'type': 'ContextFree',
+                        'value': var,
+                    },}]
+            elif vt == 'Group':
+                items = var['items']
+            else:
+                raise Exception("Unexpected type", vt)
             item['rule'] = {
                 'type': 'ContextFree',
                 'value': {
                     'type': 'Extended',
-                    'items': [{
-                        'definition': None,
-                        'description': None,
-                        'name': 'Subitem',
-                        'remark': None,
-                        'spare': False,
-                        'title': 'Subitem',
-                        'rule': {
-                            'type': 'ContextFree',
-                            'value': var,
-                        },
-                    }, None]
+                    'items': items + [None],
                 }
             }
         handle_item([], item)
