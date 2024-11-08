@@ -73,6 +73,7 @@ static int hf_oran_udCompHdrIqWidth;
 static int hf_oran_udCompHdrIqWidth_pref;
 static int hf_oran_udCompHdrMeth;
 static int hf_oran_udCompHdrMeth_pref;
+static int hf_oran_udCompLen;
 static int hf_oran_numberOfUEs;
 static int hf_oran_timeOffset;
 static int hf_oran_frameStructure_fft;
@@ -87,6 +88,7 @@ static int hf_oran_numPrbc;
 static int hf_oran_numSymbol;
 static int hf_oran_ef;
 static int hf_oran_beamId;
+
 
 static int hf_oran_ciCompHdr;
 static int hf_oran_ciCompHdrIqWidth;
@@ -152,6 +154,8 @@ static int hf_oran_numPrbu;
 
 static int hf_oran_udCompParam;
 static int hf_oran_sReSMask;
+static int hf_oran_sReSMask1;
+static int hf_oran_sReSMask2;
 
 static int hf_oran_bfwCompParam;
 
@@ -479,6 +483,9 @@ static const enum_val_t compression_options[] = {
     { "MOD_COMPR_AND_SELECTIVE_RE_WITH_MASKS", "mod-compr + selective RE sending with masks in section header", MOD_COMPR_AND_SELECTIVE_RE },
     { NULL, NULL, 0 }
 };
+
+static bool pref_support_udcompLen = false;
+
 
 static const value_string e_bit[] = {
     { 0, "More fragments follow" },
@@ -3890,7 +3897,10 @@ static int dissect_udcompparam(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
                                uint32_t *exponent, uint16_t *sReSMask,
                                bool for_sinr)
 {
-    if (comp_meth == COMP_NONE || comp_meth == COMP_MODULATION) {
+    if (comp_meth == COMP_NONE ||
+        comp_meth == COMP_MODULATION ||
+        comp_meth == MOD_COMPR_AND_SELECTIVE_RE_WITH_MASKS) {
+
         /* Not even creating a subtree */
         return offset;
     }
@@ -3905,7 +3915,10 @@ static int dissect_udcompparam(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
 
     switch (comp_meth) {
         case COMP_BLOCK_FP:
+        case BFP_AND_SELECTIVE_RE_WITH_MASKS:
+            /* reserved (4 bits) */
             proto_tree_add_item(udcompparam_tree, hf_oran_reserved_4bits, tvb, offset, 1, ENC_NA);
+            /* exponent (4 bits) */
             proto_tree_add_item_ret_uint(udcompparam_tree, hf_oran_exponent,
                                          tvb, offset, 1, ENC_BIG_ENDIAN, &param_exponent);
             *exponent = param_exponent;
@@ -3930,7 +3943,7 @@ static int dissect_udcompparam(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
             break;
 
         case BFP_AND_SELECTIVE_RE:
-            /* sReSMask + exponent */
+            /* sReSMask + exponent (exponent in middle!) */
             proto_tree_add_item_ret_uint(udcompparam_tree, hf_oran_sReSMask,
                                          tvb, offset, 2, ENC_BIG_ENDIAN, &param_sresmask);
             proto_tree_add_item_ret_uint(udcompparam_tree, hf_oran_exponent,
@@ -4965,6 +4978,7 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
         }
     }
 
+    /* Look up preferences for samples */
     if (direction == DIR_UPLINK) {
         sample_bit_width = pref_sample_bit_width_uplink;
         compression = pref_iqCompressionUplink;
@@ -5032,6 +5046,7 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
         proto_tree_add_item_ret_uint(section_tree, hf_oran_numPrbu, tvb, offset, 1, ENC_NA, &numPrbu);
         offset += 1;
 
+        /* udCompHdr (if preferences indicate will be present) */
         if (includeUdCompHeader) {
             /* 7.5.2.10 */
             /* Extract these values to inform how wide IQ samples in each PRB will be. */
@@ -5042,7 +5057,7 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
             offset += 1;
         }
         else {
-            /* Showing comp values from prefs */
+            /* No fields to dissect - just showing comp values from prefs */
             /* iqWidth */
             proto_item *iq_width_item = proto_tree_add_uint(section_tree, hf_oran_udCompHdrIqWidth_pref, tvb, 0, 0, sample_bit_width);
             proto_item_append_text(iq_width_item, (ud_cmp_hdr_cplane) ? " (from c-plane)" : " (from preferences)");
@@ -5052,6 +5067,32 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
             proto_item *ud_comp_meth_item = proto_tree_add_uint(section_tree, hf_oran_udCompHdrMeth_pref, tvb, 0, 0, compression);
             proto_item_append_text(ud_comp_meth_item, (ud_cmp_hdr_cplane) ? " (from c-plane)" : " (from preferences)");
             proto_item_set_generated(ud_comp_meth_item);
+        }
+
+        /* udCompLen */
+        if (pref_support_udcompLen &&
+              (compression == BFP_AND_SELECTIVE_RE ||
+               compression == MOD_COMPR_AND_SELECTIVE_RE ||
+               compression == MOD_COMPR_AND_SELECTIVE_RE)) {
+            proto_tree_add_item(section_tree, hf_oran_udCompLen, tvb, offset, 2, ENC_NA);
+            offset += 2;
+        }
+
+        /* sReSMask1 + sReSMask2 */
+        if (compression == MOD_COMPR_AND_SELECTIVE_RE ||
+            compression == MOD_COMPR_AND_SELECTIVE_RE_WITH_MASKS)
+        {
+            /* reserved (4 bits) */
+            proto_tree_add_item(section_tree, hf_oran_reserved_4bits, tvb, offset, 1, ENC_NA);
+            /* sReSMask1 (12 bits) */
+            proto_tree_add_item(section_tree, hf_oran_sReSMask1, tvb, offset, 2, ENC_NA);
+            offset += 2;
+
+            /* reserved (4 bits) */
+            proto_tree_add_item(section_tree, hf_oran_reserved_4bits, tvb, offset, 1, ENC_NA);
+            /* sReSMask2 (12 bits) */
+            proto_tree_add_item(section_tree, hf_oran_sReSMask2, tvb, offset, 2, ENC_NA);
+            offset += 2;
         }
 
         write_section_info(sectionHeading, pinfo, protocol_item, sectionId, startPrbu, numPrbu, rb);
@@ -6018,6 +6059,14 @@ proto_register_oran(void)
           "the user data in every section in the C-Plane message",
           HFILL}
          },
+        /* 8.3.3.18 */
+        { &hf_oran_udCompLen,
+         {"udCompLen", "oran_fh_cus.udCompLen",
+           FT_UINT16, BASE_DEC,
+           NULL, 0x0,
+           "PRB field length in octets",
+           HFILL}
+        },
 
         /* 6.3.3.13 */
         { &hf_oran_udCompHdrIqWidth,
@@ -6047,12 +6096,26 @@ proto_register_oran(void)
           "by the associated sectionID's compMeth value",
           HFILL}
         },
-        /* 8.3.3.17 */
+        /* 8.3.3.18 */
         {&hf_oran_sReSMask,
          {"sReSMask", "oran_fh_cus.sReSMask",
           FT_UINT16, BASE_HEX,
           NULL, 0xf0ff,
           "selective RE sending mask", HFILL}
+        },
+        /* 8.3.3.20 */
+        {&hf_oran_sReSMask1,
+         {"sReSMask1", "oran_fh_cus.sReSMask1",
+          FT_UINT16, BASE_HEX,
+          NULL, 0x0fff,
+          "selective RE sending mask 1", HFILL}
+        },
+        /* 8.3.3.21 */
+        {&hf_oran_sReSMask2,
+         {"sReSMask2", "oran_fh_cus.sReSMask2",
+          FT_UINT16, BASE_HEX,
+          NULL, 0x0fff,
+          "selective RE sending mask 2", HFILL}
         },
 
         /* Section 6.3.3.15 */
@@ -7399,6 +7462,9 @@ proto_register_oran(void)
         "When enabled, for U-Plane frames show each I and Q value in PRB", &pref_showIQSampleValues);
 
     prefs_register_obsolete_preference(oran_module, "oran.num_bf_weights");
+
+    prefs_register_bool_preference(oran_module, "oran.support_udcomplen", "udCompLen supported",
+        "When enabled, U-Plane messages with relevant compression schemes will include udCompLen", &pref_support_udcompLen);
 
     flow_states_table = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
     flow_results_table = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
