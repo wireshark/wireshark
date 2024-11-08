@@ -158,6 +158,9 @@ struct e2ap_tap_t {
 #define MTYPE_RIC_SUBSCRIPTION_DELETE_REQUEST  25
 #define MTYPE_RIC_SUBSCRIPTION_DELETE_RESPONSE 26
 #define MTYPE_RIC_SUBSCRIPTION_DELETE_REQUIRED 27
+#define MTYPE_RIC_QUERY_REQUEST                28
+#define MTYPE_RIC_QUERY_RESPONSE               29
+#define MTYPE_RIC_QUERY_FAILURE                30
 
 /* Value Strings. TODO: ext? */
 static const value_string mtype_names[] = {
@@ -188,6 +191,9 @@ static const value_string mtype_names[] = {
     { MTYPE_RIC_SUBSCRIPTION_DELETE_REQUEST,     "RICsubscriptionDeleteRequest"},
     { MTYPE_RIC_SUBSCRIPTION_DELETE_RESPONSE,    "RICsubscriptionDeleteResponse"},
     { MTYPE_RIC_SUBSCRIPTION_DELETE_REQUIRED,    "RICsubscriptionDeleteRequired"},
+    { MTYPE_RIC_QUERY_REQUEST,                   "RICQueryRequest"},
+    { MTYPE_RIC_QUERY_RESPONSE,                  "RICQueryResponse"},
+    { MTYPE_RIC_QUERY_FAILURE,                   "RICQueryFailure"},
     { 0,  NULL }
 };
 

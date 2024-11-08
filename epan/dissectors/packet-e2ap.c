@@ -1681,6 +1681,9 @@ struct e2ap_tap_t {
 #define MTYPE_RIC_SUBSCRIPTION_DELETE_REQUEST  25
 #define MTYPE_RIC_SUBSCRIPTION_DELETE_RESPONSE 26
 #define MTYPE_RIC_SUBSCRIPTION_DELETE_REQUIRED 27
+#define MTYPE_RIC_QUERY_REQUEST                28
+#define MTYPE_RIC_QUERY_RESPONSE               29
+#define MTYPE_RIC_QUERY_FAILURE                30
 
 /* Value Strings. TODO: ext? */
 static const value_string mtype_names[] = {
@@ -1711,6 +1714,9 @@ static const value_string mtype_names[] = {
     { MTYPE_RIC_SUBSCRIPTION_DELETE_REQUEST,     "RICsubscriptionDeleteRequest"},
     { MTYPE_RIC_SUBSCRIPTION_DELETE_RESPONSE,    "RICsubscriptionDeleteResponse"},
     { MTYPE_RIC_SUBSCRIPTION_DELETE_REQUIRED,    "RICsubscriptionDeleteRequired"},
+    { MTYPE_RIC_QUERY_REQUEST,                   "RICQueryRequest"},
+    { MTYPE_RIC_QUERY_RESPONSE,                  "RICQueryResponse"},
+    { MTYPE_RIC_QUERY_FAILURE,                   "RICQueryFailure"},
     { 0,  NULL }
 };
 
@@ -4076,8 +4082,6 @@ dissect_e2ap_RICsubscriptionResponse(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx
   set_message_label(actx, MTYPE_RIC_SUBSCRIPTION_RESPONSE);
   set_stats_message_type(actx->pinfo, MTYPE_RIC_SUBSCRIPTION_RESPONSE);
 
-
-
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_e2ap_RICsubscriptionResponse, RICsubscriptionResponse_sequence);
 
@@ -4786,7 +4790,6 @@ dissect_e2ap_RICindication(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
   set_message_label(actx, MTYPE_RIC_IND);
   set_stats_message_type(actx->pinfo, MTYPE_RIC_IND);
 
-
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_e2ap_RICindication, RICindication_sequence);
 
@@ -4803,7 +4806,6 @@ static int
 dissect_e2ap_RICcontrolRequest(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   set_message_label(actx, MTYPE_RIC_CONTROL_REQUEST);
   set_stats_message_type(actx->pinfo, MTYPE_RIC_CONTROL_REQUEST);
-
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_e2ap_RICcontrolRequest, RICcontrolRequest_sequence);
@@ -4853,6 +4855,9 @@ static const per_sequence_t RICQueryRequest_sequence[] = {
 
 static int
 dissect_e2ap_RICQueryRequest(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  set_message_label(actx, MTYPE_RIC_QUERY_REQUEST);
+  set_stats_message_type(actx->pinfo, MTYPE_RIC_QUERY_REQUEST);
+
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_e2ap_RICQueryRequest, RICQueryRequest_sequence);
 
@@ -4867,6 +4872,9 @@ static const per_sequence_t RICQueryResponse_sequence[] = {
 
 static int
 dissect_e2ap_RICQueryResponse(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  set_message_label(actx, MTYPE_RIC_QUERY_RESPONSE);
+  set_stats_message_type(actx->pinfo, MTYPE_RIC_QUERY_RESPONSE);
+
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_e2ap_RICQueryResponse, RICQueryResponse_sequence);
 
@@ -4881,6 +4889,9 @@ static const per_sequence_t RICQueryFailure_sequence[] = {
 
 static int
 dissect_e2ap_RICQueryFailure(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  set_message_label(actx, MTYPE_RIC_QUERY_FAILURE);
+  set_stats_message_type(actx->pinfo, MTYPE_RIC_QUERY_FAILURE);
+
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_e2ap_RICQueryFailure, RICQueryFailure_sequence);
 
@@ -4897,7 +4908,6 @@ static int
 dissect_e2ap_ErrorIndication(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   set_message_label(actx, MTYPE_ERROR_INDICATION);
   set_stats_message_type(actx->pinfo, MTYPE_ERROR_INDICATION);
-
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_e2ap_ErrorIndication, ErrorIndication_sequence);
@@ -4932,8 +4942,6 @@ static int
 dissect_e2ap_E2setupResponse(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   set_message_label(actx, MTYPE_E2_SETUP_RESPONSE);
   set_stats_message_type(actx->pinfo, MTYPE_E2_SETUP_RESPONSE);
-
-
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_e2ap_E2setupResponse, E2setupResponse_sequence);
@@ -5386,7 +5394,6 @@ dissect_e2ap_ResetResponse(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
   set_message_label(actx, MTYPE_RESET_RESPONSE);
   set_stats_message_type(actx->pinfo, MTYPE_RESET_RESPONSE);
 
-
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_e2ap_ResetResponse, ResetResponse_sequence);
 
@@ -5527,8 +5534,6 @@ dissect_e2ap_RICserviceUpdateFailure(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx
   set_message_label(actx, MTYPE_RIC_SERVICE_UPDATE_FAIL);
   set_stats_message_type(actx->pinfo, MTYPE_RIC_SERVICE_UPDATE_FAIL);
 
-
-
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_e2ap_RICserviceUpdateFailure, RICserviceUpdateFailure_sequence);
 
@@ -5545,7 +5550,6 @@ static int
 dissect_e2ap_RICserviceQuery(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   set_message_label(actx, MTYPE_RIC_SERVICE_QUERY);
   set_stats_message_type(actx->pinfo, MTYPE_RIC_SERVICE_QUERY);
-
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_e2ap_RICserviceQuery, RICserviceQuery_sequence);

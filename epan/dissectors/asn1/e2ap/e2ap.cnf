@@ -874,12 +874,9 @@ RICQueryResponse                         N e2ap.proc.sout id-RICquery
   set_message_label(actx, MTYPE_E2_SETUP_RESPONSE);
   set_stats_message_type(actx->pinfo, MTYPE_E2_SETUP_RESPONSE);
 
-
-
 #.FN_HDR ErrorIndication
   set_message_label(actx, MTYPE_ERROR_INDICATION);
   set_stats_message_type(actx->pinfo, MTYPE_ERROR_INDICATION);
-
 
 #.FN_HDR ResetRequest
   set_message_label(actx, MTYPE_RESET_REQUEST);
@@ -888,7 +885,6 @@ RICQueryResponse                         N e2ap.proc.sout id-RICquery
 #.FN_HDR ResetResponse
   set_message_label(actx, MTYPE_RESET_RESPONSE);
   set_stats_message_type(actx->pinfo, MTYPE_RESET_RESPONSE);
-
 
 #.FN_HDR RICcontrolAcknowledge
   set_message_label(actx, MTYPE_RIC_CONTROL_ACK);
@@ -902,16 +898,25 @@ RICQueryResponse                         N e2ap.proc.sout id-RICquery
   set_message_label(actx, MTYPE_RIC_CONTROL_REQUEST);
   set_stats_message_type(actx->pinfo, MTYPE_RIC_CONTROL_REQUEST);
 
-
 #.FN_HDR RICindication
   set_message_label(actx, MTYPE_RIC_IND);
   set_stats_message_type(actx->pinfo, MTYPE_RIC_IND);
 
+#.FN_HDR RICQueryRequest
+  set_message_label(actx, MTYPE_RIC_QUERY_REQUEST);
+  set_stats_message_type(actx->pinfo, MTYPE_RIC_QUERY_REQUEST);
+
+#.FN_HDR RICQueryResponse
+  set_message_label(actx, MTYPE_RIC_QUERY_RESPONSE);
+  set_stats_message_type(actx->pinfo, MTYPE_RIC_QUERY_RESPONSE);
+
+#.FN_HDR RICQueryFailure
+  set_message_label(actx, MTYPE_RIC_QUERY_FAILURE);
+  set_stats_message_type(actx->pinfo, MTYPE_RIC_QUERY_FAILURE);
 
 #.FN_HDR RICserviceQuery
   set_message_label(actx, MTYPE_RIC_SERVICE_QUERY);
   set_stats_message_type(actx->pinfo, MTYPE_RIC_SERVICE_QUERY);
-
 
 #.FN_HDR RICserviceUpdate
   set_message_label(actx, MTYPE_RIC_SERVICE_UPDATE);
@@ -925,8 +930,6 @@ RICQueryResponse                         N e2ap.proc.sout id-RICquery
   set_message_label(actx, MTYPE_RIC_SERVICE_UPDATE_FAIL);
   set_stats_message_type(actx->pinfo, MTYPE_RIC_SERVICE_UPDATE_FAIL);
 
-
-
 #.FN_HDR RICsubscriptionFailure
   set_message_label(actx, MTYPE_RIC_SUBSCRIPTION_FAIL);
   set_stats_message_type(actx->pinfo, MTYPE_RIC_SUBSCRIPTION_FAIL);
@@ -938,8 +941,6 @@ RICQueryResponse                         N e2ap.proc.sout id-RICquery
 #.FN_HDR RICsubscriptionResponse
   set_message_label(actx, MTYPE_RIC_SUBSCRIPTION_RESPONSE);
   set_stats_message_type(actx->pinfo, MTYPE_RIC_SUBSCRIPTION_RESPONSE);
-
-
 
 #.FN_HDR RICsubscriptionDeleteFailure
   set_message_label(actx, MTYPE_RIC_SUBSCRIPTION_DELETE_FAIL);
