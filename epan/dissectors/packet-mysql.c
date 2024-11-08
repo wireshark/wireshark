@@ -3900,6 +3900,12 @@ mysql_dissect_response_prepare(tvbuff_t *tvb, packet_info *pinfo, int offset, pr
 
 /**
   Enumeration type for the different types of log events.
+
+  For MySQL, see Log_event_type in
+  https://github.com/mysql/mysql-server/blob/trunk/libs/mysql/binlog/event/binlog_event.h
+
+  For MariaDB, see
+  https://mariadb.com/kb/en/2-binlog-event-header/#event-type
 */
 enum Log_event_type {
 	/**
@@ -3991,63 +3997,81 @@ enum Log_event_type {
 	  Add new events here - right above this comment!
 	  Existing events (except ENUM_END_EVENT) should never change their numbers
 	*/
+
+	/* MariaDB specific events, starting at 0xa0 / 160 */
+	ANNOTATE_ROWS_EVENT = 160,
+	BINLOG_CHECKPOINT_EVENT = 161,
+	GTID_EVENT = 162,
+	GTID_LIST_EVENT = 163,
+	START_ENCRYPTION_EVENT = 164,
+	QUERY_COMPRESSED_EVENT = 165,
+	WRITE_ROWS_COMPRESSED_V1 = 166,
+	UPDATE_ROWS_COMPRESSED_V1 = 167,
+	DELETE_ROWS_COMPRESSED_V1 = 168,
+	WRITE_ROWS_V1 = 169,
+	UPDATE_ROWS_V1 = 170,
+	DELETE_ROWS_V1 = 171,
+
 	ENUM_END_EVENT /* end marker */
 };
 
 static const value_string mysql_binlog_event_type_vals[] = {
+	// MySQL Events
 	{0, "Unknown"},
-
 	{1, "START_EVENT_V3"},
 	{2, "Query"},
 	{3, "Stop"},
 	{4, "Rotate"},
 	{5, "Intvar"},
-
+	// 6
 	{7, "SLAVE_EVENT"},
-
+	// 8
 	{9, "Append_block"},
 	{11, "Delete_file"},
-
+	// 12
 	{13, "RAND"},
 	{14, "User_var"},
 	{15, "Format_desc"},
 	{16, "Xid"},
 	{17, "Begin_load_query"},
 	{18, "Execute_load_query"},
-
 	{19, "Table_map"},
-
+	// 20-22
 	{23, "Write_rows_v1"},
 	{24, "Update_rows_v1"},
 	{25, "Delete_rows_v1"},
-
 	{26, "Incident"},
-
 	{27, "Heartbeat"},
-
 	{28, "Ignorable"},
 	{29, "Rows_query"},
-
 	{30, "Write_rows"},
 	{31, "Update_rows"},
 	{32, "Delete_rows"},
-
 	{33, "Gtid"},
 	{34, "Anonymous_Gtid"},
-
 	{35, "Previous_gtids"},
-
 	{36, "Transaction_context"},
-
 	{37, "View_change"},
-
 	{38, "XA_prepare"},
-
 	{39, "Update_rows_partial"},
-
 	{40, "Transaction_payload"},
-
 	{41, "Heartbeat_v2"},
+	{42, "GTID_tagged"},
+
+	// MariaDB events
+	{160, "Annotate_rows"},
+	{161, "Binlog_checkpoint"},
+	{162, "Gtid"},
+	{163, "Gtid_list"},
+	{164, "Start_encryption"},
+	{165, "Query_compressed"},
+	{166, "Write_rows_compressed"},
+	{167, "Update_rows_compressed"},
+	{168, "Delete_rows_compressed"},
+	{169, "MariaDB_Write_rows_v1"},
+	{170, "MariaDB_Update_rows_v1"},
+	{171, "MariaDB_Delete_rows_v1"},
+
 	{0, NULL},
 };
 
