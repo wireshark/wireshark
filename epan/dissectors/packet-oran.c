@@ -2001,7 +2001,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                     /* N.B., using width/method from UL U-plane preferences, not certain that this is correct.. */
 
                     /* sinrCompParam */
-                    uint32_t exponent;
+                    uint32_t exponent = 0;  /* N.B. init to silence warnings, but will always be set if read in COMP_BLOCK_FP case */
                     uint16_t sReSMask;
                     offset = dissect_udcompparam(tvb, pinfo, c_section_tree, bit_offset/8,
                                                  pref_iqCompressionUplink, &exponent, &sReSMask,
