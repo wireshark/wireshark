@@ -5069,11 +5069,8 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
             proto_item_set_generated(ud_comp_meth_item);
         }
 
-        /* udCompLen */
-        if (pref_support_udcompLen &&
-              (compression == BFP_AND_SELECTIVE_RE ||
-               compression == MOD_COMPR_AND_SELECTIVE_RE ||
-               compression == MOD_COMPR_AND_SELECTIVE_RE)) {
+        /* udCompLen (when supported, methods 5,6,7,8) */
+        if (pref_support_udcompLen && (compression >= BFP_AND_SELECTIVE_RE)) {
             proto_tree_add_item(section_tree, hf_oran_udCompLen, tvb, offset, 2, ENC_NA);
             offset += 2;
         }
