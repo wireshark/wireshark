@@ -355,28 +355,34 @@ set_autostop_criterion(capture_options *capture_opts, const char *autostoparg)
 
 static bool get_filter_arguments(capture_options* capture_opts, const char* arg)
 {
-    char* colonp;
+    char* colonp = NULL;
     char* val;
     char* filter_exp = NULL;
 
-    colonp = strchr(arg, ':');
-    if (colonp) {
-        val = colonp;
-        *val = '\0';
-        val++;
-        if (strcmp(arg, "predef") == 0) {
-            GList* filterItem;
+    /* In capture child mode, any named filter given by "predef:<name>" should
+       already have been replaced with the filter text by the calling program. */
+    if (!capture_opts->capture_child) {
+        colonp = strchr(arg, ':');
+        if (colonp) {
+            val = colonp;
+            *val = '\0';
+            val++;
+            if (strcmp(arg, "predef") == 0) {
+                GList* filterItem;
 
-            filterItem = capture_opts->capture_filters_list->list;
-            while (filterItem != NULL) {
-                filter_def *filterDef;
+                if (capture_opts->capture_filters_list == NULL)
+                    capture_opts->capture_filters_list = ws_filter_list_read(CFILTER_LIST);
+                filterItem = capture_opts->capture_filters_list->list;
+                while (filterItem != NULL) {
+                    filter_def* filterDef;
 
-                filterDef = (filter_def*)filterItem->data;
-                if (g_ascii_strcasecmp(val, filterDef->name) == 0) {
-                    filter_exp = g_strdup(filterDef->strval);
-                    break;
+                    filterDef = (filter_def*)filterItem->data;
+                    if (g_ascii_strcasecmp(val, filterDef->name) == 0) {
+                        filter_exp = g_strdup(filterDef->strval);
+                        break;
+                    }
+                    filterItem = filterItem->next;
                 }
-                filterItem = filterItem->next;
             }
         }
     }
@@ -992,8 +998,6 @@ capture_opts_add_opt(capture_options *capture_opts, int opt, const char *optarg_
         capture_opts->autostop_packets = get_positive_int(optarg_str_p, "packet count");
         break;
     case 'f':        /* capture filter */
-        if (capture_opts->capture_filters_list == NULL)
-            capture_opts->capture_filters_list = ws_filter_list_read(CFILTER_LIST);
         get_filter_arguments(capture_opts, optarg_str_p);
         break;
     case 'F':        /* capture file type */
