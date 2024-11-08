@@ -633,7 +633,7 @@ dissect_record(epan_dissect_t *edt, int file_type_subtype,
 	edt->pi.layers = wmem_list_new(edt->pi.pool);
 	edt->tvb = tvb;
 
-	frame_delta_abs_time(edt->session, fd, fd->frame_ref_num, &edt->pi.rel_ts);
+	frame_delta_abs_time(edt->session, fd, 1, &edt->pi.rel_ts);
 
 	if (rec->ts_rel_cap_valid) {
 		nstime_copy(&edt->pi.rel_cap_ts, &rec->ts_rel_cap);
@@ -710,9 +710,7 @@ dissect_file(epan_dissect_t *edt, wtap_rec *rec,
 	edt->pi.layers = wmem_list_new(edt->pi.pool);
 	edt->tvb = tvb;
 
-
-	frame_delta_abs_time(edt->session, fd, fd->frame_ref_num, &edt->pi.rel_ts);
-
+	frame_delta_abs_time(edt->session, fd, 1, &edt->pi.rel_ts);
 
 	TRY {
 		/*
