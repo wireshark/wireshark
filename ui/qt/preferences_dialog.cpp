@@ -30,6 +30,7 @@
 #include "main_application.h"
 
 #include <QDesktopServices>
+#include <QKeyEvent>
 #include <QUrl>
 
 extern "C" {
@@ -164,6 +165,15 @@ PreferencesDialog::~PreferencesDialog()
 void PreferencesDialog::setPane(const QString module_name)
 {
     pd_ui_->prefsView->setPane(module_name);
+}
+
+void PreferencesDialog::keyPressEvent(QKeyEvent *event)
+{
+    if (pd_ui_->advancedSearchLineEdit->hasFocus() && (event->key() == Qt::Key_Enter || event->key() == Qt::Key_Return)) {
+        return; // Don't close window on enter/return.
+    }
+
+    GeometryStateDialog::keyPressEvent(event);
 }
 
 void PreferencesDialog::showEvent(QShowEvent *)

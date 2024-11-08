@@ -42,6 +42,7 @@ public:
     void setPane(const QString module_name);
 
 protected:
+    void keyPressEvent(QKeyEvent *event);
     void showEvent(QShowEvent *evt);
 
 private:
