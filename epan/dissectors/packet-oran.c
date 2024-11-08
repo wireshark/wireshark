@@ -5076,7 +5076,7 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
         }
 
         /* sReSMask1 + sReSMask2 */
-        if (compression == MOD_COMPR_AND_SELECTIVE_RE ||
+        if (compression == BFP_AND_SELECTIVE_RE_WITH_MASKS ||
             compression == MOD_COMPR_AND_SELECTIVE_RE_WITH_MASKS)
         {
             /* reserved (4 bits) */
