@@ -1906,8 +1906,7 @@ dissect_radiotap_0_length_psdu(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
 	proto_tree *zero_len_tree = NULL;
 	uint32_t psdu_type;
 
-	zero_len_tree = proto_tree_add_subtree(tree, tvb, offset,
-		tvb_captured_length_remaining(tvb, offset),
+	zero_len_tree = proto_tree_add_subtree(tree, tvb, offset, 1,
 		ett_radiotap_0_length_psdu, NULL, "0-length PSDU");
 
 	proto_tree_add_item_ret_uint(zero_len_tree, hf_radiotap_0_length_psdu_type,
