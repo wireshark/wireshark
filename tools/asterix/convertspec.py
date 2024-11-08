@@ -302,6 +302,9 @@ def handle_asterix(obj):
             'uap': handle_uap(cont['uap']),
         }
     elif t == 'AsterixExpansion':
+        fspec = cont['fspecByteSize']
+        if fspec is not None:
+            fspec *= 8
         return {
             'date': cont['date'],
             'edition': cont['edition'],
@@ -309,7 +312,7 @@ def handle_asterix(obj):
             'title': cont['title'],
             'type': 'Expansion',
             'variation': {
-                'fspec': cont['fspecByteSize']*8,
+                'fspec': fspec,
                 'items': [handle_maybe(handle_nonspare, i) for i in cont['items']],
                 'type': 'Compound',
             },
