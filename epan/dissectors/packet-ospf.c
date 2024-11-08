@@ -237,6 +237,7 @@ static const value_string auth_vals[] = {
 #define OSPF_LSA_EXT_PREFIX     7
 #define OSPF_LSA_EXT_LINK       8
 #define OSPF_LSA_TTZ            9
+#define OSPF_LSA_EXT_IA_ASBR    11
 #define OSPF_RESTART_REASON_UNKNOWN   0
 #define OSPF_RESTART_REASON_SWRESTART 1
 #define OSPF_RESTART_REASON_SWRELOAD  2
@@ -386,6 +387,9 @@ static const value_string ri_lsa_fad_stlv_type_vals[] = {
 /* Flex Algo Definition Flags (rfc9350) */
 #define FAD_DEF_FLAGS_M             0x80000000
 
+/* Flex Algo Prefix Metric Flags (rfc9350) */
+#define FAPM_FLAGS_E                0x80
+
 static const value_string ls_type_vals[] = {
     {OSPF_LSTYPE_ROUTER,                  "Router-LSA"                   },
     {OSPF_LSTYPE_NETWORK,                 "Network-LSA"                  },
@@ -412,6 +416,7 @@ static const value_string ls_opaque_type_vals[] = {
     {OSPF_LSA_EXT_PREFIX,   "OSPFv2 Extended Prefix Opaque LSA"         },
     {OSPF_LSA_EXT_LINK,     "OSPFv2 Extended Link Opaque LSA"           },
     {OSPF_LSA_TTZ,          "TTZ LSA"                                   },
+    {OSPF_LSA_EXT_IA_ASBR,  "OSPFv2 Extended Inter-Area ASBR LSA"       },
     {0,                     NULL                                        }
 };
 
@@ -588,6 +593,7 @@ static const value_string ext_pfx_tlv_af_vals[] = {
 /* OSPF Extended Prefix Sub-TLV Registry */
 #define SR_STLV_SID_LABEL                 1
 #define SR_STLV_PREFIX_SID                2
+#define SR_STLV_FLEX_ALGO_PREFIX_METRIC   3
 
 #define SR_STLV_PFXSID_FLAG_NP            0x40
 #define SR_STLV_PFXSID_FLAG_M             0x20
@@ -599,6 +605,7 @@ static const value_string ext_pfx_tlv_af_vals[] = {
 static const value_string ext_pfx_stlv_type_vals[] = {
     {SR_STLV_SID_LABEL,                   "SID/Label"                    },
     {SR_STLV_PREFIX_SID,                  "Prefix SID"                   },
+    {SR_STLV_FLEX_ALGO_PREFIX_METRIC,     "Flexible Algorithm Prefix Metric" },
     {0, NULL}
 };
 
@@ -650,6 +657,23 @@ static const value_string ext_link_stlv_type_vals[] = {
     {SR_STLV_ADMIN_GROUP,                 "Administrative Group"         },
     {SR_STLV_EXT_ADMIN_GROUP,             "Extended Administrative Group"},
     {SR_STLV_TE_METRIC,                   "TE Metric"                    },
+    {0, NULL}
+};
+
+/* OSPFv2 Extended Inter-Area ASBR LSA TLV types definitions. (RFC9350) */
+/* OSPFv2 Extended Inter-Area ASBR TLV Registry */
+#define EXT_IA_ASBR_TLV_EIA_ASBR          1
+
+static const value_string ext_ia_asbr_tlv_type_vals[] = {
+    {EXT_IA_ASBR_TLV_EIA_ASBR,            "OSPFv2 Extended Inter-Area ASBR"       },
+    {0, NULL}
+};
+
+/* OSPFv2 Extended Inter-Area ASBR Sub-TLVs Registry */
+#define SR_STLV_FLEX_ALGO_ASBR_METRIC     1
+
+static const value_string ext_ia_asbr_stlv_type_vals[] = {
+    {SR_STLV_FLEX_ALGO_ASBR_METRIC,       "Flexible Algorithm ASBR Metric"        },
     {0, NULL}
 };
 
@@ -717,6 +741,7 @@ static int ett_ospf_lsa_node_msd_tlv;
 static int ett_ospf_lsa_fad_tlv;
 static int ett_ospf_lsa_fad_stlv;
 static int ett_ospf_lsa_fad_def_flags;
+static int ett_ospf_lsa_fapm_flags;
 static int ett_ospf_lsa_elink;
 static int ett_ospf_lsa_epfx;
 static int ett_ospf_lsa_elink_tlv;
@@ -730,6 +755,9 @@ static int ett_ospf_lsa_adjsid_flags;
 static int ett_ospf_lsa_app_sabm_bits;
 static int ett_ospf_lsa_app_link_attrs_stlv;
 static int ett_ospf_lsa_unidir_link_flags;
+static int ett_ospf_lsa_eia_asbr;
+static int ett_ospf_lsa_eia_asbr_tlv;
+static int ett_ospf_lsa_eia_asbr_stlv;
 static int ett_ospf_lsa_unknown_tlv;
 
 static int ett_ospf_lsa_type;
@@ -932,6 +960,13 @@ static int hf_ospf_ls_epfx_range_flags;
 static int hf_ospf_ls_epfx_range_flag_ia;
 static int hf_ospf_ls_epfx_range_flag_unknown;
 
+/* OSPF Extended Inter-Area ASBR LSA */
+static int hf_ospf_ls_eia_asbr_tlv;
+static int hf_ospf_ls_eia_asbr_stlv;
+static int hf_ospf_ls_eia_asbr_asbr_routerid;
+static int hf_ospf_ls_faam_reserved;
+static int hf_ospf_ls_faam_metric;
+
 /* OSPF Dynamic Hostname support (RFC5642) */
 static int hf_ospf_v3_options;
 static int hf_ospf_v3_options_v6;
@@ -984,13 +1019,16 @@ static int hf_ospf_ls_igp_msd_value;
 static int hf_ospf_ls_remote_ipv4_addr;
 static int hf_ospf_ls_local_interface_id;
 static int hf_ospf_ls_remote_interface_id;
-static int hf_ospf_ls_fad_flex_algorithm;
+static int hf_ospf_ls_flex_algorithm;
 static int hf_ospf_ls_fad_metric_type;
 static int hf_ospf_ls_fad_calc_type;
 static int hf_ospf_ls_fad_priority;
 static int hf_ospf_ls_fad_stlv;
 static int hf_ospf_ls_fad_def_flags;
 static int hf_ospf_ls_fad_def_flags_m;
+static int hf_ospf_ls_fapm_flags;
+static int hf_ospf_ls_fapm_flags_e;
+static int hf_ospf_ls_fapm_metric;
 static int hf_ospf_unknown_tlv;
 static int hf_ospf_v2_grace_tlv;
 static int hf_ospf_v2_grace_period;
@@ -1330,6 +1368,10 @@ static int * const unidir_link_flags[] = {
 };
 static int * const bf_ospf_fad_def_flags[] = {
     &hf_ospf_ls_fad_def_flags_m,
+    NULL,
+};
+static int * const bf_ospf_fapm_flags[] = {
+    &hf_ospf_ls_fapm_flags_e,
     NULL,
 };
 
@@ -3244,7 +3286,7 @@ dissect_ospf_lsa_opaque_ri(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_
             proto_tree_add_item(tlv_tree, hf_ospf_tlv_type_opaque, tvb, offset, 2, ENC_BIG_ENDIAN);
             proto_tree_add_item(tlv_tree, hf_ospf_tlv_length, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
             proto_item_append_text(ti_tree, "  (%u)", tvb_get_uint8(tvb, offset + 4));
-            proto_tree_add_item(tlv_tree, hf_ospf_ls_fad_flex_algorithm, tvb, offset + 4, 1, ENC_NA);
+            proto_tree_add_item(tlv_tree, hf_ospf_ls_flex_algorithm, tvb, offset + 4, 1, ENC_NA);
             proto_tree_add_item(tlv_tree, hf_ospf_ls_fad_metric_type, tvb, offset + 5, 1, ENC_NA);
             proto_tree_add_item(tlv_tree, hf_ospf_ls_fad_calc_type, tvb, offset + 6, 1, ENC_NA);
             proto_tree_add_item(tlv_tree, hf_ospf_ls_fad_priority, tvb, offset + 7, 1, ENC_NA);
@@ -3341,6 +3383,7 @@ dissect_ospf_lsa_ext_prefix(tvbuff_t *tvb, packet_info *pinfo, int offset, proto
     uint32_t sid_label;
     uint32_t range_size;
     uint32_t reserved;
+    uint32_t metric = 0;
 
     ep_tree = proto_tree_add_subtree(tree, tvb, offset, length,
                                      ett_ospf_lsa_epfx, NULL, "OSPFv2 Extended Prefix Opaque LSA");
@@ -3419,14 +3462,15 @@ dissect_ospf_lsa_ext_prefix(tvbuff_t *tvb, packet_info *pinfo, int offset, proto
                 stlv_length = tvb_get_ntohs(tvb, stlv_offset + 2);
                 stlv_name = val_to_str_const(stlv_type, ext_pfx_stlv_type_vals, "Unknown");
 
+                stlv_tree = proto_tree_add_subtree_format(tlv_tree, tvb, stlv_offset, stlv_length + 4,
+                                                          ett_ospf_lsa_epfx_stlv, &ti_tree,
+                                                          "%s Sub-TLV", stlv_name);
+                proto_tree_add_item(stlv_tree, hf_ospf_ls_epfx_stlv, tvb, stlv_offset, 2, ENC_BIG_ENDIAN);
+                ti = proto_tree_add_item(stlv_tree, hf_ospf_tlv_length, tvb, stlv_offset + 2, 2, ENC_BIG_ENDIAN);
+
                 switch (stlv_type) {
 
                 case SR_STLV_PREFIX_SID:
-                    stlv_tree = proto_tree_add_subtree_format(tlv_tree, tvb, stlv_offset, stlv_length + 4,
-                                                              ett_ospf_lsa_epfx_stlv, &ti_tree,
-                                                              "%s Sub-TLV", stlv_name);
-                    proto_tree_add_item(stlv_tree, hf_ospf_ls_epfx_stlv, tvb, stlv_offset, 2, ENC_BIG_ENDIAN);
-                    ti = proto_tree_add_item(stlv_tree, hf_ospf_tlv_length, tvb, stlv_offset + 2, 2, ENC_BIG_ENDIAN);
                     if (stlv_length == 7) {
                         sid_label = tvb_get_ntoh24(tvb, stlv_offset + 8);
                     } else if (stlv_length == 8) {
@@ -3449,11 +3493,25 @@ dissect_ospf_lsa_ext_prefix(tvbuff_t *tvb, packet_info *pinfo, int offset, proto
                     proto_item_append_text(ti_tree, "  (SID/Label: %u)",sid_label);
                     break;
 
+                case SR_STLV_FLEX_ALGO_PREFIX_METRIC:
+                    if (stlv_length != 8) {
+                        proto_item_append_text(ti, " [Invalid length - %u]", stlv_length);
+                        proto_tree_add_item(stlv_tree, hf_ospf_tlv_value, tvb, stlv_offset + 4, stlv_length, ENC_NA);
+                        break;
+                    }
+                    proto_tree_add_item(stlv_tree, hf_ospf_ls_flex_algorithm, tvb, stlv_offset + 4, 1, ENC_NA);
+                    proto_tree_add_bitmask(stlv_tree, tvb, stlv_offset + 5, hf_ospf_ls_fapm_flags, ett_ospf_lsa_fapm_flags, bf_ospf_fapm_flags, ENC_NA);
+                    reserved = tvb_get_ntoh24(tvb, stlv_offset + 6);
+                    ti = proto_tree_add_item(stlv_tree, hf_ospf_header_reserved, tvb, stlv_offset + 6, 3, ENC_NA);
+                    if (reserved != 0) {
+                        expert_add_info(pinfo, ti, &ei_ospf_header_reserved);
+                    }
+                    proto_tree_add_item_ret_uint(stlv_tree, hf_ospf_ls_fapm_metric, tvb, stlv_offset + 8, 4, ENC_BIG_ENDIAN, &metric);
+                    proto_item_append_text(ti_tree, "  (Metric: %u)", metric);
+                    break;
+
                 default:
-                    stlv_tree = proto_tree_add_subtree_format(tlv_tree, tvb, stlv_offset, stlv_length + 4,
-                                                              ett_ospf_lsa_epfx_stlv, NULL,
-                                                              "%s Sub-TLV: %u - Unknown", stlv_name, stlv_type);
-                    proto_tree_add_item(stlv_tree, hf_ospf_tlv_length, tvb, stlv_offset + 2, 2, ENC_BIG_ENDIAN);
+                    proto_item_append_text(ti, "  (t=%u, l=%u)", stlv_type, stlv_length);
                     proto_tree_add_item(stlv_tree, hf_ospf_tlv_value, tvb, stlv_offset + 4, stlv_length, ENC_NA);
                     break;
                 }
@@ -3814,6 +3872,128 @@ dissect_ospf_lsa_ext_link(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_t
 }
 
 /*
+ * Dissect Extended Inter-Area ASBR LSA
+ *
+ * This function dissects the Optional Extended Inter-Area ASBR LSA.
+ * The below function adds the support to handle this as well. (RFC9350).
+ */
+static void
+dissect_ospf_lsa_ext_ia_asbr(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tree, uint32_t length)
+{
+    proto_tree *eia_tree;
+    proto_tree *tlv_tree;
+    proto_tree *stlv_tree;
+    proto_item *ti_tree = NULL;
+    proto_item *ti = NULL;
+    int offset_end = offset + length;
+
+    uint16_t tlv_type;
+    uint16_t tlv_length;
+    int tlv_offset_end;
+    uint16_t stlv_type;
+    uint16_t stlv_length;
+    int stlv_offset, stlv_offset_end;
+    const char *tlv_name;
+    const char *stlv_name;
+    uint32_t reserved, metric;
+
+    eia_tree = proto_tree_add_subtree(tree, tvb, offset, length, ett_ospf_lsa_eia_asbr, NULL,
+                                      "OSPFv2 Extended Inter-Area ASBR LSA");
+
+    while (offset + 4 <= offset_end) {
+        tlv_type = tvb_get_ntohs(tvb, offset);
+        tlv_length = tvb_get_ntohs(tvb, offset + 2);
+        tlv_offset_end = offset + tlv_length + 4;
+        tlv_name = val_to_str_const(tlv_type, ext_ia_asbr_tlv_type_vals, "Unknown");
+
+        switch(tlv_type) {
+        case EXT_IA_ASBR_TLV_EIA_ASBR:
+            tlv_tree = proto_tree_add_subtree_format(eia_tree, tvb, offset, tlv_length + 4,
+                                                     ett_ospf_lsa_eia_asbr_tlv, &ti_tree,
+                                                     "%s TLV", tlv_name);
+            proto_tree_add_item(tlv_tree, hf_ospf_ls_eia_asbr_tlv, tvb, offset, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item(tlv_tree, hf_ospf_tlv_length, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
+            if (tlv_length < 4 || tlv_offset_end > offset_end) {
+                proto_tree_add_expert_format(tlv_tree, pinfo,
+                                             &ei_ospf_stlv_length_invalid, tvb, offset + 2, 2,
+                                             "Invalid TLV length: %u", tlv_length);
+                return;
+            }
+            proto_tree_add_item(tlv_tree, hf_ospf_ls_eia_asbr_asbr_routerid, tvb, offset + 4, 4, ENC_BIG_ENDIAN);
+            proto_item_append_text(ti_tree, "  (ASBR: %s)",
+                                   tvb_ip_to_str(pinfo->pool, tvb, offset + 4));
+            stlv_offset = offset + 8;
+
+            /* Walk down the sub-TLVs in Extended Inter-Area ASBR TLV */
+            while (stlv_offset + 4 <= tlv_offset_end) {
+                stlv_type = tvb_get_ntohs(tvb, stlv_offset);
+                stlv_length = tvb_get_ntohs(tvb, stlv_offset + 2);
+                stlv_offset_end = stlv_offset + stlv_length + 4;
+                stlv_name = val_to_str_const(stlv_type, ext_ia_asbr_stlv_type_vals, "Unknown");
+
+                stlv_tree = proto_tree_add_subtree_format(tlv_tree, tvb, stlv_offset, stlv_length + 4,
+                                                          ett_ospf_lsa_eia_asbr_stlv, &ti_tree,
+                                                          "%s Sub-TLV", stlv_name);
+                proto_tree_add_item(stlv_tree, hf_ospf_ls_eia_asbr_stlv, tvb, stlv_offset, 2, ENC_BIG_ENDIAN);
+                proto_tree_add_item(stlv_tree, hf_ospf_tlv_length, tvb, stlv_offset + 2, 2, ENC_BIG_ENDIAN);
+                if (stlv_offset_end > offset_end) {
+                    proto_tree_add_expert_format(stlv_tree, pinfo,
+                                                 &ei_ospf_stlv_length_invalid, tvb, stlv_offset + 2, 2,
+                                                 "Invalid sub-TLV length: %u", stlv_length);
+                    return;
+                }
+                switch (stlv_type) {
+                case SR_STLV_FLEX_ALGO_ASBR_METRIC:
+                    /* Flexible Algorithm ASBR Metric (FAAM) */
+                    if (stlv_length != 8) {
+                        proto_tree_add_expert_format(stlv_tree, pinfo,
+                                                     &ei_ospf_stlv_length_invalid, tvb, stlv_offset + 2, 2,
+                                                     "Invalid sub-TLV length: %u (should be 8)", stlv_length);
+                        break;
+                    }
+                    proto_tree_add_item(stlv_tree, hf_ospf_ls_flex_algorithm, tvb, stlv_offset + 4, 1, ENC_NA);
+                    reserved = tvb_get_uint24(tvb, stlv_offset + 5, ENC_BIG_ENDIAN);
+                    ti = proto_tree_add_item(stlv_tree, hf_ospf_header_reserved, tvb, stlv_offset + 5, 3, ENC_NA);
+                    if (reserved != 0) {
+                        expert_add_info(pinfo, ti, &ei_ospf_header_reserved);
+                    }
+                    proto_tree_add_item_ret_uint(stlv_tree, hf_ospf_ls_faam_metric, tvb, stlv_offset + 8, 4, ENC_BIG_ENDIAN, &metric);
+                    proto_item_append_text(ti_tree, "  (Metric: %u)", metric);
+                    break;
+
+                default:
+                    proto_tree_add_item(stlv_tree, hf_ospf_tlv_value, tvb, stlv_offset + 4, stlv_length, ENC_NA);
+                    proto_item_append_text(ti_tree, "  (t=%u, l=%u)", stlv_type, stlv_length);
+                    break;
+                }
+                stlv_offset += 4 + WS_ROUNDUP_4(stlv_length);
+            }
+            break;
+
+        default:
+            if (tlv_length > (unsigned)(offset_end - offset)) {
+                /* Invalid length, probably not TLV. */
+                return;
+            }
+            tlv_tree = proto_tree_add_subtree_format(eia_tree, tvb, offset, tlv_length + 4,
+                                                     ett_ospf_lsa_eia_asbr_tlv, NULL,
+                                                     "%s TLV: %u - Unknown", tlv_name, tlv_type);
+            proto_tree_add_item(tlv_tree, hf_ospf_tlv_type_opaque, tvb, offset, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item(tlv_tree, hf_ospf_tlv_length, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item(tlv_tree, hf_ospf_unknown_tlv, tvb, offset + 4, tlv_length, ENC_NA);
+            break;
+
+        }
+
+        /*
+         * RFC 7770, section 2.3: 4-octet aligned, but type, length and padding
+         * is not included in the length.
+         * */
+        offset += 4 + WS_ROUNDUP_4(tlv_length);
+    }
+}
+
+/*
  * Dissect opaque LSAs
  */
 static void
@@ -3836,6 +4016,9 @@ dissect_ospf_lsa_opaque(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tre
         break;
     case OSPF_LSA_EXT_LINK:
         dissect_ospf_lsa_ext_link(tvb, pinfo, offset, tree, length);
+        break;
+    case OSPF_LSA_EXT_IA_ASBR:
+        dissect_ospf_lsa_ext_ia_asbr(tvb, pinfo, offset, tree, length);
         break;
 
     default:
@@ -5121,8 +5304,8 @@ proto_register_ospf(void)
            NULL, 0x0, NULL, HFILL }},
 
         /* Flex Algo Definition TLV (rfc9350) */
-        {&hf_ospf_ls_fad_flex_algorithm,
-         { "Flex-Algorithm", "ospf.tlv.fad.flex_algorithm", FT_UINT8, BASE_DEC,
+        {&hf_ospf_ls_flex_algorithm,
+         { "Flex-Algorithm", "ospf.tlv.flex_algorithm", FT_UINT8, BASE_DEC,
            NULL, 0x0, NULL, HFILL }},
         {&hf_ospf_ls_fad_metric_type,
          { "Metric-Type", "ospf.tlv.fad.metric_type", FT_UINT8, BASE_DEC,
@@ -5142,6 +5325,15 @@ proto_register_ospf(void)
         {&hf_ospf_ls_fad_def_flags_m,
          { "M-flag (M)", "ospf.tlv.fad.definition_flags.m", FT_BOOLEAN, 32,
            TFS(&tfs_set_notset), FAD_DEF_FLAGS_M, NULL, HFILL }},
+        {&hf_ospf_ls_fapm_flags,
+         { "Flags", "ospf.tlv.fapm.flags", FT_UINT8, BASE_HEX,
+           NULL, 0x0, NULL, HFILL }},
+        {&hf_ospf_ls_fapm_flags_e,
+         { "E bit", "ospf.tlv.fapm.flags.e", FT_BOOLEAN, 8,
+           TFS(&tfs_set_notset), FAPM_FLAGS_E, NULL, HFILL }},
+        {&hf_ospf_ls_fapm_metric,
+         { "Metric", "ospf.tlv.fapm.metric", FT_UINT32, BASE_DEC,
+           NULL, 0, NULL, HFILL }},
 
         /* the Unknown TLV of the Opaque RI LSA */
         {&hf_ospf_unknown_tlv,
@@ -5303,6 +5495,23 @@ proto_register_ospf(void)
         {&hf_ospf_ls_ext_admin_group,
          { "Extended Admin Group", "ospf.tlv.extended_admin_group", FT_UINT32, BASE_HEX,
            NULL, 0x0, NULL, HFILL }},
+
+        /* OSPF Extended Inter-Area ASBR TLV */
+        {&hf_ospf_ls_eia_asbr_tlv,
+         { "TLV Type", "ospf.tlv.extasbr.tlv_type", FT_UINT16, BASE_DEC,
+           VALS(ext_ia_asbr_tlv_type_vals), 0x0, NULL, HFILL }},
+        {&hf_ospf_ls_eia_asbr_stlv,
+         { "TLV Type", "ospf.tlv.extasbr.subtlv_type", FT_UINT16, BASE_DEC,
+           VALS(ext_ia_asbr_stlv_type_vals), 0x0, NULL, HFILL }},
+        {&hf_ospf_ls_eia_asbr_asbr_routerid,
+         { "ASBR Router ID", "ospf.tlv.extasbr.asbr_routerid", FT_IPv4, BASE_NONE,
+           NULL, 0x0, NULL, HFILL }},
+        {&hf_ospf_ls_faam_reserved,
+         { "Reserved", "ospf.tlv.faam.reserved", FT_UINT24, BASE_HEX,
+           NULL, 0x0, NULL, HFILL }},
+        {&hf_ospf_ls_faam_metric,
+         { "Metric", "ospf.tlv.faam.metric", FT_UINT32, BASE_DEC,
+           NULL, 0, NULL, HFILL }},
 
         /* OSPF Restart TLVs  */
         {&hf_ospf_v2_grace_tlv,
@@ -5488,6 +5697,7 @@ proto_register_ospf(void)
         &ett_ospf_lsa_fad_tlv,
         &ett_ospf_lsa_fad_stlv,
         &ett_ospf_lsa_fad_def_flags,
+        &ett_ospf_lsa_fapm_flags,
         &ett_ospf_lsa_unknown_tlv,
         &ett_ospf_lsa_epfx,
         &ett_ospf_lsa_elink,
@@ -5502,6 +5712,8 @@ proto_register_ospf(void)
         &ett_ospf_lsa_app_sabm_bits,
         &ett_ospf_lsa_app_link_attrs_stlv,
         &ett_ospf_lsa_unidir_link_flags,
+        &ett_ospf_lsa_eia_asbr,
+        &ett_ospf_lsa_eia_asbr_tlv,
         &ett_ospf_lsa_oif_tna,
         &ett_ospf_lsa_oif_tna_stlv,
         &ett_ospf_lsa_grace_tlv,
