@@ -413,8 +413,9 @@ To achieve the recommended configuration above, download the latest release and 
 
 Then just run the following command to launch the installation.
 
+[subs="attributes+"]
 ----
-.\aqt.exe install-qt windows desktop {windows-qt6-lts-version} win64_msvc2019_64 -m qt5compat debug_info qtmultimedia`
+.\aqt.exe install-qt windows desktop {windows-qt6-lts-version} win64_msvc2019_64 -m qt5compat debug_info qtmultimedia
 ----
 
 [#ChSetupPython]
