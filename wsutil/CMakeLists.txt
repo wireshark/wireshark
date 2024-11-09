@@ -106,6 +106,7 @@ set(WSUTIL_PUBLIC_HEADERS
 	eax.h
 	epochs.h
 	exported_pdu_tlvs.h
+	failure_message_simple.h
 	feature_list.h
 	filesystem.h
 	g711.h
@@ -176,6 +177,7 @@ set(WSUTIL_COMMON_FILES
 	curve25519.c
 	dot11decrypt_wep.c
 	eax.c
+	failure_message_simple.c
 	feature_list.c
 	filesystem.c
 	filter_files.c

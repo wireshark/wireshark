@@ -35,6 +35,8 @@
 
 #include <wsutil/array.h>
 #include <wsutil/cmdarg_err.h>
+#include <wsutil/report_message.h>
+#include <wsutil/failure_message_simple.h>
 #include <wsutil/strtoi.h>
 #include <cli_main.h>
 #include <wsutil/version_info.h>
@@ -5475,6 +5477,8 @@ main(int argc, char *argv[])
     /*   Set euid/egid = ruid/rgid to remove suid privileges    */
     relinquish_privs_except_capture();
 #endif
+
+    init_report_failure_message_simple("dumpcap");
 
     /* Set the initial values in the capture options. This might be overwritten
        by the command line parameters. */
