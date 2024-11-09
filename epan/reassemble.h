@@ -774,7 +774,7 @@ streaming_reassembly_info_new(void);
  * can call reassemble_streaming_data_and_call_subdissector() to help ProtoB dissector to reassemble the
  * PDUs of ProtoB. ProtoB needs to use fields pinfo->can_desegment/desegment_offset/desegment_len to tell
  * its requirements about reassembly (to reassemble_streaming_data_and_call_subdissector()).
- *
+ * <pre>
  * -----            +-- Reassembled ProtoB PDU --+-- Reassembled ProtoB PDU --+-- Reassembled ProtoB PDU --+----------------
  * ProtoB:          | ProtoB header and payload  | ProtoB header and payload  | ProtoB header and payload  |            ...
  *                  +----------------------------+---------+------------------+--------+-------------------+--+-------------
@@ -794,15 +794,18 @@ streaming_reassembly_info_new(void);
  *         +--------+----------------------+---------------+--------+---------------------------+--------+-+----------------
  * TCP:    |          TCP segment          |          TCP segment          |          TCP segment          |            ...
  * -----   +-------------------------------+-------------------------------+-------------------------------+----------------
+ * </pre>
  *
  * The function reassemble_streaming_data_and_call_subdissector() uses fragment_add() and process_reassembled_data()
  * to complete its reassembly task.
  *
  * The reassemble_streaming_data_and_call_subdissector() will handle many cases. The most complicated one is:
- *
+ * <pre>
  * +-------------------------------------- Payload of a ProtoA PDU -----------------------------------------------+
  * | EoMSP: end of a multisegment PDU | OmNFP: one or more non-fragment PDUs | BoMSP: begin of a multisegment PDU |
  * +----------------------------------+--------------------------------------+------------------------------------+
+ * </pre>
+ *
  * Note, we use short name 'MSP' for 'Multisegment PDU', and 'NFP' for 'Non-fragment PDU'.
  *
  * In this case, the payload of a ProtoA PDU contains:
@@ -813,7 +816,7 @@ streaming_reassembly_info_new(void);
  * All of three parts are optional. For example, one ProtoA payload could contain only EoMSP, OmNFP or BoMSP; or contain
  * EoMSP and OmNFP without BoMSP; or contain EoMSP and BoMSP without OmNFP; or contain OmNFP and BoMSP without
  * EoMSP.
- *
+ * <pre>
  *           +---- A ProtoB MSP ---+       +-- A ProtoB MSP --+-- A ProtoB MSP --+          +-- A ProtoB MSP --+
  *           |                     |       |                  |                  |          |                  |
  * +- A ProtoA payload -+  +-------+-------+-------+  +-------+-------+  +-------+-------+  +-------+  +-------+  +-------+
@@ -821,12 +824,13 @@ streaming_reassembly_info_new(void);
  * +---------+----------+  +-------+-------+-------+  +-------+-------+  +-------+-------+  +-------+  +-------+  +-------+
  *           |                     |       |                  |                  |          |                  |
  *           +---------------------+       +------------------+------------------+          +------------------+
+ * </pre>
  *
  * And another case is the entire ProtoA payload is one of middle parts of a multisegment PDU. We call it:
  * - MoMSP: The middle part of a multisegment PDU of ProtoB.
  *
  * Following case shows a multisegment PDU composed of [BoMSP + MoMSP + MoMSP + MoMSP + EoMSP]:
- *
+ * <pre>
  *                 +------------------ A Multisegment PDU of ProtoB ----------------------+
  *                 |                                                                      |
  * +--- ProtoA payload1 ---+   +- payload2 -+  +- Payload3 -+  +- Payload4 -+   +- ProtoA payload5 -+
@@ -834,6 +838,7 @@ streaming_reassembly_info_new(void);
  * +-------+-------+-------+   +------------+  +------------+  +------------+   +---------+---------+
  *                 |                                                                      |
  *                 +----------------------------------------------------------------------+
+ * </pre>
  *
  * The function reassemble_streaming_data_and_call_subdissector() will handle all of the above cases and manage
  * the information used during the reassembly. The caller (ProtoA dissector) only needs to initialize the relevant
@@ -858,7 +863,7 @@ streaming_reassembly_info_new(void);
  * when exiting the subdissector dissect function (such as dissect_proto_b()).
  *
  * Following is sample code of ProtoB which on top of ProtoA mentioned above:
- * <code>
+ * @code
  *     // file packet-proto-b.c
  *     ...
  *
@@ -906,10 +911,10 @@ streaming_reassembly_info_new(void);
  *         }
  *         return tvb_len; // all bytes of this tvb are parsed
  *     }
- * </code>
+ * @endcode
  *
  * Following is sample code of ProtoA mentioned above:
- * <code>
+ * @code
  *     // file packet-proto-a.c
  *     ...
  *     // reassembly table for streaming chunk mode
@@ -1032,10 +1037,10 @@ streaming_reassembly_info_new(void);
  *                                    &addresses_ports_reassembly_table_functions);
  *         ...
  *     }
- * </code>
+ * @endcode
  *
  * Alternatively, the code of ProtoA (packet-proto-a.c) can be made simpler with helper macros:
- * <code>
+ * @code
  *     // file packet-proto-a.c
  *     ...
  *     // reassembly table for streaming chunk mode
@@ -1093,7 +1098,7 @@ streaming_reassembly_info_new(void);
  *                                    &addresses_ports_reassembly_table_functions);
  *         ...
  *     }
- * </code>
+ * @endcode
  *
  * @param  tvb            TVB contains (ProtoA) payload which will be passed to subdissector.
  * @param  pinfo          Packet information.
@@ -1133,11 +1138,11 @@ reassemble_streaming_data_and_call_subdissector(
 
 /**
  * Return a 64 bits virtual frame number that is identified as follows:
- *
+ * <pre>
  * +--- 32 bits ---+--------- 8 bits -------+----- 24 bits --------------+
  * |  pinfo->num   | pinfo->curr_layer_num  |  tvb->raw_offset + offset  |
  * +---------------------------------------------------------------------+
- *
+ * </pre>
  * This allows for a single virtual frame to be uniquely identified across a capture with the
  * added benefit that the number will always be increasing from the previous virtual frame so
  * we can use "<" and ">" comparisons to determine before and after in time.
