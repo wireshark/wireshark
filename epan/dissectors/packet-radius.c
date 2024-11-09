@@ -2844,7 +2844,7 @@ proto_register_radius(void)
 	radius_handle = register_dissector("radius", dissect_radius, proto_radius);
 	register_shutdown_routine(radius_shutdown);
 	radius_module = prefs_register_protocol(proto_radius, NULL);
-	prefs_register_string_preference(radius_module, "shared_secret", "Shared Secret",
+	prefs_register_password_preference(radius_module, "shared_secret", "Shared Secret",
 					 "Shared secret used to decode User Passwords and validate Accounting Request and Response Authenticators",
 					 &shared_secret);
 	prefs_register_bool_preference(radius_module, "validate_authenticator", "Validate Authenticator and Message-Authenticator",
