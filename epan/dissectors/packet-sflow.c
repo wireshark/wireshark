@@ -3668,7 +3668,7 @@ proto_register_sflow(void) {
           NULL, HFILL }
       },
       { &hf_sflow_5_flow_sample_output_interface_expanded_value_discarded,
-        { "Output interface packet discarded", "sflow.flow_sample.output_interface_value",
+        { "Output interface packet discarded", "sflow.flow_sample.output_interface_expanded.value_discarded",
           FT_UINT32, BASE_DEC, VALS(interface_discard), 0x0,
           NULL, HFILL }
       },

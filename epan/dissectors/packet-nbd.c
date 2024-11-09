@@ -1458,7 +1458,7 @@ void proto_register_nbd(void)
 		  { "Number of Queries", "nbd.query.num", FT_UINT32, BASE_DEC,
 		    NULL, 0x0, NULL, HFILL }},
 		{ &hf_nbd_query,
-		  { "Query", "nbd.info.num", FT_UINT_STRING, BASE_NONE,
+		  { "Query", "nbd.query", FT_UINT_STRING, BASE_NONE,
 		    NULL, 0x0, NULL, HFILL }},
 		{ &hf_nbd_export_description,
 		  { "Export Description", "nbd.export.description", FT_STRING, BASE_NONE,

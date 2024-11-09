@@ -6309,7 +6309,7 @@ void proto_register_radiotap(void)
 
 		{&hf_radiotap_usig_reserved,
 		 {"Reserved", "radiotap.u_sig.common.reserved",
-		  FT_UINT32, BASE_HEX, NULL, 0x00000fc0, NULL, HFILL }},
+		  FT_UINT32, BASE_HEX, NULL, 0x00000f00, NULL, HFILL }},
 
 		{&hf_radiotap_usig_phy_version_id,
 		 {"Phy version identifier",
