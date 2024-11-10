@@ -13124,7 +13124,7 @@ a:hover {
     </message>
     <message>
         <source>Export Specified Packets…</source>
-        <translation>Spezielle Pakete exportieren...</translation>
+        <translation>Ausgewählte Pakete exportieren...</translation>
     </message>
     <message>
         <source>Export Packet &amp;Bytes…</source>
