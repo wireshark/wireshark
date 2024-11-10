@@ -190,6 +190,7 @@ static int ett_eap;
 static int ett_chap;
 
 static expert_field ei_radius_invalid_length;
+static expert_field ei_radius_shared_secret;
 
 /*
  * Define the tap for radius
@@ -1303,7 +1304,7 @@ add_avp_to_tree(proto_tree *avp_tree, proto_item *avp_item, packet_info *pinfo, 
 			proto_item_append_text(avp_item, "Encrypted");
 			proto_tree_add_item(avp_tree, dictionary_entry->hf_enc, tvb, offset, avp_length, ENC_NA);
 		} else {
-			tvbuff_t *tvb_decrypted;
+			tvbuff_t *tvb_decrypted = NULL;
 			uint8_t *buffer;
 
 			switch (dictionary_entry->encrypt) {
@@ -1357,6 +1358,10 @@ add_avp_to_tree(proto_tree *avp_tree, proto_item *avp_item, packet_info *pinfo, 
 				add_new_data_source(pinfo, tvb_decrypted, "Decrypted Data");
 				dictionary_entry->type(dictionary_entry, avp_tree, pinfo, tvb_decrypted, 0, avp_length, avp_item);
 			break;
+			}
+
+			if (dictionary_entry->type == radius_string && tvb_decrypted && !tvb_utf_8_isprint(tvb_decrypted, 0, avp_length)) {
+				proto_tree_add_expert_format(avp_tree, pinfo, &ei_radius_shared_secret, tvb_decrypted, 0, avp_length, "non-UTF8, shared secret may be incorrect");
 			}
 		}
 	} else {
@@ -2783,8 +2788,8 @@ register_radius_fields(const char *unused _U_)
 	};
 
 	static ei_register_info ei[] = {
-	{
-		 &ei_radius_invalid_length, { "radius.invalid_length", PI_MALFORMED, PI_ERROR, "Invalid length", EXPFILL }},
+		{ &ei_radius_invalid_length, { "radius.invalid_length", PI_MALFORMED, PI_ERROR, "Invalid length", EXPFILL }},
+		{ &ei_radius_shared_secret, { "radius.shared_secret.error", PI_DECRYPTION, PI_WARN, "Non-UTF8 printable characters present, shared secret may be incorrect", EXPFILL }},
 	};
 
 	expert_module_t *expert_radius;
