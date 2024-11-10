@@ -85,6 +85,8 @@ static int hf_zabbix_frontend_historypush;
 static int hf_zabbix_frontend_itemtest;
 static int hf_zabbix_frontend_mediatest;
 static int hf_zabbix_frontend_reporttest;
+static int hf_zabbix_frontend_expressioneval;
+static int hf_zabbix_frontend_scriptexec;
 static int hf_zabbix_metrics;
 static int hf_zabbix_request;
 static int hf_zabbix_response;
@@ -156,6 +158,8 @@ typedef struct _zabbix_conv_info_t {
 #define ZABBIX_T_MEDIATEST          0x00020000
 #define ZABBIX_T_REPORTTEST         0x00040000
 #define ZABBIX_T_METRICS            0x00080000
+#define ZABBIX_T_EXPRESSIONEVAL     0x00100000
+#define ZABBIX_T_SCRIPTEXEC         0x00200000
 
 #define ADD_ZABBIX_T_FLAGS(flags)       (zabbix_info->oper_flags |= (flags))
 #define CLEAR_ZABBIX_T_FLAGS(flags)     (zabbix_info->oper_flags &= (0xffffffff-(flags)))
@@ -616,6 +620,18 @@ dissect_zabbix_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
             proto_item_set_text(ti, "Zabbix Report test request");
             col_set_str(pinfo->cinfo, COL_INFO, "Zabbix Report test request");
         }
+        else if (strcmp(request_type, "expressions.evaluate") == 0) {
+            /* Trigger expression evaluation test in the frontend */
+            ADD_ZABBIX_T_FLAGS(ZABBIX_T_FRONTEND | ZABBIX_T_EXPRESSIONEVAL);
+            proto_item_set_text(ti, "Zabbix Expression evaluation request");
+            col_set_str(pinfo->cinfo, COL_INFO, "Zabbix Expression evaluation request");
+        }
+        else if (strcmp(request_type, "command") == 0) {
+            /* Script execution from the frontend */
+            ADD_ZABBIX_T_FLAGS(ZABBIX_T_FRONTEND | ZABBIX_T_SCRIPTEXEC);
+            proto_item_set_text(ti, "Zabbix Script execution request");
+            col_set_str(pinfo->cinfo, COL_INFO, "Zabbix Script execution request");
+        }
     }
     /* There was no "request" field match, continue with other ways to recognize the packet */
     else if (json_get_object(json_str, tokens, "globalmacro")) {
@@ -754,6 +770,14 @@ dissect_zabbix_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
             else if (IS_ZABBIX_T_FLAGS(ZABBIX_T_REPORTTEST)) {
                 proto_item_set_text(ti, "Zabbix Report test response");
                 col_set_str(pinfo->cinfo, COL_INFO, "Zabbix Report test response");
+            }
+            else if (IS_ZABBIX_T_FLAGS(ZABBIX_T_EXPRESSIONEVAL)) {
+                proto_item_set_text(ti, "Zabbix Expression evaluation response");
+                col_set_str(pinfo->cinfo, COL_INFO, "Zabbix Expression evaluation response");
+            }
+            else if (IS_ZABBIX_T_FLAGS(ZABBIX_T_SCRIPTEXEC)) {
+                proto_item_set_text(ti, "Zabbix Script execution response");
+                col_set_str(pinfo->cinfo, COL_INFO, "Zabbix Script execution response");
             }
         }
     }
@@ -958,6 +982,12 @@ show_agent_outputs:
         }
         else if (IS_ZABBIX_T_FLAGS(ZABBIX_T_REPORTTEST)) {
             proto_tree_add_boolean(zabbix_tree, hf_zabbix_frontend_reporttest, NULL, 0, 0, true);
+        }
+        else if (IS_ZABBIX_T_FLAGS(ZABBIX_T_EXPRESSIONEVAL)) {
+            proto_tree_add_boolean(zabbix_tree, hf_zabbix_frontend_expressioneval, NULL, 0, 0, true);
+        }
+        else if (IS_ZABBIX_T_FLAGS(ZABBIX_T_SCRIPTEXEC)) {
+            proto_tree_add_boolean(zabbix_tree, hf_zabbix_frontend_scriptexec, NULL, 0, 0, true);
         }
     }
     else if (sender_name) {
@@ -1371,6 +1401,16 @@ proto_register_zabbix(void)
         },
         { &hf_zabbix_frontend_reporttest,
             { "Report test", "zabbix.frontend.reporttest",
+            FT_BOOLEAN, BASE_NONE, TFS(&tfs_yes_no), 0,
+            NULL, HFILL }
+        },
+        { &hf_zabbix_frontend_expressioneval,
+            { "Expression evaluation", "zabbix.frontend.expressioneval",
+            FT_BOOLEAN, BASE_NONE, TFS(&tfs_yes_no), 0,
+            NULL, HFILL }
+        },
+        { &hf_zabbix_frontend_scriptexec,
+            { "Script execution", "zabbix.frontend.scriptexec",
             FT_BOOLEAN, BASE_NONE, TFS(&tfs_yes_no), 0,
             NULL, HFILL }
         },
