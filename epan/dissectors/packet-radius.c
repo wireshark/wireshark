@@ -1935,7 +1935,7 @@ is_radius(tvbuff_t *tvb)
 	 *  is 4096.
 	 */
 	length = tvb_get_ntohs(tvb, 2);
-	if ((length < 20) || (length > 4096)) {
+	if ((length < 20) || (length > 4096) || (tvb_reported_length(tvb) < length)) {
 		return false;
 	}
 
