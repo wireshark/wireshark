@@ -3626,7 +3626,7 @@ dissect_someip_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
     int             tvb_length = tvb_captured_length_remaining(tvb, offset);
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, SOMEIP_NAME);
-    col_set_str(pinfo->cinfo, COL_INFO, SOMEIP_NAME_LONG);
+    col_set_str(pinfo->cinfo, COL_INFO, SOMEIP_NAME);
     ti_someip = proto_tree_add_item(tree, proto_someip, tvb, offset, -1, ENC_NA);
     someip_tree = proto_item_add_subtree(ti_someip, ett_someip);
 
@@ -3676,14 +3676,11 @@ dissect_someip_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 
     /* Add some additional info to the Protocol line and the Info Column*/
     if (service_description == NULL) {
-        col_add_fstr(pinfo->cinfo, COL_INFO, "%s (Service ID: 0x%04x, Method ID: 0x%04x, Length: %i)",
-                     SOMEIP_NAME_LONG, someip_serviceid, someip_methodid, someip_length);
+        col_append_fstr(pinfo->cinfo, COL_INFO, " (Service ID: 0x%04x, Method ID: 0x%04x, Length: %i)  ", someip_serviceid, someip_methodid, someip_length);
     } else if (method_description == NULL) {
-        col_add_fstr(pinfo->cinfo, COL_INFO, "%s (Service ID: 0x%04x (%s), Method ID: 0x%04x, Length: %i)",
-                     SOMEIP_NAME_LONG, someip_serviceid, service_description, someip_methodid, someip_length);
+        col_append_fstr(pinfo->cinfo, COL_INFO, " (Service ID: 0x%04x (%s), Method ID: 0x%04x, Length: %i)  ", someip_serviceid, service_description, someip_methodid, someip_length);
     } else {
-        col_add_fstr(pinfo->cinfo, COL_INFO, "%s (Service ID: 0x%04x (%s), Method ID: 0x%04x (%s), Length: %i)",
-                     SOMEIP_NAME_LONG, someip_serviceid, service_description, someip_methodid, method_description, someip_length);
+        col_append_fstr(pinfo->cinfo, COL_INFO, " (Service ID: 0x%04x (%s), Method ID: 0x%04x (%s), Length: %i)  ", someip_serviceid, service_description, someip_methodid, method_description, someip_length);
     }
     proto_item_append_text(ti_someip, " (Service ID: 0x%04x, Method ID: 0x%04x, Length: %i)", someip_serviceid, someip_methodid, someip_length);
 
@@ -3810,6 +3807,7 @@ dissect_someip_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
         }
     }
 
+    col_set_fence(pinfo->cinfo, COL_INFO);
     return SOMEIP_HDR_LEN + someip_payload_length;
 }
 
@@ -4285,6 +4283,7 @@ proto_register_someip(void) {
     proto_someip = proto_register_protocol(SOMEIP_NAME_LONG, SOMEIP_NAME, SOMEIP_NAME_FILTER);
     someip_handle_udp = register_dissector("someip_udp", dissect_someip_udp, proto_someip);
     someip_handle_tcp = register_dissector("someip_tcp", dissect_someip_tcp, proto_someip);
+    register_dissector("someip", dissect_someip_message, proto_someip);
 
     proto_register_field_array(proto_someip, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));

@@ -885,7 +885,7 @@ dissect_someip_sd_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
     };
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, SOMEIP_SD_NAME);
-    col_set_str(pinfo->cinfo, COL_INFO, SOMEIP_SD_NAME_LONG);
+    col_set_str(pinfo->cinfo, COL_INFO, SOMEIP_SD_NAME);
 
     ti = proto_tree_add_item(tree, proto_someip_sd, tvb, offset, -1, ENC_NA);
     tree = proto_item_add_subtree(ti, ett_someip_sd);
