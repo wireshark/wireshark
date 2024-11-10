@@ -88,6 +88,10 @@
         <translation>Stratoshark</translation>
     </message>
     <message>
+        <source>&lt;h3&gt;System Call and Event Log Analyzer&lt;/h3&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>The directory does not exist</source>
         <translation>ディレクトリがありません</translation>
     </message>
@@ -8885,8 +8889,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>無効な表示フィルタ</translation>
     </message>
     <message>
-        <source>The filter expression %1 isn&apos;t a valid display filter. (%2).</source>
-        <translation>%1 フィルターの書式は有効な表示フィルタではありません (%2)</translation>
+        <source>The filter expression &quot;%1&quot; isn&apos;t a valid display filter.
+(%2).</source>
+        <oldsource>The filter expression %1 isn&apos;t a valid display filter. (%2).</oldsource>
+        <translation type="unfinished">%1 フィルターの書式は有効な表示フィルタではありません (%2)</translation>
     </message>
     <message>
         <source>Error</source>
@@ -14425,6 +14431,22 @@ a:hover {
         <translation>表示フィルタ参照</translation>
     </message>
     <message>
+        <source>First Packet in Conversation</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Go to the first packet in this conversation</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Last Packet in Conversation</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Go to the last packet in this conversation</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Capture &amp;Filters…</source>
         <translation>キャプチャフィルタ…(&amp;F)</translation>
     </message>
@@ -15111,16 +15133,15 @@ a:hover {
         <translation>ファイルを結合する前に変更を保存する必要があります</translation>
     </message>
     <message>
-        <source>Invalid Display Filter</source>
-        <translation>無効な表示フィルタ</translation>
-    </message>
-    <message>
         <source>Invalid Read Filter</source>
-        <translation>無効な読込フィルタ</translation>
+        <oldsource>Invalid Display Filter</oldsource>
+        <translation type="unfinished">無効な表示フィルタ</translation>
     </message>
     <message>
-        <source>The filter expression %1 isn&apos;t a valid read filter. (%2).</source>
-        <translation>フィルタ式 %1 は有効な読込みフィルタではありません(%2)</translation>
+        <source>The filter expression &quot;%1&quot; isn&apos;t a valid read filter.
+(%2).</source>
+        <oldsource>The filter expression %1 isn&apos;t a valid read filter. (%2).</oldsource>
+        <translation type="unfinished">フィルタ式 %1 は有効な読込みフィルタではありません(%2)</translation>
     </message>
     <message>
         <source> before importing a capture</source>

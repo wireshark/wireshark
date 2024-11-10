@@ -88,6 +88,10 @@
         <translation>Stratoshark</translation>
     </message>
     <message>
+        <source>&lt;h3&gt;System Call and Event Log Analyzer&lt;/h3&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>The directory does not exist</source>
         <translation>La cartella non esiste</translation>
     </message>
@@ -8913,8 +8917,10 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation>Filtro di visualizzazione non valido</translation>
     </message>
     <message>
-        <source>The filter expression %1 isn&apos;t a valid display filter. (%2).</source>
-        <translation>L&apos;espressione %1 non è un filtro di visualizzazione valido. (%2).</translation>
+        <source>The filter expression &quot;%1&quot; isn&apos;t a valid display filter.
+(%2).</source>
+        <oldsource>The filter expression %1 isn&apos;t a valid display filter. (%2).</oldsource>
+        <translation type="unfinished">L&apos;espressione %1 non è un filtro di visualizzazione valido. (%2).</translation>
     </message>
     <message>
         <source>Error</source>
@@ -14453,6 +14459,22 @@ a:hover {
         <translation>Riferimento del filtro di visualizzazione</translation>
     </message>
     <message>
+        <source>First Packet in Conversation</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Go to the first packet in this conversation</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Last Packet in Conversation</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Go to the last packet in this conversation</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Capture &amp;Filters…</source>
         <translation>&amp;Filtri di cattura...</translation>
     </message>
@@ -15139,16 +15161,15 @@ a:hover {
         <translation>Le modifiche devono essere salvate prima di unire.</translation>
     </message>
     <message>
-        <source>Invalid Display Filter</source>
-        <translation>Filtro di visualizzazione non valido</translation>
-    </message>
-    <message>
         <source>Invalid Read Filter</source>
-        <translation>Filtro di lettura non valido</translation>
+        <oldsource>Invalid Display Filter</oldsource>
+        <translation type="unfinished">Filtro di visualizzazione non valido</translation>
     </message>
     <message>
-        <source>The filter expression %1 isn&apos;t a valid read filter. (%2).</source>
-        <translation>L&apos;espressione %1 non è un filtro di lettura valido. (%2).</translation>
+        <source>The filter expression &quot;%1&quot; isn&apos;t a valid read filter.
+(%2).</source>
+        <oldsource>The filter expression %1 isn&apos;t a valid read filter. (%2).</oldsource>
+        <translation type="unfinished">L&apos;espressione %1 non è un filtro di lettura valido. (%2).</translation>
     </message>
     <message>
         <source> before importing a capture</source>

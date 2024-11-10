@@ -88,6 +88,10 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>&lt;h3&gt;System Call and Event Log Analyzer&lt;/h3&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>The directory does not exist</source>
         <translation>Dizin mevcut değil</translation>
     </message>
@@ -8880,8 +8884,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Geçersiz Görüntü Filtresi</translation>
     </message>
     <message>
-        <source>The filter expression %1 isn&apos;t a valid display filter. (%2).</source>
-        <translation>%1 filtre ifadesi geçerli bir görüntüleme filtresi değil. (%2).</translation>
+        <source>The filter expression &quot;%1&quot; isn&apos;t a valid display filter.
+(%2).</source>
+        <oldsource>The filter expression %1 isn&apos;t a valid display filter. (%2).</oldsource>
+        <translation type="unfinished">%1 filtre ifadesi geçerli bir görüntüleme filtresi değil. (%2).</translation>
     </message>
     <message>
         <source>Error</source>
@@ -14420,6 +14426,22 @@ a:üzerine gelin{
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>First Packet in Conversation</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Go to the first packet in this conversation</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Last Packet in Conversation</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Go to the last packet in this conversation</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Capture &amp;Filters…</source>
         <translation>Yakalama &amp;Filtreleri…</translation>
     </message>
@@ -15106,16 +15128,15 @@ a:üzerine gelin{
         <translation>Dosyalar birleştirilmeden önce değişiklikler kaydedilmelidir.</translation>
     </message>
     <message>
-        <source>Invalid Display Filter</source>
-        <translation>Geçersiz Görüntü Filtresi</translation>
-    </message>
-    <message>
         <source>Invalid Read Filter</source>
-        <translation>Geçersiz Okuma Filtresi</translation>
+        <oldsource>Invalid Display Filter</oldsource>
+        <translation type="unfinished">Geçersiz Görüntü Filtresi</translation>
     </message>
     <message>
-        <source>The filter expression %1 isn&apos;t a valid read filter. (%2).</source>
-        <translation>%1 filtre ifadesi geçerli bir okuma filtresi değil. (%2).</translation>
+        <source>The filter expression &quot;%1&quot; isn&apos;t a valid read filter.
+(%2).</source>
+        <oldsource>The filter expression %1 isn&apos;t a valid read filter. (%2).</oldsource>
+        <translation type="unfinished">%1 filtre ifadesi geçerli bir okuma filtresi değil. (%2).</translation>
     </message>
     <message>
         <source> before importing a capture</source>

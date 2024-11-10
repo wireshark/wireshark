@@ -88,6 +88,10 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>&lt;h3&gt;System Call and Event Log Analyzer&lt;/h3&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>The directory does not exist</source>
         <translation>Katalogen finns inte</translation>
     </message>
@@ -8911,8 +8915,10 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <translation>Felaktigt visningsfilter</translation>
     </message>
     <message>
-        <source>The filter expression %1 isn&apos;t a valid display filter. (%2).</source>
-        <translation>Filteruttrycket %1 är inte ett giltigt visningsfilter. (%2).</translation>
+        <source>The filter expression &quot;%1&quot; isn&apos;t a valid display filter.
+(%2).</source>
+        <oldsource>The filter expression %1 isn&apos;t a valid display filter. (%2).</oldsource>
+        <translation type="unfinished">Filteruttrycket %1 är inte ett giltigt visningsfilter. (%2).</translation>
     </message>
     <message>
         <source>Error</source>
@@ -14456,6 +14462,22 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>First Packet in Conversation</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Go to the first packet in this conversation</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Last Packet in Conversation</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Go to the last packet in this conversation</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Capture &amp;Filters…</source>
         <translation>&amp;Fångstfilter …</translation>
     </message>
@@ -15142,16 +15164,15 @@ a:hover {
         <translation>Ändringar måste sparas före filerna kan slås samman.</translation>
     </message>
     <message>
-        <source>Invalid Display Filter</source>
-        <translation>Felaktigt visningsfilter</translation>
-    </message>
-    <message>
         <source>Invalid Read Filter</source>
-        <translation>Felaktigt läsningsfilter</translation>
+        <oldsource>Invalid Display Filter</oldsource>
+        <translation type="unfinished">Felaktigt visningsfilter</translation>
     </message>
     <message>
-        <source>The filter expression %1 isn&apos;t a valid read filter. (%2).</source>
-        <translation>Filteruttrycket %1 är inte ett giltigt läsningsfilter. (%2).</translation>
+        <source>The filter expression &quot;%1&quot; isn&apos;t a valid read filter.
+(%2).</source>
+        <oldsource>The filter expression %1 isn&apos;t a valid read filter. (%2).</oldsource>
+        <translation type="unfinished">Filteruttrycket %1 är inte ett giltigt läsningsfilter. (%2).</translation>
     </message>
     <message>
         <source> before importing a capture</source>

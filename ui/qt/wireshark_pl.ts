@@ -88,6 +88,10 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>&lt;h3&gt;System Call and Event Log Analyzer&lt;/h3&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>The directory does not exist</source>
         <translation>Katalog nie istnieje.</translation>
     </message>
@@ -8932,8 +8936,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Niepoprawny filtr wyświetlania</translation>
     </message>
     <message>
-        <source>The filter expression %1 isn&apos;t a valid display filter. (%2).</source>
-        <translation>Filtr %1 nie jest poprawnym filtrem wyświetlania. (%2).</translation>
+        <source>The filter expression &quot;%1&quot; isn&apos;t a valid display filter.
+(%2).</source>
+        <oldsource>The filter expression %1 isn&apos;t a valid display filter. (%2).</oldsource>
+        <translation type="unfinished">Filtr %1 nie jest poprawnym filtrem wyświetlania. (%2).</translation>
     </message>
     <message>
         <source>Error</source>
@@ -14477,6 +14483,22 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>First Packet in Conversation</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Go to the first packet in this conversation</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Last Packet in Conversation</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Go to the last packet in this conversation</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Capture &amp;Filters…</source>
         <translation>&amp;Filtry przechwytywania…</translation>
     </message>
@@ -15163,16 +15185,15 @@ a:hover {
         <translation>Zmiany muszą być zapisane przed próbą scalenia plików.</translation>
     </message>
     <message>
-        <source>Invalid Display Filter</source>
-        <translation>Niepoprawny filtr</translation>
-    </message>
-    <message>
         <source>Invalid Read Filter</source>
-        <translation>Niepoprawny filtr wczytywania</translation>
+        <oldsource>Invalid Display Filter</oldsource>
+        <translation type="unfinished">Niepoprawny filtr</translation>
     </message>
     <message>
-        <source>The filter expression %1 isn&apos;t a valid read filter. (%2).</source>
-        <translation>Postać filtru wczytywania %1 nie jest poprawna. (%2).</translation>
+        <source>The filter expression &quot;%1&quot; isn&apos;t a valid read filter.
+(%2).</source>
+        <oldsource>The filter expression %1 isn&apos;t a valid read filter. (%2).</oldsource>
+        <translation type="unfinished">Postać filtru wczytywania %1 nie jest poprawna. (%2).</translation>
     </message>
     <message>
         <source> before importing a capture</source>

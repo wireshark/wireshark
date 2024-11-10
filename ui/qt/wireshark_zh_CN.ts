@@ -88,6 +88,10 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>&lt;h3&gt;System Call and Event Log Analyzer&lt;/h3&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>The directory does not exist</source>
         <translation>该目录不存在</translation>
     </message>
@@ -8863,8 +8867,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>无效显示过滤器</translation>
     </message>
     <message>
-        <source>The filter expression %1 isn&apos;t a valid display filter. (%2).</source>
-        <translation>过滤器表达式 %1 不是有效的显示过滤器 (%2)。</translation>
+        <source>The filter expression &quot;%1&quot; isn&apos;t a valid display filter.
+(%2).</source>
+        <oldsource>The filter expression %1 isn&apos;t a valid display filter. (%2).</oldsource>
+        <translation type="unfinished">过滤器表达式 %1 不是有效的显示过滤器 (%2)。</translation>
     </message>
     <message>
         <source>Error</source>
@@ -14357,6 +14363,22 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>First Packet in Conversation</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Go to the first packet in this conversation</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Last Packet in Conversation</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Go to the last packet in this conversation</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Capture &amp;Filters…</source>
         <translation>捕获过滤器(&amp;F)…</translation>
     </message>
@@ -15043,16 +15065,15 @@ a:hover {
         <translation>在文件合并之前，其更改必须先保存。</translation>
     </message>
     <message>
-        <source>Invalid Display Filter</source>
-        <translation>无效显示过滤器</translation>
-    </message>
-    <message>
         <source>Invalid Read Filter</source>
-        <translation>无效读取过滤器</translation>
+        <oldsource>Invalid Display Filter</oldsource>
+        <translation type="unfinished">无效显示过滤器</translation>
     </message>
     <message>
-        <source>The filter expression %1 isn&apos;t a valid read filter. (%2).</source>
-        <translation>过滤器表达式 %1 不是有效的读取过滤器 (%2)。</translation>
+        <source>The filter expression &quot;%1&quot; isn&apos;t a valid read filter.
+(%2).</source>
+        <oldsource>The filter expression %1 isn&apos;t a valid read filter. (%2).</oldsource>
+        <translation type="unfinished">过滤器表达式 %1 不是有效的读取过滤器 (%2)。</translation>
     </message>
     <message>
         <source> before importing a capture</source>

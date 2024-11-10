@@ -88,6 +88,10 @@
         <translation>Stratoshark</translation>
     </message>
     <message>
+        <source>&lt;h3&gt;System Call and Event Log Analyzer&lt;/h3&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>The directory does not exist</source>
         <translation>Каталог отсутствует</translation>
     </message>
@@ -8944,8 +8948,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Недопустимый фильтр отображения</translation>
     </message>
     <message>
-        <source>The filter expression %1 isn&apos;t a valid display filter. (%2).</source>
-        <translation>Выражение фильтра %1 не является допустимым фильтром отображения. (%2).</translation>
+        <source>The filter expression &quot;%1&quot; isn&apos;t a valid display filter.
+(%2).</source>
+        <oldsource>The filter expression %1 isn&apos;t a valid display filter. (%2).</oldsource>
+        <translation type="unfinished">Выражение фильтра %1 не является допустимым фильтром отображения. (%2).</translation>
     </message>
     <message>
         <source>Error</source>
@@ -14494,6 +14500,22 @@ a:hover {
         <translation>Ссылка на фильтр дисплея</translation>
     </message>
     <message>
+        <source>First Packet in Conversation</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Go to the first packet in this conversation</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Last Packet in Conversation</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Go to the last packet in this conversation</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Capture &amp;Filters…</source>
         <translation>Фильтры &amp;захвата…</translation>
     </message>
@@ -15180,16 +15202,15 @@ a:hover {
         <translation>Необходимо сохранить изменения перед объединением файлов.</translation>
     </message>
     <message>
-        <source>Invalid Display Filter</source>
-        <translation>Недопустимый фильтр отображения</translation>
-    </message>
-    <message>
         <source>Invalid Read Filter</source>
-        <translation>Недопустимый фильтр чтения</translation>
+        <oldsource>Invalid Display Filter</oldsource>
+        <translation type="unfinished">Недопустимый фильтр отображения</translation>
     </message>
     <message>
-        <source>The filter expression %1 isn&apos;t a valid read filter. (%2).</source>
-        <translation>Выражение фильтра %1 не является допустимым фильтром чтения. (%2).</translation>
+        <source>The filter expression &quot;%1&quot; isn&apos;t a valid read filter.
+(%2).</source>
+        <oldsource>The filter expression %1 isn&apos;t a valid read filter. (%2).</oldsource>
+        <translation type="unfinished">Выражение фильтра %1 не является допустимым фильтром чтения. (%2).</translation>
     </message>
     <message>
         <source> before importing a capture</source>

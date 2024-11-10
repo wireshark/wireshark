@@ -88,6 +88,10 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>&lt;h3&gt;System Call and Event Log Analyzer&lt;/h3&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>The directory does not exist</source>
         <translation>Директорія не існує</translation>
     </message>
@@ -8838,10 +8842,12 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Invalid Display Filter</source>
-        <translation type="unfinished">Некоректний Фільтр Відображення</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>The filter expression %1 isn&apos;t a valid display filter. (%2).</source>
+        <source>The filter expression &quot;%1&quot; isn&apos;t a valid display filter.
+(%2).</source>
+        <oldsource>The filter expression %1 isn&apos;t a valid display filter. (%2).</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -14281,6 +14287,22 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>First Packet in Conversation</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Go to the first packet in this conversation</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Last Packet in Conversation</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Go to the last packet in this conversation</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Capture &amp;Filters…</source>
         <translation>Фільтри &amp;Захоплення...</translation>
     </message>
@@ -14967,15 +14989,14 @@ a:hover {
         <translation>Перед об&apos;єднанням файлів зміни необхідно зберегти.</translation>
     </message>
     <message>
-        <source>Invalid Display Filter</source>
-        <translation>Некоректний Фільтр Відображення</translation>
-    </message>
-    <message>
         <source>Invalid Read Filter</source>
-        <translation type="unfinished"></translation>
+        <oldsource>Invalid Display Filter</oldsource>
+        <translation type="unfinished">Некоректний Фільтр Відображення</translation>
     </message>
     <message>
-        <source>The filter expression %1 isn&apos;t a valid read filter. (%2).</source>
+        <source>The filter expression &quot;%1&quot; isn&apos;t a valid read filter.
+(%2).</source>
+        <oldsource>The filter expression %1 isn&apos;t a valid read filter. (%2).</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>

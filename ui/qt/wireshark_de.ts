@@ -88,6 +88,10 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>&lt;h3&gt;System Call and Event Log Analyzer&lt;/h3&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>The directory does not exist</source>
         <translation>Das Verzeichnis existiert nicht</translation>
     </message>
@@ -8911,8 +8915,10 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
         <translation>Ungültiger Anzeigefilter</translation>
     </message>
     <message>
-        <source>The filter expression %1 isn&apos;t a valid display filter. (%2).</source>
-        <translation>Der Filterausdruck %1 ist kein gültiger Anzeigefilter. (%2).</translation>
+        <source>The filter expression &quot;%1&quot; isn&apos;t a valid display filter.
+(%2).</source>
+        <oldsource>The filter expression %1 isn&apos;t a valid display filter. (%2).</oldsource>
+        <translation type="unfinished">Der Filterausdruck %1 ist kein gültiger Anzeigefilter. (%2).</translation>
     </message>
     <message>
         <source>Error</source>
@@ -13745,7 +13751,7 @@ a:hover {
     </message>
     <message>
         <source>Export Specified Packets…</source>
-        <translation>Spezielle Pakete exportieren...</translation>
+        <translation>Ausgewählte Pakete exportieren...</translation>
     </message>
     <message>
         <source>Export Packet &amp;Bytes…</source>
@@ -14456,6 +14462,22 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>First Packet in Conversation</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Go to the first packet in this conversation</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Last Packet in Conversation</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Go to the last packet in this conversation</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Capture &amp;Filters…</source>
         <translation>Mitschnitt&amp;filter...</translation>
     </message>
@@ -15142,16 +15164,15 @@ a:hover {
         <translation>Änderungen müssen vor dem Zusammenführen gespeichert werden.</translation>
     </message>
     <message>
-        <source>Invalid Display Filter</source>
-        <translation>Ungültiger Anzeigefilter</translation>
-    </message>
-    <message>
         <source>Invalid Read Filter</source>
-        <translation>Ungültiger Lesefilter</translation>
+        <oldsource>Invalid Display Filter</oldsource>
+        <translation type="unfinished">Ungültiger Anzeigefilter</translation>
     </message>
     <message>
-        <source>The filter expression %1 isn&apos;t a valid read filter. (%2).</source>
-        <translation>Der Filterausdruck %1 ist kein gültiger Lesefilter. (%2).</translation>
+        <source>The filter expression &quot;%1&quot; isn&apos;t a valid read filter.
+(%2).</source>
+        <oldsource>The filter expression %1 isn&apos;t a valid read filter. (%2).</oldsource>
+        <translation type="unfinished">Der Filterausdruck %1 ist kein gültiger Lesefilter. (%2).</translation>
     </message>
     <message>
         <source> before importing a capture</source>
