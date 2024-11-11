@@ -951,13 +951,13 @@ def findExpertItems(filename, macros):
 
             expertEntries = ExpertEntries(filename)
 
-            m = re.search(r'static ei_register_info\s*([a-zA-Z_]*)\s*\[\]\s*=\s*\{(.*?)\};', contents, re.MULTILINE|re.DOTALL)
-            if m:
-                entries = m.group(2)
+            definition_matches = re.finditer(r'static ei_register_info\s*([a-zA-Z0-9_]*)\s*\[\]\s*=\s*\{(.*?)\};', contents, re.MULTILINE|re.DOTALL)
+            for d in definition_matches:
+                entries = d.group(2)
 
                 # Now separate out each entry
                 matches = re.finditer(r'\{\s*&([a-zA-Z0-9_]*)\s*\,\s*\{\s*\"(.*?)\"\s*\,\s*([A-Z_]*)\,\s*([A-Z_]*)\,\s*\"(.*?)\"\s*\,\s*EXPFILL\s*\}\s*\}',
-                                    entries, re.MULTILINE|re.DOTALL)
+                                      entries, re.MULTILINE|re.DOTALL)
                 for match in matches:
                     expertEntry = ExpertEntry(filename, name=match.group(1), filter=match.group(2), group=match.group(3),
                                               severity=match.group(4), summary=match.group(5))
@@ -965,6 +965,22 @@ def findExpertItems(filename, macros):
 
             return expertEntries
 
+def checkExpertCalls(filename, expertEntries):
+        with open(filename, 'r', encoding="utf8") as f:
+            contents = f.read()
+
+            # Remove comments so as not to trip up RE.
+            contents = removeComments(contents)
+
+            # Look for array of definitions. Looks something like this
+            # expert_add_info(NULL, tree, &ei_oran_invalid_eaxc_bit_width);
+            # OR
+            # expert_add_info_format(pinfo, ti_data_length, &ei_data_length, "Data Length %d is too small, should be %d", data_length, payload_size - ECPRI_MSG_TYPE_4_PAYLOAD_MIN_LENGTH);
+
+            matches = re.finditer(r'expert_add_info(?:_format|)\s*\(([a-zA-Z_0-9]*)\s*,\s*([a-zA-Z_0-9]*)\s*,\s*(&[a-zA-Z_0-9]*)', contents, re.MULTILINE|re.DOTALL)
+            for m in matches:
+                item = m.group(3)[1:]
+                expertEntries.VerifyCall(item)
 
 
 
@@ -1041,6 +1057,20 @@ class ExpertEntries:
             print('Warning:', self.filename, 'Expert filter', '"' + entry.filter + '"', 'has already been seen (now in', entry.name+')')
             warnings_found += 1
         self.filters.add(entry.filter)
+
+    def VerifyCall(self, item):
+        # TODO: ignore if wasn't declared in self.filename?
+        for entry in self.entries:
+            if entry.name == item:
+                # Found,
+                return
+
+        # None matched...
+        if item not in [ 'hf', 'dissect_hf' ]:
+            global warnings_found
+            print('Warning:', self.filename, 'Expert info added with', '"' + item + '"', 'was it was not registered (in this file)')
+            warnings_found += 1
+
 
 
 # The relevant parts of an hf item.  Used as value in dict where hf variable name is key.
@@ -1938,9 +1968,10 @@ def checkFile(filename, check_mask=False, mask_exact_width=False, check_label=Fa
         for name in string_strings:
             string_strings[name].extraChecks()
 
+    # Find expert items
     if check_expert_items:
         expert_items = findExpertItems(filename, macros)
-
+        checkExpertCalls(filename, expert_items)
 
     # Find important parts of items.
     items_defined = find_items(filename, macros, value_strings, range_strings,
