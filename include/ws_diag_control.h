@@ -225,6 +225,11 @@ extern "C" {
 #if defined(_MSC_VER)
   #define DIAG_OFF_LEMON()
   #define DIAG_ON_LEMON()
+#elif WS_IS_AT_LEAST_GNUC_VERSION(14,1)
+  #define DIAG_OFF_LEMON() \
+    DIAG_OFF(type-limits)
+  #define DIAG_ON_LEMON() \
+    DIAG_ON(type-limits)
 #else
   #define DIAG_OFF_LEMON() \
     DIAG_OFF_CLANG(unreachable-code)
