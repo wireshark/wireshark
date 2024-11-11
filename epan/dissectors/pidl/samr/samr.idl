@@ -559,7 +559,7 @@ import "misc.idl", "lsa.idl";
 	[public] NTSTATUS samr_LookupNames(
 		[in,ref]      policy_handle *domain_handle,
 		[in,range(0,1000)] uint32 num_names,
-		[in,size_is(1000),length_is(num_names)] lsa_String names[],
+		[in,size_is(1000),length_is(num_names)] lsa_String *names,
 		[out,ref]     samr_Ids *rids,
 		[out,ref]     samr_Ids *types
 		);

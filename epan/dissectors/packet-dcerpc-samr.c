@@ -1717,6 +1717,7 @@ static int samr_dissect_element_LookupNames_domain_handle_(tvbuff_t *tvb _U_, in
 static int samr_dissect_element_LookupNames_num_names(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
 static int samr_dissect_element_LookupNames_names(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
 static int samr_dissect_element_LookupNames_names_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static int samr_dissect_element_LookupNames_names__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
 static int samr_dissect_element_LookupNames_rids(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
 static int samr_dissect_element_LookupNames_rids_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
 static int samr_dissect_element_LookupNames_types(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
@@ -10533,13 +10534,21 @@ samr_dissect_element_LookupNames_num_names(tvbuff_t *tvb _U_, int offset _U_, pa
 static int
 samr_dissect_element_LookupNames_names(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	offset = dissect_ndr_ucvarray(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_LookupNames_names_);
+	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_LookupNames_names_, NDR_POINTER_REF, "Pointer to Names (lsa_String)",hf_samr_samr_LookupNames_names);
 
 	return offset;
 }
 
 static int
 samr_dissect_element_LookupNames_names_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+{
+	offset = dissect_ndr_ucvarray(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_LookupNames_names__);
+
+	return offset;
+}
+
+static int
+samr_dissect_element_LookupNames_names__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset=dissect_ndr_lsa_String(tvb, offset, pinfo, tree, di, drep, 0, hf_samr_samr_LookupNames_names);
 
@@ -10581,7 +10590,7 @@ samr_dissect_element_LookupNames_types_(tvbuff_t *tvb _U_, int offset _U_, packe
 /* IDL: NTSTATUS samr_LookupNames( */
 /* IDL: [in] [ref] policy_handle *domain_handle, */
 /* IDL: [in] [range(0,1000)] uint32 num_names, */
-/* IDL: [in] [length_is(num_names)] [size_is(1000)] lsa_String names[*], */
+/* IDL: [in] [length_is(num_names)] [ref] [size_is(1000)] lsa_String *names, */
 /* IDL: [out] [ref] samr_Ids *rids, */
 /* IDL: [out] [ref] samr_Ids *types */
 /* IDL: ); */
