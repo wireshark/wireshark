@@ -2799,7 +2799,8 @@ static void parsetypedefenum(void)
 	char *p;
 	long val;
 	int eval, enumsize;
-	char dissectorname[BASE_BUFFER_SIZE], valsstring[BASE_BUFFER_SIZE], hfvalsstring[BASE_BUFFER_SIZE];
+	char dissectorname[BASE_BUFFER_SIZE], valsstring[BASE_BUFFER_SIZE];
+	char *hfvalsstring;
 
 	enumsize=16;
 
@@ -2957,8 +2958,7 @@ static void parsetypedefenum(void)
 	FPRINTF(eth_code, "}\n");
 	FPRINTF(eth_code, "\n");
 
-
-	snprintf(hfvalsstring, BASE_BUFFER_SIZE, "VALS(%s)", valsstring);
+	hfvalsstring = g_strdup_printf("VALS(%s)", valsstring);
 	switch(enumsize){
 	case 16:
 		register_new_type(ti->str, dissectorname, "FT_INT16", "BASE_DEC", "0", hfvalsstring, 2);
@@ -2968,8 +2968,10 @@ static void parsetypedefenum(void)
 		break;
 	default:
 		FPRINTF(stderr,"ERROR enum unknown size\n");
+		g_free(hfvalsstring);
 		Exit(10);
 	}
+	g_free(hfvalsstring);
 
 	FPRINTF(NULL,"\n----------\nEND ENUM:%s\n",ti->str);
 
