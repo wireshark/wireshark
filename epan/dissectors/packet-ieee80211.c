@@ -22545,7 +22545,7 @@ dissect_vht_tx_pwr_envelope(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
           psd_tree = proto_tree_add_subtree_format(tree, tvb, offset, 1,
                                                    ett_tpe_psd, NULL,
                                                    "20 MHz Channel #%u", i+j);
-          proto_tree_add_item(psd_tree, hf_ieee80211_vht_tpe_info_psd,
+          proto_tree_add_item(psd_tree, hf_ieee80211_vht_tpe_psd,
                               tvb, offset, 1, ENC_NA);
           offset += 1;
         }
