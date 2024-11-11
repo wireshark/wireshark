@@ -114,10 +114,10 @@ void FontColorPreferencesFrame::updateWidgets()
     ui->fontPushButton->setText(
         cur_font_.family() + " " + cur_font_.styleName() + " " +
         QString::number(cur_font_.pointSizeF(), 'f', 1));
-    ui->fontSampleLineEdit->setFont(cur_font_);
 
     QString line_edit_ss = QStringLiteral("QLineEdit { margin-left: %1px; }").arg(margin);
     ui->fontSampleLineEdit->setStyleSheet(line_edit_ss);
+    ui->fontSampleLineEdit->setFont(cur_font_);
 
     QString color_button_ss =
         "QPushButton {"
