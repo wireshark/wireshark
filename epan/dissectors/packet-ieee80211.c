@@ -35575,14 +35575,14 @@ ieee80211_tag_mic(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
   int tag_len = tvb_reported_length(tvb);
   ieee80211_tagged_field_data_t* field_data = (ieee80211_tagged_field_data_t*)data;
 
-  if (tag_len != 16)
+  if ((tag_len != 16) && (tag_len != 24))
   {
     expert_add_info_format(pinfo, field_data->item_tag_length, &ei_ieee80211_tag_length,
-                           "MIC Tag Length %u wrong, must be = 16", tag_len);
+                           "MIC Tag Length %u wrong, must be 16 or 24", tag_len);
     return tvb_captured_length(tvb);
   }
 
-  proto_tree_add_item(tree, hf_ieee80211_mesh_mic, tvb, 0, 16, ENC_NA);
+  proto_tree_add_item(tree, hf_ieee80211_mesh_mic, tvb, 0, tag_len, ENC_NA);
   return tvb_captured_length(tvb);
 }
 
