@@ -2855,8 +2855,8 @@ static const value_string vht_tpe_pwr_units[] = {
   { 1, "Local EIRP PSD" },
   { 2, "Regulatory client EIRP" },
   { 3, "Regulatory client EIRP PSD" },
-  { 4, "Reserved" },
-  { 5, "Reserved" },
+  { 4, "Additional regulatory client EIRP" },
+  { 5, "Additional regulatory client EIRP PSD" },
   { 6, "Reserved" },
   { 7, "Reserved" },
   {0x00, NULL}
@@ -6137,8 +6137,11 @@ static int hf_ieee80211_vht_tpe_pwr_constr_20;
 static int hf_ieee80211_vht_tpe_pwr_constr_40;
 static int hf_ieee80211_vht_tpe_pwr_constr_80;
 static int hf_ieee80211_vht_tpe_pwr_constr_160;
+static int hf_ieee80211_vht_tpe_pwr_constr_320;
 static int hf_ieee80211_vht_tpe_any_bw_psd;
 static int hf_ieee80211_vht_tpe_psd;
+static int hf_ieee80211_vht_tpe_ext_count;
+static int hf_ieee80211_vht_tpe_ext_reserved;
 
 static int hf_ieee80211_beamform_feedback_seg_retrans_bitmap;
 
@@ -22469,9 +22472,9 @@ dissect_vht_tx_pwr_envelope(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   uint8_t i;
   unsigned mtpi;
 
-  if (tag_len < 2 || tag_len > 9) {
+  if (tag_len < 2 || tag_len > 18) {
     expert_add_info_format(pinfo, field_data->item_tag_length, &ei_ieee80211_tag_length,
-                           "VHT TX PWR Envelope IE length %u wrong, must be >= 2 and <= 9", tag_len);
+                           "VHT TX PWR Envelope IE length %u wrong, must be >= 2 and <= 18", tag_len);
     return 1;
   }
 
@@ -22491,6 +22494,7 @@ dissect_vht_tx_pwr_envelope(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
   case 1:
   case 3:
+  case 5:
     /* Is it a power spectral density? */
     /* Handle the zero case */
     if (opt_ie_cnt == 0) {
@@ -22519,7 +22523,7 @@ dissect_vht_tx_pwr_envelope(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       opt_ie_cnt = 1; /* Add an expert info here ... */
       break;
     }
-    for (i= 0; i < opt_ie_cnt; i++) {
+    for (i = 0; i < opt_ie_cnt; i++) {
       proto_tree *psd_tree;
       psd_tree = proto_tree_add_subtree_format(tree, tvb, offset, 1,
                                                ett_tpe_psd, NULL,
@@ -22528,10 +22532,29 @@ dissect_vht_tx_pwr_envelope(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                           tvb, offset, 1, ENC_NA);
       offset += 1;
     }
+    /* Extension Max Tx Power */
+    if (offset < tag_len) {
+        proto_tree *psd_tree;
+        uint8_t j;
+        uint8_t ext_cnt = tvb_get_uint8(tvb, offset) & 0x0f;
+
+        proto_tree_add_item(tree, hf_ieee80211_vht_tpe_ext_count, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item(tree, hf_ieee80211_vht_tpe_ext_reserved, tvb, offset, 1, ENC_NA);
+        offset += 1;
+        for (j = 0; j < ext_cnt; j++) {
+          psd_tree = proto_tree_add_subtree_format(tree, tvb, offset, 1,
+                                                   ett_tpe_psd, NULL,
+                                                   "20 MHz Channel #%u", i+j);
+          proto_tree_add_item(psd_tree, hf_ieee80211_vht_tpe_info_psd,
+                              tvb, offset, 1, ENC_NA);
+          offset += 1;
+        }
+    }
     break;
 
   case 0:
   case 2:
+  case 4:
     /* Power Constraint info is mandatory only for 20MHz, others are optional*/
     /* Power is expressed in terms of 0.5dBm from -64 to 63 and is encoded
      * as 8-bit 2's compliment */
@@ -22558,6 +22581,11 @@ dissect_vht_tx_pwr_envelope(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         offset += 1;
         break;
       }
+    }
+    /* Extension Max Tx Power */
+    if (offset < tag_len) {
+        proto_tree_add_item(tree, hf_ieee80211_vht_tpe_pwr_constr_320, tvb, offset, 1, ENC_NA);
+        offset += 1;
     }
     break;
   default:
@@ -50503,6 +50531,11 @@ proto_register_ieee80211(void)
       FT_INT8, BASE_CUSTOM, CF_FUNC(vht_tpe_custom), 0,
       NULL, HFILL }},
 
+    {&hf_ieee80211_vht_tpe_pwr_constr_320,
+     {"Local Max Tx Pwr Constraint 320 MHz", "wlan.vht.tpe.pwr_constr_320",
+      FT_INT8, BASE_CUSTOM, CF_FUNC(vht_tpe_custom), 0,
+      NULL, HFILL }},
+
     {&hf_ieee80211_vht_tpe_any_bw_psd,
      {"Max Tx Power Spectral Density", "wlan.vht.tpe.max_tx_psd",
       FT_INT8, BASE_CUSTOM, CF_FUNC(tpe_psd_custom), 0, NULL, HFILL }},
@@ -50510,6 +50543,16 @@ proto_register_ieee80211(void)
     {&hf_ieee80211_vht_tpe_psd,
      {"Power Spectral Density", "wlan.vht.tpe.psd",
       FT_INT8, BASE_CUSTOM, CF_FUNC(tpe_psd_custom), 0, NULL, HFILL }},
+
+    {&hf_ieee80211_vht_tpe_ext_count,
+     {"Extension Count", "wlan.vht.tpe.extension_count",
+      FT_UINT8, BASE_DEC, NULL , 0x0f,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_vht_tpe_ext_reserved,
+     {"Reserved", "wlan.vht.tpe.extension_reserved",
+      FT_UINT8, BASE_HEX, NULL , 0xf0,
+      NULL, HFILL }},
 
     {&hf_ieee80211_txbf_csi_num_bf_ant,
      {"Max antennae STA can support when CSI feedback required", "wlan.txbf.csinumant",
