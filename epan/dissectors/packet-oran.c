@@ -1271,6 +1271,11 @@ typedef struct {
     bool     ul_ud_comp_hdr_set;
     unsigned ul_ud_comp_hdr_bit_width;
     int      ul_ud_comp_hdr_compression;
+
+    /* Modulation compression params */
+    /* TODO: incomplete (see SE5, SE SE23), and needs to be per section! */
+    //bool     mod_compr_csf;
+    //float    mod_compr_mod_comp_scaler;
 } flow_state_t;
 
 typedef struct {
@@ -1623,8 +1628,15 @@ static float decompress_value(uint32_t bits, uint32_t comp_method, uint8_t iq_wi
 
         case COMP_BLOCK_SCALE:
         case COMP_U_LAW:
+            /* Not supported! But will be reported as expert info outside of this function! */
+            return 0.0;
+
         case COMP_MODULATION:
         case MOD_COMPR_AND_SELECTIVE_RE:
+            /* TODO: ! */
+            return 0.0;
+
+
         default:
             /* Not supported! But will be reported as expert info outside of this function! */
             return 0.0;
@@ -2514,11 +2526,13 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                                                               tvb, offset, 2, ENC_BIG_ENDIAN, &modCompScaler);
                 offset += 2;
 
-                /* Work out and show floating point value too. */
+                /* Work out and show floating point value too. exponent and mantissa are both unsigned */
                 uint16_t exponent = (modCompScaler >> 11) & 0x000f; /* m.s. 4 bits */
                 uint16_t mantissa = modCompScaler & 0x07ff;         /* l.s. 11 bits */
-                double value = (double)mantissa * (1.0 / (1 << exponent));
+                double value = ((double)mantissa/(1<<11)) * (1.0 / (1 << exponent));
                 proto_item_append_text(ti, " (%f)", value);
+
+                /* TODO: need to store these in per-section data in state that gets looked up by U-Plane */
                 break;
             }
 
@@ -2576,13 +2590,17 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                     /* csf (1 bit) */
                     bit_offset = dissect_csf(set_tree, tvb, bit_offset, ci_iq_width, &csf);
                     /* mcScaleOffset (15 bits) */
-                    proto_tree_add_bits_ret_val(set_tree, hf_oran_mc_scale_offset, tvb, bit_offset, 15, &mcScaleOffset, ENC_BIG_ENDIAN);
+                    proto_item *ti = proto_tree_add_bits_ret_val(set_tree, hf_oran_mc_scale_offset, tvb, bit_offset, 15, &mcScaleOffset, ENC_BIG_ENDIAN);
+                    uint16_t exponent = (mcScaleOffset >> 11) & 0x000f; /* m.s. 4 bits */
+                    uint16_t mantissa = mcScaleOffset & 0x07ff;         /* l.s. 11 bits */
+                    double mcScaleOffset_value = ((double)mantissa/(1<<11)) * (1.0 / (1 << exponent));
+                    proto_item_append_text(ti, " (%f)", mcScaleOffset_value);
                     bit_offset += 15;
 
                     /* Summary */
                     proto_item_set_len(set_ti, (bit_offset+7)/8 - set_start_offset);
-                    proto_item_append_text(set_ti, " (mcScaleReMask=0x%03x  csf=%5s  mcScaleOffset=%u)",
-                                           (unsigned)mcScaleReMask, tfs_get_true_false(csf), (unsigned)mcScaleOffset);
+                    proto_item_append_text(set_ti, " (mcScaleReMask=0x%03x  csf=%5s  mcScaleOffset=%f)",
+                                           (unsigned)mcScaleReMask, tfs_get_true_false(csf), mcScaleOffset_value);
                 }
 
                 proto_item_append_text(extension_ti, " (%u sets)", sets);
@@ -7418,6 +7436,7 @@ proto_register_oran(void)
         { &ei_oran_lastRbdid_out_of_range, { "oran_fh_cus.lastrbdid_out_of_range", PI_MALFORMED, PI_WARN, "SE 6 has bad rbgSize", EXPFILL }},
         { &ei_oran_rbgMask_beyond_last_rbdid, { "oran_fh_cus.rbgmask_beyond_lastrbdid", PI_MALFORMED, PI_WARN, "rbgMask has bits set beyond lastRbgId", EXPFILL }},
         { &ei_oran_unexpected_measTypeId, { "oran_fh_cus.unexpected_meastypeid", PI_MALFORMED, PI_WARN, "unexpected measTypeId", EXPFILL }},
+        { &ei_oran_unsupported_compression_method, { "oran_fh_cus.compression_type_unsupported", PI_UNDECODED, PI_WARN, "Unsupported compression type", EXPFILL }}
     };
 
     /* Register the protocol name and description */
