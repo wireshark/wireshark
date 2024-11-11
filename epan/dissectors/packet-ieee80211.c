@@ -18747,6 +18747,8 @@ static const value_string ieee80211_rsn_keymgmt_vals[] = {
   {0, NULL}
 };
 
+#define OUIBASELEN (MAXNAMELEN + 12)
+
 static void
 oui_base_custom(char *result, uint32_t oui)
 {
@@ -18757,22 +18759,23 @@ oui_base_custom(char *result, uint32_t oui)
   p_oui[1] = oui >> 8 & 0xFF;
   p_oui[2] = oui & 0xFF;
 
+  static_assert(OUIBASELEN <= ITEM_LABEL_LENGTH, "Buffer size mismatch!");
   /* Attempt an OUI lookup. */
   manuf_name = uint_get_manuf_name_if_known(oui);
   if (manuf_name == NULL) {
     /* Could not find an OUI. */
-    snprintf(result, ITEM_LABEL_LENGTH, "%02x:%02x:%02x", p_oui[0], p_oui[1], p_oui[2]);
+    snprintf(result, OUIBASELEN, "%02x:%02x:%02x", p_oui[0], p_oui[1], p_oui[2]);
   }
   else {
    /* Found an address string. */
-    snprintf(result, ITEM_LABEL_LENGTH, "%02x:%02x:%02x (%s)", p_oui[0], p_oui[1], p_oui[2], manuf_name);
+    snprintf(result, OUIBASELEN, "%02x:%02x:%02x (%.*s)", p_oui[0], p_oui[1], p_oui[2], MAXNAMELEN, manuf_name);
   }
 }
 
 static void
 rsn_gcs_base_custom(char *result, uint32_t gcs)
 {
-  char oui_result[SHORT_STR];
+  char oui_result[OUIBASELEN];
   char *tmp_str;
 
   oui_result[0] = '\0';
@@ -18785,7 +18788,7 @@ rsn_gcs_base_custom(char *result, uint32_t gcs)
 static void
 rsn_pcs_base_custom(char *result, uint32_t pcs)
 {
-  char oui_result[SHORT_STR];
+  char oui_result[OUIBASELEN];
   char *tmp_str;
 
   oui_result[0] = '\0';
@@ -18798,7 +18801,7 @@ rsn_pcs_base_custom(char *result, uint32_t pcs)
 static void
 rsn_akms_base_custom(char *result, uint32_t akms)
 {
-  char oui_result[SHORT_STR];
+  char oui_result[OUIBASELEN];
   char *tmp_str;
 
   oui_result[0] = '\0';
@@ -18835,7 +18838,7 @@ rsn_akms_return(wmem_allocator_t *scope, uint32_t akms)
 static void
 rsn_gmcs_base_custom(char *result, uint32_t gmcs)
 {
-  char oui_result[SHORT_STR];
+  char oui_result[OUIBASELEN];
   char *tmp_str;
 
   oui_result[0] = '\0';
@@ -19006,7 +19009,7 @@ static const val64_string ieee80211_ranging_ltf_total_vals[] = {
 static void
 wpa_mcs_base_custom(char *result, uint32_t mcs)
 {
-  char oui_result[SHORT_STR];
+  char oui_result[OUIBASELEN];
   char *tmp_str;
 
   oui_result[0] = '\0';
@@ -19019,7 +19022,7 @@ wpa_mcs_base_custom(char *result, uint32_t mcs)
 static void
 wpa_ucs_base_custom(char *result, uint32_t ucs)
 {
-  char oui_result[SHORT_STR];
+  char oui_result[OUIBASELEN];
   char *tmp_str;
 
   oui_result[0] = '\0';
@@ -19031,7 +19034,7 @@ wpa_ucs_base_custom(char *result, uint32_t ucs)
 static void
 wpa_akms_base_custom(char *result, uint32_t akms)
 {
-  char oui_result[SHORT_STR];
+  char oui_result[OUIBASELEN];
   char *tmp_str;
 
   oui_result[0] = '\0';
