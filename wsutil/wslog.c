@@ -1331,7 +1331,7 @@ void ws_log_buffer_full(const char *domain, enum ws_log_level level,
     if (!ws_log_msg_is_active(domain, level))
         return;
 
-    char *bufstr = bytes_to_str_maxlen(NULL, ptr, size, max_bytes_len);
+    char *bufstr = bytes_to_str_punct_maxlen(NULL, ptr, size, ' ', max_bytes_len);
 
     if (G_UNLIKELY(msg == NULL))
         ws_log_write_always_full(domain, level, file, line, func,

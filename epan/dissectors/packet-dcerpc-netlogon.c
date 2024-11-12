@@ -40,26 +40,6 @@ void proto_reg_handoff_dcerpc_netlogon(void);
 static proto_item *
 netlogon_dissect_neg_options(tvbuff_t *tvb,proto_tree *tree,uint32_t flags,int offset);
 
-/* Debug function, log a hexdump of interesting memory */
-static void printnbyte(wmem_allocator_t *scratch, const uint8_t* tab,int nb,const char* txt)
-{
-    if (!ws_log_msg_is_active(WS_LOG_DOMAIN, LOG_LEVEL_DEBUG))
-    {
-        return;
-    }
-
-    wmem_strbuf_t *hexdump = wmem_strbuf_new_sized(scratch, nb*3 + 1);
-    int i;
-
-    for(i=0;i<nb;i++)
-    {
-        wmem_strbuf_append_printf(hexdump, "%02X ", *(tab+i));
-    }
-
-    ws_debug("%s %s", txt, wmem_strbuf_get_str(hexdump));
-    wmem_strbuf_destroy(hexdump);
-}
-
 #define NETLOGON_FLAG_80000000 0x80000000
 #define NETLOGON_FLAG_40000000 0x40000000
 #define NETLOGON_FLAG_20000000 0x20000000
@@ -7341,14 +7321,14 @@ netlogon_dissect_netrserverauthenticate023_reply(tvbuff_t *tvb, int offset,
                 memcpy(&salt_buf[8], (uint8_t*)&vars->server_challenge, 8);
 
                 used_method = "AES";
-                printnbyte(pinfo->pool, (uint8_t*)&vars->client_challenge, 8, "Client challenge:");
-                printnbyte(pinfo->pool, (uint8_t*)&vars->server_challenge, 8, "Server challenge:");
-                printnbyte(pinfo->pool, (uint8_t*)&server_cred, 8, "Server creds:");
+                ws_log_buffer((uint8_t*)&vars->client_challenge, 8, "Client challenge");
+                ws_log_buffer((uint8_t*)&vars->server_challenge, 8, "Server challenge");
+                ws_log_buffer((uint8_t*)&server_cred, 8, "Server creds");
                 for(i=0;i<list_size;i++)
                 {
                     used_md4 = &pass_list[i];
                     password = pass_list[i];
-                    printnbyte(pinfo->pool, (uint8_t*)&password, 16, "NTHASH:");
+                    ws_log_buffer((uint8_t*)&password, 16, "NTHASH");
                     if (!ws_hmac_buffer(GCRY_MD_SHA256, sha256, salt_buf, sizeof(salt_buf), (uint8_t*) &password, 16)) {
                         gcry_error_t err;
                         gcry_cipher_hd_t cipher_hd = NULL;
@@ -7356,7 +7336,7 @@ netlogon_dissect_netrserverauthenticate023_reply(tvbuff_t *tvb, int offset,
 
                         /* truncate the session key to 16 bytes */
                         memcpy(session_key, sha256, 16);
-                        printnbyte(pinfo->pool, (uint8_t*)session_key, 16, "Session Key:");
+                        ws_log_buffer((uint8_t*)session_key, 16, "Session Key");
 
                         /* Open the cipher */
                         err = gcry_cipher_open(&cipher_hd, GCRY_CIPHER_AES128, GCRY_CIPHER_MODE_CFB8, 0);
@@ -7394,7 +7374,7 @@ netlogon_dissect_netrserverauthenticate023_reply(tvbuff_t *tvb, int offset,
                         /* Done with the cipher */
                         gcry_cipher_close(cipher_hd);
 
-                        printnbyte(pinfo->pool, (uint8_t*)&calculated_cred, 8, "Calculated creds:");
+                        ws_log_buffer((uint8_t*)&calculated_cred, 8, "Calculated creds");
 
                         if(calculated_cred==server_cred) {
                             found = 1;
@@ -7417,10 +7397,10 @@ netlogon_dissect_netrserverauthenticate023_reply(tvbuff_t *tvb, int offset,
                     memcpy(md5, gcry_md_read(md5_handle, 0), 16);
                     gcry_md_close(md5_handle);
                 }
-                printnbyte(pinfo->pool, md5, 8, "MD5:");
-                printnbyte(pinfo->pool, (uint8_t*)&vars->client_challenge, 8, "Client challenge:");
-                printnbyte(pinfo->pool, (uint8_t*)&vars->server_challenge, 8, "Server challenge:");
-                printnbyte(pinfo->pool, (uint8_t*)&server_cred, 8, "Server creds:");
+                ws_log_buffer(md5, 8, "MD5");
+                ws_log_buffer((uint8_t*)&vars->client_challenge, 8, "Client challenge");
+                ws_log_buffer((uint8_t*)&vars->server_challenge, 8, "Server challenge");
+                ws_log_buffer((uint8_t*)&server_cred, 8, "Server creds");
                 for(i=0;i<list_size;i++)
                 {
                     used_md4 = &pass_list[i];
@@ -7428,7 +7408,7 @@ netlogon_dissect_netrserverauthenticate023_reply(tvbuff_t *tvb, int offset,
                     if (!ws_hmac_buffer(GCRY_MD_MD5, session_key, md5, HASH_MD5_LENGTH, (uint8_t*) &password, 16)) {
                         crypt_des_ecb(buf,(unsigned char*)&vars->server_challenge,session_key);
                         crypt_des_ecb((unsigned char*)&calculated_cred,buf,session_key+7);
-                        printnbyte(pinfo->pool, (uint8_t*)&calculated_cred, 8, "Calculated creds:");
+                        ws_log_buffer((uint8_t*)&calculated_cred, 8, "Calculated creds");
                         if(calculated_cred==server_cred) {
                             found = 1;
                             break;
@@ -7447,10 +7427,10 @@ netlogon_dissect_netrserverauthenticate023_reply(tvbuff_t *tvb, int offset,
                 uint64_t sum = (uint64_t)sum1 | ((uint64_t)sum2 << 32);
 
                 used_method = "DES";
-                printnbyte(pinfo->pool, (uint8_t*)&sum, 8,"SUM for DES:");
-                printnbyte(pinfo->pool, (uint8_t*)&vars->client_challenge,8,"Client challenge:");
-                printnbyte(pinfo->pool, (uint8_t*)&vars->server_challenge,8,"Server challenge:");
-                printnbyte(pinfo->pool, (uint8_t*)&server_cred,8,"Server creds:");
+                ws_log_buffer((uint8_t*)&sum, 8,"SUM for DES");
+                ws_log_buffer((uint8_t*)&vars->client_challenge,8,"Client challenge");
+                ws_log_buffer((uint8_t*)&vars->server_challenge,8,"Server challenge");
+                ws_log_buffer((uint8_t*)&server_cred,8,"Server creds");
                 for(i=0;i<list_size;i++)
                 {
                     uint8_t buf[8] = { 0 };
@@ -7464,7 +7444,7 @@ netlogon_dissect_netrserverauthenticate023_reply(tvbuff_t *tvb, int offset,
 
                     crypt_des_ecb(buf,(unsigned char*)&vars->server_challenge,session_key);
                     crypt_des_ecb((unsigned char*)&calculated_cred,buf,session_key+7);
-                    printnbyte(pinfo->pool, (uint8_t*)&calculated_cred,8,"Calculated creds:");
+                    ws_log_buffer((uint8_t*)&calculated_cred,8,"Calculated creds");
                     if(calculated_cred==server_cred) {
                         found = 1;
                         break;
