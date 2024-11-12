@@ -9675,11 +9675,12 @@ decode_gtp_can_pack(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_t
  * 3GPP TS 32.295 version 9.0.0 Release 9
  */
 
-
+/* 3GPP TS 32.298 version 18.6.0, chapter 6.1, page 259 */
 static const value_string gtp_cdr_fmt_vals[] = {
     {1, "Basic Encoding Rules (BER)"},
     {2, "Unaligned basic Packed Encoding Rules (PER)"},
     {3, "Aligned basic Packed Encoding Rules (PER)"},
+    {4, "XML Encoding Rules (XER)"},
     {0, NULL}
 };
 static int
@@ -9718,7 +9719,7 @@ decode_gtp_data_req(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree 
      * Only the values 1-10 and 51-255 can be used for standards purposes.
      * Values in the range of 11-50 are to be configured only by operators, and are not subject to standardization.
      */
-    if(format < 4) {
+    if(format < 5) {
         proto_item_append_text(fmt_item, " %s", val_to_str_const(format, gtp_cdr_fmt_vals, "Unknown"));
         /* Octet 6 -7  Data Record Format Version
          *    8 7 6 5             4 3 2 1
@@ -9785,21 +9786,25 @@ decode_gtp_data_req(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree 
                     dissect_gprscdr_GPRSRecord_PDU(next_tvb, pinfo, cdr_dr_tree, NULL);
                 }
             } else {
-                /* Do we have a dissector registering for this data format? */
+                /* Do we have a dissector registering for this standardized encodings data format? */
                 dissector_try_uint(gtp_cdr_fmt_dissector_table, format, next_tvb, pinfo, cdr_dr_tree);
             }
 
             offset = offset + cdr_length;
         }
+        return offset;
 
     } else {
         /* Proprietary CDR format */
         proto_item_append_text(fmt_item, " Proprietary or un documented format");
     }
 
+    next_tvb = tvb_new_subset_remaining(tvb, offset);
     if (gtpcdr_handle) {
-        next_tvb = tvb_new_subset_remaining(tvb, offset);
         call_dissector(gtpcdr_handle, next_tvb, pinfo, tree);
+    } else {
+        /* Do we have a dissector registering for this proprietary data format? */
+        dissector_try_uint_with_data(gtp_cdr_fmt_dissector_table, format, next_tvb, pinfo, tree, false, &no);
     }
 
     return 3 + length;
