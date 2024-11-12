@@ -324,7 +324,7 @@ process_hsrp_md5_tlv_sequence(tvbuff_t *tvb, proto_tree *hsrp_tree, unsigned off
         proto_item *ti;
         proto_tree *md5_auth_tlv;
 
-        ti = proto_tree_add_uint_format_value(hsrp_tree, hf_hsrp2_md5_auth_tlv, tvb, offset, 1, type, "Type=%d Len=%d", type, len);
+        ti = proto_tree_add_uint_format_value(hsrp_tree, hf_hsrp2_md5_auth_tlv, tvb, offset, 2+len, type, "Type=%d Len=%d", type, len);
         offset+=2;
 
         /* Making MD5 Authentication TLV subtree */
@@ -551,8 +551,8 @@ dissect_hsrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
 
                                 if (tree) {
                                         proto_tree *interface_state_tlv;
-                                        ti = proto_tree_add_uint_format_value(hsrp_tree, hf_hsrp2_interface_state_tlv, tvb, offset, 1, type,
-                                        "Type=%d Len=%d", type, 2+len);
+                                        ti = proto_tree_add_uint_format_value(hsrp_tree, hf_hsrp2_interface_state_tlv, tvb, offset, 2+len, type,
+                                        "Type=%d Len=%d", type, len);
                                         offset+=2;
 
                                         /* Making Interface State TLV subtree */
