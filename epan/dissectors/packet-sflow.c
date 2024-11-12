@@ -2738,7 +2738,7 @@ proto_register_sflow(void) {
                 "IPv4 Precedence Type", HFILL}},
         { &hf_sflow_5_flow_record_format,
             { "Format", "sflow_245.flow_record_format",
-                FT_UINT32, BASE_DEC | BASE_EXT_STRING, &sflow_5_flow_record_type_ext, 0x0,
+                FT_UINT32, BASE_DEC | BASE_EXT_STRING, &sflow_5_flow_record_type_ext, 0x00000FFF,
                 "Format of sFlow flow record", HFILL}},
         { &hf_sflow_5_counters_record_format,
             { "Format", "sflow_245.counters_record_format",
