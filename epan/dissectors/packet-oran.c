@@ -4329,8 +4329,9 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
             /* ciCompHdr (was reserved) */
             offset = dissect_cicomphdr(tvb, pinfo, section_tree, offset, &bit_width, &ci_comp_method, &ci_comp_opt);
 
-            /* Number of sections may not be filled in, so set to the number of UEs */
-            if (nSections == 0) {
+            /* Number of sections may not be filled in (at all, or correctly), so set to the number of UEs.
+               The data entries are per-UE... they don't have a sectionID, but they could have section extensions... */
+            if (nSections == 0 || num_ues > nSections) {
                 nSections = num_ues;
             }
             break;
