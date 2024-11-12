@@ -831,7 +831,7 @@ system libraries used etc. If you are unsure, go with UCRT64.
 
     mkdir build && cd build
     # Ninja generator is the default
-    cmake -DENABLE_CCACHE=On -DFETCH_lua=Yes ..
+    cmake -DENABLE_CCACHE=On ..
     ninja
     ninja test        # optional, to run the test suite
     ninja install     # optional, install to the MSYS2 shell path
