@@ -376,7 +376,7 @@ dissect_atn_ulcs_T_pdv_list_presentation_data_values_arbitrary(tvbuff_t *tvb _U_
               break;
             case  3: /* USER data; call subdissector for CM, CPDLC ...  */
 
-                /* using dstref for PDV-list only occurrs in DT */
+                /* using dstref for PDV-list only occurs in DT */
                 atn_cv = find_atn_conversation(
                     &pinfo->dst,
                     pinfo->clnp_dstref,

@@ -33,6 +33,7 @@ actioned
 activations
 acttab
 actuator
+acurc
 acyclic
 adaption
 addba
@@ -485,6 +486,7 @@ coprocessor
 copycss
 copyfile
 corba
+corbin
 corosync
 correlator
 corrigendum
@@ -508,6 +510,7 @@ criticalextensions
 criticalextensionsfuture
 crnti
 croatian
+crtcs
 crypto
 cryptographic
 csapi
@@ -731,7 +734,9 @@ dodag
 doneconf
 doppler
 dot11Qos
+dot12in
 dot1q
+dot3stats
 dot5stats
 dotnet
 double
@@ -756,6 +761,7 @@ düsseldorf
 dword
 dwords
 dyntatom
+dzgre
 e2node
 eapol
 earcfn
@@ -921,6 +927,7 @@ fileset
 filsfils
 filter1d
 filter2d
+finalise
 finditer
 firefox
 firewall
@@ -952,6 +959,7 @@ fpiur
 fprintf
 fraghdr
 fragmenter
+frags
 framenum
 framenumber
 frametype
@@ -1495,6 +1503,8 @@ middlebox
 migratable
 milano
 millimeters
+millimetre
+millimetres
 millisecs
 milliwatt
 mingw
@@ -1560,6 +1570,7 @@ MSM7627A
 mtftp
 mtime
 mtrace
+mtype
 mudurl
 mulaw
 multi
@@ -1661,6 +1672,7 @@ noascii
 noauth
 nodeid
 nodiscriminant
+noemit
 nofcs
 nokia
 nolintnextline
@@ -2306,6 +2318,8 @@ santa
 santiago
 sapgui
 sarajevo
+sargent
+satcom
 satisfiable
 satnet
 saturates
@@ -2374,6 +2388,7 @@ setattr
 setcap
 setconf
 setkey
+settl
 setuid
 severities
 sfcrc
@@ -2427,6 +2442,7 @@ smpte
 smrse
 sname
 snaplen
+snarf
 snow3g
 snprintf
 sockaddr
@@ -2612,6 +2628,7 @@ t7entry
 tablemod
 tabular
 taiwan
+tallinn
 tanzania
 tbilisi
 tclas
@@ -2713,6 +2730,7 @@ transversal
 traveler
 traversal
 trcdbg
+trgereig
 trunc
 truncatable
 truncate
@@ -2922,6 +2940,7 @@ unsubscribe
 unsubscribed
 unsupportable
 unsynchronized
+untag
 untagged
 unterminated
 untrackable
@@ -3002,6 +3021,7 @@ vflags
 vhdset
 viavi
 viettel
+viprion
 virtex
 virtio
 virtualization

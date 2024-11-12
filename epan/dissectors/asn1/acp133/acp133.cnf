@@ -176,7 +176,7 @@ ALType B "2.16.840.1.101.2.2.1.112" "id-at-aLType"
 # TelephoneNumber B "2.16.840.1.101.2.2.1.119.1" "id-at-collectiveMilitaryFacsimileNumber" - see x509sat.cnf
 # TelephoneNumber B "2.16.840.1.101.2.2.1.120" "id-at-militaryTelephoneNumber" - see x509sat.cnf
 # TelephoneNumber B "2.16.840.1.101.2.2.1.120.1" "id-at-collectiveMilitaryTelephoneNumber" - see x509sat.cnf
-# DistingishedName B "2.16.840.1.101.2.2.1.121" "id-at-networkDN" - see x509if.cnf
+# DistinguishedName B "2.16.840.1.101.2.2.1.121" "id-at-networkDN" - see x509if.cnf
 # GraphicString B "2.16.840.1.101.2.2.1.122" "id-at-networkSchema" - see x509sat.cnf
 OnSupported B "2.16.840.1.101.2.2.1.123" "id-at-onSupported"
 # DirectoryString B "2.16.840.1.101.2.2.1.124" "id-at-operationName" - see x509sat.cnf

@@ -341,7 +341,7 @@ static const value_string interface_discard[] = {
     { 268, "Port loopback filter"},
     { 269, "Blackhole route"},
     { 270, "Non IP"},
-    { 271, "Unicast destination IP over multicasst destination MAC"},
+    { 271, "Unicast destination IP over multicast destination MAC"},
     { 272, "Destination IP is loopback address"},
     { 273, "Source IP is multicast"},
     { 274, "Source IP is looback address"},

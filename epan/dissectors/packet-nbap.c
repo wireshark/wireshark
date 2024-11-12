@@ -28479,7 +28479,7 @@ dissect_nbap_NodeB_CommunicationContextID(tvbuff_t *tvb _U_, int offset _U_, asn
   /* Checking if CRNC context is present in this frame */
   crnc_context_present = nbap_private_data->crnc_context_present;
   if(crnc_context_present) {
-    /* This message contains both context fields. Updaaing the contexts map if needed. */
+    /* This message contains both context fields. Updating the contexts map if needed. */
     if (PINFO_FD_VISITED(actx->pinfo)){
         return offset;
     }
@@ -28497,7 +28497,7 @@ dissect_nbap_NodeB_CommunicationContextID(tvbuff_t *tvb _U_, int offset _U_, asn
     /* No CRNC context field in this message, check if Node B context is already mapped to CRNC context. */
     cur_val = (nbap_com_context_id_t *)wmem_tree_lookup32(com_context_map,node_b_com_context_id);
     if(cur_val != NULL){
-      /* A mapping was found. Adding to prvivate data. */
+      /* A mapping was found. Adding to private data. */
       nbap_private_data->com_context_id = cur_val->crnc_context;
       nbap_private_data->crnc_context_present = true;
     }

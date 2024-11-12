@@ -76,7 +76,7 @@ class File:
 
         filename, extension = os.path.splitext(file)
         # TODO: add '.lua'?  Would also need to check string and comment formats...
-        self.code_file = extension in {'.c', '.cpp', '.h' }
+        self.code_file = extension in {'.c', '.cpp', '.h', '.cnf' }
 
 
         with open(file, 'r', encoding="utf8") as f:
@@ -277,6 +277,11 @@ def removeContractions(code_string):
         code_string = code_string.replace(c.capitalize().replace('’', "'"), "")
     return code_string
 
+def removeURLs(code_string):
+    code_string = re.sub(re.compile(r'https?://(?:[a-zA-Z0-9./_?&=-]+|%[0-9a-fA-F]{2})+', re.DOTALL), "" , code_string)
+    return code_string
+
+
 def removeComments(code_string):
     code_string = re.sub(re.compile(r"/\*.*?\*/", re.DOTALL), "" , code_string) # C-style comment
     # Avoid matching // where it is allowed, e.g.,  https://www... or file:///...
@@ -330,6 +335,8 @@ def findStrings(filename, check_comments=False):
         contents = removeWhitespaceControl(contents)
         contents = removeSingleQuotes(contents)
         contents = removeHexSpecifiers(contents)
+        # These may not be proper words - in any case may be tested by test_dissector_urls.py
+        contents = removeURLs(contents)
 
         # Create file object.
         file = File(filename)
@@ -599,6 +606,7 @@ if args.file or args.folder or args.commits or args.open or args.glob:
         print('No files to check.\n')
 else:
     print('All dissector modules\n')
+
 
 
 # Now check the chosen files.

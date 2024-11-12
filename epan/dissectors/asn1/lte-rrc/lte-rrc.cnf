@@ -3047,7 +3047,7 @@ PUCCH-ConfigDedicated-r13/pucch-Format-r13/channelSelection-r13/n1PUCCH-AN-CS-r1
 #.FN_BODY RACH-ConfigCommon/preambleInfo/preamblesGroupAConfig/sizeOfRA-PreamblesGroupA VAL_PTR=&value
   unsigned ra_value, value;
 %(DEFAULT_BODY)s
-  /* Retrived stored value for RA (both Group A & Group B) */
+  /* Retrieve stored value for RA (both Group A & Group B) */
   ra_value = private_data_get_ra_preambles(actx);
   if (value > ra_value) {
     /* Something is wrong if A has more RAPIDs than A & B combined! */
@@ -3265,7 +3265,7 @@ DRX-Config/setup/shortDRX/drxShortCycleTimer DISPLAY=BASE_DEC|BASE_UNIT_STRING S
     set_mac_lte_drx_config_release(p_mac_lte_info->ueid, actx->pinfo);
     /* Also tell MAC to release extended BSR sizes configuration */
     set_mac_lte_extended_bsr_sizes(p_mac_lte_info->ueid, false, actx->pinfo);
-    /* Also tell MAC to release simutaneous PUCCH/PUSCH configuration */
+    /* Also tell MAC to release simultaneous PUCCH/PUSCH configuration */
     set_mac_lte_simult_pucch_pusch(p_mac_lte_info->ueid, SIMULT_PUCCH_PUSCH_PCELL, false, actx->pinfo);
     set_mac_lte_simult_pucch_pusch(p_mac_lte_info->ueid, SIMULT_PUCCH_PUSCH_PSCELL, false, actx->pinfo);
     /* TODO: also release PDCP security config here */
