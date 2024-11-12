@@ -4731,6 +4731,7 @@ static int hf_ieee80211_eht_mac_capa_eht_trs_support;
 static int hf_ieee80211_eht_mac_capa_txop_return_support_txop_sha_mode;
 static int hf_ieee80211_eht_mac_capa_two_bqrs_support;
 static int hf_ieee80211_eht_mac_capa_eht_link_adaptation_support;
+static int hf_ieee80211_eht_mac_capa_unsolicited_epcs_update;
 static int hf_ieee80211_eht_mac_capa_reserved;
 static int hf_ieee80211_eht_phy_bits_0_15;
 static int hf_ieee80211_eht_phy_bits_0_15_reserved;
@@ -28796,6 +28797,7 @@ static int * const eht_mac_capa_hdrs[] = {
   &hf_ieee80211_eht_mac_capa_txop_return_support_txop_sha_mode,
   &hf_ieee80211_eht_mac_capa_two_bqrs_support,
   &hf_ieee80211_eht_mac_capa_eht_link_adaptation_support,
+  &hf_ieee80211_eht_mac_capa_unsolicited_epcs_update,
   &hf_ieee80211_eht_mac_capa_reserved,
   NULL
 };
@@ -59058,10 +59060,15 @@ proto_register_ieee80211(void)
       "wlan.eht.mac_capabilities.eht_link_adaptation_support",
       FT_UINT16, BASE_DEC, VALS(eht_link_adaptation_vals), 0x3000, NULL, HFILL }},
 
+    {&hf_ieee80211_eht_mac_capa_unsolicited_epcs_update,
+     {"Unsolicited EPCS Priority Access Parameter Update",
+      "wlan.eht.mac_capabilities.unsolicited_epcs_prio_access_para_update",
+      FT_UINT16, BASE_DEC, NULL, 0x4000, NULL, HFILL }},
+
     {&hf_ieee80211_eht_mac_capa_reserved,
      {"Reserved",
       "wlan.eht.mac_capabilities.reserved",
-      FT_UINT16, BASE_HEX, NULL, 0xc000, NULL, HFILL }},
+      FT_UINT16, BASE_HEX, NULL, 0x8000, NULL, HFILL }},
 
     {&hf_ieee80211_eht_phy_bits_0_15,
      {"EHT PHY Bits 0-15", "wlan.eht.phy_capabilities.bits_0_15",
