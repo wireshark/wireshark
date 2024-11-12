@@ -65,7 +65,7 @@ static const struct ws_option longopts[] = {
 	EXTCAP_BASE_OPTIONS,
 	{ "help", ws_no_argument, NULL, OPT_HELP},
 	{ "version", ws_no_argument, NULL, OPT_VERSION},
-	SSH_BASE_OPTIONS,
+	SSH_BASE_PACKET_OPTIONS,
 	{ "remote-capture-command-select", ws_required_argument, NULL, OPT_REMOTE_CAPTURE_COMMAND_SELECT},
 	{ "remote-capture-command", ws_required_argument, NULL, OPT_REMOTE_CAPTURE_COMMAND},
 	{ "remote-sudo", ws_no_argument, NULL, OPT_REMOTE_SUDO },	// Deprecated

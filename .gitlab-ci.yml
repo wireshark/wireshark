@@ -467,7 +467,7 @@ Arch Linux :
     - mkdir build
     - cd build
     - printf "\e[0Ksection_start:%s:cmake_section[collapsed=true]\r\e[0KRunning CMake" "$( date +%s)"
-    - cmake -G Ninja -DBUILD_stratoshark=on -DBUILD_falcodump=on -DFALCO_PLUGINS="/tmp/falco-plugins/plugins/cloudtrail/libcloudtrail.so;/tmp/falco-plugins/plugins/gcpaudit/libgcpaudit.so" -DCMAKE_INSTALL_PREFIX=$WIRESHARK_PREFIX ..
+    - cmake -G Ninja -DBUILD_stratoshark=on -DBUILD_sshdig=on -DBUILD_falcodump=on -DFALCO_PLUGINS="/tmp/falco-plugins/plugins/cloudtrail/libcloudtrail.so;/tmp/falco-plugins/plugins/gcpaudit/libgcpaudit.so" -DCMAKE_INSTALL_PREFIX=$WIRESHARK_PREFIX ..
     - printf "\e[0Ksection_end:%s:cmake_section\r\e[0K" "$( date +%s)"
     - ninja
     - ninja install
@@ -494,7 +494,7 @@ Windows x64 Package:
     - cd build
   script:
     - C:\Windows\py.exe ..\tools\make-version.py --set-release --version-file=wireshark_version.txt ..
-    - cmake -G "Visual Studio 17 2022" -A x64 -DENABLE_LTO=off -DBUILD_stratoshark=on -DBUILD_falcodump=on -DENABLE_SIGNED_NSIS=on ..
+    - cmake -G "Visual Studio 17 2022" -A x64 -DENABLE_LTO=off -DBUILD_stratoshark=on -DBUILD_sshdig=on -DBUILD_falcodump=on -DENABLE_SIGNED_NSIS=on ..
     - msbuild /verbosity:minimal "/consoleloggerparameters:PerformanceSummary;NoSummary" /maxcpucount Wireshark.sln
     - msbuild /verbosity:minimal /maxcpucount test-programs.vcxproj
     - msbuild /verbosity:minimal /maxcpucount wireshark_nsis_prep.vcxproj
@@ -539,7 +539,7 @@ Windows Arm64 Package:
     - cd build
   script:
     - C:\Windows\py.exe ..\tools\make-version.py --set-release --version-file=wireshark_version.txt ..
-    - cmake -G "Visual Studio 17 2022" -A arm64 -DENABLE_LTO=off -DBUILD_stratoshark=on -DBUILD_falcodump=on -DENABLE_SIGNED_NSIS=on ..
+    - cmake -G "Visual Studio 17 2022" -A arm64 -DENABLE_LTO=off -DBUILD_stratoshark=on -DBUILD_sshdig=on -DBUILD_falcodump=on -DENABLE_SIGNED_NSIS=on ..
     - msbuild /verbosity:minimal "/consoleloggerparameters:PerformanceSummary;NoSummary" /maxcpucount Wireshark.sln
     - msbuild /verbosity:minimal /maxcpucount test-programs.vcxproj
     - msbuild /verbosity:minimal /maxcpucount wireshark_nsis_prep.vcxproj
@@ -594,7 +594,7 @@ macOS Arm Package:
     - cd build
     - ../tools/make-version.py --set-release --version-file=wireshark_version.txt ..
     - printf "\e[0Ksection_start:%s:cmake_section[collapsed=true]\r\e[0KRunning CMake" "$( date +%s)"
-    - cmake -DENABLE_CCACHE=ON -DCMAKE_APPLE_SILICON_PROCESSOR=arm64 -DCMAKE_OSX_DEPLOYMENT_TARGET=11.0 -DCMAKE_OSX_ARCHITECTURES=arm64 -DBUILD_stratoshark=on -DBUILD_falcodump=on -DFALCO_PLUGINS=/usr/local/lib/falco-plugins/libcloudtrail.so -DTEST_EXTRA_ARGS=--enable-release -G Ninja ..
+    - cmake -DENABLE_CCACHE=ON -DCMAKE_APPLE_SILICON_PROCESSOR=arm64 -DCMAKE_OSX_DEPLOYMENT_TARGET=11.0 -DCMAKE_OSX_ARCHITECTURES=arm64 -DBUILD_stratoshark=on -DBUILD_sshdig=on -DBUILD_falcodump=on -DFALCO_PLUGINS=/usr/local/lib/falco-plugins/libcloudtrail.so -DTEST_EXTRA_ARGS=--enable-release -G Ninja ..
     - printf "\e[0Ksection_end:%s:cmake_section\r\e[0K" "$( date +%s)"
     - ninja
     - codesign-prep
@@ -646,7 +646,7 @@ macOS Intel Package:
     - cd build
     - ../tools/make-version.py --set-release --version-file=wireshark_version.txt ..
     - printf "\e[0Ksection_start:%s:cmake_section[collapsed=true]\r\e[0KRunning CMake" "$( date +%s)"
-    - cmake -DENABLE_CCACHE=ON -DCMAKE_OSX_DEPLOYMENT_TARGET=11.0 -DBUILD_stratoshark=on -DBUILD_falcodump=on -DFALCO_PLUGINS=/usr/local/lib/falco-plugins/libcloudtrail.so -DTEST_EXTRA_ARGS=--enable-release -G Ninja ..
+    - cmake -DENABLE_CCACHE=ON -DCMAKE_OSX_DEPLOYMENT_TARGET=11.0 -DBUILD_stratoshark=on -DBUILD_sshdig=on -DBUILD_falcodump=on -DFALCO_PLUGINS=/usr/local/lib/falco-plugins/libcloudtrail.so -DTEST_EXTRA_ARGS=--enable-release -G Ninja ..
     - printf "\e[0Ksection_end:%s:cmake_section\r\e[0K" "$( date +%s)"
     - ninja
     - codesign-prep

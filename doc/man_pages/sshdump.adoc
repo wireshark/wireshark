@@ -7,7 +7,7 @@ include::../attributes.adoc[]
 
 == NAME
 
-sshdump - Provide interfaces to capture from a remote host through SSH using a remote capture binary.
+sshdump - Provide interfaces to capture packets from a remote host through SSH using a remote capture binary.
 
 == SYNOPSIS
 
@@ -94,7 +94,7 @@ To explicitly control the remote capture command:
 
 Supported interfaces:
 
-1. ssh
+1. sshdump
 
 == OPTIONS
 

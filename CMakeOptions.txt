@@ -40,6 +40,7 @@ else()
 endif()
 option(BUILD_udpdump       "Build udpdump" ON)
 option(BUILD_falcodump     "Build falcodump" OFF)
+option(BUILD_sshdig        "Build sshdig" ON)
 
 option(BUILD_sharkd        "Build sharkd" ON)
 option(BUILD_mmdbresolve   "Build MaxMind DB resolver" ON)

@@ -63,7 +63,7 @@ static const struct ws_option longopts[] = {
 	EXTCAP_BASE_OPTIONS,
 	{ "help", ws_no_argument, NULL, OPT_HELP},
 	{ "version", ws_no_argument, NULL, OPT_VERSION},
-	SSH_BASE_OPTIONS,
+	SSH_BASE_PACKET_OPTIONS,
 	{ "remote-channel-frequency", ws_required_argument, NULL, OPT_REMOTE_CHANNEL_FREQUENCY},
 	{ "remote-channel-width", ws_required_argument, NULL, OPT_REMOTE_CHANNEL_WIDTH},
 	{ 0, 0, 0, 0}

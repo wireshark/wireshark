@@ -12,6 +12,7 @@ obj-*/doc/man_pages/androiddump.1
 obj-*/doc/man_pages/ciscodump.1
 obj-*/doc/man_pages/randpktdump.1
 obj-*/doc/man_pages/udpdump.1
+obj-*/doc/man_pages/sshdig.1
 obj-*/doc/man_pages/sshdump.1
 obj-*/doc/man_pages/wifidump.1
 obj-*/doc/man_pages/extcap.4

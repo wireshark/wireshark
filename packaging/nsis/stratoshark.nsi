@@ -1004,6 +1004,13 @@ Section "Falcodump" SecFalcodump
 SectionEnd
 !insertmacro CheckExtrasFlag "falcodump"
 
+!ifdef LIBSSH_FOUND
+Section "Sshdig" SecSshdig
+!insertmacro InstallExtcap "sshdig"
+SectionEnd
+!insertmacro CheckExtrasFlag "sshdig"
+!endif
+
 SectionGroupEnd ; "External Capture (extcap)"
 
 Section "-Clear Partial Selected"
@@ -1138,6 +1145,7 @@ Delete "$INSTDIR\audio\*.*"
 Delete "$INSTDIR\bearer\*.*"
 Delete "$INSTDIR\diameter\*.*"
 Delete "$INSTDIR\extcap\falcodump.*"
+Delete "$INSTDIR\extcap\sshdig.*"
 Delete "$INSTDIR\gpl-2.0-standalone.html"
 Delete "$INSTDIR\Acknowledgements.md"
 Delete "$INSTDIR\generic\*.*"
@@ -1280,6 +1288,9 @@ SectionEnd
 
   !insertmacro MUI_DESCRIPTION_TEXT ${SecExtcapGroup} "External Capture Interfaces"
   !insertmacro MUI_DESCRIPTION_TEXT ${SecFalcodump} "Provide capture interfaces from Falco plugins."
+  !ifdef LIBSSH_FOUND
+  !insertmacro MUI_DESCRIPTION_TEXT ${SecSshdig} "Provide remote capture through SSH. (sysdig)"
+  !endif
 
 !insertmacro MUI_FUNCTION_DESCRIPTION_END
 

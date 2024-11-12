@@ -148,11 +148,17 @@ def wireshark_command(cmd_wireshark):
 
 @pytest.fixture(scope='session')
 def cmd_extcap(program):
-    def extcap_name(name):
-        if sys.platform == 'darwin':
-            return program(os.path.join('Wireshark.app/Contents/MacOS/extcap', name))
+    def extcap_name(name, stratoshark_extcap=False):
+        if stratoshark_extcap:
+            if sys.platform == 'darwin':
+                return program(os.path.join('Stratoshark.app/Contents/MacOS/extcap', name))
+            else:
+                return program(os.path.join('extcap/stratoshark', name))
         else:
-            return program(os.path.join('extcap/wireshark', name))
+            if sys.platform == 'darwin':
+                return program(os.path.join('Wireshark.app/Contents/MacOS/extcap', name))
+            else:
+                return program(os.path.join('extcap/wireshark', name))
     return extcap_name
 
 

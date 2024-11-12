@@ -33,13 +33,16 @@
 	{ "remote-port", ws_required_argument, NULL, OPT_REMOTE_PORT}, \
 	{ "remote-username", ws_required_argument, NULL, OPT_REMOTE_USERNAME}, \
 	{ "remote-password", ws_required_argument, NULL, OPT_REMOTE_PASSWORD}, \
-	{ "remote-interface", ws_required_argument, NULL, OPT_REMOTE_INTERFACE}, \
-	{ "remote-filter", ws_required_argument, NULL, OPT_REMOTE_FILTER}, \
 	{ "remote-count", ws_required_argument, NULL, OPT_REMOTE_COUNT}, \
 	{ "sshkey", ws_required_argument, NULL, OPT_SSHKEY}, \
 	{ "sshkey-passphrase", ws_required_argument, NULL, OPT_SSHKEY_PASSPHRASE}, \
 	{ "proxycommand", ws_required_argument, NULL, OPT_PROXYCOMMAND}, \
 	{ "ssh-sha1", ws_no_argument, NULL, OPT_SSH_SHA1}
+
+#define SSH_BASE_PACKET_OPTIONS \
+	SSH_BASE_OPTIONS, \
+	{ "remote-interface", ws_required_argument, NULL, OPT_REMOTE_INTERFACE}, \
+	{ "remote-filter", ws_required_argument, NULL, OPT_REMOTE_FILTER}
 
 typedef struct _ssh_params {
 	char* host;

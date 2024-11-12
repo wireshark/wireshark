@@ -393,7 +393,31 @@ if(BUILD_falcodump AND SINSP_FOUND)
 	endif()
 	install(TARGETS falcodump RUNTIME DESTINATION ${LOG_EXTCAP_INSTALL_LIBDIR})
 	add_dependencies(extcaps falcodump)
+endif()
 
+if(BUILD_sshdig AND LIBSSH_FOUND)
+	set(sshdig_LIBS
+		wsutil
+		${CMAKE_DL_LIBS}
+		${WIN_WS2_32_LIBRARY}
+		${LIBSSH_LIBRARIES}
+	)
+	set(sshdig_FILES
+		$<TARGET_OBJECTS:cli_main>
+		$<TARGET_OBJECTS:extcap-base>
+		$<TARGET_OBJECTS:ssh-base>
+		sshdig.c
+	)
+
+	set_executable_resources(sshdig "Sshdig")
+	add_executable(sshdig ${sshdig_FILES})
+	set_extlog_executable_properties(sshdig)
+	target_link_libraries(sshdig ${sshdig_LIBS})
+	target_include_directories(sshdig SYSTEM PRIVATE ${LIBSSH_INCLUDE_DIRS})
+	install(TARGETS sshdig RUNTIME DESTINATION ${EXTCAP_INSTALL_LIBDIR})
+	add_dependencies(extcaps sshdig)
+elseif (BUILD_sshdig)
+	#message( WARNING "Cannot find libssh, cannot build sshdig" )
 endif()
 
 #

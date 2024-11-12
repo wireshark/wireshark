@@ -2480,6 +2480,7 @@ srvsvc
 ss7pcs
 sscanf
 sscop
+sshdig
 sshdump
 sshkey
 ssiae

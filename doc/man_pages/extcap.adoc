@@ -134,7 +134,7 @@ Example 5:
 
 == SEE ALSO
 
-xref:wireshark.html[wireshark](1), xref:tshark.html[tshark](1), xref:dumpcap.html[dumpcap](1), xref:androiddump.html[androiddump](1), xref:sshdump.html[sshdump](1), xref:randpktdump.html[randpktdump](1)
+xref:wireshark.html[wireshark](1), xref:tshark.html[tshark](1), xref:dumpcap.html[dumpcap](1), xref:androiddump.html[androiddump](1), xref:sshdig.html[sshdig](1), xref:sshdump.html[sshdump](1), xref:randpktdump.html[randpktdump](1)
 
 == NOTES
 
