@@ -1533,7 +1533,7 @@ static const value_string bgp_attr_tunnel_type[] = {
     { TUNNEL_TYPE_DPS_POLICY,   "Dynamic Path Selection Policy" },
     { TUNNEL_TYPE_SDWAN_HYBRID, "SDWAN Hybrid" },
     { TUNNEL_TYPE_X_OVER_UDP,   "X-over-UDP" },
-    { TUNNEL_TYPE_DES_TUNNEL_ENCAP, "Distributed Ehterlink Switch Tunnel Encapsulation" },
+    { TUNNEL_TYPE_DES_TUNNEL_ENCAP, "Distributed Etherlink Switch Tunnel Encapsulation" },
     { 0, NULL }
 };
 
@@ -4112,7 +4112,7 @@ decode_bgp_nlri_op_fflag_value(proto_tree *parent_tree, proto_item *parent_item,
         shift_amount = nlri_operator&0x30;
         shift_amount = shift_amount >> 4;
         value_len = 1 << shift_amount; /* as written in RFC 5575 section 4 */
-        /* call a function to decode operator addressing bitmaks */
+        /* call a function to decode operator addressing bitmask */
         decode_bgp_flow_spec_bitmask_operator(parent_tree, tvb, offset+cursor_op_val);
         if (first_loop == 0)
         {
@@ -4171,7 +4171,7 @@ decode_bgp_nlri_op_dscp_value(proto_tree *parent_tree, proto_item *parent_item, 
         shift_amount = nlri_operator&0x30;
         shift_amount = shift_amount >> 4;
         value_len = 1 << shift_amount; /* as written in RFC 5575 section 4 */
-        /* call a function to decode operator addressing bitmaks */
+        /* call a function to decode operator addressing bitmask */
         decode_bgp_flow_spec_bitmask_operator(parent_tree, tvb, offset+cursor_op_val);
         if (first_loop == 0)
         {
