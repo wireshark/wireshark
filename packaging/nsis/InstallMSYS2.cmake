@@ -44,6 +44,7 @@ if(USE_MSYSTEM)
 		${MINGW_BIN}/libminizip-*.dll
 		${MINGW_BIN}/libnettle-*.dll
 		${MINGW_BIN}/libnghttp2-*.dll
+		${MINGW_BIN}/libnghttp3-[1-9]*.dll
 		${MINGW_BIN}/libopus-*.dll
 		${MINGW_BIN}/libp11-kit-*.dll
 		${MINGW_BIN}/libpcre2-16-*.dll
