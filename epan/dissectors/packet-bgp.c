@@ -971,6 +971,9 @@ static dissector_handle_t bgp_handle;
 #define BGP_LS_SR_TLV_FLEX_ALGO_EXC_ANY_AFFINITY    1040
 #define BGP_LS_SR_TLV_FLEX_ALGO_INC_ANY_AFFINITY    1041
 #define BGP_LS_SR_TLV_FLEX_ALGO_INC_ALL_AFFINITY    1042
+#define BGP_LS_SR_TLV_FLEX_ALGO_DEF_FLAGS           1043
+#define BGP_LS_SR_TLV_FLEX_ALGO_PREFIX_METRIC       1044
+#define BGP_LS_SR_TLV_FLEX_ALGO_EXC_SRLG            1045
 #define BGP_LS_SR_TLV_ADJ_SID                       1099
 #define BGP_LS_SR_TLV_LAN_ADJ_SID                   1100
 #define BGP_LS_SR_TLV_PEER_NODE_SID                 1101
@@ -1068,6 +1071,28 @@ static dissector_handle_t bgp_handle;
 #define BGP_LS_SR_CAPABILITY_FLAG_I 0x80
 #define BGP_LS_SR_CAPABILITY_FLAG_V 0x40
 #define BGP_LS_SR_CAPABILITY_FLAG_H 0x20
+
+/* Flexible Algorithm Definition Flags Sub-TLV flags, rfc9350:
+
+                             0  1  2  3  4  5  6  7
+                            +--+--+--+--+--+--+--+--+
+   if Protocol-ID is IS-IS  |M |  |  |  |  |  |  |  |
+                            +--+--+--+--+--+--+--+--+
+                             0  1  2  3  4  5  6  7
+                            +--+--+--+--+--+--+--+--+
+   if Protocol-ID is OSPF   |M |  |  |  |  |  |  |  |
+                            +--+--+--+--+--+--+--+--+
+*/
+#define BGP_LS_FLEX_ALGO_DEF_FLAGS_M    0x80000000
+
+/* OSPF Flexible Algorithm Prefix Metric Sub-TLV flags, rfc9350:
+
+                             0  1  2  3  4  5  6  7
+                            +--+--+--+--+--+--+--+--+
+   if Protocol-ID is OSPF   |E |  |  |  |  |  |  |  |
+                            +--+--+--+--+--+--+--+--+
+*/
+#define BGP_LS_FLEX_ALGO_PREFIX_METRIC_FLAGS_E      0x80
 
 /* Prefix Attribute Flags TLV flags, rfc9085:
 
@@ -2772,6 +2797,15 @@ static int hf_bgp_ls_sr_tlv_flex_algo_priority;
 static int hf_bgp_ls_sr_tlv_flex_algo_exc_any_affinity;       /* 1040 */
 static int hf_bgp_ls_sr_tlv_flex_algo_inc_any_affinity;       /* 1041 */
 static int hf_bgp_ls_sr_tlv_flex_algo_inc_all_affinity;       /* 1042 */
+static int hf_bgp_ls_sr_tlv_flex_algo_def_flags;              /* 1043 */
+static int hf_bgp_ls_sr_tlv_flex_algo_def_flags_flags;
+static int hf_bgp_ls_sr_tlv_flex_algo_def_flags_flags_m;
+static int hf_bgp_ls_sr_tlv_flex_algo_prefix_metric;          /* 1044 */
+static int hf_bgp_ls_sr_tlv_flex_algo_prefix_metric_flags;
+static int hf_bgp_ls_sr_tlv_flex_algo_prefix_metric_flags_e;
+static int hf_bgp_ls_sr_tlv_flex_algo_prefix_metric_reserved;
+static int hf_bgp_ls_sr_tlv_flex_algo_prefix_metric_metric;
+static int hf_bgp_ls_sr_tlv_flex_algo_exc_srlg;               /* 1045 */
 static int hf_bgp_ls_sr_tlv_prefix_sid;
 static int hf_bgp_ls_sr_tlv_prefix_sid_flags;
 static int hf_bgp_ls_sr_tlv_prefix_sid_flags_r;
@@ -5550,9 +5584,10 @@ decode_link_state_attribute_flex_algo_subtlv(proto_tree *tree, tvbuff_t *tvb, in
     uint16_t type;
     uint16_t length;
     uint16_t tmp16;
-
+    int i;
     proto_item* tlv_item;
     proto_tree* tlv_tree;
+    proto_item* ti;
 
     type = tvb_get_ntohs(tvb, offset);
     length = tvb_get_ntohs(tvb, offset + 2);
@@ -5570,16 +5605,50 @@ decode_link_state_attribute_flex_algo_subtlv(proto_tree *tree, tvbuff_t *tvb, in
                                        tvb, offset, length + 4, ENC_NA);
         tlv_tree = proto_item_add_subtree(tlv_item, ett_bgp_link_state);
         proto_tree_add_item(tlv_tree, hf_bgp_ls_type, tvb, offset, 2, ENC_BIG_ENDIAN);
-        proto_tree_add_item(tlv_tree, hf_bgp_ls_length, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
+        ti = proto_tree_add_item(tlv_tree, hf_bgp_ls_length, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
         if (length % 4 != 0) {
-            expert_add_info_format(pinfo, tlv_tree, &ei_bgp_ls_error, "Unexpected Extended Administrative Group TLV's length (%u mod 4 != 0)",
-                                   length);
+            expert_add_info_format(pinfo, ti, &ei_bgp_ls_error, "Unexpected %s TLV's length (%u mod 4 != 0)",
+                                   "Extended Administrative Group", length);
             break;
         }
         tmp16 = length;
         while (tmp16) {
             proto_tree_add_item(tlv_tree, hf_bgp_ls_extended_administrative_group_value, tvb, offset + 4 + (length - tmp16), 4, ENC_NA);
             tmp16 -= 4;
+        }
+        break;
+
+    case BGP_LS_SR_TLV_FLEX_ALGO_DEF_FLAGS:
+        {
+            static int * const flex_algo_def_flags[] = {
+                &hf_bgp_ls_sr_tlv_flex_algo_def_flags_flags_m,
+                NULL
+            };
+            tlv_item = proto_tree_add_item(tree, hf_bgp_ls_sr_tlv_flex_algo_def_flags, tvb, offset, length + 4, ENC_NA);
+            tlv_tree = proto_item_add_subtree(tlv_item, ett_bgp_link_state);
+            proto_tree_add_item(tlv_tree, hf_bgp_ls_type, tvb, offset, 2, ENC_BIG_ENDIAN);
+            ti = proto_tree_add_item(tlv_tree, hf_bgp_ls_length, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
+            if (length != 4) {
+                expert_add_info_format(pinfo, ti, &ei_bgp_ls_error, "Unexpected %s TLV's length (%u != 4)",
+                                       "Flexible Algorithm Definition Flags", length);
+                break;
+            }
+            proto_tree_add_bitmask(tlv_tree, tvb, offset + 4, hf_bgp_ls_sr_tlv_flex_algo_def_flags_flags, ett_bgp_link_state, flex_algo_def_flags, ENC_NA);
+        }
+        break;
+
+    case BGP_LS_SR_TLV_FLEX_ALGO_EXC_SRLG:
+        tlv_item = proto_tree_add_item(tree, hf_bgp_ls_sr_tlv_flex_algo_exc_srlg, tvb, offset, length + 4, ENC_NA);
+        tlv_tree = proto_item_add_subtree(tlv_item, ett_bgp_link_state);
+        proto_tree_add_item(tlv_tree, hf_bgp_ls_type, tvb, offset, 2, ENC_BIG_ENDIAN);
+        ti = proto_tree_add_item(tlv_tree, hf_bgp_ls_length, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
+        if (length % 4 != 0) {
+            expert_add_info_format(pinfo, ti, &ei_bgp_ls_error, "Unexpected %s TLV's length (%u mod 4 != 0)",
+                                   "Flexible Algorithm Exclude SRLG", length);
+            break;
+        }
+        for (i = 0; i < length; i += 4) {
+            proto_tree_add_item(tlv_tree, hf_bgp_ls_tlv_shared_risk_link_group_value, tvb, offset + 4 + i, 4, ENC_BIG_ENDIAN);
         }
         break;
 
@@ -6623,6 +6692,31 @@ decode_link_state_attribute_tlv(proto_tree *tree, tvbuff_t *tvb, int offset, pac
                                        BGP_NLRI_TLV_LEN_IPV6_ROUTER_ID);
             }
             break;
+
+        case BGP_LS_SR_TLV_FLEX_ALGO_PREFIX_METRIC:
+            {
+                /* rfc9351, rfc9350 */
+                static int * const fapm_flags[] = {
+                    &hf_bgp_ls_sr_tlv_flex_algo_prefix_metric_flags_e,
+                    NULL
+                };
+                tlv_item = proto_tree_add_item(tree, hf_bgp_ls_sr_tlv_flex_algo_prefix_metric, tvb, offset, length + 4, ENC_NA);
+                tlv_tree = proto_item_add_subtree(tlv_item, ett_bgp_link_state);
+                proto_tree_add_item(tlv_tree, hf_bgp_ls_type, tvb, offset, 2, ENC_BIG_ENDIAN);
+                ti = proto_tree_add_item(tlv_tree, hf_bgp_ls_length, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
+                if (length != 8) {
+                    expert_add_info_format(pinfo, ti, &ei_bgp_ls_error,
+                                           "Unexpected TLV Length (%u) in BGP-LS %s TLV, it must be 8 bytes!",
+                                           length, "Flexible Algorithm Prefix Metric");
+                    break;
+                }
+                proto_tree_add_item(tlv_tree, hf_bgp_ls_sr_tlv_flex_algo_algorithm, tvb, offset + 4, 1, ENC_NA);
+                proto_tree_add_bitmask(tlv_tree, tvb, offset + 5, hf_bgp_ls_sr_tlv_flex_algo_prefix_metric_flags,
+                                       ett_bgp_link_state, fapm_flags, ENC_NA);
+                proto_tree_add_item(tlv_tree, hf_bgp_ls_sr_tlv_flex_algo_prefix_metric_reserved, tvb, offset + 6, 2, ENC_BIG_ENDIAN);
+                proto_tree_add_item(tlv_tree, hf_bgp_ls_sr_tlv_flex_algo_prefix_metric_metric, tvb, offset + 8, 4, ENC_BIG_ENDIAN);
+                break;
+            }
 
         /* SID Attribute TLVs */
         case BGP_LS_SR_TLV_SRV6_ENDPOINT_BEHAVIOR:
@@ -13837,13 +13931,25 @@ proto_register_bgp(void)
         { "Priority", "bgp.ls.sr.tlv.flex_algo.priority", FT_UINT8,
           BASE_DEC, NULL, 0x0, NULL, HFILL}},
       { &hf_bgp_ls_sr_tlv_flex_algo_exc_any_affinity,
-        { "Flex Algo Exclude Any Affinity TLV", "bgp.ls.sr.tlv.flex_algo.exclude_any_affinity", FT_NONE,
+        { "Flexible Algorithm Exclude-Any Affinity TLV", "bgp.ls.sr.tlv.flex_algo.exclude_any_affinity", FT_NONE,
           BASE_NONE, NULL, 0x0, NULL, HFILL}},
       { &hf_bgp_ls_sr_tlv_flex_algo_inc_any_affinity,
-        { "Flex Algo Include Any Affinity TLV", "bgp.ls.sr.tlv.flex_algo.include_any_affinity", FT_NONE,
+        { "Flexible Algorithm Include-Any Affinity TLV", "bgp.ls.sr.tlv.flex_algo.include_any_affinity", FT_NONE,
           BASE_NONE, NULL, 0x0, NULL, HFILL}},
       { &hf_bgp_ls_sr_tlv_flex_algo_inc_all_affinity,
-        { "Flex Algo Include All Affinity TLV", "bgp.ls.sr.tlv.flex_algo.include_all_affinity", FT_NONE,
+        { "Flexible Algorithm Include-All Affinity TLV", "bgp.ls.sr.tlv.flex_algo.include_all_affinity", FT_NONE,
+          BASE_NONE, NULL, 0x0, NULL, HFILL}},
+      { &hf_bgp_ls_sr_tlv_flex_algo_def_flags,
+        { "Flexible Algorithm Definition Flags TLV", "bgp.ls.sr.tlv.flex_algo.definition_flags", FT_NONE,
+          BASE_NONE, NULL, 0x0, NULL, HFILL}},
+      { &hf_bgp_ls_sr_tlv_flex_algo_def_flags_flags,
+        { "Flags", "bgp.ls.sr.tlv.flex_algo.definition_flags.flags", FT_UINT32,
+          BASE_HEX, NULL, 0x0, NULL, HFILL}},
+      { &hf_bgp_ls_sr_tlv_flex_algo_def_flags_flags_m,
+        { "M-flag (M)", "bgp.ls.sr.tlv.flex_algo.definition_flags.flags.m", FT_BOOLEAN,
+          32, TFS(&tfs_set_notset), BGP_LS_FLEX_ALGO_DEF_FLAGS_M, NULL, HFILL}},
+      { &hf_bgp_ls_sr_tlv_flex_algo_exc_srlg,
+        { "Flexible Algorithm Exclude SRLG TLV", "bgp.ls.sr.tlv.flex_algo.exclude_srlg", FT_NONE,
           BASE_NONE, NULL, 0x0, NULL, HFILL}},
      /* Prefix Attribute TLVs */
       { &hf_bgp_ls_sr_tlv_prefix_sid,
@@ -13905,7 +14011,7 @@ proto_register_bgp(void)
           BASE_HEX, NULL, 0, NULL, HFILL}},
       { &hf_bgp_ls_sr_tlv_srv6_locator_metric,
         { "Metric", "bgp.ls.sr.tlv.srv6_locator.metric", FT_UINT32,
-          BASE_DEC, NULL, 0x0, NULL, HFILL}},
+          BASE_HEX_DEC, NULL, 0x0, NULL, HFILL}},
       { &hf_bgp_ls_sr_tlv_prefix_attr_flags,
         { "Prefix Attribute Flags TLV", "bgp.ls.sr.tlv.prefix.attribute_flags", FT_NONE,
           BASE_NONE, NULL, 0x0, NULL, HFILL}},
@@ -13913,7 +14019,7 @@ proto_register_bgp(void)
         { "Flags", "bgp.ls.sr.tlv.prefix.attribute_flags.flags", FT_UINT8,
           BASE_HEX, NULL, 0x0, NULL, HFILL}},
       { &hf_bgp_ls_sr_tlv_prefix_attr_flags_flags_unknown,
-        { "Flags", "bgp.ls.sr.tlv_prefix.attribute_flags.flags.unknown", FT_BYTES,
+        { "Flags", "bgp.ls.sr.tlv.prefix.attribute_flags.flags.unknown", FT_BYTES,
           SEP_SPACE, NULL, 0x0,NULL, HFILL }},
       { &hf_bgp_ls_sr_tlv_prefix_attr_flags_flags_ao,
         { "Attach (A)", "bgp.ls.sr.tlv.prefix.attribute_flags.flags.a", FT_BOOLEAN,
@@ -13939,6 +14045,21 @@ proto_register_bgp(void)
       { &hf_bgp_ls_sr_tlv_source_router_id,
         { "Source Router-ID TLV", "bgp.ls.sr.tlv.source_router_id", FT_NONE,
           BASE_NONE, NULL, 0x0, NULL, HFILL}},
+      { &hf_bgp_ls_sr_tlv_flex_algo_prefix_metric,
+        { "Flexible Algorithm Prefix Metric TLV", "bgp.ls.sr.tlv.flex_algo.prefix_metric", FT_NONE,
+          BASE_NONE, NULL, 0x0, NULL, HFILL}},
+      { &hf_bgp_ls_sr_tlv_flex_algo_prefix_metric_flags,
+        { "Flags", "bgp.ls.sr.tlv.flex_algo.prefix_metric.flags", FT_UINT8,
+          BASE_HEX, NULL, 0x0, NULL, HFILL}},
+      { &hf_bgp_ls_sr_tlv_flex_algo_prefix_metric_flags_e,
+        { "E bit (E)", "bgp.ls.sr.tlv.flex_algo.prefix_metric.flags.e", FT_BOOLEAN,
+          8, TFS(&tfs_set_notset), BGP_LS_FLEX_ALGO_PREFIX_METRIC_FLAGS_E, NULL, HFILL}},
+      { &hf_bgp_ls_sr_tlv_flex_algo_prefix_metric_reserved,
+        { "Reserved", "bgp.ls.sr.tlv.flex_algo.prefix_metric.reserved", FT_UINT16,
+          BASE_HEX, NULL, 0x0, NULL, HFILL}},
+      { &hf_bgp_ls_sr_tlv_flex_algo_prefix_metric_metric,
+        { "Metric", "bgp.ls.sr.tlv.flex_algo.prefix_metric.metric", FT_UINT32,
+          BASE_HEX_DEC, NULL, 0x0, NULL, HFILL}},
      /* SID Attribute TLVs */
       { &hf_bgp_ls_sr_tlv_srv6_endpoint_behavior,
         { "SRv6 Endpoint Behavior TLV", "bgp.ls.sr.tlv.srv6_endpoint_behavior", FT_NONE,
