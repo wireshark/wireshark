@@ -1209,6 +1209,9 @@ iostat_draw(void *arg)
     }
     printf("\n");
     g_free(iot->items);
+    for (i = 0; i < iot->num_cols; i++) {
+        g_free((char*)iot->filters[i]);
+    }
     g_free((gpointer)iot->filters);
     g_free(iot->max_vals);
     g_free(iot->max_frame);
@@ -1225,8 +1228,8 @@ iostat_draw(void *arg)
 }
 
 
-static void
-register_io_tap(io_stat_t *io, unsigned int i, const char *filter)
+static bool
+register_io_tap(io_stat_t *io, unsigned int i, const char *filter, GString *err)
 {
     GString *error_string;
     const char *flt;
@@ -1377,13 +1380,20 @@ register_io_tap(io_stat_t *io, unsigned int i, const char *filter)
     error_string = register_tap_listener("frame", &io->items[i], flt, TL_REQUIRES_PROTO_TREE, NULL,
                                        iostat_packet, i ? NULL : iostat_draw, NULL);
     if (error_string) {
-        g_free(io->items);
-        g_free(io);
-        fprintf(stderr, "\ntshark: Couldn't register io,stat tap: %s\n",
-            error_string->str);
+        /* Accumulate errors about all the possible filters tried at the same
+         * starting character.
+         */
+        if (err->len) {
+            g_string_append_c(err, '\n');
+        }
+        g_string_append(err, error_string->str);
         g_string_free(error_string, TRUE);
-        exit(1);
+        return false;
     }
+
+    /* On success, clear old errors (from splitting on internal commas). */
+    g_string_truncate(err, 0);
+    return true;
 }
 
 static void
@@ -1395,6 +1405,13 @@ iostat_init(const char *opt_arg, void *userdata _U_)
     io_stat_t *io;
     const char *filters, *str, *pos;
 
+    /* XXX - Why can't the last character be a comma? Shouldn't it be
+     * fine for the last filter to be empty? Even in the case of locales
+     * that use ',' for the decimal separator, there shouldn't be any
+     * difference between interpreting a terminating ',' as a decimal
+     * point for the interval, and interpreting it as a separator followed
+     * by an empty filter.
+     */
     if ((*(opt_arg+(strlen(opt_arg)-1)) == ',') ||
         (sscanf(opt_arg, "io,stat,%lf%n", &interval_float, (int *)&idx) != 1) ||
         (idx < 8)) {
@@ -1405,7 +1422,7 @@ iostat_init(const char *opt_arg, void *userdata _U_)
     filters = opt_arg+idx;
     if (*filters) {
         if (*filters != ',') {
-            /* For locale's that use ',' instead of '.', the comma might
+            /* For locales that use ',' instead of '.', the comma might
              * have been consumed during the floating point conversion. */
             --filters;
             if (*filters != ',') {
@@ -1413,8 +1430,8 @@ iostat_init(const char *opt_arg, void *userdata _U_)
                 exit(1);
             }
         }
-    } else
-        filters = NULL;
+    }
+    /* filters now either starts with ',' or '\0' */
 
     switch (timestamp_get_type()) {
     case TS_DELTA:
@@ -1474,10 +1491,21 @@ iostat_init(const char *opt_arg, void *userdata _U_)
     }
 
     /* Find how many ',' separated filters we have */
+    /* Filter can have internal commas, so this is only an upper bound on the
+     * number of filters. In the display filter grammar, commas only appear
+     * inside delimiters (quoted strings, slices, sets, and functions), so
+     * splitting in the wrong place produces an invalid filter. That is, there
+     * can be at most only one valid interpretation (but might be none).
+     *
+     * XXX - If the grammar changes to allow commas in other places, then there
+     * is ambiguity.
+     *
+     * Perhaps ideally we'd verify the filters before doing allocation.
+     */
     io->num_cols = 1;
     io->start_time = 0;
 
-    if (filters && (*filters != '\0')) {
+    if (*filters != '\0') {
         /* Eliminate the first comma. */
         filters++;
         str = filters;
@@ -1499,34 +1527,61 @@ iostat_init(const char *opt_arg, void *userdata _U_)
         io->max_frame[i] = 0;
     }
 
+    bool success;
+    GString *err = g_string_new(NULL);
+
     /* Register a tap listener for each filter */
-    if ((!filters) || (filters[0] == 0)) {
-        register_io_tap(io, 0, NULL);
+    if (filters[0] == '\0') {
+        success = register_io_tap(io, 0, NULL, err);
     } else {
         char *filter;
         i = 0;
         str = filters;
-        do {
-            pos = (char*) strchr(str, ',');
+        pos = str;
+        while ((pos = strchr(pos, ',')) != NULL) {
             if (pos == str) {
-                register_io_tap(io, i, NULL);
-            } else if (pos == NULL) {
-                str = (const char*) g_strstrip((char*)str);
-                filter = g_strdup(str);
-                if (*filter)
-                    register_io_tap(io, i, filter);
-                else
-                    register_io_tap(io, i, NULL);
+                /* Consecutive commas - an empty filter. */
+                filter = NULL;
             } else {
+                /* Likely a filter. */
                 filter = (char *)g_malloc((pos-str)+1);
                 (void) g_strlcpy( filter, str, (size_t) ((pos-str)+1));
                 filter = g_strstrip(filter);
-                register_io_tap(io, i, (char *) filter);
             }
-            str = pos+1;
+            success = register_io_tap(io, i, filter, err);
+            /* Advance to the next position to look for commas. */
+            pos++;
+            if (success) {
+                /* Also advance the filter start on success. */
+                str = pos;
+                i++;
+            } else {
+                g_free(filter);
+            }
+        }
+        /* No more commas, the rest of the string is the last filter. */
+        filter = g_strstrip(g_strdup(str));
+        if (*filter) {
+            success = register_io_tap(io, i, filter, err);
+        } else {
+            success = register_io_tap(io, i, NULL, err);
+        }
+        if (success) {
             i++;
-        } while (pos);
+        }
+        io->num_cols = i;
     }
+
+    if (!success) {
+        fprintf(stderr, "\ntshark: Couldn't register io,stat tap: %s\n",
+            err->str);
+        g_string_free(err, TRUE);
+        g_free(io->items);
+        g_free(io);
+        exit(1);
+    }
+    g_string_free(err, TRUE);
+
 }
 
 static stat_tap_ui iostat_ui = {
