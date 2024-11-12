@@ -744,6 +744,7 @@ static value_string_ext tag_num_vals_ext = VALUE_STRING_EXT_INIT(ie_tag_num_vals
 #define ETAG_MLO_LINK_INFORMATION                       133
 #define ETAG_AID_BITMAP                                 134
 #define ETAG_BANDWIDTH_INDICATION                       135
+#define ETAG_NONAP_STA_REGULATORY_CONNECT               137
 
 
 static const value_string tag_num_vals_eid_ext[] = {
@@ -809,6 +810,7 @@ static const value_string tag_num_vals_eid_ext[] = {
   { ETAG_MLO_LINK_INFORMATION,                "MLO Link Information (802.11be D3.0)" },
   { ETAG_AID_BITMAP,                          "AID Bitmap (802.11be D3.0)" },
   { ETAG_BANDWIDTH_INDICATION,                "Bandwidth Indication (802.11be D3.0)" },
+  { ETAG_NONAP_STA_REGULATORY_CONNECT,        "Non-AP STA Regulatory Connectivity" },
   { 0, NULL }
 };
 static value_string_ext tag_num_vals_eid_ext_ext = VALUE_STRING_EXT_INIT(tag_num_vals_eid_ext);
@@ -8100,6 +8102,13 @@ static int hf_ieee80211_tag_rsnx_reserved;
 static int hf_ieee80211_wfa_rsn_selection;
 static int hf_ieee80211_wfa_rsn_or_link_kde_link_id;
 
+static int hf_ieee80211_nonap_sta_regulatory_conn;
+static int hf_ieee80211_nonap_sta_regu_conn_indoor_ap_valid;
+static int hf_ieee80211_nonap_sta_regu_conn_indoor_ap;
+static int hf_ieee80211_nonap_sta_regu_conn_sp_ap_valid;
+static int hf_ieee80211_nonap_sta_regu_conn_sp_ap;
+static int hf_ieee80211_nonap_sta_regu_conn_reserved;
+
 /* ************************************************************************* */
 /*                              RFC 8110 fields                              */
 /* ************************************************************************* */
@@ -8690,6 +8699,8 @@ static int ett_rnr_mld_params_tree;
 
 static int ett_ff_fils_req_params;
 static int ett_ff_fils_req_params_fils_criteria;
+
+static int ett_nonap_sta_regulatory_conn;
 
 /* Generic address HF list for proto_tree_add_mac48_detail() */
 static const mac_hf_list_t mac_addr = {
@@ -29425,6 +29436,26 @@ dissect_bandwidth_indication(tvbuff_t *tvb, packet_info *pinfo _U_,
   }
 }
 
+static int *const eht_nonap_sta_regu_conn_hdrs[] = {
+  &hf_ieee80211_nonap_sta_regu_conn_indoor_ap_valid,
+  &hf_ieee80211_nonap_sta_regu_conn_indoor_ap,
+  &hf_ieee80211_nonap_sta_regu_conn_sp_ap_valid,
+  &hf_ieee80211_nonap_sta_regu_conn_sp_ap,
+  &hf_ieee80211_nonap_sta_regu_conn_reserved,
+  NULL
+};
+
+static void
+dissect_nonap_sta_regulatory_connect(tvbuff_t *tvb, packet_info *pinfo _U_,
+                                     proto_tree *tree, int offset, int len _U_)
+{
+  proto_tree_add_bitmask(tree, tvb, offset,
+                         hf_ieee80211_nonap_sta_regulatory_conn,
+                         ett_nonap_sta_regulatory_conn,
+                         eht_nonap_sta_regu_conn_hdrs,
+                         ENC_NA);
+}
+
 static void
 add_min_max_time_between_measurements(proto_item *item, tvbuff_t *tvb, packet_info *pinfo, int offset, int sub_length)
 {
@@ -35173,6 +35204,9 @@ ieee80211_tag_element_id_extension(tvbuff_t *tvb, packet_info *pinfo, proto_tree
       break;
     case ETAG_BANDWIDTH_INDICATION:
       dissect_bandwidth_indication(tvb, pinfo, tree, offset, ext_tag_len);
+      break;
+    case ETAG_NONAP_STA_REGULATORY_CONNECT:
+      dissect_nonap_sta_regulatory_connect(tvb, pinfo, tree, offset, ext_tag_len);
       break;
     default:
       proto_tree_add_item(tree, hf_ieee80211_ext_tag_data, tvb, offset, ext_tag_len, ENC_NA);
@@ -59786,6 +59820,30 @@ proto_register_ieee80211(void)
     {&hf_ieee80211_wfa_rsn_or_link_kde_link_id,
      {"Link ID", "wlan.wfa_rsn_or_link_kde.link_id",
       FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_nonap_sta_regulatory_conn,
+     {"Regulatory Connectivity", "wlan.nonap_sta_regulatory_connect",
+      FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_nonap_sta_regu_conn_indoor_ap_valid,
+     {"Connectivity With Indoor AP Valid", "wlan.nonap_sta_regulatory_connect.indoor_ap_valid",
+      FT_UINT8, BASE_HEX, NULL, 0x01, NULL, HFILL }},
+
+    {&hf_ieee80211_nonap_sta_regu_conn_indoor_ap,
+     {"Connectivity With Indoor AP", "wlan.nonap_sta_regulatory_connect.indoor_ap",
+      FT_UINT8, BASE_HEX, NULL, 0x02, NULL, HFILL }},
+
+    {&hf_ieee80211_nonap_sta_regu_conn_sp_ap_valid,
+     {"Connectivity With SP AP Valid", "wlan.nonap_sta_regulatory_connect.sp_ap_valid",
+      FT_UINT8, BASE_HEX, NULL, 0x04, NULL, HFILL }},
+
+    {&hf_ieee80211_nonap_sta_regu_conn_sp_ap,
+     {"Connectivity With SP AP", "wlan.nonap_sta_regulatory_connect.sp_ap",
+      FT_UINT8, BASE_HEX, NULL, 0x08, NULL, HFILL }},
+
+    {&hf_ieee80211_nonap_sta_regu_conn_reserved,
+     {"Reserved", "wlan.nonap_sta_regulatory_connect.reserved",
+      FT_UINT8, BASE_HEX, NULL, 0xf0, NULL, HFILL }},
   };
 
   static hf_register_info aggregate_fields[] = {
@@ -60345,6 +60403,8 @@ proto_register_ieee80211(void)
 
     &ett_ff_fils_req_params,
     &ett_ff_fils_req_params_fils_criteria,
+
+    &ett_nonap_sta_regulatory_conn,
   };
 
   static ei_register_info ei[] = {
