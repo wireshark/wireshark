@@ -82,7 +82,7 @@ BASIC_LIST="base-devel \
 	${PACKAGE_PREFIX}-libxml2 \
 	${PACKAGE_PREFIX}-lua \
 	${PACKAGE_PREFIX}-lz4 \
-	${PACKAGE_PREFIX}-minizip \
+	${PACKAGE_PREFIX}-minizip-ng \
 	${PACKAGE_PREFIX}-ninja \
 	${PACKAGE_PREFIX}-opencore-amr \
 	${PACKAGE_PREFIX}-opus \

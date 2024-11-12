@@ -41,7 +41,7 @@ if(USE_MSYSTEM)
 		${MINGW_BIN}/liblzma-*.dll
 		${MINGW_BIN}/libmd4c.dll
 		${MINGW_BIN}/libmaxminddb.dll
-		${MINGW_BIN}/libminizip-*.dll
+		${MINGW_BIN}/libminizip-ng-[1-9]*.dll
 		${MINGW_BIN}/libnettle-*.dll
 		${MINGW_BIN}/libnghttp2-*.dll
 		${MINGW_BIN}/libnghttp3-[1-9]*.dll
