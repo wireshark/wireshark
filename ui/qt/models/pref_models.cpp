@@ -485,9 +485,9 @@ QVariant AdvancedPrefsModel::data(const QModelIndex &dataindex, int role) const
             if (item->getPref() == NULL) {
                 return QVariant();
             } else {
-                QString default_value = gchar_free_to_qstring(prefs_pref_to_str(item->getPref(), pref_stashed));
+                QString default_value = gchar_free_to_qstring(prefs_pref_to_str(item->getPref(), pref_default));
                 return QStringLiteral("<span>%1</span>").arg(
-                            default_value.isEmpty() ? default_value : QObject::tr("Default value is empty"));
+                            !default_value.isEmpty() ? default_value : QObject::tr("Default value is empty"));
             }
         default:
             break;
