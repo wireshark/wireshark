@@ -161,7 +161,6 @@ DIAG_ON(unreachable-code)
   }
 
   luaL_newlib(L, bit_funcs);
-  lua_setglobal(L, "bit"); /* added for wireshark */
-  return 0; /* changed from 1 to 0 for wireshark, since lua_setglobal now pops the table */
+  return 1;
 }
 

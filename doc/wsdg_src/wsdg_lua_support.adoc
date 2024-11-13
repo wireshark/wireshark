@@ -448,7 +448,9 @@ in replacement for code written to use that library by simply replacing a
 `bit32 = require("bit32")` statement with `bit32 = bit`.
 
 [NOTE]
-The library is already loaded in the global environment as the `bit` table;
-Lua dissectors should not contain a `require("bit")` statement, which will give an
-error (unless another copy of the BitOp library is also accessible to the system Lua
-outside the Wireshark distributed code.)
+The library is already loaded in the global environment as the `bit` table; a
+statement like `local bit = require("bit")` is not necessary in Lua dissectors.
+On Wireshark versions prior to 4.6 this will give an error (unless another copy
+of the BitOp library is also accessible to the system Lua outside the Wireshark
+distributed code.) On Wireshark version 4.6 and later such statements behave as
+expected but are largely superfluous.

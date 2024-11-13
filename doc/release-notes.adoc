@@ -87,6 +87,11 @@ The following features are either new or have been significantly updated since v
 * DNP 3 (Distributed Network Protocol 3) is now supported in the Conversations
   and Endpoints table dialogs.
 
+* The Lua supplied preloaded libraries `bit` and `rex_pcre2` are loaded in
+  a way that adds them to the `package.loaded` table, as though through
+  `require`, so that `require("bit")` and `require("rex_pcre2")` statements
+  in Lua dissectors, while usually superfluous, behave as expected. wsbuglink:20213[]
+
 * The Windows installers now ship with Npcap 1.80.
   They previously shipped with Npcap 1.79.
 

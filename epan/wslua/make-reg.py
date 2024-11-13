@@ -61,14 +61,15 @@ def generate_register_wslua_c(classes, functions, internal_functions):
     output_lines += ["\tlua_pushcfunction(L, func);"]
     output_lines += ["\tlua_call(L, 0, 0);"]
     output_lines += ["}\n"]
+    output_lines += ["static void wslua_reg_library(lua_State* L, const char *name, lua_CFunction func) {"]
+    output_lines += ['\tluaL_requiref(L, name, func, 1);']
+    output_lines += ['\tlua_pop(L, 1); /* remove lib */']
+    output_lines += ["}\n"]
     output_lines += ["void wslua_register_classes(lua_State* L) {"]
     for lua_class in classes:
         output_lines += ["\twslua_reg_module(L, \"{lua_class}\", {lua_class}_register);".format(lua_class=lua_class)]
-
-    output_lines += ["\twslua_reg_module(L, \"bit\", luaopen_bit);"]
-    output_lines += ["\tlua_pushcfunction(L, luaopen_rex_pcre2);"]
-    output_lines += ["\tlua_call(L, 0, 1);"]
-    output_lines += ["\tlua_setglobal(L, \"rex_pcre2\");"]
+    output_lines += ['\twslua_reg_library(L, "bit", luaopen_bit);']
+    output_lines += ['\twslua_reg_library(L, "rex_pcre2", luaopen_rex_pcre2);']
     output_lines += ["}\n"]
 
     output_lines += ["void wslua_register_functions(lua_State* L) {"]
