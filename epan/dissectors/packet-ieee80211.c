@@ -45657,11 +45657,11 @@ proto_register_ieee80211(void)
       FT_UINT32, BASE_HEX, NULL, 0x0000ffff, NULL, HFILL }},
 
     {&hf_ieee80211_tag_ranging_device_class,
-     {"Device Class", "wlan.tb.device_class",
+     {"Device Class", "wlan.ranging.tb.device_class",
       FT_UINT32, BASE_DEC, NULL, 0x00010000, NULL, HFILL }},
 
     {&hf_ieee80211_tag_ranging_full_bw_ul_mu_mimo,
-     {"Full Bandwidth UL MU-MIMO", "wlan.tb.full_bw_ul_mu_mimo",
+     {"Full Bandwidth UL MU-MIMO", "wlan.ranging.tb.full_bw_ul_mu_mimo",
       FT_UINT32, BASE_DEC, NULL, 0x00020000, NULL, HFILL }},
 
     {&hf_ieee80211_tag_ranging_trigger_frame_paddur,
@@ -45674,15 +45674,15 @@ proto_register_ieee80211(void)
       FT_UINT32, BASE_DEC, NULL, 0x00f00000, NULL, HFILL }},
 
     {&hf_ieee80211_tag_ranging_passive_tb_ranging,
-     {"Passive TB Ranging", "wlan.ftm.tb_specific.passive_tb_ranging",
+     {"Passive TB Ranging", "wlan.ranging.tb.passive_tb_ranging",
       FT_BOOLEAN, 32, NULL, 0x01000000, NULL, HFILL }},
 
     {&hf_ieee80211_tag_ranging_tb_specific_reserved,
-     {"Reserved", "wlan.ftm.tb_specific.reserved",
+     {"Reserved", "wlan.ranging.tb.reserved",
       FT_UINT32, BASE_HEX, NULL, 0xFE000000, NULL, HFILL }},
 
     {&hf_ieee80211_tag_ranging_secure_he_ltf,
-     {"Secure HE-LTF submelement", "wlan.ranging.secure_he_ltf",
+     {"Secure HE-LTF subelement", "wlan.ranging.secure_he_ltf",
       FT_UINT8, BASE_HEX, NULL, 0x0,
       NULL, HFILL }},
 
