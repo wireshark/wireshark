@@ -6060,6 +6060,14 @@ static int hf_ieee80211_tag_extended_capabilities_b95;
 
 static int hf_ieee80211_tag_extended_capabilities_b96;
 static int hf_ieee80211_tag_extended_capabilities_b97;
+static int hf_ieee80211_tag_extended_capabilities_b98;
+static int hf_ieee80211_tag_extended_capabilities_b99;
+static int hf_ieee80211_tag_extended_capabilities_b100;
+static int hf_ieee80211_tag_extended_capabilities_b101;
+static int hf_ieee80211_tag_extended_capabilities_b102;
+static int hf_ieee80211_tag_extended_capabilities_b103;
+static int hf_ieee80211_tag_extended_capabilities_b104;
+static int hf_ieee80211_tag_extended_capabilities_b105;
 static int hf_ieee80211_tag_extended_capabilities_reserved2;
 
 static int hf_ieee80211_tag_cisco_ccx1_unknown;
@@ -8400,6 +8408,7 @@ static int ett_tag_ex_cap10;
 static int ett_tag_ex_cap11;
 static int ett_tag_ex_cap12;
 static int ett_tag_ex_cap13;
+static int ett_tag_ex_cap14;
 
 static int ett_tag_rm_cap1;
 static int ett_tag_rm_cap2;
@@ -22151,6 +22160,18 @@ dissect_extended_capabilities_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
   static int * const ieee80211_tag_extended_capabilities_byte13[] = {
     &hf_ieee80211_tag_extended_capabilities_b96,
     &hf_ieee80211_tag_extended_capabilities_b97,
+    &hf_ieee80211_tag_extended_capabilities_b98,
+    &hf_ieee80211_tag_extended_capabilities_b99,
+    &hf_ieee80211_tag_extended_capabilities_b100,
+    &hf_ieee80211_tag_extended_capabilities_b101,
+    &hf_ieee80211_tag_extended_capabilities_b102,
+    &hf_ieee80211_tag_extended_capabilities_b103,
+    NULL
+  };
+
+  static int * const ieee80211_tag_extended_capabilities_byte14[] = {
+    &hf_ieee80211_tag_extended_capabilities_b104,
+    &hf_ieee80211_tag_extended_capabilities_b105,
     &hf_ieee80211_tag_extended_capabilities_reserved2,
     NULL
   };
@@ -22311,6 +22332,18 @@ dissect_extended_capabilities_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
                                     ieee80211_tag_extended_capabilities_byte13,
                                     ENC_LITTLE_ENDIAN, BMT_NO_APPEND);
   proto_item_append_text(ti_ex_cap, " (octet 13)");
+  offset += 1;
+
+  if (offset >= tag_len) {
+    return offset;
+  }
+
+  ti_ex_cap = proto_tree_add_bitmask_with_flags(tree, tvb, offset,
+                                    hf_ieee80211_tag_extended_capabilities,
+                                    ett_tag_ex_cap14,
+                                    ieee80211_tag_extended_capabilities_byte14,
+                                    ENC_LITTLE_ENDIAN, BMT_NO_APPEND);
+  proto_item_append_text(ti_ex_cap, " (octet 14)");
   offset += 1;
 
   return offset;
@@ -52570,6 +52603,38 @@ proto_register_ieee80211(void)
      {"I2R LMR Feedback Policy", "wlan.extcap.i2r_lmr_feedback_policy",
       FT_BOOLEAN, 8, NULL, 0x02, NULL, HFILL }},
 
+    {&hf_ieee80211_tag_extended_capabilities_b98,
+     {"EBCS Support", "wlan.extcap.b98",
+      FT_BOOLEAN, 8, NULL, 0x04, NULL, HFILL }},
+
+    {&hf_ieee80211_tag_extended_capabilities_b99,
+     {"EBCS Relaying Support", "wlan.extcap.b99",
+      FT_BOOLEAN, 8, NULL, 0x08, NULL, HFILL }},
+
+    {&hf_ieee80211_tag_extended_capabilities_b100,
+     {"Peer-to-peer TWT Support", "wlan.extcap.b100",
+      FT_BOOLEAN, 8, NULL, 0x10, NULL, HFILL }},
+
+    {&hf_ieee80211_tag_extended_capabilities_b101,
+     {"Multiple BSSID Role Switch Support", "wlan.extcap.b101",
+      FT_BOOLEAN, 8, NULL, 0x20, NULL, HFILL }},
+
+    {&hf_ieee80211_tag_extended_capabilities_b102,
+     {"Known STA Identification Enabled", "wlan.extcap.b102",
+      FT_BOOLEAN, 8, NULL, 0x40, NULL, HFILL }},
+
+    {&hf_ieee80211_tag_extended_capabilities_b103,
+     {"Reserved", "wlan.extcap.b103",
+      FT_BOOLEAN, 8, NULL, 0x80, NULL, HFILL }},
+
+    {&hf_ieee80211_tag_extended_capabilities_b104,
+     {"Capability Notification Support", "wlan.extcap.b104",
+      FT_BOOLEAN, 8, NULL, 0x01, NULL, HFILL }},
+
+    {&hf_ieee80211_tag_extended_capabilities_b105,
+     {"GAS Query Request Fragmentation", "wlan.extcap.b105",
+      FT_BOOLEAN, 8, NULL, 0x02, NULL, HFILL }},
+
     {&hf_ieee80211_tag_extended_capabilities_reserved2,
      {"Reserved", "wlan.extcap.reserved2",
       FT_UINT8, BASE_HEX, NULL, 0xFC, NULL, HFILL }},
@@ -60160,6 +60225,7 @@ proto_register_ieee80211(void)
     &ett_tag_ex_cap11,
     &ett_tag_ex_cap12,
     &ett_tag_ex_cap13,
+    &ett_tag_ex_cap14,
 
     &ett_tag_rm_cap1,
     &ett_tag_rm_cap2,
