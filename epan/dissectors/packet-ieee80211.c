@@ -4567,6 +4567,14 @@ static int hf_ieee80211_tag_ranging_max_sess_exp;
 static int hf_ieee80211_tag_ranging_passive_tb_ranging;
 static int hf_ieee80211_tag_ranging_tb_specific_reserved;
 
+/* az: FTM Ranging Secure HE-LTF subelement */
+static int hf_ieee80211_tag_ranging_secure_he_ltf;
+static int hf_ieee80211_tag_ranging_secure_he_ltf_version;
+static int hf_ieee80211_tag_ranging_secure_he_ltf_req;
+static int hf_ieee80211_tag_ranging_secure_he_ltf_r2i_tx_window;
+static int hf_ieee80211_tag_ranging_secure_he_ltf_i2r_tx_window;
+static int hf_ieee80211_tag_ranging_secure_he_ltf_reserved;
+
 /* az: PASN subelements etc. */
 static int hf_ieee80211_tag_pasn_parameters_control;
 static int hf_ieee80211_tag_pasn_params_comeback_info_present;
@@ -8320,6 +8328,7 @@ static int ett_ff_ftm_tod_err1;
 static int ett_ff_ftm_toa_err1;
 static int ett_tag_ranging;
 static int ett_tag_ranging_ntb;
+static int ett_tag_ranging_secure_he_ltf;
 
 static int ett_ranging_subelement_tree;
 
@@ -29540,7 +29549,8 @@ dissect_ntb_specific(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int of
 static const range_string ranging_subelt_types[] = {
   { 0, 0, "Non-TB specific" },
   { 1, 1, "TB-specific" },
-  { 2, 220, "Reserved" },
+  { 2, 2, "Secure HE-LTF" },
+  { 3, 220, "Reserved" },
   { 221, 221, "Vendor Specific" },
   { 222, 255, "Reserved" },
   { 0, 0, NULL }
@@ -29573,10 +29583,19 @@ dissect_tb_specific(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     return offset;
 }
 
+static int * const ranging_subelement_secure_he_ltf_fields[] = {
+  &hf_ieee80211_tag_ranging_secure_he_ltf_version,
+  &hf_ieee80211_tag_ranging_secure_he_ltf_req,
+  &hf_ieee80211_tag_ranging_secure_he_ltf_r2i_tx_window,
+  &hf_ieee80211_tag_ranging_secure_he_ltf_i2r_tx_window,
+  &hf_ieee80211_tag_ranging_secure_he_ltf_reserved,
+  NULL};
+
 static void
 dissect_ranging_parameters(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int len)
 {
   int tag_len = tvb_reported_length(tvb);
+  unsigned subelt = 0;
   static int * const ranging_params_fields[] = {
     &hf_ieee80211_tag_ranging_status_indication,
     &hf_ieee80211_tag_ranging_value,
@@ -29632,7 +29651,6 @@ dissect_ranging_parameters(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
     uint8_t sub_id, sub_length;
     proto_item *sub_elt_len, *rsti;
     proto_tree *sub_tree;
-    unsigned subelt = 0;
     unsigned start_offset = offset;
 
     sub_tree = proto_tree_add_subtree_format(tree, tvb, offset, -1,
@@ -29668,6 +29686,13 @@ dissect_ranging_parameters(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
       case 1: /* Ranging SUB_TB_SPECIFIC */
         /* TODO: Specify the acceptable tagged elements */
         offset = dissect_tb_specific(tvb, pinfo, tree, offset, sub_length);
+        break;
+      case 2: /* Secure HE-LTF */
+        proto_tree_add_bitmask_with_flags(sub_tree, tvb, offset,
+                        hf_ieee80211_tag_ranging_secure_he_ltf,
+                        ett_tag_ranging_secure_he_ltf,
+                        ranging_subelement_secure_he_ltf_fields,
+                        ENC_LITTLE_ENDIAN, BMT_NO_APPEND);
         break;
       default:  /* skip unknown elements which may be defined in the future */
         break;
@@ -45656,6 +45681,36 @@ proto_register_ieee80211(void)
      {"Reserved", "wlan.ftm.tb_specific.reserved",
       FT_UINT32, BASE_HEX, NULL, 0xFE000000, NULL, HFILL }},
 
+    {&hf_ieee80211_tag_ranging_secure_he_ltf,
+     {"Secure HE-LTF submelement", "wlan.ranging.secure_he_ltf",
+      FT_UINT8, BASE_HEX, NULL, 0x0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_tag_ranging_secure_he_ltf_version,
+     {"Protocol Version", "wlan.ranging.secure_he_ltf.version",
+      FT_UINT8, BASE_DEC, NULL, 0x07,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_tag_ranging_secure_he_ltf_req,
+     {"Secure HE-LTF Req", "wlan.ranging.secure_he_ltf.req",
+      FT_UINT8, BASE_DEC, NULL, 0x08,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_tag_ranging_secure_he_ltf_r2i_tx_window,
+     {"R2I Tx Window", "wlan.ranging.secure_he_ltf.r2i_tx_window",
+      FT_UINT8, BASE_DEC, NULL, 0x10,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_tag_ranging_secure_he_ltf_i2r_tx_window,
+     {"I2R Tx Window", "wlan.ranging.secure_he_ltf.i2r_tx_window",
+      FT_UINT8, BASE_DEC, NULL, 0x20,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_tag_ranging_secure_he_ltf_reserved,
+     {"Reserved", "wlan.ranging.secure_he_ltf.reserved",
+      FT_UINT8, BASE_HEX, NULL, 0xc0,
+      NULL, HFILL }},
+
     {&hf_ieee80211_tag_dirn_meas_results_aoa_results,
      {"AOA Results", "wlan.etag.direction_measurement_results.aoa_results",
       FT_UINT48, BASE_HEX, NULL, 0x0, NULL, HFILL }},
@@ -60138,6 +60193,7 @@ proto_register_ieee80211(void)
     &ett_ff_ftm_toa_err1,
     &ett_tag_ranging,
     &ett_tag_ranging_ntb,
+    &ett_tag_ranging_secure_he_ltf,
 
     &ett_ranging_subelement_tree,
 
