@@ -110,6 +110,36 @@ static const value_string DEGRADATION_FACTOR_INDICATOR[] = {
     {0,  NULL}
 };
 
+// Mapping for delta UDRE indicator
+// see ICAO Annex 10, Vol I, Table B-36
+static const value_string DELTA_UDRE_INDICATOR[] = {
+    {0,  "1"},
+    {1,  "1.1"},
+    {2,  "1.25"},
+    {3,  "1.5"},
+    {4,  "2"},
+    {5,  "3"},
+    {6,  "4"},
+    {7,  "5"},
+    {8,  "6"},
+    {9,  "8"},
+    {10, "10"},
+    {11, "20"},
+    {12, "30"},
+    {13, "40"},
+    {14, "50"},
+    {15, "100"},
+    {0,  NULL}
+};
+
+// Mapping for region shape
+// see ICAO Annex 10, Vol I, Section 3.5.4.9
+static const val64_string REGION_SHAPE[] = {
+    {0, "triangle"},
+    {1, "quadrangle"},
+    {0,  NULL}
+};
+
 // table for SBAS L1 CRC24Q computation
 static const uint32_t CRC24Q_TBL[] = {
     0x000000, 0x864CFB, 0x8AD50D, 0x0C99F6, 0x93E6E1, 0x15AA1A, 0x1933EC, 0x9F7F17,
@@ -665,6 +695,66 @@ static int hf_sbas_l1_mt26_givei_15;
 static int hf_sbas_l1_mt26_iodi_k;
 static int hf_sbas_l1_mt26_spare;
 
+// see ICAO Annex 10, Vol I, Table B-51
+static int hf_sbas_l1_mt27;
+static int hf_sbas_l1_mt27_iods;
+static int hf_sbas_l1_mt27_num_svc_msgs;
+static int hf_sbas_l1_mt27_svc_msg_num;
+static int hf_sbas_l1_mt27_num_regions;
+static int hf_sbas_l1_mt27_prio_code;
+static int hf_sbas_l1_mt27_dudre_in;
+static int hf_sbas_l1_mt27_dudre_out;
+static int hf_sbas_l1_mt27_region[5];
+static int hf_sbas_l1_mt27_region_c1_lat[5];
+static int hf_sbas_l1_mt27_region_c1_lon[5];
+static int hf_sbas_l1_mt27_region_c2_lat[5];
+static int hf_sbas_l1_mt27_region_c2_lon[5];
+static int hf_sbas_l1_mt27_region_shape[5];
+static int hf_sbas_l1_mt27_spare;
+
+static int * const sbas_l1_mt27_region_fields[][6] = {
+    {
+        &hf_sbas_l1_mt27_region_c1_lat[0],
+        &hf_sbas_l1_mt27_region_c1_lon[0],
+        &hf_sbas_l1_mt27_region_c2_lat[0],
+        &hf_sbas_l1_mt27_region_c2_lon[0],
+        &hf_sbas_l1_mt27_region_shape[0],
+        NULL
+    },
+    {
+        &hf_sbas_l1_mt27_region_c1_lat[1],
+        &hf_sbas_l1_mt27_region_c1_lon[1],
+        &hf_sbas_l1_mt27_region_c2_lat[1],
+        &hf_sbas_l1_mt27_region_c2_lon[1],
+        &hf_sbas_l1_mt27_region_shape[1],
+        NULL
+    },
+    {
+        &hf_sbas_l1_mt27_region_c1_lat[2],
+        &hf_sbas_l1_mt27_region_c1_lon[2],
+        &hf_sbas_l1_mt27_region_c2_lat[2],
+        &hf_sbas_l1_mt27_region_c2_lon[2],
+        &hf_sbas_l1_mt27_region_shape[2],
+        NULL
+    },
+    {
+        &hf_sbas_l1_mt27_region_c1_lat[3],
+        &hf_sbas_l1_mt27_region_c1_lon[3],
+        &hf_sbas_l1_mt27_region_c2_lat[3],
+        &hf_sbas_l1_mt27_region_c2_lon[3],
+        &hf_sbas_l1_mt27_region_shape[3],
+        NULL
+    },
+    {
+        &hf_sbas_l1_mt27_region_c1_lat[4],
+        &hf_sbas_l1_mt27_region_c1_lon[4],
+        &hf_sbas_l1_mt27_region_c2_lat[4],
+        &hf_sbas_l1_mt27_region_c2_lon[4],
+        &hf_sbas_l1_mt27_region_shape[4],
+        NULL
+    },
+};
+
 // see ICAO Annex 10, Vol I, Table B-52
 static int hf_sbas_l1_mt63;
 static int hf_sbas_l1_mt63_spare_1;
@@ -695,6 +785,8 @@ static int ett_sbas_l1_mt18;
 static int ett_sbas_l1_mt24;
 static int ett_sbas_l1_mt25;
 static int ett_sbas_l1_mt26;
+static int ett_sbas_l1_mt27;
+static int ett_sbas_l1_mt27_region[5];
 static int ett_sbas_l1_mt63;
 
 // compute the CRC24Q checksum for an SBAS L1 nav msg
@@ -806,6 +898,12 @@ static void fmt_clk_rate_correction(char *label, int32_t c) {
 static void fmt_time_of_applicability(char *label, uint32_t c) {
     c = c * 16;
     snprintf(label, ITEM_LABEL_LENGTH, "%us (%02u:%02u:%02u)", c, c / 3600, (c / 60) % 60, c % 60);
+}
+
+/* Format MT27 service message number data */
+static void fmt_num_svc_msg(char *label, uint32_t c) {
+    c = c + 1;
+    snprintf(label, ITEM_LABEL_LENGTH, "%u", c);
 }
 
 /* Dissect SBAS L1 message */
@@ -1608,6 +1706,33 @@ static int dissect_sbas_l1_mt26(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
     return tvb_captured_length(tvb);
 }
 
+/* Dissect SBAS L1 MT 27 */
+static int dissect_sbas_l1_mt27(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_) {
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "SBAS L1 MT27");
+    col_clear(pinfo->cinfo, COL_INFO);
+
+    proto_item *ti = proto_tree_add_item(tree, hf_sbas_l1_mt27, tvb, 0, 32, ENC_NA);
+    proto_tree *sbas_l1_mt27_tree = proto_item_add_subtree(ti, ett_sbas_l1_mt27);
+
+    proto_tree_add_item(sbas_l1_mt27_tree, hf_sbas_l1_mt27_iods,         tvb, 0, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l1_mt27_tree, hf_sbas_l1_mt27_num_svc_msgs, tvb, 1, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l1_mt27_tree, hf_sbas_l1_mt27_svc_msg_num,  tvb, 1, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l1_mt27_tree, hf_sbas_l1_mt27_num_regions,  tvb, 1, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l1_mt27_tree, hf_sbas_l1_mt27_prio_code,    tvb, 1, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l1_mt27_tree, hf_sbas_l1_mt27_dudre_in,     tvb, 1, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l1_mt27_tree, hf_sbas_l1_mt27_dudre_out,    tvb, 3, 2, ENC_BIG_ENDIAN);
+
+    proto_tree_add_bitmask(sbas_l1_mt27_tree, tvb,  3, hf_sbas_l1_mt27_region[0], ett_sbas_l1_mt27_region[0], sbas_l1_mt27_region_fields[0], ENC_BIG_ENDIAN);
+    proto_tree_add_bitmask(sbas_l1_mt27_tree, tvb,  7, hf_sbas_l1_mt27_region[1], ett_sbas_l1_mt27_region[1], sbas_l1_mt27_region_fields[1], ENC_BIG_ENDIAN);
+    proto_tree_add_bitmask(sbas_l1_mt27_tree, tvb, 12, hf_sbas_l1_mt27_region[2], ett_sbas_l1_mt27_region[2], sbas_l1_mt27_region_fields[2], ENC_BIG_ENDIAN);
+    proto_tree_add_bitmask(sbas_l1_mt27_tree, tvb, 16, hf_sbas_l1_mt27_region[3], ett_sbas_l1_mt27_region[3], sbas_l1_mt27_region_fields[3], ENC_BIG_ENDIAN);
+    proto_tree_add_bitmask(sbas_l1_mt27_tree, tvb, 20, hf_sbas_l1_mt27_region[4], ett_sbas_l1_mt27_region[4], sbas_l1_mt27_region_fields[4], ENC_BIG_ENDIAN);
+
+    proto_tree_add_item(sbas_l1_mt27_tree, hf_sbas_l1_mt27_spare,        tvb, 24, 4, ENC_BIG_ENDIAN);
+
+    return tvb_captured_length(tvb);
+}
+
 /* Dissect SBAS L1 MT 63 */
 static int dissect_sbas_l1_mt63(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_) {
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "SBAS L1 MT63");
@@ -2133,6 +2258,47 @@ void proto_register_sbas_l1(void) {
         {&hf_sbas_l1_mt26_iodi_k,                     {"Issue of Data - IGP (IODI_k)", "sbas_l1.mt26.iodi_k",                              FT_UINT8,  BASE_DEC,    NULL,                          0x60,   NULL, HFILL}},
         {&hf_sbas_l1_mt26_spare,                      {"Spare", "sbas_l1.mt26.spare",                                                      FT_UINT16, BASE_DEC,    NULL,                          0x1fc0, NULL, HFILL}},
 
+        // MT27
+        {&hf_sbas_l1_mt27,                  {"MT27",                              "sbas_l1.mt27",              FT_NONE,   BASE_NONE,                  NULL,                       0x0,                NULL, HFILL}},
+        {&hf_sbas_l1_mt27_iods,             {"Issue of Data, service (IODS)",     "sbas_l1.mt27.iods",         FT_UINT16, BASE_DEC,                   NULL,                       0x0380,             NULL, HFILL}},
+        {&hf_sbas_l1_mt27_num_svc_msgs,     {"Number of Service Messages",        "sbas_l1.mt27.num_svc_msgs", FT_UINT16, BASE_CUSTOM,                CF_FUNC(&fmt_num_svc_msg),  0x7000,             NULL, HFILL}},
+        {&hf_sbas_l1_mt27_svc_msg_num,      {"Service Message Number",            "sbas_l1.mt27.svc_msg_num",  FT_UINT16, BASE_CUSTOM,                CF_FUNC(&fmt_num_svc_msg),  0x0e00,             NULL, HFILL}},
+        {&hf_sbas_l1_mt27_num_regions,      {"Number of Regions",                 "sbas_l1.mt27.num_regions",  FT_UINT16, BASE_DEC,                   NULL,                       0x01c0,             NULL, HFILL}},
+        {&hf_sbas_l1_mt27_prio_code,        {"Priority Code",                     "sbas_l1.mt27.prio_code",    FT_UINT16, BASE_DEC,                   NULL,                       0x0030,             NULL, HFILL}},
+        {&hf_sbas_l1_mt27_dudre_in,         {UTF8_DELTA "UDRE indicator-inside",  "sbas_l1.mt27.dudre_in",     FT_UINT16, BASE_DEC,                   VALS(DELTA_UDRE_INDICATOR), 0x000f,             NULL, HFILL}},
+        {&hf_sbas_l1_mt27_dudre_out,        {UTF8_DELTA "UDRE indicator-outside", "sbas_l1.mt27.dudre_out",    FT_UINT16, BASE_DEC,                   VALS(DELTA_UDRE_INDICATOR), 0xf000,             NULL, HFILL}},
+        {&hf_sbas_l1_mt27_region[0],        {"Region 1",                          "sbas_l1.mt27.r1",           FT_UINT64, BASE_HEX,                   NULL,                       0x0000000000000000, NULL, HFILL}},
+        {&hf_sbas_l1_mt27_region_c1_lat[0], {"Coordinate 1 Latitude",             "sbas_l1.mt27.r1.c1.lat",    FT_INT64,  BASE_DEC|BASE_UNIT_STRING,  UNS(&units_degree_bearing), 0x0ff0000000000000, NULL, HFILL}},
+        {&hf_sbas_l1_mt27_region_c1_lon[0], {"Coordinate 1 Longitude",            "sbas_l1.mt27.r1.c1.lon",    FT_INT64,  BASE_DEC|BASE_UNIT_STRING,  UNS(&units_degree_bearing), 0x000ff80000000000, NULL, HFILL}},
+        {&hf_sbas_l1_mt27_region_c2_lat[0], {"Coordinate 2 Latitude",             "sbas_l1.mt27.r1.c2.lat",    FT_INT64,  BASE_DEC|BASE_UNIT_STRING,  UNS(&units_degree_bearing), 0x000007f800000000, NULL, HFILL}},
+        {&hf_sbas_l1_mt27_region_c2_lon[0], {"Coordinate 2 Longitude",            "sbas_l1.mt27.r1.c2.lon",    FT_INT64,  BASE_DEC|BASE_UNIT_STRING,  UNS(&units_degree_bearing), 0x00000007fc000000, NULL, HFILL}},
+        {&hf_sbas_l1_mt27_region_shape[0],  {"Region Shape",                      "sbas_l1.mt27.r1.shape",     FT_UINT64, BASE_DEC|BASE_VAL64_STRING, VALS64(REGION_SHAPE),       0x0000000002000000, NULL, HFILL}},
+        {&hf_sbas_l1_mt27_region[1],        {"Region 2",                          "sbas_l1.mt27.r2",           FT_UINT64, BASE_HEX,    NULL,                       0x0000000000000000, NULL, HFILL}},
+        {&hf_sbas_l1_mt27_region_c1_lat[1], {"Coordinate 1 Latitude",             "sbas_l1.mt27.r2.c1.lat",    FT_INT64,  BASE_DEC|BASE_UNIT_STRING,  UNS(&units_degree_bearing), 0x01fe000000000000, NULL, HFILL}},
+        {&hf_sbas_l1_mt27_region_c1_lon[1], {"Coordinate 1 Longitude",            "sbas_l1.mt27.r2.c1.lon",    FT_INT64,  BASE_DEC|BASE_UNIT_STRING,  UNS(&units_degree_bearing), 0x0001ff0000000000, NULL, HFILL}},
+        {&hf_sbas_l1_mt27_region_c2_lat[1], {"Coordinate 2 Latitude",             "sbas_l1.mt27.r2.c2.lat",    FT_INT64,  BASE_DEC|BASE_UNIT_STRING,  UNS(&units_degree_bearing), 0x000000ff00000000, NULL, HFILL}},
+        {&hf_sbas_l1_mt27_region_c2_lon[1], {"Coordinate 2 Longitude",            "sbas_l1.mt27.r2.c2.lon",    FT_INT64,  BASE_DEC|BASE_UNIT_STRING,  UNS(&units_degree_bearing), 0x00000000ff800000, NULL, HFILL}},
+        {&hf_sbas_l1_mt27_region_shape[1],  {"Region Shape",                      "sbas_l1.mt27.r2.shape",     FT_UINT64, BASE_DEC|BASE_VAL64_STRING, VALS64(REGION_SHAPE),       0x0000000000400000, NULL, HFILL}},
+        {&hf_sbas_l1_mt27_region[2],        {"Region 3",                          "sbas_l1.mt27.r3",           FT_UINT64, BASE_HEX,    NULL,                       0x0000000000000000, NULL, HFILL}},
+        {&hf_sbas_l1_mt27_region_c1_lat[2], {"Coordinate 1 Latitude",             "sbas_l1.mt27.r3.c1.lat",    FT_INT64,  BASE_DEC|BASE_UNIT_STRING,  UNS(&units_degree_bearing), 0x3fc0000000000000, NULL, HFILL}},
+        {&hf_sbas_l1_mt27_region_c1_lon[2], {"Coordinate 1 Longitude",            "sbas_l1.mt27.r3.c1.lon",    FT_INT64,  BASE_DEC|BASE_UNIT_STRING,  UNS(&units_degree_bearing), 0x003fe00000000000, NULL, HFILL}},
+        {&hf_sbas_l1_mt27_region_c2_lat[2], {"Coordinate 2 Latitude",             "sbas_l1.mt27.r3.c2.lat",    FT_INT64,  BASE_DEC|BASE_UNIT_STRING,  UNS(&units_degree_bearing), 0x00001fe000000000, NULL, HFILL}},
+        {&hf_sbas_l1_mt27_region_c2_lon[2], {"Coordinate 2 Longitude",            "sbas_l1.mt27.r3.c2.lon",    FT_INT64,  BASE_DEC|BASE_UNIT_STRING,  UNS(&units_degree_bearing), 0x0000001ff0000000, NULL, HFILL}},
+        {&hf_sbas_l1_mt27_region_shape[2],  {"Region Shape",                      "sbas_l1.mt27.r3.shape",     FT_UINT64, BASE_DEC|BASE_VAL64_STRING, VALS64(REGION_SHAPE),       0x0000000008000000, NULL, HFILL}},
+        {&hf_sbas_l1_mt27_region[3],        {"Region 4",                          "sbas_l1.mt27.r4",           FT_UINT64, BASE_HEX,    NULL,                       0x0000000000000000, NULL, HFILL}},
+        {&hf_sbas_l1_mt27_region_c1_lat[3], {"Coordinate 1 Latitude",             "sbas_l1.mt27.r4.c1.lat",    FT_INT64,  BASE_DEC|BASE_UNIT_STRING,  UNS(&units_degree_bearing), 0x07f8000000000000, NULL, HFILL}},
+        {&hf_sbas_l1_mt27_region_c1_lon[3], {"Coordinate 1 Longitude",            "sbas_l1.mt27.r4.c1.lon",    FT_INT64,  BASE_DEC|BASE_UNIT_STRING,  UNS(&units_degree_bearing), 0x0007fc0000000000, NULL, HFILL}},
+        {&hf_sbas_l1_mt27_region_c2_lat[3], {"Coordinate 2 Latitude",             "sbas_l1.mt27.r4.c2.lat",    FT_INT64,  BASE_DEC|BASE_UNIT_STRING,  UNS(&units_degree_bearing), 0x000003fc00000000, NULL, HFILL}},
+        {&hf_sbas_l1_mt27_region_c2_lon[3], {"Coordinate 2 Longitude",            "sbas_l1.mt27.r4.c2.lon",    FT_INT64,  BASE_DEC|BASE_UNIT_STRING,  UNS(&units_degree_bearing), 0x00000003fe000000, NULL, HFILL}},
+        {&hf_sbas_l1_mt27_region_shape[3],  {"Region Shape",                      "sbas_l1.mt27.r4.shape",     FT_UINT64, BASE_DEC|BASE_VAL64_STRING, VALS64(REGION_SHAPE),       0x0000000001000000, NULL, HFILL}},
+        {&hf_sbas_l1_mt27_region[4],        {"Region 5",                          "sbas_l1.mt27.r5",           FT_UINT64, BASE_HEX,    NULL,                       0x0000000000000000, NULL, HFILL}},
+        {&hf_sbas_l1_mt27_region_c1_lat[4], {"Coordinate 1 Latitude",             "sbas_l1.mt27.r5.c1.lat",    FT_INT64,  BASE_DEC|BASE_UNIT_STRING,  UNS(&units_degree_bearing), 0x00ff000000000000, NULL, HFILL}},
+        {&hf_sbas_l1_mt27_region_c1_lon[4], {"Coordinate 1 Longitude",            "sbas_l1.mt27.r5.c1.lon",    FT_INT64,  BASE_DEC|BASE_UNIT_STRING,  UNS(&units_degree_bearing), 0x0000ff8000000000, NULL, HFILL}},
+        {&hf_sbas_l1_mt27_region_c2_lat[4], {"Coordinate 2 Latitude",             "sbas_l1.mt27.r5.c2.lat",    FT_INT64,  BASE_DEC|BASE_UNIT_STRING,  UNS(&units_degree_bearing), 0x0000007f80000000, NULL, HFILL}},
+        {&hf_sbas_l1_mt27_region_c2_lon[4], {"Coordinate 2 Longitude",            "sbas_l1.mt27.r5.c2.lon",    FT_INT64,  BASE_DEC|BASE_UNIT_STRING,  UNS(&units_degree_bearing), 0x000000007fc00000, NULL, HFILL}},
+        {&hf_sbas_l1_mt27_region_shape[4],  {"Region Shape",                      "sbas_l1.mt27.r5.shape",     FT_UINT64, BASE_DEC|BASE_VAL64_STRING, VALS64(REGION_SHAPE),       0x0000000000200000, NULL, HFILL}},
+        {&hf_sbas_l1_mt27_spare,            {"Spare",                             "sbas_l1.mt27.spare",        FT_UINT32, BASE_HEX,                   NULL,                       0x001fffc0,         NULL, HFILL}},
+
         // MT63
         {&hf_sbas_l1_mt63,         {"MT63",    "sbas_l1.mt63",         FT_NONE,  BASE_NONE, NULL, 0x00, NULL, HFILL}},
         {&hf_sbas_l1_mt63_spare_1, {"Spare 1", "sbas_l1.mt63.spare_1", FT_UINT8, BASE_HEX,  NULL, 0x03, NULL, HFILL}},
@@ -2169,6 +2335,12 @@ void proto_register_sbas_l1(void) {
         &ett_sbas_l1_mt24,
         &ett_sbas_l1_mt25,
         &ett_sbas_l1_mt26,
+        &ett_sbas_l1_mt27,
+        &ett_sbas_l1_mt27_region[0],
+        &ett_sbas_l1_mt27_region[1],
+        &ett_sbas_l1_mt27_region[2],
+        &ett_sbas_l1_mt27_region[3],
+        &ett_sbas_l1_mt27_region[4],
         &ett_sbas_l1_mt63,
     };
 
@@ -2204,5 +2376,6 @@ void proto_reg_handoff_sbas_l1(void) {
     dissector_add_uint("sbas_l1.mt", 24, create_dissector_handle(dissect_sbas_l1_mt24, proto_sbas_l1));
     dissector_add_uint("sbas_l1.mt", 25, create_dissector_handle(dissect_sbas_l1_mt25, proto_sbas_l1));
     dissector_add_uint("sbas_l1.mt", 26, create_dissector_handle(dissect_sbas_l1_mt26, proto_sbas_l1));
+    dissector_add_uint("sbas_l1.mt", 27, create_dissector_handle(dissect_sbas_l1_mt27, proto_sbas_l1));
     dissector_add_uint("sbas_l1.mt", 63, create_dissector_handle(dissect_sbas_l1_mt63, proto_sbas_l1));
 }

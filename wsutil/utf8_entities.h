@@ -40,6 +40,7 @@
 
 #define UTF8_CAPITAL_DELTA                  "\u0394"      /*   916 /  0x394 */
 #define UTF8_CAPITAL_OMEGA                  "\u03a9"      /*   937 /  0x3a9 */
+#define UTF8_DELTA                          "\u03b4"      /*   948 /  0x3b4 */
 #define UTF8_OMEGA                          "\u03c9"      /*   969 /  0x3c9 */
 
 #define UTF8_BULLET                     "\u2024"      /*  8226 / 0x2024 */
