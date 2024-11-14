@@ -5177,7 +5177,7 @@ proto_register_icmpv6(void)
             NULL, HFILL }},
         { &hf_icmpv6_opt_prefix_flag_l,
           { "On-link flag(L)", "icmpv6.opt.prefix.flag.l", FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x80,
-            "When set, indicates that this prefix can be used for on-link determination", HFILL }},
+            "When set, indicates that this prefix can be used for on-link determination, and traffic to those destinations is sent directly (not via routers)", HFILL }},
         { &hf_icmpv6_opt_prefix_flag_a,
           { "Autonomous address-configuration flag(A)", "icmpv6.opt.prefix.flag.a", FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x40,
             "When set, indicates that this prefix can be used for stateless address configuration", HFILL }},
