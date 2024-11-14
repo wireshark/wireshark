@@ -1101,72 +1101,54 @@ static int display_raw_cyclic_data(uint8_t display, int offset, uint16_t buffer_
 		proto_tree_add_bytes_format_value(ecmp_current_tree, hf_ecmp_cyclic_data, tvb, offset-1, 0, NULL, "No data");
 	} else {
 		/* define some variables  */
-		char*		pdata = NULL; /* pointer to array that stores the formatted data string */
-		uint16_t		idx = 0; /* counts through formatted string array */
-		uint8_t		value8 = 0; /* placeholder for extracted 8-bit data */
-		uint16_t		value16 = 0; /* placeholder for extracted 16-bit data */
-		uint32_t		value32 = 0; /* placeholder for extracted 32-bit data */
+		wmem_strbuf_t*		pdata = wmem_strbuf_create(pinfo->pool); /* formatted data string */
 		uint16_t		num_elements_total = 0; /* contains total number of elements (byte/word/long) to be processed  */
 		const uint16_t	num_byte_elements_per_line = 16; /* number of byte (8-bit) elements per line e.g.  "1B " (3 chars per element)  */
 		const uint16_t	num_word_elements_per_line = 16; /* number of word (16-bit) elements per line e.g.  "A81B " (5 chars per element) */
 		const uint16_t	num_long_elements_per_line = 8; /* number of long (32-bit) elements per line e.g.  "01F4A81B " (9 chars per element) */
 		uint16_t		num_elements_per_line = 8; /* counts the current number of elements per line */
 		uint16_t		num_elements = 0; /* counts the number of elements in the format string */
-		uint16_t		format_string_size = 0; /* size of dynamic array to hold the formatted string */
 		uint16_t		a = 0; /* value used for looping */
 		int		start_offset, line_offset;
 
-		/* calculate format string array size and other stuff                               */
-		/*                                                                                  */
-		/* Note: format string does require a nul-terminator (the + 1 in the equations)     */
-		/*                                                                                  */
-		/* display = 0:  (byte format  "1D 24 3F ... A3 "                                   */
-		/*      format_string_size = (num_byte_elements_per_line * 3) + 1                   */
-		/*                                                                                  */
-		/* display = 1:  (word format  "1D24 3F84 120B ... 1FA3 "                           */
-		/*      format_string_size = (num_word_elements_per_line * 5) + 1                   */
-		/*                                                                                  */
-		/* display = 2:  (byte format  "1D243F84 9BC08F20 ... 28BB1FA3 "                    */
-		/*      format_string_size = (num_long_elements_per_line * 9) + 1                   */
+		/* calculate number of elements                                                     */
 		/*                                                                                  */
 		if (display == cyclic_display_byte_format) {
-			format_string_size = (num_byte_elements_per_line * 3) + 1; /* format_string_size = 49  */
 			num_elements_per_line = num_byte_elements_per_line; /* num_elements_per_line = 16  */
 			num_elements_total = buffer_size;
 		} else if (display == cyclic_display_word_format) {
-			format_string_size = (num_word_elements_per_line * 5) + 1; /* format_string_size = 81  */
 			num_elements_per_line = num_word_elements_per_line; /* num_elements_per_line = 16  */
 			num_elements_total = buffer_size >> 1;
 		} else if (display == cyclic_display_long_format) {
-			format_string_size = (num_long_elements_per_line * 9) + 1; /* format_string_size = 73  */
 			num_elements_per_line = num_long_elements_per_line; /* num_elements_per_line = 8  */
 			num_elements_total = buffer_size >> 2;
 		} else {
-			format_string_size = (num_byte_elements_per_line * 3) + 1; /* format_string_size = 49  */
 			num_elements_per_line = num_byte_elements_per_line; /* num_elements_per_line = 16  */
 			num_elements_total = buffer_size;
 		}
 
-		/* allocate dynamic memory for one line  */
-		pdata = (char *)wmem_alloc(pinfo->pool, format_string_size);
-
 		/* OK, let's get started */
-		idx = 0;
 		num_elements = 0;
 
 		line_offset = start_offset = offset;
 		/* work through the display elements, 1 byte\word\long at a time  */
-		for (a = 0; a < num_elements_total; a++ )
-			{
+		for (a = 0; a < num_elements_total; a++ ) {
+			if (wmem_strbuf_get_len(pdata) > 0) {
+				wmem_strbuf_append_c(pdata, ' ');
+			}
+
 			/* use Wireshark accessor function to get the next byte, word, or long data  */
 			if (display == cyclic_display_byte_format) {
-				value8 = tvb_get_uint8(tvb, offset);
+				uint8_t value8 = tvb_get_uint8(tvb, offset);
+				wmem_strbuf_append_printf(pdata, "%02x", value8);
 				offset++;
 			} else if (display == cyclic_display_word_format) {
-				value16 = tvb_get_ntohs(tvb, offset);
+				uint16_t value16 = tvb_get_ntohs(tvb, offset);
+				wmem_strbuf_append_printf(pdata, "%04x", value16);
 				offset += 2;
 			} else if (display == cyclic_display_long_format) {
-				value32 = tvb_get_ntohl(tvb, offset);
+				uint32_t value32 = tvb_get_ntohl(tvb, offset);
+				wmem_strbuf_append_printf(pdata, "%08x", value32);
 				offset += 4;
 			}
 
@@ -1175,47 +1157,20 @@ static int display_raw_cyclic_data(uint8_t display, int offset, uint16_t buffer_
 
 			/* check if we hit the max number of byte elements per line  */
 			if (num_elements >= num_elements_per_line) {
-				/* we hit end of the current line  */
-				/* add final value to string */
-				if (display == cyclic_display_byte_format) {
-					snprintf(&pdata[idx], 32, "%02x",value8);
-				} else if (display == cyclic_display_word_format) {
-						snprintf(&pdata[idx], 32, "%04x",value16);
-				} else if (display == cyclic_display_long_format) {
-					snprintf(&pdata[idx], 32, "%08x",value32);
-				}
-
 				/* display the completed line in the sub-tree  */
-				proto_tree_add_bytes_format(ecmp_current_tree, hf_ecmp_cyclic_data, tvb, offset, offset-line_offset, NULL, "%s", pdata);
+				proto_tree_add_bytes_format(ecmp_current_tree, hf_ecmp_cyclic_data, tvb, offset, offset-line_offset, NULL, "%s", wmem_strbuf_get_str(pdata));
 
 				/* start the line over */
-				idx = 0;
+				wmem_strbuf_truncate(pdata, 0);
 				num_elements = 0;
 				line_offset = offset;
-
-			} else {
-				/* we're still adding to the current line  */
-				/* add current value to string */
-				if (display == cyclic_display_byte_format) {
-					snprintf(&pdata[idx], 32, "%02x ",value8);
-					idx += 3;
-				} else if (display == cyclic_display_word_format) {
-					snprintf(&pdata[idx], 32, "%04x ",value16);
-					idx += 5;
-				} else if (display == cyclic_display_long_format) {
-					snprintf(&pdata[idx], 32, "%08x ",value32);
-					idx += 9;
-				}
 			}
 		}
 
 		/* if we exited the loop, see if there's a partial line to display  */
 		if (num_elements > 0) {
-			/* add null-terminator to partial line  */
-			pdata[idx] = 0x00;
-
 			/* display the partial line in the sub-tree  */
-			proto_tree_add_bytes_format(ecmp_current_tree, hf_ecmp_cyclic_data, tvb, start_offset, offset-start_offset, NULL, "%s", pdata);
+			proto_tree_add_bytes_format(ecmp_current_tree, hf_ecmp_cyclic_data, tvb, start_offset, offset-start_offset, NULL, "%s", wmem_strbuf_get_str(pdata));
 		}
 	}
 	return offset;
