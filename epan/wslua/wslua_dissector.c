@@ -449,11 +449,43 @@ WSLUA_METHOD DissectorTable_add (lua_State *L) {
             guids_add_uuid(guid, dissector_handle_get_protocol_short_name(handle));
         }
     } else if ( type == FT_UINT32 || type == FT_UINT16 || type ==  FT_UINT8 || type ==  FT_UINT24 ) {
-        if (lua_isnumber(L, WSLUA_ARG_DissectorTable_add_PATTERN)) {
+        /* Either an integer or a range.
+         * For number literals, Lua only accepts "." as the decimal separator,
+         * but when converting strings to numbers, Lua will accept "." or the
+         * locale native separator, and when converting numbers to strings will
+         * use the locale native separator. (On Lua 5.2 and earlier, *only*
+         * the locale native separator may be accepted.) The behavior can be
+         * changed when compiling Lua, but generally isn't (and on UN*X we use
+         * system packages for Lua.)
+         *
+         * Some locales use "," as the decimal separator. range_convert_str
+         * expects "," to separate integers in ranges.
+         *
+         * We can either call setlocale(LC_NUMERIC, ...) to save, set, and
+         * restore the locale here (not thread safe), or try to work around it.
+         */
+        switch(lua_type(L, WSLUA_ARG_DissectorTable_add_PATTERN)) {
+        case LUA_TNUMBER:
+        {
+            /* Try to convert to an integer. Note that on Lua 5.3 and higher
+             * this fails for numbers that can't be converted exactly, unlike
+             * on Lua 5.2 where it simply casts. This can be changed at Lua
+             * compile time, but on UN*X systems we use system Lua packages.
+             */
             uint32_t port = wslua_checkuint32(L, WSLUA_ARG_DissectorTable_add_PATTERN);
             dissector_add_uint(dt->name, port, handle);
-        } else {
-            /* Not a number, try as range */
+            break;
+        }
+
+        case LUA_TSTRING:
+        {
+            /* Convert all strings to ranges without trying number conversion,
+             * so that on locales that use decimal commas "10,11" is a range
+             * not the number 10.11.
+             * Using a range works fine for numbers that are single integers,
+             * but note range_convert_str will reject strings like "10.0",
+             * whereas Lua checkinteger will convert it.
+             */
             const char* pattern = luaL_checkstring(L,WSLUA_ARG_DissectorTable_add_PATTERN);
             range_t *range = NULL;
             if (range_convert_str(NULL, &range, pattern, UINT32_MAX) == CVT_NO_ERROR) {
@@ -461,9 +493,24 @@ WSLUA_METHOD DissectorTable_add (lua_State *L) {
             } else {
                 wmem_free (NULL, range);
                 WSLUA_ARG_ERROR(DissectorTable_add,PATTERN,"invalid integer or range");
-                return  0;
+                return 0;
             }
             wmem_free (NULL, range);
+            break;
+        }
+
+#if 0
+        /* Just don't allow UInt64 types, but if 64-bit integer tables get
+         * supported (#20207) we'll need something like: */
+        case LUA_TUSERDATA:
+            checkUInt64(L, checkUInt64(L, 1);
+            ...
+            break;
+#endif
+
+        default:
+            WSLUA_ARG_ERROR(DissectorTable_add,PATTERN,"invalid integer or range");
+            return 0;
         }
     } else {
         luaL_error(L,"Strange type %d for a DissectorTable",type);
@@ -522,12 +569,20 @@ WSLUA_METHOD DissectorTable_set (lua_State *L) {
             guids_add_uuid(guid, dissector_handle_get_protocol_short_name(handle));
         }
     } else if ( type == FT_UINT32 || type == FT_UINT16 || type ==  FT_UINT8 || type ==  FT_UINT24 ) {
-        if (lua_isnumber(L, WSLUA_ARG_DissectorTable_set_PATTERN)) {
+        /* Either an integer or a range. See discussion above in _add. */
+        switch(lua_type(L, WSLUA_ARG_DissectorTable_set_PATTERN)) {
+
+        case LUA_TNUMBER:
+        {
             uint32_t port = wslua_checkuint32(L, WSLUA_ARG_DissectorTable_set_PATTERN);
             dissector_delete_all(dt->name, handle);
             dissector_add_uint(dt->name, port, handle);
-        } else {
-            /* Not a number, try as range */
+            break;
+        }
+
+        case LUA_TSTRING:
+        {
+            /* Convert all strings to ranges */
             const char* pattern = luaL_checkstring(L,WSLUA_ARG_DissectorTable_set_PATTERN);
             range_t *range = NULL;
             if (range_convert_str(NULL, &range, pattern, UINT32_MAX) == CVT_NO_ERROR) {
@@ -539,6 +594,12 @@ WSLUA_METHOD DissectorTable_set (lua_State *L) {
                 return 0;
             }
             wmem_free (NULL, range);
+            break;
+        }
+
+        default:
+            WSLUA_ARG_ERROR(DissectorTable_set,PATTERN,"invalid integer or range");
+            return 0;
         }
     } else {
         luaL_error(L,"Strange type %d for a DissectorTable",type);
@@ -586,21 +647,35 @@ WSLUA_METHOD DissectorTable_remove (lua_State *L) {
         guids_delete_guid(guid);
         dissector_delete_guid(dt->name, &gk, handle);
     } else if ( type == FT_UINT32 || type == FT_UINT16 || type ==  FT_UINT8 || type ==  FT_UINT24 ) {
-        if (lua_isnumber(L, WSLUA_ARG_DissectorTable_remove_PATTERN)) {
-          uint32_t port = wslua_checkuint32(L, WSLUA_ARG_DissectorTable_remove_PATTERN);
-          dissector_delete_uint(dt->name, port, handle);
-        } else {
-            /* Not a number, try as range */
+        /* Either an integer or a range. See discussion above in _add. */
+        switch(lua_type(L, WSLUA_ARG_DissectorTable_set_PATTERN)) {
+
+        case LUA_TNUMBER:
+        {
+            uint32_t port = wslua_checkuint32(L, WSLUA_ARG_DissectorTable_set_PATTERN);
+            dissector_delete_uint(dt->name, port, handle);
+            break;
+        }
+
+        case LUA_TSTRING:
+        {
+            /* Convert all strings to ranges */
             const char* pattern = luaL_checkstring(L,WSLUA_ARG_DissectorTable_remove_PATTERN);
             range_t *range = NULL;
-            if (range_convert_str(NULL, &range, pattern, UINT32_MAX) == CVT_NO_ERROR)
+            if (range_convert_str(NULL, &range, pattern, UINT32_MAX) == CVT_NO_ERROR) {
                 dissector_delete_uint_range(dt->name, range, handle);
-            else {
+            } else {
                 wmem_free (NULL, range);
                 WSLUA_ARG_ERROR(DissectorTable_remove,PATTERN,"invalid integer or range");
                 return 0;
             }
             wmem_free (NULL, range);
+            break;
+        }
+
+        default:
+            WSLUA_ARG_ERROR(DissectorTable_remove,PATTERN,"invalid integer or range");
+            return 0;
         }
     }
 
