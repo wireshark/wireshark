@@ -147,6 +147,7 @@ static int hf_icmpv6_opt_prefix_flag;
 static int hf_icmpv6_opt_prefix_flag_l;
 static int hf_icmpv6_opt_prefix_flag_a;
 static int hf_icmpv6_opt_prefix_flag_r;
+static int hf_icmpv6_opt_prefix_flag_p;
 static int hf_icmpv6_opt_prefix_flag_reserved;
 static int hf_icmpv6_opt_prefix_valid_lifetime;
 static int hf_icmpv6_opt_prefix_preferred_lifetime;
@@ -1862,6 +1863,7 @@ static int dissect_icmpv6_nd_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, 
                     &hf_icmpv6_opt_prefix_flag_l,
                     &hf_icmpv6_opt_prefix_flag_a,
                     &hf_icmpv6_opt_prefix_flag_r,
+                    &hf_icmpv6_opt_prefix_flag_p,
                     &hf_icmpv6_opt_prefix_flag_reserved,
                     NULL
                 };
@@ -5182,8 +5184,11 @@ proto_register_icmpv6(void)
         { &hf_icmpv6_opt_prefix_flag_r,
           { "Router address flag(R)", "icmpv6.opt.prefix.flag.r", FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x20,
             "When set indicates that the Prefix field contains a complete IP address assigned to the sending router", HFILL }},
+        { &hf_icmpv6_opt_prefix_flag_p,
+          { "Prefix Delegation preferred flag (P)", "icmpv6.opt.prefix.flag.p", FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x10,
+            "When set, indicates that the network prefers that clients use Prefix Delegation (PD) instead of acquiring individual addresses via SLAAC or DHCPv6 address assignment.", HFILL }},
         { &hf_icmpv6_opt_prefix_flag_reserved,
-          { "Reserved", "icmpv6.opt.prefix.flag.reserved", FT_UINT8, BASE_DEC, NULL, 0x1f,
+          { "Reserved", "icmpv6.opt.prefix.flag.reserved", FT_UINT8, BASE_DEC, NULL, 0xf,
             NULL, HFILL }},
         { &hf_icmpv6_opt_prefix_valid_lifetime,
           { "Valid Lifetime", "icmpv6.opt.prefix.valid_lifetime", FT_UINT32, BASE_DEC|BASE_SPECIAL_VALS, VALS(unique_infinity), 0x00,
