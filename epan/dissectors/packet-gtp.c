@@ -10874,7 +10874,9 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
         }
     }
 
-    args->gtp_info = gtp_info;
+    if (args) {
+        args->gtp_info = gtp_info;
+    }
     if (gtp_hdr->message != GTP_MSG_TPDU) {
         uint8_t version = gtp_version;
         /* GTP' protocol version has different meaning rather GTP.
