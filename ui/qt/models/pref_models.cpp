@@ -672,6 +672,10 @@ bool AdvancedPrefsModel::filterAcceptItem(PrefsItem& item) const
         (name.contains(filter_, Qt::CaseInsensitive) || tooltip.contains(filter_, Qt::CaseInsensitive)))
         return true;
 
+    if (item.getPrefTypeName().contains(filter_, Qt::CaseSensitive)) {
+        return true;
+    }
+
     PrefsItem *child_item;
     for (int child_row = 0; child_row < item.childCount(); child_row++)
     {

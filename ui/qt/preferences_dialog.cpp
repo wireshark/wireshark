@@ -29,8 +29,10 @@
 
 #include "main_application.h"
 
+#include <QClipboard>
 #include <QDesktopServices>
 #include <QKeyEvent>
+#include <QMenu>
 #include <QUrl>
 
 extern "C" {
@@ -153,6 +155,9 @@ PreferencesDialog::PreferencesDialog(QWidget *parent) :
     searchLineEditTimer = new QTimer(this);
     searchLineEditTimer->setSingleShot(true);
     connect(searchLineEditTimer, &QTimer::timeout, this, &PreferencesDialog::updateSearchLineEdit);
+
+    pd_ui_->advancedView->setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(pd_ui_->advancedView, &QTreeView::customContextMenuRequested, this, &PreferencesDialog::handleCopyMenu);
 }
 
 PreferencesDialog::~PreferencesDialog()
@@ -225,6 +230,100 @@ void PreferencesDialog::selectPane(QString pane)
             pd_ui_->stackedWidget->setCurrentWidget(moduleWindow);
         }
     }
+}
+
+void PreferencesDialog::handleCopyMenu(QPoint pos)
+{
+    QTreeView * tree = qobject_cast<QTreeView *>(sender());
+    if (! tree)
+        return;
+
+    QModelIndex index = tree->indexAt(pos);
+    if (! index.isValid())
+        return;
+
+    QMenu * menu = new QMenu(this);
+    menu->setAttribute(Qt::WA_DeleteOnClose);
+
+    QAction * copyColumnAction = menu->addAction(tr("Copy"));
+    copyColumnAction->setData(VariantPointer<QTreeView>::asQVariant(tree));
+    connect(copyColumnAction, &QAction::triggered, this, &PreferencesDialog::copyActionTriggered);
+
+    QModelIndexList selectedRows = tree->selectionModel()->selectedRows();
+    QAction * copyRowAction = menu->addAction(tr("Copy Row(s)", "", static_cast<int>(selectedRows.count())));
+    copyRowAction->setData(VariantPointer<QTreeView>::asQVariant(tree));
+    connect(copyRowAction, &QAction::triggered, this, &PreferencesDialog::copyRowActionTriggered);
+
+    menu->popup(tree->viewport()->mapToGlobal(pos));
+}
+
+void PreferencesDialog::copyActionTriggered()
+{
+    QAction * sendingAction = qobject_cast<QAction *>(sender());
+    if (! sendingAction)
+        return;
+
+    QTreeView * tree = VariantPointer<QTreeView>::asPtr(sendingAction->data());
+
+    QModelIndexList selIndeces = tree->selectionModel()->selectedIndexes();
+
+    int copyColumn = -1;
+    QMenu * menu = qobject_cast<QMenu *>(sendingAction->parent());
+    if (menu)
+    {
+        QPoint menuPosOnTable = tree->mapFromGlobal(QCursor::pos());
+        QModelIndex clickedIndex = tree->indexAt(menuPosOnTable);
+        if (clickedIndex.isValid())
+            copyColumn = clickedIndex.column();
+        if (copyColumn < 0)
+            copyColumn = 0;
+    }
+
+    QString clipdata;
+    if (selIndeces.count() > 0)
+    {
+        foreach(QModelIndex index, selIndeces)
+        {
+            if (index.column() == copyColumn)
+            {
+                QString data = tree->model()->data(index, Qt::DisplayRole).toString();
+                clipdata.append(data.append("\n"));
+            }
+        }
+    }
+
+    QClipboard * clipBoard = QApplication::clipboard();
+    clipBoard->setText(clipdata);
+}
+
+void PreferencesDialog::copyRowActionTriggered()
+{
+    QAction * sendingAction = qobject_cast<QAction *>(sender());
+    if (! sendingAction)
+        return;
+
+    QTreeView * tree = VariantPointer<QTreeView>::asPtr(sendingAction->data());
+
+    QModelIndexList selIndeces = tree->selectionModel()->selectedIndexes();
+
+    QString clipdata;
+    if (selIndeces.count() > 0)
+    {
+        int lastCol = tree->model()->columnCount() - 1;
+
+        QStringList row;
+        foreach(QModelIndex index, selIndeces)
+        {
+            row << tree->model()->data(index, Qt::DisplayRole).toString();
+            if (index.column() < lastCol)
+                continue;
+            clipdata.append(row.join("\t\t").append("\n"));
+            row.clear();
+        }
+    }
+
+    QClipboard * clipBoard = QApplication::clipboard();
+    clipBoard->setText(clipdata);
 }
 
 void PreferencesDialog::updateSearchLineEdit()

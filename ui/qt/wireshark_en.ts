@@ -7783,6 +7783,13 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <source>Preferences</source>
         <translation type="unfinished"></translation>
     </message>
+    <message numerus="yes">
+        <source>Copy Row(s)</source>
+        <translation type="unfinished">
+            <numerusform>Copy Row</numerusform>
+            <numerusform>Copy Rows</numerusform>
+        </translation>
+    </message>
 </context>
 <context>
     <name>PrefsModel</name>
