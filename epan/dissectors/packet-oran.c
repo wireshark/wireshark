@@ -450,7 +450,7 @@ static unsigned pref_ru_port_id_bits    = 4;
 static unsigned pref_sample_bit_width_uplink   = 14;
 static unsigned pref_sample_bit_width_downlink = 14;
 
-/* Compression schemes */
+/* 8.3.3.15 Compression schemes */
 #define COMP_NONE                             0
 #define COMP_BLOCK_FP                         1
 #define COMP_BLOCK_SCALE                      2
@@ -472,18 +472,29 @@ static unsigned pref_num_bf_antennas = 32;
 static bool pref_showIQSampleValues = true;
 
 
-static const enum_val_t compression_options[] = {
-    { "COMP_NONE",                             "No Compression",                                                COMP_NONE },
-    { "COMP_BLOCK_FP",                         "Block Floating Point Compression",                              COMP_BLOCK_FP },
-    { "COMP_BLOCK_SCALE",                      "Block Scaling Compression",                                     COMP_BLOCK_SCALE },
-    { "COMP_U_LAW",                            "u-Law Compression",                                             COMP_U_LAW },
-    { "COMP_MODULATION",                       "Modulation Compression",                                        COMP_MODULATION },
-    { "BFP_AND_SELECTIVE_RE",                  "BFP + selective RE sending",                                    BFP_AND_SELECTIVE_RE },
-    { "MOD_COMPR_AND_SELECTIVE_RE",            "mod-compr + selective RE sending",                              MOD_COMPR_AND_SELECTIVE_RE },
-    { "BFP_AND_SELECTIVE_RE_WITH_MASKS",       "BFP + selective RE sending with masks in section header",       BFP_AND_SELECTIVE_RE_WITH_MASKS },
-    { "MOD_COMPR_AND_SELECTIVE_RE_WITH_MASKS", "mod-compr + selective RE sending with masks in section header", MOD_COMPR_AND_SELECTIVE_RE },
+static const enum_val_t dl_compression_options[] = {
+    { "COMP_NONE",                             "No Compression",                                                             COMP_NONE },
+    { "COMP_BLOCK_FP",                         "Block Floating Point Compression",                                           COMP_BLOCK_FP },
+    { "COMP_BLOCK_SCALE",                      "Block Scaling Compression",                                                  COMP_BLOCK_SCALE },
+    { "COMP_U_LAW",                            "u-Law Compression",                                                          COMP_U_LAW },
+    { "COMP_MODULATION",                       "Modulation Compression",                                                     COMP_MODULATION },
+    { "BFP_AND_SELECTIVE_RE",                  "Block Floating Point + selective RE sending",                                BFP_AND_SELECTIVE_RE },
+    { "MOD_COMPR_AND_SELECTIVE_RE",            "Modulation Compression + selective RE sending",                              MOD_COMPR_AND_SELECTIVE_RE },
+    { "BFP_AND_SELECTIVE_RE_WITH_MASKS",       "Block Floating Point + selective RE sending with masks in section header",   BFP_AND_SELECTIVE_RE_WITH_MASKS },
+    { "MOD_COMPR_AND_SELECTIVE_RE_WITH_MASKS", "Modulation Compression + selective RE sending with masks in section header", MOD_COMPR_AND_SELECTIVE_RE },
     { NULL, NULL, 0 }
 };
+
+static const enum_val_t ul_compression_options[] = {
+    { "COMP_NONE",                             "No Compression",                                                           COMP_NONE },
+    { "COMP_BLOCK_FP",                         "Block Floating Point Compression",                                         COMP_BLOCK_FP },
+    { "COMP_BLOCK_SCALE",                      "Block Scaling Compression",                                                COMP_BLOCK_SCALE },
+    { "COMP_U_LAW",                            "u-Law Compression",                                                        COMP_U_LAW },
+    { "BFP_AND_SELECTIVE_RE",                  "Block Floating Point + selective RE sending",                              BFP_AND_SELECTIVE_RE },
+    { "BFP_AND_SELECTIVE_RE_WITH_MASKS",       "Block Floating Point + selective RE sending with masks in section header", BFP_AND_SELECTIVE_RE_WITH_MASKS },
+    { NULL, NULL, 0 }
+};
+
 
 static bool pref_support_udcompLen = false;
 
@@ -3075,6 +3086,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                 break;
 
             case 15:  /* SE 15: Mixed-numerology Info. for ueId-based beamforming */
+            {
                 /* frameStructure */
                 offset = dissect_frame_structure(extension_tree, tvb, offset,
                                                  subframeId, slotId);
@@ -3082,9 +3094,13 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                 proto_tree_add_item(extension_tree, hf_oran_freqOffset, tvb, offset, 3, ENC_BIG_ENDIAN);
                 offset += 3;
                 /* cpLength */
-                proto_tree_add_item(extension_tree, hf_oran_cpLength, tvb, offset, 2, ENC_BIG_ENDIAN);
+                proto_item *cplength_ti = proto_tree_add_item(extension_tree, hf_oran_cpLength, tvb, offset, 2, ENC_BIG_ENDIAN);
+                if (sectionType != 0 && sectionType != 3) {
+                    proto_item_append_text(cplength_ti, "  (ignored - used only with ST0 and ST3)");
+                }
                 offset += 2;
                 break;
+            }
 
             case 16:  /* SE 16: Antenna mapping in UE channel information based UL beamforming */
             {
@@ -3925,9 +3941,10 @@ static int dissect_udcompparam(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
     }
 
     /* Subtree */
+    unsigned start_offset = offset;
     proto_item *udcompparam_ti = proto_tree_add_string_format(tree, hf_oran_udCompParam,
                                                          tvb, offset, 1, "",
-                                                         (for_sinr) ? "sinrCompHdr" : "udCompHdr");
+                                                         (for_sinr) ? "sinrCompHdr" : "udCompParam");
     proto_tree *udcompparam_tree = proto_item_add_subtree(udcompparam_ti, ett_oran_udcompparam);
 
     uint32_t param_exponent, param_sresmask;
@@ -3962,31 +3979,64 @@ static int dissect_udcompparam(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
             break;
 
         case BFP_AND_SELECTIVE_RE:            /* 5 */
-            /* sReSMask + exponent (exponent in middle!) */
-            proto_tree_add_item_ret_uint(udcompparam_tree, hf_oran_sReSMask,
-                                         tvb, offset, 2, ENC_BIG_ENDIAN, &param_sresmask);
+        {
+            /* sReSMask (exponent in middle!) */
+            proto_item *sresmask_ti;
+            sresmask_ti = proto_tree_add_item_ret_uint(udcompparam_tree, hf_oran_sReSMask,
+                                                       tvb, offset, 2, ENC_BIG_ENDIAN, &param_sresmask);
+            /* Get rid of exponent-shaped gap */
+            param_sresmask = ((param_sresmask >> 4) & 0x0f00) | (param_sresmask & 0xff);
+            unsigned res = 0;
+            for (unsigned n=0; n < 12; n++) {
+                if ((param_sresmask >> n) & 0x1) {
+                    res++;
+                }
+            }
+            proto_item_append_text(sresmask_ti, "   (%u REs)", res);
+
+            /* exponent */
             proto_tree_add_item_ret_uint(udcompparam_tree, hf_oran_exponent,
                                          tvb, offset, 1, ENC_BIG_ENDIAN, &param_exponent);
             *sReSMask = param_sresmask;
             *exponent = param_exponent;
+
+            proto_item_append_text(udcompparam_ti, " (exponent=%u, %u REs)", *exponent, res);
             offset += 2;
             break;
+        }
 
         case MOD_COMPR_AND_SELECTIVE_RE:      /* 6 */
-            /* sReSMask + reserved*/
-            proto_tree_add_item_ret_uint(udcompparam_tree, hf_oran_sReSMask,
-                                         tvb, offset, 2, ENC_BIG_ENDIAN, &param_sresmask);
-            proto_tree_add_item(udcompparam_tree, hf_oran_reserved_4bits,
-                                tvb, offset, 1, ENC_BIG_ENDIAN);
+        {
+            /* sReSMask (reserved in middle!) */
+            proto_item *sresmask_ti;
+            sresmask_ti = proto_tree_add_item_ret_uint(udcompparam_tree, hf_oran_sReSMask,
+                                                       tvb, offset, 2, ENC_BIG_ENDIAN, &param_sresmask);
+            /* Get rid of reserved-shaped gap */
+            param_sresmask = ((param_sresmask >> 4) & 0x0f00) | (param_sresmask & 0xff);
+            unsigned res = 0;
+            for (unsigned n=0; n < 12; n++) {
+                if ((param_sresmask >> n) & 0x1) {
+                    res++;
+                }
+            }
+            proto_item_append_text(sresmask_ti, "   (%u REs)", res);
+
+            /* reserved */
+            proto_tree_add_item(udcompparam_tree, hf_oran_reserved_last_4bits,
+                                         tvb, offset, 1, ENC_BIG_ENDIAN);
             *sReSMask = param_sresmask;
+
+            proto_item_append_text(udcompparam_ti, " (%u REs)", res);
             offset += 2;
             break;
+        }
 
         default:
             /* reserved (set to all zeros), but how many bytes?? */
             break;
     }
 
+    proto_item_set_len(udcompparam_ti, offset-start_offset);
     return offset;
 }
 
@@ -5196,7 +5246,7 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
                         samples++;
                     }
                 }
-                proto_item_append_text(prbHeading, " (%u samples)", samples);
+                proto_item_append_text(prbHeading, " (%u REs)", samples);
             }
 
             /* Advance past samples */
@@ -7468,7 +7518,7 @@ proto_register_oran(void)
     prefs_register_uint_preference(oran_module, "oran.iq_bitwidth_up", "IQ Bitwidth Uplink",
         "The bit width of a sample in the Uplink (if no udcompHdr)", 10, &pref_sample_bit_width_uplink);
     prefs_register_enum_preference(oran_module, "oran.ud_comp_up", "Uplink User Data Compression",
-        "Uplink User Data Compression", &pref_iqCompressionUplink, compression_options, false);
+        "Uplink User Data Compression", &pref_iqCompressionUplink, ul_compression_options, false);
     prefs_register_bool_preference(oran_module, "oran.ud_comp_hdr_up", "udCompHdr field is present for uplink",
         "The udCompHdr field in U-Plane messages may or may not be present, depending on the "
         "configuration of the O-RU. This preference instructs the dissector to expect "
@@ -7477,7 +7527,7 @@ proto_register_oran(void)
     prefs_register_uint_preference(oran_module, "oran.iq_bitwidth_down", "IQ Bitwidth Downlink",
         "The bit width of a sample in the Downlink (if no udcompHdr)", 10, &pref_sample_bit_width_downlink);
     prefs_register_enum_preference(oran_module, "oran.ud_comp_down", "Downlink User Data Compression",
-        "Downlink User Data Compression", &pref_iqCompressionDownlink, compression_options, false);
+        "Downlink User Data Compression", &pref_iqCompressionDownlink, dl_compression_options, false);
     prefs_register_bool_preference(oran_module, "oran.ud_comp_hdr_down", "udCompHdr field is present for downlink",
         "The udCompHdr field in U-Plane messages may or may not be present, depending on the "
         "configuration of the O-RU. This preference instructs the dissector to expect "
