@@ -254,5 +254,4 @@ function test_proto.dissector(tvb, pinfo, tree)
     testlib.pass(FRAME)
 end
 
-DissectorTable.get("udp.port"):add(65333, test_proto)
-DissectorTable.get("udp.port"):add(65346, test_proto)
+DissectorTable.get("udp.port"):add("65333,65346", test_proto)

@@ -8,7 +8,7 @@ local RESET_PREF = "reset"
 local OTHER = "other"
 testlib.init( {
     [GET_PREF] = 14,
-    [SET_PREF] = 37,
+    [SET_PREF] = 39,
     [RESET_PREF] = 11,
     [OTHER] = 0
 } )
@@ -95,6 +95,8 @@ testlib.test(SET_PREF,"set_preference-range-3",set_preference("http.tls.port","4
 testlib.test(SET_PREF,"set_preference-range-4",set_preference("http.tls.port","443-444") == true)
 testlib.test(SET_PREF,"set_preference-range-4-get",get_preference("http.tls.port") == "443-444")
 testlib.test(SET_PREF,"set_preference-range-5",set_preference("http.tls.port","443-444") == false)
+testlib.test(SET_PREF,"set_preference-range-6",set_preference("http.tls.port","443,444") == true) -- XXX - Returns "changed" because ranges_are_equal is false, 1 range of 2 vs 2 ranges of 1
+testlib.test(SET_PREF,"set_preference-range-7",set_preference("http.tls.port","443,444") == false)
 success = pcall(set_preference, "user_dlt.encaps_table")
 testlib.test(SET_PREF,"set_preference-uat-0", not success)
 
