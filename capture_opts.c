@@ -346,6 +346,9 @@ set_autostop_criterion(capture_options *capture_opts, const char *autostoparg)
     } else if (strcmp(autostoparg,"packets") == 0) {
         capture_opts->has_autostop_written_packets = true;
         capture_opts->autostop_written_packets = get_positive_int(p,"packet write count");
+    } else if (strcmp(autostoparg,"events") == 0) {
+        capture_opts->has_autostop_written_packets = true;
+        capture_opts->autostop_written_packets = get_positive_int(p,"event write count");
     } else {
         return false;
     }

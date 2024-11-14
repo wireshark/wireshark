@@ -1,5 +1,5 @@
 include::../attributes.adoc[]
-= wireshark(1)
+= stratoshark(1)
 :doctype: manpage
 :stylesheet: ws.css
 :linkcss:
@@ -7,13 +7,13 @@ include::../attributes.adoc[]
 
 == NAME
 
-wireshark - Interactively dump and analyze network traffic
+stratoshark - System call and event log analyzer
 
 == SYNOPSIS
 
 [manarg]
-*wireshark*
-[ *-i* <capture interface>|- ]
+*stratoshark*
+[ *-i* <capture source>|- ]
 [ *-f* <capture filter> ]
 [ *-Y* <display filter> ]
 [ *-w* <outfile> ]
@@ -21,168 +21,55 @@ wireshark - Interactively dump and analyze network traffic
 [ <infile> ]
 
 [manarg]
-*wireshark*
+*stratoshark*
 *-h|--help*
 
 [manarg]
-*wireshark*
+*stratoshark*
 *-v|--version*
 
 == DESCRIPTION
 
-*Wireshark* is a GUI network protocol analyzer.  It lets you
-interactively browse packet data from a live network or from a
-previously saved capture file.  *Wireshark*'s native capture file
-formats are *pcapng* format and *pcap* format; it can read and write
-both formats..  *pcap* format is also the format used by *tcpdump* and
-various other tools; *tcpdump*, when using newer versions of the
-*libpcap* library, can also read some pcapng files, and, on newer
-versions of macOS, can read all pcapng files and can write them as well.
+*Stratoshark* is a GUI system call and log analyzer.
+It lets you interactively browse system calls and log messages from a live system or from a previously saved capture file.
+*Stratoshark*'s native capture file format is *scap*, which is used by the sysdig CLI tool and by Falco.
 
-*Wireshark* can also read / import the following file formats:
+// *Stratoshark* can also read / import the following file formats:
 
-* Oracle (previously Sun) *snoop* and *atmsnoop* captures
+// * Android Logcat binary and text format logs
 
-* Finisar (previously Shomiti) *Surveyor* captures
+// *  _systemd_ journal files
 
-* Microsoft *Network Monitor* captures
+*Stratoshark*'s main window shows 3 views of each event.
+It shows a summary line, briefly describing what the event is.
+An event details display is shown, allowing you to drill down to exact field that you interested in.
+Finally, a hex dump shows you exactly what the event data looks like on disk or over the wire.
 
-* Novell *LANalyzer* captures
+In addition, *Stratoshark* has some features that make it unique.
+It can assemble all the syscalls in a file descriptor stream and show you the ASCII (or EBCDIC, or hex) data in that conversation.
+Display filters in *Stratoshark* are very powerful; more fields are filterable in *Stratoshark* than in other tools, and the syntax you can use to create your filters is richer.
+As *Stratoshark* progresses, expect more and more fields to be supported.
 
-* AIX's *iptrace* captures
-
-* Cinco Networks *NetXRay* captures
-
-* NETSCOUT (previously Network Associates/Network General) Windows-based
-*Sniffer* captures
-
-* Network General/Network Associates DOS-based *Sniffer* captures
-(compressed or uncompressed)
-
-* LiveAction (previously WildPackets/Savvius) **Peek*/*EtherHelp*/*PacketGrabber* captures
-
-* *RADCOM*'s WAN/LAN analyzer captures
-
-* Viavi (previously Network Instruments) *Observer* captures
-
-* *Lucent/Ascend* router debug output
-
-* captures from HP-UX *nettl*
-
-* *Toshiba's* ISDN routers dump output
-
-* the output from *i4btrace* from the ISDN4BSD project
-
-* traces from the *EyeSDN* USB S0
-
-* the *IPLog* format output from the Cisco Secure Intrusion Detection System
-
-* *pppd logs* (pppdump format)
-
-* the output from VMS's *TCPIPtrace*/*TCPtrace*/*UCX$TRACE* utilities
-
-* the text output from the *DBS Etherwatch* VMS utility
-
-* Visual Networks' *Visual UpTime* traffic capture
-
-* the output from *CoSine* L2 debug
-
-* the output from InfoVista (previously Accellent) *5View* LAN agents
-
-* Endace Measurement Systems' ERF format captures
-
-* Linux Bluez Bluetooth stack *hcidump -w* traces
-
-* Catapult DCT2000 .out files
-
-* Gammu generated text output from Nokia DCT3 phones in Netmonitor mode
-
-* IBM Series (OS/400) Comm traces (ASCII & UNICODE)
-
-* Juniper Netscreen snoop files
-
-* Symbian OS btsnoop files
-
-* TamoSoft CommView files
-
-* Tektronix K12xx 32bit .rf5 format files
-
-* Tektronix K12 text file format captures
-
-* Apple PacketLogger files
-
-* Captures from Aethra Telecommunications' PC108 software for their test
-instruments
-
-* Citrix NetScaler Trace files
-
-* Android Logcat binary and text format logs
-
-* Colasoft Capsa and PacketBuilder captures
-
-* Micropross mplog files
-
-* Unigraf DPA-400 DisplayPort AUX channel monitor traces
-
-* 802.15.4 traces from Daintree's Sensor Network Analyzer
-
-* MPEG-2 Transport Streams as defined in ISO/IEC 13818-1
-
-* Log files from the _candump_ utility
-
-* Logs from the BUSMASTER tool
-
-* Ixia IxVeriWave raw captures
-
-* Rabbit Labs CAM Inspector files
-
-*  _systemd_ journal files
-
-* 3GPP TS 32.423 trace files
-
-There is no need to tell *Wireshark* what type of
-file you are reading; it will determine the file type by itself.
-*Wireshark* is also capable of reading any of these file formats if they
-are compressed using gzip, LZ4, or Zstandard, if compiled with the
-appropriate support.  *Wireshark* recognizes this directly from the file;
-the '.gz' or other extension is not required for this purpose.
-
-Like other protocol analyzers, *Wireshark*'s main window shows 3 views
-of a packet.  It shows a summary line, briefly describing what the
-packet is.  A packet details display is shown, allowing you to drill
-down to exact protocol or field that you interested in.  Finally, a hex
-dump shows you exactly what the packet looks like when it goes over the
-wire.
-
-In addition, *Wireshark* has some features that make it unique.  It can
-assemble all the packets in a TCP conversation and show you the ASCII
-(or EBCDIC, or hex) data in that conversation.  Display filters in
-*Wireshark* are very powerful; more fields are filterable in *Wireshark*
-than in other protocol analyzers, and the syntax you can use to create
-your filters is richer.  As *Wireshark* progresses, expect more and more
-protocol fields to be allowed in display filters.
-
-Packet capturing is performed with the pcap library.  The capture filter
-syntax follows the rules of the pcap library.  This syntax is different
-from the display filter syntax.
+Event capturing is performed by the libscap and libsinsp libraries.
+The capture filter syntax follows the rules of the libscap.
+This syntax is different from the display filter syntax.
 
 Compressed file support uses (and therefore requires) the zlib library.
-If the zlib library is not present, *Wireshark* will compile, but will
-be unable to read compressed files.
+If the zlib library is not present, *Stratoshark* will compile, but will be unable to read compressed files.
 
 The pathname of a capture file to be read can be specified with the
 *-r* option or can be specified as a command-line argument.
 
 == OPTIONS
 
-*Wireshark* supports a wide variety of command line options.
+*Stratoshark* supports a wide variety of command line options.
 Most users will want to start it without any options and configure it from the application menus instead.
 Those users may wish to skip this section.
 
 -a|--autostop  <capture autostop condition>::
 +
 --
-Specify a criterion that specifies when *Wireshark* is to stop writing
+Specify a criterion that specifies when *Stratoshark* should stop writing
 to a capture file.  The criterion is of the form __test:value__,
 where __test__ is one of:
 
@@ -193,22 +80,22 @@ elapsed. Floating point values (e.g. 0.5) are allowed.
 were written.
 
 *filesize*:__value__ Stop writing to a capture file after it reaches a size of
-__value__ kB.  If this option is used together with the -b option, Wireshark
+__value__ kB.  If this option is used together with the -b option, Stratoshark
 will stop writing to the current capture file and switch to the next one if
 filesize is reached.  Note that the filesize is limited to a maximum value of
 2 TB, although you might have problems viewing the file in the GUI before then if
-the number of packets exceeds 2^31^ (2147483648).
+the number of events exceeds 2^31^ (2147483648).
 
-*packets*:__value__ Stop writing to a capture file after it contains __value__
-packets. Acts the same as *-c*<capture packet count>.
+*events*:__value__ Stop writing to a capture file after it contains __value__ events.
+Acts the same as *-c*<capture event count>.
 --
 
 -b|--ring-buffer  <capture ring buffer option>::
 +
 --
-Cause *Wireshark* to run in "multiple files" mode.  In "multiple files" mode,
-*Wireshark* will write to several capture files.  When the first capture file
-fills up, *Wireshark* will switch writing to the next file and so on.
+Cause *Stratoshark* to run in "multiple files" mode.  In "multiple files" mode,
+*Stratoshark* will write to several capture files.  When the first capture file
+fills up, *Stratoshark* will switch writing to the next file and so on.
 
 The created filenames are based on the filename given with the *-w* flag,
 the number of the file and on the creation date and time,
@@ -216,7 +103,7 @@ e.g. outfile_00001_20240714120117.pcap, outfile_00002_20240714120523.pcap, ...
 
 With the __files__ option it's also possible to form a "ring buffer".
 This will fill up new files until the number of files specified,
-at which point *Wireshark* will discard the data in the first file and start
+at which point *Stratoshark* will discard the data in the first file and start
 writing to that file and so on.  If the __files__ option is not set,
 new files filled up until one of the capture stop conditions match (or
 until the disk is full).
@@ -240,25 +127,25 @@ preceded by the *-b* option.
 *filesize*:__value__ switch to the next file after it reaches a size of
 __value__ kB.  Note that the filesize is limited to a maximum value of 2 TB,
 although you might have problems viewing the file in the GUI before then if
-the number of packets exceeds 2^31^ (2147483648).
+the number of events exceeds 2^31^ (2147483648).
 
 *interval*:__value__ switch to the next file when the time is an exact
 multiple of __value__ seconds.
 
-*packets*:__value__ switch to the next file after it contains __value__
-packets.
+*events*:__value__ switch to the next file after it contains __value__ events.
 
 Example: *-b filesize:1000 -b files:5* results in a ring buffer of five files
 of size one megabyte each.
 --
 
+////
 -B|--buffer-size  <capture buffer size>::
 +
 --
 Set capture buffer size (in MiB, default is 2 MiB).  This is used by
 the capture driver to buffer packet data until that data can be written
 to disk.  If you encounter packet drops while capturing, try to increase
-this size.  Note that, while *Wireshark* attempts to set the buffer size
+this size.  Note that, while *Stratoshark* attempts to set the buffer size
 to 2 MiB by default, and can be told to set it to a larger value, the
 system or interface on which you're capturing might silently limit the
 capture buffer size to a lower value or raise it to a higher value.
@@ -275,19 +162,14 @@ the interface specified by the last *-i* option occurring before
 this option.  If the capture buffer size is not set specifically,
 the default capture buffer size is used instead.
 --
+////
 
--c  <capture packet count>::
-+
---
-Set the maximum number of packets to read when capturing live
-data. Acts the same as *-a packets:*<capture packet count>.
---
+-c  <capture event count>::
+Set the maximum number of events to read when capturing live
+data. Acts the same as *-a events:*<capture event count>.
 
 -C  <configuration profile>::
-+
---
 Start with the given configuration profile.
---
 
 --capture-comment <comment>::
 +
@@ -296,29 +178,23 @@ When performing a capture file from the command line, with the *-k*
 flag, add a capture comment to the output file, if supported by the
 capture format.
 
-This option may be specified multiple times.  Note that Wireshark
+This option may be specified multiple times.  Note that Stratoshark
 currently only displays the first comment of a capture file.
 --
 
 -D|--list-interfaces::
-+
---
-Print a list of the interfaces on which *Wireshark* can capture, and
+Print a list of the interfaces on which *Stratoshark* can capture, and
 exit.  For each network interface, a number and an interface name,
 possibly followed by a text description of the interface, is printed.
 The interface name or the number can be supplied to the *-i* flag to
 specify an interface on which to capture.  The number can be useful on
 Windows systems, where the interfaces have long names that usually
 contain a GUID.
---
 
 --display <X display to use>::
-+
---
 Specifies the X display to use.  A hostname and screen (otherhost:0.0)
 or just a screen (:0.0) can be specified.  This option is not available
 under macOS or Windows.
---
 
 -f  <capture filter>::
 +
@@ -337,6 +213,7 @@ can be used by prefixing the argument with "predef:".
 Example: *-f "predef:MyPredefinedHostOnlyFilter"*
 --
 
+////
 -F  <file format>::
 When performing a capture file from the command line, with the *-k* option,
 set the file format of the output capture file written using the *-w* option.
@@ -345,56 +222,48 @@ multiple interfaces, this option will be overridden. The option *-F*
 without a value will list the available formats. The default is the
 *pcapng* format (unless the default has been changed in preferences.)
 
-This does not support every format to which Wireshark can convert a file;
+This does not support every format to which Stratoshark can convert a file;
 this is intentional for security reasons. Capture in a supported format and
 then save the file in a different format if so desired.
+////
 
 --fullscreen::
 +
 --
-Start Wireshark in full screen mode (kiosk mode). To exit from fullscreen mode,
+Start Stratoshark in full screen mode (kiosk mode). To exit from fullscreen mode,
 open the View menu and select the Full Screen option. Alternatively, press the
 F11 key (or Ctrl + Cmd + F for macOS).
 --
 
--g  <packet number>::
-After reading in a capture file using the *-r* flag, go to the given __packet number__.
+-g  <event number>::
+After reading in a capture file using the *-r* flag, go to the given __event number__.
 
 -h|--help::
 Print the version number and options and exit.
 
 -H::
-Hide the capture info dialog during live packet capture.
+Hide the capture info dialog during live capture.
 
--i|--interface  <capture interface>|-::
+-i|--interface  <capture source>|-::
 +
 --
-Set the name of the network interface or pipe to use for live packet
-capture.
+Set the name of the capture source or pipe to use for live capture.
 
-Network interface names should match one of the names listed in "*wireshark
--D*" (described above); a number, as reported by "*tshark -D*", can also
-be used.
+Capture source names should match one of the names or numbers listed in "*stratoshark -D*" (described above).
 
-If no interface is specified, *Wireshark* searches the list of
-interfaces, choosing the first non-loopback interface if there are any
-non-loopback interfaces, and choosing the first loopback interface if
-there are no non-loopback interfaces.  If there are no interfaces at all,
-*Wireshark* reports an error and doesn't start the capture.
+If no source is specified, *Stratoshark* searches the list of interfaces, choosing the first interface.
+If there are no interfaces at all, *Stratoshark* reports an error and doesn't start the capture.
 
 Pipe names should be either the name of a FIFO (named pipe) or "-" to
 read data from the standard input.  On Windows systems, pipe names must be
 of the form +"\\.\pipe\+*pipename*".  Data read from pipes must be in
-standard pcapng or pcap format. Pcapng data must have the same
-endianness as the capturing host.
+standard scap format.
+Scap data must have the same endianness as the capturing host.
 
-"TCP@<host>:<port>" causes *Wireshark* to attempt to connect to the
-specified port on the specified host and read pcapng or pcap data.
-
-This option can occur multiple times. When capturing from multiple
-interfaces, the capture file will be saved in pcapng format.
+This option can occur multiple times.
 --
 
+////
 -I|--monitor-mode::
 +
 --
@@ -414,42 +283,44 @@ If used after an *-i* option, it enables the monitor mode for
 the interface specified by the last *-i* option occurring before
 this option.
 --
+////
 
 -j::
 Use after *-J* to change the behavior when no exact match is found for
-the filter.  With this option select the first packet before.
+the filter.  With this option select the first event before.
 
 -J  <jump filter>::
 +
 --
-After reading in a capture file using the *-r* flag, jump to the packet
+After reading in a capture file using the *-r* flag, jump to the event
 matching the filter (display filter syntax).  If no exact match is found
-the first packet after that is selected.
+the first event after that is selected.
 --
 
 -k::
 +
 --
 Start the capture session immediately.  If the *-i* flag was
-specified, the capture uses the specified interface.  Otherwise,
-*Wireshark* searches the list of interfaces, choosing the first
-non-loopback interface if there are any non-loopback interfaces, and
-choosing the first loopback interface if there are no non-loopback
-interfaces; if there are no interfaces, *Wireshark* reports an error and
-doesn't start the capture.
+specified, the capture uses the specified source.  Otherwise,
+*Stratoshark* searches the list of interfaces, the first source.
+If there are no interfaces, *Stratoshark* reports an error and doesn't start the capture.
 --
 
 -l::
-Turn on automatic scrolling if the packet display is being updated
-automatically as packets arrive during a capture (as specified by the
+Turn on automatic scrolling if the event display is being updated
+automatically as events arrive during a capture (as specified by the
 *-S* flag).
 
+////
 -L|--list-data-link-types::
 List the data link types supported by the interface and exit.
+////
 
+////
 --list-time-stamp-types::
 List time stamp types supported for the interface. If no time stamp type can be
 set, no time stamp types are listed.
+////
 
 -o  <preference/recent setting>::
 +
@@ -459,8 +330,6 @@ read from a preference/recent file.  The argument to the flag is a string of
 the form __prefname:value__, where __prefname__ is the name of the
 preference/recent value (which is the same name that would appear in the
 preference/recent file), and __value__ is the value to which it should be set.
-Since *Ethereal* 0.10.12, the recent settings replaces the formerly used
--B, -P and -T flags to manipulate the GUI dimensions.
 
 If __prefname__ is "uat", you can override settings in various user access
 tables using the form "uat:__uat filename__:__uat record__".  __uat filename__
@@ -471,13 +340,14 @@ specify a user DLT from the command line, you would use
     -o "uat:user_dlts:\"User 0 (DLT=147)\",\"cops\",\"0\",\"\",\"0\",\"\""
 --
 
+////
 -p|--no-promiscuous-mode::
 +
 --
 __Don't__ put the interface into promiscuous mode.  Note that the
 interface might be in promiscuous mode for some other reason; hence,
 *-p* cannot be used to ensure that the only traffic that is captured is
-traffic sent to or from the machine on which *Wireshark* is running,
+traffic sent to or from the machine on which *Stratoshark* is running,
 broadcast traffic, and multicast traffic to addresses received by that
 machine.
 
@@ -488,12 +358,13 @@ If used after an *-i* option, the interface specified by the last *-i*
 option occurring before this option will not be put into the
 promiscuous mode.
 --
+////
 
 -P <path setting>::
 +
 --
 Special path settings usually detected automatically.  This is used for
-special cases, e.g. starting Wireshark from a known location on an USB stick.
+special cases, e.g. starting Stratoshark from a known location on an USB stick.
 
 The criterion is of the form __key:path__, where __key__ is one of:
 
@@ -506,29 +377,23 @@ folder last used.
 --
 
 -r|--read-file  <infile>::
-+
---
-Read packet data from __infile__, can be any supported capture file format
+Read event data from __infile__, can be any supported capture file format
 (including compressed files).  It's not possible to use named pipes or stdin
 here, unlike *TShark*! To capture from a pipe or from stdin use *-i -*.
---
 
 -R|--read-filter  <read (display) filter>::
-+
---
 When reading a capture file specified with the *-r* flag, causes the
 specified filter (which uses the syntax of display filters, rather than
-that of capture filters) to be applied to all packets read from the
-capture file; packets not matching the filter are discarded.
---
+that of capture filters) to be applied to all events read from the
+capture file; events not matching the filter are discarded.
 
 -s|--snapshot-length  <capture snaplen>::
 +
 --
 Set the default snapshot length to use when capturing live data.
-No more than __snaplen__ bytes of each network packet will be read into
+No more than __snaplen__ bytes of each network event will be read into
 memory, or saved to disk.  A value of 0 specifies a snapshot length of
-262144, so that the full packet is captured; this is the default.
+262144, so that the full event is captured; this is the default.
 
 This option can occur multiple times.  If used before the first
 occurrence of the *-i* option, it sets the default snapshot length.
@@ -539,7 +404,7 @@ the default snapshot length is used if provided.
 --
 
 -S::
-Automatically update the packet display as packets are coming in.
+Automatically update the event display as events are coming in.
 
 --temp-dir <directory>::
 +
@@ -556,7 +421,7 @@ typically defaults to __%USERPROFILE%\AppData\Local\Temp__.
 Change the interface's timestamp method. See --list-time-stamp-types.
 
 --update-interval  <interval>::
-Set the length of time in milliseconds between new packet reports during
+Set the length of time in milliseconds between new event reports during
 a capture. Also sets the granularity of file duration conditions.
 The default value is 100ms.
 
@@ -569,31 +434,34 @@ Set the default capture file name, or '-' for standard output.
 -X <eXtension options>::
 +
 --
-Specify an option to be passed to an *Wireshark* module.  The eXtension option
+Specify an option to be passed to an *Stratoshark* module.  The eXtension option
 is in the form __extension_key:value__, where __extension_key__ can be:
 
-*lua_script*:__lua_script_filename__ tells *Wireshark* to load the given script in addition to the
+*lua_script*:__lua_script_filename__ tells *Stratoshark* to load the given script in addition to the
 default Lua scripts.
 
-**lua_script**__num__:__argument__ tells *Wireshark* to pass the given argument
+**lua_script**__num__:__argument__ tells *Stratoshark* to pass the given argument
 to the lua script identified by 'num', which is the number indexed order of the 'lua_script' command.
 For example, if only one script was loaded with '-X lua_script:my.lua', then '-X lua_script1:foo'
 will pass the string 'foo' to the 'my.lua' script.  If two scripts were loaded, such as '-X lua_script:my.lua'
 and '-X lua_script:other.lua' in that order, then a '-X lua_script2:bar' would pass the string 'bar' to the second lua
 script, namely 'other.lua'.
 
-*read_format*:__file_format__ tells *Wireshark* to use the given file format to read in the
+////
+*read_format*:__file_format__ tells *Stratoshark* to use the given file format to read in the
 file (the file given in the *-r* command option).
+////
 
-*stdin_descr*:__description__ tells *Wireshark* to use the given description when
+*stdin_descr*:__description__ tells *Stratoshark* to use the given description when
 capturing from standard input (*-i -*).
 --
 
+////
 -y|--linktype  <capture link type>::
 +
 --
 If a capture is started from the command line with *-k*, set the data
-link type to use while capturing packets.  The values reported by *-L*
+link type to use while capturing events.  The values reported by *-L*
 are the values that can be used.
 
 This option can occur multiple times.  If used before the first
@@ -603,6 +471,7 @@ the interface specified by the last *-i* option occurring before
 this option.  If the capture link type is not set specifically,
 the default capture link type is used if provided.
 --
+////
 
 -Y|--display-filter  <displaY filter>::
 Start with the given display filter.
@@ -610,7 +479,7 @@ Start with the given display filter.
 -z  <statistics>::
 +
 --
-Get *Wireshark* to collect various types of statistics and display the result
+Get *Stratoshark* to collect various types of statistics and display the result
 in a window that updates in semi-real time.
 
 Some of the currently implemented statistics are:
@@ -619,6 +488,7 @@ Some of the currently implemented statistics are:
 *-z help*::
 Display all possible values for *-z*.
 
+////
 *-z* afp,srt[,__filter__]::
 +
 --
@@ -642,13 +512,13 @@ want to generate the statistics; currently the supported ones are:
   "tr"    Token Ring addresses
   "udp"   UDP/IP socket pairs   Both IPv4 and IPv6 are supported
 
-If the optional __filter__ is specified, only those packets that match the
+If the optional __filter__ is specified, only those events that match the
 filter will be used in the calculations.
 
 The table is presented with one line for each conversation and displays
-the number of packets/bytes in each direction as well as the total
-number of packets/bytes.  By default, the table is sorted according to
-the total number of packets.
+the number of events/bytes in each direction as well as the total
+number of events/bytes.  By default, the table is sorted according to
+the total number of events.
 
 These tables can also be generated at runtime by selecting the appropriate
 conversation type from the menu "Tools/Statistics/Conversation List/".
@@ -688,7 +558,7 @@ is the number of calls for each Fibre Channel command, MinSRT, MaxSRT and AvgSRT
 
 Example: *-z fc,srt*
 will calculate the Service Response Time as the time delta between the
-First packet of the exchange and the Last packet of the exchange.
+First event of the exchange and the Last event of the exchange.
 
 The data will be presented as separate tables for all normal FC commands,
 Only those commands that are seen in the capture will have its stats
@@ -700,7 +570,7 @@ If the optional __filter__ is provided, the stats will only be calculated
 on those calls that match that filter.
 
 Example: *-z "fc,srt,fc.id==01.02.03"* will collect stats only for
-FC packets exchanged by the host at FC address 01.02.03 .
+FC events exchanged by the host at FC address 01.02.03 .
 --
 
 *-z* h225,counter[__,filter__]::
@@ -719,7 +589,7 @@ If the optional __filter__ is provided, the stats will only be calculated
 on those calls that match that filter.
 
 Example: *-z "h225,counter,ip.addr==1.2.3.4"* will collect stats only for
-H.225 packets exchanged by the host at IP address 1.2.3.4 .
+H.225 events exchanged by the host at IP address 1.2.3.4 .
 --
 
 *-z* h225,srt[__,filter__]::
@@ -727,7 +597,7 @@ H.225 packets exchanged by the host at IP address 1.2.3.4 .
 --
 Collect request/response SRT (Service Response Time) data for ITU-T H.225 RAS.
 Data collected is the number of calls of each ITU-T H.225 RAS Message Type,
-Minimum SRT, Maximum SRT, Average SRT, Minimum in Packet, and Maximum in Packet.
+Minimum SRT, Maximum SRT, Average SRT, Minimum in event, and Maximum in event.
 You will also get the number of Open Requests (Unresponded Requests),
 Discarded Responses (Responses without matching request) and Duplicate Messages.
 
@@ -739,15 +609,15 @@ If the optional __filter__ is provided, the stats will only be calculated
 on those calls that match that filter.
 
 Example: *-z "h225,srt,ip.addr==1.2.3.4"* will collect stats only for
-ITU-T H.225 RAS packets exchanged by the host at IP address 1.2.3.4 .
+ITU-T H.225 RAS events exchanged by the host at IP address 1.2.3.4 .
 --
 
 *-z* io,stat::
 +
 --
-Collect packet/bytes statistics for the capture in intervals of 1 second.
+Collect event/bytes statistics for the capture in intervals of 1 second.
 This option will open a window with up to 5 color-coded graphs where
-number-of-packets-per-second or number-of-bytes-per-second statistics
+number-of-events-per-second or number-of-bytes-per-second statistics
 can be calculated and displayed.
 
 This option can be used multiple times on the command line.
@@ -776,7 +646,7 @@ If the optional __filter__ is provided, the stats will only be calculated
 on those calls that match that filter.
 
 Example: use *-z "ldap,srt,ip.addr==10.1.1.1"* will collect stats only for
-LDAP packets exchanged by the host at IP address 10.1.1.1 .
+LDAP events exchanged by the host at IP address 10.1.1.1 .
 
 The only LDAP commands that are currently implemented and for which the stats will be available are:
 BIND
@@ -939,24 +809,31 @@ Show IEEE 802.11 network and station statistics.
 
 *-z* wsp,stat[,<filter>]::
 Show WSP packet counters.
+////
 
 include::dissection-options.adoc[tags=**;!tshark]
 
 include::diagnostic-options.adoc[]
 
+////
 == INTERFACE
 
-The link:{wireshark-users-guide-url}[Wireshark User's Guide] contains a description of the user interface. It also may be installed locally along with Wireshark. Pressing the F1 key will attempt to open the guide locally if present, falling back to the online guide if not.
+The link:{wireshark-users-guide-url}[Stratoshark User's Guide] contains a description of the user interface. It also may be installed locally along with Stratoshark. Pressing the F1 key will attempt to open the guide locally if present, falling back to the online guide if not.
+////
 
+////
 == CAPTURE FILTER SYNTAX
 
 See the manual page of xref:https://www.tcpdump.org/manpages/pcap-filter.7.html[pcap-filter](7) or, if that doesn't exist, xref:https://www.tcpdump.org/manpages/tcpdump.1.html[tcpdump](8),
 or, if that doesn't exist, {wireshark-wiki-url}CaptureFilters.
+////
 
+////
 == DISPLAY FILTER SYNTAX
 
 For a complete table of protocol and protocol fields that are filterable
-in *Wireshark* see the xref:wireshark-filter.html[wireshark-filter](4) manual page.
+in *Stratoshark* see the xref:wireshark-filter.html[wireshark-filter](4) manual page.
+////
 
 include::files.adoc[]
 
@@ -1010,22 +887,10 @@ a directory other than the standard locations.  It has no effect when the
 program in question is running with root (or setuid) permissions on
 UNIX-compatible systems.
 
-ERF_RECORDS_TO_CHECK::
-This environment variable controls the number of ERF records checked when
-deciding if a file really is in the ERF format.  Setting this environment
-variable a number higher than the default (20) would make false positives
-less likely.
-
-IPFIX_RECORDS_TO_CHECK::
-This environment variable controls the number of IPFIX records checked when
-deciding if a file really is in the IPFIX format.  Setting this environment
-variable a number higher than the default (20) would make false positives
-less likely.
-
 WIRESHARK_ABORT_ON_DISSECTOR_BUG::
-If this environment variable is set, *Wireshark* will call abort(3)
+If this environment variable is set, *Stratoshark* will call abort(3)
 when a dissector bug is encountered.  abort(3) will cause the program to
-exit abnormally; if you are running *Wireshark* in a debugger, it
+exit abnormally; if you are running *Stratoshark* in a debugger, it
 should halt in the debugger and allow inspection of the process, and, if
 you are not running it in a debugger, it will, on some OSes, assuming
 your environment is configured correctly, generate a core dump file.
@@ -1033,18 +898,18 @@ This can be useful to developers attempting to troubleshoot a problem
 with a protocol dissector.
 
 WIRESHARK_ABORT_ON_TOO_MANY_ITEMS::
-If this environment variable is set, *Wireshark* will call abort(3)
+If this environment variable is set, *Stratoshark* will call abort(3)
 if a dissector tries to add too many items to a tree (generally this
 is an indication of the dissector not breaking out of a loop soon enough).
 abort(3) will cause the program to exit abnormally; if you are running
-*Wireshark* in a debugger, it should halt in the debugger and allow
+*Stratoshark* in a debugger, it should halt in the debugger and allow
 inspection of the process, and, if you are not running it in a debugger,
 it will, on some OSes, assuming your environment is configured correctly,
 generate a core dump file.  This can be useful to developers attempting to
 troubleshoot a problem with a protocol dissector.
 
 WIRESHARK_QUIT_AFTER_CAPTURE::
-Cause *Wireshark* to exit after the end of the capture session.  This
+Cause *Stratoshark* to exit after the end of the capture session.  This
 doesn't automatically start a capture; you must still use *-k* to do
 that.  You must also specify an autostop condition, e.g.  *-c* or *-a
 duration:...*.  This means that you will not be able to see the results
@@ -1078,23 +943,24 @@ Same as above but for `noisy` log level instead.
 
 == AUTHORS
 
-Wireshark would not be the powerful, featureful application it is without the generous contributions of hundreds of developers.
+Stratoshark would not be the powerful, featureful application it is without the generous contributions of hundreds of developers.
 
 A complete list of authors can be found in the AUTHORS file in Wireshark's source code repository.
 
 == SEE ALSO
 
-xref:wireshark-filter.html[wireshark-filter](4), xref:tshark.html[tshark](1), xref:editcap.html[editcap](1), xref:https://www.tcpdump.org/manpages/pcap.3pcap.html[pcap](3), xref:dumpcap.html[dumpcap](1), xref:mergecap.html[mergecap](1),
-xref:text2pcap.html[text2pcap](1), xref:https://www.tcpdump.org/manpages/pcap-filter.7.html[pcap-filter](7) or xref:https://www.tcpdump.org/manpages/tcpdump.1.html[tcpdump](8)
+xref:wireshark-filter.html[wireshark-filter](4), xref:tshark.html[tshark](1), xref:editcap.html[editcap](1), xref:dumpcap.html[dumpcap](1), xref:mergecap.html[mergecap](1)
 
 == NOTES
 
-This is the manual page for *Wireshark* {wireshark-version}.
-The latest version of *Wireshark* can be found at
+This is the manual page for *Stratoshark* {stratoshark-version}.
+The latest version of *Stratoshark* can be found at
 {wireshark-main-url}.
 
 HTML versions of the Wireshark project man pages are available at
 {wireshark-man-page-url}.
 
+////
 The Wireshark's User Guide is available at
 {wireshark-users-guide-url}.
+////
