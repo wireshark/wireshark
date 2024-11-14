@@ -79,6 +79,7 @@
 #define OUI_EXTREME         0x00E02B    /* Extreme EDP/ESRP */
 #define OUI_CABLE_BPDU      0x00E02F    /* DOCSIS spanning tree BPDU */
 #define OUI_FOUNDRY         0x00E052    /* Foundry */
+#define OUI_APPLE           0x0017f2    /* Apple, Inc */
 #define OUI_PROFINET_MULTICAST 0x010ECF   /* PROFIBUS Nutzerorganisation e.V. */
 #define OUI_SIEMENS         0x080006    /* Siemens AG */
 #define OUI_APPLE_ATALK     0x080007    /* Appletalk */
