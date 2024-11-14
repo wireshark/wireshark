@@ -78,6 +78,34 @@ def check_lua_script_verify(check_lua_script, result_file):
             )
     return check_lua_script_verify_real
 
+@pytest.fixture
+def check_lua_script_locale(cmd_tshark, features, dirs, capture_file, test_env):
+    if not features.have_lua:
+        pytest.skip('Test requires Lua scripting support.')
+    # run a Lua script under a particular locale. On UN*X we could set
+    # environment variables in the test environment (which could make
+    # this easier to do with less code duplication), but Windows doesn't
+    # set the locale based on the environment variables so we do it
+    # in a Lua script calling os.setlocale
+    def check_lua_script_locale_real(lua_script, cap_file, check_passed, test_locale = None, *args):
+        tshark_cmd = [cmd_tshark,
+            '-r', capture_file(cap_file),
+            '-X', 'lua_script:' + os.path.join(dirs.lua_dir, 'locale.lua'),
+            '-X', 'lua_script:' + os.path.join(dirs.lua_dir, lua_script),
+        ]
+        if test_locale is not None:
+            tshark_cmd += ['-X', 'lua_script1:' + test_locale]
+        tshark_cmd += args
+        tshark_proc = subprocess.run(tshark_cmd, check=True, capture_output=True, encoding='utf-8', env=test_env)
+
+        if check_passed:
+            logging.info(tshark_proc.stdout)
+            logging.info(tshark_proc.stderr)
+            if not 'All tests passed!' in tshark_proc.stdout:
+                pytest.fail("Some test failed, check the logs (eg: pytest --lf --log-cli-level=info)")
+
+        return tshark_proc
+    return check_lua_script_locale_real
 
 class TestWslua:
     def test_wslua_dir(self, check_lua_script):
@@ -311,3 +339,25 @@ class TestWsluaUnicode:
         assert stderr_str == ""
         with open(unicode_env.path('written-by-lua-Ф-€-中.txt'), encoding='utf8') as f:
             assert f.read() == 'Feedback from Lua: Ф-€-中\n'
+
+class TestWsluaLocale:
+    # Some tests under different a locale, e.g. German uses comma as the decimal
+    # separator (and dot as the thousands separator.)
+    def test_wslua_util_locale(self, check_lua_script_locale):
+        '''wslua utility functions in a non-English locale'''
+        check_lua_script_locale('util.lua', empty_pcap, True, 'de_DE.utf-8')
+
+    def test_wslua_protofield_locale_tree(self, check_lua_script_locale):
+        '''wslua protofield with a tree with a non-English locale'''
+        check_lua_script_locale('protofield.lua', dns_port_pcap, True,
+            'de_DE.utf-8',
+            '-V',
+            '-Y', 'test.filtered==1',
+        )
+
+    def test_wslua_protofield_locale_no_tree(self, check_lua_script_locale):
+        '''wslua protofield without a tree with a non-English locale'''
+        check_lua_script_locale('protofield.lua', dns_port_pcap, True,
+            'de_DE.utf-8',
+            '-Y', 'test.filtered==1',
+        )
