@@ -54,7 +54,8 @@ enum {
     OPT_SSH_SHA1,
     OPT_REMOTE_COUNT,
     OPT_REMOTE_PRIV,
-    OPT_REMOTE_PRIV_USER
+    OPT_REMOTE_PRIV_USER,
+    OPT_REMOTE_MODERN_BPF
 };
 
 static struct ws_option longopts[] = {
@@ -66,6 +67,7 @@ static struct ws_option longopts[] = {
     { "remote-capture-command", ws_required_argument, NULL, OPT_REMOTE_CAPTURE_COMMAND},
     { "remote-priv", ws_required_argument, NULL, OPT_REMOTE_PRIV },
     { "remote-priv-user", ws_required_argument, NULL, OPT_REMOTE_PRIV_USER },
+    { "remote-modern-bpf", ws_no_argument, NULL, OPT_REMOTE_MODERN_BPF },
     { 0, 0, 0, 0}
 };
 
@@ -116,7 +118,7 @@ end:
 
 static ssh_channel run_ssh_command(ssh_session sshs, const char* capture_command_select,
         const char* capture_command, const char* privilege,
-        const char* cfilter, const uint32_t count)
+        const char* cfilter, const uint32_t count, bool modern_bpf)
 {
     char* cmdline = NULL;
     ssh_channel channel;
@@ -153,8 +155,9 @@ static ssh_channel run_ssh_command(ssh_session sshs, const char* capture_command
         if (count > 0)
             count_str = ws_strdup_printf("--numevents=%u", count);
 
-        cmdline = ws_strdup_printf("%s sysdig --unbuffered --write=- %s %s",
+        cmdline = ws_strdup_printf("%s sysdig --unbuffered %s --write=- %s %s",
                 privilege,
+                modern_bpf ? " --modern-bpf" : "",
                 count_str ? count_str : "",
                 quoted_filter);
     }
@@ -176,7 +179,7 @@ static ssh_channel run_ssh_command(ssh_session sshs, const char* capture_command
 
 static int ssh_open_remote_connection(const ssh_params_t* params, const char* cfilter,
         const char* capture_command_select, const char* capture_command, const char* privilege,
-        const uint32_t count, const char* fifo)
+        const uint32_t count, const char* fifo, bool modern_bpf)
 {
     ssh_session sshs = NULL;
     ssh_channel channel = NULL;
@@ -200,7 +203,7 @@ static int ssh_open_remote_connection(const ssh_params_t* params, const char* cf
         goto cleanup;
     }
 
-    channel = run_ssh_command(sshs, capture_command_select, capture_command, privilege, cfilter, count);
+    channel = run_ssh_command(sshs, capture_command_select, capture_command, privilege, cfilter, count, modern_bpf);
 
     if (!channel) {
         ws_warning("Can't run ssh command.");
@@ -286,6 +289,8 @@ static int list_config(char *interface)
     printf("arg {number=%u}{call=--remote-count}{display=Packets to capture}"
             "{type=unsigned}{default=0}{tooltip=The number of remote packets to capture. (Default: inf)}"
             "{group=Capture}\n", inc++);
+    printf("arg {number=%u}{call=--remote-modern-bpf}{display=Use eBPF}{type=boolflag}{default=true}"
+            "{tooltip=Use eBPF for capture. With this no kernel module is required}{group=Capture}\n", inc++);
 
     extcap_config_debug(&inc);
 
@@ -308,6 +313,7 @@ int main(int argc, char *argv[])
     char* priv = NULL;
     char* priv_user = NULL;
     char* interface_description = g_strdup("SSH remote syscall capture");
+    bool modern_bpf = 0;
 
     /* Initialize log handler early so we can have proper logging during startup. */
     extcap_log_init("sshdig");
@@ -370,6 +376,7 @@ int main(int argc, char *argv[])
     extcap_help_add_option(extcap_conf, "--remote-priv <selection>", "none, sudo or doas");
     extcap_help_add_option(extcap_conf, "--remote-priv-user <username>", "privileged user name");
     extcap_help_add_option(extcap_conf, "--remote-count <count>", "the number of packets to capture");
+    extcap_help_add_option(extcap_conf, "--remote-modern-bpf", "use eBPF");
 
     ws_opterr = 0;
     ws_optind = 0;
@@ -462,6 +469,9 @@ int main(int argc, char *argv[])
                     goto end;
                 }
                 break;
+            case OPT_REMOTE_MODERN_BPF:
+                    modern_bpf = true;
+                break;
 
             case ':':
                 /* missing option argument */
@@ -517,7 +527,7 @@ int main(int argc, char *argv[])
         ssh_params_set_log_level(ssh_params, extcap_conf->debug);
         ret = ssh_open_remote_connection(ssh_params, extcap_conf->capture_filter,
                 remote_capture_command_select, remote_capture_command,
-                privilege, count, extcap_conf->fifo);
+                privilege, count, extcap_conf->fifo, modern_bpf);
         g_free(privilege);
     } else {
         ws_debug("You should not come here... maybe some parameter missing?");
