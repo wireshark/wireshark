@@ -125,11 +125,11 @@ rtrim_gstring(GString *str)
 static void
 features_to_columns(feature_list l, GString *str)
 {
-	const uint8_t linelen = 80;	// Same value used in end_string()
-	const uint8_t linepad = 9;	// left-side padding
+	const uint8_t linelen = 85;	// Same value used in end_string() +10
+	const uint8_t linepad = 2;	// left-side padding
 	uint8_t ncols = 0;		// number of columns to show
 	uint8_t maxlen = 0;		// length of longest item
-	unsigned num = 0;			// number of items in list
+	unsigned num = 0;		// number of items in list
 	gchar *c;
 	GPtrArray *a;
 	GList *iter;
@@ -282,7 +282,7 @@ get_compiled_version_info(gather_feature_func gather_compile)
 	separate_features(&l, &with_list, &without_list);
 	free_features(&l);
 
-	g_string_append(str, "    With:\n");
+	g_string_append(str, "  With:\n");
 	features_to_columns(&with_list, str);
 	free_features(&with_list);
 	if (without_list != NULL) {
@@ -577,7 +577,7 @@ get_runtime_version_info(gather_feature_func gather_runtime)
 	separate_features(&l, &with_list, &without_list);
 	free_features(&l);
 
-	g_string_append(str, "    With:\n");
+	g_string_append(str, "  With:\n");
 	features_to_columns(&with_list, str);
 	free_features(&with_list);
 	if (without_list != NULL) {

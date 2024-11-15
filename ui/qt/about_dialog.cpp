@@ -488,8 +488,8 @@ void AboutDialog::updateWiresharkText()
     message += "<p>Version " + html_escape(vcs_version_info_str) + ".</p>\n";
     message += "<p>" + html_escape(copyright_info_str) + "</p>\n";
     message += "<p>" + html_escape(license_info_str) + "</p>\n";
-    message += "<p>" + comp_info_str + "</p>\n";
-    message += "<p>" + runtime_info_str + "</p>\n";
+    message += "<pre>" + html_escape(comp_info_str) + "</pre>\n";
+    message += "<pre>" + html_escape(runtime_info_str) + "</pre>\n";
     message += "<p>Check the man page and <a href=https://www.wireshark.org>www.wireshark.org</a> "
                "for more information.</p>\n";
     ui->pte_wireshark->setHtml(message);

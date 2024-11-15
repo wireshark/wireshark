@@ -37,6 +37,22 @@ find_package_handle_standard_args( SNAPPY DEFAULT_MSG SNAPPY_LIBRARY SNAPPY_INCL
 if( SNAPPY_FOUND )
   set( SNAPPY_INCLUDE_DIRS ${SNAPPY_INCLUDE_DIR} )
   set( SNAPPY_LIBRARIES ${SNAPPY_LIBRARY} )
+    set(_snappy_version_header "${SNAPPY_INCLUDE_DIR}/snappy-stubs-public.h")
+
+    file(STRINGS "${_snappy_version_header}" SNAPPY_VERSION_MAJOR
+    REGEX "#define[ ]+SNAPPY_MAJOR[ ]+[0-9]+")
+    # Older versions of snappy like snappy-0.2 have SNAPPY_VERSION but not SNAPPY_VERSION_MAJOR
+    if(SNAPPY_VERSION_MAJOR)
+    string(REGEX MATCH "[0-9]+" SNAPPY_VERSION_MAJOR ${SNAPPY_VERSION_MAJOR})
+    file(STRINGS "${_snappy_version_header}" SNAPPY_VERSION_MINOR
+    REGEX "#define[ ]+SNAPPY_MINOR[ ]+[0-9]+")
+    string(REGEX MATCH "[0-9]+" SNAPPY_VERSION_MINOR ${SNAPPY_VERSION_MINOR})
+    file(STRINGS "${_snappy_version_header}" SNAPPY_VERSION_PATCH
+    REGEX "#define[ ]+SNAPPY_PATCHLEVEL[ ]+[0-9]+")
+    string(REGEX MATCH "[0-9]+" SNAPPY_VERSION_PATCH ${SNAPPY_VERSION_PATCH})
+    set(SNAPPY_VERSION ${SNAPPY_VERSION_MAJOR}.${SNAPPY_VERSION_MINOR}.${SNAPPY_VERSION_PATCH})
+    endif()
+
   if (WIN32)
     set ( SNAPPY_DLL_DIR "${SNAPPY_HINTS}/bin"
       CACHE PATH "Path to Snappy DLL"

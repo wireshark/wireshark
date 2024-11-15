@@ -63,6 +63,9 @@
 
 /* Define to use the MaxMind DB library */
 #cmakedefine HAVE_MAXMINDDB 1
+/* MaxmindDB version */
+#define MAXMINDDB_VERSION "${MAXMINDDB_VERSION}"
+
 
 /* Define to 1 if you have the <ifaddrs.h> header file. */
 #cmakedefine HAVE_IFADDRS_H 1
@@ -177,6 +180,7 @@
 
 /* Define to use snappy library */
 #cmakedefine HAVE_SNAPPY 1
+#define SNAPPY_VERSION "${SNAPPY_VERSION}"
 
 /* Define to use zstd library */
 #cmakedefine HAVE_ZSTD 1

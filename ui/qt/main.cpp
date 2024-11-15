@@ -224,7 +224,8 @@ gather_wireshark_qt_compiled_info(feature_list l)
 
     const char *update_info = software_update_info();
     if (update_info) {
-        with_feature(l, "automatic updates using %s", update_info);
+        with_feature(l, "automatic updates");
+        with_feature(l, "%s", update_info);
     } else {
         without_feature(l, "automatic updates");
     }
