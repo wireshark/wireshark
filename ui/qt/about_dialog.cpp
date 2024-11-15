@@ -479,12 +479,17 @@ void AboutDialog::updateWiresharkText()
 
     QString message = ColorUtils::themeLinkStyle();
 
+    /* Convert newlines in the version strings to html <br/>*/
+    //comp_info_str = html_escape(comp_info_str);
+    //comp_info_str.replace("\n", "<br/>");
+    //runtime_info_str = html_escape(runtime_info_str);
+    //runtime_info_str.replace("\n", "<br/>");
     /* Construct the message string */
     message += "<p>Version " + html_escape(vcs_version_info_str) + ".</p>\n";
     message += "<p>" + html_escape(copyright_info_str) + "</p>\n";
     message += "<p>" + html_escape(license_info_str) + "</p>\n";
-    message += "<p>" + html_escape(comp_info_str) + "</p>\n";
-    message += "<p>" + html_escape(runtime_info_str) + "</p>\n";
+    message += "<p>" + comp_info_str + "</p>\n";
+    message += "<p>" + runtime_info_str + "</p>\n";
     message += "<p>Check the man page and <a href=https://www.wireshark.org>www.wireshark.org</a> "
                "for more information.</p>\n";
     ui->pte_wireshark->setHtml(message);

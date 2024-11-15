@@ -176,20 +176,20 @@ def features(cmd_tshark, make_env):
     except subprocess.CalledProcessError as ex:
         print('Failed to detect tshark features: %s' % (ex,))
         tshark_v = ''
-    gcry_m = re.search(r'with +Gcrypt +([0-9]+)\.([0-9]+)', tshark_v)
+    gcry_m = re.search(r'\+Gcrypt +([0-9]+)\.([0-9]+)', tshark_v)
     gcry_ver = (int(gcry_m.group(1)),int(gcry_m.group(2)))
     return types.SimpleNamespace(
-        have_x64='Compiled (64-bit)' in tshark_v,
-        have_lua='with Lua' in tshark_v,
+        have_x64='Compiler info: 64-bit' in tshark_v,
+        have_lua='+Lua' in tshark_v,
         have_lua_unicode='(with UfW patches)' in tshark_v,
-        have_nghttp2='with nghttp2' in tshark_v,
-        have_nghttp3='with nghttp3' in tshark_v,
-        have_kerberos='with Kerberos' in tshark_v,
-        have_gnutls='with GnuTLS' in tshark_v,
-        have_pkcs11='and PKCS #11 support' in tshark_v,
-        have_brotli='with brotli' in tshark_v,
-        have_zstd='with Zstandard' in tshark_v,
-        have_plugins='binary plugins supported' in tshark_v,
+        have_nghttp2='+nghttp2' in tshark_v,
+        have_nghttp3='+nghttp3' in tshark_v,
+        have_kerberos='+Kerberos' in tshark_v,
+        have_gnutls='+GnuTLS' in tshark_v,
+        have_pkcs11='PKCS #11' in tshark_v,
+        have_brotli='+brotli' in tshark_v,
+        have_zstd='+Zstandard' in tshark_v,
+        have_plugins='Plugins: supported' in tshark_v,
     )
 
 

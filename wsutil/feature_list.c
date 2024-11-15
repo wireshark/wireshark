@@ -22,6 +22,9 @@ with_feature(feature_list l, const char *fmt, ...)
     va_start(arg, fmt);
     g_string_append_vprintf(msg, fmt, arg);
     va_end(arg);
+    /* Strip "version from the string" */
+    g_string_replace(msg, " version", "", 0);
+    g_string_replace(msg, " based on", "", 0);
     *l = g_list_prepend(*l, g_string_free(msg, FALSE));
 }
 
@@ -46,6 +49,22 @@ void
 sort_features(feature_list l)
 {
     *l = g_list_sort(*l, feature_sort_alpha);
+}
+
+void
+separate_features(feature_list l, feature_list with_list, feature_list without_list)
+{
+    GList *iter;
+    gchar *data;
+    for (iter = *l; iter != NULL; iter = iter->next) {
+        data = (gchar *)iter->data;
+        if (data[0] == '+')
+            *with_list = g_list_prepend(*with_list, g_strdup(data));
+        else
+            *without_list = g_list_prepend(*without_list, g_strdup(data));
+    }
+    *with_list = g_list_reverse(*with_list);
+    *without_list = g_list_reverse(*without_list);
 }
 
 void

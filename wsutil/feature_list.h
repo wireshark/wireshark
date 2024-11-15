@@ -64,6 +64,14 @@ WS_DLL_PUBLIC
 void sort_features(feature_list l);
 
 /*
+ * Separate input list l into output lists with_list and without_list
+ * (which should be empty when first called).
+ * Note: output list members DO keep the leading '+'/'-' prefix.
+ */
+WS_DLL_PUBLIC
+void separate_features(feature_list l, feature_list with_list, feature_list without_list);
+
+/*
  * Free the memory used by the feature list,
  * and reset its pointer to NULL.
  */
