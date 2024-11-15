@@ -4292,6 +4292,7 @@ static int hf_ieee80211_ff_anqp_domain_name;
 static int hf_ieee80211_ff_tdls_action_code;
 static int hf_ieee80211_ff_target_channel;
 static int hf_ieee80211_ff_operating_class;
+static int hf_ieee80211_ff_channel;
 static int hf_ieee80211_ff_wnm_action_code;
 static int hf_ieee80211_ff_unprotected_wnm_action_code;
 static int hf_ieee80211_ff_key_data_length;
@@ -8129,6 +8130,8 @@ static int hf_ieee80211_nonap_sta_regu_conn_sp_ap_valid;
 static int hf_ieee80211_nonap_sta_regu_conn_sp_ap;
 static int hf_ieee80211_nonap_sta_regu_conn_reserved;
 
+static int hf_ieee80211_tag_channel_usage_mode;
+
 /* ************************************************************************* */
 /*                              RFC 8110 fields                              */
 /* ************************************************************************* */
@@ -8723,6 +8726,8 @@ static int ett_ff_fils_req_params;
 static int ett_ff_fils_req_params_fils_criteria;
 
 static int ett_nonap_sta_regulatory_conn;
+
+static int ett_chan_usage;
 
 /* Generic address HF list for proto_tree_add_mac48_detail() */
 static const mac_hf_list_t mac_addr = {
@@ -12485,8 +12490,12 @@ add_ff_measurement_pilot_int(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo
 static unsigned
 add_ff_country_str(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, int offset)
 {
-  proto_tree_add_item(tree, hf_ieee80211_ff_country_str, tvb, offset, 3,
+  proto_tree_add_item(tree, hf_ieee80211_ff_country_str, tvb, offset, 2,
                       ENC_ASCII);
+  offset += 2;
+
+  proto_tree_add_item(tree, hf_ieee80211_tag_country_info_env,
+                      tvb, offset, 1, ENC_LITTLE_ENDIAN);
   return 3;
 }
 
@@ -12885,6 +12894,14 @@ static unsigned
 add_ff_operating_class(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, int offset)
 {
   proto_tree_add_item(tree, hf_ieee80211_ff_operating_class, tvb, offset, 1,
+                      ENC_LITTLE_ENDIAN);
+  return 1;
+}
+
+static unsigned
+add_ff_channel(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, int offset)
+{
+  proto_tree_add_item(tree, hf_ieee80211_ff_channel, tvb, offset, 1,
                       ENC_LITTLE_ENDIAN);
   return 1;
 }
@@ -14473,6 +14490,51 @@ dissect_wnm_subelements(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_,
 }
 
 static unsigned
+wnm_channel_usage_req(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset)
+{
+  int start = offset;
+
+  offset += add_ff_dialog_token(tree, tvb, pinfo, offset);
+
+  return offset - start;
+}
+
+static unsigned
+wnm_channel_usage_resp(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset)
+{
+  int start = offset, i;
+  uint8_t id, len;
+  proto_tree *subtree;
+
+  offset += add_ff_dialog_token(tree, tvb, pinfo, offset);
+
+  /* Parse multiple chan usage elements */
+  id = tvb_get_uint8(tvb, offset);
+  while (id == TAG_CHANNEL_USAGE){
+    len = tvb_get_uint8(tvb, offset + 1);
+    subtree = proto_tree_add_subtree(tree, tvb, offset, len + 2,
+                                     ett_chan_usage,
+                                     NULL, "Channel Usage");
+    proto_tree_add_item(subtree, hf_ieee80211_tag_number, tvb, offset, 1, ENC_NA);
+    offset += 1;
+    proto_tree_add_item(subtree, hf_ieee80211_tag_length, tvb, offset, 1, ENC_NA);
+    offset += 1;
+    proto_tree_add_item(subtree, hf_ieee80211_tag_channel_usage_mode, tvb, offset, 1, ENC_NA);
+    offset += 1;
+    len -= 1;
+
+    for (i = 0; i < (len / 2); i++) {
+      offset += add_ff_operating_class(subtree, tvb, pinfo, offset);
+      offset += add_ff_channel(subtree, tvb, pinfo, offset);
+    }
+    id = tvb_get_uint8(tvb, offset);
+  }
+  offset += add_ff_country_str(tree, tvb, pinfo, offset);
+
+  return offset - start;
+}
+
+static unsigned
 wnm_notification_req(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset)
 {
   int start = offset;
@@ -14556,6 +14618,12 @@ add_ff_action_wnm(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offse
     break;
   case WNM_SLEEP_MODE_RESP:
     offset += wnm_sleep_mode_resp(tree, tvb, pinfo, offset);
+    break;
+  case WNM_CHANNEL_USAGE_REQ:
+    offset += wnm_channel_usage_req(tree, tvb, pinfo, offset);
+    break;
+  case WNM_CHANNEL_USAGE_RESP:
+    offset += wnm_channel_usage_resp(tree, tvb, pinfo, offset);
     break;
   case WNM_NOTIFICATION_REQ:
     offset += wnm_notification_req(tree, tvb, pinfo, offset);
@@ -19549,7 +19617,7 @@ static int dissect_group_data_cipher_suite(tvbuff_t *tvb, packet_info *pinfo _U_
 
 static int
 dissect_rsn_ie(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
-               int offset, guint32 tag_len, association_sanity_check_t *association_sanity_check);
+               int offset, uint32_t tag_len, association_sanity_check_t *association_sanity_check);
 
 static int
 dissect_wfa_rsn_override(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
@@ -36608,6 +36676,42 @@ ieee80211_tag_switching_stream(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
   return tvb_captured_length(tvb);
 }
 
+static const range_string channel_usage_mode[] = {
+  { 0, 0, "Channel-usage-aidable BSS" },
+  { 1, 1, "Off-channel TDLS Direct Link" },
+  { 2, 2, "Channel-usage-aidable BSS in which none of the channel-usage-aiding BSSs that belong to the same ESS" },
+  { 3, 3, "Unavailability Indication" },
+  { 4, 4, "Channel-usage-aidable BSS Channel Switch Request" },
+  { 5, 5, "Capability Notification" },
+  { 6, 254, "Reserved" },
+  { 255, 255, "Unknown Requst" },
+  { 0, 0, NULL }
+};
+
+static int
+ieee80211_tag_channel_usage(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
+{
+  int tag_len = tvb_reported_length(tvb);
+  ieee80211_tagged_field_data_t* field_data = (ieee80211_tagged_field_data_t*)data;
+  int offset = 0;
+
+  if (tag_len < 1)
+  {
+    expert_add_info_format(pinfo, field_data->item_tag_length, &ei_ieee80211_tag_length, "Tag Length %u wrong, must be at least 1", tag_len);
+    return tvb_captured_length(tvb);
+  }
+
+  proto_tree_add_item(tree, hf_ieee80211_tag_channel_usage_mode, tvb, offset, 1, ENC_NA);
+  offset += 1;
+
+  while (offset < tag_len) {
+    offset += add_ff_operating_class(tree, tvb, pinfo, offset);
+    offset += add_ff_channel(tree, tvb, pinfo, offset);
+  }
+
+  return tvb_captured_length(tvb);
+}
+
 static void
 ieee_80211_add_tagged_parameters(tvbuff_t *tvb, int offset, packet_info *pinfo,
                                   proto_tree *tree, int tagged_parameters_len, int ftype,
@@ -43095,6 +43199,11 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_ff_operating_class,
      {"Operating Class", "wlan.fixed.operating_class",
+      FT_UINT8, BASE_DEC, NULL, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_ff_channel,
+     {"Channel", "wlan.fixed.channel",
       FT_UINT8, BASE_DEC, NULL, 0,
       NULL, HFILL }},
 
@@ -60021,6 +60130,11 @@ proto_register_ieee80211(void)
     {&hf_ieee80211_nonap_sta_regu_conn_reserved,
      {"Reserved", "wlan.nonap_sta_regulatory_connect.reserved",
       FT_UINT8, BASE_HEX, NULL, 0xf0, NULL, HFILL }},
+
+    {&hf_ieee80211_tag_channel_usage_mode,
+     {"Usage Mode", "wlan.channel_usage.mode",
+      FT_UINT8, BASE_DEC|BASE_RANGE_STRING,
+      RVALS(channel_usage_mode), 0, NULL, HFILL }},
   };
 
   static hf_register_info aggregate_fields[] = {
@@ -60584,6 +60698,8 @@ proto_register_ieee80211(void)
     &ett_ff_fils_req_params_fils_criteria,
 
     &ett_nonap_sta_regulatory_conn,
+
+    &ett_chan_usage,
   };
 
   static ei_register_info ei[] = {
@@ -61340,6 +61456,7 @@ proto_reg_handoff_ieee80211(void)
   dissector_add_uint("wlan.tag.number", TAG_ELEMENT_ID_EXTENSION, create_dissector_handle(ieee80211_tag_element_id_extension, -1));
   dissector_add_uint("wlan.tag.number", TAG_TWT, create_dissector_handle(ieee80211_tag_twt, -1));
   dissector_add_uint("wlan.tag.number", TAG_RSNX, create_dissector_handle(ieee80211_tag_rsnx, -1));
+  dissector_add_uint("wlan.tag.number", TAG_CHANNEL_USAGE, create_dissector_handle(ieee80211_tag_channel_usage, -1));
 
   /* Vendor specific actions */
   dissector_add_uint("wlan.action.vendor_specific", OUI_MARVELL, create_dissector_handle(dissect_vendor_action_marvell, -1));
