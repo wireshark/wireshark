@@ -662,7 +662,7 @@ dissect_btbredr_rf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
     uint16_t              flags;
     uint32_t              lap;
     uint8_t               uap = 0;
-    uint32_t              ltaddr;
+    uint32_t              ltaddr = 0;
     uint8_t               payload_and_transport;
     int16_t               packet_type = PACKET_TYPE_UNKNOWN;
     const char           *packet_type_str = "Unknown";
