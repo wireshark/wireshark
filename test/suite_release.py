@@ -37,7 +37,7 @@ def wireshark_features(request, cmd_wireshark, make_env):
         print('Failed to detect Wireshark features: %s' % (ex,))
         wireshark_v = ''
     return types.SimpleNamespace(
-        have_automatic_updates='with automatic updates' in wireshark_v,
+        have_automatic_updates='+automatic updates' in wireshark_v,
     )
 
 class TestReleaseAutomaticUpdates:
