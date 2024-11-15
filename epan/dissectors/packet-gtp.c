@@ -4278,6 +4278,14 @@ static const _gtp_mess_items umts_mess_items[] = {
     }
 };
 
+/* Data structure attached to a  conversation,
+        to keep track of request/response-pairs
+ */
+typedef struct gtp_conv_info_t {
+    wmem_map_t             *unmatched;
+    wmem_map_t             *matched;
+} gtp_conv_info_t;
+
 static unsigned
 gtp_sn_hash(const void *k)
 {
@@ -4328,6 +4336,42 @@ gtp_sn_equal_unmatched(const void *k1, const void *k2)
     }
 
     return key1->seq_nr == key2->seq_nr;
+}
+
+static gtp_conv_info_t *
+find_or_create_gtp_conv_info(packet_info *pinfo, conversation_t *conversation)
+{
+    gtp_conv_info_t *gtp_info;
+
+    if (conversation == NULL) {
+        /* XXX - Note 3GPP TS 29.060 10.1 UDP/IP that the destination address
+         * of the request and the source address of the response do NOT have
+         * to match (unlike the source of request and destination of response,
+         * and both sets of ports). So ideally this should be a conversation
+         * that matches on three parameters but not all four. We might have to
+         * use the msg_type to know whether it's a request or response, though,
+         * which might mean doing this inside gtp_match_response.
+         */
+        conversation = find_or_create_conversation(pinfo);
+    }
+
+    /*
+    * Do we already know this conversation?
+    */
+    gtp_info = (gtp_conv_info_t *)conversation_get_proto_data(conversation, proto_gtp);
+    if (gtp_info == NULL) {
+        /* No.  Attach that information to the conversation, and add
+        * it to the list of information structures.
+        */
+        gtp_info = wmem_new(wmem_file_scope(), gtp_conv_info_t);
+        /*Request/response matching tables*/
+        gtp_info->matched = wmem_map_new(wmem_file_scope(), gtp_sn_hash, gtp_sn_equal_matched);
+        gtp_info->unmatched = wmem_map_new(wmem_file_scope(), gtp_sn_hash, gtp_sn_equal_unmatched);
+
+        conversation_add_proto_data(conversation, proto_gtp, gtp_info);
+    }
+
+    return gtp_info;
 }
 
 static gtp_msg_hash_t *
@@ -9766,10 +9810,13 @@ static int
 decode_gtp_data_resp(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, session_args_t * args)
 {
 
-    uint16_t        length, n;
-    proto_tree     *ext_tree_data_resp;
-    gtp_msg_hash_t *gcrp = NULL;
-    unsigned        request_responded_seq_no = 0;
+    uint16_t         length, n;
+    proto_tree      *ext_tree_data_resp;
+    gtp_msg_hash_t  *gcrp = NULL;
+    unsigned         request_responded_seq_no = 0;
+    gtp_conv_info_t *gtp_info;
+
+    gtp_info = find_or_create_gtp_conv_info(pinfo, NULL);
 
     length = tvb_get_ntohs(tvb, offset + 1);
 
@@ -9791,7 +9838,7 @@ decode_gtp_data_resp(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree
         if (args) {
             cause_aux = args->last_cause;
         }
-        gcrp = gtp_match_response(tvb, pinfo, tree, request_responded_seq_no, GTP_MSG_DATA_TRANSF_RESP, args->gtp_info, cause_aux);
+        gcrp = gtp_match_response(tvb, pinfo, tree, request_responded_seq_no, GTP_MSG_DATA_TRANSF_RESP, gtp_info, cause_aux);
         /*pass packet to tap for response time reporting*/
         if (gcrp) {
             tap_queue_packet(gtp_tap, pinfo, gcrp);
@@ -10324,7 +10371,6 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
     char            *tid_str;
     uint8_t          acfield_len      = 0;
     gtp_msg_hash_t  *gcrp             = NULL;
-    conversation_t  *conversation;
     gtp_conv_info_t *gtp_info;
     session_args_t  *args             = NULL;
     ie_decoder      *decoder          = NULL;
@@ -10364,26 +10410,7 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
         args->ip_list = wmem_list_new(pinfo->pool);
     }
 
-    /*
-    * Do we have a conversation for this connection?
-    */
-    conversation = find_or_create_conversation(pinfo);
-
-    /*
-    * Do we already know this conversation?
-    */
-    gtp_info = (gtp_conv_info_t *)conversation_get_proto_data(conversation, proto_gtp);
-    if (gtp_info == NULL) {
-        /* No.  Attach that information to the conversation, and add
-        * it to the list of information structures.
-        */
-        gtp_info = wmem_new(wmem_file_scope(), gtp_conv_info_t);
-        /*Request/response matching tables*/
-        gtp_info->matched = wmem_map_new(wmem_file_scope(), gtp_sn_hash, gtp_sn_equal_matched);
-        gtp_info->unmatched = wmem_map_new(wmem_file_scope(), gtp_sn_hash, gtp_sn_equal_unmatched);
-
-        conversation_add_proto_data(conversation, proto_gtp, gtp_info);
-    }
+    gtp_info = find_or_create_gtp_conv_info(pinfo, NULL);
 
     gtp_hdr->flags = tvb_get_uint8(tvb, offset);
 
@@ -10874,9 +10901,6 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
         }
     }
 
-    if (args) {
-        args->gtp_info = gtp_info;
-    }
     if (gtp_hdr->message != GTP_MSG_TPDU) {
         uint8_t version = gtp_version;
         /* GTP' protocol version has different meaning rather GTP.
