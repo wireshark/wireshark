@@ -10,7 +10,7 @@
 include(FindPackageHandleStandardArgs)
 
 file(GLOB USR_LOCAL_HINT "/usr/local/Sparkle-[2-9]*/")
-file(GLOB HOMEBREW_HINT "/usr/local/Caskroom/sparkle/[2-9]*/")
+file(GLOB HOMEBREW_HINT "/opt/homebrew/Caskroom/sparkle/[2-9]*/" "/usr/local/Caskroom/sparkle/[2-9]*/")
 
 find_path(SPARKLE_INCLUDE_DIR Sparkle.h
   HINTS ${USR_LOCAL_HINT} ${HOMEBREW_HINT}
