@@ -618,11 +618,10 @@ Only a few people are authorised to actually make changes to the source code (ch
 If you want to submit your changes, you should upload them to the code review system at {wireshark-code-review-url}.
 This requires you to set up git as described at <<ChSrcGit>>.
 
-[#ChSrcCreatingMergeRequests]
-==== Creating Merge Requests
+[#ChSrcForkingWorkflow]
+==== Workflow for Contributions
 
 // To do:
-// - Note that you can mirror your fork: https://about.gitlab.com/blog/2016/12/01/how-to-keep-your-fork-up-to-date-with-its-origin/
 // - Mention CLI utilities.
 
 GitLab uses a https://docs.gitlab.com/ee/user/project/repository/forking_workflow.html[forking workflow], which looks like this:
@@ -630,12 +629,21 @@ GitLab uses a https://docs.gitlab.com/ee/user/project/repository/forking_workflo
 .GitLab Workflow
 image::images/git-triangular-workflow.svg[]
 
-In the diagram above, your fork can created by pressing the “Fork” button at {wireshark-gitlab-project-url}.
-Your local repository can be created as described in <<ChSrcGit>>.
+The major steps of the diagram above are:
+
+* *Fork:* Create your own repository to work on.
 You only need to do this once.
-You should pull from the main repository on a regular basis in order to ensure that your sources are current.
-You should push any time you want to make a merge request or otherwise make your code public.
-The “Pull”, “Push”, and “Merge Request” parts of the workflow are important, so let’s look at them in more detail.
+
+* *Pull:* You should pull from the main repository on a regular basis in order to ensure that your sources are current.
+
+* *Push:* You should push any time you want to make a merge request or otherwise make your code public.
+
+* *Merge Request:* submit your change to be included in the Wireshark project.
+
+Let’s look at these steps in more detail.
+
+[#ChSrcForkingTree]
+==== Forking the Source Tree
 
 First, you need to set up your environment.
 For the steps below we’ll pretend that your username is “henry.perry”.
@@ -653,7 +661,7 @@ WARNING: If you want to make merge requests you must keep your fork public.
 Making it private will disassociate it from the main Wireshark repository.
 --
 
-. Add a remote for your personal repository.
+. Add a remote for your personal repository in your source code checkout.
 The main repository remote is named “upstream”, so we'll name this one “downstream”.
 +
 --
@@ -676,31 +684,49 @@ $ upstream	git@gitlab.com:wireshark/wireshark.git (push)
 ----
 --
 
+[#ChSrcPullingUpstream]
+==== Pulling from Upstream
+
 Before you begin it’s a good idea to synchronize your local repository with the main repository.
 This is the *Pull* part of the workflow.
+Simply re-run the command in <<ChSrcGitUpdate>>.
 You should do this periodically in order to stay up to date and avoid merge conflicts later on.
 
-. Fetch and optionally apply the latest changes.
-+
+////
+// Is this unneeded extra confusion?
+You can also tell GitLab to keep your fork up-to-date with the latest changes to the project:
+
+. Visit your fork's home page at `\https://gitlab.com/henry.perry/wireshark`.
+. In the left sidebar, under *Settings*, select *Repository* settings.
+. Expand the section labelled *Mirroring repositories* and click btn:[Add new].
+. For the URL, enter `\https://gitlab.com/wireshark/wireshark.git` ; leave the other settings at their defaults.
+. Click btn:[Mirror repository].
+
 --
-[source,sh]
-----
-# Fetch changes from upstream and apply them to the current branch...
-$ git pull --rebase upstream master
-# ...or fetch changes and leave the current branch alone
-$ git fetch upstream
-----
+NOTE: If you do this, GitLab will automatically update your fork with changes that are made upstream.
+However, you will still need to update your local repository manually.
 --
+
+For more information about this GitLab feature, see https://docs.gitlab.com/ee/user/project/repository/mirror/index.html[their documentation].
+////
+
+[#ChSrcCreatingMergeRequests]
+==== Creating Merge Requests
 
 Now you’re ready to create a merge request (the *Push* and *Merge Request* parts of the workflow above).
 
-. First, create a branch for your change:
+. Create a branch for your change:
 +
 --
 [source,sh]
 ----
 $ git checkout -b my-glorious-new-feature upstream/master
 ----
+--
++
+--
+NOTE: Always work from branches; never work directly on `master`.
+It will be _much_ easier to keep abreast of upstream changes this way.
 --
 
 . Write some code!
@@ -729,7 +755,9 @@ $ git push downstream HEAD
 You should see a https://docs.gitlab.com/ee/user/project/merge_requests/creating_merge_requests.html#create-merge-request-button[“Create merge request”] button.
 Press it.
 
-. In the merge request page, make sure “Allow commits from members who can merge to the target branch” is selected so that core developers can rebase your change. You might want to select “Delete source branch when merge request is accepted” as well. Click the “Submit merge request” button.
+.. In the merge request page, make sure “Allow commits from members who can merge to the target branch” is selected so that core developers can rebase your change.
+.. You might want to select “Delete source branch when merge request is accepted” as well.
+.. Click the “Submit merge request” button.
 
 // XXX Add command line instructions for one or more of the following:
 // https://docs.gitlab.com/ee/user/project/push_options.html
@@ -744,7 +772,7 @@ Press it.
 At this point various automated tests will be run and someone will review your change.
 If you need to make changes you can do so by force-pushing it to the same branch in your personal repository.
 
-. Push your changes to your personal repository.
+. Make changes in your local repository.
 +
 --
 [source,sh]
@@ -756,6 +784,8 @@ On branch my-glorious-new-feature
 --
 
 . Update your code.
+
+. Rebuild and test your work to be sure it still does what it should.
 
 . Push your changes to your personal repository.
 +
@@ -771,6 +801,61 @@ $ git push downstream HEAD
 ----
 The `+` sign is shorthand for forcing the push (`-f`).
 --
+
+[#ChSrcRebasingMergeRequests]
+===== Rebasing Merge Requests
+
+The Wireshark upstream source code is likely to see other changes while you're doing your work.
+Git allows you to adapt your in-progress work to these upstream updates, in a process known as _rebasing_.
+
+Although GitLab provides a btn:[Rebase] button, you have more control over the process if you do it from the command line:
+
+. Synchronize your local repository with the command from <<ChSrcGitUpdate>>.
+
+. Switch back to your working branch: `git checkout my-glorious-new-feature`
+
+. Rebase your working branch: `git rebase master`
++
+--
+TIP: At this stage you may experience a _merge conflict,_ which is when you've changed code which has also changed upstream.
+The rebase will pause to allow you to resolve the conflict.
+Once you've edited the code and reconciled the changes, resume the rebase with the command `git rebase --continue` .
+--
+
+. Rebuild and test your work to ensure it hasn't been adversely affected by the upstream changes.
+(This is especially important if there were any merge conflicts.)
+
+. Push your changes to your personal repository as described above.
+
+[#ChSrcSquashingMergeRequests]
+===== Squashing Merge Requests
+
+When the Wireshark developer team is ready to accept your merge request, they may first ask you to _squash_ your changes.
+This means taking all of the commits you've made on your working branch, and combining them into one commit.
+Here's how to do it from the command line:
+
+. Check out your working branch, if you aren't already on it.
+
+. Run this command:
++
+--
+[source,sh]
+----
+# Perform an "interactive rebase"
+$ git rebase -i master
+----
+--
+
+. A text editor will appear, listing all of the commits that are in your branch.
+Each commit will have the word “pick” at the start of the line.
+
+. *Leave the first “pick” alone.* In every _following_ line replace “pick” with “squash”.
+
+. Save your changes and exit your editor.
+
+. A new editor will appear for you to tailor the commit message of the squashed commit.
+
+. Once you're done, push your changes to your personal repository as described above.
 
 [#ChSrcGoodPatch]
 ==== Some Tips For A Good Patch
