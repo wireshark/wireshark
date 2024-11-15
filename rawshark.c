@@ -451,11 +451,6 @@ main(int argc, char *argv[])
 
     ws_noisy("Finished log init and parsing command line log arguments");
 
-    /* Initialize the version information. */
-    ws_init_version_info("Rawshark",
-                         epan_gather_compile_info,
-                         NULL);
-
 #ifdef _WIN32
     create_app_running_mutex();
 #endif /* _WIN32 */
@@ -487,6 +482,11 @@ main(int argc, char *argv[])
         fprintf(stderr, "rawshark: Can't get pathname of rawshark program: %s.\n",
                 err_msg);
     }
+
+    /* Initialize the version information. */
+    ws_init_version_info("Rawshark",
+                         epan_gather_compile_info,
+                         NULL);
 
     init_report_failure_message("rawshark");
 

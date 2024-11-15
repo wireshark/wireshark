@@ -234,9 +234,6 @@ main(int argc, char *argv[])
     create_app_running_mutex();
 #endif /* _WIN32 */
 
-    /* Initialize the version information. */
-    ws_init_version_info("Mergecap", NULL, NULL);
-
     /*
      * Get credential information for later use.
      */
@@ -253,6 +250,9 @@ main(int argc, char *argv[])
                 configuration_init_error);
         g_free(configuration_init_error);
     }
+
+    /* Initialize the version information. */
+    ws_init_version_info("Mergecap", NULL, NULL);
 
     init_report_failure_message("mergecap");
 
