@@ -1199,6 +1199,12 @@ WS_DLL_PUBLIC void proto_item_set_bits_offset_len(proto_item *ti, int bits_offse
 /** Get the display representation of a proto_item.
  * Can be used, for example, to append that to the parent item of
  * that item.
+ @warning You probably don't want to use this. This returns an empty string
+ if the proto_item is "faked". That means the string won't show up in the
+ Info column, or in other places we don't have a visible tree, unless the
+ field is being filtered or in a custom column. In other words, this is only
+ really useful for adding to parent text-only fields.
+
  @param scope the wmem scope to use to allocate the string
  @param pi the item from which to get the display representation
  @return the display representation */
