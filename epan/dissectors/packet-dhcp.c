@@ -2176,11 +2176,11 @@ dhcp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 			rfc3396_data->tvb_composite = tvb_new_composite();
 		}
 		tvb_composite_append(rfc3396_data->tvb_composite, option_tvb);
-		add_new_data_source(pinfo, rfc3396_data->tvb_composite, "RFC 3396 Long Option");
 		if (rfc3396_data->index_current_block != rfc3396_data->total_number_of_block) {
 			expert_add_info_format(pinfo, ti, &ei_dhcp_rfc3396_refer_last_option, "For the data, please refer to the last option %u, %u/%u", code, rfc3396_data->total_number_of_block, rfc3396_data->total_number_of_block);
 		} else {
 			tvb_composite_finalize(rfc3396_data->tvb_composite);
+			add_new_data_source(pinfo, rfc3396_data->tvb_composite, "RFC 3396 Long Option");
 			if (!dissector_try_uint_with_data(dhcp_option_table, code, rfc3396_data->tvb_composite, pinfo, v_tree, false, &option_data)) {
 				proto_tree_add_item(v_tree, hf_dhcp_option_value, rfc3396_data->tvb_composite, 0, tvb_reported_length(rfc3396_data->tvb_composite), ENC_NA);
 			}
