@@ -612,7 +612,7 @@ Read a list of entries from a "hosts" file, which will then be written
 to a capture file.  Implies *-W n*. Can be called multiple times.
 
 The "hosts" file format is documented at
-https://en.wikipedia.org/wiki/Hosts_(file).
+https://en.wikipedia.org/wiki/Hosts_(file)[].
 --
 
 -i|--interface  <capture interface> | -::
