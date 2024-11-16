@@ -68,7 +68,9 @@ commandline_print_usage(bool for_help_option) {
         output = stderr;
     }
     fprintf(output, "\n");
-    fprintf(output, "Usage: wireshark [options] ... [ <infile> ]\n");
+    char *namespace_lower = g_ascii_strdown(get_configuration_namespace(), -1);
+    fprintf(output, "Usage: %s [options] ... [ <infile> ]\n", namespace_lower);
+    g_free(namespace_lower);
     fprintf(output, "\n");
 
 #ifdef HAVE_LIBPCAP
@@ -133,7 +135,7 @@ commandline_print_usage(bool for_help_option) {
     fprintf(output, "\n");
     fprintf(output, "Processing:\n");
     fprintf(output, "  -R <read filter>, --read-filter <read filter>\n");
-    fprintf(output, "                           packet filter in Wireshark display filter syntax\n");
+    fprintf(output, "                           packet filter in display filter (wireshark-filter(4)) syntax\n");
     fprintf(output, "  -n                       disable all name resolutions (def: all enabled)\n");
     // Note: the order of the flags here matches the options in the settings dialog e.g. "dsN" only have an effect if "n" is set
     fprintf(output, "  -N <name resolve flags>  enable specific name resolution(s): \"mtndsNvg\"\n");
@@ -196,7 +198,7 @@ commandline_print_usage(bool for_help_option) {
 #ifndef _WIN32
     fprintf(output, "  --display <X display>    X display to use\n");
 #endif
-    fprintf(output, "  --fullscreen             start Wireshark in full screen\n");
+    fprintf(output, "  --fullscreen             start %s in full screen\n", get_configuration_namespace());
 
 #ifdef _WIN32
     destroy_console();
@@ -222,7 +224,7 @@ static const char optstring[] = OPTSTRING;
 #ifndef HAVE_LIBPCAP
 static void print_no_capture_support_error(void)
 {
-    cmdarg_err("This version of Wireshark was not built with support for capturing packets.");
+    cmdarg_err("This version of %s was not built with support for capturing packets.", get_configuration_namespace());
 }
 #endif
 
@@ -385,7 +387,7 @@ void commandline_early_options(int argc, char *argv[])
 
 #ifndef HAVE_LUA
     if (ex_opt_count("lua_script") > 0) {
-        cmdarg_err("This version of Wireshark was not built with support for Lua scripting.");
+        cmdarg_err("This version of %s was not built with support for Lua scripting.", get_configuration_namespace());
         exit(1);
     }
 #endif
@@ -646,9 +648,11 @@ void commandline_other_options(int argc, char *argv[], bool opt_reset)
                  part of a tap filter.  Instead, we just add the argument
                  to a list of stat arguments. */
                 if (strcmp("help", ws_optarg) == 0) {
-                  fprintf(stderr, "wireshark: The available statistics for the \"-z\" option are:\n");
-                  list_stat_cmd_args();
-                  exit_application(0);
+                    char *namespace_lower = g_ascii_strdown(get_configuration_namespace(), -1);
+                    fprintf(stderr, "%s: The available statistics for the \"-z\" option are:\n", namespace_lower);
+                    g_free(namespace_lower);
+                    list_stat_cmd_args();
+                    exit_application(0);
                 }
                 if (!process_stat_cmd_arg(ws_optarg)) {
                     cmdarg_err("Invalid -z argument.");
