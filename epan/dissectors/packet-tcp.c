@@ -52,6 +52,9 @@ static int exported_pdu_tap;
 /* Place TCP summary in proto tree */
 static bool tcp_summary_in_tree = true;
 
+#define TCP_DEFAULT_CLIENTPORT_DISSECTORS            "20"
+static range_t *tcp_clientport_dissectors_range;
+
 static inline uint64_t keep_32msb_of_uint64(uint64_t nb) {
     return (nb >> 32) << 32;
 }
@@ -7791,6 +7794,26 @@ decode_tcp_ports(tvbuff_t *tvb, int offset, packet_info *pinfo,
         }
     }
 
+    /* Prevent the client port number being used for selecting the dissector
+       when we have seen the SYN or SYN/ACK (and therefor tcpd->server_port
+       is defined)
+       Use the preference Clientport dissectors to keep dissecting certain
+       protocols based on the client port instead of the server port
+       Port 20 for active ftp data transfers being the default. */
+    if (tcpd->server_port != 0) {
+        if (dst_port == tcpd->server_port) {
+            if (!(dissector_is_uint_changed(subdissector_table, src_port) ||
+                  value_is_in_range(tcp_clientport_dissectors_range, src_port) ) ) {
+                src_port = 0;
+            }
+        } else {
+            if (!(dissector_is_uint_changed(subdissector_table, dst_port) ||
+                  value_is_in_range(tcp_clientport_dissectors_range, dst_port) ) ) {
+                dst_port = 0;
+            }
+        }
+    }
+
     if (src_port > dst_port) {
         low_port = dst_port;
         high_port = src_port;
@@ -10498,6 +10521,11 @@ proto_register_tcp(void)
         " logarithmic scaling with number of packets)"
         "You need to enable DSS mapping analysis for this option to work",
         &mptcp_intersubflows_retransmission);
+
+    range_convert_str(wmem_epan_scope(), &tcp_clientport_dissectors_range, TCP_DEFAULT_CLIENTPORT_DISSECTORS, 65535);
+    prefs_register_range_preference(tcp_module, "clientport_dissectors", "Clientport Dissectors",
+        "Ports for which the dissector will to be chosen based on the client port instead of the server port",
+        &tcp_clientport_dissectors_range, 65535);
 
     register_conversation_table(proto_mptcp, false, mptcpip_conversation_packet, tcpip_endpoint_packet);
     register_follow_stream(proto_tcp, "tcp_follow", tcp_follow_conv_filter, tcp_follow_index_filter, tcp_follow_address_filter,
