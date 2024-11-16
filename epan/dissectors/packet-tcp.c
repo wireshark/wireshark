@@ -7387,7 +7387,7 @@ decode_tcp_ports(tvbuff_t *tvb, int offset, packet_info *pinfo,
        Use the preference Clientport dissectors to keep dissecting certain
        protocols based on the client port instead of the server port
        Port 20 for active ftp data transfers being the default. */
-    if (tcpd->server_port != 0) {
+    if (tcpd && tcpd->server_port != 0) {
         if (dst_port == tcpd->server_port) {
             if (!(dissector_is_uint_changed(subdissector_table, src_port) ||
                   value_is_in_range(tcp_clientport_dissectors_range, src_port) ) ) {
