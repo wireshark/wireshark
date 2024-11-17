@@ -75,6 +75,11 @@ The following features are either new or have been significantly updated since v
   etc.) that return numeric results are sorted numerically instead of
   lexicographically.
 
+* A display filter function `double` is added to allow explicitly converting
+  field types like integers and times to doubles. This can be used to perform
+  further arithmetic operations on fields of different types, including in
+  custom column definitions.
+
 * The minimum width of the I/O Graph dialog window is reduced, so it should
   work better on small resolution desktops, especially in certain languages.
   To enable this, some checkbox controls were moved to the graph right-click

@@ -121,3 +121,23 @@ class TestFunctionNested:
         # resolves to NULL, not to 2.
         dfilter = 'min(len(tcp.payload[2:]) + 2, len(udp.payload[2:]) + 2) == 153'
         checkDFilterCount(dfilter, 1)
+
+class TestFunctionDouble:
+    trace_file = "dhcp.pcapng"
+
+    # Observer differences in precision and how they affect equality tests
+    def test_function_double_1(self, checkDFilterCount):
+        dfilter = 'double(len(udp.payload)) / double(udp.time_relative) == 3883.9942311262157'
+        checkDFilterCount(dfilter, 1)
+
+    def test_function_double_2(self, checkDFilterCount):
+        dfilter = 'float(double(len(udp.payload)) / double(udp.time_relative)) == 3883.994140625'
+        checkDFilterCount(dfilter, 1)
+
+    def test_function_float_1(self, checkDFilterCount):
+        dfilter = 'float(len(udp.payload)) / float(udp.time_relative) == 3883.9941111147282'
+        checkDFilterCount(dfilter, 1)
+
+    def test_function_float_2(self, checkDFilterCount):
+        dfilter = 'float(float(len(udp.payload)) / float(udp.time_relative)) == 3883.994140625'
+        checkDFilterCount(dfilter, 1)

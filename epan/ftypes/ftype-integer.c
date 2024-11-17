@@ -789,6 +789,18 @@ static enum ft_result sint64_val_to_sinteger64(const fvalue_t *src, int64_t *dst
 	return FT_OK;
 }
 
+static enum ft_result uint64_val_to_double(const fvalue_t *src, double *dst)
+{
+	*dst = (double)src->value.uinteger64;
+	return FT_OK;
+}
+
+static enum ft_result sint64_val_to_double(const fvalue_t *src, double *dst)
+{
+	*dst = (double)src->value.sinteger64;
+	return FT_OK;
+}
+
 /* BOOLEAN-specific */
 
 static bool
@@ -1000,7 +1012,7 @@ ftype_register_integers(void)
 
 		uint64_val_to_uinteger64,	/* val_to_uinteger64 */
 		uint64_val_to_sinteger64,	/* val_to_sinteger64 */
-		NULL,				/* val_to_double */
+		uint64_val_to_double,		/* val_to_double */
 
 		{ .set_value_uinteger = set_uinteger },	/* union set_value */
 		{ .get_value_uinteger = get_uinteger },	/* union get_value */
@@ -1038,7 +1050,7 @@ ftype_register_integers(void)
 
 		uint64_val_to_uinteger64,	/* val_to_uinteger64 */
 		uint64_val_to_sinteger64,	/* val_to_sinteger64 */
-		NULL,				/* val_to_double */
+		uint64_val_to_double,		/* val_to_double */
 
 		{ .set_value_uinteger = set_uinteger },	/* union set_value */
 		{ .get_value_uinteger = get_uinteger },	/* union get_value */
@@ -1076,7 +1088,7 @@ ftype_register_integers(void)
 
 		uint64_val_to_uinteger64,	/* val_to_uinteger64 */
 		uint64_val_to_sinteger64,	/* val_to_sinteger64 */
-		NULL,				/* val_to_double */
+		uint64_val_to_double,		/* val_to_double */
 
 		{ .set_value_uinteger = set_uinteger },	/* union set_value */
 		{ .get_value_uinteger = get_uinteger },	/* union get_value */
@@ -1114,7 +1126,7 @@ ftype_register_integers(void)
 
 		uint64_val_to_uinteger64,	/* val_to_uinteger64 */
 		uint64_val_to_sinteger64,	/* val_to_sinteger64 */
-		NULL,				/* val_to_double */
+		uint64_val_to_double,		/* val_to_double */
 
 		{ .set_value_uinteger = set_uinteger },	/* union set_value */
 		{ .get_value_uinteger = get_uinteger },	/* union get_value */
@@ -1152,7 +1164,7 @@ ftype_register_integers(void)
 
 		uint64_val_to_uinteger64,	/* val_to_uinteger64 */
 		uint64_val_to_sinteger64,	/* val_to_sinteger64 */
-		NULL,				/* val_to_double */
+		uint64_val_to_double,		/* val_to_double */
 
 		{ .set_value_uinteger = set_uinteger },	/* union set_value */
 		{ .get_value_uinteger = get_uinteger },	/* union get_value */
@@ -1190,7 +1202,7 @@ ftype_register_integers(void)
 
 		uint64_val_to_uinteger64,	/* val_to_uinteger64 */
 		uint64_val_to_sinteger64,	/* val_to_sinteger64 */
-		NULL,				/* val_to_double */
+		uint64_val_to_double,		/* val_to_double */
 
 		{ .set_value_uinteger64 = set_uinteger64 },	/* union set_value */
 		{ .get_value_uinteger64 = get_uinteger64 },	/* union get_value */
@@ -1228,7 +1240,7 @@ ftype_register_integers(void)
 
 		uint64_val_to_uinteger64,	/* val_to_uinteger64 */
 		uint64_val_to_sinteger64,	/* val_to_sinteger64 */
-		NULL,				/* val_to_double */
+		uint64_val_to_double,		/* val_to_double */
 
 		{ .set_value_uinteger64 = set_uinteger64 },	/* union set_value */
 		{ .get_value_uinteger64 = get_uinteger64 },	/* union get_value */
@@ -1266,7 +1278,7 @@ ftype_register_integers(void)
 
 		uint64_val_to_uinteger64,	/* val_to_uinteger64 */
 		uint64_val_to_sinteger64,	/* val_to_sinteger64 */
-		NULL,				/* val_to_double */
+		uint64_val_to_double,		/* val_to_double */
 
 		{ .set_value_uinteger64 = set_uinteger64 },	/* union set_value */
 		{ .get_value_uinteger64 = get_uinteger64 },	/* union get_value */
@@ -1304,7 +1316,7 @@ ftype_register_integers(void)
 
 		uint64_val_to_uinteger64,	/* val_to_uinteger64 */
 		uint64_val_to_sinteger64,	/* val_to_sinteger64 */
-		NULL,				/* val_to_double */
+		uint64_val_to_double,		/* val_to_double */
 
 		{ .set_value_uinteger64 = set_uinteger64 },	/* union set_value */
 		{ .get_value_uinteger64 = get_uinteger64 },	/* union get_value */
@@ -1342,7 +1354,7 @@ ftype_register_integers(void)
 
 		sint64_val_to_uinteger64,	/* val_to_uinteger64 */
 		sint64_val_to_sinteger64,	/* val_to_sinteger64 */
-		NULL,				/* val_to_double */
+		sint64_val_to_double,		/* val_to_double */
 
 		{ .set_value_sinteger = set_sinteger },	/* union set_value */
 		{ .get_value_sinteger = get_sinteger },	/* union get_value */
@@ -1380,7 +1392,7 @@ ftype_register_integers(void)
 
 		sint64_val_to_uinteger64,	/* val_to_uinteger64 */
 		sint64_val_to_sinteger64,	/* val_to_sinteger64 */
-		NULL,				/* val_to_double */
+		sint64_val_to_double,		/* val_to_double */
 
 		{ .set_value_sinteger = set_sinteger },	/* union set_value */
 		{ .get_value_sinteger = get_sinteger },	/* union get_value */
@@ -1418,7 +1430,7 @@ ftype_register_integers(void)
 
 		sint64_val_to_uinteger64,	/* val_to_uinteger64 */
 		sint64_val_to_sinteger64,	/* val_to_sinteger64 */
-		NULL,				/* val_to_double */
+		sint64_val_to_double,		/* val_to_double */
 
 		{ .set_value_sinteger = set_sinteger },	/* union set_value */
 		{ .get_value_sinteger = get_sinteger },	/* union get_value */
@@ -1456,7 +1468,7 @@ ftype_register_integers(void)
 
 		sint64_val_to_uinteger64,	/* val_to_uinteger64 */
 		sint64_val_to_sinteger64,	/* val_to_sinteger64 */
-		NULL,				/* val_to_double */
+		sint64_val_to_double,		/* val_to_double */
 
 		{ .set_value_sinteger = set_sinteger },	/* union set_value */
 		{ .get_value_sinteger = get_sinteger },	/* union get_value */
@@ -1494,7 +1506,7 @@ ftype_register_integers(void)
 
 		sint64_val_to_uinteger64,	/* val_to_uinteger64 */
 		sint64_val_to_sinteger64,	/* val_to_sinteger64 */
-		NULL,				/* val_to_double */
+		sint64_val_to_double,		/* val_to_double */
 
 		{ .set_value_sinteger64 = set_sinteger64 },	/* union set_value */
 		{ .get_value_sinteger64 = get_sinteger64 },	/* union get_value */
@@ -1532,7 +1544,7 @@ ftype_register_integers(void)
 
 		sint64_val_to_uinteger64,	/* val_to_uinteger64 */
 		sint64_val_to_sinteger64,	/* val_to_sinteger64 */
-		NULL,				/* val_to_double */
+		sint64_val_to_double,		/* val_to_double */
 
 		{ .set_value_sinteger64 = set_sinteger64 },	/* union set_value */
 		{ .get_value_sinteger64 = get_sinteger64 },	/* union get_value */
@@ -1570,7 +1582,7 @@ ftype_register_integers(void)
 
 		sint64_val_to_uinteger64,	/* val_to_uinteger64 */
 		sint64_val_to_sinteger64,	/* val_to_sinteger64 */
-		NULL,				/* val_to_double */
+		sint64_val_to_double,		/* val_to_double */
 
 		{ .set_value_sinteger64 = set_sinteger64 },	/* union set_value */
 		{ .get_value_sinteger64 = get_sinteger64 },	/* union get_value */
@@ -1608,7 +1620,7 @@ ftype_register_integers(void)
 
 		sint64_val_to_uinteger64,	/* val_to_uinteger64 */
 		sint64_val_to_sinteger64,	/* val_to_sinteger64 */
-		NULL,				/* val_to_double */
+		sint64_val_to_double,		/* val_to_double */
 
 		{ .set_value_sinteger64 = set_sinteger64 },	/* union set_value */
 		{ .get_value_sinteger64 = get_sinteger64 },	/* union get_value */
@@ -1646,7 +1658,7 @@ ftype_register_integers(void)
 
 		uint64_val_to_uinteger64,	/* val_to_uinteger64 */
 		uint64_val_to_sinteger64,	/* val_to_sinteger64 */
-		NULL,				/* val_to_double */
+		uint64_val_to_double,		/* val_to_double */
 
 		{ .set_value_uinteger64 = set_uinteger64 },	/* union set_value */
 		{ .get_value_uinteger64 = get_uinteger64 },	/* union get_value */
@@ -1685,7 +1697,7 @@ ftype_register_integers(void)
 
 		uint64_val_to_uinteger64,	/* val_to_uinteger64 */
 		uint64_val_to_sinteger64,	/* val_to_sinteger64 */
-		NULL,				/* val_to_double */
+		uint64_val_to_double,		/* val_to_double */
 
 		{ .set_value_uinteger = set_uinteger },	/* union set_value */
 		{ .get_value_uinteger = get_uinteger },	/* union get_value */
@@ -1724,7 +1736,7 @@ ftype_register_integers(void)
 
 		uint64_val_to_uinteger64,	/* val_to_uinteger64 */
 		uint64_val_to_sinteger64,	/* val_to_sinteger64 */
-		NULL,				/* val_to_double */
+		uint64_val_to_double,		/* val_to_double */
 
 		{ .set_value_uinteger = set_uinteger },	/* union set_value */
 		{ .get_value_uinteger = get_uinteger },	/* union get_value */
@@ -1763,7 +1775,7 @@ ftype_register_integers(void)
 
 		uint64_val_to_uinteger64,	/* val_to_uinteger64 */
 		uint64_val_to_sinteger64,	/* val_to_sinteger64 */
-		NULL,				/* val_to_double */
+		uint64_val_to_double,		/* val_to_double */
 
 		{ .set_value_uinteger64 = set_uinteger64 },	/* union set_value */
 		{ .get_value_uinteger64 = get_uinteger64 },	/* union get_value */

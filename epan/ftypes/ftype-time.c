@@ -495,6 +495,16 @@ relative_val_to_repr(wmem_allocator_t *scope, const fvalue_t *fv, ftrepr_t rtype
 	return rel_time_to_secs_str(scope, &fv->value.time);
 }
 
+static enum ft_result
+time_val_to_double(const fvalue_t *fv, double *repr)
+{
+	if (nstime_is_unset(&fv->value.time)) {
+		return FT_ERROR;
+	}
+	*repr = nstime_to_sec(&fv->value.time);
+	return FT_OK;
+}
+
 static unsigned
 time_hash(const fvalue_t *fv)
 {
@@ -680,7 +690,7 @@ ftype_register_time(void)
 
 		NULL,				/* val_to_uinteger64 */
 		NULL,				/* val_to_sinteger64 */
-		NULL,				/* val_from_double */
+		time_val_to_double,		/* val_to_double */
 
 		{ .set_value_time = time_fvalue_set },	/* union set_value */
 		{ .get_value_time = value_get },	/* union get_value */
@@ -718,7 +728,7 @@ ftype_register_time(void)
 
 		NULL,				/* val_to_uinteger64 */
 		NULL,				/* val_to_sinteger64 */
-		NULL,				/* val_from_double */
+		time_val_to_double,		/* val_to_double */
 
 		{ .set_value_time = time_fvalue_set },	/* union set_value */
 		{ .get_value_time = value_get },	/* union get_value */

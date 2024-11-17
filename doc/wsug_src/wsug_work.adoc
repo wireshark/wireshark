@@ -952,6 +952,8 @@ The display filter language has a number of functions to convert fields, see
 |vals    |Converts a field value to its value string, if it has one.
 |dec     |Converts an unsigned integer field to a decimal string.
 |hex     |Converts an unsigned integer field to a hexadecimal string.
+|float   |Converts a field to single precision floating point.
+|double  |Converts a field to double precision floating point.
 |max     |Return the maximum value for the arguments.
 |min     |Return the minimum value for the arguments.
 |abs     |Return the absolute value for the argument.
@@ -985,6 +987,13 @@ string(ip.dst) matches r"^172\.(1[6-9]|2[0-9]|3[0-1])\.[0-9]{1,3}\.255"
 
 The `vals` function converts an integer or boolean field value to a string
 using the field's associated value string, if it has one.
+
+The `double` function converts certain field types to doubles, including
+floats, doubles (a no-op), integers, booleans, times (absolute times are
+converted to seconds since the UN*X epoch), and the special IEEE 11073
+Personal Health Devices floating point formats. The results can be used
+with further arithmetic operations and, like other filters, placed in a
+custom column.
 
 The functions max() and min() take any number of arguments of the same type
 and returns the largest/smallest respectively of the set.

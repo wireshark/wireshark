@@ -14,6 +14,7 @@
 
 #include <ftypes-int.h>
 #include <inttypes.h>
+#include <math.h>
 #include <stdio.h>
 #include <wsutil/array.h>
 
@@ -313,6 +314,49 @@ sfloat_ieee_11073_val_to_repr(wmem_allocator_t *scope, const fvalue_t *fv, ftrep
 
     buf[offset] = '\0';
     return wmem_strdup(scope, buf);
+}
+
+static enum ft_result
+sfloat_ieee_11073_val_to_double(const fvalue_t *fv, double *repr)
+{
+    int8_t   exponent;
+    uint16_t mantissa;
+    uint16_t mantissa_sign;
+
+    switch (fv->value.sfloat_ieee_11073) {
+    case SFLOAT_VALUE_INFINITY_PLUS:
+        *repr = INFINITY;
+        return FT_OK;
+    case SFLOAT_VALUE_NAN:
+    case SFLOAT_VALUE_NRES:
+    case SFLOAT_VALUE_RFU:
+        *repr = NAN;
+        return FT_OK;
+    case SFLOAT_VALUE_INFINITY_MINUS:
+        *repr = -INFINITY;
+        return FT_OK;
+    default:
+        break;
+    }
+
+    mantissa = fv->value.sfloat_ieee_11073 & 0x07FF;
+
+    if (mantissa == 0) {
+        *repr = 0;
+        return FT_OK;
+    }
+
+    mantissa_sign = (fv->value.sfloat_ieee_11073 & 0x0800);
+    if (mantissa_sign)
+        mantissa = -((int16_t)mantissa | 0xF800);
+
+    exponent = fv->value.sfloat_ieee_11073 >> 12;
+    if (exponent & 0x8)
+        exponent |= 0xF0; /* It is signed (4bits), so make it signed in int8_t */
+
+    *repr = mantissa * pow(10, exponent);
+
+    return FT_OK;
 }
 
 static void
@@ -764,6 +808,46 @@ float_ieee_11073_val_to_repr(wmem_allocator_t *scope, const fvalue_t *fv, ftrepr
     return wmem_strdup(scope, buf);
 }
 
+static enum ft_result
+float_ieee_11073_val_to_double(const fvalue_t *fv, double *repr)
+{
+    int8_t   exponent;
+    uint16_t mantissa;
+    uint16_t mantissa_sign;
+
+    switch (fv->value.float_ieee_11073) {
+    case FLOAT_VALUE_INFINITY_PLUS:
+        *repr = INFINITY;
+        return FT_OK;
+    case FLOAT_VALUE_NAN:
+    case FLOAT_VALUE_NRES:
+    case FLOAT_VALUE_RFU:
+        *repr = NAN;
+        return FT_OK;
+    case FLOAT_VALUE_INFINITY_MINUS:
+        *repr = -INFINITY;
+        return FT_OK;
+    default:
+        break;
+    }
+
+    mantissa = fv->value.float_ieee_11073 & 0x007FFFFF;
+    if (mantissa == 0) {
+        *repr = 0;
+        return FT_OK;
+    }
+
+    mantissa_sign = (fv->value.float_ieee_11073 & 0x00800000);
+    if (mantissa_sign)
+        mantissa = (uint32_t)(-((int32_t)(mantissa | 0xFF000000)));
+
+    exponent = fv->value.float_ieee_11073 >> 24;
+
+    *repr = mantissa * pow(10, exponent);
+
+    return FT_OK;
+}
+
 static void
 float_ieee_11073_value_set(fvalue_t *fv, uint32_t value)
 {
@@ -966,7 +1050,7 @@ Example: 114 is 0x0072
 
         NULL,                                 /* val_to_uinteger64 */
         NULL,                                 /* val_to_sinteger64 */
-        NULL,                                 /* val_to_double */
+        sfloat_ieee_11073_val_to_double,      /* val_to_double */
 
         { .set_value_uinteger = sfloat_ieee_11073_value_set }, /* union set_value */
         { .get_value_uinteger = sfloat_ieee_11073_value_get }, /* union get_value */
@@ -1032,7 +1116,7 @@ Example: 36.4 is 0xFF00016C
 
         NULL,                                 /* val_to_uinteger64 */
         NULL,                                 /* val_to_sinteger64 */
-        NULL,                                 /* val_to_double */
+        float_ieee_11073_val_to_double,       /* val_to_double */
 
         { .set_value_uinteger = float_ieee_11073_value_set }, /* union set_value */
         { .get_value_uinteger = float_ieee_11073_value_get }, /* union get_value */

@@ -286,6 +286,10 @@ WS_DLL_PUBLIC
 bool
 ftype_can_val_to_uinteger64(enum ftenum ftype);
 
+WS_DLL_PUBLIC
+bool
+ftype_can_val_to_double(enum ftenum ftype);
+
 /* ---------------- FVALUE ----------------- */
 
 #include <wsutil/inet_cidr.h>

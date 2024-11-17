@@ -449,6 +449,16 @@ ftype_can_val_to_uinteger64(enum ftenum ftype)
 	return ft->val_to_uinteger64 ? true : false;
 }
 
+bool
+ftype_can_val_to_double(enum ftenum ftype)
+{
+	const ftype_t	*ft;
+
+	FTYPE_LOOKUP(ftype, ft);
+	/* We first convert to 64 bit and then check for overflow. */
+	return ft->val_to_double ? true : false;
+}
+
 /* ---------------------------------------------------------- */
 
 /* Allocate and initialize an fvalue_t, given an ftype */
@@ -730,21 +740,31 @@ fvalue_to_sinteger(const fvalue_t *fv, int32_t *repr)
 enum ft_result
 fvalue_to_uinteger64(const fvalue_t *fv, uint64_t *repr)
 {
-	ws_assert(fv->ftype->val_to_uinteger64);
+	if (!fv->ftype->val_to_uinteger64) {
+		return FT_BADARG;
+	}
 	return fv->ftype->val_to_uinteger64(fv, repr);
 }
 
 enum ft_result
 fvalue_to_sinteger64(const fvalue_t *fv, int64_t *repr)
 {
-	ws_assert(fv->ftype->val_to_sinteger64);
+	if (!fv->ftype->val_to_sinteger64) {
+		return FT_BADARG;
+	}
 	return fv->ftype->val_to_sinteger64(fv, repr);
 }
 
 enum ft_result
 fvalue_to_double(const fvalue_t *fv, double *repr)
 {
-	ws_assert(fv->ftype->val_to_double);
+	/* We should be able to test this earlier (e.g., in semantic check)
+	 * but there are non-compatible fields that share the same abbrev
+	 * so we have to check it on each fvalue.
+	 */
+	if (!fv->ftype->val_to_double) {
+		return FT_BADARG;
+	}
 	return fv->ftype->val_to_double(fv, repr);
 }
 

@@ -141,6 +141,8 @@ The filter language has the following functions:
     vals(field)         - converts a field value to its value string
     dec(field)          - converts an unsigned integer to a decimal string
     hex(field)          - converts an unsigned integer to a hexadecimal string
+    float(field)        - converts a field to single precision floating point
+    double(field)       - converts a field to double precision floating point
     max(f1,...,fn)      - return the maximum value
     min(f1,...,fn)      - return the minimum value
     abs(field)          - return the absolute value of numeric fields

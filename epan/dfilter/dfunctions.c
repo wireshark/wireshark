@@ -165,6 +165,68 @@ df_func_string(GSList *stack, uint32_t arg_count _U_, df_cell_t *retval)
     return true;
 }
 
+/* dfilter function: double() */
+static bool
+df_func_double(GSList *stack, uint32_t arg_count, df_cell_t *retval)
+{
+    GPtrArray *arg1;
+    fvalue_t *arg_fvalue;
+    fvalue_t *new_ft_double;
+    double    res;
+
+    ws_assert(arg_count == 1);
+    arg1 = stack->data;
+    if (arg1 == NULL)
+        return false;
+
+    for (unsigned i = 0; i < arg1->len; i++) {
+        arg_fvalue = arg1->pdata[i];
+
+        if (fvalue_to_double(arg_fvalue, &res) == FT_OK) {
+            new_ft_double = fvalue_new(FT_DOUBLE);
+            fvalue_set_floating(new_ft_double, res);
+            df_cell_append(retval, new_ft_double);
+        }
+    }
+
+    if (df_cell_size(retval) == 0) {
+        return false;
+    }
+
+    return true;
+}
+
+/* dfilter function: float() */
+static bool
+df_func_float(GSList *stack, uint32_t arg_count _U_, df_cell_t *retval)
+{
+    GPtrArray *arg1;
+    fvalue_t *arg_fvalue;
+    fvalue_t *new_ft_double;
+    double    res;
+
+    ws_assert(arg_count == 1);
+    arg1 = stack->data;
+    if (arg1 == NULL)
+        return false;
+
+    for (unsigned i = 0; i < arg1->len; i++) {
+        arg_fvalue = arg1->pdata[i];
+
+        if (fvalue_to_double(arg_fvalue, &res) == FT_OK) {
+            new_ft_double = fvalue_new(FT_FLOAT);
+            fvalue_set_floating(new_ft_double, (float)res);
+            df_cell_append(retval, new_ft_double);
+        }
+    }
+
+    if (df_cell_size(retval) == 0) {
+        return false;
+    }
+
+    return true;
+}
+
 /* dfilter functions: dec(), hex(), */
 static bool
 df_func_base(GSList *stack, uint32_t arg_count _U_, df_cell_t *retval, int base)
@@ -471,6 +533,21 @@ ul_semcheck_string(dfwork_t *dfw, const char *func_name, ftenum_t logical_ftype 
 }
 
 static ftenum_t
+ul_semcheck_double(dfwork_t *dfw, const char *func_name, ftenum_t logical_ftype,
+                            GSList *param_list, df_loc_t func_loc)
+{
+    ws_assert(g_slist_length(param_list) == 1);
+    stnode_t *param = param_list->data;
+    ftenum_t ftype;
+
+    ftype = df_semcheck_param(dfw, func_name, logical_ftype, param, func_loc);
+    if (!ftype_can_val_to_double(ftype)) {
+        dfunc_fail(dfw, param, "Argument does not support the %s() function", func_name);
+    }
+    return FT_DOUBLE;
+}
+
+static ftenum_t
 ul_semcheck_base(dfwork_t *dfw, const char *func_name, ftenum_t logical_ftype _U_,
                             GSList *param_list, df_loc_t func_loc _U_)
 {
@@ -573,6 +650,8 @@ df_functions[] = {
     { "len",    NULL,           1, 1, FT_UINT32, ul_semcheck_can_length },
     { "count",  df_func_count,  1, 1, FT_UINT32, ul_semcheck_is_field },
     { "string", df_func_string, 1, 1, FT_STRING, ul_semcheck_string },
+    { "float",  df_func_float,  1, 1, FT_FLOAT,  ul_semcheck_double },
+    { "double", df_func_double, 1, 1, FT_DOUBLE, ul_semcheck_double },
     { "dec",    df_func_dec,    1, 1, FT_STRING, ul_semcheck_base },
     { "hex",    df_func_hex,    1, 1, FT_STRING, ul_semcheck_base },
     //{ "oct",    df_func_oct,    1, 1, FT_STRING, ul_semcheck_base },

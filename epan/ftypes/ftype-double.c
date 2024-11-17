@@ -73,7 +73,7 @@ double_val_to_repr(wmem_allocator_t *scope, const fvalue_t *fv, ftrepr_t rtype, 
 	return buf;
 }
 
-enum ft_result
+static enum ft_result
 double_val_to_double(const fvalue_t *fv, double *repr)
 {
 	*repr = fv->value.floating;
