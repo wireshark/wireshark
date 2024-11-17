@@ -878,20 +878,24 @@ epan_gather_compile_info(feature_list l)
 
 	/* LZ4 */
 #ifdef HAVE_LZ4
-	with_feature(l, "LZ4");
+	with_feature(l, "LZ4 %s", LZ4_VERSION_STRING);
 #else
 	without_feature(l, "LZ4");
 #endif /* HAVE_LZ4 */
 
 	/* Zstandard */
 #ifdef HAVE_ZSTD
-	with_feature(l, "Zstandard");
+	with_feature(l, "Zstandard %s", ZSTD_VERSION_STRING);
 #else
 	without_feature(l, "Zstandard");
 #endif /* HAVE_ZSTD */
 
 	/* Snappy */
 #ifdef HAVE_SNAPPY
+	/*
+	 * snappy-stubs-public.h defines SNAPPY_MAJOR, SNAPPY_MINOR,
+	 * and SNAPPY_PATCHLEVEL, but it's a C++-only header.
+	 */
 	with_feature(l, "Snappy");
 #else
 	without_feature(l, "Snappy");

@@ -209,7 +209,13 @@ get_appname_and_version(void)
 void
 gather_pcre2_compile_info(feature_list l)
 {
-	with_feature(l, "PCRE2");
+#define PCRE2_DATE_QUOTE(str) #str
+#define PCRE2_DATE_EXPAND_AND_QUOTE(str) PCRE2_DATE_QUOTE(str)
+	/*
+	 * PCRE2_PRERELEASE appears to be empty for a regular release;
+	 * I don't know what it is for a pre-release.
+	 */
+	with_feature(l, "PCRE2 %u.%u %s", PCRE2_MAJOR, PCRE2_MINOR, PCRE2_DATE_EXPAND_AND_QUOTE(PCRE2_DATE));
 }
 
 void
