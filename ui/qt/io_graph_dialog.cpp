@@ -178,9 +178,9 @@ static uat_t *iog_uat_;
 // record_errors and dirty_records lists do not.
 static QPointer<UatModel> static_uat_model_;
 
-// y_axis_factor was added in 3.6. Provide backward compatibility.
+// y_axis_factor was added in 3.6. asAOT in 4.6/5.0 Provide backward compatibility.
 static const char *iog_uat_defaults_[] = {
-    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, "1"
+    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, "1", "false"
 };
 
 static char *decimal_point;
@@ -307,7 +307,6 @@ static bool sma_period_chk_enum(void* u1 _U_, const char* strptr, unsigned len, 
 
 
 UAT_BOOL_ENABLE_CB_DEF(io_graph, enabled, io_graph_settings_t)
-UAT_BOOL_ENABLE_CB_DEF(io_graph, asAOT, io_graph_settings_t)
 UAT_CSTRING_CB_DEF(io_graph, name, io_graph_settings_t)
 UAT_DISPLAY_FILTER_CB_DEF(io_graph, dfilter, io_graph_settings_t)
 UAT_COLOR_CB_DEF(io_graph, color, io_graph_settings_t)
@@ -316,10 +315,10 @@ UAT_VS_DEF(io_graph, style, io_graph_settings_t, uint32_t, 0, "Line")
 UAT_VS_DEF(io_graph, yaxis, io_graph_settings_t, uint32_t, 0, "Packets")
 UAT_PROTO_FIELD_CB_DEF(io_graph, yfield, io_graph_settings_t)
 UAT_DEC_CB_DEF(io_graph, y_axis_factor, io_graph_settings_t)
+UAT_BOOL_ENABLE_CB_DEF(io_graph, asAOT, io_graph_settings_t)
 
 static uat_field_t io_graph_packet_fields[] = {
     UAT_FLD_BOOL_ENABLE(io_graph, enabled, "Enabled", "Graph visibility"),
-    UAT_FLD_BOOL_ENABLE(io_graph, asAOT, "avg over time", "Average over time interpretation"),
     UAT_FLD_CSTRING(io_graph, name, "Graph Name", "The name of the graph"),
     UAT_FLD_DISPLAY_FILTER(io_graph, dfilter, "Display Filter", "Graph packets matching this display filter"),
     UAT_FLD_COLOR(io_graph, color, "Color", "Graph color (#RRGGBB)"),
@@ -328,13 +327,13 @@ static uat_field_t io_graph_packet_fields[] = {
     UAT_FLD_PROTO_FIELD(io_graph, yfield, "Y Field", "Apply calculations to this field"),
     UAT_FLD_SMA_PERIOD(io_graph, sma_period, "SMA Period", moving_avg_vs, "Simple moving average period"),
     UAT_FLD_DEC(io_graph, y_axis_factor, "Y Axis Factor", "Y Axis Factor"),
+    UAT_FLD_BOOL_ENABLE(io_graph, asAOT, "Avg over Time", "Average over time interpretation"),
 
     UAT_END_FIELDS
 };
 
 static uat_field_t io_graph_event_fields[] = {
     UAT_FLD_BOOL_ENABLE(io_graph, enabled, "Enabled", "Graph visibility"),
-    UAT_FLD_BOOL_ENABLE(io_graph, asAOT, "asAOT", "asAOT"),
     UAT_FLD_CSTRING(io_graph, name, "Graph Name", "The name of the graph"),
     UAT_FLD_DISPLAY_FILTER(io_graph, dfilter, "Display Filter", "Graph packets matching this display filter"),
     UAT_FLD_COLOR(io_graph, color, "Color", "Graph color (#RRGGBB)"),
@@ -343,6 +342,7 @@ static uat_field_t io_graph_event_fields[] = {
     UAT_FLD_PROTO_FIELD(io_graph, yfield, "Y Field", "Apply calculations to this field"),
     UAT_FLD_SMA_PERIOD(io_graph, sma_period, "SMA Period", moving_avg_vs, "Simple moving average period"),
     UAT_FLD_DEC(io_graph, y_axis_factor, "Y Axis Factor", "Y Axis Factor"),
+    UAT_FLD_BOOL_ENABLE(io_graph, asAOT, "asAOT", "asAOT"),
 
     UAT_END_FIELDS
 };
@@ -618,7 +618,6 @@ void IOGraphDialog::addGraph(bool checked, bool asAOT, QString name, QString dfi
 
     QVariantList newRowData;
     newRowData.append(checked ? Qt::Checked : Qt::Unchecked);
-    newRowData.append(asAOT ? Qt::Checked : Qt::Unchecked);
     newRowData.append(name);
     newRowData.append(dfilter);
     newRowData.append(QColor(color_idx));
@@ -631,6 +630,7 @@ void IOGraphDialog::addGraph(bool checked, bool asAOT, QString name, QString dfi
     newRowData.append(yfield);
     newRowData.append(val_to_str_const((uint32_t) moving_average, moving_avg_vs, "None"));
     newRowData.append(y_axis_factor);
+    newRowData.append(asAOT ? Qt::Checked : Qt::Unchecked);
 
     QModelIndex newIndex = uat_model_->appendEntry(newRowData);
     if ( !newIndex.isValid() )
@@ -1604,6 +1604,13 @@ void IOGraphDialog::loadProfileGraphs()
     ui->graphUat->setSelectionMode(QAbstractItemView::ContiguousSelection);
 
     ui->graphUat->setHeader(new ResizeHeaderView(Qt::Horizontal, ui->graphUat));
+
+    // asAOT was added most recently, so it's in the last section (9).
+    // This moves its visual location to the index immediately after Enabled
+    // without sacrificing backwards compatibility. The user can move them
+    // freely to override this. (We could parse through io_graph_packet_fields
+    // to get the indices programmatically if necessary.)
+    ui->graphUat->header()->moveSection(9, 1);
 
     connect(uat_model_, &UatModel::dataChanged, this, &IOGraphDialog::modelDataChanged);
     connect(uat_model_, &UatModel::modelReset, this, &IOGraphDialog::modelRowsReset);
