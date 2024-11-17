@@ -503,14 +503,14 @@ proto_register_usbms_bot(void)
 
     };
 
-    static int *usbms_bot_subtrees[] = {
+    static int *usbms_bot_ett[] = {
             &ett_usbms_bot,
     };
 
 
     proto_usbms_bot = proto_register_protocol("USB Mass Storage", "USBMS", "usbms");
     proto_register_field_array(proto_usbms_bot, hf, array_length(hf));
-    proto_register_subtree_array(usbms_bot_subtrees, array_length(usbms_bot_subtrees));
+    proto_register_subtree_array(usbms_bot_ett, array_length(usbms_bot_ett));
 
     usbms_bot_bulk_handle = register_dissector("usbms", dissect_usbms_bot_bulk, proto_usbms_bot);
     usbms_bot_control_handle = register_dissector("usbms.control", dissect_usbms_bot_control, proto_usbms_bot);

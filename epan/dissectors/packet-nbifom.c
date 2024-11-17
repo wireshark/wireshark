@@ -511,7 +511,7 @@ proto_register_nbifom(void)
               NULL, 0x0fffff, NULL, HFILL }}
     };
 
-    static int *nbifom_subtrees[] = {
+    static int *nbifom_ett[] = {
         &ett_nbifom,
         &ett_nbifom_param_contents,
         &ett_nbifom_routing_rule,
@@ -520,7 +520,7 @@ proto_register_nbifom(void)
 
     proto_nbifom = proto_register_protocol("Network-Based IP Flow Mobility", "NBIFOM", "nbifom");
     proto_register_field_array(proto_nbifom, hf, array_length(hf));
-    proto_register_subtree_array(nbifom_subtrees, array_length(nbifom_subtrees));
+    proto_register_subtree_array(nbifom_ett, array_length(nbifom_ett));
 
     register_dissector("nbifom", dissect_nbifom, proto_nbifom);
 }

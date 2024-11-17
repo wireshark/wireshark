@@ -5359,6 +5359,7 @@ proto_register_ipv6(void)
         &ett_ipv6_opt_dff_flags,
         &ett_ipv6_opt_ioam_trace_flags,
         &ett_ipv6_opt_ioam_trace_types,
+        &ett_ipv6_opt_ioam_dex_extflags,
         &ett_ipv6_fragment,
         &ett_ipv6_fragments
     };

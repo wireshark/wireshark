@@ -2705,6 +2705,7 @@ proto_register_cql(void)
 		&ett_cql_header_flags_bitmap,
 		&ett_cql_query_flags_bitmap,
 		&ett_cql_batch_flags_bitmap,
+		&ett_cql_custom_payload
 	};
 
 	proto_cql = proto_register_protocol("Cassandra CQL Protocol", "CQL", "cql" );

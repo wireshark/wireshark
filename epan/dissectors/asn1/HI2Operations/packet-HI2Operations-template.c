@@ -63,6 +63,12 @@ void proto_register_HI2Operations(void) {
 
   /* List of subtrees */
   static int *ett[] = {
+    &ett_HI2Operations_eps_paa,
+    &ett_HI2Operations_eps_qos,
+    &ett_HI2Operations_eps_apn_ambr,
+    &ett_HI2Operations_eps_uli,
+    &ett_HI2Operations_eps_tft,
+    &ett_HI2Operations_eps_network,
 #include "packet-HI2Operations-ettarr.c"
   };
 

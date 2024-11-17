@@ -1846,7 +1846,8 @@ void proto_register_nmea0183(void)
         &ett_nmea0183_gga_longitude,
         &ett_nmea0183_gll_time,
         &ett_nmea0183_gll_latitude,
-        &ett_nmea0183_gll_longitude};
+        &ett_nmea0183_gll_longitude,
+        &ett_nmea0183_gst_time};
 
     static ei_register_info ei[] = {
         {&ei_nmea0183_invalid_first_character,

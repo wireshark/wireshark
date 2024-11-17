@@ -937,33 +937,76 @@ def findStringStrings(filename, macros, do_extra_checks=False):
 
 # Look for expert entries in a dissector file.  Return ExpertEntries object
 def findExpertItems(filename, macros):
-        with open(filename, 'r', encoding="utf8") as f:
-            contents = f.read()
+    with open(filename, 'r', encoding="utf8") as f:
+        contents = f.read()
 
-            # Remove comments so as not to trip up RE.
-            contents = removeComments(contents)
+        # Remove comments so as not to trip up RE.
+        contents = removeComments(contents)
 
-            # Look for array of definitions. Looks something like this
-            #static ei_register_info ei[] = {
-            #    { &ei_oran_unsupported_bfw_compression_method, { "oran_fh_cus.unsupported_bfw_compression_method", PI_UNDECODED, PI_WARN, "Unsupported BFW Compression Method", EXPFILL }},
-            #    { &ei_oran_invalid_sample_bit_width, { "oran_fh_cus.invalid_sample_bit_width", PI_UNDECODED, PI_ERROR, "Unsupported sample bit width", EXPFILL }},
-            #};
+        # Look for array of definitions. Looks something like this
+        #static ei_register_info ei[] = {
+        #    { &ei_oran_unsupported_bfw_compression_method, { "oran_fh_cus.unsupported_bfw_compression_method", PI_UNDECODED, PI_WARN, "Unsupported BFW Compression Method", EXPFILL }},
+        #    { &ei_oran_invalid_sample_bit_width, { "oran_fh_cus.invalid_sample_bit_width", PI_UNDECODED, PI_ERROR, "Unsupported sample bit width", EXPFILL }},
+        #};
 
-            expertEntries = ExpertEntries(filename)
+        expertEntries = ExpertEntries(filename)
 
-            definition_matches = re.finditer(r'static ei_register_info\s*([a-zA-Z0-9_]*)\s*\[\]\s*=\s*\{(.*?)\};', contents, re.MULTILINE|re.DOTALL)
-            for d in definition_matches:
-                entries = d.group(2)
+        definition_matches = re.finditer(r'static ei_register_info\s*([a-zA-Z0-9_]*)\s*\[\]\s*=\s*\{(.*?)\};', contents, re.MULTILINE|re.DOTALL)
+        for d in definition_matches:
+            entries = d.group(2)
 
-                # Now separate out each entry
-                matches = re.finditer(r'\{\s*&([a-zA-Z0-9_]*)\s*\,\s*\{\s*\"(.*?)\"\s*\,\s*([A-Z_]*)\,\s*([A-Z_]*)\,\s*\"(.*?)\"\s*\,\s*EXPFILL\s*\}\s*\}',
-                                      entries, re.MULTILINE|re.DOTALL)
-                for match in matches:
-                    expertEntry = ExpertEntry(filename, name=match.group(1), filter=match.group(2), group=match.group(3),
-                                              severity=match.group(4), summary=match.group(5))
-                    expertEntries.AddEntry(expertEntry)
+            # Now separate out each entry
+            matches = re.finditer(r'\{\s*&([a-zA-Z0-9_]*)\s*\,\s*\{\s*\"(.*?)\"\s*\,\s*([A-Z_]*)\,\s*([A-Z_]*)\,\s*\"(.*?)\"\s*\,\s*EXPFILL\s*\}\s*\}',
+                                    entries, re.MULTILINE|re.DOTALL)
+            for match in matches:
+                expertEntry = ExpertEntry(filename, name=match.group(1), filter=match.group(2), group=match.group(3),
+                                            severity=match.group(4), summary=match.group(5))
+                expertEntries.AddEntry(expertEntry)
 
-            return expertEntries
+        return expertEntries
+
+def findDeclaredTrees(filename):
+    trees = []
+    with open(filename, 'r', encoding="utf8") as f:
+        contents = f.read()
+
+        # Remove comments so as not to trip up RE.
+        contents = removeComments(contents)
+
+        definition_matches = re.finditer(r'static int\s*\s*(ett_[a-zA-Z0-9_]*)\s*;', contents, re.MULTILINE|re.DOTALL)
+        for d in definition_matches:
+            trees.append(d.group(1))
+
+    return trees
+
+def findDefinedTrees(filename):
+    with open(filename, 'r', encoding="utf8") as f:
+        contents = f.read()
+
+        # Remove comments so as not to trip up RE.
+        contents = removeComments(contents)
+
+        # Look for array of definitions. Looks something like this
+        # static int *ett[] = {
+        #    &ett_oran,
+        #    &ett_oran_ecpri_pcid,
+        #    &ett_oran_ecpri_rtcid,
+        #    &ett_oran_ecpri_seqid
+        # };
+
+        trees = set()
+
+        # Not insisting that this array is static..
+        definition_matches = re.finditer(r'int\s*\*\s*[a-zA-Z0-9_]*?ett[a-zA-Z0-9_]*\s*\[\]\s*=\s*\{(.*?)\};', contents, re.MULTILINE|re.DOTALL)
+        for d in definition_matches:
+            entries = d.group(1)
+
+            # Now separate out each entry
+            matches = re.finditer(r'\&(ett_[a-zA-Z0-9_]+)',
+                                  entries, re.MULTILINE|re.DOTALL)
+            for match in matches:
+                trees.add(match.group(1))
+        return trees
 
 def checkExpertCalls(filename, expertEntries):
         with open(filename, 'r', encoding="utf8") as f:
@@ -976,7 +1019,6 @@ def checkExpertCalls(filename, expertEntries):
             # expert_add_info(NULL, tree, &ei_oran_invalid_eaxc_bit_width);
             # OR
             # expert_add_info_format(pinfo, ti_data_length, &ei_data_length, "Data Length %d is too small, should be %d", data_length, payload_size - ECPRI_MSG_TYPE_4_PAYLOAD_MIN_LENGTH);
-
             matches = re.finditer(r'expert_add_info(?:_format|)\s*\(([a-zA-Z_0-9]*)\s*,\s*([a-zA-Z_0-9]*)\s*,\s*(&[a-zA-Z_0-9]*)', contents, re.MULTILINE|re.DOTALL)
             for m in matches:
                 item = m.group(3)[1:]
@@ -1941,7 +1983,7 @@ def findDissectorFilesInFolder(folder, recursive=False):
 # Run checks on the given dissector file.
 def checkFile(filename, check_mask=False, mask_exact_width=False, check_label=False, check_consecutive=False,
               check_missing_items=False, check_bitmask_fields=False, label_vs_filter=False, extra_value_string_checks=False,
-              check_expert_items=False):
+              check_expert_items=False, check_subtrees=False):
     # Check file exists - e.g. may have been deleted in a recent commit.
     if not os.path.exists(filename):
         print(filename, 'does not exist!')
@@ -1977,6 +2019,17 @@ def checkFile(filename, check_mask=False, mask_exact_width=False, check_label=Fa
     items_defined = find_items(filename, macros, value_strings, range_strings,
                                check_mask, mask_exact_width, check_label, check_consecutive)
     items_extern_declared = {}
+
+
+    # Check that ett_ variables are registered
+    if check_subtrees:
+        ett_declared = findDeclaredTrees(filename)
+        ett_defined =  findDefinedTrees(filename)
+        for d in ett_declared:
+            if d not in ett_defined:
+                global errors_found
+                print(filename, 'subtree identifier', d, 'is declared but not defined in array for registering')
+                errors_found += 1
 
     items_declared = {}
     if check_missing_items:
@@ -2061,6 +2114,8 @@ parser.add_argument('--extra-value-string-checks', action='store_true',
                     help='when set, do extra checks on parsed value_strings')
 parser.add_argument('--check-expert-items', action='store_true',
                     help='when set, do extra checks on expert items')
+parser.add_argument('--check-subtrees', action='store_true',
+                    help='when set, do extra checks ett variables')
 parser.add_argument('--all-checks', action='store_true',
                     help='when set, apply all checks to selected files')
 
@@ -2077,6 +2132,7 @@ if args.all_checks:
     args.label_vs_filter = True
     #args.extra_value_string_checks = True
     args.check_expert_items = True
+    #args.check_subtrees = Truue
 
 if args.check_bitmask_fields:
     args.mask = True
@@ -2149,7 +2205,7 @@ for f in files:
               check_consecutive=args.consecutive, check_missing_items=args.missing_items,
               check_bitmask_fields=args.check_bitmask_fields, label_vs_filter=args.label_vs_filter,
               extra_value_string_checks=args.extra_value_string_checks,
-              check_expert_items=args.check_expert_items)
+              check_expert_items=args.check_expert_items, check_subtrees=args.check_subtrees)
 
     # Do checks against all calls.
     if args.consecutive:

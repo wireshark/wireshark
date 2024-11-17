@@ -191,7 +191,7 @@ static int * const bits_chn_state_info[] = {
 };
 
 /* HPM.2 Trace Collection tree indices. */
-static int * const ipmi_trace_ett[] = {
+static int * ipmi_trace_ett[] = {
 	&ett_ipmi_trace,
 	&ett_trace_block_type,
 	&ett_trace_timestamp,

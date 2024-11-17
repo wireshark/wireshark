@@ -2728,6 +2728,8 @@ void proto_register_wisun(void)
         &ett_wisun_bsie,
         &ett_wisun_vpie,
         &ett_wisun_lcpie,
+        &ett_wisun_usie_channel_control,
+        &ett_wisun_usie_explicit,
         &ett_wisun_panie,
         &ett_wisun_panie_flags,
         &ett_wisun_netnameie,

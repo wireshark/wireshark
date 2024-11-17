@@ -30,8 +30,6 @@
 /* Defines               */
 /*************************/
 
-#define ZBEE_ZCL_SHADE_CONFIGURATION_NUM_ETT                                       2
-
 /*Attributes*/
 #define ZBEE_ZCL_ATTR_ID_SHADE_CONFIGURATION_PHYSICAL_CLOSED_LIMIT                 0x0000  /* Physical Closed Limit */
 #define ZBEE_ZCL_ATTR_ID_SHADE_CONFIGURATION_MOTOR_STEP_SIZE                       0x0001  /* Motor Step Size */
@@ -210,10 +208,10 @@ proto_register_zbee_zcl_shade_configuration(void)
     };
 
     /* ZCL Shade Configuration subtrees */
-    static int *ett[ZBEE_ZCL_SHADE_CONFIGURATION_NUM_ETT];
-
-    ett[0] = &ett_zbee_zcl_shade_configuration;
-    ett[1] = &ett_zbee_zcl_shade_configuration_status;
+    static int *ett[] = {
+        &ett_zbee_zcl_shade_configuration,
+        &ett_zbee_zcl_shade_configuration_status
+    };
 
     /* Register the ZigBee ZCL Shade Configuration cluster protocol name and description */
     proto_zbee_zcl_shade_configuration = proto_register_protocol("ZigBee ZCL Shade Configuration", "ZCL Shade Configuration", ZBEE_PROTOABBREV_ZCL_SHADE_CONFIG);
@@ -251,8 +249,6 @@ proto_reg_handoff_zbee_zcl_shade_configuration(void)
 /*************************/
 /* Defines               */
 /*************************/
-
-#define ZBEE_ZCL_DOOR_LOCK_NUM_ETT                                  1
 
 /* Attributes */
 #define ZBEE_ZCL_ATTR_ID_DOOR_LOCK_LOCK_STATE                       0x0000  /* Lock State */
@@ -548,8 +544,9 @@ proto_register_zbee_zcl_door_lock(void)
     };
 
     /* ZCL Door Lock subtrees */
-    static int *ett[ZBEE_ZCL_DOOR_LOCK_NUM_ETT];
-    ett[0] = &ett_zbee_zcl_door_lock;
+    static int *ett[] = {
+        &ett_zbee_zcl_door_lock
+    };
 
     /* Register the ZigBee ZCL Door Lock cluster protocol name and description */
     proto_zbee_zcl_door_lock = proto_register_protocol("ZigBee ZCL Door Lock", "ZCL Door Lock", ZBEE_PROTOABBREV_ZCL_DOOR_LOCK);
@@ -589,8 +586,6 @@ proto_reg_handoff_zbee_zcl_door_lock(void)
 /*************************/
 /* Defines               */
 /*************************/
-
-#define ZBEE_ZCL_WINDOW_COVERING_NUM_ETT                                  1
 
 /*Attributes*/
 #define ZBEE_ZCL_ATTR_ID_WINDOW_COVERING_TYPE                                  0x0000  /* Type of shutter */
@@ -806,8 +801,9 @@ proto_register_zbee_zcl_window_covering(void)
     };
 
     /* ZCL Window Covering subtrees */
-    static int *ett[ZBEE_ZCL_WINDOW_COVERING_NUM_ETT];
-    ett[0] = &ett_zbee_zcl_window_covering;
+    static int *ett[] = {
+        &ett_zbee_zcl_window_covering
+    };
 
     /* Register the ZigBee ZCL Window Covering cluster protocol name and description */
     proto_zbee_zcl_window_covering = proto_register_protocol("ZigBee ZCL Window Covering", "ZCL Window Covering", ZBEE_PROTOABBREV_ZCL_WINDOW_COVERING);

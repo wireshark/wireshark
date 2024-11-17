@@ -5745,7 +5745,8 @@ proto_register_ospf(void)
         &ett_ospf_v3_as_external_flags,
         &ett_ospf_v3_prefix_options,
         &ett_ospf_mpls_pri,
-        &ett_ospf_mpls_bitmap
+        &ett_ospf_mpls_bitmap,
+        &ett_ospf_lsa_eia_asbr_stlv
     };
 
     static ei_register_info ei[] = {
