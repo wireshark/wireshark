@@ -9,9 +9,8 @@
 
 #include "config.h"
 
-#include <epan/dfilter/dfilter.h>
+#include <epan/proto.h>
 
-#include <wsutil/filter_files.h>
 #include <wsutil/utf8_entities.h>
 
 #include <ui/qt/widgets/field_filter_edit.h>
@@ -26,13 +25,6 @@
 
 #include <wsutil/utf8_entities.h>
 
-// To do:
-// - Get rid of shortcuts and replace them with "n most recently applied filters"?
-// - We need simplified (button- and dropdown-free) versions for use in dialogs and field-only checking.
-// - Add a separator or otherwise distinguish between recent items and fields
-//   in the completion dropdown.
-
-
 #ifdef __APPLE__
 #define DEFAULT_MODIFIER UTF8_PLACE_OF_INTEREST_SIGN
 #else
@@ -45,7 +37,7 @@ static const QString fld_abbrev_chars_ = "-.0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ
 FieldFilterEdit::FieldFilterEdit(QWidget *parent) :
     SyntaxLineEdit(parent)
 {
-    setAccessibleName(tr("Display filter entry"));
+    setAccessibleName(tr("Field entry"));
 
     completion_model_ = new QStringListModel(this);
     setCompleter(new QCompleter(completion_model_, this));
@@ -53,16 +45,8 @@ FieldFilterEdit::FieldFilterEdit(QWidget *parent) :
 
     setDefaultPlaceholderText();
 
-    //   DFCombo
-    //     Bookmark
-    //     DisplayFilterEdit
-    //     Clear button
-    //     Apply (right arrow)
-    //     Combo drop-down
-
     connect(this, &FieldFilterEdit::textChanged, this,
             static_cast<void (FieldFilterEdit::*)(const QString &)>(&FieldFilterEdit::checkFilter));
-//        connect(this, &FieldFilterEdit::returnPressed, this, &FieldFilterEdit::applyDisplayFilter);
 }
 
 void FieldFilterEdit::setDefaultPlaceholderText()
@@ -89,8 +73,24 @@ bool FieldFilterEdit::checkFilter()
 void FieldFilterEdit::checkFilter(const QString& filter_text)
 {
     popFilterSyntaxStatus();
-    if (!checkDisplayFilter(filter_text))
-        return;
+
+    QString field_word = filter_text.trimmed();
+
+    if (field_word.isEmpty()) {
+        setSyntaxState(SyntaxLineEdit::Empty);
+    } else {
+        const header_field_info *hfinfo = proto_registrar_get_byname(field_word.toUtf8().constData());
+        if (hfinfo) {
+            setSyntaxState(SyntaxLineEdit::Valid);
+        } else {
+            hfinfo = proto_registrar_get_byalias(field_word.toUtf8().constData());
+            if (hfinfo) {
+                setSyntaxState(SyntaxLineEdit::Deprecated);
+            } else {
+                setSyntaxState(SyntaxLineEdit::Invalid);
+            }
+        }
+    }
 
     switch (syntaxState()) {
     case Deprecated:
@@ -100,7 +100,7 @@ void FieldFilterEdit::checkFilter(const QString& filter_text)
     }
     case Invalid:
     {
-        QString invalidMsg(tr("Invalid filter: "));
+        QString invalidMsg(tr("Invalid field: "));
         invalidMsg.append(syntaxErrorMessage());
         emit pushFilterSyntaxStatus(invalidMsg);
         break;
@@ -110,19 +110,7 @@ void FieldFilterEdit::checkFilter(const QString& filter_text)
     }
 }
 
-// GTK+ behavior:
-// - Operates on words (proto.c:fld_abbrev_chars).
-// - Popup appears when you enter or remove text.
-
-// Our behavior:
-// - Operates on words (fld_abbrev_chars_).
-// - Popup appears when you enter or remove text.
-// - Popup appears when you move the cursor.
-// - Popup does not appear when text is selected.
-// - Recent and saved display filters in popup when editing first word.
-
-// ui/gtk/filter_autocomplete.c:build_autocompletion_list
-void FieldFilterEdit::buildCompletionList(const QString &field_word, const QString &preamble _U_)
+void FieldFilterEdit::buildCompletionList(const QString &field_word, const QString &preamble)
 {
     // Push a hint about the current field.
     if (syntaxState() == Valid) {
@@ -135,6 +123,12 @@ void FieldFilterEdit::buildCompletionList(const QString &field_word, const QStri
                     .arg(ftype_pretty_name(hfinfo->type));
             emit pushFilterSyntaxStatus(cursor_field_msg);
         }
+    }
+
+    // Single fields only; don't offer completion if there's a preamble.
+    if (!preamble.isEmpty()) {
+        completion_model_->setStringList(QStringList());
+        return;
     }
 
     if (field_word.length() < 1) {
@@ -174,23 +168,6 @@ void FieldFilterEdit::buildCompletionList(const QString &field_word, const QStri
     completer()->setCompletionPrefix(field_word);
 }
 
-void FieldFilterEdit::clearFilter()
-{
-    clear();
-    QString new_filter;
-    emit filterPackets(new_filter, true);
-}
-
-void FieldFilterEdit::applyDisplayFilter()
-{
-    if (syntaxState() == Invalid) {
-        return;
-    }
-
-    QString new_filter = text();
-    emit filterPackets(new_filter, true);
-}
-
 void FieldFilterEdit::changeEvent(QEvent* event)
 {
     if (0 != event)
@@ -205,20 +182,4 @@ void FieldFilterEdit::changeEvent(QEvent* event)
         }
     }
     SyntaxLineEdit::changeEvent(event);
-}
-
-void FieldFilterEdit::showFilters()
-{
-    FilterDialog *display_filter_dlg = new FilterDialog(window(), FilterDialog::DisplayFilter);
-    display_filter_dlg->setWindowModality(Qt::ApplicationModal);
-    display_filter_dlg->setAttribute(Qt::WA_DeleteOnClose);
-    display_filter_dlg->show();
-}
-
-void FieldFilterEdit::prepareFilter()
-{
-    QAction *pa = qobject_cast<QAction*>(sender());
-    if (!pa || pa->data().toString().isEmpty()) return;
-
-    setText(pa->data().toString());
 }

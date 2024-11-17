@@ -28,15 +28,10 @@ protected:
 
 public slots:
     bool checkFilter();
-    void applyDisplayFilter();
 
 private slots:
     void checkFilter(const QString &filter_text);
-    void clearFilter();
     void changeEvent(QEvent* event);
-
-    void showFilters();
-    void prepareFilter();
 
 private:
     QString placeholder_text_;
@@ -48,7 +43,6 @@ signals:
     void pushFilterSyntaxStatus(const QString&);
     void popFilterSyntaxStatus();
     void pushFilterSyntaxWarning(const QString&);
-    void filterPackets(QString new_filter, bool force);
 };
 
 #endif // FIELDFILTEREDIT_H
