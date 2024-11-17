@@ -7844,6 +7844,17 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <source>Preferences</source>
         <translation>Inställningar</translation>
     </message>
+    <message>
+        <source>Copy</source>
+        <translation type="unfinished">Kopiera</translation>
+    </message>
+    <message numerus="yes">
+        <source>Copy Row(s)</source>
+        <translation type="unfinished">
+            <numerusform>Kopiera rad</numerusform>
+            <numerusform>Kopiera rader</numerusform>
+        </translation>
+    </message>
 </context>
 <context>
     <name>PrefsModel</name>
@@ -8917,8 +8928,7 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     <message>
         <source>The filter expression &quot;%1&quot; isn&apos;t a valid display filter.
 (%2).</source>
-        <oldsource>The filter expression %1 isn&apos;t a valid display filter. (%2).</oldsource>
-        <translation type="unfinished">Filteruttrycket %1 är inte ett giltigt visningsfilter. (%2).</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Error</source>
@@ -15165,14 +15175,7 @@ a:hover {
     </message>
     <message>
         <source>Invalid Read Filter</source>
-        <oldsource>Invalid Display Filter</oldsource>
-        <translation type="unfinished">Felaktigt visningsfilter</translation>
-    </message>
-    <message>
-        <source>The filter expression &quot;%1&quot; isn&apos;t a valid read filter.
-(%2).</source>
-        <oldsource>The filter expression %1 isn&apos;t a valid read filter. (%2).</oldsource>
-        <translation type="unfinished">Filteruttrycket %1 är inte ett giltigt läsningsfilter. (%2).</translation>
+        <translation>Felaktigt läsningsfilter</translation>
     </message>
     <message>
         <source> before importing a capture</source>
@@ -15211,6 +15214,11 @@ a:hover {
     <message>
         <source>Unable to drop files during capture.</source>
         <translation>Kan inte släppa filer under fångsten.</translation>
+    </message>
+    <message>
+        <source>The filter expression &quot;%1&quot; isn&apos;t a valid read filter.
+(%2).</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Unknown file type returned by merge dialog.</source>

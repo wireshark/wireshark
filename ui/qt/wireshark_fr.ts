@@ -7845,6 +7845,17 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
         <source>Preferences</source>
         <translation>Préférences</translation>
     </message>
+    <message>
+        <source>Copy</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message numerus="yes">
+        <source>Copy Row(s)</source>
+        <translation type="unfinished">
+            <numerusform>Copier la ligne</numerusform>
+            <numerusform>Copier les lignes</numerusform>
+        </translation>
+    </message>
 </context>
 <context>
     <name>PrefsModel</name>
@@ -8918,8 +8929,7 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
     <message>
         <source>The filter expression &quot;%1&quot; isn&apos;t a valid display filter.
 (%2).</source>
-        <oldsource>The filter expression %1 isn&apos;t a valid display filter. (%2).</oldsource>
-        <translation type="unfinished">L&apos;expression de filtre %1 n&apos;est pas un filtre d&apos;affichage valide. (%2).</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Error</source>
@@ -15165,14 +15175,7 @@ a:hover {
     </message>
     <message>
         <source>Invalid Read Filter</source>
-        <oldsource>Invalid Display Filter</oldsource>
-        <translation type="unfinished">Filtre d&apos;affichage invalide</translation>
-    </message>
-    <message>
-        <source>The filter expression &quot;%1&quot; isn&apos;t a valid read filter.
-(%2).</source>
-        <oldsource>The filter expression %1 isn&apos;t a valid read filter. (%2).</oldsource>
-        <translation type="unfinished">L&apos;expression de filtre %1 n&apos;est pas un filtre de lecture valide. (%2).</translation>
+        <translation>Filtre de Lecture Invalide</translation>
     </message>
     <message>
         <source> before importing a capture</source>
@@ -15211,6 +15214,11 @@ a:hover {
     <message>
         <source>Unable to drop files during capture.</source>
         <translation>Impossible de déposer des fichiers pendant la capture.</translation>
+    </message>
+    <message>
+        <source>The filter expression &quot;%1&quot; isn&apos;t a valid read filter.
+(%2).</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Unknown file type returned by merge dialog.</source>

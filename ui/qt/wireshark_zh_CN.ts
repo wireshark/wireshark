@@ -7815,6 +7815,16 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <source>Preferences</source>
         <translation>首选项</translation>
     </message>
+    <message>
+        <source>Copy</source>
+        <translation type="unfinished">复制</translation>
+    </message>
+    <message numerus="yes">
+        <source>Copy Row(s)</source>
+        <translation type="unfinished">
+            <numerusform>复制行</numerusform>
+        </translation>
+    </message>
 </context>
 <context>
     <name>PrefsModel</name>
@@ -8869,8 +8879,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>The filter expression &quot;%1&quot; isn&apos;t a valid display filter.
 (%2).</source>
-        <oldsource>The filter expression %1 isn&apos;t a valid display filter. (%2).</oldsource>
-        <translation type="unfinished">过滤器表达式 %1 不是有效的显示过滤器 (%2)。</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Error</source>
@@ -15066,14 +15075,7 @@ a:hover {
     </message>
     <message>
         <source>Invalid Read Filter</source>
-        <oldsource>Invalid Display Filter</oldsource>
-        <translation type="unfinished">无效显示过滤器</translation>
-    </message>
-    <message>
-        <source>The filter expression &quot;%1&quot; isn&apos;t a valid read filter.
-(%2).</source>
-        <oldsource>The filter expression %1 isn&apos;t a valid read filter. (%2).</oldsource>
-        <translation type="unfinished">过滤器表达式 %1 不是有效的读取过滤器 (%2)。</translation>
+        <translation>无效读取过滤器</translation>
     </message>
     <message>
         <source> before importing a capture</source>
@@ -15112,6 +15114,11 @@ a:hover {
     <message>
         <source>Unable to drop files during capture.</source>
         <translation>无法在捕获时拖放文件。</translation>
+    </message>
+    <message>
+        <source>The filter expression &quot;%1&quot; isn&apos;t a valid read filter.
+(%2).</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Unknown file type returned by merge dialog.</source>

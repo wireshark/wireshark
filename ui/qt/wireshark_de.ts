@@ -7844,6 +7844,17 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
         <source>Preferences</source>
         <translation>Einstellungen</translation>
     </message>
+    <message>
+        <source>Copy</source>
+        <translation type="unfinished">Kopieren</translation>
+    </message>
+    <message numerus="yes">
+        <source>Copy Row(s)</source>
+        <translation type="unfinished">
+            <numerusform>Zeile kopieren</numerusform>
+            <numerusform>Zeilen kopieren</numerusform>
+        </translation>
+    </message>
 </context>
 <context>
     <name>PrefsModel</name>
@@ -8917,8 +8928,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     <message>
         <source>The filter expression &quot;%1&quot; isn&apos;t a valid display filter.
 (%2).</source>
-        <oldsource>The filter expression %1 isn&apos;t a valid display filter. (%2).</oldsource>
-        <translation type="unfinished">Der Filterausdruck %1 ist kein gültiger Anzeigefilter. (%2).</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Error</source>
@@ -15165,14 +15175,7 @@ a:hover {
     </message>
     <message>
         <source>Invalid Read Filter</source>
-        <oldsource>Invalid Display Filter</oldsource>
-        <translation type="unfinished">Ungültiger Anzeigefilter</translation>
-    </message>
-    <message>
-        <source>The filter expression &quot;%1&quot; isn&apos;t a valid read filter.
-(%2).</source>
-        <oldsource>The filter expression %1 isn&apos;t a valid read filter. (%2).</oldsource>
-        <translation type="unfinished">Der Filterausdruck %1 ist kein gültiger Lesefilter. (%2).</translation>
+        <translation>Ungültiger Lesefilter</translation>
     </message>
     <message>
         <source> before importing a capture</source>
@@ -15211,6 +15214,11 @@ a:hover {
     <message>
         <source>Unable to drop files during capture.</source>
         <translation>Dateien können während dem Mitschnitt nicht verworfen werden.</translation>
+    </message>
+    <message>
+        <source>The filter expression &quot;%1&quot; isn&apos;t a valid read filter.
+(%2).</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Unknown file type returned by merge dialog.</source>

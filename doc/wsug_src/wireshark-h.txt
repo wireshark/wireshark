@@ -1,4 +1,4 @@
-Wireshark 4.5.0 (v4.5.0rc0-48-g7b7ca8210417)
+Wireshark 4.5.0 (v4.5.0rc0-1003-g7483d3499511)
 Interactively dump and analyze network traffic.
 See https://www.wireshark.org for more information.
 
@@ -49,7 +49,7 @@ Input file:
 
 Processing:
   -R <read filter>, --read-filter <read filter>
-                           packet filter in Wireshark display filter syntax
+                           packet filter in display filter (wireshark-filter(4)) syntax
   -n                       disable all name resolutions (def: all enabled)
   -N <name resolve flags>  enable specific name resolution(s): "mtndsNvg"
   -d <layer_type>==<selector>,<decode_as_protocol> ...

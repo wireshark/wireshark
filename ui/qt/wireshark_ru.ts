@@ -7870,6 +7870,18 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <source>Preferences</source>
         <translation>Параметры</translation>
     </message>
+    <message>
+        <source>Copy</source>
+        <translation type="unfinished">Копировать</translation>
+    </message>
+    <message numerus="yes">
+        <source>Copy Row(s)</source>
+        <translation type="unfinished">
+            <numerusform>Копировать Строку</numerusform>
+            <numerusform>Копировать Строки</numerusform>
+            <numerusform>Копировать Строки</numerusform>
+        </translation>
+    </message>
 </context>
 <context>
     <name>PrefsModel</name>
@@ -8950,8 +8962,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>The filter expression &quot;%1&quot; isn&apos;t a valid display filter.
 (%2).</source>
-        <oldsource>The filter expression %1 isn&apos;t a valid display filter. (%2).</oldsource>
-        <translation type="unfinished">Выражение фильтра %1 не является допустимым фильтром отображения. (%2).</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Error</source>
@@ -15203,14 +15214,7 @@ a:hover {
     </message>
     <message>
         <source>Invalid Read Filter</source>
-        <oldsource>Invalid Display Filter</oldsource>
-        <translation type="unfinished">Недопустимый фильтр отображения</translation>
-    </message>
-    <message>
-        <source>The filter expression &quot;%1&quot; isn&apos;t a valid read filter.
-(%2).</source>
-        <oldsource>The filter expression %1 isn&apos;t a valid read filter. (%2).</oldsource>
-        <translation type="unfinished">Выражение фильтра %1 не является допустимым фильтром чтения. (%2).</translation>
+        <translation>Недопустимый фильтр чтения</translation>
     </message>
     <message>
         <source> before importing a capture</source>
@@ -15249,6 +15253,11 @@ a:hover {
     <message>
         <source>Unable to drop files during capture.</source>
         <translation>Нельзя перетаскивать файлы во время захвата.</translation>
+    </message>
+    <message>
+        <source>The filter expression &quot;%1&quot; isn&apos;t a valid read filter.
+(%2).</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Unknown file type returned by merge dialog.</source>

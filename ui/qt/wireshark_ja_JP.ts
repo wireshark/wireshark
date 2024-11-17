@@ -7825,6 +7825,16 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <source>Preferences</source>
         <translation>設定</translation>
     </message>
+    <message>
+        <source>Copy</source>
+        <translation type="unfinished">コピー</translation>
+    </message>
+    <message numerus="yes">
+        <source>Copy Row(s)</source>
+        <translation type="unfinished">
+            <numerusform>行をコピー</numerusform>
+        </translation>
+    </message>
 </context>
 <context>
     <name>PrefsModel</name>
@@ -8891,8 +8901,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>The filter expression &quot;%1&quot; isn&apos;t a valid display filter.
 (%2).</source>
-        <oldsource>The filter expression %1 isn&apos;t a valid display filter. (%2).</oldsource>
-        <translation type="unfinished">%1 フィルターの書式は有効な表示フィルタではありません (%2)</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Error</source>
@@ -15134,14 +15143,7 @@ a:hover {
     </message>
     <message>
         <source>Invalid Read Filter</source>
-        <oldsource>Invalid Display Filter</oldsource>
-        <translation type="unfinished">無効な表示フィルタ</translation>
-    </message>
-    <message>
-        <source>The filter expression &quot;%1&quot; isn&apos;t a valid read filter.
-(%2).</source>
-        <oldsource>The filter expression %1 isn&apos;t a valid read filter. (%2).</oldsource>
-        <translation type="unfinished">フィルタ式 %1 は有効な読込みフィルタではありません(%2)</translation>
+        <translation>無効な読込フィルタ</translation>
     </message>
     <message>
         <source> before importing a capture</source>
@@ -15180,6 +15182,11 @@ a:hover {
     <message>
         <source>Unable to drop files during capture.</source>
         <translation>キャプチャ中にファイルをドロップできません</translation>
+    </message>
+    <message>
+        <source>The filter expression &quot;%1&quot; isn&apos;t a valid read filter.
+(%2).</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Unknown file type returned by merge dialog.</source>

@@ -7820,6 +7820,16 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <source>Preferences</source>
         <translation>Tercihler</translation>
     </message>
+    <message>
+        <source>Copy</source>
+        <translation type="unfinished">Kopyala</translation>
+    </message>
+    <message numerus="yes">
+        <source>Copy Row(s)</source>
+        <translation type="unfinished">
+            <numerusform>Satırı Kopyala</numerusform>
+        </translation>
+    </message>
 </context>
 <context>
     <name>PrefsModel</name>
@@ -8886,8 +8896,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>The filter expression &quot;%1&quot; isn&apos;t a valid display filter.
 (%2).</source>
-        <oldsource>The filter expression %1 isn&apos;t a valid display filter. (%2).</oldsource>
-        <translation type="unfinished">%1 filtre ifadesi geçerli bir görüntüleme filtresi değil. (%2).</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Error</source>
@@ -15129,14 +15138,7 @@ a:üzerine gelin{
     </message>
     <message>
         <source>Invalid Read Filter</source>
-        <oldsource>Invalid Display Filter</oldsource>
-        <translation type="unfinished">Geçersiz Görüntü Filtresi</translation>
-    </message>
-    <message>
-        <source>The filter expression &quot;%1&quot; isn&apos;t a valid read filter.
-(%2).</source>
-        <oldsource>The filter expression %1 isn&apos;t a valid read filter. (%2).</oldsource>
-        <translation type="unfinished">%1 filtre ifadesi geçerli bir okuma filtresi değil. (%2).</translation>
+        <translation>Geçersiz Okuma Filtresi</translation>
     </message>
     <message>
         <source> before importing a capture</source>
@@ -15175,6 +15177,11 @@ a:üzerine gelin{
     <message>
         <source>Unable to drop files during capture.</source>
         <translation>Yakalama sırasında dosyalar bırakılamıyor.</translation>
+    </message>
+    <message>
+        <source>The filter expression &quot;%1&quot; isn&apos;t a valid read filter.
+(%2).</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Unknown file type returned by merge dialog.</source>

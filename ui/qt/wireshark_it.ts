@@ -89,7 +89,7 @@
     </message>
     <message>
         <source>&lt;h3&gt;System Call and Event Log Analyzer&lt;/h3&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;h3&gt;Analizzatore delle chiamate di sistema e del registro degli eventi&lt;/h3&gt;</translation>
     </message>
     <message>
         <source>The directory does not exist</source>
@@ -7846,6 +7846,17 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <source>Preferences</source>
         <translation>Preferenze</translation>
     </message>
+    <message>
+        <source>Copy</source>
+        <translation type="unfinished">Copia</translation>
+    </message>
+    <message numerus="yes">
+        <source>Copy Row(s)</source>
+        <translation type="unfinished">
+            <numerusform>Copia riga</numerusform>
+            <numerusform>Copia righe</numerusform>
+        </translation>
+    </message>
 </context>
 <context>
     <name>PrefsModel</name>
@@ -8919,8 +8930,8 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     <message>
         <source>The filter expression &quot;%1&quot; isn&apos;t a valid display filter.
 (%2).</source>
-        <oldsource>The filter expression %1 isn&apos;t a valid display filter. (%2).</oldsource>
-        <translation type="unfinished">L&apos;espressione %1 non è un filtro di visualizzazione valido. (%2).</translation>
+        <translation>L&apos;espressione &quot;%1&quot; non è un filtro di visualizzazione valido.
+(%2).</translation>
     </message>
     <message>
         <source>Error</source>
@@ -14460,19 +14471,19 @@ a:hover {
     </message>
     <message>
         <source>First Packet in Conversation</source>
-        <translation type="unfinished"></translation>
+        <translation>Primo pacchetto in conversazione</translation>
     </message>
     <message>
         <source>Go to the first packet in this conversation</source>
-        <translation type="unfinished"></translation>
+        <translation>Vai al primo pacchetto in questa conversazione</translation>
     </message>
     <message>
         <source>Last Packet in Conversation</source>
-        <translation type="unfinished"></translation>
+        <translation>Ultimo pacchetto in conversazione</translation>
     </message>
     <message>
         <source>Go to the last packet in this conversation</source>
-        <translation type="unfinished"></translation>
+        <translation>Vai all&apos;ultimo pacchetto in questa conversazione</translation>
     </message>
     <message>
         <source>Capture &amp;Filters…</source>
@@ -15162,14 +15173,7 @@ a:hover {
     </message>
     <message>
         <source>Invalid Read Filter</source>
-        <oldsource>Invalid Display Filter</oldsource>
-        <translation type="unfinished">Filtro di visualizzazione non valido</translation>
-    </message>
-    <message>
-        <source>The filter expression &quot;%1&quot; isn&apos;t a valid read filter.
-(%2).</source>
-        <oldsource>The filter expression %1 isn&apos;t a valid read filter. (%2).</oldsource>
-        <translation type="unfinished">L&apos;espressione %1 non è un filtro di lettura valido. (%2).</translation>
+        <translation>Filtro di lettura non valido</translation>
     </message>
     <message>
         <source> before importing a capture</source>
@@ -15208,6 +15212,12 @@ a:hover {
     <message>
         <source>Unable to drop files during capture.</source>
         <translation>Impossibile scartare file durante la cattura.</translation>
+    </message>
+    <message>
+        <source>The filter expression &quot;%1&quot; isn&apos;t a valid read filter.
+(%2).</source>
+        <translation>L&apos;espressione &quot;%1&quot; non è un filtro di lettura valido.
+(%2).</translation>
     </message>
     <message>
         <source>Unknown file type returned by merge dialog.</source>

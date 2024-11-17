@@ -9,7 +9,7 @@ See tools/asterix/README.md for details.
 
 Data source:
 https://zoranbosnjak.github.io/asterix-specs
-git revision: 24c25cfe2968365c53db276222925b2279a9bcb8
+git revision: 4a97e656105648f7e56f0256979d3c18a0795baf
 
 
 */
@@ -4911,7 +4911,7 @@ static const FieldPart * const I004_V1_12_170_AC1_PARTS[] = {
 static const AsterixField I004_V1_12_170_AC1 = { FX, 0, 0, 0, &hf_004_V1_12_170_AC1, I004_V1_12_170_AC1_PARTS, { NULL } };
 static int hf_004_V1_12_170_MS1;
 static int hf_004_V1_12_170_MS1_VALUE;
-static const FieldPart I004_V1_12_170_MS1_VALUE = { 48, 1.0, FIELD_PART_ASCII, &hf_004_V1_12_170_MS1_VALUE, NULL };
+static const FieldPart I004_V1_12_170_MS1_VALUE = { 48, 1.0, FIELD_PART_CALLSIGN, &hf_004_V1_12_170_MS1_VALUE, NULL };
 static const FieldPart * const I004_V1_12_170_MS1_PARTS[] = {
     &I004_V1_12_170_MS1_VALUE,
     NULL
@@ -5071,7 +5071,7 @@ static const FieldPart * const I004_V1_12_171_AC2_PARTS[] = {
 static const AsterixField I004_V1_12_171_AC2 = { FX, 0, 0, 0, &hf_004_V1_12_171_AC2, I004_V1_12_171_AC2_PARTS, { NULL } };
 static int hf_004_V1_12_171_MS2;
 static int hf_004_V1_12_171_MS2_VALUE;
-static const FieldPart I004_V1_12_171_MS2_VALUE = { 48, 1.0, FIELD_PART_ASCII, &hf_004_V1_12_171_MS2_VALUE, NULL };
+static const FieldPart I004_V1_12_171_MS2_VALUE = { 48, 1.0, FIELD_PART_CALLSIGN, &hf_004_V1_12_171_MS2_VALUE, NULL };
 static const FieldPart * const I004_V1_12_171_MS2_PARTS[] = {
     &I004_V1_12_171_MS2_VALUE,
     NULL
@@ -6104,7 +6104,7 @@ static const FieldPart * const I004_170_AC1_PARTS[] = {
 static const AsterixField I004_170_AC1 = { FX, 0, 0, 0, &hf_004_170_AC1, I004_170_AC1_PARTS, { NULL } };
 static int hf_004_170_MS1;
 static int hf_004_170_MS1_VALUE;
-static const FieldPart I004_170_MS1_VALUE = { 48, 1.0, FIELD_PART_ASCII, &hf_004_170_MS1_VALUE, NULL };
+static const FieldPart I004_170_MS1_VALUE = { 48, 1.0, FIELD_PART_CALLSIGN, &hf_004_170_MS1_VALUE, NULL };
 static const FieldPart * const I004_170_MS1_PARTS[] = {
     &I004_170_MS1_VALUE,
     NULL
@@ -6264,7 +6264,7 @@ static const FieldPart * const I004_171_AC2_PARTS[] = {
 static const AsterixField I004_171_AC2 = { FX, 0, 0, 0, &hf_004_171_AC2, I004_171_AC2_PARTS, { NULL } };
 static int hf_004_171_MS2;
 static int hf_004_171_MS2_VALUE;
-static const FieldPart I004_171_MS2_VALUE = { 48, 1.0, FIELD_PART_ASCII, &hf_004_171_MS2_VALUE, NULL };
+static const FieldPart I004_171_MS2_VALUE = { 48, 1.0, FIELD_PART_CALLSIGN, &hf_004_171_MS2_VALUE, NULL };
 static const FieldPart * const I004_171_MS2_PARTS[] = {
     &I004_171_MS2_VALUE,
     NULL

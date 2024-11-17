@@ -7783,6 +7783,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <source>Preferences</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Copy</source>
+        <translation type="unfinished"></translation>
+    </message>
     <message numerus="yes">
         <source>Copy Row(s)</source>
         <translation type="unfinished">

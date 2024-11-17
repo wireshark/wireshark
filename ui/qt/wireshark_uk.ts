@@ -7783,6 +7783,18 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <source>Preferences</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Copy</source>
+        <translation type="unfinished">Скопіювати</translation>
+    </message>
+    <message numerus="yes">
+        <source>Copy Row(s)</source>
+        <translation type="unfinished">
+            <numerusform>Скопіювати Рядок</numerusform>
+            <numerusform>Скопіювати Рядки</numerusform>
+            <numerusform>Скопіювати Рядки</numerusform>
+        </translation>
+    </message>
 </context>
 <context>
     <name>PrefsModel</name>
@@ -8847,7 +8859,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>The filter expression &quot;%1&quot; isn&apos;t a valid display filter.
 (%2).</source>
-        <oldsource>The filter expression %1 isn&apos;t a valid display filter. (%2).</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -14990,13 +15001,6 @@ a:hover {
     </message>
     <message>
         <source>Invalid Read Filter</source>
-        <oldsource>Invalid Display Filter</oldsource>
-        <translation type="unfinished">Некоректний Фільтр Відображення</translation>
-    </message>
-    <message>
-        <source>The filter expression &quot;%1&quot; isn&apos;t a valid read filter.
-(%2).</source>
-        <oldsource>The filter expression %1 isn&apos;t a valid read filter. (%2).</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -15035,6 +15039,11 @@ a:hover {
     </message>
     <message>
         <source>Unable to drop files during capture.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The filter expression &quot;%1&quot; isn&apos;t a valid read filter.
+(%2).</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
