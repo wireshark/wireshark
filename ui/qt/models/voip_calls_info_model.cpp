@@ -13,6 +13,7 @@
 #include <ui/qt/utils/qt_ui_utils.h>
 
 #include <QDateTime>
+#include <QTimeZone>
 
 VoipCallsInfoModel::VoipCallsInfoModel(QObject *parent) :
     QAbstractTableModel(parent),
@@ -161,7 +162,11 @@ int VoipCallsInfoModel::columnCount(const QModelIndex &parent) const
 QVariant VoipCallsInfoModel::timeData(nstime_t *abs_ts, nstime_t *rel_ts) const
 {
     if (mTimeOfDay_) {
+#if QT_VERSION >= QT_VERSION_CHECK(6, 5, 0)
+        return QDateTime::fromMSecsSinceEpoch(nstime_to_msec(abs_ts), QTimeZone::LocalTime).toString("yyyy-MM-dd hh:mm:ss");
+#else
         return QDateTime::fromMSecsSinceEpoch(nstime_to_msec(abs_ts), Qt::LocalTime).toString("yyyy-MM-dd hh:mm:ss");
+#endif
     } else {
         // XXX Pull digit count from capture file precision
         return QString::number(nstime_to_sec(rel_ts), 'f', 6);

@@ -231,7 +231,11 @@ QWidget * AdditionalToolbarWidgetAction::createBoolean(ext_toolbar_t * item, QWi
     checkbox->setText(item->name);
     setCheckable(true);
     checkbox->setCheckState(defValue.compare("true", Qt::CaseInsensitive) == 0 ? Qt::Checked : Qt::Unchecked);
+#if QT_VERSION >= QT_VERSION_CHECK(6, 7, 0)
+    connect(checkbox, &QCheckBox::checkStateChanged, this, &AdditionalToolbarWidgetAction::onCheckBoxChecked);
+#else
     connect(checkbox, &QCheckBox::stateChanged, this, &AdditionalToolbarWidgetAction::onCheckBoxChecked);
+#endif
 
     ext_toolbar_register_update_cb(item, (ext_toolbar_action_cb)&toolbar_boolean_cb, (void *)checkbox);
 
@@ -514,12 +518,17 @@ void AdditionalToolbarWidgetAction::onButtonClicked()
     item->callback(item, 0, item->user_data);
 }
 
+#if QT_VERSION >= QT_VERSION_CHECK(6, 7, 0)
+void AdditionalToolbarWidgetAction::onCheckBoxChecked(Qt::CheckState checkState)
+#else
 void AdditionalToolbarWidgetAction::onCheckBoxChecked(int checkState)
+#endif
 {
     ext_toolbar_t * item = extractToolbarItemFromObject(sender());
     if (! item)
         return;
 
+    // Qt::PartiallyChecked is not a possibility?
     bool value = checkState == Qt::Checked ? true : false;
 
     item->callback(item, &value, item->user_data);

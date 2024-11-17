@@ -161,7 +161,11 @@ PacketDialog::PacketDialog(QWidget &parent, CaptureFile &cf, frame_data *fdata) 
 #else
     connect(ui->layoutComboBox, &QComboBox::currentIndexChanged, this, &PacketDialog::layoutChanged, Qt::AutoConnection);
 #endif
+#if QT_VERSION >= QT_VERSION_CHECK(6, 7, 0)
+    connect(ui->chkShowByteView, &QCheckBox::checkStateChanged, this, &PacketDialog::viewVisibilityStateChanged);
+#else
     connect(ui->chkShowByteView, &QCheckBox::stateChanged, this, &PacketDialog::viewVisibilityStateChanged);
+#endif
 }
 
 PacketDialog::~PacketDialog()
@@ -251,8 +255,13 @@ void PacketDialog::setHintTextSelected(FieldInformation* finfo)
     ui->hintLabel->setText(hint);
 }
 
+#if QT_VERSION >= QT_VERSION_CHECK(6, 7, 0)
+void PacketDialog::viewVisibilityStateChanged(Qt::CheckState state)
+#else
 void PacketDialog::viewVisibilityStateChanged(int state)
+#endif
 {
+    // Qt::PartiallyChecked is not possible
     byte_view_tab_->setVisible(state == Qt::Checked);
     ui->layoutComboBox->setEnabled(state == Qt::Checked);
 

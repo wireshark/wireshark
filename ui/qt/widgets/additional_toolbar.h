@@ -50,7 +50,11 @@ private:
 
 private slots:
     void onButtonClicked();
+#if QT_VERSION >= QT_VERSION_CHECK(6, 7, 0)
+    void onCheckBoxChecked(Qt::CheckState);
+#else
     void onCheckBoxChecked(int);
+#endif
     void sendTextToCallback();
     void onSelectionInWidgetChanged(int idx);
 
