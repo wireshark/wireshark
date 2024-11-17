@@ -18,8 +18,6 @@
 extern "C" {
 #endif /* __cplusplus */
 
-extern void commandline_print_usage(bool for_help_option);
-
 extern void commandline_early_options(int argc, char *argv[]);
 
 /* Command-line options that don't have direct API calls to handle the data */

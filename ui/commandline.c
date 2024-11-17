@@ -53,7 +53,7 @@ commandline_param_info_t global_commandline_info;
 
 capture_options global_capture_opts;
 
-void
+static void
 commandline_print_usage(bool for_help_option) {
     FILE *output;
 
