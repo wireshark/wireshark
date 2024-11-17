@@ -83,7 +83,6 @@ BASIC_LIST="
 	libpcap-devel
 	pcre2-devel
 	python3
-	zlib-devel
 	"
 
 ADDITIONAL_LIST="
@@ -92,7 +91,6 @@ ADDITIONAL_LIST="
 	libssh-devel
 	libxml2-devel
 	lz4
-	minizip-devel
 	perl
 	perl-Parse-Yapp
 	python3-pytest
@@ -176,8 +174,8 @@ echo "Required package lua-devel|lua54-devel|lua53-devel is unavailable" >&2
 add_package BASIC_LIST libpcap || add_package BASIC_LIST libpcap1 ||
 echo "Required package libpcap|libpcap1 is unavailable" >&2
 
-add_package BASIC_LIST zlib || add_package BASIC_LIST libz1 ||
-echo "Required package zlib|libz1 is unavailable" >&2
+add_package BASIC_LIST zlib-ng-compat-devel || add_package BASIC_LIST zlib-devel ||
+echo "Optional package zlib-ng-compat-devel|zlib-devel is unavailable" >&2
 
 add_package BASIC_LIST c-ares-devel || add_package BASIC_LIST libcares-devel ||
 echo "Required package c-ares-devel|libcares-devel is unavailable" >&2
@@ -335,8 +333,8 @@ echo "Optional package opus-devel|libopus-devel is unavailable" >&2
 add_package ADDITIONAL_LIST bcg729-devel ||
 echo "Optional package bcg729-devel is unavailable" >&2
 
-add_package ADDITIONAL_LIST zlib-ng-devel ||
-echo "Optional package zlib-ng-devel is unavailable" >&2
+add_package ADDITIONAL_LIST minizip-ng-compat-devel || add_package ADDITIONAL_LIST minizip-devel ||
+echo "Optional package minizip-ng-compat-devel|minizip-devel is unavailable" >&2
 
 # RHEL 8 / CentOS 8 are missing the -devel packages for sbc and libsmi due to
 # RH deciding not to ship all -devel packages.
