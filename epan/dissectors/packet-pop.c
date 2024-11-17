@@ -213,6 +213,7 @@ dissect_pop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
         p_add_proto_data(wmem_file_scope(), pinfo, proto_pop, 0, frame_data_p);
       } else {
           frame_data_p = (struct pop_proto_data *)p_get_proto_data(wmem_file_scope(), pinfo, proto_pop, 0);
+          DISSECTOR_ASSERT(frame_data_p);
       }
 
       frag_msg = fragment_add_seq_next(&pop_data_reassembly_table, tvb, 0,
