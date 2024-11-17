@@ -9,7 +9,7 @@
 
 #include <ui/qt/models/column_list_model.h>
 #include <ui/qt/utils/qt_ui_utils.h>
-#include <ui/qt/widgets/field_filter_edit.h>
+#include <ui/qt/widgets/display_filter_edit.h>
 #include <ui/qt/widgets/syntax_line_edit.h>
 #include <ui/qt/utils/wireshark_mime_data.h>
 
@@ -120,8 +120,8 @@ QWidget *ColumnTypeDelegate::createEditor(QWidget *parent,
     }
     else if (index.column() == ColumnListModel::COL_FIELDS)
     {
-        FieldFilterEdit * ff_editor = new FieldFilterEdit(parent);
-        connect(ff_editor, &FieldFilterEdit::textChanged, ff_editor, &FieldFilterEdit::checkCustomColumn);
+        DisplayFilterEdit * ff_editor = new DisplayFilterEdit(parent, CustomColumnToEnter);
+        connect(ff_editor, &DisplayFilterEdit::textChanged, ff_editor, &DisplayFilterEdit::checkCustomColumn);
         ff_editor->setText(index.data().toString());
         editor = ff_editor;
     }
@@ -188,8 +188,8 @@ void ColumnTypeDelegate::setEditorData(QWidget *editor,
     }
     else if (index.column() == ColumnListModel::COL_FIELDS)
     {
-        if (qobject_cast<FieldFilterEdit *>(editor))
-            qobject_cast<FieldFilterEdit *>(editor)->setText(data.toString());
+        if (qobject_cast<DisplayFilterEdit *>(editor))
+            qobject_cast<DisplayFilterEdit *>(editor)->setText(data.toString());
     }
     else if (index.column() == ColumnListModel::COL_OCCURRENCE ||
              index.column() == ColumnListModel::COL_WIDTH)
@@ -220,7 +220,7 @@ void ColumnTypeDelegate::setModelData(QWidget *editor, QAbstractItemModel *model
     }
     else if (index.column() == ColumnListModel::COL_FIELDS)
     {
-        FieldFilterEdit * ffe = qobject_cast<FieldFilterEdit *>(editor);
+        DisplayFilterEdit * ffe = qobject_cast<DisplayFilterEdit *>(editor);
         if (ffe)
         {
             if (ffe->syntaxState() == SyntaxLineEdit::Valid) {
@@ -345,7 +345,7 @@ QString ColumnListModel::headerTitle(int section) const
         case ColumnListModel::COL_TYPE:
             return tr("Type");
         case ColumnListModel::COL_FIELDS:
-            return tr("Fields");
+            return tr("Custom Expression");
         case ColumnListModel::COL_OCCURRENCE:
             return tr("Field Occurrence");
         case ColumnListModel::COL_DISPLAY:

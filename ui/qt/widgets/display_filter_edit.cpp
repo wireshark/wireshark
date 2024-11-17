@@ -293,6 +293,10 @@ void DisplayFilterEdit::setDefaultPlaceholderText()
     case ReadFilterToApply:
         placeholder_text_ = tr("Apply a read filter %1").arg(UTF8_HORIZONTAL_ELLIPSIS);
         break;
+
+    case CustomColumnToEnter:
+        placeholder_text_ = tr("Enter a custom column expression %1").arg(UTF8_HORIZONTAL_ELLIPSIS);
+        break;
     }
     setPlaceholderText(placeholder_text_);
 }

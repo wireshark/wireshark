@@ -31,6 +31,7 @@ ColumnEditorFrame::ColumnEditorFrame(QWidget *parent) :
     cur_column_(-1)
 {
     ui->setupUi(this);
+    ui->fieldsNameLineEdit->setType(CustomColumnToEnter);
 
 #ifdef Q_OS_MAC
     foreach (QWidget *w, findChildren<QWidget *>()) {
@@ -61,9 +62,9 @@ ColumnEditorFrame::ColumnEditorFrame(QWidget *parent) :
     ui->displayComboBox->addItem(tr("Strings"), QVariant(COLUMN_DISPLAY_STRINGS));
     ui->displayComboBox->addItem(tr("Details"), QVariant(COLUMN_DISPLAY_DETAILS));
 
-    connect(ui->fieldsNameLineEdit, &FieldFilterEdit::textChanged,
-            ui->fieldsNameLineEdit, &FieldFilterEdit::checkCustomColumn);
-    connect(ui->fieldsNameLineEdit, &FieldFilterEdit::textChanged,
+    connect(ui->fieldsNameLineEdit, &DisplayFilterEdit::textChanged,
+            ui->fieldsNameLineEdit, &DisplayFilterEdit::checkCustomColumn);
+    connect(ui->fieldsNameLineEdit, &DisplayFilterEdit::textChanged,
             this, &ColumnEditorFrame::checkCanResolve);
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     connect(ui->typeComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), this,
