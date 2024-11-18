@@ -5954,7 +5954,7 @@ proto_register_usb_hid(void)
             NULL, 0x00, NULL, HFILL }},
     };
 
-    static int *usb_hid_subtrees[] = {
+    static int *usb_hid_ett[] = {
         &ett_usb_hid_report,
         &ett_usb_hid_item_header,
         &ett_usb_hid_wValue,
@@ -5968,7 +5968,7 @@ proto_register_usb_hid(void)
 
     proto_usb_hid = proto_register_protocol("USB HID", "USBHID", "usbhid");
     proto_register_field_array(proto_usb_hid, hf, array_length(hf));
-    proto_register_subtree_array(usb_hid_subtrees, array_length(usb_hid_subtrees));
+    proto_register_subtree_array(usb_hid_ett, array_length(usb_hid_ett));
 
     /*usb_hid_boot_keyboard_input_report_handle  =*/ register_dissector("usbhid.boot_report.keyboard.input",  dissect_usb_hid_boot_keyboard_input_report,  proto_usb_hid);
     /*usb_hid_boot_keyboard_output_report_handle =*/ register_dissector("usbhid.boot_report.keyboard.output", dissect_usb_hid_boot_keyboard_output_report, proto_usb_hid);

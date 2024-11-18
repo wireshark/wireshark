@@ -3846,7 +3846,7 @@ proto_register_usb_audio(void)
               FT_BYTES, BASE_NONE, NULL, 0x00, NULL, HFILL }}
     };
 
-    static int *usb_audio_subtrees[] = {
+    static int *usb_audio_ett[] = {
         &ett_usb_audio,
         &ett_usb_audio_desc,
         &ett_sysex_msg_fragment,
@@ -3889,7 +3889,7 @@ proto_register_usb_audio(void)
 
     proto_usb_audio = proto_register_protocol("USB Audio", "USBAUDIO", "usbaudio");
     proto_register_field_array(proto_usb_audio, hf, array_length(hf));
-    proto_register_subtree_array(usb_audio_subtrees, array_length(usb_audio_subtrees));
+    proto_register_subtree_array(usb_audio_ett, array_length(usb_audio_ett));
     expert_usb_audio = expert_register_protocol(proto_usb_audio);
     expert_register_field_array(expert_usb_audio, ei, array_length(ei));
     reassembly_table_register(&midi_data_reassembly_table,

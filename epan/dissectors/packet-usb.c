@@ -7501,7 +7501,7 @@ proto_register_usb(void)
         &ett_ss_wSpeedSupported,
     };
 
-    static int *usbport_subtrees[] = {
+    static int *usbport_ett[] = {
         &ett_usbport,
         &ett_usbport_host_controller,
         &ett_usbport_path,
@@ -7538,7 +7538,7 @@ proto_register_usb(void)
     proto_register_field_array(proto_usb, hf, array_length(hf));
     proto_register_field_array(proto_usbport, hf_usbport, array_length(hf_usbport));
     proto_register_subtree_array(usb_subtrees, array_length(usb_subtrees));
-    proto_register_subtree_array(usbport_subtrees, array_length(usbport_subtrees));
+    proto_register_subtree_array(usbport_ett, array_length(usbport_ett));
 
     expert_usb = expert_register_protocol(proto_usb);
     expert_register_field_array(expert_usb, ei, array_length(ei));

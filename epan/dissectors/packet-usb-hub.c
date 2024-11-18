@@ -811,7 +811,7 @@ proto_register_usb_hub(void)
 		  NULL, HFILL }}
 	};
 
-	static int *usb_hub_subtrees[] = {
+	static int *usb_hub_ett[] = {
 		&ett_usb_hub_wValue,
 		&ett_usb_hub_wIndex,
 		&ett_usb_hub_wLength,
@@ -821,7 +821,7 @@ proto_register_usb_hub(void)
 
 	proto_usb_hub = proto_register_protocol("USB HUB", "USBHUB", "usbhub");
 	proto_register_field_array(proto_usb_hub, hf, array_length(hf));
-	proto_register_subtree_array(usb_hub_subtrees, array_length(usb_hub_subtrees));
+	proto_register_subtree_array(usb_hub_ett, array_length(usb_hub_ett));
 	usb_hub_control_handle = register_dissector("usbhub", dissect_usb_hub_control, proto_usb_hub);
 }
 

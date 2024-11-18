@@ -22939,7 +22939,7 @@ void proto_register_dis(void)
         &ett_iff_parameter_2,
         &ett_iff_parameter_3,
         &ett_iff_parameter_4,
-        & ett_iff_mode_s_interrogator_identifier,
+        &ett_iff_mode_s_interrogator_identifier,
         &ett_iff_parameter_5,
         &ett_iff_parameter_6,
     };

@@ -3207,7 +3207,7 @@ proto_register_usb_vid(void)
             },
     };
 
-    static int *usb_vid_subtrees[] = {
+    static int *usb_vid_ett[] = {
             &ett_usb_vid,
             &ett_descriptor_video_endpoint,
             &ett_descriptor_video_control,
@@ -3235,7 +3235,7 @@ proto_register_usb_vid(void)
 
     proto_usb_vid = proto_register_protocol("USB Video", "USBVIDEO", "usbvideo");
     proto_register_field_array(proto_usb_vid, hf, array_length(hf));
-    proto_register_subtree_array(usb_vid_subtrees, array_length(usb_vid_subtrees));
+    proto_register_subtree_array(usb_vid_ett, array_length(usb_vid_ett));
     expert_usb_vid = expert_register_protocol(proto_usb_vid);
     expert_register_field_array(expert_usb_vid, ei, array_length(ei));
 

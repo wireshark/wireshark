@@ -88,7 +88,7 @@ dissect_teimanagement(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void*
 void
 proto_register_teimanagement(void)
 {
-    static int *subtree[]={
+    static int *ett[]={
         &ett_tei_management_subtree
     };
 
@@ -117,7 +117,7 @@ proto_register_teimanagement(void)
     proto_tei = proto_register_protocol("TEI Management Procedure, Channel D (LAPD)",
                                          "TEI_MANAGEMENT", "tei_management");
     proto_register_field_array (proto_tei, hf, array_length(hf));
-    proto_register_subtree_array(subtree, array_length(subtree));
+    proto_register_subtree_array(ett, array_length(ett));
 
     teimanagement_handle = register_dissector("tei_management", dissect_teimanagement, proto_tei);
 }

@@ -60167,7 +60167,7 @@ proto_register_ieee80211(void)
       UAT_END_FIELDS
     };
 
-  static int *tree_array[] = {
+  static int *ett[] = {
     &ett_80211,
     &ett_proto_flags,
     &ett_cap_tree,
@@ -60950,7 +60950,7 @@ proto_register_ieee80211(void)
   proto_wlan_ext = proto_register_protocol("IEEE 802.11 wireless LAN extension frame",
       "IEEE 802.11 EXT", "wlan_ext");
 
-  proto_register_subtree_array(tree_array, array_length(tree_array));
+  proto_register_subtree_array(ett, array_length(ett));
 
   expert_ieee80211 = expert_register_protocol(proto_wlan);
   expert_register_field_array(expert_ieee80211, ei, array_length(ei));

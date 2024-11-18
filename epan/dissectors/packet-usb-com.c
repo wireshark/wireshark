@@ -1310,7 +1310,7 @@ proto_register_usb_com(void)
               NULL, 0, NULL, HFILL }},
     };
 
-    static int *usb_com_subtrees[] = {
+    static int *usb_com_ett[] = {
         &ett_usb_com,
         &ett_usb_com_capabilities,
         &ett_usb_com_bitmap,
@@ -1328,7 +1328,7 @@ proto_register_usb_com(void)
 
     proto_usb_com = proto_register_protocol("USB Communications and CDC Control", "USBCOM", "usbcom");
     proto_register_field_array(proto_usb_com, hf, array_length(hf));
-    proto_register_subtree_array(usb_com_subtrees, array_length(usb_com_subtrees));
+    proto_register_subtree_array(usb_com_ett, array_length(usb_com_ett));
 
     usb_com_descriptor_handle = register_dissector("usbcom.descriptor", dissect_usb_com_descriptor, proto_usb_com);
     usb_com_control_handle = register_dissector("usbcom.control", dissect_usb_com_control, proto_usb_com);

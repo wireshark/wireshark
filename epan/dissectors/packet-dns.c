@@ -7944,6 +7944,7 @@ proto_register_dns(void)
     &ett_dns_dso_tlv,
     &ett_dns_svcb,
     &ett_dns_extraneous,
+    &ett_dns_dnscrypt
   };
 
   module_t *dns_module;
