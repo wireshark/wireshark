@@ -22,7 +22,29 @@ If you or your organization would like to contribute or become a sponsor, please
 
 The following vulnerabilities have been fixed:
 
-// * wssalink:2024-14[]
+* wssalink:2024-14[]
+FiveCo RAP dissector infinite loop.
+wsbuglink:20176[].
+// cveidlink:2024-xxx[].
+// Fixed in master: d8ca9fc339
+// Fixed in release-4.4: 4d58fef602
+// Fixed in release-4.2: 686dff0f01
+// CVSS AV:L/AC:L/PR:N/UI:R/S:U/C:H/I:H/A:H
+// CWE-835
+// * Fuzz job crash: fuzz-2024-10-29-7320.pcap. wsbuglink:20176[].
+
+* wssalink:2024-15[]
+ECMP dissector crash.
+wsbuglink:20214[].
+// cveidlink:2024-xxx[].
+// Fixed in master: c8e5887073
+// Fixed in release-4.4: 8fd60c6448
+// Fixed in release-4.2: 06e0b0bb09
+// CVSS AV:L/AC:L/PR:N/UI:R/S:U/C:H/I:H/A:H
+// CWE-126
+// * ECMP: buffer overflow detected. wsbuglink:20214[].
+
+// * wssalink:2024-16[]
 // Foo dissector {crash,infinite loop,memory leak}.
 // wsbuglink:xxx[].
 // cveidlink:2024-xxx[].
@@ -39,6 +61,43 @@ The following bugs have been fixed:
 //* wsbuglink:6000[Wireshark bug]
 //* cveidlink:2014-2486[]
 //* Wireshark took a bite out of each of your freshly baked muffins until it found the perfect one.
+
+* CIP I/O is not detected by "enip" filter anymore. wsbuglink:19517[].
+* Fuzz job issue: fuzz-2024-09-03-7550.pcap. wsbuglink:20041[].
+* OSS-Fuzz 71476: wireshark:fuzzshark_ip_proto-udp: Index-out-of-bounds in DOFObjectID_Create_Unmarshal. wsbuglink:20065[].
+* JA4_c hashes an empty field to e3b0c44298fc when it should be 000000000000. wsbuglink:20066[].
+* Opening Wireshark 4.4.0 on macOS 15.0 disconnects iPhone Mirroring. wsbuglink:20082[].
+* PTP analysis loses track of message associations in case of sequence number resets. wsbuglink:20099[].
+* USB CCID: response packet in case SetParameters command is unsupported is flagged as malformed. wsbuglink:20107[].
+* dumpcap crashes when run from TShark with a capture filter. wsbuglink:20108[].
+* SRT dissector: The StreamID (SID) in the handshake extension is displayed without regarding the control characters and with NUL as terminating. wsbuglink:20113[].
+* Ghost error message on POP3 packets. wsbuglink:20124[].
+* Building against c-ares 1.34 fails. wsbuglink:20125[].
+* D-Bus is not optional anymore. wsbuglink:20126[].
+* macOS Intel DMGs aren't fully notarized. wsbuglink:20129[].
+* Incorrect name for MLD Capabilities and Operations Present flag in dissection of MLD Capabilities for MLO wifi-7 capture. wsbuglink:20134[].
+* CQL Malformed Packet v4 S -> C Type RESULT: Prepared[Malformed Packet] wsbuglink:20142[].
+* Wi-Fi: 256 Block Ack (BA) is not parsed properly. wsbuglink:20156[].
+* BACnet ReadPropertyMultiple request Maximum allowed recursion depth reached. wsbuglink:20159[].
+* Statistics->I/O Graph crashes when using simple moving average. wsbuglink:20163[].
+* HTTP2 body decompression fails on DATA with a single padded frame. wsbuglink:20167[].
+* Compiler warning for ui/tap-rtp-common.c (ignoring return value) wsbuglink:20169[].
+* SIP dissector bug due to "be-route" param in VIA header. wsbuglink:20173[].
+* Coredump after trying to open 'Follow TCP stream' wsbuglink:20174[].
+* Protobuf JSON mapping error. wsbuglink:20182[].
+* Display filter "!stp.pvst.origvlan in { vlan.id }" causes a crash (Version 4.4.1) wsbuglink:20183[].
+* Extcap plugins shipped with Wireshark Portable are not found in version 4.4.1. wsbuglink:20184[].
+* IEEE 802.11be: Wrong regulatory info in HE Operation IE in Beacon frame. wsbuglink:20187[].
+* Wireshark 4.4.1 does not decode RTCP packets. wsbuglink:20188[].
+* Qt: Display filter sub-menu can only be opened on the triangle, not the full name. wsbuglink:20190[].
+* Qt: Changing the display filter does not update the Conversations or Endpoints dialogs. wsbuglink:20191[].
+* MODBUS Dissector bug. wsbuglink:20192[].
+* Modbus dissector bug - Field Occurence and Layer Operator modbus.bitval field. wsbuglink:20193[].
+* Wireshark crashes when a field is dragged  from packet details towards the find input. wsbuglink:20204[].
+* Lua DissectorTable("") : set ("10,11") unexpected behavior in locales with comma as decimal separator. wsbuglink:20216[].
+
+The TCP dissector no longer falls back to using the client port as a criterion for selecting a payload dissector when the server port does not select a payload dissector (except for port 20, active FTP).
+This behavior can be changed using the "Client port dissectors" preference.
 
 // == Known Bugs
 
@@ -59,18 +118,51 @@ There are no new protocols in this release.
 === Updated Protocol Support
 
 // Add one protocol per line between the -- delimiters.
-// ag -A1 '(define PSNAME|proto_register_protocol[^_])' $(git diff --name-only v4.4.0.. | ag packet- | sort -u)
+// ag -A1 '(define PSNAME|proto_register_protocol[^_])' $(git diff --name-only v4.4.2.. | ag packet- | sort -u)
 [commaize]
 --
+ARTNET
+ASN.1 PER
+BACapp
+BT BR/EDR
+CQL
+DOF
+ECMP
+ENIP
+FiveCo RAP
+Frame
+FTDI FT
+HSRP
+HTTP/2
+ICMPv6
+IEEE 802.11
+MBTCP
+MMS
+MPEG PES
+PN-DCP
+POP
+ProtoBuf
+PTP
+RPC
+RTCP
+SIP
+SRT
+Syslog
+TCP
+UMTS RLC
+USB CCID
+Wi-SUN
+ZigBee ZCL
 --
 
 === New and Updated Capture File Support
 
-There is no new or updated capture file support in this release.
+// There is no new or updated capture file support in this release.
 // Add one file type per line between the -- delimiters.
-// [commaize]
-// --
-// --
+[commaize]
+--
+BLF
+--
 
 === Updated File Format Decoding Support
 
