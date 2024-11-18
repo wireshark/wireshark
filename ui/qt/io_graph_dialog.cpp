@@ -180,7 +180,7 @@ static QPointer<UatModel> static_uat_model_;
 
 // y_axis_factor was added in 3.6. asAOT in 4.6/5.0 Provide backward compatibility.
 static const char *iog_uat_defaults_[] = {
-    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, "1", "false"
+    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, "1", "false"
 };
 
 static char *decimal_point;
@@ -1610,7 +1610,7 @@ void IOGraphDialog::loadProfileGraphs()
     // without sacrificing backwards compatibility. The user can move them
     // freely to override this. (We could parse through io_graph_packet_fields
     // to get the indices programmatically if necessary.)
-    ui->graphUat->header()->moveSection(9, 1);
+    ui->graphUat->header()->moveSection(colAOT, 1);
 
     connect(uat_model_, &UatModel::dataChanged, this, &IOGraphDialog::modelDataChanged);
     connect(uat_model_, &UatModel::modelReset, this, &IOGraphDialog::modelRowsReset);

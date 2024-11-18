@@ -57,7 +57,7 @@ class QCPAxisTickerDateTime;
 const int max_io_items_ = 1 << 25;
 
 /* define I/O Graph specific UAT columns */
-enum UatColumnsIOG {colEnabled = 0, colAOT, colName, colDFilter, colColor, colStyle, colYAxis, colYField, colSMAPeriod, colYAxisFactor, colMaxNum};
+enum UatColumnsIOG {colEnabled = 0, colName, colDFilter, colColor, colStyle, colYAxis, colYField, colSMAPeriod, colYAxisFactor, colAOT, colMaxNum};
 
 // XXX - Move to its own file?
 class IOGraph : public QObject {
