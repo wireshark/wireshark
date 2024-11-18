@@ -3677,6 +3677,10 @@ static int      hf_pie_ixia_sip_headers;
 static int      hf_pie_ixia_sip_type;
 static int      hf_pie_ixia_sip_header_field;
 static int      hf_pie_ixia_sip_header_value;
+static int      hf_pie_ixia_session_ip_scrambling_key_hash;
+static int      hf_pie_ixia_ja4a;
+static int      hf_pie_ixia_ja4b;
+static int      hf_pie_ixia_ja4c;
 
 static int      hf_pie_netscaler;
 static int      hf_pie_netscaler_roundtriptime;
@@ -11389,6 +11393,22 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
             break;
         case ((VENDOR_IXIA << 16) | 373):
             ti = proto_tree_add_item(pdutree, hf_pie_ixia_sip_header_value,
+                                     tvb, offset, length, ENC_ASCII);
+            break;
+        case ((VENDOR_IXIA << 16) | 374):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_session_ip_scrambling_key_hash,
+                                     tvb, offset, length, ENC_ASCII);
+            break;
+        case ((VENDOR_IXIA << 16) | 375):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_ja4a,
+                                     tvb, offset, length, ENC_ASCII);
+            break;
+        case ((VENDOR_IXIA << 16) | 376):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_ja4b,
+                                     tvb, offset, length, ENC_ASCII);
+            break;
+        case ((VENDOR_IXIA << 16) | 377):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_ja4c,
                                      tvb, offset, length, ENC_ASCII);
             break;
             /* END Ixia Communications */
@@ -19614,9 +19634,9 @@ proto_register_netflow(void)
 
         /* ixia, 3054 / 279 */
         {&hf_pie_ixia_ja3_fingerprint_string,
-         {"JA3 fingerprint", "cflow.pie.ixia.ja3-fingerprint",
+         {"JA3 Fingerprint", "cflow.pie.ixia.ja3-fingerprint",
           FT_STRING, BASE_NONE, NULL, 0x0,
-          "JA3 fingerprint string", HFILL}
+          "JA3 Fingerprint String", HFILL}
         },
 
         /* ixia, 3054 / 280 */
@@ -20285,6 +20305,34 @@ proto_register_netflow(void)
          {"SIP Header Value", "cflow.pie.ixia.sip-header-value",
           FT_STRING, BASE_NONE, NULL, 0x0,
           "Value of SIP header", HFILL}
+        },
+
+        /* ixia, 3054 / 374 */
+        {&hf_pie_ixia_session_ip_scrambling_key_hash,
+         {"IP Scrambling Key Hash", "cflow.pie.ixia.session-ip-scrambling-key-hash",
+          FT_STRING, BASE_NONE, NULL, 0x0,
+          "Session IP Scrambling Key Hash", HFILL}
+        },
+
+        /* ixia, 3054 / 375 */
+        {&hf_pie_ixia_ja4a,
+         {"JA4 Fingerprint Part A", "cflow.pie.ixia.ja4a",
+          FT_STRING, BASE_NONE, NULL, 0x0,
+          "First Part of a JA4 Fingerprint", HFILL}
+        },
+
+        /* ixia, 3054 / 376 */
+        {&hf_pie_ixia_ja4b,
+         {"JA4 Fingerprint Part B", "cflow.pie.ixia.ja4b",
+          FT_STRING, BASE_NONE, NULL, 0x0,
+          "Second Part of a JA4 Fingerprint", HFILL}
+        },
+
+        /* ixia, 3054 / 377 */
+        {&hf_pie_ixia_ja4c,
+         {"JA4 Fingerprint Part C", "cflow.pie.ixia.ja4c",
+          FT_STRING, BASE_NONE, NULL, 0x0,
+          "Third Part of a JA4 Fingerprint", HFILL}
         },
 
         /* Netscaler root (a hidden item to allow filtering) */
