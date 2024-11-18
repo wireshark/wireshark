@@ -997,7 +997,7 @@ def findDefinedTrees(filename):
         trees = set()
 
         # Not insisting that this array is static..
-        definition_matches = re.finditer(r'int\s*\*\s*[a-zA-Z0-9_]*?ett[a-zA-Z0-9_]*\s*\[\]\s*=\s*\{(.*?)\};', contents, re.MULTILINE|re.DOTALL)
+        definition_matches = re.finditer(r'int\s*\*\s*(?:const|)\s*[a-zA-Z0-9_]*?ett[a-zA-Z0-9_]*\s*\[\]\s*=\s*\{(.*?)\};', contents, re.MULTILINE|re.DOTALL)
         for d in definition_matches:
             entries = d.group(1)
 
@@ -2028,7 +2028,7 @@ def checkFile(filename, check_mask=False, mask_exact_width=False, check_label=Fa
         for d in ett_declared:
             if d not in ett_defined:
                 global errors_found
-                print(filename, 'subtree identifier', d, 'is declared but not defined in array for registering')
+                print(filename, 'subtree identifier', d, 'is declared but not found in an array for registering')
                 errors_found += 1
 
     items_declared = {}

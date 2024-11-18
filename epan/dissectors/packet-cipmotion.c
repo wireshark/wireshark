@@ -3417,7 +3417,7 @@ proto_register_cipmotion(void)
 
    /* Setup protocol subtree array, these will help Wireshark remember
    * if the subtree should be expanded as the user moves through packets */
-   static int *cip_subtree[] = {
+   static int *ett[] = {
       &ett_cipmotion,
       &ett_cont_dev_header,
       &ett_control_status,
@@ -3469,7 +3469,7 @@ proto_register_cipmotion(void)
    proto_register_field_array(proto_cipmotion, hf, array_length(hf));
 
    /* Register the subtrees for the protocol dissection */
-   proto_register_subtree_array(cip_subtree, array_length(cip_subtree));
+   proto_register_subtree_array(ett, array_length(ett));
 
    expert_module_t* expert_cipm = expert_register_protocol(proto_cipmotion);
    expert_register_field_array(expert_cipm, ei, array_length(ei));

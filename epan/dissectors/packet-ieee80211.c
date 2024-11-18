@@ -61205,7 +61205,7 @@ proto_register_wlan_rsna_eapol(void)
       FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
   };
 
-  static int *tree_array[] = {
+  static int *ett[] = {
     &ett_keyinfo,
     &ett_wlan_rsna_eapol_keydes_data,
   };
@@ -61214,7 +61214,7 @@ proto_register_wlan_rsna_eapol(void)
       "802.11 RSNA EAPOL", "wlan_rsna_eapol");
   proto_register_field_array(proto_wlan_rsna_eapol, hf, array_length(hf));
 
-  proto_register_subtree_array(tree_array, array_length(tree_array));
+  proto_register_subtree_array(ett, array_length(ett));
 }
 
 void
