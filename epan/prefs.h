@@ -1021,8 +1021,8 @@ bool prefs_get_preference_obsolete(pref_t *pref);
 prefs_set_pref_e prefs_set_preference_obsolete(pref_t *pref);
 
 /**
- * Get current preference uint value. This allows the preference structure
- * to remain hidden from those that doesn't really need it
+ * Get current preference uint or bool value. This allows the preference
+ * structure to remain hidden from those that don't really need it.
  *
  * @param module_name the preference module name. Usually the same as the protocol
  *                    name, e.g. "tcp".

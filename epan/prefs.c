@@ -5154,9 +5154,18 @@ unsigned prefs_get_uint_value(const char *module_name, const char* pref_name)
 {
     pref_t *pref = prefs_find_preference(prefs_find_module(module_name), pref_name);
     if (pref == NULL) {
+        ws_warning("Unknown preference requested: %s.%s", module_name, pref_name);
         return 0;
     }
-    return prefs_get_uint_value_real(pref, pref_current);
+    switch (pref->type) {
+    case PREF_UINT:
+        return prefs_get_uint_value_real(pref, pref_current);
+    case PREF_BOOL:
+        return prefs_get_bool_value(pref, pref_current);
+    default:
+        ws_warning("Non-numeric preference requested: %s.%s", module_name, pref_name);
+        return 0;
+    }
 }
 
 char* prefs_get_password_value(pref_t *pref, pref_source_t source)
