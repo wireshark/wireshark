@@ -253,18 +253,19 @@ get_compiled_version_info(gather_feature_func gather_compile)
 	GString *str;
 	GList *l = NULL, *with_list = NULL, *without_list = NULL;
 
-	str = g_string_new("Compiler info: ");
-	g_string_append_printf(str, "%d-bit, ", (int)sizeof(str) * 8);
+	str = g_string_new("Compile-time info:\n");
+	g_string_append_printf(str, " Bit width: %d-bit\n", (int)sizeof(str) * 8);
 
 	/* Compiler info */
+	g_string_append_printf(str, "  Compiler: ");
 	get_compiler_info(str);
 
 #ifdef GLIB_MAJOR_VERSION
 	g_string_append_printf(str,
-		", GLib %d.%d.%d", GLIB_MAJOR_VERSION, GLIB_MINOR_VERSION,
+		"      GLib: %d.%d.%d", GLIB_MAJOR_VERSION, GLIB_MINOR_VERSION,
 		GLIB_MICRO_VERSION);
 #else
-	g_string_append(str, "GLib ?.?.?");
+	g_string_append(str, "      GLib: version unknown");
 #endif
 #ifdef WS_DISABLE_DEBUG
 	g_string_append(str, ", release build");
@@ -272,7 +273,7 @@ get_compiled_version_info(gather_feature_func gather_compile)
 #ifdef WS_DISABLE_ASSERT
 	g_string_append(str, ", without assertions");
 #endif
-	g_string_append(str, ".\n");
+	g_string_append(str, "\n");
 
 	if (gather_compile != NULL) {
 		gather_compile(&l);
@@ -282,7 +283,7 @@ get_compiled_version_info(gather_feature_func gather_compile)
 	separate_features(&l, &with_list, &without_list);
 	free_features(&l);
 
-	g_string_append(str, "  With:\n");
+	g_string_append(str, " With:\n");
 	features_to_columns(&with_list, str);
 	free_features(&with_list);
 	if (without_list != NULL) {
@@ -484,6 +485,7 @@ get_compiler_info(GString *str)
 	#else
 		g_string_append(str, "unknown compiler");
 	#endif
+	g_string_append(str, "\n");
 }
 
 void
@@ -577,7 +579,7 @@ get_runtime_version_info(gather_feature_func gather_runtime)
 	separate_features(&l, &with_list, &without_list);
 	free_features(&l);
 
-	g_string_append(str, "  With:\n");
+	g_string_append(str, " With:\n");
 	features_to_columns(&with_list, str);
 	free_features(&with_list);
 	if (without_list != NULL) {
