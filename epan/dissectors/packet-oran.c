@@ -4972,14 +4972,14 @@ static int dissect_oran_u_re(tvbuff_t *tvb, proto_tree *tree,
     float i_value = decompress_value(i_bits, comp_meth, sample_bit_width, exponent);
     unsigned sample_len_in_bytes = ((samples_offset%8)+sample_bit_width+7)/8;
     proto_item *i_ti = proto_tree_add_float(tree, hf_oran_iSample, tvb, samples_offset/8, sample_len_in_bytes, i_value);
-    proto_item_set_text(i_ti, "iSample: %0.12f  0x%04x (iSample-%u in the PRB)", i_value, i_bits, sample_number);
+    proto_item_set_text(i_ti, "iSample: % 0.7f  0x%04x (RE-%2u in the PRB)", i_value, i_bits, sample_number);
     samples_offset += sample_bit_width;
     /* Q */
     unsigned q_bits = tvb_get_bits(tvb, samples_offset, sample_bit_width, ENC_BIG_ENDIAN);
     float q_value = decompress_value(q_bits, comp_meth, sample_bit_width, exponent);
     sample_len_in_bytes = ((samples_offset%8)+sample_bit_width+7)/8;
     proto_item *q_ti = proto_tree_add_float(tree, hf_oran_qSample, tvb, samples_offset/8, sample_len_in_bytes, q_value);
-    proto_item_set_text(q_ti, "qSample: %0.12f  0x%04x (qSample-%u in the PRB)", q_value, q_bits, sample_number);
+    proto_item_set_text(q_ti, "qSample: % 0.7f  0x%04x (RE-%2u in the PRB)", q_value, q_bits, sample_number);
     samples_offset += sample_bit_width;
 
     return samples_offset;
@@ -5315,14 +5315,14 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
                 }
             }
 
-            /* N.B. bytes for samples may need to be padded out to next byte
+            /* N.B. bytes for samples need to be padded out to next byte
                (certainly where there aren't 12 REs in PRB..) */
             unsigned nBytesForSamples = (sample_bit_width * res_per_prb * 2 + 7) / 8;
             nBytesPerPrb = nBytesForSamples + udcompparam_len;
 
             proto_tree_add_item(rb_tree, hf_oran_iq_user_data, tvb, offset, nBytesForSamples, ENC_NA);
 
-            /* Optionally trying to show I/Q samples */
+            /* Optionally trying to show I/Q RE values */
             if (pref_showIQSampleValues) {
                 /* Individual values */
                 unsigned samples_offset = offset*8;
@@ -5330,8 +5330,8 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 
                 if (compression==BFP_AND_SELECTIVE_RE || compression==MOD_COMPR_AND_SELECTIVE_RE) {
                     /* Use sresmask to pick out which REs are present */
-                    for (unsigned n=0; n<12; n++) {
-                        if (sresmask & (1<<n)) {
+                    for (unsigned n=1; n<=12; n++) {
+                        if (sresmask & (1<<(n-1))) {
                             samples_offset = dissect_oran_u_re(tvb, rb_tree,
                                                                n, samples_offset, sample_bit_width, compression, exponent);
                             samples++;
@@ -5340,7 +5340,7 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
                 }
                 else {
                     /* All 12 REs are present */
-                    for (unsigned n = 0; n<12; n++) {
+                    for (unsigned n=1; n<=12; n++) {
                         samples_offset = dissect_oran_u_re(tvb, rb_tree,
                                                            n, samples_offset, sample_bit_width, compression, exponent);
                         samples++;
