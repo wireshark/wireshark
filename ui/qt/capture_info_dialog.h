@@ -39,9 +39,11 @@ public:
 private:
     struct _capture_info *cap_info_;
     int samples_;
-    QMap<int, int> last_count_;
+    // The SparkLineDelegate expects to plot ints. The delta between packet
+    // counts in two intervals should fit in an int, even if the totals don't.
+    QMap<int, uint64_t> last_count_;
     QMap<int, QList<int> > points_;
-    int last_other_;
+    uint64_t last_other_;
     QList<int> other_points_;
 };
 

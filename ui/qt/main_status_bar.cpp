@@ -477,6 +477,10 @@ void MainStatusBar::showCaptureStatistics()
     pushGenericStatus(STATUS_CTX_MAIN, packets_str);
 }
 
+// These two counts are different in multiple file mode. cap_session->count
+// is the total number in the session across all files; cap_file_->count is
+// count in the current file. Perhaps we could display both in both cases?
+
 void MainStatusBar::updateCaptureStatistics(capture_session *cap_session)
 {
     cs_fixed_ = false;

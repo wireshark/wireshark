@@ -35,7 +35,7 @@ struct capture_dissector_handle
 
 typedef struct capture_dissector_count
 {
-    uint32_t count;
+    uint64_t count;
 } capture_dissector_count_t;
 
 static GHashTable *registered_dissectors;
@@ -163,7 +163,7 @@ bool call_capture_dissector(capture_dissector_handle_t handle, const uint8_t *pd
     return handle->dissector(pd, offset, len, cpinfo, pseudo_header);
 }
 
-uint32_t capture_dissector_get_count(packet_counts* counts, const int proto)
+uint64_t capture_dissector_get_count(packet_counts* counts, const int proto)
 {
     capture_dissector_count_t* hash_count = (capture_dissector_count_t*)g_hash_table_lookup(counts->counts_hash, GINT_TO_POINTER(proto));
     if (hash_count == NULL)

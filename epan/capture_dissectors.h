@@ -24,8 +24,8 @@ extern "C" {
 /** Table of counts of packets of various types. */
 typedef struct {
     GHashTable*       counts_hash; /* packet counters keyed by proto */
-    int               other;       /* Packets not counted in the hash total */
-    int               total;       /* Cache of total packets */
+    uint64_t          other;       /* Packets not counted in the hash total */
+    uint64_t          total;       /* Cache of total packets */
 } packet_counts;
 
 typedef struct _capture_packet_info {
@@ -100,7 +100,7 @@ WS_DLL_PUBLIC bool call_capture_dissector(capture_dissector_handle_t handle, con
  * @param[in] proto Protocol to retrieve packet count from
  * @return Number of packets captured for a particular protocol
  */
-WS_DLL_PUBLIC uint32_t capture_dissector_get_count(packet_counts* counts, const int proto);
+WS_DLL_PUBLIC uint64_t capture_dissector_get_count(packet_counts* counts, const int proto);
 
 /* Increment packet capture count by 1 for a particular protocol.
  * @param[in] cpinfo Capture statistics

@@ -149,13 +149,13 @@ void CaptureInfoModel::updateInfo()
     void *key, *value;
 
     samples_++;
-    other_points_.append(cap_info_->counts->other - last_other_);
+    other_points_.append(static_cast<int>(cap_info_->counts->other - last_other_));
     last_other_ = cap_info_->counts->other;
 
     g_hash_table_iter_init (&iter, cap_info_->counts->counts_hash);
     while (g_hash_table_iter_next (&iter, &key, &value)) {
         int proto_id = GPOINTER_TO_INT(key);
-        int cur_count = (int) capture_dissector_get_count(cap_info_->counts, proto_id);
+        uint64_t cur_count = capture_dissector_get_count(cap_info_->counts, proto_id);
         if (!points_.contains(proto_id)) {
             emit beginInsertRows(QModelIndex(), rowCount(), rowCount());
             QVector<int> zeroes = QVector<int>(samples_, 0);
@@ -163,7 +163,7 @@ void CaptureInfoModel::updateInfo()
             last_count_[proto_id] = 0;
             emit endInsertRows();
         } else {
-            points_[proto_id].append(cur_count - last_count_[proto_id]);
+            points_[proto_id].append(static_cast<int>(cur_count - last_count_[proto_id]));
             last_count_[proto_id] = cur_count;
         }
     }
