@@ -10523,7 +10523,7 @@ proto_register_tcp(void)
         &mptcp_intersubflows_retransmission);
 
     range_convert_str(wmem_epan_scope(), &tcp_clientport_dissectors_range, TCP_DEFAULT_CLIENTPORT_DISSECTORS, 65535);
-    prefs_register_range_preference(tcp_module, "clientport_dissectors", "Clientport Dissectors",
+    prefs_register_range_preference(tcp_module, "clientport_dissectors", "Client port dissectors",
         "Ports for which the dissector will to be chosen based on the client port instead of the server port",
         &tcp_clientport_dissectors_range, 65535);
 
