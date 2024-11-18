@@ -69,6 +69,10 @@ The following features are either new or have been significantly updated since v
 * Custom columns have an option to show the values using the same format as
   in Packet Details.
 
+* Custom column complex expressions (e.g., with arithmetic, filter functions,
+  etc.) that return numeric results are sorted numerically instead of
+  lexicographically.
+
 * The minimum width of the I/O Graph dialog window is reduced, so it should
   work better on small resolution desktops, especially in certain languages.
   To enable this, some checkbox controls were moved to the graph right-click

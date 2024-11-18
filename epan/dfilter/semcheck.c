@@ -67,7 +67,7 @@ check_relation(dfwork_t *dfw, stnode_op_t st_op,
 		FtypeCanFunc can_func, bool allow_partial_value,
 		stnode_t *st_node, stnode_t *st_arg1, stnode_t *st_arg2);
 
-static void
+static ftenum_t
 semcheck(dfwork_t *dfw, stnode_t *st_node);
 
 enum mk_result {
@@ -754,10 +754,10 @@ find_logical_ftype(dfwork_t *dfw, stnode_t *st_node)
 }
 
 /* Check the semantics of an existence test. */
-static void
+static ftenum_t
 check_exists(dfwork_t *dfw, stnode_t *st_arg1)
 {
-
+	ftenum_t ftype = FT_NONE;
 	resolve_unparsed(dfw, st_arg1, true);
 
 	LOG_NODE(st_arg1);
@@ -768,6 +768,9 @@ check_exists(dfwork_t *dfw, stnode_t *st_arg1)
 			/* fall-through */
 		case STTYPE_REFERENCE:
 			/* This is OK */
+			if (dfw->flags & DF_RETURN_VALUES) {
+				ftype = sttype_field_ftenum(st_arg1);
+			}
 			break;
 		case STTYPE_STRING:
 		case STTYPE_LITERAL:
@@ -789,6 +792,8 @@ check_exists(dfwork_t *dfw, stnode_t *st_arg1)
 		case STTYPE_SLICE:
 			ASSERT_STTYPE_NOT_REACHED(stnode_type_id(st_arg1));
 	}
+
+	return ftype;
 }
 
 ftenum_t
@@ -1698,7 +1703,7 @@ check_test(dfwork_t *dfw, stnode_t *st_node)
 	}
 }
 
-static void
+static ftenum_t
 check_nonzero(dfwork_t *dfw, stnode_t *st_node)
 {
 	ftenum_t ftype;
@@ -1723,6 +1728,8 @@ check_nonzero(dfwork_t *dfw, stnode_t *st_node)
 		FAIL(dfw, st_node, "Type %s cannot be assigned a truth value.",
 					ftype_pretty_name(ftype));
 	}
+
+	return ftype;
 }
 
 static const char *
@@ -2059,9 +2066,15 @@ check_arithmetic(dfwork_t *dfw, stnode_t *st_node, ftenum_t logical_ftype)
 
 
 /* Check the entire syntax tree. */
-static void
+static ftenum_t
 semcheck(dfwork_t *dfw, stnode_t *st_node)
 {
+	/* Does FT_NONE make sense for tests and exists? We don't actually
+	 * return an fvalue in those cases, so, e.g., custom columns have
+	 * check marks, not boolean true/false.
+	 */
+	ftenum_t ftype = FT_NONE;
+
 	LOG_NODE(st_node);
 
 	dfw->field_count = 0;
@@ -2073,15 +2086,17 @@ semcheck(dfwork_t *dfw, stnode_t *st_node)
 		case STTYPE_ARITHMETIC:
 		case STTYPE_SLICE:
 		case STTYPE_FUNCTION:
-			check_nonzero(dfw, st_node);
+			ftype = check_nonzero(dfw, st_node);
 			break;
 		default:
-			check_exists(dfw, st_node);
+			ftype = check_exists(dfw, st_node);
 	}
 
 	if (dfw->field_count == 0) {
 		FAIL(dfw, st_node, "Constant expression is invalid.");
 	}
+
+	return ftype;
 }
 
 
@@ -2092,6 +2107,7 @@ bool
 dfw_semcheck(dfwork_t *dfw)
 {
 	volatile bool ok_filter = true;
+	volatile ftenum_t ftype = FT_NONE;
 
 	ws_debug("Starting semantic check (dfw = %p)", dfw);
 
@@ -2099,15 +2115,16 @@ dfw_semcheck(dfwork_t *dfw)
 	 * the semantic-checking, the semantic-checking code will
 	 * throw an exception if a problem is found. */
 	TRY {
-		semcheck(dfw, dfw->st_root);
+		ftype = semcheck(dfw, dfw->st_root);
 	}
 	CATCH(TypeError) {
 		ok_filter = false;
 	}
 	ENDTRY;
 
-	ws_debug("Semantic check (dfw = %p) returns %s",
-			dfw, ok_filter ? "TRUE" : "FALSE");
+	ws_debug("Semantic check (dfw = %p) returns %s, return type %s",
+			dfw, ok_filter ? "TRUE" : "FALSE", ftype_name(ftype));
+	dfw->ret_type = ftype;
 
 	return ok_filter;
 }

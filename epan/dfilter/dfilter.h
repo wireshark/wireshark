@@ -202,6 +202,10 @@ WS_DLL_PUBLIC
 const char *
 dfilter_syntax_tree(dfilter_t *df);
 
+WS_DLL_PUBLIC
+ftenum_t
+dfilter_get_return_type(dfilter_t *df);
+
 /* Print bytecode of dfilter to log */
 WS_DLL_PUBLIC
 void

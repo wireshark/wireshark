@@ -501,6 +501,7 @@ dfwork_build(dfwork_t *dfw)
 	dfw->raw_references = NULL;
 	dfilter->warnings = dfw->warnings;
 	dfw->warnings = NULL;
+	dfilter->ret_type = dfw->ret_type;
 
 	if (dfw->flags & DF_SAVE_TREE) {
 		ws_assert(tree_str);
@@ -810,6 +811,12 @@ const char *
 dfilter_syntax_tree(dfilter_t *df)
 {
 	return df->syntax_tree_str;
+}
+
+ftenum_t
+dfilter_get_return_type(dfilter_t *df)
+{
+	return df->ret_type;
 }
 
 void

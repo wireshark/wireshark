@@ -723,6 +723,10 @@ dfvm_dump_str(wmem_allocator_t *alloc, dfilter_t *df, uint16_t flags)
 		}
 	}
 
+	if (flags & DF_DUMP_SHOW_FTYPE) {
+		wmem_strbuf_append_printf(buf, "\nReturn Type: <%s>", ftype_name(df->ret_type));
+	}
+
 	return wmem_strbuf_finalize(buf);
 }
 

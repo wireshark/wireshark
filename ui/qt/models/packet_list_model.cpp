@@ -728,11 +728,10 @@ bool PacketListModel::isNumericColumn(int column)
     for (unsigned i = 0; i < num_fields; i++) {
         col_custom = (col_custom_t *) g_slist_nth_data(sort_cap_file_->cinfo.columns[column].col_custom_fields_ids, i);
         if (col_custom->field_id == 0) {
-            /* XXX - We need some way to check the compiled dfilter's expected
-             * return type. Best would be to use the actual field values return
-             * and sort on those (we could skip expensive string conversions
-             * in the numeric case, see below)
-             */
+            ftenum_t type = dfilter_get_return_type(col_custom->dfilter);
+            if (FT_IS_INTEGER(type) || FT_IS_FLOATING(type) || type == FT_BOOLEAN || type == FT_RELATIVE_TIME) {
+                return true;
+            }
             return false;
         }
         header_field_info *hfi = proto_registrar_get_nth(col_custom->field_id);
