@@ -2518,7 +2518,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
         if(direction == ecu_to_vt)
         {
             proto_tree_add_item_ret_uint(tree,
-                hf_isobus_vt_changeattributes_newvalue, tvb, offset, 1, ENC_LITTLE_ENDIAN, &new_value);
+                hf_isobus_vt_changeattributes_newvalue, tvb, offset, 4, ENC_LITTLE_ENDIAN, &new_value);
         }
         else if(direction == vt_to_ecu)
         {
