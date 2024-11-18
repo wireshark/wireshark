@@ -19,6 +19,14 @@ import argparse
 import re
 import subprocess
 
+have_pyuca = False
+try:
+    from pyuca import Collator
+    have_pyuca = True
+except ModuleNotFoundError:
+    import sys
+    sys.stderr.write('pyuca module not found. Sorting names using the built-in locale module.\n')
+    import locale
 
 def get_git_authors():
     '''
@@ -40,7 +48,10 @@ def get_git_authors():
         # Try to lower how much spam people get:
         email = email.replace('@', '[AT]')
         git_authors.append((name, email))
-    return git_authors
+    if have_pyuca:
+        c = Collator()
+        return sorted(git_authors, key=lambda x: c.sort_key(x[0]))
+    return sorted(git_authors, key=lambda x: locale.strxfrm(x[0].casefold()))
 
 
 def extract_contributors(authors_content):
