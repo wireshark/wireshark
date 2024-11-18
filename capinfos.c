@@ -1029,7 +1029,7 @@ count_ipv4_address(const unsigned int addr _U_, const char *name _U_, const bool
 }
 
 static void
-count_ipv6_address(const void *addrp _U_, const char *name _U_, const bool static_entry _U_)
+count_ipv6_address(const ws_in6_addr *addrp _U_, const char *name _U_, const bool static_entry _U_)
 {
     num_ipv6_addresses++;
 }

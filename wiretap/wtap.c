@@ -1620,7 +1620,7 @@ wtapng_process_nrb_ipv6(wtap *wth, wtap_block_t nrb)
 	if (wth->add_new_ipv6) {
 		for (GList *elem = nrb_mand->ipv6_addr_list; elem != NULL; elem = elem->next) {
 			hashipv6_t *tp = elem->data;
-			wth->add_new_ipv6(tp->addr, tp->name, false);
+			wth->add_new_ipv6((ws_in6_addr *)tp->addr, tp->name, false);
 		}
 	}
 }
