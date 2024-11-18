@@ -700,6 +700,11 @@ def is_valid(spec):
         if t == 'Element':
             return True
         elif t == 'Group':
+            # do not allow nested items
+            for i in variation['items']:
+                if not i['spare']:
+                    if get_rule(i['rule'])['type'] != 'Element':
+                        return False
             return all([check_item(i) for i in variation['items']])
         elif t == 'Extended':
             trailing_fx = variation['items'][-1] == None
