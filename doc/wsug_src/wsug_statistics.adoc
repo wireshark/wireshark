@@ -436,7 +436,7 @@ Individual graphs can be configured using the following options:
 Enabled::
 Draw or don’t draw this graph.
 
-avg over time::
+Avg over Time::
 When checked and the “Y Axis” value is one of Packets/Bytes/Bits, the displayed value is an average over time
 based on the _Interval_, instead of the raw value. The ordinary throughput is obtained when “Y Axis” is set
 to _Bits_.
