@@ -371,6 +371,7 @@ static int hf_oran_ue_freq_offset;
 static int hf_oran_beam_type;
 static int hf_oran_meas_cmd_size;
 
+static int hf_oran_u_section;
 
 /* Computed fields */
 static int hf_oran_c_eAxC_ID;
@@ -453,6 +454,7 @@ static expert_field ei_oran_lastRbdid_out_of_range;
 static expert_field ei_oran_rbgMask_beyond_last_rbdid;
 static expert_field ei_oran_unexpected_measTypeId;
 static expert_field ei_oran_unsupported_compression_method;
+static expert_field ei_oran_ud_comp_len_wrong_size;
 
 
 /* These are the message types handled by this dissector */
@@ -4024,7 +4026,6 @@ static int dissect_udcompparam(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
                                                             sres_mask_flags,
                                                             ENC_NA,
                                                             &param_sresmask);
-            offset += 2;
 
             /* Get rid of exponent-shaped gap */
             param_sresmask = ((param_sresmask >> 4) & 0x0f00) | (param_sresmask & 0xff);
@@ -4034,7 +4035,7 @@ static int dissect_udcompparam(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
                     res++;
                 }
             }
-            proto_item_append_text(sresmask_ti, "   (%u REs)", res);
+            proto_item_append_text(sresmask_ti, "   (%2u REs)", res);
 
             /* exponent */
             proto_tree_add_item_ret_uint(udcompparam_tree, hf_oran_exponent,
@@ -4058,8 +4059,6 @@ static int dissect_udcompparam(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
                                                             sres_mask_flags,
                                                             ENC_NA,
                                                             &param_sresmask);
-            offset += 2;
-
 
             /* Get rid of reserved-shaped gap */
             param_sresmask = ((param_sresmask >> 4) & 0x0f00) | (param_sresmask & 0xff);
@@ -5138,9 +5137,11 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 
     /* Add each section (no count, just keep parsing until payload used) */
     do {
-        unsigned section_start_offet = offset;
-        proto_item *sectionHeading;
-        proto_tree *section_tree = proto_tree_add_subtree(oran_tree, tvb, offset, 0, ett_oran_u_section, &sectionHeading, "Section");
+        /* Section subtree */
+        unsigned section_start_offset = offset;
+        proto_item *sectionHeading = proto_tree_add_string_format(oran_tree, hf_oran_u_section,
+                                                                  tvb, offset, 0, "", "Section");
+        proto_tree *section_tree = proto_item_add_subtree(sectionHeading, ett_oran_u_section);
 
         /* Section Header fields (darker green part) */
 
@@ -5166,7 +5167,8 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
         proto_tree_add_item_ret_uint(section_tree, hf_oran_numPrbu, tvb, offset, 1, ENC_NA, &numPrbu);
         offset += 1;
 
-        proto_item *ud_comp_meth_item;
+        proto_item *ud_comp_meth_item, *ud_comp_len_ti=NULL;
+        uint32_t ud_comp_len;
 
         /* udCompHdr (if preferences indicate will be present) */
         if (includeUdCompHeader) {
@@ -5207,7 +5209,10 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 
         /* udCompLen (when supported, methods 5,6,7,8) */
         if (pref_support_udcompLen && (compression >= BFP_AND_SELECTIVE_RE)) {
-            proto_tree_add_item(section_tree, hf_oran_udCompLen, tvb, offset, 2, ENC_NA);
+            ud_comp_len_ti = proto_tree_add_item_ret_uint(section_tree, hf_oran_udCompLen, tvb, offset, 2, ENC_NA, &ud_comp_len);
+            if (ud_comp_len <= 1) {
+                proto_item_append_text(ud_comp_len_ti, " (reserved)");
+            }
             offset += 2;
         }
 
@@ -5310,7 +5315,9 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
                 }
             }
 
-            unsigned nBytesForSamples = (sample_bit_width * res_per_prb * 2) / 8;
+            /* N.B. bytes for samples may need to be padded out to next byte
+               (certainly where there aren't 12 REs in PRB..) */
+            unsigned nBytesForSamples = (sample_bit_width * res_per_prb * 2 + 7) / 8;
             nBytesPerPrb = nBytesForSamples + udcompparam_len;
 
             proto_tree_add_item(rb_tree, hf_oran_iq_user_data, tvb, offset, nBytesForSamples, ENC_NA);
@@ -5350,7 +5357,12 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
         }
 
         /* Set extent of section */
-        proto_item_set_len(sectionHeading, offset-section_start_offet);
+        proto_item_set_len(sectionHeading, offset-section_start_offset);
+        if (ud_comp_len_ti != NULL && ((offset-section_start_offset != ud_comp_len))) {
+            expert_add_info_format(pinfo, ud_comp_len_ti, &ei_oran_ud_comp_len_wrong_size,
+                                   "udCompLen indicates %u bytes in section, but dissected %u instead",
+                                   ud_comp_len, offset-section_start_offset);
+        }
 
         bytesLeft = tvb_captured_length(tvb) - offset;
         number_of_sections++;
@@ -7605,6 +7617,14 @@ proto_register_oran(void)
           NULL, 0x0,
           NULL,
           HFILL}
+        },
+
+        {&hf_oran_u_section,
+         {"Section", "oran_fh_cus.u-plane.section",
+          FT_STRING, BASE_NONE,
+          NULL, 0x0,
+          NULL,
+          HFILL}
         }
     };
 
@@ -7681,7 +7701,8 @@ proto_register_oran(void)
         { &ei_oran_lastRbdid_out_of_range, { "oran_fh_cus.lastrbdid_out_of_range", PI_MALFORMED, PI_WARN, "SE 6 has bad rbgSize", EXPFILL }},
         { &ei_oran_rbgMask_beyond_last_rbdid, { "oran_fh_cus.rbgmask_beyond_lastrbdid", PI_MALFORMED, PI_WARN, "rbgMask has bits set beyond lastRbgId", EXPFILL }},
         { &ei_oran_unexpected_measTypeId, { "oran_fh_cus.unexpected_meastypeid", PI_MALFORMED, PI_WARN, "unexpected measTypeId", EXPFILL }},
-        { &ei_oran_unsupported_compression_method, { "oran_fh_cus.compression_type_unsupported", PI_UNDECODED, PI_WARN, "Unsupported compression type", EXPFILL }}
+        { &ei_oran_unsupported_compression_method, { "oran_fh_cus.compression_type_unsupported", PI_UNDECODED, PI_WARN, "Unsupported compression type", EXPFILL }},
+        { &ei_oran_ud_comp_len_wrong_size, { "oran_fh_cus.ud_comp_len_wrong_size", PI_MALFORMED, PI_WARN, "udCompLen does not match length of U-Plane section", EXPFILL }}
     };
 
     /* Register the protocol name and description */
