@@ -234,8 +234,19 @@ extern "C" {
 
 /* Disable Lemon warnings. */
 #if defined(_MSC_VER)
-  #define DIAG_OFF_LEMON()
-  #define DIAG_ON_LEMON()
+  /*
+   * Suppress:
+   *
+   *   warning C4100: unreferenced formal parameter
+   *
+   * Note https://gitlab.kitware.com/cmake/cmake/-/issues/18736
+   * makes it better to suppress MSVC warnings here than in CMake.
+   */
+  #define DIAG_OFF_LEMON() \
+    __pragma(warning(push)) \
+    __pragma(warning(disable:4100))
+  #define DIAG_ON_LEMON() \
+    __pragma(warning(pop))
 #else
   #define DIAG_OFF_LEMON() \
     DIAG_OFF_CLANG(unreachable-code) \
