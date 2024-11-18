@@ -22,7 +22,29 @@ If you or your organization would like to contribute or become a sponsor, please
 
 The following vulnerabilities have been fixed:
 
-// * wssalink:2024-14[]
+* wssalink:2024-14[]
+FiveCo RAP dissector infinite loop.
+wsbuglink:20176[].
+// cveidlink:2024-xxx[].
+// Fixed in master: d8ca9fc339
+// Fixed in release-4.4: 4d58fef602
+// Fixed in release-4.2: 686dff0f01
+// CVSS AV:L/AC:L/PR:N/UI:R/S:U/C:H/I:H/A:H
+// CWE-835
+// * Fuzz job crash: fuzz-2024-10-29-7320.pcap. wsbuglink:20176[].
+
+* wssalink:2024-15[]
+ECMP dissector crash.
+wsbuglink:20214[].
+// cveidlink:2024-xxx[].
+// Fixed in master: c8e5887073
+// Fixed in release-4.4: 8fd60c6448
+// Fixed in release-4.2: 06e0b0bb09
+// CVSS AV:L/AC:L/PR:N/UI:R/S:U/C:H/I:H/A:H
+// CWE-126
+// * ECMP: buffer overflow detected. wsbuglink:20214[].
+
+// * wssalink:2024-16[]
 // Foo dissector {crash,infinite loop,memory leak}.
 // wsbuglink:xxx[].
 // cveidlink:2024-xxx[].
@@ -38,6 +60,19 @@ The following bugs have been fixed:
 //* wsbuglink:6000[Wireshark bug]
 //* cveidlink:2014-2486[]
 //* Wireshark grabs your ID at 3 am, goes to Waffle House, and insults people.
+
+* JA4_c hashes an empty field to e3b0c44298fc when it should be 000000000000. wsbuglink:20066[].
+* SRT dissector: The StreamID (SID) in the handshake extension is displayed without regarding the control characters and with NUL as terminating. wsbuglink:20113[].
+* Ghost error message on POP3 packets. wsbuglink:20124[].
+* Building against c-ares 1.34 fails. wsbuglink:20125[].
+* Wi-Fi: 256 Block Ack (BA) is not parsed properly. wsbuglink:20156[].
+* HTTP2 body decompression fails on DATA with a single padded frame. wsbuglink:20167[].
+* SIP dissector bug due to "be-route" param in VIA header. wsbuglink:20173[].
+* Coredump after trying to open 'Follow TCP stream' wsbuglink:20174[].
+* Protobuf JSON mapping error. wsbuglink:20182[].
+* IEEE 802.11be: Wrong regulatory info in HE Operation IE in Beacon frame. wsbuglink:20187[].
+* Wireshark crashes when a field is dragged  from packet details towards the find input. wsbuglink:20204[].
+* Lua DissectorTable("") : set ("10,11") unexpected behavior in locales with comma as decimal separator. wsbuglink:20216[].
 
 === New and Updated Features
 
@@ -58,6 +93,20 @@ There are no new protocols in this release.
 // ag -A1 '(define PSNAME|proto_register_protocol[^_])' $(git diff --name-only v4.2.8.. | ag packet- | sort -u)
 [commaize]
 --
+ASN.1 PER
+ECMP
+FiveCo RAP
+HSRP
+MPEG PES
+HTTP/2
+IEEE 802.11
+PN-DCP
+POP
+ProtoBuf
+SIP
+SRT
+TCP
+UMTS RLC
 --
 
 === New and Updated Capture File Support
