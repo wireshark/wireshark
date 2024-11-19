@@ -532,15 +532,15 @@ fvalue_from_literal(ftenum_t ftype, const char *s, bool allow_partial_value, cha
 	fv = fvalue_new(ftype);
 	if (fv->ftype->val_from_literal) {
 		ok = fv->ftype->val_from_literal(fv, s, allow_partial_value, err_msg);
-		if (ok) {
-			/* Success */
-			if (err_msg != NULL)
-				*err_msg = NULL;
-			return fv;
-		}
+	}
+	if (ok) {
+		/* Success */
+		if (err_msg != NULL)
+			*err_msg = NULL;
+		return fv;
 	}
 	else {
-		if (err_msg != NULL) {
+		if (err_msg != NULL && *err_msg == NULL) {
 			*err_msg = ws_strdup_printf("\"%s\" cannot be converted to %s.",
 					s, ftype_pretty_name(ftype));
 		}
@@ -555,16 +555,14 @@ fvalue_from_string(ftenum_t ftype, const char *str, size_t len, char **err_msg)
 	fvalue_t	*fv;
 
 	fv = fvalue_new(ftype);
-	if (fv->ftype->val_from_string) {
-		if (fv->ftype->val_from_string(fv, str, len, err_msg)) {
-			/* Success */
-			if (err_msg != NULL)
-				*err_msg = NULL;
-			return fv;
-		}
+	if (fv->ftype->val_from_string && fv->ftype->val_from_string(fv, str, len, err_msg)) {
+		/* Success */
+		if (err_msg != NULL)
+			*err_msg = NULL;
+		return fv;
 	}
 	else {
-		if (err_msg != NULL) {
+		if (err_msg != NULL && *err_msg == NULL) {
 			*err_msg = ws_strdup_printf("%s cannot be converted from a string (\"%s\").",
 					ftype_pretty_name(ftype), str);
 		}
@@ -579,16 +577,14 @@ fvalue_from_charconst(ftenum_t ftype, unsigned long num, char **err_msg)
 	fvalue_t	*fv;
 
 	fv = fvalue_new(ftype);
-	if (fv->ftype->val_from_charconst) {
-		if (fv->ftype->val_from_charconst(fv, num, err_msg)) {
-			/* Success */
-			if (err_msg != NULL)
-				*err_msg = NULL;
-			return fv;
-		}
+	if (fv->ftype->val_from_charconst && fv->ftype->val_from_charconst(fv, num, err_msg)) {
+		/* Success */
+		if (err_msg != NULL)
+			*err_msg = NULL;
+		return fv;
 	}
 	else {
-		if (err_msg != NULL) {
+		if (err_msg != NULL && *err_msg == NULL) {
 			if (num <= 0x7f && g_ascii_isprint(num)) {
 				*err_msg = ws_strdup_printf("Character constant '%c' (0x%lx) cannot be converted to %s.",
 						(int)num, num, ftype_pretty_name(ftype));
@@ -609,16 +605,14 @@ fvalue_from_sinteger64(ftenum_t ftype, const char *s, int64_t num, char **err_ms
 	fvalue_t	*fv;
 
 	fv = fvalue_new(ftype);
-	if (fv->ftype->val_from_sinteger64) {
-		if (fv->ftype->val_from_sinteger64(fv, s, num, err_msg)) {
-			/* Success */
-			if (err_msg != NULL)
-				*err_msg = NULL;
-			return fv;
-		}
+	if (fv->ftype->val_from_sinteger64 && fv->ftype->val_from_sinteger64(fv, s, num, err_msg)) {
+		/* Success */
+		if (err_msg != NULL)
+			*err_msg = NULL;
+		return fv;
 	}
 	else {
-		if (err_msg != NULL) {
+		if (err_msg != NULL && *err_msg == NULL) {
 			*err_msg = ws_strdup_printf("Integer %"PRId64" cannot be converted to %s.",
 						num, ftype_pretty_name(ftype));
 		}
@@ -633,16 +627,14 @@ fvalue_from_uinteger64(ftenum_t ftype, const char *s, uint64_t num, char **err_m
 	fvalue_t	*fv;
 
 	fv = fvalue_new(ftype);
-	if (fv->ftype->val_from_uinteger64) {
-		if (fv->ftype->val_from_uinteger64(fv, s, num, err_msg)) {
-			/* Success */
-			if (err_msg != NULL)
-				*err_msg = NULL;
-			return fv;
-		}
+	if (fv->ftype->val_from_uinteger64 && fv->ftype->val_from_uinteger64(fv, s, num, err_msg)) {
+		/* Success */
+		if (err_msg != NULL)
+			*err_msg = NULL;
+		return fv;
 	}
 	else {
-		if (err_msg != NULL) {
+		if (err_msg != NULL && *err_msg == NULL) {
 			*err_msg = ws_strdup_printf("Unsigned integer 0x%"PRIu64" cannot be converted to %s.",
 						num, ftype_pretty_name(ftype));
 		}
@@ -657,16 +649,14 @@ fvalue_from_floating(ftenum_t ftype, const char *s, double num, char **err_msg)
 	fvalue_t	*fv;
 
 	fv = fvalue_new(ftype);
-	if (fv->ftype->val_from_double) {
-		if (fv->ftype->val_from_double(fv, s, num, err_msg)) {
-			/* Success */
-			if (err_msg != NULL)
-				*err_msg = NULL;
-			return fv;
-		}
+	if (fv->ftype->val_from_double && fv->ftype->val_from_double(fv, s, num, err_msg)) {
+		/* Success */
+		if (err_msg != NULL)
+			*err_msg = NULL;
+		return fv;
 	}
 	else {
-		if (err_msg != NULL) {
+		if (err_msg != NULL && *err_msg == NULL) {
 			*err_msg = ws_strdup_printf("Double %g cannot be converted to %s.",
 						num, ftype_pretty_name(ftype));
 		}
