@@ -89,3 +89,22 @@ class TestDfilterDouble:
     def test_le_3(self, checkDFilterCount):
         dfilter = "icmp.resptime <= 492"
         checkDFilterCount(dfilter, 0)
+
+    def test_inf_1(self, checkDFilterCount):
+        dfilter = "icmp.resptime < inf"
+        checkDFilterCount(dfilter, 1)
+
+    def test_inf_2(self, checkDFilterCount):
+        dfilter = "icmp.resptime > -infinity"
+        checkDFilterCount(dfilter, 1)
+
+    def test_inf_3(self, checkDFilterCount):
+        # A protocol can't have the name inf or infinity, but a field can
+        # This is just to check that the filter compiles without error
+        dfilter = "dvmrp.infinity == 255"
+        checkDFilterCount(dfilter, 0)
+
+    def test_nan(self, checkDFilterCount):
+        # XXX - We compare NaNs oddly
+        dfilter = "icmp.resptime == nan"
+        checkDFilterCount(dfilter, 1)

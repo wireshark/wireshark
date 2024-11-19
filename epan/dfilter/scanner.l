@@ -501,6 +501,18 @@ HexExponent		([pP][+-]?[[:digit:]]+)
 	return set_lval_float(yyextra, yytext, yytext);
 }
 
+(?i:inf)(?i:inity)? {
+	/* Infinity. */
+	update_location(yyextra, yytext);
+	return set_lval_float(yyextra, yytext, yytext);
+}
+
+(?i:nan)(\([[:alnum:]_]*\))? {
+	/* NaNs (including quiet NaNs). */
+	update_location(yyextra, yytext);
+	return set_lval_float(yyextra, yytext, yytext);
+}
+
 :[[:xdigit:]]+	{
 	/* Numeric prefixed with ':'. */
 	update_location(yyextra, yytext);

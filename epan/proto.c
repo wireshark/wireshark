@@ -522,6 +522,7 @@ static const char *reserved_filter_names[] = {
 	"false",
 	"nan",
 	"inf",
+	"infinity",
 	NULL
 };
 
