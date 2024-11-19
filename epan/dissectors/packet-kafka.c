@@ -5332,7 +5332,9 @@ dissect_kafka_join_group_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
     offset = dissect_kafka_string(tree, hf_kafka_group_leader_id, tvb, pinfo, offset, api_version >= 6, NULL, NULL);
 
     /* skip_assignment */
-    offset = dissect_kafka_bool(tree, hf_kafka_skip_assignment, tvb, pinfo, offset);
+    if (api_version >= 9) {
+        offset = dissect_kafka_bool(tree, hf_kafka_skip_assignment, tvb, pinfo, offset);
+    }
 
     /* member_id */
     offset = dissect_kafka_string(tree, hf_kafka_member_id, tvb, pinfo, offset, api_version >= 6, &member_start, &member_len);
