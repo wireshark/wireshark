@@ -477,6 +477,7 @@ static dissector_table_t rtps_type_name_table;
 #define PID_EXTENDED                            (0x3f01)
 #define PID_LIST_END                            (0x3f02)
 #define PID_UNICAST_LOCATOR_EX                  (0x8007)
+#define PID_TOPIC_NAME_ALIASES                  (0x8028)
 
 #define PID_IDENTITY_TOKEN                      (0x1001)
 #define PID_PERMISSIONS_TOKEN                   (0x1002)
@@ -1043,6 +1044,8 @@ static int hf_rtps_fragment_number_num_bits;
 static int hf_rtps_bitmap_num_bits;
 static int hf_rtps_param_partition_num;
 static int hf_rtps_param_partition;
+static int hf_rtps_param_topic_alias_num;
+static int hf_rtps_param_topic_alias;
 static int hf_rtps_param_filter_expression;
 static int hf_rtps_param_expression_parameters_num;
 static int hf_rtps_param_expression_parameters;
@@ -1959,6 +1962,7 @@ static const value_string parameter_id_rti_vals[] = {
   { PID_ENDPOINT_SECURITY_ATTRIBUTES,   "PID_ENDPOINT_SECURITY_ATTRIBUTES" },
   { PID_TYPE_OBJECT_LB,                 "PID_TYPE_OBJECT_LB" },
   { PID_UNICAST_LOCATOR_EX,             "PID_UNICAST_LOCATOR_EX"},
+  { PID_TOPIC_NAME_ALIASES,             "PID_TOPIC_NAME_ALIASES" },
   { 0, NULL }
 };
 static const value_string parameter_id_toc_vals[] = {
@@ -9011,6 +9015,11 @@ static bool dissect_parameter_sequence_v1(proto_tree *rtps_parameter_tree, packe
       ENSURE_LENGTH(4);
       rtps_util_add_seq_string(rtps_parameter_tree, pinfo, tvb, offset, encoding,
                                hf_rtps_param_partition_num, hf_rtps_param_partition, "name");
+      break;
+    case PID_TOPIC_NAME_ALIASES:
+      ENSURE_LENGTH(4);
+      rtps_util_add_seq_string(rtps_parameter_tree, pinfo, tvb, offset, encoding,
+                               hf_rtps_param_topic_alias_num, hf_rtps_param_topic_alias, "Topic alias");
       break;
 
     /* 0...2...........7...............15.............23...............31
@@ -16983,6 +16992,12 @@ void proto_register_rtps(void) {
         NULL, HFILL }
     },
 
+    { &hf_rtps_param_topic_alias_num,
+      { "Number of topic aliases", "rtps.param.topic_alias_num",
+        FT_INT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }
+    },
+
     { &hf_rtps_param_expression_parameters_num,
       { "Number of expression params", "rtps.param.expression_parameters_num",
         FT_INT32, BASE_DEC, NULL, 0,
@@ -16991,6 +17006,12 @@ void proto_register_rtps(void) {
 
     { &hf_rtps_param_partition,
       { "name", "rtps.param.partition",
+        FT_STRING, BASE_NONE, NULL, 0,
+        NULL, HFILL }
+    },
+
+    { &hf_rtps_param_topic_alias,
+      { "Topic alias", "rtps.param.topic_alias",
         FT_STRING, BASE_NONE, NULL, 0,
         NULL, HFILL }
     },
