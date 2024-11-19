@@ -241,7 +241,7 @@ To capture:
 //     sshdig --extcap-interface=sshdig --fifo=/tmp/ssh.pcap --capture --remote-host 192.168.1.10
 //     --remote-capture-command='sudo tcpdump -i eth0 -U -w -'
 
-NOTE: To stop capturing CTRL+C/kill/terminate the application.
+NOTE: kbd:[CTRL+C] should be used to stop the capture in order to ensure clean termination.
 
 The sshdig binary can be renamed to support multiple instances. For instance if we want sshdig
 to show up twice in stratoshark (for instance to handle multiple profiles), we can copy sshdig to

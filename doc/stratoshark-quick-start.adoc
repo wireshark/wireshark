@@ -19,15 +19,18 @@ Stratoshark shares a great deal of code with Wireshark, including most of its UI
 If you are familiar with Wireshark, its interface and workflows should be familiar.
 
 One issue that you might run into initially is that system calls and logs deal with different information.
-As a result, the event list column preferences need to be configured to match the kind of data that you are analyzing.
+As a result, the event list column preferences and coloring rules need to be configured to match the kind of data that you are analyzing.
 Stratoshark's default configuration profile assumes that you are analyzing system calls.
-It ships with a "Cloudtrail" configuration profile which is geared toward CloudTrail events.
+It ships with a "CloudTrail" configuration profile which is geared toward CloudTrail events.
 You can find more information on working with configuration profiles in the https://www.wireshark.org/docs/wsug_html_chunked/ChCustConfigProfilesSection.html[Configuration Profiles] section in the Wireshark User's Guide.
 If you switch back and forth between system call and CloudTrail captures on a regular basis, you might find the "Automatic Profile Switching" feature useful.
 
 You can obtain system call captures using the https://github.com/draios/sysdig[sysdig command line tool] or by using Stratoshark on a Linux system.
+Stratoshark ships with the following capture sources:
 
-The https://gitlab.com/wireshark/wireshark/-/blob/master/doc/falcodump.adoc[falcodump manpage] provides information how to use Falco Plugin extcap interface.
+https://gitlab.com/wireshark/wireshark/-/blob/master/doc/man_pages/falcodump.adoc[Falcodump]:: Allows capturing logs from a variety of sources using Falco plugins and local system calls on Linux.
+
+https://gitlab.com/wireshark/wireshark/-/blob/master/doc/man_pages/sshdig.adoc[Sshdig]:: Allows system call capture from remote systems using sysdig over SSH.
 
 == Building Stratoshark[[building_stratoshark]]
 
