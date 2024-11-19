@@ -5250,7 +5250,9 @@ dissect_kafka_join_group_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
     proto_item_set_end(subti, tvb, offset);
 
     /* join_reason */
-    offset = dissect_kafka_string(tree, hf_kafka_join_reason, tvb, pinfo, offset, api_version >= 6, NULL, NULL);
+    if (api_version >= 8) {
+        offset = dissect_kafka_string(tree, hf_kafka_join_reason, tvb, pinfo, offset, api_version >= 6, NULL, NULL);
+    }
 
     col_append_fstr(pinfo->cinfo, COL_INFO,
                     " (Group=%s, Member=%s)",
