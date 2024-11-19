@@ -1141,6 +1141,9 @@ static const value_string dh_group[] = {
   { 32, "Curve448" },
   { 33, "GOST3410_2012_256" },
   { 34, "GOST3410_2012_512" },
+  { 35, "ML-KEM-512" },
+  { 36, "ML-KEM-768" },
+  { 37, "ML-KEM-1024" },
   { 0,  NULL }
 };
 
