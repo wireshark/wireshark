@@ -19,36 +19,19 @@
  * Nothing in the standard explicitly prevents an IPv6 implementation...
  */
 
+#define WS_LOG_DOMAIN "packet-vjc-comp"
 #include "config.h"
+#include <wireshark.h>
 
-#include <glib.h>
-#include <epan/tvbuff.h>
 #include <epan/conversation.h>
 #include <epan/in_cksum.h>
-#include <epan/proto.h>
 #include <epan/expert.h>
 #include <epan/packet.h>
 #include <epan/ipproto.h>
 #include <epan/ppptypes.h>
 #include <epan/tfs.h>
-#include <wsutil/array.h>
+#include <wsutil/pint.h>
 #include <wsutil/str_util.h>
-
-/* Shorthand macros for reading/writing 16/32 bit values from
- * possibly-unaligned indexes into a uint8_t[]
- */
-#define GET_16(p,i) (uint16_t)(((p)[(i)] << 8) | ((p)[(i)+1]))
-#define GET_32(p,i) (uint32_t)(((p)[(i)] << 24) | ((p)[(i)+1] << 16) | ((p)[(i)+2] << 8) | ((p)[(i)+3]))
-#define PUT_16(p,i,v) G_STMT_START { \
-    (p)[(i)]   = ((v) & 0xFF00) >> 8; \
-    (p)[(i)+1] = ((v) & 0x00FF); \
-} G_STMT_END
-#define PUT_32(p,i,v) G_STMT_START { \
-    (p)[(i)]   = ((v) & 0xFF000000) >> 24; \
-    (p)[(i)+1] = ((v) & 0x00FF0000) >> 16; \
-    (p)[(i)+2] = ((v) & 0x0000FF00) >> 8; \
-    (p)[(i)+3] = ((v) & 0x000000FF); \
-} G_STMT_END
 
 /* Store the last connection number we've seen.
  * Only used on the first pass, in case the connection number itself
@@ -78,14 +61,21 @@ typedef struct vjc_hdr_s {
     bool psh;
 } vjc_hdr_t;
 
-/* The structure used in a wireshark "conversation" */
+/* The structure used in a wireshark "conversation"
+ * (though it's now in the multimap below)
+ */
 typedef struct vjc_conv_s {
-    uint32_t    last_frame;     // On first pass, where to get the previous info
-    uint32_t    last_frame_len; // On first pass, length of prev. frame (for SAWU/SWU)
+    uint32_t    last_frame_len; // Length of previous frame (for SAWU/SWU)
     uint8_t    *frame_headers;  // Full copy of the IP header
     uint8_t     header_len;     // Length of the stored IP header
-    wmem_map_t *vals;           // Hash of frame_number => vjc_hdr_t*
+    vjc_hdr_t   vjc_headers;
 } vjc_conv_t;
+
+/* Map of frame number and connection ID to vjc_conv_t */
+static wmem_multimap_t *vjc_conv_table;
+
+/* Store connection ID for compressed frames that lack it */
+static wmem_map_t *vjc_conn_id_lookup;
 
 static dissector_handle_t vjcu_handle;
 static dissector_handle_t vjcc_handle;
@@ -170,10 +160,15 @@ vjc_cleanup_protocol(void)
     last_cnum = CNUM_INVALID;
 }
 
-/* Find (or optionally create) a VJC conversation. */
-static conversation_t *
-vjc_find_conversation(packet_info *pinfo, uint32_t vjc_cnum, bool create)
+/* Generate a "conversation" key for a VJC connection.
+ * Returns NULL if it can't for some reason.
+ */
+static void *
+vjc_get_conv_key(packet_info *pinfo, uint32_t vjc_cnum)
 {
+    if (vjc_cnum == CNUM_INVALID)
+        return NULL;
+
     /* PPP gives us almost nothing to hook a conversation on; just whether
      * the packet is considered to be P2P_DIR_RECV or P2P_DIR_SENT.
      * Ideally we should also be distinguishing conversations based on the
@@ -181,24 +176,18 @@ vjc_find_conversation(packet_info *pinfo, uint32_t vjc_cnum, bool create)
      * the scope of this dissector, and a perennial problem in Wireshark anyway.
      * See <https://gitlab.com/wireshark/wireshark/-/issues/4561>
      */
-    conversation_t *conv = (conversation_t *)NULL;
+    uint16_t ret_val = (uint16_t)vjc_cnum;
     switch (pinfo->p2p_dir) {
         case P2P_DIR_RECV:
-            vjc_cnum |= 0x0100;
+            ret_val |= 0x0100;
             break;
         case P2P_DIR_SENT:
-            vjc_cnum |= 0x0200;
+            ret_val |= 0x0200;
             break;
         default:
-            return conv;
+            return NULL;
     }
-
-    conv = find_conversation_by_id(pinfo->num, CONVERSATION_NONE, vjc_cnum);
-    if (!conv && create) {
-        conv = conversation_new_by_id(pinfo->num, CONVERSATION_NONE, vjc_cnum);
-    }
-
-    return conv;
+    return GUINT_TO_POINTER(ret_val);
 }
 
 /* RFC 1144 section 3.2.2 says that "deltas" are sent for many values in the
@@ -261,8 +250,7 @@ dissect_vjc_uncomp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
     uint32_t        vjc_cnum    = 0;
     tvbuff_t       *tcpip_tvb   = NULL;
     tvbuff_t       *sub_tvb     = NULL;
-    conversation_t *conv        = NULL;
-    vjc_hdr_t      *this_hdr    = NULL;
+    void           *conv_id     = NULL;
     vjc_conv_t     *pkt_data    = NULL;
     uint8_t        *pdata       = NULL;
     static uint8_t  real_proto  = IP_PROTO_TCP;
@@ -272,7 +260,7 @@ dissect_vjc_uncomp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
     proto_item_set_text(subtree, "PPP Van Jacobson uncompressed TCP/IP");
 
     /* Start with some sanity checks */
-    if (VJC_CONNID_OFFSET+1 > tvb_captured_length(tvb)) {
+    if (tvb_captured_length(tvb) < VJC_CONNID_OFFSET+1) {
         proto_tree_add_expert_format(subtree, pinfo, &ei_vjc_bad_data, tvb, 0, -1,
                 "Packet truncated before Connection ID field");
         return tvb_captured_length(tvb);
@@ -280,7 +268,7 @@ dissect_vjc_uncomp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
     ip_ver = (tvb_get_uint8(tvb, 0) & 0xF0) >> 4;
     ip_len = (tvb_get_uint8(tvb, 0) & 0x0F) << 2;
     tcp_len = ip_len + VJC_TCP_HDR_LEN;
-    if (4 != ip_ver) {
+    if (ip_ver != 4) {
         proto_tree_add_expert_format(subtree, pinfo, &ei_vjc_bad_data, tvb, 0, 1,
                 "IPv%d unsupported for VJC compression", ip_ver);
         return tvb_captured_length(tvb);
@@ -303,8 +291,8 @@ dissect_vjc_uncomp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
     tcpip_tvb = tvb_new_composite();
     tvb_composite_append(tcpip_tvb, tvb_new_subset_length(tvb, 0, VJC_CONNID_OFFSET));
     tvb_composite_append(tcpip_tvb, sub_tvb);
-    if (0 < tvb_captured_length_remaining(tvb, VJC_CONNID_OFFSET+1)) {
-        tvb_composite_append(tcpip_tvb, tvb_new_subset_length(tvb, VJC_CONNID_OFFSET+1, -1));
+    if (tvb_captured_length_remaining(tvb, VJC_CONNID_OFFSET+1) > 0) {
+        tvb_composite_append(tcpip_tvb, tvb_new_subset_remaining(tvb, VJC_CONNID_OFFSET+1));
     }
     tvb_composite_finalize(tcpip_tvb);
 
@@ -314,7 +302,7 @@ dissect_vjc_uncomp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
         /* We can't make a proper conversation if we don't know the endpoints */
         proto_tree_add_expert(subtree, pinfo, &ei_vjc_no_direction, tvb, 0, 0);
     }
-    else if (tcp_len > tvb_captured_length(tvb)) {
+    else if (tvb_captured_length(tvb) < tcp_len) {
         /* Not enough data. We can still pass this packet onward (though probably
          * to no benefit), but can't base future decompression off of it.
          */
@@ -326,32 +314,27 @@ dissect_vjc_uncomp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
          * decompressing future packets.
          */
         last_cnum = vjc_cnum;
-        conv = vjc_find_conversation(pinfo, vjc_cnum, true);
-        pkt_data = (vjc_conv_t *)conversation_get_proto_data(conv, proto_vjc);
-        if (NULL == pkt_data) {
-            pkt_data = wmem_new0(wmem_file_scope(), vjc_conv_t);
-            pkt_data->vals = wmem_map_new(wmem_file_scope(), g_direct_hash, g_direct_equal);
-            conversation_add_proto_data(conv, proto_vjc, (void *)pkt_data);
-        }
+        conv_id = vjc_get_conv_key(pinfo, vjc_cnum);
+        DISSECTOR_ASSERT(conv_id != NULL);
+
+        pkt_data = wmem_new0(wmem_file_scope(), vjc_conv_t);
+        pkt_data->header_len = tcp_len;
         pdata = // shorthand
             pkt_data->frame_headers =
             (uint8_t *)tvb_memdup(wmem_file_scope(), tcpip_tvb, 0, tcp_len);
 
-        pkt_data->last_frame = pinfo->num;
-        pkt_data->header_len = tcp_len;
-
         // This value is used for re-calculating seq/ack numbers
         pkt_data->last_frame_len = tvb_reported_length(tvb) - ip_len;
 
-        this_hdr = wmem_new0(wmem_file_scope(), vjc_hdr_t);
-        this_hdr->ip_id = GET_16(pdata, 4);
-        this_hdr->seq = GET_32(pdata, ip_len + 4);
-        this_hdr->ack = GET_32(pdata, ip_len + 8);
-        this_hdr->psh = (pdata[ip_len + 13] & 0x08) == 0x08;
-        this_hdr->win = GET_16(pdata, ip_len + 14);
-        this_hdr->tcp_chksum = GET_16(pdata, ip_len + 16);
-        this_hdr->urg = GET_16(pdata, ip_len + 18);
-        wmem_map_insert(pkt_data->vals, GUINT_TO_POINTER(pinfo->num), this_hdr);
+        pkt_data->vjc_headers.ip_id = pntoh16(pdata + 4);
+        pkt_data->vjc_headers.seq = pntoh32(pdata + ip_len + 4);
+        pkt_data->vjc_headers.ack = pntoh32(pdata + ip_len + 8);
+        pkt_data->vjc_headers.psh = (pdata[ip_len + 13] & 0x08) == 0x08;
+        pkt_data->vjc_headers.win = pntoh16(pdata + ip_len + 14);
+        pkt_data->vjc_headers.tcp_chksum = pntoh16(pdata + ip_len + 16);
+        pkt_data->vjc_headers.urg = pntoh16(pdata + ip_len + 18);
+
+        wmem_multimap_insert32(vjc_conv_table, conv_id, pinfo->num, (void *)pkt_data);
     }
     else {
         /* We've already visited this packet, we should have all the info we need. */
@@ -385,10 +368,11 @@ dissect_vjc_comp(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* 
     uint32_t        ip_chksum   = 0;
     uint32_t        tcp_chksum  = 0;
     uint32_t        vjc_cnum    = 0;
-    conversation_t *conv        = NULL;
+    void           *conv_id     = NULL;
     vjc_hdr_t      *this_hdr    = NULL;
     vjc_hdr_t      *last_hdr    = NULL;
-    vjc_conv_t     *pkt_data    = NULL;
+    vjc_conv_t     *last_data   = NULL;
+    vjc_conv_t     *this_data   = NULL;
     uint8_t        *pdata       = NULL;
     tvbuff_t       *tcpip_tvb   = NULL;
     tvbuff_t       *sub_tvb     = NULL;
@@ -399,7 +383,7 @@ dissect_vjc_comp(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* 
      * an 8-bit change mask and a 16-bit TCP checksum.
      */
 #define TEST_HDR_LEN \
-    if (hdr_len > tvb_captured_length(tvb)) { hdr_error = true; goto done_header_len; }
+    if (tvb_captured_length(tvb)< hdr_len) { hdr_error = true; goto done_header_len; }
 
     TEST_HDR_LEN;
     flags = tvb_get_uint8(tvb, offset);
@@ -480,13 +464,13 @@ done_header_len:
     ti = proto_tree_add_boolean(subtree, hf_vjc_comp, tvb, 0, 0, true);
     proto_item_set_generated(ti);
 
-   proto_tree_add_bitmask(subtree, tvb, 0, hf_vjc_change_mask,
+    ti = proto_tree_add_bitmask(subtree, tvb, 0, hf_vjc_change_mask,
             ett_vjc_change_mask, vjc_change_mask_fields, ENC_NA);
     if ((flags & VJC_FLAGS_SAWU) == VJC_FLAGS_SAWU) {
-        proto_tree_add_expert(subtree, pinfo, &ei_vjc_sawu, tvb, 0, 1);
+        proto_tree_add_expert(ti, pinfo, &ei_vjc_sawu, tvb, 0, 1);
     }
     else if ((flags & VJC_FLAGS_SAWU) == VJC_FLAGS_SWU) {
-        proto_tree_add_expert(subtree, pinfo, &ei_vjc_swu, tvb, 0, 1);
+        proto_tree_add_expert(ti, pinfo, &ei_vjc_swu, tvb, 0, 1);
     }
 
     offset++;
@@ -498,7 +482,27 @@ done_header_len:
         offset++;
     }
     else {
-        vjc_cnum = last_cnum;
+        /* "If C is clear, the connection is assumed to be the same as for the
+         * last compressed or uncompressed packet."
+         */
+        if (!pinfo->fd->visited) {
+            /* On the first pass, get it from what we saw last,
+             * and save it for future passes.
+             * This can store CNUM_INVALID if that's in last_cnum
+             * but that's not a problem.
+             */
+            vjc_cnum = last_cnum;
+            wmem_map_insert(vjc_conn_id_lookup, GUINT_TO_POINTER(pinfo->num), GUINT_TO_POINTER(vjc_cnum));
+        }
+        else {
+            if (wmem_map_contains(vjc_conn_id_lookup, GUINT_TO_POINTER(pinfo->num))) {
+                vjc_cnum = GPOINTER_TO_UINT(wmem_map_lookup(vjc_conn_id_lookup,
+                                                GUINT_TO_POINTER(pinfo->num)));
+            }
+            else {
+                vjc_cnum = CNUM_INVALID;
+            }
+        }
         if (vjc_cnum != CNUM_INVALID) {
             ti = proto_tree_add_uint(subtree, hf_vjc_cnum, tvb, offset, 0, vjc_cnum);
             proto_item_set_generated(ti);
@@ -507,12 +511,12 @@ done_header_len:
             proto_tree_add_expert(subtree, pinfo, &ei_vjc_no_cnum, tvb, 0, 0);
         }
     }
-    conv = vjc_find_conversation(pinfo, vjc_cnum, false);
-    if (NULL != conv) {
-        pkt_data = (vjc_conv_t *)conversation_get_proto_data(conv, proto_vjc);
-        // Will be testing that pkt_data exists below
+    conv_id = vjc_get_conv_key(pinfo, vjc_cnum);
+    if (conv_id != NULL) {
+        // Get the most recent headers from *before* this packet
+        last_data = (vjc_conv_t *)wmem_multimap_lookup32_le(vjc_conv_table, conv_id, pinfo->num - 1);
     }
-    else {
+    if (last_data == NULL) {
         proto_tree_add_expert(subtree, pinfo, &ei_vjc_no_conversation,
                 tvb, 1, (flags & VJC_FLAG_C) ? 1 : 0);
     }
@@ -527,13 +531,13 @@ done_header_len:
          */
         flags &= ~VJC_FLAGS_SAWU;
         d_ack = 0;
-        if (NULL != pkt_data) {
-            d_seq = pkt_data->last_frame_len;
+        if (last_data != NULL) {
+            d_seq = last_data->last_frame_len;
+            ti = proto_tree_add_uint(subtree, hf_vjc_d_ack, tvb, offset, 0, d_ack);
+            proto_item_set_generated(ti);
+            ti = proto_tree_add_uint(subtree, hf_vjc_d_seq, tvb, offset, 0, d_seq);
+            proto_item_set_generated(ti);
         }
-        ti = proto_tree_add_uint(subtree, hf_vjc_d_ack, tvb, offset, 0, d_ack);
-        proto_item_set_generated(ti);
-        ti = proto_tree_add_uint(subtree, hf_vjc_d_seq, tvb, offset, 0, d_seq);
-        proto_item_set_generated(ti);
     }
     else if ((flags & VJC_FLAGS_SAWU) == VJC_FLAGS_SWU) {
         /* Special case for "echoed interactive traffic".
@@ -541,13 +545,13 @@ done_header_len:
          * previous packet.
          */
         flags &= ~VJC_FLAGS_SAWU;
-        if (NULL != pkt_data) {
-            d_seq = d_ack = pkt_data->last_frame_len;
+        if (last_data != NULL) {
+            d_seq = d_ack = last_data->last_frame_len;
+            ti = proto_tree_add_uint(subtree, hf_vjc_d_ack, tvb, offset, 0, d_ack);
+            proto_item_set_generated(ti);
+            ti = proto_tree_add_uint(subtree, hf_vjc_d_seq, tvb, offset, 0, d_seq);
+            proto_item_set_generated(ti);
         }
-        ti = proto_tree_add_uint(subtree, hf_vjc_d_ack, tvb, offset, 0, d_ack);
-        proto_item_set_generated(ti);
-        ti = proto_tree_add_uint(subtree, hf_vjc_d_seq, tvb, offset, 0, d_seq);
-        proto_item_set_generated(ti);
     }
     else {
         /* Not a special case, read the SAWU flags individually */
@@ -609,12 +613,12 @@ done_header_len:
                 tvb_captured_length_remaining(tvb, offset));
         return tvb_captured_length(tvb);
     }
-    if (NULL == conv) {
+    if (conv_id == NULL) {
         proto_tree_add_expert(subtree, pinfo, &ei_vjc_undecoded, tvb, offset,
                 tvb_captured_length_remaining(tvb, offset));
         return tvb_captured_length(tvb);
     }
-    if (NULL == pkt_data) {
+    if (last_data == NULL) {
         proto_tree_add_expert(subtree, pinfo, &ei_vjc_no_conv_data, tvb, offset,
                 tvb_captured_length_remaining(tvb, offset));
         return tvb_captured_length(tvb);
@@ -624,68 +628,59 @@ done_header_len:
         /* We haven't visited this packet before.
          * Form its vjc_hdr_t from the deltas and the info from the previous frame.
          */
-        last_hdr = (vjc_hdr_t *)wmem_map_lookup(pkt_data->vals,
-                GUINT_TO_POINTER(pkt_data->last_frame));
+        last_hdr = &last_data->vjc_headers;
 
-        if (NULL != last_hdr) {
-            this_hdr = wmem_new0(wmem_file_scope(), vjc_hdr_t);
-            this_hdr->tcp_chksum = (uint16_t)tcp_chksum;
-            this_hdr->urg = (uint16_t)urg;
-            this_hdr->win = last_hdr->win + d_win;
-            this_hdr->seq = last_hdr->seq + d_seq;
-            this_hdr->ack = last_hdr->ack + d_ack;
-            this_hdr->ip_id = last_hdr->ip_id + d_ipid;
-            this_hdr->psh = (flags & VJC_FLAG_P) == VJC_FLAG_P;
-            wmem_map_insert(pkt_data->vals, GUINT_TO_POINTER(pinfo->num), this_hdr);
+        this_data = wmem_memdup(wmem_file_scope(), last_data, sizeof(vjc_conv_t));
+        this_hdr = &this_data->vjc_headers;
+        this_hdr->tcp_chksum = (uint16_t)tcp_chksum;
+        this_hdr->urg = (uint16_t)urg;
+        this_hdr->win = last_hdr->win + d_win;
+        this_hdr->seq = last_hdr->seq + d_seq;
+        this_hdr->ack = last_hdr->ack + d_ack;
+        this_hdr->ip_id = last_hdr->ip_id + d_ipid;
+        this_hdr->psh = (flags & VJC_FLAG_P) == VJC_FLAG_P;
+        wmem_multimap_insert32(vjc_conv_table, conv_id, pinfo->num, (void *)this_data);
 
-            // This frame is the next frame's last frame
-            pkt_data->last_frame = pinfo->num;
-            pkt_data->last_frame_len = tvb_reported_length_remaining(tvb, offset);
-        }
-        else {
-            proto_tree_add_expert_format(subtree, pinfo, &ei_vjc_error, tvb, 0, 0,
-                    "Dissector error: unable to find headers for prior frame %d",
-                    pkt_data->last_frame);
-            return tvb_captured_length(tvb);
-        }
-        // if last_hdr is null, then this_hdr will stay null and be handled below
+        // This frame is the next frame's last frame
+        this_data->last_frame_len = tvb_reported_length_remaining(tvb, offset);
     }
     else {
         /* We have visited this packet before.
          * Get the values we saved the first time.
          */
-        this_hdr = (vjc_hdr_t *)wmem_map_lookup(pkt_data->vals,
-                GUINT_TO_POINTER(pinfo->num));
+        this_data = (vjc_conv_t *)wmem_multimap_lookup32(vjc_conv_table, conv_id, pinfo->num);
+        DISSECTOR_ASSERT(this_data != NULL);
+        this_hdr = &this_data->vjc_headers;
     }
-    if (NULL != this_hdr) {
-        /* pkt_data->frame_headers is our template packet header data.
+    if (this_hdr != NULL) {
+        /* this_data->frame_headers is our template packet header data.
          * Apply changes to it as needed.
          * The changes are intentionally done in the template before copying.
          */
-        pkt_len = pkt_data->header_len + tvb_reported_length_remaining(tvb, offset);
+        pkt_len = this_data->header_len + tvb_reported_length_remaining(tvb, offset);
 
-        pdata = pkt_data->frame_headers; /* shorthand */
+        pdata = this_data->frame_headers; /* shorthand */
         ip_len = (pdata[0] & 0x0F) << 2;
 
         /* IP length */
-        PUT_16(pdata, 2, pkt_len);
+        phton16(pdata + 2, pkt_len);
 
         /* IP ID */
-        PUT_16(pdata, 4, this_hdr->ip_id);
+        phton16(pdata + 4, this_hdr->ip_id);
 
         /* IP checksum */
-        PUT_16(pdata, 10, 0x0000);
+        phton16(pdata + 10, 0x0000);
         ip_chksum = ip_checksum(pdata, ip_len);
-        PUT_16(pdata, 10, g_htons(ip_chksum));
+        phton16(pdata + 10, g_htons(ip_chksum));
 
         /* TCP seq */
-        PUT_32(pdata, ip_len + 4, this_hdr->seq);
+        phton32(pdata + ip_len + 4, this_hdr->seq);
 
         /* TCP ack */
-        PUT_32(pdata, ip_len + 8, this_hdr->ack);
+        phton32(pdata + ip_len + 8, this_hdr->ack);
 
         /* TCP window */
-        PUT_16(pdata, ip_len + 14, this_hdr->win);
+        phton16(pdata + ip_len + 14, this_hdr->win);
 
         /* TCP push */
         if (this_hdr->psh) {
@@ -696,28 +691,28 @@ done_header_len:
         }
 
         /* TCP checksum */
-        PUT_16(pdata, ip_len + 16, this_hdr->tcp_chksum);
+        phton16(pdata + ip_len + 16, this_hdr->tcp_chksum);
 
         /* TCP urg */
         if (this_hdr->urg) {
             pdata[ip_len + 13] |= 0x20;
-            PUT_16(pdata, ip_len + 18, this_hdr->urg);
+            phton16(pdata + ip_len + 18, this_hdr->urg);
         }
         else {
             pdata[ip_len + 13] &= ~0x20;
-            PUT_16(pdata, ip_len + 18, 0x0000);
+            phton16(pdata + ip_len + 18, 0x0000);
         }
 
         /* Now that we're done manipulating the packet header, stick it into
          * a TVB for sub-dissectors to use.
          */
         sub_tvb = tvb_new_child_real_data(tvb, pdata,
-                pkt_data->header_len, pkt_data->header_len);
+                this_data->header_len, this_data->header_len);
         tvb_set_free_cb(sub_tvb, NULL);
 
         // Reuse pkt_len
         pkt_len = tvb_captured_length_remaining(tvb, offset);
-        if (0 < pkt_len) {
+        if (pkt_len > 0) {
             tcpip_tvb = tvb_new_composite();
             tvb_composite_append(tcpip_tvb, sub_tvb);
             tvb_composite_append(tcpip_tvb, tvb_new_subset_remaining(tvb, offset));
@@ -759,25 +754,25 @@ proto_register_vjc(void)
             { "Reserved", "vjc.change_mask.reserved", FT_BOOLEAN, 8,
                 TFS(&tfs_set_notset), VJC_FLAG_R, "Undefined bit", HFILL }},
         { &hf_vjc_change_mask_c,
-            { "Connection number flag", "vjc.change_mask.connection_number", FT_BOOLEAN, 8,
+            { "Connection number", "vjc.change_mask.connection_number", FT_BOOLEAN, 8,
                 TFS(&tfs_set_notset), VJC_FLAG_C, "Whether connection number is present", HFILL }},
         { &hf_vjc_change_mask_i,
-            { "IP ID flag", "vjc.change_mask.ip_id", FT_BOOLEAN, 8,
+            { "IP ID", "vjc.change_mask.ip_id", FT_BOOLEAN, 8,
                 TFS(&tfs_set_notset), VJC_FLAG_I, "Whether IP ID is present", HFILL }},
         { &hf_vjc_change_mask_p,
-            { "TCP PSH flag", "vjc.change_mask.psh", FT_BOOLEAN, 8,
+            { "TCP PSH", "vjc.change_mask.psh", FT_BOOLEAN, 8,
                 TFS(&tfs_set_notset), VJC_FLAG_P, "Whether to set TCP PSH", HFILL }},
         { &hf_vjc_change_mask_s,
-            { "TCP Sequence flag", "vjc.change_mask.seq", FT_BOOLEAN, 8,
+            { "TCP Sequence", "vjc.change_mask.seq", FT_BOOLEAN, 8,
                 TFS(&tfs_set_notset), VJC_FLAG_S, "Whether TCP SEQ is present", HFILL }},
         { &hf_vjc_change_mask_a,
-            { "TCP Acknowledgement flag", "vjc.change_mask.ack", FT_BOOLEAN, 8,
+            { "TCP Acknowledgement", "vjc.change_mask.ack", FT_BOOLEAN, 8,
                 TFS(&tfs_set_notset), VJC_FLAG_A, "Whether TCP ACK is present", HFILL }},
         { &hf_vjc_change_mask_w,
-            { "TCP Window flag", "vjc.change_mask.win", FT_BOOLEAN, 8,
+            { "TCP Window", "vjc.change_mask.win", FT_BOOLEAN, 8,
                 TFS(&tfs_set_notset), VJC_FLAG_W, "Whether TCP Window is present", HFILL }},
         { &hf_vjc_change_mask_u,
-            { "TCP Urgent flag", "vjc.change_mask.urg", FT_BOOLEAN, 8,
+            { "TCP Urgent", "vjc.change_mask.urg", FT_BOOLEAN, 8,
                 TFS(&tfs_set_notset), VJC_FLAG_U, "Whether TCP URG pointer is present", HFILL }},
         { &hf_vjc_chksum,
             { "TCP Checksum", "vjc.checksum", FT_UINT16, BASE_HEX,
@@ -845,6 +840,13 @@ proto_register_vjc(void)
     expert_register_field_array(expert_vjc, ei, array_length(ei));
     vjcc_handle = register_dissector("vjc_compressed", dissect_vjc_comp, proto_vjc);
     vjcu_handle = register_dissector("vjc_uncompressed", dissect_vjc_uncomp, proto_vjc);
+
+    // TODO: is it possible to postpone allocating these until we actually see VJC?
+    // It's probably not a common protocol.
+    vjc_conn_id_lookup = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(),
+                                                    g_direct_hash, g_direct_equal);
+    vjc_conv_table = wmem_multimap_new_autoreset(wmem_epan_scope(), wmem_file_scope(),
+                                                    g_direct_hash, g_direct_equal);
 
     register_init_routine(&vjc_init_protocol);
     register_cleanup_routine(&vjc_cleanup_protocol);
