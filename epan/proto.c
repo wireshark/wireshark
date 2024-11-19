@@ -865,6 +865,10 @@ proto_tree_reset(proto_tree *tree)
 	/* Reset track of the number of children */
 	tree_data->count = 0;
 
+	/* Reset our loop checks */
+	tree_data->max_start = 0;
+	tree_data->start_idle_count = 0;
+
 	PROTO_NODE_INIT(tree);
 }
 
@@ -6809,6 +6813,12 @@ get_full_length(header_field_info *hfinfo, tvbuff_t *tvb, const int start,
 	return item_length;
 }
 
+// This was arbitrarily chosen, but if you're adding 50K items to the tree
+// without advancing the offset you should probably take a long, hard look
+// at what you're doing.
+// We *could* make this a configurable option, but I (Gerald) would like to
+// avoid adding yet another nerd knob.
+# define PROTO_TREE_MAX_IDLE 50000
 static field_info *
 new_field_info(proto_tree *tree, header_field_info *hfinfo, tvbuff_t *tvb,
 	       const int start, const int item_length)
@@ -6820,6 +6830,17 @@ new_field_info(proto_tree *tree, header_field_info *hfinfo, tvbuff_t *tvb,
 	fi->hfinfo     = hfinfo;
 	fi->start      = start;
 	fi->start     += (tvb)?tvb_raw_offset(tvb):0;
+	// If our start offset hasn't advanced after adding many items it probably
+	// means we're in a large or infinite loop.
+	if (fi->start > 0) {
+		if (fi->start <= PTREE_DATA(tree)->max_start) {
+			PTREE_DATA(tree)->start_idle_count++;
+			DISSECTOR_ASSERT_HINT(PTREE_DATA(tree)->start_idle_count < PROTO_TREE_MAX_IDLE, fi->hfinfo->abbrev);
+		} else {
+			PTREE_DATA(tree)->max_start = fi->start;
+			PTREE_DATA(tree)->start_idle_count = 0;
+		}
+	}
 	fi->length     = item_length;
 	fi->tree_type  = -1;
 	fi->flags      = 0;
@@ -7943,6 +7964,10 @@ proto_tree_create_root(packet_info *pinfo)
 
 	/* Keep track of the number of children */
 	pnode->tree_data->count = 0;
+
+	/* Initialize our loop checks */
+	pnode->tree_data->max_start = 0;
+	pnode->tree_data->start_idle_count = 0;
 
 	return (proto_tree *)pnode;
 }

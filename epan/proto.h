@@ -895,6 +895,8 @@ typedef struct {
     bool                 fake_protocols;
     unsigned             count;
     struct _packet_info *pinfo;
+    int                  max_start;
+    unsigned             start_idle_count;
 } tree_data_t;
 
 /** Each proto_tree, proto_item is one of these. */
