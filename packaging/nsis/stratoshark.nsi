@@ -918,6 +918,7 @@ SetOutPath '$INSTDIR\plugins\${MAJOR_VERSION}.${MINOR_VERSION}\epan'
 File "${STAGING_DIR}\plugins\${MAJOR_VERSION}.${MINOR_VERSION}\epan\falco-bridge.dll"
 SetOutPath '$INSTDIR\plugins\falco'
 File "${STAGING_DIR}\plugins\falco\cloudtrail.dll"
+File "${STAGING_DIR}\plugins\falco\gcpaudit.dll"
 !include "custom_plugins.txt"
 
 ;-------------------------------------------
