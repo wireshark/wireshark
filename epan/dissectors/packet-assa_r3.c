@@ -1695,7 +1695,7 @@ static int ett_r3debugmsg;
 static int ett_r3defineexceptionstartdate;
 static int ett_r3defineexceptionenddate;
 static int ett_r3defineexceptiongroupbits;
-static int ett_r3definecalendarmonth [13];
+static int ett_r3definecalendarmonth[13];
 static int ett_r3definetimezonestarttime;
 static int ett_r3definetimezoneendtime;
 static int ett_r3definetimezonedaymap;

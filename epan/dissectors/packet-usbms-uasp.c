@@ -611,14 +611,14 @@ proto_register_uasp(void)
             "The request data for the tag was transmitted in this frame", HFILL } },
     };
 
-    static int *uasp_subtrees[] = {
+    static int *uasp_ett[] = {
         &ett_uasp,
         &ett_uasp_desc,
     };
 
     proto_uasp = proto_register_protocol("USB Attached SCSI", "UASP", "uasp");
     proto_register_field_array(proto_uasp, hf, array_length(hf));
-    proto_register_subtree_array(uasp_subtrees, array_length(uasp_subtrees));
+    proto_register_subtree_array(uasp_ett, array_length(uasp_ett));
 
     uasp_descriptor_handle = register_dissector("uasp", dissect_uasp_descriptor, proto_uasp);
     uasp_bulk_handle = register_dissector("uasp.bulk", dissect_uasp_bulk, proto_uasp);

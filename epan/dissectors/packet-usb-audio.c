@@ -3868,6 +3868,8 @@ proto_register_usb_audio(void)
         &ett_ac_if_clksrc_controls,
         &ett_ac_if_clksel_controls,
         &ett_as_if_gen_controls,
+        &ett_ac_if_extunit_bmchannelconfig,
+        &ett_ac_if_extunit_bmcontrols,
         &ett_as_if_gen_formats,
         &ett_as_if_gen_bmchannelconfig,
         &ett_as_ep_gen_attributes,

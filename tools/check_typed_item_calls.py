@@ -979,7 +979,7 @@ def findDeclaredTrees(filename):
 
     return trees
 
-def findDefinedTrees(filename):
+def findDefinedTrees(filename, declared):
     with open(filename, 'r', encoding="utf8") as f:
         contents = f.read()
 
@@ -1005,6 +1005,15 @@ def findDefinedTrees(filename):
             matches = re.finditer(r'\&(ett_[a-zA-Z0-9_]+)',
                                   entries, re.MULTILINE|re.DOTALL)
             for match in matches:
+                ett = match.group(1)
+
+                if ett not in declared:
+                    # N.B., this check will avoid matches with arrays (which won't match 'declared' re)
+                    continue
+
+                # Don't think this can happen..
+                #if ett in trees:
+                #    print('Warning:', filename, ett, 'appears twice!!!')
                 trees.add(match.group(1))
         return trees
 
@@ -2024,7 +2033,7 @@ def checkFile(filename, check_mask=False, mask_exact_width=False, check_label=Fa
     # Check that ett_ variables are registered
     if check_subtrees:
         ett_declared = findDeclaredTrees(filename)
-        ett_defined =  findDefinedTrees(filename)
+        ett_defined =  findDefinedTrees(filename, ett_declared)
         for d in ett_declared:
             if d not in ett_defined:
                 global errors_found
