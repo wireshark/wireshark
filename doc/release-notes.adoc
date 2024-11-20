@@ -20,29 +20,7 @@ If you or your organization would like to contribute or become a sponsor, please
 
 === Bug Fixes
 
-The following vulnerabilities have been fixed:
-
-* wssalink:2024-14[]
-FiveCo RAP dissector infinite loop.
-wsbuglink:20176[].
-// cveidlink:2024-xxx[].
-// Fixed in master: d8ca9fc339
-// Fixed in release-4.4: 4d58fef602
-// Fixed in release-4.2: 686dff0f01
-// CVSS AV:L/AC:L/PR:N/UI:R/S:U/C:H/I:H/A:H
-// CWE-835
-// * Fuzz job crash: fuzz-2024-10-29-7320.pcap. wsbuglink:20176[].
-
-* wssalink:2024-15[]
-ECMP dissector crash.
-wsbuglink:20214[].
-// cveidlink:2024-xxx[].
-// Fixed in master: c8e5887073
-// Fixed in release-4.4: 8fd60c6448
-// Fixed in release-4.2: 06e0b0bb09
-// CVSS AV:L/AC:L/PR:N/UI:R/S:U/C:H/I:H/A:H
-// CWE-126
-// * ECMP: buffer overflow detected. wsbuglink:20214[].
+// The following vulnerabilities have been fixed:
 
 // * wssalink:2024-16[]
 // Foo dissector {crash,infinite loop,memory leak}.
@@ -61,6 +39,63 @@ The following bugs have been fixed:
 //* wsbuglink:6000[Wireshark bug]
 //* cveidlink:2014-2486[]
 //* Wireshark took a bite out of each of your freshly baked muffins until it found the perfect one.
+
+// == Known Bugs
+
+=== New and Updated Features
+
+// === Removed Features and Support
+
+// === Removed Dissectors
+
+=== New Protocol Support
+
+There are no new protocols in this release.
+
+=== Updated Protocol Support
+
+// Add one protocol per line between the -- delimiters.
+// ag -A1 '(define PSNAME|proto_register_protocol[^_])' $(git diff --name-only v4.4.2.. | ag packet- | sort -u)
+[commaize]
+--
+--
+
+=== New and Updated Capture File Support
+
+There is no new or updated capture file support in this release.
+// Add one file type per line between the -- delimiters.
+// [commaize]
+// --
+// --
+
+=== Updated File Format Decoding Support
+
+There is no updated file format support in this release.
+// Add one file type per line between the -- delimiters.
+// [commaize]
+// --
+// --
+
+// === New and Updated Capture Interfaces support
+
+// === New and Updated Codec support
+
+// === Major API Changes
+
+== Prior Versions
+
+Wireshark 4.4.2 included the following changes.
+See the
+https://www.wireshark.org/docs/relnotes/wireshark-4.4.2.html[release notes]
+for details:
+
+* wssalink:2024-14[]
+FiveCo RAP dissector infinite loop.
+wsbuglink:20176[].
+
+* wssalink:2024-15[]
+ECMP dissector crash.
+wsbuglink:20214[].
 
 * CIP I/O is not detected by "enip" filter anymore. wsbuglink:19517[].
 * Fuzz job issue: fuzz-2024-09-03-7550.pcap. wsbuglink:20041[].
@@ -103,86 +138,6 @@ Display filters now correctly handle floating point conversion errors.
 
 The Lua API now has better support for comma-separated ranges in different locales.
 
-// == Known Bugs
-
-=== New and Updated Features
-
-* The TShark syntax for dumping only fields with a certain prefix has changed
-  from `-G fields prefix` to `-G fields,prefix`. This allows `tshark -G fields`
-  to again support also specifying the configuration profile to use.
-
-// === Removed Features and Support
-
-// === Removed Dissectors
-
-=== New Protocol Support
-
-There are no new protocols in this release.
-
-=== Updated Protocol Support
-
-// Add one protocol per line between the -- delimiters.
-// ag -A1 '(define PSNAME|proto_register_protocol[^_])' $(git diff --name-only v4.4.2.. | ag packet- | sort -u)
-[commaize]
---
-ARTNET
-ASN.1 PER
-BACapp
-BT BR/EDR
-CQL
-DOF
-ECMP
-ENIP
-FiveCo RAP
-Frame
-FTDI FT
-HSRP
-HTTP/2
-ICMPv6
-IEEE 802.11
-MBTCP
-MMS
-MPEG PES
-PN-DCP
-POP
-ProtoBuf
-PTP
-RPC
-RTCP
-SIP
-SRT
-Syslog
-TCP
-UMTS RLC
-USB CCID
-Wi-SUN
-ZigBee ZCL
---
-
-=== New and Updated Capture File Support
-
-// There is no new or updated capture file support in this release.
-// Add one file type per line between the -- delimiters.
-[commaize]
---
-BLF
---
-
-=== Updated File Format Decoding Support
-
-There is no updated file format support in this release.
-// Add one file type per line between the -- delimiters.
-// [commaize]
-// --
-// --
-
-// === New and Updated Capture Interfaces support
-
-// === New and Updated Codec support
-
-// === Major API Changes
-
-== Prior Versions
 
 Wireshark 4.4.1 included the following changes.
 See the
