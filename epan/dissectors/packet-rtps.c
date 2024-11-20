@@ -1510,6 +1510,7 @@ static expert_field ei_rtps_pid_type_csonsistency_invalid_size;
 static expert_field ei_rtps_uncompression_error;
 static expert_field ei_rtps_value_too_large;
 static expert_field ei_rtps_invalid_psk;
+static expert_field ei_rtps_invalid_fragment_size;
 
 /***************************************************************************/
 /* Value-to-String Tables */
@@ -13197,6 +13198,12 @@ static void dissect_RTPS_DATA_FRAG_kind(tvbuff_t *tvb, packet_info *pinfo, int o
 
   /* Fragment size */
   proto_tree_add_item_ret_uint(tree, hf_rtps_data_frag_size, tvb, offset, 2, encoding, &frag_size);
+  if (frag_size == 0) {
+    // A zero fragment size means we don't advance our offset in loops, so
+    // treat that as invalid.
+    proto_tree_add_expert_format(tree, pinfo, &ei_rtps_invalid_fragment_size, tvb, offset, 2,
+      "Invalid fragment size: %u", frag_size);
+  }
   offset += 2;
 
   /* sampleSize */
@@ -13212,7 +13219,7 @@ static void dissect_RTPS_DATA_FRAG_kind(tvbuff_t *tvb, packet_info *pinfo, int o
   }
 
   /* SerializedData */
-  {
+  if (frag_size > 0) {
     char label[20];
     snprintf(label, 9, "fragment");
     if ((flags & FLAG_RTPS_DATA_FRAG_K) != 0) {
@@ -18608,7 +18615,8 @@ void proto_register_rtps(void) {
      { &ei_rtps_uncompression_error, { "rtps.uncompression_error", PI_PROTOCOL, PI_WARN, "Unable to uncompress the compressed payload.", EXPFILL }},
      { &ei_rtps_value_too_large, { "rtps.value_too_large", PI_MALFORMED, PI_ERROR, "Length value goes past the end of the packet", EXPFILL }},
      { &ei_rtps_checksum_check_error, { "rtps.checksum_error", PI_CHECKSUM, PI_ERROR, "Error: Unexpected checksum", EXPFILL }},
-     { &ei_rtps_invalid_psk, { "rtps.psk_decryption_error", PI_UNDECODED, PI_ERROR, "Unable to decrypt content using PSK", EXPFILL }}
+     { &ei_rtps_invalid_psk, { "rtps.psk_decryption_error", PI_UNDECODED, PI_ERROR, "Unable to decrypt content using PSK", EXPFILL }},
+     { &ei_rtps_invalid_fragment_size, { "rtps.fragment_size", PI_MALFORMED, PI_WARN, "Invalid fragment size", EXPFILL }},
   };
 
   module_t *rtps_module;
