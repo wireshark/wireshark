@@ -99,6 +99,10 @@ The following bugs have been fixed:
 The TCP dissector no longer falls back to using the client port as a criterion for selecting a payload dissector when the server port does not select a payload dissector (except for port 20, active FTP).
 This behavior can be changed using the "Client port dissectors" preference.
 
+Display filters now correctly handle floating point conversion errors.
+
+The Lua API now has better support for comma-separated ranges in different locales.
+
 // == Known Bugs
 
 === New and Updated Features
