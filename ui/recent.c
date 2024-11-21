@@ -19,6 +19,7 @@
 #ifdef HAVE_PCAP_REMOTE
 #include <capture_opts.h>
 #endif
+#include <wsutil/application_flavor.h>
 #include <wsutil/filesystem.h>
 #include <epan/prefs.h>
 #include <epan/prefs-int.h>
@@ -869,7 +870,7 @@ write_recent(void)
             "\n"
             "######## Recent capture files (latest last), cannot be altered through command line ########\n"
             "\n",
-            get_configuration_namespace(), get_configuration_namespace());
+            application_flavor_name_proper(), application_flavor_name_proper());
 
 
     menu_recent_file_write_all(rf);
@@ -1012,7 +1013,7 @@ write_profile_recent(void)
             "# and when changing configuration profile.\n"
             "# So be careful, if you want to make manual changes here.\n"
             "\n",
-            get_configuration_namespace(), get_configuration_namespace());
+            application_flavor_name_proper(), application_flavor_name_proper());
 
     write_recent_boolean(rf, "Main Toolbar show (hide)",
             RECENT_KEY_MAIN_TOOLBAR_SHOW,
@@ -1348,7 +1349,7 @@ read_set_recent_pair_static(char *key, const char *value,
         parse_recent_boolean(value, &recent.capture_auto_scroll);
     } else if (strcmp(key, RECENT_GUI_TIME_FORMAT) == 0) {
         recent.gui_time_format = (ts_type)str_to_val(value, ts_type_values,
-            is_packet_configuration_namespace() ? TS_RELATIVE : TS_ABSOLUTE);
+            application_flavor_is_wireshark() ? TS_RELATIVE : TS_ABSOLUTE);
     } else if (strcmp(key, RECENT_GUI_TIME_PRECISION) == 0) {
         /*
          * The value of this item is either TS_PREC_AUTO, which is a

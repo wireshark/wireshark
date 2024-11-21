@@ -19,6 +19,7 @@
 #include <epan/prefs.h>
 #include <epan/prefs-int.h>
 
+#include <wsutil/application_flavor.h>
 #include <wsutil/filesystem.h>
 
 #include "profile.h"
@@ -514,7 +515,7 @@ void save_profile_settings(profile_def *profile)
     g_free(profile_settings_path);
 
     fprintf(fp, "# \"%s\" profile settings file for %s " VERSION ". Edit with care.\n",
-            profile->name, get_configuration_namespace());
+            profile->name, application_flavor_name_proper());
 
     fprintf(fp, "\n# Automatically switch to this profile if this display filter matches.\n");
     fprintf(fp, AUTO_SWITCH_FILTER_KEY ": %s\n", profile->auto_switch_filter);

@@ -21,6 +21,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include <wsutil/application_flavor.h>
 #include <wsutil/filesystem.h>
 #include <wsutil/file_util.h>
 #include <wsutil/report_message.h>
@@ -865,7 +866,7 @@ write_filters_file(GSList *cfl, FILE *f, bool only_selected)
     data.f = f;
     data.only_selected = only_selected;
 
-    fprintf(f,"# This file was created by %s. Edit with care.\n", get_configuration_namespace());
+    fprintf(f,"# This file was created by %s. Edit with care.\n", application_flavor_name_proper());
     g_slist_foreach(cfl, write_filter, &data);
     return true;
 }

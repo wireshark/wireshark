@@ -32,7 +32,7 @@
 #include "main_application.h"
 #include <ui/qt/main_window.h>
 
-#include <wsutil/filesystem.h>
+#include <wsutil/application_flavor.h>
 #include <wsutil/report_message.h>
 #include <wsutil/nstime.h>
 #include <wsutil/to_str.h>
@@ -622,7 +622,7 @@ void IOGraphDialog::addGraph(bool checked, bool asAOT, QString name, QString dfi
     newRowData.append(dfilter);
     newRowData.append(QColor(color_idx));
     newRowData.append(val_to_str_const(style, graph_style_vs, "None"));
-    if (is_packet_configuration_namespace()) {
+    if (application_flavor_is_wireshark()) {
         newRowData.append(val_to_str_const(value_units, y_axis_packet_vs, "Packets"));
     } else {
         newRowData.append(val_to_str_const(value_units, y_axis_event_vs, "Events"));
@@ -649,12 +649,12 @@ void IOGraphDialog::addGraph(bool checked, bool asAOT, QString dfilter, io_graph
     QString graph_name;
     if (yfield.isEmpty()) {
         if (!dfilter.isEmpty()) {
-            graph_name = is_packet_configuration_namespace() ? tr("Filtered packets") : tr("Filtered events");
+            graph_name = application_flavor_is_wireshark() ? tr("Filtered packets") : tr("Filtered events");
         } else {
-            graph_name = is_packet_configuration_namespace() ? tr("All packets") : tr("All events");
+            graph_name = application_flavor_is_wireshark() ? tr("All packets") : tr("All events");
         }
     } else {
-        if (is_packet_configuration_namespace()) {
+        if (application_flavor_is_wireshark()) {
             graph_name = QString(val_to_str_const(value_units, y_axis_packet_vs, "Unknown")).replace("Y Field", yfield);
         } else {
             graph_name = QString(val_to_str_const(value_units, y_axis_event_vs, "Unknown")).replace("Y Field", yfield);
@@ -710,7 +710,7 @@ void IOGraphDialog::createIOGraph(int currentRow)
 
 void IOGraphDialog::addDefaultGraph(bool enabled, int idx)
 {
-    if (is_packet_configuration_namespace()) {
+    if (application_flavor_is_wireshark()) {
         switch (idx % 2) {
         case 0:
             addGraph(enabled, false, tr("All Packets"), QString(), ColorUtils::graphColor(idx),
@@ -764,7 +764,7 @@ void IOGraphDialog::syncGraphSettings(int row)
 
     /* plot style depend on the value unit, so set it first. */
     data_str = uat_model_->data(uat_model_->index(row, colYAxis)).toString();
-    if (is_packet_configuration_namespace()) {
+    if (application_flavor_is_wireshark()) {
         iog->setValueUnits((int) str_to_val(qUtf8Printable(data_str), y_axis_packet_vs, IOG_ITEM_UNIT_PACKETS));
     } else {
         iog->setValueUnits((int) str_to_val(qUtf8Printable(data_str), y_axis_event_vs, IOG_ITEM_UNIT_PACKETS));
@@ -1152,11 +1152,11 @@ void IOGraphDialog::updateHint()
         if (interval_packet < 0) {
             hint += tr("Hover over the graph for details.");
         } else {
-            QString msg = is_packet_configuration_namespace() ? tr("No packets in interval") : tr("No events in interval");
+            QString msg = application_flavor_is_wireshark() ? tr("No packets in interval") : tr("No events in interval");
             QString val;
             if (interval_packet > 0) {
                 packet_num_ = (uint32_t) interval_packet;
-                if (is_packet_configuration_namespace()) {
+                if (application_flavor_is_wireshark()) {
                     msg = QStringLiteral("%1 %2")
                             .arg(!file_closed_ ? tr("Click to select packet") : tr("Packet"))
                             .arg(packet_num_);
@@ -1565,7 +1565,7 @@ void IOGraphDialog::loadProfileGraphs()
 {
     if (iog_uat_ == NULL) {
         uat_field_t *io_graph_fields = io_graph_packet_fields;
-        if (!is_packet_configuration_namespace()) {
+        if (application_flavor_is_stratoshark()) {
             io_graph_fields = io_graph_event_fields;
         }
 
@@ -2553,7 +2553,7 @@ void IOGraph::setPlotStyle(int style)
 
 QString IOGraph::valueUnitLabel() const
 {
-    if (is_packet_configuration_namespace()) {
+    if (application_flavor_is_wireshark()) {
         return val_to_str_const(val_units_, y_axis_packet_vs, "Unknown");
     }
     return val_to_str_const(val_units_, y_axis_event_vs, "Unknown");
@@ -2767,7 +2767,7 @@ format_size_units_e IOGraph::formatUnits() const
     switch (val_units_) {
     case IOG_ITEM_UNIT_PACKETS:
     case IOG_ITEM_UNIT_CALC_FRAMES:
-        if (is_packet_configuration_namespace()) {
+        if (application_flavor_is_wireshark()) {
             return FORMAT_SIZE_UNIT_PACKETS;
         }
         return FORMAT_SIZE_UNIT_EVENTS;

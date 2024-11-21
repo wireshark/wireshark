@@ -23,6 +23,7 @@
 #include <glib.h>
 
 #include <stdio.h>
+#include <wsutil/application_flavor.h>
 #include <wsutil/filesystem.h>
 #include <epan/addr_resolv.h>
 #include <epan/oids.h>
@@ -4310,7 +4311,7 @@ pre_init_prefs(void)
     static const char **col_fmt = col_fmt_packets;
     int num_cols = 7;
 
-    if (!is_packet_configuration_namespace()) {
+    if (application_flavor_is_stratoshark()) {
         static const char *col_fmt_logs[] = {
             "No.",              "%m",
             "Time",             "%t",

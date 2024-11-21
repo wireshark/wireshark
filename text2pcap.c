@@ -1076,7 +1076,7 @@ main(int argc, char *argv[])
     /*
      * Make sure our plugin path is initialized for wtap_init.
      */
-    configuration_init_error = configuration_init(argv[0], NULL);
+    configuration_init_error = configuration_init(argv[0]);
     if (configuration_init_error != NULL) {
         cmdarg_err("Can't get pathname of directory containing the text2pcap program: %s.",
                 configuration_init_error);

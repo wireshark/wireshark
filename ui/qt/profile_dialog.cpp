@@ -9,7 +9,8 @@
 
 #include "config.h"
 
-#include "wsutil/filesystem.h"
+#include <wsutil/application_flavor.h>
+#include <wsutil/filesystem.h>
 
 #include <ui/qt/utils/qt_ui_utils.h>
 
@@ -73,7 +74,7 @@ ProfileDialog::ProfileDialog(QWidget *parent) :
 
     QString as_tooltip = pd_ui_->autoSwitchLimitLabel->toolTip();
     pd_ui_->autoSwitchSpinBox->setToolTip(as_tooltip);
-    if (!is_packet_configuration_namespace()) {
+    if (application_flavor_is_stratoshark()) {
         pd_ui_->autoSwitchLimitLabel->setText(tr("Auto switch event limit"));
     }
     pd_ui_->autoSwitchSpinBox->setValue(recent.gui_profile_switch_check_count);

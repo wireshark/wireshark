@@ -40,9 +40,10 @@
 #include <pwd.h>
 #endif /* _WIN32 */
 
-#include <wsutil/report_message.h>
-#include <wsutil/privileges.h>
+#include <wsutil/application_flavor.h>
 #include <wsutil/file_util.h>
+#include <wsutil/privileges.h>
+#include <wsutil/report_message.h>
 #include <wsutil/utf8_entities.h>
 
 #include <wiretap/wtap.h>   /* for WTAP_ERR_SHORT_WRITE */
@@ -55,23 +56,6 @@
 #define PROFILES_INFO_NAME  "profile_files.txt"
 
 #define _S G_DIR_SEPARATOR_S
-
-/*
- * Application configuration namespace. Used to construct configuration
- * paths and environment variables.
- * XXX We might want to use the term "application flavor" instead, with
- * "packet" and "log" flavors.
- */
-enum configuration_namespace_e {
-    CONFIGURATION_NAMESPACE_UNINITIALIZED,
-    CONFIGURATION_NAMESPACE_WIRESHARK,
-    CONFIGURATION_NAMESPACE_STRATOSHARK
-};
-enum configuration_namespace_e configuration_namespace = CONFIGURATION_NAMESPACE_UNINITIALIZED;
-
-#define CONFIGURATION_NAMESPACE_PROPER (configuration_namespace == CONFIGURATION_NAMESPACE_WIRESHARK ? "Wireshark" : "Stratoshark")
-#define CONFIGURATION_NAMESPACE_LOWER (configuration_namespace == CONFIGURATION_NAMESPACE_WIRESHARK ? "wireshark" : "stratoshark")
-#define CONFIGURATION_ENVIRONMENT_VARIABLE(suffix) (configuration_namespace == CONFIGURATION_NAMESPACE_WIRESHARK ? "WIRESHARK_" suffix : "STRATOSHARK_" suffix)
 
 char *persconffile_dir;
 char *datafile_dir;
@@ -296,43 +280,15 @@ static char *appbundle_dir;
  */
 static bool running_in_build_directory_flag;
 
-/*
- * Set our configuration namespace. This will be used for top-level
- * configuration directory names and environment variable prefixes.
- */
-static void
-set_configuration_namespace(const char *namespace_name)
-{
-
-    if (configuration_namespace != CONFIGURATION_NAMESPACE_UNINITIALIZED) {
-        return;
+static char *configuration_environment_variable(const char *suffix) {
+    switch (get_application_flavor()) {
+    case APPLICATION_FLAVOR_WIRESHARK:
+        return g_strdup_printf("WIRESHARK_%s", suffix);
+    case APPLICATION_FLAVOR_STRATOSHARK:
+        return g_strdup_printf("STRATOSHARK_%s", suffix);
+    default:
+        ws_assert_not_reached();
     }
-
-    if (!namespace_name || g_ascii_strcasecmp(namespace_name, "wireshark") == 0)
-    {
-        configuration_namespace = CONFIGURATION_NAMESPACE_WIRESHARK;
-    }
-    else if (g_ascii_strcasecmp(namespace_name, "stratoshark") == 0)
-    {
-        configuration_namespace = CONFIGURATION_NAMESPACE_STRATOSHARK;
-    }
-    else
-    {
-        ws_error("Unknown configuration namespace %s", namespace_name);
-    }
-
-    ws_debug("Using configuration namespace %s.", CONFIGURATION_NAMESPACE_PROPER);
-}
-
-const char *
-get_configuration_namespace(void)
-{
-    return CONFIGURATION_NAMESPACE_PROPER;
-}
-
-bool is_packet_configuration_namespace(void)
-{
-    return configuration_namespace != CONFIGURATION_NAMESPACE_STRATOSHARK;
 }
 
 #ifndef _WIN32
@@ -546,29 +502,29 @@ static void trim_progfile_dir(void)
 
 #ifdef _WIN32
     /*
-     * Check for a namespaced extcap subdirectory.
+     * Check the flavor of our extcap subdirectory.
      * XXX - Do we only need to do this on Windows, or on other platforms too?
      */
-    if (progfile_last_dir && strncmp(progfile_last_dir + 1, CONFIGURATION_NAMESPACE_LOWER, sizeof(CONFIGURATION_NAMESPACE_LOWER)) == 0) {
-        char* namespace_last_dir = find_last_pathname_separator(progfile_dir);
-        char namespace_sep = *namespace_last_dir;
-        *namespace_last_dir = '\0';
+    if (progfile_last_dir && strncmp(progfile_last_dir + 1, application_flavor_name_lower(), strlen(application_flavor_name_lower())) == 0) {
+        char* flavor_last_dir = find_last_pathname_separator(progfile_dir);
+        char flavor_sep = *flavor_last_dir;
+        *flavor_last_dir = '\0';
 
         progfile_last_dir = find_last_pathname_separator(progfile_dir);
 
         if (!(progfile_last_dir && strncmp(progfile_last_dir + 1, "extcap", sizeof("extcap")) == 0)) {
             /*
-             * Not an extcap, restore the namespace separator (it might have been
+             * Not an extcap, restore the flavor separator (it might have been
              * some other "wireshark" directory, especially on case insensitive
              * filesystems.)
              */
-            *namespace_last_dir = namespace_sep;
+            *flavor_last_dir = flavor_sep;
             return;
         }
     } else
 #endif
     if (! (progfile_last_dir && strncmp(progfile_last_dir + 1, "extcap", sizeof("extcap")) == 0)) {
-        /* Check for a non namespaced extcap directory. */
+        /* Check for an unflavored extcap directory. */
         return;
     }
 
@@ -740,11 +696,11 @@ configuration_init_posix(const char* arg0)
      * set, causes us to look for plugins and the like in the build
      * directory.)
      */
-    const char *run_from_envar = CONFIGURATION_ENVIRONMENT_VARIABLE("RUN_FROM_BUILD_DIRECTORY");
-    if (g_getenv(run_from_envar) != NULL
-        && !started_with_special_privs()) {
+    char *run_from_envar = configuration_environment_variable("RUN_FROM_BUILD_DIRECTORY");
+    if (g_getenv(run_from_envar) != NULL && !started_with_special_privs()) {
         running_in_build_directory_flag = true;
     }
+    g_free(run_from_envar);
 
     execname = get_current_executable_path();
     if (execname == NULL) {
@@ -971,10 +927,8 @@ configuration_init_posix(const char* arg0)
 #endif /* ?_WIN32 */
 
 char *
-configuration_init(const char* arg0, const char *namespace_name)
+configuration_init(const char* arg0)
 {
-    set_configuration_namespace(namespace_name);
-
 #ifdef _WIN32
     return configuration_init_w32(arg0);
 #else
@@ -1059,7 +1013,7 @@ get_datafile_dir(void)
     if (datafile_dir != NULL)
         return datafile_dir;
 
-    const char *data_dir_envar = CONFIGURATION_ENVIRONMENT_VARIABLE("DATA_DIR");
+    char *data_dir_envar = configuration_environment_variable("DATA_DIR");
     if (g_getenv(data_dir_envar) && !started_with_special_privs()) {
         /*
          * The user specified a different directory for data files
@@ -1068,14 +1022,13 @@ get_datafile_dir(void)
          * XXX - We might be able to dispense with the priv check
          */
         datafile_dir = g_strdup(g_getenv(data_dir_envar));
-        return datafile_dir;
     }
 
 #if defined(HAVE_MSYSTEM)
     if (running_in_build_directory_flag) {
         datafile_dir = g_strdup(install_prefix);
     } else {
-        datafile_dir = g_build_filename(install_prefix, DATA_DIR, CONFIGURATION_NAMESPACE_LOWER, (char *)NULL);
+        datafile_dir = g_build_filename(install_prefix, DATA_DIR, application_flavor_name_lower(), (char *)NULL);
     }
 #elif defined(_WIN32)
     /*
@@ -1114,7 +1067,7 @@ get_datafile_dir(void)
      */
     else if (appbundle_dir != NULL) {
         datafile_dir = ws_strdup_printf("%s/Contents/Resources/share/%s",
-                                        appbundle_dir, CONFIGURATION_NAMESPACE_LOWER);
+                                        appbundle_dir, application_flavor_name_lower());
     }
 #endif
     else if (running_in_build_directory_flag && progfile_dir != NULL) {
@@ -1133,12 +1086,13 @@ get_datafile_dir(void)
         datafile_dir = g_strdup(progfile_dir);
     } else {
         if (g_path_is_absolute(DATA_DIR)) {
-            datafile_dir = g_build_filename(DATA_DIR, CONFIGURATION_NAMESPACE_LOWER, (char *)NULL);
+            datafile_dir = g_build_filename(DATA_DIR, application_flavor_name_lower(), (char *)NULL);
         } else {
-            datafile_dir = g_build_filename(install_prefix, DATA_DIR, CONFIGURATION_NAMESPACE_LOWER, (char *)NULL);
+            datafile_dir = g_build_filename(install_prefix, DATA_DIR, application_flavor_name_lower(), (char *)NULL);
         }
     }
 #endif
+    g_free(data_dir_envar);
     return datafile_dir;
 }
 
@@ -1229,7 +1183,7 @@ static char *extcap_pers_dir;
 static void
 init_plugin_dir(void)
 {
-    const char *plugin_dir_envar = CONFIGURATION_ENVIRONMENT_VARIABLE("PLUGIN_DIR");
+    char *plugin_dir_envar = configuration_environment_variable("PLUGIN_DIR");
     if (g_getenv(plugin_dir_envar) && !started_with_special_privs()) {
         /*
          * The user specified a different directory for plugins
@@ -1267,7 +1221,7 @@ init_plugin_dir(void)
      */
     else if (appbundle_dir != NULL) {
         plugin_dir = g_build_filename(appbundle_dir, "Contents/PlugIns",
-                                        CONFIGURATION_NAMESPACE_LOWER, (char *)NULL);
+                                      application_flavor_name_lower(), (char *)NULL);
     }
 #endif // ENABLE_APPLICATION_BUNDLE
     else if (running_in_build_directory_flag) {
@@ -1287,6 +1241,7 @@ init_plugin_dir(void)
     }
 #endif // HAVE_MSYSTEM / _WIN32
 #endif /* defined(HAVE_PLUGINS) || defined(HAVE_LUA) */
+    g_free(plugin_dir_envar);
 }
 
 static void
@@ -1297,7 +1252,7 @@ init_plugin_pers_dir(void)
     plugin_pers_dir = get_persconffile_path(PLUGINS_DIR_NAME, false);
 #else
     plugin_pers_dir = g_build_filename(g_get_home_dir(), ".local/lib",
-                                       CONFIGURATION_NAMESPACE_LOWER, PLUGINS_DIR_NAME, (char *)NULL);
+                                       application_flavor_name_lower(), PLUGINS_DIR_NAME, (char *)NULL);
 #endif
 #endif /* defined(HAVE_PLUGINS) || defined(HAVE_LUA) */
 }
@@ -1365,7 +1320,7 @@ static char *extcap_dir;
 static void
 init_extcap_dir(void)
 {
-    const char *extcap_dir_envar = CONFIGURATION_ENVIRONMENT_VARIABLE("EXTCAP_DIR");
+    char *extcap_dir_envar = configuration_environment_variable("EXTCAP_DIR");
     if (g_getenv(extcap_dir_envar) && !started_with_special_privs()) {
         /*
          * The user specified a different directory for extcap hooks
@@ -1388,7 +1343,7 @@ init_extcap_dir(void)
          */
     else if (running_in_build_directory_flag) {
         extcap_dir = g_build_filename(get_progfile_dir(), EXTCAP_DIR_NAME,
-            CONFIGURATION_NAMESPACE_LOWER, (char *)NULL);
+            application_flavor_name_lower(), (char *)NULL);
     } else {
         extcap_dir = g_build_filename(get_progfile_dir(), EXTCAP_DIR_NAME,
             (char *)NULL);
@@ -1416,17 +1371,18 @@ init_extcap_dir(void)
          * we're running is (that's the build directory).
          */
         extcap_dir = g_build_filename(get_progfile_dir(), EXTCAP_DIR_NAME,
-            CONFIGURATION_NAMESPACE_LOWER, (char *)NULL);
+            application_flavor_name_lower(), (char *)NULL);
     }
     else {
         if (g_path_is_absolute(EXTCAP_DIR)) {
-            extcap_dir = g_strdup(is_packet_configuration_namespace() ? EXTCAP_DIR : LOG_EXTCAP_DIR);
+            extcap_dir = g_strdup(get_application_flavor() == APPLICATION_FLAVOR_WIRESHARK ? EXTCAP_DIR : LOG_EXTCAP_DIR);
         } else {
             extcap_dir = g_build_filename(install_prefix,
-                is_packet_configuration_namespace() ? EXTCAP_DIR : LOG_EXTCAP_DIR, (char *)NULL);
+                get_application_flavor() == APPLICATION_FLAVOR_WIRESHARK ? EXTCAP_DIR : LOG_EXTCAP_DIR, (char *)NULL);
         }
     }
 #endif // HAVE_MSYSTEM / _WIN32
+    g_free(extcap_dir_envar);
 }
 
 static void
@@ -1436,7 +1392,7 @@ init_extcap_pers_dir(void)
     extcap_pers_dir = get_persconffile_path(EXTCAP_DIR_NAME, false);
 #else
     extcap_pers_dir = g_build_filename(g_get_home_dir(), ".local/lib",
-                                       CONFIGURATION_NAMESPACE_LOWER, EXTCAP_DIR_NAME, (char *)NULL);
+        application_flavor_name_lower(), EXTCAP_DIR_NAME, (char *)NULL);
 #endif
 }
 
@@ -1594,8 +1550,9 @@ get_persconffile_dir_no_profile(void)
     /*
      * See if the user has selected an alternate environment.
      */
-    const char *config_dir_envar = CONFIGURATION_ENVIRONMENT_VARIABLE("CONFIG_DIR");
+    char *config_dir_envar = configuration_environment_variable("CONFIG_DIR");
     env = g_getenv(config_dir_envar);
+    g_free(config_dir_envar);
 #ifdef _WIN32
     if (env == NULL) {
         /*
@@ -1623,12 +1580,11 @@ get_persconffile_dir_no_profile(void)
      * is an inaccessible network drive.
      */
     env = g_getenv("APPDATA");
-    const char *persconf_namespace = CONFIGURATION_NAMESPACE_PROPER;
     if (env != NULL) {
         /*
          * Concatenate %APPDATA% with "\Wireshark" or "\Stratoshark".
          */
-        persconffile_dir = g_build_filename(env, persconf_namespace, NULL);
+        persconffile_dir = g_build_filename(env, application_flavor_name_proper(), NULL);
         return persconffile_dir;
     }
 
@@ -1637,14 +1593,14 @@ get_persconffile_dir_no_profile(void)
      */
     env = g_getenv("USERPROFILE");
     if (env != NULL) {
-        persconffile_dir = g_build_filename(env, "Application Data", persconf_namespace, NULL);
+        persconffile_dir = g_build_filename(env, "Application Data", application_flavor_name_proper(), NULL);
         return persconffile_dir;
     }
 
     /*
      * Give up and use "C:".
      */
-    persconffile_dir = g_build_filename("C:", persconf_namespace, NULL);
+    persconffile_dir = g_build_filename("C:", application_flavor_name_proper(), NULL);
     return persconffile_dir;
 #else
     char *xdg_path, *path;
@@ -1655,7 +1611,7 @@ get_persconffile_dir_no_profile(void)
      * Check if XDG_CONFIG_HOME/wireshark exists and is a directory.
      */
     xdg_path = g_build_filename(g_get_user_config_dir(),
-                                CONFIGURATION_NAMESPACE_LOWER, NULL);
+                                application_flavor_name_lower(), NULL);
     if (g_file_test(xdg_path, G_FILE_TEST_IS_DIR)) {
         persconffile_dir = xdg_path;
         return persconffile_dir;
@@ -1686,9 +1642,9 @@ get_persconffile_dir_no_profile(void)
             homedir = "/tmp";
         }
     }
-    path = g_build_filename(homedir,
-                            configuration_namespace == CONFIGURATION_NAMESPACE_WIRESHARK ? ".wireshark" : ".stratoshark",
-                            NULL);
+    char *dotted_app = g_strdup_printf(".%s", application_flavor_name_lower());
+    path = g_build_filename(homedir, dotted_app, NULL);
+    g_free(dotted_app);
     if (g_file_test(path, G_FILE_TEST_IS_DIR)) {
         g_free(xdg_path);
         persconffile_dir = path;

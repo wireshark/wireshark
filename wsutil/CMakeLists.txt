@@ -81,6 +81,7 @@ set(WMEM_FILES
 set(WSUTIL_PUBLIC_HEADERS
 	802_11-utils.h
 	adler32.h
+	application_flavor.h
 	array.h
 	base32.h
 	bits_count_ones.h
@@ -158,6 +159,7 @@ set(WSUTIL_PUBLIC_HEADERS
 set(WSUTIL_COMMON_FILES
 	802_11-utils.c
 	adler32.c
+	application_flavor.c
 	base32.c
 	bitswap.c
 	buffer.c

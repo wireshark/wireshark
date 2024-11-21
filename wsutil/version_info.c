@@ -38,8 +38,8 @@
 
 #include "vcs_version.h"
 
+#include <wsutil/application_flavor.h>
 #include <wsutil/cpu_info.h>
-#include <wsutil/filesystem.h>
 #include <wsutil/os_version_info.h>
 #include <wsutil/crash_info.h>
 #include <wsutil/plugins.h>
@@ -76,18 +76,14 @@ ws_init_version_info(const char *appname,
 	 * version - including the VCS version, for a build from
 	 * a checkout.
 	 */
-	if (strstr(appname, get_configuration_namespace()) != NULL) {
+	if (strstr(appname, application_flavor_name_proper()) != NULL) {
 		appname_with_version = ws_strdup_printf("%s %s",
 			appname, get_ws_vcs_version_info());
 	}
-	/* Dumpcap not assigned a namespace */
-	else if (strstr(appname, "Dumpcap") != NULL) {
-		appname_with_version = ws_strdup_printf("%s (Wireshark) %s",
-			appname, get_ws_vcs_version_info());
-	}
+	/* Include our application flavor. The default is "Wireshark" */
 	else {
 		appname_with_version = ws_strdup_printf("%s (%s) %s",
-			appname, get_configuration_namespace(), get_ws_vcs_version_info());
+			appname, application_flavor_name_proper(), get_ws_vcs_version_info());
 	}
 
 	/* Get the compile-time version information string */

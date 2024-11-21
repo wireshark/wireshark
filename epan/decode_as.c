@@ -16,6 +16,7 @@
 #include "packet.h"
 #include "prefs.h"
 #include "prefs-int.h"
+#include "wsutil/application_flavor.h"
 #include "wsutil/file_util.h"
 #include "wsutil/filesystem.h"
 #include "epan/dissectors/packet-dcerpc.h"
@@ -417,7 +418,7 @@ save_decode_as_entries(char** err)
         "# This file is regenerated each time \"Decode As\" preferences\n"
         "# are saved within %s. Making manual changes should be safe,\n"
         "# however.\n",
-        get_configuration_namespace(), get_configuration_namespace());
+        application_flavor_name_proper(), application_flavor_name_proper());
 
     dissector_all_tables_foreach_changed(decode_as_write_entry, &decode_as_rows_list);
 

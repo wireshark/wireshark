@@ -17,7 +17,7 @@
 
 #include "wiretap/secrets-types.h"
 
-#include "wsutil/filesystem.h"
+#include "wsutil/application_flavor.h"
 #include "wsutil/str_util.h"
 #include "wsutil/utf8_entities.h"
 #include "wsutil/version_info.h"
@@ -203,7 +203,7 @@ QString CaptureFilePropertiesDialog::summaryToHtml()
 
         // start time
         out << table_row_begin;
-        if (is_packet_configuration_namespace()) {
+        if (application_flavor_is_wireshark()) {
             out << table_vheader_tmpl.arg(tr("First packet"));
         } else {
             out << table_vheader_tmpl.arg(tr("First event"));
@@ -213,7 +213,7 @@ QString CaptureFilePropertiesDialog::summaryToHtml()
 
         // stop time
         out << table_row_begin;
-        if (is_packet_configuration_namespace()) {
+        if (application_flavor_is_wireshark()) {
             out << table_vheader_tmpl.arg(tr("Last packet"));
         } else {
             out << table_vheader_tmpl.arg(tr("Last event"));
@@ -308,14 +308,14 @@ QString CaptureFilePropertiesDialog::summaryToHtml()
 
             out << table_ul_row_begin
                 << table_hheader20_tmpl.arg(tr("Interface"));
-            if (is_packet_configuration_namespace()) {
+            if (application_flavor_is_wireshark()) {
                 out << table_hheader20_tmpl.arg(tr("Dropped packets"));
             } else {
                 out << table_hheader20_tmpl.arg(tr("Dropped events"));
             }
             out << table_hheader20_tmpl.arg(tr("Capture filter"))
                 << table_hheader20_tmpl.arg(tr("Link type"));
-            if (is_packet_configuration_namespace()) {
+            if (application_flavor_is_wireshark()) {
                 out << table_hheader20_tmpl.arg(tr("Packet size limit (snaplen)"));
             } else {
                 out << table_hheader20_tmpl.arg(tr("Event size limit (snaplen)"));
@@ -446,7 +446,7 @@ QString CaptureFilePropertiesDialog::summaryToHtml()
     }
 
     out << table_row_begin;
-    if (is_packet_configuration_namespace()) {
+    if (application_flavor_is_wireshark()) {
         out << table_data_tmpl.arg(tr("Packets"));
     } else {
         out << table_data_tmpl.arg(tr("Events"));
@@ -504,7 +504,7 @@ QString CaptureFilePropertiesDialog::summaryToHtml()
             marked_str = QString::number((uint64_t) ((double)summary.marked_bytes/summary.marked_count + 0.5));
     }
     out << table_row_begin;
-    if (is_packet_configuration_namespace()) {
+    if (application_flavor_is_wireshark()) {
         out << table_data_tmpl.arg(tr("Average packet size, B"));
     } else {
         out << table_data_tmpl.arg(tr("Average event size, B"));
@@ -593,7 +593,7 @@ void CaptureFilePropertiesDialog::fillDetails()
 
     if (cap_file_.capFile()->packet_comment_count > 0) {
         cursor.insertBlock();
-        if (is_packet_configuration_namespace()) {
+        if (application_flavor_is_wireshark()) {
             cursor.insertHtml(section_tmpl_.arg(tr("Packet Comments")));
         } else {
             cursor.insertHtml(section_tmpl_.arg(tr("Event Comments")));
@@ -661,7 +661,7 @@ void CaptureFilePropertiesDialog::on_buttonBox_clicked(QAbstractButton *button)
     if (button == ui->buttonBox->button(QDialogButtonBox::Apply)) {
         QClipboard *clipboard = QApplication::clipboard();
         QString details;
-        if (is_packet_configuration_namespace()) {
+        if (application_flavor_is_wireshark()) {
             details = tr("Created by Wireshark %1\n\n").arg(get_ws_vcs_version_info());
         } else {
             details = tr("Created by Stratoshark %1\n\n").arg(get_ss_vcs_version_info());

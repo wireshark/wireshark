@@ -16,7 +16,7 @@
 
 #include <ui/io_graph_item.h>
 
-#include <wsutil/filesystem.h>
+#include <wsutil/application_flavor.h>
 
 #include <QMenu>
 
@@ -32,7 +32,7 @@ IOGraphAction::IOGraphAction(QObject *parent, io_graph_item_unit_t unit, QString
 const QString IOGraphAction::unitName(io_graph_item_unit_t unit) {
     switch (unit) {
     case IOG_ITEM_UNIT_PACKETS:
-        if (is_packet_configuration_namespace()) {
+        if (application_flavor_is_wireshark()) {
             return QObject::tr("PACKETS");
         }
         return QObject::tr("EVENTS");

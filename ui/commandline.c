@@ -22,6 +22,7 @@
 
 #include <wsutil/version_info.h>
 
+#include <wsutil/application_flavor.h>
 #include <wsutil/clopts_common.h>
 #include <wsutil/cmdarg_err.h>
 #include <wsutil/filesystem.h>
@@ -68,9 +69,7 @@ commandline_print_usage(bool for_help_option) {
         output = stderr;
     }
     fprintf(output, "\n");
-    char *namespace_lower = g_ascii_strdown(get_configuration_namespace(), -1);
-    fprintf(output, "Usage: %s [options] ... [ <infile> ]\n", namespace_lower);
-    g_free(namespace_lower);
+    fprintf(output, "Usage: %s [options] ... [ <infile> ]\n", application_flavor_name_lower());
     fprintf(output, "\n");
 
 #ifdef HAVE_LIBPCAP
@@ -198,7 +197,7 @@ commandline_print_usage(bool for_help_option) {
 #ifndef _WIN32
     fprintf(output, "  --display <X display>    X display to use\n");
 #endif
-    fprintf(output, "  --fullscreen             start %s in full screen\n", get_configuration_namespace());
+    fprintf(output, "  --fullscreen             start %s in full screen\n", application_flavor_name_proper());
 
 #ifdef _WIN32
     destroy_console();
@@ -224,7 +223,7 @@ static const char optstring[] = OPTSTRING;
 #ifndef HAVE_LIBPCAP
 static void print_no_capture_support_error(void)
 {
-    cmdarg_err("This version of %s was not built with support for capturing packets.", get_configuration_namespace());
+    cmdarg_err("This version of %s was not built with support for capturing packets.", application_flavor_name_proper());
 }
 #endif
 
@@ -387,7 +386,7 @@ void commandline_early_options(int argc, char *argv[])
 
 #ifndef HAVE_LUA
     if (ex_opt_count("lua_script") > 0) {
-        cmdarg_err("This version of %s was not built with support for Lua scripting.", get_configuration_namespace());
+        cmdarg_err("This version of %s was not built with support for Lua scripting.", application_flavor_name_proper());
         exit(1);
     }
 #endif
@@ -648,9 +647,7 @@ void commandline_other_options(int argc, char *argv[], bool opt_reset)
                  part of a tap filter.  Instead, we just add the argument
                  to a list of stat arguments. */
                 if (strcmp("help", ws_optarg) == 0) {
-                    char *namespace_lower = g_ascii_strdown(get_configuration_namespace(), -1);
-                    fprintf(stderr, "%s: The available statistics for the \"-z\" option are:\n", namespace_lower);
-                    g_free(namespace_lower);
+                    fprintf(stderr, "%s: The available statistics for the \"-z\" option are:\n", application_flavor_name_lower());
                     list_stat_cmd_args();
                     exit_application(0);
                 }

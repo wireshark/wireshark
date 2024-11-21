@@ -124,7 +124,7 @@ main(int argc, char *argv[])
     /*
      * Attempt to get the pathname of the executable file.
      */
-    configuration_init_error = configuration_init(argv[0], NULL);
+    configuration_init_error = configuration_init(argv[0]);
     if (configuration_init_error != NULL) {
         fprintf(stderr, "sharkd: Can't get pathname of sharkd program: %s.\n",
                 configuration_init_error);

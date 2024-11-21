@@ -34,7 +34,7 @@
 #include "ui/util.h"
 
 #include "wiretap/wtap_opttypes.h"
-#include "wsutil/filesystem.h"
+#include "wsutil/application_flavor.h"
 #include "wsutil/str_util.h"
 #include <wsutil/wslog.h>
 
@@ -760,7 +760,7 @@ void PacketList::contextMenuEvent(QContextMenuEvent *event)
     copyEntries->setParent(submenu);
     frameData->setParent(submenu);
 
-    if (is_packet_configuration_namespace()) {
+    if (application_flavor_is_wireshark()) {
         /* i.e., Wireshark only */
         ctx_menu->addSeparator();
         QMenu *proto_prefs_menus = new QMenu(ProtocolPreferencesMenu::tr("Protocol Preferences"), ctx_menu);

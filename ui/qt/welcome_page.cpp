@@ -14,8 +14,8 @@
 #include "ui/capture_globals.h"
 #include "ui/urls.h"
 
-#include "wsutil/filesystem.h"
-#include "wsutil/version_info.h"
+#include <wsutil/application_flavor.h>
+#include <wsutil/version_info.h>
 
 #include "welcome_page.h"
 #include <ui_welcome_page.h>
@@ -139,19 +139,19 @@ void WelcomePage::setReleaseLabel()
     QString full_release;
     QDate today = QDate::currentDate();
     if ((today.month() == 4 && today.day() == 1) || (today.month() == 7 && today.day() == 14)) {
-        if (is_packet_configuration_namespace()) {
+        if (application_flavor_is_wireshark()) {
             full_release = tr("You are sniffing the glue that holds the Internet together using Wireshark ");
         } else {
             full_release = tr("You are sniffing the glue that holds your system together using Stratoshark ");
         }
     } else {
-        if (is_packet_configuration_namespace()) {
+        if (application_flavor_is_wireshark()) {
             full_release = tr("You are running Wireshark ");
         } else {
             full_release = tr("You are running Stratoshark ");
         }
     }
-    full_release += is_packet_configuration_namespace() ? get_ws_vcs_version_info() : get_ss_vcs_version_info();
+    full_release += application_flavor_is_wireshark() ? get_ws_vcs_version_info() : get_ss_vcs_version_info();
     full_release += ".";
 #ifdef HAVE_SOFTWARE_UPDATE
     if (prefs.gui_update_enabled) {
