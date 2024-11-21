@@ -8,7 +8,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
- * Ref 3GPP TS 44.031 version 11.0.0 Release 11
+ * Ref 3GPP TS 44.031 version 18.0.0 Release 18
  * http://www.3gpp.org
  */
 

@@ -1,6 +1,5 @@
 -- RRLP-Messages.asn
--- Taken from 3GPP TS 44.031 V11.0.0 (2012-09)
--- http://www.3gpp.org/ftp/Specs/archive/44_series/44.031/44031-b00.zip/44031-b00.doc
+-- Taken from 3GPP TS 44.031 V18.0.0 (2024-03)
 --
 -- 3.1 General Format of RRLP Message
 --
@@ -32,7 +31,10 @@ RRLP-Component ::= CHOICE {
 	protocolError			ProtocolError,
 	...,
 	posCapabilityReq		PosCapability-Req,
-	posCapabilityRsp		PosCapability-Rsp
+	posCapabilityRsp		PosCapability-Rsp,
+	multilaterationOTDReq		MultilaterationOTD-Req,
+	multilaterationOTDRsp		MultilaterationOTD-Rsp,
+	posMTAReq			PosMTA-Req
 }
 
 END
