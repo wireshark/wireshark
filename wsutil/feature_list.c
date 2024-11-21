@@ -14,6 +14,19 @@
 
 #include <wsutil/feature_list.h>
 
+#if !GLIB_CHECK_VERSION(2, 68, 0)
+static GString*
+g_string_find_and_erase(GString *string, const char* find)
+{
+    /* Find and erases find a single time. */
+    const char* pos = strstr(string->str, find);
+    if (pos != NULL) {
+        g_string_erase(string, pos - string->str, strlen(find));
+    }
+    return string;
+}
+#endif
+
 void
 with_feature(feature_list l, const char *fmt, ...)
 {
@@ -22,9 +35,14 @@ with_feature(feature_list l, const char *fmt, ...)
     va_start(arg, fmt);
     g_string_append_vprintf(msg, fmt, arg);
     va_end(arg);
-    /* Strip "version from the string" */
+    /* Strip "version" from the string */
+#if GLIB_CHECK_VERSION(2, 68, 0)
     g_string_replace(msg, " version", "", 0);
     g_string_replace(msg, " based on", "", 0);
+#else
+    g_string_find_and_erase(msg, " version");
+    g_string_find_and_erase(msg, " based on");
+#endif
     *l = g_list_prepend(*l, g_string_free(msg, FALSE));
 }
 

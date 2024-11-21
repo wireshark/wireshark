@@ -163,16 +163,7 @@ gather_caplibs_compile_info(feature_list l)
 void
 gather_caplibs_runtime_info(feature_list l)
 {
-	const char *vstr = pcap_lib_version();
-
-	/*
-	 * Remove the substring "version" from the output of pcap_lib_version()
-	 * to be consistent with our format.
-	 */
-	if (g_str_has_prefix(vstr, "libpcap version ")) /* Sanity check */
-		with_feature(l, "libpcap %s", vstr + strlen("libpcap version "));
-	else
-		with_feature(l, "%s", vstr);
+	with_feature(l, "%s", pcap_lib_version());
 }
 
 #else /* HAVE_LIBPCAP */
