@@ -10,7 +10,6 @@
 #include "config.h"
 
 #include "file.h"
-#include "frame_tvbuff.h"
 
 #include "epan/addr_resolv.h"
 #include "epan/epan_dissect.h"
@@ -129,7 +128,7 @@ void AddressEditorFrame::editAddresses(CaptureFile &cf, int column)
     col_custom_prime_edt(&edt, &cap_file_->cinfo);
 
     epan_dissect_run(&edt, cap_file_->cd_t, &cap_file_->rec,
-        frame_tvbuff_new_buffer(&cap_file_->provider, cap_file_->current_frame, &cap_file_->buf),
+        ws_buffer_start_ptr(&cap_file_->buf),
         cap_file_->current_frame, &cap_file_->cinfo);
     epan_dissect_fill_in_columns(&edt, true, true);
 

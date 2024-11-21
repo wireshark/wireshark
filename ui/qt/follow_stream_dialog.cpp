@@ -13,7 +13,6 @@
 #include "main_application.h"
 #include "main_window.h"
 
-#include "frame_tvbuff.h"
 #include "epan/follow.h"
 #include "epan/prefs.h"
 #include "epan/addr_resolv.h"

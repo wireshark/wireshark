@@ -17,7 +17,6 @@
 #include "tap-rlc-graph.h"
 
 #include <file.h>
-#include <frame_tvbuff.h>
 
 #include <epan/epan_dissect.h>
 #include <epan/tap.h>
@@ -141,7 +140,7 @@ rlc_3gpp_tap_info* select_rlc_lte_session(capture_file *cf,
     epan_dissect_init(&edt, cf->epan, true, false);
     epan_dissect_prime_with_dfilter(&edt, sfcode);
     epan_dissect_run_with_taps(&edt, cf->cd_t, &cf->rec,
-                               frame_tvbuff_new_buffer(&cf->provider, fdata, &cf->buf),
+                               ws_buffer_start_ptr(&cf->buf),
                                fdata, NULL);
     rel_ts = edt.pi.rel_ts;
     epan_dissect_cleanup(&edt);

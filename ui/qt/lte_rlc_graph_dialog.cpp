@@ -17,7 +17,6 @@
 
 #include <epan/tvbuff-int.h>
 #include <epan/tvbuff.h>
-#include <frame_tvbuff.h>
 
 #include <ui/qt/utils/tango_colors.h>
 

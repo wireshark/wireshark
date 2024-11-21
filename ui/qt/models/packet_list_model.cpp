@@ -24,7 +24,6 @@
 #include "ui/recent.h"
 
 #include <epan/color_filters.h>
-#include "frame_tvbuff.h"
 
 #include <ui/qt/utils/color_utils.h>
 #include <ui/qt/utils/qt_ui_utils.h>

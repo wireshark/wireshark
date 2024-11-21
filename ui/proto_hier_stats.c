@@ -13,7 +13,6 @@
 #include <string.h>
 
 #include "file.h"
-#include "frame_tvbuff.h"
 #include "ui/proto_hier_stats.h"
 #include "ui/progress_dlg.h"
 #include "epan/epan_dissect.h"
@@ -186,7 +185,7 @@ process_record(capture_file *cf, frame_data *frame, column_info *cinfo,
     /* Don't fake protocols. We need them for the protocol hierarchy */
     epan_dissect_fake_protocols(&edt, false);
     epan_dissect_run(&edt, cf->cd_t, rec,
-                     frame_tvbuff_new_buffer(&cf->provider, frame, buf),
+                     ws_buffer_start_ptr(buf),
                      frame, cinfo);
 
     /* Get stats from this protocol tree */

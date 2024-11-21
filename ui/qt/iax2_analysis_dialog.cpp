@@ -11,7 +11,6 @@
 #include <ui_iax2_analysis_dialog.h>
 
 #include "file.h"
-#include "frame_tvbuff.h"
 
 #include <epan/epan_dissect.h>
 #include <epan/rtp_pt.h>
@@ -319,7 +318,7 @@ Iax2AnalysisDialog::Iax2AnalysisDialog(QWidget &parent, CaptureFile &cf) :
     epan_dissect_init(&edt, cap_file_.capFile()->epan, true, false);
     epan_dissect_prime_with_dfilter(&edt, sfcode);
     epan_dissect_run(&edt, cap_file_.capFile()->cd_t, &cap_file_.capFile()->rec,
-                     frame_tvbuff_new_buffer(&cap_file_.capFile()->provider, fdata, &cap_file_.capFile()->buf),
+                     ws_buffer_start_ptr(&cap_file_.capFile()->buf),
                      fdata, NULL);
 
     // This shouldn't happen (the menu item should be disabled) but check anyway

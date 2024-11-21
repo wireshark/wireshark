@@ -27,7 +27,6 @@ DIAG_ON(frame-larger-than=)
 #include <wsutil/version_info.h>
 #include <epan/prefs.h>
 #include <epan/plugin_if.h>
-#include <frame_tvbuff.h>
 
 #include "ui/iface_toolbar.h"
 #include "ui/commandline.h"

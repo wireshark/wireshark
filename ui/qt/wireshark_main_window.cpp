@@ -29,7 +29,6 @@ DIAG_ON(frame-larger-than=)
 #include <epan/stats_tree_priv.h>
 #include <epan/plugin_if.h>
 #include <epan/export_object.h>
-#include <frame_tvbuff.h>
 
 #include "ui/iface_toolbar.h"
 #include "ui/commandline.h"
@@ -3151,9 +3150,7 @@ QString WiresharkMainWindow::findRtpStreams(QVector<rtpstream_id_t *> *stream_id
     epan_dissect_prime_with_hfid(&edt, hfid_rtp_ssrc);
     epan_dissect_run(&edt, capture_file_.capFile()->cd_t,
                      &capture_file_.capFile()->rec,
-                     frame_tvbuff_new_buffer(
-                         &capture_file_.capFile()->provider, fdata,
-                         &capture_file_.capFile()->buf),
+                     ws_buffer_start_ptr(&capture_file_.capFile()->buf),
                      fdata, NULL);
 
     /*

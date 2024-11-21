@@ -639,14 +639,14 @@ epan_dissect_fake_protocols(epan_dissect_t *edt, const bool fake_protocols)
 
 void
 epan_dissect_run(epan_dissect_t *edt, int file_type_subtype,
-	wtap_rec *rec, tvbuff_t *tvb, frame_data *fd,
+	wtap_rec *rec, const uint8_t *data, frame_data *fd,
 	column_info *cinfo)
 {
 #ifdef HAVE_LUA
 	wslua_prime_dfilter(edt); /* done before entering wmem scope */
 #endif
 	wmem_enter_packet_scope();
-	dissect_record(edt, file_type_subtype, rec, tvb, fd, cinfo);
+	dissect_record(edt, file_type_subtype, rec, data, fd, cinfo);
 
 	/* free all memory allocated */
 	wmem_leave_packet_scope();
@@ -656,12 +656,12 @@ epan_dissect_run(epan_dissect_t *edt, int file_type_subtype,
 
 void
 epan_dissect_run_with_taps(epan_dissect_t *edt, int file_type_subtype,
-	wtap_rec *rec, tvbuff_t *tvb, frame_data *fd,
+	wtap_rec *rec, const uint8_t *data, frame_data *fd,
 	column_info *cinfo)
 {
 	wmem_enter_packet_scope();
 	tap_queue_init(edt);
-	dissect_record(edt, file_type_subtype, rec, tvb, fd, cinfo);
+	dissect_record(edt, file_type_subtype, rec, data, fd, cinfo);
 	tap_push_tapped_queue(edt);
 
 	/* free all memory allocated */
@@ -672,13 +672,13 @@ epan_dissect_run_with_taps(epan_dissect_t *edt, int file_type_subtype,
 
 void
 epan_dissect_file_run(epan_dissect_t *edt, wtap_rec *rec,
-	tvbuff_t *tvb, frame_data *fd, column_info *cinfo)
+	const uint8_t *data, frame_data *fd, column_info *cinfo)
 {
 #ifdef HAVE_LUA
 	wslua_prime_dfilter(edt); /* done before entering wmem scope */
 #endif
 	wmem_enter_packet_scope();
-	dissect_file(edt, rec, tvb, fd, cinfo);
+	dissect_file(edt, rec, data, fd, cinfo);
 
 	/* free all memory allocated */
 	wmem_leave_packet_scope();
@@ -688,11 +688,11 @@ epan_dissect_file_run(epan_dissect_t *edt, wtap_rec *rec,
 
 void
 epan_dissect_file_run_with_taps(epan_dissect_t *edt, wtap_rec *rec,
-	tvbuff_t *tvb, frame_data *fd, column_info *cinfo)
+	const uint8_t *data, frame_data *fd, column_info *cinfo)
 {
 	wmem_enter_packet_scope();
 	tap_queue_init(edt);
-	dissect_file(edt, rec, tvb, fd, cinfo);
+	dissect_file(edt, rec, data, fd, cinfo);
 	tap_push_tapped_queue(edt);
 
 	/* free all memory allocated */

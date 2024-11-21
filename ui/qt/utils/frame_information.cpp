@@ -20,8 +20,6 @@
 #include "file.h"
 #include <ui/qt/capture_file.h>
 
-#include "frame_tvbuff.h"
-
 #include <stdint.h>
 
 #include <ui/qt/utils/frame_information.h>
@@ -52,7 +50,7 @@ void FrameInformation::loadFrameTree()
     col_custom_prime_edt(edt_, &(cap_file_->capFile()->cinfo));
 
     epan_dissect_run(edt_, cap_file_->capFile()->cd_t, &rec_,
-                     frame_tvbuff_new_buffer(&cap_file_->capFile()->provider, fi_, &buf_),
+                     ws_buffer_start_ptr(&buf_),
                      fi_, &(cap_file_->capFile()->cinfo));
     epan_dissect_fill_in_columns(edt_, true, true);
 }

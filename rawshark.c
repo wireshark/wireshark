@@ -62,7 +62,6 @@
 #include <epan/packet.h>
 #include <epan/ftypes/ftypes.h>
 #include "file.h"
-#include "frame_tvbuff.h"
 #include <epan/disabled_protos.h>
 #include <epan/prefs.h>
 #include <epan/column.h>
@@ -999,7 +998,7 @@ process_packet(capture_file *cf, epan_dissect_t *edt, int64_t offset,
      *not* verbose; in verbose mode, we print the protocol tree, not
      the protocol summary. */
     epan_dissect_run_with_taps(edt, cf->cd_t, rec,
-                               frame_tvbuff_new_buffer(&cf->provider, &fdata, buf),
+                               ws_buffer_start_ptr(buf),
                                &fdata, &cf->cinfo);
 
     frame_data_set_after_dissect(&fdata, &cum_bytes);

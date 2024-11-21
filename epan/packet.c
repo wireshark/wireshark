@@ -514,7 +514,7 @@ final_registration_all_protocols(void)
 /* Creates the top-most tvbuff and calls dissect_frame() */
 void
 dissect_record(epan_dissect_t *edt, int file_type_subtype,
-    wtap_rec *rec, tvbuff_t *tvb, frame_data *fd, column_info *cinfo)
+    wtap_rec *rec, const uint8_t *data, frame_data *fd, column_info *cinfo)
 {
 	const char *volatile record_type;
 	frame_data_t frame_dissector_data;
@@ -631,7 +631,7 @@ dissect_record(epan_dissect_t *edt, int file_type_subtype,
 	edt->pi.src_win_scale = -1; /* unknown Rcv.Wind.Shift */
 	edt->pi.dst_win_scale = -1; /* unknown Rcv.Wind.Shift */
 	edt->pi.layers = wmem_list_new(edt->pi.pool);
-	edt->tvb = tvb;
+	edt->tvb = NULL;
 
 	frame_delta_abs_time(edt->session, fd, 1, &edt->pi.rel_ts);
 
@@ -654,6 +654,29 @@ dissect_record(epan_dissect_t *edt, int file_type_subtype,
 	frame_dissector_data.color_edt = edt; /* Used strictly for "coloring rules" */
 
 	TRY {
+		/*
+		 * XXX - currently, the length arguments in
+		 * tvbuff structure are signed, but the captured
+		 * and reported length values are unsigned; this means
+		 * that length values > 2^31 - 1 will appear as
+		 * negative lengths
+		 *
+		 * Captured length values that large will already
+		 * have been filtered out by the Wiretap modules
+		 * (the file will be reported as corrupted), to
+		 * avoid trying to allocate large chunks of data.
+		 *
+		 * Reported length values will not have been
+		 * filtered out, and should not be filtered out,
+		 * as those lengths are not necessarily invalid.
+		 *
+		 * For now, we clip the reported length at INT_MAX
+		 *
+		 * (XXX, is this still a problem?) There was an exception when we call
+		 * tvb_new_real_data() now there's not.
+		 */
+		edt->tvb = tvb_new_real_data(data, fd->cap_len,
+		    fd->pkt_len > INT_MAX ? INT_MAX : fd->pkt_len);
 		/* Add this tvbuffer into the data_src list */
 		add_new_data_source(&edt->pi, edt->tvb, record_type);
 
@@ -681,7 +704,7 @@ dissect_record(epan_dissect_t *edt, int file_type_subtype,
 /* Creates the top-most tvbuff and calls dissect_file() */
 void
 dissect_file(epan_dissect_t *edt, wtap_rec *rec,
-	       tvbuff_t *tvb, frame_data *fd, column_info *cinfo)
+	       const uint8_t *data, frame_data *fd, column_info *cinfo)
 {
 	file_data_t file_dissector_data;
 
@@ -708,7 +731,7 @@ dissect_file(epan_dissect_t *edt, wtap_rec *rec,
 	edt->pi.p2p_dir = P2P_DIR_UNKNOWN;
 	edt->pi.link_dir = LINK_DIR_UNKNOWN;
 	edt->pi.layers = wmem_list_new(edt->pi.pool);
-	edt->tvb = tvb;
+	edt->tvb = NULL;
 
 	frame_delta_abs_time(edt->session, fd, 1, &edt->pi.rel_ts);
 
@@ -725,7 +748,8 @@ dissect_file(epan_dissect_t *edt, wtap_rec *rec,
 		}
 		file_dissector_data.color_edt = edt; /* Used strictly for "coloring rules" */
 
-
+		edt->tvb = tvb_new_real_data(data, fd->cap_len,
+		    fd->pkt_len > INT_MAX ? INT_MAX : fd->pkt_len);
 		/* Add this tvbuffer into the data_src list */
 		add_new_data_source(&edt->pi, edt->tvb, "File");
 

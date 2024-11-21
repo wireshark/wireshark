@@ -35,7 +35,6 @@
 #include <epan/decode_as.h>
 #include <epan/timestamp.h>
 #include <epan/packet.h>
-#include "frame_tvbuff.h"
 #include <epan/disabled_protos.h>
 #include <epan/prefs.h>
 #include <epan/column.h>
@@ -258,7 +257,7 @@ process_packet(capture_file *cf, epan_dissect_t *edt,
         }
 
         epan_dissect_run(edt, cf->cd_t, rec,
-                frame_tvbuff_new_buffer(&cf->provider, &fdlocal, buf),
+                ws_buffer_start_ptr(buf),
                 &fdlocal, NULL);
 
         /* Run the read filter if we have one. */
@@ -511,7 +510,7 @@ sharkd_dissect_request(uint32_t framenum, uint32_t frame_ref_num,
     fdata->frame_ref_num = frame_ref_num;
     fdata->prev_dis_num = prev_dis_num;
     epan_dissect_run(&edt, cfile.cd_t, rec,
-            frame_tvbuff_new_buffer(&cfile.provider, fdata, buf),
+            ws_buffer_start_ptr(buf),
             fdata, cinfo);
 
     if (cinfo) {
@@ -576,7 +575,7 @@ sharkd_retap(void)
         fdata->frame_ref_num = (framenum != 1) ? 1 : 0;
         fdata->prev_dis_num = framenum - 1;
         epan_dissect_run_with_taps(&edt, cfile.cd_t, &rec,
-                frame_tvbuff_new_buffer(&cfile.provider, fdata, &buf),
+                ws_buffer_start_ptr(&buf),
                 fdata, cinfo);
         wtap_rec_reset(&rec);
         epan_dissect_reset(&edt);
@@ -645,7 +644,7 @@ sharkd_filter(const char *dftext, uint8_t **result)
         fdata->frame_ref_num = (framenum != 1) ? 1 : 0;
         fdata->prev_dis_num = prev_dis_num;
         epan_dissect_run(&edt, cfile.cd_t, &rec,
-                frame_tvbuff_new_buffer(&cfile.provider, fdata, &buf),
+                ws_buffer_start_ptr(&cfile.buf),
                 fdata, NULL);
 
         if (dfilter_apply_edt(dfcode, &edt)) {

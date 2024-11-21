@@ -47,7 +47,6 @@
 #include <epan/wslua/init_wslua.h>
 #endif
 #include "file.h"
-#include "frame_tvbuff.h"
 #include <epan/disabled_protos.h>
 #include <epan/prefs.h>
 #include <epan/column.h>
@@ -1022,7 +1021,7 @@ process_packet_first_pass(capture_file *cf, epan_dissect_t *edt,
         }
 
         epan_dissect_file_run(edt, rec,
-                file_tvbuff_new(&cf->provider, &fdlocal, pd),
+                pd,
                 &fdlocal, NULL);
 
         /* Run the read filter if we have one. */
@@ -1103,7 +1102,7 @@ process_packet_second_pass(capture_file *cf, epan_dissect_t *edt,
         }
 
         epan_dissect_file_run_with_taps(edt, rec,
-                file_tvbuff_new_buffer(&cf->provider, fdata, buf), fdata, cinfo);
+                ws_buffer_start_ptr(buf), fdata, cinfo);
 
         /* Run the read/display filter if we have one. */
         if (cf->dfcode)
@@ -1544,7 +1543,7 @@ process_packet_single_pass(capture_file *cf, epan_dissect_t *edt, int64_t offset
         }
 
         epan_dissect_file_run_with_taps(edt, rec,
-                frame_tvbuff_new(&cf->provider, &fdata, pd),
+                pd,
                 &fdata, cinfo);
 
         /* Run the filter if we have it. */

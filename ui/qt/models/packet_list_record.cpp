@@ -18,8 +18,6 @@
 
 #include <epan/color_filters.h>
 
-#include "frame_tvbuff.h"
-
 #include <ui/qt/utils/qt_ui_utils.h>
 
 #include <QStringList>
@@ -190,7 +188,7 @@ void PacketListRecord::dissect(capture_file *cap_file, bool dissect_columns, boo
      * attempt to recover from it.
      */
     epan_dissect_run(&edt, cap_file->cd_t, &rec,
-                     frame_tvbuff_new_buffer(&cap_file->provider, fdata_, &buf),
+                     ws_buffer_start_ptr(&buf),
                      fdata_, cinfo);
 
     if (dissect_columns) {

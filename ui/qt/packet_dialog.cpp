@@ -18,8 +18,6 @@
 #include "epan/prefs-int.h"
 #include "ui/preference_utils.h"
 
-#include "frame_tvbuff.h"
-
 #include <wsutil/utf8_entities.h>
 
 #include "byte_view_tab.h"
@@ -68,7 +66,7 @@ PacketDialog::PacketDialog(QWidget &parent, CaptureFile &cf, frame_data *fdata) 
     col_custom_prime_edt(&edt_, &(cap_file_.capFile()->cinfo));
 
     epan_dissect_run(&edt_, cap_file_.capFile()->cd_t, &rec_,
-                     frame_tvbuff_new_buffer(&cap_file_.capFile()->provider, fdata, &buf_),
+                     ws_buffer_start_ptr(&buf_),
                      fdata, &(cap_file_.capFile()->cinfo));
     epan_dissect_fill_in_columns(&edt_, true, true);
 

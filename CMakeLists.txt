@@ -2716,7 +2716,6 @@ add_library(shark_common OBJECT
 	cfile.c
 	extcap_parser.c
 	file_packet_provider.c
-	frame_tvbuff.c
 	sync_pipe_write.c
 )
 add_library(cli_main OBJECT cli_main.c)

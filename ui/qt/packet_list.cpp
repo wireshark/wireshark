@@ -39,7 +39,6 @@
 #include <wsutil/wslog.h>
 
 #include <epan/color_filters.h>
-#include "frame_tvbuff.h"
 
 #include <ui/qt/utils/color_utils.h>
 #include <ui/qt/widgets/overlay_scroll_bar.h>
@@ -1468,7 +1467,7 @@ QString PacketList::getFilterFromRowAndColumn(QModelIndex idx)
         col_custom_prime_edt(&edt, &cap_file_->cinfo);
 
         epan_dissect_run(&edt, cap_file_->cd_t, &rec,
-                         frame_tvbuff_new_buffer(&cap_file_->provider, fdata, &buf),
+                         ws_buffer_start_ptr(&buf),
                          fdata, &cap_file_->cinfo);
 
         if (cap_file_->cinfo.columns[column].col_fmt == COL_CUSTOM) {

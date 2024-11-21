@@ -23,7 +23,6 @@
 #include <epan/epan.h>
 #include <epan/epan_dissect.h>
 #include <epan/prefs.h>
-#include "frame_tvbuff.h"
 
 // Enable switching iff:
 // - We're opening a new capture file via the UI.
@@ -106,7 +105,7 @@ void ProfileSwitcher::checkPacket(capture_file *cap_file, frame_data *fdata, qsi
         epan_dissect_init(&edt, cap_file->epan, TRUE, FALSE);
         epan_dissect_prime_with_dfilter(&edt, cur_filter.dfcode);
         epan_dissect_run(&edt, cap_file->cd_t, &rec,
-                         frame_tvbuff_new_buffer(&cap_file->provider, fdata, &buf),
+                         ws_buffer_start_ptr(&buf),
                          fdata, NULL);
         bool matched = dfilter_apply_edt(cur_filter.dfcode, &edt);
         epan_dissect_cleanup(&edt);

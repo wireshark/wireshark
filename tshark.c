@@ -60,7 +60,6 @@
 #ifdef HAVE_LUA
 #include <epan/wslua/init_wslua.h>
 #endif
-#include "frame_tvbuff.h"
 #include <epan/disabled_protos.h>
 #include <epan/prefs.h>
 #include <epan/column.h>
@@ -3442,7 +3441,7 @@ process_packet_first_pass(capture_file *cf, epan_dissect_t *edt,
 
         elapsed_start = g_get_monotonic_time();
         epan_dissect_run(edt, cf->cd_t, rec,
-                frame_tvbuff_new_buffer(&cf->provider, &fdlocal, buf),
+                ws_buffer_start_ptr(buf),
                 &fdlocal, cinfo);
         tshark_elapsed.first_pass.dissect += g_get_monotonic_time() - elapsed_start;
 
@@ -3699,7 +3698,7 @@ process_packet_second_pass(capture_file *cf, epan_dissect_t *edt,
         block = wtap_block_ref(rec->block);
         elapsed_start = g_get_monotonic_time();
         epan_dissect_run_with_taps(edt, cf->cd_t, rec,
-                frame_tvbuff_new_buffer(&cf->provider, fdata, buf),
+                ws_buffer_start_ptr(buf),
                 fdata, cinfo);
         tshark_elapsed.second_pass.dissect += g_get_monotonic_time() - elapsed_start;
 
@@ -4395,7 +4394,7 @@ process_packet_single_pass(capture_file *cf, epan_dissect_t *edt, int64_t offset
         block = wtap_block_ref(rec->block);
         elapsed_start = g_get_monotonic_time();
         epan_dissect_run_with_taps(edt, cf->cd_t, rec,
-                frame_tvbuff_new_buffer(&cf->provider, &fdata, buf),
+                ws_buffer_start_ptr(buf),
                 &fdata, cinfo);
         tshark_elapsed.first_pass.dissect += g_get_monotonic_time() - elapsed_start;
 
