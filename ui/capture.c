@@ -455,6 +455,8 @@ capture_input_new_file(capture_session *cap_session, char *new_file)
                 return false;
         }
     } else {
+        /* A new file, so we don't have any pending packets to read. */
+        cap_session->count_pending = 0;
         capture_callback_invoke(capture_cb_capture_prepared, cap_session);
     }
 
