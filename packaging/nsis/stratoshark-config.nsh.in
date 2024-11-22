@@ -21,6 +21,7 @@
 # Optional components
 
 #cmakedefine MMDBRESOLVE_EXE @MMDBRESOLVE_EXE@
+#cmakedefine LIBSSH_FOUND
 
 # Skip the User's Guide and FAQ until we have one of our own.
 #cmakeundefine DOC_DIR
