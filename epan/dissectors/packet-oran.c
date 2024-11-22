@@ -79,6 +79,7 @@ static int hf_oran_timeOffset;
 static int hf_oran_frameStructure_fft;
 static int hf_oran_frameStructure_subcarrier_spacing;
 static int hf_oran_cpLength;
+static int hf_oran_timing_header;
 static int hf_oran_section_id;
 static int hf_oran_rb;
 static int hf_oran_symInc;
@@ -88,7 +89,6 @@ static int hf_oran_numPrbc;
 static int hf_oran_numSymbol;
 static int hf_oran_ef;
 static int hf_oran_beamId;
-
 
 static int hf_oran_ciCompHdr;
 static int hf_oran_ciCompHdrIqWidth;
@@ -371,6 +371,7 @@ static int hf_oran_ue_freq_offset;
 static int hf_oran_beam_type;
 static int hf_oran_meas_cmd_size;
 
+static int hf_oran_c_section;
 static int hf_oran_u_section;
 
 /* Computed fields */
@@ -415,7 +416,7 @@ static int ett_oran_st4_cmd;
 static int ett_oran_sym_prb_pattern;
 static int ett_oran_measurement_report;
 static int ett_oran_sresmask;
-
+static int ett_oran_c_section;
 
 
 /* Expert info */
@@ -1893,7 +1894,11 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
     proto_tree *c_section_tree = NULL;
     proto_item *sectionHeading = NULL;
 
-    c_section_tree = proto_tree_add_subtree(tree, tvb, offset, 0, ett_oran_section, &sectionHeading, "Section");
+    /* Section subtree */
+    sectionHeading = proto_tree_add_string_format(tree, hf_oran_c_section,
+                                                  tvb, offset, 0, "", "Section");
+    c_section_tree = proto_item_add_subtree(sectionHeading, ett_oran_c_section);
+
     uint32_t sectionId = 0;
 
     uint32_t startPrbc, startPrbu;
@@ -3968,6 +3973,10 @@ static int dissect_udcompparam(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
                                                          (for_sinr) ? "sinrCompHdr" : "udCompParam");
     proto_tree *udcompparam_tree = proto_item_add_subtree(udcompparam_ti, ett_oran_udcompparam);
 
+    /* Show comp_meth as a generated field */
+    proto_item *meth_ti = proto_tree_add_uint(udcompparam_tree, hf_oran_udCompHdrMeth_pref, tvb, 0, 0, comp_meth);
+    proto_item_set_generated(meth_ti);
+
     uint32_t param_exponent;
     uint64_t param_sresmask;
 
@@ -5016,8 +5025,9 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
     offset = addSeqid(tvb, oran_tree, offset, ORAN_U_PLANE, &seq_id, &seq_id_ti);
 
     /* Common header for time reference */
-    proto_item *timingHeader;
-    proto_tree *timing_header_tree = proto_tree_add_subtree(oran_tree, tvb, offset, 4, ett_oran_u_timing, &timingHeader, "Timing header (");
+    proto_item *timingHeader = proto_tree_add_string_format(oran_tree, hf_oran_timing_header,
+                                                            tvb, offset, 4, "", "Timing Header (");
+    proto_tree *timing_header_tree = proto_item_add_subtree(timingHeader, ett_oran_u_timing);
 
     /* dataDirection */
     uint32_t direction;
@@ -5610,6 +5620,14 @@ proto_register_oran(void)
           FT_UINT16, BASE_DEC,
           NULL, 0x0,
           "cyclic prefix length",
+          HFILL}
+        },
+
+        {&hf_oran_timing_header,
+         {"Timing Header", "oran_fh_cus.timingHeader",
+          FT_STRING, BASE_NONE,
+          NULL, 0x0,
+          NULL,
           HFILL}
         },
 
@@ -7619,6 +7637,13 @@ proto_register_oran(void)
           HFILL}
         },
 
+        {&hf_oran_c_section,
+         {"Section", "oran_fh_cus.c-plane.section",
+          FT_STRING, BASE_NONE,
+          NULL, 0x0,
+          NULL,
+          HFILL}
+        },
         {&hf_oran_u_section,
          {"Section", "oran_fh_cus.u-plane.section",
           FT_STRING, BASE_NONE,
@@ -7661,7 +7686,8 @@ proto_register_oran(void)
         &ett_oran_st4_cmd,
         &ett_oran_sym_prb_pattern,
         &ett_oran_measurement_report,
-        &ett_oran_sresmask
+        &ett_oran_sresmask,
+        &ett_oran_c_section
     };
 
     expert_module_t* expert_oran;
