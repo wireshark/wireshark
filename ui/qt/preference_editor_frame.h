@@ -12,9 +12,8 @@
 
 #include "accordion_frame.h"
 
-struct pref_module;
-struct preference;
-struct epan_range;
+#include <epan/prefs.h>
+#include <epan/range.h>
 
 namespace Ui {
 class PreferenceEditorFrame;
@@ -29,7 +28,7 @@ public:
     ~PreferenceEditorFrame();
 
 public slots:
-    void editPreference(struct preference *pref = NULL, struct pref_module *module = NULL);
+    void editPreference(pref_t *pref = NULL, module_t *module = NULL);
 
 signals:
     void showProtocolPreferences(const QString module_name);
@@ -53,12 +52,12 @@ private slots:
 private:
     Ui::PreferenceEditorFrame *ui;
 
-    struct pref_module *module_;
-    struct preference *pref_;
+    module_t *module_;
+    pref_t *pref_;
 
     unsigned int new_uint_;
     QString new_str_;
-    struct epan_range *new_range_;
+    range_t *new_range_;
 };
 
 #endif // PREFERENCE_EDITOR_FRAME_H

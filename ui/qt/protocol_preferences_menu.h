@@ -12,9 +12,8 @@
 
 #include <QMenu>
 
-struct _protocol;
-struct pref_module;
-struct preference;
+#include <epan/proto.h>
+#include <epan/prefs.h>
 
 class ProtocolPreferencesMenu : public QMenu
 {
@@ -25,16 +24,16 @@ public:
     ProtocolPreferencesMenu(const QString &title, const QString &module_name, QWidget *parent = nullptr);
 
     void setModule(const QString module_name);
-    void addMenuItem(struct preference *pref);
+    void addMenuItem(pref_t *pref);
 
 signals:
     void showProtocolPreferences(const QString module_name);
-    void editProtocolPreference(struct preference *pref, struct pref_module *module);
+    void editProtocolPreference(pref_t *pref, module_t *module);
 
 private:
     QString module_name_;
-    struct pref_module *module_;
-    struct _protocol *protocol_;
+    module_t *module_;
+    protocol_t *protocol_;
 
 private slots:
     void disableProtocolTriggered();

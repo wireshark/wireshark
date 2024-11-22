@@ -14,6 +14,7 @@
 #include <wsutil/array.h>
 #include <wiretap/wtap_opttypes.h>
 #include "proto.h"
+#include "range.h"
 #include "tvbuff.h"
 #include "epan.h"
 #include "frame_data.h"
@@ -25,7 +26,7 @@
 extern "C" {
 #endif /* __cplusplus */
 
-struct epan_range;
+
 
 /** @defgroup packet General Packet Dissection
  *
@@ -220,7 +221,7 @@ WS_DLL_PUBLIC void dissector_add_uint_with_preference(const char *name, const ui
     dissector_handle_t handle);
 
 /** Add an range of entries to a uint dissector table. */
-WS_DLL_PUBLIC void dissector_add_uint_range(const char *abbrev, struct epan_range *range,
+WS_DLL_PUBLIC void dissector_add_uint_range(const char *abbrev, range_t *range,
     dissector_handle_t handle);
 
 /** Add an range of entries to a uint dissector table with "preference" automatically added. */
@@ -233,7 +234,7 @@ WS_DLL_PUBLIC void dissector_delete_uint(const char *name, const uint32_t patter
     dissector_handle_t handle);
 
 /** Delete an range of entries from a uint dissector table. */
-WS_DLL_PUBLIC void dissector_delete_uint_range(const char *abbrev, struct epan_range *range,
+WS_DLL_PUBLIC void dissector_delete_uint_range(const char *abbrev, range_t *range,
     dissector_handle_t handle);
 
 /** Delete all entries from a dissector table. */
