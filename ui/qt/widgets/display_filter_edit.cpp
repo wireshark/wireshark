@@ -70,13 +70,13 @@ static const QString fld_abbrev_chars_ = ":-.0123456789ABCDEFGHIJKLMNOPQRSTUVWXY
 
 DisplayFilterEdit::DisplayFilterEdit(QWidget *parent, DisplayFilterEditType type) :
     SyntaxLineEdit(parent),
-    type_(type),
+    type_(DisplayFilterToEnter),
     save_action_(NULL),
     remove_action_(NULL),
     actions_(Q_NULLPTR),
-    bookmark_button_(NULL),
-    clear_button_(NULL),
-    apply_button_(NULL),
+    bookmark_button_(nullptr),
+    clear_button_(nullptr),
+    apply_button_(nullptr),
     leftAlignActions_(false),
     last_applied_(QString()),
     filter_word_preamble_(QString()),
@@ -88,20 +88,42 @@ DisplayFilterEdit::DisplayFilterEdit(QWidget *parent, DisplayFilterEditType type
     setCompleter(new QCompleter(completion_model_, this));
     setCompletionTokenChars(fld_abbrev_chars_);
 
-    QString buttonStyle = QStringLiteral(
-        "QToolButton {"
-        "  border: none;"
-        "  background: transparent;" // Disables platform style on Windows.
-        "  padding: 0 0 0 0;"
-        "}"
-        "QToolButton::menu-indicator {"
-        "  image: none;"
-        "}"
-    );
-
     leftAlignActions_ = recent.gui_geometry_leftalign_actions;
 
-    if (type_ == DisplayFilterToApply) {
+    setDefaultPlaceholderText();
+    setType(type);
+
+    connect(this, &DisplayFilterEdit::textChanged, this,
+            static_cast<void (DisplayFilterEdit::*)(const QString &)>(&DisplayFilterEdit::checkFilter));
+
+    connect(mainApp, &MainApplication::appInitialized, this, &DisplayFilterEdit::updateBookmarkMenu);
+    connect(mainApp, &MainApplication::displayFilterListChanged, this, &DisplayFilterEdit::updateBookmarkMenu);
+    connect(mainApp, &MainApplication::preferencesChanged, this, [=](){ checkFilter(); });
+
+    connect(mainApp, &MainApplication::appInitialized, this, &DisplayFilterEdit::connectToMainWindow);
+}
+
+void DisplayFilterEdit::setType(DisplayFilterEditType type)
+{
+    if (type_ == type) {
+        return;
+    }
+
+    type_ = type;
+
+    if (type == DisplayFilterToApply && apply_button_ == nullptr) {
+
+        QString buttonStyle = QStringLiteral(
+            "QToolButton {"
+            "  border: none;"
+            "  background: transparent;" // Disables platform style on Windows.
+            "  padding: 0 0 0 0;"
+            "}"
+            "QToolButton::menu-indicator {"
+            "  image: none;"
+            "}"
+        );
+
         bookmark_button_ = new StockIconToolButton(this, "x-display-filter-bookmark");
         bookmark_button_->setMenu(new QMenu(bookmark_button_));
         bookmark_button_->setPopupMode(QToolButton::InstantPopup);
@@ -126,18 +148,15 @@ DisplayFilterEdit::DisplayFilterEdit(QWidget *parent, DisplayFilterEditType type
         connect(clear_button_, &StockIconToolButton::clicked, this, &DisplayFilterEdit::clearFilter);
         connect(apply_button_, &StockIconToolButton::clicked, this, &DisplayFilterEdit::applyDisplayFilter);
         connect(this, &DisplayFilterEdit::returnPressed, this, &DisplayFilterEdit::applyDisplayFilter);
+    } else if (apply_button_) {
+        disconnect(this, &DisplayFilterEdit::returnPressed, this, &DisplayFilterEdit::applyDisplayFilter);
+
+        delete bookmark_button_;
+        delete clear_button_;
+        delete apply_button_;
     }
 
     setDefaultPlaceholderText();
-
-    connect(this, &DisplayFilterEdit::textChanged, this,
-            static_cast<void (DisplayFilterEdit::*)(const QString &)>(&DisplayFilterEdit::checkFilter));
-
-    connect(mainApp, &MainApplication::appInitialized, this, &DisplayFilterEdit::updateBookmarkMenu);
-    connect(mainApp, &MainApplication::displayFilterListChanged, this, &DisplayFilterEdit::updateBookmarkMenu);
-    connect(mainApp, &MainApplication::preferencesChanged, this, [=](){ checkFilter(); });
-
-    connect(mainApp, &MainApplication::appInitialized, this, &DisplayFilterEdit::connectToMainWindow);
 }
 
 void DisplayFilterEdit::connectToMainWindow()
