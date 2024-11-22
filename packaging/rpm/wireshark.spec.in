@@ -68,9 +68,9 @@ Version:	@RPM_VERSION@
 Release:	1%{?dist}
 License:	GPLv2+
 Group:		Applications/Internet
-Source:		https://www.wireshark.org/download/src/%{name}-%{package_version}.tar.xz
+Source:		https://www.wireshark.org/download/src/%{name}-%{package_version}.tar.zst
 # Or this URL for automated builds:
-#Source:	https://www.wireshark.org/download/automated/src/%%{name}-%%{package_version}.tar.xz
+#Source:	https://www.wireshark.org/download/automated/src/%%{name}-%%{package_version}.tar.zst
 URL:		https://www.wireshark.org/
 Packager:	Gerald Combs <gerald[AT]wireshark.org>
 

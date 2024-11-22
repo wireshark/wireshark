@@ -34,8 +34,10 @@ See the “New and Updated Features” section below for more details.
 
 The following features are either new or have been significantly updated since version 4.4.0:
 
-// * The Windows installers now ship with Npcap 1.79.
-//   They previously shipped with Npcap 1.78.
+* The Windows installers now ship with Npcap 1.80.
+  They previously shipped with Npcap 1.79.
+
+* Source packages are now compressed using zstd.
 
 //* The Windows installers now ship with Qt 6.5.2.
 //  They previously shipped with Qt 6.2.3.
@@ -95,9 +97,6 @@ The following features are either new or have been significantly updated since v
   a way that adds them to the `package.loaded` table, as though through
   `require`, so that `require("bit")` and `require("rex_pcre2")` statements
   in Lua dissectors, while usually superfluous, behave as expected. wsbuglink:20213[]
-
-* The Windows installers now ship with Npcap 1.80.
-  They previously shipped with Npcap 1.79.
 
 // === Removed Features and Support
 
