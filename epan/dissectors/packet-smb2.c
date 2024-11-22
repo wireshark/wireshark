@@ -17,7 +17,9 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
+#define WS_LOG_DOMAIN "packet-smb2"
 #include "config.h"
+#include <wireshark.h>
 
 #include <epan/packet.h>
 #include <epan/exceptions.h>
@@ -59,40 +61,6 @@
 #define ATTRIBUTE_SECURITY_INFORMATION 0x00000020
 #define SCOPE_SECURITY_INFORMATION 0x00000040
 #define BACKUP_SECURITY_INFORMATION 0x00010000
-#endif
-
-//#define DEBUG_SMB2
-#ifdef DEBUG_SMB2
-#define DEBUG(...) g_ ## warning(__VA_ARGS__)
-#define HEXDUMP(p, sz) do_hexdump((const uint8_t *)(p), sz)
-static void
-do_hexdump (const uint8_t *data, size_t len)
-{
-	unsigned n, m;
-
-	for (n = 0; n < len; n += 16) {
-		g_printerr ("%04x: ", n);
-
-		for (m = n; m < n + 16; m++) {
-			if (m > n && (m%4) == 0)
-				g_printerr (" ");
-			if (m < len)
-				g_printerr ("%02x ", data[m]);
-			else
-				g_printerr ("   ");
-		}
-
-		g_printerr ("   ");
-
-		for (m = n; m < len && m < n + 16; m++)
-			g_printerr ("%c", g_ascii_isprint (data[m]) ? data[m] : '.');
-
-		g_printerr ("\n");
-	}
-}
-#else
-#define DEBUG(...)
-#define HEXDUMP(...)
 #endif
 
 #define NT_STATUS_PENDING		0x00000103
@@ -3953,16 +3921,11 @@ static void smb2_generate_decryption_keys(smb2_conv_info_t *conv, smb2_sesid_inf
 					    ses->signing_key, 16);
 	}
 
-	DEBUG("Generated Sign key");
-	HEXDUMP(ses->signing_key, NTLMSSP_KEY_LEN);
-	DEBUG("Generated S2C key16");
-	HEXDUMP(ses->client_decryption_key16, AES_KEY_SIZE);
-	DEBUG("Generated S2C key32");
-	HEXDUMP(ses->client_decryption_key32, AES_KEY_SIZE*2);
-	DEBUG("Generated C2S key16");
-	HEXDUMP(ses->server_decryption_key16, AES_KEY_SIZE);
-	DEBUG("Generated C2S key32");
-	HEXDUMP(ses->server_decryption_key32, AES_KEY_SIZE*2);
+	ws_log_buffer(ses->signing_key, NTLMSSP_KEY_LEN, "Generated Sign key");
+	ws_log_buffer(ses->client_decryption_key16, AES_KEY_SIZE, "Generated S2C key16");
+	ws_log_buffer(ses->client_decryption_key32, AES_KEY_SIZE*2, "Generated S2C key32");
+	ws_log_buffer(ses->server_decryption_key16, AES_KEY_SIZE, "Generated C2S key16");
+	ws_log_buffer(ses->server_decryption_key32, AES_KEY_SIZE*2, "Generated C2S key32");
 }
 
 static int
@@ -11020,7 +10983,7 @@ static bool is_decrypted_header_ok(uint8_t *p, size_t size)
 		return true;
 	}
 
-	DEBUG("decrypt: bad SMB header");
+	ws_debug("decrypt: bad SMB header");
 	return false;
 }
 
@@ -11073,14 +11036,14 @@ do_decrypt(uint8_t *data,
 	/* Open the cipher */
 	err = gcry_cipher_open(&cipher_hd, algo, mode, 0);
 	if (err != GPG_ERR_NO_ERROR) {
-		DEBUG("GCRY: open %s/%s", gcry_strsource(err), gcry_strerror(err));
+		ws_debug("GCRY: open %s/%s", gcry_strsource(err), gcry_strerror(err));
 		return false;
 	}
 
 	/* Set the key */
 	err = gcry_cipher_setkey(cipher_hd, key, keylen);
 	if (err != GPG_ERR_NO_ERROR) {
-		DEBUG("GCRY: setkey %s/%s", gcry_strsource(err), gcry_strerror(err));
+		ws_debug("GCRY: setkey %s/%s", gcry_strsource(err), gcry_strerror(err));
 		gcry_cipher_close(cipher_hd);
 		return false;
 	}
@@ -11088,7 +11051,7 @@ do_decrypt(uint8_t *data,
 	/* Set the initial value */
 	err = gcry_cipher_setiv(cipher_hd, nonce, iv_size);
 	if (err != GPG_ERR_NO_ERROR) {
-		DEBUG("GCRY: setiv %s/%s", gcry_strsource(err), gcry_strerror(err));
+		ws_debug("GCRY: setiv %s/%s", gcry_strsource(err), gcry_strerror(err));
 		gcry_cipher_close(cipher_hd);
 		return false;
 	}
@@ -11100,7 +11063,7 @@ do_decrypt(uint8_t *data,
 	if (mode == GCRY_CIPHER_MODE_CCM) {
 		err = gcry_cipher_ctl(cipher_hd, GCRYCTL_SET_CCM_LENGTHS, lengths, sizeof(lengths));
 		if (err != GPG_ERR_NO_ERROR) {
-			DEBUG("GCRY: ctl %s/%s", gcry_strsource(err), gcry_strerror(err));
+			ws_debug("GCRY: ctl %s/%s", gcry_strsource(err), gcry_strerror(err));
 			gcry_cipher_close(cipher_hd);
 			return false;
 		}
@@ -11108,14 +11071,14 @@ do_decrypt(uint8_t *data,
 
 	err = gcry_cipher_authenticate(cipher_hd, aad, aad_size);
 	if (err != GPG_ERR_NO_ERROR) {
-		DEBUG("GCRY: auth %s/%s", gcry_strsource(err), gcry_strerror(err));
+		ws_debug("GCRY: auth %s/%s", gcry_strsource(err), gcry_strerror(err));
 		gcry_cipher_close(cipher_hd);
 		return false;
 	}
 
 	err = gcry_cipher_decrypt(cipher_hd, data, data_size, NULL, 0);
 	if (err != GPG_ERR_NO_ERROR) {
-		DEBUG("GCRY: decrypt %s/%s", gcry_strsource(err), gcry_strerror(err));
+		ws_debug("GCRY: decrypt %s/%s", gcry_strsource(err), gcry_strerror(err));
 		gcry_cipher_close(cipher_hd);
 		return false;
 	}
@@ -11185,7 +11148,7 @@ decrypt_smb_payload(packet_info *pinfo,
 	 * have to guess by trying both keys.
 	 */
 
-	DEBUG("dialect 0x%x alg 0x%x conv alg 0x%x", sti->conv->dialect, sti->flags, sti->conv->enc_alg);
+	ws_debug("dialect 0x%x alg 0x%x conv alg 0x%x", sti->conv->dialect, sti->flags, sti->conv->enc_alg);
 
 	for (unsigned i = 0; i < G_N_ELEMENTS(keys16); i++) {
 		bool try_ccm16, try_gcm16;
@@ -11220,43 +11183,43 @@ decrypt_smb_payload(packet_info *pinfo,
 
 		if (try_gcm16) {
 			uint8_t *key = key16;
-			DEBUG("trying AES-128-GCM decryption");
+			ws_debug("trying AES-128-GCM decryption");
 			alg = SMB2_CIPHER_AES_128_GCM;
 			tvb_memcpy(tvb, data, offset, sti->size);
 			ok = do_decrypt(data, sti->size, key, aad, aad_size, sti->nonce, alg);
 			if (ok)
 				break;
-			DEBUG("bad decrypted buffer with AES-128-GCM");
+			ws_debug("bad decrypted buffer with AES-128-GCM");
 		}
 		if (try_ccm16) {
 			uint8_t *key = key16;
-			DEBUG("trying AES-128-CCM decryption");
+			ws_debug("trying AES-128-CCM decryption");
 			alg = SMB2_CIPHER_AES_128_CCM;
 			ok = do_decrypt(data, sti->size, key, aad, aad_size, sti->nonce, alg);
 			if (ok)
 				break;
-			DEBUG("bad decrypted buffer with AES-128-CCM");
+			ws_debug("bad decrypted buffer with AES-128-CCM");
 		}
 		if (try_gcm32) {
 			uint8_t *key = key32;
-			DEBUG("trying AES-256-GCM decryption");
+			ws_debug("trying AES-256-GCM decryption");
 			alg = SMB2_CIPHER_AES_256_GCM;
 			tvb_memcpy(tvb, data, offset, sti->size);
 			ok = do_decrypt(data, sti->size, key, aad, aad_size, sti->nonce, alg);
 			if (ok)
 				break;
-			DEBUG("bad decrypted buffer with AES-256-GCM");
+			ws_debug("bad decrypted buffer with AES-256-GCM");
 		}
 		if (try_ccm32) {
 			uint8_t *key = key32;
-			DEBUG("trying AES-256-CCM decryption");
+			ws_debug("trying AES-256-CCM decryption");
 			alg = SMB2_CIPHER_AES_256_CCM;
 			ok = do_decrypt(data, sti->size, key, aad, aad_size, sti->nonce, alg);
 			if (ok)
 				break;
-			DEBUG("bad decrypted buffer with AES-256-CCM");
+			ws_debug("bad decrypted buffer with AES-256-CCM");
 		}
-		DEBUG("trying to decrypt with swapped client/server keys");
+		ws_debug("trying to decrypt with swapped client/server keys");
 		tvb_memcpy(tvb, data, offset, sti->size);
 	}
 
