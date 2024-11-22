@@ -12,6 +12,7 @@
 #include <epan/maxmind_db.h>
 
 #include <epan/prefs.h>
+#include <epan/prefs-int.h>
 #include <epan/to_str.h>
 
 #include "ui/recent.h"
@@ -128,10 +129,11 @@ void EndpointDialog::tabChanged(int idx)
 
             /* enable/disable the Hide Aggregation checkbox for IPv4 */
             // XXX - Maybe we can find a better way not relying on the protoname
-            unsigned is_pref_set = 0;
-            module_t *ip_module = prefs_find_module("ip");
-            if (ip_module) {
-                is_pref_set = prefs_get_uint_value("ip", "conv_agg_flag");
+            pref_t *pref;
+            bool is_pref_set = false;
+            pref = prefs_find_preference(prefs_find_module("ip"), "conv_agg_flag");
+            if (pref) {
+                is_pref_set = prefs_get_bool_value(pref, pref_current);
             }
 
             QString protoname = proto_get_protocol_short_name(find_protocol_by_id(current_tab_data.protoId()));
