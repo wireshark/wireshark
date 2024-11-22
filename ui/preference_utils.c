@@ -78,18 +78,13 @@ prefs_main_write(void)
 static unsigned int
 prefs_store_ext_helper(const char * module_name, const char *pref_name, const char *pref_value)
 {
-    module_t * module = NULL;
     pref_t * pref = NULL;
     unsigned int pref_changed = 0;
 
     if ( !prefs_is_registered_protocol(module_name))
         return 0;
 
-    module = prefs_find_module(module_name);
-    if ( !module )
-        return 0;
-
-    pref = prefs_find_preference(module, pref_name);
+    pref = prefs_find_preference(prefs_find_module(module_name), pref_name);
 
     if (!pref)
         return 0;
