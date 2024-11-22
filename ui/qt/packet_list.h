@@ -179,7 +179,7 @@ signals:
     void editColumn(int column);
     void packetListScrolled(bool at_end);
     void showProtocolPreferences(const QString module_name);
-    void editProtocolPreference(struct preference *pref, struct pref_module *module);
+    void editProtocolPreference(pref_t *pref, struct pref_module *module);
 
     void framesSelected(QList<int>);
     void fieldSelected(FieldInformation *);

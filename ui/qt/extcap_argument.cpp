@@ -936,7 +936,7 @@ int ExtcapArgument::argNr() const
 
 QString ExtcapArgument::prefKey(const QString & device_name)
 {
-    struct preference * pref = NULL;
+    pref_t * pref = NULL;
 
     if (_argument == 0 || ! _argument->save)
         return QString();

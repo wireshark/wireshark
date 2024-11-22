@@ -829,10 +829,10 @@ void extcap_free_if_configuration(GList *list, bool free_args)
     g_list_free(list);
 }
 
-struct preference *
+pref_t *
 extcap_pref_for_argument(const char *ifname, struct _extcap_arg *arg)
 {
-    struct preference *pref = NULL;
+    pref_t *pref = NULL;
 
     extcap_ensure_all_interfaces_loaded();
 
@@ -840,14 +840,15 @@ extcap_pref_for_argument(const char *ifname, struct _extcap_arg *arg)
     GRegex *regex_ifname = g_regex_new("(?![a-zA-Z0-9_]).", G_REGEX_RAW, (GRegexMatchFlags) 0, NULL);
     if (regex_name && regex_ifname)
     {
-        if (prefs_find_module("extcap"))
+        module_t *extcap_module = prefs_find_module("extcap");
+        if (extcap_module)
         {
             char *pref_name = g_regex_replace(regex_name, arg->call, strlen(arg->call), 0, "", (GRegexMatchFlags) 0, NULL);
             char *ifname_underscore = g_regex_replace(regex_ifname, ifname, strlen(ifname), 0, "_", (GRegexMatchFlags) 0, NULL);
             char *ifname_lowercase = g_ascii_strdown(ifname_underscore, -1);
             char *pref_ifname = g_strconcat(ifname_lowercase, ".", pref_name, NULL);
 
-            pref = prefs_find_preference(prefs_find_module("extcap"), pref_ifname);
+            pref = prefs_find_preference(extcap_module, pref_ifname);
 
             g_free(pref_name);
             g_free(ifname_underscore);

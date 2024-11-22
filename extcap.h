@@ -248,7 +248,7 @@ extcap_request_stop(capture_session *cap_session);
  * @param arg The command line argument to check.
  * @return The associated preference on success, NULL on failure.
  */
-struct preference *
+pref_t *
 extcap_pref_for_argument(const char *ifname, struct _extcap_arg * arg);
 
 /**
