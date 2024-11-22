@@ -136,7 +136,7 @@ void PreferenceEditorFrame::editPreference(preference *pref, pref_module *module
 void PreferenceEditorFrame::uintLineEditTextEdited(const QString &new_str)
 {
     if (new_str.isEmpty()) {
-        new_uint_ = prefs_get_uint_value_real(pref_, pref_stashed);
+        new_uint_ = prefs_get_uint_value(pref_, pref_stashed);
         ui->preferenceLineEdit->setSyntaxState(SyntaxLineEdit::Empty);
         ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(true);
         return;
@@ -148,7 +148,7 @@ void PreferenceEditorFrame::uintLineEditTextEdited(const QString &new_str)
         new_uint_ = new_uint;
         ui->preferenceLineEdit->setSyntaxState(SyntaxLineEdit::Valid);
     } else {
-        new_uint_ = prefs_get_uint_value_real(pref_, pref_stashed);
+        new_uint_ = prefs_get_uint_value(pref_, pref_stashed);
         ui->preferenceLineEdit->setSyntaxState(SyntaxLineEdit::Invalid);
     }
     ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(ok);

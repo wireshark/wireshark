@@ -86,7 +86,7 @@ void LayoutPreferencesFrame::showEvent(QShowEvent *)
 
 void LayoutPreferencesFrame::updateWidgets()
 {
-    switch (prefs_get_uint_value_real(pref_layout_type_, pref_stashed)) {
+    switch (prefs_get_uint_value(pref_layout_type_, pref_stashed)) {
     case layout_type_5:
         ui->layout5ToolButton->setChecked(true);
         break;
@@ -161,7 +161,7 @@ void LayoutPreferencesFrame::updateWidgets()
         break;
     }
 
-    ui->packetListCachedRowsLineEdit->setText(QString::number(prefs_get_uint_value_real(pref_packet_list_cached_rows_max_, pref_stashed)));
+    ui->packetListCachedRowsLineEdit->setText(QString::number(prefs_get_uint_value(pref_packet_list_cached_rows_max_, pref_stashed)));
 }
 
 void LayoutPreferencesFrame::on_layout5ToolButton_toggled(bool checked)

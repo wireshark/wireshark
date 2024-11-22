@@ -226,7 +226,7 @@ WS_DLL_PUBLIC void prefs_invert_bool_value(pref_t *pref, pref_source_t source);
 
 WS_DLL_PUBLIC unsigned int prefs_set_uint_value(pref_t *pref, unsigned value, pref_source_t source);
 WS_DLL_PUBLIC unsigned prefs_get_uint_base(pref_t *pref);
-WS_DLL_PUBLIC unsigned prefs_get_uint_value_real(pref_t *pref, pref_source_t source);
+WS_DLL_PUBLIC unsigned prefs_get_uint_value(pref_t *pref, pref_source_t source);
 
 
 WS_DLL_PUBLIC unsigned int prefs_set_enum_value(pref_t *pref, int value, pref_source_t source);

@@ -1021,17 +1021,6 @@ bool prefs_get_preference_obsolete(pref_t *pref);
 prefs_set_pref_e prefs_set_preference_obsolete(pref_t *pref);
 
 /**
- * Get current preference uint or bool value. This allows the preference
- * structure to remain hidden from those that don't really need it.
- *
- * @param module_name the preference module name. Usually the same as the protocol
- *                    name, e.g. "tcp".
- * @param pref_name the preference name, e.g. "desegment".
- * @return the preference's value
- */
-WS_DLL_PUBLIC unsigned prefs_get_uint_value(const char *module_name, const char* pref_name);
-
-/**
  * Get the current range preference value (maintained by pref, so it doesn't need to be freed). This allows the
  * preference structure to remain hidden from those that doesn't really need it.
  *

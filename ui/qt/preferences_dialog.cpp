@@ -346,8 +346,7 @@ void PreferencesDialog::on_advancedSearchLineEdit_textEdited(const QString &text
      * the countdown.
      */
     searchLineEditText = text;
-    unsigned gui_debounce_timer = prefs_get_uint_value("gui", "debounce.timer");
-    searchLineEditTimer->start(gui_debounce_timer);
+    searchLineEditTimer->start(prefs.gui_debounce_timer);
 }
 
 void PreferencesDialog::on_showChangedValuesCheckBox_toggled(bool checked)

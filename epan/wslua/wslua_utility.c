@@ -147,7 +147,7 @@ WSLUA_FUNCTION wslua_get_preference(lua_State *L) {
         switch (prefs_get_type(pref)) {
             case PREF_UINT:
             {
-                unsigned uint_value = prefs_get_uint_value_real(pref, pref_current);
+                unsigned uint_value = prefs_get_uint_value(pref, pref_current);
                 lua_pushinteger(L, uint_value);
                 break;
             }

@@ -126,8 +126,8 @@ void CapturePreferencesFrame::updateWidgets()
     ui->captureMonitorModeCheckBox->setChecked(prefs_get_bool_value(pref_monitor_mode_, pref_stashed));
     ui->capturePcapNgCheckBox->setChecked(prefs_get_bool_value(pref_pcap_ng_, pref_stashed));
     ui->captureRealTimeCheckBox->setChecked(prefs_get_bool_value(pref_real_time_, pref_stashed));
-    ui->captureUpdateIntervalLineEdit->setText(QString::number(prefs_get_uint_value_real(pref_update_interval_, pref_stashed)));
-    ui->captureUpdateIntervalLineEdit->setPlaceholderText(QString::number(prefs_get_uint_value_real(pref_update_interval_, pref_default)));
+    ui->captureUpdateIntervalLineEdit->setText(QString::number(prefs_get_uint_value(pref_update_interval_, pref_stashed)));
+    ui->captureUpdateIntervalLineEdit->setPlaceholderText(QString::number(prefs_get_uint_value(pref_update_interval_, pref_default)));
     ui->captureUpdateIntervalLineEdit->setSyntaxState(SyntaxLineEdit::Empty);
 #endif // HAVE_LIBPCAP
     ui->captureNoInterfaceLoad->setChecked(prefs_get_bool_value(pref_no_interface_load_, pref_stashed));
@@ -163,7 +163,7 @@ void CapturePreferencesFrame::on_captureUpdateIntervalLineEdit_textChanged(const
 {
     uint new_uint;
     if (new_str.isEmpty()) {
-        new_uint = prefs_get_uint_value_real(pref_update_interval_, pref_default);
+        new_uint = prefs_get_uint_value(pref_update_interval_, pref_default);
         prefs_set_uint_value(pref_update_interval_, new_uint, pref_stashed);
         ui->captureUpdateIntervalLineEdit->setSyntaxState(SyntaxLineEdit::Empty);
         return;
@@ -174,7 +174,7 @@ void CapturePreferencesFrame::on_captureUpdateIntervalLineEdit_textChanged(const
     if (ok) {
         ui->captureUpdateIntervalLineEdit->setSyntaxState(SyntaxLineEdit::Valid);
     } else {
-        new_uint = prefs_get_uint_value_real(pref_update_interval_, pref_current);
+        new_uint = prefs_get_uint_value(pref_update_interval_, pref_current);
         ui->captureUpdateIntervalLineEdit->setSyntaxState(SyntaxLineEdit::Invalid);
     }
     prefs_set_uint_value(pref_update_interval_, new_uint, pref_stashed);

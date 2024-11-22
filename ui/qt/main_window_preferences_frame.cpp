@@ -131,8 +131,8 @@ void MainWindowPreferencesFrame::updateWidgets()
 
     ui->foStyleSpecifiedLineEdit->setText(prefs_get_string_value(pref_fileopen_dir_, pref_stashed));
 
-    ui->maxFilterLineEdit->setText(QString::number(prefs_get_uint_value_real(pref_recent_df_entries_max_, pref_stashed)));
-    ui->maxRecentLineEdit->setText(QString::number(prefs_get_uint_value_real(pref_recent_files_count_max_, pref_stashed)));
+    ui->maxFilterLineEdit->setText(QString::number(prefs_get_uint_value(pref_recent_df_entries_max_, pref_stashed)));
+    ui->maxRecentLineEdit->setText(QString::number(prefs_get_uint_value(pref_recent_files_count_max_, pref_stashed)));
 
     ui->confirmUnsavedCheckBox->setChecked(prefs_get_bool_value(pref_ask_unsaved_, pref_stashed));
     ui->displayAutoCompleteCheckBox->setChecked(prefs_get_bool_value(pref_autocomplete_filter_, pref_stashed));
