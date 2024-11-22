@@ -23,7 +23,10 @@
  * This module provides a stand-alone implementation of the spec.
  */
 
+#define WS_LOG_DOMAIN "packet-communityid"
+
 #include <config.h>
+#include <wireshark.h>
 
 #include <epan/value_string.h>
 #include <epan/ipproto.h>
@@ -125,32 +128,10 @@
  */
 #define CID_ADDR_LEN_MAX 16
 
-/* Set to 1 for debugging output to stderr. */
-#define CID_DEBUG 0
-
 typedef struct _communityid_cfg_t {
     bool cfg_do_base64;
     uint16_t cfg_seed;
 } communityid_cfg_t;
-
-#if CID_DEBUG
-static void communityid_sha1_dbg(const char *msg, const void* data, size_t len)
-{
-    char *buf = (char*) g_malloc(len*2 + 1);
-    char *ptr = buf;
-    size_t i;
-
-    for (i = 0; i < len; i++, ptr += 2) {
-        snprintf(ptr, 3, "%02x", ((unsigned char*)data)[i]);
-    }
-
-    fprintf(stderr, "Community ID dbg [%s]: %s\n", msg, buf);
-    g_free(buf);
-}
-#define COMMUNITYID_SHA1_DBG(...) communityid_sha1_dbg(__VA_ARGS__)
-#else
-#define COMMUNITYID_SHA1_DBG(...)
-#endif
 
 /* Helper function to determine whether a flow tuple is ordered
  * correctly or needs flipping for abstracting flow directionality.
@@ -347,26 +328,26 @@ static bool communityid_calc(communityid_cfg_t *cfg, uint8_t proto,
     if (gcry_md_open(&sha1, GCRY_MD_SHA1, 0))
         return false;
 
-    COMMUNITYID_SHA1_DBG("seed", &seed_final, 2);
+    ws_debug("seed: %04x", seed_final);
     gcry_md_write(sha1, &seed_final, 2);
 
-    COMMUNITYID_SHA1_DBG("saddr", saddr, addr_len);
+    ws_log_buffer(saddr, addr_len, "saddr");
     gcry_md_write(sha1, saddr, addr_len);
 
-    COMMUNITYID_SHA1_DBG("daddr", daddr, addr_len);
+    ws_log_buffer(daddr, addr_len, "daddr");
     gcry_md_write(sha1, daddr, addr_len);
 
-    COMMUNITYID_SHA1_DBG("proto", &proto, 1);
+    ws_debug("proto: %02x", proto);
     gcry_md_write(sha1, &proto, 1);
 
-    COMMUNITYID_SHA1_DBG("padding", &padding, 1);
+    ws_debug("padding: %02x", padding);
     gcry_md_write(sha1, &padding, 1);
 
     if (sport != NULL && dport != NULL) {
-        COMMUNITYID_SHA1_DBG("sport", sport, 2);
+        ws_debug("Community ID sport: %04x", *sport);
         gcry_md_write(sha1, sport, 2);
 
-        COMMUNITYID_SHA1_DBG("dport", dport, 2);
+        ws_debug("Community ID dport: %04x", *dport);
         gcry_md_write(sha1, dport, 2);
     }
 

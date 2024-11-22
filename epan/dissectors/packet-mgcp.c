@@ -21,7 +21,10 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
+#define WS_LOG_DOMAIN "packet-mgcp"
+
 #include "config.h"
+#include <wireshark.h>
 
 #include <stdlib.h>
 
@@ -899,7 +902,7 @@ static int tvb_parse_param(tvbuff_t* tvb, int offset, int len, int** hf, mgcp_in
 					if (tempchar == ':')
 					{
 						/* Looks like a valid vendor param name */
-						//fprintf(stderr, "MGCP Extension: %s\n", tvb_get_string_enc(wmem_packet_scope(), tvb, tvb_current_offset, ext_off, ENC_ASCII));
+						ws_debug("MGCP Extension: %s", tvb_get_string_enc(wmem_packet_scope(), tvb, tvb_current_offset, ext_off, ENC_ASCII));
 						switch (plus_minus)
 						{
 							case '+':

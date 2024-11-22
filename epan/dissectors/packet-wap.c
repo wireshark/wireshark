@@ -13,11 +13,10 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-#include "config.h"
+#define WS_LOG_DOMAIN "packet-wap"
 
-#ifdef DEBUG
-#include <stdio.h>
-#endif
+#include "config.h"
+#include <wireshark.h>
 
 #include <epan/packet.h>
 #include "packet-wap.h"
@@ -41,10 +40,7 @@ tvb_get_uintvar (tvbuff_t *tvb, unsigned offset,
     unsigned octet;
     unsigned counter = 0;
 
-#ifdef DEBUG
-    fprintf (stderr,
-            "dissect_wap: Starting tvb_get_uintvar at offset %d\n", offset);
-#endif
+    ws_debug("Starting tvb_get_uintvar at offset %d", offset);
 
     do {
         octet = tvb_get_uint8 (tvb, offset+counter);
@@ -61,18 +57,12 @@ tvb_get_uintvar (tvbuff_t *tvb, unsigned offset,
             break;
         }
 
-#ifdef DEBUG
-        fprintf(stderr,
-            "dissect_wap: computing: octet is %d (0x%02x), count=%d, value=%d\n",
+        ws_debug("computing: octet is %d (0x%02x), count=%d, value=%d",
                  octet, octet, counter, value);
-#endif
     } while (octet & 0x80);
 
-#ifdef DEBUG
-    fprintf (stderr,
-            "dissect_wap: Leaving tvb_get_uintvar count=%d, value=%u\n",
+    ws_debug(" Leaving tvb_get_uintvar count=%d, value=%u",
             counter, value);
-#endif
 
     if (octetCount)
         *octetCount = counter;

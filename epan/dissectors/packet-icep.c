@@ -24,7 +24,10 @@
   2) Information about Ice can be found here: http://www.zeroc.com
 */
 
+#define WS_LOG_DOMAIN "packet-icep"
+
 #include "config.h"
+#include <wireshark.h>
 
 #include <epan/packet.h>
 #include <epan/expert.h>
@@ -35,20 +38,6 @@ void proto_register_icep(void);
 void proto_reg_handoff_icep(void);
 
 static dissector_handle_t icep_tcp_handle, icep_udp_handle;
-
-#if 0
-#define DBG(...)       do {\
-                                        fprintf(stdout, \
-                                        "[%s][%s][%d]: ",\
-                                        __FILE__, \
-                                        __FUNCTION__, \
-                                        __LINE__); \
-                                        fflush(stdout); \
-                                        fprintf(stdout, __VA_ARGS__); \
-                                } while (0)
-#else
-#define DBG(...)
-#endif /* 0/1 */
 
 /* fixed values taken from the standard */
 static const uint8_t icep_magic[] = { 'I', 'c', 'e', 'P' };
@@ -205,7 +194,7 @@ static void dissect_ice_string(packet_info *pinfo, proto_tree *tree, proto_item 
         (*consumed) += 4;
     }
 
-    DBG("string.Size --> %d\n", Size);
+    ws_debug("string.Size --> %d", Size);
 
     /* check if the string exists */
     if ( !tvb_bytes_exist(tvb, offset, Size) ) {
@@ -375,7 +364,7 @@ static void dissect_ice_context(packet_info *pinfo, proto_tree *tree, proto_item
         (*consumed) += 4;
     }
 
-    DBG("context.Size --> %d\n", Size);
+    ws_debug("context.Size --> %d", Size);
 
     if ( Size > icep_max_ice_context_pairs ) {
 
@@ -406,7 +395,7 @@ static void dissect_ice_context(packet_info *pinfo, proto_tree *tree, proto_item
         proto_item *ti;
         proto_tree *context_tree;
 
-        DBG("looping through context dictionary, loop #%d\n", i);
+        ws_debug("looping through context dictionary, loop #%d", i);
         context_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_icep_invocation_context, &ti, "Invocation Context");
 
         dissect_ice_string(pinfo, context_tree, ti, hf_icep_invocation_key, tvb, offset, &consumed_key, &str_key);
@@ -470,7 +459,7 @@ static void dissect_ice_params(packet_info *pinfo, proto_tree *tree, proto_item 
     /* get the size */
     size = tvb_get_letohl(tvb, offset);
 
-    DBG("params.size --> %d\n", size);
+    ws_debug("params.size --> %d", size);
 
     if ( size < ICEP_MIN_PARAMS_SIZE ) {
 
@@ -570,7 +559,7 @@ static void dissect_icep_request_common(tvbuff_t *tvb, uint32_t offset,
     if ( consumed == -1 )
         goto error;
 
-    offset += consumed; DBG("consumed --> %d\n", consumed);
+    offset += consumed; ws_debug("consumed --> %d", consumed);
     (*total_consumed) += consumed;
 
 
@@ -579,7 +568,7 @@ static void dissect_icep_request_common(tvbuff_t *tvb, uint32_t offset,
     if ( consumed == -1 )
         goto error;
 
-    offset += consumed; DBG("consumed --> %d\n", consumed);
+    offset += consumed; ws_debug("consumed --> %d", consumed);
     (*total_consumed) += consumed;
 
 
@@ -593,7 +582,7 @@ static void dissect_icep_request_common(tvbuff_t *tvb, uint32_t offset,
     if ( consumed == -1 )
         goto error;
 
-    offset += consumed; DBG("consumed --> %d\n", consumed);
+    offset += consumed; ws_debug("consumed --> %d", consumed);
     (*total_consumed) += consumed;
 
     /*  "operation" is an ice_string
@@ -605,11 +594,11 @@ static void dissect_icep_request_common(tvbuff_t *tvb, uint32_t offset,
     if ( consumed == -1 )
         goto error;
     else {
-        offset += consumed; DBG("consumed --> %d\n", consumed);
+        offset += consumed; ws_debug("consumed --> %d", consumed);
         (*total_consumed) += consumed;
 
         if ( opstr && namestr ) {
-            DBG("operation --> %s.%s()\n", namestr, opstr);
+            ws_debug("operation --> %s.%s()", namestr, opstr);
             col_append_fstr(pinfo->cinfo, COL_INFO, " %s.%s()",
                         namestr, opstr);
             opstr = NULL;
@@ -628,7 +617,7 @@ static void dissect_icep_request_common(tvbuff_t *tvb, uint32_t offset,
 
     proto_tree_add_item(icep_sub_tree, hf_icep_mode, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 
-    offset++; DBG("consumed --> 1\n");
+    offset++; ws_debug("consumed --> 1");
     (*total_consumed)++;
 
 
@@ -641,7 +630,7 @@ static void dissect_icep_request_common(tvbuff_t *tvb, uint32_t offset,
     if ( consumed == -1 )
         goto error;
 
-    offset += consumed; DBG("consumed --> %d\n", consumed);
+    offset += consumed; ws_debug("consumed --> %d", consumed);
     (*total_consumed) += consumed;
 
     /*  "params" is a Encapsulation
@@ -654,7 +643,7 @@ static void dissect_icep_request_common(tvbuff_t *tvb, uint32_t offset,
         goto error;
 
     /*offset += consumed;*/
-     DBG("consumed --> %d\n", consumed);
+     ws_debug("consumed --> %d", consumed);
     (*total_consumed) += consumed;
 
     return;
@@ -685,7 +674,7 @@ static void dissect_icep_request(tvbuff_t *tvb, uint32_t offset,
     int32_t consumed = 0;
     uint32_t reqid = 0;
 
-    DBG("dissect request\n");
+    ws_debug("dissect request");
 
     /* check for req id */
     if ( !tvb_bytes_exist(tvb, offset, 4) ) {
@@ -712,7 +701,7 @@ static void dissect_icep_request(tvbuff_t *tvb, uint32_t offset,
 
 
     offset += 4;
-    DBG("consumed --> 4\n");
+    ws_debug("consumed --> 4");
 
     dissect_icep_request_common(tvb, offset, pinfo, icep_sub_tree, ti, &consumed);
 
@@ -720,7 +709,7 @@ static void dissect_icep_request(tvbuff_t *tvb, uint32_t offset,
         return;
 
     /*offset += consumed;*/
-    DBG("consumed --> %d\n", consumed);
+    ws_debug("consumed --> %d", consumed);
 }
 
 
@@ -753,7 +742,7 @@ static void dissect_icep_batch_request(tvbuff_t *tvb, uint32_t offset,
     uint32_t i = 0;
     int32_t consumed = 0;
 
-    DBG("dissect batch request\n");
+    ws_debug("dissect batch request");
 
     /* check for first 4 byte */
     if ( !tvb_bytes_exist(tvb, offset, 4) ) {
@@ -766,7 +755,7 @@ static void dissect_icep_batch_request(tvbuff_t *tvb, uint32_t offset,
     num_reqs = tvb_get_letohl(tvb, offset);
     offset += 4;
 
-    DBG("batch_requests.count --> %d\n", num_reqs);
+    ws_debug("batch_requests.count --> %d", num_reqs);
 
     if ( num_reqs > icep_max_batch_requests ) {
 
@@ -793,7 +782,7 @@ static void dissect_icep_batch_request(tvbuff_t *tvb, uint32_t offset,
 
     for ( i = 0; i < num_reqs; i++ ) {
 
-        DBG("looping through sequence of batch requests, loop #%d\n", i);
+        ws_debug("looping through sequence of batch requests, loop #%d", i);
 
         /* create display subtree for this message type */
 
@@ -813,7 +802,7 @@ static void dissect_icep_batch_request(tvbuff_t *tvb, uint32_t offset,
             proto_item_set_len(ti, consumed);
 
         offset += consumed;
-        DBG("consumed --> %d\n", consumed);
+        ws_debug("consumed --> %d", consumed);
     }
 }
 
@@ -835,7 +824,7 @@ static void dissect_icep_reply(tvbuff_t *tvb, uint32_t offset,
     proto_item *ti = NULL;
     proto_tree *icep_sub_tree = NULL;
 
-    DBG("dissect reply\n");
+    ws_debug("dissect reply");
 
     /* get at least a full reply message header */
 
@@ -869,7 +858,7 @@ static void dissect_icep_reply(tvbuff_t *tvb, uint32_t offset,
 
     offset++;
 
-    DBG("consumed --> %d\n", 5);
+    ws_debug("consumed --> %d", 5);
 
     /* check if I got all reply data */
     tvb_data_remained = tvb_reported_length_remaining(tvb, offset);
@@ -886,7 +875,7 @@ static void dissect_icep_reply(tvbuff_t *tvb, uint32_t offset,
                     reported_reply_data - tvb_data_remained);
 
         /*offset += tvb_data_remained;*/
-        DBG("consumed --> %d\n", tvb_data_remained);
+        ws_debug("consumed --> %d", tvb_data_remained);
         return;
     }
 
@@ -895,7 +884,7 @@ static void dissect_icep_reply(tvbuff_t *tvb, uint32_t offset,
     proto_tree_add_item(icep_sub_tree, hf_icep_reply_data, tvb, offset, reported_reply_data, ENC_NA);
 
     /*offset += reported_reply_data;*/
-    DBG("consumed --> %d\n", reported_reply_data);
+    ws_debug("consumed --> %d", reported_reply_data);
 }
 
 static unsigned get_icep_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb,
@@ -933,7 +922,7 @@ static int dissect_icep_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                     icep_msgtype_vals,
                     "Unknown Message Type: 0x%02x"));
 
-    DBG("got an icep msg, start analysis\n");
+    ws_debug("got an icep msg, start analysis");
 
     /* create display subtree for the protocol */
 
@@ -981,17 +970,17 @@ static int dissect_icep_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     switch(tvb_get_uint8(tvb, 8)) {
     case 0x0:
-        DBG("request message body: parsing %d bytes\n",
+        ws_debug("request message body: parsing %d bytes",
             tvb_captured_length_remaining(tvb, offset));
         dissect_icep_request(tvb, offset, pinfo, icep_tree, ti);
         break;
     case 0x1:
-        DBG("batch request message body: parsing %d bytes\n",
+        ws_debug("batch request message body: parsing %d bytes",
             tvb_captured_length_remaining(tvb, offset));
         dissect_icep_batch_request(tvb, offset, pinfo, icep_tree, ti);
         break;
     case 0x2:
-        DBG("reply message body: parsing %d bytes\n",
+        ws_debug("reply message body: parsing %d bytes",
             tvb_captured_length_remaining(tvb, offset));
         dissect_icep_reply(tvb, offset, pinfo, icep_tree, ti);
         break;
@@ -1009,7 +998,7 @@ static int dissect_icep_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 /* entry point */
 static gboolean dissect_icep_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-    DBG("triggered\n");
+    ws_debug("triggered");
 
     if ( tvb_memeql(tvb, 0, icep_magic, 4) == -1 ) {
         /* Not a ICEP packet. */
@@ -1032,7 +1021,7 @@ dissect_icep_tcp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
 
 static gboolean dissect_icep_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-    DBG("triggered\n");
+    ws_debug("triggered");
 
     if ( tvb_memeql(tvb, 0, icep_magic, 4) == -1 ) {
         /* Not a ICEP packet. */

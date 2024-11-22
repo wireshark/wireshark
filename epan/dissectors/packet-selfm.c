@@ -48,7 +48,10 @@
  * the Wireshark conversation functionality.
  */
 
+#define WS_LOG_DOMAIN "packet-selfm"
+
 #include "config.h"
+#include <wireshark.h>
 
 #include <epan/packet.h>
 #include "packet-tcp.h"
@@ -2683,9 +2686,8 @@ dissect_selfm_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
             new_selfm_PDU_len = tvb_get_uint8(selfm_tvb, selfm_PDU_len+2);
             /* If we still don't have enough data to accommodate the 2 PDUs... */
             if (selfm_tvb_len < (selfm_PDU_len + new_selfm_PDU_len)) {
-#if 0
-                fprintf(stderr, "On Packet: %d, continuing to desegment. PDU: %d NewPDU: %d  Still need %d bytes.. \n", pinfo->fd->num, selfm_PDU_len, new_selfm_PDU_len, (selfm_PDU_len + new_selfm_PDU_len) - selfm_tvb_len);
-#endif
+                ws_debug("On Packet: %d, continuing to desegment. PDU: %d NewPDU: %d  Still need %d bytes..", pinfo->fd->num, selfm_PDU_len, new_selfm_PDU_len, (selfm_PDU_len + new_selfm_PDU_len) - selfm_tvb_len);
+
                 /* If the current selfm_tvb length is less than the combined reported selfm length of the 2 PDUs, continue TCP desegmentation */
                 /* The desegment_len field will be used to report how many additional bytes remain to be reassembled */
                 pinfo->desegment_offset = 0;
@@ -2699,9 +2701,7 @@ dissect_selfm_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     while (offset < selfm_tvb_len) {
         /* If random ASCII data makes its way onto the end of an SEL protocol PDU, ignore it */
         if (tvb_get_uint8(selfm_tvb, offset) != 0xA5) {
-#if 0
-            fprintf(stderr, "On Packet: %d, extraneous data (starts with: %x).. \n", pinfo->fd->num, tvb_get_uint8(selfm_tvb, offset));
-#endif
+            ws_debug("On Packet: %d, extraneous data (starts with: %x)..", pinfo->fd->num, tvb_get_uint8(selfm_tvb, offset));
             break;
         }
         /* Create new selfm_pdu_tvb that contains only a single PDU worth of data */

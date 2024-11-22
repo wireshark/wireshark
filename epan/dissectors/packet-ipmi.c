@@ -9,9 +9,10 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
+#define WS_LOG_DOMAIN "packet-ipmi"
+
 #include "config.h"
-
-
+#include <wireshark.h>
 
 #include <epan/packet.h>
 #include <epan/conversation.h>
@@ -30,9 +31,6 @@ void proto_reg_handoff_ipmi(void);
  *
  *	http://www.intel.com/design/servers/ipmi/
  */
-
-/* Define IPMI_DEBUG to enable printing the process of request-response pairing */
-/* #define IPMI_DEBUG */
 
 /* Top-level search structure: list of registered handlers for a given netFn */
 struct ipmi_netfn_root {
@@ -247,22 +245,20 @@ get_matched_request(ipmi_packet_data_t * data, const ipmi_header_t * rs_hdr,
 
 	/* TODO: copy prefix bytes */
 
-#ifdef DEBUG
-	fprintf(stderr, "%d, %d: rq_hdr : {\n"
-			"\tchannel=%d\n"
-			"\tdir=%d\n"
-			"\trs_sa=%x\n"
-			"\trs_lun=%d\n"
-			"\tnetfn=%x\n"
-			"\trq_sa=%x\n"
-			"\trq_lun=%d\n"
-			"\trq_seq=%x\n"
-			"\tcmd=%x\n}\n",
+	ws_debug("%d, %d: rq_hdr : {"
+			"\tchannel=%d"
+			"\tdir=%d"
+			"\trs_sa=%x"
+			"\trs_lun=%d"
+			"\tnetfn=%x"
+			"\trq_sa=%x"
+			"\trq_lun=%d"
+			"\trq_seq=%x"
+			"\tcmd=%x }",
 			data->curr_frame_num, data->curr_level,
 			rq_hdr.channel, rq_hdr.dir, rq_hdr.rs_sa, rq_hdr.rs_lun,
 			rq_hdr.netfn, rq_hdr.rq_sa, rq_hdr.rq_lun, rq_hdr.rq_seq,
 			rq_hdr.cmd);
-#endif
 
 	while (iter) {
 		ipmi_request_t * rq = (ipmi_request_t *) wmem_list_frame_data(iter);
@@ -403,22 +399,20 @@ add_request(ipmi_packet_data_t * data, const ipmi_header_t * hdr)
 		/* append request to list */
 		wmem_list_append(data->request_list, rq);
 
-#ifdef DEBUG
-	fprintf(stderr, "%d, %d: hdr : {\n"
-			"\tchannel=%d\n"
-			"\tdir=%d\n"
-			"\trs_sa=%x\n"
-			"\trs_lun=%d\n"
-			"\tnetfn=%x\n"
-			"\trq_sa=%x\n"
-			"\trq_lun=%d\n"
-			"\trq_seq=%x\n"
-			"\tcmd=%x\n}\n",
+	ws_debug("%d, %d: rq_hdr : {"
+			"\tchannel=%d"
+			"\tdir=%d"
+			"\trs_sa=%x"
+			"\trs_lun=%d"
+			"\tnetfn=%x"
+			"\trq_sa=%x"
+			"\trq_lun=%d"
+			"\trq_seq=%x"
+			"\tcmd=%x }",
 			data->curr_frame_num, data->curr_level,
 			rq->hdr.channel, rq->hdr.dir, rq->hdr.rs_sa, rq->hdr.rs_lun,
 			rq->hdr.netfn, rq->hdr.rq_sa, rq->hdr.rq_lun, rq->hdr.rq_seq,
 			rq->hdr.cmd);
-#endif
 	}
 }
 

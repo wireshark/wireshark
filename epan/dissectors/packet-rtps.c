@@ -41,7 +41,10 @@
  *   https://www.dds-foundation.org/dds-rtps-vendor-and-product-ids/
  */
 
+#define WS_LOG_DOMAIN "packet-rtps"
+
 #include "config.h"
+#include <wireshark.h>
 
 #include <epan/packet.h>
 #include <epan/expert.h>
@@ -3393,7 +3396,7 @@ static gcry_error_t rtps_util_generate_hmac_sha256(
   error = gcry_mac_read(hmac, output, &OUTPUT_SIZE);
   if (error != GPG_ERR_NO_ERROR) {
     gcry_mac_close(hmac);
-          fprintf (stderr, "Failure: %s/%s\n",
+          ws_warning("Failure: %s/%s",
               gcry_strsource (error),
               gcry_strerror (error));
     return error;

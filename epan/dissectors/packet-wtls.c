@@ -13,11 +13,10 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-#include "config.h"
+#define WS_LOG_DOMAIN "packet-wtls"
 
-#ifdef DEBUG
-#include <stdio.h>
-#endif
+#include "config.h"
+#include <wireshark.h>
 
 #include <epan/packet.h>
 #include <epan/iana_charsets.h>
@@ -431,10 +430,8 @@ add_text_identifier(tvbuff_t *tvb, int offset, int hf_charset,
 	proto_tree_add_item(tree, hf_str, tvb, offset, size, ENC_BIG_ENDIAN);
 	/*offset+=size;*/
 	client_size+=size+3;
-#ifdef DEBUG
-	fprintf(stderr, "text id size = %d, client_size = %d\n",
+	ws_debug("text id size = %d, client_size = %d",
 		size, client_size);
-#endif /* DEBUG */
 	return client_size;
 }
 
@@ -535,9 +532,7 @@ dissect_wtls_handshake(proto_tree *tree, tvbuff_t *tvb, unsigned offset, unsigne
 						hf_wtls_hands_cli_hello_key_exchange_suite,
 						tvb,offset,1,value);
 				offset++;
-#ifdef DEBUG
-				fprintf(stderr, "encryption suite = %d, client_size = %d\n", value, client_size);
-#endif /* DEBUG */
+				ws_debug("encryption suite = %d, client_size = %d", value, client_size);
 
 				/* get parameter index (one byte) */
 				value = tvb_get_uint8 (tvb, offset);
@@ -546,9 +541,7 @@ dissect_wtls_handshake(proto_tree *tree, tvbuff_t *tvb, unsigned offset, unsigne
 					tvb,offset,1,ENC_BIG_ENDIAN);
 				offset++;
 				client_size++;
-#ifdef DEBUG
-				fprintf(stderr, "parameter index = %d, client_size = %d\n", value, client_size);
-#endif /* DEBUG */
+				ws_debug("parameter index = %d, client_size = %d", value, client_size);
 
 				/* explicit parameters present in next field */
 				if (value == 0xff) {
@@ -567,9 +560,7 @@ dissect_wtls_handshake(proto_tree *tree, tvbuff_t *tvb, unsigned offset, unsigne
 						tvb,offset,1,ENC_BIG_ENDIAN);
 				offset++;
 				client_size++;
-#ifdef DEBUG
-				fprintf(stderr, "identifier type = %d, client_size = %d\n", value, client_size);
-#endif /* DEBUG */
+				ws_debug("identifier type = %d, client_size = %d", value, client_size);
 
 				/* identifier present in next field */
 				/* note: value 0x0 means no identifier */
@@ -598,10 +589,8 @@ dissect_wtls_handshake(proto_tree *tree, tvbuff_t *tvb, unsigned offset, unsigne
 								tvb,offset,size,ENC_NA);
 						offset+=size;
 						client_size+=size+1;
-#ifdef DEBUG
-						fprintf(stderr, "binary id size = %d, client_size = %d\n",
+						ws_debug("binary id size = %d, client_size = %d",
 							size, client_size);
-#endif /* DEBUG */
 						break;
 					case IDENTIFIER_SHA_1 :
 						/* SHA-1 hash of the public key */
@@ -610,10 +599,8 @@ dissect_wtls_handshake(proto_tree *tree, tvbuff_t *tvb, unsigned offset, unsigne
 								tvb,offset,20,ENC_NA);
 						offset+=20;
 						client_size+=20;
-#ifdef DEBUG
-						fprintf(stderr, "SHA-1 hash size = 20, client_size = %d\n",
+						ws_debug("SHA-1 hash size = 20, client_size = %d",
 							client_size);
-#endif /* DEBUG */
 						break;
 					case IDENTIFIER_X509 :
 						/* X.509 distinguished name */
@@ -628,10 +615,8 @@ dissect_wtls_handshake(proto_tree *tree, tvbuff_t *tvb, unsigned offset, unsigne
 								tvb,offset,size,ENC_NA);
 						offset+=size;
 						client_size+=size+1;
-#ifdef DEBUG
-						fprintf(stderr, "X.509 name size = %d, client_size = %d\n",
+						ws_debug("X.509 name size = %d, client_size = %d",
 							size, client_size);
-#endif /* DEBUG */
 						break;
 				}
 
@@ -664,9 +649,7 @@ dissect_wtls_handshake(proto_tree *tree, tvbuff_t *tvb, unsigned offset, unsigne
 						hf_wtls_hands_cli_hello_key_exchange_suite,
 						tvb,offset,1,value);
 				offset++;
-#ifdef DEBUG
-				fprintf(stderr, "encryption suite = %d, client_size = %d\n", value, client_size);
-#endif /* DEBUG */
+				ws_debug("encryption suite = %d, client_size = %d", value, client_size);
 
 				/* get parameter index (one byte) */
 				value = tvb_get_uint8 (tvb, offset);
@@ -675,9 +658,7 @@ dissect_wtls_handshake(proto_tree *tree, tvbuff_t *tvb, unsigned offset, unsigne
 					tvb,offset,1,ENC_BIG_ENDIAN);
 				offset++;
 				client_size++;
-#ifdef DEBUG
-				fprintf(stderr, "parameter index = %d, client_size = %d\n", value, client_size);
-#endif /* DEBUG */
+				ws_debug("parameter index = %d, client_size = %d", value, client_size);
 
 				/* explicit parameters present in next field */
 				if (value == 0xff) {
@@ -696,9 +677,7 @@ dissect_wtls_handshake(proto_tree *tree, tvbuff_t *tvb, unsigned offset, unsigne
 						tvb,offset,1,ENC_BIG_ENDIAN);
 				offset++;
 				client_size++;
-#ifdef DEBUG
-				fprintf(stderr, "identifier type = %d, client_size = %d\n", value, client_size);
-#endif /* DEBUG */
+				ws_debug("identifier type = %d, client_size = %d", value, client_size);
 
 				/* identifier present in next field */
 				/* note: value 0x0 means no identifier */
@@ -727,10 +706,8 @@ dissect_wtls_handshake(proto_tree *tree, tvbuff_t *tvb, unsigned offset, unsigne
 								tvb,offset,size,ENC_NA);
 						offset+=size;
 						client_size+=size+1;
-#ifdef DEBUG
-						fprintf(stderr, "binary id size = %d, client_size = %d\n",
+						ws_debug("binary id size = %d, client_size = %d",
 							size, client_size);
-#endif /* DEBUG */
 						break;
 					case IDENTIFIER_SHA_1 :
 						/* SHA-1 hash of the public key */
@@ -739,10 +716,8 @@ dissect_wtls_handshake(proto_tree *tree, tvbuff_t *tvb, unsigned offset, unsigne
 								tvb,offset,20,ENC_NA);
 						offset+=20;
 						client_size+=20;
-#ifdef DEBUG
-						fprintf(stderr, "SHA-1 hash size = 20, client_size = %d\n",
+						ws_debug("SHA-1 hash size = 20, client_size = %d",
 							client_size);
-#endif /* DEBUG */
 						break;
 					case IDENTIFIER_X509 :
 					 	/* X.509 distinguished name */
@@ -758,10 +733,8 @@ dissect_wtls_handshake(proto_tree *tree, tvbuff_t *tvb, unsigned offset, unsigne
 								tvb,offset,size,ENC_NA);
 						offset+=size;
 						client_size+=size+1;
-#ifdef DEBUG
-						fprintf(stderr, "X.509 name size = %d, client_size = %d\n",
+						ws_debug("X.509 name size = %d, client_size = %d",
 							size, client_size);
-#endif /* DEBUG */
 						break;
 				}
 				proto_item_set_len(cli_key_item, client_size);
