@@ -11482,10 +11482,15 @@ ssl_dissect_hnd_compress_certificate(ssl_common_dissect_t *hf, tvbuff_t *tvb, pr
 
     /* Certificate decompression following algorithm */
     switch (algorithm) {
+    case 1: /* zlib */
+        uncompressed_tvb = tvb_child_uncompress_zlib(tvb, tvb, offset, compressed_certificate_message_length);
+        break;
     case 2: /* brotli */
         uncompressed_tvb = tvb_child_uncompress_brotli(tvb, tvb, offset, compressed_certificate_message_length);
-	break;
-    /* TODO: add other algorithms */
+        break;
+    case 3: /* zstd */
+        uncompressed_tvb = tvb_child_uncompress_zstd(tvb, tvb, offset, compressed_certificate_message_length);
+        break;
     }
 
     if (uncompressed_tvb) {
