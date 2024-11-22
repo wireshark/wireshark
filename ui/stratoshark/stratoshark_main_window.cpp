@@ -357,7 +357,8 @@ StratosharkMainWindow::StratosharkMainWindow(QWidget *parent) :
 
     menu_groups_ = QList<register_stat_group_t>()
             << REGISTER_LOG_ANALYZE_GROUP_UNSORTED
-            << REGISTER_LOG_STAT_GROUP_UNSORTED;
+            << REGISTER_LOG_STAT_GROUP_UNSORTED
+            << REGISTER_TOOLS_GROUP_UNSORTED;
 
     setWindowIcon(mainApp->normalIcon());
     updateTitlebar();
@@ -2619,7 +2620,6 @@ void StratosharkMainWindow::addMenuActions(QList<QAction *> &actions, int menu_g
             break;
         case REGISTER_TOOLS_GROUP_UNSORTED:
         {
-            main_ui_->menuTools->show(); // Remove this if we ever add any built-in tools.
             // Allow the creation of submenus. Mimics the behaviour of
             // ui/gtk/main_menubar.c:add_menu_item_to_main_menubar
             // and GtkUIManager.

@@ -3180,8 +3180,7 @@ void StratosharkMainWindow::showIOGraphDialog(io_graph_item_unit_t value_units, 
 
 void StratosharkMainWindow::connectToolsMenuActions()
 {
-    // We don't have any built in tools yet, so hide it until we add actions via Lua scripts.
-    main_ui_->menuTools->hide();
+    // We don't have any built in tools yet. Should there be "no op" code here.
 }
 
 // Help Menu
