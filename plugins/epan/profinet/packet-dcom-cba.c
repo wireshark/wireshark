@@ -402,7 +402,7 @@ static int
 dissect_get_BSTR_resp(tvbuff_t *tvb, int offset,
     packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep, int hfindex)
 {
-    char    szStr[1000];
+    char    szStr[1000] = "";
     uint32_t u32MaxStr = sizeof(szStr);
     uint32_t u32Pointer;
     uint32_t u32HResult;
@@ -415,8 +415,6 @@ dissect_get_BSTR_resp(tvbuff_t *tvb, int offset,
     if (u32Pointer) {
         offset = dissect_dcom_BSTR(tvb, offset, pinfo, tree, di, drep,
             hfindex, szStr, u32MaxStr);
-    } else {
-        szStr[0] = '\0';
     }
 
     offset = dissect_dcom_HRESULT(tvb, offset, pinfo, tree, di, drep,
@@ -543,7 +541,7 @@ dissect_ICBAPhysicalDevice_get_LogicalDevice_rqst(tvbuff_t *tvb, int offset,
     packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
     uint32_t     u32Pointer;
-    char         szStr[1000];
+    char         szStr[1000] = "";
     uint32_t     u32MaxStr = sizeof(szStr);
     char        *call;
 
@@ -555,8 +553,6 @@ dissect_ICBAPhysicalDevice_get_LogicalDevice_rqst(tvbuff_t *tvb, int offset,
     if (u32Pointer) {
         offset = dissect_dcom_BSTR(tvb, offset, pinfo, tree, di, drep,
             hf_cba_name, szStr, u32MaxStr);
-    } else {
-        szStr[0] = '\0';
     }
 
     if (strlen(szStr) > 0) {
@@ -728,7 +724,7 @@ static int
 dissect_ICBALogicalDevice_get_Name_resp(tvbuff_t *tvb, int offset,
     packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
-    char    szStr[1000];
+    char    szStr[1000] = "";
     uint32_t u32MaxStr = sizeof(szStr);
     uint32_t u32Pointer;
     uint32_t u32HResult;
@@ -741,8 +737,6 @@ dissect_ICBALogicalDevice_get_Name_resp(tvbuff_t *tvb, int offset,
     if (u32Pointer) {
         offset = dissect_dcom_BSTR(tvb, offset, pinfo, tree, di, drep,
             hf_cba_name, szStr, u32MaxStr);
-    } else {
-        szStr[0] = '\0';
     }
 
     offset = dissect_dcom_HRESULT(tvb, offset, pinfo, tree, di, drep,
@@ -820,7 +814,7 @@ static int
 dissect_ICBALogicalDevice_Get_RTAuto_rqst(tvbuff_t *tvb, int offset,
     packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
-    char    szStr[1000];
+    char    szStr[1000] = "";
     uint32_t u32MaxStr = sizeof(szStr);
     uint32_t u32Pointer;
 
@@ -832,8 +826,6 @@ dissect_ICBALogicalDevice_Get_RTAuto_rqst(tvbuff_t *tvb, int offset,
     if (u32Pointer) {
         offset = dissect_dcom_BSTR(tvb, offset, pinfo, tree, di, drep,
             hf_cba_name, szStr, u32MaxStr);
-    } else {
-        szStr[0] = '\0';
     }
 
     col_append_fstr(pinfo->cinfo, COL_INFO, ": \"%s\"", szStr);
@@ -847,9 +839,9 @@ static int
 dissect_ComponentInfo_resp(tvbuff_t *tvb, int offset,
     packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
-    char    szStr[1000];
+    char    szStr[1000] = "";
     uint32_t u32MaxStr = sizeof(szStr);
-    char    szStr2[1000];
+    char    szStr2[1000] = "";
     uint32_t u32MaxStr2 = sizeof(szStr2);
     uint32_t u32HResult;
     uint32_t u32Pointer;
@@ -862,8 +854,6 @@ dissect_ComponentInfo_resp(tvbuff_t *tvb, int offset,
     if (u32Pointer) {
         offset = dissect_dcom_BSTR(tvb, offset, pinfo, tree, di, drep,
             hf_cba_component_id, szStr, u32MaxStr);
-    } else {
-        szStr[0] = '\0';
     }
 
     offset = dissect_dcom_dcerpc_pointer(tvb, offset, pinfo, tree, di, drep,
@@ -871,8 +861,6 @@ dissect_ComponentInfo_resp(tvbuff_t *tvb, int offset,
     if (u32Pointer) {
         offset = dissect_dcom_BSTR(tvb, offset, pinfo, tree, di, drep,
             hf_cba_component_version, szStr2, u32MaxStr2);
-    } else {
-        szStr2[0] = '\0';
     }
 
     offset = dissect_dcom_HRESULT(tvb, offset, pinfo, tree, di, drep, &u32HResult);
