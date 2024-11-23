@@ -507,6 +507,14 @@ static int TreeItem_add_item_any(lua_State *L, bool little_endian) {
         if (lua_gettop(L)) {
             /* if we got here, the (L,1) index is the value to add, instead of decoding from the Tvb */
 
+            /* It's invalid for it to be nil (which has been documented for
+             * a long time). Make sure we throw our error instead of an
+             * internal Lua error (due to nested setjmp/longjmp).
+             */
+            if (lua_isnil(L, 1)) {
+                THROW_LUA_ERROR("TreeItem:add value argument is nil!");
+            }
+
             switch(type) {
                 case FT_PROTOCOL:
                     item = proto_tree_add_item(tree_item->tree,hfid,tvbr->tvb->ws_tvb,tvbr->offset,tvbr->len,ENC_NA);
@@ -639,7 +647,8 @@ static int TreeItem_add_item_any(lua_State *L, bool little_endian) {
         }
 
     } else {
-        /* no ProtoField or Proto was given */
+        /* no ProtoField or Proto was given - we're adding a text-only field,
+         * any remaining parameters are parts of the text label. */
         if (lua_gettop(L)) {
             const char* s = lua_tostring(L,1);
             const int hf = get_hf_wslua_text();
