@@ -1193,7 +1193,7 @@ dissect_zdp_local_tlv (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 static unsigned
 dissect_zbee_tlv_chanmask(proto_tree *tree, tvbuff_t *tvb, unsigned offset, int hf_page, int hf_channel)
 {
-    int         i;
+    uint32_t    i;
     uint32_t    mask;
     uint8_t     page;
     proto_item *ti;
@@ -1245,7 +1245,7 @@ dissect_zbee_tlv_chanmask(proto_tree *tree, tvbuff_t *tvb, unsigned offset, int 
          */
         if ((2 << i) & mask)
         {
-            while ((2 << i) & mask) i++;
+            while ((i<32) && ((2 << i) & mask)) i++;
             proto_item_append_text(ti, "-%d", i);
         }
     }
