@@ -2075,8 +2075,8 @@ Dot11DecryptRsnaMicCheck(
     return memcmp(mic, c_mic, mic_len);
 }
 
-/* IEEE 802.11-2016 Chapter 13.8.4 FT authentication sequence: contents of third message
- * IEEE 802.11-2016 Chapter 13.8.5 FT authentication sequence: contents of fourth message
+/* IEEE 802.11-2020 Chapter 13.8.4 FT authentication sequence: contents of third message
+ * IEEE 802.11-2020 Chapter 13.8.5 FT authentication sequence: contents of fourth message
  * The MIC shall be calculated on the concatenation of the following data, in the order given here:
  * —
  * — FTO’s MAC address (6 octets)
@@ -2092,6 +2092,7 @@ Dot11DecryptRsnaMicCheck(
  * — MDE
  * — FTE, with the MIC field of the FTE set to 0
  * — Contents of the RIC-Response (if present)
+ * — RSNXE (if present)
  */
 static int
 Dot11DecryptFtMicCheck(
@@ -2157,6 +2158,9 @@ Dot11DecryptFtMicCheck(
 
     if (assoc_parsed->rde_tag) {
         gcry_mac_write(handle, assoc_parsed->rde_tag, assoc_parsed->rde_tag[1] + 2);
+    }
+    if (assoc_parsed->rsnxe_tag) {
+        gcry_mac_write(handle, assoc_parsed->rsnxe_tag, assoc_parsed->rsnxe_tag[1] + 2);
     }
 
     if (gcry_mac_verify(handle, assoc_parsed->fte.mic, mic_len) != 0) {

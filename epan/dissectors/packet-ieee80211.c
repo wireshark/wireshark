@@ -359,6 +359,7 @@ typedef enum {
   FTE_TAG_KEY,
   MDE_TAG_KEY,
   RSNE_TAG_KEY,
+  RSNXE_TAG_KEY,
   RDE_TAG_KEY,
   GTK_SUBELEM_KEY_LEN_KEY,
   PASN_DATA_KEY,
@@ -21902,6 +21903,9 @@ save_tag_for_dot11decrypt(tvbuff_t *tvb, packet_info *pinfo, int offset)
     case TAG_RSN_IE:
       save_proto_data(tvb, pinfo, offset, tag_len + 2, RSNE_TAG_KEY);
       break;
+    case TAG_RSNX:
+      save_proto_data(tvb, pinfo, offset, tag_len + 2, RSNXE_TAG_KEY);
+      break;
     default:
       break;
   }
@@ -41398,6 +41402,8 @@ get_assoc_parsed(packet_info *pinfo, PDOT11DECRYPT_ASSOC_PARSED assoc_parsed)
     GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_wlan, FTE_R1KH_ID_LEN_KEY));
   assoc_parsed->rsne_tag =
     (uint8_t *)p_get_proto_data(pinfo->pool, pinfo, proto_wlan, RSNE_TAG_KEY);
+  assoc_parsed->rsnxe_tag =
+    (uint8_t *)p_get_proto_data(pinfo->pool, pinfo, proto_wlan, RSNXE_TAG_KEY);
   assoc_parsed->mde_tag =
     (uint8_t *)p_get_proto_data(pinfo->pool, pinfo, proto_wlan, MDE_TAG_KEY);
   assoc_parsed->fte_tag =

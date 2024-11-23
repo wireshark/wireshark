@@ -182,6 +182,7 @@ typedef struct _DOT11DECRYPT_ASSOC_PARSED
 	uint8_t *mdid;
 	DOT11DECRYPT_FTE fte;
 	uint8_t* rsne_tag;
+	uint8_t* rsnxe_tag;
 	uint8_t* mde_tag;
 	uint8_t* fte_tag;
 	uint8_t* rde_tag;

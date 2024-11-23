@@ -266,6 +266,20 @@ class TestDecrypt80211:
         assert grep_output(stdout, 'Who has 192.168.1.1')    # Verifies GTK decryption
         assert grep_output(stdout, r'Echo \(ping\) request') # Verifies TK decryption
 
+    def test_80211_wpa3_ft_sae_h2e(self, cmd_tshark, capture_file, test_env):
+        '''IEEE 802.11 decode WPA3 FT SAE H2E'''
+        # Included in git sources test/captures/wpa3-ft-sae-h2e.pcapng.gz
+        stdout = subprocess.check_output((cmd_tshark,
+                '-o', 'wlan.enable_decryption: TRUE',
+                '-r', capture_file('wpa3-ft-sae-h2e.pcapng.gz'),
+                '-Y', 'wlan.analysis.tk == 8c75edf396af8dea241eb72b2793489b || wlan.analysis.gtk == a31a5307ed7b250603cf1a33d1c1eee6 || wlan.analysis.tk == e80866b0ed3b534e1a924a1674e664ba',
+                ), encoding='utf-8', env=test_env)
+        assert count_output(stdout, 'DHCP Request') == 4
+        assert count_output(stdout, 'DHCP ACK') == 2
+        assert count_output(stdout, 'ARP.*Who has') == 4
+        assert count_output(stdout, 'ARP.*is at') == 2
+        assert count_output(stdout, r'ICMP.*Echo \(ping\)') == 4
+
 class TestDecrypt80211UserTk:
     def test_80211_user_tk_tkip(self, cmd_tshark, capture_file, test_env):
         '''IEEE 802.11 decode TKIP using user TK'''
