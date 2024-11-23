@@ -788,8 +788,8 @@ void PacketList::contextMenuEvent(QContextMenuEvent *event)
 
                     connect(proto_prefs_menu, SIGNAL(showProtocolPreferences(QString)),
                             this, SIGNAL(showProtocolPreferences(QString)));
-                    connect(proto_prefs_menu, SIGNAL(editProtocolPreference(preference*,pref_module*)),
-                            this, SIGNAL(editProtocolPreference(preference*,pref_module*)));
+                    connect(proto_prefs_menu, SIGNAL(editProtocolPreference(pref_t*,module_t*)),
+                            this, SIGNAL(editProtocolPreference(pref_t*,module_t*)));
 
                     proto_prefs_menus->addMenu(proto_prefs_menu);
                     added_proto_prefs << module_name;

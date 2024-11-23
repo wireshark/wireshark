@@ -407,8 +407,8 @@ void ProtoTree::contextMenuEvent(QContextMenuEvent *event)
 
     connect(proto_prefs_menu, &ProtocolPreferencesMenu::showProtocolPreferences,
             this, &ProtoTree::showProtocolPreferences);
-    connect(proto_prefs_menu, SIGNAL(editProtocolPreference(preference*,pref_module*)),
-            this, SIGNAL(editProtocolPreference(preference*,pref_module*)));
+    connect(proto_prefs_menu, SIGNAL(editProtocolPreference(pref_t*,_module_t*)),
+            this, SIGNAL(editProtocolPreference(pref_t*,module_t*)));
 
     ctx_menu->addMenu(proto_prefs_menu);
     ctx_menu->addSeparator();

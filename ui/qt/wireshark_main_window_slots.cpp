@@ -2928,8 +2928,8 @@ void WiresharkMainWindow::openPacketDialog(bool from_reference)
 
         connect(packet_dialog, &PacketDialog::showProtocolPreferences,
                 this, &WiresharkMainWindow::showPreferencesDialog);
-        connect(packet_dialog, SIGNAL(editProtocolPreference(preference*, pref_module*)),
-                main_ui_->preferenceEditorFrame, SLOT(editPreference(preference*, pref_module*)));
+        connect(packet_dialog, SIGNAL(editProtocolPreference(pref_t*, module_t*)),
+                main_ui_->preferenceEditorFrame, SLOT(editPreference(pref_t*, module_t*)));
 
         connect(this, &WiresharkMainWindow::closePacketDialogs, packet_dialog, &PacketDialog::close);
         zoomText(); // Emits mainApp->zoomMonospaceFont(QFont)
