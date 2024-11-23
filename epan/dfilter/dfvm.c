@@ -1307,6 +1307,13 @@ try_value_string(const header_field_info *hfinfo, fvalue_t *fv_num, char *buf)
 {
 	uint64_t val;
 
+	/* We checked this in the semantic check, but unfortunately there are
+	 * abbreviations shared by incompatible fields so we have to make sure.
+	 */
+	if (!ftype_can_val_to_uinteger64(hfinfo->type)) {
+		return NULL;
+	}
+
 	/* XXX - What about BASE_UNIT_STRING? Should we guarantee that we
 	 * don't get here for unit strings in semcheck.c (currently we
 	 * do for OP_MATCHES instead of disallowing it, which will result
