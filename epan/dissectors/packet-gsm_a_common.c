@@ -4751,7 +4751,7 @@ proto_register_gsm_a_common(void)
         NULL, HFILL }
     },
     { &hf_gsm_a_geo_loc_uncertainty_radius,
-        { "Uncertainty radius", "gsm_a.gad.no_of_points",
+        { "Uncertainty radius", "gsm_a.gad.uncertainty_radius",
         FT_UINT8, BASE_DEC, NULL, 0x7f,
         NULL, HFILL }
     },
