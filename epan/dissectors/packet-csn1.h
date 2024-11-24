@@ -149,7 +149,7 @@ typedef enum
  *
  * sz
  *    - is the name of the parameter within the descr where their unpacked or packed value shall be stored or fetched.
- *      This paramater is pointed out by the offset parameter in the same CSN_DESCR variable as the sz.
+ *      This parameter is pointed out by the offset parameter in the same CSN_DESCR variable as the sz.
  *    - the free text used by the CSN_TRAP_ERROR (the same as parameter "i")
  *
  * serialize

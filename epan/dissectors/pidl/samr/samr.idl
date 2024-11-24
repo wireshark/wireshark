@@ -1110,7 +1110,7 @@ import "misc.idl", "lsa.idl";
 	/* Function    0x26     */
 	/*
 	  this is a password change interface that doesn't give
-	  the server the plaintext password. Depricated.
+	  the server the plaintext password. Deprecated.
 	*/
 	NTSTATUS samr_ChangePasswordUser(
 		[in,ref]    policy_handle *user_handle,

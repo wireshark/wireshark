@@ -87,7 +87,7 @@ static int hf_dvb_s2_table_superframe_loop_count;
 static int hf_dvb_s2_table_superframe;
 static int hf_dvb_s2_table_sf_sequence;
 static int hf_dvb_s2_table_sf_id;
-static int hf_dvb_s2_table_sf_large_timing_uncertaintly_flag;
+static int hf_dvb_s2_table_sf_large_timing_uncertainty_flag;
 static int hf_dvb_s2_table_sf_uplink_polarization;
 static int hf_dvb_s2_table_sf_absolute_time;
 static int hf_dvb_s2_table_sf_duration;
@@ -1504,7 +1504,7 @@ static int dissect_dvb_s2_table_sct(tvbuff_t *tvb, int cur_off, proto_tree *dvb_
         else if (dvb_s2_rcs_version == DVB_S2_RCS2_TABLE_DECODING)
             proto_tree_add_item(dvb_s2_hdr_table_sf_tree, hf_dvb_s2_table_sf_sequence, tvb, cur_off + new_off, 1, ENC_NA);
         new_off += 1;
-        proto_tree_add_item(dvb_s2_hdr_table_sf_tree, hf_dvb_s2_table_sf_large_timing_uncertaintly_flag, tvb, cur_off + new_off, 1, ENC_NA);
+        proto_tree_add_item(dvb_s2_hdr_table_sf_tree, hf_dvb_s2_table_sf_large_timing_uncertainty_flag, tvb, cur_off + new_off, 1, ENC_NA);
         proto_tree_add_item(dvb_s2_hdr_table_sf_tree, hf_dvb_s2_table_sf_uplink_polarization, tvb, cur_off + new_off, 1, ENC_NA);
         new_off += 1;
         proto_tree_add_item(dvb_s2_hdr_table_sf_tree, hf_dvb_s2_table_sf_absolute_time , tvb, cur_off + new_off, 6, ENC_NA);
@@ -2706,7 +2706,7 @@ void proto_register_dvb_s2_table(void)
                 FT_UINT8, BASE_HEX, NULL, 0x0,
                 NULL, HFILL}
         },
-        {&hf_dvb_s2_table_sf_large_timing_uncertaintly_flag, {
+        {&hf_dvb_s2_table_sf_large_timing_uncertainty_flag, {
                 "Superframe large timing uncertainty flag", "dvb-s2_table.sf.large_timing_uncertainty_flag",
                 FT_UINT8, BASE_HEX, NULL, DVB_S2_TABLE_SCT_LARGE_TIMING_FLAG_MASK,
                 NULL, HFILL}

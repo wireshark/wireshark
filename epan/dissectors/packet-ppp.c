@@ -6113,7 +6113,7 @@ dissect_ppp_usb( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
         (tvb_memeql(tvb, 0, &buf2[1], sizeof(buf2) - 1) == 0)) {
         /* It's missing the 0x7e framing character.  What TODO?
          * Should we try faking it by sticking 0x7e in front?  Or try telling
-         * dissect_ppp_raw_hdlc() NOT to look for the 0x7e frame deliminator?
+         * dissect_ppp_raw_hdlc() NOT to look for the 0x7e frame delimiter?
          * Or is this a bug in libpcap (used 1.1.0)?
          * Or a bug in the Linux kernel (tested with 2.6.24.4)  Or a bug in
          * usbmon?  Or is the data we're looking at really just part of the

@@ -2626,7 +2626,7 @@ static void parsefunction(int pass)
 			num_pointers++;
 		}
 
-		/* now that we know how many real poitner there were we must
+		/* now that we know how many real pointer there were we must
 		   prepend default pointers to the list so it has the right
 		   length.
 		*/

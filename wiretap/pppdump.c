@@ -40,11 +40,11 @@ Daniel Thompson (STMicroelectronics) <daniel.thompson@st.com>
 +------+------+------+------+
 
 +------+
-| 0x04 |                              Receive deliminator (not seen in practice)
+| 0x04 |                              Receive delimiter (not seen in practice)
 +------+
 
 +------+
-| 0x03 |                              Send deliminator (not seen in practice)
+| 0x03 |                              Send delimiter (not seen in practice)
 +------+
 
 +------+

@@ -794,7 +794,7 @@ def main():
             template_lines = f.readlines()
 
         # All input is collected and rendered.
-        # It's safe to update the disector.
+        # It's safe to update the dissector.
 
         # copy each line of the template to required output,
         # if the 'insertion' is found in the template,

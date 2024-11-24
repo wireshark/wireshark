@@ -332,7 +332,7 @@ StringTypes = ['Numeric', 'Printable', 'IA5', 'BMP', 'Universal', 'UTF8',
 # for the known-multiplier character string types (X.691 27.1)
 #
 # XXX: This should include BMPString (UCS2) and UniversalString (UCS4),
-# but asn2wrs only suports the RestrictedCharacterStringValue
+# but asn2wrs only supports the RestrictedCharacterStringValue
 # notation of "cstring", but not that of "CharacterStringList",
 # "Quadruple", or "Tuple" (See X.680 41.8), and packet-per.c does
 # not support members of the permitted-alphabet being outside the

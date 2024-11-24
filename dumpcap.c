@@ -4204,7 +4204,7 @@ handle_npcap_bug(char *adapter_name _U_, char *cap_err_str _U_)
 
     if (!have_npcap) {
         /*
-         * We're not using Npcap, so don't recomment a user
+         * We're not using Npcap, so don't recommend a user
          * file a bug against Npcap.
          */
         return g_strdup("");

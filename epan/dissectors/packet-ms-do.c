@@ -426,7 +426,7 @@ dissect_do_heap_spraying(tvbuff_t* tvb, packet_info* pinfo, proto_tree* message_
 * Just adds its size (which we have from the message header) to the offset.
 */
 static bool
-dissect_do_unkown_message(tvbuff_t* tvb, packet_info* pinfo, proto_tree* message_tree, uint32_t message_size, uint8_t message_id, unsigned* offset_ptr)
+dissect_do_unknown_message(tvbuff_t* tvb, packet_info* pinfo, proto_tree* message_tree, uint32_t message_size, uint8_t message_id, unsigned* offset_ptr)
 {
     proto_tree_add_expert_format(message_tree, pinfo, &ei_do_invalid_message_id, tvb, *offset_ptr, message_size - 1,
         "Unknown message ID: %u", message_id);
@@ -458,7 +458,7 @@ message_id_to_callback(uint8_t message_id)
     case DO_HEAPSPRAYING_ID:
         return &dissect_do_heap_spraying;
     default:
-        return &dissect_do_unkown_message;
+        return &dissect_do_unknown_message;
     }
 }
 

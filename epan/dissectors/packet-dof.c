@@ -825,7 +825,7 @@ static int read_c2(tvbuff_t *tvb, int offset, uint16_t *v, int *len);
 static void validate_c2(packet_info *pinfo, proto_item *pi, uint16_t, int len);
 
 static int dof_dissect_pdu(dissector_t dissector, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *result);
-static int dof_dissect_pdu_as_field(dissector_t disector, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int item, int ett, void *result);
+static int dof_dissect_pdu_as_field(dissector_t dissector, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int item, int ett, void *result);
 
 #if 0 /* TODO not used yet */
 static void dof_session_add_proto_data(dof_session_data *session, int proto, void *proto_data);

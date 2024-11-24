@@ -95,7 +95,7 @@ To see interface configuration options:
 
 .Example output
     arg {number=0}{call=--etlfile}{display=etl file}{type=fileselect}{tooltip=Select etl file to display in Wireshark}{group=Capture}
-    arg {number=1}{call=--params}{display=filter parmeters}{type=string}{tooltip=Input providers, keyword and level filters for the etl file and live session}{group=Capture}
+    arg {number=1}{call=--params}{display=filter parameters}{type=string}{tooltip=Input providers, keyword and level filters for the etl file and live session}{group=Capture}
     arg {number=2}{call=--iue}{display=Should undecidable events be included}{type=boolflag}{default=false}{tooltip=Choose if the undecidable event is included}{group=Capture}
 
 To capture:

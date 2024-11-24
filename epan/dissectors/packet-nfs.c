@@ -9125,7 +9125,7 @@ dissect_nfs4_devices_file(tvbuff_t *tvb, int offset, proto_tree *tree)
 	unsigned i, j;
 	uint32_t num_indices, num_multipath, num_addr;
 
-	/* disect indices */
+	/* dissect indices */
 	num_indices = tvb_get_ntohl(tvb, offset);
 	offset += 4;
 	for (i = 0; i < num_indices; i++) {
@@ -9153,7 +9153,7 @@ dissect_nfs4_devices_flexfile(tvbuff_t *tvb, int offset, proto_tree *tree)
 	uint32_t num_addr;
 	uint32_t num_vers;
 
-	/* disect indices */
+	/* dissect indices */
 	num_addr = tvb_get_ntohl(tvb, offset);
 	offset += 4;
 	for (i = 0; i < num_addr; i++) {

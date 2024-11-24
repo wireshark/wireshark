@@ -91,7 +91,7 @@ typedef enum {
 	SMC_CLC_OS_ZOS = 1,
 	SMC_CLC_OS_LINUX = 2,
 	SMC_CLC_OS_AIX = 3,
-	SMC_CLC_OS_UNKOWN = 15,
+	SMC_CLC_OS_UNKNOWN = 15,
 } clc_os_message;
 
 typedef enum {
@@ -103,7 +103,7 @@ static const value_string smc_clc_os_message_txt[] = {
 	{ SMC_CLC_OS_ZOS,      "z/OS" },
 	{ SMC_CLC_OS_LINUX,    "Linux" },
 	{ SMC_CLC_OS_AIX,      "AIX" },
-	{ SMC_CLC_OS_UNKOWN,   "Unknown" },
+	{ SMC_CLC_OS_UNKNOWN,  "Unknown" },
 	{ 0, NULL }
 };
 
@@ -442,7 +442,7 @@ static dissector_handle_t smc_tcp_handle;
 static dissector_handle_t smc_infiniband_handle;
 
 static void
-disect_smc_uncompress_size(proto_item* ti, unsigned size, unsigned max_valid)
+dissect_smc_uncompress_size(proto_item* ti, unsigned size, unsigned max_valid)
 {
 	if (size <= max_valid) {
 		proto_item_append_text(ti, " (Size: %dk)", 1 << (size + 4)); /* uncompressed size */
@@ -452,7 +452,7 @@ disect_smc_uncompress_size(proto_item* ti, unsigned size, unsigned max_valid)
 }
 
 static void
-disect_smcr_translate_qp_mtu(proto_item* ti, unsigned qp_num)
+dissect_smcr_translate_qp_mtu(proto_item* ti, unsigned qp_num)
 {
 	if (qp_num > 0 && qp_num < SMC_MAX_QP_NUM) {
 		proto_item_append_text(ti, " (MTU: %d)", 1 << (7 + qp_num)); /* translated MTU size (1-5) */
@@ -462,7 +462,7 @@ disect_smcr_translate_qp_mtu(proto_item* ti, unsigned qp_num)
 }
 
 static void
-disect_smc_proposal(tvbuff_t *tvb, proto_tree *tree, bool is_ipv6)
+dissect_smc_proposal(tvbuff_t *tvb, proto_tree *tree, bool is_ipv6)
 {
 	unsigned offset;
 	uint16_t ip_subnet_ext_offset = 0, v2_ext_offset;
@@ -649,7 +649,7 @@ disect_smc_proposal(tvbuff_t *tvb, proto_tree *tree, bool is_ipv6)
 }
 
 static void
-disect_smcd_accept(tvbuff_t* tvb, proto_tree* tree)
+dissect_smcd_accept(tvbuff_t* tvb, proto_tree* tree)
 {
 	unsigned offset, dmbe_size;
 	proto_item* accept_flag_item;
@@ -689,7 +689,7 @@ disect_smcd_accept(tvbuff_t* tvb, proto_tree* tree)
 	accept_flag2_tree = proto_item_add_subtree(accept_flag2_item, ett_smcd_accept_flag2);
 	ti = proto_tree_add_item(accept_flag2_tree, hf_accept_dmb_buffer_size, tvb, offset, FLAG_BYTE_LEN, ENC_BIG_ENDIAN);
 	dmbe_size = tvb_get_int8(tvb, offset) >> 4;
-	disect_smc_uncompress_size(ti, dmbe_size, SMCD_MAX_BUFSIZE_NUM);
+	dissect_smc_uncompress_size(ti, dmbe_size, SMCD_MAX_BUFSIZE_NUM);
 	offset += FLAG_BYTE_LEN;
 	proto_tree_add_item(tree, hf_smc_reserved, tvb, offset, TWO_BYTE_RESERVED, ENC_NA);
 	offset += TWO_BYTE_RESERVED; /* reserved */
@@ -725,7 +725,7 @@ disect_smcd_accept(tvbuff_t* tvb, proto_tree* tree)
 }
 
 static void
-disect_smcd_confirm(tvbuff_t* tvb, proto_tree* tree)
+dissect_smcd_confirm(tvbuff_t* tvb, proto_tree* tree)
 {
 	unsigned offset, dmbe_size;
 	proto_item* confirm_flag_item;
@@ -765,7 +765,7 @@ disect_smcd_confirm(tvbuff_t* tvb, proto_tree* tree)
 	confirm_flag2_tree = proto_item_add_subtree(confirm_flag2_item, ett_smcd_confirm_flag2);
 	ti = proto_tree_add_item(confirm_flag2_tree, hf_smcd_confirm_dmb_buffer_size, tvb, offset, FLAG_BYTE_LEN, ENC_BIG_ENDIAN);
 	dmbe_size = tvb_get_int8(tvb, offset) >> 4;
-	disect_smc_uncompress_size(ti, dmbe_size, SMCD_MAX_BUFSIZE_NUM);
+	dissect_smc_uncompress_size(ti, dmbe_size, SMCD_MAX_BUFSIZE_NUM);
 	offset += FLAG_BYTE_LEN;
 	proto_tree_add_item(tree, hf_smc_reserved, tvb, offset, TWO_BYTE_RESERVED, ENC_NA);
 	offset += TWO_BYTE_RESERVED; /* reserved */
@@ -799,7 +799,7 @@ disect_smcd_confirm(tvbuff_t* tvb, proto_tree* tree)
 }
 
 static void
-disect_smcr_accept(tvbuff_t *tvb, proto_tree *tree)
+dissect_smcr_accept(tvbuff_t *tvb, proto_tree *tree)
 {
 	unsigned offset, qp_num, rmbe_size;
 	proto_item *accept_flag_item;
@@ -847,10 +847,10 @@ disect_smcr_accept(tvbuff_t *tvb, proto_tree *tree)
 	accept_flag2_tree = proto_item_add_subtree(accept_flag2_item, ett_accept_flag2);
 	ti = proto_tree_add_item(accept_flag2_tree, hf_accept_rmb_buffer_size, tvb, offset, FLAG_BYTE_LEN, ENC_BIG_ENDIAN);
 	rmbe_size = tvb_get_int8(tvb, offset) >> 4;
-	disect_smc_uncompress_size(ti, rmbe_size, SMCR_MAX_BUFSIZE_NUM);
+	dissect_smc_uncompress_size(ti, rmbe_size, SMCR_MAX_BUFSIZE_NUM);
 	ti = proto_tree_add_item(accept_flag2_tree, hf_accept_qp_mtu_value, tvb, offset, FLAG_BYTE_LEN, ENC_BIG_ENDIAN);
 	qp_num = tvb_get_int8(tvb, offset) & 0x0F;
-	disect_smcr_translate_qp_mtu(ti, qp_num);
+	dissect_smcr_translate_qp_mtu(ti, qp_num);
 	offset += FLAG_BYTE_LEN;
 	proto_tree_add_item(tree, hf_smc_reserved, tvb, offset, ONE_BYTE_RESERVED, ENC_NA);
 	offset += ONE_BYTE_RESERVED; /* reserved */
@@ -890,7 +890,7 @@ disect_smcr_accept(tvbuff_t *tvb, proto_tree *tree)
 }
 
 static void
-disect_smcr_confirm(tvbuff_t *tvb, proto_tree *tree)
+dissect_smcr_confirm(tvbuff_t *tvb, proto_tree *tree)
 {
 	unsigned offset, qp_num, rmbe_size;
 	proto_item *confirm_flag_item;
@@ -940,10 +940,10 @@ disect_smcr_confirm(tvbuff_t *tvb, proto_tree *tree)
 	confirm_flag2_tree = proto_item_add_subtree(confirm_flag2_item, ett_confirm_flag2);
 	ti = proto_tree_add_item(confirm_flag2_tree, hf_confirm_rmb_buffer_size, tvb, offset, FLAG_BYTE_LEN, ENC_BIG_ENDIAN);
 	rmbe_size = tvb_get_int8(tvb, offset) >> 4;
-	disect_smc_uncompress_size(ti, rmbe_size, SMCR_MAX_BUFSIZE_NUM);
+	dissect_smc_uncompress_size(ti, rmbe_size, SMCR_MAX_BUFSIZE_NUM);
 	ti = proto_tree_add_item(confirm_flag2_tree, hf_confirm_qp_mtu_value, tvb, offset, FLAG_BYTE_LEN, ENC_BIG_ENDIAN);
 	qp_num = tvb_get_int8(tvb, offset) & 0x0F;
-	disect_smcr_translate_qp_mtu(ti, qp_num);
+	dissect_smcr_translate_qp_mtu(ti, qp_num);
 	offset += FLAG_BYTE_LEN;
 	proto_tree_add_item(tree, hf_smc_reserved, tvb, offset, ONE_BYTE_RESERVED, ENC_NA);
 	offset += ONE_BYTE_RESERVED; /* reserved */
@@ -993,7 +993,7 @@ disect_smcr_confirm(tvbuff_t *tvb, proto_tree *tree)
 }
 
 static void
-disect_smc_decline(tvbuff_t *tvb, proto_tree *tree)
+dissect_smc_decline(tvbuff_t *tvb, proto_tree *tree)
 {
 	proto_item* decline_flag_item;
 	proto_tree* decline_flag_tree;
@@ -1043,7 +1043,7 @@ disect_smc_decline(tvbuff_t *tvb, proto_tree *tree)
 }
 
 static void
-disect_smcr_confirm_link(tvbuff_t *tvb, proto_tree *tree)
+dissect_smcr_confirm_link(tvbuff_t *tvb, proto_tree *tree)
 {
 	unsigned offset;
 	proto_item *confirm_flag_item;
@@ -1075,7 +1075,7 @@ disect_smcr_confirm_link(tvbuff_t *tvb, proto_tree *tree)
 }
 
 static void
-disect_smcr_add_link(tvbuff_t *tvb, proto_tree *tree, bool is_smc_v2)
+dissect_smcr_add_link(tvbuff_t *tvb, proto_tree *tree, bool is_smc_v2)
 {
 	unsigned offset, rkey_count, qp_num;
 	proto_item *add_link_flag_item;
@@ -1114,7 +1114,7 @@ disect_smcr_add_link(tvbuff_t *tvb, proto_tree *tree, bool is_smc_v2)
 	add_link_flag2_tree = proto_item_add_subtree(add_link_flag2_item, ett_add_link_flag2);
 	ti = proto_tree_add_item(add_link_flag2_tree, hf_smcr_add_link_qp_mtu_value, tvb, offset, 1, ENC_BIG_ENDIAN);
 	qp_num = tvb_get_int8(tvb, offset) & 0x0F;
-	disect_smcr_translate_qp_mtu(ti, qp_num);
+	dissect_smcr_translate_qp_mtu(ti, qp_num);
 	offset += 1;
 	proto_tree_add_item(tree, hf_smcr_add_link_initial_psn, tvb,
 			offset, PSN_LEN, ENC_BIG_ENDIAN);
@@ -1149,7 +1149,7 @@ disect_smcr_add_link(tvbuff_t *tvb, proto_tree *tree, bool is_smc_v2)
 }
 
 static void
-disect_smcr_add_continuation(tvbuff_t *tvb, proto_tree *tree)
+dissect_smcr_add_continuation(tvbuff_t *tvb, proto_tree *tree)
 {
 	unsigned offset;
 	uint8_t num_of_keys;
@@ -1194,7 +1194,7 @@ disect_smcr_add_continuation(tvbuff_t *tvb, proto_tree *tree)
 }
 
 static void
-disect_smcr_request_add_link(tvbuff_t* tvb, proto_tree* tree)
+dissect_smcr_request_add_link(tvbuff_t* tvb, proto_tree* tree)
 {
 	bool is_response = tvb_get_uint8(tvb, LLC_CMD_RSP_OFFSET) & LLC_FLAG_RESP;
 	proto_item* add_link_flag_item;
@@ -1225,7 +1225,7 @@ disect_smcr_request_add_link(tvbuff_t* tvb, proto_tree* tree)
 }
 
 static void
-disect_smcr_delete_link(tvbuff_t *tvb, proto_tree *tree)
+dissect_smcr_delete_link(tvbuff_t *tvb, proto_tree *tree)
 {
 	unsigned offset;
 	proto_item *delete_link_flag_item;
@@ -1246,7 +1246,7 @@ disect_smcr_delete_link(tvbuff_t *tvb, proto_tree *tree)
 }
 
 static void
-disect_smcr_confirm_rkey(tvbuff_t *tvb, proto_tree *tree)
+dissect_smcr_confirm_rkey(tvbuff_t *tvb, proto_tree *tree)
 {
 	unsigned offset;
 	uint8_t num_entries;
@@ -1290,7 +1290,7 @@ disect_smcr_confirm_rkey(tvbuff_t *tvb, proto_tree *tree)
 }
 
 static void
-disect_smcr_confirm_rkey_cont(tvbuff_t *tvb, proto_tree *tree)
+dissect_smcr_confirm_rkey_cont(tvbuff_t *tvb, proto_tree *tree)
 {
 	unsigned offset;
 	proto_item *confirm_rkey_flag_item;
@@ -1327,7 +1327,7 @@ disect_smcr_confirm_rkey_cont(tvbuff_t *tvb, proto_tree *tree)
 }
 
 static void
-disect_smcr_delete_rkey(tvbuff_t *tvb, proto_tree *tree, bool is_smc_v2)
+dissect_smcr_delete_rkey(tvbuff_t *tvb, proto_tree *tree, bool is_smc_v2)
 {
 	unsigned offset;
 	uint8_t count;
@@ -1367,7 +1367,7 @@ disect_smcr_delete_rkey(tvbuff_t *tvb, proto_tree *tree, bool is_smc_v2)
 }
 
 static void
-disect_smcr_test_link(tvbuff_t *tvb, proto_tree *tree)
+dissect_smcr_test_link(tvbuff_t *tvb, proto_tree *tree)
 {
 	unsigned offset;
 	proto_item *test_link_flag_item;
@@ -1380,7 +1380,7 @@ disect_smcr_test_link(tvbuff_t *tvb, proto_tree *tree)
 }
 
 static void
-disect_smcr_rmbe_ctrl(tvbuff_t *tvb, proto_tree *tree)
+dissect_smcr_rmbe_ctrl(tvbuff_t *tvb, proto_tree *tree)
 {
 	int offset;
 	proto_item *rmbe_ctrl_rw_status_flag_item;
@@ -1542,22 +1542,22 @@ dissect_smc_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			ENC_BIG_ENDIAN);
 	switch (clc_msgid) {
 		case SMC_CLC_PROPOSAL:
-			disect_smc_proposal(tvb, smc_tree, is_ipv6);
+			dissect_smc_proposal(tvb, smc_tree, is_ipv6);
 			break;
 		case SMC_CLC_ACCEPT:
 			if (is_smcd)
-				disect_smcd_accept(tvb, smc_tree);
+				dissect_smcd_accept(tvb, smc_tree);
 			else
-				disect_smcr_accept(tvb, smc_tree);
+				dissect_smcr_accept(tvb, smc_tree);
 			break;
 		case SMC_CLC_CONFIRMATION:
 			if (is_smcd)
-				disect_smcd_confirm(tvb, smc_tree);
+				dissect_smcd_confirm(tvb, smc_tree);
 			else
-				disect_smcr_confirm(tvb, smc_tree);
+				dissect_smcr_confirm(tvb, smc_tree);
 			break;
 		case SMC_CLC_DECLINE:
-			disect_smc_decline(tvb, smc_tree);
+			dissect_smc_decline(tvb, smc_tree);
 			break;
 		default:
 			/* Unknown Command */
@@ -1609,48 +1609,48 @@ dissect_smcr_infiniband(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 	switch (llc_msgid) {
 		case LLC_CONFIRM_LINK:
 		case LLC_CONFIRM_LINK_V2:
-			disect_smcr_confirm_link(tvb, smcr_tree);
+			dissect_smcr_confirm_link(tvb, smcr_tree);
 			break;
 
 		case LLC_ADD_LINK:
 		case LLC_ADD_LINK_V2:
-			disect_smcr_add_link(tvb, smcr_tree, is_smc_v2);
+			dissect_smcr_add_link(tvb, smcr_tree, is_smc_v2);
 			break;
 
 		case LLC_ADD_LINK_CONT:
-			disect_smcr_add_continuation(tvb, smcr_tree);
+			dissect_smcr_add_continuation(tvb, smcr_tree);
 			break;
 
 		case LLC_DEL_LINK:
 		case LLC_DEL_LINK_V2:
-			disect_smcr_delete_link(tvb, smcr_tree);
+			dissect_smcr_delete_link(tvb, smcr_tree);
 			break;
 
 		case LLC_CONFIRM_RKEY:
 		case LLC_CONFIRM_RKEY_V2:
-			disect_smcr_confirm_rkey(tvb, smcr_tree);
+			dissect_smcr_confirm_rkey(tvb, smcr_tree);
 			break;
 
 		case LLC_CONFIRM_RKEY_CONT:
-			disect_smcr_confirm_rkey_cont(tvb, smcr_tree);
+			dissect_smcr_confirm_rkey_cont(tvb, smcr_tree);
 			break;
 
 		case LLC_DELETE_RKEY:
 		case LLC_DELETE_RKEY_V2:
-			disect_smcr_delete_rkey(tvb, smcr_tree, is_smc_v2);
+			dissect_smcr_delete_rkey(tvb, smcr_tree, is_smc_v2);
 			break;
 
 		case LLC_TEST_LINK:
 		case LLC_TEST_LINK_V2:
-			disect_smcr_test_link(tvb, smcr_tree);
+			dissect_smcr_test_link(tvb, smcr_tree);
 			break;
 
 		case LLC_REQUEST_ADD_LINK_V2:
-			disect_smcr_request_add_link(tvb, smcr_tree);
+			dissect_smcr_request_add_link(tvb, smcr_tree);
 			break;
 
 		case RMBE_CTRL:
-			disect_smcr_rmbe_ctrl(tvb, smcr_tree);
+			dissect_smcr_rmbe_ctrl(tvb, smcr_tree);
 			break;
 
 		default:

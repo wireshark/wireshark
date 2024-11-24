@@ -2253,7 +2253,7 @@ dissect_sip_reason_header(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, i
     if (semi_colon_offset == -1){
         length = line_end_offset - current_offset;
     } else {
-        /* Text parmeter exist, set length accordingly */
+        /* Text parameter exist, set length accordingly */
         length = semi_colon_offset - current_offset;
     }
 

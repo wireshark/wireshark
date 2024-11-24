@@ -69,7 +69,7 @@ typedef struct _xmpp_attr_info{
     bool in_short_list;
 
     /*function validates this attribute
-    it may impose other restrictions (e.g. validating atribut's name, ...)*/
+    it may impose other restrictions (e.g. validating attribute's name, ...)*/
     void (*val_func)(packet_info *pinfo, proto_item *item, const char *name, const char *value, const void *data);
     void *data;
 } xmpp_attr_info;

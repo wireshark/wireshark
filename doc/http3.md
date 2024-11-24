@@ -8,7 +8,7 @@ At the moment, the following aspects of HTTP3 are supported:
 - Dissection of HTTP header fields
 - Dissection of QPACK instructions
 
-In addition, the dissector suports decoding of the HTTP3
+In addition, the dissector supports decoding of the HTTP3
 header fields. This ability requires `nghttp3` third-party library.
 
 ## High-level overview

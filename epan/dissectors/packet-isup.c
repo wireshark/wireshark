@@ -1244,7 +1244,7 @@ const value_string isup_parameter_type_value[] = {
 /* 116 */  { PARAM_TYPE_UID_ACTION_IND,            "UID action indicators"},
 /* 117 */  { PARAM_TYPE_UID_CAPAB_IND,             "UID capability indicators"},
 /* 119 */  { PARAM_TYPE_REDIRECT_COUNTER,          "Redirect counter (reserved for national use)"},
-/* 120 */  { PARAM_TYPE_APPLICATON_TRANS,          "Application transport"},
+/* 120 */  { PARAM_TYPE_APPLICATION_TRANS,         "Application transport"},
 /* 121 */  { PARAM_TYPE_COLLECT_CALL_REQ,          "Collect call request"},
 /* 122 */  { 122,                                  "Not used"},
 /* 123 */  { 123,                                  "Not used"},
@@ -1391,7 +1391,7 @@ static const value_string japan_isup_parameter_type_value[] = {
 /* 116 */  { PARAM_TYPE_UID_ACTION_IND,            "UID action indicators"},
 /* 117 */  { PARAM_TYPE_UID_CAPAB_IND,             "UID capability indicators"},
 /* 119 */  { PARAM_TYPE_REDIRECT_COUNTER,          "Redirect counter (reserved for national use)"},
-/* 120 */  { PARAM_TYPE_APPLICATON_TRANS,          "Application transport"},
+/* 120 */  { PARAM_TYPE_APPLICATION_TRANS,         "Application transport"},
 /* 121 */  { PARAM_TYPE_COLLECT_CALL_REQ,          "Collect call request"},
 /* 122 */  { 122,                                  "Not used"},
 /* 123 */  { 123,                                  "Not used"},
@@ -1540,7 +1540,7 @@ static const value_string ansi_isup_parameter_type_value[] = {
 /* 116 */  { PARAM_TYPE_UID_ACTION_IND,            "UID action indicators"},
 /* 117 */  { PARAM_TYPE_UID_CAPAB_IND,             "UID capability indicators"},
 /* 119 */  { PARAM_TYPE_REDIRECT_COUNTER,          "Redirect counter (reserved for national use)"},
-/* 120 */  { PARAM_TYPE_APPLICATON_TRANS,          "Application transport"},
+/* 120 */  { PARAM_TYPE_APPLICATION_TRANS,         "Application transport"},
 /* 121 */  { PARAM_TYPE_COLLECT_CALL_REQ,          "Collect call request"},
 /* 122 */  { 122,                                  "Not used"},
 /* 123 */  { 123,                                  "Not used"},
@@ -4745,7 +4745,7 @@ static const value_string BAT_ASE_Report_Reason_vals[] = {
   { 0,  NULL }
 };
 /* This routine should be called with offset at Organization_Identifier not the lengh indicator
- * because of use from other disectors.
+ * because of use from other dissectors.
  */
 extern int dissect_codec_mode(proto_tree *tree, tvbuff_t *tvb, int offset, int len) {
   uint8_t tempdata;
@@ -8322,7 +8322,7 @@ dissect_isup_optional_parameter(tvbuff_t *optional_parameters_tvb, packet_info *
           case PARAM_TYPE_GENERIC_DIGITS:
             dissect_isup_generic_digits_parameter(parameter_tvb, parameter_tree, parameter_item);
             break;
-          case PARAM_TYPE_APPLICATON_TRANS:
+          case PARAM_TYPE_APPLICATION_TRANS:
             dissect_isup_application_transport_parameter(parameter_tvb, pinfo, parameter_tree, parameter_item);
             break;
 
@@ -8695,7 +8695,7 @@ dissect_ansi_isup_optional_parameter(tvbuff_t *optional_parameters_tvb, packet_i
           case PARAM_TYPE_CHARGE_NR:
             dissect_isup_charge_number_parameter(parameter_tvb, pinfo, parameter_tree, parameter_item);
             break;
-          case PARAM_TYPE_APPLICATON_TRANS:
+          case PARAM_TYPE_APPLICATION_TRANS:
             dissect_isup_application_transport_parameter(parameter_tvb, pinfo, parameter_tree, parameter_item);
             break;
           case ANSI_ISUP_PARAM_TYPE_CARRIER_ID:

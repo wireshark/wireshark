@@ -7519,7 +7519,7 @@
   <field number='847' name='TargetStrategy' type='INT'>
    <value enum='1' description='VWAP' />
    <value enum='2' description='PARTICIPATE' />
-   <value enum='3' description='MININIZE_MARKET_IMPACT' />
+   <value enum='3' description='MINIMIZE_MARKET_IMPACT' />
   </field>
   <field number='848' name='TargetStrategyParameters' type='STRING' />
   <field number='849' name='ParticipationRate' type='PERCENTAGE' />

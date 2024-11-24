@@ -7903,14 +7903,14 @@
   <field number='532' name='MassCancelRejectReason' type='INT'>
    <value enum='0' description='MASS_CANCEL_NOT_SUPPORTED' />
    <value enum='1' description='INVALID_OR_UNKNOWN_SECURITY' />
-   <value enum='2' description='INVALID_OR_UNKOWN_UNDERLYING_SECURITY' />
+   <value enum='2' description='INVALID_OR_UNKNOWN_UNDERLYING_SECURITY' />
    <value enum='3' description='INVALID_OR_UNKNOWN_PRODUCT' />
    <value enum='4' description='INVALID_OR_UNKNOWN_CFICODE' />
    <value enum='5' description='INVALID_OR_UNKNOWN_SECURITYTYPE' />
    <value enum='6' description='INVALID_OR_UNKNOWN_TRADING_SESSION' />
    <value enum='99' description='OTHER' />
    <value enum='7' description='INVALID_OR_UNKNOWN_MARKET' />
-   <value enum='8' description='INVALID_OR_UNKOWN_MARKET_SEGMENT' />
+   <value enum='8' description='INVALID_OR_UNKNOWN_MARKET_SEGMENT' />
    <value enum='9' description='INVALID_OR_UNKNOWN_SECURITY_GROUP' />
    <value enum='10' description='INVALID_OR_UNKNOWN_SECURITY_ISSUER' />
    <value enum='11' description='INVALID_OR_UNKNOWN_ISSUER_OF_UNDERLYING_SECURITY' />
@@ -8886,7 +8886,7 @@
   <field number='847' name='TargetStrategy' type='INT'>
    <value enum='1' description='VWAP' />
    <value enum='2' description='PARTICIPATE' />
-   <value enum='3' description='MININIZE_MARKET_IMPACT' />
+   <value enum='3' description='MINIMIZE_MARKET_IMPACT' />
   </field>
   <field number='848' name='TargetStrategyParameters' type='STRING' />
   <field number='849' name='ParticipationRate' type='PERCENTAGE' />

@@ -2662,7 +2662,7 @@ static int populate_capture_host_info(erf_t *erf_priv, wtap *wth, union wtap_pse
 
   if (app_name || app_version) {
     /*
-     * If we have no app_name, we use "(Unknown applicaton)".
+     * If we have no app_name, we use "(Unknown application)".
      *
      * If we have no app_version, this will just use app_name.
      */

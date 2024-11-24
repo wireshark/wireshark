@@ -118,7 +118,7 @@ WS_DLL_PUBLIC value_string_ext q850_cause_code_vals_ext;
 #define PARAM_TYPE_UID_ACTION_IND             116
 #define PARAM_TYPE_UID_CAPAB_IND              117
 #define PARAM_TYPE_REDIRECT_COUNTER           119
-#define PARAM_TYPE_APPLICATON_TRANS           120
+#define PARAM_TYPE_APPLICATION_TRANS          120
 #define PARAM_TYPE_COLLECT_CALL_REQ           121
 #define PARAM_TYPE_CALLING_GEODETIC_LOCATION  129     /* ANSI is the same */
 #define PARAM_TYPE_GENERIC_NR                 192

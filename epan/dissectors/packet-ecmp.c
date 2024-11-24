@@ -921,7 +921,7 @@ static void add_attributes(packet_info* pinfo, int offset, tvbuff_t *tvb, proto_
 							wmem_strbuf_append_hex(pStr, check);
 						}
 					}
-					/*display last version summary parameter, e.g 'FW', 'BL', 'HW' as no deliminator to check for, just prints out rest of version string*/
+					/*display last version summary parameter, e.g 'FW', 'BL', 'HW' as no delimiter to check for, just prints out rest of version string*/
 					proto_tree_add_string(ecmp_attribute_data_tree, hf_ecmp_version_summary, tvb, offset-b, b, wmem_strbuf_get_str(pStr));
 					offset-= 1;
 				}
