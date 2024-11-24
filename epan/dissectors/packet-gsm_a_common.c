@@ -4721,12 +4721,12 @@ proto_register_gsm_a_common(void)
         NULL, HFILL }
     },
     { &hf_gsm_a_h_uncertainty_speed,
-        { "Horizontal Uncertainty Speed", "gsm_a.gad.v_uncertainty_speed",
+        { "Horizontal Uncertainty Speed", "gsm_a.gad.h_uncertainty_speed",
         FT_UINT8, BASE_DEC, NULL, 0x0,
         NULL, HFILL }
     },
     { &hf_gsm_a_v_uncertainty_speed,
-        { "Vertical Uncertainty Speed", "gsm_a.gad.h_uncertainty_speed",
+        { "Vertical Uncertainty Speed", "gsm_a.gad.v_uncertainty_speed",
         FT_UINT8, BASE_DEC, NULL, 0x0,
         NULL, HFILL }
     },
