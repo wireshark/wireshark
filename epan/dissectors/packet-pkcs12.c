@@ -173,39 +173,35 @@ generate_key_or_iv(packet_info *pinfo, unsigned int id, tvbuff_t *salt_tvb, unsi
   else
     pwlen = strlen(pw);
 
-  if (pwlen > 63 / 2)
-    {
-      return false;
-    }
+  if (pwlen > 63 / 2) {
+    return false;
+  }
 
   /* Store salt and password in BUF_I */
   p = buf_i;
   for (i = 0; i < 64; i++)
     *p++ = salt_p[i % salt_size];
-  if (pw)
-    {
-      for (i = j = 0; i < 64; i += 2)
-	{
-	  *p++ = 0;
-	  *p++ = pw[j];
-	  if (++j > pwlen)	/* Note, that we include the trailing zero */
-	    j = 0;
-	}
+
+  if (pw) {
+    for (i = j = 0; i < 64; i += 2) {
+      *p++ = 0;
+      *p++ = pw[j];
+      if (++j > pwlen)	/* Note, that we include the trailing zero */
+        j = 0;
     }
+  }
   else
     memset (p, 0, 64);
 
   for (;;) {
       err = gcry_md_open(&md, GCRY_MD_SHA1, 0);
-      if (gcry_err_code(err))
-        {
-          return false;
-        }
-      for (i = 0; i < 64; i++)
-        {
-          unsigned char lid = id & 0xFF;
-          gcry_md_write (md, &lid, 1);
-	}
+      if (gcry_err_code(err)) {
+        return false;
+      }
+      for (i = 0; i < 64; i++) {
+        unsigned char lid = id & 0xFF;
+        gcry_md_write (md, &lid, 1);
+      }
 
       gcry_md_write(md, buf_i, pw ? 128 : 64);
 
@@ -220,8 +216,7 @@ generate_key_or_iv(packet_info *pinfo, unsigned int id, tvbuff_t *salt_tvb, unsi
       for (i = 0; i < 20 && cur_keylen < req_keylen; i++)
         keybuf[cur_keylen++] = hash[i];
 
-      if (cur_keylen == req_keylen)
-      {
+      if (cur_keylen == req_keylen) {
         gcry_mpi_release (num_b1);
         return true;		/* ready */
       }
@@ -234,38 +229,34 @@ generate_key_or_iv(packet_info *pinfo, unsigned int id, tvbuff_t *salt_tvb, unsi
 
       rc = gcry_mpi_scan (&num_b1, GCRYMPI_FMT_USG, buf_b, n, &n);
 
-      if (rc != 0)
-        {
-          return false;
-        }
+      if (rc != 0) {
+        return false;
+      }
 
       gcry_mpi_add_ui (num_b1, num_b1, 1);
 
-      for (i = 0; i < 128; i += 64)
-        {
-          gcry_mpi_t num_ij;
+      for (i = 0; i < 128; i += 64) {
+        gcry_mpi_t num_ij;
 
-          n = 64;
-          rc = gcry_mpi_scan (&num_ij, GCRYMPI_FMT_USG, buf_i + i, n, &n);
+        n = 64;
+        rc = gcry_mpi_scan (&num_ij, GCRYMPI_FMT_USG, buf_i + i, n, &n);
 
-          if (rc != 0)
-            {
-              return false;
-            }
-
-          gcry_mpi_add (num_ij, num_ij, num_b1);
-          gcry_mpi_clear_highbit (num_ij, 64 * 8);
-
-          n = 64;
-
-          rc = gcry_mpi_print (GCRYMPI_FMT_USG, buf_i + i, n, &n, num_ij);
-          if (rc != 0)
-            {
-              return false;
-            }
-
-          gcry_mpi_release (num_ij);
+        if (rc != 0) {
+          return false;
         }
+
+        gcry_mpi_add (num_ij, num_ij, num_b1);
+        gcry_mpi_clear_highbit (num_ij, 64 * 8);
+
+        n = 64;
+
+        rc = gcry_mpi_print (GCRYMPI_FMT_USG, buf_i + i, n, &n, num_ij);
+        if (rc != 0) {
+          return false;
+        }
+
+        gcry_mpi_release (num_ij);
+      }
   }
 }
 
