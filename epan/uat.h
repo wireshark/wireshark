@@ -373,6 +373,8 @@ bool uat_fld_chk_oid(void*, const char*, unsigned, const void*, const void*, cha
 WS_DLL_PUBLIC
 bool uat_fld_chk_proto(void*, const char*, unsigned, const void*, const void*, char** err);
 WS_DLL_PUBLIC
+bool uat_fld_chk_field(void*, const char*, unsigned, const void*, const void*, char** err);
+WS_DLL_PUBLIC
 bool uat_fld_chk_num_dec(void*, const char*, unsigned, const void*, const void*, char** err);
 WS_DLL_PUBLIC
 bool uat_fld_chk_num_dec64(void*, const char*, unsigned, const void*, const void*, char** err);
@@ -499,7 +501,7 @@ static void basename ## _ ## field_name ## _tostr_cb(void* rec, char** out_ptr, 
 #define UAT_PROTO_FIELD_CB_DEF(basename,field_name,rec_t) UAT_CSTRING_CB_DEF(basename,field_name,rec_t)
 
 #define UAT_FLD_PROTO_FIELD(basename,field_name,title,desc) \
-    {#field_name, title, PT_TXTMOD_PROTO_FIELD, {uat_fld_chk_str,basename ## _ ## field_name ## _set_cb,basename ## _ ## field_name ## _tostr_cb},{0,0,0},0,desc,FLDFILL}
+    {#field_name, title, PT_TXTMOD_PROTO_FIELD, {uat_fld_chk_field,basename ## _ ## field_name ## _set_cb,basename ## _ ## field_name ## _tostr_cb},{0,0,0},0,desc,FLDFILL}
 
 /*
  * OID - just a CSTRING with a specific check routine

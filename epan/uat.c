@@ -680,6 +680,26 @@ bool uat_fld_chk_proto(void* u1 _U_, const char* strptr, unsigned len, const voi
     }
 }
 
+bool uat_fld_chk_field(void* u1 _U_, const char* strptr, unsigned len, const void* u2 _U_, const void* u3 _U_, char** err) {
+    if (len) {
+        char* name = g_strndup(strptr,len);
+        g_strstrip(name);
+
+        if (proto_registrar_get_byname(name) || proto_registrar_get_byalias(name)) {
+            *err = NULL;
+            g_free(name);
+            return true;
+        } else {
+            *err = g_strdup("field not found");
+            g_free(name);
+            return false;
+        }
+    } else {
+        *err = NULL;
+        return true;
+    }
+}
+
 static bool uat_fld_chk_num_check_result(bool result, const char* strn, char** err) {
     if (result && ((*strn != '\0') && (*strn != ' '))) {
         /* string valid, but followed by something other than a space */
