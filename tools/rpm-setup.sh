@@ -366,7 +366,7 @@ then
 fi
 
 # shellcheck disable=SC2086
-$PM $PM_OPT install $ACTUAL_LIST $OPTIONS
+$PM $PM_OPT install $OPTIONS $ACTUAL_LIST
 
 if [ $ADDITIONAL -eq 0 ]
 then
