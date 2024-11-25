@@ -512,6 +512,7 @@ ul_semcheck_value_string(dfwork_t *dfw, const char *func_name, ftenum_t logical_
     if (stnode_type_id(param) == STTYPE_FIELD) {
         dfw->field_count++;
         hfinfo = sttype_field_hfinfo(param);
+        /* XXX - We should check all fields with the same abbreviation. */
         if (hfinfo->strings != NULL && hfinfo->type != FT_FRAMENUM && hfinfo->type != FT_PROTOCOL) {
             sttype_field_set_value_string(param, true);
             return FT_STRING;
