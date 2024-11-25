@@ -817,20 +817,51 @@ static dissector_table_t rtps_type_name_table;
 #define CRYPTO_TRANSFORMATION_KIND_AES256_GMAC   (3)
 #define CRYPTO_TRANSFORMATION_KIND_AES256_GCM    (4)
 
-#define SECURITY_SYMMETRIC_CIPHER_BIT_AES128_GCM         0x00000001
-#define SECURITY_SYMMETRIC_CIPHER_BIT_AES256_GCM         0x00000002
-#define SECURITY_SYMMETRIC_CIPHER_BIT_CUSTOM_ALGORITHM   0x40000000
+/* Vendor specific algorithm bits are the upper 16 bits of 32-bit value */
+#define BITMASK_VENDOR_SPECIFIC_ALGORITHM01     0x00010000
+#define BITMASK_VENDOR_SPECIFIC_ALGORITHM02     0x00020000
+#define BITMASK_VENDOR_SPECIFIC_ALGORITHM03     0x00040000
+#define BITMASK_VENDOR_SPECIFIC_ALGORITHM04     0x00080000
+#define BITMASK_VENDOR_SPECIFIC_ALGORITHM05     0x00100000
+#define BITMASK_VENDOR_SPECIFIC_ALGORITHM06     0x00200000
+#define BITMASK_VENDOR_SPECIFIC_ALGORITHM07     0x00400000
+#define BITMASK_VENDOR_SPECIFIC_ALGORITHM08     0x00800000
+#define BITMASK_VENDOR_SPECIFIC_ALGORITHM09     0x01000000
+#define BITMASK_VENDOR_SPECIFIC_ALGORITHM10     0x02000000
+#define BITMASK_VENDOR_SPECIFIC_ALGORITHM11     0x04000000
+#define BITMASK_VENDOR_SPECIFIC_ALGORITHM12     0x08000000
+#define BITMASK_VENDOR_SPECIFIC_ALGORITHM13     0x10000000
+#define BITMASK_VENDOR_SPECIFIC_ALGORITHM14     0x20000000
+#define BITMASK_VENDOR_SPECIFIC_ALGORITHM15     0x40000000
+#define BITMASK_VENDOR_SPECIFIC_ALGORITHM16     0x80000000
 
-#define SECURITY_DIGITAL_SIGNATURE_BIT_RSASSAPSSMGF1SHA256_2048_SHA256  0x00000001
-#define SECURITY_DIGITAL_SIGNATURE_BIT_RSASSAPKCS1V15_2048_SHA256       0x00000002
-#define SECURITY_DIGITAL_SIGNATURE_BIT_ECDSA_P256_SHA256                0x00000004
-#define SECURITY_DIGITAL_SIGNATURE_BIT_ECDSA_P384_SHA384                0x00000008
-#define SECURITY_DIGITAL_SIGNATURE_BIT_CUSTOM_ALGORITHM                 0x40000000
 
-#define SECURITY_KEY_ESTABLISHMENT_BIT_DHE_MODP2048256     0x00000001
-#define SECURITY_KEY_ESTABLISHMENT_BIT_ECDHECEUM_P256      0x00000002
-#define SECURITY_KEY_ESTABLISHMENT_BIT_ECDHECEUM_P384      0x00000004
-#define SECURITY_KEY_ESTABLISHMENT_BIT_CUSTOM_ALGORITHM    0x40000000
+#define SECURITY_SYMMETRIC_CIPHER_BIT_AES128_GCM                                                        0x00000001
+#define SECURITY_SYMMETRIC_CIPHER_BIT_AES256_GCM                                                        0x00000002
+#define SECURITY_SYMMETRIC_CIPHER_BIT_VENDOR_RTI_AES192_GCM                                             0x40000000
+#define SECURITY_SYMMETRIC_CIPHER_ALGORITHM_INFO_SUPPORTED_MASK_DEFAULT                                 0x00000003
+#define SECURITY_SYMMETRIC_CIPHER_ALGORITHM_INFO_BUILTIN_ENDPOINTS_REQUIRED_MASK_DEFAULT                0x00000002
+#define SECURITY_SYMMETRIC_CIPHER_ALGORITHM_INFO_BUILTIN_ENDPOINTS_KEY_EXCHANGE_REQUIRED_MASK_DEFAULT   0x00000002
+#define SECURITY_SYMMETRIC_CIPHER_ALGORITHM_INFO_USER_ENDPOINTS_DEFAULT_REQUIRED_MASK_DEFAULT           0x00000002
+
+#define SECURITY_DIGITAL_SIGNATURE_BIT_RSASSAPSSMGF1SHA256_2048_SHA256                  0x00000001
+#define SECURITY_DIGITAL_SIGNATURE_BIT_RSASSAPKCS1V15_2048_SHA256                       0x00000002
+#define SECURITY_DIGITAL_SIGNATURE_BIT_ECDSA_P256_SHA256                                0x00000004
+#define SECURITY_DIGITAL_SIGNATURE_BIT_ECDSA_P384_SHA384                                0x00000008
+#define SECURITY_DIGITAL_SIGNATURE_BIT_VENDOR_RTI_EDDSA_ED25519_SHA512                  0x00010000
+#define SECURITY_DIGITAL_SIGNATURE_BIT_VENDOR_RTI_EDDSA_ED448_SHAKE256                  0x00020000
+#define SECURITY_DIGITAL_SIGNATURE_ALGORITHM_INFO_TRUST_CHAIN_SUPPORTED_MASK_DEFAULT    0x00000007
+#define SECURITY_DIGITAL_SIGNATURE_ALGORITHM_INFO_TRUST_CHAIN_REQUIRED_MASK_DEFAULT     0x00000004
+#define SECURITY_DIGITAL_SIGNATURE_ALGORITHM_INFO_MESSAGE_AUTH_SUPPORTED_MASK_DEFAULT   0x00000005
+#define SECURITY_DIGITAL_SIGNATURE_ALGORITHM_INFO_MESSAGE_AUTH_REQUIRED_MASK_DEFAULT    0x00000004
+
+#define SECURITY_KEY_ESTABLISHMENT_BIT_DHE_MODP2048256                    0x00000001
+#define SECURITY_KEY_ESTABLISHMENT_BIT_ECDHECEUM_P256                     0x00000002
+#define SECURITY_KEY_ESTABLISHMENT_BIT_ECDHECEUM_P384                     0x00000004
+#define SECURITY_KEY_ESTABLISHMENT_BIT_VENDOR_RTI_ECDHECEUM_X25519        0x00010000
+#define SECURITY_KEY_ESTABLISHMENT_BIT_VENDOR_RTI_ECDHECEUM_X448          0x00020000
+#define SECURITY_KEY_ESTABLISHMENT_ALGORITHM_INFO_SUPPORTED_MASK_DEFAULT  0x00000003
+#define SECURITY_KEY_ESTABLISHMENT_ALGORITHM_INFO_REQUIRED_MASK_DEFAULT   0x00000002
 
 #define SECURITY_ALGORITHM_BIT_COMPATIBILITY_MODE     0x80000000
 
@@ -849,18 +880,18 @@ static dissector_table_t rtps_type_name_table;
 #define RTI_OSAPI_COMPRESSION_CLASS_ID_AUTO      (UINT32_MAX)
 
 /* VENDOR_BUILTIN_ENDPOINT_SET FLAGS */
-#define VENDOR_BUILTIN_ENDPOINT_SET_FLAG_PARTICIPANT_CONFIG_WRITER          (0x00000001U << 7)
-#define VENDOR_BUILTIN_ENDPOINT_SET_FLAG_PARTICIPANT_CONFIG_READER          (0x00000001U << 8)
-#define VENDOR_BUILTIN_ENDPOINT_SET_FLAG_PARTICIPANT_CONFIG_SECURE_WRITER   (0x00000001U << 9)
-#define VENDOR_BUILTIN_ENDPOINT_SET_FLAG_PARTICIPANT_CONFIG_SECURE_READER   (0x00000001U << 10)
-#define VENDOR_BUILTIN_ENDPOINT_SET_FLAG_MONITORING_PERIODIC_WRITER         (0x00000001U << 11)
-#define VENDOR_BUILTIN_ENDPOINT_SET_FLAG_MONITORING_PERIODIC_READER         (0x00000001U << 12)
-#define VENDOR_BUILTIN_ENDPOINT_SET_FLAG_MONITORING_EVENT_WRITER            (0x00000001U << 13)
-#define VENDOR_BUILTIN_ENDPOINT_SET_FLAG_MONITORING_EVENT_READER            (0x00000001U << 14)
-#define VENDOR_BUILTIN_ENDPOINT_SET_FLAG_MONITORING_LOGGING_WRITER          (0x00000001U << 15)
-#define VENDOR_BUILTIN_ENDPOINT_SET_FLAG_MONITORING_LOGGING_READER          (0x00000001U << 16)
-#define VENDOR_BUILTIN_ENDPOINT_SET_FLAG_PARTICIPANT_BOOTSTRAP_WRITER       (0x00000001U << 17)
-#define VENDOR_BUILTIN_ENDPOINT_SET_FLAG_PARTICIPANT_BOOTSTRAP_READER       (0x00000001U << 18)
+#define VENDOR_BUILTIN_ENDPOINT_SET_FLAG_PARTICIPANT_CONFIG_WRITER          0x00000080
+#define VENDOR_BUILTIN_ENDPOINT_SET_FLAG_PARTICIPANT_CONFIG_READER          0x00000100
+#define VENDOR_BUILTIN_ENDPOINT_SET_FLAG_PARTICIPANT_CONFIG_SECURE_WRITER   0x00000200
+#define VENDOR_BUILTIN_ENDPOINT_SET_FLAG_PARTICIPANT_CONFIG_SECURE_READER   0x00000400
+#define VENDOR_BUILTIN_ENDPOINT_SET_FLAG_MONITORING_PERIODIC_WRITER         0x00000800
+#define VENDOR_BUILTIN_ENDPOINT_SET_FLAG_MONITORING_PERIODIC_READER         0x00001000
+#define VENDOR_BUILTIN_ENDPOINT_SET_FLAG_MONITORING_EVENT_WRITER            0x00002000
+#define VENDOR_BUILTIN_ENDPOINT_SET_FLAG_MONITORING_EVENT_READER            0x00004000
+#define VENDOR_BUILTIN_ENDPOINT_SET_FLAG_MONITORING_LOGGING_WRITER          0x00008000
+#define VENDOR_BUILTIN_ENDPOINT_SET_FLAG_MONITORING_LOGGING_READER          0x00010000
+#define VENDOR_BUILTIN_ENDPOINT_SET_FLAG_PARTICIPANT_BOOTSTRAP_WRITER       0x00020000
+#define VENDOR_BUILTIN_ENDPOINT_SET_FLAG_PARTICIPANT_BOOTSTRAP_READER       0x00040000
 
 static int hf_rtps_dissection_boolean;
 static int hf_rtps_dissection_byte;
@@ -1322,9 +1353,28 @@ static int hf_rtps_flag_security_submessage_protected;
 static int hf_rtps_param_participant_security_symmetric_cipher_algorithms_builtin_endpoints_required_mask;
 static int hf_rtps_param_participant_security_symmetric_cipher_algorithms_builtin_endpoints_key_exchange_used_bit;
 static int hf_rtps_param_participant_security_symmetric_cipher_algorithms_supported_mask;
+static int hf_rtps_param_participant_security_symmetric_cipher_algorithms_user_endpoints_default_required_mask;
+static int hf_rtps_flag_security_supported;
+static int hf_rtps_flag_security_required;
 static int hf_rtps_flag_security_symmetric_cipher_mask_aes128_gcm;
 static int hf_rtps_flag_security_symmetric_cipher_mask_aes256_gcm;
-static int hf_rtps_flag_security_symmetric_cipher_mask_custom_algorithm;
+static int hf_rtps_flag_security_symmetric_cipher_mask_vendor_rti_aes192_gcm;
+static int hf_rtps_flag_security_symmetric_cipher_mask_vendor_specific_algorithm01;
+static int hf_rtps_flag_security_symmetric_cipher_mask_vendor_specific_algorithm02;
+static int hf_rtps_flag_security_symmetric_cipher_mask_vendor_specific_algorithm03;
+static int hf_rtps_flag_security_symmetric_cipher_mask_vendor_specific_algorithm04;
+static int hf_rtps_flag_security_symmetric_cipher_mask_vendor_specific_algorithm05;
+static int hf_rtps_flag_security_symmetric_cipher_mask_vendor_specific_algorithm06;
+static int hf_rtps_flag_security_symmetric_cipher_mask_vendor_specific_algorithm07;
+static int hf_rtps_flag_security_symmetric_cipher_mask_vendor_specific_algorithm08;
+static int hf_rtps_flag_security_symmetric_cipher_mask_vendor_specific_algorithm09;
+static int hf_rtps_flag_security_symmetric_cipher_mask_vendor_specific_algorithm10;
+static int hf_rtps_flag_security_symmetric_cipher_mask_vendor_specific_algorithm11;
+static int hf_rtps_flag_security_symmetric_cipher_mask_vendor_specific_algorithm12;
+static int hf_rtps_flag_security_symmetric_cipher_mask_vendor_specific_algorithm13;
+static int hf_rtps_flag_security_symmetric_cipher_mask_vendor_specific_algorithm14;
+static int hf_rtps_flag_security_symmetric_cipher_mask_vendor_specific_algorithm15;
+static int hf_rtps_flag_security_symmetric_cipher_mask_vendor_specific_algorithm16;
 static int hf_rtps_param_compression_id_mask;
 static int hf_rtps_flag_compression_id_zlib;
 static int hf_rtps_flag_compression_id_bzip2;
@@ -1335,11 +1385,45 @@ static int hf_rtps_flag_security_digital_signature_mask_rsassapssmgf1sha256_2048
 static int hf_rtps_flag_security_digital_signature_mask_rsassapkcs1v15_2048_sha256;
 static int hf_rtps_flag_security_digital_signature_mask_ecdsa_p256_sha256;
 static int hf_rtps_flag_security_digital_signature_mask_ecdsa_p384_sha384;
-static int hf_rtps_flag_security_digital_signature_mask_custom_algorithm;
+static int hf_rtps_flag_security_digital_signature_mask_ecdsa_ed25519_sha512;
+static int hf_rtps_flag_security_digital_signature_mask_ecdsa_ed448_shake256;
+static int hf_rtps_flag_security_digital_signature_mask_vendor_specific_algorithm01;
+static int hf_rtps_flag_security_digital_signature_mask_vendor_specific_algorithm02;
+static int hf_rtps_flag_security_digital_signature_mask_vendor_specific_algorithm03;
+static int hf_rtps_flag_security_digital_signature_mask_vendor_specific_algorithm04;
+static int hf_rtps_flag_security_digital_signature_mask_vendor_specific_algorithm05;
+static int hf_rtps_flag_security_digital_signature_mask_vendor_specific_algorithm06;
+static int hf_rtps_flag_security_digital_signature_mask_vendor_specific_algorithm07;
+static int hf_rtps_flag_security_digital_signature_mask_vendor_specific_algorithm08;
+static int hf_rtps_flag_security_digital_signature_mask_vendor_specific_algorithm09;
+static int hf_rtps_flag_security_digital_signature_mask_vendor_specific_algorithm10;
+static int hf_rtps_flag_security_digital_signature_mask_vendor_specific_algorithm11;
+static int hf_rtps_flag_security_digital_signature_mask_vendor_specific_algorithm12;
+static int hf_rtps_flag_security_digital_signature_mask_vendor_specific_algorithm13;
+static int hf_rtps_flag_security_digital_signature_mask_vendor_specific_algorithm14;
+static int hf_rtps_flag_security_digital_signature_mask_vendor_specific_algorithm15;
+static int hf_rtps_flag_security_digital_signature_mask_vendor_specific_algorithm16;
 static int hf_rtps_flag_security_key_establishment_mask_dhe_modp2048256;
 static int hf_rtps_flag_security_key_establishment_mask_ecdheceum_p256;
 static int hf_rtps_flag_security_key_establishment_mask_ecdheceum_p384;
-static int hf_rtps_flag_security_key_establishment_mask_custom_algorithm;
+static int hf_rtps_flag_security_key_establishment_mask_ecdheceum_x25519;
+static int hf_rtps_flag_security_key_establishment_mask_ecdheceum_x448;
+static int hf_rtps_flag_security_key_establishment_mask_vendor_specific_algorithm01;
+static int hf_rtps_flag_security_key_establishment_mask_vendor_specific_algorithm02;
+static int hf_rtps_flag_security_key_establishment_mask_vendor_specific_algorithm03;
+static int hf_rtps_flag_security_key_establishment_mask_vendor_specific_algorithm04;
+static int hf_rtps_flag_security_key_establishment_mask_vendor_specific_algorithm05;
+static int hf_rtps_flag_security_key_establishment_mask_vendor_specific_algorithm06;
+static int hf_rtps_flag_security_key_establishment_mask_vendor_specific_algorithm07;
+static int hf_rtps_flag_security_key_establishment_mask_vendor_specific_algorithm08;
+static int hf_rtps_flag_security_key_establishment_mask_vendor_specific_algorithm09;
+static int hf_rtps_flag_security_key_establishment_mask_vendor_specific_algorithm10;
+static int hf_rtps_flag_security_key_establishment_mask_vendor_specific_algorithm11;
+static int hf_rtps_flag_security_key_establishment_mask_vendor_specific_algorithm12;
+static int hf_rtps_flag_security_key_establishment_mask_vendor_specific_algorithm13;
+static int hf_rtps_flag_security_key_establishment_mask_vendor_specific_algorithm14;
+static int hf_rtps_flag_security_key_establishment_mask_vendor_specific_algorithm15;
+static int hf_rtps_flag_security_key_establishment_mask_vendor_specific_algorithm16;
 static int hf_rtps_flag_security_algorithm_compatibility_mode;
 static int hf_rtps_flag_security_payload_protected;
 static int hf_rtps_flag_endpoint_security_attribute_flag_is_read_protected;
@@ -2672,9 +2756,47 @@ static int* const ENDPOINT_SECURITY_ATTRIBUTES[] = {
 };
 
 
+static int* const RTI_SECURITY_SIMMETRIC_CIPHER_MASK_FLAGS[] = {
+  &hf_rtps_flag_security_algorithm_compatibility_mode,
+  &hf_rtps_flag_security_symmetric_cipher_mask_vendor_specific_algorithm01,
+  &hf_rtps_flag_security_symmetric_cipher_mask_vendor_specific_algorithm02,
+  &hf_rtps_flag_security_symmetric_cipher_mask_vendor_specific_algorithm03,
+  &hf_rtps_flag_security_symmetric_cipher_mask_vendor_specific_algorithm04,
+  &hf_rtps_flag_security_symmetric_cipher_mask_vendor_specific_algorithm05,
+  &hf_rtps_flag_security_symmetric_cipher_mask_vendor_specific_algorithm06,
+  &hf_rtps_flag_security_symmetric_cipher_mask_vendor_specific_algorithm07,
+  &hf_rtps_flag_security_symmetric_cipher_mask_vendor_specific_algorithm08,
+  &hf_rtps_flag_security_symmetric_cipher_mask_vendor_specific_algorithm09,
+  &hf_rtps_flag_security_symmetric_cipher_mask_vendor_specific_algorithm10,
+  &hf_rtps_flag_security_symmetric_cipher_mask_vendor_specific_algorithm11,
+  &hf_rtps_flag_security_symmetric_cipher_mask_vendor_specific_algorithm12,
+  &hf_rtps_flag_security_symmetric_cipher_mask_vendor_specific_algorithm13,
+  &hf_rtps_flag_security_symmetric_cipher_mask_vendor_specific_algorithm14,
+  &hf_rtps_flag_security_symmetric_cipher_mask_vendor_rti_aes192_gcm,
+  &hf_rtps_flag_security_symmetric_cipher_mask_vendor_specific_algorithm16,
+  &hf_rtps_flag_security_symmetric_cipher_mask_aes256_gcm,
+  &hf_rtps_flag_security_symmetric_cipher_mask_aes128_gcm,
+  NULL
+};
+
 static int* const SECURITY_SIMMETRIC_CIPHER_MASK_FLAGS[] = {
   &hf_rtps_flag_security_algorithm_compatibility_mode,
-  &hf_rtps_flag_security_symmetric_cipher_mask_custom_algorithm,
+  &hf_rtps_flag_security_symmetric_cipher_mask_vendor_specific_algorithm01,
+  &hf_rtps_flag_security_symmetric_cipher_mask_vendor_specific_algorithm02,
+  &hf_rtps_flag_security_symmetric_cipher_mask_vendor_specific_algorithm03,
+  &hf_rtps_flag_security_symmetric_cipher_mask_vendor_specific_algorithm04,
+  &hf_rtps_flag_security_symmetric_cipher_mask_vendor_specific_algorithm05,
+  &hf_rtps_flag_security_symmetric_cipher_mask_vendor_specific_algorithm06,
+  &hf_rtps_flag_security_symmetric_cipher_mask_vendor_specific_algorithm07,
+  &hf_rtps_flag_security_symmetric_cipher_mask_vendor_specific_algorithm08,
+  &hf_rtps_flag_security_symmetric_cipher_mask_vendor_specific_algorithm09,
+  &hf_rtps_flag_security_symmetric_cipher_mask_vendor_specific_algorithm10,
+  &hf_rtps_flag_security_symmetric_cipher_mask_vendor_specific_algorithm11,
+  &hf_rtps_flag_security_symmetric_cipher_mask_vendor_specific_algorithm12,
+  &hf_rtps_flag_security_symmetric_cipher_mask_vendor_specific_algorithm13,
+  &hf_rtps_flag_security_symmetric_cipher_mask_vendor_specific_algorithm14,
+  &hf_rtps_flag_security_symmetric_cipher_mask_vendor_specific_algorithm15,
+  &hf_rtps_flag_security_symmetric_cipher_mask_vendor_specific_algorithm16,
   &hf_rtps_flag_security_symmetric_cipher_mask_aes256_gcm,
   &hf_rtps_flag_security_symmetric_cipher_mask_aes128_gcm,
   NULL
@@ -2687,18 +2809,97 @@ static int* const COMPRESSION_ID_MASK_FLAGS[] = {
   NULL
 };
 
-static int* const SECURITY_KEY_ESTABLISHMENT_MASK_FLAGS[] = {
+static int* const RTI_SECURITY_KEY_ESTABLISHMENT_MASK_FLAGS[] = {
   &hf_rtps_flag_security_algorithm_compatibility_mode,
-  &hf_rtps_flag_security_key_establishment_mask_custom_algorithm,
+  &hf_rtps_flag_security_key_establishment_mask_ecdheceum_x25519,
+  &hf_rtps_flag_security_key_establishment_mask_ecdheceum_x448,
+  &hf_rtps_flag_security_key_establishment_mask_vendor_specific_algorithm03,
+  &hf_rtps_flag_security_key_establishment_mask_vendor_specific_algorithm04,
+  &hf_rtps_flag_security_key_establishment_mask_vendor_specific_algorithm05,
+  &hf_rtps_flag_security_key_establishment_mask_vendor_specific_algorithm06,
+  &hf_rtps_flag_security_key_establishment_mask_vendor_specific_algorithm07,
+  &hf_rtps_flag_security_key_establishment_mask_vendor_specific_algorithm08,
+  &hf_rtps_flag_security_key_establishment_mask_vendor_specific_algorithm09,
+  &hf_rtps_flag_security_key_establishment_mask_vendor_specific_algorithm10,
+  &hf_rtps_flag_security_key_establishment_mask_vendor_specific_algorithm11,
+  &hf_rtps_flag_security_key_establishment_mask_vendor_specific_algorithm12,
+  &hf_rtps_flag_security_key_establishment_mask_vendor_specific_algorithm13,
+  &hf_rtps_flag_security_key_establishment_mask_vendor_specific_algorithm14,
+  &hf_rtps_flag_security_key_establishment_mask_vendor_specific_algorithm15,
+  &hf_rtps_flag_security_key_establishment_mask_vendor_specific_algorithm16,
   &hf_rtps_flag_security_key_establishment_mask_ecdheceum_p384,
   &hf_rtps_flag_security_key_establishment_mask_ecdheceum_p256,
   &hf_rtps_flag_security_key_establishment_mask_dhe_modp2048256,
   NULL
 };
 
+static int* const SECURITY_KEY_ESTABLISHMENT_MASK_FLAGS[] = {
+  &hf_rtps_flag_security_algorithm_compatibility_mode,
+  &hf_rtps_flag_security_key_establishment_mask_vendor_specific_algorithm01,
+  &hf_rtps_flag_security_key_establishment_mask_vendor_specific_algorithm02,
+  &hf_rtps_flag_security_key_establishment_mask_vendor_specific_algorithm03,
+  &hf_rtps_flag_security_key_establishment_mask_vendor_specific_algorithm04,
+  &hf_rtps_flag_security_key_establishment_mask_vendor_specific_algorithm05,
+  &hf_rtps_flag_security_key_establishment_mask_vendor_specific_algorithm06,
+  &hf_rtps_flag_security_key_establishment_mask_vendor_specific_algorithm07,
+  &hf_rtps_flag_security_key_establishment_mask_vendor_specific_algorithm08,
+  &hf_rtps_flag_security_key_establishment_mask_vendor_specific_algorithm09,
+  &hf_rtps_flag_security_key_establishment_mask_vendor_specific_algorithm10,
+  &hf_rtps_flag_security_key_establishment_mask_vendor_specific_algorithm11,
+  &hf_rtps_flag_security_key_establishment_mask_vendor_specific_algorithm12,
+  &hf_rtps_flag_security_key_establishment_mask_vendor_specific_algorithm13,
+  &hf_rtps_flag_security_key_establishment_mask_vendor_specific_algorithm14,
+  &hf_rtps_flag_security_key_establishment_mask_vendor_specific_algorithm15,
+  &hf_rtps_flag_security_key_establishment_mask_vendor_specific_algorithm16,
+  &hf_rtps_flag_security_key_establishment_mask_ecdheceum_p384,
+  &hf_rtps_flag_security_key_establishment_mask_ecdheceum_p256,
+  &hf_rtps_flag_security_key_establishment_mask_dhe_modp2048256,
+  NULL
+};
+
+static int* const RTI_SECURITY_DIGITAL_SIGNATURE_MASK_FLAGS[] = {
+  &hf_rtps_flag_security_algorithm_compatibility_mode,
+  &hf_rtps_flag_security_digital_signature_mask_ecdsa_ed25519_sha512,
+  &hf_rtps_flag_security_digital_signature_mask_ecdsa_ed448_shake256,
+  &hf_rtps_flag_security_digital_signature_mask_vendor_specific_algorithm03,
+  &hf_rtps_flag_security_digital_signature_mask_vendor_specific_algorithm04,
+  &hf_rtps_flag_security_digital_signature_mask_vendor_specific_algorithm05,
+  &hf_rtps_flag_security_digital_signature_mask_vendor_specific_algorithm06,
+  &hf_rtps_flag_security_digital_signature_mask_vendor_specific_algorithm07,
+  &hf_rtps_flag_security_digital_signature_mask_vendor_specific_algorithm08,
+  &hf_rtps_flag_security_digital_signature_mask_vendor_specific_algorithm09,
+  &hf_rtps_flag_security_digital_signature_mask_vendor_specific_algorithm10,
+  &hf_rtps_flag_security_digital_signature_mask_vendor_specific_algorithm11,
+  &hf_rtps_flag_security_digital_signature_mask_vendor_specific_algorithm12,
+  &hf_rtps_flag_security_digital_signature_mask_vendor_specific_algorithm13,
+  &hf_rtps_flag_security_digital_signature_mask_vendor_specific_algorithm14,
+  &hf_rtps_flag_security_digital_signature_mask_vendor_specific_algorithm15,
+  &hf_rtps_flag_security_digital_signature_mask_vendor_specific_algorithm16,
+  &hf_rtps_flag_security_digital_signature_mask_ecdsa_p384_sha384,
+  &hf_rtps_flag_security_digital_signature_mask_ecdsa_p256_sha256,
+  &hf_rtps_flag_security_digital_signature_mask_rsassapkcs1v15_2048_sha256,
+  &hf_rtps_flag_security_digital_signature_mask_rsassapssmgf1sha256_2048_sha256,
+  NULL
+};
+
 static int* const SECURITY_DIGITAL_SIGNATURE_MASK_FLAGS[] = {
   &hf_rtps_flag_security_algorithm_compatibility_mode,
-  &hf_rtps_flag_security_digital_signature_mask_custom_algorithm,
+  &hf_rtps_flag_security_digital_signature_mask_vendor_specific_algorithm01,
+  &hf_rtps_flag_security_digital_signature_mask_vendor_specific_algorithm02,
+  &hf_rtps_flag_security_digital_signature_mask_vendor_specific_algorithm03,
+  &hf_rtps_flag_security_digital_signature_mask_vendor_specific_algorithm04,
+  &hf_rtps_flag_security_digital_signature_mask_vendor_specific_algorithm05,
+  &hf_rtps_flag_security_digital_signature_mask_vendor_specific_algorithm06,
+  &hf_rtps_flag_security_digital_signature_mask_vendor_specific_algorithm07,
+  &hf_rtps_flag_security_digital_signature_mask_vendor_specific_algorithm08,
+  &hf_rtps_flag_security_digital_signature_mask_vendor_specific_algorithm09,
+  &hf_rtps_flag_security_digital_signature_mask_vendor_specific_algorithm10,
+  &hf_rtps_flag_security_digital_signature_mask_vendor_specific_algorithm11,
+  &hf_rtps_flag_security_digital_signature_mask_vendor_specific_algorithm12,
+  &hf_rtps_flag_security_digital_signature_mask_vendor_specific_algorithm13,
+  &hf_rtps_flag_security_digital_signature_mask_vendor_specific_algorithm14,
+  &hf_rtps_flag_security_digital_signature_mask_vendor_specific_algorithm15,
+  &hf_rtps_flag_security_digital_signature_mask_vendor_specific_algorithm16,
   &hf_rtps_flag_security_digital_signature_mask_ecdsa_p384_sha384,
   &hf_rtps_flag_security_digital_signature_mask_ecdsa_p256_sha256,
   &hf_rtps_flag_security_digital_signature_mask_rsassapkcs1v15_2048_sha256,
@@ -3604,7 +3805,8 @@ static int check_offset_addition(int offset, uint32_t value, proto_tree *tree, p
 }
 
 static void rtps_util_dissect_parameter_header(tvbuff_t * tvb, int * offset,
-        const unsigned encoding, uint32_t * member_id, uint32_t * member_length) {
+        const unsigned encoding, uint32_t * member_id, uint32_t * member_length)
+{
   *member_id = tvb_get_uint16(tvb, *offset, encoding);
   *offset += 2;
   *member_length = tvb_get_uint16(tvb, *offset, encoding);
@@ -3619,25 +3821,44 @@ static void rtps_util_dissect_parameter_header(tvbuff_t * tvb, int * offset,
   }
 }
 
-static int dissect_crypto_algorithm_requirements(proto_tree *tree , tvbuff_t* tvb,
-    int offset, int encoding, int* const *flags) {
-  proto_tree_add_bitmask(
-      tree,
-      tvb,
-      offset,
-      hf_rtps_param_crypto_algorithm_requirements_trust_chain,
-      ett_rtps_flags, flags,
-      encoding);
-  offset += 4;
-  proto_tree_add_bitmask(
-      tree,
-      tvb,
-      offset,
-      hf_rtps_param_crypto_algorithm_requirements_message_auth,
-      ett_rtps_flags, flags,
-      encoding);
-  offset += 4;
-  return offset;
+/**
+ * @brief Dissect a crypto algorithm bitmask. If the length is 0, a default
+ * value is used.
+ */
+static proto_item *dissect_crypto_algo_bitmask(proto_tree *parent_tree, tvbuff_t *tvb, unsigned *offset,
+        uint32_t *algo_length, const int hf_hdr, const int ett, int * const *fields,
+        const unsigned encoding, const char *algo_name, const int algo_default_value, const char *algo_default_value_string)
+{
+    proto_item *item = NULL;
+    if (*algo_length > 0) {
+        item = proto_tree_add_bitmask(parent_tree, tvb, *offset, hf_hdr, ett, fields, encoding);
+        *offset += 4;
+        *algo_length -= 4;
+    } else {
+        item = proto_tree_add_string_format(parent_tree, hf_rtps_flag_security_supported,
+                tvb, 0, 0, algo_name, "[%s (default value): 0x%08x, %s]",
+                algo_name, algo_default_value, algo_default_value_string);
+    }
+    return item;
+}
+
+static int dissect_crypto_algorithm_requirements(proto_tree *tree, tvbuff_t* tvb,
+        int offset, uint32_t *algo_length, int encoding, int* const *flags,
+        const int default_supported_mask, const char *default_supported_mask_string,
+        const int default_required_mask, const char *default_required_mask_string)
+{
+
+    dissect_crypto_algo_bitmask(tree, tvb, &offset, algo_length,
+        hf_rtps_param_crypto_algorithm_requirements_trust_chain,
+        ett_rtps_flags, flags, encoding, "Supported",
+        default_supported_mask, default_supported_mask_string);
+
+    dissect_crypto_algo_bitmask(tree, tvb, &offset, algo_length,
+            hf_rtps_param_crypto_algorithm_requirements_message_auth,
+            ett_rtps_flags, flags, encoding, "Required",
+            default_required_mask, default_required_mask_string);
+
+    return offset;
 }
 
 static int dissect_mutable_member(proto_tree *tree , tvbuff_t * tvb, packet_info *pinfo, int offset, unsigned encoding, unsigned encoding_version,
@@ -8487,62 +8708,118 @@ static bool dissect_parameter_sequence_rti_dds(proto_tree *rtps_parameter_tree, 
             offset,
             hf_rtps_param_participant_security_symmetric_cipher_algorithms_builtin_endpoints_required_mask,
             ett_rtps_flags,
-            SECURITY_SIMMETRIC_CIPHER_MASK_FLAGS,
+            (vendor_id == RTPS_VENDOR_RTI_DDS)
+                ? RTI_SECURITY_SIMMETRIC_CIPHER_MASK_FLAGS
+                : SECURITY_SIMMETRIC_CIPHER_MASK_FLAGS,
             encoding);
 
       break;
     }
 
     case PID_PARTICIPANT_SECURITY_SYMMETRIC_CIPHER_ALGO: {
-        ENSURE_LENGTH(12);
-        proto_tree_add_bitmask(
+        uint32_t algo_length = param_length;
+        /*
+         * Only the first field is always available, the remaining three might
+         * be available in the capture or not. dissect_crypto_algo_bitmask
+         * takes that into consideration and add the default values if the field
+         * is not available in the capture.
+         */
+        dissect_crypto_algo_bitmask(
             rtps_parameter_tree,
             tvb,
-            offset,
+            &offset,
+            &algo_length,
             hf_rtps_param_participant_security_symmetric_cipher_algorithms_supported_mask,
             ett_rtps_flags,
-            SECURITY_SIMMETRIC_CIPHER_MASK_FLAGS,
-            encoding);
-        offset += 4;
-        proto_tree_add_bitmask(
+            (vendor_id == RTPS_VENDOR_RTI_DDS)
+                ? RTI_SECURITY_SIMMETRIC_CIPHER_MASK_FLAGS
+                : SECURITY_SIMMETRIC_CIPHER_MASK_FLAGS,
+            encoding,
+            "Supported Mask",
+            SECURITY_KEY_ESTABLISHMENT_ALGORITHM_INFO_SUPPORTED_MASK_DEFAULT,
+            "AES128_GCM, AES256_GCM");
+        dissect_crypto_algo_bitmask(
             rtps_parameter_tree,
             tvb,
-            offset,
+            &offset,
+            &algo_length,
             hf_rtps_param_participant_security_symmetric_cipher_algorithms_builtin_endpoints_required_mask,
             ett_rtps_flags,
-            SECURITY_SIMMETRIC_CIPHER_MASK_FLAGS,
-            encoding);
-        offset += 4;
-        proto_tree_add_bitmask(
+            (vendor_id == RTPS_VENDOR_RTI_DDS)
+                ? RTI_SECURITY_SIMMETRIC_CIPHER_MASK_FLAGS
+                : SECURITY_SIMMETRIC_CIPHER_MASK_FLAGS,
+            encoding,
+            "Builtin Endpoints Required Mask",
+            SECURITY_KEY_ESTABLISHMENT_ALGORITHM_INFO_SUPPORTED_MASK_DEFAULT,
+            "AES256_GCM");
+        dissect_crypto_algo_bitmask(
             rtps_parameter_tree,
             tvb,
-            offset,
+            &offset,
+            &algo_length,
             hf_rtps_param_participant_security_symmetric_cipher_algorithms_builtin_endpoints_key_exchange_used_bit,
             ett_rtps_flags,
-            SECURITY_SIMMETRIC_CIPHER_MASK_FLAGS,
-            encoding);
+            (vendor_id == RTPS_VENDOR_RTI_DDS)
+                ? RTI_SECURITY_SIMMETRIC_CIPHER_MASK_FLAGS
+                : SECURITY_SIMMETRIC_CIPHER_MASK_FLAGS,
+            encoding,
+            "Key Exchange Builtin Endpoints Required Mask",
+            SECURITY_KEY_ESTABLISHMENT_ALGORITHM_INFO_SUPPORTED_MASK_DEFAULT,
+            "AES256_GCM");
+        dissect_crypto_algo_bitmask(
+            rtps_parameter_tree,
+            tvb,
+            &offset,
+            &algo_length,
+            hf_rtps_param_participant_security_symmetric_cipher_algorithms_user_endpoints_default_required_mask,
+            ett_rtps_flags,
+            (vendor_id == RTPS_VENDOR_RTI_DDS)
+                ? RTI_SECURITY_SIMMETRIC_CIPHER_MASK_FLAGS
+                : SECURITY_SIMMETRIC_CIPHER_MASK_FLAGS,
+            encoding,
+            "Key Endpoints Default Required Mask",
+            SECURITY_KEY_ESTABLISHMENT_ALGORITHM_INFO_SUPPORTED_MASK_DEFAULT,
+            "AES256_GCM");
       break;
     }
 
     case PID_PARTICIPANT_SECURITY_KEY_ESTABLISHMENT_ALGO: {
-        ENSURE_LENGTH(8);
+        uint32_t algo_length = param_length;
         proto_tree *sub_tree = proto_tree_add_subtree(rtps_parameter_tree, tvb, offset, 4,
             ett_rtps_crypto_algorithm_requirements, NULL, "Shared Secret");
-        dissect_crypto_algorithm_requirements(sub_tree, tvb, offset,
-            encoding, SECURITY_KEY_ESTABLISHMENT_MASK_FLAGS);
+        dissect_crypto_algorithm_requirements(sub_tree, tvb, offset, &algo_length, encoding,
+            (vendor_id == RTPS_VENDOR_RTI_DDS)
+                ? RTI_SECURITY_KEY_ESTABLISHMENT_MASK_FLAGS
+                : SECURITY_KEY_ESTABLISHMENT_MASK_FLAGS,
+            SECURITY_KEY_ESTABLISHMENT_ALGORITHM_INFO_SUPPORTED_MASK_DEFAULT,
+            "DHE_MODP_2048_256, ECDHE_CEUM_P256",
+            SECURITY_KEY_ESTABLISHMENT_ALGORITHM_INFO_REQUIRED_MASK_DEFAULT,
+            "ECDHE_CEUM_P256");
       break;
     }
 
     case PID_PARTICIPANT_SECURITY_DIGITAL_SIGNATURE_ALGO: {
-        ENSURE_LENGTH(16);
+        uint32_t algo_length = param_length;
         proto_tree *sub_tree = proto_tree_add_subtree(rtps_parameter_tree, tvb, offset, 4,
             ett_rtps_crypto_algorithm_requirements, NULL, "Trust Chain");
-        offset = dissect_crypto_algorithm_requirements(sub_tree, tvb, offset,
-            encoding, SECURITY_DIGITAL_SIGNATURE_MASK_FLAGS);
-        sub_tree = proto_tree_add_subtree(rtps_parameter_tree, tvb, offset, 4,
-            ett_rtps_crypto_algorithm_requirements, NULL, "Message Authentication");
-        dissect_crypto_algorithm_requirements(sub_tree, tvb, offset,
-            encoding, SECURITY_DIGITAL_SIGNATURE_MASK_FLAGS);
+        offset = dissect_crypto_algorithm_requirements( sub_tree, tvb, offset, &algo_length, encoding,
+            (vendor_id == RTPS_VENDOR_RTI_DDS)
+                ? RTI_SECURITY_DIGITAL_SIGNATURE_MASK_FLAGS
+                : SECURITY_DIGITAL_SIGNATURE_MASK_FLAGS,
+            SECURITY_DIGITAL_SIGNATURE_ALGORITHM_INFO_TRUST_CHAIN_SUPPORTED_MASK_DEFAULT,
+            "RSASSA_PKCS1V15_2048_SHA256, RSASSA_PSS_MGF1SHA256_2048_SHA256, ECDSA_P256_SHA256",
+            SECURITY_DIGITAL_SIGNATURE_ALGORITHM_INFO_TRUST_CHAIN_REQUIRED_MASK_DEFAULT,
+            "ECDSA_P256_SHA256");
+        sub_tree = proto_tree_add_subtree(rtps_parameter_tree, tvb, offset,
+            (algo_length > 0) ? 4 : 0, ett_rtps_crypto_algorithm_requirements, NULL, "Message Authentication");
+        dissect_crypto_algorithm_requirements( sub_tree, tvb, offset, &algo_length, encoding,
+            (vendor_id == RTPS_VENDOR_RTI_DDS)
+                ? RTI_SECURITY_DIGITAL_SIGNATURE_MASK_FLAGS
+                : SECURITY_DIGITAL_SIGNATURE_MASK_FLAGS,
+            SECURITY_DIGITAL_SIGNATURE_ALGORITHM_INFO_MESSAGE_AUTH_SUPPORTED_MASK_DEFAULT,
+            "RSASSA_PSS_MGF1SHA256_2048_SHA256, ECDSA_P256_SHA256",
+            SECURITY_DIGITAL_SIGNATURE_ALGORITHM_INFO_MESSAGE_AUTH_REQUIRED_MASK_DEFAULT,
+            "ECDSA_P256_SHA256");
       break;
     }
 
@@ -17863,10 +18140,16 @@ void proto_register_rtps(void) {
         "Bitmask representing the Symmetric Cipher algorithm the key exchange builtin endpoints require",
         HFILL }
     },
+    { &hf_rtps_param_participant_security_symmetric_cipher_algorithms_user_endpoints_default_required_mask, {
+        "User Endpoints Default Required Mask", "rtps.param.participant_security_symmetric_cipher_algorithms.user_endpoints_default_required_mask",
+        FT_UINT32, BASE_HEX, 0, 0,
+        "Bitmask representing the default algorithm that endpoints use to protect data",
+        HFILL }
+    },
     { &hf_rtps_param_participant_security_symmetric_cipher_algorithms_supported_mask, {
         "Supported Mask", "rtps.param.security_symmetric_cipher_algorithms.supported_mask",
         FT_UINT32, BASE_HEX, 0, 0, "Bitmask representing supported Symmetric Cipher algorithms",
-		HFILL }
+        HFILL }
     },
     { &hf_rtps_param_compression_id_mask, {
         "Compression Id Mask", "rtps.param.compression_id_mask",
@@ -17884,6 +18167,14 @@ void proto_register_rtps(void) {
         "LZ4", "rtps.flag.compression_id_lz4",
         FT_BOOLEAN, 32, TFS(&tfs_set_notset), RTI_OSAPI_COMPRESSION_CLASS_ID_LZ4, NULL, HFILL }
     },
+    { &hf_rtps_flag_security_supported, {
+        "Supported", "rtps.security.supported",
+        FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }
+    },
+    { &hf_rtps_flag_security_required, {
+        "Required", "rtps.security.required",
+        FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }
+    },
     { &hf_rtps_flag_security_symmetric_cipher_mask_aes128_gcm, {
         "AES128 GCM", "rtps.flag.security_symmetric_cipher_mask.aes128_gcm",
         FT_BOOLEAN, 32, TFS(&tfs_set_notset), SECURITY_SYMMETRIC_CIPHER_BIT_AES128_GCM, NULL, HFILL }
@@ -17892,9 +18183,73 @@ void proto_register_rtps(void) {
         "AES256 GCM", "rtps.flag.security_symmetric_cipher_mask.aes256_gcm",
         FT_BOOLEAN, 32, TFS(&tfs_set_notset), SECURITY_SYMMETRIC_CIPHER_BIT_AES256_GCM, NULL, HFILL }
     },
-    { &hf_rtps_flag_security_symmetric_cipher_mask_custom_algorithm, {
-        "Custom Algorithm", "rtps.flag.security_symmetric_cipher_mask.custom_algorithm",
-        FT_BOOLEAN, 32, TFS(&tfs_set_notset), SECURITY_SYMMETRIC_CIPHER_BIT_CUSTOM_ALGORITHM, NULL, HFILL }
+    { &hf_rtps_flag_security_symmetric_cipher_mask_vendor_rti_aes192_gcm, {
+        "AES192 GCM (RTI)", "rtps.flag.security_symmetric_cipher_mask.vendor_rti_aes192_gcm",
+        FT_BOOLEAN, 32, TFS(&tfs_set_notset), SECURITY_SYMMETRIC_CIPHER_BIT_VENDOR_RTI_AES192_GCM, NULL, HFILL }
+    },
+    { &hf_rtps_flag_security_symmetric_cipher_mask_vendor_specific_algorithm01, {
+        "Vendor Specific Algorithm", "rtps.flag.security_symmetric_cipher_mask.vendor_specific_algorithm_01",
+        FT_BOOLEAN, 32, TFS(&tfs_set_notset), BITMASK_VENDOR_SPECIFIC_ALGORITHM01, NULL, HFILL }
+    },
+    { &hf_rtps_flag_security_symmetric_cipher_mask_vendor_specific_algorithm02, {
+        "Vendor Specific Algorithm", "rtps.flag.security_symmetric_cipher_mask.vendor_specific_algorithm_02",
+        FT_BOOLEAN, 32, TFS(&tfs_set_notset), BITMASK_VENDOR_SPECIFIC_ALGORITHM02, NULL, HFILL }
+    },
+    { &hf_rtps_flag_security_symmetric_cipher_mask_vendor_specific_algorithm03, {
+        "Vendor Specific Algorithm", "rtps.flag.security_symmetric_cipher_mask.vendor_specific_algorithm_03",
+        FT_BOOLEAN, 32, TFS(&tfs_set_notset), BITMASK_VENDOR_SPECIFIC_ALGORITHM03, NULL, HFILL }
+    },
+    { &hf_rtps_flag_security_symmetric_cipher_mask_vendor_specific_algorithm04, {
+        "Vendor Specific Algorithm", "rtps.flag.security_symmetric_cipher_mask.vendor_specific_algorithm_04",
+        FT_BOOLEAN, 32, TFS(&tfs_set_notset), BITMASK_VENDOR_SPECIFIC_ALGORITHM04, NULL, HFILL }
+    },
+    { &hf_rtps_flag_security_symmetric_cipher_mask_vendor_specific_algorithm05, {
+        "Vendor Specific Algorithm", "rtps.flag.security_symmetric_cipher_mask.vendor_specific_algorithm_05",
+        FT_BOOLEAN, 32, TFS(&tfs_set_notset), BITMASK_VENDOR_SPECIFIC_ALGORITHM05, NULL, HFILL }
+    },
+    { &hf_rtps_flag_security_symmetric_cipher_mask_vendor_specific_algorithm06, {
+        "Vendor Specific Algorithm", "rtps.flag.security_symmetric_cipher_mask.vendor_specific_algorithm_06",
+        FT_BOOLEAN, 32, TFS(&tfs_set_notset), BITMASK_VENDOR_SPECIFIC_ALGORITHM06, NULL, HFILL }
+    },
+    { &hf_rtps_flag_security_symmetric_cipher_mask_vendor_specific_algorithm07, {
+        "Vendor Specific Algorithm", "rtps.flag.security_symmetric_cipher_mask.vendor_specific_algorithm_07",
+        FT_BOOLEAN, 32, TFS(&tfs_set_notset), BITMASK_VENDOR_SPECIFIC_ALGORITHM07, NULL, HFILL }
+    },
+    { &hf_rtps_flag_security_symmetric_cipher_mask_vendor_specific_algorithm08, {
+        "Vendor Specific Algorithm", "rtps.flag.security_symmetric_cipher_mask.vendor_specific_algorithm_08",
+        FT_BOOLEAN, 32, TFS(&tfs_set_notset), BITMASK_VENDOR_SPECIFIC_ALGORITHM08, NULL, HFILL }
+    },
+    { &hf_rtps_flag_security_symmetric_cipher_mask_vendor_specific_algorithm09, {
+        "Vendor Specific Algorithm", "rtps.flag.security_symmetric_cipher_mask.vendor_specific_algorithm_09",
+        FT_BOOLEAN, 32, TFS(&tfs_set_notset), BITMASK_VENDOR_SPECIFIC_ALGORITHM09, NULL, HFILL }
+    },
+    { &hf_rtps_flag_security_symmetric_cipher_mask_vendor_specific_algorithm10, {
+        "Vendor Specific Algorithm", "rtps.flag.security_symmetric_cipher_mask.vendor_specific_algorithm_10",
+        FT_BOOLEAN, 32, TFS(&tfs_set_notset), BITMASK_VENDOR_SPECIFIC_ALGORITHM10, NULL, HFILL }
+    },
+    { &hf_rtps_flag_security_symmetric_cipher_mask_vendor_specific_algorithm11, {
+        "Vendor Specific Algorithm", "rtps.flag.security_symmetric_cipher_mask.vendor_specific_algorithm_11",
+        FT_BOOLEAN, 32, TFS(&tfs_set_notset), BITMASK_VENDOR_SPECIFIC_ALGORITHM11, NULL, HFILL }
+    },
+    { &hf_rtps_flag_security_symmetric_cipher_mask_vendor_specific_algorithm12, {
+        "Vendor Specific Algorithm", "rtps.flag.security_symmetric_cipher_mask.vendor_specific_algorithm_12",
+        FT_BOOLEAN, 32, TFS(&tfs_set_notset), BITMASK_VENDOR_SPECIFIC_ALGORITHM12, NULL, HFILL }
+    },
+    { &hf_rtps_flag_security_symmetric_cipher_mask_vendor_specific_algorithm13, {
+        "Vendor Specific Algorithm", "rtps.flag.security_symmetric_cipher_mask.vendor_specific_algorithm_13",
+        FT_BOOLEAN, 32, TFS(&tfs_set_notset), BITMASK_VENDOR_SPECIFIC_ALGORITHM13, NULL, HFILL }
+    },
+    { &hf_rtps_flag_security_symmetric_cipher_mask_vendor_specific_algorithm14, {
+        "Vendor Specific Algorithm", "rtps.flag.security_symmetric_cipher_mask.vendor_specific_algorithm_14",
+        FT_BOOLEAN, 32, TFS(&tfs_set_notset), BITMASK_VENDOR_SPECIFIC_ALGORITHM14, NULL, HFILL }
+    },
+    { &hf_rtps_flag_security_symmetric_cipher_mask_vendor_specific_algorithm15, {
+        "Vendor Specific Algorithm", "rtps.flag.security_symmetric_cipher_mask.vendor_specific_algorithm_15",
+        FT_BOOLEAN, 32, TFS(&tfs_set_notset), BITMASK_VENDOR_SPECIFIC_ALGORITHM15, NULL, HFILL }
+    },
+    { &hf_rtps_flag_security_symmetric_cipher_mask_vendor_specific_algorithm16, {
+        "Vendor Specific Algorithm", "rtps.flag.security_symmetric_cipher_mask.vendor_specific_algorithm_16",
+        FT_BOOLEAN, 32, TFS(&tfs_set_notset), BITMASK_VENDOR_SPECIFIC_ALGORITHM16, NULL, HFILL }
     },
     { &hf_rtps_flag_security_key_establishment_mask_dhe_modp2048256, {
         "DHE_MODP2048256", "rtps.flag.security_key_establishment_mask.dhe_modp2048256",
@@ -17908,9 +18263,77 @@ void proto_register_rtps(void) {
         "ECDHECEUM_P384", "rtps.flag.security_key_establishment_mask.ecdheceum_p384",
         FT_BOOLEAN, 32, TFS(&tfs_set_notset), SECURITY_KEY_ESTABLISHMENT_BIT_ECDHECEUM_P384, NULL, HFILL }
     },
-    { &hf_rtps_flag_security_key_establishment_mask_custom_algorithm, {
-        "Custom Algorithm", "rtps.flag.security_key_establishment_mask.custom_algorithm",
-        FT_BOOLEAN, 32, TFS(&tfs_set_notset), SECURITY_KEY_ESTABLISHMENT_BIT_CUSTOM_ALGORITHM, NULL, HFILL }
+    { &hf_rtps_flag_security_key_establishment_mask_ecdheceum_x25519, {
+        "ECDHECEUM_X25519 (RTI)", "rtps.flag.security_key_establishment_mask.vendor_rti_ecdheceum_x25519",
+        FT_BOOLEAN, 32, TFS(&tfs_set_notset), SECURITY_KEY_ESTABLISHMENT_BIT_VENDOR_RTI_ECDHECEUM_X25519, NULL, HFILL }
+    },
+    { &hf_rtps_flag_security_key_establishment_mask_ecdheceum_x448, {
+        "ECDHECEUM_X448 (RTI)", "rtps.flag.security_key_establishment_mask.vendor_rti_ecdheceum_x448",
+        FT_BOOLEAN, 32, TFS(&tfs_set_notset), SECURITY_KEY_ESTABLISHMENT_BIT_VENDOR_RTI_ECDHECEUM_X448, NULL, HFILL }
+    },
+    { &hf_rtps_flag_security_key_establishment_mask_vendor_specific_algorithm01, {
+        "Vendor Specific Algorithm", "rtps.flag.security_key_establishment_mask.vendor_specific_algorithm_01",
+        FT_BOOLEAN, 32, TFS(&tfs_set_notset), BITMASK_VENDOR_SPECIFIC_ALGORITHM01, NULL, HFILL }
+    },
+    { &hf_rtps_flag_security_key_establishment_mask_vendor_specific_algorithm02, {
+        "Vendor Specific Algorithm", "rtps.flag.security_key_establishment_mask.vendor_specific_algorithm_02",
+        FT_BOOLEAN, 32, TFS(&tfs_set_notset), BITMASK_VENDOR_SPECIFIC_ALGORITHM02, NULL, HFILL }
+    },
+    { &hf_rtps_flag_security_key_establishment_mask_vendor_specific_algorithm03, {
+        "Vendor Specific Algorithm", "rtps.flag.security_key_establishment_mask.vendor_specific_algorithm_03",
+        FT_BOOLEAN, 32, TFS(&tfs_set_notset), BITMASK_VENDOR_SPECIFIC_ALGORITHM03, NULL, HFILL }
+    },
+    { &hf_rtps_flag_security_key_establishment_mask_vendor_specific_algorithm04, {
+        "Vendor Specific Algorithm", "rtps.flag.security_key_establishment_mask.vendor_specific_algorithm_04",
+        FT_BOOLEAN, 32, TFS(&tfs_set_notset), BITMASK_VENDOR_SPECIFIC_ALGORITHM04, NULL, HFILL }
+    },
+    { &hf_rtps_flag_security_key_establishment_mask_vendor_specific_algorithm05, {
+        "Vendor Specific Algorithm", "rtps.flag.security_key_establishment_mask.vendor_specific_algorithm_05",
+        FT_BOOLEAN, 32, TFS(&tfs_set_notset), BITMASK_VENDOR_SPECIFIC_ALGORITHM05, NULL, HFILL }
+    },
+    { &hf_rtps_flag_security_key_establishment_mask_vendor_specific_algorithm06, {
+        "Vendor Specific Algorithm", "rtps.flag.security_key_establishment_mask.vendor_specific_algorithm_06",
+        FT_BOOLEAN, 32, TFS(&tfs_set_notset), BITMASK_VENDOR_SPECIFIC_ALGORITHM06, NULL, HFILL }
+    },
+    { &hf_rtps_flag_security_key_establishment_mask_vendor_specific_algorithm07, {
+        "Vendor Specific Algorithm", "rtps.flag.security_key_establishment_mask.vendor_specific_algorithm_07",
+        FT_BOOLEAN, 32, TFS(&tfs_set_notset), BITMASK_VENDOR_SPECIFIC_ALGORITHM07, NULL, HFILL }
+    },
+    { &hf_rtps_flag_security_key_establishment_mask_vendor_specific_algorithm08, {
+        "Vendor Specific Algorithm", "rtps.flag.security_key_establishment_mask.vendor_specific_algorithm_08",
+        FT_BOOLEAN, 32, TFS(&tfs_set_notset), BITMASK_VENDOR_SPECIFIC_ALGORITHM08, NULL, HFILL }
+    },
+    { &hf_rtps_flag_security_key_establishment_mask_vendor_specific_algorithm09, {
+        "Vendor Specific Algorithm", "rtps.flag.security_key_establishment_mask.vendor_specific_algorithm_09",
+        FT_BOOLEAN, 32, TFS(&tfs_set_notset), BITMASK_VENDOR_SPECIFIC_ALGORITHM09, NULL, HFILL }
+    },
+    { &hf_rtps_flag_security_key_establishment_mask_vendor_specific_algorithm10, {
+        "Vendor Specific Algorithm", "rtps.flag.security_key_establishment_mask.vendor_specific_algorithm_10",
+        FT_BOOLEAN, 32, TFS(&tfs_set_notset), BITMASK_VENDOR_SPECIFIC_ALGORITHM10, NULL, HFILL }
+    },
+    { &hf_rtps_flag_security_key_establishment_mask_vendor_specific_algorithm11, {
+        "Vendor Specific Algorithm", "rtps.flag.security_key_establishment_mask.vendor_specific_algorithm_11",
+        FT_BOOLEAN, 32, TFS(&tfs_set_notset), BITMASK_VENDOR_SPECIFIC_ALGORITHM11, NULL, HFILL }
+    },
+    { &hf_rtps_flag_security_key_establishment_mask_vendor_specific_algorithm12, {
+        "Vendor Specific Algorithm", "rtps.flag.security_key_establishment_mask.vendor_specific_algorithm_12",
+        FT_BOOLEAN, 32, TFS(&tfs_set_notset), BITMASK_VENDOR_SPECIFIC_ALGORITHM12, NULL, HFILL }
+    },
+    { &hf_rtps_flag_security_key_establishment_mask_vendor_specific_algorithm13, {
+        "Vendor Specific Algorithm", "rtps.flag.security_key_establishment_mask.vendor_specific_algorithm_13",
+        FT_BOOLEAN, 32, TFS(&tfs_set_notset), BITMASK_VENDOR_SPECIFIC_ALGORITHM13, NULL, HFILL }
+    },
+    { &hf_rtps_flag_security_key_establishment_mask_vendor_specific_algorithm14, {
+        "Vendor Specific Algorithm", "rtps.flag.security_key_establishment_mask.vendor_specific_algorithm_14",
+        FT_BOOLEAN, 32, TFS(&tfs_set_notset), BITMASK_VENDOR_SPECIFIC_ALGORITHM14, NULL, HFILL }
+    },
+    { &hf_rtps_flag_security_key_establishment_mask_vendor_specific_algorithm15, {
+        "Vendor Specific Algorithm", "rtps.flag.security_key_establishment_mask.vendor_specific_algorithm_15",
+        FT_BOOLEAN, 32, TFS(&tfs_set_notset), BITMASK_VENDOR_SPECIFIC_ALGORITHM15, NULL, HFILL }
+    },
+    { &hf_rtps_flag_security_key_establishment_mask_vendor_specific_algorithm16, {
+        "Vendor Specific Algorithm", "rtps.flag.security_key_establishment_mask.vendor_specific_algorithm_16",
+        FT_BOOLEAN, 32, TFS(&tfs_set_notset), BITMASK_VENDOR_SPECIFIC_ALGORITHM16, NULL, HFILL }
     },
     { &hf_rtps_flag_security_algorithm_compatibility_mode, {
         "Compatibility Mode", "rtps.flag.security_algorithm_compatibility_mode",
@@ -17944,9 +18367,77 @@ void proto_register_rtps(void) {
         "ECDSA_P384_SHA384", "rtps.flag.security_digital_signature_mask.ecdsa_p384_sha384",
         FT_BOOLEAN, 32, TFS(&tfs_set_notset), SECURITY_DIGITAL_SIGNATURE_BIT_ECDSA_P384_SHA384, NULL, HFILL }
     },
-    { &hf_rtps_flag_security_digital_signature_mask_custom_algorithm, {
-        "Custom Algorithm", "rtps.flag.security_digital_signature_mask.custom_algorithm",
-        FT_BOOLEAN, 32, TFS(&tfs_set_notset), SECURITY_DIGITAL_SIGNATURE_BIT_CUSTOM_ALGORITHM, NULL, HFILL }
+    { &hf_rtps_flag_security_digital_signature_mask_ecdsa_ed25519_sha512, {
+        "EDDSA_ED25519_SHA512 (RTI)", "rtps.flag.security_digital_signature_mask.vendor_rti_ecdsa_ed25519_sha512",
+        FT_BOOLEAN, 32, TFS(&tfs_set_notset), SECURITY_DIGITAL_SIGNATURE_BIT_VENDOR_RTI_EDDSA_ED25519_SHA512, NULL, HFILL }
+    },
+    { &hf_rtps_flag_security_digital_signature_mask_ecdsa_ed448_shake256, {
+        "EDDSA_ED448_SHAKE256 (RTI)", "rtps.flag.security_digital_signature_mask.vendor_rti_ecdsa_ed448_shake256",
+        FT_BOOLEAN, 32, TFS(&tfs_set_notset), SECURITY_DIGITAL_SIGNATURE_BIT_VENDOR_RTI_EDDSA_ED448_SHAKE256, NULL, HFILL }
+    },
+    { &hf_rtps_flag_security_digital_signature_mask_vendor_specific_algorithm01, {
+        "Vendor Specific Algorithm", "rtps.flag.security_digital_signature_mask.vendor_specific_algorithm_01",
+        FT_BOOLEAN, 32, TFS(&tfs_set_notset), BITMASK_VENDOR_SPECIFIC_ALGORITHM01, NULL, HFILL }
+    },
+    { &hf_rtps_flag_security_digital_signature_mask_vendor_specific_algorithm02, {
+        "Vendor Specific Algorithm", "rtps.flag.security_digital_signature_mask.vendor_specific_algorithm_02",
+        FT_BOOLEAN, 32, TFS(&tfs_set_notset), BITMASK_VENDOR_SPECIFIC_ALGORITHM02, NULL, HFILL }
+    },
+    { &hf_rtps_flag_security_digital_signature_mask_vendor_specific_algorithm03, {
+        "Vendor Specific Algorithm", "rtps.flag.security_digital_signature_mask.vendor_specific_algorithm_03",
+        FT_BOOLEAN, 32, TFS(&tfs_set_notset), BITMASK_VENDOR_SPECIFIC_ALGORITHM03, NULL, HFILL }
+    },
+    { &hf_rtps_flag_security_digital_signature_mask_vendor_specific_algorithm04, {
+        "Vendor Specific Algorithm", "rtps.flag.security_digital_signature_mask.vendor_specific_algorithm_04",
+        FT_BOOLEAN, 32, TFS(&tfs_set_notset), BITMASK_VENDOR_SPECIFIC_ALGORITHM04, NULL, HFILL }
+    },
+    { &hf_rtps_flag_security_digital_signature_mask_vendor_specific_algorithm05, {
+        "Vendor Specific Algorithm", "rtps.flag.security_digital_signature_mask.vendor_specific_algorithm_05",
+        FT_BOOLEAN, 32, TFS(&tfs_set_notset), BITMASK_VENDOR_SPECIFIC_ALGORITHM05, NULL, HFILL }
+    },
+    { &hf_rtps_flag_security_digital_signature_mask_vendor_specific_algorithm06, {
+        "Vendor Specific Algorithm", "rtps.flag.security_digital_signature_mask.vendor_specific_algorithm_06",
+        FT_BOOLEAN, 32, TFS(&tfs_set_notset), BITMASK_VENDOR_SPECIFIC_ALGORITHM06, NULL, HFILL }
+    },
+    { &hf_rtps_flag_security_digital_signature_mask_vendor_specific_algorithm07, {
+        "Vendor Specific Algorithm", "rtps.flag.security_digital_signature_mask.vendor_specific_algorithm_07",
+        FT_BOOLEAN, 32, TFS(&tfs_set_notset), BITMASK_VENDOR_SPECIFIC_ALGORITHM07, NULL, HFILL }
+    },
+    { &hf_rtps_flag_security_digital_signature_mask_vendor_specific_algorithm08, {
+        "Vendor Specific Algorithm", "rtps.flag.security_digital_signature_mask.vendor_specific_algorithm_08",
+        FT_BOOLEAN, 32, TFS(&tfs_set_notset), BITMASK_VENDOR_SPECIFIC_ALGORITHM08, NULL, HFILL }
+    },
+    { &hf_rtps_flag_security_digital_signature_mask_vendor_specific_algorithm09, {
+        "Vendor Specific Algorithm", "rtps.flag.security_digital_signature_mask.vendor_specific_algorithm_09",
+        FT_BOOLEAN, 32, TFS(&tfs_set_notset), BITMASK_VENDOR_SPECIFIC_ALGORITHM09, NULL, HFILL }
+    },
+    { &hf_rtps_flag_security_digital_signature_mask_vendor_specific_algorithm10, {
+        "Vendor Specific Algorithm", "rtps.flag.security_digital_signature_mask.vendor_specific_algorithm_10",
+        FT_BOOLEAN, 32, TFS(&tfs_set_notset), BITMASK_VENDOR_SPECIFIC_ALGORITHM10, NULL, HFILL }
+    },
+    { &hf_rtps_flag_security_digital_signature_mask_vendor_specific_algorithm11, {
+        "Vendor Specific Algorithm", "rtps.flag.security_digital_signature_mask.vendor_specific_algorithm_11",
+        FT_BOOLEAN, 32, TFS(&tfs_set_notset), BITMASK_VENDOR_SPECIFIC_ALGORITHM11, NULL, HFILL }
+    },
+    { &hf_rtps_flag_security_digital_signature_mask_vendor_specific_algorithm12, {
+        "Vendor Specific Algorithm", "rtps.flag.security_digital_signature_mask.vendor_specific_algorithm_12",
+        FT_BOOLEAN, 32, TFS(&tfs_set_notset), BITMASK_VENDOR_SPECIFIC_ALGORITHM12, NULL, HFILL }
+    },
+    { &hf_rtps_flag_security_digital_signature_mask_vendor_specific_algorithm13, {
+        "Vendor Specific Algorithm", "rtps.flag.security_digital_signature_mask.vendor_specific_algorithm_13",
+        FT_BOOLEAN, 32, TFS(&tfs_set_notset), BITMASK_VENDOR_SPECIFIC_ALGORITHM13, NULL, HFILL }
+    },
+    { &hf_rtps_flag_security_digital_signature_mask_vendor_specific_algorithm14, {
+        "Vendor Specific Algorithm", "rtps.flag.security_digital_signature_mask.vendor_specific_algorithm_14",
+        FT_BOOLEAN, 32, TFS(&tfs_set_notset), BITMASK_VENDOR_SPECIFIC_ALGORITHM14, NULL, HFILL }
+    },
+    { &hf_rtps_flag_security_digital_signature_mask_vendor_specific_algorithm15, {
+        "Vendor Specific Algorithm", "rtps.flag.security_digital_signature_mask.vendor_specific_algorithm_15",
+        FT_BOOLEAN, 32, TFS(&tfs_set_notset), BITMASK_VENDOR_SPECIFIC_ALGORITHM15, NULL, HFILL }
+    },
+    { &hf_rtps_flag_security_digital_signature_mask_vendor_specific_algorithm16, {
+        "Vendor Specific Algorithm", "rtps.flag.security_digital_signature_mask.vendor_specific_algorithm_16",
+        FT_BOOLEAN, 32, TFS(&tfs_set_notset), BITMASK_VENDOR_SPECIFIC_ALGORITHM16, NULL, HFILL }
     },
     { &hf_rtps_flag_plugin_endpoint_security_attribute_flag_is_key_encrypted,{
         "Payload Encrypted", "rtps.flag.security.info.plugin_payload_encrypted",
