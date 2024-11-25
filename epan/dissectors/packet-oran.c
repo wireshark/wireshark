@@ -456,6 +456,7 @@ static expert_field ei_oran_rbgMask_beyond_last_rbdid;
 static expert_field ei_oran_unexpected_measTypeId;
 static expert_field ei_oran_unsupported_compression_method;
 static expert_field ei_oran_ud_comp_len_wrong_size;
+static expert_field ei_oran_sresmask2_not_zero_with_rb;
 
 
 /* These are the message types handled by this dissector */
@@ -1405,7 +1406,7 @@ write_section_info(proto_item *section_heading, packet_info *pinfo, proto_item *
     switch (num_prbx) {
         case 0:
             /* None -> all */
-            write_pdu_label_and_info(section_heading, protocol_item, pinfo, ", Id: %4d (all PRBs)", section_id);
+            write_pdu_label_and_info(section_heading, protocol_item, pinfo, ", Id: %4d (all PRBs)    ", section_id);
             break;
         case 1:
             /* Single PRB */
@@ -5226,6 +5227,8 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
             offset += 2;
         }
 
+        uint64_t sresmask1, sresmask2;
+
         /* sReSMask1 + sReSMask2 */
         if (compression == BFP_AND_SELECTIVE_RE_WITH_MASKS ||
             compression == MOD_COMPR_AND_SELECTIVE_RE_WITH_MASKS)
@@ -5249,18 +5252,18 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
             /* reserved (4 bits) */
             proto_tree_add_item(section_tree, hf_oran_reserved_4bits, tvb, offset, 1, ENC_NA);
             /* sReSMask1 (12 bits) */
-            uint64_t sresmask;
             proto_item *sresmask_ti;
             sresmask_ti = proto_tree_add_bitmask_ret_uint64(section_tree, tvb, offset,
                                                             hf_oran_sReSMask1,
                                                             ett_oran_sresmask,
                                                             sres_mask1_2_flags,
                                                             ENC_NA,
-                                                            &sresmask);
+                                                            &sresmask1);
             offset += 2;
+            /* Count REs present */
             unsigned res = 0;
             for (unsigned n=0; n < 12; n++) {
-                if ((sresmask >> n) & 0x1) {
+                if ((sresmask1 >> n) & 0x1) {
                     res++;
                 }
             }
@@ -5275,15 +5278,25 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
                                                             ett_oran_sresmask,
                                                             sres_mask1_2_flags,
                                                             ENC_NA,
-                                                            &sresmask);
+                                                            &sresmask2);
             offset += 2;
-            res = 0;
-            for (unsigned n=0; n < 12; n++) {
-                if ((sresmask >> n) & 0x1) {
-                    res++;
+
+            if (rb == 1) {
+                proto_item_append_text(sresmask_ti, " (ignored)");
+                if (sresmask2 != 0) {
+                    expert_add_info(pinfo, ud_comp_len_ti, &ei_oran_sresmask2_not_zero_with_rb);
                 }
             }
-            proto_item_append_text(sresmask_ti, "   (%u REs)", res);
+            else {
+                /* Count REs present */
+                res = 0;
+                for (unsigned n=0; n < 12; n++) {
+                    if ((sresmask2 >> n) & 0x1) {
+                        res++;
+                    }
+                }
+                proto_item_append_text(sresmask_ti, "   (%u REs)", res);
+            }
         }
 
         write_section_info(sectionHeading, pinfo, protocol_item, sectionId, startPrbu, numPrbu, rb);
@@ -5315,11 +5328,30 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 
             /* Work out how many REs / PRB */
             unsigned res_per_prb = 12;
-            if (compression==BFP_AND_SELECTIVE_RE || compression==MOD_COMPR_AND_SELECTIVE_RE) {
+            uint16_t sresmask_to_use = 0x0fff;
+
+            if (compression >= BFP_AND_SELECTIVE_RE) {
+                /* Work out which mask should be used */
+                if (compression==BFP_AND_SELECTIVE_RE || compression==MOD_COMPR_AND_SELECTIVE_RE) {
+                    sresmask_to_use = (uint16_t)sresmask;
+                }
+                else {
+                    /* Choose between sresmask1 and sresmask2 */
+                    if (rb==1 || (i%1)==0) {
+                        /* Even values */
+                        sresmask_to_use = (uint16_t)sresmask1;
+                    }
+                    else {
+                        /* Odd values */
+                        sresmask_to_use = (uint16_t)sresmask2;
+                    }
+                }
+
+                /* Count REs present using sresmask */
                 res_per_prb = 0;
                 /* Use sresmask to pick out which REs are present */
                 for (unsigned n=0; n<12; n++) {
-                    if (sresmask & (1<<n)) {
+                    if (sresmask_to_use & (1<<n)) {
                         res_per_prb++;
                     }
                 }
@@ -5338,10 +5370,10 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
                 unsigned samples_offset = offset*8;
                 unsigned samples = 0;
 
-                if (compression==BFP_AND_SELECTIVE_RE || compression==MOD_COMPR_AND_SELECTIVE_RE) {
+                if (compression >= BFP_AND_SELECTIVE_RE) {
                     /* Use sresmask to pick out which REs are present */
                     for (unsigned n=1; n<=12; n++) {
-                        if (sresmask & (1<<(n-1))) {
+                        if (sresmask_to_use & (1<<(n-1))) {
                             samples_offset = dissect_oran_u_re(tvb, rb_tree,
                                                                n, samples_offset, sample_bit_width, compression, exponent);
                             samples++;
@@ -7728,7 +7760,8 @@ proto_register_oran(void)
         { &ei_oran_rbgMask_beyond_last_rbdid, { "oran_fh_cus.rbgmask_beyond_lastrbdid", PI_MALFORMED, PI_WARN, "rbgMask has bits set beyond lastRbgId", EXPFILL }},
         { &ei_oran_unexpected_measTypeId, { "oran_fh_cus.unexpected_meastypeid", PI_MALFORMED, PI_WARN, "unexpected measTypeId", EXPFILL }},
         { &ei_oran_unsupported_compression_method, { "oran_fh_cus.compression_type_unsupported", PI_UNDECODED, PI_WARN, "Unsupported compression type", EXPFILL }},
-        { &ei_oran_ud_comp_len_wrong_size, { "oran_fh_cus.ud_comp_len_wrong_size", PI_MALFORMED, PI_WARN, "udCompLen does not match length of U-Plane section", EXPFILL }}
+        { &ei_oran_ud_comp_len_wrong_size, { "oran_fh_cus.ud_comp_len_wrong_size", PI_MALFORMED, PI_WARN, "udCompLen does not match length of U-Plane section", EXPFILL }},
+        { &ei_oran_sresmask2_not_zero_with_rb, { "oran_fh_cus.sresmask2_not_zero", PI_MALFORMED, PI_WARN, "sReSMask2 should be zero when rb set", EXPFILL }}
     };
 
     /* Register the protocol name and description */
