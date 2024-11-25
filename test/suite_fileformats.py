@@ -262,3 +262,15 @@ class TestFileFormatMime:
                 '-e', 'pcapng.block.length_trailer',
             ), encoding='utf-8', env=test_env)
         assert proc_stdout.strip() == '480\t128,88,132,132\t128,88,132,132'
+
+class TestFileFormatCllog:
+    def test_cllog_cl2000(self, cmd_tshark, capture_file, test_env):
+        '''Basic test of CAN Logger file format reader.'''
+        proc_stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('canlogger-cl2000.txt'),
+                '-Xread_format:CSS Electronics CLX000 CAN log',
+                '-Tfields',
+                '-e', 'can.id',
+            ), encoding='utf-8', env=test_env)
+        assert ' '.join(proc_stdout.strip().splitlines()) == \
+            '2015 2024 2015 2024 2015 2024 2015 2024'

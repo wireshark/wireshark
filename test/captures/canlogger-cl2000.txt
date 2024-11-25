@@ -1,0 +1,25 @@
+# Logger type: CL2000
+# HW rev: 6.xx
+# FW rev: 5.31
+# Logger ID: OPEL
+# Session No.: 70
+# Split No.: 1
+# Time: 20170101T022232
+# Value separator: ";"
+# Time format: 4
+# Time separator: ""
+# Time separator ms: ""
+# Date separator: ""
+# Time and date separator: "T"
+# Bit-rate: 500000
+# Silent mode: false
+# Cyclic mode: false
+Timestamp;Type;ID;Data
+01T022231683;8;7df;02010d5555555555
+01T022231688;0;7e8;03410d00aaaaaaaa
+01T022231693;8;7df;02010c5555555555
+01T022231701;0;7e8;04410c0000aaaaaa
+01T022231783;8;7df;02010d5555555555
+01T022231788;0;7e8;03410d00aaaaaaaa
+01T022231793;8;7df;02010c5555555555
+01T022231801;0;7e8;04410c0000aaaaaa
