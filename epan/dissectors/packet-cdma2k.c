@@ -2391,7 +2391,7 @@ static void cdma2k_message_ORIGINATION(proto_item *item,tvbuff_t *tvb,proto_tree
                 l_offset += 5;
                 while (Qos_Parms_Length > 0)
                 {
-                    item4 = proto_tree_add_item(subtree1, hf_cdma2k_Qos_Parms, tvb, (l_offset/8),8, ENC_BIG_ENDIAN);
+                    item4 = proto_tree_add_item(subtree1, hf_cdma2k_Qos_Parms, tvb, (l_offset/8), 1, ENC_BIG_ENDIAN);
                     subtree1 = proto_item_add_subtree(item4, ett_cdma2k_subtree2);
                     proto_item_append_text(item4," 0x%02x",tvb_get_bits8(tvb,l_offset, 8));
                     l_offset+=8;

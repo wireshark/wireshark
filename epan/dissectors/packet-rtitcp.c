@@ -791,7 +791,7 @@ proto_register_rtitcp(void)
 
         { &hf_rtitcp_header_message_length, {
             "Message Length", "rtitcp.header.message_length",
-            FT_UINT16, BASE_DEC, NULL, 0,
+            FT_UINT24, BASE_DEC, NULL, 0,
             NULL, HFILL }
         },
 

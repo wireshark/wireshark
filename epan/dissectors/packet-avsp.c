@@ -1313,7 +1313,7 @@ void proto_register_avsp(void)
         },
         {&hf_avsp_dzgre_ts_sec,
             {"Seconds", "avsp.ts.dzgre_ts.sec",
-                FT_UINT16, BASE_DEC,
+                FT_UINT32, BASE_DEC,
                 NULL, 0x0,
                 NULL, HFILL}
         },
