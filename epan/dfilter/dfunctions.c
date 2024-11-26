@@ -167,7 +167,7 @@ df_func_string(GSList *stack, uint32_t arg_count _U_, df_cell_t *retval)
 
 /* dfilter function: double() */
 static bool
-df_func_double(GSList *stack, uint32_t arg_count, df_cell_t *retval)
+df_func_double(GSList *stack, uint32_t arg_count _U_, df_cell_t *retval)
 {
     GPtrArray *arg1;
     fvalue_t *arg_fvalue;
