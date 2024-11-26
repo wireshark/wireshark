@@ -1063,6 +1063,23 @@ static const true_false_string prb_mode_tfs = {
   "PRB-MASK mode"
 };
 
+static const true_false_string symbol_direction_tfs = {
+  "DL symbol",
+  "UL symbol"
+};
+
+static const true_false_string symbol_guard_tfs = {
+  "guard symbol",
+  "non-guard symbol"
+};
+
+static const true_false_string beam_numbers_included_tfs = {
+  "time-domain beam numbers excluded in this command",
+  "time-domain beam numbers included in this command"
+};
+
+
+
 /* Forward declaration */
 static int dissect_udcompparam(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned offset,
                                unsigned comp_meth,
@@ -4686,8 +4703,17 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
                     /* reserved (2 bits) */
                     proto_tree_add_item(command_tree, hf_oran_reserved_2bits, tvb, offset, 1, ENC_BIG_ENDIAN);
                     /* symbolMask (14 bits) */
-                    proto_tree_add_item(command_tree, hf_oran_symbolMask, tvb, offset, 2, ENC_BIG_ENDIAN);
-                    /* TODO: Symbol bits before 'startSymbolId' in Section Type 4 common header should be set to 0 by O-DU and shall be ignored by O-RU */
+                    uint32_t symbol_mask;
+                    proto_item *symbol_mask_ti = proto_tree_add_item_ret_uint(command_tree, hf_oran_symbolMask, tvb, offset, 2, ENC_BIG_ENDIAN, &symbol_mask);
+                    /* Symbol bits before 'startSymbolId' in Section Type 4 common header should be set to 0 by O-DU and shall be ignored by O-RU */
+                    /* lsb is symbol 0 */
+                    for (unsigned s=0; s < 14; s++) {
+                        if ((startSymbolId & (1 << s)) && (startSymbolId > s)) {
+                            proto_item_append_text(symbol_mask_ti, " (startSumbolId is %u, so some lower symbol bits ignored!)", startSymbolId);
+                            /* TODO: expert info too? */
+                            break;
+                        }
+                    }
                     offset += 2;
 
                     /* disableTDBFNs */
@@ -4777,6 +4803,7 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
                     /* dirPattern (14 bits) */
                     proto_tree_add_item(command_tree, hf_oran_dir_pattern, tvb, offset, 2, ENC_BIG_ENDIAN);
                     offset += 2;
+
                     /* reserved (2 bits) */
                     proto_tree_add_item(command_tree, hf_oran_reserved_2bits, tvb, offset, 1, ENC_BIG_ENDIAN);
                     /* guardPattern (14 bits) */
@@ -4827,7 +4854,7 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
                     offset += 3;
 
                     /* reserved (2 bits) */
-                    proto_tree_add_item(command_tree, hf_oran_reserved_1bit, tvb, offset, 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(command_tree, hf_oran_reserved_2bits, tvb, offset, 1, ENC_BIG_ENDIAN);
 
                     /* symbolMask (14 bits) */
                     uint32_t symbol_mask;
@@ -4889,7 +4916,7 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
                     offset += 3;
 
                     /* reserved (2 bits) */
-                    proto_tree_add_item(command_tree, hf_oran_reserved_1bit, tvb, offset, 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(command_tree, hf_oran_reserved_2bits, tvb, offset, 1, ENC_BIG_ENDIAN);
                     /* symbolMask (14 bits) */
                     uint32_t symbol_mask;
                     proto_item *sm_ti;
@@ -7169,7 +7196,7 @@ proto_register_oran(void)
         {&hf_oran_disable_tdbfws,
          {"disableTDBFWs", "oran_fh_cus.disableTDBFWs",
           FT_BOOLEAN, 8,
-          NULL, 0x80,
+          TFS(&beam_numbers_included_tfs), 0x80,
           NULL,
           HFILL}
         },
@@ -7187,16 +7214,16 @@ proto_register_oran(void)
         {&hf_oran_dir_pattern,
          {"dirPattern", "oran_fh_cus.dirPattern",
           FT_BOOLEAN, 16,
-          NULL, 0x3fff,
-          NULL,
+          TFS(&symbol_direction_tfs), 0x3fff,
+          "symbol data direction (gNB Tx/Rx) pattern",
           HFILL}
         },
         /* 7.5.3.50 */
         {&hf_oran_guard_pattern,
          {"guardPattern", "oran_fh_cus.guardPattern",
           FT_BOOLEAN, 16,
-          NULL, 0x3fff,
-          NULL,
+          TFS(&symbol_guard_tfs), 0x3fff,
+          "guard pattern bitmask",
           HFILL}
         },
 
