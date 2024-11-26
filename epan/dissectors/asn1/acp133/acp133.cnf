@@ -20,15 +20,15 @@ MonthlyUKMs
 RIParameters
 Kmid
 
-##.CLASS OBJECT-CLASS
+# #.CLASS OBJECT-CLASS
 #&Superclasses         ClassReference OBJECT-CLASS
 #&kind
 #&MandatoryAttributes  ClassReference ATTRIBUTE
 #&OptionalAttributes   ClassReference ATTRIBUTE
 #&id                   ObjectIdentifierType
-##.END
+# #.END
 
-##.CLASS ATTRIBUTE
+# #.CLASS ATTRIBUTE
 #&derivation            ClassReference ATTRIBUTE
 #&Type
 #&equality-match        ClassReference MATCHING-RULE
@@ -39,7 +39,7 @@ Kmid
 #&no-user-modification  BooleanType
 #&usage
 #&id                    ObjectIdentifierType
-##.END
+# #.END
 
 #.CLASS MATCHING-RULE
 &ParentMatchingRules   ClassReference MATCHING-RULE
