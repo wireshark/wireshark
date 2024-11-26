@@ -4,6 +4,7 @@
  * (C) 2008-2013 by Harald Welte <laforge@gnumonks.org>
  * (C) 2011 by Holger Hans Peter Freyther
  * (C) 2020 by sysmocom s.f.m.c. GmbH <info@sysmocom.de>
+ * (C) 2024 by Tamas Regos <tamas.regos@infostam.com>
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -67,6 +68,7 @@ static int hf_gsmtap_burst_type;
 static int hf_gsmtap_channel_type;
 static int hf_gsmtap_tetra_channel_type;
 static int hf_gsmtap_gmr1_channel_type;
+static int hf_gsmtap_lte_rrc_channel_type;
 static int hf_gsmtap_rrc_sub_type;
 static int hf_gsmtap_e1t1_sub_type;
 static int hf_gsmtap_sim_sub_type;
@@ -429,6 +431,34 @@ static const value_string gsmtap_gmr1_channels[] = {
 	{ GSMTAP_GMR1_TCH9|
 	  GSMTAP_GMR1_SACCH,		"SACCH9" },
 	{ 0,				NULL },
+};
+
+/* Logical channal names for LTE RRC messages according to 3GPP TS 38.331 */
+static const value_string gsmtap_lte_rrc_channels[] = {
+    { GSMTAP_LTE_RRC_SUB_DL_CCCH_Message,           "CCCH" },
+    { GSMTAP_LTE_RRC_SUB_DL_DCCH_Message,           "DCCH" },
+    { GSMTAP_LTE_RRC_SUB_UL_CCCH_Message,           "CCCH" },
+    { GSMTAP_LTE_RRC_SUB_UL_DCCH_Message,           "DCCH" },
+    { GSMTAP_LTE_RRC_SUB_BCCH_BCH_Message,          "BBCH" },
+    { GSMTAP_LTE_RRC_SUB_BCCH_DL_SCH_Message,       "BBCH" },
+    { GSMTAP_LTE_RRC_SUB_PCCH_Message,              "PCCH" },
+    { GSMTAP_LTE_RRC_SUB_MCCH_Message,              "MCCH" },
+    { GSMTAP_LTE_RRC_SUB_BCCH_BCH_Message_MBMS,     "BBCH" },
+    { GSMTAP_LTE_RRC_SUB_BCCH_DL_SCH_Message_BR,    "BCCH" },
+    { GSMTAP_LTE_RRC_SUB_BCCH_DL_SCH_Message_MBMS,  "BCCH" },
+    { GSMTAP_LTE_RRC_SUB_SC_MCCH_Message,           "MCCH" },
+    { GSMTAP_LTE_RRC_SUB_SBCCH_SL_BCH_Message,      "SBCCH" },
+    { GSMTAP_LTE_RRC_SUB_SBCCH_SL_BCH_Message_V2X,  "SBCCH" },
+    { GSMTAP_LTE_RRC_SUB_DL_CCCH_Message_NB,        "CCCH" },
+    { GSMTAP_LTE_RRC_SUB_DL_DCCH_Message_NB,        "DCCH" },
+    { GSMTAP_LTE_RRC_SUB_UL_CCCH_Message_NB,        "CCCH" },
+    { GSMTAP_LTE_RRC_SUB_UL_DCCH_Message_NB,        "DCCH" },
+    { GSMTAP_LTE_RRC_SUB_BCCH_BCH_Message_NB,       "BBCH" },
+    { GSMTAP_LTE_RRC_SUB_BCCH_BCH_Message_TDD_NB,   "BBCH" },
+    { GSMTAP_LTE_RRC_SUB_BCCH_DL_SCH_Message_NB,    "BCCH" },
+    { GSMTAP_LTE_RRC_SUB_PCCH_Message_NB,           "PCCH" },
+    { GSMTAP_LTE_RRC_SUB_SC_MCCH_Message_NB,        "MCCH" },
+    { 0,                                            NULL },
 };
 
 /* the mapping is not complete */
@@ -923,6 +953,8 @@ dissect_gsmtap_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 				channel_str = val_to_str(channel, gsmtap_tetra_channels, "Unknown: %d");
 			else if (type == GSMTAP_TYPE_GMR1_UM)
 				channel_str = val_to_str(channel, gsmtap_gmr1_channels, "Unknown: %d");
+			else if (type == GSMTAP_TYPE_LTE_RRC)
+				channel_str = val_to_str(channel, gsmtap_lte_rrc_channels, "Unknown: %d");
 			else
 				channel_str = val_to_str(channel, gsmtap_channels, "Unknown: %d");
 
@@ -960,6 +992,9 @@ dissect_gsmtap_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 						tvb, offset+12, 1, ENC_BIG_ENDIAN);
 			else if (type == GSMTAP_TYPE_GMR1_UM)
 				proto_tree_add_item(gsmtap_tree, hf_gsmtap_gmr1_channel_type,
+						tvb, offset+12, 1, ENC_BIG_ENDIAN);
+			else if (type == GSMTAP_TYPE_LTE_RRC)
+				proto_tree_add_item(gsmtap_tree, hf_gsmtap_lte_rrc_channel_type,
 						tvb, offset+12, 1, ENC_BIG_ENDIAN);
 			else if (type == GSMTAP_TYPE_UMTS_RRC)
 				proto_tree_add_item(gsmtap_tree, hf_gsmtap_rrc_sub_type,
@@ -1281,6 +1316,8 @@ proto_register_gsmtap(void)
 		  FT_UINT8, BASE_DEC, VALS(gsmtap_tetra_channels), 0, NULL, HFILL }},
 		{ &hf_gsmtap_gmr1_channel_type, { "Channel Type", "gsmtap.gmr1_chan_type",
 		  FT_UINT8, BASE_DEC, VALS(gsmtap_gmr1_channels), 0, NULL, HFILL }},
+		{ &hf_gsmtap_lte_rrc_channel_type, { "Channel Type", "gsmtap.lte_rrc_chan_type",
+		  FT_UINT8, BASE_DEC, VALS(gsmtap_lte_rrc_channels), 0, NULL, HFILL }},
 		{ &hf_gsmtap_rrc_sub_type, { "Message Type", "gsmtap.rrc_sub_type",
 		  FT_UINT8, BASE_DEC, VALS(rrc_sub_types), 0, NULL, HFILL }},
 		{ &hf_gsmtap_e1t1_sub_type, { "Channel Type", "gsmtap.e1t1_sub_type",
