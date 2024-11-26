@@ -4728,6 +4728,7 @@ static int hf_ieee80211_eht_operation_subchannel_bitmap_present;
 static int hf_ieee80211_eht_operation_default_pe_duration;
 static int hf_ieee80211_eht_operation_group_addressed_bu_indication_limit;
 static int hf_ieee80211_eht_operation_group_addressed_bu_indication_exp;
+static int hf_ieee80211_eht_operation_mcs15_disable;
 static int hf_ieee80211_eht_operation_reserved;
 static int hf_ieee80211_eht_operation_control;
 static int hf_ieee80211_eht_operation_ccfs0;
@@ -4796,6 +4797,9 @@ static int hf_ieee80211_eht_phy_bits_40_63_tb_sounding_feedback_rate_limit;
 static int hf_ieee80211_eht_phy_bits_64_71;
 static int hf_ieee80211_eht_phy_bits_64_71_rx_1024_qam_wid_bw_dl_ofdma_sup;
 static int hf_ieee80211_eht_phy_bits_64_71_rx_4096_qam_wid_bw_dl_ofdma_sup;
+static int hf_ieee80211_eht_phy_bits_64_71_20m_limit_capa_support;
+static int hf_ieee80211_eht_phy_bits_64_71_20m_mu_beam_feedback_dl_mu_mimo;
+static int hf_ieee80211_eht_phy_bits_64_71_20m_mru_support;
 static int hf_ieee80211_eht_phy_bits_64_71_reserved;
 static int hf_ieee80211_eht_supported_mcs_nss_bytes;
 static int hf_ieee80211_eht_mcs_and_nss_non_ap;
@@ -28873,6 +28877,7 @@ static int * const eht_operation_hdrs[] = {
   &hf_ieee80211_eht_operation_default_pe_duration,
   &hf_ieee80211_eht_operation_group_addressed_bu_indication_limit,
   &hf_ieee80211_eht_operation_group_addressed_bu_indication_exp,
+  &hf_ieee80211_eht_operation_mcs15_disable,
   &hf_ieee80211_eht_operation_reserved,
   NULL
 };
@@ -29028,6 +29033,9 @@ static int * const eht_phy_bits_40_63[] = {
 static int * const eht_phy_bits_64_71[] = {
   &hf_ieee80211_eht_phy_bits_64_71_rx_1024_qam_wid_bw_dl_ofdma_sup,
   &hf_ieee80211_eht_phy_bits_64_71_rx_4096_qam_wid_bw_dl_ofdma_sup,
+  &hf_ieee80211_eht_phy_bits_64_71_20m_limit_capa_support,
+  &hf_ieee80211_eht_phy_bits_64_71_20m_mu_beam_feedback_dl_mu_mimo,
+  &hf_ieee80211_eht_phy_bits_64_71_20m_mru_support,
   &hf_ieee80211_eht_phy_bits_64_71_reserved,
   NULL
 };
@@ -59319,9 +59327,14 @@ proto_register_ieee80211(void)
       "wlan.eht.eht_operation_parameters.group_addressed_bu_indication_exponent",
       FT_UINT8, BASE_DEC, NULL, 0x30, NULL, HFILL }},
 
+    {&hf_ieee80211_eht_operation_mcs15_disable,
+     {"MCS15 Disable",
+      "wlan.eht.eht_operation_parameters.mcs_15_disable",
+      FT_BOOLEAN, 8, NULL, 0x40, NULL, HFILL }},
+
     {&hf_ieee80211_eht_operation_reserved,
      {"Reserved",  "wlan.eht.eht_operation_parameters.reserved",
-      FT_UINT8, BASE_HEX, NULL, 0xC0, NULL, HFILL }},
+      FT_UINT8, BASE_HEX, NULL, 0x80, NULL, HFILL }},
 
     {&hf_ieee80211_eht_operation_control,
      {"Control", "wlan.eht.eht_operation_information.control",
@@ -59659,9 +59672,27 @@ proto_register_ieee80211(void)
       FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported),
       0x02, NULL, HFILL }},
 
+    {&hf_ieee80211_eht_phy_bits_64_71_20m_limit_capa_support,
+     {"20 MHz-Only Limited Capabilities Support",
+      "wlan.eht.phy_capabilities.bits_64_71.20m_only_limited_capabilities",
+      FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported),
+      0x04, NULL, HFILL }},
+
+    {&hf_ieee80211_eht_phy_bits_64_71_20m_mu_beam_feedback_dl_mu_mimo,
+     {"20 MHz-Only Triggered MU Beamforming Full BW Feedback And DL MU-MIMO",
+      "wlan.eht.phy_capabilities.bits_64_71.20m_only_trig_mu_beamforming_dl_mu_mimo",
+      FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported),
+      0x08, NULL, HFILL }},
+
+    {&hf_ieee80211_eht_phy_bits_64_71_20m_mru_support,
+     {"20 MHz-Only MRU Support",
+      "wlan.eht.phy_capabilities.bits_64_71.20m_only_mru_support",
+      FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported),
+      0x10, NULL, HFILL }},
+
     {&hf_ieee80211_eht_phy_bits_64_71_reserved,
      {"Reserved", "wlan.eht.phy_capabilities.bits_64_71.reserved",
-      FT_UINT8, BASE_HEX, NULL, 0xFC, NULL, HFILL }},
+      FT_UINT8, BASE_HEX, NULL, 0xE0, NULL, HFILL }},
 
     {&hf_ieee80211_eht_mcs_and_nss_non_ap,
      {"EHT-MCS Map (20 MHz-Only Non-AP STA)",
