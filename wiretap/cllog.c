@@ -334,7 +334,7 @@ static bool parseFieldLength(cCLLog_logFileInfo_t *pInfo _U_, char *pField, cCLL
 {
     uint32_t length;
 
-    if (!ws_strtou32(pField, NULL, &length)) {
+    if (!ws_strtou32(pField, NULL, &length) || length > array_length(pLogEntry->data)) {
         *err = WTAP_ERR_BAD_FILE;
         *err_info = g_strdup_printf("cllog: length value is not valid");
         return false;
@@ -351,7 +351,7 @@ static bool parseFieldData(cCLLog_logFileInfo_t *pInfo _U_, char *pField, cCLLog
     pLogEntry->length = 0;
 
     /* Loop all data bytes */
-    for (unsigned int dataByte = 0; dataByte < 8; dataByte++)
+    while (pLogEntry->length < array_length(pLogEntry->data))
     {
         int hexdigit;
         uint8_t data;
@@ -377,9 +377,7 @@ static bool parseFieldData(cCLLog_logFileInfo_t *pInfo _U_, char *pField, cCLLog
         }
         data = data | (uint8_t)hexdigit;
         pFieldStart++;
-        pLogEntry->data[dataByte] = data;
-
-        pLogEntry->length++;
+        pLogEntry->data[pLogEntry->length++] = data;
     }
     return true;
 }
