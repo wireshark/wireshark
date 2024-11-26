@@ -476,12 +476,12 @@ proto_register_erspan(void)
 
 		{ &hf_erspan_timestamp,
 		{ "Timestamp",	"erspan.timestamp", FT_UINT32, BASE_DEC, NULL,
-			0xffffffff, NULL, HFILL }},
+			0x0, NULL, HFILL }},
 
 
 		{ &hf_erspan_sgt,
 		{ "Security Group Tag",	"erspan.sgt", FT_UINT16, BASE_DEC, NULL,
-			0xffff, NULL, HFILL }},
+			0x0, NULL, HFILL }},
 
 		{ &hf_erspan_p,
 		{ "Has Ethernet PDU",	"erspan.p", FT_UINT16, BASE_DEC, NULL,
@@ -524,7 +524,7 @@ proto_register_erspan(void)
 
 		{ &hf_erspan_pid1_port_index,
 		{ "Port ID/Index", "erspan.pid1.port_index", FT_UINT32, BASE_DEC, NULL,
-			0xffffffff, NULL, HFILL }},
+			0x0, NULL, HFILL }},
 
 		/* ID = 3 */
 		{ &hf_erspan_pid3_rsvd1,
@@ -537,7 +537,7 @@ proto_register_erspan(void)
 
 		{ &hf_erspan_pid3_timestamp,
 		{ "Upper 32-bit Timestamp", "erspan.pid3.timestamp", FT_UINT32, BASE_DEC, NULL,
-			0xffffffff, NULL, HFILL }},
+			0x0, NULL, HFILL }},
 
 		/* ID = 4 */
 		{ &hf_erspan_pid4_rsvd1,
@@ -563,7 +563,7 @@ proto_register_erspan(void)
 
 		{ &hf_erspan_pid5_timestamp,
 		{ "Timestamp (seconds)", "erspan.pid5.timestamp", FT_UINT32, BASE_DEC, NULL,
-			0xffffffff, NULL, HFILL }},
+			0x0, NULL, HFILL }},
 
 		/* ID = 7 (or 0) */
 		{ &hf_erspan_pid7_rsvd1,
@@ -576,7 +576,7 @@ proto_register_erspan(void)
 
 		{ &hf_erspan_pid7_timestamp,
 		{ "Upper 32-bit Timestamp", "erspan.pid7.timestamp", FT_UINT32, BASE_DEC, NULL,
-			0xffffffff, NULL, HFILL }},
+			0x0, NULL, HFILL }},
 
 		/* Reserved */
 		{ &hf_erspan_pid_rsvd,

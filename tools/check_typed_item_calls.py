@@ -605,6 +605,7 @@ class ValueString:
                 print('Warning:', self.file, ': value_string', self.name, '- value ', value, 'repeated with same string - ', label)
                 warnings_found += 1
 
+            # Same value, different label
             if value in self.parsed_vals and label != self.parsed_vals[value]:
                 print('Warning:', self.file, ': value_string', self.name, '- value ', value, 'repeated with different values - was',
                     self.parsed_vals[value], 'now', label)
@@ -1540,7 +1541,9 @@ class Item:
                         # These need to have a mask - don't judge for being 0
                         return
 
-                print('Note:', self.filename, self.hf, 'filter=', self.filter, " - mask is all set - if only want value (rather than bits), set 0 instead? :", '"' + mask + '"')
+                # No point in setting all bits if only want decimal number..
+                if self.display == "BASE_DEC":
+                    print('Note:', self.filename, self.hf, 'filter=', self.filter, " - mask is all set - if only want value (rather than bits), set 0 instead? :", '"' + mask + '"')
 
     # An item that appears in a bitmask set, needs to have a non-zero mask.
     def check_mask_if_in_field_array(self, mask, field_arrays):
