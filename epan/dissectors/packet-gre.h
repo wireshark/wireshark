@@ -59,6 +59,23 @@
 #define GRE_ARUBA_8360		0x8360
 #define GRE_ARUBA_8370		0x8370
 #define GRE_ARUBA_9000		0x9000
+#define GRE_ARUBA_9100          0x9100
+#define GRE_ARUBA_9110          0x9110
+#define GRE_ARUBA_9120          0x9120
+#define GRE_ARUBA_9130          0x9130
+#define GRE_ARUBA_9140          0x9140
+#define GRE_ARUBA_9150          0x9150
+#define GRE_ARUBA_9160          0x9160
+#define GRE_ARUBA_9170          0x9170
+#define GRE_ARUBA_9180          0x9180
+#define GRE_ARUBA_9190          0x9190
+#define GRE_ARUBA_91A0          0x91A0
+#define GRE_ARUBA_91B0          0x91B0
+#define GRE_ARUBA_91C0          0x91C0
+#define GRE_ARUBA_91D0          0x91D0
+#define GRE_ARUBA_91E0          0x91E0
+#define GRE_ARUBA_91F0          0x91F0
+
 
 extern const value_string gre_typevals[];
 

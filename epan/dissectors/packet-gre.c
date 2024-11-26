@@ -154,6 +154,22 @@ const value_string gre_typevals[] = {
     { GRE_ARUBA_8360,      "ARUBA WLAN" },
     { GRE_ARUBA_8370,      "ARUBA WLAN" },
     { GRE_ARUBA_9000,      "ARUBA WLAN" },
+    { GRE_ARUBA_9100,      "ARUBA WLAN" },
+    { GRE_ARUBA_9110,      "ARUBA WLAN" },
+    { GRE_ARUBA_9120,      "ARUBA WLAN" },
+    { GRE_ARUBA_9130,      "ARUBA WLAN" },
+    { GRE_ARUBA_9140,      "ARUBA WLAN" },
+    { GRE_ARUBA_9150,      "ARUBA WLAN" },
+    { GRE_ARUBA_9160,      "ARUBA WLAN" },
+    { GRE_ARUBA_9170,      "ARUBA WLAN" },
+    { GRE_ARUBA_9180,      "ARUBA WLAN" },
+    { GRE_ARUBA_9190,      "ARUBA WLAN" },
+    { GRE_ARUBA_91A0,      "ARUBA WLAN" },
+    { GRE_ARUBA_91B0,      "ARUBA WLAN" },
+    { GRE_ARUBA_91C0,      "ARUBA WLAN" },
+    { GRE_ARUBA_91D0,      "ARUBA WLAN" },
+    { GRE_ARUBA_91E0,      "ARUBA WLAN" },
+    { GRE_ARUBA_91F0,      "ARUBA WLAN" },
     { 0,                   NULL }
 };
 

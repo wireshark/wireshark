@@ -61331,6 +61331,22 @@ proto_reg_handoff_ieee80211(void)
   dissector_add_uint("gre.proto", GRE_ARUBA_8350, wlan_withoutfcs_handle);
   dissector_add_uint("gre.proto", GRE_ARUBA_8360, wlan_withoutfcs_handle);
   dissector_add_uint("gre.proto", GRE_ARUBA_8370, wlan_withoutfcs_handle);
+  dissector_add_uint("gre.proto", GRE_ARUBA_9100, wlan_withoutfcs_handle);
+  dissector_add_uint("gre.proto", GRE_ARUBA_9110, wlan_withoutfcs_handle);
+  dissector_add_uint("gre.proto", GRE_ARUBA_9120, wlan_withoutfcs_handle);
+  dissector_add_uint("gre.proto", GRE_ARUBA_9130, wlan_withoutfcs_handle);
+  dissector_add_uint("gre.proto", GRE_ARUBA_9140, wlan_withoutfcs_handle);
+  dissector_add_uint("gre.proto", GRE_ARUBA_9150, wlan_withoutfcs_handle);
+  dissector_add_uint("gre.proto", GRE_ARUBA_9160, wlan_withoutfcs_handle);
+  dissector_add_uint("gre.proto", GRE_ARUBA_9170, wlan_withoutfcs_handle);
+  dissector_add_uint("gre.proto", GRE_ARUBA_9180, wlan_withoutfcs_handle);
+  dissector_add_uint("gre.proto", GRE_ARUBA_9190, wlan_withoutfcs_handle);
+  dissector_add_uint("gre.proto", GRE_ARUBA_91A0, wlan_withoutfcs_handle);
+  dissector_add_uint("gre.proto", GRE_ARUBA_91B0, wlan_withoutfcs_handle);
+  dissector_add_uint("gre.proto", GRE_ARUBA_91C0, wlan_withoutfcs_handle);
+  dissector_add_uint("gre.proto", GRE_ARUBA_91D0, wlan_withoutfcs_handle);
+  dissector_add_uint("gre.proto", GRE_ARUBA_91E0, wlan_withoutfcs_handle);
+  dissector_add_uint("gre.proto", GRE_ARUBA_91F0, wlan_withoutfcs_handle);
 
   data_encap_handle = create_dissector_handle(dissect_data_encap, proto_wlan);
   dissector_add_uint("ethertype", ETHERTYPE_IEEE80211_DATA_ENCAP,
