@@ -105,10 +105,10 @@ compatible_ftypes(ftenum_t a, ftenum_t b)
 		case FT_NONE:
 		case FT_BOOLEAN:
 		case FT_PROTOCOL:
-		case FT_ABSOLUTE_TIME:
+		case FT_ABSOLUTE_TIME: /* XXX - README.dissector says the time types are compatible */
 		case FT_RELATIVE_TIME:
-		case FT_IEEE_11073_SFLOAT:
-		case FT_IEEE_11073_FLOAT:
+		case FT_IEEE_11073_SFLOAT: /* XXX - should be able to compare with DOUBLE (#19011) */
+		case FT_IEEE_11073_FLOAT:  /* XXX - should be able to compare with DOUBLE */
 		case FT_IPv4:
 		case FT_IPv6:
 		case FT_GUID:
