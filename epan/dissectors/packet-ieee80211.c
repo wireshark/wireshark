@@ -4672,6 +4672,9 @@ static int hf_ieee80211_eht_common_field_ap_mld_mac;
 static int hf_ieee80211_eht_common_field_ext_mld_capabilities;
 static int hf_ieee80211_eht_common_info_ext_mld_op_update_support;
 static int hf_ieee80211_eht_common_info_ext_mld_max_simul_links;
+static int hf_ieee80211_eht_common_info_ext_mld_nstr_status_support;
+static int hf_ieee80211_eht_common_info_ext_mld_emlsr_enable_one_link_support;
+static int hf_ieee80211_eht_common_info_ext_mld_btm_mld_recom_aps_support;
 static int hf_ieee80211_eht_common_info_ext_mld_reserved;
 static int hf_ieee80211_eht_multi_link_subelt_tag;
 static int hf_ieee80211_eht_multi_link_subelt_len;
@@ -28483,6 +28486,9 @@ static int * const eht_mld_capabilities_hdrs[] = {
 static int * const eht_ext_mld_capabilities_hdrs[] = {
   &hf_ieee80211_eht_common_info_ext_mld_op_update_support,
   &hf_ieee80211_eht_common_info_ext_mld_max_simul_links,
+  &hf_ieee80211_eht_common_info_ext_mld_nstr_status_support,
+  &hf_ieee80211_eht_common_info_ext_mld_emlsr_enable_one_link_support,
+  &hf_ieee80211_eht_common_info_ext_mld_btm_mld_recom_aps_support,
   &hf_ieee80211_eht_common_info_ext_mld_reserved,
   NULL
 };
@@ -59043,9 +59049,24 @@ proto_register_ieee80211(void)
       "wlan.eht.multi_link.common_info.ext_mld_capabilities.max_simultaneous_links",
       FT_UINT16, BASE_DEC, NULL, 0x001E, NULL, HFILL }},
 
+    {&hf_ieee80211_eht_common_info_ext_mld_nstr_status_support,
+     {"NSTR Status Update Support",
+      "wlan.eht.multi_link.common_info.ext_mld_capabilities.nstr_status_update_support",
+      FT_BOOLEAN, 16, NULL, 0x0020, NULL, HFILL }},
+
+    {&hf_ieee80211_eht_common_info_ext_mld_emlsr_enable_one_link_support,
+     {"EMLSR Enablement On One Link Support",
+      "wlan.eht.multi_link.common_info.ext_mld_capabilities.emlsr_enable_one_link_support",
+      FT_BOOLEAN, 16, NULL, 0x0040, NULL, HFILL }},
+
+    {&hf_ieee80211_eht_common_info_ext_mld_btm_mld_recom_aps_support,
+     {"BTM MLD Recommendation For Multiple APs Support",
+      "wlan.eht.multi_link.common_info.ext_mld_capabilities.btm_mld_recom_multiple_aps_support",
+      FT_BOOLEAN, 16, NULL, 0x0080, NULL, HFILL }},
+
     {&hf_ieee80211_eht_common_info_ext_mld_reserved,
      {"Reserved", "wlan.eht.multi_link.common_info.ext_mld_capabilities.reserved",
-      FT_UINT16, BASE_HEX, NULL, 0xFFE0, NULL, HFILL }},
+      FT_UINT16, BASE_HEX, NULL, 0xFF00, NULL, HFILL }},
 
     {&hf_ieee80211_eht_profile_sta_control,
      {"STA Control", "wlan.eht.multi_link.sta_profile.sta_control",
