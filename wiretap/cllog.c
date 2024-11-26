@@ -334,9 +334,15 @@ static bool parseFieldLength(cCLLog_logFileInfo_t *pInfo _U_, char *pField, cCLL
 {
     uint32_t length;
 
-    if (!ws_strtou32(pField, NULL, &length) || length > array_length(pLogEntry->data)) {
+    if (!ws_strtou32(pField, NULL, &length)) {
         *err = WTAP_ERR_BAD_FILE;
         *err_info = g_strdup_printf("cllog: length value is not valid");
+        return false;
+    }
+    if (length > array_length(pLogEntry->data)) {
+        *err = WTAP_ERR_BAD_FILE;
+        *err_info = g_strdup_printf("cllog: length value %u > maximum length %zu",
+            length, array_length(pLogEntry->data));
         return false;
     }
     pLogEntry->length = length;
