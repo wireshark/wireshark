@@ -1887,12 +1887,12 @@ update_spdu_uds_mapping(void *r, char **err) {
     spdu_uds_mapping_uat_t *rec = (spdu_uds_mapping_uat_t *)r;
 
     if (rec->id > 0xffff) {
-        *err = g_strdup_printf("UDS IDs are only uint16!");
+        *err = g_strdup("UDS IDs are only uint16!");
         return false;
     }
 
     if (rec->service > 0xff) {
-        *err = g_strdup_printf("UDS Services are only uint8!");
+        *err = g_strdup("UDS Services are only uint8!");
         return false;
     }
 

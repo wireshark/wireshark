@@ -135,7 +135,7 @@ udf_update_diag_addr_cb(void *r, char **err) {
     }
 
     if (rec->name == NULL || rec->name[0] == 0) {
-        *err = g_strdup_printf("ECU Name cannot be empty");
+        *err = g_strdup("ECU Name cannot be empty");
         return (*err == NULL);
     }
 
