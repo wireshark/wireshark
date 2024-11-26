@@ -24,7 +24,7 @@ and it is an example of a
 https://en.wikipedia.org/wiki/Disruptive_technology[disruptive
 technology].
 
-Wireshark used to be known as Ethereal®. See the next question for
+Wireshark used to be known as Ethereal®. See the final question for
 details about the name change. If you're still using Ethereal, it is
 strongly recommended that you upgrade to Wireshark as Ethereal is
 unsupported and has known security vulnerabilities.
@@ -42,7 +42,7 @@ Subscription information and archives for all of Wireshark's mailing lists can b
 
 === What kind of shark is Wireshark?
 
-_carcharodon photoshopia_.
+_Carcharodon photoshopia_.
 
 === How is Wireshark pronounced, spelled and capitalized?
 
@@ -1008,15 +1008,6 @@ specify that the source port, the destination port, or both the source
 and destination ports of the packet should be dissected as some
 particular protocol.
 
-=== Why doesn't Wireshark show Yahoo Messenger packets in captures that contain Yahoo Messenger traffic?
-
-Wireshark only recognizes as Yahoo Messenger traffic packets to or
-from TCP port 3050 that begin with "YPNS", "YHOO", or "YMSG". TCP
-segments that start with the middle of a Yahoo Messenger packet that
-takes more than one TCP segment will not be recognized as Yahoo
-Messenger packets (even if the TCP segment also contains the beginning
-of another Yahoo Messenger packet).
-
 == Filtering traffic
 
 === I saved a filter and tried to use its name to filter the display; why do I get an "Unexpected end of filter string" error?
@@ -1071,7 +1062,7 @@ open source project results in two names, web sites, development teams,
 support infrastructures, etc. This is the case with Wireshark except for
 one notable exception -- every member of the core development team is
 now working on Wireshark. There has been no active development on
-Ethereal since the name change. Several parts of the Ethereal web site`
+Ethereal since the name change. Several parts of the Ethereal web site
 (such as the mailing lists, source code repository, and build farm) have
 gone offline.
 
