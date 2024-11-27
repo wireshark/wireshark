@@ -4612,6 +4612,9 @@ class ChoiceType (Type):
         return not self.HasOwnTag()
 
     def detect_tagval(self, ectx):
+        '''Returns True if the tag numbers are used as the tree values.
+           Returns False if we assign our own tree values for each choice.
+        '''
         tagval = False
         lst = self.elt_list[:]
         if hasattr(self, 'ext_list'):
@@ -4623,6 +4626,10 @@ class ChoiceType (Type):
             t = ''
             tagval = False
         if (t == 'BER_CLASS_UNI'):
+            # Don't use universal tags
+            tagval = False
+        if t == 'BER_CLASS_ANY/*choice*/':
+            # Don't use -1 tags that refer to another level of CHOICE
             tagval = False
         for e in (lst):
             if not (ectx.Per() or ectx.Oer()) or e.HasOwnTag():

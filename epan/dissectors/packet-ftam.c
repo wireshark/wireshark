@@ -4686,10 +4686,10 @@ dissect_ftam_FSM_PDU(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, a
 
 
 static const ber_choice_t PDU_choice[] = {
-  { -1/*choice*/, &hf_ftam_fTAM_Regime_PDU, BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG, dissect_ftam_FTAM_Regime_PDU },
-  { -1/*choice*/, &hf_ftam_file_PDU       , BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG, dissect_ftam_File_PDU },
-  { -1/*choice*/, &hf_ftam_bulk_Data_PDU  , BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG, dissect_ftam_Bulk_Data_PDU },
-  { -1/*choice*/, &hf_ftam_fSM_PDU        , BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG, dissect_ftam_FSM_PDU },
+  {   0, &hf_ftam_fTAM_Regime_PDU, BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG, dissect_ftam_FTAM_Regime_PDU },
+  {   1, &hf_ftam_file_PDU       , BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG, dissect_ftam_File_PDU },
+  {   2, &hf_ftam_bulk_Data_PDU  , BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG, dissect_ftam_Bulk_Data_PDU },
+  {   3, &hf_ftam_fSM_PDU        , BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG, dissect_ftam_FSM_PDU },
   { 0, NULL, 0, 0, 0, NULL }
 };
 

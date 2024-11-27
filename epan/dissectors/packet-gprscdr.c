@@ -1253,14 +1253,14 @@ dissect_gprscdr_IPTextRepresentedAddress(bool implicit_tag _U_, tvbuff_t *tvb _U
 
 
 static const value_string gprscdr_IPAddress_vals[] = {
-  { -1/*choice*/, "iPBinaryAddress" },
-  { -1/*choice*/, "iPTextRepresentedAddress" },
+  {   0, "iPBinaryAddress" },
+  {   1, "iPTextRepresentedAddress" },
   { 0, NULL }
 };
 
 static const ber_choice_t IPAddress_choice[] = {
-  { -1/*choice*/, &hf_gprscdr_iPBinaryAddress, BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG, dissect_gprscdr_IPBinaryAddress },
-  { -1/*choice*/, &hf_gprscdr_iPTextRepresentedAddress, BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG, dissect_gprscdr_IPTextRepresentedAddress },
+  {   0, &hf_gprscdr_iPBinaryAddress, BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG, dissect_gprscdr_IPBinaryAddress },
+  {   1, &hf_gprscdr_iPTextRepresentedAddress, BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG, dissect_gprscdr_IPTextRepresentedAddress },
   { 0, NULL, 0, 0, 0, NULL }
 };
 
