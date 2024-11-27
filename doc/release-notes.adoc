@@ -68,6 +68,8 @@ The following features are either new or have been significantly updated since v
   extension field that precedes the NTS Authenticator and Encrypted Extension Fields
   extension field) are checked for validity.
 
+* The TCP Stream Graph axes now use units with SI prefixes. wsbuglink:20197[]
+
 * Custom columns have an option to show the values using the same format as
   in Packet Details.
 
