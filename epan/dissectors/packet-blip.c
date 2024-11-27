@@ -629,11 +629,12 @@ proto_reg_handoff_blip(void)
 
 	// Register the blip dissector as a subprotocol dissector of "ws.protocol",
 	// matching any packets with a Web-Sec-Protocol header of "BLIP_3+CBMobile_2"
-	// or "BLIP_3+CBMobile_3"
+	// "BLIP_3+CBMobile_3", or "BLIP_3+CBMobile_4"
 	//
 	// See https://github.com/couchbase/sync_gateway/issues/3356#issuecomment-370958321 for
 	// more notes on how the websocket dissector routes packets down to subprotocol handlers.
 
+	dissector_add_string("ws.protocol", "BLIP_3+CBMobile_4", blip_handle);
 	dissector_add_string("ws.protocol", "BLIP_3+CBMobile_3", blip_handle);
 	dissector_add_string("ws.protocol", "BLIP_3+CBMobile_2", blip_handle);
 }
