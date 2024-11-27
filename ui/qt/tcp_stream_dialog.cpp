@@ -18,6 +18,7 @@
 
 #include "wsutil/str_util.h"
 
+#include <epan/prefs-int.h>
 #include <wsutil/utf8_entities.h>
 
 #include <ui/qt/utils/tango_colors.h>
@@ -1633,8 +1634,20 @@ void TCPStreamDialog::fillWindowScale()
     QVector<double> cwnd_time, cwnd_size;
     uint32_t last_ack = 0;
 
-    /* highest expected SEQ seen so far */
+    /* highest expected SEQ seen so far (starts at 0 for relative SEQ) */
     uint32_t max_next_seq = 0;
+
+    pref_t *pref = prefs_find_preference(prefs_find_module("tcp"), "relative_sequence_numbers");
+    if(!pref || !prefs_get_bool_value(pref, pref_current)) {
+      bool found_first_data = false;
+      /* loop until we know the first raw SEQ */
+      for (struct segment *seg = graph_.segments; (!found_first_data && seg != NULL); seg = seg->next) {
+        if (compareHeaders(seg)) {
+          max_next_seq = seg->th_seq ;
+          found_first_data = true;
+        }
+      }
+    }
 
     bool found_first_ack = false;
     for (struct segment *seg = graph_.segments; seg != NULL; seg = seg->next) {
@@ -1647,7 +1660,7 @@ void TCPStreamDialog::fillWindowScale()
              * by comparing the highest next SEQ to the latest ACK
              */
             uint32_t end_seq = seg->th_seq + seg->th_seglen;
-            if(end_seq > max_next_seq) {
+            if(tcp_seq_eq_or_after(end_seq, max_next_seq)) {
                 max_next_seq = end_seq;
             }
             if (found_first_ack &&
