@@ -405,8 +405,8 @@ sub check_snprintf_plus_strlen($$)
 {
         my ($fileContentsRef, $filename) = @_;
         my @items;
+        my $errorCount = 0;
 
-        # This catches both snprintf() and g_snprint.
         # If we need to do more APIs, we can make this function look more like
         # checkAPIsCalledWithTvbGetPtr().
         @items = (${$fileContentsRef} =~ m/ (snprintf [^;]* ; ) /xsg);
@@ -414,10 +414,30 @@ sub check_snprintf_plus_strlen($$)
                 my ($item) = @items;
                 shift @items;
                 if ($item =~ / strlen\s*\( /xos) {
-                        print STDERR "Warning: ".$filename." uses snprintf + strlen to assemble strings.\n";
+                        print STDERR "Error: ".$filename." uses snprintf + strlen to assemble strings.\n";
+                        $errorCount++;
                         last;
                 }
         }
+        return $errorCount;
+}
+
+sub check_complex_snprintf($$)
+{
+        my ($fileContentsRef, $filename) = @_;
+        my $errorCount = 0;
+
+        my @items = (${$fileContentsRef} =~ m/ (= \s* snprintf) /xsg);
+        while (@items) {
+                my ($item) = @items;
+                shift @items;
+                print STDERR "Warning: ".$filename." appears to use snprintf to assemble\n" .
+                        "strings. Consider using a wmem_strbuf or GString instead.\n";
+                # $errorCount++;
+                last;
+        }
+
+        return $errorCount;
 }
 
 #### Regex for use when searching for value-string definitions
@@ -1221,12 +1241,13 @@ while ($_ = pop @filelist)
         }
 
 
-        check_snprintf_plus_strlen(\$fileContents, $filename);
+        $errorCount += check_snprintf_plus_strlen(\$fileContents, $filename);
+
+        $errorCount += check_complex_snprintf(\$fileContents, $filename);
 
         $errorCount += check_proto_tree_add_XXX(\$fileContents, $filename);
 
         $errorCount += check_try_catch(\$fileContents, $filename);
-
 
         # Check and count APIs
         for my $groupArg (@apiGroups) {
