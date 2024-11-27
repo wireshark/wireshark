@@ -91,7 +91,7 @@ guid_to_repr(wmem_allocator_t *scope, const fvalue_t *fv, ftrepr_t rtype _U_, in
 static enum ft_result
 cmp_order(const fvalue_t *a, const fvalue_t *b, int *cmp)
 {
-    *cmp = memcmp(&a->value.guid, &b->value.guid, sizeof(e_guid_t));
+    *cmp = guid_cmp(&a->value.guid, &b->value.guid);
     return FT_OK;
 }
 
