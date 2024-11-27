@@ -564,7 +564,7 @@ get_runtime_version_info(gather_feature_func gather_runtime)
 	 * the whole shebang of categories using LC_ALL.
 	 */
 	if ((lc = setlocale(LC_CTYPE, NULL)) != NULL) {
-		g_string_append_printf(str, " LC_TYPE=%s\n", lc);
+		g_string_append_printf(str, "  Locale: LC_TYPE=%s\n", lc);
 	}
 #ifdef HAVE_PLUGINS
 	if (g_module_supported()) {
