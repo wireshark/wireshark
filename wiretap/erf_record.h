@@ -103,7 +103,7 @@
 /*
  * Calculate 3-bit ERF InterfaceID value from ERF Header flags byte
  */
-#define erf_interface_id_from_flags(flags) ((((uint8_t)flags) & ERF_HDR_CAP_HI_MASK >> 4 ) | (((uint8_t)flags) & ERF_HDR_CAP_LO_MASK))
+#define erf_interface_id_from_flags(flags) (((((uint8_t)flags) & ERF_HDR_CAP_HI_MASK) >> 4 ) | (((uint8_t)flags) & ERF_HDR_CAP_LO_MASK))
 
 /* Host ID and Anchor ID*/
 #define ERF_EHDR_HOST_ID_MASK UINT64_C(0xffffffffffff)
