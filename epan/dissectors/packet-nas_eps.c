@@ -5425,7 +5425,7 @@ nas_emm_sec_mode_comp(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint3
     /* 66   UE radio capability ID UE radio capability ID 9.9.3.60 O   TLV  3-n */
     ELEM_OPT_TLV(0x66, NAS_5GS_PDU_TYPE_MM, DE_NAS_5GS_MM_UE_RADIO_CAP_ID, NULL);
     /* 67   UE coarse location information UE coarse location information 9.9.3.72 O   TLV  8 */
-    ELEM_OPT_TLV(0x66, NAS_5GS_PDU_TYPE_MM, DE_EMM_UE_COARSE_LOC_INFO, NULL);
+    ELEM_OPT_TLV(0x67, NAS_5GS_PDU_TYPE_MM, DE_EMM_UE_COARSE_LOC_INFO, NULL);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_nas_eps_extraneous_data);
 }
