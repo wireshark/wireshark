@@ -444,6 +444,7 @@ set(DISSECTOR_PUBLIC_HEADERS
 	packet-ip.h
 	packet-ipmi.h
 	packet-ipsec.h
+	packet-ipv6.h
 	packet-ipx.h
 	packet-irdma.h
 	packet-isakmp.h
