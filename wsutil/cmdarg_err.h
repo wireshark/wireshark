@@ -44,6 +44,15 @@ WS_DLL_PUBLIC void
 cmdarg_err_cont(const char *fmt, ...)
     G_GNUC_PRINTF(1, 2);
 
+/*
+ * Error printing routines that report to the standard error.
+ */
+WS_DLL_PUBLIC void
+stderr_cmdarg_err(const char *msg_format, va_list ap);
+
+WS_DLL_PUBLIC void
+stderr_cmdarg_err_cont(const char *msg_format, va_list ap);
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */

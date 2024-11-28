@@ -5200,6 +5200,9 @@ main(int argc, char *argv[])
 #endif
     GString          *str;
 
+    /* Set the program name. */
+    g_set_prgname("dumpcap");
+
     /*
      * Determine if dumpcap is being requested to run in a special
      * capture_child mode by going thru the command line args to see if
@@ -5261,7 +5264,7 @@ main(int argc, char *argv[])
     cmdarg_err_init(dumpcap_cmdarg_err, dumpcap_cmdarg_err_cont);
 
     /* Initialize log handler early so we can have proper logging during startup. */
-    ws_log_init_with_writer("dumpcap", dumpcap_log_writer, vcmdarg_err);
+    ws_log_init_with_writer(dumpcap_log_writer, vcmdarg_err);
 
     /* Early logging command-line initialization. */
     ws_log_parse_args(&argc, argv, vcmdarg_err, 1);

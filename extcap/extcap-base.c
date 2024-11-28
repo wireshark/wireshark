@@ -164,9 +164,9 @@ void extcap_base_set_running_with(extcap_parameters * extcap, const char *fmt, .
     va_end(ap);
 }
 
-void extcap_log_init(const char *progname)
+void extcap_log_init(void)
 {
-    ws_log_init(progname, NULL);
+    ws_log_init(NULL);
     /* extcaps cannot write debug information to parent on stderr. */
     ws_log_console_writer_set_use_stdout(true);
     ws_noisy("Extcap log initialization finished");
@@ -409,6 +409,18 @@ void extcap_cmdline_debug(char** ar, const unsigned n)
         g_string_append_printf(cmdline, "%s ", ar[i]);
     ws_debug("%s", cmdline->str);
     g_string_free(cmdline, TRUE);
+}
+
+/*
+ * Report errors and warnings through ws_warning().
+ *
+ * Unfortunately, ws_warning() may be a macro, so we do it by calling
+ * ws_logv() with the appropriate arguments.
+ */
+void
+extcap_log_cmdarg_err(const char *msg_format, va_list ap)
+{
+    ws_logv(LOG_DOMAIN_CAPCHILD, LOG_LEVEL_WARNING, msg_format, ap);
 }
 
 /*

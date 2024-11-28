@@ -51,27 +51,6 @@ static column_info fuzz_cinfo;
 static epan_t *fuzz_epan;
 static epan_dissect_t *fuzz_edt;
 
-/*
- * Report an error in command-line arguments.
- */
-static void
-fuzzshark_cmdarg_err(const char *msg_format, va_list ap)
-{
-	fprintf(stderr, "oss-fuzzshark: ");
-	vfprintf(stderr, msg_format, ap);
-	fprintf(stderr, "\n");
-}
-
-/*
- * Report additional information for an error in command-line arguments.
- */
-static void
-fuzzshark_cmdarg_err_cont(const char *msg_format, va_list ap)
-{
-	vfprintf(stderr, msg_format, ap);
-	fprintf(stderr, "\n");
-}
-
 static int
 fuzzshark_pref_set(const char *name, const char *value)
 {
@@ -178,6 +157,15 @@ fuzz_init(int argc _U_, char **argv)
 #if !defined(FUZZ_DISSECTOR_TABLE) && !defined(FUZZ_DISSECTOR_TARGET)
 	const char *fuzz_table = getenv("FUZZSHARK_TABLE");
 
+	/*
+	 * Set the pogram name.
+	 *
+	 * XXX - yes, this isn't main(), but it still needs to be
+	 * set, as many Wireshark library routines depend on it
+	 * being set.
+	 */
+	g_set_prgname("oss-fuzzshark");
+
 	if (!fuzz_table && !fuzz_target) {
 		fprintf(stderr,
 "Missing environment variables!\n"
@@ -224,10 +212,10 @@ fuzz_init(int argc _U_, char **argv)
 	g_setenv("WIRESHARK_DEBUG_WMEM_OVERRIDE", "simple", 0);
 	g_setenv("G_SLICE", "always-malloc", 0);
 
-	cmdarg_err_init(fuzzshark_cmdarg_err, fuzzshark_cmdarg_err_cont);
+	cmdarg_err_init(stderr_cmdarg_err, stderr_cmdarg_err_cont);
 
 	/* Initialize log handler early so we can have proper logging during startup. */
-	ws_log_init("fuzzshark", vcmdarg_err);
+	ws_log_init(vcmdarg_err);
 
 	/* Early logging command-line initialization. */
 	ws_log_parse_args(&argc, argv, vcmdarg_err, LOG_ARGS_NOEXIT);

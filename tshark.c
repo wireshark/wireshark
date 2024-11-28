@@ -262,9 +262,6 @@ static bool write_preamble(capture_file *cf);
 static bool print_packet(capture_file *cf, epan_dissect_t *edt);
 static bool write_finale(void);
 
-static void tshark_cmdarg_err(const char *msg_format, va_list ap);
-static void tshark_cmdarg_err_cont(const char *msg_format, va_list ap);
-
 static GHashTable *output_only_tables;
 
 static bool opt_print_timers;
@@ -1127,6 +1124,9 @@ main(int argc, char *argv[])
 
     static const char    optstring[] = OPTSTRING;
 
+    /* Set the program name. */
+    g_set_prgname("tshark");
+
     /*
      * Set the C-language locale to the native environment and set the
      * code page to UTF-8 on Windows.
@@ -1139,10 +1139,10 @@ main(int argc, char *argv[])
 
     ws_tzset();
 
-    cmdarg_err_init(tshark_cmdarg_err, tshark_cmdarg_err_cont);
+    cmdarg_err_init(stderr_cmdarg_err, stderr_cmdarg_err_cont);
 
     /* Initialize log handler early so we can have proper logging during startup. */
-    ws_log_init("tshark", vcmdarg_err);
+    ws_log_init(vcmdarg_err);
 
     /* Early logging command-line initialization. */
     ws_log_parse_args(&argc, argv, vcmdarg_err, WS_EXIT_INVALID_OPTION);
@@ -5042,27 +5042,6 @@ show_print_file_io_error(void)
 #endif
             break;
     }
-}
-
-/*
- * Report an error in command-line arguments.
- */
-static void
-tshark_cmdarg_err(const char *msg_format, va_list ap)
-{
-    fprintf(stderr, "tshark: ");
-    vfprintf(stderr, msg_format, ap);
-    fprintf(stderr, "\n");
-}
-
-/*
- * Report additional information for an error in command-line arguments.
- */
-static void
-tshark_cmdarg_err_cont(const char *msg_format, va_list ap)
-{
-    vfprintf(stderr, msg_format, ap);
-    fprintf(stderr, "\n");
 }
 
 static void

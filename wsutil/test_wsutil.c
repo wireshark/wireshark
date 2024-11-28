@@ -16,6 +16,8 @@
 
 #include "inet_addr.h"
 
+#define PROGNAME "test_wsutil"
+
 static void test_inet_pton4_test1(void)
 {
     const char *str;
@@ -810,6 +812,15 @@ static void test_getopt_opterr1(void)
 
     if (g_test_subprocess()) {
         const char *optstring = "ab";
+
+        /*
+         * Yes, this has a different command name from this
+         * program's name - and from the name in the error
+         * message that we're testing.  ws_getopt() and
+         * ws_getopt_long() use the name set by g_set_prgname(),
+         * not the argv[0] string, as the program name in the
+         * error message, just as other error message routines do.
+         */
         argv = new_argv(&argc, "/bin/ls", "-a", "-z", "path", (char *)NULL);
 
         ws_optind = 0;
@@ -833,14 +844,17 @@ static void test_getopt_opterr1(void)
 
     g_test_trap_subprocess(NULL, 0, 0);
     g_test_trap_assert_passed();
-    g_test_trap_assert_stderr("/bin/ls: unrecognized option: z\n");
+    g_test_trap_assert_stderr(PROGNAME ": unrecognized option: z\n");
 }
 
 int main(int argc, char **argv)
 {
     int ret;
 
-    ws_log_init("test_wsutil", NULL);
+    /* Set the program name. */
+    g_set_prgname(PROGNAME);
+
+    ws_log_init(NULL);
 
     g_test_init(&argc, &argv, NULL);
 

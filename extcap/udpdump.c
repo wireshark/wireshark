@@ -346,8 +346,11 @@ int main(int argc, char *argv[])
 	char* payload = NULL;
 	char* port_msg = NULL;
 
+	/* Set the program name. */
+	g_set_prgname("udpdump");
+
 	/* Initialize log handler early so we can have proper logging during startup. */
-	extcap_log_init("udpdump");
+	extcap_log_init();
 
 	/*
 	 * Get credential information for later use.

@@ -422,8 +422,11 @@ int main(int argc, char *argv[])
 	bool noprom = false;
 	char* interface_description = g_strdup("SSH remote capture");
 
+	/* Set the program name. */
+	g_set_prgname("sshdump");
+
 	/* Initialize log handler early so we can have proper logging during startup. */
-	extcap_log_init("sshdump");
+	extcap_log_init();
 
 	sshdump_extcap_interface = g_path_get_basename(argv[0]);
 	if (g_str_has_suffix(sshdump_extcap_interface, ".exe")) {

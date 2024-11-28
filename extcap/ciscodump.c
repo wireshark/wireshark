@@ -2296,8 +2296,11 @@ int main(int argc, char *argv[])
 	char* help_url;
 	char* help_header = NULL;
 
+	/* Set the program name. */
+	g_set_prgname("ciscodump");
+
 	/* Initialize log handler early so we can have proper logging during startup. */
-	extcap_log_init("ciscodump");
+	extcap_log_init();
 
 	/*
 	 * Get credential information for later use.

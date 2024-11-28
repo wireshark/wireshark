@@ -1459,27 +1459,6 @@ print_usage(FILE *output)
     fprintf(output, "output format.\n");
 }
 
-/*
- * Report an error in command-line arguments.
- */
-static void
-capinfos_cmdarg_err(const char *msg_format, va_list ap)
-{
-    fprintf(stderr, "capinfos: ");
-    vfprintf(stderr, msg_format, ap);
-    fprintf(stderr, "\n");
-}
-
-/*
- * Report additional information for an error in command-line arguments.
- */
-static void
-capinfos_cmdarg_err_cont(const char *msg_format, va_list ap)
-{
-    vfprintf(stderr, msg_format, ap);
-    fprintf(stderr, "\n");
-}
-
 int
 main(int argc, char *argv[])
 {
@@ -1495,6 +1474,9 @@ main(int argc, char *argv[])
 
     int status = 0;
 
+    /* Set the program name. */
+    g_set_prgname("capinfos");
+
     /*
      * Set the C-language locale to the native environment and set the
      * code page to UTF-8 on Windows.
@@ -1505,10 +1487,10 @@ main(int argc, char *argv[])
     setlocale(LC_ALL, "");
 #endif
 
-    cmdarg_err_init(capinfos_cmdarg_err, capinfos_cmdarg_err_cont);
+    cmdarg_err_init(stderr_cmdarg_err, stderr_cmdarg_err_cont);
 
     /* Initialize log handler early so we can have proper logging during startup. */
-    ws_log_init("capinfos", vcmdarg_err);
+    ws_log_init(vcmdarg_err);
 
     /* Early logging command-line initialization. */
     ws_log_parse_args(&argc, argv, vcmdarg_err, WS_EXIT_INVALID_OPTION);

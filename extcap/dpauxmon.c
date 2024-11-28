@@ -481,8 +481,11 @@ int main(int argc, char *argv[])
 	extcap_parameters* extcap_conf = g_new0(extcap_parameters, 1);
 	char* help_header = NULL;
 
+	/* Set the program name. */
+	g_set_prgname("dpauxmon");
+
 	/* Initialize log handler early so we can have proper logging during startup. */
-	extcap_log_init("dpauxmon");
+	extcap_log_init();
 
 	/*
 	 * Get credential information for later use.

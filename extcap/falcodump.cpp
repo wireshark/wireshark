@@ -927,8 +927,11 @@ int main(int argc, char **argv)
     sinsp inspector;
     std::string plugin_source;
 
+    /* Set the program name. */
+    g_set_prgname("falcodump");
+
     /* Initialize log handler early so we can have proper logging during startup. */
-    extcap_log_init("falcodump");
+    extcap_log_init();
 
     /*
      * Get credential information for later use.

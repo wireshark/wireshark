@@ -472,6 +472,9 @@ int main(int argc, char *qt_argv[])
     /* Start time in microseconds */
     uint64_t start_time = g_get_monotonic_time();
 
+    /* Set the program name. */
+    g_set_prgname("wireshark");
+
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     /*
      * See:
@@ -507,7 +510,7 @@ int main(int argc, char *qt_argv[])
     cmdarg_err_init(wireshark_cmdarg_err, wireshark_cmdarg_err_cont);
 
     /* Initialize log handler early so we can have proper logging during startup. */
-    ws_log_init("wireshark", vcmdarg_err);
+    ws_log_init(vcmdarg_err);
     /* For backward compatibility with GLib logging and Wireshark 3.4. */
     ws_log_console_writer_set_use_stdout(true);
 

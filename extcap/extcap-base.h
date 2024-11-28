@@ -107,7 +107,15 @@ void extcap_help_print(extcap_parameters * extcap);
 void extcap_cmdline_debug(char** ar, const unsigned n);
 void extcap_config_debug(unsigned* count);
 void extcap_base_help(void);
-void extcap_log_init(const char *progname);
+void extcap_log_init(void);
+
+/*
+ * Report errors and warnings through ws_warning().
+ *
+ * Unfortunately, ws_warning() may be a macro, so we do it by calling
+ * ws_logv() with the appropriate arguments.
+ */
+void extcap_log_cmdarg_err(const char *msg_format, va_list ap);
 
 #ifdef __cplusplus
 }

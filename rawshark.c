@@ -135,8 +135,6 @@ static bool process_packet(capture_file *cf, epan_dissect_t *edt, int64_t offset
                                wtap_rec *rec, Buffer *buf);
 static void show_print_file_io_error(int err);
 
-static void rawshark_cmdarg_err(const char *fmt, va_list ap);
-static void rawshark_cmdarg_err_cont(const char *fmt, va_list ap);
 static void protocolinfo_init(char *field);
 static bool parse_field_string_format(char *format);
 
@@ -430,6 +428,9 @@ main(int argc, char *argv[])
 
     static const char    optstring[] = OPTSTRING_INIT;
 
+    /* Set the program name. */
+    g_set_prgname("rawshark");
+
     /*
      * Set the C-language locale to the native environment and set the
      * code page to UTF-8 on Windows.
@@ -440,10 +441,10 @@ main(int argc, char *argv[])
     setlocale(LC_ALL, "");
 #endif
 
-    cmdarg_err_init(rawshark_cmdarg_err, rawshark_cmdarg_err_cont);
+    cmdarg_err_init(stderr_cmdarg_err, stderr_cmdarg_err_cont);
 
     /* Initialize log handler early so we can have proper logging during startup. */
-    ws_log_init("rawshark", vcmdarg_err);
+    ws_log_init(vcmdarg_err);
 
     /* Early logging command-line initialization. */
     ws_log_parse_args(&argc, argv, vcmdarg_err, WS_EXIT_INVALID_OPTION);
@@ -1450,27 +1451,6 @@ raw_cf_open(capture_file *cf, const char *fname)
     cf->provider.prev_cap = NULL;
 
     return CF_OK;
-}
-
-/*
- * Report an error in command-line arguments.
- */
-static void
-rawshark_cmdarg_err(const char *fmt, va_list ap)
-{
-    fprintf(stderr, "rawshark: ");
-    vfprintf(stderr, fmt, ap);
-    fprintf(stderr, "\n");
-}
-
-/*
- * Report additional information for an error in command-line arguments.
- */
-static void
-rawshark_cmdarg_err_cont(const char *fmt, va_list ap)
-{
-    vfprintf(stderr, fmt, ap);
-    fprintf(stderr, "\n");
 }
 
 /*

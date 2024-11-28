@@ -55,27 +55,6 @@ list_capture_types(void) {
     g_array_free(writable_type_subtypes, TRUE);
 }
 
-/*
- * Report an error in command-line arguments.
- */
-static void
-randpkt_cmdarg_err(const char *msg_format, va_list ap)
-{
-    fprintf(stderr, "randpkt: ");
-    vfprintf(stderr, msg_format, ap);
-    fprintf(stderr, "\n");
-}
-
-/*
- * Report additional information for an error in command-line arguments.
- */
-static void
-randpkt_cmdarg_err_cont(const char *msg_format, va_list ap)
-{
-    vfprintf(stderr, msg_format, ap);
-    fprintf(stderr, "\n");
-}
-
 /* Print usage statement and exit program */
 static void
 usage(bool is_error)
@@ -140,10 +119,13 @@ main(int argc, char *argv[])
         {0, 0, 0, 0 }
     };
 
-    cmdarg_err_init(randpkt_cmdarg_err, randpkt_cmdarg_err_cont);
+    /* Set the program name. */
+    g_set_prgname("randpkt");
+
+    cmdarg_err_init(stderr_cmdarg_err, stderr_cmdarg_err_cont);
 
     /* Initialize log handler early so we can have proper logging during startup. */
-    ws_log_init("randpkt", vcmdarg_err);
+    ws_log_init(vcmdarg_err);
 
     /* Early logging command-line initialization. */
     ws_log_parse_args(&argc, argv, vcmdarg_err, WS_EXIT_INVALID_OPTION);

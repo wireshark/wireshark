@@ -235,8 +235,7 @@ int ws_log_parse_args(int *argc_ptr, char *argv[],
  * a misconfigured environment variable.
  */
 WS_DLL_PUBLIC
-void ws_log_init(const char *progname,
-                        void (*vcmdarg_err)(const char *, va_list ap));
+void ws_log_init(void (*vcmdarg_err)(const char *, va_list ap));
 
 
 /** Initializes the logging code.
@@ -245,8 +244,7 @@ void ws_log_init(const char *progname,
  * If provided this callback will be used instead of the default writer.
  */
 WS_DLL_PUBLIC
-void ws_log_init_with_writer(const char *progname,
-                        ws_log_writer_cb *writer,
+void ws_log_init_with_writer(ws_log_writer_cb *writer,
                         void (*vcmdarg_err)(const char *, va_list ap));
 
 
@@ -257,8 +255,7 @@ void ws_log_init_with_writer(const char *progname,
  * free_user_data will be called during cleanup.
  */
 WS_DLL_PUBLIC
-void ws_log_init_with_writer_and_data(const char *progname,
-                        ws_log_writer_cb *writer,
+void ws_log_init_with_writer_and_data(ws_log_writer_cb *writer,
                         void *user_data,
                         ws_log_writer_free_data_cb *free_user_data,
                         void (*vcmdarg_err)(const char *, va_list ap));

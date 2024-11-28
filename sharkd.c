@@ -71,9 +71,6 @@ capture_file cfile;
 static uint32_t cum_bytes;
 static frame_data ref_frame;
 
-static void sharkd_cmdarg_err(const char *msg_format, va_list ap);
-static void sharkd_cmdarg_err_cont(const char *msg_format, va_list ap);
-
 static void
 print_current_user(void)
 {
@@ -102,10 +99,13 @@ main(int argc, char *argv[])
     e_prefs             *prefs_p;
     int                  ret = EXIT_SUCCESS;
 
-    cmdarg_err_init(sharkd_cmdarg_err, sharkd_cmdarg_err_cont);
+    /* Set the program name. */
+    g_set_prgname("sharkd");
+
+    cmdarg_err_init(stderr_cmdarg_err, stderr_cmdarg_err_cont);
 
     /* Initialize log handler early so we can have proper logging during startup. */
-    ws_log_init("sharkd", vcmdarg_err);
+    ws_log_init(vcmdarg_err);
 
     /* Early logging command-line initialization. */
     ws_log_parse_args(&argc, argv, vcmdarg_err, SHARKD_INIT_FAILED);
@@ -427,27 +427,6 @@ cf_open(capture_file *cf, const char *fname, unsigned int type, bool is_tempfile
 fail:
     cfile_open_failure_message(fname, *err, err_info);
     return CF_ERROR;
-}
-
-/*
- * Report an error in command-line arguments.
- */
-static void
-sharkd_cmdarg_err(const char *msg_format, va_list ap)
-{
-    fprintf(stderr, "sharkd: ");
-    vfprintf(stderr, msg_format, ap);
-    fprintf(stderr, "\n");
-}
-
-/*
- * Report additional information for an error in command-line arguments.
- */
-static void
-sharkd_cmdarg_err_cont(const char *msg_format, va_list ap)
-{
-    vfprintf(stderr, msg_format, ap);
-    fprintf(stderr, "\n");
 }
 
 cf_status_t

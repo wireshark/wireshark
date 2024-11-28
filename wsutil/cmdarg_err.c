@@ -57,3 +57,21 @@ cmdarg_err_cont(const char *fmt, ...)
     print_err_cont(fmt, ap);
     va_end(ap);
 }
+
+/*
+ * Error printing routines that report to the standard error.
+ */
+void
+stderr_cmdarg_err(const char *msg_format, va_list ap)
+{
+    fprintf(stderr, "%s: ", g_get_prgname());
+    vfprintf(stderr, msg_format, ap);
+    fprintf(stderr, "\n");
+}
+
+void
+stderr_cmdarg_err_cont(const char *msg_format, va_list ap)
+{
+    vfprintf(stderr, msg_format, ap);
+    fprintf(stderr, "\n");
+}

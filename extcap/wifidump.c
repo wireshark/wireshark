@@ -528,8 +528,11 @@ int main(int argc, char *argv[])
 	char* help_header = NULL;
 	char* interface_description = g_strdup("Wi-Fi remote capture");
 
+	/* Set the program name. */
+	g_set_prgname("wifidump");
+
 	/* Initialize log handler early so we can have proper logging during startup. */
-	extcap_log_init("wifidump");
+	extcap_log_init();
 
 	wifidump_extcap_interface = g_path_get_basename(argv[0]);
 	if (g_str_has_suffix(wifidump_extcap_interface, ".exe")) {

@@ -73,27 +73,6 @@ print_usage(FILE *output)
     fprintf(output, "  -v, --version     print version information and exit.\n");
 }
 
-/*
- * Report an error in command-line arguments.
- */
-static void
-mergecap_cmdarg_err(const char *fmt, va_list ap)
-{
-    fprintf(stderr, "mergecap: ");
-    vfprintf(stderr, fmt, ap);
-    fprintf(stderr, "\n");
-}
-
-/*
- * Report additional information for an error in command-line arguments.
- */
-static void
-mergecap_cmdarg_err_cont(const char *fmt, va_list ap)
-{
-    vfprintf(stderr, fmt, ap);
-    fprintf(stderr, "\n");
-}
-
 static void
 list_capture_types(void) {
     GArray *writable_type_subtypes;
@@ -220,10 +199,13 @@ main(int argc, char *argv[])
     wtap_compression_type compression_type = WTAP_UNKNOWN_COMPRESSION;
     merge_progress_callback_t cb;
 
-    cmdarg_err_init(mergecap_cmdarg_err, mergecap_cmdarg_err_cont);
+    /* Set the program name. */
+    g_set_prgname("mergecap");
+
+    cmdarg_err_init(stderr_cmdarg_err, stderr_cmdarg_err_cont);
 
     /* Initialize log handler early so we can have proper logging during startup. */
-    ws_log_init("mergecap", vcmdarg_err);
+    ws_log_init(vcmdarg_err);
 
     /* Early logging command-line initialization. */
     ws_log_parse_args(&argc, argv, vcmdarg_err, 1);

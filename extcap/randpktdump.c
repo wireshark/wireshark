@@ -127,11 +127,6 @@ static int list_config(char *interface)
 	return EXIT_SUCCESS;
 }
 
-static void randpktdump_cmdarg_err(const char *msg_format, va_list ap)
-{
-	ws_logv(LOG_DOMAIN_CAPCHILD, LOG_LEVEL_WARNING, msg_format, ap);
-}
-
 int main(int argc, char *argv[])
 {
 	char* err_msg;
@@ -153,10 +148,13 @@ int main(int argc, char *argv[])
 	char* help_url;
 	char* help_header = NULL;
 
-	cmdarg_err_init(randpktdump_cmdarg_err, randpktdump_cmdarg_err);
+	/* Set the program name. */
+	g_set_prgname("randpktdump");
+
+	cmdarg_err_init(extcap_log_cmdarg_err, extcap_log_cmdarg_err);
 
 	/* Initialize log handler early so we can have proper logging during startup. */
-	extcap_log_init("randpktdump");
+	extcap_log_init();
 
 	/*
 	 * Get credential information for later use.

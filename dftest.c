@@ -59,27 +59,6 @@ static int opt_dump_macros;
 static int64_t elapsed_expand;
 static int64_t elapsed_compile;
 
-/*
- * Report an error in command-line arguments.
- */
-static void
-dftest_cmdarg_err(const char *fmt, va_list ap)
-{
-    fprintf(stderr, "dftest: ");
-    vfprintf(stderr, fmt, ap);
-    fprintf(stderr, "\n");
-}
-
-/*
- * Report additional information for an error in command-line arguments.
- */
-static void
-dftest_cmdarg_err_cont(const char *fmt, va_list ap)
-{
-    vfprintf(stderr, fmt, ap);
-    fprintf(stderr, "\n");
-}
-
 #ifndef HAVE_GETLINE
 /* Maximum supported line length of a filter. */
 #define MAX_LINELEN     4096
@@ -338,6 +317,9 @@ main(int argc, char **argv)
     char        *text = NULL;
     int          exit_status = EXIT_FAILURE;
 
+    /* Set the program name. */
+    g_set_prgname("dftest");
+
     /*
      * Set the C-language locale to the native environment and set the
      * code page to UTF-8 on Windows.
@@ -348,10 +330,10 @@ main(int argc, char **argv)
     setlocale(LC_ALL, "");
 #endif
 
-    cmdarg_err_init(dftest_cmdarg_err, dftest_cmdarg_err_cont);
+    cmdarg_err_init(stderr_cmdarg_err, stderr_cmdarg_err_cont);
 
     /* Initialize log handler early for startup. */
-    ws_log_init("dftest", vcmdarg_err);
+    ws_log_init(vcmdarg_err);
 
     /* Early logging command-line initialization. */
     ws_log_parse_args(&argc, argv, vcmdarg_err, 1);

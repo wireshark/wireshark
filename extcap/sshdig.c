@@ -316,8 +316,11 @@ int main(int argc, char *argv[])
     char* interface_description = g_strdup("SSH remote syscall capture");
     bool modern_bpf = 0;
 
+    /* Set the program name. */
+    g_set_prgname("sshdig");
+
     /* Initialize log handler early so we can have proper logging during startup. */
-    extcap_log_init("sshdig");
+    extcap_log_init();
 
     sshdig_extcap_interface = g_path_get_basename(argv[0]);
     if (g_str_has_suffix(sshdig_extcap_interface, ".exe")) {

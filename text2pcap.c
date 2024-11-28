@@ -1026,28 +1026,6 @@ parse_options(int argc, char *argv[], text_import_info_t * const info, wtap_dump
     return EXIT_SUCCESS;
 }
 
-/*
- * General errors and warnings are reported with an console message
- * in text2pcap.
- */
-static void
-text2pcap_cmdarg_err(const char *msg_format, va_list ap)
-{
-    fprintf(stderr, "text2pcap: ");
-    vfprintf(stderr, msg_format, ap);
-    fprintf(stderr, "\n");
-}
-
-/*
- * Report additional information for an error in command-line arguments.
- */
-static void
-text2pcap_cmdarg_err_cont(const char *msg_format, va_list ap)
-{
-    vfprintf(stderr, msg_format, ap);
-    fprintf(stderr, "\n");
-}
-
 int
 main(int argc, char *argv[])
 {
@@ -1057,10 +1035,13 @@ main(int argc, char *argv[])
     wtap_dump_params params;
     uint64_t bytes_written;
 
-    cmdarg_err_init(text2pcap_cmdarg_err, text2pcap_cmdarg_err_cont);
+    /* Set the program name. */
+    g_set_prgname("text2pcap");
+
+    cmdarg_err_init(stderr_cmdarg_err, stderr_cmdarg_err_cont);
 
     /* Initialize log handler early so we can have proper logging during startup. */
-    ws_log_init("text2pcap", vcmdarg_err);
+    ws_log_init(vcmdarg_err);
 
     /* Early logging command-line initialization. */
     ws_log_parse_args(&argc, argv, vcmdarg_err, WS_EXIT_INVALID_OPTION);

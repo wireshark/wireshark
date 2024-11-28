@@ -78,7 +78,10 @@ int main(int argc, char **argv)
 {
     int ret;
 
-    ws_log_init("test_proto", NULL);
+    /* Set the program name. */
+    g_set_prgname("test_proto");
+
+    ws_log_init(NULL);
 
     g_test_init(&argc, &argv, NULL);
 

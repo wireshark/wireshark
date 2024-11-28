@@ -353,19 +353,6 @@ static const char* interface_to_logbuf(char* interface)
     return logbuf;
 }
 
-/*
- * General errors and warnings are reported through ws_warning() in
- * androiddump.
- *
- * Unfortunately, ws_warning() may be a macro, so we do it by calling
- * g_logv() with the appropriate arguments.
- */
-static void
-androiddump_cmdarg_err(const char *msg_format, va_list ap)
-{
-    ws_logv(LOG_DOMAIN_CAPCHILD, LOG_LEVEL_WARNING, msg_format, ap);
-}
-
 static void useSndTimeout(socket_handle_t  sock) {
     int res;
 #ifdef _WIN32
@@ -2530,10 +2517,13 @@ int main(int argc, char *argv[]) {
     char            *help_url;
     char            *help_header = NULL;
 
-    cmdarg_err_init(androiddump_cmdarg_err, androiddump_cmdarg_err);
+    /* Set the program name. */
+    g_set_prgname("androiddump");
+
+    cmdarg_err_init(extcap_log_cmdarg_err, extcap_log_cmdarg_err);
 
     /* Initialize log handler early so we can have proper logging during startup. */
-    extcap_log_init("androiddump");
+    extcap_log_init();
 
     /*
      * Get credential information for later use.
