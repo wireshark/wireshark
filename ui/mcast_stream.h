@@ -53,7 +53,7 @@ typedef struct _mcast_stream_info {
     uint16_t dest_port;
     uint32_t npackets;
     double  apackets;
-    uint32_t total_bytes;
+    uint64_t total_bytes;
     double  average_bw;         /* Bits/s */
 
     uint32_t first_frame_num; /* frame number of first frame */
@@ -61,7 +61,6 @@ typedef struct _mcast_stream_info {
     nstime_t start_abs;        /* absolute stream start time */
     nstime_t start_rel;        /* stream start time relative to first packet in capture */
     nstime_t stop_rel;         /* stream stop time relative to first packet in capture */
-    uint16_t vlan_id;
 
     /*for the sliding window */
     t_buffer element;
