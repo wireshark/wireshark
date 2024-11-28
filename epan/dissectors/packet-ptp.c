@@ -1952,6 +1952,7 @@ static expert_field ei_ptp_v2_period_invalid;
 
 /* Config for Analysis features */
 static bool ptp_analyze_messages = true;
+static bool ptp_analyze_messages_with_minor_version = false;
 static unsigned ptp_analysis_max_consecutive_delta = 10;
 
 /* Definitions for Analysis features */
@@ -2048,6 +2049,10 @@ static wmem_map_t *ptp_clocks;
 static uint64_t
 calculate_frame_key(uint8_t ptp_major, uint8_t ptp_minor, uint8_t majorsdoid, uint8_t minorsdoid, uint8_t messagetype, uint8_t domain, uint16_t portid, uint16_t seqid)
 {
+    if (!ptp_analyze_messages_with_minor_version) {
+        ptp_minor = 0;
+    }
+
     DISSECTOR_ASSERT(ptp_minor % 16 == 0);
     DISSECTOR_ASSERT(ptp_major <= 15);
     DISSECTOR_ASSERT(majorsdoid % 16 == 0);
@@ -8066,6 +8071,10 @@ proto_register_ptp(void)
     prefs_register_bool_preference(ptp_module, "analyze_ptp_messages", "Analyze PTP messages",
                                    "Make the PTP dissector analyze PTP messages. Accurate Capture Timestamps required!",
                                    &ptp_analyze_messages);
+
+    prefs_register_bool_preference(ptp_module, "analyze_ptp_strict_minor_version_matching", "Analysis: Only match messages, if minor version matches",
+                                   "Take minor version for matching of messages into account!",
+                                   &ptp_analyze_messages_with_minor_version);
 
     prefs_register_uint_preference(ptp_module, "analyze_ptp_delta", "Analysis: Max message delta",
                                    "Maximum allowed time between messages of same type when finding "
