@@ -18,7 +18,7 @@
 /*
  * Linux with libnl.
  *
- * Use Netlink to get indications of new/removed intrfaces.
+ * Use Netlink to get indications of new/removed interfaces.
  */
 
 #include <stdio.h>
@@ -197,7 +197,7 @@ iface_mon_enable(bool enable)
 /*
  * macOS.
  *
- * Use a PF_SYSTEM socket to get indications of new/removed intrfaces.
+ * Use a PF_SYSTEM socket to get indications of new/removed interfaces.
  */
 
 #include <stddef.h>
@@ -381,7 +381,7 @@ iface_mon_enable(bool enable _U_)
 /*
  * FreeBSD, NetBSD, OpenBSD, DragonFly BSD.
  *
- * Use a PF_ROUTE socket to get indications of new/removed intrfaces.
+ * Use a PF_ROUTE socket to get indications of new/removed interfaces.
  */
 #include <stdio.h>
 #include <stdlib.h>

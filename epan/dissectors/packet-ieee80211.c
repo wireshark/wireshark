@@ -7608,7 +7608,7 @@ static int hf_ieee80211_tag_capability_request;
 static int hf_ieee80211_tag_beam_refine_reserved;
 static int hf_ieee80211_tag_nextpcp_list;
 static int hf_ieee80211_tag_nextpcp_token;
-static int hf_ieee80211_tag_reamaining_BI;
+static int hf_ieee80211_tag_remaining_BI;
 static int hf_ieee80211_tag_request_token;
 static int hf_ieee80211_tag_bi_start_time;
 static int hf_ieee80211_tag_sleep_cycle;
@@ -36272,7 +36272,7 @@ ieee80211_tag_pcp_handover(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
   offset += 6;
   proto_tree_add_item(tree, hf_ieee80211_tag_new_pcp_addr, tvb, offset, 6, ENC_NA);
   offset += 6;
-  proto_tree_add_item(tree, hf_ieee80211_tag_reamaining_BI, tvb, offset, 1, ENC_NA);
+  proto_tree_add_item(tree, hf_ieee80211_tag_remaining_BI, tvb, offset, 1, ENC_NA);
   return tvb_captured_length(tvb);
 }
 
@@ -44595,7 +44595,7 @@ proto_register_ieee80211(void)
        FT_UINT8, BASE_DEC, NULL, 0,
        NULL, HFILL }},
 
-    {&hf_ieee80211_tag_reamaining_BI,
+    {&hf_ieee80211_tag_remaining_BI,
       {"Remaining BI's", "wlan.pcp_handover.remaining_BIs",
        FT_UINT8, BASE_DEC, NULL, 0,
        NULL, HFILL }},
