@@ -753,83 +753,16 @@ Commit Check:
     #   https://docs.gitlab.com/ee/ci/testing/unit_test_reports.html
     #   https://www.ibm.com/docs/en/developer-for-zos/14.2?topic=formats-junit-xml-format
     #
-    # Let's generate a unit test report, even if that means wondering which life choices
-    # led us to assemlbing an XML document from fragments in a shell script which is
-    # embedded in YAML.
-    - FAILURE_COUNT=0
-    - TESTCASES="<testcase class='commit_checks.num_commits' name='num_commits' time='1.0'"
-    - |
-      if [[ $NUM_COMMITS -gt 1 ]] ; then
-        TESTCASES+="><failure><![CDATA[ℹ️ This merge request has more than one commit. Please squash any trivial ones:
-
-        $(git log --oneline --no-decorate "${CI_COMMIT_SHA}~$NUM_COMMITS..${CI_COMMIT_SHA}")
-        ]]></failure></testcase>"
-        FAILURE_COUNT=$(( FAILURE_COUNT + 1 ))
-      else
-        TESTCASES+="/>"
-      fi
-    - PC_EXIT_CODE=0
-    - ANALYSIS_MESSAGE=$( ./tools/pre-commit "${CI_COMMIT_SHA}~$NUM_COMMITS" ) || PC_EXIT_CODE=1
-    - TESTCASES+="<testcase class='commit_checks.pre_commit' name='tools/pre-commit' time='1.0'"
-    - |
-      if [ -n "$ANALYSIS_MESSAGE" ] ; then
-        TESTCASES+="><failure><![CDATA[Pre-commit check results:
-
-        $ANALYSIS_MESSAGE
-        ]]></failure></testcase>"
-        FAILURE_COUNT=$(( FAILURE_COUNT + 1 ))
-      else
-        TESTCASES+="/>"
-      fi
-    - VC_EXIT_CODE=0
-    - ANALYSIS_MESSAGE=$( tools/validate-commit.py ) || VC_EXIT_CODE=1
-    - TESTCASES+="<testcase class='commit_checks.validate_commit' name='tools/validate-commit.py' time='1.0'"
-    - |
-      if [[ $VC_EXIT_CODE != 0 ]] ; then
-        TESTCASES+="><failure><![CDATA[Validate-commit check results:
-
-        $ANALYSIS_MESSAGE
-        ]]></failure></testcase>"
-        FAILURE_COUNT=$(( FAILURE_COUNT + 1 ))
-      else
-        TESTCASES+="/>"
-      fi
-    - LC_EXIT_CODE=0
-    - ANALYSIS_MESSAGE=$( python3 tools/checklicenses.py ) || LC_EXIT_CODE=1
-    - TESTCASES+="<testcase class='commit_checks.check_licenses' name='tools/checklicenses.py' time='1.0'"
-    - |
-      if [[ $LC_EXIT_CODE != 0 ]] ; then
-        TESTCASES+="><failure><![CDATA[License check failure:
-
-        $ANALYSIS_MESSAGE
-        ]]></failure></testcase>"
-        FAILURE_COUNT=$(( FAILURE_COUNT + 1 ))
-      else
-        TESTCASES+="/>"
-      fi
-    - HC_EXIT_CODE=0
-    - ANALYSIS_MESSAGE=$( python3 tools/check_help_urls.py ) || HC_EXIT_CODE=1
-    - TESTCASES+="<testcase class='commit_checks.check_help_urls' name='tools/check_help_urls.py' time='1.0'"
-    - |
-      if [[ $HC_EXIT_CODE != 0 ]] ; then
-        TESTCASES+="><failure><![CDATA[Help URL check failure:
-
-        $ANALYSIS_MESSAGE
-        ]]></failure></testcase>"
-        FAILURE_COUNT=$(( FAILURE_COUNT + 1 ))
-      else
-        TESTCASES+="/>"
-      fi
-    - |
-      cat > commit_checks.xml <<FIN
-      <?xml version="1.0" encoding="utf-8"?>
-      <testsuites><testsuite name="Commit Checks" errors="0" failures="$FAILURE_COUNT" skipped="0" tests="5" time="5">
-      $TESTCASES
-      </testsuite></testsuites>
-      FIN
-    # - cat commit_checks.xml
-    - grep '<failure' commit_checks.xml && xmllint --format --xpath '//*/failure' commit_checks.xml
-    - exit $(( PC_EXIT_CODE || VC_EXIT_CODE || LC_EXIT_CODE || HC_EXIT_CODE ))
+    # Let's generate a unit test report using tools/wrap-ci-test.py.
+    - REPORT_FILE=commit_checks.xml
+    - TEST_SUITE=commit_checks
+    - EXIT_CODE=0
+    - ./tools/wrap-ci-test.py --file $REPORT_FILE --suite $TEST_SUITE --case num_commits --command "[ $NUM_COMMITS -lt 2 ] || (echo 'ℹ️ This merge request has more than one commit. Please squash any trivial ones:\n'; git log --oneline --no-decorate --max-count=$NUM_COMMITS ; false)" || true
+    - for COMMIT in $( git log --max-count=$NUM_COMMITS --pretty=format:%h ) ; do ./tools/wrap-ci-test.py --file $REPORT_FILE --suite $TEST_SUITE --case tools/pre-commit/$COMMIT ./tools/pre-commit $COMMIT || EXIT_CODE=1 ; done
+    - ./tools/wrap-ci-test.py --file $REPORT_FILE --suite $TEST_SUITE --case tools/validate-commit ./tools/validate-commit.py $( git log --max-count=$NUM_COMMITS --pretty=format:%h ) || EXIT_CODE=1
+    - ./tools/wrap-ci-test.py --file $REPORT_FILE --suite $TEST_SUITE --case tools/checklicenses ./tools/checklicenses.py || EXIT_CODE=1
+    - ./tools/wrap-ci-test.py --file $REPORT_FILE --suite $TEST_SUITE --case tools/check_help_urls ./tools/check_help_urls.py || EXIT_CODE=1
+    - exit $EXIT_CODE
   artifacts:
     when: always
     paths:
