@@ -3473,6 +3473,9 @@ proto_register_thread_nm(void)
         static int *ett[] = {
             &ett_thread_nm,
             &ett_thread_nm_tlv,
+            /* These need to be registered somewhere.. */
+            &ett_thread,
+            &ett_thread_ie_fields
         };
 
         static ei_register_info ei[] = {

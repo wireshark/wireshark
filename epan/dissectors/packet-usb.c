@@ -7478,7 +7478,7 @@ proto_register_usb(void)
         },
     };
 
-    static int *usb_subtrees[] = {
+    static int *usb_ett[] = {
         &ett_usb_hdr,
         &ett_usb_setup_hdr,
         &ett_usb_isodesc,
@@ -7537,7 +7537,7 @@ proto_register_usb(void)
 
     proto_register_field_array(proto_usb, hf, array_length(hf));
     proto_register_field_array(proto_usbport, hf_usbport, array_length(hf_usbport));
-    proto_register_subtree_array(usb_subtrees, array_length(usb_subtrees));
+    proto_register_subtree_array(usb_ett, array_length(usb_ett));
     proto_register_subtree_array(usbport_ett, array_length(usbport_ett));
 
     expert_usb = expert_register_protocol(proto_usb);

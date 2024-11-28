@@ -2039,9 +2039,9 @@ def checkFile(filename, check_mask=False, mask_exact_width=False, check_label=Fa
         ett_defined =  findDefinedTrees(filename, ett_declared)
         for d in ett_declared:
             if d not in ett_defined:
-                global errors_found
-                print(filename, 'subtree identifier', d, 'is declared but not found in an array for registering')
-                errors_found += 1
+                global warnings_found
+                print('Warning:', filename, 'subtree identifier', d, 'is declared but not found in an array for registering')
+                warnings_found += 1
 
     items_declared = {}
     if check_missing_items:
