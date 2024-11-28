@@ -75,23 +75,27 @@ void
 mcaststream_reset(mcaststream_tapinfo_t *tapinfo)
 {
     GList* list;
+    mcast_stream_info_t *strinfo;
 
     /* free the data items first */
     list = g_list_first(tapinfo->strinfo_list);
     while (list)
     {
-        /* XYZ I don't know how to clean this */
-        /*g_free(list->element.buff); */
-        g_free(list->data);
+        strinfo = (mcast_stream_info_t*)list->data;
+        g_free(strinfo->element.buff);
+        free_address_wmem(NULL, &strinfo->src_addr);
+        free_address_wmem(NULL, &strinfo->dest_addr);
+        g_free(strinfo);
         list = g_list_next(list);
     }
     g_list_free(tapinfo->strinfo_list);
     tapinfo->strinfo_list = NULL;
 
-    /* XYZ and why does the line below causes a crash? */
-    /*g_free(tapinfo->allstreams->element.buff);*/
-    g_free(tapinfo->allstreams);
-    tapinfo->allstreams = NULL;
+    if (tapinfo->allstreams != NULL) {
+        g_free(tapinfo->allstreams->element.buff);
+        g_free(tapinfo->allstreams);
+        tapinfo->allstreams = NULL;
+    }
 
     tapinfo->npackets = 0;
 
@@ -160,10 +164,10 @@ mcaststream_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, const
             return TAP_PACKET_DONT_REDRAW;
     }
 
-    /* gather infos on the stream this packet is part of */
-    copy_address(&(tmp_strinfo.src_addr), &(pinfo->net_src));
+    /* shallow copy information to temporary key for lookup */
+    copy_address_shallow(&(tmp_strinfo.src_addr), &(pinfo->net_src));
     tmp_strinfo.src_port = pinfo->srcport;
-    copy_address(&(tmp_strinfo.dest_addr), &(pinfo->net_dst));
+    copy_address_shallow(&(tmp_strinfo.dest_addr), &(pinfo->net_dst));
     tmp_strinfo.dest_port = pinfo->destport;
 
     /* check whether we already have a stream with these parameters in the list */
@@ -182,56 +186,38 @@ mcaststream_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, const
     if (!strinfo) {
         /*printf("nov sip %s sp %d dip %s dp %d\n", address_to_display(NULL, &(pinfo->src)),
             pinfo->srcport, address_to_display(NULL, &(pinfo->dst)), pinfo->destport);*/
-        tmp_strinfo.npackets = 0;
-        tmp_strinfo.apackets = 0;
-        tmp_strinfo.first_frame_num = pinfo->num;
-        tmp_strinfo.start_abs = pinfo->abs_ts;
-        tmp_strinfo.start_rel = pinfo->rel_ts;
-        tmp_strinfo.vlan_id = 0;
 
-        /* reset Mcast stats */
-        tmp_strinfo.average_bw = 0;
-        tmp_strinfo.total_bytes = 0;
+        strinfo = g_new0(mcast_stream_info_t, 1);
 
-        /* reset slidingwindow and buffer parameters */
-        tmp_strinfo.element.buff = g_new(nstime_t, buffsize);
-        tmp_strinfo.element.first=0;
-        tmp_strinfo.element.last=0;
-        tmp_strinfo.element.burstsize=1;
-        tmp_strinfo.element.topburstsize=1;
-        tmp_strinfo.element.numbursts=0;
-        tmp_strinfo.element.burststatus=0;
-        tmp_strinfo.element.count=1;
-        tmp_strinfo.element.buffusage=pinfo->fd->pkt_len;
-        tmp_strinfo.element.topbuffusage=pinfo->fd->pkt_len;
-        tmp_strinfo.element.numbuffalarms=0;
-        tmp_strinfo.element.buffstatus=0;
-        tmp_strinfo.element.maxbw=0;
+        strinfo->src_port = pinfo->srcport;
+        strinfo->dest_port = pinfo->destport;
+        copy_address_wmem(NULL, &(strinfo->src_addr), &(pinfo->net_src));
+        copy_address_wmem(NULL, &(strinfo->dest_addr), &(pinfo->net_dst));
+        strinfo->first_frame_num = pinfo->num;
+        nstime_copy(&strinfo->start_abs, &pinfo->abs_ts);
+        nstime_copy(&strinfo->start_rel, &pinfo->rel_ts);
 
-        strinfo = g_new(mcast_stream_info_t, 1);
-        *strinfo = tmp_strinfo;  /* memberwise copy of struct */
-        tapinfo->strinfo_list = g_list_append(tapinfo->strinfo_list, strinfo);
+        /* slidingwindow and buffer parameters */
         strinfo->element.buff = g_new(nstime_t, buffsize);
+        strinfo->element.burstsize=1;
+        strinfo->element.topburstsize=1;
+        strinfo->element.count=1;
+        strinfo->element.buffusage=pinfo->fd->pkt_len;
+        strinfo->element.topbuffusage=pinfo->fd->pkt_len;
+
+        tapinfo->strinfo_list = g_list_append(tapinfo->strinfo_list, strinfo);
 
         /* set time with the first packet */
         if (tapinfo->npackets == 0) {
-            tapinfo->allstreams = g_new(mcast_stream_info_t, 1);
+            tapinfo->allstreams = g_new0(mcast_stream_info_t, 1);
             tapinfo->allstreams->element.buff =
                     g_new(nstime_t, buffsize);
-            tapinfo->allstreams->start_rel = pinfo->rel_ts;
-            tapinfo->allstreams->total_bytes = 0;
-            tapinfo->allstreams->element.first=0;
-            tapinfo->allstreams->element.last=0;
+            nstime_copy(&tapinfo->allstreams->start_rel, &pinfo->rel_ts);
             tapinfo->allstreams->element.burstsize=1;
             tapinfo->allstreams->element.topburstsize=1;
-            tapinfo->allstreams->element.numbursts=0;
-            tapinfo->allstreams->element.burststatus=0;
             tapinfo->allstreams->element.count=1;
             tapinfo->allstreams->element.buffusage=pinfo->fd->pkt_len;
             tapinfo->allstreams->element.topbuffusage=pinfo->fd->pkt_len;
-            tapinfo->allstreams->element.numbuffalarms=0;
-            tapinfo->allstreams->element.buffstatus=0;
-            tapinfo->allstreams->element.maxbw=0;
         }
     }
 

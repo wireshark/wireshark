@@ -45,6 +45,7 @@ typedef struct buffer{
 
 
 /* defines an mcast stream */
+/* XXX - Not all of these seem to be used? */
 typedef struct _mcast_stream_info {
     address src_addr;
     uint16_t src_port;

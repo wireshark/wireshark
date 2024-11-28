@@ -60,10 +60,18 @@ public:
         num_buff_alarms_ = 0;
     }
 
+    ~MulticastStatTreeWidgetItem()
+    {
+        // This probably doesn't outlive the stream_info, so perhaps we
+        // could shallow copy the addresses.
+        free_address_wmem(NULL, &src_addr_);
+        free_address_wmem(NULL, &dst_addr_);
+    }
+
     void updateStreamInfo(const mcast_stream_info_t *stream_info) {
-        copy_address(&src_addr_, &stream_info->src_addr);
+        copy_address_wmem(NULL, &src_addr_, &stream_info->src_addr);
         src_port_ = stream_info->src_port;
-        copy_address(&dst_addr_, &stream_info->dest_addr);
+        copy_address_wmem(NULL, &dst_addr_, &stream_info->dest_addr);
         dst_port_ = stream_info->dest_port;
         num_packets_ = stream_info->npackets;
         avg_pps_ = stream_info->apackets;
