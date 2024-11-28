@@ -1073,7 +1073,6 @@ _parse_time(const unsigned char* start_field, const unsigned char* end_field, co
 
         /*
          * %f is for fractions of seconds not supported by strptime
-         * BTW: what is this function name? is this some russian joke?
          */
         subsecs_fmt = g_strrstr(format, "%f");
         if (subsecs_fmt) {
