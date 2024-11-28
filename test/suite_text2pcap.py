@@ -327,6 +327,35 @@ class TestText2pcapParsing:
         check_rawip(pdata, 1, 33)
 
 
+class TestText2pcapRegex:
+    def test_text2pcap_regex(self, run_text2pcap_capinfos_tshark):
+        '''Verify basic functionality of text2pcap in regex mode.'''
+        capinfo = run_text2pcap_capinfos_tshark(
+            "> 0:00:00.265620 a130368b000000080060\n" \
+            "< 0:00:00.295459 a2010800000000000000000800000000\n",
+            (
+                "-r", r'^(?<dir>[<>])\s(?<time>\d+:\d\d:\d\d.\d+)\s(?<data>[0-9a-fA-F]+)$',
+                "-t", "%H:%M:%S.%f"
+            )
+        )
+        assert capinfo['datasize'] == 26
+
+    def test_text2pcap_regex_eol_missing(self, run_text2pcap_capinfos_tshark):
+        '''
+        Verify that the last LF can be missing when parsing in regex
+        mode.
+        '''
+        capinfo = run_text2pcap_capinfos_tshark(
+            "> 0:00:00.265620 a130368b000000080060\n" \
+            "< 0:00:00.295459 a2010800000000000000000800000000",
+            (
+                "-r", r'^(?<dir>[<>])\s(?<time>\d+:\d\d:\d\d.\d+)\s(?<data>[0-9a-fA-F]+)$',
+                "-t", "%H:%M:%S.%f"
+            )
+        )
+        assert capinfo['datasize'] == 26
+
+
 @pytest.fixture
 def run_text2pcap_capinfos_tshark(cmd_text2pcap, cmd_tshark, cmd_capinfos, result_file, base_env):
     def run_text2pcap_capinfos_tshark_real(content, args):
