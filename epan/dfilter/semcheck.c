@@ -111,6 +111,7 @@ compatible_ftypes(ftenum_t a, ftenum_t b)
 		case FT_IEEE_11073_FLOAT:
 		case FT_IPv4:
 		case FT_IPv6:
+		case FT_GUID:
 			return a == b;
 
 		case FT_FLOAT:		/* XXX - should be able to compare with INT */
@@ -126,14 +127,13 @@ compatible_ftypes(ftenum_t a, ftenum_t b)
 		case FT_ETHER:
 		case FT_BYTES:
 		case FT_UINT_BYTES:
-		case FT_GUID:
 		case FT_OID:
 		case FT_VINES:
 		case FT_FCWWN:
 		case FT_REL_OID:
 		case FT_SYSTEM_ID:
 
-			return (b == FT_ETHER || b == FT_BYTES || b == FT_UINT_BYTES || b == FT_GUID || b == FT_OID || b == FT_VINES || b == FT_FCWWN || b == FT_REL_OID || b == FT_SYSTEM_ID);
+			return (b == FT_ETHER || b == FT_BYTES || b == FT_UINT_BYTES || b == FT_OID || b == FT_VINES || b == FT_FCWWN || b == FT_REL_OID || b == FT_SYSTEM_ID);
 
 		case FT_UINT8:
 		case FT_UINT16:
@@ -607,7 +607,6 @@ is_bytes_type(enum ftenum type)
 		case FT_BYTES:
 		case FT_UINT_BYTES:
 		case FT_IPv6:
-		case FT_GUID:
 		case FT_OID:
 		case FT_REL_OID:
 		case FT_SYSTEM_ID:
@@ -623,6 +622,7 @@ is_bytes_type(enum ftenum type)
 		case FT_RELATIVE_TIME:
 		case FT_IPv4:
 		case FT_IPXNET:
+		case FT_GUID:
 		case FT_STRING:
 		case FT_STRINGZ:
 		case FT_UINT_STRING:
