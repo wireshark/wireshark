@@ -99,6 +99,7 @@ commandline_print_usage(bool for_help_option) {
     fprintf(output, "  -L, --list-data-link-types\n");
     fprintf(output, "                           print list of link-layer types of iface and exit\n");
     fprintf(output, "  --list-time-stamp-types  print list of timestamp types for iface and exit\n");
+    fprintf(output, "  --update-interval        interval between updates with new packets, in milliseconds (def: %dms)\n", DEFAULT_UPDATE_INTERVAL);
     fprintf(output, "\n");
     fprintf(output, "Capture display:\n");
     fprintf(output, "  -k                       start capturing immediately (def: do nothing)\n");
