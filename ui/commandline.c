@@ -69,7 +69,7 @@ commandline_print_usage(bool for_help_option) {
         output = stderr;
     }
     fprintf(output, "\n");
-    fprintf(output, "Usage: %s [options] ... [ <infile> ]\n", application_flavor_name_lower());
+    fprintf(output, "Usage: %s [options] ... [ <infile> ]\n", g_get_prgname());
     fprintf(output, "\n");
 
 #ifdef HAVE_LIBPCAP
@@ -647,7 +647,7 @@ void commandline_other_options(int argc, char *argv[], bool opt_reset)
                  part of a tap filter.  Instead, we just add the argument
                  to a list of stat arguments. */
                 if (strcmp("help", ws_optarg) == 0) {
-                    fprintf(stderr, "%s: The available statistics for the \"-z\" option are:\n", application_flavor_name_lower());
+                    fprintf(stderr, "%s: The available statistics for the \"-z\" option are:\n", g_get_prgname());
                     list_stat_cmd_args();
                     exit_application(0);
                 }
