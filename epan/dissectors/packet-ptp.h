@@ -15,4 +15,10 @@ extern value_string_ext ptp_v2_timeSource_vals_ext;
 extern value_string_ext ptp_v2_portState_vals_ext;
 extern const value_string ptp_v2_delayMechanism_vals[];
 
+void dissect_ptp_v2_timeInterval(tvbuff_t *tvb, uint16_t *cur_offset, proto_tree *tree,
+                                 const char* name,
+                                 int hf_ptp_v2_timeInterval_ns, int hf_ptp_v2_timeInterval_subns,
+                                 proto_tree **tree_out, int64_t *ns_out);
+
+
 #endif /* packet-ptp.h */
