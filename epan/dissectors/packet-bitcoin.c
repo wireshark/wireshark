@@ -39,6 +39,7 @@
 #define BITCOIN_MAIN_MAGIC_NUMBER       0xD9B4BEF9
 #define BITCOIN_TESTNET_MAGIC_NUMBER    0xDAB5BFFA
 #define BITCOIN_TESTNET3_MAGIC_NUMBER   0x0709110B
+#define BITCOIN_TESTNET4_MAGIC_NUMBER   0x283F161C
 
 static const value_string inv_types[] =
 {
@@ -1481,7 +1482,8 @@ dissect_bitcoin_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
   magic_number = tvb_get_letohl(tvb, 0);
   if ((magic_number != BITCOIN_MAIN_MAGIC_NUMBER) &&
       (magic_number != BITCOIN_TESTNET_MAGIC_NUMBER) &&
-      (magic_number != BITCOIN_TESTNET3_MAGIC_NUMBER))
+      (magic_number != BITCOIN_TESTNET3_MAGIC_NUMBER) &&
+      (magic_number != BITCOIN_TESTNET4_MAGIC_NUMBER))
      return false;
 
   /* Ok: This connection should always use the bitcoin dissector */
