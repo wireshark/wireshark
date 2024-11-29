@@ -447,8 +447,12 @@ print_usage(FILE *output)
     fprintf(output, "Capture interface:\n");
     fprintf(output, "  -i <interface>, --interface <interface>\n");
     fprintf(output, "                           name or idx of interface (def: first non-loopback),\n"
+#ifdef HAVE_PCAP_REMOTE
                     "                           or for remote capturing, use one of these formats:\n"
                     "                               rpcap://<host>/<interface>\n"
+#else
+                    "                           or for remote capturing, use this format:\n"
+#endif
                     "                               TCP@<host>:<port>\n");
     fprintf(output, "  --ifname <name>          name to use in the capture file for a pipe from which\n");
     fprintf(output, "                           we're capturing\n");
