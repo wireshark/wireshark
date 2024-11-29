@@ -90,7 +90,7 @@ commandline_print_usage(bool for_help_option) {
 #endif
 #ifdef CAN_SET_CAPTURE_BUFFER_SIZE
     fprintf(output, "  -B <buffer size>, --buffer-size <buffer size>\n");
-    fprintf(output, "                           size of kernel buffer (def: %dMB)\n", DEFAULT_CAPTURE_BUFFER_SIZE);
+    fprintf(output, "                           size of kernel buffer in MiB (def: %dMiB)\n", DEFAULT_CAPTURE_BUFFER_SIZE);
 #endif
     fprintf(output, "  -y <link type>, --linktype <link type>\n");
     fprintf(output, "                           link layer type (def: first appropriate)\n");
@@ -99,13 +99,12 @@ commandline_print_usage(bool for_help_option) {
     fprintf(output, "  -L, --list-data-link-types\n");
     fprintf(output, "                           print list of link-layer types of iface and exit\n");
     fprintf(output, "  --list-time-stamp-types  print list of timestamp types for iface and exit\n");
-    fprintf(output, "  --update-interval        interval between updates with new packets, in milliseconds (def: %dms)\n", DEFAULT_UPDATE_INTERVAL);
     fprintf(output, "\n");
     fprintf(output, "Capture display:\n");
     fprintf(output, "  -k                       start capturing immediately (def: do nothing)\n");
     fprintf(output, "  -S                       update packet display when new packets are captured\n");
-    fprintf(output, "  --update-interval        interval between updates with new packets (def: %dms)\n", DEFAULT_UPDATE_INTERVAL);
     fprintf(output, "  -l                       turn on automatic scrolling while -S is in use\n");
+    fprintf(output, "  --update-interval        interval between updates with new packets, in milliseconds (def: %dms)\n", DEFAULT_UPDATE_INTERVAL);
     fprintf(output, "Capture stop conditions:\n");
     fprintf(output, "  -c <packet count>        stop after n packets (def: infinite)\n");
     fprintf(output, "  -a <autostop cond.> ..., --autostop <autostop cond.> ...\n");
@@ -146,7 +145,7 @@ commandline_print_usage(bool for_help_option) {
     fprintf(output, "                           enable dissection of proto_name\n");
     fprintf(output, "  --disable-protocol <proto_name>\n");
     fprintf(output, "                           disable dissection of proto_name\n");
-    fprintf(output, "  --only-protocols <proto_name>\n");
+    fprintf(output, "  --only-protocols <protocols>\n");
     fprintf(output, "                           Only enable dissection of these protocols, comma\n");
     fprintf(output, "                           separated. Disable everything else\n");
     fprintf(output, "  --disable-all-protocols\n");
