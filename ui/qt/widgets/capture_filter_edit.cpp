@@ -11,7 +11,7 @@
 
 #include <epan/proto.h>
 
-#include "capture_opts.h"
+#include "ui/capture_opts.h"
 
 #include <ui/capture_globals.h>
 #include <wsutil/filter_files.h>

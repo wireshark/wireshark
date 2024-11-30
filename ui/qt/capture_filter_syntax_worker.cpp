@@ -16,7 +16,7 @@
 #endif
 #include <pcap.h>
 
-#include "capture_opts.h"
+#include "ui/capture_opts.h"
 #include "ui/capture_globals.h"
 #endif
 #include "extcap.h"

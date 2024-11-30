@@ -44,7 +44,7 @@
 #include <wsutil/version_info.h>
 
 #include "capture/capture_session.h"
-#include "capture_opts.h"
+#include "ui/capture_opts.h"
 
 #include "extcap.h"
 #include "extcap_parser.h"

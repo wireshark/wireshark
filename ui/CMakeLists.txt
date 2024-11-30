@@ -10,6 +10,7 @@
 set(NONGENERATED_UI_SRC
 	alert_box.c
 	capture.c
+	capture_opts.c
 	capture_ui_utils.c
 	commandline.c
 	decode_as_utils.c

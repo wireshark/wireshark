@@ -12,7 +12,7 @@
 
 #include <config.h>
 
-#include "capture_opts.h"
+#include <ui/capture_opts.h>
 
 #include <ui/qt/models/interface_tree_cache_model.h>
 #include <ui/qt/models/interface_sort_filter_model.h>

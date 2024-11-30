@@ -13,7 +13,7 @@
 
 #include "epan/prefs.h"
 #include "epan/to_str.h"
-#include "capture_opts.h"
+#include "ui/capture_opts.h"
 #include "ui/capture_globals.h"
 #include "ui/qt/capture_options_dialog.h"
 #include <ui/qt/models/interface_tree_cache_model.h>

@@ -23,7 +23,7 @@
 #include <ui/recent.h>
 
 #ifdef HAVE_LIBPCAP
-#include "capture_opts.h"
+#include "ui/capture_opts.h"
 #include "ui/capture_globals.h"
 #endif
 

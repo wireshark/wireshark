@@ -83,6 +83,7 @@
 #include "ui/dissect_opts.h"
 #include "ui/ssl_key_export.h"
 #include "ui/failure_message.h"
+#include "ui/capture_opts.h"
 #if defined(HAVE_LIBSMI)
 #include "epan/oids.h"
 #endif
@@ -96,8 +97,6 @@
 #include <epan/ex-opt.h>
 #include <epan/exported_pdu.h>
 #include <epan/secrets.h>
-
-#include "capture_opts.h"
 
 #include "capture/capture-pcap-util.h"
 

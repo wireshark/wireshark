@@ -31,7 +31,7 @@ DIAG_ON(restrict)
 #include "main_application.h"
 #include <ui_interface_toolbar.h>
 
-#include "capture_opts.h"
+#include "ui/capture_opts.h"
 #include "ui/capture_globals.h"
 #include "sync_pipe.h"
 #include "wsutil/file_util.h"

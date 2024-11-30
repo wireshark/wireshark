@@ -12,7 +12,7 @@
 #ifndef __CAPTURE_UI_UTILS_H__
 #define __CAPTURE_UI_UTILS_H__
 
-#include "capture_opts.h"
+#include "ui/capture_opts.h"
 
 #ifdef __cplusplus
 extern "C" {

@@ -20,7 +20,6 @@
 #include "main_application.h"
 
 #include "extcap.h"
-#include "capture_opts.h"
 
 #ifdef HAVE_LIBPCAP
 
@@ -29,6 +28,7 @@
 #include <QTimer>
 
 #include "ringbuffer.h"
+#include "ui/capture_opts.h"
 #include "ui/capture_ui_utils.h"
 #include "ui/capture_globals.h"
 #include "ui/iface_lists.h"

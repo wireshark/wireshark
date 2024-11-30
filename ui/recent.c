@@ -16,9 +16,6 @@
 #include <stdlib.h>
 #include <errno.h>
 
-#ifdef HAVE_PCAP_REMOTE
-#include <capture_opts.h>
-#endif
 #include <wsutil/application_flavor.h>
 #include <wsutil/filesystem.h>
 #include <epan/prefs.h>
@@ -26,6 +23,9 @@
 #include <epan/column.h>
 #include <epan/value_string.h>
 
+#ifdef HAVE_PCAP_REMOTE
+#include "ui/capture_opts.h"
+#endif
 #include "ui/util.h"
 #include "ui/recent.h"
 #include "ui/recent_utils.h"

@@ -30,7 +30,7 @@
 #include "extcap.h"
 
 #include <ui/recent.h>
-#include "capture_opts.h"
+#include "ui/capture_opts.h"
 #include "ui/capture_globals.h"
 #include <ui/iface_lists.h>
 #include <wsutil/utf8_entities.h>

@@ -18,7 +18,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-#include "capture_opts.h"
+#include "ui/capture_opts.h"
 
 #include "capture/capture_session.h"
 #include "capture/capture_sync.h"

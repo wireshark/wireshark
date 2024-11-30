@@ -2719,13 +2719,6 @@ add_library(shark_common OBJECT
 	sync_pipe_write.c
 )
 add_library(cli_main OBJECT cli_main.c)
-add_library(capture_opts OBJECT capture_opts.c)
-target_include_directories(capture_opts SYSTEM PRIVATE ${PCAP_INCLUDE_DIRS})
-set_target_properties(shark_common cli_main capture_opts
-	PROPERTIES
-	COMPILE_FLAGS "${WERROR_COMMON_FLAGS}"
-)
-
 
 if(BUILD_wireshark AND QT_FOUND)
 	set(WIRESHARK_SRC
@@ -2735,7 +2728,6 @@ if(BUILD_wireshark AND QT_FOUND)
 		${PLATFORM_UI_SRC}
 	)
 	set(wireshark_FILES
-		$<TARGET_OBJECTS:capture_opts>
 		$<TARGET_OBJECTS:shark_common>
 		${WIRESHARK_SRC}
 		${PLATFORM_UI_RC_FILES}
@@ -2751,7 +2743,6 @@ if(BUILD_stratoshark AND QT_FOUND)
 		${PLATFORM_UI_SRC}
 	)
 	set(stratoshark_FILES
-		$<TARGET_OBJECTS:capture_opts>
 		$<TARGET_OBJECTS:shark_common>
 		${STRATOSHARK_SRC}
 		${PLATFORM_UI_RC_FILES}
@@ -3165,7 +3156,6 @@ if(BUILD_tshark)
 		${WIN_WS2_32_LIBRARY}
 	)
 	set(tshark_FILES
-		$<TARGET_OBJECTS:capture_opts>
 		$<TARGET_OBJECTS:cli_main>
 		$<TARGET_OBJECTS:shark_common>
 		tshark-tap-register.c
@@ -3459,13 +3449,13 @@ if(BUILD_dumpcap AND PCAP_FOUND)
 		capture/capture-pcap-util.c
 	)
 	set(dumpcap_FILES
-		capture_opts.c
 		cli_main.c
 		dumpcap.c
 		ringbuffer.c
 		sync_pipe_write.c
 		capture/iface_monitor.c
 		capture/ws80211_utils.c
+		ui/capture_opts.c
 		${CAPUTILS_SRC}
 	)
 	set_executable_resources(dumpcap "Dumpcap" UNIQUE_RC)

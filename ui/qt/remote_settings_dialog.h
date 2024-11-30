@@ -14,7 +14,7 @@
 
 #ifdef HAVE_PCAP_REMOTE
 #include <QDialog>
-#include "capture_opts.h"
+#include "ui/capture_opts.h"
 
 namespace Ui {
 class RemoteSettingsDialog;

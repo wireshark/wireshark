@@ -38,13 +38,14 @@
 #include <epan/prefs-int.h>
 #include <epan/stat_tap_ui.h>
 
-#include "capture_opts.h"
 #include "persfilepath_opt.h"
 #include "preference_utils.h"
 #include "recent.h"
 #include "decode_as_utils.h"
 
 #include "../file.h"
+
+#include "ui/capture_opts.h"
 
 #include "ui/dissect_opts.h"
 

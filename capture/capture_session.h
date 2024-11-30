@@ -17,7 +17,7 @@
 #include <stdint.h>
 #endif
 
-#include "capture_opts.h"
+#include "ui/capture_opts.h"
 
 #include <epan/fifo_string_cache.h>
 #include <wsutil/processes.h>

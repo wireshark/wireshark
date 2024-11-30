@@ -19,7 +19,7 @@
 #ifndef __CAPTURE_INFO_H__
 #define __CAPTURE_INFO_H__
 
-#include "capture_opts.h"
+#include "ui/capture_opts.h"
 #include <capture/capture_session.h>
 #include <epan/capture_dissectors.h>
 
