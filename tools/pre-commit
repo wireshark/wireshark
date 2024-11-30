@@ -20,7 +20,10 @@
 #
 
 # If the commit identifier is not given, use HEAD instead.
-COMMIT_ID="${1:-HEAD}"
+COMMIT_IDS=HEAD
+if [ $# -gt 0 ] ; then
+    COMMIT_IDS=$*
+fi
 
 UNAME=$( uname -a )
 
@@ -53,36 +56,40 @@ if [ -z "$1" ] && [ -f "$hook_script" ]; then
     fi
 fi
 
+have_diameter_files="False"
+bad_alloc_patterns=${PWD}/tools/detect_bad_alloc_patterns.py
 exit_status=0
 
-COMMIT_FILES=$( git diff-index --cached --name-status "${COMMIT_ID}" | grep -v "^D" | cut -f2 | grep "\\.[ch]$" )
-DIAMETER_FILES=$( git diff-index --cached --name-status "${COMMIT_ID}" | grep -v "^D" | cut -f2 | grep diameter/ )
+for COMMIT_ID in $COMMIT_IDS; do
+    COMMIT_FILES=$( git diff-index --cached --name-status "${COMMIT_ID}" | grep -v "^D" | cut -f2 | grep "\\.[ch]$" )
+    if git diff-index --cached --name-status "${COMMIT_ID}" | grep -v "^D" | cut -f2 | grep diameter/ > /dev/null ; then
+        have_diameter_files="True"
+    fi
 
-# Path to filter script in the tools directory
-filter_script=${PWD}/tools/pre-commit-ignore.py
-filter_conf=${PWD}/tools/pre-commit-ignore.conf
+    # Path to filter script in the tools directory
+    filter_script=${PWD}/tools/pre-commit-ignore.py
+    filter_conf=${PWD}/tools/pre-commit-ignore.conf
 
-if [ -f "$filter_script" ] && [ -f "$filter_conf" ]; then
-    CHECK_FILES=$( echo "$COMMIT_FILES" | "$PYBIN" "$filter_script" "$filter_conf" ) || exit
-else
-    CHECK_FILES="$COMMIT_FILES"
-fi
+    if [ -f "$filter_script" ] && [ -f "$filter_conf" ]; then
+        CHECK_FILES=$( echo "$COMMIT_FILES" | "$PYBIN" "$filter_script" "$filter_conf" ) || continue
+    else
+        CHECK_FILES="$COMMIT_FILES"
+    fi
 
-bad_alloc_patterns=${PWD}/tools/detect_bad_alloc_patterns.py
-echo "$COMMIT_FILES" | $PYBIN "$bad_alloc_patterns"
+    echo "$COMMIT_FILES" | $PYBIN "$bad_alloc_patterns"
 
-# On windows python will output \r\n line endings - we don't want that.
-#
-# Do not use sed, as not all versions of sed support \r as meaning CR
-# in a regexp - the only version that does so might be GNU sed; the
-# GNU sed documentation says that only \n and \\ can be used in a
-# portable script.
-#
-# The Single UNIX Specification says that tr supports \r; most if not
-# all modern UN*Xes should support it.
-CHECK_FILES=$( echo "$CHECK_FILES" | tr -d '\r' )
+    # On windows python will output \r\n line endings - we don't want that.
+    #
+    # Do not use sed, as not all versions of sed support \r as meaning CR
+    # in a regexp - the only version that does so might be GNU sed; the
+    # GNU sed documentation says that only \n and \\ can be used in a
+    # portable script.
+    #
+    # The Single UNIX Specification says that tr supports \r; most if not
+    # all modern UN*Xes should support it.
+    CHECK_FILES=$( echo "$CHECK_FILES" | tr -d '\r' )
 
-for FILE in $CHECK_FILES; do
+    for FILE in $CHECK_FILES; do
     # Skip some special cases
     FILE_BASENAME="$( basename "$FILE" )"
     # This should only be done on code that's part of one or more
@@ -112,9 +119,10 @@ for FILE in $CHECK_FILES; do
     # If there are whitespace errors, print the offending file names and fail. (from git pre-commit.sample)
     git diff-index --check --cached "${COMMIT_ID}" "$FILE" || exit_status=1
 
+    done
 done
 
-if [ "x$DIAMETER_FILES" != x ]
+if [ "$have_diameter_files" = "True" ]
 then
     ./tools/validate-diameter-xml.sh > /dev/null || exit_status=1
 fi

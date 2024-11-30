@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # A small script to run xmllint on the Diameter XML files (after doing some
 # fixups to those files).
