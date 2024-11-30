@@ -846,7 +846,7 @@ typedef uint16_t (**elem_func_hander)(tvbuff_t *tvb, proto_tree *tree, packet_in
 int
 dissect_geographical_description(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree) {
 
-    proto_item *lat_item, *long_item, *major_item, *minor_item, *alt_item, *uncer_item, *loc_uri_item;
+    proto_item *lat_item, *long_item, *major_item, *minor_item, *orientation_item, *alt_item, *uncer_item, *loc_uri_item;
     /*proto_tree *subtree; */
     uint32_t     type_of_shape;
     int         offset = 0;
@@ -935,7 +935,8 @@ dissect_geographical_description(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
              * Orientation of major axis octet 12
              * allowed value from 0-179
              */
-            proto_tree_add_item(tree, hf_gsm_a_geo_loc_orientation_of_major_axis, tvb, offset, 1, ENC_BIG_ENDIAN);
+            orientation_item = proto_tree_add_item_ret_uint(tree, hf_gsm_a_geo_loc_orientation_of_major_axis, tvb, offset, 1, ENC_BIG_ENDIAN, &uvalue32);
+            proto_item_append_text(orientation_item, " (%d degrees)", 2 * uvalue32);
             offset++;
             /* Confidence */
             proto_tree_add_item(tree, hf_gsm_a_geo_loc_confidence, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -971,8 +972,8 @@ dissect_geographical_description(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
              * allowed value from 0-179 to convert
              * to actual degrees multiply by 2.
              */
-            value = tvb_get_uint8(tvb,offset)&0x7f;
-            proto_tree_add_uint(tree, hf_gsm_a_geo_loc_orientation_of_major_axis, tvb, offset, 1, value*2);
+            orientation_item = proto_tree_add_item_ret_uint(tree, hf_gsm_a_geo_loc_orientation_of_major_axis, tvb, offset, 1, ENC_BIG_ENDIAN, &uvalue32);
+            proto_item_append_text(orientation_item, " (%d degrees)", 2 * uvalue32);
             offset++;
             /* Uncertainty Altitude 13
              * to convert to metres 45*(((1.025)^X)-1)
@@ -1074,7 +1075,9 @@ dissect_geographical_description(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
         proto_item_append_text(minor_item, " (%.5f m)", 0.3 * (pow(1.02, (double)uvalue32) - 1));
         offset++;
         /* Orientation of major axis */
-        proto_tree_add_item(tree, hf_gsm_a_geo_loc_orientation_of_major_axis, tvb, offset, 1, ENC_BIG_ENDIAN);
+        value = tvb_get_uint8(tvb,offset)&0x7f;
+        orientation_item = proto_tree_add_item_ret_uint(tree, hf_gsm_a_geo_loc_orientation_of_major_axis, tvb, offset, 1, ENC_BIG_ENDIAN, &uvalue32);
+        proto_item_append_text(orientation_item, " (%d degrees)", 2 * uvalue32);
         offset++;
         /* Confidence */
         proto_tree_add_item(tree, hf_gsm_a_geo_loc_confidence, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -1123,7 +1126,8 @@ dissect_geographical_description(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
         proto_item_append_text(minor_item, " (%.5f m)", 0.3 * (pow(1.02, (double)uvalue32) - 1));
         offset++;
         /* Orientation of major axis */
-        proto_tree_add_item(tree, hf_gsm_a_geo_loc_orientation_of_major_axis, tvb, offset, 1, ENC_BIG_ENDIAN);
+        orientation_item = proto_tree_add_item_ret_uint(tree, hf_gsm_a_geo_loc_orientation_of_major_axis, tvb, offset, 1, ENC_BIG_ENDIAN, &uvalue32);
+        proto_item_append_text(orientation_item, " (%d degrees)", 2 * uvalue32);
         offset++;
 
         /* Horizontal confidence */
