@@ -2193,145 +2193,6 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
         }
         offset = (bit_offset/8);
     }
-    else if (sectionType == SEC_C_LAA) {   /* Section Type 7 */
-        /* 7.2.5 Table 6.4-6 */
-        /* N.B. untested */
-        unsigned mcot;
-        proto_item *mcot_ti;
-
-        /* laaMsgType */
-        uint32_t laa_msg_type;
-        proto_item *laa_msg_type_ti;
-        laa_msg_type_ti = proto_tree_add_item_ret_uint(c_section_tree, hf_oran_laaMsgType, tvb, offset, 1, ENC_NA, &laa_msg_type);
-        /* laaMsgLen */
-        uint32_t laa_msg_len;
-        proto_item *len_ti = proto_tree_add_item_ret_uint(c_section_tree, hf_oran_laaMsgLen, tvb, offset, 1, ENC_NA, &laa_msg_len);
-        proto_item_append_text(len_ti, " (%u bytes)", 4*(laa_msg_len+1));
-        offset += 1;
-
-        int payload_offset = offset;
-
-        /* Payload */
-        switch (laa_msg_type) {
-            case 0:
-                /* LBT_PDSCH_REQ */
-                /* lbtHandle (16 bits) */
-                proto_tree_add_item(c_section_tree, hf_oran_lbtHandle, tvb, offset, 2, ENC_BIG_ENDIAN);
-                offset += 2;
-                /* lbtOffset (10 bits) */
-                proto_tree_add_item(c_section_tree, hf_oran_lbtOffset, tvb, offset, 2, ENC_BIG_ENDIAN);
-                offset += 1;
-                /* lbtMode  (2 bits) */
-                proto_tree_add_bits_item(c_section_tree, hf_oran_lbtMode, tvb, offset*8, 2, ENC_BIG_ENDIAN);
-                /* reserved (1 bit) */
-                proto_tree_add_item(c_section_tree, hf_oran_laa_msgtype0_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
-                /* lbtDeferFactor (3 bits) */
-                proto_tree_add_item(c_section_tree, hf_oran_lbtDeferFactor, tvb, offset, 1, ENC_BIG_ENDIAN);
-                offset += 1;
-                /* lbtBackoffCounter (10 bits) */
-                proto_tree_add_item(c_section_tree, hf_oran_lbtBackoffCounter, tvb, offset, 2, ENC_BIG_ENDIAN);
-                offset += 1;
-                /* MCOT (4 bits) */
-                mcot_ti = proto_tree_add_item_ret_uint(c_section_tree, hf_oran_MCOT, tvb, offset, 1, ENC_BIG_ENDIAN, &mcot);
-                if (mcot<1 || mcot>10) {
-                    proto_item_append_text(mcot_ti, " (should be in range 1-10!)");
-                    expert_add_info_format(pinfo, mcot_ti, &ei_oran_mcot_out_of_range,
-                                           "MCOT seen with value %u (must be 1-10)", mcot);
-
-                }
-                /* reserved (10 bits) */
-                proto_tree_add_bits_item(c_section_tree, hf_oran_reserved, tvb, (offset*8)+6, 10, ENC_BIG_ENDIAN);
-                break;
-            case 1:
-                /* LBT_DRS_REQ */
-                /* lbtHandle (16 bits) */
-                proto_tree_add_item(c_section_tree, hf_oran_lbtHandle, tvb, offset, 2, ENC_BIG_ENDIAN);
-                offset += 2;
-                /* lbtOffset (10 bits) */
-                proto_tree_add_item(c_section_tree, hf_oran_lbtOffset, tvb, offset, 2, ENC_BIG_ENDIAN);
-                offset += 1;
-                /* lbtMode  (2 bits) */
-                proto_tree_add_bits_item(c_section_tree, hf_oran_lbtMode, tvb, offset*8, 2, ENC_BIG_ENDIAN);
-                /* reserved (28 bits) */
-                proto_tree_add_bits_item(c_section_tree, hf_oran_reserved, tvb, (offset*8)+4, 28, ENC_BIG_ENDIAN);
-                break;
-            case 2:
-                /* LBT_PDSCH_RSP */
-                /* lbtHandle (16 bits) */
-                proto_tree_add_item(c_section_tree, hf_oran_lbtHandle, tvb, offset, 2, ENC_BIG_ENDIAN);
-                offset += 2;
-                /* lbtPdschRes (2 bits) */
-                proto_tree_add_item(c_section_tree, hf_oran_lbtPdschRes, tvb, offset, 1, ENC_BIG_ENDIAN);
-                /* inParSF (1 bit) */
-                proto_tree_add_item(c_section_tree, hf_oran_initialPartialSF, tvb, offset, 1, ENC_BIG_ENDIAN);
-                /* sfStatus (1 bit) */
-                proto_tree_add_item(c_section_tree, hf_oran_sfStatus, tvb, offset, 1, ENC_BIG_ENDIAN);
-                /* sfnSf (12 bits) */
-                proto_tree_add_item(c_section_tree, hf_oran_sfnSfEnd, tvb, offset, 2, ENC_BIG_ENDIAN);
-                offset += 2;
-                /* reserved (24 bits) */
-                proto_tree_add_bits_item(c_section_tree, hf_oran_reserved, tvb, (offset*8), 24, ENC_BIG_ENDIAN);
-                break;
-            case 3:
-                /* LBT_DRS_RSP */
-                /* lbtHandle (16 bits) */
-                proto_tree_add_item(c_section_tree, hf_oran_lbtHandle, tvb, offset, 2, ENC_BIG_ENDIAN);
-                offset += 2;
-                /* lbtDrsRes (1 bit) */
-                proto_tree_add_item(c_section_tree, hf_oran_lbtDrsRes, tvb, offset, 1, ENC_BIG_ENDIAN);
-                /* reserved (7 bits) */
-                proto_tree_add_item(c_section_tree, hf_oran_reserved_last_7bits, tvb, offset, 1, ENC_BIG_ENDIAN);
-                break;
-            case 4:
-                /* LBT_Buffer_Error */
-                /* lbtHandle (16 bits) */
-                proto_tree_add_item(c_section_tree, hf_oran_lbtHandle, tvb, offset, 2, ENC_BIG_ENDIAN);
-                offset += 2;
-                /* lbtBufErr (1 bit) */
-                proto_tree_add_item(c_section_tree, hf_oran_lbtBufErr, tvb, offset, 1, ENC_BIG_ENDIAN);
-                /* reserved (7 bits) */
-                proto_tree_add_item(c_section_tree, hf_oran_reserved_last_7bits, tvb, offset, 1, ENC_BIG_ENDIAN);
-                break;
-            case 5:
-                /* LBT_CWCONFIG_REQ */
-                /* lbtHandle (16 bits) */
-                proto_tree_add_item(c_section_tree, hf_oran_lbtHandle, tvb, offset, 2, ENC_BIG_ENDIAN);
-                offset += 2;
-                /* lbtCWConfig_H (8 bits) */
-                proto_tree_add_item(c_section_tree, hf_oran_lbtCWConfig_H, tvb, offset, 1, ENC_BIG_ENDIAN);
-                offset += 1;
-                /* lbtCWConfig_T (8 bits) */
-                proto_tree_add_item(c_section_tree, hf_oran_lbtCWConfig_T, tvb, offset, 1, ENC_BIG_ENDIAN);
-                offset += 1;
-                /* lbtMode  (2 bits) */
-                proto_tree_add_bits_item(c_section_tree, hf_oran_lbtMode, tvb, offset*8, 2, ENC_BIG_ENDIAN);
-                /* lbtTrafficClass (3 bits) */
-                proto_tree_add_item(c_section_tree, hf_oran_lbtTrafficClass, tvb, offset, 1, ENC_BIG_ENDIAN);
-                /* reserved (19 bits) */
-                proto_tree_add_bits_item(c_section_tree, hf_oran_reserved, tvb, (offset*8)+5, 19, ENC_BIG_ENDIAN);
-                break;
-            case 6:
-                /* LBT_CWCONFIG_RSP */
-                /* lbtHandle (16 bits) */
-                proto_tree_add_item(c_section_tree, hf_oran_lbtHandle, tvb, offset, 2, ENC_BIG_ENDIAN);
-                offset += 2;
-                /* lbtCWR_Rst (1 bit) */
-                proto_tree_add_item(c_section_tree, hf_oran_lbtCWR_Rst, tvb, offset, 1, ENC_BIG_ENDIAN);
-                /* reserved (7 bits) */
-                proto_tree_add_item(c_section_tree, hf_oran_reserved_last_7bits, tvb, offset, 1, ENC_BIG_ENDIAN);
-                break;
-
-            default:
-                /* Unhandled! */
-                expert_add_info_format(pinfo, laa_msg_type_ti, &ei_oran_laa_msg_type_unsupported,
-                                       "laaMsgType %u not supported by dissector",
-                                       laa_msg_type);
-
-                break;
-        }
-        /* For now just skip indicated length of bytes */
-        offset = payload_offset + 4*(laa_msg_len+1);
-    }
 
     bool seen_se10 = false;
     uint32_t numPortc = 0;
@@ -4350,6 +4211,10 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
          /* startSymbolId is in most section types */
         ssid_ti = proto_tree_add_item_ret_uint(section_tree, hf_oran_start_symbol_id, tvb, offset, 1, ENC_NA, &startSymbolId);
     }
+    else {
+        /* reserved (6 bits) */
+        proto_tree_add_item(section_tree, hf_oran_reserved_last_6bits, tvb, offset, 1, ENC_NA);
+    }
     offset++;
 
     char id[16];
@@ -4382,6 +4247,9 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
     }
     else if (sectionType != SEC_C_LAA) {
         proto_tree_add_item_ret_uint(section_tree, hf_oran_numberOfSections, tvb, offset, 1, ENC_NA, &nSections);
+    }
+    else {
+        proto_tree_add_item(section_tree, hf_oran_reserved_8bits, tvb, offset, 1, ENC_NA);
     }
     offset++;
 
@@ -4463,7 +4331,11 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
             break;
 
         case SEC_C_RSVD2:
+            break;
+
         case SEC_C_LAA:                   /* Section Type 7 */
+            proto_tree_add_item(section_tree, hf_oran_reserved_16bits, tvb, offset, 2, ENC_BIG_ENDIAN);
+            offset += 2;
             break;
 
         case SEC_C_ACK_NACK_FEEDBACK:     /* Section Type 8 */
@@ -4978,6 +4850,149 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
             }
         }
     }
+    /* LAA doesn't have sections either.. */
+    else if (sectionType == SEC_C_LAA) {   /* Section Type 7 */
+        /* 7.2.5 Table 6.4-6 */
+        unsigned mcot;
+        proto_item *mcot_ti;
+
+        /* laaMsgType */
+        uint32_t laa_msg_type;
+        proto_item *laa_msg_type_ti;
+        laa_msg_type_ti = proto_tree_add_item_ret_uint(section_tree, hf_oran_laaMsgType, tvb, offset, 1, ENC_NA, &laa_msg_type);
+        /* laaMsgLen */
+        uint32_t laa_msg_len;
+        proto_item *len_ti = proto_tree_add_item_ret_uint(section_tree, hf_oran_laaMsgLen, tvb, offset, 1, ENC_NA, &laa_msg_len);
+        proto_item_append_text(len_ti, " (%u bytes)", 4*laa_msg_len);
+        if (laa_msg_len == 0) {
+            proto_item_append_text(len_ti, " (reserved)");
+        }
+        offset += 1;
+
+        int payload_offset = offset;
+
+        /* Payload */
+        switch (laa_msg_type) {
+            case 0:
+                /* LBT_PDSCH_REQ */
+                /* lbtHandle (16 bits) */
+                proto_tree_add_item(section_tree, hf_oran_lbtHandle, tvb, offset, 2, ENC_BIG_ENDIAN);
+                offset += 2;
+                /* lbtOffset (10 bits) */
+                proto_tree_add_item(section_tree, hf_oran_lbtOffset, tvb, offset, 2, ENC_BIG_ENDIAN);
+                offset += 1;
+                /* lbtMode  (2 bits) */
+                proto_tree_add_bits_item(section_tree, hf_oran_lbtMode, tvb, offset*8+2, 2, ENC_BIG_ENDIAN);
+                /* reserved (1 bit) */
+                proto_tree_add_item(section_tree, hf_oran_laa_msgtype0_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
+                /* lbtDeferFactor (3 bits) */
+                proto_tree_add_item(section_tree, hf_oran_lbtDeferFactor, tvb, offset, 1, ENC_BIG_ENDIAN);
+                offset += 1;
+                /* lbtBackoffCounter (10 bits) */
+                proto_tree_add_item(section_tree, hf_oran_lbtBackoffCounter, tvb, offset, 2, ENC_BIG_ENDIAN);
+                offset += 1;
+                /* MCOT (4 bits) */
+                mcot_ti = proto_tree_add_item_ret_uint(section_tree, hf_oran_MCOT, tvb, offset, 1, ENC_BIG_ENDIAN, &mcot);
+                if (mcot<1 || mcot>10) {
+                    proto_item_append_text(mcot_ti, " (should be in range 1-10!)");
+                    expert_add_info_format(pinfo, mcot_ti, &ei_oran_mcot_out_of_range,
+                                           "MCOT seen with value %u (must be 1-10)", mcot);
+
+                }
+                /* reserved (10 bits) */
+                proto_tree_add_bits_item(section_tree, hf_oran_reserved, tvb, (offset*8)+6, 10, ENC_BIG_ENDIAN);
+                break;
+            case 1:
+                /* LBT_DRS_REQ */
+                /* lbtHandle (16 bits) */
+                proto_tree_add_item(section_tree, hf_oran_lbtHandle, tvb, offset, 2, ENC_BIG_ENDIAN);
+                offset += 2;
+                /* lbtOffset (10 bits) */
+                proto_tree_add_item(section_tree, hf_oran_lbtOffset, tvb, offset, 2, ENC_BIG_ENDIAN);
+                offset += 1;
+                /* lbtMode  (2 bits) */
+                proto_tree_add_bits_item(section_tree, hf_oran_lbtMode, tvb, offset*8+2, 2, ENC_BIG_ENDIAN);
+                /* reserved (28 bits) */
+                proto_tree_add_bits_item(section_tree, hf_oran_reserved, tvb, (offset*8)+4, 28, ENC_BIG_ENDIAN);
+                break;
+            case 2:
+                /* LBT_PDSCH_RSP */
+                /* lbtHandle (16 bits) */
+                proto_tree_add_item(section_tree, hf_oran_lbtHandle, tvb, offset, 2, ENC_BIG_ENDIAN);
+                offset += 2;
+                /* lbtPdschRes (2 bits) */
+                proto_tree_add_item(section_tree, hf_oran_lbtPdschRes, tvb, offset, 1, ENC_BIG_ENDIAN);
+                /* inParSF (1 bit) */
+                proto_tree_add_item(section_tree, hf_oran_initialPartialSF, tvb, offset, 1, ENC_BIG_ENDIAN);
+                /* sfStatus (1 bit) */
+                proto_tree_add_item(section_tree, hf_oran_sfStatus, tvb, offset, 1, ENC_BIG_ENDIAN);
+                /* sfnSf (12 bits) */
+                proto_tree_add_item(section_tree, hf_oran_sfnSfEnd, tvb, offset, 2, ENC_BIG_ENDIAN);
+                offset += 2;
+                /* reserved (24 bits) */
+                proto_tree_add_bits_item(section_tree, hf_oran_reserved, tvb, (offset*8), 24, ENC_BIG_ENDIAN);
+                break;
+            case 3:
+                /* LBT_DRS_RSP */
+                /* lbtHandle (16 bits) */
+                proto_tree_add_item(section_tree, hf_oran_lbtHandle, tvb, offset, 2, ENC_BIG_ENDIAN);
+                offset += 2;
+                /* lbtDrsRes (1 bit) */
+                proto_tree_add_item(section_tree, hf_oran_lbtDrsRes, tvb, offset, 1, ENC_BIG_ENDIAN);
+                /* reserved (7 bits) */
+                proto_tree_add_item(section_tree, hf_oran_reserved_last_7bits, tvb, offset, 1, ENC_BIG_ENDIAN);
+                break;
+            case 4:
+                /* LBT_Buffer_Error */
+                /* lbtHandle (16 bits) */
+                proto_tree_add_item(section_tree, hf_oran_lbtHandle, tvb, offset, 2, ENC_BIG_ENDIAN);
+                offset += 2;
+                /* lbtBufErr (1 bit) */
+                proto_tree_add_item(section_tree, hf_oran_lbtBufErr, tvb, offset, 1, ENC_BIG_ENDIAN);
+                /* reserved (7 bits) */
+                proto_tree_add_item(section_tree, hf_oran_reserved_last_7bits, tvb, offset, 1, ENC_BIG_ENDIAN);
+                break;
+            case 5:
+                /* LBT_CWCONFIG_REQ */
+                /* lbtHandle (16 bits) */
+                proto_tree_add_item(section_tree, hf_oran_lbtHandle, tvb, offset, 2, ENC_BIG_ENDIAN);
+                offset += 2;
+                /* lbtCWConfig_H (8 bits) */
+                proto_tree_add_item(section_tree, hf_oran_lbtCWConfig_H, tvb, offset, 1, ENC_BIG_ENDIAN);
+                offset += 1;
+                /* lbtCWConfig_T (8 bits) */
+                proto_tree_add_item(section_tree, hf_oran_lbtCWConfig_T, tvb, offset, 1, ENC_BIG_ENDIAN);
+                offset += 1;
+                /* lbtMode  (2 bits) */
+                proto_tree_add_bits_item(section_tree, hf_oran_lbtMode, tvb, offset*8, 2, ENC_BIG_ENDIAN);
+                /* lbtTrafficClass (3 bits) */
+                proto_tree_add_item(section_tree, hf_oran_lbtTrafficClass, tvb, offset, 1, ENC_BIG_ENDIAN);
+                /* reserved (11 bits) */
+                proto_tree_add_bits_item(section_tree, hf_oran_reserved, tvb, (offset*8)+5, 11, ENC_BIG_ENDIAN);
+                break;
+            case 6:
+                /* LBT_CWCONFIG_RSP */
+                /* lbtHandle (16 bits) */
+                proto_tree_add_item(section_tree, hf_oran_lbtHandle, tvb, offset, 2, ENC_BIG_ENDIAN);
+                offset += 2;
+                /* lbtCWR_Rst (1 bit) */
+                proto_tree_add_item(section_tree, hf_oran_lbtCWR_Rst, tvb, offset, 1, ENC_BIG_ENDIAN);
+                /* reserved (7 bits) */
+                proto_tree_add_item(section_tree, hf_oran_reserved_last_7bits, tvb, offset, 1, ENC_BIG_ENDIAN);
+                break;
+
+            default:
+                /* Unhandled! */
+                expert_add_info_format(pinfo, laa_msg_type_ti, &ei_oran_laa_msg_type_unsupported,
+                                       "laaMsgType %u not supported by dissector",
+                                       laa_msg_type);
+
+                break;
+        }
+        /* For now just skip indicated length of bytes */
+        offset = payload_offset + 4*(laa_msg_len+1);
+    }
+
 
     /* Dissect each C section */
     for (uint32_t i = 0; i < nSections; ++i) {
@@ -5894,7 +5909,7 @@ proto_register_oran(void)
         {&hf_oran_lbtDeferFactor,
          {"Defer Factor", "oran_fh_cus.lbtDeferFactor",
           FT_UINT8, BASE_DEC,
-          NULL, 0x1c,
+          NULL, 0x07,
           "Defer factor in sensing slots as described in 3GPP TS 36.213 Section 15.1.1",
           HFILL}
         },
@@ -5903,7 +5918,7 @@ proto_register_oran(void)
         {&hf_oran_lbtBackoffCounter,
          {"Backoff Counter", "oran_fh_cus.lbtBackoffCounter",
           FT_UINT16, BASE_DEC,
-          NULL, 0x03ff,
+          NULL, 0xffc0,
           "LBT backoff counter in sensing slots as described in 3GPP TS 36.213 Section 15.1.1",
           HFILL}
         },
@@ -5912,7 +5927,7 @@ proto_register_oran(void)
         {&hf_oran_lbtOffset,
          {"LBT Offset", "oran_fh_cus.lbtOffset",
           FT_UINT16, BASE_DEC,
-          NULL, 0xff80,
+          NULL, 0xffc0,
           "LBT start time in microseconds from the beginning of the subframe "
           "scheduled by this message",
           HFILL}
@@ -5922,7 +5937,7 @@ proto_register_oran(void)
         {&hf_oran_MCOT,
          {"Maximum Channel Occupancy Time", "oran_fh_cus.MCOT",
           FT_UINT8, BASE_DEC,
-          NULL, 0xf0,
+          NULL, 0x3c,
           "LTE TXOP duration in subframes as described in 3GPP TS 36.213 Section 15.1.1",
           HFILL}
         },
