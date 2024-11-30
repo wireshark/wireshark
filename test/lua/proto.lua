@@ -69,8 +69,8 @@ testlib.test(OTHER,"ProtoField.new",pcall(callObjFuncGetter, pfields,pf_trasacti
 testlib.test(OTHER,"ProtoField.new",pcall(callObjFuncGetter, pfields,pf_flags, ProtoField,"new", "Flags", "mydns.flags", ftypes.UINT16, nil, "base.HEX"))
 
 -- tries to register a field that already exists (from the real dns proto dissector) but with incompatible type
-testlib.test(OTHER,"ProtoField.new_duplicate_bad",not pcall(callObjFuncGetter, pfields,10, ProtoField,"new", "Flags", "dns.flags", ftypes.INT16, nil, "base.HEX"))
-testlib.test(OTHER,"ProtoField.int16_duplicate_bad",not pcall(callObjFuncGetter, pfields,10, ProtoField,"int16", "dns.id","Transaction ID"))
+testlib.test(OTHER,"ProtoField.new_duplicate_bad",not pcall(callObjFuncGetter, pfields,10, ProtoField,"new", "Flags", "dns.flags", ftypes.BYTES, nil, "base.NONE"))
+testlib.test(OTHER,"ProtoField.bytes_duplicate_bad",not pcall(callObjFuncGetter, pfields,10, ProtoField,"bytes", "dns.id","Transaction ID"))
 -- now compatible (but different type)
 testlib.test(OTHER,"ProtoField.new_duplicate_ok",pcall(callObjFuncGetter, pfields,10, ProtoField,"new", "Flags", "dns.flags", ftypes.UINT32, nil, "base.HEX"))
 testlib.test(OTHER,"ProtoField.uint16_duplicate_ok",pcall(callObjFuncGetter, pfields,10, ProtoField,"uint16", "dns.id","Transaction ID"))

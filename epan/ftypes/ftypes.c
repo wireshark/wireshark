@@ -74,10 +74,9 @@ ftype_register(enum ftenum ftype, const ftype_t *ft)
 
 /* from README.dissector:
 	Note that the formats used must all belong to the same list as defined below:
-	- FT_INT8, FT_INT16, FT_INT24 and FT_INT32
-	- FT_CHAR, FT_UINT8, FT_UINT16, FT_UINT24, FT_UINT32, FT_IPXNET and FT_FRAMENUM
-	- FT_INT40, FT_INT48, FT_INT56 and FT_INT64
-	- FT_UINT40, FT_UINT48, FT_UINT56, FT_UINT64 and FT_EUI64
+	- FT_INT8, FT_INT16, FT_INT24 and FT_INT32, FT_CHAR, FT_UINT8, FT_UINT16,
+	  FT_UINT24, FT_UINT32, FT_IPXNET, FT_FRAMENUM, FT_INT40, FT_INT48, FT_INT56
+	  FT_INT64, FT_UINT40, FT_UINT48, FT_UINT56, FT_UINT64 and FT_EUI64
 	- FT_ABSOLUTE_TIME and FT_RELATIVE_TIME
 	- FT_STRING, FT_STRINGZ, FT_UINT_STRING, FT_STRINGZPAD, FT_STRINGZTRUNC, and FT_AX25
 	- FT_FLOAT, FT_DOUBLE, FT_IEEE_11073_SFLOAT and FT_IEEE_11073_FLOAT
@@ -92,8 +91,7 @@ ftype_register(enum ftenum ftype, const ftype_t *ft)
    be used to check if two fields are compatible.
 
    XXX - Currently epan/dfilter/semcheck.c has its own implementation of
-   compatible types. Note that all the integer types are compatible since
-   commit 4c975b770e6bc6d16909c76954877d54d8f1f47b.
+   compatible types.
 */
 static enum ftenum
 same_ftype(const enum ftenum ftype)
@@ -103,8 +101,6 @@ same_ftype(const enum ftenum ftype)
 		case FT_INT16:
 		case FT_INT24:
 		case FT_INT32:
-			return FT_INT32;
-
 		case FT_CHAR:
 		case FT_UINT8:
 		case FT_UINT16:
@@ -112,19 +108,15 @@ same_ftype(const enum ftenum ftype)
 		case FT_UINT32:
 		case FT_IPXNET:
 		case FT_FRAMENUM:
-			return FT_UINT32;
-
 		case FT_INT40:
 		case FT_INT48:
 		case FT_INT56:
 		case FT_INT64:
-			return FT_INT64;
-
 		case FT_UINT40:
 		case FT_UINT48:
 		case FT_UINT56:
 		case FT_UINT64:
-		case FT_EUI64:
+		case FT_EUI64: /* Really byte strings, but in ZigBee are stored in reverse order / Little-Endian so treated as integer */
 			return FT_UINT64;
 
 		case FT_STRING:
