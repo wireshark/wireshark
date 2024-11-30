@@ -2913,8 +2913,8 @@ dissect_ptp_v2_timeInterval(tvbuff_t *tvb, uint16_t *cur_offset, proto_tree *tre
 
     /* Set output args */
     *cur_offset = *cur_offset + 8;
-    if (*tree_out) *tree_out = ptptimeInterval_subtree;
-    if (*ns_out) *ns_out = time_ns;
+    if (tree_out) *tree_out = ptptimeInterval_subtree;
+    if (ns_out) *ns_out = time_ns;
 }
 
 static void
