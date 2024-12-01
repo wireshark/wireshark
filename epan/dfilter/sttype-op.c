@@ -48,7 +48,8 @@ oper_dup(const void *data)
 	oper->op = org->op;
 	oper->how = org->how;
 	oper->val1 = stnode_dup(org->val1);
-	oper->val2 = stnode_dup(org->val2);
+	if (org->val2)
+		oper->val2 = stnode_dup(org->val2);
 
 	return oper;
 }
