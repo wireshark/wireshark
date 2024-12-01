@@ -175,6 +175,11 @@ class TestDfilterInteger:
         dfilter = "ip.flags.df != 0"
         checkDFilterCount(dfilter, 0)
 
+    def test_mixed_gt_1(self, checkDFilterCount):
+        # Compare an unsigned integer to a signed integer.
+        dfilter = "ip.version > ntp.precision"
+        checkDFilterCount(dfilter, 1)
+
 class TestDfilterInteger1Byte:
 
     trace_file = "ipx_rip.pcap"

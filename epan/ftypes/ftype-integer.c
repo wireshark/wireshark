@@ -127,22 +127,27 @@ uint64_cmp_order(const fvalue_t *a, const fvalue_t *b, int *cmp)
 	enum ft_result res;
 
 	res = fvalue_to_uinteger64(a, &val_a);
+	/* As currently used, a should be an unsigned integer and this succeed. */
 	if (res != FT_OK)
 		return res;
 
 	res = fvalue_to_uinteger64(b, &val_b);
-	if (res != FT_OK)
+	switch (res) {
+	case FT_OK:
+		if (val_a == val_b)
+			*cmp = 0;
+		else
+			*cmp = val_a < val_b ? -1 : 1;
+		break;
+	case FT_UNDERFLOW:
+		*cmp = 1;
+		break;
+	case FT_OVERFLOW:
+		*cmp = -1;
+		break;
+	default:
 		return res;
-	/* XXX - The above can fail for negative signed numbers (presumably
-	 * a is unsigned but b might not be). If we know a converted correctly
-	 * we might just want to set cmp to 1 if b underflowed and -1 if it
-	 * overflowed rather than failing the comparison.
-	 */
-
-	if (val_a == val_b)
-		*cmp = 0;
-	else
-		*cmp = val_a < val_b ? -1 : 1;
+	}
 
 	return FT_OK;
 }
@@ -154,17 +159,27 @@ sint64_cmp_order(const fvalue_t *a, const fvalue_t *b, int *cmp)
 	enum ft_result res;
 
 	res = fvalue_to_sinteger64(a, &val_a);
+	/* As currently used, a should be a signed integer and this succeed. */
 	if (res != FT_OK)
 		return res;
 
 	res = fvalue_to_sinteger64(b, &val_b);
-	if (res != FT_OK)
+	switch (res) {
+	case FT_OK:
+		if (val_a == val_b)
+			*cmp = 0;
+		else
+			*cmp = val_a < val_b ? -1 : 1;
+		break;
+	case FT_UNDERFLOW:
+		*cmp = 1;
+		break;
+	case FT_OVERFLOW:
+		*cmp = -1;
+		break;
+	default:
 		return res;
-
-	if (val_a == val_b)
-		*cmp = 0;
-	else
-		*cmp = val_a < val_b ? -1 : 1;
+	}
 
 	return FT_OK;
 }
@@ -782,7 +797,7 @@ static enum ft_result uint64_val_to_sinteger64(const fvalue_t *src, int64_t *dst
 static enum ft_result sint64_val_to_uinteger64(const fvalue_t *src, uint64_t *dst)
 {
 	if (src->value.sinteger64 < 0)
-		return FT_OVERFLOW;
+		return FT_UNDERFLOW;
 
 	*dst = (uint64_t)src->value.sinteger64;
 	return FT_OK;

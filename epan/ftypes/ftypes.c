@@ -760,6 +760,8 @@ fvalue_to_sinteger(const fvalue_t *fv, int32_t *repr)
 		return res;
 	if (val > INT32_MAX)
 		return FT_OVERFLOW;
+	if (val < INT32_MIN)
+		return FT_UNDERFLOW;
 
 	*repr = (int32_t)val;
 	return FT_OK;

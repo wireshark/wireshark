@@ -71,6 +71,11 @@ class TestFunctionMaxMin:
         dfilter = 'max(5060, 5070) == udp.srcport'
         checkDFilterCount(dfilter, 1)
 
+    def text_max_6(self, checkDFilterCount):
+        # Extraneous negative numbers don't affect anything.
+        dfilter = 'max(udp.srcport, udp.dstport, -200) == 5060'
+        checkDFilterCount(dfilter, 2)
+
 class TestFunctionAbs:
     trace_file = "dhcp.pcapng"
 

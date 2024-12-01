@@ -154,6 +154,7 @@ typedef struct _ftype_t ftype_t;
 enum ft_result {
 	FT_OK = 0,
 	FT_OVERFLOW,
+	FT_UNDERFLOW,
 	FT_BADARG,
 	FT_ERROR, /* Generic. */
 };
