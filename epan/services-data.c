@@ -2387,6 +2387,7 @@ static ws_services_entry_t global_tcp_udp_services_table[] = {
     { 2791, "mtport-regist",    "MT Port Registrator" },
     { 2792, "f5-globalsite",    "" },
     { 2793, "initlsmsad",       "" },
+    { 2794, "urp",              "Uniform Resource Platform" },
     { 2795, "livestats",        "LiveStats" },
     { 2796, "ac-tech",          "" },
     { 2797, "esp-encap",        "" },

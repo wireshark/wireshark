@@ -1,4 +1,4 @@
-Dumpcap (Wireshark) 4.2.10 (v4.2.10rc0-0-gb450c76be8e5)
+Dumpcap (Wireshark) 4.2.10 (v4.2.10rc0-5-ga329830d0f9a)
 Capture network packets and dump them into a pcapng or pcap file.
 See https://www.wireshark.org for more information.
 
@@ -6,9 +6,8 @@ Usage: dumpcap [options] ...
 
 Capture interface:
   -i <interface>, --interface <interface>
-                           name or idx of interface (def: first non-loopback),
-                           or for remote capturing, use one of these formats:
-                               rpcap://<host>/<interface>
+                           name or idx of interface (def: first non-loopback)
+                           or for remote capturing, use this format:
                                TCP@<host>:<port>
   --ifname <name>          name to use in the capture file for a pipe from which
                            we're capturing
@@ -30,7 +29,7 @@ Capture interface:
   -L, --list-data-link-types
                            print list of link-layer types of iface and exit
   --list-time-stamp-types  print list of timestamp types for iface and exit
-  --update-interval        interval between updates with new packets (def: 100ms)
+  --update-interval        interval between updates with new packets, in milliseconds (def: 100ms)
   -d                       print generated BPF code for capture filter
   -k <freq>,[<type>],[<center_freq1>],[<center_freq2>]
                            set channel on wifi interface
