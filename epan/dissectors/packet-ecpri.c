@@ -35,19 +35,19 @@
 /* Definition for eCPRI lengths                                                                   */
 /**************************************************************************************************/
 /* eCPRI Common Header (4 Bytes) */
-#define ECPRI_HEADER_LENGTH                         4
+#define ECPRI_HEADER_LENGTH                         4U
 /* Message Type Length */
-#define ECPRI_MSG_TYPE_0_PAYLOAD_MIN_LENGTH         4
-#define ECPRI_MSG_TYPE_1_PAYLOAD_MIN_LENGTH         4
-#define ECPRI_MSG_TYPE_2_PAYLOAD_MIN_LENGTH         4
-#define ECPRI_MSG_TYPE_3_PAYLOAD_MIN_LENGTH         8
-#define ECPRI_MSG_TYPE_4_PAYLOAD_MIN_LENGTH        12
-#define ECPRI_MSG_TYPE_5_PAYLOAD_MIN_LENGTH        20
-#define ECPRI_MSG_TYPE_6_PAYLOAD_MIN_LENGTH         3
-#define ECPRI_MSG_TYPE_7_PAYLOAD_MIN_LENGTH         4
-#define ECPRI_MSG_TYPE_8_PAYLOAD_MIN_LENGTH         9
-#define ECPRI_MSG_TYPE_11_PAYLOAD_LENGTH           12
-#define ECPRI_MSG_TYPE_7_ELEMENT_SIZE               8
+#define ECPRI_MSG_TYPE_0_PAYLOAD_MIN_LENGTH         4U
+#define ECPRI_MSG_TYPE_1_PAYLOAD_MIN_LENGTH         4U
+#define ECPRI_MSG_TYPE_2_PAYLOAD_MIN_LENGTH         4U
+#define ECPRI_MSG_TYPE_3_PAYLOAD_MIN_LENGTH         8U
+#define ECPRI_MSG_TYPE_4_PAYLOAD_MIN_LENGTH        12U
+#define ECPRI_MSG_TYPE_5_PAYLOAD_MIN_LENGTH        20U
+#define ECPRI_MSG_TYPE_6_PAYLOAD_MIN_LENGTH         3U
+#define ECPRI_MSG_TYPE_7_PAYLOAD_MIN_LENGTH         4U
+#define ECPRI_MSG_TYPE_8_PAYLOAD_MIN_LENGTH         9U
+#define ECPRI_MSG_TYPE_11_PAYLOAD_LENGTH           12U
+#define ECPRI_MSG_TYPE_7_ELEMENT_SIZE               8U
 
 /**************************************************************************************************/
 /* Definition for Action Types in Message Type 5: One-way Delay Measurement                       */
@@ -461,10 +461,11 @@ static int dissect_ecpri(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
     uint32_t num_faults_notif;
     uint32_t action_type;
     uint32_t fault_notif;
-    uint16_t payload_size;
-    uint32_t data_length;
-    uint16_t reported_length;
-    uint16_t remaining_length;
+    uint16_t payload_size;           /* size of this ecpri message beyond 4-byte header */
+
+    unsigned int reported_length;    /* total reported length of this overall tvb */
+    unsigned int remaining_length;   /* length remaining in current message */
+
     uint32_t time_stamp_ns;
     uint64_t time_stamp_s;
     int64_t  comp_val;
@@ -496,11 +497,11 @@ static int dissect_ecpri(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
             offset = offset + 4 - (offset % 4);
         }
 
-        /* Read Payload Size */
+        /* Read ahead to eCPRI Payload Size */
         payload_size = tvb_get_ntohs(tvb, offset+2);
 
         /* eCPRI tree */
-        if (payload_size + ECPRI_HEADER_LENGTH <= reported_length)
+        if ((unsigned int)(offset + ECPRI_HEADER_LENGTH + payload_size) <= reported_length)
         {
             ecpri_item = proto_tree_add_item(tree, proto_ecpri, tvb, offset, payload_size + ECPRI_HEADER_LENGTH, ENC_NA);
         }
@@ -510,9 +511,11 @@ static int dissect_ecpri(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
             expert_add_info_format(
                 pinfo, ecpri_item, &ei_ecpri_frame_length,
                 "eCPRI frame length %u is too small, Should be min. %d",
-                reported_length, payload_size + ECPRI_HEADER_LENGTH);
+                reported_length-offset, ECPRI_HEADER_LENGTH + payload_size);
         }
         ecpri_tree = proto_item_add_subtree(ecpri_item, ett_ecpri);
+        /* TODO: create a subtvb for just this message (ECPRI_HEADER_LENGTH + payload_size) from offset? */
+        /* This would simplify some of the confusing range checks below.. */
 
         /* eCPRI header subtree */
         header_item = proto_tree_add_string_format(ecpri_tree, hf_common_header, tvb, offset, ECPRI_HEADER_LENGTH, "", "eCPRI Common Header");
@@ -708,6 +711,8 @@ static int dissect_ecpri(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
                         offset += 2;
                         proto_tree_add_item(payload_tree, hf_remote_memory_access_address, tvb, offset, 6, ENC_NA);
                         offset += 6;
+                        /* Data length */
+                        unsigned int data_length;
                         ti_data_length = proto_tree_add_item_ret_uint(payload_tree, hf_remote_memory_access_data_length, tvb, offset, 2, ENC_BIG_ENDIAN, &data_length);
                         offset += 2;
                         remaining_length -= ECPRI_MSG_TYPE_4_PAYLOAD_MIN_LENGTH;
@@ -786,7 +791,7 @@ static int dissect_ecpri(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
                                                     hf_one_way_delay_measurement_compensation_value_subns,
                                                     &comp_tree,
                                                     &comp_val);
-                        /* Isn't set for all Action Types */
+                        /* Isn't valid for all Action Types */
                         if (action_type != ECPRI_MSG_TYPE_5_REQ &&
                             action_type != ECPRI_MSG_TYPE_5_RESPONSE &&
                             action_type != ECPRI_MSG_TYPE_5_FOLLOWUP &&
@@ -800,9 +805,10 @@ static int dissect_ecpri(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
 
                         /* Any remaining bytes are dummy */
                         remaining_length -= ECPRI_MSG_TYPE_5_PAYLOAD_MIN_LENGTH;
-                        if ((payload_size - ECPRI_MSG_TYPE_5_PAYLOAD_MIN_LENGTH) > 0)
+                        if (remaining_length > 0)
                         {
-                            proto_tree_add_item(ecpri_tree, hf_one_way_delay_measurement_dummy_bytes, tvb, offset, payload_size - ECPRI_MSG_TYPE_5_PAYLOAD_MIN_LENGTH, ENC_NA);
+                            proto_tree_add_item(ecpri_tree, hf_one_way_delay_measurement_dummy_bytes, tvb, offset,
+                                                payload_size - ECPRI_MSG_TYPE_5_PAYLOAD_MIN_LENGTH, ENC_NA);
                             offset += (payload_size - ECPRI_MSG_TYPE_5_PAYLOAD_MIN_LENGTH);
                         }
                     }
@@ -1097,7 +1103,7 @@ static int dissect_ecpri(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
         /* If Preference not chosen,  Payload will be not decoded */
         else
         {
-            if (reported_length >= offset + payload_size)
+            if ((unsigned int)(offset + payload_size) <= reported_length)
             {
                 offset += payload_size;
             }

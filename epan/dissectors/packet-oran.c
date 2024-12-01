@@ -1324,7 +1324,7 @@ typedef struct {
     int      ul_ud_comp_hdr_compression;
 
     /* Modulation compression params */
-    /* TODO: incomplete (see SE5, SE SE23), and needs to be per section! */
+    /* TODO: incomplete (see SE4, SE5, SE23), and needs to be per section! */
     //bool     mod_compr_csf;
     //float    mod_compr_mod_comp_scaler;
 } flow_state_t;
