@@ -133,6 +133,11 @@ uint64_cmp_order(const fvalue_t *a, const fvalue_t *b, int *cmp)
 	res = fvalue_to_uinteger64(b, &val_b);
 	if (res != FT_OK)
 		return res;
+	/* XXX - The above can fail for negative signed numbers (presumably
+	 * a is unsigned but b might not be). If we know a converted correctly
+	 * we might just want to set cmp to 1 if b underflowed and -1 if it
+	 * overflowed rather than failing the comparison.
+	 */
 
 	if (val_a == val_b)
 		*cmp = 0;

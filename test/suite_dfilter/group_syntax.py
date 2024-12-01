@@ -338,6 +338,12 @@ class TestDfilterArithmetic:
         dfilter = "udp.length == ip.len - 20"
         checkDFilterCount(dfilter, 4)
 
+    def test_sub_4(self, checkDFilterCount):
+        # The RHS is sometimes negative, sometimes equal to LHS.
+        # LHS is a FT_UINT8. It should match twice.
+        dfilter = "ip.proto == ip.len - 311"
+        checkDFilterCount(dfilter, 2)
+
     def test_sub_no_space_1(self, checkDFilterFail):
         # Minus operator requires whitespace preceding it.
         error = '"68-1" cannot be converted to Unsigned integer'
