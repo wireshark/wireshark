@@ -155,6 +155,10 @@ class TestDfilterInteger:
         dfilter = "ntp.precision <= -10"
         checkDFilterCount(dfilter, 1)
 
+    def test_s_chained(self, checkDFilterCount):
+        dfilter = "-12 < ntp.precision < -2 < ntp.ppoll < 8"
+        checkDFilterCount(dfilter, 1)
+
     def test_bool_eq_1(self, checkDFilterCount):
         dfilter = "ip.flags.df == 0"
         checkDFilterCount(dfilter, 1)
