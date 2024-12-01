@@ -4278,7 +4278,7 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
     </message>
     <message>
         <source>Legend</source>
-        <translation type="unfinished"></translation>
+        <translation>Légende</translation>
     </message>
     <message>
         <source>Toggle legend</source>
