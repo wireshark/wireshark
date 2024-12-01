@@ -1905,7 +1905,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>Fields</source>
-        <translation>Feldname</translation>
+        <translation type="vanished">Feldname</translation>
     </message>
     <message>
         <source>Field Occurrence</source>
@@ -1922,6 +1922,10 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     <message>
         <source>Width</source>
         <translation>Breite</translation>
+    </message>
+    <message>
+        <source>Custom Expression</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Alignment</source>
@@ -2376,6 +2380,10 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     <message>
         <source>Apply a read filter %1</source>
         <translation>Lesefilter anwenden %1</translation>
+    </message>
+    <message>
+        <source>Enter a custom column expression %1</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Current filter: %1</source>
@@ -3092,15 +3100,20 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     <name>FieldFilterEdit</name>
     <message>
         <source>Display filter entry</source>
-        <translation>Anzeigefiltereintrag</translation>
+        <translation type="vanished">Anzeigefiltereintrag</translation>
+    </message>
+    <message>
+        <source>Field entry</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Enter a field %1</source>
         <translation>Feld %1 eingeben</translation>
     </message>
     <message>
-        <source>Invalid filter: </source>
-        <translation>Ungültiger Filter: </translation>
+        <source>Invalid field: </source>
+        <oldsource>Invalid filter: </oldsource>
+        <translation type="unfinished">Ungültiger Filter: </translation>
     </message>
 </context>
 <context>
@@ -8507,31 +8520,31 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     <name>QObject</name>
     <message>
         <source>Average Throughput (bits/s)</source>
-        <translation>Durchschnittlicher Durchsatz (Bits/s)</translation>
+        <translation type="vanished">Durchschnittlicher Durchsatz (Bits/s)</translation>
     </message>
     <message>
         <source>Round Trip Time (ms)</source>
-        <translation>Round-Trip-Zeit (ms)</translation>
+        <translation type="vanished">Round-Trip-Zeit (ms)</translation>
     </message>
     <message>
         <source>Segment Length (B)</source>
-        <translation>Segmentlänge (B)</translation>
+        <translation type="vanished">Segmentlänge (B)</translation>
     </message>
     <message>
         <source>Sequence Number (B)</source>
-        <translation>Sequenznummer (B)</translation>
+        <translation type="vanished">Sequenznummer (B)</translation>
     </message>
     <message>
         <source>Time (s)</source>
-        <translation>Zeit (s)</translation>
+        <translation type="vanished">Zeit (s)</translation>
     </message>
     <message>
         <source>Window Size (B)</source>
-        <translation>Window Größe (B)</translation>
+        <translation type="vanished">Window Größe (B)</translation>
     </message>
     <message>
         <source>Unacked (Outstanding) Bytes (B)</source>
-        <translation>Nicht-ACK-bestätigte (ausstehende) Bytes (B)</translation>
+        <translation type="vanished">Nicht-ACK-bestätigte (ausstehende) Bytes (B)</translation>
     </message>
     <message>
         <source>[no capture file]</source>
@@ -9021,6 +9034,34 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     <message>
         <source>LOAD</source>
         <translation>LAST</translation>
+    </message>
+    <message>
+        <source>Average Throughput</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Round Trip Time</source>
+        <translation type="unfinished">Round-Trip-Zeit</translation>
+    </message>
+    <message>
+        <source>Segment Length</source>
+        <translation type="unfinished">Segmentlänge</translation>
+    </message>
+    <message>
+        <source>Sequence Number</source>
+        <translation type="unfinished">Sequenznummer</translation>
+    </message>
+    <message>
+        <source>Time</source>
+        <translation type="unfinished">Zeit</translation>
+    </message>
+    <message>
+        <source>Window Size</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unacked (Outstanding) Bytes</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

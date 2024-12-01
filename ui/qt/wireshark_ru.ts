@@ -1914,7 +1914,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Fields</source>
-        <translation>Поля</translation>
+        <translation type="vanished">Поля</translation>
     </message>
     <message>
         <source>Field Occurrence</source>
@@ -1931,6 +1931,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Width</source>
         <translation>Ширина</translation>
+    </message>
+    <message>
+        <source>Custom Expression</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Alignment</source>
@@ -2385,6 +2389,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Apply a read filter %1</source>
         <translation>Примените фильтр чтения %1</translation>
+    </message>
+    <message>
+        <source>Enter a custom column expression %1</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Current filter: %1</source>
@@ -3101,15 +3109,20 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <name>FieldFilterEdit</name>
     <message>
         <source>Display filter entry</source>
-        <translation>Запись фильтра отображения</translation>
+        <translation type="vanished">Запись фильтра отображения</translation>
+    </message>
+    <message>
+        <source>Field entry</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Enter a field %1</source>
         <translation>Ввести поле %1</translation>
     </message>
     <message>
-        <source>Invalid filter: </source>
-        <translation>Недопустимый фильтр: </translation>
+        <source>Invalid field: </source>
+        <oldsource>Invalid filter: </oldsource>
+        <translation type="unfinished">Недопустимый фильтр: </translation>
     </message>
 </context>
 <context>
@@ -8541,31 +8554,31 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <name>QObject</name>
     <message>
         <source>Average Throughput (bits/s)</source>
-        <translation>Средняя пропускная способность (бит/с)</translation>
+        <translation type="vanished">Средняя пропускная способность (бит/с)</translation>
     </message>
     <message>
         <source>Round Trip Time (ms)</source>
-        <translation>Время приёма-передачи (мс)</translation>
+        <translation type="vanished">Время приёма-передачи (мс)</translation>
     </message>
     <message>
         <source>Segment Length (B)</source>
-        <translation>Длина сегмента (Б)</translation>
+        <translation type="vanished">Длина сегмента (Б)</translation>
     </message>
     <message>
         <source>Sequence Number (B)</source>
-        <translation>Порядковый номер (Б)</translation>
+        <translation type="vanished">Порядковый номер (Б)</translation>
     </message>
     <message>
         <source>Time (s)</source>
-        <translation>Время (с)</translation>
+        <translation type="vanished">Время (с)</translation>
     </message>
     <message>
         <source>Window Size (B)</source>
-        <translation>Размер окна (Б)</translation>
+        <translation type="vanished">Размер окна (Б)</translation>
     </message>
     <message>
         <source>Unacked (Outstanding) Bytes (B)</source>
-        <translation>Нераспакованные (выданные) байты (B)</translation>
+        <translation type="vanished">Нераспакованные (выданные) байты (B)</translation>
     </message>
     <message>
         <source>[no capture file]</source>
@@ -9055,6 +9068,34 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>LOAD</source>
         <translation>ЗАГРУЗКА</translation>
+    </message>
+    <message>
+        <source>Average Throughput</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Round Trip Time</source>
+        <translation type="unfinished">Время приёма-передачи</translation>
+    </message>
+    <message>
+        <source>Segment Length</source>
+        <translation type="unfinished">Длина сегмента</translation>
+    </message>
+    <message>
+        <source>Sequence Number</source>
+        <translation type="unfinished">Номер последовательности</translation>
+    </message>
+    <message>
+        <source>Time</source>
+        <translation type="unfinished">Время</translation>
+    </message>
+    <message>
+        <source>Window Size</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unacked (Outstanding) Bytes</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

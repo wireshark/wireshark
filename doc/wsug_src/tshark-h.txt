@@ -1,4 +1,4 @@
-TShark (Wireshark) 4.5.0 (v4.5.0rc0-48-g7b7ca8210417)
+TShark (Wireshark) 4.5.0 (v4.5.0rc0-1147-g31b31e100870)
 Dump and analyze network traffic.
 See https://www.wireshark.org for more information.
 
@@ -14,7 +14,7 @@ Capture interface:
                            don't capture in promiscuous mode
   -I, --monitor-mode       capture in monitor mode, if available
   -B <buffer size>, --buffer-size <buffer size>
-                           size of kernel buffer (def: 2MB)
+                           size of kernel buffer in MiB (def: 2MiB)
   -y <link type>, --linktype <link type>
                            link layer type (def: first appropriate)
   --time-stamp-type <type> timestamp method for interface
@@ -22,8 +22,9 @@ Capture interface:
   -L, --list-data-link-types
                            print list of link-layer types of iface and exit
   --list-time-stamp-types  print list of timestamp types for iface and exit
-  --update-interval        interval between updates with new packets (def: 100ms)
 
+Capture display:
+  --update-interval        interval between updates with new packets, in milliseconds (def: 100ms)
 Capture stop conditions:
   -c <packet count>        stop after n packets (def: infinite)
   -a <autostop cond.> ..., --autostop <autostop cond.> ...

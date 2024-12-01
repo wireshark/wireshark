@@ -1898,7 +1898,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Fields</source>
-        <translation>필드</translation>
+        <translation type="vanished">필드</translation>
     </message>
     <message>
         <source>Field Occurrence</source>
@@ -1915,6 +1915,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Width</source>
         <translation>폭</translation>
+    </message>
+    <message>
+        <source>Custom Expression</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Alignment</source>
@@ -2369,6 +2373,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Apply a read filter %1</source>
         <translation>읽기 필터 적용 %1</translation>
+    </message>
+    <message>
+        <source>Enter a custom column expression %1</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Current filter: %1</source>
@@ -3085,15 +3093,20 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <name>FieldFilterEdit</name>
     <message>
         <source>Display filter entry</source>
-        <translation>표시 필터 항목</translation>
+        <translation type="vanished">표시 필터 항목</translation>
+    </message>
+    <message>
+        <source>Field entry</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Enter a field %1</source>
         <translation>필드 입력 %1</translation>
     </message>
     <message>
-        <source>Invalid filter: </source>
-        <translation>잘못된 필터: </translation>
+        <source>Invalid field: </source>
+        <oldsource>Invalid filter: </oldsource>
+        <translation type="unfinished">잘못된 필터: </translation>
     </message>
 </context>
 <context>
@@ -8475,31 +8488,31 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <name>QObject</name>
     <message>
         <source>Average Throughput (bits/s)</source>
-        <translation>평균 처리량(비트/초)</translation>
+        <translation type="vanished">평균 처리량(비트/초)</translation>
     </message>
     <message>
         <source>Round Trip Time (ms)</source>
-        <translation>왕복 시간(ms)</translation>
+        <translation type="vanished">왕복 시간(ms)</translation>
     </message>
     <message>
         <source>Segment Length (B)</source>
-        <translation>세그먼트 길이(바이트)</translation>
+        <translation type="vanished">세그먼트 길이(바이트)</translation>
     </message>
     <message>
         <source>Sequence Number (B)</source>
-        <translation>시퀀스 번호(바이트)</translation>
+        <translation type="vanished">시퀀스 번호(바이트)</translation>
     </message>
     <message>
         <source>Time (s)</source>
-        <translation>시간(초)</translation>
+        <translation type="vanished">시간(초)</translation>
     </message>
     <message>
         <source>Window Size (B)</source>
-        <translation>윈도 크기(바이트)</translation>
+        <translation type="vanished">윈도 크기(바이트)</translation>
     </message>
     <message>
         <source>Unacked (Outstanding) Bytes (B)</source>
-        <translation>ACK되지 않은(대기 중) 바이트(바이트)</translation>
+        <translation type="vanished">ACK되지 않은(대기 중) 바이트(바이트)</translation>
     </message>
     <message>
         <source>[no capture file]</source>
@@ -8989,6 +9002,34 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>LOAD</source>
         <translation>부하</translation>
+    </message>
+    <message>
+        <source>Average Throughput</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Round Trip Time</source>
+        <translation type="unfinished">왕복 시간</translation>
+    </message>
+    <message>
+        <source>Segment Length</source>
+        <translation type="unfinished">세그먼트 길이</translation>
+    </message>
+    <message>
+        <source>Sequence Number</source>
+        <translation type="unfinished">시퀀스 번호</translation>
+    </message>
+    <message>
+        <source>Time</source>
+        <translation type="unfinished">시간</translation>
+    </message>
+    <message>
+        <source>Window Size</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unacked (Outstanding) Bytes</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

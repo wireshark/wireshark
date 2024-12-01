@@ -1,4 +1,4 @@
-Wireshark 4.5.0 (v4.5.0rc0-1003-g7483d3499511)
+Wireshark 4.5.0 (v4.5.0rc0-1147-g31b31e100870)
 Interactively dump and analyze network traffic.
 See https://www.wireshark.org for more information.
 
@@ -14,7 +14,7 @@ Capture interface:
                            don't capture in promiscuous mode
   -I, --monitor-mode       capture in monitor mode, if available
   -B <buffer size>, --buffer-size <buffer size>
-                           size of kernel buffer (def: 2MB)
+                           size of kernel buffer in MiB (def: 2MiB)
   -y <link type>, --linktype <link type>
                            link layer type (def: first appropriate)
   --time-stamp-type <type> timestamp method for interface
@@ -26,8 +26,8 @@ Capture interface:
 Capture display:
   -k                       start capturing immediately (def: do nothing)
   -S                       update packet display when new packets are captured
-  --update-interval        interval between updates with new packets (def: 100ms)
   -l                       turn on automatic scrolling while -S is in use
+  --update-interval        interval between updates with new packets, in milliseconds (def: 100ms)
 Capture stop conditions:
   -c <packet count>        stop after n packets (def: infinite)
   -a <autostop cond.> ..., --autostop <autostop cond.> ...
@@ -59,7 +59,7 @@ Processing:
                            enable dissection of proto_name
   --disable-protocol <proto_name>
                            disable dissection of proto_name
-  --only-protocols <proto_name>
+  --only-protocols <protocols>
                            Only enable dissection of these protocols, comma
                            separated. Disable everything else
   --disable-all-protocols

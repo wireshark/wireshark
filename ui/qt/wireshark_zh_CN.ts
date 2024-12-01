@@ -1895,10 +1895,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished">类型</translation>
     </message>
     <message>
-        <source>Fields</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Field Occurrence</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1912,6 +1908,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Width</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Custom Expression</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2369,12 +2369,16 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>应用读取过滤器 %1</translation>
     </message>
     <message>
+        <source>Enter a custom column expression %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Current filter: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Invalid filter: </source>
-        <translation type="unfinished">无效的过滤器：</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Save this filter</source>
@@ -3081,15 +3085,20 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <name>FieldFilterEdit</name>
     <message>
         <source>Display filter entry</source>
-        <translation>显示过滤器条目</translation>
+        <translation type="vanished">显示过滤器条目</translation>
+    </message>
+    <message>
+        <source>Field entry</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Enter a field %1</source>
         <translation>输入字段 %1</translation>
     </message>
     <message>
-        <source>Invalid filter: </source>
-        <translation>无效的过滤器：</translation>
+        <source>Invalid field: </source>
+        <oldsource>Invalid filter: </oldsource>
+        <translation type="unfinished">无效的过滤器：</translation>
     </message>
 </context>
 <context>
@@ -8458,31 +8467,27 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <name>QObject</name>
     <message>
         <source>Average Throughput (bits/s)</source>
-        <translation>平均吞吐量 (比特/秒)</translation>
+        <translation type="vanished">平均吞吐量 (比特/秒)</translation>
     </message>
     <message>
         <source>Round Trip Time (ms)</source>
-        <translation>往返时间 (毫秒)</translation>
+        <translation type="vanished">往返时间 (毫秒)</translation>
     </message>
     <message>
         <source>Segment Length (B)</source>
-        <translation>段长度 (B)</translation>
+        <translation type="vanished">段长度 (B)</translation>
     </message>
     <message>
         <source>Sequence Number (B)</source>
-        <translation>序列号 (B)</translation>
+        <translation type="vanished">序列号 (B)</translation>
     </message>
     <message>
         <source>Time (s)</source>
-        <translation>时间 (秒)</translation>
+        <translation type="vanished">时间 (秒)</translation>
     </message>
     <message>
         <source>Window Size (B)</source>
-        <translation>窗口大小 (B)</translation>
-    </message>
-    <message>
-        <source>Unacked (Outstanding) Bytes (B)</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">窗口大小 (B)</translation>
     </message>
     <message>
         <source>[no capture file]</source>
@@ -8971,6 +8976,34 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>LOAD</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Average Throughput</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Round Trip Time</source>
+        <translation type="unfinished">往返时间</translation>
+    </message>
+    <message>
+        <source>Segment Length</source>
+        <translation type="unfinished">段长度</translation>
+    </message>
+    <message>
+        <source>Sequence Number</source>
+        <translation type="unfinished">序列号</translation>
+    </message>
+    <message>
+        <source>Time</source>
+        <translation type="unfinished">时间</translation>
+    </message>
+    <message>
+        <source>Window Size</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unacked (Outstanding) Bytes</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

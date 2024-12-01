@@ -1901,10 +1901,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Fields</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Field Occurrence</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1918,6 +1914,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Width</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Custom Expression</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2372,6 +2372,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Apply a read filter %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enter a custom column expression %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -3086,7 +3090,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
 <context>
     <name>FieldFilterEdit</name>
     <message>
-        <source>Display filter entry</source>
+        <source>Field entry</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -3094,7 +3098,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Invalid filter: </source>
+        <source>Invalid field: </source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -8445,34 +8449,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
 <context>
     <name>QObject</name>
     <message>
-        <source>Average Throughput (bits/s)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Round Trip Time (ms)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Segment Length (B)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Sequence Number (B)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Time (s)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Window Size (B)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Unacked (Outstanding) Bytes (B)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>[no capture file]</source>
         <translation type="unfinished"></translation>
     </message>
@@ -8959,6 +8935,34 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>LOAD</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Average Throughput</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Round Trip Time</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Segment Length</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sequence Number</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Time</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Window Size</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unacked (Outstanding) Bytes</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

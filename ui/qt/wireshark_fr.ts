@@ -1907,7 +1907,7 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
     </message>
     <message>
         <source>Fields</source>
-        <translation>Champs</translation>
+        <translation type="vanished">Champs</translation>
     </message>
     <message>
         <source>Field Occurrence</source>
@@ -1924,6 +1924,10 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
     <message>
         <source>Width</source>
         <translation>Largeur</translation>
+    </message>
+    <message>
+        <source>Custom Expression</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Alignment</source>
@@ -2378,6 +2382,10 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
     <message>
         <source>Apply a read filter %1</source>
         <translation>Appliquer un filtre de lecture %1</translation>
+    </message>
+    <message>
+        <source>Enter a custom column expression %1</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Current filter: %1</source>
@@ -3092,15 +3100,20 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
     <name>FieldFilterEdit</name>
     <message>
         <source>Display filter entry</source>
-        <translation>Entrée du filtre d&apos;affichage</translation>
+        <translation type="vanished">Entrée du filtre d&apos;affichage</translation>
+    </message>
+    <message>
+        <source>Field entry</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Enter a field %1</source>
         <translation>Saisir un champ %1</translation>
     </message>
     <message>
-        <source>Invalid filter: </source>
-        <translation>Filtre invalide : </translation>
+        <source>Invalid field: </source>
+        <oldsource>Invalid filter: </oldsource>
+        <translation type="unfinished">Filtre invalide : </translation>
     </message>
 </context>
 <context>
@@ -8508,31 +8521,31 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
     <name>QObject</name>
     <message>
         <source>Average Throughput (bits/s)</source>
-        <translation>Débit moyen (bits/s)</translation>
+        <translation type="vanished">Débit moyen (bits/s)</translation>
     </message>
     <message>
         <source>Round Trip Time (ms)</source>
-        <translation>Round Trip Time (ms)</translation>
+        <translation type="vanished">Round Trip Time (ms)</translation>
     </message>
     <message>
         <source>Segment Length (B)</source>
-        <translation>Longueur des segments (B)</translation>
+        <translation type="vanished">Longueur des segments (B)</translation>
     </message>
     <message>
         <source>Sequence Number (B)</source>
-        <translation>Numéro de séquence (B)</translation>
+        <translation type="vanished">Numéro de séquence (B)</translation>
     </message>
     <message>
         <source>Time (s)</source>
-        <translation>Temps (s)</translation>
+        <translation type="vanished">Temps (s)</translation>
     </message>
     <message>
         <source>Window Size (B)</source>
-        <translation>Taille de fenetres (b)</translation>
+        <translation type="vanished">Taille de fenetres (b)</translation>
     </message>
     <message>
         <source>Unacked (Outstanding) Bytes (B)</source>
-        <translation>Octets non-acquittés (en suspens) (O)</translation>
+        <translation type="vanished">Octets non-acquittés (en suspens) (O)</translation>
     </message>
     <message>
         <source>[no capture file]</source>
@@ -9022,6 +9035,34 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
     <message>
         <source>LOAD</source>
         <translation>CHARGE</translation>
+    </message>
+    <message>
+        <source>Average Throughput</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Round Trip Time</source>
+        <translation type="unfinished">Temps d&apos;Aller-Retour</translation>
+    </message>
+    <message>
+        <source>Segment Length</source>
+        <translation type="unfinished">Longueur de segment</translation>
+    </message>
+    <message>
+        <source>Sequence Number</source>
+        <translation type="unfinished">Numéro de Séquence</translation>
+    </message>
+    <message>
+        <source>Time</source>
+        <translation type="unfinished">Temps</translation>
+    </message>
+    <message>
+        <source>Window Size</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unacked (Outstanding) Bytes</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

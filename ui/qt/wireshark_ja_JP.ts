@@ -89,7 +89,7 @@
     </message>
     <message>
         <source>&lt;h3&gt;System Call and Event Log Analyzer&lt;/h3&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;h3&gt;システムコールとイベントログのアナライザ&lt;/h3&gt;</translation>
     </message>
     <message>
         <source>The directory does not exist</source>
@@ -1899,7 +1899,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Fields</source>
-        <translation>フィールド</translation>
+        <translation type="vanished">フィールド</translation>
     </message>
     <message>
         <source>Field Occurrence</source>
@@ -1916,6 +1916,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Width</source>
         <translation>幅</translation>
+    </message>
+    <message>
+        <source>Custom Expression</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Alignment</source>
@@ -2370,6 +2374,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Apply a read filter %1</source>
         <translation>読込フィルタ %1 を適用</translation>
+    </message>
+    <message>
+        <source>Enter a custom column expression %1</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Current filter: %1</source>
@@ -3086,15 +3094,20 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <name>FieldFilterEdit</name>
     <message>
         <source>Display filter entry</source>
-        <translation>表示フィルタエントリ</translation>
+        <translation type="vanished">表示フィルタエントリ</translation>
+    </message>
+    <message>
+        <source>Field entry</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Enter a field %1</source>
         <translation>フィールド %1 を入力</translation>
     </message>
     <message>
-        <source>Invalid filter: </source>
-        <translation>無効なフィルタ:</translation>
+        <source>Invalid field: </source>
+        <oldsource>Invalid filter: </oldsource>
+        <translation type="unfinished">無効なフィルタ:</translation>
     </message>
 </context>
 <context>
@@ -7827,11 +7840,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Copy</source>
-        <translation type="unfinished">コピー</translation>
+        <translation>コピー</translation>
     </message>
     <message numerus="yes">
         <source>Copy Row(s)</source>
-        <translation type="unfinished">
+        <translation>
             <numerusform>行をコピー</numerusform>
         </translation>
     </message>
@@ -8480,31 +8493,31 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <name>QObject</name>
     <message>
         <source>Average Throughput (bits/s)</source>
-        <translation>平均スループット(bits/s)</translation>
+        <translation type="vanished">平均スループット(bits/s)</translation>
     </message>
     <message>
         <source>Round Trip Time (ms)</source>
-        <translation>往復遅延時間(ミリ秒)</translation>
+        <translation type="vanished">往復遅延時間(ミリ秒)</translation>
     </message>
     <message>
         <source>Segment Length (B)</source>
-        <translation>セグメント長(バイト)</translation>
+        <translation type="vanished">セグメント長(バイト)</translation>
     </message>
     <message>
         <source>Sequence Number (B)</source>
-        <translation>シーケンス番号(バイト)</translation>
+        <translation type="vanished">シーケンス番号(バイト)</translation>
     </message>
     <message>
         <source>Time (s)</source>
-        <translation>時間(秒)</translation>
+        <translation type="vanished">時間(秒)</translation>
     </message>
     <message>
         <source>Window Size (B)</source>
-        <translation>ウインドウサイズ(バイト)</translation>
+        <translation type="vanished">ウインドウサイズ(バイト)</translation>
     </message>
     <message>
         <source>Unacked (Outstanding) Bytes (B)</source>
-        <translation>ACKされていない(未処理の)バイト(B)</translation>
+        <translation type="vanished">ACKされていない(未処理の)バイト(B)</translation>
     </message>
     <message>
         <source>[no capture file]</source>
@@ -8901,7 +8914,8 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>The filter expression &quot;%1&quot; isn&apos;t a valid display filter.
 (%2).</source>
-        <translation type="unfinished"></translation>
+        <translation>フィルタ式 &quot;%1&quot; は有効な表示フィルタではありません
+(%2)</translation>
     </message>
     <message>
         <source>Error</source>
@@ -8994,6 +9008,34 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>LOAD</source>
         <translation>読込</translation>
+    </message>
+    <message>
+        <source>Average Throughput</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Round Trip Time</source>
+        <translation type="unfinished">往復遅延時間</translation>
+    </message>
+    <message>
+        <source>Segment Length</source>
+        <translation type="unfinished">セグメント長</translation>
+    </message>
+    <message>
+        <source>Sequence Number</source>
+        <translation type="unfinished">シーケンス番号</translation>
+    </message>
+    <message>
+        <source>Time</source>
+        <translation type="unfinished">時間</translation>
+    </message>
+    <message>
+        <source>Window Size</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unacked (Outstanding) Bytes</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -14441,19 +14483,19 @@ a:hover {
     </message>
     <message>
         <source>First Packet in Conversation</source>
-        <translation type="unfinished"></translation>
+        <translation>対話の最初のパケット</translation>
     </message>
     <message>
         <source>Go to the first packet in this conversation</source>
-        <translation type="unfinished"></translation>
+        <translation>この対話の最初のパケットへ移動</translation>
     </message>
     <message>
         <source>Last Packet in Conversation</source>
-        <translation type="unfinished"></translation>
+        <translation>対話の最後のパケット</translation>
     </message>
     <message>
         <source>Go to the last packet in this conversation</source>
-        <translation type="unfinished"></translation>
+        <translation>この対話の最後のパケットへ移動</translation>
     </message>
     <message>
         <source>Capture &amp;Filters…</source>
@@ -15186,7 +15228,8 @@ a:hover {
     <message>
         <source>The filter expression &quot;%1&quot; isn&apos;t a valid read filter.
 (%2).</source>
-        <translation type="unfinished"></translation>
+        <translation>フィルタ式 &quot;%1&quot; は有効なリードフィルタではありません
+(%2).</translation>
     </message>
     <message>
         <source>Unknown file type returned by merge dialog.</source>
