@@ -27,28 +27,26 @@ IdmResult/invokeID	idm_invokeID
 IdmResult/invokeID ABBREV=idmResult.invokeID
 
 #.FN_BODY	IdmBind/argument
-	struct SESSION_DATA_STRUCTURE *session = (struct SESSION_DATA_STRUCTURE*)actx->private_data;
-
-	return call_idmp_oid_callback(tvb, offset, actx->pinfo, (ROS_OP_BIND | ROS_OP_ARGUMENT), top_tree, session);
+  struct SESSION_DATA_STRUCTURE *session = (struct SESSION_DATA_STRUCTURE*)actx->private_data;
+  offset = call_idmp_oid_callback(tvb, offset, actx->pinfo, (ROS_OP_BIND | ROS_OP_ARGUMENT), top_tree, session);
 
 #.END
 
 #.FN_PARS	OBJECT_IDENTIFIER	FN_VARIANT = _str VAL_PTR = &protocolID
 
 #.FN_HDR	IdmBind
-	protocolID = saved_protocolID = NULL;
+  protocolID = saved_protocolID = NULL;
 #.END
 
 #.FN_FTR	IdmBind
-	if (protocolID) {
-		saved_protocolID = wmem_strdup(wmem_epan_scope(), protocolID);
-	}
+  if (protocolID) {
+    saved_protocolID = wmem_strdup(wmem_epan_scope(), protocolID);
+  }
 #.END
 
 #.FN_BODY	IdmBindResult/result
-	struct SESSION_DATA_STRUCTURE *session = (struct SESSION_DATA_STRUCTURE*)actx->private_data;
-
-	return call_idmp_oid_callback(tvb, offset, actx->pinfo, (ROS_OP_BIND | ROS_OP_RESULT), top_tree, session);
+  struct SESSION_DATA_STRUCTURE *session = (struct SESSION_DATA_STRUCTURE*)actx->private_data;
+  offset = call_idmp_oid_callback(tvb, offset, actx->pinfo, (ROS_OP_BIND | ROS_OP_RESULT), top_tree, session);
 
 #.END
 
@@ -57,25 +55,22 @@ IdmResult/invokeID ABBREV=idmResult.invokeID
 #.END
 
 #.FN_BODY	IdmBindError/error
-	struct SESSION_DATA_STRUCTURE *session = (struct SESSION_DATA_STRUCTURE*)actx->private_data;
-
-	return call_idmp_oid_callback(tvb, offset, actx->pinfo, (ROS_OP_BIND| ROS_OP_ERROR), top_tree, session);
+  struct SESSION_DATA_STRUCTURE *session = (struct SESSION_DATA_STRUCTURE*)actx->private_data;
+  offset = call_idmp_oid_callback(tvb, offset, actx->pinfo, (ROS_OP_BIND| ROS_OP_ERROR), top_tree, session);
 
 #.END
 
 #.FN_PARS Code/local VAL_PTR = &opcode
 
 #.FN_BODY	Request/argument
-	struct SESSION_DATA_STRUCTURE *session = (struct SESSION_DATA_STRUCTURE*)actx->private_data;
-
-	return call_idmp_oid_callback(tvb, offset, actx->pinfo, (ROS_OP_INVOKE | ROS_OP_ARGUMENT | opcode), top_tree, session);
+  struct SESSION_DATA_STRUCTURE *session = (struct SESSION_DATA_STRUCTURE*)actx->private_data;
+  offset = call_idmp_oid_callback(tvb, offset, actx->pinfo, (ROS_OP_INVOKE | ROS_OP_ARGUMENT | opcode), top_tree, session);
 
 #.END
 
 #.FN_BODY	IdmResult/result
-	struct SESSION_DATA_STRUCTURE *session = (struct SESSION_DATA_STRUCTURE*)actx->private_data;
-
-	return call_idmp_oid_callback(tvb, offset, actx->pinfo, (ROS_OP_INVOKE | ROS_OP_RESULT | opcode), top_tree, session);
+  struct SESSION_DATA_STRUCTURE *session = (struct SESSION_DATA_STRUCTURE*)actx->private_data;
+  offset = call_idmp_oid_callback(tvb, offset, actx->pinfo, (ROS_OP_INVOKE | ROS_OP_RESULT | opcode), top_tree, session);
 
 #.END
 
