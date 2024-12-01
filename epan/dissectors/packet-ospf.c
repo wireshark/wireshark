@@ -237,6 +237,7 @@ static const value_string auth_vals[] = {
 #define OSPF_LSA_EXT_PREFIX     7
 #define OSPF_LSA_EXT_LINK       8
 #define OSPF_LSA_TTZ            9
+#define OSPF_LSA_DYN_FLOODING   10
 #define OSPF_LSA_EXT_IA_ASBR    11
 #define OSPF_RESTART_REASON_UNKNOWN   0
 #define OSPF_RESTART_REASON_SWRESTART 1
@@ -416,6 +417,7 @@ static const value_string ls_opaque_type_vals[] = {
     {OSPF_LSA_EXT_PREFIX,   "OSPFv2 Extended Prefix Opaque LSA"         },
     {OSPF_LSA_EXT_LINK,     "OSPFv2 Extended Link Opaque LSA"           },
     {OSPF_LSA_TTZ,          "TTZ LSA"                                   },
+    {OSPF_LSA_DYN_FLOODING, "OSPFv2 Dynamic Flooding Opaque LSA"        },
     {OSPF_LSA_EXT_IA_ASBR,  "OSPFv2 Extended Inter-Area ASBR LSA"       },
     {0,                     NULL                                        }
 };

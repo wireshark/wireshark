@@ -5375,10 +5375,11 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
             if (compression >= BFP_AND_SELECTIVE_RE) {
                 /* Work out which mask should be used */
                 if (compression==BFP_AND_SELECTIVE_RE || compression==MOD_COMPR_AND_SELECTIVE_RE) {
+                    /* Selective RE cases, use value from compModParam */
                     sresmask_to_use = (uint16_t)sresmask;
                 }
                 else {
-                    /* Choose between sresmask1 and sresmask2 */
+                    /* With masks (in section).  Choose between sresmask1 and sresmask2 */
                     if (rb==1 || (i%1)==0) {
                         /* Even values */
                         sresmask_to_use = (uint16_t)sresmask1;

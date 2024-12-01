@@ -286,7 +286,7 @@ static const value_string nbd_error_vals[] = {
 	{0, NULL}
 };
 
-#define NBD_FLAG_NO_ZEROES 0x00000002
+#define NBD_FLAG_NO_ZEROES 0x0002
 
 static bool
 nbd_from_server(packet_info *pinfo)

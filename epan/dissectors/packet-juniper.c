@@ -332,7 +332,7 @@ static const value_string juniper_ifle_vals[] = {
   { JUNIPER_IFLE_EXTENDED_VLAN_TCC, "Extended VLAN TCC" },
   { JUNIPER_IFLE_FR_CCC, "FR CCC" },
   { JUNIPER_IFLE_FR_NLPID, "FR NLPID" },
-  { JUNIPER_IFLE_FR_PORT_CCC, "FR CCC" },
+  { JUNIPER_IFLE_FR_PORT_CCC, "FR Port CCC" },
   { JUNIPER_IFLE_FR_PPP, "FR PPP" },
   { JUNIPER_IFLE_FR_SNAP, "FR SNAP" },
   { JUNIPER_IFLE_FR_TCC, "FR TCC" },
