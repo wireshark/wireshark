@@ -3448,6 +3448,19 @@ if(BUILD_dumpcap AND PCAP_FOUND)
 	list(APPEND CAPUTILS_SRC
 		capture/capture-pcap-util.c
 	)
+	#
+	# We don't link with libiface_monitor or libui because those
+	# are built to be linked against libwsutil as a shared library,
+	# and dumpcap is deliberately not linked against any of
+	# Wireshark's shared libraries, to reduce the amount of code
+	# it uses, and linking against the non-shared libiface_monitor
+	# or libui libraries will fail on Windows.
+	#
+	# Instead, we just include source files for the relevant code
+	# to be built as part of dumpcap, so that they're built with
+	# ENABLE_STATIC defined, and will be able to be built with
+	# the static version of libwsutil.
+	#
 	set(dumpcap_FILES
 		cli_main.c
 		dumpcap.c
