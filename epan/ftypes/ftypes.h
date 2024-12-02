@@ -165,7 +165,7 @@ enum ft_result {
  *     ft_bool != FT_TRUE
  * are different results (three-state logic).
  */
-typedef bool ft_bool_t;
+typedef int ft_bool_t;
 #define FT_TRUE		1
 #define FT_FALSE	0
 
@@ -555,11 +555,11 @@ ft_bool_t
 fvalue_matches(const fvalue_t *a, const ws_regex_t *re);
 
 WS_DLL_PUBLIC
-bool
+ft_bool_t
 fvalue_is_zero(const fvalue_t *a);
 
 WS_DLL_PUBLIC
-bool
+ft_bool_t
 fvalue_is_negative(const fvalue_t *a);
 
 WS_DLL_PUBLIC
