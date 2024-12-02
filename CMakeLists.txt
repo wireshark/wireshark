@@ -1123,9 +1123,8 @@ if(ENABLE_FUZZER)
 	set(CMAKE_CXX_FLAGS "-fsanitize=fuzzer-no-link ${CMAKE_CXX_FLAGS}")
 endif()
 
-if(ENABLE_ASAN OR ENABLE_TSAN OR ENABLE_UBSAN OR ENABLE_LSAN OR ENABLE_FUZZER)
+if(NOT MSVC)
 	# Disable sanitizers for build-time tools, e.g. lemon
-	# (MSVC doesn't support this flag)
 	check_c_compiler_flag(-fno-sanitize=all C__fno_sanitize_all_VALID)
 	if(C__fno_sanitize_all_VALID)
 		set(NO_SANITIZE_CFLAGS "-fno-sanitize=all")
