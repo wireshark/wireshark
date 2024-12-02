@@ -76,11 +76,11 @@ ftype_register(enum ftenum ftype, const ftype_t *ft)
 	Note that the formats used must all belong to the same list as defined below:
 	- FT_INT8, FT_INT16, FT_INT24 and FT_INT32, FT_CHAR, FT_UINT8, FT_UINT16,
 	  FT_UINT24, FT_UINT32, FT_IPXNET, FT_FRAMENUM, FT_INT40, FT_INT48, FT_INT56
-	  FT_INT64, FT_UINT40, FT_UINT48, FT_UINT56, FT_UINT64 and FT_EUI64
+	  FT_INT64, FT_UINT40, FT_UINT48, FT_UINT56 and FT_UINT64
 	- FT_ABSOLUTE_TIME and FT_RELATIVE_TIME
-	- FT_STRING, FT_STRINGZ, FT_UINT_STRING, FT_STRINGZPAD, FT_STRINGZTRUNC, and FT_AX25
+	- FT_STRING, FT_STRINGZ, FT_UINT_STRING, FT_STRINGZPAD, FT_STRINGZTRUNC and FT_AX25
 	- FT_FLOAT, FT_DOUBLE, FT_IEEE_11073_SFLOAT and FT_IEEE_11073_FLOAT
-	- FT_BYTES, FT_UINT_BYTES, FT_ETHER, FT_VINES and FT_FCWWN
+	- FT_BYTES, FT_UINT_BYTES, FT_ETHER, FT_VINES, FT_FCWWN and FT_EUI64
 	- FT_OID, FT_REL_OID and FT_SYSTEM_ID
 
    We thus divide the types into equivalence classes of compatible types.
@@ -116,7 +116,6 @@ same_ftype(const enum ftenum ftype)
 		case FT_UINT48:
 		case FT_UINT56:
 		case FT_UINT64:
-		case FT_EUI64: /* Really byte strings, but in ZigBee are stored in reverse order / Little-Endian so treated as integer */
 			return FT_UINT64;
 
 		case FT_STRING:
@@ -136,6 +135,7 @@ same_ftype(const enum ftenum ftype)
 		case FT_ETHER:
 		case FT_VINES:
 		case FT_FCWWN:
+		case FT_EUI64:
 			return FT_BYTES;
 
 		case FT_OID:
@@ -937,6 +937,7 @@ fvalue_set_bytes(fvalue_t *fv, GBytes *value)
 			fv->ftype->ftype == FT_SYSTEM_ID ||
 			fv->ftype->ftype == FT_VINES ||
 			fv->ftype->ftype == FT_ETHER ||
+			fv->ftype->ftype == FT_EUI64 ||
 			fv->ftype->ftype == FT_FCWWN);
 	ws_assert(fv->ftype->set_value.set_value_bytes);
 	fv->ftype->set_value.set_value_bytes(fv, value);
@@ -1085,8 +1086,7 @@ fvalue_set_uinteger64(fvalue_t *fv, uint64_t value)
 			fv->ftype->ftype == FT_UINT48 ||
 			fv->ftype->ftype == FT_UINT56 ||
 			fv->ftype->ftype == FT_UINT64 ||
-			fv->ftype->ftype == FT_BOOLEAN ||
-			fv->ftype->ftype == FT_EUI64);
+			fv->ftype->ftype == FT_BOOLEAN);
 	ws_assert(fv->ftype->set_value.set_value_uinteger64);
 	fv->ftype->set_value.set_value_uinteger64(fv, value);
 }
@@ -1138,6 +1138,7 @@ fvalue_get_bytes(fvalue_t *fv)
 			fv->ftype->ftype == FT_REL_OID ||
 			fv->ftype->ftype == FT_SYSTEM_ID ||
 			fv->ftype->ftype == FT_FCWWN ||
+			fv->ftype->ftype == FT_EUI64 ||
 			fv->ftype->ftype == FT_IPv6);
 	ws_assert(fv->ftype->get_value.get_value_bytes);
 	return fv->ftype->get_value.get_value_bytes(fv);
@@ -1233,8 +1234,7 @@ fvalue_get_uinteger64(fvalue_t *fv)
 			fv->ftype->ftype == FT_UINT48 ||
 			fv->ftype->ftype == FT_UINT56 ||
 			fv->ftype->ftype == FT_UINT64 ||
-			fv->ftype->ftype == FT_BOOLEAN ||
-			fv->ftype->ftype == FT_EUI64);
+			fv->ftype->ftype == FT_BOOLEAN);
 	ws_assert(fv->ftype->get_value.get_value_uinteger64);
 	return fv->ftype->get_value.get_value_uinteger64(fv);
 }

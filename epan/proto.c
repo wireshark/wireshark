@@ -27,6 +27,7 @@
 #include <wsutil/sign_ext.h>
 #include <wsutil/utf8_entities.h>
 #include <wsutil/json_dumper.h>
+#include <wsutil/pint.h>
 #include <wsutil/wslog.h>
 #include <wsutil/ws_assert.h>
 #include <wsutil/unicode-utils.h>
@@ -6252,8 +6253,11 @@ proto_tree_add_eui64_format(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 static void
 proto_tree_set_eui64(field_info *fi, const uint64_t value)
 {
-	fvalue_set_uinteger64(fi->value, value);
+	uint8_t v[FT_EUI64_LEN];
+	phton64(v, value);
+	fvalue_set_bytes_data(fi->value, v, FT_EUI64_LEN);
 }
+
 static void
 proto_tree_set_eui64_tvb(field_info *fi, tvbuff_t *tvb, int start, const unsigned encoding)
 {
@@ -7204,7 +7208,8 @@ proto_item_fill_display_label(const field_info *finfo, char *display_label_str, 
 			break;
 
 		case FT_EUI64:
-			tmp_str = eui64_to_str(NULL, fvalue_get_uinteger64(finfo->value));
+			set_address (&addr, AT_EUI64, EUI64_ADDR_LEN, fvalue_get_bytes_data(finfo->value));
+			tmp_str = address_to_display(NULL, &addr);
 			label_len = protoo_strlcpy(display_label_str, tmp_str, label_str_size);
 			wmem_free(NULL, tmp_str);
 			break;
@@ -9946,7 +9951,6 @@ proto_item_fill_label(const field_info *fi, char *label_str, size_t *value_pos)
 	const char	   *str;
 	const uint8_t	   *bytes;
 	uint32_t		    integer;
-	uint64_t		    integer64;
 	const ipv4_addr_and_mask *ipv4;
 	const ipv6_addr_and_prefix *ipv6;
 	const e_guid_t	   *guid;
@@ -10181,11 +10185,13 @@ proto_item_fill_label(const field_info *fi, char *label_str, size_t *value_pos)
 			break;
 
 		case FT_EUI64:
-			integer64 = fvalue_get_uinteger64(fi->value);
-			addr_str = eui64_to_str(NULL, integer64);
-			tmp = (char*)eui64_to_display(NULL, integer64);
-			label_fill_descr(label_str, 0, hfinfo, tmp, addr_str, value_pos);
-			wmem_free(NULL, tmp);
+			bytes = fvalue_get_bytes_data(fi->value);
+			addr.type = AT_EUI64;
+			addr.len  = EUI64_ADDR_LEN;
+			addr.data = bytes;
+
+			addr_str = (char*)address_with_resolution_to_str(NULL, &addr);
+			label_fill(label_str, 0, hfinfo, addr_str, value_pos);
 			wmem_free(NULL, addr_str);
 			break;
 		case FT_STRING:

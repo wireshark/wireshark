@@ -61,6 +61,13 @@ The following features are either new or have been significantly updated since v
   Also, the syntax for only listing fields with a certain prefix has changed to
   `tshark -G fields,prefix`.
 
+* The underlying type of EUI-64 fields has been switched to bytes when packet
+  matching, similar to most other address formats. This means that EUI-64
+  addresses can be sliced and compared to other bytes types, e.g. the filter
+  `wpan.src64[:3] == eth.src[:3]`. Fields can still be specified using 64-bit
+  unsigned integer literals, though arithmetic with other integers is no longer
+  supported.
+
 * Wireshark can now decrypt NTP packets using NTS (Network Time Security). To decrypt packets,
   the NTS-KE (Network Time Security Key Establishment Protocol) packets need to be present,
   alongside the TLS client and exporter secrets. Additionally, the parts of a NTP packet which

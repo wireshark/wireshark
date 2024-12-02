@@ -18,6 +18,7 @@
 #include <epan/osi-utils.h>
 #include <epan/to_str.h>
 #include <wsutil/array.h>
+#include <wsutil/pint.h>
 
 static void
 bytes_fvalue_new(fvalue_t *fv)
@@ -455,6 +456,53 @@ fcwwn_from_literal(fvalue_t *fv, const char *s, bool allow_partial_value _U_, ch
 	return false;
 }
 
+static bool
+eui64_from_literal(fvalue_t *fv, const char *s, bool allow_partial_value, char **err_msg)
+{
+	/*
+	 * Don't request an error message if bytes_from_literal fails;
+	 * if it does, we'll report an error specific to this address
+	 * type.
+	 */
+	if (bytes_from_literal(fv, s, true, NULL)) {
+		if (g_bytes_get_size(fv->value.bytes) > FT_EUI64_LEN) {
+			if (err_msg != NULL) {
+				*err_msg = ws_strdup_printf("\"%s\" contains too many bytes to be a valid EUI-64 address.",
+				    s);
+			}
+			return false;
+		}
+		else if (g_bytes_get_size(fv->value.bytes) < FT_EUI64_LEN && !allow_partial_value) {
+			if (err_msg != NULL) {
+				*err_msg = ws_strdup_printf("\"%s\" contains too few bytes to be a valid EUI-64 address.",
+				    s);
+			}
+			return false;
+		}
+
+		return true;
+	}
+
+	/* XXX - Implement EUI-64 resolving (#15487) and lookup and parse that? */
+
+	if (err_msg != NULL)
+		*err_msg = ws_strdup_printf("\"%s\" is not a valid EUI-64 address.", s);
+	return false;
+}
+
+static bool
+eui64_from_uinteger64(fvalue_t *fv, const char *s _U_, uint64_t value, char **err_msg _U_)
+{
+	/* Backwards compatibility for specifying as unsigned integer. */
+	uint8_t data[FT_EUI64_LEN];
+	phton64(data, value);
+
+	/* Free up the old value, if we have one */
+	bytes_fvalue_free(fv);
+	fv->value.bytes = g_bytes_new(data, FT_EUI64_LEN);
+	return true;
+}
+
 static unsigned
 len(fvalue_t *fv)
 {
@@ -872,6 +920,45 @@ ftype_register_bytes(void)
 		NULL,				/* modulo */
 	};
 
+	static const ftype_t eui64_type = {
+		FT_EUI64,			/* ftype */
+		FT_EUI64_LEN,			/* wire_size */
+		bytes_fvalue_new,		/* new_value */
+		bytes_fvalue_copy,		/* copy_value */
+		bytes_fvalue_free,		/* free_value */
+		eui64_from_literal,		/* val_from_literal */
+		NULL,				/* val_from_string */
+		NULL,				/* val_from_charconst */
+		eui64_from_uinteger64,		/* val_from_uinteger64 */
+		NULL,				/* val_from_sinteger64 */
+		NULL,				/* val_from_double */
+		bytes_to_repr,			/* val_to_string_repr */
+
+		NULL,				/* val_to_uinteger64 */
+		NULL,				/* val_to_sinteger64 */
+		NULL,				/* val_to_double */
+
+		{ .set_value_bytes = bytes_fvalue_set },	/* union set_value */
+		{ .get_value_bytes = bytes_fvalue_get },	/* union get_value */
+
+		cmp_order,
+		cmp_contains,
+		cmp_matches,
+
+		bytes_hash,			/* hash */
+		bytes_is_zero,			/* is_zero */
+		NULL,				/* is_negative */
+		len,
+		(FvalueSlice)slice,
+		bytes_bitwise_and,		/* bitwise_and */
+		NULL,				/* unary_minus */
+		NULL,				/* add */
+		NULL,				/* subtract */
+		NULL,				/* multiply */
+		NULL,				/* divide */
+		NULL,				/* modulo */
+	};
+
 	ftype_register(FT_BYTES, &bytes_type);
 	ftype_register(FT_UINT_BYTES, &uint_bytes_type);
 	ftype_register(FT_VINES, &vines_type);
@@ -880,6 +967,7 @@ ftype_register_bytes(void)
 	ftype_register(FT_REL_OID, &rel_oid_type);
 	ftype_register(FT_SYSTEM_ID, &system_id_type);
 	ftype_register(FT_FCWWN, &fcwwn_type);
+	ftype_register(FT_EUI64, &eui64_type);
 }
 
 void
@@ -892,6 +980,7 @@ ftype_register_pseudofields_bytes(int proto)
 	static int hf_ft_oid;
 	static int hf_ft_rel_oid;
 	static int hf_ft_system_id;
+	static int hf_ft_eui64;
 
 	static hf_register_info hf_ftypes[] = {
 		{ &hf_ft_bytes,
@@ -927,6 +1016,11 @@ ftype_register_pseudofields_bytes(int proto)
 		{ &hf_ft_system_id,
 		    { "FT_SYSTEM_ID", "_ws.ftypes.system_id",
 			FT_SYSTEM_ID, BASE_NONE, NULL, 0x00,
+			NULL, HFILL }
+		},
+		{ &hf_ft_eui64,
+		    { "FT_EUI64", "_ws.ftypes.eui64",
+			FT_EUI64, BASE_NONE, NULL, 0x00,
 			NULL, HFILL }
 		},
 	};

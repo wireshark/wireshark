@@ -1375,11 +1375,11 @@ for protocols with variable-width header fields.
 Note that the formats used must all belong to the same group as defined below:
 - FT_INT8, FT_INT16, FT_INT24 and FT_INT32, FT_CHAR, FT_UINT8, FT_UINT16,
   FT_UINT24, FT_UINT32, FT_IPXNET, FT_FRAMENUM, FT_INT40, FT_INT48, FT_INT56,
-  FT_INT64, FT_UINT40, FT_UINT48, FT_UINT56, FT_UINT64 and FT_EUI64
+  FT_INT64, FT_UINT40, FT_UINT48, FT_UINT56 and FT_UINT64
 - FT_ABSOLUTE_TIME and FT_RELATIVE_TIME
 - FT_STRING, FT_STRINGZ, FT_UINT_STRING, FT_STRINGZPAD, FT_STRINGZTRUNC and FT_AX25
 - FT_FLOAT, FT_DOUBLE, FT_IEEE_11073_SFLOAT and FT_IEEE_11073_FLOAT
-- FT_BYTES, FT_UINT_BYTES, FT_ETHER, FT_VINES and FT_FCWWN
+- FT_BYTES, FT_UINT_BYTES, FT_ETHER, FT_VINES, FT_FCWWN and FT_EUI64
 - FT_OID, FT_REL_OID and FT_SYSTEM_ID
 
 Any field not in a grouping above should *NOT* be used in duplicate field
@@ -1855,8 +1855,8 @@ e_guid_t structure.
 For proto_tree_add_oid(), the 'value_ptr' argument is a pointer to an
 ASN.1 Object Identifier.
 
-For proto_tree_add_eui64(), the 'value' argument is a 64-bit integer
-value
+For proto_tree_add_eui64(), the 'value' argument is a 64-bit unsigned
+integer value, in host byte order.
 
 proto_tree_add_bytes_format()
 proto_tree_add_time_format()

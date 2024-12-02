@@ -132,8 +132,9 @@ compatible_ftypes(ftenum_t a, ftenum_t b)
 		case FT_FCWWN:
 		case FT_REL_OID:
 		case FT_SYSTEM_ID:
+		case FT_EUI64:
 
-			return (b == FT_ETHER || b == FT_BYTES || b == FT_UINT_BYTES || b == FT_OID || b == FT_VINES || b == FT_FCWWN || b == FT_REL_OID || b == FT_SYSTEM_ID);
+			return (b == FT_ETHER || b == FT_BYTES || b == FT_UINT_BYTES || b == FT_OID || b == FT_VINES || b == FT_FCWWN || b == FT_REL_OID || b == FT_SYSTEM_ID || b == FT_EUI64);
 
 		case FT_UINT8:
 		case FT_UINT16:
@@ -148,7 +149,6 @@ compatible_ftypes(ftenum_t a, ftenum_t b)
 		case FT_UINT48:
 		case FT_UINT56:
 		case FT_UINT64:
-		case FT_EUI64:
 			return ftype_can_val_to_uinteger64(b);
 
 		case FT_INT8:
@@ -618,6 +618,7 @@ is_bytes_type(enum ftenum type)
 		case FT_OID:
 		case FT_REL_OID:
 		case FT_SYSTEM_ID:
+		case FT_EUI64:
 			return true;
 
 		case FT_NONE:
@@ -656,7 +657,6 @@ is_bytes_type(enum ftenum type)
 		case FT_INT48:
 		case FT_INT56:
 		case FT_INT64:
-		case FT_EUI64:
 			return false;
 
 		case FT_NUM_TYPES:
