@@ -437,6 +437,7 @@ set(WSLUA_MODULES
 	${CMAKE_SOURCE_DIR}/epan/wslua/wslua_pinfo.c
 	${CMAKE_SOURCE_DIR}/epan/wslua/wslua_address.c
 	${CMAKE_SOURCE_DIR}/epan/wslua/wslua_column.c
+	${CMAKE_SOURCE_DIR}/epan/wslua/wslua_conversation.c
 	${CMAKE_SOURCE_DIR}/epan/wslua/wslua_nstime.c
 	${CMAKE_SOURCE_DIR}/epan/wslua/wslua_proto.c
 	${CMAKE_SOURCE_DIR}/epan/wslua/wslua_dissector.c

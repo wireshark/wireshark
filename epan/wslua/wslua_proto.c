@@ -58,7 +58,6 @@ void clear_outstanding_FuncSavers(void) {
     }
 }
 
-
 WSLUA_CLASS_DEFINE(Proto,FAIL_ON_NULL("Proto"));
 /*
   A new protocol in Wireshark.
@@ -135,6 +134,8 @@ WSLUA_CONSTRUCTOR Proto_new(lua_State* L) { /* Creates a new <<lua_class_Proto,`
 
     proto->prefs_module = NULL;
     proto->handle = NULL;
+
+    proto->cda = NULL;
 
     lua_rawgeti(L, LUA_REGISTRYINDEX, protocols_table_ref);
 
@@ -747,6 +748,29 @@ ProtoField wslua_is_field_available(lua_State* L, const char* field_abbr) {
     return NULL;
 }
 
+void wslua_proto_register_conv_data(wslua_proto_t* proto, wslua_conv_data_t* cd) {
+    proto->cda = g_slist_prepend(proto->cda, cd);
+    cd->registered = true;
+}
+
+static void
+wslua_proto_conv_data_free_cb(gpointer data) {
+    wslua_conv_data_t *cd = (wslua_conv_data_t *)data;
+    lua_State* L = wslua_state();
+    if (cd != NULL ) {
+        if (cd->data_ref != LUA_NOREF) {
+            luaL_unref(L, LUA_REGISTRYINDEX, cd->data_ref);
+            cd->data_ref = LUA_NOREF;
+        }
+        cd->registered = false;
+    }
+}
+
+static void
+wslua_deregister_all_proto_conv_data(wslua_proto_t* proto) {
+    g_slist_free_full(g_steal_pointer(&proto->cda), wslua_proto_conv_data_free_cb);
+}
+
 int wslua_deregister_heur_dissectors(lua_State* L) {
     /* for each registered heur dissector do... */
     lua_rawgeti(L, LUA_REGISTRYINDEX, lua_heur_dissectors_table_ref);
@@ -770,6 +794,9 @@ int wslua_deregister_protocols(lua_State* L) {
         Proto proto;
         proto = checkProto(L, -1);
 
+        if (proto->cda) {
+            wslua_deregister_all_proto_conv_data(proto);
+        }
         if (proto->handle) {
             deregister_dissector(proto->loname);
         }

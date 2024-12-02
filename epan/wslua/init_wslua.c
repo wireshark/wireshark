@@ -1023,6 +1023,7 @@ wslua_allocf(void *ud _U_, void *ptr, size_t osize _U_, size_t nsize)
 #define WSLUA_BASE_TABLE        "base"
 #define WSLUA_FTYPE_TABLE       "ftypes"
 #define WSLUA_FRAMETYPE_TABLE   "frametype"
+#define WSLUA_CONV_TYPE_TABLE   "convtypes"
 #define WSLUA_EXPERT_TABLE      "expert"
 #define WSLUA_EXPERT_GROUP_TABLE    "group"
 #define WSLUA_EXPERT_SEVERITY_TABLE "severity"
@@ -1110,6 +1111,8 @@ wslua_add_introspection(void)
     lua_newtable(L);
     lua_setglobal(L, WSLUA_FRAMETYPE_TABLE);
     lua_newtable(L);
+    lua_setglobal(L, WSLUA_CONV_TYPE_TABLE);
+    lua_newtable(L);
     lua_pushstring(L, WSLUA_EXPERT_GROUP_TABLE);
     lua_newtable(L);
     lua_settable(L, -3);
@@ -1155,6 +1158,13 @@ wslua_add_introspection(void)
             add_menu_group_symbol(ep->symbol + strlen("REGISTER_"), ep->value);
         }
         add_table_symbol(WSLUA_EPAN_ENUMS_TABLE, ep->symbol, ep->value);
+    }
+
+    for (const wslua_conv_types_t* ct = wslua_inspect_convtype_enum(); ct->str != NULL; ct++) {
+        const char *name = strchr(ct->str, '.');
+        if (name != NULL) {
+            add_table_symbol(WSLUA_CONV_TYPE_TABLE, name+1, ct->id);
+        }
     }
 
     /* Add empty tables to be populated. */

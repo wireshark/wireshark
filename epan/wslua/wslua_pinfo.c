@@ -403,11 +403,15 @@ static int Pinfo_get_lo(lua_State *L) {
     return 1;
 }
 
-/* WSLUA_ATTRIBUTE Pinfo_conversation WO Sets the packet conversation to the given Proto object. */
+/* WSLUA_ATTRIBUTE Pinfo_conversation RW
+   On read, returns a <<lua_class_Conversation,``Conversation``>> object (equivalent to ``Conversation.find_from_pinfo(pinfo, 0, True)``)
+
+   On write, sets the <<lua_class_Dissector,``Dissector``>> for the current conversation (shortcut for ``pinfo.conversation.dissector = dissector``). Accepts either a <<lua_class_Dissector,``Dissector``>> object or a <<lua_class_Proto,``Proto``>> object with an assigned dissector */
 static int Pinfo_set_conversation(lua_State *L) {
     Pinfo pinfo = checkPinfo(L,1);
     Proto proto = checkProto(L,2);
     conversation_t  *conversation;
+
 
     if (!proto->handle) {
         luaL_error(L,"Proto %s has no registered dissector", proto->name? proto->name:"<UNKNOWN>");
@@ -419,6 +423,14 @@ static int Pinfo_set_conversation(lua_State *L) {
 
     return 0;
 }
+
+static int Pinfo_get_conversation(lua_State *L) {
+    Pinfo pinfo = checkPinfo(L,1);
+    Conversation conv = find_or_create_conversation(pinfo->ws_pinfo);
+    pushConversation(L, conv);
+    WSLUA_RETURN(1);
+}
+
 
 /* Gets registered as metamethod automatically by WSLUA_REGISTER_CLASS/META */
 static int Pinfo__gc(lua_State* L) {
@@ -472,7 +484,7 @@ WSLUA_ATTRIBUTES Pinfo_attributes[] = {
     WSLUA_ATTRIBUTE_RWREG(Pinfo,in_error_pkt),
     WSLUA_ATTRIBUTE_ROREG(Pinfo,match_uint),
     WSLUA_ATTRIBUTE_ROREG(Pinfo,match_string),
-    WSLUA_ATTRIBUTE_WOREG(Pinfo,conversation),
+    WSLUA_ATTRIBUTE_RWREG(Pinfo,conversation),
     WSLUA_ATTRIBUTE_RWREG(Pinfo,p2p_dir),
     { NULL, NULL, NULL }
 };

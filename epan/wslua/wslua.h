@@ -49,6 +49,7 @@
 #include <epan/expert.h>
 #include <epan/exceptions.h>
 #include <epan/show_exception.h>
+#include <epan/conversation.h>
 
 #include <epan/wslua/declare_wslua.h>
 
@@ -222,9 +223,16 @@ typedef struct _wslua_proto_t {
     GArray *hfa;
     GArray *etta;
     GArray *eia;
+    GSList *cda;
     bool is_postdissector;
     bool expired;
 } wslua_proto_t;
+
+typedef struct _wslua_conv_data_t {
+    conversation_t* conv;
+    int data_ref;
+    bool registered;
+} wslua_conv_data_t;
 
 /* a "DissectorTable" object can be different things under the hood,
  * since its heuristic_new() can create a heur_dissector_list_t that
@@ -351,6 +359,7 @@ struct _wslua_progdlg {
 typedef struct { const char* name; tap_extractor_t extractor; } tappable_t;
 
 typedef struct {const char* str; enum ftenum id; } wslua_ft_types_t;
+typedef struct {const char* str; conversation_type id; } wslua_conv_types_t;
 
 typedef wslua_pref_t* Pref;
 typedef wslua_pref_t* Prefs;
@@ -389,6 +398,7 @@ typedef tvbparse_elem_t* Node;
 typedef tvbparse_action_t* Shortcut;
 typedef struct _wslua_dir* Dir;
 typedef struct _wslua_private_table* PrivateTable;
+typedef conversation_t* Conversation;
 typedef char* Struct;
 
 /*
@@ -869,6 +879,8 @@ extern int luaopen_rex_pcre2(lua_State *L);
 extern const char* get_current_plugin_version(void);
 extern void clear_current_plugin_version(void);
 
+extern void wslua_proto_register_conv_data(wslua_proto_t* proto, wslua_conv_data_t* cd);
+
 extern int wslua_deregister_heur_dissectors(lua_State* L);
 extern int wslua_deregister_protocols(lua_State* L);
 extern int wslua_deregister_dissector_tables(lua_State* L);
@@ -878,6 +890,8 @@ extern int wslua_deregister_filehandlers(lua_State* L);
 extern void wslua_deregister_menus(void);
 
 extern void wslua_init_wtap_filetypes(lua_State* L);
+
+extern const wslua_conv_types_t* wslua_inspect_convtype_enum(void);
 
 #endif
 
