@@ -40,11 +40,19 @@ if(ASCIIDOCTOR_EXECUTABLE)
         )
     endfunction(set_asciidoctor_target_properties)
 
+    set (_ad_failure_level_args)
+    if (ENABLE_WERROR)
+        execute_process( COMMAND ${ASCIIDOCTOR_EXECUTABLE} --help OUTPUT_VARIABLE _ad_help )
+        if (_ad_help MATCHES "--failure-level")
+            set (_ad_failure_level_args --failure-level WARN)
+        endif()
+    endif()
+
     set (_asciidoctor_common_args
         # AsciidoctorJ added --failure-level in version 2.5.6
-        # --failure-level=WARN
         # --trace
         --quiet
+        ${_ad_failure_level_args}
         --attribute build_dir=${CMAKE_BINARY_DIR}/doc
         --attribute css_dir=${CMAKE_SOURCE_DIR}/doc
         --require ${CMAKE_SOURCE_DIR}/doc/asciidoctor-macros/ws_utils.rb
@@ -54,6 +62,10 @@ if(ASCIIDOCTOR_EXECUTABLE)
         --require ${CMAKE_SOURCE_DIR}/doc/asciidoctor-macros/wsbuglink-inline-macro.rb
         --require ${CMAKE_SOURCE_DIR}/doc/asciidoctor-macros/wssalink-inline-macro.rb
     )
+
+    unset(_ad_full_version)
+    unset(_ad_help)
+    unset(_ad_failure_level_args)
 
     set(_asciidoctor_common_command
         ${CMAKE_COMMAND} -E env TZ=UTC
