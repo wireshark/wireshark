@@ -577,8 +577,20 @@ pcap_can_set_rfmon(pcap_t *a)
 int
 pcap_set_rfmon(pcap_t *a, int b)
 {
-	ws_assert(has_wpcap && p_pcap_set_rfmon != NULL);
-	return p_pcap_set_rfmon(a, b);
+	ws_assert(has_wpcap);
+	if (p_pcap_set_rfmon != NULL) {
+		return p_pcap_set_rfmon(a, b);
+	}
+
+	/*
+	 * This routine is in WinPcap 4.1.x but is not exported, so
+	 * it won't be found.  Most other libpcap 1.0 routines are
+	 * present, so it might get called.
+	 *
+	 * Silently pretend to succeed, rather than crashing by
+	 * dereferencing a null pointer.
+	 */
+	return 0;
 }
 
 int
@@ -605,17 +617,27 @@ pcap_activate(pcap_t *a)
 const char *
 pcap_statustostr(int a)
 {
-    static char ebuf[15 + 10 + 1];
+	static char ebuf[15 + 10 + 1];
 
-    ws_assert(has_wpcap);
-    if (p_pcap_statustostr != NULL) {
-        return p_pcap_statustostr(a);
-    }
+	ws_assert(has_wpcap);
+	if (p_pcap_statustostr != NULL) {
+		return p_pcap_statustostr(a);
+	}
 
-    /* XXX copy routine from pcap.c ??? */
-    (void)snprintf(ebuf, sizeof ebuf, "Don't have pcap_statustostr(), can't translate error: %d", a);
-    return(ebuf);
-
+	/*
+	 * This routine is in WinPcap 4.1.x but is not exported, so
+	 * it won't be found.  Most other libpcap 1.0 routines are
+	 * present, so it might get called.
+	 *
+	 * Return an error message that reports the status value
+	 * and indicates that, without pcap_statustostr(), it
+	 * can't be translated to a message, rather than crashing
+	 * by dereferencing a null pointer.
+	 *
+	 * XXX - copy routine from pcap.c ???
+	 */
+	(void)snprintf(ebuf, sizeof ebuf, "Don't have pcap_statustostr(), can't translate error: %d", a);
+	return ebuf;
 }
 #endif
 
