@@ -193,9 +193,6 @@ static int hf_iwf_delay_control_action_type;
 static int hf_iwf_delay_control_delay_a;
 static int hf_iwf_delay_control_delay_b;
 
-/* Overall length of eCPRI frame */
-static int hf_ecpri_length;
-
 /**************************************************************************************************/
 /* Preference to use the eCPRI Specification 1.2 encoding                                         */
 /**************************************************************************************************/
@@ -540,6 +537,11 @@ static int dissect_ecpri(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
         ti_payload_size = proto_tree_add_item(header_tree, hf_common_header_ecpri_payload_size, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
 
+        /* Note if C is set (i.e. further messages to follow after this one) */
+        if (concatenation_bit) {
+            proto_item_append_text(header_item, "   (further eCPRI message in frame)");
+        }
+
         /* eCPRI payload-subtree */
         /* Length Check */
         if (reported_length >= ECPRI_HEADER_LENGTH + payload_size)
@@ -559,7 +561,7 @@ static int dissect_ecpri(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
         payload_tree = proto_item_add_subtree(payload_item, ett_ecpri_payload);
         remaining_length = payload_size;
 
-        /* Call the FH CUS dissector if preference set */
+        /* Call the FH CUS dissector (for all message types) if preference set */
         if (pref_message_type_decoding)
         {
             tvbuff_t *fh_tvb = tvb_new_subset_length(tvb, offset, payload_size);
@@ -571,8 +573,8 @@ static int dissect_ecpri(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
             /***********************************************************************************************/
             if (call_dissector_only(oran_fh_handle, fh_tvb, pinfo, tree, &msg_type))
             {
-                /* Assume that it has claimed the entire tvb */
-                offset = tvb_reported_length(tvb);
+                /* Assume that it has claimed the entire paylength offered to it */
+                offset += payload_size;
             }
             else
             {
@@ -1108,11 +1110,6 @@ static int dissect_ecpri(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
                 offset += payload_size;
             }
         }
-
-        /* eCPRI length (based upon reported length of tvb passed in) */
-        proto_item *length_ti = proto_tree_add_uint(ecpri_tree, hf_ecpri_length, tvb, 0, 0, reported_length);
-        proto_item_set_generated(length_ti);
-
     } while (concatenation_bit != 0 && ((reported_length - offset) >= ECPRI_HEADER_LENGTH));
 
     /* Expecting last concatenation bit to be false */
@@ -1144,7 +1141,6 @@ void proto_register_ecpri(void)
         { &hf_common_header_ecpri_payload_size, { "Payload Size", "ecpri.size", FT_UINT16, BASE_DEC, NULL, 0x0, "Size of eCPRI message payload in bytes", HFILL } },
     /* eCPRI Payload */
         { &hf_payload,   { "eCPRI Payload", "ecpri.payload", FT_BYTES, SEP_COLON, NULL, 0x0, NULL, HFILL } },
-        { &hf_ecpri_length, { "eCPRI Length", "ecpri.length", FT_UINT32, BASE_DEC, NULL, 0x0, "Length in bytes, including header", HFILL } },
     /* Message Type 0: IQ Data */
         { &hf_iq_data_pc_id, { "PC_ID", "ecpri.pcid", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL } },
         { &hf_iq_data_seq_id, { "SEQ_ID", "ecpri.iqd.seqid", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL } },

@@ -4967,8 +4967,8 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
                 proto_tree_add_bits_item(section_tree, hf_oran_lbtMode, tvb, offset*8, 2, ENC_BIG_ENDIAN);
                 /* lbtTrafficClass (3 bits) */
                 proto_tree_add_item(section_tree, hf_oran_lbtTrafficClass, tvb, offset, 1, ENC_BIG_ENDIAN);
-                /* reserved (11 bits) */
-                proto_tree_add_bits_item(section_tree, hf_oran_reserved, tvb, (offset*8)+5, 11, ENC_BIG_ENDIAN);
+                /* reserved (19 bits) */
+                proto_tree_add_bits_item(section_tree, hf_oran_reserved, tvb, (offset*8)+5, 19, ENC_BIG_ENDIAN);
                 break;
             case 6:
                 /* LBT_CWCONFIG_RSP */
