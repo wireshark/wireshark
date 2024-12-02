@@ -495,6 +495,7 @@ if(OSS_FUZZ)
 	endif()
 	# Must not depend on external dependencies so statically link all libs.
 	set(USE_STATIC ON)
+	set(FUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION ON)
 endif()
 
 if(USE_STATIC)
@@ -1153,6 +1154,7 @@ if(ENABLE_FUZZER)
 	endif()
 	set(CMAKE_C_FLAGS "-fsanitize=fuzzer-no-link ${CMAKE_C_FLAGS}")
 	set(CMAKE_CXX_FLAGS "-fsanitize=fuzzer-no-link ${CMAKE_CXX_FLAGS}")
+	set(FUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION ON)
 endif()
 
 if(NOT MSVC)

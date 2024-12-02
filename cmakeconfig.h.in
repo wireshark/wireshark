@@ -40,6 +40,9 @@
 /* Enable LeakSanitizer standalone */
 #cmakedefine ENABLE_LSAN 1
 
+/* Adapt build products for fuzzing (e.g. accepting incorrect checksums or prioritizing determinism). */
+#cmakedefine FUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION 1
+
 /* Define to 1 if you have the <arpa/inet.h> header file. */
 #cmakedefine HAVE_ARPA_INET_H 1
 
