@@ -47,6 +47,14 @@ const char *application_flavor_name_lower(void) {
     }
 }
 
+enum application_flavor_e application_name_to_flavor(const char *name)
+{
+    if (g_ascii_strcasecmp(name, "stratoshark") == 0) {
+        return APPLICATION_FLAVOR_STRATOSHARK;
+    }
+    return APPLICATION_FLAVOR_WIRESHARK;
+}
+
 bool application_flavor_is_wireshark(void)
 {
     return get_application_flavor() == APPLICATION_FLAVOR_WIRESHARK;

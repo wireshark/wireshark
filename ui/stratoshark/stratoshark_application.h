@@ -21,8 +21,6 @@ public:
     explicit StratosharkApplication(int &argc, char **argv);
     ~StratosharkApplication();
 
-    void refreshLocalInterfaces() override;
-
 private:
     void initializeIcons() override;
 };

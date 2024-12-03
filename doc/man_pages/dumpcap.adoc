@@ -42,6 +42,7 @@ dumpcap - Dump network traffic
 [ *--temp-dir* <directory> ]
 [ *-w* <outfile> ]
 [ *-y*|*--linktype* <capture link type> ]
+[ *--application-flavor* [wireshark|stratoshark] ]
 [ *--capture-comment* <comment> ]
 [ *--list-time-stamp-types* ]
 [ *--time-stamp-type* <type> ]
@@ -450,6 +451,11 @@ the interface specified by the last *-i* option occurring before
 this option. If the capture link type is not set specifically,
 the default capture link type is used if provided.
 --
+
+--application-flavor [wireshark|stratoshark]::
+Set the application flavor.
+Make the *-D* option output and other behavior suitable for packet capture or system call and log capture.
+The default flavor is "wireshark".
 
 --capture-comment  <comment>::
 +

@@ -33,6 +33,7 @@
 #include <signal.h>
 #include <errno.h>
 
+#include <wsutil/application_flavor.h>
 #include <wsutil/array.h>
 #include <wsutil/cmdarg_err.h>
 #include <wsutil/report_message.h>
@@ -556,6 +557,8 @@ print_usage(FILE *output)
     fprintf(output, "                           within dumpcap\n");
     fprintf(output, "  -t                       use a separate thread per interface\n");
     fprintf(output, "  -q                       don't report packet capture counts\n");
+    fprintf(output, "  --application-flavor <flavor>\n");
+    fprintf(output, "                           set the application flavor\n");
     fprintf(output, "  -v, --version            print version information and exit\n");
     fprintf(output, "  -h, --help               display this help and exit\n");
     fprintf(output, "\n");
@@ -5151,11 +5154,12 @@ gather_dumpcap_runtime_info(feature_list l)
     gather_caplibs_runtime_info(l);
 }
 
-#define LONGOPT_IFNAME             LONGOPT_BASE_APPLICATION+1
-#define LONGOPT_IFDESCR            LONGOPT_BASE_APPLICATION+2
-#define LONGOPT_CAPTURE_COMMENT    LONGOPT_BASE_APPLICATION+3
+#define LONGOPT_IFNAME              LONGOPT_BASE_APPLICATION+1
+#define LONGOPT_IFDESCR             LONGOPT_BASE_APPLICATION+2
+#define LONGOPT_CAPTURE_COMMENT     LONGOPT_BASE_APPLICATION+3
+#define LONGOPT_APPLICATION_FLAVOR  LONGOPT_BASE_APPLICATION+4
 #ifdef _WIN32
-#define LONGOPT_SIGNAL_PIPE        LONGOPT_BASE_APPLICATION+4
+#define LONGOPT_SIGNAL_PIPE         LONGOPT_BASE_APPLICATION+5
 #endif
 
 /* And now our feature presentation... [ fade to music ] */
@@ -5171,6 +5175,7 @@ main(int argc, char *argv[])
         {"ifname", ws_required_argument, NULL, LONGOPT_IFNAME},
         {"ifdescr", ws_required_argument, NULL, LONGOPT_IFDESCR},
         {"capture-comment", ws_required_argument, NULL, LONGOPT_CAPTURE_COMMENT},
+        {"application-flavor", ws_required_argument, NULL, LONGOPT_APPLICATION_FLAVOR},
 #ifdef _WIN32
         {"signal-pipe", ws_required_argument, NULL, LONGOPT_SIGNAL_PIPE},
 #endif
@@ -5505,6 +5510,9 @@ main(int argc, char *argv[])
         case 'v':        /* Show version and exit */
             show_version();
             exit_main(0);
+            break;
+        case LONGOPT_APPLICATION_FLAVOR:
+            set_application_flavor(application_name_to_flavor(ws_optarg));
             break;
         /*** capture option specific ***/
         case 'a':        /* autostop criteria */

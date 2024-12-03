@@ -23,6 +23,7 @@
 
 #include <ws_exit_codes.h>
 
+#include <wsutil/application_flavor.h>
 #include <wsutil/strtoi.h>
 #include <wsutil/ws_assert.h>
 
@@ -269,6 +270,9 @@ init_pipe_args(int *argc) {
             break;
         }
     }
+
+    argv = sync_pipe_add_arg(argv, argc, "--application-flavor");
+    argv = sync_pipe_add_arg(argv, argc, application_flavor_name_lower());
 
     /* sync_pipe_add_arg strdupes exename, so we should free our copy */
     g_free(exename);

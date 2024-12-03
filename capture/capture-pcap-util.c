@@ -74,6 +74,7 @@
 #define ws_pcap_findalldevs_ex pcap_findalldevs_ex
 #endif
 
+#include <wsutil/application_flavor.h>
 #include <wsutil/file_util.h>
 #include <wsutil/please_report_bug.h>
 #include <wsutil/wslog.h>
@@ -789,11 +790,11 @@ GList *
 get_interface_list_findalldevs(int *err, char **err_str)
 {
 	GList  *il = NULL;
-	pcap_if_t *alldevs, *dev;
+	pcap_if_t *alldevs = NULL, *dev;
 	if_info_t *if_info;
 	char errbuf[PCAP_ERRBUF_SIZE];
 
-	if (pcap_findalldevs(&alldevs, errbuf) == -1) {
+	if (application_flavor_is_wireshark() && pcap_findalldevs(&alldevs, errbuf) == -1) {
 		*err = CANT_GET_INTERFACE_LIST;
 		if (err_str != NULL)
 			*err_str = cant_get_if_list_error_message(errbuf);

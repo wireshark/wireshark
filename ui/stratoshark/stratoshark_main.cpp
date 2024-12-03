@@ -893,12 +893,6 @@ int main(int argc, char *qt_argv[])
             if_cap_query->monitor_mode = interface_opts->monitor_mode;
             if_cap_query->auth_username = NULL;
             if_cap_query->auth_password = NULL;
-#ifdef HAVE_PCAP_REMOTE
-            if (interface_opts->auth_type == CAPTURE_AUTH_PWD) {
-                if_cap_query->auth_username = interface_opts->auth_username;
-                if_cap_query->auth_password = interface_opts->auth_password;
-            }
-#endif
             if_cap_queries = g_list_prepend(if_cap_queries, if_cap_query);
         }
         if_cap_queries = g_list_reverse(if_cap_queries);
@@ -935,14 +929,7 @@ int main(int argc, char *qt_argv[])
     splash_update(RA_INTERFACES, NULL, NULL);
 
     if (!global_commandline_info.cf_name && !prefs.capture_no_interface_load) {
-        /* Allow only extcap interfaces to be found */
-        GList * filter_list = NULL;
-        filter_list = g_list_append(filter_list, GUINT_TO_POINTER((unsigned) IF_EXTCAP));
-        // The below starts the stats; we don't need that since Stratoshark only
-        // supports extcaps.
-        //ssApp->scanLocalInterfaces(filter_list);
-        fill_in_local_interfaces_filtered(filter_list, main_window_update);
-        g_list_free(filter_list);
+        ssApp->scanLocalInterfaces(nullptr);
     }
 
     capture_opts_trim_snaplen(&global_capture_opts, MIN_PACKET_SIZE);

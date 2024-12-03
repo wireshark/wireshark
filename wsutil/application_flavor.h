@@ -58,6 +58,14 @@ WS_DLL_PUBLIC const char *application_flavor_name_proper(void);
 WS_DLL_PUBLIC const char *application_flavor_name_lower(void);
 
 /**
+ * Get an application flavor from its name.
+ *
+ * @param name The application name. Case insensitive.
+ * @return The application flavor, or APPLICATION_FLAVOR_WIRESHARK if there is no match.
+ */
+WS_DLL_PUBLIC enum application_flavor_e application_name_to_flavor(const char * name);
+
+/**
  * Convenience routine for checking the application flavor.
  * @return true if the application flavor is APPLICATION_FLAVOR_WIRESHARK.
  */
