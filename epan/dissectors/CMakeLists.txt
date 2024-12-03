@@ -90,6 +90,7 @@ set(CLEAN_ASN1_DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-cmip.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-cmp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-cms.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-cosem.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-credssp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-crmf.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-dap.c

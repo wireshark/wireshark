@@ -1,0 +1,999 @@
+-- https://github.com/xdom/jdlms/blob/master/asn1/cosem/cosem.asn
+--
+XDLMS-1 {joint-iso-itu-t association-control(2) modules(0) apdus(0) version1(1)}
+--  XDLMS-1 refers to xDLMS version 1
+DEFINITIONS ::=
+BEGIN
+
+IMPORTS
+  Name, RelativeDistinguishedName
+    FROM InformationFramework {joint-iso-itu-t ds(5) module(1)
+      informationFramework(1) 3};
+--  The data types Name and RelativeDistinguishedName are imported from ISO/IEC 9594-2.
+--  object identifier assignments
+acse-as-id OBJECT IDENTIFIER ::=
+  {joint-iso-itu-t association-control(2) abstract-syntax(1) apdus(0)
+   version1(1)}
+
+--  may be used to reference the abstract syntax of the ACSE APDUs
+aCSE-id OBJECT IDENTIFIER ::=
+  {joint-iso-itu-t association-control(2) ase-id(3) acse-ase(1) version(1)}
+
+
+------------------------------------------------------
+--  may be used to identify the COSEMpdu.
+--  top level CHOICE
+/*   Not used 
+COSEMpdu ::= CHOICE {
+-- standardized DLMS PDUs used in COSEM
+-- DLMS PDUs (no encryption selected 24)
+  initiateRequest          [1]  IMPLICIT InitiateRequest, 
+  readRequest              [5]  IMPLICIT ReadRequest,
+  writeRequest             [6]  IMPLICIT WriteRequest,
+  initiateResponse         [8]  IMPLICIT InitiateResponse,
+  readResponse             [12] IMPLICIT ReadResponse,
+  writeResponse            [13] IMPLICIT WriteResponse,
+  confirmedServiceError    [14] ConfirmedServiceError,
+  unconfirmedWriteRequest  [22] IMPLICIT UnconfirmedWriteRequest,
+  informationReportRequest [24] IMPLICIT InformationReportRequest,
+  
+  glo-initiateRequest      [33] IMPLICIT OCTET STRING,
+  glo-readRequest          [37] IMPLICIT OCTET STRING,
+  glo-writeRequest         [38] IMPLICIT OCTET STRING,
+  
+  glo-initiateResponse     [40] IMPLICIT OCTET STRING,
+  glo-readResponse         [44] IMPLICIT OCTET STRING,
+  glo-writeResponse        [45] IMPLICIT OCTET STRING,
+
+-- the four ACSE APDUs
+--  aarq AARQ-apdu
+--  aare AARE-apdu
+--  rlrq RLRQ-apdu -- -- OPTIONAL
+--  rlre RLRE-apdu -- -- OPTIONAL
+
+-- APDUs used for data communication services using LN referencing
+  get-request                [192] GET-Request,
+  set-request                [193] SET-Request,
+  event-notification-request [194] IMPLICIT EVENT-NOTIFICATION-Request,
+  action-request             [195] ACTION-Request,
+  get-response               [196] GET-Response,
+  set-response               [197] SET-Response,
+  action-response            [199] ACTION-Response,
+
+-- global ciphered pdus
+  glo-get-request                [200] IMPLICIT OCTET STRING,
+  glo-set-request                [201] IMPLICIT OCTET STRING,
+  glo-event-notification-request [202] IMPLICIT OCTET STRING,
+  glo-action-request             [203] IMPLICIT OCTET STRING,
+  glo-get-response               [204] IMPLICIT OCTET STRING,
+  glo-set-response               [205] IMPLICIT OCTET STRING,
+  glo-action-response            [207] IMPLICIT OCTET STRING,
+
+-- dedicated ciphered pdus
+  ded-get-request                [208] IMPLICIT OCTET STRING,
+  ded-set-request                [209] IMPLICIT OCTET STRING,
+  ded-event-notification-request [210] IMPLICIT OCTET STRING,
+  ded-actionRequest              [211] IMPLICIT OCTET STRING,
+  ded-get-response               [212] IMPLICIT OCTET STRING,
+  ded-set-response               [213] IMPLICIT OCTET STRING,
+  ded-action-response            [215] IMPLICIT OCTET STRING,
+
+-- the exception response pdu 
+  exception-response             [216] IMPLICIT EXCEPTION-Response
+}
+*/
+
+AARQ-apdu ::= [APPLICATION 0] IMPLICIT SEQUENCE {
+  protocol-version
+    [0] IMPLICIT BIT STRING {version1(0)} DEFAULT {version1},
+  application-context-name          [1]  Application-context-name,
+  called-AP-title                   [2]  AP-title OPTIONAL,
+  called-AE-qualifier               [3]  AE-qualifier OPTIONAL,
+  called-AP-invocation-identifier   [4]  AP-invocation-identifier OPTIONAL,
+  called-AE-invocation-identifier   [5]  AE-invocation-identifier OPTIONAL,
+  calling-AP-title                  [6]  AP-title OPTIONAL,
+  calling-AE-qualifier              [7]  AE-qualifier OPTIONAL,
+  calling-AP-invocation-identifier  [8]  AP-invocation-identifier OPTIONAL,
+  calling-AE-invocation-identifier  [9]  AE-invocation-identifier OPTIONAL,
+  --  The following field shall not be present if only the Kernel is used.
+  sender-acse-requirements          [10] IMPLICIT ACSE-requirements OPTIONAL,
+  --  The following field shall only be present if the Authentication functional unit is selected.
+  mechanism-name                    [11] IMPLICIT Mechanism-name OPTIONAL,
+  --  The following field shall only be present if the Authentication functional unit is selected.
+  calling-authentication-value      [12] EXPLICIT Authentication-value OPTIONAL,
+  implementation-information        [29] IMPLICIT Implementation-data OPTIONAL,
+  user-information                  [30] IMPLICIT Association-information OPTIONAL
+
+}
+
+AARE-apdu ::= [APPLICATION 1] IMPLICIT SEQUENCE {
+  protocol-version
+    [0] IMPLICIT BIT STRING {version1(0)} DEFAULT {version1},
+  aSO-context-name                     [1]  Application-context-name,
+  result                               [2]  Association-result,
+  result-source-diagnostic             [3]  Associate-source-diagnostic,
+  responding-AP-title                  [4]  AP-title OPTIONAL,
+  responding-AE-qualifier              [5]  AE-qualifier OPTIONAL,
+  responding-AP-invocation-identifier  [6]  AP-invocation-identifier OPTIONAL,
+  responding-AE-invocation-identifier  [7]  AE-invocation-identifier OPTIONAL,
+  --  The following field shall not be present if only the Kernel is used.
+  responder-acse-requirements          [8] IMPLICIT ACSE-requirements OPTIONAL,
+  --  The following field shall only be present if the Authentication functional unit is selected.
+  mechanism-name                       [9] IMPLICIT Mechanism-name OPTIONAL,
+  --  This following field shall only be present if the Authentication functional unit is selected.
+  responding-authentication-value
+    [10] EXPLICIT Authentication-value OPTIONAL,
+  user-information                     [30] IMPLICIT Association-information OPTIONAL
+
+     }
+
+RLRQ-apdu ::= [APPLICATION 2] IMPLICIT SEQUENCE {
+    reason [0] IMPLICIT Release-request-reason OPTIONAL,
+    user-information [30] IMPLICIT Association-information OPTIONAL
+}
+
+RLRE-apdu ::= [APPLICATION 3] IMPLICIT SEQUENCE {
+    reason [0] IMPLICIT Release-response-reason OPTIONAL,
+    user-information [30] IMPLICIT Association-information OPTIONAL
+}
+
+Application-context-name ::= OBJECT IDENTIFIER
+
+ACSE-requirements ::= BIT STRING {
+  authentication(0), aSO-context-negotiation(1), higher-level-association(2),
+  nested-association(3)}
+
+
+Mechanism-name ::= OBJECT IDENTIFIER
+
+--  Application-entity title productions follow (not in alphabetical order).
+AP-title ::= CHOICE {
+  ap-title-form1  AP-title-form1,
+  ap-title-form2  AP-title-form2,
+  ...,
+  ap-title-form3  AP-title-form3
+}
+
+AE-qualifier ::= ASO-qualifier
+
+ASO-qualifier ::= CHOICE {
+  aso-qualifier-form1  ASO-qualifier-form1,
+  aso-qualifier-form2  ASO-qualifier-form2,
+  ...,
+  aso-qualifier-form3  ASO-qualifier-form3,
+-- an alternative used by some systems from the days when ASO-qualifier 
+-- was an ANY
+  aso-qualifier-form-any-octets  ASO-qualifier-form-octets 
+}
+
+--  When both AP-title and AE-qualifier data values are present in an AARQ or AARE APDU, both must
+--  have the same form to allow the construction of an AE-title as discussed in itu-t Rec. X.665 |
+--  ISO/IEC 9834-6
+AP-title-form1 ::=
+  Name
+
+--  The value assigned to AP-title-form1 is The Directory Name of an application-process title.
+ASO-qualifier-form1 ::=
+  RelativeDistinguishedName
+
+--  The value assigned to AE-qualifier-form1 is the relative distinguished name of a particular
+--  application-entity of the application-process identified by AP-title-form1.
+AP-title-form2 ::= OBJECT IDENTIFIER
+
+ASO-qualifier-form2 ::= INTEGER
+
+AP-title-form3 ::= PrintableString
+
+ASO-qualifier-form3 ::= PrintableString
+
+ASO-qualifier-form-octets ::= OCTET STRING
+
+AE-title ::= CHOICE {
+  ae-title-form1  AE-title-form1,
+  ae-title-form2  AE-title-form2,
+  ...
+}
+
+--  As defined in ITU-T Rec. X.650 | ISO/IEC 7498-3, an application-entity title is composed of an application process
+--  title and an application-entity qualifier. The ACSE protocol provides for the transfer of an application-entity title
+--  value by the transfer of its component values. However, the following data type is provided for International
+--  Standards that reference a single syntactic structure for AE titles.
+AE-title-form1 ::=
+  Name
+
+--  For access to The Directory (see ITU-T Rec. X.500 series | ISO/IEC 9594), an AE title has AE-title-form1. This value
+--  can be constructed from AP-title-form1 and AE-qualifier-form1 values contained in an AARQ or AARE APDU.
+--  A discussion of forming an AE-title-form1 from AP-title-form1 and AE-qualifier form1 may be found in itu-t
+--  Rec X.665 | ISO/IEC 9834-6.
+AE-title-form2 ::= OBJECT IDENTIFIER
+
+--  A discussion of forming an AE-title-form2 from AP-title-form2 and AE-qualifier-form2 may be found in
+--  itu-t Rec. X.665 | ISO/IEC 9834-6.
+AE-invocation-identifier ::= INTEGER
+
+AP-invocation-identifier ::= INTEGER
+
+
+Authentication-value-other ::= SEQUENCE {
+  other-mechanism-name     OBJECT IDENTIFIER,
+  other-mechanism-value    ANY
+}
+
+Authentication-value ::= CHOICE {
+  charstring  [0] IMPLICIT GraphicString,
+  bitstring   [1] IMPLICIT BIT STRING,
+  external    [2] IMPLICIT EXTERNALt,
+  other
+    [3] IMPLICIT Authentication-value-other
+}
+
+-- Workaround for bug in asn2wrs in the .cnf file
+-- to handle the lack of support for tagged assignments.
+-- remove that workaround once asn2wrs learns how to handle
+-- tagged assignments.
+EXTERNALt  ::=  [UNIVERSAL 8] IMPLICIT SEQUENCE
+     {
+      direct-reference  OBJECT IDENTIFIER OPTIONAL,
+      indirect-reference  INTEGER OPTIONAL,
+      data-value-descriptor  ObjectDescriptor  OPTIONAL,
+      encoding  CHOICE
+                  {single-ASN1-type  [0] IMPLICIT OCTET STRING, --ANY,
+                   octet-aligned     [1] IMPLICIT OCTET STRING,
+                   arbitrary         [2] IMPLICIT BIT STRING}
+     }
+
+Implementation-data ::= GraphicString
+Association-information ::= OCTET STRING
+
+-- In ISO/IEC 8650-1 the association-information field is specified as::= SEQUENCE OF EXTERNAL. For COSEM,
+-- this field shall always contain the A-XDR encoded DLMS-Initiate.request /.response pdus, (or a
+-- ConfirmedServiceError-pdu when the requested xDLMS context is not supported by the server) as a BER
+-- encoded OCTETSTRING
+
+    Association-result ::= INTEGER
+     {
+     accepted (0),
+     rejected-permanent (1),
+     rejected-transient (2)
+     }
+
+    Associate-source-diagnostic ::= CHOICE
+     {
+         acse-service-user [1] INTEGER
+            {
+             null (0),
+             no-reason-given (1),
+             application-context-name-not-supported (2),
+             authentication-mechanism-name-not-recognised (11),
+             authentication-mechanism-name-required (12),
+             authentication-failure (13),
+             authentication-required (14)
+             },
+         acse-service-provider [2] INTEGER
+         {
+             null (0),
+             no-reason-given (1),
+             no-common-acse-version (2)
+         }
+     }
+
+Release-request-reason ::= INTEGER
+{
+ normal (0),
+ urgent (1),
+ user-defined (30)
+}
+Release-response-reason ::= INTEGER
+{
+ normal (0),
+ not-finished (1),
+ user-defined (30)
+}
+
+/* Not used
+-------------------------------------------
+-- Useful Types
+Integer8   ::= INTEGER(-128..127)
+Integer16  ::= INTEGER(-32768..32767)
+Integer32  ::= INTEGER(-2147483648..2147483647)
+Integer64  ::= INTEGER(-9223372036854775808..9223372036854775807)
+Unsigned8  ::= INTEGER(0..255)
+Unsigned16 ::= INTEGER(0..65535)
+Unsigned32 ::= INTEGER(0..4294967295)
+Unsigned64 ::= INTEGER(0..18446744073709551615)
+
+-- A-XDR typedef for ENUMERATED
+Enum ::= INTEGER(0..255)
+
+Invoke-Id-And-Priority ::= BIT STRING (SIZE(8))
+--{
+--  invoke-id     (0..3),
+--  reserved      (4..5),
+--  service-class (6),     0 = Unconfirmed, 1 = Confirmed
+--  priority      (7)      0 = normal; 1 = high
+--}
+
+-- NOTE
+-- In the 3-layer, connection-oriented, HDLC based profile bit 6 is not relevant, as the service-class information is
+-- conveyed by the HDLC frame type carrying the APDU.
+
+ObjectName                 ::= Integer16
+Cosem-Class-Id             ::= Unsigned16
+Cosem-Object-Instance-Id   ::= OCTET STRING (SIZE(6)) -- completely written out OBIS code without seperator
+Cosem-Object-Attribute-Id  ::= Integer8
+Cosem-Object-Method-Id     ::= Integer8
+Cosem-Date-Time            ::= OCTET STRING (SIZE(12)) -- encoded as date-time, as specified in IEC 62056-62.
+
+Cosem-Attribute-Descriptor ::= SEQUENCE
+{
+  class-id     Cosem-Class-Id,
+  instance-id  Cosem-Object-Instance-Id,
+  attribute-id Cosem-Object-Attribute-Id
+}
+
+Cosem-Method-Descriptor ::= SEQUENCE
+{
+  class-id    Cosem-Class-Id,
+  instance-id Cosem-Object-Instance-Id,
+  method-id   Cosem-Object-Method-Id
+}
+
+Selective-Access-Descriptor ::= SEQUENCE
+{
+  access-selector   Unsigned8,
+  access-parameters Data
+}
+
+Cosem-Attribute-Descriptor-With-Selection ::= SEQUENCE
+{
+  cosem-attribute-descriptor Cosem-Attribute-Descriptor,
+  access-selection           Selective-Access-Descriptor OPTIONAL
+}
+
+Get-Data-Result ::= CHOICE
+{
+  data               [0] Data,
+  data-access-result [1] IMPLICIT Data-Access-Result
+}
+
+Action-Response-With-Optional-Data ::= SEQUENCE
+{
+  result            Action-Result,
+  return-parameters Get-Data-Result OPTIONAL
+}
+
+ConfirmedServiceError ::= CHOICE
+{
+  -- tag 0 is reserved
+  initiateError        [1]  ServiceError,
+  getStatus            [2]  ServiceError, -- not applicable within DLMS context
+  getNameList          [3]  ServiceError, -- not applicable within DLMS context
+  getVariableAttribute [4]  ServiceError, -- not applicable within DLMS context
+  read                 [5]  ServiceError,
+  write                [6]  ServiceError,
+  getDataSetAttribute  [7]  ServiceError, -- not applicable within DLMS context
+  getTIAttribute       [8]  ServiceError, -- not applicable within DLMS context
+  changeScope          [9]  ServiceError, -- not applicable within DLMS context
+  start                [10] ServiceError, -- not applicable within DLMS context
+  stop                 [11] ServiceError, -- not applicable within DLMS context
+  resume               [12] ServiceError, -- not applicable within DLMS context
+  makeUsable           [13] ServiceError, -- not applicable within DLMS context
+  initiateLoad         [14] ServiceError, -- not applicable within DLMS context
+  loadSegment          [15] ServiceError, -- not applicable within DLMS context
+  terminateLoad        [16] ServiceError, -- not applicable within DLMS context
+  initiateUpLoad       [17] ServiceError, -- not applicable within DLMS context
+  upLoadSegment        [18] ServiceError, -- not applicable within DLMS context
+  terminateUpLoad      [19] ServiceError  -- not applicable within DLMS context
+}
+
+
+ServiceError ::= CHOICE
+{
+  application-reference [0] IMPLICIT ENUMERATED {
+  -- DLMS provider only
+    other                           (0),
+    time-elapsed                    (1), -- time out since request sent
+    application-unreachable         (2), -- peer AEi not reachable
+    application-reference-invalid   (3), -- addressing trouble
+    application-context-unsupported (4), -- application-context incompatibility
+    provider-communication-error    (5), -- error at the local or distant equipment
+    deciphering-error               (6)  -- error detected by the deciphering function
+  },
+  
+  hardware-resource     [1] IMPLICIT ENUMERATED {
+  -- VDE hardware troubles
+    other                          (0),
+    memory-unavailable             (1),
+    processor-resource-unavailable (2),
+    mass-storage-unavailable       (3),
+    other-resource-unavailable     (4)
+  },
+  
+  vde-state-error       [2] IMPLICIT ENUMERATED {
+  -- Error source description
+    other             (0),
+    no-dlms-context   (1),
+    loading-data-set  (2),
+    status-nochange   (3),
+    status-inoperable (4)
+  },
+  
+  service               [3] IMPLICIT ENUMERATED {
+  -- service handling troubles
+    other               (0),
+    pdu-size            (1), -- pdu too long
+                             -- (refer to companion specification)
+    service-unsupported (2)  -- as described in the conformance block
+  },
+  
+  definition            [4] IMPLICIT ENUMERATED {
+  -- object bound troubles in a service
+    other                         (0),
+    object-undefined              (1), -- object not defined at the VDE
+    object-class-inconsistent     (2), -- class of object incompatible with asked service
+    object-attribute-inconsistent (3) -- object attributes are inconsistent
+  },
+
+  access                [5] IMPLICIT ENUMERATED {
+  -- object access error
+    other                    (0),
+    scope-of-access-violated (1), -- access denied through authorization reason
+    object-access-invalid    (2), -- access incompatible with object attribute
+    hardware-fault           (3), -- access fail for hardware reason
+    object-unavailable       (4)  -- VDE hands object for unavailable
+  },
+  
+  initiate              [6] IMPLICIT ENUMERATED {
+  -- initiate service error
+    other                      (0),
+    dlms-version-too-low       (1), -- proposed DLMS version too low
+    incompatible-conformance   (2), -- proposed services not sufficient
+    pdu-size-too-short         (3), -- proposed pdu size too short
+    refused-by-the-VDE-Handler (4)  -- VAA creation impossible or not allowed
+  },
+  
+  load-data-set         [7] IMPLICIT ENUMERATED {
+  -- data set load services error
+    other                     (0),
+    primitive-out-of-sequence (1), -- according to the DataSet
+                                   -- loading state transitions
+    not-loadable              (2), -- loadable attribute set to FALSE
+    dataset-size-too-large    (3), -- evaluated Data Set size too large
+    not-awaited-segment       (4), -- proposed segment not awaited
+    interpretation-failure    (5), -- segment interpretation error
+    storage-failure           (6), -- segment storage error
+    data-set-not-ready        (7)  -- Data Set not in correct state for uploading
+  },
+
+  -- change-scope       [8] IMPLICIT reserved.
+  
+  task                  [9] IMPLICIT ENUMERATED {
+  -- TI services error
+    other             (0),
+    no-remote-control (1), -- Remote Control parameter set to FALSE
+    ti-stopped        (2), -- TI in stopped state
+    ti-running        (3), -- TI in running state
+    ti-unusable       (4) -- TI in unusable state
+  }
+  
+  -- other              [10] IMPLICIT ENUMERATED
+}
+
+Data ::= CHOICE
+{
+  null-data            [0]   IMPLICIT NULL ,
+  array                [1]   IMPLICIT SEQUENCE OF Data,
+  structure            [2]   IMPLICIT SEQUENCE OF Data,
+  bool                 [3]   IMPLICIT BOOLEAN ,
+  bit-string           [4]   IMPLICIT BIT STRING ,
+  double-long          [5]   IMPLICIT Integer32,
+  double-long-unsigned [6]   IMPLICIT Unsigned32,
+  octet-string         [9]   IMPLICIT OCTET STRING ,
+  visible-string       [10]  IMPLICIT VisibleString ,
+  utf8-string          [12]  IMPLICIT OCTET STRING ,
+  bcd                  [13]  IMPLICIT Integer8,
+  integer              [15]  IMPLICIT Integer8,
+  long-integer         [16]  IMPLICIT Integer16,
+  unsigned             [17]  IMPLICIT Unsigned8,
+  long-unsigned        [18]  IMPLICIT Unsigned16,
+  compact-array        [19]  IMPLICIT SEQUENCE
+  {
+    contents-description [0] TypeDescription,
+    array-contents       [1] IMPLICIT OCTET STRING
+  },
+  long64               [20]  IMPLICIT Integer64,
+  long64-unsigned      [21]  IMPLICIT Unsigned64,
+  enumerate            [22]  IMPLICIT Enum,
+  float32              [23]  IMPLICIT OCTET STRING (SIZE(4)),
+  float64              [24]  IMPLICIT OCTET STRING (SIZE(8)),
+  date-time            [25]  IMPLICIT OCTET STRING (SIZE(12)),
+  date                 [26]  IMPLICIT OCTET STRING (SIZE(5)),
+  time                 [27]  IMPLICIT OCTET STRING (SIZE(4)),
+  dont-care            [255] IMPLICIT NULL
+}
+
+TypeDescription ::= CHOICE
+{
+  null-data            [0]   IMPLICIT NULL ,
+  array                [1]   IMPLICIT SEQUENCE {
+    number-of-elements Unsigned16,
+    type-description   TypeDescription
+  },
+  structure            [2]   IMPLICIT SEQUENCE OF TypeDescription,
+  bool                 [3]   IMPLICIT NULL ,
+  bit-string           [4]   IMPLICIT NULL ,
+  double-long          [5]   IMPLICIT NULL ,
+  double-long-unsigned [6]   IMPLICIT NULL ,
+  octet-string         [9]   IMPLICIT NULL ,
+  visible-string       [10]  IMPLICIT NULL ,
+  utf8-string          [12]  IMPLICIT NULL ,
+  bcd                  [13]  IMPLICIT NULL ,
+  integer              [15]  IMPLICIT NULL ,
+  long-integer         [16]  IMPLICIT NULL ,
+  unsigned             [17]  IMPLICIT NULL ,
+  long-unsigned        [18]  IMPLICIT NULL ,
+  long64               [20]  IMPLICIT NULL ,
+  long64-unsigned      [21]  IMPLICIT NULL ,
+  enumerate            [22]  IMPLICIT NULL ,
+  float32              [23]  IMPLICIT NULL ,
+  float64              [24]  IMPLICIT NULL ,
+  date-time            [25]  IMPLICIT NULL ,
+  date                 [26]  IMPLICIT NULL ,
+  time                 [27]  IMPLICIT NULL ,
+  dont-care            [255] IMPLICIT NULL
+}
+
+Data-Block-Result ::= SEQUENCE -- Used in ReadResponse with block transfer
+{
+  last-block      BOOLEAN,
+  block-number    Unsigned16,
+  raw-data        OCTET STRING
+}
+
+DataBlock-G ::= SEQUENCE -- G == DataBlock for the GET.response service
+{
+  last-block   BOOLEAN,
+  block-number Unsigned32,
+  result       CHOICE {
+    raw-data           [0] IMPLICIT OCTET STRING,
+    data-access-result [1] IMPLICIT Data-Access-Result
+  }
+}
+
+DataBlock-SA ::= SEQUENCE -- SA == DataBlock for the SET.request and
+                          --       ACTION.request/.response services
+{
+  last-block   BOOLEAN,
+  block-number Unsigned32,
+  raw-data     OCTET STRING
+}
+
+Data-Access-Result ::= ENUMERATED
+{
+  success                   (0),
+  hardware-fault            (1),
+  temporary-failure         (2),
+  read-write-denied         (3),
+  object-undefined          (4),
+  object-class-inconsistent (9),
+  object-unavailable        (11),
+  type-unmatched            (12),
+  scope-of-access-violated  (13),
+  data-block-unavailable    (14),
+  long-get-aborted          (15),
+  no-long-get-in-progress   (16),
+  long-set-aborted          (17),
+  no-long-set-in-progress   (18),
+  data-block-number-invalid (19),
+  other-reason              (250)
+}
+
+Action-Result ::= ENUMERATED
+{
+  success                    (0),
+  hardware-fault             (1),
+  temporary-failure          (2),
+  read-write-denied          (3),
+  object-undefined           (4),
+  object-class-inconsistent  (9),
+  object-unavailable         (11),
+  type-unmatched             (12),
+  scope-of-access-violated   (13),
+  data-block-unavailable     (14),
+  long-action-aborted        (15),
+  no-long-action-in-progress (16),
+  other-reason               (250)
+}
+
+-------------------------------------------
+-- The xDLMS-Initiate.request/response PDUs
+InitiateRequest ::= SEQUENCE
+{
+  dedicated-key                OCTET STRING OPTIONAL,
+  -- shall not be encoded in DLMS without encryption
+  response-allowed             BOOLEAN DEFAULT TRUE,
+  proposed-quality-of-service  [0] IMPLICIT Integer8 OPTIONAL,
+  proposed-dlms-version-number Unsigned8,
+  proposed-conformance         Conformance,
+  client-max-receive-pdu-size  Unsigned16
+}
+
+InitiateResponse ::= SEQUENCE
+{
+  negotiated-quality-of-service  [0] IMPLICIT Integer8 OPTIONAL,
+  negotiated-dlms-version-number Unsigned8,
+  negotiated-conformance         Conformance,
+  server-max-receive-pdu-size    Unsigned16,
+  vaa-name                       ObjectName
+}
+
+-- The value of the vaa-name in case of LN referencing is a dummy value 0x0007. In case of SN
+-- referencing, its value is the base-name of the Association SN object, 0xFA00.
+
+-- In COSEM, the quality-of-service parameter is not used. The server shall accept any value and
+-- process the xDLMS-Initiate.request without considering the value of this parameter.
+
+-------------------------------------------
+-- The conformance block
+
+-- In order to enable optimized COSEM server implementations, a conformance block with extended
+-- functionality is added. The COSEM conformance block can be distinguished from the standard
+-- conformance block by its tag “APPLICATION 31”.
+*/
+
+Conformance ::= [APPLICATION 31] IMPLICIT BIT STRING --(SIZE(24))
+{
+-- the bit is set when the corresponding service or functionality is available
+  reserved0                     (0),
+  reserved1                     (1),
+  reserved2                     (2),
+  read                          (3),
+  write                         (4),
+  unconfirmed-write             (5),
+  reserved6                     (6),
+  reserved7                     (7),
+  attribute0-supported-with-SET (8),
+  priority-mgmt-supported       (9),
+  attribute0-supported-with-GET (10),
+  block-transfer-with-get       (11),
+  block-transfer-with-set       (12),
+  block-transfer-with-action    (13),
+  multiple-references           (14),
+  information-report            (15),
+  reserved16                    (16),
+  reserved17                    (17),
+  parameterized-access          (18),
+  get                           (19),
+  set                           (20),
+  selective-access              (21),
+  event-notification            (22),
+  action                        (23)
+}
+
+-- The parameterized access (as additional variant of the VariableAccessSpecification) provides the
+-- ReadRequest or the WriteRequest service with the capability to transport additional parameters.
+-- Parameterized access is introduced by adding the following access method (compare Annex A of
+-- IEC 61334-4-41, p. 221):
+/* Not used
+Variable-Access-Specification::= CHOICE
+{
+  variable-name                         [2] IMPLICIT ObjectName,
+-- detailed-access [3] is not used in DLMS/COSEM
+  parameterized-access                  [4] IMPLICIT Parameterized-Access,
+  block-number-access                   [5] IMPLICIT Block-Number-Access,
+  read-data-block-access                [6] IMPLICIT Read-Data-Block-Access,
+  write-data-block-access               [7] IMPLICIT Write-Data-Block-Access
+}
+
+Parameterized-Access::= SEQUENCE
+{
+  variable-name      ObjectName,
+  selector           Unsigned8,
+  parameter          Data
+}
+
+Block-Number-Access::= SEQUENCE
+{
+  block-number       Unsigned16
+}
+Read-Data-Block-Access::= SEQUENCE
+{
+  last-block             BOOLEAN,
+  block-number           Unsigned16,
+  raw-data               OCTET STRING
+}
+
+Write-Data-Block-Access::= SEQUENCE
+{
+  last-block                  BOOLEAN,
+  block-number                Unsigned16
+}
+
+-- The meaning of the selector and of the access parameter depends on the referenced variable. It is
+-- defined in the corresponding COSEM IC specification.
+
+-------------------------------------------
+-- COSEM APDUs using logical name referencing
+
+GET-Request ::= CHOICE
+{
+  get-request-normal    [1] IMPLICIT Get-Request-Normal,
+  get-request-next      [2] IMPLICIT Get-Request-Next,
+  get-request-with-list [3] IMPLICIT Get-Request-With-List
+}
+
+Get-Request-Normal ::= SEQUENCE
+{
+  invoke-id-and-priority     Invoke-Id-And-Priority,
+  cosem-attribute-descriptor Cosem-Attribute-Descriptor,
+  access-selection           Selective-Access-Descriptor OPTIONAL
+}
+
+Get-Request-Next ::= SEQUENCE
+{
+  invoke-id-and-priority Invoke-Id-And-Priority,
+  block-number           Unsigned32
+}
+
+Get-Request-With-List ::= SEQUENCE
+{
+  invoke-id-and-priority    Invoke-Id-And-Priority,
+  attribute-descriptor-list SEQUENCE OF Cosem-Attribute-Descriptor-With-Selection
+}
+
+GET-Response ::= CHOICE
+{
+  get-response-normal         [1] IMPLICIT Get-Response-Normal,
+  get-response-with-datablock [2] IMPLICIT Get-Response-With-Datablock,
+  get-response-with-list      [3] IMPLICIT Get-Response-With-List
+}
+
+Get-Response-Normal ::= SEQUENCE
+{
+  invoke-id-and-priority Invoke-Id-And-Priority,
+  result                 Get-Data-Result
+}
+
+Get-Response-With-Datablock ::= SEQUENCE
+{
+  invoke-id-and-priority Invoke-Id-And-Priority,
+  result                 DataBlock-G
+}
+
+Get-Response-With-List ::= SEQUENCE
+{
+  invoke-id-and-priority Invoke-Id-And-Priority,
+  result                 SEQUENCE OF Get-Data-Result
+}
+
+SET-Request ::= CHOICE
+{
+  set-request-normal                        [1] IMPLICIT Set-Request-Normal,
+  set-request-with-first-datablock          [2] IMPLICIT Set-Request-With-First-Datablock,
+  set-request-with-datablock                [3] IMPLICIT Set-Request-With-Datablock,
+  set-request-with-list                     [4] IMPLICIT Set-Request-With-List,
+  set-request-with-list-and-first-datablock [5] IMPLICIT Set-Request-With-List-And-First-Datablock
+}
+
+Set-Request-Normal ::= SEQUENCE
+{
+  invoke-id-and-priority     Invoke-Id-And-Priority,
+  cosem-attribute-descriptor Cosem-Attribute-Descriptor,
+  access-selection           Selective-Access-Descriptor OPTIONAL,
+  value                      Data
+}
+
+Set-Request-With-First-Datablock ::= SEQUENCE
+{
+  invoke-id-and-priority     Invoke-Id-And-Priority,
+  cosem-attribute-descriptor Cosem-Attribute-Descriptor,
+  access-selection           Selective-Access-Descriptor OPTIONAL,
+  datablock                  DataBlock-SA
+}
+
+Set-Request-With-Datablock ::= SEQUENCE
+{ 
+  invoke-id-and-priority Invoke-Id-And-Priority,
+  datablock              DataBlock-SA
+}
+ 
+Set-Request-With-List ::= SEQUENCE
+{ 
+  invoke-id-and-priority    Invoke-Id-And-Priority,
+  attribute-descriptor-list SEQUENCE OF Cosem-Attribute-Descriptor-With-Selection,
+  value-list                SEQUENCE OF Data
+}
+
+Set-Request-With-List-And-First-Datablock ::= SEQUENCE
+{
+  invoke-id-and-priority    Invoke-Id-And-Priority,
+  attribute-descriptor-list SEQUENCE OF Cosem-Attribute-Descriptor-With-Selection,
+  datablock                 DataBlock-SA
+}
+
+SET-Response ::= CHOICE
+{
+  set-response-normal                   [1] IMPLICIT Set-Response-Normal,
+  set-response-datablock                [2] IMPLICIT Set-Response-Datablock,
+  set-response-last-datablock           [3] IMPLICIT Set-Response-Last-Datablock,
+  set-response-last-datablock-with-list [4] IMPLICIT Set-Response-Last-Datablock-With-List,
+  set-response-with-list                [5] IMPLICIT Set-Response-With-List
+}
+
+Set-Response-Normal ::= SEQUENCE
+{ 
+  invoke-id-and-priority Invoke-Id-And-Priority,
+  result                 Data-Access-Result
+} 
+
+Set-Response-Datablock ::= SEQUENCE
+{ 
+  invoke-id-and-priority Invoke-Id-And-Priority,
+  block-number           Unsigned32
+}
+ 
+Set-Response-Last-Datablock ::= SEQUENCE
+{ 
+  invoke-id-and-priority Invoke-Id-And-Priority,
+  result                 Data-Access-Result,
+  block-number           Unsigned32
+} 
+
+Set-Response-Last-Datablock-With-List ::= SEQUENCE
+{
+  invoke-id-and-priority Invoke-Id-And-Priority,
+  result                 SEQUENCE OF Data-Access-Result,
+  block-number           Unsigned32
+}
+
+Set-Response-With-List ::= SEQUENCE
+{ 
+  invoke-id-and-priority Invoke-Id-And-Priority,
+  result                 SEQUENCE OF Data-Access-Result
+} 
+
+ACTION-Request ::= CHOICE
+{ 
+  action-request-normal                     [1] IMPLICIT Action-Request-Normal,
+  action-request-next-pblock                [2] IMPLICIT Action-Request-Next-Pblock,
+  action-request-with-list                  [3] IMPLICIT Action-Request-With-List,
+  action-request-with-first-pblock          [4] IMPLICIT Action-Request-With-First-Pblock,
+  action-request-with-list-and-first-pblock [5] IMPLICIT Action-Request-With-List-And-First-Pblock,
+  action-request-with-pblock                [6] IMPLICIT Action-Request-With-Pblock
+}
+
+Action-Request-Normal ::= SEQUENCE
+{
+  invoke-id-and-priority       Invoke-Id-And-Priority,
+  cosem-method-descriptor      Cosem-Method-Descriptor,
+  method-invocation-parameters Data OPTIONAL
+}
+
+Action-Request-Next-Pblock ::= SEQUENCE
+{
+  invoke-id-and-priority Invoke-Id-And-Priority,
+  block-number           Unsigned32
+}
+
+Action-Request-With-List ::= SEQUENCE
+{
+  invoke-id-and-priority       Invoke-Id-And-Priority,
+  cosem-method-descriptor-list SEQUENCE OF Cosem-Method-Descriptor,
+  method-invocation-parameters SEQUENCE OF Data -- null-data if method does not require parameters
+}
+
+Action-Request-With-First-Pblock ::= SEQUENCE
+{
+  invoke-id-and-priority  Invoke-Id-And-Priority,
+  cosem-method-descriptor Cosem-Method-Descriptor,
+  pblock                  DataBlock-SA
+}
+
+Action-Request-With-List-And-First-Pblock ::= SEQUENCE
+{
+  invoke-id-and-priority       Invoke-Id-And-Priority,
+  cosem-method-descriptor-list SEQUENCE OF Cosem-Method-Descriptor,
+  pblock                       DataBlock-SA
+}
+
+Action-Request-With-Pblock ::= SEQUENCE
+{ 
+  invoke-id-and-priority Invoke-Id-And-Priority,
+  pBlock                 DataBlock-SA
+} 
+
+ACTION-Response ::= CHOICE
+{ 
+  action-response-normal      [1] IMPLICIT Action-Response-Normal,
+  action-response-with-pblock [2] IMPLICIT Action-Response-With-Pblock,
+  action-response-with-list   [3] IMPLICIT Action-Response-With-List,
+  action-response-next-pblock [4] IMPLICIT Action-Response-Next-Pblock
+}
+
+Action-Response-Normal ::= SEQUENCE
+{
+  invoke-id-and-priority Invoke-Id-And-Priority,
+  single-response        Action-Response-With-Optional-Data
+}
+
+Action-Response-With-Pblock ::= SEQUENCE
+{ 
+  invoke-id-and-priority Invoke-Id-And-Priority,
+  pblock                 DataBlock-SA
+} 
+
+Action-Response-With-List ::= SEQUENCE
+{ 
+  invoke-id-and-priority Invoke-Id-And-Priority,
+  list-of-responses      SEQUENCE OF Action-Response-With-Optional-Data
+} 
+
+Action-Response-Next-Pblock ::= SEQUENCE
+{ 
+  invoke-id-and-priority Invoke-Id-And-Priority,
+  block-number           Unsigned32
+} 
+
+EVENT-NOTIFICATION-Request ::= SEQUENCE
+{ 
+  time                       Cosem-Date-Time OPTIONAL,
+  cosem-attribute-descriptor Cosem-Attribute-Descriptor,
+  attribute-value            Data
+}
+ 
+EXCEPTION-Response ::= SEQUENCE
+{
+  state-error   [0] IMPLICIT Enum,
+  --{
+  --  service-not-allowed [1],
+  --  service-unknown     [2]
+  --},
+  service-error [1] IMPLICIT Enum
+  --{
+  --  operation-not-possible [1]
+  --  service-not-supported  [2]
+  --  other-reason           [3]
+  --}
+}
+
+-------------------------------------------
+-- APDUs using short name refencing
+
+ReadRequest ::= SEQUENCE OF Variable-Access-Specification
+
+ReadResponse ::= SEQUENCE OF CHOICE
+{
+  data                 [0] Data,
+  data-access-error    [1] IMPLICIT Data-Access-Result,
+  data-block-result    [2] IMPLICIT Data-Block-Result,
+  block-number         [3] IMPLICIT Unsigned16
+}
+
+WriteRequest ::= SEQUENCE
+{
+  variable-access-specification SEQUENCE OF Variable-Access-Specification,
+  list-of-data                  SEQUENCE OF Data
+}
+
+WriteResponse ::= SEQUENCE OF CHOICE
+{
+  success           [0] IMPLICIT NULL,
+  data-access-error [1] IMPLICIT Data-Access-Result,
+  block-number		[2] Unsigned16
+}
+
+UnconfirmedWriteRequest ::= SEQUENCE
+{
+  variable-access-specification SEQUENCE OF Variable-Access-Specification,
+  list-of-data                  SEQUENCE OF Data
+}
+
+InformationReportRequest ::= SEQUENCE
+{
+  current-time                  GeneralizedTime OPTIONAL,
+  variable-access-specification SEQUENCE OF Variable-Access-Specification,
+  list-of-data                  SEQUENCE OF Data
+}
+*/
+END
+

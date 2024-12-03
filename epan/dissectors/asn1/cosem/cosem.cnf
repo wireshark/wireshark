@@ -1,0 +1,47 @@
+# cosem.cnf
+# COSEM conformation file
+
+#.IMPORT ../x509if/x509if-exp.cnf
+
+#.PDU
+AARQ-apdu
+AARE-apdu
+RLRQ-apdu
+RLRE-apdu
+Conformance
+
+#.OMIT_ASSIGNMENT
+AE-title
+AE-title-form1
+AE-title-form2
+
+#.EXPORTS
+
+#.REGISTER
+
+#.NO_EMIT
+
+#.TYPE_RENAME
+
+#.FIELD_RENAME
+
+#.FN_BODY Authentication-value-other/other-mechanism-value
+  if (actx->external.direct_ref_present) {
+    offset=call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, actx->subtree.top_tree, actx->private_data);
+  }
+
+#.FN_BODY  Association-information VAL_PTR = &parameter_tvb
+  tvbuff_t *parameter_tvb;
+
+%(DEFAULT_BODY)s
+
+  if (!parameter_tvb){
+    return offset;
+  }
+
+  col_set_fence(actx->pinfo->cinfo, COL_INFO);
+  dlms_dissect_apdu(parameter_tvb, actx->pinfo, tree, 0);
+
+#.END
+
+
