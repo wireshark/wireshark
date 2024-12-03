@@ -5782,7 +5782,7 @@ proto_register_diameter_3gpp(void)
         },
 
         { &hf_diameter_3gpp_ue_available_bit0,
-        { "UE-Available", "diameter.3gpp.ue_avaliable",
+        { "UE-Available", "diameter.3gpp.ue_available",
           FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x00000001,
           NULL, HFILL }
         },

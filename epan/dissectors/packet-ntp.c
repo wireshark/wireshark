@@ -1176,7 +1176,7 @@ ntp_decrypt_nts(tvbuff_t *parent_tvb, packet_info *pinfo, uint8_t *nonce, uint32
 
 #if GCRYPT_VERSION_NUMBER >= 0x010a00
 
-	/* gcry_cipher_setiv() blocks futher gcry_cipher_authenticate() calls with GCRY_CIPHER_MODE_SIV */
+	/* gcry_cipher_setiv() blocks further gcry_cipher_authenticate() calls with GCRY_CIPHER_MODE_SIV */
 	if(aead->mode != GCRY_CIPHER_MODE_SIV) {
 		err = gcry_cipher_setiv(gc_hd, nonce, nonce_len);
 		if (err) { ws_debug("Decryption (setiv) failed: %s", gcry_strerror(err)); gcry_cipher_close(gc_hd); return NULL; }
@@ -1420,7 +1420,7 @@ dissect_ntp_ext(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ntp_tree, int off
 		nts_tvb_uid_offset = offset;
 		nts_tvb_uid_length = value_length;
 
-		/* Every NTP NTS packet must have this extention, so use it to add INFO */
+		/* Every NTP NTS packet must have this extension, so use it to add INFO */
 		col_append_sep_fstr(pinfo->cinfo, COL_INFO, ",", " NTS");
 	}
 	if(type == 0x0204) /* NTS cookie extension */

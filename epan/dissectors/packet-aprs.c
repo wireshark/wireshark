@@ -126,7 +126,7 @@ static int hf_aprs_sym_code;
 static int hf_aprs_comment;
 static int hf_aprs_storm;
 
-/* aprs main catagories items */
+/* aprs main categories items */
 static int hf_ultimeter_2000;
 static int hf_aprs_status;
 static int hf_aprs_object;

@@ -208,7 +208,7 @@ static const value_string tabStatus[] = {
     {  54, "stat_nopolling" },
     {  55, "stat_badintpol" },
     {  56, "stat_answer" },
-    {  57, "stat_no_statment" },
+    {  57, "stat_no_statement" },
     {  58, "stat_net_no_ready" },
     {  59, "stat_key" },
 

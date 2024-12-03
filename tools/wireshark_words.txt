@@ -61,6 +61,7 @@ aes256
 aethra
 afnum
 afscall
+agctst
 aggreg
 aggregated
 aggregates
@@ -188,6 +189,7 @@ autodiscovery
 autoneg
 autosar
 available
+avantel
 avaya
 avrcp
 axcor
@@ -209,6 +211,7 @@ bayer
 bband
 bblog
 bcast
+bcmcs
 bcntime
 beamformed
 beamformee
@@ -222,6 +225,7 @@ berhad
 berkeley
 bgpsec
 bgpspec
+bharat
 bharti
 bibliographic
 bibliography
@@ -360,6 +364,7 @@ chdlc
 checkbox
 checkout
 checksum
+chennai
 chinese
 chipset
 chksum
@@ -779,6 +784,7 @@ ed137b
 editcap
 edonkey
 eeprom
+eesti
 effecter
 egprs
 egroup
@@ -955,6 +961,7 @@ format0
 forti
 fortigate
 fortinet
+foshan
 fpiur
 fprintf
 fraghdr
@@ -1065,6 +1072,7 @@ gzipped
 handoff
 hangul
 hangup
+hangzhou
 haptic
 harqid
 harris
@@ -1074,6 +1082,7 @@ hashed
 hashes
 hazelcast
 hbreq
+hbresp
 hcidump
 headend
 hebrew
@@ -1389,6 +1398,7 @@ list1
 literals
 lithionics
 llcgprs
+llogd
 lnpdqp
 localise
 locamation
@@ -1409,6 +1419,7 @@ lookups
 loopback
 loran
 lossy
+lowpan
 lquota
 lsarpc
 lscap
@@ -1535,6 +1546,7 @@ modulations
 modulo
 modulus
 modus
+moldudp
 monday
 monmap
 monterrey
@@ -1648,6 +1660,7 @@ newark
 newpw
 nexthop
 nextseq
+nforge
 nfs2err
 nfs3err
 nfs4err
@@ -1657,6 +1670,7 @@ ngran
 ngsniffer
 niagara
 niagra
+nicosia
 nigam
 nikon
 nintendo
@@ -1819,6 +1833,7 @@ oscore
 osdinfo
 osdmap
 osdstat
+osinl
 ositp
 osmocom
 osmux
@@ -1917,6 +1932,7 @@ plugin
 pluginize
 plugins
 pluginsdir
+plura
 pmconfig
 pmkid
 pname
@@ -1987,6 +2003,7 @@ profibus
 profidrive
 profienergy
 profinet
+profxchg
 programmatic
 promisc
 promiscsniff
@@ -2019,6 +2036,7 @@ publickey
 pucch
 pusch
 pwach
+pwcesopsn
 pwrprof
 pxeclient
 pytest
@@ -2210,6 +2228,7 @@ rescanning
 resegment
 resegmentation
 resegmented
+resel
 resend
 resequencing
 reservable
@@ -2262,6 +2281,7 @@ rfinfo
 rfmon
 rgoose
 richard
+rinfo
 ripemd
 rlcmac
 rmcap
@@ -2352,6 +2372,8 @@ sectorization
 sectorized
 secur
 seg1a
+seg2a
+seg3a
 seglen
 segmenting
 segno
@@ -2701,6 +2723,7 @@ toggles
 toggling
 tokenized
 tokyo
+tonedet
 toolbar
 toolongfragment
 toolset
@@ -3020,6 +3043,7 @@ vfinforecord
 vflags
 vhdset
 viavi
+vidpn
 viettel
 viprion
 virtex

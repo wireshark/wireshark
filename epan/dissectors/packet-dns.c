@@ -6044,7 +6044,7 @@ static tap_packet_status dns_qr_stats_tree_packet(stats_tree* st, packet_info* p
       // responses, ttl count will be 2 but summation of answers, authorities
       // and additionals could be more as each response could contain multiple
       // answers, authorities and additionals. if ttl count is changed to
-      // reflect summation, then it would standout withing its siblings like
+      // reflect summation, then it would standout within its siblings like
       // rcode, payload etc.
       //tick_stat_node(st, st_str_qr_rt_packets, st_node_qr_r_packets, true);
 
