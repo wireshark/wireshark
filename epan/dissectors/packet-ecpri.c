@@ -160,6 +160,11 @@ static int hf_one_way_delay_measurement_compensation_value;
 static int hf_one_way_delay_measurement_compensation_value_subns;
 static int hf_one_way_delay_measurement_dummy_bytes;
 
+static int hf_one_way_delay_measurement_calculated_delay;
+static int hf_one_way_delay_measurement_calculated_delay_request_frame;
+static int hf_one_way_delay_measurement_calculated_delay_response_frame;
+
+
 /* Fields for Message Type 6: Remote Reset */
 static int hf_remote_reset_reset_id;
 static int hf_remote_reset_reset_code;
@@ -417,6 +422,39 @@ static const true_false_string tfs_c_bit =
     "This eCPRI message is last one inside eCPRI PDU"
 };
 
+
+/**************************************************************************************************/
+/* Tracking/remembering One-Way Delay measurements                                                */
+/**************************************************************************************************/
+
+/* Table maintained on first pass from measurement-id (uint32_t) -> meas_state_t* */
+/* N.B. maintaining in a single table, assuming that the same ID will not be reused within */
+/* the same capture. If this is not valid, can move table into conversation object later. */
+static wmem_tree_t *meas_id_table;
+
+/* Table consulted on subsequent passes: frame_num -> meas_result_t */
+static wmem_tree_t *meas_results_table;
+
+typedef struct {
+    /* Inputs for delay calculation */
+    bool         t1_known;
+    uint64_t     t1;
+    int64_t      tcv1;
+    uint32_t     t1_frame_number;
+    bool         t2_known;
+    uint64_t     t2;
+    int64_t      tcv2;
+    uint32_t     t2_frame_number;
+} meas_state_t;
+
+typedef struct {
+    uint64_t delay_in_ns;
+    uint32_t request_frame;
+    uint32_t response_frame;
+} meas_result_t;
+
+
+/* Cached for calling ORAN FH CUS dissector for message types that it handles */
 static dissector_handle_t oran_fh_handle;
 
 /**************************************************************************************************/
@@ -758,7 +796,8 @@ static int dissect_ecpri(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
                     if (remaining_length >= ECPRI_MSG_TYPE_5_PAYLOAD_MIN_LENGTH)
                     {
                         /* Measurement ID (1 byte) */
-                        proto_tree_add_item(ecpri_tree, hf_one_way_delay_measurement_id, tvb, offset, 1, ENC_NA);
+                        unsigned int meas_id;
+                        proto_tree_add_item_ret_uint(ecpri_tree, hf_one_way_delay_measurement_id, tvb, offset, 1, ENC_NA, &meas_id);
                         offset += 1;
                         /* Action Type (1 byte) */
                         proto_tree_add_item_ret_uint(ecpri_tree, hf_one_way_delay_measurement_action_type, tvb, offset, 1, ENC_NA, &action_type);
@@ -809,9 +848,78 @@ static int dissect_ecpri(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
                         remaining_length -= ECPRI_MSG_TYPE_5_PAYLOAD_MIN_LENGTH;
                         if (remaining_length > 0)
                         {
-                            proto_tree_add_item(ecpri_tree, hf_one_way_delay_measurement_dummy_bytes, tvb, offset,
-                                                payload_size - ECPRI_MSG_TYPE_5_PAYLOAD_MIN_LENGTH, ENC_NA);
+                            proto_item *dummy_ti = proto_tree_add_item(ecpri_tree, hf_one_way_delay_measurement_dummy_bytes, tvb, offset,
+                                                                       payload_size - ECPRI_MSG_TYPE_5_PAYLOAD_MIN_LENGTH, ENC_NA);
                             offset += (payload_size - ECPRI_MSG_TYPE_5_PAYLOAD_MIN_LENGTH);
+                            /* Only useful to send dummy bytes for requests */
+                            if ((action_type != ECPRI_MSG_TYPE_5_REQ) &&
+                                (action_type != ECPRI_MSG_TYPE_5_REQ_FOLLOWUP)) {
+                                proto_item_append_text(dummy_ti, " (dummy bytes are only needed for action types 0-1");
+                            }
+                        }
+
+                        /* For involved message types, try to work out and show the delay */
+                        if ((action_type == ECPRI_MSG_TYPE_5_REQ) ||
+                            (action_type == ECPRI_MSG_TYPE_5_FOLLOWUP) ||
+                            (action_type == ECPRI_MSG_TYPE_5_RESPONSE)) {
+
+                            meas_state_t* meas = (meas_state_t*)wmem_tree_lookup32(meas_id_table, meas_id);
+                            if (!PINFO_FD_VISITED(pinfo)) {
+                                /* First pass, fill in details for this measurement ID */
+                                if (meas == NULL) {
+                                    /* Allocate new state, and add to table */
+                                    meas = wmem_new0(wmem_file_scope(), meas_state_t);
+                                    wmem_tree_insert32(meas_id_table, meas_id, meas);
+                                }
+
+                                /* Request - fill in t1 and tcv1 */
+                                if ((action_type == ECPRI_MSG_TYPE_5_REQ) ||
+                                    (action_type == ECPRI_MSG_TYPE_5_FOLLOWUP)) {
+                                    meas->t1_known = true;
+                                    meas->t1 = time_stamp_s*1000000000 + time_stamp_ns;
+                                    meas->tcv1 = comp_val;
+                                    meas->t1_frame_number = pinfo->num;
+                                }
+                                /* Response - fill in t2 and tcv2 */
+                                else {
+                                    meas->t2_known = true;
+                                    meas->t2 = time_stamp_s*1000000000 + time_stamp_ns;
+                                    meas->tcv2 = comp_val;
+                                    meas->t2_frame_number = pinfo->num;
+                                }
+
+                                /* Do calculation if possible */
+                                if (meas->t1_known && meas->t2_known) {
+                                    meas_result_t *result = wmem_new0(wmem_file_scope(), meas_result_t);
+                                    result->delay_in_ns = (meas->t2 - meas->tcv2) - (meas->t1 - meas->tcv1);
+                                    result->request_frame = meas->t1_frame_number;
+                                    result->response_frame = meas->t2_frame_number;
+                                    /* Insert result for this frame and the requesting frame.. */
+                                    wmem_tree_insert32(meas_results_table, meas->t2_frame_number, result);
+                                    wmem_tree_insert32(meas_results_table, meas->t1_frame_number, result);
+                                }
+                            }
+                            else {
+                                /* Subsequent passes, show any calculated delays */
+                                meas_result_t *result = wmem_tree_lookup32(meas_results_table, pinfo->num);
+                                if (result) {
+                                    proto_item *delay_ti = proto_tree_add_uint64(ecpri_tree, hf_one_way_delay_measurement_calculated_delay,
+                                                                                 tvb, 0, 0, result->delay_in_ns);
+                                    PROTO_ITEM_SET_GENERATED(delay_ti);
+
+                                    /* Link to other frame involved in the calculation */
+                                    proto_item *frame_ti;
+                                    if (action_type == ECPRI_MSG_TYPE_5_RESPONSE) {
+                                        frame_ti = proto_tree_add_uint(ecpri_tree, hf_one_way_delay_measurement_calculated_delay_request_frame,
+                                                                       tvb, 0, 0, result->request_frame);
+                                    }
+                                    else {
+                                        frame_ti = proto_tree_add_uint(ecpri_tree, hf_one_way_delay_measurement_calculated_delay_request_frame,
+                                                                       tvb, 0, 0, result->response_frame);
+                                    }
+                                    PROTO_ITEM_SET_GENERATED(frame_ti);
+                                }
+                            }
                         }
                     }
                     break;
@@ -1174,6 +1282,9 @@ void proto_register_ecpri(void)
         { &hf_one_way_delay_measurement_compensation_value, { "Compensation", "ecpri.owdm.compval", FT_INT64, BASE_DEC|BASE_UNIT_STRING, UNS(&units_nanosecond_nanoseconds), 0x0, NULL, HFILL } },
         { &hf_one_way_delay_measurement_compensation_value_subns, { "Compensation (subns)", "ecpri.owdm.compval-subns", FT_DOUBLE, BASE_NONE|BASE_UNIT_STRING, UNS(&units_nanosecond_nanoseconds), 0x0, NULL, HFILL } },
         { &hf_one_way_delay_measurement_dummy_bytes, { "Dummy bytes", "ecpri.owdm.owdmdata", FT_BYTES, SEP_COLON, NULL, 0x0, NULL, HFILL } },
+        { &hf_one_way_delay_measurement_calculated_delay, { "Calculated Delay", "ecpri.owdm.calculated-delay", FT_UINT64, BASE_DEC, NULL, 0x0, "Calculated delay in ns", HFILL } },
+        { &hf_one_way_delay_measurement_calculated_delay_request_frame, { "Request Frame", "ecpri.owdm.request-frame", FT_FRAMENUM, BASE_NONE, NULL, 0x0, "Request frame used in calculation", HFILL } },
+        { &hf_one_way_delay_measurement_calculated_delay_response_frame, { "Response Frame", "ecpri.owdm.response-frame", FT_FRAMENUM, BASE_NONE, NULL, 0x0, "Response frame used to answer this request", HFILL } },
     /* Message Type 6: Remote Reset */
         { &hf_remote_reset_reset_id, { "Reset ID", "ecpri.rr.resetid", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL } },
         { &hf_remote_reset_reset_code, { "Reset Code Op", "ecpri.rr.resetcode", FT_UINT8, BASE_HEX|BASE_RANGE_STRING, RVALS(remote_reset_reset_coding), 0x0, NULL, HFILL } },
@@ -1252,6 +1363,9 @@ void proto_register_ecpri(void)
             "Decode Message Types",
             "Decode the Message Types according to eCPRI Specification V2.0",
             &pref_message_type_decoding);
+
+    meas_id_table = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
+    meas_results_table = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
 }
 
 void proto_reg_handoff_ecpri(void)
