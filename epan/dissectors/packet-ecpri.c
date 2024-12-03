@@ -803,6 +803,10 @@ static int dissect_ecpri(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
                         proto_tree_add_item_ret_uint(ecpri_tree, hf_one_way_delay_measurement_action_type, tvb, offset, 1, ENC_NA, &action_type);
                         offset += 1;
 
+                        col_append_fstr(pinfo->cinfo, COL_INFO, "   (MeasId=%u, ActionType=%s)",
+                                        meas_id,
+                                        rval_to_str_const(action_type, one_way_delay_measurement_action_type_coding, "Unknown"));
+
                         /* Time Stamp for seconds and nano-seconds (6 bytes seconds, 4 bytes nanoseconds) */
                         timestamp_item = proto_tree_add_item(ecpri_tree, hf_one_way_delay_measurement_timestamp, tvb, offset, 10, ENC_NA);
                         timestamp_tree = proto_item_add_subtree(timestamp_item, ett_ecpri_timestamp);
@@ -912,9 +916,10 @@ static int dissect_ecpri(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
                                     if (action_type == ECPRI_MSG_TYPE_5_RESPONSE) {
                                         frame_ti = proto_tree_add_uint(ecpri_tree, hf_one_way_delay_measurement_calculated_delay_request_frame,
                                                                        tvb, 0, 0, result->request_frame);
+                                        col_append_fstr(pinfo->cinfo, COL_INFO, "   [Delay=%" PRIu64 "uns]", result->delay_in_ns);
                                     }
                                     else {
-                                        frame_ti = proto_tree_add_uint(ecpri_tree, hf_one_way_delay_measurement_calculated_delay_request_frame,
+                                        frame_ti = proto_tree_add_uint(ecpri_tree, hf_one_way_delay_measurement_calculated_delay_response_frame,
                                                                        tvb, 0, 0, result->response_frame);
                                     }
                                     PROTO_ITEM_SET_GENERATED(frame_ti);
