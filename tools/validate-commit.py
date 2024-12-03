@@ -24,7 +24,7 @@ import re
 
 
 parser = argparse.ArgumentParser()
-parser.add_argument('commit', nargs='?', default='HEAD',
+parser.add_argument('commits', nargs='+', default=['HEAD'],
                     help='Commit ID to be checked (default %(default)s)')
 parser.add_argument('--commitmsg', help='commit-msg check', action='store')
 
@@ -219,54 +219,57 @@ is checked so that maintainers can rebase your change and make minor edits.\
 
 def main():
     args = parser.parse_args()
-    commit = args.commit
-
-    # If called from commit-msg script, just validate that part and return.
-    if args.commitmsg:
-        try:
-            with open(args.commitmsg) as f:
-                return 0 if verify_body(f.read()) else 1
-        except Exception:
-            print("Couldn't verify body of message from file '", + args.commitmsg + "'")
-            return 1
-
-
-    if(os.getenv('CI_MERGE_REQUEST_EVENT_TYPE') == 'merge_train'):
-        print("If we were on the love train, people all over the world would be joining hands for this merge request.\nInstead, we're on a merge train so we're skipping commit validation checks. ")
-        return 0
-
-    cmd = ['git', 'show', '--no-patch',
-           '--format=%h%n%an%n%ae%n%B', commit, '--']
-    output = subprocess.check_output(cmd, universal_newlines=True)
-    # For some reason there is always an additional LF in the output, drop it.
-    if output.endswith('\n\n'):
-        output = output[:-1]
-    abbrev, author_name, author_email, body = output.split('\n', 3)
-    subject = body.split('\n', 1)[0]
-
-    # If called directly (from the tools directory), print the commit that was
-    # being validated. If called from a git hook (without .py extension), try to
-    # remain silent unless there are issues.
-    if __file__.endswith('.py'):
-        print('Checking commit: %s %s' % (abbrev, subject))
-
     exit_code = 0
-    if not verify_name(author_name):
-        print('Disallowed author name: {}'.format(author_name))
-        exit_code = 1
+    bad_git_author = False
 
-    if not verify_email(author_email):
-        print('Disallowed author email address: {}'.format(author_email))
-        exit_code = 1
+    for commit in args.commits:
+        # If called from commit-msg script, just validate that part and return.
+        if args.commitmsg:
+            try:
+                with open(args.commitmsg) as f:
+                    return 0 if verify_body(f.read()) else 1
+            except Exception:
+                print("Couldn't verify body of message from file '", + args.commitmsg + "'")
+                return 1
 
-    if exit_code:
+
+        if(os.getenv('CI_MERGE_REQUEST_EVENT_TYPE') == 'merge_train'):
+            print("If we were on the love train, people all over the world would be joining hands for this merge request.\nInstead, we're on a merge train so we're skipping commit validation checks. ")
+            return 0
+
+        cmd = ['git', 'show', '--no-patch',
+            '--format=%h%n%an%n%ae%n%B', commit, '--']
+        output = subprocess.check_output(cmd, universal_newlines=True)
+        # For some reason there is always an additional LF in the output, drop it.
+        if output.endswith('\n\n'):
+            output = output[:-1]
+        abbrev, author_name, author_email, body = output.split('\n', 3)
+        subject = body.split('\n', 1)[0]
+
+        # If called directly (from the tools directory), print the commit that was
+        # being validated. If called from a git hook (without .py extension), try to
+        # remain silent unless there are issues.
+        if __file__.endswith('.py'):
+            print('Checking commit: %s %s' % (abbrev, subject))
+
+        if not verify_name(author_name):
+            print('Disallowed author name: {}'.format(author_name))
+            exit_code = 1
+            bad_git_author = True
+
+        if not verify_email(author_email):
+            print('Disallowed author email address: {}'.format(author_email))
+            exit_code = 1
+            bad_git_author = True
+
+        if not verify_body(body):
+            exit_code = 1
+
+        if not verify_merge_request():
+            exit_code = 1
+
+    if bad_git_author:
         print_git_user_instructions()
-
-    if not verify_body(body):
-        exit_code = 1
-
-    if not verify_merge_request():
-        exit_code = 1
 
     return exit_code
 
