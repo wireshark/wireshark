@@ -338,8 +338,9 @@ c0-00-ff-ff-ff-ff    TR_broadcast
 00.2b.08.93.4b.a1    Freds_machine
 ----
 
-The settings from this file are read in when a MAC address is to be
-translated to a name, and never written by Wireshark.
+The settings from this file are read in at program start, and reloaded when
+opening a new capture file or changing the configuration profile, and never
+written by Wireshark.
 --
 
 hosts::
@@ -363,8 +364,9 @@ An example is:
 192.168.0.1 homeserver
 ----
 
-The settings from this file are read in at program start and never written by
-Wireshark.
+The settings from this file are read in at program start, and reloaded when
+opening a new capture file or changing the configuration profile, and never
+written by Wireshark.
 --
 
 ipxnets::
@@ -419,7 +421,9 @@ be used to supplement or replace the official data just as the personal
 file does. The compiled-in information can be written out in this format
 as a report with `tshark -G manuf`.
 
-The settings from this file are read in at program start and never written by Wireshark.
+The settings from this file are read in at program start, and reloaded when
+opening a new capture file or changing the configuration profile, and never
+written by Wireshark.
 --
 
 preferences::
@@ -499,7 +503,8 @@ folder it is still read, and can be used to supplement or replace the official
 data just as the personal file does. The compiled-in information can be
 written out in this format as a report with `tshark -G services`.
 
-The settings from these files are read in at program start and never
+The settings from this file are read in at program start, and reloaded when
+opening a new capture file or changing the configuration profile, and never
 written by Wireshark.
 --
 
@@ -518,8 +523,9 @@ An example is:
 2-1234 MyPointCode1
 ----
 
-The settings from this file are read in at program start and never written by
-Wireshark.
+The settings from this file are read in at program start, and reloaded when
+opening a new capture file opens or changing the configuration profile,
+and never written by Wireshark.
 --
 
 subnets::
@@ -552,7 +558,8 @@ For example, “192.168.0.1” under the subnet above would be printed as
 “ws_test_network.1”; if the mask length above had been 16 rather than 24, the
 printed address would be “ws_test_network.0.1”.
 
-The settings from these files are read in at program start and never
+The settings from this file are read in at program start, and reloaded when
+opening a new capture file or changing the configuration profile, and never
 written by Wireshark.
 
 The __subnets__ file also changes the behavior of the Endpoints and
@@ -577,8 +584,8 @@ An example is:
 2049    HR-Client-LAN
 ----
 
-The settings from this file are read in at program start or when changing
-the active profile and are never written by Wireshark.
+The settings from this file are read in when a VLAN ID is to be translated
+to a name, and never written by Wireshark.
 --
 
 wka::
@@ -592,7 +599,9 @@ prefixes into names. The format is that of the _manuf_ file. This file is
 distributed with Wireshark, and contains data assembled from various non IEEE
 but respected sources.
 
-The settings from this file are read in at program start and never written by Wireshark.
+The settings from this file are read in at program start, and reloaded when
+opening a new capture file or changing the configuration profile, and never
+written by Wireshark.
 --
 
 [#ChPluginFolders]

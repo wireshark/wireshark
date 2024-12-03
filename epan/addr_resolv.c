@@ -251,7 +251,7 @@ static bool new_resolved_objects;
 
 static GPtrArray* extra_hosts_files;
 
-static hashether_t *add_eth_name(const uint8_t *addr, const char *name);
+static hashether_t *add_eth_name(const uint8_t *addr, const char *name, bool static_entry);
 static void add_serv_port_cb(const uint32_t port, void *ptr);
 
 /* http://eternallyconfuzzled.com/tuts/algorithms/jsw_tut_hashing.aspx#existing
@@ -1758,32 +1758,6 @@ get_ethent(unsigned int *mask, const bool accept_mask)
 
 } /* get_ethent */
 
-static ether_t *
-get_ethbyaddr(const uint8_t *addr)
-{
-
-    ether_t *eth;
-
-    set_ethent(g_pethers_path);
-
-    while (((eth = get_ethent(NULL, false)) != NULL) && memcmp(addr, eth->addr, 6) != 0)
-        ;
-
-    if (eth == NULL) {
-        end_ethent();
-
-        set_ethent(g_ethers_path);
-
-        while (((eth = get_ethent(NULL, false)) != NULL) && memcmp(addr, eth->addr, 6) != 0)
-            ;
-
-        end_ethent();
-    }
-
-    return eth;
-
-} /* get_ethbyaddr */
-
 static hashmanuf_t *
 manuf_hash_new_entry(const uint8_t *addr, const char* name, const char* longname)
 {
@@ -1851,8 +1825,7 @@ add_manuf_name(const uint8_t *addr, unsigned int mask, char *name, char *longnam
     case 48:
         {
         /* This is a well-known MAC address; add it to the Ethernet hash table */
-        hashether_t *entry = add_eth_name(addr, name);
-        entry->flags |= STATIC_HOSTNAME;
+        add_eth_name(addr, name, true);
         break;
         }
     default:
@@ -2029,9 +2002,7 @@ initialize_ethers(void)
         g_ethers_path = g_build_filename(get_systemfile_dir(), ENAME_ETHERS, NULL);
     }
 
-    /* Set g_pethers_path here, but don't actually do anything
-     * with it. It's used in get_ethbyaddr().
-     */
+    /* Compute the pathname of the personal ethers file. */
     if (g_pethers_path == NULL) {
         /* Check profile directory before personal configuration */
         g_pethers_path = get_persconffile_path(ENAME_ETHERS, true);
@@ -2081,6 +2052,29 @@ initialize_ethers(void)
         add_manuf_name(eth->addr, mask, eth->name, eth->longname);
     }
     end_ethent();
+
+    /* Look at the ethers files last. These are set as static names,
+     * so they override earlier entries, and the ones we read last
+     * take precedence. Order of precedence is personal ethers file,
+     * global ethers file, wka file, personal manuf file, global manuf
+     * file, and then non-static sources like ARP Eth -> IP hostname
+     * discovery (if enabled), NRB entries (if wiretap adds support for
+     * EUI-48 in NRBs), etc.
+     * XXX: What _is_ the proper order of precedence, and should it
+     * be configurable? (cf. #18075) */
+    set_ethent(g_ethers_path);
+    while ((eth = get_ethent(&mask, false))) {
+        add_eth_name(eth->addr, eth->name, true);
+    }
+    end_ethent();
+
+    if (file_exists(g_pethers_path)) {
+        set_ethent(g_pethers_path);
+        while ((eth = get_ethent(&mask, false))) {
+            add_eth_name(eth->addr, eth->name, true);
+        }
+        end_ethent();
+    }
 
 } /* initialize_ethers */
 
@@ -2146,16 +2140,11 @@ eth_resolved_name_fill(hashether_t *tp, const char *name, unsigned mask, const u
 /* Resolve ethernet address */
 static hashether_t *
 eth_addr_resolve(hashether_t *tp) {
-    ether_t      *eth;
     hashmanuf_t *manuf_value;
     const uint8_t *addr = tp->addr;
     size_t addr_size = sizeof(tp->addr);
 
-    if ( (eth = get_ethbyaddr(addr)) != NULL) {
-        (void) g_strlcpy(tp->resolved_name, eth->name, MAXNAMELEN);
-        tp->flags |= NAME_RESOLVED | STATIC_HOSTNAME;
-        return tp;
-    } else if (!(tp->flags & NAME_RESOLVED)) {
+    if (!(tp->flags & NAME_RESOLVED)) {
         unsigned      mask;
         char         *name;
         address       ether_addr;
@@ -2290,7 +2279,7 @@ eth_hash_new_entry(const uint8_t *addr, const bool resolve)
 } /* eth_hash_new_entry */
 
 static hashether_t *
-add_eth_name(const uint8_t *addr, const char *name)
+add_eth_name(const uint8_t *addr, const char *name, bool static_entry)
 {
     hashether_t *tp;
 
@@ -2300,9 +2289,12 @@ add_eth_name(const uint8_t *addr, const char *name)
         tp = eth_hash_new_entry(addr, false);
     }
 
-    if (strcmp(tp->resolved_name, name) != 0) {
+    if (strcmp(tp->resolved_name, name) != 0 && (static_entry || !(tp->flags & STATIC_HOSTNAME))) {
         (void) g_strlcpy(tp->resolved_name, name, MAXNAMELEN);
         tp->flags |= NAME_RESOLVED;
+        if (static_entry) {
+            tp->flags |= STATIC_HOSTNAME;
+        }
         new_resolved_objects = true;
     }
 
@@ -2319,12 +2311,7 @@ eth_name_lookup(const uint8_t *addr, const bool resolve)
     if (tp == NULL) {
         tp = eth_hash_new_entry(addr, resolve);
     } else {
-        if (resolve && !(tp->flags & TRIED_RESOLVE_ADDRESS)) {
-            /* We don't test TRIED_OR_RESOLVED_MASK (but check
-             * RESOLVED_NAME in eth_addr_resolve) so that the ethers
-             * files take precendent over wka, NRBs, ARP discovery, etc.
-             * XXX: What _is_ the proper precedence, and should it
-             * be configurable? (cf. #18075) */
+        if (resolve && !(tp->flags & TRIED_OR_RESOLVED_MASK)) {
             eth_addr_resolve(tp); /* Found but needs to be resolved */
         }
     }
@@ -3773,7 +3760,7 @@ add_ether_byip(const unsigned ip, const uint8_t *eth)
          * Yes, so add an entry in the ethers hashtable resolving
          * the MAC address to that name.
          */
-        add_eth_name(eth, tp->name);
+        add_eth_name(eth, tp->name, false);
     }
 
 } /* add_ether_byip */
