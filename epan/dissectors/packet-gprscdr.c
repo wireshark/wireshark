@@ -637,6 +637,7 @@ static int ett_gprscdr_WLANOperatorId;
 
 static expert_field ei_gprscdr_not_dissected;
 static expert_field ei_gprscdr_choice_not_found;
+static expert_field ei_gprscdr_timestamp_wrong_format;
 
 /* Global variables */
 static const char *obj_id;
@@ -1963,45 +1964,58 @@ dissect_gprscdr_ThreeGPPPSDataOffStatus(bool implicit_tag _U_, tvbuff_t *tvb _U_
 
 static int
 dissect_gprscdr_TimeStamp(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-/*
- *
- * The contents of this field are a compact form of the UTCTime format
- * containing local time plus an offset to universal time. Binary coded
- * decimal encoding is employed for the digits to reduce the storage and
- * transmission overhead
- * e.g. YYMMDDhhmmssShhmm
- * where
- * YY   =       Year 00 to 99           BCD encoded
- * MM   =       Month 01 to 12          BCD encoded
- * DD   =       Day 01 to 31            BCD encoded
- * hh   =       hour 00 to 23           BCD encoded
- * mm   =       minute 00 to 59         BCD encoded
- * ss   =       second 00 to 59         BCD encoded
- * S    =       Sign 0 = "+", "-"       ASCII encoded
- * hh   =       hour 00 to 23           BCD encoded
- * mm   =       minute 00 to 59         BCD encoded
- */
+  uint32_t len;
+  nstime_t ts;
+  const char *date_str, *tz_str, *iso_str;
 
- tvbuff_t *parameter_tvb;
-
-  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                       &parameter_tvb);
-
-
-  if (!parameter_tvb)
+  /* TimeStamp should be length of nine octets. */
+  len = tvb_reported_length(tvb);
+  if (len != 9)
+  {
+    expert_add_info_format(actx->pinfo, tree, &ei_gprscdr_timestamp_wrong_format,
+                           "Expected nine octets; got %u octets", len);
+    offset += len;
     return offset;
+  }
 
-  proto_item_append_text(actx->created_item, " (UTC %x-%x-%x %x:%x:%x %s%x:%x)",
-                         tvb_get_uint8(parameter_tvb,0),                        /* Year */
-                         tvb_get_uint8(parameter_tvb,1),                        /* Month */
-                         tvb_get_uint8(parameter_tvb,2),                        /* Day */
-                         tvb_get_uint8(parameter_tvb,3),                        /* Hour */
-                         tvb_get_uint8(parameter_tvb,4),                        /* Minute */
-                         tvb_get_uint8(parameter_tvb,5),                        /* Second */
-                         tvb_get_string_enc(actx->pinfo->pool, parameter_tvb,6,1,ENC_ASCII|ENC_NA), /* Sign */
-                         tvb_get_uint8(parameter_tvb,7),                        /* Hour */
-                         tvb_get_uint8(parameter_tvb,8)                         /* Minute */
-                        );
+  /* The contents of this field are a compact form of the UTCTime format
+   * containing local time plus an offset to universal time. Binary coded
+   * decimal encoding is employed for the digits to reduce the storage and
+   * transmission overhead
+   * e.g. YYMMDDhhmmssShhmm
+   * where
+   * YY = Year 00 to 99		  BCD encoded
+   * MM = Month 01 to 12		BCD encoded
+   * DD = Day 01 to 31		  BCD encoded
+   * hh = hour 00 to 23		  BCD encoded
+   * mm = minute 00 to 59		BCD encoded
+   * ss = second 00 to 59		BCD encoded
+   * S = Sign 0 = "+", "-"	ASCII encoded
+   * hh = hour 00 to 23		  BCD encoded
+   * mm = minute 00 to 59		BCD encoded
+   */
+  date_str = tvb_bcd_dig_to_str_be(actx->pinfo->pool, tvb, 0, 6, NULL, false);
+  tz_str = tvb_bcd_dig_to_str_be(actx->pinfo->pool, tvb, 7, 2, NULL, false);
+
+  /* Format result as iso8601 format: YYYYMMDDhhmmss+hhmm.
+   * Field contains only last two digits of year and assume start from 2000 year.
+   */
+  iso_str = wmem_strdup_printf(actx->pinfo->pool, "20%s%s%s",
+                               date_str,  /* YYMMDDhhmmss  */
+                               tvb_get_string_enc(actx->pinfo->pool, tvb, 6, 1, ENC_ASCII | ENC_NA), /* TZ sign */
+                               tz_str);  /* TZ hhmm */
+
+  if (!iso8601_to_nstime(&ts, iso_str, ISO8601_DATETIME_BASIC))
+  {
+    expert_add_info_format(actx->pinfo, tree, &ei_gprscdr_timestamp_wrong_format,
+                           "TimeStamp invalid format: %s", iso_str);
+
+    offset += len;
+    return offset;
+  }
+
+  proto_tree_add_time(tree, hf_index, tvb, offset, len, &ts);
+  offset += len;
 
 
   return offset;
@@ -5432,7 +5446,7 @@ proto_register_gprscdr(void)
         NULL, HFILL }},
     { &hf_gprscdr_recordOpeningTime,
       { "recordOpeningTime", "gprscdr.recordOpeningTime",
-        FT_BYTES, BASE_NONE, NULL, 0,
+        FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0,
         "TimeStamp", HFILL }},
     { &hf_gprscdr_duration,
       { "duration", "gprscdr.duration",
@@ -5608,7 +5622,7 @@ proto_register_gprscdr(void)
         NULL, HFILL }},
     { &hf_gprscdr_eventTimeStamp,
       { "eventTimeStamp", "gprscdr.eventTimeStamp",
-        FT_BYTES, BASE_NONE, NULL, 0,
+        FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0,
         "TimeStamp", HFILL }},
     { &hf_gprscdr_smsResult,
       { "smsResult", "gprscdr.smsResult",
@@ -5644,7 +5658,7 @@ proto_register_gprscdr(void)
         "ChangeConditionV651", HFILL }},
     { &hf_gprscdr_changeTime,
       { "changeTime", "gprscdr.changeTime",
-        FT_BYTES, BASE_NONE, NULL, 0,
+        FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0,
         "TimeStamp", HFILL }},
     { &hf_gprscdr_failureHandlingContinue,
       { "failureHandlingContinue", "gprscdr.failureHandlingContinue",
@@ -5668,11 +5682,11 @@ proto_register_gprscdr(void)
         NULL, HFILL }},
     { &hf_gprscdr_timeOfFirstUsage,
       { "timeOfFirstUsage", "gprscdr.timeOfFirstUsage",
-        FT_BYTES, BASE_NONE, NULL, 0,
+        FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0,
         "TimeStamp", HFILL }},
     { &hf_gprscdr_timeOfLastUsage,
       { "timeOfLastUsage", "gprscdr.timeOfLastUsage",
-        FT_BYTES, BASE_NONE, NULL, 0,
+        FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0,
         "TimeStamp", HFILL }},
     { &hf_gprscdr_timeUsage,
       { "timeUsage", "gprscdr.timeUsage",
@@ -5704,7 +5718,7 @@ proto_register_gprscdr(void)
         "DataVolumeGPRS", HFILL }},
     { &hf_gprscdr_timeOfReport,
       { "timeOfReport", "gprscdr.timeOfReport",
-        FT_BYTES, BASE_NONE, NULL, 0,
+        FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0,
         "TimeStamp", HFILL }},
     { &hf_gprscdr_serviceIdentifier,
       { "serviceIdentifier", "gprscdr.serviceIdentifier",
@@ -5860,11 +5874,11 @@ proto_register_gprscdr(void)
         "PLMN_Id", HFILL }},
     { &hf_gprscdr_startTime,
       { "startTime", "gprscdr.startTime",
-        FT_BYTES, BASE_NONE, NULL, 0,
+        FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0,
         "TimeStamp", HFILL }},
     { &hf_gprscdr_stopTime,
       { "stopTime", "gprscdr.stopTime",
-        FT_BYTES, BASE_NONE, NULL, 0,
+        FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0,
         "TimeStamp", HFILL }},
     { &hf_gprscdr_pDNConnectionChargingID,
       { "pDNConnectionChargingID", "gprscdr.pDNConnectionChargingID",
@@ -5912,7 +5926,7 @@ proto_register_gprscdr(void)
         NULL, HFILL }},
     { &hf_gprscdr_userLocationInfoTime,
       { "userLocationInfoTime", "gprscdr.userLocationInfoTime",
-        FT_BYTES, BASE_NONE, NULL, 0,
+        FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0,
         "TimeStamp", HFILL }},
     { &hf_gprscdr_cNOperatorSelectionEnt,
       { "cNOperatorSelectionEnt", "gprscdr.cNOperatorSelectionEnt",
@@ -6516,7 +6530,7 @@ proto_register_gprscdr(void)
         "SEQUENCE_OF_TimeStamp", HFILL }},
     { &hf_gprscdr_eventTimeStamps_item,
       { "TimeStamp", "gprscdr.TimeStamp",
-        FT_BYTES, BASE_NONE, NULL, 0,
+        FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0,
         NULL, HFILL }},
     { &hf_gprscdr_sSID,
       { "sSID", "gprscdr.sSID",
@@ -6544,7 +6558,7 @@ proto_register_gprscdr(void)
         "INTEGER", HFILL }},
     { &hf_gprscdr_counterTimestamp,
       { "counterTimestamp", "gprscdr.counterTimestamp",
-        FT_BYTES, BASE_NONE, NULL, 0,
+        FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0,
         "TimeStamp", HFILL }},
     { &hf_gprscdr_presenceReportingAreaIdentifier,
       { "presenceReportingAreaIdentifier", "gprscdr.presenceReportingAreaIdentifier",
@@ -6576,11 +6590,11 @@ proto_register_gprscdr(void)
         "DataVolumeGPRS", HFILL }},
     { &hf_gprscdr_rANStartTime,
       { "rANStartTime", "gprscdr.rANStartTime",
-        FT_BYTES, BASE_NONE, NULL, 0,
+        FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0,
         "TimeStamp", HFILL }},
     { &hf_gprscdr_rANEndTime,
       { "rANEndTime", "gprscdr.rANEndTime",
-        FT_BYTES, BASE_NONE, NULL, 0,
+        FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0,
         "TimeStamp", HFILL }},
     { &hf_gprscdr_secondaryRATType,
       { "secondaryRATType", "gprscdr.secondaryRATType",
@@ -7154,6 +7168,7 @@ proto_register_gprscdr(void)
   static ei_register_info ei[] = {
     { &ei_gprscdr_not_dissected, { "gprscdr.not_dissected", PI_UNDECODED, PI_WARN, "Not dissected", EXPFILL }},
     { &ei_gprscdr_choice_not_found, { "gprscdr.error.choice_not_found", PI_MALFORMED, PI_WARN, "GPRS CDR Error: This choice field(Record type) was not found", EXPFILL }},
+    { &ei_gprscdr_timestamp_wrong_format, { "gprscdr.timestamp.wrong_format", PI_MALFORMED, PI_ERROR, "Bad TimeStamp format", EXPFILL }},
   };
 
   expert_module_t* expert_gprscdr;
