@@ -130,10 +130,16 @@
     XXX( WERR_DIRECT_ACCESS_HANDLE                         , 130       ) /* 0x00000082 */ \
     XXX( WERR_NEGATIVE_SEEK                                , 131       ) /* 0x00000083 */ \
     XXX( WERR_SEEK_ON_DEVICE                               , 132       ) /* 0x00000084 */ \
+    XXX( WERR_IS_JOIN_TARGET                               , 133       ) /* 0x00000085 */ \
+    XXX( WERR_IS_JOINED                                    , 134       ) /* 0x00000086 */ \
+    XXX( WERR_IS_SUBSTED                                   , 135       ) /* 0x00000087 */ \
+    XXX( WERR_NOT_JOINED                                   , 136       ) /* 0x00000088 */ \
     XXX( WERR_NOT_SUBSTED                                  , 137       ) /* 0x00000089 */ \
     XXX( WERR_JOIN_TO_JOIN                                 , 138       ) /* 0x0000008a */ \
     XXX( WERR_SUBST_TO_SUBST                               , 139       ) /* 0x0000008b */ \
     XXX( WERR_JOIN_TO_SUBST                                , 140       ) /* 0x0000008c */ \
+    XXX( WERR_SUBST_TO_JOIN                                , 141       ) /* 0x0000008d */ \
+    XXX( WERR_BUSY_DRIVE                                   , 142       ) /* 0x0000008e */ \
     XXX( WERR_SAME_DRIVE                                   , 143       ) /* 0x0000008f */ \
     XXX( WERR_DIR_NOT_ROOT                                 , 144       ) /* 0x00000090 */ \
     XXX( WERR_DIR_NOT_EMPTY                                , 145       ) /* 0x00000091 */ \
@@ -695,6 +701,7 @@
     XXX( WERR_DELAY_LOAD_FAILED                            , 1285      ) /* 0x00000505 */ \
     XXX( WERR_VDM_DISALLOWED                               , 1286      ) /* 0x00000506 */ \
     XXX( WERR_UNIDENTIFIED_ERROR                           , 1287      ) /* 0x00000507 */ \
+    XXX( WERR_INVALID_CRUNTIME_PARAMETER                   , 1288      ) /* 0x00000508 */ \
     XXX( WERR_BEYOND_VDL                                   , 1289      ) /* 0x00000509 */ \
     XXX( WERR_INCOMPATIBLE_SERVICE_SID_TYPE                , 1290      ) /* 0x0000050a */ \
     XXX( WERR_DRIVER_PROCESS_TERMINATED                    , 1291      ) /* 0x0000050b */ \
@@ -1447,6 +1454,8 @@
     XXX( WERR_CORE_DRIVER_PACKAGE_NOT_FOUND                , 3016      ) /* 0x00000bc8 */ \
     XXX( WERR_FAIL_REBOOT_REQUIRED                         , 3017      ) /* 0x00000bc9 */ \
     XXX( WERR_FAIL_REBOOT_INITIATED                        , 3018      ) /* 0x00000bca */ \
+    XXX( WERR_PRINTER_DRIVER_DOWNLOAD_NEEDED               , 3019      ) /* 0x00000bcb */ \
+    XXX( WERR_PRINTER_NOT_SHAREABLE                        , 3022      ) /* 0x00000bce */ \
     XXX( WERR_IO_REISSUE_AS_CACHED                         , 3950      ) /* 0x00000f6e */ \
     XXX( WERR_WINS_INTERNAL                                , 4000      ) /* 0x00000fa0 */ \
     XXX( WERR_CAN_NOT_DEL_LOCAL_WINS                       , 4001      ) /* 0x00000fa1 */ \
@@ -1455,6 +1464,22 @@
     XXX( WERR_FULL_BACKUP                                  , 4004      ) /* 0x00000fa4 */ \
     XXX( WERR_REC_NON_EXISTENT                             , 4005      ) /* 0x00000fa5 */ \
     XXX( WERR_RPL_NOT_ALLOWED                              , 4006      ) /* 0x00000fa6 */ \
+    XXX( WERR_PEERDIST_ERROR_CONTENTINFO_VERSION_UNSUPPORTED, 4050     ) /* 0x00000fd2 */ \
+    XXX( WERR_PEERDIST_ERROR_CANNOT_PARSE_CONTENTINFO      , 4051      ) /* 0x00000fd3 */ \
+    XXX( WERR_PEERDIST_ERROR_MISSING_DATA                  , 4052      ) /* 0x00000fd4 */ \
+    XXX( WERR_PEERDIST_ERROR_NO_MORE                       , 4053      ) /* 0x00000fd5 */ \
+    XXX( WERR_PEERDIST_ERROR_NOT_INITIALIZED               , 4054      ) /* 0x00000fd6 */ \
+    XXX( WERR_PEERDIST_ERROR_ALREADY_INITIALIZED           , 4055      ) /* 0x00000fd7 */ \
+    XXX( WERR_PEERDIST_ERROR_SHUTDOWN_IN_PROGRESS          , 4056      ) /* 0x00000fd8 */ \
+    XXX( WERR_PEERDIST_ERROR_INVALIDATED                   , 4057      ) /* 0x00000fd9 */ \
+    XXX( WERR_PEERDIST_ERROR_ALREADY_EXISTS                , 4058      ) /* 0x00000fda */ \
+    XXX( WERR_PEERDIST_ERROR_OPERATION_NOTFOUND            , 4059      ) /* 0x00000fdb */ \
+    XXX( WERR_PEERDIST_ERROR_ALREADY_COMPLETED             , 4060      ) /* 0x00000fdc */ \
+    XXX( WERR_PEERDIST_ERROR_OUT_OF_BOUNDS                 , 4061      ) /* 0x00000fdd */ \
+    XXX( WERR_PEERDIST_ERROR_VERSION_UNSUPPORTED           , 4062      ) /* 0x00000fde */ \
+    XXX( WERR_PEERDIST_ERROR_INVALID_CONFIGURATION         , 4063      ) /* 0x00000fdf */ \
+    XXX( WERR_PEERDIST_ERROR_NOT_LICENSED                  , 4064      ) /* 0x00000fe0 */ \
+    XXX( WERR_PEERDIST_ERROR_SERVICE_UNAVAILABLE           , 4065      ) /* 0x00000fe1 */ \
     XXX( WERR_DHCP_ADDRESS_CONFLICT                        , 4100      ) /* 0x00001004 */ \
     XXX( WERR_WMI_GUID_NOT_FOUND                           , 4200      ) /* 0x00001068 */ \
     XXX( WERR_WMI_INSTANCE_NOT_FOUND                       , 4201      ) /* 0x00001069 */ \
@@ -1672,6 +1697,7 @@
     XXX( WERR_CS_ENCRYPTION_NEW_ENCRYPTED_FILE             , 6020      ) /* 0x00001784 */ \
     XXX( WERR_CS_ENCRYPTION_FILE_NOT_CSE                   , 6021      ) /* 0x00001785 */ \
     XXX( WERR_NO_BROWSER_SERVERS_FOUND                     , 6118      ) /* 0x000017e6 */ \
+    XXX( WERR_SCHED_E_SERVICE_NOT_LOCALSYSTEM              , 6200      ) /* 0x00001838 */ \
     XXX( WERR_LOG_SECTOR_INVALID                           , 6600      ) /* 0x000019c8 */ \
     XXX( WERR_LOG_SECTOR_PARITY_INVALID                    , 6601      ) /* 0x000019c9 */ \
     XXX( WERR_LOG_SECTOR_REMAPPED                          , 6602      ) /* 0x000019ca */ \
@@ -2026,6 +2052,7 @@
     XXX( WERR_DS_CANT_RETRIEVE_INSTANCE                    , 8407      ) /* 0x000020d7 */ \
     XXX( WERR_DS_CODE_INCONSISTENCY                        , 8408      ) /* 0x000020d8 */ \
     XXX( WERR_DS_DATABASE_ERROR                            , 8409      ) /* 0x000020d9 */ \
+    XXX( WERR_DS_GOVERNSID_MISSING                         , 8410      ) /* 0x000020da */ \
     XXX( WERR_DS_MISSING_EXPECTED_ATT                      , 8411      ) /* 0x000020db */ \
     XXX( WERR_DS_NCNAME_MISSING_CR_REF                     , 8412      ) /* 0x000020dc */ \
     XXX( WERR_DS_SECURITY_CHECKING_ERROR                   , 8413      ) /* 0x000020dd */ \
@@ -2126,6 +2153,8 @@
     XXX( WERR_DS_NONSAFE_SCHEMA_CHANGE                     , 8508      ) /* 0x0000213c */ \
     XXX( WERR_DS_SCHEMA_UPDATE_DISALLOWED                  , 8509      ) /* 0x0000213d */ \
     XXX( WERR_DS_CANT_CREATE_UNDER_SCHEMA                  , 8510      ) /* 0x0000213e */ \
+    XXX( WERR_DS_INSTALL_NO_SRC_SCH_VERSION                , 8511      ) /* 0x0000213f */ \
+    XXX( WERR_DS_INSTALL_NO_SCH_VERSION_IN_INIFILE         , 8512      ) /* 0x00002140 */ \
     XXX( WERR_DS_INVALID_GROUP_TYPE                        , 8513      ) /* 0x00002141 */ \
     XXX( WERR_DS_NO_NEST_GLOBALGROUP_IN_MIXEDDOMAIN        , 8514      ) /* 0x00002142 */ \
     XXX( WERR_DS_NO_NEST_LOCALGROUP_IN_MIXEDDOMAIN         , 8515      ) /* 0x00002143 */ \
@@ -2169,6 +2198,7 @@
     XXX( WERR_DS_CANT_CREATE_IN_NONDOMAIN_NC               , 8553      ) /* 0x00002169 */ \
     XXX( WERR_DS_INVALID_NAME_FOR_SPN                      , 8554      ) /* 0x0000216a */ \
     XXX( WERR_DS_FILTER_USES_CONTRUCTED_ATTRS              , 8555      ) /* 0x0000216b */ \
+    XXX( WERR_DS_UNICODEPWD_NOT_IN_QUOTES                  , 8556      ) /* 0x0000216c */ \
     XXX( WERR_DS_MACHINE_ACCOUNT_QUOTA_EXCEEDED            , 8557      ) /* 0x0000216d */ \
     XXX( WERR_DS_MUST_BE_RUN_ON_DST_DC                     , 8558      ) /* 0x0000216e */ \
     XXX( WERR_DS_SRC_DC_MUST_BE_SP4_OR_GREATER             , 8559      ) /* 0x0000216f */ \
@@ -2201,6 +2231,7 @@
     XXX( WERR_DS_CR_IMPOSSIBLE_TO_VALIDATE_V2              , 8586      ) /* 0x0000218a */ \
     XXX( WERR_DS_THREAD_LIMIT_EXCEEDED                     , 8587      ) /* 0x0000218b */ \
     XXX( WERR_DS_NOT_CLOSEST                               , 8588      ) /* 0x0000218c */ \
+    XXX( WERR_DS_CANT_DERIVE_SPN_WITHOUT_SERVER_REF        , 8589      ) /* 0x0000218d */ \
     XXX( WERR_DS_SINGLE_USER_MODE_FAILED                   , 8590      ) /* 0x0000218e */ \
     XXX( WERR_DS_NTDSCRIPT_SYNTAX_ERROR                    , 8591      ) /* 0x0000218f */ \
     XXX( WERR_DS_NTDSCRIPT_PROCESS_ERROR                   , 8592      ) /* 0x00002190 */ \
@@ -2239,6 +2270,7 @@
     XXX( WERR_DS_AUDIT_FAILURE                             , 8625      ) /* 0x000021b1 */ \
     XXX( WERR_DS_INVALID_SEARCH_FLAG_SUBTREE               , 8626      ) /* 0x000021b2 */ \
     XXX( WERR_DS_INVALID_SEARCH_FLAG_TUPLE                 , 8627      ) /* 0x000021b3 */ \
+    XXX( WERR_DS_DRA_RECYCLED_TARGET                       , 8639      ) /* 0x000021bf */ \
     XXX( WERR_DS_HIGH_DSA_VERSION                          , 8642      ) /* 0x000021c2 */ \
     XXX( WERR_DS_SPN_VALUE_NOT_UNIQUE_IN_FOREST            , 8647      ) /* 0x000021c7 */ \
     XXX( WERR_DS_UPN_VALUE_NOT_UNIQUE_IN_FOREST            , 8648      ) /* 0x000021c8 */ \
@@ -2372,6 +2404,95 @@
     XXX( WERR_DNS_ERROR_DP_ALREADY_ENLISTED                , 9904      ) /* 0x000026b0 */ \
     XXX( WERR_DNS_ERROR_DP_NOT_AVAILABLE                   , 9905      ) /* 0x000026b1 */ \
     XXX( WERR_DNS_ERROR_DP_FSMO_ERROR                      , 9906      ) /* 0x000026b2 */ \
+    XXX( WERR_WSAEINTR                                     , 10004     ) /* 0x00002714 */ \
+    XXX( WERR_WSAEBADF                                     , 10009     ) /* 0x00002719 */ \
+    XXX( WERR_WSAEACCES                                    , 10013     ) /* 0x0000271d */ \
+    XXX( WERR_WSAEFAULT                                    , 10014     ) /* 0x0000271e */ \
+    XXX( WERR_WSAEINVAL                                    , 10022     ) /* 0x00002726 */ \
+    XXX( WERR_WSAEMFILE                                    , 10024     ) /* 0x00002728 */ \
+    XXX( WERR_WSAEWOULDBLOCK                               , 10035     ) /* 0x00002733 */ \
+    XXX( WERR_WSAEINPROGRESS                               , 10036     ) /* 0x00002734 */ \
+    XXX( WERR_WSAEALREADY                                  , 10037     ) /* 0x00002735 */ \
+    XXX( WERR_WSAENOTSOCK                                  , 10038     ) /* 0x00002736 */ \
+    XXX( WERR_WSAEDESTADDRREQ                              , 10039     ) /* 0x00002737 */ \
+    XXX( WERR_WSAEMSGSIZE                                  , 10040     ) /* 0x00002738 */ \
+    XXX( WERR_WSAEPROTOTYPE                                , 10041     ) /* 0x00002739 */ \
+    XXX( WERR_WSAENOPROTOOPT                               , 10042     ) /* 0x0000273a */ \
+    XXX( WERR_WSAEPROTONOSUPPORT                           , 10043     ) /* 0x0000273b */ \
+    XXX( WERR_WSAESOCKTNOSUPPORT                           , 10044     ) /* 0x0000273c */ \
+    XXX( WERR_WSAEOPNOTSUPP                                , 10045     ) /* 0x0000273d */ \
+    XXX( WERR_WSAEPFNOSUPPORT                              , 10046     ) /* 0x0000273e */ \
+    XXX( WERR_WSAEAFNOSUPPORT                              , 10047     ) /* 0x0000273f */ \
+    XXX( WERR_WSAEADDRINUSE                                , 10048     ) /* 0x00002740 */ \
+    XXX( WERR_WSAEADDRNOTAVAIL                             , 10049     ) /* 0x00002741 */ \
+    XXX( WERR_WSAENETDOWN                                  , 10050     ) /* 0x00002742 */ \
+    XXX( WERR_WSAENETUNREACH                               , 10051     ) /* 0x00002743 */ \
+    XXX( WERR_WSAENETRESET                                 , 10052     ) /* 0x00002744 */ \
+    XXX( WERR_WSAECONNABORTED                              , 10053     ) /* 0x00002745 */ \
+    XXX( WERR_WSAECONNRESET                                , 10054     ) /* 0x00002746 */ \
+    XXX( WERR_WSAENOBUFS                                   , 10055     ) /* 0x00002747 */ \
+    XXX( WERR_WSAEISCONN                                   , 10056     ) /* 0x00002748 */ \
+    XXX( WERR_WSAENOTCONN                                  , 10057     ) /* 0x00002749 */ \
+    XXX( WERR_WSAESHUTDOWN                                 , 10058     ) /* 0x0000274a */ \
+    XXX( WERR_WSAETOOMANYREFS                              , 10059     ) /* 0x0000274b */ \
+    XXX( WERR_WSAETIMEDOUT                                 , 10060     ) /* 0x0000274c */ \
+    XXX( WERR_WSAECONNREFUSED                              , 10061     ) /* 0x0000274d */ \
+    XXX( WERR_WSAELOOP                                     , 10062     ) /* 0x0000274e */ \
+    XXX( WERR_WSAENAMETOOLONG                              , 10063     ) /* 0x0000274f */ \
+    XXX( WERR_WSAEHOSTDOWN                                 , 10064     ) /* 0x00002750 */ \
+    XXX( WERR_WSAEHOSTUNREACH                              , 10065     ) /* 0x00002751 */ \
+    XXX( WERR_WSAENOTEMPTY                                 , 10066     ) /* 0x00002752 */ \
+    XXX( WERR_WSAEPROCLIM                                  , 10067     ) /* 0x00002753 */ \
+    XXX( WERR_WSAEUSERS                                    , 10068     ) /* 0x00002754 */ \
+    XXX( WERR_WSAEDQUOT                                    , 10069     ) /* 0x00002755 */ \
+    XXX( WERR_WSAESTALE                                    , 10070     ) /* 0x00002756 */ \
+    XXX( WERR_WSAEREMOTE                                   , 10071     ) /* 0x00002757 */ \
+    XXX( WERR_WSASYSNOTREADY                               , 10091     ) /* 0x0000276b */ \
+    XXX( WERR_WSAVERNOTSUPPORTED                           , 10092     ) /* 0x0000276c */ \
+    XXX( WERR_WSANOTINITIALISED                            , 10093     ) /* 0x0000276d */ \
+    XXX( WERR_WSAEDISCON                                   , 10101     ) /* 0x00002775 */ \
+    XXX( WERR_WSAENOMORE                                   , 10102     ) /* 0x00002776 */ \
+    XXX( WERR_WSAECANCELLED                                , 10103     ) /* 0x00002777 */ \
+    XXX( WERR_WSAEINVALIDPROCTABLE                         , 10104     ) /* 0x00002778 */ \
+    XXX( WERR_WSAEINVALIDPROVIDER                          , 10105     ) /* 0x00002779 */ \
+    XXX( WERR_WSAEPROVIDERFAILEDINIT                       , 10106     ) /* 0x0000277a */ \
+    XXX( WERR_WSASYSCALLFAILURE                            , 10107     ) /* 0x0000277b */ \
+    XXX( WERR_WSASERVICE_NOT_FOUND                         , 10108     ) /* 0x0000277c */ \
+    XXX( WERR_WSATYPE_NOT_FOUND                            , 10109     ) /* 0x0000277d */ \
+    XXX( WERR_WSA_E_NO_MORE                                , 10110     ) /* 0x0000277e */ \
+    XXX( WERR_WSA_E_CANCELLED                              , 10111     ) /* 0x0000277f */ \
+    XXX( WERR_WSAEREFUSED                                  , 10112     ) /* 0x00002780 */ \
+    XXX( WERR_WSAHOST_NOT_FOUND                            , 11001     ) /* 0x00002af9 */ \
+    XXX( WERR_WSATRY_AGAIN                                 , 11002     ) /* 0x00002afa */ \
+    XXX( WERR_WSANO_RECOVERY                               , 11003     ) /* 0x00002afb */ \
+    XXX( WERR_WSANO_DATA                                   , 11004     ) /* 0x00002afc */ \
+    XXX( WERR_WSA_QOS_RECEIVERS                            , 11005     ) /* 0x00002afd */ \
+    XXX( WERR_WSA_QOS_SENDERS                              , 11006     ) /* 0x00002afe */ \
+    XXX( WERR_WSA_QOS_NO_SENDERS                           , 11007     ) /* 0x00002aff */ \
+    XXX( WERR_WSA_QOS_NO_RECEIVERS                         , 11008     ) /* 0x00002b00 */ \
+    XXX( WERR_WSA_QOS_REQUEST_CONFIRMED                    , 11009     ) /* 0x00002b01 */ \
+    XXX( WERR_WSA_QOS_ADMISSION_FAILURE                    , 11010     ) /* 0x00002b02 */ \
+    XXX( WERR_WSA_QOS_POLICY_FAILURE                       , 11011     ) /* 0x00002b03 */ \
+    XXX( WERR_WSA_QOS_BAD_STYLE                            , 11012     ) /* 0x00002b04 */ \
+    XXX( WERR_WSA_QOS_BAD_OBJECT                           , 11013     ) /* 0x00002b05 */ \
+    XXX( WERR_WSA_QOS_TRAFFIC_CTRL_ERROR                   , 11014     ) /* 0x00002b06 */ \
+    XXX( WERR_WSA_QOS_GENERIC_ERROR                        , 11015     ) /* 0x00002b07 */ \
+    XXX( WERR_WSA_QOS_ESERVICETYPE                         , 11016     ) /* 0x00002b08 */ \
+    XXX( WERR_WSA_QOS_EFLOWSPEC                            , 11017     ) /* 0x00002b09 */ \
+    XXX( WERR_WSA_QOS_EPROVSPECBUF                         , 11018     ) /* 0x00002b0a */ \
+    XXX( WERR_WSA_QOS_EFILTERSTYLE                         , 11019     ) /* 0x00002b0b */ \
+    XXX( WERR_WSA_QOS_EFILTERTYPE                          , 11020     ) /* 0x00002b0c */ \
+    XXX( WERR_WSA_QOS_EFILTERCOUNT                         , 11021     ) /* 0x00002b0d */ \
+    XXX( WERR_WSA_QOS_EOBJLENGTH                           , 11022     ) /* 0x00002b0e */ \
+    XXX( WERR_WSA_QOS_EFLOWCOUNT                           , 11023     ) /* 0x00002b0f */ \
+    XXX( WERR_WSA_QOS_EUNKOWNPSOBJ                         , 11024     ) /* 0x00002b10 */ \
+    XXX( WERR_WSA_QOS_EPOLICYOBJ                           , 11025     ) /* 0x00002b11 */ \
+    XXX( WERR_WSA_QOS_EFLOWDESC                            , 11026     ) /* 0x00002b12 */ \
+    XXX( WERR_WSA_QOS_EPSFLOWSPEC                          , 11027     ) /* 0x00002b13 */ \
+    XXX( WERR_WSA_QOS_EPSFILTERSPEC                        , 11028     ) /* 0x00002b14 */ \
+    XXX( WERR_WSA_QOS_ESDMODEOBJ                           , 11029     ) /* 0x00002b15 */ \
+    XXX( WERR_WSA_QOS_ESHAPERATEOBJ                        , 11030     ) /* 0x00002b16 */ \
+    XXX( WERR_WSA_QOS_RESERVED_PETYPE                      , 11031     ) /* 0x00002b17 */ \
     XXX( WERR_IPSEC_QM_POLICY_EXISTS                       , 13000     ) /* 0x000032c8 */ \
     XXX( WERR_IPSEC_QM_POLICY_NOT_FOUND                    , 13001     ) /* 0x000032c9 */ \
     XXX( WERR_IPSEC_QM_POLICY_IN_USE                       , 13002     ) /* 0x000032ca */ \
@@ -2396,6 +2517,8 @@
     XXX( WERR_IPSEC_MM_POLICY_PENDING_ELETION              , 13021     ) /* 0x000032dd */ \
     XXX( WERR_IPSEC_MM_AUTH_PENDING_DELETION               , 13022     ) /* 0x000032de */ \
     XXX( WERR_IPSEC_QM_POLICY_PENDING_DELETION             , 13023     ) /* 0x000032df */ \
+    XXX( WERR_WARNING_IPSEC_MM_POLICY_PRUNED               , 13024     ) /* 0x000032e0 */ \
+    XXX( WERR_WARNING_IPSEC_QM_POLICY_PRUNED               , 13025     ) /* 0x000032e1 */ \
     XXX( WERR_IPSEC_IKE_NEG_STATUS_BEGIN                   , 13800     ) /* 0x000035e8 */ \
     XXX( WERR_IPSEC_IKE_AUTH_FAIL                          , 13801     ) /* 0x000035e9 */ \
     XXX( WERR_IPSEC_IKE_ATTRIB_FAIL                        , 13802     ) /* 0x000035ea */ \
