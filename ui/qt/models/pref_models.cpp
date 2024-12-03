@@ -667,12 +667,12 @@ bool AdvancedPrefsModel::filterAcceptItem(PrefsItem& item) const
         }
     }
 
-    // Do not match module title or description when having show_changed_only.
+    // Do not match module title, description or type name when having show_changed_only.
     if (!(filter_.isEmpty() || (show_changed_values_ && !item.getPref())) &&
-        (name.contains(filter_, Qt::CaseInsensitive) || tooltip.contains(filter_, Qt::CaseInsensitive)))
-        return true;
-
-    if (item.getPrefTypeName().contains(filter_, Qt::CaseSensitive)) {
+        (name.contains(filter_, Qt::CaseInsensitive) ||
+         tooltip.contains(filter_, Qt::CaseInsensitive) ||
+         item.getPrefTypeName().contains(filter_, Qt::CaseSensitive)))
+    {
         return true;
     }
 
