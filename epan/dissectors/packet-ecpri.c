@@ -15,7 +15,7 @@
  * eCPRI Transport Network V2.0 -- Specifications
  * https://www.cpri.info/downloads/eCPRI_v_2.0_2019_05_10c.pdf
  *
- * May carry ORAN FH-CUS (packet-oran.c) - Message Types, 0, 2, 5
+ * May carry ORAN FH-CUS (packet-oran.c) - Message Types, 0, 2
  * See https://specifications.o-ran.org/specifications, WG4, Fronthaul Interfaces Workgroup
  * ------------------------------------------------------------------------------------------------
  */
@@ -121,13 +121,14 @@ static int hf_common_header_c_bit;
 static int hf_common_header_ecpri_message_type;
 static int hf_common_header_ecpri_payload_size;
 
+/* Common to several message types */
+static int hf_pc_id;
+
 /* Fields for Message Type 0: IQ Data */
-static int hf_iq_data_pc_id;
 static int hf_iq_data_seq_id;
 static int hf_iq_data_iq_samples_of_user_data;
 
 /* Fields for Message Type 1: Bit Sequence */
-static int hf_bit_sequence_pc_id;
 static int hf_bit_sequence_seq_id;
 static int hf_bit_sequence_bit_sequence_of_user_data;
 
@@ -137,7 +138,6 @@ static int hf_real_time_control_data_seq_id;
 static int hf_real_time_control_data_rtc_data;
 
 /* Fields for Message Type 3: Generic Data Transfer */
-static int hf_generic_data_transfer_pc_id;
 static int hf_generic_data_transfer_seq_id;
 static int hf_generic_data_transfer_data_transferred;
 
@@ -182,7 +182,6 @@ static int hf_event_indication_fault_notification;
 static int hf_event_indication_additional_information;
 
 /* Fields for Message Type 8: IWF Start-Up */
-static int hf_iwf_start_up_pc_id;
 static int hf_iwf_start_up_hyperframe_number; /* #Z field */
 static int hf_iwf_start_up_subframe_number; /* #X field */
 static int hf_iwf_start_up_timestamp;
@@ -192,16 +191,15 @@ static int hf_iwf_start_up_line_rate;
 static int hf_iwf_start_up_data_transferred;
 
 /* Fields for Message Type 11: IWF Delay Control */
-static int hf_iwf_delay_control_pc_id;
 static int hf_iwf_delay_control_delay_control_id;
 static int hf_iwf_delay_control_action_type;
 static int hf_iwf_delay_control_delay_a;
 static int hf_iwf_delay_control_delay_b;
 
 /**************************************************************************************************/
-/* Preference to use the eCPRI Specification 1.2 encoding                                         */
+/* Preference to use the eCPRI Specification 2.0 encoding                                         */
 /**************************************************************************************************/
-static bool pref_message_type_decoding    = true;
+static bool pref_message_type_decoding = true;
 
 /**************************************************************************************************/
 /* eCPRI Handle                                                                                   */
@@ -634,7 +632,7 @@ static int dissect_ecpri(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
 
                     if (remaining_length >= ECPRI_MSG_TYPE_0_PAYLOAD_MIN_LENGTH)
                     {
-                        proto_tree_add_item(ecpri_tree, hf_iq_data_pc_id, tvb, offset, 2, ENC_BIG_ENDIAN);
+                        proto_tree_add_item(ecpri_tree, hf_pc_id, tvb, offset, 2, ENC_BIG_ENDIAN);
                         offset += 2;
                         proto_tree_add_item(ecpri_tree, hf_iq_data_seq_id, tvb, offset, 2, ENC_BIG_ENDIAN);
                         offset += 2;
@@ -660,7 +658,7 @@ static int dissect_ecpri(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
 
                     if (remaining_length >= ECPRI_MSG_TYPE_1_PAYLOAD_MIN_LENGTH)
                     {
-                        proto_tree_add_item(ecpri_tree, hf_bit_sequence_pc_id, tvb, offset, 2, ENC_BIG_ENDIAN);
+                        proto_tree_add_item(ecpri_tree, hf_pc_id, tvb, offset, 2, ENC_BIG_ENDIAN);
                         offset += 2;
                         proto_tree_add_item(ecpri_tree, hf_bit_sequence_seq_id, tvb, offset, 2, ENC_BIG_ENDIAN);
                         offset += 2;
@@ -715,7 +713,7 @@ static int dissect_ecpri(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
 
                     if (remaining_length >= ECPRI_MSG_TYPE_3_PAYLOAD_MIN_LENGTH)
                     {
-                        proto_tree_add_item(ecpri_tree, hf_generic_data_transfer_pc_id, tvb, offset, 4, ENC_BIG_ENDIAN);
+                        proto_tree_add_item(ecpri_tree, hf_pc_id, tvb, offset, 4, ENC_BIG_ENDIAN);
                         offset += 4;
                         proto_tree_add_item(ecpri_tree, hf_generic_data_transfer_seq_id, tvb, offset, 4, ENC_BIG_ENDIAN);
                         offset += 4;
@@ -1117,7 +1115,7 @@ static int dissect_ecpri(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
 
                     if (remaining_length >= ECPRI_MSG_TYPE_8_PAYLOAD_MIN_LENGTH)
                     {
-                        proto_tree_add_item(ecpri_tree, hf_iwf_start_up_pc_id, tvb, offset, 2, ENC_BIG_ENDIAN);
+                        proto_tree_add_item(ecpri_tree, hf_pc_id, tvb, offset, 2, ENC_BIG_ENDIAN);
                         offset += 2;
 
                         proto_tree_add_item(ecpri_tree, hf_iwf_start_up_hyperframe_number, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -1145,10 +1143,16 @@ static int dissect_ecpri(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
                     }
                     break;
                 case ECPRI_MESSAGE_TYPE_IWF_OPERATION: /* Message Type 9: 3.2.4.10. IWF Operation */
-                    proto_tree_add_expert(payload_tree, pinfo, &ei_ecpri_not_dis_yet, tvb, offset, -1);
+                    //proto_tree_add_item(ecpri_tree, hf_pc_id, tvb, offset, 2, ENC_BIG_ENDIAN);
+                    //offset += 2;
+                    /* TODO: */
+                    proto_tree_add_expert(payload_tree, pinfo, &ei_ecpri_not_dis_yet, tvb, offset, payload_size);
                     break;
                 case ECPRI_MESSAGE_TYPE_IWF_MAPPING: /* Message Type 10: 3.2.4.11. IWF Mapping */
-                    proto_tree_add_expert(payload_tree, pinfo, &ei_ecpri_not_dis_yet, tvb, offset, -1);
+                    //proto_tree_add_item(ecpri_tree, hf_pc_id, tvb, offset, 2, ENC_BIG_ENDIAN);
+                    //offset += 2;
+                    /* TODO: */
+                    proto_tree_add_expert(payload_tree, pinfo, &ei_ecpri_not_dis_yet, tvb, offset, payload_size);
                     break;
                 case ECPRI_MESSAGE_TYPE_IWF_DELAY_CONTROL: /* Message Type 11: 3.2.4.12. IWF Delay Control */
                     if (payload_size != ECPRI_MSG_TYPE_11_PAYLOAD_LENGTH)
@@ -1164,7 +1168,7 @@ static int dissect_ecpri(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
 
                     if (remaining_length >= ECPRI_MSG_TYPE_11_PAYLOAD_LENGTH)
                     {
-                        proto_tree_add_item(ecpri_tree, hf_iwf_delay_control_pc_id, tvb, offset, 2, ENC_BIG_ENDIAN);
+                        proto_tree_add_item(ecpri_tree, hf_pc_id, tvb, offset, 2, ENC_BIG_ENDIAN);
                         offset += 2;
 
                         proto_tree_add_item(ecpri_tree, hf_iwf_delay_control_delay_control_id, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -1254,12 +1258,12 @@ void proto_register_ecpri(void)
         { &hf_common_header_ecpri_payload_size, { "Payload Size", "ecpri.size", FT_UINT16, BASE_DEC, NULL, 0x0, "Size of eCPRI message payload in bytes", HFILL } },
     /* eCPRI Payload */
         { &hf_payload,   { "eCPRI Payload", "ecpri.payload", FT_BYTES, SEP_COLON, NULL, 0x0, NULL, HFILL } },
+    /* Common to several message types */
+        { &hf_pc_id, { "PC_ID", "ecpri.pcid", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL } },
     /* Message Type 0: IQ Data */
-        { &hf_iq_data_pc_id, { "PC_ID", "ecpri.pcid", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL } },
         { &hf_iq_data_seq_id, { "SEQ_ID", "ecpri.iqd.seqid", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL } },
         { &hf_iq_data_iq_samples_of_user_data, { "IQ Samples of User Data", "ecpri.iqd.iqdata", FT_BYTES, SEP_COLON, NULL, 0x0, NULL, HFILL } },
     /* Message Type 1: Bit Sequence */
-        { &hf_bit_sequence_pc_id, { "PC_ID", "ecpri.pcid", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL } },
         { &hf_bit_sequence_seq_id, { "SEQ_ID", "ecpri.bs.seqid", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL } },
         { &hf_bit_sequence_bit_sequence_of_user_data, { "Bit Sequence", "ecpri.bs.bitseq", FT_BYTES, SEP_COLON, NULL, 0x0, NULL, HFILL } },
     /* Message Type 2: Real-Time Control Data */
@@ -1267,7 +1271,6 @@ void proto_register_ecpri(void)
         { &hf_real_time_control_data_seq_id, { "SEQ_ID", "ecpri.rtcd.seqid", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL } },
         { &hf_real_time_control_data_rtc_data, { "Real-Time Control Data", "ecpri.rtcd.rtcdata", FT_BYTES, SEP_COLON, NULL, 0x0, NULL, HFILL } },
     /* Message Type 3: Generic Data Transfer */
-        { &hf_generic_data_transfer_pc_id, { "PC_ID", "ecpri.pcid", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL } },
         { &hf_generic_data_transfer_seq_id, { "SEQ_ID", "ecpri.gdt.seqid", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL } },
         { &hf_generic_data_transfer_data_transferred, { "Data transferred", "ecpri.gdt.gendata", FT_BYTES, SEP_COLON, NULL, 0x0, NULL, HFILL } },
     /* Message Type 4: Remote Memory Access */
@@ -1305,7 +1308,6 @@ void proto_register_ecpri(void)
         { &hf_event_indication_fault_notification, { "Fault/Notification", "ecpri.ei.faultnotif", FT_UINT16, BASE_HEX|BASE_RANGE_STRING, RVALS(event_indication_fault_notif_coding), 0x0FFF, NULL, HFILL } },
         { &hf_event_indication_additional_information, { "Additional Information", "ecpri.ei.addinfo", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL } },
     /* Message Type 8: IWF Start-Up */
-        { &hf_iwf_start_up_pc_id, { "PC_ID", "ecpri.pcid", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL } },
         { &hf_iwf_start_up_hyperframe_number, { "Hyperframe Number #Z", "ecpri.iwfsu.hfn", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
         { &hf_iwf_start_up_subframe_number, { "Subframe Number #Y", "ecpri.iwfsu.sfn", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
         { &hf_iwf_start_up_timestamp, { "Timestamp", "ecpri.iwfsu.timestamp", FT_UINT32, BASE_DEC|BASE_UNIT_STRING, UNS(&units_nanoseconds), 0x0, NULL, HFILL } },
@@ -1314,7 +1316,6 @@ void proto_register_ecpri(void)
         { &hf_iwf_start_up_line_rate, { "Line Rate", "ecpri.iwfsu.linerate", FT_UINT8, BASE_HEX|BASE_RANGE_STRING, RVALS(iwf_start_up_line_rate_coding), 0x1F, NULL, HFILL } },
         { &hf_iwf_start_up_data_transferred, { "Data transferred", "ecpri.iwfsu.vendorpayload", FT_BYTES, SEP_COLON, NULL, 0x0, NULL, HFILL } },
     /* Message Type 11: IWF Delay Control */
-        { &hf_iwf_delay_control_pc_id, { "PC_ID", "ecpri.pcid", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL } },
         { &hf_iwf_delay_control_delay_control_id, { "Delay Control ID", "ecpri.iwfdc.id", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL } },
         { &hf_iwf_delay_control_action_type, { "Action Type", "ecpri.iwfdc.actiontype", FT_UINT8, BASE_HEX|BASE_RANGE_STRING, RVALS(iwf_delay_control_action_type_coding), 0x0, NULL, HFILL } },
         { &hf_iwf_delay_control_delay_a, { "Delay A", "ecpri.iwfdc.delaya", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL } },
@@ -1336,7 +1337,7 @@ void proto_register_ecpri(void)
         { &ei_data_length,                   { "ecpri.data.length.invalid",        PI_PROTOCOL, PI_ERROR, "Invalid Data Length",        EXPFILL }},
         { &ei_comp_val,                      { "ecpri.comp.val.invalid",           PI_PROTOCOL, PI_ERROR, "Invalid Compensation Value", EXPFILL }},
         { &ei_time_stamp,                    { "ecpri.time.stamp.invalid",         PI_PROTOCOL, PI_ERROR, "Invalid Time Stamp",         EXPFILL }},
-        { &ei_compensation_value_nonzero,    { "ecpri.compensation-value.nonzero", PI_PROTOCOL, PI_WARN,  "Compensation Value should be zero",         EXPFILL }},
+        { &ei_compensation_value_nonzero,    { "ecpri.compensation-value.nonzero", PI_PROTOCOL, PI_WARN,  "Compensation Value should be zero",  EXPFILL }},
         { &ei_c_bit,                         { "ecpri.concat.bit.invalid",         PI_PROTOCOL, PI_ERROR, "Invalid Concatenation Bit",  EXPFILL }},
         { &ei_fault_notif,                   { "ecpri.fault.notif.invalid",        PI_PROTOCOL, PI_ERROR, "Invalid Fault/Notification", EXPFILL }},
         { &ei_number_faults,                 { "ecpri.num.faults.invalid",         PI_PROTOCOL, PI_ERROR, "Invalid Number of Faults",   EXPFILL }},
