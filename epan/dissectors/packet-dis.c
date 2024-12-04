@@ -16190,6 +16190,7 @@ typedef enum
 static const true_false_string tfs_camouflage_uniform_color = { "Camouflage", "Uniform color" };
 static const true_false_string tfs_mobility_kill = { "Mobility kill", "No mobility kill" };
 static const true_false_string tfs_fire_power_kill = { "Fire-power kill", "No fire-power kill" };
+static const true_false_string tfs_nvg_mode = { "Overt Lighting", "Covert Lighting (Night Vision Goggles)" };
 
 static const value_string appearance_frozen_status_vals[] =
 {
@@ -16255,6 +16256,19 @@ static const value_string appearance_hatch_vals[] =
     { 4, "Primary hatch is open" },
     { 5, "Primary hatch is open and person is visible" },
     { 6, "Unused" },
+    { 7, "Unused" },
+    { 0, NULL }
+};
+
+static const value_string appearance_canopy_door_vals[] =
+{
+    { 0, "Not applicable" },
+    { 1, "Single Canopy/Single Troop Door Closed" },
+    { 2, "Front and Rear Canopy/Left and Right Troop Door Closed" },
+    { 3, "Front Canopy/Left Troop Door Open" },
+    { 4, "Single Canopy/Single Troop Door Open" },
+    { 5, "Rear Canopy/Right Troop Door Open" },
+    { 6, "Front and Rear Canopy/Left and Right Troop Door Open" },
     { 7, "Unused" },
     { 0, NULL }
 };
@@ -16894,6 +16908,34 @@ static int hf_appearance_landform_spot_lights;
 static int hf_appearance_landform_interior_lights;
 static int hf_appearance_landform_surrender_state;
 static int hf_appearance_landform_masked_cloaked;
+static int hf_appearance_airform_paint_scheme;
+static int hf_appearance_airform_propulsion_killed; 
+static int hf_appearance_airform_nvg_mode;
+static int hf_appearance_airform_damage;
+static int hf_appearance_airform_is_smoke_emanating;
+static int hf_appearance_airform_is_engine_emitting_smoke;
+static int hf_appearance_airform_trailing_effects;
+static int hf_appearance_airform_canopy_troop_door; 
+static int hf_appearance_airform_landing_lights_on;
+static int hf_appearance_airform_navigation_lights_on;
+static int hf_appearance_airform_anti_collision_lights_on;
+static int hf_appearance_airform_is_flaming;
+static int hf_appearance_airform_afterburner_on; 
+static int hf_appearance_airform_lower_anti_collision_light_on;
+static int hf_appearance_airform_upper_anti_collision_light_on;
+static int hf_appearance_airform_anti_collision_light_day_night;
+static int hf_appearance_airform_is_blinking;
+static int hf_appearance_airform_is_frozen;
+static int hf_appearance_airform_power_plant_on;
+static int hf_appearance_airform_state;
+static int hf_appearance_airform_formation_lights_on;
+static int hf_appearance_airform_landing_gear_extended;
+static int hf_appearance_airform_cargo_doors_opened;
+static int hf_appearance_airform_navigation_position_brightness;
+static int hf_appearance_airform_spot_search_light_1_on;
+static int hf_appearance_airform_interior_lights_on;
+static int hf_appearance_airform_reverse_thrust_engaged;
+static int hf_appearance_airform_weight_on_wheels;
 static int hf_appearance_lifeform_paint_scheme;
 static int hf_appearance_lifeform_health;
 static int hf_appearance_lifeform_compliance;
@@ -18066,6 +18108,44 @@ static int dissect_DIS_PARSER_ENTITY_STATE_PDU(tvbuff_t *tvb, packet_info *pinfo
 
         proto_tree_add_bitmask(tree, tvb, offset, hf_entity_appearance, ett_entity_appearance, entity_appearance_domain_land_bitmask, ENC_BIG_ENDIAN);
     }
+    if ((entityKind == DIS_ENTITYKIND_PLATFORM) &&
+        (entityDomain == DIS_DOMAIN_AIR))
+    {
+        static int * const entity_appearance_domain_air_bitmask[] =
+        {
+            &hf_appearance_airform_paint_scheme, 
+            &hf_appearance_airform_propulsion_killed, 
+            &hf_appearance_airform_nvg_mode,
+            &hf_appearance_airform_damage,
+            &hf_appearance_airform_is_smoke_emanating,
+            &hf_appearance_airform_is_engine_emitting_smoke,
+            &hf_appearance_airform_trailing_effects,
+            &hf_appearance_airform_canopy_troop_door, 
+            &hf_appearance_airform_landing_lights_on,
+            &hf_appearance_airform_navigation_lights_on,
+            &hf_appearance_airform_anti_collision_lights_on,
+            &hf_appearance_airform_is_flaming,
+            &hf_appearance_airform_afterburner_on, 
+            &hf_appearance_airform_lower_anti_collision_light_on,
+            &hf_appearance_airform_upper_anti_collision_light_on,
+            &hf_appearance_airform_anti_collision_light_day_night,
+            &hf_appearance_airform_is_blinking,
+            &hf_appearance_airform_is_frozen,
+            &hf_appearance_airform_power_plant_on,
+            &hf_appearance_airform_state,
+            &hf_appearance_airform_formation_lights_on,
+            &hf_appearance_airform_landing_gear_extended,
+            &hf_appearance_airform_cargo_doors_opened,
+            &hf_appearance_airform_navigation_position_brightness,
+            &hf_appearance_airform_spot_search_light_1_on,
+            &hf_appearance_airform_interior_lights_on,
+            &hf_appearance_airform_reverse_thrust_engaged,
+            &hf_appearance_airform_weight_on_wheels,
+            NULL
+        };
+
+        proto_tree_add_bitmask(tree, tvb, offset, hf_entity_appearance, ett_entity_appearance, entity_appearance_domain_air_bitmask, ENC_BIG_ENDIAN);
+    }
     else if (entityKind == DIS_ENTITYKIND_LIFE_FORM)
     {
         static int * const entity_appearance_kind_life_form_bitmask[] =
@@ -18240,6 +18320,44 @@ static int dissect_DIS_PARSER_ENTITY_STATE_UPDATE_PDU(tvbuff_t *tvb, packet_info
         };
 
         proto_tree_add_bitmask(tree, tvb, offset, hf_entity_appearance, ett_entity_appearance, entity_appearance_domain_land_bitmask, ENC_BIG_ENDIAN);
+    }
+    if ((entityKind == DIS_ENTITYKIND_PLATFORM) &&
+        (entityDomain == DIS_DOMAIN_AIR))
+    {
+        static int * const entity_appearance_domain_air_bitmask[] =
+        {
+            &hf_appearance_airform_paint_scheme,
+            &hf_appearance_airform_propulsion_killed, 
+            &hf_appearance_airform_nvg_mode,
+            &hf_appearance_airform_damage,
+            &hf_appearance_airform_is_smoke_emanating,
+            &hf_appearance_airform_is_engine_emitting_smoke,
+            &hf_appearance_airform_trailing_effects,
+            &hf_appearance_airform_canopy_troop_door, 
+            &hf_appearance_airform_landing_lights_on,
+            &hf_appearance_airform_navigation_lights_on,
+            &hf_appearance_airform_anti_collision_lights_on,
+            &hf_appearance_airform_is_flaming,
+            &hf_appearance_airform_afterburner_on, 
+            &hf_appearance_airform_lower_anti_collision_light_on,
+            &hf_appearance_airform_upper_anti_collision_light_on,
+            &hf_appearance_airform_anti_collision_light_day_night,
+            &hf_appearance_airform_is_blinking,
+            &hf_appearance_airform_is_frozen,
+            &hf_appearance_airform_power_plant_on,
+            &hf_appearance_airform_state,
+            &hf_appearance_airform_formation_lights_on,
+            &hf_appearance_airform_landing_gear_extended,
+            &hf_appearance_airform_cargo_doors_opened,
+            &hf_appearance_airform_navigation_position_brightness,
+            &hf_appearance_airform_spot_search_light_1_on,
+            &hf_appearance_airform_interior_lights_on,
+            &hf_appearance_airform_reverse_thrust_engaged,
+            &hf_appearance_airform_weight_on_wheels,
+            NULL
+        };
+
+        proto_tree_add_bitmask(tree, tvb, offset, hf_entity_appearance, ett_entity_appearance, entity_appearance_domain_air_bitmask, ENC_BIG_ENDIAN);
     }
     else if (entityKind == DIS_ENTITYKIND_LIFE_FORM)
     {
@@ -21476,6 +21594,146 @@ void proto_register_dis(void)
             { &hf_appearance_landform_masked_cloaked,
               { "Masked Cloaked", "dis.appearance.landform.masked_cloaked",
                 FT_UINT32, BASE_DEC, VALS(appearance_masked_cloaked_vals), 0x80000000,
+                NULL, HFILL}
+            },
+            { &hf_appearance_airform_paint_scheme,
+              { "Paint Scheme", "dis.appearance.airform.paint_scheme",
+                FT_BOOLEAN, 32, TFS(&tfs_camouflage_uniform_color), 0x00000001,
+                NULL, HFILL}
+            },
+            { &hf_appearance_airform_propulsion_killed,
+              { "Propulsion Killed", "dis.appearance.airform.propulsion_killed",
+                FT_BOOLEAN, 32, TFS(&tfs_mobility_kill), 0x00000002,
+                NULL, HFILL}
+            },
+            { &hf_appearance_airform_nvg_mode,
+              { "NVG Mode", "dis.appearance.airform.nvg_mode",
+                FT_BOOLEAN, 32, TFS(&tfs_nvg_mode), 0x00000004,
+                NULL, HFILL}
+            },
+            { &hf_appearance_airform_damage,
+              { "Damage", "dis.appearance.airform.damage",
+                FT_UINT32, BASE_DEC, VALS(DIS_PDU_Appearance_Damage_Strings), 0x00000018,
+                NULL, HFILL}
+            },
+            { &hf_appearance_airform_is_smoke_emanating,
+              { "Is Smoke Emanating", "dis.appearance.airform.is_smoke_emanating",
+                FT_BOOLEAN, 32, TFS(&tfs_on_off), 0x00000020,
+                NULL, HFILL}
+            },
+            { &hf_appearance_airform_is_engine_emitting_smoke,
+              { "Engine Emitting Smoke", "dis.appearance.airform.is_engine_emitting_smoke",
+                FT_BOOLEAN, 32, TFS(&tfs_on_off), 0x00000040,
+                NULL, HFILL}
+            },
+            { &hf_appearance_airform_trailing_effects,
+              { "Trailing Effects", "dis.appearance.airform.trailing_effects",
+                FT_UINT32, BASE_DEC, VALS(DIS_PDU_Appearance_Trailing_Effects_Strings), 0x00000180,
+                NULL, HFILL}
+            },
+            { &hf_appearance_airform_canopy_troop_door,
+              { "Canopy Troop Door", "dis.appearance.airform.canopy_troop_door",
+                FT_UINT32, BASE_DEC, VALS(appearance_canopy_door_vals), 0x00000E00,
+                NULL, HFILL}
+            },
+            { &hf_appearance_airform_landing_lights_on,
+              { "Landing Lights On", "dis.appearance.airform.landing_lights_on",
+                FT_BOOLEAN, 32, TFS(&tfs_on_off), 0x00001000,
+                NULL, HFILL}
+            },
+            { &hf_appearance_airform_navigation_lights_on,
+              { "Navigation Lights On", "dis.appearance.airform.navigation_lights_on",
+                FT_BOOLEAN, 32, TFS(&tfs_on_off), 0x00002000,
+                NULL, HFILL}
+            },
+            { &hf_appearance_airform_anti_collision_lights_on,
+              { "Anti Collision Lights On", "dis.appearance.airform.anti_collision_lights_on",
+                FT_BOOLEAN, 32, TFS(&tfs_on_off), 0x00004000,
+                NULL, HFILL}
+            },
+            { &hf_appearance_airform_is_flaming,
+              { "Is Flaming", "dis.appearance.airform.is_flaming",
+                FT_BOOLEAN, 32, TFS(&tfs_on_off), 0x00008000,
+                NULL, HFILL}
+            },
+            { &hf_appearance_airform_afterburner_on,
+              { "Afterburner On", "dis.appearance.airform.afterburner_on",
+                FT_BOOLEAN, 32, TFS(&tfs_on_off), 0x00010000,
+                NULL, HFILL}
+            },
+            { &hf_appearance_airform_lower_anti_collision_light_on,
+              { "Lower Anti Collision Light On", "dis.appearance.airform.lower_anti_collision_light_on",
+                FT_BOOLEAN, 32, TFS(&tfs_on_off), 0x00020000,
+                NULL, HFILL}
+            },
+            { &hf_appearance_airform_upper_anti_collision_light_on,
+              { "Upper Anti Collision Light On", "dis.appearance.airform.upper_anti_collision_light_on",
+                FT_BOOLEAN, 32, TFS(&tfs_on_off), 0x00040000,
+                NULL, HFILL}
+            },
+            { &hf_appearance_airform_anti_collision_light_day_night,
+              { "Anti Collision Light Day/Night", "dis.appearance.airform.anti_collision_light_day_night",
+                FT_BOOLEAN, 32, TFS(&tfs_on_off), 0x00080000,
+                NULL, HFILL}
+            },
+            { &hf_appearance_airform_is_blinking,
+              { "Is Blinking", "dis.appearance.airform.is_blinking",
+                FT_BOOLEAN, 32, TFS(&tfs_on_off), 0x00100000,
+                NULL, HFILL}
+            },
+            { &hf_appearance_airform_is_frozen,
+              { "Is Frozen", "dis.appearance.airform.is_frozen",
+                FT_BOOLEAN, 32, TFS(&tfs_on_off), 0x00200000,
+                NULL, HFILL}
+            },
+            { &hf_appearance_airform_power_plant_on,
+              { "Power Plant On", "dis.appearance.airform.power_plant_on",
+                FT_BOOLEAN, 32, TFS(&tfs_on_off), 0x00400000,
+                NULL, HFILL}
+            },
+            { &hf_appearance_airform_state,
+              { "State", "dis.appearance.airform.state",
+                FT_BOOLEAN, 32, TFS(&tfs_on_off), 0x00800000,
+                NULL, HFILL}
+            },
+            { &hf_appearance_airform_formation_lights_on,
+              { "Formation Lights On", "dis.appearance.airform.formation_lights_on",
+                FT_BOOLEAN, 32, TFS(&tfs_on_off), 0x01000000,
+                NULL, HFILL}
+            },
+            { &hf_appearance_airform_landing_gear_extended,
+              { "Landing Gear Extended", "dis.appearance.airform.landing_gear_extended",
+                FT_BOOLEAN, 32, TFS(&tfs_on_off), 0x02000000,
+                NULL, HFILL}
+            },
+            { &hf_appearance_airform_cargo_doors_opened,
+              { "Cargo Doors Opened", "dis.appearance.airform.cargo_doors_opened",
+                FT_BOOLEAN, 32, TFS(&tfs_on_off), 0x04000000,
+                NULL, HFILL}
+            },
+            { &hf_appearance_airform_navigation_position_brightness,
+              { "Navigation Position Brightness", "dis.appearance.airform.navigation_position_brightness",
+                FT_BOOLEAN, 32, TFS(&tfs_on_off), 0x08000000,
+                NULL, HFILL}
+            },
+            { &hf_appearance_airform_spot_search_light_1_on,
+              { "Spot Search Light 1 On", "dis.appearance.airform.spot_search_light_1_on",
+                FT_BOOLEAN, 32, TFS(&tfs_on_off), 0x10000000,
+                NULL, HFILL}
+            },
+            { &hf_appearance_airform_interior_lights_on,
+              { "Interior Lights On", "dis.appearance.airform.interior_lights_on",
+                FT_BOOLEAN, 32, TFS(&tfs_on_off), 0x20000000,
+                NULL, HFILL}
+            },
+            { &hf_appearance_airform_reverse_thrust_engaged,
+              { "Reverse Thrust Engaged", "dis.appearance.airform.reverse_thrust_engaged",
+                FT_BOOLEAN, 32, TFS(&tfs_on_off), 0x40000000,
+                NULL, HFILL}
+            },
+            { &hf_appearance_airform_weight_on_wheels,
+              { "Weight On Wheels", "dis.appearance.airform.weight_on_wheels",
+                FT_BOOLEAN, 32, TFS(&tfs_on_off), 0x80000000,
                 NULL, HFILL}
             },
             { &hf_intercom_control_control_type,
