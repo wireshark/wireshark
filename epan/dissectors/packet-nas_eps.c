@@ -27,6 +27,7 @@
 #include <wsutil/array.h>
 #include <wsutil/pow2.h>
 #include <wsutil/pint.h>
+#include <wsutil/str_util.h>
 #include "packet-gsm_map.h"
 #include "packet-gsm_a_common.h"
 #include "packet-lcsap.h"
@@ -2048,7 +2049,7 @@ de_emm_trac_area_id_lst(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
         n_elem = (octet & 0x1f)+1;
         item = proto_tree_add_item(tree, hf_nas_eps_emm_tai_n_elem, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
         if (n_elem<16) {
-            proto_item_append_text(item, " [+1 = %u element(s)]", n_elem);
+            proto_item_append_text(item, " [+1 = %u element%s]", n_elem, plurality(n_elem, "", "s"));
         } else {
             n_elem = 16;
         }
