@@ -62,13 +62,16 @@ typedef struct _e_addr_resolve {
 } e_addr_resolve;
 
 #define ADDR_RESOLV_MACADDR(at) \
-    (((at)->type == AT_ETHER))
+    (((at)->type == AT_ETHER) || ((at)->type == AT_EUI64))
 
 #define ADDR_RESOLV_NETADDR(at) \
     (((at)->type == AT_IPv4) || ((at)->type == AT_IPv6) || ((at)->type == AT_IPX))
 
 struct hashether;
 typedef struct hashether hashether_t;
+
+struct hasheui64;
+typedef struct hasheui64 hasheui64_t;
 
 struct hashwka;
 typedef struct hashwka hashwka_t;
@@ -318,9 +321,18 @@ WS_DLL_PUBLIC const char *tvb_get_manuf_name(tvbuff_t *tvb, int offset);
  */
 WS_DLL_PUBLIC const char *tvb_get_manuf_name_if_known(tvbuff_t *tvb, int offset);
 
+/* get_eui64_name returns the logical name if found in ethers files else
+ * "<vendor>_%02x:%02x:%02x:%02x:%02x:%02x" if the vendor code is known
+ * (or as appropriate for MA-M and MA-S), and if not,
+ * "%02x:%02x:%02x:%02x:%02x:%02x:%02x:%02x:%02x"
+*/
+extern const char *get_eui64_name(const uint8_t *addr);
+
 /* eui64_to_display returns "<vendor>_%02x:%02x:%02x:%02x:%02x:%02x" if the
  * vendor code is known (or as appropriate for MA-M and MA-S), and if not,
- * "%02x:%02x:%02x:%02x:%02x:%02x:%02x:%02x:%02x"
+ * "%02x:%02x:%02x:%02x:%02x:%02x:%02x:%02x:%02x". Gives the same results
+ * as address_to_display, but for when the EUI-64 address is a host endian
+ * uint64_t instead of bytes / an AT_EUI64 address.
 */
 extern char *eui64_to_display(wmem_allocator_t *allocator, const uint64_t addr);
 

@@ -459,6 +459,16 @@ static int eui64_len(void)
     return 8;
 }
 
+const char* eui64_name_resolution_str(const address* addr)
+{
+    return get_eui64_name((const uint8_t *)addr->data);
+}
+
+int eui64_name_resolution_len(void)
+{
+    return MAX_ADDR_STR_LEN; /* XXX - This can be lower */
+}
+
 /******************************************************************************
  * AT_IB
  ******************************************************************************/
@@ -746,8 +756,8 @@ void address_types_initialize(void)
         NULL,              /* addr_to_byte */
         NULL,              /* addr_col_filter */
         eui64_len,         /* addr_fixed_len */
-        NULL,              /* addr_name_res_str */
-        NULL,              /* addr_name_res_len */
+        eui64_name_resolution_str, /* addr_name_res_str */
+        eui64_name_resolution_len, /* addr_name_res_len */
     };
 
     static address_type_t ib_address = {

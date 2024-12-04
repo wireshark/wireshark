@@ -166,6 +166,13 @@ struct hashether {
     char              resolved_name[MAXNAMELEN];
 };
 
+struct hasheui64 {
+    uint8_t           flags;  /* (See above) */
+    uint8_t           addr[EUI64_ADDR_LEN];
+    char              hexaddr[EUI64_ADDR_LEN*3];
+    char              resolved_name[MAXNAMELEN];
+};
+
 struct hashwka {
     uint8_t           flags;  /* (See above) */
     char*             name;
@@ -237,6 +244,8 @@ static wmem_map_t *manuf_hashtable;
 static wmem_map_t *wka_hashtable;
 // Maps address -> hashether_t*
 static wmem_map_t *eth_hashtable;
+// Maps address -> hasheui64_t*
+static wmem_map_t *eui64_hashtable;
 // Maps unsigned -> serv_port_t*
 static wmem_map_t *serv_port_hashtable;
 static wmem_map_t *serv_port_custom_hashtable;
@@ -1983,6 +1992,18 @@ eth_addr_cmp(const void *a, const void *b)
     return (memcmp(a, b, 6) == 0);
 }
 
+static unsigned
+eui64_addr_hash(const void *key)
+{
+    return wmem_strong_hash((const uint8_t *)key, EUI64_ADDR_LEN);
+}
+
+static gboolean
+eui64_addr_cmp(const void *a, const void *b)
+{
+    return (memcmp(a, b, EUI64_ADDR_LEN) == 0);
+}
+
 static void
 initialize_ethers(void)
 {
@@ -1996,6 +2017,8 @@ initialize_ethers(void)
     manuf_hashtable = wmem_map_new(addr_resolv_scope, g_direct_hash, g_direct_equal);
     ws_assert(eth_hashtable == NULL);
     eth_hashtable   = wmem_map_new(addr_resolv_scope, eth_addr_hash, eth_addr_cmp);
+    ws_assert(eui64_hashtable == NULL);
+    eui64_hashtable = wmem_map_new(addr_resolv_scope, eui64_addr_hash, eui64_addr_cmp);
 
     /* Compute the pathname of the ethers file. */
     if (g_ethers_path == NULL) {
@@ -2084,6 +2107,7 @@ ethers_cleanup(void)
     wka_hashtable = NULL;
     manuf_hashtable = NULL;
     eth_hashtable = NULL;
+    eui64_hashtable = NULL;
     g_free(g_ethers_path);
     g_ethers_path = NULL;
     g_free(g_pethers_path);
@@ -2323,6 +2347,139 @@ eth_name_lookup(const uint8_t *addr, const bool resolve)
 
 } /* eth_name_lookup */
 
+static void
+eui64_resolved_name_fill(hasheui64_t *tp, const char *name, unsigned mask, const uint8_t *addr)
+{
+    switch (mask) {
+        case 24:
+            snprintf(tp->resolved_name, MAXNAMELEN, "%s_%02x:%02x:%02x:%02x:%02x",
+                    name, addr[3], addr[4], addr[5], addr[6], addr[7]);
+            break;
+        case 28:
+            snprintf(tp->resolved_name, MAXNAMELEN, "%s_%01x:%02x:%02x:%02x:%02x",
+                    name, addr[3] & 0x0F, addr[4], addr[5], addr[6], addr[7]);
+            break;
+        case 36:
+            snprintf(tp->resolved_name, MAXNAMELEN, "%s_%01x:%02x:%02x:%02x",
+                    name, addr[4] & 0x0F, addr[5], addr[6], addr[7]);
+            break;
+        default: // Future-proof generic algorithm
+        {
+            unsigned bytes = mask / 8;
+            unsigned bitmask = mask % 8;
+
+            int pos = snprintf(tp->resolved_name, MAXNAMELEN, "%s", name);
+            if (pos >= MAXNAMELEN) return;
+
+            if (bytes < EUI64_ADDR_LEN) {
+                pos += snprintf(tp->resolved_name + pos, MAXNAMELEN - pos,
+                    bitmask >= 4 ? "_%01x" : "_%02x",
+                    addr[bytes] & (0xFF >> bitmask));
+                bytes++;
+            }
+
+            while (bytes < EUI64_ADDR_LEN) {
+                if (pos >= MAXNAMELEN) return;
+                pos += snprintf(tp->resolved_name + pos, MAXNAMELEN - pos, ":%02x",
+                    addr[bytes]);
+                bytes++;
+            }
+        }
+    }
+}
+
+/* Resolve EUI-64 address */
+static hasheui64_t *
+eui64_addr_resolve(hasheui64_t *tp)
+{
+    hashmanuf_t *manuf_value;
+    const uint8_t *addr = tp->addr;
+    size_t addr_size = sizeof(tp->addr);
+
+    if (!(tp->flags & NAME_RESOLVED)) {
+        unsigned      mask;
+        address       eui64_addr;
+        /* manuf_name_lookup returns a hashmanuf_t* that covers an entire /24,
+         * so we can't properly use it for MA-M and MA-S. We do want to check
+         * it first so it also covers the user-defined tables.
+         */
+        manuf_value = manuf_name_lookup(addr, addr_size);
+        if ((manuf_value != NULL) && ((manuf_value->flags & NAME_RESOLVED) == NAME_RESOLVED)) {
+            snprintf(tp->resolved_name, MAXNAMELEN, "%.*s_%02x:%02x:%02x:%02x:%02x",
+                    MAXNAMELEN - 16, manuf_value->resolved_name, addr[3], addr[4], addr[5], addr[6], addr[7]);
+            tp->flags |= NAME_RESOLVED | NAME_RESOLVED_PREFIX;
+            return tp;
+        }
+
+        /* Now try looking in the global manuf data for a MA-M or MA-S
+         * match. We do this last so that the other files override this
+         * result.
+         */
+        const char *short_name, *long_name;
+        short_name = ws_manuf_lookup(addr, &long_name, &mask);
+        if (short_name != NULL) {
+            if (mask == 24) {
+                /* This shouldn't happen as it should be handled above,
+                 * but it doesn't hurt.
+                 */
+                manuf_hash_new_entry(addr, short_name, long_name);
+            }
+            eui64_resolved_name_fill(tp, short_name, mask, addr);
+            tp->flags |= NAME_RESOLVED | NAME_RESOLVED_PREFIX;
+            return tp;
+        }
+        /* No match whatsoever. */
+        set_address(&eui64_addr, AT_EUI64, 8, addr);
+        address_to_str_buf(&eui64_addr, tp->resolved_name, MAXNAMELEN);
+        return tp;
+    }
+
+    return tp;
+} /* eui64_addr_resolve */
+
+static hasheui64_t *
+eui64_hash_new_entry(const uint8_t *addr, const bool resolve)
+{
+    hasheui64_t *tp;
+    char *endp;
+
+    tp = wmem_new(addr_resolv_scope, hasheui64_t);
+    memcpy(tp->addr, addr, sizeof(tp->addr));
+    tp->flags = 0;
+    /* Values returned by bytes_to_hexstr_punct() are *not* null-terminated */
+    endp = bytes_to_hexstr_punct(tp->hexaddr, addr, sizeof(tp->addr), ':');
+    *endp = '\0';
+    tp->resolved_name[0] = '\0';
+
+    if (resolve)
+        eui64_addr_resolve(tp);
+
+    wmem_map_insert(eui64_hashtable, tp->addr, tp);
+
+    return tp;
+} /* eui64_hash_new_entry */
+
+static hasheui64_t *
+eui64_name_lookup(const uint8_t *addr, const bool resolve)
+{
+    hasheui64_t  *tp;
+
+    tp = (hasheui64_t *)wmem_map_lookup(eui64_hashtable, addr);
+
+    if (tp == NULL) {
+        tp = eui64_hash_new_entry(addr, resolve);
+    } else {
+        if (resolve && !(tp->flags & TRIED_OR_RESOLVED_MASK)) {
+            eui64_addr_resolve(tp); /* Found but needs to be resolved */
+        }
+    }
+    if (resolve) {
+        tp->flags |= TRIED_RESOLVE_ADDRESS;
+    }
+
+    return tp;
+
+} /* eui64_name_lookup */
 
 /* IPXNETS */
 static int
@@ -3867,54 +4024,28 @@ char* get_hash_manuf_resolved_name(hashmanuf_t* manuf)
     return manuf->resolved_longname;
 }
 
+const char *
+get_eui64_name(const uint8_t *addr)
+{
+    hasheui64_t *tp;
+    bool resolve = gbl_resolv_flags.mac_name;
+
+    tp = eui64_name_lookup(addr, resolve);
+
+    return resolve ? tp->resolved_name : tp->hexaddr;
+
+} /* get_eui64_name */
+
 char *
 eui64_to_display(wmem_allocator_t *allocator, const uint64_t addr_eui64)
 {
-    uint8_t *addr = (uint8_t *)wmem_alloc(NULL, 8);
-    hashmanuf_t *manuf_value;
-    char *ret;
+    uint8_t addr[EUI64_ADDR_LEN];
 
-    /* Copy and convert the address to network byte order. */
-    *(uint64_t *)(void *)(addr) = pntoh64(&(addr_eui64));
+    phton64(addr, addr_eui64);
 
-    /* manuf_name_lookup returns a hashmanuf_t* that covers an entire /24,
-     * so we can't properly use it for MA-M and MA-S. We do want to check
-     * it first so it also covers the user-defined tables.
-     */
-    manuf_value = manuf_name_lookup(addr, 8);
-    if (!gbl_resolv_flags.mac_name || !manuf_value || ((manuf_value->flags & NAME_RESOLVED) == 0)) {
-        /* Now try looking in the global manuf data for a MA-M or MA-S match.
-         */
-        const char *short_name, *long_name;
-        unsigned mask;
-        short_name = ws_manuf_lookup(addr, &long_name, &mask);
-        if (short_name != NULL) {
-            switch (mask) {
-                case 24:
-                    /* This shouldn't happen as it should be handled above. */
-                    manuf_hash_new_entry(addr, short_name, long_name);
-                    ret = wmem_strdup_printf(allocator, "%s_%02x:%02x:%02x:%02x:%02x", short_name, addr[3], addr[4], addr[5], addr[6], addr[7]);
-                    break;
-                case 28:
-                    ret = wmem_strdup_printf(allocator, "%s_%01x:%02x:%02x:%02x:%02x", short_name, addr[3] & 0x0F, addr[4], addr[5], addr[6], addr[7]);
-                    break;
-                case 36:
-                    ret = wmem_strdup_printf(allocator, "%s_%01x:%02x:%02x:%02x", short_name, addr[4] & 0x0F, addr[5], addr[6], addr[7]);
-                    break;
-                default:
-                    /* Doesn't happen, ignore for now. */
-                    ret = wmem_strdup_printf(allocator, "%02x:%02x:%02x:%02x:%02x:%02x:%02x:%02x", addr[0], addr[1], addr[2], addr[3], addr[4], addr[5], addr[6], addr[7]);
-                    break;
-            }
-        } else {
-            ret = wmem_strdup_printf(allocator, "%02x:%02x:%02x:%02x:%02x:%02x:%02x:%02x", addr[0], addr[1], addr[2], addr[3], addr[4], addr[5], addr[6], addr[7]);
-        }
-    } else {
-        ret = wmem_strdup_printf(allocator, "%s_%02x:%02x:%02x:%02x:%02x", manuf_value->resolved_name, addr[3], addr[4], addr[5], addr[6], addr[7]);
-    }
+    const char *result = get_eui64_name(addr);
 
-    wmem_free(NULL, addr);
-    return ret;
+    return wmem_strdup(allocator, result);
 } /* eui64_to_display */
 
 #define GHI_TIMEOUT (250 * 1000)
