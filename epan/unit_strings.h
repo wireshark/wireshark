@@ -87,6 +87,9 @@ WS_DLL_PUBLIC const unit_name_string units_microseconds;        //only seconds a
 WS_DLL_PUBLIC const unit_name_string units_nanosecond_nanoseconds; // full unit name "nanosecond[s?]"
 WS_DLL_PUBLIC const unit_name_string units_nanoseconds; //only seconds abbreviation "ns"
 WS_DLL_PUBLIC const unit_name_string units_nanometers;
+WS_DLL_PUBLIC const unit_name_string units_picoseconds; //only seconds abbreviation "ps"
+WS_DLL_PUBLIC const unit_name_string units_femtoseconds; //only seconds abbreviation "fs"
+WS_DLL_PUBLIC const unit_name_string units_attoseconds; //only seconds abbreviation "as"
 WS_DLL_PUBLIC const unit_name_string units_degree_degrees;
 WS_DLL_PUBLIC const unit_name_string units_degree_celsius;
 WS_DLL_PUBLIC const unit_name_string units_degree_bearing;

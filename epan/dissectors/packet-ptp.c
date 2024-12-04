@@ -4435,20 +4435,18 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bool ptpv2_o
                                                         uint64_t deltaRx;
                                                         deltaTx = tvb_get_ntoh64(tvb, tlv_total_length + PTP_V2_SIG_TLV_WRTLV_DELTATX_OFFSET);
                                                         deltaRx = tvb_get_ntoh64(tvb, tlv_total_length + PTP_V2_SIG_TLV_WRTLV_DELTARX_OFFSET);
-                                                        proto_tree_add_bytes_format_value(ptp_tlv_tree,
-                                                                                          hf_ptp_v2_sig_oe_tlv_cern_deltaTx,
-                                                                                          tvb,
-                                                                                          tlv_total_length + PTP_V2_SIG_TLV_WRTLV_DELTATX_OFFSET,
-                                                                                          8,
-                                                                                          NULL,
-                                                                                          "%lf ps", (double) deltaTx/(1 << 16));
-                                                        proto_tree_add_bytes_format_value(ptp_tlv_tree,
-                                                                                          hf_ptp_v2_sig_oe_tlv_cern_deltaRx,
-                                                                                          tvb,
-                                                                                          tlv_total_length + PTP_V2_SIG_TLV_WRTLV_DELTARX_OFFSET,
-                                                                                          8,
-                                                                                          NULL,
-                                                                                          "%lf ps", (double) deltaRx/(1 << 16));
+                                                        proto_tree_add_double(ptp_tlv_tree,
+                                                                              hf_ptp_v2_sig_oe_tlv_cern_deltaTx,
+                                                                              tvb,
+                                                                              tlv_total_length + PTP_V2_SIG_TLV_WRTLV_DELTATX_OFFSET,
+                                                                              8,
+                                                                              (double) deltaTx/(1 << 16));
+                                                        proto_tree_add_double(ptp_tlv_tree,
+                                                                              hf_ptp_v2_sig_oe_tlv_cern_deltaRx,
+                                                                              tvb,
+                                                                              tlv_total_length + PTP_V2_SIG_TLV_WRTLV_DELTARX_OFFSET,
+                                                                              8,
+                                                                              (double) deltaRx/(1 << 16));
                                                         break;
                                                     }
                                                     default:
@@ -7153,12 +7151,12 @@ proto_register_ptp(void)
         },
         { &hf_ptp_v2_sig_oe_tlv_cern_deltaTx,
           { "deltaTx", "ptp.v2.sig.oe.cern.wr.deltaTx",
-            FT_BYTES, BASE_NONE, NULL, 0x00,
+            FT_DOUBLE, BASE_NONE | BASE_UNIT_STRING, UNS(&units_picoseconds), 0x00,
             NULL, HFILL }
         },
         { &hf_ptp_v2_sig_oe_tlv_cern_deltaRx,
           { "deltaRx", "ptp.v2.sig.oe.cern.wr.deltaRx",
-            FT_BYTES, BASE_NONE, NULL, 0x00,
+            FT_DOUBLE, BASE_NONE | BASE_UNIT_STRING, UNS(&units_picoseconds), 0x00,
             NULL, HFILL }
         },
         /* Fields for PTP_Signalling (=sig) TLVs */
@@ -7224,7 +7222,7 @@ proto_register_ptp(void)
         },
         { &hf_ptp_v2_sig_tlv_interface_bit_period,
           { "interfaceBitPeriod", "ptp.as.sig.tlv.interfaceBitPeriod",
-            FT_UINT64, BASE_HEX, NULL, 0x00,
+            FT_UINT64, BASE_DEC | BASE_UNIT_STRING, UNS(&units_attoseconds), 0x00,
             NULL, HFILL }
         },
         { &hf_ptp_v2_sig_tlv_numberbits_before_timestamp,
