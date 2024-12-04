@@ -19,6 +19,10 @@ set(WIRETAP_PUBLIC_HEADERS
 	wtap_opttypes.h
 )
 
+add_definitions(
+	${LIBXML2_DEFINITIONS}
+)
+
 #
 # Files that implement reading and possibly writing one or more
 # file types.  (For cases where more than one source file is
@@ -93,6 +97,7 @@ set(WIRETAP_C_MODULE_FILES
 	${CMAKE_CURRENT_SOURCE_DIR}/systemd_journal.c
 	${CMAKE_CURRENT_SOURCE_DIR}/tnef.c
 	${CMAKE_CURRENT_SOURCE_DIR}/toshiba.c
+	${CMAKE_CURRENT_SOURCE_DIR}/ttl.c
 	${CMAKE_CURRENT_SOURCE_DIR}/visual.c
 	${CMAKE_CURRENT_SOURCE_DIR}/vms.c
 	${CMAKE_CURRENT_SOURCE_DIR}/vwr.c
@@ -191,6 +196,7 @@ target_link_libraries(wiretap
 		wsutil
 		${GLIB2_LIBRARIES}
 	PRIVATE
+		${LIBXML2_LIBRARIES}
 		${ZLIB_LIBRARIES}
 		${ZLIBNG_LIBRARIES}
 		${ZSTD_LIBRARIES}
@@ -199,6 +205,7 @@ target_link_libraries(wiretap
 
 target_include_directories(wiretap SYSTEM
 	PRIVATE
+		${LIBXML2_INCLUDE_DIRS}
 		${ZLIB_INCLUDE_DIRS}
 		${ZLIBNG_INCLUDE_DIRS}
 		${ZSTD_INCLUDE_DIRS}

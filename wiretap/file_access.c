@@ -94,6 +94,7 @@
 #include "autosar_dlt.h"
 #include "rtpdump.h"
 #include "ems.h"
+#include "ttl.h"
 
 /*
  * Add an extension, and all compressed versions thereof if requested,
@@ -169,6 +170,7 @@ static const struct file_extension_info file_type_extensions_base[] = {
 	{ "CAM Inspector file", true, "camins" },
 	{ "BLF file", true, "blf" },
 	{ "AUTOSAR DLT file", true, "dlt" },
+	{ "TTL file", true, "ttl" },
 	{ "MPEG files", false, "mpeg;mpg;mp3" },
 	{ "Transport-Neutral Encapsulation Format", false, "tnef" },
 	{ "JPEG/JFIF files", false, "jpg;jpeg;jfif" },
@@ -356,6 +358,7 @@ static const struct open_info open_info_base[] = {
 	{ "Gammu DCT3 trace",                       OPEN_INFO_MAGIC,     dct3trace_open,           NULL,       NULL, NULL },
 	{ "BLF Logfile",                            OPEN_INFO_MAGIC,     blf_open,                 NULL,     NULL, NULL },
 	{ "AUTOSAR DLT Logfile",                    OPEN_INFO_MAGIC,     autosar_dlt_open,         NULL,     NULL, NULL },
+	{ "TTL Logfile",                            OPEN_INFO_MAGIC,     ttl_open,                 NULL,     NULL, NULL },
 	{ "RTPDump files",                          OPEN_INFO_MAGIC,     rtpdump_open,             NULL, NULL, NULL },
 	{ "MIME Files Format",                      OPEN_INFO_MAGIC,     mime_file_open,           NULL,       NULL, NULL },
 	{ "Micropross mplog",                       OPEN_INFO_MAGIC,     mplog_open,               NULL,   NULL, NULL },
