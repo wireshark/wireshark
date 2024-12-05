@@ -1187,7 +1187,13 @@ dissect_wlan_radio_phdr(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, 
             /* 20,40,80,160 and 320MHz overlap with mcs table index for ru-242 and above.
              * So add the offset.
              * Punctured modes not considered yet. */
-            bw_idx = info_11be->bandwidth + IEEE80211_RADIOTAP_EHT_RU_242;
+            if (info_11be->bandwidth == IEEE80211_RADIOTAP_USIG_BW_320_2) {
+              /* The overlap works for 320MHz-1 but not for 320MHz-2. As the workaround,
+               * use the same index for 320MHz-1 and 320MHz-2 */
+              bw_idx = IEEE80211_RADIOTAP_USIG_BW_320_1 + IEEE80211_RADIOTAP_EHT_RU_242;
+            } else {
+              bw_idx = info_11be->bandwidth + IEEE80211_RADIOTAP_EHT_RU_242;
+            }
           } else {
             bw_idx = info_11be->ru_mru_size;
           }
