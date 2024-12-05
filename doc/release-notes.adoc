@@ -105,6 +105,9 @@ The following features are either new or have been significantly updated since v
   `require`, so that `require("bit")` and `require("rex_pcre2")` statements
   in Lua dissectors, while usually superfluous, behave as expected. wsbuglink:20213[]
 
+* The packet list (Wireshark) and event list (Stratoshark) no longer support rows with multiple lines.
+  wsbuglink:14424[]
+
 // === Removed Features and Support
 
 

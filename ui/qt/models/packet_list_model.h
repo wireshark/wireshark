@@ -78,13 +78,9 @@ public:
     void deleteFrameComments(const QModelIndexList &indices);
     void deleteAllFrameComments();
 
-    void setMaximumRowHeight(int height);
-
 signals:
     void packetAppended(capture_file *cap_file, frame_data *fdata, qsizetype row);
     void goToPacket(int);
-    void maxLineCountChanged(const QModelIndex &ih_index) const;
-    void itemHeightChanged(const QModelIndex &ih_index);
 
     void bgColorizationProgress(int first, int last);
 
@@ -101,9 +97,6 @@ private:
     QVector<PacketListRecord *> visible_rows_;
     QVector<PacketListRecord *> new_visible_rows_;
     QVector<int> number_to_row_;
-
-    int max_row_height_; // px
-    int max_line_count_;
 
     static int sort_column_;
     static int sort_column_is_numeric_;
@@ -122,9 +115,6 @@ private:
     int idle_dissection_row_;
 
     bool isNumericColumn(int column);
-
-private slots:
-    void emitItemHeightChanged(const QModelIndex &ih_index);
 };
 
 #endif // PACKET_LIST_MODEL_H

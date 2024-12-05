@@ -267,7 +267,6 @@ PacketList::PacketList(QWidget *parent) :
     gbl_cur_packet_list = this;
 
     connect(packet_list_model_, SIGNAL(goToPacket(int)), this, SLOT(goToPacket(int)));
-    connect(packet_list_model_, SIGNAL(itemHeightChanged(const QModelIndex&)), this, SLOT(updateRowHeights(const QModelIndex&)));
     connect(mainApp, SIGNAL(addressResolutionChanged()), this, SLOT(redrawVisiblePacketsDontSelectCurrent()));
     connect(mainApp, SIGNAL(columnDataChanged()), this, SLOT(redrawVisiblePacketsDontSelectCurrent()));
     connect(mainApp, &MainApplication::preferencesChanged, this, [=]() {
@@ -1975,27 +1974,6 @@ void PacketList::sectionMoved(int logicalIndex, int oldVisualIndex, int newVisua
     int right_col = MAX(oldVisualIndex, newVisualIndex);
     if (left_col <= sort_idx && sort_idx <= right_col) {
         header()->setSortIndicator(sort_idx, header()->sortIndicatorOrder());
-    }
-}
-
-void PacketList::updateRowHeights(const QModelIndex &ih_index)
-{
-    QStyleOptionViewItem option;
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
-    initViewItemOption(&option);
-#else
-    option = viewOptions();
-#endif
-    int max_height = 0;
-
-    // One of our columns increased the maximum row height. Find out which one.
-    for (int col = 0; col < packet_list_model_->columnCount(); col++) {
-        QSize size_hint = itemDelegate()->sizeHint(option, packet_list_model_->index(ih_index.row(), col));
-        max_height = qMax(max_height, size_hint.height());
-    }
-
-    if (max_height > 0) {
-        packet_list_model_->setMaximumRowHeight(max_height);
     }
 }
 
