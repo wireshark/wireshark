@@ -834,7 +834,7 @@ static int ett_ptp_time2;
 #define PTP_V2_PDFU_REQUESTINGSOURCEPORTID_OFFSET                   52
 
 
-/* Offsets for PTP_Signalling (=SIG) messages */
+/* Offsets for PTP_Signaling (=SIG) messages */
 #define PTP_V2_SIG_TARGETPORTIDENTITY_OFFSET                        34
 #define PTP_V2_SIG_TARGETPORTID_OFFSET                              42
 #define PTP_V2_SIG_TLV_START                                        44
@@ -884,10 +884,10 @@ static int ett_ptp_time2;
 #define PTP_V2_SIG_TLV_WRTLV_DELTATX_OFFSET                         12
 #define PTP_V2_SIG_TLV_WRTLV_DELTARX_OFFSET                         20
 
-/* 802.1AS Signalling Message Interval Request TLV */
+/* 802.1AS Signaling Message Interval Request TLV */
 #define PTP_AS_SIG_TLV_MESSAGEINTERVALREQUEST_OFFSET                44
 
-/* 802.1AS Signalling TLV field offsets */
+/* 802.1AS Signaling TLV field offsets */
 #define PTP_AS_SIG_TLV_TYPE_OFFSET                                   0
 #define PTP_AS_SIG_TLV_LENGTHFIELD_OFFSET                            2
 #define PTP_AS_SIG_TLV_ORGANIZATIONID_OFFSET                         4
@@ -960,7 +960,7 @@ static int ett_ptp_time2;
 #define PTP_V2_TLV_TYPE_PAD                                     0x8008
 #define PTP_V2_TLV_TYPE_AUTHENTICATION2                         0x8009
 
-/* Signalling TLV Object IDs */
+/* Signaling TLV Object IDs */
 #define PTP_AS_TLV_OID_TYPE_802                               0x0080C2
 
 /* PTPv2 Management clockType Boolean[16] Bits mask */
@@ -1136,7 +1136,7 @@ static int ett_ptp_time2;
 #define PTP_V2_DELAY_RESP_MESSAGE               0x09
 #define PTP_V2_PEER_DELAY_FOLLOWUP_MESSAGE      0x0A
 #define PTP_V2_ANNOUNCE_MESSAGE                 0x0B
-#define PTP_V2_SIGNALLING_MESSAGE               0x0C
+#define PTP_V2_SIGNALING_MESSAGE                0x0C
 #define PTP_V2_MANAGEMENT_MESSAGE               0x0D
 
 
@@ -1319,7 +1319,7 @@ static const value_string ptp_v2_messagetype_vals[] = {
     {PTP_V2_DELAY_RESP_MESSAGE,         "Delay_Resp Message"},
     {PTP_V2_PEER_DELAY_FOLLOWUP_MESSAGE,"Peer_Delay_Resp_Follow_Up Message"},
     {PTP_V2_ANNOUNCE_MESSAGE,           "Announce Message"},
-    {PTP_V2_SIGNALLING_MESSAGE,         "Signalling Message"},
+    {PTP_V2_SIGNALING_MESSAGE,          "Signaling Message"},
     {PTP_V2_MANAGEMENT_MESSAGE,         "Management Message"},
     {0,                                  NULL }
 };
@@ -1680,7 +1680,7 @@ static int hf_ptp_v2_pdfu_requestingportidentity;
 static int hf_ptp_v2_pdfu_requestingsourceportid;
 
 
-/* Fields for PTP_Signalling (=sig) messages */
+/* Fields for PTP_Signaling (=sig) messages */
 static int hf_ptp_v2_sig_targetportidentity;
 static int hf_ptp_v2_sig_targetportid;
 static int hf_ptp_v2_sig_tlv_tlvType;
@@ -3255,7 +3255,7 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bool ptpv2_o
     else
     {
         col_add_str(pinfo->cinfo, COL_INFO, val_to_str_ext(ptp_v2_messageid, &ptp_v2_messagetype_vals_ext, "Unknown PTP Message (%u)"));
-        if (ptp_v2_messageid == PTP_V2_SIGNALLING_MESSAGE)
+        if (ptp_v2_messageid == PTP_V2_SIGNALING_MESSAGE)
         {
             uint32_t tlv_offset;
             uint16_t tlv_type;
@@ -3496,7 +3496,7 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bool ptpv2_o
                 if (msg_len > 64)
                 {
                     tlv_total_length = 0;
-                    /* XXX It seems like at least 4 bytes must reamain to have a tlv_type and tlv_length */
+                    /* XXX It seems like at least 4 bytes must remain to have a tlv_type and tlv_length */
                     while (tvb_reported_length_remaining(tvb, PTP_V2_AN_TLV_OFFSET + tlv_total_length) >= 4)
                     {
                         /* There are TLV's to be processed */
@@ -4064,7 +4064,7 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bool ptpv2_o
                 break;
             }
 
-            case PTP_V2_SIGNALLING_MESSAGE:{
+            case PTP_V2_SIGNALING_MESSAGE:{
                 uint16_t tlv_length;
                 uint16_t tlv_type;
                 proto_item *tlv_ti, *sig_tlv_flags_ti;
@@ -4076,7 +4076,7 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bool ptpv2_o
                 proto_tree_add_item(ptp_tree, hf_ptp_v2_sig_targetportid, tvb,
                     PTP_V2_SIG_TARGETPORTID_OFFSET, 2, ENC_BIG_ENDIAN);
 
-                /* In 802.1AS there is a Message Interval Request TLV in the Signalling Message */
+                /* In 802.1AS there is a Message Interval Request TLV in the Signaling Message */
                 if(is_802_1as){
 
                     /* There are TLV's to be processed */
@@ -4787,7 +4787,7 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bool ptpv2_o
                                     Offset, 6, ENC_NA);
                                 Offset += 6;
 
-                                /* Wenn Offset nicht gerade folgt noch ein pad Bit */
+                                /* Pad to even length */
                                 if ( (Offset - PTP_V2_MM_TLV_DATAFIELD_OFFSET) % 2 )
                                 {
                                     proto_tree_add_item(ptp_managementData_tree, hf_ptp_v2_mm_pad, tvb,
@@ -4801,7 +4801,7 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bool ptpv2_o
                                 dissect_ptp_v2_text (tvb, &Offset, ptp_managementData_tree,
                                                      hf_ptp_v2_mm_userDescription, hf_ptp_v2_mm_userDescription_length);
 
-                                /* Wenn Offset nicht gerade folgt noch ein pad Bit */
+                                /* Pad to even length */
                                 if ( (Offset - PTP_V2_MM_TLV_DATAFIELD_OFFSET) % 2 )
                                 {
                                     proto_tree_add_item(ptp_managementData_tree, hf_ptp_v2_mm_pad, tvb,
@@ -4866,7 +4866,7 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bool ptpv2_o
                                                          hf_ptp_v2_mm_faultDescription, hf_ptp_v2_mm_faultDescription_length);
                                 }
 
-                                /* Wenn Offset nicht gerade folgt noch ein pad Bit */
+                                /* Pad to even length */
                                 if ( (Offset - PTP_V2_MM_TLV_DATAFIELD_OFFSET) % 2 )
                                 {
                                     proto_tree_add_item(ptp_managementData_tree, hf_ptp_v2_mm_pad, tvb,
@@ -5277,7 +5277,7 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bool ptpv2_o
                                 dissect_ptp_v2_text (tvb, &Offset, ptp_managementData_tree,
                                     hf_ptp_v2_mm_displayName, hf_ptp_v2_mm_displayName_length);
 
-                                /* Wenn Offset nicht gerade folgt noch ein pad Bit */
+                                /* Pad to even length */
                                 if ( (Offset - PTP_V2_MM_TLV_DATAFIELD_OFFSET) % 2 )
                                 {
                                     proto_tree_add_item(ptp_managementData_tree, hf_ptp_v2_mm_pad, tvb,
@@ -5442,7 +5442,7 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bool ptpv2_o
                                 hf_ptp_v2_mm_displayData, hf_ptp_v2_mm_displayData_length);
                         }
 
-                        /* Wenn Offset nicht gerade folgt noch ein pad Bit */
+                        /* Pad to even length */
                         if ( (Offset - PTP_V2_MM_TLV_MANAGEMENTERRORID_OFFSET) % 2 )
                         {
                             proto_tree_add_item(ptp_tree, hf_ptp_v2_mm_pad, tvb,
@@ -6918,7 +6918,7 @@ proto_register_ptp(void)
             NULL, HFILL }
         },
 
-        /* Fields for PTP_Signalling (=sig) messages */
+        /* Fields for PTP_Signaling (=sig) messages */
         { &hf_ptp_v2_sig_targetportidentity,
           { "targetPortIdentity",           "ptp.v2.sig.targetportidentity",
             FT_UINT64, BASE_HEX, NULL, 0x00,
@@ -7159,7 +7159,7 @@ proto_register_ptp(void)
             FT_DOUBLE, BASE_NONE | BASE_UNIT_STRING, UNS(&units_picoseconds), 0x00,
             NULL, HFILL }
         },
-        /* Fields for PTP_Signalling (=sig) TLVs */
+        /* Fields for PTP_Signaling (=sig) TLVs */
         { &hf_ptp_as_sig_tlv_tlvtype,
           { "tlvType", "ptp.as.sig.tlvType",
             FT_UINT16, BASE_HEX | BASE_EXT_STRING, &ptp_v2_TLV_type_vals_ext, 0x00,
