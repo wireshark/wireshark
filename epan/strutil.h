@@ -192,9 +192,26 @@ void IA5_7BIT_decode(unsigned char * dest, const unsigned char* src, int len);
 
 #define FORMAT_LABEL_REPLACE_SPACE      (0x1 << 0)
 
+/** Copy a string and escape any unprintable characters.
+ *
+ * @param label_str The destination string
+ * @param bufsize The allocated size of the string
+ * @param pos The offset into label_str at which to start copying
+ * @param str The source string
+ * @param flags FORMAT_LABEL_REPLACE_SPACE or 0
+ * @return The length of label_str
+ */
 WS_DLL_PUBLIC
 size_t ws_label_strcpy(char *label_str, size_t bufsize, size_t pos, const uint8_t *str, int flags);
 
+/** Concatenate a string and escape any unprintable characters.
+ *
+ * @param label_str The destination string
+ * @param bufsize The allocated size of the string
+ * @param str The source string
+ * @param flags FORMAT_LABEL_REPLACE_SPACE or 0
+ * @return The length of label_str
+ */
 WS_DLL_PUBLIC
 size_t ws_label_strcat(char *label_str, size_t bufsize, const uint8_t *str, int flags);
 
