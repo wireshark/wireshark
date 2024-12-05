@@ -220,6 +220,9 @@ static expert_field ei_fault_notif;
 static expert_field ei_number_faults;
 static expert_field ei_iwf_delay_control_action_type;
 static expert_field ei_ecpri_not_dis_yet;
+static expert_field ei_owd_no_response;
+static expert_field ei_owd_no_request;
+
 
 /**************************************************************************************************/
 /* Field Encoding of Message Types                                                                */
@@ -922,6 +925,19 @@ static int dissect_ecpri(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
                                     }
                                     PROTO_ITEM_SET_GENERATED(frame_ti);
                                 }
+                                else {
+                                    /* The other part of the exchange must be missing, so report */
+                                    if ((action_type == ECPRI_MSG_TYPE_5_REQ) ||
+                                        (action_type == ECPRI_MSG_TYPE_5_FOLLOWUP)) {
+                                        /* Missing response */
+                                        expert_add_info(pinfo, ecpri_tree, &ei_owd_no_response);
+                                    }
+                                    else {
+                                        /* Request not found */
+                                        expert_add_info(pinfo, ecpri_tree, &ei_owd_no_request);
+                                    }
+
+                                }
                             }
                         }
                     }
@@ -1342,7 +1358,9 @@ void proto_register_ecpri(void)
         { &ei_fault_notif,                   { "ecpri.fault.notif.invalid",        PI_PROTOCOL, PI_ERROR, "Invalid Fault/Notification", EXPFILL }},
         { &ei_number_faults,                 { "ecpri.num.faults.invalid",         PI_PROTOCOL, PI_ERROR, "Invalid Number of Faults",   EXPFILL }},
         { &ei_iwf_delay_control_action_type, { "ecpri.action.type.invalid",        PI_PROTOCOL, PI_ERROR, "Invalid Action Type", EXPFILL }},
-        { &ei_ecpri_not_dis_yet,             { "ecpri.not_dissected_yet",          PI_PROTOCOL, PI_NOTE,  "Not dissected yet",   EXPFILL }}
+        { &ei_ecpri_not_dis_yet,             { "ecpri.not_dissected_yet",          PI_PROTOCOL, PI_NOTE,  "Not dissected yet",   EXPFILL }},
+        { &ei_owd_no_response,               { "ecpri.owd.no_response",            PI_SEQUENCE, PI_WARN,  "No Response for One-Way Delay Measurement Request",   EXPFILL }},
+        { &ei_owd_no_request,                { "ecpri.owd.no_rerequest",           PI_SEQUENCE, PI_WARN,  "Request for One-Way Delay Measurement Response not found",   EXPFILL }}
     };
 
     expert_module_t* expert_ecpri;
