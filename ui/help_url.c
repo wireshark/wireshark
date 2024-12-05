@@ -112,6 +112,9 @@ topic_action_url(topic_action_e action)
     case(LOCALPAGE_MAN_WIRESHARK):
         url = doc_file_url("wireshark.html");
         break;
+    case(LOCALPAGE_MAN_STRATOSHARK):
+        url = doc_file_url("stratoshark.html");
+        break;
     case(LOCALPAGE_MAN_WIRESHARK_FILTER):
         url = doc_file_url("wireshark-filter.html");
         break;

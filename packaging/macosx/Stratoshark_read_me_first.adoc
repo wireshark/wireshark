@@ -16,8 +16,8 @@ To install Stratoshark, drag the _Stratoshark_ application bundle to the _Applic
 
 ////
 If you would like to add the path to
-https://www.wireshark.org/docs/man-pages/wireshark.html[Stratoshark],
-https://www.wireshark.org/docs/man-pages/tshark.html[TShark],
+https://www.wireshark.org/docs/man-pages/stratoshark.html[Stratoshark],
+// https://www.wireshark.org/docs/man-pages/tshark.html[TShark],
 https://www.wireshark.org/docs/man-pages/capinfos.html[capinfos],
 https://www.wireshark.org/docs/man-pages/editcap.html[editcap],
 and

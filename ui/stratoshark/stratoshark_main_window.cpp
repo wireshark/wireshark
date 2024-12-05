@@ -665,7 +665,7 @@ main_ui_->goToLineEdit->setValidator(goToLineQiv);
     iface_toolbar_register_cb(mainwindow_add_toolbar, mainwindow_remove_toolbar);
 
     /* Show tooltips on menu items that go to websites */
-    main_ui_->actionHelpMPWireshark->setToolTip(gchar_free_to_qstring(topic_action_url(LOCALPAGE_MAN_WIRESHARK)));
+    main_ui_->actionHelpMPStratoshark->setToolTip(gchar_free_to_qstring(topic_action_url(LOCALPAGE_MAN_STRATOSHARK)));
     main_ui_->actionHelpMPWireshark_Filter->setToolTip(gchar_free_to_qstring(topic_action_url(LOCALPAGE_MAN_WIRESHARK_FILTER)));
     main_ui_->actionHelpMPCapinfos->setToolTip(gchar_free_to_qstring(topic_action_url(LOCALPAGE_MAN_CAPINFOS)));
     main_ui_->actionHelpMPDumpcap->setToolTip(gchar_free_to_qstring(topic_action_url(LOCALPAGE_MAN_DUMPCAP)));
