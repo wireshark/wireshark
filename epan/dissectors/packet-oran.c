@@ -3550,7 +3550,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                             offset += 1;
                             /* lastPrb (9 bits) */
                             proto_tree_add_item(extension_tree, hf_oran_last_prb, tvb, offset, 2, ENC_BIG_ENDIAN);
-                            offset += 1;
+                            offset += 2;
                             /* Reserved (16 bits) */
                             offset += 2;
 
