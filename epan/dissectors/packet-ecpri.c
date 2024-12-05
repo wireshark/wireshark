@@ -832,7 +832,7 @@ static int dissect_ecpri(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
                         }
 
                         /* Compensation value (8 bytes). Same format as PTP's correctionField */
-                        dissect_ptp_v2_timeInterval(tvb, (uint16_t*)&offset, ecpri_tree, "Compensation value",
+                        dissect_ptp_v2_timeInterval(tvb, &offset, ecpri_tree, "Compensation value",
                                                     hf_one_way_delay_measurement_compensation_value,
                                                     hf_one_way_delay_measurement_compensation_value_subns,
                                                     &comp_tree,

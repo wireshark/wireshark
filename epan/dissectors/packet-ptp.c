@@ -2859,7 +2859,7 @@ dissect_ptp_v1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 /* Code to dissect PTPText */
 static void
-dissect_ptp_v2_text(tvbuff_t *tvb, uint16_t *cur_offset, proto_tree *tree, int hf_ptp_v2_mm_ptptext, int hf_ptp_v2_mm_ptptext_length)
+dissect_ptp_v2_text(tvbuff_t *tvb, int *cur_offset, proto_tree *tree, int hf_ptp_v2_mm_ptptext, int hf_ptp_v2_mm_ptptext_length)
 {
     uint8_t     length = 0;
     proto_item *ptptext_ti;
@@ -2884,7 +2884,7 @@ dissect_ptp_v2_text(tvbuff_t *tvb, uint16_t *cur_offset, proto_tree *tree, int h
 }
 
 void
-dissect_ptp_v2_timeInterval(tvbuff_t *tvb, uint16_t *cur_offset, proto_tree *tree, const char* name,
+dissect_ptp_v2_timeInterval(tvbuff_t *tvb, int *cur_offset, proto_tree *tree, const char* name,
                             int hf_ptp_v2_timeInterval_ns, int hf_ptp_v2_timeInterval_subns,
                             proto_tree **tree_out, int64_t *ns_out)
 {
@@ -2918,7 +2918,7 @@ dissect_ptp_v2_timeInterval(tvbuff_t *tvb, uint16_t *cur_offset, proto_tree *tre
 }
 
 static void
-dissect_ptp_v2_timetstamp(tvbuff_t *tvb, uint16_t *cur_offset, proto_tree *tree,
+dissect_ptp_v2_timetstamp(tvbuff_t *tvb, int *cur_offset, proto_tree *tree,
                           const char* name, int hf_ptp_v2_timestamp_s,
                           int hf_ptp_v2_timestamp_ns)
 {
@@ -3018,7 +3018,6 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bool ptpv2_o
     uint64_t timeStamp;
     uint16_t msg_len;
     uint16_t ptp_v2_flags;
-    uint16_t temp;
     const char *manuf_name;
 
     /* Set up structures needed to add the protocol subtree and manage it */
@@ -3401,7 +3400,7 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bool ptpv2_o
         proto_tree_add_item(ptp_flags_tree,
             hf_ptp_v2_flags_li61, tvb, PTP_V2_FLAGS_OFFSET, 2, ENC_BIG_ENDIAN);
 
-        temp = PTP_V2_CORRECTIONNS_OFFSET;
+        int temp = PTP_V2_CORRECTIONNS_OFFSET;
 
         dissect_ptp_v2_timeInterval(tvb, &temp, ptp_tree, "correctionField",
                                     hf_ptp_v2_correction, hf_ptp_v2_correctionsubns,
@@ -3449,7 +3448,7 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bool ptpv2_o
 
         switch(ptp_v2_messageid){
             case PTP_V2_ANNOUNCE_MESSAGE:{
-                uint16_t    Offset;
+                int         Offset;
                 uint16_t    tlv_type;
                 uint16_t    tlv_length;
                 uint16_t    tlv_total_length;
@@ -4590,7 +4589,7 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bool ptpv2_o
                                                                     data_mode_flags2,
                                                                     ENC_BIG_ENDIAN);
                                 } else {
-                                        uint16_t value_offset;
+                                        int value_offset;
 
                                         proto_tree_add_bitmask_list(ptp_tlv_l1sync_flags_tree,
                                                                     tvb,
@@ -4685,7 +4684,7 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bool ptpv2_o
                     case PTP_V2_TLV_TYPE_MANAGEMENT:
                     {
                         uint16_t ptp_v2_managementId;
-                        uint16_t Offset = PTP_V2_MM_TLV_DATAFIELD_OFFSET;
+                        int Offset = PTP_V2_MM_TLV_DATAFIELD_OFFSET;
 
                         proto_tree_add_item(ptp_tree, hf_ptp_v2_mm_managementId, tvb,
                             PTP_V2_MM_TLV_MANAGEMENTID_OFFSET, 2, ENC_BIG_ENDIAN);
@@ -5421,7 +5420,7 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bool ptpv2_o
                     case PTP_V2_TLV_TYPE_MANAGEMENT_ERROR_STATUS:
                     {
                         /* there is only one error TLV */
-                        uint16_t Offset = PTP_V2_MM_TLV_MANAGEMENTERRORID_OFFSET;
+                        int Offset = PTP_V2_MM_TLV_MANAGEMENTERRORID_OFFSET;
 
                         proto_tree_add_item(ptp_tree, hf_ptp_v2_mm_managementErrorId, tvb,
                             Offset, 2, ENC_BIG_ENDIAN);
