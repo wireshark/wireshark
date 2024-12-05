@@ -269,7 +269,7 @@ struct mcs_info {
   float data_bits_per_symbol; /* assuming 20MHz / 52 subcarriers */
 };
 
-#define EHT_MAX_MCS   14
+#define EHT_MAX_MCS   16
 static const struct mcs_info ieee80211_mcsinfo[EHT_MAX_MCS] = {
   /* MCS  0  */
   { "BPSK",  "1/2", 26 },
@@ -298,7 +298,11 @@ static const struct mcs_info ieee80211_mcsinfo[EHT_MAX_MCS] = {
   /* MCS  12  */
   { "4096-QAM", "3/4", 468 },
   /* MCS  13  */
-  { "4096-QAM", "5/6", 520 }
+  { "4096-QAM", "5/6", 520 },
+  /* MCS  14  */
+  { "BPSK-DCM", "1/2", 6.5f },
+  /* MCS  15  */
+  { "BPSK-DCM", "1/2", 13 }
 };
 
 /* map a bandwidth index to the number of data subcarriers */
@@ -684,7 +688,9 @@ static float eht_mcs_tab[EHT_MAX_MCS][EHT_MAX_BW][EHT_MAX_GI] = {
       {{   13.2f,   12.5f,   11.3f},{   26.5f,   25.0f,   22.5f},{   56.3f,   53.1f,   47.8f},{  129.0f,  121.9f,  109.7f},{  258.1f,  243.8f,  219.4f},{  540.4f,  510.4f,  459.4f},{  1080.9f,  1020.8f,   918.8f},{  2161.8f,  2041.7f,  1837.5f}},
       {{   14.7f,   13.9f,   12.5f},{   29.4f,   27.8f,   25.0f},{   62.5f,   59.0f,   53.1f},{  143.4f,  135.4f,  121.9f},{  286.8f,  270.8f,  243.8f},{  600.5f,  567.1f,  510.4f},{  1201.0f,  1134.3f,  1020.8f},{  2402.0f,  2268.5f,  2041.7f}},
       {{   15.9f,   15.0f,   13.5f},{   31.8f,   30.0f,   27.0f},{   67.5f,   63.8f,   57.4f},{  154.9f,  146.3f,  131.6f},{  309.7f,  292.5f,  263.3f},{  648.5f,  612.5f,  551.3f},{  1297.1f,  1225.0f,  1102.5f},{  2594.1f,  2450.0f,  2205.0f}},
-      {{   17.6f,   16.7f,   15.0f},{   35.3f,   33.3f,   30.0f},{   75.0f,   70.8f,   63.8f},{  172.1f,  162.5f,  146.3f},{  344.1f,  325.0f,  292.5f},{  720.6f,  680.6f,  612.5f},{  1441.2f,  1361.1f,  1225.0f},{  2882.4f,  2722.2f,  2450.0f}}
+      {{   17.6f,   16.7f,   15.0f},{   35.3f,   33.3f,   30.0f},{   75.0f,   70.8f,   63.8f},{  172.1f,  162.5f,  146.3f},{  344.1f,  325.0f,  292.5f},{  720.6f,  680.6f,  612.5f},{  1441.2f,  1361.1f,  1225.0f},{  2882.4f,  2722.2f,  2450.0f}},
+      {{    0.0f,    0.0f,    0.0f},{    0.0f,    0.0f,    0.0f},{    0.0f,    0.0f,    0.0f},{    0.0f,   0.0f,     0.0f},{    0.0f,    0.0f,    0.0f},{    8.6f,    8.1f,    7.3f},{    18.0f,    17.0f,    15.3f},{    36.0f,    34.0f,    30.6f}},
+      {{    0.4f,    0.4f,    0.4f},{    0.9f,    0.8f,    0.8f},{    1.8f,    1.7f,    1.6f},{    4.3f,   4.0f,     3.6f},{    8.6f,    8.1f,    7.3f},{   18.0f,   17.0f,   15.3f},{    36.0f,    34.0f,    30.6f},{    72.1f,    68.1f,    61.3f}}
 };
 
 
@@ -1185,6 +1191,13 @@ dissect_wlan_radio_phdr(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, 
           } else {
             bw_idx = info_11be->ru_mru_size;
           }
+
+          /* Handle specificities of MCS 14 & 15 */
+          if (nsts != 1 && (info_11be->user[i].mcs == 14 ||
+               info_11be->user[i].mcs == 15)) {
+            can_calculate_rate = false;
+          }
+
           proto_item *it;
           proto_tree *user_tree;
 
