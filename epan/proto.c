@@ -7303,13 +7303,6 @@ proto_item_fill_display_label(const field_info *finfo, char *display_label_str, 
 	return label_len;
 }
 
-/* -------------------------- */
-/* Sets the text for a custom column from proto fields.
- *
- * @param[out] result The "resolved" column text (human readable, uses strings)
- * @param[out] expr The "unresolved" column text (values, display repr)
- * @return The filter (abbrev) for the field (XXX: Only the first if multifield)
- */
 const char *
 proto_custom_set(proto_tree* tree, GSList *field_ids, int occurrence, bool display_details,
 		 char *result, char *expr, const int size)
@@ -7320,7 +7313,6 @@ proto_custom_set(proto_tree* tree, GSList *field_ids, int occurrence, bool displ
 	header_field_info*  hfinfo;
 	const char         *abbrev        = NULL;
 
-	const char *hf_str_val;
 	char *str;
 	col_custom_t *field_idx;
 	int field_id;
@@ -7374,7 +7366,8 @@ proto_custom_set(proto_tree* tree, GSList *field_ids, int occurrence, bool displ
 					if (offset_e && (offset_e < (size - 1)))
 						expr[offset_e++] = ',';
 					offset_r += protoo_strlcpy(result+offset_r, str, size-offset_r);
-					offset_e += protoo_strlcpy(expr+offset_e, str, size-offset_e);
+					// col_{add,append,set}_* calls ws_label_strcpy
+					offset_e = (int) ws_label_strcpy(expr, size, offset_e, str, 0);
 					g_free(str);
 				}
 				g_ptr_array_unref(fvals);
@@ -7491,6 +7484,7 @@ proto_custom_set(proto_tree* tree, GSList *field_ids, int occurrence, bool displ
 					expr[offset_e++] = ',';
 
 				if (hfinfo->strings && hfinfo->type != FT_FRAMENUM && FIELD_DISPLAY(hfinfo->display) == BASE_NONE && (FT_IS_INT(hfinfo->type) || FT_IS_UINT(hfinfo->type))) {
+					const char *hf_str_val;
 					/* Integer types with BASE_NONE never get the numeric value. */
 					if (FT_IS_INT32(hfinfo->type)) {
 						hf_str_val = hf_try_val_to_str_const(fvalue_get_sinteger(finfo->value), hfinfo, "Unknown");
@@ -7512,7 +7506,8 @@ proto_custom_set(proto_tree* tree, GSList *field_ids, int occurrence, bool displ
 					}
 				} else {
 					str = fvalue_to_string_repr(NULL, finfo->value, FTREPR_RAW, finfo->hfinfo->display);
-					offset_e += protoo_strlcpy(expr+offset_e, str, size-offset_e);
+					// col_{add,append,set}_* calls ws_label_strcpy
+					offset_e = (int) ws_label_strcpy(expr, size, offset_e, str, 0);
 					wmem_free(NULL, str);
 				}
 				i++;
