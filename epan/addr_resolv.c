@@ -186,10 +186,10 @@ struct hashmanuf {
     char              resolved_longname[MAXNAMELEN];
 };
 
-/* internal ethernet type */
+/* internal type used when reading ethers file (or wka, manuf) */
 typedef struct _ether
 {
-    uint8_t           addr[6];
+    uint8_t           addr[8];
     char              name[MAXNAMELEN];
     char              longname[MAXNAMELEN];
 } ether_t;
@@ -261,6 +261,7 @@ static bool new_resolved_objects;
 static GPtrArray* extra_hosts_files;
 
 static hashether_t *add_eth_name(const uint8_t *addr, const char *name, bool static_entry);
+static hasheui64_t *add_eui64_name(const uint8_t *addr, const char *name, bool static_entry);
 static void add_serv_port_cb(const uint32_t port, void *ptr);
 
 /* http://eternallyconfuzzled.com/tuts/algorithms/jsw_tut_hashing.aspx#existing
@@ -1580,7 +1581,7 @@ parse_ether_address_fast(const unsigned char *cp, ether_t *eth, unsigned int *ma
 
 /*
  * If "accept_mask" is false, cp must point to an address that consists
- * of exactly 6 bytes.
+ * of exactly 6 (EUI-48) or 8 (EUI-64) bytes.
  * If "accept_mask" is true, parse an up-to-6-byte sequence with an optional
  * mask.
  */
@@ -1593,7 +1594,7 @@ parse_ether_address(const char *cp, ether_t *eth, unsigned int *mask,
     char *p;
     char sep = '\0';
 
-    for (i = 0; i < 6; i++) {
+    for (i = 0; i < EUI64_ADDR_LEN; i++) {
         /* Get a hex number, 1 or 2 digits, no sign characters allowed. */
         if (!g_ascii_isxdigit(*cp))
             return false;
@@ -1651,12 +1652,21 @@ parse_ether_address(const char *cp, ether_t *eth, unsigned int *mask,
 
             if (i == 5) {
                 /* We got 6 bytes, so this is a MAC address (48 is not allowed as a mask). */
-                if (accept_mask)
+                if (mask) {
                     *mask = 48;
+                }
                 return true;
             }
 
-            /* We didn't get 3 or 6 bytes, and there's no mask; this is
+            if (i == 7) {
+                /* We got 8 bytes, so this is a EUI-64 address (64 is not allowed as a mask). */
+                if (mask) {
+                    *mask = 64;
+                }
+                return true;
+            }
+
+            /* We didn't get 3 or 6 or 8 bytes, and there's no mask; this is
                illegal. */
             return false;
         } else {
@@ -2087,14 +2097,22 @@ initialize_ethers(void)
      * be configurable? (cf. #18075) */
     set_ethent(g_ethers_path);
     while ((eth = get_ethent(&mask, false))) {
-        add_eth_name(eth->addr, eth->name, true);
+        if (mask == 48) {
+            add_eth_name(eth->addr, eth->name, true);
+        } else if (mask == 64) {
+            add_eui64_name(eth->addr, eth->name, true);
+        }
     }
     end_ethent();
 
     if (file_exists(g_pethers_path)) {
         set_ethent(g_pethers_path);
         while ((eth = get_ethent(&mask, false))) {
-            add_eth_name(eth->addr, eth->name, true);
+            if (mask == 48) {
+                add_eth_name(eth->addr, eth->name, true);
+            } else if (mask == 64) {
+                add_eui64_name(eth->addr, eth->name, true);
+            }
         }
         end_ethent();
     }
@@ -2458,6 +2476,29 @@ eui64_hash_new_entry(const uint8_t *addr, const bool resolve)
 
     return tp;
 } /* eui64_hash_new_entry */
+
+static hasheui64_t *
+add_eui64_name(const uint8_t *addr, const char *name, bool static_entry)
+{
+    hasheui64_t *tp;
+
+    tp = (hasheui64_t *)wmem_map_lookup(eui64_hashtable, addr);
+
+    if (tp == NULL) {
+        tp = eui64_hash_new_entry(addr, false);
+    }
+
+    if (strcmp(tp->resolved_name, name) != 0 && (static_entry || !(tp->flags & STATIC_HOSTNAME))) {
+        (void) g_strlcpy(tp->resolved_name, name, MAXNAMELEN);
+        tp->flags |= NAME_RESOLVED;
+        if (static_entry) {
+            tp->flags |= STATIC_HOSTNAME;
+        }
+        new_resolved_objects = true;
+    }
+
+    return tp;
+} /* add_eui64_name */
 
 static hasheui64_t *
 eui64_name_lookup(const uint8_t *addr, const bool resolve)
@@ -4288,11 +4329,14 @@ bool
 str_to_eth(const char *str, char *eth_bytes)
 {
     ether_t eth;
+    unsigned mask;
 
-    if (!parse_ether_address(str, &eth, NULL, false))
+    if (!parse_ether_address(str, &eth, &mask, false))
         return false;
 
-    memcpy(eth_bytes, eth.addr, sizeof(eth.addr));
+    if (mask == 48) {
+        memcpy(eth_bytes, eth.addr, 6);
+    }
     return true;
 }
 

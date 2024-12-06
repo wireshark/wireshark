@@ -177,19 +177,26 @@ printed address would be "ws_test_network.0.1".
 Name Resolution (ethers)::
 +
 --
-The __ethers__ files are consulted to correlate 6-byte hardware addresses to
-names.  First the personal __ethers__ file is tried and if an address is not
-found there the global __ethers__ file is tried next.
+The __ethers__ files are consulted to correlate 6-byte EUI-48 and 8-byte EUI-64
+hardware addresses to names.  First the personal __ethers__ file is tried and
+if an address is not found there the global __ethers__ file is tried next.
 
-Each line contains one hardware address and name, separated by
-whitespace.  The digits of the hardware address are separated by colons
-(:), dashes (-) or periods (.).  The same separator character must be
-used consistently in an address.  The following three lines are valid
-lines of an __ethers__ file:
+The file has a similar format to that defined by ethers(5) on some UNIX-like
+systems.  Each line contains one hardware address and name, separated by
+whitespace (tabs or spaces).  The hexadecimal digits of the hardware address
+are separated by colons (:), dashes (-) or periods (.).  The same separator
+character must be used consistently in an address.  A `#` indicates a comment
+that extends to the rest of the line. Both 6-byte MAC and 8-byte EUI-64
+addresses are supported.  The following four lines are valid lines of an
+__ethers__ file:
 
   ff:ff:ff:ff:ff:ff          Broadcast
   c0-00-ff-ff-ff-ff          TR_broadcast
   00.00.00.00.00.00          Zero_broadcast
+  00:00:00:00:00:00:00:00    EUI64_zero_broadcast
+
+Note that this accepts a greater variety of formats than the file
+defined by ethers(5) on most UN*X systems.
 
 The global __ethers__ file is looked for in the __/etc__ directory on
 UNIX-compatible systems, such as Linux, macOS, \*BSD, Solaris, and AIX,

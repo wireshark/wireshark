@@ -319,23 +319,25 @@ More information about Display Filter Macros is available in
 ethers::
 +
 --
-When Wireshark is trying to translate a hardware MAC address to
+When Wireshark is trying to translate a hardware MAC or EUI-64 address to
 a name, it consults the _ethers_ file in the personal configuration
 folder first.  If the address is not found in that file, Wireshark
 consults the _ethers_ file in the system configuration folder.
 
-This file has a similar format to the _/etc/ethers_ file on some Unix-like systems.
+This file has a similar format to the _/etc/ethers_ file on some UNIX-like systems.
 Each line in these files consists of one hardware address and name separated by
 whitespace (tabs or spaces). The hardware addresses are expressed as pairs
 of hexadecimal digits separated by colons (:), dashes (-), or periods(.), with
 the same separator used in the entire address. A `#` can be used to indicate
 a comment that extends to the rest of the line. NIS lookups, as in some
-UNIX-like systems, are not supported. The following are some examples:
+UNIX-like systems, are not supported. Both 6 byte MAC and 8 byte EUI-64 addresses
+are supported. The following are some examples:
 
 ----
 ff-ff-ff-ff-ff-ff    Broadcast
 c0-00-ff-ff-ff-ff    TR_broadcast
 00.2b.08.93.4b.a1    Freds_machine
+00:00:00:00:00:00:00:00    zb_zero_broadcast
 ----
 
 The settings from this file are read in at program start, and reloaded when

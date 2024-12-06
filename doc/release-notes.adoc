@@ -115,6 +115,8 @@ The following features are either new or have been significantly updated since v
 * The packet list (Wireshark) and event list (Stratoshark) no longer support rows with multiple lines.
   wsbuglink:14424[]
 
+* The `ethers` file can also contain EUI-64 to name mappings. wsbuglink:15487[]
+
 // === Removed Features and Support
 
 
