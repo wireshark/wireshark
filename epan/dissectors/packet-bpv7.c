@@ -510,6 +510,7 @@ static expert_field ei_eid_ipn_num_invalid;
 static expert_field ei_block_type_dupe;
 static expert_field ei_sub_type_unknown;
 static expert_field ei_sub_partial_decode;
+static expert_field ei_primary_crc_type;
 static expert_field ei_crc_type_unknown;
 static expert_field ei_frag_fields_missing;
 static expert_field ei_crc_value_missing;
@@ -532,6 +533,7 @@ static ei_register_info expertitems[] = {
     {&ei_block_type_dupe, {"bpv7.block_type_dupe", PI_PROTOCOL, PI_WARN, "Too many blocks of this type", EXPFILL}},
     {&ei_sub_type_unknown, {"bpv7.sub_type_unknown", PI_UNDECODED, PI_WARN, "Unknown type code", EXPFILL}},
     {&ei_sub_partial_decode, {"bpv7.sub_partial_decode", PI_UNDECODED, PI_WARN, "Data not fully dissected", EXPFILL}},
+    {&ei_primary_crc_type, {"bpv7.primary_crc_type", PI_PROTOCOL, PI_WARN, "Primary block does not have a CRC", EXPFILL}},
     {&ei_crc_type_unknown, {"bpv7.crc_type_unknown", PI_UNDECODED, PI_WARN, "Unknown CRC Type code", EXPFILL}},
     {&ei_frag_fields_missing, {"bpv7.frag_fields_missing", PI_MALFORMED, PI_ERROR, "Missing Fragmentation Fields", EXPFILL}},
     {&ei_crc_value_missing, {"bpv7.crc_value_missing", PI_MALFORMED, PI_ERROR, "Missing CRC Value", EXPFILL}},
@@ -1269,6 +1271,7 @@ static int dissect_block_primary(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 
     switch (block->crc_type) {
         case BP_CRC_NONE:
+            expert_add_info(pinfo, item_crc_type, &ei_primary_crc_type);
             break;
         case BP_CRC_16:
         case BP_CRC_32: {
