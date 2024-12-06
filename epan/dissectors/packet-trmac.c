@@ -86,7 +86,7 @@ static const value_string major_vector_vs[] = {
 	{ 0x0C, "Change Parameters" },
 	{ 0x0D, "Initialize Ring Station" },
 	{ 0x0E, "Request Ring Station Address" },
-	{ 0x0F, "Request Ring Station Address" },
+	{ 0x0F, "Request Ring Station State" },
 	{ 0x10, "Request Ring Station Attachments" },
 	{ 0x20, "Request Initialization" },
 	{ 0x22, "Report Ring Station Address" },

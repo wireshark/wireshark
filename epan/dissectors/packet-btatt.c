@@ -2218,7 +2218,7 @@ static const value_string opcode_vals[] = {
     {0x20, "Read Multiple Variable Request"},
     {0x21, "Read Multiple Variable Response"},
     {0x52, "Write Command"},
-    {0xD2, "Signed Write Command"},
+    {0xd2, "Signed Write Command"},
     {0x0, NULL}
 };
 
@@ -3597,7 +3597,7 @@ static const value_string user_control_point_response_value_vals[] = {
 static const value_string cgm_feature_type_vals[] = {
     { 0x01,   "Capillary Whole Blood"},
     { 0x02,   "Capillary Plasma"},
-    { 0x03,   "Capillary Whole Blood"},
+    { 0x03,   "Venous Whole Blood"},
     { 0x04,   "Venous Plasma"},
     { 0x05,   "Arterial Whole Blood"},
     { 0x06,   "Arterial Plasma"},
@@ -3937,7 +3937,7 @@ static const value_string fitness_machine_status_opcode_vals[] = {
     { 0x0C, "Targeted Number of Strides Changed" },
     { 0x0D, "Targeted Distance Changed" },
     { 0x0E, "Targeted Training Time Changed" },
-    { 0x0F, "Targeted Time in Three Heart Rate Zones Changed" },
+    { 0x0F, "Targeted Time in Two Heart Rate Zones Changed" },
     { 0x10, "Targeted Time in Three Heart Rate Zones Changed" },
     { 0x11, "Targeted Time in Five Heart Rate Zones Changed" },
     { 0x12, "Indoor Bike Simulation Parameters Changed" },

@@ -168,7 +168,7 @@ static int mtp3_addr_fmt = MTP3_ADDR_FMT_DASHED;
 #define ITU_SLS_MASK               0xF0000000
 
 #define ANSI_5BIT_SLS_MASK         0x1F
-#define ANSI_8BIT_SLS_MASK         0xFF
+#define ANSI_8BIT_SLS_MASK         0x0
 #define CHINESE_ITU_SLS_MASK       0xF
 #define JAPAN_4_BIT_SLS_MASK       0xF
 #define JAPAN_4_BIT_SLS_SPARE_MASK 0xF0

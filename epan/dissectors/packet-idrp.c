@@ -1537,7 +1537,7 @@ void proto_register_idrp(void)
         {&hf_idrp_rib_refresh_opcode,
             {"Rib Refresh opcode", "idrp.rib-refresh.opcode", FT_UINT8, BASE_DEC,
                 VALS(idrp_error_rib_refresh_subcodes),
-                0xff, NULL, HFILL}},
+                0x0, NULL, HFILL}},
         {&hf_idrp_rib_refresh_rib_attr_locally_defined_qos_nsap,
             {"Rib Attribute Value Locally Defined Qos NSAP",
                 "idrp.rib-refresh.rib-attr.locally-defined-qos.nsap",
