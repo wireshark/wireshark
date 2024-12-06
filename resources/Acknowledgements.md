@@ -23,3 +23,5 @@ We use the overflow-safe math functions from the [portable snippets](https://git
 We use the [Lrexlib](https://github.com/rrthomas/lrexlib) Lua library, specifically the PCRE2 flavour, to provide a regular expression API for Lua.
 
 The code for our `strptime()` implementation is from [NetBSD](https://www.netbsd.org/).
+
+We use the [dtoa](https://www.netlib.org/fp/) implementation written by David M. Gay.

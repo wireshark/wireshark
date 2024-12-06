@@ -31,6 +31,7 @@
 #include <wsutil/wslog.h>
 #include <wsutil/ws_assert.h>
 #include <wsutil/unicode-utils.h>
+#include <wsutil/dtoa.h>
 
 #include <ftypes/ftypes.h>
 
@@ -10689,7 +10690,6 @@ static size_t
 fill_display_label_float(const field_info *fi, char *label_str)
 {
 	int display;
-	int digits;
 	int n;
 	double value;
 
@@ -10705,12 +10705,11 @@ fill_display_label_float(const field_info *fi, char *label_str)
 
 	switch (display) {
 		case BASE_NONE:
-			if (fi->hfinfo->type == FT_FLOAT)
-				digits = FLT_DIG;
-			else
-				digits = DBL_DIG;
-
-			n = snprintf(label_str, ITEM_LABEL_LENGTH, "%.*g", digits, value);
+			if (fi->hfinfo->type == FT_FLOAT) {
+				n = snprintf(label_str, ITEM_LABEL_LENGTH, "%.*g", FLT_DIG, value);
+			} else {
+				n = (int)strlen(dtoa_g_fmt(label_str, value));
+			}
 			break;
 		case BASE_DEC:
 			n = snprintf(label_str, ITEM_LABEL_LENGTH, "%f", value);

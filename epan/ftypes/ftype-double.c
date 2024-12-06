@@ -11,6 +11,7 @@
 #include <ftypes-int.h>
 #include <float.h>
 #include <wsutil/array.h>
+#include <wsutil/dtoa.h>
 
 static void
 double_fvalue_new(fvalue_t *fv)
@@ -56,20 +57,26 @@ float_val_to_repr(wmem_allocator_t *scope, const fvalue_t *fv, ftrepr_t rtype, i
 {
 	char *buf = wmem_alloc(scope, G_ASCII_DTOSTR_BUF_SIZE);
 	if (rtype == FTREPR_DFILTER)
-		g_ascii_dtostr(buf, G_ASCII_DTOSTR_BUF_SIZE, fv->value.floating);
+		dtoa_g_fmt(buf, fv->value.floating);
 	else
-		g_ascii_formatd(buf, G_ASCII_DTOSTR_BUF_SIZE, "%." G_STRINGIFY(FLT_DIG) "g", fv->value.floating);
+		g_ascii_formatd(buf, G_ASCII_DTOSTR_BUF_SIZE, "%." G_STRINGIFY(FLT_DECIMAL_DIG) "g", fv->value.floating);
 	return buf;
 }
 
 static char *
-double_val_to_repr(wmem_allocator_t *scope, const fvalue_t *fv, ftrepr_t rtype, int field_display _U_)
+double_val_to_repr(wmem_allocator_t *scope, const fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_)
 {
+	/* XXX - We prefer the g fmt here because it's always exact enough for
+	 * serialization and equality testing. We could also use dtoa to write
+	 * an acceptable for serialization and testing BASE_EXP format. We
+	 * could output in hex floating point if field_display is BASE_HEX as
+	 * it's always exact too, but less widely supported (JSON, XML, others
+	 * don't handle it.) BASE_DEC is just always a bad idea for equality
+	 * testing and serialization, unless you want to allow for strings up
+	 * to 308 characters.
+	 */
 	char *buf = wmem_alloc(scope, G_ASCII_DTOSTR_BUF_SIZE);
-	if (rtype == FTREPR_DFILTER)
-		g_ascii_dtostr(buf, G_ASCII_DTOSTR_BUF_SIZE, fv->value.floating);
-	else
-		g_ascii_formatd(buf, G_ASCII_DTOSTR_BUF_SIZE, "%." G_STRINGIFY(DBL_DIG) "g", fv->value.floating);
+	dtoa_g_fmt(buf, fv->value.floating);
 	return buf;
 }
 

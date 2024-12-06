@@ -713,6 +713,10 @@ sub parselicense {
 			$license = 'ISC';
 		}
 
+		if ($licensetext =~ /SPDX-License-Identifier:\s+dtoa/i) {
+			$license = 'dtoa';
+		}
+
 		if ($licensetext =~ /(?:is|may be)\s(?:(?:distributed|used).*?terms|being\s+released).*?\b(L?GPL)\b/) {
 			my $v = $gplver || ' (unversioned/unknown version)';
 			$license = "$1$v $license";
@@ -739,6 +743,10 @@ sub parselicense {
 		if ($licensetext  =~ /Permission to use, copy, modify, and(\/or)? distribute this software for any purpose with or without fee is hereby granted, provided.*copyright notice.*permission notice.*all copies/) {
 			$license = "ISC $license";
 		}
+
+                if ($licensetext =~ /Permission to use, copy, modify, and distribute this software for any purpose without fee is hereby granted, provided that this entire notice is included in all copies of any software which is or includes a copy or modification of this software and in all copies of the supporting documentation for such software./) {
+			$license = "dtoa $license";
+                }
 
 		if ($licensetext =~ /THIS SOFTWARE IS PROVIDED .*AS IS AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY/) {
 			if ($licensetext =~ /All advertising materials mentioning features or use of this software must display the following acknowledge?ment.*This product includes software developed by/i) {

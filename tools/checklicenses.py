@@ -133,6 +133,12 @@ PATH_SPECIFIC_ALLOWED_LICENSES = {
     '.gitlab/': [
         'UNKNOWN',
     ],
+    'wsutil/dtoa.c': [
+        'dtoa',
+    ],
+    'wsutil/dtoa.h': [
+        'dtoa',
+    ],
     'wsutil/safe-math.h': [ # Public domain (CC0)
         'UNKNOWN',
     ],

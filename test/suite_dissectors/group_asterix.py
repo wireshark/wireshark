@@ -696,7 +696,7 @@ class TestCategory019:
             [0x01, 0x80, 0x7f, 0xff, 0xff, 0xff, 0x00, 0x00, 0x00, 0x00],
             "asterix.019_600",
             {
-                "asterix.019_600_LAT": "359.999999832362",
+                "asterix.019_600_LAT": "359.99999983236194",
                 "asterix.019_600_LON": "0"
             }
         )
@@ -713,7 +713,7 @@ class TestCategory019:
             "asterix.019_600",
             {
                 "asterix.019_600_LAT": "0",
-                "asterix.019_600_LON": "359.999999832362"
+                "asterix.019_600_LON": "359.99999983236194"
             }
         )
         validator.add_dissection(
@@ -1516,7 +1516,7 @@ class TestCategory048:
         validator.add_dissection(
             [0x10, 0x00, 0x00, 0xff, 0xff],
             "asterix.048_040",
-            dict_local(x_040, "048_040", "THETA", "359.994506835938")
+            dict_local(x_040, "048_040", "THETA", "359.9945068359375")
         )
         x_070 = {
             "asterix.048_070_V": "0",
@@ -1766,7 +1766,7 @@ class TestCategory048:
         validator.add_dissection(
             [0x01, 0x04, 0x00, 0x00, 0xff, 0xff],
             "asterix.048_200",
-            dict_local(x_200, "048_200", "HDG", "359.994506835938")
+            dict_local(x_200, "048_200", "HDG", "359.9945068359375")
         )
         x_170 = {
             "asterix.048_170_CNF": "0",
@@ -3393,7 +3393,7 @@ class TestCategory063:
             [0x01, 0x80, 0x7f, 0xff],
             "asterix.063_081",
             {
-                "asterix.063_081_VALUE": "179.994506835938"
+                "asterix.063_081_VALUE": "179.9945068359375"
             }
         )
         validator.add_dissection(
@@ -3439,7 +3439,7 @@ class TestCategory063:
             [0x01, 0x20, 0x7f, 0xff],
             "asterix.063_091",
             {
-                "asterix.063_091_VALUE": "179.994506835938"
+                "asterix.063_091_VALUE": "179.9945068359375"
             }
         )
         validator.add_dissection(
@@ -3453,7 +3453,7 @@ class TestCategory063:
             [0x01, 0x10, 0x7f, 0xff],
             "asterix.063_092",
             {
-                "asterix.063_092_VALUE": "179.994506835938"
+                "asterix.063_092_VALUE": "179.9945068359375"
             }
         )
         validator.add_dissection(
