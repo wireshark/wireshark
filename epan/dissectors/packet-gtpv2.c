@@ -3516,7 +3516,7 @@ decode_gtpv2_uli(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item
     /* 8.21.6  LAI field */
     if (flags & GTPv2_ULI_LAI_MASK)
     {
-        uint16_t lac;
+        uint32_t lac;
         proto_item_append_text(item, "LAI ");
         part_tree = proto_tree_add_subtree(tree, tvb, offset, 5,
             ett_gtpv2_uli_field, NULL, "LAI (Location Area Identifier)");
@@ -3527,8 +3527,8 @@ decode_gtpv2_uli(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item
          * and bit 1 of Octet f+4 the least significant bit. The coding of the location area code is the
          * responsibility of each administration. Coding using full hexadecimal representation shall be used.
          */
-        proto_tree_add_item(part_tree, hf_gtpv2_uli_lai_lac, tvb, offset, 2, ENC_BIG_ENDIAN);
-        lac = tvb_get_ntohs(tvb, offset);
+        proto_tree_add_item_ret_uint(part_tree, hf_gtpv2_uli_lai_lac, tvb, offset, 2, ENC_BIG_ENDIAN, &lac);
+        offset += 2;
         str = wmem_strdup_printf(pinfo->pool, "%s, LAC 0x%x",
             mcc_mnc_str,
             lac);
@@ -3568,7 +3568,7 @@ void
 dissect_gtpv2_uli(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, uint16_t length, uint8_t message_type _U_, uint8_t instance _U_, session_args_t * args _U_)
 {
     int         offset = 0;
-    unsigned    flags;
+    uint64_t    flags;
 
     static int * const gtpv2_uli_flags[] = {
         &hf_gtpv2_uli_ext_macro_enb_id_flg,
@@ -3582,11 +3582,10 @@ dissect_gtpv2_uli(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_ite
         NULL
     };
 
-    flags = tvb_get_uint8(tvb, offset) & 0x3f;
-    proto_tree_add_bitmask_with_flags(tree, tvb, offset, hf_gtpv2_uli_flags,
-        ett_gtpv2_uli_flags, gtpv2_uli_flags, ENC_BIG_ENDIAN, BMT_NO_FALSE| BMT_NO_INT);
+    proto_tree_add_bitmask_with_flags_ret_uint64(tree, tvb, offset, hf_gtpv2_uli_flags,
+        ett_gtpv2_uli_flags, gtpv2_uli_flags, ENC_BIG_ENDIAN, BMT_NO_FALSE| BMT_NO_INT, &flags);
 
-    decode_gtpv2_uli(tvb, pinfo, tree, item, length, instance, flags);
+    decode_gtpv2_uli(tvb, pinfo, tree, item, length, instance, (unsigned)flags);
 
     return;
 }
