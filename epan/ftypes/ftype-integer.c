@@ -854,23 +854,6 @@ boolean_from_sinteger64(fvalue_t *fv, const char *s _U_, int64_t value, char **e
 	return true;
 }
 
-static bool
-boolean_from_string(fvalue_t *fv, const char *s, size_t len, char **err_msg _U_)
-{
-	if (g_ascii_strncasecmp(s, "true", len) == 0) {
-		fv->value.uinteger64 = 1;
-		return true;
-	}
-	if (g_ascii_strncasecmp(s, "false", len) == 0) {
-		fv->value.uinteger64 = 0;
-		return true;
-	}
-
-	if (err_msg)
-		*err_msg = ws_strdup_printf("expected \"True\" or \"False\", not \"%s\"", s);
-	return false;
-}
-
 static char *
 boolean_to_repr(wmem_allocator_t *scope, const fvalue_t *fv, ftrepr_t rtype, int field_display _U_)
 {
@@ -1620,7 +1603,7 @@ ftype_register_integers(void)
 		NULL,				/* copy_value */
 		NULL,				/* free_value */
 		boolean_from_literal,		/* val_from_literal */
-		boolean_from_string,		/* val_from_string */
+		NULL,				/* val_from_string */
 		uint64_from_charconst,		/* val_from_charconst */
 		boolean_from_uinteger64,	/* val_from_uinteger64 */
 		boolean_from_sinteger64,	/* val_from_sinteger64 */

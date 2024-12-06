@@ -512,9 +512,11 @@ class TestDfilterTFSValueString:
         dfilter = 'ip.flags.df == True'
         checkDFilterCount(dfilter, 1)
 
-    def test_tfs_2(self, checkDFilterCount):
+    def test_tfs_2(self, checkDFilterFail):
+        # Should this fail or give a warning?
+        error = 'expected "Set" or "Not set", not "True"'
         dfilter = 'ip.flags.df == "True"'
-        checkDFilterCount(dfilter, 1)
+        checkDFilterFail(dfilter, error)
 
     def test_tfs_3(self, checkDFilterCount):
         dfilter = 'ip.flags.df == "Set"'
