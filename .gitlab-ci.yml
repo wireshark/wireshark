@@ -732,8 +732,6 @@ Documentation:
 Commit Check:
   extends: .build-ubuntu
   rules: !reference [.if-merge-request]
-  variables:
-    GITLAB_REPO: "$CI_MERGE_REQUEST_PROJECT_URL"
   script:
     # build-ubuntu puts us in `build`.
     - cd ..
