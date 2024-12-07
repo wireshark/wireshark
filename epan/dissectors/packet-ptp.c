@@ -1024,16 +1024,6 @@ static int ett_ptp_time2;
 #define PTP_V2_MM_ID_DELAY_MECHANISM                            0x6000
 #define PTP_V2_MM_ID_LOG_MIN_PDELAY_REQ_INTERVAL                0x6001
 
-/* Management DataField for DefaultDS */
-#define PTP_V2_MM_RESERVED1                             PTP_V2_MM_TLV_DATAFIELD_OFFSET + 1
-#define PTP_V2_MM_NUMBERPORTS                           PTP_V2_MM_TLV_DATAFIELD_OFFSET + 2
-#define PTP_V2_MM_PRIORITY1                             PTP_V2_MM_TLV_DATAFIELD_OFFSET + 4
-#define PTP_V2_MM_CLOCKQUALITY                          PTP_V2_MM_TLV_DATAFIELD_OFFSET + 5
-#define PTP_V2_MM_PRIORITY2                             PTP_V2_MM_TLV_DATAFIELD_OFFSET + 9
-#define PTP_V2_MM_CLOCKIDENTITY                         PTP_V2_MM_TLV_DATAFIELD_OFFSET + 10
-#define PTP_V2_MM_DOMAINNUMBER                          PTP_V2_MM_TLV_DATAFIELD_OFFSET + 18
-#define PTP_V2_MM_RESERVED2                             PTP_V2_MM_TLV_DATAFIELD_OFFSET + 19
-
 /* Bitmasks for PTP_V2_SIG_TLV_L1SYNC_FLAGS1_OFFSET */
 #define PTP_V2_TLV_SIG_TLV_L1SYNC_FLAGS1_TCR_BITMASK     0x1 << 8
 #define PTP_V2_TLV_SIG_TLV_L1SYNC_FLAGS1_RCR_BITMASK     0x2 << 8
@@ -4880,41 +4870,40 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bool ptpv2_o
                             }
                             case PTP_V2_MM_ID_DEFAULT_DATA_SET:
                             {
-                                proto_tree_add_item(ptp_managementData_tree, hf_ptp_v2_mm_TSC, tvb,
-                                    PTP_V2_MM_TLV_DATAFIELD_OFFSET, 1, ENC_BIG_ENDIAN);
+                                proto_tree_add_item(ptp_managementData_tree, hf_ptp_v2_mm_TSC, tvb, offset, 1, ENC_BIG_ENDIAN);
+                                proto_tree_add_item(ptp_managementData_tree, hf_ptp_v2_mm_dds_SO, tvb, offset, 1, ENC_BIG_ENDIAN);
+                                offset += 1;
 
-                                proto_tree_add_item(ptp_managementData_tree, hf_ptp_v2_mm_dds_SO, tvb,
-                                    PTP_V2_MM_TLV_DATAFIELD_OFFSET, 1, ENC_BIG_ENDIAN);
+                                proto_tree_add_item(ptp_managementData_tree, hf_ptp_v2_mm_reserved, tvb, offset, 1, ENC_NA);
+                                offset += 1;
 
-                                proto_tree_add_item(ptp_managementData_tree, hf_ptp_v2_mm_reserved, tvb,
-                                    PTP_V2_MM_RESERVED1, 1, ENC_NA);
+                                proto_tree_add_item(ptp_managementData_tree, hf_ptp_v2_mm_numberPorts, tvb, offset, 2, ENC_BIG_ENDIAN);
+                                offset += 2;
 
-                                proto_tree_add_item(ptp_managementData_tree, hf_ptp_v2_mm_numberPorts, tvb,
-                                    PTP_V2_MM_NUMBERPORTS, 2, ENC_BIG_ENDIAN);
+                                proto_tree_add_item(ptp_managementData_tree, hf_ptp_v2_mm_priority1, tvb, offset, 1, ENC_BIG_ENDIAN);
+                                offset += 1;
 
-                                proto_tree_add_item(ptp_managementData_tree, hf_ptp_v2_mm_priority1, tvb,
-                                    PTP_V2_MM_PRIORITY1, 1, ENC_BIG_ENDIAN);
+                                /* clockQuality 4 bytes */
+                                proto_tree_add_item(ptp_managementData_tree, hf_ptp_v2_mm_clockclass, tvb, offset, 1, ENC_BIG_ENDIAN);
+                                offset += 1;
 
-                                proto_tree_add_item(ptp_managementData_tree, hf_ptp_v2_mm_clockclass, tvb,
-                                    PTP_V2_MM_CLOCKQUALITY, 1, ENC_BIG_ENDIAN);
+                                proto_tree_add_item(ptp_managementData_tree, hf_ptp_v2_mm_clockaccuracy, tvb, offset, 1, ENC_BIG_ENDIAN);
+                                offset += 1;
 
-                                proto_tree_add_item(ptp_managementData_tree, hf_ptp_v2_mm_clockaccuracy, tvb,
-                                    PTP_V2_MM_CLOCKQUALITY+1, 1, ENC_BIG_ENDIAN);
+                                proto_tree_add_item(ptp_managementData_tree, hf_ptp_v2_mm_clockvariance, tvb, offset, 2, ENC_BIG_ENDIAN);
+                                offset += 2;
 
-                                proto_tree_add_item(ptp_managementData_tree, hf_ptp_v2_mm_clockvariance, tvb,
-                                    PTP_V2_MM_CLOCKQUALITY+2, 2, ENC_BIG_ENDIAN);
 
-                                proto_tree_add_item(ptp_managementData_tree, hf_ptp_v2_mm_priority2, tvb,
-                                    PTP_V2_MM_PRIORITY2, 1, ENC_BIG_ENDIAN);
+                                proto_tree_add_item(ptp_managementData_tree, hf_ptp_v2_mm_priority2, tvb, offset, 1, ENC_BIG_ENDIAN);
+                                offset += 1;
 
-                                proto_tree_add_item(ptp_managementData_tree, hf_ptp_v2_mm_clockidentity, tvb,
-                                    PTP_V2_MM_CLOCKIDENTITY, 8, ENC_BIG_ENDIAN);
+                                proto_tree_add_item(ptp_managementData_tree, hf_ptp_v2_mm_clockidentity, tvb, offset, 8, ENC_BIG_ENDIAN);
+                                offset += 8;
 
-                                proto_tree_add_item(ptp_managementData_tree, hf_ptp_v2_mm_domainNumber, tvb,
-                                    PTP_V2_MM_DOMAINNUMBER, 1, ENC_BIG_ENDIAN);
+                                proto_tree_add_item(ptp_managementData_tree, hf_ptp_v2_mm_domainNumber, tvb, offset, 1, ENC_BIG_ENDIAN);
+                                offset += 1;
 
-                                proto_tree_add_item(ptp_managementData_tree, hf_ptp_v2_mm_reserved, tvb,
-                                    PTP_V2_MM_RESERVED2, 1, ENC_NA);
+                                proto_tree_add_item(ptp_managementData_tree, hf_ptp_v2_mm_reserved, tvb, offset, 1, ENC_NA);
                                 break;
                             }
                             case PTP_V2_MM_ID_CURRENT_DATA_SET:
