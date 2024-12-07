@@ -107,6 +107,12 @@ class TestDfilterMembership:
         dfilter = 'tcp.checksum.status in {"Unverified", "Good"}'
         checkDFilterCount(dfilter, 1)
 
+    def test_membership_value_string_2(self, checkDFilterSucceed):
+        # These appear in different value strings registered to different
+        # versions of vlan.priority
+        dfilter = 'vlan.priority in {"Spare", "Critical Applications"}'
+        checkDFilterSucceed(dfilter)
+
     def test_membership_arithmetic_1(self, checkDFilterCountWithSelectedFrame):
         dfilter = 'frame.time_epoch in {${frame.time_epoch}-46..${frame.time_epoch}+43}'
         checkDFilterCountWithSelectedFrame(dfilter, 1, 1)

@@ -11,6 +11,7 @@
 
 #include "dfvm.h"
 
+#include <tfs.h>
 #include <ftypes/ftypes.h>
 #include <wsutil/array.h>
 #include <wsutil/ws_assert.h>
@@ -1331,7 +1332,10 @@ try_value_string(const header_field_info *hfinfo, fvalue_t *fv_num, char *buf)
 		return NULL;
 	}
 
-	if (hfinfo->display & BASE_RANGE_STRING) {
+	if (hfinfo->type == FT_BOOLEAN) {
+		return tfs_get_string((bool)val, hfinfo->strings);
+	}
+	else if (hfinfo->display & BASE_RANGE_STRING) {
 		return try_rval_to_str((uint32_t)val, hfinfo->strings);
 	}
 	else if (hfinfo->display & BASE_EXT_STRING) {

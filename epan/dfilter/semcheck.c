@@ -71,7 +71,10 @@ static ftenum_t
 semcheck(dfwork_t *dfw, stnode_t *st_node);
 
 enum mk_result {
-	MK_ERROR,
+	MK_ERROR_BAD_TYPE, /* ftype doesn't support value_string */
+	MK_ERROR_NO_STRINGS, /* ftype supports value string, doesn't have one. */
+	MK_ERROR_BAD_VALUE, /* ftype has value_string, this value isn't in it. */
+	MK_ERROR = MK_ERROR_BAD_VALUE,
 	MK_OK_BOOLEAN,
 	MK_OK_NUMBER,
 	MK_OK_STRING,
@@ -231,7 +234,7 @@ dfilter_fvalue_from_literal(dfwork_t *dfw, ftenum_t ftype, stnode_t *st,
 		 * Ignore previous errors if this can be mapped
 		 * to an item from value_string.
 		 */
-		if (res != MK_ERROR) {
+		if (res > MK_ERROR) {
 			df_error_free(&dfw->error);
 			add_compile_warning(dfw, "Interpreting the symbol \u2039%s\u203A as a %s value string. "
 					"Writing value strings without double quotes is deprecated. "
@@ -391,33 +394,22 @@ mk_uint64_fvalue(uint64_t val)
 	return fv;
 }
 
-/* Try to make an fvalue from a string using a value_string or true_false_string.
- * This works only for ftypes that are integers. Returns the created fvalue_t*
- * or NULL if impossible.
- * If the mapping number<->string is unique convert the string to a number
- * by inverting the value string function.
- * Otherwise we compile it as a string and map the field value at runtime
- * to a string for the comparison.
- *
- * XXX - This should check all hfinfo with the same abbreviation, not just the
- * last registered. If there are multiple fields registered, then all the fields
- * must map the same number (and only that number) to the string in order for
- * optimizing into a number test to be valid (see #19111). Otherwise, we should
- * allow the string match if it at least one field with the same abbreviation has
- * a value string with that string as an entry.
- */
 static enum mk_result
-mk_fvalue_from_val_string(dfwork_t *dfw, header_field_info *hfinfo, const char *s, stnode_t *st)
+mk_fvalue_from_hfinfo(const header_field_info *hfinfo, const char *s, uint64_t *valp)
 {
-	static const true_false_string  default_tf = { "True", "False" };
-	const true_false_string	*tf;
-
 	/* Early return? */
+	/* If registration of non-compatible fields to the same abbrev were
+	 * checked, we could do this check up front for the first hfinfo only -
+	 * except for FT_FRAMENUM, which is compatible with the integer types
+	 * and overloads strings.
+	 * (We could instead say that FT_FRAMENUM is compatible for comparing
+	 * with integer types but not for registering to the same abbrev.)
+	 */
 	switch(hfinfo->type) {
 		case FT_NONE:
 		case FT_PROTOCOL: /* hfinfo->strings contains the protocol_t */
-		case FT_FLOAT:
-		case FT_DOUBLE:
+		case FT_FLOAT: /* XXX - FT_FLOAT can have strings for BASE_CUSTOM */
+		case FT_DOUBLE: /* XXX - FT_DOUBLE can have strings for BASE_CUSTOM */
 		case FT_IEEE_11073_SFLOAT:
 		case FT_IEEE_11073_FLOAT:
 		case FT_ABSOLUTE_TIME:
@@ -442,7 +434,7 @@ mk_fvalue_from_val_string(dfwork_t *dfw, header_field_info *hfinfo, const char *
 		case FT_REL_OID:
 		case FT_SYSTEM_ID:
 		case FT_FRAMENUM: /* hfinfo->strings contains ft_framenum_type_t, not strings */
-			return MK_ERROR;
+			return MK_ERROR_BAD_TYPE;
 
 		case FT_BOOLEAN:
 		case FT_CHAR:
@@ -469,45 +461,28 @@ mk_fvalue_from_val_string(dfwork_t *dfw, header_field_info *hfinfo, const char *
 			ASSERT_FTYPE_NOT_REACHED(hfinfo->type);
 	}
 
-	fvalue_t *fv;
 
 	/* Always handle FT_BOOLEAN (fallback to default tfs). */
 	if (hfinfo->type == FT_BOOLEAN) {
+		static const true_false_string  default_tf = { "True", "False" };
+		const true_false_string	*tf;
 		tf = hfinfo->strings ? (const true_false_string *)hfinfo->strings : &default_tf;
 
 		if (g_ascii_strcasecmp(s, tf->true_string) == 0) {
-			fv = mk_boolean_fvalue(true);
-			stnode_replace(st, STTYPE_FVALUE, fv);
+			*valp = 1;
 			return MK_OK_BOOLEAN;
 		}
 		if (g_ascii_strcasecmp(s, tf->false_string) == 0) {
-			fv = mk_boolean_fvalue(false);
-			stnode_replace(st, STTYPE_FVALUE, fv);
+			*valp = 0;
 			return MK_OK_BOOLEAN;
 		}
-		df_error_free(&dfw->error);
-		/* XXX - If the FT_BOOLEAN has a non-default tfs, should "True" or
-		 * "False" (with quotes, so a string not a literal in the grammar)
-		 * fall back to matching the default string with a deprecation
-		 * warning?
-		 */
-		dfilter_fail(dfw, DF_ERROR_GENERIC, stnode_location(st), "expected \"%s\" or \"%s\", not \"%s\" for %s.",
-								tf->true_string, tf->false_string,
-								s, hfinfo->abbrev);
 		return MK_ERROR;
 	}
 
 	/* Do val_strings exist? */
 	if (!hfinfo->strings) {
-		dfilter_fail(dfw, DF_ERROR_GENERIC, stnode_location(st), "%s cannot accept strings as values.",
-				hfinfo->abbrev);
-		return MK_ERROR;
+		return MK_ERROR_NO_STRINGS;
 	}
-
-	/* Reset the error message, since *something* interesting will happen,
-	 * and the error message will be more interesting than any error message
-	 * I happen to have now. */
-	df_error_free(&dfw->error);
 
 	uint64_t val = 0, val_max = 0;
 	size_t count = 0;
@@ -525,27 +500,18 @@ mk_fvalue_from_val_string(dfwork_t *dfw, header_field_info *hfinfo, const char *
 		}
 		if (count > 1) {
 			// More than one match, use a string.
-			fv = mk_string_fvalue(s);
-			stnode_replace(st, STTYPE_FVALUE, fv);
 			return MK_OK_STRING;
 		}
 		else if (count == 1) {
 			// If the range has a single value use an integer.
 			// Otherwise use a string.
 			if (val == val_max) {
-				fv = mk_uint64_fvalue(val);
-				stnode_replace(st, STTYPE_FVALUE, fv);
+				*valp = val;
 				return MK_OK_NUMBER;
 			}
 			else {
-				fv = mk_string_fvalue(s);
-				stnode_replace(st, STTYPE_FVALUE, fv);
 				return MK_OK_STRING;
 			}
-		}
-		else {
-			dfilter_fail(dfw, DF_ERROR_GENERIC, stnode_location(st), "\"%s\" cannot be found among the possible values for %s.",
-					s, hfinfo->abbrev);
 		}
 	}
 	else if (hfinfo->display & BASE_VAL64_STRING) {
@@ -562,30 +528,25 @@ mk_fvalue_from_val_string(dfwork_t *dfw, header_field_info *hfinfo, const char *
 		}
 		if (count > 1) {
 			// More than one match, use a string.
-			fv = mk_string_fvalue(s);
-			stnode_replace(st, STTYPE_FVALUE, fv);
 			return MK_OK_STRING;
 		}
 		else if (count == 1) {
 			// Only one match, convert string to number.
-			fv = mk_uint64_fvalue(val);
-			stnode_replace(st, STTYPE_FVALUE, fv);
+			*valp = val;
 			return MK_OK_NUMBER;
-		}
-		else {
-			dfilter_fail(dfw, DF_ERROR_GENERIC, stnode_location(st), "\"%s\" cannot be found among the possible values for %s.",
-					s, hfinfo->abbrev);
 		}
 	}
 	else if (hfinfo->display == BASE_CUSTOM) {
 		/*  We don't have a string catalog to compare to so just assume
 		 * the provided string is a valid custom representation. */
 		if (FT_IS_INTEGER(hfinfo->type)) {
-			fv = mk_string_fvalue(s);
-			stnode_replace(st, STTYPE_FVALUE, fv);
+			/* Should always be true due to type check above. */
 			return MK_OK_STRING;
 		}
-		dfilter_fail(dfw, DF_ERROR_GENERIC, stnode_location(st), "%s must be an integer.", hfinfo->abbrev);
+		/* FT_FLOAT and FT_DOUBLE can have BASE_CUSTOM functions but
+		 * they were disallowed above. Maybe they should be allowed?
+		 * That would take changes in dfvm.c try_value_string as well.
+		 */
 	}
 	else {
 		const value_string *vals = (const value_string *)hfinfo->strings;
@@ -601,22 +562,137 @@ mk_fvalue_from_val_string(dfwork_t *dfw, header_field_info *hfinfo, const char *
 		}
 		if (count > 1) {
 			// More than one match, use a string.
-			fv = mk_string_fvalue(s);
-			stnode_replace(st, STTYPE_FVALUE, fv);
 			return MK_OK_STRING;
 		}
 		else if (count == 1) {
 			// Only one match, convert string to number.
-			fv = mk_uint64_fvalue(val);
-			stnode_replace(st, STTYPE_FVALUE, fv);
+			*valp = val;
 			return MK_OK_NUMBER;
-		}
-		else {
-			dfilter_fail(dfw, DF_ERROR_GENERIC, stnode_location(st), "\"%s\" cannot be found among the possible values for %s.",
-					s, hfinfo->abbrev);
 		}
 	}
 	return MK_ERROR;
+}
+
+/* Try to make an fvalue from a string using a value_string or true_false_string.
+ * This works only for ftypes that are integers.
+ * If the mapping number<->string is unique convert the string to a number
+ * by inverting the value string function.
+ * Otherwise we compile it as a string and map the field value at runtime
+ * to a string for the comparison.
+ */
+static enum mk_result
+mk_fvalue_from_val_string(dfwork_t *dfw, header_field_info *hfinfo, const char *s, stnode_t *st)
+{
+	fvalue_t *fv = NULL;
+	enum mk_result res;
+	uint64_t val;
+
+	/* We might have more than one hfinfo with the same abbreviation. (#19111)
+	 * We can optimize to a number (or boolean) test if all fields map the
+	 * same value (and only that value) to the string.
+	 * Otherwise, allow a string match if at least one field with the
+	 * abbreviation has a value string with that string as an entry.
+	 */
+	while (hfinfo->same_name_prev_id != -1) {
+		/* Rewind (shouldn't be necessary.) */
+		hfinfo = proto_registrar_get_nth(hfinfo->same_name_prev_id);
+	}
+	/* Types of failures:
+	 * 1. ftype doesn't support value strings
+	 * 2. ftype supports value strings, but hfinfo doesn't have one
+	 * 3. hfinfo has a value string, but s is not among the possible values
+	 *
+	 * These are distinguished only for what error message, if any, we'll
+	 * produce (and whether it overrides any earlier error message.)
+	 * Report the highest number error from any hfinfo (i.e., if at least
+	 * one field does have a value string, prefer saying that "s" was not
+	 * among its values to reporting that the other fields didn't have
+	 * value strings.)
+	 */
+	res = mk_fvalue_from_hfinfo(hfinfo, s, &val);
+
+	while (res != MK_OK_STRING && hfinfo->same_name_next) {
+		enum mk_result prev_res = res;
+		uint64_t prev_val = val;
+		hfinfo = hfinfo->same_name_next;
+
+		res = mk_fvalue_from_hfinfo(hfinfo, s, &val);
+
+		switch (res) {
+
+		case MK_ERROR_BAD_TYPE:
+		case MK_ERROR_NO_STRINGS:
+		case MK_ERROR_BAD_VALUE:
+			if (prev_res > MK_ERROR) {
+				/* An earlier hfinfo has s, but not this.
+				 * Fall back to a string match. */
+				res = MK_OK_STRING;
+			} else {
+				res = MAX(res, prev_res);
+			}
+			break;
+
+		case MK_OK_BOOLEAN:
+		case MK_OK_NUMBER:
+			if (prev_res != res || val != prev_val) {
+				/* This field maps a single value to s,
+				 * but an earlier field maps a different
+				 * value or fails to match. Fall back to
+				 * a string match. */
+				res = MK_OK_STRING;
+			}
+			break;
+
+		case MK_OK_STRING:
+			break;
+		}
+	}
+
+	switch (res) {
+
+	case MK_OK_BOOLEAN:
+		fv = mk_boolean_fvalue((bool)val);
+		break;
+
+	case MK_OK_NUMBER:
+		fv = mk_uint64_fvalue(val);
+		break;
+
+	case MK_OK_STRING:
+		fv = mk_string_fvalue(s);
+		break;
+
+	case MK_ERROR_BAD_TYPE:
+		res = MK_ERROR;
+		break;
+
+	case MK_ERROR_NO_STRINGS:
+		dfilter_fail(dfw, DF_ERROR_GENERIC, stnode_location(st), "%s cannot accept strings as values.",
+				hfinfo->abbrev);
+		res = MK_ERROR;
+		break;
+
+	case MK_ERROR:
+		df_error_free(&dfw->error);
+		if (hfinfo->type == FT_BOOLEAN && hfinfo->same_name_next == NULL) {
+			// For a boolean (with only one field for the abbreviation),
+			// it's easy to show all possible values.
+			dfilter_fail(dfw, DF_ERROR_GENERIC, stnode_location(st), "expected \"%s\" or \"%s\", not \"%s\" for %s.",
+								tfs_get_string(true, hfinfo->strings), tfs_get_string(false, hfinfo->strings),
+								s, hfinfo->abbrev);
+		} else {
+			dfilter_fail(dfw, DF_ERROR_GENERIC, stnode_location(st), "\"%s\" cannot be found among the possible values for %s.",
+					s, hfinfo->abbrev);
+		}
+		break;
+	}
+
+	if (fv) {
+		df_error_free(&dfw->error);
+		stnode_replace(st, STTYPE_FVALUE, fv);
+	}
+
+	return res;
 }
 
 static bool
