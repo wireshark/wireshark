@@ -8060,7 +8060,7 @@ proto_register_ptp(void)
         { &ei_ptp_v2_pdreq_no_pdresp,   { "ptp.v2.pdelay_req_without_resp", PI_PROTOCOL, PI_WARN, "No Response for this Peer Delay Request", EXPFILL }},
         { &ei_ptp_v2_pdresp_no_pdreq,   { "ptp.v2.pdelay_resp_without_req", PI_PROTOCOL, PI_WARN, "No Request for this Peer Delay Response", EXPFILL }},
         { &ei_ptp_v2_pdresp_no_pdfup,   { "ptp.v2.pdelay_resp_without_fup", PI_PROTOCOL, PI_WARN, "No Follow Up for this Peer Delay Response", EXPFILL }},
-        { &ei_ptp_v2_pdresp_twostep,    { "ptp.v2.pdelay_resp_two_step_false", PI_PROTOCOL, PI_WARN, "Peer Delay Response with Two Step Flag set to false but Follow Up", EXPFILL }},
+        { &ei_ptp_v2_pdresp_twostep,    { "ptp.v2.pdelay_resp_two_step_false", PI_PROTOCOL, PI_WARN, "Peer Delay Response with Two Step Flag set to false but Follow Up received", EXPFILL }},
         { &ei_ptp_v2_pdfup_no_pdresp,   { "ptp.v2.pdelay_fup_without_resp", PI_PROTOCOL, PI_WARN, "No Response for this Peer Delay Follow Up", EXPFILL }},
         { &ei_ptp_v2_period_invalid,    { "ptp.v2.period.invalid", PI_PROTOCOL, PI_WARN, "Period invalid", EXPFILL }},
     };
