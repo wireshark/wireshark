@@ -17,6 +17,8 @@ jobs:
           install: base-devel
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          persist-credentials: false
       - name: Install dependencies
         run: tools/msys2-setup.sh --install-all --noconfirm
       - name: Build
