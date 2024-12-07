@@ -228,6 +228,7 @@ static int hf_wisun_bsie_bcast_schedule_id;
 static int hf_wisun_vpie;
 static int hf_wisun_vpie_vid;
 static int hf_wisun_lcpie;
+static int hf_wisun_lcpie_channel_plan_tag;
 static int hf_wisun_panie;
 static int hf_wisun_panie_size;
 static int hf_wisun_panie_cost;
@@ -1320,7 +1321,7 @@ dissect_wisun_lcpie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
     proto_tree_add_bitmask(subtree, tvb, offset, hf_wisun_wsie, ett_wisun_wsie_bitmap, wisun_format_nested_ie, ENC_LITTLE_ENDIAN);
     offset += 2;
 
-    proto_tree_add_item(subtree, hf_wisun_lusie_channel_plan_tag, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(subtree, hf_wisun_lcpie_channel_plan_tag, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset += 1;
 
     return dissect_wisun_schedule_common(tvb, pinfo, offset, subtree);
@@ -1991,12 +1992,12 @@ void proto_register_wisun(void)
         },
 
         { &hf_wisun_nrie_listening_interval_min,
-          { "Listening Interval Min", "wisun.nriw.listening_interval_min", FT_UINT24, BASE_DEC, NULL, 0x0,
+          { "Listening Interval Min", "wisun.nrie.listening_interval_min", FT_UINT24, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
 
         { &hf_wisun_nrie_listening_interval_max,
-          { "Listening Interval Max", "wisun.nriw.listening_interval_max", FT_UINT24, BASE_DEC, NULL, 0x0,
+          { "Listening Interval Max", "wisun.nrie.listening_interval_max", FT_UINT24, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
 
@@ -2319,6 +2320,11 @@ void proto_register_wisun(void)
         { &hf_wisun_lcpie,
           { "LCP-IE", "wisun.lcpie", FT_NONE, BASE_NONE, NULL, 0x0,
             "LFN Channel Plan IE", HFILL }
+        },
+
+        { &hf_wisun_lcpie_channel_plan_tag,
+          { "Channel Plan Tag", "wisun.lcpie.channeltag", FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
         },
 
         { &hf_wisun_panie,
