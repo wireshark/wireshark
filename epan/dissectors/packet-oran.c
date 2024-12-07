@@ -1919,8 +1919,8 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
 
     uint32_t sectionId = 0;
 
-    uint32_t startPrbc, startPrbu;
-    uint32_t numPrbc, numPrbu;
+    uint32_t startPrbc=0, startPrbu=0;
+    uint32_t numPrbc=0, numPrbu=0;
     uint32_t ueId = 0;
     uint32_t beamId = 0;
     proto_item *beamId_ti = NULL;
@@ -5269,7 +5269,7 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
             offset += 2;
         }
 
-        uint64_t sresmask1, sresmask2;
+        uint64_t sresmask1=0, sresmask2=0;
 
         /* sReSMask1 + sReSMask2 */
         if (compression == BFP_AND_SELECTIVE_RE_WITH_MASKS ||
