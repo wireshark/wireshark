@@ -5208,8 +5208,8 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bool ptpv2_o
                                 /* one or more ClockIdentity */
                                 for (i = 0; i < (tlv_length / 8); i++)
                                 {
-                                    proto_tree_add_item(ptp_managementData_tree, hf_ptp_v2_mm_clockidentity, tvb,
-                                        offset, 8, ENC_BIG_ENDIAN);
+                                    proto_tree_add_item(ptp_managementData_tree, hf_ptp_v2_mm_clockidentity, tvb, offset, 8, ENC_BIG_ENDIAN);
+                                    offset += 8;
                                 }
 
                                 break;
