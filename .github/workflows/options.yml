@@ -12,6 +12,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          persist-credentials: false
       - name: Install deps
         run: |
           sudo tools/debian-setup.sh --install-all ninja-build -y
