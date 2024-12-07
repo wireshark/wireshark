@@ -4581,7 +4581,7 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
                     /* lsb is symbol 0 */
                     for (unsigned s=0; s < 14; s++) {
                         if ((startSymbolId & (1 << s)) && (startSymbolId > s)) {
-                            proto_item_append_text(symbol_mask_ti, " (startSumbolId is %u, so some lower symbol bits ignored!)", startSymbolId);
+                            proto_item_append_text(symbol_mask_ti, " (startSymbolId is %u, so some lower symbol bits ignored!)", startSymbolId);
                             /* TODO: expert info too? */
                             break;
                         }
