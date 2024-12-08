@@ -245,16 +245,23 @@ class File:
                 if self.numberPlusUnits(word):
                     continue
 
-                if len(word) > 4 and spell.unknown([word]) and not self.checkMultiWords(word) and not self.wordBeforeId(word):
-                    # Highlight words that appeared in Wikipedia list.
-                    print(bcolors.BOLD if word in wiki_db else '',
+                global missing_words
+
+                # Is it a known bad (wikipedia) word?
+                if word in wiki_db:
+                    print(bcolors.BOLD,
                           self.file, value_index, '/', num_values, '"' + original + '"', bcolors.FAIL + word + bcolors.ENDC,
-                          "(wikipedia-flags => " + wiki_db[word] + ")" if word in wiki_db else "",
+                          "(wikipedia-flags => " + wiki_db[word] + ")",
+                          '-> ', '?')
+                    missing_words.append(word)
+
+                elif len(word) > 4 and spell.unknown([word]) and not self.checkMultiWords(word) and not self.wordBeforeId(word):
+                    # Highlight words that appeared in Wikipedia list.
+                    print(self.file, value_index, '/', num_values, '"' + original + '"', bcolors.FAIL + word + bcolors.ENDC,
                           '-> ', '?')
 
                     # TODO: this can be interesting, but takes too long!
                     # bcolors.OKGREEN + spell.correction(word) + bcolors.ENDC
-                    global missing_words
                     missing_words.append(word)
 
 def removeWhitespaceControl(code_string):

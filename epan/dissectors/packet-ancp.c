@@ -214,7 +214,7 @@ static const value_string codetype_names[] = {
     { 0x064, "Command error" },
     { 0x065, "Invalid flow address" },
     { 0x066, "Mulicast flow does not exist" },
-    { 0x067, "Invalid preferred bandwith amount" },
+    { 0x067, "Invalid preferred bandwidth amount" },
     { 0x068, "Inconsistent views of delegated bandwidth amount" },
     { 0x069, "Bandwidth request conflict" },
     { 0x500, "One or more of the specified ports do not exist" },

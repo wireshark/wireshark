@@ -5465,7 +5465,7 @@ void proto_register_zbncp(void)
          {"Number of children", "zbncp.data.num_children", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}},
 
         {&hf_zbncp_max_joins,
-         {"Max successfull join attempts", "zbncp.data.max_joins", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}},
+         {"Max successful join attempts", "zbncp.data.max_joins", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}},
 
         {&hf_zbncp_zdo_leave_allowed,
          {"ZDO Leave Allowed", "zbncp.data.zdo_leave_allow", FT_BOOLEAN, BASE_NONE, NULL, 0x0, NULL, HFILL}},

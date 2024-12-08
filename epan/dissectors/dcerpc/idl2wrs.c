@@ -276,7 +276,7 @@ get_union_tag_size(char *name)
 		}
 	}
 	FPRINTF(stderr, "ERROR: size of tag for union:%s is not known\n", name);
-	FPRINTF(stderr, "  use the UNION_TAG_SIZE directive to specify it in teh conformance file\n");
+	FPRINTF(stderr, "  use the UNION_TAG_SIZE directive to specify it in the conformance file\n");
 	exit(10);
 }
 
