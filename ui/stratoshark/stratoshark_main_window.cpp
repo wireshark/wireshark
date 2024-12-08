@@ -609,8 +609,8 @@ main_ui_->goToLineEdit->setValidator(goToLineQiv);
     connect(packet_list_, &PacketList::packetDissectionChanged, this, &StratosharkMainWindow::redissectPackets);
     connect(packet_list_, &PacketList::showColumnPreferences, this, &StratosharkMainWindow::showPreferencesDialog);
     connect(packet_list_, &PacketList::showProtocolPreferences, this, &StratosharkMainWindow::showPreferencesDialog);
-    connect(packet_list_, SIGNAL(editProtocolPreference(preference*, pref_module*)),
-            main_ui_->preferenceEditorFrame, SLOT(editPreference(preference*, pref_module*)));
+    connect(packet_list_, SIGNAL(editProtocolPreference(pref_t*, module_t*)),
+            main_ui_->preferenceEditorFrame, SLOT(editPreference(pref_t*, module_t*)));
     connect(packet_list_, &PacketList::editColumn, this, &StratosharkMainWindow::showColumnEditor);
     connect(main_ui_->columnEditorFrame, &ColumnEditorFrame::columnEdited, packet_list_, &PacketList::columnsChanged);
     connect(packet_list_, &QAbstractItemView::doubleClicked, this, [=](const QModelIndex &){ openPacketDialog(); });
@@ -618,8 +618,8 @@ main_ui_->goToLineEdit->setValidator(goToLineQiv);
 
     connect(proto_tree_, &ProtoTree::openPacketInNewWindow, this, &StratosharkMainWindow::openPacketDialog);
     connect(proto_tree_, &ProtoTree::showProtocolPreferences, this, &StratosharkMainWindow::showPreferencesDialog);
-    connect(proto_tree_, SIGNAL(editProtocolPreference(preference*, pref_module*)),
-            main_ui_->preferenceEditorFrame, SLOT(editPreference(preference*, pref_module*)));
+    connect(proto_tree_, SIGNAL(editProtocolPreference(pref_t*, module_t*)),
+            main_ui_->preferenceEditorFrame, SLOT(editPreference(pref_t*, module_t*)));
 
     connect(main_ui_->statusBar, &MainStatusBar::showExpertInfo, this, [=]() {
         statCommandExpertInfo(NULL, NULL);
