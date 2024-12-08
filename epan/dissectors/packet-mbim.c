@@ -1061,6 +1061,7 @@ static int hf_mbim_bulk_ndp_datagram_index_32;
 static int hf_mbim_bulk_ndp_datagram_length;
 static int hf_mbim_bulk_ndp_datagram_length_32;
 static int hf_mbim_bulk_ndp_datagram;
+static int hf_mbim_bulk_ndp_padding;
 static int hf_mbim_bulk_ndp_nb_datagrams;
 static int hf_mbim_bulk_total_nb_datagrams;
 static int hf_mbim_bulk_ndp_ctrl;
@@ -9636,7 +9637,7 @@ dissect_mbim_bulk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     tvbuff_t *datagram_tvb;
     const uint32_t NTH16 = 0x484D434E;
     const uint32_t NTH32 = 0x686D636E;
-    unsigned reported_length;
+    unsigned reported_length, parsed_length, padding_length;
 
     if (tvb_captured_length(tvb) < 12) {
         return 0;
@@ -9826,7 +9827,14 @@ dissect_mbim_bulk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
                                            MBIM_MAX_ITEMS);
                     return tvb_captured_length(tvb);
                 }
-             }
+            } else {
+                parsed_length = offset - base_offset;
+                padding_length = (parsed_length < length) ? length - parsed_length : 0;
+                if (padding_length) {
+                    proto_tree_add_item(subtree, hf_mbim_bulk_ndp_padding, tvb, offset, padding_length, ENC_NA);
+                }
+                break;
+            }
         }
         ti = proto_tree_add_uint(subtree, hf_mbim_bulk_ndp_nb_datagrams, tvb, 0, 0, nb);
         proto_item_set_generated(ti);
@@ -14984,6 +14992,11 @@ proto_register_mbim(void)
         },
         { &hf_mbim_bulk_ndp_datagram,
             { "Datagram", "mbim.bulk.ndp.datagram",
+               FT_BYTES, BASE_NONE, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_bulk_ndp_padding,
+            { "Padding", "mbim.bulk.ndp.padding",
                FT_BYTES, BASE_NONE, NULL, 0,
               NULL, HFILL }
         },
