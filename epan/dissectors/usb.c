@@ -19374,7 +19374,7 @@ static const value_string usb_products_vals[] = {
     { 0x12090256, "Schwalm & Tate LLC pISO Raspberry Pi Hat" },
     { 0x1209053a, "Hackerspace San Salvador HSSV SAMR21-Mote" },
     { 0x12090cbd, "Andrzej Szombierski kuku.eu.org keyboard" },
-    { 0x12090d32, "ODrive Robotics ODrive v3" },
+    { 0x12090d32, "ODrive Robotics ODrive" },
     { 0x12091001, "InterBiometrics Hub" },
     { 0x12091002, "InterBiometrics Relais" },
     { 0x12091003, "InterBiometrics IBSecureCam-P" },
