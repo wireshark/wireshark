@@ -1913,10 +1913,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Тип</translation>
     </message>
     <message>
-        <source>Fields</source>
-        <translation type="vanished">Поля</translation>
-    </message>
-    <message>
         <source>Field Occurrence</source>
         <translation>Вхождение поля</translation>
     </message>
@@ -3108,10 +3104,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
 <context>
     <name>FieldFilterEdit</name>
     <message>
-        <source>Display filter entry</source>
-        <translation type="vanished">Запись фильтра отображения</translation>
-    </message>
-    <message>
         <source>Field entry</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3121,8 +3113,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Invalid field: </source>
-        <oldsource>Invalid filter: </oldsource>
-        <translation type="unfinished">Недопустимый фильтр: </translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -8552,34 +8543,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
 </context>
 <context>
     <name>QObject</name>
-    <message>
-        <source>Average Throughput (bits/s)</source>
-        <translation type="vanished">Средняя пропускная способность (бит/с)</translation>
-    </message>
-    <message>
-        <source>Round Trip Time (ms)</source>
-        <translation type="vanished">Время приёма-передачи (мс)</translation>
-    </message>
-    <message>
-        <source>Segment Length (B)</source>
-        <translation type="vanished">Длина сегмента (Б)</translation>
-    </message>
-    <message>
-        <source>Sequence Number (B)</source>
-        <translation type="vanished">Порядковый номер (Б)</translation>
-    </message>
-    <message>
-        <source>Time (s)</source>
-        <translation type="vanished">Время (с)</translation>
-    </message>
-    <message>
-        <source>Window Size (B)</source>
-        <translation type="vanished">Размер окна (Б)</translation>
-    </message>
-    <message>
-        <source>Unacked (Outstanding) Bytes (B)</source>
-        <translation type="vanished">Нераспакованные (выданные) байты (B)</translation>
-    </message>
     <message>
         <source>[no capture file]</source>
         <translation>[нет файла захвата]</translation>

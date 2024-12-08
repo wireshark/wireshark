@@ -1904,10 +1904,6 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <translation>Typ</translation>
     </message>
     <message>
-        <source>Fields</source>
-        <translation type="vanished">Fält</translation>
-    </message>
-    <message>
         <source>Field Occurrence</source>
         <translation>Fältförekomst</translation>
     </message>
@@ -3099,10 +3095,6 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
 <context>
     <name>FieldFilterEdit</name>
     <message>
-        <source>Display filter entry</source>
-        <translation type="vanished">Visningsfilterpost</translation>
-    </message>
-    <message>
         <source>Field entry</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3112,8 +3104,7 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>Invalid field: </source>
-        <oldsource>Invalid filter: </oldsource>
-        <translation type="unfinished">Felaktigt filter: </translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -8518,34 +8509,6 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
 </context>
 <context>
     <name>QObject</name>
-    <message>
-        <source>Average Throughput (bits/s)</source>
-        <translation type="vanished">Genomsnittlig genomströmning (bitar/s)</translation>
-    </message>
-    <message>
-        <source>Round Trip Time (ms)</source>
-        <translation type="vanished">Rundturstid (ms)</translation>
-    </message>
-    <message>
-        <source>Segment Length (B)</source>
-        <translation type="vanished">Segmentlängd (B)</translation>
-    </message>
-    <message>
-        <source>Sequence Number (B)</source>
-        <translation type="vanished">Sekvensnummer (B)</translation>
-    </message>
-    <message>
-        <source>Time (s)</source>
-        <translation type="vanished">Tid (s)</translation>
-    </message>
-    <message>
-        <source>Window Size (B)</source>
-        <translation type="vanished">Fönsterstorlek (B)</translation>
-    </message>
-    <message>
-        <source>Unacked (Outstanding) Bytes (B)</source>
-        <translation type="vanished">Okvitterade (utestående) byte (B)</translation>
-    </message>
     <message>
         <source>[no capture file]</source>
         <translation>[ingen fångstfil]</translation>

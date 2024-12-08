@@ -1906,10 +1906,6 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
         <translation>Type</translation>
     </message>
     <message>
-        <source>Fields</source>
-        <translation type="vanished">Champs</translation>
-    </message>
-    <message>
         <source>Field Occurrence</source>
         <translation>Occurrence d&apos;un champ</translation>
     </message>
@@ -3099,10 +3095,6 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
 <context>
     <name>FieldFilterEdit</name>
     <message>
-        <source>Display filter entry</source>
-        <translation type="vanished">Entrée du filtre d&apos;affichage</translation>
-    </message>
-    <message>
         <source>Field entry</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3112,8 +3104,7 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
     </message>
     <message>
         <source>Invalid field: </source>
-        <oldsource>Invalid filter: </oldsource>
-        <translation type="unfinished">Filtre invalide : </translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -8519,34 +8510,6 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
 </context>
 <context>
     <name>QObject</name>
-    <message>
-        <source>Average Throughput (bits/s)</source>
-        <translation type="vanished">Débit moyen (bits/s)</translation>
-    </message>
-    <message>
-        <source>Round Trip Time (ms)</source>
-        <translation type="vanished">Round Trip Time (ms)</translation>
-    </message>
-    <message>
-        <source>Segment Length (B)</source>
-        <translation type="vanished">Longueur des segments (B)</translation>
-    </message>
-    <message>
-        <source>Sequence Number (B)</source>
-        <translation type="vanished">Numéro de séquence (B)</translation>
-    </message>
-    <message>
-        <source>Time (s)</source>
-        <translation type="vanished">Temps (s)</translation>
-    </message>
-    <message>
-        <source>Window Size (B)</source>
-        <translation type="vanished">Taille de fenetres (b)</translation>
-    </message>
-    <message>
-        <source>Unacked (Outstanding) Bytes (B)</source>
-        <translation type="vanished">Octets non-acquittés (en suspens) (O)</translation>
-    </message>
     <message>
         <source>[no capture file]</source>
         <translation>[pas de fichier de capture]</translation>

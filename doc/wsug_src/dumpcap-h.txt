@@ -1,4 +1,4 @@
-Dumpcap (Wireshark) 4.5.0 (v4.5.0rc0-1147-g31b31e100870)
+Dumpcap (Wireshark) 4.5.0 (v4.5.0rc0-1205-gef12db5df104)
 Capture network packets and dump them into a pcapng or pcap file.
 See https://www.wireshark.org for more information.
 
@@ -79,6 +79,8 @@ Miscellaneous:
                            within dumpcap
   -t                       use a separate thread per interface
   -q                       don't report packet capture counts
+  --application-flavor <flavor>
+                           set the application flavor
   -v, --version            print version information and exit
   -h, --help               display this help and exit
 

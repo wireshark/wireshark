@@ -252,6 +252,7 @@ static ws_enum_t const all_enums[] = {
     ENUM(FT_UINT8),
     ENUM(FT_UINT_BYTES),
     ENUM(FT_UINT_STRING),
+    ENUM(FT_UNDERFLOW),
     ENUM(FT_VARINT_MAX_LEN),
     ENUM(FT_VINES),
     ENUM(FT_VINES_ADDR_LEN),

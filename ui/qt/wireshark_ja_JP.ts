@@ -1898,10 +1898,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>種別</translation>
     </message>
     <message>
-        <source>Fields</source>
-        <translation type="vanished">フィールド</translation>
-    </message>
-    <message>
         <source>Field Occurrence</source>
         <translation>フィールド出現位置</translation>
     </message>
@@ -1919,7 +1915,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Custom Expression</source>
-        <translation type="unfinished"></translation>
+        <translation>カスタム式</translation>
     </message>
     <message>
         <source>Alignment</source>
@@ -2377,7 +2373,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Enter a custom column expression %1</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 のカスタム列の式を入力してください</translation>
     </message>
     <message>
         <source>Current filter: %1</source>
@@ -3093,12 +3089,8 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
 <context>
     <name>FieldFilterEdit</name>
     <message>
-        <source>Display filter entry</source>
-        <translation type="vanished">表示フィルタエントリ</translation>
-    </message>
-    <message>
         <source>Field entry</source>
-        <translation type="unfinished"></translation>
+        <translation>フィールドエントリ</translation>
     </message>
     <message>
         <source>Enter a field %1</source>
@@ -3106,8 +3098,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Invalid field: </source>
-        <oldsource>Invalid filter: </oldsource>
-        <translation type="unfinished">無効なフィルタ:</translation>
+        <translation>無効なフィールド: </translation>
     </message>
 </context>
 <context>
@@ -8492,34 +8483,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
 <context>
     <name>QObject</name>
     <message>
-        <source>Average Throughput (bits/s)</source>
-        <translation type="vanished">平均スループット(bits/s)</translation>
-    </message>
-    <message>
-        <source>Round Trip Time (ms)</source>
-        <translation type="vanished">往復遅延時間(ミリ秒)</translation>
-    </message>
-    <message>
-        <source>Segment Length (B)</source>
-        <translation type="vanished">セグメント長(バイト)</translation>
-    </message>
-    <message>
-        <source>Sequence Number (B)</source>
-        <translation type="vanished">シーケンス番号(バイト)</translation>
-    </message>
-    <message>
-        <source>Time (s)</source>
-        <translation type="vanished">時間(秒)</translation>
-    </message>
-    <message>
-        <source>Window Size (B)</source>
-        <translation type="vanished">ウインドウサイズ(バイト)</translation>
-    </message>
-    <message>
-        <source>Unacked (Outstanding) Bytes (B)</source>
-        <translation type="vanished">ACKされていない(未処理の)バイト(B)</translation>
-    </message>
-    <message>
         <source>[no capture file]</source>
         <translation>[キャプチャファイルなし]</translation>
     </message>
@@ -9011,31 +8974,31 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Average Throughput</source>
-        <translation type="unfinished"></translation>
+        <translation>平均スループット</translation>
     </message>
     <message>
         <source>Round Trip Time</source>
-        <translation type="unfinished">往復遅延時間</translation>
+        <translation>往復遅延時間</translation>
     </message>
     <message>
         <source>Segment Length</source>
-        <translation type="unfinished">セグメント長</translation>
+        <translation>セグメント長</translation>
     </message>
     <message>
         <source>Sequence Number</source>
-        <translation type="unfinished">シーケンス番号</translation>
+        <translation>シーケンス番号</translation>
     </message>
     <message>
         <source>Time</source>
-        <translation type="unfinished">時間</translation>
+        <translation>時間</translation>
     </message>
     <message>
         <source>Window Size</source>
-        <translation type="unfinished"></translation>
+        <translation>ウィンドウサイズ</translation>
     </message>
     <message>
         <source>Unacked (Outstanding) Bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>ACKされていない(未処理の)バイト</translation>
     </message>
 </context>
 <context>

@@ -1879,10 +1879,6 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
         <translation>Tipo</translation>
     </message>
     <message>
-        <source>Fields</source>
-        <translation type="vanished">Campos</translation>
-    </message>
-    <message>
         <source>Field Occurrence</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3083,7 +3079,6 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>Invalid field: </source>
-        <oldsource>Invalid filter: </oldsource>
         <translation type="unfinished"></translation>
     </message>
 </context>

@@ -3082,7 +3082,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Invalid field: </source>
-        <oldsource>Invalid filter: </oldsource>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -8441,18 +8440,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
 </context>
 <context>
     <name>QObject</name>
-    <message>
-        <source>Round Trip Time (ms)</source>
-        <translation type="vanished">Час Обороту (мс)</translation>
-    </message>
-    <message>
-        <source>Time (s)</source>
-        <translation type="vanished">Час (с)</translation>
-    </message>
-    <message>
-        <source>Window Size (B)</source>
-        <translation type="vanished">Розмір Вікна (Б)</translation>
-    </message>
     <message>
         <source>[no capture file]</source>
         <translation type="unfinished"></translation>

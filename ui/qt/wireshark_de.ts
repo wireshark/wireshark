@@ -1904,10 +1904,6 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
         <translation>Typ</translation>
     </message>
     <message>
-        <source>Fields</source>
-        <translation type="vanished">Feldname</translation>
-    </message>
-    <message>
         <source>Field Occurrence</source>
         <translation>Feld-Auftrittsreihenfolge</translation>
     </message>
@@ -3099,10 +3095,6 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
 <context>
     <name>FieldFilterEdit</name>
     <message>
-        <source>Display filter entry</source>
-        <translation type="vanished">Anzeigefiltereintrag</translation>
-    </message>
-    <message>
         <source>Field entry</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3112,8 +3104,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>Invalid field: </source>
-        <oldsource>Invalid filter: </oldsource>
-        <translation type="unfinished">Ungültiger Filter: </translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -8518,34 +8509,6 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
 </context>
 <context>
     <name>QObject</name>
-    <message>
-        <source>Average Throughput (bits/s)</source>
-        <translation type="vanished">Durchschnittlicher Durchsatz (Bits/s)</translation>
-    </message>
-    <message>
-        <source>Round Trip Time (ms)</source>
-        <translation type="vanished">Round-Trip-Zeit (ms)</translation>
-    </message>
-    <message>
-        <source>Segment Length (B)</source>
-        <translation type="vanished">Segmentlänge (B)</translation>
-    </message>
-    <message>
-        <source>Sequence Number (B)</source>
-        <translation type="vanished">Sequenznummer (B)</translation>
-    </message>
-    <message>
-        <source>Time (s)</source>
-        <translation type="vanished">Zeit (s)</translation>
-    </message>
-    <message>
-        <source>Window Size (B)</source>
-        <translation type="vanished">Window Größe (B)</translation>
-    </message>
-    <message>
-        <source>Unacked (Outstanding) Bytes (B)</source>
-        <translation type="vanished">Nicht-ACK-bestätigte (ausstehende) Bytes (B)</translation>
-    </message>
     <message>
         <source>[no capture file]</source>
         <translation>[keine Mitschnittdatei]</translation>

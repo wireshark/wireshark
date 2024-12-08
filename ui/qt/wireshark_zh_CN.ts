@@ -3084,10 +3084,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
 <context>
     <name>FieldFilterEdit</name>
     <message>
-        <source>Display filter entry</source>
-        <translation type="vanished">显示过滤器条目</translation>
-    </message>
-    <message>
         <source>Field entry</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3097,8 +3093,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Invalid field: </source>
-        <oldsource>Invalid filter: </oldsource>
-        <translation type="unfinished">无效的过滤器：</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -8465,30 +8460,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
 </context>
 <context>
     <name>QObject</name>
-    <message>
-        <source>Average Throughput (bits/s)</source>
-        <translation type="vanished">平均吞吐量 (比特/秒)</translation>
-    </message>
-    <message>
-        <source>Round Trip Time (ms)</source>
-        <translation type="vanished">往返时间 (毫秒)</translation>
-    </message>
-    <message>
-        <source>Segment Length (B)</source>
-        <translation type="vanished">段长度 (B)</translation>
-    </message>
-    <message>
-        <source>Sequence Number (B)</source>
-        <translation type="vanished">序列号 (B)</translation>
-    </message>
-    <message>
-        <source>Time (s)</source>
-        <translation type="vanished">时间 (秒)</translation>
-    </message>
-    <message>
-        <source>Window Size (B)</source>
-        <translation type="vanished">窗口大小 (B)</translation>
-    </message>
     <message>
         <source>[no capture file]</source>
         <translation>[无捕获文件]</translation>
