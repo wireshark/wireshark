@@ -12,7 +12,7 @@
  /*
    * Dissector for the O-RAN Fronthaul CUS protocol specification.
    * See https://specifications.o-ran.org/specifications, WG4, Fronthaul Interfaces Workgroup
-   * The current implementation is based on the ORAN-WG4.CUS.0-v15.00 specification
+   * The current implementation is based on the ORAN-WG4.CUS.0-v16.01 specification
    */
 
 #include <config.h>
@@ -494,6 +494,10 @@ static unsigned pref_num_weights_per_bundle = 32;
 static unsigned pref_num_bf_antennas = 32;
 static bool pref_showIQSampleValues = true;
 
+static int  pref_support_udcompLen = 2;             /* start heuristic, can force other settings if necessary */
+static bool udcomplen_heuristic_result_set = false;
+static bool udcomplen_heuristic_result = false;
+
 
 static const enum_val_t dl_compression_options[] = {
     { "COMP_NONE",                             "No Compression",                                                             COMP_NONE },
@@ -518,9 +522,12 @@ static const enum_val_t ul_compression_options[] = {
     { NULL, NULL, 0 }
 };
 
-
-static bool pref_support_udcompLen = false;
-
+static const enum_val_t udcomp_support_options[] = {
+    { "NOT_SUPPORTED",              "Not Supported",        0 },
+    { "SUPPORTED",                  "Supported",            1 },
+    { "HEURISITC",                  "Attempt Heuristic",    2 },
+    { NULL, NULL, 0 }
+};
 
 static const value_string e_bit[] = {
     { 0, "More fragments follow" },
@@ -5038,6 +5045,56 @@ static int dissect_oran_u_re(tvbuff_t *tvb, proto_tree *tree,
 }
 
 
+static bool udcomplen_appears_present(bool udcomphdr_present, tvbuff_t *tvb, int offset)
+{
+    if (!udcomplen_heuristic_result_set) {
+        /* All sections will start the same way */
+        unsigned int section_bytes_before_field = (udcomphdr_present) ? 6 : 4;
+
+        /* Move offset back to the start of the section */
+        offset -= section_bytes_before_field;
+
+        do {
+            /* This field appears several bytes into the U-plane section */
+            uint32_t length_remaining = tvb_reported_length_remaining(tvb, offset);
+            /* Are there enough bytes to still read the length field? */
+            if (section_bytes_before_field+2 > length_remaining) {
+                udcomplen_heuristic_result = false;
+                udcomplen_heuristic_result_set = true;
+                break;
+            }
+
+            /* Read the length field */
+            uint16_t udcomplen = tvb_get_ntohs(tvb, offset+section_bytes_before_field);
+
+            /* Is this less than a valid section? Realistic minimal section will be bigger than this..
+             * Could take into account numPrbU, etc */
+            if (udcomplen < section_bytes_before_field+2) {
+                udcomplen_heuristic_result = false;
+                udcomplen_heuristic_result_set = true;
+                break;
+            }
+
+            /* Does this section fit into the frame? */
+            if (udcomplen > length_remaining) {
+                udcomplen_heuristic_result = false;
+                udcomplen_heuristic_result_set = true;
+                break;
+            }
+
+            /* Move past this section */
+            offset += udcomplen;
+
+            /* Are we at the end of the frame? */
+            if (tvb_reported_length_remaining(tvb, offset) < 4) {
+                udcomplen_heuristic_result = true;
+                udcomplen_heuristic_result_set = true;
+            }
+        } while (!udcomplen_heuristic_result_set);
+    }
+    return udcomplen_heuristic_result;
+}
+
 /* User plane dissector (section 8) */
 static int
 dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
@@ -5261,17 +5318,29 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
         }
 
         /* udCompLen (when supported, methods 5,6,7,8) */
-        if (pref_support_udcompLen && (compression >= BFP_AND_SELECTIVE_RE)) {
-            ud_comp_len_ti = proto_tree_add_item_ret_uint(section_tree, hf_oran_udCompLen, tvb, offset, 2, ENC_NA, &ud_comp_len);
-            if (ud_comp_len <= 1) {
-                proto_item_append_text(ud_comp_len_ti, " (reserved)");
+        if (compression >= BFP_AND_SELECTIVE_RE) {
+            bool supported = (pref_support_udcompLen==1) || /* supported */
+                             (pref_support_udcompLen==2 && udcomplen_appears_present(includeUdCompHeader, tvb, offset));
+
+            if (supported) {
+                ud_comp_len_ti = proto_tree_add_item_ret_uint(section_tree, hf_oran_udCompLen, tvb, offset, 2, ENC_NA, &ud_comp_len);
+                if (ud_comp_len <= 1) {
+                    proto_item_append_text(ud_comp_len_ti, " (reserved)");
+                }
+                /* TODO: report if less than a viable section in frame? */
+                /* Check that there is this much length left in the frame */
+                if ((int)ud_comp_len > tvb_reported_length_remaining(tvb, section_start_offset)) {
+                    expert_add_info_format(pinfo, ud_comp_len_ti, &ei_oran_ud_comp_len_wrong_size,
+                                           "udCompLen indicates %u bytes in section, but only %u are left in frame",
+                                           ud_comp_len, tvb_reported_length_remaining(tvb, section_start_offset));
+                }
+                /* Actual length of section will be checked below, at the end of the section */
+                offset += 2;
             }
-            offset += 2;
         }
 
+        /* sReSMask1 + sReSMask2 (depends upon compression method) */
         uint64_t sresmask1=0, sresmask2=0;
-
-        /* sReSMask1 + sReSMask2 */
         if (compression == BFP_AND_SELECTIVE_RE_WITH_MASKS ||
             compression == MOD_COMPR_AND_SELECTIVE_RE_WITH_MASKS)
         {
@@ -5486,6 +5555,12 @@ dissect_oran(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             /* Not dissecting other types - assume these are handled by eCPRI dissector */
             return 0;
     }
+}
+
+static void oran_init_protocol(void)
+{
+    udcomplen_heuristic_result_set = false;
+    udcomplen_heuristic_result = false;
 }
 
 
@@ -7864,11 +7939,13 @@ proto_register_oran(void)
 
     prefs_register_obsolete_preference(oran_module, "oran.num_bf_weights");
 
-    prefs_register_bool_preference(oran_module, "oran.support_udcomplen", "udCompLen supported",
-        "When enabled, U-Plane messages with relevant compression schemes will include udCompLen", &pref_support_udcompLen);
+    prefs_register_enum_preference(oran_module, "oran.support_udcomplen", "udCompLen supported",
+        "When enabled, U-Plane messages with relevant compression schemes will include udCompLen", &pref_support_udcompLen, udcomp_support_options, false);
 
     flow_states_table = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
     flow_results_table = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
+
+    register_init_routine(&oran_init_protocol);
 }
 
 /* Simpler form of proto_reg_handoff_oran which can be used if there are
