@@ -107,7 +107,7 @@ void ByteViewTab::addTab(const char *name, tvbuff_t *tvb) {
 
     if (tvb)
     {
-        // There are some secondary data source tvbuffs whose datais not freed
+        // There are some secondary data source tvbuffs whose data is not freed
         // when the epan_dissect_t is freed, but at some other point expected
         // to outlive the packet, generally when the capture file is closed.
         // If this is a PacketDialog, it can break that assumption.

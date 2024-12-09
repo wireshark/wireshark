@@ -7,6 +7,7 @@
 1xrtt
 20west
 29west
+32apsk
 3gpp2
 3pcap
 5views
@@ -255,6 +256,7 @@ bootp
 bootup
 bosch
 bouygues
+brasil
 bratislava
 britain
 british
@@ -390,6 +392,7 @@ ciphertext
 ciplus
 cipso
 circularly
+citic
 citrix
 cksum
 clasportinfo
@@ -496,6 +499,7 @@ corbin
 corosync
 correlator
 corrigendum
+cosem
 couchbase
 coverity
 cp56time2a
@@ -685,6 +689,7 @@ dftest
 dgotyp
 dgram
 dhaka
+dhchap
 dhcpv
 diagdata
 dialed
@@ -727,8 +732,11 @@ dlmapc
 dlsch
 dlstatus
 dmacros
+dmefs
 dmepi
+dmflags
 dmrpc
+dmvfs
 dmx4all
 dnskey
 dnsop
@@ -750,6 +758,7 @@ downlink
 doxygen
 dpauxmon
 dpnss
+dport
 drange
 drbid
 drdynvc
@@ -862,6 +871,7 @@ España
 esperanto
 essar
 estonia
+estonian
 estream
 ethcm
 etheraddr
@@ -875,6 +885,7 @@ etlfile
 ettarr
 etwdump
 etype
+eucjpms
 europe
 eutra
 eutran
@@ -1055,6 +1066,7 @@ gpsascii
 granularity
 greek
 greent
+greentap
 greenwich
 gregex
 greyed
@@ -1066,6 +1078,7 @@ groupmod
 gryphon
 gssapi
 gtalk
+guang
 guangzhou
 guatemala
 guint
@@ -1135,6 +1148,7 @@ hytec
 iabtnl
 ibsdh
 icapability
+icelandic
 icmpv
 icontrol
 iconv
@@ -1310,6 +1324,7 @@ jminfo
 joiners
 jsonraw
 jtids
+juliat
 jupmngr
 k12text
 k12xx
@@ -1347,6 +1362,7 @@ lanka
 lanman
 latencies
 latin
+latvian
 layer2octet
 layerables
 lbart
@@ -1398,6 +1414,7 @@ linwakeup
 list1
 literals
 lithionics
+lithuanian
 llcgprs
 llogd
 lnpdqp
@@ -1438,6 +1455,7 @@ lycamobile
 lz4frame
 macaddr
 macaddress
+macau
 macos
 macosx
 macros
@@ -1672,6 +1690,7 @@ ngsniffer
 niagara
 niagra
 nicosia
+nierout
 nigam
 nikon
 nintendo
@@ -1988,6 +2007,7 @@ prepend
 prepost
 preprocess
 preprocessor
+prescaler
 preshared
 prespecified
 presubscribed
@@ -2029,6 +2049,7 @@ psnip
 pssiae
 ptime
 ptlrpc
+ptmsi
 ptvcursor
 ptype
 pubdir
@@ -2039,6 +2060,7 @@ pusch
 pwach
 pwcesopsn
 pwrprof
+pwsatop
 pxeclient
 pytest
 qam16
@@ -2512,6 +2534,7 @@ srcaddr
 srcdst
 srcip
 srcport
+sresmask
 srtcp
 srvcc
 srvreq
@@ -2669,6 +2692,7 @@ tdd768
 technica
 Tektronix
 telco
+telecel
 telecom
 télécom
 Telecomunicaciones
@@ -2809,6 +2833,7 @@ udphdr
 udrei
 uganda
 uievent
+uimsbf
 uint16
 uint32
 uint8
@@ -3044,6 +3069,7 @@ vfinforecord
 vflags
 vhdset
 viavi
+videsh
 vidpn
 viettel
 viprion
@@ -3099,6 +3125,7 @@ wisun
 withfcs
 withoutfcs
 wksta
+wmdrmpd
 workarounds
 wowlan
 wpcap

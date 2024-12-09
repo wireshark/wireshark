@@ -36699,7 +36699,7 @@ static const range_string channel_usage_mode[] = {
   { 4, 4, "Channel-usage-aidable BSS Channel Switch Request" },
   { 5, 5, "Capability Notification" },
   { 6, 254, "Reserved" },
-  { 255, 255, "Unknown Requst" },
+  { 255, 255, "Unknown Request" },
   { 0, 0, NULL }
 };
 
@@ -42404,7 +42404,7 @@ proto_register_ieee80211(void)
       FT_BOOLEAN, 16, NULL, SID_A_MSDU, NULL, HFILL }},
 
     {&hf_ieee80211_pv1_cnt_stack_tetra_timest,
-     {"Tetrapartial Timestamp", "wlan.pv1.control.stack.tetraparial_timestamp",
+     {"Tetrapartial Timestamp", "wlan.pv1.control.stack.tetrapartial_timestamp",
       FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
 
     {&hf_ieee80211_pv1_cnt_bat_beacon_seq,

@@ -2355,7 +2355,7 @@ typedef enum
 	EID_MU_rc_ul_dropped_bytes_D,                // 170
 	EID_MU_rc_dl_dropped_pkts_D,                 // 171
 	EID_MU_rc_dl_dropped_bytes_D,                // 172
-	EID_STATS_TLV_MAX                            //  Make shure this is the MAX
+	EID_STATS_TLV_MAX                            //  Make sure this is the MAX
 } wassp_tlv_stats_1_type_t;
 
 
