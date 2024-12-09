@@ -284,7 +284,7 @@ class ProtoTreeAddItemCheck(APICheck):
 
                         enc = m.group(4)
                         hf_name = m.group(1)
-                        if not enc.startswith('ENC_'):
+                        if not enc.startswith('ENC_') and enc.lower().find('endian') == -1:
                             if enc not in { 'encoding', 'enc', 'client_is_le', 'cigi_byte_order', 'endian', 'endianess', 'machine_encoding', 'byte_order', 'bLittleEndian',
                                             'p_mq_parm->mq_str_enc', 'p_mq_parm->mq_int_enc',
                                             'iEnc', 'strid_enc', 'iCod', 'nl_data->encoding',
@@ -299,18 +299,13 @@ class ProtoTreeAddItemCheck(APICheck):
                                             'packet->enc',
                                             'IS_EBCDIC(uCCS) ? ENC_EBCDIC : ENC_ASCII',
                                             'DREP_ENC_INTEGER(hdr->drep)',
-                                            'dhcp_uuid_endian',
                                             'payload_le',
                                             'local_encoding',
-                                            'big_endian',
                                             'hf_data_encoding',
                                             'IS_EBCDIC(eStr) ? ENC_EBCDIC : ENC_ASCII',
-                                            'big_endian ? ENC_BIG_ENDIAN : ENC_LITTLE_ENDIAN',
-                                            '(skip == 1) ? ENC_BIG_ENDIAN : ENC_LITTLE_ENDIAN',
                                             'pdu_info->sbc', 'pdu_info->mbc',
                                             'seq_info->txt_enc | ENC_NA',
                                             'BASE_SHOW_UTF_8_PRINTABLE',
-                                            'dhcp_secs_endian',
                                             'is_mdns ? ENC_UTF_8|ENC_NA : ENC_ASCII|ENC_NA',
                                             'xl_encoding',
                                             'my_frame_data->encoding_client', 'my_frame_data->encoding_results'
