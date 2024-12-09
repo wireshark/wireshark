@@ -143,6 +143,7 @@ static int hf_ngap_GlobalCable_ID_str;
 static int hf_ngap_UpdateFeedback_CN_PDB_DL;
 static int hf_ngap_UpdateFeedback_CN_PDB_UL;
 static int hf_ngap_UpdateFeedback_reserved;
+static int hf_ngap_extensionValue_data;
 #include "packet-ngap-hf.c"
 
 /* Initialize the subtree pointers */
@@ -855,7 +856,9 @@ static int dissect_ProtocolExtensionFieldExtensionValue(tvbuff_t *tvb, packet_in
   ngap_ctx.ProtocolIE_ID       = ngap_data->protocol_ie_id;
   ngap_ctx.ProtocolExtensionID = ngap_data->protocol_extension_id;
 
-  return (dissector_try_uint_with_data(ngap_extension_dissector_table, ngap_data->protocol_extension_id, tvb, pinfo, tree, true, &ngap_ctx)) ? tvb_captured_length(tvb) : 0;
+  if (!dissector_try_uint_with_data(ngap_extension_dissector_table, ngap_data->protocol_extension_id, tvb, pinfo, tree, true, &ngap_ctx))
+    proto_tree_add_item(tree, hf_ngap_extensionValue_data, tvb, 0, -1, ENC_NA);
+  return tvb_captured_length(tvb);
 }
 
 static int dissect_InitiatingMessageValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
@@ -1428,6 +1431,10 @@ void proto_register_ngap(void) {
     { &hf_ngap_UpdateFeedback_reserved,
       { "Reserved", "ngap.UpdateFeedback.reserved",
         FT_UINT8, BASE_HEX, NULL, 0x3f,
+        NULL, HFILL }},
+    { &hf_ngap_extensionValue_data,
+      { "Data", "ngap.extensionValue.data",
+        FT_BYTES, BASE_NONE|BASE_ALLOW_ZERO, NULL, 0,
         NULL, HFILL }},
 #include "packet-ngap-hfarr.c"
   };
