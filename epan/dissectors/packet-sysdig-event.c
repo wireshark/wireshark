@@ -3032,7 +3032,7 @@ dissect_sysdig_event(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     if (event_param_data.data_bytes_offset > 0 && event_param_data.data_bytes_length > 0) {
 #define ELF_MAGIC 0x7f454c46 // 7f 'E' 'L' 'F'
-        if (tvb_get_uint32(tvb, event_param_data.data_bytes_offset, ENC_BIG_ENDIAN) == ELF_MAGIC) {
+        if (tvb_get_uint32(tvb, event_param_data.data_bytes_offset, ENC_BIG_ENDIAN) == ELF_MAGIC && elf_dissector_handle) {
             tvbuff_t *elf_tvb = tvb_new_subset_length(tvb, event_param_data.data_bytes_offset, event_param_data.data_bytes_length);
             TRY {
                 call_dissector(elf_dissector_handle, elf_tvb, pinfo, tree);
