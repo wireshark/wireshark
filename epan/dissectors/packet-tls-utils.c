@@ -6627,7 +6627,21 @@ tls13_change_key(SslDecryptSession *ssl, ssl_master_key_map_t *mk_map,
 
     StringInfo *secret = tls13_load_secret(ssl, mk_map, is_from_server, type);
     if (!secret) {
-        return;
+        if (type != TLS_SECRET_HANDSHAKE) {
+            return;
+        }
+        /*
+         * Workaround for when for some reason we don't have the handshake
+         * secret but do have the application traffic secret. (#20240)
+         * If we can't find the handshake secret, we'll never decrypt the
+         * Finished message, so we won't know when to change to the app
+         * traffic key, so we do so now.
+         */
+        type = TLS_SECRET_APP;
+        secret = tls13_load_secret(ssl, mk_map, is_from_server, type);
+        if (!secret) {
+            return;
+        }
     }
 
     if (tls13_generate_keys(ssl, secret, is_from_server)) {
