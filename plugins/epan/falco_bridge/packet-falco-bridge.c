@@ -592,6 +592,11 @@ on_wireshark_exit(void)
 
 static bool
 extract_syscall_conversation_fields (packet_info *pinfo, falco_conv_filter_fields* args) {
+    if (!proto_is_protocol_enabled(find_protocol_by_id(proto_falco_bridge))) {
+        // get_extracted_syscall_source_fields will fail noisily, so just bail out here.
+        return false;
+    }
+
     args->container_id = NULL;
     args->pid = -1;
     args->tid = -1;
