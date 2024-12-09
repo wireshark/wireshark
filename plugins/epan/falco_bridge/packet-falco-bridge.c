@@ -977,13 +977,13 @@ dissect_sinsp_enriched(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void
         if (parent_category == SSC_PROCLINEAGE) {
             int32_t lnum = extract_lineage_number(hfinfo->abbrev);
             if (lnum == -1) {
-                ws_error("Invalid lineage field name %s", hfinfo->abbrev);
+                ws_warning("Invalid lineage field name %s", hfinfo->abbrev);
             }
 
             if (!lineage_trees[lnum]) {
                 const char* res_str = get_str_value(sinsp_fields, sf_idx);
                 if (res_str == NULL) {
-                    ws_error("empty value for field %s", hfinfo->abbrev);
+                    ws_warning("empty value for field %s", hfinfo->abbrev);
                 }
 
                 lineage_trees[lnum] = proto_tree_add_subtree_format(parent_tree, tvb, 0, 0, ett_lineage[0], NULL, "%" PRIu32 ". %s", lnum, res_str);

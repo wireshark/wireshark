@@ -301,7 +301,7 @@ void add_arg_event(uint32_t arg_number,
         sinsp_syscall_category_e args_syscall_category) {
 
     if (arg_number >= array_length(args_event_fields)) {
-        ws_error("falco event has too many arguments (%" PRIu32 ")", arg_number);
+        ws_warning("falco event has too many arguments (%" PRIu32 ")", arg_number);
     }
 
     std::string fname = "evt.arg[" + std::to_string(arg_number) + "]";
@@ -309,7 +309,7 @@ void add_arg_event(uint32_t arg_number,
     const filtercheck_field_info *ffi = &args_event_fields[arg_number];
     std::unique_ptr<sinsp_filter_check> sfc = sinsp_span->filter_checks.new_filter_check_from_fldname(fname.c_str(), &sinsp_span->inspector, true);
     if (!sfc) {
-        ws_error("cannot find expected Falco field evt.arg");
+        ws_warning("cannot find expected Falco field evt.arg");
     }
     sfc->parse_field_name(fname.c_str(), true, false);
     ssi->field_to_category.push_back(args_syscall_category);
@@ -341,7 +341,7 @@ void add_lineage_field(std::string basefname,
     const filtercheck_field_info *ffi = &proc_lineage_event_fields[(ancestor_number - 1) * N_PROC_LINEAGE_ENTRY_FIELDS + field_number];
     std::unique_ptr<sinsp_filter_check> sfc = filter_factory->new_filtercheck(fname.c_str());
     if (!sfc) {
-        ws_error("cannot find expected Falco field evt.arg");
+        ws_warning("cannot find expected Falco field evt.arg");
     }
 
     sfc->parse_field_name(fname.c_str(), true, false);
@@ -356,7 +356,7 @@ void add_lineage_events(uint32_t ancestor_number,
         sinsp_syscall_category_e args_syscall_category) {
 
     if (ancestor_number >= array_length(proc_lineage_event_fields) / N_PROC_LINEAGE_ENTRY_FIELDS) {
-        ws_error("falco lineage mismatch (%" PRIu32 ")", ancestor_number);
+        ws_warning("falco lineage mismatch (%" PRIu32 ")", ancestor_number);
     }
 
     add_lineage_field("proc.aname", ancestor_number, 0, filter_factory, ssi, args_syscall_category);
@@ -690,7 +690,7 @@ char* get_evt_arg_name(void* sinp_evt_info, uint32_t arg_num) {
     ppm_event_info* realinfo = (ppm_event_info*)sinp_evt_info;
 
     if (arg_num > realinfo->nparams) {
-        ws_error("Arg number %u exceeds event parameter count %u", arg_num, realinfo->nparams);
+        ws_warning("Arg number %u exceeds event parameter count %u", arg_num, realinfo->nparams);
         return NULL;
     }
     return realinfo->params[arg_num].name;
@@ -789,7 +789,7 @@ static void add_syscall_event_to_cache(sinsp_span_t *sinsp_span, sinsp_source_in
         if (ffi->m_flags == filtercheck_field_flags::EPF_NONE && values[0].len > 0) {
 #endif
             if (sinsp_span->sfe_slab_offset + sfe_idx >= sfe_slab_prealloc) {
-                ws_error("Extracting too many fields for event %u (%d vs %d)", (unsigned) evt->get_num(), (int) sfe_idx, (int) ssi->syscall_event_filter_checks.size());
+                ws_warning("Extracting too many fields for event %u (%d vs %d)", (unsigned) evt->get_num(), (int) sfe_idx, (int) ssi->syscall_event_filter_checks.size());
             }
 
             sinsp_field_extract_t *sfe = &sfe_block[sfe_idx];
@@ -955,7 +955,7 @@ bool extract_syscall_source_fields(sinsp_span_t *sinsp_span, sinsp_source_info_t
 
     // Shouldn't happen
     if (frame_num > sinsp_span->sfe_ptrs.size()) {
-        ws_error("Frame number %u exceeds cache size %d", frame_num, (int) sinsp_span->sfe_ptrs.size());
+        ws_warning("Frame number %u exceeds cache size %d", frame_num, (int) sinsp_span->sfe_ptrs.size());
         return false;
     }
 
@@ -969,7 +969,7 @@ bool extract_syscall_source_fields(sinsp_span_t *sinsp_span, sinsp_source_info_t
 bool get_extracted_syscall_source_fields(sinsp_span_t *sinsp_span, uint32_t frame_num, sinsp_field_extract_t **sinsp_fields, uint32_t *sinsp_field_len, void** sinp_evt_info) {
     // Shouldn't happen
     if (frame_num > sinsp_span->sfe_ptrs.size()) {
-        ws_error("Frame number %u exceeds cache size %d", frame_num, (int) sinsp_span->sfe_ptrs.size());
+        ws_warning("Frame number %u exceeds cache size %d", frame_num, (int) sinsp_span->sfe_ptrs.size());
         return false;
     }
 
