@@ -19,8 +19,12 @@
 
 #include "config.h"
 
+#include <wireshark.h>
+
 #include <epan/packet.h>
+#include <epan/epan.h>
 #include <epan/tfs.h>
+#include <epan/expert.h>
 #include "packet-link16.h"
 
 #define DEFAULT_DIS_UDP_PORT 3000 /* Not IANA registered */
@@ -28,6 +32,14 @@
 /* Encoding type the last 14 bits */
 #define DIS_ENCODING_TYPE(word) ((word) & 0x3FFF)
 
+// Global hash table to store previous EntityStatePDU EntityIdentifier
+static wmem_map_t *packet_context_map = NULL;
+
+// Structure to hold this EntityStatePDU entitykind and entitydomain
+typedef struct {
+    uint8_t entity_kind;
+    uint8_t entity_domain;
+} packet_context_t;
 /* SISO-REF-010-2023 Version 34 draft d11 - 21 July 2024 XML generated Content Begin */
 /*  	Reprinted with permission from SISO Inc.    */
 
@@ -16677,6 +16689,8 @@ static const value_string DIS_PDU_IffMalfunction_Strings[] =
 *******************************************************************************/
 
 /* DIS global */
+static expert_module_t* expert_dis;
+static expert_field ei_entityidentifier_not_yet_received;
 static int proto_dis;
 static int hf_dis_proto_ver;
 static int hf_dis_exercise_id;
@@ -17285,16 +17299,11 @@ typedef struct dis_header
 dis_header_t;
 
 /* Forward declarations */
-static int parseField_Entity(tvbuff_t *tvb, proto_tree *tree, int offset, const char* entity_name);
+static int parseField_Entity(tvbuff_t *tvb, proto_tree *tree, int offset, const char* entity_name, uint32_t* entityidentifier);
 static int parseField_Aggregate(tvbuff_t *tvb, proto_tree *tree, int offset, const char* entity_name);
-static int dissect_DIS_FIELDS_ENTITY_TYPE(tvbuff_t *tvb, proto_tree *tree, int offset, const char* entity_name);
+static int dissect_DIS_FIELDS_ENTITY_TYPE(tvbuff_t *tvb, proto_tree *tree, int offset, const char* entity_name, uint8_t* entityKind, uint8_t* entityDomain);
 static int parseField_VariableParameter(tvbuff_t *tvb, proto_tree *tree, int offset, uint8_t paramType);
 static int parseField_VariableRecord(tvbuff_t *tvb, proto_tree *tree, int offset, uint32_t variableRecordType, uint16_t record_length);
-
-
-/* globals to pass data between functions */
-static uint32_t entityKind;
-static uint32_t entityDomain;
 
 /* Composite types
  */
@@ -17304,7 +17313,7 @@ static int dissect_DIS_FIELDS_BURST_DESCRIPTOR(tvbuff_t *tvb, proto_tree *tree, 
 
     sub_tree = proto_tree_add_subtree(tree, tvb, offset, 16, ett_burst_descriptor, NULL, "Burst Descriptor");
 
-    offset = dissect_DIS_FIELDS_ENTITY_TYPE(tvb, sub_tree, offset, "Munition");
+    offset = dissect_DIS_FIELDS_ENTITY_TYPE(tvb, sub_tree, offset, "Munition", NULL, NULL);
 
     proto_tree_add_item(sub_tree, hf_dis_warhead, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
@@ -17363,8 +17372,10 @@ static int dissect_DIS_FIELDS_CLOCK_TIME(tvbuff_t *tvb, proto_tree *tree, int of
    return (offset+8);
 }
 
-static int dissect_DIS_FIELDS_ENTITY_TYPE_RECORD(tvbuff_t *tvb, proto_tree *tree, int offset, const char* name, int ett, int hfkind, int hfdomain, int hfcountry, int hfcategory, int hfsubcategory, int hfspecific, int hfextra)
+static int dissect_DIS_FIELDS_ENTITY_TYPE_RECORD(tvbuff_t *tvb, proto_tree *tree, int offset, const char* name, int ett, int hfkind, int hfdomain, int hfcountry, int hfcategory, int hfsubcategory, int hfspecific, int hfextra, uint8_t* outentityKind, uint8_t* outentityDomain)
 {
+    uint8_t entityKind;
+    uint8_t entityDomain;
     uint16_t entityCountry;
     uint8_t entityCategory;
     uint8_t entitySubcategory;
@@ -17375,7 +17386,9 @@ static int dissect_DIS_FIELDS_ENTITY_TYPE_RECORD(tvbuff_t *tvb, proto_tree *tree
     int hf_cat = hfcategory;
 
     entityKind = tvb_get_uint8(tvb, offset);
+    if (outentityKind) *outentityKind = entityKind;
     entityDomain = tvb_get_uint8(tvb, offset+1);
+    if (outentityDomain) *outentityDomain = entityDomain;
     entityCountry = tvb_get_ntohs(tvb, offset+2);
     entityCategory = tvb_get_uint8(tvb, offset+4);
     entitySubcategory = tvb_get_uint8(tvb, offset+5);
@@ -17430,9 +17443,9 @@ static int dissect_DIS_FIELDS_ENTITY_TYPE_RECORD(tvbuff_t *tvb, proto_tree *tree
     return offset;
 }
 
-static int dissect_DIS_FIELDS_ENTITY_TYPE(tvbuff_t *tvb, proto_tree *tree, int offset, const char* entity_name)
+static int dissect_DIS_FIELDS_ENTITY_TYPE(tvbuff_t *tvb, proto_tree *tree, int offset, const char* entity_name, uint8_t* outentityKind, uint8_t* outentityDomain)
 {
-    return dissect_DIS_FIELDS_ENTITY_TYPE_RECORD(tvb, tree, offset, entity_name, ett_entity_type, hf_dis_entityKind, hf_dis_entityDomain, hf_dis_country, hf_dis_category, hf_dis_subcategory, hf_dis_specific, hf_dis_extra);
+    return dissect_DIS_FIELDS_ENTITY_TYPE_RECORD(tvb, tree, offset, entity_name, ett_entity_type, hf_dis_entityKind, hf_dis_entityDomain, hf_dis_country, hf_dis_category, hf_dis_subcategory, hf_dis_specific, hf_dis_extra, outentityKind, outentityDomain);
 }
 
 static int dissect_DIS_FIELDS_RADIO_ENTITY_TYPE(tvbuff_t *tvb, proto_tree *tree, int offset, const char* entity_name)
@@ -17442,11 +17455,9 @@ static int dissect_DIS_FIELDS_RADIO_ENTITY_TYPE(tvbuff_t *tvb, proto_tree *tree,
     sub_tree = proto_tree_add_subtree(tree, tvb, offset, 8, ett_radio_entity_type, NULL, entity_name);
 
     proto_tree_add_item(sub_tree, hf_dis_entityKind, tvb, offset, 1, ENC_BIG_ENDIAN);
-    entityKind = tvb_get_uint8(tvb, offset);
     offset++;
 
     proto_tree_add_item(sub_tree, hf_dis_entityDomain, tvb, offset, 1, ENC_BIG_ENDIAN);
-    entityDomain = tvb_get_uint8(tvb, offset);
     offset++;
 
     proto_tree_add_item(sub_tree, hf_dis_country, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -17466,12 +17477,12 @@ static int dissect_DIS_FIELDS_RADIO_ENTITY_TYPE(tvbuff_t *tvb, proto_tree *tree,
 
 static int dissect_DIS_FIELDS_AGGREGATE_TYPE(tvbuff_t *tvb, proto_tree *tree, int offset, const char* entity_name)
 {
-    return dissect_DIS_FIELDS_ENTITY_TYPE_RECORD(tvb, tree, offset, entity_name, ett_aggregate_type, hf_dis_aggregate_kind, hf_dis_aggregate_domain, hf_dis_aggregate_country, hf_dis_aggregate_category, hf_dis_aggregate_subcategory, hf_dis_aggregate_specific, hf_dis_aggregate_extra);
+    return dissect_DIS_FIELDS_ENTITY_TYPE_RECORD(tvb, tree, offset, entity_name, ett_aggregate_type, hf_dis_aggregate_kind, hf_dis_aggregate_domain, hf_dis_aggregate_country, hf_dis_aggregate_category, hf_dis_aggregate_subcategory, hf_dis_aggregate_specific, hf_dis_aggregate_extra, NULL, NULL);
 }
 
 static int dissect_DIS_FIELDS_ENVIRONMENT_TYPE(tvbuff_t *tvb, proto_tree *tree, int offset, const char* entity_name)
 {
-    return dissect_DIS_FIELDS_ENTITY_TYPE_RECORD(tvb, tree, offset, entity_name, ett_environmental_environment_type, hf_dis_environment_kind, hf_dis_environment_domain, hf_dis_environment_class, hf_dis_environment_category, hf_dis_environment_subcategory, hf_dis_environment_specific, hf_dis_environment_extra);
+    return dissect_DIS_FIELDS_ENTITY_TYPE_RECORD(tvb, tree, offset, entity_name, ett_environmental_environment_type, hf_dis_environment_kind, hf_dis_environment_domain, hf_dis_environment_class, hf_dis_environment_category, hf_dis_environment_subcategory, hf_dis_environment_specific, hf_dis_environment_extra, NULL, NULL);
 }
 
 
@@ -17891,7 +17902,7 @@ static int dissect_DIS_FIELDS_VP_ATTACHED_PART(tvbuff_t *tvb, proto_tree *tree, 
     proto_tree_add_item(tree, hf_dis_vp_artic_param_type, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
-    offset = dissect_DIS_FIELDS_ENTITY_TYPE(tvb, tree, offset, "Part Type");
+    offset = dissect_DIS_FIELDS_ENTITY_TYPE(tvb, tree, offset, "Part Type", NULL, NULL);
 
     return offset;
 }
@@ -17931,7 +17942,7 @@ static int dissect_DIS_FIELDS_VP_ENTITY_ASSOCIATION(tvbuff_t *tvb, proto_tree *t
     proto_tree_add_item(tree, hf_dis_vp_association_type, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
 
-    offset = parseField_Entity(tvb, tree, offset, "Object Identifier");
+    offset = parseField_Entity(tvb, tree, offset, "Object Identifier", NULL);
 
     proto_tree_add_item(tree, hf_dis_vp_own_station_location, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
@@ -18014,7 +18025,9 @@ static int dissect_DIS_FIELDS_VR_DATA_QUERY(tvbuff_t *tvb, proto_tree *tree, int
 
 
 static int dissect_DIS_PARSER_ENTITY_STATE_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
-{
+{    
+    uint8_t entityKind;
+    uint8_t entityDomain;
     static uint32_t entitySite;
     static uint32_t entityApplication;
     static uint32_t entityEntity;
@@ -18029,7 +18042,8 @@ static int dissect_DIS_PARSER_ENTITY_STATE_PDU(tvbuff_t *tvb, packet_info *pinfo
     entityApplication = tvb_get_ntohs(tvb, offset+2);
     entityEntity = tvb_get_ntohs(tvb, offset+4);
 
-    offset = parseField_Entity(tvb, tree, offset, "Entity ID");
+    uint32_t entityid =0;
+    offset = parseField_Entity(tvb, tree, offset, "Entity ID", &entityid);
 
     proto_tree_add_item(tree, hf_dis_force_id, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
@@ -18038,7 +18052,7 @@ static int dissect_DIS_PARSER_ENTITY_STATE_PDU(tvbuff_t *tvb, packet_info *pinfo
     proto_tree_add_item(tree, hf_dis_num_art_params, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
 
-    offset = dissect_DIS_FIELDS_ENTITY_TYPE(tvb, tree, offset, "Entity Type");
+    offset = dissect_DIS_FIELDS_ENTITY_TYPE(tvb, tree, offset, "Entity Type", &entityKind, &entityDomain);
 
     col_append_fstr( pinfo->cinfo, COL_INFO, ", %s, %s, (%u:%u:%u)",
                     val_to_str_const(entityKind, DIS_PDU_EntityKind_Strings, "Unknown Entity Kind"),
@@ -18046,8 +18060,17 @@ static int dissect_DIS_PARSER_ENTITY_STATE_PDU(tvbuff_t *tvb, packet_info *pinfo
                     entitySite , entityApplication , entityEntity
                     );
 
+    packet_context_t *context = wmem_map_lookup(packet_context_map, GUINT_TO_POINTER(entityid));
+    if (context == NULL)
+    {
+        context = wmem_new0(wmem_file_scope(), packet_context_t);
+        context->entity_kind = entityKind;
+        context->entity_domain = entityDomain;
+        
+        wmem_map_insert(packet_context_map, GUINT_TO_POINTER(entityid), context);
+    }
 
-    offset = dissect_DIS_FIELDS_ENTITY_TYPE(tvb, tree, offset, "Alternative Entity Type");
+    offset = dissect_DIS_FIELDS_ENTITY_TYPE(tvb, tree, offset, "Alternative Entity Type", NULL, NULL);
 
     sub_tree = proto_tree_add_subtree(tree, tvb, offset, 12, ett_entity_linear_velocity, NULL, "Entity Linear Velocity");
     proto_tree_add_item(sub_tree, hf_dis_entity_linear_velocity_x, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -18108,7 +18131,7 @@ static int dissect_DIS_PARSER_ENTITY_STATE_PDU(tvbuff_t *tvb, packet_info *pinfo
 
         proto_tree_add_bitmask(tree, tvb, offset, hf_entity_appearance, ett_entity_appearance, entity_appearance_domain_land_bitmask, ENC_BIG_ENDIAN);
     }
-    if ((entityKind == DIS_ENTITYKIND_PLATFORM) &&
+    else if ((entityKind == DIS_ENTITYKIND_PLATFORM) &&
         (entityDomain == DIS_DOMAIN_AIR))
     {
         static int * const entity_appearance_domain_air_bitmask[] =
@@ -18248,7 +18271,8 @@ static int dissect_DIS_PARSER_ENTITY_STATE_UPDATE_PDU(tvbuff_t *tvb, packet_info
     entityApplication = tvb_get_ntohs(tvb, offset+2);
     entityEntity = tvb_get_ntohs(tvb, offset+4);
 
-    offset = parseField_Entity(tvb, tree, offset, "Entity ID");
+    uint32_t entityid = 0;
+    offset = parseField_Entity(tvb, tree, offset, "Entity ID", &entityid);
 
     proto_tree_add_item(tree, hf_dis_padding, tvb, offset, 1, ENC_NA);
     offset++;
@@ -18286,104 +18310,115 @@ static int dissect_DIS_PARSER_ENTITY_STATE_UPDATE_PDU(tvbuff_t *tvb, packet_info
     proto_tree_add_item(sub_tree, hf_dis_entity_orientation_phi, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
-    if ((entityKind == DIS_ENTITYKIND_PLATFORM) &&
-        (entityDomain == DIS_DOMAIN_LAND))
-    {
-        static int * const entity_appearance_domain_land_bitmask[] =
+    packet_context_t *context = wmem_map_lookup(packet_context_map, GUINT_TO_POINTER(entityid));
+    if (context != NULL)
+    { 
+        //look for the previous EntityStatePDU in order to get the EntityKind and EntityDomain
+        if ((context->entity_kind == DIS_ENTITYKIND_PLATFORM) &&
+            (context->entity_domain == DIS_DOMAIN_LAND))
         {
-            &hf_appearance_landform_paint_scheme,
-            &hf_appearance_landform_mobility,
-            &hf_appearance_landform_fire_power,
-            &hf_appearance_landform_damage,
-            &hf_appearance_landform_smoke_entity,
-            &hf_appearance_landform_trailing_effects_entity,
-            &hf_appearance_landform_hatch,
-            &hf_appearance_landform_head_lights,
-            &hf_appearance_landform_tail_lights,
-            &hf_appearance_landform_brake_lights,
-            &hf_appearance_landform_flaming,
-            &hf_appearance_landform_launcher,
-            &hf_appearance_landform_camouflage_type,
-            &hf_appearance_landform_concealed,
-            &hf_appearance_landform_frozen_status,
-            &hf_appearance_landform_power_plant_status,
-            &hf_appearance_landform_state,
-            &hf_appearance_landform_tent,
-            &hf_appearance_landform_ramp,
-            &hf_appearance_landform_blackout_lights,
-            &hf_appearance_landform_blackout_brake_lights,
-            &hf_appearance_landform_spot_lights,
-            &hf_appearance_landform_interior_lights,
-            &hf_appearance_landform_surrender_state,
-            &hf_appearance_landform_masked_cloaked,
-            NULL
-        };
+            static int * const entity_appearance_domain_land_bitmask[] =
+            {
+                &hf_appearance_landform_paint_scheme,
+                &hf_appearance_landform_mobility,
+                &hf_appearance_landform_fire_power,
+                &hf_appearance_landform_damage,
+                &hf_appearance_landform_smoke_entity,
+                &hf_appearance_landform_trailing_effects_entity,
+                &hf_appearance_landform_hatch,
+                &hf_appearance_landform_head_lights,
+                &hf_appearance_landform_tail_lights,
+                &hf_appearance_landform_brake_lights,
+                &hf_appearance_landform_flaming,
+                &hf_appearance_landform_launcher,
+                &hf_appearance_landform_camouflage_type,
+                &hf_appearance_landform_concealed,
+                &hf_appearance_landform_frozen_status,
+                &hf_appearance_landform_power_plant_status,
+                &hf_appearance_landform_state,
+                &hf_appearance_landform_tent,
+                &hf_appearance_landform_ramp,
+                &hf_appearance_landform_blackout_lights,
+                &hf_appearance_landform_blackout_brake_lights,
+                &hf_appearance_landform_spot_lights,
+                &hf_appearance_landform_interior_lights,
+                &hf_appearance_landform_surrender_state,
+                &hf_appearance_landform_masked_cloaked,
+                NULL
+            };
 
-        proto_tree_add_bitmask(tree, tvb, offset, hf_entity_appearance, ett_entity_appearance, entity_appearance_domain_land_bitmask, ENC_BIG_ENDIAN);
-    }
-    if ((entityKind == DIS_ENTITYKIND_PLATFORM) &&
-        (entityDomain == DIS_DOMAIN_AIR))
-    {
-        static int * const entity_appearance_domain_air_bitmask[] =
+            proto_tree_add_bitmask(tree, tvb, offset, hf_entity_appearance, ett_entity_appearance, entity_appearance_domain_land_bitmask, ENC_BIG_ENDIAN);
+        }
+        else if ((context->entity_kind == DIS_ENTITYKIND_PLATFORM) &&
+            (context->entity_domain == DIS_DOMAIN_AIR))
         {
-            &hf_appearance_airform_paint_scheme,
-            &hf_appearance_airform_propulsion_killed, 
-            &hf_appearance_airform_nvg_mode,
-            &hf_appearance_airform_damage,
-            &hf_appearance_airform_is_smoke_emanating,
-            &hf_appearance_airform_is_engine_emitting_smoke,
-            &hf_appearance_airform_trailing_effects,
-            &hf_appearance_airform_canopy_troop_door, 
-            &hf_appearance_airform_landing_lights_on,
-            &hf_appearance_airform_navigation_lights_on,
-            &hf_appearance_airform_anti_collision_lights_on,
-            &hf_appearance_airform_is_flaming,
-            &hf_appearance_airform_afterburner_on, 
-            &hf_appearance_airform_lower_anti_collision_light_on,
-            &hf_appearance_airform_upper_anti_collision_light_on,
-            &hf_appearance_airform_anti_collision_light_day_night,
-            &hf_appearance_airform_is_blinking,
-            &hf_appearance_airform_is_frozen,
-            &hf_appearance_airform_power_plant_on,
-            &hf_appearance_airform_state,
-            &hf_appearance_airform_formation_lights_on,
-            &hf_appearance_airform_landing_gear_extended,
-            &hf_appearance_airform_cargo_doors_opened,
-            &hf_appearance_airform_navigation_position_brightness,
-            &hf_appearance_airform_spot_search_light_1_on,
-            &hf_appearance_airform_interior_lights_on,
-            &hf_appearance_airform_reverse_thrust_engaged,
-            &hf_appearance_airform_weight_on_wheels,
-            NULL
-        };
+            static int * const entity_appearance_domain_air_bitmask[] =
+            {
+                &hf_appearance_airform_paint_scheme,
+                &hf_appearance_airform_propulsion_killed, 
+                &hf_appearance_airform_nvg_mode,
+                &hf_appearance_airform_damage,
+                &hf_appearance_airform_is_smoke_emanating,
+                &hf_appearance_airform_is_engine_emitting_smoke,
+                &hf_appearance_airform_trailing_effects,
+                &hf_appearance_airform_canopy_troop_door, 
+                &hf_appearance_airform_landing_lights_on,
+                &hf_appearance_airform_navigation_lights_on,
+                &hf_appearance_airform_anti_collision_lights_on,
+                &hf_appearance_airform_is_flaming,
+                &hf_appearance_airform_afterburner_on, 
+                &hf_appearance_airform_lower_anti_collision_light_on,
+                &hf_appearance_airform_upper_anti_collision_light_on,
+                &hf_appearance_airform_anti_collision_light_day_night,
+                &hf_appearance_airform_is_blinking,
+                &hf_appearance_airform_is_frozen,
+                &hf_appearance_airform_power_plant_on,
+                &hf_appearance_airform_state,
+                &hf_appearance_airform_formation_lights_on,
+                &hf_appearance_airform_landing_gear_extended,
+                &hf_appearance_airform_cargo_doors_opened,
+                &hf_appearance_airform_navigation_position_brightness,
+                &hf_appearance_airform_spot_search_light_1_on,
+                &hf_appearance_airform_interior_lights_on,
+                &hf_appearance_airform_reverse_thrust_engaged,
+                &hf_appearance_airform_weight_on_wheels,
+                NULL
+            };
 
-        proto_tree_add_bitmask(tree, tvb, offset, hf_entity_appearance, ett_entity_appearance, entity_appearance_domain_air_bitmask, ENC_BIG_ENDIAN);
-    }
-    else if (entityKind == DIS_ENTITYKIND_LIFE_FORM)
-    {
-        static int * const entity_appearance_kind_life_form_bitmask[] =
+            proto_tree_add_bitmask(tree, tvb, offset, hf_entity_appearance, ett_entity_appearance, entity_appearance_domain_air_bitmask, ENC_BIG_ENDIAN);
+        }
+        else if (context->entity_kind == DIS_ENTITYKIND_LIFE_FORM)
         {
-            &hf_appearance_lifeform_paint_scheme,
-            &hf_appearance_lifeform_health,
-            &hf_appearance_lifeform_compliance,
-            &hf_appearance_lifeform_flash_lights,
-            &hf_appearance_lifeform_state,
-            &hf_appearance_frozen_status,
-            &hf_appearance_state,
-            &hf_appearance_weapon_1,
-            &hf_appearance_weapon_2,
-            &hf_appearance_camouflage_type,
-            &hf_appearance_concealed_stationary,
-            &hf_appearance_concealed_movement,
-            NULL
-        };
+            static int * const entity_appearance_kind_life_form_bitmask[] =
+            {
+                &hf_appearance_lifeform_paint_scheme,
+                &hf_appearance_lifeform_health,
+                &hf_appearance_lifeform_compliance,
+                &hf_appearance_lifeform_flash_lights,
+                &hf_appearance_lifeform_state,
+                &hf_appearance_frozen_status,
+                &hf_appearance_state,
+                &hf_appearance_weapon_1,
+                &hf_appearance_weapon_2,
+                &hf_appearance_camouflage_type,
+                &hf_appearance_concealed_stationary,
+                &hf_appearance_concealed_movement,
+                NULL
+            };
 
-        proto_tree_add_bitmask(tree, tvb, offset, hf_entity_appearance, ett_entity_appearance, entity_appearance_kind_life_form_bitmask, ENC_BIG_ENDIAN);
+            proto_tree_add_bitmask(tree, tvb, offset, hf_entity_appearance, ett_entity_appearance, entity_appearance_kind_life_form_bitmask, ENC_BIG_ENDIAN);
+        }
+        else
+        {
+            proto_tree_add_item(tree, hf_entity_appearance, tvb, offset, 4, ENC_BIG_ENDIAN);
+        }     
     }
     else
     {
-        proto_tree_add_item(tree, hf_entity_appearance, tvb, offset, 4, ENC_BIG_ENDIAN);
+        sub_tree = proto_tree_add_item(tree, hf_entity_appearance, tvb, offset, 4, ENC_BIG_ENDIAN);
+        expert_add_info(pinfo, sub_tree, &ei_entityidentifier_not_yet_received);
     }
+    
     offset += 4;
 
     for (i = 0; i < numVariable; i++)
@@ -18406,8 +18441,8 @@ static int dissect_DIS_PARSER_COLLISION_PDU(tvbuff_t *tvb, packet_info *pinfo _U
 {
     proto_tree *sub_tree;
 
-    offset = parseField_Entity(tvb, tree, offset, "Issuing Entity ID");
-    offset = parseField_Entity(tvb, tree, offset, "Colliding Entity ID");
+    offset = parseField_Entity(tvb, tree, offset, "Issuing Entity ID", NULL);
+    offset = parseField_Entity(tvb, tree, offset, "Colliding Entity ID", NULL);
     offset = dissect_DIS_FIELDS_EVENT_ID(tvb, tree, offset, "Event ID");
 
     /* 8 Bit Collision Type */
@@ -18453,7 +18488,7 @@ static int dissect_DIS_PARSER_ELECTROMAGNETIC_EMISSION_PDU(tvbuff_t *tvb, packet
     proto_tree *sub_tree, *sub_tree2, *fundamental_tree;
     uint8_t i, j, k, numVariable, numBeams, numTrackJamTargets;
 
-    offset = parseField_Entity(tvb, tree, offset, "Emitting Entity ID");
+    offset = parseField_Entity(tvb, tree, offset, "Emitting Entity ID", NULL);
     offset = dissect_DIS_FIELDS_EVENT_ID(tvb, tree, offset, "Event ID");
 
     proto_tree_add_item(tree, hf_dis_state_update_indicator, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -18571,7 +18606,7 @@ static int dissect_DIS_PARSER_UNDERWATER_ACOUSTIC_PDU(tvbuff_t *tvb, packet_info
     proto_tree *sub_tree, *sub_tree2;
     uint8_t i, numShafts, numApas, numUAEmitter, numUABeams = 0;
 
-    offset = parseField_Entity(tvb, tree, offset, "Emitting Entity ID");
+    offset = parseField_Entity(tvb, tree, offset, "Emitting Entity ID", NULL);
     offset = dissect_DIS_FIELDS_EVENT_ID(tvb, tree, offset, "Event ID");
 
     proto_tree_add_item(tree, hf_dis_state_update_indicator, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -18718,7 +18753,7 @@ static int dissect_DIS_PARSER_IFF_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_t
     site = tvb_get_ntohs(tvb, offset);
     application = tvb_get_ntohs(tvb, offset+2);
     entity = tvb_get_ntohs(tvb, offset+4);
-    offset = parseField_Entity(tvb, tree, offset, "Emitting Entity ID");
+    offset = parseField_Entity(tvb, tree, offset, "Emitting Entity ID", NULL);
     offset = dissect_DIS_FIELDS_EVENT_ID(tvb, tree, offset, "Event ID");
 
     sub_tree = proto_tree_add_subtree(tree, tvb, offset, 12, ett_iff_location, NULL, "Location (with respect to entity)");
@@ -18998,7 +19033,7 @@ static int dissect_DIS_PARSER_TRANSMITTER_PDU(tvbuff_t *tvb, packet_info *pinfo,
     uint32_t radioID, disRadioTransmitState, modulationParamLength;
     uint16_t systemModulation;
 
-    offset = parseField_Entity(tvb, tree, offset, "Entity ID");
+    offset = parseField_Entity(tvb, tree, offset, "Entity ID", NULL);
 
     proto_tree_add_item(tree, hf_dis_radio_id, tvb, offset, 2, ENC_BIG_ENDIAN);
     radioID = tvb_get_ntohs(tvb, offset);
@@ -19096,7 +19131,7 @@ static int dissect_DIS_PARSER_DESIGNATOR_PDU(tvbuff_t *tvb, packet_info *pinfo, 
     proto_tree* sub_tree;
     uint16_t code_name;
 
-    offset = parseField_Entity(tvb, tree, offset, "Designating Entity ID");
+    offset = parseField_Entity(tvb, tree, offset, "Designating Entity ID", NULL);
 
 
     proto_tree_add_item(tree, hf_dis_designator_code_name, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -19104,7 +19139,7 @@ static int dissect_DIS_PARSER_DESIGNATOR_PDU(tvbuff_t *tvb, packet_info *pinfo, 
     col_append_fstr( pinfo->cinfo, COL_INFO, ", CodeName=%u", code_name);
     offset += 2;
 
-    offset = parseField_Entity(tvb, tree, offset, "Designated Entity ID");
+    offset = parseField_Entity(tvb, tree, offset, "Designated Entity ID", NULL);
 
     proto_tree_add_item(tree, hf_dis_designator_designator_code, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
@@ -19158,7 +19193,7 @@ static int dissect_DIS_PARSER_INTERCOM_CONTROL_PDU(tvbuff_t *tvb, packet_info *p
     proto_tree_add_item(tree, hf_intercom_control_communications_channel_type, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
 
-    offset = parseField_Entity(tvb, tree, offset, "Source Entity ID");
+    offset = parseField_Entity(tvb, tree, offset, "Source Entity ID", NULL);
 
 
     proto_tree_add_item(tree, hf_intercom_control_source_communications_device_id, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -19178,7 +19213,7 @@ static int dissect_DIS_PARSER_INTERCOM_CONTROL_PDU(tvbuff_t *tvb, packet_info *p
     proto_tree_add_item(tree, hf_intercom_control_command, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
 
-    offset = parseField_Entity(tvb, tree, offset, "Master Entity ID");
+    offset = parseField_Entity(tvb, tree, offset, "Master Entity ID", NULL);
 
     proto_tree_add_item(tree, hf_intercom_control_master_communications_device_id, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
@@ -19197,7 +19232,7 @@ static int dissect_DIS_PARSER_SIGNAL_PDU(tvbuff_t *tvb, packet_info *pinfo, prot
     uint16_t tdlType;
     uint8_t messageType;
 
-    offset = parseField_Entity(tvb, tree, offset, "Entity ID");
+    offset = parseField_Entity(tvb, tree, offset, "Entity ID", NULL);
 
     proto_tree_add_item(tree, hf_dis_radio_id, tvb, offset, 2, ENC_BIG_ENDIAN);
     radioID = tvb_get_ntohs(tvb, offset);
@@ -19255,7 +19290,7 @@ static int dissect_DIS_PARSER_RECEIVER_PDU(tvbuff_t *tvb, packet_info *pinfo, pr
 {
     uint32_t radioID, disRadioReceiveState;
 
-    offset = parseField_Entity(tvb, tree, offset, "Entity ID");
+    offset = parseField_Entity(tvb, tree, offset, "Entity ID", NULL);
 
     proto_tree_add_item(tree, hf_dis_radio_id, tvb, offset, 2, ENC_BIG_ENDIAN);
     radioID = tvb_get_ntohs(tvb, offset);
@@ -19273,7 +19308,7 @@ static int dissect_DIS_PARSER_RECEIVER_PDU(tvbuff_t *tvb, packet_info *pinfo, pr
     proto_tree_add_item(tree, hf_dis_receive_power, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
-    offset = parseField_Entity(tvb, tree, offset, "Transmitter ID");
+    offset = parseField_Entity(tvb, tree, offset, "Transmitter ID", NULL);
 
     proto_tree_add_item(tree, hf_dis_transmitter_radio_id, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
@@ -19287,9 +19322,9 @@ static int dissect_DIS_PARSER_FIRE_PDU(tvbuff_t *tvb, packet_info *pinfo _U_, pr
 {
     proto_tree* sub_tree;
 
-    offset = parseField_Entity(tvb, tree, offset, "Firing Entity ID");
-    offset = parseField_Entity(tvb, tree, offset, "Target Entity ID");
-    offset = parseField_Entity(tvb, tree, offset, "Munition ID");
+    offset = parseField_Entity(tvb, tree, offset, "Firing Entity ID", NULL);
+    offset = parseField_Entity(tvb, tree, offset, "Target Entity ID", NULL);
+    offset = parseField_Entity(tvb, tree, offset, "Munition ID", NULL);
     offset = dissect_DIS_FIELDS_EVENT_ID(tvb, tree, offset, "Event ID");
 
     proto_tree_add_item(tree, hf_dis_fire_mission_index, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -19328,9 +19363,9 @@ static int dissect_DIS_PARSER_DETONATION_PDU(tvbuff_t *tvb, packet_info *pinfo _
     uint8_t variableParameterType, numVariable;
     uint32_t i;
 
-    offset = parseField_Entity(tvb, tree, offset, "Firing Entity ID");
-    offset = parseField_Entity(tvb, tree, offset, "Target Entity ID");
-    offset = parseField_Entity(tvb, tree, offset, "Munition ID");
+    offset = parseField_Entity(tvb, tree, offset, "Firing Entity ID", NULL);
+    offset = parseField_Entity(tvb, tree, offset, "Target Entity ID", NULL);
+    offset = parseField_Entity(tvb, tree, offset, "Munition ID", NULL);
     offset = dissect_DIS_FIELDS_EVENT_ID(tvb, tree, offset, "Event ID");
 
     sub_tree = proto_tree_add_subtree(tree, tvb, offset, 12, ett_linear_velocity, NULL, "Velocity");
@@ -19391,8 +19426,8 @@ static int dissect_DIS_PARSER_DETONATION_PDU(tvbuff_t *tvb, packet_info *pinfo _
  */
 static int dissect_DIS_PARSER_START_RESUME_PDU(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
 {
-    offset = parseField_Entity(tvb, tree, offset, "Originating Entity ID");
-    offset = parseField_Entity(tvb, tree, offset, "Receiving Entity ID");
+    offset = parseField_Entity(tvb, tree, offset, "Originating Entity ID", NULL);
+    offset = parseField_Entity(tvb, tree, offset, "Receiving Entity ID", NULL);
     offset = dissect_DIS_FIELDS_CLOCK_TIME(tvb, tree, offset, "Real World Time");
     offset = dissect_DIS_FIELDS_CLOCK_TIME(tvb, tree, offset, "Simulation Time");
 
@@ -19404,8 +19439,8 @@ static int dissect_DIS_PARSER_START_RESUME_PDU(tvbuff_t *tvb, packet_info *pinfo
 
 static int dissect_DIS_PARSER_STOP_FREEZE_PDU(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
 {
-    offset = parseField_Entity(tvb, tree, offset, "Originating Entity ID");
-    offset = parseField_Entity(tvb, tree, offset, "Receiving Entity ID");
+    offset = parseField_Entity(tvb, tree, offset, "Originating Entity ID", NULL);
+    offset = parseField_Entity(tvb, tree, offset, "Receiving Entity ID", NULL);
     offset = dissect_DIS_FIELDS_CLOCK_TIME(tvb, tree, offset, "Real World Time");
 
     proto_tree_add_item(tree, hf_dis_reason, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -19425,8 +19460,8 @@ static int dissect_DIS_PARSER_STOP_FREEZE_PDU(tvbuff_t *tvb, packet_info *pinfo 
 
 static int dissect_DIS_PARSER_ACKNOWLEDGE_PDU(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
 {
-    offset = parseField_Entity(tvb, tree, offset, "Originating Entity ID");
-    offset = parseField_Entity(tvb, tree, offset, "Receiving Entity ID");
+    offset = parseField_Entity(tvb, tree, offset, "Originating Entity ID", NULL);
+    offset = parseField_Entity(tvb, tree, offset, "Receiving Entity ID", NULL);
 
     proto_tree_add_item(tree, hf_dis_acknowledge_flag, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
@@ -19444,8 +19479,8 @@ static int dissect_DIS_PARSER_ACTION_REQUEST_PDU(tvbuff_t *tvb, packet_info *pin
 {
     uint32_t numFixed, numVariable;
 
-    offset = parseField_Entity(tvb, tree, offset, "Originating Entity ID");
-    offset = parseField_Entity(tvb, tree, offset, "Receiving Entity ID");
+    offset = parseField_Entity(tvb, tree, offset, "Originating Entity ID", NULL);
+    offset = parseField_Entity(tvb, tree, offset, "Receiving Entity ID", NULL);
 
     proto_tree_add_item(tree, hf_dis_request_id, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
@@ -19471,8 +19506,8 @@ static int dissect_DIS_PARSER_ACTION_RESPONSE_PDU(tvbuff_t *tvb, packet_info *pi
 {
     uint32_t numFixed, numVariable;
 
-    offset = parseField_Entity(tvb, tree, offset, "Originating Entity ID");
-    offset = parseField_Entity(tvb, tree, offset, "Receiving Entity ID");
+    offset = parseField_Entity(tvb, tree, offset, "Originating Entity ID", NULL);
+    offset = parseField_Entity(tvb, tree, offset, "Receiving Entity ID", NULL);
 
     proto_tree_add_item(tree, hf_dis_request_id, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
@@ -19498,8 +19533,8 @@ static int dissect_DIS_PARSER_EVENT_REPORT_PDU(tvbuff_t *tvb, packet_info *pinfo
 {
     uint32_t numFixed, numVariable;
 
-    offset = parseField_Entity(tvb, tree, offset, "Originating Entity ID");
-    offset = parseField_Entity(tvb, tree, offset, "Receiving Entity ID");
+    offset = parseField_Entity(tvb, tree, offset, "Originating Entity ID", NULL);
+    offset = parseField_Entity(tvb, tree, offset, "Receiving Entity ID", NULL);
 
     proto_tree_add_item(tree, hf_dis_event_type, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
@@ -19525,8 +19560,8 @@ static int dissect_DIS_PARSER_DATA_PDU(tvbuff_t *tvb, packet_info *pinfo _U_, pr
 {
     uint32_t numFixed, numVariable;
 
-    offset = parseField_Entity(tvb, tree, offset, "Originating Entity ID");
-    offset = parseField_Entity(tvb, tree, offset, "Receiving Entity ID");
+    offset = parseField_Entity(tvb, tree, offset, "Originating Entity ID", NULL);
+    offset = parseField_Entity(tvb, tree, offset, "Receiving Entity ID", NULL);
 
     proto_tree_add_item(tree, hf_dis_request_id, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
@@ -19552,8 +19587,8 @@ static int dissect_DIS_PARSER_DATA_QUERY_PDU(tvbuff_t *tvb, packet_info *pinfo _
 {
     uint32_t numFixed, numVariable;
 
-    offset = parseField_Entity(tvb, tree, offset, "Originating Entity ID");
-    offset = parseField_Entity(tvb, tree, offset, "Receiving Entity ID");
+    offset = parseField_Entity(tvb, tree, offset, "Originating Entity ID", NULL);
+    offset = parseField_Entity(tvb, tree, offset, "Receiving Entity ID", NULL);
 
     proto_tree_add_item(tree, hf_dis_request_id, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
@@ -19664,7 +19699,7 @@ static int dissect_DIS_PARSER_AGGREGATE_STATE_PDU(tvbuff_t *tvb, packet_info *pi
 
     sub_tree = proto_tree_add_subtree(tree, tvb, offset, 6 * number_of_entities, ett_entity_id_list, NULL, "Entity ID List");
     for (i = 0; i < number_of_entities; i++)
-        offset = parseField_Entity(tvb, sub_tree, offset, "Entity ID");
+        offset = parseField_Entity(tvb, sub_tree, offset, "Entity ID", NULL);
 
     /* padding */
     padding = (((number_of_entities + number_of_aggregates) * 16) % 2) / 8;
@@ -19691,7 +19726,7 @@ static int dissect_DIS_PARSER_ENVIRONMENTAL_PROCESS_PDU(tvbuff_t *tvb, packet_in
 {
     proto_tree *sub_tree;
 
-    offset = parseField_Entity(tvb, tree, offset, "Environmental Process ID");
+    offset = parseField_Entity(tvb, tree, offset, "Environmental Process ID", NULL);
 
     offset = dissect_DIS_FIELDS_ENVIRONMENT_TYPE(tvb, tree, offset, "Environment Type");
 
@@ -19716,8 +19751,8 @@ static int dissect_DIS_PARSER_COMMENT_PDU(tvbuff_t *tvb, packet_info *pinfo _U_,
 {
     uint32_t numFixed, numVariable;
 
-    offset = parseField_Entity(tvb, tree, offset, "Originating Entity ID");
-    offset = parseField_Entity(tvb, tree, offset, "Receiving Entity ID");
+    offset = parseField_Entity(tvb, tree, offset, "Originating Entity ID", NULL);
+    offset = parseField_Entity(tvb, tree, offset, "Receiving Entity ID", NULL);
 
     numFixed = tvb_get_ntohl(tvb, offset);
     proto_tree_add_item(tree, hf_dis_num_fixed_data, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -19735,8 +19770,8 @@ static int dissect_DIS_PARSER_COMMENT_PDU(tvbuff_t *tvb, packet_info *pinfo _U_,
 
 static int dissect_DIS_PARSER_SIMAN_ENTITY_PDU(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
 {
-    offset = parseField_Entity(tvb, tree, offset, "Originating Entity ID");
-    offset = parseField_Entity(tvb, tree, offset, "Receiving Entity ID");
+    offset = parseField_Entity(tvb, tree, offset, "Originating Entity ID", NULL);
+    offset = parseField_Entity(tvb, tree, offset, "Receiving Entity ID", NULL);
 
     proto_tree_add_item(tree, hf_dis_request_id, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
@@ -19748,8 +19783,8 @@ static int dissect_DIS_PARSER_SIMAN_ENTITY_PDU(tvbuff_t *tvb, packet_info *pinfo
  */
 static int dissect_DIS_PARSER_START_RESUME_R_PDU(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
 {
-    offset = parseField_Entity(tvb, tree, offset, "Originating Entity ID");
-    offset = parseField_Entity(tvb, tree, offset, "Receiving Entity ID");
+    offset = parseField_Entity(tvb, tree, offset, "Originating Entity ID", NULL);
+    offset = parseField_Entity(tvb, tree, offset, "Receiving Entity ID", NULL);
     offset = dissect_DIS_FIELDS_CLOCK_TIME(tvb, tree, offset, "Real World Time");
     offset = dissect_DIS_FIELDS_CLOCK_TIME(tvb, tree, offset, "Simulation Time");
 
@@ -19767,8 +19802,8 @@ static int dissect_DIS_PARSER_START_RESUME_R_PDU(tvbuff_t *tvb, packet_info *pin
 
 static int dissect_DIS_PARSER_STOP_FREEZE_R_PDU(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
 {
-    offset = parseField_Entity(tvb, tree, offset, "Originating Entity ID");
-    offset = parseField_Entity(tvb, tree, offset, "Receiving Entity ID");
+    offset = parseField_Entity(tvb, tree, offset, "Originating Entity ID", NULL);
+    offset = parseField_Entity(tvb, tree, offset, "Receiving Entity ID", NULL);
     offset = dissect_DIS_FIELDS_CLOCK_TIME(tvb, tree, offset, "Real World Time");
 
     proto_tree_add_item(tree, hf_dis_reason, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -19793,8 +19828,8 @@ static int dissect_DIS_PARSER_ACTION_REQUEST_R_PDU(tvbuff_t *tvb, packet_info *p
 {
     uint32_t numFixed, numVariable;
 
-    offset = parseField_Entity(tvb, tree, offset, "Originating Entity ID");
-    offset = parseField_Entity(tvb, tree, offset, "Receiving Entity ID");
+    offset = parseField_Entity(tvb, tree, offset, "Originating Entity ID", NULL);
+    offset = parseField_Entity(tvb, tree, offset, "Receiving Entity ID", NULL);
 
     proto_tree_add_item(tree, hf_dis_reliability, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
@@ -19826,8 +19861,8 @@ static int dissect_DIS_PARSER_DATA_R_PDU(tvbuff_t *tvb, packet_info *pinfo _U_, 
 {
     uint32_t numFixed, numVariable;
 
-    offset = parseField_Entity(tvb, tree, offset, "Originating Entity ID");
-    offset = parseField_Entity(tvb, tree, offset, "Receiving Entity ID");
+    offset = parseField_Entity(tvb, tree, offset, "Originating Entity ID", NULL);
+    offset = parseField_Entity(tvb, tree, offset, "Receiving Entity ID", NULL);
 
     proto_tree_add_item(tree, hf_dis_reliability, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
@@ -19856,8 +19891,8 @@ static int dissect_DIS_PARSER_DATA_QUERY_R_PDU(tvbuff_t *tvb, packet_info *pinfo
 {
     uint32_t numFixed, numVariable;
 
-    offset = parseField_Entity(tvb, tree, offset, "Originating Entity ID");
-    offset = parseField_Entity(tvb, tree, offset, "Receiving Entity ID");
+    offset = parseField_Entity(tvb, tree, offset, "Originating Entity ID", NULL);
+    offset = parseField_Entity(tvb, tree, offset, "Receiving Entity ID", NULL);
 
     proto_tree_add_item(tree, hf_dis_reliability, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
@@ -19887,8 +19922,8 @@ static int dissect_DIS_PARSER_DATA_QUERY_R_PDU(tvbuff_t *tvb, packet_info *pinfo
 
 static int dissect_DIS_PARSER_SIMAN_ENTITY_R_PDU(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
 {
-    offset = parseField_Entity(tvb, tree, offset, "Originating Entity ID");
-    offset = parseField_Entity(tvb, tree, offset, "Receiving Entity ID");
+    offset = parseField_Entity(tvb, tree, offset, "Originating Entity ID", NULL);
+    offset = parseField_Entity(tvb, tree, offset, "Receiving Entity ID", NULL);
 
     proto_tree_add_item(tree, hf_dis_reliability, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
@@ -19911,8 +19946,8 @@ static int dissect_DIS_PARSER_APPLICATION_CONTROL_PDU(tvbuff_t *tvb, packet_info
     uint32_t i, variableRecordType;
     uint16_t variableRecordLength, numVariable;
 
-    offset = parseField_Entity(tvb, tree, offset, "Originating Entity ID");
-    offset = parseField_Entity(tvb, tree, offset, "Receiving Entity ID");
+    offset = parseField_Entity(tvb, tree, offset, "Originating Entity ID", NULL);
+    offset = parseField_Entity(tvb, tree, offset, "Receiving Entity ID", NULL);
 
     proto_tree_add_item(tree, hf_dis_reliability, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
@@ -20014,8 +20049,8 @@ static int dissect_DIS_PARSER_DESCRIBE_OBJECT_PO_PDU(tvbuff_t *tvb, packet_info 
     proto_tree_add_item(tree, hf_dis_database_seq_num, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
-    offset = parseField_Entity(tvb, tree, offset, "Object ID");
-    offset = parseField_Entity(tvb, tree, offset, "World State ID");
+    offset = parseField_Entity(tvb, tree, offset, "Object ID", NULL);
+    offset = parseField_Entity(tvb, tree, offset, "World State ID", NULL);
 
     offset = dissect_DIS_FIELDS_SIMULATION_ADDRESS(tvb, tree, offset, "Owner");
 
@@ -20034,7 +20069,7 @@ static int dissect_DIS_PARSER_DESCRIBE_OBJECT_PO_PDU(tvbuff_t *tvb, packet_info 
 static int dissect_DIS_PARSER_OBJECTS_PRESENT_PO_PDU(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
 {
     offset = dissect_DIS_FIELDS_SIMULATION_ADDRESS(tvb, tree, offset, "Owner");
-    offset = parseField_Entity(tvb, tree, offset, "World State ID");
+    offset = parseField_Entity(tvb, tree, offset, "World State ID", NULL);
 
     proto_tree_add_item(tree, hf_dis_obj_count, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
@@ -20046,7 +20081,7 @@ static int dissect_DIS_PARSER_OBJECT_REQUEST_PO_PDU(tvbuff_t *tvb, packet_info *
 {
     offset = dissect_DIS_FIELDS_SIMULATION_ADDRESS(tvb, tree, offset, "Requesting Simulator");
     offset = dissect_DIS_FIELDS_SIMULATION_ADDRESS(tvb, tree, offset, "Object Owner");
-    offset = parseField_Entity(tvb, tree, offset, "World State ID");
+    offset = parseField_Entity(tvb, tree, offset, "World State ID", NULL);
 
     proto_tree_add_item(tree, hf_dis_obj_count, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
@@ -20074,7 +20109,7 @@ static int dissect_DIS_PARSER_SET_WORLD_STATE_PO_PDU(tvbuff_t *tvb, packet_info 
     proto_tree_add_item(tree, hf_dis_sec_since_1970, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
-    offset = parseField_Entity(tvb, tree, offset, "World State ID");
+    offset = parseField_Entity(tvb, tree, offset, "World State ID", NULL);
 
     return offset;
 }
@@ -20157,11 +20192,14 @@ static int parseField_Timestamp(tvbuff_t *tvb, proto_tree *tree, int offset, int
 }
 
 /* Parse an Entity */
-static int parseField_Entity(tvbuff_t *tvb, proto_tree *tree, int offset, const char* entity_name)
+static int parseField_Entity(tvbuff_t *tvb, proto_tree *tree, int offset, const char* entity_name, uint32_t* entityidentifier)
 {
     proto_tree  *sub_tree;
 
     sub_tree = proto_tree_add_subtree(tree, tvb, offset, 6, ett_entity, NULL, entity_name);
+
+    // Use the full 32 bits
+    if (entityidentifier) *entityidentifier = tvb_get_uint32(tvb, offset, ENC_BIG_ENDIAN);
 
     proto_tree_add_item(sub_tree, hf_dis_entity_id_site, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
@@ -20667,8 +20705,17 @@ void proto_reg_handoff_dis(void);
 
 void proto_register_dis(void)
 {
+    packet_context_map = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), g_direct_hash, g_direct_equal);
 
-/* registration with the filtering engine */
+    static ei_register_info ei[] = {
+        {
+            &ei_entityidentifier_not_yet_received,
+            { "dis.entity_identifier_not_found", PI_PROTOCOL, PI_WARN,
+              "The Entity Idenfier was not found for this entity state update", EXPFILL }
+        }
+    };
+
+    /* registration with the filtering engine */
     static hf_register_info hf[] =
         {
             { &hf_dis_proto_ver,
@@ -23207,6 +23254,9 @@ void proto_register_dis(void)
     proto_register_subtree_array(ett, array_length(ett));
 
     dis_dissector_handle = register_dissector("dis", dissect_dis, proto_dis);
+
+    expert_dis = expert_register_protocol(proto_dis);
+    expert_register_field_array(expert_dis, ei, array_length(ei));
 }
 
 /* Register handoff routine for DIS dissector.  This will be invoked initially
