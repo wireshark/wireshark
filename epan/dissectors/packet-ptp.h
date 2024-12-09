@@ -20,5 +20,10 @@ void dissect_ptp_v2_timeInterval(tvbuff_t *tvb, int *cur_offset, proto_tree *tre
                                  int hf_ptp_v2_timeInterval_ns, int hf_ptp_v2_timeInterval_subns,
                                  proto_tree **tree_out, int64_t *ns_out);
 
+typedef struct ptp_v2_tlv_org_ext_info {
+    bool        is_802_1as;
+    uint16_t    ptp_v2_flags;
+    uint8_t     ptp_v2_messageid;
+} ptp_v2_tlv_org_ext_info_t;
 
 #endif /* packet-ptp.h */
