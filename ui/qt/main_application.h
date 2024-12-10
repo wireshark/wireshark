@@ -32,6 +32,8 @@ struct _e_prefs;
 class QAction;
 class QSocketNotifier;
 
+class MainWindow;
+
 // Recent items:
 // - Read from prefs
 // - Add from open file
@@ -148,7 +150,7 @@ public:
     bool softwareUpdateCanShutdown();
     void softwareUpdateShutdownRequest();
 #endif
-    QWidget *mainWindow();
+    MainWindow *mainWindow();
 
     QTranslator translator;
     QTranslator translatorQt;

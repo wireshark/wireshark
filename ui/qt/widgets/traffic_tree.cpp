@@ -801,8 +801,10 @@ void TrafficTree::useFilterAction()
     QString filter = fa->property("filter").toString();
     if (filter.length() > 0)
     {
-        MainWindow * mainWin = (MainWindow *)(mainApp->mainWindow());
-        mainWin->setDisplayFilter(filter, fa->action(), fa->actionType());
+        MainWindow * mainWin = mainApp->mainWindow();
+        if (mainWin) {
+            mainWin->setDisplayFilter(filter, fa->action(), fa->actionType());
+        }
     }
 }
 

@@ -519,7 +519,7 @@ static void register_packet_menu_cb(const char *name,
                              bool retap)
 {
     FunnelAction *funnel_action = new FunnelAction(name, callback, callback_data, retap, required_fields, mainApp);
-    MainWindow * mainwindow = qobject_cast<MainWindow *>(mainApp->mainWindow());
+    MainWindow * mainwindow = mainApp->mainWindow();
     if (mainwindow) {
         mainwindow->appendPacketMenu(funnel_action);
     }

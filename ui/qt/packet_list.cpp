@@ -665,7 +665,7 @@ void PacketList::contextMenuEvent(QContextMenuEvent *event)
     ctx_menu->addSeparator();
 
     // Code for custom context menus from Lua's register_packet_menu()
-    MainWindow * mainWindow = qobject_cast<MainWindow *>(mainApp->mainWindow());
+    MainWindow * mainWindow = mainApp->mainWindow();
     // N.B., will only call for a single frame selection,
     if (cap_file_ && cap_file_->edt && cap_file_->edt->tree) {
         finfo_array = proto_all_finfos(cap_file_->edt->tree);

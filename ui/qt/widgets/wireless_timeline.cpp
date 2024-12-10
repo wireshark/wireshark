@@ -293,7 +293,7 @@ void WirelessTimeline::captureFileReadFinished()
 
 void WirelessTimeline::appInitialized()
 {
-    connect(qobject_cast<MainWindow *>(mainApp->mainWindow()), &MainWindow::framesSelected, this, &WirelessTimeline::selectedFrameChanged);
+    connect(mainApp->mainWindow(), &MainWindow::framesSelected, this, &WirelessTimeline::selectedFrameChanged);
 
     GString *error_string;
     error_string = register_tap_listener("wlan_radio_timeline", this, NULL, TL_REQUIRES_NOTHING, tap_timeline_reset, tap_timeline_packet, NULL/*tap_draw_cb tap_draw*/, NULL);

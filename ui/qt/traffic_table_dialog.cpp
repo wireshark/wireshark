@@ -18,6 +18,7 @@
 #include "progress_frame.h"
 #include "main_application.h"
 
+#include <ui/qt/main_window.h>
 #include <ui/qt/widgets/traffic_tab.h>
 #include <ui/qt/widgets/traffic_types_list.h>
 

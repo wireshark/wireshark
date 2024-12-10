@@ -573,16 +573,16 @@ void MainApplication::applyCustomColorsFromRecent()
     }
 }
 
-// Return the first top-level QMainWindow.
-QWidget *MainApplication::mainWindow()
+// Return the first top-level MainWindow.
+MainWindow *MainApplication::mainWindow()
 {
     foreach (QWidget *tlw, topLevelWidgets()) {
-        QMainWindow *tlmw = qobject_cast<QMainWindow *>(tlw);
+        MainWindow *tlmw = qobject_cast<MainWindow *>(tlw);
         if (tlmw && tlmw->isVisible()) {
             return tlmw;
         }
     }
-    return 0;
+    return nullptr;
 }
 
 void MainApplication::storeCustomColorsInRecent()
@@ -1354,14 +1354,15 @@ void MainApplication::captureEventHandler(CaptureEvent ev)
 
 void MainApplication::pushStatus(StatusInfo status, const QString &message, const QString &messagetip)
 {
-    if (! mainWindow() || ! qobject_cast<MainWindow *>(mainWindow()))
+    MainWindow * mw = mainWindow();
+    if (! mw) {
         return;
-
-    MainWindow * mw = qobject_cast<MainWindow *>(mainWindow());
-    if (! mw->statusBar())
-        return;
+    }
 
     MainStatusBar * bar = mw->statusBar();
+    if (! bar) {
+        return;
+    }
 
     switch(status)
     {
@@ -1388,14 +1389,15 @@ void MainApplication::pushStatus(StatusInfo status, const QString &message, cons
 
 void MainApplication::popStatus(StatusInfo status)
 {
-    if (! mainWindow() || ! qobject_cast<MainWindow *>(mainWindow()))
+    MainWindow * mw = mainWindow();
+    if (! mw) {
         return;
-
-    MainWindow * mw = qobject_cast<MainWindow *>(mainWindow());
-    if (! mw->statusBar())
-        return;
+    }
 
     MainStatusBar * bar = mw->statusBar();
+    if (! bar) {
+        return;
+    }
 
     switch(status)
     {
@@ -1422,10 +1424,11 @@ void MainApplication::popStatus(StatusInfo status)
 
 void MainApplication::gotoFrame(int frame)
 {
-    if (! mainWindow() || ! qobject_cast<MainWindow *>(mainWindow()))
+    MainWindow * mw = mainWindow();
+    if (! mw) {
         return;
+    }
 
-    MainWindow * mw = qobject_cast<MainWindow *>(mainWindow());
     mw->gotoFrame(frame);
 }
 

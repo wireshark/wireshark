@@ -105,10 +105,7 @@ QMenu * IOGraphAction::createMenu(const FieldInformation::HeaderInfo& headerinfo
     MainWindow *mw(nullptr);
     if (mainApp)
     {
-        QWidget * mainWin = mainApp->mainWindow();
-        if (qobject_cast<MainWindow *>(mainWin)) {
-            mw = qobject_cast<MainWindow *>(mainWin);
-        }
+        mw = mainApp->mainWindow();
     }
 
     QString title("I/O Graph");

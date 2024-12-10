@@ -490,7 +490,7 @@ void PacketDiagram::contextMenuEvent(QContextMenuEvent *event)
 
 void PacketDiagram::connectToMainWindow()
 {
-    MainWindow *main_window = qobject_cast<MainWindow *>(mainApp->mainWindow());
+    MainWindow *main_window = mainApp->mainWindow();
     if (!main_window) {
         return;
     }

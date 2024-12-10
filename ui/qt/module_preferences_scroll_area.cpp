@@ -490,7 +490,7 @@ void ModulePreferencesScrollArea::updateWidgets()
                  * first selected frame has for its its TCP Sequence Analysis
                  * override.
                  */
-                MainWindow* topWidget = qobject_cast<MainWindow*>(mainApp->mainWindow());
+                MainWindow* topWidget = mainApp->mainWindow();
                 /* Ensure there is one unique or multiple selections. See issue 18642 */
                 if (topWidget->hasSelection() || topWidget->hasUniqueSelection()) {
                     frame_data * fdata = topWidget->frameDataForRow((topWidget->selectedRows()).at(0));

@@ -357,7 +357,7 @@ void MainStatusBar::setProfileName()
 void MainStatusBar::appInitialized()
 {
     setProfileName();
-    connect(qobject_cast<MainWindow *>(mainApp->mainWindow()), &MainWindow::framesSelected, this, &MainStatusBar::selectedFrameChanged);
+    connect(mainApp->mainWindow(), &MainWindow::framesSelected, this, &MainStatusBar::selectedFrameChanged);
 }
 
 void MainStatusBar::selectedFrameChanged(QList<int>)
@@ -370,9 +370,10 @@ void MainStatusBar::showCaptureStatistics()
     QString packets_str;
 
     QList<int> rows;
-    MainWindow * mw = qobject_cast<MainWindow *>(mainApp->mainWindow());
-    if (mw)
+    MainWindow * mw = mainApp->mainWindow();
+    if (mw) {
         rows = mw->selectedRows(true);
+    }
 
 #ifdef HAVE_LIBPCAP
     if (cap_file_) {

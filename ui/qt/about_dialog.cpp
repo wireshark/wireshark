@@ -40,6 +40,8 @@
 
 #include "extcap.h"
 
+#include <ui/qt/main_window.h>
+
 #include <ui/qt/utils/color_utils.h>
 #include <ui/qt/utils/qt_ui_utils.h>
 #include <ui/qt/utils/variant_pointer.h>

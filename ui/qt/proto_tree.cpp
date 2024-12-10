@@ -102,9 +102,9 @@ void ProtoTree::connectToMainWindow()
 {
     if (mainApp->mainWindow())
     {
-        connect(qobject_cast<MainWindow *>(mainApp->mainWindow()), &MainWindow::fieldSelected,
+        connect(mainApp->mainWindow(), &MainWindow::fieldSelected,
                 this, &ProtoTree::selectedFieldChanged);
-        connect(qobject_cast<MainWindow *>(mainApp->mainWindow()), &MainWindow::framesSelected,
+        connect(mainApp->mainWindow(), &MainWindow::framesSelected,
                 this, &ProtoTree::selectedFrameChanged);
     }
 }

@@ -20,6 +20,7 @@
 
 #include <main_application.h>
 
+#include <ui/qt/main_window.h>
 #include <ui/qt/utils/variant_pointer.h>
 #include <ui/qt/widgets/byte_view_text.h>
 

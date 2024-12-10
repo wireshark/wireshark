@@ -575,7 +575,7 @@ IOGraphDialog::IOGraphDialog(QWidget &parent, CaptureFile &cf, QString displayFi
 
     connect(iop, &QCustomPlot::beforeReplot, this, &IOGraphDialog::updateLegend);
 
-    MainWindow *main_window = qobject_cast<MainWindow *>(mainApp->mainWindow());
+    MainWindow *main_window = mainApp->mainWindow();
     if (main_window != nullptr) {
         connect(main_window, &MainWindow::framesSelected, this, &IOGraphDialog::selectedFrameChanged);
     }

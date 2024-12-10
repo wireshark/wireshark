@@ -161,12 +161,9 @@ void DisplayFilterEdit::setType(DisplayFilterEditType type)
 
 void DisplayFilterEdit::connectToMainWindow()
 {
-    connect(this, &DisplayFilterEdit::filterPackets, qobject_cast<MainWindow *>(mainApp->mainWindow()),
-            &MainWindow::filterPackets);
-    connect(this, &DisplayFilterEdit::showPreferencesDialog,
-            qobject_cast<MainWindow *>(mainApp->mainWindow()), &MainWindow::showPreferencesDialog);
-    connect(qobject_cast<MainWindow *>(mainApp->mainWindow()), &MainWindow::displayFilterSuccess,
-            this, &DisplayFilterEdit::displayFilterSuccess);
+    connect(this, &DisplayFilterEdit::filterPackets, mainApp->mainWindow(), &MainWindow::filterPackets);
+    connect(this, &DisplayFilterEdit::showPreferencesDialog, mainApp->mainWindow(), &MainWindow::showPreferencesDialog);
+    connect(mainApp->mainWindow(), &MainWindow::displayFilterSuccess, this, &DisplayFilterEdit::displayFilterSuccess);
 }
 
 void DisplayFilterEdit::contextMenuEvent(QContextMenuEvent *event) {

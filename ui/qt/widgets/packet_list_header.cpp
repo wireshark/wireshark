@@ -97,7 +97,7 @@ void PacketListHeader::dropEvent(QDropEvent *event)
             event->setDropAction(Qt::CopyAction);
             event->accept();
 
-            MainWindow * mw = qobject_cast<MainWindow *>(mainApp->mainWindow());
+            MainWindow * mw = mainApp->mainWindow();
             if (mw)
             {
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0 ,0)

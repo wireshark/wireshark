@@ -13,6 +13,7 @@
 #include "file.h"
 
 #include "ui/simple_dialog.h"
+#include "ui/qt/main_window.h"
 #include "ui/qt/utils/qt_ui_utils.h"
 #include "main_application.h"
 

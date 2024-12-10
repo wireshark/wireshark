@@ -54,7 +54,7 @@ void RelatedPacketDelegate::paint(QPainter *painter, const QStyleOptionViewItem 
     /* This prevents the drawing of related objects, if multiple lines are being selected */
     if (mainApp && mainApp->mainWindow())
     {
-        MainWindow * mw = qobject_cast<MainWindow *>(mainApp->mainWindow());
+        MainWindow * mw = mainApp->mainWindow();
         if (mw && mw->hasSelection())
         {
             QStyledItemDelegate::paint(painter, option, index);
@@ -281,7 +281,7 @@ QSize RelatedPacketDelegate::sizeHint(const QStyleOptionViewItem &option,
     /* This prevents the sizeHint for the delegate, if multiple lines are being selected */
     if (mainApp && mainApp->mainWindow())
     {
-        MainWindow * mw = qobject_cast<MainWindow *>(mainApp->mainWindow());
+        MainWindow * mw = mainApp->mainWindow();
         if (mw && mw->selectedRows().count() > 1)
             return QStyledItemDelegate::sizeHint(option, index);
     }

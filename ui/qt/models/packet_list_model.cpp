@@ -86,9 +86,8 @@ PacketListModel::PacketListModel(QObject *parent, capture_file *cf) :
     new_visible_rows_.reserve(1000);
     number_to_row_.reserve(reserved_packets_);
 
-    if (qobject_cast<MainWindow *>(mainApp->mainWindow()))
+    if (MainWindow *mw = mainApp->mainWindow())
     {
-            MainWindow *mw = qobject_cast<MainWindow *>(mainApp->mainWindow());
             QWidget * wtWidget = mw->findChild<WirelessTimeline *>();
             if (wtWidget && qobject_cast<WirelessTimeline *>(wtWidget))
             {
@@ -614,8 +613,7 @@ void PacketListModel::sort(int column, Qt::SortOrder order)
      */
     exp_comps_ = log2(visible_rows_.count()) * visible_rows_.count();
     progress_frame_ = nullptr;
-    if (qobject_cast<MainWindow *>(mainApp->mainWindow())) {
-        MainWindow *mw = qobject_cast<MainWindow *>(mainApp->mainWindow());
+    if (MainWindow *mw = mainApp->mainWindow()) {
         progress_frame_ = mw->findChild<ProgressFrame *>();
         if (progress_frame_) {
             progress_frame_->showProgress(busy_msg, true, false, &stop_flag_, 0);

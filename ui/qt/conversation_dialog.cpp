@@ -18,6 +18,7 @@
 
 #include "wsutil/str_util.h"
 
+#include <ui/qt/main_window.h>
 #include <ui/qt/utils/qt_ui_utils.h>
 #include <ui/qt/models/timeline_delegate.h>
 #include <ui/qt/models/atap_data_model.h>
