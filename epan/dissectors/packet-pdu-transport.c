@@ -69,17 +69,6 @@ typedef struct _generic_one_id_string {
     char   *name;
 } generic_one_id_string_t;
 
-static void
-pdu_transport_free_key(void *key) {
-    wmem_free(wmem_epan_scope(), key);
-}
-
-static void
-simple_free(void *data) {
-    /* we need to free because of the g_strdup in post_update*/
-    g_free(data);
-}
-
 /* ID -> Name */
 static void *
 copy_generic_one_id_string_cb(void *n, const void *o, size_t size _U_) {
@@ -111,36 +100,6 @@ free_generic_one_id_string_cb(void *r) {
     rec->name = NULL;
 }
 
-static void
-post_update_one_id_string_template_cb(generic_one_id_string_t *data, unsigned data_num, GHashTable *ht) {
-    unsigned   i;
-    int    *key = NULL;
-
-    for (i = 0; i < data_num; i++) {
-        key = wmem_new(wmem_epan_scope(), int);
-        *key = data[i].id;
-
-        g_hash_table_insert(ht, key, g_strdup(data[i].name));
-    }
-}
-
-static char *
-ht_lookup_name(GHashTable *ht, unsigned int identifier) {
-    char           *tmp = NULL;
-    unsigned int   *id = NULL;
-
-    if (ht == NULL) {
-        return NULL;
-    }
-
-    id = wmem_new(wmem_epan_scope(), unsigned int);
-    *id = (unsigned int)identifier;
-    tmp = (char *)g_hash_table_lookup(ht, id);
-    wmem_free(wmem_epan_scope(), id);
-
-    return tmp;
-}
-
 /*** UAT pdu_transport_CM_IDs ***/
 #define DATAFILE_PDU_IDS                "PDU_Transport_identifiers"
 
@@ -153,15 +112,19 @@ UAT_CSTRING_CB_DEF(pdu_transport_pdus, name, generic_one_id_string_t)
 
 static void
 post_update_pdu_transport_pdus_cb(void) {
+    unsigned   i;
+
     /* destroy old hash table, if it exists */
     if (data_pdu_transport_pdus) {
         g_hash_table_destroy(data_pdu_transport_pdus);
-        data_pdu_transport_pdus = NULL;
     }
 
     /* create new hash table */
-    data_pdu_transport_pdus = g_hash_table_new_full(g_int_hash, g_int_equal, &pdu_transport_free_key, &simple_free);
-    post_update_one_id_string_template_cb(pdu_transport_pdus, pdu_transport_pdus_num, data_pdu_transport_pdus);
+    data_pdu_transport_pdus = g_hash_table_new_full(g_direct_hash, g_direct_equal, NULL, NULL);
+
+    for (i = 0; i < pdu_transport_pdus_num; i++) {
+        g_hash_table_insert(data_pdu_transport_pdus, GUINT_TO_POINTER(pdu_transport_pdus[i].id), pdu_transport_pdus[i].name);
+    }
 }
 
 static int
@@ -210,7 +173,7 @@ dissect_pdu_transport(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
     proto_tree_add_item_ret_uint(pdu_transport_tree, hf_pdu_transport_length, tvb, offset, 4, ENC_BIG_ENDIAN, &length);
     offset += 4;
 
-    descr = ht_lookup_name(data_pdu_transport_pdus, pdu_id);
+    descr = g_hash_table_lookup(data_pdu_transport_pdus, GUINT_TO_POINTER(pdu_id));
 
     if (descr != NULL) {
         proto_item_append_text(ti_top, ", ID 0x%x (%s), Length: %d", pdu_id, descr, length);

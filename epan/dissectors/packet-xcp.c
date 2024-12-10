@@ -1149,18 +1149,6 @@ static xcp_can_mapping_t           *xcp_can_mappings_priv = NULL;
 static GHashTable                  *data_xcp_can_mappings = NULL;
 
 
-/* UAT: generic */
-static void
-xcp_free_key(void *key) {
-    wmem_free(wmem_epan_scope(), key);
-}
-
-static void
-simple_free(void *data) {
-    /* we need to free because of the g_strdup in post_update*/
-    g_free(data);
-}
-
 /* UAT: XCP Memory Addresses */
 UAT_HEX_CB_DEF(xcp_memory_addresses,        ecu_id,     xcp_memory_addresses_uat_t)
 UAT_HEX_CB_DEF(xcp_memory_addresses,        addr_ext,   xcp_memory_addresses_uat_t)
@@ -1174,13 +1162,13 @@ xcp_memory_address_calc_key(uint16_t ecu_id, uint8_t addr_ext, uint32_t memory_a
 
 static char *
 xcp_lookup_memory_address(uint16_t ecu_id, uint8_t addr_ext, uint32_t memory_address) {
-    uint64_t tmp = xcp_memory_address_calc_key(ecu_id, addr_ext, memory_address);
+    uint64_t key = xcp_memory_address_calc_key(ecu_id, addr_ext, memory_address);
 
     if (data_xcp_memory_addresses == NULL) {
         return NULL;
     }
 
-    return (char *)g_hash_table_lookup(data_xcp_memory_addresses, &tmp);
+    return g_hash_table_lookup(data_xcp_memory_addresses, &key);
 }
 
 static void *
@@ -1222,20 +1210,6 @@ free_xcp_memory_addresses_cb(void *r) {
 }
 
 static void
-post_update_xcp_memory_addresses_internal(xcp_memory_addresses_uat_t *data, unsigned data_num, GHashTable *ht) {
-    unsigned    i;
-    uint64_t   *key = NULL;
-
-    for (i = 0; i < data_num; i++) {
-        key = wmem_new(wmem_epan_scope(), uint64_t);
-        /* casts ok, since we check */
-        *key = xcp_memory_address_calc_key((uint16_t)data[i].ecu_id, (uint8_t)data[i].addr_ext, data[i].address);
-
-        g_hash_table_insert(ht, key, g_strdup(data[i].name));
-    }
-}
-
-static void
 reset_xcp_memory_addresses_cb(void) {
     /* destroy old hash table, if it exists */
     if (data_xcp_memory_addresses) {
@@ -1246,11 +1220,19 @@ reset_xcp_memory_addresses_cb(void) {
 
 static void
 post_update_xcp_memory_addresses_cb(void) {
+    unsigned    i;
+    uint64_t    *key;
+
     reset_xcp_memory_addresses_cb();
 
     /* create new hash table */
-    data_xcp_memory_addresses = g_hash_table_new_full(g_int_hash, g_int_equal, &xcp_free_key, &simple_free);
-    post_update_xcp_memory_addresses_internal(xcp_memory_addresses, xcp_memory_addresses_num, data_xcp_memory_addresses);
+    data_xcp_memory_addresses = g_hash_table_new_full(g_int64_hash, g_int64_equal, g_free, NULL);
+
+    for (i = 0; i < xcp_memory_addresses_num; i++) {
+        key = g_new(uint64_t, 1);
+        *key = xcp_memory_address_calc_key((uint16_t)xcp_memory_addresses[i].ecu_id, (uint8_t)xcp_memory_addresses[i].addr_ext, xcp_memory_addresses[i].address);
+        g_hash_table_insert(data_xcp_memory_addresses, key, xcp_memory_addresses[i].name);
+    }
 }
 
 
@@ -1379,9 +1361,10 @@ eth_mapping_uat_entry_to_eth_mapping_entry(uint32_t i) {
 
 static void
 post_update_xcp_eth_mapping_cb(void) {
+    uint32_t i;
+
     /* destroy the local xcp_uat_eth_mappings array */
     if (xcp_eth_mappings_priv != NULL) {
-        uint32_t i;
         for (i = 0; i < xcp_uat_eth_mapping_num_current; i++) {
             if (xcp_eth_mappings_priv[i].stream != NULL) {
                 wmem_free(wmem_epan_scope(), xcp_eth_mappings_priv[i].stream);
@@ -1400,28 +1383,18 @@ post_update_xcp_eth_mapping_cb(void) {
     /* destroy old hash table, if it exists */
     if (data_xcp_eth_mappings != NULL) {
         g_hash_table_destroy(data_xcp_eth_mappings);
-        data_xcp_eth_mappings = NULL;
     }
 
     /* we don't need to free the data as long as we don't alloc it first */
-    data_xcp_eth_mappings = g_hash_table_new_full(g_int64_hash, g_int64_equal, &xcp_free_key, NULL);
+    data_xcp_eth_mappings = g_hash_table_new_full(g_int64_hash, g_int64_equal, g_free, NULL);
 
-    if (data_xcp_eth_mappings == NULL || xcp_uat_eth_mappings == NULL) {
-        return;
-    }
+    for (i = 0; i < xcp_uat_eth_mapping_num; i++) {
+        xcp_eth_mapping_t* mapping = eth_mapping_uat_entry_to_eth_mapping_entry(i);
 
-    if (xcp_uat_eth_mapping_num > 0) {
-        uint32_t i;
+        uint64_t* hash = g_new(uint64_t, 1);
+        *hash = xcp_eth_mapping_calc_key(&(mapping->addr), mapping->port_type, mapping->port_number);
 
-        for (i = 0; i < xcp_uat_eth_mapping_num; i++) {
-            xcp_eth_mapping_t *mapping = eth_mapping_uat_entry_to_eth_mapping_entry(i);
-
-            uint64_t hash = xcp_eth_mapping_calc_key(&(mapping->addr), mapping->port_type, mapping->port_number);
-            int64_t *key = wmem_new(wmem_epan_scope(), int64_t);
-            *key = (int64_t)hash;
-
-            g_hash_table_insert(data_xcp_eth_mappings, key, mapping);
-        }
+        g_hash_table_insert(data_xcp_eth_mappings, hash, mapping);
     }
 
     /* we need to register the CAN-IDs */
@@ -1443,8 +1416,8 @@ get_eth_mapping(const address *addr, const uint8_t xcp_port_type, const uint16_t
         return NULL;
     }
 
-    int64_t key = (int64_t)xcp_eth_mapping_calc_key(addr, xcp_port_type, port);
-    xcp_eth_mapping_t *tmp = (xcp_eth_mapping_t *)g_hash_table_lookup(data_xcp_eth_mappings, &key);
+    uint64_t key = xcp_eth_mapping_calc_key(addr, xcp_port_type, port);
+    xcp_eth_mapping_t *tmp = g_hash_table_lookup(data_xcp_eth_mappings, &key);
     return tmp;
 }
 
@@ -1470,7 +1443,7 @@ register_xcp_can(void) {
 
         GList *tmp;
         for (tmp = keys; tmp != NULL; tmp = tmp->next) {
-            int32_t id = (*(int32_t *)tmp->data);
+            uint32_t id = (uint32_t)(*(uint64_t*)tmp->data);
 
             if ((id & CAN_EFF_FLAG) == CAN_EFF_FLAG) {
                 dissector_add_uint("can.extended_id", id & CAN_EFF_MASK, xcp_handle_can);
@@ -1543,9 +1516,11 @@ can_mapping_uat_entry_to_can_mapping_entry(uint32_t i) {
 
 static void
 post_update_xcp_can_mapping_cb(void) {
+    uint32_t i;
+    uint64_t *key;
+
     /* destroy the local xcp_uat_can_mappings array */
     if (xcp_can_mappings_priv != NULL) {
-        uint32_t i;
         for (i = 0; i < xcp_uat_can_mapping_num_current; i++) {
             if (xcp_can_mappings_priv[i].stream != NULL) {
                 wmem_free(wmem_epan_scope(), xcp_can_mappings_priv[i].stream);
@@ -1562,34 +1537,23 @@ post_update_xcp_can_mapping_cb(void) {
     /* destroy old hash table, if it exists */
     if (data_xcp_can_mappings != NULL) {
         g_hash_table_destroy(data_xcp_can_mappings);
-        data_xcp_can_mappings = NULL;
     }
 
     /* we don't need to free the data as long as we don't alloc it first */
-    data_xcp_can_mappings = g_hash_table_new_full(g_int64_hash, g_int64_equal, &xcp_free_key, NULL);
+    data_xcp_can_mappings = g_hash_table_new_full(g_int64_hash, g_int64_equal, g_free, NULL);
 
-    if (data_xcp_can_mappings == NULL || xcp_uat_can_mappings == NULL) {
-        return;
-    }
+    for (i = 0; i < xcp_uat_can_mapping_num; i++) {
+        xcp_can_mapping_t* mapping = can_mapping_uat_entry_to_can_mapping_entry(i);
 
-    if (xcp_uat_can_mapping_num > 0) {
-        uint32_t i;
+        /* M -> S */
+        key = g_new(uint64_t, 1);
+        *key = xcp_uat_can_mappings[i].can_id_m_to_s | (((uint64_t)xcp_uat_can_mappings[i].bus_id & 0xffff) << 32);
+        g_hash_table_insert(data_xcp_can_mappings, key, mapping);
 
-        for (i = 0; i < xcp_uat_can_mapping_num; i++) {
-            xcp_can_mapping_t *mapping = can_mapping_uat_entry_to_can_mapping_entry(i);
-
-            /* M -> S */
-            int64_t *key = wmem_new(wmem_epan_scope(), int64_t);
-            *key = xcp_uat_can_mappings[i].can_id_m_to_s;
-            *key |= ((int64_t)(xcp_uat_can_mappings[i].bus_id & 0xffff)) << 32;
-            g_hash_table_insert(data_xcp_can_mappings, key, mapping);
-
-            /* S -> M */
-            key = wmem_new(wmem_epan_scope(), int64_t);
-            *key = xcp_uat_can_mappings[i].can_id_s_to_m;
-            *key |= ((int64_t)(xcp_uat_can_mappings[i].bus_id & 0xffff)) << 32;
-            g_hash_table_insert(data_xcp_can_mappings, key, mapping);
-        }
+        /* S -> M */
+        key = g_new(uint64_t, 1);
+        *key = xcp_uat_can_mappings[i].can_id_s_to_m | (((uint64_t)xcp_uat_can_mappings[i].bus_id & 0xffff) << 32);
+        g_hash_table_insert(data_xcp_can_mappings, key, mapping);
     }
 
     /* we need to register the CAN-IDs */
@@ -1603,13 +1567,13 @@ get_can_mapping(uint32_t id, uint16_t bus_id) {
     }
 
     /* key is Bus ID, EFF Flag, CAN-ID */
-    int64_t key = ((int64_t)id & (CAN_EFF_MASK | CAN_EFF_FLAG)) | ((int64_t)bus_id << 32);
-    xcp_can_mapping_t *tmp = (xcp_can_mapping_t *)g_hash_table_lookup(data_xcp_can_mappings, &key);
+    uint64_t key = ((uint64_t)id & (CAN_EFF_MASK | CAN_EFF_FLAG)) | ((uint64_t)bus_id << 32);
+    xcp_can_mapping_t *tmp = g_hash_table_lookup(data_xcp_can_mappings, &key);
 
     if (tmp == NULL) {
         /* try again without Bus ID set */
         key = id & (CAN_EFF_MASK | CAN_EFF_FLAG);
-        tmp = (xcp_can_mapping_t *)g_hash_table_lookup(data_xcp_can_mappings, &key);
+        tmp = g_hash_table_lookup(data_xcp_can_mappings, &key);
     }
 
     return tmp;

@@ -851,18 +851,6 @@ static unsigned tecmp_ctrl_msg_num;
 UAT_HEX_CB_DEF(tecmp_ctrl_msgs, id, generic_one_id_string_t)
 UAT_CSTRING_CB_DEF(tecmp_ctrl_msgs, name, generic_one_id_string_t)
 
-/* generic UAT */
-static void
-tecmp_free_key(void *key) {
-    wmem_free(wmem_epan_scope(), key);
-}
-
-static void
-simple_free(void *data) {
-    /* we need to free because of the g_strdup in post_update*/
-    g_free(data);
-}
-
 /* ID -> Name */
 static void *
 copy_generic_one_id_string_cb(void *n, const void *o, size_t size _U_) {
@@ -897,36 +885,6 @@ free_generic_one_id_string_cb(void* r) {
     /* freeing result of g_strdup */
     g_free(rec->name);
     rec->name = NULL;
-}
-
-static void
-post_update_one_id_string_template_cb(generic_one_id_string_t *data, unsigned data_num, GHashTable *ht) {
-    unsigned   i;
-    int    *key = NULL;
-
-    for (i = 0; i < data_num; i++) {
-        key = wmem_new(wmem_epan_scope(), int);
-        *key = data[i].id;
-
-        g_hash_table_insert(ht, key, g_strdup(data[i].name));
-    }
-}
-
-static char *
-ht_lookup_name(GHashTable *ht, unsigned int identifier) {
-    char           *tmp = NULL;
-    unsigned int   *id = NULL;
-
-    if (ht == NULL) {
-        return NULL;
-    }
-
-    id = wmem_new(wmem_epan_scope(), unsigned int);
-    *id = (unsigned int)identifier;
-    tmp = (char *)g_hash_table_lookup(ht, id);
-    wmem_free(wmem_epan_scope(), id);
-
-    return tmp;
 }
 
 /* ID -> ID, Name */
@@ -971,26 +929,9 @@ free_interface_config_cb(void *r) {
     rec->name = NULL;
 }
 
-static interface_config_t *
-ht_lookup_interface_config(unsigned int identifier) {
-    interface_config_t   *tmp = NULL;
-    unsigned int       *id = NULL;
-
-    if (data_tecmp_interfaces == NULL) {
-        return NULL;
-    }
-
-    id = wmem_new(wmem_epan_scope(), unsigned int);
-    *id = (unsigned int)identifier;
-    tmp = (interface_config_t *)g_hash_table_lookup(data_tecmp_interfaces, id);
-    wmem_free(wmem_epan_scope(), id);
-
-    return tmp;
-}
-
 static char *
 ht_interface_config_to_string(unsigned int identifier) {
-    interface_config_t   *tmp = ht_lookup_interface_config(identifier);
+    interface_config_t   *tmp = g_hash_table_lookup(data_tecmp_interfaces, GUINT_TO_POINTER(identifier));
     if (tmp == NULL) {
         return NULL;
     }
@@ -1000,7 +941,7 @@ ht_interface_config_to_string(unsigned int identifier) {
 
 static uint16_t
 ht_interface_config_to_bus_id(unsigned int identifier) {
-    interface_config_t   *tmp = ht_lookup_interface_config(identifier);
+    interface_config_t   *tmp = g_hash_table_lookup(data_tecmp_interfaces, GUINT_TO_POINTER(identifier));
     if (tmp == NULL) {
         /* 0 means basically any or none */
         return 0;
@@ -1013,21 +954,25 @@ ht_interface_config_to_bus_id(unsigned int identifier) {
 
 static void
 post_update_tecmp_devices_cb(void) {
+    unsigned i;
+
     /* destroy old hash table, if it exists */
     if (data_tecmp_devices) {
         g_hash_table_destroy(data_tecmp_devices);
-        data_tecmp_devices = NULL;
     }
 
     /* create new hash table */
-    data_tecmp_devices = g_hash_table_new_full(g_int_hash, g_int_equal, &tecmp_free_key, &simple_free);
-    post_update_one_id_string_template_cb(tecmp_devices, tecmp_devices_num, data_tecmp_devices);
+    data_tecmp_devices = g_hash_table_new_full(g_direct_hash, g_direct_equal, NULL, NULL);
+
+    for (i = 0; i < tecmp_devices_num; i++) {
+        g_hash_table_insert(data_tecmp_devices, GUINT_TO_POINTER(tecmp_devices[i].id), tecmp_devices[i].name);
+    }
 }
 
 static void
 add_device_id_text(proto_item *ti, uint16_t device_id) {
     /* lets check configured entries first */
-    const char *descr = ht_lookup_name(data_tecmp_devices, device_id);
+    const char *descr = g_hash_table_lookup(data_tecmp_devices, GUINT_TO_POINTER(device_id));
 
     if (descr == NULL) {
         /* lets check specific  */
@@ -1060,25 +1005,17 @@ add_device_id_text(proto_item *ti, uint16_t device_id) {
 static void
 post_update_tecmp_interfaces_cb(void) {
     unsigned  i;
-    int   *key = NULL;
 
     /* destroy old hash table, if it exists */
     if (data_tecmp_interfaces) {
         g_hash_table_destroy(data_tecmp_interfaces);
-        data_tecmp_interfaces = NULL;
     }
 
     /* create new hash table */
-    data_tecmp_interfaces = g_hash_table_new_full(g_int_hash, g_int_equal, &tecmp_free_key, NULL);
-
-    if (data_tecmp_interfaces == NULL || tecmp_interfaces == NULL || tecmp_interfaces_num == 0) {
-        return;
-    }
+    data_tecmp_interfaces = g_hash_table_new_full(g_direct_hash, g_direct_equal, NULL, NULL);
 
     for (i = 0; i < tecmp_interfaces_num; i++) {
-        key = wmem_new(wmem_epan_scope(), int);
-        *key = tecmp_interfaces[i].id;
-        g_hash_table_insert(data_tecmp_interfaces, key, &tecmp_interfaces[i]);
+        g_hash_table_insert(data_tecmp_interfaces, GUINT_TO_POINTER(tecmp_interfaces[i].id), &tecmp_interfaces[i]);
     }
 }
 
@@ -1097,21 +1034,25 @@ add_interface_id_text_and_name(proto_item *ti, uint32_t interface_id, tvbuff_t *
 
 static void
 post_update_tecmp_control_messages_cb(void) {
+    unsigned i;
+
     /* destroy old hash table, if it exists */
     if (data_tecmp_ctrlmsgids) {
         g_hash_table_destroy(data_tecmp_ctrlmsgids);
-        data_tecmp_ctrlmsgids = NULL;
     }
 
     /* create new hash table */
-    data_tecmp_ctrlmsgids = g_hash_table_new_full(g_int_hash, g_int_equal, &tecmp_free_key, &simple_free);
-    post_update_one_id_string_template_cb(tecmp_ctrl_msgs, tecmp_ctrl_msg_num, data_tecmp_ctrlmsgids);
+    data_tecmp_ctrlmsgids = g_hash_table_new_full(g_direct_hash, g_direct_equal, NULL, NULL);
+
+    for (i = 0; i < tecmp_ctrl_msg_num; i++) {
+        g_hash_table_insert(data_tecmp_ctrlmsgids, GUINT_TO_POINTER(tecmp_ctrl_msgs[i].id), tecmp_ctrl_msgs[i].name);
+    }
 }
 
 static const char*
 resolve_control_message_id(uint16_t control_message_id)
 {
-    const char *tmp = ht_lookup_name(data_tecmp_ctrlmsgids, control_message_id);
+    const char *tmp = g_hash_table_lookup(data_tecmp_ctrlmsgids, GUINT_TO_POINTER(control_message_id));
 
     /* lets look at the static values, if nothing is configured */
     if (tmp == NULL) {

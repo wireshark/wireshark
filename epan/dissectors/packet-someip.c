@@ -775,17 +775,6 @@ check_filter_string(char *filter_string, uint32_t id) {
     return err;
 }
 
-static void
-someip_free_key(void *key) {
-    wmem_free(wmem_epan_scope(), key);
-}
-
-static void
-simple_free(void *data _U_) {
-    /* we need to free because of the g_strdup in post_update*/
-    g_free(data);
-}
-
 /* ID -> Name */
 static void *
 copy_generic_one_id_string_cb(void *n, const void *o, size_t size _U_) {
@@ -826,19 +815,6 @@ free_generic_one_id_string_cb(void *r) {
     /* freeing result of g_strdup */
     g_free(rec->name);
     rec->name = NULL;
-}
-
-static void
-post_update_one_id_string_template_cb(generic_one_id_string_t *data, unsigned data_num, GHashTable *ht) {
-    unsigned   i;
-    int    *key = NULL;
-
-    for (i = 0; i < data_num; i++) {
-        key = wmem_new(wmem_epan_scope(), int);
-        *key = data[i].id;
-
-        g_hash_table_insert(ht, key, g_strdup(data[i].name));
-    }
 }
 
 /* ID/ID2 -> Name */
@@ -917,69 +893,23 @@ free_generic_two_id_string_cb(void *r) {
     rec->name = NULL;
 }
 
-static void
-post_update_generic_two_id_string_template_cb(generic_two_id_string_t *data, unsigned data_num, GHashTable *ht) {
-    unsigned   i;
-    int    *key = NULL;
-    unsigned   tmp;
-    unsigned   tmp2;
-
-    for (i = 0; i < data_num; i++) {
-        key = wmem_new(wmem_epan_scope(), int);
-        tmp = (data[i].id & 0xffff) << 16;
-        tmp2 = (data[i].id2 & 0xffff);
-
-        /* the hash table does not know about uint32, so we use int32 */
-        *key = (int)(tmp + tmp2);
-
-        g_hash_table_insert(ht, key, g_strdup(data[i].name));
-    }
-}
-
-char *
+char*
 someip_lookup_service_name(uint16_t serviceid) {
-    uint32_t tmp = (uint32_t)serviceid;
-
     if (data_someip_services == NULL) {
         return NULL;
     }
 
-    return (char *)g_hash_table_lookup(data_someip_services, &tmp);
+    return g_hash_table_lookup(data_someip_services, GUINT_TO_POINTER(serviceid));
 }
 
-static char *
-someip_lookup_method_name(uint16_t serviceid, uint16_t methodid) {
-    uint32_t tmp = (serviceid << 16) + methodid;
-
-    if (data_someip_methods == NULL) {
-        return NULL;
-    }
-
-    return (char *)g_hash_table_lookup(data_someip_methods, &tmp);
-}
-
-char *
+char*
 someip_lookup_eventgroup_name(uint16_t serviceid, uint16_t eventgroupid) {
-    uint32_t tmp = (serviceid << 16) + eventgroupid;
-
     if (data_someip_eventgroups == NULL) {
         return NULL;
     }
 
-    return (char *)g_hash_table_lookup(data_someip_eventgroups, &tmp);
+    return g_hash_table_lookup(data_someip_eventgroups, GUINT_TO_POINTER(((uint32_t)serviceid << 16) | (uint32_t)eventgroupid));
 }
-
-static char *
-someip_lookup_client_name(uint16_t serviceid, uint16_t clientid) {
-    uint32_t tmp = (serviceid << 16) + clientid;
-
-    if (data_someip_clients == NULL) {
-        return NULL;
-    }
-
-    return (char *)g_hash_table_lookup(data_someip_clients, &tmp);
-}
-
 
 /*** SOME/IP Services ***/
 UAT_HEX_CB_DEF        (someip_service_ident, id,    generic_one_id_string_t)
@@ -996,11 +926,16 @@ reset_someip_service_cb(void) {
 
 static void
 post_update_someip_service_cb(void) {
+    unsigned i;
+
     reset_someip_service_cb();
 
     /* create new hash table */
-    data_someip_services = g_hash_table_new_full(g_int_hash, g_int_equal, &someip_free_key, &simple_free);
-    post_update_one_id_string_template_cb(someip_service_ident, someip_service_ident_num, data_someip_services);
+    data_someip_services = g_hash_table_new_full(g_direct_hash, g_direct_equal, NULL, NULL);
+
+    for (i = 0; i < someip_service_ident_num; i++) {
+        g_hash_table_insert(data_someip_services, GUINT_TO_POINTER(someip_service_ident[i].id), someip_service_ident[i].name);
+    }
 }
 
 
@@ -1020,11 +955,18 @@ reset_someip_method_cb(void) {
 
 static void
 post_update_someip_method_cb(void) {
+    unsigned i;
+    uint32_t key;
+
     reset_someip_method_cb();
 
     /* create new hash table */
-    data_someip_methods = g_hash_table_new_full(g_int_hash, g_int_equal, &someip_free_key, &simple_free);
-    post_update_generic_two_id_string_template_cb(someip_method_ident, someip_method_ident_num, data_someip_methods);
+    data_someip_methods = g_hash_table_new_full(g_direct_hash, g_direct_equal, NULL, NULL);
+
+    for (i = 0; i < someip_method_ident_num; i++) {
+        key = (((uint32_t)someip_method_ident[i].id & 0xffff) << 16) | ((uint32_t)someip_method_ident[i].id2 & 0xffff);
+        g_hash_table_insert(data_someip_methods, GUINT_TO_POINTER(key), someip_method_ident[i].name);
+    }
 }
 
 
@@ -1044,11 +986,18 @@ reset_someip_eventgroup_cb(void) {
 
 static void
 post_update_someip_eventgroup_cb(void) {
+    unsigned i;
+    uint32_t key;
+
     reset_someip_eventgroup_cb();
 
     /* create new hash table */
-    data_someip_eventgroups = g_hash_table_new_full(g_int_hash, g_int_equal, &someip_free_key, &simple_free);
-    post_update_generic_two_id_string_template_cb(someip_eventgroup_ident, someip_eventgroup_ident_num, data_someip_eventgroups);
+    data_someip_eventgroups = g_hash_table_new_full(g_direct_hash, g_direct_equal, NULL, NULL);
+
+    for (i = 0; i < someip_eventgroup_ident_num; i++) {
+        key = (((uint32_t)someip_eventgroup_ident[i].id & 0xffff) << 16) | ((uint32_t)someip_eventgroup_ident[i].id2 & 0xffff);
+        g_hash_table_insert(data_someip_eventgroups, GUINT_TO_POINTER(key), someip_eventgroup_ident[i].name);
+    }
 }
 
 
@@ -1068,96 +1017,27 @@ reset_someip_client_cb(void) {
 
 static void
 post_update_someip_client_cb(void) {
+    unsigned i;
+    uint32_t key;
+
     reset_someip_client_cb();
 
     /* create new hash table */
-    data_someip_clients = g_hash_table_new_full(g_int_hash, g_int_equal, &someip_free_key, &simple_free);
-    post_update_generic_two_id_string_template_cb(someip_client_ident, someip_client_ident_num, data_someip_clients);
+    data_someip_clients = g_hash_table_new_full(g_direct_hash, g_direct_equal, NULL, NULL);
+
+    for (i = 0; i < someip_client_ident_num; i++) {
+        key = (((uint32_t)someip_client_ident[i].id & 0xffff) << 16) | ((uint32_t)someip_client_ident[i].id2 & 0xffff);
+        g_hash_table_insert(data_someip_clients, GUINT_TO_POINTER(key), someip_client_ident[i].name);
+    }
 }
 
-static void
-someip_payload_free_key(void *key) {
-    wmem_free(wmem_epan_scope(), key);
-}
-
-static int64_t
+static uint64_t
 someip_parameter_key(uint16_t serviceid, uint16_t methodid, uint8_t version, uint8_t msgtype) {
-    int64_t tmp1;
-    int64_t tmp2;
-    int64_t tmp3;
-    int64_t tmp4;
-
     /* key:
         Service-ID [16bit] | Method-ID [16bit] | Version [8bit] | Message-Type [8bit]
     */
 
-    tmp1 = (int64_t)(serviceid & 0xffff);
-    tmp2 = (int64_t)(methodid & 0xffff) << 16;
-    tmp3 = (int64_t)(version & 0xff) << 32;
-    tmp4 = (int64_t)(msgtype & 0xff) << 40;
-
-    return (int64_t)(tmp1 + tmp2 + tmp3 + tmp4);
-}
-
-static someip_parameter_list_t*
-get_parameter_config(uint16_t serviceid, uint16_t methodid, uint8_t version, uint8_t msgtype) {
-    int64_t                 *key = NULL;
-    someip_parameter_list_t *tmp = NULL;
-
-    if (data_someip_parameter_list == NULL) {
-        return NULL;
-    }
-
-    key = wmem_new(wmem_epan_scope(), int64_t);
-    *key = someip_parameter_key(serviceid, methodid, version, msgtype);
-    tmp = (someip_parameter_list_t *)g_hash_table_lookup(data_someip_parameter_list, key);
-    wmem_free(wmem_epan_scope(), key);
-
-    return tmp;
-}
-
-static void *
-get_generic_config(GHashTable *ht, int64_t id) {
-    if (ht == NULL) {
-        return NULL;
-    }
-
-    return (void *)g_hash_table_lookup(ht, &id);
-}
-
-static someip_payload_parameter_base_type_list_t*
-get_base_type_config(uint32_t id) {
-    return (someip_payload_parameter_base_type_list_t *)get_generic_config(data_someip_parameter_base_type_list, (int64_t)id);
-}
-
-static someip_payload_parameter_string_t*
-get_string_config(uint32_t id) {
-    return (someip_payload_parameter_string_t *)get_generic_config(data_someip_parameter_strings, (int64_t)id);
-}
-
-static someip_payload_parameter_typedef_t*
-get_typedef_config(uint32_t id) {
-    return (someip_payload_parameter_typedef_t *)get_generic_config(data_someip_parameter_typedefs, (int64_t)id);
-}
-
-static someip_parameter_array_t*
-get_array_config(uint32_t id) {
-    return (someip_parameter_array_t *)get_generic_config(data_someip_parameter_arrays, (int64_t)id);
-}
-
-static someip_payload_parameter_struct_t*
-get_struct_config(uint32_t id) {
-    return (someip_payload_parameter_struct_t *)get_generic_config(data_someip_parameter_structs, (int64_t)id);
-}
-
-static someip_parameter_union_t*
-get_union_config(uint32_t id) {
-    return (someip_parameter_union_t *)get_generic_config(data_someip_parameter_unions, (int64_t)id);
-}
-
-static someip_payload_parameter_enum_t*
-get_enum_config(uint32_t id) {
-    return (someip_payload_parameter_enum_t *)get_generic_config(data_someip_parameter_enums, (int64_t)id);
+    return (serviceid & 0xffff) | (((uint64_t)methodid & 0xffff) << 16) | (((uint64_t)version & 0xff) << 32) | (((uint64_t)msgtype & 0xff) << 40);
 }
 
 UAT_HEX_CB_DEF(someip_parameter_list, service_id, someip_parameter_list_uat_t)
@@ -1288,24 +1168,19 @@ free_someip_parameter_list(void *data) {
 
 static void
 post_update_someip_parameter_list_read_in_data(someip_parameter_list_uat_t *data, unsigned data_num, GHashTable *ht) {
-    unsigned                            i = 0;
-    int64_t                            *key = NULL;
-    someip_parameter_list_t            *list = NULL;
-    someip_payload_parameter_item_t    *item = NULL;
-    someip_payload_parameter_item_t    *items = NULL;
+    unsigned                            i;
+    uint64_t                            key;
+    someip_parameter_list_t            *list;
+    someip_payload_parameter_item_t    *item;
 
-    if (ht == NULL || data == NULL || data_num == 0) {
+    if (ht == NULL || data == NULL) {
         return;
     }
 
     for (i = 0; i < data_num; i++) {
-        /* the hash table does not know about uint64, so we use int64*/
-        key = wmem_new(wmem_epan_scope(), int64_t);
-        *key = someip_parameter_key((uint16_t)data[i].service_id, (uint16_t)data[i].method_id, (uint8_t)data[i].version, (uint8_t)data[i].message_type);
-
-        list = (someip_parameter_list_t *)g_hash_table_lookup(ht, key);
+        key = someip_parameter_key((uint16_t)data[i].service_id, (uint16_t)data[i].method_id, (uint8_t)data[i].version, (uint8_t)data[i].message_type);
+        list = g_hash_table_lookup(ht, &key);
         if (list == NULL) {
-
             list = wmem_new(wmem_epan_scope(), someip_parameter_list_t);
 
             list->service_id    = data[i].service_id;
@@ -1314,15 +1189,12 @@ post_update_someip_parameter_list_read_in_data(someip_parameter_list_uat_t *data
             list->message_type  = data[i].message_type;
             list->wtlv_encoding = data[i].wtlv_encoding;
             list->num_of_items  = data[i].num_of_params;
-
-            items = (someip_payload_parameter_item_t *)wmem_alloc0_array(wmem_epan_scope(), someip_payload_parameter_item_t, data[i].num_of_params);
-            list->items = items;
+            list->items = wmem_alloc0_array(wmem_epan_scope(), someip_payload_parameter_item_t, data[i].num_of_params);
 
             /* create new entry ... */
-            g_hash_table_insert(ht, key, list);
-        } else {
-            /* already present, deleting key */
-            wmem_free(wmem_epan_scope(), key);
+            uint64_t* new_key = g_new(uint64_t, 1);
+            *new_key = key;
+            g_hash_table_insert(ht, new_key, list);
         }
 
         /* and now we add to item array */
@@ -1355,7 +1227,7 @@ static void
 post_update_someip_parameter_list_cb(void) {
     reset_someip_parameter_list_cb();
 
-    data_someip_parameter_list = g_hash_table_new_full(g_int64_hash, g_int64_equal, &someip_payload_free_key, &free_someip_parameter_list);
+    data_someip_parameter_list = g_hash_table_new_full(g_int64_hash, g_int64_equal, g_free, &free_someip_parameter_list);
     post_update_someip_parameter_list_read_in_data(someip_parameter_list, someip_parameter_list_num, data_someip_parameter_list);
 }
 
@@ -1450,23 +1322,18 @@ free_someip_parameter_enum(void *data) {
 
 static void
 post_update_someip_parameter_enum_read_in_data(someip_parameter_enum_uat_t *data, unsigned data_num, GHashTable *ht) {
-    unsigned                                i = 0;
-    unsigned                                j = 0;
-    int64_t                                *key = NULL;
-    someip_payload_parameter_enum_t        *list = NULL;
-    someip_payload_parameter_enum_item_t   *item = NULL;
+    unsigned                                i;
+    unsigned                                j;
+    someip_payload_parameter_enum_t        *list;
+    someip_payload_parameter_enum_item_t   *item;
 
-    if (ht == NULL || data == NULL || data_num == 0) {
+    if (ht == NULL || data == NULL) {
         return;
     }
 
     for (i = 0; i < data_num; i++) {
-        key = wmem_new(wmem_epan_scope(), int64_t);
-        *key = data[i].id;
-
-        list = (someip_payload_parameter_enum_t *)g_hash_table_lookup(ht, key);
+        list = g_hash_table_lookup(ht, GUINT_TO_POINTER(data[i].id));
         if (list == NULL) {
-
             list = wmem_new(wmem_epan_scope(), someip_payload_parameter_enum_t);
             INIT_SOMEIP_PAYLOAD_PARAMETER_ENUM(list)
 
@@ -1475,14 +1342,10 @@ post_update_someip_parameter_enum_read_in_data(someip_parameter_enum_uat_t *data
             list->data_type    = data[i].data_type;
             list->id_ref       = data[i].id_ref;
             list->num_of_items = data[i].num_of_items;
-
-            list->items = (someip_payload_parameter_enum_item_t *)wmem_alloc0_array(wmem_epan_scope(), someip_payload_parameter_enum_item_t, list->num_of_items);
+            list->items = wmem_alloc0_array(wmem_epan_scope(), someip_payload_parameter_enum_item_t, list->num_of_items);
 
             /* create new entry ... */
-            g_hash_table_insert(ht, key, list);
-        } else {
-            /* don't need it anymore */
-            wmem_free(wmem_epan_scope(), key);
+            g_hash_table_insert(ht, GUINT_TO_POINTER(data[i].id), list);
         }
 
         /* and now we add to item array */
@@ -1518,7 +1381,7 @@ static void
 post_update_someip_parameter_enum_cb(void) {
     reset_someip_parameter_enum_cb();
 
-    data_someip_parameter_enums = g_hash_table_new_full(g_int64_hash, g_int64_equal, &someip_payload_free_key, &free_someip_parameter_enum);
+    data_someip_parameter_enums = g_hash_table_new_full(g_direct_hash, g_direct_equal, NULL, &free_someip_parameter_enum);
     post_update_someip_parameter_enum_read_in_data(someip_parameter_enums, someip_parameter_enums_num, data_someip_parameter_enums);
 }
 
@@ -1623,23 +1486,17 @@ free_someip_parameter_array(void *data) {
 
 static void
 post_update_someip_parameter_array_read_in_data(someip_parameter_array_uat_t *data, unsigned data_num, GHashTable *ht) {
-    unsigned                         i = 0;
-    int64_t                         *key = NULL;
-    someip_parameter_array_t        *list = NULL;
-    someip_parameter_array_dim_t    *item = NULL;
-    someip_parameter_array_dim_t    *items = NULL;
+    unsigned                         i;
+    someip_parameter_array_t        *list;
+    someip_parameter_array_dim_t    *item;
 
-    if (ht == NULL || data == NULL || data_num == 0) {
+    if (ht == NULL || data == NULL) {
         return;
     }
 
     for (i = 0; i < data_num; i++) {
-        key = wmem_new(wmem_epan_scope(), int64_t);
-        *key = data[i].id;
-
-        list = (someip_parameter_array_t *)g_hash_table_lookup(ht, key);
+        list = g_hash_table_lookup(ht, GUINT_TO_POINTER(data[i].id));
         if (list == NULL) {
-
             list = wmem_new(wmem_epan_scope(), someip_parameter_array_t);
 
             list->id            = data[i].id;
@@ -1648,12 +1505,10 @@ post_update_someip_parameter_array_read_in_data(someip_parameter_array_uat_t *da
             list->id_ref        = data[i].id_ref;
             list->num_of_dims   = data[i].num_of_dims;
             list->filter_string = data[i].filter_string;
-
-            items = (someip_parameter_array_dim_t *)wmem_alloc0_array(wmem_epan_scope(), someip_parameter_array_dim_t, data[i].num_of_dims);
-            list->dims = items;
+            list->dims = wmem_alloc0_array(wmem_epan_scope(), someip_parameter_array_dim_t, data[i].num_of_dims);
 
             /* create new entry ... */
-            g_hash_table_insert(ht, key, list);
+            g_hash_table_insert(ht, GUINT_TO_POINTER(data[i].id), list);
         }
 
         /* and now we add to item array */
@@ -1686,7 +1541,7 @@ static void
 post_update_someip_parameter_array_cb(void) {
     reset_someip_parameter_array_cb();
 
-    data_someip_parameter_arrays = g_hash_table_new_full(g_int64_hash, g_int64_equal, &someip_payload_free_key, &free_someip_parameter_array);
+    data_someip_parameter_arrays = g_hash_table_new_full(g_direct_hash, g_direct_equal, NULL, &free_someip_parameter_array);
     post_update_someip_parameter_array_read_in_data(someip_parameter_arrays, someip_parameter_arrays_num, data_someip_parameter_arrays);
 }
 
@@ -1808,21 +1663,16 @@ free_someip_parameter_struct(void *data) {
 
 static void
 post_update_someip_parameter_struct_read_in_data(someip_parameter_struct_uat_t *data, unsigned data_num, GHashTable *ht) {
-    unsigned                            i = 0;
-    int64_t                            *key = NULL;
-    someip_payload_parameter_struct_t  *list = NULL;
-    someip_payload_parameter_item_t    *item = NULL;
-    someip_payload_parameter_item_t    *items = NULL;
+    unsigned                            i;
+    someip_payload_parameter_struct_t  *list;
+    someip_payload_parameter_item_t    *item;
 
-    if (ht == NULL || data == NULL || data_num == 0) {
+    if (ht == NULL || data == NULL) {
         return;
     }
 
     for (i = 0; i < data_num; i++) {
-        key = wmem_new(wmem_epan_scope(), int64_t);
-        *key = data[i].id;
-
-        list = (someip_payload_parameter_struct_t *)g_hash_table_lookup(ht, key);
+        list = g_hash_table_lookup(ht, GUINT_TO_POINTER(data[i].id));
         if (list == NULL) {
             list = wmem_new(wmem_epan_scope(), someip_payload_parameter_struct_t);
             INIT_SOMEIP_PAYLOAD_PARAMETER_STRUCT(list)
@@ -1833,12 +1683,10 @@ post_update_someip_parameter_struct_read_in_data(someip_parameter_struct_uat_t *
             list->pad_to           = data[i].pad_to;
             list->wtlv_encoding    = data[i].wtlv_encoding;
             list->num_of_items     = data[i].num_of_items;
-
-            items = (someip_payload_parameter_item_t *)wmem_alloc0_array(wmem_epan_scope(), someip_payload_parameter_item_t, data[i].num_of_items);
-            list->items = items;
+            list->items = wmem_alloc0_array(wmem_epan_scope(), someip_payload_parameter_item_t, data[i].num_of_items);
 
             /* create new entry ... */
-            g_hash_table_insert(ht, key, list);
+            g_hash_table_insert(ht, GUINT_TO_POINTER(data[i].id), list);
         }
 
         /* and now we add to item array */
@@ -1872,7 +1720,7 @@ static void
 post_update_someip_parameter_struct_cb(void) {
     reset_someip_parameter_struct_cb();
 
-    data_someip_parameter_structs = g_hash_table_new_full(g_int64_hash, g_int64_equal, &someip_payload_free_key, &free_someip_parameter_struct);
+    data_someip_parameter_structs = g_hash_table_new_full(g_direct_hash, g_direct_equal, NULL, &free_someip_parameter_struct);
     post_update_someip_parameter_struct_read_in_data(someip_parameter_structs, someip_parameter_structs_num, data_someip_parameter_structs);
 }
 
@@ -1990,23 +1838,18 @@ free_someip_parameter_union(void *data) {
 
 static void
 post_update_someip_parameter_union_read_in_data(someip_parameter_union_uat_t *data, unsigned data_num, GHashTable *ht) {
-    unsigned        i = 0;
-    unsigned        j = 0;
-    int64_t        *key = NULL;
-    someip_parameter_union_t       *list = NULL;
-    someip_parameter_union_item_t  *item = NULL;
+    unsigned        i;
+    unsigned        j;
+    someip_parameter_union_t       *list;
+    someip_parameter_union_item_t  *item;
 
-    if (ht == NULL || data == NULL || data_num == 0) {
+    if (ht == NULL || data == NULL) {
         return;
     }
 
     for (i = 0; i < data_num; i++) {
-        key = wmem_new(wmem_epan_scope(), int64_t);
-        *key = data[i].id;
-
-        list = (someip_parameter_union_t *)g_hash_table_lookup(ht, key);
+        list = g_hash_table_lookup(ht, GUINT_TO_POINTER(data[i].id));
         if (list == NULL) {
-
             list = wmem_new(wmem_epan_scope(), someip_parameter_union_t);
 
             list->id               = data[i].id;
@@ -2015,14 +1858,10 @@ post_update_someip_parameter_union_read_in_data(someip_parameter_union_uat_t *da
             list->length_of_type   = data[i].length_of_type;
             list->pad_to           = data[i].pad_to;
             list->num_of_items     = data[i].num_of_items;
-
-            list->items = (someip_parameter_union_item_t *)wmem_alloc0_array(wmem_epan_scope(), someip_parameter_union_item_t, list->num_of_items);
+            list->items = wmem_alloc0_array(wmem_epan_scope(), someip_parameter_union_item_t, list->num_of_items);
 
             /* create new entry ... */
-            g_hash_table_insert(ht, key, list);
-        } else {
-            /* don't need it anymore */
-            wmem_free(wmem_epan_scope(), key);
+            g_hash_table_insert(ht, GUINT_TO_POINTER(data[i].id), list);
         }
 
         /* and now we add to item array */
@@ -2061,7 +1900,7 @@ static void
 post_update_someip_parameter_union_cb(void) {
     reset_someip_parameter_union_cb();
 
-    data_someip_parameter_unions = g_hash_table_new_full(g_int64_hash, g_int64_equal, &someip_payload_free_key, &free_someip_parameter_union);
+    data_someip_parameter_unions = g_hash_table_new_full(g_direct_hash, g_direct_equal, NULL, &free_someip_parameter_union);
     post_update_someip_parameter_union_read_in_data(someip_parameter_unions, someip_parameter_unions_num, data_someip_parameter_unions);
 }
 
@@ -2155,24 +1994,14 @@ reset_someip_parameter_base_type_list_cb(void) {
 static void
 post_update_someip_parameter_base_type_list_cb(void) {
     unsigned   i;
-    int64_t *key = NULL;
 
     reset_someip_parameter_base_type_list_cb();
 
     /* we don't need to free the data as long as we don't alloc it first */
-    data_someip_parameter_base_type_list = g_hash_table_new_full(g_int64_hash, g_int64_equal, &someip_payload_free_key, NULL);
+    data_someip_parameter_base_type_list = g_hash_table_new_full(g_direct_hash, g_direct_equal, NULL, NULL);
 
-    if (data_someip_parameter_base_type_list == NULL || someip_parameter_base_type_list == NULL || someip_parameter_base_type_list_num == 0) {
-        return;
-    }
-
-    if (someip_parameter_base_type_list_num > 0) {
-        for (i = 0; i < someip_parameter_base_type_list_num; i++) {
-            key = wmem_new(wmem_epan_scope(), int64_t);
-            *key = someip_parameter_base_type_list[i].id;
-
-            g_hash_table_insert(data_someip_parameter_base_type_list, key, &someip_parameter_base_type_list[i]);
-        }
+    for (i = 0; i < someip_parameter_base_type_list_num; i++) {
+        g_hash_table_insert(data_someip_parameter_base_type_list, GUINT_TO_POINTER(someip_parameter_base_type_list[i].id), &someip_parameter_base_type_list[i]);
     }
 }
 
@@ -2268,24 +2097,14 @@ reset_someip_parameter_string_list_cb(void) {
 static void
 post_update_someip_parameter_string_list_cb(void) {
     unsigned   i;
-    int64_t *key = NULL;
 
     reset_someip_parameter_string_list_cb();
 
     /* we don't need to free the data as long as we don't alloc it first */
-    data_someip_parameter_strings = g_hash_table_new_full(g_int64_hash, g_int64_equal, &someip_payload_free_key, NULL);
+    data_someip_parameter_strings = g_hash_table_new_full(g_direct_hash, g_direct_equal, NULL, NULL);
 
-    if (data_someip_parameter_strings == NULL || someip_parameter_strings == NULL || someip_parameter_strings_num == 0) {
-        return;
-    }
-
-    if (someip_parameter_strings_num > 0) {
-        for (i = 0; i < someip_parameter_strings_num; i++) {
-            key = wmem_new(wmem_epan_scope(), int64_t);
-            *key = someip_parameter_strings[i].id;
-
-            g_hash_table_insert(data_someip_parameter_strings, key, &someip_parameter_strings[i]);
-        }
+    for (i = 0; i < someip_parameter_strings_num; i++) {
+        g_hash_table_insert(data_someip_parameter_strings, GUINT_TO_POINTER(someip_parameter_strings[i].id), &someip_parameter_strings[i]);
     }
 }
 
@@ -2353,24 +2172,15 @@ reset_someip_parameter_typedef_list_cb(void) {
 static void
 post_update_someip_parameter_typedef_list_cb(void) {
     unsigned   i;
-    int64_t *key = NULL;
 
     reset_someip_parameter_typedef_list_cb();
 
     /* we don't need to free the data as long as we don't alloc it first */
-    data_someip_parameter_typedefs = g_hash_table_new_full(g_int64_hash, g_int64_equal, &someip_payload_free_key, NULL);
+    data_someip_parameter_typedefs = g_hash_table_new_full(g_direct_hash, g_direct_equal, NULL, NULL);
 
-    if (data_someip_parameter_typedefs == NULL || someip_parameter_typedefs == NULL || someip_parameter_typedefs_num == 0) {
-        return;
-    }
-
-    if (someip_parameter_typedefs_num > 0) {
-        for (i = 0; i < someip_parameter_typedefs_num; i++) {
-            /* key: ID [32bit] */
-            key = wmem_new(wmem_epan_scope(), int64_t);
-            *key = someip_parameter_typedefs[i].id;
-            g_hash_table_insert(data_someip_parameter_typedefs, key, &someip_parameter_typedefs[i]);
-        }
+    for (i = 0; i < someip_parameter_typedefs_num; i++) {
+        /* key: ID [32bit] */
+        g_hash_table_insert(data_someip_parameter_typedefs, GUINT_TO_POINTER(someip_parameter_typedefs[i].id), &someip_parameter_typedefs[i]);
     }
 }
 
@@ -2415,7 +2225,7 @@ get_param_attributes(uint8_t data_type, uint32_t id_ref) {
 
     /* we limit the number of typedef recursion to "count" */
     while (data_type == SOMEIP_PAYLOAD_PARAMETER_DATA_TYPE_TYPEDEF && count > 0) {
-        someip_payload_parameter_typedef_t *tmp = get_typedef_config(id_ref);
+        someip_payload_parameter_typedef_t* tmp = g_hash_table_lookup(data_someip_parameter_typedefs, GUINT_TO_POINTER(id_ref));
         /* this should not be a typedef since we don't support recursion of typedefs */
         if (tmp != NULL) {
             data_type = tmp->data_type;
@@ -2425,7 +2235,7 @@ get_param_attributes(uint8_t data_type, uint32_t id_ref) {
     }
 
     if (data_type == SOMEIP_PAYLOAD_PARAMETER_DATA_TYPE_ENUM) {
-        someip_payload_parameter_enum_t *tmp = get_enum_config(id_ref);
+        someip_payload_parameter_enum_t* tmp = g_hash_table_lookup(data_someip_parameter_enums, GUINT_TO_POINTER(id_ref));
         /* this can only be a base type ... */
         if (tmp != NULL) {
             data_type = tmp->data_type;
@@ -2434,7 +2244,7 @@ get_param_attributes(uint8_t data_type, uint32_t id_ref) {
     }
 
     if (data_type == SOMEIP_PAYLOAD_PARAMETER_DATA_TYPE_STRING) {
-        someip_payload_parameter_string_t *tmp = get_string_config(id_ref);
+        someip_payload_parameter_string_t* tmp = g_hash_table_lookup(data_someip_parameter_strings, GUINT_TO_POINTER(id_ref));
         ret.type = FT_STRING;
         ret.display_base = BASE_NONE;
         if (tmp != NULL) {
@@ -2444,7 +2254,7 @@ get_param_attributes(uint8_t data_type, uint32_t id_ref) {
     }
 
     if (data_type == SOMEIP_PAYLOAD_PARAMETER_DATA_TYPE_BASE_TYPE) {
-        someip_payload_parameter_base_type_list_t *tmp = get_base_type_config(id_ref);
+        someip_payload_parameter_base_type_list_t* tmp = g_hash_table_lookup(data_someip_parameter_base_type_list, GUINT_TO_POINTER(id_ref));
 
         ret.display_base = BASE_DEC;
 
@@ -2703,14 +2513,14 @@ someip_messages_stats_tree_packet(stats_tree *st, packet_info *pinfo, epan_disse
     tick_stat_node(st, st_str_ip_dst, 0, false);
     int dst_id = tick_stat_node(st, tmp_addr_str, st_node_ip_dst, true);
 
-    char *service_name = someip_lookup_service_name(data->service_id);
+    char* service_name = someip_lookup_service_name(data->service_id);
     if (service_name == NULL) {
         snprintf(tmp_srv_str, sizeof(tmp_srv_str) - 1, "Service 0x%04x", data->service_id);
     } else {
         snprintf(tmp_srv_str, sizeof(tmp_srv_str) - 1, "Service 0x%04x (%s)", data->service_id, service_name);
     }
 
-    char *method_name = someip_lookup_method_name(data->service_id, data->method_id);
+    char *method_name = g_hash_table_lookup(data_someip_methods, GUINT_TO_POINTER(((uint32_t)data->service_id << 16) | (uint32_t)data->method_id));
     if (method_name == NULL) {
         snprintf(tmp_meth_str, sizeof(tmp_meth_str) - 1, "Method 0x%04x %s", data->method_id,
             val_to_str(data->message_type, someip_msg_type, "Message-Type: 0x%02x"));
@@ -2864,7 +2674,7 @@ dissect_someip_payload_base_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
         break;
     case SOMEIP_PAYLOAD_PARAMETER_DATA_TYPE_ENUM:
         enum_id = id;
-        enum_config = get_enum_config(enum_id);
+        enum_config = g_hash_table_lookup(data_someip_parameter_enums, GUINT_TO_POINTER(enum_id));
         if (enum_config == NULL) {
             return 0;
         }
@@ -2874,7 +2684,7 @@ dissect_someip_payload_base_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
         return 0;
     }
 
-    base_type = get_base_type_config(basetype_id);
+    base_type = g_hash_table_lookup(data_someip_parameter_base_type_list, GUINT_TO_POINTER(basetype_id));
     if (base_type == NULL) {
         return 0;
     }
@@ -2943,7 +2753,7 @@ dissect_someip_payload_string(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
         hf_id = *hf_id_ptr;
     }
 
-    config = get_string_config(id);
+    config = g_hash_table_lookup(data_someip_parameter_strings, GUINT_TO_POINTER(id));
 
     if (config == NULL) {
         return 0;
@@ -3024,7 +2834,7 @@ dissect_someip_payload_struct(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     int64_t     length = 0;
     int         offset = offset_orig;
 
-    config = get_struct_config(id);
+    config = g_hash_table_lookup(data_someip_parameter_structs, GUINT_TO_POINTER(id));
 
     if (config == NULL || tree == NULL || tvb == NULL) {
         return 0;
@@ -3077,7 +2887,7 @@ static int
 dissect_someip_payload_typedef(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, uint32_t id, char *name _U_, int *hf_id, int wtlv_offset) {
     someip_payload_parameter_typedef_t *config = NULL;
 
-    config = get_typedef_config(id);
+    config = g_hash_table_lookup(data_someip_parameter_typedefs, GUINT_TO_POINTER(id));
 
     if (config == NULL) {
         return 0;
@@ -3240,7 +3050,7 @@ dissect_someip_payload_array(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     int         lower_limit = 0;
     int         upper_limit = 0;
 
-    config = get_array_config(id);
+    config = g_hash_table_lookup(data_someip_parameter_arrays, GUINT_TO_POINTER(id));
 
     if (config == NULL) {
         return 0;
@@ -3297,7 +3107,7 @@ dissect_someip_payload_union(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
     int         offset = offset_orig;
 
-    config = get_union_config(id);
+    config = g_hash_table_lookup(data_someip_parameter_unions, GUINT_TO_POINTER(id));
     buf_length = tvb_captured_length_remaining(tvb, 0);
 
     if (config == NULL) {
@@ -3409,7 +3219,7 @@ static int dissect_someip_payload_peek_length_of_length(proto_tree *tree, packet
     /* a config error could cause an endless loop, so we limit the number of indirections with loop_limit */
     int loop_limit = 255;
     while (data_type == SOMEIP_PAYLOAD_PARAMETER_DATA_TYPE_TYPEDEF && loop_limit > 0) {
-        someip_payload_parameter_typedef_t *tmp = get_typedef_config(id_ref);
+        someip_payload_parameter_typedef_t* tmp = g_hash_table_lookup(data_someip_parameter_typedefs, GUINT_TO_POINTER(id_ref));
         data_type = tmp->data_type;
         id_ref = tmp->id_ref;
         loop_limit--;
@@ -3422,7 +3232,7 @@ static int dissect_someip_payload_peek_length_of_length(proto_tree *tree, packet
 
     switch (data_type) {
     case SOMEIP_PAYLOAD_PARAMETER_DATA_TYPE_STRING:
-        tmp_string_config = get_string_config(id_ref);
+        tmp_string_config = g_hash_table_lookup(data_someip_parameter_strings, GUINT_TO_POINTER(id_ref));
         if (tmp_string_config == NULL) {
             return -1;
         }
@@ -3430,7 +3240,7 @@ static int dissect_someip_payload_peek_length_of_length(proto_tree *tree, packet
         return tmp_string_config->length_of_length;
 
     case SOMEIP_PAYLOAD_PARAMETER_DATA_TYPE_ARRAY:
-        tmp_array_config = get_array_config(id_ref);
+        tmp_array_config = g_hash_table_lookup(data_someip_parameter_arrays, GUINT_TO_POINTER(id_ref));
         if (tmp_array_config == NULL) {
             return -1;
         }
@@ -3443,7 +3253,7 @@ static int dissect_someip_payload_peek_length_of_length(proto_tree *tree, packet
         return tmp_array_config->dims[0].length_of_length;
 
     case SOMEIP_PAYLOAD_PARAMETER_DATA_TYPE_STRUCT:
-        tmp_struct_config = get_struct_config(id_ref);
+        tmp_struct_config = g_hash_table_lookup(data_someip_parameter_structs, GUINT_TO_POINTER(id_ref));
         if (tmp_struct_config == NULL) {
             return -1;
         }
@@ -3451,7 +3261,7 @@ static int dissect_someip_payload_peek_length_of_length(proto_tree *tree, packet
         return tmp_struct_config->length_of_length;
 
     case SOMEIP_PAYLOAD_PARAMETER_DATA_TYPE_UNION:
-        tmp_union_config = get_union_config(id_ref);
+        tmp_union_config = g_hash_table_lookup(data_someip_parameter_unions, GUINT_TO_POINTER(id_ref));
         if (tmp_union_config == NULL) {
             return -1;
         }
@@ -3564,6 +3374,7 @@ dissect_someip_payload_parameters(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 static void
 dissect_someip_payload(tvbuff_t* tvb, packet_info* pinfo, proto_item *ti, uint16_t serviceid, uint16_t methodid, uint8_t version, uint8_t msgtype) {
     someip_parameter_list_t* paramlist = NULL;
+    uint64_t key = someip_parameter_key(serviceid, methodid, version, msgtype);
 
     int         length = -1;
     int         offset = 0;
@@ -3572,7 +3383,7 @@ dissect_someip_payload(tvbuff_t* tvb, packet_info* pinfo, proto_item *ti, uint16
 
     length = tvb_captured_length_remaining(tvb, 0);
     tree = proto_item_add_subtree(ti, ett_someip_payload);
-    paramlist = get_parameter_config(serviceid, methodid, version, msgtype);
+    paramlist = g_hash_table_lookup(data_someip_parameter_list, &key);
 
     if (paramlist == NULL) {
         if (someip_deserializer_wtlv_default) {
@@ -3655,7 +3466,7 @@ dissect_someip_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
     /* Method ID */
     ti = proto_tree_add_item_ret_uint(someip_tree, hf_someip_methodid, tvb, offset, 2, ENC_BIG_ENDIAN, &someip_methodid);
     someip_data.method_id = someip_methodid;
-    method_description = someip_lookup_method_name(someip_serviceid, someip_methodid);
+    method_description = g_hash_table_lookup(data_someip_methods, GUINT_TO_POINTER(((uint32_t)someip_serviceid << 16) | (uint32_t)someip_methodid));
     if (method_description != NULL) {
         proto_item_append_text(ti, " (%s)", method_description);
         ti = proto_tree_add_string(someip_tree, hf_someip_methodname , tvb, offset, 2, method_description);
@@ -3693,7 +3504,7 @@ dissect_someip_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
     /* Client ID */
     ti = proto_tree_add_item_ret_uint(someip_tree, hf_someip_clientid, tvb, offset, 2, ENC_BIG_ENDIAN, &someip_clientid);
     someip_data.client_id = someip_clientid;
-    client_description = someip_lookup_client_name(someip_serviceid, someip_clientid);
+    client_description = g_hash_table_lookup(data_someip_clients, GUINT_TO_POINTER(((uint32_t)someip_serviceid << 16) | (uint32_t)someip_clientid));
     if (client_description != NULL) {
         proto_item_append_text(ti, " (%s)", client_description);
         ti = proto_tree_add_string(someip_tree, hf_someip_clientname, tvb, offset, 2, client_description);
@@ -4548,61 +4359,6 @@ proto_register_someip(void) {
         "A table to define typedefs", someip_parameter_typedefs_uat);
 }
 
-static void
-clean_all_hashtables_with_empty_uat(void) {
-    /* On config change, we delete all hashtables which should have 0 entries! */
-    /* Usually this is already done in the post update cb of the uat.*/
-    /* Unfortunately, Wireshark does not call the post_update_cb on config errors. :( */
-    if (data_someip_services && someip_service_ident_num==0) {
-        g_hash_table_destroy(data_someip_services);
-        data_someip_services = NULL;
-    }
-    if (data_someip_methods && someip_method_ident_num==0) {
-        g_hash_table_destroy(data_someip_methods);
-        data_someip_methods = NULL;
-    }
-    if (data_someip_eventgroups && someip_eventgroup_ident_num==0) {
-        g_hash_table_destroy(data_someip_eventgroups);
-        data_someip_eventgroups = NULL;
-    }
-    if (data_someip_clients && someip_client_ident_num == 0) {
-        g_hash_table_destroy(data_someip_clients);
-        data_someip_clients = NULL;
-    }
-    if (data_someip_parameter_list && someip_parameter_list_num==0) {
-        g_hash_table_destroy(data_someip_parameter_list);
-        data_someip_parameter_list = NULL;
-    }
-    if (data_someip_parameter_arrays && someip_parameter_arrays_num==0) {
-        g_hash_table_destroy(data_someip_parameter_arrays);
-        data_someip_parameter_arrays = NULL;
-    }
-    if (data_someip_parameter_structs && someip_parameter_structs_num==0) {
-        g_hash_table_destroy(data_someip_parameter_structs);
-        data_someip_parameter_structs = NULL;
-    }
-    if (data_someip_parameter_unions && someip_parameter_unions_num==0) {
-        g_hash_table_destroy(data_someip_parameter_unions);
-        data_someip_parameter_unions = NULL;
-    }
-    if (data_someip_parameter_enums && someip_parameter_enums_num == 0) {
-        g_hash_table_destroy(data_someip_parameter_enums);
-        data_someip_parameter_enums = NULL;
-    }
-    if (data_someip_parameter_base_type_list && someip_parameter_base_type_list_num==0) {
-        g_hash_table_destroy(data_someip_parameter_base_type_list);
-        data_someip_parameter_base_type_list = NULL;
-    }
-    if (data_someip_parameter_strings && someip_parameter_strings_num==0) {
-        g_hash_table_destroy(data_someip_parameter_strings);
-        data_someip_parameter_strings = NULL;
-    }
-    if (data_someip_parameter_typedefs && someip_parameter_typedefs_num==0) {
-        g_hash_table_destroy(data_someip_parameter_typedefs);
-        data_someip_parameter_typedefs = NULL;
-    }
-}
-
 void
 proto_reg_handoff_someip(void) {
     static bool initialized = false;
@@ -4623,8 +4379,6 @@ proto_reg_handoff_someip(void) {
         dtls_handle = find_dissector("dtls");
 
         initialized = true;
-    } else {
-        clean_all_hashtables_with_empty_uat();
     }
 
     update_dynamic_hf_entries_someip_parameter_list();

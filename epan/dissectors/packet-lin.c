@@ -168,78 +168,29 @@ free_interface_config_cb(void *r) {
     rec->interface_name = NULL;
 }
 
-static interface_config_t *
-ht_lookup_interface_config_by_id(unsigned int identifier) {
-    interface_config_t *tmp = NULL;
-    unsigned int       *id = NULL;
-
-    if (interface_configs == NULL) {
-        return NULL;
-    }
-
-    id = wmem_new(wmem_epan_scope(), unsigned int);
-    *id = (unsigned int)identifier;
-    tmp = (interface_config_t *)g_hash_table_lookup(data_lin_interfaces_by_id, id);
-    wmem_free(wmem_epan_scope(), id);
-
-    return tmp;
-}
-
-static interface_config_t *
-ht_lookup_interface_config_by_name(const char *name) {
-    interface_config_t *tmp = NULL;
-    char               *key = NULL;
-
-    if (interface_configs == NULL) {
-        return NULL;
-    }
-
-    key = wmem_strdup(wmem_epan_scope(), name);
-    tmp = (interface_config_t *)g_hash_table_lookup(data_lin_interfaces_by_name, key);
-    wmem_free(wmem_epan_scope(), key);
-
-    return tmp;
-}
-
-static void
-lin_free_key(void *key) {
-    wmem_free(wmem_epan_scope(), key);
-}
-
 static void
 post_update_lin_interfaces_cb(void) {
     unsigned  i;
-    int   *key_id = NULL;
-    char *key_name = NULL;
 
     /* destroy old hash tables, if they exist */
     if (data_lin_interfaces_by_id) {
         g_hash_table_destroy(data_lin_interfaces_by_id);
-        data_lin_interfaces_by_id = NULL;
     }
     if (data_lin_interfaces_by_name) {
         g_hash_table_destroy(data_lin_interfaces_by_name);
-        data_lin_interfaces_by_name = NULL;
     }
 
     /* create new hash table */
-    data_lin_interfaces_by_id = g_hash_table_new_full(g_int_hash, g_int_equal, &lin_free_key, NULL);
-    data_lin_interfaces_by_name = g_hash_table_new_full(g_str_hash, g_str_equal, &lin_free_key, NULL);
-
-    if (data_lin_interfaces_by_id == NULL || data_lin_interfaces_by_name == NULL || interface_configs == NULL || interface_config_num == 0) {
-        return;
-    }
+    data_lin_interfaces_by_id = g_hash_table_new_full(g_direct_hash, g_direct_equal, NULL, NULL);
+    data_lin_interfaces_by_name = g_hash_table_new_full(g_str_hash, g_str_equal, NULL, NULL);
 
     for (i = 0; i < interface_config_num; i++) {
         if (interface_configs[i].interface_id != 0xfffffff) {
-            key_id = wmem_new(wmem_epan_scope(), int);
-            *key_id = interface_configs[i].interface_id;
-            g_hash_table_insert(data_lin_interfaces_by_id, key_id, &interface_configs[i]);
+            g_hash_table_insert(data_lin_interfaces_by_id, GUINT_TO_POINTER(interface_configs[i].interface_id), &interface_configs[i]);
         }
 
         if (interface_configs[i].interface_name != NULL && interface_configs[i].interface_name[0] != 0) {
-            key_name = wmem_strdup(wmem_epan_scope(), interface_configs[i].interface_name);
-            g_hash_table_insert(data_lin_interfaces_by_name, key_name, &interface_configs[i]);
+            g_hash_table_insert(data_lin_interfaces_by_name, interface_configs[i].interface_name, &interface_configs[i]);
         }
     }
 }
@@ -262,14 +213,14 @@ get_bus_id(packet_info *pinfo) {
     interface_config_t *tmp = NULL;
 
     if (interface_name != NULL && interface_name[0] != 0) {
-        tmp = ht_lookup_interface_config_by_name(interface_name);
+        tmp = g_hash_table_lookup(data_lin_interfaces_by_name, interface_name);
 
         if (tmp != NULL && (tmp->interface_id == 0xffffffff || tmp->interface_id == interface_id)) {
             /* name + id match or name match and id = any */
             return tmp->bus_id;
         }
 
-        tmp = ht_lookup_interface_config_by_id(interface_id);
+        tmp = g_hash_table_lookup(data_lin_interfaces_by_id, GUINT_TO_POINTER(interface_id));
 
         if (tmp != NULL && (tmp->interface_name == NULL || tmp->interface_name[0] == 0)) {
             /* id matches and name is any */
@@ -346,51 +297,37 @@ sender_receiver_key(uint16_t bus_id, uint32_t lin_id) {
 
 static sender_receiver_config_t *
 ht_lookup_sender_receiver_config(uint16_t bus_id, uint32_t lin_id) {
-    sender_receiver_config_t *tmp = NULL;
-    uint64_t                  key = 0;
-
-    if (sender_receiver_configs == NULL) {
-        return NULL;
-    }
+    sender_receiver_config_t *tmp;
+    uint64_t                  key;
 
     key = sender_receiver_key(bus_id, lin_id);
-    tmp = (sender_receiver_config_t *)g_hash_table_lookup(data_sender_receiver, &key);
+    tmp = g_hash_table_lookup(data_sender_receiver, &key);
 
     if (tmp == NULL) {
         key = sender_receiver_key(0, lin_id);
-        tmp = (sender_receiver_config_t *)g_hash_table_lookup(data_sender_receiver, &key);
+        tmp = g_hash_table_lookup(data_sender_receiver, &key);
     }
 
     return tmp;
 }
 
 static void
-sender_receiver_free_key(void *key) {
-    wmem_free(wmem_epan_scope(), key);
-}
-
-static void
 post_update_sender_receiver_cb(void) {
     unsigned i;
-    uint64_t *key_id = NULL;
+    uint64_t *key;
 
     /* destroy old hash table, if it exist */
     if (data_sender_receiver) {
         g_hash_table_destroy(data_sender_receiver);
-        data_sender_receiver = NULL;
     }
 
     /* create new hash table */
-    data_sender_receiver = g_hash_table_new_full(g_int64_hash, g_int64_equal, &sender_receiver_free_key, NULL);
-
-    if (data_sender_receiver == NULL || sender_receiver_configs == NULL || sender_receiver_config_num == 0) {
-        return;
-    }
+    data_sender_receiver = g_hash_table_new_full(g_int64_hash, g_int64_equal, g_free, NULL);
 
     for (i = 0; i < sender_receiver_config_num; i++) {
-        key_id = wmem_new(wmem_epan_scope(), uint64_t);
-        *key_id = sender_receiver_key(sender_receiver_configs[i].bus_id, sender_receiver_configs[i].lin_id);
-        g_hash_table_insert(data_sender_receiver, key_id, &sender_receiver_configs[i]);
+        key = g_new(uint64_t, 1);
+        *key = sender_receiver_key(sender_receiver_configs[i].bus_id, sender_receiver_configs[i].lin_id);
+        g_hash_table_insert(data_sender_receiver, key, &sender_receiver_configs[i]);
     }
 }
 

@@ -749,18 +749,6 @@ UAT_HEX_CB_DEF(asam_cmp_interfaces, bus_id, interface_config_t)
 static expert_field ei_asam_cmp_length_mismatch;
 static expert_field ei_asam_cmp_unsupported_crc_not_zero;
 
-/* generic UAT */
-static void
-tecmp_free_key(void *key) {
-    wmem_free(wmem_epan_scope(), key);
-}
-
-static void
-simple_free(void *data) {
-    /* we need to free because of the g_strdup in post_update*/
-    g_free(data);
-}
-
 /* ID -> Name */
 static void *
 copy_generic_one_id_string_cb(void *n, const void *o, size_t size _U_) {
@@ -795,36 +783,6 @@ free_generic_one_id_string_cb(void *r) {
     /* freeing result of g_strdup */
     g_free(rec->name);
     rec->name = NULL;
-}
-
-static void
-post_update_one_id_string_template_cb(generic_one_id_string_t *data, unsigned data_num, GHashTable *ht) {
-    unsigned   i;
-    int    *key = NULL;
-
-    for (i = 0; i < data_num; i++) {
-        key = wmem_new(wmem_epan_scope(), int);
-        *key = data[i].id;
-
-        g_hash_table_insert(ht, key, g_strdup(data[i].name));
-    }
-}
-
-static char *
-ht_lookup_name(GHashTable *ht, unsigned int identifier) {
-    char           *tmp = NULL;
-    unsigned int   *id = NULL;
-
-    if (ht == NULL) {
-        return NULL;
-    }
-
-    id = wmem_new(wmem_epan_scope(), unsigned int);
-    *id = (unsigned int)identifier;
-    tmp = (char *)g_hash_table_lookup(ht, id);
-    wmem_free(wmem_epan_scope(), id);
-
-    return tmp;
 }
 
 /* ID -> ID, Name */
@@ -869,26 +827,9 @@ free_interface_config_cb(void *r) {
     rec->name = NULL;
 }
 
-static interface_config_t *
-ht_lookup_channel_config(unsigned int identifier) {
-    interface_config_t   *tmp = NULL;
-    unsigned int       *id = NULL;
-
-    if (data_asam_cmp_interfaces == NULL) {
-        return NULL;
-    }
-
-    id = wmem_new(wmem_epan_scope(), unsigned int);
-    *id = (unsigned int)identifier;
-    tmp = (interface_config_t *)g_hash_table_lookup(data_asam_cmp_interfaces, id);
-    wmem_free(wmem_epan_scope(), id);
-
-    return tmp;
-}
-
 static char *
 ht_interface_config_to_string(unsigned int identifier) {
-    interface_config_t   *tmp = ht_lookup_channel_config(identifier);
+    interface_config_t   *tmp = g_hash_table_lookup(data_asam_cmp_interfaces, GUINT_TO_POINTER(identifier));
     if (tmp == NULL) {
         return NULL;
     }
@@ -898,7 +839,7 @@ ht_interface_config_to_string(unsigned int identifier) {
 
 static uint16_t
 ht_interface_config_to_bus_id(unsigned int identifier) {
-    interface_config_t   *tmp = ht_lookup_channel_config(identifier);
+    interface_config_t   *tmp = g_hash_table_lookup(data_asam_cmp_interfaces, GUINT_TO_POINTER(identifier));
     if (tmp == NULL) {
         /* 0 means basically any or none */
         return 0;
@@ -909,45 +850,41 @@ ht_interface_config_to_bus_id(unsigned int identifier) {
 
 static void
 post_update_asam_cmp_devices_cb(void) {
+    unsigned i;
+
     /* destroy old hash table, if it exists */
     if (data_asam_cmp_devices) {
         g_hash_table_destroy(data_asam_cmp_devices);
-        data_asam_cmp_devices = NULL;
     }
 
     /* create new hash table */
-    data_asam_cmp_devices = g_hash_table_new_full(g_int_hash, g_int_equal, &tecmp_free_key, &simple_free);
-    post_update_one_id_string_template_cb(asam_cmp_devices, asam_cmp_devices_num, data_asam_cmp_devices);
+    data_asam_cmp_devices = g_hash_table_new_full(g_direct_hash, g_direct_equal, NULL, NULL);
+
+    for (i = 0; i < asam_cmp_devices_num; i++) {
+        g_hash_table_insert(data_asam_cmp_devices, GUINT_TO_POINTER(asam_cmp_devices[i].id), asam_cmp_devices[i].name);
+    }
 }
 
 static void
 post_update_interface_config_cb(void) {
     unsigned  i;
-    int   *key = NULL;
 
     /* destroy old hash table, if it exists */
     if (data_asam_cmp_interfaces) {
         g_hash_table_destroy(data_asam_cmp_interfaces);
-        data_asam_cmp_interfaces = NULL;
     }
 
     /* create new hash table */
-    data_asam_cmp_interfaces = g_hash_table_new_full(g_int_hash, g_int_equal, &tecmp_free_key, NULL);
-
-    if (data_asam_cmp_interfaces == NULL || asam_cmp_interfaces == NULL || asam_cmp_interface_num == 0) {
-        return;
-    }
+    data_asam_cmp_interfaces = g_hash_table_new_full(g_direct_hash, g_direct_equal, NULL, NULL);
 
     for (i = 0; i < asam_cmp_interface_num; i++) {
-        key = wmem_new(wmem_epan_scope(), int);
-        *key = asam_cmp_interfaces[i].id;
-        g_hash_table_insert(data_asam_cmp_interfaces, key, &asam_cmp_interfaces[i]);
+        g_hash_table_insert(data_asam_cmp_interfaces, GUINT_TO_POINTER(asam_cmp_interfaces[i].id), &asam_cmp_interfaces[i]);
     }
 }
 
 static void
 add_device_id_text(proto_item *ti, uint16_t device_id) {
-    const char *descr = ht_lookup_name(data_asam_cmp_devices, device_id);
+    const char *descr = g_hash_table_lookup(data_asam_cmp_devices, GUINT_TO_POINTER(device_id));
 
     if (descr != NULL) {
         proto_item_append_text(ti, " (%s)", descr);
