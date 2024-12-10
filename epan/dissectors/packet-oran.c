@@ -84,6 +84,18 @@ static int hf_oran_section_id;
 static int hf_oran_rb;
 static int hf_oran_symInc;
 static int hf_oran_startPrbc;
+static int hf_oran_reMask_re1;
+static int hf_oran_reMask_re2;
+static int hf_oran_reMask_re3;
+static int hf_oran_reMask_re4;
+static int hf_oran_reMask_re5;
+static int hf_oran_reMask_re6;
+static int hf_oran_reMask_re7;
+static int hf_oran_reMask_re8;
+static int hf_oran_reMask_re9;
+static int hf_oran_reMask_re10;
+static int hf_oran_reMask_re11;
+static int hf_oran_reMask_re12;
 static int hf_oran_reMask;
 static int hf_oran_numPrbc;
 static int hf_oran_numSymbol;
@@ -417,6 +429,9 @@ static int ett_oran_sym_prb_pattern;
 static int ett_oran_measurement_report;
 static int ett_oran_sresmask;
 static int ett_oran_c_section;
+static int ett_oran_remask;
+
+
 
 
 /* Expert info */
@@ -1085,6 +1100,10 @@ static const true_false_string beam_numbers_included_tfs = {
   "time-domain beam numbers included in this command"
 };
 
+static const true_false_string applicable_not_applicable_tfs = {
+  "applicable",
+  "not applicable"
+};
 
 
 /* Forward declaration */
@@ -1646,7 +1665,7 @@ static int dissect_bfwCompParam(tvbuff_t *tvb, proto_tree *tree, packet_info *pi
     /* Can't go on if compression scheme not supported */
     if (!(*supported) && meth_ti) {
         expert_add_info_format(pinfo, meth_ti, &ei_oran_unsupported_bfw_compression_method,
-                               "BFW Compression method %u (%s) not supported by dissector",
+                               "BFW Compression method %u (%s) not decompressed by dissector",
                                bfw_comp_method,
                                val_to_str_const(bfw_comp_method, bfw_comp_headers_comp_meth, "reserved"));
     }
@@ -1986,8 +2005,26 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
         }
 
         if (sectionType != SEC_C_SINR_REPORTING) {
+            static int * const  remask_flags[] = {
+                &hf_oran_reMask_re1,
+                &hf_oran_reMask_re2,
+                &hf_oran_reMask_re3,
+                &hf_oran_reMask_re4,
+                &hf_oran_reMask_re5,
+                &hf_oran_reMask_re6,
+                &hf_oran_reMask_re7,
+                &hf_oran_reMask_re8,
+                &hf_oran_reMask_re9,
+                &hf_oran_reMask_re10,
+                &hf_oran_reMask_re11,
+                &hf_oran_reMask_re12,
+                NULL
+            };
+
             /* reMask */
-            proto_tree_add_item(c_section_tree, hf_oran_reMask, tvb, offset, 2, ENC_BIG_ENDIAN);
+            uint64_t remask;
+            proto_tree_add_bitmask_ret_uint64(c_section_tree, tvb, offset,
+                                              hf_oran_reMask, ett_oran_remask, remask_flags, ENC_BIG_ENDIAN, &remask);
             offset++;
             /* numSymbol */
             uint32_t numSymbol;
@@ -5086,6 +5123,7 @@ static bool udcomplen_appears_present(bool udcomphdr_present, tvbuff_t *tvb, int
             offset += udcomplen;
 
             /* Are we at the end of the frame? */
+            /* TODO: if frame is less than 60 bytes, there may be > 4 bytes, likely zeros.. */
             if (tvb_reported_length_remaining(tvb, offset) < 4) {
                 udcomplen_heuristic_result = true;
                 udcomplen_heuristic_result_set = true;
@@ -5818,6 +5856,90 @@ proto_register_oran(void)
         },
 
         /* Section 7.5.3.5 */
+        {&hf_oran_reMask_re1,
+         {"RE 1", "oran_fh_cus.reMask-RE1",
+          FT_BOOLEAN, 16,
+          TFS(&applicable_not_applicable_tfs), 0x8000,
+          NULL,
+          HFILL}
+        },
+        {&hf_oran_reMask_re2,
+         {"RE 2", "oran_fh_cus.reMask-RE2",
+          FT_BOOLEAN, 16,
+          TFS(&applicable_not_applicable_tfs), 0x4000,
+          NULL,
+          HFILL}
+        },
+        {&hf_oran_reMask_re3,
+         {"RE 3", "oran_fh_cus.reMask-RE3",
+          FT_BOOLEAN, 16,
+          TFS(&applicable_not_applicable_tfs), 0x2000,
+          NULL,
+          HFILL}
+        },
+        {&hf_oran_reMask_re4,
+         {"RE 4", "oran_fh_cus.reMask-RE4",
+          FT_BOOLEAN, 16,
+          TFS(&applicable_not_applicable_tfs), 0x1000,
+          NULL,
+          HFILL}
+        },
+        {&hf_oran_reMask_re5,
+         {"RE 5", "oran_fh_cus.reMask-RE5",
+          FT_BOOLEAN, 16,
+          TFS(&applicable_not_applicable_tfs), 0x0800,
+          NULL,
+          HFILL}
+        },
+        {&hf_oran_reMask_re6,
+         {"RE 6", "oran_fh_cus.reMask-RE6",
+          FT_BOOLEAN, 16,
+          TFS(&applicable_not_applicable_tfs), 0x0400,
+          NULL,
+          HFILL}
+        },
+        {&hf_oran_reMask_re7,
+         {"RE 7", "oran_fh_cus.reMask-RE7",
+          FT_BOOLEAN, 16,
+          TFS(&applicable_not_applicable_tfs), 0x0200,
+          NULL,
+          HFILL}
+        },
+        {&hf_oran_reMask_re8,
+         {"RE 8", "oran_fh_cus.reMask-RE8",
+          FT_BOOLEAN, 16,
+          TFS(&applicable_not_applicable_tfs), 0x0100,
+          NULL,
+          HFILL}
+        },
+        {&hf_oran_reMask_re9,
+         {"RE 9", "oran_fh_cus.reMask-RE9",
+          FT_BOOLEAN, 16,
+          TFS(&applicable_not_applicable_tfs), 0x0080,
+          NULL,
+          HFILL}
+        },
+        {&hf_oran_reMask_re10,
+         {"RE 10", "oran_fh_cus.reMask-RE10",
+          FT_BOOLEAN, 16,
+          TFS(&applicable_not_applicable_tfs), 0x0040,
+          NULL,
+          HFILL}
+        },
+        {&hf_oran_reMask_re11,
+         {"RE 11", "oran_fh_cus.reMask-RE11",
+          FT_BOOLEAN, 16,
+          TFS(&applicable_not_applicable_tfs), 0x0020,
+          NULL,
+          HFILL}
+        },
+        {&hf_oran_reMask_re12,
+         {"RE 12", "oran_fh_cus.reMask-RE12",
+          FT_BOOLEAN, 16,
+          TFS(&applicable_not_applicable_tfs), 0x0010,
+          NULL,
+          HFILL}
+        },
         {&hf_oran_reMask,
          {"RE Mask", "oran_fh_cus.reMask",
           FT_UINT16, BASE_HEX,
@@ -7837,7 +7959,8 @@ proto_register_oran(void)
         &ett_oran_sym_prb_pattern,
         &ett_oran_measurement_report,
         &ett_oran_sresmask,
-        &ett_oran_c_section
+        &ett_oran_c_section,
+        &ett_oran_remask
     };
 
     expert_module_t* expert_oran;
