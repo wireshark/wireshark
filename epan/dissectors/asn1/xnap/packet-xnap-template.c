@@ -112,6 +112,7 @@ static int hf_xnap_nodemeasurementFailedReportCharacteristics_AveragePacketDelay
 static int hf_xnap_nodemeasurementFailedReportCharacteristics_AveragePacketLossDL;
 static int hf_xnap_nodemeasurementFailedReportCharacteristics_MeasuredUETrajectory;
 static int hf_xnap_nodemeasurementFailedReportCharacteristics_Reserved;
+static int hf_xnap_extensionValue_data;
 #include "packet-xnap-hf.c"
 
 /* Initialize the subtree pointers */
@@ -336,7 +337,9 @@ static int dissect_ProtocolExtensionFieldExtensionValue(tvbuff_t *tvb, packet_in
 {
   struct xnap_private_data *xnap_data = xnap_get_private_data(pinfo);
 
-  return (dissector_try_uint_with_data(xnap_extension_dissector_table, xnap_data->protocol_ie_id, tvb, pinfo, tree, false, NULL)) ? tvb_captured_length(tvb) : 0;
+  if (!dissector_try_uint_with_data(xnap_extension_dissector_table, xnap_data->protocol_ie_id, tvb, pinfo, tree, false, NULL))
+    proto_tree_add_item(tree, hf_xnap_extensionValue_data, tvb, 0, -1, ENC_NA);
+  return tvb_captured_length(tvb);
 }
 
 static int dissect_InitiatingMessageValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
@@ -632,6 +635,10 @@ void proto_register_xnap(void) {
     { &hf_xnap_nodemeasurementFailedReportCharacteristics_Reserved,
       { "Reserved", "xnap.nodemeasurementFailedReportCharacteristics.Reserved",
         FT_UINT32, BASE_HEX, NULL, 0x03ffffff,
+        NULL, HFILL }},
+    { &hf_xnap_extensionValue_data,
+      { "Data", "xnap.extensionValue.data",
+        FT_BYTES, BASE_NONE|BASE_ALLOW_ZERO, NULL, 0,
         NULL, HFILL }},
 #include "packet-xnap-hfarr.c"
   };
