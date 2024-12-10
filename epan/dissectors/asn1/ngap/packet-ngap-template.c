@@ -1278,7 +1278,7 @@ void proto_register_ngap(void) {
         FT_BOOLEAN, 8, TFS(&tfs_restricted_not_restricted), 0x40,
         NULL, HFILL }},
     { &hf_ngap_primaryRATRestriction_e_UTRA_OTHERSAT,
-      { "e-UTRA-OTHERSAT", "ngap.primaryRATRestriction.e_UTRA_LEO",
+      { "e-UTRA-OTHERSAT", "ngap.primaryRATRestriction.e_UTRA_OTHERSAT",
         FT_BOOLEAN, 8, TFS(&tfs_restricted_not_restricted), 0x20,
         NULL, HFILL }},
     { &hf_ngap_primaryRATRestriction_reserved,
