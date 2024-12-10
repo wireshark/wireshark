@@ -266,9 +266,9 @@ PacketList::PacketList(QWidget *parent) :
     Q_ASSERT(gbl_cur_packet_list == Q_NULLPTR);
     gbl_cur_packet_list = this;
 
-    connect(packet_list_model_, SIGNAL(goToPacket(int)), this, SLOT(goToPacket(int)));
-    connect(mainApp, SIGNAL(addressResolutionChanged()), this, SLOT(redrawVisiblePacketsDontSelectCurrent()));
-    connect(mainApp, SIGNAL(columnDataChanged()), this, SLOT(redrawVisiblePacketsDontSelectCurrent()));
+    connect(packet_list_model_, &PacketListModel::goToPacket, this, [=](int packet) { goToPacket(packet); });
+    connect(mainApp, &MainApplication::addressResolutionChanged, this, &PacketList::redrawVisiblePacketsDontSelectCurrent);
+    connect(mainApp, &MainApplication::columnDataChanged, this, &PacketList::redrawVisiblePacketsDontSelectCurrent);
     connect(mainApp, &MainApplication::preferencesChanged, this, [=]() {
         /* The pref is a uint but QCache maxCost is a signed int (/
          * qsizetype in Qt 6). Note that QAbstractItemModel row numbers
@@ -281,12 +281,10 @@ PacketList::PacketList(QWidget *parent) :
         }
     });
 
-    connect(header(), SIGNAL(sectionResized(int,int,int)),
-            this, SLOT(sectionResized(int,int,int)));
-    connect(header(), SIGNAL(sectionMoved(int,int,int)),
-            this, SLOT(sectionMoved(int,int,int)));
+    connect(header(), &QHeaderView::sectionResized, this, &PacketList::sectionResized);
+    connect(header(), &QHeaderView::sectionMoved, this, &PacketList::sectionMoved);
 
-    connect(verticalScrollBar(), SIGNAL(actionTriggered(int)), this, SLOT(vScrollBarActionTriggered(int)));
+    connect(verticalScrollBar(), &QScrollBar::actionTriggered, this, &PacketList::vScrollBarActionTriggered);
 }
 
 PacketList::~PacketList()
@@ -451,9 +449,9 @@ void PacketList::drawRow (QPainter *painter, const QStyleOptionViewItem &option,
 void PacketList::setProtoTree (ProtoTree *proto_tree) {
     proto_tree_ = proto_tree;
 
-    connect(proto_tree_, SIGNAL(goToPacket(int)), this, SLOT(goToPacket(int)));
-    connect(proto_tree_, SIGNAL(relatedFrame(int,ft_framenum_type_t)),
-            &related_packet_delegate_, SLOT(addRelatedFrame(int,ft_framenum_type_t)));
+    connect(proto_tree_, &ProtoTree::goToPacket, this, [=](int packet) { goToPacket(packet); });
+    connect(proto_tree_, &ProtoTree::relatedFrame,
+            &related_packet_delegate_, &RelatedPacketDelegate::addRelatedFrame);
 }
 
 bool PacketList::uniqueSelectActive()
@@ -739,16 +737,16 @@ void PacketList::contextMenuEvent(QContextMenuEvent *event)
 
     QAction * action = submenu->addAction(tr("Summary as Text"));
     action->setData(CopyAsText);
-    connect(action, SIGNAL(triggered()), this, SLOT(copySummary()));
+    connect(action, &QAction::triggered, this, &PacketList::copySummary);
     action = submenu->addAction(tr("…as CSV"));
     action->setData(CopyAsCSV);
-    connect(action, SIGNAL(triggered()), this, SLOT(copySummary()));
+    connect(action, &QAction::triggered, this, &PacketList::copySummary);
     action = submenu->addAction(tr("…as YAML"));
     action->setData(CopyAsYAML);
-    connect(action, SIGNAL(triggered()), this, SLOT(copySummary()));
+    connect(action, &QAction::triggered, this, &PacketList::copySummary);
     action = submenu->addAction(tr("…as HTML"));
     action->setData(CopyAsHTML);
-    connect(action, SIGNAL(triggered()), this, SLOT(copySummary()));
+    connect(action, &QAction::triggered, this, &PacketList::copySummary);
     submenu->addSeparator();
 
     submenu->addAction(window()->findChild<QAction *>("actionEditCopyAsFilter"));
@@ -784,8 +782,8 @@ void PacketList::contextMenuEvent(QContextMenuEvent *event)
 
                     ProtocolPreferencesMenu *proto_prefs_menu = new ProtocolPreferencesMenu(hfinfo->name, module_name, proto_prefs_menus);
 
-                    connect(proto_prefs_menu, SIGNAL(showProtocolPreferences(QString)),
-                            this, SIGNAL(showProtocolPreferences(QString)));
+                    connect(proto_prefs_menu, &ProtocolPreferencesMenu::showProtocolPreferences,
+                            this, &PacketList::showProtocolPreferences);
                     connect(proto_prefs_menu, SIGNAL(editProtocolPreference(pref_t*,module_t*)),
                             this, SIGNAL(editProtocolPreference(pref_t*,module_t*)));
 
@@ -820,7 +818,7 @@ void PacketList::ctxDecodeAsDialog()
     bool create_new = da_action->property("create_new").toBool();
 
     DecodeAsDialog *da_dialog = new DecodeAsDialog(this, cap_file_, create_new);
-    connect(da_dialog, SIGNAL(destroyed(QObject*)), mainApp, SLOT(flushAppSignals()));
+    connect(da_dialog, &DecodeAsDialog::destroyed, mainApp, &MainApplication::flushAppSignals);
     da_dialog->setWindowModality(Qt::ApplicationModal);
     da_dialog->setAttribute(Qt::WA_DeleteOnClose);
     da_dialog->show();
@@ -1941,11 +1939,9 @@ void PacketList::sectionMoved(int logicalIndex, int oldVisualIndex, int newVisua
     // Undo move to ensure that the logical indices map to the visual indices,
     // otherwise the column order is changed twice (once via the modified
     // col_list, once because of the visual/logical index mismatch).
-    disconnect(header(), SIGNAL(sectionMoved(int,int,int)),
-               this, SLOT(sectionMoved(int,int,int)));
+    disconnect(header(), &QHeaderView::sectionMoved, this, &PacketList::sectionMoved);
     header()->moveSection(newVisualIndex, oldVisualIndex);
-    connect(header(), SIGNAL(sectionMoved(int,int,int)),
-            this, SLOT(sectionMoved(int,int,int)));
+    connect(header(), &QHeaderView::sectionMoved, this, &PacketList::sectionMoved);
 
     // Clear and rebuild our (and the header's) model. There doesn't appear
     // to be another way to reset the logical index.

@@ -26,6 +26,7 @@
 #include <ui/qt/show_packet_bytes_dialog.h>
 #include <ui/qt/filter_action.h>
 #include <ui/qt/follow_stream_action.h>
+#include <ui/qt/main_window.h>
 #include <ui/qt/io_graph_action.h>
 #include <ui/qt/protocol_preferences_menu.h>
 #include <ui/all_files_wildcard.h>
@@ -78,19 +79,16 @@ ProtoTree::ProtoTree(QWidget *parent, epan_dissect_t *edt_fixed) :
 
     setModel(proto_tree_model_);
 
-    connect(this, SIGNAL(expanded(QModelIndex)), this, SLOT(syncExpanded(QModelIndex)));
-    connect(this, SIGNAL(collapsed(QModelIndex)), this, SLOT(syncCollapsed(QModelIndex)));
-    connect(this, SIGNAL(clicked(QModelIndex)),
-            this, SLOT(itemClicked(QModelIndex)));
-    connect(this, SIGNAL(doubleClicked(QModelIndex)),
-            this, SLOT(itemDoubleClicked(QModelIndex)));
+    connect(this, &ProtoTree::expanded, this, &ProtoTree::syncExpanded);
+    connect(this, &ProtoTree::collapsed, this, &ProtoTree::syncCollapsed);
+    connect(this, &ProtoTree::clicked, this, &ProtoTree::itemClicked);
+    connect(this, &ProtoTree::doubleClicked, this, &ProtoTree::itemDoubleClicked);
 
     // resizeColumnToContents checks 1000 items by default. The user might
     // have scrolled to an area with a different width at this point.
-    connect(verticalScrollBar(), SIGNAL(sliderReleased()),
-            this, SLOT(updateContentWidth()));
+    connect(verticalScrollBar(), &QScrollBar::sliderReleased, this, &ProtoTree::updateContentWidth);
 
-    connect(mainApp, SIGNAL(appInitialized()), this, SLOT(connectToMainWindow()));
+    connect(mainApp, &MainApplication::appInitialized, this, &ProtoTree::connectToMainWindow);
 
     viewport()->installEventFilter(this);
 }
@@ -104,10 +102,10 @@ void ProtoTree::connectToMainWindow()
 {
     if (mainApp->mainWindow())
     {
-        connect(mainApp->mainWindow(), SIGNAL(fieldSelected(FieldInformation *)),
-                this, SLOT(selectedFieldChanged(FieldInformation *)));
-        connect(mainApp->mainWindow(), SIGNAL(framesSelected(QList<int>)),
-                this, SLOT(selectedFrameChanged(QList<int>)));
+        connect(qobject_cast<MainWindow *>(mainApp->mainWindow()), &MainWindow::fieldSelected,
+                this, &ProtoTree::selectedFieldChanged);
+        connect(qobject_cast<MainWindow *>(mainApp->mainWindow()), &MainWindow::framesSelected,
+                this, &ProtoTree::selectedFrameChanged);
     }
 }
 
@@ -273,12 +271,12 @@ void ProtoTree::contextMenuEvent(QContextMenuEvent *event)
         }
     }
 
-    action = ctx_menu->addAction(tr("Expand Subtrees"), this, SLOT(expandSubtrees()));
+    action = ctx_menu->addAction(tr("Expand Subtrees"), this, &ProtoTree::expandSubtrees);
     action->setEnabled(have_subtree);
-    action = ctx_menu->addAction(tr("Collapse Subtrees"), this, SLOT(collapseSubtrees()));
+    action = ctx_menu->addAction(tr("Collapse Subtrees"), this, &ProtoTree::collapseSubtrees);
     action->setEnabled(have_subtree);
-    ctx_menu->addAction(tr("Expand All"), this, SLOT(expandAll()));
-    ctx_menu->addAction(tr("Collapse All"), this, SLOT(collapseAll()));
+    ctx_menu->addAction(tr("Expand All"), this, &ProtoTree::expandAll);
+    ctx_menu->addAction(tr("Collapse All"), this, &ProtoTree::collapseAll);
     ctx_menu->addSeparator();
 
     if (! buildForDialog)
@@ -335,17 +333,17 @@ void ProtoTree::contextMenuEvent(QContextMenuEvent *event)
 
     submenu = ctx_menu->addMenu(tr("Copy"));
     submenu->setToolTipsVisible(true);
-    submenu->addAction(tr("All Visible Items"), this, SLOT(ctxCopyVisibleItems()));
-    action = submenu->addAction(tr("All Visible Selected Tree Items"), this, SLOT(ctxCopyVisibleItems()));
+    submenu->addAction(tr("All Visible Items"), this, &ProtoTree::ctxCopyVisibleItems);
+    action = submenu->addAction(tr("All Visible Selected Tree Items"), this, &ProtoTree::ctxCopyVisibleItems);
     action->setProperty("selected_tree", QVariant::fromValue(true));
-    action = submenu->addAction(tr("Description"), this, SLOT(ctxCopySelectedInfo()));
+    action = submenu->addAction(tr("Description"), this, &ProtoTree::ctxCopySelectedInfo);
     action->setProperty("field_type", ProtoTree::Description);
-    action = submenu->addAction(tr("Field Name"), this, SLOT(ctxCopySelectedInfo()));
+    action = submenu->addAction(tr("Field Name"), this, &ProtoTree::ctxCopySelectedInfo);
     action->setProperty("field_type", ProtoTree::Name);
-    action = submenu->addAction(tr("Value"), this, SLOT(ctxCopySelectedInfo()));
+    action = submenu->addAction(tr("Value"), this, &ProtoTree::ctxCopySelectedInfo);
     action->setProperty("field_type", ProtoTree::Value);
     submenu->addSeparator();
-    submenu->addAction(tr("As Filter"), this, SLOT(ctxCopyAsFilter()));
+    submenu->addAction(tr("As Filter"), this, &ProtoTree::ctxCopyAsFilter);
     submenu->addSeparator();
     QActionGroup * copyEntries = DataPrinter::copyActions(this, finfo);
     submenu->addActions(copyEntries->actions());
@@ -369,10 +367,10 @@ void ProtoTree::contextMenuEvent(QContextMenuEvent *event)
         protocol_field_selected = true;
         field_id = proto_registrar_get_parent(field_id);
     }
-    action = ctx_menu->addAction(tr("Wiki Protocol Page"), this, SLOT(ctxOpenUrlWiki()));
+    action = ctx_menu->addAction(tr("Wiki Protocol Page"), this, &ProtoTree::ctxOpenUrlWiki);
     action->setProperty("toolTip", QString(WS_WIKI_URL("Protocols/%1")).arg(proto_registrar_get_abbrev(field_id)));
 
-    action = ctx_menu->addAction(tr("Filter Field Reference"), this, SLOT(ctxOpenUrlWiki()));
+    action = ctx_menu->addAction(tr("Filter Field Reference"), this, &ProtoTree::ctxOpenUrlWiki);
     action->setProperty("field_reference", QVariant::fromValue(true));
     if (field_id != hf_text_only) {
         action->setEnabled(true);
@@ -517,10 +515,10 @@ void ProtoTree::setRootNode(proto_node *root_node) {
     // The expanded state will be reset as well and will be re-expanded below.
     proto_tree_model_->setRootNode(root_node);
 
-    disconnect(this, SIGNAL(expanded(QModelIndex)), this, SLOT(syncExpanded(QModelIndex)));
+    disconnect(this, &ProtoTree::expanded, this, &ProtoTree::syncExpanded);
     proto_tree_children_foreach(root_node, foreachTreeNode, this);
     foreachExpand();
-    connect(this, SIGNAL(expanded(QModelIndex)), this, SLOT(syncExpanded(QModelIndex)));
+    connect(this, &ProtoTree::expanded, this, &ProtoTree::syncExpanded);
 
     updateContentWidth();
 }
