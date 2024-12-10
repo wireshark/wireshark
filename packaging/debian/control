@@ -85,7 +85,8 @@ Architecture: any
 Depends: ${shlibs:Depends},
          ${misc:Depends},
          wireshark-common (= ${binary:Version}),
-         libqt6svg6
+         libqt6svg6,
+         qt6-qpa-plugins
 Recommends: libqt6multimedia6
 Breaks: wireshark-qt,
         wireshark-gtk (<< 3.0.0~)
@@ -104,7 +105,8 @@ Depends: ${shlibs:Depends},
          ${misc:Depends},
          wireshark-common (= ${source:Version}),
          libfalcosecurity0t64,
-         libqt6svg6
+         libqt6svg6,
+         qt6-qpa-plugins
 # Recommends: libqt6multimedia6
 Description: system call and log analyzer - graphical interface
  Stratoshark is a system call and log analyzer. It can capture and analyze
