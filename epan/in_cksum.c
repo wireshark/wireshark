@@ -170,6 +170,11 @@ ip_checksum_tvb(tvbuff_t *tvb, int offset, int len)
  * header, and the network-byte-order computed checksum of the data
  * that the checksum covers (including the checksum itself), compute
  * what the checksum field *should* have been.
+ *
+ * This always returns +0 (0x0000) not -0 (0xffff). The few protocols,
+ * like ICMP, that can have an all zero packet (aside from the checksum
+ * field) such that 0xffff is the correct result should test for that
+ * case before, after, or instead of calling this method.
  */
 uint16_t
 in_cksum_shouldbe(uint16_t sum, uint16_t computed_sum)
@@ -194,7 +199,21 @@ in_cksum_shouldbe(uint16_t sum, uint16_t computed_sum)
 	 * doing the arithmetic in 32 bits (with no sign-extension),
 	 * and then adding the upper 16 bits of the sum, which contain
 	 * the carry, to the lower 16 bits of the sum, and then do it
-	 * again in case *that* sum produced a carry.
+	 * again in case *that* sum produced a carry. (XXX - It won't.
+	 * It can't be any larger than 0xFFFF + 0xFFFF = 0x1FFFE,
+	 * which only carries once back to 0xFFFF.)
+	 *
+	 * Also, since all the arithmetic is one's complement, +0 (0x0000)
+	 * and -0 (0xFFFF) are indistinguishable. (Different ways of
+	 * performing the calculation can yield one zero or the other for
+	 * different inputs.) Between the two, +0 is the representation we
+	 * want unless all the bits of the packet except for the checksum
+	 * field are zero, but we can't know that from our inputs here.
+	 * Most protocols which use this checksum require at least some
+	 * nonzero bits (a version, a length field, something either directly
+	 * or in a pseudoheader), and so +0 is correct. Despite this, some
+	 * networking stacks put 0xFFFF when 0x0000 is appropriate, see RFC
+	 * 1624.
 	 *
 	 * As RFC 1071 notes, the checksum can be computed without
 	 * byte-swapping the 16-bit words; summing 16-bit words
@@ -213,8 +232,13 @@ in_cksum_shouldbe(uint16_t sum, uint16_t computed_sum)
 	shouldbe = sum;
 	shouldbe += g_ntohs(computed_sum);
 	shouldbe = (shouldbe & 0xFFFF) + (shouldbe >> 16);
-	shouldbe = (shouldbe & 0xFFFF) + (shouldbe >> 16);
-	return shouldbe;
+	shouldbe = (shouldbe & 0xFFFF) + (shouldbe >> 16); // XXX - Unneeded.
+	/* Always return +0, not -0.
+	 * There are some other ways to always return +0, such as
+	 * calculating -(-computed_sum + -sum) instead; the fastest
+	 * approach is likely CPU and compiler dependent.
+	 */
+	return shouldbe == 0xFFFF ? 0 : shouldbe;
 }
 
 /*

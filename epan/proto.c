@@ -13918,6 +13918,14 @@ proto_tree_add_checksum(proto_tree *tree, tvbuff_t *tvb, const unsigned offset,
 					incorrect_checksum = false;
 				} else if (flags & PROTO_CHECKSUM_IN_CKSUM) {
 					computed_checksum = in_cksum_shouldbe(checksum, computed_checksum);
+					/* XXX - This can't distinguish between "shouldbe"
+					 * 0x0000 and 0xFFFF unless we know whether there
+					 * were any nonzero bits (other than the checksum).
+					 * Protocols should not use this path if they might
+					 * have an all zero packet.
+					 * Some implementations put the wrong zero; maybe
+					 * we should have a special expert info for that?
+					 */
 				}
 			} else {
 				if (checksum == computed_checksum) {

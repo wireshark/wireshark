@@ -1620,8 +1620,21 @@ dissect_icmp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data)
 		/* The packet isn't part of a fragmented datagram, isn't
 		   truncated, and isn't the payload of an error packet, so we can checksum
 		   it. */
-		proto_tree_add_checksum(icmp_tree, tvb, 2, hf_icmp_checksum, hf_icmp_checksum_status, &ei_icmp_checksum, pinfo, ip_checksum_tvb(tvb, 0, reported_length),
-								ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY|PROTO_CHECKSUM_IN_CKSUM);
+		/* Since ICMP, unlike most protocols that use the Internet checksum,
+		 * can be all zeros except for the checksum, don't verify the checksum
+		 * by including the checksum field itself as RFCs 1071 and 1624
+		 * recommend, but compute it and compare against the header checksum
+		 * field. This also means that we won't accept 0xffff where 0x0000
+		 * is correct (Postel's Law is less appropriate here). We'll use
+		 * the standard "checksum incorrect" expert info warning for now
+		 * (we could have special handling like TCP), but handle it in the
+		 * request-reply matching specially. (See #5770, #16334). */
+		vec_t cksum_vec[2];
+		SET_CKSUM_VEC_TVB(cksum_vec[0], tvb, 0, 2);
+		SET_CKSUM_VEC_TVB(cksum_vec[1], tvb, 4, tvb_reported_length_remaining(tvb, 4));
+		uint16_t computed_cksum = g_ntohs(in_cksum(&cksum_vec[0], 2));
+		proto_tree_add_checksum(icmp_tree, tvb, 2, hf_icmp_checksum, hf_icmp_checksum_status, &ei_icmp_checksum, pinfo, computed_cksum,
+								ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY);
 	} else {
 		checksum_item = proto_tree_add_checksum(icmp_tree, tvb, 2, hf_icmp_checksum, hf_icmp_checksum_status, &ei_icmp_checksum, pinfo, 0,
 								ENC_BIG_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
