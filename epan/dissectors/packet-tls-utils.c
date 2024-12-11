@@ -546,6 +546,7 @@ const value_string ssl_extension_curves[] = {
     { 2570, "Reserved (GREASE)" }, /* RFC 8701 */
     { 4587, "SecP256r1MLKEM768" }, /* draft-kwiatkowski-tls-ecdhe-mlkem-02 */
     { 4588, "MLKEM768X25519" }, /* draft-kwiatkowski-tls-ecdhe-mlkem */
+    { 4589, "SecP384r1MLKEM1024" }, /* draft-kwiatkowski-tls-ecdhe-mlkem-03 */
     { 6682, "Reserved (GREASE)" }, /* RFC 8701 */
     { 10794, "Reserved (GREASE)" }, /* RFC 8701 */
     { 14906, "Reserved (GREASE)" }, /* RFC 8701 */
