@@ -628,7 +628,7 @@ dissect_avsp(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_
                     tvbuff_t *next_tvb;
                     address save_dl_src, save_dl_dst, save_net_src,
                             save_net_dst, save_src, save_dst;
-                    bool save_writable, save_in_error_pkt;;
+                    bool save_writable, save_in_error_pkt;
 
                     sample_len = ROUNDUP(sample_len, 4);
                     next_tvb = tvb_new_subset_length(tvb, offset, sample_len);

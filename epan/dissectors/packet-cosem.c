@@ -272,7 +272,7 @@ static int ett_dlms_fragments;
 
 static expert_field ei_dlms_no_success;
 static expert_field ei_dlms_not_implemented;
-static expert_field ei_dlms_check_sequence;;
+static expert_field ei_dlms_check_sequence;
 
 static dissector_handle_t cosem_handle;
 static dissector_handle_t dlms_handle;

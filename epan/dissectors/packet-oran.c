@@ -371,7 +371,7 @@ static int hf_oran_sinr_value;
 
 static int hf_oran_measurement_report;
 static int hf_oran_mf;
-static int hf_oran_meas_data_size;;
+static int hf_oran_meas_data_size;
 static int hf_oran_meas_type_id;
 static int hf_oran_ipn_power;
 static int hf_oran_ue_tae;

@@ -189,7 +189,7 @@ void store_encryption_info(packet_info *pinfo, enum ua_message_mode mode, uint8_
     conversation_t *conv = find_conversation_pinfo(pinfo, 0);
     if (conv) {
         uintptr_t data;
-        data = construct_encryption_info(mode, sig_len);;
+        data = construct_encryption_info(mode, sig_len);
         conversation_add_proto_data(conv, proto_opcua, (void *)data);
     }
 }
