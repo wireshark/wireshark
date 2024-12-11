@@ -2464,12 +2464,12 @@ dlms_dissect_get_request(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, in
     if (choice == DLMS_GET_REQUEST_NORMAL) {
         col_set_str(pinfo->cinfo, COL_INFO, "Get-Request-Normal");
         offset = dlms_dissect_cosem_attribute_descriptor(tvb, pinfo, tree, offset);
-        offset = dlms_dissect_selective_access_descriptor(tvb, pinfo, tree, offset);
+        /*offset = */dlms_dissect_selective_access_descriptor(tvb, pinfo, tree, offset);
     }
     else if (choice == DLMS_GET_REQUEST_NEXT) {
         proto_tree_add_item(tree, hf_dlms_block_number, tvb, offset, 4, ENC_BIG_ENDIAN);
         block_number = tvb_get_ntohl(tvb, offset);
-        offset += 4;
+        /*offset += 4;*/
         col_add_fstr(pinfo->cinfo, COL_INFO, "Get-Request-Next (block %u)", block_number);
     }
     else {
@@ -2622,7 +2622,7 @@ dlms_dissect_action_response(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree
         col_set_str(pinfo->cinfo, COL_INFO, "Action-Response-Normal");
         item = proto_tree_add_item(tree, hf_dlms_action_result, tvb, offset, 1, ENC_NA);
         result = tvb_get_uint8(tvb, offset);
-        offset += 1;
+        /*offset += 1;*/
         if (result) {
             result_name = val_to_str_const(result, dlms_action_result_names, "unknown");
             col_append_fstr(pinfo->cinfo, COL_INFO, " (%s)", result_name);
