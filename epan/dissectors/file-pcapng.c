@@ -1830,7 +1830,7 @@ int dissect_block(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, struct in
     proto_item      *block_length_trailer_item;
     int              offset = 0;
     uint32_t         block_type;
-    uint32_t         block_length, block_length_trailer;
+    uint32_t         block_length = 0, block_length_trailer;
     uint32_t         length;
     tvbuff_t        *volatile next_tvb = NULL;
     block_data_arg   arg;
