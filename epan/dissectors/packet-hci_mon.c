@@ -666,7 +666,7 @@ proto_reg_handoff_hci_mon(void)
     bthci_evt_handle = find_dissector_add_dependency("bthci_evt", proto_hci_mon);
     bthci_acl_handle = find_dissector_add_dependency("bthci_acl", proto_hci_mon);
     bthci_sco_handle = find_dissector_add_dependency("bthci_sco", proto_hci_mon);
-    bthci_iso_handle = find_dissector_add_dependency("bthci_iso_data", proto_hci_mon);
+    bthci_iso_handle = find_dissector_add_dependency("bthci_iso", proto_hci_mon);
 
     dissector_add_uint("bluetooth.encap", WTAP_ENCAP_BLUETOOTH_LINUX_MONITOR, hci_mon_handle);
 }
