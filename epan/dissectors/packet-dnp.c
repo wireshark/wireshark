@@ -4174,6 +4174,7 @@ dissect_dnp3_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
     bool        crc_OK = false;
     tvbuff_t   *next_tvb;
     unsigned    i;
+    uint32_t    ext_seq;
     static int * const transport_flags[] = {
       &hf_dnp3_tr_fin,
       &hf_dnp3_tr_fir,
@@ -4186,8 +4187,6 @@ dissect_dnp3_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
     tr_seq = tr_ctl & DNP3_TR_SEQ;
     tr_fir = tr_ctl & DNP3_TR_FIR;
     tr_fin = tr_ctl & DNP3_TR_FIN;
-
-    uint32_t ext_seq = tr_seq;
 
     if (!PINFO_FD_VISITED(pinfo)) {
       /* create a unidirectional conversation. Use the addresses (IP currently)
