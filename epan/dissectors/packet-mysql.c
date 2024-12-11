@@ -3423,9 +3423,7 @@ mysql_dissect_ok_packet(tvbuff_t *tvb, packet_info *pinfo, int offset,
 	offset += fle;
 
 	fle= tvb_get_fle(tvb, tree, offset, &insert_id, NULL);
-	if (tree && insert_id) {
-		proto_tree_add_uint64(tree, hf_mysql_insert_id, tvb, offset, fle, insert_id);
-	}
+	proto_tree_add_uint64(tree, hf_mysql_insert_id, tvb, offset, fle, insert_id);
 	offset += fle;
 
 	if (tvb_reported_length_remaining(tvb, offset) > 0) {
