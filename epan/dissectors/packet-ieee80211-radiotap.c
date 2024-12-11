@@ -6342,21 +6342,21 @@ void proto_register_radiotap(void)
 		  FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
 		{&hf_radiotap_usig_eht_mu_b20_b24,
-		 {"U-SIG-1 B20-B24",
+		 {"Disregard",
 		  "radiotap.u_sig.value.mu_ppdu.u_sig_1_b20_b24",
 		  FT_UINT32, BASE_HEX, NULL, 0x0000001f, NULL, HFILL }},
 
 		{&hf_radiotap_usig_eht_mu_b20_b24_not_known,
-		 {"U-SIG-1 B20-B24 not known",
+		 {"Disregard not known",
 		  "radiotap.u_sig.value.mu_ppdu.u_sig_1_b20_b24_not_known",
 		  FT_UINT32, BASE_HEX, NULL, 0x0000001f, NULL, HFILL }},
 
 		{&hf_radiotap_usig_eht_mu_b25,
-		 {"U-SIG-1 B25", "radiotap.u_sig.value.mu_ppdu.u_sig_1_b25",
+		 {"Validate", "radiotap.u_sig.value.mu_ppdu.u_sig_1_b25",
 		  FT_UINT32, BASE_HEX, NULL, 0x00000020, NULL, HFILL }},
 
 		{&hf_radiotap_usig_eht_mu_b25_not_known,
-		 {"U-SIG-1 B25 not known",
+		 {"Validate not known",
 		  "radiotap.u_sig.value.mu_ppdu.u_sig_1_b25_not_known",
 		  FT_UINT32, BASE_HEX, NULL, 0x00000020, NULL, HFILL }},
 
