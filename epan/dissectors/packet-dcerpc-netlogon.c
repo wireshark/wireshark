@@ -21,6 +21,7 @@
 #include <wsutil/wsgcrypt.h>
 #include <wsutil/wslog.h>
 #include <wsutil/str_util.h>
+#include <wsutil/array.h>
 
 /* for dissect_mscldap_string */
 #include "packet-ldap.h"
@@ -6566,7 +6567,7 @@ netlogon_dissect_netr_CryptPassword(tvbuff_t *tvb, int offset,
                           pw_len, pw);
     offset += pw_len;
 
-    offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
+    /*offset = */dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
                                 hf_netlogon_len, NULL);
 
     return ret_offset;
@@ -7223,7 +7224,6 @@ netlogon_dissect_netrserverauthenticatekerberos_rqst(tvbuff_t *tvb, int offset,
 
     ALIGN_TO_5_BYTES
 
-    dcv = (dcerpc_call_value *)di->call_data;
     offset = dissect_ndr_pointer_cb(
         tvb, offset, pinfo, tree, di, drep,
         dissect_ndr_wchar_cvstring, NDR_POINTER_REF,
