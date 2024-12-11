@@ -47,6 +47,9 @@
  *   - Fix analysis association (Sync to Follow_Up etc.) in case of sequenceId resets
  * - Dr. Lars Völker 28.11.2024 <lars.voelker@technica-engineering.de>
  *   - TLV rework
+ * - Martin Ostertag & Aurel Hess 09-12-2024 <martin.ostertag@zhaw.ch> & <hesu@zhaw.ch>
+ *   - Added support for drift_tracking TLV (802.1ASdm)
+
 
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -941,9 +944,10 @@ static int ett_ptp_time2;
         | PTP_V2_TLV_SIG_TLV_L1SYNC_FLAGS3_RESERVED_BITMASK)
 
 /* Subtypes for the OUI_IEEE_802_1 organization ID (802.1AS) */
-#define PTP_V2_OE_ORG_IEEE_802_1_SUBTYPE_FOLLOWUP_INFO      1
-#define PTP_V2_OE_ORG_IEEE_802_1_SUBTYPE_MSG_INTERVAL_REQ   2
-#define PTP_V2_OE_ORG_IEEE_802_1_SUBTYPE_CSN                3
+#define PTP_V2_OE_ORG_IEEE_802_1_SUBTYPE_FOLLOWUP_INFORMATION_TLV           1
+#define PTP_V2_OE_ORG_IEEE_802_1_SUBTYPE_MSG_INTERVAL_REQ_TLV   2
+#define PTP_V2_OE_ORG_IEEE_802_1_SUBTYPE_CSN_TLV                3
+#define PTP_V2_OE_ORG_IEEE_802_1_SUBTYPE_FOLLOWUP_DRIFT_TRACKING_TLV 6
 
 /* Subtypes for the OUI_IEEE_C37_238 organization ID */
 #define PTP_V2_OE_ORG_IEEE_C37_238_SUBTYPE_C37238TLV    1        /* Defined in IEEE Std C37.238-2011 */
@@ -1328,9 +1332,10 @@ static value_string_ext ptp_v2_managementErrorId_vals_ext =
     VALUE_STRING_EXT_INIT(ptp_v2_managementErrorId_vals);
 
 static const value_string ptp_v2_org_802_1_subtype_vals[] = {
-    {PTP_V2_OE_ORG_IEEE_802_1_SUBTYPE_FOLLOWUP_INFO,                "Follow_Up information TLV"},
-    {PTP_V2_OE_ORG_IEEE_802_1_SUBTYPE_MSG_INTERVAL_REQ,             "Message interval request TLV"},
-    {PTP_V2_OE_ORG_IEEE_802_1_SUBTYPE_CSN,                          "CSN TLV"},
+    {PTP_V2_OE_ORG_IEEE_802_1_SUBTYPE_FOLLOWUP_INFORMATION_TLV,     "Follow_Up information TLV"},
+    {PTP_V2_OE_ORG_IEEE_802_1_SUBTYPE_MSG_INTERVAL_REQ_TLV,         "Message interval request TLV"},
+    {PTP_V2_OE_ORG_IEEE_802_1_SUBTYPE_CSN_TLV,                      "CSN TLV"},
+    {PTP_V2_OE_ORG_IEEE_802_1_SUBTYPE_FOLLOWUP_DRIFT_TRACKING_TLV,  "Follow_Up drift tracking TLV"},
     {0,                                                             NULL}
 };
 
@@ -1538,6 +1543,13 @@ static int hf_ptp_as_fu_tlv_cumulative_rate_ratio; /* Remove scale and offset fr
 static int hf_ptp_as_fu_tlv_gm_base_indicator;
 static int hf_ptp_as_fu_tlv_last_gm_phase_change;
 static int hf_ptp_as_fu_tlv_scaled_last_gm_freq_change;
+/* Fields for the Drift_Tracking TLV */
+static int hf_ptp_as_dt_tlv_sync_egress_timestamp_seconds;
+static int hf_ptp_as_dt_tlv_sync_egress_timestamp_fractional_nanoseconds;
+static int hf_ptp_as_dt_tlv_sync_grandmaster_identity;
+static int hf_ptp_as_dt_tlv_sync_steps_removed;
+static int hf_ptp_as_dt_tlv_rate_ratio_drift;
+static int hf_ptp_as_dt_tlv_rate_ratio_drift_ppm;
 
 /* Fields for PTP_DelayResponse (=dr) messages */
 /* static int hf_ptp_v2_dr_receivetimestamp; */ /* Field for seconds & nanoseconds */
@@ -3547,7 +3559,7 @@ disect_ptp_v2_tlvs(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_item *ti
             switch (org_id) {
             case OUI_IEEE_802_1: {
                 switch (subtype) {
-                case PTP_V2_OE_ORG_IEEE_802_1_SUBTYPE_FOLLOWUP_INFO: {
+                case PTP_V2_OE_ORG_IEEE_802_1_SUBTYPE_FOLLOWUP_INFORMATION_TLV: {
                     proto_tree *ptp_tlv_tree = proto_tree_add_subtree(ptp_tree, tvb, offset, tlv_length + PTP_V2_TLV_HEADER_LENGTH, ett_ptp_v2_tlv, &ti_tlv, "Follow_Up information TLV");
                     offset += dissect_ptp_v2_tlv_org_fields(tvb, offset, ptp_tlv_tree, hf_ptp_tlv_oe_organizationsubtype_802_1);
 
@@ -3571,7 +3583,7 @@ disect_ptp_v2_tlvs(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_item *ti
                     break;
                 }
 
-                case PTP_V2_OE_ORG_IEEE_802_1_SUBTYPE_MSG_INTERVAL_REQ: {
+                case PTP_V2_OE_ORG_IEEE_802_1_SUBTYPE_MSG_INTERVAL_REQ_TLV: {
                     static int * const msg_interval_req_flags[] = {
                         &hf_ptp_as_sig_tlv_flags_one_step_receive_capable,
                         &hf_ptp_as_sig_tlv_flags_comp_mean_link_delay,
@@ -3600,7 +3612,7 @@ disect_ptp_v2_tlvs(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_item *ti
                     break;
                 }
 
-                case PTP_V2_OE_ORG_IEEE_802_1_SUBTYPE_CSN: {
+                case PTP_V2_OE_ORG_IEEE_802_1_SUBTYPE_CSN_TLV: {
                     proto_tree *ptp_tlv_tree = proto_tree_add_subtree(ptp_tree, tvb, offset, tlv_length + PTP_V2_TLV_HEADER_LENGTH, ett_ptp_v2_tlv, &ti_tlv, "CSN TLV");
                     offset += dissect_ptp_v2_tlv_org_fields(tvb, offset, ptp_tlv_tree, hf_ptp_tlv_oe_organizationsubtype_802_1);
 
@@ -3619,6 +3631,34 @@ disect_ptp_v2_tlvs(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_item *ti
                     proto_tree_add_item(ptp_tlv_tree, hf_ptp_as_csn_domain_number, tvb, offset, 1, ENC_NA);
                     offset += 1;
                     break;
+                }
+
+                case PTP_V2_OE_ORG_IEEE_802_1_SUBTYPE_FOLLOWUP_DRIFT_TRACKING_TLV: {
+                    proto_tree *ptp_tlv_tree = proto_tree_add_subtree(ptp_tree, tvb, offset, tlv_length + PTP_V2_TLV_HEADER_LENGTH, ett_ptp_v2_tlv, &ti_tlv, "Drift Tracking TLV");
+                    offset += dissect_ptp_v2_tlv_org_fields(tvb, offset, ptp_tlv_tree, hf_ptp_tlv_oe_organizationsubtype_802_1);
+
+                    proto_tree_add_item(ptp_tlv_tree, hf_ptp_as_dt_tlv_sync_egress_timestamp_seconds, tvb, offset, 6, ENC_BIG_ENDIAN);
+                    offset += 6;
+
+                    /* Converting the fractionalNanoseconds to a double */
+                    guint32 nanoseconds = tvb_get_ntohl(tvb, offset);
+                    guint16 fractional_nanoseconds = tvb_get_ntohs(tvb, offset + 4);
+                    double combined_timestamp = nanoseconds + (fractional_nanoseconds / (double)(1 << 16));
+                    proto_tree_add_double(ptp_tlv_tree, hf_ptp_as_dt_tlv_sync_egress_timestamp_fractional_nanoseconds, tvb, offset, 6, combined_timestamp);
+                    offset += 6;
+
+                    proto_tree_add_item(ptp_tlv_tree, hf_ptp_as_dt_tlv_sync_grandmaster_identity, tvb, offset, 8, ENC_BIG_ENDIAN);
+                    offset += 8;
+
+                    proto_tree_add_item(ptp_tlv_tree, hf_ptp_as_dt_tlv_sync_steps_removed, tvb, offset, 2, ENC_BIG_ENDIAN);
+                    offset += 2;
+
+                    int32_t rate_ratio_drift;
+                    proto_tree_add_item_ret_int(ptp_tlv_tree, hf_ptp_as_dt_tlv_rate_ratio_drift, tvb, offset, 4, ENC_BIG_ENDIAN, &rate_ratio_drift);
+                    ti = proto_tree_add_double(ptp_tlv_tree, hf_ptp_as_dt_tlv_rate_ratio_drift_ppm, tvb, offset, 4, 1.0 + ((double)rate_ratio_drift / (UINT64_C(1) << 41)));
+                    proto_item_set_generated(ti);
+                    offset += 4;
+                  break;
                 }
 
                 } /* end of switch (subtype) */
@@ -6072,6 +6112,37 @@ proto_register_ptp(void)
         { &hf_ptp_as_fu_tlv_scaled_last_gm_freq_change,
           { "scaledLastGmFreqChange", "ptp.as.fu.scaledLastGmFreqChange",
             FT_INT32, BASE_DEC, NULL, 0x00,
+            NULL, HFILL }
+        },
+        /* Fields for Drift_Tracking TLVs (802.1ASdm) */
+        { &hf_ptp_as_dt_tlv_sync_egress_timestamp_seconds,
+          { "syncEgressTimestamp (seconds)", "ptp.as.dt.syncEgressTimestamp.seconds",
+            FT_UINT48, BASE_DEC, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_ptp_as_dt_tlv_sync_egress_timestamp_fractional_nanoseconds,
+          { "syncEgressTimestamp (fractionalNanoseconds)", "ptp.as.dt.syncEgressTimestamp.scaledNanoseconds",
+            FT_DOUBLE, BASE_NONE, NULL, 0x00,
+            "Combined nanoseconds and fractional nanoseconds", HFILL }
+        },
+        { &hf_ptp_as_dt_tlv_sync_grandmaster_identity,
+          { "syncGrandmasterIdentity", "ptp.as.dt.syncGrandmasterIdentity",
+            FT_EUI64, BASE_NONE, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_ptp_as_dt_tlv_sync_steps_removed,
+          { "syncStepsRemoved", "ptp.as.dt.syncStepsRemoved",
+            FT_UINT16, BASE_DEC, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_ptp_as_dt_tlv_rate_ratio_drift,
+          { "rateRatioDrift", "ptp.as.dt.rateRatioDrift",
+            FT_INT32, BASE_DEC, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_ptp_as_dt_tlv_rate_ratio_drift_ppm,
+          { "rateRatioDrift (ppm)", "ptp.as.fu.rateRatioDrift.ppm",
+            FT_DOUBLE, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
 
