@@ -14,6 +14,8 @@
  * Copyright 2023, Adam Wujek <dev_public@wujek.eu> for CERN
  * Copyright 2024, Patrik Thunström <patrik.thunstroem@technica-engineering.de>
  * Copyright 2024, Dr. Lars Völker <lars.voelker@technica-engineering.de>
+ * Copyright 2024, Martin Ostertag <martin.ostertag@zhaw.ch>
+ *                 Aurel Hess <hesu@zhaw.ch>
  *
  * Revisions:
  * - Markus Seehofer 09.08.2005 <mseehofe@nt.hirschmann.de>
@@ -944,7 +946,7 @@ static int ett_ptp_time2;
         | PTP_V2_TLV_SIG_TLV_L1SYNC_FLAGS3_RESERVED_BITMASK)
 
 /* Subtypes for the OUI_IEEE_802_1 organization ID (802.1AS) */
-#define PTP_V2_OE_ORG_IEEE_802_1_SUBTYPE_FOLLOWUP_INFORMATION_TLV           1
+#define PTP_V2_OE_ORG_IEEE_802_1_SUBTYPE_FOLLOWUP_INFORMATION_TLV 1
 #define PTP_V2_OE_ORG_IEEE_802_1_SUBTYPE_MSG_INTERVAL_REQ_TLV   2
 #define PTP_V2_OE_ORG_IEEE_802_1_SUBTYPE_CSN_TLV                3
 #define PTP_V2_OE_ORG_IEEE_802_1_SUBTYPE_FOLLOWUP_DRIFT_TRACKING_TLV 6
@@ -3655,7 +3657,7 @@ disect_ptp_v2_tlvs(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_item *ti
 
                     int32_t rate_ratio_drift;
                     proto_tree_add_item_ret_int(ptp_tlv_tree, hf_ptp_as_dt_tlv_rate_ratio_drift, tvb, offset, 4, ENC_BIG_ENDIAN, &rate_ratio_drift);
-                    ti = proto_tree_add_double(ptp_tlv_tree, hf_ptp_as_dt_tlv_rate_ratio_drift_ppm, tvb, offset, 4, 1.0 + ((double)rate_ratio_drift / (UINT64_C(1) << 41)));
+                    ti = proto_tree_add_double(ptp_tlv_tree, hf_ptp_as_dt_tlv_rate_ratio_drift_ppm, tvb, offset, 4, ((double)rate_ratio_drift / (UINT64_C(1) << 41)) * 1e6);
                     proto_item_set_generated(ti);
                     offset += 4;
                   break;
@@ -6121,9 +6123,9 @@ proto_register_ptp(void)
             NULL, HFILL }
         },
         { &hf_ptp_as_dt_tlv_sync_egress_timestamp_fractional_nanoseconds,
-          { "syncEgressTimestamp (fractionalNanoseconds)", "ptp.as.dt.syncEgressTimestamp.scaledNanoseconds",
+          { "syncEgressTimestamp (nanoseconds)", "ptp.as.dt.syncEgressTimestamp.scaledNanoseconds",
             FT_DOUBLE, BASE_NONE, NULL, 0x00,
-            "Combined nanoseconds and fractional nanoseconds", HFILL }
+            "fractionalNanoseconds converted into nanoseconds (double)", HFILL }
         },
         { &hf_ptp_as_dt_tlv_sync_grandmaster_identity,
           { "syncGrandmasterIdentity", "ptp.as.dt.syncGrandmasterIdentity",
@@ -6141,7 +6143,7 @@ proto_register_ptp(void)
             NULL, HFILL }
         },
         { &hf_ptp_as_dt_tlv_rate_ratio_drift_ppm,
-          { "rateRatioDrift (ppm)", "ptp.as.fu.rateRatioDrift.ppm",
+          { "rateRatioDrift (ppm/s)", "ptp.as.fu.rateRatioDrift.ppm",
             FT_DOUBLE, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
