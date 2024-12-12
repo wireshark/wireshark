@@ -102,6 +102,7 @@ static const value_string p2p_attr_types[] = {
 #define P2P_GROUP_CAPAB_CROSS_CONNECTION 0x10
 #define P2P_GROUP_CAPAB_PERSISTENT_RECONNECT 0x20
 #define P2P_GROUP_CAPAB_GROUP_FORMATION 0x40
+#define P2P_GROUP_CAPAB_IP_ADDRESS_ALLOCATION 0x80
 
 #define WPS_CONF_METH_USBA 0x0001
 #define WPS_CONF_METH_ETHERNET 0x0002
@@ -1367,7 +1368,7 @@ proto_register_p2p(void)
     { &hf_p2p_attr_capab_group_ip_address_allocation,
       { "IP Address Allocation",
         "wifi_p2p.p2p_capability.group_capability.ip_address_allocation",
-        FT_UINT8, BASE_HEX, NULL, P2P_GROUP_CAPAB_GROUP_FORMATION, NULL, HFILL
+        FT_UINT8, BASE_HEX, NULL, P2P_GROUP_CAPAB_IP_ADDRESS_ALLOCATION, NULL, HFILL
       }},
 
     { &hf_p2p_attr_device_id,
