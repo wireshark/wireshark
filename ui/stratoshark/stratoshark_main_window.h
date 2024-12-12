@@ -243,6 +243,14 @@ signals:
 #endif
 
 public slots:
+    // Qt lets you connect signals and slots using functors (new, manual style)
+    // and strings (old style). Functors are preferred since they're connected at
+    // compile time and less error prone.
+    //
+    // If you're manually connecting a signal to a slot, don't prefix its name
+    // with "on_". Otherwise Qt will try to automatically connect it and you'll
+    // get runtime warnings.
+
     // in main_window_slots.cpp
     /**
      * Open a capture file.
@@ -282,8 +290,6 @@ public slots:
 private slots:
 
     void captureEventHandler(CaptureEvent ev);
-
-    // Manually connected slots (no "on_<object>_<signal>").
 
     void initViewColorizeMenu();
     void initConversationMenus();
@@ -363,19 +369,6 @@ private slots:
 #if defined(HAVE_SOFTWARE_UPDATE) && defined(Q_OS_WIN)
     void softwareUpdateRequested();
 #endif
-
-    // Automatically connected slots ("on_<object>_<signal>").
-    //
-    // The slots below follow the naming convention described in
-    // https://doc.qt.io/archives/qt-4.8/qmetaobject.html#connectSlotsByName
-    // and are automatically connected at initialization time via
-    // main_ui_->setupUi, which in turn calls connectSlotsByName.
-    //
-    // If you're manually connecting a signal to a slot, don't prefix its name
-    // with "on_". Otherwise you'll get runtime warnings.
-
-    // We might want move these to main_window_actions.cpp similar to
-    // gtk/main_menubar.c
 
     void connectFileMenuActions();
     void printFile();

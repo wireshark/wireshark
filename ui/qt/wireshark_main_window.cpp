@@ -642,8 +642,8 @@ main_ui_->goToLineEdit->setValidator(goToLineQiv);
     connect(packet_list_, &PacketList::packetDissectionChanged, this, &WiresharkMainWindow::redissectPackets);
     connect(packet_list_, &PacketList::showColumnPreferences, this, &WiresharkMainWindow::showPreferencesDialog);
     connect(packet_list_, &PacketList::showProtocolPreferences, this, &WiresharkMainWindow::showPreferencesDialog);
-    connect(packet_list_, SIGNAL(editProtocolPreference(pref_t*, module_t*)),
-            main_ui_->preferenceEditorFrame, SLOT(editPreference(pref_t*, module_t*)));
+    connect(packet_list_, SIGNAL(editProtocolPreference(pref_t*,module_t*)),
+            main_ui_->preferenceEditorFrame, SLOT(editPreference(pref_t*,module_t*)));
     connect(packet_list_, &PacketList::editColumn, this, &WiresharkMainWindow::showColumnEditor);
     connect(main_ui_->columnEditorFrame, &ColumnEditorFrame::columnEdited, packet_list_, &PacketList::columnsChanged);
     connect(packet_list_, &QAbstractItemView::doubleClicked, this, [=](const QModelIndex &){ openPacketDialog(); });
@@ -651,8 +651,8 @@ main_ui_->goToLineEdit->setValidator(goToLineQiv);
 
     connect(proto_tree_, &ProtoTree::openPacketInNewWindow, this, &WiresharkMainWindow::openPacketDialog);
     connect(proto_tree_, &ProtoTree::showProtocolPreferences, this, &WiresharkMainWindow::showPreferencesDialog);
-    connect(proto_tree_, SIGNAL(editProtocolPreference(pref_t*, module_t*)),
-            main_ui_->preferenceEditorFrame, SLOT(editPreference(pref_t*, module_t*)));
+    connect(proto_tree_, SIGNAL(editProtocolPreference(pref_t*,module_t*)),
+            main_ui_->preferenceEditorFrame, SLOT(editPreference(pref_t*,module_t*)));
 
     connect(main_ui_->statusBar, &MainStatusBar::showExpertInfo, this, [=]() {
         statCommandExpertInfo(NULL, NULL);

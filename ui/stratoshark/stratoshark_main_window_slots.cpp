@@ -2629,8 +2629,8 @@ void StratosharkMainWindow::openPacketDialog(bool from_reference)
 
         connect(packet_dialog, &PacketDialog::showProtocolPreferences,
                 this, &StratosharkMainWindow::showPreferencesDialog);
-        connect(packet_dialog, SIGNAL(editProtocolPreference(pref_t*, module_t*)),
-                main_ui_->preferenceEditorFrame, SLOT(editPreference(pref_t*, module_t*)));
+        connect(packet_dialog, SIGNAL(editProtocolPreference(pref_t*,module_t*)),
+                main_ui_->preferenceEditorFrame, SLOT(editPreference(pref_t*,module_t*)));
 
         connect(this, &StratosharkMainWindow::closePacketDialogs, packet_dialog, &PacketDialog::close);
         zoomText(); // Emits mainApp->zoomMonospaceFont(QFont)

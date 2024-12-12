@@ -715,8 +715,8 @@ int main(int argc, char *qt_argv[])
     GLibMainloopOnQEventLoop::setup(main_w);
     // We may not need a queued connection here but it would seem to make sense
     // to force the issue.
-    main_w->connect(&ss_app, SIGNAL(openCaptureFile(QString,QString,unsigned int)),
-            main_w, SLOT(openCaptureFile(QString,QString,unsigned int)));
+    main_w->connect(&ss_app, SIGNAL(openCaptureFile(QString,QString,uint)),
+            main_w, SLOT(openCaptureFile(QString,QString,uint)));
     main_w->connect(&ss_app, &StratosharkApplication::openCaptureOptions,
             main_w, &StratosharkMainWindow::showCaptureOptionsDialog);
 
