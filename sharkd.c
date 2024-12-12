@@ -623,7 +623,7 @@ sharkd_filter(const char *dftext, uint8_t **result)
         fdata->frame_ref_num = (framenum != 1) ? 1 : 0;
         fdata->prev_dis_num = prev_dis_num;
         epan_dissect_run(&edt, cfile.cd_t, &rec,
-                ws_buffer_start_ptr(&cfile.buf),
+                ws_buffer_start_ptr(&buf),
                 fdata, NULL);
 
         if (dfilter_apply_edt(dfcode, &edt)) {
