@@ -245,6 +245,7 @@ def make_env():
     def make_env_real(home=None):
         env = os.environ.copy()
         env['TZ'] = 'UTC'
+        env['WIRESHARK_ABORT_ON_DISSECTOR_BUG'] = '1'
         home_env = 'APPDATA' if sys.platform.startswith('win32') else 'HOME'
         if home:
             env[home_env] = home
