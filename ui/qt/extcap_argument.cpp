@@ -68,7 +68,7 @@ QWidget * ExtArgTimestamp::createEditor(QWidget * parent)
     if (_argument->tooltip != NULL)
         tsBox->setToolTip(QString().fromUtf8(_argument->tooltip));
 
-    connect(tsBox, SIGNAL(dateTimeChanged(QDateTime)), SLOT(onDateTimeChanged(QDateTime)));
+    connect(tsBox, &QDateTimeEdit::dateTimeChanged, this, &ExtArgTimestamp::onDateTimeChanged);
 
     return tsBox;
 }
@@ -157,10 +157,14 @@ QWidget * ExtArgSelector::createEditor(QWidget * parent)
         reloadButton->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Preferred);
         boxSelection->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Preferred);
 
-        connect(reloadButton, SIGNAL(clicked()), this, SLOT(onReloadTriggered()));
+        connect(reloadButton, &QPushButton::clicked, this, &ExtArgSelector::onReloadTriggered);
     }
 
-    connect (boxSelection, SIGNAL(currentIndexChanged(int)), SLOT(onIntChanged(int)));
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+    connect (boxSelection, &QComboBox::currentIndexChanged, this, &ExtArgSelector::onIntChanged);
+#else
+    connect (boxSelection, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &ExtArgSelector::onIntChanged);
+#endif
 
     editor->setLayout(layout);
 
@@ -343,7 +347,7 @@ QWidget * ExtArgRadio::createEditor(QWidget * parent)
             QString callString = (*iter).call();
             callStrings->append(callString);
 
-            connect(radio, SIGNAL(clicked(bool)), SLOT(onBoolChanged(bool)));
+            connect(radio, &QRadioButton::clicked, this, &ExtArgRadio::onBoolChanged);
             selectorGroup->addButton(radio, count);
 
             vrLayout->addWidget(radio);
@@ -460,7 +464,11 @@ QWidget * ExtArgBool::createEditor(QWidget * parent)
 
     boolBox->setCheckState(state ? Qt::Checked : Qt::Unchecked);
 
-    connect (boolBox, SIGNAL(stateChanged(int)), SLOT(onIntChanged(int)));
+#if QT_VERSION >= QT_VERSION_CHECK(6, 7, 0)
+    connect (boolBox, &QCheckBox::checkStateChanged, this, &ExtArgBool::onIntChanged);
+#else
+    connect (boolBox, &QCheckBox::stateChanged, this, &ExtArgBool::onIntChanged);
+#endif
 
     return boolBox;
 }
@@ -554,7 +562,7 @@ QWidget * ExtArgText::createEditor(QWidget * parent)
     if (_argument->arg_type == EXTCAP_ARG_PASSWORD)
         textBox->setEchoMode(QLineEdit::PasswordEchoOnEdit);
 
-    connect(textBox , SIGNAL(textChanged(QString)), SLOT(onStringChanged(QString)));
+    connect(textBox, &QLineEdit::textChanged, this, &ExtArgText::onStringChanged);
 
     return textBox;
 }
@@ -712,7 +720,7 @@ QWidget * ExtArgNumber::createEditor(QWidget * parent)
 
     textBox->setText(text.trimmed());
 
-    connect(textBox, SIGNAL(textChanged(QString)), SLOT(onStringChanged(QString)));
+    connect(textBox, &QLineEdit::textChanged, this, &ExtArgNumber::onStringChanged);
 
     return textBox;
 }

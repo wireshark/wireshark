@@ -40,14 +40,10 @@ protected:
     void checkItemsWalker(QStandardItem * item, QStringList defaults);
     virtual QWidget * createEditor(QWidget * parent);
 
-private Q_SLOTS:
-
-    void itemChanged(QStandardItem *);
-
 private:
 
     QTreeView * treeView;
-    QAbstractItemModel * viewModel;
+    QStandardItemModel * viewModel;
 
 };
 

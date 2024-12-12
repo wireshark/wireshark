@@ -103,6 +103,9 @@ public:
 
 public Q_SLOTS:
     virtual void setDefaultValue();
+    void onBoolChanged(bool);
+    void onIntChanged(int);
+    void onStringChanged(QString);
 
 Q_SIGNALS:
     void valueChanged();
@@ -121,13 +124,6 @@ protected:
     int _number;
 
     const QString label_style;
-
-private Q_SLOTS:
-
-    void onStringChanged(QString);
-    void onIntChanged(int);
-    void onBoolChanged(bool);
-
 };
 
 

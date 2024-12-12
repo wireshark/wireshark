@@ -12,8 +12,6 @@
 
 #include <wsutil/utf8_entities.h>
 
-#include <QObject>
-#include <QWidget>
 #include <QLabel>
 #include <QLineEdit>
 #include <QBoxLayout>
@@ -73,7 +71,6 @@ QList<QStandardItem *> ExtArgMultiSelect::valueWalker(ExtcapValueList list, QStr
 
 void ExtArgMultiSelect::checkItemsWalker(QStandardItem * item, QStringList defaults)
 {
-    QModelIndexList results;
     QModelIndex index;
 
     if (item->hasChildren())
@@ -122,7 +119,7 @@ QWidget * ExtArgMultiSelect::createEditor(QWidget * parent)
     QList<QStandardItem *>::const_iterator iter = items.constBegin();
     while (iter != items.constEnd())
     {
-        ((QStandardItemModel *)viewModel)->appendRow((*iter));
+        viewModel->appendRow((*iter));
         ++iter;
     }
 
@@ -138,9 +135,7 @@ QWidget * ExtArgMultiSelect::createEditor(QWidget * parent)
     for (int row = 0; row < viewModel->rowCount(); row++)
         checkItemsWalker(((QStandardItemModel*)viewModel)->item(row), checked);
 
-    connect (viewModel,
-            SIGNAL(itemChanged(QStandardItem *)),
-            SLOT(itemChanged(QStandardItem *)));
+    connect(viewModel, &QStandardItemModel::itemChanged, this, &ExtArgMultiSelect::valueChanged);
 
     return treeView;
 }
@@ -166,11 +161,6 @@ QString ExtArgMultiSelect::value()
     }
 
     return result.join(QString(','));
-}
-
-void ExtArgMultiSelect::itemChanged(QStandardItem *)
-{
-    emit valueChanged();
 }
 
 bool ExtArgMultiSelect::isValid()

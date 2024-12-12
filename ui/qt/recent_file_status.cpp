@@ -9,6 +9,8 @@
 
 #include "recent_file_status.h"
 
+#include <ui/qt/main_application.h>
+
 RecentFileStatus::RecentFileStatus(const QString filename, QObject *parent) :
     QObject(parent),
     // Force a deep copy.
@@ -20,8 +22,8 @@ RecentFileStatus::RecentFileStatus(const QString filename, QObject *parent) :
     setAutoDelete(false);
     // Qt::QueuedConnection creates a copy of our argument list. This
     // squelches what appears to be a ThreadSanitizer false positive.
-    connect(this, SIGNAL(statusFound(QString, qint64, bool)),
-            parent, SLOT(itemStatusFinished(QString, qint64, bool)), Qt::QueuedConnection);
+    connect(this, &RecentFileStatus::statusFound, qobject_cast<MainApplication *>(parent),
+            &MainApplication::itemStatusFinished, Qt::QueuedConnection);
 }
 
 void RecentFileStatus::run() {

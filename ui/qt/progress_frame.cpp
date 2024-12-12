@@ -215,10 +215,11 @@ void ProgressFrame::addToButtonBox(QDialogButtonBox *button_box, QObject *main_w
 void ProgressFrame::captureFileClosing()
 {
     // Hide any paired ProgressFrames and disconnect from them.
+    // Old-style connect
     emit setHidden();
-    disconnect(SIGNAL(showRequested(bool,bool,bool*)));
-    disconnect(SIGNAL(maximumValueChanged(int)));
-    disconnect(SIGNAL(valueChanged(int)));
+    disconnect(this, &ProgressFrame::showRequested, nullptr, nullptr);
+    disconnect(this, &ProgressFrame::maximumValueChanged, nullptr, nullptr);
+    disconnect(this, &ProgressFrame::valueChanged, nullptr, nullptr);
 
     connect(this, &ProgressFrame::showRequested, this, &ProgressFrame::show);
 }
