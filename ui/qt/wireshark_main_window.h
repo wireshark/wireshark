@@ -251,9 +251,6 @@ signals:
     void packetInfoChanged(struct _packet_info *pinfo);
     void fieldFilterChanged(const QByteArray field_filter);
 
-    void fieldHighlight(FieldInformation *);
-
-    void captureActive(int);
     void selectRtpStream(rtpstream_id_t *id);
     void deselectRtpStream(rtpstream_id_t *id);
 

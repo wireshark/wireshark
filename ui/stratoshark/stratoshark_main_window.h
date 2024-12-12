@@ -238,10 +238,6 @@ signals:
     void packetInfoChanged(struct _packet_info *pinfo);
     void fieldFilterChanged(const QByteArray field_filter);
 
-    void fieldHighlight(FieldInformation *);
-
-    void captureActive(int);
-
 #ifdef HAVE_LIBPCAP
     void showExtcapOptions(QString &device_name, bool startCaptureOnClose);
 #endif

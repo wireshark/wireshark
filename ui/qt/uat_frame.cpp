@@ -109,11 +109,9 @@ void UatFrame::setUat(epan_uat *uat)
         resizeColumns();
         ui->clearToolButton->setEnabled(uat_model_->rowCount() != 0);
 
-        connect(uat_model_, SIGNAL(dataChanged(QModelIndex,QModelIndex)),
-                this, SLOT(modelDataChanged(QModelIndex)));
-        connect(uat_model_, SIGNAL(rowsRemoved(QModelIndex, int, int)),
-                this, SLOT(modelRowsRemoved()));
-        connect(uat_model_, SIGNAL(modelReset()), this, SLOT(modelRowsReset()));
+        connect(uat_model_, &UatModel::dataChanged, this, &UatFrame::modelDataChanged);
+        connect(uat_model_, &UatModel::rowsRemoved,this, &UatFrame::modelRowsRemoved);
+        connect(uat_model_, &UatModel::modelReset, this, &UatFrame::modelRowsReset);
 
         connect(ui->uatTreeView->selectionModel(), &QItemSelectionModel::selectionChanged,
                 this, &UatFrame::uatTreeViewSelectionChanged);

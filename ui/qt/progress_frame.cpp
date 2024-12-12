@@ -145,8 +145,7 @@ ProgressFrame::ProgressFrame(QWidget *parent) :
 
     effect_ = new QGraphicsOpacityEffect(this);
     animation_ = new QPropertyAnimation(effect_, "opacity", this);
-    connect(this, SIGNAL(showRequested(bool,bool,bool*)),
-            this, SLOT(show(bool,bool,bool*)));
+    connect(this, &ProgressFrame::showRequested, this, &ProgressFrame::show);
     hide();
 }
 
@@ -205,17 +204,12 @@ void ProgressFrame::addToButtonBox(QDialogButtonBox *button_box, QObject *main_w
 
     int one_em = progress_frame->fontMetrics().height();
     progress_frame->setMaximumWidth(one_em * 8);
-    connect(main_progress_frame, SIGNAL(showRequested(bool,bool,bool*)),
-            progress_frame, SLOT(show(bool,bool,bool*)));
-    connect(main_progress_frame, SIGNAL(maximumValueChanged(int)),
-            progress_frame, SLOT(setMaximumValue(int)));
-    connect(main_progress_frame, SIGNAL(valueChanged(int)),
-            progress_frame, SLOT(setValue(int)));
-    connect(main_progress_frame, SIGNAL(setHidden()),
-            progress_frame, SLOT(hide()));
+    connect(main_progress_frame, &ProgressFrame::showRequested, progress_frame, &ProgressFrame::show);
+    connect(main_progress_frame, &ProgressFrame::maximumValueChanged, progress_frame, &ProgressFrame::setMaximumValue);
+    connect(main_progress_frame, &ProgressFrame::valueChanged, progress_frame, &ProgressFrame::setValue);
+    connect(main_progress_frame, &ProgressFrame::setHidden, progress_frame, &ProgressFrame::hide);
 
-    connect(progress_frame, SIGNAL(stopLoading()),
-            main_progress_frame, SIGNAL(stopLoading()));
+    connect(progress_frame, &ProgressFrame::stopLoading, main_progress_frame, &ProgressFrame::stopLoading);
 }
 
 void ProgressFrame::captureFileClosing()
@@ -226,8 +220,7 @@ void ProgressFrame::captureFileClosing()
     disconnect(SIGNAL(maximumValueChanged(int)));
     disconnect(SIGNAL(valueChanged(int)));
 
-    connect(this, SIGNAL(showRequested(bool,bool,bool*)),
-            this, SLOT(show(bool,bool,bool*)));
+    connect(this, &ProgressFrame::showRequested, this, &ProgressFrame::show);
 }
 
 void ProgressFrame::setValue(int value)
@@ -263,7 +256,7 @@ void ProgressFrame::hide()
     QFrame::hide();
 #ifdef QWINTASKBARPROGRESS_H
     if (taskbar_progress_) {
-        disconnect(this, SIGNAL(valueChanged(int)), taskbar_progress_, SLOT(setValue(int)));
+        disconnect(this, &ProgressFrame::valueChanged(int)), taskbar_progress_, &QWinTaskbarProgress::setValue);
         taskbar_progress_->reset();
         taskbar_progress_->hide();
     }
@@ -307,7 +300,7 @@ void ProgressFrame::show(bool animate, bool terminate_is_stop, bool *stop_flag)
     if (taskbar_progress_) {
         taskbar_progress_->show();
         taskbar_progress_->reset();
-        connect(this, SIGNAL(valueChanged(int)), taskbar_progress_, SLOT(setValue(int)));
+        connect(this, &ProgressFrame::valueChanged, taskbar_progress_, &QWinTaskbarProgress::setValue);
     }
 #endif
 }

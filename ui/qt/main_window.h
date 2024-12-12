@@ -120,7 +120,9 @@ private slots:
 
 signals:
     void setCaptureFile(capture_file *cf);
+    void captureActive(int);
     void fieldSelected(FieldInformation *);
+    void fieldHighlight(FieldInformation *);
     void framesSelected(QList<int>);
     void filterAction(QString filter, FilterAction::Action action, FilterAction::ActionType type);
     void displayFilterSuccess(bool success);

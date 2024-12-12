@@ -15,8 +15,6 @@
 #include <QTabBar>
 
 #include "cfile.h"
-#include "epan/epan_dissect.h"
-#include "epan/tvbuff-int.h"
 
 #include <main_application.h>
 
@@ -46,7 +44,7 @@ ByteViewTab::ByteViewTab(QWidget *parent, epan_dissect_t *edt_fixed) :
     setMinimumSize(one_em, one_em);
 
     if (!edt_fixed) {
-        connect(mainApp, SIGNAL(appInitialized()), this, SLOT(connectToMainWindow()));
+        connect(mainApp, &MainApplication::appInitialized, this, &ByteViewTab::connectToMainWindow);
     }
 }
 
@@ -55,17 +53,15 @@ ByteViewTab::ByteViewTab(QWidget *parent, epan_dissect_t *edt_fixed) :
 // independent of the selection in the packet list.
 void ByteViewTab::connectToMainWindow()
 {
-    connect(this, SIGNAL(fieldSelected(FieldInformation *)),
-            mainApp->mainWindow(), SIGNAL(fieldSelected(FieldInformation *)));
-    connect(this, SIGNAL(fieldHighlight(FieldInformation *)),
-            mainApp->mainWindow(), SIGNAL(fieldHighlight(FieldInformation *)));
+    connect(this, &ByteViewTab::fieldSelected, mainApp->mainWindow(), &MainWindow::fieldSelected);
+    connect(this, &ByteViewTab::fieldHighlight, mainApp->mainWindow(), &MainWindow::fieldHighlight);
 
     /* Connect change of packet selection */
-    connect(mainApp->mainWindow(), SIGNAL(framesSelected(QList<int>)), this, SLOT(selectedFrameChanged(QList<int>)));
-    connect(mainApp->mainWindow(), SIGNAL(setCaptureFile(capture_file*)), this, SLOT(setCaptureFile(capture_file*)));
-    connect(mainApp->mainWindow(), SIGNAL(fieldSelected(FieldInformation *)), this, SLOT(selectedFieldChanged(FieldInformation *)));
+    connect(mainApp->mainWindow(), &MainWindow::framesSelected, this, &ByteViewTab::ByteViewTab::selectedFrameChanged);
+    connect(mainApp->mainWindow(), &MainWindow::setCaptureFile, this, &ByteViewTab::setCaptureFile);
+    connect(mainApp->mainWindow(), &MainWindow::fieldSelected, this, &ByteViewTab::selectedFieldChanged);
 
-    connect(mainApp->mainWindow(), SIGNAL(captureActive(int)), this, SLOT(captureActive(int)));
+    connect(mainApp->mainWindow(), &MainWindow::captureActive, this, &ByteViewTab::captureActive);
 }
 
 void ByteViewTab::captureActive(int cap)
@@ -137,13 +133,13 @@ void ByteViewTab::addTab(const char *name, tvbuff_t *tvb) {
         // would be a pain to change the pointers for every field_info.
         byte_view_text->setProperty(tvb_data_property, VariantPointer<tvbuff_t>::asQVariant(tvb));
 
-        connect(mainApp, SIGNAL(zoomMonospaceFont(QFont)), byte_view_text, SLOT(setMonospaceFont(QFont)));
+        connect(mainApp, &MainApplication::zoomMonospaceFont, byte_view_text, &ByteViewText::setMonospaceFont);
 
-        connect(byte_view_text, SIGNAL(byteHovered(int)), this, SLOT(byteViewTextHovered(int)));
-        connect(byte_view_text, SIGNAL(byteSelected(int)), this, SLOT(byteViewTextMarked(int)));
-        connect(byte_view_text, SIGNAL(byteViewSettingsChanged()), this, SIGNAL(byteViewSettingsChanged()));
-        connect(this, SIGNAL(byteViewSettingsChanged()), byte_view_text, SLOT(updateByteViewSettings()));
-        connect(this, SIGNAL(byteViewUnmarkField()), byte_view_text, SLOT(unmarkField()));
+        connect(byte_view_text, &ByteViewText::byteHovered, this, &ByteViewTab::byteViewTextHovered);
+        connect(byte_view_text, &ByteViewText::byteSelected, this, &ByteViewTab::byteViewTextMarked);
+        connect(byte_view_text, &ByteViewText::byteViewSettingsChanged, this, &ByteViewTab::byteViewSettingsChanged);
+        connect(this, &ByteViewTab::byteViewSettingsChanged, byte_view_text, &ByteViewText::updateByteViewSettings);
+        connect(this, &ByteViewTab::byteViewUnmarkField, byte_view_text, &ByteViewText::unmarkField);
     }
 
     int idx = QTabWidget::addTab(byte_view_text, name);

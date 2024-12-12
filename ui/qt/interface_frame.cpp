@@ -117,13 +117,13 @@ InterfaceFrame::InterfaceFrame(QWidget * parent)
     ui->interfaceTree->setItemDelegateForColumn(proxy_model_.mapSourceToColumn(IFTREE_COL_STATS), new SparkLineDelegate(this));
 
     ui->interfaceTree->setContextMenuPolicy(Qt::CustomContextMenu);
-    connect(ui->interfaceTree, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(showContextMenu(QPoint)));
+    connect(ui->interfaceTree, &QTreeView::customContextMenuRequested, this, &InterfaceFrame::showContextMenu);
 
-    connect(mainApp, SIGNAL(appInitialized()), this, SLOT(interfaceListChanged()));
-    connect(mainApp, SIGNAL(localInterfaceListChanged()), this, SLOT(interfaceListChanged()));
+    connect(mainApp, &MainApplication::appInitialized, this, &InterfaceFrame::interfaceListChanged);
+    connect(mainApp, &MainApplication::localInterfaceListChanged, this, &InterfaceFrame::interfaceListChanged);
 
-    connect(ui->interfaceTree->selectionModel(), SIGNAL(selectionChanged(const QItemSelection &, const QItemSelection &)),
-            this, SLOT(interfaceTreeSelectionChanged(const QItemSelection &, const QItemSelection &)));
+    connect(ui->interfaceTree->selectionModel(), &QItemSelectionModel::selectionChanged,
+            this, &InterfaceFrame::interfaceTreeSelectionChanged);
 }
 
 InterfaceFrame::~InterfaceFrame()
@@ -147,7 +147,7 @@ QMenu * InterfaceFrame::getSelectionMenu()
             endp_action->setData(QVariant::fromValue(ifType));
             endp_action->setCheckable(true);
             endp_action->setChecked(proxy_model_.isInterfaceTypeShown(ifType));
-            connect(endp_action, SIGNAL(triggered()), this, SLOT(triggeredIfTypeButton()));
+            connect(endp_action, &QAction::triggered, this, &InterfaceFrame::triggeredIfTypeButton);
             contextMenu->addAction(endp_action);
         }
         ++it;
@@ -159,7 +159,7 @@ QMenu * InterfaceFrame::getSelectionMenu()
         QAction * toggleRemoteAction = new QAction(tr("Remote interfaces"), this);
         toggleRemoteAction->setCheckable(true);
         toggleRemoteAction->setChecked(proxy_model_.remoteDisplay());
-        connect(toggleRemoteAction, SIGNAL(triggered()), this, SLOT(toggleRemoteInterfaces()));
+        connect(toggleRemoteAction, &QAction::triggered, this, &InterfaceFrame::toggleRemoteInterfaces);
         contextMenu->addAction(toggleRemoteAction);
     }
 #endif
@@ -168,7 +168,7 @@ QMenu * InterfaceFrame::getSelectionMenu()
     QAction * toggleHideAction = new QAction(tr("Show hidden interfaces"), this);
     toggleHideAction->setCheckable(true);
     toggleHideAction->setChecked(! proxy_model_.filterHidden());
-    connect(toggleHideAction, SIGNAL(triggered()), this, SLOT(toggleHiddenInterfaces()));
+    connect(toggleHideAction, &QAction::triggered, this, &InterfaceFrame::toggleHiddenInterfaces);
     contextMenu->addAction(toggleHideAction);
 
     return contextMenu;
@@ -273,7 +273,7 @@ void InterfaceFrame::interfaceListChanged()
     if (!stat_timer_) {
         updateStatistics();
         stat_timer_ = new QTimer(this);
-        connect(stat_timer_, SIGNAL(timeout()), this, SLOT(updateStatistics()));
+        connect(stat_timer_, &QTimer::timeout, this, &InterfaceFrame::updateStatistics);
         stat_timer_->start(stat_update_interval_);
     }
 #endif
