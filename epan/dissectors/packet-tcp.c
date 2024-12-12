@@ -4530,6 +4530,35 @@ again:
             }
 
             if(tcpd->ta && first_pdu) {
+                if(tcpd->ta->flags&TCP_A_KEEP_ALIVE) {
+                    /* RFC 9293 3.8.4. TCP Keep-Alives
+                     * Keep-alive packets MUST only be sent when no sent data
+                     * is outstanding (no new or unacknowledged data.)
+                     * A multisegment PDU boundary can never span a keep-alive
+                     * (unlike a Zero Window Probe or retransmission); if
+                     * a MSP started at the same sequence number as this, then
+                     * most likely the first packet of the TCP stream seen was
+                     * also a keep-alive, couldn't be identified as one, and
+                     * was passed to the next dissector which treated it as
+                     * starting a MSP. (#20287)
+                     *
+                     * This unfortunately doesn't help if this is somehow
+                     * a one-octet retransmission instead of a keep-alive.
+                     */
+                    nbytes = tvb_reported_length_remaining(tvb, offset);
+                    /* This MUST be only 1 (we don't get here for zero). */
+                    proto_tree_add_bytes_format(tcp_tree, hf_tcp_segment_data, tvb,
+                        offset, nbytes, NULL,
+                        "TCP keep-alive garbage octet%s",
+                        plurality(nbytes, "", "s"));
+                    if (has_unfinished_msp && msp->seq == seq) {
+                        /* MSPs cannot span this (probably not an MSP at
+                         * all but another garbage octet) */
+                        msp->nxtpdu = nxtseq;
+                    }
+                    goto clean_exit;
+                }
+
                 if((tcpd->ta->flags&TCP_A_OLD_DATA) == TCP_A_OLD_DATA) {
                     nbytes = tcpd->ta->new_data_seq - seq;
 
@@ -4580,6 +4609,18 @@ again:
                     !(msp->flags & MSP_FLAGS_MISSING_FIRST_SEGMENT) && msp->last_frame != pinfo->num) {
                 const char* str;
                 bool is_retransmission = false;
+
+                if(tcpd->ta && tcpd->ta->flags&TCP_A_KEEP_ALIVE) {
+                    /* Same logic as in the OOO processing case. */
+                    nbytes = tvb_reported_length_remaining(tvb, offset);
+                    /* This MUST be only 1 (we don't get here for zero). */
+                    proto_tree_add_bytes_format(tcp_tree, hf_tcp_segment_data, tvb,
+                        offset, nbytes, NULL,
+                        "TCP keep-alive garbage octet%s",
+                        plurality(nbytes, "", "s"));
+                    msp->nxtpdu = nxtseq;
+                    goto clean_exit;
+                }
 
                 /* Yes.  This could be because we've dissected this frame before
                  * or because this is a retransmission of a previously-seen
