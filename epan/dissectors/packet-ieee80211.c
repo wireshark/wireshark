@@ -21356,8 +21356,8 @@ dissect_vendor_ie_sgdsn(proto_item *item _U_, proto_tree *ietree,
       case SGDSN_ALTITUDE_ABS:
       case SGDSN_ALTITUDE_REL:
         if (tlv_len == 2) {
-          uint32_t value;
-          proto_tree_add_item_ret_uint(tree, hf_ieee80211_vs_sgdsn_altitude, tvb, offset, 2, ENC_NA, &value);
+          int32_t value;
+          proto_tree_add_item_ret_int(tree, hf_ieee80211_vs_sgdsn_altitude, tvb, offset, 2, ENC_NA, &value);
           proto_item_append_text(tree, ": %d m", value);
         } else {
           expert_add_info_format(pinfo, tree, &ei_ieee80211_tag_length, "Value length must be 4");
@@ -54164,7 +54164,7 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_vs_sgdsn_altitude,
      {"Altitude", "wlan.vs.sgdsn.tag.altitude",
-      FT_UINT16, BASE_DEC, NULL, 0,
+      FT_INT16, BASE_DEC, NULL, 0,
       NULL, HFILL }},
 
     {&hf_ieee80211_vs_sgdsn_speed,
