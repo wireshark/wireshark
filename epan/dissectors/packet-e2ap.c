@@ -5113,8 +5113,8 @@ static const per_sequence_t E2nodeConfigurationUpdate_sequence[] = {
 
 static int
 dissect_e2ap_E2nodeConfigurationUpdate(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  set_message_label(actx, MTYPE_E2_CONFIGURATION_UPDATE_FAIL);
-  set_stats_message_type(actx->pinfo, MTYPE_E2_CONFIGURATION_UPDATE_FAIL);
+  set_message_label(actx, MTYPE_E2_CONFIGURATION_UPDATE);
+  set_stats_message_type(actx->pinfo, MTYPE_E2_CONFIGURATION_UPDATE);
 
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,

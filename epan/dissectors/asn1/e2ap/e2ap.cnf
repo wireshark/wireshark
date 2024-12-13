@@ -849,8 +849,8 @@ RICQueryResponse                         N e2ap.proc.sout id-RICquery
 
 
 #.FN_HDR E2nodeConfigurationUpdate
-  set_message_label(actx, MTYPE_E2_CONFIGURATION_UPDATE_FAIL);
-  set_stats_message_type(actx->pinfo, MTYPE_E2_CONFIGURATION_UPDATE_FAIL);
+  set_message_label(actx, MTYPE_E2_CONFIGURATION_UPDATE);
+  set_stats_message_type(actx->pinfo, MTYPE_E2_CONFIGURATION_UPDATE);
 
 
 #.FN_HDR E2nodeConfigurationUpdateAcknowledge
