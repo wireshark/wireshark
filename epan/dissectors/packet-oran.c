@@ -1699,8 +1699,13 @@ static float decompress_value(uint32_t bits, uint32_t comp_method, uint8_t iq_wi
                 cPRB -= (1<<iq_width);
             }
 
-            const uint8_t mantissa_bits = iq_width-1;
-            return (cPRB / (float)(1 << (mantissa_bits))) * scaler;
+            /* Unscale */
+            cPRB *= scaler;
+            uint32_t mantissa_scale_factor = (1 << (iq_width-1)) - 1;
+            uint32_t exp_scale_factor = 1 << (iq_width+4);
+
+            float ret = cPRB / ((float)(mantissa_scale_factor*exp_scale_factor));
+            return ret;
         }
 
         case COMP_BLOCK_SCALE:
