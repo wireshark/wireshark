@@ -144,6 +144,8 @@ AUTHDATA-TYPE ::= INTEGER {
 	aD-authentication-strength(70),	-- [RFC6113]
 	aD-fx-fast-armor(71),		-- [RFC6113]
 	aD-fx-fast-used(72),			-- [RFC6113]
+	aD-CAMMAC(96),  			-- [RFC7751]
+	aD-AUTHENTICATION-INDICATOR(97),        -- [RFC8129]
 	aD-WIN2K-PAC(128), 			-- [RFC4120] [MS-PAC]
 	aD-GSS-API-ETYPE-NEGOTIATION(129), -- Authenticator only
 	aD-TOKEN-RESTRICTIONS(141),		-- [MS-KILE]
@@ -952,6 +954,46 @@ KRB5-PFS-ACCEPT ::= SEQUENCE {
 
 KRB5-PFS-ERROR ::= SEQUENCE {
 	groups		[0] SEQUENCE OF KRB5-PFS-GROUP
+}
+
+AD-AUTHENTICATION-INDICATOR ::= SEQUENCE OF UTF8String -- RFC8129
+
+END
+
+-- RFC7751
+-- Kerberos Authorization Data Container Authenticated by Multiple
+--               Message Authentication Codes (MACs)
+
+KerberosV5CAMMAC {
+        iso(1) identified-organization(3) dod(6) internet(1)
+        security(5) kerberosV5(2) modules(4) cammac(7)
+} DEFINITIONS EXPLICIT TAGS ::= BEGIN
+
+IMPORTS
+      AuthorizationData, PrincipalName, Checksum, UInt32, Int32
+        FROM KerberosV5Spec2 { iso(1) identified-organization(3)
+          dod(6) internet(1) security(5) kerberosV5(2)
+          modules(4) krb5spec2(2) };
+          -- as defined in RFC 4120.
+
+AD-CAMMAC                   ::= SEQUENCE {
+      elements              [0] AuthorizationData,
+      kdc-verifier          [1] Verifier-MAC OPTIONAL,
+      svc-verifier          [2] Verifier-MAC OPTIONAL,
+      other-verifiers       [3] SEQUENCE (SIZE (1..MAX))
+                                OF Verifier OPTIONAL
+}
+
+Verifier             ::= CHOICE {
+      mac            Verifier-MAC,
+      ...
+}
+
+Verifier-MAC         ::= SEQUENCE {
+      identifier     [0] PrincipalName OPTIONAL,
+      kvno           [1] UInt32 OPTIONAL,
+      enctype        [2] Int32 OPTIONAL,
+      mac            [3] Checksum
 }
 
 END

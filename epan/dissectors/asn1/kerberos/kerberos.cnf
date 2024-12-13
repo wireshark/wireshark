@@ -550,6 +550,12 @@ EncryptionKey/keytype STRINGS = VALS(kerberos_ENCTYPE_vals)
   kerberos_private_data_t *private_data = kerberos_get_private_data(actx);
 
   switch(private_data->ad_type){
+  case KERBEROS_AD_CAMMAC:
+    offset=dissect_ber_octet_string_wcb(implicit_tag, actx, tree, tvb, offset, hf_index, dissect_kerberos_AD_CAMMAC);
+    break;
+  case KERBEROS_AD_AUTHENTICATION_INDICATOR:
+    offset=dissect_ber_octet_string_wcb(implicit_tag, actx, tree, tvb, offset, hf_index, dissect_kerberos_AD_AUTHENTICATION_INDICATOR);
+    break;
   case KERBEROS_AD_WIN2K_PAC:
     offset=dissect_ber_octet_string_wcb(implicit_tag, actx, tree, tvb, offset, hf_index, dissect_krb5_AD_WIN2K_PAC);
     break;

@@ -218,6 +218,8 @@ static int dissect_kerberos_KRB5_SRP_PA_INIT(bool implicit_tag _U_, tvbuff_t *tv
 static int dissect_kerberos_KRB5_SRP_PA_SERVER_CHALLENGE(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 static int dissect_kerberos_KRB5_SRP_PA_CLIENT_RESPONSE(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 static int dissect_kerberos_KRB5_SRP_PA_SERVER_VERIFIER(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
+static int dissect_kerberos_AD_CAMMAC(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
+static int dissect_kerberos_AD_AUTHENTICATION_INDICATOR(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 
 /* Desegment Kerberos over TCP messages */
 static bool krb_desegment = true;
@@ -501,6 +503,16 @@ static int hf_kerberos_groups_item;               /* KRB5_SRP_PA */
 static int hf_kerberos_as_req_01;                 /* Checksum */
 static int hf_kerberos_group;                     /* UInt32 */
 static int hf_kerberos_a;                         /* OCTET_STRING */
+static int hf_kerberos_AD_AUTHENTICATION_INDICATOR_item;  /* UTF8String */
+static int hf_kerberos_elements;                  /* AuthorizationData */
+static int hf_kerberos_kdc_verifier;              /* Verifier_MAC */
+static int hf_kerberos_svc_verifier;              /* Verifier_MAC */
+static int hf_kerberos_other_verifiers;           /* SEQUENCE_SIZE_1_MAX_OF_Verifier */
+static int hf_kerberos_other_verifiers_item;      /* Verifier */
+static int hf_kerberos_mac;                       /* Verifier_MAC */
+static int hf_kerberos_identifier;                /* PrincipalName */
+static int hf_kerberos_enctype;                   /* Int32 */
+static int hf_kerberos_mac_01;                    /* Checksum */
 static int hf_kerberos_newpasswd;                 /* OCTET_STRING */
 static int hf_kerberos_targname;                  /* PrincipalName */
 static int hf_kerberos_targrealm;                 /* Realm */
@@ -691,6 +703,11 @@ static int ett_kerberos_KRB5_SRP_PA;
 static int ett_kerberos_KRB5_SRP_PA_ANNOUNCE;
 static int ett_kerberos_SET_OF_KRB5_SRP_PA;
 static int ett_kerberos_KRB5_SRP_PA_INIT_U;
+static int ett_kerberos_AD_AUTHENTICATION_INDICATOR;
+static int ett_kerberos_AD_CAMMAC;
+static int ett_kerberos_SEQUENCE_SIZE_1_MAX_OF_Verifier;
+static int ett_kerberos_Verifier;
+static int ett_kerberos_Verifier_MAC;
 static int ett_kerberos_ChangePasswdData;
 static int ett_kerberos_PA_AUTHENTICATION_SET_ELEM;
 static int ett_kerberos_KrbFastArmor;
@@ -741,6 +758,8 @@ typedef enum _KERBEROS_AUTHDATA_TYPE_enum {
   KERBEROS_AD_AUTHENTICATION_STRENGTH =  70,
   KERBEROS_AD_FX_FAST_ARMOR =  71,
   KERBEROS_AD_FX_FAST_USED =  72,
+  KERBEROS_AD_CAMMAC =  96,
+  KERBEROS_AD_AUTHENTICATION_INDICATOR =  97,
   KERBEROS_AD_WIN2K_PAC = 128,
   KERBEROS_AD_GSS_API_ETYPE_NEGOTIATION = 129,
   KERBEROS_AD_TOKEN_RESTRICTIONS = 141,
@@ -5918,6 +5937,8 @@ static const value_string kerberos_AUTHDATA_TYPE_vals[] = {
   { KERBEROS_AD_AUTHENTICATION_STRENGTH, "aD-authentication-strength" },
   { KERBEROS_AD_FX_FAST_ARMOR, "aD-fx-fast-armor" },
   { KERBEROS_AD_FX_FAST_USED, "aD-fx-fast-used" },
+  { KERBEROS_AD_CAMMAC, "aD-CAMMAC" },
+  { KERBEROS_AD_AUTHENTICATION_INDICATOR, "aD-AUTHENTICATION-INDICATOR" },
   { KERBEROS_AD_WIN2K_PAC, "aD-WIN2K-PAC" },
   { KERBEROS_AD_GSS_API_ETYPE_NEGOTIATION, "aD-GSS-API-ETYPE-NEGOTIATION" },
   { KERBEROS_AD_TOKEN_RESTRICTIONS, "aD-TOKEN-RESTRICTIONS" },
@@ -5949,6 +5970,12 @@ dissect_kerberos_T_ad_data(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
   kerberos_private_data_t *private_data = kerberos_get_private_data(actx);
 
   switch(private_data->ad_type){
+  case KERBEROS_AD_CAMMAC:
+    offset=dissect_ber_octet_string_wcb(implicit_tag, actx, tree, tvb, offset, hf_index, dissect_kerberos_AD_CAMMAC);
+    break;
+  case KERBEROS_AD_AUTHENTICATION_INDICATOR:
+    offset=dissect_ber_octet_string_wcb(implicit_tag, actx, tree, tvb, offset, hf_index, dissect_kerberos_AD_AUTHENTICATION_INDICATOR);
+    break;
   case KERBEROS_AD_WIN2K_PAC:
     offset=dissect_ber_octet_string_wcb(implicit_tag, actx, tree, tvb, offset, hf_index, dissect_krb5_AD_WIN2K_PAC);
     break;
@@ -8135,6 +8162,97 @@ dissect_kerberos_KRB5_SRP_PA_SERVER_VERIFIER(bool implicit_tag _U_, tvbuff_t *tv
 }
 
 
+
+static int
+dissect_kerberos_UTF8String(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_UTF8String,
+                                            actx, tree, tvb, offset, hf_index,
+                                            NULL);
+
+  return offset;
+}
+
+
+static const ber_sequence_t AD_AUTHENTICATION_INDICATOR_sequence_of[1] = {
+  { &hf_kerberos_AD_AUTHENTICATION_INDICATOR_item, BER_CLASS_UNI, BER_UNI_TAG_UTF8String, BER_FLAGS_NOOWNTAG, dissect_kerberos_UTF8String },
+};
+
+static int
+dissect_kerberos_AD_AUTHENTICATION_INDICATOR(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                      AD_AUTHENTICATION_INDICATOR_sequence_of, hf_index, ett_kerberos_AD_AUTHENTICATION_INDICATOR);
+
+  return offset;
+}
+
+
+static const ber_sequence_t Verifier_MAC_sequence[] = {
+  { &hf_kerberos_identifier , BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL, dissect_kerberos_PrincipalName },
+  { &hf_kerberos_kvno       , BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL, dissect_kerberos_UInt32 },
+  { &hf_kerberos_enctype    , BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL, dissect_kerberos_Int32 },
+  { &hf_kerberos_mac_01     , BER_CLASS_CON, 3, 0, dissect_kerberos_Checksum },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_kerberos_Verifier_MAC(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   Verifier_MAC_sequence, hf_index, ett_kerberos_Verifier_MAC);
+
+  return offset;
+}
+
+
+static const value_string kerberos_Verifier_vals[] = {
+  {   0, "mac" },
+  { 0, NULL }
+};
+
+static const ber_choice_t Verifier_choice[] = {
+  {   0, &hf_kerberos_mac        , BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_kerberos_Verifier_MAC },
+  { 0, NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_kerberos_Verifier(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_choice(actx, tree, tvb, offset,
+                                 Verifier_choice, hf_index, ett_kerberos_Verifier,
+                                 NULL);
+
+  return offset;
+}
+
+
+static const ber_sequence_t SEQUENCE_SIZE_1_MAX_OF_Verifier_sequence_of[1] = {
+  { &hf_kerberos_other_verifiers_item, BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_kerberos_Verifier },
+};
+
+static int
+dissect_kerberos_SEQUENCE_SIZE_1_MAX_OF_Verifier(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                      SEQUENCE_SIZE_1_MAX_OF_Verifier_sequence_of, hf_index, ett_kerberos_SEQUENCE_SIZE_1_MAX_OF_Verifier);
+
+  return offset;
+}
+
+
+static const ber_sequence_t AD_CAMMAC_sequence[] = {
+  { &hf_kerberos_elements   , BER_CLASS_CON, 0, 0, dissect_kerberos_AuthorizationData },
+  { &hf_kerberos_kdc_verifier, BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL, dissect_kerberos_Verifier_MAC },
+  { &hf_kerberos_svc_verifier, BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL, dissect_kerberos_Verifier_MAC },
+  { &hf_kerberos_other_verifiers, BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL, dissect_kerberos_SEQUENCE_SIZE_1_MAX_OF_Verifier },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_kerberos_AD_CAMMAC(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   AD_CAMMAC_sequence, hf_index, ett_kerberos_AD_CAMMAC);
+
+  return offset;
+}
+
+
 static const ber_sequence_t ChangePasswdData_sequence[] = {
   { &hf_kerberos_newpasswd  , BER_CLASS_CON, 0, 0, dissect_kerberos_OCTET_STRING },
   { &hf_kerberos_targname   , BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL, dissect_kerberos_PrincipalName },
@@ -10153,6 +10271,46 @@ void proto_register_kerberos(void) {
       { "a", "kerberos.a",
         FT_BYTES, BASE_NONE, NULL, 0,
         "OCTET_STRING", HFILL }},
+    { &hf_kerberos_AD_AUTHENTICATION_INDICATOR_item,
+      { "AD-AUTHENTICATION-INDICATOR item", "kerberos.AD_AUTHENTICATION_INDICATOR_item",
+        FT_STRING, BASE_NONE, NULL, 0,
+        "UTF8String", HFILL }},
+    { &hf_kerberos_elements,
+      { "elements", "kerberos.elements",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "AuthorizationData", HFILL }},
+    { &hf_kerberos_kdc_verifier,
+      { "kdc-verifier", "kerberos.kdc_verifier_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "Verifier_MAC", HFILL }},
+    { &hf_kerberos_svc_verifier,
+      { "svc-verifier", "kerberos.svc_verifier_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "Verifier_MAC", HFILL }},
+    { &hf_kerberos_other_verifiers,
+      { "other-verifiers", "kerberos.other_verifiers",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "SEQUENCE_SIZE_1_MAX_OF_Verifier", HFILL }},
+    { &hf_kerberos_other_verifiers_item,
+      { "Verifier", "kerberos.Verifier",
+        FT_UINT32, BASE_DEC, VALS(kerberos_Verifier_vals), 0,
+        NULL, HFILL }},
+    { &hf_kerberos_mac,
+      { "mac", "kerberos.mac_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "Verifier_MAC", HFILL }},
+    { &hf_kerberos_identifier,
+      { "identifier", "kerberos.identifier_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "PrincipalName", HFILL }},
+    { &hf_kerberos_enctype,
+      { "enctype", "kerberos.enctype",
+        FT_INT32, BASE_DEC, NULL, 0,
+        "Int32", HFILL }},
+    { &hf_kerberos_mac_01,
+      { "mac", "kerberos.mac_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "Checksum", HFILL }},
     { &hf_kerberos_newpasswd,
       { "newpasswd", "kerberos.newpasswd",
         FT_BYTES, BASE_NONE, NULL, 0,
@@ -10605,6 +10763,11 @@ void proto_register_kerberos(void) {
     &ett_kerberos_KRB5_SRP_PA_ANNOUNCE,
     &ett_kerberos_SET_OF_KRB5_SRP_PA,
     &ett_kerberos_KRB5_SRP_PA_INIT_U,
+    &ett_kerberos_AD_AUTHENTICATION_INDICATOR,
+    &ett_kerberos_AD_CAMMAC,
+    &ett_kerberos_SEQUENCE_SIZE_1_MAX_OF_Verifier,
+    &ett_kerberos_Verifier,
+    &ett_kerberos_Verifier_MAC,
     &ett_kerberos_ChangePasswdData,
     &ett_kerberos_PA_AUTHENTICATION_SET_ELEM,
     &ett_kerberos_KrbFastArmor,
