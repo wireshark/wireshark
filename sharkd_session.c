@@ -5301,7 +5301,8 @@ sharkd_session_process_setconf(char *buf, const jsmntok_t *tokens, int count)
         default:
             sharkd_json_error(
                     rpcid, -4005, NULL,
-                    "Unable to set the preference"
+                    "Unable to set the preference%s%s",
+                    errmsg ? ": " : "", errmsg ? errmsg : ""
                     );
     }
 
