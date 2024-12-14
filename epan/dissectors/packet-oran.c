@@ -1100,11 +1100,6 @@ static const true_false_string beam_numbers_included_tfs = {
   "time-domain beam numbers included in this command"
 };
 
-static const true_false_string applicable_not_applicable_tfs = {
-  "applicable",
-  "not applicable"
-};
-
 
 /* Forward declaration */
 static int dissect_udcompparam(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned offset,
@@ -5864,84 +5859,84 @@ proto_register_oran(void)
         {&hf_oran_reMask_re1,
          {"RE 1", "oran_fh_cus.reMask-RE1",
           FT_BOOLEAN, 16,
-          TFS(&applicable_not_applicable_tfs), 0x8000,
+          TFS(&tfs_applicable_not_applicable), 0x8000,
           NULL,
           HFILL}
         },
         {&hf_oran_reMask_re2,
          {"RE 2", "oran_fh_cus.reMask-RE2",
           FT_BOOLEAN, 16,
-          TFS(&applicable_not_applicable_tfs), 0x4000,
+          TFS(&tfs_applicable_not_applicable), 0x4000,
           NULL,
           HFILL}
         },
         {&hf_oran_reMask_re3,
          {"RE 3", "oran_fh_cus.reMask-RE3",
           FT_BOOLEAN, 16,
-          TFS(&applicable_not_applicable_tfs), 0x2000,
+          TFS(&tfs_applicable_not_applicable), 0x2000,
           NULL,
           HFILL}
         },
         {&hf_oran_reMask_re4,
          {"RE 4", "oran_fh_cus.reMask-RE4",
           FT_BOOLEAN, 16,
-          TFS(&applicable_not_applicable_tfs), 0x1000,
+          TFS(&tfs_applicable_not_applicable), 0x1000,
           NULL,
           HFILL}
         },
         {&hf_oran_reMask_re5,
          {"RE 5", "oran_fh_cus.reMask-RE5",
           FT_BOOLEAN, 16,
-          TFS(&applicable_not_applicable_tfs), 0x0800,
+          TFS(&tfs_applicable_not_applicable), 0x0800,
           NULL,
           HFILL}
         },
         {&hf_oran_reMask_re6,
          {"RE 6", "oran_fh_cus.reMask-RE6",
           FT_BOOLEAN, 16,
-          TFS(&applicable_not_applicable_tfs), 0x0400,
+          TFS(&tfs_applicable_not_applicable), 0x0400,
           NULL,
           HFILL}
         },
         {&hf_oran_reMask_re7,
          {"RE 7", "oran_fh_cus.reMask-RE7",
           FT_BOOLEAN, 16,
-          TFS(&applicable_not_applicable_tfs), 0x0200,
+          TFS(&tfs_applicable_not_applicable), 0x0200,
           NULL,
           HFILL}
         },
         {&hf_oran_reMask_re8,
          {"RE 8", "oran_fh_cus.reMask-RE8",
           FT_BOOLEAN, 16,
-          TFS(&applicable_not_applicable_tfs), 0x0100,
+          TFS(&tfs_applicable_not_applicable), 0x0100,
           NULL,
           HFILL}
         },
         {&hf_oran_reMask_re9,
          {"RE 9", "oran_fh_cus.reMask-RE9",
           FT_BOOLEAN, 16,
-          TFS(&applicable_not_applicable_tfs), 0x0080,
+          TFS(&tfs_applicable_not_applicable), 0x0080,
           NULL,
           HFILL}
         },
         {&hf_oran_reMask_re10,
          {"RE 10", "oran_fh_cus.reMask-RE10",
           FT_BOOLEAN, 16,
-          TFS(&applicable_not_applicable_tfs), 0x0040,
+          TFS(&tfs_applicable_not_applicable), 0x0040,
           NULL,
           HFILL}
         },
         {&hf_oran_reMask_re11,
          {"RE 11", "oran_fh_cus.reMask-RE11",
           FT_BOOLEAN, 16,
-          TFS(&applicable_not_applicable_tfs), 0x0020,
+          TFS(&tfs_applicable_not_applicable), 0x0020,
           NULL,
           HFILL}
         },
         {&hf_oran_reMask_re12,
          {"RE 12", "oran_fh_cus.reMask-RE12",
           FT_BOOLEAN, 16,
-          TFS(&applicable_not_applicable_tfs), 0x0010,
+          TFS(&tfs_applicable_not_applicable), 0x0010,
           NULL,
           HFILL}
         },
