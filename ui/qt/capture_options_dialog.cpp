@@ -31,8 +31,6 @@
 #include "ui/capture_opts.h"
 #include "ui/capture_ui_utils.h"
 #include "ui/capture_globals.h"
-#include "ui/iface_lists.h"
-#include "ui/file_dialog.h"
 
 #include "ui/ws_ui_util.h"
 #include "ui/util.h"
@@ -1022,7 +1020,6 @@ void CaptureOptionsDialog::on_compileBPF_clicked()
 #endif
     }
 
-    QString filter = ui->captureFilterComboBox->currentText();
     CompiledFilterOutput *cfo = new CompiledFilterOutput(this, interfaces);
 
     cfo->show();
