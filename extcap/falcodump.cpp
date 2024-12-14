@@ -28,9 +28,9 @@
 #include "config.h"
 
 #include <libsinsp/sinsp.h>
-#include <plugin_manager.h>
+#include <libsinsp/plugin_manager.h>
 
-#include <scap_engines.h>
+#include <libscap/scap_engines.h>
 
 #define WS_LOG_DOMAIN "falcodump"
 
