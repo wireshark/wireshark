@@ -161,8 +161,6 @@ static int hf_fru_record_encoding;
 static int hf_fru_record_field_type;
 static int hf_fru_record_field_len;
 static int hf_fru_record_field_value;
-static int hf_fru_record_field_value_uint16;
-static int hf_fru_record_field_value_string;
 static int hf_fru_record_crc;
 static int hf_fru_table_handle;
 
@@ -1097,20 +1095,20 @@ uint16_t parse_fru_record_table(tvbuff_t *tvb, const packet_info *pinfo,
 				offset += 1;
 				switch (encoding) {
 					case 0x1:
-						proto_tree_add_item(p_tree, hf_fru_record_field_value_string, tvb, offset, field_len, ENC_ASCII);
+						proto_tree_add_item(p_tree, hf_fru_record_field_value, tvb, offset, field_len, ENC_ISO_8859_1);
 						break;
 					case 0x2:
 						proto_tree_add_item(p_tree, hf_fru_record_field_value, tvb, offset, field_len, ENC_UTF_8);
 						break;
 					case 0x3:
-						proto_tree_add_item(p_tree, hf_fru_record_field_value_uint16, tvb, offset, field_len, ENC_UTF_16);
+						proto_tree_add_item(p_tree, hf_fru_record_field_value, tvb, offset, field_len, ENC_UTF_16 | ENC_BOM);
 						break;
 					case 0x4:
-						proto_tree_add_item(p_tree, hf_fru_record_field_value_uint16, tvb,
+						proto_tree_add_item(p_tree, hf_fru_record_field_value, tvb,
 											offset, field_len, ENC_UTF_16 | ENC_LITTLE_ENDIAN);
 						break;
 					case 0x5:
-						proto_tree_add_item(p_tree, hf_fru_record_field_value_uint16, tvb,
+						proto_tree_add_item(p_tree, hf_fru_record_field_value, tvb,
 											offset, field_len, ENC_UTF_16 | ENC_BIG_ENDIAN);
 						break;
 					default:
@@ -1630,12 +1628,6 @@ void proto_register_pldm(void)
 			{"FRU Record Field Length", "pldm.fru.record.field_length", FT_UINT8, BASE_DEC, NULL,
 				0x0, NULL, HFILL}},
 		{&hf_fru_record_field_value,
-			{"FRU Record Field Value", "pldm.fru.record.field_value", FT_UINT8, BASE_HEX, NULL,
-				0x0, NULL, HFILL}},
-		{&hf_fru_record_field_value_uint16,
-			{"FRU Record Field Value", "pldm.fru.record.field_value_u16", FT_UINT16, BASE_HEX, NULL,
-				0x0, NULL, HFILL}},
-		{&hf_fru_record_field_value_string,
 			{"FRU Record Field Value", "pldm.fru.record.field_value", FT_STRING, BASE_NONE, NULL,
 				0x0, NULL, HFILL}},
 		{&hf_fru_record_crc,
