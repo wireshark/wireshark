@@ -1811,6 +1811,7 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-rmt-norm.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-rohc.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-roofnet.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-roughtime.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-rpc.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-rpcap.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-rpcrdma.c

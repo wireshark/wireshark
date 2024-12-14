@@ -154,6 +154,7 @@ The following features are either new or have been significantly updated since v
 --
 Lenbrook Service Discovery Protocol (LSDP)
 Network Time Security Key Establishment Protocol (NTS-KE)
+Roughtime (Roughtime)
 Universal Measurement and Calibration Protocol (XCP)
 --
 
