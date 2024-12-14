@@ -1034,16 +1034,20 @@ class EthCtx:
         if self.remove_prefix and name.startswith(self.remove_prefix):
             name = name[len(self.remove_prefix):]
 
+        # Use FIELD_RENAME to affect the ABBREV as well. (Should it be
+        # used for the displayed NAME too, instead of the last element?)
         if len(ident.split('/')) > 1 and name == ITEM_FIELD_NAME:  # Sequence/Set of type
             if len(self.field[ident]['type'].split('/')) > 1:
                 self.field[ident]['attr']['NAME'] = '"%s item"' % ident.split('/')[-2]
-                self.field[ident]['attr']['ABBREV'] = asn2c(ident.split('/')[-2] + name)
+                nm = self.conform.use_item('FIELD_RENAME', '/'.join(ident.split('/')[0:-1]), val_dflt=ident.split('/')[-2]) + name
+                self.field[ident]['attr']['ABBREV'] = asn2c(nm)
             else:
                 self.field[ident]['attr']['NAME'] = '"%s"' % self.field[ident]['type']
                 self.field[ident]['attr']['ABBREV'] = asn2c(self.field[ident]['type'])
         else:
             self.field[ident]['attr']['NAME'] = '"%s"' % name
-            self.field[ident]['attr']['ABBREV'] = asn2c(name)
+            nm = self.conform.use_item('FIELD_RENAME', ident, val_dflt=name)
+            self.field[ident]['attr']['ABBREV'] = asn2c(nm)
         if self.conform.check_item('FIELD_ATTR', ident):
             self.field[ident]['modified'] = '#' + str(id(self))
             self.field[ident]['attr'].update(self.conform.use_item('FIELD_ATTR', ident))

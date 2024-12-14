@@ -9442,7 +9442,7 @@ void proto_register_mms(void) {
         FT_STRING, BASE_NONE, NULL, 0,
         "Identifier", HFILL }},
     { &hf_mms_objectName_domain_specific_itemId,
-      { "itemId", "mms.itemId",
+      { "itemId", "mms.objectName_domain_specific_itemId",
         FT_STRING, BASE_NONE, NULL, 0,
         "ObjectName_domain_specific_itemid", HFILL }},
     { &hf_mms_aa_specific,
