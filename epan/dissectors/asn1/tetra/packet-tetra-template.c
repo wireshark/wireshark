@@ -47,7 +47,6 @@ static bool include_carrier_number = true;
 * proto_register_field_array() in proto_register_tetra()
 */
 /** Kts attempt at defining the protocol */
-static int hf_tetra;
 static int hf_tetra_header;
 static int hf_tetra_channels;
 static int hf_tetra_channel1;
@@ -552,9 +551,6 @@ void proto_register_tetra (void)
 	 * {&(field id), {name, abbrev, type, display, strings, bitmask, blurb, HFILL}}.
 	 */
 	static hf_register_info hf[] = {
-		{ &hf_tetra,
-		{ "Data", "tetra.data", FT_NONE, BASE_NONE, NULL, 0x0,
-		"tetra PDU", HFILL }},
 		{ &hf_tetra_header,
 		{ "Registers", "tetra.header", FT_NONE, BASE_NONE, NULL, 0x0,
 		 "TETRA Registers", HFILL }},
