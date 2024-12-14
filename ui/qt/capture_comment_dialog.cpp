@@ -131,9 +131,8 @@ CaptureCommentDialog::CaptureCommentDialog(QWidget &parent, CaptureFile &capture
     this->actionAddButton = ui->buttonBox->addButton(tr("Add Comment"), QDialogButtonBox::ActionRole);
     connect(this->actionAddButton, &QPushButton::clicked, this, &CaptureCommentDialog::addComment);
 
-    connect(this, SIGNAL(captureCommentChanged()),
-        mainApp->mainWindow(), SLOT(updateForUnsavedChanges()));
-    QTimer::singleShot(0, this, SLOT(updateWidgets()));
+    connect(this, &CaptureCommentDialog::captureCommentChanged, mainApp->mainWindow(), &MainWindow::updateForUnsavedChanges);
+    QTimer::singleShot(0, this, &CaptureCommentDialog::updateWidgets);
 }
 
 CaptureCommentDialog::~CaptureCommentDialog()

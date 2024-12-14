@@ -18,6 +18,7 @@
 //#include "follow_stream_dialog.h"
 
 
+#include "capture_file.h"
 #include "filter_action.h"
 #include "io_graph_action.h"
 
@@ -47,6 +48,7 @@ class MainWindow : public QMainWindow
 public:
     explicit MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
+    void setMainWindowTitle(QString title = QString());
     bool hasSelection();
     bool hasUniqueSelection();
     QList<int> selectedRows(bool useFrameNum = false);
@@ -70,6 +72,7 @@ public slots:
     virtual void showIOGraphDialog(io_graph_item_unit_t, QString) = 0;
     void layoutPanes();
     void applyRecentPaneGeometry();
+    void updateForUnsavedChanges();
 
 protected:
     enum CopySelected {
@@ -86,7 +89,10 @@ protected:
 
     void showWelcome();
     void showCapture();
+    void setTitlebarForCaptureInProgress();
+    virtual void setMenusForCaptureFile(bool force_disable = false) = 0;
 
+    CaptureFile capture_file_;
     QList<register_stat_group_t> menu_groups_;
     QWidget* getLayoutWidget(layout_pane_content_e type);
 
@@ -104,14 +110,17 @@ protected:
     DisplayFilterCombo *df_combo_box_;
     MainStatusBar *main_status_bar_;
     ProfileSwitcher *profile_switcher_;
+    bool use_capturing_title_;
 
 protected slots:
     void addDisplayFilterTranslationActions(QMenu *copy_menu);
     void updateDisplayFilterTranslationActions(const QString &df_text);
+    void updateTitlebar();
 
 private:
-    QVector<QAction *> df_translate_actions_;
+    QString replaceWindowTitleVariables(QString title);
 
+    QVector<QAction *> df_translate_actions_;
     static const char *translator_;
     static const char *translated_filter_;
 

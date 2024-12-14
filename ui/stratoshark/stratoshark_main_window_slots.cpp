@@ -795,7 +795,7 @@ void StratosharkMainWindow::captureFileClosed() {
     main_ui_->statusBar->captureFileClosing();
     mainApp->popStatus(WiresharkApplication::FileStatus);
 
-    setWSWindowTitle();
+    setMainWindowTitle();
     setWindowIcon(mainApp->normalIcon());
     setMenusForSelectedPacket();
     setMenusForSelectedTreeRow();

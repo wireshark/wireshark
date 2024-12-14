@@ -243,3 +243,8 @@ void MainWindow::applyRecentPaneGeometry()
         extra_split_.setSizes(extra_sizes);
     }
 }
+
+void MainWindow::updateForUnsavedChanges() {
+    updateTitlebar();
+    setMenusForCaptureFile();
+}

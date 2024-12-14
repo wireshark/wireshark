@@ -39,8 +39,6 @@
 
 #include <config.h>
 
-#include "file.h"
-
 #include "ui/ws_ui_util.h"
 #include "ui/iface_toolbar.h"
 #ifdef HAVE_LIBPCAP
@@ -209,14 +207,12 @@ private:
     void initTimePrecisionFormatMenu();
     void initFreezeActions();
 
-    void setTitlebarForCaptureInProgress();
     void setMenusForCaptureFile(bool force_disable = false);
     void setMenusForCaptureInProgress(bool capture_in_progress = false);
     void setMenusForCaptureStopping();
     void setForCapturedPackets(bool have_captured_packets);
     void setMenusForFileSet(bool enable_list_files);
     void setWindowIcon(const QIcon &icon);
-    QString replaceWindowTitleVariables(QString title);
     void updateStyleSheet();
 
     void externalMenuHelper(ext_menu_t * menu, QMenu  * subMenu, int depth);
@@ -270,7 +266,6 @@ public slots:
     void updateRecentActions();
 
     void setTitlebarForCaptureFile();
-    void setWSWindowTitle(QString title = QString());
 
     void showCaptureOptionsDialog();
 
@@ -336,7 +331,6 @@ private slots:
     void addPluginIFStructures();
     QMenu * searchSubMenu(QString objectName);
     void activatePluginIFToolbar(bool);
-    void updateTitlebar();
 
     void startInterfaceCapture(bool valid, const QString capture_filter);
 

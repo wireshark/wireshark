@@ -40,8 +40,6 @@
 
 #include <config.h>
 
-#include "file.h"
-
 #include "ui/ws_ui_util.h"
 #include "ui/iface_toolbar.h"
 #ifdef HAVE_LIBPCAP
@@ -63,7 +61,6 @@
 # include <QSocketNotifier>
 #endif
 
-#include "capture_file.h"
 #include "capture_file_dialog.h"
 #include "capture_file_properties_dialog.h"
 #include <ui/qt/utils/field_information.h>
@@ -155,7 +152,6 @@ private:
     };
 
     Ui::WiresharkMainWindow *main_ui_;
-    CaptureFile capture_file_;
     QFont mono_font_;
     QMap<QString, QTextCodec *> text_codec_map_;
 #if defined(HAVE_LIBNL) && defined(HAVE_NL80211)
@@ -179,7 +175,6 @@ private:
 
     bool capture_stopping_;
     bool capture_filter_valid_;
-    bool use_capturing_title_;
 #ifdef HAVE_LIBPCAP
     capture_session cap_session_;
     CaptureOptionsDialog *capture_options_dialog_;
@@ -222,14 +217,12 @@ private:
     void initTimePrecisionFormatMenu();
     void initFreezeActions();
 
-    void setTitlebarForCaptureInProgress();
     void setMenusForCaptureFile(bool force_disable = false);
     void setMenusForCaptureInProgress(bool capture_in_progress = false);
     void setMenusForCaptureStopping();
     void setForCapturedPackets(bool have_captured_packets);
     void setMenusForFileSet(bool enable_list_files);
     void setWindowIcon(const QIcon &icon);
-    QString replaceWindowTitleVariables(QString title);
     void updateStyleSheet();
 
     void externalMenuHelper(ext_menu_t * menu, QMenu  * subMenu, int depth);
@@ -280,13 +273,11 @@ public slots:
     bool openCaptureFile(QString cf_path, QString display_filter, unsigned int type, bool is_tempfile = false);
     bool openCaptureFile(QString cf_path = QString(), QString display_filter = QString()) { return openCaptureFile(cf_path, display_filter, WTAP_TYPE_AUTO); }
     void filterPackets(QString new_filter = QString(), bool force = false);
-    void updateForUnsavedChanges();
     void layoutToolbars();
     void updatePreferenceActions();
     void updateRecentActions();
 
     void setTitlebarForCaptureFile();
-    void setWSWindowTitle(QString title = QString());
 
     void showCaptureOptionsDialog();
 
@@ -366,7 +357,6 @@ private slots:
     void addPluginIFStructures();
     QMenu * searchSubMenu(QString objectName);
     void activatePluginIFToolbar(bool);
-    void updateTitlebar();
 
     void startInterfaceCapture(bool valid, const QString capture_filter);
 

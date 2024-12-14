@@ -984,7 +984,7 @@ int main(int argc, char *qt_argv[])
     wsApp->setMonospaceFont(prefs.gui_font_name);
 
     /* For update of WindowTitle (When use gui.window_title preference) */
-    main_w->setWSWindowTitle();
+    main_w->setMainWindowTitle();
 
     if (!color_filters_init(&err_msg, color_filter_add_cb)) {
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", err_msg);
