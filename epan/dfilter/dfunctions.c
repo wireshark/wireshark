@@ -580,6 +580,7 @@ ul_semcheck_value_string(dfwork_t *dfw, const char *func_name, ftenum_t logical_
                             GSList *param_list, df_loc_t func_loc _U_)
 {
     header_field_info *hfinfo;
+    const char *abbrev;
 
     ws_assert(g_slist_length(param_list) == 1);
     stnode_t *param = param_list->data;
@@ -589,6 +590,7 @@ ul_semcheck_value_string(dfwork_t *dfw, const char *func_name, ftenum_t logical_
     if (stnode_type_id(param) == STTYPE_FIELD) {
         dfw->field_count++;
         hfinfo = sttype_field_hfinfo(param);
+        abbrev = hfinfo->abbrev;
 
         while (hfinfo->same_name_prev_id != -1) {
             /* Rewind (shouldn't be necessary.) */
@@ -604,7 +606,7 @@ ul_semcheck_value_string(dfwork_t *dfw, const char *func_name, ftenum_t logical_
             }
         }
         dfunc_fail(dfw, param, "Field \"%s\" does not have a value string.",
-				hfinfo->abbrev);
+				abbrev);
     }
     dfunc_fail(dfw, param, "Only fields can be used as parameter for %s()", func_name);
 }
