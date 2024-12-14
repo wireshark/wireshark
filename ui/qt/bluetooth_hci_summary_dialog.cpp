@@ -92,14 +92,19 @@ BluetoothHciSummaryDialog::BluetoothHciSummaryDialog(QWidget &parent, CaptureFil
     ui->setupUi(this);
     loadGeometry(parent.width() * 4 / 5, parent.height() * 2 / 3);
 
-    connect(ui->tableTreeWidget, SIGNAL(customContextMenuRequested(const QPoint &)), this, SLOT(tableContextMenu(const QPoint &)));
-    connect(ui->tableTreeWidget, SIGNAL(itemExpanded(QTreeWidgetItem *)), this, SLOT(tableItemExpanded(QTreeWidgetItem *)));
-    connect(ui->tableTreeWidget, SIGNAL(itemCollapsed(QTreeWidgetItem *)), this, SLOT(tableItemCollapsed(QTreeWidgetItem *)));
+    connect(ui->tableTreeWidget, &QTreeWidget::customContextMenuRequested, this, &BluetoothHciSummaryDialog::tableContextMenu);
+    connect(ui->tableTreeWidget, &QTreeWidget::itemExpanded, this, &BluetoothHciSummaryDialog::tableItemExpanded);
+    connect(ui->tableTreeWidget, &QTreeWidget::itemCollapsed, this, &BluetoothHciSummaryDialog::tableItemCollapsed);
 
-    connect(ui->interfaceComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(interfaceCurrentIndexChanged(int)));
-    connect(ui->adapterComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(adapterCurrentIndexChanged(int)));
-    connect(ui->displayFilterLineEdit, SIGNAL(returnPressed()), this, SLOT(displayFilterLineEditAccepted()));
-    connect(ui->resultsFilterLineEdit, SIGNAL(textChanged(const QString &)), this, SLOT(resultsFilterLineEditChanged(const QString &)));
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+    connect(ui->interfaceComboBox, &QComboBox::currentIndexChanged, this, &BluetoothHciSummaryDialog::interfaceCurrentIndexChanged);
+    connect(ui->adapterComboBox, &QComboBox::currentIndexChanged, this, &BluetoothHciSummaryDialog::adapterCurrentIndexChanged);
+#else
+    connect(ui->interfaceComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &BluetoothHciSummaryDialog::interfaceCurrentIndexChanged);
+    connect(ui->adapterComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &BluetoothHciSummaryDialog::adapterCurrentIndexChanged);
+#endif
+    connect(ui->displayFilterLineEdit, &DisplayFilterEdit::returnPressed, this, &BluetoothHciSummaryDialog::displayFilterLineEditAccepted);
+    connect(ui->resultsFilterLineEdit, &QLineEdit::textChanged, this, &BluetoothHciSummaryDialog::resultsFilterLineEditChanged);
 
     for (int i = 0; i < ui->tableTreeWidget->columnCount(); i++) {
         ui->tableTreeWidget->resizeColumnToContents(i);

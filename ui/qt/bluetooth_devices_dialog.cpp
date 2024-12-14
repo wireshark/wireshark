@@ -72,10 +72,18 @@ BluetoothDevicesDialog::BluetoothDevicesDialog(QWidget &parent, CaptureFile &cf,
 
     packet_list_ = packet_list;
 
-    connect(ui->tableTreeWidget, SIGNAL(customContextMenuRequested(const QPoint &)), this, SLOT(tableContextMenu(const QPoint &)));
-    connect(ui->tableTreeWidget, SIGNAL(itemDoubleClicked(QTreeWidgetItem *, int)), this, SLOT(tableItemDoubleClicked(QTreeWidgetItem *, int)));
-    connect(ui->interfaceComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(interfaceCurrentIndexChanged(int)));
-    connect(ui->showInformationStepsCheckBox, SIGNAL(stateChanged(int)), this, SLOT(showInformationStepsChanged(int)));
+    connect(ui->tableTreeWidget, &QTreeWidget::customContextMenuRequested, this, &BluetoothDevicesDialog::tableContextMenu);
+    connect(ui->tableTreeWidget, &QTreeWidget::itemDoubleClicked, this, &BluetoothDevicesDialog::tableItemDoubleClicked);
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+    connect(ui->interfaceComboBox, &QComboBox::currentIndexChanged, this, &BluetoothDevicesDialog::interfaceCurrentIndexChanged);
+#else
+    connect(ui->interfaceComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &BluetoothDevicesDialog::interfaceCurrentIndexChanged);
+#endif
+#if (QT_VERSION >= QT_VERSION_CHECK(6, 7, 0))
+    connect(ui->showInformationStepsCheckBox, &QCheckBox::checkStateChanged, this, &BluetoothDevicesDialog::showInformationStepsChanged);
+#else
+    connect(ui->showInformationStepsCheckBox, &QCheckBox::stateChanged, this, &BluetoothDevicesDialog::showInformationStepsChanged);
+#endif
 
     ui->tableTreeWidget->sortByColumn(column_number_bd_addr, Qt::AscendingOrder);
 
@@ -159,8 +167,7 @@ void BluetoothDevicesDialog::tableItemDoubleClicked(QTreeWidgetItem *item, int)
 
     item_data = VariantPointer<bluetooth_item_data_t>::asPtr(item->data(0, Qt::UserRole));
     bluetooth_device_dialog = new BluetoothDeviceDialog(*this, cap_file_, item->text(column_number_bd_addr), item->text(column_number_name), item_data->interface_id, item_data->adapter_id, !item->text(column_number_is_local_adapter).isEmpty());
-    connect(bluetooth_device_dialog, SIGNAL(goToPacket(int)),
-            packet_list_, SLOT(goToPacket(int)));
+    connect(bluetooth_device_dialog, &BluetoothDeviceDialog::goToPacket, packet_list_, [=](int packet) { packet_list_->goToPacket(packet); });
     bluetooth_device_dialog->show();
 }
 
