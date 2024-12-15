@@ -303,19 +303,19 @@ eot
             print $decl "static int ${regname};\n";
             print $reg "{ &$regname, { \"$fieldname\", \"x11.glx.render.$name.$fieldname\", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},\n";
             print $decl "static int ${regname}_signed;\n";
-            print $reg "{ &${regname}_signed, { \"$fieldname\", \"x11.glx.render.$name.$fieldname\", FT_INT8, BASE_DEC, NULL, 0, NULL, HFILL }},\n";
+            print $reg "{ &${regname}_signed, { \"$fieldname\", \"x11.glx.render.$name.$fieldname.signed\", FT_INT8, BASE_DEC, NULL, 0, NULL, HFILL }},\n";
             print $decl "static int ${regname}_unsigned;\n";
-            print $reg "{ &${regname}_unsigned, { \"$fieldname\", \"x11.glx.render.$name.$fieldname\", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},\n";
+            print $reg "{ &${regname}_unsigned, { \"$fieldname\", \"x11.glx.render.$name.$fieldname.unsigned\", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},\n";
             print $decl "static int ${regname}_item_card16;\n";
-            print $reg "{ &${regname}_item_card16, { \"$fieldname\", \"x11.glx.render.$name.$fieldname\", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},\n";
+            print $reg "{ &${regname}_item_card16, { \"$fieldname\", \"x11.glx.render.$name.$fieldname.card16\", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},\n";
             print $decl "static int ${regname}_item_int16;\n";
-            print $reg "{ &${regname}_item_int16, { \"$fieldname\", \"x11.glx.render.$name.$fieldname\", FT_INT16, BASE_DEC, NULL, 0, NULL, HFILL }},\n";
+            print $reg "{ &${regname}_item_int16, { \"$fieldname\", \"x11.glx.render.$name.$fieldname.int16\", FT_INT16, BASE_DEC, NULL, 0, NULL, HFILL }},\n";
             print $decl "static int ${regname}_item_card32;\n";
-            print $reg "{ &${regname}_item_card32, { \"$fieldname\", \"x11.glx.render.$name.$fieldname\", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},\n";
+            print $reg "{ &${regname}_item_card32, { \"$fieldname\", \"x11.glx.render.$name.$fieldname.card32\", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},\n";
             print $decl "static int ${regname}_item_int32;\n";
-            print $reg "{ &${regname}_item_int32, { \"$fieldname\", \"x11.glx.render.$name.$fieldname\", FT_INT32, BASE_DEC, NULL, 0, NULL, HFILL }},\n";
+            print $reg "{ &${regname}_item_int32, { \"$fieldname\", \"x11.glx.render.$name.$fieldname.int32\", FT_INT32, BASE_DEC, NULL, 0, NULL, HFILL }},\n";
             print $decl "static int ${regname}_item_float;\n";
-            print $reg "{ &${regname}_item_float, { \"$fieldname\", \"x11.glx.render.$name.$fieldname\", FT_FLOAT, BASE_NONE, NULL, 0, NULL, HFILL }},\n";
+            print $reg "{ &${regname}_item_float, { \"$fieldname\", \"x11.glx.render.$name.$fieldname.float\", FT_FLOAT, BASE_NONE, NULL, 0, NULL, HFILL }},\n";
         } else {
             print $decl "static int $regname;\n";
             if ($list and $info->{'size'} > 1) {
