@@ -7304,7 +7304,7 @@ proto_register_oran(void)
         },
         /* 7.5.3.54 */
         {&hf_oran_antMask_trx_control,
-         {"antMask", "oran_fh_cus.antMask",
+         {"antMask", "oran_fh_cus.trxControl.antMask",
           FT_BYTES, BASE_NONE,
           NULL, 0x0,
           "which antennas should sleep or wake-up",
