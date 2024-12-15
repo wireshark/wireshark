@@ -95,7 +95,7 @@ void proto_register_pkix1explicit(void) {
   /* List of fields */
   static hf_register_info hf[] = {
     { &hf_pkix1explicit_object_identifier_id,
-      { "Id", "pkix1explicit.id", FT_STRING, BASE_NONE, NULL, 0,
+      { "Object Id", "pkix1explicit.oid", FT_OID, BASE_NONE, NULL, 0,
 	"Object identifier Id", HFILL }},
 
     { &hf_pkix1explicit_addressFamily_afn,
