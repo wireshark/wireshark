@@ -102,7 +102,7 @@ FollowStreamDialog::FollowStreamDialog(QWidget &parent, CaptureFile &cf, int pro
 
     ui->teStreamContent->installEventFilter(this);
 
-    connect(ui->leFind, SIGNAL(useRegexFind(bool)), this, SLOT(useRegexFind(bool)));
+    connect(ui->leFind, &FindLineEdit::useRegexFind, this, &FollowStreamDialog::useRegexFind);
 
     QComboBox *cbcs = ui->cbCharset;
     cbcs->blockSignals(true);

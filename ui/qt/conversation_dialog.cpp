@@ -83,14 +83,13 @@ ConversationDialog::ConversationDialog(QWidget &parent, CaptureFile &cf) :
 
     follow_bt_ = buttonBox()->addButton(tr("Follow Stream…"), QDialogButtonBox::ActionRole);
     follow_bt_->setToolTip(tr("Follow a TCP or UDP stream."));
-    connect(follow_bt_, SIGNAL(clicked()), this, SLOT(followStream()));
+    connect(follow_bt_, &QPushButton::clicked, this, &ConversationDialog::followStream);
 
     graph_bt_ = buttonBox()->addButton(tr("Graph…"), QDialogButtonBox::ActionRole);
     graph_bt_->setToolTip(tr("Graph a TCP conversation."));
-    connect(graph_bt_, SIGNAL(clicked()), this, SLOT(graphTcp()));
+    connect(graph_bt_, &QPushButton::clicked, this, &ConversationDialog::graphTcp);
 
-    connect(mainApp->mainWindow(), SIGNAL(displayFilterSuccess(bool)),
-            this, SLOT(displayFilterSuccess(bool)));
+    connect(mainApp->mainWindow(), &MainWindow::displayFilterSuccess, this, &ConversationDialog::displayFilterSuccess);
 
     absoluteTimeCheckBox()->show();
 

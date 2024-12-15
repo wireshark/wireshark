@@ -230,22 +230,18 @@ CaptureOptionsDialog::CaptureOptionsDialog(QWidget *parent) :
     // Changes in interface selections or capture filters should be propagated
     // to the main welcome screen where they will be applied to the global
     // capture options.
-    connect(this, SIGNAL(interfacesChanged()), ui->captureFilterComboBox, SIGNAL(interfacesChanged()));
-    connect(ui->captureFilterComboBox, SIGNAL(captureFilterSyntaxChanged(bool)), this, SLOT(updateWidgets()));
-    connect(ui->captureFilterComboBox->lineEdit(), SIGNAL(textEdited(QString)),
-            this, SLOT(filterEdited()));
-    connect(ui->captureFilterComboBox->lineEdit(), SIGNAL(textEdited(QString)),
-            this, SIGNAL(captureFilterTextEdited(QString)));
-    connect(&interface_item_delegate_, SIGNAL(filterChanged(QString)),
-            ui->captureFilterComboBox->lineEdit(), SLOT(setText(QString)));
-    connect(&interface_item_delegate_, SIGNAL(filterChanged(QString)),
-            this, SIGNAL(captureFilterTextEdited(QString)));
-    connect(this, SIGNAL(ifsChanged()), this, SLOT(refreshInterfaceList()));
-    connect(mainApp, SIGNAL(localInterfaceListChanged()), this, SLOT(updateLocalInterfaces()));
-    connect(ui->browseButton, SIGNAL(clicked()), this, SLOT(browseButtonClicked()));
-    connect(ui->interfaceTree, SIGNAL(itemClicked(QTreeWidgetItem*,int)), this, SLOT(itemClicked(QTreeWidgetItem*,int)));
-    connect(ui->interfaceTree, SIGNAL(itemDoubleClicked(QTreeWidgetItem*,int)), this, SLOT(itemDoubleClicked(QTreeWidgetItem*,int)));
-    connect(ui->tempDirBrowseButton, SIGNAL(clicked()), this, SLOT(tempDirBrowseButtonClicked()));
+    connect(this, &CaptureOptionsDialog::interfacesChanged, ui->captureFilterComboBox, &CaptureFilterCombo::interfacesChanged);
+    connect(ui->captureFilterComboBox, &CaptureFilterCombo::captureFilterSyntaxChanged, this, &CaptureOptionsDialog::updateWidgets);
+    connect(ui->captureFilterComboBox->lineEdit(), &QLineEdit::textEdited, this, &CaptureOptionsDialog::filterEdited);
+    connect(ui->captureFilterComboBox->lineEdit(), &QLineEdit::textEdited, this, &CaptureOptionsDialog::captureFilterTextEdited);
+    connect(&interface_item_delegate_, &InterfaceTreeDelegate::filterChanged, ui->captureFilterComboBox->lineEdit(), &QLineEdit::setText);
+    connect(&interface_item_delegate_, &InterfaceTreeDelegate::filterChanged, this, &CaptureOptionsDialog::captureFilterTextEdited);
+    connect(this, &CaptureOptionsDialog::ifsChanged, this, &CaptureOptionsDialog::refreshInterfaceList);
+    connect(mainApp, &MainApplication::localInterfaceListChanged, this, &CaptureOptionsDialog::updateLocalInterfaces);
+    connect(ui->browseButton, &QPushButton::clicked, this, &CaptureOptionsDialog::browseButtonClicked);
+    connect(ui->interfaceTree, &QTreeWidget::itemClicked, this, &CaptureOptionsDialog::itemClicked);
+    connect(ui->interfaceTree, &QTreeWidget::itemDoubleClicked, this, &CaptureOptionsDialog::itemDoubleClicked);
+    connect(ui->tempDirBrowseButton, &QPushButton::clicked, this, &CaptureOptionsDialog::tempDirBrowseButtonClicked);
 
     // Ring buffer minimums (all 1 except # of files)
     ui->PktSpinBox->setMinimum(1);
@@ -841,7 +837,7 @@ void CaptureOptionsDialog::updateInterfaces()
     ui->cbResolveTransportNames->setChecked(gbl_resolv_flags.transport_name);
 
     // Rebuild the interface list without disturbing the main welcome screen.
-    disconnect(ui->interfaceTree, SIGNAL(itemSelectionChanged()), this, SLOT(interfaceSelected()));
+    disconnect(ui->interfaceTree, &QTreeWidget::itemSelectionChanged, this, &CaptureOptionsDialog::interfaceSelected);
     ui->interfaceTree->clear();
 
 #ifdef SHOW_BUFFER_COLUMN
@@ -851,7 +847,7 @@ void CaptureOptionsDialog::updateInterfaces()
     bool          hassnap, pmode;
     QList<QTreeWidgetItem *> selected_interfaces;
 
-    disconnect(ui->interfaceTree, SIGNAL(itemChanged(QTreeWidgetItem*,int)), this, SLOT(interfaceItemChanged(QTreeWidgetItem*,int)));
+    disconnect(ui->interfaceTree, &QTreeWidget::itemChanged, this, &CaptureOptionsDialog::interfaceItemChanged);
 
     if (global_capture_opts.all_ifaces->len > 0) {
         interface_t *device;
@@ -927,12 +923,12 @@ void CaptureOptionsDialog::updateInterfaces()
         }
     }
 
-    connect(ui->interfaceTree, SIGNAL(itemChanged(QTreeWidgetItem*,int)), this, SLOT(interfaceItemChanged(QTreeWidgetItem*,int)));
+    connect(ui->interfaceTree, &QTreeWidget::itemChanged, this, &CaptureOptionsDialog::interfaceItemChanged);
 
     foreach (QTreeWidgetItem *ti, selected_interfaces) {
         ti->setSelected(true);
     }
-    connect(ui->interfaceTree, SIGNAL(itemSelectionChanged()), this, SLOT(interfaceSelected()));
+    connect(ui->interfaceTree, &QTreeWidget::itemSelectionChanged, this, &CaptureOptionsDialog::interfaceSelected);
     updateSelectedFilter();
 
     // Manually or automatically size some columns as needed.
@@ -962,7 +958,7 @@ void CaptureOptionsDialog::updateInterfaces()
     if (!stat_timer_) {
         updateStatistics();
         stat_timer_ = new QTimer(this);
-        connect(stat_timer_, SIGNAL(timeout()), this, SLOT(updateStatistics()));
+        connect(stat_timer_, &QTimer::timeout, this, &CaptureOptionsDialog::updateStatistics);
         stat_timer_->start(stat_update_interval_);
     }
 }
@@ -987,7 +983,7 @@ void CaptureOptionsDialog::updateStatistics(void)
 {
     interface_t *device;
 
-    disconnect(ui->interfaceTree, SIGNAL(itemChanged(QTreeWidgetItem*,int)), this, SLOT(interfaceItemChanged(QTreeWidgetItem*,int)));
+    disconnect(ui->interfaceTree, &QTreeWidget::itemChanged, this, &CaptureOptionsDialog::interfaceItemChanged);
     for (int row = 0; row < ui->interfaceTree->topLevelItemCount(); row++) {
 
         for (unsigned if_idx = 0; if_idx < global_capture_opts.all_ifaces->len; if_idx++) {
@@ -1005,7 +1001,7 @@ void CaptureOptionsDialog::updateStatistics(void)
             ti->setData(col_traffic_, Qt::UserRole, QVariant::fromValue(points));
         }
     }
-    connect(ui->interfaceTree, SIGNAL(itemChanged(QTreeWidgetItem*,int)), this, SLOT(interfaceItemChanged(QTreeWidgetItem*,int)));
+    connect(ui->interfaceTree, &QTreeWidget::itemChanged, this, &CaptureOptionsDialog::interfaceItemChanged);
     ui->interfaceTree->viewport()->update();
 }
 
@@ -1510,7 +1506,11 @@ QWidget* InterfaceTreeDelegate::createEditor(QWidget *parent, const QStyleOption
             sb->setValue(snap);
             sb->setWrapping(true);
             sb->setSpecialValueText(tr("default"));
-            connect(sb, SIGNAL(valueChanged(int)), this, SLOT(snapshotLengthChanged(int)));
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+            connect(sb, &QSpinBox::valueChanged, this, &InterfaceTreeDelegate::snapshotLengthChanged);
+#else
+            connect(sb, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, &InterfaceTreeDelegate::snapshotLengthChanged);
+#endif
             w = (QWidget*) sb;
             break;
         }
@@ -1521,7 +1521,11 @@ QWidget* InterfaceTreeDelegate::createEditor(QWidget *parent, const QStyleOption
             sb->setRange(1, WTAP_MAX_PACKET_SIZE_STANDARD);
             sb->setValue(buffer);
             sb->setWrapping(true);
-            connect(sb, SIGNAL(valueChanged(int)), this, SLOT(bufferSizeChanged(int)));
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+            connect(sb, &QSpinBox::valueChanged, this, &InterfaceTreeDelegate::bufferSizeChanged);
+#else
+            connect(sb, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, &InterfaceTreeDelegate::bufferSizeChanged);
+#endif
             w = (QWidget*) sb;
             break;
         }
@@ -1531,7 +1535,7 @@ QWidget* InterfaceTreeDelegate::createEditor(QWidget *parent, const QStyleOption
             // XXX: Should this take the interface name, so that the history
             // list is taken from the interface-specific recent cfilter list?
             CaptureFilterCombo *cf = new CaptureFilterCombo(parent, true);
-            connect(cf->lineEdit(), SIGNAL(textEdited(QString)), this, SIGNAL(filterChanged(QString)));
+            connect(cf->lineEdit(), &QLineEdit::textEdited, this, &InterfaceTreeDelegate::filterChanged);
             w = (QWidget*) cf;
         }
         default:

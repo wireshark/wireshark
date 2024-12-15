@@ -40,10 +40,13 @@
 
 #include <ui/qt/utils/color_utils.h>
 #include <ui/qt/utils/qt_ui_utils.h>
-#include "rtp_player_dialog.h"
+#include <ui/qt/rtp_player_dialog.h>
+#include <ui/qt/rtp_stream_dialog.h>
 #include <ui/qt/utils/stock_icon.h>
-#include "main_application.h"
-#include "ui/qt/widgets/wireshark_file_dialog.h"
+#include <ui/qt/main_application.h>
+#include <ui/qt/packet_list.h>
+#include <ui/qt/wireshark_main_window.h>
+#include <ui/qt/widgets/wireshark_file_dialog.h>
 
 /*
  * @file RTP stream analysis dialog
@@ -236,14 +239,13 @@ RtpAnalysisDialog *RtpAnalysisDialog::pinstance_{nullptr};
 std::mutex RtpAnalysisDialog::init_mutex_;
 std::mutex RtpAnalysisDialog::run_mutex_;
 
-RtpAnalysisDialog *RtpAnalysisDialog::openRtpAnalysisDialog(QWidget &parent, CaptureFile &cf, QObject *packet_list)
+RtpAnalysisDialog *RtpAnalysisDialog::openRtpAnalysisDialog(QWidget &parent, CaptureFile &cf, PacketList *packet_list)
 {
     std::lock_guard<std::mutex> lock(init_mutex_);
     if (pinstance_ == nullptr)
     {
         pinstance_ = new RtpAnalysisDialog(parent, cf);
-        connect(pinstance_, SIGNAL(goToPacket(int)),
-                packet_list, SLOT(goToPacket(int)));
+        connect(pinstance_, &RtpAnalysisDialog::goToPacket, packet_list, [=](int packet) { packet_list->goToPacket(packet); });
     }
     return pinstance_;
 }
@@ -266,8 +268,7 @@ RtpAnalysisDialog::RtpAnalysisDialog(QWidget &parent, CaptureFile &cf) :
     stream_ctx_menu_.addAction(ui->actionNextProblem);
     set_action_shortcuts_visible_in_context_menu(stream_ctx_menu_.actions());
 
-    connect(ui->streamGraph, SIGNAL(mousePress(QMouseEvent*)),
-            this, SLOT(graphClicked(QMouseEvent*)));
+    connect(ui->streamGraph, &QCustomPlot::mousePress, this, &RtpAnalysisDialog::graphClicked);
 
     graph_ctx_menu_.addAction(ui->actionSaveGraph);
 
@@ -294,18 +295,13 @@ RtpAnalysisDialog::RtpAnalysisDialog(QWidget &parent, CaptureFile &cf) :
     save_menu->addAction(ui->actionSaveGraph);
     export_btn->setMenu(save_menu);
 
-    connect(ui->tabWidget, SIGNAL(currentChanged(int)),
-            this, SLOT(updateWidgets()));
-    connect(ui->tabWidget->tabBar(), SIGNAL(tabCloseRequested(int)),
-            this, SLOT(closeTab(int)));
-    connect(this, SIGNAL(updateFilter(QString, bool)),
-            &parent, SLOT(filterPackets(QString, bool)));
-    connect(this, SIGNAL(rtpPlayerDialogReplaceRtpStreams(QVector<rtpstream_id_t *>)),
-            &parent, SLOT(rtpPlayerDialogReplaceRtpStreams(QVector<rtpstream_id_t *>)));
-    connect(this, SIGNAL(rtpPlayerDialogAddRtpStreams(QVector<rtpstream_id_t *>)),
-            &parent, SLOT(rtpPlayerDialogAddRtpStreams(QVector<rtpstream_id_t *>)));
-    connect(this, SIGNAL(rtpPlayerDialogRemoveRtpStreams(QVector<rtpstream_id_t *>)),
-            &parent, SLOT(rtpPlayerDialogRemoveRtpStreams(QVector<rtpstream_id_t *>)));
+    WiresharkMainWindow* ws_main_window = qobject_cast<WiresharkMainWindow*>(&parent);
+    connect(ui->tabWidget, &QTabWidget::currentChanged, this, &RtpAnalysisDialog::updateWidgets);
+    connect(ui->tabWidget->tabBar(), &QTabBar::tabCloseRequested, this, &RtpAnalysisDialog::closeTab);
+    connect(this, &RtpAnalysisDialog::updateFilter, ws_main_window, &WiresharkMainWindow::filterPackets);
+    connect(this, &RtpAnalysisDialog::rtpPlayerDialogReplaceRtpStreams, ws_main_window, &WiresharkMainWindow::rtpPlayerDialogReplaceRtpStreams);
+    connect(this, &RtpAnalysisDialog::rtpPlayerDialogAddRtpStreams, ws_main_window, &WiresharkMainWindow::rtpPlayerDialogAddRtpStreams);
+    connect(this, &RtpAnalysisDialog::rtpPlayerDialogRemoveRtpStreams, ws_main_window, &WiresharkMainWindow::rtpPlayerDialogRemoveRtpStreams);
 
     updateWidgets();
 
@@ -378,10 +374,8 @@ int RtpAnalysisDialog::addTabUI(tab_info_t *new_tab)
     new_tab->tree_widget->installEventFilter(this);
     new_tab->tree_widget->setContextMenuPolicy(Qt::CustomContextMenu);
     new_tab->tree_widget->header()->setSortIndicator(0, Qt::AscendingOrder);
-    connect(new_tab->tree_widget, SIGNAL(customContextMenuRequested(QPoint)),
-                SLOT(showStreamMenu(QPoint)));
-    connect(new_tab->tree_widget, SIGNAL(itemSelectionChanged()),
-            this, SLOT(updateWidgets()));
+    connect(new_tab->tree_widget, &QTreeWidget::customContextMenuRequested, this, &RtpAnalysisDialog::showStreamMenu);
+    connect(new_tab->tree_widget, &QTreeWidget::itemSelectionChanged, this, &RtpAnalysisDialog::updateWidgets);
 
     QTreeWidgetItem *ti = new_tab->tree_widget->headerItem();
     ti->setText(packet_col_, tr("Packet"));
@@ -432,32 +426,44 @@ int RtpAnalysisDialog::addTabUI(tab_info_t *new_tab)
     new_tab->stream_checkbox->setIcon(StockIcon::colorIcon(color.rgb(), QPalette::Text));
     new_tab->graphHorizontalLayout->addWidget(new_tab->stream_checkbox);
     new_tab->graphHorizontalLayout->addItem(new QSpacerItem(10, 5, QSizePolicy::Expanding, QSizePolicy::Minimum));
-    connect(new_tab->stream_checkbox, SIGNAL(stateChanged(int)),
-            this, SLOT(rowCheckboxChanged(int)));
+#if QT_VERSION >= QT_VERSION_CHECK(6, 7, 0)
+    connect(new_tab->stream_checkbox, &QCheckBox::checkStateChanged, this, &RtpAnalysisDialog::rowCheckboxChanged);
+#else
+    connect(new_tab->stream_checkbox, &QCheckBox::stateChanged, this, &RtpAnalysisDialog::rowCheckboxChanged);
+#endif
 
     new_tab->jitter_checkbox = new QCheckBox(tr("Stream %1 Jitter").arg(tab_seq - 1), ui->graphTab);
     new_tab->jitter_checkbox->setChecked(true);
     new_tab->jitter_checkbox->setIcon(StockIcon::colorIconCircle(color.rgb(), QPalette::Text));
     new_tab->graphHorizontalLayout->addWidget(new_tab->jitter_checkbox);
     new_tab->graphHorizontalLayout->addItem(new QSpacerItem(10, 5, QSizePolicy::Expanding, QSizePolicy::Minimum));
-    connect(new_tab->jitter_checkbox, SIGNAL(stateChanged(int)),
-            this, SLOT(singleCheckboxChanged(int)));
+#if QT_VERSION >= QT_VERSION_CHECK(6, 7, 0)
+    connect(new_tab->jitter_checkbox, &QCheckBox::checkStateChanged, this, &RtpAnalysisDialog::singleCheckboxChanged);
+#else
+    connect(new_tab->jitter_checkbox, &QCheckBox::stateChanged, this, &RtpAnalysisDialog::singleCheckboxChanged);
+#endif
 
     new_tab->diff_checkbox = new QCheckBox(tr("Stream %1 Difference").arg(tab_seq - 1), ui->graphTab);
     new_tab->diff_checkbox->setChecked(true);
     new_tab->diff_checkbox->setIcon(StockIcon::colorIconCross(color.rgb(), QPalette::Text));
     new_tab->graphHorizontalLayout->addWidget(new_tab->diff_checkbox);
     new_tab->graphHorizontalLayout->addItem(new QSpacerItem(10, 5, QSizePolicy::Expanding, QSizePolicy::Minimum));
-    connect(new_tab->diff_checkbox, SIGNAL(stateChanged(int)),
-            this, SLOT(singleCheckboxChanged(int)));
+#if QT_VERSION >= QT_VERSION_CHECK(6, 7, 0)
+    connect(new_tab->diff_checkbox, &QCheckBox::checkStateChanged, this, &RtpAnalysisDialog::singleCheckboxChanged);
+#else
+    connect(new_tab->diff_checkbox, &QCheckBox::stateChanged, this, &RtpAnalysisDialog::singleCheckboxChanged);
+#endif
 
     new_tab->delta_checkbox = new QCheckBox(tr("Stream %1 Delta").arg(tab_seq - 1), ui->graphTab);
     new_tab->delta_checkbox->setChecked(true);
     new_tab->delta_checkbox->setIcon(StockIcon::colorIconTriangle(color.rgb(), QPalette::Text));
     new_tab->graphHorizontalLayout->addWidget(new_tab->delta_checkbox);
     new_tab->graphHorizontalLayout->addItem(new QSpacerItem(10, 5, QSizePolicy::Expanding, QSizePolicy::Minimum));
-    connect(new_tab->delta_checkbox, SIGNAL(stateChanged(int)),
-            this, SLOT(singleCheckboxChanged(int)));
+#if QT_VERSION >= QT_VERSION_CHECK(6, 7, 0)
+    connect(new_tab->delta_checkbox, &QCheckBox::checkStateChanged, this, &RtpAnalysisDialog::singleCheckboxChanged);
+#else
+    connect(new_tab->diff_checkbox, &QCheckBox::stateChanged, this, &RtpAnalysisDialog::singleCheckboxChanged);
+#endif
 
     new_tab->graphHorizontalLayout->setStretch(6, 1);
 
@@ -1142,9 +1148,19 @@ QToolButton *RtpAnalysisDialog::addAnalyzeButton(QDialogButtonBox *button_box, Q
     analysis_button->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
     analysis_button->setPopupMode(QToolButton::MenuButtonPopup);
 
+    RtpPlayerDialog *rtp_player_dialog = qobject_cast<RtpPlayerDialog *>(dialog);
+    RtpStreamDialog *rtp_stream_dialog = nullptr;
+    if (!rtp_player_dialog) {
+        rtp_stream_dialog = qobject_cast<RtpStreamDialog *>(dialog);
+    }
+
     ca = new QAction(tr("&Analyze"), analysis_button);
     ca->setToolTip(tr("Open the analysis window for the selected stream(s)"));
-    connect(ca, SIGNAL(triggered()), dialog, SLOT(rtpAnalysisReplace()));
+    if (rtp_player_dialog) {
+        connect(ca, &QAction::triggered, rtp_player_dialog, &RtpPlayerDialog::rtpAnalysisReplace);
+    } else if (rtp_stream_dialog) {
+        connect(ca, &QAction::triggered, rtp_stream_dialog, &RtpStreamDialog::rtpAnalysisReplace);
+    }
     analysis_button->setDefaultAction(ca);
     // Overrides text striping of shortcut undercode in QAction
     analysis_button->setText(ca->text());
@@ -1153,13 +1169,25 @@ QToolButton *RtpAnalysisDialog::addAnalyzeButton(QDialogButtonBox *button_box, Q
     button_menu->setToolTipsVisible(true);
     ca = button_menu->addAction(tr("&Set List"));
     ca->setToolTip(tr("Replace existing list in RTP Analysis Dialog with new one"));
-    connect(ca, SIGNAL(triggered()), dialog, SLOT(rtpAnalysisReplace()));
+    if (rtp_player_dialog) {
+        connect(ca, &QAction::triggered, rtp_player_dialog, &RtpPlayerDialog::rtpAnalysisReplace);
+    } else if (rtp_stream_dialog) {
+        connect(ca, &QAction::triggered, rtp_stream_dialog, &RtpStreamDialog::rtpAnalysisReplace);
+    }
     ca = button_menu->addAction(tr("&Add to List"));
     ca->setToolTip(tr("Add new set to existing list in RTP Analysis Dialog"));
-    connect(ca, SIGNAL(triggered()), dialog, SLOT(rtpAnalysisAdd()));
+    if (rtp_player_dialog) {
+        connect(ca, &QAction::triggered, rtp_player_dialog, &RtpPlayerDialog::rtpAnalysisAdd);
+    } else if (rtp_stream_dialog) {
+        connect(ca, &QAction::triggered, rtp_stream_dialog, &RtpStreamDialog::rtpAnalysisAdd);
+    }
     ca = button_menu->addAction(tr("&Remove from List"));
     ca->setToolTip(tr("Remove selected streams from list in RTP Analysis Dialog"));
-    connect(ca, SIGNAL(triggered()), dialog, SLOT(rtpAnalysisRemove()));
+    if (rtp_player_dialog) {
+        connect(ca, &QAction::triggered, rtp_player_dialog, &RtpPlayerDialog::rtpAnalysisRemove);
+    } else if (rtp_stream_dialog) {
+        connect(ca, &QAction::triggered, rtp_stream_dialog, &RtpStreamDialog::rtpAnalysisRemove);
+    }
     analysis_button->setMenu(button_menu);
 
     return analysis_button;

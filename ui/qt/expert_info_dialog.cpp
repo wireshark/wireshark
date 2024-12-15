@@ -65,8 +65,7 @@ ExpertInfoDialog::ExpertInfoDialog(QWidget &parent, CaptureFile &capture_file, Q
     ui->severitiesPushButton->setMenu(ui->menuShowExpert);
 
     ui->expertInfoTreeView->setContextMenuPolicy(Qt::CustomContextMenu);
-    connect(ui->expertInfoTreeView, SIGNAL(customContextMenuRequested(QPoint)),
-                SLOT(showExpertInfoMenu(QPoint)));
+    connect(ui->expertInfoTreeView, &ExpertInfoTreeView::customContextMenuRequested, this, &ExpertInfoDialog::showExpertInfoMenu);
 
     QMenu *submenu;
 
@@ -75,7 +74,7 @@ ExpertInfoDialog::ExpertInfoDialog(QWidget &parent, CaptureFile &capture_file, Q
     foreach (FilterAction::ActionType at, FilterAction::actionTypes()) {
         FilterAction *fa = new FilterAction(submenu, cur_action, at);
         submenu->addAction(fa);
-        connect(fa, SIGNAL(triggered()), this, SLOT(filterActionTriggered()));
+        connect(fa, &FilterAction::triggered, this, &ExpertInfoDialog::filterActionTriggered);
     }
 
     cur_action = FilterAction::ActionPrepare;
@@ -83,7 +82,7 @@ ExpertInfoDialog::ExpertInfoDialog(QWidget &parent, CaptureFile &capture_file, Q
     foreach (FilterAction::ActionType at, FilterAction::actionTypes()) {
         FilterAction *fa = new FilterAction(submenu, cur_action, at);
         submenu->addAction(fa);
-        connect(fa, SIGNAL(triggered()), this, SLOT(filterActionTriggered()));
+        connect(fa, &FilterAction::triggered, this, &ExpertInfoDialog::filterActionTriggered);
     }
 
     FilterAction *fa;
@@ -96,25 +95,24 @@ ExpertInfoDialog::ExpertInfoDialog(QWidget &parent, CaptureFile &capture_file, Q
     foreach (FilterAction::Action extra_action, extra_actions) {
         fa = new FilterAction(&ctx_menu_, extra_action);
         ctx_menu_.addAction(fa);
-        connect(fa, SIGNAL(triggered()), this, SLOT(filterActionTriggered()));
+        connect(fa, &FilterAction::triggered, this, &ExpertInfoDialog::filterActionTriggered);
     }
 
     //Add collapse/expand all menu options
     QAction *collapse = new QAction(tr("Collapse All"), this);
     ctx_menu_.addAction(collapse);
-    connect(collapse, SIGNAL(triggered()), this, SLOT(collapseTree()));
+    connect(collapse, &QAction::triggered, this, &ExpertInfoDialog::collapseTree);
 
     QAction *expand = new QAction(tr("Expand All"), this);
     ctx_menu_.addAction(expand);
-    connect(expand, SIGNAL(triggered()), this, SLOT(expandTree()));
+    connect(expand, &QAction::triggered, this, &ExpertInfoDialog::expandTree);
 
-    connect(&cap_file_, SIGNAL(captureEvent(CaptureEvent)),
-            this, SLOT(captureEvent(CaptureEvent)));
+    connect(&cap_file_, &CaptureFile::captureEvent, this, &ExpertInfoDialog::captureEvent);
 
     ProgressFrame::addToButtonBox(ui->buttonBox, &parent);
 
     updateWidgets();
-    QTimer::singleShot(0, this, SLOT(retapPackets()));
+    QTimer::singleShot(0, this, &ExpertInfoDialog::retapPackets);
 }
 
 ExpertInfoDialog::~ExpertInfoDialog()

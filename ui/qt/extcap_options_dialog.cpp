@@ -330,7 +330,7 @@ void ExtcapOptionsDialog::updateWidgets()
                     QPushButton *button = new QPushButton(defaultValueIcon_,"");
                     button->setToolTip(tr("Restore default value of the item"));
                     layout->addWidget(button, counter, 2, Qt::AlignVCenter);
-                    connect(button, SIGNAL(clicked()), argument, SLOT(setDefaultValue()));
+                    connect(button, &QPushButton::clicked, argument, &ExtcapArgument::setDefaultValue);
                 }
             }
 

@@ -75,15 +75,12 @@ ColoringRulesDialog::ColoringRulesDialog(QWidget *parent, QString add_filter) :
     ui->pathLabel->setAttribute(Qt::WA_MacSmallSize, true);
 #endif
 
-    connect(ui->coloringRulesTreeView->selectionModel(), SIGNAL(selectionChanged(const QItemSelection &, const QItemSelection &)),
-            this, SLOT(colorRuleSelectionChanged(const QItemSelection &, const QItemSelection &)));
-    connect(&colorRuleDelegate_, SIGNAL(invalidField(const QModelIndex&, const QString&)),
-            this, SLOT(invalidField(const QModelIndex&, const QString&)));
-    connect(&colorRuleDelegate_, SIGNAL(validField(const QModelIndex&)),
-            this, SLOT(validField(const QModelIndex&)));
+    connect(ui->coloringRulesTreeView->selectionModel(), &QItemSelectionModel::selectionChanged, this, &ColoringRulesDialog::colorRuleSelectionChanged);
+    connect(&colorRuleDelegate_, &ColoringRulesDelegate::invalidField, this, &ColoringRulesDialog::invalidField);
+    connect(&colorRuleDelegate_, &ColoringRulesDelegate::validField, this, &ColoringRulesDialog::validField);
     connect(ui->coloringRulesTreeView, &QTreeView::clicked, this, &ColoringRulesDialog::treeItemClicked);
-    connect(&colorRuleModel_, SIGNAL(rowsInserted(const QModelIndex &, int, int)), this, SLOT(rowCountChanged()));
-    connect(&colorRuleModel_, SIGNAL(rowsRemoved(const QModelIndex &, int, int)), this, SLOT(rowCountChanged()));
+    connect(&colorRuleModel_, &ColoringRulesModel::rowsInserted, this, &ColoringRulesDialog::rowCountChanged);
+    connect(&colorRuleModel_, &ColoringRulesModel::rowsRemoved, this, &ColoringRulesDialog::rowCountChanged);
 
     rowCountChanged();
 

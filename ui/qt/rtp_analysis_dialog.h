@@ -38,6 +38,8 @@ class QCPGraph;
 class QTemporaryFile;
 class QDialogButtonBox;
 
+class PacketList;
+
 typedef struct {
     rtpstream_info_t stream;
     QVector<double> *time_vals;
@@ -66,7 +68,7 @@ public:
     /**
      * Returns singleton
      */
-    static RtpAnalysisDialog *openRtpAnalysisDialog(QWidget &parent, CaptureFile &cf, QObject *packet_list);
+    static RtpAnalysisDialog *openRtpAnalysisDialog(QWidget &parent, CaptureFile &cf, PacketList *packet_list);
 
     /**
      * Should not be clonnable and assignable
