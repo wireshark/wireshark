@@ -220,7 +220,7 @@ static void dissect_ubx_gps_l1_tlm(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
     uint32_t tlm_preamble;
     proto_item* pi_tlm_preamble = proto_tree_add_item_ret_uint(tlm_tree, hf_ubx_gps_l1_tlm_preamble, tvb, 0, 4, ENC_LITTLE_ENDIAN, &tlm_preamble);
     if (tlm_preamble != 0x8b) {
-        expert_add_info_format(pinfo, pi_tlm_preamble, &ei_ubx_gps_l1_tlm_preamble, "Invalid preamble");
+        expert_add_info(pinfo, pi_tlm_preamble, &ei_ubx_gps_l1_tlm_preamble);
     }
 
     proto_tree_add_item(tlm_tree, hf_ubx_gps_l1_tlm_message,   tvb, 0, 4, ENC_LITTLE_ENDIAN);
@@ -238,7 +238,7 @@ static void dissect_ubx_gps_l1_how(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
     uint32_t tow_count;
     proto_item* pi_how_tow_count = proto_tree_add_item_ret_uint(how_tree, hf_ubx_gps_l1_how_tow_count, tvb, 4, 4, ENC_LITTLE_ENDIAN, &tow_count);
     if (tow_count > 100799) {
-        expert_add_info_format(pinfo, pi_how_tow_count, &ei_ubx_gps_l1_how_tow_count, "Invalid TOW count");
+        expert_add_info(pinfo, pi_how_tow_count, &ei_ubx_gps_l1_how_tow_count);
     }
 
     proto_tree_add_item(how_tree, hf_ubx_gps_l1_how_alert,       tvb, 4, 4, ENC_LITTLE_ENDIAN);
@@ -246,7 +246,7 @@ static void dissect_ubx_gps_l1_how(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
 
     proto_item* pi_how_sf_id = proto_tree_add_item_ret_uint(how_tree, hf_ubx_gps_l1_how_subframe_id, tvb, 4, 4, ENC_LITTLE_ENDIAN, &subframe_id);
     if (subframe_id > 5) {
-        expert_add_info_format(pinfo, pi_how_sf_id, &ei_ubx_gps_l1_how_subframe_id, "Invalid subframe ID");
+        expert_add_info(pinfo, pi_how_sf_id, &ei_ubx_gps_l1_how_subframe_id);
     }
 
     proto_tree_add_item(how_tree, hf_ubx_gps_l1_how_parity_sol,  tvb, 4, 4, ENC_LITTLE_ENDIAN);
@@ -361,9 +361,9 @@ void proto_register_ubx_gps_l1(void) {
     expert_module_t *expert_ubx_gps_l1;
 
     static ei_register_info ei[] = {
-        {&ei_ubx_gps_l1_tlm_preamble,    {"gps_l1.tlm.preamble",    PI_PROTOCOL, PI_WARN, "Illegal preamble",    EXPFILL}},
-        {&ei_ubx_gps_l1_how_tow_count,   {"gps_l1.how.tow_count",   PI_PROTOCOL, PI_WARN, "Illegal TOW count",   EXPFILL}},
-        {&ei_ubx_gps_l1_how_subframe_id, {"gps_l1.how.subframe_id", PI_PROTOCOL, PI_WARN, "Illegal subframe ID", EXPFILL}},
+        {&ei_ubx_gps_l1_tlm_preamble,    {"gps_l1.tlm.preamble.invalid",    PI_PROTOCOL, PI_WARN, "Invalid preamble",    EXPFILL}},
+        {&ei_ubx_gps_l1_how_tow_count,   {"gps_l1.how.tow_count.invalid",   PI_PROTOCOL, PI_WARN, "Invalid TOW count",   EXPFILL}},
+        {&ei_ubx_gps_l1_how_subframe_id, {"gps_l1.how.subframe_id.invalid", PI_PROTOCOL, PI_WARN, "Invalid subframe ID", EXPFILL}},
     };
 
     static int *ett[] = {
