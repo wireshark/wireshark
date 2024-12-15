@@ -3045,12 +3045,14 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>모든 파일 (</translation>
     </message>
     <message>
-        <source>Open File</source>
-        <translation>파일 열기</translation>
+        <source>%1 Open File</source>
+        <oldsource>Open File</oldsource>
+        <translation type="unfinished">파일 열기</translation>
     </message>
     <message>
-        <source>Select File</source>
-        <translation>파일 선택</translation>
+        <source>%1 Select File</source>
+        <oldsource>Select File</oldsource>
+        <translation type="unfinished">파일 선택</translation>
     </message>
 </context>
 <context>
@@ -6918,6 +6920,18 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <source>Display filter as %1</source>
         <translation>%1(으)로 표시 필터</translation>
     </message>
+    <message>
+        <source>The Wireshark Network Analyzer</source>
+        <translation type="unfinished">Wireshark 네트워크 분석기</translation>
+    </message>
+    <message>
+        <source>The Stratoshark System Call and Log Analyzer</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Capturing from %1</source>
+        <translation type="unfinished">%1에서 캡처 중</translation>
+    </message>
 </context>
 <context>
     <name>MainWindowPreferencesFrame</name>
@@ -8297,8 +8311,12 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>필터 필드 참조</translation>
     </message>
     <message>
+        <source>Copied %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Copied </source>
-        <translation>복사됨 </translation>
+        <translation type="vanished">복사됨 </translation>
     </message>
     <message>
         <source>Wiki Page for %1</source>
@@ -15257,11 +15275,11 @@ a:hover {
     </message>
     <message>
         <source>The Wireshark Network Analyzer</source>
-        <translation>Wireshark 네트워크 분석기</translation>
+        <translation type="vanished">Wireshark 네트워크 분석기</translation>
     </message>
     <message>
         <source>Capturing from %1</source>
-        <translation>%1에서 캡처 중</translation>
+        <translation type="vanished">%1에서 캡처 중</translation>
     </message>
     <message>
         <source> before opening another file</source>

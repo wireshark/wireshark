@@ -3052,12 +3052,14 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <translation>Alla filer (</translation>
     </message>
     <message>
-        <source>Open File</source>
-        <translation>Öppna fil</translation>
+        <source>%1 Open File</source>
+        <oldsource>Open File</oldsource>
+        <translation type="unfinished">Öppna fil</translation>
     </message>
     <message>
-        <source>Select File</source>
-        <translation>Välj fil</translation>
+        <source>%1 Select File</source>
+        <oldsource>Select File</oldsource>
+        <translation type="unfinished">Välj fil</translation>
     </message>
 </context>
 <context>
@@ -6940,6 +6942,18 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <source>Display filter as %1</source>
         <translation>Visningsfilter som %1</translation>
     </message>
+    <message>
+        <source>The Wireshark Network Analyzer</source>
+        <translation type="unfinished">Nätverksanalysatorn Wireshark</translation>
+    </message>
+    <message>
+        <source>The Stratoshark System Call and Log Analyzer</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Capturing from %1</source>
+        <translation type="unfinished">Fångst från %1</translation>
+    </message>
 </context>
 <context>
     <name>MainWindowPreferencesFrame</name>
@@ -8329,8 +8343,12 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <translation>Filterfältreferens</translation>
     </message>
     <message>
+        <source>Copied %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Copied </source>
-        <translation>Kopierade </translation>
+        <translation type="vanished">Kopierade </translation>
     </message>
     <message>
         <source>Wiki Page for %1</source>
@@ -15294,11 +15312,11 @@ a:hover {
     </message>
     <message>
         <source>The Wireshark Network Analyzer</source>
-        <translation>Nätverksanalysatorn Wireshark</translation>
+        <translation type="vanished">Nätverksanalysatorn Wireshark</translation>
     </message>
     <message>
         <source>Capturing from %1</source>
-        <translation>Fångst från %1</translation>
+        <translation type="vanished">Fångst från %1</translation>
     </message>
     <message>
         <source> before opening another file</source>

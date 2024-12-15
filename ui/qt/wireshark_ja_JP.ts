@@ -3046,12 +3046,14 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>すべてのファイル(</translation>
     </message>
     <message>
-        <source>Open File</source>
-        <translation>ファイルを開く</translation>
+        <source>%1 Open File</source>
+        <oldsource>Open File</oldsource>
+        <translation type="unfinished">ファイルを開く</translation>
     </message>
     <message>
-        <source>Select File</source>
-        <translation>ファイルを選択</translation>
+        <source>%1 Select File</source>
+        <oldsource>Select File</oldsource>
+        <translation type="unfinished">ファイルを選択</translation>
     </message>
 </context>
 <context>
@@ -6923,6 +6925,18 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <source>Display filter as %1</source>
         <translation>%1 として表示フィルタ</translation>
     </message>
+    <message>
+        <source>The Wireshark Network Analyzer</source>
+        <translation type="unfinished">ワイヤーシャークネットワークアナライザ</translation>
+    </message>
+    <message>
+        <source>The Stratoshark System Call and Log Analyzer</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Capturing from %1</source>
+        <translation type="unfinished">%1 からキャプチャ中</translation>
+    </message>
 </context>
 <context>
     <name>MainWindowPreferencesFrame</name>
@@ -8302,8 +8316,12 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>フィルタフィールドリファレンス</translation>
     </message>
     <message>
+        <source>Copied %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Copied </source>
-        <translation>コピー済</translation>
+        <translation type="vanished">コピー済</translation>
     </message>
     <message>
         <source>Wiki Page for %1</source>
@@ -15264,11 +15282,11 @@ a:hover {
     </message>
     <message>
         <source>The Wireshark Network Analyzer</source>
-        <translation>ワイヤーシャークネットワークアナライザ</translation>
+        <translation type="vanished">ワイヤーシャークネットワークアナライザ</translation>
     </message>
     <message>
         <source>Capturing from %1</source>
-        <translation>%1 からキャプチャ中</translation>
+        <translation type="vanished">%1 からキャプチャ中</translation>
     </message>
     <message>
         <source> before opening another file</source>

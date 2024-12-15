@@ -3054,12 +3054,14 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation>Tutti i file (</translation>
     </message>
     <message>
-        <source>Open File</source>
-        <translation>Apri file</translation>
+        <source>%1 Open File</source>
+        <oldsource>Open File</oldsource>
+        <translation type="unfinished">Apri file</translation>
     </message>
     <message>
-        <source>Select File</source>
-        <translation>Seleziona file</translation>
+        <source>%1 Select File</source>
+        <oldsource>Select File</oldsource>
+        <translation type="unfinished">Seleziona file</translation>
     </message>
 </context>
 <context>
@@ -6942,6 +6944,18 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <source>Display filter as %1</source>
         <translation>Filtro di visualizzazione come %1</translation>
     </message>
+    <message>
+        <source>The Wireshark Network Analyzer</source>
+        <translation type="unfinished">Wireshark l&apos;analizzatore di rete</translation>
+    </message>
+    <message>
+        <source>The Stratoshark System Call and Log Analyzer</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Capturing from %1</source>
+        <translation type="unfinished">Cattura da %1</translation>
+    </message>
 </context>
 <context>
     <name>MainWindowPreferencesFrame</name>
@@ -8331,8 +8345,12 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation>Riferimento campo di filtro</translation>
     </message>
     <message>
+        <source>Copied %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Copied </source>
-        <translation>Copiato</translation>
+        <translation type="vanished">Copiato</translation>
     </message>
     <message>
         <source>Wiki Page for %1</source>
@@ -15293,11 +15311,11 @@ a:hover {
     </message>
     <message>
         <source>The Wireshark Network Analyzer</source>
-        <translation>Wireshark l&apos;analizzatore di rete</translation>
+        <translation type="vanished">Wireshark l&apos;analizzatore di rete</translation>
     </message>
     <message>
         <source>Capturing from %1</source>
-        <translation>Cattura da %1</translation>
+        <translation type="vanished">Cattura da %1</translation>
     </message>
     <message>
         <source> before opening another file</source>

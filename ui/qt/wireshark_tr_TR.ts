@@ -3045,12 +3045,14 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Tüm Dosyalar (</translation>
     </message>
     <message>
-        <source>Open File</source>
-        <translation>Dosyayı Aç</translation>
+        <source>%1 Open File</source>
+        <oldsource>Open File</oldsource>
+        <translation type="unfinished">Dosyayı Aç</translation>
     </message>
     <message>
-        <source>Select File</source>
-        <translation>Dosya Seçin</translation>
+        <source>%1 Select File</source>
+        <oldsource>Select File</oldsource>
+        <translation type="unfinished">Dosya Seçin</translation>
     </message>
 </context>
 <context>
@@ -6918,6 +6920,18 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <source>Display filter as %1</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>The Wireshark Network Analyzer</source>
+        <translation type="unfinished">Wireshark Ağ Çözümleyicisi</translation>
+    </message>
+    <message>
+        <source>The Stratoshark System Call and Log Analyzer</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Capturing from %1</source>
+        <translation type="unfinished">%1&apos;den yakalama</translation>
+    </message>
 </context>
 <context>
     <name>MainWindowPreferencesFrame</name>
@@ -8297,8 +8311,12 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Filtre Alanı Referansı</translation>
     </message>
     <message>
+        <source>Copied %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Copied </source>
-        <translation>Kopyalandı </translation>
+        <translation type="vanished">Kopyalandı </translation>
     </message>
     <message>
         <source>Wiki Page for %1</source>
@@ -15257,11 +15275,11 @@ a:üzerine gelin{
     </message>
     <message>
         <source>The Wireshark Network Analyzer</source>
-        <translation>Wireshark Ağ Çözümleyicisi</translation>
+        <translation type="vanished">Wireshark Ağ Çözümleyicisi</translation>
     </message>
     <message>
         <source>Capturing from %1</source>
-        <translation>%1&apos;den yakalama</translation>
+        <translation type="vanished">%1&apos;den yakalama</translation>
     </message>
     <message>
         <source> before opening another file</source>

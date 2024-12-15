@@ -3041,11 +3041,13 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>所有文件 (</translation>
     </message>
     <message>
-        <source>Open File</source>
-        <translation>打开文件</translation>
+        <source>%1 Open File</source>
+        <oldsource>Open File</oldsource>
+        <translation type="unfinished">打开文件</translation>
     </message>
     <message>
-        <source>Select File</source>
+        <source>%1 Select File</source>
+        <oldsource>Select File</oldsource>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -6914,6 +6916,18 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <source>Display filter as %1</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>The Wireshark Network Analyzer</source>
+        <translation type="unfinished">Wireshark 网络分析器</translation>
+    </message>
+    <message>
+        <source>The Stratoshark System Call and Log Analyzer</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Capturing from %1</source>
+        <translation type="unfinished">正在捕获 %1</translation>
+    </message>
 </context>
 <context>
     <name>MainWindowPreferencesFrame</name>
@@ -8280,7 +8294,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished">过滤器字段参考</translation>
     </message>
     <message>
-        <source>Copied </source>
+        <source>Copied %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -15194,11 +15208,11 @@ a:hover {
     </message>
     <message>
         <source>The Wireshark Network Analyzer</source>
-        <translation>Wireshark 网络分析器</translation>
+        <translation type="vanished">Wireshark 网络分析器</translation>
     </message>
     <message>
         <source>Capturing from %1</source>
-        <translation>正在捕获 %1</translation>
+        <translation type="vanished">正在捕获 %1</translation>
     </message>
     <message>
         <source> before opening another file</source>
