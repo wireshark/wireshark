@@ -201,12 +201,8 @@ static int hf_icmpv6_opt_padding = -1;
 static int hf_icmpv6_opt_rdnss_lifetime = -1;
 static int hf_icmpv6_opt_rdnss = -1;
 static int hf_icmpv6_opt_efo = -1;
-static int hf_icmpv6_opt_efo_m = -1;
-static int hf_icmpv6_opt_efo_o = -1;
-static int hf_icmpv6_opt_efo_h = -1;
-static int hf_icmpv6_opt_efo_prf = -1;
-static int hf_icmpv6_opt_efo_p = -1;
 static int hf_icmpv6_opt_efo_rsv = -1;
+static int hf_icmpv6_opt_efo_pex = -1;
 static int hf_icmpv6_opt_hkr_pad_length = -1;
 static int hf_icmpv6_opt_hkr_at = -1;
 static int hf_icmpv6_opt_hkr_reserved = -1;
@@ -1135,8 +1131,8 @@ static const value_string icmpv6_option_cert_type_vals[] = {
 #define FLAGS_EO_H      0x2000
 #define FLAGS_EO_PRF    0x1800
 #define FLAGS_EO_P      0x0400
-#define FLAGS_EO_RSV    0x02FF
-
+#define FLAGS_EO_RSV    0xFFFFFFFFFFFC
+#define FLAGS_EO_PEX    0x000000000003
 
 
 /* RPL : RFC 6550 : Routing over Low-Power and Lossy Networks. */
@@ -2291,20 +2287,13 @@ static int dissect_icmpv6_nd_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, 
             case ND_OPT_FLAGS_EXTENSION: /* RA Flags Extension Option (26) */
             {
                 static int * const extension_flags[] = {
-                    &hf_icmpv6_opt_efo_m,
-                    &hf_icmpv6_opt_efo_o,
-                    &hf_icmpv6_opt_efo_h,
-                    &hf_icmpv6_opt_efo_prf,
-                    &hf_icmpv6_opt_efo_p,
                     &hf_icmpv6_opt_efo_rsv,
+                    &hf_icmpv6_opt_efo_pex,
                     NULL
                 };
 
                 proto_tree_add_bitmask(icmp6opt_tree, tvb, opt_offset, hf_icmpv6_opt_efo, ett_icmpv6_flag_efo, extension_flags, ENC_BIG_ENDIAN);
-                opt_offset += 2;
-
-                proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_reserved, tvb, opt_offset, 4, ENC_NA);
-                opt_offset += 4;
+                opt_offset += 6;
                 break;
             }
             case ND_OPT_HANDOVER_KEY_REQUEST: /* Handover Key Request Option (27) */
@@ -5240,26 +5229,14 @@ proto_register_icmpv6(void)
           { "Recursive DNS Servers", "icmpv6.opt.rdnss", FT_IPv6, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
         { &hf_icmpv6_opt_efo,
-          { "Flags Expansion Option", "icmpv6.opt.efo", FT_UINT16, BASE_HEX, NULL, 0x0,
+          { "Flags Expansion Option", "icmpv6.opt.efo", FT_UINT48, BASE_HEX, NULL, 0x0,
             NULL, HFILL }},
-        { &hf_icmpv6_opt_efo_m,
-          { "Managed address configuration", "icmpv6.opt.efo.m", FT_BOOLEAN, 16, TFS(&tfs_set_notset), FLAGS_EO_M,
-            "When set, it indicates that addresses are available via DHCPv6", HFILL }},
-        { &hf_icmpv6_opt_efo_o,
-          { "Other configuration", "icmpv6.opt.efo.o", FT_BOOLEAN, 16, TFS(&tfs_set_notset), FLAGS_EO_O,
-            "When set, it indicates that other configuration information is available via DHCPv6", HFILL }},
-        { &hf_icmpv6_opt_efo_h,
-          { "Home Agent", "icmpv6.opt.efo.h", FT_BOOLEAN, 16, TFS(&tfs_set_notset), FLAGS_EO_H,
-            "When set, it indicate that the router sending this Router Advertisement is also functioning as a Mobile IPv6 home agent on this link", HFILL }},
-        { &hf_icmpv6_opt_efo_prf,
-          { "Prf (Default Router Preference)", "icmpv6.opt.efo.prf", FT_UINT16, BASE_DEC, VALS(nd_flag_router_pref), FLAGS_EO_PRF,
-            "Indicates whether to prefer this router over other default routers", HFILL }},
-        { &hf_icmpv6_opt_efo_p,
-          { "Proxy", "icmpv6.opt.efo.p", FT_BOOLEAN, 16, TFS(&tfs_set_notset), FLAGS_EO_P,
-           NULL, HFILL }},
         { &hf_icmpv6_opt_efo_rsv,
-          { "Reserved", "icmpv6.opt.efo.rsv", FT_UINT16, BASE_DEC, NULL, FLAGS_EO_RSV,
+          { "Reserved", "icmpv6.opt.efo.rsv", FT_UINT48, BASE_HEX, NULL, FLAGS_EO_RSV,
             "Must be Zero", HFILL }},
+        { &hf_icmpv6_opt_efo_pex,
+          { "Private Experimentation", "icmpv6.opt.efo.pex", FT_UINT48, BASE_HEX, NULL, FLAGS_EO_PEX,
+            NULL, HFILL }},
         { &hf_icmpv6_opt_hkr_pad_length,
           { "Pad Length", "icmpv6.opt.hkr.pad_length", FT_UINT8, BASE_DEC, NULL, 0x0,
             "The number of padding octets beyond the end of the Handover Key", HFILL }},
