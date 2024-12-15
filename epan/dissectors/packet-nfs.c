@@ -2790,8 +2790,8 @@ dissect_timeval(tvbuff_t *tvb, int offset, proto_tree *tree, int hf_time, int hf
 
 /* NFSv2 RFC 1094, Page 16 */
 static const value_string nfs2_mode_names[] = {
-	{	1,	"Directory"	},
-	{	2,	"Character Special Device"	},
+	{	1,	"Character Special Device"	},
+	{	2,	"Directory"	},
 	{	3,	"Block Special Device"	},
 	{	4,	"Regular File"	},
 	{	5,	"Symbolic Link"	},
@@ -2839,6 +2839,9 @@ dissect_nfs2_fattr(tvbuff_t *tvb, int offset, proto_tree *tree, const char *name
 
 	offset = dissect_nfs2_ftype(tvb, offset, fattr_tree);
 	offset = dissect_nfs2_mode(tvb, offset, fattr_tree);
+	/* XXX - "Notice that the file type is specified both in the mode bits
+	 * and in the file type." - Expert Info if inconsistent?
+	 */
 	offset = dissect_rpc_uint32(tvb, fattr_tree, hf_nfs2_fattr_nlink, offset);
 	offset = dissect_rpc_uint32(tvb, fattr_tree, hf_nfs2_fattr_uid, offset);
 	offset = dissect_rpc_uint32(tvb, fattr_tree, hf_nfs2_fattr_gid, offset);
