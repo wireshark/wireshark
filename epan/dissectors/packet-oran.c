@@ -4837,9 +4837,17 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
                     uint32_t symbol_mask;
                     proto_item *sm_ti;
                     sm_ti = proto_tree_add_item_ret_uint(command_tree, hf_oran_symbolMask, tvb, offset, 2, ENC_BIG_ENDIAN, &symbol_mask);
-                    if ((sleep_mode != 0) && (symbol_mask != 0x0 && symbol_mask != 0x3fff)) {
+                    if (symbol_mask == 0x0) {
+                        proto_item_append_text(sm_ti, " (wake)");
+                        col_append_str(pinfo->cinfo, COL_INFO, " (wake)");
+                    }
+                    else if (symbol_mask == 0x3fff) {
+                        proto_item_append_text(sm_ti, " (sleep)");
+                        col_append_str(pinfo->cinfo, COL_INFO, " (sleep)");
+                    }
+                    else {
                         expert_add_info_format(pinfo, sm_ti, &ei_oran_bad_symbolmask,
-                                               "For non-zero sleepMode (%u), symbolMask should be 0x0 or 0x3ffff - found 0x%05x",
+                                               "For non-zero sleepMode (%u), symbolMask should be 0x0 or 0x3fff - found 0x%05x",
                                                sleep_mode, symbol_mask);
                     }
                     offset += 2;
