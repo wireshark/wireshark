@@ -1179,17 +1179,16 @@ static const value_string icmpv6_option_cert_type_vals[] = {
 #define ND_RA_FLAG_RTPREF_MASK  0x18 /* 00011000 */
 #define ND_RA_FLAG_RESERV_MASK  0xE7 /* 11100111 */
 
-/* RFC 5075/5175 : IPv6 Router Advertisement Flags Option */
-#define FLAGS_EO_M      0x8000
-#define FLAGS_EO_O      0x4000
-#define FLAGS_EO_H      0x2000
-#define FLAGS_EO_PRF    0x1800
-#define FLAGS_EO_P      0x0400
+/* RFC 5175 : IPv6 Router Advertisement Flags Expansion Option */
 #define FLAGS_EO_RSV    0xFFFFFFFFFFFC
 #define FLAGS_EO_PEX    0x000000000003
 
+/* RFC 6275: Mobility Support in IPv6 */
+#define FLAGS_MIP6_M   0x8000
+#define FLAGS_MIP6_O   0x4000
+#define FLAGS_MIP6_RSV 0x3FFF
 
-/* RPL : RFC 6550 : Routing over Low-Power and Lossy Networks. */
+/* RPL: RFC 6550 : Routing over Low-Power and Lossy Networks. */
 /* RPL ICMPv6 Codes */
 #define ICMP6_RPL_DIS           0x00   /* DODAG Information Solicitation */
 #define ICMP6_RPL_DIO           0x01   /* DODAG Information Object */
@@ -5680,13 +5679,13 @@ proto_register_icmpv6(void)
           { "Flags", "icmpv6.mip6.flag", FT_UINT16, BASE_HEX, NULL, 0x0,
             NULL, HFILL }},
         { &hf_icmpv6_mip6_flag_m,
-          { "Managed address configuration", "icmpv6.mip6.flag.m", FT_BOOLEAN, 16, TFS(&tfs_set_notset), FLAGS_EO_M,
+          { "Managed address configuration", "icmpv6.mip6.flag.m", FT_BOOLEAN, 16, TFS(&tfs_set_notset), FLAGS_MIP6_M,
             "When set, it indicates that addresses are available via DHCPv6", HFILL }},
         { &hf_icmpv6_mip6_flag_o,
-          { "Other configuration", "icmpv6.mip6.flag.o", FT_BOOLEAN, 16, TFS(&tfs_set_notset), FLAGS_EO_O,
+          { "Other configuration", "icmpv6.mip6.flag.o", FT_BOOLEAN, 16, TFS(&tfs_set_notset), FLAGS_MIP6_O,
             "When set, it indicates that other configuration information is available via DHCPv6", HFILL }},
         { &hf_icmpv6_mip6_flag_rsv,
-          { "Reserved", "icmpv6.mip6.flag.rsv", FT_UINT16, BASE_DEC, NULL, 0x3FFF,
+          { "Reserved", "icmpv6.mip6.flag.rsv", FT_UINT16, BASE_DEC, NULL, FLAGS_MIP6_RSV,
             "Must be Zero", HFILL }},
 
         /* RFC3810: Multicast Listener Discovery Version 2 (MLDv2) for IPv6 */
