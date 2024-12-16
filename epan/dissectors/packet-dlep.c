@@ -872,7 +872,9 @@ decode_dataitem_li(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pt, void *data
   int offset = 0;
 
   proto_tree_add_item(pt, hf_dlep_dataitem_li, tvb, offset, len, ENC_NA);
-  proto_item_append_text(pi, ": %s", tvb_bytes_to_str(pinfo->pool, tvb, offset, len));
+  if (len > 0) {
+    proto_item_append_text(pi, ": %s", tvb_bytes_to_str(pinfo->pool, tvb, offset, len));
+  }
   offset+=len;
 
   return offset;
