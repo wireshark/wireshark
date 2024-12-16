@@ -4330,7 +4330,7 @@ proto_register_ber(void)
                 "OCTETSTRING", "ber.unknown.OCTETSTRING", FT_BYTES, BASE_NONE,
                 NULL, 0, "This is an unknown OCTETSTRING", HFILL }},
         { &hf_ber_unknown_BER_OCTETSTRING, {
-                "OCTETSTRING [BER encoded]", "ber.unknown.OCTETSTRING", FT_NONE, BASE_NONE,
+                "OCTETSTRING [BER encoded]", "ber.unknown.OCTETSTRING", FT_BYTES, BASE_NO_DISPLAY_VALUE,
                 NULL, 0, "This is an BER encoded OCTETSTRING", HFILL }},
         { &hf_ber_unknown_BER_primitive, {
                 "Primitive [BER encoded]", "ber.unknown.primitive", FT_NONE, BASE_NONE,
