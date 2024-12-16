@@ -4815,8 +4815,7 @@ int dissect_wassp_sub_tlv(proto_tree *wassp_tree, tvbuff_t *tvb, packet_info *pi
 				}
 			}
 
-			tlvi =   proto_tree_add_item(tmp_tree, hf_wassp_tlv_type_sub, tvb, offset + TLV_TYPE, 2, ENC_NA);
-			proto_item_append_text(tlvi, " : %s (%d)", label, tlv_type);
+			tlvi =   proto_tree_add_uint_format_value(tmp_tree, hf_wassp_tlv_type_sub, tvb, offset + TLV_TYPE, 2, tlv_type, "%s (%d)", label, tlv_type);
 			proto_tree_add_item(tmp_tree, hf_wassp_tlv_length, tvb, offset + TLV_LENGTH, 2, ENC_BIG_ENDIAN);
 
 			if (tlv_type == EID_PARSE_ERROR)
@@ -6559,7 +6558,7 @@ void proto_register_wassp(void)
 			&hf_wassp_tlv_value,
 			{
 				"Wassp TLV", "wassp.tlv.value", FT_NONE, BASE_NONE, NULL,
-				0x0, "Wassp TLV in hexadecimal", HFILL
+				0x0, NULL, HFILL
 			}
 		},
 		{
@@ -6572,8 +6571,8 @@ void proto_register_wassp(void)
 		{
 			&hf_wassp_tlv_type_sub,
 			{
-				"Type", "wassp.tlv.type", FT_NONE, BASE_NONE, NULL,
-				0x0, "Wassp TLV type", HFILL
+				"Type", "wassp.tlv.type.sub", FT_UINT16, BASE_DEC, NULL,
+				0x0, "Wassp sub TLV type", HFILL
 			}
 		},
 		{
