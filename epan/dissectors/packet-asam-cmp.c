@@ -2303,7 +2303,7 @@ proto_register_asam_cmp(void) {
         { &hf_cmp_can_id_11bit,                     { "ID (11bit)", "asam-cmp.msg.can.id_11bit", FT_UINT32, BASE_HEX_DEC, NULL, CMP_CAN_ID_11BIT_MASK, NULL, HFILL }},
         { &hf_cmp_can_id_11bit_old,                 { "ID (11bit)", "asam-cmp.msg.can.id_11bit", FT_UINT32, BASE_HEX_DEC, NULL, CMP_CAN_ID_11BIT_MASK_OLD, NULL, HFILL }},
         { &hf_cmp_can_id_29bit,                     { "ID (29bit)", "asam-cmp.msg.can.id_29bit", FT_UINT32, BASE_HEX_DEC, NULL, CMP_CAN_ID_29BIT_MASK, NULL, HFILL }},
-        { &hf_cmp_can_id_res,                       { "Reserved", "asam-cmp.msg.can.res", FT_BOOLEAN, 32, NULL, CMP_CAN_ID_RES, NULL, HFILL }},
+        { &hf_cmp_can_id_res,                       { "Reserved", "asam-cmp.msg.can.id_res", FT_BOOLEAN, 32, NULL, CMP_CAN_ID_RES, NULL, HFILL }},
         { &hf_cmp_can_id_rtr,                       { "RTR", "asam-cmp.msg.can.rtr", FT_BOOLEAN, 32, TFS(&can_id_rtr), CMP_CAN_ID_RTR, NULL, HFILL }},
         { &hf_cmp_can_id_ide,                       { "IDE", "asam-cmp.msg.can.ide", FT_BOOLEAN, 32, TFS(&can_id_ide), CMP_CAN_ID_IDE, NULL, HFILL }},
 
@@ -2338,7 +2338,7 @@ proto_register_asam_cmp(void) {
         { &hf_cmp_canfd_id_11bit,                   { "ID (11bit)", "asam-cmp.msg.canfd.id_11bit", FT_UINT32, BASE_HEX_DEC, NULL, CMP_CAN_ID_11BIT_MASK, NULL, HFILL }},
         { &hf_cmp_canfd_id_11bit_old,               { "ID (11bit)", "asam-cmp.msg.canfd.id_11bit", FT_UINT32, BASE_HEX_DEC, NULL, CMP_CAN_ID_11BIT_MASK_OLD, NULL, HFILL }},
         { &hf_cmp_canfd_id_29bit,                   { "ID (29bit)", "asam-cmp.msg.canfd.id_29bit", FT_UINT32, BASE_HEX_DEC, NULL, CMP_CAN_ID_29BIT_MASK, NULL, HFILL }},
-        { &hf_cmp_canfd_id_res,                     { "Reserved", "asam-cmp.msg.canfd.res", FT_BOOLEAN, 32, NULL, CMP_CANFD_ID_RES, NULL, HFILL }},
+        { &hf_cmp_canfd_id_res,                     { "Reserved", "asam-cmp.msg.canfd.id_res", FT_BOOLEAN, 32, NULL, CMP_CANFD_ID_RES, NULL, HFILL }},
         { &hf_cmp_canfd_id_rrs,                     { "RRS", "asam-cmp.msg.canfd.rrs", FT_BOOLEAN, 32, NULL, CMP_CANFD_ID_RRS, NULL, HFILL }},
         { &hf_cmp_canfd_id_ide,                     { "IDE", "asam-cmp.msg.canfd.ide", FT_BOOLEAN, 32, NULL, CMP_CANFD_ID_IDE, NULL, HFILL }},
 
