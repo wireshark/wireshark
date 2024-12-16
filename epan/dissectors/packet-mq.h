@@ -2638,7 +2638,9 @@ typedef struct _mq_parm_t
 #define MQ_MQCA_DEF_XMIT_Q_NAME           2025
 #define MQ_MQCA_DNS_GROUP                 2071
 #define MQ_MQCA_ENV_DATA                  2007
-#define MQ_MQCA_FIRST                     2001
+// Cooment out as not used?
+// // Causes (mq.inq.sel) has a conflicting entry in its value_string: 2001 is at indices 240 (MQCA_APPL_ID) and 241 (MQCA_FIRST)
+//#define MQ_MQCA_FIRST                     2001
 #define MQ_MQCA_IGQ_USER_ID               2041
 #define MQ_MQCA_INITIATION_Q_NAME         2008
 #define MQ_MQCA_INSTALLATION_DESC         2115
