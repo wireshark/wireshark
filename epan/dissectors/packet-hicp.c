@@ -377,7 +377,7 @@ proto_register_hicp(void)
 
     static ei_register_info ei[] = {
         { &ei_hicp_error,
-          { "hicp.error", PI_RESPONSE_CODE, PI_NOTE,
+          { "hicp.error.expert", PI_RESPONSE_CODE, PI_NOTE,
             "Message contains an error message.", EXPFILL }
         }
     };
