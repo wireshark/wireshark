@@ -1,5 +1,5 @@
 <? wireshark:protocol
-   proto_name="poc-settings"
+   proto_name="poc-settings-xml"
    description="poc-settings XML doc (RFC 4354)"
    hierarchy="yes" ?>
 
