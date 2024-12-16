@@ -37,7 +37,7 @@ void
 register_show_exception(void)
 {
 	static ei_register_info ei_dissector_bug_set[] = {
-		{ &ei_dissector_bug, { "_ws.dissector_bug", PI_DISSECTOR_BUG, PI_ERROR, "Dissector bug", EXPFILL }},
+		{ &ei_dissector_bug, { "_ws.dissector_bug.expert", PI_DISSECTOR_BUG, PI_ERROR, "Dissector bug", EXPFILL }},
 	};
 	static ei_register_info ei_malformed_set[] = {
 		{ &ei_malformed_reassembly, { "_ws.malformed.reassembly", PI_MALFORMED, PI_ERROR, "Reassembly error", EXPFILL }},
