@@ -35,6 +35,7 @@
 #include <epan/prefs.h>
 
 #include <wsutil/wsgcrypt.h>
+#include <wsutil/array.h>
 
 #include "packet-icmp.h"
 
@@ -577,7 +578,7 @@ void proto_register_communityid(void)
 
     static hf_register_info hf[] = {
         { &hf_communityid_hash,
-          { "Community ID", "communityid", FT_STRING, BASE_NONE, NULL, 0x00,
+          { "Community ID", "communityid.hash", FT_STRING, BASE_NONE, NULL, 0x00,
             "Community ID hash value for this packet's flow", HFILL }}
     };
 

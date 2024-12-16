@@ -975,7 +975,7 @@ class TestDissectCommunityId:
             (cmd_tshark,
              '--enable-protocol', 'communityid',
              '-r', capture_file('communityid.pcap.gz'),
-             '-Tfields', '-ecommunityid',
+             '-Tfields', '-ecommunityid.hash',
              ), encoding='utf-8', env=test_env)
 
         self.check_baseline(dirs, stdout, 'communityid.txt')
@@ -987,8 +987,8 @@ class TestDissectCommunityId:
             (cmd_tshark,
              '--enable-protocol', 'communityid',
              '-r', capture_file('communityid.pcap.gz'),
-             '-Tfields', '-ecommunityid',
-             'communityid=="1:d/FP5EW3wiY1vCndhwleRRKHowQ="'
+             '-Tfields', '-ecommunityid.hash',
+             'communityid.hash=="1:d/FP5EW3wiY1vCndhwleRRKHowQ="'
              ), encoding='utf-8', env=test_env)
 
         self.check_baseline(dirs, stdout, 'communityid-filtered.txt')
