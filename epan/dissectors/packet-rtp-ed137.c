@@ -32,6 +32,7 @@
 #include <epan/to_str.h>
 #include <epan/expert.h>
 #include <epan/conversation.h>
+#include <wsutil/array.h>
 
 #include "packet-rtp.h"
 
@@ -1302,7 +1303,7 @@ proto_register_rtp_ed137(void)
             &hf_rtp_hdr_ed137,
             {
                 "ED137 extension",
-                "rtp.ext.ed137",
+                "rtp.ext.ed137hdr",
                 FT_NONE,
                 BASE_NONE,
                 NULL,
