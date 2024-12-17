@@ -2737,7 +2737,7 @@ void proto_register_1722_acf_can(void)
               FT_UINT64, BASE_HEX, NULL, IEEE_1722_ACF_CAN_MSG_TIMESTAMP_MASK, NULL, HFILL }
         },
         { &hf_1722_can_rsv2,
-            { "Reserved", "can.reserved",
+            { "Reserved", "acf-can.rsv2",
               FT_UINT32, BASE_HEX, NULL, IEEE_1722_ACF_CAN_RSV2_MASK, NULL, HFILL }
         },
         { &hf_1722_can_identifier,
