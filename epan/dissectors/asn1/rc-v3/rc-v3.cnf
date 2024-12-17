@@ -43,7 +43,8 @@ E2SM-RC-QueryHeader
 #.TYPE_RENAME
 
 #.FIELD_RENAME
-
+GlobalenGNB-ID/en-gNB-ID en-gNB-ID_choice
+GlobalGNB-ID/gNB-ID gNB-ID_choice
 #.FIELD_ATTR
 
 #.ASSIGN_VALUE_TO_TYPE

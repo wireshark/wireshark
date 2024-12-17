@@ -500,11 +500,11 @@ static int hf_rc_v3_pLMN_Identity;                /* PLMNIdentity */
 static int hf_rc_v3_mME_Group_ID;                 /* MME_Group_ID */
 static int hf_rc_v3_mME_Code;                     /* MME_Code */
 static int hf_rc_v3_en_gNB_ID;                    /* BIT_STRING_SIZE_22_32 */
-static int hf_rc_v3_en_gNB_ID_01;                 /* EN_GNB_ID */
+static int hf_rc_v3_en_gNB_ID_choice;             /* EN_GNB_ID */
 static int hf_rc_v3_eUTRACellIdentity;            /* EUTRACellIdentity */
-static int hf_rc_v3_gNB_ID;                       /* GNB_ID */
+static int hf_rc_v3_gNB_ID_choice;                /* GNB_ID */
 static int hf_rc_v3_ngENB_ID;                     /* NgENB_ID */
-static int hf_rc_v3_gNB_ID_01;                    /* BIT_STRING_SIZE_22_32 */
+static int hf_rc_v3_gNB_ID;                       /* BIT_STRING_SIZE_22_32 */
 static int hf_rc_v3_aMFRegionID;                  /* AMFRegionID */
 static int hf_rc_v3_aMFSetID;                     /* AMFSetID */
 static int hf_rc_v3_aMFPointer;                   /* AMFPointer */
@@ -1961,7 +1961,7 @@ static const value_string rc_v3_GNB_ID_vals[] = {
 };
 
 static const per_choice_t GNB_ID_choice[] = {
-  {   0, &hf_rc_v3_gNB_ID_01     , ASN1_EXTENSION_ROOT    , dissect_rc_v3_BIT_STRING_SIZE_22_32 },
+  {   0, &hf_rc_v3_gNB_ID        , ASN1_EXTENSION_ROOT    , dissect_rc_v3_BIT_STRING_SIZE_22_32 },
   { 0, NULL, 0, NULL }
 };
 
@@ -1977,7 +1977,7 @@ dissect_rc_v3_GNB_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, pr
 
 static const per_sequence_t GlobalGNB_ID_sequence[] = {
   { &hf_rc_v3_pLMNIdentity  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rc_v3_PLMNIdentity },
-  { &hf_rc_v3_gNB_ID        , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rc_v3_GNB_ID },
+  { &hf_rc_v3_gNB_ID_choice , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rc_v3_GNB_ID },
   { NULL, 0, 0, NULL }
 };
 
@@ -3322,7 +3322,7 @@ dissect_rc_v3_EN_GNB_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_,
 
 static const per_sequence_t GlobalenGNB_ID_sequence[] = {
   { &hf_rc_v3_pLMN_Identity , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rc_v3_PLMNIdentity },
-  { &hf_rc_v3_en_gNB_ID_01  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rc_v3_EN_GNB_ID },
+  { &hf_rc_v3_en_gNB_ID_choice, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rc_v3_EN_GNB_ID },
   { NULL, 0, 0, NULL }
 };
 
@@ -8542,23 +8542,23 @@ void proto_register_rc_v3(void) {
       { "en-gNB-ID", "rc-v3.en_gNB_ID",
         FT_BYTES, BASE_NONE, NULL, 0,
         "BIT_STRING_SIZE_22_32", HFILL }},
-    { &hf_rc_v3_en_gNB_ID_01,
-      { "en-gNB-ID", "rc-v3.en_gNB_ID",
+    { &hf_rc_v3_en_gNB_ID_choice,
+      { "en-gNB-ID", "rc-v3.en_gNB_ID_choice",
         FT_UINT32, BASE_DEC, VALS(rc_v3_EN_GNB_ID_vals), 0,
         NULL, HFILL }},
     { &hf_rc_v3_eUTRACellIdentity,
       { "eUTRACellIdentity", "rc-v3.eUTRACellIdentity",
         FT_BYTES, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-    { &hf_rc_v3_gNB_ID,
-      { "gNB-ID", "rc-v3.gNB_ID",
+    { &hf_rc_v3_gNB_ID_choice,
+      { "gNB-ID", "rc-v3.gNB_ID_choice",
         FT_UINT32, BASE_DEC, VALS(rc_v3_GNB_ID_vals), 0,
         NULL, HFILL }},
     { &hf_rc_v3_ngENB_ID,
       { "ngENB-ID", "rc-v3.ngENB_ID",
         FT_UINT32, BASE_DEC, VALS(rc_v3_NgENB_ID_vals), 0,
         NULL, HFILL }},
-    { &hf_rc_v3_gNB_ID_01,
+    { &hf_rc_v3_gNB_ID,
       { "gNB-ID", "rc-v3.gNB_ID",
         FT_BYTES, BASE_NONE, NULL, 0,
         "BIT_STRING_SIZE_22_32", HFILL }},
