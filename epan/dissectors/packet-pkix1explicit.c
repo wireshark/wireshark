@@ -73,8 +73,8 @@ static int hf_pkix1explicit_type_01;              /* T_type_01 */
 static int hf_pkix1explicit_value;                /* T_value */
 static int hf_pkix1explicit_RDNSequence_item;     /* RelativeDistinguishedName */
 static int hf_pkix1explicit_RelativeDistinguishedName_item;  /* AttributeTypeAndValue */
-static int hf_pkix1explicit_type_02;              /* TeletexString */
-static int hf_pkix1explicit_value_01;             /* TeletexString */
+static int hf_pkix1explicit_teletexAttribute_type;  /* TeletexString */
+static int hf_pkix1explicit_teletexAttribute_value;  /* TeletexString */
 static int hf_pkix1explicit_Features_item;        /* INTEGER */
 static int hf_pkix1explicit_IPAddrBlocks_item;    /* IPAddressFamily */
 static int hf_pkix1explicit_addressFamily;        /* T_addressFamily */
@@ -84,16 +84,16 @@ static int hf_pkix1explicit_addressesOrRanges;    /* SEQUENCE_OF_IPAddressOrRang
 static int hf_pkix1explicit_addressesOrRanges_item;  /* IPAddressOrRange */
 static int hf_pkix1explicit_addressPrefix;        /* IPAddress */
 static int hf_pkix1explicit_addressRange;         /* IPAddressRange */
-static int hf_pkix1explicit_min;                  /* IPAddress */
-static int hf_pkix1explicit_max;                  /* IPAddress */
+static int hf_pkix1explicit_addressRange_min;     /* IPAddress */
+static int hf_pkix1explicit_addressRange_max;     /* IPAddress */
 static int hf_pkix1explicit_asnum;                /* ASIdentifierChoice */
 static int hf_pkix1explicit_rdi;                  /* ASIdentifierChoice */
 static int hf_pkix1explicit_asIdsOrRanges;        /* SEQUENCE_OF_ASIdOrRange */
 static int hf_pkix1explicit_asIdsOrRanges_item;   /* ASIdOrRange */
 static int hf_pkix1explicit_id;                   /* ASId */
 static int hf_pkix1explicit_range;                /* ASRange */
-static int hf_pkix1explicit_min_01;               /* ASId */
-static int hf_pkix1explicit_max_01;               /* ASId */
+static int hf_pkix1explicit_range_min;            /* ASId */
+static int hf_pkix1explicit_range_max;            /* ASId */
 
 /* Initialize the subtree pointers */
 static int ett_pkix1explicit_Time;
@@ -511,8 +511,8 @@ dissect_pkix1explicit_TeletexString(bool implicit_tag _U_, tvbuff_t *tvb _U_, in
 
 
 static const ber_sequence_t TeletexDomainDefinedAttribute_sequence[] = {
-  { &hf_pkix1explicit_type_02, BER_CLASS_UNI, BER_UNI_TAG_TeletexString, BER_FLAGS_NOOWNTAG, dissect_pkix1explicit_TeletexString },
-  { &hf_pkix1explicit_value_01, BER_CLASS_UNI, BER_UNI_TAG_TeletexString, BER_FLAGS_NOOWNTAG, dissect_pkix1explicit_TeletexString },
+  { &hf_pkix1explicit_teletexAttribute_type, BER_CLASS_UNI, BER_UNI_TAG_TeletexString, BER_FLAGS_NOOWNTAG, dissect_pkix1explicit_TeletexString },
+  { &hf_pkix1explicit_teletexAttribute_value, BER_CLASS_UNI, BER_UNI_TAG_TeletexString, BER_FLAGS_NOOWNTAG, dissect_pkix1explicit_TeletexString },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -581,8 +581,8 @@ dissect_pkix1explicit_IPAddress(bool implicit_tag _U_, tvbuff_t *tvb _U_, int of
 
 
 static const ber_sequence_t IPAddressRange_sequence[] = {
-  { &hf_pkix1explicit_min   , BER_CLASS_UNI, BER_UNI_TAG_BITSTRING, BER_FLAGS_NOOWNTAG, dissect_pkix1explicit_IPAddress },
-  { &hf_pkix1explicit_max   , BER_CLASS_UNI, BER_UNI_TAG_BITSTRING, BER_FLAGS_NOOWNTAG, dissect_pkix1explicit_IPAddress },
+  { &hf_pkix1explicit_addressRange_min, BER_CLASS_UNI, BER_UNI_TAG_BITSTRING, BER_FLAGS_NOOWNTAG, dissect_pkix1explicit_IPAddress },
+  { &hf_pkix1explicit_addressRange_max, BER_CLASS_UNI, BER_UNI_TAG_BITSTRING, BER_FLAGS_NOOWNTAG, dissect_pkix1explicit_IPAddress },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -691,8 +691,8 @@ dissect_pkix1explicit_ASId(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 
 
 static const ber_sequence_t ASRange_sequence[] = {
-  { &hf_pkix1explicit_min_01, BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_pkix1explicit_ASId },
-  { &hf_pkix1explicit_max_01, BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_pkix1explicit_ASId },
+  { &hf_pkix1explicit_range_min, BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_pkix1explicit_ASId },
+  { &hf_pkix1explicit_range_max, BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_pkix1explicit_ASId },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -943,12 +943,12 @@ void proto_register_pkix1explicit(void) {
       { "AttributeTypeAndValue", "pkix1explicit.AttributeTypeAndValue_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-    { &hf_pkix1explicit_type_02,
-      { "type", "pkix1explicit.type",
+    { &hf_pkix1explicit_teletexAttribute_type,
+      { "type", "pkix1explicit.teletexAttribute_type",
         FT_STRING, BASE_NONE, NULL, 0,
         "TeletexString", HFILL }},
-    { &hf_pkix1explicit_value_01,
-      { "value", "pkix1explicit.value",
+    { &hf_pkix1explicit_teletexAttribute_value,
+      { "value", "pkix1explicit.teletexAttribute_value",
         FT_STRING, BASE_NONE, NULL, 0,
         "TeletexString", HFILL }},
     { &hf_pkix1explicit_Features_item,
@@ -987,12 +987,12 @@ void proto_register_pkix1explicit(void) {
       { "addressRange", "pkix1explicit.addressRange_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "IPAddressRange", HFILL }},
-    { &hf_pkix1explicit_min,
-      { "min", "pkix1explicit.min",
+    { &hf_pkix1explicit_addressRange_min,
+      { "min", "pkix1explicit.addressRange_min",
         FT_BYTES, BASE_NONE, NULL, 0,
         "IPAddress", HFILL }},
-    { &hf_pkix1explicit_max,
-      { "max", "pkix1explicit.max",
+    { &hf_pkix1explicit_addressRange_max,
+      { "max", "pkix1explicit.addressRange_max",
         FT_BYTES, BASE_NONE, NULL, 0,
         "IPAddress", HFILL }},
     { &hf_pkix1explicit_asnum,
@@ -1019,12 +1019,12 @@ void proto_register_pkix1explicit(void) {
       { "range", "pkix1explicit.range_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "ASRange", HFILL }},
-    { &hf_pkix1explicit_min_01,
-      { "min", "pkix1explicit.min",
+    { &hf_pkix1explicit_range_min,
+      { "min", "pkix1explicit.range_min",
         FT_INT32, BASE_DEC, NULL, 0,
         "ASId", HFILL }},
-    { &hf_pkix1explicit_max_01,
-      { "max", "pkix1explicit.max",
+    { &hf_pkix1explicit_range_max,
+      { "max", "pkix1explicit.range_max",
         FT_INT32, BASE_DEC, NULL, 0,
         "ASId", HFILL }},
   };

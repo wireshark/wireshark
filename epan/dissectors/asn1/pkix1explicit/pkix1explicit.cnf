@@ -36,6 +36,13 @@ Extensions      B "1.2.840.113549.1.9.14" "pkcs-9-at-extensionRequest"
 #.TYPE_RENAME
 
 #.FIELD_RENAME
+IPAddressRange/min addressRange-min
+IPAddressRange/max addressRange-max
+ASRange/min range-min
+ASRange/max range-max
+TeletexDomainDefinedAttribute/type teletexAttribute-type
+TeletexDomainDefinedAttribute/value teletexAttribute-value
+
 
 #.FN_BODY DirectoryString
 	offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index, NULL);
@@ -85,12 +92,6 @@ Extensions      B "1.2.840.113549.1.9.14" "pkcs-9-at-extensionRequest"
 	proto_tree_add_item(subtree, hf_pkix1explicit_addressFamily_afn, parameter_tvb, 0, 2, ENC_BIG_ENDIAN);
 	if(tvb_reported_length(parameter_tvb)>2)
 		proto_tree_add_item(subtree, hf_pkix1explicit_addressFamily_safi, parameter_tvb, 0, 2, ENC_BIG_ENDIAN);
-
-#.TYPE_ATTR
-TeletexDomainDefinedAttribute/type DISPLAY = BASE_NONE
-
-#.TYPE_ATTR
-TeletexDomainDefinedAttribute/value DISPLAY = BASE_NONE
 
 #.TYPE_ATTR
 Features/_item TYPE = FT_UINT16  STRINGS = VALS(tls_hello_extension_types) BLURB = "TLS Extension that MUST be supported by the server"
