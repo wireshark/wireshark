@@ -94,6 +94,7 @@ typedef struct tcpheader {
 	uint32_t th_stream; /* this stream index field is included to help differentiate when address/port pairs are reused */
 	address ip_src;
 	address ip_dst;
+	bool flagkarn; /* XXX - might later become a bit field */
 
 	/* This is the absolute maximum we could find in TCP options (RFC2018, section 3) */
 	#define MAX_TCP_SACK_RANGES 4
@@ -155,9 +156,10 @@ pdu_store_sequencenumber_of_next_pdu(packet_info *pinfo, uint32_t seq, uint32_t 
 typedef struct _tcp_unacked_t {
 	struct _tcp_unacked_t *next;
 	uint32_t frame;
-	uint32_t	seq;
-	uint32_t	nextseq;
+	uint32_t seq;
+	uint32_t nextseq;
 	nstime_t ts;
+	bool     karn_flag; /* indication for the later Karn discovery */
 } tcp_unacked_t;
 
 struct tcp_acked {
@@ -177,6 +179,7 @@ struct tcp_acked {
 				 where new data starts */
 	bool partial_ack; /* true when acknowledging data
 				 and not a full segment */
+	bool iskarn; /* true when this ACK is ambiguous according to Karn */
 };
 
 /* One instance of this structure is created for each pdu that spans across
@@ -522,6 +525,7 @@ struct tcp_per_packet_data_t {
 	nstime_t	ts_del;
 	uint32_t        pnum;
 	uint8_t		tcp_snd_manual_analysis;
+	bool		karn_flag; /* XXX - might later become a bit field */
 };
 
 /* Structure that keeps per packet data. Some operations are cpu-intensive and are
