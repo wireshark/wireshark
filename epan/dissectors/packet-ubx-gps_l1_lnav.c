@@ -195,6 +195,7 @@ static int hf_ubx_gps_l1_sf1_w9_af2;
 static int hf_ubx_gps_l1_sf1_w9_af1;
 static int hf_ubx_gps_l1_sf1_w9_parity;
 static int hf_ubx_gps_l1_sf1_w10_af0;
+static int hf_ubx_gps_l1_sf1_w10_t;
 static int hf_ubx_gps_l1_sf1_w10_parity;
 
 // Subframe 2 (see IS-GPS-200N, Section 20.3.3.4)
@@ -371,6 +372,7 @@ static int dissect_ubx_gps_l1_sf1(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
     // subframe 1, word 10
     proto_tree *w10_tree = proto_tree_add_subtree_format(tree,  tvb, 36, 4, ett_ubx_gps_l1_sf1_w10, NULL, "Word 10");
     proto_tree_add_item(w10_tree, hf_ubx_gps_l1_sf1_w10_af0,    tvb, 36, 4, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(w10_tree, hf_ubx_gps_l1_sf1_w10_t,      tvb, 36, 4, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(w10_tree, hf_ubx_gps_l1_sf1_w10_parity, tvb, 36, 4, ENC_LITTLE_ENDIAN);
 
     return tvb_captured_length(tvb);
@@ -491,7 +493,8 @@ void proto_register_ubx_gps_l1(void) {
         {&hf_ubx_gps_l1_sf1_w9_parity, {"Parity",                                     "gps_l1.sf1.w9.parity", FT_UINT32, BASE_HEX, NULL, 0x0000003f, NULL, HFILL}},
 
         // Subframe 1 - Word 10
-        {&hf_ubx_gps_l1_sf1_w10_af0,    {"SV Clock Bias Correction Coefficient a_f0", "gps_l1.sf1.w10.af0",    FT_INT32,  BASE_DEC, NULL, 0x3fffffc0, NULL, HFILL}},
+        {&hf_ubx_gps_l1_sf1_w10_af0,    {"SV Clock Bias Correction Coefficient a_f0", "gps_l1.sf1.w10.af0",    FT_INT32,  BASE_DEC, NULL, 0x3fffff00, NULL, HFILL}},
+        {&hf_ubx_gps_l1_sf1_w10_t,      {"t",                                         "gps_l1.sf1.w10.t",      FT_UINT32, BASE_HEX, NULL, 0x000000c0, NULL, HFILL}},
         {&hf_ubx_gps_l1_sf1_w10_parity, {"Parity",                                    "gps_l1.sf1.w10.parity", FT_UINT32, BASE_HEX, NULL, 0x0000003f, NULL, HFILL}},
 
 
