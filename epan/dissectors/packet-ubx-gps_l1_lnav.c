@@ -171,12 +171,12 @@ static int hf_ubx_gps_l1_how_parity_sol;
 static int hf_ubx_gps_l1_how_parity;
 
 // Subframe 1 (see IS-GPS-200N, Section 20.3.3.3)
-static int hf_ubx_gps_l1_sf1_week_no;
-static int hf_ubx_gps_l1_sf1_l2_channel_code;
-static int hf_ubx_gps_l1_sf1_ura_index;
-static int hf_ubx_gps_l1_sf1_sv_health_summary;
-static int hf_ubx_gps_l1_sf1_sv_health;
-static int hf_ubx_gps_l1_sf1_iodc_msbs;
+static int hf_ubx_gps_l1_sf1_w3_week_no;
+static int hf_ubx_gps_l1_sf1_w3_l2_channel_code;
+static int hf_ubx_gps_l1_sf1_w3_ura_index;
+static int hf_ubx_gps_l1_sf1_w3_sv_health_summary;
+static int hf_ubx_gps_l1_sf1_w3_sv_health;
+static int hf_ubx_gps_l1_sf1_w3_iodc_msbs;
 static int hf_ubx_gps_l1_sf1_w3_parity;
 static int hf_ubx_gps_l1_sf1_w4_l2_p_data_flag;
 static int hf_ubx_gps_l1_sf1_w4_reserved;
@@ -198,8 +198,8 @@ static int hf_ubx_gps_l1_sf1_w10_af0;
 static int hf_ubx_gps_l1_sf1_w10_parity;
 
 // Subframe 2 (see IS-GPS-200N, Section 20.3.3.4)
-static int hf_ubx_gps_l1_sf2_iode;
-static int hf_ubx_gps_l1_sf2_c_rs;
+static int hf_ubx_gps_l1_sf2_w3_iode;
+static int hf_ubx_gps_l1_sf2_w3_c_rs;
 static int hf_ubx_gps_l1_sf2_w3_parity;
 static int hf_ubx_gps_l1_sf2_w4_delta_n;
 static int hf_ubx_gps_l1_sf2_w4_m0_msbs;
@@ -306,16 +306,16 @@ static void dissect_ubx_gps_l1_how(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
         expert_add_info(pinfo, pi_how_tow_count, &ei_ubx_gps_l1_how_tow_count);
     }
 
-    proto_tree_add_item(how_tree, hf_ubx_gps_l1_how_alert,       tvb, 4, 4, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(how_tree, hf_ubx_gps_l1_how_anti_spoof,  tvb, 4, 4, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(how_tree, hf_ubx_gps_l1_how_alert,      tvb, 4, 4, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(how_tree, hf_ubx_gps_l1_how_anti_spoof, tvb, 4, 4, ENC_LITTLE_ENDIAN);
 
     proto_item* pi_how_sf_id = proto_tree_add_item_ret_uint(how_tree, hf_ubx_gps_l1_how_subframe_id, tvb, 4, 4, ENC_LITTLE_ENDIAN, &subframe_id);
     if (subframe_id > 5) {
         expert_add_info(pinfo, pi_how_sf_id, &ei_ubx_gps_l1_how_subframe_id);
     }
 
-    proto_tree_add_item(how_tree, hf_ubx_gps_l1_how_parity_sol,  tvb, 4, 4, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(how_tree, hf_ubx_gps_l1_how_parity,      tvb, 4, 4, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(how_tree, hf_ubx_gps_l1_how_parity_sol, tvb, 4, 4, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(how_tree, hf_ubx_gps_l1_how_parity,     tvb, 4, 4, ENC_LITTLE_ENDIAN);
 }
 
 /* Dissect subframe 1 */
@@ -324,14 +324,14 @@ static int dissect_ubx_gps_l1_sf1(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
     dissect_ubx_gps_l1_how(tvb, pinfo, tree, data);
 
     // subframe 1, word 3
-    proto_tree *w3_tree = proto_tree_add_subtree_format(tree,         tvb, 8, 4, ett_ubx_gps_l1_sf1_w3, NULL, "Word 3");
-    proto_tree_add_item(w3_tree, hf_ubx_gps_l1_sf1_week_no,           tvb, 8, 4, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(w3_tree, hf_ubx_gps_l1_sf1_l2_channel_code,   tvb, 8, 4, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(w3_tree, hf_ubx_gps_l1_sf1_ura_index,         tvb, 8, 4, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(w3_tree, hf_ubx_gps_l1_sf1_sv_health_summary, tvb, 8, 4, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(w3_tree, hf_ubx_gps_l1_sf1_sv_health,         tvb, 8, 4, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(w3_tree, hf_ubx_gps_l1_sf1_iodc_msbs,         tvb, 8, 4, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(w3_tree, hf_ubx_gps_l1_sf1_w3_parity,         tvb, 8, 4, ENC_LITTLE_ENDIAN);
+    proto_tree *w3_tree = proto_tree_add_subtree_format(tree,            tvb, 8, 4, ett_ubx_gps_l1_sf1_w3, NULL, "Word 3");
+    proto_tree_add_item(w3_tree, hf_ubx_gps_l1_sf1_w3_week_no,           tvb, 8, 4, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(w3_tree, hf_ubx_gps_l1_sf1_w3_l2_channel_code,   tvb, 8, 4, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(w3_tree, hf_ubx_gps_l1_sf1_w3_ura_index,         tvb, 8, 4, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(w3_tree, hf_ubx_gps_l1_sf1_w3_sv_health_summary, tvb, 8, 4, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(w3_tree, hf_ubx_gps_l1_sf1_w3_sv_health,         tvb, 8, 4, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(w3_tree, hf_ubx_gps_l1_sf1_w3_iodc_msbs,         tvb, 8, 4, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(w3_tree, hf_ubx_gps_l1_sf1_w3_parity,            tvb, 8, 4, ENC_LITTLE_ENDIAN);
 
     // subframe 1, word 4
     proto_tree *w4_tree = proto_tree_add_subtree_format(tree,         tvb, 12, 4, ett_ubx_gps_l1_sf1_w4, NULL, "Word 4");
@@ -378,13 +378,14 @@ static int dissect_ubx_gps_l1_sf1(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
 
 /* Dissect subframe 2 */
 static int dissect_ubx_gps_l1_sf2(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_) {
+
     dissect_ubx_gps_l1_tlm(tvb, pinfo, tree, data);
     dissect_ubx_gps_l1_how(tvb, pinfo, tree, data);
 
     // subframe 2, word 3
-    proto_tree *w3_tree = proto_tree_add_subtree_format(tree,         tvb, 8, 4, ett_ubx_gps_l1_sf2_w3, NULL, "Word 3");
-    proto_tree_add_item(w3_tree, hf_ubx_gps_l1_sf2_iode,      tvb, 8, 4, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(w3_tree, hf_ubx_gps_l1_sf2_c_rs,      tvb, 8, 4, ENC_LITTLE_ENDIAN);
+    proto_tree *w3_tree = proto_tree_add_subtree_format(tree, tvb, 8, 4, ett_ubx_gps_l1_sf2_w3, NULL, "Word 3");
+    proto_tree_add_item(w3_tree, hf_ubx_gps_l1_sf2_w3_iode,   tvb, 8, 4, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(w3_tree, hf_ubx_gps_l1_sf2_w3_c_rs,   tvb, 8, 4, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(w3_tree, hf_ubx_gps_l1_sf2_w3_parity, tvb, 8, 4, ENC_LITTLE_ENDIAN);
 
     // subframe 2, word 4
@@ -436,14 +437,14 @@ static int dissect_ubx_gps_l1_sf2(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
 void proto_register_ubx_gps_l1(void) {
 
     static hf_register_info hf[] = {
-        // TLM
-        {&hf_ubx_gps_l1_tlm_preamble,    {"Preamble",                    "gps_l1.tlm.preamble",    FT_UINT32,  BASE_HEX,  NULL, 0x3fc00000, NULL, HFILL}},
-        {&hf_ubx_gps_l1_tlm_message,     {"Message",                     "gps_l1.tlm.message",     FT_UINT32,  BASE_HEX,  NULL, 0x003fff00, NULL, HFILL}},
-        {&hf_ubx_gps_l1_tlm_integrity,   {"Integrity Status Flag (ISF)", "gps_l1.tlm.integrity",   FT_BOOLEAN, 32,        NULL, 0x00000080, NULL, HFILL}},
-        {&hf_ubx_gps_l1_tlm_reserved,    {"Reserved",                    "gps_l1.tlm.reserved",    FT_UINT32,  BASE_HEX,  NULL, 0x00000040, NULL, HFILL}},
-        {&hf_ubx_gps_l1_tlm_parity,      {"Parity",                      "gps_l1.tlm.parity",      FT_UINT32,  BASE_HEX,  NULL, 0x0000003f, NULL, HFILL}},
+        // All subframes - Word 1 (TLM)
+        {&hf_ubx_gps_l1_tlm_preamble,  {"Preamble",                    "gps_l1.tlm.preamble",  FT_UINT32,  BASE_HEX,  NULL, 0x3fc00000, NULL, HFILL}},
+        {&hf_ubx_gps_l1_tlm_message,   {"Message",                     "gps_l1.tlm.message",   FT_UINT32,  BASE_HEX,  NULL, 0x003fff00, NULL, HFILL}},
+        {&hf_ubx_gps_l1_tlm_integrity, {"Integrity Status Flag (ISF)", "gps_l1.tlm.integrity", FT_BOOLEAN, 32,        NULL, 0x00000080, NULL, HFILL}},
+        {&hf_ubx_gps_l1_tlm_reserved,  {"Reserved",                    "gps_l1.tlm.reserved",  FT_UINT32,  BASE_HEX,  NULL, 0x00000040, NULL, HFILL}},
+        {&hf_ubx_gps_l1_tlm_parity,    {"Parity",                      "gps_l1.tlm.parity",    FT_UINT32,  BASE_HEX,  NULL, 0x0000003f, NULL, HFILL}},
 
-        // HOW
+        // All subframes - Word 2 (HOW)
         {&hf_ubx_gps_l1_how_tow_count,   {"Time-of-Week (TOW) Count",    "gps_l1.how.tow_count",   FT_UINT32,  BASE_CUSTOM, CF_FUNC(&fmt_tow_count), 0x3fffe000, NULL, HFILL}},
         {&hf_ubx_gps_l1_how_alert,       {"Alert",                       "gps_l1.how.alert",       FT_BOOLEAN, 32,        NULL, 0x00001000, NULL, HFILL}},
         {&hf_ubx_gps_l1_how_anti_spoof,  {"Anti-Spoof (A-S)",            "gps_l1.how.anti_spoof",  FT_BOOLEAN, 32,        NULL, 0x00000800, NULL, HFILL}},
@@ -451,37 +452,53 @@ void proto_register_ubx_gps_l1(void) {
         {&hf_ubx_gps_l1_how_parity_sol,  {"Solved for parity zero bits", "gps_l1.how.parity_sol",  FT_UINT32,  BASE_HEX,  NULL, 0x000000c0, NULL, HFILL}},
         {&hf_ubx_gps_l1_how_parity,      {"Parity",                      "gps_l1.how.parity",      FT_UINT32,  BASE_DEC,  NULL, 0x0000003f, NULL, HFILL}},
 
-        // SF1
-        {&hf_ubx_gps_l1_sf1_week_no,           {"Week Number",                                "gps_l1.sf1.week_number",       FT_UINT32,  BASE_DEC,  NULL, 0x3ff00000, NULL, HFILL}},
-        {&hf_ubx_gps_l1_sf1_l2_channel_code,   {"L2 Channel Code",                            "gps_l1.sf1.l2_channel_code",   FT_UINT32,  BASE_HEX,  VALS(L2_CHANNEL_CODE), 0x000c0000, NULL, HFILL}},
-        {&hf_ubx_gps_l1_sf1_ura_index,         {"URA Index",                                  "gps_l1.sf1.ura_index",         FT_UINT32,  BASE_HEX,  VALS(URA_INDEX), 0x0003c000, NULL, HFILL}},
-        {&hf_ubx_gps_l1_sf1_sv_health_summary, {"SV Health Summary",                          "gps_l1.sf1.sv_health_summary", FT_UINT32,  BASE_HEX,  VALS(SV_HEALTH_SUMMARY), 0x00002000, NULL, HFILL}},
-        {&hf_ubx_gps_l1_sf1_sv_health,         {"SV's Signal Component Health Status",        "gps_l1.sf1.sv_health",         FT_UINT32,  BASE_HEX,  VALS(SV_HEALTH_CODE), 0x00001f00, NULL, HFILL}},
-        {&hf_ubx_gps_l1_sf1_iodc_msbs,         {"Issue of Data Clock (IODC) MSBs",            "gps_l1.sf1.iodc_msbs",         FT_UINT32,  BASE_HEX,  NULL, 0x000000c0, NULL, HFILL}},
-        {&hf_ubx_gps_l1_sf1_w3_parity,         {"Parity",                                     "gps_l1.sf1.w3_parity",         FT_UINT32,  BASE_HEX,  NULL, 0x0000003f, NULL, HFILL}},
-        {&hf_ubx_gps_l1_sf1_w4_l2_p_data_flag, {"L2 P Data Flag",                             "gps_l1.sf1.l2_p_data_flag",    FT_BOOLEAN, 32,        NULL, 0x20000000, NULL, HFILL}},
-        {&hf_ubx_gps_l1_sf1_w4_reserved,       {"Reserved",                                   "gps_l1.sf1.w4_reserved",       FT_UINT32,  BASE_HEX,  NULL, 0x1fffffc0, NULL, HFILL}},
-        {&hf_ubx_gps_l1_sf1_w4_parity,         {"Parity",                                     "gps_l1.sf1.w4_parity",         FT_UINT32,  BASE_HEX,  NULL, 0x0000003f, NULL, HFILL}},
-        {&hf_ubx_gps_l1_sf1_w5_reserved,       {"Reserved",                                   "gps_l1.sf1.w5_reserved",       FT_UINT32,  BASE_HEX,  NULL, 0x3fffffc0, NULL, HFILL}},
-        {&hf_ubx_gps_l1_sf1_w5_parity,         {"Parity",                                     "gps_l1.sf1.w5_parity",         FT_UINT32,  BASE_HEX,  NULL, 0x0000003f, NULL, HFILL}},
-        {&hf_ubx_gps_l1_sf1_w6_reserved,       {"Reserved",                                   "gps_l1.sf1.w6_reserved",       FT_UINT32,  BASE_HEX,  NULL, 0x3fffffc0, NULL, HFILL}},
-        {&hf_ubx_gps_l1_sf1_w6_parity,         {"Parity",                                     "gps_l1.sf1.w6_parity",         FT_UINT32,  BASE_HEX,  NULL, 0x0000003f, NULL, HFILL}},
-        {&hf_ubx_gps_l1_sf1_w7_reserved,       {"Reserved",                                   "gps_l1.sf1.w7_reserved",       FT_UINT32,  BASE_HEX,  NULL, 0x3fffc000, NULL, HFILL}},
-        {&hf_ubx_gps_l1_sf1_w7_tgd,            {"Estimated Group Delay Differential T_GD",    "gps_l1.sf1.w7_tgd",            FT_INT32,   BASE_DEC,  NULL, 0x00003fc0, NULL, HFILL}},
-        {&hf_ubx_gps_l1_sf1_w7_parity,         {"Parity",                                     "gps_l1.sf1.w7_parity",         FT_UINT32,  BASE_HEX,  NULL, 0x0000003f, NULL, HFILL}},
-        {&hf_ubx_gps_l1_sf1_w8_iodc_lsbs,      {"Issue of Data Clock (IODC) LSBs",            "gps_l1.sf1.w8_iodc_lsbs",      FT_UINT32,  BASE_HEX,  NULL, 0x3fc00000, NULL, HFILL}},
-        {&hf_ubx_gps_l1_sf1_w8_toc,            {"Clock Data Reference Time t_OC",             "gps_l1.sf1.w8_toc",            FT_UINT32,  BASE_CUSTOM, CF_FUNC(&fmt_t_oc), 0x003fffc0, NULL, HFILL}},
-        {&hf_ubx_gps_l1_sf1_w8_parity,         {"Parity",                                     "gps_l1.sf1.w8_parity",         FT_UINT32,  BASE_HEX,  NULL, 0x0000003f, NULL, HFILL}},
-        {&hf_ubx_gps_l1_sf1_w9_af2,            {"Drift Rate Correction Coefficient a_f2",     "gps_l1.sf1.w9_af2",            FT_INT32,   BASE_DEC,  NULL, 0x3fc00000, NULL, HFILL}},
-        {&hf_ubx_gps_l1_sf1_w9_af1,            {"SV Clock Drift Correction Coefficient a_f1", "gps_l1.sf1.w9_af1",            FT_INT32,   BASE_DEC,  NULL, 0x003fffc0, NULL, HFILL}},
-        {&hf_ubx_gps_l1_sf1_w9_parity,         {"Parity",                                     "gps_l1.sf1.w9_parity",         FT_UINT32,  BASE_HEX,  NULL, 0x0000003f, NULL, HFILL}},
-        {&hf_ubx_gps_l1_sf1_w10_af0,           {"SV Clock Bias Correction Coefficient a_f0",  "gps_l1.sf1.w10_af0",           FT_INT32,   BASE_DEC,  NULL, 0x3fffffc0, NULL, HFILL}},
-        {&hf_ubx_gps_l1_sf1_w10_parity,        {"Parity",                                     "gps_l1.sf1.w10_parity",        FT_UINT32,  BASE_HEX,  NULL, 0x0000003f, NULL, HFILL}},
 
-        // SF2
-        {&hf_ubx_gps_l1_sf2_iode,      {"Issue of Data, Ephemeris (IODE)",                                           "gps_l1.sf2.iode",      FT_UINT32,  BASE_DEC,    NULL,                           0x3fc00000, NULL, HFILL}},
-        {&hf_ubx_gps_l1_sf2_c_rs,      {"Amplitude of the sine harmonic correction term to the orbit radius (C_RS)", "gps_l1.sf2.c_rs",      FT_INT32,   BASE_CUSTOM, CF_FUNC(&fmt_orbit_correction), 0x003fffc0, NULL, HFILL}},
-        {&hf_ubx_gps_l1_sf2_w3_parity, {"Parity",                                                                    "gps_l1.sf2.w3_parity", FT_UINT32,  BASE_HEX,    NULL,                           0x0000003f, NULL, HFILL}},
+        // Subframe 1 - Word 3
+        {&hf_ubx_gps_l1_sf1_w3_week_no,           {"Week Number",                         "gps_l1.sf1.w3.week_number",       FT_UINT32,  BASE_DEC,  NULL, 0x3ff00000, NULL, HFILL}},
+        {&hf_ubx_gps_l1_sf1_w3_l2_channel_code,   {"L2 Channel Code",                     "gps_l1.sf1.w3.l2_channel_code",   FT_UINT32,  BASE_HEX,  VALS(L2_CHANNEL_CODE), 0x000c0000, NULL, HFILL}},
+        {&hf_ubx_gps_l1_sf1_w3_ura_index,         {"URA Index",                           "gps_l1.sf1.w3.ura_index",         FT_UINT32,  BASE_HEX,  VALS(URA_INDEX), 0x0003c000, NULL, HFILL}},
+        {&hf_ubx_gps_l1_sf1_w3_sv_health_summary, {"SV Health Summary",                   "gps_l1.sf1.w3.sv_health_summary", FT_UINT32,  BASE_HEX,  VALS(SV_HEALTH_SUMMARY), 0x00002000, NULL, HFILL}},
+        {&hf_ubx_gps_l1_sf1_w3_sv_health,         {"SV's Signal Component Health Status", "gps_l1.sf1.w3.sv_health",         FT_UINT32,  BASE_HEX,  VALS(SV_HEALTH_CODE), 0x00001f00, NULL, HFILL}},
+        {&hf_ubx_gps_l1_sf1_w3_iodc_msbs,         {"Issue of Data Clock (IODC) MSBs",     "gps_l1.sf1.w3.iodc_msbs",         FT_UINT32,  BASE_HEX,  NULL, 0x000000c0, NULL, HFILL}},
+        {&hf_ubx_gps_l1_sf1_w3_parity,            {"Parity",                              "gps_l1.sf1.w3.parity",         FT_UINT32,  BASE_HEX,  NULL, 0x0000003f, NULL, HFILL}},
+
+        // Subframe 1 - Word 4
+        {&hf_ubx_gps_l1_sf1_w4_l2_p_data_flag, {"L2 P Data Flag", "gps_l1.sf1.w4.l2_p_data_flag", FT_BOOLEAN, 32,       NULL, 0x20000000, NULL, HFILL}},
+        {&hf_ubx_gps_l1_sf1_w4_reserved,       {"Reserved",       "gps_l1.sf1.w4.reserved",       FT_UINT32,  BASE_HEX, NULL, 0x1fffffc0, NULL, HFILL}},
+        {&hf_ubx_gps_l1_sf1_w4_parity,         {"Parity",         "gps_l1.sf1.w4.parity",         FT_UINT32,  BASE_HEX, NULL, 0x0000003f, NULL, HFILL}},
+
+        // Subframe 1 - Word 5
+        {&hf_ubx_gps_l1_sf1_w5_reserved, {"Reserved", "gps_l1.sf1.w5.reserved", FT_UINT32, BASE_HEX, NULL, 0x3fffffc0, NULL, HFILL}},
+        {&hf_ubx_gps_l1_sf1_w5_parity,   {"Parity",   "gps_l1.sf1.w5.parity",   FT_UINT32, BASE_HEX, NULL, 0x0000003f, NULL, HFILL}},
+
+        // Subframe 1 - Word 6
+        {&hf_ubx_gps_l1_sf1_w6_reserved, {"Reserved", "gps_l1.sf1.w6.reserved", FT_UINT32, BASE_HEX, NULL, 0x3fffffc0, NULL, HFILL}},
+        {&hf_ubx_gps_l1_sf1_w6_parity,   {"Parity",   "gps_l1.sf1.w6.parity",   FT_UINT32, BASE_HEX, NULL, 0x0000003f, NULL, HFILL}},
+
+        // Subframe 1 - Word 7
+        {&hf_ubx_gps_l1_sf1_w7_reserved, {"Reserved",                                "gps_l1.sf1.w7.reserved", FT_UINT32, BASE_HEX, NULL, 0x3fffc000, NULL, HFILL}},
+        {&hf_ubx_gps_l1_sf1_w7_tgd,      {"Estimated Group Delay Differential T_GD", "gps_l1.sf1.w7.tgd",      FT_INT32,  BASE_DEC, NULL, 0x00003fc0, NULL, HFILL}},
+        {&hf_ubx_gps_l1_sf1_w7_parity,   {"Parity",                                  "gps_l1.sf1.w7.parity",   FT_UINT32, BASE_HEX, NULL, 0x0000003f, NULL, HFILL}},
+
+        // Subframe 1 - Word 8
+        {&hf_ubx_gps_l1_sf1_w8_iodc_lsbs, {"Issue of Data Clock (IODC) LSBs", "gps_l1.sf1.w8.iodc_lsbs", FT_UINT32, BASE_HEX,  NULL, 0x3fc00000, NULL, HFILL}},
+        {&hf_ubx_gps_l1_sf1_w8_toc,       {"Clock Data Reference Time t_OC",  "gps_l1.sf1.w8.toc",       FT_UINT32, BASE_CUSTOM, CF_FUNC(&fmt_t_oc), 0x003fffc0, NULL, HFILL}},
+        {&hf_ubx_gps_l1_sf1_w8_parity,    {"Parity",                          "gps_l1.sf1.w8.parity",    FT_UINT32, BASE_HEX,  NULL, 0x0000003f, NULL, HFILL}},
+
+        // Subframe 1 - Word 9
+        {&hf_ubx_gps_l1_sf1_w9_af2,    {"Drift Rate Correction Coefficient a_f2",     "gps_l1.sf1.w9.af2",    FT_INT32,  BASE_DEC, NULL, 0x3fc00000, NULL, HFILL}},
+        {&hf_ubx_gps_l1_sf1_w9_af1,    {"SV Clock Drift Correction Coefficient a_f1", "gps_l1.sf1.w9.af1",    FT_INT32,  BASE_DEC, NULL, 0x003fffc0, NULL, HFILL}},
+        {&hf_ubx_gps_l1_sf1_w9_parity, {"Parity",                                     "gps_l1.sf1.w9.parity", FT_UINT32, BASE_HEX, NULL, 0x0000003f, NULL, HFILL}},
+
+        // Subframe 1 - Word 10
+        {&hf_ubx_gps_l1_sf1_w10_af0,    {"SV Clock Bias Correction Coefficient a_f0", "gps_l1.sf1.w10.af0",    FT_INT32,  BASE_DEC, NULL, 0x3fffffc0, NULL, HFILL}},
+        {&hf_ubx_gps_l1_sf1_w10_parity, {"Parity",                                    "gps_l1.sf1.w10.parity", FT_UINT32, BASE_HEX, NULL, 0x0000003f, NULL, HFILL}},
+
+
+        // Subframe 2 - Word 3
+        {&hf_ubx_gps_l1_sf2_w3_iode,   {"Issue of Data, Ephemeris (IODE)",                                           "gps_l1.sf2.w3.iode",    FT_UINT32, BASE_DEC,    NULL,                           0x3fc00000, NULL, HFILL}},
+        {&hf_ubx_gps_l1_sf2_w3_c_rs,   {"Amplitude of the sine harmonic correction term to the orbit radius (C_RS)", "gps_l1.sf2.w3.c_rs",    FT_INT32,  BASE_CUSTOM, CF_FUNC(&fmt_orbit_correction), 0x003fffc0, NULL, HFILL}},
+        {&hf_ubx_gps_l1_sf2_w3_parity, {"Parity",                                                                    "gps_l1.sf2.w3.parity",  FT_UINT32, BASE_HEX,    NULL,                           0x0000003f, NULL, HFILL}},
 
         // Subframe 2 - Word 4
         {&hf_ubx_gps_l1_sf2_w4_delta_n, {"Mean Motion Difference From Computed Value (" UTF8_CAPITAL_DELTA "n)", "gps_l1.sf2.w4.delta_n", FT_INT32,  BASE_CUSTOM, CF_FUNC(&fmt_semi_circles_rate), 0x3fffc000, NULL, HFILL}},
