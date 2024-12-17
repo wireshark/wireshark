@@ -29,6 +29,7 @@
 
 #include <epan/packet.h>
 #include <epan/expert.h>
+#include <wsutil/array.h>
 
 void proto_register_irc(void);
 void proto_reg_handoff_irc(void);
@@ -46,7 +47,7 @@ static int hf_irc_response_command;
 static int hf_irc_response_num_command;
 static int hf_irc_response_command_param;
 static int hf_irc_response_trailer;
-static int hf_irc_ctcp;
+//static int hf_irc_ctcp;
 static int hf_irc_ctcp_command;
 static int hf_irc_ctcp_params;
 
@@ -80,7 +81,7 @@ dissect_irc_ctcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
     const uint8_t *str_command, *str_params;
     int          space_offset = -1;
 
-    ti = proto_tree_add_item(tree, hf_irc_ctcp, tvb, 0, -1, ENC_ASCII|ENC_NA);
+    ti = proto_tree_add_item(tree, proto_irc, tvb, 0, -1, ENC_ASCII|ENC_NA);
     ctcp_tree = proto_item_add_subtree(ti, ett_irc);
 
     space_offset = tvb_find_uint8(tvb, 1, -1, ' ');
@@ -548,8 +549,8 @@ proto_register_irc(void)
         { &hf_irc_response_trailer, { "Trailer", "irc.response.trailer", FT_STRING, BASE_NONE,
           NULL, 0x0, "Response trailer", HFILL }},
 
-        { &hf_irc_ctcp, { "CTCP", "irc.ctcp", FT_STRING, BASE_NONE,
-          NULL, 0x0, NULL, HFILL }},
+        //{ &hf_irc_ctcp, { "CTCP", "irc.ctcp", FT_STRING, BASE_NONE,
+        //  NULL, 0x0, NULL, HFILL }},
 
         { &hf_irc_ctcp_command, { "Command", "irc.ctcp.command", FT_STRING, BASE_NONE,
           NULL, 0x0, "CTCP command", HFILL }},
