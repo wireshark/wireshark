@@ -18,7 +18,6 @@
 #include <epan/epan.h>
 #include <epan/epan_dissect.h>
 #include <epan/to_str.h>
-#include <epan/to_str.h>
 #include <epan/expert.h>
 #include <epan/column.h>
 #include <epan/column-info.h>
@@ -26,13 +25,13 @@
 #include <epan/dfilter/dfilter.h>
 #include <epan/prefs.h>
 #include <epan/print.h>
-#include <epan/charsets.h>
 #include <wsutil/array.h>
 #include <wsutil/json_dumper.h>
 #include <wsutil/filesystem.h>
 #include <wsutil/utf8_entities.h>
 #include <wsutil/str_util.h>
 #include <wsutil/ws_assert.h>
+#include <epan/strutil.h>
 #include <ftypes/ftypes.h>
 
 #define PDML_VERSION "0"
@@ -1806,70 +1805,16 @@ get_field_data(GSList *src_list, field_info *fi)
 static void
 print_escaped_xml(FILE *fh, const char *unescaped_string)
 {
-    const char *p;
-
-#define ESCAPED_BUFFER_SIZE 256
-#define ESCAPED_BUFFER_LIMIT (ESCAPED_BUFFER_SIZE - (int)sizeof("&quot;"))
-    static char temp_buffer[ESCAPED_BUFFER_SIZE];
-    int         offset = 0;
+    char* buff;
 
     if (fh == NULL || unescaped_string == NULL) {
         return;
     }
 
-    /* XXX: Why not use xml_escape() from epan/strutil.h ? */
-    for (p = unescaped_string; *p != '\0' && (offset <= ESCAPED_BUFFER_LIMIT); p++) {
-        switch (*p) {
-        case '&':
-            (void) g_strlcpy(&temp_buffer[offset], "&amp;", ESCAPED_BUFFER_SIZE-offset);
-            offset += 5;
-            break;
-        case '<':
-            (void) g_strlcpy(&temp_buffer[offset], "&lt;", ESCAPED_BUFFER_SIZE-offset);
-            offset += 4;
-            break;
-        case '>':
-            (void) g_strlcpy(&temp_buffer[offset], "&gt;", ESCAPED_BUFFER_SIZE-offset);
-            offset += 4;
-            break;
-        case '"':
-            (void) g_strlcpy(&temp_buffer[offset], "&quot;", ESCAPED_BUFFER_SIZE-offset);
-            offset += 6;
-            break;
-        case '\'':
-            (void) g_strlcpy(&temp_buffer[offset], "&#x27;", ESCAPED_BUFFER_SIZE-offset);
-            offset += 6;
-            break;
-        case '\t':
-        case '\n':
-        case '\r':
-            temp_buffer[offset++] = *p;
-            break;
-        default:
-            /* XML 1.0 doesn't allow ASCII control characters, except
-             * for the three whitespace ones above (which do *not*
-             * include '\v' and '\f', so not the same group as isspace),
-             * even as character references.
-             * There's no official way to escape them, so we'll do this. */
-            if (g_ascii_iscntrl(*p)) {
-                offset += snprintf(&temp_buffer[offset], ESCAPED_BUFFER_SIZE-offset, "\\x%x", (uint8_t)*p);
-            } else {
-                /* Just copy character */
-                temp_buffer[offset++] = *p;
-            }
-        }
-        if (offset > ESCAPED_BUFFER_LIMIT) {
-            /* Getting close to end of buffer so flush to fh */
-            temp_buffer[offset] = '\0';
-            fputs(temp_buffer, fh);
-            offset = 0;
-        }
-    }
-    if (offset) {
-        /* Flush any outstanding data */
-        temp_buffer[offset] = '\0';
-        fputs(temp_buffer, fh);
-    }
+    buff = xml_escape(unescaped_string);
+
+    fputs(buff, fh);
+    g_free(buff);
 }
 
 static void
