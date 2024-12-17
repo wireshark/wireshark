@@ -60,6 +60,9 @@ MidambleShiftAndBurstType768/type3/midambleAllocationMode  MidambleAllocationMod
 #.FIELD_RENAME
 UEMeasurementTimeslotInfoLCR-IEs/timeSlot timeSlotLCR
 
+GANSS-GenericDataInfoReqItem/ganss-Navigation-Model-And-Time-Recovery ganss_Navigation_Model_And_Time_Recovery_bool
+GANSS-GenericDataInfoReqItem/ganss-Almanac ganss_Almanac_bool
+GANSS-GenericDataInfoReqItem/ganss-Real-Time-Integrity ganss_Real_Time_Integrity_bool
 
 #.OMIT_ASSIGNMENT
 Presence

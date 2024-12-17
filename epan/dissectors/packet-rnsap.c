@@ -2880,19 +2880,19 @@ static int hf_rnsap_deltaUT1;                     /* BIT_STRING_SIZE_31 */
 static int hf_rnsap_deltaUT1dot;                  /* BIT_STRING_SIZE_19 */
 static int hf_rnsap_GANSS_GenericDataInfoReqList_item;  /* GANSS_GenericDataInfoReqItem */
 static int hf_rnsap_ganss_Id;                     /* GANSS_ID */
-static int hf_rnsap_ganss_Navigation_Model_And_Time_Recovery;  /* BOOLEAN */
+static int hf_rnsap_ganss_Navigation_Model_And_Time_Recovery_bool;  /* BOOLEAN */
 static int hf_rnsap_ganss_Time_Model_GNSS_GNSS;   /* BIT_STRING_SIZE_9 */
 static int hf_rnsap_ganss_UTC_Model;              /* BOOLEAN */
-static int hf_rnsap_ganss_Almanac;                /* BOOLEAN */
-static int hf_rnsap_ganss_Real_Time_Integrity;    /* BOOLEAN */
+static int hf_rnsap_ganss_Almanac_bool;           /* BOOLEAN */
+static int hf_rnsap_ganss_Real_Time_Integrity_bool;  /* BOOLEAN */
 static int hf_rnsap_ganss_Data_Bit_Assistance_Req;  /* GANSS_Data_Bit_Assistance_ReqItem */
 static int hf_rnsap_GANSS_Generic_Data_item;      /* GANSS_Generic_DataItem */
 static int hf_rnsap_dganss_Correction;            /* DGANSSCorrections */
-static int hf_rnsap_ganss_Navigation_Model_And_Time_Recovery_01;  /* GANSS_Navigation_Model_And_Time_Recovery */
+static int hf_rnsap_ganss_Navigation_Model_And_Time_Recovery;  /* GANSS_Navigation_Model_And_Time_Recovery */
 static int hf_rnsap_ganss_Time_Model;             /* GANSS_Time_Model */
 static int hf_rnsap_ganss_UTC_TIME;               /* GANSS_UTC_Model */
-static int hf_rnsap_ganss_Almanac_01;             /* GANSS_Almanac */
-static int hf_rnsap_ganss_Real_Time_Integrity_01;  /* GANSS_Real_Time_Integrity */
+static int hf_rnsap_ganss_Almanac;                /* GANSS_Almanac */
+static int hf_rnsap_ganss_Real_Time_Integrity;    /* GANSS_Real_Time_Integrity */
 static int hf_rnsap_ganss_Data_Bit_Assistance;    /* GANSS_Data_Bit_Assistance */
 static int hf_rnsap_gloTau;                       /* BIT_STRING_SIZE_22 */
 static int hf_rnsap_gloGamma;                     /* BIT_STRING_SIZE_11 */
@@ -22068,11 +22068,11 @@ dissect_rnsap_GANSS_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, 
 
 static const per_sequence_t GANSS_GenericDataInfoReqItem_sequence[] = {
   { &hf_rnsap_ganss_Id      , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_GANSS_ID },
-  { &hf_rnsap_ganss_Navigation_Model_And_Time_Recovery, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_BOOLEAN },
+  { &hf_rnsap_ganss_Navigation_Model_And_Time_Recovery_bool, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_BOOLEAN },
   { &hf_rnsap_ganss_Time_Model_GNSS_GNSS, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_BIT_STRING_SIZE_9 },
   { &hf_rnsap_ganss_UTC_Model, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_BOOLEAN },
-  { &hf_rnsap_ganss_Almanac , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_BOOLEAN },
-  { &hf_rnsap_ganss_Real_Time_Integrity, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_BOOLEAN },
+  { &hf_rnsap_ganss_Almanac_bool, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_BOOLEAN },
+  { &hf_rnsap_ganss_Real_Time_Integrity_bool, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_BOOLEAN },
   { &hf_rnsap_ganss_Data_Bit_Assistance_Req, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_GANSS_Data_Bit_Assistance_ReqItem },
   { &hf_rnsap_ie_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
   { NULL, 0, 0, NULL }
@@ -22271,11 +22271,11 @@ dissect_rnsap_GANSS_Real_Time_Integrity(tvbuff_t *tvb _U_, int offset _U_, asn1_
 static const per_sequence_t GANSS_Generic_DataItem_sequence[] = {
   { &hf_rnsap_ganss_Id      , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_GANSS_ID },
   { &hf_rnsap_dganss_Correction, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_DGANSSCorrections },
-  { &hf_rnsap_ganss_Navigation_Model_And_Time_Recovery_01, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_GANSS_Navigation_Model_And_Time_Recovery },
+  { &hf_rnsap_ganss_Navigation_Model_And_Time_Recovery, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_GANSS_Navigation_Model_And_Time_Recovery },
   { &hf_rnsap_ganss_Time_Model, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_GANSS_Time_Model },
   { &hf_rnsap_ganss_UTC_TIME, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_GANSS_UTC_Model },
-  { &hf_rnsap_ganss_Almanac_01, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_GANSS_Almanac },
-  { &hf_rnsap_ganss_Real_Time_Integrity_01, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_GANSS_Real_Time_Integrity },
+  { &hf_rnsap_ganss_Almanac , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_GANSS_Almanac },
+  { &hf_rnsap_ganss_Real_Time_Integrity, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_GANSS_Real_Time_Integrity },
   { &hf_rnsap_ganss_Data_Bit_Assistance, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_GANSS_Data_Bit_Assistance },
   { &hf_rnsap_ie_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
   { NULL, 0, 0, NULL }
@@ -55656,8 +55656,8 @@ void proto_register_rnsap(void) {
       { "ganss-Id", "rnsap.ganss_Id",
         FT_UINT32, BASE_DEC, NULL, 0,
         NULL, HFILL }},
-    { &hf_rnsap_ganss_Navigation_Model_And_Time_Recovery,
-      { "ganss-Navigation-Model-And-Time-Recovery", "rnsap.ganss_Navigation_Model_And_Time_Recovery",
+    { &hf_rnsap_ganss_Navigation_Model_And_Time_Recovery_bool,
+      { "ganss-Navigation-Model-And-Time-Recovery", "rnsap.ganss_Navigation_Model_And_Time_Recovery_bool",
         FT_BOOLEAN, BASE_NONE, NULL, 0,
         "BOOLEAN", HFILL }},
     { &hf_rnsap_ganss_Time_Model_GNSS_GNSS,
@@ -55668,12 +55668,12 @@ void proto_register_rnsap(void) {
       { "ganss-UTC-Model", "rnsap.ganss_UTC_Model",
         FT_BOOLEAN, BASE_NONE, NULL, 0,
         "BOOLEAN", HFILL }},
-    { &hf_rnsap_ganss_Almanac,
-      { "ganss-Almanac", "rnsap.ganss_Almanac",
+    { &hf_rnsap_ganss_Almanac_bool,
+      { "ganss-Almanac", "rnsap.ganss_Almanac_bool",
         FT_BOOLEAN, BASE_NONE, NULL, 0,
         "BOOLEAN", HFILL }},
-    { &hf_rnsap_ganss_Real_Time_Integrity,
-      { "ganss-Real-Time-Integrity", "rnsap.ganss_Real_Time_Integrity",
+    { &hf_rnsap_ganss_Real_Time_Integrity_bool,
+      { "ganss-Real-Time-Integrity", "rnsap.ganss_Real_Time_Integrity_bool",
         FT_BOOLEAN, BASE_NONE, NULL, 0,
         "BOOLEAN", HFILL }},
     { &hf_rnsap_ganss_Data_Bit_Assistance_Req,
@@ -55688,7 +55688,7 @@ void proto_register_rnsap(void) {
       { "dganss-Correction", "rnsap.dganss_Correction_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "DGANSSCorrections", HFILL }},
-    { &hf_rnsap_ganss_Navigation_Model_And_Time_Recovery_01,
+    { &hf_rnsap_ganss_Navigation_Model_And_Time_Recovery,
       { "ganss-Navigation-Model-And-Time-Recovery", "rnsap.ganss_Navigation_Model_And_Time_Recovery_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
@@ -55700,11 +55700,11 @@ void proto_register_rnsap(void) {
       { "ganss-UTC-TIME", "rnsap.ganss_UTC_TIME_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "GANSS_UTC_Model", HFILL }},
-    { &hf_rnsap_ganss_Almanac_01,
+    { &hf_rnsap_ganss_Almanac,
       { "ganss-Almanac", "rnsap.ganss_Almanac_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-    { &hf_rnsap_ganss_Real_Time_Integrity_01,
+    { &hf_rnsap_ganss_Real_Time_Integrity,
       { "ganss-Real-Time-Integrity", "rnsap.ganss_Real_Time_Integrity",
         FT_UINT32, BASE_DEC, NULL, 0,
         NULL, HFILL }},
