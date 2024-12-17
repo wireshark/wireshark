@@ -1212,7 +1212,7 @@ add_missing_fields_with_default_values(tvbuff_t* tvb, unsigned offset, packet_in
         }
 
         /* check if it is parsed */
-        if (wmem_map_lookup(parsed_fields, GINT_TO_POINTER(field_number))) {
+        if (wmem_map_lookup(parsed_fields, GINT_TO_POINTER((int)field_number))) {
             continue; /* this field is parsed */
         }
 

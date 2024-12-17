@@ -1667,18 +1667,18 @@ lustre_get_trans(packet_info *pinfo, struct lnet_trans_info *info)
     conv_info = (lustre_conv_info_t *)conversation_get_proto_data(conversation, proto_lustre);
     if (!conv_info) {
         conv_info = wmem_new0(wmem_file_scope(), lustre_conv_info_t);
-        conv_info->pdus = wmem_map_new(wmem_file_scope(), g_direct_hash, g_direct_equal);
+        conv_info->pdus = wmem_map_new(wmem_file_scope(), g_int64_hash, g_int64_equal);
 
         conversation_add_proto_data(conversation, proto_lustre, conv_info);
     }
 
-    trans = (lustre_trans_t *)wmem_map_lookup(conv_info->pdus, GUINT_TO_POINTER(info->match_bits));
+    trans = (lustre_trans_t *)wmem_map_lookup(conv_info->pdus, &info->match_bits);
     if (trans == NULL) {
         void *ptr;
         trans = wmem_new0(wmem_file_scope(),lustre_trans_t);
         trans->match_bits = info->match_bits;
 
-        ptr = wmem_map_insert(conv_info->pdus, GUINT_TO_POINTER(trans->match_bits), trans);
+        ptr = wmem_map_insert(conv_info->pdus, &trans->match_bits, trans);
         if (ptr != NULL) {
             /* XXX - Is this even possible? ?*/
             trans = (lustre_trans_t *)ptr;

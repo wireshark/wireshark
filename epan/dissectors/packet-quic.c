@@ -833,7 +833,7 @@ quic_get_long_packet_type(uint8_t first_byte, uint32_t version)
 }
 
 static void
-quic_streams_add(packet_info *pinfo, quic_info_data_t *quic_info, uint64_t stream_id);
+quic_streams_add(packet_info *pinfo, quic_info_data_t *quic_info, unsigned stream_id);
 
 static void
 quic_hp_cipher_reset(quic_hp_cipher *hp_cipher)
@@ -2502,7 +2502,7 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
             proto_item_append_text(ti_ft, " fin=%d", !!(frame_type & FTFLAGS_STREAM_FIN));
 
             if (!PINFO_FD_VISITED(pinfo)) {
-                quic_streams_add(pinfo, quic_info, stream_id);
+                quic_streams_add(pinfo, quic_info, (unsigned)stream_id);
             }
 
             if (frame_type & FTFLAGS_STREAM_OFF) {
@@ -4794,7 +4794,7 @@ quic_cleanup(void)
 
 /* Follow QUIC Stream functionality {{{ */
 static void
-quic_streams_add(packet_info *pinfo, quic_info_data_t *quic_info, uint64_t stream_id)
+quic_streams_add(packet_info *pinfo, quic_info_data_t *quic_info, unsigned stream_id)
 {
     /* List: ordered list of Stream IDs in this connection */
     if (!quic_info->streams_list) {

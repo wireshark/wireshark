@@ -317,7 +317,7 @@ setup_dissector(void)
     for (; NULL != *vector; vector++ )
     {
         if ( *vector && g_ascii_strtoll(*vector, NULL, 10) > 0 )
-            wmem_list_append(global_filter_list, GINT_TO_POINTER(g_ascii_strtoll(*vector, NULL, 10)));
+            wmem_list_append(global_filter_list, GINT_TO_POINTER((int)g_ascii_strtoll(*vector, NULL, 10)));
     }
 
     heur_entry = find_heur_dissector_by_unique_short_name("opensafety_sercosiii");

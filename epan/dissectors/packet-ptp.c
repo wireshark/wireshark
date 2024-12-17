@@ -1929,22 +1929,24 @@ static ptp_frame_info_t *
 get_frame_info_and_opt_create(packet_info *pinfo, uint8_t ptp_major, uint8_t ptp_minor, uint8_t majorsdoid, uint8_t minorsdoid, uint8_t messagetype, uint8_t domain, uint64_t clockidentity, uint16_t portid, uint16_t seqid, bool create_missing, double delta_cutoff) {
     DISSECTOR_ASSERT(ptp_clocks != NULL);
 
-    ptp_clock_info_t *clock_info = (ptp_clock_info_t *)wmem_map_lookup(ptp_clocks, GUINT_TO_POINTER(clockidentity));
+    ptp_clock_info_t *clock_info = (ptp_clock_info_t *)wmem_map_lookup(ptp_clocks, &clockidentity);
 
     if (clock_info == NULL)
     {
+        uint64_t* new_clockid = wmem_new(wmem_file_scope(), uint64_t);
+        *new_clockid = clockidentity;
         clock_info = wmem_new0(wmem_file_scope(), ptp_clock_info_t);
         clock_info->frames = NULL;
-        wmem_map_insert(ptp_clocks, GUINT_TO_POINTER(clockidentity), clock_info);
+        wmem_map_insert(ptp_clocks, new_clockid, clock_info);
     }
 
     if (clock_info->frames == NULL)
     {
-        clock_info->frames = wmem_map_new(wmem_file_scope(), g_direct_hash, g_direct_equal);
+        clock_info->frames = wmem_map_new(wmem_file_scope(), g_int64_hash, g_int64_equal);
     }
 
     uint64_t key2 = calculate_frame_key(ptp_major, ptp_minor, majorsdoid, minorsdoid, messagetype, domain, portid, seqid);
-    ptp_frame_info_t *tmp = (ptp_frame_info_t *)wmem_map_lookup(clock_info->frames, GUINT_TO_POINTER(key2));
+    ptp_frame_info_t *tmp = (ptp_frame_info_t *)wmem_map_lookup(clock_info->frames, &key2);
 
     if (tmp != NULL)
     {
@@ -1963,12 +1965,14 @@ get_frame_info_and_opt_create(packet_info *pinfo, uint8_t ptp_major, uint8_t ptp
 
     if (tmp == NULL && create_missing)
     {
+        uint64_t* new_key2 = wmem_new(wmem_file_scope(), uint64_t);
+        *new_key2 = key2;
         tmp = wmem_new0(wmem_file_scope(), ptp_frame_info_t);
         tmp->prev = NULL;
         if (messagetype == PTP_V2_PEER_DELAY_REQ_MESSAGE) {
             tmp->pdelay.neighborRateRatio_valid = false;
         }
-        wmem_map_insert(clock_info->frames, GUINT_TO_POINTER(key2), tmp);
+        wmem_map_insert(clock_info->frames, new_key2, tmp);
 
         nstime_copy(&(tmp->ref_time), &(pinfo->abs_ts));
     }
@@ -7371,7 +7375,7 @@ proto_register_ptp(void) {
                                    10, &ptp_analysis_max_consecutive_delta);
 
     /* Setup analysis data structures */
-    ptp_clocks = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), g_direct_hash, g_direct_equal);
+    ptp_clocks = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), g_int64_hash, g_int64_equal);
 
     ptpv2_tlv_org_id_subdissector_table = register_dissector_table("ptp.v2.tlv.oe.organizationId", "PTPv2 TLV Organization ID", proto_ptp, FT_UINT24, BASE_HEX);
 

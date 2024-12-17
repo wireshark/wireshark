@@ -2042,7 +2042,7 @@ static ttl_result_t ttl_read_segmented_message_entry(wtap* wth, wtap_rec* rec, B
     uint64_t    timestamp;
     uint8_t     frame_num = status & 0x000f;
     uint8_t     seg_frame_id = (status >> 4) & 0x000f;
-    uint32_t    key = (((uint32_t)seg_frame_id) << 16) | src;
+    uint32_t    key = ((uint32_t)seg_frame_id << 16) | src;
     ttl_read_t  new_in;
 
     if (status == 0xFFFF) { /* Reserved for future use */
@@ -2052,7 +2052,7 @@ static ttl_result_t ttl_read_segmented_message_entry(wtap* wth, wtap_rec* rec, B
         return TTL_UNSUPPORTED;
     }
 
-    reassembled_item = g_hash_table_lookup(ttl->reassembled_frames_ht, GUINT_TO_POINTER(offset));
+    reassembled_item = g_hash_table_lookup(ttl->reassembled_frames_ht, &offset);
 
     if (reassembled_item == NULL) {
         if (size < sizeof(uint64_t)) {
@@ -2163,7 +2163,9 @@ static ttl_result_t ttl_read_segmented_message_entry(wtap* wth, wtap_rec* rec, B
 
             item->buf = NULL;   /* Dereference it so that it doesn't get destroyed */
             g_hash_table_remove(ttl->segmented_frames_ht, GUINT_TO_POINTER(key));
-            g_hash_table_insert(ttl->reassembled_frames_ht, GINT_TO_POINTER(offset), reassembled_item);
+            int64_t* new_off = g_new(int64_t, 1);
+            *new_off = offset;
+            g_hash_table_insert(ttl->reassembled_frames_ht, new_off, reassembled_item);
 
         }
         else {  /* Reassemble not complete, wait for the rest */
@@ -2186,7 +2188,7 @@ static ttl_result_t ttl_read_segmented_message_entry(wtap* wth, wtap_rec* rec, B
     /* Avoid recursion by not supporting nested segmented entries */
     *err = 0;
     if (!ttl_check_segmented_message_recursion(&new_in, err, err_info)) {
-        g_hash_table_remove(ttl->reassembled_frames_ht, GUINT_TO_POINTER(offset));
+        g_hash_table_remove(ttl->reassembled_frames_ht, &offset);
 
         if (*err) {
             return TTL_ERROR;
@@ -2195,7 +2197,7 @@ static ttl_result_t ttl_read_segmented_message_entry(wtap* wth, wtap_rec* rec, B
     }
 
     if (!ttl_fix_segmented_message_entry_timestamp(&new_in, reassembled_item->timestamp, err, err_info)) {
-        g_hash_table_remove(ttl->reassembled_frames_ht, GUINT_TO_POINTER(offset));
+        g_hash_table_remove(ttl->reassembled_frames_ht, &offset);
         return TTL_ERROR;
     }
 
@@ -2714,7 +2716,7 @@ ttl_open(wtap* wth, int* err, char** err_info) {
     ttl->address_to_master_ht = g_hash_table_new_full(g_direct_hash, g_direct_equal, NULL, NULL);
     ttl->address_to_name_ht = g_hash_table_new_full(g_direct_hash, g_direct_equal, NULL, g_free);
     ttl->segmented_frames_ht = g_hash_table_new_full(g_direct_hash, g_direct_equal, NULL, ttl_free_segmented_entry);
-    ttl->reassembled_frames_ht = g_hash_table_new_full(g_direct_hash, g_direct_equal, NULL, ttl_free_reassembled_entry);
+    ttl->reassembled_frames_ht = g_hash_table_new_full(g_int64_hash, g_int64_equal, g_free, ttl_free_reassembled_entry);
 
     if (header.version >= 10) {
         if (header.header_size < (offset + TTL_LOGFILE_INFO_SIZE)) {

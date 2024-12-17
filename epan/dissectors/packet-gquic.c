@@ -1900,7 +1900,7 @@ dissect_gquic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *gquic_tr
 	    } else { /* T050 and T051 */
                 tvbuff_t *next_tvb = tvb_new_subset_length(tvb, offset, (int)crypto_length);
                 col_set_writable(pinfo->cinfo, -1, false);
-                call_dissector_with_data(tls13_handshake_handle, next_tvb, pinfo, ft_tree, GUINT_TO_POINTER(crypto_offset));
+                call_dissector_with_data(tls13_handshake_handle, next_tvb, pinfo, ft_tree, GUINT_TO_POINTER((unsigned)crypto_offset));
                 col_set_writable(pinfo->cinfo, -1, true);
                 offset += (uint32_t)crypto_length;
 	    }

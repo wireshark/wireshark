@@ -2428,7 +2428,7 @@ static void proto_tree_get_node_field_values(proto_node *node, void *data)
 
 static void write_specified_fields(fields_format format, output_fields_t *fields, epan_dissect_t *edt, column_info *cinfo _U_, FILE *fh, json_dumper *dumper)
 {
-    size_t    i;
+    unsigned    i;
 
     write_field_data_t data;
 
