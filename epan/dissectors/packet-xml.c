@@ -30,6 +30,7 @@
 #include <wsutil/str_util.h>
 #include <wsutil/report_message.h>
 #include <wsutil/wsgcrypt.h>
+#include <wsutil/array.h>
 #include "packet-kerberos.h"
 #include "read_keytab_file.h"
 
@@ -1570,7 +1571,7 @@ static void register_dtd(dtd_build_data_t *dtd_data, GString *errors)
         } else {
             full_name = wmem_strdup(wmem_epan_scope(), root_name);
         }
-        short_name = wmem_strdup(wmem_epan_scope(), dtd_data->proto_name);
+        short_name = wmem_strdup_printf(wmem_epan_scope(),"%s_%s", dtd_data->proto_name, "dtd");
 
         ett_p = &root_element->ett;
         g_array_append_val(etts, ett_p);
