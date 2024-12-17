@@ -638,10 +638,6 @@ dissect_thrift_field_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 proto_item *bool_item = proto_tree_add_boolean(tree, hf_thrift_bool, tvb, header->type_offset, TBP_THRIFT_TYPE_LEN, 2 - header->type.compact);
                 proto_item_set_generated(bool_item);
             }
-            if (gen_bool && is_thrift_compact_bool_type(header->type.compact)) {
-                proto_item *bool_item = proto_tree_add_boolean(tree, hf_thrift_bool, tvb, header->type_offset, TBP_THRIFT_TYPE_LEN, 2 - header->type.compact);
-                proto_item_set_generated(bool_item);
-            }
         } else {
             header->type_pi = proto_tree_add_item(header->fh_tree, hf_thrift_type, tvb, header->type_offset, TBP_THRIFT_TYPE_LEN, ENC_BIG_ENDIAN);
         }
@@ -2770,13 +2766,16 @@ dissect_thrift_compact_struct(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
  *
  * This function is used only for linear containers (list, set, map).
  * It uses the same type identifiers as TCompactProtocol, except for
- * the bool type which is encoded in the same way as BOOL_FALSE (2).
+ * the bool type which is encoded either as BOOL_TRUE (1) or BOOL_FALSE (2)
+ * depending on the implementation (due to a wide-spread bug that became a
+ * de-facto standard in large parts of the library).
  */
 static int
 // NOLINTNEXTLINE(misc-no-recursion)
 dissect_thrift_compact_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int *offset, thrift_option_data_t *thrift_opt, proto_tree *header_tree, int type, proto_item *type_pi)
 {
     switch (type) {
+    case DE_THRIFT_C_BOOL_TRUE:
     case DE_THRIFT_C_BOOL_FALSE:
         ABORT_ON_INCOMPLETE_PDU(TBP_THRIFT_BOOL_LEN);
         proto_tree_add_item(tree, hf_thrift_bool, tvb, *offset, TBP_THRIFT_BOOL_LEN, ENC_BIG_ENDIAN);
