@@ -638,6 +638,7 @@ set(DISSECTOR_PUBLIC_HEADERS
 	packet-uaudp.h
 	packet-uavcan-dsdl.h
 	packet-ubertooth.h
+	packet-ubx-galileo_e1b_inav.h
 	packet-udp.h
 	packet-uds.h
 	packet-umts_fp.h

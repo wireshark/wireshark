@@ -166,7 +166,7 @@ static void fmt_clk_correction(char *label, uint32_t c) {
 /* Format radians (with 2^-29 scale factor) for
  * amplitude of harmonic correction terms
  */
-static void fmt_lat_correction(char *label, int16_t c) {
+void fmt_lat_correction(char *label, int32_t c) {
     snprintf(label, ITEM_LABEL_LENGTH, "%d * 2^-29 radians", c);
 }
 
@@ -192,7 +192,7 @@ static void fmt_semi_circles(char *label, int32_t c) {
  * - right ascension
  * - mean motion difference
  */
-static void fmt_semi_circles_rate(char *label, int16_t c) {
+void fmt_semi_circles_rate(char *label, int32_t c) {
     snprintf(label, ITEM_LABEL_LENGTH, "%d * 2^-43 semi-circles/s", c);
 }
 
