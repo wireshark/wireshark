@@ -91,11 +91,12 @@ InitiatingMessage/value initiatingMessagevalue
 UnsuccessfulOutcome/value unsuccessfulOutcome_value
 SuccessfulOutcome/value successfulOutcome_value
 
-#GlobalGNB-ID/gNB-ID globalGNB-ID_gNB-ID
-
+GlobalenGNB-ID/gNB-ID eNGNB-ID-choice
+ENGNB-ID/gNB-ID gnb-id-bit-string
+GlobalGNB-ID/gNB-ID gNB-ID-choice
+E2SM-NI-CallProcessID-Format2/callProcess-ID callProcess-ID-format2
 
 #.FIELD_ATTR
-#GlobalGNB-ID/gNB-ID       ABBREV=globalGNB_ID.gNB_ID
 
 #.FN_BODY ProtocolIE-ID VAL_PTR=&e2ap_data->protocol_ie_id
   struct e2ap_private_data *e2ap_data = e2ap_get_private_data(actx->pinfo);

@@ -425,7 +425,7 @@ static int hf_e2ap_long_Macro_eNB_ID;             /* BIT_STRING_SIZE_21 */
 static int hf_e2ap_enb_ID_macro;                  /* BIT_STRING_SIZE_20 */
 static int hf_e2ap_enb_ID_shortmacro;             /* BIT_STRING_SIZE_18 */
 static int hf_e2ap_enb_ID_longmacro;              /* BIT_STRING_SIZE_21 */
-static int hf_e2ap_gNB_ID;                        /* BIT_STRING_SIZE_22_32 */
+static int hf_e2ap_gnb_id_bit_string;             /* BIT_STRING_SIZE_22_32 */
 static int hf_e2ap_gNB;                           /* GlobalE2node_gNB_ID */
 static int hf_e2ap_en_gNB;                        /* GlobalE2node_en_gNB_ID */
 static int hf_e2ap_ng_eNB;                        /* GlobalE2node_ng_eNB_ID */
@@ -437,7 +437,7 @@ static int hf_e2ap_global_ng_eNB_ID;              /* GlobalngeNB_ID */
 static int hf_e2ap_ngENB_DU_ID;                   /* NGENB_DU_ID */
 static int hf_e2ap_pLMN_Identity;                 /* PLMN_Identity */
 static int hf_e2ap_eNB_ID;                        /* ENB_ID */
-static int hf_e2ap_gNB_ID_01;                     /* ENGNB_ID */
+static int hf_e2ap_eNGNB_ID_choice;               /* ENGNB_ID */
 static int hf_e2ap_plmn_id;                       /* PLMN_Identity */
 static int hf_e2ap_gnb_id;                        /* T_gnb_id */
 static int hf_e2ap_enb_id;                        /* ENB_ID_Choice */
@@ -567,8 +567,9 @@ static int hf_e2ap_mME_Group_ID;                  /* MME_Group_ID */
 static int hf_e2ap_mME_Code;                      /* MME_Code */
 static int hf_e2ap_pLMNIdentity;                  /* PLMNIdentity */
 static int hf_e2ap_eUTRACellIdentity;             /* EUTRACellIdentity */
-static int hf_e2ap_gNB_ID_02;                     /* GNB_ID */
+static int hf_e2ap_gNB_ID_choice;                 /* GNB_ID */
 static int hf_e2ap_ngENB_ID;                      /* NgENB_ID */
+static int hf_e2ap_gNB_ID;                        /* BIT_STRING_SIZE_22_32 */
 static int hf_e2ap_aMFRegionID;                   /* AMFRegionID */
 static int hf_e2ap_aMFSetID;                      /* AMFSetID */
 static int hf_e2ap_aMFPointer;                    /* AMFPointer */
@@ -1017,7 +1018,7 @@ static int hf_e2ap_interfaceMessage;              /* NI_Message */
 static int hf_e2ap_callProcessID_Format1_01;      /* E2SM_NI_CallProcessID_Format1 */
 static int hf_e2ap_callProcessID_Format2;         /* E2SM_NI_CallProcessID_Format2 */
 static int hf_e2ap_callProcess_ID;                /* RANcallProcess_ID_number */
-static int hf_e2ap_callProcess_ID_01;             /* RANcallProcess_ID_string */
+static int hf_e2ap_callProcess_ID_format2;        /* RANcallProcess_ID_string */
 static int hf_e2ap_controlHeader_Format1_01;      /* E2SM_NI_ControlHeader_Format1 */
 static int hf_e2ap_interface_Direction;           /* NI_Direction */
 static int hf_e2ap_ric_Control_Message_Priority;  /* RIC_Control_Message_Priority */
@@ -3241,7 +3242,7 @@ static const value_string e2ap_ENGNB_ID_vals[] = {
 };
 
 static const per_choice_t ENGNB_ID_choice[] = {
-  {   0, &hf_e2ap_gNB_ID         , ASN1_EXTENSION_ROOT    , dissect_e2ap_BIT_STRING_SIZE_22_32 },
+  {   0, &hf_e2ap_gnb_id_bit_string, ASN1_EXTENSION_ROOT    , dissect_e2ap_BIT_STRING_SIZE_22_32 },
   { 0, NULL, 0, NULL }
 };
 
@@ -3257,7 +3258,7 @@ dissect_e2ap_ENGNB_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, p
 
 static const per_sequence_t GlobalenGNB_ID_sequence[] = {
   { &hf_e2ap_pLMN_Identity  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e2ap_PLMN_Identity },
-  { &hf_e2ap_gNB_ID_01      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e2ap_ENGNB_ID },
+  { &hf_e2ap_eNGNB_ID_choice, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e2ap_ENGNB_ID },
   { NULL, 0, 0, NULL }
 };
 
@@ -5887,7 +5888,7 @@ dissect_e2ap_GNB_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, pro
 
 static const per_sequence_t GlobalGNB_ID_sequence[] = {
   { &hf_e2ap_pLMNIdentity   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e2ap_PLMNIdentity },
-  { &hf_e2ap_gNB_ID_02      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e2ap_GNB_ID },
+  { &hf_e2ap_gNB_ID_choice  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e2ap_GNB_ID },
   { NULL, 0, 0, NULL }
 };
 
@@ -12929,7 +12930,7 @@ dissect_e2ap_RANcallProcess_ID_string(tvbuff_t *tvb _U_, int offset _U_, asn1_ct
 
 
 static const per_sequence_t E2SM_NI_CallProcessID_Format2_sequence[] = {
-  { &hf_e2ap_callProcess_ID_01, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e2ap_RANcallProcess_ID_string },
+  { &hf_e2ap_callProcess_ID_format2, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e2ap_RANcallProcess_ID_string },
   { NULL, 0, 0, NULL }
 };
 
@@ -15833,8 +15834,8 @@ void proto_register_e2ap(void) {
       { "enb-ID-longmacro", "e2ap.enb_ID_longmacro",
         FT_BYTES, BASE_NONE, NULL, 0,
         "BIT_STRING_SIZE_21", HFILL }},
-    { &hf_e2ap_gNB_ID,
-      { "gNB-ID", "e2ap.gNB_ID",
+    { &hf_e2ap_gnb_id_bit_string,
+      { "gNB-ID", "e2ap.gnb_id_bit_string",
         FT_BYTES, BASE_NONE, NULL, 0,
         "BIT_STRING_SIZE_22_32", HFILL }},
     { &hf_e2ap_gNB,
@@ -15881,8 +15882,8 @@ void proto_register_e2ap(void) {
       { "eNB-ID", "e2ap.eNB_ID",
         FT_UINT32, BASE_DEC, VALS(e2ap_ENB_ID_vals), 0,
         NULL, HFILL }},
-    { &hf_e2ap_gNB_ID_01,
-      { "gNB-ID", "e2ap.gNB_ID",
+    { &hf_e2ap_eNGNB_ID_choice,
+      { "gNB-ID", "e2ap.eNGNB_ID_choice",
         FT_UINT32, BASE_DEC, VALS(e2ap_ENGNB_ID_vals), 0,
         "ENGNB_ID", HFILL }},
     { &hf_e2ap_plmn_id,
@@ -16401,14 +16402,18 @@ void proto_register_e2ap(void) {
       { "eUTRACellIdentity", "e2ap.eUTRACellIdentity",
         FT_BYTES, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-    { &hf_e2ap_gNB_ID_02,
-      { "gNB-ID", "e2ap.gNB_ID",
+    { &hf_e2ap_gNB_ID_choice,
+      { "gNB-ID", "e2ap.gNB_ID_choice",
         FT_UINT32, BASE_DEC, VALS(e2ap_GNB_ID_vals), 0,
         NULL, HFILL }},
     { &hf_e2ap_ngENB_ID,
       { "ngENB-ID", "e2ap.ngENB_ID",
         FT_UINT32, BASE_DEC, VALS(e2ap_NgENB_ID_vals), 0,
         NULL, HFILL }},
+    { &hf_e2ap_gNB_ID,
+      { "gNB-ID", "e2ap.gNB_ID",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "BIT_STRING_SIZE_22_32", HFILL }},
     { &hf_e2ap_aMFRegionID,
       { "aMFRegionID", "e2ap.aMFRegionID",
         FT_BYTES, BASE_NONE, NULL, 0,
@@ -18201,8 +18206,8 @@ void proto_register_e2ap(void) {
       { "callProcess-ID", "e2ap.callProcess_ID",
         FT_INT32, BASE_DEC, NULL, 0,
         "RANcallProcess_ID_number", HFILL }},
-    { &hf_e2ap_callProcess_ID_01,
-      { "callProcess-ID", "e2ap.callProcess_ID",
+    { &hf_e2ap_callProcess_ID_format2,
+      { "callProcess-ID", "e2ap.callProcess_ID_format2",
         FT_STRING, BASE_NONE, NULL, 0,
         "RANcallProcess_ID_string", HFILL }},
     { &hf_e2ap_controlHeader_Format1_01,
