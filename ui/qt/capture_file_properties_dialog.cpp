@@ -175,7 +175,7 @@ QString CaptureFilePropertiesDialog::summaryToHtml()
     if (summary.file_encap_type == WTAP_ENCAP_PER_PACKET) {
         for (unsigned i = 0; i < summary.packet_encap_types->len; i++)
         {
-            encaps_str = QString(wtap_encap_description(g_array_index(summary.packet_encap_types, int, i)));
+            encaps_str.append(QStringLiteral("%1%2").arg(i > 0 ? ", " : "").arg(wtap_encap_description(g_array_index(summary.packet_encap_types, int, i))));
         }
     } else {
         encaps_str = QString(wtap_encap_description(summary.file_encap_type));
