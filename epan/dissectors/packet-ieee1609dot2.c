@@ -88,7 +88,7 @@ static int hf_ieee1609dot2_rSig;                  /* EccP256CurvePoint */
 static int hf_ieee1609dot2_sSig;                  /* OCTET_STRING_SIZE_32 */
 static int hf_ieee1609dot2_ecdsap384RSig;         /* EccP384CurvePoint */
 static int hf_ieee1609dot2_ecdsap384SSig;         /* OCTET_STRING_SIZE_48 */
-static int hf_ieee1609dot2_rSig_01;               /* OCTET_STRING_SIZE_32 */
+static int hf_ieee1609dot2_ecsigp256RSig;         /* OCTET_STRING_SIZE_32 */
 static int hf_ieee1609dot2_x_only;                /* OCTET_STRING_SIZE_32 */
 static int hf_ieee1609dot2_fill;                  /* NULL */
 static int hf_ieee1609dot2_compressed_y_0;        /* OCTET_STRING_SIZE_32 */
@@ -154,7 +154,7 @@ static int hf_ieee1609dot2_deltaLinkedCrlWithAlg;  /* ToBeSignedLinkageValueCrlW
 static int hf_ieee1609dot2_crlSerial;             /* Uint32 */
 static int hf_ieee1609dot2_entries;               /* SequenceOfHashBasedRevocationInfo */
 static int hf_ieee1609dot2_SequenceOfHashBasedRevocationInfo_item;  /* HashBasedRevocationInfo */
-static int hf_ieee1609dot2_id;                    /* HashedId10 */
+static int hf_ieee1609dot2_hashedId;              /* HashedId10 */
 static int hf_ieee1609dot2_expiry;                /* Time32 */
 static int hf_ieee1609dot2_iRev;                  /* IValue */
 static int hf_ieee1609dot2_indexWithinI;          /* Uint8 */
@@ -253,7 +253,7 @@ static int hf_ieee1609dot2_sha256AndDigest;       /* HashedId8 */
 static int hf_ieee1609dot2_iiSelf;                /* HashAlgorithm */
 static int hf_ieee1609dot2_sha384AndDigest;       /* HashedId8 */
 static int hf_ieee1609dot2_sm3AndDigest;          /* HashedId8 */
-static int hf_ieee1609dot2_id_01;                 /* CertificateId */
+static int hf_ieee1609dot2_certificateId;         /* CertificateId */
 static int hf_ieee1609dot2_validityPeriod;        /* ValidityPeriod */
 static int hf_ieee1609dot2_region;                /* GeographicRegion */
 static int hf_ieee1609dot2_assuranceLevel;        /* SubjectAssurance */
@@ -283,7 +283,7 @@ static int hf_ieee1609dot2_explicit;              /* SequenceOfPsidSspRange */
 static int hf_ieee1609dot2_verificationKey;       /* PublicVerificationKey */
 static int hf_ieee1609dot2_reconstructionValue;   /* EccP256CurvePoint */
 static int hf_ieee1609dot2_SequenceOfAppExtensions_item;  /* AppExtension */
-static int hf_ieee1609dot2_id_02;                 /* ExtId */
+static int hf_ieee1609dot2_id;                    /* ExtId */
 static int hf_ieee1609dot2_content_03;            /* T_content */
 static int hf_ieee1609dot2_SequenceOfCertIssueExtensions_item;  /* CertIssueExtension */
 static int hf_ieee1609dot2_permissions;           /* T_permissions */
@@ -1045,7 +1045,7 @@ dissect_ieee1609dot2_EcdsaP384Signature(tvbuff_t *tvb _U_, int offset _U_, asn1_
 
 
 static const oer_sequence_t EcsigP256Signature_sequence[] = {
-  { &hf_ieee1609dot2_rSig_01, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ieee1609dot2_OCTET_STRING_SIZE_32 },
+  { &hf_ieee1609dot2_ecsigp256RSig, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ieee1609dot2_OCTET_STRING_SIZE_32 },
   { &hf_ieee1609dot2_sSig   , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ieee1609dot2_OCTET_STRING_SIZE_32 },
   { NULL, 0, 0, NULL }
 };
@@ -1702,7 +1702,7 @@ dissect_ieee1609dot2_CrlPriorityInfo(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx
 
 
 static const oer_sequence_t HashBasedRevocationInfo_sequence[] = {
-  { &hf_ieee1609dot2_id     , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ieee1609dot2_HashedId10 },
+  { &hf_ieee1609dot2_hashedId, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ieee1609dot2_HashedId10 },
   { &hf_ieee1609dot2_expiry , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ieee1609dot2_Time32 },
   { NULL, 0, 0, NULL }
 };
@@ -2334,7 +2334,7 @@ dissect_ieee1609dot2_T_content(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 
 
 static const oer_sequence_t AppExtension_sequence[] = {
-  { &hf_ieee1609dot2_id_02  , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ieee1609dot2_ExtId },
+  { &hf_ieee1609dot2_id     , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ieee1609dot2_ExtId },
   { &hf_ieee1609dot2_content_03, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ieee1609dot2_T_content },
   { NULL, 0, 0, NULL }
 };
@@ -2394,7 +2394,7 @@ dissect_ieee1609dot2_T_permissions(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t
 
 
 static const oer_sequence_t CertIssueExtension_sequence[] = {
-  { &hf_ieee1609dot2_id_02  , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ieee1609dot2_ExtId },
+  { &hf_ieee1609dot2_id     , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ieee1609dot2_ExtId },
   { &hf_ieee1609dot2_permissions, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ieee1609dot2_T_permissions },
   { NULL, 0, 0, NULL }
 };
@@ -2454,7 +2454,7 @@ dissect_ieee1609dot2_T_permissions_01(tvbuff_t *tvb _U_, int offset _U_, asn1_ct
 
 
 static const oer_sequence_t CertRequestExtension_sequence[] = {
-  { &hf_ieee1609dot2_id_02  , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ieee1609dot2_ExtId },
+  { &hf_ieee1609dot2_id     , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ieee1609dot2_ExtId },
   { &hf_ieee1609dot2_permissions_01, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ieee1609dot2_T_permissions_01 },
   { NULL, 0, 0, NULL }
 };
@@ -2483,7 +2483,7 @@ dissect_ieee1609dot2_SequenceOfCertRequestExtensions(tvbuff_t *tvb _U_, int offs
 
 
 static const oer_sequence_t ToBeSignedCertificate_sequence[] = {
-  { &hf_ieee1609dot2_id_01  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ieee1609dot2_CertificateId },
+  { &hf_ieee1609dot2_certificateId, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ieee1609dot2_CertificateId },
   { &hf_ieee1609dot2_cracaId, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ieee1609dot2_HashedId3 },
   { &hf_ieee1609dot2_crlSeries, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ieee1609dot2_CrlSeries },
   { &hf_ieee1609dot2_validityPeriod, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ieee1609dot2_ValidityPeriod },
@@ -3315,8 +3315,8 @@ void proto_register_ieee1609dot2(void) {
       { "sSig", "ieee1609dot2.ecdsap384SSig",
         FT_BYTES, BASE_NONE, NULL, 0,
         "OCTET_STRING_SIZE_48", HFILL }},
-    { &hf_ieee1609dot2_rSig_01,
-      { "rSig", "ieee1609dot2.rSig",
+    { &hf_ieee1609dot2_ecsigp256RSig,
+      { "rSig", "ieee1609dot2.ecsigp256RSig",
         FT_BYTES, BASE_NONE, NULL, 0,
         "OCTET_STRING_SIZE_32", HFILL }},
     { &hf_ieee1609dot2_x_only,
@@ -3579,8 +3579,8 @@ void proto_register_ieee1609dot2(void) {
       { "HashBasedRevocationInfo", "ieee1609dot2.HashBasedRevocationInfo_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-    { &hf_ieee1609dot2_id,
-      { "id", "ieee1609dot2.id",
+    { &hf_ieee1609dot2_hashedId,
+      { "id", "ieee1609dot2.hashedId",
         FT_BYTES, BASE_NONE, NULL, 0,
         "HashedId10", HFILL }},
     { &hf_ieee1609dot2_expiry,
@@ -3975,8 +3975,8 @@ void proto_register_ieee1609dot2(void) {
       { "sm3AndDigest", "ieee1609dot2.sm3AndDigest",
         FT_BYTES, BASE_NONE, NULL, 0,
         "HashedId8", HFILL }},
-    { &hf_ieee1609dot2_id_01,
-      { "id", "ieee1609dot2.id",
+    { &hf_ieee1609dot2_certificateId,
+      { "id", "ieee1609dot2.certificateId",
         FT_UINT32, BASE_DEC, VALS(ieee1609dot2_CertificateId_vals), 0,
         "CertificateId", HFILL }},
     { &hf_ieee1609dot2_validityPeriod,
@@ -4095,7 +4095,7 @@ void proto_register_ieee1609dot2(void) {
       { "AppExtension", "ieee1609dot2.AppExtension_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-    { &hf_ieee1609dot2_id_02,
+    { &hf_ieee1609dot2_id,
       { "id", "ieee1609dot2.id",
         FT_UINT32, BASE_DEC, VALS(ieee1609dot2_ExtId_vals), 0,
         "ExtId", HFILL }},

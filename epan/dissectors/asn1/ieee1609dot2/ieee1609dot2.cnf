@@ -59,6 +59,8 @@ EccP384CurvePoint/compressed-y-1     eccp384cpCompressed-y-1
 EcdsaP384Signature/rSig              ecdsap384RSig
 EcdsaP384Signature/sSig              ecdsap384SSig
 
+EcsigP256Signature/rSig              ecsigp256RSig
+
 PsidSsp/psid                         psPsid
 HeaderInfo/psid                      hiPsid
 
@@ -75,6 +77,10 @@ SymmRecipientInfo/encKey             sriEncKey
 EncryptedDataEncryptionKey/eciesNistP256 edeEciesNistP256
 
 EncryptedDataEncryptionKey/eciesBrainpoolP256r1 edekEciesBrainpoolP256r1
+
+ToBeSignedCertificate/id             certificateId
+
+HashBasedRevocationInfo/id           hashedId
 
 #.TYPE_ATTR
 NinetyDegreeInt     DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(ieee1609dot2_NinetyDegreeInt_fmt)
