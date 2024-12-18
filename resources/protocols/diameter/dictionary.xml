@@ -2574,7 +2574,7 @@
 			<enum name="Extended Echo Reply" code="43"/>
 			<enum name="RFC3692-style Experiment 1" code="253"/>
 			<enum name="RFC3692-style Experiment 2" code="254"/>
-			<enum name="Reserved" code="254"/>
+			<enum name="Reserved" code="255"/>
 		</avp>
 		<avp name="ICMP-Code" code="547" mandatory="may">
 			<type type-name="Enumerated"/>
