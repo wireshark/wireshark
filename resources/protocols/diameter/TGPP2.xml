@@ -134,11 +134,11 @@
 	<avp name="Rule-Reason-Code" code="814" vendor-bit="must" vendor-id="TGPP2">
 		<type type-name="Enumerated"/>
 		<enum name="UNKNOWN_FLOW_IDENTIFIER" code="0"/>
-		<enum name="UNKNOWN_RULE_NAME" code="0"/>
-		<enum name="RATING_GROUP_ERROR" code="0"/>
-		<enum name="SERVICE_IDENTIFIER_ERROR" code="0"/>
-		<enum name="AGW_MALFUNCTION" code="0"/>
-		<enum name="RESOURCES_LIMITATION" code="0"/>
+		<enum name="UNKNOWN_RULE_NAME" code="1"/>
+		<enum name="RATING_GROUP_ERROR" code="2"/>
+		<enum name="SERVICE_IDENTIFIER_ERROR" code="3"/>
+		<enum name="AGW_MALFUNCTION" code="4"/>
+		<enum name="RESOURCES_LIMITATION" code="5"/>
 	</avp>
 	<avp name="AGW-MCC-MNC" code="815" mandatory="must" may-encrypt="no" protected="may" vendor-bit="must" vendor-id="TGPP2">
 		<type type-name="UTF8String"/>
