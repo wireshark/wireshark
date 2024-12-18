@@ -1419,8 +1419,8 @@ static int hf_s1ap_extendedRNC_ID;                /* ExtendedRNC_ID */
 static int hf_s1ap_gNB;                           /* GNB */
 static int hf_s1ap_ng_eNB;                        /* NG_eNB */
 static int hf_s1ap_global_gNB_ID;                 /* Global_GNB_ID */
-static int hf_s1ap_gNB_ID;                        /* GNB_Identity */
-static int hf_s1ap_gNB_ID_01;                     /* GNB_ID */
+static int hf_s1ap_gnb_id_choice;                 /* GNB_Identity */
+static int hf_s1ap_gNB_ID;                        /* GNB_ID */
 static int hf_s1ap_global_ng_eNB_ID;              /* Global_ENB_ID */
 static int hf_s1ap_measurementThreshold;          /* MeasurementThresholdA2 */
 static int hf_s1ap_hOWindowStart;                 /* HandoverWindowStart */
@@ -1525,13 +1525,13 @@ static int hf_s1ap_uTRAN;                         /* OCTET_STRING */
 static int hf_s1ap_gERAN;                         /* OCTET_STRING */
 static int hf_s1ap_eHRPD;                         /* EHRPDSectorLoadReportingResponse */
 static int hf_s1ap_compositeAvailableCapacityGroup;  /* CompositeAvailableCapacityGroup */
-static int hf_s1ap_cell_ID_01;                    /* OCTET_STRING */
+static int hf_s1ap_cell_ID_oct_str;               /* OCTET_STRING */
 static int hf_s1ap_eUTRANcellLoadReportingResponse;  /* EUTRANcellLoadReportingResponse */
 static int hf_s1ap_eUTRAN_01;                     /* OCTET_STRING */
 static int hf_s1ap_eHRPD_01;                      /* EHRPD_Sector_ID */
 static int hf_s1ap_RequestedCellList_item;        /* IRAT_Cell_ID */
 static int hf_s1ap_requestedCellList;             /* RequestedCellList */
-static int hf_s1ap_cell_ID_02;                    /* IRAT_Cell_ID */
+static int hf_s1ap_cell_ID_01;                    /* IRAT_Cell_ID */
 static int hf_s1ap_ReportingCellList_item;        /* ReportingCellList_Item */
 static int hf_s1ap_MultiCellLoadReportingResponse_item;  /* MultiCellLoadReportingResponse_Item */
 static int hf_s1ap_eUTRANResponse;                /* EUTRANResponse */
@@ -5131,7 +5131,7 @@ static const value_string s1ap_GNB_Identity_vals[] = {
 };
 
 static const per_choice_t GNB_Identity_choice[] = {
-  {   0, &hf_s1ap_gNB_ID_01      , ASN1_EXTENSION_ROOT    , dissect_s1ap_GNB_ID },
+  {   0, &hf_s1ap_gNB_ID         , ASN1_EXTENSION_ROOT    , dissect_s1ap_GNB_ID },
   { 0, NULL, 0, NULL }
 };
 
@@ -5147,7 +5147,7 @@ dissect_s1ap_GNB_Identity(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
 
 static const per_sequence_t Global_GNB_ID_sequence[] = {
   { &hf_s1ap_pLMN_Identity  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_s1ap_PLMNidentity },
-  { &hf_s1ap_gNB_ID         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_s1ap_GNB_Identity },
+  { &hf_s1ap_gnb_id_choice  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_s1ap_GNB_Identity },
   { &hf_s1ap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_s1ap_ProtocolExtensionContainer },
   { NULL, 0, 0, NULL }
 };
@@ -14647,7 +14647,7 @@ dissect_s1ap_HOReport(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, p
 
 
 static const per_sequence_t CellsToActivateList_Item_sequence[] = {
-  { &hf_s1ap_cell_ID_01     , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_s1ap_OCTET_STRING },
+  { &hf_s1ap_cell_ID_oct_str, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_s1ap_OCTET_STRING },
   { NULL, 0, 0, NULL }
 };
 
@@ -14716,7 +14716,7 @@ dissect_s1ap_NotifyFlag(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_,
 
 
 static const per_sequence_t NotificationCellList_Item_sequence[] = {
-  { &hf_s1ap_cell_ID_01     , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_s1ap_OCTET_STRING },
+  { &hf_s1ap_cell_ID_oct_str, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_s1ap_OCTET_STRING },
   { &hf_s1ap_notifyFlag     , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_s1ap_NotifyFlag },
   { NULL, 0, 0, NULL }
 };
@@ -14955,7 +14955,7 @@ dissect_s1ap_CellLoadReportingResponse(tvbuff_t *tvb _U_, int offset _U_, asn1_c
 
 
 static const per_sequence_t EUTRANResponse_sequence[] = {
-  { &hf_s1ap_cell_ID_01     , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_s1ap_OCTET_STRING },
+  { &hf_s1ap_cell_ID_oct_str, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_s1ap_OCTET_STRING },
   { &hf_s1ap_eUTRANcellLoadReportingResponse, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_s1ap_EUTRANcellLoadReportingResponse },
   { NULL, 0, 0, NULL }
 };
@@ -15055,7 +15055,7 @@ dissect_s1ap_EventTriggeredCellLoadReportingResponse(tvbuff_t *tvb _U_, int offs
 
 
 static const per_sequence_t ActivatedCellsList_Item_sequence[] = {
-  { &hf_s1ap_cell_ID_01     , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_s1ap_OCTET_STRING },
+  { &hf_s1ap_cell_ID_oct_str, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_s1ap_OCTET_STRING },
   { NULL, 0, 0, NULL }
 };
 
@@ -22296,11 +22296,11 @@ void proto_register_s1ap(void) {
       { "global-gNB-ID", "s1ap.global_gNB_ID_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-    { &hf_s1ap_gNB_ID,
-      { "gNB-ID", "s1ap.gNB_ID",
+    { &hf_s1ap_gnb_id_choice,
+      { "gNB-ID", "s1ap.gnb_id_choice",
         FT_UINT32, BASE_DEC, VALS(s1ap_GNB_Identity_vals), 0,
         "GNB_Identity", HFILL }},
-    { &hf_s1ap_gNB_ID_01,
+    { &hf_s1ap_gNB_ID,
       { "gNB-ID", "s1ap.gNB_ID",
         FT_BYTES, BASE_NONE, NULL, 0,
         NULL, HFILL }},
@@ -22720,8 +22720,8 @@ void proto_register_s1ap(void) {
       { "compositeAvailableCapacityGroup", "s1ap.compositeAvailableCapacityGroup",
         FT_BYTES, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-    { &hf_s1ap_cell_ID_01,
-      { "cell-ID", "s1ap.cell_ID",
+    { &hf_s1ap_cell_ID_oct_str,
+      { "cell-ID", "s1ap.cell_ID_oct_str",
         FT_BYTES, BASE_NONE, NULL, 0,
         "OCTET_STRING", HFILL }},
     { &hf_s1ap_eUTRANcellLoadReportingResponse,
@@ -22744,7 +22744,7 @@ void proto_register_s1ap(void) {
       { "requestedCellList", "s1ap.requestedCellList",
         FT_UINT32, BASE_DEC, NULL, 0,
         NULL, HFILL }},
-    { &hf_s1ap_cell_ID_02,
+    { &hf_s1ap_cell_ID_01,
       { "cell-ID", "s1ap.cell_ID",
         FT_UINT32, BASE_DEC, VALS(s1ap_IRAT_Cell_ID_vals), 0,
         "IRAT_Cell_ID", HFILL }},

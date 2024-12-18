@@ -112,6 +112,12 @@ ProtocolExtensionField/id ext_id
 #PrivateIE-Field/value private_value
 ProtocolIE-Field/value ie_field_value
 
+Global-GNB-ID/gNB-ID gnb-id-choice
+EUTRANResponse/cell-ID cell-ID_oct_str
+CellsToActivateList-Item/cell-ID cell-ID_oct_str
+ActivatedCellsList-Item/cell-ID cell-ID_oct_str
+NotificationCellList-Item/cell-ID cell-ID_oct_str
+
 #.FIELD_ATTR
 UE-associatedLogicalS1-ConnectionItem/eNB-UE-S1AP-ID ABBREV=ENB_UE_S1AP_ID
 UE-associatedLogicalS1-ConnectionItem/mME-UE-S1AP-ID ABBREV=MME_UE_S1AP_ID
