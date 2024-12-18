@@ -138,7 +138,7 @@ static int hf_t124_conductedPrivileges_item;      /* Privilege */
 static int hf_t124_nonConductedPrivileges;        /* SET_OF_Privilege */
 static int hf_t124_nonConductedPrivileges_item;   /* Privilege */
 static int hf_t124_callerIdentifier;              /* TextString */
-static int hf_t124_userData;                      /* UserData */
+static int hf_t124_userData_set_of;               /* UserData */
 static int hf_t124_conferencePriority;            /* ConferencePriority */
 static int hf_t124_nodeID;                        /* UserID */
 static int hf_t124_tag;                           /* INTEGER */
@@ -216,9 +216,9 @@ static int hf_t124_channelIds;                    /* SET_OF_ChannelId */
 static int hf_t124_channelIds_item;               /* ChannelId */
 static int hf_t124_dataPriority;                  /* DataPriority */
 static int hf_t124_segmentation;                  /* Segmentation */
-static int hf_t124_userData_01;                   /* T_userData */
-static int hf_t124_userData_02;                   /* T_userData_01 */
-static int hf_t124_userData_03;                   /* OCTET_STRING */
+static int hf_t124_userData;                      /* T_userData */
+static int hf_t124_userData_01;                   /* T_userData_01 */
+static int hf_t124_userData_02;                   /* OCTET_STRING */
 static int hf_t124_tokenStatus;                   /* TokenStatus */
 static int hf_t124_plumbDomainIndication;         /* PlumbDomainIndication */
 static int hf_t124_erectDomainRequest;            /* ErectDomainRequest */
@@ -1209,7 +1209,7 @@ static const per_sequence_t ConferenceCreateRequest_sequence[] = {
   { &hf_t124_nonConductedPrivileges, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_t124_SET_OF_Privilege },
   { &hf_t124_conferenceDescription, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_t124_TextString },
   { &hf_t124_callerIdentifier, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_t124_TextString },
-  { &hf_t124_userData       , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_t124_UserData },
+  { &hf_t124_userData_set_of, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_t124_UserData },
   { &hf_t124_conferencePriority, ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_t124_ConferencePriority },
   { &hf_t124_conferenceMode , ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_t124_ConferenceMode },
   { NULL, 0, 0, NULL }
@@ -1247,7 +1247,7 @@ static const per_sequence_t ConferenceCreateResponse_sequence[] = {
   { &hf_t124_nodeID         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_t124_UserID },
   { &hf_t124_tag            , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_t124_INTEGER },
   { &hf_t124_result         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_t124_T_result },
-  { &hf_t124_userData       , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_t124_UserData },
+  { &hf_t124_userData_set_of, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_t124_UserData },
   { NULL, 0, 0, NULL }
 };
 
@@ -1263,7 +1263,7 @@ dissect_t124_ConferenceCreateResponse(tvbuff_t *tvb _U_, int offset _U_, asn1_ct
 static const per_sequence_t ConferenceQueryRequest_sequence[] = {
   { &hf_t124_nodeType       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_t124_NodeType },
   { &hf_t124_asymmetryIndicator, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_t124_AsymmetryIndicator },
-  { &hf_t124_userData       , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_t124_UserData },
+  { &hf_t124_userData_set_of, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_t124_UserData },
   { NULL, 0, 0, NULL }
 };
 
@@ -1310,7 +1310,7 @@ static const per_sequence_t ConferenceQueryResponse_sequence[] = {
   { &hf_t124_asymmetryIndicator, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_t124_AsymmetryIndicator },
   { &hf_t124_conferenceList , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_t124_SET_OF_ConferenceDescriptor },
   { &hf_t124_queryResponseResult, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_t124_QueryResponseResult },
-  { &hf_t124_userData       , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_t124_UserData },
+  { &hf_t124_userData_set_of, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_t124_UserData },
   { &hf_t124_waitForInvitationFlag, ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_t124_BOOLEAN },
   { &hf_t124_noUnlistedConferenceFlag, ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_t124_BOOLEAN },
   { NULL, 0, 0, NULL }
@@ -1332,7 +1332,7 @@ static const per_sequence_t ConferenceJoinRequest_sequence[] = {
   { &hf_t124_password_01    , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_t124_PasswordChallengeRequestResponse },
   { &hf_t124_convenerPassword_01, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_t124_PasswordSelector },
   { &hf_t124_callerIdentifier, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_t124_TextString },
-  { &hf_t124_userData       , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_t124_UserData },
+  { &hf_t124_userData_set_of, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_t124_UserData },
   { &hf_t124_nodeCategory   , ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_t124_NodeCategory },
   { NULL, 0, 0, NULL }
 };
@@ -1383,7 +1383,7 @@ static const per_sequence_t ConferenceJoinResponse_sequence[] = {
   { &hf_t124_conferenceDescription, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_t124_TextString },
   { &hf_t124_password_01    , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_t124_PasswordChallengeRequestResponse },
   { &hf_t124_joinResponseResult, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_t124_JoinResponseResult },
-  { &hf_t124_userData       , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_t124_UserData },
+  { &hf_t124_userData_set_of, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_t124_UserData },
   { &hf_t124_nodeCategory   , ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_t124_NodeCategory },
   { &hf_t124_conferenceMode , ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_t124_ConferenceMode },
   { NULL, 0, 0, NULL }
@@ -1413,7 +1413,7 @@ static const per_sequence_t ConferenceInviteRequest_sequence[] = {
   { &hf_t124_nonConductedPrivileges, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_t124_SET_OF_Privilege },
   { &hf_t124_conferenceDescription, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_t124_TextString },
   { &hf_t124_callerIdentifier, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_t124_TextString },
-  { &hf_t124_userData       , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_t124_UserData },
+  { &hf_t124_userData_set_of, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_t124_UserData },
   { &hf_t124_conferencePriority, ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_t124_ConferencePriority },
   { &hf_t124_nodeCategory   , ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_t124_NodeCategory },
   { &hf_t124_conferenceMode , ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_t124_ConferenceMode },
@@ -1447,7 +1447,7 @@ dissect_t124_InviteResponseResult(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t 
 
 static const per_sequence_t ConferenceInviteResponse_sequence[] = {
   { &hf_t124_inviteResponseResult, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_t124_InviteResponseResult },
-  { &hf_t124_userData       , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_t124_UserData },
+  { &hf_t124_userData_set_of, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_t124_UserData },
   { NULL, 0, 0, NULL }
 };
 
@@ -2411,7 +2411,7 @@ static const per_sequence_t SendDataRequest_sequence[] = {
   { &hf_t124_channelId_03   , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_t124_ChannelId },
   { &hf_t124_dataPriority   , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_t124_DataPriority },
   { &hf_t124_segmentation   , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_t124_Segmentation },
-  { &hf_t124_userData_01    , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_t124_T_userData },
+  { &hf_t124_userData       , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_t124_T_userData },
   { NULL, 0, 0, NULL }
 };
 
@@ -2449,7 +2449,7 @@ static const per_sequence_t SendDataIndication_sequence[] = {
   { &hf_t124_channelId_03   , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_t124_ChannelId },
   { &hf_t124_dataPriority   , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_t124_DataPriority },
   { &hf_t124_segmentation   , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_t124_Segmentation },
-  { &hf_t124_userData_02    , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_t124_T_userData_01 },
+  { &hf_t124_userData_01    , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_t124_T_userData_01 },
   { NULL, 0, 0, NULL }
 };
 
@@ -2467,7 +2467,7 @@ static const per_sequence_t UniformSendDataRequest_sequence[] = {
   { &hf_t124_channelId_03   , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_t124_ChannelId },
   { &hf_t124_dataPriority   , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_t124_DataPriority },
   { &hf_t124_segmentation   , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_t124_Segmentation },
-  { &hf_t124_userData_03    , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_t124_OCTET_STRING },
+  { &hf_t124_userData_02    , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_t124_OCTET_STRING },
   { NULL, 0, 0, NULL }
 };
 
@@ -2485,7 +2485,7 @@ static const per_sequence_t UniformSendDataIndication_sequence[] = {
   { &hf_t124_channelId_03   , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_t124_ChannelId },
   { &hf_t124_dataPriority   , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_t124_DataPriority },
   { &hf_t124_segmentation   , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_t124_Segmentation },
-  { &hf_t124_userData_03    , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_t124_OCTET_STRING },
+  { &hf_t124_userData_02    , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_t124_OCTET_STRING },
   { NULL, 0, 0, NULL }
 };
 
@@ -3339,8 +3339,8 @@ void proto_register_t124(void) {
       { "callerIdentifier", "t124.callerIdentifier",
         FT_STRING, BASE_NONE, NULL, 0,
         "TextString", HFILL }},
-    { &hf_t124_userData,
-      { "userData", "t124.userData",
+    { &hf_t124_userData_set_of,
+      { "userData", "t124.userData_set_of",
         FT_UINT32, BASE_DEC, NULL, 0,
         NULL, HFILL }},
     { &hf_t124_conferencePriority,
@@ -3651,15 +3651,15 @@ void proto_register_t124(void) {
       { "segmentation", "t124.segmentation",
         FT_BYTES, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-    { &hf_t124_userData_01,
+    { &hf_t124_userData,
       { "userData", "t124.userData",
         FT_BYTES, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-    { &hf_t124_userData_02,
+    { &hf_t124_userData_01,
       { "userData", "t124.userData",
         FT_BYTES, BASE_NONE, NULL, 0,
         "T_userData_01", HFILL }},
-    { &hf_t124_userData_03,
+    { &hf_t124_userData_02,
       { "userData", "t124.userData",
         FT_BYTES, BASE_NONE, NULL, 0,
         "OCTET_STRING", HFILL }},
