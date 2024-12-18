@@ -62,7 +62,10 @@ IOConsoleDialog::IOConsoleDialog(QWidget &parent,
     ui->outputTextEdit->setFont(mainApp->monospaceFont());
     ui->outputTextEdit->setReadOnly(true);
 
-    ui->hintLabel->clear();
+    // Shrink down to a small but nonzero size.
+    int one_em = fontMetrics().height();
+    ui->hintLabel->setMinimumSize(one_em, one_em);
+    clearHintText();
 
     // Install print
     open_cb_(print_function, this, callback_data_);
@@ -88,7 +91,7 @@ void IOConsoleDialog::clearHintText()
 void IOConsoleDialog::clearSuccessHint()
 {
     // Text changed so we no longer have a success.
-    ui->hintLabel->clear();
+    clearHintText();
     // Disconnect this slot until the next success.
     disconnect(ui->inputTextEdit, &QTextEdit::textChanged, this, &IOConsoleDialog::clearSuccessHint);
 }
@@ -134,7 +137,6 @@ void IOConsoleDialog::appendOutputText(const QString &text)
 
 void IOConsoleDialog::on_clearActivated()
 {
-    ui->inputTextEdit->clear();
     ui->outputTextEdit->clear();
-    ui->hintLabel->clear();
+    clearHintText();
 }

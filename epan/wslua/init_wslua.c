@@ -1364,7 +1364,6 @@ static int wslua_console_print(lua_State *_L)
             g_string_append(gstr, repr);
             lua_pop(_L, 1);
     }
-    g_string_append_c(gstr, '\n');
 
     if (wslua_gui_print_func_ptr == NULL) {
         ws_critical("GUI print function not registered; Trying to print: %s", gstr->str);

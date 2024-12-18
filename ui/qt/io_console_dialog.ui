@@ -27,7 +27,11 @@
       <enum>Qt::Vertical</enum>
      </property>
      <widget class="QTextEdit" name="inputTextEdit"/>
-     <widget class="QTextEdit" name="outputTextEdit"/>
+     <widget class="QTextEdit" name="outputTextEdit">
+      <property name="wordWrapMode">
+       <enum>QTextOption::WrapAnywhere</enum>
+      </property>
+     </widget>
     </widget>
    </item>
    <item row="2" column="0">
