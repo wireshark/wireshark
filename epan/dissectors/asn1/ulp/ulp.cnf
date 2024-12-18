@@ -21,9 +21,23 @@ FrequencyInfo/modeSpecificInfo  modeSpecificFrequencyInfo
 FrequencyInfo/modeSpecificInfo/fdd  fdd_fr
 FrequencyInfo/modeSpecificInfo/tdd  tdd_fr
 SlpSessionID/sessionID  sessionSlpID
-SETId/min  minsi
 Coordinate/latitude coordinateLatitude
 Coordinate/longitude coordinateLongitude
+LTEAreaId/refCI refCI-LTE-Cell-Id
+NRAreaId/refCI refCI-NR-Cell-Id
+ReportData/timestamp timestamp_choice
+SupportedWLANApData/apDevType apDevType_enum
+CellMeasuredResults/cellIdentity cellIdentity_uint
+SupportedWLANInfo/apSSID apSSID_bool
+SupportedWLANInfo/apPHYType apPHYType_bool
+SupportedWLANInfo/setMACAddress setMACAddress_bool
+LocationDataLCI/latitude latitude_bit_string
+LocationDataLCI/longitude longitude_bit_string
+LocationDataLCI/altitude altitude_bit_string
+SETId/min min_bit_string
+ThirdPartyID/min min_bit_string
+
+
 #.END
 
 #.FN_HDR ULP-PDU

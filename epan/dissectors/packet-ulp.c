@@ -202,11 +202,11 @@ static int hf_ulp_refSID;                         /* INTEGER_0_65535 */
 static int hf_ulp_refNID;                         /* INTEGER_0_32767 */
 static int hf_ulp_refBASEID;                      /* INTEGER_0_65535 */
 static int hf_ulp_refSECTORID;                    /* BIT_STRING_SIZE_128 */
-static int hf_ulp_refCI_01;                       /* BIT_STRING_SIZE_29 */
+static int hf_ulp_refCI_LTE_Cell_Id;              /* BIT_STRING_SIZE_29 */
 static int hf_ulp_apMACAddress;                   /* T_apMACAddress */
 static int hf_ulp_bsID_MSB;                       /* BIT_STRING_SIZE_24 */
 static int hf_ulp_bsID_LSB;                       /* BIT_STRING_SIZE_24 */
-static int hf_ulp_refCI_02;                       /* BIT_STRING_SIZE_36 */
+static int hf_ulp_refCI_NR_Cell_Id;               /* BIT_STRING_SIZE_36 */
 static int hf_ulp_GeoAreaMappingList_item;        /* GeoAreaIndex */
 static int hf_ulp_supportedNetworkInformation;    /* SupportedNetworkInformation */
 static int hf_ulp_reportingMode;                  /* ReportingMode */
@@ -228,7 +228,7 @@ static int hf_ulp_SessionList_item;               /* SessionInformation */
 static int hf_ulp_ReportDataList_item;            /* ReportData */
 static int hf_ulp_positionData;                   /* PositionData */
 static int hf_ulp_resultCode;                     /* ResultCode */
-static int hf_ulp_timestamp;                      /* TimeStamp */
+static int hf_ulp_timestamp_choice;               /* TimeStamp */
 static int hf_ulp_ganssSignalsInfo;               /* GANSSsignalsInfo */
 static int hf_ulp_GANSSsignalsInfo_item;          /* GANSSSignalsDescription */
 static int hf_ulp_ganssId;                        /* INTEGER_0_15 */
@@ -378,7 +378,7 @@ static int hf_ulp_sessionId;                      /* INTEGER_0_65535 */
 static int hf_ulp_setId;                          /* SETId */
 static int hf_ulp_msisdn;                         /* T_msisdn */
 static int hf_ulp_mdn;                            /* T_mdn */
-static int hf_ulp_minsi;                          /* BIT_STRING_SIZE_34 */
+static int hf_ulp_min_bit_string;                 /* BIT_STRING_SIZE_34 */
 static int hf_ulp_imsi;                           /* T_imsi */
 static int hf_ulp_nai;                            /* IA5String_SIZE_1_1000 */
 static int hf_ulp_iPAddress;                      /* IPAddress */
@@ -394,7 +394,7 @@ static int hf_ulp_gsmCell;                        /* GsmCellInformation */
 static int hf_ulp_wcdmaCell;                      /* WcdmaCellInformation */
 static int hf_ulp_cdmaCell;                       /* CdmaCellInformation */
 static int hf_ulp_ver2_CellInfo_extension;        /* Ver2_CellInfo_extension */
-static int hf_ulp_timestamp_01;                   /* UTCTime */
+static int hf_ulp_timestamp;                      /* UTCTime */
 static int hf_ulp_positionEstimate;               /* PositionEstimate */
 static int hf_ulp_latitudeSign;                   /* T_latitudeSign */
 static int hf_ulp_latitude;                       /* INTEGER_0_8388607 */
@@ -439,7 +439,7 @@ static int hf_ulp_MeasuredResultsList_item;       /* MeasuredResults */
 static int hf_ulp_utra_CarrierRSSI;               /* UTRA_CarrierRSSI */
 static int hf_ulp_cellMeasuredResultsList;        /* CellMeasuredResultsList */
 static int hf_ulp_CellMeasuredResultsList_item;   /* CellMeasuredResults */
-static int hf_ulp_cellIdentity;                   /* INTEGER_0_268435455 */
+static int hf_ulp_cellIdentity_uint;              /* INTEGER_0_268435455 */
 static int hf_ulp_modeSpecificInfo;               /* T_modeSpecificInfo */
 static int hf_ulp_fdd;                            /* T_fdd */
 static int hf_ulp_primaryCPICH_Info;              /* PrimaryCPICH_Info */
@@ -502,9 +502,9 @@ static int hf_ulp_setRSSI;                        /* BOOLEAN */
 static int hf_ulp_apRepLoc;                       /* BOOLEAN */
 static int hf_ulp_apRL;                           /* BOOLEAN */
 static int hf_ulp_opClass;                        /* BOOLEAN */
-static int hf_ulp_apSSID;                         /* BOOLEAN */
-static int hf_ulp_apPHYType;                      /* BOOLEAN */
-static int hf_ulp_setMACAddress;                  /* BOOLEAN */
+static int hf_ulp_apSSID_bool;                    /* BOOLEAN */
+static int hf_ulp_apPHYType_bool;                 /* BOOLEAN */
+static int hf_ulp_setMACAddress_bool;             /* BOOLEAN */
 static int hf_ulp_supportedWLANApDataList;        /* SEQUENCE_SIZE_1_maxWLANApDataSize_OF_SupportedWLANApData */
 static int hf_ulp_supportedWLANApDataList_item;   /* SupportedWLANApData */
 static int hf_ulp_supportedWLANapsChannel11a;     /* SupportedWLANApsChannel11a */
@@ -540,7 +540,7 @@ static int hf_ulp_ch12;                           /* BOOLEAN */
 static int hf_ulp_ch13;                           /* BOOLEAN */
 static int hf_ulp_ch14;                           /* BOOLEAN */
 static int hf_ulp_apMACAddress_01;                /* T_apMACAddress_01 */
-static int hf_ulp_apDevType_01;                   /* T_apDevType */
+static int hf_ulp_apDevType_enum;                 /* T_apDevType_enum */
 static int hf_ulp_mrl;                            /* BOOLEAN */
 static int hf_ulp_hrpdCell;                       /* HrpdCellInformation */
 static int hf_ulp_umbCell;                        /* UmbCellInformation */
@@ -567,7 +567,7 @@ static int hf_ulp_cellGlobalId;                   /* CellGlobalIdEUTRA */
 static int hf_ulp_measResult;                     /* T_measResult */
 static int hf_ulp_neighbourInformation5G;         /* NeighbourInformation5G */
 static int hf_ulp_plmn_Identity;                  /* PLMN_Identity */
-static int hf_ulp_cellIdentity_01;                /* CellIdentity */
+static int hf_ulp_cellIdentity;                   /* CellIdentity */
 static int hf_ulp_mcc;                            /* MCC */
 static int hf_ulp_mnc;                            /* MNC */
 static int hf_ulp_MCC_item;                       /* MCC_MNC_Digit */
@@ -592,9 +592,9 @@ static int hf_ulp_apSignaltoNoiseDelta;           /* INTEGER_0_1 */
 static int hf_ulp_setSignalStrengthDelta;         /* INTEGER_0_1 */
 static int hf_ulp_setSignaltoNoiseDelta;          /* INTEGER_0_1 */
 static int hf_ulp_operatingClass;                 /* INTEGER_0_255 */
-static int hf_ulp_apSSID_01;                      /* T_apSSID */
-static int hf_ulp_apPHYType_01;                   /* T_apPHYType */
-static int hf_ulp_setMACAddress_01;               /* T_setMACAddress */
+static int hf_ulp_apSSID;                         /* T_apSSID */
+static int hf_ulp_apPHYType;                      /* T_apPHYType */
+static int hf_ulp_setMACAddress;                  /* T_setMACAddress */
 static int hf_ulp_rTDValue;                       /* INTEGER_0_16777216 */
 static int hf_ulp_rTDUnits;                       /* RTDUnits */
 static int hf_ulp_rTDAccuracy;                    /* INTEGER_0_255 */
@@ -605,12 +605,12 @@ static int hf_ulp_locationValue;                  /* OCTET_STRING_SIZE_1_128 */
 static int hf_ulp_lciLocData;                     /* LciLocData */
 static int hf_ulp_locationDataLCI;                /* LocationDataLCI */
 static int hf_ulp_latitudeResolution;             /* BIT_STRING_SIZE_6 */
-static int hf_ulp_latitude_01;                    /* BIT_STRING_SIZE_34 */
+static int hf_ulp_latitude_bit_string;            /* BIT_STRING_SIZE_34 */
 static int hf_ulp_longitudeResolution;            /* BIT_STRING_SIZE_6 */
-static int hf_ulp_longitude_01;                   /* BIT_STRING_SIZE_34 */
+static int hf_ulp_longitude_bit_string;           /* BIT_STRING_SIZE_34 */
 static int hf_ulp_altitudeType;                   /* BIT_STRING_SIZE_4 */
 static int hf_ulp_altitudeResolution;             /* BIT_STRING_SIZE_6 */
-static int hf_ulp_altitude_01;                    /* BIT_STRING_SIZE_30 */
+static int hf_ulp_altitude_bit_string;            /* BIT_STRING_SIZE_30 */
 static int hf_ulp_datum;                          /* BIT_STRING_SIZE_8 */
 static int hf_ulp_wimaxBsID;                      /* WimaxBsID */
 static int hf_ulp_wimaxRTD;                       /* WimaxRTD */
@@ -689,7 +689,6 @@ static int hf_ulp_msisdn_01;                      /* T_msisdn_01 */
 static int hf_ulp_emailaddr;                      /* IA5String_SIZE_1_1000 */
 static int hf_ulp_sip_uri;                        /* T_sip_uri */
 static int hf_ulp_ims_public_identity;            /* T_ims_public_identity */
-static int hf_ulp_min_01;                         /* BIT_STRING_SIZE_34 */
 static int hf_ulp_mdn_01;                         /* T_mdn_01 */
 static int hf_ulp_uri;                            /* T_uri */
 static int hf_ulp_appProvider;                    /* IA5String_SIZE_1_24 */
@@ -731,7 +730,7 @@ static int hf_ulp_uncertaintySemiMinor_01;        /* INTEGER_0_255 */
 static int hf_ulp_orientationMajorAxis_01;        /* INTEGER_0_179 */
 static int hf_ulp_horizontalConfidence;           /* INTEGER_0_100 */
 static int hf_ulp_highAccuracyAltitudeInfo;       /* HighAccuracyAltitudeInfo */
-static int hf_ulp_altitude_02;                    /* INTEGER_64000_1280000 */
+static int hf_ulp_altitude_01;                    /* INTEGER_64000_1280000 */
 static int hf_ulp_uncertaintyAltitude;            /* INTEGER_0_255 */
 static int hf_ulp_verticalConfidence;             /* INTEGER_0_100 */
 /* named bits */
@@ -1451,7 +1450,7 @@ static const value_string ulp_SETId_vals[] = {
 static const per_choice_t SETId_choice[] = {
   {   0, &hf_ulp_msisdn          , ASN1_EXTENSION_ROOT    , dissect_ulp_T_msisdn },
   {   1, &hf_ulp_mdn             , ASN1_EXTENSION_ROOT    , dissect_ulp_T_mdn },
-  {   2, &hf_ulp_minsi           , ASN1_EXTENSION_ROOT    , dissect_ulp_BIT_STRING_SIZE_34 },
+  {   2, &hf_ulp_min_bit_string  , ASN1_EXTENSION_ROOT    , dissect_ulp_BIT_STRING_SIZE_34 },
   {   3, &hf_ulp_imsi            , ASN1_EXTENSION_ROOT    , dissect_ulp_T_imsi },
   {   4, &hf_ulp_nai             , ASN1_EXTENSION_ROOT    , dissect_ulp_IA5String_SIZE_1_1000 },
   {   5, &hf_ulp_iPAddress       , ASN1_EXTENSION_ROOT    , dissect_ulp_IPAddress },
@@ -1891,9 +1890,9 @@ static const per_sequence_t SupportedWLANInfo_sequence[] = {
   { &hf_ulp_apRepLoc        , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ulp_BOOLEAN },
   { &hf_ulp_apRL            , ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_ulp_BOOLEAN },
   { &hf_ulp_opClass         , ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_ulp_BOOLEAN },
-  { &hf_ulp_apSSID          , ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_ulp_BOOLEAN },
-  { &hf_ulp_apPHYType       , ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_ulp_BOOLEAN },
-  { &hf_ulp_setMACAddress   , ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_ulp_BOOLEAN },
+  { &hf_ulp_apSSID_bool     , ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_ulp_BOOLEAN },
+  { &hf_ulp_apPHYType_bool  , ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_ulp_BOOLEAN },
+  { &hf_ulp_setMACAddress_bool, ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_ulp_BOOLEAN },
   { NULL, 0, 0, NULL }
 };
 
@@ -1923,7 +1922,7 @@ dissect_ulp_T_apMACAddress_01(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *act
 }
 
 
-static const value_string ulp_T_apDevType_vals[] = {
+static const value_string ulp_T_apDevType_enum_vals[] = {
   {   0, "wlan802-11a" },
   {   1, "wlan802-11b" },
   {   2, "wlan802-11g" },
@@ -1932,7 +1931,7 @@ static const value_string ulp_T_apDevType_vals[] = {
 
 
 static int
-dissect_ulp_T_apDevType(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_ulp_T_apDevType_enum(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
                                      3, NULL, true, 0, NULL);
 
@@ -1942,7 +1941,7 @@ dissect_ulp_T_apDevType(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_,
 
 static const per_sequence_t SupportedWLANApData_sequence[] = {
   { &hf_ulp_apMACAddress_01 , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ulp_T_apMACAddress_01 },
-  { &hf_ulp_apDevType_01    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ulp_T_apDevType },
+  { &hf_ulp_apDevType_enum  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ulp_T_apDevType_enum },
   { NULL, 0, 0, NULL }
 };
 
@@ -3248,7 +3247,7 @@ dissect_ulp_T_modeSpecificInfo(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 
 
 static const per_sequence_t CellMeasuredResults_sequence[] = {
-  { &hf_ulp_cellIdentity    , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_ulp_INTEGER_0_268435455 },
+  { &hf_ulp_cellIdentity_uint, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_ulp_INTEGER_0_268435455 },
   { &hf_ulp_modeSpecificInfo, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ulp_T_modeSpecificInfo },
   { NULL, 0, 0, NULL }
 };
@@ -3551,7 +3550,7 @@ dissect_ulp_CellIdentity(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
 
 static const per_sequence_t CellGlobalIdEUTRA_sequence[] = {
   { &hf_ulp_plmn_Identity   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ulp_PLMN_Identity },
-  { &hf_ulp_cellIdentity_01 , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ulp_CellIdentity },
+  { &hf_ulp_cellIdentity    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ulp_CellIdentity },
   { NULL, 0, 0, NULL }
 };
 
@@ -3984,12 +3983,12 @@ dissect_ulp_BIT_STRING_SIZE_8(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *act
 
 static const per_sequence_t LocationDataLCI_sequence[] = {
   { &hf_ulp_latitudeResolution, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ulp_BIT_STRING_SIZE_6 },
-  { &hf_ulp_latitude_01     , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ulp_BIT_STRING_SIZE_34 },
+  { &hf_ulp_latitude_bit_string, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ulp_BIT_STRING_SIZE_34 },
   { &hf_ulp_longitudeResolution, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ulp_BIT_STRING_SIZE_6 },
-  { &hf_ulp_longitude_01    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ulp_BIT_STRING_SIZE_34 },
+  { &hf_ulp_longitude_bit_string, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ulp_BIT_STRING_SIZE_34 },
   { &hf_ulp_altitudeType    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ulp_BIT_STRING_SIZE_4 },
   { &hf_ulp_altitudeResolution, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ulp_BIT_STRING_SIZE_6 },
-  { &hf_ulp_altitude_01     , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ulp_BIT_STRING_SIZE_30 },
+  { &hf_ulp_altitude_bit_string, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ulp_BIT_STRING_SIZE_30 },
   { &hf_ulp_datum           , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ulp_BIT_STRING_SIZE_8 },
   { NULL, 0, 0, NULL }
 };
@@ -4125,9 +4124,9 @@ static const per_sequence_t WlanAPInformation_sequence[] = {
   { &hf_ulp_setSignalStrengthDelta, ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_ulp_INTEGER_0_1 },
   { &hf_ulp_setSignaltoNoiseDelta, ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_ulp_INTEGER_0_1 },
   { &hf_ulp_operatingClass  , ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_ulp_INTEGER_0_255 },
-  { &hf_ulp_apSSID_01       , ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_ulp_T_apSSID },
-  { &hf_ulp_apPHYType_01    , ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_ulp_T_apPHYType },
-  { &hf_ulp_setMACAddress_01, ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_ulp_T_setMACAddress },
+  { &hf_ulp_apSSID          , ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_ulp_T_apSSID },
+  { &hf_ulp_apPHYType       , ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_ulp_T_apPHYType },
+  { &hf_ulp_setMACAddress   , ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_ulp_T_setMACAddress },
   { NULL, 0, 0, NULL }
 };
 
@@ -4613,7 +4612,7 @@ static const per_choice_t ThirdPartyID_choice[] = {
   {   2, &hf_ulp_emailaddr       , ASN1_EXTENSION_ROOT    , dissect_ulp_IA5String_SIZE_1_1000 },
   {   3, &hf_ulp_sip_uri         , ASN1_EXTENSION_ROOT    , dissect_ulp_T_sip_uri },
   {   4, &hf_ulp_ims_public_identity, ASN1_EXTENSION_ROOT    , dissect_ulp_T_ims_public_identity },
-  {   5, &hf_ulp_min_01          , ASN1_EXTENSION_ROOT    , dissect_ulp_BIT_STRING_SIZE_34 },
+  {   5, &hf_ulp_min_bit_string  , ASN1_EXTENSION_ROOT    , dissect_ulp_BIT_STRING_SIZE_34 },
   {   6, &hf_ulp_mdn_01          , ASN1_EXTENSION_ROOT    , dissect_ulp_T_mdn_01 },
   {   7, &hf_ulp_uri             , ASN1_EXTENSION_ROOT    , dissect_ulp_T_uri },
   { 0, NULL, 0, NULL }
@@ -5165,7 +5164,7 @@ dissect_ulp_Velocity(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, pr
 
 
 static const per_sequence_t Position_sequence[] = {
-  { &hf_ulp_timestamp_01    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ulp_UTCTime },
+  { &hf_ulp_timestamp       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ulp_UTCTime },
   { &hf_ulp_positionEstimate, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ulp_PositionEstimate },
   { &hf_ulp_velocity        , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ulp_Velocity },
   { NULL, 0, 0, NULL }
@@ -6604,7 +6603,7 @@ dissect_ulp_INTEGER_64000_1280000(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t 
 
 
 static const per_sequence_t HighAccuracyAltitudeInfo_sequence[] = {
-  { &hf_ulp_altitude_02     , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ulp_INTEGER_64000_1280000 },
+  { &hf_ulp_altitude_01     , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ulp_INTEGER_64000_1280000 },
   { &hf_ulp_uncertaintyAltitude, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ulp_INTEGER_0_255 },
   { &hf_ulp_verticalConfidence, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ulp_INTEGER_0_100 },
   { NULL, 0, 0, NULL }
@@ -6640,7 +6639,7 @@ dissect_ulp_HighAccuracyPositionEstimate(tvbuff_t *tvb _U_, int offset _U_, asn1
 
 
 static const per_sequence_t Ver2_HighAccuracyPosition_sequence[] = {
-  { &hf_ulp_timestamp_01    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ulp_UTCTime },
+  { &hf_ulp_timestamp       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ulp_UTCTime },
   { &hf_ulp_highAccuracyPositionEstimate, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ulp_HighAccuracyPositionEstimate },
   { &hf_ulp_velocity        , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ulp_Velocity },
   { NULL, 0, 0, NULL }
@@ -7067,7 +7066,7 @@ dissect_ulp_BIT_STRING_SIZE_29(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 static const per_sequence_t LTEAreaId_sequence[] = {
   { &hf_ulp_refMCC          , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ulp_INTEGER_0_999 },
   { &hf_ulp_refMNC          , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ulp_INTEGER_0_999 },
-  { &hf_ulp_refCI_01        , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ulp_BIT_STRING_SIZE_29 },
+  { &hf_ulp_refCI_LTE_Cell_Id, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ulp_BIT_STRING_SIZE_29 },
   { NULL, 0, 0, NULL }
 };
 
@@ -7139,7 +7138,7 @@ dissect_ulp_BIT_STRING_SIZE_36(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 static const per_sequence_t NRAreaId_sequence[] = {
   { &hf_ulp_refMCC          , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ulp_INTEGER_0_999 },
   { &hf_ulp_refMNC          , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ulp_INTEGER_0_999 },
-  { &hf_ulp_refCI_02        , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ulp_BIT_STRING_SIZE_36 },
+  { &hf_ulp_refCI_NR_Cell_Id, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ulp_BIT_STRING_SIZE_36 },
   { NULL, 0, 0, NULL }
 };
 
@@ -7669,7 +7668,7 @@ static const per_sequence_t ReportData_sequence[] = {
   { &hf_ulp_positionData    , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ulp_PositionData },
   { &hf_ulp_multipleLocationIds, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ulp_MultipleLocationIds },
   { &hf_ulp_resultCode      , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ulp_ResultCode },
-  { &hf_ulp_timestamp       , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ulp_TimeStamp },
+  { &hf_ulp_timestamp_choice, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ulp_TimeStamp },
   { NULL, 0, 0, NULL }
 };
 
@@ -8406,8 +8405,8 @@ void proto_register_ulp(void) {
       { "refSECTORID", "ulp.refSECTORID",
         FT_BYTES, BASE_NONE, NULL, 0,
         "BIT_STRING_SIZE_128", HFILL }},
-    { &hf_ulp_refCI_01,
-      { "refCI", "ulp.refCI",
+    { &hf_ulp_refCI_LTE_Cell_Id,
+      { "refCI", "ulp.refCI_LTE_Cell_Id",
         FT_BYTES, BASE_NONE, NULL, 0,
         "BIT_STRING_SIZE_29", HFILL }},
     { &hf_ulp_apMACAddress,
@@ -8422,8 +8421,8 @@ void proto_register_ulp(void) {
       { "bsID-LSB", "ulp.bsID_LSB",
         FT_BYTES, BASE_NONE, NULL, 0,
         "BIT_STRING_SIZE_24", HFILL }},
-    { &hf_ulp_refCI_02,
-      { "refCI", "ulp.refCI",
+    { &hf_ulp_refCI_NR_Cell_Id,
+      { "refCI", "ulp.refCI_NR_Cell_Id",
         FT_BYTES, BASE_NONE, NULL, 0,
         "BIT_STRING_SIZE_36", HFILL }},
     { &hf_ulp_GeoAreaMappingList_item,
@@ -8510,8 +8509,8 @@ void proto_register_ulp(void) {
       { "resultCode", "ulp.resultCode",
         FT_UINT32, BASE_DEC, VALS(ulp_ResultCode_vals), 0,
         NULL, HFILL }},
-    { &hf_ulp_timestamp,
-      { "timestamp", "ulp.timestamp",
+    { &hf_ulp_timestamp_choice,
+      { "timestamp", "ulp.timestamp_choice",
         FT_UINT32, BASE_DEC, VALS(ulp_TimeStamp_vals), 0,
         NULL, HFILL }},
     { &hf_ulp_ganssSignalsInfo,
@@ -9110,8 +9109,8 @@ void proto_register_ulp(void) {
       { "mdn", "ulp.mdn",
         FT_BYTES, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-    { &hf_ulp_minsi,
-      { "min", "ulp.minsi",
+    { &hf_ulp_min_bit_string,
+      { "min", "ulp.min_bit_string",
         FT_BYTES, BASE_NONE, NULL, 0,
         "BIT_STRING_SIZE_34", HFILL }},
     { &hf_ulp_imsi,
@@ -9174,7 +9173,7 @@ void proto_register_ulp(void) {
       { "ver2-CellInfo-extension", "ulp.ver2_CellInfo_extension",
         FT_UINT32, BASE_DEC, VALS(ulp_Ver2_CellInfo_extension_vals), 0,
         NULL, HFILL }},
-    { &hf_ulp_timestamp_01,
+    { &hf_ulp_timestamp,
       { "timestamp", "ulp.timestamp",
         FT_STRING, BASE_NONE, NULL, 0,
         "UTCTime", HFILL }},
@@ -9354,8 +9353,8 @@ void proto_register_ulp(void) {
       { "CellMeasuredResults", "ulp.CellMeasuredResults_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-    { &hf_ulp_cellIdentity,
-      { "cellIdentity", "ulp.cellIdentity",
+    { &hf_ulp_cellIdentity_uint,
+      { "cellIdentity", "ulp.cellIdentity_uint",
         FT_UINT32, BASE_DEC, NULL, 0,
         "INTEGER_0_268435455", HFILL }},
     { &hf_ulp_modeSpecificInfo,
@@ -9606,16 +9605,16 @@ void proto_register_ulp(void) {
       { "opClass", "ulp.opClass",
         FT_BOOLEAN, BASE_NONE, NULL, 0,
         "BOOLEAN", HFILL }},
-    { &hf_ulp_apSSID,
-      { "apSSID", "ulp.apSSID",
+    { &hf_ulp_apSSID_bool,
+      { "apSSID", "ulp.apSSID_bool",
         FT_BOOLEAN, BASE_NONE, NULL, 0,
         "BOOLEAN", HFILL }},
-    { &hf_ulp_apPHYType,
-      { "apPHYType", "ulp.apPHYType",
+    { &hf_ulp_apPHYType_bool,
+      { "apPHYType", "ulp.apPHYType_bool",
         FT_BOOLEAN, BASE_NONE, NULL, 0,
         "BOOLEAN", HFILL }},
-    { &hf_ulp_setMACAddress,
-      { "setMACAddress", "ulp.setMACAddress",
+    { &hf_ulp_setMACAddress_bool,
+      { "setMACAddress", "ulp.setMACAddress_bool",
         FT_BOOLEAN, BASE_NONE, NULL, 0,
         "BOOLEAN", HFILL }},
     { &hf_ulp_supportedWLANApDataList,
@@ -9758,10 +9757,10 @@ void proto_register_ulp(void) {
       { "apMACAddress", "ulp.apMACAddress",
         FT_ETHER, BASE_NONE, NULL, 0,
         "T_apMACAddress_01", HFILL }},
-    { &hf_ulp_apDevType_01,
-      { "apDevType", "ulp.apDevType",
-        FT_UINT32, BASE_DEC, VALS(ulp_T_apDevType_vals), 0,
-        NULL, HFILL }},
+    { &hf_ulp_apDevType_enum,
+      { "apDevType", "ulp.apDevType_enum",
+        FT_UINT32, BASE_DEC, VALS(ulp_T_apDevType_enum_vals), 0,
+        "T_apDevType_enum", HFILL }},
     { &hf_ulp_mrl,
       { "mrl", "ulp.mrl",
         FT_BOOLEAN, BASE_NONE, NULL, 0,
@@ -9866,7 +9865,7 @@ void proto_register_ulp(void) {
       { "plmn-Identity", "ulp.plmn_Identity_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-    { &hf_ulp_cellIdentity_01,
+    { &hf_ulp_cellIdentity,
       { "cellIdentity", "ulp.cellIdentity",
         FT_BYTES, BASE_NONE, NULL, 0,
         NULL, HFILL }},
@@ -9966,15 +9965,15 @@ void proto_register_ulp(void) {
       { "operatingClass", "ulp.operatingClass",
         FT_UINT32, BASE_DEC, NULL, 0,
         "INTEGER_0_255", HFILL }},
-    { &hf_ulp_apSSID_01,
+    { &hf_ulp_apSSID,
       { "apSSID", "ulp.apSSID",
         FT_STRING, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-    { &hf_ulp_apPHYType_01,
+    { &hf_ulp_apPHYType,
       { "apPHYType", "ulp.apPHYType",
         FT_UINT32, BASE_DEC, VALS(ulp_T_apPHYType_vals), 0,
         NULL, HFILL }},
-    { &hf_ulp_setMACAddress_01,
+    { &hf_ulp_setMACAddress,
       { "setMACAddress", "ulp.setMACAddress",
         FT_ETHER, BASE_NONE, NULL, 0,
         NULL, HFILL }},
@@ -10018,16 +10017,16 @@ void proto_register_ulp(void) {
       { "latitudeResolution", "ulp.latitudeResolution",
         FT_BYTES, BASE_NONE, NULL, 0,
         "BIT_STRING_SIZE_6", HFILL }},
-    { &hf_ulp_latitude_01,
-      { "latitude", "ulp.latitude",
+    { &hf_ulp_latitude_bit_string,
+      { "latitude", "ulp.latitude_bit_string",
         FT_BYTES, BASE_NONE, NULL, 0,
         "BIT_STRING_SIZE_34", HFILL }},
     { &hf_ulp_longitudeResolution,
       { "longitudeResolution", "ulp.longitudeResolution",
         FT_BYTES, BASE_NONE, NULL, 0,
         "BIT_STRING_SIZE_6", HFILL }},
-    { &hf_ulp_longitude_01,
-      { "longitude", "ulp.longitude",
+    { &hf_ulp_longitude_bit_string,
+      { "longitude", "ulp.longitude_bit_string",
         FT_BYTES, BASE_NONE, NULL, 0,
         "BIT_STRING_SIZE_34", HFILL }},
     { &hf_ulp_altitudeType,
@@ -10038,8 +10037,8 @@ void proto_register_ulp(void) {
       { "altitudeResolution", "ulp.altitudeResolution",
         FT_BYTES, BASE_NONE, NULL, 0,
         "BIT_STRING_SIZE_6", HFILL }},
-    { &hf_ulp_altitude_01,
-      { "altitude", "ulp.altitude",
+    { &hf_ulp_altitude_bit_string,
+      { "altitude", "ulp.altitude_bit_string",
         FT_BYTES, BASE_NONE, NULL, 0,
         "BIT_STRING_SIZE_30", HFILL }},
     { &hf_ulp_datum,
@@ -10354,10 +10353,6 @@ void proto_register_ulp(void) {
       { "ims-public-identity", "ulp.ims_public_identity",
         FT_STRING, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-    { &hf_ulp_min_01,
-      { "min", "ulp.min",
-        FT_BYTES, BASE_NONE, NULL, 0,
-        "BIT_STRING_SIZE_34", HFILL }},
     { &hf_ulp_mdn_01,
       { "mdn", "ulp.mdn",
         FT_BYTES, BASE_NONE, NULL, 0,
@@ -10522,7 +10517,7 @@ void proto_register_ulp(void) {
       { "highAccuracyAltitudeInfo", "ulp.highAccuracyAltitudeInfo_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-    { &hf_ulp_altitude_02,
+    { &hf_ulp_altitude_01,
       { "altitude", "ulp.altitude",
         FT_UINT32, BASE_DEC, NULL, 0,
         "INTEGER_64000_1280000", HFILL }},
