@@ -53,6 +53,11 @@ ProtocolExtensionField/id ext_id
 #PrivateIE-Field/value private_value
 ProtocolIE-Field/value ie_field_value
 
+GlobalGNB-ID/gNB-ID gnb-id-choice
+IndirectPathAddition/targetRelayUEID targetRelayUEID-bit-string
+PathSwitchConfiguration/targetRelayUEID targetRelayUEID-bit-string
+ReferenceConfiguration/referenceConfiguration referenceConfiguration-item
+
 #.FN_BODY ProtocolIE-ID VAL_PTR=&f1ap_data->protocol_ie_id
   f1ap_private_data_t *f1ap_data = f1ap_get_private_data(actx->pinfo);
 %(DEFAULT_BODY)s

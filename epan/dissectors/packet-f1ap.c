@@ -2534,8 +2534,8 @@ static int hf_f1ap_maxPacketLossRateDownlink;     /* MaxPacketLossRate */
 static int hf_f1ap_maxPacketLossRateUplink;       /* MaxPacketLossRate */
 static int hf_f1ap_tRPPositionDefinitionType;     /* TRPPositionDefinitionType */
 static int hf_f1ap_dLPRSResourceCoordinates;      /* DLPRSResourceCoordinates */
-static int hf_f1ap_gNB_ID;                        /* GNB_ID */
-static int hf_f1ap_gNB_ID_01;                     /* BIT_STRING_SIZE_22_32 */
+static int hf_f1ap_gnb_id_choice;                 /* GNB_ID */
+static int hf_f1ap_gNB_ID;                        /* BIT_STRING_SIZE_22_32 */
 static int hf_f1ap_choice_Extensions;             /* ProtocolIE_SingleContainer */
 static int hf_f1ap_sibtypetobeupdatedlist;        /* SEQUENCE_SIZE_1_maxnoofSIBTypes_OF_SibtypetobeupdatedListItem */
 static int hf_f1ap_sibtypetobeupdatedlist_item;   /* SibtypetobeupdatedListItem */
@@ -2622,7 +2622,7 @@ static int hf_f1ap_IABTNLAddressList_item;        /* IABTNLAddress_Item */
 static int hf_f1ap_iABv4AddressesRequested;       /* IABTNLAddressesRequested */
 static int hf_f1ap_tAI;                           /* TAI */
 static int hf_f1ap_dUFSlotformatIndex;            /* DUFSlotformatIndex */
-static int hf_f1ap_targetRelayUEID;               /* BIT_STRING_SIZE_24 */
+static int hf_f1ap_targetRelayUEID_bit_string;    /* BIT_STRING_SIZE_24 */
 static int hf_f1ap_remoteUELocalID;               /* RemoteUELocalID */
 static int hf_f1ap_nRSCS;                         /* T_nRSCS */
 static int hf_f1ap_nRCP;                          /* T_nRCP */
@@ -2789,7 +2789,7 @@ static int hf_f1ap_gNB_RxTxTimeDiff;              /* GNB_RxTxTimeDiff */
 static int hf_f1ap_location_Information;          /* T_location_Information */
 static int hf_f1ap_velocity_Information;          /* T_velocity_Information */
 static int hf_f1ap_location_time_stamp;           /* TimeStamp */
-static int hf_f1ap_targetRelayUEID_01;            /* GNB_DU_UE_F1AP_ID */
+static int hf_f1ap_targetRelayUEID;               /* GNB_DU_UE_F1AP_ID */
 static int hf_f1ap_NA_Resource_Configuration_List_item;  /* NA_Resource_Configuration_Item */
 static int hf_f1ap_nADownlink;                    /* NADownlink */
 static int hf_f1ap_nAUplink;                      /* NAUplink */
@@ -3094,7 +3094,7 @@ static int hf_f1ap_referencePointCoordinateHA;    /* NGRANHighAccuracyAccessPoin
 static int hf_f1ap_nZP_CSI_RS;                    /* NZP_CSI_RS_ResourceID */
 static int hf_f1ap_sRS;                           /* SRSResourceID */
 static int hf_f1ap_rEQUESTforLowerLayerConfiguration;  /* RequestforLowerLayerConfiguration */
-static int hf_f1ap_referenceConfiguration_01;     /* ReferenceConfigurationInformation */
+static int hf_f1ap_referenceConfiguration_item;   /* ReferenceConfigurationInformation */
 static int hf_f1ap_xYZunit;                       /* T_xYZunit */
 static int hf_f1ap_xvalue;                        /* INTEGER_M65536_65535 */
 static int hf_f1ap_yvalue;                        /* INTEGER_M65536_65535 */
@@ -18133,7 +18133,7 @@ static const value_string f1ap_GNB_ID_vals[] = {
 };
 
 static const per_choice_t GNB_ID_choice[] = {
-  {   0, &hf_f1ap_gNB_ID_01      , ASN1_NO_EXTENSIONS     , dissect_f1ap_BIT_STRING_SIZE_22_32 },
+  {   0, &hf_f1ap_gNB_ID         , ASN1_NO_EXTENSIONS     , dissect_f1ap_BIT_STRING_SIZE_22_32 },
   {   1, &hf_f1ap_choice_Extensions, ASN1_NO_EXTENSIONS     , dissect_f1ap_ProtocolIE_SingleContainer },
   { 0, NULL, 0, NULL }
 };
@@ -18150,7 +18150,7 @@ dissect_f1ap_GNB_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, pro
 
 static const per_sequence_t GlobalGNB_ID_sequence[] = {
   { &hf_f1ap_pLMNIdentity   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_f1ap_PLMN_Identity },
-  { &hf_f1ap_gNB_ID         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_f1ap_GNB_ID },
+  { &hf_f1ap_gnb_id_choice  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_f1ap_GNB_ID },
   { &hf_f1ap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_f1ap_ProtocolExtensionContainer },
   { NULL, 0, 0, NULL }
 };
@@ -19427,7 +19427,7 @@ dissect_f1ap_RemoteUELocalID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
 
 
 static const per_sequence_t IndirectPathAddition_sequence[] = {
-  { &hf_f1ap_targetRelayUEID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_f1ap_BIT_STRING_SIZE_24 },
+  { &hf_f1ap_targetRelayUEID_bit_string, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_f1ap_BIT_STRING_SIZE_24 },
   { &hf_f1ap_remoteUELocalID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_f1ap_RemoteUELocalID },
   { &hf_f1ap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_f1ap_ProtocolExtensionContainer },
   { NULL, 0, 0, NULL }
@@ -20153,7 +20153,7 @@ static const value_string f1ap_ReferenceConfiguration_vals[] = {
 
 static const per_choice_t ReferenceConfiguration_choice[] = {
   {   0, &hf_f1ap_rEQUESTforLowerLayerConfiguration, ASN1_NO_EXTENSIONS     , dissect_f1ap_RequestforLowerLayerConfiguration },
-  {   1, &hf_f1ap_referenceConfiguration_01, ASN1_NO_EXTENSIONS     , dissect_f1ap_ReferenceConfigurationInformation },
+  {   1, &hf_f1ap_referenceConfiguration_item, ASN1_NO_EXTENSIONS     , dissect_f1ap_ReferenceConfigurationInformation },
   {   2, &hf_f1ap_choice_extension, ASN1_NO_EXTENSIONS     , dissect_f1ap_ProtocolIE_SingleContainer },
   { 0, NULL, 0, NULL }
 };
@@ -22537,7 +22537,7 @@ dissect_f1ap_NRA2XServicesAuthorized(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx
 
 
 static const per_sequence_t N3CIndirectPathAddition_sequence[] = {
-  { &hf_f1ap_targetRelayUEID_01, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_f1ap_GNB_DU_UE_F1AP_ID },
+  { &hf_f1ap_targetRelayUEID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_f1ap_GNB_DU_UE_F1AP_ID },
   { &hf_f1ap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_f1ap_ProtocolExtensionContainer },
   { NULL, 0, 0, NULL }
 };
@@ -23912,7 +23912,7 @@ dissect_f1ap_T_t420(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, pro
 
 
 static const per_sequence_t PathSwitchConfiguration_sequence[] = {
-  { &hf_f1ap_targetRelayUEID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_f1ap_BIT_STRING_SIZE_24 },
+  { &hf_f1ap_targetRelayUEID_bit_string, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_f1ap_BIT_STRING_SIZE_24 },
   { &hf_f1ap_remoteUELocalID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_f1ap_RemoteUELocalID },
   { &hf_f1ap_t420           , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_f1ap_T_t420 },
   { &hf_f1ap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_f1ap_ProtocolExtensionContainer },
@@ -50636,11 +50636,11 @@ void proto_register_f1ap(void) {
       { "dLPRSResourceCoordinates", "f1ap.dLPRSResourceCoordinates_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-    { &hf_f1ap_gNB_ID,
-      { "gNB-ID", "f1ap.gNB_ID",
+    { &hf_f1ap_gnb_id_choice,
+      { "gNB-ID", "f1ap.gnb_id_choice",
         FT_UINT32, BASE_DEC, VALS(f1ap_GNB_ID_vals), 0,
         NULL, HFILL }},
-    { &hf_f1ap_gNB_ID_01,
+    { &hf_f1ap_gNB_ID,
       { "gNB-ID", "f1ap.gNB_ID",
         FT_BYTES, BASE_NONE, NULL, 0,
         "BIT_STRING_SIZE_22_32", HFILL }},
@@ -50988,8 +50988,8 @@ void proto_register_f1ap(void) {
       { "dUFSlotformatIndex", "f1ap.dUFSlotformatIndex",
         FT_UINT32, BASE_DEC, NULL, 0,
         NULL, HFILL }},
-    { &hf_f1ap_targetRelayUEID,
-      { "targetRelayUEID", "f1ap.targetRelayUEID",
+    { &hf_f1ap_targetRelayUEID_bit_string,
+      { "targetRelayUEID", "f1ap.targetRelayUEID_bit_string",
         FT_BYTES, BASE_NONE, NULL, 0,
         "BIT_STRING_SIZE_24", HFILL }},
     { &hf_f1ap_remoteUELocalID,
@@ -51656,7 +51656,7 @@ void proto_register_f1ap(void) {
       { "location-time-stamp", "f1ap.location_time_stamp_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "TimeStamp", HFILL }},
-    { &hf_f1ap_targetRelayUEID_01,
+    { &hf_f1ap_targetRelayUEID,
       { "targetRelayUEID", "f1ap.targetRelayUEID",
         FT_UINT32, BASE_DEC, NULL, 0,
         "GNB_DU_UE_F1AP_ID", HFILL }},
@@ -52876,8 +52876,8 @@ void proto_register_f1ap(void) {
       { "rEQUESTforLowerLayerConfiguration", "f1ap.rEQUESTforLowerLayerConfiguration",
         FT_UINT32, BASE_DEC, VALS(f1ap_RequestforLowerLayerConfiguration_vals), 0,
         NULL, HFILL }},
-    { &hf_f1ap_referenceConfiguration_01,
-      { "referenceConfiguration", "f1ap.referenceConfiguration",
+    { &hf_f1ap_referenceConfiguration_item,
+      { "referenceConfiguration", "f1ap.referenceConfiguration_item",
         FT_BYTES, BASE_NONE, NULL, 0,
         "ReferenceConfigurationInformation", HFILL }},
     { &hf_f1ap_xYZunit,
