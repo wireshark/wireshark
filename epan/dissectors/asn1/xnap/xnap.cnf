@@ -40,6 +40,7 @@ InitiatingMessage/value initiatingMessage_value
 ProtocolIE-Field/value protocolIE_Field_value
 SuccessfulOutcome/value successfulOutcome_value
 PrivateIE-Field/value privateIE_Field_value
+ExtTLA-Item/gTPTransportLayerAddresses gtptlas
 
 #.OMIT_ASSIGNMENT
 Presence
