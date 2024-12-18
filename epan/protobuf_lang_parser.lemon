@@ -8,10 +8,12 @@
  */
 
 /* This parser is mainly to get MESSAGE, ENUM, and FIELD information from *.proto files.
- * There are two formats of *.proto files:
- * 1) Protocol Buffers Version 3 Language Specification:
+ * There are three formats of *.proto files:
+ * 1) Protocol Buffers Edition 2023 Language Specification
+ *      https://protobuf.dev/reference/protobuf/edition-2023-spec
+ * 2) Protocol Buffers Version 3 Language Specification:
  *      https://developers.google.com/protocol-buffers/docs/reference/proto3-spec
- * 2) Protocol Buffers Version 2 Language Specification:
+ * 3) Protocol Buffers Version 2 Language Specification:
  *      https://developers.google.com/protocol-buffers/docs/reference/proto2-spec
  * There are some errors about 'proto', 'option' (value), 'extensions',  and 'reserved' (fieldName) definitions on that sites.
  * This parser is created because Wireshark is mainly implemented in plain ANSI C but the official
@@ -83,7 +85,7 @@ DIAG_ON_LEMON()
 
 /* Keywords like 'syntax', 'message', etc can be used as the names of messages, fields or enums.
    So we tell the lemon: "If you are unable to parse this keyword, try treating it as an identifier instead.*/
-%fallback PT_IDENT  PT_SYNTAX PT_IMPORT PT_WEAK PT_PUBLIC PT_PACKAGE PT_OPTION PT_REQUIRED PT_OPTIONAL.
+%fallback PT_IDENT  PT_SYNTAX PT_EDITION PT_IMPORT PT_WEAK PT_PUBLIC PT_PACKAGE PT_OPTION PT_REQUIRED PT_OPTIONAL.
 %fallback PT_IDENT  PT_REPEATED PT_ONEOF PT_MAP PT_RESERVED PT_ENUM PT_GROUP PT_EXTEND PT_EXTENSIONS.
 %fallback PT_IDENT  PT_MESSAGE PT_SERVICE PT_RPC PT_STREAM PT_RETURNS PT_TO.
 
@@ -147,6 +149,7 @@ extensions reserved ranges range quoteFieldNames emptyStatement
    The default syntax version is "proto2". */
 proto ::= wholeProtoBody.
 proto ::= syntax wholeProtoBody.
+proto ::= edition wholeProtoBody.
 
 wholeProtoBody ::= protoBody(B).
     {
@@ -177,6 +180,13 @@ syntax ::= PT_SYNTAX PT_ASSIGN strLit(B) PT_SEMICOLON.
             state->grammar_error = TRUE;
         }
     }
+
+/* Editions: edition = "edition" "=" [ ( "'" decimalLit "'" ) | ( '"' decimalLit '"' ) ] ";"
+Editions are the replacement for syntax going forward and include a few grammar changes. The content should be a decimal wrapped in quotes,
+but we don't care about what it is. We just need to support the syntax generally, so we can use a strLit to simplify things. This also
+leaves things open in case it changes to a strLit in the future. For examples and explanations see: https://protobuf.dev/editions/overview/
+*/
+edition ::= PT_EDITION PT_ASSIGN PT_STRLIT PT_SEMICOLON.
 
 protoBody(A) ::= . { A = pbl_create_node(state->file, CUR_LINENO, PBL_PACKAGE, NAME_TO_BE_SET); } /* create am empty package node */
 protoBody ::= protoBody import. /* default action is {A = B; } */
@@ -505,6 +515,8 @@ declaration ::= optionName PT_ASSIGN customOptionValue.
 /* v2/v3: reserved = "reserved" ( ranges | fieldNames ) ";" */
 reserved ::= PT_RESERVED ranges PT_SEMICOLON.
 reserved ::= PT_RESERVED quoteFieldNames PT_SEMICOLON.
+/* Editions: reserved = "reserved" ( ranges | reservedIdent ) ";" */
+reserved ::= PT_RESERVED reservedIdent PT_SEMICOLON.
 
 /* v2/v3: ranges = range { "," range } */
 ranges ::= range.
@@ -520,6 +532,12 @@ Note that there is an error in BNF definition about reserved fieldName. It's str
 */
 quoteFieldNames ::= strLit.
 quoteFieldNames ::= quoteFieldNames PT_COMMA strLit.
+
+/* Editions: fieldNames = fieldName { "," fieldName }
+For editions, they do use ident and no longer use strLit.
+*/
+reservedIdent ::= fieldName.
+reservedIdent ::= fieldName PT_COMMA fieldName.
 
 /* v2/v3: extend = "extend" messageType "{" {field | group | emptyStatement} "}"
 Note that creating custom options uses extensions, which are permitted only for custom options in proto3.

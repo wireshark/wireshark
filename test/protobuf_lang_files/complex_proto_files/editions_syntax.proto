@@ -1,0 +1,26 @@
+// Test the edition syntax
+edition = "2023";
+
+package com.example;
+
+message Player {
+  // fields have explicit presence, so no explicit setting needed
+  string name = 1;
+  // to match the proto2 behavior, LEGACY_REQUIRED is set at the field level
+  int32 id = 2 [features.field_presence = LEGACY_REQUIRED];
+  // to match the proto2 behavior, EXPANDED is set at the field level
+  repeated int32 scores = 3 [features.repeated_field_encoding = EXPANDED];
+
+  enum Handed {
+    // this overrides the default edition 2023 behavior, which is OPEN
+    option features.enum_type = CLOSED;
+    HANDED_UNSPECIFIED = 0;
+    HANDED_LEFT = 1;
+    HANDED_RIGHT = 2;
+    HANDED_AMBIDEXTROUS = 3;
+  }
+
+  Handed handed = 4;
+
+  reserved gender;
+}

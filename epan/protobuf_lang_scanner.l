@@ -138,6 +138,7 @@ strdup_and_store(void* yyscanner, const char* text);
 
     /* key words */
 syntax                          PROTOBUF_LANG_PARSE(PT_SYNTAX);
+edition                         PROTOBUF_LANG_PARSE(PT_EDITION);
 import                          PROTOBUF_LANG_PARSE(PT_IMPORT);
 weak                            PROTOBUF_LANG_PARSE(PT_WEAK);
 public                          PROTOBUF_LANG_PARSE(PT_PUBLIC);
