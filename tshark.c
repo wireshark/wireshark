@@ -1782,6 +1782,13 @@ main(int argc, char *argv[])
                 pdu_export_arg = g_strdup(ws_optarg);
                 break;
             case 'v':         /* Show version and exit */
+#ifdef ENABLE_CHECK_FILTER
+                /* If we're testing start-up of the epan library, go ahead and
+                 * load all the delayed initialization prefixes (e.g. Diameter)
+                 * so that they are reported on.
+                 */
+                proto_initialize_all_prefixes();
+#endif
                 show_version();
                 /* We don't really have to cleanup here, but it's a convenient way to test
                  * start-up and shut-down of the epan library without any UI-specific
