@@ -245,8 +245,8 @@ static int hf_sbc_ap_Failed_Cell_List_NR_item;    /* NR_CGI */
 static int hf_sbc_ap_eNB_ID;                      /* ENB_ID */
 static int hf_sbc_ap_global_GNB_ID;               /* Global_GNB_ID */
 static int hf_sbc_ap_global_NgENB_ID;             /* Global_NgENB_ID */
-static int hf_sbc_ap_gNB_ID;                      /* GNB_ID */
-static int hf_sbc_ap_gNB_ID_01;                   /* BIT_STRING_SIZE_22_32 */
+static int hf_sbc_ap_gnb_id_choice;               /* GNB_ID */
+static int hf_sbc_ap_gNB_ID;                      /* BIT_STRING_SIZE_22_32 */
 static int hf_sbc_ap_ngENB_ID;                    /* ENB_ID */
 static int hf_sbc_ap_List_of_TAIs_item;           /* List_of_TAIs_item */
 static int hf_sbc_ap_tai;                         /* TAI */
@@ -1465,7 +1465,7 @@ static const value_string sbc_ap_GNB_ID_vals[] = {
 };
 
 static const per_choice_t GNB_ID_choice[] = {
-  {   0, &hf_sbc_ap_gNB_ID_01    , ASN1_EXTENSION_ROOT    , dissect_sbc_ap_BIT_STRING_SIZE_22_32 },
+  {   0, &hf_sbc_ap_gNB_ID       , ASN1_EXTENSION_ROOT    , dissect_sbc_ap_BIT_STRING_SIZE_22_32 },
   { 0, NULL, 0, NULL }
 };
 
@@ -1481,7 +1481,7 @@ dissect_sbc_ap_GNB_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, p
 
 static const per_sequence_t Global_GNB_ID_sequence[] = {
   { &hf_sbc_ap_pLMNidentity , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_sbc_ap_PLMNidentity },
-  { &hf_sbc_ap_gNB_ID       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_sbc_ap_GNB_ID },
+  { &hf_sbc_ap_gnb_id_choice, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_sbc_ap_GNB_ID },
   { &hf_sbc_ap_iE_Extensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_sbc_ap_ProtocolExtensionContainer },
   { NULL, 0, 0, NULL }
 };
@@ -3298,11 +3298,11 @@ void proto_register_sbc_ap(void) {
       { "global-NgENB-ID", "sbc-ap.global_NgENB_ID_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-    { &hf_sbc_ap_gNB_ID,
-      { "gNB-ID", "sbc-ap.gNB_ID",
+    { &hf_sbc_ap_gnb_id_choice,
+      { "gNB-ID", "sbc-ap.gnb_id_choice",
         FT_UINT32, BASE_DEC, VALS(sbc_ap_GNB_ID_vals), 0,
         NULL, HFILL }},
-    { &hf_sbc_ap_gNB_ID_01,
+    { &hf_sbc_ap_gNB_ID,
       { "gNB-ID", "sbc-ap.gNB_ID",
         FT_BYTES, BASE_NONE, NULL, 0,
         "BIT_STRING_SIZE_22_32", HFILL }},

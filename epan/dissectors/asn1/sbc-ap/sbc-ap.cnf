@@ -43,6 +43,8 @@ ProtocolExtensionField/id ext_id
 
 ProtocolIE-Field/value ie_field_value
 
+Global-GNB-ID/gNB-ID gnb-id-choice
+
 #.FN_PARS ProtocolIE-ID  VAL_PTR=&ProtocolIE_ID
 #.FN_FTR ProtocolIE-ID
   if (tree) {
