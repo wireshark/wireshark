@@ -3103,8 +3103,9 @@ dissect_bthci_evt_cs_result_steps(tvbuff_t *tvb, int offset, packet_info *pinfo 
         offset = dissect_bthci_evt_cs_mode2_step(tvb, offset, pinfo, step_tree, step_data_length);
     }
     else {
+        int mode1_step_data_offset = offset;
         offset = dissect_bthci_evt_cs_mode1_step(tvb, offset, pinfo, step_tree, initiator, sounding_seq);
-        offset = dissect_bthci_evt_cs_mode2_step(tvb, offset, pinfo, step_tree, step_data_length);
+        offset = dissect_bthci_evt_cs_mode2_step(tvb, offset, pinfo, step_tree, step_data_length - (offset - mode1_step_data_offset));
     }
     return offset;
 }
