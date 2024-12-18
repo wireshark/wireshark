@@ -2140,10 +2140,6 @@ static ttl_result_t ttl_read_segmented_message_entry(wtap* wth, wtap_rec* rec, B
         item->next_segment++;
 
         if (item->size_so_far >= item->size) {  /* Reassemble complete */
-            if (item->size_so_far > item->size) {
-                ws_debug("ttl_read_segmented_message_entry: Reassembled size bigger than declared size for SRC %d, FRAME ID %d", src, seg_frame_id);
-            }
-
             if (item->buf == NULL) {
                 /* Silently discard packets we reassembled without data */
                 g_hash_table_remove(ttl->segmented_frames_ht, GUINT_TO_POINTER(key));
@@ -2166,7 +2162,6 @@ static ttl_result_t ttl_read_segmented_message_entry(wtap* wth, wtap_rec* rec, B
             int64_t* new_off = g_new(int64_t, 1);
             *new_off = offset;
             g_hash_table_insert(ttl->reassembled_frames_ht, new_off, reassembled_item);
-
         }
         else {  /* Reassemble not complete, wait for the rest */
             return TTL_UNSUPPORTED;
