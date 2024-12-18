@@ -8320,7 +8320,7 @@
 				<gavp name="Reporting-Time-Stamp"/>
 				<gavp name="Updated-Network-Configuration"/>
 				<gavp name="SCEF-Reference-ID-Ext"/>
-				<gavp name="SCEF-Reference-ID-For-Deletion-Ext"/>
+				<gavp name="SCEF-Reference-ID-for-Deletion-Ext"/>
 				<gavp name="Event-Handling"/>
 				<gavp name="Loss-Of-Connectivity-Reason"/>
 				<gavp name="PDN-Connectivity-Status-Report"/>
