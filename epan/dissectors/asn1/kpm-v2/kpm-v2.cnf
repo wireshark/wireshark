@@ -35,6 +35,7 @@ E2SM-KPM-RANfunction-Description
 #.TYPE_RENAME
 
 #.FIELD_RENAME
+GlobalGNB-ID/gNB-ID gnb-id-choice
 
 #.FIELD_ATTR
 

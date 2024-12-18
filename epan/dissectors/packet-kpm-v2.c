@@ -216,9 +216,9 @@ static int hf_kpm_v2_pLMN_Identity;               /* PLMNIdentity */
 static int hf_kpm_v2_mME_Group_ID;                /* MME_Group_ID */
 static int hf_kpm_v2_mME_Code;                    /* MME_Code */
 static int hf_kpm_v2_eUTRACellIdentity;           /* EUTRACellIdentity */
-static int hf_kpm_v2_gNB_ID;                      /* GNB_ID */
+static int hf_kpm_v2_gnb_id_choice;               /* GNB_ID */
 static int hf_kpm_v2_ngENB_ID;                    /* NgENB_ID */
-static int hf_kpm_v2_gNB_ID_01;                   /* BIT_STRING_SIZE_22_32 */
+static int hf_kpm_v2_gNB_ID;                      /* BIT_STRING_SIZE_22_32 */
 static int hf_kpm_v2_aMFRegionID;                 /* AMFRegionID */
 static int hf_kpm_v2_aMFSetID;                    /* AMFSetID */
 static int hf_kpm_v2_aMFPointer;                  /* AMFPointer */
@@ -1371,7 +1371,7 @@ static const value_string kpm_v2_GNB_ID_vals[] = {
 };
 
 static const per_choice_t GNB_ID_choice[] = {
-  {   0, &hf_kpm_v2_gNB_ID_01    , ASN1_EXTENSION_ROOT    , dissect_kpm_v2_BIT_STRING_SIZE_22_32 },
+  {   0, &hf_kpm_v2_gNB_ID       , ASN1_EXTENSION_ROOT    , dissect_kpm_v2_BIT_STRING_SIZE_22_32 },
   { 0, NULL, 0, NULL }
 };
 
@@ -1387,7 +1387,7 @@ dissect_kpm_v2_GNB_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, p
 
 static const per_sequence_t GlobalGNB_ID_sequence[] = {
   { &hf_kpm_v2_pLMNIdentity , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_kpm_v2_PLMNIdentity },
-  { &hf_kpm_v2_gNB_ID       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_kpm_v2_GNB_ID },
+  { &hf_kpm_v2_gnb_id_choice, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_kpm_v2_GNB_ID },
   { NULL, 0, 0, NULL }
 };
 
@@ -3263,15 +3263,15 @@ void proto_register_kpm_v2(void) {
       { "eUTRACellIdentity", "kpm-v2.eUTRACellIdentity",
         FT_BYTES, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-    { &hf_kpm_v2_gNB_ID,
-      { "gNB-ID", "kpm-v2.gNB_ID",
+    { &hf_kpm_v2_gnb_id_choice,
+      { "gNB-ID", "kpm-v2.gnb_id_choice",
         FT_UINT32, BASE_DEC, VALS(kpm_v2_GNB_ID_vals), 0,
         NULL, HFILL }},
     { &hf_kpm_v2_ngENB_ID,
       { "ngENB-ID", "kpm-v2.ngENB_ID",
         FT_UINT32, BASE_DEC, VALS(kpm_v2_NgENB_ID_vals), 0,
         NULL, HFILL }},
-    { &hf_kpm_v2_gNB_ID_01,
+    { &hf_kpm_v2_gNB_ID,
       { "gNB-ID", "kpm-v2.gNB_ID",
         FT_BYTES, BASE_NONE, NULL, 0,
         "BIT_STRING_SIZE_22_32", HFILL }},
