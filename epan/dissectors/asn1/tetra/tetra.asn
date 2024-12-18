@@ -1881,8 +1881,8 @@ U-LOCATION-UPDATE-DEMAND ::= SEQUENCE
   cipher-control CHOICE{no-cipher NULL,ciphering-parameters INTEGER(0..1023)},
   optional-elements CHOICE{
      no-type2 NULL,
-	 type2-parameters SEQUENCE
-	 {
+     type2-parameters SEQUENCE
+     {
         class-of-MS CHOICE{none NULL, class-of-MS INTEGER(0..16777215)},
         energy-saving-mode CHOICE{none NULL,energy-saving-mode INTEGER(0..7)},
         la-information CHOICE{none NULL,la-information  INTEGER(0..16383)},

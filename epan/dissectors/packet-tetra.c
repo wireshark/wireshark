@@ -222,15 +222,15 @@ static int hf_tetra_lengthIndicationOrCapacityRequest_01;  /* T_lengthIndication
 static int hf_tetra_lengthIndication_01;          /* LengthIndicationMacData */
 static int hf_tetra_capacityRequest_01;           /* FRAG6 */
 static int hf_tetra_sub_type;                     /* INTEGER_0_1 */
-static int hf_tetra_tm_sdu_02;                    /* BIT_STRING_SIZE_264 */
-static int hf_tetra_tm_sdu_03;                    /* BIT_STRING_SIZE_120 */
+static int hf_tetra_tm_sdu_bit_string;            /* BIT_STRING_SIZE_264 */
+static int hf_tetra_tm_sdu_bit_string_01;         /* BIT_STRING_SIZE_120 */
 static int hf_tetra_lengthInd_ReservationReq;     /* LengthIndOrReservationReq */
-static int hf_tetra_tm_sdu_04;                    /* BIT_STRING_SIZE_258 */
+static int hf_tetra_tm_sdu_bit_string_02;         /* BIT_STRING_SIZE_258 */
 static int hf_tetra_pdu_subtype;                  /* INTEGER_0_1 */
-static int hf_tetra_tm_sdu_05;                    /* BIT_STRING_SIZE_114 */
+static int hf_tetra_tm_sdu_bit_string_03;         /* BIT_STRING_SIZE_114 */
 static int hf_tetra_lengthInd_ReservationReq_01;  /* T_lengthInd_ReservationReq */
 static int hf_tetra_lengthInd;                    /* LengthIndMacHu */
-static int hf_tetra_tm_sdu_06;                    /* BIT_STRING_SIZE_85 */
+static int hf_tetra_tm_sdu_02;                    /* BIT_STRING_SIZE_85 */
 static int hf_tetra_position_of_grant;            /* Position_Of_Grant */
 static int hf_tetra_lengthIndication_02;          /* LengthIndicationMacEndDl */
 static int hf_tetra_slot_granting;                /* T_slot_granting */
@@ -238,7 +238,7 @@ static int hf_tetra_none;                         /* NULL */
 static int hf_tetra_slot_granting_param;          /* SlotGranting */
 static int hf_tetra_channel_allocation;           /* T_channel_allocation */
 static int hf_tetra_channel_allocation_element;   /* ChannelAllocation */
-static int hf_tetra_tm_sdu_07;                    /* BIT_STRING_SIZE_255 */
+static int hf_tetra_tm_sdu_03;                    /* BIT_STRING_SIZE_255 */
 static int hf_tetra_capacity_allocation;          /* Capacity_Allocation */
 static int hf_tetra_granting_delay;               /* Granting_delay */
 static int hf_tetra_allocation_type;              /* T_allocation_type */
@@ -261,7 +261,7 @@ static int hf_tetra_fill_bit_ind;                 /* BOOLEAN */
 static int hf_tetra_position_of_grant_01;         /* INTEGER_0_1 */
 static int hf_tetra_slot_granting_01;             /* T_slot_granting_01 */
 static int hf_tetra_channel_allocation_01;        /* T_channel_allocation_01 */
-static int hf_tetra_tm_sdu_08;                    /* BIT_STRING_SIZE_111 */
+static int hf_tetra_tm_sdu_04;                    /* BIT_STRING_SIZE_111 */
 static int hf_tetra_encryption_mode;              /* INTEGER_0_3 */
 static int hf_tetra_access_ack;                   /* T_access_ack */
 static int hf_tetra_lengthIndication_03;          /* LengthIndicationMacResource */
@@ -270,7 +270,7 @@ static int hf_tetra_power_control;                /* T_power_control */
 static int hf_tetra_powerParameters;              /* PowerControl */
 static int hf_tetra_slot_granting_02;             /* T_slot_granting_02 */
 static int hf_tetra_channel_allocation_02;        /* T_channel_allocation_02 */
-static int hf_tetra_tm_sdu_09;                    /* D_LLC_PDU */
+static int hf_tetra_tm_sdu_05;                    /* D_LLC_PDU */
 static int hf_tetra_null_pdu;                     /* NULL */
 static int hf_tetra_ssi_01;                       /* SSI_NEED */
 static int hf_tetra_eventLabel_01;                /* EVENT_NEED */
@@ -392,8 +392,9 @@ static int hf_tetra_class_of_usage;               /* INTEGER_0_7 */
 static int hf_tetra_detach;                       /* T_detach */
 static int hf_tetra_detach_downlike;              /* T_detach_downlike */
 static int hf_tetra_address_type;                 /* T_address_type */
-static int hf_tetra_gssi_01;                      /* OCTET_STRING_SIZE_3 */
+static int hf_tetra_gssi_octet_string;            /* OCTET_STRING_SIZE_3 */
 static int hf_tetra_gssi_extension;               /* T_gssi_extension */
+static int hf_tetra_gssi_01;                      /* OCTET_STRING_SIZE_3 */
 static int hf_tetra_extension;                    /* OCTET_STRING_SIZE_3 */
 static int hf_tetra_vgssi;                        /* OCTET_STRING_SIZE_3 */
 static int hf_tetra_attach_detach_identifier_01;  /* T_attach_detach_identifier_01 */
@@ -405,11 +406,11 @@ static int hf_tetra_gssi_extension_01;            /* T_gssi_extension_01 */
 static int hf_tetra_location_update_type;         /* UPDATE_TYPE */
 static int hf_tetra_optional_elements_05;         /* T_optional_elements_05 */
 static int hf_tetra_type2_parameters_03;          /* T_type2_parameters_03 */
-static int hf_tetra_ssi_02;                       /* T_ssi */
-static int hf_tetra_ssi_03;                       /* OCTET_STRING_SIZE_3 */
-static int hf_tetra_address_extension;            /* T_address_extension */
-static int hf_tetra_address_extension_01;         /* OCTET_STRING_SIZE_3 */
-static int hf_tetra_subscriber_class_01;          /* T_subscriber_class */
+static int hf_tetra_ssi_choice;                   /* T_ssi_choice */
+static int hf_tetra_ssi_02;                       /* OCTET_STRING_SIZE_3 */
+static int hf_tetra_address_extension_choice;     /* T_address_extension_choice */
+static int hf_tetra_address_extension;            /* OCTET_STRING_SIZE_3 */
+static int hf_tetra_subscriber_class_choice;      /* T_subscriber_class_choice */
 static int hf_tetra_energy_saving_mode;           /* T_energy_saving_mode */
 static int hf_tetra_energy_saving_mode_01;        /* INTEGER_0_7 */
 static int hf_tetra_scch_info;                    /* T_scch_info */
@@ -496,7 +497,7 @@ static int hf_tetra_poll_request;                 /* INTEGER_0_1 */
 static int hf_tetra_transmission_request_permission;  /* INTEGER_0_1 */
 static int hf_tetra_continue;                     /* INTEGER_0_1 */
 static int hf_tetra_request_to_append_LA;         /* BOOLEAN */
-static int hf_tetra_cipher_control_01;            /* T_cipher_control */
+static int hf_tetra_cipher_control_choice;        /* T_cipher_control_choice */
 static int hf_tetra_no_cipher;                    /* NULL */
 static int hf_tetra_ciphering_parameters;         /* INTEGER_0_1023 */
 static int hf_tetra_optional_elements_06;         /* T_optional_elements_06 */
@@ -506,14 +507,14 @@ static int hf_tetra_class_of_MS_01;               /* INTEGER_0_16777215 */
 static int hf_tetra_energy_saving_mode_02;        /* T_energy_saving_mode_01 */
 static int hf_tetra_la_information;               /* T_la_information */
 static int hf_tetra_la_information_01;            /* INTEGER_0_16383 */
-static int hf_tetra_ssi_04;                       /* T_ssi_01 */
-static int hf_tetra_address_extension_02;         /* T_address_extension_01 */
+static int hf_tetra_ssi_choice_01;                /* T_ssi_choice_01 */
+static int hf_tetra_address_extension_choice_01;  /* T_address_extension_choice_01 */
 static int hf_tetra_type3_01;                     /* T_type3_01 */
 static int hf_tetra_type3_elements_01;            /* T_type3_elements_01 */
 static int hf_tetra_group_identity_location_demand;  /* T_group_identity_location_demand */
 static int hf_tetra_group_identity_location_demand_01;  /* INTEGER_0_3 */
-static int hf_tetra_group_report_response;        /* T_group_report_response */
-static int hf_tetra_group_report_response_01;     /* BOOLEAN */
+static int hf_tetra_group_report_response_choice;  /* T_group_report_response_choice */
+static int hf_tetra_group_report_response;        /* BOOLEAN */
 static int hf_tetra_group_identity_uplink;        /* T_group_identity_uplink */
 static int hf_tetra_group_identity_uplink_01;     /* INTEGER_0_15 */
 static int hf_tetra_proprietary_02;               /* T_proprietary_01 */
@@ -576,7 +577,7 @@ static int hf_tetra_optional_elements_15;         /* T_optional_elements_15 */
 static int hf_tetra_type2_parameters_11;          /* T_type2_parameters_11 */
 static int hf_tetra_prop_07;                      /* T_prop_06 */
 static int hf_tetra_call_time_out;                /* INTEGER_0_15 */
-static int hf_tetra_hook_method_selection_01;     /* INTEGER_0_1 */
+static int hf_tetra_hook_method_selection_integer;  /* INTEGER_0_1 */
 static int hf_tetra_simplex_duplex_selection_02;  /* T_simplex_duplex_selection_02 */
 static int hf_tetra_transmission_grant;           /* INTEGER_0_3 */
 static int hf_tetra_optional_elements_16;         /* T_optional_elements_16 */
@@ -780,9 +781,9 @@ static int ett_tetra_T_gssi_extension_01;
 static int ett_tetra_D_LOCATION_UPDATE_ACCEPT;
 static int ett_tetra_T_optional_elements_05;
 static int ett_tetra_T_type2_parameters_03;
-static int ett_tetra_T_ssi;
-static int ett_tetra_T_address_extension;
-static int ett_tetra_T_subscriber_class;
+static int ett_tetra_T_ssi_choice;
+static int ett_tetra_T_address_extension_choice;
+static int ett_tetra_T_subscriber_class_choice;
 static int ett_tetra_T_energy_saving_mode;
 static int ett_tetra_T_scch_info;
 static int ett_tetra_T_type3;
@@ -814,18 +815,18 @@ static int ett_tetra_D_INFO;
 static int ett_tetra_D_TX_WAIT;
 static int ett_tetra_D_TX_CONTINUE;
 static int ett_tetra_U_LOCATION_UPDATE_DEMAND;
-static int ett_tetra_T_cipher_control;
+static int ett_tetra_T_cipher_control_choice;
 static int ett_tetra_T_optional_elements_06;
 static int ett_tetra_T_type2_parameters_04;
 static int ett_tetra_T_class_of_MS;
 static int ett_tetra_T_energy_saving_mode_01;
 static int ett_tetra_T_la_information;
-static int ett_tetra_T_ssi_01;
-static int ett_tetra_T_address_extension_01;
+static int ett_tetra_T_ssi_choice_01;
+static int ett_tetra_T_address_extension_choice_01;
 static int ett_tetra_T_type3_01;
 static int ett_tetra_T_type3_elements_01;
 static int ett_tetra_T_group_identity_location_demand;
-static int ett_tetra_T_group_report_response;
+static int ett_tetra_T_group_report_response_choice;
 static int ett_tetra_T_group_identity_uplink;
 static int ett_tetra_T_proprietary_01;
 static int ett_tetra_U_ATTACH_DETACH_GROUP_IDENTITY;
@@ -2155,22 +2156,22 @@ dissect_tetra_BOOLEAN(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, p
 }
 
 
-static const value_string tetra_T_cipher_control_vals[] = {
+static const value_string tetra_T_cipher_control_choice_vals[] = {
   {   0, "no-cipher" },
   {   1, "ciphering-parameters" },
   { 0, NULL }
 };
 
-static const per_choice_t T_cipher_control_choice[] = {
+static const per_choice_t T_cipher_control_choice_choice[] = {
   {   0, &hf_tetra_no_cipher     , ASN1_NO_EXTENSIONS     , dissect_tetra_NULL },
   {   1, &hf_tetra_ciphering_parameters, ASN1_NO_EXTENSIONS     , dissect_tetra_INTEGER_0_1023 },
   { 0, NULL, 0, NULL }
 };
 
 static int
-dissect_tetra_T_cipher_control(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_tetra_T_cipher_control_choice(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
-                                 ett_tetra_T_cipher_control, T_cipher_control_choice,
+                                 ett_tetra_T_cipher_control_choice, T_cipher_control_choice_choice,
                                  NULL);
 
   return offset;
@@ -2253,44 +2254,44 @@ dissect_tetra_OCTET_STRING_SIZE_3(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t 
 }
 
 
-static const value_string tetra_T_ssi_01_vals[] = {
+static const value_string tetra_T_ssi_choice_01_vals[] = {
   {   0, "none" },
   {   1, "ssi" },
   { 0, NULL }
 };
 
-static const per_choice_t T_ssi_01_choice[] = {
+static const per_choice_t T_ssi_choice_01_choice[] = {
   {   0, &hf_tetra_none          , ASN1_NO_EXTENSIONS     , dissect_tetra_NULL },
-  {   1, &hf_tetra_ssi_03        , ASN1_NO_EXTENSIONS     , dissect_tetra_OCTET_STRING_SIZE_3 },
+  {   1, &hf_tetra_ssi_02        , ASN1_NO_EXTENSIONS     , dissect_tetra_OCTET_STRING_SIZE_3 },
   { 0, NULL, 0, NULL }
 };
 
 static int
-dissect_tetra_T_ssi_01(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_tetra_T_ssi_choice_01(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
-                                 ett_tetra_T_ssi_01, T_ssi_01_choice,
+                                 ett_tetra_T_ssi_choice_01, T_ssi_choice_01_choice,
                                  NULL);
 
   return offset;
 }
 
 
-static const value_string tetra_T_address_extension_01_vals[] = {
+static const value_string tetra_T_address_extension_choice_01_vals[] = {
   {   0, "none" },
   {   1, "address-extension" },
   { 0, NULL }
 };
 
-static const per_choice_t T_address_extension_01_choice[] = {
+static const per_choice_t T_address_extension_choice_01_choice[] = {
   {   0, &hf_tetra_none          , ASN1_NO_EXTENSIONS     , dissect_tetra_NULL },
-  {   1, &hf_tetra_address_extension_01, ASN1_NO_EXTENSIONS     , dissect_tetra_OCTET_STRING_SIZE_3 },
+  {   1, &hf_tetra_address_extension, ASN1_NO_EXTENSIONS     , dissect_tetra_OCTET_STRING_SIZE_3 },
   { 0, NULL, 0, NULL }
 };
 
 static int
-dissect_tetra_T_address_extension_01(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_tetra_T_address_extension_choice_01(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
-                                 ett_tetra_T_address_extension_01, T_address_extension_01_choice,
+                                 ett_tetra_T_address_extension_choice_01, T_address_extension_choice_01_choice,
                                  NULL);
 
   return offset;
@@ -2349,22 +2350,22 @@ dissect_tetra_T_group_identity_location_demand(tvbuff_t *tvb _U_, int offset _U_
 }
 
 
-static const value_string tetra_T_group_report_response_vals[] = {
+static const value_string tetra_T_group_report_response_choice_vals[] = {
   {   0, "none" },
   {   1, "group-report-response" },
   { 0, NULL }
 };
 
-static const per_choice_t T_group_report_response_choice[] = {
+static const per_choice_t T_group_report_response_choice_choice[] = {
   {   0, &hf_tetra_none          , ASN1_NO_EXTENSIONS     , dissect_tetra_NULL },
-  {   1, &hf_tetra_group_report_response_01, ASN1_NO_EXTENSIONS     , dissect_tetra_BOOLEAN },
+  {   1, &hf_tetra_group_report_response, ASN1_NO_EXTENSIONS     , dissect_tetra_BOOLEAN },
   { 0, NULL, 0, NULL }
 };
 
 static int
-dissect_tetra_T_group_report_response(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_tetra_T_group_report_response_choice(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
-                                 ett_tetra_T_group_report_response, T_group_report_response_choice,
+                                 ett_tetra_T_group_report_response_choice, T_group_report_response_choice_choice,
                                  NULL);
 
   return offset;
@@ -2418,7 +2419,7 @@ dissect_tetra_T_proprietary_01(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 static const per_sequence_t T_type3_elements_01_sequence[] = {
   { &hf_tetra_type3_identifier, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_TYPE3_IDENTIFIER },
   { &hf_tetra_group_identity_location_demand, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_group_identity_location_demand },
-  { &hf_tetra_group_report_response, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_group_report_response },
+  { &hf_tetra_group_report_response_choice, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_group_report_response_choice },
   { &hf_tetra_group_identity_uplink, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_group_identity_uplink },
   { &hf_tetra_proprietary_02, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_proprietary_01 },
   { NULL, 0, 0, NULL }
@@ -2459,8 +2460,8 @@ static const per_sequence_t T_type2_parameters_04_sequence[] = {
   { &hf_tetra_class_of_MS   , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_class_of_MS },
   { &hf_tetra_energy_saving_mode_02, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_energy_saving_mode_01 },
   { &hf_tetra_la_information, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_la_information },
-  { &hf_tetra_ssi_04        , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_ssi_01 },
-  { &hf_tetra_address_extension_02, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_address_extension_01 },
+  { &hf_tetra_ssi_choice_01 , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_ssi_choice_01 },
+  { &hf_tetra_address_extension_choice_01, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_address_extension_choice_01 },
   { &hf_tetra_type3_01      , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_type3_01 },
   { NULL, 0, 0, NULL }
 };
@@ -2499,7 +2500,7 @@ dissect_tetra_T_optional_elements_06(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx
 static const per_sequence_t U_LOCATION_UPDATE_DEMAND_sequence[] = {
   { &hf_tetra_location_update_type, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_UPDATE_TYPE },
   { &hf_tetra_request_to_append_LA, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_BOOLEAN },
-  { &hf_tetra_cipher_control_01, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_cipher_control },
+  { &hf_tetra_cipher_control_choice, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_cipher_control_choice },
   { &hf_tetra_optional_elements_06, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_optional_elements_06 },
   { NULL, 0, 0, NULL }
 };
@@ -4764,7 +4765,7 @@ static const per_sequence_t MAC_FRAG_sequence[] = {
   { &hf_tetra_pdu_type      , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_INTEGER_0_3 },
   { &hf_tetra_sub_type      , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_INTEGER_0_1 },
   { &hf_tetra_fill_bit_indication, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_Fill_Bit_Indication },
-  { &hf_tetra_tm_sdu_02     , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_BIT_STRING_SIZE_264 },
+  { &hf_tetra_tm_sdu_bit_string, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_BIT_STRING_SIZE_264 },
   { NULL, 0, 0, NULL }
 };
 
@@ -4791,7 +4792,7 @@ static const per_sequence_t MAC_FRAG120_sequence[] = {
   { &hf_tetra_pdu_type      , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_INTEGER_0_3 },
   { &hf_tetra_sub_type      , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_INTEGER_0_1 },
   { &hf_tetra_fill_bit_indication, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_Fill_Bit_Indication },
-  { &hf_tetra_tm_sdu_03     , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_BIT_STRING_SIZE_120 },
+  { &hf_tetra_tm_sdu_bit_string_01, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_BIT_STRING_SIZE_120 },
   { NULL, 0, 0, NULL }
 };
 
@@ -4897,7 +4898,7 @@ static const per_sequence_t MAC_END_UPLINK_sequence[] = {
   { &hf_tetra_sub_type      , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_INTEGER_0_1 },
   { &hf_tetra_fill_bit_indication, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_Fill_Bit_Indication },
   { &hf_tetra_lengthInd_ReservationReq, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_LengthIndOrReservationReq },
-  { &hf_tetra_tm_sdu_04     , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_BIT_STRING_SIZE_258 },
+  { &hf_tetra_tm_sdu_bit_string_02, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_BIT_STRING_SIZE_258 },
   { NULL, 0, 0, NULL }
 };
 
@@ -4925,7 +4926,7 @@ static const per_sequence_t MAC_END_UP114_sequence[] = {
   { &hf_tetra_pdu_subtype   , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_INTEGER_0_1 },
   { &hf_tetra_fill_bit_indication, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_Fill_Bit_Indication },
   { &hf_tetra_lengthInd_ReservationReq, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_LengthIndOrReservationReq },
-  { &hf_tetra_tm_sdu_05     , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_BIT_STRING_SIZE_114 },
+  { &hf_tetra_tm_sdu_bit_string_03, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_BIT_STRING_SIZE_114 },
   { NULL, 0, 0, NULL }
 };
 
@@ -5004,7 +5005,7 @@ static const per_sequence_t MAC_END_HU_sequence[] = {
   { &hf_tetra_pdu_type_01   , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_INTEGER_0_1 },
   { &hf_tetra_fill_bit_indication, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_Fill_Bit_Indication },
   { &hf_tetra_lengthInd_ReservationReq_01, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_lengthInd_ReservationReq },
-  { &hf_tetra_tm_sdu_06     , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_BIT_STRING_SIZE_85 },
+  { &hf_tetra_tm_sdu_02     , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_BIT_STRING_SIZE_85 },
   { NULL, 0, 0, NULL }
 };
 
@@ -5466,7 +5467,7 @@ static const per_sequence_t MAC_END_DOWNLINK_sequence[] = {
   { &hf_tetra_lengthIndication_02, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_LengthIndicationMacEndDl },
   { &hf_tetra_slot_granting , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_slot_granting },
   { &hf_tetra_channel_allocation, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_channel_allocation },
-  { &hf_tetra_tm_sdu_07     , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_BIT_STRING_SIZE_255 },
+  { &hf_tetra_tm_sdu_03     , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_BIT_STRING_SIZE_255 },
   { NULL, 0, 0, NULL }
 };
 
@@ -5540,7 +5541,7 @@ static const per_sequence_t MAC_END_DOWN111_sequence[] = {
   { &hf_tetra_lengthIndication_02, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_LengthIndicationMacEndDl },
   { &hf_tetra_slot_granting_01, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_slot_granting_01 },
   { &hf_tetra_channel_allocation_01, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_channel_allocation_01 },
-  { &hf_tetra_tm_sdu_08     , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_BIT_STRING_SIZE_111 },
+  { &hf_tetra_tm_sdu_04     , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_BIT_STRING_SIZE_111 },
   { NULL, 0, 0, NULL }
 };
 
@@ -5743,66 +5744,66 @@ dissect_tetra_T_channel_allocation_02(tvbuff_t *tvb _U_, int offset _U_, asn1_ct
 }
 
 
-static const value_string tetra_T_ssi_vals[] = {
+static const value_string tetra_T_ssi_choice_vals[] = {
   {   0, "none" },
   {   1, "ssi" },
   { 0, NULL }
 };
 
-static const per_choice_t T_ssi_choice[] = {
+static const per_choice_t T_ssi_choice_choice[] = {
   {   0, &hf_tetra_none          , ASN1_NO_EXTENSIONS     , dissect_tetra_NULL },
-  {   1, &hf_tetra_ssi_03        , ASN1_NO_EXTENSIONS     , dissect_tetra_OCTET_STRING_SIZE_3 },
+  {   1, &hf_tetra_ssi_02        , ASN1_NO_EXTENSIONS     , dissect_tetra_OCTET_STRING_SIZE_3 },
   { 0, NULL, 0, NULL }
 };
 
 static int
-dissect_tetra_T_ssi(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_tetra_T_ssi_choice(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
-                                 ett_tetra_T_ssi, T_ssi_choice,
+                                 ett_tetra_T_ssi_choice, T_ssi_choice_choice,
                                  NULL);
 
   return offset;
 }
 
 
-static const value_string tetra_T_address_extension_vals[] = {
+static const value_string tetra_T_address_extension_choice_vals[] = {
   {   0, "none" },
   {   1, "address-extension" },
   { 0, NULL }
 };
 
-static const per_choice_t T_address_extension_choice[] = {
+static const per_choice_t T_address_extension_choice_choice[] = {
   {   0, &hf_tetra_none          , ASN1_NO_EXTENSIONS     , dissect_tetra_NULL },
-  {   1, &hf_tetra_address_extension_01, ASN1_NO_EXTENSIONS     , dissect_tetra_OCTET_STRING_SIZE_3 },
+  {   1, &hf_tetra_address_extension, ASN1_NO_EXTENSIONS     , dissect_tetra_OCTET_STRING_SIZE_3 },
   { 0, NULL, 0, NULL }
 };
 
 static int
-dissect_tetra_T_address_extension(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_tetra_T_address_extension_choice(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
-                                 ett_tetra_T_address_extension, T_address_extension_choice,
+                                 ett_tetra_T_address_extension_choice, T_address_extension_choice_choice,
                                  NULL);
 
   return offset;
 }
 
 
-static const value_string tetra_T_subscriber_class_vals[] = {
+static const value_string tetra_T_subscriber_class_choice_vals[] = {
   {   0, "none" },
   {   1, "subscriber-class" },
   { 0, NULL }
 };
 
-static const per_choice_t T_subscriber_class_choice[] = {
+static const per_choice_t T_subscriber_class_choice_choice[] = {
   {   0, &hf_tetra_none          , ASN1_NO_EXTENSIONS     , dissect_tetra_NULL },
   {   1, &hf_tetra_subscriber_class, ASN1_NO_EXTENSIONS     , dissect_tetra_Subscriber_class },
   { 0, NULL, 0, NULL }
 };
 
 static int
-dissect_tetra_T_subscriber_class(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_tetra_T_subscriber_class_choice(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
-                                 ett_tetra_T_subscriber_class, T_subscriber_class_choice,
+                                 ett_tetra_T_subscriber_class_choice, T_subscriber_class_choice_choice,
                                  NULL);
 
   return offset;
@@ -6006,9 +6007,9 @@ dissect_tetra_T_type3(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, p
 
 
 static const per_sequence_t T_type2_parameters_03_sequence[] = {
-  { &hf_tetra_ssi_02        , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_ssi },
-  { &hf_tetra_address_extension, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_address_extension },
-  { &hf_tetra_subscriber_class_01, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_subscriber_class },
+  { &hf_tetra_ssi_choice    , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_ssi_choice },
+  { &hf_tetra_address_extension_choice, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_address_extension_choice },
+  { &hf_tetra_subscriber_class_choice, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_subscriber_class_choice },
   { &hf_tetra_energy_saving_mode, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_energy_saving_mode },
   { &hf_tetra_scch_info     , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_scch_info },
   { &hf_tetra_type3         , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_type3 },
@@ -6173,7 +6174,7 @@ static const value_string tetra_T_address_type_vals[] = {
 };
 
 static const per_choice_t T_address_type_choice[] = {
-  {   0, &hf_tetra_gssi_01       , ASN1_NO_EXTENSIONS     , dissect_tetra_OCTET_STRING_SIZE_3 },
+  {   0, &hf_tetra_gssi_octet_string, ASN1_NO_EXTENSIONS     , dissect_tetra_OCTET_STRING_SIZE_3 },
   {   1, &hf_tetra_gssi_extension, ASN1_NO_EXTENSIONS     , dissect_tetra_T_gssi_extension },
   {   2, &hf_tetra_vgssi         , ASN1_NO_EXTENSIONS     , dissect_tetra_OCTET_STRING_SIZE_3 },
   { 0, NULL, 0, NULL }
@@ -7292,7 +7293,7 @@ dissect_tetra_T_optional_elements_16(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx
 static const per_sequence_t D_SETUP_sequence[] = {
   { &hf_tetra_call_identifier, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_INTEGER_0_16383 },
   { &hf_tetra_call_time_out , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_INTEGER_0_15 },
-  { &hf_tetra_hook_method_selection_01, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_INTEGER_0_1 },
+  { &hf_tetra_hook_method_selection_integer, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_INTEGER_0_1 },
   { &hf_tetra_simplex_duplex_selection_02, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_simplex_duplex_selection_02 },
   { &hf_tetra_basic_service_information, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_Basic_service_information },
   { &hf_tetra_transmission_grant, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_INTEGER_0_3 },
@@ -8352,7 +8353,7 @@ static const per_sequence_t OTHER_DATA_sequence[] = {
   { &hf_tetra_power_control , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_power_control },
   { &hf_tetra_slot_granting_02, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_slot_granting_02 },
   { &hf_tetra_channel_allocation_02, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_channel_allocation_02 },
-  { &hf_tetra_tm_sdu_09     , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_D_LLC_PDU },
+  { &hf_tetra_tm_sdu_05     , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_D_LLC_PDU },
   { NULL, 0, 0, NULL }
 };
 
@@ -9846,28 +9847,28 @@ void proto_register_tetra (void)
       { "sub-type", "tetra.sub_type",
         FT_UINT32, BASE_DEC, NULL, 0,
         "INTEGER_0_1", HFILL }},
-    { &hf_tetra_tm_sdu_02,
-      { "tm-sdu", "tetra.tm_sdu",
+    { &hf_tetra_tm_sdu_bit_string,
+      { "tm-sdu", "tetra.tm_sdu_bit_string",
         FT_BYTES, BASE_NONE, NULL, 0,
         "BIT_STRING_SIZE_264", HFILL }},
-    { &hf_tetra_tm_sdu_03,
-      { "tm-sdu", "tetra.tm_sdu",
+    { &hf_tetra_tm_sdu_bit_string_01,
+      { "tm-sdu", "tetra.tm_sdu_bit_string",
         FT_BYTES, BASE_NONE, NULL, 0,
         "BIT_STRING_SIZE_120", HFILL }},
     { &hf_tetra_lengthInd_ReservationReq,
       { "lengthInd-ReservationReq", "tetra.lengthInd_ReservationReq",
         FT_UINT32, BASE_DEC, VALS(tetra_LengthIndOrReservationReq_vals), 0,
         "LengthIndOrReservationReq", HFILL }},
-    { &hf_tetra_tm_sdu_04,
-      { "tm-sdu", "tetra.tm_sdu",
+    { &hf_tetra_tm_sdu_bit_string_02,
+      { "tm-sdu", "tetra.tm_sdu_bit_string",
         FT_BYTES, BASE_NONE, NULL, 0,
         "BIT_STRING_SIZE_258", HFILL }},
     { &hf_tetra_pdu_subtype,
       { "pdu-subtype", "tetra.pdu_subtype",
         FT_UINT32, BASE_DEC, NULL, 0,
         "INTEGER_0_1", HFILL }},
-    { &hf_tetra_tm_sdu_05,
-      { "tm-sdu", "tetra.tm_sdu",
+    { &hf_tetra_tm_sdu_bit_string_03,
+      { "tm-sdu", "tetra.tm_sdu_bit_string",
         FT_BYTES, BASE_NONE, NULL, 0,
         "BIT_STRING_SIZE_114", HFILL }},
     { &hf_tetra_lengthInd_ReservationReq_01,
@@ -9878,7 +9879,7 @@ void proto_register_tetra (void)
       { "lengthInd", "tetra.lengthInd",
         FT_UINT32, BASE_DEC, VALS(tetra_LengthIndMacHu_vals), 0,
         "LengthIndMacHu", HFILL }},
-    { &hf_tetra_tm_sdu_06,
+    { &hf_tetra_tm_sdu_02,
       { "tm-sdu", "tetra.tm_sdu",
         FT_BYTES, BASE_NONE, NULL, 0,
         "BIT_STRING_SIZE_85", HFILL }},
@@ -9910,7 +9911,7 @@ void proto_register_tetra (void)
       { "channel-allocation-element", "tetra.channel_allocation_element_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "ChannelAllocation", HFILL }},
-    { &hf_tetra_tm_sdu_07,
+    { &hf_tetra_tm_sdu_03,
       { "tm-sdu", "tetra.tm_sdu",
         FT_BYTES, BASE_NONE, NULL, 0,
         "BIT_STRING_SIZE_255", HFILL }},
@@ -10002,7 +10003,7 @@ void proto_register_tetra (void)
       { "channel-allocation", "tetra.channel_allocation",
         FT_UINT32, BASE_DEC, VALS(tetra_T_channel_allocation_01_vals), 0,
         "T_channel_allocation_01", HFILL }},
-    { &hf_tetra_tm_sdu_08,
+    { &hf_tetra_tm_sdu_04,
       { "tm-sdu", "tetra.tm_sdu",
         FT_BYTES, BASE_NONE, NULL, 0,
         "BIT_STRING_SIZE_111", HFILL }},
@@ -10038,7 +10039,7 @@ void proto_register_tetra (void)
       { "channel-allocation", "tetra.channel_allocation",
         FT_UINT32, BASE_DEC, VALS(tetra_T_channel_allocation_02_vals), 0,
         "T_channel_allocation_02", HFILL }},
-    { &hf_tetra_tm_sdu_09,
+    { &hf_tetra_tm_sdu_05,
       { "tm-sdu", "tetra.tm_sdu",
         FT_UINT32, BASE_DEC, VALS(tetra_D_LLC_PDU_vals), 0,
         "D_LLC_PDU", HFILL }},
@@ -10526,14 +10527,18 @@ void proto_register_tetra (void)
       { "address-type", "tetra.address_type",
         FT_UINT32, BASE_DEC, VALS(tetra_T_address_type_vals), 0,
         NULL, HFILL }},
-    { &hf_tetra_gssi_01,
-      { "gssi", "tetra.gssi",
+    { &hf_tetra_gssi_octet_string,
+      { "gssi", "tetra.gssi_octet_string",
         FT_BYTES, BASE_NONE, NULL, 0,
         "OCTET_STRING_SIZE_3", HFILL }},
     { &hf_tetra_gssi_extension,
       { "gssi-extension", "tetra.gssi_extension_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
+    { &hf_tetra_gssi_01,
+      { "gssi", "tetra.gssi",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "OCTET_STRING_SIZE_3", HFILL }},
     { &hf_tetra_extension,
       { "extension", "tetra.extension",
         FT_BYTES, BASE_NONE, NULL, 0,
@@ -10578,26 +10583,26 @@ void proto_register_tetra (void)
       { "type2-parameters", "tetra.type2_parameters_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "T_type2_parameters_03", HFILL }},
+    { &hf_tetra_ssi_choice,
+      { "ssi", "tetra.ssi_choice",
+        FT_UINT32, BASE_DEC, VALS(tetra_T_ssi_choice_vals), 0,
+        "T_ssi_choice", HFILL }},
     { &hf_tetra_ssi_02,
       { "ssi", "tetra.ssi",
-        FT_UINT32, BASE_DEC, VALS(tetra_T_ssi_vals), 0,
-        NULL, HFILL }},
-    { &hf_tetra_ssi_03,
-      { "ssi", "tetra.ssi",
         FT_BYTES, BASE_NONE, NULL, 0,
         "OCTET_STRING_SIZE_3", HFILL }},
+    { &hf_tetra_address_extension_choice,
+      { "address-extension", "tetra.address_extension_choice",
+        FT_UINT32, BASE_DEC, VALS(tetra_T_address_extension_choice_vals), 0,
+        "T_address_extension_choice", HFILL }},
     { &hf_tetra_address_extension,
       { "address-extension", "tetra.address_extension",
-        FT_UINT32, BASE_DEC, VALS(tetra_T_address_extension_vals), 0,
-        NULL, HFILL }},
-    { &hf_tetra_address_extension_01,
-      { "address-extension", "tetra.address_extension",
         FT_BYTES, BASE_NONE, NULL, 0,
         "OCTET_STRING_SIZE_3", HFILL }},
-    { &hf_tetra_subscriber_class_01,
-      { "subscriber-class", "tetra.subscriber_class",
-        FT_UINT32, BASE_DEC, VALS(tetra_T_subscriber_class_vals), 0,
-        NULL, HFILL }},
+    { &hf_tetra_subscriber_class_choice,
+      { "subscriber-class", "tetra.subscriber_class_choice",
+        FT_UINT32, BASE_DEC, VALS(tetra_T_subscriber_class_choice_vals), 0,
+        "T_subscriber_class_choice", HFILL }},
     { &hf_tetra_energy_saving_mode,
       { "energy-saving-mode", "tetra.energy_saving_mode",
         FT_UINT32, BASE_DEC, VALS(tetra_T_energy_saving_mode_vals), 0,
@@ -10942,10 +10947,10 @@ void proto_register_tetra (void)
       { "request-to-append-LA", "tetra.request_to_append_LA",
         FT_BOOLEAN, BASE_NONE, NULL, 0,
         "BOOLEAN", HFILL }},
-    { &hf_tetra_cipher_control_01,
-      { "cipher-control", "tetra.cipher_control",
-        FT_UINT32, BASE_DEC, VALS(tetra_T_cipher_control_vals), 0,
-        NULL, HFILL }},
+    { &hf_tetra_cipher_control_choice,
+      { "cipher-control", "tetra.cipher_control_choice",
+        FT_UINT32, BASE_DEC, VALS(tetra_T_cipher_control_choice_vals), 0,
+        "T_cipher_control_choice", HFILL }},
     { &hf_tetra_no_cipher,
       { "no-cipher", "tetra.no_cipher_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -10982,14 +10987,14 @@ void proto_register_tetra (void)
       { "la-information", "tetra.la_information",
         FT_UINT32, BASE_DEC, NULL, 0,
         "INTEGER_0_16383", HFILL }},
-    { &hf_tetra_ssi_04,
-      { "ssi", "tetra.ssi",
-        FT_UINT32, BASE_DEC, VALS(tetra_T_ssi_01_vals), 0,
-        "T_ssi_01", HFILL }},
-    { &hf_tetra_address_extension_02,
-      { "address-extension", "tetra.address_extension",
-        FT_UINT32, BASE_DEC, VALS(tetra_T_address_extension_01_vals), 0,
-        "T_address_extension_01", HFILL }},
+    { &hf_tetra_ssi_choice_01,
+      { "ssi", "tetra.ssi_choice",
+        FT_UINT32, BASE_DEC, VALS(tetra_T_ssi_choice_01_vals), 0,
+        "T_ssi_choice_01", HFILL }},
+    { &hf_tetra_address_extension_choice_01,
+      { "address-extension", "tetra.address_extension_choice",
+        FT_UINT32, BASE_DEC, VALS(tetra_T_address_extension_choice_01_vals), 0,
+        "T_address_extension_choice_01", HFILL }},
     { &hf_tetra_type3_01,
       { "type3", "tetra.type3",
         FT_UINT32, BASE_DEC, VALS(tetra_T_type3_01_vals), 0,
@@ -11006,11 +11011,11 @@ void proto_register_tetra (void)
       { "group-identity-location-demand", "tetra.group_identity_location_demand",
         FT_UINT32, BASE_DEC, NULL, 0,
         "INTEGER_0_3", HFILL }},
+    { &hf_tetra_group_report_response_choice,
+      { "group-report-response", "tetra.group_report_response_choice",
+        FT_UINT32, BASE_DEC, VALS(tetra_T_group_report_response_choice_vals), 0,
+        "T_group_report_response_choice", HFILL }},
     { &hf_tetra_group_report_response,
-      { "group-report-response", "tetra.group_report_response",
-        FT_UINT32, BASE_DEC, VALS(tetra_T_group_report_response_vals), 0,
-        "T_group_report_response", HFILL }},
-    { &hf_tetra_group_report_response_01,
       { "group-report-response", "tetra.group_report_response",
         FT_BOOLEAN, BASE_NONE, NULL, 0,
         "BOOLEAN", HFILL }},
@@ -11262,8 +11267,8 @@ void proto_register_tetra (void)
       { "call-time-out", "tetra.call_time_out",
         FT_UINT32, BASE_DEC, NULL, 0,
         "INTEGER_0_15", HFILL }},
-    { &hf_tetra_hook_method_selection_01,
-      { "hook-method-selection", "tetra.hook_method_selection",
+    { &hf_tetra_hook_method_selection_integer,
+      { "hook-method-selection", "tetra.hook_method_selection_integer",
         FT_UINT32, BASE_DEC, NULL, 0,
         "INTEGER_0_1", HFILL }},
     { &hf_tetra_simplex_duplex_selection_02,
@@ -11718,9 +11723,9 @@ void proto_register_tetra (void)
     &ett_tetra_D_LOCATION_UPDATE_ACCEPT,
     &ett_tetra_T_optional_elements_05,
     &ett_tetra_T_type2_parameters_03,
-    &ett_tetra_T_ssi,
-    &ett_tetra_T_address_extension,
-    &ett_tetra_T_subscriber_class,
+    &ett_tetra_T_ssi_choice,
+    &ett_tetra_T_address_extension_choice,
+    &ett_tetra_T_subscriber_class_choice,
     &ett_tetra_T_energy_saving_mode,
     &ett_tetra_T_scch_info,
     &ett_tetra_T_type3,
@@ -11752,18 +11757,18 @@ void proto_register_tetra (void)
     &ett_tetra_D_TX_WAIT,
     &ett_tetra_D_TX_CONTINUE,
     &ett_tetra_U_LOCATION_UPDATE_DEMAND,
-    &ett_tetra_T_cipher_control,
+    &ett_tetra_T_cipher_control_choice,
     &ett_tetra_T_optional_elements_06,
     &ett_tetra_T_type2_parameters_04,
     &ett_tetra_T_class_of_MS,
     &ett_tetra_T_energy_saving_mode_01,
     &ett_tetra_T_la_information,
-    &ett_tetra_T_ssi_01,
-    &ett_tetra_T_address_extension_01,
+    &ett_tetra_T_ssi_choice_01,
+    &ett_tetra_T_address_extension_choice_01,
     &ett_tetra_T_type3_01,
     &ett_tetra_T_type3_elements_01,
     &ett_tetra_T_group_identity_location_demand,
-    &ett_tetra_T_group_report_response,
+    &ett_tetra_T_group_report_response_choice,
     &ett_tetra_T_group_identity_uplink,
     &ett_tetra_T_proprietary_01,
     &ett_tetra_U_ATTACH_DETACH_GROUP_IDENTITY,
