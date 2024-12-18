@@ -1115,7 +1115,7 @@ class ExpertEntries:
         # None matched...
         if item not in [ 'hf', 'dissect_hf' ]:
             global warnings_found
-            print('Warning:', self.filename, 'Expert info added with', '"' + item + '"', 'was it was not registered (in this file)')
+            print('Warning:', self.filename, 'Expert info added with', '"' + item + '"', 'was not registered (in this file)?')
             warnings_found += 1
 
 

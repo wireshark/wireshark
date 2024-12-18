@@ -1336,6 +1336,7 @@ static void ext11_work_out_bundles(unsigned startPrbc,
 /* Overall state of a flow (eAxC/plane)                */
 typedef struct {
     /* State for sequence analysis [each direction] */
+    bool     last_frame_seen[2];
     uint32_t last_frame[2];
     uint8_t  next_expected_sequence_number[2];
 
@@ -4213,7 +4214,7 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
         }
 
         /* Check sequence analysis status */
-        if (seq_id != state->next_expected_sequence_number[direction]) {
+        if (state->last_frame_seen[direction] && (seq_id != state->next_expected_sequence_number[direction])) {
             /* Store this result */
             flow_result_t *result = wmem_new0(wmem_file_scope(), flow_result_t);
             result->unexpected_seq_number = true;
@@ -4223,6 +4224,7 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
         }
         /* Update conversation info */
         state->last_frame[direction] = pinfo->num;
+        state->last_frame_seen[direction] = true;
         state->next_expected_sequence_number[direction] = (seq_id+1) % 256;
     }
 
@@ -5255,7 +5257,7 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
         }
 
         /* Check sequence analysis status */
-        if (seq_id != state->next_expected_sequence_number[direction]) {
+        if (state->last_frame_seen[direction] && (seq_id != state->next_expected_sequence_number[direction])) {
             /* Store this result */
             flow_result_t *result = wmem_new0(wmem_file_scope(), flow_result_t);
             result->unexpected_seq_number = true;
@@ -5265,6 +5267,7 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
         }
         /* Update sequence analysis state */
         state->last_frame[direction] = pinfo->num;
+        state->last_frame_seen[direction] = true;
         state->next_expected_sequence_number[direction] = (seq_id+1) % 256;
     }
 
