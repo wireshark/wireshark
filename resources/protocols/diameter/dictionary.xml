@@ -8623,8 +8623,8 @@
 		<avp name="Role-Of-ProSe-Function" code="3438" mandatory="must" may-encrypt="no" protected="may" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="Enumerated"/>
 			<enum name="HPLMN" code="0"/>
-			<enum name="VPLMN" code="0"/>
-			<enum name="Local PLMN" code="0"/>
+			<enum name="VPLMN" code="1"/>
+			<enum name="Local PLMN" code="2"/>
 		</avp>
 		<avp name="Usage-Information-Report-Sequence-Number" code="3439" mandatory="must" may-encrypt="no" protected="may" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="Integer32"/>
