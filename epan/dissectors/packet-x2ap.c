@@ -1451,7 +1451,7 @@ static int hf_x2ap_e_RAB_MaximumBitrateUL;        /* BitRate */
 static int hf_x2ap_e_RAB_GuaranteedBitrateDL;     /* BitRate */
 static int hf_x2ap_e_RAB_GuaranteedBitrateUL;     /* BitRate */
 static int hf_x2ap_eNB_ID;                        /* ENB_ID */
-static int hf_x2ap_gNB_ID;                        /* GNB_ID */
+static int hf_x2ap_gnb_id_choice;                 /* GNB_ID */
 static int hf_x2ap_gNB;                           /* GlobalGNB_ID */
 static int hf_x2ap_choice_extension;              /* ProtocolIE_Single_Container */
 static int hf_x2ap_GTPTLAs_item;                  /* GTPTLA_Item */
@@ -1462,7 +1462,7 @@ static int hf_x2ap_GUGroupIDList_item;            /* GU_Group_ID */
 static int hf_x2ap_mME_Group_ID;                  /* MME_Group_ID */
 static int hf_x2ap_gU_Group_ID;                   /* GU_Group_ID */
 static int hf_x2ap_mME_Code;                      /* MME_Code */
-static int hf_x2ap_gNB_ID_01;                     /* BIT_STRING_SIZE_22_32 */
+static int hf_x2ap_gNB_ID;                        /* BIT_STRING_SIZE_22_32 */
 static int hf_x2ap_servingPLMN;                   /* PLMN_Identity */
 static int hf_x2ap_equivalentPLMNs;               /* EPLMNs */
 static int hf_x2ap_forbiddenTAs;                  /* ForbiddenTAs */
@@ -5344,7 +5344,7 @@ static const value_string x2ap_GNB_ID_vals[] = {
 };
 
 static const per_choice_t GNB_ID_choice[] = {
-  {   0, &hf_x2ap_gNB_ID_01      , ASN1_EXTENSION_ROOT    , dissect_x2ap_BIT_STRING_SIZE_22_32 },
+  {   0, &hf_x2ap_gNB_ID         , ASN1_EXTENSION_ROOT    , dissect_x2ap_BIT_STRING_SIZE_22_32 },
   { 0, NULL, 0, NULL }
 };
 
@@ -5360,7 +5360,7 @@ dissect_x2ap_GNB_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, pro
 
 static const per_sequence_t GlobalGNB_ID_sequence[] = {
   { &hf_x2ap_pLMN_Identity  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_x2ap_PLMN_Identity },
-  { &hf_x2ap_gNB_ID         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_x2ap_GNB_ID },
+  { &hf_x2ap_gnb_id_choice  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_x2ap_GNB_ID },
   { &hf_x2ap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_x2ap_ProtocolExtensionContainer },
   { NULL, 0, 0, NULL }
 };
@@ -26747,8 +26747,8 @@ void proto_register_x2ap(void) {
       { "eNB-ID", "x2ap.eNB_ID",
         FT_UINT32, BASE_DEC, VALS(x2ap_ENB_ID_vals), 0,
         NULL, HFILL }},
-    { &hf_x2ap_gNB_ID,
-      { "gNB-ID", "x2ap.gNB_ID",
+    { &hf_x2ap_gnb_id_choice,
+      { "gNB-ID", "x2ap.gnb_id_choice",
         FT_UINT32, BASE_DEC, VALS(x2ap_GNB_ID_vals), 0,
         NULL, HFILL }},
     { &hf_x2ap_gNB,
@@ -26791,7 +26791,7 @@ void proto_register_x2ap(void) {
       { "mME-Code", "x2ap.mME_Code",
         FT_UINT8, BASE_DEC_HEX, NULL, 0,
         NULL, HFILL }},
-    { &hf_x2ap_gNB_ID_01,
+    { &hf_x2ap_gNB_ID,
       { "gNB-ID", "x2ap.gNB_ID",
         FT_BYTES, BASE_NONE, NULL, 0,
         "BIT_STRING_SIZE_22_32", HFILL }},
