@@ -9042,7 +9042,7 @@
 	<application id="16777302"	name="3GPP Sy"				uri="http://www.3gpp.org/ftp/Specs/html-info/29219.htm"/>
 	<application id="16777303"	name="3GPP Sd"				uri="http://www.3gpp.org/ftp/Specs/html-info/29212.htm"/>
 	<!-- application 16777304	is defined in Ericsson.xml -->
-	<application id="16777305"	name="HP DTD"				uri="none"/>
+	<!-- application 16777305       is defined in HP.xml -->
 	<application id="16777306"	name="ITU-T M9"				uri="http://www.itu.int/ITU-T/recommendations/rec.aspx?rec=11570"/>
 	<application id="16777307"	name="ITU-T M13"			uri="http://www.itu.int/ITU-T/recommendations/rec.aspx?rec=11712"/>
 	<application id="16777308"	name="3GPP S7a"				uri="http://www.3gpp.org/ftp/Specs/html-info/29272.htm"/>
@@ -9072,7 +9072,7 @@
 	<application id="16777332"	name="Rivada Xf"			uri="none"/>
 	<application id="16777333"	name="Rivada Xf"			uri="none"/>
 	<application id="16777334"	name="Rivada Xp"			uri="none"/>
-	<application id="16777335"	name="3GPP MB2-C"			uri="http://www.3gpp.org/ftp/Specs/html-info/29468.htm"/>
+	<!-- application 16777335 (3GPP MB2-C)  is defined in TGPP.xml -->
 	<!-- application 16777336 (3GPP PC4a)	is defined in TGPP.xml -->
 	<application id="16777337"	name="3GPP PC2"				uri="http://www.3gpp.org/ftp/Specs/html-info/29343.htm"/>
 	<application id="16777338"	name="Juniper Domain Policy"		uri="none"/>
