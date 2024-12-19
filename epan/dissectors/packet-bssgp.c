@@ -7561,7 +7561,7 @@ proto_register_bssgp(void)
         { &ei_bssgp_missing_mandatory_element, { "bssgp.missing_mandatory_element", PI_PROTOCOL, PI_ERROR, "Missing Mandatory element, rest of dissection is suspect", EXPFILL }},
         { &ei_bssgp_not_dissected_yet, { "bssgp.not_dissected_yet", PI_UNDECODED, PI_WARN, "Not dissected yet", EXPFILL }},
         { &ei_bssgp_erroneous_app_container, { "bssgp.erroneous_app_container", PI_PROTOCOL, PI_WARN, "Erroneous Application Container including IEI and LI", EXPFILL }},
-        { &ei_bssgp_si_item, { "bssgp.erroneous_app_container", PI_PROTOCOL, PI_WARN, "Unknown SI message", EXPFILL }},
+        { &ei_bssgp_si_item, { "bssgp.unknown_si", PI_PROTOCOL, PI_WARN, "Unknown SI message", EXPFILL }},
         { &ei_bssgp_unknown_rim_app_id_data, { "bssgp.rim_app_id_data.unknown", PI_PROTOCOL, PI_WARN, "Unknown RIM Application Identity Data", EXPFILL }},
         { &ei_bssgp_unknown_app_container, { "bssgp.unknown_app_container", PI_PROTOCOL, PI_WARN, "Unknown Application Error Container", EXPFILL }},
         { &ei_bssgp_ra_discriminator, { "bssgp.ra_discriminator.unknown", PI_PROTOCOL, PI_WARN, "Unknown RIM Routing Address discriminator", EXPFILL }},

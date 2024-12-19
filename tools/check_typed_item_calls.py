@@ -1083,7 +1083,8 @@ class ExpertEntries:
         self.filename = filename
         self.entries = []
         self.summaries = set()  # key is (name, severity)
-        self.reverselookup = {}  # summary -> previous-item
+        self.summary_reverselookup = {}  # summary -> item-name
+        self.filter_reverselookup  = {}  # filter  -> item-name
         self.filters = set()
 
     def AddEntry(self, entry):
@@ -1094,16 +1095,18 @@ class ExpertEntries:
         # If summaries are not unique, can't tell apart from expert window (need to look into frame to see details)
         if (entry.summary, entry.severity) in self.summaries:
             print('Warning:', self.filename, 'Expert summary', '"' + entry.summary + '"',
-                  'has already been seen (now in', entry.name, '- previously in', self.reverselookup[entry.summary], ')')
+                  'has already been seen (now in', entry.name, '- previously in', self.summary_reverselookup[entry.summary], ')')
             warnings_found += 1
         self.summaries.add((entry.summary, entry.severity))
-        self.reverselookup[entry.summary] = entry.name
+        self.summary_reverselookup[entry.summary] = entry.name
 
         # Not sure if anyone ever filters on these, but check if are unique
         if entry.filter in self.filters:
-            print('Warning:', self.filename, 'Expert filter', '"' + entry.filter + '"', 'has already been seen (now in', entry.name+')')
+            print('Warning:', self.filename, 'Expert filter', '"' + entry.filter + '"',
+                  'has already been seen (now in', entry.name, '- previously in', self.filter_reverselookup[entry.filter], ')')
             warnings_found += 1
         self.filters.add(entry.filter)
+        self.filter_reverselookup[entry.filter] = entry.name
 
     def VerifyCall(self, item):
         # TODO: ignore if wasn't declared in self.filename?
