@@ -98,6 +98,7 @@
 #include <wsutil/exported_pdu_tlvs.h>
 
 #include <wsutil/nstime.h>
+#include <wsutil/str_util.h>
 #include <wsutil/time_util.h>
 #include <wsutil/ws_strptime.h>
 
@@ -405,6 +406,42 @@ write_byte(const char *str)
     if (curr_offset >= info_p->max_frame_length) /* packet full */
         if (start_new_packet(true) != IMPORT_SUCCESS)
            return IMPORT_FAILURE;
+
+    return IMPORT_SUCCESS;
+}
+
+static import_status_t
+write_bytes(const char *str)
+{
+    uint32_t num;
+
+    if (parse_num(str, false, &num) != IMPORT_SUCCESS)
+        return IMPORT_FAILURE;
+
+    int len = (int)strlen(str);
+    /* There's always extra room in the packet_buf for the dummy headers
+     * compared to max_frame_length, so we could copy all the bytes at
+     * once and then check for overflow afterwards (copying it off).
+     * That would be moderately faster due to optimization on most
+     * compilers (and we could use the routines from wsutil/pint.h)
+     */
+    if (info_p->hexdump.little_endian) {
+        for (int i = 0; i < 4*len; i += 8) {
+            packet_buf[curr_offset] = (uint8_t)(num >> i);
+            curr_offset++;
+            if (curr_offset >= info_p->max_frame_length) /* packet full */
+                if (start_new_packet(true) != IMPORT_SUCCESS)
+                   return IMPORT_FAILURE;
+        }
+    } else {
+        for (int i = 4*len - 8; i >= 0; i -= 8) {
+            packet_buf[curr_offset] = (uint8_t)(num >> i);
+            curr_offset++;
+            if (curr_offset >= info_p->max_frame_length) /* packet full */
+                if (start_new_packet(true) != IMPORT_SUCCESS)
+                   return IMPORT_FAILURE;
+        }
+    }
 
     return IMPORT_SUCCESS;
 }
@@ -1280,6 +1317,7 @@ static void
 process_rollback(bool by_eol)
 {
     int	    rollback = 0;
+    int     pending_rollback = 0;
     int     line_size;
     int     i;
     GString *s2;
@@ -1299,6 +1337,10 @@ process_rollback(bool by_eol)
      * and has to produce the same tokens. (Simpler because we only match bytes,
      * space, and everything else.) Perhaps we should do lexical analysis with
      * yy_scan_bytes. */
+    /* Note we have the bytes after any swapping of little endian byte groups
+     * has been done. That's what we want; various hexdump programs (hexdump,
+     * od, xxd) always output the ASCII dump in the natural order even if
+     * byte groups are little endian. */
     i = 0;
     while (i + 1 + rollback < line_size) {
         if (pkt_lnstart[i] == ' ') {
@@ -1317,17 +1359,24 @@ process_rollback(bool by_eol)
         }
         g_string_append_c(s2, (char)strtoul(tmp_str, (char **)NULL, 16));
         i += 2;
-        rollback++;
-        if (!by_eol) {
+        if (by_eol) {
+            rollback++;
+        } else {
+            pending_rollback++;
             /* If we had a text token before EOL, then without ' ' after the
              * byte it won't parse as a byte token in the ASCII dump.
              * If we transitioned straight from T_BYTE to T_EOL, then we already
              * know the entire ASCII dump parsed as bytes. */
-            if (!((i + rollback < line_size) && (pkt_lnstart[i] == ' '))) {
-                rollback--;
+            if (!(i + rollback < line_size)) {
                 break;
             }
-            i++;
+            if (pkt_lnstart[i] == ' ') {
+                rollback += pending_rollback;
+                pending_rollback = 0;
+                i++;
+            } else if (pending_rollback >= 4) {
+                break;
+            }
         }
     }
     /* If the packet line start contains a possible byte pattern, the line end
@@ -1346,10 +1395,13 @@ process_rollback(bool by_eol)
     if (rollback > 0) {
         if (strncmp(pkt_lnstart+line_size-rollback, s2->str, rollback) == 0) {
             unwrite_bytes(rollback);
-        }
-        /* Not matched. This line contains invalid packet bytes, so
-           discard the whole line */
-        else {
+        } else {
+            /* Not matched. This line contains invalid packet bytes, so
+               discard the whole line */
+            /* The GUI only reports identical warnings once to save lots of pop-ups.
+             * Keep the unique information in a console message. */
+            report_warning("Expected ASCII rollback not found. Was ASCII identification enabled unnecessarily?");
+            ws_message("Expected %i byte%s to rollback at the end of line offset 0x%0X in packet %u.", rollback, plurality(rollback, "", "s"), curr_offset - line_size, info_p->num_packets_read);
             unwrite_bytes(line_size);
         }
     }
@@ -1392,6 +1444,7 @@ parse_token(token_t token, char *str)
             process_directive(str);
             break;
         case T_OFFSET:
+        case T_BYTES:
             if (offset_base == 0) {
                 append_to_preamble(str);
                 /* If we're still in the INIT state, maybe there's something
@@ -1471,6 +1524,7 @@ parse_token(token_t token, char *str)
             process_directive(str);
             break;
         case T_OFFSET:
+        case T_BYTES:
             if (offset_base == 0) {
                 /* After starting the packet there's no point adding it to
                  * the preamble in this mode (we only do one packet.)
@@ -1517,8 +1571,7 @@ parse_token(token_t token, char *str)
                  * units instead of individual bytes. They will zero pad
                  * the last byte group, and the offset on the extra line
                  * is used to remove the excess null bytes. This also
-                 * works for that case (though we don't handle multiple
-                 * byte groups yet, #16193).
+                 * works for that case.
                  *
                  * In both of the above cases, the true offset should be
                  * between the previous line offset start and the current
@@ -1588,6 +1641,11 @@ parse_token(token_t token, char *str)
             if (write_byte(str) != IMPORT_SUCCESS)
                 return IMPORT_FAILURE;
             break;
+        case T_BYTES:
+            state = READ_BYTE;
+            if (write_bytes(str) != IMPORT_SUCCESS)
+                return IMPORT_FAILURE;
+            break;
         case T_TEXT:
         case T_DIRECTIVE:
         case T_OFFSET:
@@ -1611,6 +1669,10 @@ parse_token(token_t token, char *str)
         case T_BYTE:
             /* Record the byte */
             if (write_byte(str) != IMPORT_SUCCESS)
+                return IMPORT_FAILURE;
+            break;
+        case T_BYTES:
+            if (write_bytes(str) != IMPORT_SUCCESS)
                 return IMPORT_FAILURE;
             break;
         case T_TEXT:

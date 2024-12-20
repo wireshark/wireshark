@@ -100,6 +100,7 @@
 #include "wiretap/pcap-encap.h"
 
 #define LONGOPT_COMPRESS                LONGOPT_BASE_APPLICATION+1
+#define LONGOPT_LITTLE_ENDIAN           LONGOPT_BASE_APPLICATION+2
 
 /*--- Options --------------------------------------------------------------------*/
 
@@ -390,6 +391,7 @@ parse_options(int argc, char *argv[], text_import_info_t * const info, wtap_dump
         {"help", ws_no_argument, NULL, 'h'},
         {"version", ws_no_argument, NULL, 'v'},
         {"compress", ws_required_argument, NULL, LONGOPT_COMPRESS},
+        {"little-endian", ws_no_argument, NULL, LONGOPT_LITTLE_ENDIAN},
         {0, 0, 0, 0 }
     };
     const char *interface_name = NULL;
@@ -745,6 +747,10 @@ parse_options(int argc, char *argv[], text_import_info_t * const info, wtap_dump
                 list_output_compression_types();
                 return WS_EXIT_INVALID_OPTION;
             }
+            break;
+
+        case LONGOPT_LITTLE_ENDIAN:
+            info->hexdump.little_endian = true;
             break;
 
         case '?':

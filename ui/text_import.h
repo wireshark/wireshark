@@ -75,6 +75,7 @@ typedef struct
         enum offset_type offset_type;
         bool has_direction;
         bool identify_ascii;
+        bool little_endian;
     } hexdump;
     struct {
         GMappedFile* import_text_GMappedFile;

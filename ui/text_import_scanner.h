@@ -23,6 +23,7 @@ extern "C" {
 
 typedef enum {
     T_BYTE = 1,
+    T_BYTES,
     T_OFFSET,
     T_DIRECTIVE,
     T_TEXT,

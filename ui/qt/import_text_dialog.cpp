@@ -232,6 +232,7 @@ void ImportTextDialog::applyDialogSettings()
     }
     ti_ui_->directionIndicationCheckBox->setChecked(settings["hexdump.hasDirection"].toBool());
     ti_ui_->asciiIdentificationCheckBox->setChecked(settings["hexdump.identifyAscii"].toBool());
+    ti_ui_->littleEndianCheckBox->setChecked(settings["hexdump.littleEndian"].toBool());
 
     // Regular Expression
     ti_ui_->regexTextEdit->setText(settings["regex.format"].toString());
@@ -325,6 +326,7 @@ void ImportTextDialog::storeDialogSettings()
     }
     settings["hexdump.hasDirection"] = ti_ui_->directionIndicationCheckBox->isChecked();
     settings["hexdump.identifyAscii"] = ti_ui_->asciiIdentificationCheckBox->isChecked();
+    settings["hexdump.littleEndian"] = ti_ui_->littleEndianCheckBox->isChecked();
 
     // Regular Expression
     settings["regex.format"] = ti_ui_->regexTextEdit->toPlainText();
@@ -682,6 +684,7 @@ void ImportTextDialog::on_modeTabWidget_currentChanged(int index) {
         memset(&import_info_.hexdump, 0, sizeof(import_info_.hexdump));
         on_directionIndicationCheckBox_toggled(ti_ui_->directionIndicationCheckBox->isChecked());
         on_asciiIdentificationCheckBox_toggled(ti_ui_->asciiIdentificationCheckBox->isChecked());
+        on_littleEndianCheckBox_toggled(ti_ui_->littleEndianCheckBox->isChecked());
         enableFieldWidgets(false, true);
         break;
       case 1:
@@ -715,6 +718,11 @@ void ImportTextDialog::on_directionIndicationCheckBox_toggled(bool checked)
 void ImportTextDialog::on_asciiIdentificationCheckBox_toggled(bool checked)
 {
     import_info_.hexdump.identify_ascii = checked;
+}
+
+void ImportTextDialog::on_littleEndianCheckBox_toggled(bool checked)
+{
+    import_info_.hexdump.little_endian = checked;
 }
 
 /*******************************************************************************

@@ -128,6 +128,11 @@ The following features are either new or have been significantly updated since v
 
 * The `ethers` file can also contain EUI-64 to name mappings. wsbuglink:15487[]
 
+* Wireshark "Import from Hex Dump" and text2pcap support byte groups with 2 to
+  4 bytes (with an option for little-endian byte order), and support hexadecimal
+  offsets with a `0x` or `0X` prefix (as produced by `tcpdump -x`, among others).
+  wsbuglink:16193[]
+
 // === Removed Features and Support
 
 
