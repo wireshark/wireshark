@@ -3070,31 +3070,31 @@ CSN_DESCR_END  (Ext_Channel_Request_desc_t)
 static const
 CSN_DESCR_BEGIN(EGPRS_BEP_LinkQualityMeasurements_type2_t)
 
-  M_NEXT_EXIST (EGPRS_BEP_LinkQualityMeasurements_type2_t, Exist_GMSK_MEAN_BEP, 1, &hf_egprs_prr_additionsr7_gmsk_mean_bep_exist),
+  M_NEXT_EXIST (EGPRS_BEP_LinkQualityMeasurements_type2_t, Exist_GMSK_MEAN_BEP, 2, &hf_egprs_prr_additionsr7_gmsk_mean_bep_exist),
   M_UINT       (EGPRS_BEP_LinkQualityMeasurements_type2_t,  GMSK_MEAN_BEP,  5, &hf_egprs_prr_additionsr7_gmsk_mean_bep),
   M_UINT       (EGPRS_BEP_LinkQualityMeasurements_type2_t,  GMSK_CV_BEP, 3, &hf_egprs_prr_additionsr7_gmsk_cv_bep),
 
-  M_NEXT_EXIST (EGPRS_BEP_LinkQualityMeasurements_type2_t, Exist_8PSK_MEAN_BEP, 1, &hf_egprs_prr_additionsr7_8psk_mean_bep_exist),
+  M_NEXT_EXIST (EGPRS_BEP_LinkQualityMeasurements_type2_t, Exist_8PSK_MEAN_BEP, 2, &hf_egprs_prr_additionsr7_8psk_mean_bep_exist),
   M_UINT       (EGPRS_BEP_LinkQualityMeasurements_type2_t,  p8PSK_MEAN_BEP,  5, &hf_egprs_prr_additionsr7_8psk_mean_bep),
   M_UINT       (EGPRS_BEP_LinkQualityMeasurements_type2_t,  p8PSK_CV_BEP, 3, &hf_egprs_prr_additionsr7_8psk_cv_bep),
 
-  M_NEXT_EXIST (EGPRS_BEP_LinkQualityMeasurements_type2_t, Exist_QPSK_MEAN_BEP, 1, &hf_egprs_prr_additionsr7_qpsk_mean_bep_exist),
+  M_NEXT_EXIST (EGPRS_BEP_LinkQualityMeasurements_type2_t, Exist_QPSK_MEAN_BEP, 2, &hf_egprs_prr_additionsr7_qpsk_mean_bep_exist),
   M_UINT       (EGPRS_BEP_LinkQualityMeasurements_type2_t,  QPSK_MEAN_BEP,  5, &hf_egprs_prr_additionsr7_qpsk_mean_bep),
   M_UINT       (EGPRS_BEP_LinkQualityMeasurements_type2_t,  QPSK_CV_BEP, 3, &hf_egprs_prr_additionsr7_qpsk_cv_bep),
 
-  M_NEXT_EXIST (EGPRS_BEP_LinkQualityMeasurements_type2_t, Exist_16QAM_NSR_MEAN_BEP, 1, &hf_egprs_prr_additionsr7_16qam_nsr_mean_bep_exist),
+  M_NEXT_EXIST (EGPRS_BEP_LinkQualityMeasurements_type2_t, Exist_16QAM_NSR_MEAN_BEP, 2, &hf_egprs_prr_additionsr7_16qam_nsr_mean_bep_exist),
   M_UINT       (EGPRS_BEP_LinkQualityMeasurements_type2_t,  p16QAM_NSR_MEAN_BEP,  5, &hf_egprs_prr_additionsr7_16qam_nsr_mean_bep),
   M_UINT       (EGPRS_BEP_LinkQualityMeasurements_type2_t,  p16QAM_NSR_CV_BEP, 3, &hf_egprs_prr_additionsr7_16qam_nsr_cv_bep),
 
-  M_NEXT_EXIST (EGPRS_BEP_LinkQualityMeasurements_type2_t, Exist_32QAM_NSR_MEAN_BEP, 1, &hf_egprs_prr_additionsr7_32qam_nsr_mean_bep_exist),
+  M_NEXT_EXIST (EGPRS_BEP_LinkQualityMeasurements_type2_t, Exist_32QAM_NSR_MEAN_BEP, 2, &hf_egprs_prr_additionsr7_32qam_nsr_mean_bep_exist),
   M_UINT       (EGPRS_BEP_LinkQualityMeasurements_type2_t,  p32QAM_NSR_MEAN_BEP,  5, &hf_egprs_prr_additionsr7_32qam_nsr_mean_bep),
   M_UINT       (EGPRS_BEP_LinkQualityMeasurements_type2_t,  p32QAM_NSR_CV_BEP, 3, &hf_egprs_prr_additionsr7_32qam_nsr_cv_bep),
 
-  M_NEXT_EXIST (EGPRS_BEP_LinkQualityMeasurements_type2_t, Exist_16QAM_HSR_MEAN_BEP, 1, &hf_egprs_prr_additionsr7_16qam_hsr_mean_bep_exist),
+  M_NEXT_EXIST (EGPRS_BEP_LinkQualityMeasurements_type2_t, Exist_16QAM_HSR_MEAN_BEP, 2, &hf_egprs_prr_additionsr7_16qam_hsr_mean_bep_exist),
   M_UINT       (EGPRS_BEP_LinkQualityMeasurements_type2_t,  p16QAM_HSR_MEAN_BEP,  5, &hf_egprs_prr_additionsr7_16qam_hsr_mean_bep),
   M_UINT       (EGPRS_BEP_LinkQualityMeasurements_type2_t,  p16QAM_HSR_CV_BEP, 3, &hf_egprs_prr_additionsr7_16qam_hsr_cv_bep),
 
-  M_NEXT_EXIST (EGPRS_BEP_LinkQualityMeasurements_type2_t, Exist_32QAM_HSR_MEAN_BEP, 1, &hf_egprs_prr_additionsr7_32qam_hsr_mean_bep_exist),
+  M_NEXT_EXIST (EGPRS_BEP_LinkQualityMeasurements_type2_t, Exist_32QAM_HSR_MEAN_BEP, 2, &hf_egprs_prr_additionsr7_32qam_hsr_mean_bep_exist),
   M_UINT       (EGPRS_BEP_LinkQualityMeasurements_type2_t,  p32QAM_HSR_MEAN_BEP,  5, &hf_egprs_prr_additionsr7_32qam_hsr_mean_bep),
   M_UINT       (EGPRS_BEP_LinkQualityMeasurements_type2_t,  p32QAM_HSR_CV_BEP, 3, &hf_egprs_prr_additionsr7_32qam_hsr_cv_bep),
 
