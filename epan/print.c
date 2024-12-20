@@ -1341,6 +1341,12 @@ ek_write_field_value(field_info *fi, write_json_data* pdata)
                 json_dumper_value_anyf(pdata->dumper, "false");
             break;
         case FT_ABSOLUTE_TIME:
+            if (fi->hfinfo->display == ABSOLUTE_TIME_UNIX)
+            {
+                nstime_to_unix(time_buf, sizeof(time_buf), fvalue_get_time(fi->value));
+                json_dumper_value_anyf(pdata->dumper, "\"%s\"", time_buf);
+                break;
+            }
             time_len = nstime_to_iso8601(time_buf, sizeof(time_buf), fvalue_get_time(fi->value));
             if (time_len != 0) {
                 json_dumper_value_anyf(pdata->dumper, "\"%s\"", time_buf);
