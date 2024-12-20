@@ -57,7 +57,7 @@ hexdumps of application-level data only.
 The *-F* flag can be used to specify the format in which to write the
 capture file, *text2pcap -F* provides a list of the available output
 formats. By default, it writes the packets to __outfile__ in the *pcapng*
-file format. *Text2cap* also supports compression formats, which can
+file format. *Text2pcap* also supports compression formats, which can
 be specified with the *--compress* options. If that option is not given,
 the the desired compression method, if any, is deduced from the extension
 of __outfile__; e.g. if it has the extension '.gz', then the output file
