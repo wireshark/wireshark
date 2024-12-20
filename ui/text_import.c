@@ -1317,21 +1317,35 @@ parse_token(token_t token, char *str)
                 return IMPORT_FAILURE;
             if (num == 0) {
                 /* New packet starts here */
+                /* XXX - This could just be any other run of three or more
+                 * zeros.
+                 */
                 if (start_new_packet(false) != IMPORT_SUCCESS)
                     return IMPORT_FAILURE;
                 state = READ_OFFSET;
                 pkt_lnstart = packet_buf + num;
+            } else {
+                /* Not a new packet; assume it's part of a preamble that
+                 * looks like an offset token. (#17140)
+                 */
+                append_to_preamble(str);
             }
             break;
         case T_BYTE:
             if (offset_base == 0) {
+                /* In no offset mode, assume this starts our packet */
                 if (start_new_packet(false) != IMPORT_SUCCESS)
                     return IMPORT_FAILURE;
                 if (write_byte(str) != IMPORT_SUCCESS)
                     return IMPORT_FAILURE;
                 state = READ_BYTE;
                 pkt_lnstart = packet_buf;
+                break;
             }
+            /* Otherwise, this is probably text that looks like a byte,
+             * e.g. a day or month with certain timestamp formats.
+             */
+            append_to_preamble(str);
             break;
         case T_EOF:
             if (write_current_packet(false) != IMPORT_SUCCESS)
@@ -1346,6 +1360,11 @@ parse_token(token_t token, char *str)
     case START_OF_LINE:
         switch(token) {
         case T_TEXT:
+            /* If the only text allowed before an offset on the same line were
+             * mailfwd characters ('>') and blanks, we could ignore those, and
+             * and switch back to INIT state here on other text and decrease
+             * ambiguity.
+             */
             append_to_preamble(str);
             break;
         case T_DIRECTIVE:
@@ -1383,19 +1402,36 @@ parse_token(token_t token, char *str)
                  * it).  If the offset is less than what we expected,
                  * assume that's the problem, and throw away the putative
                  * extra byte values.
+                 *
+                 * XXX - It could be part of a preamble. The most common
+                 * part of a preamble that looks like an offset is the year,
+                 * and it is unlikely that 0x2024 = 8228 is less than the
+                 * expected offset for typical packets. However, there is
+                 * ambiguity, especiially for other possible values.
+                 * We accept 3 digit numbers as offsets.
                  */
                 if (num < curr_offset) {
                     unwrite_bytes(curr_offset - num);
                     state = READ_OFFSET;
                 } else {
                     /* Bad offset; switch to INIT state */
-                    ws_message("Inconsistent offset. Expecting %0X, got %0X. Ignoring rest of packet",
+                    ws_message("Inconsistent offset. Expecting %0X, got %0X. Ending current packet.",
                                 curr_offset, num);
                     if (write_current_packet(false) != IMPORT_SUCCESS)
                         return IMPORT_FAILURE;
+
+                    /* Instead of being an offset, it might be part of the preamble
+                     * that looks like an offset, e.g. a year. (#17140)
+                     */
+                    append_to_preamble(str);
                     state = INIT;
                 }
             } else {
+                /* Continues the previous packet at the correct offset */
+
+                /* Clear Preamble (text in the middle of a packet isn't preamble) */
+                packet_preamble_len = 0;
+
                 state = READ_OFFSET;
             }
             pkt_lnstart = packet_buf + num;
@@ -1406,7 +1442,12 @@ parse_token(token_t token, char *str)
                     return IMPORT_FAILURE;
                 state = READ_BYTE;
                 pkt_lnstart = packet_buf;
+                break;
             }
+            /* Since we expect an offset, assume this is text between packets
+             * that looks like a byte, e.g. a month or day.
+             */
+            append_to_preamble(str);
             break;
         case T_EOF:
             if (write_current_packet(false) != IMPORT_SUCCESS)
