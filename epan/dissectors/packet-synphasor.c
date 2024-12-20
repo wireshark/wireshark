@@ -4,6 +4,7 @@
  * Copyright 2008, Jens Steinhauser <jens.steinhauser@omicron.at>
  * Copyright 2019, Dwayne Rich <dwayne_rich@selinc.com>
  * Copyright 2020, Dmitriy Eliseev <eliseev_d@ntcees.ru>
+ * Copyright 2024, Ivan Ugryumov <ugrumov.i@yandex.ru>
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -193,7 +194,7 @@ enum FrameType {
 /* Structures to save CFG frame content. */
 
 /* type to indicate the format for (D)FREQ/PHASORS/ANALOG in data frame	 */
-typedef enum {	integer,	/* 16 bit signed integer */
+typedef enum {	integer,	/* 16-bit signed integer */
 	       floating_point	/* single precision floating point */
 } data_format;
 
@@ -571,14 +572,9 @@ static config_frame *config_frame_fast(tvbuff_t *tvb)
 	offset += 2;
 
 	while (num_pmu) {
-		uint16_t	     format_flags;
-		int	     num_ph,
-			     num_an,
-			     num_dg;
-		int	     i,
-			     phunit,
-			     anunit,
-			     fnom;
+		uint16_t	format_flags;
+		uint16_t	i, num_ph, num_an, num_dg;
+		int	        phunit, anunit, fnom;
 		config_block block;
 
 		/* initialize the block */
@@ -668,7 +664,7 @@ static config_frame *config_frame_fast(tvbuff_t *tvb)
 static config_frame * config_3_frame_fast(tvbuff_t *tvb)
 {
 	uint16_t	      num_pmu;
-	int	      offset;
+    uint16_t	      offset;
 	config_frame *frame;
 	phasor_info  *pi = NULL;
 	analog_info  *ai = NULL;
@@ -699,10 +695,7 @@ static config_frame * config_3_frame_fast(tvbuff_t *tvb)
 	offset += 2;
 	while ((num_pmu) && (frame_not_fragmented)) {
 		uint16_t	     format_flags;
-		int	     num_ph,
-			     num_an,
-			     num_dg;
-		int	     i;
+		uint16_t	     i, num_ph, num_an, num_dg;
 		uint8_t	     name_length;
 		config_block block;
 
@@ -1435,7 +1428,7 @@ static int dissect_config_3_CHNAM(tvbuff_t *tvb, proto_tree *tree, int offset, i
 static int dissect_config_frame(tvbuff_t *tvb, proto_item *config_item)
 {
 	proto_tree *config_tree;
-	int	    offset = 0;
+    uint16_t	    offset = 0;
 	uint16_t	    num_pmu, j;
 
 	proto_item_set_text   (config_item, "Configuration data");
@@ -1457,7 +1450,7 @@ static int dissect_config_frame(tvbuff_t *tvb, proto_item *config_item)
 		proto_tree *temp_tree;
 		char	   *str;
 
-		int oldoffset = offset; /* to calculate the length of the whole PMU block later */
+		uint16_t old_offset = offset; /* to calculate the length of the whole PMU block later */
 
 		/* STN with new tree to add the rest of the PMU block */
 		str = (char *)tvb_get_string_enc(wmem_packet_scope(), tvb, offset, CHNAM_LEN, ENC_ASCII);
@@ -1502,7 +1495,7 @@ static int dissect_config_frame(tvbuff_t *tvb, proto_item *config_item)
 		proto_tree_add_item(station_tree, hf_conf_cfgcnt, tvb, offset, 2, ENC_BIG_ENDIAN); offset += 2;
 
 		/* set the correct length for the "Station :" item */
-		proto_item_set_len(station_item, offset - oldoffset);
+		proto_item_set_len(station_item, offset - old_offset);
 	} /* for() PMU blocks */
 
 	/* DATA_RATE */
@@ -1552,7 +1545,7 @@ static int dissect_config_3_frame(tvbuff_t *tvb, proto_item *config_item)
 	for (j = 0; j < num_pmu; j++) {
 		uint16_t   num_ph, num_an, num_dg, i;
 		uint8_t    name_length;
-		int        oldoffset;
+		int        old_offset;
 		float      pmu_lat, pmu_long, pmu_elev;
 		proto_item *station_item;
 		proto_tree *station_tree;
@@ -1561,7 +1554,7 @@ static int dissect_config_3_frame(tvbuff_t *tvb, proto_item *config_item)
 		char       *unspecified_location = "Unspecified Location";
 		uint8_t    g_pmu_id_array[G_PMU_ID_LEN];
 
-		oldoffset = offset; /* to calculate the length of the whole PMU block later */
+        old_offset = offset; /* to calculate the length of the whole PMU block later */
 
 		/* STN with new tree to add the rest of the PMU block */
 		name_length = get_name_length(tvb, offset);
@@ -1694,7 +1687,7 @@ static int dissect_config_3_frame(tvbuff_t *tvb, proto_item *config_item)
 		offset += 2;
 
 		/* set the correct length for the "Station :" item */
-		proto_item_set_len(station_item, offset - oldoffset);
+		proto_item_set_len(station_item, offset - old_offset);
 	} /* for() PMU blocks */
 
 	/* DATA_RATE */
@@ -1727,7 +1720,7 @@ static int dissect_data_frame(tvbuff_t	  *tvb,
 			      packet_info *pinfo)     /* used to find the data from a CFG-2 or CFG-3 frame */
 {
 	proto_tree	*data_tree;
-	int		offset	 = 0;
+	uint16_t		offset	 = 0;
 	unsigned		i;
 	config_frame	*conf;
 
@@ -1918,7 +1911,7 @@ static int dissect_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
 		proto_item *temp_item;
 		proto_item *sub_item;
 
-		int	    offset;
+		uint16_t	    offset;
 		uint16_t	    framesize;
 		tvbuff_t   *sub_tvb;
 		bool       crc_good;
@@ -1962,7 +1955,7 @@ static int dissect_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
 					dissect_command_frame(sub_tvb, sub_item, pinfo);
 					break;
 				case CFG3:
-					/* Note:  The C37.118-2.2001 stanadard is vague on how to handle fragmented frames.
+					/* Note:  The C37.118-2.2001 standard is vague on how to handle fragmented frames.
 						  Until further clarification is given, fragmented frames with the CONT_IDX
 						  are not supported. */
 					if (tvb_get_uint16(tvb, offset, ENC_BIG_ENDIAN) != 0) {
