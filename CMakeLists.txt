@@ -95,6 +95,23 @@ else()
 	find_package(Python3 3.6 REQUIRED)
 endif()
 
+# Strawberry is a web browser away from being its own operating system. Find
+# Perl before finding anything else so that we can avoid building with any of
+# of Strawberry's components.
+find_package(Perl)
+if(WIN32 AND PERL_EXECUTABLE)
+	string(TOLOWER ${PERL_EXECUTABLE} lower_perl)
+	if (${lower_perl} MATCHES "^.:/strawberry/")
+		string(REGEX REPLACE "^(.:/[^/]+).*" "\\1" strawberry_prefix ${PERL_EXECUTABLE})
+		# CMAKE_IGNORE_PREFIX_PATH must be an exact installation prefix.
+		list(APPEND CMAKE_IGNORE_PREFIX_PATH "${strawberry_prefix}/c")
+		message(STATUS "Added ${strawberry_prefix}/c to CMAKE_IGNORE_PREFIX_PATH")
+		unset(lower_perl)
+		unset(strawberry_prefix)
+	endif()
+endif()
+
+
 # Set a default build type if none was specified
 set(_default_build_type "RelWithDebInfo")
 if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
@@ -1206,7 +1223,6 @@ if (CARES_VERSION VERSION_GREATER_EQUAL "1.28.0")
 	add_compile_definitions(CARES_NO_DEPRECATED)
 endif ()
 find_package(LEX REQUIRED)
-find_package(Perl)
 find_package(PCRE2 REQUIRED)
 
 if (NOT WIN32)
