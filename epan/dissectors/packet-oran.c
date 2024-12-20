@@ -22,9 +22,12 @@
 #include <epan/packet.h>
 #include <epan/expert.h>
 #include <epan/prefs.h>
+#include <epan/tap.h>
 
 #include <epan/tfs.h>
 #include <wsutil/array.h>
+
+#include "epan/dissectors/packet-oran.h"
 
 /* N.B. dissector preferences are taking the place of (some) M-plane parameters, so unfortunately it can be
  * fiddly to get the preferences into a good state to decode a given capture..
@@ -48,6 +51,8 @@ void proto_register_oran(void);
 
 /* Initialize the protocol and registered fields */
 static int proto_oran;
+
+static int oran_tap = -1;
 
 static int hf_oran_du_port_id;
 static int hf_oran_bandsector_id;
@@ -600,22 +605,6 @@ static const range_string filter_indices[] = {
     {0, 0, NULL}
 };
 
-/* Section types from Table 7.3.1-1 */
-enum section_c_types {
-    SEC_C_UNUSED_RB = 0,
-    SEC_C_NORMAL = 1,
-    SEC_C_RSVD2 = 2,
-    SEC_C_PRACH = 3,
-    SEC_C_SLOT_CONTROL = 4,
-    SEC_C_UE_SCHED = 5,
-    SEC_C_CH_INFO = 6,
-    SEC_C_LAA = 7,
-    SEC_C_ACK_NACK_FEEDBACK = 8,
-    SEC_C_SINR_REPORTING = 9,
-    SEC_C_RRM_MEAS_REPORTS = 10,
-    SEC_C_REQUEST_RRM_MEAS = 11
-};
-
 static const range_string section_types[] = {
     { SEC_C_UNUSED_RB,         SEC_C_UNUSED_RB,         "Unused Resource Blocks or symbols in Downlink or Uplink" },
     { SEC_C_NORMAL,            SEC_C_NORMAL,            "Most DL/UL radio channels" },
@@ -789,7 +778,6 @@ static const value_string exttype_vals[] = {
 
 /**************************************************************************************/
 /* Keep track for each Section Extension, which section types are allowed to carry it */
-#define HIGHEST_EXTTYPE 27
 typedef struct {
     bool ST0;
     bool ST1;
@@ -1937,7 +1925,7 @@ static unsigned dissect_csf(proto_item *tree, tvbuff_t *tvb, unsigned bit_offset
  * N.B. these are the green parts of the tables showing Section Types, differing by section Type */
 static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
                                   flow_state_t* state,
-                                  uint32_t sectionType, proto_item *protocol_item,
+                                  uint32_t sectionType, oran_tap_info *tap_info, proto_item *protocol_item,
                                   uint32_t subframeId, uint32_t slotId,
                                   uint8_t ci_iq_width, uint8_t ci_comp_meth, unsigned ci_comp_opt,
                                   unsigned num_sinr_per_prb)
@@ -1950,6 +1938,10 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
     sectionHeading = proto_tree_add_string_format(tree, hf_oran_c_section,
                                                   tvb, offset, 0, "", "Section");
     c_section_tree = proto_item_add_subtree(sectionHeading, ett_oran_c_section);
+
+    if (sectionType <= SEC_C_REQUEST_RRM_MEAS) {
+        tap_info->section_types[sectionType] = true;
+    }
 
     uint32_t sectionId = 0;
 
@@ -2276,6 +2268,10 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
         proto_item_append_text(sectionHeading, " (ext-%u)", exttype);
 
         proto_item_append_text(extension_ti, " (ext-%u: %s)", exttype, val_to_str_const(exttype, exttype_vals, "Reserved"));
+
+        if (exttype <= HIGHEST_EXTTYPE) {
+            tap_info->extensions[exttype] = true;
+        }
 
         /* Is this SE allowed for this section type? */
         if (!se_allowed_in_st(exttype, sectionType)) {
@@ -4157,7 +4153,8 @@ static void show_link_to_acknack_response(proto_tree *tree, tvbuff_t *tvb, packe
 
 
 /* Control plane dissector (section 7). */
-static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo,
+                          proto_tree *tree, oran_tap_info *tap_info, void *data _U_)
 {
     /* Hidden filter for plane */
     proto_item *plane_ti = proto_tree_add_item(tree, hf_oran_cplane, tvb, 0, 0, ENC_NA);
@@ -4169,6 +4166,8 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "O-RAN-FH-C");
     col_set_str(pinfo->cinfo, COL_INFO, "C-Plane");
 
+    tap_info->userplane = false;
+
     /* Create display subtree for the protocol */
     proto_item *protocol_item = proto_tree_add_item(tree, proto_oran, tvb, 0, -1, ENC_NA);
     proto_item_append_text(protocol_item, "-C");
@@ -4176,6 +4175,7 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
 
     uint16_t eAxC;
     addPcOrRtcid(tvb, oran_tree, &offset, hf_oran_ecpri_rtcid, &eAxC);
+    tap_info->eaxc = eAxC;
 
     /* Message identifier */
     uint8_t seq_id;
@@ -4198,6 +4198,7 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
     /* dataDirection */
     uint32_t direction = 0;
     proto_tree_add_item_ret_uint(section_tree, hf_oran_data_direction, tvb, offset, 1, ENC_NA, &direction);
+    tap_info->uplink = (direction==0);
 
     /* Look up any existing conversation state for eAxC+plane */
     uint32_t key = make_flow_key(eAxC, ORAN_C_PLANE);
@@ -5077,7 +5078,8 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
     /* Dissect each C section */
     for (uint32_t i = 0; i < nSections; ++i) {
         tvbuff_t *section_tvb = tvb_new_subset_length_caplen(tvb, offset, -1, -1);
-        offset += dissect_oran_c_section(section_tvb, oran_tree, pinfo, state, sectionType, protocol_item,
+        offset += dissect_oran_c_section(section_tvb, oran_tree, pinfo, state, sectionType, tap_info,
+                                         protocol_item,
                                          subframeId, slotId,
                                          bit_width, ci_comp_method, ci_comp_opt,
                                          num_sinr_per_prb);
@@ -5171,7 +5173,8 @@ static bool udcomplen_appears_present(bool udcomphdr_present, tvbuff_t *tvb, int
 
 /* User plane dissector (section 8) */
 static int
-dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+               oran_tap_info *tap_info, void *data _U_)
 {
     /* Hidden filter for plane */
     proto_item *plane_ti = proto_tree_add_item(tree, hf_oran_uplane, tvb, 0, 0, ENC_NA);
@@ -5183,6 +5186,8 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "O-RAN-FH-U");
     col_set_str(pinfo->cinfo, COL_INFO, "U-Plane");
 
+    tap_info->userplane = true;
+
     /* Create display subtree for the protocol */
     proto_item *protocol_item = proto_tree_add_item(tree, proto_oran, tvb, 0, -1, ENC_NA);
     proto_item_append_text(protocol_item, "-U");
@@ -5192,6 +5197,7 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
     /* Real-time control data / IQ data transfer message series identifier */
     uint16_t eAxC;
     addPcOrRtcid(tvb, oran_tree, &offset, hf_oran_ecpri_pcid, &eAxC);
+    tap_info->eaxc = eAxC;
 
     /* Message identifier */
     uint8_t seq_id;
@@ -5206,6 +5212,7 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
     /* dataDirection */
     uint32_t direction;
     proto_tree_add_item_ret_uint(timing_header_tree, hf_oran_data_direction, tvb, offset, 1, ENC_NA, &direction);
+    tap_info->uplink = (direction==0);
     /* payloadVersion */
     dissect_payload_version(timing_header_tree, tvb, pinfo, offset);
     /* filterIndex */
@@ -5619,17 +5626,26 @@ static int
 dissect_oran(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     uint32_t ecpri_message_type = *(uint32_t *)data;
+    int offset = 0;
+
+    /* Allocate and zero tap struct */
+    oran_tap_info *tap_info = wmem_new0(wmem_file_scope(), oran_tap_info);
 
     switch (ecpri_message_type) {
         case ECPRI_MT_IQ_DATA:
-            return dissect_oran_u(tvb, pinfo, tree, data);
+            offset = dissect_oran_u(tvb, pinfo, tree, tap_info, data);
+            break;
         case ECPRI_MT_RT_CTRL_DATA:
-            return dissect_oran_c(tvb, pinfo, tree, data);
-
+            offset = dissect_oran_c(tvb, pinfo, tree, tap_info, data);
+            break;
         default:
             /* Not dissecting other types - assume these are handled by eCPRI dissector */
             return 0;
     }
+
+    tap_queue_packet(oran_tap, pinfo, tap_info);
+
+    return offset;
 }
 
 static void oran_init_protocol(void)
@@ -8086,6 +8102,9 @@ proto_register_oran(void)
 
     /* Allow dissector to find be found by name. */
     register_dissector("oran_fh_cus", dissect_oran, proto_oran);
+
+    /* Register the tap name. */
+    oran_tap = register_tap("oran-fh-cus");
 
     /* Required function calls to register the header fields and subtrees */
     proto_register_field_array(proto_oran, hf, array_length(hf));
