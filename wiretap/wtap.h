@@ -1445,8 +1445,18 @@ typedef struct wtap_rec {
         wtap_custom_block_header custom_block_header;
     } rec_header;
 
-    wtap_block_t block ;         /* packet block; holds comments and verdicts in its options */
-    bool block_was_modified; /* true if ANY aspect of the block has been modified */
+    /*
+     * XXX - some if not all of the rec_header information may belong
+     * here, or may already be here.  Eliminating rec_header in favor
+     * of this might simplify the process of adding new record/block
+     * types.
+     *
+     * It also has a type field that's somewhat equivalent to rec_type.
+     *
+     * It's null for some record types.
+     */
+    wtap_block_t block;          /* block information */
+    bool block_was_modified;     /* true if ANY aspect of the block has been modified */
 
     /*
      * We use a Buffer so that we don't have to allocate and free

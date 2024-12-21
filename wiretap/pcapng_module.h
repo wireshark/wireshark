@@ -76,10 +76,10 @@ typedef struct wtapng_block_s {
  * BBLog blocks and options.
  */
 typedef struct section_info_t {
-    bool byte_swapped;        /**< true if this section is not in our byte order */
+    bool byte_swapped;             /**< true if this section is not in the reading host's byte order */
     uint16_t version_major;        /**< Major version number of this section */
     uint16_t version_minor;        /**< Minor version number of this section */
-    GArray *interfaces;           /**< Interfaces found in this section */
+    GArray *interfaces;            /**< Interfaces found in this section */
     int64_t shb_off;               /**< File offset of the SHB for this section */
     uint32_t bblog_version;        /**< BBLog: version used */
     uint64_t bblog_offset_tv_sec;  /**< BBLog: UTC offset */
@@ -90,11 +90,10 @@ typedef struct section_info_t {
  * Reader and writer routines for pcapng block types.
  */
 typedef bool (*block_reader)(FILE_T fh, uint32_t block_read,
-                                 bool byte_swapped,
-                                 wtapng_block_t *wblock,
-                                 int *err, char **err_info);
+                             bool byte_swapped, wtapng_block_t *wblock,
+                             int *err, char **err_info);
 typedef bool (*block_writer)(wtap_dumper *wdh, const wtap_rec *rec,
-                                 const uint8_t *pd, int *err);
+                             const uint8_t *pd, int *err);
 
 /*
  * Register a handler for a pcapng block type.
@@ -106,14 +105,13 @@ void register_pcapng_block_type_handler(unsigned block_type, block_reader reader
 /*
  * Handler routines for pcapng option type.
  */
-typedef bool (*option_parser)(wtap_block_t block,
-                                  bool byte_swapped,
-                                  unsigned option_length,
-                                  const uint8_t *option_content,
-                                  int *err, char **err_info);
+typedef bool (*option_parser)(wtap_block_t block, bool byte_swapped,
+                              unsigned option_length,
+                              const uint8_t *option_content,
+                              int *err, char **err_info);
 typedef uint32_t (*option_sizer)(unsigned option_id, wtap_optval_t *optval);
 typedef bool (*option_writer)(wtap_dumper *wdh, unsigned option_id,
-                  wtap_optval_t *optval, int *err);
+                              wtap_optval_t *optval, int *err);
 
 /*
  * Register a handler for a pcapng option code for a particular block
@@ -153,15 +151,15 @@ typedef enum {
  */
 WS_DLL_PUBLIC
 bool pcapng_process_options(FILE_T fh, wtapng_block_t *wblock,
-                                section_info_t *section_info,
-                                unsigned opt_cont_buf_len,
-                                bool (*process_option)(wtapng_block_t *,
-                                                           const section_info_t *,
-                                                           uint16_t, uint16_t,
-                                                           const uint8_t *,
-                                                           int *, char **),
-                                pcapng_opt_byte_order_e byte_order,
-                                int *err, char **err_info);
+                            section_info_t *section_info,
+                            unsigned opt_cont_buf_len,
+                            bool (*process_option)(wtapng_block_t *,
+                                                   const section_info_t *,
+                                                   uint16_t, uint16_t,
+                                                   const uint8_t *,
+                                                   int *, char **),
+                            pcapng_opt_byte_order_e byte_order,
+                            int *err, char **err_info);
 
 /*
  * Helper routines to process options with types used in more than one

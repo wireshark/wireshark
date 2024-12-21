@@ -1180,7 +1180,6 @@ pcapng_process_options(FILE_T fh, wtapng_block_t *wblock,
                     return false;
                 }
                 break;
-
             default:
                 if (process_option == NULL ||
                     !(*process_option)(wblock, (const section_info_t *)section_info, option_code,
@@ -1189,6 +1188,7 @@ pcapng_process_options(FILE_T fh, wtapng_block_t *wblock,
                     g_free(option_content);
                     return false;
                 }
+                break;
         }
         option_ptr += rounded_option_length; /* multiple of 4 bytes, so it remains aligned */
         opt_bytes_remaining -= rounded_option_length;
