@@ -663,8 +663,8 @@ static config_frame *config_frame_fast(tvbuff_t *tvb)
  */
 static config_frame * config_3_frame_fast(tvbuff_t *tvb)
 {
-	uint16_t	      num_pmu;
-    uint16_t	      offset;
+    uint16_t	      num_pmu;
+    int	      offset;
 	config_frame *frame;
 	phasor_info  *pi = NULL;
 	analog_info  *ai = NULL;
@@ -1428,7 +1428,7 @@ static int dissect_config_3_CHNAM(tvbuff_t *tvb, proto_tree *tree, int offset, i
 static int dissect_config_frame(tvbuff_t *tvb, proto_item *config_item)
 {
 	proto_tree *config_tree;
-    uint16_t	    offset = 0;
+    int	    offset = 0;
 	uint16_t	    num_pmu, j;
 
 	proto_item_set_text   (config_item, "Configuration data");
@@ -1450,7 +1450,7 @@ static int dissect_config_frame(tvbuff_t *tvb, proto_item *config_item)
 		proto_tree *temp_tree;
 		char	   *str;
 
-		uint16_t old_offset = offset; /* to calculate the length of the whole PMU block later */
+		int old_offset = offset; /* to calculate the length of the whole PMU block later */
 
 		/* STN with new tree to add the rest of the PMU block */
 		str = (char *)tvb_get_string_enc(wmem_packet_scope(), tvb, offset, CHNAM_LEN, ENC_ASCII);
@@ -1720,7 +1720,7 @@ static int dissect_data_frame(tvbuff_t	  *tvb,
 			      packet_info *pinfo)     /* used to find the data from a CFG-2 or CFG-3 frame */
 {
 	proto_tree	*data_tree;
-	uint16_t		offset	 = 0;
+    int		offset	 = 0;
 	unsigned		i;
 	config_frame	*conf;
 
@@ -1902,7 +1902,7 @@ static int dissect_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
 		if (conversation) {
 			config_frame *conf = (config_frame *)conversation_get_proto_data(conversation, proto_synphasor);
 			/* no problem if 'conf' is NULL, the frame dissector checks this again */
-		p_add_proto_data(wmem_file_scope(), pinfo, proto_synphasor, 0, conf);
+		    p_add_proto_data(wmem_file_scope(), pinfo, proto_synphasor, 0, conf);
 		}
 	} /* if (!visited) */
 
@@ -1911,7 +1911,7 @@ static int dissect_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
 		proto_item *temp_item;
 		proto_item *sub_item;
 
-		uint16_t	    offset;
+        int	    offset;
 		uint16_t	    framesize;
 		tvbuff_t   *sub_tvb;
 		bool       crc_good;
