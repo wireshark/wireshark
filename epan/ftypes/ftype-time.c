@@ -459,7 +459,6 @@ absolute_val_to_repr(wmem_allocator_t *scope, const fvalue_t *fv, ftrepr_t rtype
 
 	switch (rtype) {
 		case FTREPR_DISPLAY:
-		case FTREPR_JSON:
 		case FTREPR_RAW:
 			break;
 
@@ -478,6 +477,21 @@ absolute_val_to_repr(wmem_allocator_t *scope, const fvalue_t *fv, ftrepr_t rtype
 				field_display = ABSOLUTE_TIME_UTC;
 			}
 			flags |= ABS_TIME_TO_STR_ADD_DQUOTES;
+			flags |= ABS_TIME_TO_STR_ISO8601;
+			break;
+
+		case FTREPR_JSON:
+			/*
+			 * JSON is a data serialization format used primarily
+			 * for machine input (despite the human-readable text)
+			 * and so we use a standard representation regardless
+			 * of human display.
+			 */
+			field_display = ABSOLUTE_TIME_UTC;
+			/* TODO - add quotes here so that write_json_proto_node_value
+			 * in print.c doesn't always add quotes itself, and can write
+			 * booleans and numbers as JSON types.
+			 */
 			flags |= ABS_TIME_TO_STR_ISO8601;
 			break;
 

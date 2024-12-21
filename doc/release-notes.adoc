@@ -42,14 +42,20 @@ The following features are either new or have been significantly updated since v
 //* The Windows installers now ship with Qt 6.5.2.
 //  They previously shipped with Qt 6.2.3.
 
-* The default format for absolute times when output with -T fields, -T json,
-  and the "show" field of -T pdml, or when in custom columns (including CSV
-  output of columns) has been changed to ISO 8601. (This was already the case
-  for -T ek.) For backwards compatibility, a preference has been added,
-  protocols.display_abs_time_ascii. This can be set to continue to format
-  times in a manner similar to asctime. (E.g., Dec 18, 2017 05:28:39.071704055 EST.)
-  This preference can also be set to never use ascii time and to use ISO 8601 time
-  in the protocol tree (Packet Details) as well.
+* Absolute time fields, regardless of field display in the Packet Details,
+  are always written in ISO 8601 format in UTC with -T json. This was already
+  the case for -T ek since version 4.2.0. JSON is primarily a data interchange
+  format read by software, so a standard format is desirable.
+
+* When absolute times field are output with -T fields, the "show" field of -T
+  pdml, or in custom columns (including CSV output of columns), the formatting
+  similar to asctime (e.g., Dec 18, 2017 05:28:39.071704055 EST) has been
+  deprecated in favor of ISO 8601. For backwards compatibility, a preference
+  has been added, protocols.display_abs_time_ascii, which can be set to continue
+  to format times as before. This preference can also be set to never use ASCII
+  time and to use ISO 8601 time formatting in the protocol tree (Packet Details)
+  as well. It is possible that a future release will remove the ascitime style
+  formatting entirely.
 
 * The TShark `-G` option for generating glossary reports does not need to be the
   first option given on the command line anymore. In addition, the reports now
