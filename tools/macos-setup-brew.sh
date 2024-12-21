@@ -164,7 +164,7 @@ if [ $INSTALL_DMG_DEPS -ne 0 ] ; then
 fi
 
 if [ $INSTALL_SPARKLE_DEPS -ne 0 ] ; then
-    brew cask install sparkle
+    brew install --cask sparkle
 fi
 
 if [ $INSTALL_TEST_DEPS -ne 0 ] ; then
