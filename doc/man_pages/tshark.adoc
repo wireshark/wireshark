@@ -1227,28 +1227,31 @@ Create a table that lists all conversations that could be seen in the
 capture.  __type__ specifies the conversation endpoint type for which we
 want to generate the statistics; currently the supported ones are:
 
-  "bluetooth" Bluetooth addresses
-  "dccp"      DCCP/IP socket pairs Both IPv4 and IPv6 are supported
-  "dnp3"      DNP3 addresses
-  "eth"       Ethernet addresses
-  "fc"        Fibre Channel addresses
-  "fddi"      FDDI addresses
-  "ip"        IPv4 addresses
-  "ipv6"      IPv6 addresses
-  "ipx"       IPX addresses
-  "jxta"      JXTA message addresses
-  "mptcp"     Multipath TCP connections
-  "ncp"       NCP connections
-  "rsvp"      RSVP connections
-  "sctp"      SCTP/IP socket pairs Both IPv4 and IPv6 are supported
-  "sll"       Linux "cooked mode" capture addresses
-  "tcp"       TCP/IP socket pairs  Both IPv4 and IPv6 are supported
-  "tr"        Token Ring addresses
-  "udp"       UDP/IP socket pairs  Both IPv4 and IPv6 are supported
-  "usb"       USB addresses
-  "wlan"      IEEE 802.11 addresses
-  "wpan"      IEEE 802.15.4 addresses
-  "zbee_nwk"  ZigBee Network Layer addresses
+  "bluetooth"  Bluetooth addresses
+  "bpv7"       Bundle Protocol Version 7 addresses
+  "dccp"       DCCP/IP socket pairs Both IPv4 and IPv6 are supported
+  "dnp3"       DNP3 addresses
+  "eth"        Ethernet addresses
+  "fc"         Fibre Channel addresses
+  "fddi"       FDDI addresses
+  "ip"         IPv4 addresses
+  "ipv6"       IPv6 addresses
+  "ipx"        IPX addresses
+  "jxta"       JXTA message addresses
+  "ltp"        LTP addresses
+  "mptcp"      Multipath TCP connections
+  "ncp"        NCP connections
+  "openSAFETY" openSAFETY addresses
+  "rsvp"       RSVP connections
+  "sctp"       SCTP/IP socket pairs Both IPv4 and IPv6 are supported
+  "sll"        Linux "cooked mode" capture addresses
+  "tcp"        TCP/IP socket pairs  Both IPv4 and IPv6 are supported
+  "tr"         Token Ring addresses
+  "udp"        UDP/IP socket pairs  Both IPv4 and IPv6 are supported
+  "usb"        USB addresses
+  "wlan"       IEEE 802.11 addresses
+  "wpan"       IEEE 802.15.4 addresses
+  "zbee_nwk"   ZigBee Network Layer addresses
 
 The table is presented with one line for each conversation which displays
 the number of frames/bytes in each direction, the total number of
@@ -1352,28 +1355,31 @@ Create a table that lists all endpoints that could be seen in the
 capture.  __type__ specifies the endpoint type for which we
 want to generate the statistics; currently the supported ones are:
 
-  "bluetooth" Bluetooth addresses
-  "dccp"      DCCP/IP socket pairs Both IPv4 and IPv6 are supported
-  "dnp3"      DNP3 addresses
-  "eth"       Ethernet addresses
-  "fc"        Fibre Channel addresses
-  "fddi"      FDDI addresses
-  "ip"        IPv4 addresses
-  "ipv6"      IPv6 addresses
-  "ipx"       IPX addresses
-  "jxta"      JXTA message addresses
-  "mptcp"     Multipath TCP connections
-  "ncp"       NCP connections
-  "rsvp"      RSVP connections
-  "sctp"      SCTP/IP socket pairs Both IPv4 and IPv6 are supported
-  "sll"       Linux "cooked mode" capture addresses
-  "tcp"       TCP/IP socket pairs  Both IPv4 and IPv6 are supported
-  "tr"        Token Ring addresses
-  "udp"       UDP/IP socket pairs  Both IPv4 and IPv6 are supported
-  "usb"       USB addresses
-  "wlan"      IEEE 802.11 addresses
-  "wpan"      IEEE 802.15.4 addresses
-  "zbee_nwk"  ZigBee Network Layer addresses
+  "bluetooth"  Bluetooth addresses
+  "bpv7"       Bundle Protocol Version 7 addresses
+  "dccp"       DCCP/IP socket pairs Both IPv4 and IPv6 are supported
+  "dnp3"       DNP3 addresses
+  "eth"        Ethernet addresses
+  "fc"         Fibre Channel addresses
+  "fddi"       FDDI addresses
+  "ip"         IPv4 addresses
+  "ipv6"       IPv6 addresses
+  "ipx"        IPX addresses
+  "jxta"       JXTA message addresses
+  "ltp"        LTP addresses
+  "mptcp"      Multipath TCP connections
+  "ncp"        NCP connections
+  "openSAFETY" openSAFETY addresses
+  "rsvp"       RSVP connections
+  "sctp"       SCTP/IP socket pairs Both IPv4 and IPv6 are supported
+  "sll"        Linux "cooked mode" capture addresses
+  "tcp"        TCP/IP socket pairs  Both IPv4 and IPv6 are supported
+  "tr"         Token Ring addresses
+  "udp"        UDP/IP socket pairs  Both IPv4 and IPv6 are supported
+  "usb"        USB addresses
+  "wlan"       IEEE 802.11 addresses
+  "wpan"       IEEE 802.15.4 addresses
+  "zbee_nwk"   ZigBee Network Layer addresses
 
 The table is presented with one line for each endpoint which displays
 the total number of packets/bytes and the number of packets/bytes in
