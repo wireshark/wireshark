@@ -20,7 +20,8 @@ enum section_c_types {
     SEC_C_ACK_NACK_FEEDBACK = 8,
     SEC_C_SINR_REPORTING = 9,
     SEC_C_RRM_MEAS_REPORTS = 10,
-    SEC_C_REQUEST_RRM_MEAS = 11
+    SEC_C_REQUEST_RRM_MEAS = 11,
+    SEC_C_MAX_INDEX
 };
 
 #define HIGHEST_EXTTYPE 27
@@ -29,7 +30,7 @@ typedef struct oran_tap_info {
     bool     userplane;
     uint16_t eaxc;
     bool     uplink;
-    bool     section_types[SEC_C_REQUEST_RRM_MEAS];
+    bool     section_types[SEC_C_MAX_INDEX];
     bool     extensions[HIGHEST_EXTTYPE+1];         /* waste first entry */
     /* TODO: compression/bitwidth, mu/scs, slots, Section IDs, beams */
 } oran_tap_info;

@@ -1939,7 +1939,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                                                   tvb, offset, 0, "", "Section");
     c_section_tree = proto_item_add_subtree(sectionHeading, ett_oran_c_section);
 
-    if (sectionType <= SEC_C_REQUEST_RRM_MEAS) {
+    if (sectionType < SEC_C_MAX_INDEX) {
         tap_info->section_types[sectionType] = true;
     }
 
