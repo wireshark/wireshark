@@ -6961,7 +6961,7 @@ static const struct supported_block_type pcapng_blocks_supported[] = {
     /* Multiple blocks of decryption secrets. */
     { WTAP_BLOCK_DECRYPTION_SECRETS, MULTIPLE_BLOCKS_SUPPORTED, OPTION_TYPES_SUPPORTED(decryption_secrets_block_options_supported) },
 
-    /* Multiple blocks of decryption secrets. */
+    /* Multiple blocks of meta evens.. */
     { WTAP_BLOCK_META_EVENT, MULTIPLE_BLOCKS_SUPPORTED, OPTION_TYPES_SUPPORTED(meta_events_block_options_supported) },
 
     /* And, obviously, multiple packets. */
