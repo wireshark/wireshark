@@ -13011,8 +13011,13 @@ dissect_v9_v10_template_fields(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
             tmplt_p->fields_p[fields_type][i].length  = length;
             tmplt_p->fields_p[fields_type][i].pen     = pen;
             tmplt_p->fields_p[fields_type][i].pen_str = pen_str;
-            if (length != VARIABLE_LENGTH) { /* Don't include "variable length" in the total */
+            /* The length is the minimum length of a record and is used to determine whether a record exists
+             * or is padding.
+             */
+            if (length != VARIABLE_LENGTH) {
                 tmplt_p->length    += length;
+            } else {
+                tmplt_p->length    += 1; /* a variable length field is at least 1 octet. */
             }
         }
 
