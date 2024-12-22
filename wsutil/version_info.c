@@ -78,12 +78,14 @@ ws_init_version_info(const char *appname,
 	 */
 	if (strstr(appname, application_flavor_name_proper()) != NULL) {
 		appname_with_version = ws_strdup_printf("%s %s",
-			appname, get_ws_vcs_version_info());
+			appname,
+			application_flavor_is_wireshark() ? get_ws_vcs_version_info() : get_ss_vcs_version_info());
 	}
 	/* Include our application flavor. The default is "Wireshark" */
 	else {
 		appname_with_version = ws_strdup_printf("%s (%s) %s",
-			appname, application_flavor_name_proper(), get_ws_vcs_version_info());
+			appname, application_flavor_name_proper(),
+			application_flavor_is_wireshark() ? get_ws_vcs_version_info() : get_ss_vcs_version_info());
 	}
 
 	/* Get the compile-time version information string */
