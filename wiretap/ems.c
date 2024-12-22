@@ -265,7 +265,7 @@ static bool ems_seek_read(wtap *wth, int64_t offset, wtap_rec *rec, Buffer
         *buf, int *err, char **err_info) {
 
     if (file_seek(wth->random_fh, offset, SEEK_SET, err) == -1) {
-        *err = file_error(wth->fh, err_info);
+        *err = file_error(wth->random_fh, err_info);
         return false;
     }
 

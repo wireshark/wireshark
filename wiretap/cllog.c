@@ -772,7 +772,7 @@ cllog_read_common(wtap *wth, FILE_T fh, wtap_rec *rec, Buffer *buf, int *err, ch
     if (file_gets(line, sizeof(line), fh) == NULL)
     {
         /* EOF or error. */
-        *err = file_error(wth->fh, err_info);
+        *err = file_error(fh, err_info);
         return false;
     }
 
