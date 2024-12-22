@@ -1,4 +1,4 @@
--- 3GPP TS 36.331 V18.3.0 (2024-09)
+-- 3GPP TS 36.331 V18.4.0 (2024-12)
 
 NBIOT-RRC-Definitions DEFINITIONS AUTOMATIC TAGS ::=
 
@@ -1333,7 +1333,7 @@ SystemInformationBlockType5-NB-r13 ::=	SEQUENCE {
 	...,
 	[[	scptm-FreqOffset-r14				INTEGER (1..8)					OPTIONAL	-- Need OP
 	]],
-	[[	interFreqCarrierFreqList-v1820		InterFreqCarrierFreqList-NB-v1820	OPTIONAL	-- Need OP
+	[[	interFreqCarrierFreqList-v1820		InterFreqCarrierFreqList-NB-v1820	OPTIONAL	-- Need OR
 	]]
 }
 
@@ -1366,7 +1366,7 @@ OPTIONAL,	--	Need OP
 }
 
 InterFreqCarrierFreqInfo-NB-v1820 ::=	SEQUENCE {
-	satelliteAssistanceInfo-r18	SEQUENCE (SIZE(1..maxSat-r17)) OF SatelliteId-r18	OPTIONAL	-- Need OR
+	satelliteAssistanceInfo-r18	SEQUENCE (SIZE(1..maxSat-r17)) OF SatelliteId-r18	OPTIONAL	-- Need OP
 }
 
 InterFreqNeighCellList-NB-r13 ::=		SEQUENCE (SIZE (1..maxCellInter)) OF PhysCellId
@@ -1680,7 +1680,8 @@ SystemInformationBlockType33-NB-r18 ::= SEQUENCE {
 	neighSatelliteInfoList-r18		NeighSatelliteInfoList-r18		OPTIONAL,	-- Need OR
 	neighValidityDuration-r18		ENUMERATED {s5, s10, s15, s20, s25, s30, s35, s40,
 												s45, s50, s55, s60, s120, s180, s240, s900}
-																	OPTIONAL,	-- Need OP	lateNonCriticalExtension		OCTET STRING					OPTIONAL,
+																	OPTIONAL,	-- Need OP
+	lateNonCriticalExtension		OCTET STRING					OPTIONAL,
 	...
 }
 
