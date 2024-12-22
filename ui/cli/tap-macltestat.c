@@ -1,6 +1,8 @@
 /* tap-macltestat.c
  * Copyright 2011 Martin Mathieson
  *
+ * Used for LTE and NR MAC PDUs
+ *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
@@ -210,7 +212,7 @@ static tap_packet_status
 mac_lte_stat_packet(void *phs, packet_info *pinfo, epan_dissect_t *edt _U_,
                     const void *phi, tap_flags_t flags _U_)
 {
-    /* Get reference to stat window instance */
+    /* Get reference to stat instance */
     mac_lte_nr_stat_t *hs = (mac_lte_nr_stat_t*)phs;
     mac_lte_ep_t *tmp = NULL, *te = NULL;
     int i;

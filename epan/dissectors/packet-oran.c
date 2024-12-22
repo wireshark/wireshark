@@ -1939,10 +1939,6 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                                                   tvb, offset, 0, "", "Section");
     c_section_tree = proto_item_add_subtree(sectionHeading, ett_oran_c_section);
 
-    if (sectionType < SEC_C_MAX_INDEX) {
-        tap_info->section_types[sectionType] = true;
-    }
-
     uint32_t sectionId = 0;
 
     uint32_t startPrbc=0, startPrbu=0;
@@ -4327,6 +4323,11 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo,
     /* sectionType */
     proto_tree_add_item_ret_uint(section_tree, hf_oran_sectionType, tvb, offset, 1, ENC_NA, &sectionType);
     offset += 1;
+
+    /* Note this section type in stats */
+    if (sectionType < SEC_C_MAX_INDEX) {
+        tap_info->section_types[sectionType] = true;
+    }
 
     /* Section-specific fields (white entries in Section Type diagrams) */
     unsigned bit_width = 0;

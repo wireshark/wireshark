@@ -2027,6 +2027,9 @@ Core Protocol.  Minimum SRT, maximum SRT, average SRT, and sum SRT is
 displayed for request/response pairs, organized by group, function and
 subfunction, and verb.  No statistics are gathered on unpaired messages.
 
+*-z* oran-fh-cus,stat[,__filter__]::
+Collect flow summaries for ORAN FH CUS traffic.
+
 *-z* osmux,tree[,__filter__]::
 Calculate statistics for the OSmux voice/signaling multiplex protocol.
 Displays the total number of OSmux packets, and displays for each stream

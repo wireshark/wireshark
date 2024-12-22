@@ -27,12 +27,15 @@ enum section_c_types {
 #define HIGHEST_EXTTYPE 27
 
 typedef struct oran_tap_info {
+    /* Key info */
     bool     userplane;
     uint16_t eaxc;
     bool     uplink;
+    /* Accumulated state */
     bool     section_types[SEC_C_MAX_INDEX];
     bool     extensions[HIGHEST_EXTTYPE+1];         /* waste first entry */
-    /* TODO: compression/bitwidth, mu/scs, slots, Section IDs, beams */
+    /* TODO: compression/bitwidth, mu/scs, slots, Section IDs, beams? */
+    /* N.B. bitwidth, method, but each section could potentially have different udcompHdr.. */
 } oran_tap_info;
 
 /*
