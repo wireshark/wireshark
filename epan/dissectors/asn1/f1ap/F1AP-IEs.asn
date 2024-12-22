@@ -1,4 +1,4 @@
--- 3GPP TS 38.473 V18.3.0 (2024-09)
+-- 3GPP TS 38.473 V18.4.0 (2024-12)
 -- 9.4.5	Information Element Definitions
 -- **************************************************************
 --
@@ -257,7 +257,7 @@ IMPORTS
 	id-SymbolIndex,
 	id-AggregatedPosSRSResourceIDList,
 	id-PhaseQuality,
-	id-PRSBandwidthAggregationRequestIndication,
+	id-PRSBWAggregationRequestInfoList,
 	id-AggregatedPRSResourceSetList,
 	id-MeasuredFrequencyHops,
 	id-TxHoppingConfiguration,
@@ -277,6 +277,8 @@ IMPORTS
 	id-ReportingIntervalIMs,
 	id-Transmission-Bandwidth-asymmetric,
 	id-TagIDPointer,
+	id-LocalOrigin,
+	id-SRSPosPeriodicConfigHyperSFNIndex,
 	maxNRARFCN,
 	maxnoofErrors,
 	maxnoofBPLMNs,
@@ -2615,6 +2617,9 @@ EarlySyncCandidateCellInformation-Item ::= SEQUENCE {
 }
 
 EarlySyncCandidateCellInformation-Item-ExtIEs	F1AP-PROTOCOL-EXTENSION ::= {
+	{ ID id-SSB-PositionsInBurst	CRITICALITY ignore	EXTENSION SSB-PositionsInBurst		PRESENCE optional },
+-- The above IE shall be present if the earlyULSyncConfig IE or the earlyULSyncConfigSUL IE is present
+
 	...
 }
 
@@ -3157,7 +3162,7 @@ Flows-Mapped-To-DRB-ItemExtIEs 	F1AP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
-FR1-Bandwidth ::= ENUMERATED {bw5, bw10, bw20, bw40, bw50, bw80, bw100, ..., bw160, bw200}
+FR1-Bandwidth ::= ENUMERATED {bw5, bw10, bw20, bw40, bw50, bw80, bw100, ..., bw160, bw200, bw15, bw25, bw30, bw60, bw35, bw45, bw70, bw90}
 
 FR2-Bandwidth ::= ENUMERATED {bw50, bw100, bw200, bw400, ..., bw800, bw1600, bw2000, bw600}
 
@@ -3909,6 +3914,31 @@ IntendedTDD-DL-ULConfig-ExtIEs 	F1AP-PROTOCOL-EXTENSION ::= {
 }
 
 IndicationMCInactiveReception ::= ENUMERATED {true, ...}
+
+LTMResetInformation ::= SEQUENCE {
+	servingCellL2ResetConfiguration						OCTET STRING		OPTIONAL,
+	lTML2ResetConfigurationList							LTML2ResetConfigurationList		OPTIONAL,
+	iE-Extensions						ProtocolExtensionContainer { { LTMResetInformation-ItemExtIEs} } OPTIONAL,
+	...
+}
+
+LTMResetInformation-ItemExtIEs F1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+LTML2ResetConfigurationList ::= SEQUENCE (SIZE(1.. maxnoofLTMCells)) OF LTML2ResetConfiguration-Item
+
+LTML2ResetConfiguration-Item ::= SEQUENCE {
+	cellID						NRCGI,
+	ltmL2ResetConfiguration		OCTET STRING,
+	iE-Extensions			ProtocolExtensionContainer { { LTML2ResetConfiguration-ItemExtIEs } }	OPTIONAL
+}
+
+LTML2ResetConfiguration-ItemExtIEs	F1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+
 
 IPHeaderInformation ::= SEQUENCE {
 	destinationIABTNLAddress			IABTNLAddress,
@@ -6433,7 +6463,31 @@ PRSResource-Item-ExtIEs F1AP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
-PRSBandwidthAggregationRequestIndication ::= ENUMERATED{true, ...}
+
+
+PRSBWAggregationRequestInfoList ::= SEQUENCE (SIZE (1..maxnoAggCombinations)) OF PRSBWAggregationRequestInfo-Item
+
+PRSBWAggregationRequestInfo-Item ::= SEQUENCE {
+	dl-PRSBWAggregationRequestInfo-List	DL-PRSBWAggregationRequestInfo-List,
+	iE-Extensions						ProtocolExtensionContainer { { PRSBWAggregationRequestInfo-Item-ExtIEs} } OPTIONAL,
+	...
+}
+
+PRSBWAggregationRequestInfo-Item-ExtIEs F1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+DL-PRSBWAggregationRequestInfo-List ::= SEQUENCE (SIZE (2..maxnoAggregatedPosPRSResourceSets)) OF DL-PRSBWAggregationRequestInfo-Item
+
+DL-PRSBWAggregationRequestInfo-Item ::= SEQUENCE {
+	dl-prs-ResourceSetIndex				INTEGER (1..8),
+	iE-Extensions						ProtocolExtensionContainer { {DL-PRSBWAggregationRequestInfo-Item-ExtIEs} } OPTIONAL,
+	...
+}
+
+DL-PRSBWAggregationRequestInfo-Item-ExtIEs F1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
 
 ExtendedResourceSymbolOffset ::= INTEGER (0..13,...)
 
@@ -6603,7 +6657,7 @@ RequestedDLPRSTransmissionCharacteristics ::= SEQUENCE {
 	...
 }
 RequestedDLPRSTransmissionCharacteristics-ExtIEs F1AP-PROTOCOL-EXTENSION ::= {
-	{ID id-PRSBandwidthAggregationRequestIndication CRITICALITY ignore EXTENSION PRSBandwidthAggregationRequestIndication	PRESENCE optional},
+	{ID id-PRSBWAggregationRequestInfoList CRITICALITY ignore EXTENSION PRSBWAggregationRequestInfoList	PRESENCE optional},
 	...
 }
 
@@ -6980,6 +7034,19 @@ ReferencePoint ::= CHOICE {
 }
 
 ReferencePoint-ExtIEs F1AP-PROTOCOL-IES ::= {
+	{ID id-LocalOrigin	CRITICALITY ignore TYPE LocalOrigin	PRESENCE mandatory},
+	...
+}
+
+LocalOrigin	::= SEQUENCE {
+	relativeCoordinateID			CoordinateID,
+	horizontalAxesOrientation		INTEGER (0..3599),
+	referencePointCoordinateHA		NGRANHighAccuracyAccessPointPosition		OPTIONAL,
+	iE-Extensions				ProtocolExtensionContainer { { LocalOrigin-ExtIEs} } OPTIONAL,
+	...
+}
+
+LocalOrigin-ExtIEs F1AP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
@@ -7268,6 +7335,7 @@ ResourceTypePeriodicPos ::= SEQUENCE {
 }
 
 ResourceTypePeriodicPos-ExtIEs F1AP-PROTOCOL-EXTENSION ::= {
+	{ ID id-SRSPosPeriodicConfigHyperSFNIndex			CRITICALITY ignore	EXTENSION SRSPosPeriodicConfigHyperSFNIndex		PRESENCE optional	},
 	...
 }
 
@@ -7278,6 +7346,7 @@ ResourceTypeSemi-persistentPos ::= SEQUENCE {
 }
 
 ResourceTypeSemi-persistentPos-ExtIEs F1AP-PROTOCOL-EXTENSION ::= {
+	{ ID id-SRSPosPeriodicConfigHyperSFNIndex			CRITICALITY ignore	EXTENSION SRSPosPeriodicConfigHyperSFNIndex		PRESENCE optional	},
 	...
 }
 
@@ -8444,6 +8513,8 @@ SrsFrequency ::= INTEGER (0..3279165)
 
 SRSPortIndex ::= ENUMERATED {id1000, id1001, id1002, id1003,...}
 
+SRSPosPeriodicConfigHyperSFNIndex ::=ENUMERATED {even0, odd1}
+
 SRSPosResourceID ::= INTEGER (0..63)
 
 SRSPreconfiguration-List ::= SEQUENCE (SIZE (1.. maxnoPreconfiguredSRS)) OF SRSPreconfiguration-Item
@@ -8799,7 +8870,7 @@ SupportedSULFreqBandItem-ExtIEs F1AP-PROTOCOL-EXTENSION ::= {
 SupportedUETypeList ::= SEQUENCE (SIZE(1.. maxnoofUETypes)) OF SupportedUETypeList-Item
 
 SupportedUETypeList-Item ::= SEQUENCE {
-	supportedUEtype				ENUMERATED {non-redcap-ue, redcap-ue, ...},
+	supportedUEtype				ENUMERATED {non-redcap-eredcap-ue, redcap-eredcap-ue, ...},
 	iE-Extensions				ProtocolExtensionContainer { { SupportedUETypeList-Item-ExtIEs } } OPTIONAL,
 	...
 }
@@ -8999,6 +9070,18 @@ TimingMeasurementQuality-ExtIEs F1AP-PROTOCOL-EXTENSION ::= {
 
 TimingReportingGranularityFactorExtended ::=INTEGER(-6..-1,...)
 
+TimeWindowStart ::= SEQUENCE {
+	systemFrameNumber		SystemFrameNumber,
+	slotNumber				SlotNumber,
+	symbolIndex				INTEGER (0..13),
+	iE-Extension			ProtocolExtensionContainer { { TimeWindowStart-ExtIEs} }	OPTIONAL,
+	...
+}
+
+TimeWindowStart-ExtIEs F1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
 TimeWindowInformation-Measurement-List ::= SEQUENCE (SIZE (1.. maxnoofTimeWindowMea)) OF TimeWindowInformation-Measurement-Item
 
 
@@ -9006,7 +9089,8 @@ TimeWindowInformation-Measurement-Item ::= SEQUENCE {
 	timeWindowDurationMeasurement		TimeWindowDurationMeasurement,
 	timeWindowType						ENUMERATED {single, periodic, ...},
 	timeWindowPeriodicityMeasurement	TimeWindowPeriodicityMeasurement		OPTIONAL,
-	-- This IE shall be present if the Time Window Type IE is set to the value “periodic”.
+	-- This IE shall be present if the Time Window Type IE is set to the value “periodic”. --
+	timeWindowStart						TimeWindowStart,
 	iE-Extension			ProtocolExtensionContainer { { TimeWindowInformation-Measurement-Item-ExtIEs} }	OPTIONAL,
 	...}
 
@@ -9370,7 +9454,6 @@ TRPListItem ::= SEQUENCE {
 }
 
 TRPListItem-ExtIEs F1AP-PROTOCOL-EXTENSION ::= {
-	{ID id-PRSBandwidthAggregationRequestIndication CRITICALITY ignore EXTENSION PRSBandwidthAggregationRequestIndication	PRESENCE optional},
 	...
 }
 

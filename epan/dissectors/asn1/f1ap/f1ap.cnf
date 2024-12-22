@@ -1012,7 +1012,7 @@ id-SRSPosRRCInactiveValidityAreaConfig               ProtocolIE-ID
 id-PosValidityAreaCellList                           ProtocolIE-ID
 id-SRSReservationType                                ProtocolIE-ID
 id-SymbolIndex                                       ProtocolIE-ID
-id-PRSBandwidthAggregationRequestIndication          ProtocolIE-ID
+id-PRSBWAggregationRequestInfoList                   ProtocolIE-ID
 id-AggregatedPosSRSResourceIDList                    ProtocolIE-ID
 id-AggregatedPRSResourceSetList                      ProtocolIE-ID
 id-PhaseQuality                                      ProtocolIE-ID
@@ -1051,6 +1051,10 @@ id-SIB17bis-message                                  ProtocolIE-ID
 id-ReportingIntervalIMs                              ProtocolIE-ID
 id-Transmission-Bandwidth-asymmetric                 ProtocolIE-ID
 id-TagIDPointer                                      ProtocolIE-ID
+id-LocalOrigin                                       ProtocolIE-ID
+id-LTMResetInformation                               ProtocolIE-ID
+id-SRSPosPeriodicConfigHyperSFNIndex                 ProtocolIE-ID
+id-PreconfiguredSRSInformation                       ProtocolIE-ID
 
 #.END
 
@@ -1657,6 +1661,9 @@ EarlySyncServingCellInformation                   N f1ap.ies id-EarlySyncServing
 RANSharingAssistanceInformation                   N f1ap.ies id-RANSharingAssistanceInformation
 LTMCFRAResourceConfig-List                        N f1ap.ies id-LTMCFRAResourceConfig-List
 F1U-PathFailure                                   N f1ap.ies id-F1U-PathFailure
+LocalOrigin                                       N f1ap.ies id-LocalOrigin
+LTMResetInformation                               N f1ap.ies id-LTMResetInformation
+RequestedSRSPreconfigurationCharacteristics-List  N f1ap.ies id-PreconfiguredSRSInformation
 
 #F1AP-PROTOCOL-EXTENSION
 GNB-CUSystemInformation                           N f1ap.extension id-gNB-CUSystemInformation
@@ -1872,7 +1879,7 @@ BW-Aggregation-Request-Indication                 N f1ap.extension id-BW-Aggrega
 TimingReportingGranularityFactorExtended          N f1ap.extension id-TimingReportingGranularityFactorExtended
 PosValidityAreaCellList                           N f1ap.extension id-PosValidityAreaCellList
 SymbolIndex                                       N f1ap.extension id-SymbolIndex
-PRSBandwidthAggregationRequestIndication          N f1ap.extension id-PRSBandwidthAggregationRequestIndication
+PRSBWAggregationRequestInfoList                   N f1ap.extension id-PRSBWAggregationRequestInfoList
 AggregatedPosSRSResourceIDList                    N f1ap.extension id-AggregatedPosSRSResourceIDList
 AggregatedPRSResourceSetList                      N f1ap.extension id-AggregatedPRSResourceSetList
 MeasuredFrequencyHops                             N f1ap.extension id-MeasuredFrequencyHops
@@ -1893,6 +1900,7 @@ SIB17bis-message                                  N f1ap.extension id-SIB17bis-m
 ReportingIntervalIMs                              N f1ap.extension id-ReportingIntervalIMs
 Transmission-Bandwidth-asymmetric                 N f1ap.extension id-Transmission-Bandwidth-asymmetric
 TagIDPointer                                      N f1ap.extension id-TagIDPointer
+SRSPosPeriodicConfigHyperSFNIndex                 N f1ap.extension id-SRSPosPeriodicConfigHyperSFNIndex
 
 #F1AP-ELEMENTARY-PROCEDURE
 Reset                                    N f1ap.proc.imsg id-Reset

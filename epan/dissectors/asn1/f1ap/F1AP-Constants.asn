@@ -1,4 +1,4 @@
--- 3GPP TS 38.473 V18.3.0 (2024-09)
+-- 3GPP TS 38.473 V18.4.0 (2024-12)
 -- 9.4.7	Constant Definitions
 -- **************************************************************
 --
@@ -1133,9 +1133,9 @@ id-ReportingGranularitykminus2additionalpath		ProtocolIE-ID ::= 809
 id-TimingReportingGranularityFactorExtended			ProtocolIE-ID ::= 810
 id-SRSPosRRCInactiveValidityAreaConfig				ProtocolIE-ID ::= 811
 id-PosValidityAreaCellList							ProtocolIE-ID ::= 812
-id-SRSReservationType							ProtocolIE-ID ::= 813
+id-SRSReservationType								ProtocolIE-ID ::= 813
 id-SymbolIndex										ProtocolIE-ID ::= 814
-id-PRSBandwidthAggregationRequestIndication			ProtocolIE-ID ::= 815
+id-PRSBWAggregationRequestInfoList					ProtocolIE-ID ::= 815
 id-AggregatedPosSRSResourceIDList					ProtocolIE-ID ::= 816
 id-AggregatedPRSResourceSetList						ProtocolIE-ID ::= 817
 id-PhaseQuality										ProtocolIE-ID ::= 818
@@ -1174,6 +1174,10 @@ id-SIB17bis-message									ProtocolIE-ID ::= 850
 id-ReportingIntervalIMs								ProtocolIE-ID ::= 851
 id-Transmission-Bandwidth-asymmetric				ProtocolIE-ID ::= 852
 id-TagIDPointer										ProtocolIE-ID ::= 853
+id-LocalOrigin										ProtocolIE-ID ::= 854
+id-LTMResetInformation								ProtocolIE-ID ::= 855
+id-SRSPosPeriodicConfigHyperSFNIndex				ProtocolIE-ID ::= 856
+id-PreconfiguredSRSInformation						ProtocolIE-ID ::= 857
 
 
 

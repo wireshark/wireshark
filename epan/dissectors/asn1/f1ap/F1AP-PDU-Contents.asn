@@ -1,4 +1,4 @@
--- 3GPP TS 38.473 V18.3.0 (2024-09)
+-- 3GPP TS 38.473 V18.4.0 (2024-12)
 -- 9.4.4	PDU Definitions
 -- **************************************************************
 --
@@ -439,7 +439,8 @@ IMPORTS
 	TAInformation-List,
 	NonIntegerDRXCycle,
 	AggregatedPosSRSResourceSetList,
-	F1U-PathFailure
+	F1U-PathFailure,
+	LTMResetInformation
 
 
 
@@ -1030,6 +1031,8 @@ FROM F1AP-Containers
 	id-AggregatedPosSRSResourceSetList,
 	id-RANSharingAssistanceInformation,
 	id-F1U-PathFailure,
+	id-LTMResetInformation,
+	id-PreconfiguredSRSInformation,
 	maxCellingNBDU,
 	maxnoofCandidateSpCells,
 	maxnoofDRBs,
@@ -2042,7 +2045,8 @@ UEContextModificationRequestIEs F1AP-PROTOCOL-IES ::= {
 	{ ID id-LTEUESidelinkAggregateMaximumBitrateForA2X	CRITICALITY ignore	TYPE LTEUESidelinkAggregateMaximumBitrate			PRESENCE optional }|
 	{ ID id-DLLBTFailureInformationRequest				CRITICALITY ignore	TYPE DLLBTFailureInformationRequest				PRESENCE optional }|
 	{ ID id-SLPositioning-Ranging-Service-Info		CRITICALITY ignore	TYPE SLPositioning-Ranging-Service-Info						PRESENCE optional	}|
-	{ ID id-NonIntegerDRXCycle						CRITICALITY ignore	TYPE NonIntegerDRXCycle									PRESENCE optional	},
+	{ ID id-NonIntegerDRXCycle						CRITICALITY ignore	TYPE NonIntegerDRXCycle									PRESENCE optional	}|
+	{ ID id-LTMResetInformation						CRITICALITY ignore	TYPE LTMResetInformation								PRESENCE optional	},
 	...
 }
 
@@ -3223,26 +3227,26 @@ BH-Routing-Information-Added-List ::= SEQUENCE (SIZE(1.. maxnoofRoutingEntries))
 BH-Routing-Information-Removed-List ::= SEQUENCE (SIZE(1.. maxnoofRoutingEntries))	OF ProtocolIE-SingleContainer { { BH-Routing-Information-Removed-List-ItemIEs } }
 
 BH-Routing-Information-Added-List-ItemIEs	F1AP-PROTOCOL-IES ::= {
-	{ ID id-BH-Routing-Information-Added-List-Item				CRITICALITY ignore	TYPE BH-Routing-Information-Added-List-Item						PRESENCE optional},
+	{ ID id-BH-Routing-Information-Added-List-Item				CRITICALITY ignore	TYPE BH-Routing-Information-Added-List-Item						PRESENCE mandatory},
 	...
 }
 
 BH-Routing-Information-Removed-List-ItemIEs	F1AP-PROTOCOL-IES ::= {
-	{ ID id-BH-Routing-Information-Removed-List-Item				CRITICALITY ignore	TYPE BH-Routing-Information-Removed-List-Item						PRESENCE optional},
+	{ ID id-BH-Routing-Information-Removed-List-Item				CRITICALITY ignore	TYPE BH-Routing-Information-Removed-List-Item						PRESENCE mandatory},
 	...
 }
 
 BAP-Header-Rewriting-Added-List ::= SEQUENCE (SIZE(1.. maxnoofRoutingEntries))	OF ProtocolIE-SingleContainer { { BAP-Header-Rewriting-Added-List-ItemIEs } }
 
 BAP-Header-Rewriting-Added-List-ItemIEs F1AP-PROTOCOL-IES ::= {
-	{ ID id-BAP-Header-Rewriting-Added-List-Item	CRITICALITY ignore	TYPE BAP-Header-Rewriting-Added-List-Item PRESENCE optional},
+	{ ID id-BAP-Header-Rewriting-Added-List-Item	CRITICALITY ignore	TYPE BAP-Header-Rewriting-Added-List-Item PRESENCE mandatory},
 	...
 }
 
 BAP-Header-Rewriting-Removed-List ::= SEQUENCE (SIZE(1.. maxnoofRoutingEntries))	OF ProtocolIE-SingleContainer { { BAP-Header-Rewriting-Removed-List-ItemIEs } }
 
 BAP-Header-Rewriting-Removed-List-ItemIEs F1AP-PROTOCOL-IES ::= {
-	{ ID id-BAP-Header-Rewriting-Removed-List-Item	CRITICALITY ignore	TYPE BAP-Header-Rewriting-Removed-List-Item PRESENCE optional},
+	{ ID id-BAP-Header-Rewriting-Removed-List-Item	CRITICALITY ignore	TYPE BAP-Header-Rewriting-Removed-List-Item PRESENCE mandatory},
 	...
 }
 
@@ -4343,7 +4347,8 @@ SRSInformationReservationNotification ::= SEQUENCE {
 SRSInformationReservationNotificationIEs F1AP-PROTOCOL-IES ::= {
 	{ ID id-TransactionID			CRITICALITY reject	TYPE TransactionID					PRESENCE mandatory	}|
 	{ ID id-SRSReservationType		CRITICALITY ignore	TYPE SRSReservationType			PRESENCE mandatory	}|
-	{ ID id-SRSInformation			CRITICALITY ignore	TYPE RequestedSRSTransmissionCharacteristics				PRESENCE optional	},
+	{ ID id-SRSInformation			CRITICALITY ignore	TYPE RequestedSRSTransmissionCharacteristics				PRESENCE optional	}|
+	{ ID id-PreconfiguredSRSInformation	CRITICALITY ignore	TYPE RequestedSRSPreconfigurationCharacteristics-List				PRESENCE optional },
 	...
 }
 
