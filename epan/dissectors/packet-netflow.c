@@ -8434,7 +8434,7 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
             ti = proto_tree_add_item(pdutree, hf_pie_fastip_meter_os_nodename,
                                      tvb, offset, length, ENC_ASCII);
             break;
-        case ((VENDOR_FASTIP << 16) | 3) : /* METER_OS_RELASE */
+        case ((VENDOR_FASTIP << 16) | 3) : /* METER_OS_RELEASE */
             ti = proto_tree_add_item(pdutree, hf_pie_fastip_meter_os_release,
                                      tvb, offset, length, ENC_ASCII);
             break;

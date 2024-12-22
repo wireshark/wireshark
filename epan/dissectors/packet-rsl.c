@@ -1656,7 +1656,7 @@ dissect_rsl_phy_ctx_ab_rx_lvl_err_bits(tvbuff_t *tvb, packet_info *pinfo _U_, pr
     /* AB Rx Level */
     proto_tree_add_item(ab_tree, hf_rsl_phy_ctx_ab_rx_lvl, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
-    /* Traning Err Bits */
+    /* Training Err Bits */
     proto_tree_add_item(ab_tree, hf_rsl_phy_ctx_ab_err_bits, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
     return offset;

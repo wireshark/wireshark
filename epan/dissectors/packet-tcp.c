@@ -888,7 +888,7 @@ static const value_string netscaler_reset_window_error_code_vals[] = {
     { 9900,  "PI reset." },
     { 9901,  "Cache buffer large data error." },
     { 9902,  "HTML injection connection abort." },
-    { 9903,  "GSLB feature is disabled. Donot accept any connections and close any existing ones." },
+    { 9903,  "GSLB feature is disabled. Do not accept any connections and close any existing ones." },
     { 9904,  "Reset on AAA error." },
     { 9905,  "Database not responding." },
     { 9906,  "Local GSLB sites have been removed, send RST." },

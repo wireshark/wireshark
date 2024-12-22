@@ -14177,13 +14177,13 @@ proto_register_gsm_rlcmac(void)
       }
     },
     { &hf_target_cell_gsm_immediate_rel,
-      { "IMMEDIATE_REL",        "gsm_rlcmac.dl.taget_cell_immediate_rel",
+      { "IMMEDIATE_REL",        "gsm_rlcmac.dl.target_cell_immediate_rel",
         FT_UINT8, BASE_DEC, NULL, 0x0,
         NULL, HFILL
       }
     },
     { &hf_target_cell_gsm_bsic,
-      { "BSIC",        "gsm_rlcmac.dl.taget_cell_gsm_bsic",
+      { "BSIC",        "gsm_rlcmac.dl.target_cell_gsm_bsic",
         FT_UINT8, BASE_DEC, NULL, 0x0,
         NULL, HFILL
       }

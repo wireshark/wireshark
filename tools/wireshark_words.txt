@@ -235,6 +235,7 @@ bidir
 bidirection
 bidirectional
 bidirectionally
+biflow
 bifuel
 bigint
 bigtk
@@ -246,6 +247,7 @@ bitmask
 bitrate
 bitstring
 blackhole
+bluedroid
 bnode
 bogota
 boolflag
@@ -700,6 +702,7 @@ differentiator
 diffie
 diffserv
 Digicel
+digin
 digitech
 digitel
 digitizer
@@ -847,6 +850,7 @@ enumerator
 enums
 envchange
 epasv
+epdan
 epdcch
 eperm
 ephemeris
@@ -1061,6 +1065,7 @@ goroutines
 gostr
 gpointer
 gprscdr
+gprsmeasurementparams
 gprsmeasurementparams3g
 gpsascii
 granularity
@@ -1084,6 +1089,7 @@ guatemala
 guint
 gzipped
 handoff
+handoverto
 hangul
 hangup
 hangzhou
@@ -1211,6 +1217,7 @@ inited
 initialisation
 initialise
 initialised
+initialiser
 initialising
 initialization
 initializations
@@ -1271,6 +1278,7 @@ ioflag
 iograph
 ionospheric
 iotecha
+iowait
 ipacc
 ipaccess
 ipaddr
@@ -1532,6 +1540,7 @@ midamble
 middlebox
 migratable
 milano
+milli
 millimeters
 millimetre
 millimetres
@@ -1567,6 +1576,7 @@ modulus
 modus
 moldudp
 monday
+monlist
 monmap
 monterrey
 moscow
@@ -1590,6 +1600,7 @@ mqrccf
 mrcpv
 msbuild
 mscldap
+msgasy
 msgflag
 msgid
 msglen
@@ -1655,6 +1666,7 @@ ndriver
 nederland
 negotiability
 neighbour
+neighbourcelldescription3g
 neighbouring
 neighbours
 nessie
@@ -1818,6 +1830,7 @@ onboarding
 onduration
 onoff
 ontime
+ooorder
 opcfoundation
 opcode
 opcodes
@@ -2117,6 +2130,7 @@ raytheon
 rcode
 rcsta
 rctxinfo
+rdata
 rdeth
 rdpudp
 rdstls
@@ -2485,6 +2499,7 @@ sminfo
 smpdirected
 smpte
 smrse
+smscb
 sname
 snaplen
 snarf
@@ -3088,7 +3103,9 @@ vodafone
 voipmetrics
 volerr
 volid
+volser
 voltype
+vrfid
 vserver
 vtotal
 vxlan
@@ -3166,6 +3183,7 @@ xprint
 xproto
 xselinux
 xsltproc
+xtension
 xtest
 xtreme
 yyextra

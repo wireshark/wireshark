@@ -373,7 +373,7 @@ cf_close(capture_file *cf)
     /* no open_routine type */
     cf->open_type = WTAP_TYPE_AUTO;
 
-    /* Clean up the record informatoin. */
+    /* Clean up the record information. */
     wtap_rec_cleanup(&cf->rec);
 
     /* Clear the packet list. */
