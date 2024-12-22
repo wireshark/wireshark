@@ -1578,6 +1578,15 @@ HandoverWindowStart DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_seconds
 #.TYPE_ATTR
 HandoverWindowDuration DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(s1ap_handover_window_duration_fmt)
 
+#.FN_BODY CoarseUELocation VAL_PTR = &parameter_tvb
+  tvbuff_t *parameter_tvb = NULL;
+  proto_tree *subtree;
+%(DEFAULT_BODY)s
+  if (parameter_tvb) {
+    subtree = proto_item_add_subtree(actx->created_item, ett_s1ap_CoarseUELocation);
+    dissect_lpp_Ellipsoid_Point_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
+  }
+
 #.ASSIGN_VALUE_TO_TYPE  # S1AP does not have constants assigned to types, they are pure INTEGER
 # ProcedureCode
 
@@ -1980,6 +1989,8 @@ id-M7ReportAmount                                   ProtocolIE-ID
 id-TimeBasedHandoverInformation                     ProtocolIE-ID
 id-Bearers-SubjectToDLDiscarding-Item               ProtocolIE-ID
 id-Bearers-SubjectToDLDiscardingList                ProtocolIE-ID
+id-CoarseUELocationRequested                        ProtocolIE-ID
+id-CoarseUELocation                                 ProtocolIE-ID
 
 #.END
 
@@ -2235,6 +2246,8 @@ LTE-NTN-TAI-Information                         N s1ap.ies id-LTE-NTN-TAI-Inform
 E-RABToBeUpdatedList                            N s1ap.ies id-E-RABToBeUpdatedList
 E-RABToBeUpdatedItem                            N s1ap.ies id-E-RABToBeUpdatedItem
 Bearers-SubjectToDLDiscarding-Item              N s1ap.ies id-Bearers-SubjectToDLDiscarding-Item
+CoarseUELocationRequested                       N s1ap.ies id-CoarseUELocationRequested
+CoarseUELocation                                N s1ap.ies id-CoarseUELocation
 
 #S1AP-PROTOCOL-IES-PAIR
 #RAB-SetupOrModifyItemFirst             N s1ap.ies.pair.first id-RAB-SetupOrModifyItem

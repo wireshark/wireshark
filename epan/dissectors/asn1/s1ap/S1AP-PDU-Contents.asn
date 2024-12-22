@@ -1,4 +1,4 @@
--- 3GPP TS 36.413 V18.2.0 (2024-06)
+-- 3GPP TS 36.413 V18.3.0 (2024-12)
 -- 9.3.3	PDU Definitions
 -- **************************************************************
 --
@@ -204,7 +204,9 @@ IMPORTS
 	PagingCause,
 	SecurityIndication,
 	SecurityResult,
-	LTE-NTN-TAI-Information
+	LTE-NTN-TAI-Information,
+	CoarseUELocationRequested,
+	CoarseUELocation
 
 
 
@@ -487,7 +489,9 @@ FROM S1AP-Containers
 	id-SecurityResult,
 	id-LTE-NTN-TAI-Information,
 	id-E-RABToBeUpdatedList,
-	id-E-RABToBeUpdatedItem
+	id-E-RABToBeUpdatedItem,
+	id-CoarseUELocationRequested,
+	id-CoarseUELocation
 
 FROM S1AP-Constants;
 
@@ -1415,7 +1419,8 @@ InitialContextSetupRequestIEs S1AP-PROTOCOL-IES ::= {
 	{ ID id-NRV2XServicesAuthorized						CRITICALITY ignore	TYPE NRV2XServicesAuthorized							PRESENCE optional }|
 	{ ID id-NRUESidelinkAggregateMaximumBitrate			CRITICALITY ignore	TYPE NRUESidelinkAggregateMaximumBitrate			PRESENCE optional }|
 	{ ID id-PC5QoSParameters							CRITICALITY ignore	TYPE PC5QoSParameters									PRESENCE optional }|
-	{ ID id-UERadioCapabilityID							CRITICALITY reject	TYPE UERadioCapabilityID								PRESENCE optional},
+	{ ID id-UERadioCapabilityID							CRITICALITY reject	TYPE UERadioCapabilityID								PRESENCE optional}|
+	{ ID id-CoarseUELocation				CRITICALITY ignore	TYPE CoarseUELocation					PRESENCE optional},
 	...
 }
 
@@ -1800,7 +1805,8 @@ DownlinkNASTransport-IEs S1AP-PROTOCOL-IES ::= {
 	{ ID id-Subscription-Based-UE-DifferentiationInfo		CRITICALITY ignore	TYPE Subscription-Based-UE-DifferentiationInfo		PRESENCE optional}|
 	{ ID id-AdditionalRRMPriorityIndex	CRITICALITY ignore	TYPE AdditionalRRMPriorityIndex		PRESENCE optional}|
 	{ ID id-UERadioCapabilityID			CRITICALITY reject	TYPE UERadioCapabilityID			PRESENCE optional}|
-	{ ID id-Masked-IMEISV				CRITICALITY ignore	TYPE Masked-IMEISV					PRESENCE optional},
+	{ ID id-Masked-IMEISV				CRITICALITY ignore	TYPE Masked-IMEISV					PRESENCE optional}|
+	{ ID id-CoarseUELocation			CRITICALITY ignore	TYPE CoarseUELocation				PRESENCE optional},
 	...
 }
 
@@ -1841,7 +1847,8 @@ InitialUEMessage-IEs S1AP-PROTOCOL-IES ::= {
 	{ ID id-UE-Application-Layer-Measurement-Capability		CRITICALITY ignore	TYPE UE-Application-Layer-Measurement-Capability							PRESENCE optional}|
 	{ ID id-EDT-Session					CRITICALITY ignore	TYPE EDT-Session					PRESENCE optional}|
 	{ ID id-IAB-Node-Indication			CRITICALITY reject	TYPE IAB-Node-Indication			PRESENCE optional}|
-	{ ID id-LTE-NTN-TAI-Information		CRITICALITY ignore	TYPE LTE-NTN-TAI-Information 		PRESENCE optional},
+	{ ID id-LTE-NTN-TAI-Information		CRITICALITY ignore	TYPE LTE-NTN-TAI-Information 		PRESENCE optional}|
+	{ ID id-CoarseUELocationRequested	CRITICALITY ignore	TYPE CoarseUELocationRequested		PRESENCE optional},
 	...
 }
 
@@ -3226,7 +3233,8 @@ ConnectionEstablishmentIndicationIEs S1AP-PROTOCOL-IES ::= {
 	{ ID id-Subscription-Based-UE-DifferentiationInfo		CRITICALITY ignore	TYPE Subscription-Based-UE-DifferentiationInfo		PRESENCE optional}|
 	{ ID id-UE-Level-QoS-Parameters		CRITICALITY ignore	TYPE E-RABLevelQoSParameters	PRESENCE optional}|
 	{ ID id-UERadioCapabilityID			CRITICALITY reject	TYPE UERadioCapabilityID		PRESENCE optional}|
-	{ ID id-Masked-IMEISV				CRITICALITY ignore	TYPE Masked-IMEISV				PRESENCE optional},
+	{ ID id-Masked-IMEISV				CRITICALITY ignore	TYPE Masked-IMEISV				PRESENCE optional}|
+	{ ID id-CoarseUELocation			CRITICALITY ignore	TYPE CoarseUELocation			PRESENCE optional},
 	...
 }
 

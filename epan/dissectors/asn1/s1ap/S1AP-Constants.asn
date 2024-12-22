@@ -1,4 +1,4 @@
--- 3GPP TS 36.413 V18.2.0 (2024-06)
+-- 3GPP TS 36.413 V18.3.0 (2024-12)
 -- 9.3.6	Constant Definitions
 -- **************************************************************
 --
@@ -542,6 +542,8 @@ id-M7ReportAmount									ProtocolIE-ID ::= 349
 id-TimeBasedHandoverInformation						ProtocolIE-ID ::= 350
 id-Bearers-SubjectToDLDiscarding-Item				ProtocolIE-ID ::= 351
 id-Bearers-SubjectToDLDiscardingList				ProtocolIE-ID ::= 352
+id-CoarseUELocationRequested						ProtocolIE-ID ::= 353
+id-CoarseUELocation									ProtocolIE-ID ::= 354
 
 
 

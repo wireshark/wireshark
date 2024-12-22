@@ -15,7 +15,7 @@
  *
  * Based on the RANAP dissector
  *
- * References: 3GPP TS 36.413 V18.2.0 (2024-06)
+ * References: 3GPP TS 36.413 V18.3.0 (2024-12)
  */
 
 #include "config.h"
@@ -46,6 +46,7 @@
 #include "packet-gsm_a_common.h"
 #include "packet-ntp.h"
 #include "packet-ngap.h"
+#include "packet-lpp.h"
 
 #define PNAME  "S1 Application Protocol"
 #define PSNAME "S1AP"
@@ -548,7 +549,9 @@ typedef enum _ProtocolIE_ID_enum {
   id_M7ReportAmount = 349,
   id_TimeBasedHandoverInformation = 350,
   id_Bearers_SubjectToDLDiscarding_Item = 351,
-  id_Bearers_SubjectToDLDiscardingList = 352
+  id_Bearers_SubjectToDLDiscardingList = 352,
+  id_CoarseUELocationRequested = 353,
+  id_CoarseUELocation = 354
 } ProtocolIE_ID_enum;
 
 typedef enum _HandoverType_enum {
@@ -663,6 +666,8 @@ static int hf_s1ap_Cdma2000OneXSRVCCInfo_PDU;     /* Cdma2000OneXSRVCCInfo */
 static int hf_s1ap_Cdma2000OneXRAND_PDU;          /* Cdma2000OneXRAND */
 static int hf_s1ap_CNDomain_PDU;                  /* CNDomain */
 static int hf_s1ap_CNTypeRestrictions_PDU;        /* CNTypeRestrictions */
+static int hf_s1ap_CoarseUELocationRequested_PDU;  /* CoarseUELocationRequested */
+static int hf_s1ap_CoarseUELocation_PDU;          /* CoarseUELocation */
 static int hf_s1ap_ConcurrentWarningMessageIndicator_PDU;  /* ConcurrentWarningMessageIndicator */
 static int hf_s1ap_ConnectedengNBList_PDU;        /* ConnectedengNBList */
 static int hf_s1ap_ContextatSource_PDU;           /* ContextatSource */
@@ -1613,6 +1618,7 @@ static int ett_s1ap_NB_IoT_RLF_Report_Container;
 static int ett_s1ap_MDT_ConfigurationNR;
 static int ett_s1ap_IntersystemSONConfigurationTransfer;
 static int ett_s1ap_rAT_RestrictionInformation;
+static int ett_s1ap_CoarseUELocation;
 static int ett_s1ap_PrivateIE_ID;
 static int ett_s1ap_ProtocolIE_Container;
 static int ett_s1ap_ProtocolIE_Field;
@@ -2791,6 +2797,8 @@ static const value_string s1ap_ProtocolIE_ID_vals[] = {
   { id_TimeBasedHandoverInformation, "id-TimeBasedHandoverInformation" },
   { id_Bearers_SubjectToDLDiscarding_Item, "id-Bearers-SubjectToDLDiscarding-Item" },
   { id_Bearers_SubjectToDLDiscardingList, "id-Bearers-SubjectToDLDiscardingList" },
+  { id_CoarseUELocationRequested, "id-CoarseUELocationRequested" },
+  { id_CoarseUELocation, "id-CoarseUELocation" },
   { 0, NULL }
 };
 
@@ -5013,6 +5021,39 @@ dissect_s1ap_CNTypeRestrictions(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_s1ap_CNTypeRestrictions, CNTypeRestrictions_sequence_of,
                                                   1, maxnoofEPLMNsPlusOne, false);
+
+  return offset;
+}
+
+
+static const value_string s1ap_CoarseUELocationRequested_vals[] = {
+  {   0, "true" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_s1ap_CoarseUELocationRequested(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     1, NULL, true, 0, NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_s1ap_CoarseUELocation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  tvbuff_t *parameter_tvb = NULL;
+  proto_tree *subtree;
+  offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
+                                       NO_BOUND, NO_BOUND, false, &parameter_tvb);
+
+  if (parameter_tvb) {
+    subtree = proto_item_add_subtree(actx->created_item, ett_s1ap_CoarseUELocation);
+    dissect_lpp_Ellipsoid_Point_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
+  }
+
 
   return offset;
 }
@@ -15448,6 +15489,22 @@ static int dissect_CNTypeRestrictions_PDU(tvbuff_t *tvb _U_, packet_info *pinfo 
   offset += 7; offset >>= 3;
   return offset;
 }
+static int dissect_CoarseUELocationRequested_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
+  offset = dissect_s1ap_CoarseUELocationRequested(tvb, offset, &asn1_ctx, tree, hf_s1ap_CoarseUELocationRequested_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_CoarseUELocation_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
+  offset = dissect_s1ap_CoarseUELocation(tvb, offset, &asn1_ctx, tree, hf_s1ap_CoarseUELocation_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
 static int dissect_ConcurrentWarningMessageIndicator_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
@@ -18756,6 +18813,8 @@ proto_reg_handoff_s1ap(void)
   dissector_add_uint("s1ap.ies", id_E_RABToBeUpdatedList, create_dissector_handle(dissect_E_RABToBeUpdatedList_PDU, proto_s1ap));
   dissector_add_uint("s1ap.ies", id_E_RABToBeUpdatedItem, create_dissector_handle(dissect_E_RABToBeUpdatedItem_PDU, proto_s1ap));
   dissector_add_uint("s1ap.ies", id_Bearers_SubjectToDLDiscarding_Item, create_dissector_handle(dissect_Bearers_SubjectToDLDiscarding_Item_PDU, proto_s1ap));
+  dissector_add_uint("s1ap.ies", id_CoarseUELocationRequested, create_dissector_handle(dissect_CoarseUELocationRequested_PDU, proto_s1ap));
+  dissector_add_uint("s1ap.ies", id_CoarseUELocation, create_dissector_handle(dissect_CoarseUELocation_PDU, proto_s1ap));
   dissector_add_uint("s1ap.extension", id_Data_Forwarding_Not_Possible, create_dissector_handle(dissect_Data_Forwarding_Not_Possible_PDU, proto_s1ap));
   dissector_add_uint("s1ap.extension", id_Time_Synchronisation_Info, create_dissector_handle(dissect_TimeSynchronisationInfo_PDU, proto_s1ap));
   dissector_add_uint("s1ap.extension", id_x2TNLConfigurationInfo, create_dissector_handle(dissect_X2TNLConfigurationInfo_PDU, proto_s1ap));
@@ -19271,6 +19330,14 @@ void proto_register_s1ap(void) {
     { &hf_s1ap_CNTypeRestrictions_PDU,
       { "CNTypeRestrictions", "s1ap.CNTypeRestrictions",
         FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_s1ap_CoarseUELocationRequested_PDU,
+      { "CoarseUELocationRequested", "s1ap.CoarseUELocationRequested",
+        FT_UINT32, BASE_DEC, VALS(s1ap_CoarseUELocationRequested_vals), 0,
+        NULL, HFILL }},
+    { &hf_s1ap_CoarseUELocation_PDU,
+      { "CoarseUELocation", "s1ap.CoarseUELocation",
+        FT_BYTES, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_s1ap_ConcurrentWarningMessageIndicator_PDU,
       { "ConcurrentWarningMessageIndicator", "s1ap.ConcurrentWarningMessageIndicator",
@@ -22939,6 +23006,7 @@ void proto_register_s1ap(void) {
     &ett_s1ap_MDT_ConfigurationNR,
     &ett_s1ap_IntersystemSONConfigurationTransfer,
     &ett_s1ap_rAT_RestrictionInformation,
+    &ett_s1ap_CoarseUELocation,
     &ett_s1ap_PrivateIE_ID,
     &ett_s1ap_ProtocolIE_Container,
     &ett_s1ap_ProtocolIE_Field,

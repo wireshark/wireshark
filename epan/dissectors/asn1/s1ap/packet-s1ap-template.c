@@ -10,7 +10,7 @@
  *
  * Based on the RANAP dissector
  *
- * References: 3GPP TS 36.413 V18.2.0 (2024-06)
+ * References: 3GPP TS 36.413 V18.3.0 (2024-12)
  */
 
 #include "config.h"
@@ -41,6 +41,7 @@
 #include "packet-gsm_a_common.h"
 #include "packet-ntp.h"
 #include "packet-ngap.h"
+#include "packet-lpp.h"
 
 #define PNAME  "S1 Application Protocol"
 #define PSNAME "S1AP"
@@ -171,6 +172,7 @@ static int ett_s1ap_NB_IoT_RLF_Report_Container;
 static int ett_s1ap_MDT_ConfigurationNR;
 static int ett_s1ap_IntersystemSONConfigurationTransfer;
 static int ett_s1ap_rAT_RestrictionInformation;
+static int ett_s1ap_CoarseUELocation;
 #include "packet-s1ap-ett.c"
 
 static expert_field ei_s1ap_number_pages_le15;
@@ -801,6 +803,7 @@ void proto_register_s1ap(void) {
     &ett_s1ap_MDT_ConfigurationNR,
     &ett_s1ap_IntersystemSONConfigurationTransfer,
     &ett_s1ap_rAT_RestrictionInformation,
+    &ett_s1ap_CoarseUELocation,
 #include "packet-s1ap-ettarr.c"
   };
 
