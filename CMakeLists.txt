@@ -89,7 +89,10 @@ find_package(Python3 3.6 REQUIRED)
 
 # Strawberry is a web browser away from being its own operating system. Find
 # Perl before finding anything else so that we can avoid building with any of
-# of Strawberry's components.
+# of Strawberry's components. Adding Strawberry's "/c" subdirectory to
+# CMAKE_IGNORE_PREFIX_PATH should help us avoid pulling in libraries such as
+# zlib and executables such as xsltproc. CMake 3.29.1 and later ignores their
+# pkg-config: https://gitlab.kitware.com/cmake/cmake/-/merge_requests/9375
 find_package(Perl)
 if(WIN32 AND PERL_EXECUTABLE)
 	string(TOLOWER ${PERL_EXECUTABLE} lower_perl)
