@@ -1,4 +1,4 @@
--- 3GPP TS 38.413 V18.3.0 (2024-09)
+-- 3GPP TS 38.413 V18.4.0 (2024-12)
 -- 9.4.7	Constant Definitions
 -- **************************************************************
 --
@@ -679,6 +679,8 @@ maxProtocolIEs							INTEGER ::= 65535
 	id-UserPlaneFailureIndicationReport						ProtocolIE-ID ::= 436
 	id-SourceSN-to-TargetSN-QMCInfo							ProtocolIE-ID ::= 437
 	id-QoERVQoEReportingPaths								ProtocolIE-ID ::= 438
+	id-UserLocationInformationN3IWF-without-PortNumber		ProtocolIE-ID ::= 439
+	id-AUN3DeviceAccessInfo									ProtocolIE-ID ::= 440
 
 
 

@@ -14,7 +14,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
- * References: 3GPP TS 38.413 v18.3.0 (2024-09)
+ * References: 3GPP TS 38.413 v18.4.0 (2024-09)
  */
 
 #include "config.h"
@@ -695,7 +695,9 @@ typedef enum _ProtocolIE_ID_enum {
   id_UserPlaneFailureIndication = 435,
   id_UserPlaneFailureIndicationReport = 436,
   id_SourceSN_to_TargetSN_QMCInfo = 437,
-  id_QoERVQoEReportingPaths = 438
+  id_QoERVQoEReportingPaths = 438,
+  id_UserLocationInformationN3IWF_without_PortNumber = 439,
+  id_AUN3DeviceAccessInfo = 440
 } ProtocolIE_ID_enum;
 
 typedef enum _GlobalRANNodeID_enum {
@@ -812,6 +814,7 @@ static int hf_ngap_AMF_UE_NGAP_ID_PDU;            /* AMF_UE_NGAP_ID */
 static int hf_ngap_AssistanceDataForPaging_PDU;   /* AssistanceDataForPaging */
 static int hf_ngap_AssociatedQosFlowList_PDU;     /* AssociatedQosFlowList */
 static int hf_ngap_AssociatedSessionID_PDU;       /* AssociatedSessionID */
+static int hf_ngap_AUN3DeviceAccessInfo_PDU;      /* AUN3DeviceAccessInfo */
 static int hf_ngap_AuthenticatedIndication_PDU;   /* AuthenticatedIndication */
 static int hf_ngap_BeamMeasurementsReportConfiguration_PDU;  /* BeamMeasurementsReportConfiguration */
 static int hf_ngap_BroadcastCancelledAreaList_PDU;  /* BroadcastCancelledAreaList */
@@ -1186,6 +1189,7 @@ static int hf_ngap_UPTransportLayerInformationList_PDU;  /* UPTransportLayerInfo
 static int hf_ngap_UPTransportLayerInformationPairList_PDU;  /* UPTransportLayerInformationPairList */
 static int hf_ngap_URI_address_PDU;               /* URI_address */
 static int hf_ngap_UserLocationInformation_PDU;   /* UserLocationInformation */
+static int hf_ngap_UserLocationInformationN3IWF_without_PortNumber_PDU;  /* UserLocationInformationN3IWF_without_PortNumber */
 static int hf_ngap_UserLocationInformationTNGF_PDU;  /* UserLocationInformationTNGF */
 static int hf_ngap_UserLocationInformationTWIF_PDU;  /* UserLocationInformationTWIF */
 static int hf_ngap_UserLocationInformationW_AGF_PDU;  /* UserLocationInformationW_AGF */
@@ -1432,6 +1436,8 @@ static int hf_ngap_AssociatedMBSQosFlowSetuporModifyRequestList_item;  /* Associ
 static int hf_ngap_AssociatedQosFlowList_item;    /* AssociatedQosFlowItem */
 static int hf_ngap_qosFlowIdentifier;             /* QosFlowIdentifier */
 static int hf_ngap_qosFlowMappingIndication;      /* T_qosFlowMappingIndication */
+static int hf_ngap_aUN3DeviceAccess;              /* T_aUN3DeviceAccess */
+static int hf_ngap_existingNGConnectionwithSameLocation;  /* T_existingNGConnectionwithSameLocation */
 static int hf_ngap_cellBased;                     /* CellBasedMDT_NR */
 static int hf_ngap_tABased;                       /* TABasedMDT */
 static int hf_ngap_pLMNWide;                      /* NULL */
@@ -2371,7 +2377,7 @@ static int hf_ngap_nGU_UP_TNLInformation;         /* UPTransportLayerInformation
 static int hf_ngap_UPTransportLayerInformationPairList_item;  /* UPTransportLayerInformationPairItem */
 static int hf_ngap_userLocationInformationEUTRA;  /* UserLocationInformationEUTRA */
 static int hf_ngap_userLocationInformationNR;     /* UserLocationInformationNR */
-static int hf_ngap_userLocationInformationN3IWF;  /* UserLocationInformationN3IWF */
+static int hf_ngap_userLocationInformationN3IWF_with_PortNumber;  /* UserLocationInformationN3IWF_with_PortNumber */
 static int hf_ngap_timeStamp;                     /* TimeStamp */
 static int hf_ngap_iPAddress;                     /* TransportLayerAddress */
 static int hf_ngap_tNAP_ID;                       /* TNAP_ID */
@@ -2505,6 +2511,7 @@ static int ett_ngap_AssociatedMBSQosFlowSetuporModifyRequestList;
 static int ett_ngap_AssociatedMBSQosFlowSetuporModifyRequestItem;
 static int ett_ngap_AssociatedQosFlowList;
 static int ett_ngap_AssociatedQosFlowItem;
+static int ett_ngap_AUN3DeviceAccessInfo;
 static int ett_ngap_AreaScopeOfMDT_NR;
 static int ett_ngap_AreaScopeOfMDT_EUTRA;
 static int ett_ngap_AreaScopeOfNeighCellsList;
@@ -3174,7 +3181,8 @@ static int ett_ngap_UPTransportLayerInformationPairList;
 static int ett_ngap_UPTransportLayerInformationPairItem;
 static int ett_ngap_UserLocationInformation;
 static int ett_ngap_UserLocationInformationEUTRA;
-static int ett_ngap_UserLocationInformationN3IWF;
+static int ett_ngap_UserLocationInformationN3IWF_with_PortNumber;
+static int ett_ngap_UserLocationInformationN3IWF_without_PortNumber;
 static int ett_ngap_UserLocationInformationTNGF;
 static int ett_ngap_UserLocationInformationTWIF;
 static int ett_ngap_UserLocationInformationW_AGF;
@@ -4576,6 +4584,8 @@ static const value_string ngap_ProtocolIE_ID_vals[] = {
   { id_UserPlaneFailureIndicationReport, "id-UserPlaneFailureIndicationReport" },
   { id_SourceSN_to_TargetSN_QMCInfo, "id-SourceSN-to-TargetSN-QMCInfo" },
   { id_QoERVQoEReportingPaths, "id-QoERVQoEReportingPaths" },
+  { id_UserLocationInformationN3IWF_without_PortNumber, "id-UserLocationInformationN3IWF-without-PortNumber" },
+  { id_AUN3DeviceAccessInfo, "id-AUN3DeviceAccessInfo" },
   { 0, NULL }
 };
 
@@ -6438,6 +6448,53 @@ static int
 dissect_ngap_AssociatedSessionID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        NO_BOUND, NO_BOUND, false, NULL);
+
+  return offset;
+}
+
+
+static const value_string ngap_T_aUN3DeviceAccess_vals[] = {
+  {   0, "true" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_ngap_T_aUN3DeviceAccess(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     1, NULL, true, 0, NULL);
+
+  return offset;
+}
+
+
+static const value_string ngap_T_existingNGConnectionwithSameLocation_vals[] = {
+  {   0, "true" },
+  {   1, "false" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_ngap_T_existingNGConnectionwithSameLocation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     2, NULL, true, 0, NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t AUN3DeviceAccessInfo_sequence[] = {
+  { &hf_ngap_aUN3DeviceAccess, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ngap_T_aUN3DeviceAccess },
+  { &hf_ngap_existingNGConnectionwithSameLocation, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ngap_T_existingNGConnectionwithSameLocation },
+  { &hf_ngap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ngap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_ngap_AUN3DeviceAccessInfo(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_ngap_AUN3DeviceAccessInfo, AUN3DeviceAccessInfo_sequence);
 
   return offset;
 }
@@ -15086,8 +15143,8 @@ dissect_ngap_MBSSessionSetupOrModRequestTransfer(tvbuff_t *tvb _U_, int offset _
 
 
 static const value_string ngap_SupportedUEType_vals[] = {
-  {   0, "non-RedCap-UE" },
-  {   1, "redCap-UE" },
+  {   0, "non-RedCap-eRedCap-UE" },
+  {   1, "redCap-eRedCap-UE" },
   { 0, NULL }
 };
 
@@ -23562,7 +23619,7 @@ dissect_ngap_UserLocationInformationNR(tvbuff_t *tvb _U_, int offset _U_, asn1_c
 }
 
 
-static const per_sequence_t UserLocationInformationN3IWF_sequence[] = {
+static const per_sequence_t UserLocationInformationN3IWF_with_PortNumber_sequence[] = {
   { &hf_ngap_iPAddress      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ngap_TransportLayerAddress },
   { &hf_ngap_portNumber     , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ngap_PortNumber },
   { &hf_ngap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ngap_ProtocolExtensionContainer },
@@ -23570,9 +23627,9 @@ static const per_sequence_t UserLocationInformationN3IWF_sequence[] = {
 };
 
 static int
-dissect_ngap_UserLocationInformationN3IWF(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_ngap_UserLocationInformationN3IWF_with_PortNumber(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_ngap_UserLocationInformationN3IWF, UserLocationInformationN3IWF_sequence);
+                                   ett_ngap_UserLocationInformationN3IWF_with_PortNumber, UserLocationInformationN3IWF_with_PortNumber_sequence);
 
   return offset;
 }
@@ -23581,7 +23638,7 @@ dissect_ngap_UserLocationInformationN3IWF(tvbuff_t *tvb _U_, int offset _U_, asn
 static const value_string ngap_UserLocationInformation_vals[] = {
   {   0, "userLocationInformationEUTRA" },
   {   1, "userLocationInformationNR" },
-  {   2, "userLocationInformationN3IWF" },
+  {   2, "userLocationInformationN3IWF-with-PortNumber" },
   {   3, "choice-Extensions" },
   { 0, NULL }
 };
@@ -23589,7 +23646,7 @@ static const value_string ngap_UserLocationInformation_vals[] = {
 static const per_choice_t UserLocationInformation_choice[] = {
   {   0, &hf_ngap_userLocationInformationEUTRA, ASN1_NO_EXTENSIONS     , dissect_ngap_UserLocationInformationEUTRA },
   {   1, &hf_ngap_userLocationInformationNR, ASN1_NO_EXTENSIONS     , dissect_ngap_UserLocationInformationNR },
-  {   2, &hf_ngap_userLocationInformationN3IWF, ASN1_NO_EXTENSIONS     , dissect_ngap_UserLocationInformationN3IWF },
+  {   2, &hf_ngap_userLocationInformationN3IWF_with_PortNumber, ASN1_NO_EXTENSIONS     , dissect_ngap_UserLocationInformationN3IWF_with_PortNumber },
   {   3, &hf_ngap_choice_Extensions, ASN1_NO_EXTENSIONS     , dissect_ngap_ProtocolIE_SingleContainer },
   { 0, NULL, 0, NULL }
 };
@@ -23599,6 +23656,22 @@ dissect_ngap_UserLocationInformation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
                                  ett_ngap_UserLocationInformation, UserLocationInformation_choice,
                                  NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t UserLocationInformationN3IWF_without_PortNumber_sequence[] = {
+  { &hf_ngap_iPAddress      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ngap_TransportLayerAddress },
+  { &hf_ngap_tAI            , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ngap_TAI },
+  { &hf_ngap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ngap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_ngap_UserLocationInformationN3IWF_without_PortNumber(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_ngap_UserLocationInformationN3IWF_without_PortNumber, UserLocationInformationN3IWF_without_PortNumber_sequence);
 
   return offset;
 }
@@ -26515,6 +26588,14 @@ static int dissect_AssociatedSessionID_PDU(tvbuff_t *tvb _U_, packet_info *pinfo
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_ngap_AssociatedSessionID(tvb, offset, &asn1_ctx, tree, hf_ngap_AssociatedSessionID_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_AUN3DeviceAccessInfo_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
+  offset = dissect_ngap_AUN3DeviceAccessInfo(tvb, offset, &asn1_ctx, tree, hf_ngap_AUN3DeviceAccessInfo_PDU);
   offset += 7; offset >>= 3;
   return offset;
 }
@@ -29510,6 +29591,14 @@ static int dissect_UserLocationInformation_PDU(tvbuff_t *tvb _U_, packet_info *p
   offset += 7; offset >>= 3;
   return offset;
 }
+static int dissect_UserLocationInformationN3IWF_without_PortNumber_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
+  offset = dissect_ngap_UserLocationInformationN3IWF_without_PortNumber(tvb, offset, &asn1_ctx, tree, hf_ngap_UserLocationInformationN3IWF_without_PortNumber_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
 static int dissect_UserLocationInformationTNGF_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
@@ -31509,6 +31598,8 @@ proto_reg_handoff_ngap(void)
   dissector_add_uint("ngap.ies", id_PDUSessionListMTCommHReq, create_dissector_handle(dissect_PDUSessionListMTCommHReq_PDU, proto_ngap));
   dissector_add_uint("ngap.ies", id_MBS_NGUFailureIndication, create_dissector_handle(dissect_MBS_NGUFailureIndication_PDU, proto_ngap));
   dissector_add_uint("ngap.ies", id_UserPlaneFailureIndication, create_dissector_handle(dissect_UserPlaneFailureIndication_PDU, proto_ngap));
+  dissector_add_uint("ngap.ies", id_UserLocationInformationN3IWF_without_PortNumber, create_dissector_handle(dissect_UserLocationInformationN3IWF_without_PortNumber_PDU, proto_ngap));
+  dissector_add_uint("ngap.ies", id_AUN3DeviceAccessInfo, create_dissector_handle(dissect_AUN3DeviceAccessInfo_PDU, proto_ngap));
   dissector_add_uint("ngap.extension", id_SecondaryRATUsageInformation, create_dissector_handle(dissect_SecondaryRATUsageInformation_PDU, proto_ngap));
   dissector_add_uint("ngap.extension", id_PDUSessionResourceReleaseResponseTransfer, create_dissector_handle(dissect_PDUSessionResourceReleaseResponseTransfer_OCTET_STRING_PDU, proto_ngap));
   dissector_add_uint("ngap.extension", id_S_NSSAI, create_dissector_handle(dissect_S_NSSAI_PDU, proto_ngap));
@@ -32185,6 +32276,10 @@ void proto_register_ngap(void) {
     { &hf_ngap_AssociatedSessionID_PDU,
       { "AssociatedSessionID", "ngap.AssociatedSessionID",
         FT_BYTES, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_ngap_AUN3DeviceAccessInfo_PDU,
+      { "AUN3DeviceAccessInfo", "ngap.AUN3DeviceAccessInfo_element",
+        FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_ngap_AuthenticatedIndication_PDU,
       { "AuthenticatedIndication", "ngap.AuthenticatedIndication",
@@ -33682,6 +33777,10 @@ void proto_register_ngap(void) {
       { "UserLocationInformation", "ngap.UserLocationInformation",
         FT_UINT32, BASE_DEC, VALS(ngap_UserLocationInformation_vals), 0,
         NULL, HFILL }},
+    { &hf_ngap_UserLocationInformationN3IWF_without_PortNumber_PDU,
+      { "UserLocationInformationN3IWF-without-PortNumber", "ngap.UserLocationInformationN3IWF_without_PortNumber_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
     { &hf_ngap_UserLocationInformationTNGF_PDU,
       { "UserLocationInformationTNGF", "ngap.UserLocationInformationTNGF_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -34665,6 +34764,14 @@ void proto_register_ngap(void) {
     { &hf_ngap_qosFlowMappingIndication,
       { "qosFlowMappingIndication", "ngap.qosFlowMappingIndication",
         FT_UINT32, BASE_DEC, VALS(ngap_T_qosFlowMappingIndication_vals), 0,
+        NULL, HFILL }},
+    { &hf_ngap_aUN3DeviceAccess,
+      { "aUN3DeviceAccess", "ngap.aUN3DeviceAccess",
+        FT_UINT32, BASE_DEC, VALS(ngap_T_aUN3DeviceAccess_vals), 0,
+        NULL, HFILL }},
+    { &hf_ngap_existingNGConnectionwithSameLocation,
+      { "existingNGConnectionwithSameLocation", "ngap.existingNGConnectionwithSameLocation",
+        FT_UINT32, BASE_DEC, VALS(ngap_T_existingNGConnectionwithSameLocation_vals), 0,
         NULL, HFILL }},
     { &hf_ngap_cellBased,
       { "cellBased", "ngap.cellBased_element",
@@ -38422,8 +38529,8 @@ void proto_register_ngap(void) {
       { "userLocationInformationNR", "ngap.userLocationInformationNR_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-    { &hf_ngap_userLocationInformationN3IWF,
-      { "userLocationInformationN3IWF", "ngap.userLocationInformationN3IWF_element",
+    { &hf_ngap_userLocationInformationN3IWF_with_PortNumber,
+      { "userLocationInformationN3IWF-with-PortNumber", "ngap.userLocationInformationN3IWF_with_PortNumber_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_ngap_timeStamp,
@@ -38672,6 +38779,7 @@ void proto_register_ngap(void) {
     &ett_ngap_AssociatedMBSQosFlowSetuporModifyRequestItem,
     &ett_ngap_AssociatedQosFlowList,
     &ett_ngap_AssociatedQosFlowItem,
+    &ett_ngap_AUN3DeviceAccessInfo,
     &ett_ngap_AreaScopeOfMDT_NR,
     &ett_ngap_AreaScopeOfMDT_EUTRA,
     &ett_ngap_AreaScopeOfNeighCellsList,
@@ -39341,7 +39449,8 @@ void proto_register_ngap(void) {
     &ett_ngap_UPTransportLayerInformationPairItem,
     &ett_ngap_UserLocationInformation,
     &ett_ngap_UserLocationInformationEUTRA,
-    &ett_ngap_UserLocationInformationN3IWF,
+    &ett_ngap_UserLocationInformationN3IWF_with_PortNumber,
+    &ett_ngap_UserLocationInformationN3IWF_without_PortNumber,
     &ett_ngap_UserLocationInformationTNGF,
     &ett_ngap_UserLocationInformationTWIF,
     &ett_ngap_UserLocationInformationW_AGF,

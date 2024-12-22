@@ -1,4 +1,4 @@
--- 3GPP TS 38.413 V18.3.0 (2024-09)
+-- 3GPP TS 38.413 V18.4.0 (2024-12)
 -- 9.4.5	Information Element Definitions
 -- **************************************************************
 --
@@ -212,6 +212,7 @@ IMPORTS
 	id-UserPlaneFailureIndication,
 	id-UserPlaneFailureIndicationReport,
 	id-QoERVQoEReportingPaths,
+	id-UserLocationInformationN3IWF-without-PortNumber,
 	maxnoofAllowedAreas,
 	maxnoofAllowedCAGsperPLMN,
 	maxnoofAllowedS-NSSAIs,
@@ -668,6 +669,18 @@ AssociatedQosFlowItem-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
 }
 
 AssociatedSessionID ::= OCTET STRING
+
+AUN3DeviceAccessInfo ::= SEQUENCE {
+	aUN3DeviceAccess							ENUMERATED {true, ...},
+	existingNGConnectionwithSameLocation		ENUMERATED {true, false, ...},
+	iE-Extensions		ProtocolExtensionContainer { { AUN3DeviceAccessInfo-ExtIEs} }	OPTIONAL,
+	...
+}
+
+AUN3DeviceAccessInfo-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
 
 AuthenticatedIndication ::= ENUMERATED {true, ...}
 
@@ -3684,7 +3697,7 @@ MBSSessionSetupOrModRequestTransferIEs NGAP-PROTOCOL-IES ::= {
 }
 SupportedUETypeList ::= SEQUENCE (SIZE(1.. maxnoofUETypes)) OF SupportedUEType
 
-SupportedUEType ::= ENUMERATED {non-RedCap-UE, redCap-UE, ...}
+SupportedUEType ::= ENUMERATED {non-RedCap-eRedCap-UE, redCap-eRedCap-UE, ...}
 
 MBS-SessionFSAIDList ::= SEQUENCE (SIZE(1.. maxnoofMBSFSAs)) OF MBS-SessionFSAID
 
@@ -7812,14 +7825,15 @@ URI-address ::= VisibleString
 UserLocationInformation ::= CHOICE {
 	userLocationInformationEUTRA	UserLocationInformationEUTRA,
 	userLocationInformationNR		UserLocationInformationNR,
-	userLocationInformationN3IWF	UserLocationInformationN3IWF,
+	userLocationInformationN3IWF-with-PortNumber	UserLocationInformationN3IWF-with-PortNumber,
 	choice-Extensions		ProtocolIE-SingleContainer { {UserLocationInformation-ExtIEs} }
 }
 
 UserLocationInformation-ExtIEs NGAP-PROTOCOL-IES ::= {
 	{ ID id-UserLocationInformationTNGF		CRITICALITY ignore	TYPE UserLocationInformationTNGF		PRESENCE mandatory	}|
 	{ ID id-UserLocationInformationTWIF		CRITICALITY ignore	TYPE UserLocationInformationTWIF		PRESENCE mandatory	}|
-	{ ID id-UserLocationInformationW-AGF	CRITICALITY ignore	TYPE UserLocationInformationW-AGF		PRESENCE mandatory	},
+	{ ID id-UserLocationInformationW-AGF	CRITICALITY ignore	TYPE UserLocationInformationW-AGF		PRESENCE mandatory	}|
+	{ ID id-UserLocationInformationN3IWF-without-PortNumber	CRITICALITY ignore	TYPE UserLocationInformationN3IWF-without-PortNumber		PRESENCE mandatory	},
 	...
 }
 
@@ -7836,15 +7850,25 @@ UserLocationInformationEUTRA-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
-UserLocationInformationN3IWF ::= SEQUENCE {
+UserLocationInformationN3IWF-with-PortNumber ::= SEQUENCE {
 	iPAddress			TransportLayerAddress,
 	portNumber			PortNumber,
-	iE-Extensions		ProtocolExtensionContainer { {UserLocationInformationN3IWF-ExtIEs} }	OPTIONAL,
+	iE-Extensions		ProtocolExtensionContainer { {UserLocationInformationN3IWF-with-PortNumber-ExtIEs} }	OPTIONAL,
 	...
 }
 
-UserLocationInformationN3IWF-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
+UserLocationInformationN3IWF-with-PortNumber-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
 	{ ID id-TAI			CRITICALITY ignore	EXTENSION TAI							PRESENCE optional	},
+	...
+}
+UserLocationInformationN3IWF-without-PortNumber ::= SEQUENCE {
+	iPAddress			TransportLayerAddress,
+	tAI					TAI								OPTIONAL,
+	iE-Extensions		ProtocolExtensionContainer { { UserLocationInformationN3IWF-without-PortNumber-ExtIEs} }	OPTIONAL,
+	...
+}
+
+UserLocationInformationN3IWF-without-PortNumber-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
 	...
 }
 

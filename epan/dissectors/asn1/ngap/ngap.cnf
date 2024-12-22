@@ -1854,6 +1854,8 @@ id-UserPlaneFailureIndication                          ProtocolIE-ID
 id-UserPlaneFailureIndicationReport                    ProtocolIE-ID
 id-SourceSN-to-TargetSN-QMCInfo                        ProtocolIE-ID
 id-QoERVQoEReportingPaths                              ProtocolIE-ID
+id-UserLocationInformationN3IWF-without-PortNumber     ProtocolIE-ID
+id-AUN3DeviceAccessInfo                                ProtocolIE-ID
 
 #.END
 
@@ -2169,6 +2171,8 @@ SLPositioningRangingServiceInfo                          N ngap.ies id-SLPositio
 PDUSessionListMTCommHReq                                 N ngap.ies id-PDUSessionListMTCommHReq
 MBS-NGUFailureIndication                                 N ngap.ies id-MBS-NGUFailureIndication
 UserPlaneFailureIndication                               N ngap.ies id-UserPlaneFailureIndication
+UserLocationInformationN3IWF-without-PortNumber          N ngap.ies id-UserLocationInformationN3IWF-without-PortNumber
+AUN3DeviceAccessInfo                                     N ngap.ies id-AUN3DeviceAccessInfo
 
 #NGAP-PROTOCOL-EXTENSION
 
