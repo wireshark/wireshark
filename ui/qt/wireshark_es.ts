@@ -3028,12 +3028,10 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>%1 Open File</source>
-        <oldsource>Open File</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>%1 Select File</source>
-        <oldsource>Select File</oldsource>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -6888,7 +6886,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>Capturing from %1</source>
-        <translation type="unfinished">Capturando desde %1</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -15166,10 +15164,6 @@ a:hover {
         <source>Stop and Continue &amp;without Saving</source>
         <oldsource>Stop and Continue without Saving</oldsource>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Capturing from %1</source>
-        <translation type="vanished">Capturando desde %1</translation>
     </message>
     <message>
         <source> before opening another file</source>

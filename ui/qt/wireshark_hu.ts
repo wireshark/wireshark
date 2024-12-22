@@ -3021,12 +3021,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>%1 Open File</source>
-        <oldsource>Open File</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>%1 Select File</source>
-        <oldsource>Select File</oldsource>
         <translation type="unfinished"></translation>
     </message>
 </context>

@@ -3055,13 +3055,11 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>%1 Open File</source>
-        <oldsource>Open File</oldsource>
-        <translation type="unfinished">Apri file</translation>
+        <translation>%1 Apri file</translation>
     </message>
     <message>
         <source>%1 Select File</source>
-        <oldsource>Select File</oldsource>
-        <translation type="unfinished">Seleziona file</translation>
+        <translation>%1 Seleziona file</translation>
     </message>
 </context>
 <context>
@@ -6946,15 +6944,15 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>The Wireshark Network Analyzer</source>
-        <translation type="unfinished">Wireshark l&apos;analizzatore di rete</translation>
+        <translation>L&apos;analizzatore di rete Wireshark</translation>
     </message>
     <message>
         <source>The Stratoshark System Call and Log Analyzer</source>
-        <translation type="unfinished"></translation>
+        <translation>Analizzatore di chiamate di sistema e registri Stratoshark</translation>
     </message>
     <message>
         <source>Capturing from %1</source>
-        <translation type="unfinished">Cattura da %1</translation>
+        <translation>Cattura da %1</translation>
     </message>
 </context>
 <context>
@@ -8346,11 +8344,7 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>Copied %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Copied </source>
-        <translation type="vanished">Copiato</translation>
+        <translation>Copiati %1</translation>
     </message>
     <message>
         <source>Wiki Page for %1</source>
@@ -15308,14 +15302,6 @@ a:hover {
         <source>Stop and Continue &amp;without Saving</source>
         <oldsource>Stop and Continue without Saving</oldsource>
         <translation>Ferma e continua senza sal&amp;vare</translation>
-    </message>
-    <message>
-        <source>The Wireshark Network Analyzer</source>
-        <translation type="vanished">Wireshark l&apos;analizzatore di rete</translation>
-    </message>
-    <message>
-        <source>Capturing from %1</source>
-        <translation type="vanished">Cattura da %1</translation>
     </message>
     <message>
         <source> before opening another file</source>

@@ -3053,13 +3053,11 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>%1 Open File</source>
-        <oldsource>Open File</oldsource>
-        <translation type="unfinished">Öffne Datei</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>%1 Select File</source>
-        <oldsource>Select File</oldsource>
-        <translation type="unfinished">Datei auswählen</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -6944,7 +6942,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>The Wireshark Network Analyzer</source>
-        <translation type="unfinished">Die Wireshark Netzwerk Analysesoftware</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>The Stratoshark System Call and Log Analyzer</source>
@@ -6952,7 +6950,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>Capturing from %1</source>
-        <translation type="unfinished">Aufzeichnen von %1</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -8345,10 +8343,6 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     <message>
         <source>Copied %1</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Copied </source>
-        <translation type="vanished">Kopiert</translation>
     </message>
     <message>
         <source>Wiki Page for %1</source>
@@ -15309,14 +15303,6 @@ a:hover {
         <source>Stop and Continue &amp;without Saving</source>
         <oldsource>Stop and Continue without Saving</oldsource>
         <translation>Stoppen und Fortsetzen &amp;ohne zu Speichern</translation>
-    </message>
-    <message>
-        <source>The Wireshark Network Analyzer</source>
-        <translation type="vanished">Die Wireshark Netzwerk Analysesoftware</translation>
-    </message>
-    <message>
-        <source>Capturing from %1</source>
-        <translation type="vanished">Aufzeichnen von %1</translation>
     </message>
     <message>
         <source> before opening another file</source>

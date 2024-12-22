@@ -3046,13 +3046,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>%1 Open File</source>
-        <oldsource>Open File</oldsource>
-        <translation type="unfinished">파일 열기</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>%1 Select File</source>
-        <oldsource>Select File</oldsource>
-        <translation type="unfinished">파일 선택</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -6922,7 +6920,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>The Wireshark Network Analyzer</source>
-        <translation type="unfinished">Wireshark 네트워크 분석기</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>The Stratoshark System Call and Log Analyzer</source>
@@ -6930,7 +6928,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Capturing from %1</source>
-        <translation type="unfinished">%1에서 캡처 중</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -8313,10 +8311,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Copied %1</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Copied </source>
-        <translation type="vanished">복사됨 </translation>
     </message>
     <message>
         <source>Wiki Page for %1</source>
@@ -15272,14 +15266,6 @@ a:hover {
         <source>Stop and Continue &amp;without Saving</source>
         <oldsource>Stop and Continue without Saving</oldsource>
         <translation>정지하고 저장하지 않고 계속(&amp;W)</translation>
-    </message>
-    <message>
-        <source>The Wireshark Network Analyzer</source>
-        <translation type="vanished">Wireshark 네트워크 분석기</translation>
-    </message>
-    <message>
-        <source>Capturing from %1</source>
-        <translation type="vanished">%1에서 캡처 중</translation>
     </message>
     <message>
         <source> before opening another file</source>
