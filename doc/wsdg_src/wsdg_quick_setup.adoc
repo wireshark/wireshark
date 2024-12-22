@@ -555,13 +555,15 @@ Chocolatey ensures win_flex.exe is on your path.
 
 // winget has no bison package.
 
-===== Optional: Install Perl
+===== Only if needed: Install Perl
 
-If needed you can get a Perl installer from
-http://strawberryperl.com/
+As discussed in the <<ChToolsWindowsPerl,Tool Reference>>, you should avoid installing Perl on Windows unless you have a specific need for it.
+
+If you do need Perl you can get an installer from
+https://strawberryperl.com/
 or
 https://www.activestate.com/
-and install Perl into the default location.
+and install it into the default location.
 
 Alternatively you can install Perl using Chocolatey:
 
