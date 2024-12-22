@@ -1,4 +1,4 @@
--- 3GPP TS 38.331 V18.3.0 (2024-09)
+-- 3GPP TS 38.331 V18.4.0 (2024-12)
 
 NR-InterNodeDefinitions DEFINITIONS AUTOMATIC TAGS ::=
 
@@ -923,7 +923,13 @@ UERadioPagingInformation-v1700-IEs ::= SEQUENCE {
 UERadioPagingInformation-v1800-IEs ::= SEQUENCE {
     numberOfRxERedCap-r18                  ENUMERATED {one, two}                                OPTIONAL,
     supportOf2RxXR-r18                     ENUMERATED {supported}                               OPTIONAL,
-    nonCriticalExtension                   SEQUENCE {}                                          OPTIONAL
+    nonCriticalExtension                   UERadioPagingInformation-v1840-IEs                   OPTIONAL
+}
+
+UERadioPagingInformation-v1840-IEs ::= SEQUENCE {
+    dl-SchedulingOffset-PDSCH-TypeA-FDD-FR2-NTN-r18    ENUMERATED {supported}                   OPTIONAL,
+    dl-SchedulingOffset-PDSCH-TypeB-FDD-FR2-NTN-r18    ENUMERATED {supported}                   OPTIONAL,
+    nonCriticalExtension                               SEQUENCE {}                              OPTIONAL
 }
 
 -- TAG-UE-RADIO-PAGING-INFORMATION-STOP
