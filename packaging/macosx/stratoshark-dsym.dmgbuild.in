@@ -17,7 +17,7 @@ import os.path
 
 # .. Useful stuff ..............................................................
 
-ss_version = '@LOG_PROJECT_VERSION@'
+ss_version = '@STRATOSHARK_VERSION@'
 ss_volname = 'Stratoshark Debugging Symbols' + ss_version
 ss_srcdir = '@CMAKE_SOURCE_DIR@'
 ss_bindir = '@CMAKE_BINARY_DIR@'

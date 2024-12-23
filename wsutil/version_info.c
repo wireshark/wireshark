@@ -615,9 +615,9 @@ const char *
 get_ss_vcs_version_info(void)
 {
 #ifdef VCS_COMMIT_ID
-	return LOG_VERSION " (" VCS_NUM_COMMITS "-" VCS_COMMIT_ID ")";
+	return STRATOSHARK_VERSION " (" VCS_NUM_COMMITS "-" VCS_COMMIT_ID ")";
 #else
-	return LOG_VERSION;
+	return STRATOSHARK_VERSION;
 #endif
 }
 

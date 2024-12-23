@@ -23,10 +23,10 @@ endif()
 
 if(WIN32 AND NOT DEFINED ENV{MSYSTEM})
 	set(_project_name Wireshark)
-	set(_log_project_name Stratoshark)
+	set(STRATOSHARK_NAME Stratoshark)
 else()
 	set(_project_name wireshark)
-	set(_log_project_name stratoshark)
+	set(STRATOSHARK_NAME stratoshark)
 endif()
 
 project(${_project_name} C CXX)
@@ -61,11 +61,17 @@ endif()
 
 set(PROJECT_VERSION "${PROJECT_MAJOR_VERSION}.${PROJECT_MINOR_VERSION}.${PROJECT_PATCH_VERSION}${PROJECT_VERSION_EXTENSION}")
 
-set(LOG_PROJECT_NAME ${_log_project_name})
-set(LOG_PROJECT_MAJOR_VERSION 0)
-set(LOG_PROJECT_MINOR_VERSION 9)
-set(LOG_PROJECT_PATCH_VERSION 0)
-set(LOG_PROJECT_VERSION "${LOG_PROJECT_MAJOR_VERSION}.${LOG_PROJECT_MINOR_VERSION}.${LOG_PROJECT_PATCH_VERSION}${PROJECT_VERSION_EXTENSION}")
+set(STRATOSHARK_MAJOR_VERSION 0)
+set(STRATOSHARK_MINOR_VERSION 9)
+set(STRATOSHARK_PATCH_VERSION 0)
+set(STRATOSHARK_BUILD_VERSION 0)
+set(STRATOSHARK_VERSION_EXTENSION ${PROJECT_VERSION_EXTENSION})
+
+if(DEFINED ENV{STRATOSHARK_VERSION_EXTRA})
+	set(STRATOSHARK_VERSION_EXTENSION "$ENV{STRATOSHARK_VERSION_EXTRA}")
+endif()
+
+set(STRATOSHARK_VERSION "${STRATOSHARK_MAJOR_VERSION}.${STRATOSHARK_MINOR_VERSION}.${STRATOSHARK_PATCH_VERSION}${STRATOSHARK_VERSION_EXTENSION}")
 
 include( CMakeOptions.txt )
 
@@ -411,7 +417,7 @@ if (MANIFEST_PROCESSOR_ARCHITECTURE MATCHES "x64")
 	set(MANIFEST_PROCESSOR_ARCHITECTURE "amd64")
 endif()
 set(RC_VERSION ${PROJECT_MAJOR_VERSION},${PROJECT_MINOR_VERSION},${PROJECT_PATCH_VERSION},${PROJECT_BUILD_VERSION})
-set(LOG_RC_VERSION ${LOG_PROJECT_MAJOR_VERSION},${LOG_PROJECT_MINOR_VERSION},${PROJECT_PATCH_VERSION},${PROJECT_BUILD_VERSION})
+set(STRATOSHARK_RC_VERSION ${STRATOSHARK_MAJOR_VERSION},${STRATOSHARK_MINOR_VERSION},${PROJECT_PATCH_VERSION},${STRATOSHARK_BUILD_VERSION})
 
 message(STATUS "V: ${PROJECT_VERSION}, MaV: ${PROJECT_MAJOR_VERSION}, MiV: ${PROJECT_MINOR_VERSION}, PL: ${PROJECT_PATCH_VERSION}, EV: ${PROJECT_VERSION_EXTENSION}.")
 
@@ -1731,12 +1737,12 @@ include( UseCheckAPI )
 if(WIN32 AND NOT USE_MSYSTEM)
 	set(EXTCAP_INSTALL_LIBDIR "extcap/${PROJECT_NAME}" CACHE INTERNAL "The Wireshark extcap dir")
 	if (BUILD_stratoshark)
-		set(LOG_EXTCAP_INSTALL_LIBDIR "extcap/${LOG_PROJECT_NAME}" CACHE INTERNAL "The Stratoshark extcap dir")
+		set(STRATOSHARK_EXTCAP_INSTALL_LIBDIR "extcap/${STRATOSHARK_NAME}" CACHE INTERNAL "The Stratoshark extcap dir")
 	endif()
 else()
 	set(EXTCAP_INSTALL_LIBDIR "${CMAKE_INSTALL_LIBDIR}/${PROJECT_NAME}/extcap" CACHE INTERNAL "The Wireshark extcap dir")
 	if (BUILD_stratoshark)
-		set(LOG_EXTCAP_INSTALL_LIBDIR "${CMAKE_INSTALL_LIBDIR}/${LOG_PROJECT_NAME}/extcap" CACHE INTERNAL "The Stratoshark extcap dir")
+		set(STRATOSHARK_EXTCAP_INSTALL_LIBDIR "${CMAKE_INSTALL_LIBDIR}/${STRATOSHARK_NAME}/extcap" CACHE INTERNAL "The Stratoshark extcap dir")
 	endif()
 endif()
 
@@ -1805,19 +1811,19 @@ set(DATAFILE_DIR ${_datafile_dir} CACHE INTERNAL "Build time data file location.
 
 if(ENABLE_APPLICATION_BUNDLE)
 	if(CMAKE_CFG_INTDIR STREQUAL ".")
-		set(_log_datafile_dir "${CMAKE_BINARY_DIR}/run/Stratoshark.app/Contents/Resources/share/stratoshark")
+		set(_stratoshark_datafile_dir "${CMAKE_BINARY_DIR}/run/Stratoshark.app/Contents/Resources/share/stratoshark")
 	else()
 		# Xcode
-		set(_log_datafile_dir "${CMAKE_BINARY_DIR}/run/${CMAKE_CFG_INTDIR}/Stratoshark.app/Contents/Resources/share/stratoshark")
+		set(_stratoshark_datafile_dir "${CMAKE_BINARY_DIR}/run/${CMAKE_CFG_INTDIR}/Stratoshark.app/Contents/Resources/share/stratoshark")
 	endif()
-	set(LOG_DATAFILE_DIR ${_log_datafile_dir} CACHE INTERNAL "Build time log analysis data file location.")
+	set(STRATOSHARK_DATAFILE_DIR ${_stratoshark_datafile_dir} CACHE INTERNAL "Build time log analysis data file location.")
 # XXX We need to update wsutil/filesystem.c and packaging/nsis/*stratoshark* to match.
 # elseif(NOT CMAKE_CFG_INTDIR STREQUAL ".")
 # 	# Visual Studio, Xcode, etc.
-# 	set(_log_datafile_dir "${CMAKE_BINARY_DIR}/run/${CMAKE_CFG_INTDIR}/share/stratoshark")
+# 	set(_stratoshark_datafile_dir "${CMAKE_BINARY_DIR}/run/${CMAKE_CFG_INTDIR}/share/stratoshark")
 # else()
 # 	# Makefile, Ninja, etc.
-# 	set(_log_datafile_dir "${CMAKE_BINARY_DIR}/run/share/stratoshark")
+# 	set(_stratoshark_datafile_dir "${CMAKE_BINARY_DIR}/run/share/stratoshark")
 endif()
 
 # wsutil must be added after DATAFILE_DIR is set such that filesystem.c can
@@ -2223,11 +2229,11 @@ set(DOC_FILES
 )
 
 if (BUILD_stratoshark)
-	set(LOG_INSTALL_DIRS
+	set(STRATOSHARK_INSTALL_DIRS
 		resources/share/stratoshark/profiles
 	)
 
-	set(LOG_INSTALL_FILES
+	set(STRATOSHARK_INSTALL_FILES
 		doc/ws.css
 		resources/share/stratoshark/colorfilters
 		resources/share/stratoshark/dfilter_buttons
@@ -2556,10 +2562,10 @@ endforeach()
 
 if (BUILD_stratoshark)
 	if (ENABLE_APPLICATION_BUNDLE)
-		foreach(_install_file ${LOG_INSTALL_FILES} ${DOC_FILES})
+		foreach(_install_file ${STRATOSHARK_INSTALL_FILES} ${DOC_FILES})
 			get_filename_component(_install_file_src "${_install_file}" ABSOLUTE)
 			get_filename_component(_install_basename "${_install_file}" NAME)
-			set(_output_file "${LOG_DATAFILE_DIR}/${_install_basename}")
+			set(_output_file "${STRATOSHARK_DATAFILE_DIR}/${_install_basename}")
 			add_custom_command(OUTPUT "${_output_file}"
 				COMMAND ${CMAKE_COMMAND} -E copy_if_different
 					"${_install_file_src}"
@@ -2703,18 +2709,18 @@ add_custom_command(
 		"${CMAKE_SOURCE_DIR}/resources/share/wireshark/profiles" "${DATAFILE_DIR}/profiles"
 )
 
-set (_log_profiles_data_files)
+set (_stratoshark_profiles_data_files)
 if (BUILD_stratoshark AND ENABLE_APPLICATION_BUNDLE)
 	set(_profiles_src_dir ${CMAKE_SOURCE_DIR}/resources/share/stratoshark)
 	file(GLOB _profiles_src_files RELATIVE ${_profiles_src_dir} ${_profiles_src_dir}/profiles/*/*)
 	foreach(_data_file ${_profiles_src_files})
-		list(APPEND _log_profiles_data_files "${LOG_DATAFILE_DIR}/${_data_file}")
+		list(APPEND _stratoshark_profiles_data_files "${STRATOSHARK_DATAFILE_DIR}/${_data_file}")
 	endforeach()
 
 	add_custom_command(
-		OUTPUT ${_log_profiles_data_files}
+		OUTPUT ${_stratoshark_profiles_data_files}
 		COMMAND ${CMAKE_COMMAND} -E copy_directory
-			"${CMAKE_SOURCE_DIR}/resources/share/stratoshark/profiles" "${LOG_DATAFILE_DIR}/profiles"
+			"${CMAKE_SOURCE_DIR}/resources/share/stratoshark/profiles" "${STRATOSHARK_DATAFILE_DIR}/profiles"
 	)
 endif()
 
@@ -2724,7 +2730,7 @@ list(APPEND copy_data_files_depends
 	${_radius_data_files}
 	${_protobuf_data_files}
 	${_profiles_data_files}
-	${_log_profiles_data_files}
+	${_stratoshark_profiles_data_files}
 )
 
 # Copy files including ${INSTALL_FILES} and ${INSTALL_DIRS} to ${DATAFILE_DIR}
@@ -4091,7 +4097,7 @@ if(BUILD_stratoshark AND QT_FOUND AND LINUXDEPLOY_EXECUTABLE AND _linuxdeploy_pl
 		DEPENDS stratoshark_appimage_appdir
 	)
 	add_custom_target(stratoshark_appimage
-		COMMAND env VERSION=${LOG_PROJECT_VERSION} ${APPIMAGETOOL_EXECUTABLE} ${_stratoshark_ai_appdir}
+		COMMAND env VERSION=${STRATOSHARK_VERSION} ${APPIMAGETOOL_EXECUTABLE} ${_stratoshark_ai_appdir}
 		DEPENDS stratoshark_appimage_prep
 	)
 endif()
@@ -4151,13 +4157,13 @@ install(
 if (BUILD_stratoshark)
 	install(
 		FILES
-			${LOG_INSTALL_FILES}
+			${STRATOSHARK_INSTALL_FILES}
 		PERMISSIONS
 			OWNER_WRITE OWNER_READ
 			GROUP_READ
 			WORLD_READ
 		DESTINATION
-			${CMAKE_INSTALL_DATADIR}/${LOG_PROJECT_NAME}
+			${CMAKE_INSTALL_DATADIR}/${STRATOSHARK_NAME}
 	)
 endif()
 
@@ -4280,9 +4286,9 @@ install(
 if (BUILD_stratoshark)
 	install(
 		DIRECTORY
-			${LOG_INSTALL_DIRS}
+			${STRATOSHARK_INSTALL_DIRS}
 		DESTINATION
-			${CMAKE_INSTALL_DATADIR}/${LOG_PROJECT_NAME}
+			${CMAKE_INSTALL_DATADIR}/${STRATOSHARK_NAME}
 		FILE_PERMISSIONS
 			OWNER_WRITE OWNER_READ
 			GROUP_READ

@@ -70,7 +70,7 @@ static char *get_appcast_update_url(software_update_channel_e chan) {
     const char *su_version = VERSION;
 
     if (application_flavor_is_stratoshark()) {
-        su_version = LOG_VERSION;
+        su_version = STRATOSHARK_VERSION;
     }
 
     switch (chan) {

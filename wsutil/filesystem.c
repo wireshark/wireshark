@@ -1375,10 +1375,10 @@ init_extcap_dir(void)
     }
     else {
         if (g_path_is_absolute(EXTCAP_DIR)) {
-            extcap_dir = g_strdup(get_application_flavor() == APPLICATION_FLAVOR_WIRESHARK ? EXTCAP_DIR : LOG_EXTCAP_DIR);
+            extcap_dir = g_strdup(get_application_flavor() == APPLICATION_FLAVOR_WIRESHARK ? EXTCAP_DIR : STRATOSHARK_EXTCAP_DIR);
         } else {
             extcap_dir = g_build_filename(install_prefix,
-                get_application_flavor() == APPLICATION_FLAVOR_WIRESHARK ? EXTCAP_DIR : LOG_EXTCAP_DIR, (char *)NULL);
+                get_application_flavor() == APPLICATION_FLAVOR_WIRESHARK ? EXTCAP_DIR : STRATOSHARK_EXTCAP_DIR, (char *)NULL);
         }
     }
 #endif // HAVE_MSYSTEM / _WIN32

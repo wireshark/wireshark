@@ -8,7 +8,6 @@ set -e
 app_name="Wireshark"
 dmgbuild="@DMGBUILD_EXECUTABLE@"
 version="@PROJECT_VERSION@"
-log_version="@LOG_PROJECT_VERSION@"
 app_settings_file="@CMAKE_BINARY_DIR@/packaging/macosx/wireshark-app.dmgbuild"
 dsym_settings_file="@CMAKE_BINARY_DIR@/packaging/macosx/wireshark-dsym.dmgbuild"
 architecture=""
@@ -66,7 +65,7 @@ else
 fi
 
 if [[ $app_name = Strato* ]] ; then
-	version=$log_version
+	version="@STRATOSHARK_VERSION@"
 	app_settings_file="@CMAKE_BINARY_DIR@/packaging/macosx/stratoshark-app.dmgbuild"
 	dsym_settings_file="@CMAKE_BINARY_DIR@/packaging/macosx/stratoshark-dsym.dmgbuild"
 fi

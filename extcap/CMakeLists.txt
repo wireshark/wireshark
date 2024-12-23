@@ -354,7 +354,7 @@ if(BUILD_falcodump AND SINSP_FOUND)
 		# libscap/scap_zlib.h.
 		target_include_directories(falcodump SYSTEM PRIVATE ${ZLIB_INCLUDE_DIR})
 	endif()
-	install(TARGETS falcodump RUNTIME DESTINATION ${LOG_EXTCAP_INSTALL_LIBDIR})
+	install(TARGETS falcodump RUNTIME DESTINATION ${STRATOSHARK_EXTCAP_INSTALL_LIBDIR})
 	add_dependencies(extcaps falcodump)
 endif()
 
