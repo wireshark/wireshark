@@ -3105,7 +3105,7 @@ endif()
 
 if (BUILD_stratoshark AND FALCO_PLUGINS)
 	add_custom_target(copy_falco_plugins)
-	add_custom_command(TARGET copy_falco_plugins
+	add_custom_command(TARGET copy_falco_plugins POST_BUILD
 		# XXX Falco plugins should probably be installed in a path that reflects
 		# the Falco version or its plugin API version.
 		COMMAND ${CMAKE_COMMAND} -E make_directory ${STRATOSHARK_PLUGIN_DIR}/../falco
