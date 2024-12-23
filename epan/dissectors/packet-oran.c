@@ -497,6 +497,7 @@ static unsigned pref_bandsector_id_bits = 4;
 static unsigned pref_cc_id_bits         = 4;
 static unsigned pref_ru_port_id_bits    = 4;
 
+/* TODO: ideally should be per-flow */
 static unsigned pref_sample_bit_width_uplink   = 14;
 static unsigned pref_sample_bit_width_downlink = 14;
 
@@ -511,17 +512,21 @@ static unsigned pref_sample_bit_width_downlink = 14;
 #define BFP_AND_SELECTIVE_RE_WITH_MASKS       7
 #define MOD_COMPR_AND_SELECTIVE_RE_WITH_MASKS 8
 
+/* TODO: these ideally should be per-flow too */
 static int pref_iqCompressionUplink = COMP_BLOCK_FP;
 static int pref_iqCompressionDownlink = COMP_BLOCK_FP;
-static bool pref_includeUdCompHeaderUplink;
-static bool pref_includeUdCompHeaderDownlink;
+
+/* Is udCompHeader present (both directions) */
+static int pref_includeUdCompHeaderUplink = 2;     /* start heuristic */
+static int pref_includeUdCompHeaderDownlink = 2;   /* start heuristic */
 
 static unsigned pref_data_plane_section_total_rbs = 273;
 static unsigned pref_num_weights_per_bundle = 32;
 static unsigned pref_num_bf_antennas = 32;
 static bool pref_showIQSampleValues = true;
 
-static int  pref_support_udcompLen = 2;             /* start heuristic, can force other settings if necessary */
+/* Based upon m-plane param, so will be system-wide */
+static int  pref_support_udcompLen = 2;            /* start heuristic, can force other settings if necessary */
 static bool udcomplen_heuristic_result_set = false;
 static bool udcomplen_heuristic_result = false;
 
@@ -550,11 +555,19 @@ static const enum_val_t ul_compression_options[] = {
 };
 
 static const enum_val_t udcomp_support_options[] = {
-    { "NOT_SUPPORTED",              "Not Supported",        0 },
-    { "SUPPORTED",                  "Supported",            1 },
-    { "HEURISTIC",                  "Attempt Heuristic",    2 },
+    { "NOT_SUPPORTED",              "Not Supported",    0 },
+    { "SUPPORTED",                  "Supported",        1 },
+    { "HEURISTIC",                  "Use Heuristic",    2 },
     { NULL, NULL, 0 }
 };
+
+static const enum_val_t udcomphdr_present_options[] = {
+    { "NOT_PRESENT",               "Present",           0 },
+    { "PRESENT",                   "Not Present",       1 },
+    { "HEURISTIC",                 "Attempt Heuristic", 2 },
+    { NULL, NULL, 0 }
+};
+
 
 static const value_string e_bit[] = {
     { 0, "More fragments follow" },
@@ -1339,6 +1352,11 @@ typedef struct {
     bool     ul_ud_comp_hdr_set;
     unsigned ul_ud_comp_hdr_bit_width;
     int      ul_ud_comp_hdr_compression;
+
+    bool udcomphdrDownlink_heuristic_result_set;
+    bool udcomphdrDownlink_heuristic_result;
+    bool udcomphdrUplink_heuristic_result_set;
+    bool udcomphdrUplink_heuristic_result;
 
     /* Modulation compression params */
     /* TODO: incomplete (see SE4, SE5, SE23), and needs to be per section! */
@@ -5172,6 +5190,49 @@ static bool udcomplen_appears_present(bool udcomphdr_present, tvbuff_t *tvb, int
     return udcomplen_heuristic_result;
 }
 
+static bool at_udcomphdr(tvbuff_t *tvb, int offset)
+{
+    if (tvb_captured_length_remaining(tvb, offset) < 2) {
+        return false;
+    }
+    uint8_t first_byte = tvb_get_uint8(tvb, offset);
+    uint8_t reserved_byte = tvb_get_uint8(tvb, offset+1);
+
+    /* - iq width could be anything, though unlikely to be signalled as (say) < 1-3? */
+    /* - meth should be 0-8 */
+    /* - reserved byte should be 0 */
+    return (((first_byte & 0x0f) <= MOD_COMPR_AND_SELECTIVE_RE_WITH_MASKS) && (reserved_byte == 0));
+}
+
+static bool udcomphdr_appears_present(flow_state_t *flow, uint32_t direction, tvbuff_t *tvb, int offset)
+{
+    if (direction == DIR_UPLINK) {
+        if (flow->udcomphdrUplink_heuristic_result_set) {
+            /* Return cached value */
+            return flow->udcomphdrUplink_heuristic_result;
+        }
+        else {
+            /* Work it out, and save answer for next time */
+            flow->udcomphdrUplink_heuristic_result_set = true;
+            flow->udcomphdrUplink_heuristic_result = at_udcomphdr(tvb, offset);
+            return flow->udcomphdrUplink_heuristic_result;
+        }
+    }
+    else {
+        /* Downlink */
+        if (flow->udcomphdrDownlink_heuristic_result_set) {
+            /* Return cached value */
+            return flow->udcomphdrDownlink_heuristic_result;
+        }
+        else {
+            /* Work it out, and save answer for next time */
+            flow->udcomphdrDownlink_heuristic_result_set = true;
+            flow->udcomphdrDownlink_heuristic_result = at_udcomphdr(tvb, offset);
+            return flow->udcomphdrDownlink_heuristic_result;
+        }
+    }
+}
+
 /* User plane dissector (section 8) */
 static int
 dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
@@ -5249,7 +5310,7 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     unsigned sample_bit_width;
     int compression;
-    bool includeUdCompHeader;
+    int includeUdCompHeader;
 
     /* Update/report status of conversation */
     uint32_t key = make_flow_key(eAxC, ORAN_U_PLANE);
@@ -5364,7 +5425,9 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         uint32_t ud_comp_len;
 
         /* udCompHdr (if preferences indicate will be present) */
-        if (includeUdCompHeader) {
+        bool included = (includeUdCompHeader==1) ||
+                        (includeUdCompHeader==2 && udcomphdr_appears_present(state, direction, tvb, offset));
+        if (included) {
             /* 7.5.2.10 */
             /* Extract these values to inform how wide IQ samples in each PRB will be. */
             offset = dissect_udcomphdr(tvb, pinfo, section_tree, offset, false, &sample_bit_width,
@@ -6293,6 +6356,7 @@ proto_register_oran(void)
           HFILL}
         },
 
+        /* Reserved fields */
         {&hf_oran_reserved,
          {"reserved", "oran_fh_cus.reserved",
           FT_UINT64, BASE_HEX,
@@ -8130,19 +8194,21 @@ proto_register_oran(void)
         "The bit width of a sample in the Uplink (if no udcompHdr)", 10, &pref_sample_bit_width_uplink);
     prefs_register_enum_preference(oran_module, "oran.ud_comp_up", "Uplink User Data Compression",
         "Uplink User Data Compression", &pref_iqCompressionUplink, ul_compression_options, false);
-    prefs_register_bool_preference(oran_module, "oran.ud_comp_hdr_up", "udCompHdr field is present for uplink",
+    prefs_register_enum_preference(oran_module, "oran.ud_comp_hdr_up", "udCompHdr field is present for uplink",
         "The udCompHdr field in U-Plane messages may or may not be present, depending on the "
         "configuration of the O-RU. This preference instructs the dissector to expect "
-        "this field to be present in uplink messages", &pref_includeUdCompHeaderUplink);
+        "this field to be present in uplink messages",
+        &pref_includeUdCompHeaderUplink, udcomphdr_present_options, false);
 
     prefs_register_uint_preference(oran_module, "oran.iq_bitwidth_down", "IQ Bitwidth Downlink",
         "The bit width of a sample in the Downlink (if no udcompHdr)", 10, &pref_sample_bit_width_downlink);
     prefs_register_enum_preference(oran_module, "oran.ud_comp_down", "Downlink User Data Compression",
         "Downlink User Data Compression", &pref_iqCompressionDownlink, dl_compression_options, false);
-    prefs_register_bool_preference(oran_module, "oran.ud_comp_hdr_down", "udCompHdr field is present for downlink",
+    prefs_register_enum_preference(oran_module, "oran.ud_comp_hdr_down", "udCompHdr field is present for downlink",
         "The udCompHdr field in U-Plane messages may or may not be present, depending on the "
         "configuration of the O-RU. This preference instructs the dissector to expect "
-        "this field to be present in downlink messages", &pref_includeUdCompHeaderDownlink);
+        "this field to be present in downlink messages",
+        &pref_includeUdCompHeaderDownlink, udcomphdr_present_options, false);
 
     prefs_register_uint_preference(oran_module, "oran.rbs_in_uplane_section", "Total RBs in User-Plane data section",
         "This is used if numPrbu is signalled as 0", 10, &pref_data_plane_section_total_rbs);
@@ -8159,7 +8225,8 @@ proto_register_oran(void)
     prefs_register_obsolete_preference(oran_module, "oran.num_bf_weights");
 
     prefs_register_enum_preference(oran_module, "oran.support_udcomplen", "udCompLen supported",
-        "When enabled, U-Plane messages with relevant compression schemes will include udCompLen", &pref_support_udcompLen, udcomp_support_options, false);
+        "When enabled, U-Plane messages with relevant compression schemes will include udCompLen",
+        &pref_support_udcompLen, udcomp_support_options, false);
 
     flow_states_table = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
     flow_results_table = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
