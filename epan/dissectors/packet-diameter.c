@@ -958,9 +958,25 @@ dissect_diameter_avp(diam_ctx_t *c, tvbuff_t *tvb, int offset, diam_sub_dis_t *d
 		offset += 4;
 	}
 
+	/* Data is empty so return now */
 	if ( len == (uint32_t)(vendor_flag ? 12 : 8) ) {
-		/* Data is empty so return now */
-		proto_tree_add_expert(avp_tree, c->pinfo, &ei_diameter_avp_no_data, tvb, offset, 0);
+		/* AVP=Requested-Service-Unit(437) may be empty.
+		 *
+		 * RFC 4006, 8.16 (page 64):
+		 * The Requested-Service-Unit AVP MAY contain the amount of requested
+		 * service units or the requested monetary value.  It MUST be present in
+		 * the initial interrogation and within the intermediate interrogations
+		 * in which new quota is requested.
+		 *
+		 * Command-Code = "Credit-Control" (272)
+		 * ApplicationID = "Diameter Credit Control Application" (4)
+		 */
+		if (!((code == 437)
+		     && (diam_sub_dis_inf->cmd_code == 272)
+			 && (diam_sub_dis_inf->parent_message_is_request)
+			 && (diam_sub_dis_inf->application_id == 4))) {
+			proto_tree_add_expert(avp_tree, c->pinfo, &ei_diameter_avp_no_data, tvb, offset, 0);
+		}
 		/* pad_len is always 0 in this case, but kept here for consistency */
 		return len+pad_len;
 	}
