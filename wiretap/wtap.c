@@ -1882,6 +1882,32 @@ wtap_rec_init(wtap_rec *rec)
 	 */
 }
 
+/* Apply a snapshot value */
+void
+wtap_rec_apply_snapshot(wtap_rec *rec, uint32_t snaplen)
+{
+	switch (rec->rec_type) {
+
+	case REC_TYPE_PACKET:
+		if (rec->presence_flags & WTAP_HAS_CAP_LEN) {
+                	/* Limit capture length to snaplen */
+			if (rec->rec_header.packet_header.caplen > snaplen) {
+				/*
+				 * A dumper will only write up to caplen
+				 * bytes out, so we only need to change
+				 * that value, instead of cloning the
+				 * whole packet with fewer bytes.
+				 *
+				 * XXX: but do we need to change the IDBs'
+				 * snap_len?
+				 */
+				rec->rec_header.packet_header.caplen = snaplen;
+			}
+		}
+		break;
+	}
+}
+
 /* re-initialize record */
 void
 wtap_rec_reset(wtap_rec *rec)

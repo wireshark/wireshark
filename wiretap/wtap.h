@@ -1955,6 +1955,10 @@ bool wtap_seek_read(wtap *wth, int64_t seek_off, wtap_rec *rec,
 WS_DLL_PUBLIC
 void wtap_rec_init(wtap_rec *rec);
 
+/*** Apply a snapshot value ***/
+WS_DLL_PUBLIC
+void wtap_rec_apply_snapshot(wtap_rec *rec, uint32_t snaplen);
+
 /*** Re-initialize a wtap_rec structure ***/
 WS_DLL_PUBLIC
 void wtap_rec_reset(wtap_rec *rec);
