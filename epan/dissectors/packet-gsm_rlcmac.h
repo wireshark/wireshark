@@ -1070,8 +1070,6 @@ typedef struct
 /* MS Radio Access capability IE >
  * 24.008 (10.5.5.12a)
  */
-typedef uint8_t A5_bits_t;/* <A5 bits> ::= < A5/1 : bit> <A5/2 : bit> <A5/3 : bit> <A5/4 : bit> <A5/5 : bit> <A5/6 : bit> <A5/7 : bit>; -- bits for circuit mode ciphering algorithms */
-
 typedef struct
 {
   uint8_t Exist_DTM_EGPRS_multislot_class;
@@ -1122,7 +1120,13 @@ typedef struct
   uint8_t RF_Power_Capability;
 
   uint8_t Exist_A5_bits;
-  A5_bits_t A5_bits;
+  bool A51_bit;
+  bool A52_bit;
+  bool A53_bit;
+  bool A54_bit;
+  bool A55_bit;
+  bool A56_bit;
+  bool A57_bit;
   /*-- zero means that the same values apply for parameters as in the immediately preceding Access capabilities field within this IE
   *-- The presence of the A5 bits is mandatory in the 1st Access capabilies struct within this IE.
   */
