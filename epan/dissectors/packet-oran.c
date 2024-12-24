@@ -1108,6 +1108,11 @@ static const true_false_string beam_numbers_included_tfs = {
   "time-domain beam numbers included in this command"
 };
 
+static const true_false_string measurement_flag_tfs = {
+  "at least one additional measurement report or command after the current one",
+  "no additional measurement report or command"
+};
+
 
 /* Forward declaration */
 static int dissect_udcompparam(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned offset,
@@ -5762,8 +5767,7 @@ proto_register_oran(void)
           { "Sequence ID", "oran_fh_cus.sequence_id",
             FT_UINT8, BASE_DEC,
             NULL, 0x0,
-            "The Sequence ID wraps around individually per eAxC",
-            HFILL }
+            "The Sequence ID wraps around individually per eAxC", HFILL }
         },
 
         /* Section 5.1.3.2.8 */
@@ -5771,8 +5775,7 @@ proto_register_oran(void)
           { "E Bit", "oran_fh_cus.e_bit",
             FT_UINT8, BASE_DEC,
             VALS(e_bit), 0x80,
-            "Indicate the last message of a subsequence (U-Plane only)",
-            HFILL }
+            "Indicate the last message of a subsequence (U-Plane only)", HFILL }
         },
 
         /* Section 5.1.3.2.8 */
@@ -5780,8 +5783,7 @@ proto_register_oran(void)
           { "Subsequence ID", "oran_fh_cus.subsequence_id",
             FT_UINT8, BASE_DEC,
             NULL, 0x7f,
-            "The subsequence ID (for eCPRI layer fragmentation)",
-            HFILL }
+            "The subsequence ID (for eCPRI layer fragmentation)", HFILL }
         },
 
         /* Section 7.5.2.1 */
@@ -5789,116 +5791,103 @@ proto_register_oran(void)
           { "Data Direction", "oran_fh_cus.data_direction",
             FT_UINT8, BASE_DEC,
             VALS(data_direction_vals), 0x80,
-            "gNB data direction",
-            HFILL }
+            "gNB data direction", HFILL }
         },
 
         /* Section 7.5.2.2 */
         { &hf_oran_payload_version,
-         {"Payload Version", "oran_fh_cus.payloadVersion",
-          FT_UINT8, BASE_DEC,
-          NULL, 0x70,
-          "Payload protocol version the following IEs",
-          HFILL}
+          { "Payload Version", "oran_fh_cus.payloadVersion",
+            FT_UINT8, BASE_DEC,
+            NULL, 0x70,
+            "Payload protocol version the following IEs", HFILL}
         },
 
         /* Section 7.5.2.3 */
-        {&hf_oran_filter_index,
-         {"Filter Index", "oran_fh_cus.filterIndex",
-          FT_UINT8, BASE_DEC | BASE_RANGE_STRING,
-          RVALS(filter_indices), 0x0f,
-          "used between IQ data and air interface, both in DL and UL",
-          HFILL}
+        { &hf_oran_filter_index,
+          { "Filter Index", "oran_fh_cus.filterIndex",
+            FT_UINT8, BASE_DEC | BASE_RANGE_STRING,
+            RVALS(filter_indices), 0x0f,
+            "used between IQ data and air interface, both in DL and UL", HFILL}
         },
 
         /* Section 7.5.2.4 */
-        {&hf_oran_frame_id,
-         {"Frame ID", "oran_fh_cus.frameId",
-          FT_UINT8, BASE_DEC,
-          NULL, 0x0,
-          "A counter for 10 ms frames (wrapping period 2.56 seconds)",
-          HFILL}
+        { &hf_oran_frame_id,
+          { "Frame ID", "oran_fh_cus.frameId",
+            FT_UINT8, BASE_DEC,
+            NULL, 0x0,
+            "A counter for 10 ms frames (wrapping period 2.56 seconds)", HFILL}
         },
 
         /* Section 7.5.2.5 */
-        {&hf_oran_subframe_id,
-         {"Subframe ID", "oran_fh_cus.subframe_id",
-          FT_UINT8, BASE_DEC,
-          NULL, 0xf0,
-          "A counter for 1 ms sub-frames within 10ms frame",
-          HFILL}
+        { &hf_oran_subframe_id,
+          { "Subframe ID", "oran_fh_cus.subframe_id",
+            FT_UINT8, BASE_DEC,
+            NULL, 0xf0,
+            "A counter for 1 ms sub-frames within 10ms frame", HFILL}
         },
 
         /* Section 7.5.2.6 */
-        {&hf_oran_slot_id,
-         {"Slot ID", "oran_fh_cus.slotId",
-          FT_UINT16, BASE_DEC,
-          NULL, 0x0fc0,
-          "Slot number within a 1ms sub-frame",
-          HFILL}
+        { &hf_oran_slot_id,
+          { "Slot ID", "oran_fh_cus.slotId",
+            FT_UINT16, BASE_DEC,
+            NULL, 0x0fc0,
+            "Slot number within a 1ms sub-frame", HFILL}
         },
 
         /* Generated for convenience */
-        {&hf_oran_slot_within_frame,
-         {"Slot within frame", "oran_fh_cus.slot-within-frame",
-          FT_UINT16, BASE_DEC,
-          NULL, 0x0,
-          "Slot within frame, to match DCT logs",
-          HFILL}
+        { &hf_oran_slot_within_frame,
+          { "Slot within frame", "oran_fh_cus.slot-within-frame",
+            FT_UINT16, BASE_DEC,
+            NULL, 0x0,
+            "Slot within frame, to match DCT logs", HFILL}
         },
 
         /* Section 7.5.2.7 */
-        {&hf_oran_start_symbol_id,
-         {"Start Symbol ID", "oran_fh_cus.startSymbolId",
-          FT_UINT8, BASE_DEC,
-          NULL, 0x3f,
-          "The first symbol number within slot affected",
-          HFILL}
+        { &hf_oran_start_symbol_id,
+          { "Start Symbol ID", "oran_fh_cus.startSymbolId",
+            FT_UINT8, BASE_DEC,
+            NULL, 0x3f,
+            "The first symbol number within slot affected", HFILL}
         },
 
         /* Section 7.5.2.8 */
-        {&hf_oran_numberOfSections,
-         {"Number of Sections", "oran_fh_cus.numberOfSections",
-          FT_UINT8, BASE_DEC,
-          NULL, 0x0,
-          "The number of section IDs included in this C-Plane message",
-          HFILL}
+        { &hf_oran_numberOfSections,
+          { "Number of Sections", "oran_fh_cus.numberOfSections",
+            FT_UINT8, BASE_DEC,
+            NULL, 0x0,
+            "The number of section IDs included in this C-Plane message", HFILL}
         },
 
         /* Section 7.5.2.9 */
-        {&hf_oran_sectionType,
-         {"Section Type", "oran_fh_cus.sectionType",
-          FT_UINT8, BASE_DEC | BASE_RANGE_STRING,
-          RVALS(section_types), 0x0,
-          "Determines the characteristics of U-plane data",
-          HFILL}
+        { &hf_oran_sectionType,
+          { "Section Type", "oran_fh_cus.sectionType",
+            FT_UINT8, BASE_DEC | BASE_RANGE_STRING,
+            RVALS(section_types), 0x0,
+            "Determines the characteristics of U-plane data", HFILL}
         },
 
         /* Section 7.5.2.10 */
-        {&hf_oran_udCompHdr,
-         {"udCompHdr", "oran_fh_cus.udCompHdr",
-          FT_STRING, BASE_NONE,
-          NULL, 0x0,
-          NULL,
-          HFILL}
+        { &hf_oran_udCompHdr,
+          { "udCompHdr", "oran_fh_cus.udCompHdr",
+            FT_STRING, BASE_NONE,
+            NULL, 0x0,
+            NULL, HFILL}
         },
 
         /* Section 7.5.2.11 */
-        {&hf_oran_numberOfUEs,
-         {"Number Of UEs", "oran_fh_cus.numberOfUEs",
-          FT_UINT8, BASE_DEC,
-          NULL, 0x0,
-          "Indicates number of UEs for which channel info is provided",
-          HFILL}
+        { &hf_oran_numberOfUEs,
+          { "Number Of UEs", "oran_fh_cus.numberOfUEs",
+            FT_UINT8, BASE_DEC,
+            NULL, 0x0,
+            "Indicates number of UEs for which channel info is provided", HFILL}
         },
 
         /* Section 7.5.2.12 */
-        {&hf_oran_timeOffset,
-         {"Time Offset", "oran_fh_cus.timeOffset",
-          FT_UINT16, BASE_DEC,
-          NULL, 0x0,
-          "from start of the slot to start of CP in samples",
-          HFILL}
+        { &hf_oran_timeOffset,
+          { "Time Offset", "oran_fh_cus.timeOffset",
+            FT_UINT16, BASE_DEC,
+            NULL, 0x0,
+            "from start of the slot to start of CP in samples", HFILL}
         },
 
         /* Section 7.5.2.13 */
@@ -5906,8 +5895,7 @@ proto_register_oran(void)
           { "FFT Size", "oran_fh_cus.frameStructure.fft",
             FT_UINT8, BASE_HEX | BASE_RANGE_STRING,
             RVALS(frame_structure_fft), 0xf0,
-            "The FFT/iFFT size being used for all IQ data processing related to this message",
-            HFILL }
+            "The FFT/iFFT size being used for all IQ data processing related to this message", HFILL }
         },
 
         /* Section 7.5.2.13 */
@@ -5920,983 +5908,874 @@ proto_register_oran(void)
         },
 
         /* Section 7.5.2.14 */
-        {&hf_oran_cpLength,
-         {"cpLength", "oran_fh_cus.cpLength",
-          FT_UINT16, BASE_DEC,
-          NULL, 0x0,
-          "cyclic prefix length",
-          HFILL}
+        { &hf_oran_cpLength,
+          { "cpLength", "oran_fh_cus.cpLength",
+            FT_UINT16, BASE_DEC,
+            NULL, 0x0,
+            "cyclic prefix length", HFILL}
         },
 
-        {&hf_oran_timing_header,
-         {"Timing Header", "oran_fh_cus.timingHeader",
-          FT_STRING, BASE_NONE,
-          NULL, 0x0,
-          NULL,
-          HFILL}
+        { &hf_oran_timing_header,
+          { "Timing Header", "oran_fh_cus.timingHeader",
+            FT_STRING, BASE_NONE,
+            NULL, 0x0,
+            NULL, HFILL}
         },
 
         /* Section 7.5.3.1 */
-        {&hf_oran_section_id,
-         {"sectionId", "oran_fh_cus.sectionId",
-          FT_UINT16, BASE_DEC,
-          NULL, 0xfff0,
-          "section identifier of data",
-          HFILL}
+        { &hf_oran_section_id,
+          { "sectionId", "oran_fh_cus.sectionId",
+            FT_UINT16, BASE_DEC,
+            NULL, 0xfff0,
+            "section identifier of data", HFILL}
         },
 
         /* Section 7.5.3.2 */
-        {&hf_oran_rb,
-         {"rb", "oran_fh_cus.rb",
-          FT_UINT8, BASE_DEC,
-          VALS(rb_vals), 0x08,
-          "resource block indicator",
-          HFILL}
+        { &hf_oran_rb,
+          { "rb", "oran_fh_cus.rb",
+            FT_UINT8, BASE_DEC,
+            VALS(rb_vals), 0x08,
+            "resource block indicator", HFILL}
         },
 
         /* Section 7.5.5.3 */
-        {&hf_oran_symInc,
-         {"symInc", "oran_fh_cus.symInc",
-          FT_UINT8, BASE_DEC,
-          VALS(sym_inc_vals), 0x04,
-          "Symbol Number Increment Command",
-          HFILL}
+        { &hf_oran_symInc,
+          { "symInc", "oran_fh_cus.symInc",
+            FT_UINT8, BASE_DEC,
+            VALS(sym_inc_vals), 0x04,
+            "Symbol Number Increment Command", HFILL}
         },
 
         /* Section 7.5.3.4 */
-        {&hf_oran_startPrbc,
-         {"startPrbc", "oran_fh_cus.startPrbc",
-          FT_UINT16, BASE_DEC,
-          NULL, 0x03ff,
-          "Starting PRB of Control Plane Section",
-          HFILL}
+        { &hf_oran_startPrbc,
+          { "startPrbc", "oran_fh_cus.startPrbc",
+            FT_UINT16, BASE_DEC,
+            NULL, 0x03ff,
+            "Starting PRB of Control Plane Section", HFILL}
         },
 
         /* Section 7.5.3.5 */
-        {&hf_oran_reMask_re1,
-         {"RE 1", "oran_fh_cus.reMask-RE1",
-          FT_BOOLEAN, 16,
-          TFS(&tfs_applicable_not_applicable), 0x8000,
-          NULL,
-          HFILL}
+        { &hf_oran_reMask_re1,
+          { "RE 1", "oran_fh_cus.reMask-RE1",
+            FT_BOOLEAN, 16,
+            TFS(&tfs_applicable_not_applicable), 0x8000,
+            NULL, HFILL}
         },
-        {&hf_oran_reMask_re2,
-         {"RE 2", "oran_fh_cus.reMask-RE2",
-          FT_BOOLEAN, 16,
-          TFS(&tfs_applicable_not_applicable), 0x4000,
-          NULL,
-          HFILL}
+        { &hf_oran_reMask_re2,
+          { "RE 2", "oran_fh_cus.reMask-RE2",
+            FT_BOOLEAN, 16,
+            TFS(&tfs_applicable_not_applicable), 0x4000,
+            NULL, HFILL}
         },
-        {&hf_oran_reMask_re3,
-         {"RE 3", "oran_fh_cus.reMask-RE3",
-          FT_BOOLEAN, 16,
-          TFS(&tfs_applicable_not_applicable), 0x2000,
-          NULL,
-          HFILL}
+        { &hf_oran_reMask_re3,
+          { "RE 3", "oran_fh_cus.reMask-RE3",
+            FT_BOOLEAN, 16,
+            TFS(&tfs_applicable_not_applicable), 0x2000,
+            NULL, HFILL}
         },
-        {&hf_oran_reMask_re4,
-         {"RE 4", "oran_fh_cus.reMask-RE4",
-          FT_BOOLEAN, 16,
-          TFS(&tfs_applicable_not_applicable), 0x1000,
-          NULL,
-          HFILL}
+        { &hf_oran_reMask_re4,
+          { "RE 4", "oran_fh_cus.reMask-RE4",
+            FT_BOOLEAN, 16,
+            TFS(&tfs_applicable_not_applicable), 0x1000,
+            NULL, HFILL}
         },
-        {&hf_oran_reMask_re5,
-         {"RE 5", "oran_fh_cus.reMask-RE5",
-          FT_BOOLEAN, 16,
-          TFS(&tfs_applicable_not_applicable), 0x0800,
-          NULL,
-          HFILL}
+        { &hf_oran_reMask_re5,
+          { "RE 5", "oran_fh_cus.reMask-RE5",
+            FT_BOOLEAN, 16,
+            TFS(&tfs_applicable_not_applicable), 0x0800,
+            NULL, HFILL}
         },
-        {&hf_oran_reMask_re6,
-         {"RE 6", "oran_fh_cus.reMask-RE6",
-          FT_BOOLEAN, 16,
-          TFS(&tfs_applicable_not_applicable), 0x0400,
-          NULL,
-          HFILL}
+        { &hf_oran_reMask_re6,
+          { "RE 6", "oran_fh_cus.reMask-RE6",
+            FT_BOOLEAN, 16,
+            TFS(&tfs_applicable_not_applicable), 0x0400,
+            NULL, HFILL}
         },
-        {&hf_oran_reMask_re7,
-         {"RE 7", "oran_fh_cus.reMask-RE7",
-          FT_BOOLEAN, 16,
-          TFS(&tfs_applicable_not_applicable), 0x0200,
-          NULL,
-          HFILL}
+        { &hf_oran_reMask_re7,
+          { "RE 7", "oran_fh_cus.reMask-RE7",
+            FT_BOOLEAN, 16,
+            TFS(&tfs_applicable_not_applicable), 0x0200,
+            NULL, HFILL}
         },
-        {&hf_oran_reMask_re8,
-         {"RE 8", "oran_fh_cus.reMask-RE8",
-          FT_BOOLEAN, 16,
-          TFS(&tfs_applicable_not_applicable), 0x0100,
-          NULL,
-          HFILL}
+        { &hf_oran_reMask_re8,
+          { "RE 8", "oran_fh_cus.reMask-RE8",
+            FT_BOOLEAN, 16,
+            TFS(&tfs_applicable_not_applicable), 0x0100,
+            NULL, HFILL}
         },
-        {&hf_oran_reMask_re9,
-         {"RE 9", "oran_fh_cus.reMask-RE9",
-          FT_BOOLEAN, 16,
-          TFS(&tfs_applicable_not_applicable), 0x0080,
-          NULL,
-          HFILL}
+        { &hf_oran_reMask_re9,
+          { "RE 9", "oran_fh_cus.reMask-RE9",
+            FT_BOOLEAN, 16,
+            TFS(&tfs_applicable_not_applicable), 0x0080,
+            NULL, HFILL}
         },
-        {&hf_oran_reMask_re10,
-         {"RE 10", "oran_fh_cus.reMask-RE10",
-          FT_BOOLEAN, 16,
-          TFS(&tfs_applicable_not_applicable), 0x0040,
-          NULL,
-          HFILL}
+        { &hf_oran_reMask_re10,
+          { "RE 10", "oran_fh_cus.reMask-RE10",
+            FT_BOOLEAN, 16,
+            TFS(&tfs_applicable_not_applicable), 0x0040,
+            NULL, HFILL}
         },
-        {&hf_oran_reMask_re11,
-         {"RE 11", "oran_fh_cus.reMask-RE11",
-          FT_BOOLEAN, 16,
-          TFS(&tfs_applicable_not_applicable), 0x0020,
-          NULL,
-          HFILL}
+        { &hf_oran_reMask_re11,
+          { "RE 11", "oran_fh_cus.reMask-RE11",
+            FT_BOOLEAN, 16,
+            TFS(&tfs_applicable_not_applicable), 0x0020,
+            NULL, HFILL}
         },
-        {&hf_oran_reMask_re12,
-         {"RE 12", "oran_fh_cus.reMask-RE12",
-          FT_BOOLEAN, 16,
-          TFS(&tfs_applicable_not_applicable), 0x0010,
-          NULL,
-          HFILL}
+        { &hf_oran_reMask_re12,
+          { "RE 12", "oran_fh_cus.reMask-RE12",
+            FT_BOOLEAN, 16,
+            TFS(&tfs_applicable_not_applicable), 0x0010,
+            NULL, HFILL}
         },
-        {&hf_oran_reMask,
-         {"RE Mask", "oran_fh_cus.reMask",
-          FT_UINT16, BASE_HEX,
-          NULL, 0xfff0,
-          "The Resource Element (RE) mask within a PRB",
-          HFILL}
+        { &hf_oran_reMask,
+          { "RE Mask", "oran_fh_cus.reMask",
+            FT_UINT16, BASE_HEX,
+            NULL, 0xfff0,
+            "The Resource Element (RE) mask within a PRB", HFILL}
         },
 
         /* Section 7.5.3.6 */
-        {&hf_oran_numPrbc,
-         {"numPrbc", "oran_fh_cus.numPrbc",
-          FT_UINT8, BASE_DEC,
-          NULL, 0x0,
-          "Number of contiguous PRBs per data section description",
-          HFILL}
+        { &hf_oran_numPrbc,
+          { "numPrbc", "oran_fh_cus.numPrbc",
+            FT_UINT8, BASE_DEC,
+            NULL, 0x0,
+            "Number of contiguous PRBs per data section description", HFILL}
         },
 
         /* Section 7.5.3.7 */
-        {&hf_oran_numSymbol,
-         {"Number of Symbols", "oran_fh_cus.numSymbol",
-          FT_UINT8, BASE_DEC,
-          NULL, 0x0f,
-          "Defines number of symbols to which the section control is applicable",
-          HFILL}
+        { &hf_oran_numSymbol,
+          { "Number of Symbols", "oran_fh_cus.numSymbol",
+            FT_UINT8, BASE_DEC,
+            NULL, 0x0f,
+            "Defines number of symbols to which the section control is applicable", HFILL}
         },
 
         /* Section 7.5.3.8 */
-        {&hf_oran_ef,
-         {"Extension Flag", "oran_fh_cus.ef",
-          FT_BOOLEAN, 8,
-          NULL, 0x80,
-          "Indicates if more section extensions follow",
-          HFILL}
+        { &hf_oran_ef,
+          { "Extension Flag", "oran_fh_cus.ef",
+            FT_BOOLEAN, 8,
+            NULL, 0x80,
+            "Indicates if more section extensions follow", HFILL}
         },
 
         /* Section 7.5.3.9 */
-        {&hf_oran_beamId,
-         {"Beam ID", "oran_fh_cus.beamId",
-           FT_UINT16, BASE_DEC,
-           NULL, 0x7fff,
-           "Defines the beam pattern to be applied to the U-Plane data",
-           HFILL}
+        { &hf_oran_beamId,
+          { "Beam ID", "oran_fh_cus.beamId",
+             FT_UINT16, BASE_DEC,
+             NULL, 0x7fff,
+             "Defines the beam pattern to be applied to the U-Plane data", HFILL}
         },
 
-        {&hf_oran_extension,
-         {"Extension", "oran_fh_cus.extension",
-           FT_STRING, BASE_NONE,
-           NULL, 0x0,
-           "Section extension",
-           HFILL}
+        { &hf_oran_extension,
+          { "Extension", "oran_fh_cus.extension",
+            FT_STRING, BASE_NONE,
+            NULL, 0x0,
+            "Section extension", HFILL}
         },
 
         /* Section 7.6.2.1 */
-        {&hf_oran_exttype,
-         {"extType", "oran_fh_cus.extType",
-           FT_UINT8, BASE_DEC,
-           VALS(exttype_vals), 0x7f,
-           "The extension type, which provides additional parameters specific to subject data extension",
-           HFILL}
+        { &hf_oran_exttype,
+          { "extType", "oran_fh_cus.extType",
+            FT_UINT8, BASE_DEC,
+            VALS(exttype_vals), 0x7f,
+            "The extension type, which provides additional parameters specific to subject data extension", HFILL}
         },
 
         /* Section 7.6.2.3 */
-        {&hf_oran_extlen,
-         {"extLen", "oran_fh_cus.extLen",
-          FT_UINT16, BASE_DEC,
-          NULL, 0x0,
-          "Extension length in 32-bit words",
-          HFILL}
+        { &hf_oran_extlen,
+          { "extLen", "oran_fh_cus.extLen",
+            FT_UINT16, BASE_DEC,
+            NULL, 0x0,
+            "Extension length in 32-bit words", HFILL}
         },
 
         /* Section 7.7.1 */
-        {&hf_oran_bfw,
-         {"bfw", "oran_fh_cus.bfw",
-          FT_STRING, BASE_NONE,
-          NULL, 0x0,
-          "Set of weights for a particular antenna",
-          HFILL}
+        { &hf_oran_bfw,
+          { "bfw", "oran_fh_cus.bfw",
+            FT_STRING, BASE_NONE,
+            NULL, 0x0,
+            "Set of weights for a particular antenna", HFILL}
         },
-        {&hf_oran_bfw_bundle,
-         {"Bundle", "oran_fh_cus.bfw.bundle",
-          FT_STRING, BASE_NONE,
-          NULL, 0x0,
-          "Bundle of BFWs",
-          HFILL}
+        { &hf_oran_bfw_bundle,
+          { "Bundle", "oran_fh_cus.bfw.bundle",
+            FT_STRING, BASE_NONE,
+            NULL, 0x0,
+            "Bundle of BFWs", HFILL}
         },
-        {&hf_oran_bfw_bundle_id,
-         {"Bundle Id", "oran_fh_cus.bfw.bundleId",
-          FT_UINT32, BASE_DEC,
-          NULL, 0x0,
-          NULL,
-          HFILL}
+        { &hf_oran_bfw_bundle_id,
+          { "Bundle Id", "oran_fh_cus.bfw.bundleId",
+            FT_UINT32, BASE_DEC,
+            NULL, 0x0,
+            NULL, HFILL}
         },
         /* Section 7.7.1.4 */
-        {&hf_oran_bfw_i,
-         {"bfwI", "oran_fh_cus.bfwI",
-          FT_FLOAT, BASE_NONE,
-          NULL, 0x0,
-          "In-phase",
-          HFILL}
+        { &hf_oran_bfw_i,
+          { "bfwI", "oran_fh_cus.bfwI",
+            FT_FLOAT, BASE_NONE,
+            NULL, 0x0,
+            "In-phase", HFILL}
         },
         /* Section 7.7.1.5 */
-        {&hf_oran_bfw_q,
-         {"bfwQ", "oran_fh_cus.bfwQ",
-          FT_FLOAT, BASE_NONE,
-          NULL, 0x0,
-          "Quadrature",
-          HFILL}
+        { &hf_oran_bfw_q,
+          { "bfwQ", "oran_fh_cus.bfwQ",
+            FT_FLOAT, BASE_NONE,
+            NULL, 0x0,
+            "Quadrature", HFILL}
         },
 
         /* Section 7.5.3.10 */
-        {&hf_oran_ueId,
-         {"UE ID", "oran_fh_cus.ueId",
-          FT_UINT16, BASE_DEC,
-          NULL, 0x7fff,
-          "logical identifier for set of channel info",
-          HFILL}
+        { &hf_oran_ueId,
+          { "UE ID", "oran_fh_cus.ueId",
+            FT_UINT16, BASE_DEC,
+            NULL, 0x7fff,
+            "logical identifier for set of channel info", HFILL}
         },
 
         /* Section 7.5.3.11 */
-        {&hf_oran_freqOffset,
-         {"Frequency Offset", "oran_fh_cus.freqOffset",
-          FT_UINT24, BASE_DEC,
-          NULL, 0x0,
-          "with respect to the carrier center frequency before additional filtering",
-          HFILL}
+        { &hf_oran_freqOffset,
+          { "Frequency Offset", "oran_fh_cus.freqOffset",
+            FT_UINT24, BASE_DEC,
+            NULL, 0x0,
+            "with respect to the carrier center frequency before additional filtering", HFILL}
         },
 
         /* Section 7.5.3.12 */
-        {&hf_oran_regularizationFactor,
-         {"Regularization Factor", "oran_fh_cus.regularizationFactor",
-          FT_INT16, BASE_DEC,
-          NULL, 0x0,
-          "Signed value to support MMSE operation within O-RU",
-          HFILL}
+        { &hf_oran_regularizationFactor,
+          { "Regularization Factor", "oran_fh_cus.regularizationFactor",
+            FT_INT16, BASE_DEC,
+            NULL, 0x0,
+            "Signed value to support MMSE operation within O-RU", HFILL}
         },
 
         /* Section 7.5.3.14 */
-        {&hf_oran_laaMsgType,
-         {"LAA Message Type", "oran_fh_cus.laaMsgType",
-          FT_UINT8, BASE_DEC | BASE_RANGE_STRING,
-          RVALS(laaMsgTypes), 0xf0,
-          NULL,
-          HFILL}
+        { &hf_oran_laaMsgType,
+          { "LAA Message Type", "oran_fh_cus.laaMsgType",
+            FT_UINT8, BASE_DEC | BASE_RANGE_STRING,
+            RVALS(laaMsgTypes), 0xf0,
+            NULL, HFILL}
         },
 
         /* Section 7.5.3.15 */
-        {&hf_oran_laaMsgLen,
-         {"LAA Message Length", "oran_fh_cus.laaMsgLen",
-          FT_UINT8, BASE_DEC,
-          NULL, 0x0f,
-          "number of 32-bit words in the LAA section",
-          HFILL}
+        { &hf_oran_laaMsgLen,
+          { "LAA Message Length", "oran_fh_cus.laaMsgLen",
+            FT_UINT8, BASE_DEC,
+            NULL, 0x0f,
+            "number of 32-bit words in the LAA section", HFILL}
         },
 
         /* Section 7.5.3.16 */
-        {&hf_oran_lbtHandle,
-         {"LBT Handle", "oran_fh_cus.lbtHandle",
-          FT_UINT16, BASE_HEX,
-          NULL, 0x0,
-          "label to identify transaction",
-          HFILL}
+        { &hf_oran_lbtHandle,
+          { "LBT Handle", "oran_fh_cus.lbtHandle",
+            FT_UINT16, BASE_HEX,
+            NULL, 0x0,
+            "label to identify transaction", HFILL}
          },
 
         /* Section 7.5.3.17 */
-        {&hf_oran_lbtDeferFactor,
-         {"Defer Factor", "oran_fh_cus.lbtDeferFactor",
-          FT_UINT8, BASE_DEC,
-          NULL, 0x07,
-          "Defer factor in sensing slots as described in 3GPP TS 36.213 Section 15.1.1",
-          HFILL}
+        { &hf_oran_lbtDeferFactor,
+          { "Defer Factor", "oran_fh_cus.lbtDeferFactor",
+            FT_UINT8, BASE_DEC,
+            NULL, 0x07,
+            "Defer factor in sensing slots as described in 3GPP TS 36.213 Section 15.1.1", HFILL}
         },
 
         /* Section 7.5.3.18 */
-        {&hf_oran_lbtBackoffCounter,
-         {"Backoff Counter", "oran_fh_cus.lbtBackoffCounter",
-          FT_UINT16, BASE_DEC,
-          NULL, 0xffc0,
-          "LBT backoff counter in sensing slots as described in 3GPP TS 36.213 Section 15.1.1",
-          HFILL}
+        { &hf_oran_lbtBackoffCounter,
+          { "Backoff Counter", "oran_fh_cus.lbtBackoffCounter",
+            FT_UINT16, BASE_DEC,
+            NULL, 0xffc0,
+            "LBT backoff counter in sensing slots as described in 3GPP TS 36.213 Section 15.1.1", HFILL}
         },
 
         /* Section 7.5.3.19 */
-        {&hf_oran_lbtOffset,
-         {"LBT Offset", "oran_fh_cus.lbtOffset",
-          FT_UINT16, BASE_DEC,
-          NULL, 0xffc0,
-          "LBT start time in microseconds from the beginning of the subframe "
-          "scheduled by this message",
-          HFILL}
+        { &hf_oran_lbtOffset,
+          { "LBT Offset", "oran_fh_cus.lbtOffset",
+            FT_UINT16, BASE_DEC,
+            NULL, 0xffc0,
+            "LBT start time in microseconds from the beginning of the subframe scheduled by this message", HFILL}
         },
 
         /* Section 7.5.3.20 */
-        {&hf_oran_MCOT,
-         {"Maximum Channel Occupancy Time", "oran_fh_cus.MCOT",
-          FT_UINT8, BASE_DEC,
-          NULL, 0x3c,
-          "LTE TXOP duration in subframes as described in 3GPP TS 36.213 Section 15.1.1",
-          HFILL}
+        { &hf_oran_MCOT,
+          { "Maximum Channel Occupancy Time", "oran_fh_cus.MCOT",
+            FT_UINT8, BASE_DEC,
+            NULL, 0x3c,
+            "LTE TXOP duration in subframes as described in 3GPP TS 36.213 Section 15.1.1", HFILL}
         },
 
         /* Section 7.5.3.21 */
-        {&hf_oran_lbtMode,
-         {"LBT Mode", "oran_fh_cus.lbtMode",
-          FT_UINT8, BASE_DEC,
-          VALS(lbtMode_vals), 0x0,
-          NULL,
-          HFILL}
+        { &hf_oran_lbtMode,
+          { "LBT Mode", "oran_fh_cus.lbtMode",
+            FT_UINT8, BASE_DEC,
+            VALS(lbtMode_vals), 0x0,
+            NULL, HFILL}
         },
 
         /* Section 7.5.3.22 */
-        {&hf_oran_lbtPdschRes,
-         {"lbtPdschRes", "oran_fh_cus.lbtPdschRes",
-          FT_UINT8, BASE_DEC,
-          VALS(lbtPdschRes_vals), 0xc0,
-          "LBT result of SFN/SF",
-          HFILL}
+        { &hf_oran_lbtPdschRes,
+          { "lbtPdschRes", "oran_fh_cus.lbtPdschRes",
+            FT_UINT8, BASE_DEC,
+            VALS(lbtPdschRes_vals), 0xc0,
+            "LBT result of SFN/SF", HFILL}
         },
 
         /* Section 7.5.3.23 */
-        {&hf_oran_sfStatus,
-         {"sfStatus", "oran_fh_cus.sfStatus",
-          FT_BOOLEAN, 8,
-          TFS(&tfs_sfStatus), 0x10,
-          "Indicates whether the subframe was dropped or transmitted",
-          HFILL}
+        { &hf_oran_sfStatus,
+          { "sfStatus", "oran_fh_cus.sfStatus",
+            FT_BOOLEAN, 8,
+            TFS(&tfs_sfStatus), 0x10,
+            "Indicates whether the subframe was dropped or transmitted", HFILL}
         },
 
         /* Section 7.5.3.22 */
-        {&hf_oran_lbtDrsRes,
-         {"lbtDrsRes", "oran_fh_cus.lbtDrsRes",
-          FT_BOOLEAN, 8,
-          TFS(&tfs_fail_success), 0x80,
-          "Indicates whether the subframe was dropped or transmitted",
-          HFILL}
+        { &hf_oran_lbtDrsRes,
+          { "lbtDrsRes", "oran_fh_cus.lbtDrsRes",
+            FT_BOOLEAN, 8,
+            TFS(&tfs_fail_success), 0x80,
+            "Indicates whether the subframe was dropped or transmitted", HFILL}
         },
 
         /* Section 7.5.3.25 */
-        {&hf_oran_initialPartialSF,
-         {"Initial partial SF", "oran_fh_cus.initialPartialSF",
-          FT_BOOLEAN, 8,
-          TFS(&tfs_partial_full_sf), 0x40,
-          "Indicates whether the initial SF in the LBT process is full or partial",
-          HFILL}
+        { &hf_oran_initialPartialSF,
+          { "Initial partial SF", "oran_fh_cus.initialPartialSF",
+            FT_BOOLEAN, 8,
+            TFS(&tfs_partial_full_sf), 0x40,
+            "Indicates whether the initial SF in the LBT process is full or partial", HFILL}
         },
 
         /* Section 7.5.3.26. */
-        {&hf_oran_lbtBufErr,
-         {"lbtBufErr", "oran_fh_cus.lbtBufErr",
-          FT_BOOLEAN, 8,
-          TFS(&tfs_lbtBufErr), 0x80,
-          "LBT buffer error",
-          HFILL}
+        { &hf_oran_lbtBufErr,
+          { "lbtBufErr", "oran_fh_cus.lbtBufErr",
+            FT_BOOLEAN, 8,
+            TFS(&tfs_lbtBufErr), 0x80,
+            "LBT buffer error", HFILL}
         },
 
         /* Section 7.5.3.27 */
-        {&hf_oran_sfnSfEnd,
-         {"SFN/SF End", "oran_fh_cus.sfnSfEnd",
-          FT_UINT16, BASE_DEC,
-          NULL, 0x0fff,
-          "SFN/SF by which the DRS window must end",
-          HFILL}
+        { &hf_oran_sfnSfEnd,
+          { "SFN/SF End", "oran_fh_cus.sfnSfEnd",
+            FT_UINT16, BASE_DEC,
+            NULL, 0x0fff,
+            "SFN/SF by which the DRS window must end", HFILL}
         },
 
         /* Section 7.5.3.28 */
-        {&hf_oran_lbtCWConfig_H,
-         {"lbtCWConfig_H", "oran_fh_cus.lbtCWConfig_H",
-          FT_UINT8, BASE_DEC,
-          NULL, 0x0,
-          "HARQ parameters for congestion window management",
-          HFILL}
+        { &hf_oran_lbtCWConfig_H,
+          { "lbtCWConfig_H", "oran_fh_cus.lbtCWConfig_H",
+            FT_UINT8, BASE_DEC,
+            NULL, 0x0,
+            "HARQ parameters for congestion window management", HFILL}
         },
 
         /* Section 7.5.3.29 */
-        {&hf_oran_lbtCWConfig_T,
-         {"lbtCWConfig_T", "oran_fh_cus.lbtCWConfig_T",
-          FT_UINT8, BASE_DEC,
-          NULL, 0x0,
-          "TB parameters for congestion window management",
-          HFILL}
+        { &hf_oran_lbtCWConfig_T,
+          { "lbtCWConfig_T", "oran_fh_cus.lbtCWConfig_T",
+            FT_UINT8, BASE_DEC,
+            NULL, 0x0,
+            "TB parameters for congestion window management", HFILL}
         },
 
         /* Section 7.5.3.30 */
-        {&hf_oran_lbtTrafficClass,
-         {"lbtTrafficClass", "oran_fh_cus.lbtTrafficClass",
-          FT_UINT8, BASE_DEC,
-          VALS(lbtTrafficClass_vals), 0x38,
-          "Traffic class priority for congestion window management",
-          HFILL}
+        { &hf_oran_lbtTrafficClass,
+          { "lbtTrafficClass", "oran_fh_cus.lbtTrafficClass",
+            FT_UINT8, BASE_DEC,
+            VALS(lbtTrafficClass_vals), 0x38,
+            "Traffic class priority for congestion window management", HFILL}
         },
 
         /* Section 7.5.3.31 */
-        {&hf_oran_lbtCWR_Rst,
-         {"lbtCWR_Rst", "oran_fh_cus.lbtCWR_Rst",
-          FT_BOOLEAN, 8,
-          TFS(&tfs_fail_success), 0x80,
-          "notification about packet reception successful or not",
-          HFILL}
+        { &hf_oran_lbtCWR_Rst,
+          { "lbtCWR_Rst", "oran_fh_cus.lbtCWR_Rst",
+            FT_BOOLEAN, 8,
+            TFS(&tfs_fail_success), 0x80,
+            "notification about packet reception successful or not", HFILL}
         },
 
         /* Reserved fields */
-        {&hf_oran_reserved,
-         {"reserved", "oran_fh_cus.reserved",
-          FT_UINT64, BASE_HEX,
-          NULL, 0x0,
-          NULL,
-          HFILL}
+        { &hf_oran_reserved,
+          { "reserved", "oran_fh_cus.reserved",
+            FT_UINT64, BASE_HEX,
+            NULL, 0x0,
+            NULL, HFILL}
         },
 
-        {&hf_oran_reserved_1bit,
-         {"reserved", "oran_fh_cus.reserved",
-          FT_UINT8, BASE_HEX,
-          NULL, 0x80,
-          NULL,
-          HFILL}
+        { &hf_oran_reserved_1bit,
+          { "reserved", "oran_fh_cus.reserved",
+            FT_UINT8, BASE_HEX,
+            NULL, 0x80,
+            NULL, HFILL}
         },
-        {&hf_oran_reserved_2bits,
-         {"reserved", "oran_fh_cus.reserved",
-          FT_UINT8, BASE_HEX,
-          NULL, 0xc0,
-          NULL,
-          HFILL}
+        { &hf_oran_reserved_2bits,
+          { "reserved", "oran_fh_cus.reserved",
+            FT_UINT8, BASE_HEX,
+            NULL, 0xc0,
+            NULL, HFILL}
         },
-        {&hf_oran_reserved_4bits,
-         {"reserved", "oran_fh_cus.reserved",
-          FT_UINT8, BASE_HEX,
-          NULL, 0xf0,
-          NULL,
-          HFILL}
+        { &hf_oran_reserved_4bits,
+          { "reserved", "oran_fh_cus.reserved",
+            FT_UINT8, BASE_HEX,
+            NULL, 0xf0,
+            NULL, HFILL}
         },
-        {&hf_oran_reserved_last_4bits,
-         {"reserved", "oran_fh_cus.reserved",
-          FT_UINT8, BASE_HEX,
-          NULL, 0x0f,
-          NULL,
-          HFILL}
+        { &hf_oran_reserved_last_4bits,
+          { "reserved", "oran_fh_cus.reserved",
+            FT_UINT8, BASE_HEX,
+            NULL, 0x0f,
+            NULL, HFILL}
         },
-        {&hf_oran_reserved_last_5bits,
-         {"reserved", "oran_fh_cus.reserved",
-          FT_UINT8, BASE_HEX,
-          NULL, 0x1f,
-          NULL,
-          HFILL}
+        { &hf_oran_reserved_last_5bits,
+          { "reserved", "oran_fh_cus.reserved",
+            FT_UINT8, BASE_HEX,
+            NULL, 0x1f,
+            NULL, HFILL}
         },
-        {&hf_oran_reserved_6bits,
-         {"reserved", "oran_fh_cus.reserved",
-          FT_UINT8, BASE_HEX,
-          NULL, 0xfc,
-          NULL,
-          HFILL}
+        { &hf_oran_reserved_6bits,
+          { "reserved", "oran_fh_cus.reserved",
+            FT_UINT8, BASE_HEX,
+            NULL, 0xfc,
+            NULL, HFILL}
         },
-        {&hf_oran_reserved_last_6bits,
-         {"reserved", "oran_fh_cus.reserved",
-          FT_UINT8, BASE_HEX,
-          NULL, 0x3f,
-          NULL,
-          HFILL}
+        { &hf_oran_reserved_last_6bits,
+          { "reserved", "oran_fh_cus.reserved",
+            FT_UINT8, BASE_HEX,
+            NULL, 0x3f,
+            NULL, HFILL}
         },
-        {&hf_oran_reserved_7bits,
-         {"reserved", "oran_fh_cus.reserved",
-          FT_UINT8, BASE_HEX,
-          NULL, 0xfe,
-          NULL,
-          HFILL}
+        { &hf_oran_reserved_7bits,
+          { "reserved", "oran_fh_cus.reserved",
+            FT_UINT8, BASE_HEX,
+            NULL, 0xfe,
+            NULL, HFILL}
         },
-        {&hf_oran_reserved_last_7bits,
-         {"reserved", "oran_fh_cus.reserved",
-          FT_UINT8, BASE_HEX,
-          NULL, 0x7f,
-          NULL,
-          HFILL}
+        { &hf_oran_reserved_last_7bits,
+          { "reserved", "oran_fh_cus.reserved",
+            FT_UINT8, BASE_HEX,
+            NULL, 0x7f,
+            NULL, HFILL}
         },
-        {&hf_oran_reserved_8bits,
-         {"reserved", "oran_fh_cus.reserved",
-          FT_UINT8, BASE_HEX,
-          NULL, 0x0,
-          NULL,
-          HFILL}
+        { &hf_oran_reserved_8bits,
+          { "reserved", "oran_fh_cus.reserved",
+            FT_UINT8, BASE_HEX,
+            NULL, 0x0,
+            NULL, HFILL}
         },
-        {&hf_oran_reserved_16bits,
-         {"reserved", "oran_fh_cus.reserved",
-          FT_UINT16, BASE_HEX,
-          NULL, 0x0,
-          NULL,
-          HFILL}
+        { &hf_oran_reserved_16bits,
+          { "reserved", "oran_fh_cus.reserved",
+            FT_UINT16, BASE_HEX,
+            NULL, 0x0,
+            NULL, HFILL}
         },
-        {&hf_oran_reserved_15bits,
-         {"reserved", "oran_fh_cus.reserved",
-          FT_UINT16, BASE_HEX,
-          NULL, 0x7fff,
-          NULL,
-          HFILL}
+        { &hf_oran_reserved_15bits,
+          { "reserved", "oran_fh_cus.reserved",
+            FT_UINT16, BASE_HEX,
+            NULL, 0x7fff,
+            NULL, HFILL}
         },
-        {&hf_oran_reserved_bit1,
-         {"reserved", "oran_fh_cus.reserved",
-          FT_UINT8, BASE_HEX,
-          NULL, 0x40,
-          NULL,
-          HFILL}
+        { &hf_oran_reserved_bit1,
+          { "reserved", "oran_fh_cus.reserved",
+            FT_UINT8, BASE_HEX,
+            NULL, 0x40,
+            NULL, HFILL}
         },
-        {&hf_oran_reserved_bit2,
-         {"reserved", "oran_fh_cus.reserved",
-          FT_UINT8, BASE_HEX,
-          NULL, 0x20,
-          NULL,
-          HFILL}
+        { &hf_oran_reserved_bit2,
+          { "reserved", "oran_fh_cus.reserved",
+            FT_UINT8, BASE_HEX,
+            NULL, 0x20,
+            NULL, HFILL}
         },
-        {&hf_oran_reserved_bit4,
-         {"reserved", "oran_fh_cus.reserved",
-          FT_UINT8, BASE_HEX,
-          NULL, 0x08,
-          NULL,
-          HFILL}
+        { &hf_oran_reserved_bit4,
+          { "reserved", "oran_fh_cus.reserved",
+            FT_UINT8, BASE_HEX,
+            NULL, 0x08,
+            NULL, HFILL}
         },
-        {&hf_oran_reserved_bit5,
-         {"reserved", "oran_fh_cus.reserved",
-          FT_UINT8, BASE_HEX,
-          NULL, 0x04,
-          NULL,
-          HFILL}
+        { &hf_oran_reserved_bit5,
+          { "reserved", "oran_fh_cus.reserved",
+            FT_UINT8, BASE_HEX,
+            NULL, 0x04,
+            NULL, HFILL}
         },
-        {&hf_oran_reserved_bits123,
-         {"reserved", "oran_fh_cus.reserved",
-          FT_UINT8, BASE_HEX,
-          NULL, 0x70,
-          NULL,
-          HFILL}
+        { &hf_oran_reserved_bits123,
+          { "reserved", "oran_fh_cus.reserved",
+            FT_UINT8, BASE_HEX,
+            NULL, 0x70,
+            NULL, HFILL}
         },
-        {&hf_oran_reserved_bits456,
-         {"reserved", "oran_fh_cus.reserved",
-          FT_UINT8, BASE_HEX,
-          NULL, 0x0e,
-          NULL,
-          HFILL}
+        { &hf_oran_reserved_bits456,
+          { "reserved", "oran_fh_cus.reserved",
+            FT_UINT8, BASE_HEX,
+            NULL, 0x0e,
+            NULL, HFILL}
         },
 
 
         /* 7.7.11.10 */
-        {&hf_oran_bundle_offset,
-         {"BundleOffset", "oran_fh_cus.bundleOffset",
-          FT_UINT8, BASE_DEC,
-          NULL, 0x3f,
-          "offset between start of first PRB bundle and startPrbc",
-          HFILL}
+        { &hf_oran_bundle_offset,
+          { "BundleOffset", "oran_fh_cus.bundleOffset",
+            FT_UINT8, BASE_DEC,
+            NULL, 0x3f,
+            "offset between start of first PRB bundle and startPrbc", HFILL}
         },
         /* 7.7.11.9 */
-        {&hf_oran_cont_ind,
-         {"contInd", "oran_fh_cus.contInd",
-          FT_BOOLEAN, 8,
-          TFS(&continuity_indication_tfs), 0x80,
-          "PRB region continuity flag",
-          HFILL}
+        { &hf_oran_cont_ind,
+          { "contInd", "oran_fh_cus.contInd",
+            FT_BOOLEAN, 8,
+            TFS(&continuity_indication_tfs), 0x80,
+            "PRB region continuity flag", HFILL}
         },
 
         /* 7.7.1.2 bfwCompHdr (beamforming weight compression header) */
-        {&hf_oran_bfwCompHdr,
-         {"bfwCompHdr", "oran_fh_cus.bfwCompHdr",
-          FT_STRING, BASE_NONE,
-          NULL, 0x0,
-          "Compression method and IQ bit width for beamforming weights",
-          HFILL}
+        { &hf_oran_bfwCompHdr,
+          { "bfwCompHdr", "oran_fh_cus.bfwCompHdr",
+            FT_STRING, BASE_NONE,
+            NULL, 0x0,
+            "Compression method and IQ bit width for beamforming weights", HFILL}
         },
-        {&hf_oran_bfwCompHdr_iqWidth,
-         {"IQ Bit Width", "oran_fh_cus.bfwCompHdr_iqWidth",
-          FT_UINT8, BASE_HEX,
-          VALS(bfw_comp_headers_iq_width), 0xf0,
-          "IQ bit width for the beamforming weights",
-          HFILL}
+        { &hf_oran_bfwCompHdr_iqWidth,
+          { "IQ Bit Width", "oran_fh_cus.bfwCompHdr_iqWidth",
+            FT_UINT8, BASE_HEX,
+            VALS(bfw_comp_headers_iq_width), 0xf0,
+            "IQ bit width for the beamforming weights", HFILL}
         },
-        {&hf_oran_bfwCompHdr_compMeth,
-         {"Compression Method", "oran_fh_cus.bfwCompHdr_compMeth",
-          FT_UINT8, BASE_HEX,
-          VALS(bfw_comp_headers_comp_meth), 0x0f,
-          "compression method for the beamforming weights",
-          HFILL}
+        { &hf_oran_bfwCompHdr_compMeth,
+          { "Compression Method", "oran_fh_cus.bfwCompHdr_compMeth",
+            FT_UINT8, BASE_HEX,
+            VALS(bfw_comp_headers_comp_meth), 0x0f,
+            "compression method for the beamforming weights", HFILL}
         },
 
         /* 7.5.3.32 */
-        {&hf_oran_ciCompParam,
-         {"ciCompParam", "oran_fh_cus.ciCompParam",
-          FT_STRING, BASE_NONE,
-          NULL, 0x0,
-          "channel information compression parameter",
-          HFILL}
+        { &hf_oran_ciCompParam,
+          { "ciCompParam", "oran_fh_cus.ciCompParam",
+            FT_STRING, BASE_NONE,
+            NULL, 0x0,
+            "channel information compression parameter", HFILL}
         },
 
         /* Table 7.5.3.32-1 */
-        {&hf_oran_blockScaler,
-         {"blockScaler", "oran_fh_cus.blockScaler",
-          FT_UINT8, BASE_HEX,
-          NULL, 0x0,
-          "unsigned, 1 integer bit, 7 fractional bits",
-          HFILL}
+        { &hf_oran_blockScaler,
+          { "blockScaler", "oran_fh_cus.blockScaler",
+            FT_UINT8, BASE_HEX,
+            NULL, 0x0,
+            "unsigned, 1 integer bit, 7 fractional bits", HFILL}
         },
-        {&hf_oran_compBitWidth,
-         {"compBitWidth", "oran_fh_cus.compBitWidth",
-          FT_UINT8, BASE_DEC,
-          NULL, 0xf0,
-          "Length of I bits and length of Q bits after compression over entire PRB",
-          HFILL}
+        { &hf_oran_compBitWidth,
+          { "compBitWidth", "oran_fh_cus.compBitWidth",
+            FT_UINT8, BASE_DEC,
+            NULL, 0xf0,
+            "Length of I bits and length of Q bits after compression over entire PRB", HFILL}
         },
-        {&hf_oran_compShift,
-         {"compShift", "oran_fh_cus.compShift",
-          FT_UINT8, BASE_DEC,
-          NULL, 0x0f,
-          "The shift applied to the entire PRB",
-          HFILL}
+        { &hf_oran_compShift,
+          { "compShift", "oran_fh_cus.compShift",
+            FT_UINT8, BASE_DEC,
+            NULL, 0x0f,
+            "The shift applied to the entire PRB", HFILL}
         },
 
         /* Section 7.7.6.6 */
-        {&hf_oran_repetition,
-         {"repetition", "oran_fh_cus.repetition",
-          FT_BOOLEAN, BASE_NONE,
-          NULL, 0x0,
-          "Repetition of a highest priority data section for C-Plane",
-          HFILL}
+        { &hf_oran_repetition,
+          { "repetition", "oran_fh_cus.repetition",
+            FT_BOOLEAN, BASE_NONE,
+            NULL, 0x0,
+            "Repetition of a highest priority data section for C-Plane", HFILL}
         },
         /* 7.7.20.9 */
-        {&hf_oran_rbgSize,
-         {"rbgSize", "oran_fh_cus.rbgSize",
-          FT_UINT8, BASE_HEX,
-          VALS(rbg_size_vals), 0x70,
-          "Number of PRBs of the resource block groups allocated by the bit mask",
-          HFILL}
+        { &hf_oran_rbgSize,
+          { "rbgSize", "oran_fh_cus.rbgSize",
+            FT_UINT8, BASE_HEX,
+            VALS(rbg_size_vals), 0x70,
+            "Number of PRBs of the resource block groups allocated by the bit mask", HFILL}
         },
         /* 7.7.20.10 */
-        {&hf_oran_rbgMask,
-         {"rbgMask", "oran_fh_cus.rbgMask",
-          FT_UINT32, BASE_HEX,
-          NULL, 0x0fffffff,
-          "Each bit indicates whether a corresponding resource block group is present",
-          HFILL}
+        { &hf_oran_rbgMask,
+          { "rbgMask", "oran_fh_cus.rbgMask",
+            FT_UINT32, BASE_HEX,
+            NULL, 0x0fffffff,
+            "Each bit indicates whether a corresponding resource block group is present", HFILL}
         },
         /* 7.7.6.5 */
-        {&hf_oran_noncontig_priority,
-         {"priority", "oran_fh_cus.priority",
-          FT_UINT8, BASE_HEX,
-          VALS(priority_vals), 0xc0,
-          NULL,
-          HFILL}
+        { &hf_oran_noncontig_priority,
+          { "priority", "oran_fh_cus.priority",
+            FT_UINT8, BASE_HEX,
+            VALS(priority_vals), 0xc0,
+            NULL, HFILL}
         },
         /* 7.7.6.4 */
-        {&hf_oran_symbolMask,
-         {"symbolMask", "oran_fh_cus.symbolMask",
-          FT_UINT16, BASE_HEX,
-          NULL, 0x3fff,
-          "Each bit indicates whether the rbgMask applies to a given symbol in the slot",
-          HFILL}
+        { &hf_oran_symbolMask,
+          { "symbolMask", "oran_fh_cus.symbolMask",
+            FT_UINT16, BASE_HEX,
+            NULL, 0x3fff,
+            "Each bit indicates whether the rbgMask applies to a given symbol in the slot", HFILL}
         },
 
         /* 7.7.22.2 */
-        {&hf_oran_ack_nack_req_id,
-         {"ackNackReqId", "oran_fh_cus.ackNackReqId",
-          FT_UINT16, BASE_HEX,
-          NULL, 0x0,
-          "Indicates the ACK/NACK request ID of a section description",
-          HFILL}
+        { &hf_oran_ack_nack_req_id,
+          { "ackNackReqId", "oran_fh_cus.ackNackReqId",
+            FT_UINT16, BASE_HEX,
+            NULL, 0x0,
+            "Indicates the ACK/NACK request ID of a section description", HFILL}
         },
 
         /* Subtree for next 2 items */
-        {&hf_oran_off_start_prb_num_prb_pair,
-         {"Pair", "oran_fh_cus.offStartPrb_numPrb",
-          FT_STRING, BASE_NONE,
-          NULL, 0x0,
-          "Pair of offStartPrb and numPrb",
-          HFILL}
+        { &hf_oran_off_start_prb_num_prb_pair,
+          { "Pair", "oran_fh_cus.offStartPrb_numPrb",
+            FT_STRING, BASE_NONE,
+            NULL, 0x0,
+            "Pair of offStartPrb and numPrb", HFILL}
         },
 
         /* 7.7.12.4 */
-        {&hf_oran_off_start_prb,
-         {"offStartPrb", "oran_fh_cus.offStartPrb",
-          FT_UINT8, BASE_DEC,
-          NULL, 0x0,
-          "Offset of PRB range start",
-          HFILL}
+        { &hf_oran_off_start_prb,
+          { "offStartPrb", "oran_fh_cus.offStartPrb",
+            FT_UINT8, BASE_DEC,
+            NULL, 0x0,
+            "Offset of PRB range start", HFILL}
         },
         /* 7.7.12.5 */
-        {&hf_oran_num_prb,
-         {"numPrb", "oran_fh_cus.numPrb",
-          FT_UINT8, BASE_DEC,
-          NULL, 0x0,
-          "Number of PRBs in PRB range",
-          HFILL}
+        { &hf_oran_num_prb,
+          { "numPrb", "oran_fh_cus.numPrb",
+            FT_UINT8, BASE_DEC,
+            NULL, 0x0,
+            "Number of PRBs in PRB range", HFILL}
         },
 
         /* symbolId 8.3.3.7 */
-        {&hf_oran_symbolId,
-         {"Symbol Identifier", "oran_fh_cus.symbolId",
-          FT_UINT8, BASE_DEC,
-          NULL, 0x3f,
-          "Identifies a symbol number within a slot",
-          HFILL}
+        { &hf_oran_symbolId,
+          { "Symbol Identifier", "oran_fh_cus.symbolId",
+            FT_UINT8, BASE_DEC,
+            NULL, 0x3f,
+            "Identifies a symbol number within a slot", HFILL}
         },
 
         /* startPrbu 8.3.3.11 */
-        {&hf_oran_startPrbu,
-         {"startPrbu", "oran_fh_cus.startPrbu",
-          FT_UINT16, BASE_DEC,
-          NULL, 0x03ff,
-          "starting PRB of user plane section",
-          HFILL}
+        { &hf_oran_startPrbu,
+          { "startPrbu", "oran_fh_cus.startPrbu",
+            FT_UINT16, BASE_DEC,
+            NULL, 0x03ff,
+            "starting PRB of user plane section", HFILL}
         },
 
         /* numPrbu 8.3.3.12 */
         { &hf_oran_numPrbu,
-         {"numPrbu", "oran_fh_cus.numPrbu",
-          FT_UINT8, BASE_DEC,
-          NULL, 0x0,
-          "number of PRBs per user plane section",
-          HFILL}
+          { "numPrbu", "oran_fh_cus.numPrbu",
+            FT_UINT8, BASE_DEC,
+            NULL, 0x0,
+            "number of PRBs per user plane section", HFILL}
         },
 
         /* 7.7.1.3 */
-        {&hf_oran_bfwCompParam,
-         {"bfwCompParam", "oran_fh_cus.bfwCompParam",
-          FT_STRING, BASE_NONE,
-          NULL, 0x0,
-          "Beamforming weight compression parameter",
-          HFILL}
+        { &hf_oran_bfwCompParam,
+          { "bfwCompParam", "oran_fh_cus.bfwCompParam",
+            FT_STRING, BASE_NONE,
+            NULL, 0x0,
+            "Beamforming weight compression parameter", HFILL}
         },
 
         /* 6.3.3.13 */
         { &hf_oran_udCompHdrMeth,
-         {"User Data Compression Method", "oran_fh_cus.udCompHdrMeth",
-          FT_UINT8, BASE_DEC | BASE_RANGE_STRING,
-          RVALS(ud_comp_header_meth), 0x0f,
-          "Defines the compression method for "
-          "the user data in every section in the C-Plane message",
-          HFILL}
+          { "User Data Compression Method", "oran_fh_cus.udCompHdrMeth",
+            FT_UINT8, BASE_DEC | BASE_RANGE_STRING,
+            RVALS(ud_comp_header_meth), 0x0f,
+            "Defines the compression method for the user data in every section in the C-Plane message", HFILL}
          },
         { &hf_oran_udCompHdrMeth_pref,
-         {"User Data Compression Method", "oran_fh_cus.udCompHdrMeth",
-          FT_UINT8, BASE_DEC | BASE_RANGE_STRING,
-          RVALS(ud_comp_header_meth), 0x0,
-          "Defines the compression method for "
-          "the user data in every section in the C-Plane message",
-          HFILL}
+          { "User Data Compression Method", "oran_fh_cus.udCompHdrMeth",
+            FT_UINT8, BASE_DEC | BASE_RANGE_STRING,
+            RVALS(ud_comp_header_meth), 0x0,
+            "Defines the compression method for the user data in every section in the C-Plane message", HFILL}
          },
         /* 8.3.3.18 */
         { &hf_oran_udCompLen,
-         {"udCompLen", "oran_fh_cus.udCompLen",
-           FT_UINT16, BASE_DEC,
-           NULL, 0x0,
-           "PRB field length in octets",
-           HFILL}
+          { "udCompLen", "oran_fh_cus.udCompLen",
+            FT_UINT16, BASE_DEC,
+            NULL, 0x0,
+            "PRB field length in octets", HFILL}
         },
 
         /* 6.3.3.13 */
         { &hf_oran_udCompHdrIqWidth,
-         {"User Data IQ width", "oran_fh_cus.udCompHdrWidth",
-          FT_UINT8, BASE_DEC | BASE_RANGE_STRING,
-          RVALS(ud_comp_header_width), 0xf0,
-          "Defines the IQ bit width "
-          "for the user data in every section in the C-Plane message",
-          HFILL}
+          { "User Data IQ width", "oran_fh_cus.udCompHdrWidth",
+            FT_UINT8, BASE_DEC | BASE_RANGE_STRING,
+            RVALS(ud_comp_header_width), 0xf0,
+            "Defines the IQ bit width for the user data in every section in the C-Plane message", HFILL}
         },
         { &hf_oran_udCompHdrIqWidth_pref,
-         {"User Data IQ width", "oran_fh_cus.udCompHdrWidth",
-          FT_UINT8, BASE_DEC,
-          NULL, 0x0,
-          "Defines the IQ bit width "
-          "for the user data in every section in the C-Plane message",
-          HFILL}
+          { "User Data IQ width", "oran_fh_cus.udCompHdrWidth",
+            FT_UINT8, BASE_DEC,
+            NULL, 0x0,
+            "Defines the IQ bit width for the user data in every section in the C-Plane message", HFILL}
         },
-
 
         /* Section 8.3.3.15 (not always present - depends upon meth) */
-        {&hf_oran_udCompParam,
-         {"User Data Compression Parameter", "oran_fh_cus.udCompParam",
-          FT_STRING, BASE_NONE,
-          NULL, 0x0,
-          "Applies to whatever compression method is specified "
-          "by the associated sectionID's compMeth value",
-          HFILL}
+        { &hf_oran_udCompParam,
+          { "User Data Compression Parameter", "oran_fh_cus.udCompParam",
+            FT_STRING, BASE_NONE,
+            NULL, 0x0,
+            "Applies to whatever compression method is specified by the associated sectionID's compMeth value", HFILL}
         },
         /* 8.3.3.18 */
-        {&hf_oran_sReSMask,
-         {"sReSMask", "oran_fh_cus.sReSMask",
-          FT_UINT16, BASE_HEX,
-          NULL, 0xf0ff,
-          "selective RE sending mask", HFILL}
+        { &hf_oran_sReSMask,
+          { "sReSMask", "oran_fh_cus.sReSMask",
+            FT_UINT16, BASE_HEX,
+            NULL, 0xf0ff,
+            "selective RE sending mask", HFILL}
         },
 
-        {&hf_oran_sReSMask_re12,
-         {"RE-12", "oran_fh_cus.sReSMask-re12",
-          FT_BOOLEAN, 16,
-          TFS(&tfs_present_not_present), 0x8000,
-          NULL, HFILL}
+        { &hf_oran_sReSMask_re12,
+          { "RE-12", "oran_fh_cus.sReSMask-re12",
+            FT_BOOLEAN, 16,
+            TFS(&tfs_present_not_present), 0x8000,
+            NULL, HFILL}
         },
-        {&hf_oran_sReSMask_re11,
-         {"RE-11", "oran_fh_cus.sReSMask-re11",
-          FT_BOOLEAN, 16,
-          TFS(&tfs_present_not_present), 0x4000,
-          NULL, HFILL}
+        { &hf_oran_sReSMask_re11,
+          { "RE-11", "oran_fh_cus.sReSMask-re11",
+            FT_BOOLEAN, 16,
+            TFS(&tfs_present_not_present), 0x4000,
+            NULL, HFILL}
         },
-        {&hf_oran_sReSMask_re10,
-         {"RE-10", "oran_fh_cus.sReSMask-re10",
-          FT_BOOLEAN, 16,
-          TFS(&tfs_present_not_present), 0x2000,
-          NULL, HFILL}
+        { &hf_oran_sReSMask_re10,
+          { "RE-10", "oran_fh_cus.sReSMask-re10",
+            FT_BOOLEAN, 16,
+            TFS(&tfs_present_not_present), 0x2000,
+            NULL, HFILL}
         },
-        {&hf_oran_sReSMask_re9,
-         {"RE-9", "oran_fh_cus.sReSMask-re9",
-          FT_BOOLEAN, 16,
-          TFS(&tfs_present_not_present), 0x1000,
-          NULL, HFILL}
+        { &hf_oran_sReSMask_re9,
+          { "RE-9", "oran_fh_cus.sReSMask-re9",
+            FT_BOOLEAN, 16,
+            TFS(&tfs_present_not_present), 0x1000,
+            NULL, HFILL}
         },
-        {&hf_oran_sReSMask_re8,
-         {"RE-8", "oran_fh_cus.sReSMask-re8",
-          FT_BOOLEAN, 16,
-          TFS(&tfs_present_not_present), 0x0080,
-          NULL, HFILL}
+        { &hf_oran_sReSMask_re8,
+          { "RE-8", "oran_fh_cus.sReSMask-re8",
+            FT_BOOLEAN, 16,
+            TFS(&tfs_present_not_present), 0x0080,
+            NULL, HFILL}
         },
-        {&hf_oran_sReSMask_re7,
-         {"RE-7", "oran_fh_cus.sReSMask-re7",
-          FT_BOOLEAN, 16,
-          TFS(&tfs_present_not_present), 0x0040,
-          NULL, HFILL}
+        { &hf_oran_sReSMask_re7,
+          { "RE-7", "oran_fh_cus.sReSMask-re7",
+            FT_BOOLEAN, 16,
+            TFS(&tfs_present_not_present), 0x0040,
+            NULL, HFILL}
         },
-        {&hf_oran_sReSMask_re6,
-         {"RE-6", "oran_fh_cus.sReSMask-re6",
-          FT_BOOLEAN, 16,
-          TFS(&tfs_present_not_present), 0x0020,
-          NULL, HFILL}
+        { &hf_oran_sReSMask_re6,
+          { "RE-6", "oran_fh_cus.sReSMask-re6",
+            FT_BOOLEAN, 16,
+            TFS(&tfs_present_not_present), 0x0020,
+            NULL, HFILL}
         },
-        {&hf_oran_sReSMask_re5,
-         {"RE-5", "oran_fh_cus.sReSMask-re5",
-          FT_BOOLEAN, 16,
-          TFS(&tfs_present_not_present), 0x0010,
-          NULL, HFILL}
+        { &hf_oran_sReSMask_re5,
+          { "RE-5", "oran_fh_cus.sReSMask-re5",
+            FT_BOOLEAN, 16,
+            TFS(&tfs_present_not_present), 0x0010,
+            NULL, HFILL}
         },
-        {&hf_oran_sReSMask_re4,
-         {"RE-4", "oran_fh_cus.sReSMask-re4",
-          FT_BOOLEAN, 16,
-          TFS(&tfs_present_not_present), 0x0008,
-          NULL, HFILL}
+        { &hf_oran_sReSMask_re4,
+          { "RE-4", "oran_fh_cus.sReSMask-re4",
+            FT_BOOLEAN, 16,
+            TFS(&tfs_present_not_present), 0x0008,
+            NULL, HFILL}
         },
-        {&hf_oran_sReSMask_re3,
-         {"RE-3", "oran_fh_cus.sReSMask-re3",
-          FT_BOOLEAN, 16,
-          TFS(&tfs_present_not_present), 0x0004,
-          NULL, HFILL}
+        { &hf_oran_sReSMask_re3,
+          { "RE-3", "oran_fh_cus.sReSMask-re3",
+            FT_BOOLEAN, 16,
+            TFS(&tfs_present_not_present), 0x0004,
+            NULL, HFILL}
         },
-        {&hf_oran_sReSMask_re2,
-         {"RE-2", "oran_fh_cus.sReSMask-re2",
-          FT_BOOLEAN, 16,
-          TFS(&tfs_present_not_present), 0x0002,
-          NULL, HFILL}
+        { &hf_oran_sReSMask_re2,
+          { "RE-2", "oran_fh_cus.sReSMask-re2",
+            FT_BOOLEAN, 16,
+            TFS(&tfs_present_not_present), 0x0002,
+            NULL, HFILL}
         },
-        {&hf_oran_sReSMask_re1,
-         {"RE-1", "oran_fh_cus.sReSMask-re1",
-          FT_BOOLEAN, 16,
-          TFS(&tfs_present_not_present), 0x0001,
-          NULL, HFILL}
+        { &hf_oran_sReSMask_re1,
+          { "RE-1", "oran_fh_cus.sReSMask-re1",
+            FT_BOOLEAN, 16,
+            TFS(&tfs_present_not_present), 0x0001,
+            NULL, HFILL}
         },
 
         /* 8.3.3.20 */
-        {&hf_oran_sReSMask1,
-         {"sReSMask1", "oran_fh_cus.sReSMask1",
-          FT_UINT16, BASE_HEX,
-          NULL, 0x0fff,
-          "selective RE sending mask 1", HFILL}
+        { &hf_oran_sReSMask1,
+          { "sReSMask1", "oran_fh_cus.sReSMask1",
+            FT_UINT16, BASE_HEX,
+            NULL, 0x0fff,
+            "selective RE sending mask 1", HFILL}
         },
         /* 8.3.3.21 */
-        {&hf_oran_sReSMask2,
-         {"sReSMask2", "oran_fh_cus.sReSMask2",
-          FT_UINT16, BASE_HEX,
-          NULL, 0x0fff,
-          "selective RE sending mask 2", HFILL}
+        { &hf_oran_sReSMask2,
+          { "sReSMask2", "oran_fh_cus.sReSMask2",
+            FT_UINT16, BASE_HEX,
+            NULL, 0x0fff,
+            "selective RE sending mask 2", HFILL}
         },
 
-        {&hf_oran_sReSMask1_2_re12,
-         {"RE-12", "oran_fh_cus.sReSMask-re12",
-          FT_BOOLEAN, 16,
-          TFS(&tfs_present_not_present), 0x0800,
-          NULL, HFILL}
+        { &hf_oran_sReSMask1_2_re12,
+          { "RE-12", "oran_fh_cus.sReSMask-re12",
+            FT_BOOLEAN, 16,
+            TFS(&tfs_present_not_present), 0x0800,
+            NULL, HFILL}
         },
-        {&hf_oran_sReSMask1_2_re11,
-         {"RE-11", "oran_fh_cus.sReSMask-re11",
-          FT_BOOLEAN, 16,
-          TFS(&tfs_present_not_present), 0x0400,
-          NULL, HFILL}
+        { &hf_oran_sReSMask1_2_re11,
+          { "RE-11", "oran_fh_cus.sReSMask-re11",
+            FT_BOOLEAN, 16,
+            TFS(&tfs_present_not_present), 0x0400,
+            NULL, HFILL}
         },
-        {&hf_oran_sReSMask1_2_re10,
-         {"RE-10", "oran_fh_cus.sReSMask-re10",
-          FT_BOOLEAN, 16,
-          TFS(&tfs_present_not_present), 0x0200,
-          NULL, HFILL}
+        { &hf_oran_sReSMask1_2_re10,
+          { "RE-10", "oran_fh_cus.sReSMask-re10",
+            FT_BOOLEAN, 16,
+            TFS(&tfs_present_not_present), 0x0200,
+            NULL, HFILL}
         },
-        {&hf_oran_sReSMask1_2_re9,
-         {"RE-9", "oran_fh_cus.sReSMask-re9",
-          FT_BOOLEAN, 16,
-          TFS(&tfs_present_not_present), 0x0100,
-          NULL, HFILL}
+        { &hf_oran_sReSMask1_2_re9,
+          { "RE-9", "oran_fh_cus.sReSMask-re9",
+            FT_BOOLEAN, 16,
+            TFS(&tfs_present_not_present), 0x0100,
+            NULL, HFILL}
         },
 
         /* Section 6.3.3.15 */
-        {&hf_oran_iSample,
-         {"iSample", "oran_fh_cus.iSample",
-          FT_FLOAT, BASE_NONE,
-          NULL, 0x0,
-          "In-phase Sample value", HFILL}
+        { &hf_oran_iSample,
+          { "iSample", "oran_fh_cus.iSample",
+            FT_FLOAT, BASE_NONE,
+            NULL, 0x0,
+            "In-phase Sample value", HFILL}
         },
 
         /* Section 6.3.3.16 */
-        {&hf_oran_qSample,
-         {"qSample", "oran_fh_cus.qSample",
-          FT_FLOAT, BASE_NONE,
-          NULL, 0x0,
-          "Quadrature Sample value", HFILL}
+        { &hf_oran_qSample,
+          { "qSample", "oran_fh_cus.qSample",
+            FT_FLOAT, BASE_NONE,
+            NULL, 0x0,
+            "Quadrature Sample value", HFILL}
         },
 
         { &hf_oran_exponent,
           { "Exponent", "oran_fh_cus.exponent",
             FT_UINT8, BASE_DEC,
             NULL, 0x0f,
-            "Exponent applicable to the I & Q mantissas",
-            HFILL }
+            "Exponent applicable to the I & Q mantissas", HFILL }
         },
 
         { &hf_oran_iq_user_data,
           { "IQ User Data", "oran_fh_cus.iq_user_data",
             FT_BYTES, BASE_NONE,
             NULL, 0x0,
-            "Used for the In-phase and Quadrature sample mantissa",
-            HFILL }
+            "Used for the In-phase and Quadrature sample mantissa", HFILL }
         },
 
         { &hf_oran_c_eAxC_ID,
           { "c_eAxC_ID", "oran_fh_cus.c_eaxc_id",
             FT_STRING, BASE_NONE,
             NULL, 0x0,
-            "This is a calculated field for the c_eAxC ID, which identifies the message stream",
-            HFILL } },
+            "This is a calculated field for the c_eAxC ID, which identifies the message stream", HFILL }
+        },
 
         { &hf_oran_refa,
           { "RefA", "oran_fh_cus.refa",
             FT_STRING, BASE_NONE,
             NULL, 0x0,
-            "This is a calculated field for the RefA ID, which provides a reference in time",
-            HFILL }
+            "This is a calculated field for the RefA ID, which provides a reference in time", HFILL }
         },
 
 
@@ -6905,31 +6784,25 @@ proto_register_oran(void)
           { "ciCompHdr", "oran_fh_cus.ciCompHdr",
             FT_STRING, BASE_NONE,
             NULL, 0x0,
-            NULL,
-            HFILL}
+            NULL, HFILL}
         },
         { &hf_oran_ciCompHdrMeth,
           { "User Data Compression Method", "oran_fh_cus.ciCompHdrMeth",
             FT_UINT8, BASE_DEC | BASE_RANGE_STRING,
             RVALS(ud_comp_header_meth), 0x0e,
-            "Defines the compression method for "
-            "the user data in every section in the C-Plane message",
-            HFILL}
+            "Defines the compression method for the user data in every section in the C-Plane message", HFILL}
          },
         { &hf_oran_ciCompHdrIqWidth,
           { "User Data IQ width", "oran_fh_cus.udCompHdrWidth",
             FT_UINT8, BASE_DEC | BASE_RANGE_STRING,
             RVALS(ud_comp_header_width), 0xf0,
-            "Defines the IQ bit width "
-            "for the user data in every section in the C-Plane message",
-            HFILL}
+            "Defines the IQ bit width for the user data in every section in the C-Plane message", HFILL}
         },
         { &hf_oran_ciCompOpt,
           { "ciCompOpt", "oran_fh_cus.ciCompOpt",
             FT_UINT8, BASE_DEC,
             VALS(ci_comp_opt_vals), 0x01,
-            NULL,
-            HFILL }
+            NULL, HFILL }
         },
 
         /* 7.7.11.7 */
@@ -6937,70 +6810,60 @@ proto_register_oran(void)
           { "disableBFWs", "oran_fh_cus.disableBFWs",
             FT_BOOLEAN, 8,
             NULL, 0x80,
-            "Indicate if BFWs under section extension are disabled",
-            HFILL }
+            "Indicate if BFWs under section extension are disabled", HFILL }
         },
         /* 7.7.11.8 */
         { &hf_oran_rad,
           { "RAD", "oran_fh_cus.rad",
             FT_BOOLEAN, 8,
             NULL, 0x40,
-            "Reset After PRB Discontinuity",
-            HFILL }
+            "Reset After PRB Discontinuity", HFILL }
         },
         /* 7.7.11.4 */
         { &hf_oran_num_bund_prbs,
           { "numBundPrb", "oran_fh_cus.numBundPrb",
             FT_UINT8, BASE_DEC,
             NULL, 0x0,
-            "Number of bundled PRBs per BFWs",
-            HFILL }
+            "Number of bundled PRBs per BFWs", HFILL }
         },
         { &hf_oran_beam_id,
           { "beamId", "oran_fh_cus.beamId",
             FT_UINT16, BASE_DEC,
             NULL, 0x7fff,
-            NULL,
-            HFILL }
+            NULL, HFILL }
         },
         { &hf_oran_num_weights_per_bundle,
           { "Num weights per bundle", "oran_fh_cus.num_weights_per_bundle",
             FT_UINT16, BASE_DEC,
             NULL, 0x0,
-            "From dissector preference",
-            HFILL }
+            "From dissector preference", HFILL }
         },
-
 
         { &hf_oran_samples_prb,
           {"PRB", "oran_fh_cus.prb",
             FT_STRING, BASE_NONE,
             NULL, 0x0,
-            "Grouping of samples for a particular Physical Resource Block",
-            HFILL}
+            "Grouping of samples for a particular Physical Resource Block", HFILL}
          },
 
         /* 7.5.3.13 */
-        {&hf_oran_ciSample,
-         {"ciSample", "oran_fh_cus.ciSample",
+        { &hf_oran_ciSample,
+          { "ciSample", "oran_fh_cus.ciSample",
             FT_STRING, BASE_NONE,
             NULL, 0x0,
-            "Sample (I and Q values)",
-            HFILL}
+            "Sample (I and Q values)", HFILL}
         },
-        {&hf_oran_ciIsample,
-         {"ciIsample", "oran_fh_cus.ciISample",
+        { &hf_oran_ciIsample,
+          { "ciIsample", "oran_fh_cus.ciISample",
             FT_FLOAT, BASE_NONE,
             NULL, 0x0,
-            "Channel information complex value - I part",
-            HFILL}
+            "Channel information complex value - I part", HFILL}
         },
-        {&hf_oran_ciQsample,
+        { &hf_oran_ciQsample,
           { "ciQsample", "oran_fh_cus.ciQSample",
             FT_FLOAT, BASE_NONE,
             NULL, 0x0,
-            "Channel information complex value - Q part",
-            HFILL}
+            "Channel information complex value - Q part", HFILL}
         },
 
         /* 7.7.10.2 */
@@ -7008,16 +6871,14 @@ proto_register_oran(void)
           { "beamGroupType", "oran_fh_cus.beamGroupType",
             FT_UINT8, BASE_DEC,
             VALS(beam_group_type_vals), 0xc0,
-            "The type of beam grouping",
-            HFILL }
+            "The type of beam grouping", HFILL }
         },
         /* 7.7.10.3 */
         { &hf_oran_numPortc,
           { "numPortc", "oran_fh_cus.numPortc",
             FT_UINT8, BASE_DEC,
             NULL, 0x3f,
-            "The number of eAxC ports",
-            HFILL }
+            "The number of eAxC ports", HFILL }
         },
 
         /* 7.7.4.2 (1 bit) */
@@ -7025,16 +6886,14 @@ proto_register_oran(void)
           { "csf", "oran_fh_cus.csf",
             FT_BOOLEAN, BASE_NONE,
             NULL, 0x0,
-            "constellation shift flag",
-            HFILL }
+            "constellation shift flag", HFILL }
         },
         /* 7.7.4.3 */
         { &hf_oran_modcompscaler,
           { "modCompScaler", "oran_fh_cus.modcompscaler",
             FT_UINT16, BASE_DEC,
             NULL, 0x7fff,
-            "modulation compression scaler value",
-            HFILL }
+            "modulation compression scaler value", HFILL }
         },
 
         /* 7.7.5.1 */
@@ -7042,8 +6901,7 @@ proto_register_oran(void)
           { "Set", "oran_fh_cus.modcomp-param-set",
             FT_STRING, BASE_NONE,
             NULL, 0x0,
-            NULL,
-            HFILL }
+            NULL, HFILL }
         },
 
         /* mcScaleReMask 7.7.5.2 (12 bits) */
@@ -7051,40 +6909,35 @@ proto_register_oran(void)
           { "mcScaleReMask", "oran_fh_cus.mcscaleremask",
             FT_BOOLEAN, BASE_NONE,
             NULL, 0x0,
-            "modulation compression power scale RE mask",
-            HFILL }
+            "modulation compression power scale RE mask", HFILL }
         },
         /* mcScaleOffset 7.7.5.4 (15 bits) */
         { &hf_oran_mc_scale_offset,
           { "mcScaleOffset", "oran_fh_cus.mcscaleoffset",
             FT_UINT24, BASE_DEC,
             NULL, 0x0,
-            "scaling value for modulation compression",
-            HFILL }
+            "scaling value for modulation compression", HFILL }
         },
         /* eAxCmask (7.7.7.2) */
         { &hf_oran_eAxC_mask,
           { "eAxC Mask", "oran_fh_cus.eaxcmask",
             FT_UINT16, BASE_HEX,
             NULL, 0x0,
-            "Which eAxC_ID values the C-Plane message applies to",
-            HFILL }
+            "Which eAxC_ID values the C-Plane message applies to", HFILL }
         },
         /* technology (interface name) 7.7.9.2 */
         { &hf_oran_technology,
           { "Technology", "oran_fh_cus.technology",
             FT_UINT8, BASE_DEC,
             VALS(interface_name_vals), 0x0,
-            "Interface name (that C-PLane section applies to)",
-            HFILL }
+            "Interface name (that C-PLane section applies to)", HFILL }
         },
         /* Exttype 14 (7.7.14.2) */
         { &hf_oran_nullLayerInd,
           { "nullLayerInd", "oran_fh_cus.nulllayerind",
             FT_BOOLEAN, BASE_NONE,
             NULL, 0x0,
-            "Whether corresponding layer is nulling-layer or not",
-            HFILL }
+            "Whether corresponding layer is nulling-layer or not", HFILL }
         },
 
         /* Exttype 19 (7.7.19.8) */
@@ -7092,24 +6945,21 @@ proto_register_oran(void)
           { "portReMask", "oran_fh_cus.portReMask",
             FT_BOOLEAN, 16,
             TFS(&tfs_set_notset), 0x0fff,
-            "RE bitmask per port",
-            HFILL }
+            "RE bitmask per port", HFILL }
         },
         /* 7.7.19.9 */
         { &hf_oran_portSymbolMask,
           { "portSymbolMask", "oran_fh_cus.portSymbolMask",
             FT_BOOLEAN, 16,
             TFS(&tfs_set_notset), 0x3fff,
-            "Symbol bitmask port port",
-            HFILL }
+            "Symbol bitmask port port", HFILL }
         },
 
         { &hf_oran_ext19_port,
           {"Port", "oran_fh_cus.ext19.port",
             FT_STRING, BASE_NONE,
             NULL, 0x0,
-            "Entry for a given port in ext19",
-            HFILL}
+            "Entry for a given port in ext19", HFILL}
          },
 
         /* Ext 13 */
@@ -7117,33 +6967,29 @@ proto_register_oran(void)
           {"PRB allocation", "oran_fh_cus.prb-allocation",
             FT_STRING, BASE_NONE,
             NULL, 0x0,
-            NULL,
-            HFILL}
+            NULL, HFILL}
          },
         /* 7.7.13.2 */
         { &hf_oran_nextSymbolId,
           { "nextSymbolId", "oran_fh_cus.nextSymbolId",
             FT_UINT8, BASE_DEC,
             NULL, 0x3c,
-            "offset of PRB range start",
-            HFILL }
+            "offset of PRB range start", HFILL }
         },
         /* 7.7.13.3 */
         { &hf_oran_nextStartPrbc,
           { "nextStartPrbc", "oran_fh_cus.nextStartPrbc",
             FT_UINT16, BASE_DEC,
             NULL, 0x03ff,
-            "number of PRBs in PRB range",
-            HFILL }
+            "number of PRBs in PRB range", HFILL }
         },
 
         /* Puncturing patters as appears in SE 20 */
-        {&hf_oran_puncPattern,
-         {"puncPattern", "oran_fh_cus.puncPattern",
-          FT_STRING, BASE_NONE,
-          NULL, 0x0,
-          NULL,
-          HFILL}
+        { &hf_oran_puncPattern,
+          { "puncPattern", "oran_fh_cus.puncPattern",
+            FT_STRING, BASE_NONE,
+            NULL, 0x0,
+            NULL, HFILL}
         },
 
         /* 7.7.20.2 numPuncPatterns */
@@ -7151,525 +6997,460 @@ proto_register_oran(void)
           { "numPuncPatterns", "oran_fh_cus.numPuncPatterns",
             FT_UINT8, BASE_DEC,
             NULL, 0x0,
-            "number of puncturing patterns",
-            HFILL }
+            "number of puncturing patterns", HFILL }
         },
         /* 7.7.20.3 symbolMask */
-        {&hf_oran_symbolMask_ext20,
-         {"symbolMask", "oran_fh_cus.symbolMask",
-          FT_UINT16, BASE_HEX,
-          NULL, 0xfffc,
-          "Bitmask where each bit indicates the symbols associated with the puncturing pattern",
-          HFILL}
+        { &hf_oran_symbolMask_ext20,
+          { "symbolMask", "oran_fh_cus.symbolMask",
+            FT_UINT16, BASE_HEX,
+            NULL, 0xfffc,
+            "Bitmask where each bit indicates the symbols associated with the puncturing pattern", HFILL}
         },
         /* 7.7.20.4 startPuncPrb */
-        {&hf_oran_startPuncPrb,
-         {"startPuncPrb", "oran_fh_cus.startPuncPrb",
-          FT_UINT16, BASE_DEC,
-          NULL, 0x03ff,
-          "starting PRB to which one puncturing pattern applies",
-          HFILL}
+        { &hf_oran_startPuncPrb,
+          { "startPuncPrb", "oran_fh_cus.startPuncPrb",
+            FT_UINT16, BASE_DEC,
+            NULL, 0x03ff,
+            "starting PRB to which one puncturing pattern applies", HFILL}
         },
         /* 7.7.20.5 numPuncPrb */
-        {&hf_oran_numPuncPrb,
-         {"numPuncPrb", "oran_fh_cus.numPuncPrb",
-          FT_UINT24, BASE_DEC,
-          NULL, 0x03ffff,
-          "the number of PRBs of the puncturing pattern",
-          HFILL}
+        { &hf_oran_numPuncPrb,
+          { "numPuncPrb", "oran_fh_cus.numPuncPrb",
+            FT_UINT24, BASE_DEC,
+            NULL, 0x03ffff,
+            "the number of PRBs of the puncturing pattern", HFILL}
         },
         /* 7.7.20.6 puncReMask */
-        {&hf_oran_puncReMask,
-         {"puncReMask", "oran_fh_cus.puncReMask",
-          FT_UINT16, BASE_DEC,
-          NULL, 0xffc0,
-          "puncturing pattern RE mask",
-          HFILL}
+        { &hf_oran_puncReMask,
+          { "puncReMask", "oran_fh_cus.puncReMask",
+            FT_UINT16, BASE_DEC,
+            NULL, 0xffc0,
+            "puncturing pattern RE mask", HFILL}
         },
         /* 7.7.20.12 multiSDScope */
-        {&hf_oran_multiSDScope,
-         {"multiSDScope", "oran_fh_cus.multiSDScope",
-          FT_BOOLEAN, 8,
-          TFS(&multi_sd_scope_tfs), 0x02,
-          "multiple section description scope flag",
-          HFILL}
+        { &hf_oran_multiSDScope,
+          { "multiSDScope", "oran_fh_cus.multiSDScope",
+            FT_BOOLEAN, 8,
+            TFS(&multi_sd_scope_tfs), 0x02,
+            "multiple section description scope flag", HFILL}
         },
         /* 7.7.20.4 rbgIncl */
-        {&hf_oran_RbgIncl,
-         {"rbgIncl", "oran_fh_cus.rbgIncl",
-          FT_BOOLEAN, 8,
-          NULL, 0x01,
-          "rbg included flag",
-          HFILL}
+        { &hf_oran_RbgIncl,
+          { "rbgIncl", "oran_fh_cus.rbgIncl",
+            FT_BOOLEAN, 8,
+            NULL, 0x01,
+            "rbg included flag", HFILL}
         },
 
         /* 7.7.21.2 ciPrbGroupSize */
-        {&hf_oran_ci_prb_group_size,
-         {"ciPrbGroupSize", "oran_fh_cus.ciPrbGroupSize",
-          FT_UINT8, BASE_DEC,
-          NULL, 0x0,
-          "channel information PRB group size",
-          HFILL}
+        { &hf_oran_ci_prb_group_size,
+          { "ciPrbGroupSize", "oran_fh_cus.ciPrbGroupSize",
+            FT_UINT8, BASE_DEC,
+            NULL, 0x0,
+            "channel information PRB group size", HFILL}
         },
         /* 7.21.3 */
-        {&hf_oran_prg_size_st5,
-         {"prgSize", "oran_fh_cus.prgSize",
-          FT_UINT8, BASE_DEC,
-          VALS(prg_size_st5_vals), 0x03,
-          "precoding resource block group size",
-          HFILL}
+        { &hf_oran_prg_size_st5,
+          { "prgSize", "oran_fh_cus.prgSize",
+            FT_UINT8, BASE_DEC,
+            VALS(prg_size_st5_vals), 0x03,
+            "precoding resource block group size", HFILL}
         },
-        {&hf_oran_prg_size_st6,
-         {"prgSize", "oran_fh_cus.prgSize",
-          FT_UINT8, BASE_DEC,
-          VALS(prg_size_st6_vals), 0x03,
-          "precoding resource block group size",
-          HFILL}
+        { &hf_oran_prg_size_st6,
+          { "prgSize", "oran_fh_cus.prgSize",
+            FT_UINT8, BASE_DEC,
+            VALS(prg_size_st6_vals), 0x03,
+            "precoding resource block group size", HFILL}
         },
 
         /* 7.7.17.2 numUeID */
-        {&hf_oran_num_ueid,
-         {"numUeID", "oran_fh_cus.numUeID",
-          FT_UINT8, BASE_DEC,
-          NULL, 0x0,
-          "number of ueIDs per user",
-          HFILL}
+        { &hf_oran_num_ueid,
+          { "numUeID", "oran_fh_cus.numUeID",
+            FT_UINT8, BASE_DEC,
+            NULL, 0x0,
+            "number of ueIDs per user", HFILL}
         },
 
         /* 7.7.16.2 antMask */
-        {&hf_oran_antMask,
-         {"antMask", "oran_fh_cus.antMask",
-          FT_UINT64, BASE_HEX,
-          NULL, 0xffffffffffffffff,
-          "indices of antennas to be pre-combined per RX endpoint",
-          HFILL}
+        { &hf_oran_antMask,
+          { "antMask", "oran_fh_cus.antMask",
+            FT_UINT64, BASE_HEX,
+            NULL, 0xffffffffffffffff,
+            "indices of antennas to be pre-combined per RX endpoint", HFILL}
         },
 
         /* 7.7.18.2 transmissionWindowOffset */
-        {&hf_oran_transmissionWindowOffset,
-         {"transmissionWindowOffset", "oran_fh_cus.transmissionWindowOffset",
-          FT_UINT16, BASE_DEC,
-          NULL, 0x0,
-          "start of the transmission window as an offset to when the transmission window would have been without this parameter, i.e. (Ta3_max - Ta3_min)",
-          HFILL}
+        { &hf_oran_transmissionWindowOffset,
+          { "transmissionWindowOffset", "oran_fh_cus.transmissionWindowOffset",
+            FT_UINT16, BASE_DEC,
+            NULL, 0x0,
+            "start of the transmission window as an offset to when the transmission window would have been without this parameter, i.e. (Ta3_max - Ta3_min)", HFILL}
         },
         /* 7.7.18.3 transmissionWindowSize */
-        {&hf_oran_transmissionWindowSize,
-         {"transmissionWindowSize", "oran_fh_cus.transmissionWindowSize",
-          FT_UINT16, BASE_DEC,
-          NULL, 0x3fff,
-          "size of the transmission window in resolution µs",
-          HFILL}
+        { &hf_oran_transmissionWindowSize,
+          { "transmissionWindowSize", "oran_fh_cus.transmissionWindowSize",
+            FT_UINT16, BASE_DEC,
+            NULL, 0x3fff,
+            "size of the transmission window in resolution µs", HFILL}
         },
         /* 7.7.18.4 toT */
-        {&hf_oran_toT,
-         {"toT", "oran_fh_cus.toT",
-          FT_UINT8, BASE_DEC,
-          VALS(type_of_transmission_vals), 0x03,
-          "type of transmission",
-          HFILL}
+        { &hf_oran_toT,
+          { "toT", "oran_fh_cus.toT",
+            FT_UINT8, BASE_DEC,
+            VALS(type_of_transmission_vals), 0x03,
+            "type of transmission", HFILL}
         },
 
         /* 7.7.2.2 bfaCompHdr */
-        {&hf_oran_bfaCompHdr,
-         {"bfaCompHdr", "oran_fh_cus.bfaCompHdr",
-          FT_STRING, BASE_NONE,
-          NULL, 0x0,
-          "beamforming attributes compression header",
-          HFILL}
+        { &hf_oran_bfaCompHdr,
+          { "bfaCompHdr", "oran_fh_cus.bfaCompHdr",
+            FT_STRING, BASE_NONE,
+            NULL, 0x0,
+            "beamforming attributes compression header", HFILL}
         },
         /* 7.7.2.2-2: bfAzPtWidth */
-        {&hf_oran_bfAzPtWidth,
-         {"bfAzPtWidth", "oran_fh_cus.bfAzPtWidth",
-          FT_UINT8, BASE_DEC,
-          VALS(bfa_bw_vals), 0x38,
-          NULL,
-          HFILL}
+        { &hf_oran_bfAzPtWidth,
+          { "bfAzPtWidth", "oran_fh_cus.bfAzPtWidth",
+            FT_UINT8, BASE_DEC,
+            VALS(bfa_bw_vals), 0x38,
+            NULL, HFILL}
         },
         /* 7.7.2.2-3: bfZePtWidth */
-        {&hf_oran_bfZePtWidth,
-         {"bfZePtWidth", "oran_fh_cus.bfZePtWidth",
-          FT_UINT8, BASE_DEC,
-          VALS(bfa_bw_vals), 0x07,
-          NULL,
-          HFILL}
+        { &hf_oran_bfZePtWidth,
+          { "bfZePtWidth", "oran_fh_cus.bfZePtWidth",
+            FT_UINT8, BASE_DEC,
+            VALS(bfa_bw_vals), 0x07,
+            NULL, HFILL}
         },
         /* 7.7.2.2-4: bfAz3ddWidth */
-        {&hf_oran_bfAz3ddWidth,
-         {"bfAz3ddWidth", "oran_fh_cus.bfAz3ddWidth",
-          FT_UINT8, BASE_DEC,
-          VALS(bfa_bw_vals), 0x38,
-          NULL,
-          HFILL}
+        { &hf_oran_bfAz3ddWidth,
+          { "bfAz3ddWidth", "oran_fh_cus.bfAz3ddWidth",
+            FT_UINT8, BASE_DEC,
+            VALS(bfa_bw_vals), 0x38,
+            NULL, HFILL}
         },
         /* 7.7.2.2-5: bfZe3ddWidth */
-        {&hf_oran_bfZe3ddWidth,
-         {"bfZe3ddWidth", "oran_fh_cus.bfZe3ddWidth",
-          FT_UINT8, BASE_DEC,
-          VALS(bfa_bw_vals), 0x07,
-          NULL,
-          HFILL}
+        { &hf_oran_bfZe3ddWidth,
+          { "bfZe3ddWidth", "oran_fh_cus.bfZe3ddWidth",
+            FT_UINT8, BASE_DEC,
+            VALS(bfa_bw_vals), 0x07,
+            NULL, HFILL}
         },
 
         /* 7.7.2.3 bfAzPt */
-        {&hf_oran_bfAzPt,
-         {"bfAzPt", "oran_fh_cus.bfAzPt",
-          FT_UINT8, BASE_DEC,
-          NULL, 0x0,
-          "beamforming azimuth pointing parameter",
-          HFILL}
+        { &hf_oran_bfAzPt,
+          { "bfAzPt", "oran_fh_cus.bfAzPt",
+            FT_UINT8, BASE_DEC,
+            NULL, 0x0,
+            "beamforming azimuth pointing parameter", HFILL}
         },
         /* 7.7.2.4 bfZePt */
-        {&hf_oran_bfZePt,
-         {"bfZePt", "oran_fh_cus.bfZePt",
-          FT_UINT8, BASE_DEC,
-          NULL, 0x0,
-          "beamforming zenith pointing parameter",
-          HFILL}
+        { &hf_oran_bfZePt,
+          { "bfZePt", "oran_fh_cus.bfZePt",
+            FT_UINT8, BASE_DEC,
+            NULL, 0x0,
+            "beamforming zenith pointing parameter", HFILL}
         },
         /* 7.7.2.5 bfAz3dd */
-        {&hf_oran_bfAz3dd,
-         {"bfAz3dd", "oran_fh_cus.bfAz3dd",
-          FT_UINT8, BASE_DEC,
-          NULL, 0x0,
-          "beamforming azimuth beamwidth parameter",
-          HFILL}
+        { &hf_oran_bfAz3dd,
+          { "bfAz3dd", "oran_fh_cus.bfAz3dd",
+            FT_UINT8, BASE_DEC,
+            NULL, 0x0,
+            "beamforming azimuth beamwidth parameter", HFILL}
         },
         /* 7.7.2.6 bfZe3dd */
-        {&hf_oran_bfZe3dd,
-         {"bfZe3dd", "oran_fh_cus.bfZe3dd",
-          FT_UINT8, BASE_DEC,
-          NULL, 0x0,
-          "beamforming zenith beamwidth parameter",
-          HFILL}
+        { &hf_oran_bfZe3dd,
+          { "bfZe3dd", "oran_fh_cus.bfZe3dd",
+            FT_UINT8, BASE_DEC,
+            NULL, 0x0,
+            "beamforming zenith beamwidth parameter", HFILL}
         },
 
         /* 7.7.2.7 bfAzSl */
-        {&hf_oran_bfAzSl,
-         {"bfAzSl", "oran_fh_cus.bfAzSl",
-          FT_UINT8, BASE_DEC,
-          VALS(sidelobe_suppression_vals), 0x38,
-          "beamforming azimuth sidelobe parameter",
-          HFILL}
+        { &hf_oran_bfAzSl,
+          { "bfAzSl", "oran_fh_cus.bfAzSl",
+            FT_UINT8, BASE_DEC,
+            VALS(sidelobe_suppression_vals), 0x38,
+            "beamforming azimuth sidelobe parameter", HFILL}
         },
         /* 7.7.2.8 bfZeSl */
-        {&hf_oran_bfZeSl,
-         {"bfZeSl", "oran_fh_cus.bfZeSl",
-          FT_UINT8, BASE_DEC,
-          VALS(sidelobe_suppression_vals), 0x38,
-          "beamforming zenith sidelobe parameter",
-          HFILL}
+        { &hf_oran_bfZeSl,
+          { "bfZeSl", "oran_fh_cus.bfZeSl",
+            FT_UINT8, BASE_DEC,
+            VALS(sidelobe_suppression_vals), 0x38,
+            "beamforming zenith sidelobe parameter", HFILL}
         },
 
         /* 7.5.2.17 */
-        {&hf_oran_cmd_scope,
-         {"cmdScope", "oran_fh_cus.cmdScope",
-          FT_UINT8, BASE_DEC | BASE_RANGE_STRING,
-          RVALS(cmd_scope_vals), 0x0f,
-          "command scope",
-          HFILL}
+        { &hf_oran_cmd_scope,
+          { "cmdScope", "oran_fh_cus.cmdScope",
+            FT_UINT8, BASE_DEC | BASE_RANGE_STRING,
+            RVALS(cmd_scope_vals), 0x0f,
+            "command scope", HFILL}
         },
         /* 7.5.2.18 */
-        {&hf_oran_number_of_st4_cmds,
-         {"numberOfST4Cmds", "oran_fh_cus.numberOfST4Cmds",
-          FT_UINT8, BASE_DEC,
-          NULL, 0x0,
-          "Number of Section Type 4 commands",
-          HFILL}
+        { &hf_oran_number_of_st4_cmds,
+          { "numberOfST4Cmds", "oran_fh_cus.numberOfST4Cmds",
+            FT_UINT8, BASE_DEC,
+            NULL, 0x0,
+            "Number of Section Type 4 commands", HFILL}
         },
 
-        {&hf_oran_st4_cmd_header,
-         {"Command common header", "oran_fh_cus.st4CmdCommonHeader",
-          FT_STRING, BASE_NONE,
-          NULL, 0x0,
-          NULL,
-          HFILL}
+        { &hf_oran_st4_cmd_header,
+          { "Command common header", "oran_fh_cus.st4CmdCommonHeader",
+            FT_STRING, BASE_NONE,
+            NULL, 0x0,
+            NULL, HFILL}
         },
 
         /* 7.5.3.38 */
-        {&hf_oran_st4_cmd_type,
-         {"st4CmdType", "oran_fh_cus.st4CmdType",
-          FT_UINT8, BASE_DEC | BASE_RANGE_STRING,
-          RVALS(st4_cmd_type_vals), 0x0,
-          NULL,
-          HFILL}
+        { &hf_oran_st4_cmd_type,
+          { "st4CmdType", "oran_fh_cus.st4CmdType",
+            FT_UINT8, BASE_DEC | BASE_RANGE_STRING,
+            RVALS(st4_cmd_type_vals), 0x0,
+            NULL, HFILL}
         },
         /* 7.5.3.39 */
-        {&hf_oran_st4_cmd_len,
-         {"st4CmdLen", "oran_fh_cus.st4CmdLen",
-          FT_UINT16, BASE_DEC,
-          NULL, 0x0,
-          "Length of command in 32-bit words",
-          HFILL}
+        { &hf_oran_st4_cmd_len,
+          { "st4CmdLen", "oran_fh_cus.st4CmdLen",
+            FT_UINT16, BASE_DEC,
+            NULL, 0x0,
+            "Length of command in 32-bit words", HFILL}
         },
         /* 7.5.3.40 */
-        {&hf_oran_st4_cmd_num_slots,
-         {"numSlots", "oran_fh_cus.st4NumSlots",
-          FT_UINT8, BASE_DEC,
-          NULL, 0x0,
-          "Contiguous slots for which command is applicable",
-          HFILL}
+        { &hf_oran_st4_cmd_num_slots,
+          { "numSlots", "oran_fh_cus.st4NumSlots",
+            FT_UINT8, BASE_DEC,
+            NULL, 0x0,
+            "Contiguous slots for which command is applicable", HFILL}
         },
         /* 7.5.3.41 */
-        {&hf_oran_st4_cmd_ack_nack_req_id,
-         {"ackNackReqId", "oran_fh_cus.ackNackReqId",
-          FT_UINT16, BASE_DEC,
-          NULL, 0x0,
-          "ACK/NACK Request Id",
-          HFILL}
+        { &hf_oran_st4_cmd_ack_nack_req_id,
+          { "ackNackReqId", "oran_fh_cus.ackNackReqId",
+            FT_UINT16, BASE_DEC,
+            NULL, 0x0,
+            "ACK/NACK Request Id", HFILL}
         },
 
-        {&hf_oran_st4_cmd,
-         {"Command", "oran_fh_cus.st4Cmd",
-          FT_STRING, BASE_NONE,
-          NULL, 0x0,
-          NULL,
-          HFILL}
+        { &hf_oran_st4_cmd,
+          { "Command", "oran_fh_cus.st4Cmd",
+            FT_STRING, BASE_NONE,
+            NULL, 0x0,
+            NULL, HFILL}
         },
 
         /* 7.5.3.52 */
-        {&hf_oran_sleepmode_trx,
-         {"sleepMode", "oran_fh_cus.sleepMode",
-          FT_UINT8, BASE_HEX,
-          VALS(sleep_mode_trx_vals), 0x03,
-          NULL,
-          HFILL}
+        { &hf_oran_sleepmode_trx,
+          { "sleepMode", "oran_fh_cus.sleepMode",
+            FT_UINT8, BASE_HEX,
+            VALS(sleep_mode_trx_vals), 0x03,
+            NULL, HFILL}
         },
-        {&hf_oran_sleepmode_asm,
-         {"sleepMode", "oran_fh_cus.sleepMode",
-          FT_UINT8, BASE_HEX,
-          VALS(sleep_mode_asm_vals), 0x03,
-          NULL,
-          HFILL}
+        { &hf_oran_sleepmode_asm,
+          { "sleepMode", "oran_fh_cus.sleepMode",
+            FT_UINT8, BASE_HEX,
+            VALS(sleep_mode_asm_vals), 0x03,
+            NULL, HFILL}
         },
 
         /* 7.5.3.51 */
-        {&hf_oran_log2maskbits,
-         {"log2MaskBits", "oran_fh_cus.log2MaskBits",
-          FT_UINT8, BASE_HEX,
-          VALS(log2maskbits_vals), 0x3c,
-          "Number of bits to appear in antMask",
-          HFILL}
+        { &hf_oran_log2maskbits,
+          { "log2MaskBits", "oran_fh_cus.log2MaskBits",
+            FT_UINT8, BASE_HEX,
+            VALS(log2maskbits_vals), 0x3c,
+            "Number of bits to appear in antMask", HFILL}
         },
         /* 7.5.3.53 */
-        {&hf_oran_num_slots_ext,
-         {"numSlotsExt", "oran_fh_cus.numSlotsExt",
-          FT_UINT24, BASE_HEX,
-          NULL, 0x0fffff,
-          NULL,
-          HFILL}
+        { &hf_oran_num_slots_ext,
+          { "numSlotsExt", "oran_fh_cus.numSlotsExt",
+            FT_UINT24, BASE_HEX,
+            NULL, 0x0fffff,
+            NULL, HFILL}
         },
         /* 7.5.3.54 */
-        {&hf_oran_antMask_trx_control,
-         {"antMask", "oran_fh_cus.trxControl.antMask",
-          FT_BYTES, BASE_NONE,
-          NULL, 0x0,
-          "which antennas should sleep or wake-up",
-          HFILL}
+        { &hf_oran_antMask_trx_control,
+          { "antMask", "oran_fh_cus.trxControl.antMask",
+            FT_BYTES, BASE_NONE,
+            NULL, 0x0,
+            "which antennas should sleep or wake-up", HFILL}
         },
         /* 7.5.3.55 */
-        {&hf_oran_ready,
-         {"ready", "oran_fh_cus.ready",
-          FT_BOOLEAN, 8,
-          TFS(&ready_tfs), 0x01,
-          "wake-up ready indicator",
-          HFILL}
+        { &hf_oran_ready,
+          { "ready", "oran_fh_cus.ready",
+            FT_BOOLEAN, 8,
+            TFS(&ready_tfs), 0x01,
+            "wake-up ready indicator", HFILL}
         },
         /* 7.5.3.34 */
-        {&hf_oran_number_of_acks,
-         {"numberOfAcks", "oran_fh_cus.numberOfAcks",
-          FT_UINT8, BASE_DEC,
-          NULL, 0x0,
-          "number of ACKs for one eAxC_ID",
-          HFILL}
+        { &hf_oran_number_of_acks,
+          { "numberOfAcks", "oran_fh_cus.numberOfAcks",
+            FT_UINT8, BASE_DEC,
+            NULL, 0x0,
+            "number of ACKs for one eAxC_ID", HFILL}
         },
         /* 7.5.3.35 */
-        {&hf_oran_number_of_nacks,
-         {"numberOfNacks", "oran_fh_cus.numberOfNacks",
-          FT_UINT8, BASE_DEC,
-          NULL, 0x0,
-          "number of NACKs for one eAxC_ID",
-          HFILL}
+        { &hf_oran_number_of_nacks,
+          { "numberOfNacks", "oran_fh_cus.numberOfNacks",
+            FT_UINT8, BASE_DEC,
+            NULL, 0x0,
+            "number of NACKs for one eAxC_ID", HFILL}
         },
         /* 7.5.3.36 */
-        {&hf_oran_ackid,
-         {"ackId", "oran_fh_cus.ackId",
-          FT_UINT16, BASE_DEC,
-          NULL, 0x0,
-          NULL,
-          HFILL}
+        { &hf_oran_ackid,
+          { "ackId", "oran_fh_cus.ackId",
+            FT_UINT16, BASE_DEC,
+            NULL, 0x0,
+            NULL, HFILL}
         },
         /* 7.5.3.37 */
-        {&hf_oran_nackid,
-         {"nackId", "oran_fh_cus.nackId",
-          FT_UINT16, BASE_DEC,
-          NULL, 0x0,
-          NULL,
-          HFILL}
+        { &hf_oran_nackid,
+          { "nackId", "oran_fh_cus.nackId",
+            FT_UINT16, BASE_DEC,
+            NULL, 0x0,
+            NULL, HFILL}
         },
 
         /* Links between acknack requests & responses */
-        {&hf_oran_acknack_request_frame,
-         {"Request Frame", "oran_fh_cus.ackNackId.request-frame",
-          FT_FRAMENUM, BASE_NONE,
-          FRAMENUM_TYPE(FT_FRAMENUM_REQUEST), 0x0,
-          NULL,
-          HFILL}
+        { &hf_oran_acknack_request_frame,
+          { "Request Frame", "oran_fh_cus.ackNackId.request-frame",
+            FT_FRAMENUM, BASE_NONE,
+            FRAMENUM_TYPE(FT_FRAMENUM_REQUEST), 0x0,
+            NULL, HFILL}
         },
-        {&hf_oran_acknack_request_time,
-         {"Time since request in ms", "oran_fh_cus.ackNackId.time-since-request",
-          FT_UINT32, BASE_DEC,
-          NULL, 0x0,
-          "Time between request and response",
-          HFILL}
+        { &hf_oran_acknack_request_time,
+          { "Time since request in ms", "oran_fh_cus.ackNackId.time-since-request",
+            FT_UINT32, BASE_DEC,
+            NULL, 0x0,
+            "Time between request and response", HFILL}
         },
-        {&hf_oran_acknack_request_type,
-         {"Request Type", "oran_fh_cus.ackNackId.request-type",
-          FT_UINT32, BASE_DEC,
-          VALS(acknack_type_vals), 0x0,
-          NULL,
-          HFILL}
+        { &hf_oran_acknack_request_type,
+          { "Request Type", "oran_fh_cus.ackNackId.request-type",
+            FT_UINT32, BASE_DEC,
+            VALS(acknack_type_vals), 0x0,
+            NULL, HFILL}
         },
-        {&hf_oran_acknack_response_frame,
-         {"Response Frame", "oran_fh_cus.ackNackId.response-frame",
-          FT_FRAMENUM, BASE_NONE,
-          FRAMENUM_TYPE(FT_FRAMENUM_RESPONSE), 0x0,
-          NULL,
-          HFILL}
+        { &hf_oran_acknack_response_frame,
+          { "Response Frame", "oran_fh_cus.ackNackId.response-frame",
+            FT_FRAMENUM, BASE_NONE,
+            FRAMENUM_TYPE(FT_FRAMENUM_RESPONSE), 0x0,
+            NULL, HFILL}
         },
-        {&hf_oran_acknack_response_time,
-         {"Time to response in ms", "oran_fh_cus.ackNackId.time-to-response",
-          FT_UINT32, BASE_DEC,
-          NULL, 0x0,
-          "Time between request and response",
-          HFILL}
+        { &hf_oran_acknack_response_time,
+          { "Time to response in ms", "oran_fh_cus.ackNackId.time-to-response",
+            FT_UINT32, BASE_DEC,
+            NULL, 0x0,
+            "Time between request and response", HFILL}
         },
 
         /* 7.5.3.43 */
-        {&hf_oran_disable_tdbfns,
-         {"disableTDBFNs", "oran_fh_cus.disableTDBFNs",
-          FT_BOOLEAN, 8,
-          TFS(&disable_tdbfns_tfs), 0x80,
-          NULL,
-          HFILL}
+        { &hf_oran_disable_tdbfns,
+          { "disableTDBFNs", "oran_fh_cus.disableTDBFNs",
+            FT_BOOLEAN, 8,
+            TFS(&disable_tdbfns_tfs), 0x80,
+            NULL, HFILL}
         },
 
         /* 7.5.3.44 */
-        {&hf_oran_td_beam_group,
-         {"tdBeamGrp", "oran_fh_cus.tdBeamGrp",
-          FT_UINT16, BASE_HEX,
-          NULL, 0x7fff,
-          "Applies to symbolMask in command header",
-          HFILL}
+        { &hf_oran_td_beam_group,
+          { "tdBeamGrp", "oran_fh_cus.tdBeamGrp",
+            FT_UINT16, BASE_HEX,
+            NULL, 0x7fff,
+            "Applies to symbolMask in command header", HFILL}
         },
         /* 7.5.3.43 */
-        {&hf_oran_disable_tdbfws,
-         {"disableTDBFWs", "oran_fh_cus.disableTDBFWs",
-          FT_BOOLEAN, 8,
-          TFS(&beam_numbers_included_tfs), 0x80,
-          NULL,
-          HFILL}
+        { &hf_oran_disable_tdbfws,
+          { "disableTDBFWs", "oran_fh_cus.disableTDBFWs",
+            FT_BOOLEAN, 8,
+            TFS(&beam_numbers_included_tfs), 0x80,
+            NULL, HFILL}
         },
 
         /* 7.5.3.56 */
-        {&hf_oran_td_beam_num,
-         {"tdBeamNum", "oran_fh_cus.tdBeamNum",
-          FT_UINT16, BASE_HEX,
-          NULL, 0x7fff,
-          "time-domain beam number",
-          HFILL}
+        { &hf_oran_td_beam_num,
+          { "tdBeamNum", "oran_fh_cus.tdBeamNum",
+            FT_UINT16, BASE_HEX,
+            NULL, 0x7fff,
+            "time-domain beam number", HFILL}
         },
 
         /* 7.5.3.49 */
-        {&hf_oran_dir_pattern,
-         {"dirPattern", "oran_fh_cus.dirPattern",
-          FT_BOOLEAN, 16,
-          TFS(&symbol_direction_tfs), 0x3fff,
-          "symbol data direction (gNB Tx/Rx) pattern",
-          HFILL}
+        { &hf_oran_dir_pattern,
+          { "dirPattern", "oran_fh_cus.dirPattern",
+            FT_BOOLEAN, 16,
+            TFS(&symbol_direction_tfs), 0x3fff,
+            "symbol data direction (gNB Tx/Rx) pattern", HFILL}
         },
         /* 7.5.3.50 */
-        {&hf_oran_guard_pattern,
-         {"guardPattern", "oran_fh_cus.guardPattern",
-          FT_BOOLEAN, 16,
-          TFS(&symbol_guard_tfs), 0x3fff,
-          "guard pattern bitmask",
-          HFILL}
+        { &hf_oran_guard_pattern,
+          { "guardPattern", "oran_fh_cus.guardPattern",
+            FT_BOOLEAN, 16,
+            TFS(&symbol_guard_tfs), 0x3fff,
+            "guard pattern bitmask", HFILL}
         },
 
         /* For convenient filtering */
-        {&hf_oran_cplane,
-         {"C-Plane", "oran_fh_cus.c-plane",
-          FT_NONE, BASE_NONE,
-          NULL, 0x0,
-          NULL,
-          HFILL}
+        { &hf_oran_cplane,
+          { "C-Plane", "oran_fh_cus.c-plane",
+            FT_NONE, BASE_NONE,
+            NULL, 0x0,
+            NULL, HFILL}
         },
-        {&hf_oran_uplane,
-         {"U-Plane", "oran_fh_cus.u-plane",
-          FT_NONE, BASE_NONE,
-          NULL, 0x0,
-          NULL,
-          HFILL}
+        { &hf_oran_uplane,
+          { "U-Plane", "oran_fh_cus.u-plane",
+            FT_NONE, BASE_NONE,
+            NULL, 0x0,
+            NULL, HFILL}
         },
 
         /* 5.1.3.2.7 */
-        {&hf_oran_ecpri_pcid,
-         {"ecpriPcid", "oran_fh_cus.ecpriPcid",
-          FT_NONE, BASE_NONE,
-          NULL, 0x0,
-          "IQ data transfer message series identifier",
-          HFILL}
+        { &hf_oran_ecpri_pcid,
+          { "ecpriPcid", "oran_fh_cus.ecpriPcid",
+            FT_NONE, BASE_NONE,
+            NULL, 0x0,
+            "IQ data transfer message series identifier", HFILL}
         },
-        {&hf_oran_ecpri_rtcid,
-         {"ecpriRtcid", "oran_fh_cus.ecpriRtcid",
-          FT_NONE, BASE_NONE,
-          NULL, 0x0,
-          "Real time control data identifier",
-          HFILL}
+        { &hf_oran_ecpri_rtcid,
+          { "ecpriRtcid", "oran_fh_cus.ecpriRtcid",
+            FT_NONE, BASE_NONE,
+            NULL, 0x0,
+            "Real time control data identifier", HFILL}
         },
         /* 5.1.3.2.8 */
-        {&hf_oran_ecpri_seqid,
-         {"ecpriSeqid", "oran_fh_cus.ecpriSeqid",
-          FT_NONE, BASE_NONE,
-          NULL, 0x0,
-          "message identifier",
-          HFILL}
+        { &hf_oran_ecpri_seqid,
+          { "ecpriSeqid", "oran_fh_cus.ecpriSeqid",
+            FT_NONE, BASE_NONE,
+            NULL, 0x0,
+            "message identifier", HFILL}
         },
 
         /* 7.7.23.2 */
-        {&hf_oran_num_sym_prb_pattern,
-         {"numSymPrbPattern", "oran_fh_cus.numSymPrbPattern",
-          FT_UINT8, BASE_DEC,
-          NULL, 0xf0,
-          "number of symbol and resource block patterns",
-          HFILL}
+        { &hf_oran_num_sym_prb_pattern,
+          { "numSymPrbPattern", "oran_fh_cus.numSymPrbPattern",
+            FT_UINT8, BASE_DEC,
+            NULL, 0xf0,
+            "number of symbol and resource block patterns", HFILL}
         },
         /* 7.7.23.11 */
-        {&hf_oran_prb_mode,
-         {"prbMode", "oran_fh_cus.prbMode",
-          FT_BOOLEAN, 8,
-          TFS(&prb_mode_tfs), 0x01,
-          "PRB Mode",
-          HFILL}
+        { &hf_oran_prb_mode,
+          { "prbMode", "oran_fh_cus.prbMode",
+            FT_BOOLEAN, 8,
+            TFS(&prb_mode_tfs), 0x01,
+            "PRB Mode", HFILL}
         },
 
-        {&hf_oran_sym_prb_pattern,
-         {"symPrbPattern", "oran_fh_cus.symPrbPattern",
-          FT_STRING, BASE_NONE,
-          NULL, 0x0,
-          NULL,
-          HFILL}
+        { &hf_oran_sym_prb_pattern,
+          { "symPrbPattern", "oran_fh_cus.symPrbPattern",
+            FT_STRING, BASE_NONE,
+            NULL, 0x0,
+            NULL, HFILL}
         },
-
 
         /* 7.7.23.3 */
-        {&hf_oran_sym_mask,
-         {"symMask", "oran_fh_cus.symMask",
-          FT_UINT16, BASE_HEX,
-          NULL, 0x3fff,
-          "symbol mask part of symPrbPattern",
-          HFILL}
+        { &hf_oran_sym_mask,
+          { "symMask", "oran_fh_cus.symMask",
+            FT_UINT16, BASE_HEX,
+            NULL, 0x3fff,
+            "symbol mask part of symPrbPattern", HFILL}
         },
         /* 7.7.23.5 */
         {&hf_oran_num_mc_scale_offset,
@@ -7680,373 +7461,325 @@ proto_register_oran(void)
           HFILL}
         },
         /* 7.7.23.4 */
-        {&hf_oran_prb_pattern,
-         {"prbPattern", "oran_fh_cus.prbPattern",
-          FT_UINT8, BASE_DEC,
-          NULL, 0x0f,
-          "resource block pattern part of symPrbPattern",
-          HFILL}
+        { &hf_oran_prb_pattern,
+          { "prbPattern", "oran_fh_cus.prbPattern",
+            FT_UINT8, BASE_DEC,
+            NULL, 0x0f,
+            "resource block pattern part of symPrbPattern", HFILL}
         },
 
         /* 7.7.3.2 */
-        {&hf_oran_codebook_index,
-         {"codebookIndex", "oran_fh_cus.codebookIndex",
-          FT_UINT8, BASE_DEC,
-          NULL, 0x0,
-          "precoder codebook used for transmission",
-          HFILL}
+        { &hf_oran_codebook_index,
+          { "codebookIndex", "oran_fh_cus.codebookIndex",
+            FT_UINT8, BASE_DEC,
+            NULL, 0x0,
+            "precoder codebook used for transmission", HFILL}
         },
         /* 7.7.3.3 */
-        {&hf_oran_layerid,
-         {"layerID", "oran_fh_cus.layerID",
-          FT_UINT8, BASE_DEC,
-          NULL, 0xf0,
-          "Layer ID for DL transmission",
-          HFILL}
+        { &hf_oran_layerid,
+          { "layerID", "oran_fh_cus.layerID",
+            FT_UINT8, BASE_DEC,
+            NULL, 0xf0,
+            "Layer ID for DL transmission", HFILL}
         },
         /* 7.7.3.5 */
-        {&hf_oran_numlayers,
-         {"numLayers", "oran_fh_cus.numLayers",
-          FT_UINT8, BASE_DEC,
-          NULL, 0x0f,
-          "number of layers for DL transmission",
-          HFILL}
+        { &hf_oran_numlayers,
+          { "numLayers", "oran_fh_cus.numLayers",
+            FT_UINT8, BASE_DEC,
+            NULL, 0x0f,
+            "number of layers for DL transmission", HFILL}
         },
         /* 7.7.3.4 */
-        {&hf_oran_txscheme,
-         {"txScheme", "oran_fh_cus.txScheme",
-          FT_UINT8, BASE_DEC,
-          NULL, 0xf0,
-          "transmission scheme",
-          HFILL}
+        { &hf_oran_txscheme,
+          { "txScheme", "oran_fh_cus.txScheme",
+            FT_UINT8, BASE_DEC,
+            NULL, 0xf0,
+            "transmission scheme", HFILL}
         },
         /* 7.7.3.6 */
-        {&hf_oran_crs_remask,
-         {"crsReMask", "oran_fh_cus.crsReMask",
-          FT_UINT16, BASE_HEX,
-          NULL, 0x0fff,
-          "CRS resource element mask",
-          HFILL}
+        { &hf_oran_crs_remask,
+          { "crsReMask", "oran_fh_cus.crsReMask",
+            FT_UINT16, BASE_HEX,
+            NULL, 0x0fff,
+            "CRS resource element mask", HFILL}
         },
         /* 7.7.3.8 */
-        {&hf_oran_crs_shift,
-         {"crsShift", "oran_fh_cus.crsShift",
-          FT_UINT8, BASE_HEX,
-          NULL, 0x80,
-          "CRS resource element mask",
-          HFILL}
+        { &hf_oran_crs_shift,
+          { "crsShift", "oran_fh_cus.crsShift",
+            FT_UINT8, BASE_HEX,
+            NULL, 0x80,
+            "CRS resource element mask", HFILL}
         },
         /* 7.7.3.7 */
-        {&hf_oran_crs_symnum,
-         {"crsSymNum", "oran_fh_cus.crsSymNum",
-          FT_UINT8, BASE_DEC,
-          NULL, 0x0f,
-          "CRS symbol number indication",
-          HFILL}
+        { &hf_oran_crs_symnum,
+          { "crsSymNum", "oran_fh_cus.crsSymNum",
+            FT_UINT8, BASE_DEC,
+            NULL, 0x0f,
+            "CRS symbol number indication", HFILL}
         },
         /* 7.7.3.9 */
-        {&hf_oran_beamid_ap1,
-         {"beamIdAP1", "oran_fh_cus.beamIdAP1",
-          FT_UINT16, BASE_DEC,
-          NULL, 0x7f,
-          "beam id to be used for antenna port 1",
-          HFILL}
+        { &hf_oran_beamid_ap1,
+          { "beamIdAP1", "oran_fh_cus.beamIdAP1",
+            FT_UINT16, BASE_DEC,
+            NULL, 0x7f,
+            "beam id to be used for antenna port 1", HFILL}
         },
         /* 7.7.3.10 */
-        {&hf_oran_beamid_ap2,
-         {"beamIdAP2", "oran_fh_cus.beamIdAP2",
-          FT_UINT16, BASE_DEC,
-          NULL, 0x7f,
-          "beam id to be used for antenna port 2",
-          HFILL}
+        { &hf_oran_beamid_ap2,
+          { "beamIdAP2", "oran_fh_cus.beamIdAP2",
+            FT_UINT16, BASE_DEC,
+            NULL, 0x7f,
+            "beam id to be used for antenna port 2", HFILL}
         },
         /* 7.7.3.11 */
-        {&hf_oran_beamid_ap3,
-         {"beamIdAP3", "oran_fh_cus.beamIdAP3",
-          FT_UINT16, BASE_DEC,
-          NULL, 0x7f,
-          "beam id to be used for antenna port 3",
-          HFILL}
+        { &hf_oran_beamid_ap3,
+          { "beamIdAP3", "oran_fh_cus.beamIdAP3",
+            FT_UINT16, BASE_DEC,
+            NULL, 0x7f,
+            "beam id to be used for antenna port 3", HFILL}
         },
 
         /* 7.7.10.3a */
-        {&hf_oran_port_list_index,
-         {"portListIndex", "oran_fh_cus.portListIndex",
-          FT_UINT8, BASE_DEC,
-          NULL, 0x0,
-          "the index of an eAxC_ID in the port-list",
-          HFILL}
+        { &hf_oran_port_list_index,
+          { "portListIndex", "oran_fh_cus.portListIndex",
+            FT_UINT8, BASE_DEC,
+            NULL, 0x0,
+            "the index of an eAxC_ID in the port-list", HFILL}
         },
 
-        {&hf_oran_alpn_per_sym,
-         {"alpnPerSym", "oran_fh_cus.alpnPerSym",
-          FT_UINT8, BASE_HEX,
-          NULL, 0x80,
-          NULL,
-          HFILL}
+        { &hf_oran_alpn_per_sym,
+          { "alpnPerSym", "oran_fh_cus.alpnPerSym",
+            FT_UINT8, BASE_HEX,
+            NULL, 0x80,
+            NULL, HFILL}
         },
-        {&hf_oran_ant_dmrs_snr,
-         {"antDmrsSnr", "oran_fh_cus.antDmrsSnr",
-          FT_UINT8, BASE_HEX,
-          NULL, 0x40,
-          NULL,
-          HFILL}
+        { &hf_oran_ant_dmrs_snr,
+          { "antDmrsSnr", "oran_fh_cus.antDmrsSnr",
+            FT_UINT8, BASE_HEX,
+            NULL, 0x40,
+            NULL, HFILL}
         },
-
-
 
         /* 7.7.24.6 */
-        {&hf_oran_user_group_size,
-         {"userGroupSize", "oran_fh_cus.userGroupSize",
-          FT_UINT8, BASE_DEC,
-          NULL, 0x1f,
-          "number of UE data layers in the user group identified by userGroupId",
-          HFILL}
+        { &hf_oran_user_group_size,
+          { "userGroupSize", "oran_fh_cus.userGroupSize",
+            FT_UINT8, BASE_DEC,
+            NULL, 0x1f,
+            "number of UE data layers in the user group identified by userGroupId", HFILL}
         },
         /* 7.7.24.7 */
-        {&hf_oran_user_group_id,
-         {"userGroupId", "oran_fh_cus.userGroupId",
-          FT_UINT8, BASE_DEC,
-          NULL, 0x0,
-          "number of UE data layers in the user group identified by userGroupId",
-          HFILL}
+        { &hf_oran_user_group_id,
+          { "userGroupId", "oran_fh_cus.userGroupId",
+            FT_UINT8, BASE_DEC,
+            NULL, 0x0,
+            "number of UE data layers in the user group identified by userGroupId", HFILL}
         },
         /* 7.7.24.8 */
-        {&hf_oran_entry_type,
-         {"entryType", "oran_fh_cus.entryType",
-          FT_UINT8, BASE_DEC,
-          NULL, 0xe0,
-          "indicates format of the entry",
-          HFILL}
+        { &hf_oran_entry_type,
+          { "entryType", "oran_fh_cus.entryType",
+            FT_UINT8, BASE_DEC,
+            NULL, 0xe0,
+            "indicates format of the entry", HFILL}
         },
         /* 7.7.24.9 */
-        {&hf_oran_dmrs_port_number,
-         {"dmrsPortNumber", "oran_fh_cus.dmrsPortNumber",
-          FT_UINT8, BASE_DEC,
-          NULL, 0x1f,
-          "DMRS antenna port number for the associated ueId",
-          HFILL}
+        { &hf_oran_dmrs_port_number,
+          { "dmrsPortNumber", "oran_fh_cus.dmrsPortNumber",
+            FT_UINT8, BASE_DEC,
+            NULL, 0x1f,
+            "DMRS antenna port number for the associated ueId", HFILL}
         },
         /* 7.7.24.10 */
-        {&hf_oran_ueid_reset,
-         {"ueidReset", "oran_fh_cus.ueidReset",
-          FT_BOOLEAN, 8,
-          NULL, 0x80,
-          "same UEID as the previous slot",
-          HFILL}
+        { &hf_oran_ueid_reset,
+          { "ueidReset", "oran_fh_cus.ueidReset",
+            FT_BOOLEAN, 8,
+            NULL, 0x80,
+            "same UEID as the previous slot", HFILL}
         },
         /* 7.7.24.11 */
-        {&hf_oran_dmrs_symbol_mask,
-         {"dmrsSymbolMask", "oran_fh_cus.dmrsSymbolMask",
-          FT_UINT16, BASE_HEX,
-          NULL, 0x3fff,
-          "symbols within the slot containing DMRS",
-          HFILL}
+        { &hf_oran_dmrs_symbol_mask,
+          { "dmrsSymbolMask", "oran_fh_cus.dmrsSymbolMask",
+            FT_UINT16, BASE_HEX,
+            NULL, 0x3fff,
+            "symbols within the slot containing DMRS", HFILL}
         },
         /* 7.7.24.12 */
-        {&hf_oran_scrambling,
-         {"scrambling", "oran_fh_cus.scrambling",
-          FT_UINT16, BASE_HEX,
-          NULL, 0x0,
-          "used to calculate the seed value required to initialize pseudo-random generator",
-          HFILL}
+        { &hf_oran_scrambling,
+          { "scrambling", "oran_fh_cus.scrambling",
+            FT_UINT16, BASE_HEX,
+            NULL, 0x0,
+            "used to calculate the seed value required to initialize pseudo-random generator", HFILL}
         },
         /* 7.7.24.13 */
-        {&hf_oran_nscid,
-         {"nscid", "oran_fh_cus.nscid",
-          FT_UINT8, BASE_HEX,
-          NULL, 0x80,
-          "used to calculate the seed value for pseudo-random generator",
-          HFILL}
+        { &hf_oran_nscid,
+          { "nscid", "oran_fh_cus.nscid",
+            FT_UINT8, BASE_HEX,
+            NULL, 0x80,
+            "used to calculate the seed value for pseudo-random generator", HFILL}
         },
         /* 7.7.24.14 */
-        {&hf_oran_dtype,
-         {"dType", "oran_fh_cus.dType",
-          FT_UINT8, BASE_HEX,
-          NULL, 0x40,
-          "PUSCH DMRS configuration type",
-          HFILL}
+        { &hf_oran_dtype,
+          { "dType", "oran_fh_cus.dType",
+            FT_UINT8, BASE_HEX,
+            NULL, 0x40,
+            "PUSCH DMRS configuration type", HFILL}
         },
         /* 7.7.24.15 */
-        {&hf_oran_cmd_without_data,
-         {"cmdWithoutData", "oran_fh_cus.cmdWithoutData",
-          FT_UINT8, BASE_HEX,
-          NULL, 0x30,
-          "number of DMRS CDM groups without data",
-          HFILL}
+        { &hf_oran_cmd_without_data,
+          { "cmdWithoutData", "oran_fh_cus.cmdWithoutData",
+            FT_UINT8, BASE_HEX,
+            NULL, 0x30,
+            "number of DMRS CDM groups without data", HFILL}
         },
         /* 7.7.24.16 */
-        {&hf_oran_lambda,
-         {"lambda", "oran_fh_cus.lambda",
-          FT_UINT8, BASE_HEX,
-          NULL, 0x0c,
-          NULL,
-          HFILL}
+        { &hf_oran_lambda,
+          { "lambda", "oran_fh_cus.lambda",
+            FT_UINT8, BASE_HEX,
+            NULL, 0x0c,
+            NULL, HFILL}
         },
         /* 7.7.24.19 */
-        {&hf_oran_first_prb,
-         {"firstPrb", "oran_fh_cus.firstPrb",
-          FT_UINT16, BASE_DEC,
-          NULL, 0x03fe,
-          NULL,
-          HFILL}
+        { &hf_oran_first_prb,
+          { "firstPrb", "oran_fh_cus.firstPrb",
+            FT_UINT16, BASE_DEC,
+            NULL, 0x03fe,
+            NULL, HFILL}
         },
         /* 7.7.24.20 */
-        {&hf_oran_last_prb,
-         {"lastPrb", "oran_fh_cus.lastPrb",
-          FT_UINT16, BASE_DEC,
-          NULL, 0x01ff,
-          NULL,
-          HFILL}
+        { &hf_oran_last_prb,
+          { "lastPrb", "oran_fh_cus.lastPrb",
+            FT_UINT16, BASE_DEC,
+            NULL, 0x01ff,
+            NULL, HFILL}
         },
 
         /* 7.7.24.17 */
-        {&hf_oran_low_papr_type,
-         {"lowPaprType", "oran_fh_cus.lowPaprType",
-          FT_UINT8, BASE_HEX,
-          NULL, 0x30,
-          NULL,
-          HFILL}
+        { &hf_oran_low_papr_type,
+          { "lowPaprType", "oran_fh_cus.lowPaprType",
+            FT_UINT8, BASE_HEX,
+            NULL, 0x30,
+            NULL, HFILL}
         },
         /* 7.7.24.18 */
-        {&hf_oran_hopping_mode,
-         {"hoppingMode", "oran_fh_cus.hoppingMode",
-          FT_UINT8, BASE_HEX,
-          NULL, 0x0c,
-          NULL,
-          HFILL}
+        { &hf_oran_hopping_mode,
+          { "hoppingMode", "oran_fh_cus.hoppingMode",
+            FT_UINT8, BASE_HEX,
+            NULL, 0x0c,
+            NULL, HFILL}
         },
 
-        {&hf_oran_tx_win_for_on_air_symbol_l,
-         {"txWinForOnAirSymbol", "oran_fh_cus.txWinForOnAirSymbol",
-          FT_UINT8, BASE_DEC,
-          NULL, 0xf0,
-          NULL,
-          HFILL}
+        { &hf_oran_tx_win_for_on_air_symbol_l,
+          { "txWinForOnAirSymbol", "oran_fh_cus.txWinForOnAirSymbol",
+            FT_UINT8, BASE_DEC,
+            NULL, 0xf0,
+            NULL, HFILL}
         },
-        {&hf_oran_tx_win_for_on_air_symbol_r,
-         {"txWinForOnAirSymbol", "oran_fh_cus.txWinForOnAirSymbol",
-          FT_UINT8, BASE_DEC,
-          NULL, 0x0f,
-          NULL,
-          HFILL}
+        { &hf_oran_tx_win_for_on_air_symbol_r,
+          { "txWinForOnAirSymbol", "oran_fh_cus.txWinForOnAirSymbol",
+            FT_UINT8, BASE_DEC,
+            NULL, 0x0f,
+            NULL, HFILL}
         },
         /* 7.7.26.2 */
-        {&hf_oran_num_fo_fb,
-         {"numFoFb", "oran_fh_cus.numFoFb",
-          FT_UINT8, BASE_DEC,
-          NULL, 0x7f,
-          "number of frequency offset feedback",
-          HFILL}
+        { &hf_oran_num_fo_fb,
+          { "numFoFb", "oran_fh_cus.numFoFb",
+            FT_UINT8, BASE_DEC,
+            NULL, 0x7f,
+            "number of frequency offset feedback", HFILL}
         },
         /* 7.7.26.3 */
-        {&hf_oran_freq_offset_fb,
-         {"freqOffsetFb", "oran_fh_cus.freqOffsetFb",
-          FT_UINT16, BASE_HEX_DEC | BASE_RANGE_STRING,
-          RVALS(freq_offset_fb_values), 0x0,
-          "UE frequency offset feedback",
-          HFILL}
+        { &hf_oran_freq_offset_fb,
+          { "freqOffsetFb", "oran_fh_cus.freqOffsetFb",
+            FT_UINT16, BASE_HEX_DEC | BASE_RANGE_STRING,
+            RVALS(freq_offset_fb_values), 0x0,
+            "UE frequency offset feedback", HFILL}
         },
 
         /* 7.5.2.19 */
-        {&hf_oran_num_sinr_per_prb,
-         {"numSinrPerPrb", "oran_fh_cus.numSinrPerPrb",
-          FT_UINT8, BASE_DEC,
-          VALS(num_sinr_per_prb_vals), 0xe0,
-          "number of SINR values per PRB",
-          HFILL}
+        { &hf_oran_num_sinr_per_prb,
+          { "numSinrPerPrb", "oran_fh_cus.numSinrPerPrb",
+            FT_UINT8, BASE_DEC,
+            VALS(num_sinr_per_prb_vals), 0xe0,
+            "number of SINR values per PRB", HFILL}
         },
-
 
         /* 7.5.3.68 */
-        {&hf_oran_sinr_value,
-         {"sinrValue", "oran_fh_cus.sinrValue",
-          FT_FLOAT, BASE_NONE,
-          NULL, 0x0,
-          NULL,
-          HFILL}
+        { &hf_oran_sinr_value,
+          { "sinrValue", "oran_fh_cus.sinrValue",
+            FT_FLOAT, BASE_NONE,
+            NULL, 0x0,
+            NULL, HFILL}
         },
 
-        {&hf_oran_measurement_report,
-         {"Measurement Report", "oran_fh_cus.measurement-report",
-          FT_STRING, BASE_NONE,
-          NULL, 0x0,
-          NULL,
-          HFILL}
+        { &hf_oran_measurement_report,
+          { "Measurement Report", "oran_fh_cus.measurement-report",
+            FT_STRING, BASE_NONE,
+            NULL, 0x0,
+            NULL, HFILL}
         },
         /* 7.5.3.57 */
-        {&hf_oran_mf,
-         {"mf", "oran_fh_cus.mf",
-          FT_BOOLEAN, 8,
-          NULL, 0x80,
-          "measurement flag",
-          HFILL}
+        { &hf_oran_mf,
+          { "mf", "oran_fh_cus.mf",
+            FT_BOOLEAN, 8,
+            TFS(&measurement_flag_tfs), 0x80,
+            "measurement flag", HFILL}
         },
         /* 7.5.3.59 */
-        {&hf_oran_meas_data_size,
-         {"measDataSize", "oran_fh_cus.measDataSize",
-          FT_UINT16, BASE_DEC,
-          NULL, 0x0,
-          "measurement data size (in words)",
-          HFILL}
+        { &hf_oran_meas_data_size,
+          { "measDataSize", "oran_fh_cus.measDataSize",
+            FT_UINT16, BASE_DEC,
+            NULL, 0x0,
+            "measurement data size (in words)", HFILL}
         },
 
         /* 7.5.3.58 */
-        {&hf_oran_meas_type_id,
-         {"measTypeId", "oran_fh_cus.measTypeId",
-          FT_UINT8, BASE_DEC,
-          VALS(meas_type_id_vals), 0x7F,
-          "measurement report type identifier",
-          HFILL}
+        { &hf_oran_meas_type_id,
+          { "measTypeId", "oran_fh_cus.measTypeId",
+            FT_UINT8, BASE_DEC,
+            VALS(meas_type_id_vals), 0x7F,
+            "measurement report type identifier", HFILL}
         },
         /* 7.5.3.66 */
-        {&hf_oran_num_elements,
-         {"numElements", "oran_fh_cus.numElements",
-          FT_UINT8, BASE_DEC,
-          NULL, 0x0,
-          "measurement report type identifier",
-          HFILL}
+        { &hf_oran_num_elements,
+          { "numElements", "oran_fh_cus.numElements",
+            FT_UINT8, BASE_DEC,
+            NULL, 0x0,
+            "measurement report type identifier", HFILL}
         },
         /* 7.5.3.60 */
-        {&hf_oran_ue_tae,
-         {"ueTae", "oran_fh_cus.ueTae",
-          FT_UINT16, BASE_DEC | BASE_RANGE_STRING,
-          RVALS(freq_offset_fb_values), 0x0,
-          "UE Timing Advance Error",
-          HFILL}
+        { &hf_oran_ue_tae,
+          { "ueTae", "oran_fh_cus.ueTae",
+            FT_UINT16, BASE_DEC | BASE_RANGE_STRING,
+            RVALS(freq_offset_fb_values), 0x0,
+            "UE Timing Advance Error", HFILL}
         },
         /* 7.5.3.61 */
-        {&hf_oran_ue_layer_power,
-         {"ueLayerPower", "oran_fh_cus.ueLayerPower",
-          FT_UINT16, BASE_DEC | BASE_RANGE_STRING,
-          RVALS(freq_offset_fb_values), 0x0,
-          "UE Layer Power",
-          HFILL}
+        { &hf_oran_ue_layer_power,
+          { "ueLayerPower", "oran_fh_cus.ueLayerPower",
+            FT_UINT16, BASE_DEC | BASE_RANGE_STRING,
+            RVALS(freq_offset_fb_values), 0x0,
+            "UE Layer Power", HFILL}
         },
 
         /* 7.5.3.62 */
-        {&hf_oran_ue_freq_offset,
-         {"ueFreqOffset", "oran_fh_cus.ueFreqOffset",
-          FT_UINT16, BASE_DEC | BASE_RANGE_STRING,
-          RVALS(freq_offset_fb_values), 0x0,
-          "UE frequency offset",
-          HFILL}
+        { &hf_oran_ue_freq_offset,
+          { "ueFreqOffset", "oran_fh_cus.ueFreqOffset",
+            FT_UINT16, BASE_DEC | BASE_RANGE_STRING,
+            RVALS(freq_offset_fb_values), 0x0,
+            "UE frequency offset", HFILL}
         },
         /* 7.5.3.63 */
-        {&hf_oran_ipn_power,
-         {"ipnPower", "oran_fh_cus.ipnPower",
-          FT_UINT16, BASE_DEC | BASE_RANGE_STRING,
-          RVALS(freq_offset_fb_values), 0x0,
-          "Interference plus Noise power",
-          HFILL}
+        { &hf_oran_ipn_power,
+          { "ipnPower", "oran_fh_cus.ipnPower",
+            FT_UINT16, BASE_DEC | BASE_RANGE_STRING,
+            RVALS(freq_offset_fb_values), 0x0,
+            "Interference plus Noise power", HFILL}
         },
         /* 7.5.3.64 */
-        {&hf_oran_ant_dmrs_snr_val,
-         {"antDmrsSnrVal", "oran_fh_cus.antDmrsSnrVal",
-          FT_UINT16, BASE_DEC | BASE_RANGE_STRING,
-          RVALS(freq_offset_fb_values), 0x0,
-          "antenna DMRS-SNR",
-          HFILL}
+        { &hf_oran_ant_dmrs_snr_val,
+          { "antDmrsSnrVal", "oran_fh_cus.antDmrsSnrVal",
+            FT_UINT16, BASE_DEC | BASE_RANGE_STRING,
+            RVALS(freq_offset_fb_values), 0x0,
+            "antenna DMRS-SNR", HFILL}
         },
 
         /* 7.5.27.2 */
@@ -8057,28 +7790,26 @@ proto_register_oran(void)
           NULL,
           HFILL}
         },
-
+        /* 7.5.3.65 */
         {&hf_oran_meas_cmd_size,
          {"measCmdSize", "oran_fh_cus.measCmdSize",
           FT_UINT16, BASE_DEC,
           NULL, 0x0,
-          NULL,
+          "measurement command size in words",
           HFILL}
         },
 
-        {&hf_oran_c_section,
-         {"Section", "oran_fh_cus.c-plane.section",
-          FT_STRING, BASE_NONE,
-          NULL, 0x0,
-          NULL,
-          HFILL}
+        { &hf_oran_c_section,
+          { "Section", "oran_fh_cus.c-plane.section",
+            FT_STRING, BASE_NONE,
+            NULL, 0x0,
+            NULL, HFILL}
         },
-        {&hf_oran_u_section,
-         {"Section", "oran_fh_cus.u-plane.section",
-          FT_STRING, BASE_NONE,
-          NULL, 0x0,
-          NULL,
-          HFILL}
+        { &hf_oran_u_section,
+          { "Section", "oran_fh_cus.u-plane.section",
+            FT_STRING, BASE_NONE,
+            NULL, 0x0,
+            NULL, HFILL}
         }
     };
 
