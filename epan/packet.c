@@ -511,7 +511,7 @@ final_registration_all_protocols(void)
 }
 
 
-/* Creates the top-most tvbuff and calls dissect_frame() */
+/* Creates the top-most tvbuff and calls the "frame" dissector */
 void
 dissect_record(epan_dissect_t *edt, int file_type_subtype,
     wtap_rec *rec, const uint8_t *data, frame_data *fd, column_info *cinfo)
@@ -701,7 +701,7 @@ dissect_record(epan_dissect_t *edt, int file_type_subtype,
 	fd->visited = 1;
 }
 
-/* Creates the top-most tvbuff and calls dissect_file() */
+/* Creates the top-most tvbuff and calls the "file" dissector */
 void
 dissect_file(epan_dissect_t *edt, wtap_rec *rec,
 	       const uint8_t *data, frame_data *fd, column_info *cinfo)
