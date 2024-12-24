@@ -604,8 +604,8 @@ get_runtime_version_info(gather_feature_func gather_runtime)
 const char *
 get_ws_vcs_version_info(void)
 {
-#ifdef VCS_VERSION
-	return VERSION " (" VCS_VERSION ")";
+#ifdef WIRESHARK_VCS_VERSION
+	return VERSION " (" WIRESHARK_VCS_VERSION ")";
 #else
 	return VERSION;
 #endif
@@ -614,8 +614,8 @@ get_ws_vcs_version_info(void)
 const char *
 get_ss_vcs_version_info(void)
 {
-#ifdef VCS_COMMIT_ID
-	return STRATOSHARK_VERSION " (" VCS_NUM_COMMITS "-" VCS_COMMIT_ID ")";
+#ifdef STRATOSHARK_VCS_VERSION
+	return STRATOSHARK_VERSION " (" STRATOSHARK_VCS_VERSION ")";
 #else
 	return STRATOSHARK_VERSION;
 #endif
@@ -624,8 +624,8 @@ get_ss_vcs_version_info(void)
 const char *
 get_ws_vcs_version_info_short(void)
 {
-#ifdef VCS_VERSION
-	return VCS_VERSION;
+#ifdef WIRESHARK_VCS_VERSION
+	return WIRESHARK_VCS_VERSION;
 #else
 	return VERSION;
 #endif
