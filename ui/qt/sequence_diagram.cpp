@@ -91,7 +91,7 @@ SequenceDiagram::SequenceDiagram(QCPAxis *keyAxis, QCPAxis *valueAxis, QCPAxis *
     // By default QCPAxisRect auto resizes, which creates some slight but
     // noticeable horizontal movement when scrolling vertically. Prevent that.
     key_axis_->axisRect()->setAutoMargins(QCP::msTop | QCP::msBottom);
-    int time_margin = QFontMetrics(key_axis_->tickLabelFont()).horizontalAdvance(get_column_longest_string(COL_CLS_TIME));
+    int time_margin = QFontMetrics(key_axis_->tickLabelFont()).horizontalAdvance(get_column_longest_string(COL_CLS_TIME)) + key_axis_->tickLabelPadding();
     int comment_margin = QFontMetrics(comment_font).height() * (max_comment_em_width_ + 1); // Add 1 as using the exact elided width is slightly too narrow
     key_axis_->axisRect()->setMargins(QMargins(time_margin, 0, comment_margin, 0));
 
