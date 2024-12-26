@@ -2040,8 +2040,6 @@ init_tcp_conversation_data(packet_info *pinfo, int direction)
     nstime_set_zero(&tcpd->ts_first_rtt);
     tcpd->ts_prev.secs=pinfo->abs_ts.secs;
     tcpd->ts_prev.nsecs=pinfo->abs_ts.nsecs;
-    tcpd->flow1.valid_bif = true;
-    tcpd->flow2.valid_bif = true;
     tcpd->flow1.closing_initiator = false;
     tcpd->flow2.closing_initiator = false;
     tcpd->stream = tcp_stream_count++;
@@ -2481,7 +2479,7 @@ tcp_analyze_sequence_number(packet_info *pinfo, uint32_t seq, uint32_t ack, uint
     }
 
     if( flags & TH_ACK ) {
-        tcpd->rev->valid_bif = 1;
+        tcpd->rev->tcp_analyze_seq_info->valid_bif = true;
     }
 
     /* ZERO WINDOW PROBE
@@ -2530,7 +2528,7 @@ tcp_analyze_sequence_number(packet_info *pinfo, uint32_t seq, uint32_t ack, uint
         tcpd->ta->flags|=TCP_A_LOST_PACKET;
 
         /* Disable BiF until an ACK is seen in the other direction */
-        tcpd->fwd->valid_bif = 0;
+        tcpd->fwd->tcp_analyze_seq_info->valid_bif = false;
     }
 
 
@@ -3245,7 +3243,7 @@ finished_checking_retransmission_type:
         if(!tcp_bif_seq_based) {
             ual=tcpd->fwd->tcp_analyze_seq_info->segments;
 
-            if (seglen!=0 && ual && tcpd->fwd->valid_bif) {
+            if (seglen!=0 && ual && tcpd->fwd->tcp_analyze_seq_info->valid_bif) {
                 uint32_t first_seq, last_seq;
 
                 dry_bif_handling = true;
@@ -3264,7 +3262,7 @@ finished_checking_retransmission_type:
                 in_flight = last_seq-first_seq;
             }
         } else { /* calculation based on SEQ numbers (see issue 7703) */
-            if (seglen!=0 && tcpd->fwd->tcp_analyze_seq_info && tcpd->fwd->valid_bif) {
+            if (seglen!=0 && tcpd->fwd->tcp_analyze_seq_info && tcpd->fwd->tcp_analyze_seq_info->valid_bif) {
 
                 dry_bif_handling = true;
 

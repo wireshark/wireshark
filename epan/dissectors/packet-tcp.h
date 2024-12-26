@@ -328,6 +328,7 @@ typedef struct tcp_analyze_seq_flow_info_t {
 
 	uint8_t lastacklen;     /* length of the last fwd ACK packet - 0 means pure ACK */
 
+	bool valid_bif;     /* if lost pkts, disable BiF until ACK is recvd */
 	bool push_set_last; /* tracking last time PSH flag was set */
 	uint32_t push_bytes_sent; /* bytes since the last PSH flag */
 
@@ -359,7 +360,6 @@ typedef struct _tcp_flow_t {
 	int16_t	win_scale;	/* -1 is we don't know, -2 is window scaling is not used */
 	bool scps_capable;	/* flow advertised scps capabilities */
 	uint16_t maxsizeacked;  /* 0 if not yet known */
-	bool valid_bif;     /* if lost pkts, disable BiF until ACK is recvd */
 	uint8_t mp_operations; /* tracking of the MPTCP operations */
 	bool is_first_ack;  /* indicates if this is the first ACK */
 	bool closing_initiator; /* tracking who is responsible of the connection end */
