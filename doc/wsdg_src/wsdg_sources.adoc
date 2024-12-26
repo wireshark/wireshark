@@ -51,7 +51,7 @@ Using Wireshark’s GitLab project you can:
 * Browse and search the source code using a web interface.
 * See which person changed a specific piece of code.
 
-[#ChSrcWebInterface]
+[#ChSrcGitNamingConventions]
 
 ==== Git Naming Conventions
 
@@ -63,13 +63,15 @@ Wireshark uses the following branch naming conventions:
 .master.
 Main feature development and odd-numbered development releases.
 
-.release-x.y, master-x.y.
-Stable release maintenance. For example, release-3.4 is used to manage the 3.4.x official releases.
+.release-x.y.
+Stable release maintenance. For example, release-4.4 is used to manage the 4.4.x official releases.
 
-Tags for major releases and release candidates consist of a “v” followed by a version number such as “v3.2.1” or “v3.2.3rc0”.
-Major releases additionally have a tag prefixed with “wireshark-” followed by a version number, such as “wireshark-3.2.0”.
+Tags for major releases and release candidates consist of a “v” followed by a version number such as “v4.4.1” or “v4.4.3rc0”.
+Major releases additionally have a tag prefixed with “wireshark-” followed by a version number, such as “wireshark-4.4.0”.
 
-Tags created after August 1, 2024 are signed using SSH. This includes the tags for versions 4.4.0rc1, 4.4.0, 4.2.7, and 4.0.17. If you wish to verify these tags, you must have the following entry in __~/.ssh/allowed_signers__:
+Tags created after August 1, 2024 are signed using SSH. This includes the tags for versions 4.4.0rc1, 4.4.0, 4.2.7, and 4.0.17. If you wish to verify these tags, you must have
+https://git-scm.com/docs/git-config#Documentation/git-config.txt-gpgsshallowedSignersFile[gpg.ssh.allowedSignersFile]
+configured and have the following entry in your “allowed signers” file:
 
     gerald@wireshark.org namespaces="git" ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIBHe1qOxwBietT54lZ3qawTc8B9unWP+T3JVR9l2rQaP
 
