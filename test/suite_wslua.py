@@ -323,6 +323,10 @@ class TestWslua:
         '''wslua add_packet_field'''
         check_lua_script('add_packet_field.lua', dns_port_pcap, True)
 
+    def test_wslua_conversation(self, check_lua_script):
+        '''wslua conversation'''
+        check_lua_script('conversation.lua', dns_port_pcap, True)
+
 class TestWsluaUnicode:
     def test_wslua_unicode(self, cmd_tshark, features, dirs, capture_file, unicode_env):
         '''Check handling of unicode paths.'''
