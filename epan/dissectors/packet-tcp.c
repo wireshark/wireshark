@@ -2042,10 +2042,6 @@ init_tcp_conversation_data(packet_info *pinfo, int direction)
     tcpd->ts_prev.nsecs=pinfo->abs_ts.nsecs;
     tcpd->flow1.valid_bif = true;
     tcpd->flow2.valid_bif = true;
-    tcpd->flow1.push_bytes_sent = 0;
-    tcpd->flow2.push_bytes_sent = 0;
-    tcpd->flow1.push_set_last = false;
-    tcpd->flow2.push_set_last = false;
     tcpd->flow1.closing_initiator = false;
     tcpd->flow2.closing_initiator = false;
     tcpd->stream = tcp_stream_count++;
@@ -3300,22 +3296,22 @@ finished_checking_retransmission_type:
             }
             }
 
-            if((flags & TH_PUSH) && !tcpd->fwd->push_set_last) {
-              tcpd->fwd->push_bytes_sent += seglen;
-              tcpd->fwd->push_set_last = true;
-            } else if ((flags & TH_PUSH) && tcpd->fwd->push_set_last) {
-              tcpd->fwd->push_bytes_sent = seglen;
-              tcpd->fwd->push_set_last = true;
-            } else if (tcpd->fwd->push_set_last) {
-              tcpd->fwd->push_bytes_sent = seglen;
-              tcpd->fwd->push_set_last = false;
+            if((flags & TH_PUSH) && !tcpd->fwd->tcp_analyze_seq_info->push_set_last) {
+              tcpd->fwd->tcp_analyze_seq_info->push_bytes_sent += seglen;
+              tcpd->fwd->tcp_analyze_seq_info->push_set_last = true;
+            } else if ((flags & TH_PUSH) && tcpd->fwd->tcp_analyze_seq_info->push_set_last) {
+              tcpd->fwd->tcp_analyze_seq_info->push_bytes_sent = seglen;
+              tcpd->fwd->tcp_analyze_seq_info->push_set_last = true;
+            } else if (tcpd->fwd->tcp_analyze_seq_info->push_set_last) {
+              tcpd->fwd->tcp_analyze_seq_info->push_bytes_sent = seglen;
+              tcpd->fwd->tcp_analyze_seq_info->push_set_last = false;
             } else {
-              tcpd->fwd->push_bytes_sent += seglen;
+              tcpd->fwd->tcp_analyze_seq_info->push_bytes_sent += seglen;
             }
             if(!tcpd->ta) {
               tcp_analyze_get_acked_struct(pinfo->fd->num, seq, ack, true, tcpd);
             }
-            tcpd->ta->push_bytes_sent = tcpd->fwd->push_bytes_sent;
+            tcpd->ta->push_bytes_sent = tcpd->fwd->tcp_analyze_seq_info->push_bytes_sent;
         }
     }
 
