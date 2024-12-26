@@ -1084,8 +1084,9 @@ ucp_handle_alphanum_OAdC(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, in
         unsigned addrlength = bytes->data[0]; // expected number of semi-octets/nibbles
         unsigned numdigocts = (addrlength + 1) / 2;
         int no_of_chars = (addrlength << 2) / 7;
-        if (bytes->len + 1 < numdigocts) {
-            // Short data
+        if (bytes->len < numdigocts + 1) {
+            // Short data (there needs to be room for the addrlength byte plus
+            // the string, with no NULL termination)
             proto_tree_add_expert(tree, pinfo, &ei_ucp_short_data, tvb, *offset, len);
             no_of_chars = ((bytes->len - 1) << 3) / 7;
         }
