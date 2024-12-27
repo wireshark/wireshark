@@ -39,6 +39,7 @@ class QTemporaryFile;
 class QDialogButtonBox;
 
 class PacketList;
+class RtpBaseDialog;
 
 typedef struct {
     rtpstream_info_t stream;
@@ -81,7 +82,7 @@ public:
      * @param button_box Caller's QDialogButtonBox.
      * @return The new "Analyze" button.
      */
-    static QToolButton *addAnalyzeButton(QDialogButtonBox *button_box, QDialog *dialog);
+    static QToolButton *addAnalyzeButton(QDialogButtonBox *button_box, RtpBaseDialog *dialog);
 
     /** Replace/Add/Remove an RTP streams to analyse.
      * Requires array of rtpstream_id_t.

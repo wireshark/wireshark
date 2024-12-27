@@ -318,7 +318,7 @@ RtpStreamDialog *RtpStreamDialog::openRtpStreamDialog(QWidget &parent, CaptureFi
 }
 
 RtpStreamDialog::RtpStreamDialog(QWidget &parent, CaptureFile &cf) :
-    WiresharkDialog(parent, cf),
+    RtpBaseDialog(parent, cf),
     ui(new Ui::RtpStreamDialog),
     need_redraw_(false)
 {

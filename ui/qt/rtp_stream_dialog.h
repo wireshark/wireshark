@@ -25,7 +25,7 @@ class RtpStreamDialog;
 }
 
 // Singleton by https://refactoring.guru/design-patterns/singleton/cpp/example#example-1
-class RtpStreamDialog : public WiresharkDialog
+class RtpStreamDialog : public RtpBaseDialog
 {
     Q_OBJECT
 

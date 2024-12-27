@@ -62,8 +62,20 @@ typedef enum {
     save_mode_sync_file
 } save_mode_t;
 
+class RtpBaseDialog : public WiresharkDialog
+{
+    Q_OBJECT
+protected:
+    explicit RtpBaseDialog(QWidget &parent, CaptureFile &cf) : WiresharkDialog(parent, cf) {}
+
+public slots:
+    virtual void rtpAnalysisReplace() = 0;
+    virtual void rtpAnalysisAdd() = 0;
+    virtual void rtpAnalysisRemove() = 0;
+};
+
 // Singleton by https://refactoring.guru/design-patterns/singleton/cpp/example#example-1
-class RtpPlayerDialog : public WiresharkDialog
+class RtpPlayerDialog : public RtpBaseDialog
 {
     Q_OBJECT
 #ifdef QT_MULTIMEDIA_LIB

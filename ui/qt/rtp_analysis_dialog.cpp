@@ -41,7 +41,6 @@
 #include <ui/qt/utils/color_utils.h>
 #include <ui/qt/utils/qt_ui_utils.h>
 #include <ui/qt/rtp_player_dialog.h>
-#include <ui/qt/rtp_stream_dialog.h>
 #include <ui/qt/utils/stock_icon.h>
 #include <ui/qt/main_application.h>
 #include <ui/qt/packet_list.h>
@@ -1138,29 +1137,22 @@ tab_info_t *RtpAnalysisDialog::getTabInfoForCurrentTab()
     return tab_data;
 }
 
-QToolButton *RtpAnalysisDialog::addAnalyzeButton(QDialogButtonBox *button_box, QDialog *dialog)
+QToolButton *RtpAnalysisDialog::addAnalyzeButton(QDialogButtonBox *button_box, RtpBaseDialog *dialog)
 {
-    if (!button_box) return NULL;
+    if (!button_box) return nullptr;
 
+    QToolButton *analysis_button = nullptr;
+
+#ifdef QT_MULTIMEDIA_LIB
     QAction *ca;
-    QToolButton *analysis_button = new QToolButton();
+    analysis_button = new QToolButton();
     button_box->addButton(analysis_button, QDialogButtonBox::ActionRole);
     analysis_button->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
     analysis_button->setPopupMode(QToolButton::MenuButtonPopup);
 
-    RtpPlayerDialog *rtp_player_dialog = qobject_cast<RtpPlayerDialog *>(dialog);
-    RtpStreamDialog *rtp_stream_dialog = nullptr;
-    if (!rtp_player_dialog) {
-        rtp_stream_dialog = qobject_cast<RtpStreamDialog *>(dialog);
-    }
-
     ca = new QAction(tr("&Analyze"), analysis_button);
     ca->setToolTip(tr("Open the analysis window for the selected stream(s)"));
-    if (rtp_player_dialog) {
-        connect(ca, &QAction::triggered, rtp_player_dialog, &RtpPlayerDialog::rtpAnalysisReplace);
-    } else if (rtp_stream_dialog) {
-        connect(ca, &QAction::triggered, rtp_stream_dialog, &RtpStreamDialog::rtpAnalysisReplace);
-    }
+    connect(ca, &QAction::triggered, dialog, &RtpBaseDialog::rtpAnalysisReplace);
     analysis_button->setDefaultAction(ca);
     // Overrides text striping of shortcut undercode in QAction
     analysis_button->setText(ca->text());
@@ -1169,26 +1161,15 @@ QToolButton *RtpAnalysisDialog::addAnalyzeButton(QDialogButtonBox *button_box, Q
     button_menu->setToolTipsVisible(true);
     ca = button_menu->addAction(tr("&Set List"));
     ca->setToolTip(tr("Replace existing list in RTP Analysis Dialog with new one"));
-    if (rtp_player_dialog) {
-        connect(ca, &QAction::triggered, rtp_player_dialog, &RtpPlayerDialog::rtpAnalysisReplace);
-    } else if (rtp_stream_dialog) {
-        connect(ca, &QAction::triggered, rtp_stream_dialog, &RtpStreamDialog::rtpAnalysisReplace);
-    }
+    connect(ca, &QAction::triggered, dialog, &RtpBaseDialog::rtpAnalysisReplace);
     ca = button_menu->addAction(tr("&Add to List"));
     ca->setToolTip(tr("Add new set to existing list in RTP Analysis Dialog"));
-    if (rtp_player_dialog) {
-        connect(ca, &QAction::triggered, rtp_player_dialog, &RtpPlayerDialog::rtpAnalysisAdd);
-    } else if (rtp_stream_dialog) {
-        connect(ca, &QAction::triggered, rtp_stream_dialog, &RtpStreamDialog::rtpAnalysisAdd);
-    }
+    connect(ca, &QAction::triggered, dialog, &RtpBaseDialog::rtpAnalysisAdd);
     ca = button_menu->addAction(tr("&Remove from List"));
     ca->setToolTip(tr("Remove selected streams from list in RTP Analysis Dialog"));
-    if (rtp_player_dialog) {
-        connect(ca, &QAction::triggered, rtp_player_dialog, &RtpPlayerDialog::rtpAnalysisRemove);
-    } else if (rtp_stream_dialog) {
-        connect(ca, &QAction::triggered, rtp_stream_dialog, &RtpStreamDialog::rtpAnalysisRemove);
-    }
+    connect(ca, &QAction::triggered, dialog, &RtpBaseDialog::rtpAnalysisRemove);
     analysis_button->setMenu(button_menu);
+#endif
 
     return analysis_button;
 }

@@ -155,7 +155,7 @@ RtpPlayerDialog *RtpPlayerDialog::openRtpPlayerDialog(QWidget &parent, CaptureFi
 }
 
 RtpPlayerDialog::RtpPlayerDialog(QWidget &parent, CaptureFile &cf, bool capture_running _U_) :
-    WiresharkDialog(parent, cf)
+    RtpBaseDialog(parent, cf)
 #ifdef QT_MULTIMEDIA_LIB
     , ui(new Ui::RtpPlayerDialog)
     , first_stream_rel_start_time_(0.0)
