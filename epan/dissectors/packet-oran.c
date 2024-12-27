@@ -32,7 +32,6 @@
 /* N.B. dissector preferences are taking the place of (some) M-plane parameters, so unfortunately it can be
  * fiddly to get the preferences into a good state to decode a given capture..
  * TODO:
- * - tap stats by flow?
  * - for U-Plane, track back to last C-Plane frame for that eAxC
  *     - use upCompHdr values from C-Plane if not overridden by U-Plane?
  *     N.B. this matching is tricky see 7.8.1 Coupling of C-Plane and U-Plane
@@ -42,7 +41,6 @@
  * - for section extensions, check more constraints (which other extension types appear with them, order)
  * - when some section extensions are present, some section header fields are effectively ignored - flag any remaining?
  * - re-order items (decl and hf definitions) to match spec order
- * - add hf items to use as roots for remaining subtrees (blurb more useful than filter..)
  */
 
 /* Prototypes */
@@ -5211,6 +5209,12 @@ static bool at_udcomphdr(tvbuff_t *tvb, int offset)
 
 static bool udcomphdr_appears_present(flow_state_t *flow, uint32_t direction, tvbuff_t *tvb, int offset)
 {
+    /* Should really not happen, but guard against this anyway. */
+    if (flow == NULL) {
+        /* No state to update. */
+        return false;
+    }
+
     if (direction == DIR_UPLINK) {
         if (flow->udcomphdrUplink_heuristic_result_set) {
             /* Return cached value */
