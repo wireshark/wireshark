@@ -1926,7 +1926,7 @@ main(int argc, char *argv[])
         for (unsigned b = 0; b < params.shb_hdrs->len; b++) {
             wtap_block_t shb = g_array_index(params.shb_hdrs, wtap_block_t, b);
             while (WTAP_OPTTYPE_SUCCESS == wtap_block_remove_nth_option_instance(shb, OPT_COMMENT, 0)) {
-                continue;
+                ;
             }
         }
     }
@@ -2522,7 +2522,6 @@ main(int argc, char *argv[])
                 temp_rec = *rec;
                 while (WTAP_OPTTYPE_SUCCESS == wtap_block_remove_nth_option_instance(rec->block, OPT_COMMENT, 0)) {
                     temp_rec.block_was_modified = true;
-                    continue;
                 }
                 rec = &temp_rec;
             }
@@ -2538,7 +2537,6 @@ main(int argc, char *argv[])
                     /* Erase any existing comments before adding the new one */
                     while (WTAP_OPTTYPE_SUCCESS == wtap_block_remove_nth_option_instance(rec->block, OPT_COMMENT, 0)) {
                         temp_rec.block_was_modified = true;
-                        continue;
                     }
 
                     /* The comment is not modified by dumper, cast away. */
