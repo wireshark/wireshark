@@ -179,17 +179,17 @@ typedef struct {
   int      format;              /* Trace format type        */
 } iseries_t;
 
-static bool iseries_read (wtap * wth, wtap_rec *rec, Buffer *buf,
+static bool iseries_read (wtap * wth, wtap_rec *rec,
                               int *err, char ** err_info, int64_t *data_offset);
 static bool iseries_seek_read (wtap * wth, int64_t seek_off,
                                    wtap_rec *rec,
-                                   Buffer * buf, int *err, char ** err_info);
+                                   int *err, char ** err_info);
 static bool iseries_check_file_type (wtap * wth, int *err, char **err_info,
                                          int format);
 static int64_t iseries_seek_next_packet (wtap * wth, int *err, char **err_info);
 static bool iseries_parse_packet (wtap * wth, FILE_T fh,
                                       wtap_rec *rec,
-                                      Buffer * buf, int *err, char ** err_info);
+                                      int *err, char ** err_info);
 static int iseries_UNICODE_to_ASCII (uint8_t * buf, unsigned bytes);
 static bool iseries_parse_hex_string (const char * ascii, uint8_t * buf,
                                           size_t len);
@@ -399,8 +399,8 @@ iseries_check_file_type (wtap * wth, int *err, char **err_info, int format)
  * Find the next packet and parse it; called from wtap_read().
  */
 static bool
-iseries_read (wtap * wth, wtap_rec *rec, Buffer *buf, int *err,
-    char ** err_info, int64_t *data_offset)
+iseries_read (wtap * wth, wtap_rec *rec, int *err, char ** err_info,
+              int64_t *data_offset)
 {
   int64_t offset;
 
@@ -415,7 +415,7 @@ iseries_read (wtap * wth, wtap_rec *rec, Buffer *buf, int *err,
   /*
    * Parse the packet and extract the various fields
    */
-  return iseries_parse_packet (wth, wth->fh, rec, buf, err, err_info);
+  return iseries_parse_packet (wth, wth->fh, rec, err, err_info);
 }
 
 /*
@@ -492,7 +492,7 @@ iseries_seek_next_packet (wtap * wth, int *err, char **err_info)
  */
 static bool
 iseries_seek_read (wtap * wth, int64_t seek_off, wtap_rec *rec,
-                   Buffer * buf, int *err, char ** err_info)
+                   int *err, char ** err_info)
 {
 
   /* seek to packet location */
@@ -502,8 +502,7 @@ iseries_seek_read (wtap * wth, int64_t seek_off, wtap_rec *rec,
   /*
    * Parse the packet and extract the various fields
    */
-  return iseries_parse_packet (wth, wth->random_fh, rec, buf,
-                               err, err_info);
+  return iseries_parse_packet (wth, wth->random_fh, rec, err, err_info);
 }
 
 static int
@@ -604,7 +603,7 @@ csec_multiplier(uint32_t csec)
 /* Parses a packet. */
 static bool
 iseries_parse_packet (wtap * wth, FILE_T fh, wtap_rec *rec,
-                      Buffer *buf, int *err, char **err_info)
+                      int *err, char **err_info)
 {
   iseries_t *iseries = (iseries_t *)wth->priv;
   int64_t    cur_off;
@@ -974,9 +973,9 @@ iseries_parse_packet (wtap * wth, FILE_T fh, wtap_rec *rec,
   rec->rec_header.packet_header.caplen = ((uint32_t) ascii_offset)/2;
 
   /* Make sure we have enough room for the packet. */
-  ws_buffer_assure_space (buf, rec->rec_header.packet_header.caplen);
+  ws_buffer_assure_space (&rec->data, rec->rec_header.packet_header.caplen);
   /* Convert ascii data to binary and return in the frame buffer */
-  iseries_parse_hex_string (ascii_buf, ws_buffer_start_ptr (buf), ascii_offset);
+  iseries_parse_hex_string (ascii_buf, ws_buffer_start_ptr (&rec->data), ascii_offset);
 
   /* free buffer allocs and return */
   *err = 0;

@@ -40,10 +40,9 @@ WSLUA_CLASS_DEFINE(FrameInfo,FAIL_ON_NULL_OR_EXPIRED("FrameInfo"));
     frame information to the file.
  */
 
-FrameInfo* push_FrameInfo(lua_State* L, wtap_rec *rec, Buffer* buf) {
-    FrameInfo f = (FrameInfo) g_malloc0(sizeof(struct _wslua_phdr));
+FrameInfo* push_FrameInfo(lua_State* L, wtap_rec *rec) {
+    FrameInfo f = (FrameInfo) g_malloc0(sizeof(struct _wslua_rec));
     f->rec = rec;
-    f->buf = buf;
     f->expired = false;
     return pushFrameInfo(L,f);
 }
@@ -76,12 +75,12 @@ WSLUA_METHOD FrameInfo_read_data(lua_State* L) {
     int err = 0;
     char *err_info = NULL;
 
-    if (!fi->buf || !fh->file) {
-        luaL_error(L, "FrameInfo read_data() got null buffer or file pointer internally");
+    if (!fh->file) {
+        luaL_error(L, "FrameInfo read_data() got null file pointer internally");
         return 0;
     }
 
-    if (!wtap_read_packet_bytes(fh->file, fi->buf, len, &err, &err_info)) {
+    if (!wtap_read_packet_bytes(fh->file, &fi->rec->data, len, &err, &err_info)) {
         lua_pushboolean(L, false);
         if (err_info) {
             lua_pushstring(L, err_info);
@@ -225,18 +224,13 @@ static int FrameInfo_set_data (lua_State* L) {
         return 0;
     }
 
-    if (!fi->buf) {
-        ws_warning("Error in FrameInfo set data: NULL frame_buffer pointer");
-        return 0;
-    }
-
    if (lua_isstring(L,2)) {
         size_t len = 0;
         const char* s = luaL_checklstring(L,2,&len);
 
         /* Make sure we have enough room for the packet */
-        ws_buffer_assure_space(fi->buf, len);
-        memcpy(ws_buffer_start_ptr(fi->buf), s, len);
+        ws_buffer_assure_space(&fi->rec->data, len);
+        memcpy(ws_buffer_start_ptr(&fi->rec->data), s, len);
         fi->rec->rec_header.packet_header.caplen = (uint32_t) len;
         fi->rec->rec_header.packet_header.len = (uint32_t) len;
     }
@@ -249,11 +243,9 @@ static int FrameInfo_set_data (lua_State* L) {
 static int FrameInfo_get_data (lua_State* L) {
     FrameInfo fi = checkFrameInfo(L,1);
 
-    if (!fi->buf) return 0;
+    lua_pushlstring(L, ws_buffer_start_ptr(&fi->rec->data), ws_buffer_length(&fi->rec->data));
 
-    lua_pushlstring(L, ws_buffer_start_ptr(fi->buf), ws_buffer_length(fi->buf));
-
-    WSLUA_RETURN(1); /* A Lua string of the frame buffer's data. */
+    WSLUA_RETURN(1); /* A Lua string of the frame record's data. */
 }
 
 /* WSLUA_ATTRIBUTE FrameInfo_rec_type RW The record type of the packet frame
@@ -323,7 +315,7 @@ WSLUA_CLASS_DEFINE(FrameInfoConst,FAIL_ON_NULL_OR_EXPIRED("FrameInfo"));
  */
 
 FrameInfoConst* push_FrameInfoConst(lua_State* L, const wtap_rec *rec, const uint8_t *pd) {
-    FrameInfoConst f = (FrameInfoConst) g_malloc(sizeof(struct _wslua_const_phdr));
+    FrameInfoConst f = (FrameInfoConst) g_malloc(sizeof(struct _wslua_const_rec));
     f->rec = rec;
     f->pd = pd;
     f->expired = false;

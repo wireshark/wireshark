@@ -107,12 +107,12 @@ typedef struct {
 	uint32_t record_offsets[N_RECORDS_PER_GROUP];
 } capsa_t;
 
-static bool capsa_read(wtap *wth, wtap_rec *rec, Buffer *buf,
+static bool capsa_read(wtap *wth, wtap_rec *rec,
     int *err, char **err_info, int64_t *data_offset);
 static bool capsa_seek_read(wtap *wth, int64_t seek_off,
-    wtap_rec *rec, Buffer *buf, int *err, char **err_info);
+    wtap_rec *rec, int *err, char **err_info);
 static int capsa_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec,
-    Buffer *buf, int *err, char **err_info);
+    int *err, char **err_info);
 
 static int capsa_file_type_subtype = -1;
 static int packet_builder_file_type_subtype = -1;
@@ -232,7 +232,7 @@ wtap_open_return_val capsa_open(wtap *wth, int *err, char **err_info)
 }
 
 /* Read the next packet */
-static bool capsa_read(wtap *wth, wtap_rec *rec, Buffer *buf,
+static bool capsa_read(wtap *wth, wtap_rec *rec,
     int *err, char **err_info, int64_t *data_offset)
 {
 	capsa_t *capsa = (capsa_t *)wth->priv;
@@ -277,7 +277,7 @@ static bool capsa_read(wtap *wth, wtap_rec *rec, Buffer *buf,
 	if (!file_seek(wth->fh, *data_offset, SEEK_SET, err))
 		return false;
 
-	padbytes = capsa_read_packet(wth, wth->fh, rec, buf, err, err_info);
+	padbytes = capsa_read_packet(wth, wth->fh, rec, err, err_info);
 	if (padbytes == -1)
 		return false;
 
@@ -296,12 +296,12 @@ static bool capsa_read(wtap *wth, wtap_rec *rec, Buffer *buf,
 
 static bool
 capsa_seek_read(wtap *wth, int64_t seek_off,
-    wtap_rec *rec, Buffer *buf, int *err, char **err_info)
+    wtap_rec *rec, int *err, char **err_info)
 {
 	if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
 		return false;
 
-	if (capsa_read_packet(wth, wth->random_fh, rec, buf, err, err_info) == -1) {
+	if (capsa_read_packet(wth, wth->random_fh, rec, err, err_info) == -1) {
 		if (*err == 0)
 			*err = WTAP_ERR_SHORT_READ;
 		return false;
@@ -311,7 +311,7 @@ capsa_seek_read(wtap *wth, int64_t seek_off,
 
 static int
 capsa_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec,
-    Buffer *buf, int *err, char **err_info)
+    int *err, char **err_info)
 {
 	capsa_t *capsa = (capsa_t *)wth->priv;
 	struct capsarec_hdr capsarec_hdr;
@@ -430,7 +430,8 @@ capsa_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec,
 	/*
 	 * Read the packet data.
 	 */
-	if (!wtap_read_packet_bytes(fh, buf, packet_size, err, err_info))
+	if (!wtap_read_packet_bytes(fh, &rec->data,
+	    rec->rec_header.packet_header.caplen, err, err_info))
 		return -1;	/* failed */
 
 	return rec_size - (header_size + packet_size);

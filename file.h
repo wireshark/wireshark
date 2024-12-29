@@ -151,27 +151,26 @@ cf_status_t cf_reload(capture_file *cf);
 cf_read_status_t cf_read(capture_file *cf, bool reloading);
 
 /**
- * Read the metadata and raw data for a record.  It will pop
- * up an alert box if there's an error.
+ * Read the information for a record.  It will pop up an alert box
+ * if there's an error.
  *
  * @param cf the capture file from which to read the record
  * @param fdata the frame_data structure for the record in question
  * @param rec pointer to a wtap_rec structure to contain the
- * record's metadata
- * @param buf a Buffer into which to read the record's raw data
+ *           record's information
  * @return true if the read succeeded, false if there was an error
  */
 bool cf_read_record(capture_file *cf, const frame_data *fdata,
-                          wtap_rec *rec, Buffer *buf);
+                    wtap_rec *rec);
 
 /** Same as cf_read_record() but does not pop alert box on error */
 bool cf_read_record_no_alert(capture_file *cf, const frame_data *fdata,
-                                 wtap_rec *rec, Buffer *buf);
+                             wtap_rec *rec);
 
 
 /**
- * Read the metadata and raw data for the current record into a
- * capture_file structure's rec and buf for the current record.
+ * Read the information for the current record into a capture_file
+ * structure's rec for the current record.
  * It will pop up an alert box if there's an error.
  *
  * @param cf the capture file from which to read the record
@@ -185,12 +184,11 @@ bool cf_read_current_record(capture_file *cf);
  * @param cf the capture file to be read from
  * @param to_read the number of packets to read
  * @param rec pointer to wtap_rec to use when reading
- * @param buf pointer to Buffer to use when reading
  * @param err the error code, if an error had occurred
  * @return one of cf_read_status_t
  */
 cf_read_status_t cf_continue_tail(capture_file *cf, volatile int to_read,
-                                  wtap_rec *rec, Buffer *buf, int *err,
+                                  wtap_rec *rec, int *err,
                                   fifo_string_cache_t *frame_dup_cache, GChecksum *frame_cksum);
 
 /**
@@ -205,12 +203,11 @@ void cf_fake_continue_tail(capture_file *cf);
  *
  * @param cf the capture file to be read from
  * @param rec pointer to wtap_rec to use when reading
- * @param buf pointer to Buffer to use when reading
  * @param err the error code, if an error had occurred
  * @return one of cf_read_status_t
  */
 cf_read_status_t cf_finish_tail(capture_file *cf, wtap_rec *rec,
-                                Buffer *buf, int *err,
+                                int *err,
                                 fifo_string_cache_t *frame_dup_cache, GChecksum *frame_cksum);
 
 /**

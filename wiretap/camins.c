@@ -347,7 +347,7 @@ create_pseudo_hdr(uint8_t *buf, uint8_t dat_trans_type, uint16_t dat_len,
 
 
 static bool
-camins_read_packet(FILE_T fh, wtap_rec *rec, Buffer *buf,
+camins_read_packet(FILE_T fh, wtap_rec *rec,
     uint64_t *time_us, int *err, char **err_info)
 {
     uint8_t     dat_trans_type;
@@ -365,8 +365,8 @@ camins_read_packet(FILE_T fh, wtap_rec *rec, Buffer *buf,
      * it.
      */
 
-    ws_buffer_assure_space(buf, DVB_CI_PSEUDO_HDR_LEN+dat_len);
-    p = ws_buffer_start_ptr(buf);
+    ws_buffer_assure_space(&rec->data, DVB_CI_PSEUDO_HDR_LEN+dat_len);
+    p = ws_buffer_start_ptr(&rec->data);
     offset = create_pseudo_hdr(p, dat_trans_type, dat_len, err_info);
     if (offset<0) {
         /* shouldn't happen, all invalid packets must be detected by
@@ -401,24 +401,24 @@ camins_read_packet(FILE_T fh, wtap_rec *rec, Buffer *buf,
 
 
 static bool
-camins_read(wtap *wth, wtap_rec *rec, Buffer *buf, int *err,
+camins_read(wtap *wth, wtap_rec *rec, int *err,
     char **err_info, int64_t *data_offset)
 {
     *data_offset = file_tell(wth->fh);
 
-    return camins_read_packet(wth->fh, rec, buf, (uint64_t *)(wth->priv),
+    return camins_read_packet(wth->fh, rec, (uint64_t *)(wth->priv),
                               err, err_info);
 }
 
 
 static bool
-camins_seek_read(wtap *wth, int64_t seek_off, wtap_rec *rec, Buffer *buf,
+camins_seek_read(wtap *wth, int64_t seek_off, wtap_rec *rec,
                  int *err, char **err_info)
 {
     if (-1 == file_seek(wth->random_fh, seek_off, SEEK_SET, err))
         return false;
 
-    return camins_read_packet(wth->random_fh, rec, buf, NULL, err, err_info);
+    return camins_read_packet(wth->random_fh, rec, NULL, err, err_info);
 }
 
 

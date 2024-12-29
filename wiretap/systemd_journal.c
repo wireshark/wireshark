@@ -41,12 +41,12 @@
 // SYSLOG_IDENTIFIER=kernel
 // MESSAGE=Initializing cgroup subsys cpuset
 
-static bool systemd_journal_read(wtap *wth, wtap_rec *rec, Buffer *buf,
-        int *err, char **err_info, int64_t *data_offset);
+static bool systemd_journal_read(wtap *wth, wtap_rec *rec, int *err,
+        char **err_info, int64_t *data_offset);
 static bool systemd_journal_seek_read(wtap *wth, int64_t seek_off,
-        wtap_rec *rec, Buffer *buf, int *err, char **err_info);
+        wtap_rec *rec, int *err, char **err_info);
 static bool systemd_journal_read_export_entry(FILE_T fh, wtap_rec *rec,
-        Buffer *buf, int *err, char **err_info);
+        int *err, char **err_info);
 
 // The Journal Export Format specification doesn't place limits on entry
 // lengths or lines per entry. We do.
@@ -119,13 +119,13 @@ wtap_open_return_val systemd_journal_open(wtap *wth, int *err _U_, char **err_in
 }
 
 /* Read the next packet */
-static bool systemd_journal_read(wtap *wth, wtap_rec *rec, Buffer *buf,
-        int *err, char **err_info, int64_t *data_offset)
+static bool systemd_journal_read(wtap *wth, wtap_rec *rec, int *err,
+        char **err_info, int64_t *data_offset)
 {
     *data_offset = file_tell(wth->fh);
 
     /* Read record. */
-    if (!systemd_journal_read_export_entry(wth->fh, rec, buf, err, err_info)) {
+    if (!systemd_journal_read_export_entry(wth->fh, rec, err, err_info)) {
         /* Read error or EOF */
         return false;
     }
@@ -133,16 +133,14 @@ static bool systemd_journal_read(wtap *wth, wtap_rec *rec, Buffer *buf,
     return true;
 }
 
-    static bool
-systemd_journal_seek_read(wtap *wth, int64_t seek_off,
-        wtap_rec *rec, Buffer *buf,
-        int *err, char **err_info)
+static bool systemd_journal_seek_read(wtap *wth, int64_t seek_off,
+        wtap_rec *rec, int *err, char **err_info)
 {
     if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
         return false;
 
     /* Read record. */
-    if (!systemd_journal_read_export_entry(wth->random_fh, rec, buf, err, err_info)) {
+    if (!systemd_journal_read_export_entry(wth->random_fh, rec, err, err_info)) {
         /* Read error or EOF */
         if (*err == 0) {
             /* EOF means "short read" in random-access mode */
@@ -153,8 +151,8 @@ systemd_journal_seek_read(wtap *wth, int64_t seek_off,
     return true;
 }
 
-static bool
-systemd_journal_read_export_entry(FILE_T fh, wtap_rec *rec, Buffer *buf, int *err, char **err_info)
+static bool systemd_journal_read_export_entry(FILE_T fh, wtap_rec *rec,
+        int *err, char **err_info)
 {
     size_t fld_end = 0;
     char *buf_ptr;
@@ -166,8 +164,8 @@ systemd_journal_read_export_entry(FILE_T fh, wtap_rec *rec, Buffer *buf, int *er
     int line_num;
     size_t rt_ts_len = strlen(FLD__REALTIME_TIMESTAMP);
 
-    ws_buffer_assure_space(buf, MAX_EXPORT_ENTRY_LENGTH);
-    buf_ptr = (char *) ws_buffer_start_ptr(buf);
+    ws_buffer_assure_space(&rec->data, MAX_EXPORT_ENTRY_LENGTH);
+    buf_ptr = (char *) ws_buffer_start_ptr(&rec->data);
 
     for (line_num = 0; line_num < MAX_EXPORT_ENTRY_LINES; line_num++) {
         entry_line = file_gets(buf_ptr + fld_end, MAX_EXPORT_ENTRY_LENGTH - (int) fld_end, fh);

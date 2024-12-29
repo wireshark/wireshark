@@ -52,12 +52,12 @@ static int64_t netscreen_seek_next_packet(wtap *wth, int *err, char **err_info,
 	char *hdr);
 static bool netscreen_check_file_type(wtap *wth, int *err,
 	char **err_info);
-static bool netscreen_read(wtap *wth, wtap_rec *rec, Buffer *buf,
+static bool netscreen_read(wtap *wth, wtap_rec *rec,
 	int *err, char **err_info, int64_t *data_offset);
 static bool netscreen_seek_read(wtap *wth, int64_t seek_off,
-	wtap_rec *rec, Buffer *buf, int *err, char **err_info);
+	wtap_rec *rec, int *err, char **err_info);
 static bool parse_netscreen_packet(FILE_T fh, wtap_rec *rec,
-	Buffer* buf, char *line, int *err, char **err_info);
+	char *line, int *err, char **err_info);
 static int parse_single_hex_dump_line(char* rec, uint8_t *buf,
 	unsigned byte_offset, unsigned pkt_len);
 
@@ -178,7 +178,7 @@ wtap_open_return_val netscreen_open(wtap *wth, int *err, char **err_info)
 }
 
 /* Find the next packet and parse it; called from wtap_read(). */
-static bool netscreen_read(wtap *wth, wtap_rec *rec, Buffer *buf,
+static bool netscreen_read(wtap *wth, wtap_rec *rec,
     int *err, char **err_info, int64_t *data_offset)
 {
 	int64_t		offset;
@@ -190,7 +190,7 @@ static bool netscreen_read(wtap *wth, wtap_rec *rec, Buffer *buf,
 		return false;
 
 	/* Parse the header and convert the ASCII hex dump to binary data */
-	if (!parse_netscreen_packet(wth->fh, rec, buf, line, err, err_info))
+	if (!parse_netscreen_packet(wth->fh, rec, line, err, err_info))
 		return false;
 
 	/*
@@ -214,7 +214,7 @@ static bool netscreen_read(wtap *wth, wtap_rec *rec, Buffer *buf,
 
 /* Used to read packets in random-access fashion */
 static bool
-netscreen_seek_read(wtap *wth, int64_t seek_off,	wtap_rec *rec, Buffer *buf,
+netscreen_seek_read(wtap *wth, int64_t seek_off, wtap_rec *rec,
 	int *err, char **err_info)
 {
 	char		line[NETSCREEN_LINE_LENGTH];
@@ -231,7 +231,7 @@ netscreen_seek_read(wtap *wth, int64_t seek_off,	wtap_rec *rec, Buffer *buf,
 		return false;
 	}
 
-	return parse_netscreen_packet(wth->random_fh, rec, buf, line,
+	return parse_netscreen_packet(wth->random_fh, rec, line,
 	    err, err_info);
 }
 
@@ -280,8 +280,8 @@ netscreen_seek_read(wtap *wth, int64_t seek_off,	wtap_rec *rec, Buffer *buf,
  * packet, with 16 octets per line.
  */
 static bool
-parse_netscreen_packet(FILE_T fh, wtap_rec *rec, Buffer* buf,
-    char *line, int *err, char **err_info)
+parse_netscreen_packet(FILE_T fh, wtap_rec *rec, char *line,
+    int *err, char **err_info)
 {
 	unsigned		pkt_len;
 	int		sec;
@@ -330,8 +330,8 @@ parse_netscreen_packet(FILE_T fh, wtap_rec *rec, Buffer* buf,
 	rec->rec_header.packet_header.len = pkt_len;
 
 	/* Make sure we have enough room for the packet */
-	ws_buffer_assure_space(buf, pkt_len);
-	pd = ws_buffer_start_ptr(buf);
+	ws_buffer_assure_space(&rec->data, pkt_len);
+	pd = ws_buffer_start_ptr(&rec->data);
 
 	while(1) {
 

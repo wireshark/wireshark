@@ -91,7 +91,7 @@ void register_mplog(void);
      we treat this as a packet boundary as described above
    */
 static bool mplog_read_packet(FILE_T fh, wtap_rec *rec,
-        Buffer *buf, int *err, char **err_info)
+        int *err, char **err_info)
 {
     uint8_t *p, *start_p;
     /* --- the last block of a known type --- */
@@ -108,8 +108,8 @@ static bool mplog_read_packet(FILE_T fh, wtap_rec *rec,
     uint64_t pkt_ctr = 0;
 
 
-    ws_buffer_assure_space(buf, PKT_BUF_LEN);
-    p = ws_buffer_start_ptr(buf);
+    ws_buffer_assure_space(&rec->data, PKT_BUF_LEN);
+    p = ws_buffer_start_ptr(&rec->data);
     start_p = p;
 
     /* leave space for the iso14443 pseudo header
@@ -187,23 +187,23 @@ static bool mplog_read_packet(FILE_T fh, wtap_rec *rec,
 
 
 static bool
-mplog_read(wtap *wth, wtap_rec *rec, Buffer *buf, int *err,
-        char **err_info, int64_t *data_offset)
+mplog_read(wtap *wth, wtap_rec *rec, int *err, char **err_info,
+           int64_t *data_offset)
 {
     *data_offset = file_tell(wth->fh);
 
-    return mplog_read_packet(wth->fh, rec, buf, err, err_info);
+    return mplog_read_packet(wth->fh, rec, err, err_info);
 }
 
 
 static bool
-mplog_seek_read(wtap *wth, int64_t seek_off, wtap_rec *rec, Buffer *buf,
+mplog_seek_read(wtap *wth, int64_t seek_off, wtap_rec *rec,
                 int *err, char **err_info)
 {
     if (-1 == file_seek(wth->random_fh, seek_off, SEEK_SET, err))
         return false;
 
-    if (!mplog_read_packet(wth->random_fh, rec, buf, err, err_info)) {
+    if (!mplog_read_packet(wth->random_fh, rec, err, err_info)) {
         /* Even if we got an immediate EOF, that's an error. */
         if (*err == 0)
             *err = WTAP_ERR_SHORT_READ;

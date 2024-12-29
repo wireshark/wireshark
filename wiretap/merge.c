@@ -88,7 +88,6 @@ cleanup_in_file(merge_in_file_t *in_file)
     in_file->idb_index_map = NULL;
 
     wtap_rec_cleanup(&in_file->rec);
-    ws_buffer_free(&in_file->frame_buffer);
 }
 
 static void
@@ -237,8 +236,7 @@ merge_open_in_files(unsigned in_file_count, const char *const *in_file_names,
             *err_fileno = i;
             return 0;
         }
-        wtap_rec_init(&files[i].rec);
-        ws_buffer_init(&files[i].frame_buffer, 1514);
+        wtap_rec_init(&files[i].rec, 1514);
         files[i].size = size;
         files[i].idb_index_map = g_array_new(false, false, sizeof(unsigned));
 
@@ -367,8 +365,7 @@ merge_read_packet(int in_file_count, merge_in_file_t in_files[],
              * No packet available, and we haven't seen an error or EOF yet,
              * so try to read the next packet.
              */
-            if (!wtap_read(in_files[i].wth, &in_files[i].rec,
-                           &in_files[i].frame_buffer, err, err_info,
+            if (!wtap_read(in_files[i].wth, &in_files[i].rec, err, err_info,
                            &data_offset)) {
                 if (*err != 0) {
                     in_files[i].state = GOT_ERROR;
@@ -453,8 +450,7 @@ merge_append_read_packet(int in_file_count, merge_in_file_t in_files[],
     for (i = 0; i < in_file_count; i++) {
         if (in_files[i].state == AT_EOF)
             continue; /* This file is already at EOF */
-        if (wtap_read(in_files[i].wth, &in_files[i].rec,
-                      &in_files[i].frame_buffer, err, err_info,
+        if (wtap_read(in_files[i].wth, &in_files[i].rec, err, err_info,
                       &data_offset))
             break; /* We have a packet */
         if (*err != 0) {
@@ -1144,7 +1140,7 @@ merge_process_packets(wtap_dumper *pdh, const int file_type,
         }
 
         if (!wtap_dump(pdh, &in_file->rec,
-                       ws_buffer_start_ptr(&in_file->frame_buffer),
+                       ws_buffer_start_ptr(&in_file->rec.data),
                        err, err_info)) {
             status = MERGE_ERR_CANT_WRITE_OUTFILE;
             break;

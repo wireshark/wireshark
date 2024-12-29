@@ -1198,15 +1198,13 @@ static int
 extract_secrets(wtap *wth, char* filename, int *err, char **err_info)
 {
     wtap_rec                     read_rec;
-    Buffer                       read_buf;
     int64_t       offset;
     char         *fprefix            = NULL;
     char         *fsuffix            = NULL;
 
     /* Read all of the packets in turn */
-    wtap_rec_init(&read_rec);
-    ws_buffer_init(&read_buf, 1514);
-    while (wtap_read(wth, &read_rec, &read_buf, err, err_info, &offset)) {
+    wtap_rec_init(&read_rec, 1514);
+    while (wtap_read(wth, &read_rec, err, err_info, &offset)) {
         /* Do we want to respect the max packet number on the command line?
          * Probably more confusing than it's worth, because a user might
          * not know if a DSB is at the end of the file.
@@ -1214,7 +1212,6 @@ extract_secrets(wtap *wth, char* filename, int *err, char **err_info)
         wtap_rec_reset(&read_rec);
     }
     wtap_rec_cleanup(&read_rec);
-    ws_buffer_free(&read_buf);
 
     wtapng_dsb_mandatory_t *dsb;
     if (strcmp(filename, "-") == 0) {
@@ -1338,7 +1335,6 @@ main(int argc, char *argv[])
     GArray       *dsb_types          = NULL;
     GPtrArray    *dsb_filenames      = NULL;
     wtap_rec                     read_rec;
-    Buffer                       read_buf;
     wtap_dump_params             params = WTAP_DUMP_PARAMS_INIT;
     char                        *shb_user_appl;
     bool                         do_mutation;
@@ -2029,9 +2025,8 @@ main(int argc, char *argv[])
     idbs_seen = g_array_new(FALSE, FALSE, sizeof(wtap_block_t));
 
     /* Read all of the packets in turn */
-    wtap_rec_init(&read_rec);
-    ws_buffer_init(&read_buf, 1514);
-    while (wtap_read(wth, &read_rec, &read_buf, &read_err, &read_err_info, &data_offset)) {
+    wtap_rec_init(&read_rec, 1514);
+    while (wtap_read(wth, &read_rec, &read_err, &read_err_info, &data_offset)) {
         /*
          * XXX - what about non-packet records in the file after this?
          * NRBs, DSBs, and ISBs are now written when wtap_dump_close() calls
@@ -2090,7 +2085,7 @@ main(int argc, char *argv[])
             goto clean_exit;
         }
 
-        buf = ws_buffer_start_ptr(&read_buf);
+        buf = ws_buffer_start_ptr(&read_rec.data);
 
         /*
          * Not all packets have time stamps. Only process the time
@@ -2535,7 +2530,6 @@ main(int argc, char *argv[])
         wtap_rec_reset(&read_rec);
     }
     wtap_rec_cleanup(&read_rec);
-    ws_buffer_free(&read_buf);
 
     if (verbose)
         fprintf(stderr, "Total selected: %" PRIu64 "\n", written_count);

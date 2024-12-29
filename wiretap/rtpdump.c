@@ -87,13 +87,13 @@
 #define RTP_BUFFER_INIT_LEN 20+EXP_PDU_TAG_IPV6_LEN
 
 static bool
-rtpdump_read(wtap *wth, wtap_rec *rec, Buffer *buf,
+rtpdump_read(wtap *wth, wtap_rec *rec,
                int *err, char **err_info,
                int64_t *data_offset);
 
 static bool
 rtpdump_seek_read(wtap *wth, int64_t seek_off,
-                    wtap_rec *rec, Buffer *buf,
+                    wtap_rec *rec,
                     int *err, char **err_info);
 
 static void
@@ -270,7 +270,7 @@ rtpdump_open(wtap *wth, int *err, char **err_info)
 }
 
 static bool
-rtpdump_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec, Buffer *buf,
+rtpdump_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec,
                       int *err, char **err_info)
 {
     rtpdump_priv_t *priv = (rtpdump_priv_t *)wth->priv;
@@ -292,17 +292,17 @@ rtpdump_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec, Buffer *buf,
     /* Set length to remaining length of packet data */
     length -= hdr_len;
 
-    ws_buffer_append_buffer(buf, &priv->epdu_headers);
+    ws_buffer_append_buffer(&rec->data, &priv->epdu_headers);
     if (plen == 0) {
         /* RTCP sample */
         plen = length;
-        wtap_buffer_append_epdu_string(buf, EXP_PDU_TAG_DISSECTOR_NAME, "rtcp");
+        wtap_buffer_append_epdu_string(&rec->data, EXP_PDU_TAG_DISSECTOR_NAME, "rtcp");
     }
     else {
         /* RTP sample */
-        wtap_buffer_append_epdu_string(buf, EXP_PDU_TAG_DISSECTOR_NAME, "rtp");
+        wtap_buffer_append_epdu_string(&rec->data, EXP_PDU_TAG_DISSECTOR_NAME, "rtp");
     }
-    epdu_len = wtap_buffer_append_epdu_end(buf);
+    epdu_len = wtap_buffer_append_epdu_end(&rec->data);
 
     /* Offset is milliseconds since the start of recording */
     ts.secs = offset / 1000;
@@ -313,24 +313,24 @@ rtpdump_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec, Buffer *buf,
     rec->rec_header.packet_header.len = epdu_len + length;
     rec->rec_type = REC_TYPE_PACKET;
 
-    return wtap_read_packet_bytes(fh, buf, length, err, err_info);
+    return wtap_read_packet_bytes(fh, &rec->data, length, err, err_info);
 }
 
 static bool
-rtpdump_read(wtap *wth, wtap_rec *rec, Buffer *buf, int *err, char **err_info,
+rtpdump_read(wtap *wth, wtap_rec *rec, int *err, char **err_info,
                int64_t *data_offset)
 {
     *data_offset = file_tell(wth->fh);
-    return rtpdump_read_packet(wth, wth->fh, rec, buf, err, err_info);
+    return rtpdump_read_packet(wth, wth->fh, rec, err, err_info);
 }
 
 static bool
 rtpdump_seek_read(wtap *wth, int64_t seek_off, wtap_rec *rec,
-                    Buffer *buf, int *err, char **err_info)
+                    int *err, char **err_info)
 {
     if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
         return false;
-    return rtpdump_read_packet(wth, wth->random_fh, rec, buf, err, err_info);
+    return rtpdump_read_packet(wth, wth->random_fh, rec, err, err_info);
 }
 
 static void

@@ -41,7 +41,7 @@ enum dissect_request_status {
 };
 enum dissect_request_status
 sharkd_dissect_request(uint32_t framenum, uint32_t frame_ref_num,
-                       uint32_t prev_dis_num, wtap_rec *rec, Buffer *buf,
+                       uint32_t prev_dis_num, wtap_rec *rec,
                        column_info *cinfo, uint32_t dissect_flags,
                        sharkd_dissect_func_t cb, void *data,
                        int *err, char **err_info);

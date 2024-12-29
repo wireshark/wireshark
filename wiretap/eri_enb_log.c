@@ -23,7 +23,7 @@ void register_eri_enb_log(void);
 #define MAX_LINE_LENGTH            131072
 
 static bool eri_enb_log_get_packet(FILE_T fh, wtap_rec* rec,
-	Buffer* buf, int* err _U_, char** err_info _U_)
+	int* err _U_, char** err_info _U_)
 {
 	static char line[MAX_LINE_LENGTH];
 	/* Read in a line */
@@ -65,8 +65,8 @@ static bool eri_enb_log_get_packet(FILE_T fh, wtap_rec* rec,
 		*err = 0;
 
 		/* Make sure we have enough room for the packet */
-		ws_buffer_assure_space(buf, rec->rec_header.packet_header.caplen);
-		memcpy(ws_buffer_start_ptr(buf), line, rec->rec_header.packet_header.caplen);
+		ws_buffer_assure_space(&rec->data, rec->rec_header.packet_header.caplen);
+		memcpy(ws_buffer_start_ptr(&rec->data), line, rec->rec_header.packet_header.caplen);
 
 		return true;
 
@@ -75,24 +75,24 @@ static bool eri_enb_log_get_packet(FILE_T fh, wtap_rec* rec,
 }
 
 /* Find the next packet and parse it; called from wtap_read(). */
-static bool eri_enb_log_read(wtap* wth, wtap_rec* rec, Buffer* buf,
+static bool eri_enb_log_read(wtap* wth, wtap_rec* rec,
 	int* err, char** err_info, int64_t* data_offset)
 {
 	*data_offset = file_tell(wth->fh);
 
-	return eri_enb_log_get_packet(wth->fh, rec, buf, err, err_info);
+	return eri_enb_log_get_packet(wth->fh, rec, err, err_info);
 }
 
 /* Used to read packets in random-access fashion */
 static bool eri_enb_log_seek_read(wtap* wth, int64_t seek_off,
-	wtap_rec* rec, Buffer* buf, int* err, char** err_info)
+	wtap_rec* rec, int* err, char** err_info)
 {
 	if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
 	{
 		return false;
 	}
 
-	return eri_enb_log_get_packet(wth->random_fh, rec, buf, err, err_info);
+	return eri_enb_log_get_packet(wth->random_fh, rec, err, err_info);
 }
 
 wtap_open_return_val

@@ -60,7 +60,6 @@ private:
     ProtoTree *proto_tree_;
     ByteViewTab *byte_view_tab_;
     wtap_rec rec_;
-    Buffer buf_;
     epan_dissect_t edt_;
 };
 

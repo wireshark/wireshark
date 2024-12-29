@@ -98,17 +98,17 @@ static const char *init_gmt_to_localtime_offset(void)
     return NULL;
 }
 
-static bool observer_read(wtap *wth, wtap_rec *rec, Buffer *buf,
+static bool observer_read(wtap *wth, wtap_rec *rec,
     int *err, char **err_info, int64_t *data_offset);
-static bool observer_seek_read(wtap *wth, int64_t seek_off,
-    wtap_rec *rec, Buffer *buf, int *err, char **err_info);
+static bool observer_seek_read(wtap *wth, int64_t seek_off, wtap_rec *rec,
+    int *err, char **err_info);
 static int read_packet_header(wtap *wth, FILE_T fh, union wtap_pseudo_header *pseudo_header,
     packet_entry_header *packet_header, int *err, char **err_info);
 static bool process_packet_header(wtap *wth,
     packet_entry_header *packet_header, wtap_rec *rec, int *err,
     char **err_info);
 static int read_packet_data(FILE_T fh, int offset_to_frame, int current_offset_from_packet_header,
-    Buffer *buf, int length, int *err, char **err_info);
+    wtap_rec *rec, int *err, char **err_info);
 static bool skip_to_next_packet(wtap *wth, int offset_to_next_packet,
     int current_offset_from_packet_header, int *err, char **err_info);
 static bool observer_dump(wtap_dumper *wdh, const wtap_rec *rec,
@@ -322,7 +322,7 @@ wtap_open_return_val observer_open(wtap *wth, int *err, char **err_info)
 }
 
 /* Reads the next packet. */
-static bool observer_read(wtap *wth, wtap_rec *rec, Buffer *buf,
+static bool observer_read(wtap *wth, wtap_rec *rec,
     int *err, char **err_info, int64_t *data_offset)
 {
     int header_bytes_consumed;
@@ -354,8 +354,7 @@ static bool observer_read(wtap *wth, wtap_rec *rec, Buffer *buf,
 
     /* read the frame data */
     data_bytes_consumed = read_packet_data(wth->fh, packet_header.offset_to_frame,
-            header_bytes_consumed, buf, rec->rec_header.packet_header.caplen,
-            err, err_info);
+            header_bytes_consumed, rec, err, err_info);
     if (data_bytes_consumed < 0) {
         return false;
     }
@@ -370,8 +369,8 @@ static bool observer_read(wtap *wth, wtap_rec *rec, Buffer *buf,
 }
 
 /* Reads a packet at an offset. */
-static bool observer_seek_read(wtap *wth, int64_t seek_off,
-    wtap_rec *rec, Buffer *buf, int *err, char **err_info)
+static bool observer_seek_read(wtap *wth, int64_t seek_off, wtap_rec *rec,
+    int *err, char **err_info)
 {
     union wtap_pseudo_header *pseudo_header = &rec->rec_header.packet_header.pseudo_header;
     packet_entry_header packet_header;
@@ -392,7 +391,7 @@ static bool observer_seek_read(wtap *wth, int64_t seek_off,
 
     /* read the frame data */
     data_bytes_consumed = read_packet_data(wth->random_fh, packet_header.offset_to_frame,
-        offset, buf, rec->rec_header.packet_header.caplen, err, err_info);
+        offset, rec, err, err_info);
     if (data_bytes_consumed < 0) {
         return false;
     }
@@ -622,11 +621,11 @@ process_packet_header(wtap *wth, packet_entry_header *packet_header,
 }
 
 static int
-read_packet_data(FILE_T fh, int offset_to_frame, int current_offset_from_packet_header, Buffer *buf,
-    int length, int *err, char **err_info)
+read_packet_data(FILE_T fh, int offset_to_frame, int current_offset_from_packet_header,
+    wtap_rec *rec, int *err, char **err_info)
 {
     int seek_increment;
-    int bytes_consumed = 0;
+    uint32_t bytes_consumed = 0;
 
     /* validate offsets */
     if (offset_to_frame < current_offset_from_packet_header) {
@@ -646,9 +645,11 @@ read_packet_data(FILE_T fh, int offset_to_frame, int current_offset_from_packet_
     }
 
     /* read in the packet data */
-    if (!wtap_read_packet_bytes(fh, buf, length, err, err_info))
+    if (!wtap_read_packet_bytes(fh, &rec->data,
+                                rec->rec_header.packet_header.caplen,
+                                err, err_info))
         return false;
-    bytes_consumed += length;
+    bytes_consumed += rec->rec_header.packet_header.caplen;
 
     return bytes_consumed;
 }

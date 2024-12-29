@@ -102,10 +102,10 @@ typedef struct {
 	time_t	start;
 } aethra_t;
 
-static bool aethra_read(wtap *wth, wtap_rec *rec, Buffer *buf, int *err,
+static bool aethra_read(wtap *wth, wtap_rec *rec, int *err,
     char **err_info, int64_t *data_offset);
 static bool aethra_seek_read(wtap *wth, int64_t seek_off,
-    wtap_rec *rec, Buffer *buf, int *err, char **err_info);
+    wtap_rec *rec, int *err, char **err_info);
 static bool aethra_read_rec_header(wtap *wth, FILE_T fh, struct aethrarec_hdr *hdr,
     wtap_rec *rec, int *err, char **err_info);
 
@@ -176,7 +176,7 @@ static unsigned packet;
 #endif
 
 /* Read the next packet */
-static bool aethra_read(wtap *wth, wtap_rec *rec, Buffer *buf, int *err,
+static bool aethra_read(wtap *wth, wtap_rec *rec, int *err,
     char **err_info, int64_t *data_offset)
 {
 	struct aethrarec_hdr hdr;
@@ -197,7 +197,7 @@ static bool aethra_read(wtap *wth, wtap_rec *rec, Buffer *buf, int *err,
 		 * growing the buffer to handle it.
 		 */
 		if (rec->rec_header.packet_header.caplen != 0) {
-			if (!wtap_read_packet_bytes(wth->fh, buf,
+			if (!wtap_read_packet_bytes(wth->fh, &rec->data,
 			    rec->rec_header.packet_header.caplen, err, err_info))
 				return false;	/* Read error */
 		}
@@ -269,7 +269,7 @@ found:
 
 static bool
 aethra_seek_read(wtap *wth, int64_t seek_off, wtap_rec *rec,
-    Buffer *buf, int *err, char **err_info)
+    int *err, char **err_info)
 {
 	struct aethrarec_hdr hdr;
 
@@ -286,7 +286,8 @@ aethra_seek_read(wtap *wth, int64_t seek_off, wtap_rec *rec,
 	/*
 	 * Read the packet data.
 	 */
-	if (!wtap_read_packet_bytes(wth->random_fh, buf, rec->rec_header.packet_header.caplen, err, err_info))
+	if (!wtap_read_packet_bytes(wth->random_fh, &rec->data,
+	    rec->rec_header.packet_header.caplen, err, err_info))
 		return false;	/* failed */
 
 	return true;

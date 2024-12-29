@@ -213,8 +213,8 @@ sharkd_epan_new(capture_file *cf)
 }
 
 static bool
-process_packet(capture_file *cf, epan_dissect_t *edt,
-        int64_t offset, wtap_rec *rec, Buffer *buf)
+process_packet(capture_file *cf, epan_dissect_t *edt, int64_t offset,
+               wtap_rec *rec)
 {
     frame_data     fdlocal;
     bool           passed;
@@ -256,9 +256,7 @@ process_packet(capture_file *cf, epan_dissect_t *edt,
             cf->provider.ref = &ref_frame;
         }
 
-        epan_dissect_run(edt, cf->cd_t, rec,
-                ws_buffer_start_ptr(buf),
-                &fdlocal, NULL);
+        epan_dissect_run(edt, cf->cd_t, rec, &fdlocal, NULL);
 
         /* Run the read filter if we have one. */
         if (cf->rfcode)
@@ -302,7 +300,6 @@ load_cap_file(capture_file *cf, int max_packet_count, int64_t max_byte_count)
     char        *err_info = NULL;
     int64_t      data_offset;
     wtap_rec     rec;
-    Buffer       buf;
     epan_dissect_t *edt = NULL;
 
     {
@@ -331,11 +328,10 @@ load_cap_file(capture_file *cf, int max_packet_count, int64_t max_byte_count)
             edt = epan_dissect_new(cf->epan, create_proto_tree, false);
         }
 
-        wtap_rec_init(&rec);
-        ws_buffer_init(&buf, 1514);
+        wtap_rec_init(&rec, 1514);
 
-        while (wtap_read(cf->provider.wth, &rec, &buf, &err, &err_info, &data_offset)) {
-            if (process_packet(cf, edt, data_offset, &rec, &buf)) {
+        while (wtap_read(cf->provider.wth, &rec, &err, &err_info, &data_offset)) {
+            if (process_packet(cf, edt, data_offset, &rec)) {
                 wtap_rec_reset(&rec);
                 /* Stop reading if we have the maximum number of packets;
                  * When the -c option has not been used, max_packet_count
@@ -355,7 +351,6 @@ load_cap_file(capture_file *cf, int max_packet_count, int64_t max_byte_count)
         }
 
         wtap_rec_cleanup(&rec);
-        ws_buffer_free(&buf);
 
         /* Close the sequential I/O side, to free up memory it requires. */
         wtap_sequential_close(cf->provider.wth);
@@ -449,7 +444,7 @@ sharkd_get_frame(uint32_t framenum)
 
 enum dissect_request_status
 sharkd_dissect_request(uint32_t framenum, uint32_t frame_ref_num,
-        uint32_t prev_dis_num, wtap_rec *rec, Buffer *buf,
+        uint32_t prev_dis_num, wtap_rec *rec,
         column_info *cinfo, uint32_t dissect_flags,
         sharkd_dissect_func_t cb, void *data,
         int *err, char **err_info)
@@ -462,7 +457,7 @@ sharkd_dissect_request(uint32_t framenum, uint32_t frame_ref_num,
     if (fdata == NULL)
         return DISSECT_REQUEST_NO_SUCH_FRAME;
 
-    if (!wtap_seek_read(cfile.provider.wth, fdata->file_off, rec, buf, err, err_info)) {
+    if (!wtap_seek_read(cfile.provider.wth, fdata->file_off, rec, err, err_info)) {
         if (cinfo != NULL)
             col_fill_in_error(cinfo, fdata, false, false /* fill_fd_columns */);
         return DISSECT_REQUEST_READ_ERROR; /* error reading the record */
@@ -488,9 +483,7 @@ sharkd_dissect_request(uint32_t framenum, uint32_t frame_ref_num,
     fdata->ref_time = (framenum == frame_ref_num);
     fdata->frame_ref_num = frame_ref_num;
     fdata->prev_dis_num = prev_dis_num;
-    epan_dissect_run(&edt, cfile.cd_t, rec,
-            ws_buffer_start_ptr(buf),
-            fdata, cinfo);
+    epan_dissect_run(&edt, cfile.cd_t, rec, fdata, cinfo);
 
     if (cinfo) {
         /* "Stringify" non frame_data vals */
@@ -511,7 +504,6 @@ sharkd_retap(void)
 {
     uint32_t         framenum;
     frame_data      *fdata;
-    Buffer           buf;
     wtap_rec         rec;
     int err;
     char *err_info = NULL;
@@ -538,8 +530,7 @@ sharkd_retap(void)
     create_proto_tree =
         (have_filtering_tap_listeners() || (tap_flags & TL_REQUIRES_PROTO_TREE));
 
-    wtap_rec_init(&rec);
-    ws_buffer_init(&buf, 1514);
+    wtap_rec_init(&rec, 1514);
     epan_dissect_init(&edt, cfile.epan, create_proto_tree, false);
 
     reset_tap_listeners();
@@ -547,21 +538,18 @@ sharkd_retap(void)
     for (framenum = 1; framenum <= cfile.count; framenum++) {
         fdata = sharkd_get_frame(framenum);
 
-        if (!wtap_seek_read(cfile.provider.wth, fdata->file_off, &rec, &buf, &err, &err_info))
+        if (!wtap_seek_read(cfile.provider.wth, fdata->file_off, &rec, &err, &err_info))
             break;
 
         fdata->ref_time = false;
         fdata->frame_ref_num = (framenum != 1) ? 1 : 0;
         fdata->prev_dis_num = framenum - 1;
-        epan_dissect_run_with_taps(&edt, cfile.cd_t, &rec,
-                ws_buffer_start_ptr(&buf),
-                fdata, cinfo);
+        epan_dissect_run_with_taps(&edt, cfile.cd_t, &rec, fdata, cinfo);
         wtap_rec_reset(&rec);
         epan_dissect_reset(&edt);
     }
 
     wtap_rec_cleanup(&rec);
-    ws_buffer_free(&buf);
     epan_dissect_cleanup(&edt);
 
     draw_tap_listeners(true);
@@ -576,7 +564,6 @@ sharkd_filter(const char *dftext, uint8_t **result)
 
     uint32_t framenum, prev_dis_num = 0;
     uint32_t frames_count;
-    Buffer buf;
     wtap_rec rec;
     int err;
     char *err_info = NULL;
@@ -598,8 +585,7 @@ sharkd_filter(const char *dftext, uint8_t **result)
 
     frames_count = cfile.count;
 
-    wtap_rec_init(&rec);
-    ws_buffer_init(&buf, 1514);
+    wtap_rec_init(&rec, 1514);
     epan_dissect_init(&edt, cfile.epan, true, false);
 
     passed_bits = 0;
@@ -613,7 +599,7 @@ sharkd_filter(const char *dftext, uint8_t **result)
             passed_bits = 0;
         }
 
-        if (!wtap_seek_read(cfile.provider.wth, fdata->file_off, &rec, &buf, &err, &err_info))
+        if (!wtap_seek_read(cfile.provider.wth, fdata->file_off, &rec, &err, &err_info))
             break;
 
         /* frame_data_set_before_dissect */
@@ -622,9 +608,7 @@ sharkd_filter(const char *dftext, uint8_t **result)
         fdata->ref_time = false;
         fdata->frame_ref_num = (framenum != 1) ? 1 : 0;
         fdata->prev_dis_num = prev_dis_num;
-        epan_dissect_run(&edt, cfile.cd_t, &rec,
-                ws_buffer_start_ptr(&buf),
-                fdata, NULL);
+        epan_dissect_run(&edt, cfile.cd_t, &rec, fdata, NULL);
 
         if (dfilter_apply_edt(dfcode, &edt)) {
             passed_bits |= (1 << (framenum % 8));
@@ -642,7 +626,6 @@ sharkd_filter(const char *dftext, uint8_t **result)
     result_bits[framenum / 8] = passed_bits;
 
     wtap_rec_cleanup(&rec);
-    ws_buffer_free(&buf);
     epan_dissect_cleanup(&edt);
 
     dfilter_free(dfcode);
@@ -674,23 +657,20 @@ sharkd_get_packet_block(const frame_data *fd)
         return wtap_block_ref(cap_file_provider_get_modified_block(&cfile.provider, fd));
     else
     {
-        wtap_rec rec; /* Record metadata */
-        Buffer buf;   /* Record data */
+        wtap_rec rec; /* Record information */
         wtap_block_t block;
         int err;
         char *err_info;
 
-        wtap_rec_init(&rec);
-        ws_buffer_init(&buf, 1514);
+        wtap_rec_init(&rec, 1514);
 
-        if (!wtap_seek_read(cfile.provider.wth, fd->file_off, &rec, &buf, &err, &err_info))
+        if (!wtap_seek_read(cfile.provider.wth, fd->file_off, &rec, &err, &err_info))
         { /* XXX, what we can do here? */ }
 
         /* rec.block is owned by the record, steal it before it is gone. */
         block = wtap_block_ref(rec.block);
 
         wtap_rec_cleanup(&rec);
-        ws_buffer_free(&buf);
         return block;
     }
 }

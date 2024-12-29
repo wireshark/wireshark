@@ -58,13 +58,13 @@ static const char daintree_magic_text[] = "#Format=";
 #define COMMENT_LINE daintree_magic_text[0]
 
 static bool daintree_sna_read(wtap *wth, wtap_rec *rec,
-	Buffer *buf, int *err, char **err_info, int64_t *data_offset);
+	int *err, char **err_info, int64_t *data_offset);
 
 static bool daintree_sna_seek_read(wtap *wth, int64_t seek_off,
-	wtap_rec *rec, Buffer *buf, int *err, char **err_info);
+	wtap_rec *rec, int *err, char **err_info);
 
 static bool daintree_sna_read_packet(FILE_T fh, wtap_rec *rec,
-	Buffer *buf, int *err, char **err_info);
+	int *err, char **err_info);
 
 static int daintree_sna_file_type_subtype = -1;
 
@@ -121,27 +121,26 @@ wtap_open_return_val daintree_sna_open(wtap *wth, int *err, char **err_info)
 /* Read the capture file sequentially
  * Wireshark scans the file with sequential reads during preview and initial display. */
 static bool
-daintree_sna_read(wtap *wth, wtap_rec *rec, Buffer *buf,
+daintree_sna_read(wtap *wth, wtap_rec *rec,
 	int *err, char **err_info, int64_t *data_offset)
 {
 	*data_offset = file_tell(wth->fh);
 
 	/* parse that line and the following packet data */
-	return daintree_sna_read_packet(wth->fh, rec, buf, err, err_info);
+	return daintree_sna_read_packet(wth->fh, rec, err, err_info);
 }
 
 /* Read the capture file randomly
  * Wireshark opens the capture file for random access when displaying user-selected packets */
 static bool
 daintree_sna_seek_read(wtap *wth, int64_t seek_off, wtap_rec *rec,
-	Buffer *buf, int *err, char **err_info)
+	int *err, char **err_info)
 {
 	if(file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
 		return false;
 
 	/* parse that line and the following packet data */
-	return daintree_sna_read_packet(wth->random_fh, rec, buf, err,
-	    err_info);
+	return daintree_sna_read_packet(wth->random_fh, rec, err, err_info);
 }
 
 /* Read a header line, scan it, and fill in a struct wtap_rec.
@@ -149,8 +148,7 @@ daintree_sna_seek_read(wtap *wth, int64_t seek_off, wtap_rec *rec,
  * sanity-check its length against what we assume is the packet length field,
  * and copy it into a Buffer. */
 static bool
-daintree_sna_read_packet(FILE_T fh, wtap_rec *rec, Buffer *buf,
-    int *err, char **err_info)
+daintree_sna_read_packet(FILE_T fh, wtap_rec *rec, int *err, char **err_info)
 {
 	uint64_t seconds;
 	int useconds;
@@ -249,8 +247,8 @@ daintree_sna_read_packet(FILE_T fh, wtap_rec *rec, Buffer *buf,
 
 	rec->rec_header.packet_header.caplen = bytes;
 
-	ws_buffer_assure_space(buf, bytes);
-	memcpy(ws_buffer_start_ptr(buf), readData, bytes);
+	ws_buffer_assure_space(&rec->data, bytes);
+	memcpy(ws_buffer_start_ptr(&rec->data), readData, bytes);
 	return true;
 }
 

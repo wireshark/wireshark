@@ -10,6 +10,8 @@
 #define WS_LOG_DOMAIN LOG_DOMAIN_WIRETAP
 #include "wtap-int.h"
 
+#include <assert.h>
+
 #include <string.h>
 #include <stdlib.h>
 

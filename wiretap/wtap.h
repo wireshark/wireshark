@@ -1463,6 +1463,9 @@ typedef struct wtap_rec {
      * a buffer for the options for each record.
      */
     Buffer    options_buf;       /* file-type specific data */
+
+    /* Buffer for the record data. */
+    Buffer    data;
 } wtap_rec;
 
 /*
@@ -1916,8 +1919,7 @@ void wtap_set_cb_new_secrets(wtap *wth, wtap_new_secrets_callback_t add_new_secr
  *
  * @wth a wtap * returned by a call that opened a file for reading.
  * @rec a pointer to a wtap_rec, filled in with information about the
- * record.
- * @buf a pointer to a Buffer, filled in with data from the record.
+ * record and the data from the record.
  * @param err a positive "errno" value, or a negative number indicating
  * the type of error, if the read failed.
  * @param err_info for some errors, a string giving more details of
@@ -1928,8 +1930,8 @@ void wtap_set_cb_new_secrets(wtap *wth, wtap_new_secrets_callback_t add_new_secr
  * @return true on success, false on failure.
  */
 WS_DLL_PUBLIC
-bool wtap_read(wtap *wth, wtap_rec *rec, Buffer *buf, int *err,
-    char **err_info, int64_t *offset);
+bool wtap_read(wtap *wth, wtap_rec *rec, int *err, char **err_info,
+    int64_t *offset);
 
 /** Read the record at a specified offset in a capture file, filling in
  * *phdr and *buf.
@@ -1939,8 +1941,7 @@ bool wtap_read(wtap *wth, wtap_rec *rec, Buffer *buf, int *err,
  * @seek_off a int64_t giving an offset value returned by a previous
  * wtap_read() call.
  * @rec a pointer to a struct wtap_rec, filled in with information
- * about the record.
- * @buf a pointer to a Buffer, filled in with data from the record.
+ * about the record and the data from the record.
  * @param err a positive "errno" value, or a negative number indicating
  * the type of error, if the read failed.
  * @param err_info for some errors, a string giving more details of
@@ -1949,11 +1950,11 @@ bool wtap_read(wtap *wth, wtap_rec *rec, Buffer *buf, int *err,
  */
 WS_DLL_PUBLIC
 bool wtap_seek_read(wtap *wth, int64_t seek_off, wtap_rec *rec,
-    Buffer *buf, int *err, char **err_info);
+    int *err, char **err_info);
 
 /*** initialize a wtap_rec structure ***/
 WS_DLL_PUBLIC
-void wtap_rec_init(wtap_rec *rec);
+void wtap_rec_init(wtap_rec *rec, gsize space);
 
 /*** Apply a snapshot value ***/
 WS_DLL_PUBLIC

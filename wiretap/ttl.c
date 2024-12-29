@@ -40,8 +40,8 @@ static int ttl_file_type_subtype = -1;
 #define TTL_ADDRESS_MASTER_PREFS    "file_format_ttl_masters"
 
 void register_ttl(void);
-static bool ttl_read(wtap* wth, wtap_rec* rec, Buffer* buf, int* err, char** err_info, int64_t* data_offset);
-static bool ttl_seek_read(wtap* wth, int64_t seek_off, wtap_rec* rec, Buffer* buf, int* err, char** err_info);
+static bool ttl_read(wtap* wth, wtap_rec* rec, int* err, char** err_info, int64_t* data_offset);
+static bool ttl_seek_read(wtap* wth, int64_t seek_off, wtap_rec* rec, int* err, char** err_info);
 static void ttl_close(wtap* wth);
 
 typedef struct ttl_data {
@@ -89,7 +89,7 @@ typedef enum {
     TTL_CORRUPTED = 2
 } ttl_result_t;
 
-static ttl_result_t ttl_read_entry(wtap* wth, wtap_rec* rec, Buffer* buf, int* err, char** err_info, ttl_read_t* in, int64_t offset, int64_t end);
+static ttl_result_t ttl_read_entry(wtap* wth, wtap_rec* rec, int* err, char** err_info, ttl_read_t* in, int64_t offset, int64_t end);
 
 /*
  * This struct is used to map the source address of an entry to an actual
@@ -1649,7 +1649,7 @@ ttl_add_eth_dir_option(wtap_rec* rec, uint16_t status) {
 }
 
 static ttl_result_t
-ttl_read_eth_data_entry(wtap_rec* rec, Buffer* buf, int* err, char** err_info, ttl_read_t* in, uint16_t size, uint16_t addr,
+ttl_read_eth_data_entry(wtap_rec* rec, int* err, char** err_info, ttl_read_t* in, uint16_t size, uint16_t addr,
                         const ttl_addr_to_iface_entry_t* item, uint16_t status, uint64_t timestamp) {
     if (item == NULL) {
         *err = WTAP_ERR_INTERNAL;
@@ -1673,11 +1673,11 @@ ttl_read_eth_data_entry(wtap_rec* rec, Buffer* buf, int* err, char** err_info, t
     size -= 2;
 
     if (size > 0) {
-        ws_buffer_assure_space(buf, size);
-        if (!ttl_read_bytes(in, ws_buffer_end_ptr(buf), size, err, err_info)) {
+        ws_buffer_assure_space(&rec->data, size);
+        if (!ttl_read_bytes(in, ws_buffer_end_ptr(&rec->data), size, err, err_info)) {
             return TTL_ERROR;
         }
-        buf->first_free += size;
+        ws_buffer_increase_length(&rec->data, size);
     }
 
     ttl_init_rec(rec, timestamp, addr, item->pkt_encap, item->interface_id, size, size);
@@ -1696,7 +1696,7 @@ ttl_add_can_dir_option(wtap_rec* rec) {
 static uint8_t canfd_dlc_to_length[] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 12, 16, 20, 24, 32, 48, 64 };
 
 static ttl_result_t
-ttl_read_can_data_entry(wtap_rec* rec, Buffer* buf, int* err, char** err_info, ttl_read_t* in, uint16_t size, uint16_t addr,
+ttl_read_can_data_entry(wtap_rec* rec, int* err, char** err_info, ttl_read_t* in, uint16_t size, uint16_t addr,
                         const ttl_addr_to_iface_entry_t* item, uint16_t status, uint64_t timestamp) {
     uint32_t    can_id = 0;
     uint8_t     dlc, error_code, len, canfd_flags = 0;
@@ -1786,12 +1786,12 @@ ttl_read_can_data_entry(wtap_rec* rec, Buffer* buf, int* err, char** err_info, t
     can_header[6] = 0;
     can_header[7] = 0;
 
-    ws_buffer_assure_space(buf, sizeof(can_header));
-    ws_buffer_append(buf, can_header, sizeof(can_header));
+    ws_buffer_assure_space(&rec->data, sizeof(can_header));
+    ws_buffer_append(&rec->data, can_header, sizeof(can_header));
 
     if (error_code) {
-        ws_buffer_assure_space(buf, sizeof(can_error_payload));
-        ws_buffer_append(buf, can_error_payload, sizeof(can_error_payload));
+        ws_buffer_assure_space(&rec->data, sizeof(can_error_payload));
+        ws_buffer_append(&rec->data, can_error_payload, sizeof(can_error_payload));
         if (size > 0 && !ttl_skip_bytes(in, size, err, err_info)) {
             return TTL_ERROR;
         }
@@ -1800,11 +1800,11 @@ ttl_read_can_data_entry(wtap_rec* rec, Buffer* buf, int* err, char** err_info, t
     }
     else {
         if (size > 0) {
-            ws_buffer_assure_space(buf, size);
-            if (!ttl_read_bytes(in, ws_buffer_end_ptr(buf), size, err, err_info)) {
+            ws_buffer_assure_space(&rec->data, size);
+            if (!ttl_read_bytes(in, ws_buffer_end_ptr(&rec->data), size, err, err_info)) {
                 return TTL_ERROR;
             }
-            buf->first_free += size;
+            ws_buffer_increase_length(&rec->data, size);
         }
         ttl_init_rec(rec, timestamp, addr, item->pkt_encap, item->interface_id, size + sizeof(can_header), len + sizeof(can_header));
     }
@@ -1822,7 +1822,7 @@ ttl_add_lin_dir_option(wtap_rec* rec) {
 }
 
 static ttl_result_t
-ttl_read_lin_data_entry(wtap_rec* rec, Buffer* buf, int* err, char** err_info, ttl_read_t* in, uint16_t size, uint16_t addr,
+ttl_read_lin_data_entry(wtap_rec* rec, int* err, char** err_info, ttl_read_t* in, uint16_t size, uint16_t addr,
                         const ttl_addr_to_iface_entry_t* item, uint16_t status, uint64_t timestamp) {
     uint8_t     lin_header[8], lin_payload[8];
     uint8_t     dlc;
@@ -1871,12 +1871,12 @@ ttl_read_lin_data_entry(wtap_rec* rec, Buffer* buf, int* err, char** err_info, t
         }
     }
 
-    ws_buffer_assure_space(buf, sizeof(lin_header));
-    ws_buffer_append(buf, lin_header, sizeof(lin_header));
+    ws_buffer_assure_space(&rec->data, sizeof(lin_header));
+    ws_buffer_append(&rec->data, lin_header, sizeof(lin_header));
 
     if (dlc > 0) {
-        ws_buffer_assure_space(buf, dlc);
-        ws_buffer_append(buf, lin_payload, dlc);
+        ws_buffer_assure_space(&rec->data, dlc);
+        ws_buffer_append(&rec->data, lin_payload, dlc);
     }
 
     ttl_init_rec(rec, timestamp, addr, item->pkt_encap, item->interface_id, dlc + sizeof(lin_header), dlc + sizeof(lin_header));
@@ -1893,7 +1893,7 @@ ttl_add_flexray_dir_option(wtap_rec* rec) {
 }
 
 static ttl_result_t
-ttl_read_flexray_data_entry(wtap_rec* rec, Buffer* buf, int* err, char** err_info, ttl_read_t* in, uint16_t size, uint16_t addr,
+ttl_read_flexray_data_entry(wtap_rec* rec, int* err, char** err_info, ttl_read_t* in, uint16_t size, uint16_t addr,
                             const ttl_addr_to_iface_entry_t* item, uint16_t status, uint64_t timestamp) {
     uint8_t     fr_item;
     uint8_t     fr_header[2];
@@ -1923,15 +1923,15 @@ ttl_read_flexray_data_entry(wtap_rec* rec, Buffer* buf, int* err, char** err_inf
     if (status & TTL_FLEXRAY_FRAME_CRC_ERROR_MASK) fr_header[1] |= 0x10;
     if (status & TTL_FLEXRAY_HEADER_CRC_ERROR_MASK) fr_header[1] |= 0x08;
 
-    ws_buffer_assure_space(buf, sizeof(fr_header));
-    ws_buffer_append(buf, fr_header, sizeof(fr_header));
+    ws_buffer_assure_space(&rec->data, sizeof(fr_header));
+    ws_buffer_append(&rec->data, fr_header, sizeof(fr_header));
 
     if (size > 0) {
-        ws_buffer_assure_space(buf, size);
-        if (!ttl_read_bytes(in, ws_buffer_end_ptr(buf), size, err, err_info)) {
+        ws_buffer_assure_space(&rec->data, size);
+        if (!ttl_read_bytes(in, ws_buffer_end_ptr(&rec->data), size, err, err_info)) {
             return TTL_ERROR;
         }
-        buf->first_free += size;
+        ws_buffer_increase_length(&rec->data, size);
     }
 
     ttl_init_rec(rec, timestamp, addr, item->pkt_encap, item->interface_id, size + sizeof(fr_header), size + sizeof(fr_header));
@@ -1941,7 +1941,7 @@ ttl_read_flexray_data_entry(wtap_rec* rec, Buffer* buf, int* err, char** err_inf
 }
 
 static ttl_result_t
-ttl_read_data_entry(wtap* wth, wtap_rec* rec, Buffer* buf, int* err, char** err_info, ttl_read_t* in, uint16_t size, uint16_t src, uint16_t status) {
+ttl_read_data_entry(wtap* wth, wtap_rec* rec, int* err, char** err_info, ttl_read_t* in, uint16_t size, uint16_t src, uint16_t status) {
     const ttl_addr_to_iface_entry_t* item;
     int         pkt_encap = ttl_get_address_iface_type(src);
     uint64_t    timestamp;
@@ -1971,13 +1971,13 @@ ttl_read_data_entry(wtap* wth, wtap_rec* rec, Buffer* buf, int* err, char** err_
 
     switch (pkt_encap) {
     case WTAP_ENCAP_ETHERNET:
-        return ttl_read_eth_data_entry(rec, buf, err, err_info, in, size, src, item, status, timestamp);
+        return ttl_read_eth_data_entry(rec, err, err_info, in, size, src, item, status, timestamp);
     case WTAP_ENCAP_SOCKETCAN:
-        return ttl_read_can_data_entry(rec, buf, err, err_info, in, size, src, item, status, timestamp);
+        return ttl_read_can_data_entry(rec, err, err_info, in, size, src, item, status, timestamp);
     case WTAP_ENCAP_LIN:
-        return ttl_read_lin_data_entry(rec, buf, err, err_info, in, size, src, item, status, timestamp);
+        return ttl_read_lin_data_entry(rec, err, err_info, in, size, src, item, status, timestamp);
     case WTAP_ENCAP_FLEXRAY:
-        return ttl_read_flexray_data_entry(rec, buf, err, err_info, in, size, src, item, status, timestamp);
+        return ttl_read_flexray_data_entry(rec, err, err_info, in, size, src, item, status, timestamp);
     default:
         ws_debug("ttl_read_data_entry: Unsupported packet type found in TTL_BUS_DATA_ENTRY: %d", pkt_encap);
         if (!ttl_skip_bytes(in, size, err, err_info)) {
@@ -2034,7 +2034,7 @@ ttl_fix_segmented_message_entry_timestamp(const ttl_read_t* in, uint64_t timesta
 }
 
 // NOLINTNEXTLINE(misc-no-recursion)
-static ttl_result_t ttl_read_segmented_message_entry(wtap* wth, wtap_rec* rec, Buffer* buf, int* err, char** err_info, ttl_read_t* in,
+static ttl_result_t ttl_read_segmented_message_entry(wtap* wth, wtap_rec* rec, int* err, char** err_info, ttl_read_t* in,
                                                      uint16_t size, uint16_t src, uint16_t status, int64_t offset) {
     ttl_segmented_entry_t* item;
     ttl_reassembled_entry_t* reassembled_item;
@@ -2199,7 +2199,7 @@ static ttl_result_t ttl_read_segmented_message_entry(wtap* wth, wtap_rec* rec, B
     /* Read it as if it was a normal entry, but passing the buffer
      * as input insted of the file handler.
      */
-    return ttl_read_entry(wth, rec, buf, err, err_info, &new_in, 0, new_in.size);
+    return ttl_read_entry(wth, rec, err, err_info, &new_in, 0, new_in.size);
 }
 
 static ttl_result_t
@@ -2211,7 +2211,7 @@ ttl_read_padding_entry(int* err, char** err_info, ttl_read_t* in, uint16_t size)
 }
 
 // NOLINTNEXTLINE(misc-no-recursion)
-static ttl_result_t ttl_read_entry(wtap* wth, wtap_rec* rec, Buffer* buf, int* err, char** err_info, ttl_read_t* in, int64_t offset, int64_t end) {
+static ttl_result_t ttl_read_entry(wtap* wth, wtap_rec* rec, int* err, char** err_info, ttl_read_t* in, int64_t offset, int64_t end) {
     ttl_entryheader_t header;
     uint16_t    size;
     uint16_t    src_addr;
@@ -2257,10 +2257,10 @@ static ttl_result_t ttl_read_entry(wtap* wth, wtap_rec* rec, Buffer* buf, int* e
 
     switch (type) {
     case TTL_BUS_DATA_ENTRY:
-        return ttl_read_data_entry(wth, rec, buf, err, err_info, in, size, src_addr, header.status_info);
+        return ttl_read_data_entry(wth, rec, err, err_info, in, size, src_addr, header.status_info);
     case TTL_SEGMENTED_MESSAGE_ENTRY:
         /* Recursion is avoided inside ttl_read_segmented_message_entry() */
-        return ttl_read_segmented_message_entry(wth, rec, buf, err, err_info, in, size, src_addr, header.status_info, offset);
+        return ttl_read_segmented_message_entry(wth, rec, err, err_info, in, size, src_addr, header.status_info, offset);
     case TTL_PADDING_ENTRY:
         return ttl_read_padding_entry(err, err_info, in, size);
     default:
@@ -2780,7 +2780,7 @@ ttl_next_block(const ttl_t* ttl, int64_t pos) {
     return pos + ttl->block_size - ((pos - ttl->header_size) % ttl->block_size);
 }
 
-static bool ttl_read(wtap* wth, wtap_rec* rec, Buffer* buf, int* err, char** err_info, int64_t* data_offset) {
+static bool ttl_read(wtap* wth, wtap_rec* rec, int* err, char** err_info, int64_t* data_offset) {
     ttl_read_t      input;
     int64_t         pos, end;
     ttl_result_t    res;
@@ -2792,7 +2792,7 @@ static bool ttl_read(wtap* wth, wtap_rec* rec, Buffer* buf, int* err, char** err
         pos = file_tell(wth->fh);
         end = ttl_next_block((ttl_t*)wth->priv, pos);
 
-        res = ttl_read_entry(wth, rec, buf, err, err_info, &input, pos, end);
+        res = ttl_read_entry(wth, rec, err, err_info, &input, pos, end);
         if (G_UNLIKELY(res == TTL_CORRUPTED)) {
             ws_warning("ttl_read(): Unaligned block found, skipping to next block offset: 0x%" PRIx64, end);
             report_warning("Found unaligned TTL block. Skipping to the next one.");
@@ -2815,7 +2815,7 @@ static bool ttl_read(wtap* wth, wtap_rec* rec, Buffer* buf, int* err, char** err
     return false;
 }
 
-static bool ttl_seek_read(wtap* wth, int64_t seek_off, wtap_rec* rec, Buffer* buf, int* err, char** err_info) {
+static bool ttl_seek_read(wtap* wth, int64_t seek_off, wtap_rec* rec, int* err, char** err_info) {
     ttl_read_t      input;
     ttl_result_t    res;
 
@@ -2827,7 +2827,7 @@ static bool ttl_seek_read(wtap* wth, int64_t seek_off, wtap_rec* rec, Buffer* bu
         return false;   /* Seek error */
     }
 
-    res = ttl_read_entry(wth, rec, buf, err, err_info, &input, seek_off, ttl_next_block((ttl_t*)wth->priv, seek_off));
+    res = ttl_read_entry(wth, rec, err, err_info, &input, seek_off, ttl_next_block((ttl_t*)wth->priv, seek_off));
     if (G_LIKELY(res == TTL_NO_ERROR)) {
         return true;
     }

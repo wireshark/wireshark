@@ -612,7 +612,7 @@ void wtap_etl_rec_dump(char* etl_record, ULONG total_packet_length, ULONG origin
     int err;
     wtap_rec rec = { 0 };
 
-    wtap_rec_init(&rec);
+    wtap_rec_init(&rec, 2048); // Appropriate size?
     rec.rec_header.packet_header.caplen = total_packet_length;
     rec.rec_header.packet_header.len = original_packet_length;
     rec.rec_header.packet_header.pkt_encap = pkt_encap;

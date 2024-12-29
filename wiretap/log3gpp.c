@@ -61,11 +61,10 @@ static char protocol_name[MAX_PROTOCOL_NAME+1];
 static char protocol_parameters[MAX_PROTOCOL_PAR_STRING+1];
 /************************************************************/
 /* Functions called from wiretap core                       */
-static bool log3gpp_read( wtap* wth, wtap_rec* rec, Buffer* buf,
+static bool log3gpp_read( wtap* wth, wtap_rec* rec,
                                     int* err, char** err_info, int64_t* data_offset);
 static bool log3gpp_seek_read(struct wtap *wth, int64_t seek_off,
                                   wtap_rec *rec,
-                                  Buffer *buf,
                                   int *err, char **err_info);
 
 /************************************************************/
@@ -213,7 +212,7 @@ log3gpp_open(wtap *wth, int *err, char **err_info _U_)
 /* Look for and read the next usable packet       */
 /* - return true and details if found             */
 /**************************************************/
-bool log3gpp_read(wtap* wth, wtap_rec* rec, Buffer* buf,
+bool log3gpp_read(wtap* wth, wtap_rec* rec,
     int* err, char** err_info, int64_t* data_offset)
 {
     int64_t offset = file_tell(wth->fh);
@@ -286,13 +285,13 @@ bool log3gpp_read(wtap* wth, wtap_rec* rec, Buffer* buf,
             if (!is_text_data)
             {
               /* Get buffer pointer ready */
-              ws_buffer_assure_space(buf,
+              ws_buffer_assure_space(&rec->data,
                                   strlen(timestamp_string)+1 + /* timestamp */
                                   strlen(protocol_name)+1 +    /* Protocol name */
                                   1 +                          /* direction */
                                   (size_t)(data_chars/2));
 
-              frame_buffer = ws_buffer_start_ptr(buf);
+              frame_buffer = ws_buffer_start_ptr(&rec->data);
               /*********************/
               /* Write stub header */
               stub_offset = write_stub_header(frame_buffer, timestamp_string,
@@ -314,12 +313,12 @@ bool log3gpp_read(wtap* wth, wtap_rec* rec, Buffer* buf,
             else
             {
               /* Get buffer pointer ready */
-              ws_buffer_assure_space(buf,
+              ws_buffer_assure_space(&rec->data,
                                   strlen(timestamp_string)+1 + /* timestamp */
                                   strlen(protocol_name)+1 +    /* Protocol name */
                                   1 +                          /* direction */
                                   data_chars);
-              frame_buffer = ws_buffer_start_ptr(buf);
+              frame_buffer = ws_buffer_start_ptr(&rec->data);
 
               /*********************/
               /* Write stub header */
@@ -349,8 +348,7 @@ bool log3gpp_read(wtap* wth, wtap_rec* rec, Buffer* buf,
 /* Read & seek function.                          */
 /**************************************************/
 static bool
-log3gpp_seek_read(wtap *wth, int64_t seek_off,
-                    wtap_rec *rec _U_ , Buffer *buf,
+log3gpp_seek_read(wtap *wth, int64_t seek_off, wtap_rec *rec,
                     int *err, char **err_info)
 {
     long dollar_offset;
@@ -406,12 +404,12 @@ log3gpp_seek_read(wtap *wth, int64_t seek_off,
 
         /*********************/
         /* Write stub header */
-        ws_buffer_assure_space(buf,
+        ws_buffer_assure_space(&rec->data,
                                strlen(timestamp_string)+1 + /* timestamp */
                                strlen(protocol_name)+1 +    /* Protocol name */
                                1 +                          /* direction */
                                data_chars);
-        frame_buffer = ws_buffer_start_ptr(buf);
+        frame_buffer = ws_buffer_start_ptr(&rec->data);
         stub_offset = write_stub_header(frame_buffer, timestamp_string,
                                         direction);
 

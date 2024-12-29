@@ -344,7 +344,7 @@ k12text_run_scanner(k12text_state_t *state, FILE_T fh, int start_state,
 }
 
 static bool
-k12text_read(wtap *wth, wtap_rec *rec, Buffer *buf, int *err, char ** err_info, int64_t *data_offset)
+k12text_read(wtap *wth, wtap_rec *rec, int *err, char ** err_info, int64_t *data_offset)
 {
 	k12text_t *k12text = (k12text_t *)wth->priv;
 	k12text_state_t state;
@@ -387,15 +387,15 @@ k12text_read(wtap *wth, wtap_rec *rec, Buffer *buf, int *err, char ** err_info, 
 		g_free(state.bb);
 		return false;
 	}
-	ws_buffer_assure_space(buf, rec->rec_header.packet_header.caplen);
-	memcpy(ws_buffer_start_ptr(buf), state.bb, rec->rec_header.packet_header.caplen);
+	ws_buffer_assure_space(&rec->data, rec->rec_header.packet_header.caplen);
+	memcpy(ws_buffer_start_ptr(&rec->data), state.bb, rec->rec_header.packet_header.caplen);
 
 	g_free(state.bb);
 	return true;
 }
 
 static bool
-k12text_seek_read(wtap *wth, int64_t seek_off, wtap_rec *rec, Buffer *buf, int *err, char **err_info)
+k12text_seek_read(wtap *wth, int64_t seek_off, wtap_rec *rec, int *err, char **err_info)
 {
 	k12text_state_t state;
 
@@ -425,8 +425,8 @@ k12text_seek_read(wtap *wth, int64_t seek_off, wtap_rec *rec, Buffer *buf, int *
 		g_free(state.bb);
 		return false;
 	}
-	ws_buffer_assure_space(buf, rec->rec_header.packet_header.caplen);
-	memcpy(ws_buffer_start_ptr(buf), state.bb, rec->rec_header.packet_header.caplen);
+	ws_buffer_assure_space(&rec->data, rec->rec_header.packet_header.caplen);
+	memcpy(ws_buffer_start_ptr(&rec->data), state.bb, rec->rec_header.packet_header.caplen);
 
 	g_free(state.bb);
 	return true;

@@ -513,8 +513,8 @@ final_registration_all_protocols(void)
 
 /* Creates the top-most tvbuff and calls the "frame" dissector */
 void
-dissect_record(epan_dissect_t *edt, int file_type_subtype,
-    wtap_rec *rec, const uint8_t *data, frame_data *fd, column_info *cinfo)
+dissect_record(epan_dissect_t *edt, int file_type_subtype, wtap_rec *rec,
+    frame_data *fd, column_info *cinfo)
 {
 	const char *volatile record_type;
 	frame_data_t frame_dissector_data;
@@ -675,8 +675,8 @@ dissect_record(epan_dissect_t *edt, int file_type_subtype,
 		 * (XXX, is this still a problem?) There was an exception when we call
 		 * tvb_new_real_data() now there's not.
 		 */
-		edt->tvb = tvb_new_real_data(data, fd->cap_len,
-		    fd->pkt_len > INT_MAX ? INT_MAX : fd->pkt_len);
+		edt->tvb = tvb_new_real_data(ws_buffer_start_ptr(&rec->data),
+                    fd->cap_len, fd->pkt_len > INT_MAX ? INT_MAX : fd->pkt_len);
 		/* Add this tvbuffer into the data_src list */
 		add_new_data_source(&edt->pi, edt->tvb, record_type);
 
@@ -704,7 +704,7 @@ dissect_record(epan_dissect_t *edt, int file_type_subtype,
 /* Creates the top-most tvbuff and calls the "file" dissector */
 void
 dissect_file(epan_dissect_t *edt, wtap_rec *rec,
-	       const uint8_t *data, frame_data *fd, column_info *cinfo)
+    frame_data *fd, column_info *cinfo)
 {
 	file_data_t file_dissector_data;
 
@@ -748,8 +748,8 @@ dissect_file(epan_dissect_t *edt, wtap_rec *rec,
 		}
 		file_dissector_data.color_edt = edt; /* Used strictly for "coloring rules" */
 
-		edt->tvb = tvb_new_real_data(data, fd->cap_len,
-		    fd->pkt_len > INT_MAX ? INT_MAX : fd->pkt_len);
+		edt->tvb = tvb_new_real_data(ws_buffer_start_ptr(&rec->data),
+                    fd->cap_len, fd->pkt_len > INT_MAX ? INT_MAX : fd->pkt_len);
 		/* Add this tvbuffer into the data_src list */
 		add_new_data_source(&edt->pi, edt->tvb, "File");
 

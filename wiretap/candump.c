@@ -20,11 +20,11 @@
 #include <errno.h>
 #include "candump_priv.h"
 
-static bool candump_read(wtap *wth, wtap_rec *rec, Buffer *buf,
+static bool candump_read(wtap *wth, wtap_rec *rec,
                              int *err, char **err_info,
                              int64_t *data_offset);
 static bool candump_seek_read(wtap *wth, int64_t seek_off,
-                                  wtap_rec *rec, Buffer *buf,
+                                  wtap_rec *rec,
                                   int *err, char **err_info);
 
 static int candump_file_type_subtype = -1;
@@ -36,11 +36,10 @@ void register_candump(void);
  */
 
 static bool
-candump_gen_packet(wtap_rec *rec, Buffer *buf, const msg_t *msg, int *err,
-                     char **err_info)
+candump_gen_packet(wtap_rec *rec, const msg_t *msg, int *err, char **err_info)
 {
     /* Generate Exported PDU tags for the packet info */
-    ws_buffer_clean(buf);
+    ws_buffer_clean(&rec->data);
 
     if (msg->is_fd)
     {
@@ -63,7 +62,7 @@ candump_gen_packet(wtap_rec *rec, Buffer *buf, const msg_t *msg, int *err,
         canfd_frame.len    = msg->data.length;
         memcpy(canfd_frame.data, msg->data.data, msg->data.length);
 
-        ws_buffer_append(buf, (uint8_t *)&canfd_frame, sizeof(canfd_frame));
+        ws_buffer_append(&rec->data, (uint8_t *)&canfd_frame, sizeof(canfd_frame));
     }
     else
     {
@@ -85,7 +84,7 @@ candump_gen_packet(wtap_rec *rec, Buffer *buf, const msg_t *msg, int *err,
         can_frame.can_dlc = msg->data.length;
         memcpy(can_frame.data, msg->data.data, msg->data.length);
 
-        ws_buffer_append(buf, (uint8_t *)&can_frame, sizeof(can_frame));
+        ws_buffer_append(&rec->data, (uint8_t *)&can_frame, sizeof(can_frame));
     }
 
     rec->rec_type       = REC_TYPE_PACKET;
@@ -94,8 +93,8 @@ candump_gen_packet(wtap_rec *rec, Buffer *buf, const msg_t *msg, int *err,
     rec->ts             = msg->ts;
     rec->tsprec         = WTAP_TSPREC_USEC;
 
-    rec->rec_header.packet_header.caplen = (uint32_t)ws_buffer_length(buf);
-    rec->rec_header.packet_header.len    = (uint32_t)ws_buffer_length(buf);
+    rec->rec_header.packet_header.caplen = (uint32_t)ws_buffer_length(&rec->data);
+    rec->rec_header.packet_header.len    = (uint32_t)ws_buffer_length(&rec->data);
 
     return true;
 }
@@ -188,7 +187,7 @@ candump_open(wtap *wth, int *err, char **err_info)
 }
 
 static bool
-candump_read(wtap *wth, wtap_rec *rec, Buffer *buf, int *err, char **err_info,
+candump_read(wtap *wth, wtap_rec *rec, int *err, char **err_info,
              int64_t *data_offset)
 {
     msg_t msg;
@@ -204,12 +203,12 @@ candump_read(wtap *wth, wtap_rec *rec, Buffer *buf, int *err, char **err_info,
     candump_debug_printf("%s: Stopped at offset %" PRIi64 "\n", G_STRFUNC, file_tell(wth->fh));
 #endif
 
-    return candump_gen_packet(rec, buf, &msg, err, err_info);
+    return candump_gen_packet(rec, &msg, err, err_info);
 }
 
 static bool
 candump_seek_read(wtap *wth , int64_t seek_off, wtap_rec *rec,
-                  Buffer *buf, int *err, char **err_info)
+                  int *err, char **err_info)
 {
     msg_t msg;
 
@@ -228,7 +227,7 @@ candump_seek_read(wtap *wth , int64_t seek_off, wtap_rec *rec,
     if (!candump_parse(wth->random_fh, &msg, NULL, err, err_info))
         return false;
 
-    return candump_gen_packet(rec, buf, &msg, err, err_info);
+    return candump_gen_packet(rec, &msg, err, err_info);
 }
 
 static const struct supported_block_type candump_blocks_supported[] = {

@@ -86,16 +86,15 @@ static const char catapult_dct2000_magic[] = "Session Transcript";
 /************************************************************/
 /* Functions called from wiretap core                       */
 static bool catapult_dct2000_read(wtap *wth, wtap_rec *rec,
-                                      Buffer *buf, int *err, char **err_info,
-                                      int64_t *data_offset);
+                                  int *err, char **err_info,
+                                  int64_t *data_offset);
 static bool catapult_dct2000_seek_read(wtap *wth, int64_t seek_off,
-                                           wtap_rec *rec,
-                                           Buffer *buf, int *err,
-                                           char **err_info);
+                                       wtap_rec *rec,
+                                       int *err, char **err_info);
 static void catapult_dct2000_close(wtap *wth);
 
 static bool catapult_dct2000_dump(wtap_dumper *wdh, const wtap_rec *rec,
-                                      const uint8_t *pd, int *err, char **err_info);
+                                  const uint8_t *pd, int *err, char **err_info);
 
 
 /************************************************************/
@@ -117,7 +116,7 @@ static bool parse_line(char *linebuff, int line_length,
 static bool process_parsed_line(wtap *wth,
                                     const dct2000_file_externals_t *file_externals,
                                     wtap_rec *rec,
-                                    Buffer *buf, int64_t file_offset,
+                                    int64_t file_offset,
                                     char *linebuff, long dollar_offset,
                                     int seconds, int useconds,
                                     char *timestamp_string,
@@ -335,7 +334,7 @@ static void write_timestamp_string(char *timestamp_string, int secs, int tenthou
 /* - return true and details if found             */
 /**************************************************/
 static bool
-catapult_dct2000_read(wtap *wth, wtap_rec *rec, Buffer *buf,
+catapult_dct2000_read(wtap *wth, wtap_rec *rec,
                       int *err, char **err_info, int64_t *data_offset)
 {
     long dollar_offset, before_time_offset, after_time_offset;
@@ -392,7 +391,7 @@ catapult_dct2000_read(wtap *wth, wtap_rec *rec, Buffer *buf,
             *data_offset = this_offset;
 
             if (!process_parsed_line(wth, file_externals,
-                                     rec, buf, this_offset,
+                                     rec, this_offset,
                                      linebuff, dollar_offset,
                                      seconds, useconds,
                                      timestamp_string,
@@ -435,8 +434,7 @@ catapult_dct2000_read(wtap *wth, wtap_rec *rec, Buffer *buf,
 /* Read & seek function.                          */
 /**************************************************/
 static bool
-catapult_dct2000_seek_read(wtap *wth, int64_t seek_off,
-                           wtap_rec *rec, Buffer *buf,
+catapult_dct2000_seek_read(wtap *wth, int64_t seek_off, wtap_rec *rec,
                            int *err, char **err_info)
 {
     int length;
@@ -485,7 +483,7 @@ catapult_dct2000_seek_read(wtap *wth, int64_t seek_off,
         write_timestamp_string(timestamp_string, seconds, useconds/100);
 
         if (!process_parsed_line(wth, file_externals,
-                                 rec, buf, seek_off,
+                                 rec, seek_off,
                                  linebuff, dollar_offset,
                                  seconds, useconds,
                                  timestamp_string,
@@ -1272,7 +1270,7 @@ parse_line(char *linebuff, int line_length,
 static bool
 process_parsed_line(wtap *wth, const dct2000_file_externals_t *file_externals,
                     wtap_rec *rec,
-                    Buffer *buf, int64_t file_offset,
+                    int64_t file_offset,
                     char *linebuff, long dollar_offset,
                     int seconds, int useconds, char *timestamp_string,
                     packet_direction_t direction, int encap,
@@ -1330,8 +1328,8 @@ process_parsed_line(wtap *wth, const dct2000_file_externals_t *file_externals,
 
     /*****************************/
     /* Get the data buffer ready */
-    ws_buffer_assure_space(buf, rec->rec_header.packet_header.caplen);
-    frame_buffer = ws_buffer_start_ptr(buf);
+    ws_buffer_assure_space(&rec->data, rec->rec_header.packet_header.caplen);
+    frame_buffer = ws_buffer_start_ptr(&rec->data);
 
     /******************************************/
     /* Write the stub info to the data buffer */

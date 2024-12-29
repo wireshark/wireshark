@@ -102,13 +102,16 @@ void AddressEditorFrame::addAddresses(const ProtoNode& node, QStringList& addres
 void AddressEditorFrame::editAddresses(CaptureFile &cf, int column)
 {
     cap_file_ = cf.capFile();
+    wtap_rec    rec;
 
     if (!cap_file_->current_frame) {
         on_buttonBox_rejected();
         return;
     }
 
-    if (!cf_read_current_record(cap_file_)) {
+    wtap_rec_init(&rec, 1514);
+    if (!cf_read_record(cap_file_, cap_file_->current_frame, &rec)) {
+        wtap_rec_cleanup(&rec);
         on_buttonBox_rejected();
         return; // error reading the frame
     }
@@ -128,7 +131,6 @@ void AddressEditorFrame::editAddresses(CaptureFile &cf, int column)
     col_custom_prime_edt(&edt, &cap_file_->cinfo);
 
     epan_dissect_run(&edt, cap_file_->cd_t, &cap_file_->rec,
-        ws_buffer_start_ptr(&cap_file_->buf),
         cap_file_->current_frame, &cap_file_->cinfo);
     epan_dissect_fill_in_columns(&edt, true, true);
 
@@ -150,6 +152,7 @@ void AddressEditorFrame::editAddresses(CaptureFile &cf, int column)
     }
 
     epan_dissect_cleanup(&edt);
+    wtap_rec_cleanup(&rec);
 
     displayPreviousUserDefinedHostname();
 

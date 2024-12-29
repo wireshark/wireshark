@@ -76,11 +76,10 @@ static const ascend_magic_string ascend_magic[] = {
 
 #define ASCEND_DATE             "Date:"
 
-static bool ascend_read(wtap *wth, wtap_rec *rec, Buffer *buf,
+static bool ascend_read(wtap *wth, wtap_rec *rec,
         int *err, char **err_info, int64_t *data_offset);
 static bool ascend_seek_read(wtap *wth, int64_t seek_off,
-        wtap_rec *rec, Buffer *buf,
-        int *err, char **err_info);
+        wtap_rec *rec, int *err, char **err_info);
 
 static int ascend_file_type_subtype = -1;
 
@@ -304,18 +303,18 @@ wtap_open_return_val ascend_open(wtap *wth, int *err, char **err_info)
 /* Parse the capture file.
    Returns true if we got a packet, false otherwise. */
 static bool
-parse_ascend(ascend_t *ascend, FILE_T fh, wtap_rec *rec, Buffer *buf,
+parse_ascend(ascend_t *ascend, FILE_T fh, wtap_rec *rec,
              unsigned length, int64_t *next_packet_seek_start_ret,
              int *err, char **err_info)
 {
     ascend_state_t parser_state = {0};
     int retval;
 
-    ws_buffer_assure_space(buf, length);
+    ws_buffer_assure_space(&rec->data, length);
     parser_state.fh = fh;
     parser_state.pseudo_header = &rec->rec_header.packet_header.pseudo_header.ascend;
 
-    retval = run_ascend_parser(ws_buffer_start_ptr(buf), &parser_state, err, err_info);
+    retval = run_ascend_parser(ws_buffer_start_ptr(&rec->data), &parser_state, err, err_info);
 
     /* Did we see any data (hex bytes)? */
     if (parser_state.first_hexbyte) {
@@ -398,7 +397,7 @@ parse_ascend(ascend_t *ascend, FILE_T fh, wtap_rec *rec, Buffer *buf,
 }
 
 /* Read the next packet; called from wtap_read(). */
-static bool ascend_read(wtap *wth, wtap_rec *rec, Buffer *buf, int *err,
+static bool ascend_read(wtap *wth, wtap_rec *rec, int *err,
 	char **err_info, int64_t *data_offset)
 {
     ascend_t *ascend = (ascend_t *)wth->priv;
@@ -417,7 +416,7 @@ static bool ascend_read(wtap *wth, wtap_rec *rec, Buffer *buf, int *err,
         /* EOF or read error */
         return false;
     }
-    if (!parse_ascend(ascend, wth->fh, rec, buf, wth->snapshot_length,
+    if (!parse_ascend(ascend, wth->fh, rec, wth->snapshot_length,
                         &ascend->next_packet_seek_start, err, err_info))
         return false;
 
@@ -434,16 +433,15 @@ static bool ascend_read(wtap *wth, wtap_rec *rec, Buffer *buf, int *err,
     return true;
 }
 
-static bool ascend_seek_read(wtap *wth, int64_t seek_off,
-        wtap_rec *rec, Buffer *buf,
+static bool ascend_seek_read(wtap *wth, int64_t seek_off, wtap_rec *rec,
         int *err, char **err_info)
 {
     ascend_t *ascend = (ascend_t *)wth->priv;
 
     if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
         return false;
-    if (!parse_ascend(ascend, wth->random_fh, rec, buf,
-                    wth->snapshot_length, NULL, err, err_info))
+    if (!parse_ascend(ascend, wth->random_fh, rec, wth->snapshot_length,
+                      NULL, err, err_info))
         return false;
 
     /* Flex might have gotten an EOF and caused *err to be set to

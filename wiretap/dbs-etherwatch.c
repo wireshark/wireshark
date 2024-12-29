@@ -71,11 +71,11 @@ static const char dbs_etherwatch_rec_magic[]  =
 #define DBS_ETHERWATCH_MAX_ETHERNET_PACKET_LEN   1514
 
 static bool dbs_etherwatch_read(wtap *wth, wtap_rec *rec,
-    Buffer *buf, int *err, char **err_info, int64_t *data_offset);
+    int *err, char **err_info, int64_t *data_offset);
 static bool dbs_etherwatch_seek_read(wtap *wth, int64_t seek_off,
-    wtap_rec *rec, Buffer *buf, int *err, char **err_info);
+    wtap_rec *rec, int *err, char **err_info);
 static bool parse_dbs_etherwatch_packet(FILE_T fh, wtap_rec *rec,
-    Buffer* buf, int *err, char **err_info);
+    int *err, char **err_info);
 static unsigned parse_single_hex_dump_line(char* rec, uint8_t *buf,
     int byte_offset);
 static unsigned parse_hex_dump(char* dump, uint8_t *buf, char separator, char end);
@@ -195,7 +195,7 @@ wtap_open_return_val dbs_etherwatch_open(wtap *wth, int *err, char **err_info)
 
 /* Find the next packet and parse it; called from wtap_read(). */
 static bool dbs_etherwatch_read(wtap *wth, wtap_rec *rec,
-    Buffer *buf, int *err, char **err_info, int64_t *data_offset)
+    int *err, char **err_info, int64_t *data_offset)
 {
     int64_t offset;
 
@@ -206,19 +206,18 @@ static bool dbs_etherwatch_read(wtap *wth, wtap_rec *rec,
     *data_offset = offset;
 
     /* Parse the packet */
-    return parse_dbs_etherwatch_packet(wth->fh, rec, buf, err, err_info);
+    return parse_dbs_etherwatch_packet(wth->fh, rec, err, err_info);
 }
 
 /* Used to read packets in random-access fashion */
 static bool
 dbs_etherwatch_seek_read(wtap *wth, int64_t seek_off,
-    wtap_rec *rec, Buffer *buf, int *err, char **err_info)
+    wtap_rec *rec, int *err, char **err_info)
 {
     if (file_seek(wth->random_fh, seek_off - 1, SEEK_SET, err) == -1)
         return false;
 
-    return parse_dbs_etherwatch_packet(wth->random_fh, rec, buf, err,
-        err_info);
+    return parse_dbs_etherwatch_packet(wth->random_fh, rec, err, err_info);
 }
 
 /* Parse a packet */
@@ -266,7 +265,7 @@ unnumbered. Unnumbered has length 1, numbered 2.
 #define CTL_UNNUMB_MASK     0x03
 #define CTL_UNNUMB_VALUE    0x03
 static bool
-parse_dbs_etherwatch_packet(FILE_T fh, wtap_rec *rec, Buffer* buf,
+parse_dbs_etherwatch_packet(FILE_T fh, wtap_rec *rec,
     int *err, char **err_info)
 {
     uint8_t *pd;
@@ -281,8 +280,8 @@ parse_dbs_etherwatch_packet(FILE_T fh, wtap_rec *rec, Buffer* buf,
     int count, line_count;
 
     /* Make sure we have enough room for a regular Ethernet packet */
-    ws_buffer_assure_space(buf, DBS_ETHERWATCH_MAX_ETHERNET_PACKET_LEN);
-    pd = ws_buffer_start_ptr(buf);
+    ws_buffer_assure_space(&rec->data, DBS_ETHERWATCH_MAX_ETHERNET_PACKET_LEN);
+    pd = ws_buffer_start_ptr(&rec->data);
 
     eth_hdr_len = 0;
     memset(&tm, 0, sizeof(tm));
@@ -462,8 +461,8 @@ parse_dbs_etherwatch_packet(FILE_T fh, wtap_rec *rec, Buffer* buf,
     }
 
     /* Make sure we have enough room, even for an oversized Ethernet packet */
-    ws_buffer_assure_space(buf, rec->rec_header.packet_header.caplen);
-    pd = ws_buffer_start_ptr(buf);
+    ws_buffer_assure_space(&rec->data, rec->rec_header.packet_header.caplen);
+    pd = ws_buffer_start_ptr(&rec->data);
 
     /*
      * We don't have an FCS in this frame.

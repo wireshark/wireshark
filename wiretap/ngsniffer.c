@@ -503,14 +503,14 @@ static int process_rec_header2_v2(wtap *wth, unsigned char *buffer,
     uint16_t length, int *err, char **err_info);
 static int process_rec_header2_v145(wtap *wth, unsigned char *buffer,
     uint16_t length, int16_t maj_vers, int *err, char **err_info);
-static bool ngsniffer_read(wtap *wth, wtap_rec *rec, Buffer *buf,
+static bool ngsniffer_read(wtap *wth, wtap_rec *rec,
     int *err, char **err_info, int64_t *data_offset);
 static bool ngsniffer_seek_read(wtap *wth, int64_t seek_off,
-    wtap_rec *rec, Buffer *buf, int *err, char **err_info);
+    wtap_rec *rec, int *err, char **err_info);
 static bool read_rec_header(wtap *wth, bool is_random,
     struct rec_header *hdr, int *err, char **err_info);
 static bool process_frame_record(wtap *wth, bool is_random,
-    unsigned *padding, struct rec_header *hdr, wtap_rec *rec, Buffer *buf,
+    unsigned *padding, struct rec_header *hdr, wtap_rec *rec,
     int *err, char **err_info);
 static void set_metadata_frame2(wtap *wth, wtap_rec *rec,
     struct frame2_rec *frame2);
@@ -519,8 +519,7 @@ static void set_pseudo_header_frame4(union wtap_pseudo_header *pseudo_header,
 static void set_pseudo_header_frame6(wtap *wth,
     union wtap_pseudo_header *pseudo_header, struct frame6_rec *frame6);
 static int infer_pkt_encap(const uint8_t *pd, int len);
-static int fix_pseudo_header(int encap, Buffer *buf, int len,
-    union wtap_pseudo_header *pseudo_header);
+static int fix_pseudo_header(int encap, wtap_rec *rec, int len);
 static void ngsniffer_sequential_close(wtap *wth);
 static void ngsniffer_close(wtap *wth);
 static bool ngsniffer_dump(wtap_dumper *wdh, const wtap_rec *rec,
@@ -1026,8 +1025,8 @@ process_rec_header2_v145(wtap *wth, unsigned char *buffer, uint16_t length,
 
 /* Read the next packet */
 static bool
-ngsniffer_read(wtap *wth, wtap_rec *rec, Buffer *buf, int *err,
-    char **err_info, int64_t *data_offset)
+ngsniffer_read(wtap *wth, wtap_rec *rec, int *err, char **err_info,
+    int64_t *data_offset)
 {
 	ngsniffer_t *ngsniffer;
 	struct rec_header hdr;
@@ -1059,7 +1058,7 @@ ngsniffer_read(wtap *wth, wtap_rec *rec, Buffer *buf, int *err,
 		case REC_FRAME6:
 			/* Frame record */
 			if (!process_frame_record(wth, false, &padding,
-			    &hdr, rec, buf, err, err_info)) {
+			    &hdr, rec, err, err_info)) {
 				/* Read error, short read, or other error */
 				return false;
 			}
@@ -1106,8 +1105,8 @@ ngsniffer_read(wtap *wth, wtap_rec *rec, Buffer *buf, int *err,
 }
 
 static bool
-ngsniffer_seek_read(wtap *wth, int64_t seek_off,
-    wtap_rec *rec, Buffer *buf, int *err, char **err_info)
+ngsniffer_seek_read(wtap *wth, int64_t seek_off, wtap_rec *rec,
+    int *err, char **err_info)
 {
 	struct rec_header hdr;
 
@@ -1128,7 +1127,7 @@ ngsniffer_seek_read(wtap *wth, int64_t seek_off,
 	case REC_FRAME4:
 	case REC_FRAME6:
 		/* Frame record */
-		if (!process_frame_record(wth, true, NULL, &hdr, rec, buf,
+		if (!process_frame_record(wth, true, NULL, &hdr, rec,
 		    err, err_info)) {
 			/* Read error, short read, or other error */
 			return false;
@@ -1194,7 +1193,7 @@ read_rec_header(wtap *wth, bool is_random, struct rec_header *hdr,
  */
 static bool
 process_frame_record(wtap *wth, bool is_random, unsigned *padding,
-    struct rec_header *hdr, wtap_rec *rec, Buffer *buf, int *err,
+    struct rec_header *hdr, wtap_rec *rec, int *err,
     char **err_info)
 {
 	ngsniffer_t *ngsniffer;
@@ -1359,13 +1358,13 @@ process_frame_record(wtap *wth, bool is_random, unsigned *padding,
 	/*
 	 * Read the packet data.
 	 */
-	ws_buffer_assure_space(buf, size);
-	if (!ng_read_bytes(wth, ws_buffer_start_ptr(buf), size, is_random,
+	ws_buffer_assure_space(&rec->data, size);
+	if (!ng_read_bytes(wth, ws_buffer_start_ptr(&rec->data), size, is_random,
 	    err, err_info))
 		return false;
 
 	rec->rec_header.packet_header.pkt_encap = fix_pseudo_header(wth->file_encap,
-	    buf, size, &rec->rec_header.packet_header.pseudo_header);
+	    rec, size);
 
 	/*
 	 * 40-bit time stamp, in units of timeunit picoseconds.
@@ -1898,12 +1897,12 @@ infer_pkt_encap(const uint8_t *pd, int len)
 }
 
 static int
-fix_pseudo_header(int encap, Buffer *buf, int len,
-    union wtap_pseudo_header *pseudo_header)
+fix_pseudo_header(int encap, wtap_rec *rec, int len)
 {
 	const uint8_t *pd;
+	union wtap_pseudo_header *pseudo_header = &rec->rec_header.packet_header.pseudo_header;
 
-	pd = ws_buffer_start_ptr(buf);
+	pd = ws_buffer_start_ptr(&rec->data);
 	switch (encap) {
 
 	case WTAP_ENCAP_PER_PACKET:

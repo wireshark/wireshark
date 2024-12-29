@@ -84,10 +84,10 @@ typedef struct
 #define CST_5VW_CAPTURES_RECORD		(CST_5VW_SECTION_CAPTURES << 28)	/* 0x80000000 */
 #define CST_5VW_SYSTEM_RECORD		0x00000000U
 
-static bool _5views_read(wtap *wth, wtap_rec *rec, Buffer *buf, int *err,
+static bool _5views_read(wtap *wth, wtap_rec *rec, int *err,
     char **err_info, int64_t *data_offset);
 static bool _5views_seek_read(wtap *wth, int64_t seek_off, wtap_rec *rec,
-    Buffer *buf, int *err, char **err_info);
+    int *err, char **err_info);
 static bool _5views_read_header(wtap *wth, FILE_T fh, t_5VW_TimeStamped_Header *hdr,
     wtap_rec *rec, int *err, char **err_info);
 
@@ -182,7 +182,7 @@ _5views_open(wtap *wth, int *err, char **err_info)
 
 /* Read the next packet */
 static bool
-_5views_read(wtap *wth, wtap_rec *rec, Buffer *buf, int *err,
+_5views_read(wtap *wth, wtap_rec *rec, int *err,
     char **err_info, int64_t *data_offset)
 {
 	t_5VW_TimeStamped_Header TimeStamped_Header;
@@ -225,13 +225,13 @@ _5views_read(wtap *wth, wtap_rec *rec, Buffer *buf, int *err,
 		return false;
 	}
 
-	return wtap_read_packet_bytes(wth->fh, buf,
+	return wtap_read_packet_bytes(wth->fh, &rec->data,
 	    rec->rec_header.packet_header.caplen, err, err_info);
 }
 
 static bool
 _5views_seek_read(wtap *wth, int64_t seek_off, wtap_rec *rec,
-    Buffer *buf, int *err, char **err_info)
+    int *err, char **err_info)
 {
 	t_5VW_TimeStamped_Header TimeStamped_Header;
 
@@ -251,8 +251,8 @@ _5views_seek_read(wtap *wth, int64_t seek_off, wtap_rec *rec,
 	/*
 	 * Read the packet data.
 	 */
-	return wtap_read_packet_bytes(wth->random_fh, buf, rec->rec_header.packet_header.caplen,
-	    err, err_info);
+	return wtap_read_packet_bytes(wth->random_fh, &rec->data,
+	    rec->rec_header.packet_header.caplen, err, err_info);
 }
 
 /* Read the header of the next packet.  Return true on success, false

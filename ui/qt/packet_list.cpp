@@ -1449,23 +1449,18 @@ QString PacketList::getFilterFromRowAndColumn(QModelIndex idx)
 
     if (fdata != NULL) {
         epan_dissect_t edt;
-        wtap_rec rec; /* Record metadata */
-        Buffer buf;   /* Record data */
+        wtap_rec rec; /* Record information */
 
-        wtap_rec_init(&rec);
-        ws_buffer_init(&buf, 1514);
-        if (!cf_read_record(cap_file_, fdata, &rec, &buf)) {
+        wtap_rec_init(&rec, 1514);
+        if (!cf_read_record(cap_file_, fdata, &rec)) {
             wtap_rec_cleanup(&rec);
-            ws_buffer_free(&buf);
             return filter; /* error reading the record */
         }
         /* proto tree, visible. We need a proto tree if there's custom columns */
         epan_dissect_init(&edt, cap_file_->epan, have_custom_cols(&cap_file_->cinfo), false);
         col_custom_prime_edt(&edt, &cap_file_->cinfo);
 
-        epan_dissect_run(&edt, cap_file_->cd_t, &rec,
-                         ws_buffer_start_ptr(&buf),
-                         fdata, &cap_file_->cinfo);
+        epan_dissect_run(&edt, cap_file_->cd_t, &rec, fdata, &cap_file_->cinfo);
 
         if (cap_file_->cinfo.columns[column].col_fmt == COL_CUSTOM) {
             filter.append(gchar_free_to_qstring(col_custom_get_filter(&edt, &cap_file_->cinfo, column)));
@@ -1499,7 +1494,6 @@ QString PacketList::getFilterFromRowAndColumn(QModelIndex idx)
 
         epan_dissect_cleanup(&edt);
         wtap_rec_cleanup(&rec);
-        ws_buffer_free(&buf);
     }
 
     return filter;

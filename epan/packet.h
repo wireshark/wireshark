@@ -885,13 +885,13 @@ typedef struct file_data_s
  * Dissectors should never modify the record data.
  */
 extern void dissect_record(struct epan_dissect *edt, int file_type_subtype,
-    wtap_rec *rec, const uint8_t *data, frame_data *fd, column_info *cinfo);
+    wtap_rec *rec, frame_data *fd, column_info *cinfo);
 
 /*
- * Dissectors should never modify the packet data.
+ * Dissectors should never modify the file data.
  */
 extern void dissect_file(struct epan_dissect *edt,
-    wtap_rec *rec, const uint8_t *data, frame_data *fd, column_info *cinfo);
+    wtap_rec *rec, frame_data *fd, column_info *cinfo);
 
 /* Structure passed to the ethertype dissector */
 typedef struct ethertype_data_s

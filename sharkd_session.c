@@ -1351,8 +1351,7 @@ static void
 sharkd_session_process_analyse(void)
 {
     struct sharkd_analyse_data analyser;
-    wtap_rec rec; /* Record metadata */
-    Buffer rec_buf;   /* Record data */
+    wtap_rec rec; /* Record information */
 
     analyser.first_time = NULL;
     analyser.last_time  = NULL;
@@ -1364,8 +1363,7 @@ sharkd_session_process_analyse(void)
 
     sharkd_json_array_open("protocols");
 
-    wtap_rec_init(&rec);
-    ws_buffer_init(&rec_buf, 1514);
+    wtap_rec_init(&rec, 1514);
 
     for (uint32_t framenum = 1; framenum <= cfile.count; framenum++)
     {
@@ -1375,7 +1373,7 @@ sharkd_session_process_analyse(void)
 
         status = sharkd_dissect_request(framenum,
                 (framenum != 1) ? 1 : 0, framenum - 1,
-                &rec, &rec_buf, NULL, SHARKD_DISSECT_FLAG_NULL,
+                &rec, NULL, SHARKD_DISSECT_FLAG_NULL,
                 &sharkd_session_process_analyse_cb, &analyser,
                 &err, &err_info);
         switch (status) {
@@ -1408,7 +1406,6 @@ sharkd_session_process_analyse(void)
     sharkd_json_result_epilogue();
 
     wtap_rec_cleanup(&rec);
-    ws_buffer_free(&rec_buf);
 
     g_hash_table_destroy(analyser.protocols_set);
 }
@@ -1581,8 +1578,7 @@ sharkd_session_process_frames(const char *buf, const jsmntok_t *tokens, int coun
     uint32_t skip;
     uint32_t limit;
 
-    wtap_rec rec; /* Record metadata */
-    Buffer rec_buf;   /* Record data */
+    wtap_rec rec; /* Record information */
     column_info *cinfo = &cfile.cinfo;
     column_info user_cinfo;
 
@@ -1639,8 +1635,7 @@ sharkd_session_process_frames(const char *buf, const jsmntok_t *tokens, int coun
 
     sharkd_json_result_array_prologue(rpcid);
 
-    wtap_rec_init(&rec);
-    ws_buffer_init(&rec_buf, 1514);
+    wtap_rec_init(&rec, 1514);
 
     for (uint32_t framenum = 1; framenum <= cfile.count; framenum++)
     {
@@ -1694,7 +1689,7 @@ sharkd_session_process_frames(const char *buf, const jsmntok_t *tokens, int coun
         fdata = sharkd_get_frame(framenum);
         status = sharkd_dissect_request(framenum,
                 ref_frame, prev_dis_num,
-                &rec, &rec_buf, cinfo,
+                &rec, cinfo,
                 (fdata->color_filter == NULL) ? SHARKD_DISSECT_FLAG_COLOR : SHARKD_DISSECT_FLAG_NULL,
                 &sharkd_session_process_frames_cb, NULL,
                 &err, &err_info);
@@ -1727,7 +1722,6 @@ sharkd_session_process_frames(const char *buf, const jsmntok_t *tokens, int coun
         col_cleanup(cinfo);
 
     wtap_rec_cleanup(&rec);
-    ws_buffer_free(&rec_buf);
 }
 
 static void
@@ -4854,8 +4848,7 @@ sharkd_session_process_frame(char *buf, const jsmntok_t *tokens, int count)
     uint32_t framenum, ref_frame_num, prev_dis_num;
     uint32_t dissect_flags = SHARKD_DISSECT_FLAG_NULL;
     struct sharkd_frame_request_data req_data;
-    wtap_rec rec; /* Record metadata */
-    Buffer rec_buf;   /* Record data */
+    wtap_rec rec; /* Record information */
     enum dissect_request_status status;
     int err;
     char *err_info;
@@ -4903,11 +4896,10 @@ sharkd_session_process_frame(char *buf, const jsmntok_t *tokens, int count)
 
     req_data.display_hidden = (json_find_attr(buf, tokens, count, "v") != NULL);
 
-    wtap_rec_init(&rec);
-    ws_buffer_init(&rec_buf, 1514);
+    wtap_rec_init(&rec, 1514);
 
     status = sharkd_dissect_request(framenum, ref_frame_num, prev_dis_num,
-            &rec, &rec_buf, cinfo, dissect_flags,
+            &rec, cinfo, dissect_flags,
             &sharkd_session_process_frame_cb, &req_data, &err, &err_info);
     switch (status) {
 
@@ -4933,7 +4925,6 @@ sharkd_session_process_frame(char *buf, const jsmntok_t *tokens, int count)
     }
 
     wtap_rec_cleanup(&rec);
-    ws_buffer_free(&rec_buf);
 }
 
 /**

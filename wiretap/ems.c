@@ -22,10 +22,10 @@
 #include <wsutil/strtoi.h>
 #include <wsutil/wslog.h>
 
-static bool ems_read(wtap *wth, wtap_rec *rec, Buffer *buf, int *err, char
+static bool ems_read(wtap *wth, wtap_rec *rec, int *err, char
         **err_info, int64_t *data_offset);
-static bool ems_seek_read(wtap *wth, int64_t seek_off, wtap_rec *rec, Buffer
-        *buf, int *err, char **err_info);
+static bool ems_seek_read(wtap *wth, int64_t seek_off, wtap_rec *rec,
+        int *err, char **err_info);
 
 #define MAX_EMS_LINE_LEN 256
 #define EMS_MSG_SIZE 40
@@ -191,7 +191,7 @@ wtap_open_return_val ems_open(wtap *wth, int *err, char **err_info) {
     return WTAP_OPEN_NOT_MINE;
 }
 
-static bool ems_read_message(FILE_T fh, wtap_rec *rec, Buffer *buf,
+static bool ems_read_message(FILE_T fh, wtap_rec *rec,
         int *err, char **err_info) {
 
     int c;
@@ -208,16 +208,16 @@ static bool ems_read_message(FILE_T fh, wtap_rec *rec, Buffer *buf,
     if (parse_ems_line(fh, &msg)) {
         char ts[NSTIME_ISO8601_BUFSIZE + 1];
 
-        ws_buffer_assure_space(buf, EMS_MSG_SIZE);
+        ws_buffer_assure_space(&rec->data, EMS_MSG_SIZE);
 
-        ws_buffer_end_ptr(buf)[0] = msg.prn;
-        ws_buffer_end_ptr(buf)[1] = msg.year;
-        ws_buffer_end_ptr(buf)[2] = msg.month;
-        ws_buffer_end_ptr(buf)[3] = msg.day;
-        ws_buffer_end_ptr(buf)[4] = msg.hour;
-        ws_buffer_end_ptr(buf)[5] = msg.minute;
-        ws_buffer_end_ptr(buf)[6] = msg.second;
-        ws_buffer_end_ptr(buf)[7] = msg.mt;
+        ws_buffer_end_ptr(&rec->data)[0] = msg.prn;
+        ws_buffer_end_ptr(&rec->data)[1] = msg.year;
+        ws_buffer_end_ptr(&rec->data)[2] = msg.month;
+        ws_buffer_end_ptr(&rec->data)[3] = msg.day;
+        ws_buffer_end_ptr(&rec->data)[4] = msg.hour;
+        ws_buffer_end_ptr(&rec->data)[5] = msg.minute;
+        ws_buffer_end_ptr(&rec->data)[6] = msg.second;
+        ws_buffer_end_ptr(&rec->data)[7] = msg.mt;
 
         int i;
         for (i = 0; i < 32; i++) {
@@ -226,10 +226,10 @@ static bool ems_read_message(FILE_T fh, wtap_rec *rec, Buffer *buf,
             if (!ws_hexstrtou8(s, NULL, &v)) {
                 return false;
             }
-            ws_buffer_end_ptr(buf)[8 + i] = v;
+            ws_buffer_end_ptr(&rec->data)[8 + i] = v;
         }
 
-        ws_buffer_increase_length(buf, EMS_MSG_SIZE);
+        ws_buffer_increase_length(&rec->data, EMS_MSG_SIZE);
 
         rec->rec_type = REC_TYPE_PACKET;
         rec->block = wtap_block_create(WTAP_BLOCK_PACKET);
@@ -248,28 +248,28 @@ static bool ems_read_message(FILE_T fh, wtap_rec *rec, Buffer *buf,
     return false;
 }
 
-static bool ems_read(wtap *wth, wtap_rec *rec, Buffer *buf, int *err, char
-        **err_info, int64_t *offset) {
+static bool ems_read(wtap *wth, wtap_rec *rec, int *err, char **err_info,
+    int64_t *offset) {
 
     *offset = file_tell(wth->fh);
     ws_debug("reading at offset %" PRId64, *offset);
 
-    if (!ems_read_message(wth->fh, rec, buf, err, err_info)) {
+    if (!ems_read_message(wth->fh, rec, err, err_info)) {
         return false;
     }
 
     return true;
 }
 
-static bool ems_seek_read(wtap *wth, int64_t offset, wtap_rec *rec, Buffer
-        *buf, int *err, char **err_info) {
+static bool ems_seek_read(wtap *wth, int64_t offset, wtap_rec *rec,
+        int *err, char **err_info) {
 
     if (file_seek(wth->random_fh, offset, SEEK_SET, err) == -1) {
         *err = file_error(wth->random_fh, err_info);
         return false;
     }
 
-    if (!ems_read_message(wth->random_fh, rec, buf, err, err_info)) {
+    if (!ems_read_message(wth->random_fh, rec, err, err_info)) {
         return false;
     }
 

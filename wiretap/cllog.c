@@ -765,7 +765,7 @@ static int cllog_file_type_subtype = -1;
 #define CAN_SFF_MASK 0x000007FF /* standard frame format (SFF) */
 
 static bool
-cllog_read_common(wtap *wth, FILE_T fh, wtap_rec *rec, Buffer *buf, int *err, char **err_info)
+cllog_read_common(wtap *wth, FILE_T fh, wtap_rec *rec, int *err, char **err_info)
 {
     cCLLog_logFileInfo_t *clLog = (cCLLog_logFileInfo_t *) wth->priv;
     char line[MAX_LOG_LINE_LENGTH];
@@ -808,8 +808,8 @@ cllog_read_common(wtap *wth, FILE_T fh, wtap_rec *rec, Buffer *buf, int *err, ch
         wtap_block_add_uint32_option(rec->block, OPT_PKT_FLAGS, PACK_FLAGS_DIRECTION_INBOUND);
     }
 
-    ws_buffer_assure_space(buf, rec->rec_header.packet_header.caplen);
-    can_data = ws_buffer_start_ptr(buf);
+    ws_buffer_assure_space(&rec->data, rec->rec_header.packet_header.caplen);
+    can_data = ws_buffer_start_ptr(&rec->data);
 
     can_data[0] = (logEntry.id >> 24);
     can_data[1] = (logEntry.id >> 16);
@@ -828,20 +828,20 @@ cllog_read_common(wtap *wth, FILE_T fh, wtap_rec *rec, Buffer *buf, int *err, ch
 }
 
 static bool
-cllog_read(wtap *wth, wtap_rec *rec, Buffer *buf, int *err, char **err_info, int64_t *data_offset)
+cllog_read(wtap *wth, wtap_rec *rec, int *err, char **err_info, int64_t *data_offset)
 {
     *data_offset = file_tell(wth->fh);
 
-    return cllog_read_common(wth, wth->fh, rec, buf, err, err_info);
+    return cllog_read_common(wth, wth->fh, rec, err, err_info);
 }
 
 static bool
-cllog_seek_read(wtap *wth, int64_t seek_off, wtap_rec *rec, Buffer *buf, int *err, char **err_info)
+cllog_seek_read(wtap *wth, int64_t seek_off, wtap_rec *rec, int *err, char **err_info)
 {
     if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
         return false;
 
-    return cllog_read_common(wth, wth->random_fh, rec, buf, err, err_info);
+    return cllog_read_common(wth, wth->random_fh, rec, err, err_info);
 }
 
 wtap_open_return_val

@@ -88,11 +88,11 @@ static const unsigned char eyesdn_hdr_magic[]  =
 /* Size of a record header */
 #define EYESDN_HDR_LENGTH		12
 
-static bool eyesdn_read(wtap *wth, wtap_rec *rec, Buffer *buf,
+static bool eyesdn_read(wtap *wth, wtap_rec *rec,
 	int *err, char **err_info, int64_t *data_offset);
 static bool eyesdn_seek_read(wtap *wth, int64_t seek_off,
-	wtap_rec *rec, Buffer *buf, int *err, char **err_info);
-static bool read_eyesdn_rec(FILE_T fh, wtap_rec *rec, Buffer* buf,
+	wtap_rec *rec, int *err, char **err_info);
+static bool read_eyesdn_rec(FILE_T fh, wtap_rec *rec,
 	int *err, char **err_info);
 
 /* Seeks to the beginning of the next packet, and returns the
@@ -143,7 +143,7 @@ wtap_open_return_val eyesdn_open(wtap *wth, int *err, char **err_info)
 }
 
 /* Find the next record and parse it; called from wtap_read(). */
-static bool eyesdn_read(wtap *wth, wtap_rec *rec, Buffer *buf,
+static bool eyesdn_read(wtap *wth, wtap_rec *rec,
     int *err, char **err_info, int64_t *data_offset)
 {
 	int64_t	offset;
@@ -155,24 +155,23 @@ static bool eyesdn_read(wtap *wth, wtap_rec *rec, Buffer *buf,
 	*data_offset = offset;
 
 	/* Parse the record */
-	return read_eyesdn_rec(wth->fh, rec, buf, err, err_info);
+	return read_eyesdn_rec(wth->fh, rec, err, err_info);
 }
 
 /* Used to read packets in random-access fashion */
 static bool
 eyesdn_seek_read(wtap *wth, int64_t seek_off, wtap_rec *rec,
-	Buffer *buf, int *err, char **err_info)
+	int *err, char **err_info)
 {
 	if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
 		return false;
 
-	return read_eyesdn_rec(wth->random_fh, rec, buf, err, err_info);
+	return read_eyesdn_rec(wth->random_fh, rec, err, err_info);
 }
 
 /* Parses a record. */
 static bool
-read_eyesdn_rec(FILE_T fh, wtap_rec *rec, Buffer *buf, int *err,
-    char **err_info)
+read_eyesdn_rec(FILE_T fh, wtap_rec *rec, int *err, char **err_info)
 {
 	union wtap_pseudo_header *pseudo_header = &rec->rec_header.packet_header.pseudo_header;
 	uint8_t		hdr[EYESDN_HDR_LENGTH];
@@ -306,9 +305,9 @@ read_eyesdn_rec(FILE_T fh, wtap_rec *rec, Buffer *buf, int *err,
 	rec->rec_header.packet_header.len = pkt_len;
 
 	/* Make sure we have enough room for the packet */
-	ws_buffer_assure_space(buf, pkt_len);
+	ws_buffer_assure_space(&rec->data, pkt_len);
 
-	pd = ws_buffer_start_ptr(buf);
+	pd = ws_buffer_start_ptr(&rec->data);
 	if (!esc_read(fh, pd, pkt_len, err, err_info))
 		return false;
 	return true;

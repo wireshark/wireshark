@@ -64,12 +64,12 @@ struct btsnooprec_hdr {
 
 static const int64_t KUnixTimeBase = INT64_C(0x00dcddb30f2f8000); /* offset from symbian - unix time */
 
-static bool btsnoop_read(wtap *wth, wtap_rec *rec, Buffer *buf,
+static bool btsnoop_read(wtap *wth, wtap_rec *rec,
     int *err, char **err_info, int64_t *offset);
 static bool btsnoop_seek_read(wtap *wth, int64_t seek_off,
-    wtap_rec *rec, Buffer *buf, int *err, char **err_info);
+    wtap_rec *rec, int *err, char **err_info);
 static bool btsnoop_read_record(wtap *wth, FILE_T fh,
-    wtap_rec *rec, Buffer *buf, int *err, char **err_info);
+    wtap_rec *rec, int *err, char **err_info);
 
 static int btsnoop_file_type_subtype = -1;
 
@@ -154,25 +154,25 @@ wtap_open_return_val btsnoop_open(wtap *wth, int *err, char **err_info)
     return WTAP_OPEN_MINE;
 }
 
-static bool btsnoop_read(wtap *wth, wtap_rec *rec, Buffer *buf,
+static bool btsnoop_read(wtap *wth, wtap_rec *rec,
                              int *err, char **err_info, int64_t *offset)
 {
     *offset = file_tell(wth->fh);
 
-    return btsnoop_read_record(wth, wth->fh, rec, buf, err, err_info);
+    return btsnoop_read_record(wth, wth->fh, rec, err, err_info);
 }
 
 static bool btsnoop_seek_read(wtap *wth, int64_t seek_off,
-                                  wtap_rec *rec, Buffer *buf, int *err, char **err_info)
+                                  wtap_rec *rec, int *err, char **err_info)
 {
     if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
         return false;
 
-    return btsnoop_read_record(wth, wth->random_fh, rec, buf, err, err_info);
+    return btsnoop_read_record(wth, wth->random_fh, rec, err, err_info);
 }
 
 static bool btsnoop_read_record(wtap *wth, FILE_T fh,
-                                    wtap_rec *rec, Buffer *buf, int *err, char **err_info)
+                                    wtap_rec *rec, int *err, char **err_info)
 {
     struct btsnooprec_hdr hdr;
     uint32_t packet_size;
@@ -236,7 +236,9 @@ static bool btsnoop_read_record(wtap *wth, FILE_T fh,
 
 
     /* Read packet data. */
-    return wtap_read_packet_bytes(fh, buf, rec->rec_header.packet_header.caplen, err, err_info);
+    return wtap_read_packet_bytes(fh, &rec->data,
+                                  rec->rec_header.packet_header.caplen,
+                                  err, err_info);
 }
 
 /* Returns 0 if we could write the specified encapsulation type,

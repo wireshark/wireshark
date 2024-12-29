@@ -49,12 +49,12 @@ typedef struct packetlogger_header {
 #define PKT_CONFIG          0xFD
 #define PKT_NEW_CONTROLLER  0xFE
 
-static bool packetlogger_read(wtap *wth, wtap_rec *rec, Buffer *buf,
+static bool packetlogger_read(wtap *wth, wtap_rec *rec,
 				  int *err, char **err_info,
 				  int64_t *data_offset);
 static bool packetlogger_seek_read(wtap *wth, int64_t seek_off,
 				       wtap_rec *rec,
-				       Buffer *buf, int *err, char **err_info);
+				       int *err, char **err_info);
 static bool packetlogger_read_header(packetlogger_header_t *pl_hdr,
 					 FILE_T fh, bool byte_swapped,
 					 int *err, char **err_info);
@@ -64,7 +64,7 @@ static wtap_open_return_val packetlogger_check_record(wtap *wth,
 						      int *err,
 						      char **err_info);
 static bool packetlogger_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec,
-					 Buffer *buf, int *err,
+					 int *err,
 					 char **err_info);
 
 static int packetlogger_file_type_subtype = -1;
@@ -220,22 +220,22 @@ wtap_open_return_val packetlogger_open(wtap *wth, int *err, char **err_info)
 }
 
 static bool
-packetlogger_read(wtap *wth, wtap_rec *rec, Buffer *buf, int *err,
-		  char **err_info, int64_t *data_offset)
+packetlogger_read(wtap *wth, wtap_rec *rec, int *err, char **err_info,
+		  int64_t *data_offset)
 {
 	*data_offset = file_tell(wth->fh);
 
-	return packetlogger_read_packet(wth, wth->fh, rec, buf, err, err_info);
+	return packetlogger_read_packet(wth, wth->fh, rec, err, err_info);
 }
 
 static bool
 packetlogger_seek_read(wtap *wth, int64_t seek_off, wtap_rec *rec,
-		       Buffer *buf, int *err, char **err_info)
+		       int *err, char **err_info)
 {
 	if(file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
 		return false;
 
-	if(!packetlogger_read_packet(wth, wth->random_fh, rec, buf, err, err_info)) {
+	if(!packetlogger_read_packet(wth, wth->random_fh, rec, err, err_info)) {
 		if(*err == 0)
 			*err = WTAP_ERR_SHORT_READ;
 
@@ -342,7 +342,7 @@ packetlogger_check_record(wtap *wth, packetlogger_header_t *pl_hdr, int *err,
 }
 
 static bool
-packetlogger_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec, Buffer *buf,
+packetlogger_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec,
 			 int *err, char **err_info)
 {
 	packetlogger_t *packetlogger = (packetlogger_t *)wth->priv;
@@ -378,7 +378,7 @@ packetlogger_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec, Buffer *buf,
 	rec->ts.secs = (time_t)pl_hdr.ts_secs;
 	rec->ts.nsecs = (int)(pl_hdr.ts_usecs * 1000);
 
-	return wtap_read_packet_bytes(fh, buf, rec->rec_header.packet_header.caplen, err, err_info);
+	return wtap_read_packet_bytes(fh, &rec->data, rec->rec_header.packet_header.caplen, err, err_info);
 }
 
 static const struct supported_block_type packetlogger_blocks_supported[] = {

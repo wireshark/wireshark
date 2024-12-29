@@ -29,16 +29,16 @@ typedef struct {
 static void iptrace_close(wtap *wth);
 
 static bool iptrace_read_1_0(wtap *wth, wtap_rec *rec,
-    Buffer *buf, int *err, char **err_info, int64_t *data_offset);
+    int *err, char **err_info, int64_t *data_offset);
 static bool iptrace_seek_read_1_0(wtap *wth, int64_t seek_off,
-    wtap_rec *rec, Buffer *buf, int *err, char **err_info);
+    wtap_rec *rec, int *err, char **err_info);
 
 static bool iptrace_read_2_0(wtap *wth, wtap_rec *rec,
-    Buffer *buf, int *err, char **err_info, int64_t *data_offset);
+    int *err, char **err_info, int64_t *data_offset);
 static bool iptrace_seek_read_2_0(wtap *wth, int64_t seek_off,
-    wtap_rec *rec, Buffer *buf, int *err, char **err_info);
+    wtap_rec *rec, int *err, char **err_info);
 
-static bool iptrace_read_rec_data(FILE_T fh, Buffer *buf,
+static bool iptrace_read_rec_data(FILE_T fh,
     wtap_rec *rec, int *err, char **err_info);
 static void fill_in_pseudo_header(int encap,
     union wtap_pseudo_header *pseudo_header, const char *pkt_text);
@@ -193,7 +193,7 @@ static void add_new_if_info(iptrace_t *iptrace, if_info *info, void * *result)
 #define IPTRACE_1_0_PINFO_SIZE	22	/* packet information */
 
 static bool
-iptrace_read_rec_1_0(wtap *wth, FILE_T fh, wtap_rec *rec, Buffer *buf,
+iptrace_read_rec_1_0(wtap *wth, FILE_T fh, wtap_rec *rec,
     int *err, char **err_info)
 {
 	iptrace_t		*iptrace = (iptrace_t *)wth->priv;
@@ -305,7 +305,7 @@ iptrace_read_rec_1_0(wtap *wth, FILE_T fh, wtap_rec *rec, Buffer *buf,
 	    (const char *)&pkt_info[IPTRACE_1_0_PKT_TEXT_OFFSET]);
 
 	/* Get the packet data */
-	if (!iptrace_read_rec_data(fh, buf, rec, err, err_info))
+	if (!iptrace_read_rec_data(fh, rec, err, err_info))
 		return false;
 
 	/*
@@ -358,12 +358,12 @@ iptrace_read_rec_1_0(wtap *wth, FILE_T fh, wtap_rec *rec, Buffer *buf,
 
 /* Read the next packet */
 static bool iptrace_read_1_0(wtap *wth, wtap_rec *rec,
-    Buffer *buf, int *err, char **err_info, int64_t *data_offset)
+    int *err, char **err_info, int64_t *data_offset)
 {
 	*data_offset = file_tell(wth->fh);
 
 	/* Read the packet */
-	if (!iptrace_read_rec_1_0(wth, wth->fh, rec, buf, err, err_info)) {
+	if (!iptrace_read_rec_1_0(wth, wth->fh, rec, err, err_info)) {
 		/* Read error or EOF */
 		return false;
 	}
@@ -385,13 +385,13 @@ static bool iptrace_read_1_0(wtap *wth, wtap_rec *rec,
 }
 
 static bool iptrace_seek_read_1_0(wtap *wth, int64_t seek_off,
-    wtap_rec *rec, Buffer *buf, int *err, char **err_info)
+    wtap_rec *rec, int *err, char **err_info)
 {
 	if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
 		return false;
 
 	/* Read the packet */
-	if (!iptrace_read_rec_1_0(wth, wth->random_fh, rec, buf, err,
+	if (!iptrace_read_rec_1_0(wth, wth->random_fh, rec, err,
 	    err_info)) {
 		if (*err == 0)
 			*err = WTAP_ERR_SHORT_READ;
@@ -447,7 +447,7 @@ static bool iptrace_seek_read_1_0(wtap *wth, int64_t seek_off,
 #define IPTRACE_2_0_PINFO_SIZE	32	/* packet information */
 
 static bool
-iptrace_read_rec_2_0(wtap *wth, FILE_T fh, wtap_rec *rec, Buffer *buf,
+iptrace_read_rec_2_0(wtap *wth, FILE_T fh, wtap_rec *rec,
     int *err, char **err_info)
 {
 	iptrace_t		*iptrace = (iptrace_t *)wth->priv;
@@ -577,7 +577,7 @@ iptrace_read_rec_2_0(wtap *wth, FILE_T fh, wtap_rec *rec, Buffer *buf,
 	    (const char *)&pkt_info[IPTRACE_1_0_PKT_TEXT_OFFSET]);
 
 	/* Get the packet data */
-	if (!iptrace_read_rec_data(fh, buf, rec, err, err_info))
+	if (!iptrace_read_rec_data(fh, rec, err, err_info))
 		return false;
 
 	/*
@@ -630,12 +630,12 @@ iptrace_read_rec_2_0(wtap *wth, FILE_T fh, wtap_rec *rec, Buffer *buf,
 
 /* Read the next packet */
 static bool iptrace_read_2_0(wtap *wth, wtap_rec *rec,
-    Buffer *buf, int *err, char **err_info, int64_t *data_offset)
+    int *err, char **err_info, int64_t *data_offset)
 {
 	*data_offset = file_tell(wth->fh);
 
 	/* Read the packet */
-	if (!iptrace_read_rec_2_0(wth, wth->fh, rec, buf, err, err_info)) {
+	if (!iptrace_read_rec_2_0(wth, wth->fh, rec, err, err_info)) {
 		/* Read error or EOF */
 		return false;
 	}
@@ -657,13 +657,13 @@ static bool iptrace_read_2_0(wtap *wth, wtap_rec *rec,
 }
 
 static bool iptrace_seek_read_2_0(wtap *wth, int64_t seek_off,
-    wtap_rec *rec, Buffer *buf, int *err, char **err_info)
+    wtap_rec *rec, int *err, char **err_info)
 {
 	if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
 		return false;
 
 	/* Read the packet */
-	if (!iptrace_read_rec_2_0(wth, wth->random_fh, rec, buf, err,
+	if (!iptrace_read_rec_2_0(wth, wth->random_fh, rec, err,
 	    err_info)) {
 		if (*err == 0)
 			*err = WTAP_ERR_SHORT_READ;
@@ -673,10 +673,9 @@ static bool iptrace_seek_read_2_0(wtap *wth, int64_t seek_off,
 }
 
 static bool
-iptrace_read_rec_data(FILE_T fh, Buffer *buf, wtap_rec *rec,
-    int *err, char **err_info)
+iptrace_read_rec_data(FILE_T fh, wtap_rec *rec, int *err, char **err_info)
 {
-	if (!wtap_read_packet_bytes(fh, buf, rec->rec_header.packet_header.caplen, err, err_info))
+	if (!wtap_read_packet_bytes(fh, &rec->data, rec->rec_header.packet_header.caplen, err, err_info))
 		return false;
 
 	if (rec->rec_header.packet_header.pkt_encap == WTAP_ENCAP_ATM_PDUS) {
@@ -684,7 +683,7 @@ iptrace_read_rec_data(FILE_T fh, Buffer *buf, wtap_rec *rec,
 		 * Attempt to guess from the packet data, the VPI,
 		 * and the VCI information about the type of traffic.
 		 */
-		atm_guess_traffic_type(rec, ws_buffer_start_ptr(buf));
+		atm_guess_traffic_type(rec);
 	}
 
 	return true;

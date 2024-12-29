@@ -19,12 +19,12 @@ typedef struct {
 	bool byte_swapped;
 } i4btrace_t;
 
-static bool i4btrace_read(wtap *wth, wtap_rec *rec, Buffer *buf,
+static bool i4btrace_read(wtap *wth, wtap_rec *rec,
     int *err, char **err_info, int64_t *offset);
 static bool i4btrace_seek_read(wtap *wth, int64_t seek_off,
-    wtap_rec *rec, Buffer *buf, int *err, char **err_info);
+    wtap_rec *rec, int *err, char **err_info);
 static bool i4b_read_rec(wtap *wth, FILE_T fh, wtap_rec *rec,
-    Buffer *buf, int *err, char **err_info);
+    int *err, char **err_info);
 
 static int i4btrace_file_type_subtype = -1;
 
@@ -181,22 +181,22 @@ wtap_open_return_val i4btrace_open(wtap *wth, int *err, char **err_info)
 }
 
 /* Read the next packet */
-static bool i4btrace_read(wtap *wth, wtap_rec *rec, Buffer *buf,
+static bool i4btrace_read(wtap *wth, wtap_rec *rec,
     int *err, char **err_info, int64_t *data_offset)
 {
 	*data_offset = file_tell(wth->fh);
 
-	return i4b_read_rec(wth, wth->fh, rec, buf, err, err_info);
+	return i4b_read_rec(wth, wth->fh, rec, err, err_info);
 }
 
 static bool
 i4btrace_seek_read(wtap *wth, int64_t seek_off, wtap_rec *rec,
-    Buffer *buf, int *err, char **err_info)
+    int *err, char **err_info)
 {
 	if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
 		return false;
 
-	if (!i4b_read_rec(wth, wth->random_fh, rec, buf, err, err_info)) {
+	if (!i4b_read_rec(wth, wth->random_fh, rec, err, err_info)) {
 		/* Read error or EOF */
 		if (*err == 0) {
 			/* EOF means "short read" in random-access mode */
@@ -208,8 +208,7 @@ i4btrace_seek_read(wtap *wth, int64_t seek_off, wtap_rec *rec,
 }
 
 static bool
-i4b_read_rec(wtap *wth, FILE_T fh, wtap_rec *rec, Buffer *buf,
-    int *err, char **err_info)
+i4b_read_rec(wtap *wth, FILE_T fh, wtap_rec *rec, int *err, char **err_info)
 {
 	i4btrace_t *i4btrace = (i4btrace_t *)wth->priv;
 	i4b_trace_hdr_t hdr;
@@ -294,7 +293,7 @@ i4b_read_rec(wtap *wth, FILE_T fh, wtap_rec *rec, Buffer *buf,
 	/*
 	 * Read the packet data.
 	 */
-	return wtap_read_packet_bytes(fh, buf, length, err, err_info);
+	return wtap_read_packet_bytes(fh, &rec->data, length, err, err_info);
 }
 
 static const struct supported_block_type i4btrace_blocks_supported[] = {

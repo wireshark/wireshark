@@ -318,7 +318,6 @@ Iax2AnalysisDialog::Iax2AnalysisDialog(QWidget &parent, CaptureFile &cf) :
     epan_dissect_init(&edt, cap_file_.capFile()->epan, true, false);
     epan_dissect_prime_with_dfilter(&edt, sfcode);
     epan_dissect_run(&edt, cap_file_.capFile()->cd_t, &cap_file_.capFile()->rec,
-                     ws_buffer_start_ptr(&cap_file_.capFile()->buf),
                      fdata, NULL);
 
     // This shouldn't happen (the menu item should be disabled) but check anyway

@@ -30,8 +30,7 @@ FrameInformation::FrameInformation(CaptureFile * capfile, frame_data * fi, QObje
  cap_file_(capfile),
  edt_(Q_NULLPTR)
 {
-    wtap_rec_init(&rec_);
-    ws_buffer_init(&buf_, 1514);
+    wtap_rec_init(&rec_, 1514);
     loadFrameTree();
 }
 
@@ -40,7 +39,7 @@ void FrameInformation::loadFrameTree()
     if (! fi_ || ! cap_file_ || !cap_file_->capFile())
         return;
 
-    if (!cf_read_record(cap_file_->capFile(), fi_, &rec_, &buf_))
+    if (!cf_read_record(cap_file_->capFile(), fi_, &rec_))
         return;
 
     edt_ = g_new0(epan_dissect_t, 1);
@@ -50,7 +49,6 @@ void FrameInformation::loadFrameTree()
     col_custom_prime_edt(edt_, &(cap_file_->capFile()->cinfo));
 
     epan_dissect_run(edt_, cap_file_->capFile()->cd_t, &rec_,
-                     ws_buffer_start_ptr(&buf_),
                      fi_, &(cap_file_->capFile()->cinfo));
     epan_dissect_fill_in_columns(edt_, true, true);
 }
@@ -62,7 +60,6 @@ FrameInformation::~FrameInformation()
         g_free(edt_);
     }
     wtap_rec_cleanup(&rec_);
-    ws_buffer_free(&buf_);
 }
 
 bool FrameInformation::isValid()

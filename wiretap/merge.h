@@ -31,7 +31,6 @@ typedef struct merge_in_file_s {
     const char     *filename;
     wtap           *wth;
     wtap_rec        rec;
-    Buffer          frame_buffer;
     in_file_state_e state;
     uint32_t        packet_num;     /* current packet number */
     int64_t         size;           /* file size */

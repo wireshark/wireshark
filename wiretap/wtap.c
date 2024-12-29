@@ -1726,18 +1726,17 @@ wtap_init_rec(wtap *wth, wtap_rec *rec)
 }
 
 bool
-wtap_read(wtap *wth, wtap_rec *rec, Buffer *buf, int *err,
-	char **err_info, int64_t *offset)
+wtap_read(wtap *wth, wtap_rec *rec, int *err, char **err_info, int64_t *offset)
 {
 	/*
 	 * Initialize the record to default values.
 	 */
 	wtap_init_rec(wth, rec);
-	ws_buffer_clean(buf);
+	ws_buffer_clean(&rec->data);
 
 	*err = 0;
 	*err_info = NULL;
-	if (!wth->subtype_read(wth, rec, buf, err, err_info, offset)) {
+	if (!wth->subtype_read(wth, rec, err, err_info, offset)) {
 		/*
 		 * If we didn't get an error indication, we read
 		 * the last packet.  See if there's any deferred
@@ -1872,10 +1871,11 @@ wtap_read_so_far(wtap *wth)
 
 /* Perform global/initial initialization */
 void
-wtap_rec_init(wtap_rec *rec)
+wtap_rec_init(wtap_rec *rec, gsize space)
 {
 	memset(rec, 0, sizeof *rec);
 	ws_buffer_init(&rec->options_buf, 0);
+	ws_buffer_init(&rec->data, space);
 	/* In the future, see if we can create rec->block here once
 	 * and have it be reused like the rest of rec.
 	 * Currently it's recreated for each packet.
@@ -1923,6 +1923,7 @@ wtap_rec_cleanup(wtap_rec *rec)
 {
 	wtap_rec_reset(rec);
 	ws_buffer_free(&rec->options_buf);
+	ws_buffer_free(&rec->data);
 }
 
 wtap_block_t
@@ -1940,18 +1941,18 @@ wtap_rec_generate_idb(const wtap_rec *rec)
 }
 
 bool
-wtap_seek_read(wtap *wth, int64_t seek_off, wtap_rec *rec, Buffer *buf,
+wtap_seek_read(wtap *wth, int64_t seek_off, wtap_rec *rec,
     int *err, char **err_info)
 {
 	/*
 	 * Initialize the record to default values.
 	 */
 	wtap_init_rec(wth, rec);
-	ws_buffer_clean(buf);
+	ws_buffer_clean(&rec->data);
 
 	*err = 0;
 	*err_info = NULL;
-	if (!wth->subtype_seek_read(wth, seek_off, rec, buf, err, err_info)) {
+	if (!wth->subtype_seek_read(wth, seek_off, rec, err, err_info)) {
 		if (rec->block != NULL) {
 			/*
 			 * Unreference any block created for this record.
@@ -1980,7 +1981,8 @@ wtap_seek_read(wtap *wth, int64_t seek_off, wtap_rec *rec, Buffer *buf,
 }
 
 static bool
-wtap_full_file_read_file(wtap *wth, FILE_T fh, wtap_rec *rec, Buffer *buf, int *err, char **err_info)
+wtap_full_file_read_file(wtap *wth, FILE_T fh, wtap_rec *rec,
+    int *err, char **err_info)
 {
 	int64_t file_size;
 	int packet_size = 0;
@@ -2012,8 +2014,8 @@ wtap_full_file_read_file(wtap *wth, FILE_T fh, wtap_rec *rec, Buffer *buf, int *
 					wtap_encap_name(wth->file_encap), INT_MAX);
 			return false;
 		}
-		ws_buffer_assure_space(buf, buffer_size);
-		int nread = file_read(ws_buffer_start_ptr(buf) + packet_size, buffer_size - packet_size, fh);
+		ws_buffer_assure_space(&rec->data, buffer_size);
+		int nread = file_read(ws_buffer_start_ptr(&rec->data) + packet_size, buffer_size - packet_size, fh);
 		if (nread < 0) {
 			*err = file_error(fh, err_info);
 			if (*err == 0)
@@ -2039,8 +2041,8 @@ wtap_full_file_read_file(wtap *wth, FILE_T fh, wtap_rec *rec, Buffer *buf, int *
 }
 
 bool
-wtap_full_file_read(wtap *wth, wtap_rec *rec, Buffer *buf,
-                    int *err, char **err_info, int64_t *data_offset)
+wtap_full_file_read(wtap *wth, wtap_rec *rec, int *err, char **err_info,
+    int64_t *data_offset)
 {
 	int64_t offset = file_tell(wth->fh);
 
@@ -2051,11 +2053,12 @@ wtap_full_file_read(wtap *wth, wtap_rec *rec, Buffer *buf,
 	}
 
 	*data_offset = offset;
-	return wtap_full_file_read_file(wth, wth->fh, rec, buf, err, err_info);
+	return wtap_full_file_read_file(wth, wth->fh, rec, err, err_info);
 }
 
 bool
-wtap_full_file_seek_read(wtap *wth, int64_t seek_off, wtap_rec *rec, Buffer *buf, int *err, char **err_info)
+wtap_full_file_seek_read(wtap *wth, int64_t seek_off, wtap_rec *rec,
+    int *err, char **err_info)
 {
 	/* There is only one packet with the full file contents. */
 	if (seek_off > 0) {
@@ -2066,7 +2069,7 @@ wtap_full_file_seek_read(wtap *wth, int64_t seek_off, wtap_rec *rec, Buffer *buf
 	if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
 		return false;
 
-	return wtap_full_file_read_file(wth, wth->random_fh, rec, buf, err, err_info);
+	return wtap_full_file_read_file(wth, wth->random_fh, rec, err, err_info);
 }
 
 void

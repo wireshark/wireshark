@@ -32,8 +32,8 @@ static int autosar_dlt_file_type_subtype = -1;
 
 
 void register_autosar_dlt(void);
-static bool autosar_dlt_read(wtap *wth, wtap_rec *rec, Buffer *buf, int *err, char **err_info, int64_t *data_offset);
-static bool autosar_dlt_seek_read(wtap *wth, int64_t seek_off, wtap_rec* rec, Buffer *buf, int *err, char **err_info);
+static bool autosar_dlt_read(wtap *wth, wtap_rec *rec, int *err, char **err_info, int64_t *data_offset);
+static bool autosar_dlt_seek_read(wtap *wth, int64_t seek_off, wtap_rec* rec, int *err, char **err_info);
 static void autosar_dlt_close(wtap *wth);
 
 
@@ -59,7 +59,6 @@ typedef struct autosar_dlt_data {
 typedef struct autosar_dlt_params {
     wtap           *wth;
     wtap_rec       *rec;
-    Buffer         *buf;
     FILE_T          fh;
 
     autosar_dlt_t  *dlt_data;
@@ -135,7 +134,7 @@ autosar_dlt_read_block(autosar_dlt_params_t *params, int64_t start_pos, int *err
     autosar_dlt_itemheader_t  item_header;
 
     while (1) {
-        params->buf->first_free = params->buf->start;
+        params->rec->data.first_free = params->rec->data.start;
 
         if (!wtap_read_bytes_or_eof(params->fh, &header, sizeof header, err, err_info)) {
             if (*err == WTAP_ERR_SHORT_READ) {
@@ -170,7 +169,7 @@ autosar_dlt_read_block(autosar_dlt_params_t *params, int64_t start_pos, int *err
             return false;
         }
 
-        ws_buffer_assure_space(params->buf, (size_t)(item_header.length + sizeof header));
+        ws_buffer_assure_space(&params->rec->data, (size_t)(item_header.length + sizeof header));
 
         /* Creating AUTOSAR DLT Encapsulation Header:
          * uint32_t   time_s
@@ -187,7 +186,7 @@ autosar_dlt_read_block(autosar_dlt_params_t *params, int64_t start_pos, int *err
             *err_info = ws_strdup_printf("AUTOSAR DLT: Internal Error! Not enough bytes for storage header at pos 0x%" PRIx64 "!", start_pos);
             return false;
         }
-        ws_buffer_append(params->buf, tmpbuf, (size_t)(sizeof header));
+        ws_buffer_append(&params->rec->data, tmpbuf, (size_t)(sizeof header));
         g_free(tmpbuf);
 
         tmpbuf = g_try_malloc0(item_header.length);
@@ -202,7 +201,7 @@ autosar_dlt_read_block(autosar_dlt_params_t *params, int64_t start_pos, int *err
             *err_info = ws_strdup_printf("AUTOSAR DLT: Capture file cut short! Not enough bytes for item at pos 0x%" PRIx64 "!", start_pos);
             return false;
         }
-        ws_buffer_append(params->buf, tmpbuf, (size_t)(item_header.length));
+        ws_buffer_append(&params->rec->data, tmpbuf, (size_t)(item_header.length));
         g_free(tmpbuf);
 
         params->rec->rec_type = REC_TYPE_PACKET;
@@ -223,13 +222,12 @@ autosar_dlt_read_block(autosar_dlt_params_t *params, int64_t start_pos, int *err
     return false;
 }
 
-static bool autosar_dlt_read(wtap *wth, wtap_rec *rec, Buffer *buf, int *err, char **err_info, int64_t *data_offset) {
+static bool autosar_dlt_read(wtap *wth, wtap_rec *rec, int *err, char **err_info, int64_t *data_offset) {
     autosar_dlt_params_t dlt_tmp;
 
     dlt_tmp.wth = wth;
     dlt_tmp.fh = wth->fh;
     dlt_tmp.rec = rec;
-    dlt_tmp.buf = buf;
     dlt_tmp.dlt_data = (autosar_dlt_t *)wth->priv;
 
     *data_offset = file_tell(wth->fh);
@@ -242,13 +240,12 @@ static bool autosar_dlt_read(wtap *wth, wtap_rec *rec, Buffer *buf, int *err, ch
     return true;
 }
 
-static bool autosar_dlt_seek_read(wtap *wth, int64_t seek_off, wtap_rec *rec, Buffer *buf, int *err, char **err_info) {
+static bool autosar_dlt_seek_read(wtap *wth, int64_t seek_off, wtap_rec *rec, int *err, char **err_info) {
     autosar_dlt_params_t dlt_tmp;
 
     dlt_tmp.wth = wth;
     dlt_tmp.fh = wth->random_fh;
     dlt_tmp.rec = rec;
-    dlt_tmp.buf = buf;
     dlt_tmp.dlt_data = (autosar_dlt_t *)wth->priv;
 
     if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)

@@ -216,10 +216,10 @@ static const int netmon_encap[] = {
 #define NETMON_NET_DNS_CACHE		0xFFFE
 #define NETMON_NET_NETMON_FILTER	0xFFFF
 
-static bool netmon_read(wtap *wth, wtap_rec *rec, Buffer *buf,
+static bool netmon_read(wtap *wth, wtap_rec *rec,
     int *err, char **err_info, int64_t *data_offset);
 static bool netmon_seek_read(wtap *wth, int64_t seek_off,
-    wtap_rec *rec, Buffer *buf, int *err, char **err_info);
+    wtap_rec *rec, int *err, char **err_info);
 static bool netmon_read_atm_pseudoheader(FILE_T fh,
     union wtap_pseudo_header *pseudo_header, int *err, char **err_info);
 static void netmon_close(wtap *wth);
@@ -982,7 +982,7 @@ wtap_open_return_val netmon_open(wtap *wth, int *err, char **err_info)
 }
 
 static void
-netmon_set_pseudo_header_info(wtap_rec *rec, Buffer *buf)
+netmon_set_pseudo_header_info(wtap_rec *rec)
 {
 	switch (rec->rec_header.packet_header.pkt_encap) {
 
@@ -991,7 +991,7 @@ netmon_set_pseudo_header_info(wtap_rec *rec, Buffer *buf)
 		 * Attempt to guess from the packet data, the VPI, and
 		 * the VCI information about the type of traffic.
 		 */
-		atm_guess_traffic_type(rec, ws_buffer_start_ptr(buf));
+		atm_guess_traffic_type(rec);
 		break;
 
 	case WTAP_ENCAP_ETHERNET:
@@ -1021,7 +1021,7 @@ typedef enum {
 
 static process_record_retval
 netmon_process_record(wtap *wth, FILE_T fh, wtap_rec *rec,
-    Buffer *buf, int *err, char **err_info)
+    int *err, char **err_info)
 {
 	netmon_t *netmon = (netmon_t *)wth->priv;
 	int	 hdr_size = 0;
@@ -1196,7 +1196,7 @@ netmon_process_record(wtap *wth, FILE_T fh, wtap_rec *rec,
 	/*
 	 * Read the packet data.
 	 */
-	if (!wtap_read_packet_bytes(fh, buf, rec->rec_header.packet_header.caplen, err, err_info))
+	if (!wtap_read_packet_bytes(fh, &rec->data, rec->rec_header.packet_header.caplen, err, err_info))
 		return FAILURE;
 
 	/*
@@ -1371,7 +1371,7 @@ netmon_process_record(wtap *wth, FILE_T fh, wtap_rec *rec,
 		}
 	}
 
-	netmon_set_pseudo_header_info(rec, buf);
+	netmon_set_pseudo_header_info(rec);
 
 	/* If any header specific information is present, set it as pseudo header data
 	 * and set the encapsulation type, so it can be handled to the netmon_header
@@ -1431,7 +1431,7 @@ netmon_process_record(wtap *wth, FILE_T fh, wtap_rec *rec,
 }
 
 /* Read the next packet */
-static bool netmon_read(wtap *wth, wtap_rec *rec, Buffer *buf,
+static bool netmon_read(wtap *wth, wtap_rec *rec,
     int *err, char **err_info, int64_t *data_offset)
 {
 	netmon_t *netmon = (netmon_t *)wth->priv;
@@ -1463,8 +1463,7 @@ static bool netmon_read(wtap *wth, wtap_rec *rec, Buffer *buf,
 
 		*data_offset = file_tell(wth->fh);
 
-		switch (netmon_process_record(wth, wth->fh, rec, buf, err,
-		    err_info)) {
+		switch (netmon_process_record(wth, wth->fh, rec, err, err_info)) {
 
 		case RETRY:
 			continue;
@@ -1479,14 +1478,13 @@ static bool netmon_read(wtap *wth, wtap_rec *rec, Buffer *buf,
 }
 
 static bool
-netmon_seek_read(wtap *wth, int64_t seek_off,
-    wtap_rec *rec, Buffer *buf, int *err, char **err_info)
+netmon_seek_read(wtap *wth, int64_t seek_off, wtap_rec *rec,
+    int *err, char **err_info)
 {
 	if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
 		return false;
 
-	switch (netmon_process_record(wth, wth->random_fh, rec, buf, err,
-	    err_info)) {
+	switch (netmon_process_record(wth, wth->random_fh, rec, err, err_info)) {
 
 	default:
 		/*

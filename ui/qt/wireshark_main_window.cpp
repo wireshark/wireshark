@@ -3029,7 +3029,6 @@ QString WiresharkMainWindow::findRtpStreams(QVector<rtpstream_id_t *> *stream_id
     epan_dissect_prime_with_hfid(&edt, hfid_rtp_ssrc);
     epan_dissect_run(&edt, capture_file_.capFile()->cd_t,
                      &capture_file_.capFile()->rec,
-                     ws_buffer_start_ptr(&capture_file_.capFile()->buf),
                      fdata, NULL);
 
     /*

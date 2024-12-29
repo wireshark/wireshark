@@ -67,7 +67,6 @@ typedef struct wtapng_block_s {
     bool         internal;       /* true if this block type shouldn't be returned from pcapng_read() */
     wtap_block_t block;
     wtap_rec     *rec;
-    Buffer       *frame_buffer;
 } wtapng_block_t;
 
 /* Section data in private struct */

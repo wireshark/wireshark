@@ -157,7 +157,7 @@ int logcat_exported_pdu_length(const uint8_t *pd) {
 }
 
 static bool logcat_read_packet(struct logcat_phdr *logcat, FILE_T fh,
-    wtap_rec *rec, Buffer *buf, int *err, char **err_info)
+    wtap_rec *rec, int *err, char **err_info)
 {
     int                  packet_size;
     uint16_t             payload_length;
@@ -184,8 +184,8 @@ static bool logcat_read_packet(struct logcat_phdr *logcat, FILE_T fh,
      * it.
      */
 
-    ws_buffer_assure_space(buf, packet_size);
-    pd = ws_buffer_start_ptr(buf);
+    ws_buffer_assure_space(&rec->data, packet_size);
+    pd = ws_buffer_start_ptr(&rec->data);
     log_entry = (struct logger_entry *)(void *) pd;
 
     /* Copy the first two bytes of the packet. */
@@ -209,24 +209,23 @@ static bool logcat_read_packet(struct logcat_phdr *logcat, FILE_T fh,
     return true;
 }
 
-static bool logcat_read(wtap *wth, wtap_rec *rec, Buffer *buf,
+static bool logcat_read(wtap *wth, wtap_rec *rec,
     int *err, char **err_info, int64_t *data_offset)
 {
     *data_offset = file_tell(wth->fh);
 
     return logcat_read_packet((struct logcat_phdr *) wth->priv, wth->fh,
-        rec, buf, err, err_info);
+        rec, err, err_info);
 }
 
-static bool logcat_seek_read(wtap *wth, int64_t seek_off,
-    wtap_rec *rec, Buffer *buf,
+static bool logcat_seek_read(wtap *wth, int64_t seek_off, wtap_rec *rec,
     int *err, char **err_info)
 {
     if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
         return false;
 
     if (!logcat_read_packet((struct logcat_phdr *) wth->priv, wth->random_fh,
-         rec, buf, err, err_info)) {
+         rec, err, err_info)) {
         if (*err == 0)
             *err = WTAP_ERR_SHORT_READ;
         return false;

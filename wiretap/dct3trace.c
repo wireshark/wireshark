@@ -61,9 +61,9 @@ static const char dct3trace_magic_end[]  = "</dump>";
 #define MAX_PACKET_LEN 23
 
 static bool dct3trace_read(wtap *wth, wtap_rec *rec,
-	Buffer *buf, int *err, char **err_info, int64_t *data_offset);
+	int *err, char **err_info, int64_t *data_offset);
 static bool dct3trace_seek_read(wtap *wth, int64_t seek_off,
-	wtap_rec *rec, Buffer *buf, int *err, char **err_info);
+	wtap_rec *rec, int *err, char **err_info);
 
 static int dct3trace_file_type_subtype = -1;
 
@@ -227,7 +227,7 @@ wtap_open_return_val dct3trace_open(wtap *wth, int *err, char **err_info)
 
 
 static bool dct3trace_get_packet(FILE_T fh, wtap_rec *rec,
-	Buffer *buf, int *err, char **err_info)
+	int *err, char **err_info)
 {
 	char line[1024];
 	uint8_t databuf[MAX_PACKET_LEN], *bufp;
@@ -260,8 +260,8 @@ static bool dct3trace_get_packet(FILE_T fh, wtap_rec *rec,
 				*err = 0;
 
 				/* Make sure we have enough room for the packet */
-				ws_buffer_assure_space(buf, rec->rec_header.packet_header.caplen);
-				memcpy( ws_buffer_start_ptr(buf), databuf, rec->rec_header.packet_header.caplen );
+				ws_buffer_assure_space(&rec->data, rec->rec_header.packet_header.caplen);
+				memcpy(ws_buffer_start_ptr(&rec->data), databuf, rec->rec_header.packet_header.caplen);
 
 				return true;
 			}
@@ -382,25 +382,25 @@ static bool dct3trace_get_packet(FILE_T fh, wtap_rec *rec,
 
 
 /* Find the next packet and parse it; called from wtap_read(). */
-static bool dct3trace_read(wtap *wth, wtap_rec *rec, Buffer *buf,
+static bool dct3trace_read(wtap *wth, wtap_rec *rec,
     int *err, char **err_info, int64_t *data_offset)
 {
 	*data_offset = file_tell(wth->fh);
 
-	return dct3trace_get_packet(wth->fh, rec, buf, err, err_info);
+	return dct3trace_get_packet(wth->fh, rec, err, err_info);
 }
 
 
 /* Used to read packets in random-access fashion */
 static bool dct3trace_seek_read(wtap *wth, int64_t seek_off,
-	wtap_rec *rec, Buffer *buf, int *err, char **err_info)
+	wtap_rec *rec, int *err, char **err_info)
 {
 	if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
 	{
 		return false;
 	}
 
-	return dct3trace_get_packet(wth->random_fh, rec, buf, err, err_info);
+	return dct3trace_get_packet(wth->random_fh, rec, err, err_info);
 }
 
 static const struct supported_block_type dct3trace_blocks_supported[] = {

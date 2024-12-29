@@ -1090,7 +1090,6 @@ process_cap_file(const char *filename, bool need_separator)
     uint32_t              snaplen_min_inferred = 0xffffffff;
     uint32_t              snaplen_max_inferred =          0;
     wtap_rec              rec;
-    Buffer                buf;
     capture_info          cf_info;
     bool                  have_times = true;
     nstime_t              earliest_packet_time;
@@ -1157,9 +1156,8 @@ process_cap_file(const char *filename, bool need_separator)
     wtap_set_cb_new_secrets(cf_info.wth, count_decryption_secret);
 
     /* Tally up data that we need to parse through the file to find */
-    wtap_rec_init(&rec);
-    ws_buffer_init(&buf, 1514);
-    while (wtap_read(cf_info.wth, &rec, &buf, &err, &err_info, &data_offset))  {
+    wtap_rec_init(&rec, 1514);
+    while (wtap_read(cf_info.wth, &rec, &err, &err_info, &data_offset))  {
         if (rec.presence_flags & WTAP_HAS_TS) {
             prev_time = cur_time;
             cur_time = rec.ts;
@@ -1268,7 +1266,6 @@ process_cap_file(const char *filename, bool need_separator)
         wtap_rec_reset(&rec);
     } /* while */
     wtap_rec_cleanup(&rec);
-    ws_buffer_free(&buf);
 
     /*
      * Get IDB info strings.

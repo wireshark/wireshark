@@ -93,20 +93,16 @@ void ProfileSwitcher::checkPacket(capture_file *cap_file, frame_data *fdata, qsi
 
     QString new_profile;
     wtap_rec rec;
-    Buffer buf;
-    wtap_rec_init(&rec);
-    ws_buffer_init(&buf, 1514);
+    wtap_rec_init(&rec, 1514);
     epan_dissect_t edt;
 
     for (auto &cur_filter : profile_filters_) {
-        if (!cf_read_record(cap_file, fdata, &rec, &buf)) {
+        if (!cf_read_record(cap_file, fdata, &rec)) {
             continue;
         }
         epan_dissect_init(&edt, cap_file->epan, TRUE, FALSE);
         epan_dissect_prime_with_dfilter(&edt, cur_filter.dfcode);
-        epan_dissect_run(&edt, cap_file->cd_t, &rec,
-                         ws_buffer_start_ptr(&buf),
-                         fdata, NULL);
+        epan_dissect_run(&edt, cap_file->cd_t, &rec, fdata, NULL);
         bool matched = dfilter_apply_edt(cur_filter.dfcode, &edt);
         epan_dissect_cleanup(&edt);
         if (matched) {
@@ -116,7 +112,6 @@ void ProfileSwitcher::checkPacket(capture_file *cap_file, frame_data *fdata, qsi
     }
 
     wtap_rec_cleanup(&rec);
-    ws_buffer_free(&buf);
 
     if (!new_profile.isEmpty()) {
         clearProfileFilters();

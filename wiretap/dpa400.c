@@ -74,12 +74,12 @@ static uint8_t get_from(struct dpa400_header *hdr)
 }
 
 static bool dpa400_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec,
-    Buffer *buf, int *err, char **err_info)
+    int *err, char **err_info)
 {
 	uint8_t chunk[2];
 	uint32_t ctr = 0;
 
-	if (!wth || !rec || !buf)
+	if (!wth || !rec)
 		return false;
 
 	if (!wtap_read_bytes_or_eof(fh, chunk, sizeof(chunk), err, err_info))
@@ -91,9 +91,9 @@ static bool dpa400_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec,
 		return false;
 	}
 
-	ws_buffer_clean(buf);
+	ws_buffer_clean(&rec->data);
 
-	ws_buffer_append(buf, &chunk[0], 1);
+	ws_buffer_append(&rec->data, &chunk[0], 1);
 	ctr++;
 
 	switch (chunk[0]) {
@@ -131,7 +131,7 @@ static bool dpa400_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec,
 			return false;
 		}
 
-		ws_buffer_append(buf, &chunk[0], 1);
+		ws_buffer_append(&rec->data, &chunk[0], 1);
 		ctr++;
 
 		rec->rec_type = REC_TYPE_PACKET;
@@ -152,7 +152,7 @@ static bool dpa400_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec,
 		get_ts(&hdr, &rec->ts);
 
 		from_source = !get_from(&hdr);
-		ws_buffer_append(buf, &from_source, 1);
+		ws_buffer_append(&rec->data, &from_source, 1);
 		ctr++;
 
 		while (1) {
@@ -169,7 +169,7 @@ static bool dpa400_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec,
 				return false;
 			}
 
-			ws_buffer_append(buf, &chunk[0], 1);
+			ws_buffer_append(&rec->data, &chunk[0], 1);
 		}
 
 		rec->rec_type = REC_TYPE_PACKET;
@@ -200,21 +200,21 @@ static bool dpa400_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec,
 	return true;
 }
 
-static bool dpa400_seek_read(wtap *wth,int64_t seek_off, wtap_rec *rec, Buffer *buf,
+static bool dpa400_seek_read(wtap *wth,int64_t seek_off, wtap_rec *rec,
     int *err, char **err_info)
 {
 	if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
 		return false;
 
-	return dpa400_read_packet(wth, wth->random_fh, rec, buf, err, err_info);
+	return dpa400_read_packet(wth, wth->random_fh, rec, err, err_info);
 }
 
-static bool dpa400_read(wtap *wth, wtap_rec *rec, Buffer *buf,
+static bool dpa400_read(wtap *wth, wtap_rec *rec,
     int *err, char **err_info, int64_t *data_offset)
 {
 	*data_offset = file_tell(wth->fh);
 
-	return dpa400_read_packet(wth, wth->fh, rec, buf, err, err_info);
+	return dpa400_read_packet(wth, wth->fh, rec, err, err_info);
 }
 
 wtap_open_return_val dpa400_open(wtap *wth, int *err, char **err_info)

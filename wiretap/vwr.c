@@ -776,30 +776,27 @@ static uint8_t      get_ofdm_rate(const uint8_t *);
 static uint8_t      get_cck_rate(const uint8_t *plcp);
 static void         setup_defaults(vwr_t *, uint16_t);
 
-static bool         vwr_read(wtap *, wtap_rec *, Buffer *, int *,
-                             char **, int64_t *);
-static bool         vwr_seek_read(wtap *, int64_t, wtap_rec *,
-                                  Buffer *, int *, char **);
+static bool         vwr_read(wtap *, wtap_rec *, int *, char **, int64_t *);
+static bool         vwr_seek_read(wtap *, int64_t, wtap_rec *, int *, char **);
 
-static bool         vwr_read_rec_header(vwr_t *, FILE_T, int *, int *, int *, int *, char **);
+static bool         vwr_read_rec_header(vwr_t *, FILE_T, int *, int *, int *,
+                                        int *, char **);
 static bool         vwr_process_rec_data(FILE_T fh, int rec_size,
-                                         wtap_rec *record, Buffer *buf,
-                                         vwr_t *vwr, int IS_TX, int log_mode, int *err,
+                                         wtap_rec *record, vwr_t *vwr,
+                                         int IS_TX, int log_mode, int *err,
                                          char **err_info);
 
 static int          vwr_get_fpga_version(wtap *, int *, char **);
 
-static bool         vwr_read_s1_W_rec(vwr_t *, wtap_rec *, Buffer *,
-                                      const uint8_t *, int, int *, char **);
-static bool         vwr_read_s2_W_rec(vwr_t *, wtap_rec *, Buffer *,
-                                      const uint8_t *, int, int, int *,
-                                      char **);
+static bool         vwr_read_s1_W_rec(vwr_t *, wtap_rec *, const uint8_t *,
+                                      int, int *, char **);
+static bool         vwr_read_s2_W_rec(vwr_t *, wtap_rec *, const uint8_t *,
+                                      int, int, int *, char **);
 /* For FPGA version >= 48 (OCTO Platform), following function will be used */
-static bool         vwr_read_s3_W_rec(vwr_t *, wtap_rec *, Buffer *,
-                                      const uint8_t *, int, int, int, int *,
-                                      char **);
+static bool         vwr_read_s3_W_rec(vwr_t *, wtap_rec *, const uint8_t *,
+                                      int, int, int, int *, char **);
 static bool         vwr_read_rec_data_ethernet(vwr_t *, wtap_rec *,
-                                               Buffer *, const uint8_t *, int,
+                                               const uint8_t *, int,
                                                int, int *, char **);
 
 static int          find_signature(const uint8_t *, int, int, register uint32_t, register uint8_t);
@@ -871,8 +868,8 @@ wtap_open_return_val vwr_open(wtap *wth, int *err, char **err_info)
 /*  frame, and a 64-byte statistics block trailer.                                         */
 /* The PLCP frame consists of a 4-byte or 6-byte PLCP header, followed by the MAC frame    */
 
-static bool vwr_read(wtap *wth, wtap_rec *rec, Buffer *buf,
-    int *err, char **err_info, int64_t *data_offset)
+static bool vwr_read(wtap *wth, wtap_rec *rec, int *err, char **err_info,
+    int64_t *data_offset)
 {
     vwr_t *vwr      = (vwr_t *)wth->priv;
     int    rec_size = 0, IS_TX = 0, log_mode = 0;
@@ -888,8 +885,8 @@ static bool vwr_read(wtap *wth, wtap_rec *rec, Buffer *buf,
     *data_offset = (file_tell(wth->fh) - VW_RECORD_HEADER_LENGTH);
 
     /* got a frame record; read and process it */
-    if (!vwr_process_rec_data(wth->fh, rec_size, rec, buf, vwr, IS_TX,
-                              log_mode, err, err_info))
+    if (!vwr_process_rec_data(wth->fh, rec_size, rec, vwr, IS_TX, log_mode,
+                              err, err_info))
        return false;
 
     return true;
@@ -897,8 +894,8 @@ static bool vwr_read(wtap *wth, wtap_rec *rec, Buffer *buf,
 
 /* read a random record in the middle of a file; the start of the record is @ seek_off */
 
-static bool vwr_seek_read(wtap *wth, int64_t seek_off,
-    wtap_rec *record, Buffer *buf, int *err, char **err_info)
+static bool vwr_seek_read(wtap *wth, int64_t seek_off, wtap_rec *record,
+    int *err, char **err_info)
 {
     vwr_t *vwr = (vwr_t *)wth->priv;
     int    rec_size, IS_TX = 0, log_mode = 0;
@@ -911,8 +908,8 @@ static bool vwr_seek_read(wtap *wth, int64_t seek_off,
     if (!vwr_read_rec_header(vwr, wth->random_fh, &rec_size, &IS_TX, &log_mode, err, err_info))
         return false;                                  /* Read error or EOF */
 
-    return vwr_process_rec_data(wth->random_fh, rec_size, record, buf,
-                                vwr, IS_TX, log_mode, err, err_info);
+    return vwr_process_rec_data(wth->random_fh, rec_size, record, vwr, IS_TX,
+                                log_mode, err, err_info);
 }
 
 /* Scan down in the input capture file to find the next frame header.       */
@@ -1141,8 +1138,8 @@ static int vwr_get_fpga_version(wtap *wth, int *err, char **err_info)
 /*  MAC octets. */
 
 static bool vwr_read_s1_W_rec(vwr_t *vwr, wtap_rec *record,
-                                  Buffer *buf, const uint8_t *rec, int rec_size,
-                                  int *err, char **err_info)
+                              const uint8_t *rec, int rec_size,
+                              int *err, char **err_info)
 {
     uint8_t          *data_ptr;
     int              bytes_written = 0;                   /* bytes output to buf so far */
@@ -1300,8 +1297,8 @@ static bool vwr_read_s1_W_rec(vwr_t *vwr, wtap_rec *record,
     record->block = wtap_block_create(WTAP_BLOCK_PACKET);
     record->presence_flags = WTAP_HAS_TS;
 
-    ws_buffer_assure_space(buf, record->rec_header.packet_header.caplen);
-    data_ptr = ws_buffer_start_ptr(buf);
+    ws_buffer_assure_space(&record->data, record->rec_header.packet_header.caplen);
+    data_ptr = ws_buffer_start_ptr(&record->data);
 
     /*
      * Generate and copy out the common metadata headers,
@@ -1418,8 +1415,8 @@ static bool vwr_read_s1_W_rec(vwr_t *vwr, wtap_rec *record,
 
 
 static bool vwr_read_s2_W_rec(vwr_t *vwr, wtap_rec *record,
-                                  Buffer *buf, const uint8_t *rec, int rec_size,
-                                  int IS_TX, int *err, char **err_info)
+                              const uint8_t *rec, int rec_size,
+                              int IS_TX, int *err, char **err_info)
 {
     uint8_t          *data_ptr;
     int              bytes_written = 0;                   /* bytes output to buf so far */
@@ -1716,8 +1713,8 @@ static bool vwr_read_s2_W_rec(vwr_t *vwr, wtap_rec *record,
     record->block = wtap_block_create(WTAP_BLOCK_PACKET);
     record->presence_flags = WTAP_HAS_TS;
 
-    ws_buffer_assure_space(buf, record->rec_header.packet_header.caplen);
-    data_ptr = ws_buffer_start_ptr(buf);
+    ws_buffer_assure_space(&record->data, record->rec_header.packet_header.caplen);
+    data_ptr = ws_buffer_start_ptr(&record->data);
 
     /*
      * Generate and copy out the common metadata headers,
@@ -1834,9 +1831,9 @@ static bool vwr_read_s2_W_rec(vwr_t *vwr, wtap_rec *record,
 }
 
 static bool vwr_read_s3_W_rec(vwr_t *vwr, wtap_rec *record,
-                                  Buffer *buf, const uint8_t *rec, int rec_size,
-                                  int IS_TX, int log_mode, int *err,
-                                  char **err_info)
+                              const uint8_t *rec, int rec_size,
+                              int IS_TX, int log_mode, int *err,
+                              char **err_info)
 {
     uint8_t          *data_ptr;
     int              bytes_written = 0;                  /* bytes output to buf so far */
@@ -1897,8 +1894,8 @@ static bool vwr_read_s3_W_rec(vwr_t *vwr, wtap_rec *record,
         record->block = wtap_block_create(WTAP_BLOCK_PACKET);
         record->presence_flags = WTAP_HAS_TS;
 
-        ws_buffer_assure_space(buf, record->rec_header.packet_header.caplen);
-        data_ptr = ws_buffer_start_ptr(buf);
+        ws_buffer_assure_space(&record->data, record->rec_header.packet_header.caplen);
+        data_ptr = ws_buffer_start_ptr(&record->data);
 
         port_type = IS_TX << 4;
 
@@ -2230,8 +2227,8 @@ static bool vwr_read_s3_W_rec(vwr_t *vwr, wtap_rec *record,
         record->block = wtap_block_create(WTAP_BLOCK_PACKET);
         record->presence_flags = WTAP_HAS_TS;
 
-        ws_buffer_assure_space(buf, record->rec_header.packet_header.caplen);
-        data_ptr = ws_buffer_start_ptr(buf);
+        ws_buffer_assure_space(&record->data, record->rec_header.packet_header.caplen);
+        data_ptr = ws_buffer_start_ptr(&record->data);
     }
 
     /*
@@ -2553,9 +2550,9 @@ static bool vwr_read_s3_W_rec(vwr_t *vwr, wtap_rec *record,
 /* The packet is constructed as a 38-byte VeriWave-extended Radiotap header plus the raw */
 /*  MAC octets.                                                                          */
 static bool vwr_read_rec_data_ethernet(vwr_t *vwr, wtap_rec *record,
-                                           Buffer *buf, const uint8_t *rec,
-                                           int rec_size, int IS_TX, int *err,
-                                           char **err_info)
+                                       const uint8_t *rec, int rec_size,
+                                       int IS_TX, int *err,
+                                       char **err_info)
 {
     uint8_t          *data_ptr;
     int              bytes_written = 0;                   /* bytes output to buf so far */
@@ -2742,8 +2739,8 @@ static bool vwr_read_rec_data_ethernet(vwr_t *vwr, wtap_rec *record,
 
     /*etap_hdr.vw_ip_length = (uint16_t)ip_len;*/
 
-    ws_buffer_assure_space(buf, record->rec_header.packet_header.caplen);
-    data_ptr = ws_buffer_start_ptr(buf);
+    ws_buffer_assure_space(&record->data, record->rec_header.packet_header.caplen);
+    data_ptr = ws_buffer_start_ptr(&record->data);
 
     /*
      * Generate and copy out the common metadata headers,
@@ -3345,8 +3342,7 @@ get_vht_rate(uint8_t mcs_index, uint16_t rflags, uint8_t nss)
 }
 
 static bool
-vwr_process_rec_data(FILE_T fh, int rec_size,
-                     wtap_rec *record, Buffer *buf, vwr_t *vwr,
+vwr_process_rec_data(FILE_T fh, int rec_size, wtap_rec *record, vwr_t *vwr,
                      int IS_TX, int log_mode, int *err, char **err_info)
 {
     uint8_t*   rec;       /* local buffer (holds input record) */
@@ -3366,17 +3362,17 @@ vwr_process_rec_data(FILE_T fh, int rec_size,
     switch (vwr->FPGA_VERSION)
     {
         case S1_W_FPGA:
-            ret = vwr_read_s1_W_rec(vwr, record, buf, rec, rec_size, err, err_info);
+            ret = vwr_read_s1_W_rec(vwr, record, rec, rec_size, err, err_info);
             break;
         case S2_W_FPGA:
-            ret = vwr_read_s2_W_rec(vwr, record, buf, rec, rec_size, IS_TX, err, err_info);
+            ret = vwr_read_s2_W_rec(vwr, record, rec, rec_size, IS_TX, err, err_info);
             break;
         case S3_W_FPGA:
-            ret = vwr_read_s3_W_rec(vwr, record, buf, rec, rec_size, IS_TX, log_mode, err, err_info);
+            ret = vwr_read_s3_W_rec(vwr, record, rec, rec_size, IS_TX, log_mode, err, err_info);
             break;
         case vVW510012_E_FPGA:
         case vVW510024_E_FPGA:
-            ret = vwr_read_rec_data_ethernet(vwr, record, buf, rec, rec_size, IS_TX, err, err_info);
+            ret = vwr_read_rec_data_ethernet(vwr, record, rec, rec_size, IS_TX, err, err_info);
             break;
         default:
             g_free(rec);

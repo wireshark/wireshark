@@ -30,12 +30,12 @@ typedef struct {
   bool byteswapped;
 } csids_t;
 
-static bool csids_read(wtap *wth, wtap_rec *rec, Buffer *buf,
+static bool csids_read(wtap *wth, wtap_rec *rec,
         int *err, char **err_info, int64_t *data_offset);
 static bool csids_seek_read(wtap *wth, int64_t seek_off,
-        wtap_rec *rec, Buffer *buf, int *err, char **err_info);
+        wtap_rec *rec, int *err, char **err_info);
 static bool csids_read_packet(FILE_T fh, csids_t *csids,
-        wtap_rec *rec, Buffer *buf, int *err, char **err_info);
+        wtap_rec *rec, int *err, char **err_info);
 
 struct csids_header {
   uint32_t seconds; /* seconds since epoch */
@@ -135,14 +135,14 @@ wtap_open_return_val csids_open(wtap *wth, int *err, char **err_info)
 }
 
 /* Find the next packet and parse it; called from wtap_read(). */
-static bool csids_read(wtap *wth, wtap_rec *rec, Buffer *buf,
+static bool csids_read(wtap *wth, wtap_rec *rec,
     int *err, char **err_info, int64_t *data_offset)
 {
   csids_t *csids = (csids_t *)wth->priv;
 
   *data_offset = file_tell(wth->fh);
 
-  return csids_read_packet( wth->fh, csids, rec, buf, err, err_info );
+  return csids_read_packet( wth->fh, csids, rec, err, err_info );
 }
 
 /* Used to read packets in random-access fashion */
@@ -150,7 +150,6 @@ static bool
 csids_seek_read(wtap *wth,
                 int64_t seek_off,
                 wtap_rec *rec,
-                Buffer *buf,
                 int *err,
                 char **err_info)
 {
@@ -159,7 +158,7 @@ csids_seek_read(wtap *wth,
   if( file_seek( wth->random_fh, seek_off, SEEK_SET, err ) == -1 )
     return false;
 
-  if( !csids_read_packet( wth->random_fh, csids, rec, buf, err, err_info ) ) {
+  if( !csids_read_packet( wth->random_fh, csids, rec, err, err_info ) ) {
     if( *err == 0 )
       *err = WTAP_ERR_SHORT_READ;
     return false;
@@ -169,7 +168,7 @@ csids_seek_read(wtap *wth,
 
 static bool
 csids_read_packet(FILE_T fh, csids_t *csids, wtap_rec *rec,
-                  Buffer *buf, int *err, char **err_info)
+                  int *err, char **err_info)
 {
   struct csids_header hdr;
   uint8_t *pd;
@@ -192,10 +191,10 @@ csids_read_packet(FILE_T fh, csids_t *csids, wtap_rec *rec,
   rec->ts.secs = hdr.seconds;
   rec->ts.nsecs = 0;
 
-  if( !wtap_read_packet_bytes( fh, buf, rec->rec_header.packet_header.caplen, err, err_info ) )
+  if( !wtap_read_packet_bytes( fh, &rec->data, rec->rec_header.packet_header.caplen, err, err_info ) )
     return false;
 
-  pd = ws_buffer_start_ptr( buf );
+  pd = ws_buffer_start_ptr( &rec->data );
   if( csids->byteswapped ) {
     if( rec->rec_header.packet_header.caplen >= 2 ) {
       PBSWAP16(pd);   /* the ip len */

@@ -65,14 +65,14 @@ static bool erf_read_header(wtap *wth, FILE_T fh,
                                 uint32_t *bytes_read,
                                 uint32_t *packet_size,
                                 GPtrArray *anchor_mappings_to_update);
-static bool erf_read(wtap *wth, wtap_rec *rec, Buffer *buf,
+static bool erf_read(wtap *wth, wtap_rec *rec,
                          int *err, char **err_info, int64_t *data_offset);
 static bool erf_seek_read(wtap *wth, int64_t seek_off,
-                              wtap_rec *rec, Buffer *buf,
+                              wtap_rec *rec,
                               int *err, char **err_info);
 static void erf_close(wtap *wth);
 
-static int populate_summary_info(erf_t *erf_priv, wtap *wth, union wtap_pseudo_header *pseudo_header, Buffer *buf, uint32_t packet_size, GPtrArray *anchor_mappings_to_update, int *err, char **err_info);
+static int populate_summary_info(erf_t *erf_priv, wtap *wth, wtap_rec *rec, uint32_t packet_size, GPtrArray *anchor_mappings_to_update, int *err, char **err_info);
 static int erf_update_anchors_from_header(erf_t *erf_priv, wtap_rec *rec, union wtap_pseudo_header *pseudo_header, uint64_t host_id, GPtrArray *anchor_mappings_to_update);
 static int erf_get_source_from_header(union wtap_pseudo_header *pseudo_header, uint64_t *host_id, uint8_t *source_id);
 static int erf_populate_interface(erf_t* erf_priv, wtap *wth, union wtap_pseudo_header *pseudo_header, uint64_t host_id, uint8_t source_id, uint8_t if_num, int *err, char **err_info);
@@ -571,7 +571,7 @@ extern wtap_open_return_val erf_open(wtap *wth, int *err, char **err_info)
 }
 
 /* Read the next packet */
-static bool erf_read(wtap *wth, wtap_rec *rec, Buffer *buf,
+static bool erf_read(wtap *wth, wtap_rec *rec,
                          int *err, char **err_info, int64_t *data_offset)
 {
   erf_header_t erf_header;
@@ -590,7 +590,7 @@ static bool erf_read(wtap *wth, wtap_rec *rec, Buffer *buf,
       return false;
     }
 
-    if (!wtap_read_packet_bytes(wth->fh, buf, packet_size, err, err_info)) {
+    if (!wtap_read_packet_bytes(wth->fh, &rec->data, packet_size, err, err_info)) {
       g_ptr_array_free(anchor_mappings_to_update, true);
       return false;
     }
@@ -602,7 +602,7 @@ static bool erf_read(wtap *wth, wtap_rec *rec, Buffer *buf,
      */
     if ((erf_header.type & 0x7F) == ERF_TYPE_META && packet_size > 0)
     {
-      if (populate_summary_info((erf_t*) wth->priv, wth, &rec->rec_header.packet_header.pseudo_header, buf, packet_size, anchor_mappings_to_update, err, err_info) < 0) {
+      if (populate_summary_info((erf_t*) wth->priv, wth, rec, packet_size, anchor_mappings_to_update, err, err_info) < 0) {
         g_ptr_array_free(anchor_mappings_to_update, true);
         return false;
       }
@@ -616,7 +616,7 @@ static bool erf_read(wtap *wth, wtap_rec *rec, Buffer *buf,
 }
 
 static bool erf_seek_read(wtap *wth, int64_t seek_off,
-                              wtap_rec *rec, Buffer *buf,
+                              wtap_rec *rec,
                               int *err, char **err_info)
 {
   erf_header_t erf_header;
@@ -638,7 +638,7 @@ static bool erf_seek_read(wtap *wth, int64_t seek_off,
 
   g_ptr_array_free(anchor_mappings_to_update, true);
 
-  return wtap_read_packet_bytes(wth->random_fh, buf, packet_size,
+  return wtap_read_packet_bytes(wth->random_fh, &rec->data, packet_size,
                                 err, err_info);
 }
 
@@ -3220,7 +3220,7 @@ static int populate_anchor_info(erf_t *erf_priv, wtap *wth, union wtap_pseudo_he
 }
 
 /* Populates the capture and interface information for display on the Capture File Properties */
-static int populate_summary_info(erf_t *erf_priv, wtap *wth, union wtap_pseudo_header *pseudo_header, Buffer *buf, uint32_t packet_size, GPtrArray *anchor_mappings_to_update, int *err, char **err_info)
+static int populate_summary_info(erf_t *erf_priv, wtap *wth, wtap_rec *rec, uint32_t packet_size, GPtrArray *anchor_mappings_to_update, int *err, char **err_info)
 {
   struct erf_meta_read_state state = {0};
   struct erf_meta_read_state *state_post = NULL;
@@ -3237,18 +3237,13 @@ static int populate_summary_info(erf_t *erf_priv, wtap *wth, union wtap_pseudo_h
     *err_info = ws_strdup_printf("erf: populate_summary_info called with wth NULL");
     return -1;
   }
-  if (!pseudo_header) {
-    *err = WTAP_ERR_INTERNAL;
-    *err_info = ws_strdup_printf("erf: populate_summary_info called with pseudo_header NULL");
-    return -1;
-  }
   if (!erf_priv) {
     *err = WTAP_ERR_INTERNAL;
     *err_info = ws_strdup_printf("erf: populate_summary_info called with erf_priv NULL");
     return -1;
   }
 
-  erf_get_source_from_header(pseudo_header, &host_id, &source_id);
+  erf_get_source_from_header(&rec->rec_header.packet_header.pseudo_header, &host_id, &source_id);
 
   if (host_id == 0) {
     host_id = erf_priv->implicit_host_id;
@@ -3264,7 +3259,7 @@ static int populate_summary_info(erf_t *erf_priv, wtap *wth, union wtap_pseudo_h
   }
 
 
-  state.tag_ptr = buf->data;
+  state.tag_ptr = rec->data.data;
   state.remaining_len = packet_size;
 
   /* Read until see next section tag */
@@ -3379,7 +3374,7 @@ static int populate_summary_info(erf_t *erf_priv, wtap *wth, union wtap_pseudo_h
     if (state.sectionid & 0x8000) {
       if(state.sectiontype & (ERF_META_SECTION_INFO)) {
         /* TODO: do we care if it returns 0 or 1? */
-        if (populate_anchor_info(erf_priv, wth, pseudo_header, &state, anchor_mappings_to_update, err, err_info) < 0) {
+        if (populate_anchor_info(erf_priv, wth, &rec->rec_header.packet_header.pseudo_header, &state, anchor_mappings_to_update, err, err_info) < 0) {
           return -1;
         }
       }
@@ -3395,19 +3390,19 @@ static int populate_summary_info(erf_t *erf_priv, wtap *wth, union wtap_pseudo_h
       case ERF_META_SECTION_CAPTURE:
       case ERF_META_SECTION_HOST:
         /* TODO: do we care if it returns 0 or 1? */
-        if (populate_capture_host_info(erf_priv, wth, pseudo_header, &state, err, err_info) < 0) {
+        if (populate_capture_host_info(erf_priv, wth, &rec->rec_header.packet_header.pseudo_header, &state, err, err_info) < 0) {
           return -1;
         }
         break;
       case ERF_META_SECTION_MODULE:
         /* TODO: do we care if it returns 0 or 1? */
-        if (populate_module_info(erf_priv, wth, pseudo_header, &state, err, err_info) < 0) {
+        if (populate_module_info(erf_priv, wth, &rec->rec_header.packet_header.pseudo_header, &state, err, err_info) < 0) {
           return -1;
         }
         break;
       case ERF_META_SECTION_INTERFACE:
         /* TODO: do we care if it returns 0 or 1? */
-        if (populate_interface_info(erf_priv, wth, pseudo_header, &state, err, err_info) < 0) {
+        if (populate_interface_info(erf_priv, wth, &rec->rec_header.packet_header.pseudo_header, &state, err, err_info) < 0) {
           return -1;
         }
         break;
@@ -3434,7 +3429,7 @@ static int populate_summary_info(erf_t *erf_priv, wtap *wth, union wtap_pseudo_h
       state_post = (struct erf_meta_read_state*) item->data;
       switch (state_post->sectiontype) {
         case ERF_META_SECTION_STREAM:
-          if (populate_stream_info(erf_priv, wth, pseudo_header, state_post, err, err_info) < 0) {
+          if (populate_stream_info(erf_priv, wth, &rec->rec_header.packet_header.pseudo_header, state_post, err, err_info) < 0) {
             g_list_foreach(post_list, erf_free_data, NULL);
             g_list_free(post_list);
             return -1;

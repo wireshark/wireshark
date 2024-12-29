@@ -2022,10 +2022,13 @@ pcap_byteswap_can_socketcan_pseudoheader(unsigned packet_size, uint16_t protocol
 }
 
 static void
-pcap_byteswap_linux_sll_pseudoheader(wtap_rec *rec, uint8_t *pd)
+pcap_byteswap_linux_sll_pseudoheader(wtap_rec *rec)
 {
+	uint8_t *pd;
 	unsigned packet_size;
 	uint16_t protocol;
+
+	pd = ws_buffer_start_ptr(&rec->data);
 
 	/*
 	 * Minimum of captured and actual length (just in case the
@@ -2050,10 +2053,13 @@ pcap_byteswap_linux_sll_pseudoheader(wtap_rec *rec, uint8_t *pd)
 }
 
 static void
-pcap_byteswap_linux_sll2_pseudoheader(wtap_rec *rec, uint8_t *pd)
+pcap_byteswap_linux_sll2_pseudoheader(wtap_rec *rec)
 {
+	uint8_t *pd;
 	unsigned packet_size;
 	uint16_t protocol;
+
+	pd = ws_buffer_start_ptr(&rec->data);
 
 	/*
 	 * Minimum of captured and actual length (just in case the
@@ -2078,13 +2084,15 @@ pcap_byteswap_linux_sll2_pseudoheader(wtap_rec *rec, uint8_t *pd)
 }
 
 static void
-pcap_byteswap_linux_usb_pseudoheader(wtap_rec *rec, uint8_t *pd,
-    bool header_len_64_bytes)
+pcap_byteswap_linux_usb_pseudoheader(wtap_rec *rec, bool header_len_64_bytes)
 {
+	uint8_t *pd;
 	unsigned packet_size;
 	struct linux_usb_phdr *usb_phdr;
 	struct linux_usb_isodesc *pisodesc;
 	int32_t iso_numdesc, i;
+
+	pd = ws_buffer_start_ptr(&rec->data);
 
 	/*
 	 * Minimum of captured and actual length (just in case the
@@ -2172,13 +2180,16 @@ struct nflog_tlv {
 };
 
 static void
-pcap_byteswap_nflog_pseudoheader(wtap_rec *rec, uint8_t *pd)
+pcap_byteswap_nflog_pseudoheader(wtap_rec *rec)
 {
+	uint8_t *pd;
 	unsigned packet_size;
 	uint8_t *p;
 	struct nflog_hdr *nfhdr;
 	struct nflog_tlv *tlv;
 	unsigned size;
+
+	pd = ws_buffer_start_ptr(&rec->data);
 
 	/*
 	 * Minimum of captured and actual length (just in case the
@@ -2258,10 +2269,13 @@ struct pfloghdr {
 };
 
 static void
-pcap_byteswap_pflog_pseudoheader(wtap_rec *rec, uint8_t *pd)
+pcap_byteswap_pflog_pseudoheader(wtap_rec *rec)
 {
+	uint8_t *pd;
 	unsigned packet_size;
 	struct pfloghdr *pflhdr;
+
+	pd = ws_buffer_start_ptr(&rec->data);
 
 	/*
 	 * Minimum of captured and actual length (just in case the
@@ -2544,9 +2558,12 @@ fix_linux_usb_mmapped_length(wtap_rec *rec, const u_char *bp)
 }
 
 static void
-pcap_fixup_len(wtap_rec *rec, const uint8_t *pd)
+pcap_fixup_len(wtap_rec *rec)
 {
+	const uint8_t *pd;
 	struct linux_usb_phdr *usb_phdr;
+
+	pd = ws_buffer_start_ptr(&rec->data);
 
 	/*
 	 * Greasy hack, but we never directly dereference any of
@@ -2587,7 +2604,7 @@ pcap_fixup_len(wtap_rec *rec, const uint8_t *pd)
 
 void
 pcap_read_post_process(bool is_nokia, int wtap_encap,
-    wtap_rec *rec, uint8_t *pd, bool bytes_swapped, int fcs_len)
+    wtap_rec *rec, bool bytes_swapped, int fcs_len)
 {
 	switch (wtap_encap) {
 
@@ -2599,7 +2616,7 @@ pcap_read_post_process(bool is_nokia, int wtap_encap,
 			 * Guess the traffic type based on the packet
 			 * contents.
 			 */
-			atm_guess_traffic_type(rec, pd);
+			atm_guess_traffic_type(rec);
 		} else {
 			/*
 			 * SunATM.
@@ -2609,7 +2626,7 @@ pcap_read_post_process(bool is_nokia, int wtap_encap,
 			 * contents.
 			 */
 			if (rec->rec_header.packet_header.pseudo_header.atm.type == TRAF_LANE)
-				atm_guess_lane_type(rec, pd);
+				atm_guess_lane_type(rec);
 		}
 		break;
 
@@ -2627,27 +2644,27 @@ pcap_read_post_process(bool is_nokia, int wtap_encap,
 
 	case WTAP_ENCAP_SLL:
 		if (bytes_swapped)
-			pcap_byteswap_linux_sll_pseudoheader(rec, pd);
+			pcap_byteswap_linux_sll_pseudoheader(rec);
 		break;
 
 	case WTAP_ENCAP_SLL2:
 		if (bytes_swapped)
-			pcap_byteswap_linux_sll2_pseudoheader(rec, pd);
+			pcap_byteswap_linux_sll2_pseudoheader(rec);
 		break;
 
 	case WTAP_ENCAP_USB_LINUX:
 		if (bytes_swapped)
-			pcap_byteswap_linux_usb_pseudoheader(rec, pd, false);
+			pcap_byteswap_linux_usb_pseudoheader(rec, false);
 		break;
 
 	case WTAP_ENCAP_USB_LINUX_MMAPPED:
 		if (bytes_swapped)
-			pcap_byteswap_linux_usb_pseudoheader(rec, pd, true);
+			pcap_byteswap_linux_usb_pseudoheader(rec, true);
 
 		/*
 		 * Fix up the on-the-network length if necessary.
 		 */
-		pcap_fixup_len(rec, pd);
+		pcap_fixup_len(rec);
 		break;
 
 	case WTAP_ENCAP_NETANALYZER:
@@ -2661,7 +2678,7 @@ pcap_read_post_process(bool is_nokia, int wtap_encap,
 
 	case WTAP_ENCAP_NFLOG:
 		if (bytes_swapped)
-			pcap_byteswap_nflog_pseudoheader(rec, pd);
+			pcap_byteswap_nflog_pseudoheader(rec);
 		break;
 
 	case WTAP_ENCAP_ERF:
@@ -2676,7 +2693,7 @@ pcap_read_post_process(bool is_nokia, int wtap_encap,
 
 	case WTAP_ENCAP_PFLOG:
 		if (bytes_swapped)
-			pcap_byteswap_pflog_pseudoheader(rec, pd);
+			pcap_byteswap_pflog_pseudoheader(rec);
 		break;
 
 	default:

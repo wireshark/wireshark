@@ -406,21 +406,18 @@ typedef struct {
 	unsigned	isdn_type;	/* 1 = E1 PRI, 2 = T1 PRI, 3 = BRI */
 } netxray_t;
 
-static bool netxray_read(wtap *wth, wtap_rec *rec, Buffer *buf,
+static bool netxray_read(wtap *wth, wtap_rec *rec,
     int *err, char **err_info, int64_t *data_offset);
 static bool netxray_seek_read(wtap *wth, int64_t seek_off,
-    wtap_rec *rec, Buffer *buf, int *err, char **err_info);
+    wtap_rec *rec, int *err, char **err_info);
 static int netxray_process_rec_header(wtap *wth, FILE_T fh,
     wtap_rec *rec, int *err, char **err_info);
-static void netxray_guess_atm_type(wtap *wth, wtap_rec *rec,
-    Buffer *buf);
-static bool netxray_dump_1_1(wtap_dumper *wdh,
-    const wtap_rec *rec,
+static void netxray_guess_atm_type(wtap *wth, wtap_rec *rec);
+static bool netxray_dump_1_1(wtap_dumper *wdh, const wtap_rec *rec,
     const uint8_t *pd, int *err, char **err_info);
 static bool netxray_dump_finish_1_1(wtap_dumper *wdh, int *err,
     char **err_info);
-static bool netxray_dump_2_0(wtap_dumper *wdh,
-    const wtap_rec *rec,
+static bool netxray_dump_2_0(wtap_dumper *wdh, const wtap_rec *rec,
     const uint8_t *pd, int *err, char **err_info);
 static bool netxray_dump_finish_2_0(wtap_dumper *wdh, int *err,
     char **err_info);
@@ -1009,8 +1006,8 @@ netxray_open(wtap *wth, int *err, char **err_info)
 
 /* Read the next packet */
 static bool
-netxray_read(wtap *wth, wtap_rec *rec, Buffer *buf, int *err,
-             char **err_info, int64_t *data_offset)
+netxray_read(wtap *wth, wtap_rec *rec, int *err, char **err_info,
+             int64_t *data_offset)
 {
 	netxray_t *netxray = (netxray_t *)wth->priv;
 	int	padding;
@@ -1083,7 +1080,7 @@ reread:
 	/*
 	 * Read the packet data.
 	 */
-	if (!wtap_read_packet_bytes(wth->fh, buf,
+	if (!wtap_read_packet_bytes(wth->fh, &rec->data,
 	    rec->rec_header.packet_header.caplen, err, err_info))
 		return false;
 
@@ -1098,13 +1095,12 @@ reread:
 	 * from the packet header to determine its type or subtype,
 	 * attempt to guess them from the packet data.
 	 */
-	netxray_guess_atm_type(wth, rec, buf);
+	netxray_guess_atm_type(wth, rec);
 	return true;
 }
 
 static bool
-netxray_seek_read(wtap *wth, int64_t seek_off,
-		  wtap_rec *rec, Buffer *buf,
+netxray_seek_read(wtap *wth, int64_t seek_off, wtap_rec *rec,
 		  int *err, char **err_info)
 {
 	if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
@@ -1126,8 +1122,8 @@ netxray_seek_read(wtap *wth, int64_t seek_off,
 	/*
 	 * Read the packet data.
 	 */
-	if (!wtap_read_packet_bytes(wth->random_fh, buf, rec->rec_header.packet_header.caplen, err,
-	    err_info))
+	if (!wtap_read_packet_bytes(wth->random_fh, &rec->data,
+	    rec->rec_header.packet_header.caplen, err, err_info))
 		return false;
 
 	/*
@@ -1135,7 +1131,7 @@ netxray_seek_read(wtap *wth, int64_t seek_off,
 	 * from the packet header to determine its type or subtype,
 	 * attempt to guess them from the packet data.
 	 */
-	netxray_guess_atm_type(wth, rec, buf);
+	netxray_guess_atm_type(wth, rec);
 	return true;
 }
 
@@ -1659,10 +1655,8 @@ netxray_process_rec_header(wtap *wth, FILE_T fh, wtap_rec *rec,
 }
 
 static void
-netxray_guess_atm_type(wtap *wth, wtap_rec *rec, Buffer *buf)
+netxray_guess_atm_type(wtap *wth, wtap_rec *rec)
 {
-	const uint8_t *pd;
-
 	if (wth->file_encap == WTAP_ENCAP_ATM_PDUS_UNTRUNCATED &&
 	   !(rec->rec_header.packet_header.pseudo_header.atm.flags & ATM_REASSEMBLY_ERROR)) {
 		if (rec->rec_header.packet_header.pseudo_header.atm.aal == AAL_UNKNOWN) {
@@ -1670,16 +1664,14 @@ netxray_guess_atm_type(wtap *wth, wtap_rec *rec, Buffer *buf)
 			 * Try to guess the type and subtype based
 			 * on the VPI/VCI and packet contents.
 			 */
-			pd = ws_buffer_start_ptr(buf);
-			atm_guess_traffic_type(rec, pd);
+			atm_guess_traffic_type(rec);
 		} else if (rec->rec_header.packet_header.pseudo_header.atm.aal == AAL_5 &&
 		    rec->rec_header.packet_header.pseudo_header.atm.type == TRAF_LANE) {
 			/*
 			 * Try to guess the subtype based on the
 			 * packet contents.
 			 */
-			pd = ws_buffer_start_ptr(buf);
-			atm_guess_lane_type(rec, pd);
+			atm_guess_lane_type(rec);
 		}
 	}
 }

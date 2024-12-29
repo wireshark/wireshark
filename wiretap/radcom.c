@@ -70,12 +70,12 @@ struct radcomrec_hdr {
 	char	xxw[9];		/* unknown */
 };
 
-static bool radcom_read(wtap *wth, wtap_rec *rec, Buffer *buf,
+static bool radcom_read(wtap *wth, wtap_rec *rec,
 	int *err, char **err_info, int64_t *data_offset);
-static bool radcom_seek_read(wtap *wth, int64_t seek_off,
-	wtap_rec *rec, Buffer *buf, int *err, char **err_info);
+static bool radcom_seek_read(wtap *wth, int64_t seek_off, wtap_rec *rec,
+	int *err, char **err_info);
 static bool radcom_read_rec(wtap *wth, FILE_T fh, wtap_rec *rec,
-	Buffer *buf, int *err, char **err_info);
+	int *err, char **err_info);
 
 static int radcom_file_type_subtype = -1;
 
@@ -241,15 +241,15 @@ wtap_open_return_val radcom_open(wtap *wth, int *err, char **err_info)
 }
 
 /* Read the next packet */
-static bool radcom_read(wtap *wth, wtap_rec *rec, Buffer *buf,
-			    int *err, char **err_info, int64_t *data_offset)
+static bool radcom_read(wtap *wth, wtap_rec *rec, int *err, char **err_info,
+			int64_t *data_offset)
 {
 	char	fcs[2];
 
 	*data_offset = file_tell(wth->fh);
 
 	/* Read record. */
-	if (!radcom_read_rec(wth, wth->fh, rec, buf, err, err_info)) {
+	if (!radcom_read_rec(wth, wth->fh, rec, err, err_info)) {
 		/* Read error or EOF */
 		return false;
 	}
@@ -267,16 +267,14 @@ static bool radcom_read(wtap *wth, wtap_rec *rec, Buffer *buf,
 }
 
 static bool
-radcom_seek_read(wtap *wth, int64_t seek_off,
-		 wtap_rec *rec, Buffer *buf,
+radcom_seek_read(wtap *wth, int64_t seek_off, wtap_rec *rec,
 		 int *err, char **err_info)
 {
 	if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
 		return false;
 
 	/* Read record. */
-	if (!radcom_read_rec(wth, wth->random_fh, rec, buf, err,
-	    err_info)) {
+	if (!radcom_read_rec(wth, wth->random_fh, rec, err, err_info)) {
 		/* Read error or EOF */
 		if (*err == 0) {
 			/* EOF means "short read" in random-access mode */
@@ -288,8 +286,7 @@ radcom_seek_read(wtap *wth, int64_t seek_off,
 }
 
 static bool
-radcom_read_rec(wtap *wth, FILE_T fh, wtap_rec *rec, Buffer *buf,
-		int *err, char **err_info)
+radcom_read_rec(wtap *wth, FILE_T fh, wtap_rec *rec, int *err, char **err_info)
 {
 	struct radcomrec_hdr hdr;
 	uint16_t data_length, real_length, length;
@@ -366,7 +363,7 @@ radcom_read_rec(wtap *wth, FILE_T fh, wtap_rec *rec, Buffer *buf,
 	/*
 	 * Read the packet data.
 	 */
-	if (!wtap_read_packet_bytes(fh, buf, length, err, err_info))
+	if (!wtap_read_packet_bytes(fh, &rec->data, length, err, err_info))
 		return false;	/* Read error */
 
 	return true;

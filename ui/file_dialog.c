@@ -28,7 +28,6 @@ get_stats_for_preview(wtap *wth, ws_file_preview_stats *stats,
 {
     int64_t      data_offset;
     wtap_rec     rec;
-    Buffer       buf;
     uint32_t     records;
     uint32_t     data_records;
     double       start_time;
@@ -45,9 +44,8 @@ get_stats_for_preview(wtap *wth, ws_file_preview_stats *stats,
     data_records = 0;
     timed_out = false;
     time(&time_preview);
-    wtap_rec_init(&rec);
-    ws_buffer_init(&buf, 1514);
-    while ((wtap_read(wth, &rec, &buf, err, err_info, &data_offset))) {
+    wtap_rec_init(&rec, 1514);
+    while ((wtap_read(wth, &rec, err, err_info, &data_offset))) {
         if (rec.presence_flags & WTAP_HAS_TS) {
             cur_time = nstime_to_sec(&rec.ts);
             if (!have_times) {
@@ -93,7 +91,6 @@ get_stats_for_preview(wtap *wth, ws_file_preview_stats *stats,
     stats->data_records = data_records;
 
     wtap_rec_cleanup(&rec);
-    ws_buffer_free(&buf);
 
     if (*err != 0) {
         /* Read error. */

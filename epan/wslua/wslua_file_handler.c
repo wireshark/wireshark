@@ -132,10 +132,10 @@ report_error(int *err, char **err_info, const char *fmt, ...)
 
 /* some declarations */
 static bool
-wslua_filehandler_read(wtap *wth, wtap_rec *rec, Buffer *buf,
-                       int *err, char **err_info, int64_t *offset);
+wslua_filehandler_read(wtap *wth, wtap_rec *rec, int *err, char **err_info,
+                       int64_t *offset);
 static bool
-wslua_filehandler_seek_read(wtap *wth, int64_t seek_off, wtap_rec *rec, Buffer *buf,
+wslua_filehandler_seek_read(wtap *wth, int64_t seek_off, wtap_rec *rec,
                             int *err, char **err_info);
 static void
 wslua_filehandler_close(wtap *wth);
@@ -235,7 +235,7 @@ wslua_filehandler_open(wtap *wth, int *err, char **err_info)
 }
 
 static bool
-wslua_filehandler_read_packet(wtap *wth, FILE_T wth_fh, wtap_rec *rec, Buffer *buf,
+wslua_filehandler_read_packet(wtap *wth, FILE_T wth_fh, wtap_rec *rec,
                               int *err, char **err_info, int64_t *offset)
 {
     FileHandler fh = (FileHandler)(wth->wslua_data);
@@ -257,7 +257,7 @@ wslua_filehandler_read_packet(wtap *wth, FILE_T wth_fh, wtap_rec *rec, Buffer *b
 
     fp = push_File(L, wth_fh);
     fc = push_CaptureInfo(L, wth, false);
-    fi = push_FrameInfo(L, rec, buf);
+    fi = push_FrameInfo(L, rec);
 
     switch ( lua_pcall(L,3,1,1) ) {
         case 0:
@@ -295,15 +295,15 @@ wslua_filehandler_read_packet(wtap *wth, FILE_T wth_fh, wtap_rec *rec, Buffer *b
  * This will be the seek_off parameter when this frame is re-read.
  */
 static bool
-wslua_filehandler_read(wtap *wth, wtap_rec *rec, Buffer *buf,
+wslua_filehandler_read(wtap *wth, wtap_rec *rec,
                        int *err, char **err_info, int64_t *offset)
 {
-    return wslua_filehandler_read_packet(wth, wth->fh, rec, buf, err, err_info, offset);
+    return wslua_filehandler_read_packet(wth, wth->fh, rec, err, err_info, offset);
 }
 
 static bool
-wslua_filehandler_seek_read_packet(wtap *wth, int64_t seek_off, wtap_rec *rec, Buffer *buf,
-                            int *err, char **err_info)
+wslua_filehandler_seek_read_packet(wtap *wth, int64_t seek_off, wtap_rec *rec,
+                                   int *err, char **err_info)
 {
     FileHandler fh = (FileHandler)(wth->wslua_data);
     int retval = -1;
@@ -324,7 +324,7 @@ wslua_filehandler_seek_read_packet(wtap *wth, int64_t seek_off, wtap_rec *rec, B
 
     fp = push_File(L, wth->random_fh);
     fc = push_CaptureInfo(L, wth, false);
-    fi = push_FrameInfo(L, rec, buf);
+    fi = push_FrameInfo(L, rec);
     lua_pushinteger(L, (lua_Integer)seek_off);
 
     switch ( lua_pcall(L,4,1,1) ) {
@@ -356,7 +356,7 @@ wslua_filehandler_seek_read_packet(wtap *wth, int64_t seek_off, wtap_rec *rec, B
  * Do a standard file_seek() and then call FileHandler:read().
  */
 static bool
-wslua_filehandler_seek_read_default(wtap *wth, int64_t seek_off, wtap_rec *rec, Buffer *buf,
+wslua_filehandler_seek_read_default(wtap *wth, int64_t seek_off, wtap_rec *rec,
                                     int *err, char **err_info)
 {
     int64_t offset = file_seek(wth->random_fh, seek_off, SEEK_SET, err);
@@ -365,14 +365,14 @@ wslua_filehandler_seek_read_default(wtap *wth, int64_t seek_off, wtap_rec *rec, 
         return false;
     }
 
-    return wslua_filehandler_read_packet(wth, wth->random_fh, rec, buf, err, err_info, &offset);
+    return wslua_filehandler_read_packet(wth, wth->random_fh, rec, err, err_info, &offset);
 }
 
 /* Classic wtap seek_read function, called by wtap core.  This must return true on
  * success, false on error.
  */
 static bool
-wslua_filehandler_seek_read(wtap *wth, int64_t seek_off, wtap_rec *rec, Buffer *buf,
+wslua_filehandler_seek_read(wtap *wth, int64_t seek_off, wtap_rec *rec,
                             int *err, char **err_info)
 {
     FileHandler fh = (FileHandler)(wth->wslua_data);
@@ -383,9 +383,9 @@ wslua_filehandler_seek_read(wtap *wth, int64_t seek_off, wtap_rec *rec, Buffer *
     }
 
     if (fh->seek_read_ref != LUA_NOREF) {
-        return wslua_filehandler_seek_read_packet(wth, seek_off, rec, buf, err, err_info);
+        return wslua_filehandler_seek_read_packet(wth, seek_off, rec, err, err_info);
     } else {
-        return wslua_filehandler_seek_read_default(wth, seek_off, rec, buf, err, err_info);
+        return wslua_filehandler_seek_read_default(wth, seek_off, rec, err, err_info);
     }
 }
 

@@ -171,22 +171,20 @@ process_tree(proto_tree *protocol_tree, ph_stats_t* ps)
 
     static bool
 process_record(capture_file *cf, frame_data *frame, column_info *cinfo,
-               wtap_rec *rec, Buffer *buf, ph_stats_t* ps)
+               wtap_rec *rec, ph_stats_t* ps)
 {
     epan_dissect_t	edt;
     double		cur_time;
 
     /* Load the record from the capture file */
-    if (!cf_read_record(cf, frame, rec, buf))
+    if (!cf_read_record(cf, frame, rec))
         return false;	/* failure */
 
     /* Dissect the record   tree  not visible */
     epan_dissect_init(&edt, cf->epan, true, false);
     /* Don't fake protocols. We need them for the protocol hierarchy */
     epan_dissect_fake_protocols(&edt, false);
-    epan_dissect_run(&edt, cf->cd_t, rec,
-                     ws_buffer_start_ptr(buf),
-                     frame, cinfo);
+    epan_dissect_run(&edt, cf->cd_t, rec, frame, cinfo);
 
     /* Get stats from this protocol tree */
     process_tree(edt.tree, ps);
@@ -202,6 +200,7 @@ process_record(capture_file *cf, frame_data *frame, column_info *cinfo,
 
     /* Free our memory. */
     epan_dissect_cleanup(&edt);
+    wtap_rec_cleanup(rec);
 
     return true;	/* success */
 }
@@ -251,8 +250,7 @@ ph_stats_new(capture_file *cf)
     /* Progress so far. */
     progbar_val = 0.0f;
 
-    wtap_rec_init(&rec);
-    ws_buffer_init(&buf, 1514);
+    wtap_rec_init(&rec, 1514);
 
     for (framenum = 1; framenum <= cf->count; framenum++) {
         frame = frame_data_sequence_find(cf->provider.frames, framenum);
@@ -321,7 +319,7 @@ ph_stats_new(capture_file *cf)
             ps->tot_packets++;
 
             /* we don't care about colinfo */
-            if (!process_record(cf, frame, NULL, &rec, &buf, ps)) {
+            if (!process_record(cf, frame, NULL, &rec, ps)) {
                 /*
                  * Give up, and set "stop_flag" so we
                  * just abort rather than popping up

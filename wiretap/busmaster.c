@@ -25,13 +25,13 @@ static void
 busmaster_close(wtap *wth);
 
 static bool
-busmaster_read(wtap   *wth, wtap_rec *rec, Buffer *buf,
+busmaster_read(wtap   *wth, wtap_rec *rec,
                int    *err, char **err_info,
                int64_t *data_offset);
 
 static bool
 busmaster_seek_read(wtap     *wth, int64_t seek_off,
-                    wtap_rec *rec, Buffer *buf,
+                    wtap_rec *rec,
                     int      *err, char **err_info);
 
 static int busmaster_file_type_subtype = -1;
@@ -47,7 +47,7 @@ void register_busmaster(void);
  */
 
 static bool
-busmaster_gen_packet(wtap_rec               *rec, Buffer *buf,
+busmaster_gen_packet(wtap_rec               *rec,
                      const busmaster_priv_t *priv_entry, const msg_t *msg,
                      int                    *err, char **err_info)
 {
@@ -70,7 +70,7 @@ busmaster_gen_packet(wtap_rec               *rec, Buffer *buf,
         return false;
     }
 
-    ws_buffer_clean(buf);
+    ws_buffer_clean(&rec->data);
 
     if (is_fd)
     {
@@ -86,7 +86,7 @@ busmaster_gen_packet(wtap_rec               *rec, Buffer *buf,
                msg->data.data,
                MIN(msg->data.length, sizeof(canfd_frame.data)));
 
-        ws_buffer_append(buf,
+        ws_buffer_append(&rec->data,
                (uint8_t *)&canfd_frame,
                sizeof(canfd_frame));
     }
@@ -104,7 +104,7 @@ busmaster_gen_packet(wtap_rec               *rec, Buffer *buf,
                msg->data.data,
                MIN(msg->data.length, sizeof(can_frame.data)));
 
-        ws_buffer_append(buf,
+        ws_buffer_append(&rec->data,
                (uint8_t *)&can_frame,
                sizeof(can_frame));
     }
@@ -161,8 +161,8 @@ busmaster_gen_packet(wtap_rec               *rec, Buffer *buf,
     rec->ts.secs        = secs;
     rec->ts.nsecs       = nsecs;
 
-    rec->rec_header.packet_header.caplen = (uint32_t)ws_buffer_length(buf);
-    rec->rec_header.packet_header.len    = (uint32_t)ws_buffer_length(buf);
+    rec->rec_header.packet_header.caplen = (uint32_t)ws_buffer_length(&rec->data);
+    rec->rec_header.packet_header.len    = (uint32_t)ws_buffer_length(&rec->data);
 
     return true;
 }
@@ -279,7 +279,7 @@ busmaster_find_priv_entry(void *priv, int64_t offset)
 }
 
 static bool
-busmaster_read(wtap   *wth, wtap_rec *rec, Buffer *buf, int *err, char **err_info,
+busmaster_read(wtap   *wth, wtap_rec *rec, int *err, char **err_info,
                int64_t *data_offset)
 {
     log_entry_type_t   entry;
@@ -362,7 +362,7 @@ busmaster_read(wtap   *wth, wtap_rec *rec, Buffer *buf, int *err, char **err_inf
         case LOG_ENTRY_MSG:
             is_msg     = true;
             priv_entry = busmaster_find_priv_entry(wth->priv, *data_offset);
-            is_ok      = busmaster_gen_packet(rec, buf, priv_entry, &state.msg, err, err_info);
+            is_ok      = busmaster_gen_packet(rec, priv_entry, &state.msg, err, err_info);
             break;
         case LOG_ENTRY_EOF:
         case LOG_ENTRY_ERROR:
@@ -381,7 +381,7 @@ busmaster_read(wtap   *wth, wtap_rec *rec, Buffer *buf, int *err, char **err_inf
 
 static bool
 busmaster_seek_read(wtap   *wth, int64_t seek_off, wtap_rec *rec,
-                    Buffer *buf, int *err, char **err_info)
+                    int *err, char **err_info)
 {
     busmaster_priv_t  *priv_entry;
     busmaster_state_t  state = {0};
@@ -416,7 +416,7 @@ busmaster_seek_read(wtap   *wth, int64_t seek_off, wtap_rec *rec,
         return false;
     }
 
-    return busmaster_gen_packet(rec, buf, priv_entry, &state.msg, err, err_info);
+    return busmaster_gen_packet(rec, priv_entry, &state.msg, err, err_info);
 }
 
 static const struct supported_block_type busmaster_blocks_supported[] = {

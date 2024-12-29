@@ -23,11 +23,11 @@ static int ber_file_type_subtype = -1;
 
 void register_ber(void);
 
-static bool ber_full_file_read(wtap *wth, wtap_rec *rec, Buffer *buf,
+static bool ber_full_file_read(wtap *wth, wtap_rec *rec,
                                    int *err, char **err_info,
                                    int64_t *data_offset)
 {
-  if (!wtap_full_file_read(wth, rec, buf, err, err_info, data_offset))
+  if (!wtap_full_file_read(wth, rec, err, err_info, data_offset))
     return false;
 
   /* Pass the file name. */
@@ -35,11 +35,10 @@ static bool ber_full_file_read(wtap *wth, wtap_rec *rec, Buffer *buf,
   return true;
 }
 
-static bool ber_full_file_seek_read(wtap *wth, int64_t seek_off,
-                                        wtap_rec *rec, Buffer *buf,
+static bool ber_full_file_seek_read(wtap *wth, int64_t seek_off, wtap_rec *rec,
                                         int *err, char **err_info)
 {
-  if (!wtap_full_file_seek_read(wth, seek_off, rec, buf, err, err_info))
+  if (!wtap_full_file_seek_read(wth, seek_off, rec, err, err_info))
     return false;
 
   /* Pass the file name. */

@@ -182,7 +182,7 @@ static void get_time(char *string, wtap_rec *rec) {
 }
 
 static bool logcat_text_read_packet(FILE_T fh, wtap_rec *rec,
-        Buffer *buf, int file_type) {
+        int file_type) {
     int8_t *pd;
     char *cbuff;
     char *ret = NULL;
@@ -228,8 +228,8 @@ static bool logcat_text_read_packet(FILE_T fh, wtap_rec *rec,
     rec->rec_header.packet_header.caplen = (uint32_t)strlen(cbuff);
     rec->rec_header.packet_header.len = rec->rec_header.packet_header.caplen;
 
-    ws_buffer_assure_space(buf, rec->rec_header.packet_header.caplen + 1);
-    pd = ws_buffer_start_ptr(buf);
+    ws_buffer_assure_space(&rec->data, rec->rec_header.packet_header.caplen + 1);
+    pd = ws_buffer_start_ptr(&rec->data);
     if ((logcat_text_time_file_type_subtype == file_type
             || logcat_text_threadtime_file_type_subtype == file_type
             || logcat_text_long_file_type_subtype == file_type)
@@ -250,19 +250,18 @@ static bool logcat_text_read_packet(FILE_T fh, wtap_rec *rec,
 }
 
 static bool logcat_text_read(wtap *wth, wtap_rec *rec,
-        Buffer *buf, int *err _U_ , char **err_info _U_, int64_t *data_offset) {
+        int *err _U_ , char **err_info _U_, int64_t *data_offset) {
     *data_offset = file_tell(wth->fh);
 
-    return logcat_text_read_packet(wth->fh, rec, buf, wth->file_type_subtype);
+    return logcat_text_read_packet(wth->fh, rec, wth->file_type_subtype);
 }
 
 static bool logcat_text_seek_read(wtap *wth, int64_t seek_off,
-        wtap_rec *rec, Buffer *buf, int *err, char **err_info _U_) {
+        wtap_rec *rec, int *err, char **err_info _U_) {
     if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
         return false;
 
-    if (!logcat_text_read_packet(wth->random_fh, rec, buf,
-            wth->file_type_subtype)) {
+    if (!logcat_text_read_packet(wth->random_fh, rec, wth->file_type_subtype)) {
         if (*err == 0)
             *err = WTAP_ERR_SHORT_READ;
         return false;

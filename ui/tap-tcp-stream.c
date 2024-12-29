@@ -322,9 +322,7 @@ select_tcpip_session(capture_file *cf)
 
     epan_dissect_init(&edt, cf->epan, true, false);
     epan_dissect_prime_with_dfilter(&edt, sfcode);
-    epan_dissect_run_with_taps(&edt, cf->cd_t, &cf->rec,
-                               ws_buffer_start_ptr(&cf->buf),
-                               fdata, NULL);
+    epan_dissect_run_with_taps(&edt, cf->cd_t, &cf->rec, fdata, NULL);
     epan_dissect_cleanup(&edt);
     remove_tap_listener(&th);
     dfilter_free(sfcode);

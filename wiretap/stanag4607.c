@@ -43,7 +43,7 @@ static bool is_valid_id(uint16_t version_id)
 }
 
 static bool stanag4607_read_file(wtap *wth, FILE_T fh, wtap_rec *rec,
-                               Buffer *buf, int *err, char **err_info)
+                                 int *err, char **err_info)
 {
   stanag4607_t *stanag4607 = (stanag4607_t *)wth->priv;
   uint32_t millisecs, secs, nsecs;
@@ -147,25 +147,24 @@ static bool stanag4607_read_file(wtap *wth, FILE_T fh, wtap_rec *rec,
   if (file_seek(fh, - offset, SEEK_CUR, err) == -1)
     return false;
 
-  return wtap_read_packet_bytes(fh, buf, packet_size, err, err_info);
+  return wtap_read_packet_bytes(fh, &rec->data, packet_size, err, err_info);
 }
 
-static bool stanag4607_read(wtap *wth, wtap_rec *rec, Buffer *buf,
-                                int *err, char **err_info, int64_t *data_offset)
+static bool stanag4607_read(wtap *wth, wtap_rec *rec,
+                            int *err, char **err_info, int64_t *data_offset)
 {
   *data_offset = file_tell(wth->fh);
 
-  return stanag4607_read_file(wth, wth->fh, rec, buf, err, err_info);
+  return stanag4607_read_file(wth, wth->fh, rec, err, err_info);
 }
 
-static bool stanag4607_seek_read(wtap *wth, int64_t seek_off,
-                               wtap_rec *rec,
-                               Buffer *buf, int *err, char **err_info)
+static bool stanag4607_seek_read(wtap *wth, int64_t seek_off, wtap_rec *rec,
+                                 int *err, char **err_info)
 {
   if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
     return false;
 
-  return stanag4607_read_file(wth, wth->random_fh, rec, buf, err, err_info);
+  return stanag4607_read_file(wth, wth->random_fh, rec, err, err_info);
 }
 
 wtap_open_return_val stanag4607_open(wtap *wth, int *err, char **err_info)

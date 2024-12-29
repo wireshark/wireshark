@@ -45,8 +45,7 @@ PacketDialog::PacketDialog(QWidget &parent, CaptureFile &cf, frame_data *fdata) 
     ui->prefsLayout->insertSpacing(1, 20);
     ui->prefsLayout->addStretch();
 
-    wtap_rec_init(&rec_);
-    ws_buffer_init(&buf_, 1514);
+    wtap_rec_init(&rec_, 1514);
 
     edt_.session = NULL;
     edt_.tvb = NULL;
@@ -56,7 +55,7 @@ PacketDialog::PacketDialog(QWidget &parent, CaptureFile &cf, frame_data *fdata) 
 
     setWindowSubtitle(tr("Packet %1").arg(fdata->num));
 
-    if (!cf_read_record(cap_file_.capFile(), fdata, &rec_, &buf_)) {
+    if (!cf_read_record(cap_file_.capFile(), fdata, &rec_)) {
         reject();
         return;
     }
@@ -66,7 +65,6 @@ PacketDialog::PacketDialog(QWidget &parent, CaptureFile &cf, frame_data *fdata) 
     col_custom_prime_edt(&edt_, &(cap_file_.capFile()->cinfo));
 
     epan_dissect_run(&edt_, cap_file_.capFile()->cd_t, &rec_,
-                     ws_buffer_start_ptr(&buf_),
                      fdata, &(cap_file_.capFile()->cinfo));
     epan_dissect_fill_in_columns(&edt_, true, true);
 
@@ -171,7 +169,6 @@ PacketDialog::~PacketDialog()
     delete ui;
     epan_dissect_cleanup(&edt_);
     wtap_rec_cleanup(&rec_);
-    ws_buffer_free(&buf_);
 }
 
 void PacketDialog::captureFileClosing()

@@ -33,8 +33,8 @@ const char PREEB_BEGIN[] = "-----BEGIN ";
 const char POSTEB_BEGIN[] = "-----END ";
 #define POSTEB_BEGIN_LEN (sizeof POSTEB_BEGIN - 1)
 
-static bool rfc7468_read_line(FILE_T fh, enum line_type *line_type, Buffer *buf,
-    int* err, char** err_info)
+static bool rfc7468_read_line(FILE_T fh, enum line_type *line_type,
+    Buffer *buf, int* err, char** err_info)
 {
     /* Make the chunk size large enough that most lines can fit in a single chunk.
        Strict RFC 7468 syntax only allows up to 64 characters per line, but we provide
@@ -80,17 +80,17 @@ static bool rfc7468_read_line(FILE_T fh, enum line_type *line_type, Buffer *buf,
     return true;
 }
 
-static bool rfc7468_read_impl(FILE_T fh, wtap_rec *rec, Buffer *buf,
+static bool rfc7468_read_impl(FILE_T fh, wtap_rec *rec,
     int *err, char **err_info)
 {
-    ws_buffer_clean(buf);
+    ws_buffer_clean(&rec->data);
 
     bool saw_preeb = false;
 
     for (;;) {
         enum line_type line_type;
 
-        if (!rfc7468_read_line(fh, &line_type, buf, err, err_info)) {
+        if (!rfc7468_read_line(fh, &line_type, &rec->data, err, err_info)) {
             if (*err != 0 || !saw_preeb) return false;
 
             *err = WTAP_ERR_BAD_FILE;
@@ -109,27 +109,27 @@ static bool rfc7468_read_impl(FILE_T fh, wtap_rec *rec, Buffer *buf,
     rec->presence_flags = 0;
     rec->ts.secs = 0;
     rec->ts.nsecs = 0;
-    rec->rec_header.packet_header.caplen = (uint32_t)ws_buffer_length(buf);
-    rec->rec_header.packet_header.len = (uint32_t)ws_buffer_length(buf);
+    rec->rec_header.packet_header.caplen = (uint32_t)ws_buffer_length(&rec->data);
+    rec->rec_header.packet_header.len = (uint32_t)ws_buffer_length(&rec->data);
 
     return true;
 }
 
-static bool rfc7468_read(wtap *wth, wtap_rec *rec, Buffer *buf,
+static bool rfc7468_read(wtap *wth, wtap_rec *rec,
     int *err, char **err_info, int64_t *data_offset)
 {
     *data_offset = file_tell(wth->fh);
 
-    return rfc7468_read_impl(wth->fh, rec, buf, err, err_info);
+    return rfc7468_read_impl(wth->fh, rec, err, err_info);
 }
 
 static bool rfc7468_seek_read(wtap *wth, int64_t seek_off, wtap_rec *rec,
-    Buffer *buf, int *err, char **err_info)
+    int *err, char **err_info)
 {
     if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) < 0)
         return false;
 
-    return rfc7468_read_impl(wth->random_fh, rec, buf, err, err_info);
+    return rfc7468_read_impl(wth->random_fh, rec, err, err_info);
 }
 
 wtap_open_return_val rfc7468_open(wtap *wth, int *err, char **err_info)

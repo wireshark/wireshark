@@ -303,13 +303,12 @@ struct _wslua_captureinfo {
     bool expired;
 };
 
-struct _wslua_phdr {
-    wtap_rec *rec;      /* this also exists in wtap struct, but is different for seek_read ops */
-    Buffer *buf;        /* can't use the one in wtap because it's different for seek_read ops */
+struct _wslua_rec {
+    wtap_rec *rec;
     bool expired;
 };
 
-struct _wslua_const_phdr {
+struct _wslua_const_rec {
     const wtap_rec *rec;
     const uint8_t *pd;
     bool expired;
@@ -379,8 +378,8 @@ typedef struct _wslua_progdlg* ProgDlg;
 typedef struct _wslua_file* File;
 typedef struct _wslua_captureinfo* CaptureInfo;
 typedef struct _wslua_captureinfo* CaptureInfoConst;
-typedef struct _wslua_phdr* FrameInfo;
-typedef struct _wslua_const_phdr* FrameInfoConst;
+typedef struct _wslua_rec* FrameInfo;
+typedef struct _wslua_const_rec* FrameInfoConst;
 typedef struct _wslua_filehandler* FileHandler;
 typedef wtap_dumper* Dumper;
 typedef struct lua_pseudo_header* PseudoHeader;

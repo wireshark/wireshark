@@ -228,7 +228,7 @@ nettrace_parse_address(char* curr_pos, char* next_pos, bool is_src_addr, exporte
 
 /* Parse a <msg ...><rawMsg ...>XXXX</rawMsg></msg> into packet data. */
 static bool
-nettrace_msg_to_packet(nettrace_3gpp_32_423_file_info_t *file_info, wtap_rec *rec, Buffer *buf, uint8_t *input, size_t len, int *err, char **err_info)
+nettrace_msg_to_packet(nettrace_3gpp_32_423_file_info_t *file_info, wtap_rec *rec, uint8_t *input, size_t len, int *err, char **err_info)
 {
 /* Convenience macro. haystack must be >= input! */
 #define STRNSTR(haystack, needle) g_strstr_len(haystack, (len - ((uint8_t*)(haystack) - (uint8_t*)input)), needle)
@@ -473,52 +473,52 @@ nettrace_msg_to_packet(nettrace_3gpp_32_423_file_info_t *file_info, wtap_rec *re
 	raw_data_len = (int)(next_pos - curr_pos);
 
 	/* Fill packet buff */
-	ws_buffer_clean(buf);
+	ws_buffer_clean(&rec->data);
 	if (use_proto_table == false) {
-		wtap_buffer_append_epdu_tag(buf, EXP_PDU_TAG_DISSECTOR_NAME, proto_name_str, proto_str_len);
+		wtap_buffer_append_epdu_tag(&rec->data, EXP_PDU_TAG_DISSECTOR_NAME, proto_name_str, proto_str_len);
 	}
 	else {
-		wtap_buffer_append_epdu_tag(buf, EXP_PDU_TAG_DISSECTOR_TABLE_NAME, dissector_table_str, dissector_table_str_len);
-		wtap_buffer_append_epdu_uint(buf, EXP_PDU_TAG_DISSECTOR_TABLE_NAME_NUM_VAL, dissector_table_val);
+		wtap_buffer_append_epdu_tag(&rec->data, EXP_PDU_TAG_DISSECTOR_TABLE_NAME, dissector_table_str, dissector_table_str_len);
+		wtap_buffer_append_epdu_uint(&rec->data, EXP_PDU_TAG_DISSECTOR_TABLE_NAME_NUM_VAL, dissector_table_val);
 	}
 
 	if (exported_pdu_info.presence_flags & EXP_PDU_TAG_COL_PROT_BIT) {
-		wtap_buffer_append_epdu_string(buf, EXP_PDU_TAG_COL_PROT_TEXT, exported_pdu_info.proto_col_str);
+		wtap_buffer_append_epdu_string(&rec->data, EXP_PDU_TAG_COL_PROT_TEXT, exported_pdu_info.proto_col_str);
 		g_free(exported_pdu_info.proto_col_str);
 		exported_pdu_info.proto_col_str = NULL;
 	}
 
 	if (exported_pdu_info.presence_flags & EXP_PDU_TAG_IP_SRC_BIT) {
-		wtap_buffer_append_epdu_tag(buf, EXP_PDU_TAG_IPV4_SRC, exported_pdu_info.src_ip, EXP_PDU_TAG_IPV4_LEN);
+		wtap_buffer_append_epdu_tag(&rec->data, EXP_PDU_TAG_IPV4_SRC, exported_pdu_info.src_ip, EXP_PDU_TAG_IPV4_LEN);
 	}
 	if (exported_pdu_info.presence_flags & EXP_PDU_TAG_IP_DST_BIT) {
-		wtap_buffer_append_epdu_tag(buf, EXP_PDU_TAG_IPV4_DST, exported_pdu_info.dst_ip, EXP_PDU_TAG_IPV4_LEN);
+		wtap_buffer_append_epdu_tag(&rec->data, EXP_PDU_TAG_IPV4_DST, exported_pdu_info.dst_ip, EXP_PDU_TAG_IPV4_LEN);
 	}
 
 	if (exported_pdu_info.presence_flags & EXP_PDU_TAG_IP6_SRC_BIT) {
-		wtap_buffer_append_epdu_tag(buf, EXP_PDU_TAG_IPV6_SRC, exported_pdu_info.src_ip, EXP_PDU_TAG_IPV6_LEN);
+		wtap_buffer_append_epdu_tag(&rec->data, EXP_PDU_TAG_IPV6_SRC, exported_pdu_info.src_ip, EXP_PDU_TAG_IPV6_LEN);
 	}
 	if (exported_pdu_info.presence_flags & EXP_PDU_TAG_IP6_DST_BIT) {
-		wtap_buffer_append_epdu_tag(buf, EXP_PDU_TAG_IPV6_DST, exported_pdu_info.dst_ip, EXP_PDU_TAG_IPV6_LEN);
+		wtap_buffer_append_epdu_tag(&rec->data, EXP_PDU_TAG_IPV6_DST, exported_pdu_info.dst_ip, EXP_PDU_TAG_IPV6_LEN);
 	}
 
 	if (exported_pdu_info.presence_flags & (EXP_PDU_TAG_SRC_PORT_BIT | EXP_PDU_TAG_DST_PORT_BIT)) {
-		wtap_buffer_append_epdu_uint(buf, EXP_PDU_TAG_PORT_TYPE, exported_pdu_info.ptype);
+		wtap_buffer_append_epdu_uint(&rec->data, EXP_PDU_TAG_PORT_TYPE, exported_pdu_info.ptype);
 	}
 	if (exported_pdu_info.presence_flags & EXP_PDU_TAG_SRC_PORT_BIT) {
-		wtap_buffer_append_epdu_uint(buf, EXP_PDU_TAG_SRC_PORT, exported_pdu_info.src_port);
+		wtap_buffer_append_epdu_uint(&rec->data, EXP_PDU_TAG_SRC_PORT, exported_pdu_info.src_port);
 	}
 	if (exported_pdu_info.presence_flags & EXP_PDU_TAG_DST_PORT_BIT) {
-		wtap_buffer_append_epdu_uint(buf, EXP_PDU_TAG_DST_PORT, exported_pdu_info.dst_port);
+		wtap_buffer_append_epdu_uint(&rec->data, EXP_PDU_TAG_DST_PORT, exported_pdu_info.dst_port);
 	}
 
 	/* Add end of options */
-	exp_pdu_tags_len = wtap_buffer_append_epdu_end(buf);
+	exp_pdu_tags_len = wtap_buffer_append_epdu_end(&rec->data);
 
 	/* Convert the hex raw msg data to binary and write to the packet buf*/
 	pkt_data_len = raw_data_len / 2;
-	ws_buffer_assure_space(buf, pkt_data_len);
-	packet_buf = ws_buffer_end_ptr(buf);
+	ws_buffer_assure_space(&rec->data, pkt_data_len);
+	packet_buf = ws_buffer_end_ptr(&rec->data);
 
 	for (i = 0; i < pkt_data_len; i++) {
 		char chr1, chr2;
@@ -542,10 +542,10 @@ nettrace_msg_to_packet(nettrace_3gpp_32_423_file_info_t *file_info, wtap_rec *re
 			goto end;
 		}
 	}
-	ws_buffer_increase_length(buf, pkt_data_len);
+	ws_buffer_increase_length(&rec->data, pkt_data_len);
 
-	rec->rec_header.packet_header.caplen = (uint32_t)ws_buffer_length(buf);
-	rec->rec_header.packet_header.len = (uint32_t)ws_buffer_length(buf);
+	rec->rec_header.packet_header.caplen = (uint32_t)ws_buffer_length(&rec->data);
+	rec->rec_header.packet_header.len = (uint32_t)ws_buffer_length(&rec->data);
 
 end:
 	return status;
@@ -581,7 +581,7 @@ read_until(GByteArray *buffer, const unsigned char *needle, FILE_T fh, int *err,
  * Set as the subtype_read function in the file_open function below.
  */
 static bool
-nettrace_read(wtap *wth, wtap_rec *rec, Buffer *buf, int *err, char **err_info, int64_t *data_offset)
+nettrace_read(wtap *wth, wtap_rec *rec, int *err, char **err_info, int64_t *data_offset)
 {
 	nettrace_3gpp_32_423_file_info_t *file_info = (nettrace_3gpp_32_423_file_info_t *)wth->priv;
 	uint8_t *buf_start;
@@ -616,7 +616,7 @@ nettrace_read(wtap *wth, wtap_rec *rec, Buffer *buf, int *err, char **err_info, 
 	*data_offset = file_info->start_offset + msg_offset;
 
 	/* pass all of <msg....</msg> to nettrace_msg_to_packet() */
-	status = nettrace_msg_to_packet(file_info, rec, buf, msg_start, msg_len, err, err_info);
+	status = nettrace_msg_to_packet(file_info, rec, msg_start, msg_len, err, err_info);
 
 	/* Finally, shift our buffer to the end of this message to get ready for the next one.
 	 * Re-use msg_len to get the length of the data we're done with.
@@ -642,7 +642,7 @@ end:
  * Set as the subtype_seek_read function in the file_open function below.
  */
 static bool
-nettrace_seek_read(wtap *wth, int64_t seek_off, wtap_rec *rec, Buffer *buf, int *err, char **err_info)
+nettrace_seek_read(wtap *wth, int64_t seek_off, wtap_rec *rec, int *err, char **err_info)
 {
 	nettrace_3gpp_32_423_file_info_t *file_info = (nettrace_3gpp_32_423_file_info_t *)wth->priv;
 	bool status = false;
@@ -660,7 +660,7 @@ nettrace_seek_read(wtap *wth, int64_t seek_off, wtap_rec *rec, Buffer *buf, int 
 	msg_end += CLEN(c_e_msg);
 	msg_len = (unsigned)(msg_end - file_info->buffer->data);
 
-	status = nettrace_msg_to_packet(file_info, rec, buf, file_info->buffer->data, msg_len, err, err_info);
+	status = nettrace_msg_to_packet(file_info, rec, file_info->buffer->data, msg_len, err, err_info);
 	g_byte_array_set_size(file_info->buffer, 0);
 	return status;
 }

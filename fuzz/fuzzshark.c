@@ -352,9 +352,18 @@ LLVMFuzzerTestOneInput(const uint8_t *buf, size_t real_len)
 	rec.rec_header.packet_header.pkt_encap = INT16_MAX;
 	rec.presence_flags = WTAP_HAS_TS | WTAP_HAS_CAP_LEN; /* most common flags... */
 
+	/*
+	 * This directly sets the data Buffer in the wtap_rec to point
+	 * to the data provided to us.
+	 */
+	rec.data.data = buf;
+	rec.data.allocated = real_len;
+	rec.data.start = 0;
+	rec.data.first_free = real_len;
+
 	frame_data_init(&fdlocal, ++framenum, &rec, /* offset */ 0, /* cum_bytes */ 0);
 	/* frame_data_set_before_dissect() not needed */
-	epan_dissect_run(edt, WTAP_FILE_TYPE_SUBTYPE_UNKNOWN, &rec, buf, &fdlocal, NULL /* &fuzz_cinfo */);
+	epan_dissect_run(edt, WTAP_FILE_TYPE_SUBTYPE_UNKNOWN, &rec, &fdlocal, NULL /* &fuzz_cinfo */);
 	frame_data_destroy(&fdlocal);
 
 	epan_dissect_reset(edt);

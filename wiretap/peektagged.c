@@ -153,10 +153,10 @@ typedef struct {
         bool            has_fcs;
 } peektagged_t;
 
-static bool peektagged_read(wtap *wth, wtap_rec *rec, Buffer *buf,
+static bool peektagged_read(wtap *wth, wtap_rec *rec,
     int *err, char **err_info, int64_t *data_offset);
-static bool peektagged_seek_read(wtap *wth, int64_t seek_off,
-    wtap_rec *rec, Buffer *buf, int *err, char **err_info);
+static bool peektagged_seek_read(wtap *wth, int64_t seek_off, wtap_rec *rec,
+    int *err, char **err_info);
 
 static int peektagged_file_type_subtype = -1;
 
@@ -420,7 +420,7 @@ wtap_open_return_val peektagged_open(wtap *wth, int *err, char **err_info)
  */
 static int
 peektagged_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec,
-                       Buffer *buf, int *err, char **err_info)
+                       int *err, char **err_info)
 {
     peektagged_t *peektagged = (peektagged_t *)wth->priv;
     bool read_a_tag = false;
@@ -887,13 +887,13 @@ peektagged_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec,
     }
 
     /* Read the packet data. */
-    if (!wtap_read_packet_bytes(fh, buf, rec->rec_header.packet_header.caplen, err, err_info))
+    if (!wtap_read_packet_bytes(fh, &rec->data, rec->rec_header.packet_header.caplen, err, err_info))
         return -1;
 
     return skip_len;
 }
 
-static bool peektagged_read(wtap *wth, wtap_rec *rec, Buffer *buf,
+static bool peektagged_read(wtap *wth, wtap_rec *rec,
     int *err, char **err_info, int64_t *data_offset)
 {
     int skip_len;
@@ -901,7 +901,7 @@ static bool peektagged_read(wtap *wth, wtap_rec *rec, Buffer *buf,
     *data_offset = file_tell(wth->fh);
 
     /* Read the packet. */
-    skip_len = peektagged_read_packet(wth, wth->fh, rec, buf, err, err_info);
+    skip_len = peektagged_read_packet(wth, wth->fh, rec, err, err_info);
     if (skip_len == -1)
         return false;
 
@@ -915,14 +915,14 @@ static bool peektagged_read(wtap *wth, wtap_rec *rec, Buffer *buf,
 }
 
 static bool
-peektagged_seek_read(wtap *wth, int64_t seek_off,
-    wtap_rec *rec, Buffer *buf, int *err, char **err_info)
+peektagged_seek_read(wtap *wth, int64_t seek_off, wtap_rec *rec,
+    int *err, char **err_info)
 {
     if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
         return false;
 
     /* Read the packet. */
-    if (peektagged_read_packet(wth, wth->random_fh, rec, buf, err, err_info) == -1) {
+    if (peektagged_read_packet(wth, wth->random_fh, rec, err, err_info) == -1) {
         if (*err == 0)
             *err = WTAP_ERR_SHORT_READ;
         return false;

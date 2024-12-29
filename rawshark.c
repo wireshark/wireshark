@@ -132,7 +132,7 @@ static bool want_pcap_pkthdr;
 cf_status_t raw_cf_open(capture_file *cf, const char *fname);
 static bool load_cap_file(capture_file *cf);
 static bool process_packet(capture_file *cf, epan_dissect_t *edt, int64_t offset,
-                               wtap_rec *rec, Buffer *buf);
+                               wtap_rec *rec);
 static void show_print_file_io_error(int err);
 
 static void protocolinfo_init(char *field);
@@ -806,15 +806,15 @@ clean_exit:
 /**
  * Read data from a raw pipe.  The "raw" data consists of a libpcap
  * packet header followed by the payload.
- * @param buf [IN] A POSIX file descriptor.  Because that's _exactly_ the sort
- *           of thing you want to use in Windows.
+ * @param rec [IN/OUT] A wtap_rec into which to read packet metadata
+ *           and data.
  * @param err [OUT] Error indicator.  Uses wiretap values.
  * @param err_info [OUT] Error message.
  * @param data_offset [OUT] data offset in the pipe.
  * @return true on success, false on failure.
  */
 static bool
-raw_pipe_read(wtap_rec *rec, Buffer *buf, int *err, char **err_info, int64_t *data_offset) {
+raw_pipe_read(wtap_rec *rec, int *err, char **err_info, int64_t *data_offset) {
     struct pcap_pkthdr mem_hdr;
     struct pcaprec_hdr disk_hdr;
     ssize_t bytes_read = 0;
@@ -893,8 +893,8 @@ raw_pipe_read(wtap_rec *rec, Buffer *buf, int *err, char **err_info, int64_t *da
         return false;
     }
 
-    ws_buffer_assure_space(buf, bytes_needed);
-    ptr = ws_buffer_start_ptr(buf);
+    ws_buffer_assure_space(&rec->data, bytes_needed);
+    ptr = ws_buffer_start_ptr(&rec->data);
     while (bytes_needed > 0) {
         bytes_read = ws_read(fd, ptr, bytes_needed);
         if (bytes_read == 0) {
@@ -921,22 +921,19 @@ load_cap_file(capture_file *cf)
     int64_t      data_offset = 0;
 
     wtap_rec     rec;
-    Buffer       buf;
     epan_dissect_t edt;
 
-    wtap_rec_init(&rec);
-    ws_buffer_init(&buf, 1514);
+    wtap_rec_init(&rec, 1514);
 
     epan_dissect_init(&edt, cf->epan, true, false);
 
-    while (raw_pipe_read(&rec, &buf, &err, &err_info, &data_offset)) {
-        process_packet(cf, &edt, data_offset, &rec, &buf);
+    while (raw_pipe_read(&rec, &err, &err_info, &data_offset)) {
+        process_packet(cf, &edt, data_offset, &rec);
     }
 
     epan_dissect_cleanup(&edt);
 
     wtap_rec_cleanup(&rec);
-    ws_buffer_free(&buf);
     if (err != 0) {
         /* Print a message noting that the read failed somewhere along the line. */
         cfile_read_failure_message(cf->filename, err, err_info);
@@ -948,7 +945,7 @@ load_cap_file(capture_file *cf)
 
 static bool
 process_packet(capture_file *cf, epan_dissect_t *edt, int64_t offset,
-               wtap_rec *rec, Buffer *buf)
+               wtap_rec *rec)
 {
     frame_data fdata;
     bool passed;
@@ -998,9 +995,7 @@ process_packet(capture_file *cf, epan_dissect_t *edt, int64_t offset,
     /* We only need the columns if we're printing packet info but we're
      *not* verbose; in verbose mode, we print the protocol tree, not
      the protocol summary. */
-    epan_dissect_run_with_taps(edt, cf->cd_t, rec,
-                               ws_buffer_start_ptr(buf),
-                               &fdata, &cf->cinfo);
+    epan_dissect_run_with_taps(edt, cf->cd_t, rec, &fdata, &cf->cinfo);
 
     frame_data_set_after_dissect(&fdata, &cum_bytes);
     prev_dis_frame = fdata;

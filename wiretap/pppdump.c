@@ -86,10 +86,10 @@ typedef enum {
 	DIRECTION_RECV
 } direction_enum;
 
-static bool pppdump_read(wtap *wth, wtap_rec *rec, Buffer *buf,
+static bool pppdump_read(wtap *wth, wtap_rec *rec,
 	int *err, char **err_info, int64_t *data_offset);
-static bool pppdump_seek_read(wtap *wth, int64_t seek_off,
-	wtap_rec *rec, Buffer *buf, int *err, char **err_info);
+static bool pppdump_seek_read(wtap *wth, int64_t seek_off, wtap_rec *rec,
+        int *err, char **err_info);
 
 static int pppdump_file_type_subtype = -1;
 
@@ -317,8 +317,7 @@ pppdump_open(wtap *wth, int *err, char **err_info)
 
 /* Set part of the struct wtap_rec. */
 static void
-pppdump_set_phdr(wtap_rec *rec, int num_bytes,
-    direction_enum direction)
+pppdump_set_phdr(wtap_rec *rec, int num_bytes, direction_enum direction)
 {
 	rec->rec_type = REC_TYPE_PACKET;
 	rec->block = wtap_block_create(WTAP_BLOCK_PACKET);
@@ -331,7 +330,7 @@ pppdump_set_phdr(wtap_rec *rec, int num_bytes,
 
 /* Find the next packet and parse it; called from wtap_read(). */
 static bool
-pppdump_read(wtap *wth, wtap_rec *rec, Buffer *buf, int *err, char **err_info,
+pppdump_read(wtap *wth, wtap_rec *rec, int *err, char **err_info,
     int64_t *data_offset)
 {
 	int		num_bytes;
@@ -353,8 +352,8 @@ pppdump_read(wtap *wth, wtap_rec *rec, Buffer *buf, int *err, char **err_info,
 	} else
 		pid = NULL;	/* sequential only */
 
-	ws_buffer_assure_space(buf, PPPD_BUF_SIZE);
-	if (!collate(state, wth->fh, err, err_info, ws_buffer_start_ptr(buf),
+	ws_buffer_assure_space(&rec->data, PPPD_BUF_SIZE);
+	if (!collate(state, wth->fh, err, err_info, ws_buffer_start_ptr(&rec->data),
 	    &num_bytes, &direction, pid, 0)) {
 		g_free(pid);
 		return false;
@@ -727,7 +726,6 @@ static bool
 pppdump_seek_read(wtap *wth,
 		 int64_t seek_off,
 		 wtap_rec *rec,
-		 Buffer *buf,
 		 int *err,
 		 char **err_info)
 {
@@ -753,8 +751,8 @@ pppdump_seek_read(wtap *wth,
 	init_state(state->seek_state);
 	state->seek_state->offset = pid->offset;
 
-	ws_buffer_assure_space(buf, PPPD_BUF_SIZE);
-	pd = ws_buffer_start_ptr(buf);
+	ws_buffer_assure_space(&rec->data, PPPD_BUF_SIZE);
+	pd = ws_buffer_start_ptr(&rec->data);
 
 	/*
 	 * We'll start reading at the first record containing data from

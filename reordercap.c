@@ -78,8 +78,7 @@ typedef struct FrameRecord_t {
 
 static void
 frame_write(FrameRecord_t *frame, wtap *wth, wtap_dumper *pdh,
-            wtap_rec *rec, Buffer *buf, const char *infile,
-            const char *outfile)
+            wtap_rec *rec, const char *infile, const char *outfile)
 {
     int    err;
     char   *err_info;
@@ -89,7 +88,7 @@ frame_write(FrameRecord_t *frame, wtap *wth, wtap_dumper *pdh,
 
 
     /* Re-read the frame from the stored location */
-    if (!wtap_seek_read(wth, frame->offset, rec, buf, &err, &err_info)) {
+    if (!wtap_seek_read(wth, frame->offset, rec, &err, &err_info)) {
         if (err != 0) {
             /* Print a message noting that the read failed somewhere along the line. */
             fprintf(stderr,
@@ -106,7 +105,7 @@ frame_write(FrameRecord_t *frame, wtap *wth, wtap_dumper *pdh,
     rec->ts = frame->frame_time;
 
     /* Dump frame to outfile */
-    if (!wtap_dump(pdh, rec, ws_buffer_start_ptr(buf), &err, &err_info)) {
+    if (!wtap_dump(pdh, rec, ws_buffer_start_ptr(&rec->data), &err, &err_info)) {
         cfile_write_failure_message(infile, outfile, err, err_info, frame->num,
                                     wtap_file_type_subtype(wth));
         exit(1);
@@ -141,7 +140,6 @@ main(int argc, char *argv[])
     wtap *wth = NULL;
     wtap_dumper *pdh = NULL;
     wtap_rec rec;
-    Buffer buf;
     int err;
     char *err_info;
     int64_t data_offset;
@@ -248,9 +246,8 @@ main(int argc, char *argv[])
     frames = g_ptr_array_new();
 
     /* Read each frame from infile */
-    wtap_rec_init(&rec);
-    ws_buffer_init(&buf, 1514);
-    while (wtap_read(wth, &rec, &buf, &err, &err_info, &data_offset)) {
+    wtap_rec_init(&rec, 1514);
+    while (wtap_read(wth, &rec, &err, &err_info, &data_offset)) {
         FrameRecord_t *newFrameRecord;
 
         newFrameRecord = g_slice_new(FrameRecord_t);
@@ -271,7 +268,6 @@ main(int argc, char *argv[])
         wtap_rec_reset(&rec);
     }
     wtap_rec_cleanup(&rec);
-    ws_buffer_free(&buf);
     if (err != 0) {
       /* Print a message noting that the read failed somewhere along the line. */
       cfile_read_failure_message(infile, err, err_info);
@@ -311,18 +307,16 @@ main(int argc, char *argv[])
 
 
         /* Write out each sorted frame in turn */
-        wtap_rec_init(&rec);
-        ws_buffer_init(&buf, 1514);
+        wtap_rec_init(&rec, 1514);
         for (i = 0; i < frames->len; i++) {
             FrameRecord_t *frame = (FrameRecord_t *)frames->pdata[i];
 
-            frame_write(frame, wth, pdh, &rec, &buf, infile, outfile);
+            frame_write(frame, wth, pdh, &rec, infile, outfile);
 
             g_slice_free(FrameRecord_t, frame);
         }
 
         wtap_rec_cleanup(&rec);
-        ws_buffer_free(&buf);
 
 
 
