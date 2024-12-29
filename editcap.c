@@ -203,7 +203,7 @@ abs_time_to_str_with_sec_resolution(const nstime_t *abs_time)
 }
 
 static char *
-fileset_get_filename_by_pattern(unsigned idx, const wtap_rec *rec,
+fileset_get_filename_by_pattern(unsigned idx, const nstime_t *ts,
                                 char *fprefix, char *fsuffix)
 {
     char  filenum[5+1];
@@ -211,8 +211,8 @@ fileset_get_filename_by_pattern(unsigned idx, const wtap_rec *rec,
     char *abs_str;
 
     snprintf(filenum, sizeof(filenum), "%05u", idx % RINGBUFFER_MAX_NUM_FILES);
-    if (rec && rec->presence_flags & WTAP_HAS_TS) {
-        timestr = abs_time_to_str_with_sec_resolution(&rec->ts);
+    if (ts) {
+        timestr = abs_time_to_str_with_sec_resolution(ts);
         abs_str = g_strconcat(fprefix, "_", filenum, "_", timestr, fsuffix, NULL);
         g_free(timestr);
     } else
@@ -2051,7 +2051,9 @@ main(int argc, char *argv[])
         /* Extra actions for the first packet */
         if (read_count == 1) {
             if (split_packet_count != 0 || !nstime_is_unset(&secs_per_block)) {
-                filename = fileset_get_filename_by_pattern(block_cnt++, rec, fprefix, fsuffix);
+                filename = fileset_get_filename_by_pattern(block_cnt++,
+                                                           (rec->presence_flags & WTAP_HAS_TS) ? &rec->ts : NULL,
+                                                           fprefix, fsuffix);
             } else {
                 filename = g_strdup(argv[ws_optind+1]);
             }
@@ -2119,9 +2121,7 @@ main(int argc, char *argv[])
                     }
                     g_free(filename);
                     /* Use the interval start time for the filename. */
-                    temp_rec = *rec;
-                    temp_rec.ts = block_next;
-                    filename = fileset_get_filename_by_pattern(block_cnt++, &temp_rec, fprefix, fsuffix);
+                    filename = fileset_get_filename_by_pattern(block_cnt++, &block_next, fprefix, fsuffix);
                     ws_assert(filename);
                     nstime_add(&block_next, &secs_per_block); /* reset for next interval */
 
@@ -2159,7 +2159,9 @@ main(int argc, char *argv[])
                 }
 
                 g_free(filename);
-                filename = fileset_get_filename_by_pattern(block_cnt++, rec, fprefix, fsuffix);
+                filename = fileset_get_filename_by_pattern(block_cnt++,
+                                                           (rec->presence_flags & WTAP_HAS_TS) ? &rec->ts : NULL,
+                                                           fprefix, fsuffix);
                 ws_assert(filename);
 
                 if (verbose)
