@@ -1267,7 +1267,7 @@ process_rollback(bool by_eol)
     int	    rollback = 0;
     int     line_size;
     int     i;
-    char   *s2;
+    GString *s2;
     char    tmp_str[3];
 
     /* Here a line of pkt bytes reading is finished */
@@ -1276,33 +1276,60 @@ process_rollback(bool by_eol)
        s2 = "ab ", s1 = "616220"
        we should find out the largest tail of s1 matches the head
        of s2, it means the matched part in tail is the ASCII dump
-       of the head byte. These matched should be rolled back. */
+       of the head byte. Those matched should be rolled back. */
     line_size = curr_offset-(int)(pkt_lnstart-packet_buf);
-    s2 = (char*)g_malloc((line_size+1)/4+1);
+    s2 = g_string_new(NULL);
     /* gather the possible pattern */
-    for (i = 0; i < (line_size+1)/4; i++) {
-        tmp_str[0] = pkt_lnstart[i*3];
-        tmp_str[1] = pkt_lnstart[i*3+1];
+    /* This is a simplified version of the lexical analysis done by the scanner
+     * and has to produce the same tokens. (Simpler because we only match bytes,
+     * space, and everything else.) Perhaps we should do lexical analysis with
+     * yy_scan_bytes. */
+    i = 0;
+    while (i + 1 + rollback < line_size) {
+        if (pkt_lnstart[i] == ' ') {
+            /* Skip any spaces. We don't skip '\t', because in the ASCII dump
+             * those are converted to '.' and so wouldn't create extra byte
+             * tokens. */
+            i++;
+            continue;
+        }
+        tmp_str[0] = pkt_lnstart[i];
+        tmp_str[1] = pkt_lnstart[i+1];
         tmp_str[2] = '\0';
         /* it is a valid convertible string */
         if (!g_ascii_isxdigit(tmp_str[0]) || !g_ascii_isxdigit(tmp_str[1])) {
             break;
         }
-        s2[i] = (char)strtoul(tmp_str, (char **)NULL, 16);
+        g_string_append_c(s2, (char)strtoul(tmp_str, (char **)NULL, 16));
+        i += 2;
         rollback++;
-        /* the 3rd entry is not a delimiter, so the possible byte pattern will not shown */
-        if (!(pkt_lnstart[i*3+2] == ' ')) {
-            if (!by_eol)
+        if (!by_eol) {
+            /* If we had a text token before EOL, then without ' ' after the
+             * byte it won't parse as a byte token in the ASCII dump.
+             * If we transitioned straight from T_BYTE to T_EOL, then we already
+             * know the entire ASCII dump parsed as bytes. */
+            if (!((i + rollback < line_size) && (pkt_lnstart[i] == ' '))) {
                 rollback--;
-            break;
+                break;
+            }
+            i++;
         }
     }
-    /* If packet line start contains possible byte pattern, the line end
-       should contain the matched pattern if the user open the -a flag.
-       The packet will be possible invalid if the byte pattern cannot find
-       a matched one in the line of packet buffer.*/
+    /* If the packet line start contains a possible byte pattern, the line end
+       should contain the matched pattern if the user gave the -a flag.
+       The line will be considered invalid if the byte pattern cannot find
+       a matched one in the line of packet buffer.
+
+       XXX - We could instead do nothing (or warn) if the pattern isn't found.
+       That's probably better than dropping the entire line if the -a flag was
+       given despite there being no ASCII dump or if there is an ASCII dump but
+       separated by a delimiter like '|' that would prevent detecting it as
+       bytes. It's still better to avoid passing the flag if there is no ASCII
+       dump to avoid the extremely rare false detection where the actual bytes
+       look like a matching ASCII dump.
+        */
     if (rollback > 0) {
-        if (strncmp(pkt_lnstart+line_size-rollback, s2, rollback) == 0) {
+        if (strncmp(pkt_lnstart+line_size-rollback, s2->str, rollback) == 0) {
             unwrite_bytes(rollback);
         }
         /* Not matched. This line contains invalid packet bytes, so
@@ -1311,7 +1338,7 @@ process_rollback(bool by_eol)
             unwrite_bytes(line_size);
         }
     }
-    g_free(s2);
+    g_string_free(s2, TRUE);
 }
 
 /*----------------------------------------------------------------------

@@ -241,6 +241,12 @@ class TestText2pcapPcapng:
         '''Test text2pcap with sip.pcapng.'''
         check_text2pcap('sip.pcapng', 'pcapng')
 
+    def test_text2pcap_icmp_ascii_pcapng(self, check_text2pcap):
+        '''Test text2pcap with a test that needs special ASCII handling.'''
+        # This file has multiple spaces and spaces at hex dump line start,
+        # and was not handled by a simpler version of the ASCII rollback.
+        check_text2pcap('icmp_ascii.pcapng', 'pcapng')
+
 
 @pytest.fixture
 def check_rawip(run_text2pcap_capinfos_tshark):
