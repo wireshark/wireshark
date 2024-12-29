@@ -13,7 +13,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
- * Ref 3GPP TS 37.355 version 18.3.0 Release 18
+ * Ref 3GPP TS 37.355 version 18.4.0 Release 18
  * http://www.3gpp.org
  */
 
@@ -1958,6 +1958,7 @@ static int hf_lpp_navic_AlmOmega_r16;             /* INTEGER_M8388608_8388607 */
 static int hf_lpp_navic_AlmMo_r16;                /* INTEGER_M8388608_8388607 */
 static int hf_lpp_navic_Almaf0_r16;               /* INTEGER_M1024_1023 */
 static int hf_lpp_navic_Almaf1_r16;               /* INTEGER_M1024_1023 */
+static int hf_lpp_navicL5_i0_r16;                 /* INTEGER_M8388608_8388607 */
 static int hf_lpp_utcModel1;                      /* UTC_ModelSet1 */
 static int hf_lpp_utcModel2;                      /* UTC_ModelSet2 */
 static int hf_lpp_utcModel3;                      /* UTC_ModelSet3 */
@@ -3015,7 +3016,7 @@ static int hf_lpp_dl_PRS_MeasRRC_Inactive_r17;    /* T_dl_PRS_MeasRRC_Inactive_r
 static int hf_lpp_supportOfDL_PRS_BWA_RRC_Connected_r18;  /* T_supportOfDL_PRS_BWA_RRC_Connected_r18 */
 static int hf_lpp_supportOfDL_PRS_BWA_RRC_Inactive_r18;  /* T_supportOfDL_PRS_BWA_RRC_Inactive_r18 */
 static int hf_lpp_supportOfDL_PRS_BWA_RRC_Idle_r18;  /* T_supportOfDL_PRS_BWA_RRC_Idle_r18 */
-static int hf_lpp_nr_DL_PRS_RSCPD_ReportingRRC_Connected_r18;  /* T_nr_DL_PRS_RSCPD_ReportingRRC_Connected_r18 */
+static int hf_lpp_nr_DL_PRS_RSCPD_RRC_Connected_r18;  /* T_nr_DL_PRS_RSCPD_RRC_Connected_r18 */
 static int hf_lpp_assocSingleRSTD_WithUpToNsampleRSCPD_r18;  /* T_assocSingleRSTD_WithUpToNsampleRSCPD_r18 */
 static int hf_lpp_nr_DL_PRS_RSCPD_MeasurementRRC_Idle_r18;  /* T_nr_DL_PRS_RSCPD_MeasurementRRC_Idle_r18 */
 static int hf_lpp_supportOfUE_basedCarrierPhasePositioning_r18;  /* T_supportOfUE_basedCarrierPhasePositioning_r18 */
@@ -3023,6 +3024,7 @@ static int hf_lpp_supportOfSymbolTimeStampForRSCPD_r18;  /* T_supportOfSymbolTim
 static int hf_lpp_supportOfFinerTimingReportGranularityForPRS_Meas_r18;  /* T_supportOfFinerTimingReportGranularityForPRS_Meas_r18 */
 static int hf_lpp_supportOfMeasurementsInTimeWindow_r18;  /* T_supportOfMeasurementsInTimeWindow_r18 */
 static int hf_lpp_supportOfPRS_MeasurementRRC_Idle_r18;  /* T_supportOfPRS_MeasurementRRC_Idle_r18 */
+static int hf_lpp_nr_DL_PRS_RSCPD_RRC_Inactive_r18;  /* T_nr_DL_PRS_RSCPD_RRC_Inactive_r18 */
 static int hf_lpp_locationServerErrorCauses_r16_01;  /* NR_DL_TDOA_LocationServerErrorCauses_r16 */
 static int hf_lpp_targetDeviceErrorCauses_r16_01;  /* NR_DL_TDOA_TargetDeviceErrorCauses_r16 */
 static int hf_lpp_cause_r16_02;                   /* T_cause_r16_02 */
@@ -3197,8 +3199,8 @@ static int hf_lpp_dl_PRS_MeasRRC_Inactive_r17_02;  /* T_dl_PRS_MeasRRC_Inactive_
 static int hf_lpp_supportOfDL_PRS_BWA_RRC_Connected_r18_01;  /* T_supportOfDL_PRS_BWA_RRC_Connected_r18_01 */
 static int hf_lpp_supportOfDL_PRS_BWA_RRC_Inactive_r18_01;  /* T_supportOfDL_PRS_BWA_RRC_Inactive_r18_01 */
 static int hf_lpp_nr_NTN_MeasAndReport_r18;       /* T_nr_NTN_MeasAndReport_r18 */
-static int hf_lpp_nr_DL_PRS_RSCP_ReportingRRC_Connected_r18;  /* T_nr_DL_PRS_RSCP_ReportingRRC_Connected_r18 */
-static int hf_lpp_nr_DL_PRS_RSCP_ReportingRRC_Inactive_r18;  /* T_nr_DL_PRS_RSCP_ReportingRRC_Inactive_r18 */
+static int hf_lpp_nr_DL_PRS_RSCP_RRC_Connected_r18;  /* T_nr_DL_PRS_RSCP_RRC_Connected_r18 */
+static int hf_lpp_nr_DL_PRS_RSCP_RRC_Inactive_r18;  /* T_nr_DL_PRS_RSCP_RRC_Inactive_r18 */
 static int hf_lpp_assocSingleRx_Tx_WithUpToNsampleRSCP_r18;  /* T_assocSingleRx_Tx_WithUpToNsampleRSCP_r18 */
 static int hf_lpp_supportOfSymbolTimeStampForRSCP_r18;  /* T_supportOfSymbolTimeStampForRSCP_r18 */
 static int hf_lpp_supportOfFinerTimingReportGranularityForPRS_Meas_r18_01;  /* T_supportOfFinerTimingReportGranularityForPRS_Meas_r18_01 */
@@ -3287,6 +3289,7 @@ static int hf_lpp_T_almanacModel_model_4;
 static int hf_lpp_T_almanacModel_model_5;
 static int hf_lpp_T_almanacModel_model_6;
 static int hf_lpp_T_almanacModel_model_7;
+static int hf_lpp_T_almanacModel_model_8_v16e0;
 static int hf_lpp_T_utc_Model_model_1;
 static int hf_lpp_T_utc_Model_model_2;
 static int hf_lpp_T_utc_Model_model_3;
@@ -7920,13 +7923,14 @@ static int * const T_almanacModel_bits[] = {
   &hf_lpp_T_almanacModel_model_5,
   &hf_lpp_T_almanacModel_model_6,
   &hf_lpp_T_almanacModel_model_7,
+  &hf_lpp_T_almanacModel_model_8_v16e0,
   NULL
 };
 
 static int
 dissect_lpp_T_almanacModel(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     1, 8, false, T_almanacModel_bits, 7, NULL, NULL);
+                                     1, 8, false, T_almanacModel_bits, 8, NULL, NULL);
 
   return offset;
 }
@@ -10848,14 +10852,14 @@ dissect_lpp_T_nr_NTN_MeasAndReport_r18(tvbuff_t *tvb _U_, int offset _U_, asn1_c
 }
 
 
-static const value_string lpp_T_nr_DL_PRS_RSCP_ReportingRRC_Connected_r18_vals[] = {
+static const value_string lpp_T_nr_DL_PRS_RSCP_RRC_Connected_r18_vals[] = {
   {   0, "supported" },
   { 0, NULL }
 };
 
 
 static int
-dissect_lpp_T_nr_DL_PRS_RSCP_ReportingRRC_Connected_r18(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lpp_T_nr_DL_PRS_RSCP_RRC_Connected_r18(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
                                      1, NULL, false, 0, NULL);
 
@@ -10863,14 +10867,14 @@ dissect_lpp_T_nr_DL_PRS_RSCP_ReportingRRC_Connected_r18(tvbuff_t *tvb _U_, int o
 }
 
 
-static const value_string lpp_T_nr_DL_PRS_RSCP_ReportingRRC_Inactive_r18_vals[] = {
+static const value_string lpp_T_nr_DL_PRS_RSCP_RRC_Inactive_r18_vals[] = {
   {   0, "supported" },
   { 0, NULL }
 };
 
 
 static int
-dissect_lpp_T_nr_DL_PRS_RSCP_ReportingRRC_Inactive_r18(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lpp_T_nr_DL_PRS_RSCP_RRC_Inactive_r18(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
                                      1, NULL, false, 0, NULL);
 
@@ -10949,8 +10953,8 @@ static const per_sequence_t Multi_RTT_MeasCapabilityPerBand_r17_eag_1_sequence[]
   { &hf_lpp_supportOfDL_PRS_BWA_RRC_Connected_r18_01, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lpp_T_supportOfDL_PRS_BWA_RRC_Connected_r18_01 },
   { &hf_lpp_supportOfDL_PRS_BWA_RRC_Inactive_r18_01, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lpp_T_supportOfDL_PRS_BWA_RRC_Inactive_r18_01 },
   { &hf_lpp_nr_NTN_MeasAndReport_r18, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lpp_T_nr_NTN_MeasAndReport_r18 },
-  { &hf_lpp_nr_DL_PRS_RSCP_ReportingRRC_Connected_r18, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lpp_T_nr_DL_PRS_RSCP_ReportingRRC_Connected_r18 },
-  { &hf_lpp_nr_DL_PRS_RSCP_ReportingRRC_Inactive_r18, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lpp_T_nr_DL_PRS_RSCP_ReportingRRC_Inactive_r18 },
+  { &hf_lpp_nr_DL_PRS_RSCP_RRC_Connected_r18, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lpp_T_nr_DL_PRS_RSCP_RRC_Connected_r18 },
+  { &hf_lpp_nr_DL_PRS_RSCP_RRC_Inactive_r18, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lpp_T_nr_DL_PRS_RSCP_RRC_Inactive_r18 },
   { &hf_lpp_assocSingleRx_Tx_WithUpToNsampleRSCP_r18, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lpp_T_assocSingleRx_Tx_WithUpToNsampleRSCP_r18 },
   { &hf_lpp_supportOfSymbolTimeStampForRSCP_r18, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lpp_T_supportOfSymbolTimeStampForRSCP_r18 },
   { &hf_lpp_supportOfFinerTimingReportGranularityForPRS_Meas_r18_01, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lpp_T_supportOfFinerTimingReportGranularityForPRS_Meas_r18_01 },
@@ -17029,14 +17033,14 @@ dissect_lpp_T_supportOfDL_PRS_BWA_RRC_Idle_r18(tvbuff_t *tvb _U_, int offset _U_
 }
 
 
-static const value_string lpp_T_nr_DL_PRS_RSCPD_ReportingRRC_Connected_r18_vals[] = {
+static const value_string lpp_T_nr_DL_PRS_RSCPD_RRC_Connected_r18_vals[] = {
   {   0, "supported" },
   { 0, NULL }
 };
 
 
 static int
-dissect_lpp_T_nr_DL_PRS_RSCPD_ReportingRRC_Connected_r18(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lpp_T_nr_DL_PRS_RSCPD_RRC_Connected_r18(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
                                      1, NULL, false, 0, NULL);
 
@@ -17160,7 +17164,7 @@ static const per_sequence_t DL_TDOA_MeasCapabilityPerBand_r17_eag_1_sequence[] =
   { &hf_lpp_supportOfDL_PRS_BWA_RRC_Connected_r18, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lpp_T_supportOfDL_PRS_BWA_RRC_Connected_r18 },
   { &hf_lpp_supportOfDL_PRS_BWA_RRC_Inactive_r18, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lpp_T_supportOfDL_PRS_BWA_RRC_Inactive_r18 },
   { &hf_lpp_supportOfDL_PRS_BWA_RRC_Idle_r18, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lpp_T_supportOfDL_PRS_BWA_RRC_Idle_r18 },
-  { &hf_lpp_nr_DL_PRS_RSCPD_ReportingRRC_Connected_r18, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lpp_T_nr_DL_PRS_RSCPD_ReportingRRC_Connected_r18 },
+  { &hf_lpp_nr_DL_PRS_RSCPD_RRC_Connected_r18, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lpp_T_nr_DL_PRS_RSCPD_RRC_Connected_r18 },
   { &hf_lpp_assocSingleRSTD_WithUpToNsampleRSCPD_r18, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lpp_T_assocSingleRSTD_WithUpToNsampleRSCPD_r18 },
   { &hf_lpp_nr_DL_PRS_RSCPD_MeasurementRRC_Idle_r18, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lpp_T_nr_DL_PRS_RSCPD_MeasurementRRC_Idle_r18 },
   { &hf_lpp_supportOfUE_basedCarrierPhasePositioning_r18, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lpp_T_supportOfUE_basedCarrierPhasePositioning_r18 },
@@ -17179,11 +17183,40 @@ dissect_lpp_DL_TDOA_MeasCapabilityPerBand_r17_eag_1(tvbuff_t *tvb _U_, int offse
 }
 
 
+static const value_string lpp_T_nr_DL_PRS_RSCPD_RRC_Inactive_r18_vals[] = {
+  {   0, "supported" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_lpp_T_nr_DL_PRS_RSCPD_RRC_Inactive_r18(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     1, NULL, false, 0, NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t DL_TDOA_MeasCapabilityPerBand_r17_eag_2_sequence[] = {
+  { &hf_lpp_nr_DL_PRS_RSCPD_RRC_Inactive_r18, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lpp_T_nr_DL_PRS_RSCPD_RRC_Inactive_r18 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_lpp_DL_TDOA_MeasCapabilityPerBand_r17_eag_2(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence_eag(tvb, offset, actx, tree, DL_TDOA_MeasCapabilityPerBand_r17_eag_2_sequence);
+
+  return offset;
+}
+
+
 static const per_sequence_t DL_TDOA_MeasCapabilityPerBand_r17_sequence[] = {
   { &hf_lpp_freqBandIndicatorNR_r17, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lpp_FreqBandIndicatorNR_r16 },
   { &hf_lpp_supportOfDL_PRS_FirstPathRSRP_r17, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lpp_T_supportOfDL_PRS_FirstPathRSRP_r17 },
   { &hf_lpp_dl_PRS_MeasRRC_Inactive_r17, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lpp_T_dl_PRS_MeasRRC_Inactive_r17 },
   { &dummy_hf_lpp_eag_field , ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL, dissect_lpp_DL_TDOA_MeasCapabilityPerBand_r17_eag_1 },
+  { &dummy_hf_lpp_eag_field , ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL, dissect_lpp_DL_TDOA_MeasCapabilityPerBand_r17_eag_2 },
   { NULL, 0, 0, NULL }
 };
 
@@ -24347,6 +24380,19 @@ dissect_lpp_AlmanacBDS_AlmanacSet_r12(tvbuff_t *tvb _U_, int offset _U_, asn1_ct
 }
 
 
+static const per_sequence_t AlmanacNavIC_AlmanacSet_r16_eag_1_sequence[] = {
+  { &hf_lpp_navicL5_i0_r16  , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lpp_INTEGER_M8388608_8388607 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_lpp_AlmanacNavIC_AlmanacSet_r16_eag_1(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence_eag(tvb, offset, actx, tree, AlmanacNavIC_AlmanacSet_r16_eag_1_sequence);
+
+  return offset;
+}
+
+
 static const per_sequence_t AlmanacNavIC_AlmanacSet_r16_sequence[] = {
   { &hf_lpp_svID_r16        , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lpp_SV_ID },
   { &hf_lpp_navic_AlmToa_r16, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lpp_INTEGER_0_65535 },
@@ -24358,6 +24404,7 @@ static const per_sequence_t AlmanacNavIC_AlmanacSet_r16_sequence[] = {
   { &hf_lpp_navic_AlmMo_r16 , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lpp_INTEGER_M8388608_8388607 },
   { &hf_lpp_navic_Almaf0_r16, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lpp_INTEGER_M1024_1023 },
   { &hf_lpp_navic_Almaf1_r16, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lpp_INTEGER_M1024_1023 },
+  { &dummy_hf_lpp_eag_field , ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL, dissect_lpp_AlmanacNavIC_AlmanacSet_r16_eag_1 },
   { NULL, 0, 0, NULL }
 };
 
@@ -49798,6 +49845,10 @@ void proto_register_lpp(void) {
       { "navic-Almaf1-r16", "lpp.navic_Almaf1_r16",
         FT_INT32, BASE_DEC, NULL, 0,
         "INTEGER_M1024_1023", HFILL }},
+    { &hf_lpp_navicL5_i0_r16,
+      { "navicL5-i0-r16", "lpp.navicL5_i0_r16",
+        FT_INT32, BASE_DEC, NULL, 0,
+        "INTEGER_M8388608_8388607", HFILL }},
     { &hf_lpp_utcModel1,
       { "utcModel1", "lpp.utcModel1_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -54026,9 +54077,9 @@ void proto_register_lpp(void) {
       { "supportOfDL-PRS-BWA-RRC-Idle-r18", "lpp.supportOfDL_PRS_BWA_RRC_Idle_r18",
         FT_UINT32, BASE_DEC, VALS(lpp_T_supportOfDL_PRS_BWA_RRC_Idle_r18_vals), 0,
         NULL, HFILL }},
-    { &hf_lpp_nr_DL_PRS_RSCPD_ReportingRRC_Connected_r18,
-      { "nr-DL-PRS-RSCPD-ReportingRRC-Connected-r18", "lpp.nr_DL_PRS_RSCPD_ReportingRRC_Connected_r18",
-        FT_UINT32, BASE_DEC, VALS(lpp_T_nr_DL_PRS_RSCPD_ReportingRRC_Connected_r18_vals), 0,
+    { &hf_lpp_nr_DL_PRS_RSCPD_RRC_Connected_r18,
+      { "nr-DL-PRS-RSCPD-RRC-Connected-r18", "lpp.nr_DL_PRS_RSCPD_RRC_Connected_r18",
+        FT_UINT32, BASE_DEC, VALS(lpp_T_nr_DL_PRS_RSCPD_RRC_Connected_r18_vals), 0,
         NULL, HFILL }},
     { &hf_lpp_assocSingleRSTD_WithUpToNsampleRSCPD_r18,
       { "assocSingleRSTD-WithUpToNsampleRSCPD-r18", "lpp.assocSingleRSTD_WithUpToNsampleRSCPD_r18",
@@ -54057,6 +54108,10 @@ void proto_register_lpp(void) {
     { &hf_lpp_supportOfPRS_MeasurementRRC_Idle_r18,
       { "supportOfPRS-MeasurementRRC-Idle-r18", "lpp.supportOfPRS_MeasurementRRC_Idle_r18",
         FT_UINT32, BASE_DEC, VALS(lpp_T_supportOfPRS_MeasurementRRC_Idle_r18_vals), 0,
+        NULL, HFILL }},
+    { &hf_lpp_nr_DL_PRS_RSCPD_RRC_Inactive_r18,
+      { "nr-DL-PRS-RSCPD-RRC-Inactive-r18", "lpp.nr_DL_PRS_RSCPD_RRC_Inactive_r18",
+        FT_UINT32, BASE_DEC, VALS(lpp_T_nr_DL_PRS_RSCPD_RRC_Inactive_r18_vals), 0,
         NULL, HFILL }},
     { &hf_lpp_locationServerErrorCauses_r16_01,
       { "locationServerErrorCauses-r16", "lpp.locationServerErrorCauses_r16_element",
@@ -54754,13 +54809,13 @@ void proto_register_lpp(void) {
       { "nr-NTN-MeasAndReport-r18", "lpp.nr_NTN_MeasAndReport_r18",
         FT_UINT32, BASE_DEC, VALS(lpp_T_nr_NTN_MeasAndReport_r18_vals), 0,
         "T_nr_NTN_MeasAndReport_r18", HFILL }},
-    { &hf_lpp_nr_DL_PRS_RSCP_ReportingRRC_Connected_r18,
-      { "nr-DL-PRS-RSCP-ReportingRRC-Connected-r18", "lpp.nr_DL_PRS_RSCP_ReportingRRC_Connected_r18",
-        FT_UINT32, BASE_DEC, VALS(lpp_T_nr_DL_PRS_RSCP_ReportingRRC_Connected_r18_vals), 0,
+    { &hf_lpp_nr_DL_PRS_RSCP_RRC_Connected_r18,
+      { "nr-DL-PRS-RSCP-RRC-Connected-r18", "lpp.nr_DL_PRS_RSCP_RRC_Connected_r18",
+        FT_UINT32, BASE_DEC, VALS(lpp_T_nr_DL_PRS_RSCP_RRC_Connected_r18_vals), 0,
         NULL, HFILL }},
-    { &hf_lpp_nr_DL_PRS_RSCP_ReportingRRC_Inactive_r18,
-      { "nr-DL-PRS-RSCP-ReportingRRC-Inactive-r18", "lpp.nr_DL_PRS_RSCP_ReportingRRC_Inactive_r18",
-        FT_UINT32, BASE_DEC, VALS(lpp_T_nr_DL_PRS_RSCP_ReportingRRC_Inactive_r18_vals), 0,
+    { &hf_lpp_nr_DL_PRS_RSCP_RRC_Inactive_r18,
+      { "nr-DL-PRS-RSCP-RRC-Inactive-r18", "lpp.nr_DL_PRS_RSCP_RRC_Inactive_r18",
+        FT_UINT32, BASE_DEC, VALS(lpp_T_nr_DL_PRS_RSCP_RRC_Inactive_r18_vals), 0,
         NULL, HFILL }},
     { &hf_lpp_assocSingleRx_Tx_WithUpToNsampleRSCP_r18,
       { "assocSingleRx-Tx-WithUpToNsampleRSCP-r18", "lpp.assocSingleRx_Tx_WithUpToNsampleRSCP_r18",
@@ -55109,6 +55164,10 @@ void proto_register_lpp(void) {
     { &hf_lpp_T_almanacModel_model_7,
       { "model-7", "lpp.T.almanacModel.model.7",
         FT_BOOLEAN, 8, NULL, 0x02,
+        NULL, HFILL }},
+    { &hf_lpp_T_almanacModel_model_8_v16e0,
+      { "model-8-v16e0", "lpp.T.almanacModel.model.8.v16e0",
+        FT_BOOLEAN, 8, NULL, 0x01,
         NULL, HFILL }},
     { &hf_lpp_T_utc_Model_model_1,
       { "model-1", "lpp.T.utc.Model.model.1",
