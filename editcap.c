@@ -1340,8 +1340,6 @@ main(int argc, char *argv[])
     GPtrArray    *dsb_filenames      = NULL;
     wtap_rec                     read_rec;
     Buffer                       read_buf;
-    const wtap_rec              *rec;
-    wtap_rec                     temp_rec;
     wtap_dump_params             params = WTAP_DUMP_PARAMS_INIT;
     char                        *shb_user_appl;
     bool                         do_mutation;
@@ -1356,7 +1354,7 @@ main(int argc, char *argv[])
     g_set_prgname("editcap");
 
     cmdarg_err_init(stderr_cmdarg_err, stderr_cmdarg_err_cont);
-    memset(&read_rec, 0, sizeof *rec);
+    memset(&read_rec, 0, sizeof read_rec);
 
     /* Initialize log handler early so we can have proper logging during startup. */
     ws_log_init(vcmdarg_err);
@@ -2046,13 +2044,11 @@ main(int argc, char *argv[])
 
         read_count++;
 
-        rec = &read_rec;
-
         /* Extra actions for the first packet */
         if (read_count == 1) {
             if (split_packet_count != 0 || !nstime_is_unset(&secs_per_block)) {
                 filename = fileset_get_filename_by_pattern(block_cnt++,
-                                                           (rec->presence_flags & WTAP_HAS_TS) ? &rec->ts : NULL,
+                                                           (read_rec.presence_flags & WTAP_HAS_TS) ? &read_rec.ts : NULL,
                                                            fprefix, fsuffix);
             } else {
                 filename = g_strdup(argv[ws_optind+1]);
@@ -2101,13 +2097,13 @@ main(int argc, char *argv[])
          * Not all packets have time stamps. Only process the time
          * stamp if we have one.
          */
-        if (rec->presence_flags & WTAP_HAS_TS) {
+        if (read_rec.presence_flags & WTAP_HAS_TS) {
             if (!nstime_is_unset(&secs_per_block)) {
                 if (nstime_is_unset(&block_next)) {
-                    block_next = rec->ts;
+                    block_next = read_rec.ts;
                     nstime_add(&block_next, &secs_per_block);
                 }
-                while (nstime_cmp(&rec->ts, &block_next) > 0) { /* time for the next file */
+                while (nstime_cmp(&read_rec.ts, &block_next) > 0) { /* time for the next file */
 
                     /* We presumably want to write the DSBs from files given
                      * on the command line to every file.
@@ -2160,7 +2156,7 @@ main(int argc, char *argv[])
 
                 g_free(filename);
                 filename = fileset_get_filename_by_pattern(block_cnt++,
-                                                           (rec->presence_flags & WTAP_HAS_TS) ? &rec->ts : NULL,
+                                                           (read_rec.presence_flags & WTAP_HAS_TS) ? &read_rec.ts : NULL,
                                                            fprefix, fsuffix);
                 ws_assert(filename);
 
@@ -2185,14 +2181,14 @@ main(int argc, char *argv[])
              * Is the packet in the selected timeframe?
              * If the packet has no time stamp, the answer is "no".
              */
-            if (rec->presence_flags & WTAP_HAS_TS) {
+            if (read_rec.presence_flags & WTAP_HAS_TS) {
                 if (have_starttime && have_stoptime) {
-                    ts_okay = nstime_cmp(&rec->ts, &starttime) >= 0 &&
-                              nstime_cmp(&rec->ts, &stoptime) < 0;
+                    ts_okay = nstime_cmp(&read_rec.ts, &starttime) >= 0 &&
+                              nstime_cmp(&read_rec.ts, &stoptime) < 0;
                 } else if (have_starttime) {
-                    ts_okay = nstime_cmp(&rec->ts, &starttime) >= 0;
+                    ts_okay = nstime_cmp(&read_rec.ts, &starttime) >= 0;
                 } else if (have_stoptime) {
-                    ts_okay = nstime_cmp(&rec->ts, &stoptime) < 0;
+                    ts_okay = nstime_cmp(&read_rec.ts, &stoptime) < 0;
                 }
             }
         } else {
@@ -2205,12 +2201,13 @@ main(int argc, char *argv[])
 
         if (ts_okay && ((!selected(count) && !keep_em)
                         || (selected(count) && keep_em))) {
+            const wtap_rec *rec;
+            wtap_rec        temp_rec;
+
+            /* Write the record, possibly after modifying it. */
 
             if (verbose && !dup_detect && !dup_detect_by_time)
                 fprintf(stderr, "Packet: %" PRIu64 "\n", count);
-
-            /* We simply write it, perhaps after truncating it; we could
-             * do other things, like modify it. */
 
             rec = &read_rec;
 
