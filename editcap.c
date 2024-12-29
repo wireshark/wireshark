@@ -175,9 +175,8 @@ static const struct {
 };
 
 static int find_dct2000_real_data(uint8_t *buf);
-static void handle_chopping(chop_t chop, wtap_packet_header *out_phdr,
-                            const wtap_packet_header *in_phdr, uint8_t **buf,
-                            bool adjlen);
+static void handle_chopping(chop_t chop, wtap_packet_header *phdr,
+                            uint8_t **buf, bool adjlen);
 
 static char *
 abs_time_to_str_with_sec_resolution(const nstime_t *abs_time)
@@ -632,10 +631,10 @@ sll2_set_unused_info(uint8_t* fd) {
 }
 
 static void
-remove_vlan_info(const wtap_packet_header *phdr, uint8_t* fd, uint32_t* len) {
+remove_vlan_info(wtap_packet_header *phdr, uint8_t* fd) {
     switch (phdr->pkt_encap) {
         case WTAP_ENCAP_SLL:
-            sll_remove_vlan_info(fd, len);
+            sll_remove_vlan_info(fd, &phdr->caplen);
             break;
         default:
             /* no support for current pkt_encap */
@@ -2201,17 +2200,12 @@ main(int argc, char *argv[])
 
         if (ts_okay && ((!selected(count) && !keep_em)
                         || (selected(count) && keep_em))) {
-            const wtap_rec *rec;
-            wtap_rec        temp_rec;
-
             /* Write the record, possibly after modifying it. */
 
             if (verbose && !dup_detect && !dup_detect_by_time)
                 fprintf(stderr, "Packet: %" PRIu64 "\n", count);
 
-            rec = &read_rec;
-
-            if (rec->presence_flags & WTAP_HAS_TS) {
+            if (read_rec.presence_flags & WTAP_HAS_TS) {
                 /* Do we adjust timestamps to ensure strict chronological
                  * order? */
                 if (do_strict_time_adjustment) {
@@ -2220,7 +2214,7 @@ main(int argc, char *argv[])
                             nstime_t current;
                             nstime_t delta;
 
-                            current = rec->ts;
+                            current = read_rec.ts;
 
                             nstime_delta(&delta, &current, &previous_time);
 
@@ -2231,139 +2225,108 @@ main(int argc, char *argv[])
                                  * that it is being compared to.  This is NOT a normal
                                  * situation since trace files usually have packets in
                                  * chronological order (oldest to newest).
-                                 * Copy and change rather than modify
-                                 * returned rec.
                                  */
                                 /* fprintf(stderr, "++out of order, need to adjust this packet!\n"); */
-                                temp_rec = *rec;
-                                temp_rec.ts.secs = previous_time.secs + strict_time_adj.tv.secs;
-                                temp_rec.ts.nsecs = previous_time.nsecs;
-                                if (temp_rec.ts.nsecs + strict_time_adj.tv.nsecs >= ONE_BILLION) {
+                                read_rec.ts.secs = previous_time.secs + strict_time_adj.tv.secs;
+                                read_rec.ts.nsecs = previous_time.nsecs;
+                                if (read_rec.ts.nsecs + strict_time_adj.tv.nsecs >= ONE_BILLION) {
                                     /* carry */
-                                    temp_rec.ts.secs++;
-                                    temp_rec.ts.nsecs += strict_time_adj.tv.nsecs - ONE_BILLION;
+                                    read_rec.ts.secs++;
+                                    read_rec.ts.nsecs += strict_time_adj.tv.nsecs - ONE_BILLION;
                                 } else {
-                                    temp_rec.ts.nsecs += strict_time_adj.tv.nsecs;
+                                    read_rec.ts.nsecs += strict_time_adj.tv.nsecs;
                                 }
-                                rec = &temp_rec;
                             }
                         } else {
                             /*
                              * A negative strict time adjustment is requested.
                              * Unconditionally set each timestamp to previous
                              * packet's timestamp plus delta.
-                             * Copy and change rather than modify returned
-                             * rec.
                              */
-                            temp_rec = *rec;
-                            temp_rec.ts.secs = previous_time.secs + strict_time_adj.tv.secs;
-                            temp_rec.ts.nsecs = previous_time.nsecs;
-                            if (temp_rec.ts.nsecs + strict_time_adj.tv.nsecs >= ONE_BILLION) {
+                            read_rec.ts.secs = previous_time.secs + strict_time_adj.tv.secs;
+                            read_rec.ts.nsecs = previous_time.nsecs;
+                            if (read_rec.ts.nsecs + strict_time_adj.tv.nsecs >= ONE_BILLION) {
                                 /* carry */
-                                temp_rec.ts.secs++;
-                                temp_rec.ts.nsecs += strict_time_adj.tv.nsecs - ONE_BILLION;
+                                read_rec.ts.secs++;
+                                read_rec.ts.nsecs += strict_time_adj.tv.nsecs - ONE_BILLION;
                             } else {
-                                temp_rec.ts.nsecs += strict_time_adj.tv.nsecs;
+                                read_rec.ts.nsecs += strict_time_adj.tv.nsecs;
                             }
-                            rec = &temp_rec;
                         }
                     }
-                    previous_time = rec->ts;
+                    previous_time = read_rec.ts;
                 }
 
                 if (time_adj.tv.secs != 0) {
-                    /* Copy and change rather than modify returned rec */
-                    temp_rec = *rec;
                     if (time_adj.is_negative)
-                        temp_rec.ts.secs -= time_adj.tv.secs;
+                        read_rec.ts.secs -= time_adj.tv.secs;
                     else
-                        temp_rec.ts.secs += time_adj.tv.secs;
-                    rec = &temp_rec;
+                        read_rec.ts.secs += time_adj.tv.secs;
                 }
 
                 if (time_adj.tv.nsecs != 0) {
-                    /* Copy and change rather than modify returned rec */
-                    temp_rec = *rec;
                     if (time_adj.is_negative) { /* subtract */
-                        if (temp_rec.ts.nsecs < time_adj.tv.nsecs) { /* borrow */
-                            temp_rec.ts.secs--;
-                            temp_rec.ts.nsecs += ONE_BILLION;
+                        if (read_rec.ts.nsecs < time_adj.tv.nsecs) { /* borrow */
+                            read_rec.ts.secs--;
+                            read_rec.ts.nsecs += ONE_BILLION;
                         }
-                        temp_rec.ts.nsecs -= time_adj.tv.nsecs;
+                        read_rec.ts.nsecs -= time_adj.tv.nsecs;
                     } else {                  /* add */
-                        if (temp_rec.ts.nsecs + time_adj.tv.nsecs >= ONE_BILLION) {
+                        if (read_rec.ts.nsecs + time_adj.tv.nsecs >= ONE_BILLION) {
                             /* carry */
-                            temp_rec.ts.secs++;
-                            temp_rec.ts.nsecs += time_adj.tv.nsecs - ONE_BILLION;
+                            read_rec.ts.secs++;
+                            read_rec.ts.nsecs += time_adj.tv.nsecs - ONE_BILLION;
                         } else {
-                            temp_rec.ts.nsecs += time_adj.tv.nsecs;
+                            read_rec.ts.nsecs += time_adj.tv.nsecs;
                         }
                     }
-                    rec = &temp_rec;
                 }
             } /* time stamp adjustment */
 
-            if (rec->rec_type == REC_TYPE_PACKET) {
+            if (read_rec.rec_type == REC_TYPE_PACKET) {
                 if (snaplen != 0) {
                     /* Limit capture length to snaplen */
-                    if (rec->rec_header.packet_header.caplen > snaplen) {
-                        /* Copy and change rather than modify returned rec */
-                        temp_rec = *rec;
-                        temp_rec.rec_header.packet_header.caplen = snaplen;
-                        rec = &temp_rec;
+                    if (read_rec.rec_header.packet_header.caplen > snaplen) {
+                        read_rec.rec_header.packet_header.caplen = snaplen;
                     }
                     /* If -L, also set reported length to snaplen */
-                    if (adjlen && rec->rec_header.packet_header.len > snaplen) {
-                        /* Copy and change rather than modify returned rec */
-                        temp_rec = *rec;
-                        temp_rec.rec_header.packet_header.len = snaplen;
-                        rec = &temp_rec;
+                    if (adjlen && read_rec.rec_header.packet_header.len > snaplen) {
+                        read_rec.rec_header.packet_header.len = snaplen;
                     }
                 }
 
                 /*
                  * If an encapsulation type was specified, override the
                  * encapsulation type of the packet.
-                 * Copy and change rather than modify returned rec.
                  */
                 if (out_frame_type != -2) {
-                    temp_rec = *rec;
-                    temp_rec.rec_header.packet_header.pkt_encap = out_frame_type;
-                    rec = &temp_rec;
+                    read_rec.rec_header.packet_header.pkt_encap = out_frame_type;
                 }
 
                 /*
                  * CHOP
-                 * Copy and change rather than modify returned rec.
                  */
-                temp_rec = *rec;
-                handle_chopping(chop, &temp_rec.rec_header.packet_header,
-                                &rec->rec_header.packet_header, &buf,
-                                adjlen);
-                rec = &temp_rec;
+                handle_chopping(chop, &read_rec.rec_header.packet_header,
+                                &buf, adjlen);
 
                 /* set unused info */
                 if (set_unused) {
                     /* set unused bytes to zero so that duplicates check ignores unused bytes */
-                    set_unused_info(&rec->rec_header.packet_header, buf);
+                    set_unused_info(&read_rec.rec_header.packet_header, buf);
                 }
 
                 /* remove vlan info */
                 if (rem_vlan) {
-                    /* Copy and change rather than modify returned rec */
-                    temp_rec = *rec;
-                    remove_vlan_info(&rec->rec_header.packet_header, buf,
-                                     &temp_rec.rec_header.packet_header.caplen);
-                    rec = &temp_rec;
+                    remove_vlan_info(&read_rec.rec_header.packet_header, buf);
                 }
 
                 /* suppress duplicates by packet window */
                 if (dup_detect) {
-                    if (is_duplicate(buf, rec->rec_header.packet_header.caplen)) {
+                    if (is_duplicate(buf, read_rec.rec_header.packet_header.caplen)) {
                         if (verbose) {
                             fprintf(stderr, "Skipped: %" PRIu64 ", Len: %u, MD5 Hash: ",
                                     count,
-                                    rec->rec_header.packet_header.caplen);
+                                    read_rec.rec_header.packet_header.caplen);
                             for (i = 0; i < 16; i++)
                                 fprintf(stderr, "%02x",
                                         (unsigned char)fd_hash[cur_dup_entry].digest[i]);
@@ -2376,7 +2339,7 @@ main(int argc, char *argv[])
                         if (verbose) {
                             fprintf(stderr, "Packet: %" PRIu64 ", Len: %u, MD5 Hash: ",
                                     count,
-                                    rec->rec_header.packet_header.caplen);
+                                    read_rec.rec_header.packet_header.caplen);
                             for (i = 0; i < 16; i++)
                                 fprintf(stderr, "%02x",
                                         (unsigned char)fd_hash[cur_dup_entry].digest[i]);
@@ -2385,21 +2348,21 @@ main(int argc, char *argv[])
                     }
                 } /* suppression of duplicates */
 
-                if (rec->presence_flags & WTAP_HAS_TS) {
+                if (read_rec.presence_flags & WTAP_HAS_TS) {
                     /* suppress duplicates by time window */
                     if (dup_detect_by_time) {
                         nstime_t current;
 
-                        current.secs  = rec->ts.secs;
-                        current.nsecs = rec->ts.nsecs;
+                        current.secs  = read_rec.ts.secs;
+                        current.nsecs = read_rec.ts.nsecs;
 
                         if (is_duplicate_rel_time(buf,
-                                                  rec->rec_header.packet_header.caplen,
+                                                  read_rec.rec_header.packet_header.caplen,
                                                   &current)) {
                             if (verbose) {
                                 fprintf(stderr, "Skipped: %" PRIu64 ", Len: %u, MD5 Hash: ",
                                         count,
-                                        rec->rec_header.packet_header.caplen);
+                                        read_rec.rec_header.packet_header.caplen);
                                 for (i = 0; i < 16; i++)
                                     fprintf(stderr, "%02x",
                                             (unsigned char)fd_hash[cur_dup_entry].digest[i]);
@@ -2412,7 +2375,7 @@ main(int argc, char *argv[])
                             if (verbose) {
                                 fprintf(stderr, "Packet: %" PRIu64 ", Len: %u, MD5 Hash: ",
                                         count,
-                                        rec->rec_header.packet_header.caplen);
+                                        read_rec.rec_header.packet_header.caplen);
                                 for (i = 0; i < 16; i++)
                                     fprintf(stderr, "%02x",
                                             (unsigned char)fd_hash[cur_dup_entry].digest[i]);
@@ -2427,26 +2390,26 @@ main(int argc, char *argv[])
             do_mutation = false;
             caplen = 0;
             if (err_prob > 0.0) {
-                switch (rec->rec_type) {
+                switch (read_rec.rec_type) {
 
                 case REC_TYPE_PACKET:
-                    caplen = rec->rec_header.packet_header.caplen;
+                    caplen = read_rec.rec_header.packet_header.caplen;
                     do_mutation = true;
                     break;
 
                 case REC_TYPE_FT_SPECIFIC_EVENT:
                 case REC_TYPE_FT_SPECIFIC_REPORT:
-                    caplen = rec->rec_header.ft_specific_header.record_len;
+                    caplen = read_rec.rec_header.ft_specific_header.record_len;
                     do_mutation = true;
                     break;
 
                 case REC_TYPE_SYSCALL:
-                    caplen = rec->rec_header.syscall_header.event_filelen;
+                    caplen = read_rec.rec_header.syscall_header.event_filelen;
                     do_mutation = true;
                     break;
 
                 case REC_TYPE_SYSTEMD_JOURNAL_EXPORT:
-                    caplen = rec->rec_header.systemd_journal_export_header.record_len;
+                    caplen = read_rec.rec_header.systemd_journal_export_header.record_len;
                     do_mutation = true;
                     break;
                 }
@@ -2462,13 +2425,13 @@ main(int argc, char *argv[])
                 int real_data_start = 0;
 
                 /* Protect non-protocol data */
-                switch (rec->rec_type) {
+                switch (read_rec.rec_type) {
 
                 case REC_TYPE_PACKET:
                     /*
                      * XXX - any reason not to fuzz this part?
                      */
-                    if (rec->rec_header.packet_header.pkt_encap == WTAP_ENCAP_CATAPULT_DCT2000)
+                    if (read_rec.rec_header.packet_header.pkt_encap == WTAP_ENCAP_CATAPULT_DCT2000)
                         real_data_start = find_dct2000_real_data(buf);
                     break;
                 }
@@ -2519,11 +2482,9 @@ main(int argc, char *argv[])
 
             /* Discard all packet comments when writing */
             if (discard_pkt_comments) {
-                temp_rec = *rec;
-                while (WTAP_OPTTYPE_SUCCESS == wtap_block_remove_nth_option_instance(rec->block, OPT_COMMENT, 0)) {
-                    temp_rec.block_was_modified = true;
+                while (WTAP_OPTTYPE_SUCCESS == wtap_block_remove_nth_option_instance(read_rec.block, OPT_COMMENT, 0)) {
+                    read_rec.block_was_modified = true;
                 }
-                rec = &temp_rec;
             }
 
             /* Find a packet comment we may need to write */
@@ -2531,23 +2492,16 @@ main(int argc, char *argv[])
                 const char *comment =
                     (const char*)g_tree_lookup(frames_user_comments, &read_count);
                 if (comment != NULL) {
-                    /* Copy and change rather than modify returned rec */
-                    temp_rec = *rec;
-
                     /* Erase any existing comments before adding the new one */
-                    while (WTAP_OPTTYPE_SUCCESS == wtap_block_remove_nth_option_instance(rec->block, OPT_COMMENT, 0)) {
-                        temp_rec.block_was_modified = true;
+                    while (WTAP_OPTTYPE_SUCCESS == wtap_block_remove_nth_option_instance(read_rec.block, OPT_COMMENT, 0)) {
+                        read_rec.block_was_modified = true;
                     }
 
                     /* The comment is not modified by dumper, cast away. */
-                    wtap_block_add_string_option(rec->block, OPT_COMMENT, (char *)comment, strlen((char *)comment));
-                    temp_rec.block_was_modified = true;
-                    rec = &temp_rec;
+                    wtap_block_add_string_option(read_rec.block, OPT_COMMENT, (char *)comment, strlen((char *)comment));
+                    read_rec.block_was_modified = true;
                 } else {
-                    /* Copy and change rather than modify returned rec */
-                    temp_rec = *rec;
-                    temp_rec.block_was_modified = false;
-                    rec = &temp_rec;
+                    read_rec.block_was_modified = false;
                 }
             }
 
@@ -2560,7 +2514,7 @@ main(int argc, char *argv[])
             }
 
             /* Attempt to dump out current frame to the output file */
-            if (!wtap_dump(pdh, rec, buf, &write_err, &write_err_info)) {
+            if (!wtap_dump(pdh, &read_rec, buf, &write_err, &write_err_info)) {
                 cfile_write_failure_message(argv[ws_optind], filename,
                                             write_err, write_err_info,
                                             read_count,
@@ -2709,8 +2663,7 @@ find_dct2000_real_data(uint8_t *buf)
  * positive chop length, and one by the negative chop length.
  */
 static void
-handle_chopping(chop_t chop, wtap_packet_header *out_phdr,
-                const wtap_packet_header *in_phdr, uint8_t **buf,
+handle_chopping(chop_t chop, wtap_packet_header *phdr, uint8_t **buf,
                 bool adjlen)
 {
     /* If we're not chopping anything from one side, then the offset for that
@@ -2721,23 +2674,23 @@ handle_chopping(chop_t chop, wtap_packet_header *out_phdr,
         chop.off_end_pos = chop.off_end_neg = 0;
 
     if (chop.off_begin_neg < 0) {
-        chop.off_begin_pos += in_phdr->caplen + chop.off_begin_neg;
+        chop.off_begin_pos += phdr->caplen + chop.off_begin_neg;
         chop.off_begin_neg = 0;
     }
     if (chop.off_end_pos > 0) {
-        chop.off_end_neg += chop.off_end_pos - in_phdr->caplen;
+        chop.off_end_neg += chop.off_end_pos - phdr->caplen;
         chop.off_end_pos = 0;
     }
 
     /* If we've crossed chopping regions, swap them */
     if (chop.len_begin && chop.len_end) {
-        if (chop.off_begin_pos > ((int)in_phdr->caplen + chop.off_end_neg)) {
+        if (chop.off_begin_pos > ((int)phdr->caplen + chop.off_end_neg)) {
             int tmp_len, tmp_off;
 
-            tmp_off = in_phdr->caplen + chop.off_end_neg + chop.len_end;
+            tmp_off = phdr->caplen + chop.off_end_neg + chop.len_end;
             tmp_len = -chop.len_end;
 
-            chop.off_end_neg = chop.len_begin + chop.off_begin_pos - in_phdr->caplen;
+            chop.off_end_neg = chop.len_begin + chop.off_begin_pos - phdr->caplen;
             chop.len_end = -chop.len_begin;
 
             chop.len_begin = tmp_len;
@@ -2746,58 +2699,52 @@ handle_chopping(chop_t chop, wtap_packet_header *out_phdr,
     }
 
     /* Make sure we don't chop off more than we have available */
-    if (in_phdr->caplen < (uint32_t)(chop.off_begin_pos - chop.off_end_neg)) {
+    if (phdr->caplen < (uint32_t)(chop.off_begin_pos - chop.off_end_neg)) {
         chop.len_begin = 0;
         chop.len_end = 0;
     }
     if ((uint32_t)(chop.len_begin - chop.len_end) >
-        (in_phdr->caplen - (uint32_t)(chop.off_begin_pos - chop.off_end_neg))) {
-        chop.len_begin = in_phdr->caplen - (chop.off_begin_pos - chop.off_end_neg);
+        (phdr->caplen - (uint32_t)(chop.off_begin_pos - chop.off_end_neg))) {
+        chop.len_begin = phdr->caplen - (chop.off_begin_pos - chop.off_end_neg);
         chop.len_end = 0;
     }
 
     /* Handle chopping from the beginning.  Note that if a beginning offset
      * was specified, we need to keep that piece */
     if (chop.len_begin > 0) {
-        *out_phdr = *in_phdr;
-
         if (chop.off_begin_pos > 0) {
             memmove(*buf + chop.off_begin_pos,
                     *buf + chop.off_begin_pos + chop.len_begin,
-                    out_phdr->caplen - (chop.off_begin_pos + chop.len_begin));
+                    phdr->caplen - (chop.off_begin_pos + chop.len_begin));
         } else {
             *buf += chop.len_begin;
         }
-        out_phdr->caplen -= chop.len_begin;
+        phdr->caplen -= chop.len_begin;
 
         if (adjlen) {
-            if (in_phdr->len > (uint32_t)chop.len_begin)
-                out_phdr->len -= chop.len_begin;
+            if (phdr->len > (uint32_t)chop.len_begin)
+                phdr->len -= chop.len_begin;
             else
-                out_phdr->len = 0;
+                phdr->len = 0;
         }
-        in_phdr = out_phdr;
-    }
+     }
 
     /* Handle chopping from the end.  Note that if an ending offset was
      * specified, we need to keep that piece */
     if (chop.len_end < 0) {
-        *out_phdr = *in_phdr;
-
         if (chop.off_end_neg < 0) {
-            memmove(*buf + (int)out_phdr->caplen + (chop.len_end + chop.off_end_neg),
-                    *buf + (int)out_phdr->caplen + chop.off_end_neg,
+            memmove(*buf + (int)phdr->caplen + (chop.len_end + chop.off_end_neg),
+                    *buf + (int)phdr->caplen + chop.off_end_neg,
                     -chop.off_end_neg);
         }
-        out_phdr->caplen += chop.len_end;
+        phdr->caplen += chop.len_end;
 
         if (adjlen) {
-            if (((signed int) in_phdr->len + chop.len_end) > 0)
-                out_phdr->len += chop.len_end;
+            if (((signed int) phdr->len + chop.len_end) > 0)
+                phdr->len += chop.len_end;
             else
-                out_phdr->len = 0;
+                phdr->len = 0;
         }
-        /*in_phdr = out_phdr;*/
     }
 }
 
