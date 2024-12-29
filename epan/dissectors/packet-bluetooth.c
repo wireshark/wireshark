@@ -5999,9 +5999,12 @@ proto_reg_handoff_bluetooth(void)
 
 static int proto_btad_apple_ibeacon;
 
+static int hf_btad_apple_ibeacon_type;
+static int hf_btad_apple_ibeacon_length;
 static int hf_btad_apple_ibeacon_uuid128;
 static int hf_btad_apple_ibeacon_major;
 static int hf_btad_apple_ibeacon_minor;
+static int hf_btad_apple_ibeacon_measured_power;
 
 static int ett_btad_apple_ibeacon;
 
@@ -6021,7 +6024,13 @@ dissect_btad_apple_ibeacon(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
     main_item = proto_tree_add_item(tree, proto_btad_apple_ibeacon, tvb, offset, tvb_captured_length(tvb), ENC_NA);
     main_tree = proto_item_add_subtree(main_item, ett_btad_apple_ibeacon);
 
-    proto_tree_add_item(main_tree, hf_btad_apple_ibeacon_uuid128, tvb, offset, 16, ENC_NA);
+    proto_tree_add_item(main_tree, hf_btad_apple_ibeacon_type, tvb, offset, 1, ENC_NA);
+    offset += 1;
+
+    proto_tree_add_item(main_tree, hf_btad_apple_ibeacon_length, tvb, offset, 1, ENC_NA);
+    offset += 1;
+
+    proto_tree_add_item(main_tree, hf_btad_apple_ibeacon_uuid128, tvb, offset, 16, ENC_BIG_ENDIAN);
     offset += 16;
 
     proto_tree_add_item(main_tree, hf_btad_apple_ibeacon_major, tvb, offset, 2, ENC_LITTLE_ENDIAN);
@@ -6030,6 +6039,9 @@ dissect_btad_apple_ibeacon(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
     proto_tree_add_item(main_tree, hf_btad_apple_ibeacon_minor, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     offset += 2;
 
+    proto_tree_add_item(main_tree, hf_btad_apple_ibeacon_measured_power, tvb, offset, 1, ENC_NA);
+    offset += 1;
+
     return offset;
 }
 
@@ -6037,9 +6049,19 @@ void
 proto_register_btad_apple_ibeacon(void)
 {
     static hf_register_info hf[] = {
+        {&hf_btad_apple_ibeacon_type,
+            {"Type",                             "bluetooth.apple.ibeacon.type",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btad_apple_ibeacon_length,
+            {"Length",                           "bluetooth.apple.ibeacon.length",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}
+        },
         {&hf_btad_apple_ibeacon_uuid128,
             {"UUID",                             "bluetooth.apple.ibeacon.uuid128",
-            FT_BYTES, BASE_NONE, NULL, 0x0,
+            FT_GUID, BASE_NONE, NULL, 0x0,
             NULL, HFILL}
         },
         { &hf_btad_apple_ibeacon_major,
@@ -6050,6 +6072,11 @@ proto_register_btad_apple_ibeacon(void)
         { &hf_btad_apple_ibeacon_minor,
           { "Minor",                             "bluetooth.apple.ibeacon.minor",
             FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btad_apple_ibeacon_measured_power,
+          { "Measured Power",                    "bluetooth.apple.ibeacon.measured_power",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         }
     };
