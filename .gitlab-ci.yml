@@ -962,7 +962,7 @@ Coverity GCC Scan:
     - cd ..
     - tar --create --gzip --file cov-int.tar.gz cov-int
     - echo "export ARTIFACT_JOB_URL=$CI_JOB_URL" > job_environment_variables.sh
-    - echo "export GIT_DESCRIPTION=$( git describe --tags )" >> job_environment_variables.sh
+    - echo "export GIT_DESCRIPTION=$( git describe --tags --match "v[1-9]*" )" >> job_environment_variables.sh
   artifacts:
     paths:
       - cov-int.tar.gz
