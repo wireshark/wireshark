@@ -342,7 +342,7 @@ LLVMFuzzerTestOneInput(const uint8_t *buf, size_t real_len)
 	wtap_rec rec;
 	frame_data fdlocal;
 
-	memset(&rec, 0, sizeof(rec));
+	wtap_rec_init(&rec, len);
 
 	rec.rec_type = REC_TYPE_PACKET;
 	rec.rec_header.packet_header.caplen = len;
@@ -352,14 +352,7 @@ LLVMFuzzerTestOneInput(const uint8_t *buf, size_t real_len)
 	rec.rec_header.packet_header.pkt_encap = INT16_MAX;
 	rec.presence_flags = WTAP_HAS_TS | WTAP_HAS_CAP_LEN; /* most common flags... */
 
-	/*
-	 * This directly sets the data Buffer in the wtap_rec to point
-	 * to the data provided to us.
-	 */
-	rec.data.data = buf;
-	rec.data.allocated = real_len;
-	rec.data.start = 0;
-	rec.data.first_free = real_len;
+	ws_buffer_append(&rec.data, buf, real_len);
 
 	frame_data_init(&fdlocal, ++framenum, &rec, /* offset */ 0, /* cum_bytes */ 0);
 	/* frame_data_set_before_dissect() not needed */
@@ -367,6 +360,8 @@ LLVMFuzzerTestOneInput(const uint8_t *buf, size_t real_len)
 	frame_data_destroy(&fdlocal);
 
 	epan_dissect_reset(edt);
+	
+	wtap_rec_cleanup(&rec);
 	return 0;
 }
 
