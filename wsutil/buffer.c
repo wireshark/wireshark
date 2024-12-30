@@ -101,7 +101,7 @@ ws_buffer_assure_space(Buffer* buffer, size_t space)
 }
 
 void
-ws_buffer_append(Buffer* buffer, uint8_t *from, size_t bytes)
+ws_buffer_append(Buffer* buffer, const uint8_t *from, size_t bytes)
 {
 	ws_assert(buffer);
 	ws_buffer_assure_space(buffer, bytes);

@@ -33,7 +33,7 @@ void ws_buffer_free(Buffer* buffer);
 WS_DLL_PUBLIC
 void ws_buffer_assure_space(Buffer* buffer, size_t space);
 WS_DLL_PUBLIC
-void ws_buffer_append(Buffer* buffer, uint8_t *from, size_t bytes);
+void ws_buffer_append(Buffer* buffer, const uint8_t *from, size_t bytes);
 WS_DLL_PUBLIC
 void ws_buffer_remove_start(Buffer* buffer, size_t bytes);
 WS_DLL_PUBLIC
