@@ -28,15 +28,19 @@ enum {
     NUM_FRAMES_COLUMN,
     SECTIONS_COLUMN,
     EXTENSIONS_COLUMN,
+    HIGHEST_SLOT_COLUMN,
+    MISSING_SNS_COLUMN,
     NUM_FLOW_COLUMNS
 };
 
-static const char *flow_titles[] = { " Plane   ",
+static const char *flow_titles[] = { " Plane    ",
                                      "eAxC ID",
                                      "Direction    ",
                                      "Frames   ",
-                                     "Section Types   ",
-                                     "Extensions"
+                                     "Section Types           ",
+                                     "Extensions",
+                                     "Highest Slot",
+                                     "Missing SNs"
                                    };
 
 /* Stats for one Flow */
@@ -44,6 +48,8 @@ typedef struct oran_row_data {
     oran_tap_info base_info;
     /* Data accumulated over lifetime of flow */
     uint32_t      num_frames;
+    uint32_t      highest_slot;
+    uint32_t      missing_sns;
 } oran_row_data;
 
 /* Top-level struct for ORAN FH statistics */
@@ -125,6 +131,8 @@ oran_stat_packet(void *phs, packet_info *pinfo _U_, epan_dissect_t *edt _U_,
 
     /* Other updates to flow */
     row->num_frames++;
+    row->highest_slot = MAX(row->highest_slot, si->slot);
+    row->missing_sns += si->missing_sns;
 
     return TAP_PACKET_REDRAW;
 }
@@ -180,7 +188,7 @@ oran_stat_draw(void *phs)
         printf("%s  ", flow_titles[i]);
     }
     /* Divider before rows */
-    printf("\n==================================================================================\n");
+    printf("\n==============================================================================================================\n");
 
     /* Write a row for each flow */
     for (tmp = list; tmp; tmp=tmp->next) {
@@ -212,13 +220,15 @@ oran_stat_draw(void *phs)
         }
 
         /* Print this row */
-        printf("%8s %4u     %10s       %6u     %s                %s\n",
+        printf("%8s %4u      %10s       %6u   %16s %20s  %2u          %4u\n",
                (row->base_info.userplane) ? "U-Plane" : "C-Plane",
                row->base_info.eaxc,
                (row->base_info.uplink) ? "Uplink" : "Downlink",
                row->num_frames,
                sections,
-               extensions);
+               extensions,
+               row->highest_slot,
+               row->missing_sns);
     }
 }
 

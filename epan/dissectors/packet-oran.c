@@ -4252,6 +4252,7 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo,
         expert_add_info_format(pinfo, seq_id_ti, &ei_oran_cplane_unexpected_sequence_number,
                                "Sequence number %u expected, but got %u",
                                result->expected_sequence_number, seq_id);
+        tap_info->missing_sns = (seq_id - result->expected_sequence_number) % 256;
         /* TODO: could add previous/next frames (in seqId tree?) ? */
     }
 
@@ -4285,6 +4286,7 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo,
     /* slotId */
     uint32_t slotId = 0;
     proto_tree_add_item_ret_uint(section_tree, hf_oran_slot_id, tvb, offset, 2, ENC_BIG_ENDIAN, &slotId);
+    tap_info->slot = slotId;
     offset++;
 
     /* startSymbolId */
@@ -5303,6 +5305,7 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     /* slotId */
     uint32_t slotId = 0;
     proto_tree_add_item_ret_uint(timing_header_tree, hf_oran_slot_id, tvb, offset, 2, ENC_BIG_ENDIAN, &slotId);
+    tap_info->slot = slotId;
     offset++;
     /* symbolId */
     uint32_t symbolId = 0;
@@ -5356,7 +5359,8 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             expert_add_info_format(pinfo, seq_id_ti, &ei_oran_uplane_unexpected_sequence_number,
                                    "Sequence number %u expected, but got %u",
                                    result->expected_sequence_number, seq_id);
-            /* TODO: could add previous frame (in seqId tree?) ? */
+            tap_info->missing_sns = (seq_id - result->expected_sequence_number) % 256;
+            /* TODO: could add previous/next frame (in seqId tree?) ? */
         }
     }
 

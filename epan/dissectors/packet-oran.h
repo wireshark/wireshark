@@ -31,9 +31,15 @@ typedef struct oran_tap_info {
     bool     userplane;
     uint16_t eaxc;
     bool     uplink;
+    /* TODO: Timing info */
+    uint8_t slot;
+    /* Missing SNs */
+    uint32_t missing_sns;
+    /* TODO: repeated SNs? */
     /* Accumulated state */
     bool     section_types[SEC_C_MAX_INDEX];
-    bool     extensions[HIGHEST_EXTTYPE+1];         /* waste first entry */
+    bool     extensions[HIGHEST_EXTTYPE+1];    /* wasting first entry */
+
     /* TODO: compression/bitwidth, mu/scs, slots, Section IDs, beams? */
     /* N.B. bitwidth, method, but each section could potentially have different udcompHdr.. */
 } oran_tap_info;
