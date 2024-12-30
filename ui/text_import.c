@@ -75,6 +75,7 @@
  */
 
 #include "config.h"
+#define WS_LOG_DOMAIN LOG_DOMAIN_MAIN
 #include "text_import.h"
 
 #include <stdio.h>
@@ -1397,10 +1398,13 @@ parse_token(token_t token, char *str)
             if (num == 0) {
                 /* New packet starts here */
                 /* XXX - This could just be any other run of three or more
-                 * zeros.
+                 * zeros in a preamble. That only creates a problem if followed
+                 * by something that looks like bytes (otherwise a zero length
+                 * packet is ignored.)
                  */
                 if (start_new_packet(false) != IMPORT_SUCCESS)
                     return IMPORT_FAILURE;
+                packet_start = 0;
                 state = READ_OFFSET;
                 pkt_lnstart = packet_buf + num;
             } else {
@@ -1439,12 +1443,15 @@ parse_token(token_t token, char *str)
     case START_OF_LINE:
         switch(token) {
         case T_TEXT:
-            /* If the only text allowed before an offset on the same line were
-             * mailfwd characters ('>') and blanks, we could ignore those, and
-             * and switch back to INIT state here on other text and decrease
-             * ambiguity.
+            /* If the only text allowed on the same line before an offset (other
+             * than the zero offset that begins a packet) were mailfwd ('>') and
+             * blanks, we could ignore those, and and switch back to INIT state
+             * here to decrease ambiguity. (That is, assume that other text at
+             * line start indicates the end of an old packet and start of new.)
              */
-            append_to_preamble(str);
+            if (offset_base != 0) {
+                append_to_preamble(str);
+            }
             break;
         case T_DIRECTIVE:
             process_directive(str);
@@ -1468,6 +1475,10 @@ parse_token(token_t token, char *str)
                 return IMPORT_FAILURE;
             if (num == 0) {
                 /* New packet starts here */
+                /* XXX - This could just be any other run of three or more
+                 * zeros in a preamble. That only creates a problem if followed
+                 * by something that looks like bytes (otherwise a zero length
+                 * packet is ignored.) */
                 if (start_new_packet(false) != IMPORT_SUCCESS)
                     return IMPORT_FAILURE;
                 packet_start = 0;
@@ -1480,22 +1491,39 @@ parse_token(token_t token, char *str)
                  * of packet data included a number with spaces around
                  * it).  If the offset is less than what we expected,
                  * assume that's the problem, and throw away the putative
-                 * extra byte values.
+                 * extra byte values. (If identify_ascii is true, then
+                 * process_rollback does something similar, except that
+                 * it actually looks at the relevant bytes of the last
+                 * line and works if the mistaken text is on the last
+                 * line with an offset.)
                  *
-                 * XXX - It could be part of a preamble. The most common
-                 * part of a preamble that looks like an offset is the year,
-                 * and it is unlikely that 0x2024 = 8228 is less than the
-                 * expected offset for typical packets. However, there is
-                 * ambiguity, especiially for other possible values.
-                 * We accept 3 digit numbers as offsets.
+                 * hexdump and od (but not xxd or tcpdump) print an extra
+                 * offset with the total length followed by no bytes. This
+                 * is necessary when those programs print multiple byte
+                 * units instead of individual bytes. They will zero pad
+                 * the last byte group, and the offset on the extra line
+                 * is used to remove the excess null bytes. This also
+                 * works for that case (though we don't handle multiple
+                 * byte groups yet, #16193).
+                 *
+                 * In both of the above cases, the true offset should be
+                 * between the previous line offset start and the current
+                 * offset, as we only add bytes when a line started with
+                 * the correct offset (except in no offset mode, where we
+                 * don't get here.)
+                 *
+                 * XXX - It could be part of a preamble. There is a narrow
+                 * window for false detection here, but it's possible if the
+                 * line has, e.g., the packet length for the next packet.
                  */
-                if (num < curr_offset) {
+                if (num < curr_offset && (num >= (uint32_t)(pkt_lnstart - packet_buf))) {
                     unwrite_bytes(curr_offset - num);
                     state = READ_OFFSET;
                 } else {
                     /* Bad offset; switch to INIT state */
-                    ws_message("Inconsistent offset. Expecting %0X, got %0X. Ending current packet.",
-                                curr_offset, num);
+                    report_warning("Inconsistent offset. Ending current packet.");
+                    ws_message("Inconsistent offset. Expecting %0X, got %0X. Ending current packet (%i).",
+                                curr_offset, num, info_p->num_packets_read);
                     if (write_current_packet(false) != IMPORT_SUCCESS)
                         return IMPORT_FAILURE;
 
