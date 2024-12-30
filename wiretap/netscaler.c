@@ -2331,27 +2331,9 @@ static bool nstrace_dump(wtap_dumper *wdh, const wtap_rec *rec,
     {
         nstrace->newfile = false;
         /* Add the signature record and abs time record */
-        if (nstrace->version == NSTRACE_1_0)
-        {
-            if (!nstrace_add_signature(wdh, err) ||
-                !nstrace_add_abstime(wdh, rec, pd, err))
-                return false;
-        } else if (nstrace->version == NSTRACE_2_0)
-        {
-            if (!nstrace_add_signature(wdh, err) ||
-                !nstrace_add_abstime(wdh, rec, pd, err))
-                return false;
-        } else if (nstrace->version == NSTRACE_3_0 ||
-                   nstrace->version == NSTRACE_3_5 )
-        {
-            if (!nstrace_add_signature(wdh, err) ||
-                !nstrace_add_abstime(wdh, rec, pd, err))
-                return false;
-        } else
-        {
-            ws_assert_not_reached();
+        if (!nstrace_add_signature(wdh, err) ||
+            !nstrace_add_abstime(wdh, rec, pd, err))
             return false;
-        }
     }
 
     switch (rec->rec_header.packet_header.pseudo_header.nstr.rec_type)
