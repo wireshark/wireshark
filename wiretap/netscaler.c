@@ -593,7 +593,7 @@ typedef struct nspr_pktracepart_v26
 typedef struct {
     char   *pnstrace_buf;
     uint32_t page_size;
-    int64_t xxx_offset;
+    int64_t current_page_file_offset;
     uint32_t nstrace_buf_offset;
     uint32_t nstrace_buflen;
     /* Performance Monitor Time variables */
@@ -821,7 +821,7 @@ wtap_open_return_val nstrace_open(wtap *wth, int *err, char **err_info)
     wth->priv = (void *)nstrace;
     nstrace->pnstrace_buf = nstrace_buf;
     nstrace->page_size = page_size;
-    nstrace->xxx_offset = 0;
+    nstrace->current_page_file_offset = 0;
     nstrace->nstrace_buf_offset = 0;
     nstrace->nspm_curtime = 0;
     nstrace->nspm_curtimemsec = 0;
@@ -1067,8 +1067,8 @@ nspm_signature_version(char *nstrace_buf, unsigned len)
                 }\
             }\
             nstrace_buf_offset = 0;\
-            nstrace->xxx_offset += nstrace_buflen;\
-            nstrace_buflen = GET_READ_PAGE_SIZE((nstrace->file_size - nstrace->xxx_offset));\
+            nstrace->current_page_file_offset += nstrace_buflen;\
+            nstrace_buflen = GET_READ_PAGE_SIZE((nstrace->file_size - nstrace->current_page_file_offset));\
         }while((nstrace_buflen > 0) && (nstrace_read_page(wth, err, err_info)));\
         return false;\
     }
@@ -1169,7 +1169,7 @@ static bool nstrace_set_start_time(wtap *wth, int file_version, int *err,
         }\
         ws_buffer_assure_space(&(rec)->data, (rec)->rec_header.packet_header.caplen);\
         memcpy(ws_buffer_start_ptr(&(rec)->data), type, (rec)->rec_header.packet_header.caplen);\
-        *data_offset = nstrace->xxx_offset + nstrace_buf_offset;\
+        *data_offset = nstrace->current_page_file_offset + nstrace_buf_offset;\
         nstrace->nstrace_buf_offset = nstrace_buf_offset + (rec)->rec_header.packet_header.caplen;\
         nstrace->nstrace_buflen = nstrace_buflen;\
         nstrace->nsg_creltime = nsg_creltime;\
@@ -1264,8 +1264,8 @@ static bool nstrace_read_v10(wtap *wth, wtap_rec *rec,
         }
 
         nstrace_buf_offset = 0;
-        nstrace->xxx_offset += nstrace_buflen;
-        nstrace_buflen = GET_READ_PAGE_SIZE((nstrace->file_size - nstrace->xxx_offset));
+        nstrace->current_page_file_offset += nstrace_buflen;
+        nstrace_buflen = GET_READ_PAGE_SIZE((nstrace->file_size - nstrace->current_page_file_offset));
     }while((nstrace_buflen > 0) && (nstrace_read_page(wth, err, err_info)));
 
     return false;
@@ -1356,7 +1356,7 @@ static bool nstrace_read_v10(wtap *wth, wtap_rec *rec,
         }\
         ws_buffer_assure_space(&(rec)->data, (rec)->rec_header.packet_header.caplen);\
         memcpy(ws_buffer_start_ptr(&(rec)->data), fp, (rec)->rec_header.packet_header.caplen);\
-        *data_offset = nstrace->xxx_offset + nstrace_buf_offset;\
+        *data_offset = nstrace->current_page_file_offset + nstrace_buf_offset;\
         nstrace->nstrace_buf_offset = nstrace_buf_offset + nspr_getv20recordsize((nspr_hd_v20_t *)fp);\
         nstrace->nstrace_buflen = nstrace_buflen;\
         nstrace->nsg_creltime = nsg_creltime;\
@@ -1490,8 +1490,8 @@ static bool nstrace_read_v20(wtap *wth, wtap_rec *rec,
         }
 
         nstrace_buf_offset = 0;
-        nstrace->xxx_offset += nstrace_buflen;
-        nstrace_buflen = GET_READ_PAGE_SIZE((nstrace->file_size - nstrace->xxx_offset));
+        nstrace->current_page_file_offset += nstrace_buflen;
+        nstrace_buflen = GET_READ_PAGE_SIZE((nstrace->file_size - nstrace->current_page_file_offset));
     }while((nstrace_buflen > 0) && (nstrace_read_page(wth, err, err_info)));
 
     return false;
@@ -1558,7 +1558,7 @@ static bool nstrace_read_v20(wtap *wth, wtap_rec *rec,
             return false;\
         }\
         ws_buffer_assure_space(&(rec)->data, (rec)->rec_header.packet_header.caplen);\
-        *data_offset = nstrace->xxx_offset + nstrace_buf_offset;\
+        *data_offset = nstrace->current_page_file_offset + nstrace_buf_offset;\
         /* Copy record header */\
         while (nstrace_tmpbuff_off < nspr_##structname##_s) {\
             if (nstrace_buf_offset >= nstrace_buflen) {\
@@ -1579,7 +1579,7 @@ static bool nstrace_read_v20(wtap *wth, wtap_rec *rec,
             while (nstrace_buf_offset < nstrace->nstrace_buflen) {\
                 nstrace_tmpbuff[nstrace_tmpbuff_off++] = nstrace_buf[nstrace_buf_offset++];\
             }\
-            nstrace->xxx_offset += nstrace_buflen;\
+            nstrace->current_page_file_offset += nstrace_buflen;\
             nstrace_buflen = NSPR_PAGESIZE_TRACE;\
             /* Read the next page */\
             bytes_read = file_read(nstrace_buf, NSPR_PAGESIZE_TRACE, wth->fh);\
@@ -1715,7 +1715,7 @@ static bool nstrace_read_v30(wtap *wth, wtap_rec *rec,
             }
         }
         nstrace_buf_offset = 0;
-        nstrace->xxx_offset += nstrace_buflen;
+        nstrace->current_page_file_offset += nstrace_buflen;
         nstrace_buflen = NSPR_PAGESIZE_TRACE;
     } while((nstrace_buflen > 0) && (bytes_read = file_read(nstrace_buf, nstrace_buflen, wth->fh)) > 0 && (file_eof(wth->fh) || (uint32_t)bytes_read == nstrace_buflen));
 
