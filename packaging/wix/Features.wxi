@@ -110,7 +110,7 @@
       </Feature>
     </Feature>
     <?ifdef DOC_DIR?>
-      <Feature Id="Fe.Documentation" Title="Documentation" Level="1" AllowAdvertise="yes" Display="expand" Description="Install an offline copy of the User's Guide and FAQ.">
+      <Feature Id="Fe.Documentation" Title="Documentation" Level="1" AllowAdvertise="yes" Display="expand" Description="Install an offline copy of the User's Guide.">
         <ComponentGroupRef Id="CG.Documentation" />
       </Feature>
     <?endif?>

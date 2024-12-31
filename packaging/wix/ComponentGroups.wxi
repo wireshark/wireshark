@@ -591,23 +591,6 @@
     </ComponentGroup>
   </Fragment>
 
-  <?ifdef DOC_DIR?>
-    <!-- User Guide is created by heat -->
-    <!-- FAQ -->
-    <Fragment>
-      <DirectoryRef Id="INSTALLFOLDER">
-        <Component Id="cmpFAQ_html" Guid="*">
-          <File Id="filFAQ_html" KeyPath="yes" Source="$(var.DOC_DIR)\faq.html" />
-        </Component>
-      </DirectoryRef>
-    </Fragment>
-    <Fragment>
-      <ComponentGroup Id="CG.Documentation">
-        <ComponentRef Id="cmpFAQ_html" />
-      </ComponentGroup>
-    </Fragment>
-  <?endif?>
-
   <!-- Shortcuts -->
   <Fragment>
     <ComponentGroup Id="CG.WiresharkStartMenu" Directory="ProgramMenuFolder">

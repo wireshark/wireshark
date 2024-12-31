@@ -297,7 +297,6 @@ macro( ADD_WIX_PACKAGE_TARGET )
 			DEPENDS
 				${WIX_FILES}
 				copy_data_files
-				faq_html
 				user_guide_html
 				release_notes_html
 		)

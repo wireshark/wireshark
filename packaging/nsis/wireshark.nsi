@@ -1231,8 +1231,6 @@ Section "-Documentation"
 SetOutPath "$INSTDIR\Wireshark User's Guide"
 File /r "${DOC_DIR}\wsug_html_chunked\*.*"
 
-SetOutPath $INSTDIR
-File "${DOC_DIR}\faq.html"
 SectionEnd
 !endif
 

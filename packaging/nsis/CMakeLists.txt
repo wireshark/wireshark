@@ -285,7 +285,6 @@ macro( ADD_NSIS_PACKAGE_TARGETS )
 			DEPENDS
 				${WIRESHARK_NSIS_FILES}
 				copy_data_files
-				faq_html
 				user_guide_html
 				release_notes_html
 		)
@@ -332,7 +331,6 @@ macro( ADD_NSIS_PACKAGE_TARGETS )
 				${STRATOSHARK_NSIS_FILES}
 				copy_data_files
 				user_guide_html
-				faq_html
 				${DATAFILE_DIR}/uninstall-stratoshark.exe
 		)
 		set_target_properties(stratoshark_nsis_prep PROPERTIES
