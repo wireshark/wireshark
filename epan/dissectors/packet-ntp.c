@@ -27,8 +27,10 @@
 #include "packet-ntp.h"
 #include "packet-nts-ke.h"
 
+/* Prototypes */
 void proto_register_ntp(void);
 void proto_reg_handoff_ntp(void);
+static int dissect_ntp_ext(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ntp_tree, int offset, uint64_t flags);
 
 static dissector_handle_t ntp_handle;
 
@@ -1294,40 +1296,8 @@ dissect_ntp_ext_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ext_tree, in
 	return offset;
 }
 
-/* Same as dissect_ntp_ext() but without crypto which would cause recursion (called by dissect_nts_ext()).
- * At that point, there can't be extensions of type:
- * - NTS UID
- * - NTS authentication and encryption
- */
-static int
-dissect_ntp_ext_wo_crypto(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ntp_tree, int offset, uint64_t flags)
-{
-	proto_tree *ext_tree;
-	proto_item *tf;
-	uint16_t extlen;
-	uint32_t type;
-	int value_length;
-
-	extlen = tvb_get_ntohs(tvb, offset+2);
-	tf = proto_tree_add_item(ntp_tree, hf_ntp_ext, tvb, offset, extlen, ENC_NA);
-	ext_tree = proto_item_add_subtree(tf, ett_ntp_ext);
-
-	proto_tree_add_item_ret_uint(ext_tree, hf_ntp_ext_type, tvb, offset, 2, ENC_BIG_ENDIAN, &type);
-	offset += 2;
-
-	offset = dissect_ntp_ext_data(tvb, pinfo, ext_tree, offset, extlen);
-
-	value_length = extlen - 4;
-
-	if(type == 0x0204) /* NTS cookie extension */
-		dissect_nts_cookie(tvb, pinfo, ext_tree, offset, value_length, flags);
-
-	offset += value_length;
-
-	return offset;
-}
-
 static void
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_nts_ext(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ext_tree, proto_tree *ntp_tree, int offset, int length, uint64_t flags, int ext_start)
 {
 	proto_tree *nts_tree;
@@ -1391,12 +1361,13 @@ dissect_nts_ext(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ext_tree, proto_t
 	if(decrypted) {
 		add_new_data_source(pinfo, decrypted, "Decrypted NTP");
 		while ((unsigned)crypto_offset < tvb_reported_length(decrypted)) {
-			crypto_offset = dissect_ntp_ext_wo_crypto(decrypted, pinfo, ntp_tree, crypto_offset, flags);
+			crypto_offset = dissect_ntp_ext(decrypted, pinfo, ntp_tree, crypto_offset, flags);
 		}
 	}
 }
 
 static int
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_ntp_ext(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ntp_tree, int offset, uint64_t flags)
 {
 	proto_tree *ext_tree;
@@ -1404,6 +1375,8 @@ dissect_ntp_ext(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ntp_tree, int off
 	uint16_t extlen;
 	uint32_t type;
 	int value_length, offset_m = offset;
+
+	increment_dissection_depth(pinfo);
 
 	extlen = tvb_get_ntohs(tvb, offset+2);
 	tf = proto_tree_add_item(ntp_tree, hf_ntp_ext, tvb, offset, extlen, ENC_NA);
@@ -1429,6 +1402,8 @@ dissect_ntp_ext(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ntp_tree, int off
 		dissect_nts_ext(tvb, pinfo, ext_tree, ntp_tree, offset, value_length, flags, offset_m);
 
 	offset += value_length;
+
+	decrement_dissection_depth(pinfo);
 
 	return offset;
 }
