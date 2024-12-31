@@ -115,6 +115,7 @@ static int hf_icmpv6_nd_ra_flag_o;
 static int hf_icmpv6_nd_ra_flag_h;
 static int hf_icmpv6_nd_ra_flag_prf;
 static int hf_icmpv6_nd_ra_flag_p;
+static int hf_icmpv6_nd_ra_flag_s;
 static int hf_icmpv6_nd_ra_flag_rsv;
 static int hf_icmpv6_nd_ra_router_lifetime;
 static int hf_icmpv6_nd_ra_reachable_time;
@@ -1055,7 +1056,8 @@ static const value_string option_vals[] = {
 #define ND_RA_FLAG_H    0x20
 #define ND_RA_FLAG_PRF  0x18
 #define ND_RA_FLAG_P    0x04
-#define ND_RA_FLAG_RSV  0x03
+#define ND_RA_FLAG_S    0x02
+#define ND_RA_FLAG_RSV  0x01
 
 #define ND_NA_FLAG_R    0x80000000
 #define ND_NA_FLAG_S    0x40000000
@@ -4567,6 +4569,7 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                     &hf_icmpv6_nd_ra_flag_h,
                     &hf_icmpv6_nd_ra_flag_prf,
                     &hf_icmpv6_nd_ra_flag_p,
+                    &hf_icmpv6_nd_ra_flag_s,
                     &hf_icmpv6_nd_ra_flag_rsv,
                     NULL
                 };
@@ -5076,6 +5079,9 @@ proto_register_icmpv6(void)
         { &hf_icmpv6_nd_ra_flag_p,
           { "ND Proxy", "icmpv6.nd.ra.flag.p", FT_BOOLEAN, 8, TFS(&tfs_set_notset), ND_RA_FLAG_P,
             "Neighbor Discovery Proxy (Experimental - RFC4389)" , HFILL }},
+          { &hf_icmpv6_nd_ra_flag_s,
+          { "SNAC Router", "icmpv6.nd.ra.flag.s", FT_BOOLEAN, 8, TFS(&tfs_set_notset), ND_RA_FLAG_S,
+            "Indicates whether the router operates as Stub Network Auto-Configuring (SNAC) router" , HFILL }},
         { &hf_icmpv6_nd_ra_flag_rsv,
           { "Reserved", "icmpv6.nd.ra.flag.rsv", FT_UINT8, BASE_DEC, NULL, ND_RA_FLAG_RSV,
             "Must be Zero", HFILL }},
