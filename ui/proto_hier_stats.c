@@ -214,7 +214,6 @@ ph_stats_new(capture_file *cf)
     progdlg_t	*progbar = NULL;
     int		count;
     wtap_rec	rec;
-    Buffer	buf;
     float	progbar_val;
     char	status_str[100];
     int		progbar_nextstep;
@@ -336,7 +335,6 @@ ph_stats_new(capture_file *cf)
     }
 
     wtap_rec_cleanup(&rec);
-    ws_buffer_free(&buf);
 
     /* We're done calculating the statistics; destroy the progress bar
        if it was created. */
