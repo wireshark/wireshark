@@ -45,7 +45,7 @@
 #define HTML_GT "&gt;"
 
 static const QString default_regex_hint = ImportTextDialog::tr("Supported fields are data, dir, time, seqno");
-static const QString missing_data_hint = ImportTextDialog::tr("Missing capturing group data (use (?" HTML_LT "data" HTML_GT "(...)) )");
+static const QString missing_data_hint = ImportTextDialog::tr("Missing capturing group data (use (?<data>(...)) )");
 
 #define SETTINGS_FILE "import_hexdump.json"
 
