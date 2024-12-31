@@ -57,6 +57,11 @@ The following features are either new or have been significantly updated since v
   as well. It is possible that a future release will remove the ascitime style
   formatting entirely.
 
+* UTC frame time column formats (including "Time (format as specified)" when
+  a UTC time display format is selected) have a "Z" suffix per ISO 8601. Local
+  time formats remain unqualified (including if the local time zone is UTC.)
+  Custom columns displaying FT_ABSOLUTE_TIME already had time zone indication.
+
 * The TShark `-G` option for generating glossary reports does not need to be the
   first option given on the command line anymore. In addition, the reports now
   are affected by other command line options such as `-o`, `-d`, and

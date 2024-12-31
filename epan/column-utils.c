@@ -1113,7 +1113,29 @@ set_abs_ydoy_time(const frame_data *fd, char *buf, char *decimal_point, bool loc
      * Get the nsecs as a 32-bit unsigned value, as it should never
      * be negative, so we treat it as unsigned.
      */
-    format_fractional_part_nsecs(ptr, remaining, (uint32_t)fd->abs_ts.nsecs, decimal_point, tsprecision);
+    num_bytes = format_fractional_part_nsecs(ptr, remaining, (uint32_t)fd->abs_ts.nsecs, decimal_point, tsprecision);
+  }
+
+  if (!local) {
+    /*
+     * format_fractional_part_nsecs, unlike snprintf, returns the
+     * number of bytes copied (not "would have copied"), so we
+     * don't check for overflow here.
+     */
+    ptr += num_bytes;
+    remaining -= num_bytes;
+
+    if (remaining == 1 && num_bytes > 0) {
+      /*
+       * If we copied a fractional part but there's only room
+       * for the terminating '\0', replace the last digit of
+       * the fractional part with the "Z". (Remaining is at
+       * least 1, otherwise we would have returned above.)
+       */
+      ptr--;
+      remaining++;
+    }
+    (void)g_strlcpy(ptr, "Z", remaining);
   }
 }
 
@@ -1395,6 +1417,28 @@ set_abs_time(const frame_data *fd, char *buf, char *decimal_point, bool local)
      * be negative, so we treat it as unsigned.
      */
     format_fractional_part_nsecs(ptr, remaining, (uint32_t)fd->abs_ts.nsecs, decimal_point, tsprecision);
+  }
+
+  if (!local) {
+    /*
+     * format_fractional_part_nsecs, unlike snprintf, returns the
+     * number of bytes copied (not "would have copied"), so we
+     * don't check for overflow here.
+     */
+    ptr += num_bytes;
+    remaining -= num_bytes;
+
+    if (remaining == 1 && num_bytes > 0) {
+      /*
+       * If we copied a fractional part but there's only room
+       * for the terminating '\0', replace the last digit of
+       * the fractional part with the "Z". (Remaining is at
+       * least 1, otherwise we would have returned above.)
+       */
+      ptr--;
+      remaining++;
+    }
+    (void)g_strlcpy(ptr, "Z", remaining);
   }
 }
 

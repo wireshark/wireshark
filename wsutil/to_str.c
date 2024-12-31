@@ -1006,7 +1006,29 @@ format_nstime_as_iso8601(char *buf, size_t buflen, const nstime_t *ns,
 		 * Get the nsecs as a 32-bit unsigned value, as it should
 		 * never be negative, so we treat it as unsigned.
 		 */
-		format_fractional_part_nsecs(ptr, remaining, (uint32_t)ns->nsecs, decimal_point, precision);
+		num_bytes = format_fractional_part_nsecs(ptr, remaining, (uint32_t)ns->nsecs, decimal_point, precision);
+	}
+
+	if (!local) {
+		/*
+		 * format_fractional_part_nsecs, unlike snprintf, returns the
+		 * number of bytes copied (not "would have copied"), so we
+		 * don't check for overflow here.
+		 */
+		ptr += num_bytes;
+		remaining -= num_bytes;
+
+		if (remaining == 1 && num_bytes > 0) {
+			/*
+			 * If we copied a fractional part but there's only room
+			 * for the terminating '\0', replace the last digit of
+			 * the fractional part with the "Z". (Remaining is at
+			 * least 1, otherwise we would have returned above.)
+			 */
+			ptr--;
+			remaining++;
+		}
+		(void)g_strlcpy(ptr, "Z", remaining);
 	}
 }
 

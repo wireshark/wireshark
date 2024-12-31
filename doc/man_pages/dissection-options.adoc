@@ -158,15 +158,16 @@ previous displayed packet was captured
 *r* relative: The relative time is the time elapsed between the first packet
 and the current packet
 
-*u* UTC: The absolute time, as UTC, is the actual time the packet was
-captured, with no date displayed
+*u* UTC: The absolute time, as UTC with a "Z" suffix, is the actual time
+the packet was captured, with no date displayed
 
 *ud* UTC with date: The absolute date, displayed as YYYY-MM-DD,
-and time, as UTC, is the actual time and date the packet was captured
+and time, as UTC with a "Z" suffix, is the actual time and date the packet
+was captured
 
 *udoy* UTC with date using day of year: The absolute date, displayed
-as YYYY/DOY, and time, as UTC, is the actual time and date the packet
-was captured
+as YYYY/DOY, and time, as UTC with a "Z" suffix, is the actual time and date
+the packet was captured
 
 *.[N]* Set the precision: N is the number of decimals (0 through 9).
 If using "." without N, automatically determine precision from trace.

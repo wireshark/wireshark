@@ -545,6 +545,19 @@ static const char *ts_ymd[NUM_WS_TSPREC_VALS] = {
     "0000-00-00 00:00:00.000000000",
 };
 
+static const char *ts_ymd_utc[NUM_WS_TSPREC_VALS] = {
+    "0000-00-00 00:00:00Z",
+    "0000-00-00 00:00:00.0Z",
+    "0000-00-00 00:00:00.00Z",
+    "0000-00-00 00:00:00.000Z",
+    "0000-00-00 00:00:00.0000Z",
+    "0000-00-00 00:00:00.00000Z",
+    "0000-00-00 00:00:00.000000Z",
+    "0000-00-00 00:00:00.0000000Z",
+    "0000-00-00 00:00:00.00000000Z",
+    "0000-00-00 00:00:00.000000000Z",
+};
+
 /*
  * Strings for YYYY/DOY HH:MM:SS.SSSS dates and times.
  * (Yes, we know, this also has a Y10K problem.)
@@ -562,6 +575,19 @@ static const char *ts_ydoy[NUM_WS_TSPREC_VALS] = {
     "0000/000 00:00:00.000000000",
 };
 
+static const char *ts_ydoy_utc[NUM_WS_TSPREC_VALS] = {
+    "0000/000 00:00:00Z",
+    "0000/000 00:00:00.0Z",
+    "0000/000 00:00:00.00Z",
+    "0000/000 00:00:00.000Z",
+    "0000/000 00:00:00.0000Z",
+    "0000/000 00:00:00.00000Z",
+    "0000/000 00:00:00.000000Z",
+    "0000/000 00:00:00.0000000Z",
+    "0000/000 00:00:00.00000000Z",
+    "0000/000 00:00:00.000000000Z",
+};
+
 /*
  * Strings for HH:MM:SS.SSSS absolute times without dates.
  */
@@ -576,6 +602,19 @@ static const char *ts_abstime[NUM_WS_TSPREC_VALS] = {
     "00:00:00.0000000",
     "00:00:00.00000000",
     "00:00:00.000000000",
+};
+
+static const char *ts_abstime_utc[NUM_WS_TSPREC_VALS] = {
+    "00:00:00Z",
+    "00:00:00.0Z",
+    "00:00:00.00Z",
+    "00:00:00.000Z",
+    "00:00:00.0000Z",
+    "00:00:00.00000Z",
+    "00:00:00.000000Z",
+    "00:00:00.0000000Z",
+    "00:00:00.00000000Z",
+    "00:00:00.000000000Z",
 };
 
 /*
@@ -619,7 +658,6 @@ get_timestamp_column_longest_string(const int type, const int precision)
 
     switch(type) {
     case(TS_ABSOLUTE_WITH_YMD):
-    case(TS_UTC_WITH_YMD):
         if(precision == TS_PREC_AUTO) {
             /*
              * Return the string for the maximum precision, so that
@@ -631,8 +669,19 @@ get_timestamp_column_longest_string(const int type, const int precision)
         else
             ws_assert_not_reached();
         break;
+    case(TS_UTC_WITH_YMD):
+        if(precision == TS_PREC_AUTO) {
+            /*
+             * Return the string for the maximum precision, so that
+             * our caller leaves room for that string.
+             */
+            return ts_ymd_utc[WS_TSPREC_MAX];
+        } else if(precision >= 0 && precision < NUM_WS_TSPREC_VALS)
+            return ts_ymd_utc[precision];
+        else
+            ws_assert_not_reached();
+        break;
     case(TS_ABSOLUTE_WITH_YDOY):
-    case(TS_UTC_WITH_YDOY):
         if(precision == TS_PREC_AUTO) {
             /*
              * Return the string for the maximum precision, so that
@@ -644,8 +693,19 @@ get_timestamp_column_longest_string(const int type, const int precision)
         else
             ws_assert_not_reached();
         break;
+    case(TS_UTC_WITH_YDOY):
+        if(precision == TS_PREC_AUTO) {
+            /*
+             * Return the string for the maximum precision, so that
+             * our caller leaves room for that string.
+             */
+            return ts_ydoy_utc[WS_TSPREC_MAX];
+        } else if(precision >= 0 && precision < NUM_WS_TSPREC_VALS)
+            return ts_ydoy_utc[precision];
+        else
+            ws_assert_not_reached();
+        break;
     case(TS_ABSOLUTE):
-    case(TS_UTC):
         if(precision == TS_PREC_AUTO) {
             /*
              * Return the string for the maximum precision, so that
@@ -654,6 +714,18 @@ get_timestamp_column_longest_string(const int type, const int precision)
             return ts_abstime[WS_TSPREC_MAX];
         } else if(precision >= 0 && precision < NUM_WS_TSPREC_VALS)
             return ts_abstime[precision];
+        else
+            ws_assert_not_reached();
+        break;
+    case(TS_UTC):
+        if(precision == TS_PREC_AUTO) {
+            /*
+             * Return the string for the maximum precision, so that
+             * our caller leaves room for that string.
+             */
+            return ts_abstime_utc[WS_TSPREC_MAX];
+        } else if(precision >= 0 && precision < NUM_WS_TSPREC_VALS)
+            return ts_abstime_utc[precision];
         else
             ws_assert_not_reached();
         break;
