@@ -58,7 +58,7 @@ Using Wireshark’s GitLab project you can:
 Like most revision control systems, Git uses
 https://en.wikipedia.org/wiki/Branching_%28revision_control%29[branching]
 to manage different copies of the source code and allow parallel development.
-Wireshark uses the following branch naming conventions:
+Wireshark releases use the following branch naming conventions:
 
 .master.
 Main feature development and odd-numbered development releases.
@@ -66,8 +66,10 @@ Main feature development and odd-numbered development releases.
 .release-x.y.
 Stable release maintenance. For example, release-4.4 is used to manage the 4.4.x official releases.
 
-Tags for major releases and release candidates consist of a “v” followed by a version number such as “v4.4.1” or “v4.4.3rc0”.
+Tags for major Wireshark releases and release candidates consist of a “v” followed by a version number such as “v4.4.1” or “v4.4.3rc0”.
 Major releases additionally have a tag prefixed with “wireshark-” followed by a version number, such as “wireshark-4.4.0”.
+
+Tags for major Stratoshark releases and release candidates consist of an “ssv” followed by a version number such as “ssv1.2.3” or “ssv1.3.4rc0”.
 
 Tags created after August 1, 2024 are signed using SSH. This includes the tags for versions 4.4.0rc1, 4.4.0, 4.2.7, and 4.0.17. If you wish to verify these tags, you must have
 https://git-scm.com/docs/git-config#Documentation/git-config.txt-gpgsshallowedSignersFile[gpg.ssh.allowedSignersFile]
