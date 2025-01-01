@@ -770,6 +770,20 @@ void ImportTextDialog::on_dataEncodingComboBox_currentIndexChanged(int index)
     {
         // data_encoding_ok = true;
         import_info_.regex.encoding = (enum data_encoding) val.toUInt();
+        /* The hex decode table ignores ':' as whitespace, so it's in the hint
+         * here. As written, this allows it in all sorts of locations, rather
+         * than a more precise regex. As \s matches vertical whitespace too,
+         * using this hint can wrap onto the next line and match times as bytes,
+         * ignoring any ':'.
+         *
+         * In many situations a user might want to use \h instead. A tradeoff
+         * of the flexibility of regex is determining what hint works for most
+         * users.
+         *
+         * XXX - ':' is also present in the hint for octal below, even though
+         * the octal table doesn't ignore it. Should it be added there? Should
+         * the hex and octal tables ignore other byte separators as well?
+         */
         switch (import_info_.regex.encoding) {
           case ENCODING_PLAIN_HEX:
             ti_ui_->encodingRegexExample->setText(HINT_BEGIN "(?" HTML_LT "data" HTML_GT "[0-9a-fA-F:\\s]+)" HINT_END);

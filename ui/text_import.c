@@ -788,12 +788,17 @@ append_to_preamble(char *str)
 
 #define INVALID_VALUE (-1)
 
+/*
+ * This includes not just true whitespace values, but also any other
+ * character silently ignored if part of the data group match, such as
+ * byte separators or the '=' used for padding at the end of Base64.
+ */
 #define WHITESPACE_VALUE (-2)
 
 /*
  * Information on how to parse any plainly encoded binary data
  *
- * one Unit is least_common_mmultiple(bits_per_char, 8) bits.
+ * one Unit is least_common_multiple(bits_per_char, 8) bits.
  */
 struct plain_decoding_data {
     const char* name;
@@ -900,7 +905,7 @@ DIAG_ON_INIT_TWICE
  /**
   * This function parses encoded data according to <encoding> into binary data.
   * It will continue until one of the following conditions is met:
-  *    - src is depletetd
+  *    - src is depleted
   *    - dest cannot hold another full unit of data
   *    - an invalid character is read
   * When this happens any complete bytes will be recovered from the remaining
@@ -933,13 +938,22 @@ static int parse_plain_data(unsigned char** src, const unsigned char* src_end,
         wmem_free(NULL, debug_str);
     }
     while (*src < src_end && *dest + encoding->bytes_per_unit <= dest_end) {
+        /*
+         * XXX - This reads one octet at a time. If the GRegex compile flag
+         * G_REGEX_RAW wasn't given, the match was done using UTF-8 characters.
+         * That's useful, I suppose, if the input file has UTF-8 text (comments,
+         * etc.) that ought to be ignored - but it means that character classes
+         * like \d and \s can match Unicode characters that might (but probably
+         * aren't) in the data. Those will cause an invalid value warning and
+         * abort, which is easier than adding full UTF-8 support here.
+         */
         val = encoding->table[**src];
         switch (val) {
           case INVALID_VALUE:
+            report_failure("Unexpected char %d in data", **src);
             status = -1;
             goto remainder;
           case WHITESPACE_VALUE:
-            ws_warning("Unexpected char %d in data", **src);
             break;
           default:
             c_val = c_val << encoding->bits_per_char | val;
