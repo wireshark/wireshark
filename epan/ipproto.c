@@ -168,7 +168,7 @@ static const value_string ipproto_val[] = {
     { IP_PROTO_ETHERNET,"Ethernet" },               /* 143 Ethernet [RFC8986] */
     { IP_PROTO_AGGFRAG, "AGGFRAG" },                /* 144 AGGFRAG encapsulation for ESP */
     { IP_PROTO_NSH,     "NSH" },                    /* 145 Network Service Header */
-    { 146, "Unassigned" },                          /* 146 Unassigned */
+    { IP_PROTO_HOMA,    "Homa" },                   /* 146 Homa */
     { 147, "Unassigned" },                          /* 147 Unassigned */
     { 148, "Unassigned" },                          /* 148 Unassigned */
     { 149, "Unassigned" },                          /* 149 Unassigned */
