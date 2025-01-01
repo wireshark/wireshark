@@ -469,6 +469,7 @@ static expert_field ei_tcp_option_snack_sequence;
 static expert_field ei_tcp_option_wscale_shift_invalid;
 static expert_field ei_tcp_option_mss_absent;
 static expert_field ei_tcp_option_mss_present;
+static expert_field ei_tcp_option_mss_exceeded;
 static expert_field ei_tcp_option_sack_perm_absent;
 static expert_field ei_tcp_option_sack_perm_present;
 static expert_field ei_tcp_short_segment;
@@ -2048,6 +2049,8 @@ init_tcp_conversation_data(packet_info *pinfo, int direction)
     tcpd->flow_direction = 0;
     tcpd->flow1.flow_count = 0;
     tcpd->flow2.flow_count = 0;
+    tcpd->flow1.mss = -1;
+    tcpd->flow2.mss = -1;
 
     return tcpd;
 }
@@ -5939,6 +5942,11 @@ dissect_tcpopt_mss(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
     int offset = 0;
     struct tcpheader *tcph = (struct tcpheader *)data;
     uint32_t mss;
+    struct tcp_analysis *tcpd;
+
+    /* find the conversation for this TCP session and its stored data */
+    conversation_t *stratconv = find_conversation_strat(pinfo, CONVERSATION_TCP, 0);
+    tcpd=get_tcp_conversation_data_idempotent(stratconv);
 
     item = proto_tree_add_item(tree, proto_tcp_option_mss, tvb, offset, -1, ENC_NA);
     exp_tree = proto_item_add_subtree(item, ett_tcp_option_mss);
@@ -5957,6 +5965,12 @@ dissect_tcpopt_mss(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
     proto_tree_add_item_ret_uint(exp_tree, hf_tcp_option_mss_val, tvb, offset + 2, 2, ENC_BIG_ENDIAN, &mss);
     proto_item_append_text(item, ": %u bytes", mss);
     tcp_info_append_uint(pinfo, "MSS", mss);
+
+    /* Only SYN packets are supposed to have this option
+     * XXX - we could restrict a bit more with seq_analyze */
+    if( tcpd && (tcph->th_flags & TH_SYN) && !pinfo->fd->visited ) {
+        tcpd->fwd->mss=mss;
+    }
 
     return tvb_captured_length(tvb);
 }
@@ -9147,6 +9161,35 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 
     }
 
+    /* Handle default MSS values for IPv4 and IPv6
+     * If MSS is still -1 after dissecting the options,
+     * apply the default values (as per RFC 9293).
+     */
+    if(tcp_analyze_seq && conversation_is_new &&
+       !pinfo->fd->visited &&
+       tcpd->fwd->mss==-1) {
+
+        switch(pinfo->src.type) {
+        case AT_IPv4:
+            tcpd->fwd->mss = 536;
+            tcpd->rev->mss = 536;
+            break;
+        case AT_IPv6:
+            tcpd->fwd->mss = 1220;
+            tcpd->rev->mss = 1220;
+            break;
+        default:
+            DISSECTOR_ASSERT_NOT_REACHED();
+            break;
+        }
+    }
+
+    /* If SYN (and hence MSS value) for that direction is missing,
+     * the default MSS value might not be realistic */
+    if (tcph->th_have_seglen && tcph->th_seglen>(uint32_t)tcpd->fwd->mss) {
+        expert_add_info(pinfo, NULL, &ei_tcp_option_mss_exceeded);
+    }
+
     /* handle TCP seq# analysis, print any extra SEQ/ACK data for this segment*/
     if(tcp_analyze_seq) {
         uint32_t use_seq = tcph->th_seq;
@@ -10332,6 +10375,7 @@ proto_register_tcp(void)
         { &ei_tcp_option_wscale_shift_invalid, { "tcp.options.wscale.shift.invalid", PI_PROTOCOL, PI_WARN, "Window scale shift exceeds 14", EXPFILL }},
         { &ei_tcp_option_mss_absent, { "tcp.options.mss.absent", PI_PROTOCOL, PI_NOTE, "The SYN packet does not contain a MSS option", EXPFILL }},
         { &ei_tcp_option_mss_present, { "tcp.options.mss.present", PI_PROTOCOL, PI_WARN, "The non-SYN packet does contain a MSS option", EXPFILL }},
+        { &ei_tcp_option_mss_exceeded, { "tcp.options.mss.exceeded", PI_PROTOCOL, PI_NOTE, "This packet's length exceeds MSS (common with TSO or incomplete conversations)", EXPFILL }},
         { &ei_tcp_option_sack_perm_absent, { "tcp.options.sack_perm.absent", PI_PROTOCOL, PI_NOTE, "The SYN packet does not contain a SACK PERM option", EXPFILL }},
         { &ei_tcp_option_sack_perm_present, { "tcp.options.sack_perm.present", PI_PROTOCOL, PI_WARN, "The non-SYN packet does contain a SACK PERM option", EXPFILL }},
         { &ei_tcp_short_segment, { "tcp.short_segment", PI_MALFORMED, PI_WARN, "Short segment", EXPFILL }},

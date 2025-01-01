@@ -618,7 +618,7 @@ class TestDecryptTLS:
         output = subprocess.check_output((cmd_tshark,
                 '-r', capture_file('tls-over-tls.pcapng.gz'),
                 '-o', 'tls.keys_list:0.0.0.0,443,http,{}'.format(key_file),
-                '-z', 'expert,tls.handshake.certificates',
+                '-z', 'expert,warn,tls.handshake.certificates',
                 '-Tfields',
                 '-e', 'tls.handshake.certificate_length',
                 '-Y', 'tls.handshake.certificates',

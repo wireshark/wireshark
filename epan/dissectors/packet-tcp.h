@@ -358,6 +358,7 @@ typedef struct _tcp_flow_t {
 	uint32_t fin;		/* frame number of the final FIN */
 	uint32_t window;		/* last seen window */
 	int16_t	win_scale;	/* -1 is we don't know, -2 is window scaling is not used */
+	int16_t mss;  		/* maximum segment size, -1 unknown */
 	bool scps_capable;	/* flow advertised scps capabilities */
 	uint16_t maxsizeacked;  /* 0 if not yet known */
 	uint8_t mp_operations; /* tracking of the MPTCP operations */
