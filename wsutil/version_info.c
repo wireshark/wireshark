@@ -598,7 +598,7 @@ const char *
 get_copyright_info(void)
 {
 	return
-		"Copyright 1998-2024 Gerald Combs <gerald@wireshark.org> and contributors.";
+		"Copyright 1998-2025 Gerald Combs <gerald@wireshark.org> and contributors.";
 }
 
 const char *
