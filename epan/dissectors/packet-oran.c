@@ -482,6 +482,7 @@ static expert_field ei_oran_unexpected_measTypeId;
 static expert_field ei_oran_unsupported_compression_method;
 static expert_field ei_oran_ud_comp_len_wrong_size;
 static expert_field ei_oran_sresmask2_not_zero_with_rb;
+static expert_field ei_oran_st6_rb_shall_be_0;
 
 
 /* These are the message types handled by this dissector */
@@ -2174,7 +2175,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                 break;
         }
     }
-    else if (sectionType == SEC_C_CH_INFO) {  /* Section Type 6 */
+    else if (sectionType == SEC_C_CH_INFO) {   /* Section Type 6 */
         /* ef */
         proto_tree_add_item_ret_boolean(c_section_tree, hf_oran_ef, tvb, offset, 1, ENC_BIG_ENDIAN, &extension_flag);
         /* ueId */
@@ -2185,8 +2186,13 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
         offset += 2;
         /* reserved (4 bits) */
         proto_tree_add_item(c_section_tree, hf_oran_reserved_4bits, tvb, offset, 1, ENC_NA);
-        /* rb */
-        proto_tree_add_item(c_section_tree, hf_oran_rb, tvb, offset, 1, ENC_NA);
+        /* rb ("Value=0 shall be set") */
+        uint32_t rb;
+        proto_item *rb_ti = proto_tree_add_item_ret_uint(c_section_tree, hf_oran_rb, tvb, offset, 1, ENC_NA, &rb);
+        if (rb != 0) {
+            proto_item_append_text(rb_ti, " (should be set to 0)");
+            expert_add_info(pinfo, rb_ti, &ei_oran_st6_rb_shall_be_0);
+        }
         /* symInc */
         proto_tree_add_item(c_section_tree, hf_oran_symInc, tvb, offset, 1, ENC_NA);
         /* startPrbc */
@@ -7898,7 +7904,8 @@ proto_register_oran(void)
         { &ei_oran_unexpected_measTypeId, { "oran_fh_cus.unexpected_meastypeid", PI_MALFORMED, PI_WARN, "unexpected measTypeId", EXPFILL }},
         { &ei_oran_unsupported_compression_method, { "oran_fh_cus.compression_type_unsupported", PI_UNDECODED, PI_WARN, "Unsupported compression type", EXPFILL }},
         { &ei_oran_ud_comp_len_wrong_size, { "oran_fh_cus.ud_comp_len_wrong_size", PI_MALFORMED, PI_WARN, "udCompLen does not match length of U-Plane section", EXPFILL }},
-        { &ei_oran_sresmask2_not_zero_with_rb, { "oran_fh_cus.sresmask2_not_zero", PI_MALFORMED, PI_WARN, "sReSMask2 should be zero when rb set", EXPFILL }}
+        { &ei_oran_sresmask2_not_zero_with_rb, { "oran_fh_cus.sresmask2_not_zero", PI_MALFORMED, PI_WARN, "sReSMask2 should be zero when rb set", EXPFILL }},
+        { &ei_oran_st6_rb_shall_be_0, { "oran_fh_cus.st6_rb_sset", PI_MALFORMED, PI_WARN, "rb should not be set for Section  Type 6", EXPFILL }}
     };
 
     /* Register the protocol name and description */
