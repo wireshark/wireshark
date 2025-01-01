@@ -1698,7 +1698,10 @@ wtapng_process_dsb(wtap *wth, wtap_block_t dsb)
 		wth->add_new_secrets(dsb_mand->secrets_type, dsb_mand->secrets_data, dsb_mand->secrets_len);
 }
 
-/* Perform per-packet initialization */
+/*
+ * Reset a wtap_rec to an initialized state, making it ready for a
+ * new record.
+ */
 static void
 wtap_init_rec(wtap *wth, wtap_rec *rec)
 {
@@ -1723,6 +1726,12 @@ wtap_init_rec(wtap *wth, wtap_rec *rec)
 	 * more than one section.
 	 */
 	rec->section_number = 0;
+
+	/*
+	 * Reset the data buffer to an initialized state.
+	 * XXX - any other buffers?
+	 */
+	ws_buffer_clean(&rec->data);
 }
 
 bool
@@ -1732,7 +1741,6 @@ wtap_read(wtap *wth, wtap_rec *rec, int *err, char **err_info, int64_t *offset)
 	 * Initialize the record to default values.
 	 */
 	wtap_init_rec(wth, rec);
-	ws_buffer_clean(&rec->data);
 
 	*err = 0;
 	*err_info = NULL;
@@ -1948,7 +1956,6 @@ wtap_seek_read(wtap *wth, int64_t seek_off, wtap_rec *rec,
 	 * Initialize the record to default values.
 	 */
 	wtap_init_rec(wth, rec);
-	ws_buffer_clean(&rec->data);
 
 	*err = 0;
 	*err_info = NULL;
