@@ -133,7 +133,8 @@ void
 ws_buffer_clean(Buffer* buffer)
 {
 	ws_assert(buffer);
-	ws_buffer_remove_start(buffer, ws_buffer_length(buffer));
+	buffer->start = 0;
+	buffer->first_free = 0;
 }
 #endif
 
