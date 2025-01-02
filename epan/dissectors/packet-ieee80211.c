@@ -1999,6 +1999,11 @@ static const true_false_string retry_flags = {
   "Frame is not being retransmitted"
 };
 
+static const true_false_string s1g_dynamic_indication_flags = {
+  "Dynamic",
+  "Static"
+};
+
 static const true_false_string pm_flags = {
   "STA will go to sleep",
   "STA will stay up"
@@ -3165,6 +3170,18 @@ static const value_string ieee80211_htc_bw_recommended_vht_mcs_vals[] = {
   {0, NULL}
 };
 
+static const value_string ieee80211_htc_s1g_bw_recommended_vht_mcs_vals[] = {
+  {0, "1 MHz"},
+  {1, "2 MHz"},
+  {2, "4 MHz"},
+  {3, "8 MHz"},
+  {4, "16 MHz"},
+  {5, "Reserved"},
+  {6, "Reserved"},
+  {7, "Reserved"},
+  {0, NULL}
+};
+
 static const value_string ieee80211_htc_coding_type_vals[] = {
   {0, "BCC"},
   {1, "LDPC"},
@@ -3771,6 +3788,10 @@ static int hf_ieee80211_fc_s1g_bss_bw;
 static int hf_ieee80211_fc_s1g_security;
 static int hf_ieee80211_fc_s1g_ap_pm;
 
+/* S1G PV0 fields */
+static int hf_ieee80211_fc_s1g_bw_indication;
+static int hf_ieee80211_fc_s1g_dynamic_indication;
+
 /* PV1 fields */
 static int hf_ieee80211_fc_pv1_proto_version;
 static int hf_ieee80211_fc_pv1_type;
@@ -4160,6 +4181,9 @@ static int hf_ieee80211_htc_mfb;
 static int hf_ieee80211_htc_num_sts;
 static int hf_ieee80211_htc_vht_mcs;
 static int hf_ieee80211_htc_bw;
+static int hf_ieee80211_htc_s1g_num_sts;
+static int hf_ieee80211_htc_s1g_vht_mcs;
+static int hf_ieee80211_htc_s1g_bw;
 static int hf_ieee80211_htc_snr;
 static int hf_ieee80211_htc_reserved3;
 static int hf_ieee80211_htc_gid_h;
@@ -27115,6 +27139,7 @@ dissect_ht_control(packet_info* pinfo, proto_tree *tree, tvbuff_t *tvb, int offs
   proto_item *ti;
   proto_tree *htc_tree, *lac_subtree, *mfb_subtree;
   uint32_t htc;
+  bool is_s1g = sta_is_s1g(pinfo);
 
   htc = tvb_get_letohl(tvb, offset);
 
@@ -27252,9 +27277,15 @@ dissect_ht_control(packet_info* pinfo, proto_tree *tree, tvbuff_t *tvb, int offs
       }
       ti = proto_tree_add_item(htc_tree, hf_ieee80211_htc_mfb, tvb, offset, 4, ENC_LITTLE_ENDIAN);
       mfb_subtree = proto_item_add_subtree(ti, ett_mfb_subtree);
-      proto_tree_add_item(mfb_subtree, hf_ieee80211_htc_num_sts, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-      proto_tree_add_item(mfb_subtree, hf_ieee80211_htc_vht_mcs, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-      proto_tree_add_item(mfb_subtree, hf_ieee80211_htc_bw, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+      if (is_s1g) {
+        proto_tree_add_item(mfb_subtree, hf_ieee80211_htc_s1g_num_sts, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(mfb_subtree, hf_ieee80211_htc_s1g_vht_mcs, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(mfb_subtree, hf_ieee80211_htc_s1g_bw, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+      } else {
+        proto_tree_add_item(mfb_subtree, hf_ieee80211_htc_num_sts, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(mfb_subtree, hf_ieee80211_htc_vht_mcs, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(mfb_subtree, hf_ieee80211_htc_bw, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+      }
       /* This should be converted to dB by adding 22  */
       proto_tree_add_item(mfb_subtree, hf_ieee80211_htc_snr, tvb, offset, 4, ENC_LITTLE_ENDIAN);
       if (!HTC_NO_FEEDBACK_PRESENT(HTC_MFB(htc))) {
@@ -27325,6 +27356,8 @@ dissect_frame_control(proto_tree *tree, tvbuff_t *tvb, uint32_t option_flags,
   proto_tree *fc_tree, *flag_tree;
   proto_item *fc_item, *flag_item, *hidden_item, *ti;
   uint32_t swap_offset = 0;
+  bool is_s1g = sta_is_s1g(pinfo);
+  bool s1g_has_protected_htc_order;
 
   fcf = FETCH_FCF(offset);
 
@@ -27386,8 +27419,11 @@ dissect_frame_control(proto_tree *tree, tvbuff_t *tvb, uint32_t option_flags,
   /* Flags */
   flag_item = proto_tree_add_item(fc_tree, hf_ieee80211_fc_flags, tvb, offset, 1, ENC_NA);
   flag_tree = proto_item_add_subtree(flag_item, ett_proto_flags);
-  /* Changing control frame flags for extension frames */
-  if(IS_FRAME_EXTENSION(fcf) == 0) {
+  if (is_s1g && FCF_FRAME_TYPE(fcf) == CONTROL_FRAME) {
+    proto_tree_add_item(flag_tree, hf_ieee80211_fc_s1g_bw_indication, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(flag_tree, hf_ieee80211_fc_s1g_dynamic_indication, tvb, offset, 1, ENC_NA);
+  } else if(IS_FRAME_EXTENSION(fcf) == 0) {
+    /* Changing control frame flags for extension frames */
     proto_tree_add_item(flag_tree, hf_ieee80211_fc_data_ds, tvb, offset, 1, ENC_NA);
     hidden_item = proto_tree_add_item(flag_tree, hf_ieee80211_fc_to_ds, tvb, offset, 1, ENC_NA);
     proto_item_set_hidden(hidden_item);
@@ -27404,54 +27440,62 @@ dissect_frame_control(proto_tree *tree, tvbuff_t *tvb, uint32_t option_flags,
   proto_tree_add_item(flag_tree, hf_ieee80211_fc_pwr_mgt, tvb, offset, 1, ENC_NA);
   proto_tree_add_item(flag_tree, hf_ieee80211_fc_more_data, tvb, offset, 1, ENC_NA);
   /* Changing control frame flags for extension frames */
-  if(IS_FRAME_EXTENSION(fcf) == 0) {
+  /* TODO: add support for S1G subtypes 3 and 10 fields: flow control, next TWT
+     info present, more data, poll type */
+  /* All S1G frames have the Protected Frame and +HTC/Order subfields except for
+     Control frames with subtypes 3 and 10 */
+  s1g_has_protected_htc_order = is_s1g && (FCF_FRAME_TYPE(fcf) != CONTROL_FRAME
+                                           || (FCF_FRAME_SUBTYPE(fcf) != 3 && FCF_FRAME_SUBTYPE(fcf) != 10));
+  if (s1g_has_protected_htc_order || (!is_s1g && IS_FRAME_EXTENSION(fcf) == 0)) {
     proto_tree_add_item(flag_tree, hf_ieee80211_fc_protected, tvb, offset, 1, ENC_NA);
   }
-  ti = proto_tree_add_item(flag_tree, hf_ieee80211_fc_order, tvb, offset, 1, ENC_NA);
-  if (option_flags & IEEE80211_COMMON_OPT_NORMAL_QOS) {
-    if (DATA_FRAME_IS_QOS(frame_type_subtype)) {
-      if (HAS_HT_CONTROL(FCF_FLAGS(fcf))) {
-        /*
-         * IEEE 802.11-2016 section 9.2.4.1.10 "+HTC/Order subfield" says:
-         *
-         *  The +HTC/Order subfield is 1 bit in length. It is used for two
-         *  purposes:
-         *
-         *    -- It is set to 1 in a non-QoS Data frame transmitted by a
-         *       non-QoS STA to indicate that the frame contains an MSDU,
-         *       or fragment thereof, that is being transferred using the
-         *       StrictlyOrdered service class.
-         *
-         *    -- It is set to 1 in a QoS Data or Management frame transmitted
-         *       with a value of HT_GF, HT_MF, or VHT for the FORMAT parameter
-         *       of the TXVECTOR to indicate that the frame contains an
-         *       HT Control field.
-         *
-         *  Otherwise, the +HTC/Order subfield is set to 0.
-         *
-         *  NOTE -- The +HTC/Order subfield is always set to 0 for frames
-         *  transmitted by a DMG STA.
-         *
-         * and 802.11ax drafts appear to say that the +HTC/Order flag, for
-         * QoS frames, also indicates that there's an HT Control field.
-         *
-         * For DMG frames, we flag this as an error.
-         *
-         * XXX - as I read the above, this shouldn't be set except for
-         * HT, VHT, or HE PHYs; however, some QoS frames appear to have
-         * it set, and have an HT Control field, even though they don't
-         * have HT/VHT/HE radiotap fields.  That might be because the
-         * code that provided the header didn't provide those radiotap
-         * fields, or because there is no radiotap header, meaning that
-         * they might still be HT/VHT/HE frames, so we don't report it
-         * as an error.
-         */
-        if (isDMG) {
+  if (s1g_has_protected_htc_order || !is_s1g) {
+    ti = proto_tree_add_item(flag_tree, hf_ieee80211_fc_order, tvb, offset, 1, ENC_NA);
+    if (option_flags & IEEE80211_COMMON_OPT_NORMAL_QOS) {
+      if (DATA_FRAME_IS_QOS(frame_type_subtype)) {
+        if (HAS_HT_CONTROL(FCF_FLAGS(fcf))) {
           /*
-           * DMG, so flag this as having +HTC/Order set, as it's not supposed
-           * to be set.
+           * IEEE 802.11-2016 section 9.2.4.1.10 "+HTC/Order subfield" says:
+           *
+           *  The +HTC/Order subfield is 1 bit in length. It is used for two
+           *  purposes:
+           *
+           *    -- It is set to 1 in a non-QoS Data frame transmitted by a
+           *       non-QoS STA to indicate that the frame contains an MSDU,
+           *       or fragment thereof, that is being transferred using the
+           *       StrictlyOrdered service class.
+           *
+           *    -- It is set to 1 in a QoS Data or Management frame transmitted
+           *       with a value of HT_GF, HT_MF, or VHT for the FORMAT parameter
+           *       of the TXVECTOR to indicate that the frame contains an
+           *       HT Control field.
+           *
+           *  Otherwise, the +HTC/Order subfield is set to 0.
+           *
+           *  NOTE -- The +HTC/Order subfield is always set to 0 for frames
+           *  transmitted by a DMG STA.
+           *
+           * and 802.11ax drafts appear to say that the +HTC/Order flag, for
+           * QoS frames, also indicates that there's an HT Control field.
+           *
+           * For DMG frames, we flag this as an error.
+           *
+           * XXX - as I read the above, this shouldn't be set except for
+           * HT, VHT, or HE PHYs; however, some QoS frames appear to have
+           * it set, and have an HT Control field, even though they don't
+           * have HT/VHT/HE radiotap fields.  That might be because the
+           * code that provided the header didn't provide those radiotap
+           * fields, or because there is no radiotap header, meaning that
+           * they might still be HT/VHT/HE frames, so we don't report it
+           * as an error.
            */
-          expert_add_info(pinfo, ti, &ei_ieee80211_htc_in_dmg_packet);
+          if (isDMG) {
+            /*
+             * DMG, so flag this as having +HTC/Order set, as it's not supposed
+             * to be set.
+             */
+            expert_add_info(pinfo, ti, &ei_ieee80211_htc_in_dmg_packet);
+          }
         }
       }
     }
@@ -38634,6 +38678,7 @@ static const value_string pv1_management_frame_type_vals[] = {
   { 0, NULL }
 };
 
+/* Also used for S1G PV0 */
 static const value_string pv1_bandwidth_indic_vals[] = {
   { 0, "1 MHz" },
   { 1, "2 MHz" },
@@ -42243,6 +42288,16 @@ proto_register_ieee80211(void)
      {"+HTC/Order flag", "wlan.fc.order",
       FT_BOOLEAN, 8, TFS(&order_flags), FLAG_ORDER,
       "HT Control present/strictly ordered flag", HFILL }},
+
+   {&hf_ieee80211_fc_s1g_bw_indication,
+     {"Bandwidth Indication", "wlan.fc.control.bandwidth_indication",
+      FT_UINT8, BASE_DEC, VALS(pv1_bandwidth_indic_vals),
+      0x07, NULL, HFILL }},
+
+   {&hf_ieee80211_fc_s1g_dynamic_indication,
+     {"Dynamic Indication", "wlan.fc.control.dynamic_indication",
+      FT_BOOLEAN, 8, TFS(&s1g_dynamic_indication_flags), FLAG_RETRY,
+      "Static/dynamic bandwidth negotiation", HFILL }},
 
     {&hf_ieee80211_fc_pv1_proto_version,
      {"Version", "wlan.fc.version",
@@ -55751,6 +55806,21 @@ proto_register_ieee80211(void)
     {&hf_ieee80211_htc_bw,
      {"BW", "wlan.htc.bw",
       FT_UINT32, BASE_DEC, VALS(ieee80211_htc_bw_recommended_vht_mcs_vals), 0x00030000,
+      "Bandwidth for recommended VHT-MCS", HFILL }},
+
+    {&hf_ieee80211_htc_s1g_num_sts,
+     {"NUM_STS", "wlan.htc.num_sts",
+      FT_UINT32, BASE_DEC, NULL, 0x00000600,
+      "Recommended NUM_STS", HFILL }},
+
+    {&hf_ieee80211_htc_s1g_vht_mcs,
+     {"VHT-MCS", "wlan.htc.vht_mcs",
+      FT_UINT32, BASE_DEC, NULL, 0x00007800,
+      "Recommended VHT-MCS", HFILL }},
+
+    {&hf_ieee80211_htc_s1g_bw,
+     {"BW", "wlan.htc.bw",
+      FT_UINT32, BASE_DEC, VALS(ieee80211_htc_s1g_bw_recommended_vht_mcs_vals), 0x00038000,
       "Bandwidth for recommended VHT-MCS", HFILL }},
 
     {&hf_ieee80211_htc_snr,

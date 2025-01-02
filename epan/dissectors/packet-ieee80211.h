@@ -153,7 +153,7 @@ bool is_broadcast_bssid(const address *bssid);
 #define FLAG_TO_DS            0x01
 #define FLAG_FROM_DS          0x02
 #define FLAG_MORE_FRAGMENTS   0x04
-#define FLAG_RETRY            0x08
+#define FLAG_RETRY            0x08    /* overloaded for S1G dynamic indication */
 #define FLAG_POWER_MGT        0x10
 #define FLAG_MORE_DATA        0x20
 #define FLAG_PROTECTED        0x40
