@@ -2211,12 +2211,12 @@ proto_register_frame(void)
 
 		{ &hf_frame_bblog_snd_scale,
 		  { "Snd.Wind.Shift", "frame.bblog.snd_shift",
-		    FT_UINT8, BASE_DEC, NULL, BBLOG_SND_SCALE_MASK,
+		    FT_UINT8, BASE_DEC, NULL, 0x0,
 		    NULL, HFILL} },
 
 		{ &hf_frame_bblog_rcv_scale,
 		  { "Rcv.Wind.Shift", "frame.bblog.rcv_shift",
-		    FT_UINT8, BASE_DEC, NULL, BBLOG_RCV_SCALE_MASK,
+		    FT_UINT8, BASE_DEC, NULL, 0x0,
 		    NULL, HFILL} },
 
 		{ &hf_frame_bblog_pad_1,
