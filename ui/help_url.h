@@ -54,7 +54,8 @@ typedef enum {
     LOCALPAGE_MAN_TSHARK,
 
     /* Release Notes */
-    LOCALPAGE_RELEASE_NOTES,
+    LOCALPAGE_WIRESHARK_RELEASE_NOTES,
+    // LOCALPAGE_STRATOSHARK_RELEASE_NOTES,
 
     /* help pages (textfiles or HTML User's Guide) */
     HELP_CONTENT = 200,

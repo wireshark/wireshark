@@ -1186,7 +1186,7 @@ Delete "$INSTDIR\browser_sslkeylog.lua"
 Delete "$INSTDIR\console.lua"
 Delete "$INSTDIR\dtd_gen.lua"
 Delete "$INSTDIR\init.lua"
-Delete "$INSTDIR\release-notes.html"
+Delete "$INSTDIR\Stratoshark Release Notes.html"
 
 RMDir "$INSTDIR\accessible"
 RMDir "$INSTDIR\audio"

@@ -86,9 +86,10 @@ doc/user-guide*.xml
 doc/*-guide-*.pdf
 doc/ws?g_html/
 doc/ws?g_html_chunked/
-doc/release-notes-*.pdf
-doc/release-notes.html
-doc/release-notes.txt
+doc/Wireshark Release Notes.html
+doc/Wireshark Release Notes.txt
+doc/Stratoshark Release Notes.html
+doc/Stratoshark Release Notes.txt
 doc/wsluarm
 doc/wsluarm_src/
 wsar_html/

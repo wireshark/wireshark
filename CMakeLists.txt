@@ -2264,7 +2264,8 @@ if (ASCIIDOCTOR_FOUND)
 		${CMAKE_BINARY_DIR}/doc/man_pages/tshark.html
 		${CMAKE_BINARY_DIR}/doc/man_pages/wireshark.html
 		${CMAKE_BINARY_DIR}/doc/man_pages/wireshark-filter.html
-		${CMAKE_BINARY_DIR}/doc/release-notes.html
+		"${CMAKE_BINARY_DIR}/doc/Wireshark Release Notes.html"
+		# "${CMAKE_BINARY_DIR}/doc/Stratoshark Release Notes.html"
 	)
 	if(MAXMINDDB_FOUND)
 		list(APPEND DOC_FILES ${CMAKE_BINARY_DIR}/doc/man_pages/mmdbresolve.html)

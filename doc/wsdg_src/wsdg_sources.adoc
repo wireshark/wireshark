@@ -1053,8 +1053,8 @@ $ git cherry-pick -x 1ab2c3d4
 $ ninja
 $ ...
 
-# OPTIONAL: Add entries to doc/release-notes.adoc.
-$EDITOR doc/release-notes.adoc
+# OPTIONAL: Add entries to doc/Wireshark_Release_Notes.adoc.
+$EDITOR "doc/Wireshark_Release_Notes.adoc"
 
 # If you made any changes, update your commit.
 git commit --amend -a
