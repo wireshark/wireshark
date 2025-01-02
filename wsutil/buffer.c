@@ -130,7 +130,7 @@ ws_buffer_remove_start(Buffer* buffer, size_t bytes)
 }
 
 
-#ifndef SOME_FUNCTIONS_ARE_DEFINES
+#ifndef SOME_FUNCTIONS_ARE_INLINE
 void
 ws_buffer_clean(Buffer* buffer)
 {
