@@ -393,6 +393,8 @@ static int hf_oran_ue_freq_offset;
 static int hf_oran_beam_type;
 static int hf_oran_meas_cmd_size;
 
+static int hf_oran_symbol_reordering_layer;
+
 static int hf_oran_c_section;
 static int hf_oran_u_section;
 
@@ -440,6 +442,7 @@ static int ett_oran_measurement_report;
 static int ett_oran_sresmask;
 static int ett_oran_c_section;
 static int ett_oran_remask;
+static int ett_oran_symbol_reordering_layer;
 
 
 /* Expert info */
@@ -2138,7 +2141,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
 
             case SEC_C_SINR_REPORTING:   /* Section Type 9 - SINR Reporting */
             {
-                unsigned bit_offset = offset+8;
+                unsigned bit_offset = offset*8;
 
                 /* TODO: alternates if 'rb' set? */
                 for (unsigned prb=0; prb < numPrbu; prb++) {
@@ -2152,9 +2155,9 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                     /* sinrCompParam */
                     uint32_t exponent = 0;  /* N.B. init to silence warnings, but will always be set if read in COMP_BLOCK_FP case */
                     uint16_t sReSMask;
-                    offset = dissect_udcompparam(tvb, pinfo, c_section_tree, bit_offset/8,
-                                                 pref_iqCompressionUplink, &exponent, &sReSMask,
-                                                 true); /* last param is for_sinr */
+                    bit_offset = dissect_udcompparam(tvb, pinfo, c_section_tree, bit_offset/8,
+                                                     pref_iqCompressionUplink, &exponent, &sReSMask,
+                                                     true) * 8; /* last param is for_sinr */
 
                     /* sinrValues for this PRB. TODO: subtree for each PRB? */
                     /* TODO: not sure how numSinrPerPrb interacts with rb==1... */
@@ -2172,6 +2175,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                         bit_offset += pref_sample_bit_width_uplink;
                     }
                 }
+                offset = (bit_offset+7)/8;
                 break;
             }
             case SEC_C_REQUEST_RRM_MEAS:   /* Section Type 11 - Request RRM Measurements */
@@ -3500,7 +3504,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                 proto_tree_add_item_ret_uint(extension_tree, hf_oran_user_group_id, tvb, offset, 1, ENC_BIG_ENDIAN, &user_group_id);
                 offset += 1;
 
-                /* Dissect each entry.  Not sure how this works with padding bytes though... */
+                /* Dissect each entry (until run out of extlen bytes..). Not sure how this works with padding bytes though... */
                 while (offset < (extension_start_offset + extlen*4)) {
 
                     /* entryType (3 bits) */
@@ -3580,12 +3584,21 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
 
             case 25:  /* Symbol reordering for DMRS-BF */
                 /* Just dissect each available block of 7 bytes as the 14 symbols for a layer,
-                   where each layer could be one or apply to all layers. Could place layer under a subtree? */
+                   where each layer could be one or apply to all layers. */
+            {
+                unsigned layer = 0;
+                proto_item *layer_ti;
                 while (offset+7 <= (extension_start_offset + extlen*4)) {
+                    /* Layer subtree */
+                    layer_ti = proto_tree_add_string_format(extension_tree, hf_oran_symbol_reordering_layer,
+                                                            tvb, offset, 7, "",
+                                                            "Layer");
+                    proto_tree *layer_tree = proto_item_add_subtree(layer_ti, ett_oran_symbol_reordering_layer);
+
                     /* All 14 symbols for a layer (or all layers) */
                     for (unsigned s=0; s < 14; s++) {
                         proto_item *sym_ti;
-                        sym_ti = proto_tree_add_item(extension_tree,
+                        sym_ti = proto_tree_add_item(layer_tree,
                                                      (s % 2) ? hf_oran_tx_win_for_on_air_symbol_r : hf_oran_tx_win_for_on_air_symbol_l,
                                                      tvb, offset, 1, ENC_BIG_ENDIAN);
                         proto_item_append_text(sym_ti, " (sym %u)", s);
@@ -3593,8 +3606,15 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                             offset += 1;
                         }
                     }
+
+                    proto_item_append_text(layer_ti, " (layer %u)", ++layer);
+                }
+                /* Set layer subtree label */
+                if (layer == 1) {
+                    proto_item_append_text(layer_ti, " (all)");
                 }
                 break;
+            }
 
             case 26:  /* Frequency offset feedback */
                 /* Reserved (8 bits). N.B., added after draft? */
@@ -3611,6 +3631,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                 /* Add each freqOffsetFb value */
                 for (unsigned n=0; n < num_fo_fb; n++) {
                     unsigned freq_offset_fb;
+                    /* freqOffsetFb (16 bits) */
                     proto_item *offset_ti = proto_tree_add_item_ret_uint(extension_tree, hf_oran_freq_offset_fb,
                                                                          tvb, offset, 2, ENC_BIG_ENDIAN, &freq_offset_fb);
                     /* Show if maps onto a -ve number */
@@ -7842,6 +7863,13 @@ proto_register_oran(void)
           HFILL}
         },
 
+        { &hf_oran_symbol_reordering_layer,
+          { "Layer", "oran_fh_cus.layer",
+            FT_STRING, BASE_NONE,
+            NULL, 0x0,
+            NULL, HFILL}
+        },
+
         { &hf_oran_c_section,
           { "Section", "oran_fh_cus.c-plane.section",
             FT_STRING, BASE_NONE,
@@ -7891,7 +7919,8 @@ proto_register_oran(void)
         &ett_oran_measurement_report,
         &ett_oran_sresmask,
         &ett_oran_c_section,
-        &ett_oran_remask
+        &ett_oran_remask,
+        &ett_oran_symbol_reordering_layer
     };
 
     expert_module_t* expert_oran;
