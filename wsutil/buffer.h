@@ -40,7 +40,13 @@ WS_DLL_PUBLIC
 void ws_buffer_cleanup(void);
 
 #ifdef SOME_FUNCTIONS_ARE_DEFINES
-# define ws_buffer_clean(buffer) (buffer)->start = 0; (buffer)->first_free = 0
+/* Or inlines */
+static inline void
+ws_buffer_clean(Buffer *buffer)
+{
+	buffer->start = 0;
+	buffer->first_free = 0;
+}
 # define ws_buffer_increase_length(buffer,bytes) (buffer)->first_free += (bytes)
 # define ws_buffer_length(buffer) ((buffer)->first_free - (buffer)->start)
 # define ws_buffer_start_ptr(buffer) ((buffer)->data + (buffer)->start)
