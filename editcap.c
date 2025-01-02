@@ -174,7 +174,7 @@ static const struct {
     { "opcua",  SECRETS_TYPE_OPCUA },
 };
 
-static int find_dct2000_real_data(uint8_t *buf);
+static unsigned find_dct2000_real_data(const uint8_t *buf);
 static void handle_chopping(chop_t chop, wtap_packet_header *phdr,
                             uint8_t **buf, bool adjlen);
 
@@ -819,6 +819,95 @@ is_duplicate_rel_time(uint8_t* fd, uint32_t len, const nstime_t *current) {
 }
 
 static void
+mutate_packet_data(wtap_rec *rec, uint8_t *buf, uint32_t change_offset, uint64_t count)
+{
+    uint32_t caplen;
+    unsigned real_data_start = 0;
+
+    caplen = 0;
+
+    switch (rec->rec_type) {
+
+    case REC_TYPE_PACKET:
+        caplen = rec->rec_header.packet_header.caplen;
+
+        /*
+         * Protect some non-protocol data.
+         * XXX - any reason not to fuzz this part?
+         */
+        if (rec->rec_header.packet_header.pkt_encap == WTAP_ENCAP_CATAPULT_DCT2000)
+            real_data_start = find_dct2000_real_data(buf);
+        break;
+
+    case REC_TYPE_FT_SPECIFIC_EVENT:
+    case REC_TYPE_FT_SPECIFIC_REPORT:
+        caplen = rec->rec_header.ft_specific_header.record_len;
+        break;
+
+    case REC_TYPE_SYSCALL:
+        caplen = rec->rec_header.syscall_header.event_filelen;
+        break;
+
+    case REC_TYPE_SYSTEMD_JOURNAL_EXPORT:
+        caplen = rec->rec_header.systemd_journal_export_header.record_len;
+        break;
+
+    default:
+        /* We don't mutate anything else. */
+        return;
+    }
+
+    if (change_offset > caplen) {
+        fprintf(stderr, "change offset %u is longer than caplen %u in packet %" PRIu64 "\n",
+            change_offset, caplen, count);
+        return;
+    }
+
+    real_data_start += change_offset;
+
+    for (unsigned i = real_data_start; i < caplen; i++) {
+        if (rand() <= err_prob * RAND_MAX) {
+            int err_type = rand() / (RAND_MAX / ERR_WT_TOTAL + 1);
+
+            if (err_type < ERR_WT_BIT) {
+                buf[i] ^= 1 << (rand() / (RAND_MAX / 8 + 1));
+                err_type = ERR_WT_TOTAL;
+            } else {
+                err_type -= ERR_WT_BYTE;
+            }
+
+            if (err_type < ERR_WT_BYTE) {
+                buf[i] = rand() / (RAND_MAX / 255 + 1);
+                err_type = ERR_WT_TOTAL;
+            } else {
+                err_type -= ERR_WT_BYTE;
+            }
+
+            if (err_type < ERR_WT_ALNUM) {
+                buf[i] = ALNUM_CHARS[rand() / (RAND_MAX / ALNUM_LEN + 1)];
+                err_type = ERR_WT_TOTAL;
+            } else {
+                err_type -= ERR_WT_ALNUM;
+            }
+
+            if (err_type < ERR_WT_FMT) {
+                if (i < caplen - 2)
+                    (void) g_strlcpy((char*) &buf[i], "%s", 2);
+                err_type = ERR_WT_TOTAL;
+            } else {
+                err_type -= ERR_WT_FMT;
+            }
+
+            if (err_type < ERR_WT_AA) {
+                for (unsigned j = i; j < caplen; j++)
+                    buf[j] = 0xAA;
+                i = caplen;
+            }
+        }
+    }
+}
+
+static void
 print_usage(FILE *output)
 {
     fprintf(output, "\n");
@@ -1276,7 +1365,7 @@ main(int argc, char *argv[])
 {
     char         *configuration_init_error;
     wtap         *wth = NULL;
-    int           i, j, read_err, write_err;
+    int           i, read_err, write_err;
     char         *read_err_info, *write_err_info;
     int           opt;
 
@@ -1318,7 +1407,6 @@ main(int argc, char *argv[])
     uint64_t      count              = 1;
     uint64_t      duplicate_count    = 0;
     int64_t       data_offset;
-    int           err_type;
     uint8_t      *buf;
     uint64_t      read_count         = 0;
     uint64_t      split_packet_count = 0;
@@ -1337,8 +1425,6 @@ main(int argc, char *argv[])
     wtap_rec                     read_rec;
     wtap_dump_params             params = WTAP_DUMP_PARAMS_INIT;
     char                        *shb_user_appl;
-    bool                         do_mutation;
-    uint32_t                     caplen;
     int                          ret = EXIT_SUCCESS;
     bool                         valid_seed = false;
     unsigned int                 seed = 0;
@@ -2382,97 +2468,8 @@ main(int argc, char *argv[])
             }
 
             /* Random error mutation */
-            do_mutation = false;
-            caplen = 0;
             if (err_prob > 0.0) {
-                switch (read_rec.rec_type) {
-
-                case REC_TYPE_PACKET:
-                    caplen = read_rec.rec_header.packet_header.caplen;
-                    do_mutation = true;
-                    break;
-
-                case REC_TYPE_FT_SPECIFIC_EVENT:
-                case REC_TYPE_FT_SPECIFIC_REPORT:
-                    caplen = read_rec.rec_header.ft_specific_header.record_len;
-                    do_mutation = true;
-                    break;
-
-                case REC_TYPE_SYSCALL:
-                    caplen = read_rec.rec_header.syscall_header.event_filelen;
-                    do_mutation = true;
-                    break;
-
-                case REC_TYPE_SYSTEMD_JOURNAL_EXPORT:
-                    caplen = read_rec.rec_header.systemd_journal_export_header.record_len;
-                    do_mutation = true;
-                    break;
-                }
-
-                if (change_offset > caplen) {
-                    fprintf(stderr, "change offset %u is longer than caplen %u in packet %" PRIu64 "\n",
-                        change_offset, caplen, count);
-                    do_mutation = false;
-                }
-            }
-
-            if (do_mutation) {
-                int real_data_start = 0;
-
-                /* Protect non-protocol data */
-                switch (read_rec.rec_type) {
-
-                case REC_TYPE_PACKET:
-                    /*
-                     * XXX - any reason not to fuzz this part?
-                     */
-                    if (read_rec.rec_header.packet_header.pkt_encap == WTAP_ENCAP_CATAPULT_DCT2000)
-                        real_data_start = find_dct2000_real_data(buf);
-                    break;
-                }
-
-                real_data_start += change_offset;
-
-                for (i = real_data_start; i < (int) caplen; i++) {
-                    if (rand() <= err_prob * RAND_MAX) {
-                        err_type = rand() / (RAND_MAX / ERR_WT_TOTAL + 1);
-
-                        if (err_type < ERR_WT_BIT) {
-                            buf[i] ^= 1 << (rand() / (RAND_MAX / 8 + 1));
-                            err_type = ERR_WT_TOTAL;
-                        } else {
-                            err_type -= ERR_WT_BYTE;
-                        }
-
-                        if (err_type < ERR_WT_BYTE) {
-                            buf[i] = rand() / (RAND_MAX / 255 + 1);
-                            err_type = ERR_WT_TOTAL;
-                        } else {
-                            err_type -= ERR_WT_BYTE;
-                        }
-
-                        if (err_type < ERR_WT_ALNUM) {
-                            buf[i] = ALNUM_CHARS[rand() / (RAND_MAX / ALNUM_LEN + 1)];
-                            err_type = ERR_WT_TOTAL;
-                        } else {
-                            err_type -= ERR_WT_ALNUM;
-                        }
-
-                        if (err_type < ERR_WT_FMT) {
-                            if ((unsigned int)i < caplen - 2)
-                                (void) g_strlcpy((char*) &buf[i], "%s", 2);
-                            err_type = ERR_WT_TOTAL;
-                        } else {
-                            err_type -= ERR_WT_FMT;
-                        }
-
-                        if (err_type < ERR_WT_AA) {
-                            for (j = i; j < (int) caplen; j++)
-                                buf[j] = 0xAA;
-                            i = caplen;
-                        }
-                    }
-                }
+                mutate_packet_data(&read_rec, buf, change_offset, count);
             } /* random error mutation */
 
             /* Discard all packet comments when writing */
@@ -2631,10 +2628,10 @@ clean_exit:
 
 /* Skip meta-information read from file to return offset of real
  * protocol data */
-static int
-find_dct2000_real_data(uint8_t *buf)
+static unsigned
+find_dct2000_real_data(const uint8_t *buf)
 {
-    int n = 0;
+    unsigned n = 0;
 
     for (n = 0; buf[n] != '\0'; n++);   /* Context name */
     n++;
