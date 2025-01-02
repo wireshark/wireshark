@@ -43,7 +43,6 @@ char *capture_dev_user_descr_find(const char *if_name);
  */
 int capture_dev_user_linktype_find(const char *if_name);
 
-#ifdef CAN_SET_CAPTURE_BUFFER_SIZE
 /**
  * Find user-specified buffer size that matches interface
  * name, if any.
@@ -53,7 +52,6 @@ int capture_dev_user_linktype_find(const char *if_name);
  * @return The buffer size or -1 if not found.
  */
 int capture_dev_user_buffersize_find(const char *if_name);
-#endif
 
 /**
  * Find user-specified snap length that matches interface

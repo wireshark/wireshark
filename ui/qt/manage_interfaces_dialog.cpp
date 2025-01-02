@@ -322,9 +322,7 @@ void ManageInterfacesDialog::on_addPipe_clicked()
     device.snaplen      = global_capture_opts.default_options.snaplen;
     device.cfilter      = g_strdup(global_capture_opts.default_options.cfilter);
     device.timestamp_type = g_strdup(global_capture_opts.default_options.timestamp_type);
-#ifdef CAN_SET_CAPTURE_BUFFER_SIZE
     device.buffer       = DEFAULT_CAPTURE_BUFFER_SIZE;
-#endif
     device.active_dlt = -1;
     device.if_info.name = g_strdup(device.name);
     device.if_info.type = IF_PIPE;
@@ -429,11 +427,9 @@ void ManageInterfacesDialog::updateRemoteInterfaceList(GList* rlist, remote_opti
         } else {
             device.display_name = g_strdup(if_string);
         }
-#ifdef CAN_SET_CAPTURE_BUFFER_SIZE
         if ((device.buffer = capture_dev_user_buffersize_find(if_string)) == -1) {
             device.buffer = global_capture_opts.default_options.buffer_size;
         }
-#endif
         if (!capture_dev_user_pmode_find(if_string, &device.pmode)) {
             device.pmode = global_capture_opts.default_options.promisc_mode;
         }
@@ -479,13 +475,11 @@ void ManageInterfacesDialog::updateRemoteInterfaceList(GList* rlist, remote_opti
         device.links = NULL;
         if (caps != NULL) {
             GList *lt_list = caps->data_link_types;
-#ifdef HAVE_PCAP_CREATE
             device.monitor_mode_enabled = monitor_mode && caps->can_set_rfmon;
             device.monitor_mode_supported = caps->can_set_rfmon;
             if (device.monitor_mode_enabled) {
                 lt_list = caps->data_link_types_rfmon;
             }
-#endif
             for (lt_entry = lt_list; lt_entry != NULL; lt_entry = gxx_list_next(lt_entry)) {
                 data_link_info = gxx_list_data(data_link_info_t *, lt_entry);
                 linkr = g_new(link_row, 1);
@@ -511,10 +505,8 @@ void ManageInterfacesDialog::updateRemoteInterfaceList(GList* rlist, remote_opti
             } /* for link_types */
             free_if_capabilities(caps);
         } else {
-#if defined(HAVE_PCAP_CREATE)
             device.monitor_mode_enabled = false;
             device.monitor_mode_supported = false;
-#endif
             device.active_dlt = -1;
         }
         device.addresses = g_strdup(ip_str->str);

@@ -65,14 +65,6 @@
 
 const int stat_update_interval_ = 1000; // ms
 
-#ifdef CAN_SET_CAPTURE_BUFFER_SIZE
-#define SHOW_BUFFER_COLUMN 1
-#endif
-
-#if defined(HAVE_PCAP_CREATE)
-#define SHOW_MONITOR_COLUMN 1
-#endif
-
 /*
  * Symbolic names for column indices.
  */
@@ -143,29 +135,23 @@ public:
             setApplicable(col_pmode_, false);
 
             setApplicable(col_snaplen_, false);
-#ifdef SHOW_BUFFER_COLUMN
             setApplicable(col_buffer_, false);
-#endif
         } else {
             setApplicable(col_pmode_, true);
             setCheckState(col_pmode_, device->pmode ? Qt::Checked : Qt::Unchecked);
 
             QString snaplen_string = device->has_snaplen ? QString::number(device->snaplen) : default_str;
             setText(col_snaplen_, snaplen_string);
-#ifdef SHOW_BUFFER_COLUMN
             setText(col_buffer_, QString::number(device->buffer));
-#endif
         }
         setText(col_filter_, device->cfilter);
 
-#ifdef SHOW_MONITOR_COLUMN
         if (device->monitor_mode_supported) {
             setApplicable(col_monitor_, true);
             setCheckState(col_monitor_, device->monitor_mode_enabled ? Qt::Checked : Qt::Unchecked);
         } else {
             setApplicable(col_monitor_, false);
         }
-#endif
         treeWidget()->blockSignals(false);
     }
 
@@ -206,15 +192,7 @@ CaptureOptionsDialog::CaptureOptionsDialog(QWidget *parent) :
     ui->interfaceTree->setItemDelegateForColumn(col_link_, &interface_item_delegate_);
 
     ui->interfaceTree->setItemDelegateForColumn(col_snaplen_, &interface_item_delegate_);
-#ifdef SHOW_BUFFER_COLUMN
     ui->interfaceTree->setItemDelegateForColumn(col_buffer_, &interface_item_delegate_);
-#else
-    ui->interfaceTree->setColumnHidden(col_buffer_, true);
-#endif
-#ifndef SHOW_MONITOR_COLUMN
-    ui->interfaceTree->setColumnHidden(col_monitor_, true);
-    ui->captureMonitorModeCheckBox->setVisible(false);
-#endif
     ui->interfaceTree->setItemDelegateForColumn(col_filter_, &interface_item_delegate_);
 
     interface_item_delegate_.setTree(ui->interfaceTree);
@@ -447,7 +425,6 @@ void CaptureOptionsDialog::interfaceItemChanged(QTreeWidgetItem *item, int colum
         ti->updateInterfaceColumns(device);
         break;
 
-#ifdef SHOW_MONITOR_COLUMN
     case col_monitor_:
     {
         bool monitor_mode = false;
@@ -519,7 +496,6 @@ void CaptureOptionsDialog::interfaceItemChanged(QTreeWidgetItem *item, int colum
 
         break;
     }
-#endif // SHOW_MONITOR_COLUMN
     default:
         break;
     }
@@ -840,9 +816,7 @@ void CaptureOptionsDialog::updateInterfaces()
     disconnect(ui->interfaceTree, &QTreeWidget::itemSelectionChanged, this, &CaptureOptionsDialog::interfaceSelected);
     ui->interfaceTree->clear();
 
-#ifdef SHOW_BUFFER_COLUMN
     int           buffer;
-#endif
     int           snaplen;
     bool          hassnap, pmode;
     QList<QTreeWidgetItem *> selected_interfaces;
@@ -902,19 +876,15 @@ void CaptureOptionsDialog::updateInterfaces()
                 device->has_snaplen = false;
             }
 
-#ifdef SHOW_BUFFER_COLUMN
             if (capture_dev_user_buffersize_find(device->name) != -1) {
                 buffer = capture_dev_user_buffersize_find(device->name);
                 device->buffer = buffer;
             } else {
                 device->buffer = DEFAULT_CAPTURE_BUFFER_SIZE;
             }
-#endif
-#ifdef SHOW_MONITOR_COLUMN
             if (device->monitor_mode_supported) {
                 ui->captureMonitorModeCheckBox->setEnabled(true);
             }
-#endif
             ti->updateInterfaceColumns(device);
 
             if (device->selected) {
@@ -1208,7 +1178,6 @@ bool CaptureOptionsDialog::saveOptionsToPreferences()
             prefs.capture_devices_linktypes = qstring_strdup(link_list.join(","));
             break;
         }
-#ifdef SHOW_BUFFER_COLUMN
         case col_buffer_:
         {
             QStringList buffer_size_list;
@@ -1226,7 +1195,6 @@ bool CaptureOptionsDialog::saveOptionsToPreferences()
             prefs.capture_devices_buffersize = qstring_strdup(buffer_size_list.join(","));
             break;
         }
-#endif // HAVE_BUFFER_SETTING
         case col_snaplen_:
         {
             QStringList snaplen_list;
@@ -1263,7 +1231,6 @@ bool CaptureOptionsDialog::saveOptionsToPreferences()
             break;
         }
 
-#ifdef SHOW_MONITOR_COLUMN
         case col_monitor_:
         {
             QStringList monitor_list;
@@ -1281,7 +1248,6 @@ bool CaptureOptionsDialog::saveOptionsToPreferences()
             prefs.capture_devices_monitor_mode = qstring_strdup(monitor_list.join(","));
             break;
         }
-#endif // HAVE_MONITOR_SETTING
 
 #if 0
             // The device cfilter should have been applied at this point.
@@ -1448,9 +1414,7 @@ InterfaceTreeDelegate::~InterfaceTreeDelegate()
 QWidget* InterfaceTreeDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem &, const QModelIndex &idx) const
 {
     QWidget *w = NULL;
-#ifdef SHOW_BUFFER_COLUMN
     int buffer = DEFAULT_CAPTURE_BUFFER_SIZE;
-#endif
     unsigned snap = WTAP_MAX_PACKET_SIZE_STANDARD;
     GList *links = NULL;
 
@@ -1460,9 +1424,7 @@ QWidget* InterfaceTreeDelegate::createEditor(QWidget *parent, const QStyleOption
         interface_t *device = find_device_by_if_name(interface_name);
 
         if (device) {
-#ifdef SHOW_BUFFER_COLUMN
             buffer = device->buffer;
-#endif
             snap = device->snaplen;
             links = device->links;
         }
@@ -1514,7 +1476,6 @@ QWidget* InterfaceTreeDelegate::createEditor(QWidget *parent, const QStyleOption
             w = (QWidget*) sb;
             break;
         }
-#ifdef SHOW_BUFFER_COLUMN
         case col_buffer_:
         {
             QSpinBox *sb = new QSpinBox(parent);
@@ -1529,7 +1490,6 @@ QWidget* InterfaceTreeDelegate::createEditor(QWidget *parent, const QStyleOption
             w = (QWidget*) sb;
             break;
         }
-#endif
         case col_filter_:
         {
             // XXX: Should this take the interface name, so that the history
@@ -1606,7 +1566,6 @@ void InterfaceTreeDelegate::snapshotLengthChanged(int value)
     }
 }
 
-#ifdef SHOW_BUFFER_COLUMN
 void InterfaceTreeDelegate::bufferSizeChanged(int value)
 {
     interface_t *device;
@@ -1621,6 +1580,5 @@ void InterfaceTreeDelegate::bufferSizeChanged(int value)
     }
     device->buffer = value;
 }
-#endif
 
 #endif /* HAVE_LIBPCAP */

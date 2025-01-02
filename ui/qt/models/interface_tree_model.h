@@ -51,12 +51,8 @@ enum InterfaceTreeColumns
     IFTREE_COL_TYPE,
     IFTREE_COL_ACTIVE,
     IFTREE_COL_SNAPLEN,
-#ifdef CAN_SET_CAPTURE_BUFFER_SIZE
     IFTREE_COL_BUFFERLEN,
-#endif
-#ifdef HAVE_PCAP_CREATE
     IFTREE_COL_MONITOR_MODE,
-#endif
     IFTREE_COL_CAPTURE_FILTER,
     IFTREE_COL_PIPE_PATH,      // ManageInterfaceDialog pipeView
     IFTREE_COL_MAX /* is not being displayed, it is the definition for the maximum numbers of columns */

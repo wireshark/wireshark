@@ -159,12 +159,10 @@ QVariant InterfaceTreeModel::data(const QModelIndex &index, int role) const
             {
                 return device->has_snaplen ? QString::number(device->snaplen) : DefaultNumericValue;
             }
-#ifdef CAN_SET_CAPTURE_BUFFER_SIZE
             else if (col == IFTREE_COL_BUFFERLEN)
             {
                 return QString::number(device->buffer);
             }
-#endif
             else if (col == IFTREE_COL_TYPE)
             {
                 return QVariant::fromValue((int)device->if_info.type);
@@ -215,12 +213,10 @@ QVariant InterfaceTreeModel::data(const QModelIndex &index, int role) const
             {
                 return device->pmode ? Qt::Checked : Qt::Unchecked;
             }
-#ifdef HAVE_PCAP_CREATE
             else if (col == IFTREE_COL_MONITOR_MODE)
             {
                 return device->monitor_mode_enabled ? Qt::Checked : Qt::Unchecked;
             }
-#endif
         }
         /* Used by SparkLineDelegate for loading the data for the statistics line */
         else if (role == Qt::UserRole)
@@ -312,18 +308,14 @@ QVariant InterfaceTreeModel::headerData(int section, Qt::Orientation orientation
             {
                 return tr("Snaplen (B)");
             }
-#ifdef CAN_SET_CAPTURE_BUFFER_SIZE
             else if (section == IFTREE_COL_BUFFERLEN)
             {
                 return tr("Buffer (MB)");
             }
-#endif
-#ifdef HAVE_PCAP_CREATE
             else if (section == IFTREE_COL_MONITOR_MODE)
             {
                 return tr("Monitor Mode");
             }
-#endif
             else if (section == IFTREE_COL_CAPTURE_FILTER)
             {
                 return tr("Capture Filter");

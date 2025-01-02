@@ -195,29 +195,23 @@ if(PCAP_FOUND)
     # whether they're present at run time, when we load wpcap.dll, and work
     # around their absence or report an error.
     #
-    set(HAVE_PCAP_FREECODE TRUE)
-    set(HAVE_PCAP_CREATE TRUE)
-    set(HAVE_PCAP_FREE_DATALINKS TRUE)
     set(HAVE_PCAP_OPEN TRUE)
     set(HAVE_PCAP_SETSAMPLING TRUE)
     set(HAVE_PCAP_SET_TSTAMP_PRECISION TRUE)
     set(HAVE_PCAP_SET_TSTAMP_TYPE TRUE)
   else(WIN32)
     #
-    # Make sure we have at least libpcap 0.8, because we require at
-    # least libpcap 0.8's APIs.
+    # Make sure we have at least libpcap 1.0, because we require at
+    # least libpcap 1.0's APIs.
     #
-    # We check whether pcap_lib_version is defined in the pcap header,
-    # using it as a proxy for all the 0.8 API's.  if not, we fail.
+    # We check whether pcap_create is defined in the pcap header,
+    # using it as a proxy for all the 1.0 API's.  if not, we fail.
     #
-    check_symbol_exists( pcap_lib_version ${PCAP_INCLUDE_DIR}/pcap.h HAVE_PCAP_LIB_VERSION )
-    if( NOT HAVE_PCAP_LIB_VERSION )
-      message(FATAL_ERROR "You need libpcap 0.8 or later")
-    endif( NOT HAVE_PCAP_LIB_VERSION )
-
-    check_function_exists( "pcap_freecode" HAVE_PCAP_FREECODE )
     check_function_exists( "pcap_create" HAVE_PCAP_CREATE )
-    check_function_exists( "pcap_free_datalinks" HAVE_PCAP_FREE_DATALINKS )
+    if( NOT HAVE_PCAP_CREATE )
+      message(FATAL_ERROR "You need libpcap 1.0 or later")
+    endif( NOT HAVE_PCAP_CREATE )
+
     #
     # macOS Sonoma's libpcap includes stub versions of the remote-
     # capture APIs.  They are exported as "weakly linked symbols".
@@ -290,24 +284,18 @@ if(PCAP_FOUND)
     endif( HAVE_PCAP_OPEN )
   endif()
 
-  if( HAVE_PCAP_CREATE )
-    #
-    # If we have pcap_create(), we have pcap_set_buffer_size(), and
-    # can set the capture buffer size.
-    #
-    # Otherwise, if this is Windows, we have pcap_setbuff(), and can
-    # set the capture buffer size.
-    #
-    set( CAN_SET_CAPTURE_BUFFER_SIZE TRUE )
-  endif()
+  # This function became available in libpcap release 1.5.1. (2013-12-04)
   check_function_exists( "pcap_set_tstamp_precision" HAVE_PCAP_SET_TSTAMP_PRECISION )
+  # This function became available in libpcap release 1.2.1. (2012-01-01)
   check_function_exists( "pcap_set_tstamp_type" HAVE_PCAP_SET_TSTAMP_TYPE )
   # Remote pcap checks
   if( HAVE_PCAP_OPEN )
     set( HAVE_PCAP_REMOTE 1 )
   endif()
 
+  # libpcap 1.5.0 (2013-11-07)
   check_symbol_exists(PCAP_ERROR_PROMISC_PERM_DENIED ${PCAP_INCLUDE_DIR}/pcap.h HAVE_PCAP_ERROR_PROMISC_PERM_DENIED)
+  # libpcap 1.2.1 (2012-01-01)
   check_symbol_exists(PCAP_WARNING_TSTAMP_TYPE_NOTSUP ${PCAP_INCLUDE_DIR}/pcap.h HAVE_PCAP_WARNING_TSTAMP_TYPE_NOTSUP)
 
   cmake_pop_check_state()

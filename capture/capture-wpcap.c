@@ -84,14 +84,10 @@ static struct pcap_samp* (*p_pcap_setsampling)(pcap_t *);
 
 static int 	(*p_pcap_list_datalinks)(pcap_t *, int **);
 static int	(*p_pcap_set_datalink)(pcap_t *, int);
-
-#ifdef HAVE_PCAP_FREE_DATALINKS
 static int	(*p_pcap_free_datalinks)(int *);
-#endif
 
 static char	*(*p_bpf_image)(const struct bpf_insn *, int);
 
-#ifdef HAVE_PCAP_CREATE
 static pcap_t	*(*p_pcap_create)(const char *, char *);
 static int	(*p_pcap_set_snaplen)(pcap_t *, int);
 static int	(*p_pcap_set_promisc)(pcap_t *, int);
@@ -101,7 +97,6 @@ static int	(*p_pcap_set_timeout)(pcap_t *, int);
 static int	(*p_pcap_set_buffer_size)(pcap_t *, int);
 static int	(*p_pcap_activate)(pcap_t *);
 static const char *(*p_pcap_statustostr)(int);
-#endif
 
 #ifdef HAVE_PCAP_SET_TSTAMP_TYPE
 static int      (*p_pcap_set_tstamp_type)(pcap_t *, int);
@@ -161,21 +156,23 @@ load_wpcap(void)
 		SYM(pcap_next_ex, true),
 		SYM(pcap_list_datalinks, false),
 		SYM(pcap_set_datalink, false),
-#ifdef HAVE_PCAP_FREE_DATALINKS
 		SYM(pcap_free_datalinks, true),
-#endif
 		SYM(bpf_image, false),
-#ifdef HAVE_PCAP_CREATE
 		SYM(pcap_create, true),
 		SYM(pcap_set_snaplen, true),
 		SYM(pcap_set_promisc, true),
-		SYM(pcap_can_set_rfmon, true),
-		SYM(pcap_set_rfmon, true),
 		SYM(pcap_set_timeout, false),
 		SYM(pcap_set_buffer_size, false),
 		SYM(pcap_activate, true),
+		/*
+		 * WinPcap 4.1.3 is based on libpcap 1.0 but failed to
+		 * export the following three routines, so even if we
+		 * require the other 1.0 API calls we might want to mark
+		 * these as optional and work around their absence.
+		 */
+		SYM(pcap_can_set_rfmon, true),
+		SYM(pcap_set_rfmon, true),
 		SYM(pcap_statustostr, true),
-#endif
 #ifdef HAVE_PCAP_SET_TSTAMP_TYPE
 		SYM(pcap_set_tstamp_type, true),
 		SYM(pcap_set_tstamp_precision, true),
@@ -538,7 +535,6 @@ pcap_freealldevs(pcap_if_t *a)
 	p_pcap_freealldevs(a);
 }
 
-#ifdef HAVE_PCAP_CREATE
 pcap_t *
 pcap_create(const char *a, char *errbuf)
 {
@@ -639,7 +635,6 @@ pcap_statustostr(int a)
 	(void)snprintf(ebuf, sizeof ebuf, "Don't have pcap_statustostr(), can't translate error: %d", a);
 	return ebuf;
 }
-#endif
 
 #ifdef HAVE_PCAP_SET_TSTAMP_TYPE
 int
@@ -734,7 +729,6 @@ pcap_list_datalinks(pcap_t *p, int **ddlt)
 		return -1;
 }
 
-#ifdef HAVE_PCAP_FREE_DATALINKS
 void
 pcap_free_datalinks(int *ddlt)
 {
@@ -751,7 +745,6 @@ pcap_free_datalinks(int *ddlt)
 	if (p_pcap_free_datalinks != NULL)
 		p_pcap_free_datalinks(ddlt);
 }
-#endif
 
 const char *
 pcap_datalink_val_to_name(int dlt)
@@ -858,11 +851,9 @@ get_if_capabilities_local(interface_options *interface_opts,
 	 * pcap_create() and pcap_activate() if we have them, so that
 	 * we can set various options, otherwise use pcap_open_live().
 	 */
-#ifdef HAVE_PCAP_CREATE
 	if (p_pcap_create != NULL)
 		return get_if_capabilities_pcap_create(interface_opts, status,
 		    status_str);
-#endif
 	return get_if_capabilities_pcap_open_live(interface_opts, status,
 	    status_str);
 }
@@ -878,11 +869,9 @@ open_capture_device_local(capture_options *capture_opts,
 	 * pcap_activate() if we have them, so that we can set various
 	 * options, otherwise use pcap_open_live().
 	 */
-#ifdef HAVE_PCAP_CREATE
 	if (p_pcap_create != NULL)
 		return open_capture_device_pcap_create(capture_opts,
 		    interface_opts, timeout, open_status, open_status_str);
-#endif
 	return open_capture_device_pcap_open_live(interface_opts, timeout,
 	    open_status, open_status_str);
 }

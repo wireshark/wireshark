@@ -35,15 +35,10 @@ InterfaceTreeCacheModel::InterfaceTreeCacheModel(QObject *parent) :
     storage = new QMap<int, QSharedPointer<QMap<InterfaceTreeColumns, QVariant> > >();
 
     checkableColumns << IFTREE_COL_HIDDEN << IFTREE_COL_PROMISCUOUSMODE;
-#ifdef HAVE_PCAP_CREATE
     checkableColumns << IFTREE_COL_MONITOR_MODE;
-#endif
 
     editableColumns << IFTREE_COL_COMMENT << IFTREE_COL_SNAPLEN << IFTREE_COL_PIPE_PATH;
-
-#ifdef CAN_SET_CAPTURE_BUFFER_SIZE
     editableColumns << IFTREE_COL_BUFFERLEN;
-#endif
 }
 
 InterfaceTreeCacheModel::~InterfaceTreeCacheModel()
@@ -188,12 +183,10 @@ void InterfaceTreeCacheModel::save()
                 {
                     device->pmode = saveValue.toBool();
                 }
-#ifdef HAVE_PCAP_CREATE
                 else if (col == IFTREE_COL_MONITOR_MODE)
                 {
                     device->monitor_mode_enabled = saveValue.toBool();
                 }
-#endif
                 else if (col == IFTREE_COL_SNAPLEN)
                 {
                     int iVal = saveValue.toInt();
@@ -208,12 +201,10 @@ void InterfaceTreeCacheModel::save()
                         device->snaplen = WTAP_MAX_PACKET_SIZE_STANDARD;
                     }
                 }
-#ifdef CAN_SET_CAPTURE_BUFFER_SIZE
                 else if (col == IFTREE_COL_BUFFERLEN)
                 {
                     device->buffer = saveValue.toInt();
                 }
-#endif
                 ++it;
             }
         }
@@ -240,11 +231,9 @@ void InterfaceTreeCacheModel::save()
                 prefStorage[&prefs.capture_devices_pmode]  << QStringLiteral("%1(%2)").arg(device->name).arg(value ? 1 : 0);
             }
 
-#ifdef HAVE_PCAP_CREATE
             content = getColumnContent(idx, IFTREE_COL_MONITOR_MODE, Qt::CheckStateRole);
             if (content.isValid() && static_cast<Qt::CheckState>(content.toInt()) == Qt::Checked)
                     prefStorage[&prefs.capture_devices_monitor_mode] << QString(device->name);
-#endif
 
             content = getColumnContent(idx, IFTREE_COL_SNAPLEN);
             if (content.isValid())
@@ -256,7 +245,6 @@ void InterfaceTreeCacheModel::save()
                         arg(device->has_snaplen ? value : WTAP_MAX_PACKET_SIZE_STANDARD);
             }
 
-#ifdef CAN_SET_CAPTURE_BUFFER_SIZE
             content = getColumnContent(idx, IFTREE_COL_BUFFERLEN);
             if (content.isValid())
             {
@@ -268,7 +256,6 @@ void InterfaceTreeCacheModel::save()
                             arg(value);
                 }
             }
-#endif
         }
     }
 
@@ -346,10 +333,8 @@ bool InterfaceTreeCacheModel::isAllowedToBeEdited(const QModelIndex &index) cons
         /* extcap interfaces do not have those settings */
         if (col == IFTREE_COL_PROMISCUOUSMODE || col == IFTREE_COL_SNAPLEN)
             return false;
-#ifdef CAN_SET_CAPTURE_BUFFER_SIZE
         if (col == IFTREE_COL_BUFFERLEN)
             return false;
-#endif
     }
 #endif
     return true;

@@ -433,20 +433,12 @@ print_usage(FILE *output)
     fprintf(output, "                           name or idx of interface (def: first non-loopback)\n");
     fprintf(output, "  -f <capture filter>      packet filter in libpcap filter syntax\n");
     fprintf(output, "  -s <snaplen>, --snapshot-length <snaplen>\n");
-#ifdef HAVE_PCAP_CREATE
     fprintf(output, "                           packet snapshot length (def: appropriate maximum)\n");
-#else
-    fprintf(output, "                           packet snapshot length (def: %u)\n", WTAP_MAX_PACKET_SIZE_STANDARD);
-#endif
     fprintf(output, "  -p, --no-promiscuous-mode\n");
     fprintf(output, "                           don't capture in promiscuous mode\n");
-#ifdef HAVE_PCAP_CREATE
     fprintf(output, "  -I, --monitor-mode       capture in monitor mode, if available\n");
-#endif
-#ifdef CAN_SET_CAPTURE_BUFFER_SIZE
     fprintf(output, "  -B <buffer size>, --buffer-size <buffer size>\n");
     fprintf(output, "                           size of kernel buffer in MiB (def: %dMiB)\n", DEFAULT_CAPTURE_BUFFER_SIZE);
-#endif
     fprintf(output, "  -y <link type>, --linktype <link type>\n");
     fprintf(output, "                           link layer type (def: first appropriate)\n");
     fprintf(output, "  --time-stamp-type <type> timestamp method for interface\n");
@@ -1442,14 +1434,10 @@ main(int argc, char *argv[])
 #ifdef HAVE_PCAP_REMOTE
             case 'A':        /* Authentication */
 #endif
-#ifdef HAVE_PCAP_CREATE
             case 'I':        /* Capture in monitor mode, if available */
-#endif
             case 's':        /* Set the snapshot (capture) length */
             case 'y':        /* Set the pcap data link type */
-#ifdef CAN_SET_CAPTURE_BUFFER_SIZE
             case 'B':        /* Buffer size */
-#endif
             case LONGOPT_COMPRESS_TYPE:        /* compress type */
             case LONGOPT_CAPTURE_TMPDIR:       /* capture temp directory */
             case LONGOPT_UPDATE_INTERVAL:      /* sync pipe update interval */

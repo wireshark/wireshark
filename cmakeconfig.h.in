@@ -227,18 +227,6 @@
 /* Define to 1 if you have the macOS CFPropertyListCreateWithStream function */
 #cmakedefine HAVE_CFPROPERTYLISTCREATEWITHSTREAM 1
 
-/* Define to 1 if you have the `pcap_create' function. */
-#cmakedefine HAVE_PCAP_CREATE 1
-
-/* Define to 1 if the capture buffer size can be set. */
-#cmakedefine CAN_SET_CAPTURE_BUFFER_SIZE 1
-
-/* Define to 1 if you have the `pcap_freecode' function. */
-#cmakedefine HAVE_PCAP_FREECODE 1
-
-/* Define to 1 if you have the `pcap_free_datalinks' function. */
-#cmakedefine HAVE_PCAP_FREE_DATALINKS 1
-
 /* Define to 1 if you have the `pcap_open' function. */
 #cmakedefine HAVE_PCAP_OPEN 1
 

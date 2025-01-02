@@ -60,30 +60,17 @@ extern "C" {
 #define OPTSTRING_A
 #endif
 
-#ifdef CAN_SET_CAPTURE_BUFFER_SIZE
-#define LONGOPT_BUFFER_SIZE \
-    {"buffer-size", ws_required_argument, NULL, 'B'},
 #define OPTSTRING_B "B:"
-#else
-#define LONGOPT_BUFFER_SIZE
-#define OPTSTRING_B
-#endif
 
-#ifdef HAVE_PCAP_CREATE
-#define LONGOPT_MONITOR_MODE {"monitor-mode", ws_no_argument, NULL, 'I'},
 #define OPTSTRING_I "I"
-#else
-#define LONGOPT_MONITOR_MODE
-#define OPTSTRING_I
-#endif
 
 #define LONGOPT_CAPTURE_COMMON \
     {"autostop",              ws_required_argument, NULL, 'a'}, \
     {"ring-buffer",           ws_required_argument, NULL, 'b'}, \
-    LONGOPT_BUFFER_SIZE \
+    {"buffer-size",           ws_required_argument, NULL, 'B'}, \
     {"list-interfaces",       ws_no_argument,       NULL, 'D'}, \
     {"interface",             ws_required_argument, NULL, 'i'}, \
-    LONGOPT_MONITOR_MODE \
+    {"monitor-mode",          ws_no_argument,       NULL, 'I'}, \
     {"list-data-link-types",  ws_no_argument,       NULL, 'L'}, \
     {"no-promiscuous-mode",   ws_no_argument,       NULL, 'p'}, \
     {"snapshot-length",       ws_required_argument, NULL, 's'}, \
@@ -168,13 +155,9 @@ typedef struct interface_tag {
     bool            has_snaplen;
     int             snaplen;
     bool            local;
-#ifdef CAN_SET_CAPTURE_BUFFER_SIZE
     int             buffer;
-#endif
-#ifdef HAVE_PCAP_CREATE
     bool            monitor_mode_enabled;
     bool            monitor_mode_supported;
-#endif
 #ifdef HAVE_PCAP_REMOTE
     remote_options  remote_opts;
 #endif
@@ -220,9 +203,7 @@ typedef struct interface_options_tag {
 #endif
     char             *extcap_control_in;
     char             *extcap_control_out;
-#ifdef CAN_SET_CAPTURE_BUFFER_SIZE
     int               buffer_size;
-#endif
     bool              monitor_mode;
 #ifdef HAVE_PCAP_REMOTE
     capture_source    src_type;

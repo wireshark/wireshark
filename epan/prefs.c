@@ -196,8 +196,6 @@ static const enum_val_t abs_time_format_options[] = {
     {NULL, NULL, -1}
 };
 
-#if defined(HAVE_PCAP_CREATE)
-/* Can set monitor mode and buffer size. */
 static int num_capture_cols = 7;
 static const char *capture_cols[7] = {
     "INTERFACE",
@@ -210,32 +208,6 @@ static const char *capture_cols[7] = {
 };
 #define CAPTURE_COL_TYPE_DESCRIPTION \
     "Possible values: INTERFACE, LINK, PMODE, SNAPLEN, MONITOR, BUFFER, FILTER\n"
-#elif defined(CAN_SET_CAPTURE_BUFFER_SIZE)
-/* Can set buffer size but not monitor mode. */
-static int num_capture_cols = 6;
-static const char *capture_cols[6] = {
-    "INTERFACE",
-    "LINK",
-    "PMODE",
-    "SNAPLEN",
-    "BUFFER",
-    "FILTER"
-};
-#define CAPTURE_COL_TYPE_DESCRIPTION \
-    "Possible values: INTERFACE, LINK, PMODE, SNAPLEN, BUFFER, FILTER\n"
-#else
-/* Can neither set buffer size nor monitor mode. */
-static int num_capture_cols = 5;
-static const char *capture_cols[5] = {
-    "INTERFACE",
-    "LINK",
-    "PMODE",
-    "SNAPLEN",
-    "FILTER"
-};
-#define CAPTURE_COL_TYPE_DESCRIPTION \
-    "Possible values: INTERFACE, LINK, PMODE, SNAPLEN, FILTER\n"
-#endif
 
 static const enum_val_t gui_packet_list_elide_mode[] = {
     {"LEFT", "LEFT", ELIDE_LEFT},

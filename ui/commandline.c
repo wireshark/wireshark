@@ -79,20 +79,12 @@ commandline_print_usage(bool for_help_option) {
     fprintf(output, "                           name or idx of interface (def: first non-loopback)\n");
     fprintf(output, "  -f <capture filter>      packet filter in libpcap filter syntax\n");
     fprintf(output, "  -s <snaplen>, --snapshot-length <snaplen>\n");
-#ifdef HAVE_PCAP_CREATE
     fprintf(output, "                           packet snapshot length (def: appropriate maximum)\n");
-#else
-    fprintf(output, "                           packet snapshot length (def: %u)\n", WTAP_MAX_PACKET_SIZE_STANDARD);
-#endif
     fprintf(output, "  -p, --no-promiscuous-mode\n");
     fprintf(output, "                           don't capture in promiscuous mode\n");
-#ifdef HAVE_PCAP_CREATE
     fprintf(output, "  -I, --monitor-mode       capture in monitor mode, if available\n");
-#endif
-#ifdef CAN_SET_CAPTURE_BUFFER_SIZE
     fprintf(output, "  -B <buffer size>, --buffer-size <buffer size>\n");
     fprintf(output, "                           size of kernel buffer in MiB (def: %dMiB)\n", DEFAULT_CAPTURE_BUFFER_SIZE);
-#endif
     fprintf(output, "  -y <link type>, --linktype <link type>\n");
     fprintf(output, "                           link layer type (def: first appropriate)\n");
     fprintf(output, "  --time-stamp-type <type> timestamp method for interface\n");
@@ -549,9 +541,7 @@ void commandline_other_options(int argc, char *argv[], bool opt_reset)
             case LONGOPT_SET_TSTAMP_TYPE: /* Set capture timestamp type */
             case LONGOPT_CAPTURE_TMPDIR: /* capture temp directory */
             case LONGOPT_UPDATE_INTERVAL: /* sync pipe update interval */
-#ifdef HAVE_PCAP_CREATE
             case 'I':        /* Capture in monitor mode, if available */
-#endif
 #ifdef HAVE_PCAP_REMOTE
             case 'A':        /* Authentication */
 #endif
@@ -559,9 +549,7 @@ void commandline_other_options(int argc, char *argv[], bool opt_reset)
             case 'S':        /* "Sync" mode: used for following file ala tail -f */
             case 'w':        /* Write to capture file xxx */
             case 'y':        /* Set the pcap data link type */
-#ifdef CAN_SET_CAPTURE_BUFFER_SIZE
             case 'B':        /* Buffer size */
-#endif
 #ifdef HAVE_LIBPCAP
                 status = capture_opts_add_opt(&global_capture_opts, opt, ws_optarg);
                 if(status != 0) {

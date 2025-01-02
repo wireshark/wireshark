@@ -138,13 +138,11 @@ capture_dev_user_linktype_find(const char *if_name)
     return capture_dev_get_if_int_property(prefs.capture_devices_linktypes, if_name);
 }
 
-#ifdef CAN_SET_CAPTURE_BUFFER_SIZE
 int
 capture_dev_user_buffersize_find(const char *if_name)
 {
     return capture_dev_get_if_int_property(prefs.capture_devices_buffersize, if_name);
 }
-#endif
 
 bool
 capture_dev_user_snaplen_find(const char *if_name, bool *hassnap, int *snaplen)

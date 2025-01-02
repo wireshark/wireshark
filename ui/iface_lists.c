@@ -42,10 +42,8 @@ fill_from_ifaces (interface_t *device)
             continue;
         }
 
-#if defined(HAVE_PCAP_CREATE)
         device->buffer = interface_opts->buffer_size;
         device->monitor_mode_enabled = interface_opts->monitor_mode;
-#endif
         device->pmode = interface_opts->promisc_mode;
         device->has_snaplen = interface_opts->has_snaplen;
         device->snaplen = interface_opts->snaplen;
@@ -322,11 +320,9 @@ scan_local_interfaces_filtered(GList * allowed_types, void (*update_cb)(void))
             }
             device.cfilter      = g_strdup(global_capture_opts.default_options.cfilter);
             device.timestamp_type = g_strdup(global_capture_opts.default_options.timestamp_type);
-#ifdef CAN_SET_CAPTURE_BUFFER_SIZE
             if ((device.buffer = capture_dev_user_buffersize_find(if_info->name)) == -1) {
                 device.buffer = global_capture_opts.default_options.buffer_size;
             }
-#endif
 
             /* Extcap devices start with no cached args */
             device.external_cap_args_settings = NULL;
@@ -405,7 +401,6 @@ scan_local_interfaces_filtered(GList * allowed_types, void (*update_cb)(void))
         }
         if (caps != NULL && !caps->primary_msg) {
             GList *lt_list = caps->data_link_types;
-#if defined(HAVE_PCAP_CREATE)
             device.monitor_mode_enabled = monitor_mode && caps->can_set_rfmon;
             device.monitor_mode_supported = caps->can_set_rfmon;
             if (device.monitor_mode_enabled) {
@@ -428,7 +423,6 @@ scan_local_interfaces_filtered(GList * allowed_types, void (*update_cb)(void))
                     lt_list = (device.monitor_mode_enabled) ? caps->data_link_types_rfmon : caps->data_link_types;
                 }
             }
-#endif
             /*
              * Process the list of link-layer header types.
              */
@@ -456,10 +450,8 @@ scan_local_interfaces_filtered(GList * allowed_types, void (*update_cb)(void))
                 set_active_dlt(&device, global_capture_opts.default_options.linktype);
             }
         } else {
-#if defined(HAVE_PCAP_CREATE)
             device.monitor_mode_enabled = false;
             device.monitor_mode_supported = false;
-#endif
             device.active_dlt = -1;
         }
 
@@ -524,13 +516,9 @@ scan_local_interfaces_filtered(GList * allowed_types, void (*update_cb)(void))
                 g_strdup(device.name);
             device.hidden       = false;
             device.selected     = true;
-#ifdef CAN_SET_CAPTURE_BUFFER_SIZE
             device.buffer = interface_opts->buffer_size;
-#endif
-#if defined(HAVE_PCAP_CREATE)
             device.monitor_mode_enabled = interface_opts->monitor_mode;
             device.monitor_mode_supported = false;
-#endif
             device.pmode = interface_opts->promisc_mode;
             device.has_snaplen = interface_opts->has_snaplen;
             device.snaplen = interface_opts->snaplen;

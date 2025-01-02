@@ -881,7 +881,6 @@ sync_pipe_start(capture_options *capture_opts, GPtrArray *capture_comments,
             argv = sync_pipe_add_arg(argv, &argc, "-p");
         }
 
-#ifdef CAN_SET_CAPTURE_BUFFER_SIZE
         if (interface_opts->buffer_size != DEFAULT_CAPTURE_BUFFER_SIZE) {
             char buffer_size[ARGV_NUMBER_LEN];
             argv = sync_pipe_add_arg(argv, &argc, "-B");
@@ -890,13 +889,10 @@ sync_pipe_start(capture_options *capture_opts, GPtrArray *capture_comments,
             snprintf(buffer_size, ARGV_NUMBER_LEN, "%d", interface_opts->buffer_size);
             argv = sync_pipe_add_arg(argv, &argc, buffer_size);
         }
-#endif
 
-#ifdef HAVE_PCAP_CREATE
         if (interface_opts->monitor_mode) {
             argv = sync_pipe_add_arg(argv, &argc, "-I");
         }
-#endif
 
 #ifdef HAVE_PCAP_REMOTE
         if (interface_opts->datatx_udp)

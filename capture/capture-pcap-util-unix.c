@@ -59,37 +59,22 @@ if_capabilities_t *
 get_if_capabilities_local(interface_options *interface_opts,
     cap_device_open_status *status, char **status_str)
 {
-#ifdef HAVE_PCAP_CREATE
 	return get_if_capabilities_pcap_create(interface_opts, status,
 	    status_str);
-#else
-	return get_if_capabilities_pcap_open_live(interface_opts, status,
-	    status_str);
-#endif
 }
 
 pcap_t *
-open_capture_device_local(capture_options *capture_opts
-#ifndef HAVE_PCAP_CREATE
-	_U_
-#endif
-	,
+open_capture_device_local(capture_options *capture_opts,
     interface_options *interface_opts, int timeout,
     cap_device_open_status *open_status,
     char (*open_status_str)[PCAP_ERRBUF_SIZE])
 {
 	/*
 	 * We're not opening a remote device; use pcap_create() and
-	 * pcap_activate() if we have them, so that we can set various
-	 * options, otherwise use pcap_open_live().
+	 * pcap_activate() so that we can set various options.
 	 */
-#ifdef HAVE_PCAP_CREATE
 	return open_capture_device_pcap_create(capture_opts,
 	    interface_opts, timeout, open_status, open_status_str);
-#else
-	return open_capture_device_pcap_open_live(interface_opts, timeout,
-	    open_status, open_status_str);
-#endif
 }
 
 /*
