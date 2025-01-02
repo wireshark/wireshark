@@ -100,7 +100,7 @@ typedef struct _stat_tap_table_item
     stat_tap_table_item_enum type;
     tap_alignment_type align;
     const char* column_name;
-    const char* field_format; /* printf style formating of field. Currently unused? */
+    const char* field_format; /* printf style formatting of field. */
 
 } stat_tap_table_item;
 
