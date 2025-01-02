@@ -55,19 +55,19 @@ ws_buffer_increase_length(Buffer* buffer, size_t bytes)
 }
 
 static inline size_t
-ws_buffer_length(Buffer* buffer)
+ws_buffer_length(const Buffer* buffer)
 {
 	return buffer->first_free - buffer->start;
 }
 
 static inline uint8_t *
-ws_buffer_start_ptr(Buffer* buffer)
+ws_buffer_start_ptr(const Buffer* buffer)
 {
 	return buffer->data + buffer->start;
 }
 
 static inline uint8_t *
-ws_buffer_end_ptr(Buffer* buffer)
+ws_buffer_end_ptr(const Buffer* buffer)
 {
 	return buffer->data + buffer->first_free;
 }
@@ -83,11 +83,11 @@ ws_buffer_append_buffer(Buffer* buffer, Buffer* src_buffer)
  WS_DLL_PUBLIC
  void ws_buffer_increase_length(Buffer* buffer, size_t bytes);
  WS_DLL_PUBLIC
- size_t ws_buffer_length(Buffer* buffer);
+ size_t ws_buffer_length(const Buffer* buffer);
  WS_DLL_PUBLIC
- uint8_t* ws_buffer_start_ptr(Buffer* buffer);
+ uint8_t* ws_buffer_start_ptr(const Buffer* buffer);
  WS_DLL_PUBLIC
- uint8_t* ws_buffer_end_ptr(Buffer* buffer);
+ uint8_t* ws_buffer_end_ptr(const Buffer* buffer);
  WS_DLL_PUBLIC
  void ws_buffer_append_buffer(Buffer* buffer, Buffer* src_buffer);
 #endif

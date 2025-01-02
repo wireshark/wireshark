@@ -147,21 +147,21 @@ ws_buffer_increase_length(Buffer* buffer, size_t bytes)
 }
 
 size_t
-ws_buffer_length(Buffer* buffer)
+ws_buffer_length(const Buffer* buffer)
 {
 	ws_assert(buffer);
 	return buffer->first_free - buffer->start;
 }
 
 uint8_t *
-ws_buffer_start_ptr(Buffer* buffer)
+ws_buffer_start_ptr(const Buffer* buffer)
 {
 	ws_assert(buffer);
 	return buffer->data + buffer->start;
 }
 
 uint8_t *
-ws_buffer_end_ptr(Buffer* buffer)
+ws_buffer_end_ptr(const Buffer* buffer)
 {
 	ws_assert(buffer);
 	return buffer->data + buffer->first_free;
