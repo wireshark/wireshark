@@ -3743,49 +3743,28 @@ if(ENABLE_APPLICATION_BUNDLE AND BUILD_wireshark)
 
 	add_custom_target(wireshark_dmg_prep DEPENDS wireshark_app_bundle)
 
-	set(_wireshark_read_me_first "packaging/macosx/wireshark/Read me first.html")
-	ADD_CUSTOM_COMMAND(
-	OUTPUT
-		${_wireshark_read_me_first}
-	COMMAND ${ASCIIDOCTOR_EXECUTABLE}
-		--backend html
-		--out-file ${_wireshark_read_me_first}
-		--attribute include-dir=${CMAKE_SOURCE_DIR}/doc
-		--attribute min-macos-version=${MIN_MACOS_VERSION}
-		${CMAKE_CURRENT_SOURCE_DIR}/packaging/macosx/Wireshark_read_me_first.adoc
-	DEPENDS
-		${CMAKE_CURRENT_SOURCE_DIR}/packaging/macosx/Wireshark_read_me_first.adoc
-	)
+	if (ASCIIDOCTOR_FOUND)
+		set(_wireshark_read_me_first "packaging/macosx/wireshark/Read me first.html")
+		ASCIIDOCTOR2HTML("packaging/macosx/Wireshark_read_me_first.adoc"
+			OUTPUT ${_wireshark_read_me_first}
+			CONVERT_UNDERSCORES
+		)
 
-	set(_wireshark_donate "packaging/macosx/wireshark/Donate to the Wireshark Foundation.html")
-	ADD_CUSTOM_COMMAND(
-	OUTPUT
-		${_wireshark_donate}
-	COMMAND ${ASCIIDOCTOR_EXECUTABLE}
-		--backend html
-		--out-file ${_wireshark_donate}
-		--attribute include-dir=${CMAKE_SOURCE_DIR}/doc
-		--attribute min-macos-version=${MIN_MACOS_VERSION}
-		${CMAKE_CURRENT_SOURCE_DIR}/packaging/macosx/Donate_to_the_Wireshark_Foundation.adoc
-	DEPENDS
-		${CMAKE_CURRENT_SOURCE_DIR}/packaging/macosx/Donate_to_the_Wireshark_Foundation.adoc
-	)
+		set(_wireshark_donate "packaging/macosx/wireshark/Donate to the Wireshark Foundation.html")
+		ASCIIDOCTOR2HTML("packaging/macosx/Donate_to_the_Wireshark_Foundation.adoc"
+			OUTPUT ${_wireshark_donate}
+			CONVERT_UNDERSCORES
+		)
 
-	set(_wireshark_dsym_installation "packaging/macosx/wireshark/Debugging symbols installation.html")
-	ADD_CUSTOM_COMMAND(
-	OUTPUT
-		${_wireshark_dsym_installation}
-	COMMAND ${ASCIIDOCTOR_EXECUTABLE}
-		--backend html
-		--out-file ${_wireshark_dsym_installation}
-		--attribute include-dir=${CMAKE_SOURCE_DIR}/doc
-		${CMAKE_CURRENT_SOURCE_DIR}/packaging/macosx/Wireshark_dsym_installation.adoc
-	DEPENDS
-		${CMAKE_CURRENT_SOURCE_DIR}/packaging/macosx/Wireshark_dsym_installation.adoc
-	)
+		set(_wireshark_dsym_installation "packaging/macosx/wireshark/Debugging symbols installation.html")
+		ASCIIDOCTOR2HTML("packaging/macosx/Wireshark_dsym_installation.adoc"
+			OUTPUT ${_wireshark_dsym_installation}
+			CONVERT_UNDERSCORES
+		)
 
-	add_custom_target(wireshark_dmg_readmes DEPENDS ${_wireshark_read_me_first} ${_wireshark_donate} ${_wireshark_dsym_installation} )
-	add_dependencies(wireshark_dmg_prep wireshark_dmg_readmes)
+		add_custom_target(wireshark_dmg_readmes DEPENDS ${_wireshark_read_me_first} ${_wireshark_donate} ${_wireshark_dsym_installation})
+		add_dependencies(wireshark_dmg_prep wireshark_dmg_readmes)
+	endif()
 
 	ADD_CUSTOM_TARGET( wireshark_dmg
 		COMMAND bash -x ${CMAKE_BINARY_DIR}/packaging/macosx/osx-dmg.sh
@@ -3809,35 +3788,22 @@ if(ENABLE_APPLICATION_BUNDLE AND BUILD_stratoshark)
 
 	add_custom_target(stratoshark_dmg_prep DEPENDS stratoshark_app_bundle)
 
-	set(_stratoshark_read_me_first "packaging/macosx/stratoshark/Read me first.html")
-	ADD_CUSTOM_COMMAND(
-	OUTPUT
-		${_stratoshark_read_me_first}
-	COMMAND ${ASCIIDOCTOR_EXECUTABLE}
-		--backend html
-		--out-file ${_stratoshark_read_me_first}
-		--attribute include-dir=${CMAKE_SOURCE_DIR}/doc
-		--attribute min-macos-version=${MIN_MACOS_VERSION}
-		${CMAKE_CURRENT_SOURCE_DIR}/packaging/macosx/Stratoshark_read_me_first.adoc
-	DEPENDS
-		${CMAKE_CURRENT_SOURCE_DIR}/packaging/macosx/Stratoshark_read_me_first.adoc
-	)
+	if (ASCIIDOCTOR_FOUND)
+		set(_stratoshark_read_me_first "packaging/macosx/stratoshark/Read me first.html")
+		ASCIIDOCTOR2HTML("packaging/macosx/Stratoshark_read_me_first.adoc"
+			OUTPUT ${_stratoshark_read_me_first}
+			CONVERT_UNDERSCORES
+		)
 
-	set(_stratoshark_dsym_installation "packaging/macosx/stratoshark/Debugging symbols installation.html")
-	ADD_CUSTOM_COMMAND(
-	OUTPUT
-		${_stratoshark_dsym_installation}
-	COMMAND ${ASCIIDOCTOR_EXECUTABLE}
-		--backend html
-		--out-file ${_stratoshark_dsym_installation}
-		--attribute include-dir=${CMAKE_SOURCE_DIR}/doc
-		${CMAKE_CURRENT_SOURCE_DIR}/packaging/macosx/Stratoshark_dsym_installation.adoc
-	DEPENDS
-		${CMAKE_CURRENT_SOURCE_DIR}/packaging/macosx/Stratoshark_dsym_installation.adoc
-	)
+		set(_stratoshark_dsym_installation "packaging/macosx/stratoshark/Debugging symbols installation.html")
+		ASCIIDOCTOR2HTML("packaging/macosx/Stratoshark_dsym_installation.adoc"
+			OUTPUT ${_stratoshark_dsym_installation}
+			CONVERT_UNDERSCORES
+		)
 
-	add_custom_target(stratoshark_dmg_readmes DEPENDS ${_stratoshark_read_me_first} ${_stratoshark_dsym_installation} )
-	add_dependencies(stratoshark_dmg_prep stratoshark_dmg_readmes)
+		add_custom_target(stratoshark_dmg_readmes DEPENDS ${_stratoshark_read_me_first} ${_stratoshark_dsym_installation})
+		add_dependencies(stratoshark_dmg_prep stratoshark_dmg_readmes)
+	endif()
 
 	ADD_CUSTOM_TARGET( stratoshark_dmg
 		COMMAND bash -x ${CMAKE_BINARY_DIR}/packaging/macosx/osx-dmg.sh --app-name Stratoshark

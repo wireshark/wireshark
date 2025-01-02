@@ -55,6 +55,7 @@ if(ASCIIDOCTOR_EXECUTABLE)
         ${_ad_failure_level_args}
         --attribute build_dir=${CMAKE_BINARY_DIR}/doc
         --attribute css_dir=${CMAKE_SOURCE_DIR}/doc
+        --attribute min-macos-version=${MIN_MACOS_VERSION}
         --require ${CMAKE_SOURCE_DIR}/doc/asciidoctor-macros/ws_utils.rb
         --require ${CMAKE_SOURCE_DIR}/doc/asciidoctor-macros/commaize-block.rb
         --require ${CMAKE_SOURCE_DIR}/doc/asciidoctor-macros/cveidlink-inline-macro.rb
@@ -110,10 +111,19 @@ if(ASCIIDOCTOR_EXECUTABLE)
         unset(_output_xml)
     ENDMACRO()
 
-    # Single page only, for the release notes and man pages.
-    MACRO( ASCIIDOCTOR2HTML _asciidocsource )
-        GET_FILENAME_COMPONENT( _source_base_name ${_asciidocsource} NAME_WE )
-        set( _output_html ${_source_base_name}.html )
+    # Single page only, for the release notes and other user-facing documentation.
+    # Man pages are converted separately below.
+    function(ASCIIDOCTOR2HTML _asciidocsource)
+        cmake_parse_arguments(arg "CONVERT_UNDERSCORES" "OUTPUT" "" ${ARGN})
+        get_filename_component(_source_base_name ${_asciidocsource} NAME_WE)
+        if (arg_CONVERT_UNDERSCORES)
+            string(REPLACE "_" " " _source_base_name ${_source_base_name})
+        endif()
+        if (arg_OUTPUT)
+            set(_output_html ${arg_OUTPUT})
+        else()
+            set(_output_html ${_source_base_name}.html)
+        endif()
 
         ADD_CUSTOM_COMMAND(
             OUTPUT
@@ -125,17 +135,21 @@ if(ASCIIDOCTOR_EXECUTABLE)
             DEPENDS
                 ${CMAKE_SOURCE_DIR}/doc/attributes.adoc
                 ${CMAKE_CURRENT_SOURCE_DIR}/${_asciidocsource}
-                ${ARGN}
+                ${_asciidocsource}
         )
-        add_custom_target(generate_${_output_html} DEPENDS ${_output_html})
-        set_asciidoctor_target_properties(generate_${_output_html})
-        unset(_output_html)
-    ENDMACRO()
+        # string(REPLACE " " "_" _output_target ${_source_base_name})
+        # add_custom_target(generate_${_output_target}_html DEPENDS ${_output_html})
+        # set_asciidoctor_target_properties(generate_${_output_target}_html)
+    endfunction()
 
-    MACRO( ASCIIDOCTOR2TXT _asciidocsource )
-        GET_FILENAME_COMPONENT( _source_base_name ${_asciidocsource} NAME_WE )
-        set( _input_html ${_source_base_name}.html )
-        set( _output_txt ${_source_base_name}.txt )
+    function(ASCIIDOCTOR2TXT _asciidocsource)
+        cmake_parse_arguments(arg "CONVERT_UNDERSCORES" "" "" ${ARGN})
+        get_filename_component(_source_base_name ${_asciidocsource} NAME_WE)
+        if (arg_CONVERT_UNDERSCORES)
+            string(REPLACE "_" " " _source_base_name ${_source_base_name})
+        endif()
+        set(_input_html ${_source_base_name}.html)
+        set(_output_txt ${_source_base_name}.txt)
 
         ADD_CUSTOM_COMMAND(
             OUTPUT
@@ -148,11 +162,9 @@ if(ASCIIDOCTOR_EXECUTABLE)
                 ${CMAKE_SOURCE_DIR}/doc/attributes.adoc
                 ${CMAKE_CURRENT_SOURCE_DIR}/${_asciidocsource}
                 ${_input_html}
-                ${ARGN}
+                ${_asciidocsource}
         )
-        unset(_input_html)
-        unset(_output_txt)
-    ENDMACRO()
+    endfunction()
 
     # Generate one or more ROFF man pages
     function(ASCIIDOCTOR2ROFFMAN _man_section)

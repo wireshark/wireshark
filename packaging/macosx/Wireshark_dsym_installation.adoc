@@ -1,8 +1,8 @@
 // Required attributes:
-// include-dir
+// min-macos-version
 
-include::{include-dir}/attributes.adoc[]
-:stylesheet: {include-dir}/ws.css
+include::{css_dir}/attributes.adoc[]
+:stylesheet: {css_dir}/ws.css
 
 == Debugging Symbols for Wireshark
 
