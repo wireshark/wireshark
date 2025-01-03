@@ -226,7 +226,7 @@ else
     PYTHON3_VERSION=3.12.1
 fi
 BROTLI_VERSION=1.0.9
-# minizip
+# minizip/minizipng
 MINIZIPNG_VERSION=4.0.7
 ZLIB_VERSION=1.3
 # Uncomment to enable automatic updates using Sparkle
@@ -239,7 +239,7 @@ ZLIB_VERSION=1.3
 # dependencies can become quite hairy:
 # https://github.com/Homebrew/homebrew-core/blob/master/Formula/a/asciidoctor.rb
 # Maybe we should install a JRE and use AsciidoctorJ instead?
-ASCIIDOCTOR_VERSION=${ASCIIDOCTOR_VERSION-2.0.16}
+ASCIIDOCTOR_VERSION=${ASCIIDOCTOR_VERSION-2.0.23}
 ASCIIDOCTORPDF_VERSION=${ASCIIDOCTORPDF_VERSION-1.6.1}
 # css_parser 1.13 and later require Ruby 2.7
 
@@ -3513,11 +3513,13 @@ install_all() {
     install_gettext
 
     #
-    # GLib depends on pkg-config.
+    # GLib depends on pkg-config and libxml2.
     # By default, pkg-config depends on GLib; we break the dependency cycle
     # by configuring pkg-config to use its own internal version of GLib.
     #
     install_pkg_config
+
+    install_libxml2
 
     install_glib
 
@@ -3561,8 +3563,6 @@ install_all() {
 
     install_zlibng
 
-    install_libxml2
-
     install_lz4
 
     install_sbc
@@ -3593,9 +3593,9 @@ install_all() {
 
     install_brotli
 
-    install_minizip
-
     install_minizip_ng
+
+    install_minizip
 
     install_sparkle
 
@@ -3668,8 +3668,6 @@ uninstall_all() {
 
         uninstall_zlibng
 
-        uninstall_libxml2
-
         uninstall_lz4
 
         uninstall_sbc
@@ -3695,6 +3693,8 @@ uninstall_all() {
         uninstall_qt
 
         uninstall_glib
+
+        uninstall_libxml2
 
         uninstall_pkg_config
 
