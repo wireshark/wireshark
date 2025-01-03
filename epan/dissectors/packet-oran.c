@@ -394,6 +394,7 @@ static int hf_oran_beam_type;
 static int hf_oran_meas_cmd_size;
 
 static int hf_oran_symbol_reordering_layer;
+static int hf_oran_dmrs_entry;
 
 static int hf_oran_c_section;
 static int hf_oran_u_section;
@@ -442,6 +443,8 @@ static int ett_oran_sresmask;
 static int ett_oran_c_section;
 static int ett_oran_remask;
 static int ett_oran_symbol_reordering_layer;
+static int ett_oran_dmrs_entry;
+
 /* Don't want all extensions to open and close together. Use extType-1 entry */
 static int ett_oran_c_section_extension[HIGHEST_EXTTYPE];
 
@@ -1059,6 +1062,25 @@ static const value_string prg_size_st6_vals[] = {
     { 0, NULL}
 };
 
+static const value_string alpn_per_sym_vals[] = {
+    { 0, "report one allocated IPN value per all allocated symbols with DMRS"},
+    { 1, "report one allocated IPN value per group of consecutive DMRS symbols"},
+    { 0, NULL}
+};
+
+static const value_string ant_dmrs_snr_vals[] = {
+    { 0, "O-RU shall not report the MEAS_ANT_DMRS_SNR"},
+    { 1, "O-RU shall report the MEAS_ANT_DMRS_SNR"},
+    { 0, NULL}
+};
+
+/* 7.7.24.14 */
+static const value_string dtype_vals[] = {
+    { 0, "assume DMRS configuration type 1"},
+    { 1, "assume DMRS configuration type 2"},
+    { 0, NULL}
+};
+
 
 
 static const true_false_string tfs_sfStatus =
@@ -1125,9 +1147,14 @@ static const true_false_string ready_tfs = {
   "message is a ACK message"
 };
 
-static const true_false_string multi_sd_scope_tfs= {
+static const true_false_string multi_sd_scope_tfs = {
   "Puncturing pattern applies to current and following sections",
   "Puncturing pattern applies to current section"
+};
+
+static const true_false_string tfs_ueid_reset = {
+  "cannot assume same UE as in preceeding slot",
+  "can assume same UE as in preceeding slot"
 };
 
 
@@ -3502,7 +3529,10 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                 proto_tree_add_item(extension_tree, hf_oran_reserved_bit2, tvb, offset, 1, ENC_BIG_ENDIAN);
                 /* userGroupSize (5 bits) */
                 uint32_t user_group_size;
-                proto_tree_add_item_ret_uint(extension_tree, hf_oran_user_group_size, tvb, offset, 1, ENC_BIG_ENDIAN, &user_group_size);
+                proto_item *ugs_ti = proto_tree_add_item_ret_uint(extension_tree, hf_oran_user_group_size, tvb, offset, 1, ENC_BIG_ENDIAN, &user_group_size);
+                if (user_group_size > 12) {
+                    proto_item_append_text(ugs_ti, " (reserved)");
+                }
 
                 offset += 1;
                 /* userGroupId */
@@ -3513,16 +3543,22 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                 /* Dissect each entry (until run out of extlen bytes..). Not sure how this works with padding bytes though... */
                 while (offset < (extension_start_offset + extlen*4)) {
 
+                    /* Subtree */
+                    proto_item *entry_ti = proto_tree_add_string_format(extension_tree, hf_oran_dmrs_entry,
+                                                                        tvb, offset, 0, "",
+                                                                        "Entry");
+                    proto_tree *entry_tree = proto_item_add_subtree(entry_ti, ett_oran_dmrs_entry);
+
                     /* entryType (3 bits) */
                     uint32_t entry_type;
                     proto_item *entry_type_ti;
-                    entry_type_ti = proto_tree_add_item_ret_uint(extension_tree, hf_oran_entry_type, tvb, offset, 1, ENC_BIG_ENDIAN, &entry_type);
+                    entry_type_ti = proto_tree_add_item_ret_uint(entry_tree, hf_oran_entry_type, tvb, offset, 1, ENC_BIG_ENDIAN, &entry_type);
                     if (entry_type > 3) {
                         proto_item_append_text(entry_type_ti, " (reserved)");
                     }
 
                     /* dmrsPortNumber (5 bits) */
-                    proto_tree_add_item(extension_tree, hf_oran_dmrs_port_number, tvb, offset, 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(entry_tree, hf_oran_dmrs_port_number, tvb, offset, 1, ENC_BIG_ENDIAN);
                     offset += 1;
 
                     /* What follows depends upon entryType */
@@ -3537,46 +3573,46 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                             /* Type 2/3 are very similar.. */
 
                             /* ueIdReset (1 bit) */
-                            proto_tree_add_item(extension_tree, hf_oran_ueid_reset, tvb, offset, 1, ENC_BIG_ENDIAN);
+                            proto_tree_add_item(entry_tree, hf_oran_ueid_reset, tvb, offset, 1, ENC_BIG_ENDIAN);
                             /* reserved (1 bit) */
-                            proto_tree_add_item(extension_tree, hf_oran_reserved_bit1, tvb, offset, 1, ENC_BIG_ENDIAN);
+                            proto_tree_add_item(entry_tree, hf_oran_reserved_bit1, tvb, offset, 1, ENC_BIG_ENDIAN);
                             /* dmrsSymbolMask (14 bits) */
-                            proto_tree_add_item(extension_tree, hf_oran_dmrs_symbol_mask, tvb, offset, 2, ENC_BIG_ENDIAN);
+                            proto_tree_add_item(entry_tree, hf_oran_dmrs_symbol_mask, tvb, offset, 2, ENC_BIG_ENDIAN);
                             offset += 2;
 
                             /* scrambling */
-                            proto_tree_add_item(extension_tree, hf_oran_scrambling, tvb, offset, 2, ENC_BIG_ENDIAN);
+                            proto_tree_add_item(entry_tree, hf_oran_scrambling, tvb, offset, 2, ENC_BIG_ENDIAN);
                             offset += 2;
 
                             /* nscid (1 bit) */
-                            proto_tree_add_item(extension_tree, hf_oran_nscid, tvb, offset, 1, ENC_BIG_ENDIAN);
+                            proto_tree_add_item(entry_tree, hf_oran_nscid, tvb, offset, 1, ENC_BIG_ENDIAN);
 
                             /* These 6 bits differ depending upon entry type */
                             if (entry_type == 2) {
                                 /* dType (1 bit) */
-                                proto_tree_add_item(extension_tree, hf_oran_dtype, tvb, offset, 1, ENC_BIG_ENDIAN);
+                                proto_tree_add_item(entry_tree, hf_oran_dtype, tvb, offset, 1, ENC_BIG_ENDIAN);
                                 /* cdmWithoutData (2 bits) */
-                                proto_tree_add_item(extension_tree, hf_oran_cmd_without_data, tvb, offset, 1, ENC_BIG_ENDIAN);
+                                proto_tree_add_item(entry_tree, hf_oran_cmd_without_data, tvb, offset, 1, ENC_BIG_ENDIAN);
                                 /* lambda (2 bits) */
-                                proto_tree_add_item(extension_tree, hf_oran_lambda, tvb, offset, 1, ENC_BIG_ENDIAN);
+                                proto_tree_add_item(entry_tree, hf_oran_lambda, tvb, offset, 1, ENC_BIG_ENDIAN);
                             }
                             else {                        /* type 3 */
                                 /* reserved (1 bit) */
-                                proto_tree_add_item(extension_tree, hf_oran_reserved_bit1, tvb, offset, 1, ENC_BIG_ENDIAN);
+                                proto_tree_add_item(entry_tree, hf_oran_reserved_bit1, tvb, offset, 1, ENC_BIG_ENDIAN);
                                 /* lowPaprType (2 bits) */
-                                proto_tree_add_item(extension_tree, hf_oran_low_papr_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+                                proto_tree_add_item(entry_tree, hf_oran_low_papr_type, tvb, offset, 1, ENC_BIG_ENDIAN);
                                 /* hoppingMode (2 bits) */
-                                proto_tree_add_item(extension_tree, hf_oran_hopping_mode, tvb, offset, 1, ENC_BIG_ENDIAN);
+                                proto_tree_add_item(entry_tree, hf_oran_hopping_mode, tvb, offset, 1, ENC_BIG_ENDIAN);
                             }
 
                             /* firstPrb (9 bits) */
-                            proto_tree_add_item(extension_tree, hf_oran_first_prb, tvb, offset, 2, ENC_BIG_ENDIAN);
+                            proto_tree_add_item(entry_tree, hf_oran_first_prb, tvb, offset, 2, ENC_BIG_ENDIAN);
                             offset += 1;
                             /* lastPrb (9 bits) */
-                            proto_tree_add_item(extension_tree, hf_oran_last_prb, tvb, offset, 2, ENC_BIG_ENDIAN);
-                            offset += 1;
+                            proto_tree_add_item(entry_tree, hf_oran_last_prb, tvb, offset, 2, ENC_BIG_ENDIAN);
+                            offset += 2;
                             /* Reserved (16 bits) */
-                            proto_tree_add_item(extension_tree, hf_oran_reserved_16bits, tvb, offset, 2, ENC_BIG_ENDIAN);
+                            proto_tree_add_item(entry_tree, hf_oran_reserved_16bits, tvb, offset, 2, ENC_BIG_ENDIAN);
                             offset += 2;
                             break;
 
@@ -3584,6 +3620,9 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                             /* reserved - expert info */
                             break;
                     }
+
+                    proto_item_append_text(entry_ti, " (type=%u)", entry_type);
+                    proto_item_set_end(entry_ti, tvb, offset);
                 }
                 break;
             }
@@ -7620,13 +7659,13 @@ proto_register_oran(void)
         { &hf_oran_alpn_per_sym,
           { "alpnPerSym", "oran_fh_cus.alpnPerSym",
             FT_UINT8, BASE_HEX,
-            NULL, 0x80,
+            VALS(alpn_per_sym_vals), 0x80,
             NULL, HFILL}
         },
         { &hf_oran_ant_dmrs_snr,
           { "antDmrsSnr", "oran_fh_cus.antDmrsSnr",
             FT_UINT8, BASE_HEX,
-            NULL, 0x40,
+            VALS(ant_dmrs_snr_vals), 0x40,
             NULL, HFILL}
         },
 
@@ -7662,7 +7701,7 @@ proto_register_oran(void)
         { &hf_oran_ueid_reset,
           { "ueidReset", "oran_fh_cus.ueidReset",
             FT_BOOLEAN, 8,
-            NULL, 0x80,
+            TFS(&tfs_ueid_reset), 0x80,
             "same UEID as the previous slot", HFILL}
         },
         /* 7.7.24.11 */
@@ -7690,7 +7729,7 @@ proto_register_oran(void)
         { &hf_oran_dtype,
           { "dType", "oran_fh_cus.dType",
             FT_UINT8, BASE_HEX,
-            NULL, 0x40,
+            VALS(dtype_vals), 0x40,
             "PUSCH DMRS configuration type", HFILL}
         },
         /* 7.7.24.15 */
@@ -7875,6 +7914,12 @@ proto_register_oran(void)
             NULL, 0x0,
             NULL, HFILL}
         },
+        { &hf_oran_dmrs_entry,
+          { "Entry", "oran_fh_cus.dmrs-entry",
+            FT_STRING, BASE_NONE,
+            NULL, 0x0,
+            NULL, HFILL}
+        },
 
         { &hf_oran_c_section,
           { "Section", "oran_fh_cus.c-plane.section",
@@ -7925,7 +7970,8 @@ proto_register_oran(void)
         &ett_oran_sresmask,
         &ett_oran_c_section,
         &ett_oran_remask,
-        &ett_oran_symbol_reordering_layer
+        &ett_oran_symbol_reordering_layer,
+        &ett_oran_dmrs_entry
     };
 
     static int *ext_ett[HIGHEST_EXTTYPE];
