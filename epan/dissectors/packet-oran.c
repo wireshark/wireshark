@@ -418,7 +418,6 @@ static int ett_oran_u_timing;
 static int ett_oran_u_section;
 static int ett_oran_u_prb;
 static int ett_oran_iq;
-static int ett_oran_c_section_extension;
 static int ett_oran_bfw_bundle;
 static int ett_oran_bfw;
 static int ett_oran_offset_start_prb_num_prb;
@@ -443,7 +442,8 @@ static int ett_oran_sresmask;
 static int ett_oran_c_section;
 static int ett_oran_remask;
 static int ett_oran_symbol_reordering_layer;
-
+/* Don't want all extensions to open and close together. Use extType-1 entry */
+static int ett_oran_c_section_extension[HIGHEST_EXTTYPE];
 
 /* Expert info */
 static expert_field ei_oran_unsupported_bfw_compression_method;
@@ -2288,18 +2288,24 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
 
         int extension_start_offset = offset;
 
+        /* Prefetch extType so can use specific extension type ett */
+        uint32_t exttype = tvb_get_uint8(tvb, offset) & 0x7f;
+        if (exttype > HIGHEST_EXTTYPE) {
+            /* Just use first one if out of range */
+            exttype = 1;
+        }
+
         /* Create subtree for each extension (with summary) */
         proto_item *extension_ti = proto_tree_add_string_format(c_section_tree, hf_oran_extension,
                                                                 tvb, offset, 0, "", "Extension");
-        proto_tree *extension_tree = proto_item_add_subtree(extension_ti, ett_oran_c_section_extension);
+        proto_tree *extension_tree = proto_item_add_subtree(extension_ti, ett_oran_c_section_extension[exttype-1]);
 
         /* ef (i.e. another extension after this one?) */
         proto_tree_add_item_ret_boolean(extension_tree, hf_oran_ef, tvb, offset, 1, ENC_BIG_ENDIAN, &extension_flag);
 
         /* extType */
-        uint32_t exttype;
         proto_item *exttype_ti;
-        exttype_ti = proto_tree_add_item_ret_uint(extension_tree, hf_oran_exttype, tvb, offset, 1, ENC_BIG_ENDIAN, &exttype);
+        exttype_ti = proto_tree_add_item(extension_tree, hf_oran_exttype, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset++;
         proto_item_append_text(sectionHeading, " (ext-%u)", exttype);
 
@@ -7896,7 +7902,6 @@ proto_register_oran(void)
         &ett_oran_u_prb,
         &ett_oran_section,
         &ett_oran_iq,
-        &ett_oran_c_section_extension,
         &ett_oran_bfw_bundle,
         &ett_oran_bfw,
         &ett_oran_offset_start_prb_num_prb,
@@ -7922,6 +7927,11 @@ proto_register_oran(void)
         &ett_oran_remask,
         &ett_oran_symbol_reordering_layer
     };
+
+    static int *ext_ett[HIGHEST_EXTTYPE];
+    for (unsigned extno=0; extno<HIGHEST_EXTTYPE; extno++) {
+        ext_ett[extno] = &ett_oran_c_section_extension[extno];
+    }
 
     expert_module_t* expert_oran;
 
@@ -7978,6 +7988,8 @@ proto_register_oran(void)
     /* Required function calls to register the header fields and subtrees */
     proto_register_field_array(proto_oran, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+    proto_register_subtree_array(ext_ett, array_length(ext_ett));
+
 
     expert_oran = expert_register_protocol(proto_oran);
     expert_register_field_array(expert_oran, ei, array_length(ei));
