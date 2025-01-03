@@ -39,7 +39,7 @@
  * - Detect/indicate signs of application layer fragmentation?
  * - Not handling M-plane setting for "little endian byte order" as applied to IQ samples and beam weights
  * - for section extensions, check more constraints (which other extension types appear with them, order)
- * - when some section extensions are present, some section header fields are effectively ignored - flag any remaining?
+ * - when some section extensions are present, some section header fields are effectively ignored - flag any remaining ("ignored, "shall")?
  * - re-order items (decl and hf definitions) to match spec order
  */
 
@@ -162,8 +162,6 @@ static int hf_oran_reserved_bit5;
 static int hf_oran_reserved_bits123;
 static int hf_oran_reserved_bits456;
 
-
-
 static int hf_oran_bundle_offset;
 static int hf_oran_cont_ind;
 
@@ -195,7 +193,6 @@ static int hf_oran_sReSMask1_2_re12;
 static int hf_oran_sReSMask1_2_re11;
 static int hf_oran_sReSMask1_2_re10;
 static int hf_oran_sReSMask1_2_re9;
-
 
 static int hf_oran_bfwCompParam;
 
@@ -487,6 +484,8 @@ static expert_field ei_oran_unsupported_compression_method;
 static expert_field ei_oran_ud_comp_len_wrong_size;
 static expert_field ei_oran_sresmask2_not_zero_with_rb;
 static expert_field ei_oran_st6_rb_shall_be_0;
+static expert_field ei_oran_st10_numsymbol_not_14;
+static expert_field ei_oran_st10_startsymbolid_not_0;
 
 
 /* These are the message types handled by this dissector */
@@ -1392,8 +1391,9 @@ typedef struct {
 
     /* Modulation compression params */
     /* TODO: incomplete (see SE4, SE5, SE23), and needs to be per section! */
+    //uint16_t mod_comp_re_mask;
     //bool     mod_compr_csf;
-    //float    mod_compr_mod_comp_scaler;
+    //double    mod_compr_mod_comp_scaler;
 } flow_state_t;
 
 typedef struct {
@@ -1722,6 +1722,7 @@ static float uncompressed_to_float(uint32_t h)
 }
 
 /* Decompress I/Q value, taking into account method, width, exponent, other input-specific methods */
+/* TODO: pass in info needed for Modulation (reMask, csf, mcScaler values) gleaned from SE 4,5,23 */
 static float decompress_value(uint32_t bits, uint32_t comp_method, uint8_t iq_width, uint32_t exponent)
 {
     switch (comp_method) {
@@ -1994,6 +1995,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
     uint32_t startPrbc=0, startPrbu=0;
     uint32_t numPrbc=0, numPrbu=0;
     uint32_t ueId = 0;
+    proto_item *ueId_ti = NULL;
     uint32_t beamId = 0;
     proto_item *beamId_ti = NULL;
     bool beamId_ignored = false;
@@ -2087,7 +2089,8 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
             proto_item *numsymbol_ti = proto_tree_add_item_ret_uint(c_section_tree, hf_oran_numSymbol, tvb, offset, 1, ENC_NA, &numSymbol);
             if ((sectionType == SEC_C_RRM_MEAS_REPORTS) && (numSymbol != 14)) {
                 proto_item_append_text(numsymbol_ti, " (for ST10, should be 14!)");
-                /* TODO: expert info? */
+                expert_add_info_format(pinfo, numsymbol_ti, &ei_oran_st10_numsymbol_not_14,
+                                       "numSymbol should be 14 for ST10 - found %u", numSymbol);
             }
             offset++;
 
@@ -2160,8 +2163,11 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
             case SEC_C_UE_SCHED:          /* Section Type 5  - Table 7.4.7-1 */
             case SEC_C_RRM_MEAS_REPORTS:  /* Section Type 10 - Table 7.4.12-1 */
                 /* ueId */
-                proto_tree_add_item_ret_uint(c_section_tree, hf_oran_ueId, tvb, offset, 2, ENC_NA, &ueId);
+                ueId_ti = proto_tree_add_item_ret_uint(c_section_tree, hf_oran_ueId, tvb, offset, 2, ENC_NA, &ueId);
                 offset += 2;
+                if (ueId == 0x7fff) {
+                    proto_item_append_text(ueId_ti, " (PRBs not scheduled for eAxC ID in transport header)");
+                }
 
                 proto_item_append_text(sectionHeading, ", UEId: %d", ueId);
                 break;
@@ -2170,7 +2176,6 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
             {
                 unsigned bit_offset = offset*8;
 
-                /* TODO: alternates if 'rb' set? */
                 for (unsigned prb=0; prb < numPrbu; prb++) {
                     /* TODO: create a subtree for each PRB entry with good summary? */
 
@@ -2191,7 +2196,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                     for (unsigned n=0; n < num_sinr_per_prb; n++) {
                         unsigned sinr_bits = tvb_get_bits(tvb, bit_offset, pref_sample_bit_width_uplink, ENC_BIG_ENDIAN);
 
-                        /* TODO: using uplink compression settings from preferences.  Is this right? */
+                        /* TODO: using uplink compression settings from preferences.  This isn't right.. */
                         float value = decompress_value(sinr_bits, pref_iqCompressionUplink, pref_sample_bit_width_uplink, exponent);
                         unsigned sample_len_in_bytes = ((bit_offset%8)+pref_sample_bit_width_uplink+7)/8;
                         proto_item *val_ti = proto_tree_add_float(c_section_tree, hf_oran_sinr_value, tvb,
@@ -3541,6 +3546,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                 offset += 1;
 
                 /* Dissect each entry (until run out of extlen bytes..). Not sure how this works with padding bytes though... */
+                /* TODO: how to know when have seen last entry?  Zero byte (within last 3 bytes of space) are valid... */
                 while (offset < (extension_start_offset + extlen*4)) {
 
                     /* Subtree */
@@ -4392,7 +4398,8 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo,
         ssid_ti = proto_tree_add_item_ret_uint(section_tree, hf_oran_start_symbol_id, tvb, offset, 1, ENC_NA, &startSymbolId);
         if (startSymbolId && (sectionType == SEC_C_RRM_MEAS_REPORTS)) {
             proto_item_append_text(ssid_ti, " (should be 0 for ST10!)");
-            /* TODO: expert info? */
+            expert_add_info_format(pinfo, ssid_ti, &ei_oran_st10_startsymbolid_not_0,
+                                   "startSymbolId should be 0 for ST10 - found %u", startSymbolId);
         }
     }
     else {
@@ -8019,7 +8026,9 @@ proto_register_oran(void)
         { &ei_oran_unsupported_compression_method, { "oran_fh_cus.compression_type_unsupported", PI_UNDECODED, PI_WARN, "Unsupported compression type", EXPFILL }},
         { &ei_oran_ud_comp_len_wrong_size, { "oran_fh_cus.ud_comp_len_wrong_size", PI_MALFORMED, PI_WARN, "udCompLen does not match length of U-Plane section", EXPFILL }},
         { &ei_oran_sresmask2_not_zero_with_rb, { "oran_fh_cus.sresmask2_not_zero", PI_MALFORMED, PI_WARN, "sReSMask2 should be zero when rb set", EXPFILL }},
-        { &ei_oran_st6_rb_shall_be_0, { "oran_fh_cus.st6_rb_sset", PI_MALFORMED, PI_WARN, "rb should not be set for Section  Type 6", EXPFILL }}
+        { &ei_oran_st6_rb_shall_be_0, { "oran_fh_cus.st6_rb_set", PI_MALFORMED, PI_WARN, "rb should not be set for Section Type 6", EXPFILL }},
+        { &ei_oran_st10_numsymbol_not_14, { "oran_fh_cus.st10_numsymbol_not_14", PI_MALFORMED, PI_WARN, "numSymbol should be 14 for Section Type 10", EXPFILL }},
+        { &ei_oran_st10_startsymbolid_not_0, { "oran_fh_cus.st10_startsymbolid_not_0", PI_MALFORMED, PI_WARN, "startSymbolId should be 0 for Section Type 10", EXPFILL }}
     };
 
     /* Register the protocol name and description */
