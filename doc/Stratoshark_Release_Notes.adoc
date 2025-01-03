@@ -1,0 +1,135 @@
+include::attributes.adoc[]
+:stylesheet: ws.css
+:linkcss:
+:copycss: {css_dir}/{stylesheet}
+
+= Stratoshark {stratoshark-version} Release Notes
+// Asciidoctor Syntax Quick Reference:
+// https://asciidoctor.org/docs/asciidoc-syntax-quick-reference/
+
+This is an experimental release intended to test new features for Stratoshark 1.0.
+
+== What is Stratoshark?
+
+Stratoshark is a system call and log analyzer.
+It combines the analysis and filtering features of Wireshark with the capture and data enrichment features of Falco.
+It can be used for troubleshooting, analysis, development and education.
+
+// == What’s New
+
+// Add a summary of **major** changes here.
+// Add other changes to "New and Updated Features" below.
+
+// Many other improvements have been made.
+// See the “New and Updated Features” section below for more details.
+
+//=== Bug Fixes
+
+//The following bugs have been fixed:
+//* wsbuglink:5000[]
+//* wsbuglink:6000[Stratoshark bug]
+//* cveidlink:2014-2486[]
+//* Stratoshark grabs your ID at 3 am, goes to Waffle House, and insults people.
+
+=== New and Updated Features
+
+Stratoshark can capture system calls on Linux and a variety of log sources on Windows, macOS, and Linux.
+
+// The following features are either new or have been significantly updated since version 0.9.0:
+
+
+//* The Windows installers now ship with Qt 6.5.2.
+//  They previously shipped with Qt 6.2.3.
+
+// === Removed Features and Support
+
+
+// === Removed Dissectors
+
+
+//=== New File Format Decoding Support
+
+//[commaize]
+//--
+//--
+
+// === New Protocol Support
+
+// Add one protocol per line between the -- delimiters in the format
+// “Full protocol name (Abbreviation)”
+// git log --oneline --diff-filter=A --stat v4.3.0rc0.. epan/dissectors plugins
+// [commaize]
+// --
+// --
+
+// === Updated Protocol Support
+
+// Too many protocol updates have been made to list them all here.
+
+//=== New and Updated Capture File Support
+
+// There is no new or updated capture file support in this release.
+// Add one file type per line between the -- delimiters.
+// [commaize]
+// --
+// --
+
+// === New and Updated Capture Interfaces support
+// [commaize]
+// --
+// --
+
+//=== New and Updated Codec support
+
+//_Non-empty section placeholder._
+
+// === Major API Changes
+
+
+== Getting Stratoshark
+
+Stratoshark source code and installation packages are available from
+https://www.stratoshark.org/download.html.
+
+// === Vendor-supplied Packages
+
+// Most Linux and Unix vendors supply their own Wireshark packages.
+// You can usually install or upgrade Wireshark using the package management system specific to that platform.
+// A list of third-party packages can be found on the
+// https://www.wireshark.org/download.html[download page]
+// on the Wireshark web site.
+
+== File Locations
+
+Stratoshark looks in several different locations for preference files, plugins, and other files.
+These locations vary from platform to platform.
+You can use menu:Help[About Stratoshark,Folders] to find the default locations on your system.
+
+== Getting Help
+
+// The User’s Guide, manual pages and various other documentation can be found at
+// https://www.wireshark.org/docs/
+
+Community support is available on
+https://ask.wireshark.org/[Wireshark’s Q&A site]
+and on the wireshark-users mailing list.
+Subscription information and archives for all of Wireshark’s mailing lists can be found on https://lists.wireshark.org/lists/[the mailing list site].
+
+Bugs and feature requests can be reported on
+https://gitlab.com/wireshark/wireshark/-/issues[the issue tracker].
+
+You can learn system call and log analysis and meet Stratoshark’s developers at
+https://sharkfest.wireshark.org[SharkFest].
+
+// Official Wireshark training and certification are available from
+// https://www.wiresharktraining.com/[Wireshark University].
+
+== How You Can Help
+
+The Wireshark Foundation helps as many people as possible understand their systems and networks as much as possible.
+You can find out more and donate at https://wiresharkfoundation.org[wiresharkfoundation.org].
+
+// == Frequently Asked Questions
+
+// A complete FAQ is available on the
+// https://www.wireshark.org/faq.html[Stratoshark web site].

@@ -23,7 +23,7 @@ ws_srcdir = '@CMAKE_SOURCE_DIR@'
 ws_bindir = '@CMAKE_BINARY_DIR@'
 ws_app = 'Wireshark.app'
 ws_readme = 'Read me first.html'
-ws_donate = 'Donate to the Wireshark Foundation.html'
+wf_donate = 'Donate to the Wireshark Foundation.html'
 ws_install_chmodbpf = 'Install ChmodBPF.pkg'
 ws_uninstall_chmodbpf = 'Uninstall ChmodBPF.pkg'
 ws_install_path_helper = 'Add Wireshark to the system path.pkg'
@@ -75,7 +75,7 @@ size = None
 files = [
     os.path.join(ws_bindir, 'run', ws_app),
     os.path.join(ws_bindir, 'packaging', 'macosx', 'wireshark', ws_readme),
-    os.path.join(ws_bindir, 'packaging', 'macosx', 'wireshark', ws_donate),
+    os.path.join(ws_bindir, 'packaging', 'macosx', wf_donate),
     os.path.join(ws_bindir, 'run', ws_app, 'Contents', 'Resources', 'Extras', ws_install_chmodbpf),
     os.path.join(ws_bindir, 'run', ws_app, 'Contents', 'Resources', 'Extras', ws_uninstall_chmodbpf),
     os.path.join(ws_bindir, 'run', ws_app, 'Contents', 'Resources', 'Extras', ws_install_path_helper),
@@ -104,7 +104,7 @@ icon_locations = {
     ws_app:                     ( 80,  64),
     'Applications':             (250,  64),
     ws_readme:                  ( 80, 180),
-    ws_donate:                  (250, 180),
+    wf_donate:                  (250, 180),
     ws_install_chmodbpf:        ( 80, 296),
     ws_uninstall_chmodbpf:      (250, 296),
     ws_install_path_helper:     ( 80, 402),

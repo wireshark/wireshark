@@ -67,9 +67,9 @@ BrandingText "Stratoshark${U+00ae} Installer"
 ; is usually not associated with an appropriate text editor. We should use extension "txt"
 ; for a text file or "html" for an html README file.
 !define MUI_FINISHPAGE_TITLE_3LINES
-; !define MUI_FINISHPAGE_SHOWREADME "$INSTDIR\NEWS.txt"
-; !define MUI_FINISHPAGE_SHOWREADME_TEXT "Show News"
-; !define MUI_FINISHPAGE_SHOWREADME_NOTCHECKED
+!define MUI_FINISHPAGE_SHOWREADME "$INSTDIR\Stratoshark Release Notes.html"
+!define MUI_FINISHPAGE_SHOWREADME_TEXT "Open the release notes"
+!define MUI_FINISHPAGE_SHOWREADME_NOTCHECKED
 ; NSIS runs as Administrator and will run Stratoshark as Administrator
 ; if these are enabled.
 ;!define MUI_FINISHPAGE_RUN "$INSTDIR\${PROGRAM_NAME_PATH}"
@@ -458,6 +458,7 @@ File "${STAGING_DIR}\dumpcap.exe"
 File "${STAGING_DIR}\dumpcap.html"
 File "${STAGING_DIR}\extcap.html"
 File "${STAGING_DIR}\ipmap.html"
+File "${STAGING_DIR}\Stratoshark Release Notes.html"
 
 ; C-runtime redistributable
 ; vc_redist.x64.exe or vc_redist.x86.exe - copy and execute the redistributable installer

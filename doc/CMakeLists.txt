@@ -110,20 +110,20 @@ endif()
 if(ASCIIDOCTOR_FOUND)
 	ASCIIDOCTOR2HTML("Wireshark_Release_Notes.adoc" CONVERT_UNDERSCORES)
 	ASCIIDOCTOR2TXT("Wireshark_Release_Notes.adoc" CONVERT_UNDERSCORES)
-	# ASCIIDOCTOR2HTML("Stratoshark Release Notes.adoc" CONVERT_UNDERSCORES)
-	# ASCIIDOCTOR2TXT("Stratoshark Release Notes.adoc" CONVERT_UNDERSCORES)
+	ASCIIDOCTOR2HTML("Stratoshark_Release_Notes.adoc" CONVERT_UNDERSCORES)
+	ASCIIDOCTOR2TXT("Stratoshark_Release_Notes.adoc" CONVERT_UNDERSCORES)
 
 	add_custom_target(release_notes_html
 		DEPENDS
 			"${CMAKE_CURRENT_BINARY_DIR}/Wireshark Release Notes.html"
-			# "${CMAKE_CURRENT_BINARY_DIR}/Stratoshark Release Notes.html"
+			"${CMAKE_CURRENT_BINARY_DIR}/Stratoshark Release Notes.html"
 	)
 	set_target_properties(release_notes_html PROPERTIES FOLDER "Documentation")
 
 	add_custom_target(release_notes_txt
 		DEPENDS
 			"${CMAKE_CURRENT_BINARY_DIR}/Wireshark Release Notes.txt"
-			# "${CMAKE_CURRENT_BINARY_DIR}/Stratoshark Release Notes.txt"
+			"${CMAKE_CURRENT_BINARY_DIR}/Stratoshark Release Notes.txt"
 			release_notes_html
 	)
 	set_target_properties(release_notes_txt PROPERTIES FOLDER "Documentation")
@@ -165,7 +165,7 @@ if(ASCIIDOCTOR_FOUND)
 		FILES
 			${HTML_INSTALL_FILES}
 			"${CMAKE_CURRENT_BINARY_DIR}/Wireshark Release Notes.html"
-			# "${CMAKE_CURRENT_BINARY_DIR}/Stratoshark Release Notes.html"
+			"${CMAKE_CURRENT_BINARY_DIR}/Stratoshark Release Notes.html"
 		DESTINATION
 			${CMAKE_INSTALL_DOCDIR}
 		COMPONENT "ReleaseNotes"

@@ -237,6 +237,7 @@
     <addaction name="separator"/>
     <addaction name="actionHelpWiki"/>
     <addaction name="actionHelpSampleCaptures"/>
+    <addaction name="actionHelpReleaseNotes"/>
     <addaction name="separator"/>
     <addaction name="actionHelpAbout"/>
    </widget>
@@ -2217,6 +2218,11 @@
    </property>
    <property name="text">
     <string>&amp;Full Screen</string>
+   </property>
+  </action>
+  <action name="actionHelpReleaseNotes">
+   <property name="text">
+    <string>Release Notes</string>
    </property>
   </action>
  </widget>

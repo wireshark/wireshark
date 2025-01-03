@@ -23,6 +23,7 @@ ss_srcdir = '@CMAKE_SOURCE_DIR@'
 ss_bindir = '@CMAKE_BINARY_DIR@'
 ss_app = 'Stratoshark.app'
 ss_readme = 'Read me first.html'
+wf_donate = 'Donate to the Wireshark Foundation.html'
 ss_install_chmodbpf = 'Install ChmodBPF.pkg'
 ss_uninstall_chmodbpf = 'Uninstall ChmodBPF.pkg'
 ss_install_path_helper = 'Add Stratoshark to the system path.pkg'
@@ -57,6 +58,7 @@ size = None
 files = [
     os.path.join(ss_bindir, 'run', ss_app),
     os.path.join(ss_bindir, 'packaging', 'macosx', 'stratoshark', ss_readme),
+    os.path.join(ss_bindir, 'packaging', 'macosx', wf_donate),
 ]
 
 # Symlinks to create
@@ -73,11 +75,15 @@ symlinks = {
 badge_icon = os.path.join(ss_srcdir, 'packaging', 'macosx', 'ssiconvol.icns')
 #badge_icon = icon_from_app(application)
 
+# Window position in ((x, y), (w, h)) format
+window_rect = ((600, 200), (360, 320))
+
 # Where to put the icons
 icon_locations = {
     ss_app:                     ( 80,  64),
-    'Applications':             (240,  64),
-    ss_readme:                  (160, 170),
+    'Applications':             (250,  64),
+    ss_readme:                   (80, 170),
+    wf_donate:                  (250, 170),
     ss_install_chmodbpf:        ( 80, 276),
     ss_uninstall_chmodbpf:      (250, 276),
     ss_install_path_helper:     ( 80, 382),
@@ -114,9 +120,6 @@ show_toolbar = False
 show_pathbar = False
 show_sidebar = False
 sidebar_width = 180
-
-# Window position in ((x, y), (w, h)) format
-window_rect = ((600, 200), (350, 525))
 
 # Select the default view; must be one of
 #

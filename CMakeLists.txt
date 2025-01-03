@@ -2265,7 +2265,7 @@ if (ASCIIDOCTOR_FOUND)
 		${CMAKE_BINARY_DIR}/doc/man_pages/wireshark.html
 		${CMAKE_BINARY_DIR}/doc/man_pages/wireshark-filter.html
 		"${CMAKE_BINARY_DIR}/doc/Wireshark Release Notes.html"
-		# "${CMAKE_BINARY_DIR}/doc/Stratoshark Release Notes.html"
+		"${CMAKE_BINARY_DIR}/doc/Stratoshark Release Notes.html"
 	)
 	if(MAXMINDDB_FOUND)
 		list(APPEND DOC_FILES ${CMAKE_BINARY_DIR}/doc/man_pages/mmdbresolve.html)
@@ -3605,6 +3605,14 @@ if (MAXMINDDB_FOUND)
 	install(TARGETS mmdbresolve RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 endif()
 
+if(ENABLE_APPLICATION_BUNDLE AND ASCIIDOCTOR_FOUND AND (BUILD_wireshark OR BUILD_stratoshark))
+	set(_wireshark_foundation_donate "packaging/macosx/Donate to the Wireshark Foundation.html")
+	ASCIIDOCTOR2HTML("packaging/macosx/Donate_to_the_Wireshark_Foundation.adoc"
+		OUTPUT ${_wireshark_foundation_donate}
+		CONVERT_UNDERSCORES
+	)
+endif()
+
 if(ENABLE_APPLICATION_BUNDLE AND BUILD_wireshark)
 	file(MAKE_DIRECTORY "${CMAKE_BINARY_DIR}/run/${CMAKE_CFG_INTDIR}/Wireshark.app/Contents/Resources/Extras")
 
@@ -3751,19 +3759,13 @@ if(ENABLE_APPLICATION_BUNDLE AND BUILD_wireshark)
 			CONVERT_UNDERSCORES
 		)
 
-		set(_wireshark_donate "packaging/macosx/wireshark/Donate to the Wireshark Foundation.html")
-		ASCIIDOCTOR2HTML("packaging/macosx/Donate_to_the_Wireshark_Foundation.adoc"
-			OUTPUT ${_wireshark_donate}
-			CONVERT_UNDERSCORES
-		)
-
 		set(_wireshark_dsym_installation "packaging/macosx/wireshark/Debugging symbols installation.html")
 		ASCIIDOCTOR2HTML("packaging/macosx/Wireshark_dsym_installation.adoc"
 			OUTPUT ${_wireshark_dsym_installation}
 			CONVERT_UNDERSCORES
 		)
 
-		add_custom_target(wireshark_dmg_readmes DEPENDS ${_wireshark_read_me_first} ${_wireshark_donate} ${_wireshark_dsym_installation})
+		add_custom_target(wireshark_dmg_readmes DEPENDS ${_wireshark_read_me_first} ${_wireshark_foundation_donate} ${_wireshark_dsym_installation})
 		add_dependencies(wireshark_dmg_prep wireshark_dmg_readmes)
 	endif()
 
@@ -3802,7 +3804,7 @@ if(ENABLE_APPLICATION_BUNDLE AND BUILD_stratoshark)
 			CONVERT_UNDERSCORES
 		)
 
-		add_custom_target(stratoshark_dmg_readmes DEPENDS ${_stratoshark_read_me_first} ${_stratoshark_dsym_installation})
+		add_custom_target(stratoshark_dmg_readmes DEPENDS ${_stratoshark_read_me_first} ${_wireshark_foundation_donate} ${_stratoshark_dsym_installation})
 		add_dependencies(stratoshark_dmg_prep stratoshark_dmg_readmes)
 	endif()
 
