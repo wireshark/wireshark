@@ -10441,23 +10441,23 @@ proto_register_ceph(void)
 	static ei_register_info ei[] = {
 		{ &ei_unused, {
 			"ceph.unused", PI_UNDECODED, PI_WARN,
-			"Unused data in message.  This usually indicates an error by the "
+			"Unused data in message. This usually indicates an error by the "
 			"sender or a bug in the dissector.", EXPFILL
 		} },
 		{ &ei_overrun, {
 			"ceph.overrun", PI_UNDECODED, PI_WARN,
-			"There was less data then expected.  This usually indicates an "
+			"There was less data then expected. This usually indicates an "
 			"error by the sender or a bug in the dissector.", EXPFILL
 		} },
 		{ &ei_tag_unknown, {
 			"ceph.tag_unknown", PI_UNDECODED, PI_ERROR,
-			"Unknown tag.  This is either an error by the sender or an "
+			"Unknown tag. This is either an error by the sender or an "
 			"indication that the dissector is out of date.", EXPFILL
 		} },
 		{ &ei_msg_unknown, {
 			"ceph.msg_unknown", PI_UNDECODED, PI_WARN,
 			"Unknown message type. This most likely means that the dissector "
-			"is out of date.  However it could also be an error by the "
+			"is out of date. However, it could also be an error by the "
 			"sender.", EXPFILL
 		} },
 		{ &ei_union_unknown, {

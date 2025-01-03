@@ -12735,7 +12735,7 @@ proto_register_ansi_a(void)
         },
         { &ei_ansi_a_is2000_chan_id_pilot_pn,
             { "ansi_a.is2000_chan_id_pilot_pn", PI_PROTOCOL, PI_NOTE,
-            "This parameter has a unique encoding.  The most significant bit comes after the LSBs unlike typical IOS octet split values.",
+            "This parameter has a unique encoding. The most significant bit comes after the LSBs unlike typical IOS octet split values.",
             EXPFILL }
         },
         { &ei_ansi_a_unknown_dtap_msg,

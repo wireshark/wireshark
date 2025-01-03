@@ -680,19 +680,19 @@ proto_register_pcomtcp(void)
     static ei_register_info pcombinary_ei[] = {
         { &ei_pcombinary_reserved1_bad_value,
           { "pcombinary.reserved1.bad_value", PI_PROTOCOL, PI_WARN,
-            "Isn't  0xfe", EXPFILL }
+            "Isn't 0xfe", EXPFILL }
         },
         { &ei_pcombinary_reserved2_bad_value,
           { "pcombinary.reserved2.bad_value", PI_PROTOCOL, PI_WARN,
-            "Isn't  1", EXPFILL }
+            "Isn't 1", EXPFILL }
         },
         { &ei_pcombinary_reserved3_bad_value,
           { "pcombinary.reserved3.bad_value", PI_PROTOCOL, PI_WARN,
-            "Isn't  0", EXPFILL }
+            "Isn't 0", EXPFILL }
         },
         { &ei_pcombinary_reserved4_bad_value,
           { "pcombinary.reserved4.bad_value", PI_PROTOCOL, PI_WARN,
-            "Isn't  0", EXPFILL }
+            "Isn't 0", EXPFILL }
         },
         { &ei_pcombinary_command_unsupported,
           { "pcombinary.command.unsupported", PI_PROTOCOL, PI_WARN,

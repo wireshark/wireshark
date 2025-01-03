@@ -1053,7 +1053,10 @@ class ExpertEntry:
 
         global errors_found, warnings_found
 
-        # Some immediate checks
+        # Remove any line breaks
+        summary = re.sub(re.compile(r'\"\s*\n\s*\"' ) ,'' , summary)
+
+        # Some immediate checks (already covered by other scripts)
         if group not in valid_groups:
             print('Error:', filename, 'Expert group', group, 'is not in', valid_groups)
             errors_found += 1
@@ -1069,6 +1072,11 @@ class ExpertEntry:
         if summary.endswith(' '):
             print('Warning:', filename, 'Expert info summary', '"' + summary + '"', 'for', name, 'ends with space')
             warnings_found += 1
+        if summary.find('  ') != -1:
+            print('Warning:', filename, 'Expert info summary', '"' + summary + '"', 'for', name, 'has a double space')
+            warnings_found += 1
+
+
 
         # The summary field is shown in the expert window without substituting args..
         if summary.find('%') != -1:
@@ -1773,8 +1781,8 @@ apiChecks.append(ProtoTreeAddItemCheck(True)) # for ptvcursor_add()
 
 
 def removeComments(code_string):
-    code_string = re.sub(re.compile(r"/\*.*?\*/",re.DOTALL ) ,"" , code_string) # C-style comment
-    code_string = re.sub(re.compile(r"//.*?\n" ) ,"" , code_string)             # C++-style comment
+    code_string = re.sub(re.compile(r"/\*.*?\*/",re.DOTALL ) ,"" , code_string)     # C-style comment
+    code_string = re.sub(re.compile(r"(?<!http:)//.*?\n" ) ,"" , code_string)       # C++-style comment
     code_string = re.sub(re.compile(r"#if 0.*?#endif",re.DOTALL ) ,"" , code_string) # Ignored region
 
     return code_string
