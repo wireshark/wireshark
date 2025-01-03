@@ -42,6 +42,7 @@
 #include <epan/prefs.h>
 #include <epan/expert.h>
 #include <epan/to_str.h>
+#include <epan/etypes.h>
 #include <epan/ipproto.h>
 #include <epan/tfs.h>
 #include <epan/unit_strings.h>
@@ -3294,7 +3295,7 @@ proto_register_sflow(void) {
       },
       { &hf_sflow_245_ethernet_packet_type,
         { "Ethernet Packet Type", "sflow_245.ethernet.packet_type",
-          FT_UINT32, BASE_DEC, NULL, 0x0,
+          FT_UINT32, BASE_HEX, VALS(etype_vals), 0x0,
           NULL, HFILL }
       },
       { &hf_sflow_245_length_of_ip_packet,
