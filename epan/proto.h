@@ -2859,6 +2859,15 @@ WS_DLL_PUBLIC bool proto_is_frame_protocol(const wmem_list_t *layers, const char
  */
 WS_DLL_PUBLIC char * proto_list_layers(const packet_info *pinfo);
 
+/** Retrieve the layer number for a given protocol, i.e. the number of
+ * times a dissector for that protocol has been called for the current
+ * frame.
+ * @param pinfo Pointer to packet info
+ * @param proto_id protocol id (0-indexed)
+ * @return The layer number for proto_id in the current frame.
+ */
+WS_DLL_PUBLIC uint8_t proto_get_layer_num(const packet_info *pinfo, const int proto_id);
+
 /** Mark protocol with the given item number as disabled by default.
  @param proto_id protocol id (0-indexed) */
 WS_DLL_PUBLIC void proto_disable_by_default(const int proto_id);

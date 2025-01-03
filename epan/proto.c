@@ -8689,6 +8689,19 @@ proto_list_layers(const packet_info *pinfo)
 	return wmem_strbuf_finalize(buf);
 }
 
+uint8_t
+proto_get_layer_num(const packet_info *pinfo, const int proto_id)
+{
+	int *proto_layer_num_ptr;
+
+	proto_layer_num_ptr = wmem_map_lookup(pinfo->proto_layers, GINT_TO_POINTER(proto_id));
+	if (proto_layer_num_ptr == NULL) {
+		return 0;
+	}
+
+	return (uint8_t)*proto_layer_num_ptr;
+}
+
 bool
 proto_is_pino(const protocol_t *protocol)
 {

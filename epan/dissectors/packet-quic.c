@@ -1151,7 +1151,11 @@ quic_connection_add_server_endpoint(packet_info *pinfo, quic_info_data_t *conn)
 static quic_info_data_t *
 quic_connection_from_conv(packet_info *pinfo)
 {
-    conversation_t *conv = find_conversation_pinfo(pinfo, 0);
+    /* Explicitly look for the most recent UDP conversation with the
+     * current 5-tuple. (Not a CONVERSATION_QUIC set by connection
+     * number in the case of multiple UDP datagrams in one frame.)
+     */
+    conversation_t *conv = find_conversation(pinfo->num, &pinfo->src, &pinfo->dst, conversation_pt_to_conversation_type(pinfo->ptype), pinfo->srcport, pinfo->destport, 0);
     if (conv) {
         return (quic_info_data_t *)conversation_get_proto_data(conv, proto_quic);
     }
@@ -1289,9 +1293,9 @@ quic_connection_find(packet_info *pinfo, uint8_t long_packet_type,
             // ensures that debug prints clearly show that DCID is invalid).
             dcid->len = 0;
         } else if (quic_connection_from_conv(pinfo) == NULL) {
-            // Connection information might not be attached to the conversation,
-            // because of connection migration.
-            conversation_t *conv = find_conversation_pinfo(pinfo, 0);
+            // Connection information might not be attached to the 5-tuple
+            // conversation, because of connection migration.
+            conversation_t *conv = find_conversation(pinfo->num, &pinfo->src, &pinfo->dst, conversation_pt_to_conversation_type(pinfo->ptype), pinfo->srcport, pinfo->destport, 0);
             if (conv) {
                 // attach the connection information to the conversation.
                 conversation_add_proto_data(conv, proto_quic, conn);
@@ -2965,7 +2969,7 @@ quic_decrypt_message(quic_pp_cipher *pp_cipher, tvbuff_t *head, unsigned header_
     const unsigned char  **error = &result->error;
     quic_datagram *dgram_info;
 
-    dgram_info = (quic_datagram *)p_get_proto_data(wmem_file_scope(), pinfo, proto_quic, 0);
+    dgram_info = (quic_datagram *)p_get_proto_data(wmem_file_scope(), pinfo, proto_quic, pinfo->curr_proto_layer_num);
 
     DISSECTOR_ASSERT(pp_cipher != NULL);
     DISSECTOR_ASSERT(pp_cipher->pp_cipher != NULL);
@@ -3698,7 +3702,7 @@ quic_add_connection(packet_info *pinfo, quic_cid_t *cid)
 {
     quic_datagram *dgram_info;
 
-    dgram_info = (quic_datagram *)p_get_proto_data(wmem_file_scope(), pinfo, proto_quic, 0);
+    dgram_info = (quic_datagram *)p_get_proto_data(wmem_file_scope(), pinfo, proto_quic, proto_get_layer_num(pinfo, proto_quic));
     if (dgram_info && dgram_info->conn) {
         quic_connection_add_cid(dgram_info->conn, cid, dgram_info->from_server);
     }
@@ -3710,7 +3714,7 @@ quic_add_loss_bits(packet_info *pinfo, uint64_t value)
     quic_datagram *dgram_info;
     quic_info_data_t *conn;
 
-    dgram_info = (quic_datagram *)p_get_proto_data(wmem_file_scope(), pinfo, proto_quic, 0);
+    dgram_info = (quic_datagram *)p_get_proto_data(wmem_file_scope(), pinfo, proto_quic, proto_get_layer_num(pinfo, proto_quic));
     if (dgram_info && dgram_info->conn) {
         conn = dgram_info->conn;
         if (dgram_info->from_server) {
@@ -3743,7 +3747,7 @@ quic_add_multipath(packet_info *pinfo, unsigned version)
     quic_datagram *dgram_info;
     quic_info_data_t *conn;
 
-    dgram_info = (quic_datagram *)p_get_proto_data(wmem_file_scope(), pinfo, proto_quic, 0);
+    dgram_info = (quic_datagram *)p_get_proto_data(wmem_file_scope(), pinfo, proto_quic, proto_get_layer_num(pinfo, proto_quic));
     if (dgram_info && dgram_info->conn) {
         conn = dgram_info->conn;
         if (dgram_info->from_server) {
@@ -3760,7 +3764,7 @@ quic_add_grease_quic_bit(packet_info *pinfo)
     quic_datagram *dgram_info;
     quic_info_data_t *conn;
 
-    dgram_info = (quic_datagram *)p_get_proto_data(wmem_file_scope(), pinfo, proto_quic, 0);
+    dgram_info = (quic_datagram *)p_get_proto_data(wmem_file_scope(), pinfo, proto_quic, proto_get_layer_num(pinfo, proto_quic));
     if (dgram_info && dgram_info->conn) {
         conn = dgram_info->conn;
         if (dgram_info->from_server) {
@@ -3814,7 +3818,7 @@ quic_add_stateless_reset_token(packet_info *pinfo, tvbuff_t *tvb, int offset, co
     quic_info_data_t *conn;
     quic_cid_item_t *cids;
 
-    dgram_info = (quic_datagram *)p_get_proto_data(wmem_file_scope(), pinfo, proto_quic, 0);
+    dgram_info = (quic_datagram *)p_get_proto_data(wmem_file_scope(), pinfo, proto_quic, proto_get_layer_num(pinfo, proto_quic));
     if (dgram_info && dgram_info->conn) {
         conn = dgram_info->conn;
         if (dgram_info->from_server) {
@@ -4628,12 +4632,10 @@ dissect_quic(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "QUIC");
 
-    if (PINFO_FD_VISITED(pinfo)) {
-        dgram_info = (quic_datagram *)p_get_proto_data(wmem_file_scope(), pinfo, proto_quic, 0);
-    }
+    dgram_info = (quic_datagram *)p_get_proto_data(wmem_file_scope(), pinfo, proto_quic, pinfo->curr_proto_layer_num);
     if (!dgram_info) {
         dgram_info = wmem_new0(wmem_file_scope(), quic_datagram);
-        p_add_proto_data(wmem_file_scope(), pinfo, proto_quic, 0, dgram_info);
+        p_add_proto_data(wmem_file_scope(), pinfo, proto_quic, pinfo->curr_proto_layer_num, dgram_info);
     }
 
     quic_ti = proto_tree_add_item(tree, proto_quic, tvb, 0, -1, ENC_NA);
@@ -4980,7 +4982,7 @@ quic_get_sub_stream_id(unsigned streamid, unsigned sub_stream_id, bool le, unsig
 static char *
 quic_follow_conv_filter(epan_dissect_t *edt _U_, packet_info *pinfo, unsigned *stream, unsigned *sub_stream)
 {
-    quic_datagram *dgram_info = (quic_datagram *)p_get_proto_data(wmem_file_scope(), pinfo, proto_quic, 0);
+    quic_datagram *dgram_info = (quic_datagram *)p_get_proto_data(wmem_file_scope(), pinfo, proto_quic, proto_get_layer_num(pinfo, proto_quic));
 
     if (!dgram_info || !dgram_info->conn) {
         return NULL;
