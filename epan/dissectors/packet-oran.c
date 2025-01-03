@@ -2322,15 +2322,16 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
 
         /* Prefetch extType so can use specific extension type ett */
         uint32_t exttype = tvb_get_uint8(tvb, offset) & 0x7f;
-        if (exttype > HIGHEST_EXTTYPE) {
+        uint32_t exttype_ett_index = exttype;
+        if (exttype == 0 || exttype > HIGHEST_EXTTYPE) {
             /* Just use first one if out of range */
-            exttype = 1;
+            exttype_ett_index = 1;
         }
 
         /* Create subtree for each extension (with summary) */
         proto_item *extension_ti = proto_tree_add_string_format(c_section_tree, hf_oran_extension,
                                                                 tvb, offset, 0, "", "Extension");
-        proto_tree *extension_tree = proto_item_add_subtree(extension_ti, ett_oran_c_section_extension[exttype-1]);
+        proto_tree *extension_tree = proto_item_add_subtree(extension_ti, ett_oran_c_section_extension[exttype_ett_index-1]);
 
         /* ef (i.e. another extension after this one?) */
         proto_tree_add_item_ret_boolean(extension_tree, hf_oran_ef, tvb, offset, 1, ENC_BIG_ENDIAN, &extension_flag);
@@ -2343,7 +2344,8 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
 
         proto_item_append_text(extension_ti, " (ext-%u: %s)", exttype, val_to_str_const(exttype, exttype_vals, "Reserved"));
 
-        if (exttype <= HIGHEST_EXTTYPE) {
+        /* Don't tap if out of range. */
+        if (exttype > 0 && exttype <= HIGHEST_EXTTYPE) {
             tap_info->extensions[exttype] = true;
         }
 
