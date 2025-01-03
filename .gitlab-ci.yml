@@ -280,7 +280,7 @@ Source Package:
     - !reference [.if-w-w-only-merged]
     - !reference [.if-2x-daily-schedule]
   script:
-    - ../tools/make-version.py --set-release --wireshark-version-file=wireshark_version.txt ..
+    - ../tools/make-version.py --set-release --wireshark-version-file=wireshark_version.txt --stratoshark-version-file=stratoshark_version.txt ..
     - ../tools/update-appdata.py
     - printf "\e[0Ksection_start:%s:cmake_section[collapsed=true]\r\e[0KRunning CMake" "$( date +%s)"
     - cmake -G Ninja $CMAKE_ARGS ..
@@ -292,8 +292,9 @@ Source Package:
     - WIRESHARK_VERSION=$(< wireshark_version.txt)
     - cp -v "doc/Wireshark Release Notes.html" ../wireshark-release-notes-${WIRESHARK_VERSION}.html
     - cp -v "doc/Wireshark Release Notes.txt" ../wireshark-release-notes-${WIRESHARK_VERSION}.txt
-    # - cp -v "doc/Stratoshark Release Notes.html" ../stratoshark-release-notes-${STRATOSHARK_VERSION}.html
-    # - cp -v "doc/Stratoshark Release Notes.txt" ../stratoshark-release-notes-${STRATOSHARK_VERSION}.txt
+    - STRATOSHARK_VERSION=$(< stratoshark_version.txt)
+    - cp -v "doc/Stratoshark Release Notes.html" ../stratoshark-release-notes-${STRATOSHARK_VERSION}.html
+    - cp -v "doc/Stratoshark Release Notes.txt" ../stratoshark-release-notes-${STRATOSHARK_VERSION}.txt
     - cd ..
     - zstdcat --threads=0 wireshark-${WIRESHARK_VERSION}.tar.zst | xz --threads=0 > wireshark-${WIRESHARK_VERSION}.tar.xz
   after_script:
@@ -521,15 +522,17 @@ Windows x64 Package:
     - $packages = Get-ChildItem "packaging\nsis\Wireshark-*-x64.exe", "packaging\nsis\Stratoshark-*-x64.exe", "packaging\wix\Wireshark-*-x64.msi", "packaging\portableapps\WiresharkPortable??_*.paf.exe", "Wireshark-pdb-*x64.zip"
     - foreach ($package in $packages) { Write-Host $package.name $(Get-Filehash -Algorithm SHA256 $package).Hash $package.length "bytes" }
     - if (Test-Path env:MC_DESTINATION_WINDOWS_X64) { C:\gitlab-builds\bin\mc --quiet cp $packages "$env:MC_DESTINATION_WINDOWS_X64/" }
-    - $nsisSha256 = (Get-FileHash -Algorithm SHA256 .\packaging\nsis\Wireshark-*-x64.exe).Hash
     - $wiresharkVersion = Get-Content .\wireshark_version.txt
+    - $wiresharkNsisSha256 = (Get-FileHash -Algorithm SHA256 .\packaging\nsis\Wireshark-*-x64.exe).Hash
+    - Set-Content -Path wireshark-release-info-$($wiresharkVersion)-windows-x64.ini -Value ("[DEFAULT]`nnsis_sha256 = $wiresharkNsisSha256")
     - $stratosharkVersion = Get-Content .\stratoshark_version.txt
-    - Set-Content -Path wireshark-release-info-$($wiresharkVersion)-windows-x64.ini -Value ("[DEFAULT]`nnsis_sha256 = $nsisSha256")
-    - if (Test-Path env:MC_DESTINATION_RELEASE) { C:\gitlab-builds\bin\mc --quiet cp wireshark-release-info-$($wiresharkVersion)-windows-x64.ini "$env:MC_DESTINATION_RELEASE/" }
+    - $stratosharkNsisSha256 = (Get-FileHash -Algorithm SHA256 .\packaging\nsis\Stratoshark-*-x64.exe).Hash
+    - Set-Content -Path stratoshark-release-info-$($stratosharkVersion)-windows-x64.ini -Value ("[DEFAULT]`nnsis_sha256 = $stratosharkNsisSha256")
+    - if (Test-Path env:MC_DESTINATION_RELEASE) { C:\gitlab-builds\bin\mc --quiet cp *shark-release-info-*-windows-*.ini "$env:MC_DESTINATION_RELEASE/" }
     - C:\Windows\py.exe -m pytest
   artifacts:
     paths:
-      - build/wireshark-release-info-*.ini
+      - build/*shark-release-info-*-windows-*.ini
 
 Windows Arm64 Package:
   extends: .build-windows
@@ -561,15 +564,17 @@ Windows Arm64 Package:
     - $packages = Get-ChildItem "packaging\nsis\Wireshark-*-arm64.exe", "packaging\nsis\Stratoshark-*-arm64.exe", "Wireshark-pdb-*arm64.zip"
     - foreach ($package in $packages) { Write-Host $package.name $(Get-Filehash -Algorithm SHA256 $package).Hash $package.length "bytes" }
     - if (Test-Path env:MC_DESTINATION_WINDOWS_ARM64) { C:\gitlab-builds\bin\mc --quiet cp $packages "$env:MC_DESTINATION_WINDOWS_ARM64/" }
-    - $nsisSha256 = (Get-FileHash -Algorithm SHA256 .\packaging\nsis\Wireshark-*-arm64.exe).Hash
     - $wiresharkVersion = Get-Content .\wireshark_version.txt
+    - $wiresharkNsisSha256 = (Get-FileHash -Algorithm SHA256 .\packaging\nsis\Wireshark-*-arm64.exe).Hash
+    - Set-Content -Path wireshark-release-info-$($wiresharkVersion)-windows-arm64.ini -Value ("[DEFAULT]`nnsis_sha256 = $wiresharkNsisSha256")
     - $stratosharkVersion = Get-Content .\stratoshark_version.txt
-    - Set-Content -Path wireshark-release-info-$($wiresharkVersion)-windows-arm64.ini -Value ("[DEFAULT]`nnsis_sha256 = $nsisSha256")
-    - if (Test-Path env:MC_DESTINATION_RELEASE) { C:\gitlab-builds\bin\mc --quiet cp wireshark-release-info-$($wiresharkVersion)-windows-arm64.ini "$env:MC_DESTINATION_RELEASE/" }
+    - $stratosharkNsisSha256 = (Get-FileHash -Algorithm SHA256 .\packaging\nsis\Stratoshark-*-arm64.exe).Hash
+    - Set-Content -Path stratoshark-release-info-$($stratosharkVersion)-windows-arm64.ini -Value ("[DEFAULT]`nnsis_sha256 = $stratosharkNsisSha256")
+    - if (Test-Path env:MC_DESTINATION_RELEASE) { C:\gitlab-builds\bin\mc --quiet cp *shark-release-info-*-windows-*.ini "$env:MC_DESTINATION_RELEASE/" }
     - C:\Windows\py.exe -m pytest
   artifacts:
     paths:
-      - build/wireshark-release-info-*.ini
+      - build/*shark-release-info-*-windows-*.ini
 
 Windows MinGW-w64 Package:
   extends: .build-mingw
@@ -624,18 +629,21 @@ macOS Arm Package:
         aws s3 cp Stratoshark?[0-9]*Arm*.dmg "$S3_DESTINATION_MACOS_ARM64/"
         aws s3 cp Stratoshark?dSYM*Arm*.dmg "$S3_DESTINATION_MACOS_ARM64/"
       fi
-    - SPARKLE_SIGNATURE=$( age --decrypt --identity="$MACOS_AGE_IDENTITY" "$MACOS_SPARKLE_BLOB" | /usr/local/Sparkle-2.2.2/bin/sign_update --ed-key-file - Wireshark?[1-9]*.dmg )
     - $CI_PROJECT_DIR/build/run/tshark --version
-    - DMG_SHA256=$( shasum --algorithm 256 Wireshark?[1-9]*.dmg | awk '{print $1}' )
+    - WIRESHARK_SPARKLE_SIGNATURE=$( age --decrypt --identity="$MACOS_AGE_IDENTITY" "$MACOS_SPARKLE_BLOB" | /usr/local/Sparkle-2.2.2/bin/sign_update --ed-key-file - Wireshark?[1-9]*.dmg )
+    - WIRESHARK_DMG_SHA256=$( shasum --algorithm 256 Wireshark?[1-9]*.dmg | awk '{print $1}' )
     - WIRESHARK_VERSION=$(< ../wireshark_version.txt)
+    - printf '[DEFAULT]\nsparkle_signature = %s\ndmg_sha256 = %s\n' "$WIRESHARK_SPARKLE_SIGNATURE" "$WIRESHARK_DMG_SHA256" > wireshark-release-info-${WIRESHARK_VERSION}-macos-arm64.ini
+    - STRATOSHARK_SPARKLE_SIGNATURE=$( age --decrypt --identity="$MACOS_AGE_IDENTITY" "$MACOS_SPARKLE_BLOB" | /usr/local/Sparkle-2.2.2/bin/sign_update --ed-key-file - Stratoshark?[0-9]*.dmg )
+    - STRATOSHARK_DMG_SHA256=$( shasum --algorithm 256 Stratoshark?[0-9]*.dmg | awk '{print $1}' )
     - STRATOSHARK_VERSION=$(< ../stratoshark_version.txt)
-    - printf '[DEFAULT]\nsparkle_signature = %s\ndmg_sha256 = %s\n' "$SPARKLE_SIGNATURE" "$DMG_SHA256" > wireshark-release-info-${WIRESHARK_VERSION}-macos-arm64.ini
-    - if [[ -n "$S3_DESTINATION_RELEASE" ]] ; then aws s3 cp wireshark-release-info-${WIRESHARK_VERSION}-macos-arm64.ini "$S3_DESTINATION_RELEASE/" ; fi
+    - printf '[DEFAULT]\nsparkle_signature = %s\ndmg_sha256 = %s\n' "$STRATOSHARK_SPARKLE_SIGNATURE" "$STRATOSHARK_DMG_SHA256" > stratoshark-release-info-${STRATOSHARK_VERSION}-macos-arm64.ini
+    - if [[ -n "$S3_DESTINATION_RELEASE" ]] ; then aws s3 cp *shark-release-info-*-macos-*.ini "$S3_DESTINATION_RELEASE/" ; fi
     - cd ..
     - ninja test
   artifacts:
     paths:
-      - build/run/wireshark-release-info-*.ini
+      - build/run/*shark-release-info-*-macos-*.ini
   needs: []
 
 macOS Intel Package:
@@ -677,18 +685,21 @@ macOS Intel Package:
         aws s3 cp Stratoshark?[0-9]*Intel*.dmg "$S3_DESTINATION_MACOS_INTEL64/"
         aws s3 cp Stratoshark?dSYM*Intel*.dmg "$S3_DESTINATION_MACOS_INTEL64/"
       fi
-    - SPARKLE_SIGNATURE=$( age --decrypt --identity="$MACOS_AGE_IDENTITY" "$MACOS_SPARKLE_BLOB" | /usr/local/Sparkle-2.2.2/bin/sign_update --ed-key-file - Wireshark?[1-9]*.dmg )
     - $CI_PROJECT_DIR/build/run/tshark --version
-    - DMG_SHA256=$( shasum --algorithm 256 Wireshark?[1-9]*.dmg | awk '{print $1}' )
+    - WIRESHARK_SPARKLE_SIGNATURE=$( age --decrypt --identity="$MACOS_AGE_IDENTITY" "$MACOS_SPARKLE_BLOB" | /usr/local/Sparkle-2.2.2/bin/sign_update --ed-key-file - Wireshark?[1-9]*.dmg )
+    - WIRESHARK_DMG_SHA256=$( shasum --algorithm 256 Wireshark?[1-9]*.dmg | awk '{print $1}' )
     - WIRESHARK_VERSION=$(< ../wireshark_version.txt)
+    - printf '[DEFAULT]\nsparkle_signature = %s\ndmg_sha256 = %s\n' "$WIRESHARK_SPARKLE_SIGNATURE" "$WIRESHARK_DMG_SHA256" > wireshark-release-info-${WIRESHARK_VERSION}-macos-intel64.ini
+    - STRATOSHARK_SPARKLE_SIGNATURE=$( age --decrypt --identity="$MACOS_AGE_IDENTITY" "$MACOS_SPARKLE_BLOB" | /usr/local/Sparkle-2.2.2/bin/sign_update --ed-key-file - Stratoshark?[0-9]*.dmg )
+    - STRATOSHARK_DMG_SHA256=$( shasum --algorithm 256 Stratoshark?[0-9]*.dmg | awk '{print $1}' )
     - STRATOSHARK_VERSION=$(< ../stratoshark_version.txt)
-    - printf '[DEFAULT]\nsparkle_signature = %s\ndmg_sha256 = %s\n' "$SPARKLE_SIGNATURE" "$DMG_SHA256" > wireshark-release-info-${WIRESHARK_VERSION}-macos-intel64.ini
-    - if [[ -n "$S3_DESTINATION_RELEASE" ]] ; then aws s3 cp wireshark-release-info-${WIRESHARK_VERSION}-macos-intel64.ini "$S3_DESTINATION_RELEASE/" ; fi
+    - printf '[DEFAULT]\nsparkle_signature = %s\ndmg_sha256 = %s\n' "$STRATOSHARK_SPARKLE_SIGNATURE" "$STRATOSHARK_DMG_SHA256" > stratoshark-release-info-${STRATOSHARK_VERSION}-macos-intel64.ini
+    - if [[ -n "$S3_DESTINATION_RELEASE" ]] ; then aws s3 cp *shark-release-info-*-macos-*.ini "$S3_DESTINATION_RELEASE/" ; fi
     - cd ..
     - ninja test
   artifacts:
     paths:
-      - build/run/wireshark-release-info-*.ini
+      - build/run/*shark-release-info-*-macos-*.ini
   needs: []
 
 # Build the User's Guide and Developer's Guide
