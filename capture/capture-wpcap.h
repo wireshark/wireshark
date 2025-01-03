@@ -21,9 +21,16 @@ extern "C" {
 #include <pcap.h>
 #endif
 
-extern bool has_wpcap;
+extern bool has_npcap;
 
 extern void load_wpcap(void);
+
+/*
+ * This returns true if we loaded WinPcap; we don't support WinPcap anymore,
+ * so this doesn't mean we can capture (has_npcap is still false), but we can
+ * produce a more informative error message.
+ */
+extern bool caplibs_have_winpcap(void);
 
 /**
  * Check to see if npf.sys is running.

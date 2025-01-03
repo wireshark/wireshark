@@ -190,10 +190,10 @@ if(PCAP_FOUND)
 
   if(WIN32 AND NOT CMAKE_CROSSCOMPILING)
     #
-    # Prepopulate some values. WinPcap 3.1 and later, and Npcap, have these
-    # in their SDK, and compilation checks on Windows can be slow.  We check
-    # whether they're present at run time, when we load wpcap.dll, and work
-    # around their absence or report an error.
+    # Prepopulate some values. Npcap has these in its SDK, and compilation
+    # checks on Windows can be slow.  We check whether they're present at run
+    # time, when we load wpcap.dll, and work around their absence or report
+    # an error.
     #
     set(HAVE_PCAP_OPEN TRUE)
     set(HAVE_PCAP_SETSAMPLING TRUE)

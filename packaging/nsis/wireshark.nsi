@@ -1614,7 +1614,7 @@ Var USBPCAP_NAME ; DisplayName from USBPcap installation
 Function myShowCallback
 
   ClearErrors
-  ; detect if WinPcap should be installed
+  ; detect if Npcap should be installed
   WriteINIStr "$PLUGINSDIR\NpcapPage.ini" "Field 4" "Text" "Install Npcap ${NPCAP_PACKAGE_VERSION}"
   ReadRegStr $NPCAP_NAME HKEY_LOCAL_MACHINE "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\NpcapInst" "DisplayName"
   IfErrors 0 lbl_npcap_installed

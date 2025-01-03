@@ -767,7 +767,7 @@ Qt::ItemFlags ModulePrefsModel::flags(const QModelIndex &index) const
 #ifdef HAVE_LIBPCAP
 #ifdef _WIN32
     /* Is WPcap loaded? */
-    if (has_wpcap) {
+    if (has_npcap) {
 #endif /* _WIN32 */
         disable_capture = false;
 #ifdef _WIN32

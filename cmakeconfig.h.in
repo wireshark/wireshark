@@ -230,7 +230,7 @@
 /* Define to 1 if you have the `pcap_open' function. */
 #cmakedefine HAVE_PCAP_OPEN 1
 
-/* Define to 1 if you have libpcap/WinPcap/Npcap remote capturing support. */
+/* Define to 1 if you have libpcap/Npcap remote capturing support. */
 #cmakedefine HAVE_PCAP_REMOTE 1
 
 /* Define to 1 if you have the `pcap_setsampling' function. */
@@ -413,7 +413,7 @@
  * are added if and only if HAVE_REMOTE is defined, and will fill them in,
  * even if they're not there.
  *
- * Yes, this is q WinPcap bug; if your project has a public header file
+ * Yes, this is a WinPcap bug; if your project has a public header file
  * that checks or otherwise uses a #define that's defined by your project's
  * configuration process, and don't ensure that it's always defined
  * appropriately when that header file is included, before its first use,
@@ -437,6 +437,11 @@
  * No version of the WinPcap SDK provided libpcap 1.9.0-or-later headers.
  * The Npcap SDK, as of SDK version 1.04, provides them, so this is
  * only necessary for building with the WinPcap SDK.
+ *
+ * WinPcap isn't supported at runtime anymore, but it's possible to build
+ * with the WinPcap SDK and run with Npcap, so long as this is defined.
+ * That's what currently happens when cross-compiling with Fedora Linux,
+ * which includes a MinGW WinPcap package.
  */
 #ifdef HAVE_PCAP_REMOTE
 #define HAVE_REMOTE

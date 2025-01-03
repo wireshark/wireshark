@@ -63,7 +63,7 @@ data from a live network and write the packets to a file.  *Dumpcap*'s
 default capture file format is *pcapng* format. The *-F* option can
 be specified to write the output file in the *pcap* format instead.
 
-Without any options set it will use the libpcap, Npcap, or WinPcap library to
+Without any options set it will use the libpcap or Npcap library to
 capture traffic from the first available network interface and writes
 the received raw packet data, along with the packets' time stamps into a
 capture file.

@@ -484,7 +484,7 @@ void ManageInterfacesDialog::updateRemoteInterfaceList(GList* rlist, remote_opti
                 data_link_info = gxx_list_data(data_link_info_t *, lt_entry);
                 linkr = g_new(link_row, 1);
                 /*
-                 * For link-layer types libpcap/WinPcap/Npcap doesn't know
+                 * For link-layer types libpcap/Npcap doesn't know
                  * about, the name will be "DLT n", and the description will
                  * be null.
                  * We mark those as unsupported, and don't allow them to be

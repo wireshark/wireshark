@@ -61,7 +61,7 @@ file on disk.
 
 If *-p* is supplied *rawshark* expects the following format.  This
 matches the __struct pcap_pkthdr__ structure and packet data used in
-libpcap, Npcap, or WinPcap.  This structure's format is platform-dependent; the
+libpcap or Npcap.  This structure's format is platform-dependent; the
 size of the __tv_sec__ field in the __struct timeval__ structure could be
 32 bits or 64 bits.  For *rawshark* to work, the layout of the
 structure in the input must match the layout of the structure in
@@ -116,13 +116,13 @@ Specify how the packet data should be dissected. The encapsulation is of the
 form __type:value__, where __type__ is one of:
 
 *encap*:__name__ Packet data should be dissected using the
-libpcap/Npcap/WinPcap data link type (DLT) __name__, e.g. *encap:EN10MB* for
+libpcap/Npcap data link type (DLT) __name__, e.g. *encap:EN10MB* for
 Ethernet.  Names are converted using pcap_datalink_name_to_val().
 A complete list of DLTs can be found at
 https://www.tcpdump.org/linktypes.html.
 
 *encap*:__number__ Packet data should be dissected using the
-libpcap/Npcap/WinPcap LINKTYPE_ __number__, e.g. *encap:105* for raw IEEE
+libpcap/Npcap LINKTYPE_ __number__, e.g. *encap:105* for raw IEEE
 802.11 or *encap:101* for raw IP.
 
 *proto*:__protocol__ Packet data should be passed to the specified Wireshark

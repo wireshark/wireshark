@@ -312,7 +312,18 @@ void InterfaceFrame::resetInterfaceTreeDisplay()
 
 #ifdef HAVE_LIBPCAP
 #ifdef Q_OS_WIN
-    if (!has_wpcap) {
+    if (caplibs_have_winpcap()) {
+        // We have gotten reports of the WinPcap uninstaller not correctly
+        // removing all its DLLs and this causing conflicts:
+        // https://gitlab.com/wireshark/wireshark/-/issues/14160
+        // https://gitlab.com/wireshark/wireshark/-/issues/14543
+        ui->warningLabel->setText(tr(
+            "<p>"
+            "Local interfaces are unavailable because WinPcap is installed but is no longer supported."
+            "</p><p>"
+            "You can fix this by uninstalling WinPcap and installing <a href=\"https://npcap.com/\">Npcap</a>."
+            "</p>"));
+    } else if (!has_npcap) {
         ui->warningLabel->setText(tr(
             "<p>"
             "Local interfaces are unavailable because no packet capture driver is installed."
@@ -324,9 +335,8 @@ void InterfaceFrame::resetInterfaceTreeDisplay()
             "<p>"
             "Local interfaces are unavailable because the packet capture driver isn't loaded."
             "</p><p>"
-            "You can fix this by running <pre>net start npcap</pre> if you have Npcap installed"
-            " or <pre>net start npf</pre> if you have WinPcap installed."
-            " Both commands must be run as Administrator."
+            "You can fix this by running <pre>net start npcap</pre> if you have Npcap installed."
+            " The command must be run as Administrator."
             "</p>"));
     }
 #endif

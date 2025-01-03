@@ -12,19 +12,15 @@
         <Control Id="BannerBitmap" Type="Bitmap" X="0" Y="0" Width="370" Height="44" TabSkip="no" Text="!(loc.LicenseAgreementDlgBannerBitmap)"/>
         <Control Id="BannerLine" Type="Line" X="0" Y="44" Width="370" Height="0"/>
         <Control Id="Title" Type="Text" X="14" Y="7" Width="350" Height="15" Transparent="yes" NoPrefix="yes" Text="Packet capture, shortcuts, and file extensions"/>
-        <Control Id="Description" Type="Text" X="20" Y="26" Width="350" Height="15" Transparent="yes" NoPrefix="yes" Text="You must install Npcap or WinPcap in order to capture packets."/>
+        <Control Id="Description" Type="Text" X="20" Y="26" Width="350" Height="15" Transparent="yes" NoPrefix="yes" Text="You must install Npcap in order to capture packets."/>
 
         <!-- BannerLine y = 44, 44 + 7 = 51 -->
-        <Control Id="NetworkCapture" Type="Text" X="14" Y="51" Width="350" Height="12" Text="{\WixUI_Font_Bold}Wireshark requires Npcap or WinPcap to capture network packets"/>
+        <Control Id="NetworkCapture" Type="Text" X="14" Y="51" Width="350" Height="12" Text="{\WixUI_Font_Bold}Wireshark requires Npcap to capture network packets"/>
         <Control Id="NetworkCaptureNpcap" Type="Hyperlink" X="20" Y="63" Width="350" Height="11">
           <Text><![CDATA[<a href="https://npcap.org">Download Npcap</a> (recommended)]]></Text>
         </Control>
-        <!-- It looks Hyperlink controls only support one hyperlink, per control. -->
-        <Control Id="NetworkCaptureWinPcap" Type="Hyperlink" X="20" Y="74" Width="350" Height="11">
-          <Text><![CDATA[…or <a href="https://www.winpcap.org">download WinPcap</a>]]></Text>
-        </Control>
 
-        <!-- NetworkCaptureWinPcap y = 74, 74 + 8 + 10 = 92 -->
+        <!-- NetworkCaptureNpcap y = 74, 74 + 8 + 10 = 92 -->
         <Control Id="UsbCapture" Type="Text" X="14" Y="92" Width="350" Height="12" Text="{\WixUI_Font_Bold}Wireshark requires USBPcap to capture USB Packets"/>
         <Control Id="UsbCaptureUsbPcap" Type="Hyperlink" X="20" Y="104" Width="350" Height="11">
           <Text><![CDATA[<a href="https://desowin.org/usbpcap/">Download USBPcap</a> (experimental)]]></Text>
