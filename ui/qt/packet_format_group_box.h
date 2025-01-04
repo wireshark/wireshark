@@ -52,6 +52,7 @@ private slots:
     void on_allExpandedButton_toggled(bool checked);
 
     void on_includeDataSourcesCheckBox_toggled(bool checked);
+    void on_timestampCheckBox_toggled(bool checked);
 
 private:
     Ui::PacketFormatGroupBox *pf_ui_;

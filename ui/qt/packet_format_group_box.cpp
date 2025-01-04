@@ -55,6 +55,12 @@ PacketFormatGroupBox::PacketFormatGroupBox(QWidget *parent) :
                       "  padding-left: %1px;"
                       "}"
                       ).arg(cb_label_offset));
+
+    pf_ui_->timestampCheckBox->setStyleSheet(QStringLiteral(
+                      "QCheckBox {"
+                      "  padding-left: %1px;"
+                      "}"
+                      ).arg(cb_label_offset));
 }
 
 PacketFormatGroupBox::~PacketFormatGroupBox()
@@ -99,7 +105,7 @@ bool PacketFormatGroupBox::allExpandedEnabled()
 
 uint PacketFormatGroupBox::getHexdumpOptions()
 {
-    return pf_ui_->includeDataSourcesCheckBox->isChecked() ? HEXDUMP_SOURCE_MULTI : HEXDUMP_SOURCE_PRIMARY;
+    return (pf_ui_->includeDataSourcesCheckBox->isChecked() ? HEXDUMP_SOURCE_MULTI : HEXDUMP_SOURCE_PRIMARY) | (pf_ui_->timestampCheckBox->isChecked() ? HEXDUMP_TIMESTAMP : HEXDUMP_TIMESTAMP_NONE);
 }
 
 void PacketFormatGroupBox::on_summaryCheckBox_toggled(bool checked)
@@ -119,6 +125,7 @@ void PacketFormatGroupBox::on_detailsCheckBox_toggled(bool checked)
 void PacketFormatGroupBox::on_bytesCheckBox_toggled(bool checked)
 {
     pf_ui_->includeDataSourcesCheckBox->setEnabled(checked);
+    pf_ui_->timestampCheckBox->setEnabled(checked);
     emit formatChanged();
 }
 
@@ -143,6 +150,11 @@ void PacketFormatGroupBox::on_allExpandedButton_toggled(bool checked)
 }
 
 void PacketFormatGroupBox::on_includeDataSourcesCheckBox_toggled(bool)
+{
+    emit formatChanged();
+}
+
+void PacketFormatGroupBox::on_timestampCheckBox_toggled(bool)
 {
     emit formatChanged();
 }

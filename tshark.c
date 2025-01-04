@@ -183,6 +183,7 @@ static char* delimiter_char = " ";
 static bool dissect_color;
 static unsigned hexdump_source_option = HEXDUMP_SOURCE_MULTI; /* Default - Enable legacy multi-source mode */
 static unsigned hexdump_ascii_option = HEXDUMP_ASCII_INCLUDE; /* Default - Enable legacy undelimited ASCII dump */
+static unsigned hexdump_timestamp_option = HEXDUMP_TIMESTAMP_NONE; /* Default - no timestamp preamble */
 
 static print_format_e print_format = PR_FMT_TEXT;
 static print_stream_t *print_stream;
@@ -533,6 +534,8 @@ print_usage(FILE *output)
     fprintf(output, "     ascii                 include ASCII dump text (-x default)\n");
     fprintf(output, "     delimit               delimit ASCII dump text with '|' characters\n");
     fprintf(output, "     noascii               exclude ASCII dump text\n");
+    fprintf(output, "     time                  include frame timestamp preamble\n");
+    fprintf(output, "     notime                do not include frame timestamp preamble (-x default)\n");
     fprintf(output, "     help                  display help for --hexdump and exit\n");
     fprintf(output, "  -T pdml|ps|psml|json|jsonraw|ek|tabs|text|fields|?\n");
     fprintf(output, "                           format of text output (def: text)\n");
@@ -657,6 +660,9 @@ hexdump_option_help(FILE *output)
     fprintf(output, "  delimit                  add hexdump, delimit ASCII dump text with '|' characters\n");
     fprintf(output, "  noascii                  add hexdump, exclude ASCII dump text\n");
     fprintf(output, "\n");
+    fprintf(output, "Timestamp options:\n");
+    fprintf(output, "  time                     add hexdump, include frame timestamp preamble (uses the format from -t)\n");
+    fprintf(output, "  notime                   add hexdump, do not include frame timestamp preamble (-x default)\n");
     fprintf(output, "Miscellaneous:\n");
     fprintf(output, "  help                     display this help and exit\n");
     fprintf(output, "\n");
@@ -1889,6 +1895,10 @@ main(int argc, char *argv[])
                     hexdump_ascii_option = HEXDUMP_ASCII_DELIMIT;
                 else if (strcmp(ws_optarg, "noascii") == 0)
                     hexdump_ascii_option = HEXDUMP_ASCII_EXCLUDE;
+                else if (strcmp(ws_optarg, "time") == 0)
+                    hexdump_timestamp_option = HEXDUMP_TIMESTAMP;
+                else if (strcmp(ws_optarg, "notime") == 0)
+                    hexdump_timestamp_option = HEXDUMP_TIMESTAMP_NONE;
                 else if (strcmp("help", ws_optarg) == 0) {
                     hexdump_option_help(stdout);
                     exit_status = EXIT_SUCCESS;
@@ -4825,7 +4835,7 @@ print_packet(capture_file *cf, epan_dissect_t *edt)
             if (!print_line(print_stream, 0, ""))
                 return false;
         }
-        if (!print_hex_data(print_stream, edt, hexdump_source_option | hexdump_ascii_option))
+        if (!print_hex_data(print_stream, edt, hexdump_source_option | hexdump_ascii_option | hexdump_timestamp_option))
             return false;
         if (!print_line(print_stream, 0, separator))
             return false;

@@ -133,6 +133,10 @@ The following features are either new or have been significantly updated since v
   offsets with a `0x` or `0X` prefix (as produced by `tcpdump -x`, among others).
   wsbuglink:16193[]
 
+* Frame timestamps can be added as preamble to hex dumps in Wireshark from
+  the "Print" and "Export Packet Dissection" dialogs, and in TShark with
+  the `--hexdump time` option. wsbuglink:17132[]
+
 // === Removed Features and Support
 
 

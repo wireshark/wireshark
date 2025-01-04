@@ -986,14 +986,14 @@ after printing the summary and/or details, if either are also being displayed.
 +
 --
 Cause *TShark* to print a hex and ASCII dump of the packet data
-with the ability to select which data sources to dump and how to
-format or exclude the ASCII dump text.
+with the ability to select which data sources to dump, how to
+format or exclude the ASCII dump text, and whether to print the
+frame timestamp as preamble.
 
-This option can be used multiple times where the data source *<hexoption>*
-is *all* or *frames* and the ASCII dump text *<hexoption>* is *ascii*,
-*delimit*, *noascii*.
-
-  Example:  tshark ... --hexdump frames --hexdump delimit ...
+This option (and *-x*) can occur multiple times on the command line,
+and the hex dump will only be printed once. In the case of conflicting
+options, the last options given will be used. The possible *<hexoption>*
+values are:
 
 *all*::
 
@@ -1004,7 +1004,7 @@ The *-x* option displays all data sources by default.
 *frames*::
 
 Enable hexdump, generate hexdump blocks only for the frame data. Use
-this option to exclude, from hexdump output, any hexdump blocks for
+this option to exclude from hexdump output any hexdump blocks for
 secondary data sources such as 'Bitstring tvb', 'Reassembled TCP',
 'De-chunked entity body', etc.
 
@@ -1024,6 +1024,15 @@ and start of the ASCII dump text.
 
 Enable hexdump without printing any ASCII dump text.
 
+*time*::
+
+Enable hexdump and print each frame timestamp as preamble. The *-t*
+option can be used to change the timestamp format.
+
+*notime*::
+
+Enable hexdump without print each frame timestamp as preamble.
+
 *help*::
 
 Display *--hexdump* specific help then exit.
@@ -1036,20 +1045,26 @@ directly do a "Save as" nor export packets from.
 Examples:
 
 Generate hexdump output, with only the frame data source, with delimited ASCII
-dump text, with each frame hex block preceded by a human readable timestamp that
-is directly usable by the *text2pcap* utility:
+dump text, and with each frame hex block preceded by a human readable timestamp
+in the local time zone that is directly usable by the *text2pcap* utility:
 
-  tshark ... --hexdump frames --hexdump delimit \
-      -P -t ad -o gui.column.format:"Time","%t" \
-      | text2pcap -n -t '%F %T.%f' - MYNEWPCAPNG
+  tshark ... --hexdump frames --hexdump delimit --hexdump time -t ad \
+      | text2pcap -t 'ISO' - MYNEWPCAPNG
 
-Generate hexdump output, with only the frame data source, with no ASCII dump text,
-with each frame hex block preceded by an epoch timestamp that is directly
-usable by the *text2pcap* utility:
+Generate hexdump output, with only the frame data source, with the default
+ASCII dump text with no delimiter, and with each frame hex block preceded by a
+human readable timestamp in UTC that is directly usable by the *text2pcap*
+utility with the *-a* option:
 
-  tshark ... --hexdump frames --hexdump noascii \
-      -P -t e -o gui.column.format:"Time","%t" \
-      | text2pcap -n -t %s.%f - MYNEWPCAPNG
+  tshark ... --hexdump frames --hexdump time -t ud \
+      | text2pcap -a -t 'ISO' - MYNEWPCAPNG
+
+Generate hexdump output, with only the frame data source, with no ASCII dump
+text, and with each frame hex block preceded by an epoch timestamp that is
+directly usable by the *text2pcap* utility:
+
+  tshark ... --hexdump frames --hexdump noascii --hexdump time -t e \
+      | text2pcap -t %s.%f - MYNEWPCAPNG
 --
 
 -X <eXtension options>::

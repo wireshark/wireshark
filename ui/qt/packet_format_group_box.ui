@@ -130,6 +130,22 @@
      </property>
     </widget>
    </item>
+   <item>
+    <widget class="QCheckBox" name="timestampCheckBox">
+     <property name="text">
+      <string>Include timestamp preamble</string>
+     </property>
+     <property name="toolTip">
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Include each frame timestamp immediately before its hex dump, using the current time display format.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     </property>
+     <property name="checked">
+      <bool>false</bool>
+     </property>
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+    </widget>
+   </item>
   </layout>
  </widget>
  <connections/>

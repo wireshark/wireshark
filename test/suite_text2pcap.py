@@ -113,10 +113,8 @@ def check_text2pcap(cmd_tshark, cmd_text2pcap, cmd_capinfos, capture_file, resul
 
         assert file_type in file_type_to_testout, 'Invalid file type'
 
-        # text2pcap_generate_input()
-        # $TSHARK -o 'gui.column.format:"Time","%t"' -tad -P -x -r $1 > testin.txt
         testin_file = result_file(testin_txt)
-        tshark_cmd = '"{cmd}" -r "{cf}" -o gui.column.format:"Time","%t" -t ad -P --hexdump frames > "{of}"'.format(
+        tshark_cmd = '"{cmd}" -r "{cf}" -t ad --hexdump frames --hexdump time > "{of}"'.format(
             cmd = cmd_tshark,
             cf = cap_file,
             of = testin_file,
@@ -129,8 +127,7 @@ def check_text2pcap(cmd_tshark, cmd_text2pcap, cmd_capinfos, capture_file, resul
         filetype_flag = pre_cap_info['filetype'].split()[0]
         # We want the -a flag, because the tshark -x format is a hex+ASCII
         # format where the ASCII can be confused for hex bytes without it.
-        # XXX: -t ISO also works now too for this output
-        text2pcap_cmd = '"{cmd}" -a -F {filetype} -l {linktype} -t "%Y-%m-%d %H:%M:%S.%f" "{in_f}" "{out_f}"'.format(
+        text2pcap_cmd = '"{cmd}" -a -F {filetype} -l {linktype} -t "ISO" "{in_f}" "{out_f}"'.format(
             cmd = cmd_text2pcap,
             filetype = filetype_flag,
             linktype = encap_to_link_type[pre_cap_info['encapsulation']],

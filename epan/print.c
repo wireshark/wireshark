@@ -1935,7 +1935,12 @@ print_hex_data(print_stream_t *stream, epan_dissect_t *edt, unsigned hexdump_opt
     const unsigned char *cp;
     unsigned      length;
     struct data_source *src;
+    char          timebuf[NSTIME_ISO8601_BUFSIZE];
 
+    if ((HEXDUMP_TIMESTAMP_OPTION(hexdump_options) == HEXDUMP_TIMESTAMP)) {
+        set_fd_time(edt->session, edt->pi.fd, timebuf);
+        print_line(stream, 0, timebuf);
+    }
     /*
      * Set "multiple_sources" iff this frame has more than one
      * data source; if it does, we need to print the name of

@@ -93,6 +93,11 @@ WS_DLL_PUBLIC bool proto_tree_print(print_dissections_e print_dissections,
 #define HEXDUMP_SOURCE_MULTI          (0x0000U) /* create hexdumps for all data sources assigned to a frame (legacy tshark behaviour) */
 #define HEXDUMP_SOURCE_PRIMARY        (0x0004U) /* create hexdumps for only the frame data */
 
+#define HEXDUMP_TIMESTAMP_MASK        (0x0008U)
+#define HEXDUMP_TIMESTAMP_OPTION(option) ((option) & HEXDUMP_TIMESTAMP_MASK)
+#define HEXDUMP_TIMESTAMP_NONE        (0x0000U) /* create hexdumps for all data sources assigned to a frame (default behavior) */
+#define HEXDUMP_TIMESTAMP             (0x0008U) /* create hexdumps for only the frame data */
+
 WS_DLL_PUBLIC bool print_hex_data(print_stream_t *stream, epan_dissect_t *edt, unsigned hexdump_options);
 
 WS_DLL_PUBLIC void write_pdml_preamble(FILE *fh, const char* filename);

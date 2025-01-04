@@ -1264,6 +1264,10 @@ tab, which contains the frame data directly from the capture file, and not
 the other tabs, which contain secondary data sources such as decrypted,
 reassembled, or aligned data.
 
+Include timestamp preamble:::
+Export or print each packet timestamp on a line before the “Packet Bytes”
+contents, using the time format from menu:View[Time Display Format].
+
 Each packet on a new page::
 For printing and some export formats, put each packet on a separate page.
 For example, when exporting to a text file this will put a form feed character between each packet.
