@@ -1433,19 +1433,23 @@ dissect_lcp_simple_opt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
  * CHAP Algorithms
  */
 /* 0-4: Reserved */
-#define CHAP_ALG_MD5    5       /* CHAP with MD5 */
-#define CHAP_AGL_SHA1   6       /* CHAP with SHA-1 [Black] */
-/* 7-127: Unassigned */
+#define CHAP_ALG_MD5      5       /* CHAP with MD5 */
+#define CHAP_AGL_SHA1     6       /* CHAP with SHA-1 [Black] */
+#define CHAP_AGL_SHA256   7       /* CHAP with SHA-256 */
+#define CHAP_AGL_SHA3_256 8       /* CHAP with SHA3-256 */
+/* 9-127: Unassigned */
 #define CHAP_ALG_MSV1   128     /* MS-CHAP */
 #define CHAP_ALG_MSV2   129     /* MS-CHAP-2 */
 
 static const range_string chap_alg_rvals[] = {
-    {0,             4,             "Reserved"},
-    {CHAP_ALG_MD5,  CHAP_ALG_MD5,  "CHAP with MD5"},
-    {CHAP_AGL_SHA1, CHAP_AGL_SHA1, "CHAP with SHA-1"},
-    {CHAP_ALG_MSV1, CHAP_ALG_MSV1, "MS-CHAP"},
-    {CHAP_ALG_MSV2, CHAP_ALG_MSV2, "MS-CHAP-2"},
-    {0,             0,             NULL}
+    {0,                 4,                 "Reserved"},
+    {CHAP_ALG_MD5,      CHAP_ALG_MD5,      "CHAP with MD5"},
+    {CHAP_AGL_SHA1,     CHAP_AGL_SHA1,     "CHAP with SHA-1"},
+    {CHAP_AGL_SHA256,   CHAP_AGL_SHA256,   "CHAP with SHA-256"},
+    {CHAP_AGL_SHA3_256, CHAP_AGL_SHA3_256, "CHAP with SHA3-256"},
+    {CHAP_ALG_MSV1,     CHAP_ALG_MSV1,     "MS-CHAP"},
+    {CHAP_ALG_MSV2,     CHAP_ALG_MSV2,     "MS-CHAP-2"},
+    {0,                 0,                 NULL}
 };
 
 
