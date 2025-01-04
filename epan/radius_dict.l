@@ -747,6 +747,7 @@ static void setup_attrs(void *k _U_, void *v, void *p) {
 
 	if (g_hash_table_lookup_extended(state->value_strings, a->name, &key, &vs.p) ) {
 		g_hash_table_steal(state->value_strings, key);
+		g_array_sort(vs.a, value_str_value_compare);
 		a->vs = (value_string*)(void *)g_array_free(vs.a, false);
 		g_free(key);
 	}

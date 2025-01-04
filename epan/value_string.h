@@ -233,6 +233,10 @@ struct _val64_string_ext {
 #define VAL64_STRING_EXT_VS_NAME(x)        (x)->_vs_name
 
 WS_DLL_PUBLIC
+int
+value_str_value_compare(const void* a, const void* b);
+
+WS_DLL_PUBLIC
 const val64_string *
 _try_val64_to_str_ext_init(const uint64_t val, val64_string_ext *vse);
 #define VAL64_STRING_EXT_INIT(x) { _try_val64_to_str_ext_init, 0, G_N_ELEMENTS(x)-1, x, #x }

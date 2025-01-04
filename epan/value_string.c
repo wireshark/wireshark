@@ -22,6 +22,22 @@
 
 #include <wsutil/wslog.h>
 
+
+/* Sort function that can be used with dynamically created value_strings */
+int
+value_str_value_compare(const void* a, const void* b)
+{
+    const value_string* vsa = (const value_string*)a;
+    const value_string* vsb = (const value_string*)b;
+
+    if (vsa->value > vsb->value)
+        return 1;
+    if (vsa->value < vsb->value)
+        return -1;
+
+    return 0;
+}
+
 /* REGULAR VALUE STRING */
 
 /* Tries to match val against each element in the value_string array vs.

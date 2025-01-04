@@ -2486,7 +2486,7 @@ register_attrs(void *k _U_, void *v, void *p)
 
 		hfri[2].p_id = &(a->hf_alt);
 		hfri[2].hfinfo.name = wmem_strdup(wmem_epan_scope(), a->name);
-		hfri[2].hfinfo.abbrev = wmem_strdup(wmem_epan_scope(), abbrev);
+		hfri[2].hfinfo.abbrev = wmem_strdup_printf(wmem_epan_scope(), "%s_ipv6", abbrev);
 		hfri[2].hfinfo.type = FT_IPv6;
 		hfri[2].hfinfo.display = BASE_NONE;
 
