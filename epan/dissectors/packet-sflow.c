@@ -47,6 +47,7 @@
 #include <epan/unit_strings.h>
 
 #include <wsutil/array.h>
+#include <wsutil/ws_roundup.h>
 #include "packet-sflow.h"
 
 #define SFLOW_UDP_PORTS "6343"
@@ -710,10 +711,6 @@ dissect_sflow_245_sampled_header(tvbuff_t *tvb, packet_info *pinfo,
     proto_tree_add_item_ret_uint(tree, hf_sflow_245_sampled_header_length, tvb, offset, 4, ENC_BIG_ENDIAN, &header_length);
     offset += 4;
 
-    if (header_length % 4) /* XDR requires 4-byte alignment */
-        header_length += (4 - (header_length % 4));
-
-
     ti = proto_tree_add_item(tree, hf_sflow_245_header, tvb, offset, header_length, ENC_NA);
     sflow_245_header_tree = proto_item_add_subtree(ti, ett_sflow_245_sampled_header);
 
@@ -779,7 +776,8 @@ dissect_sflow_245_sampled_header(tvbuff_t *tvb, packet_info *pinfo,
     copy_address_shallow(&pinfo->src, &save_src);
     copy_address_shallow(&pinfo->dst, &save_dst);
 
-    offset += header_length;
+    /* XDR requires 4-byte alignment */
+    offset += WS_ROUNDUP_4(header_length);
     return offset;
 }
 
