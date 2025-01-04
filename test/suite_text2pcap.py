@@ -55,7 +55,7 @@ def check_capinfos_info(cmd_capinfos, cap_file):
     str_pats = {
         'filetype': 'File type',
         'encapsulation': 'File encapsulation',
-        'timeend': 'Last packet time',
+        'timeend': 'Latest packet time',
     }
     int_pats = {
         'packets': 'Number of packets',
