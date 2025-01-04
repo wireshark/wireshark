@@ -806,7 +806,7 @@ RAT-Type TYPE_PREFIX
   col_append_str(actx->pinfo->cinfo, COL_INFO, "SIB10 ");
 
 #.FN_HDR SIB11-r16
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "SIB11");
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "SIB11 ");
 
 #.FN_HDR SIB12-r16
   col_append_str(actx->pinfo->cinfo, COL_INFO, "SIB12 ");
