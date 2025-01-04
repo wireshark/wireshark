@@ -232,6 +232,8 @@ private:
 
     void captureFileReadStarted(const QString &action);
 
+    void addMenusandSubmenus(QAction *action, QMenu *cur_menu);
+    void removeMenusandSubmenus(QAction *action, QMenu *cur_menu);
     void addMenuActions(QList<QAction *> &actions, int menu_group);
     void removeMenuActions(QList<QAction *> &actions, int menu_group);
     void goToConversationFrame(bool go_next, bool start_current = true);

@@ -2622,6 +2622,45 @@ void WiresharkMainWindow::setForCaptureInProgress(bool capture_in_progress, bool
     }
 }
 
+void WiresharkMainWindow::addMenusandSubmenus(QAction *action, QMenu *cur_menu)
+{
+    // Allow the creation of submenus. Mimics the behavior of
+    // ui/gtk/main_menubar.c:add_menu_item_to_main_menubar
+    // and GtkUIManager.
+    QStringList menu_path = action->text().split('/');
+
+    while (menu_path.length() > 1) {
+        QString menu_title = menu_path.takeFirst();
+        QMenu *sub_menu = cur_menu->findChild<QMenu *>(menu_title.toLower(), Qt::FindDirectChildrenOnly);
+        if (!sub_menu) {
+            QMenu *new_menu = new QMenu(menu_title, cur_menu);
+            new_menu->setObjectName(menu_title.toLower());
+            if (cur_menu == main_ui_->menuStatistics) {
+                // We currently put them all in the same place.
+                cur_menu->insertMenu(
+                                main_ui_->actionStatistics_REGISTER_STAT_GROUP_UNSORTED,
+                                new_menu);
+            } else {
+                cur_menu->addMenu(new_menu);
+            }
+            cur_menu = new_menu;
+        } else {
+            cur_menu = sub_menu;
+        }
+    }
+
+    action->setText(menu_path.last());
+
+    if (cur_menu == main_ui_->menuStatistics) {
+        // We currently put them all in the same place.
+        cur_menu->insertAction(
+                        main_ui_->actionStatistics_REGISTER_STAT_GROUP_UNSORTED,
+                        action);
+    } else {
+        cur_menu->addAction(action);
+    }
+}
+
 void WiresharkMainWindow::addMenuActions(QList<QAction *> &actions, int menu_group)
 {
     foreach(QAction *action, actions) {
@@ -2635,9 +2674,7 @@ void WiresharkMainWindow::addMenuActions(QList<QAction *> &actions, int menu_gro
             // go before the separator in the group of non protocol-specific
             // actions or after the separator with the protocol-specific
             // actions. We currently put them all in the same place.
-            main_ui_->menuStatistics->insertAction(
-                            main_ui_->actionStatistics_REGISTER_STAT_GROUP_UNSORTED,
-                            action);
+            addMenusandSubmenus(action, main_ui_->menuStatistics);
             break;
         case REGISTER_STAT_GROUP_RESPONSE_TIME:
             main_ui_->menuServiceResponseTime->addAction(action);
@@ -2646,7 +2683,7 @@ void WiresharkMainWindow::addMenuActions(QList<QAction *> &actions, int menu_gro
             main_ui_->menuRSerPool->addAction(action);
             break;
         case REGISTER_TELEPHONY_GROUP_UNSORTED:
-            main_ui_->menuTelephony->addAction(action);
+            addMenusandSubmenus(action, main_ui_->menuTelephony);
             break;
         case REGISTER_TELEPHONY_GROUP_ANSI:
             main_ui_->menuANSI->addAction(action);
@@ -2667,27 +2704,8 @@ void WiresharkMainWindow::addMenuActions(QList<QAction *> &actions, int menu_gro
             main_ui_->menuTelephonySCTP->addAction(action);
             break;
         case REGISTER_TOOLS_GROUP_UNSORTED:
-        {
-            // Allow the creation of submenus. Mimics the behavior of
-            // ui/gtk/main_menubar.c:add_menu_item_to_main_menubar
-            // and GtkUIManager.
-            //
-            // For now we limit the insanity to the "Tools" menu.
-            QStringList menu_path = action->text().split('/');
-            QMenu *cur_menu = main_ui_->menuTools;
-            while (menu_path.length() > 1) {
-                QString menu_title = menu_path.takeFirst();
-                QMenu *submenu = cur_menu->findChild<QMenu *>(menu_title.toLower(), Qt::FindDirectChildrenOnly);
-                if (!submenu) {
-                    submenu = cur_menu->addMenu(menu_title);
-                    submenu->setObjectName(menu_title.toLower());
-                }
-                cur_menu = submenu;
-            }
-            action->setText(menu_path.last());
-            cur_menu->addAction(action);
+            addMenusandSubmenus(action, main_ui_->menuTools);
             break;
-        }
         default:
             // Skip log items.
             return;
@@ -2703,6 +2721,29 @@ void WiresharkMainWindow::addMenuActions(QList<QAction *> &actions, int menu_gro
         }
     }
 }
+
+void WiresharkMainWindow::removeMenusandSubmenus(QAction *action, QMenu *cur_menu)
+{
+    // Allow removal of submenus.
+    QMenu *parent_menu = cur_menu;
+    QStringList menu_path = action->text().split('/');
+
+    while (menu_path.length() > 1) {
+        QString menu_title = menu_path.takeFirst();
+        QMenu *submenu = cur_menu->findChild<QMenu *>(menu_title.toLower(), Qt::FindDirectChildrenOnly);
+        cur_menu = submenu;
+    }
+
+    cur_menu->removeAction(action);
+
+    // Remove empty submenus.
+    while (cur_menu != parent_menu) {
+        QMenu *empty_menu = (cur_menu->isEmpty() ? cur_menu : NULL);
+        cur_menu = dynamic_cast<QMenu *>(cur_menu->parent());
+        delete empty_menu;
+    }
+}
+
 void WiresharkMainWindow::removeMenuActions(QList<QAction *> &actions, int menu_group)
 {
     foreach(QAction *action, actions) {
@@ -2710,7 +2751,7 @@ void WiresharkMainWindow::removeMenuActions(QList<QAction *> &actions, int menu_
         case REGISTER_PACKET_ANALYZE_GROUP_UNSORTED:
         case REGISTER_PACKET_STAT_GROUP_UNSORTED:
         case REGISTER_STAT_GROUP_GENERIC:
-            main_ui_->menuStatistics->removeAction(action);
+            removeMenusandSubmenus(action, main_ui_->menuStatistics);
             break;
         case REGISTER_STAT_GROUP_RESPONSE_TIME:
             main_ui_->menuServiceResponseTime->removeAction(action);
@@ -2719,7 +2760,7 @@ void WiresharkMainWindow::removeMenuActions(QList<QAction *> &actions, int menu_
             main_ui_->menuRSerPool->removeAction(action);
             break;
         case REGISTER_TELEPHONY_GROUP_UNSORTED:
-            main_ui_->menuTelephony->removeAction(action);
+            removeMenusandSubmenus(action, main_ui_->menuTelephony);
             break;
         case REGISTER_TELEPHONY_GROUP_ANSI:
             main_ui_->menuANSI->removeAction(action);
@@ -2737,25 +2778,8 @@ void WiresharkMainWindow::removeMenuActions(QList<QAction *> &actions, int menu_
             main_ui_->menuTelephonySCTP->removeAction(action);
             break;
         case REGISTER_TOOLS_GROUP_UNSORTED:
-        {
-            // Allow removal of submenus.
-            // For now we limit the insanity to the "Tools" menu.
-            QStringList menu_path = action->text().split('/');
-            QMenu *cur_menu = main_ui_->menuTools;
-            while (menu_path.length() > 1) {
-                QString menu_title = menu_path.takeFirst();
-                QMenu *submenu = cur_menu->findChild<QMenu *>(menu_title.toLower(), Qt::FindDirectChildrenOnly);
-                cur_menu = submenu;
-            }
-            cur_menu->removeAction(action);
-            // Remove empty submenus.
-            while (cur_menu != main_ui_->menuTools) {
-                QMenu *empty_menu = (cur_menu->isEmpty() ? cur_menu : NULL);
-                cur_menu = dynamic_cast<QMenu *>(cur_menu->parent());
-                delete empty_menu;
-            }
+            removeMenusandSubmenus(action, main_ui_->menuTools);
             break;
-        }
         default:
 //            qDebug() << "FIX: Remove" << action->text() << "from the menu";
             break;
