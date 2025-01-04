@@ -1441,7 +1441,7 @@ dissect_lcp_simple_opt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
 #define CHAP_ALG_MSV1   128     /* MS-CHAP */
 #define CHAP_ALG_MSV2   129     /* MS-CHAP-2 */
 
-static const range_string chap_alg_rvals[] = {
+const range_string chap_alg_rvals[] = {
     {0,                 4,                 "Reserved"},
     {CHAP_ALG_MD5,      CHAP_ALG_MD5,      "CHAP with MD5"},
     {CHAP_AGL_SHA1,     CHAP_AGL_SHA1,     "CHAP with SHA-1"},

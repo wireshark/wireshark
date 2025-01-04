@@ -24,5 +24,9 @@ extern value_string_ext ppp_vals_ext;
  * Used by CHDLC dissector as well.
  */
 extern const enum_val_t fcs_options[];
+/*
+ * Used by the iSCSI dissector as well.
+ */
+extern const range_string chap_alg_rvals[];
 
 #endif
