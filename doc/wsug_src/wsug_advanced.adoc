@@ -629,7 +629,7 @@ Set when the current sequence number is greater than the next expected sequence 
 Checks for a retransmission based on analysis data in the reverse
 direction. Set when all of the following are true:
 
-* The SYN or FIN flag is set.
+* The SYN and FIN flags are not set.
 * This is not a keepalive packet.
 * The segment length is greater than zero.
 * Data for this flow has been acknowledged. That is, the last-seen acknowledgment number has been set.
