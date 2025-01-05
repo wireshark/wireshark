@@ -1238,6 +1238,9 @@ Each of the settings below correspond to the packet list, packet detail, and pac
 Packet summary line::
 Export or print each summary line as shown in the “Packet List” pane.
 
+Include column headings:::
+Include the column headers before each packet summary line.
+
 Packet details::
 Export or print the contents of the “Packet Details” tree.
 
@@ -1245,13 +1248,21 @@ All collapsed:::
 Export or print as if the “Packet Details” tree is in the “all collapsed” state.
 
 As displayed:::
-Export or print as if the “Packet Details” tree is in the “as displayed” state.
+Export or print each packet as if its “Packet Details” tree were expanded in
+the same way as the most recently selected packet.
 
 All expanded:::
 Export or print as if the “Packet Details” tree is in the “all expanded” state.
 
 Packet Bytes::
 Export or print the contents of the “Packet Bytes” pane.
+
+Include secondary data sources:::
+Export or print the contents of all tabs of “Packet Bytes” pane, each
+preceded by the tab label. When unchecked, export or print only the first
+tab, which contains the frame data directly from the capture file, and not
+the other tabs, which contain secondary data sources such as decrypted,
+reassembled, or aligned data.
 
 Each packet on a new page::
 For printing and some export formats, put each packet on a separate page.
