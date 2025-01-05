@@ -51,11 +51,11 @@ SUBDIRS = \
 	winreg		\
 	winspool	\
 	witness		\
+	wkssvc          \
 	wzcsvc
 
 DONT_BUILD_SUBDIRS = \
-	srvsvc	\
-	wkssvc
+	srvsvc
 
 all: $(SUBDIRS)
 
