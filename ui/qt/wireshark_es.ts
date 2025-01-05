@@ -5123,8 +5123,9 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
         <translation>Los campos soportados son data, dir, time, seqno</translation>
     </message>
     <message>
-        <source>Missing capturing group data (use (?</source>
-        <translation>Falta captura de datos de grupo (use (?</translation>
+        <source>Missing capturing group data (use (?&lt;data&gt;(...)) )</source>
+        <oldsource>Missing capturing group data (use (?</oldsource>
+        <translation type="unfinished">Falta captura de datos de grupo (use (?</translation>
     </message>
     <message>
         <source>Import From Hex Dump</source>

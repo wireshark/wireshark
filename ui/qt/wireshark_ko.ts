@@ -5147,8 +5147,9 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>지원되는 필드는 data, dir, time, seqno</translation>
     </message>
     <message>
-        <source>Missing capturing group data (use (?</source>
-        <translation>그룹 데이터를 캡처하는 표현식 없음(사용: (?</translation>
+        <source>Missing capturing group data (use (?&lt;data&gt;(...)) )</source>
+        <oldsource>Missing capturing group data (use (?</oldsource>
+        <translation type="unfinished">그룹 데이터를 캡처하는 표현식 없음(사용: (?</translation>
     </message>
     <message>
         <source>Import From Hex Dump</source>
