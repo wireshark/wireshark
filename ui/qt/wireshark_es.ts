@@ -4915,10 +4915,6 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
         <translation>Expresión regular de formato de paquete</translation>
     </message>
     <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Perl compatible regular expression capturing a single packet in the file with named groups identifieing data to import. Anchors ^ and $ also match before/after newlines &lt;/p&gt;&lt;p&gt;Required is only a data group, also supported are time, dir and seqno.&lt;/p&gt;&lt;p&gt;Regex flags: DUPNAMES, MULTILINE and NOEMPTY&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>This is regexHintLabel, it will be set to default_regex_hint</source>
         <translation>This is regexHintLabel, it will be set to default_regex_hint</translation>
     </message>
@@ -4997,6 +4993,18 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     <message>
         <source>None</source>
         <translation>Ninguno</translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Whether to treat multiple byte groups as being in little-endian byte order, instead of the default, network (big-endian) order.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Little-endian:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Perl compatible regular expression capturing a single packet in the file with named groups identifying data to import. Anchors ^ and $ also match before/after newlines &lt;/p&gt;&lt;p&gt;The only required group is data, but time, dir and seqno are also supported.&lt;/p&gt;&lt;p&gt;Regex flags: DUPNAMES, MULTILINE and NOEMPTY&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>&lt;small&gt;&lt;i&gt;recommended regex:&lt;/small&gt;&lt;/i&gt;</source>
@@ -5167,8 +5175,9 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
         <translation>Los campos soportados son data, dir, time, seqno</translation>
     </message>
     <message>
-        <source>Missing capturing group data (use (?</source>
-        <translation>Falta captura de datos de grupo (use (?</translation>
+        <source>Missing capturing group data (use (?&lt;data&gt;(...)) )</source>
+        <oldsource>Missing capturing group data (use (?</oldsource>
+        <translation type="unfinished">Falta captura de datos de grupo (use (?</translation>
     </message>
     <message>
         <source>Import From Hex Dump</source>
@@ -14609,24 +14618,27 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>UTC Date and Time of Day (1970-01-01 01:02:03.123456)</source>
-        <translation>Fecha y hora de día UTC (1970-01-01 01:02:03.123456)</translation>
+        <source>UTC Date and Time of Day (1970-01-01 01:02:03.123456Z)</source>
+        <oldsource>UTC Date and Time of Day (1970-01-01 01:02:03.123456)</oldsource>
+        <translation type="unfinished">Fecha y hora de día UTC (1970-01-01 01:02:03.123456)</translation>
     </message>
     <message>
         <source>Show packet times as the UTC date and time of day.</source>
         <translation>Muestra la fecha de los paquetes como la fecha UTC y la hora del día.</translation>
     </message>
     <message>
-        <source>UTC Year, Day of Year, and Time of Day (1970/001 01:02:03.123456)</source>
-        <translation>Año, día de año, y hora de día UTC (1970/001 01:02:03.123456)</translation>
+        <source>UTC Year, Day of Year, and Time of Day (1970/001 01:02:03.123456Z)</source>
+        <oldsource>UTC Year, Day of Year, and Time of Day (1970/001 01:02:03.123456)</oldsource>
+        <translation type="unfinished">Año, día de año, y hora de día UTC (1970/001 01:02:03.123456)</translation>
     </message>
     <message>
         <source>Show packet times as the UTC year, day of the year and time of day.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>UTC Time of Day (01:02:03.123456)</source>
-        <translation>Hora de día UTC (01:02:03.123456)</translation>
+        <source>UTC Time of Day (01:02:03.123456Z)</source>
+        <oldsource>UTC Time of Day (01:02:03.123456)</oldsource>
+        <translation type="unfinished">Hora de día UTC (01:02:03.123456)</translation>
     </message>
     <message>
         <source>Show packet times as the UTC time of day.</source>

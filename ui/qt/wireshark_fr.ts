@@ -4957,7 +4957,7 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Perl compatible regular expression capturing a single packet in the file with named groups identifieing data to import. Anchors ^ and $ also match before/after newlines &lt;/p&gt;&lt;p&gt;Required is only a data group, also supported are time, dir and seqno.&lt;/p&gt;&lt;p&gt;Regex flags: DUPNAMES, MULTILINE and NOEMPTY&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Expression régulière compatible Perl capturant un seul paquet dans le fichier avec des groupes nommés identifiant les données à importer. Les ancres ^ et $ correspondent également avant/après les retours à la ligne &lt;/p&gt;&lt;p&gt;Required est uniquement un groupe de données, également pris en charge sont time, dir et seqno.&lt;/p&gt;&lt;p&gt;Flags Regex : DUPNAMES, MULTILINE et NOEMPTY&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Expression régulière compatible Perl capturant un seul paquet dans le fichier avec des groupes nommés identifiant les données à importer. Les ancres ^ et $ correspondent également avant/après les retours à la ligne &lt;/p&gt;&lt;p&gt;Required est uniquement un groupe de données, également pris en charge sont time, dir et seqno.&lt;/p&gt;&lt;p&gt;Flags Regex : DUPNAMES, MULTILINE et NOEMPTY&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>This is regexHintLabel, it will be set to default_regex_hint</source>
@@ -5038,6 +5038,18 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
     <message>
         <source>None</source>
         <translation>Aucun</translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Whether to treat multiple byte groups as being in little-endian byte order, instead of the default, network (big-endian) order.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Little-endian:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Perl compatible regular expression capturing a single packet in the file with named groups identifying data to import. Anchors ^ and $ also match before/after newlines &lt;/p&gt;&lt;p&gt;The only required group is data, but time, dir and seqno are also supported.&lt;/p&gt;&lt;p&gt;Regex flags: DUPNAMES, MULTILINE and NOEMPTY&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>&lt;small&gt;&lt;i&gt;recommended regex:&lt;/small&gt;&lt;/i&gt;</source>
@@ -5208,8 +5220,9 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
         <translation>Les champs pris en charge sont data, dir, time, seqno</translation>
     </message>
     <message>
-        <source>Missing capturing group data (use (?</source>
-        <translation>Données de groupe de capture manquantes (utiliser (?</translation>
+        <source>Missing capturing group data (use (?&lt;data&gt;(...)) )</source>
+        <oldsource>Missing capturing group data (use (?</oldsource>
+        <translation type="unfinished">Données de groupe de capture manquantes (utiliser (?</translation>
     </message>
     <message>
         <source>Import From Hex Dump</source>
@@ -14748,24 +14761,27 @@ a:hover {
         <translation>Afficher les temps paquets en secondes depuis le précédent paquet affiché.</translation>
     </message>
     <message>
-        <source>UTC Date and Time of Day (1970-01-01 01:02:03.123456)</source>
-        <translation>Date et Heure du jour UTC (1970-01-01 01:02:03.123456)</translation>
+        <source>UTC Date and Time of Day (1970-01-01 01:02:03.123456Z)</source>
+        <oldsource>UTC Date and Time of Day (1970-01-01 01:02:03.123456)</oldsource>
+        <translation type="unfinished">Date et Heure du jour UTC (1970-01-01 01:02:03.123456)</translation>
     </message>
     <message>
         <source>Show packet times as the UTC date and time of day.</source>
         <translation>Voir les paquets avec la date et l&apos;heure du jour UTC.</translation>
     </message>
     <message>
-        <source>UTC Year, Day of Year, and Time of Day (1970/001 01:02:03.123456)</source>
-        <translation>Année UTC, Jour de l&apos;Année, et Heure du Jour (1970/001 01:02:03.123456)</translation>
+        <source>UTC Year, Day of Year, and Time of Day (1970/001 01:02:03.123456Z)</source>
+        <oldsource>UTC Year, Day of Year, and Time of Day (1970/001 01:02:03.123456)</oldsource>
+        <translation type="unfinished">Année UTC, Jour de l&apos;Année, et Heure du Jour (1970/001 01:02:03.123456)</translation>
     </message>
     <message>
         <source>Show packet times as the UTC year, day of the year and time of day.</source>
         <translation>Afficher les temps paquets avec l&apos;Année UTC, jour de l&apos;année et heure du jour.</translation>
     </message>
     <message>
-        <source>UTC Time of Day (01:02:03.123456)</source>
-        <translation>Heure du Jour UTC (01:02:03.123456)</translation>
+        <source>UTC Time of Day (01:02:03.123456Z)</source>
+        <oldsource>UTC Time of Day (01:02:03.123456)</oldsource>
+        <translation type="unfinished">Heure du Jour UTC (01:02:03.123456)</translation>
     </message>
     <message>
         <source>Show packet times as the UTC time of day.</source>

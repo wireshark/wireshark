@@ -302,6 +302,7 @@ static ws_enum_t const all_enums[] = {
     ENUM(IP_PROTO_GRE),
     ENUM(IP_PROTO_HIP),
     ENUM(IP_PROTO_HMP),
+    ENUM(IP_PROTO_HOMA),
     ENUM(IP_PROTO_HOPOPTS),
     ENUM(IP_PROTO_IATP),
     ENUM(IP_PROTO_ICMP),

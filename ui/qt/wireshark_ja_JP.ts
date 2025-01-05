@@ -4939,7 +4939,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Perl compatible regular expression capturing a single packet in the file with named groups identifieing data to import. Anchors ^ and $ also match before/after newlines &lt;/p&gt;&lt;p&gt;Required is only a data group, also supported are time, dir and seqno.&lt;/p&gt;&lt;p&gt;Regex flags: DUPNAMES, MULTILINE and NOEMPTY&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;インポートするデータを識別する名前付きグループとともにファイルにある１つのパケットをキャプチャするPerl互換正規表現 アンカー、 ^ および $ 記号も新規の行の前後に合致します。 &lt;/p&gt;&lt;p&gt;必須はデータグループのみ、またtime,dirおよびseqnoもサポートされます。&lt;/p&gt;&lt;p&gt;Regex フラグ: DUPNAMES, MULTILINE および NOEMPTY&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;インポートするデータを識別する名前付きグループとともにファイルにある１つのパケットをキャプチャするPerl互換正規表現 アンカー、 ^ および $ 記号も新規の行の前後に合致します。 &lt;/p&gt;&lt;p&gt;必須はデータグループのみ、またtime,dirおよびseqnoもサポートされます。&lt;/p&gt;&lt;p&gt;Regex フラグ: DUPNAMES, MULTILINE および NOEMPTY&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>This is regexHintLabel, it will be set to default_regex_hint</source>
@@ -5020,6 +5020,18 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>None</source>
         <translation>なし</translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Whether to treat multiple byte groups as being in little-endian byte order, instead of the default, network (big-endian) order.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Little-endian:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Perl compatible regular expression capturing a single packet in the file with named groups identifying data to import. Anchors ^ and $ also match before/after newlines &lt;/p&gt;&lt;p&gt;The only required group is data, but time, dir and seqno are also supported.&lt;/p&gt;&lt;p&gt;Regex flags: DUPNAMES, MULTILINE and NOEMPTY&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>&lt;small&gt;&lt;i&gt;recommended regex:&lt;/small&gt;&lt;/i&gt;</source>
@@ -5190,8 +5202,9 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>サポートされているフィールドは data, dir, time, seqno です</translation>
     </message>
     <message>
-        <source>Missing capturing group data (use (?</source>
-        <translation>キャプチャグループデータが不明（使用中？）</translation>
+        <source>Missing capturing group data (use (?&lt;data&gt;(...)) )</source>
+        <oldsource>Missing capturing group data (use (?</oldsource>
+        <translation type="unfinished">キャプチャグループデータが不明（使用中？）</translation>
     </message>
     <message>
         <source>Import From Hex Dump</source>
@@ -14717,24 +14730,27 @@ a:hover {
         <translation>パケット時間を前に表示されたパケットからの秒数で表示します</translation>
     </message>
     <message>
-        <source>UTC Date and Time of Day (1970-01-01 01:02:03.123456)</source>
-        <translation>UTC日時 (1973-06-14 01:02:03.123456)</translation>
+        <source>UTC Date and Time of Day (1970-01-01 01:02:03.123456Z)</source>
+        <oldsource>UTC Date and Time of Day (1970-01-01 01:02:03.123456)</oldsource>
+        <translation type="unfinished">UTC日時 (1973-06-14 01:02:03.123456)</translation>
     </message>
     <message>
         <source>Show packet times as the UTC date and time of day.</source>
         <translation>パケット時間をUTC日付および時刻で表示します</translation>
     </message>
     <message>
-        <source>UTC Year, Day of Year, and Time of Day (1970/001 01:02:03.123456)</source>
-        <translation>UTC年、通年日、時刻 (1970/001 01:02:03.123456)</translation>
+        <source>UTC Year, Day of Year, and Time of Day (1970/001 01:02:03.123456Z)</source>
+        <oldsource>UTC Year, Day of Year, and Time of Day (1970/001 01:02:03.123456)</oldsource>
+        <translation type="unfinished">UTC年、通年日、時刻 (1970/001 01:02:03.123456)</translation>
     </message>
     <message>
         <source>Show packet times as the UTC year, day of the year and time of day.</source>
         <translation>パケット時間をUTC年、通年日、時刻で表示します</translation>
     </message>
     <message>
-        <source>UTC Time of Day (01:02:03.123456)</source>
-        <translation>UTC時刻 (01:02:03.123456)</translation>
+        <source>UTC Time of Day (01:02:03.123456Z)</source>
+        <oldsource>UTC Time of Day (01:02:03.123456)</oldsource>
+        <translation type="unfinished">UTC時刻 (01:02:03.123456)</translation>
     </message>
     <message>
         <source>Show packet times as the UTC time of day.</source>

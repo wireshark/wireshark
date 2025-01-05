@@ -4955,7 +4955,7 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Perl compatible regular expression capturing a single packet in the file with named groups identifieing data to import. Anchors ^ and $ also match before/after newlines &lt;/p&gt;&lt;p&gt;Required is only a data group, also supported are time, dir and seqno.&lt;/p&gt;&lt;p&gt;Regex flags: DUPNAMES, MULTILINE and NOEMPTY&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Perl-kompatibelt reguljärt uttryck för att fånga ett enskilt paket i filen med namngivna grupper som identifierar data att importera. Ankaren ^ och $ matchar även före/efter nyrader&lt;/p&gt;&lt;p&gt;Datagruppen är det enda nödvändiga, stödjer även tid, katalog och sekvensnummer.&lt;/p&gt;&lt;p&gt;Flaggor för reguljäruttryck: DUPNAMES, MULTILINE och NOEMPTY&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Perl-kompatibelt reguljärt uttryck för att fånga ett enskilt paket i filen med namngivna grupper som identifierar data att importera. Ankaren ^ och $ matchar även före/efter nyrader&lt;/p&gt;&lt;p&gt;Datagruppen är det enda nödvändiga, stödjer även tid, katalog och sekvensnummer.&lt;/p&gt;&lt;p&gt;Flaggor för reguljäruttryck: DUPNAMES, MULTILINE och NOEMPTY&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>This is regexHintLabel, it will be set to default_regex_hint</source>
@@ -5036,6 +5036,18 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     <message>
         <source>None</source>
         <translation>Ingen</translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Whether to treat multiple byte groups as being in little-endian byte order, instead of the default, network (big-endian) order.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Little-endian:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Perl compatible regular expression capturing a single packet in the file with named groups identifying data to import. Anchors ^ and $ also match before/after newlines &lt;/p&gt;&lt;p&gt;The only required group is data, but time, dir and seqno are also supported.&lt;/p&gt;&lt;p&gt;Regex flags: DUPNAMES, MULTILINE and NOEMPTY&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>&lt;small&gt;&lt;i&gt;recommended regex:&lt;/small&gt;&lt;/i&gt;</source>
@@ -5206,8 +5218,9 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <translation>Fält som stödjs är data, dir, time, seqno</translation>
     </message>
     <message>
-        <source>Missing capturing group data (use (?</source>
-        <translation>Data för fångstgrupp saknas (använd (?</translation>
+        <source>Missing capturing group data (use (?&lt;data&gt;(...)) )</source>
+        <oldsource>Missing capturing group data (use (?</oldsource>
+        <translation type="unfinished">Data för fångstgrupp saknas (använd (?</translation>
     </message>
     <message>
         <source>Import From Hex Dump</source>
@@ -14748,24 +14761,27 @@ a:hover {
         <translation>Visa pakettider som antalet sekunder sedan föregående visade paket.</translation>
     </message>
     <message>
-        <source>UTC Date and Time of Day (1970-01-01 01:02:03.123456)</source>
-        <translation>UTC-datum och tid på dagen (1970-01-01 01:02:03.123456)</translation>
+        <source>UTC Date and Time of Day (1970-01-01 01:02:03.123456Z)</source>
+        <oldsource>UTC Date and Time of Day (1970-01-01 01:02:03.123456)</oldsource>
+        <translation type="unfinished">UTC-datum och tid på dagen (1970-01-01 01:02:03.123456)</translation>
     </message>
     <message>
         <source>Show packet times as the UTC date and time of day.</source>
         <translation>Visa pakettider som UTC-datumet och tiden på dagen.</translation>
     </message>
     <message>
-        <source>UTC Year, Day of Year, and Time of Day (1970/001 01:02:03.123456)</source>
-        <translation>UTC-år, dag på året, och tid på dagen (1970/001 01:02:03.123456)</translation>
+        <source>UTC Year, Day of Year, and Time of Day (1970/001 01:02:03.123456Z)</source>
+        <oldsource>UTC Year, Day of Year, and Time of Day (1970/001 01:02:03.123456)</oldsource>
+        <translation type="unfinished">UTC-år, dag på året, och tid på dagen (1970/001 01:02:03.123456)</translation>
     </message>
     <message>
         <source>Show packet times as the UTC year, day of the year and time of day.</source>
         <translation>Visa pakettider som UTC-år, dag på året och tid på dagen.</translation>
     </message>
     <message>
-        <source>UTC Time of Day (01:02:03.123456)</source>
-        <translation>UTC-tid på dagen (01:02:03.123456)</translation>
+        <source>UTC Time of Day (01:02:03.123456Z)</source>
+        <oldsource>UTC Time of Day (01:02:03.123456)</oldsource>
+        <translation type="unfinished">UTC-tid på dagen (01:02:03.123456)</translation>
     </message>
     <message>
         <source>Show packet times as the UTC time of day.</source>
