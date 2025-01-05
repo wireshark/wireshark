@@ -1,0 +1,24 @@
+<RCC>
+    <qresource prefix="/ssicon">
+        <file alias="ssicon16.png">icons/Stratoshark.iconset/icon_16x16.png</file>
+        <file alias="ssicon16@2x.png">icons/Stratoshark.iconset/icon_16x16@2x.png</file>
+        <file alias="ssicon32.png">icons/Stratoshark.iconset/icon_32x32.png</file>
+        <file alias="ssicon32@2x.png">icons/Stratoshark.iconset/icon_32x32@2x.png</file>
+        <file alias="ssicon128.png">icons/Stratoshark.iconset/icon_128x128.png</file>
+        <file alias="ssicon128@2x.png">icons/Stratoshark.iconset/icon_128x128@2x.png</file>
+        <file alias="ssicon256.png">icons/Stratoshark.iconset/icon_256x256.png</file>
+        <file alias="ssicon256@2x.png">icons/Stratoshark.iconset/icon_256x256@2x.png</file>
+        <file alias="ssicon512.png">icons/Stratoshark.iconset/icon_512x512.png</file>
+        <file alias="ssicon512@2x.png">icons/Stratoshark.iconset/icon_512x512@2x.png</file>
+        <file alias="ssiconcap16.png">icons/StratosharkCap.iconset/icon_16x16.png</file>
+        <file alias="ssiconcap16@2x.png">icons/StratosharkCap.iconset/icon_16x16@2x.png</file>
+        <file alias="ssiconcap32.png">icons/StratosharkCap.iconset/icon_32x32.png</file>
+        <file alias="ssiconcap32@2x.png">icons/StratosharkCap.iconset/icon_32x32@2x.png</file>
+        <file alias="ssiconcap128.png">icons/StratosharkCap.iconset/icon_128x128.png</file>
+        <file alias="ssiconcap128@2x.png">icons/StratosharkCap.iconset/icon_128x128@2x.png</file>
+        <file alias="ssiconcap256.png">icons/StratosharkCap.iconset/icon_256x256.png</file>
+        <file alias="ssiconcap256@2x.png">icons/StratosharkCap.iconset/icon_256x256@2x.png</file>
+        <file alias="ssiconcap512.png">icons/StratosharkCap.iconset/icon_512x512.png</file>
+        <file alias="ssiconcap512@2x.png">icons/StratosharkCap.iconset/icon_512x512@2x.png</file>
+    </qresource>
+</RCC>

@@ -1,20 +1,14 @@
 <RCC>
     <qresource prefix="/ssicon">
         <file alias="ssiconcap16.png">icons/ssiconcap16.png</file>
+        <file alias="ssiconcap24.png">icons/ssiconcap24.png</file>
         <file alias="ssiconcap32.png">icons/ssiconcap32.png</file>
         <file alias="ssiconcap48.png">icons/ssiconcap48.png</file>
-        <file alias="ssiconcap64.png">icons/ssiconcap64.png</file>
-        <file alias="ssiconcap128.png">icons/ssiconcap128.png</file>
         <file alias="ssiconcap256.png">icons/ssiconcap256.png</file>
-        <file alias="ssiconcap512.png">icons/ssiconcap512.png</file>
-        <file alias="ssiconcap1024.png">icons/ssiconcap1024.png</file>
         <file alias="ssicon16.png">icons/ssicon16.png</file>
+        <file alias="ssicon24.png">icons/ssicon24.png</file>
         <file alias="ssicon32.png">icons/ssicon32.png</file>
         <file alias="ssicon48.png">icons/ssicon48.png</file>
-        <file alias="ssicon64.png">icons/ssicon64.png</file>
-        <file alias="ssicon128.png">icons/ssicon128.png</file>
         <file alias="ssicon256.png">icons/ssicon256.png</file>
-        <file alias="ssicon512.png">icons/ssicon512.png</file>
-        <file alias="ssicon1024.png">icons/ssicon1024.png</file>
     </qresource>
 </RCC>

@@ -678,6 +678,7 @@ else() # ! MSVC
 			endif()
 			set(MIN_MACOS_VERSION ${CMAKE_OSX_DEPLOYMENT_TARGET})
 		endif()
+		find_program(ICONUTIL_EXECUTABLE iconutil)
 	endif()
 
 	#
@@ -2856,8 +2857,14 @@ if(ENABLE_APPLICATION_BUNDLE)
 	)
 
 	# Stratoshark.app/Contents/Resources
+	add_custom_command(OUTPUT ${CMAKE_BINARY_DIR}/resources/icons/Stratoshark.icns
+		COMMAND ${ICONUTIL_EXECUTABLE}
+			-c icns
+			-o ${CMAKE_BINARY_DIR}/resources/icons/Stratoshark.icns
+			${CMAKE_SOURCE_DIR}/resources/icons/Stratoshark.iconset
+	)
 	set(STRATOSHARK_BUNDLE_RESOURCE_FILES
-		${CMAKE_SOURCE_DIR}/packaging/macosx/Stratoshark.icns
+		${CMAKE_BINARY_DIR}/resources/icons/Stratoshark.icns
 		${CMAKE_SOURCE_DIR}/packaging/macosx/Wiresharkdoc.icns
 	)
 	set_source_files_properties(${STRATOSHARK_BUNDLE_RESOURCE_FILES} PROPERTIES

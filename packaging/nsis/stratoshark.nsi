@@ -38,7 +38,7 @@ SetCompressorDictSize 64 ; MB
 ; The file to write
 OutFile "${OUTFILE_DIR}\${PROGRAM_NAME}-${VERSION}-${WIRESHARK_TARGET_PLATFORM}.exe"
 ; Installer icon
-Icon "${TOP_SRC_DIR}\resources\icons\stratosharkinst.ico"
+Icon "${TOP_SRC_DIR}\resources\icons\stratoshark.ico"
 
 ; ============================================================================
 ; Modern UI
@@ -53,8 +53,8 @@ Icon "${TOP_SRC_DIR}\resources\icons\stratosharkinst.ico"
 !include "InstallOptions.nsh"
 ;!addplugindir ".\Plugins"
 
-!define MUI_ICON "${TOP_SRC_DIR}\resources\icons\stratosharkinst.ico"
-!define MUI_UNICON "${TOP_SRC_DIR}\resources\icons\stratosharkinst.ico"
+!define MUI_ICON "${TOP_SRC_DIR}\resources\icons\stratoshark.ico"
+!define MUI_UNICON "${TOP_SRC_DIR}\resources\icons\stratoshark.ico"
 BrandingText "Stratoshark${U+00ae} Installer"
 
 !define MUI_COMPONENTSPAGE_SMALLDESC
