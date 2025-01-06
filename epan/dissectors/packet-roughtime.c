@@ -150,8 +150,8 @@ static const range_string roughtime_version_rvals[] = {
     {          0,          0, NULL }
 };
 
-static proto_item* add_generated_time_item(tvbuff_t *tvb, proto_tree *tree, int hf, nstime_t *time) {
-    proto_item *pi = proto_tree_add_time(tree, hf, tvb, 0, 0, time);
+static proto_item* add_generated_time_item(tvbuff_t *tvb, proto_tree *tree, int hf, nstime_t *ts) {
+    proto_item *pi = proto_tree_add_time(tree, hf, tvb, 0, 0, ts);
     proto_item_set_generated(pi);
     return pi;
 }
