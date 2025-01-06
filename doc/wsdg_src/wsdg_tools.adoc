@@ -903,63 +903,6 @@ Copyright 1987-2024, Larry Wall
 
 However, the version string may vary.
 
-[#ChToolsPatch]
-
-=== patch (Optional)
-
-The patch utility is used to merge a diff file into your own source tree. This
-tool is only needed, if you want to apply a patch (diff file) from someone else
-(probably from the developer mailing list) to try out in your own private source
-tree.
-
-It most cases you may not need the patch tool installed. Git should
-handle patches for you.
-
-// You will find more instructions in <<ChSrcPatchApply>>on how to use the patch tool.
-
-[#ChToolsUnixPatch]
-
-[discrete]
-==== Unix
-
-Patch is available for most UNIX and UNIX-like platforms. If GNU patch
-isn't already installed or available as a package for your platform, you
-can get it at https://www.gnu.org/software/patch/patch.html[].
-
-After correct installation, typing at the
-bash command line prompt:
-
-[source,sh]
-----
-$ patch --version
-----
-
-should result in something like:
-
-----
-patch 2.5.8
-Copyright (C) 1988 Larry Wall
-Copyright (C) 2002 Free Software Foundation, Inc.
-
-This program comes with NO WARRANTY, to the extent permitted by law.
-You may redistribute copies of this program
-under the terms of the GNU General Public License.
-For more information about these matters, see the file named COPYING.
-
-written by Larry Wall and Paul Eggert
-----
-
-However, the version string may vary.
-
-[#ChToolsWindowsPatch]
-
-[discrete]
-==== Windows
-
-The Windows native Git tools provide patch. A native Windows patch package can be obtained from
-http://gnuwin32.sourceforge.net/[]. The
-installation should be straightforward.
-
 [#ChToolsNSIS]
 
 === Windows: NSIS (Optional)
