@@ -1229,6 +1229,16 @@ class Item:
         #    print('Warning: ' + self.filename, self.hf, 'filter "' + self.filter + '", label "' + label + '"', 'item type is', self.item_type, '- could be FT_FRANENUM?')
         #    warnings_found += 1
 
+        if item_type == 'FT_IPv4':
+            if label.endswith('6') or filter.endswith('6'):
+                print('Warning: ' + filename, hf, 'filter ' + filter + 'label', label, 'but is a v4 field')
+                warnings_found += 1
+        if item_type == 'FT_IPv6':
+            if label.endswith('4') or filter.endswith('4'):
+                print('Warning: ' + filename, hf, 'filter ' + filter + 'label', label, 'but is a v6 field')
+                warnings_found += 1
+
+
 
     def __str__(self):
         return 'Item ({0} {1} "{2}" {3} type={4}:{5} {6} mask={7})'.format(self.filename, self.hf, self.label, self.filter, self.item_type, self.display, self.strings, self.mask)
