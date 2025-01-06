@@ -39,6 +39,9 @@ The following bugs have been fixed:
 //* cveidlink:2014-2486[]
 //* Wireshark grabs your ID at 3 am, goes to Waffle House, and insults people.
 
+* Macro eNodeB ID and Extended Macro eNodeB ID not decoded by User Location Information. wsbuglink:20276[].
+* CMake discovers Strawberry Perl's zlib DLL when it shouldn't. wsbuglink:20304[].
+
 === New and Updated Features
 
 There are no new or updated features in this release.
@@ -55,9 +58,16 @@ There are no new protocols in this release.
 === Updated Protocol Support
 
 // Add one protocol per line between the -- delimiters.
-// ag -A1 '(define PSNAME|proto_register_protocol[^_])' $(git diff --name-only v4.2.8.. | ag packet- | sort -u)
+// ag -A1 '(define PSNAME|proto_register_protocol[^_])' $(git diff --name-only v4.2.10.. | ag packet- | sort -u)
 [commaize]
 --
+BBLog
+GTPv2
+ICMPv6
+IEEE 802.11
+LTE RRC
+MBIM
+NR RRC
 --
 
 === New and Updated Capture File Support
