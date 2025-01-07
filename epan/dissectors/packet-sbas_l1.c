@@ -793,6 +793,34 @@ static int * const sbas_l1_mt27_region_fields[][6] = {
     },
 };
 
+// see ICAO Annex 10, Vol I, Table B-53
+static int hf_sbas_l1_mt28;
+static int hf_sbas_l1_mt28_iodp;
+static int hf_sbas_l1_mt28_prn_mask_nr_1;
+static int hf_sbas_l1_mt28_scale_exp_1;
+static int hf_sbas_l1_mt28_e_1_1_1;
+static int hf_sbas_l1_mt28_e_2_2_1;
+static int hf_sbas_l1_mt28_e_3_3_1;
+static int hf_sbas_l1_mt28_e_4_4_1;
+static int hf_sbas_l1_mt28_e_1_2_1;
+static int hf_sbas_l1_mt28_e_1_3_1;
+static int hf_sbas_l1_mt28_e_1_4_1;
+static int hf_sbas_l1_mt28_e_2_3_1;
+static int hf_sbas_l1_mt28_e_2_4_1;
+static int hf_sbas_l1_mt28_e_3_4_1;
+static int hf_sbas_l1_mt28_prn_mask_nr_2;
+static int hf_sbas_l1_mt28_scale_exp_2;
+static int hf_sbas_l1_mt28_e_1_1_2;
+static int hf_sbas_l1_mt28_e_2_2_2;
+static int hf_sbas_l1_mt28_e_3_3_2;
+static int hf_sbas_l1_mt28_e_4_4_2;
+static int hf_sbas_l1_mt28_e_1_2_2;
+static int hf_sbas_l1_mt28_e_1_3_2;
+static int hf_sbas_l1_mt28_e_1_4_2;
+static int hf_sbas_l1_mt28_e_2_3_2;
+static int hf_sbas_l1_mt28_e_2_4_2;
+static int hf_sbas_l1_mt28_e_3_4_2;
+
 // see ICAO Annex 10, Vol I, Table B-52
 static int hf_sbas_l1_mt63;
 static int hf_sbas_l1_mt63_spare_1;
@@ -826,6 +854,9 @@ static int ett_sbas_l1_mt25;
 static int ett_sbas_l1_mt26;
 static int ett_sbas_l1_mt27;
 static int ett_sbas_l1_mt27_region[5];
+static int ett_sbas_l1_mt28;
+static int ett_sbas_l1_mt28_sv_1;
+static int ett_sbas_l1_mt28_sv_2;
 static int ett_sbas_l1_mt63;
 
 // compute the CRC24Q checksum for an SBAS L1 nav msg
@@ -1869,6 +1900,50 @@ static int dissect_sbas_l1_mt27(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
     return tvb_captured_length(tvb);
 }
 
+/* Dissect SBAS L1 MT 28 */
+static int dissect_sbas_l1_mt28(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_) {
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "SBAS L1 MT28");
+    col_clear(pinfo->cinfo, COL_INFO);
+
+    proto_item *ti = proto_tree_add_item(tree, hf_sbas_l1_mt28, tvb, 0, 32, ENC_NA);
+    proto_tree *sbas_l1_mt28_tree = proto_item_add_subtree(ti, ett_sbas_l1_mt28);
+
+    proto_tree_add_item(sbas_l1_mt28_tree, hf_sbas_l1_mt28_iodp,           tvb, 0, 1, ENC_NA);
+
+    proto_tree *sv1_tree = proto_tree_add_subtree(sbas_l1_mt28_tree, tvb, 1, 14, ett_sbas_l1_mt28_sv_1, NULL, "Satellite 1");
+
+    proto_tree_add_item(sv1_tree, hf_sbas_l1_mt28_prn_mask_nr_1, tvb,  1, 1, ENC_NA);
+    proto_tree_add_item(sv1_tree, hf_sbas_l1_mt28_scale_exp_1,   tvb,  1, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sv1_tree, hf_sbas_l1_mt28_e_1_1_1,       tvb,  2, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sv1_tree, hf_sbas_l1_mt28_e_2_2_1,       tvb,  2, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sv1_tree, hf_sbas_l1_mt28_e_3_3_1,       tvb,  2, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sv1_tree, hf_sbas_l1_mt28_e_4_4_1,       tvb,  5, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sv1_tree, hf_sbas_l1_mt28_e_1_2_1,       tvb,  5, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sv1_tree, hf_sbas_l1_mt28_e_1_3_1,       tvb,  7, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sv1_tree, hf_sbas_l1_mt28_e_1_4_1,       tvb,  7, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sv1_tree, hf_sbas_l1_mt28_e_2_3_1,       tvb, 10, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sv1_tree, hf_sbas_l1_mt28_e_2_4_1,       tvb, 10, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sv1_tree, hf_sbas_l1_mt28_e_3_4_1,       tvb, 12, 4, ENC_BIG_ENDIAN);
+
+    proto_tree *sv2_tree = proto_tree_add_subtree(sbas_l1_mt28_tree, tvb, 14, 14, ett_sbas_l1_mt28_sv_2, NULL, "Satellite 2");
+
+    proto_tree_add_item(sv2_tree, hf_sbas_l1_mt28_prn_mask_nr_2, tvb, 14, 1, ENC_NA);
+    proto_tree_add_item(sv2_tree, hf_sbas_l1_mt28_scale_exp_2,   tvb, 14, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sv2_tree, hf_sbas_l1_mt28_e_1_1_2,       tvb, 15, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sv2_tree, hf_sbas_l1_mt28_e_2_2_2,       tvb, 15, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sv2_tree, hf_sbas_l1_mt28_e_3_3_2,       tvb, 15, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sv2_tree, hf_sbas_l1_mt28_e_4_4_2,       tvb, 18, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sv2_tree, hf_sbas_l1_mt28_e_1_2_2,       tvb, 18, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sv2_tree, hf_sbas_l1_mt28_e_1_3_2,       tvb, 21, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sv2_tree, hf_sbas_l1_mt28_e_1_4_2,       tvb, 21, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sv2_tree, hf_sbas_l1_mt28_e_2_3_2,       tvb, 21, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sv2_tree, hf_sbas_l1_mt28_e_2_4_2,       tvb, 24, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sv2_tree, hf_sbas_l1_mt28_e_3_4_2,       tvb, 24, 4, ENC_BIG_ENDIAN);
+
+    return tvb_captured_length(tvb);
+}
+
+
 /* Dissect SBAS L1 MT 63 */
 static int dissect_sbas_l1_mt63(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_) {
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "SBAS L1 MT63");
@@ -2452,6 +2527,34 @@ void proto_register_sbas_l1(void) {
         {&hf_sbas_l1_mt27_region_shape[4],  {"Region Shape",                      "sbas_l1.mt27.r5.shape",     FT_UINT64, BASE_DEC|BASE_VAL64_STRING, VALS64(REGION_SHAPE),       0x0000000000200000, NULL, HFILL}},
         {&hf_sbas_l1_mt27_spare,            {"Spare",                             "sbas_l1.mt27.spare",        FT_UINT32, BASE_HEX,                   NULL,                       0x001fffc0,         NULL, HFILL}},
 
+        // MT28
+        {&hf_sbas_l1_mt28,                {"MT28",                       "sbas_l1.mt28",               FT_NONE,   BASE_NONE, NULL, 0x0,        NULL, HFILL}},
+        {&hf_sbas_l1_mt28_iodp,           {"Issue of Data - PRN (IODP)", "sbas_l1.mt28.iodp",          FT_UINT8,  BASE_DEC,  NULL, 0x03,       NULL, HFILL}},
+        {&hf_sbas_l1_mt28_prn_mask_nr_1, {"PRN Mask Number",             "sbas_l1.mt28.prn_mask_nr_1", FT_UINT8,  BASE_DEC,  NULL, 0xfc,       NULL, HFILL}},
+        {&hf_sbas_l1_mt28_scale_exp_1,   {"Scale Exponent",              "sbas_l1.mt28.scale_exp_1",   FT_UINT16, BASE_DEC,  NULL, 0x0380,     NULL, HFILL}},
+        {&hf_sbas_l1_mt28_e_1_1_1,       {"E_1,1",                       "sbas_l1.mt28.e_1_1_1",       FT_UINT32, BASE_DEC,  NULL, 0x7fc00000, NULL, HFILL}},
+        {&hf_sbas_l1_mt28_e_2_2_1,       {"E_2,2",                       "sbas_l1.mt28.e_2_2_1",       FT_UINT32, BASE_DEC,  NULL, 0x003fe000, NULL, HFILL}},
+        {&hf_sbas_l1_mt28_e_3_3_1,       {"E_3,3",                       "sbas_l1.mt28.e_3_3_1",       FT_UINT32, BASE_DEC,  NULL, 0x00001ff0, NULL, HFILL}},
+        {&hf_sbas_l1_mt28_e_4_4_1,       {"E_4,4",                       "sbas_l1.mt28.e_4_4_1",       FT_UINT32, BASE_DEC,  NULL, 0x0ff80000, NULL, HFILL}},
+        {&hf_sbas_l1_mt28_e_1_2_1,       {"E_1,2",                       "sbas_l1.mt28.e_1_2_1",       FT_INT32,  BASE_DEC,  NULL, 0x0007fe00, NULL, HFILL}},
+        {&hf_sbas_l1_mt28_e_1_3_1,       {"E_1,3",                       "sbas_l1.mt28.e_1_3_1",       FT_INT32,  BASE_DEC,  NULL, 0x01ff8000, NULL, HFILL}},
+        {&hf_sbas_l1_mt28_e_1_4_1,       {"E_1,4",                       "sbas_l1.mt28.e_1_4_1",       FT_INT32,  BASE_DEC,  NULL, 0x00007fe0, NULL, HFILL}},
+        {&hf_sbas_l1_mt28_e_2_3_1,       {"E_2,3",                       "sbas_l1.mt28.e_2_3_1",       FT_INT32,  BASE_DEC,  NULL, 0x1ff80000, NULL, HFILL}},
+        {&hf_sbas_l1_mt28_e_2_4_1,       {"E_2,4",                       "sbas_l1.mt28.e_2_4_1",       FT_INT32,  BASE_DEC,  NULL, 0x0007fe00, NULL, HFILL}},
+        {&hf_sbas_l1_mt28_e_3_4_1,       {"E_3,4",                       "sbas_l1.mt28.e_3_4_1",       FT_INT32,  BASE_DEC,  NULL, 0x01ff8000, NULL, HFILL}},
+        {&hf_sbas_l1_mt28_prn_mask_nr_2, {"PRN Mask Number",             "sbas_l1.mt28.prn_mask_nr_2", FT_UINT8,  BASE_DEC,  NULL, 0x7e,       NULL, HFILL}},
+        {&hf_sbas_l1_mt28_scale_exp_2,   {"Scale Exponent",              "sbas_l1.mt28.scale_exp_2",   FT_UINT16, BASE_DEC,  NULL, 0x01c0,     NULL, HFILL}},
+        {&hf_sbas_l1_mt28_e_1_1_2,       {"E_1,1",                       "sbas_l1.mt28.e_1_1_2",       FT_UINT32, BASE_DEC,  NULL, 0x3fe00000, NULL, HFILL}},
+        {&hf_sbas_l1_mt28_e_2_2_2,       {"E_2,2",                       "sbas_l1.mt28.e_2_2_2",       FT_UINT32, BASE_DEC,  NULL, 0x001ff000, NULL, HFILL}},
+        {&hf_sbas_l1_mt28_e_3_3_2,       {"E_3,3",                       "sbas_l1.mt28.e_3_3_2",       FT_UINT32, BASE_DEC,  NULL, 0x00000ff8, NULL, HFILL}},
+        {&hf_sbas_l1_mt28_e_4_4_2,       {"E_4,4",                       "sbas_l1.mt28.e_4_4_2",       FT_UINT32, BASE_DEC,  NULL, 0x07fc0000, NULL, HFILL}},
+        {&hf_sbas_l1_mt28_e_1_2_2,       {"E_1,2",                       "sbas_l1.mt28.e_1_2_2",       FT_INT32,  BASE_DEC,  NULL, 0x0003ff00, NULL, HFILL}},
+        {&hf_sbas_l1_mt28_e_1_3_2,       {"E_1,3",                       "sbas_l1.mt28.e_1_3_2",       FT_INT32,  BASE_DEC,  NULL, 0xffc00000, NULL, HFILL}},
+        {&hf_sbas_l1_mt28_e_1_4_2,       {"E_1,4",                       "sbas_l1.mt28.e_1_4_2",       FT_INT32,  BASE_DEC,  NULL, 0x003ff000, NULL, HFILL}},
+        {&hf_sbas_l1_mt28_e_2_3_2,       {"E_2,3",                       "sbas_l1.mt28.e_2_3_2",       FT_INT32,  BASE_DEC,  NULL, 0x00000ffc, NULL, HFILL}},
+        {&hf_sbas_l1_mt28_e_2_4_2,       {"E_2,4",                       "sbas_l1.mt28.e_2_4_2",       FT_INT32,  BASE_DEC,  NULL, 0x03ff0000, NULL, HFILL}},
+        {&hf_sbas_l1_mt28_e_3_4_2,       {"E_3,4",                       "sbas_l1.mt28.e_3_4_2",       FT_INT32,  BASE_DEC,  NULL, 0x0000ffc0, NULL, HFILL}},
+
         // MT63
         {&hf_sbas_l1_mt63,         {"MT63",    "sbas_l1.mt63",         FT_NONE,  BASE_NONE, NULL, 0x00, NULL, HFILL}},
         {&hf_sbas_l1_mt63_spare_1, {"Spare 1", "sbas_l1.mt63.spare_1", FT_UINT8, BASE_HEX,  NULL, 0x03, NULL, HFILL}},
@@ -2495,6 +2598,9 @@ void proto_register_sbas_l1(void) {
         &ett_sbas_l1_mt27_region[2],
         &ett_sbas_l1_mt27_region[3],
         &ett_sbas_l1_mt27_region[4],
+        &ett_sbas_l1_mt28,
+        &ett_sbas_l1_mt28_sv_1,
+        &ett_sbas_l1_mt28_sv_2,
         &ett_sbas_l1_mt63,
     };
 
@@ -2532,5 +2638,6 @@ void proto_reg_handoff_sbas_l1(void) {
     dissector_add_uint("sbas_l1.mt", 25, create_dissector_handle(dissect_sbas_l1_mt25, proto_sbas_l1));
     dissector_add_uint("sbas_l1.mt", 26, create_dissector_handle(dissect_sbas_l1_mt26, proto_sbas_l1));
     dissector_add_uint("sbas_l1.mt", 27, create_dissector_handle(dissect_sbas_l1_mt27, proto_sbas_l1));
+    dissector_add_uint("sbas_l1.mt", 28, create_dissector_handle(dissect_sbas_l1_mt28, proto_sbas_l1));
     dissector_add_uint("sbas_l1.mt", 63, create_dissector_handle(dissect_sbas_l1_mt63, proto_sbas_l1));
 }
