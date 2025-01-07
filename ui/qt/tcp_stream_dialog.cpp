@@ -158,6 +158,14 @@ TCPStreamDialog::TCPStreamDialog(QWidget *parent, capture_file *cf, tcp_graph_ty
     if (graph_type == GRAPH_WSCALE) graph_idx = gtcb->count() - 1;
     gtcb->setUpdatesEnabled(true);
 
+    QComboBox *smcb = ui->samplingMethodComboBox;
+    smcb->setUpdatesEnabled(false);
+    smcb->addItem(ui->actionSamplingAllPackets->text(), SAMPLING_ALL);
+    smcb->addItem(ui->actionSamplingAllPacketsSACK->text(), SAMPLING_ALL_SACK);
+    smcb->addItem(ui->actionSamplingRTT->text(), SAMPLING_RTT);
+    smcb->addItem(ui->actionSamplingKarn->text(), SAMPLING_KARN);
+    smcb->setUpdatesEnabled(true);
+
     ui->dragRadioButton->setChecked(mouse_drags_);
 
     ctx_menu_.addAction(ui->actionZoomIn);
@@ -709,8 +717,12 @@ void TCPStreamDialog::showWidgetsForGraphType()
 {
     if (graph_.type == GRAPH_RTT) {
         ui->bySeqNumberCheckBox->setVisible(true);
+        ui->samplingMethodComboBox->setVisible(true);
+        ui->samplingLabel->setVisible(true);
     } else {
         ui->bySeqNumberCheckBox->setVisible(false);
+        ui->samplingMethodComboBox->setVisible(false);
+        ui->samplingLabel->setVisible(false);
     }
     if (graph_.type == GRAPH_THROUGHPUT) {
 #ifdef MA_1_SECOND
@@ -1448,7 +1460,7 @@ rtt_selectively_ack_range(QVector<double>& x_vals, bool bySeqNumber,
             } else {
                 x_vals.append(cur->time);
             }
-            rtt.append((rt_val - cur->time) * 1000.0);
+            rtt.append(rt_val - cur->time);
             // in this case, we will delete current unack
             // [ update "begin" if necessary - we will return it to the
             //     caller to let them know we deleted it ]
@@ -1466,7 +1478,7 @@ rtt_selectively_ack_range(QVector<double>& x_vals, bool bySeqNumber,
             } else {
                 x_vals.append(cur->time);
             }
-            rtt.append((rt_val - cur->time) * 1000.0);
+            rtt.append(rt_val - cur->time);
             // in this case, "right" marks the start of remaining bytes
             cur->seqno = right;
             continue;
@@ -1480,7 +1492,7 @@ rtt_selectively_ack_range(QVector<double>& x_vals, bool bySeqNumber,
             } else {
                 x_vals.append(cur->time);
             }
-            rtt.append((rt_val - cur->time) * 1000.0);
+            rtt.append(rt_val - cur->time);
             // in this case, "left" is just beyond the remaining bytes
             cur->end_seqno = left;
             continue;
@@ -1496,7 +1508,7 @@ rtt_selectively_ack_range(QVector<double>& x_vals, bool bySeqNumber,
         } else {
             x_vals.append(cur->time);
         }
-        rtt.append((rt_val - cur->time) * 1000.0);
+        rtt.append(rt_val - cur->time);
         // then split cur into two unacked segments
         //   (linking the right-hand unack after the left)
         cur->next = rtt_get_new_unack(cur->time, right, cur->end_seqno - right);
@@ -1551,6 +1563,7 @@ void TCPStreamDialog::fillRoundTripTime()
         }
     }
     for (struct segment *seg = graph_.segments; seg != NULL; seg = seg->next) {
+        /* sender traffic analysis */
         if (compareHeaders(seg)) {
             uint32_t seqno = seg->th_seq - seq_base;
             if (seg->th_seglen && !rtt_is_retrans(unack_list, seqno)) {
@@ -1564,48 +1577,90 @@ void TCPStreamDialog::fillRoundTripTime()
                 }
                 rtt_put_unack_on_list(&unack_list, u);
             }
-        } else {
+            /* else: ignore redundant sequences (Keep-Alives, Spurious,..) */
+        }
+        /* receiver traffic analysis */
+        else {
             uint32_t ack_no = seg->th_ack - seq_base;
             double rt_val = seg->rel_secs + seg->rel_usecs / 1000000.0;
             rt_val -= ts_offset_;
             struct rtt_unack *v;
 
             for (u = unack_list; u; u = v) {
+                // full or partial ack of seg by ack_no
                 if (tcp_seq_after(ack_no, u->seqno)) {
-                    // full or partial ack of seg by ack_no
-                    if (bySeqNumber) {
-                        x_vals.append(u->seqno);
-                        sequence_num_map_.insert(u->seqno, seg);
-                    } else {
-                        x_vals.append(u->time);
-                    }
-                    rtt.append(rt_val - u->time);
-                    if (tcp_seq_eq_or_after(ack_no, u->end_seqno)) {
-                        // fully acked segment - nothing more to see here
+                    // fully acked segment, but we're also acking a newer one on the next round
+                    if (tcp_seq_after(ack_no, u->end_seqno)) {
+                        /* breach RFC, take more RTT samples */
+                        if( graph_.rtt_sampling & RTT_ALL) {
+
+                            if (bySeqNumber) {
+                                x_vals.append(u->seqno);
+                                sequence_num_map_.insert(u->seqno, seg);
+                            } else {
+                                x_vals.append(u->time);
+                            }
+                            rtt.append(rt_val - u->time);
+                        }
                         v = u->next;
                         rtt_delete_unack_from_list(&unack_list, u);
                         // no need to compare SACK blocks for fully ACKed seg
                         continue;
-                    } else {
-                        // partial ack of GSO seg
-                        u->seqno = ack_no;
-                        // (keep going - still need to compare SACK blocks...)
+                    }
+
+                    // fully acked segment, currently the one being acked now
+                    else if (tcp_seq_eq(ack_no, u->end_seqno)) {
+                        if(!(graph_.rtt_sampling & RTT_KRN && (seg->ack_karn)) ) {
+                            if (bySeqNumber) {
+                                x_vals.append(u->seqno);
+                                sequence_num_map_.insert(u->seqno, seg);
+                            } else {
+                                x_vals.append(u->time);
+                            }
+                            rtt.append(rt_val - u->time);
+                        }
+                        /* else: ignore Karn ambiguous ACKs */
+
+                        v = u->next;
+                        rtt_delete_unack_from_list(&unack_list, u);
+                        // no need to compare SACK blocks for fully ACKed seg
+                        continue;
+                    }
+
+                    // partial ack of seg by ack_no
+                    else {
+                        if(!(graph_.rtt_sampling & RTT_KRN && (seg->ack_karn)) ) {
+                            if (bySeqNumber) {
+                                x_vals.append(u->seqno);
+                                sequence_num_map_.insert(u->seqno, seg);
+                            } else {
+                                x_vals.append(u->time);
+                            }
+                            rtt.append(rt_val - u->time);
+                            // partial ack of GSO seg
+                            u->seqno = ack_no;
+                            // (keep going - still need to compare SACK blocks...)
+                        }
+                        /* else: ignore Karn ambiguous ACKs */
                     }
                 }
+
                 v = u->next;
                 // selectively acking u more than once
                 //   can shatter it into multiple intervals.
                 //   If we link those back into the list between u and v,
                 //   then each subsequent SACK selectively ACKs that range.
-                for (int i = 0; i < seg->num_sack_ranges; ++i) {
-                    uint32_t left = seg->sack_left_edge[i] - seq_base;
-                    uint32_t right = seg->sack_right_edge[i] - seq_base;
-                    u = rtt_selectively_ack_range(x_vals, bySeqNumber, rtt,
-                                                  &unack_list, u, v,
-                                                  left, right, rt_val);
-                    // if range is empty after selective ack, we can
-                    //   skip the rest of the SACK blocks
-                    if (u == v) break;
+                if( graph_.rtt_sampling & RTT_SAK ) {
+                    for (int i = 0; i < seg->num_sack_ranges; ++i) {
+                        uint32_t left = seg->sack_left_edge[i] - seq_base;
+                        uint32_t right = seg->sack_right_edge[i] - seq_base;
+                        u = rtt_selectively_ack_range(x_vals, bySeqNumber, rtt,
+                                                      &unack_list, u, v,
+                                                      left, right, rt_val);
+                        // if range is empty after selective ack, we can
+                        //   skip the rest of the SACK blocks
+                        if (u == v) break;
+                    }
                 }
             }
         }
@@ -2092,6 +2147,33 @@ void TCPStreamDialog::on_zoomRadioButton_toggled(bool checked)
     }
 }
 
+void TCPStreamDialog::on_samplingMethodComboBox_currentIndexChanged(int index)
+{
+    if (index < 0) return;
+
+    // reset flags
+    graph_.rtt_sampling = 0;
+
+    switch (index) {
+    case 0:
+    default:
+        graph_.rtt_sampling |= RTT_ALL;
+        break;
+    case 1:
+        graph_.rtt_sampling |= RTT_ALL;
+        graph_.rtt_sampling |= RTT_SAK;
+        break;
+    case 2:
+        graph_.rtt_sampling |= RTT_RTT;
+        break;
+    case 3:
+        graph_.rtt_sampling |= RTT_KRN;
+        break;
+    }
+
+    fillGraph(/*reset_axes=*/true, /*set_focus=*/false);
+}
+
 void TCPStreamDialog::on_bySeqNumberCheckBox_stateChanged(int /* state */)
 {
     fillGraph(/*reset_axes=*/true, /*set_focus=*/false);
@@ -2348,3 +2430,4 @@ void TCPStreamDialog::on_buttonBox_helpRequested()
 {
     mainApp->helpTopicAction(HELP_STATS_TCP_STREAM_GRAPHS_DIALOG);
 }
+

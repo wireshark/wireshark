@@ -157,6 +157,7 @@ private slots:
     void on_dragRadioButton_toggled(bool checked);
     void on_zoomRadioButton_toggled(bool checked);
     void on_bySeqNumberCheckBox_stateChanged(int state);
+    void on_samplingMethodComboBox_currentIndexChanged(int index);
     void on_showSegLengthCheckBox_stateChanged(int state);
     void on_showThroughputCheckBox_stateChanged(int state);
     void on_showGoodputCheckBox_stateChanged(int state);
@@ -193,3 +194,4 @@ private slots:
 };
 
 #endif // TCP_STREAM_DIALOG_H
+

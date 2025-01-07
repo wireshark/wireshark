@@ -853,7 +853,18 @@ Throughput:: Average throughput and goodput.
 
 Round Trip Time:: Round trip time vs time or sequence number. RTT is
 based on the acknowledgment timestamp corresponding to a particular
-segment.
+segment. The sampling method selects which segments are taken into
+account and how the RTT is computed:
+
+* `All Data Packets`, all segments carrying data are computed, and when
+present, SACK is ignored.
+* `All Data Packets w/ SACK`, all segments carrying data are computed,
+the RTT value is based on SACK if present.
+* `Data Packets matching RTT`, only segments with a corresponding RTT
+value in the packet list are computed.
+* `Data Packets matching Karn RTT`, only segments with a corresponding RTT
+value in the packet list are computed, ambiguous ACKs following Karn's
+definition are excluded.
 
 Window Scaling:: Window size and outstanding bytes.
 

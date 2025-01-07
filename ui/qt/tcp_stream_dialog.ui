@@ -230,6 +230,26 @@
       </spacer>
      </item>
      <item>
+      <widget class="QLabel" name="samplingLabel">
+       <property name="text">
+        <string>Sampling Method</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QComboBox" name="samplingMethodComboBox">
+       <property name="focusPolicy">
+        <enum>Qt::TabFocus</enum>
+       </property>
+       <property name="frame">
+        <bool>false</bool>
+       </property>
+       <property name="toolTip">
+        <string>Select which packets and how the RTT sampling is done</string>
+       </property>
+      </widget>
+     </item>
+     <item>
       <widget class="QCheckBox" name="bySeqNumberCheckBox">
        <property name="focusPolicy">
         <enum>Qt::TabFocus</enum>
@@ -602,6 +622,50 @@
    </property>
    <property name="toolTip">
     <string>Switch to the tcptrace-style Time / Sequence graph</string>
+   </property>
+   <property name="shortcut">
+    <string>4</string>
+   </property>
+  </action>
+  <action name="actionSamplingAllPackets">
+   <property name="text">
+    <string>All Data Packets</string>
+   </property>
+   <property name="toolTip">
+    <string>Sampling from all data packets</string>
+   </property>
+   <property name="shortcut">
+    <string>1</string>
+   </property>
+  </action>
+  <action name="actionSamplingAllPacketsSACK">
+   <property name="text">
+    <string>All Data Packets w/ SACK</string>
+   </property>
+   <property name="toolTip">
+    <string>Sampling from all data packets w/ SACK</string>
+   </property>
+   <property name="shortcut">
+    <string>2</string>
+   </property>
+  </action>
+  <action name="actionSamplingRTT">
+   <property name="text">
+    <string>Data Packets matching RTT</string>
+   </property>
+   <property name="toolTip">
+    <string>Sampling from RTT packets</string>
+   </property>
+   <property name="shortcut">
+    <string>3</string>
+   </property>
+  </action>
+  <action name="actionSamplingKarn">
+   <property name="text">
+    <string>Data Packets matching Karn RTT</string>
+   </property>
+   <property name="toolTip">
+    <string>Sampling from Karn RTT packets</string>
    </property>
    <property name="shortcut">
     <string>4</string>
