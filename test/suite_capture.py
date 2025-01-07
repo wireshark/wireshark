@@ -479,9 +479,9 @@ class TestWiresharkCapture:
             check_capture_10_packets(self, cmd=wireshark_k, env=test_env)
 
     # Wireshark doesn't currently support writing to stdout while capturing.
-    # def test_wireshark_capture_10_packets_to_stdout(self, wireshark_k, check_capture_10_packets):
+    # def test_wireshark_capture_10_packets_to_stdout(self, wireshark_k, check_capture_10_packets, test_env):
     #     '''Capture 10 packets from the network to stdout using Wireshark'''
-    #     check_capture_10_packets(self, cmd=wireshark_k, to_stdout=True)
+    #     check_capture_10_packets(self, cmd=wireshark_k, to_stdout=True, env=test_env)
 
     def test_wireshark_capture_from_fifo(self, request, wireshark_k, check_capture_fifo, make_screenshot_on_error, test_env):
         '''Capture from a fifo using Wireshark'''
