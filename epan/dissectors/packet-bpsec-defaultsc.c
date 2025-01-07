@@ -125,16 +125,16 @@ static void reinit_bpsec_defaultsc(void) {
 /// Overall registration of the protocol
 void proto_register_bpsec_defaultsc(void) {
     static hf_register_info fields[] = {
-        {&hf_defaultsc_shavar, {"SHA Variant", "bpsec.defaultsc.shavar", FT_UINT64, BASE_DEC | BASE_VAL64_STRING, VALS64(shavar_vals), 0x0, NULL, HFILL}},
-        {&hf_defaultsc_wrapedkey, {"Wrapped Key", "bpsec.defaultsc.wrappedkey", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}},
-        {&hf_defaultsc_scope, {"BIB Scope", "bpsec.defaultsc.scope", FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL}},
-        {&hf_defaultsc_scope_pri_block, {"Primary Block", "bpsec.defaultsc.scope.pri_block", FT_BOOLEAN, 16, TFS(&tfs_set_notset), 0x0001, NULL, HFILL}},
-        {&hf_defaultsc_scope_tgt_head, {"Target Header", "bpsec.defaultsc.scope.tgt_head", FT_BOOLEAN, 16, TFS(&tfs_set_notset), 0x0002, NULL, HFILL}},
-        {&hf_defaultsc_scope_sec_head, {"Security Header", "bpsec.defaultsc.scope.sec_head", FT_BOOLEAN, 16, TFS(&tfs_set_notset), 0x0004, NULL, HFILL}},
-        {&hf_defaultsc_hmac, {"Expected HMAC", "bpsec.defaultsc.hmac", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}},
-        {&hf_defaultsc_iv, {"IV", "bpsec.defaultsc.iv", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}},
-        {&hf_defaultsc_aesvar, {"AES Variant", "bpsec.defaultsc.aesvar", FT_UINT64, BASE_DEC | BASE_VAL64_STRING, VALS64(aesvar_vals), 0x0, NULL, HFILL}},
-        {&hf_defaultsc_authtag, {"Authentication Tag", "bpsec.defaultsc.authtag", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}},
+        {&hf_defaultsc_shavar, {"SHA Variant", "bpsec-defaultsc.shavar", FT_UINT64, BASE_DEC | BASE_VAL64_STRING, VALS64(shavar_vals), 0x0, NULL, HFILL}},
+        {&hf_defaultsc_wrapedkey, {"Wrapped Key", "bpsec-defaultsc.wrappedkey", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}},
+        {&hf_defaultsc_scope, {"BIB Scope", "bpsec-defaultsc.scope", FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL}},
+        {&hf_defaultsc_scope_pri_block, {"Primary Block", "bpsec-defaultsc.scope.pri_block", FT_BOOLEAN, 16, TFS(&tfs_set_notset), 0x0001, NULL, HFILL}},
+        {&hf_defaultsc_scope_tgt_head, {"Target Header", "bpsec-defaultsc.scope.tgt_head", FT_BOOLEAN, 16, TFS(&tfs_set_notset), 0x0002, NULL, HFILL}},
+        {&hf_defaultsc_scope_sec_head, {"Security Header", "bpsec-defaultsc.scope.sec_head", FT_BOOLEAN, 16, TFS(&tfs_set_notset), 0x0004, NULL, HFILL}},
+        {&hf_defaultsc_hmac, {"Expected HMAC", "bpsec-defaultsc.hmac", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}},
+        {&hf_defaultsc_iv, {"IV", "bpsec-defaultsc.iv", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}},
+        {&hf_defaultsc_aesvar, {"AES Variant", "bpsec-defaultsc.aesvar", FT_UINT64, BASE_DEC | BASE_VAL64_STRING, VALS64(aesvar_vals), 0x0, NULL, HFILL}},
+        {&hf_defaultsc_authtag, {"Authentication Tag", "bpsec-defaultsc.authtag", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}},
     };
     static int *ett[] = {
         &ett_defaultsc_scope,
