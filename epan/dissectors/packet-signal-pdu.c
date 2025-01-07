@@ -1,7 +1,7 @@
 /* packet-signal-pdu.c
  * Signal PDU dissector.
- * By Dr. Lars Voelker <lars.voelker@technica-engineering.de>
- * Copyright 2020-2023 Dr. Lars Voelker
+ * By Dr. Lars Völker <lars.voelker@technica-engineering.de>
+ * Copyright 2020-2025 Dr. Lars Völker
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -730,13 +730,8 @@ update_spdu_signal_list(void *r, char **err) {
 
     /* int */
     if (g_strcmp0(rec->data_type, "int") == 0) {
-        if (rec->bitlength_base_type != rec->bitlength_encoded_type) {
-            *err = ws_strdup_printf("Data type int is only supported in non-shortened length (ID: 0x%08x)", rec->id);
-            return false;
-        }
-
-        if ((rec->bitlength_encoded_type != 8) && (rec->bitlength_encoded_type != 16) && (rec->bitlength_encoded_type != 32) && (rec->bitlength_encoded_type != 64)) {
-            *err = ws_strdup_printf("Data type int is only supported in 8, 16, 32, or 64 bit (ID: 0x%08x)", rec->id);
+        if ((rec->bitlength_base_type != 8) && (rec->bitlength_base_type != 16) && (rec->bitlength_base_type != 32) && (rec->bitlength_base_type != 64)) {
+            *err = ws_strdup_printf("Data type int is only supported in 8, 16, 32, or 64 bit base type (ID: 0x%08x)", rec->id);
             return false;
         }
     }
@@ -2131,14 +2126,14 @@ dissect_spdu_payload_signal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             ti = proto_tree_add_int64(tree, hf_id_effective, tvb, offset, signal_length, value_int64);
         }
         if (value_name != NULL) {
-            proto_item_append_text(ti, " [raw: %" PRIx64 ": %s]", value_int64, value_name);
+            proto_item_append_text(ti, " [raw: 0x%" PRIx64 ": %s]", value_uint64, value_name);
         } else {
-            proto_item_append_text(ti, " [raw: %" PRIx64 "]", value_int64);
+            proto_item_append_text(ti, " [raw: 0x%" PRIx64 "]", value_uint64);
         }
 
         subtree = proto_item_add_subtree(ti, ett_spdu_signal);
-        ti = proto_tree_add_int64(subtree, hf_id_raw, tvb, offset, signal_length, value_int64);
-        proto_item_append_text(ti, " (0x%" PRIx64 ")", value_int64);
+        ti = proto_tree_add_int64(subtree, hf_id_raw, tvb, offset, signal_length, value_uint64);
+        proto_item_append_text(ti, " (0x%" PRIx64 ")", value_uint64);
     }
         break;
 
