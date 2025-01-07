@@ -394,7 +394,7 @@ dissect_rdmap_payload(tvbuff_t *tvb, packet_info *pinfo,
 	}
 
 	tvb = process_reassembled_data(tvb, 0, pinfo,
-				       "Reassembled SMB Direct",
+				       "Reassembled iWarp RDMA Send",
 				       fd_head,
 				       &iwarp_rdma_send_frag_items,
 				       NULL, /* update_col_info*/
@@ -1123,7 +1123,7 @@ proto_register_iwarp_ddp_rdmap(void)
 				NULL, HFILL} },
 
 		{ &hf_iwarp_rdma_send_fragments, {
-				"Reassembled SMB Direct Fragments", "iwarp_rdma.send.fragments",
+				"Reassembled iWarp RDMA Send Fragments", "iwarp_rdma.send.fragments",
 				FT_NONE, BASE_NONE, NULL, 0,
 				NULL, HFILL} },
 		{ &hf_iwarp_rdma_send_fragment, {
