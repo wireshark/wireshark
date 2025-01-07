@@ -2500,14 +2500,19 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                     bit_offset += (bfZe3ddWidth+1);
                 }
 
-                /* go to next byte (zero-padding.. - a little confusing..) */
-                offset = (bit_offset+7) / 8;
+                /* Pad to next byte (unless last 2 fields already fit in this one) */
+                if ((bit_offset % 8) > 2) {
+                    offset = (bit_offset+7) / 8;
+                }
+                else {
+                    offset = bit_offset / 8;
+                }
 
-                /* 2 reserved/padding bits */
                 /* bfAzSl (3 bits) */
                 proto_tree_add_item(extension_tree, hf_oran_bfAzSl, tvb, offset, 1, ENC_BIG_ENDIAN);
                 /* bfZeSl (3 bits) */
                 proto_tree_add_item(extension_tree, hf_oran_bfZeSl, tvb, offset, 1, ENC_BIG_ENDIAN);
+                offset += 1;
                 break;
             }
 
@@ -7298,7 +7303,7 @@ proto_register_oran(void)
         { &hf_oran_bfZeSl,
           { "bfZeSl", "oran_fh_cus.bfZeSl",
             FT_UINT8, BASE_DEC,
-            VALS(sidelobe_suppression_vals), 0x38,
+            VALS(sidelobe_suppression_vals), 0x07,
             "beamforming zenith sidelobe parameter", HFILL}
         },
 
