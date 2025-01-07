@@ -39,7 +39,7 @@
 #include <stdlib.h>
 #include <glib.h>
 
-#include <pcap.h>
+#include <pcap/pcap.h>
 
 #include <glib.h>
 

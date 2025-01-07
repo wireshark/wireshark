@@ -16,7 +16,7 @@
 #ifdef __MINGW32__
 #include <_bsd_types.h>
 #endif
-#include <pcap.h>
+#include <pcap/pcap.h>
 #endif
 
 #include <wiretap/wtap.h>

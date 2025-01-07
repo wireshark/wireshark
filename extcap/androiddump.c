@@ -58,8 +58,8 @@
 #define PCAP_RECORD_HEADER_LENGTH              16
 
 #ifdef ANDROIDDUMP_USE_LIBPCAP
-    #include <pcap.h>
-    #include <pcap-bpf.h>
+    #include <pcap/pcap.h>
+    #include <pcap/bpf.h>
     #include <pcap/bluetooth.h>
 
     #ifndef DLT_BLUETOOTH_H4_WITH_PHDR

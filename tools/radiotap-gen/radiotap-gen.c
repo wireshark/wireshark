@@ -15,7 +15,7 @@
 
 #include <errno.h>
 #include <glib.h>
-#include <pcap.h>
+#include <pcap/pcap.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>

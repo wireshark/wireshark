@@ -104,7 +104,6 @@ endif()
 find_path(PCAP_INCLUDE_DIR
   NAMES
     pcap/pcap.h
-    pcap.h
   PATH_SUFFIXES
     wpcap
   HINTS
@@ -294,9 +293,9 @@ if(PCAP_FOUND)
   endif()
 
   # libpcap 1.5.0 (2013-11-07)
-  check_symbol_exists(PCAP_ERROR_PROMISC_PERM_DENIED ${PCAP_INCLUDE_DIR}/pcap.h HAVE_PCAP_ERROR_PROMISC_PERM_DENIED)
+  check_symbol_exists(PCAP_ERROR_PROMISC_PERM_DENIED "pcap/pcap.h" HAVE_PCAP_ERROR_PROMISC_PERM_DENIED)
   # libpcap 1.2.1 (2012-01-01)
-  check_symbol_exists(PCAP_WARNING_TSTAMP_TYPE_NOTSUP ${PCAP_INCLUDE_DIR}/pcap.h HAVE_PCAP_WARNING_TSTAMP_TYPE_NOTSUP)
+  check_symbol_exists(PCAP_WARNING_TSTAMP_TYPE_NOTSUP "pcap/pcap.h" HAVE_PCAP_WARNING_TSTAMP_TYPE_NOTSUP)
 
   cmake_pop_check_state()
 endif()

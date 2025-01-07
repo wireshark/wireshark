@@ -14,7 +14,7 @@
 #ifdef __MINGW32__
 #include <_bsd_types.h>
 #endif
-#include <pcap.h>
+#include <pcap/pcap.h>
 
 #include "ui/capture_opts.h"
 #include "ui/capture_globals.h"
