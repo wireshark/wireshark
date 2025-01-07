@@ -403,6 +403,7 @@ static int hf_oran_refa;
 /* Hidden fields for filtering */
 static int hf_oran_cplane;
 static int hf_oran_uplane;
+static int hf_oran_bf;      /* to match frames that configure beamforming in any way */
 
 
 /* Initialize the subtree pointers */
@@ -2249,6 +2250,10 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
         proto_tree_add_item_ret_uint(c_section_tree, hf_oran_numPrbc, tvb, offset, 1, ENC_NA, &numPrbc);
         offset += 1;
 
+        /* Hidden filter for bf */
+        proto_item *bf_ti = proto_tree_add_item(tree, hf_oran_bf, tvb, 0, 0, ENC_NA);
+        PROTO_ITEM_SET_HIDDEN(bf_ti);
+
         /* ciIsample,ciQsample pairs */
         unsigned m;
         unsigned prb;
@@ -2316,6 +2321,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
 
     bool seen_se10 = false;
     uint32_t numPortc = 0;
+    proto_item *bf_ti = NULL;
 
     /* Section extension commands */
     while (extension_flag) {
@@ -2382,6 +2388,10 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
             {
                 uint32_t bfwcomphdr_iq_width, bfwcomphdr_comp_meth;
                 proto_item *comp_meth_ti = NULL;
+
+                /* Hidden filter for bf */
+                bf_ti = proto_tree_add_item(tree, hf_oran_bf, tvb, 0, 0, ENC_NA);
+                PROTO_ITEM_SET_HIDDEN(bf_ti);
 
                 /* bfwCompHdr (2 subheaders - bfwIqWidth and bfwCompMeth)*/
                 offset = dissect_bfwCompHdr(tvb, extension_tree, offset,
@@ -2454,6 +2464,10 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
 
             case 2: /* SE 2: Beamforming attributes */
             {
+                /* Hidden filter for bf */
+                bf_ti = proto_tree_add_item(tree, hf_oran_bf, tvb, 0, 0, ENC_NA);
+                PROTO_ITEM_SET_HIDDEN(bf_ti);
+
                 /* bfaCompHdr (get widths of fields to follow) */
                 uint32_t bfAzPtWidth, bfZePtWidth, bfAz3ddWidth, bfZe3ddWidth;
                 /* subtree */
@@ -2886,6 +2900,10 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
 
             case 11: /* SE 11: Flexible Weights Extension Type */
             {
+                /* Hidden filter for bf */
+                bf_ti = proto_tree_add_item(tree, hf_oran_bf, tvb, 0, 0, ENC_NA);
+                PROTO_ITEM_SET_HIDDEN(bf_ti);
+
                 /* beamId in section header should be ignored. Guard against appending multiple times.. */
                 if (beamId_ti && !beamId_ignored) {
                     proto_item_append_text(beamId_ti, " (ignored)");
@@ -3114,6 +3132,10 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
             }
 
             case 14:  /* SE 14: Nulling-layer Info. for ueId-based beamforming */
+                /* Hidden filter for bf (DMRS BF) */
+                bf_ti = proto_tree_add_item(tree, hf_oran_bf, tvb, 0, 0, ENC_NA);
+                PROTO_ITEM_SET_HIDDEN(bf_ti);
+
                 if (!seen_se10) {
                     proto_tree_add_item(extension_tree, hf_oran_nullLayerInd, tvb, offset, 1, ENC_BIG_ENDIAN);
                     offset += 1;
@@ -3535,6 +3557,10 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
 
             case 24:   /* SE 24: PUSCH DMRS configuration */
             {
+                /* Hidden filter for bf (DMRS BF) */
+                bf_ti = proto_tree_add_item(tree, hf_oran_bf, tvb, 0, 0, ENC_NA);
+                PROTO_ITEM_SET_HIDDEN(bf_ti);
+
                 /* alpnPerSym (1 bit) */
                 proto_tree_add_item(extension_tree, hf_oran_alpn_per_sym, tvb, offset, 1, ENC_BIG_ENDIAN);
                 /* antDmrsSnr (1 bit) */
@@ -3705,6 +3731,10 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
 
             case 27: /* O-DU controlled dimensionality reduction */
             {
+                /* Hidden filter for bf (DMRS BF) */
+                bf_ti = proto_tree_add_item(tree, hf_oran_bf, tvb, 0, 0, ENC_NA);
+                PROTO_ITEM_SET_HIDDEN(bf_ti);
+
                 /* beamType (2 bits) */
                 unsigned beam_type;
                 proto_tree_add_item_ret_uint(extension_tree, hf_oran_beam_type, tvb, offset, 1, ENC_BIG_ENDIAN, &beam_type);
@@ -7527,6 +7557,13 @@ proto_register_oran(void)
             NULL, 0x0,
             NULL, HFILL}
         },
+        { &hf_oran_bf,
+          { "BeamForming", "oran_fh_cus.bf",
+            FT_NONE, BASE_NONE,
+            NULL, 0x0,
+            NULL, HFILL}
+        },
+
 
         /* 5.1.3.2.7 */
         { &hf_oran_ecpri_pcid,
