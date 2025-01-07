@@ -54,7 +54,7 @@ static const struct ws_option longopts[] = {
 
 int g_include_undecidable_event;
 
-void SignalHandler(_U_ int signal)
+static void SignalHandler(_U_ int signal)
 {
     SUPER_EVENT_TRACE_PROPERTIES super_trace_properties = { 0 };
     super_trace_properties.prop.Wnode.BufferSize = sizeof(SUPER_EVENT_TRACE_PROPERTIES);

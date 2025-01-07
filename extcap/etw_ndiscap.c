@@ -29,6 +29,9 @@
 #include <winsock2.h>
 #include <netiodef.h>
 
+#include "etl.h"
+#include "etw_ndiscap.h"
+
 // inet_ipv6.h and netiodef.h define exactly the same stuff, like _IPV6_ROUTING_HEADER and IP6F_OFF_MASK.
 // So wiretap/wtap.h cannot be directly included in this file. Defines below three WTAP_ENCAP types with the value in wtap.h for compile
 #define WTAP_ENCAP_ETHERNET                       1
@@ -87,12 +90,12 @@ static const char* DOT11_PHY_TYPE_NAMES[] = {
     "802.11ax"        // dot11_phy_type_he = 10
 };
 
-unsigned long long NumFramesConverted;
-char AuxFragBuf[MAX_PACKET_SIZE] = {0};
-unsigned long AuxFragBufOffset;
+static unsigned long long NumFramesConverted;
+static char AuxFragBuf[MAX_PACKET_SIZE] = {0};
+static unsigned long AuxFragBufOffset;
 
-DOT11_EXTSTA_RECV_CONTEXT PacketMetadata;
-BOOLEAN AddWlanMetadata;
+static DOT11_EXTSTA_RECV_CONTEXT PacketMetadata;
+static BOOLEAN AddWlanMetadata;
 
 typedef struct _NDIS_NET_BUFFER_LIST_8021Q_INFO {
     union {
@@ -120,7 +123,7 @@ typedef struct _NDIS_NET_BUFFER_LIST_8021Q_INFO {
 // From: https://docs.microsoft.com/en-us/windows-hardware/drivers/ddi/nblinfo/ne-nblinfo-ndis_net_buffer_list_info
 #define MaxNetBufferListInfo 200
 #define Ieee8021QNetBufferListInfo 4
-PBYTE OobData[MaxNetBufferListInfo];
+static PBYTE OobData[MaxNetBufferListInfo];
 
 typedef struct _VMSWITCH_SOURCE_INFO {
     unsigned long SourcePortId;
@@ -135,8 +138,8 @@ typedef struct _VMSWITCH_PACKET_FRAGMENT {
     short VlanId;
 } VMSWITCH_PACKET_FRAGMENT, *PVMSWITCH_PACKET_FRAGMENT;
 
-BOOLEAN CurrentPacketIsVMSwitchPacketFragment;
-VMSWITCH_PACKET_FRAGMENT VMSwitchPacketFragment;
+static BOOLEAN CurrentPacketIsVMSwitchPacketFragment;
+static VMSWITCH_PACKET_FRAGMENT VMSwitchPacketFragment;
 
 struct INTERFACE {
     struct INTERFACE* Next;
@@ -151,16 +154,13 @@ struct INTERFACE {
 };
 
 #define IFACE_HT_SIZE 100
-struct INTERFACE* InterfaceHashTable[IFACE_HT_SIZE];
-unsigned long NumInterfaces;
-
-void wtap_etl_rec_dump(char* etl_record, ULONG total_packet_length, ULONG original_packet_length, unsigned int interface_id, BOOLEAN is_inbound, ULARGE_INTEGER timestamp, int pkt_encap, char* comment, unsigned short comment_length);
-void wtap_etl_add_interface(int pkt_encap, char* interface_name, unsigned short interface_name_length, char* interface_desc, unsigned short interface_desc_length);
+static struct INTERFACE* InterfaceHashTable[IFACE_HT_SIZE];
+static unsigned long NumInterfaces;
 
 extern char g_err_info[FILENAME_MAX];
 extern int g_err;
 
-unsigned long HashInterface(unsigned long LowerIfIndex)
+static unsigned long HashInterface(unsigned long LowerIfIndex)
 {
     if (CurrentPacketIsVMSwitchPacketFragment) {
         return VMSwitchPacketFragment.SourcePortId * (VMSwitchPacketFragment.VlanId + 1);
@@ -169,7 +169,7 @@ unsigned long HashInterface(unsigned long LowerIfIndex)
     }
 }
 
-struct INTERFACE* GetInterface(unsigned long LowerIfIndex)
+static struct INTERFACE* GetInterface(unsigned long LowerIfIndex)
 {
     struct INTERFACE* Iface = InterfaceHashTable[HashInterface(LowerIfIndex) % IFACE_HT_SIZE];
     while (Iface != NULL) {
@@ -190,7 +190,7 @@ struct INTERFACE* GetInterface(unsigned long LowerIfIndex)
     return NULL;
 }
 
-struct INTERFACE* AddInterface(PEVENT_RECORD ev, unsigned long LowerIfIndex, unsigned long MiniportIfIndex, int Type)
+static struct INTERFACE* AddInterface(PEVENT_RECORD ev, unsigned long LowerIfIndex, unsigned long MiniportIfIndex, int Type)
 {
     struct INTERFACE** Iface = &InterfaceHashTable[HashInterface(LowerIfIndex) % IFACE_HT_SIZE];
     struct INTERFACE* NewIface = malloc(sizeof(struct INTERFACE));
@@ -365,7 +365,7 @@ struct INTERFACE* AddInterface(PEVENT_RECORD ev, unsigned long LowerIfIndex, uns
     return NewIface;
 }
 
-void ParseVmSwitchPacketFragment(PEVENT_RECORD ev)
+static void ParseVmSwitchPacketFragment(PEVENT_RECORD ev)
 {
     // Parse the current VMSwitch packet event for use elsewhere.
     // NB: Here we only do per-packet parsing. For any event fields that only need to be

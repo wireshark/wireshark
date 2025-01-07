@@ -22,6 +22,7 @@
 #include "wsutil/ws_getopt.h"
 #include "wsutil/strtoi.h"
 #include "etw_message.h"
+#include "etw_ndiscap.h"
 
 #include <rpc.h>
 #include <winevt.h>
@@ -80,14 +81,12 @@ static PROVIDER_FILTER g_provider_filters[32];
 static BOOL g_is_live_session;
 
 static void WINAPI event_callback(PEVENT_RECORD ev);
-void etw_dump_write_opn_event(PEVENT_RECORD ev, ULARGE_INTEGER timestamp);
-void etw_dump_write_ndiscap_event(PEVENT_RECORD ev, ULARGE_INTEGER timestamp);
-void etw_dump_write_general_event(PEVENT_RECORD ev, ULARGE_INTEGER timestamp);
-void etw_dump_write_event_head_only(PEVENT_RECORD ev, ULARGE_INTEGER timestamp);
-void wtap_etl_rec_dump(char* etl_record, ULONG total_packet_length, ULONG original_packet_length, unsigned int interface_id, BOOLEAN is_inbound, ULARGE_INTEGER timestamp, int pkt_encap, char* comment, unsigned short comment_length);
-wtap_dumper* etw_dump_open(const char* pcapng_filename, int* err, char** err_info);
+static void etw_dump_write_opn_event(PEVENT_RECORD ev, ULARGE_INTEGER timestamp);
+static void etw_dump_write_general_event(PEVENT_RECORD ev, ULARGE_INTEGER timestamp);
+static void etw_dump_write_event_head_only(PEVENT_RECORD ev, ULARGE_INTEGER timestamp);
+static wtap_dumper* etw_dump_open(const char* pcapng_filename, int* err, char** err_info);
 
-DWORD GetPropertyValue(WCHAR* ProviderId, EVT_PUBLISHER_METADATA_PROPERTY_ID PropertyId, PEVT_VARIANT* Value)
+static DWORD GetPropertyValue(WCHAR* ProviderId, EVT_PUBLISHER_METADATA_PROPERTY_ID PropertyId, PEVT_VARIANT* Value)
 {
     BOOL bRet;
     DWORD err = ERROR_SUCCESS;
@@ -406,7 +405,7 @@ wtap_open_return_val etw_dump(const char* etl_filename, const char* pcapng_filen
     return returnVal;
 }
 
-BOOL is_event_filtered_out(PEVENT_RECORD ev)
+static BOOL is_event_filtered_out(PEVENT_RECORD ev)
 {
     if (g_is_live_session)
     {
@@ -465,7 +464,7 @@ static void WINAPI event_callback(PEVENT_RECORD ev)
     }
 }
 
-wtap_dumper* etw_dump_open(const char* pcapng_filename, int* err, char** err_info)
+static wtap_dumper* etw_dump_open(const char* pcapng_filename, int* err, char** err_info)
 {
     wtap_dump_params params = { 0 };
     GArray* shb_hdrs = NULL;
@@ -518,7 +517,7 @@ wtap_dumper* etw_dump_open(const char* pcapng_filename, int* err, char** err_inf
     return pdh;
 }
 
-ULONG wtap_etl_record_buffer_init(WTAP_ETL_RECORD** out_etl_record, PEVENT_RECORD ev, BOOLEAN include_user_data, WCHAR* message, WCHAR* provider_name)
+static ULONG wtap_etl_record_buffer_init(WTAP_ETL_RECORD** out_etl_record, PEVENT_RECORD ev, BOOLEAN include_user_data, WCHAR* message, WCHAR* provider_name)
 {
     ULONG total_packet_length = sizeof(WTAP_ETL_RECORD);
     WTAP_ETL_RECORD* etl_record = NULL;
@@ -642,7 +641,7 @@ void wtap_etl_rec_dump(char* etl_record, ULONG total_packet_length, ULONG origin
     wtap_rec_cleanup(&rec);
 }
 
-void etw_dump_write_opn_event(PEVENT_RECORD ev, ULARGE_INTEGER timestamp)
+static void etw_dump_write_opn_event(PEVENT_RECORD ev, ULARGE_INTEGER timestamp)
 {
     WTAP_ETL_RECORD* etl_record = NULL;
     ULONG total_packet_length = 0;
@@ -654,7 +653,7 @@ void etw_dump_write_opn_event(PEVENT_RECORD ev, ULARGE_INTEGER timestamp)
     g_free(etl_record);
 }
 
-void etw_dump_write_event_head_only(PEVENT_RECORD ev, ULARGE_INTEGER timestamp)
+static void etw_dump_write_event_head_only(PEVENT_RECORD ev, ULARGE_INTEGER timestamp)
 {
     WTAP_ETL_RECORD* etl_record = NULL;
     ULONG total_packet_length = 0;
@@ -663,7 +662,7 @@ void etw_dump_write_event_head_only(PEVENT_RECORD ev, ULARGE_INTEGER timestamp)
     g_free(etl_record);
 }
 
-void etw_dump_write_general_event(PEVENT_RECORD ev, ULARGE_INTEGER timestamp)
+static void etw_dump_write_general_event(PEVENT_RECORD ev, ULARGE_INTEGER timestamp)
 {
     PTRACE_EVENT_INFO pInfo = NULL;
     PBYTE pUserData = NULL;
