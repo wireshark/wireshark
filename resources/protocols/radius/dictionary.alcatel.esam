@@ -231,12 +231,12 @@ VALUE	A-AL-XDSL			Alcatel-Read-Priv	1
 VALUE	A-AL-XDSL			Alcatel-Write-Priv	2
 VALUE	A-AL-XDSL			Alcatel-RW-Priv		3
 
-#     A-AL-Security Value
-VALUE	A-AL-Security			Alcatel-No-Priv		0
+#     A-AL-Security Value XXX Duplicate???
+#VALUE	A-AL-Security			Alcatel-No-Priv		0
 
-VALUE	A-AL-Security			Alcatel-Read-Priv	1
-VALUE	A-AL-Security			Alcatel-Write-Priv	2
-VALUE	A-AL-Security			Alcatel-RW-Priv		3
+#VALUE	A-AL-Security			Alcatel-Read-Priv	1
+#VALUE	A-AL-Security			Alcatel-Write-Priv	2
+#VALUE	A-AL-Security			Alcatel-RW-Priv		3
 
 #      A-AL-Cluster Value
 

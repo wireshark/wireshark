@@ -399,7 +399,7 @@ VALUE	ERX-PPP-Monitor-Ingress-Only	disabled		0
 VALUE	ERX-PPP-Monitor-Ingress-Only	enabled			1
 
 VALUE	ERX-Service-Activate-Type	dynamic			1
-VALUE	ERX-Service-Activate-Type	opscript		1
+#VALUE	ERX-Service-Activate-Type	opscript		1
 
 VALUE	ERX-Pim-Enable			disabled		0
 VALUE	ERX-Pim-Enable			enabled			1

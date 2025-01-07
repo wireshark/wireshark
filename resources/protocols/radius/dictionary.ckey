@@ -27,7 +27,7 @@ VALUE	CKey-Auth-Info			Static-PWD-Error	23
 VALUE	CKey-Auth-Info			PIN-Word-Error		24
 VALUE	CKey-Auth-Info			Source-IP-Error		25
 VALUE	CKey-Auth-Info			Msg-PWD-Reject		28
-VALUE	CKey-Auth-Info			Static-PWD-Expired	28
+VALUE	CKey-Auth-Info			Static-PWD-Expired	29
 VALUE	CKey-Auth-Info			Strategy-Config-Error	30
 VALUE	CKey-Auth-Info			EQP-Expiration-Error	31
 VALUE	CKey-Auth-Info			Account-EQP-Token-Mismatch 32

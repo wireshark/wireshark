@@ -113,7 +113,7 @@ VALUE	KW-UE-Capabilities		Rel-5			2
 VALUE	KW-UE-Capabilities		Rel-6			3
 VALUE	KW-UE-Capabilities		Rel-7			4
 VALUE	KW-UE-Capabilities		Rel-8			5
-VALUE	KW-UE-Capabilities		CSG-Capable		0
-VALUE	KW-UE-Capabilities		Not-CSG-Capable		1
+#VALUE	KW-UE-Capabilities		CSG-Capable		0
+#VALUE	KW-UE-Capabilities		Not-CSG-Capable		1
 
 END-VENDOR      Kineto

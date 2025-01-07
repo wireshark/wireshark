@@ -4,7 +4,7 @@
 #
 
 # A duplicate name that they use
-VALUE	Service-Type			Sip-session		12
+#VALUE	Service-Type			Sip-session		12
 
 #  Columbia University VSAs, from:
 #

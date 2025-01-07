@@ -252,7 +252,7 @@ END-TLV BSN-Session-Info
 
 ATTRIBUTE	RAN-Session-Info			104	tlv
 BEGIN-TLV RAN-Session-Info
-	ATTRIBUTE	BCMCS_FLOW_ID				1	integer
+	ATTRIBUTE	BCMCS_FLOW_ID				1	bytes
 	ATTRIBUTE	Encryption-Mechanism			2	integer
 	ATTRIBUTE	BAK-Identifier				3	integer
 	ATTRIBUTE	BAK					4	string
@@ -290,8 +290,8 @@ ATTRIBUTE	3GPP2-DNS-Server-IP-Address		117	tlv
 BEGIN-TLV 3GPP2-DNS-Server-IP-Address
 	ATTRIBUTE	Primary-DNS-Server			1	ipaddr
 	ATTRIBUTE	Secondary-DNS-Server			2	ipaddr
-	ATTRIBUTE	Flag					3	integer
-	ATTRIBUTE	Entity-Type				4	integer
+	ATTRIBUTE	3GPP2-DNS-Server-Flag			3	byte
+	ATTRIBUTE	3GPP2-DNS-Server-Entity-Type		4	byte
 END-TLV 3GPP2-DNS-Server-IP-Address
 
 ATTRIBUTE	3GPP2-MIP6-Home-Agent-Address-From-BU	118	ipv6addr
@@ -374,8 +374,8 @@ ATTRIBUTE	3GPP2-DNS-Server-IPV6-Address		214	tlv
 BEGIN-TLV 3GPP2-DNS-Server-IPV6-Address
 	ATTRIBUTE	Primary-DNS-Server-IPV6-ADDRESS		1	ipv6addr
 	ATTRIBUTE	Secondary-DNS-Server-IPV6-ADDRESS	2	ipv6addr
-	ATTRIBUTE	Flag					3	string
-	ATTRIBUTE	Entity-Type				4	string
+	ATTRIBUTE	3GPP2-DNS-Server-IPv6-Address-Flag	3	byte
+	ATTRIBUTE	3GPP2-DNS-Server-IPv6-Address-Entity-Type	4	byte
 END-TLV 3GPP2-DNS-Server-IPV6-Address
 
 VALUE	3GPP2-Airlink-Record-Type	Connection-Setup	1

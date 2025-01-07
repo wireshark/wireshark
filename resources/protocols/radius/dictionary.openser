@@ -32,8 +32,8 @@ ATTRIBUTE	Sip-Group				211	string
 ATTRIBUTE	Sip-Rpid				213	string
 ATTRIBUTE	SIP-AVP					225	string
 
-VALUE	Service-Type			Group-Check		12
-VALUE	Service-Type			Sip-Session		15
+#VALUE	Service-Type			Group-Check		12
+#VALUE	Service-Type			Sip-Session		15  duplicated https://www.iana.org/assignments/radius-types/radius-types.xhtml#radius-types-4
 VALUE	Service-Type			SIP-Caller-AVPs		30
 VALUE	Service-Type			SIP-Callee-AVPs		31
 

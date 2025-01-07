@@ -272,8 +272,8 @@ VALUE	CVPN3000-L2TP-MPPC-Compression	On			1
 VALUE	CVPN3000-IPSec-IP-Compression	Off			0
 VALUE	CVPN3000-IPSec-IP-Compression	On			1
 
-VALUE	CVPN3000-IPSec-IP-Compression	None			0
-VALUE	CVPN3000-IPSec-IP-Compression	LZS			1
+#VALUE	CVPN3000-IPSec-IP-Compression	None			0
+#VALUE	CVPN3000-IPSec-IP-Compression	LZS			1
 
 VALUE	CVPN3000-IPSec-IKE-Peer-IDCheck	Required		1
 VALUE	CVPN3000-IPSec-IKE-Peer-IDCheck	If-Supported-By-Certifiate 2

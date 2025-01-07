@@ -38,7 +38,7 @@ VALUE	Tunnel-Type			IP-in-IP		12
 
 #	Tunnel Medium Type
 
-VALUE	Tunnel-Medium-Type		IP			1
+#VALUE	Tunnel-Medium-Type		IP			1
 VALUE	Tunnel-Medium-Type		IPv4			1
 VALUE	Tunnel-Medium-Type		IPv6			2
 VALUE	Tunnel-Medium-Type		NSAP			3
