@@ -52,6 +52,15 @@ ALLOWED_LICENSES = [
 
 
 PATH_SPECIFIC_ALLOWED_LICENSES = {
+    # Some of the libpcap include files (including pcap.h) have the
+    # 4-clause BSD license with an advertising clause for the Computer
+    # Systems Engineering Group at Lawrence Berkeley Laboratory.
+    # We have always distributed packages including the headers,
+    # so if this is a problem it's one even if these files aren't
+    # copied into our repository.
+    'libpcap/pcap': [
+        'BSD (4 clause)',
+    ],
     'wsutil/strnatcmp.c': [
         'Zlib',
     ],

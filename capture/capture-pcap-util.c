@@ -81,8 +81,6 @@
 
 #ifndef _WIN32
 #include <netinet/in.h>
-#else
-#include <ws2tcpip.h>
 #endif
 
 #ifdef _WIN32
