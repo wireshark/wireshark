@@ -136,6 +136,14 @@ typedef struct _gtp_hdr {
 
 extern value_string_ext cause_type_ext;
 
+static const value_string gtp_sel_mode_vals[] = {
+    { 0, "MS or network provided APN, subscription verified" },
+    { 1, "MS provided APN, subscription not verified" },
+    { 2, "Network provided APN, subscription not verified" },
+    { 3, "For future use. Shall not be sent. If received, shall be interpreted as the value 2 (Network provided APN, subscription not verified)" },
+    { 0, NULL }
+};
+
 /** GTP header extension info
 * This structure is used to transfer infotmation to users of the "gtp.hdr_ext" dissector table
 */

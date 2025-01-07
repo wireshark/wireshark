@@ -2289,14 +2289,6 @@ static const value_string qos_guar_dl[] = {
     {0, NULL}
 };
 
-static const value_string sel_mode_type[] = {
-    {0, "MS or network provided APN, subscribed verified"},
-    {1, "MS provided APN, subscription not verified"},
-    {2, "Network provided APN, subscription not verified"},
-    {3, "For future use (Network provided APN, subscription not verified"}, /* Shall not be sent. If received, shall be sent as value 2 */
-    {0, NULL}
-};
-
 static const value_string tr_comm_type[] = {
     {1, "Send data record packet"},
     {2, "Send possibly duplicated data record packet"},
@@ -4808,7 +4800,7 @@ dissect_radius_selection_mode(proto_tree * tree, tvbuff_t * tvb, packet_info* pi
     sel_mode = tvb_get_uint8(tvb, 0) - 0x30;
     proto_tree_add_uint(tree, hf_gtp_sel_mode, tvb, 0, 1, sel_mode);
 
-    return val_to_str_const(sel_mode, sel_mode_type, "Unknown");
+    return val_to_str_const(sel_mode, gtp_sel_mode_vals, "Unknown");
 }
 
 static int
@@ -4822,7 +4814,7 @@ decode_gtp_sel_mode(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_t
 
     ext_tree = proto_tree_add_subtree(tree, tvb, offset, 2, ett_gtp_ies[GTP_EXT_SEL_MODE], &te,
                             val_to_str_ext_const(GTP_EXT_SEL_MODE, &gtp_val_ext, "Unknown message"));
-    proto_item_append_text(te, ": %s", val_to_str_const(sel_mode, sel_mode_type, "Unknown"));
+    proto_item_append_text(te, ": %s", val_to_str_const(sel_mode, gtp_sel_mode_vals, "Unknown"));
     proto_tree_add_item(ext_tree, hf_gtp_sel_mode, tvb, offset+1, 1, ENC_BIG_ENDIAN);
 
     return 2;
@@ -9263,15 +9255,6 @@ decode_gtp_ext_enodeb_id(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, pr
 /*
  * 7.7.113 Selection Mode with NSAPI
  */
-
-static const value_string gtp_sel_mode_vals[] = {
-    { 0, "MS or network provided APN, subscription verified" },
-    { 1, "MS provided APN, subscription not verified" },
-    { 2, "Network provided APN, subscription not verified" },
-    { 3, "For future use. Shall not be sent. If received, shall be interpreted as the value 2" },
-    { 0, NULL }
-};
-
 static int
 decode_gtp_ext_sel_mode_w_nsapi(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_)
 {
@@ -11886,7 +11869,7 @@ proto_register_gtp(void)
         },
         {&hf_gtp_sel_mode,
          { "Selection mode", "gtp.sel_mode",
-           FT_UINT8, BASE_DEC, VALS(sel_mode_type), 0x03,
+           FT_UINT8, BASE_DEC, VALS(gtp_sel_mode_vals), 0x03,
            NULL, HFILL}
         },
         {&hf_gtp_seq_number,
