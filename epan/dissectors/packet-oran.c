@@ -40,7 +40,7 @@
  * - Not handling M-plane setting for "little endian byte order" as applied to IQ samples and beam weights
  * - for section extensions, check more constraints (which other extension types appear with them, order)
  * - when some section extensions are present, some section header fields are effectively ignored - flag any remaining ("ignored, "shall")?
- * - re-order items (decl and hf definitions) to match spec order
+ * - re-order items (decl and hf definitions) to match spec order?
  */
 
 /* Prototypes */
@@ -1153,8 +1153,8 @@ static const true_false_string multi_sd_scope_tfs = {
 };
 
 static const true_false_string tfs_ueid_reset = {
-  "cannot assume same UE as in preceeding slot",
-  "can assume same UE as in preceeding slot"
+  "cannot assume same UE as in preceding slot",
+  "can assume same UE as in preceding slot"
 };
 
 
@@ -2175,6 +2175,10 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
 
             case SEC_C_SINR_REPORTING:   /* Section Type 9 - SINR Reporting */
             {
+                /* Hidden filter for bf (DMFS-BF) */
+                proto_item *bf_ti = proto_tree_add_item(tree, hf_oran_bf, tvb, 0, 0, ENC_NA);
+                PROTO_ITEM_SET_HIDDEN(bf_ti);
+
                 unsigned bit_offset = offset*8;
 
                 for (unsigned prb=0; prb < numPrbu; prb++) {
@@ -3668,10 +3672,11 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                 break;
             }
 
-            case 25:  /* Symbol reordering for DMRS-BF */
+            case 25:  /* SE 25: Symbol reordering for DMRS-BF */
                 /* Just dissect each available block of 7 bytes as the 14 symbols for a layer,
                    where each layer could be one or apply to all layers. */
             {
+                /* TODO: should only appear in one section of a message.. */
                 unsigned layer = 0;
                 proto_item *layer_ti;
                 while (offset+7 <= (extension_start_offset + extlen*4)) {
@@ -3684,10 +3689,18 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                     /* All 14 symbols for a layer (or all layers) */
                     for (unsigned s=0; s < 14; s++) {
                         proto_item *sym_ti;
-                        sym_ti = proto_tree_add_item(layer_tree,
-                                                     (s % 2) ? hf_oran_tx_win_for_on_air_symbol_r : hf_oran_tx_win_for_on_air_symbol_l,
-                                                     tvb, offset, 1, ENC_BIG_ENDIAN);
-                        proto_item_append_text(sym_ti, " (sym %u)", s);
+                        /* txWinForOnAirSymbol */
+                        unsigned int tx_win_for_on_air_symbol;
+                        sym_ti = proto_tree_add_item_ret_uint(layer_tree,
+                                                              (s % 2) ? hf_oran_tx_win_for_on_air_symbol_r : hf_oran_tx_win_for_on_air_symbol_l,
+                                                              tvb, offset, 1, ENC_BIG_ENDIAN, &tx_win_for_on_air_symbol);
+                        if (tx_win_for_on_air_symbol == 0x0F) {
+                            /* Ordering not affected */
+                            proto_item_append_text(sym_ti, " (sym %u - no info)", s);
+                        }
+                        else {
+                            proto_item_append_text(sym_ti, " (sym %u)", s);
+                        }
                         if (s % 2) {
                             offset += 1;
                         }
@@ -3702,7 +3715,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                 break;
             }
 
-            case 26:  /* Frequency offset feedback */
+            case 26:  /* SE 26: Frequency offset feedback */
                 /* Reserved (8 bits). N.B., added after draft? */
                 proto_tree_add_item(extension_tree, hf_oran_reserved_8bits, tvb, offset, 1, ENC_BIG_ENDIAN);
                 offset += 1;
@@ -3729,7 +3742,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                 }
                 break;
 
-            case 27: /* O-DU controlled dimensionality reduction */
+            case 27: /* SE 27: O-DU controlled dimensionality reduction */
             {
                 /* Hidden filter for bf (DMRS BF) */
                 bf_ti = proto_tree_add_item(tree, hf_oran_bf, tvb, 0, 0, ENC_NA);
@@ -3797,6 +3810,10 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
     /* RRM measurement reports have measurement reports after extensions */
     if (sectionType == SEC_C_RRM_MEAS_REPORTS)   /* Section Type 10 */
     {
+        /* Hidden filter for bf (DMFS-BF) */
+        bf_ti = proto_tree_add_item(tree, hf_oran_bf, tvb, 0, 0, ENC_NA);
+        PROTO_ITEM_SET_HIDDEN(bf_ti);
+
         bool mf;
         do {
             /* Measurement report subtree */
