@@ -2368,8 +2368,7 @@ WS_DLL_PUBLIC
 bool wtap_dump_add_idb(wtap_dumper *wdh, wtap_block_t idb, int *err,
      char **err_info);
 WS_DLL_PUBLIC
-bool wtap_dump(wtap_dumper *, const wtap_rec *, const uint8_t *,
-     int *err, char **err_info);
+bool wtap_dump(wtap_dumper *, const wtap_rec *, int *err, char **err_info);
 WS_DLL_PUBLIC
 bool wtap_dump_flush(wtap_dumper *, int *);
 WS_DLL_PUBLIC

@@ -490,15 +490,13 @@ static bool extcap_dumper_dump(struct extcap_dumper extcap_dumper,
     char               *err_info;
     wtap_rec            rec;
 
+    wtap_rec_init(&rec, captured_length);
+
     rec.rec_type = REC_TYPE_PACKET;
     rec.presence_flags = WTAP_HAS_TS;
-    rec.rec_header.packet_header.caplen = (uint32_t) captured_length;
-    rec.rec_header.packet_header.len = (uint32_t) reported_length;
 
     rec.ts.secs = seconds;
     rec.ts.nsecs = (int) nanoseconds;
-
-    rec.block = NULL;
 
 /*  NOTE: Try to handle pseudoheaders manually */
     if (extcap_dumper.encap == EXTCAP_ENCAP_BLUETOOTH_H4_WITH_PHDR) {
@@ -508,24 +506,32 @@ static bool extcap_dumper_dump(struct extcap_dumper extcap_dumper,
 
         rec.rec_header.packet_header.pseudo_header.bthci.sent = GINT32_FROM_BE(*direction) ? 0 : 1;
 
-        rec.rec_header.packet_header.len -= (uint32_t)sizeof(own_pcap_bluetooth_h4_header);
-        rec.rec_header.packet_header.caplen -= (uint32_t)sizeof(own_pcap_bluetooth_h4_header);
-
         buffer += sizeof(own_pcap_bluetooth_h4_header);
+        captured_length -= sizeof(own_pcap_bluetooth_h4_header);
     }
+
+    rec.rec_header.packet_header.caplen = (uint32_t) captured_length;
+    rec.rec_header.packet_header.len = (uint32_t) reported_length;
+
     rec.rec_header.packet_header.pkt_encap = extcap_dumper.encap;
 
-    if (!wtap_dump(extcap_dumper.dumper.wtap, &rec, (const uint8_t *) buffer, &err, &err_info)) {
+    ws_buffer_append(&rec.data, buffer, captured_length);
+
+    if (!wtap_dump(extcap_dumper.dumper.wtap, &rec, &err, &err_info)) {
         cfile_write_failure_message(NULL, fifo, err, err_info, 0,
                                     wtap_dump_file_type_subtype(extcap_dumper.dumper.wtap));
+        wtap_rec_cleanup(&rec);
         return false;
     }
 
     if (!wtap_dump_flush(extcap_dumper.dumper.wtap, &err)) {
         cfile_write_failure_message(NULL, fifo, err, NULL, 0,
                                     wtap_dump_file_type_subtype(extcap_dumper.dumper.wtap));
+        wtap_rec_cleanup(&rec);
         return false;
     }
+
+    wtap_rec_cleanup(&rec);
 #endif
 
     return true;

@@ -1188,13 +1188,18 @@ snort_dissector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
             rec.rec_header.packet_header.caplen = tvb_captured_length(tvb);
             rec.rec_header.packet_header.len = tvb_reported_length(tvb);
 
+            ws_buffer_init(&rec.data, rec.rec_header.packet_header.caplen);
+            ws_buffer_append(&rec.data, tvb_get_ptr(tvb, 0, rec.rec_header.packet_header.caplen), rec.rec_header.packet_header.caplen);
+
             /* Dump frame into snort's stdin */
-            if (!wtap_dump(current_session.pdh, &rec, tvb_get_ptr(tvb, 0, tvb_reported_length(tvb)), &write_err, &err_info)) {
+            if (!wtap_dump(current_session.pdh, &rec, &write_err, &err_info)) {
+                ws_buffer_free(&rec.data);
                 /* XXX - report the error somehow? */
                 g_free(err_info);
                 current_session.working = false;
                 return 0;
             }
+            ws_buffer_free(&rec.data);
             if (!wtap_dump_flush(current_session.pdh, &write_err)) {
                 /* XXX - report the error somehow? */
                 current_session.working = false;

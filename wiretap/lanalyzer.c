@@ -678,9 +678,8 @@ static bool s48write(wtap_dumper *wdh, const uint64_t s48, int *err)
  * Write a record for a packet to a dump file.
  * Returns true on success, false on failure.
  *---------------------------------------------------*/
-static bool lanalyzer_dump(wtap_dumper *wdh,
-        const wtap_rec *rec,
-        const uint8_t *pd, int *err, char **err_info _U_)
+static bool lanalyzer_dump(wtap_dumper *wdh, const wtap_rec *rec,
+        int *err, char **err_info _U_)
 {
       uint64_t x;
       int    len;
@@ -761,7 +760,7 @@ static bool lanalyzer_dump(wtap_dumper *wdh,
       if (!s0write(wdh, 12, err))
             return false;
 
-      if (!wtap_dump_file_write(wdh, pd, rec->rec_header.packet_header.caplen, err))
+      if (!wtap_dump_file_write(wdh, ws_buffer_start_ptr(&rec->data), rec->rec_header.packet_header.caplen, err))
             return false;
 
       return true;

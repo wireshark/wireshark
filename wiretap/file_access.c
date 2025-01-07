@@ -2518,12 +2518,11 @@ wtap_dump_add_idb(wtap_dumper *wdh, wtap_block_t idb, int *err,
 }
 
 bool
-wtap_dump(wtap_dumper *wdh, const wtap_rec *rec,
-	  const uint8_t *pd, int *err, char **err_info)
+wtap_dump(wtap_dumper *wdh, const wtap_rec *rec, int *err, char **err_info)
 {
 	*err = 0;
 	*err_info = NULL;
-	return (wdh->subtype_write)(wdh, rec, pd, err, err_info);
+	return (wdh->subtype_write)(wdh, rec, err, err_info);
 }
 
 bool

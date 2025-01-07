@@ -414,11 +414,11 @@ static int netxray_process_rec_header(wtap *wth, FILE_T fh,
     wtap_rec *rec, int *err, char **err_info);
 static void netxray_guess_atm_type(wtap *wth, wtap_rec *rec);
 static bool netxray_dump_1_1(wtap_dumper *wdh, const wtap_rec *rec,
-    const uint8_t *pd, int *err, char **err_info);
+    int *err, char **err_info);
 static bool netxray_dump_finish_1_1(wtap_dumper *wdh, int *err,
     char **err_info);
 static bool netxray_dump_2_0(wtap_dumper *wdh, const wtap_rec *rec,
-    const uint8_t *pd, int *err, char **err_info);
+    int *err, char **err_info);
 static bool netxray_dump_finish_2_0(wtap_dumper *wdh, int *err,
     char **err_info);
 
@@ -1751,9 +1751,8 @@ netxray_dump_open_1_1(wtap_dumper *wdh, int *err, char **err_info _U_)
 /* Write a record for a packet to a dump file.
    Returns true on success, false on failure. */
 static bool
-netxray_dump_1_1(wtap_dumper *wdh,
-		 const wtap_rec *rec,
-		 const uint8_t *pd, int *err, char **err_info _U_)
+netxray_dump_1_1(wtap_dumper *wdh, const wtap_rec *rec,
+		 int *err, char **err_info _U_)
 {
 	netxray_dump_t *netxray = (netxray_dump_t *)wdh->priv;
 	uint64_t timestamp;
@@ -1825,7 +1824,8 @@ netxray_dump_1_1(wtap_dumper *wdh,
 		return false;
 
 	/* write the packet data */
-	if (!wtap_dump_file_write(wdh, pd, rec->rec_header.packet_header.caplen, err))
+	if (!wtap_dump_file_write(wdh, ws_buffer_start_ptr(&rec->data),
+	    rec->rec_header.packet_header.caplen, err))
 		return false;
 
 	netxray->nframes++;
@@ -1949,9 +1949,8 @@ netxray_dump_open_2_0(wtap_dumper *wdh, int *err, char **err_info _U_)
 /* Write a record for a packet to a dump file.
    Returns true on success, false on failure. */
 static bool
-netxray_dump_2_0(wtap_dumper *wdh,
-		 const wtap_rec *rec,
-		 const uint8_t *pd, int *err, char **err_info _U_)
+netxray_dump_2_0(wtap_dumper *wdh, const wtap_rec *rec,
+		 int *err, char **err_info _U_)
 {
 	const union wtap_pseudo_header *pseudo_header = &rec->rec_header.packet_header.pseudo_header;
 	netxray_dump_t *netxray = (netxray_dump_t *)wdh->priv;
@@ -2054,7 +2053,8 @@ netxray_dump_2_0(wtap_dumper *wdh,
 		return false;
 
 	/* write the packet data */
-	if (!wtap_dump_file_write(wdh, pd, rec->rec_header.packet_header.caplen, err))
+	if (!wtap_dump_file_write(wdh, ws_buffer_start_ptr(&rec->data),
+	    rec->rec_header.packet_header.caplen, err))
 		return false;
 
 	netxray->nframes++;

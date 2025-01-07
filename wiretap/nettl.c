@@ -169,7 +169,7 @@ static bool nettl_seek_read(wtap *wth, int64_t seek_off, wtap_rec *rec,
 static bool nettl_read_rec(wtap *wth, FILE_T fh, wtap_rec *rec,
                 int *err, char **err_info);
 static bool nettl_dump(wtap_dumper *wdh, const wtap_rec *rec,
-    const uint8_t *pd, int *err, char **err_info);
+                int *err, char **err_info);
 
 static int nettl_file_type_subtype = -1;
 
@@ -669,9 +669,8 @@ static bool nettl_dump_open(wtap_dumper *wdh, int *err, char **err_info _U_)
 
 /* Write a record for a packet to a dump file.
    Returns true on success, false on failure. */
-static bool nettl_dump(wtap_dumper *wdh,
-                           const wtap_rec *rec,
-                           const uint8_t *pd, int *err, char **err_info _U_)
+static bool nettl_dump(wtap_dumper *wdh, const wtap_rec *rec,
+                       int *err, char **err_info _U_)
 {
     const union wtap_pseudo_header *pseudo_header = &rec->rec_header.packet_header.pseudo_header;
     struct nettlrec_hdr rec_hdr;
@@ -793,7 +792,7 @@ static bool nettl_dump(wtap_dumper *wdh,
 
     /* write actual PDU data */
 
-    if (!wtap_dump_file_write(wdh, pd, rec->rec_header.packet_header.caplen, err))
+    if (!wtap_dump_file_write(wdh, ws_buffer_start_ptr(&rec->data), rec->rec_header.packet_header.caplen, err))
         return false;
 
     return true;

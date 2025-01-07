@@ -455,7 +455,7 @@ static int mp2t_dump_can_write_encap(int encap)
 /* Write a record for a packet to a dump file.
    Returns true on success, false on failure. */
 static bool mp2t_dump(wtap_dumper *wdh, const wtap_rec *rec,
-    const uint8_t *pd, int *err, char **err_info _U_)
+    int *err, char **err_info _U_)
 {
     /* We can only write packet records. */
     if (rec->rec_type != REC_TYPE_PACKET) {
@@ -477,7 +477,7 @@ static bool mp2t_dump(wtap_dumper *wdh, const wtap_rec *rec,
      * Note this drops existing headers and trailers currently, since we
      * don't include them in the record.
      */
-    if (!wtap_dump_file_write(wdh, pd, rec->rec_header.packet_header.caplen, err)) {
+    if (!wtap_dump_file_write(wdh, ws_buffer_start_ptr(&rec->data), rec->rec_header.packet_header.caplen, err)) {
         return false;
     }
 

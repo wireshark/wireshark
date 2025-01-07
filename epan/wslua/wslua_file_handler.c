@@ -498,7 +498,7 @@ wslua_filehandler_can_write_encap(int encap, void* data)
 /* some declarations */
 static bool
 wslua_filehandler_dump(wtap_dumper *wdh, const wtap_rec *rec,
-                      const uint8_t *pd, int *err, char **err_info);
+                       int *err, char **err_info);
 static bool
 wslua_filehandler_dump_finish(wtap_dumper *wdh, int *err, char **err_info);
 
@@ -569,7 +569,7 @@ wslua_filehandler_dump_open(wtap_dumper *wdh, int *err, char **err_info)
 */
 static bool
 wslua_filehandler_dump(wtap_dumper *wdh, const wtap_rec *rec,
-                      const uint8_t *pd, int *err, char **err_info)
+                       int *err, char **err_info)
 {
     FileHandler fh = (FileHandler)(wdh->wslua_data);
     int retval = -1;
@@ -587,7 +587,7 @@ wslua_filehandler_dump(wtap_dumper *wdh, const wtap_rec *rec,
 
     fp = push_Wdh(L, wdh);
     fc = push_CaptureInfoConst(L,wdh);
-    fi = push_FrameInfoConst(L, rec, pd);
+    fi = push_FrameInfoConst(L, rec, ws_buffer_start_ptr(&rec->data));
 
     errno = WTAP_ERR_CANT_WRITE;
     switch ( lua_pcall(L,3,1,1) ) {

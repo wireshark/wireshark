@@ -39,9 +39,9 @@ export_pdu_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt, const 
      */
     exp_pdu_tap_data->framenum++;
 
-    memset(&rec, 0, sizeof rec);
     buffer_len = exp_pdu_data->tvb_captured_length + exp_pdu_data->tlv_buffer_len;
-    packet_buf = (uint8_t *)g_malloc(buffer_len);
+    wtap_rec_init(&rec, buffer_len);
+    packet_buf = ws_buffer_start_ptr(&rec.data);
 
     if(exp_pdu_data->tlv_buffer_len > 0){
         memcpy(packet_buf, exp_pdu_data->tlv_buffer, exp_pdu_data->tlv_buffer_len);
@@ -69,14 +69,14 @@ export_pdu_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt, const 
     }
 
     /* XXX: should the rec.rec_header.packet_header.pseudo_header be set to the pinfo's pseudo-header? */
-    if (!wtap_dump(exp_pdu_tap_data->wdh, &rec, packet_buf, &err, &err_info)) {
+    if (!wtap_dump(exp_pdu_tap_data->wdh, &rec, &err, &err_info)) {
         report_cfile_write_failure(NULL, exp_pdu_tap_data->pathname,
                                    err, err_info, exp_pdu_tap_data->framenum,
                                    wtap_dump_file_type_subtype(exp_pdu_tap_data->wdh));
         status = TAP_PACKET_FAILED;
     }
 
-    g_free(packet_buf);
+    wtap_rec_cleanup(&rec);
 
     return status;
 }

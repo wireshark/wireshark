@@ -175,8 +175,7 @@ static const struct {
 };
 
 static unsigned find_dct2000_real_data(const uint8_t *buf);
-static void handle_chopping(chop_t chop, wtap_packet_header *phdr,
-                            uint8_t **buf, bool adjlen);
+static void handle_chopping(chop_t chop, wtap_rec *rec, bool adjlen);
 
 static char *
 abs_time_to_str_with_sec_resolution(const nstime_t *abs_time)
@@ -631,10 +630,10 @@ sll2_set_unused_info(uint8_t* fd) {
 }
 
 static void
-remove_vlan_info(wtap_packet_header *phdr, uint8_t* fd) {
-    switch (phdr->pkt_encap) {
+remove_vlan_info(wtap_rec *rec) {
+    switch (rec->rec_header.packet_header.pkt_encap) {
         case WTAP_ENCAP_SLL:
-            sll_remove_vlan_info(fd, &phdr->caplen);
+            sll_remove_vlan_info(ws_buffer_start_ptr(&rec->data), &rec->rec_header.packet_header.caplen);
             break;
         default:
             /* no support for current pkt_encap */
@@ -643,13 +642,13 @@ remove_vlan_info(wtap_packet_header *phdr, uint8_t* fd) {
 }
 
 static void
-set_unused_info(const wtap_packet_header *phdr, uint8_t* fd) {
-    switch (phdr->pkt_encap) {
+set_unused_info(wtap_rec *rec) {
+    switch (rec->rec_header.packet_header.pkt_encap) {
         case WTAP_ENCAP_SLL:
-            sll_set_unused_info(fd);
+            sll_set_unused_info(ws_buffer_start_ptr(&rec->data));
             break;
         case WTAP_ENCAP_SLL2:
-            sll2_set_unused_info(fd);
+            sll2_set_unused_info(ws_buffer_start_ptr(&rec->data));
             break;
         default:
             /* no support for current pkt_encap */
@@ -658,7 +657,9 @@ set_unused_info(const wtap_packet_header *phdr, uint8_t* fd) {
 }
 
 static bool
-is_duplicate(uint8_t* fd, uint32_t len) {
+is_duplicate(wtap_rec *rec) {
+    uint8_t* fd = ws_buffer_start_ptr(&rec->data);
+    uint32_t len = rec->rec_header.packet_header.caplen;
     int i;
     const struct ieee80211_radiotap_header* tap_header;
 
@@ -706,7 +707,9 @@ is_duplicate(uint8_t* fd, uint32_t len) {
 }
 
 static bool
-is_duplicate_rel_time(uint8_t* fd, uint32_t len, const nstime_t *current) {
+is_duplicate_rel_time(wtap_rec *rec, const nstime_t *current) {
+    uint8_t* fd = ws_buffer_start_ptr(&rec->data);
+    uint32_t len = rec->rec_header.packet_header.caplen;
     int i;
 
     /*Hint to ignore some bytes at the start of the frame for the digest calculation(-I option) */
@@ -819,8 +822,8 @@ is_duplicate_rel_time(uint8_t* fd, uint32_t len, const nstime_t *current) {
 }
 
 static void
-mutate_packet_data(wtap_rec *rec, uint8_t *buf, uint32_t change_offset, uint64_t count)
-{
+mutate_packet_data(wtap_rec *rec, uint32_t change_offset, uint64_t count) {
+    uint8_t *buf = ws_buffer_start_ptr(&rec->data);
     uint32_t caplen;
     unsigned real_data_start = 0;
 
@@ -1405,7 +1408,6 @@ main(int argc, char *argv[])
     uint64_t      count              = 1;
     uint64_t      duplicate_count    = 0;
     int64_t       data_offset;
-    uint8_t      *buf;
     uint64_t      read_count         = 0;
     uint64_t      split_packet_count = 0;
     uint64_t      written_count      = 0;
@@ -2169,8 +2171,6 @@ main(int argc, char *argv[])
             goto clean_exit;
         }
 
-        buf = ws_buffer_start_ptr(&read_rec.data);
-
         /*
          * Not all packets have time stamps. Only process the time
          * stamp if we have one.
@@ -2385,23 +2385,22 @@ main(int argc, char *argv[])
                 /*
                  * CHOP
                  */
-                handle_chopping(chop, &read_rec.rec_header.packet_header,
-                                &buf, adjlen);
+                handle_chopping(chop, &read_rec, adjlen);
 
                 /* set unused info */
                 if (set_unused) {
                     /* set unused bytes to zero so that duplicates check ignores unused bytes */
-                    set_unused_info(&read_rec.rec_header.packet_header, buf);
+                    set_unused_info(&read_rec);
                 }
 
                 /* remove vlan info */
                 if (rem_vlan) {
-                    remove_vlan_info(&read_rec.rec_header.packet_header, buf);
+                    remove_vlan_info(&read_rec);
                 }
 
                 /* suppress duplicates by packet window */
                 if (dup_detect) {
-                    if (is_duplicate(buf, read_rec.rec_header.packet_header.caplen)) {
+                    if (is_duplicate(&read_rec)) {
                         if (verbose) {
                             fprintf(stderr, "Skipped: %" PRIu64 ", Len: %u, MD5 Hash: ",
                                     count,
@@ -2435,9 +2434,7 @@ main(int argc, char *argv[])
                         current.secs  = read_rec.ts.secs;
                         current.nsecs = read_rec.ts.nsecs;
 
-                        if (is_duplicate_rel_time(buf,
-                                                  read_rec.rec_header.packet_header.caplen,
-                                                  &current)) {
+                        if (is_duplicate_rel_time(&read_rec, &current)) {
                             if (verbose) {
                                 fprintf(stderr, "Skipped: %" PRIu64 ", Len: %u, MD5 Hash: ",
                                         count,
@@ -2467,7 +2464,7 @@ main(int argc, char *argv[])
 
             /* Random error mutation */
             if (err_prob > 0.0) {
-                mutate_packet_data(&read_rec, buf, change_offset, count);
+                mutate_packet_data(&read_rec, change_offset, count);
             } /* random error mutation */
 
             /* Discard all packet comments when writing */
@@ -2504,7 +2501,7 @@ main(int argc, char *argv[])
             }
 
             /* Attempt to dump out current frame to the output file */
-            if (!wtap_dump(pdh, &read_rec, buf, &write_err, &write_err_info)) {
+            if (!wtap_dump(pdh, &read_rec, &write_err, &write_err_info)) {
                 cfile_write_failure_message(argv[ws_optind], filename,
                                             write_err, write_err_info,
                                             read_count,
@@ -2652,9 +2649,10 @@ find_dct2000_real_data(const uint8_t *buf)
  * positive chop length, and one by the negative chop length.
  */
 static void
-handle_chopping(chop_t chop, wtap_packet_header *phdr, uint8_t **buf,
-                bool adjlen)
+handle_chopping(chop_t chop, wtap_rec *rec, bool adjlen)
 {
+    wtap_packet_header *phdr = &rec->rec_header.packet_header;
+
     /* If we're not chopping anything from one side, then the offset for that
      * side is meaningless. */
     if (chop.len_begin == 0)
@@ -2702,11 +2700,13 @@ handle_chopping(chop_t chop, wtap_packet_header *phdr, uint8_t **buf,
      * was specified, we need to keep that piece */
     if (chop.len_begin > 0) {
         if (chop.off_begin_pos > 0) {
-            memmove(*buf + chop.off_begin_pos,
-                    *buf + chop.off_begin_pos + chop.len_begin,
+            uint8_t *buf = ws_buffer_start_ptr(&rec->data);
+
+            memmove(buf + chop.off_begin_pos,
+                    buf + chop.off_begin_pos + chop.len_begin,
                     phdr->caplen - (chop.off_begin_pos + chop.len_begin));
         } else {
-            *buf += chop.len_begin;
+            ws_buffer_remove_start(&rec->data, chop.len_begin);
         }
         phdr->caplen -= chop.len_begin;
 
@@ -2722,8 +2722,10 @@ handle_chopping(chop_t chop, wtap_packet_header *phdr, uint8_t **buf,
      * specified, we need to keep that piece */
     if (chop.len_end < 0) {
         if (chop.off_end_neg < 0) {
-            memmove(*buf + (int)phdr->caplen + (chop.len_end + chop.off_end_neg),
-                    *buf + (int)phdr->caplen + chop.off_end_neg,
+            uint8_t *buf = ws_buffer_start_ptr(&rec->data);
+
+            memmove(buf + (int)phdr->caplen + (chop.len_end + chop.off_end_neg),
+                    buf + (int)phdr->caplen + chop.off_end_neg,
                     -chop.off_end_neg);
         }
         phdr->caplen += chop.len_end;

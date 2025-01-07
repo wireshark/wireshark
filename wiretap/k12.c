@@ -1262,7 +1262,7 @@ static void k12_dump_src_setting(void *k _U_, void *v, void *p) {
 }
 
 static bool k12_dump(wtap_dumper *wdh, const wtap_rec *rec,
-                         const uint8_t *pd, int *err, char **err_info _U_) {
+                     int *err, char **err_info _U_) {
     const union wtap_pseudo_header *pseudo_header = &rec->rec_header.packet_header.pseudo_header;
     k12_dump_t *k12 = (k12_dump_t *)wdh->priv;
     uint32_t len;
@@ -1319,7 +1319,7 @@ static bool k12_dump(wtap_dumper *wdh, const wtap_rec *rec,
 
     obj.record.ts = GUINT64_TO_BE((((uint64_t)rec->ts.secs - 631152000) * 2000000) + (rec->ts.nsecs / 1000 * 2));
 
-    memcpy(obj.record.frame,pd,rec->rec_header.packet_header.caplen);
+    memcpy(obj.record.frame,ws_buffer_start_ptr(&rec->data),rec->rec_header.packet_header.caplen);
 
     return k12_dump_record(wdh,len,obj.buffer, err);
 }

@@ -5200,7 +5200,7 @@ save_record(capture_file *cf, frame_data *fdata, wtap_rec *rec, void *argsp)
     }
 
     /* and save the packet */
-    if (!wtap_dump(args->pdh, &new_rec, ws_buffer_start_ptr(&rec->data), &err, &err_info)) {
+    if (!wtap_dump(args->pdh, &new_rec, &err, &err_info)) {
         report_cfile_write_failure(NULL, args->fname, err, err_info, fdata->num,
                 args->file_type);
         return false;

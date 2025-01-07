@@ -224,7 +224,7 @@ static bool netmon_read_atm_pseudoheader(FILE_T fh,
     union wtap_pseudo_header *pseudo_header, int *err, char **err_info);
 static void netmon_close(wtap *wth);
 static bool netmon_dump(wtap_dumper *wdh, const wtap_rec *rec,
-    const uint8_t *pd, int *err, char **err_info);
+    int *err, char **err_info);
 static bool netmon_dump_finish(wtap_dumper *wdh, int *err,
     char **err_info);
 
@@ -1654,7 +1654,7 @@ static bool netmon_dump_open_2_x(wtap_dumper *wdh, int *err, char **err_info _U_
 /* Write a record for a packet to a dump file.
    Returns true on success, false on failure. */
 static bool netmon_dump(wtap_dumper *wdh, const wtap_rec *rec,
-    const uint8_t *pd, int *err, char **err_info _U_)
+    int *err, char **err_info _U_)
 {
 	const union wtap_pseudo_header *pseudo_header = &rec->rec_header.packet_header.pseudo_header;
 	netmon_dump_t *netmon = (netmon_dump_t *)wdh->priv;
@@ -1819,7 +1819,8 @@ static bool netmon_dump(wtap_dumper *wdh, const wtap_rec *rec,
 		rec_size += sizeof atm_hdr;
 	}
 
-	if (!wtap_dump_file_write(wdh, pd, rec->rec_header.packet_header.caplen, err))
+	if (!wtap_dump_file_write(wdh, ws_buffer_start_ptr(&rec->data),
+	    rec->rec_header.packet_header.caplen, err))
 		return false;
 	rec_size += rec->rec_header.packet_header.caplen;
 

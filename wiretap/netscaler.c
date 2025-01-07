@@ -643,7 +643,7 @@ static bool nstrace_set_start_time(wtap *wth, int version, int *err,
 static uint64_t ns_hrtime2nsec(uint32_t tm);
 
 static bool nstrace_dump(wtap_dumper *wdh, const wtap_rec *rec,
-                             const uint8_t *pd, int *err, char **err_info);
+                         int *err, char **err_info);
 
 
 static int nstrace_1_0_file_type_subtype = -1;
@@ -2308,9 +2308,10 @@ nstrace_add_abstime(wtap_dumper *wdh, const wtap_rec *rec,
 /* Write a record for a packet to a dump file.
    Returns true on success, false on failure. */
 static bool nstrace_dump(wtap_dumper *wdh, const wtap_rec *rec,
-    const uint8_t *pd, int *err, char **err_info _U_)
+    int *err, char **err_info _U_)
 {
     nstrace_dump_t *nstrace = (nstrace_dump_t *)wdh->priv;
+    const uint8_t *pd;
 
     /* We can only write packet records. */
     if (rec->rec_type != REC_TYPE_PACKET) {
@@ -2326,6 +2327,8 @@ static bool nstrace_dump(wtap_dumper *wdh, const wtap_rec *rec,
         *err = WTAP_ERR_ENCAP_PER_PACKET_UNSUPPORTED;
         return false;
     }
+
+    pd = ws_buffer_start_ptr(&rec->data);
 
     if (nstrace->newfile == true)
     {

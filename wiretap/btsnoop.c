@@ -262,11 +262,11 @@ static int btsnoop_dump_can_write_encap(int encap)
     return 0;
 }
 
-static bool btsnoop_dump(wtap_dumper *wdh,
-    const wtap_rec *rec,
-    const uint8_t *pd, int *err, char **err_info)
+static bool btsnoop_dump(wtap_dumper *wdh, const wtap_rec *rec,
+    int *err, char **err_info)
 {
     const union wtap_pseudo_header *pseudo_header = &rec->rec_header.packet_header.pseudo_header;
+    const uint8_t *pd;
     struct btsnooprec_hdr rec_hdr;
     uint32_t flags;
     int64_t nsecs;
@@ -295,6 +295,8 @@ static bool btsnoop_dump(wtap_dumper *wdh,
 
     rec_hdr.incl_len = GUINT32_TO_BE(rec->rec_header.packet_header.caplen);
     rec_hdr.orig_len = GUINT32_TO_BE(rec->rec_header.packet_header.len);
+
+    pd = ws_buffer_start_ptr(&rec->data);
 
     switch (wdh->file_encap) {
 

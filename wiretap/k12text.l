@@ -481,8 +481,9 @@ static const struct { int e; const char* s; } encaps[] = {
 
 static bool
 k12text_dump(wtap_dumper *wdh, const wtap_rec *rec,
-	     const uint8_t *pd, int *err, char **err_info _U_) {
+	     int *err, char **err_info _U_) {
 #define K12BUF_SIZE 196808
+	const uint8_t *pd;
 	char *buf;
 	size_t left = K12BUF_SIZE;
 	size_t wl;
@@ -533,6 +534,8 @@ k12text_dump(wtap_dumper *wdh, const wtap_rec *rec,
 	wl = snprintf(p, left, "%.3d,%.3d   %s\r\n|0   |", ms, ns, str_enc);
 	p += wl;
 	left -= wl;
+
+	pd = ws_buffer_start_ptr(&rec->data);
 
 	for(i = 0; i < rec->rec_header.packet_header.caplen && left > 2; i++) {
 		wl = snprintf(p, left, "%.2x|", pd[i]);

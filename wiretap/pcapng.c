@@ -6605,9 +6605,8 @@ static bool pcapng_write_internal_blocks(wtap_dumper *wdh, int *err)
     return true;
 }
 
-static bool pcapng_dump(wtap_dumper *wdh,
-                            const wtap_rec *rec,
-                            const uint8_t *pd, int *err, char **err_info)
+static bool pcapng_dump(wtap_dumper *wdh, const wtap_rec *rec,
+                        int *err, char **err_info)
 {
 #ifdef HAVE_PLUGINS
     block_handler *handler;
@@ -6630,12 +6629,12 @@ static bool pcapng_dump(wtap_dumper *wdh,
                 (!(rec->presence_flags & WTAP_HAS_INTERFACE_ID) || rec->rec_header.packet_header.interface_id == 0) &&
                 (!(rec->presence_flags & WTAP_HAS_CAP_LEN) || rec->rec_header.packet_header.len == rec->rec_header.packet_header.caplen) &&
                 (rec->block == NULL || compute_options_size(rec->block, compute_epb_option_size) == 0)) {
-                if (!pcapng_write_simple_packet_block(wdh, rec, pd, err, err_info)) {
+                if (!pcapng_write_simple_packet_block(wdh, rec, ws_buffer_start_ptr(&rec->data), err, err_info)) {
                     return false;
                 }
             }
             else {
-                if (!pcapng_write_enhanced_packet_block(wdh, rec, pd, err, err_info)) {
+                if (!pcapng_write_enhanced_packet_block(wdh, rec, ws_buffer_start_ptr(&rec->data), err, err_info)) {
                     return false;
                 }
             }
@@ -6651,7 +6650,7 @@ static bool pcapng_dump(wtap_dumper *wdh,
                 (handler = (block_handler *)g_hash_table_lookup(block_handlers,
                                                                 GUINT_TO_POINTER(rec->rec_header.ft_specific_header.record_type))) != NULL) {
                 /* Yes. Call it to write out this record. */
-                if (!handler->writer(wdh, rec, pd, err))
+                if (!handler->writer(wdh, rec, ws_buffer_start_ptr(&rec->data), err))
                     return false;
             } else
 #endif
@@ -6663,13 +6662,13 @@ static bool pcapng_dump(wtap_dumper *wdh,
             break;
 
         case REC_TYPE_SYSCALL:
-            if (!pcapng_write_sysdig_event_block(wdh, rec, pd, err)) {
+            if (!pcapng_write_sysdig_event_block(wdh, rec, ws_buffer_start_ptr(&rec->data), err)) {
                 return false;
             }
             break;
 
         case REC_TYPE_SYSTEMD_JOURNAL_EXPORT:
-            if (!pcapng_write_systemd_journal_export_block(wdh, rec, pd, err)) {
+            if (!pcapng_write_systemd_journal_export_block(wdh, rec, ws_buffer_start_ptr(&rec->data), err)) {
                 return false;
             }
             break;
@@ -6677,12 +6676,12 @@ static bool pcapng_dump(wtap_dumper *wdh,
         case REC_TYPE_CUSTOM_BLOCK:
             switch (rec->rec_header.custom_block_header.pen) {
             case PEN_NFLX:
-                if (!pcapng_write_bblog_block(wdh, rec, pd, err)) {
+                if (!pcapng_write_bblog_block(wdh, rec, ws_buffer_start_ptr(&rec->data), err)) {
                     return false;
                 }
                 break;
             default:
-                if (!pcapng_write_custom_block(wdh, rec, pd, err)) {
+                if (!pcapng_write_custom_block(wdh, rec, ws_buffer_start_ptr(&rec->data), err)) {
                     return false;
                 }
                 break;

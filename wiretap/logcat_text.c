@@ -428,9 +428,8 @@ static int logcat_text_long_dump_can_write_encap(int encap) {
     }
 }
 
-static bool logcat_text_dump_text(wtap_dumper *wdh,
-    const wtap_rec *rec,
-    const uint8_t *pd, int *err, char **err_info)
+static bool logcat_text_dump_text(wtap_dumper *wdh, const wtap_rec *rec,
+    int *err, char **err_info)
 {
     char                           *buf;
     int                             length;
@@ -466,6 +465,8 @@ static bool logcat_text_dump_text(wtap_dumper *wdh,
         *err = WTAP_ERR_ENCAP_PER_PACKET_UNSUPPORTED;
         return false;
     }
+
+    const uint8_t *pd = ws_buffer_start_ptr(&rec->data);
 
     switch (wdh->file_encap) {
     case WTAP_ENCAP_WIRESHARK_UPPER_PDU:

@@ -112,7 +112,7 @@ static int read_packet_data(FILE_T fh, int offset_to_frame, int current_offset_f
 static bool skip_to_next_packet(wtap *wth, int offset_to_next_packet,
     int current_offset_from_packet_header, int *err, char **err_info);
 static bool observer_dump(wtap_dumper *wdh, const wtap_rec *rec,
-    const uint8_t *pd, int *err, char **err_info);
+    int *err, char **err_info);
 static int observer_to_wtap_encap(int observer_encap);
 static int wtap_to_observer_encap(int wtap_encap);
 
@@ -802,7 +802,6 @@ static bool observer_dump_open(wtap_dumper *wdh, int *err,
 /* Write a record for a packet to a dump file.
    Returns true on success, false on failure. */
 static bool observer_dump(wtap_dumper *wdh, const wtap_rec *rec,
-    const uint8_t *pd,
     int *err, char **err_info _U_)
 {
     observer_dump_private_state * private_state = NULL;
@@ -871,7 +870,7 @@ static bool observer_dump(wtap_dumper *wdh, const wtap_rec *rec,
     }
 
     /* write the packet data */
-    if (!wtap_dump_file_write(wdh, pd, rec->rec_header.packet_header.caplen, err)) {
+    if (!wtap_dump_file_write(wdh, ws_buffer_start_ptr(&rec->data), rec->rec_header.packet_header.caplen, err)) {
         return false;
     }
 

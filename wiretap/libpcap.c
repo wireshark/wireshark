@@ -82,17 +82,17 @@ static bool libpcap_read_header(wtap *wth, FILE_T fh, int *err, char **err_info,
 static void libpcap_close(wtap *wth);
 
 static bool libpcap_dump_pcap(wtap_dumper *wdh, const wtap_rec *rec,
-    const uint8_t *pd, int *err, char **err_info);
+    int *err, char **err_info);
 static bool libpcap_dump_pcap_nsec(wtap_dumper *wdh, const wtap_rec *rec,
-    const uint8_t *pd, int *err, char **err_info);
-static bool libpcap_dump_pcap_ss990417(wtap_dumper *wdh,
-    const wtap_rec *rec, const uint8_t *pd, int *err, char **err_info);
-static bool libpcap_dump_pcap_ss990915(wtap_dumper *wdh,
-    const wtap_rec *rec, const uint8_t *pd, int *err, char **err_info);
-static bool libpcap_dump_pcap_ss991029(wtap_dumper *wdh,
-    const wtap_rec *rec, const uint8_t *pd, int *err, char **err_info);
+    int *err, char **err_info);
+static bool libpcap_dump_pcap_ss990417(wtap_dumper *wdh, const wtap_rec *rec,
+    int *err, char **err_info);
+static bool libpcap_dump_pcap_ss990915(wtap_dumper *wdh, const wtap_rec *rec,
+    int *err, char **err_info);
+static bool libpcap_dump_pcap_ss991029(wtap_dumper *wdh, const wtap_rec *rec,
+    int *err, char **err_info);
 static bool libpcap_dump_pcap_nokia(wtap_dumper *wdh, const wtap_rec *rec,
-    const uint8_t *pd, int *err, char **err_info);
+    int *err, char **err_info);
 
 /*
  * Subfields of the field containing the link-layer header type.
@@ -1623,7 +1623,7 @@ libpcap_dump_open_pcap_nokia(wtap_dumper *wdh, int *err, char **err_info _U_)
 
 static bool
 libpcap_dump_write_packet(wtap_dumper *wdh, const wtap_rec *rec,
-    struct pcaprec_hdr *hdr, size_t hdr_size, const uint8_t *pd, int *err)
+    struct pcaprec_hdr *hdr, size_t hdr_size, int *err)
 {
 	const union wtap_pseudo_header *pseudo_header = &rec->rec_header.packet_header.pseudo_header;
 	int phdrsize;
@@ -1663,7 +1663,8 @@ libpcap_dump_write_packet(wtap_dumper *wdh, const wtap_rec *rec,
 	if (!pcap_write_phdr(wdh, wdh->file_encap, pseudo_header, err))
 		return false;
 
-	if (!wtap_dump_file_write(wdh, pd, rec->rec_header.packet_header.caplen, err))
+	if (!wtap_dump_file_write(wdh, ws_buffer_start_ptr(&rec->data),
+	    rec->rec_header.packet_header.caplen, err))
 		return false;
 	return true;
 }
@@ -1672,7 +1673,7 @@ libpcap_dump_write_packet(wtap_dumper *wdh, const wtap_rec *rec,
    Write a record for a packet to a dump file.
    Returns true on success, false on failure. */
 static bool
-libpcap_dump_pcap(wtap_dumper *wdh, const wtap_rec *rec, const uint8_t *pd,
+libpcap_dump_pcap(wtap_dumper *wdh, const wtap_rec *rec,
     int *err, char **err_info _U_)
 {
 	struct pcaprec_hdr rec_hdr;
@@ -1689,14 +1690,14 @@ libpcap_dump_pcap(wtap_dumper *wdh, const wtap_rec *rec, const uint8_t *pd,
 	rec_hdr.ts_sec = (uint32_t) rec->ts.secs;
 	rec_hdr.ts_usec = rec->ts.nsecs / 1000;
 	return libpcap_dump_write_packet(wdh, rec, &rec_hdr, sizeof rec_hdr,
-	    pd, err);
+	    err);
 }
 
 /* Like classic pcap, but with nanosecond resolution.
    Write a record for a packet to a dump file.
    Returns true on success, false on failure. */
 static bool
-libpcap_dump_pcap_nsec(wtap_dumper *wdh, const wtap_rec *rec, const uint8_t *pd,
+libpcap_dump_pcap_nsec(wtap_dumper *wdh, const wtap_rec *rec,
     int *err, char **err_info _U_)
 {
 	struct pcaprec_hdr rec_hdr;
@@ -1713,7 +1714,7 @@ libpcap_dump_pcap_nsec(wtap_dumper *wdh, const wtap_rec *rec, const uint8_t *pd,
 	rec_hdr.ts_sec = (uint32_t) rec->ts.secs;
 	rec_hdr.ts_usec = rec->ts.nsecs;
 	return libpcap_dump_write_packet(wdh, rec, &rec_hdr, sizeof rec_hdr,
-	    pd, err);
+	    err);
 }
 
 /* Modified, but with the old magic, sigh.
@@ -1721,7 +1722,7 @@ libpcap_dump_pcap_nsec(wtap_dumper *wdh, const wtap_rec *rec, const uint8_t *pd,
    Returns true on success, false on failure. */
 static bool
 libpcap_dump_pcap_ss990417(wtap_dumper *wdh, const wtap_rec *rec,
-    const uint8_t *pd, int *err, char **err_info _U_)
+    int *err, char **err_info _U_)
 {
 	struct pcaprec_modified_hdr rec_hdr;
 
@@ -1759,7 +1760,7 @@ libpcap_dump_pcap_ss990417(wtap_dumper *wdh, const wtap_rec *rec,
 	rec_hdr.protocol = 0;
 	rec_hdr.pkt_type = 0;
 	return libpcap_dump_write_packet(wdh, rec, &rec_hdr.hdr, sizeof rec_hdr,
-	    pd, err);
+	    err);
 }
 
 /* New magic, extra crap.
@@ -1767,7 +1768,7 @@ libpcap_dump_pcap_ss990417(wtap_dumper *wdh, const wtap_rec *rec,
    Returns true on success, false on failure. */
 static bool
 libpcap_dump_pcap_ss990915(wtap_dumper *wdh, const wtap_rec *rec,
-    const uint8_t *pd, int *err, char **err_info _U_)
+    int *err, char **err_info _U_)
 {
 	struct pcaprec_ss990915_hdr rec_hdr;
 
@@ -1788,7 +1789,7 @@ libpcap_dump_pcap_ss990915(wtap_dumper *wdh, const wtap_rec *rec,
 	rec_hdr.cpu1 = 0;
 	rec_hdr.cpu2 = 0;
 	return libpcap_dump_write_packet(wdh, rec, &rec_hdr.hdr, sizeof rec_hdr,
-	    pd, err);
+	    err);
 }
 
 /* Same magic as SS990915, *different* extra crap, sigh.
@@ -1796,7 +1797,7 @@ libpcap_dump_pcap_ss990915(wtap_dumper *wdh, const wtap_rec *rec,
    Returns true on success, false on failure. */
 static bool
 libpcap_dump_pcap_ss991029(wtap_dumper *wdh, const wtap_rec *rec,
-    const uint8_t *pd, int *err, char **err_info _U_)
+    int *err, char **err_info _U_)
 {
 	struct pcaprec_modified_hdr rec_hdr;
 
@@ -1834,7 +1835,7 @@ libpcap_dump_pcap_ss991029(wtap_dumper *wdh, const wtap_rec *rec,
 	rec_hdr.protocol = 0;
 	rec_hdr.pkt_type = 0;
 	return libpcap_dump_write_packet(wdh, rec, &rec_hdr.hdr, sizeof rec_hdr,
-	    pd, err);
+	    err);
 }
 
 /* Nokia libpcap of some sort.
@@ -1842,7 +1843,7 @@ libpcap_dump_pcap_ss991029(wtap_dumper *wdh, const wtap_rec *rec,
    Returns true on success, false on failure. */
 static bool
 libpcap_dump_pcap_nokia(wtap_dumper *wdh, const wtap_rec *rec,
-    const uint8_t *pd, int *err, char **err_info _U_)
+    int *err, char **err_info _U_)
 {
 	struct pcaprec_nokia_hdr rec_hdr;
 	const union wtap_pseudo_header *pseudo_header = &rec->rec_header.packet_header.pseudo_header;
@@ -1861,7 +1862,7 @@ libpcap_dump_pcap_nokia(wtap_dumper *wdh, const wtap_rec *rec,
 	/* restore the "mysterious stuff" that came with the packet */
 	memcpy(rec_hdr.stuff, pseudo_header->nokia.stuff, 4);
 	return libpcap_dump_write_packet(wdh, rec, &rec_hdr.hdr, sizeof rec_hdr,
-	    pd, err);
+	    err);
 }
 
 static const struct supported_block_type pcap_blocks_supported[] = {

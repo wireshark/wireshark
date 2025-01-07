@@ -3859,7 +3859,7 @@ process_cap_file_second_pass(capture_file *cf, wtap_dumper *pdh,
             write_framenum++;
             if (pdh != NULL) {
                 ws_debug("tshark: writing packet #%d to outfile packet #%d", framenum, write_framenum);
-                if (!wtap_dump(pdh, &rec, ws_buffer_start_ptr(&rec.data), err, err_info)) {
+                if (!wtap_dump(pdh, &rec, err, err_info)) {
                     /* Error writing to the output file. */
                     ws_debug("tshark: error writing to a capture file (%d)", *err);
                     *err_framenum = framenum;
@@ -3983,7 +3983,7 @@ process_cap_file_single_pass(capture_file *cf, wtap_dumper *pdh,
             if (pdh != NULL) {
                 ws_debug("tshark: writing packet #%d to outfile as #%d",
                         framenum, write_framenum);
-                if (!wtap_dump(pdh, &rec, ws_buffer_start_ptr(&rec.data), err, err_info)) {
+                if (!wtap_dump(pdh, &rec, err, err_info)) {
                     /* Error writing to the output file. */
                     ws_debug("tshark: error writing to a capture file (%d)", *err);
                     *err_framenum = framenum;

@@ -1139,9 +1139,7 @@ merge_process_packets(wtap_dumper *pdh, const int file_type,
             }
         }
 
-        if (!wtap_dump(pdh, &in_file->rec,
-                       ws_buffer_start_ptr(&in_file->rec.data),
-                       err, err_info)) {
+        if (!wtap_dump(pdh, &in_file->rec, err, err_info)) {
             status = MERGE_ERR_CANT_WRITE_OUTFILE;
             break;
         }

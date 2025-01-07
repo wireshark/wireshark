@@ -1775,12 +1775,12 @@ static erf_dump_t *erf_dump_priv_create(void) {
 static bool erf_dump(
     wtap_dumper                    *wdh,
     const wtap_rec                 *rec,
-    const uint8_t                  *pd,
     int                            *err,
     char                           **err_info _U_)
 {
   const union wtap_pseudo_header *pseudo_header = &rec->rec_header.packet_header.pseudo_header;
   union wtap_pseudo_header other_phdr;
+  const uint8_t *pd = ws_buffer_start_ptr(&rec->data);
   int      erf_type;
   int64_t  alignbytes   = 0;
   unsigned padbytes   = 0;

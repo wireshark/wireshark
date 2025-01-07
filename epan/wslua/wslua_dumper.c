@@ -383,7 +383,7 @@ WSLUA_METHOD Dumper_dump(lua_State* L) {
         return 0;
     }
 
-    memset(&rec, 0, sizeof rec);
+    wtap_rec_init(&rec, ba->len);
 
     rec.rec_type = REC_TYPE_PACKET;
 
@@ -398,10 +398,13 @@ WSLUA_METHOD Dumper_dump(lua_State* L) {
         rec.rec_header.packet_header.pseudo_header = *ph->wph;
     }
 
+    ws_buffer_append(&rec.data, ba->data, ba->len);
+
     /* TODO: Can we get access to pinfo->rec->block here somehow? We
      * should be copying it to pkthdr.pkt_block if we can. */
 
-    if (! wtap_dump(d, &rec, ba->data, &err, &err_info)) {
+    if (! wtap_dump(d, &rec, &err, &err_info)) {
+        wtap_rec_cleanup(&rec);
         switch (err) {
 
         case WTAP_ERR_UNWRITABLE_REC_DATA:
@@ -417,8 +420,9 @@ WSLUA_METHOD Dumper_dump(lua_State* L) {
         }
     }
 
-    return 0;
+    wtap_rec_cleanup(&rec);
 
+    return 0;
 }
 
 WSLUA_METHOD Dumper_new_for_current(lua_State* L) {
@@ -519,7 +523,6 @@ WSLUA_METHOD Dumper_dump_current(lua_State* L) {
      */
     Dumper d = checkDumper(L,1);
     wtap_rec rec;
-    const unsigned char* data;
     tvbuff_t* tvb;
     struct data_source *data_src;
     int err = 0;
@@ -542,7 +545,7 @@ WSLUA_METHOD Dumper_dump_current(lua_State* L) {
 
     tvb = get_data_source_tvb(data_src);
 
-    memset(&rec, 0, sizeof rec);
+    wtap_rec_init(&rec, tvb_captured_length(tvb));
 
     rec.rec_type                           = REC_TYPE_PACKET;
     rec.presence_flags                     = WTAP_HAS_TS|WTAP_HAS_CAP_LEN;
@@ -564,9 +567,10 @@ WSLUA_METHOD Dumper_dump_current(lua_State* L) {
         rec.block = lua_pinfo->rec->block;
     }
 
-    data = (const unsigned char *)tvb_memdup(lua_pinfo->pool,tvb,0,rec.rec_header.packet_header.caplen);
+    tvb_memcpy(tvb,ws_buffer_start_ptr(&rec.data),0,rec.rec_header.packet_header.caplen);
 
-    if (! wtap_dump(d, &rec, data, &err, &err_info)) {
+    if (! wtap_dump(d, &rec, &err, &err_info)) {
+        wtap_rec_cleanup(&rec);
         switch (err) {
 
         case WTAP_ERR_UNWRITABLE_REC_DATA:
@@ -581,6 +585,8 @@ WSLUA_METHOD Dumper_dump_current(lua_State* L) {
             break;
         }
     }
+
+    wtap_rec_cleanup(&rec);
 
     return 0;
 }

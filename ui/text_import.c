@@ -732,17 +732,19 @@ write_current_packet(bool cont)
         HDR_TCP.seq_num = g_ntohl(HDR_TCP.seq_num) + curr_offset;
         HDR_TCP.seq_num = g_htonl(HDR_TCP.seq_num);
 
-        /* Write the packet */
+        /* Write the record */
+        int data_length;
         wtap_rec rec;
         int err;
         char *err_info;
 
-        memset(&rec, 0, sizeof rec);
+        data_length = prefix_length + curr_offset + eth_trailer_length;
+        wtap_rec_init(&rec, data_length);
 
         if (info_p->encapsulation == WTAP_ENCAP_SYSTEMD_JOURNAL) {
             rec.rec_type = REC_TYPE_SYSTEMD_JOURNAL_EXPORT;
             rec.block = wtap_block_create(WTAP_BLOCK_SYSTEMD_JOURNAL_EXPORT);
-            rec.rec_header.systemd_journal_export_header.record_len = prefix_length + curr_offset + eth_trailer_length;
+            rec.rec_header.systemd_journal_export_header.record_len = data_length;
             rec.presence_flags = WTAP_HAS_CAP_LEN|WTAP_HAS_TS;
             /* XXX: Ignore our direction, packet id, and timestamp. For a
              * systemd Journal Export Block the timestamp comes from the
@@ -754,7 +756,7 @@ write_current_packet(bool cont)
         } else {
             rec.rec_type = REC_TYPE_PACKET;
             rec.block = wtap_block_create(WTAP_BLOCK_PACKET);
-            rec.rec_header.packet_header.caplen = rec.rec_header.packet_header.len = prefix_length + curr_offset + eth_trailer_length;
+            rec.rec_header.packet_header.caplen = rec.rec_header.packet_header.len = data_length;
             rec.ts.secs = ts_sec;
             rec.ts.nsecs = ts_nsec;
             rec.rec_header.packet_header.pkt_encap = info_p->encapsulation;
@@ -767,15 +769,17 @@ write_current_packet(bool cont)
             }
         }
 
-        if (!wtap_dump(info_p->wdh, &rec, packet_buf, &err, &err_info)) {
+        ws_buffer_append(&rec.data, packet_buf, data_length);
+
+        if (!wtap_dump(info_p->wdh, &rec, &err, &err_info)) {
             report_cfile_write_failure(info_p->import_text_filename,
                     info_p->output_filename, err, err_info,
                     info_p->num_packets_read,
                     wtap_dump_file_type_subtype(info_p->wdh));
-            wtap_block_unref(rec.block);
+            wtap_rec_cleanup(&rec);
             return IMPORT_FAILURE;
         }
-        wtap_block_unref(rec.block);
+        wtap_rec_cleanup(&rec);
         info_p->num_packets_written++;
     }
 

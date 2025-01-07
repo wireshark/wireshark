@@ -314,9 +314,8 @@ static int logcat_dump_can_write_encap(int encap)
     return 0;
 }
 
-static bool logcat_binary_dump(wtap_dumper *wdh,
-    const wtap_rec *rec,
-    const uint8_t *pd, int *err, char **err_info _U_)
+static bool logcat_binary_dump(wtap_dumper *wdh, const wtap_rec *rec,
+    int *err, char **err_info _U_)
 {
     int caplen;
 
@@ -336,6 +335,8 @@ static bool logcat_binary_dump(wtap_dumper *wdh,
     }
 
     caplen = rec->rec_header.packet_header.caplen;
+
+    const uint8_t *pd = ws_buffer_start_ptr(&rec->data);
 
     /* Skip EXPORTED_PDU*/
     if (wdh->file_encap == WTAP_ENCAP_WIRESHARK_UPPER_PDU) {

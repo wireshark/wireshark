@@ -91,7 +91,7 @@ static bool _5views_seek_read(wtap *wth, int64_t seek_off, wtap_rec *rec,
 static bool _5views_read_header(wtap *wth, FILE_T fh, t_5VW_TimeStamped_Header *hdr,
     wtap_rec *rec, int *err, char **err_info);
 
-static bool _5views_dump(wtap_dumper *wdh, const wtap_rec *rec, const uint8_t *pd, int *err, char **err_info);
+static bool _5views_dump(wtap_dumper *wdh, const wtap_rec *rec, int *err, char **err_info);
 static bool _5views_dump_finish(wtap_dumper *wdh, int *err, char **err_info);
 
 static int _5views_file_type_subtype = -1;
@@ -347,9 +347,8 @@ static bool _5views_dump_open(wtap_dumper *wdh, int *err, char **err_info _U_)
 
 /* Write a record for a packet to a dump file.
    Returns true on success, false on failure. */
-static bool _5views_dump(wtap_dumper *wdh,
-	const wtap_rec *rec,
-	const uint8_t *pd, int *err, char **err_info _U_)
+static bool _5views_dump(wtap_dumper *wdh, const wtap_rec *rec,
+	int *err, char **err_info _U_)
 {
 	_5views_dump_t *_5views = (_5views_dump_t *)wdh->priv;
 	t_5VW_TimeStamped_Header HeaderFrame;
@@ -405,7 +404,7 @@ static bool _5views_dump(wtap_dumper *wdh,
 		return false;
 
 	/* write the data */
-	if (!wtap_dump_file_write(wdh, pd, rec->rec_header.packet_header.caplen, err))
+	if (!wtap_dump_file_write(wdh, ws_buffer_start_ptr(&rec->data), rec->rec_header.packet_header.caplen, err))
 		return false;
 
 	_5views->nframes ++;

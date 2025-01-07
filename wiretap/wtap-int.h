@@ -90,9 +90,8 @@ typedef void *WFILE_T;
 typedef bool (*subtype_add_idb_func)(struct wtap_dumper*, wtap_block_t,
                                          int *, char **);
 
-typedef bool (*subtype_write_func)(struct wtap_dumper*,
-                                       const wtap_rec *rec,
-                                       const uint8_t*, int*, char**);
+typedef bool (*subtype_write_func)(struct wtap_dumper*, const wtap_rec*,
+                                   int*, char**);
 typedef bool (*subtype_finish_func)(struct wtap_dumper*, int*, char**);
 
 struct wtap_dumper {

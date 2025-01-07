@@ -105,7 +105,7 @@ frame_write(FrameRecord_t *frame, wtap *wth, wtap_dumper *pdh,
     rec->ts = frame->frame_time;
 
     /* Dump frame to outfile */
-    if (!wtap_dump(pdh, rec, ws_buffer_start_ptr(&rec->data), &err, &err_info)) {
+    if (!wtap_dump(pdh, rec, &err, &err_info)) {
         cfile_write_failure_message(infile, outfile, err, err_info, frame->num,
                                     wtap_file_type_subtype(wth));
         exit(1);

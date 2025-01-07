@@ -337,9 +337,8 @@ esc_write(wtap_dumper *wdh, const uint8_t *buf, int len, int *err)
 	return true;
 }
 
-static bool eyesdn_dump(wtap_dumper *wdh,
-			    const wtap_rec *rec,
-			    const uint8_t *pd, int *err, char **err_info);
+static bool eyesdn_dump(wtap_dumper *wdh, const wtap_rec *rec,
+			int *err, char **err_info);
 
 static bool eyesdn_dump_open(wtap_dumper *wdh, int *err, char **err_info _U_)
 {
@@ -372,9 +371,8 @@ static int eyesdn_dump_can_write_encap(int encap)
 
 /* Write a record for a packet to a dump file.
  *    Returns true on success, false on failure. */
-static bool eyesdn_dump(wtap_dumper *wdh,
-			    const wtap_rec *rec,
-			    const uint8_t *pd, int *err, char **err_info _U_)
+static bool eyesdn_dump(wtap_dumper *wdh, const wtap_rec *rec,
+			int *err, char **err_info _U_)
 {
 	static const uint8_t start_flag = 0xff;
 	const union wtap_pseudo_header *pseudo_header = &rec->rec_header.packet_header.pseudo_header;
@@ -469,7 +467,7 @@ static bool eyesdn_dump(wtap_dumper *wdh,
 		return false;
 	if (!esc_write(wdh, buf, 12, err))
 		return false;
-	if (!esc_write(wdh, pd, size, err))
+	if (!esc_write(wdh, ws_buffer_start_ptr(&rec->data), size, err))
 		return false;
 	return true;
 }

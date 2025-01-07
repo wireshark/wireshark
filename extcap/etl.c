@@ -627,7 +627,9 @@ void wtap_etl_rec_dump(char* etl_record, ULONG total_packet_length, ULONG origin
     rec.ts.nsecs = (int)(((timestamp.QuadPart % G_USEC_PER_SEC) * G_NSEC_PER_SEC) / G_USEC_PER_SEC);
 
     /* and save the packet */
-    if (!wtap_dump(g_pdh, &rec, (uint8_t*)etl_record, &err, &err_info)) {
+    ws_buffer_append(&rec.data, (uint8_t*)etl_record, total_packet_length);
+
+    if (!wtap_dump(g_pdh, &rec, &err, &err_info)) {
         g_err = err;
         sprintf_s(g_err_info, sizeof(g_err_info), "wtap_dump failed, %s", err_info);
         g_free(err_info);

@@ -563,25 +563,23 @@ void randpkt_loop(randpkt_example* example, uint64_t produce_count, uint64_t pac
 	unsigned len_this_pkt;
 	char* err_info;
 	union wtap_pseudo_header* ps_header;
-	uint8_t* buffer;
-	wtap_rec* rec;
+	wtap_rec rec;
 
-	rec = g_new0(wtap_rec, 1);
-	buffer = (uint8_t*)g_malloc0(65536);
+	wtap_rec_init(&rec, example->sample_length);
 
-	rec->rec_type = REC_TYPE_PACKET;
-	rec->presence_flags = WTAP_HAS_TS;
-	rec->rec_header.packet_header.pkt_encap = example->sample_wtap_encap;
+	rec.rec_type = REC_TYPE_PACKET;
+	rec.presence_flags = WTAP_HAS_TS;
+	rec.rec_header.packet_header.pkt_encap = example->sample_wtap_encap;
 
-	ps_header = &rec->rec_header.packet_header.pseudo_header;
+	ps_header = &rec.rec_header.packet_header.pseudo_header;
 
-	/* Load the sample pseudoheader into our pseudoheader buffer */
+	/* Load the sample pseudoheader into the record's pseudoheader buffer */
 	if (example->pseudo_buffer)
 		memcpy(ps_header, example->pseudo_buffer, example->pseudo_length);
 
-	/* Load the sample into our buffer */
+	/* Load the sample into the record's data buffer */
 	if (example->sample_buffer)
-		memcpy(buffer, example->sample_buffer, example->sample_length);
+		ws_buffer_append(&rec.data, example->sample_buffer, example->sample_length);
 
 	/* Produce random packets */
 	for (i = 0; i < produce_count; i++) {
@@ -601,14 +599,16 @@ void randpkt_loop(randpkt_example* example, uint64_t produce_count, uint64_t pac
 			len_this_pkt = WTAP_MAX_PACKET_SIZE_STANDARD;
 		}
 
-		rec->rec_header.packet_header.caplen = len_this_pkt;
-		rec->rec_header.packet_header.len = len_this_pkt;
-		rec->ts.secs = i; /* just for variety */
+		rec.rec_header.packet_header.caplen = len_this_pkt;
+		rec.rec_header.packet_header.len = len_this_pkt;
+		rec.ts.secs = i; /* just for variety */
 
 		for (j = example->pseudo_length; j < (int) sizeof(*ps_header); j++) {
 			((uint8_t*)ps_header)[j] = g_rand_int_range(pkt_rand, 0, 0x100);
 		}
 
+		ws_buffer_assure_space(&rec.data, len_this_pkt);
+		uint8_t* buffer = ws_buffer_start_ptr(&rec.data);
 		for (j = example->sample_length; j < len_this_pkt; j++) {
 			/* Add format strings here and there */
 			if ((int) (100.0*g_rand_double(pkt_rand)) < 3 && j < (len_random - 3)) {
@@ -619,7 +619,7 @@ void randpkt_loop(randpkt_example* example, uint64_t produce_count, uint64_t pac
 			}
 		}
 
-		if (!wtap_dump(example->dump, rec, buffer, &err, &err_info)) {
+		if (!wtap_dump(example->dump, &rec, &err, &err_info)) {
 			cfile_write_failure_message(NULL,
 			    example->filename, err, err_info, 0,
 			    wtap_dump_file_type_subtype(example->dump));
@@ -634,8 +634,7 @@ void randpkt_loop(randpkt_example* example, uint64_t produce_count, uint64_t pac
 		}
 	}
 
-	g_free(rec);
-	g_free(buffer);
+	wtap_rec_cleanup(&rec);
 }
 
 bool randpkt_example_close(randpkt_example* example)

@@ -523,7 +523,7 @@ static int fix_pseudo_header(int encap, wtap_rec *rec, int len);
 static void ngsniffer_sequential_close(wtap *wth);
 static void ngsniffer_close(wtap *wth);
 static bool ngsniffer_dump(wtap_dumper *wdh, const wtap_rec *rec,
-    const uint8_t *pd, int *err, char **err_info);
+    int *err, char **err_info);
 static bool ngsniffer_dump_finish(wtap_dumper *wdh, int *err,
     char **err_info);
 static int SnifferDecompress( unsigned char * inbuf, size_t inlen,
@@ -2095,7 +2095,7 @@ ngsniffer_dump_open(wtap_dumper *wdh, int *err, char **err_info _U_)
    Returns true on success, false on failure. */
 static bool
 ngsniffer_dump(wtap_dumper *wdh, const wtap_rec *rec,
-	       const uint8_t *pd, int *err, char **err_info _U_)
+	       int *err, char **err_info _U_)
 {
 	const union wtap_pseudo_header *pseudo_header = &rec->rec_header.packet_header.pseudo_header;
 	ngsniffer_dump_t *ngsniffer = (ngsniffer_dump_t *)wdh->priv;
@@ -2233,7 +2233,8 @@ ngsniffer_dump(wtap_dumper *wdh, const wtap_rec *rec,
 	rec_hdr.rsvd = 0;
 	if (!wtap_dump_file_write(wdh, &rec_hdr, sizeof rec_hdr, err))
 		return false;
-	if (!wtap_dump_file_write(wdh, pd, rec->rec_header.packet_header.caplen, err))
+	if (!wtap_dump_file_write(wdh, ws_buffer_start_ptr(&rec->data),
+	    rec->rec_header.packet_header.caplen, err))
 		return false;
 	return true;
 }

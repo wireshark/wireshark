@@ -94,7 +94,7 @@ static bool catapult_dct2000_seek_read(wtap *wth, int64_t seek_off,
 static void catapult_dct2000_close(wtap *wth);
 
 static bool catapult_dct2000_dump(wtap_dumper *wdh, const wtap_rec *rec,
-                                  const uint8_t *pd, int *err, char **err_info);
+                                  int *err, char **err_info);
 
 
 /************************************************************/
@@ -576,7 +576,7 @@ catapult_dct2000_dump_can_write_encap(int encap)
 
 static bool
 catapult_dct2000_dump(wtap_dumper *wdh, const wtap_rec *rec,
-                      const uint8_t *pd, int *err, char **err_info _U_)
+                      int *err, char **err_info _U_)
 {
     const union wtap_pseudo_header *pseudo_header = &rec->rec_header.packet_header.pseudo_header;
     uint32_t n;
@@ -695,6 +695,8 @@ catapult_dct2000_dump(wtap_dumper *wdh, const wtap_rec *rec,
             return false;
         }
     }
+
+    const uint8_t *pd = ws_buffer_start_ptr(&rec->data);
 
     /****************************************************************/
     /* Need to skip stub header at start of pd before we reach data */
