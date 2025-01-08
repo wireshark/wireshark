@@ -20,6 +20,7 @@
 typedef struct {
     uint64_t service_id;         /* service id specified when the (RC) channel was set-up */
     bool client_to_server;  /* message direction */
+    bool do_rc_send_reassembling; /* the subdissector requested RC Send reassembling */
     uint32_t src_qp;             /* originator src qp as this is not present in RC packets */
 
     /* store mad data so that it can be parsed for private data by ULP */
@@ -126,6 +127,7 @@ struct infinibandinfo {
     uint32_t reth_dma_length;    /* DMA Length from RETH header */
     uint32_t packet_seq_num;     /* Packet sequence number */
     bool dctConnect;        /* indicator for DCT connect/disconnect */
+    bool do_rc_send_reassembling; /* the subdissector can set this to request RC Send reassembling */
 };
 
 #endif

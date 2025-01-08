@@ -20,6 +20,8 @@
 #include <epan/etypes.h>
 #include <epan/show_exception.h>
 #include <epan/decode_as.h>
+#include <epan/reassemble.h>
+#include <epan/proto_data.h>
 #include <wiretap/erf_record.h>
 #include <wiretap/wtap.h>
 
@@ -1185,6 +1187,38 @@ static int hf_infiniband_link_vl;
 static int hf_infiniband_link_fccl;
 static int hf_infiniband_link_lpcrc;
 
+/* RC Send reassembling */
+static reassembly_table infiniband_rc_send_reassembly_table;
+static int ett_infiniband_rc_send_fragment;
+static int ett_infiniband_rc_send_fragments;
+static int hf_infiniband_rc_send_fragments;
+static int hf_infiniband_rc_send_fragment;
+static int hf_infiniband_rc_send_fragment_overlap;
+static int hf_infiniband_rc_send_fragment_overlap_conflict;
+static int hf_infiniband_rc_send_fragment_multiple_tails;
+static int hf_infiniband_rc_send_fragment_too_long_fragment;
+static int hf_infiniband_rc_send_fragment_error;
+static int hf_infiniband_rc_send_fragment_count;
+static int hf_infiniband_rc_send_reassembled_in;
+static int hf_infiniband_rc_send_reassembled_length;
+static int hf_infiniband_rc_send_reassembled_data;
+static const fragment_items infiniband_rc_send_frag_items = {
+	&ett_infiniband_rc_send_fragment,
+	&ett_infiniband_rc_send_fragments,
+	&hf_infiniband_rc_send_fragments,
+	&hf_infiniband_rc_send_fragment,
+	&hf_infiniband_rc_send_fragment_overlap,
+	&hf_infiniband_rc_send_fragment_overlap_conflict,
+	&hf_infiniband_rc_send_fragment_multiple_tails,
+	&hf_infiniband_rc_send_fragment_too_long_fragment,
+	&hf_infiniband_rc_send_fragment_error,
+	&hf_infiniband_rc_send_fragment_count,
+	&hf_infiniband_rc_send_reassembled_in,
+	&hf_infiniband_rc_send_reassembled_length,
+	&hf_infiniband_rc_send_reassembled_data,
+	"RC Send fragments"
+};
+
 /* Trap Type/Descriptions for dissection */
 static const value_string Operand_Description[]= {
     { 0, " Normal Flow Control"},
@@ -1787,7 +1821,7 @@ dissect_infiniband_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 
     /* General Variables */
     bool bthFollows = false;    /* Tracks if we are parsing a BTH.  This is a significant decision point */
-    struct infinibandinfo info = { NULL, 0, 0, 0, 0, 0, 0, 0, false};
+    struct infinibandinfo info = { NULL, 0, 0, 0, 0, 0, 0, 0, false, false};
     int32_t nextHeaderSequence = -1; /* defined by this dissector. #define which indicates the upcoming header sequence from OpCode */
     uint8_t nxtHdr = 0;              /* Keyed off for header dissection order */
     uint16_t packetLength = 0;       /* Packet Length.  We track this as tvb_length - offset.   */
@@ -2701,6 +2735,138 @@ static void update_sport(packet_info *pinfo)
     pinfo->srcport = conv_data->src_qp;
 }
 
+static bool parse_PAYLOAD_do_rc_send_reassembling(packet_info *pinfo,
+                                                  struct infinibandinfo *info)
+{
+    conversation_t *conversation = NULL;
+    conversation_infiniband_data *proto_data = NULL;
+
+    switch (info->opCode) {
+    case RC_SEND_FIRST:
+    case RC_SEND_MIDDLE:
+    case RC_SEND_ONLY:
+    case RC_SEND_ONLY_IMM:
+    case RC_SEND_ONLY_INVAL:
+    case RC_SEND_LAST:
+    case RC_SEND_LAST_IMM:
+    case RC_SEND_LAST_INVAL:
+        break;
+    default:
+        /* not a fragmenented RC Send */
+        return false;
+    }
+
+    /*
+     * Check if RC Send reassembling was used before in
+     * this conversation
+     */
+    conversation = find_conversation_pinfo(pinfo, 0);
+    if (conversation == NULL) {
+        return false;
+    }
+    proto_data = conversation_get_proto_data(conversation, proto_infiniband);
+    if (proto_data == NULL) {
+        return false;
+    }
+
+    return proto_data->do_rc_send_reassembling;
+
+    return true;
+}
+
+static tvbuff_t *parse_PAYLOAD_reassemble_tvb(packet_info *pinfo,
+                                              struct infinibandinfo *info,
+                                              tvbuff_t *tvb,
+                                              proto_tree *top_tree)
+{
+    static const uint32_t rc_send_id = 99;
+    conversation_t *conversation = NULL;
+    conversation_infiniband_data *proto_data = NULL;
+    bool more_frags = false;
+    fragment_head *fd_head = NULL;
+    bool fd_head_not_cached = false;
+
+    switch (info->opCode) {
+    case RC_SEND_FIRST:
+    case RC_SEND_MIDDLE:
+        more_frags = true;
+        break;
+    case RC_SEND_ONLY:
+    case RC_SEND_ONLY_IMM:
+    case RC_SEND_ONLY_INVAL:
+    case RC_SEND_LAST:
+    case RC_SEND_LAST_IMM:
+    case RC_SEND_LAST_INVAL:
+        break;
+    default:
+        /* not a fragmenented RC Send */
+        return tvb;
+    }
+
+    conversation = find_or_create_conversation(pinfo);
+    proto_data = conversation_get_proto_data(conversation, proto_infiniband);
+    if (proto_data == NULL) {
+        /*
+         * Remember that RC Send reassembling was requested
+         * for this conversation
+         */
+        proto_data = wmem_new0(wmem_file_scope(), conversation_infiniband_data);
+        proto_data->do_rc_send_reassembling = true;
+        conversation_add_proto_data(conversation,
+                                    proto_infiniband,
+                                    proto_data);
+    }
+
+    fd_head = (fragment_head *)p_get_proto_data(wmem_file_scope(),
+                                                pinfo,
+                                                proto_infiniband,
+                                                rc_send_id);
+    if (fd_head == NULL) {
+            fd_head_not_cached = true;
+
+            pinfo->fd->visited = 0;
+            fd_head = fragment_add_seq_next(&infiniband_rc_send_reassembly_table,
+                                            tvb, 0, pinfo,
+                                            conversation->conv_index,
+                                            NULL, tvb_captured_length(tvb),
+                                            more_frags);
+    }
+
+    if (fd_head == NULL) {
+            /*
+             * We really want the fd_head and pass it to
+             * process_reassembled_data()
+             *
+             * So that individual fragments gets the
+             * reassembled in field.
+             */
+            fd_head = fragment_get_reassembled_id(&infiniband_rc_send_reassembly_table,
+                                                  pinfo,
+                                                  conversation->conv_index);
+    }
+
+    if (fd_head == NULL) {
+            /*
+             * we need more data...
+             */
+            return NULL;
+    }
+
+    if (fd_head_not_cached) {
+            p_add_proto_data(wmem_file_scope(), pinfo,
+                             proto_infiniband,
+                             rc_send_id,
+                             fd_head);
+    }
+
+    return process_reassembled_data(tvb, 0, pinfo,
+                                    "Reassembled Infiniband RC Send fragments",
+                                    fd_head,
+                                    &infiniband_rc_send_frag_items,
+                                    NULL, /* update_col_info*/
+                                    top_tree);
+}
+
 /* Parse Payload - Packet Payload / Invariant CRC / maybe Variant CRC
 * IN: parentTree to add the dissection to - in this code the all_headers_tree
 * IN: pinfo - packet info from wireshark
@@ -2800,6 +2966,7 @@ static void parse_PAYLOAD(proto_tree *parentTree,
     }
     else /* Normal Data Packet - Parse as such */
     {
+        bool allow_reassembling = true;
         /* update sport for the packet, for dissectors that performs
          * exact match on saddr, dadr, sport, dport tuple.
          */
@@ -2816,6 +2983,21 @@ static void parse_PAYLOAD(proto_tree *parentTree,
         if (reported_length >= crclen)
             reported_length -= crclen;
         next_tvb = tvb_new_subset_length(tvb, local_offset, reported_length);
+
+        info->do_rc_send_reassembling = parse_PAYLOAD_do_rc_send_reassembling(pinfo, info);
+
+reassemble:
+
+        if (info->do_rc_send_reassembling) {
+            allow_reassembling = false;
+            next_tvb = parse_PAYLOAD_reassemble_tvb(pinfo, info, next_tvb, top_tree);
+            if (next_tvb == NULL) {
+                /*
+                 * we need more data...
+                 */
+                goto skip_dissector;
+            }
+        }
 
         if (try_heuristic_first)
         {
@@ -2846,6 +3028,11 @@ static void parse_PAYLOAD(proto_tree *parentTree,
             call_data_dissector(next_tvb, pinfo, top_tree);
         }
 
+        if (allow_reassembling && info->do_rc_send_reassembling) {
+                goto reassemble;
+        }
+
+skip_dissector:
         /* Will contain ICRC <and maybe VCRC> = 4 or 4+2 (crclen) */
         local_offset = tvb_reported_length(tvb) - crclen;
     }
@@ -3385,7 +3572,7 @@ create_conv_and_add_proto_data(packet_info *pinfo, uint64_t service_id,
     conversation_t *conv;
     conversation_infiniband_data *proto_data;
 
-    proto_data = wmem_new(wmem_file_scope(), conversation_infiniband_data);
+    proto_data = wmem_new0(wmem_file_scope(), conversation_infiniband_data);
     proto_data->service_id = service_id;
     proto_data->client_to_server = client_to_server;
     proto_data->src_qp = src_port;
@@ -3438,7 +3625,7 @@ static void save_conversation_info(packet_info *pinfo, uint8_t *local_gid, uint8
         /* Now we create a conversation for the CM exchange. This uses both
            sides of the conversation since CM packets also include the source
            QPN */
-        proto_data = wmem_new(wmem_file_scope(), conversation_infiniband_data);
+        proto_data = wmem_new0(wmem_file_scope(), conversation_infiniband_data);
         proto_data->service_id = connection->service_id;
         proto_data->client_to_server = true;
 
@@ -3651,7 +3838,7 @@ static void create_bidi_conv(packet_info *pinfo, connection_context *connection)
     conversation_t *conv;
     conversation_infiniband_data *proto_data;
 
-    proto_data = wmem_new(wmem_file_scope(), conversation_infiniband_data);
+    proto_data = wmem_new0(wmem_file_scope(), conversation_infiniband_data);
     proto_data->service_id = connection->service_id;
     proto_data->client_to_server = false;
     memset(&proto_data->mad_private_data[0], 0, MAD_DATA_SIZE);
@@ -3908,7 +4095,7 @@ static void parse_CM_DRsp(proto_tree *top_tree, packet_info *pinfo, tvbuff_t *tv
 static void parse_COM_MGT(proto_tree *parentTree, packet_info *pinfo, tvbuff_t *tvb, int *offset, proto_tree* top_tree)
 {
     MAD_Data    MadData;
-    struct infinibandinfo info = { NULL, 0, 0, 0, 0, 0, 0, 0, false};
+    struct infinibandinfo info = { NULL, 0, 0, 0, 0, 0, 0, 0, false, false};
     int         local_offset;
     const char *label;
     proto_item *CM_header_item;
@@ -6062,8 +6249,8 @@ static void dissect_general_info(tvbuff_t *tvb, int offset, packet_info *pinfo, 
     uint8_t           management_class   = 0;
     MAD_Data          MadData;
 
-    /* BTH - Base Trasport Header */
-    struct infinibandinfo info = { NULL, 0, 0, 0, 0, 0, 0, 0, false};
+    /* BTH - Base Transport Header */
+    struct infinibandinfo info = { NULL, 0, 0, 0, 0, 0, 0, 0, false, false};
     int bthSize = 12;
     void *src_addr,                 /* the address to be displayed in the source/destination columns */
          *dst_addr;                 /* (lid/gid number) will be stored here */
@@ -8816,6 +9003,56 @@ void proto_register_infiniband(void)
         &ett_eoib
     };
 
+    static hf_register_info hf_rc_send[] = {
+        { &hf_infiniband_rc_send_fragments,
+                { "Reassembled Infiniband RC Send Fragments", "infiniband.rc_send.fragments",
+                FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+
+        { &hf_infiniband_rc_send_fragment,
+                { "Infiniband RC Send Fragment", "infiniband.rc_send.fragment",
+                FT_FRAMENUM, BASE_NONE, NULL, 0, NULL, HFILL }},
+        { &hf_infiniband_rc_send_fragment_overlap,
+                { "Fragment overlap", "infiniband.rc_send.fragment.overlap",
+                FT_BOOLEAN, BASE_NONE, NULL, 0, NULL, HFILL }},
+
+        { &hf_infiniband_rc_send_fragment_overlap_conflict,
+                { "Conflicting data in fragment overlap", "infiniband.rc_send.fragment.overlap.conflict",
+                FT_BOOLEAN, BASE_NONE, NULL, 0, NULL, HFILL }},
+
+        { &hf_infiniband_rc_send_fragment_multiple_tails,
+                { "Multiple tail fragments found", "infiniband.rc_send.fragment.multipletails",
+                FT_BOOLEAN, BASE_NONE, NULL, 0, NULL, HFILL }},
+
+        { &hf_infiniband_rc_send_fragment_too_long_fragment,
+                { "Fragment too long", "infiniband.rc_send.fragment.toolongfragment",
+                FT_BOOLEAN, BASE_NONE, NULL, 0, NULL, HFILL }},
+
+        { &hf_infiniband_rc_send_fragment_error,
+                { "Defragmentation error", "infiniband.rc_send.fragment.error",
+                FT_FRAMENUM, BASE_NONE, NULL, 0, NULL, HFILL }},
+
+        { &hf_infiniband_rc_send_fragment_count,
+                { "Fragment count", "infiniband.rc_send.fragment.count",
+                FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_infiniband_rc_send_reassembled_in,
+                { "Reassembled PDU in frame", "infiniband.rc_send.reassembled_in",
+                FT_FRAMENUM, BASE_NONE, NULL, 0, NULL, HFILL }},
+
+        { &hf_infiniband_rc_send_reassembled_length,
+                { "Reassembled Infiniband RC Send length", "infiniband.rc_send.reassembled.length",
+                FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+        { &hf_infiniband_rc_send_reassembled_data,
+                { "Reassembled Infiniband RC Send data", "infiniband.rc_send.reassembled.data",
+                FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+    };
+
+    static int *ett_rc_send_array[] = {
+        &ett_infiniband_rc_send_fragment,
+        &ett_infiniband_rc_send_fragments,
+    };
+
     proto_infiniband = proto_register_protocol("InfiniBand", "IB", "infiniband");
     ib_handle = register_dissector("infiniband", dissect_infiniband, proto_infiniband);
 
@@ -8855,6 +9092,12 @@ void proto_register_infiniband(void)
 
     subdissector_table = register_decode_as_next_proto(proto_infiniband, "infiniband", "Infiniband Payload",
                                                        infiniband_payload_prompt);
+
+    /* RC Send reassembling */
+    proto_register_field_array(proto_infiniband, hf_rc_send, array_length(hf_rc_send));
+    proto_register_subtree_array(ett_rc_send_array, array_length(ett_rc_send_array));
+    reassembly_table_register(&infiniband_rc_send_reassembly_table,
+        &addresses_ports_reassembly_table_functions);
 
     register_shutdown_routine(infiniband_shutdown);
 }
