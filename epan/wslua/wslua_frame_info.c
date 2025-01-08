@@ -80,7 +80,7 @@ WSLUA_METHOD FrameInfo_read_data(lua_State* L) {
         return 0;
     }
 
-    if (!wtap_read_packet_bytes(fh->file, &fi->rec->data, len, &err, &err_info)) {
+    if (!wtap_read_bytes_buffer(fh->file, &fi->rec->data, len, &err, &err_info)) {
         lua_pushboolean(L, false);
         if (err_info) {
             lua_pushstring(L, err_info);

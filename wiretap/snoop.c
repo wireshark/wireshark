@@ -629,7 +629,7 @@ snoop_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec,
 	/*
 	 * Read the packet data.
 	 */
-	if (!wtap_read_packet_bytes(fh, &rec->data, packet_size, err, err_info))
+	if (!wtap_read_bytes_buffer(fh, &rec->data, packet_size, err, err_info))
 		return -1;	/* failed */
 
 	/*

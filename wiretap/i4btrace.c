@@ -293,7 +293,7 @@ i4b_read_rec(wtap *wth, FILE_T fh, wtap_rec *rec, int *err, char **err_info)
 	/*
 	 * Read the packet data.
 	 */
-	return wtap_read_packet_bytes(fh, &rec->data, length, err, err_info);
+	return wtap_read_bytes_buffer(fh, &rec->data, length, err, err_info);
 }
 
 static const struct supported_block_type i4btrace_blocks_supported[] = {

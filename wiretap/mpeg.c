@@ -235,7 +235,7 @@ mpeg_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec,
 	if (packet_size == 0)
 		return false;
 
-	if (!wtap_read_packet_bytes(fh, &rec->data, packet_size, err, err_info))
+	if (!wtap_read_bytes_buffer(fh, &rec->data, packet_size, err, err_info))
 		return false;
 
 	rec->rec_type = REC_TYPE_PACKET;

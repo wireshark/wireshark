@@ -236,7 +236,7 @@ static bool btsnoop_read_record(wtap *wth, FILE_T fh,
 
 
     /* Read packet data. */
-    return wtap_read_packet_bytes(fh, &rec->data,
+    return wtap_read_bytes_buffer(fh, &rec->data,
                                   rec->rec_header.packet_header.caplen,
                                   err, err_info);
 }

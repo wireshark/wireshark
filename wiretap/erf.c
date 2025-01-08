@@ -590,7 +590,7 @@ static bool erf_read(wtap *wth, wtap_rec *rec,
       return false;
     }
 
-    if (!wtap_read_packet_bytes(wth->fh, &rec->data, packet_size, err, err_info)) {
+    if (!wtap_read_bytes_buffer(wth->fh, &rec->data, packet_size, err, err_info)) {
       g_ptr_array_free(anchor_mappings_to_update, true);
       return false;
     }
@@ -638,7 +638,7 @@ static bool erf_seek_read(wtap *wth, int64_t seek_off,
 
   g_ptr_array_free(anchor_mappings_to_update, true);
 
-  return wtap_read_packet_bytes(wth->random_fh, &rec->data, packet_size,
+  return wtap_read_bytes_buffer(wth->random_fh, &rec->data, packet_size,
                                 err, err_info);
 }
 

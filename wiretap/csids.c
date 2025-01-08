@@ -191,7 +191,7 @@ csids_read_packet(FILE_T fh, csids_t *csids, wtap_rec *rec,
   rec->ts.secs = hdr.seconds;
   rec->ts.nsecs = 0;
 
-  if( !wtap_read_packet_bytes( fh, &rec->data, rec->rec_header.packet_header.caplen, err, err_info ) )
+  if( !wtap_read_bytes_buffer( fh, &rec->data, rec->rec_header.packet_header.caplen, err, err_info ) )
     return false;
 
   pd = ws_buffer_start_ptr( &rec->data );

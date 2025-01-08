@@ -147,7 +147,7 @@ static bool stanag4607_read_file(wtap *wth, FILE_T fh, wtap_rec *rec,
   if (file_seek(fh, - offset, SEEK_CUR, err) == -1)
     return false;
 
-  return wtap_read_packet_bytes(fh, &rec->data, packet_size, err, err_info);
+  return wtap_read_bytes_buffer(fh, &rec->data, packet_size, err, err_info);
 }
 
 static bool stanag4607_read(wtap *wth, wtap_rec *rec,

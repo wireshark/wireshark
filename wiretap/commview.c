@@ -324,7 +324,7 @@ commview_ncf_read_packet(FILE_T fh, wtap_rec *rec,
 	rec->ts.secs = mktime(&tm);
 	rec->ts.nsecs = cv_hdr.usecs * 1000;
 
-	return wtap_read_packet_bytes(fh, &rec->data, rec->rec_header.packet_header.caplen, err, err_info);
+	return wtap_read_bytes_buffer(fh, &rec->data, rec->rec_header.packet_header.caplen, err, err_info);
 }
 
 static bool
@@ -1033,7 +1033,7 @@ commview_ncfx_read_packet(FILE_T fh, wtap_rec *rec,
 	rec->ts.secs = mktime(&tm);
 	rec->ts.nsecs = cv_hdr.usecs * 1000;
 
-	return wtap_read_packet_bytes(fh, &rec->data, rec->rec_header.packet_header.caplen, err, err_info);
+	return wtap_read_bytes_buffer(fh, &rec->data, rec->rec_header.packet_header.caplen, err, err_info);
 }
 
 static bool

@@ -2312,7 +2312,7 @@ pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh,
     wblock->rec->ts.secs = (time_t)(wblock->rec->ts.secs + iface_info.tsoffset);
 
     /* "(Enhanced) Packet Block" read capture data */
-    if (!wtap_read_packet_bytes(fh, &wblock->rec->data,
+    if (!wtap_read_bytes_buffer(fh, &wblock->rec->data,
                                 packet.cap_len - pseudo_header_len, err, err_info))
         return false;
     block_read += packet.cap_len - pseudo_header_len;
@@ -2495,7 +2495,7 @@ pcapng_read_simple_packet_block(FILE_T fh, pcapng_block_header_t *bh,
     memset((void *)&wblock->rec->rec_header.packet_header.pseudo_header, 0, sizeof(union wtap_pseudo_header));
 
     /* "Simple Packet Block" read capture data */
-    if (!wtap_read_packet_bytes(fh, &wblock->rec->data,
+    if (!wtap_read_bytes_buffer(fh, &wblock->rec->data,
                                 simple_packet.cap_len, err, err_info))
         return false;
 
@@ -3091,7 +3091,7 @@ pcapng_handle_generic_custom_block(FILE_T fh, pcapng_block_header_t *bh,
     wblock->rec->rec_header.custom_block_header.length = bh->block_total_length - MIN_CB_SIZE;
     wblock->rec->rec_header.custom_block_header.pen = pen;
     wblock->rec->rec_header.custom_block_header.copy_allowed = (bh->block_type == BLOCK_TYPE_CB_COPY);
-    if (!wtap_read_packet_bytes(fh, &wblock->rec->data, to_read, err, err_info)) {
+    if (!wtap_read_bytes_buffer(fh, &wblock->rec->data, to_read, err, err_info)) {
         return false;
     }
     /*
@@ -3257,7 +3257,7 @@ pcapng_read_sysdig_event_block(wtap *wth, FILE_T fh, pcapng_block_header_t *bh,
     wblock->rec->rec_header.syscall_header.event_filelen = block_read;
 
     /* "Sysdig Event Block" read event data */
-    if (!wtap_read_packet_bytes(fh, &wblock->rec->data,
+    if (!wtap_read_bytes_buffer(fh, &wblock->rec->data,
                                 block_read, err, err_info))
         return false;
 
@@ -3288,7 +3288,7 @@ pcapng_read_systemd_journal_export_block(wtap *wth, FILE_T fh, pcapng_block_head
     entry_length = bh->block_total_length - MIN_BLOCK_SIZE;
 
     /* Includes padding bytes. */
-    if (!wtap_read_packet_bytes(fh, &wblock->rec->data,
+    if (!wtap_read_bytes_buffer(fh, &wblock->rec->data,
                                 entry_length, err, err_info)) {
         return false;
     }

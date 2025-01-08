@@ -1080,7 +1080,7 @@ reread:
 	/*
 	 * Read the packet data.
 	 */
-	if (!wtap_read_packet_bytes(wth->fh, &rec->data,
+	if (!wtap_read_bytes_buffer(wth->fh, &rec->data,
 	    rec->rec_header.packet_header.caplen, err, err_info))
 		return false;
 
@@ -1122,7 +1122,7 @@ netxray_seek_read(wtap *wth, int64_t seek_off, wtap_rec *rec,
 	/*
 	 * Read the packet data.
 	 */
-	if (!wtap_read_packet_bytes(wth->random_fh, &rec->data,
+	if (!wtap_read_bytes_buffer(wth->random_fh, &rec->data,
 	    rec->rec_header.packet_header.caplen, err, err_info))
 		return false;
 

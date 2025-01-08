@@ -645,7 +645,7 @@ read_packet_data(FILE_T fh, int offset_to_frame, int current_offset_from_packet_
     }
 
     /* read in the packet data */
-    if (!wtap_read_packet_bytes(fh, &rec->data,
+    if (!wtap_read_bytes_buffer(fh, &rec->data,
                                 rec->rec_header.packet_header.caplen,
                                 err, err_info))
         return false;

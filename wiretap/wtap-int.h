@@ -314,7 +314,8 @@ wtap_read_bytes(FILE_T fh, void *buf, unsigned int count, int *err,
     char **err_info);
 
 /*
- * Read packet data into a Buffer, growing the buffer as necessary.
+ * Read a given number of bytes from a file into a Buffer, growing the
+ * buffer as necessary.
  *
  * This returns an error on a short read, even if the short read hit
  * the EOF immediately.  (The assumption is that each packet has a
@@ -324,7 +325,7 @@ wtap_read_bytes(FILE_T fh, void *buf, unsigned int count, int *err,
  */
 WS_DLL_PUBLIC
 bool
-wtap_read_packet_bytes(FILE_T fh, Buffer *buf, unsigned length, int *err,
+wtap_read_bytes_buffer(FILE_T fh, Buffer *buf, unsigned length, int *err,
     char **err_info);
 
 /*

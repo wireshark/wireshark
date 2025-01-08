@@ -586,7 +586,7 @@ static bool lanalyzer_read_trace_record(wtap *wth, FILE_T fh,
       }
 
       /* Read the packet data */
-      return wtap_read_packet_bytes(fh, &rec->data, packet_size, err, err_info);
+      return wtap_read_bytes_buffer(fh, &rec->data, packet_size, err, err_info);
 }
 
 /* Read the next packet */

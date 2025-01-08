@@ -161,7 +161,7 @@ ipfix_read_message(FILE_T fh, wtap_rec *rec, int *err, char **err_info)
     rec->ts.secs = msg_hdr.export_time_secs;
     rec->ts.nsecs = 0;
 
-    return wtap_read_packet_bytes(fh, &rec->data, msg_hdr.message_length, err, err_info);
+    return wtap_read_bytes_buffer(fh, &rec->data, msg_hdr.message_length, err, err_info);
 }
 
 

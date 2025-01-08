@@ -197,7 +197,7 @@ static bool aethra_read(wtap *wth, wtap_rec *rec, int *err,
 		 * growing the buffer to handle it.
 		 */
 		if (rec->rec_header.packet_header.caplen != 0) {
-			if (!wtap_read_packet_bytes(wth->fh, &rec->data,
+			if (!wtap_read_bytes_buffer(wth->fh, &rec->data,
 			    rec->rec_header.packet_header.caplen, err, err_info))
 				return false;	/* Read error */
 		}
@@ -286,7 +286,7 @@ aethra_seek_read(wtap *wth, int64_t seek_off, wtap_rec *rec,
 	/*
 	 * Read the packet data.
 	 */
-	if (!wtap_read_packet_bytes(wth->random_fh, &rec->data,
+	if (!wtap_read_bytes_buffer(wth->random_fh, &rec->data,
 	    rec->rec_header.packet_header.caplen, err, err_info))
 		return false;	/* failed */
 

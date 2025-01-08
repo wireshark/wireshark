@@ -272,7 +272,7 @@ usbdump_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec,
                 (uint32_t)bpf_hdr[13] << 8 | (uint32_t)bpf_hdr[12];
 
     /* Read the packet data */
-    if (!wtap_read_packet_bytes(fh, &rec->data, rec->rec_header.packet_header.caplen, err, err_info))
+    if (!wtap_read_bytes_buffer(fh, &rec->data, rec->rec_header.packet_header.caplen, err, err_info))
         return false;
 
     /* Keep track of multiframe_size and detect overrun */

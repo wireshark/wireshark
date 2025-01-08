@@ -313,7 +313,7 @@ rtpdump_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec,
     rec->rec_header.packet_header.len = epdu_len + length;
     rec->rec_type = REC_TYPE_PACKET;
 
-    return wtap_read_packet_bytes(fh, &rec->data, length, err, err_info);
+    return wtap_read_bytes_buffer(fh, &rec->data, length, err, err_info);
 }
 
 static bool

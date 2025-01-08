@@ -567,7 +567,7 @@ static int peekclassic_read_packet_v7(wtap *wth, FILE_T fh, wtap_rec *rec,
 	}
 
 	/* read the packet data */
-	if (!wtap_read_packet_bytes(fh, &rec->data, rec->rec_header.packet_header.caplen, err, err_info))
+	if (!wtap_read_bytes_buffer(fh, &rec->data, rec->rec_header.packet_header.caplen, err, err_info))
 		return -1;
 
 	return sliceLength;
@@ -688,7 +688,7 @@ static bool peekclassic_read_packet_v56(wtap *wth, FILE_T fh, wtap_rec *rec,
 	}
 
 	/* read the packet data */
-	return wtap_read_packet_bytes(fh, &rec->data, sliceLength, err, err_info);
+	return wtap_read_bytes_buffer(fh, &rec->data, sliceLength, err, err_info);
 }
 
 static const struct supported_block_type peekclassic_v56_blocks_supported[] = {

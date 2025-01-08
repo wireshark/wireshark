@@ -378,7 +378,7 @@ packetlogger_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec,
 	rec->ts.secs = (time_t)pl_hdr.ts_secs;
 	rec->ts.nsecs = (int)(pl_hdr.ts_usecs * 1000);
 
-	return wtap_read_packet_bytes(fh, &rec->data, rec->rec_header.packet_header.caplen, err, err_info);
+	return wtap_read_bytes_buffer(fh, &rec->data, rec->rec_header.packet_header.caplen, err, err_info);
 }
 
 static const struct supported_block_type packetlogger_blocks_supported[] = {

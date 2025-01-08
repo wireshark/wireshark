@@ -363,7 +363,7 @@ radcom_read_rec(wtap *wth, FILE_T fh, wtap_rec *rec, int *err, char **err_info)
 	/*
 	 * Read the packet data.
 	 */
-	if (!wtap_read_packet_bytes(fh, &rec->data, length, err, err_info))
+	if (!wtap_read_bytes_buffer(fh, &rec->data, length, err, err_info))
 		return false;	/* Read error */
 
 	return true;

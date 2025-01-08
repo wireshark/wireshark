@@ -56,7 +56,7 @@ static bool hcidump_read_packet(FILE_T fh, wtap_rec *rec,
 
 	rec->rec_header.packet_header.pseudo_header.p2p.sent = (dh.in ? false : true);
 
-	return wtap_read_packet_bytes(fh, &rec->data, packet_size, err, err_info);
+	return wtap_read_bytes_buffer(fh, &rec->data, packet_size, err, err_info);
 }
 
 static bool hcidump_read(wtap *wth, wtap_rec *rec,

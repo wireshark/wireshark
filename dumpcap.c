@@ -2495,7 +2495,7 @@ pcapng_adjust_block(capture_src *pcap_src, const pcapng_block_header_t *bh, uint
  */
 static bool is_data_block(uint32_t block_type)
 {
-    // Any block types that lead to calling wtap_read_packet_bytes in
+    // Any block types that lead to calling wtap_read_bytes_buffer in
     // wiretap/pcapng.c should be listed here.
     switch (block_type) {
         case BLOCK_TYPE_PB:

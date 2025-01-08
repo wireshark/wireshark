@@ -225,7 +225,7 @@ _5views_read(wtap *wth, wtap_rec *rec, int *err,
 		return false;
 	}
 
-	return wtap_read_packet_bytes(wth->fh, &rec->data,
+	return wtap_read_bytes_buffer(wth->fh, &rec->data,
 	    rec->rec_header.packet_header.caplen, err, err_info);
 }
 
@@ -251,7 +251,7 @@ _5views_seek_read(wtap *wth, int64_t seek_off, wtap_rec *rec,
 	/*
 	 * Read the packet data.
 	 */
-	return wtap_read_packet_bytes(wth->random_fh, &rec->data,
+	return wtap_read_bytes_buffer(wth->random_fh, &rec->data,
 	    rec->rec_header.packet_header.caplen, err, err_info);
 }
 

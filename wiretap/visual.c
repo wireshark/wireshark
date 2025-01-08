@@ -522,7 +522,7 @@ static bool visual_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec,
     }
 
     /* Read the packet data */
-    if (!wtap_read_packet_bytes(fh, &rec->data, packet_size, err, err_info))
+    if (!wtap_read_bytes_buffer(fh, &rec->data, packet_size, err, err_info))
         return false;
 
     if (wth->file_encap == WTAP_ENCAP_CHDLC_WITH_PHDR)
