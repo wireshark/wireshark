@@ -1,0 +1,409 @@
+commit 3337fc8f42
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Mon Jan 6 10:52:02 2025 -0800
+
+    Prep for 4.2.10
+
+commit 75016e2e28
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Jan 5 09:26:49 2025 +0000
+
+    [Automatic update for 2025-01-05]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit 4a3658ad69
+Author: Michael Tuexen <tuexen@wireshark.org>
+Date:   Thu Jan 2 22:39:59 2025 +0100
+
+    BBLog: fix sender and receiver side window shift
+
+    The scale shifts are provided as numbers, therefore no mask should
+    be applied.
+
+    (cherry picked from commit 888bf7125062f0a6c00ad382233a4d574e7a8316)
+
+commit f66fec627b
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Fri Jan 3 13:10:40 2025 -0800
+
+    GitLab CI: Prefix our release notes and info
+
+    Add a "wireshark-" prefix to match the master branch.
+
+commit a6fda4182e
+Author: Stig Bjørlykke <stig@bjorlykke.org>
+Date:   Wed Jan 1 15:11:00 2025 +0100
+
+    Happy New Year 2025
+
+    (cherry picked from commit b7a84b6d109f961a95274a9a8b1b1a4cb26e98af)
+
+commit 2390326eb3
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Tue Dec 31 22:51:21 2024 +0000
+
+    Qt: Import from Hex Dump missing regex hint double-escaped HTML
+
+    ElidedLabel escapes HTML text (d9adb6f712a63dca13957802664d37c52ea4181c)
+    so for missing_data_hint, set to regexHintLabel, an ElidedLabel,
+    use unescaped HTML so that it doesn't get escaped twice and
+    literal "%gt;" and "%lt;" appear in the hint.
+
+    (cherry picked from commit a5744d7673737a978e64fe7aff006c3d80db5878)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit f2c3166095
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Dec 29 09:27:43 2024 +0000
+
+    [Automatic update for 2024-12-29]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit 1a9a7ea594
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Dec 22 09:26:25 2024 +0000
+
+    [Automatic update for 2024-12-22]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit c0d268026d
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Fri Dec 20 13:18:27 2024 -0800
+
+    CMake: Ignore Strawberry Perl's prefix
+
+    Strawberry includes many components that are incompatible with our
+    builds, including xsltproc and zlib. Find Perl early on and if it is
+    Strawberry-flavored, ignore its prefix.
+
+    Fixes #20304
+
+    (cherry picked from commit f939396cb8d97b089acca78bc6182f0b8937254f)
+
+    Conflicts:
+            CMakeLists.txt
+
+commit a8a67a7760
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Wed Dec 18 14:36:06 2024 +0000
+
+    Diameter: Fix Role-Of-ProSe-Function AVP (AVP code 3438) values
+
+    See ETSI TS 132 299
+
+    7.2.177aA Role-Of-ProSe-Function AVP
+    The AVP may take the values as follows:
+    0 HPLMN
+    1 VPLMN
+    2 Local PLMN
+
+    (cherry picked from commit 1575c9e29fe0f8bb518d9bf9f56baf9b326f6adf)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 4331e1a38d
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Wed Dec 18 15:04:01 2024 +0000
+
+    Diameter: Fix capitalisation of "SCEF-Reference-ID-for-Deletion-Ext"
+
+    (cherry picked from commit d0b08c94d7f2530051aa5c22eab27ee46ce2f16a)
+
+    Co-authored-by: Anders Broman <a.broman58@gmail.com>
+
+commit 3dc4d8db48
+Author: Martin Mayer <martin.mayer@m2-it-solutions.de>
+Date:   Sun Dec 15 10:32:49 2024 +0100
+
+    ICMPv6: Fix RA Flags Expansion Option
+
+    Correct the dissection of  Flags Expansion Option (EFO/RA Opt. 26)
+    to the meaning of bits 8-55 and its IANA assignment (RFC 5175 4./5.).
+
+    (cherry picked from commit 991f9e52610aab35633eb44033dab52d784ec161)
+
+commit cfc3c30d49
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Dec 15 09:31:09 2024 +0000
+
+    [Automatic update for 2024-12-15]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit 6e9246343b
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Wed Dec 11 12:07:17 2024 +0000
+
+    Qt: Allow saving files with Qt 6.8
+
+    Prior to Qt 6.8, QFileDialog::selectedNameFilter() returns the current
+    text displayed as the filter in the dialog; i.e., as we set
+    HideNameFilterDetails it does not include the parenthetical extension
+    list.
+
+    As of 6.8, it includes the hidden details:
+    https://bugreports.qt.io/browse/QTBUG-127924
+
+    This causes hash lookups for the file type to fail, reporting
+    unknown file type.
+    One simple approach is just to add both to the hash.
+
+    (cherry picked from commit 702116d425a1542c0db84e17236dae8c7e1b0bfd)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 23d96dec08
+Author: Ole André Vadla Ravnås <oleavr@gmail.com>
+Date:   Sun Dec 8 17:18:13 2024 +0100
+
+    MBIM: ignore junk in NDP headers after Null entry
+
+    At least one NCM implementation that emits NDP headers of fixed length
+    has been observed to leave the unused slots uninitialized. This is
+    acceptable according to the spec:
+
+        Any NCM Datagram pointer entry with an index field (wDatagramIndex,
+        dwDatagramIndex) of zero or with a length field (wDatagramLength,
+        dwDatagramLength) of zero, or with both index and length fields set
+        to zero, shall be treated as a Null entry. Receivers shall process
+        datagram pointer entries sequentially from the first entry in the
+        NTB. The first Null entry shall be interpreted as meaning that all
+        following NCM Datagram Pointer Entries in the NDP are to be ignored.
+
+    However, this behavior confuses the MBIM dissector, as the junk data
+    after the Null entry may sometimes contain seemingly valid indices and
+    lengths. This can trigger false positive warnings, such as duplicate
+    packets.
+
+    This fix ensures that parsing stops at the first Null entry. Any extra
+    data between the Null entry and the end of the NDP header is added to
+    the protocol tree as `Padding`. This prevents unnecessary warnings and
+    improves compatibility with spec-compliant devices.
+
+    Co-authored-by: Håvard Sørbø <havard@hsorbo.no>
+    (cherry picked from commit 7fdaac735a6a4fb08c9e60ab27d67ad126a2dab1)
+
+    Conflicts:
+            epan/dissectors/packet-mbim.c
+
+commit 3606898032
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Dec 8 09:31:14 2024 +0000
+
+    [Automatic update for 2024-12-08]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+    services failed.
+
+commit 66a662e570
+Author: Pascal Quantin <pascal@wireshark.org>
+Date:   Fri Dec 6 15:34:06 2024 +0100
+
+    GTPv2: fix ULI decoding
+
+    Fixes #20276
+
+    (cherry picked from commit 4b7dcd00b89bda277a0999118fa5cebd75d4d004)
+
+    Conflicts:
+            epan/dissectors/packet-gtpv2.c
+
+commit e03e0fbdbe
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Mon Dec 2 14:27:07 2024 +0000
+
+    extcap: Warn and fail on Windows with ProxyCommand (unsupported)
+
+    libssh doesn't support ProxyCommand on Windows:
+    https://gitlab.com/libssh/libssh-mirror/-/issues/75
+    https://gitlab.com/libssh/libssh-mirror/-/issues/223
+
+    Calling ssh_options_set "succeeds," however. The pre-0.11.0 behavior
+    is to silently ignore the option. The 0.11.0 and later behavior is
+    to then fail in ssh_connect (which will make the extcaps report an
+    error.)
+    https://gitlab.com/libssh/libssh-mirror/-/commit/bed4438695df2f4635617fc45f802d782fdd8479
+
+    Fail on Windows with versions earlier than 0.11.0 so that users at
+    least get a message rather than their ProxyCommand being silently
+    ignored. Possibly we should disable the box as well.
+
+    Ping #19991
+
+    (cherry picked from commit 6039b9e03074ce320cddb8a4cff3ddc3e987d46f)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 0ace4d3613
+Author: Pascal Quantin <pascal@wireshark.org>
+Date:   Mon Dec 2 09:52:08 2024 +0100
+
+    NR RRC: fix dissection of AbsoluteTimeInfo
+
+    (cherry picked from commit 34de215cb25e41dd219f97c1a3a273aae8764a78)
+
+commit 16d81149b0
+Author: Pascal Quantin <pascal@wireshark.org>
+Date:   Mon Dec 2 09:49:33 2024 +0100
+
+    LTE RRC: fix dissection of AbsoluteTimeInfo
+
+    (cherry picked from commit d86c97744ba06395b763fb7d7be5e18477373301)
+
+commit 1c87ef7f95
+Author: Guy Harris <gharris@sonic.net>
+Date:   Mon Dec 2 01:16:21 2024 +0000
+
+    Fix a potential crash with WinPcap 4.1.x.
+
+    Also, add a comment indicating why we do something similar elsewhere,
+    and fix the indentation of the routine containing the comment while
+    we're at it.
+
+    See comment in issue #20261.
+
+    (cherry picked from commit bfce1f9d9a2e18a9119e5e5faae084f73278095b)
+
+    Co-authored-by: Guy Harris <gharris@sonic.net>
+
+commit a0a56fd740
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sun Dec 1 23:47:23 2024 +0000
+
+    dfilter: Don't crash on multiple relations with unary functions
+
+    Don't assume in oper_dup that an operation is binary. Unary minus
+    exists in the grammar. Trying to duplicate the null second operand
+    will cause a null dereference, which can happen in chained comparisons:
+
+    Change:
+    $ ./run/dftest -s '1 < -_ws.ftypes.int8 <= 2'
+    Filter:
+     1 < -_ws.ftypes.int8 <= 2
+
+    AddressSanitizer:DEADLYSIGNAL
+    =================================================================
+    ==637745==ERROR: AddressSanitizer: SEGV on unknown address 0x000000000010 (pc 0x7f8c9408a5d2 bp 0x7ffe701aebf0 sp 0x7ffe701aead0 T0)
+    ==637745==The signal is caused by a READ memory access.
+    ==637745==Hint: address points to the zero page.
+        #0 0x7f8c9408a5d2 in stnode_dup /home/johnthacker/wireshark/epan/dfilter/syntax-tree.c:280:20
+        #1 0x7f8c940883a7 in oper_dup /home/johnthacker/wireshark/epan/dfilter/sttype-op.c:51:15
+
+    Into:
+    $ ./run/dftest -s '1 < -_ws.ftypes.int8 <= 2'
+    Filter:
+     1 < -_ws.ftypes.int8 <= 2
+
+    Syntax tree:
+     0 TEST_AND:
+       1 TEST_LT:
+         2 FVALUE(1 <FT_INT8>)
+         2 OP_UNARY_MINUS:
+           3 FIELD(_ws.ftypes.int8 <FT_INT8>)
+       1 TEST_LE:
+         2 OP_UNARY_MINUS:
+           3 FIELD(_ws.ftypes.int8 <FT_INT8>)
+         2 FVALUE(2 <FT_INT8>)
+
+    Instructions:
+     0000 READ_TREE        _ws.ftypes.int8  -> R0
+     0001 IF_FALSE_GOTO    9
+     0002 UNARY_MINUS      -R0              -> R1
+     0003 ANY_LT           1 < R1
+     0004 IF_FALSE_GOTO    9
+     0005 READ_TREE        _ws.ftypes.int8  -> R0
+     0006 IF_FALSE_GOTO    9
+     0007 UNARY_MINUS      -R0              -> R2
+     0008 ANY_LE           R2 <= 2
+     0009 RETURN
+
+    (backported from commit 129565f0efb8587d44c0c7f6c262ac72a88d7aab)
+    (The crash still happens in 4.2, requires a more unusual filter to
+    trigger it, i.e. unary minus on a field, so removing the test.)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 3a35b0e5bf
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Dec 1 09:30:31 2024 +0000
+
+    [Automatic update for 2024-12-01]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit a329830d0f
+Author: Guy Harris <gharris@sonic.net>
+Date:   Fri Nov 29 23:42:33 2024 +0000
+
+    More help output cleanup, making the output more alike.
+
+    Note that the -B argument is in units of MiB.
+
+    Put --update-interval in a "Capture display" section for TShark, as it
+    affects how the output is displayed (printed).  Don't duplicate it for
+    Wireshark, and put it at the end of the list.
+
+    --only-protocols takes a list of protocol, not a single protocol; make
+    the Wireshark output match the TShark output.
+
+    (cherry picked from commit 9a24ae406e1d5fd0a369c6e70d776075687af0c9)
+
+    Co-authored-by: Guy Harris <gharris@sonic.net>
+
+commit 93aab84219
+Author: Guy Harris <gharris@sonic.net>
+Date:   Fri Nov 29 23:21:27 2024 +0000
+
+    dumpcap: don't mention rpcap in the help message absent rpcap support.
+
+    Only if we hae remote capture support should we give an rpcap:// URL as
+    an example.
+
+    (cherry picked from commit e20a6a9115c822b9d6df26c306ec6d081f495c80)
+
+    Co-authored-by: Guy Harris <gharris@sonic.net>
+
+commit d60c6de7d3
+Author: Guy Harris <gharris@sonic.net>
+Date:   Fri Nov 29 20:16:36 2024 +0000
+
+    Document --update-interval capture option better in help messages.
+
+    Wireshark supports it as well, so add it to ui/commandline.c.
+
+    Also, note that the number specified is in units of milliseoncds.
+
+    (cherry picked from commit ec09e664a08f4b360ff54022abce3a598a5c181e)
+
+    Co-authored-by: Guy Harris <gharris@sonic.net>
+
+commit 62b29adc29
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Mon Nov 25 12:10:32 2024 -0800
+
+    IEEE 802.11: Update our multi link string handling
+
+    Use a wmem_strbuf instead of manually managing an snprintf buffer.
+
+    (cherry picked from commit c2b86923c95437d35c082c8cbb4866fd58abc3fe)
+
+commit 787b5a1183
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Nov 24 09:30:14 2024 +0000
+
+    [Automatic update for 2024-11-24]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit b450c76be8
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Wed Nov 20 12:05:31 2024 -0800
+
+    Version: 4.2.9 → 4.2.10
+
+    [skip ci]
