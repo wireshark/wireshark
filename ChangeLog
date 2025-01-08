@@ -1,0 +1,726 @@
+commit 046cc868b5
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Wed Jan 8 17:13:46 2025 +0000
+
+    Qt: Don't use theme stock icons on Windows or macOS
+
+    Qt 6.7 added QIcon::ThemeIcon with support for some, but not all,
+    of the FreeDesktop standard stock icons. This is ok in some cases,
+    theme icons next to our icons can look jarring, especially when, e.g.
+    the Windows theme provides "go-previous" and "go-next" but not
+    "go-jump", "go-first", and "go-last."
+
+    For now, disable theme icons on Windows and macOS and just use our
+    icons. This makes 6.7 and later look the same as 6.6 and earlier.
+
+    (cherry picked from commit 2216614d23107afe9ac030c3bee09c0726191b9d)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit df63481eae
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Mon Jan 6 10:51:27 2025 -0800
+
+    Prep for 4.4.3
+
+    [skip ci]
+
+commit 39311fcae4
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Mon Jan 6 14:39:32 2025 +0000
+
+    wsutil: Link to libm in wsutil_static as well
+
+    Fixup 5919c84347313f78a473172f42f88be05ce439ed
+
+    Fix #20326
+
+    (cherry picked from commit 442d1cad22339985f43eef4f79bb5794b66d9a9b)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 900b875afc
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Jan 5 09:27:17 2025 +0000
+
+    [Automatic update for 2025-01-05]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit 37d816311c
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sat Jan 4 15:54:23 2025 +0000
+
+    sFlow: Round up sampled header length only when advancing offset
+
+    Align to four bytes only when advancing the offset, so as not
+    to include the zero padding in the sampled header item and dissection.
+
+    Fix #20320
+
+    (cherry picked from commit d4ddd813688f4669d7f553224583ccd0a57b37e5)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 4e0f8b4039
+Author: Michael Tuexen <tuexen@wireshark.org>
+Date:   Thu Jan 2 22:39:59 2025 +0100
+
+    BBLog: fix sender and receiver side window shift
+
+    The scale shifts are provided as numbers, therefore no mask should
+    be applied.
+
+    (cherry picked from commit 888bf7125062f0a6c00ad382233a4d574e7a8316)
+
+commit 73c759b50a
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Fri Jan 3 13:10:09 2025 -0800
+
+    GitLab CI: Prefix our release notes and info
+
+    Add a "wireshark-" prefix to match the master branch.
+
+commit c8615667f7
+Author: Stig Bjørlykke <stig@bjorlykke.org>
+Date:   Wed Jan 1 14:53:52 2025 +0000
+
+    Happy New Year 2025
+
+    (cherry picked from commit b7a84b6d109f961a95274a9a8b1b1a4cb26e98af)
+
+    Co-authored-by: Stig Bjørlykke <stig@bjorlykke.org>
+
+commit ea9560aba8
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Tue Dec 31 22:51:01 2024 +0000
+
+    Qt: Import from Hex Dump missing regex hint double-escaped HTML
+
+    ElidedLabel escapes HTML text (d9adb6f712a63dca13957802664d37c52ea4181c)
+    so for missing_data_hint, set to regexHintLabel, an ElidedLabel,
+    use unescaped HTML so that it doesn't get escaped twice and
+    literal "%gt;" and "%lt;" appear in the hint.
+
+    (cherry picked from commit a5744d7673737a978e64fe7aff006c3d80db5878)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 2167462f7d
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Dec 29 09:27:01 2024 +0000
+
+    [Automatic update for 2024-12-29]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit d11238e26f
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Thu Dec 26 15:03:08 2024 +0000
+
+    Qt: Include tickLabelPadding in margin calculation
+
+    Based on the diagram in the QCustomPlot documentation
+    ( https://www.qcustomplot.com/documentation/classQCPAxis.html )
+    QCPAxisRect::margin needs to include the (default nonzero)
+    tickLabelPadding in addition to the width of the largest possible
+    tick (i.e., time) in order for the entire time to be shown without
+    cutting off the first digit when it is maximum width.
+
+    Fix #20311
+
+    (cherry picked from commit 87f820a192a03914118c72a8d6c80d83c750b841)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 4793a2ca2a
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Thu Dec 26 14:00:47 2024 +0000
+
+    UCP: Fix short data check calculation for Alphanumeric OAdC
+
+    The plus one was on the wrong side of the comparison. The byte
+    array needs to have room for the addrlength byte plus the number
+    of octets in the packet GSM 7 bit encoding of the address (but
+    no null termination, as it's GSM 7 bit encoding.)
+
+    Fix #20313
+
+    (cherry picked from commit 2d566e17e22de6aaf5716cc6447b2d04c081451c)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit a44b370bc6
+Author: Guy Harris <gharris@sonic.net>
+Date:   Sun Dec 22 22:42:04 2024 +0000
+
+    cllog, ems: test the correct handle after an error.
+
+    Test the handle on which the operation was done.
+
+    (cherry picked from commit 9ce7843da194835ea682c0dde546832b6ca6da63)
+
+    Co-authored-by: Guy Harris <gharris@sonic.net>
+
+commit a4c4ca0f20
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Dec 22 09:27:20 2024 +0000
+
+    [Automatic update for 2024-12-22]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit e9494a1fc5
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Fri Dec 20 13:18:27 2024 -0800
+
+    CMake: Ignore Strawberry Perl's prefix
+
+    Strawberry includes many components that are incompatible with our
+    builds, including xsltproc and zlib. Find Perl early on and if it is
+    Strawberry-flavored, ignore its prefix.
+
+    Fixes #20304
+
+    (cherry picked from commit f939396cb8d97b089acca78bc6182f0b8937254f)
+
+commit 3dd25c184b
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Fri Dec 20 14:57:32 2024 +0000
+
+    doc: text2pcap typo
+
+    [skip ci]
+
+    (cherry picked from commit b0cbc7db0297f8a6d80eabc8290926cf26afcaab)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit ab9ee49b11
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Wed Dec 18 14:35:46 2024 +0000
+
+    Diameter: Fix Role-Of-ProSe-Function AVP (AVP code 3438) values
+
+    See ETSI TS 132 299
+
+    7.2.177aA Role-Of-ProSe-Function AVP
+    The AVP may take the values as follows:
+    0 HPLMN
+    1 VPLMN
+    2 Local PLMN
+
+    (cherry picked from commit 1575c9e29fe0f8bb518d9bf9f56baf9b326f6adf)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 0681c62874
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sun Dec 15 17:42:02 2024 +0000
+
+    nfs: Fix NFSv2 fattr mode value string swap
+
+    The directory and character special file entries in the NFSv2
+    fattr mode value string are swapped, because of the slightly
+    unusual order in which they're written in RFC 1094.
+
+    https://datatracker.ietf.org/doc/html/rfc1094#section-2.3.5
+
+    Fix #20290
+
+    (cherry picked from commit 6278e931edeed2086a1cb087e4d3785a8d7a0d26)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit f70ae1331c
+Author: Martin Mayer <martin.mayer@m2-it-solutions.de>
+Date:   Sun Dec 15 10:32:49 2024 +0100
+
+    ICMPv6: Fix RA Flags Expansion Option
+
+    Correct the dissection of  Flags Expansion Option (EFO/RA Opt. 26)
+    to the meaning of bits 8-55 and its IANA assignment (RFC 5175 4./5.).
+
+    (cherry picked from commit 991f9e52610aab35633eb44033dab52d784ec161)
+
+commit f31c3424c7
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Dec 15 09:32:17 2024 +0000
+
+    [Automatic update for 2024-12-15]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit 1c151f3c27
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sat Dec 14 23:24:56 2024 +0000
+
+    PLDM: UTF-16 encoding is a string, not a FT_UINT16
+
+    All these types are strings, differing only in encoding. UTF-16 encodings are
+    strings. UTF-8 is a string, not FT_UINT8. Do not add character strings
+    with string encodings as FT_UINT8 or FT_UINT16 types.
+
+    According to the PLDM specification:
+     https://www.dmtf.org/sites/default/files/standards/documents/DSP0248_1.2.0.pdf
+
+    strASCII means ISO-8859-1, not ASCII, for some reason.
+
+    (cherry picked from commit 98d5cfc758a7d7ef20e533a8ff3f6e218e1cf19e)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit ab5ec39666
+Author: Alexis La Goutte <alexis.lagoutte@gmail.com>
+Date:   Fri Dec 13 13:52:08 2024 +0000
+
+    hci-mon: Fix dissection of HCI ISO Data
+
+    The HCI ISO dissector should be called instead of the HCI ISO Data
+    dissector. That is, the HCI header should be included.
+
+    Fixes the implementation added in
+    28be55d9ef1263c3bba97384e0c7af4bd54dc816.
+
+    Signed-off-by: Rubin Gerritsen <rubin.gerritsen@nordicsemi.no>
+
+    (cherry picked from commit 33885748ce68a945d6caabc1f4bef34d586d55ca)
+
+    Co-authored-by: Rubin Gerritsen <rubin.gerritsen@nordicsemi.no>
+
+commit a2c51ecadd
+Author: Alexis La Goutte <alexis.lagoutte@gmail.com>
+Date:   Fri Dec 13 11:52:22 2024 +0000
+
+    ieee80211: fix VS SGDSN altitude signedness
+
+    As it can be seen in the protocol definition: the altitude is a **signed** int 16
+    https://www.legifrance.gouv.fr/jorf/id/JORFTEXT000039685188
+
+    (cherry picked from commit 2214dc0b4595b3b928aa6f8e8b6429683d76a38d)
+
+    Co-authored-by: Yann Pomarède <yannpomarede@gmail.com>
+
+commit 366dbcd4b2
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Wed Dec 11 16:38:57 2024 +0000
+
+    Protobuf: Support extension declaration syntax and update well known proto files
+
+    Declaration syntax is not defined in the official spec but exists in the well known proto files and examples from Google.
+
+    (cherry picked from commit 8bd9f7bb858424e2976c91e4c60c5e2873bf6874)
+
+    Co-authored-by: Josh Strohminger <18415319-joshstrohminger@users.noreply.gitlab.com>
+
+commit e760c2228b
+Author: Pascal Quantin <pascal@wireshark.org>
+Date:   Tue Dec 10 09:10:49 2024 +0000
+
+    NGAP: Fix a filter name
+
+    (cherry picked from commit e98b9f69008abfd0b8d7bdc43a71833d954abfb9)
+
+    e98b9f69 NGAP: Fix a filter name
+
+    Co-authored-by: Martin Mathieson <martin.r.mathieson@gmail.com>
+
+commit ccd96c6f65
+Author: Pascal Quantin <pascal@wireshark.org>
+Date:   Mon Dec 9 14:55:29 2024 +0000
+
+    MBIM: ignore junk in NDP headers after Null entry
+
+    At least one NCM implementation that emits NDP headers of fixed length
+    has been observed to leave the unused slots uninitialized. This is
+    acceptable according to the spec:
+
+        Any NCM Datagram pointer entry with an index field (wDatagramIndex,
+        dwDatagramIndex) of zero or with a length field (wDatagramLength,
+        dwDatagramLength) of zero, or with both index and length fields set
+        to zero, shall be treated as a Null entry. Receivers shall process
+        datagram pointer entries sequentially from the first entry in the
+        NTB. The first Null entry shall be interpreted as meaning that all
+        following NCM Datagram Pointer Entries in the NDP are to be ignored.
+
+    However, this behavior confuses the MBIM dissector, as the junk data
+    after the Null entry may sometimes contain seemingly valid indices and
+    lengths. This can trigger false positive warnings, such as duplicate
+    packets.
+
+    This fix ensures that parsing stops at the first Null entry. Any extra
+    data between the Null entry and the end of the NDP header is added to
+    the protocol tree as `Padding`. This prevents unnecessary warnings and
+    improves compatibility with spec-compliant devices.
+
+    Co-authored-by: Håvard Sørbø <havard@hsorbo.no>
+
+    (cherry picked from commit 7fdaac735a6a4fb08c9e60ab27d67ad126a2dab1)
+
+    Co-authored-by: Ole André Vadla Ravnås <oleavr@gmail.com>
+
+commit 92a7f84314
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Dec 8 09:32:07 2024 +0000
+
+    [Automatic update for 2024-12-08]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit 805bd98060
+Author: Dr. Lars Völker <lars.voelker@technica-engineering.de>
+Date:   Sat Dec 7 13:21:38 2024 +0100
+
+    PTP: Fix Management Path Trace (Bugfix)
+
+commit 63b08f0e5d
+Author: Pascal Quantin <pascal@wireshark.org>
+Date:   Fri Dec 6 15:17:38 2024 +0000
+
+    GTPv2: fix ULI decoding
+
+    Fixes #20276
+
+    (cherry picked from commit 4b7dcd00b89bda277a0999118fa5cebd75d4d004)
+
+    Co-authored-by: Pascal Quantin <pascal@wireshark.org>
+
+commit affb5ab827
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Mon Dec 2 14:26:49 2024 +0000
+
+    extcap: Warn and fail on Windows with ProxyCommand (unsupported)
+
+    libssh doesn't support ProxyCommand on Windows:
+    https://gitlab.com/libssh/libssh-mirror/-/issues/75
+    https://gitlab.com/libssh/libssh-mirror/-/issues/223
+
+    Calling ssh_options_set "succeeds," however. The pre-0.11.0 behavior
+    is to silently ignore the option. The 0.11.0 and later behavior is
+    to then fail in ssh_connect (which will make the extcaps report an
+    error.)
+    https://gitlab.com/libssh/libssh-mirror/-/commit/bed4438695df2f4635617fc45f802d782fdd8479
+
+    Fail on Windows with versions earlier than 0.11.0 so that users at
+    least get a message rather than their ProxyCommand being silently
+    ignored. Possibly we should disable the box as well.
+
+    Ping #19991
+
+    (cherry picked from commit 6039b9e03074ce320cddb8a4cff3ddc3e987d46f)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 0c7de7b158
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Mon Dec 2 13:08:13 2024 +0000
+
+    ftypes: Restore three way comparison
+
+    ftype comparisons are supposed to return a three way value type that
+    can be true, false, or non-comparable. Non-comparable values (that
+    don't get caught by the semantic check) are being treated as true
+    accidentally. Previously in some places a gboolean was used erroneously
+    instead of the three-valued type; cascading changes due to changing
+    gbooleans to bool affected this
+    (bc3d35cef4fc3082be6475ed08c9826f8ce8deb7).
+
+    Probably comparing unsigned to signed should do something a little
+    more interesting than just fail the comparison.
+
+    Ping #18960.
+
+    (cherry picked from commit 6227a1238344b35dccdc29ed8ac88ecba24ad232)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 3be3829984
+Author: Mike Beaumont <mjboamail@gmail.com>
+Date:   Tue Nov 19 23:21:04 2024 +0100
+
+    fix: only decode JoinGroup response skip_assignment with sufficient api_version
+
+    (cherry picked from commit 6f6b8e9c4e76da5d5f8a3b18d848f36cd9f3e748)
+
+commit e162d3d183
+Author: Mike Beaumont <mjboamail@gmail.com>
+Date:   Tue Nov 19 23:20:56 2024 +0100
+
+    fix: only decode JoinGroup request reason with sufficient api_version
+
+    (cherry picked from commit d0664942757cb24a6fb36a3f7d90bd24c5bbd05b)
+
+commit d38947a7e2
+Author: Pascal Quantin <pascal@wireshark.org>
+Date:   Mon Dec 2 10:10:46 2024 +0000
+
+    LTE RRC: fix dissection of AbsoluteTimeInfo
+
+    (cherry picked from commit d86c97744ba06395b763fb7d7be5e18477373301)
+
+    Co-authored-by: Pascal Quantin <pascal@wireshark.org>
+
+commit e921e27f01
+Author: Pascal Quantin <pascal@wireshark.org>
+Date:   Mon Dec 2 09:28:36 2024 +0000
+
+    NR RRC: fix dissection of AbsoluteTimeInfo
+
+    (cherry picked from commit 34de215cb25e41dd219f97c1a3a273aae8764a78)
+
+    Co-authored-by: Pascal Quantin <pascal@wireshark.org>
+
+commit 7af40bcd62
+Author: Guy Harris <gharris@sonic.net>
+Date:   Mon Dec 2 01:15:34 2024 +0000
+
+    Fix a potential crash with WinPcap 4.1.x.
+
+    Also, add a comment indicating why we do something similar elsewhere,
+    and fix the indentation of the routine containing the comment while
+    we're at it.
+
+    See comment in issue #20261.
+
+    (cherry picked from commit bfce1f9d9a2e18a9119e5e5faae084f73278095b)
+
+    Co-authored-by: Guy Harris <gharris@sonic.net>
+
+commit 7b33324b19
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sun Dec 1 23:47:00 2024 +0000
+
+    dfilter: Don't crash on multiple relations with unary functions
+
+    Don't assume in oper_dup that an operation is binary. Unary minus
+    exists in the grammar. Trying to duplicate the null second operand
+    will cause a null dereference, which can happen in chained comparisons:
+
+    Change:
+    $ ./run/dftest -s '1 < -_ws.ftypes.int8 <= 2'
+    Filter:
+     1 < -_ws.ftypes.int8 <= 2
+
+    AddressSanitizer:DEADLYSIGNAL
+    =================================================================
+    ==637745==ERROR: AddressSanitizer: SEGV on unknown address 0x000000000010 (pc 0x7f8c9408a5d2 bp 0x7ffe701aebf0 sp 0x7ffe701aead0 T0)
+    ==637745==The signal is caused by a READ memory access.
+    ==637745==Hint: address points to the zero page.
+        #0 0x7f8c9408a5d2 in stnode_dup /home/johnthacker/wireshark/epan/dfilter/syntax-tree.c:280:20
+        #1 0x7f8c940883a7 in oper_dup /home/johnthacker/wireshark/epan/dfilter/sttype-op.c:51:15
+
+    Into:
+    $ ./run/dftest -s '1 < -_ws.ftypes.int8 <= 2'
+    Filter:
+     1 < -_ws.ftypes.int8 <= 2
+
+    Syntax tree:
+     0 TEST_AND:
+       1 TEST_LT:
+         2 FVALUE(1 <FT_INT8>)
+         2 OP_UNARY_MINUS:
+           3 FIELD(_ws.ftypes.int8 <FT_INT8>)
+       1 TEST_LE:
+         2 OP_UNARY_MINUS:
+           3 FIELD(_ws.ftypes.int8 <FT_INT8>)
+         2 FVALUE(2 <FT_INT8>)
+
+    Instructions:
+     0000 READ_TREE        _ws.ftypes.int8  -> R0
+     0001 IF_FALSE_GOTO    9
+     0002 UNARY_MINUS      -R0              -> R1
+     0003 ANY_LT           1 < R1
+     0004 IF_FALSE_GOTO    9
+     0005 READ_TREE        _ws.ftypes.int8  -> R0
+     0006 IF_FALSE_GOTO    9
+     0007 UNARY_MINUS      -R0              -> R2
+     0008 ANY_LE           R2 <= 2
+     0009 RETURN
+
+    (cherry picked from commit 129565f0efb8587d44c0c7f6c262ac72a88d7aab)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 9f35cd5047
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Dec 1 09:32:18 2024 +0000
+
+    [Automatic update for 2024-12-01]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit 0c8e560b75
+Author: Guy Harris <gharris@sonic.net>
+Date:   Fri Nov 29 23:07:42 2024 +0000
+
+    More help output cleanup, making the output more alike.
+
+    Note that the -B argument is in units of MiB.
+
+    Put --update-interval in a "Capture display" section for TShark, as it
+    affects how the output is displayed (printed).  Don't duplicate it for
+    Wireshark, and put it at the end of the list.
+
+    --only-protocols takes a list of protocol, not a single protocol; make
+    the Wireshark output match the TShark output.
+
+    (cherry picked from commit 9a24ae406e1d5fd0a369c6e70d776075687af0c9)
+
+    Co-authored-by: Guy Harris <gharris@sonic.net>
+
+commit 0afdca9a76
+Author: Guy Harris <gharris@sonic.net>
+Date:   Fri Nov 29 20:01:03 2024 +0000
+
+    Document --update-interval capture option better in help messages.
+
+    Wireshark supports it as well, so add it to ui/commandline.c.
+
+    Also, note that the number specified is in units of milliseoncds.
+
+    (cherry picked from commit ec09e664a08f4b360ff54022abce3a598a5c181e)
+
+    Co-authored-by: Guy Harris <gharris@sonic.net>
+
+commit efc861ddaa
+Author: Stig Bjørlykke <stig@bjorlykke.org>
+Date:   Thu Nov 28 08:12:05 2024 +0000
+
+    nas_eps: Fix a TLV PDU type
+
+    Also fix TLV PDU type for "UE coarse location information UE coarse
+    location information" in nas_emm_sec_mode_comp().
+
+    (cherry picked from commit 1833edb5e78aae8bd1f60a258bdcabbe308d9817)
+
+    Co-authored-by: Stig Bjørlykke <stig@bjorlykke.org>
+
+commit eea114203b
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Thu Nov 28 01:49:55 2024 +0000
+
+    dfilter: FT_GUID is not a bytes type
+
+    FT_GUID is not a bytes type, and is not compatible with the FT_BYTES
+    family. This has been the case since 923855bb20845f55472dfe8e62b7b43660f2f63b
+    in order to support both big and little endian GUIDs.
+
+    This prevents:
+    [GLib CRITICAL] -- g_bytes_compare: assertion 'bytes2 != NULL' failed
+    (and always returning "equals") when comparing a member of the bytes
+    equivalence class on the left hand side to a FT_GUID on the right hand
+    side of a filter comparison (e.g. eth.addr == smb2.client_guid), and
+    when the FT_GUID is on the left side, doing a memcmp with type-punning
+    of the byte type to a e_guid_t.
+
+    Also, use guid_cmp from "epan/guid-utils.h" to compare the e_guid_t
+    structs element by element instead of using memcmp.
+
+    (cherry picked from commit 1827d55967adc6b59513efee3ade91085ef78abb)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 54092b0cb2
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Wed Nov 27 19:41:53 2024 +0000
+
+    Qt: Window Scaling Bytes fixed for RAW SEQ numbers
+
+    (cherry picked from commit 45c8bf0794c516916aa8ad447446ace9b8299f5d)
+
+    74e6d3f3 Qt: Window Scaling Bytes fixed for RAW SEQ numbers
+
+    Co-authored-by: Eugène Adell <eugene.adell@gmail.com>
+
+commit 0aec15464b
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Mon Nov 25 12:10:32 2024 -0800
+
+    IEEE 802.11: Update our multi link string handling
+
+    Use a wmem_strbuf instead of manually managing an snprintf buffer.
+
+    (cherry picked from commit c2b86923c95437d35c082c8cbb4866fd58abc3fe)
+
+commit cd9821469e
+Author: Stig Bjørlykke <stig@bjorlykke.org>
+Date:   Wed Nov 27 12:29:14 2024 +0000
+
+    nas_eps: Fix a TLV id
+
+    Fix TLV id for "UE coarse location information UE coarse
+    location information" in nas_emm_sec_mode_comp().
+
+    (cherry picked from commit 7206964cd21623f0e1aed18d29ffb3eadbaa8b9b)
+
+    Co-authored-by: Stig Bjørlykke <stig@bjorlykke.org>
+
+commit b7fa9caab8
+Author: Stephen Donnelly <stephen.donnelly@endace.com>
+Date:   Wed Nov 27 04:45:49 2024 +0000
+
+    erf-interface-id-fix Fix erf_interface_id_from_flags()
+
+    The erf_interface_id_from_flags() macro has an operator precedence error such that the mask is shifted before the comparison.
+
+    This causes the returned interface_id value to be incorrect on most trace files.
+
+    Fix adds brackets for operation order.
+
+    (cherry picked from commit 3603225c5124afed9d321feee3966320e851cdd8)
+
+    Co-authored-by: Stephen Donnelly <stephen.donnelly@endace.com>
+
+commit a0efb4c8fd
+Author: Stig Bjørlykke <stig@bjorlykke.org>
+Date:   Sun Nov 24 22:09:45 2024 +0000
+
+    gsm_a_common: Fix uncertainty radius abbrev
+
+    Change uncertainty radius abbrev to gsm_a.gad.uncertainty_radius.
+
+    Fixes #20247
+
+    (cherry picked from commit 49eda3c46b6f6ba797a2b3682ea3bee5f8e3dcb9)
+
+    Co-authored-by: Stig Bjørlykke <stig@bjorlykke.org>
+
+commit 6e64a13b7c
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Nov 24 09:32:09 2024 +0000
+
+    [Automatic update for 2024-11-24]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit 6a9aa475c4
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sat Nov 23 02:41:20 2024 +0000
+
+    dfilter: Do not crash on vals() with incompatible fields with shared abbrevs
+
+    Even though we check in the semantic check that an abbreviation can be
+    be converted, we have to check when actually converting because some
+    abbreviations are shared with multiple incompatible fields.
+
+    For the same reason, the semantic check perhaps should allow the filter
+    if at least one field registration works, not just the last. But really
+    we should enforce not having incompatible fields.
+
+    (cherry picked from commit d717f177a2f2658402e18b60bd4505d97be9d4b4)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit d49dfec81f
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Wed Nov 20 13:50:33 2024 -0800
+
+    GitLab CI: Remove Logray builds
+
+commit 9dc3416b6c
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Wed Nov 20 12:05:09 2024 -0800
+
+    Version: 4.4.2 → 4.4.3
+
+    [skip ci]
