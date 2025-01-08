@@ -62,12 +62,20 @@ StockIcon::StockIcon(const QString icon_name) :
     }
 
     // Does our theme contain this icon?
-    // X11 only as per the QIcon documentation.
+    // As of Qt 6.7 QIcon has theme icons on Windows and macOS - but it
+    // doesn't have all of them. It looks particularly bad to mix and
+    // match theme icons with our icons next to each other (e.g.
+    // themed "go-previous" and "go-next" but our "go-jump", "go-first",
+    // and "go-last". We could maybe pick and choose certain ones to
+    // use. Note that the QIcon::ThemeIcon enum has a list of "commonly
+    // available" icons on most of the platforms.
+#if !defined(Q_OS_MAC) && !defined(Q_OS_WIN)
     if (hasThemeIcon(icon_name)) {
         QIcon theme_icon = fromTheme(icon_name);
         swap(theme_icon);
         return;
     }
+#endif
 
     // Is this is an icon we've manually mapped to a standard pixmap below?
     if (icon_name_to_standard_pixmap_.contains(icon_name)) {
