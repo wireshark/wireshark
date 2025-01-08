@@ -35,6 +35,7 @@ void proto_reg_handoff_HI2Operations(void);
 
 /* Initialize the protocol and registered fields */
 int proto_HI2Operations;
+int hf_HI2Operations_apn_str;
 #include "packet-HI2Operations-hf.c"
 
 /* Initialize the subtree pointers */
@@ -58,6 +59,12 @@ void proto_register_HI2Operations(void) {
 
   /* List of fields */
   static hf_register_info hf[] = {
+    {&hf_HI2Operations_apn_str,
+         {"APN (Access Point Name)", "gtpv2.apn",
+          FT_STRING, BASE_NONE, NULL, 0x0,
+          NULL, HFILL}
+        },
+
 #include "packet-HI2Operations-hfarr.c"
   };
 

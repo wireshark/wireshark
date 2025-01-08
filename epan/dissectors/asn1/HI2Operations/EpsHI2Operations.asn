@@ -580,11 +580,15 @@ RemoteUEContext ::= SEQUENCE
 RemoteUserID ::= OCTET STRING
 RemoteUEIPInformation ::= OCTET STRING
 RemoteUeContextDisconnected ::= RemoteUserID
+
+-- WS modification
+APN ::= OCTET STRING (SIZE (1..100))
+
 EPS-PMIP-SpecificParameters ::= SEQUENCE
 {
  lifetime [1] INTEGER (0..65535) OPTIONAL,
  accessTechnologyType [2] OCTET STRING (SIZE (4)) OPTIONAL,
- aPN [3] OCTET STRING (SIZE (1..100)) OPTIONAL,
+ aPN [3] APN OPTIONAL,
  iPv6HomeNetworkPrefix [4] OCTET STRING (SIZE (20)) OPTIONAL,
  protConfigurationOption [5] OCTET STRING OPTIONAL,
  handoverIndication [6] OCTET STRING (SIZE (4)) OPTIONAL,
@@ -608,7 +612,7 @@ EPS-DSMIP-SpecificParameters ::= SEQUENCE
  homeAddress [3] OCTET STRING (SIZE (8)) OPTIONAL,
  iPv4careOfAddress [4] OCTET STRING (SIZE (8)) OPTIONAL,
  iPv6careOfAddress [5] OCTET STRING (SIZE(16)) OPTIONAL,
- aPN [6] OCTET STRING (SIZE (1..100)) OPTIONAL,
+ aPN [6] APN OPTIONAL,
  status [7] INTEGER (0..255) OPTIONAL,
  hSS-AAA-address [8] OCTET STRING OPTIONAL,
  targetPDN-GW-Address [9] OCTET STRING OPTIONAL,
@@ -813,13 +817,15 @@ PTCEncryptionInfo ::= SEQUENCE {
  pTCOther [6] UTF8String OPTIONAL,
  ...
 }
+-- WS mod
+Bearer-capability-str ::= UTF8String
 PTC ::= SEQUENCE {
  abandonCause [1] UTF8String OPTIONAL,
  accessPolicyFailure [2] UTF8String OPTIONAL,
  accessPolicyType [3] AccessPolicyType OPTIONAL,
  alertIndicator [5] AlertIndicator OPTIONAL,
  associatePresenceStatus [6] AssociatePresenceStatus OPTIONAL,
- bearer-capability [7] UTF8String OPTIONAL,
+ bearer-capability [7] Bearer-capability-str OPTIONAL,
  -- identifies the Bearer capability information element (value part)
  broadcastIndicator [8] BOOLEAN OPTIONAL,
  -- default False, true indicates this is a braodcast to a group

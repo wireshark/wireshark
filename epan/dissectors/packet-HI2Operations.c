@@ -40,6 +40,7 @@ void proto_reg_handoff_HI2Operations(void);
 
 /* Initialize the protocol and registered fields */
 int proto_HI2Operations;
+int hf_HI2Operations_apn_str;
 static int hf_HI2Operations_IRIsContent_PDU;      /* IRIsContent */
 static int hf_HI2Operations_UUS1_Content_PDU;     /* UUS1_Content */
 static int hf_HI2Operations_communication_Identity_Number;  /* OCTET_STRING_SIZE_1_8 */
@@ -288,7 +289,6 @@ static int hf_HI2Operations_additionalIPaddress;  /* DataNodeAddress */
 static int hf_HI2Operations_qosMobileRadio;       /* OCTET_STRING */
 static int hf_HI2Operations_qosGn;                /* OCTET_STRING */
 static int hf_HI2Operations_pDNAddressAllocation;  /* T_pDNAddressAllocation */
-static int hf_HI2Operations_aPN_01;               /* OCTET_STRING_SIZE_1_100 */
 static int hf_HI2Operations_protConfigOptions;    /* ProtConfigOptions */
 static int hf_HI2Operations_attachType;           /* OCTET_STRING_SIZE_1 */
 static int hf_HI2Operations_ePSBearerIdentity;    /* OCTET_STRING */
@@ -334,6 +334,7 @@ static int hf_HI2Operations_remoteUserID;         /* RemoteUserID */
 static int hf_HI2Operations_remoteUEIPInformation;  /* RemoteUEIPInformation */
 static int hf_HI2Operations_lifetime;             /* INTEGER_0_65535 */
 static int hf_HI2Operations_accessTechnologyType;  /* OCTET_STRING_SIZE_4 */
+static int hf_HI2Operations_aPN_01;               /* APN */
 static int hf_HI2Operations_iPv6HomeNetworkPrefix;  /* OCTET_STRING_SIZE_20 */
 static int hf_HI2Operations_protConfigurationOption;  /* OCTET_STRING */
 static int hf_HI2Operations_handoverIndication_01;  /* OCTET_STRING_SIZE_4 */
@@ -411,7 +412,7 @@ static int hf_HI2Operations_accessPolicyFailure;  /* UTF8String */
 static int hf_HI2Operations_accessPolicyType;     /* AccessPolicyType */
 static int hf_HI2Operations_alertIndicator;       /* AlertIndicator */
 static int hf_HI2Operations_associatePresenceStatus;  /* AssociatePresenceStatus */
-static int hf_HI2Operations_bearer_capability_01;  /* UTF8String */
+static int hf_HI2Operations_bearer_capability_01;  /* Bearer_capability_str */
 static int hf_HI2Operations_broadcastIndicator;   /* BOOLEAN */
 static int hf_HI2Operations_contactID;            /* UTF8String */
 static int hf_HI2Operations_emergency;            /* Emergency */
@@ -532,7 +533,7 @@ static int hf_HI2Operations_altitude;             /* T_altitude */
 static int hf_HI2Operations_alt;                  /* PrintableString */
 static int hf_HI2Operations_alt_uncertainty;      /* PrintableString */
 static int hf_HI2Operations_speed;                /* PrintableString */
-static int hf_HI2Operations_direction_01;         /* PrintableString */
+static int hf_HI2Operations_direction_str;        /* PrintableString */
 static int hf_HI2Operations_level_conf;           /* PrintableString */
 static int hf_HI2Operations_qOS_not_met;          /* BOOLEAN */
 static int hf_HI2Operations_motionStateList;      /* T_motionStateList */
@@ -2798,7 +2799,7 @@ dissect_HI2Operations_RemoteUeContextDisconnected(bool implicit_tag _U_, tvbuff_
 
 static const ber_sequence_t EPS_GTPV2_SpecificParameters_sequence[] = {
   { &hf_HI2Operations_pDNAddressAllocation, BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_T_pDNAddressAllocation },
-  { &hf_HI2Operations_aPN_01, BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_OCTET_STRING_SIZE_1_100 },
+  { &hf_HI2Operations_aPN   , BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_OCTET_STRING_SIZE_1_100 },
   { &hf_HI2Operations_protConfigOptions, BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_ProtConfigOptions },
   { &hf_HI2Operations_attachType, BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_OCTET_STRING_SIZE_1 },
   { &hf_HI2Operations_ePSBearerIdentity, BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_OCTET_STRING },
@@ -2856,6 +2857,24 @@ dissect_HI2Operations_INTEGER_0_65535(bool implicit_tag _U_, tvbuff_t *tvb _U_, 
 
 
 static int
+dissect_HI2Operations_APN(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  tvbuff_t *parameter_tvb=NULL;
+
+  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                       &parameter_tvb);
+
+  if (!parameter_tvb)
+    return offset;
+
+  proto_tree_add_item(tree, hf_HI2Operations_apn_str, parameter_tvb, 0, tvb_captured_length(tvb), ENC_APN_STR | ENC_NA);
+
+
+  return offset;
+}
+
+
+
+static int
 dissect_HI2Operations_OCTET_STRING_SIZE_20(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        NULL);
@@ -2887,7 +2906,7 @@ dissect_HI2Operations_OCTET_STRING_SIZE_3(bool implicit_tag _U_, tvbuff_t *tvb _
 static const ber_sequence_t EPS_PMIP_SpecificParameters_sequence[] = {
   { &hf_HI2Operations_lifetime, BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_INTEGER_0_65535 },
   { &hf_HI2Operations_accessTechnologyType, BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_OCTET_STRING_SIZE_4 },
-  { &hf_HI2Operations_aPN   , BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_OCTET_STRING_SIZE_1_100 },
+  { &hf_HI2Operations_aPN_01, BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_APN },
   { &hf_HI2Operations_iPv6HomeNetworkPrefix, BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_OCTET_STRING_SIZE_20 },
   { &hf_HI2Operations_protConfigurationOption, BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_OCTET_STRING },
   { &hf_HI2Operations_handoverIndication_01, BER_CLASS_CON, 6, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_OCTET_STRING_SIZE_4 },
@@ -2937,7 +2956,7 @@ static const ber_sequence_t EPS_DSMIP_SpecificParameters_sequence[] = {
   { &hf_HI2Operations_homeAddress, BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_OCTET_STRING_SIZE_8 },
   { &hf_HI2Operations_iPv4careOfAddress_01, BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_OCTET_STRING_SIZE_8 },
   { &hf_HI2Operations_iPv6careOfAddress_01, BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_OCTET_STRING_SIZE_16 },
-  { &hf_HI2Operations_aPN   , BER_CLASS_CON, 6, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_OCTET_STRING_SIZE_1_100 },
+  { &hf_HI2Operations_aPN_01, BER_CLASS_CON, 6, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_APN },
   { &hf_HI2Operations_status, BER_CLASS_CON, 7, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_INTEGER_0_255 },
   { &hf_HI2Operations_hSS_AAA_address, BER_CLASS_CON, 8, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_OCTET_STRING },
   { &hf_HI2Operations_targetPDN_GW_Address, BER_CLASS_CON, 9, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_OCTET_STRING },
@@ -3540,7 +3559,7 @@ static const ber_sequence_t ExtendedLocParameters_sequence[] = {
   { &hf_HI2Operations_mapData, BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_T_mapData },
   { &hf_HI2Operations_altitude, BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_T_altitude },
   { &hf_HI2Operations_speed , BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_PrintableString },
-  { &hf_HI2Operations_direction_01, BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_PrintableString },
+  { &hf_HI2Operations_direction_str, BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_PrintableString },
   { &hf_HI2Operations_level_conf, BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_PrintableString },
   { &hf_HI2Operations_qOS_not_met, BER_CLASS_CON, 6, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_BOOLEAN },
   { &hf_HI2Operations_motionStateList, BER_CLASS_CON, 7, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_T_motionStateList },
@@ -3698,6 +3717,17 @@ static int
 dissect_HI2Operations_AssociatePresenceStatus(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    AssociatePresenceStatus_sequence, hf_index, ett_HI2Operations_AssociatePresenceStatus);
+
+  return offset;
+}
+
+
+
+static int
+dissect_HI2Operations_Bearer_capability_str(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_UTF8String,
+                                            actx, tree, tvb, offset, hf_index,
+                                            NULL);
 
   return offset;
 }
@@ -4129,7 +4159,7 @@ static const ber_sequence_t PTC_sequence[] = {
   { &hf_HI2Operations_accessPolicyType, BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_AccessPolicyType },
   { &hf_HI2Operations_alertIndicator, BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_AlertIndicator },
   { &hf_HI2Operations_associatePresenceStatus, BER_CLASS_CON, 6, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_AssociatePresenceStatus },
-  { &hf_HI2Operations_bearer_capability_01, BER_CLASS_CON, 7, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_UTF8String },
+  { &hf_HI2Operations_bearer_capability_01, BER_CLASS_CON, 7, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_Bearer_capability_str },
   { &hf_HI2Operations_broadcastIndicator, BER_CLASS_CON, 8, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_BOOLEAN },
   { &hf_HI2Operations_contactID, BER_CLASS_CON, 9, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_UTF8String },
   { &hf_HI2Operations_emergency, BER_CLASS_CON, 10, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_Emergency },
@@ -4642,6 +4672,12 @@ void proto_register_HI2Operations(void) {
 
   /* List of fields */
   static hf_register_info hf[] = {
+    {&hf_HI2Operations_apn_str,
+         {"APN (Access Point Name)", "gtpv2.apn",
+          FT_STRING, BASE_NONE, NULL, 0x0,
+          NULL, HFILL}
+        },
+
     { &hf_HI2Operations_IRIsContent_PDU,
       { "IRIsContent", "HI2Operations.IRIsContent",
         FT_UINT32, BASE_DEC, VALS(HI2Operations_EpsIRIsContent_vals), 0,
@@ -5634,10 +5670,6 @@ void proto_register_HI2Operations(void) {
       { "pDNAddressAllocation", "HI2Operations.pDNAddressAllocation",
         FT_BYTES, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-    { &hf_HI2Operations_aPN_01,
-      { "aPN", "HI2Operations.aPN",
-        FT_STRING, BASE_NONE, NULL, 0,
-        "OCTET_STRING_SIZE_1_100", HFILL }},
     { &hf_HI2Operations_protConfigOptions,
       { "protConfigOptions", "HI2Operations.protConfigOptions_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -5818,6 +5850,10 @@ void proto_register_HI2Operations(void) {
       { "accessTechnologyType", "HI2Operations.accessTechnologyType",
         FT_BYTES, BASE_NONE, NULL, 0,
         "OCTET_STRING_SIZE_4", HFILL }},
+    { &hf_HI2Operations_aPN_01,
+      { "aPN", "HI2Operations.aPN",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
     { &hf_HI2Operations_iPv6HomeNetworkPrefix,
       { "iPv6HomeNetworkPrefix", "HI2Operations.iPv6HomeNetworkPrefix",
         FT_BYTES, BASE_NONE, NULL, 0,
@@ -6129,7 +6165,7 @@ void proto_register_HI2Operations(void) {
     { &hf_HI2Operations_bearer_capability_01,
       { "bearer-capability", "HI2Operations.bearer_capability",
         FT_STRING, BASE_NONE, NULL, 0,
-        "UTF8String", HFILL }},
+        "Bearer_capability_str", HFILL }},
     { &hf_HI2Operations_broadcastIndicator,
       { "broadcastIndicator", "HI2Operations.broadcastIndicator",
         FT_BOOLEAN, BASE_NONE, NULL, 0,
@@ -6610,8 +6646,8 @@ void proto_register_HI2Operations(void) {
       { "speed", "HI2Operations.speed",
         FT_STRING, BASE_NONE, NULL, 0,
         "PrintableString", HFILL }},
-    { &hf_HI2Operations_direction_01,
-      { "direction", "HI2Operations.direction",
+    { &hf_HI2Operations_direction_str,
+      { "direction-str", "HI2Operations.direction_str",
         FT_STRING, BASE_NONE, NULL, 0,
         "PrintableString", HFILL }},
     { &hf_HI2Operations_level_conf,

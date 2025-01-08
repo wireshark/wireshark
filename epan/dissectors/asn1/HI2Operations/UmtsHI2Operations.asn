@@ -97,6 +97,8 @@ DetailedCivicAddress ::= SEQUENCE {
 
 -- LALS extended location parameters are mapped from the MLP pos element parameters
 -- and attributes defined in [88]. For details see specific [88] clauses refered below.
+-- WS mod
+
 ExtendedLocParameters ::= SEQUENCE
 {
  posMethod [0] PrintableString OPTIONAL, -- clause 5.3.93.1
@@ -109,7 +111,7 @@ ExtendedLocParameters ::= SEQUENCE
  alt-uncertainty PrintableString OPTIONAL -- clause 5.3.7
  } OPTIONAL,
  speed [3] PrintableString OPTIONAL, -- clause 5.3.119
- direction [4] PrintableString OPTIONAL, -- clause 5.3.26
+ direction-str [4] PrintableString OPTIONAL, -- clause 5.3.26
  level-conf [5] PrintableString OPTIONAL, -- clause 5.3.24
  qOS-not-met [6] BOOLEAN OPTIONAL, -- clause 5.3.97
  motionStateList [7] -- clause 5.2.2.3
