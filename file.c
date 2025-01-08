@@ -3643,7 +3643,7 @@ match_narrow_and_wide(capture_file *cf, frame_data *fdata,
     size_t        textlen    = info->data_len;
     match_result  result;
     uint32_t      buf_len;
-    uint8_t      *pd, *buf_start, *buf_end;
+    const uint8_t *pd, *buf_start, *buf_end;
     uint32_t      i;
     uint8_t       c_char;
     size_t        c_match    = 0;
@@ -3718,7 +3718,7 @@ match_narrow_and_wide_reverse(capture_file *cf, frame_data *fdata,
     size_t        textlen    = info->data_len;
     match_result  result;
     uint32_t      buf_len;
-    uint8_t      *pd, *buf_start, *buf_end;
+    const uint8_t *pd, *buf_start, *buf_end;
     uint32_t      i;
     uint8_t       c_char;
     size_t        c_match    = 0;
@@ -3799,7 +3799,7 @@ match_narrow_and_wide_case(capture_file *cf, frame_data *fdata,
     ws_mempbrk_pattern *pattern = info->pattern;
     match_result  result;
     uint32_t      buf_len;
-    uint8_t      *pd, *buf_start, *buf_end;
+    const uint8_t *pd, *buf_start, *buf_end;
     uint32_t      i;
     uint8_t       c_char;
     size_t        c_match    = 0;
@@ -3877,7 +3877,7 @@ match_narrow_and_wide_case_reverse(capture_file *cf, frame_data *fdata,
     ws_mempbrk_pattern *pattern = info->pattern;
     match_result  result;
     uint32_t      buf_len;
-    uint8_t      *pd, *buf_start, *buf_end;
+    const uint8_t *pd, *buf_start, *buf_end;
     uint32_t      i;
     uint8_t       c_char;
     size_t        c_match    = 0;
@@ -3960,7 +3960,7 @@ match_narrow_case(capture_file *cf, frame_data *fdata,
     ws_mempbrk_pattern *pattern = info->pattern;
     match_result  result;
     uint32_t      buf_len;
-    uint8_t      *pd, *buf_start, *buf_end;
+    const uint8_t *pd, *buf_start, *buf_end;
     uint32_t      i;
     uint8_t       c_char;
     size_t        c_match    = 0;
@@ -4017,7 +4017,7 @@ match_narrow_case_reverse(capture_file *cf, frame_data *fdata,
     ws_mempbrk_pattern *pattern = info->pattern;
     match_result  result;
     uint32_t      buf_len;
-    uint8_t      *pd, *buf_start, *buf_end;
+    const uint8_t *pd, *buf_start, *buf_end;
     uint32_t      i;
     uint8_t       c_char;
     size_t        c_match    = 0;
@@ -4077,7 +4077,7 @@ match_wide(capture_file *cf, frame_data *fdata,
     size_t        textlen    = info->data_len;
     match_result  result;
     uint32_t      buf_len;
-    uint8_t      *pd, *buf_start, *buf_end;
+    const uint8_t *pd, *buf_start, *buf_end;
     uint32_t      i;
     uint8_t       c_char;
     size_t        c_match    = 0;
@@ -4133,7 +4133,7 @@ match_wide_reverse(capture_file *cf, frame_data *fdata,
     size_t        textlen    = info->data_len;
     match_result  result;
     uint32_t      buf_len;
-    uint8_t      *pd, *buf_start, *buf_end;
+    const uint8_t *pd, *buf_start, *buf_end;
     uint32_t      i;
     uint8_t       c_char;
     size_t        c_match    = 0;
@@ -4195,7 +4195,7 @@ match_wide_case(capture_file *cf, frame_data *fdata,
     ws_mempbrk_pattern *pattern = info->pattern;
     match_result  result;
     uint32_t      buf_len;
-    uint8_t      *pd, *buf_start, *buf_end;
+    const uint8_t *pd, *buf_start, *buf_end;
     uint32_t      i;
     uint8_t       c_char;
     size_t        c_match    = 0;
@@ -4255,7 +4255,7 @@ match_wide_case_reverse(capture_file *cf, frame_data *fdata,
     ws_mempbrk_pattern *pattern = info->pattern;
     match_result  result;
     uint32_t      buf_len;
-    uint8_t      *pd, *buf_start, *buf_end;
+    const uint8_t *pd, *buf_start, *buf_end;
     uint32_t      i;
     uint8_t       c_char;
     size_t        c_match    = 0;
