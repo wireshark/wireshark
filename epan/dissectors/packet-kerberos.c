@@ -613,7 +613,9 @@ static int ett_krb_pac_credential_info;
 static int ett_krb_pac_s4u_delegation_info;
 static int ett_krb_pac_upn_dns_info;
 static int ett_krb_pac_upn_dns_info_flags;
+static int ett_krb_pac_client_claims_info;
 static int ett_krb_pac_device_info;
+static int ett_krb_pac_device_claims_info;
 static int ett_krb_pac_server_checksum;
 static int ett_krb_pac_privsvr_checksum;
 static int ett_krb_pac_client_info_type;
@@ -5086,17 +5088,15 @@ dissect_krb5_PAC_UPN_DNS_INFO(proto_tree *parent_tree, tvbuff_t *tvb, int offset
 }
 
 static int
-dissect_krb5_PAC_CLIENT_CLAIMS_INFO(proto_tree *parent_tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_)
+dissect_krb5_PAC_CLIENT_CLAIMS_INFO(proto_tree *parent_tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx)
 {
-	int length = tvb_captured_length_remaining(tvb, offset);
-
-	if (length == 0) {
-		return offset;
-	}
-
-	proto_tree_add_item(parent_tree, hf_krb_pac_client_claims_info, tvb, offset, -1, ENC_NA);
-
-	return offset;
+	int length = tvb_reported_length_remaining(tvb, offset);
+	return netlogon_dissect_CLAIMS_SET_METADATA_BLOB(tvb, offset, length,
+							 actx->pinfo,
+							 parent_tree,
+							 hf_krb_pac_client_claims_info,
+							 ett_krb_pac_client_claims_info,
+							 "PAC_CLIENT_CLAIMS_INFO:");
 }
 
 static int
@@ -5152,15 +5152,13 @@ dissect_krb5_PAC_DEVICE_INFO(proto_tree *parent_tree, tvbuff_t *tvb, int offset,
 static int
 dissect_krb5_PAC_DEVICE_CLAIMS_INFO(proto_tree *parent_tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_)
 {
-	int length = tvb_captured_length_remaining(tvb, offset);
-
-	if (length == 0) {
-		return offset;
-	}
-
-	proto_tree_add_item(parent_tree, hf_krb_pac_device_claims_info, tvb, offset, -1, ENC_NA);
-
-	return offset;
+	int length = tvb_reported_length_remaining(tvb, offset);
+	return netlogon_dissect_CLAIMS_SET_METADATA_BLOB(tvb, offset, length,
+							 actx->pinfo,
+							 parent_tree,
+							 hf_krb_pac_device_claims_info,
+							 ett_krb_pac_device_claims_info,
+							 "PAC_DEVICE_CLAIMS_INFO:");
 }
 
 static int
@@ -10673,7 +10671,9 @@ void proto_register_kerberos(void) {
 		&ett_krb_pac_s4u_delegation_info,
 		&ett_krb_pac_upn_dns_info,
 		&ett_krb_pac_upn_dns_info_flags,
+		&ett_krb_pac_client_claims_info,
 		&ett_krb_pac_device_info,
+		&ett_krb_pac_device_claims_info,
 		&ett_krb_pac_server_checksum,
 		&ett_krb_pac_privsvr_checksum,
 		&ett_krb_pac_client_info_type,
