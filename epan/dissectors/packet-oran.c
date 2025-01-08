@@ -393,6 +393,7 @@ static int hf_oran_meas_cmd_size;
 static int hf_oran_symbol_reordering_layer;
 static int hf_oran_dmrs_entry;
 
+static int hf_oran_c_section_common;
 static int hf_oran_c_section;
 static int hf_oran_u_section;
 
@@ -438,6 +439,7 @@ static int ett_oran_st4_cmd;
 static int ett_oran_sym_prb_pattern;
 static int ett_oran_measurement_report;
 static int ett_oran_sresmask;
+static int ett_oran_c_section_common;
 static int ett_oran_c_section;
 static int ett_oran_remask;
 static int ett_oran_symbol_reordering_layer;
@@ -3806,18 +3808,21 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
         /* Set length of extension header. */
         proto_item_set_len(extension_ti, extlen*4);
     }
+    /* End of section extension handling */
+
+
 
     /* RRM measurement reports have measurement reports after extensions */
     if (sectionType == SEC_C_RRM_MEAS_REPORTS)   /* Section Type 10 */
     {
         /* Hidden filter for bf (DMFS-BF) */
-        bf_ti = proto_tree_add_item(tree, hf_oran_bf, tvb, 0, 0, ENC_NA);
+        bf_ti = proto_tree_add_item(c_section_tree, hf_oran_bf, tvb, 0, 0, ENC_NA);
         PROTO_ITEM_SET_HIDDEN(bf_ti);
 
         bool mf;
         do {
             /* Measurement report subtree */
-            proto_item *mr_ti = proto_tree_add_item(tree, hf_oran_measurement_report,
+            proto_item *mr_ti = proto_tree_add_item(c_section_tree, hf_oran_measurement_report,
                                                     tvb, offset, 0, ENC_ASCII);
             proto_tree *mr_tree = proto_item_add_subtree(mr_ti, ett_oran_measurement_report);
             unsigned report_start_offset = offset;
@@ -3965,12 +3970,12 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
     }
 
     /*  Request for RRM Measurements has commands after extensions */
-    if (sectionType == SEC_C_REQUEST_RRM_MEAS)
+    if (sectionType == SEC_C_REQUEST_RRM_MEAS)               /* Section Type 11 */
     {
         bool mf;
         do {
             /* Measurement report subtree */
-            proto_item *mr_ti = proto_tree_add_item(tree, hf_oran_measurement_report,
+            proto_item *mr_ti = proto_tree_add_item(c_section_tree, hf_oran_measurement_report,
                                                     tvb, offset, 0, ENC_ASCII);
             proto_tree *mr_tree = proto_item_add_subtree(mr_ti, ett_oran_measurement_report);
 
@@ -4351,11 +4356,11 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo,
     proto_item *seq_id_ti;
     offset = addSeqid(tvb, oran_tree, offset, ORAN_C_PLANE, &seq_id, &seq_id_ti);
 
-    proto_item *sectionHeading;
-
-    /* Section subtree */
+    /* Section common subtree */
     int section_tree_offset = offset;
-    proto_tree *section_tree = proto_tree_add_subtree(oran_tree, tvb, offset, 2, ett_oran_section_type, &sectionHeading, "C-Plane Section Type ");
+    proto_item *sectionHeading = proto_tree_add_string_format(oran_tree, hf_oran_c_section_common,
+                                                              tvb, offset, 0, "", "C-Plane Section Type ");
+    proto_tree *section_tree = proto_item_add_subtree(sectionHeading, ett_oran_c_section_common);
 
     /* Peek ahead at the section type */
     uint32_t sectionType = 0;
@@ -7992,6 +7997,12 @@ proto_register_oran(void)
             NULL, HFILL}
         },
 
+        { &hf_oran_c_section_common,
+          { "Common Section", "oran_fh_cus.c-plane.section.common",
+            FT_STRING, BASE_NONE,
+            NULL, 0x0,
+            NULL, HFILL}
+        },
         { &hf_oran_c_section,
           { "Section", "oran_fh_cus.c-plane.section",
             FT_STRING, BASE_NONE,
@@ -8039,6 +8050,7 @@ proto_register_oran(void)
         &ett_oran_sym_prb_pattern,
         &ett_oran_measurement_report,
         &ett_oran_sresmask,
+        &ett_oran_c_section_common,
         &ett_oran_c_section,
         &ett_oran_remask,
         &ett_oran_symbol_reordering_layer,
