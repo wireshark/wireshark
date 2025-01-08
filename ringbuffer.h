@@ -12,8 +12,8 @@
 #ifndef __RINGBUFFER_H__
 #define __RINGBUFFER_H__
 
+#include <wireshark.h>
 #include <stdio.h>
-#include "wiretap/wtap.h"
 
 #define RINGBUFFER_UNLIMITED_FILES 0
 /* Minimum number of ringbuffer files */

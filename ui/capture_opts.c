@@ -28,6 +28,8 @@
 #include "capture_opts.h"
 #include "ringbuffer.h"
 
+#include <wiretap/wtap.h> /* For WTAP_MAX_PACKET_SIZE_STANDARD */
+
 #include <wsutil/clopts_common.h>
 #include <wsutil/cmdarg_err.h>
 #include <wsutil/file_util.h>

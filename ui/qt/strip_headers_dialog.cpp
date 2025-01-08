@@ -17,6 +17,8 @@
 #include <epan/tap.h>
 #include <epan/exported_pdu.h>
 
+#include <wiretap/wtap.h> // For WTAP_ENCAP_WIRESHARK_UPPER_PDU
+
 #include "ui/export_pdu_ui_utils.h"
 #include "ui/capture_globals.h"
 

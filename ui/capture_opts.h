@@ -21,7 +21,6 @@
 #include <sys/types.h>     /* for gid_t */
 
 #include <capture/capture_ifinfo.h>
-#include "ringbuffer.h"
 #include <wsutil/wslog.h>
 #include <wsutil/filter_files.h>
 
