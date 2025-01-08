@@ -95,6 +95,7 @@ static heur_dissector_list_t smb_direct_heur_subdissector_list;
 
 static bool smb_direct_reassemble = true;
 static reassembly_table smb_direct_reassembly_table;
+static bool smb_direct_infiniband_reassemble = true;
 
 static void
 dissect_smb_direct_payload(tvbuff_t *tvb, packet_info *pinfo,
@@ -517,6 +518,16 @@ dissect_smb_direct_infiniband(tvbuff_t *tvb, packet_info *pinfo,
 		return 0;
 	}
 
+	if (!info->do_rc_send_reassembling && smb_direct_infiniband_reassemble) {
+		/*
+		 * Let the infiniband layer
+		 * do RC Send reassembling
+		 * for this conversation
+		 */
+		info->do_rc_send_reassembling = smb_direct_infiniband_reassemble;
+		return 0;
+	}
+
 	dissect_smb_direct(tvb, pinfo, parent_tree, hdr_type);
 	return tvb_captured_length(tvb);
 }
@@ -676,6 +687,11 @@ void proto_register_smb_direct(void)
 				       &smb_direct_reassemble);
 	reassembly_table_register(&smb_direct_reassembly_table,
 	    &addresses_ports_reassembly_table_functions);
+	prefs_register_bool_preference(smb_direct_module,
+				       "reassemble_smb_direct_infiniband",
+				       "Reassemble Infiniband Send fragments for SMB Direct",
+				       "Whether the SMB Direct dissector should reassemble Infiniband Send fragments",
+				       &smb_direct_infiniband_reassemble);
 }
 
 void
