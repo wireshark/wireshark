@@ -387,8 +387,7 @@ k12text_read(wtap *wth, wtap_rec *rec, int *err, char ** err_info, int64_t *data
 		g_free(state.bb);
 		return false;
 	}
-	ws_buffer_assure_space(&rec->data, rec->rec_header.packet_header.caplen);
-	memcpy(ws_buffer_start_ptr(&rec->data), state.bb, rec->rec_header.packet_header.caplen);
+	ws_buffer_append(&rec->data, state.bb, rec->rec_header.packet_header.caplen);
 
 	g_free(state.bb);
 	return true;
@@ -425,8 +424,7 @@ k12text_seek_read(wtap *wth, int64_t seek_off, wtap_rec *rec, int *err, char **e
 		g_free(state.bb);
 		return false;
 	}
-	ws_buffer_assure_space(&rec->data, rec->rec_header.packet_header.caplen);
-	memcpy(ws_buffer_start_ptr(&rec->data), state.bb, rec->rec_header.packet_header.caplen);
+	ws_buffer_append(&rec->data, state.bb, rec->rec_header.packet_header.caplen);
 
 	g_free(state.bb);
 	return true;

@@ -247,8 +247,7 @@ daintree_sna_read_packet(FILE_T fh, wtap_rec *rec, int *err, char **err_info)
 
 	rec->rec_header.packet_header.caplen = bytes;
 
-	ws_buffer_assure_space(&rec->data, bytes);
-	memcpy(ws_buffer_start_ptr(&rec->data), readData, bytes);
+	ws_buffer_append(&rec->data, readData, bytes);
 	return true;
 }
 

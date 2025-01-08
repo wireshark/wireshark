@@ -64,9 +64,8 @@ static bool eri_enb_log_get_packet(FILE_T fh, wtap_rec* rec,
 
 		*err = 0;
 
-		/* Make sure we have enough room for the packet */
-		ws_buffer_assure_space(&rec->data, rec->rec_header.packet_header.caplen);
-		memcpy(ws_buffer_start_ptr(&rec->data), line, rec->rec_header.packet_header.caplen);
+		/* Append data to the packet buffer */
+		ws_buffer_append(&rec->data, line, rec->rec_header.packet_header.caplen);
 
 		return true;
 

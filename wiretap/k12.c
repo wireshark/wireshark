@@ -606,13 +606,11 @@ process_packet_data(wtap_rec *rec, uint8_t *buffer,
 
     rec->rec_header.packet_header.len = rec->rec_header.packet_header.caplen = length;
 
-    ws_buffer_assure_space(&rec->data, length);
-    memcpy(ws_buffer_start_ptr(&rec->data), buffer + buffer_offset, length);
+    ws_buffer_append(&rec->data, buffer + buffer_offset, length);
 
     /* extra information need by some protocols */
     extra_len = record_len - buffer_offset - length;
-    ws_buffer_assure_space(&(k12->extra_info), extra_len);
-    memcpy(ws_buffer_start_ptr(&(k12->extra_info)),
+    ws_buffer_append(&(k12->extra_info),
            buffer + buffer_offset + length, extra_len);
     rec->rec_header.packet_header.pseudo_header.k12.extra_info = (uint8_t*)ws_buffer_start_ptr(&(k12->extra_info));
     rec->rec_header.packet_header.pseudo_header.k12.extra_length = extra_len;

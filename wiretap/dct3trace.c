@@ -259,9 +259,8 @@ static bool dct3trace_get_packet(FILE_T fh, wtap_rec *rec,
 
 				*err = 0;
 
-				/* Make sure we have enough room for the packet */
-				ws_buffer_assure_space(&rec->data, rec->rec_header.packet_header.caplen);
-				memcpy(ws_buffer_start_ptr(&rec->data), databuf, rec->rec_header.packet_header.caplen);
+				/* Append data to the packet buffer */
+				ws_buffer_append(&rec->data, databuf, rec->rec_header.packet_header.caplen);
 
 				return true;
 			}
