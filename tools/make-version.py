@@ -386,6 +386,11 @@ def read_git_repo(src_dir, tagged_version_extra, untagged_version_extra):
         ws_num_commits = 0
     commit_id = parts[-1]
 
+    ws_release_candidate = ''
+    match = re.match(r'^v\d+\.\d+\.\d+(rc\d+)$', parts[0])
+    if match:
+        ws_release_candidate = match.groups()[0]
+
     git_describe_cmd = shlex.split(f'git --git-dir="{GIT_DIR}" describe --abbrev={GIT_ABBREV_LENGTH} --long --always --match "ssv[0-9]*"')
     ss_git_description = subprocess.check_output(git_describe_cmd, universal_newlines=True).strip()
     parts = ss_git_description.split('-')
@@ -394,11 +399,10 @@ def read_git_repo(src_dir, tagged_version_extra, untagged_version_extra):
     else:
         ss_num_commits = 0
 
-    release_candidate = ''
-    RC_PATTERN = r'^v\d+\.\d+\.\d+(rc\d+)$'
-    match = re.match(RC_PATTERN, parts[0])
+    ss_release_candidate = ''
+    match = re.match(r'^ssv\d+\.\d+\.\d+(rc\d+)$', parts[0])
     if match:
-        release_candidate = match.groups()[0]
+        ss_release_candidate = match.groups()[0]
 
     try:
         # This command is expected to fail if the version is not tagged
@@ -410,7 +414,7 @@ def read_git_repo(src_dir, tagged_version_extra, untagged_version_extra):
         print("We are not on a Wireshark tag.")
         ws_package_string = untagged_version_extra
 
-    ws_package_string = release_candidate + ws_package_string.replace("{vcsinfo}", str(ws_num_commits) + "-" + commit_id)
+    ws_package_string = ws_release_candidate + ws_package_string.replace("{vcsinfo}", str(ws_num_commits) + "-" + commit_id)
 
     try:
         # This command is expected to fail if the version is not tagged
@@ -422,7 +426,7 @@ def read_git_repo(src_dir, tagged_version_extra, untagged_version_extra):
         print("We are not on a Stratoshark tag.")
         ss_package_string = untagged_version_extra
 
-    ss_package_string = release_candidate + ss_package_string.replace("{vcsinfo}", str(ss_num_commits) + "-" + commit_id)
+    ss_package_string = ss_release_candidate + ss_package_string.replace("{vcsinfo}", str(ss_num_commits) + "-" + commit_id)
 
     repo_data = {}
     repo_data['commit_id'] = commit_id
