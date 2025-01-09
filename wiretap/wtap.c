@@ -1598,6 +1598,9 @@ void
 wtap_cleareof(wtap *wth) {
 	/* Reset EOF */
 	file_clearerr(wth->fh);
+	if (wth->random_fh) {
+		file_clearerr(wth->random_fh);
+	}
 }
 
 static inline void
