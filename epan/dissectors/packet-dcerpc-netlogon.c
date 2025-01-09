@@ -3337,7 +3337,7 @@ netlogon_dissect_dsrgetforesttrustinformation_rqst(tvbuff_t *tvb,
                                               pinfo, tree, di, drep);
 
     offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, di, drep,
-                                          NDR_POINTER_UNIQUE, "Truste Domain Name",
+                                          NDR_POINTER_UNIQUE, "Trusted Domain Name",
                                           hf_netlogon_domain_name, 0);
 
     offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
@@ -11777,7 +11777,7 @@ proto_register_dcerpc_netlogon(void)
           { "Service Ticket Size", "netlogon.ticket_logon_service_ticket_size",
             FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
         { &hf_netlogon_ticket_logon_additional_ticket_size,
-          { "Addtitional Ticket Size", "netlogon.ticket_logon_additional_ticket_size",
+          { "Additional Ticket Size", "netlogon.ticket_logon_additional_ticket_size",
             FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
         { &hf_netlogon_ticket_logon_results, {
           "Results",

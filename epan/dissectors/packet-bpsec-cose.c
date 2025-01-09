@@ -176,7 +176,7 @@ void proto_register_bpsec_cose(void) {
         {&hf_aad_flags, {"Flags", "bpsec-cose.aad_scope.flags", FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL}},
         {&hf_aad_flags_metadata, {"Metadata", "bpsec-cose.aad_scope.flags.metadata", FT_BOOLEAN, 8, TFS(&tfs_set_notset), AAD_METADATA, NULL, HFILL}},
         {&hf_aad_flags_btsd, {"BTSD", "bpsec-cose.aad_scope.flags.btsd", FT_BOOLEAN, 8, TFS(&tfs_set_notset), AAD_BTSD, NULL, HFILL}},
-        {&hf_addl_prot_bstr, {"Additional Protected Headers (bstr)", "bpsec-cose.addl_proected_bstr", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}},
+        {&hf_addl_prot_bstr, {"Additional Protected Headers (bstr)", "bpsec-cose.addl_protected_bstr", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}},
         {&hf_addl_unprot_bstr, {"Additional Unprotected Headers (bstr)", "bpsec-cose.addl_unprotected", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}},
         {&hf_cose_msg, {"COSE Message (bstr)", "bpsec-cose.msg", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}},
     };

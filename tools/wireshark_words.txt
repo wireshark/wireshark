@@ -188,6 +188,7 @@ autocompletions
 autoconf
 autoconfiguration
 autodiscovery
+autokey
 autoneg
 autosar
 available
@@ -258,6 +259,7 @@ bootp
 bootup
 bosch
 bouygues
+bpsec
 brasil
 bratislava
 britain
@@ -267,6 +269,7 @@ brotli
 browsers
 bsmap
 bssap
+bssgp
 bssid
 bssids
 bssmap
@@ -418,6 +421,7 @@ cmake
 cmctrl
 cmdcontrol
 cmdmfg
+cmdset
 cmstatus
 codabar
 codebook
@@ -565,6 +569,7 @@ dbprop
 dbuild
 dccreq
 dcerpc
+dcmake
 dcname
 dcomp
 dct3trace
@@ -610,6 +615,7 @@ deduplicate
 deenabled
 deenablement
 deencapsulate
+defaultsc
 defence
 deferral
 defrag
@@ -673,12 +679,14 @@ designator
 destip
 destport
 determinant
+detune
 deutschland
 devaddr
 devcap
 devel
 devfs
 deviceid
+devid
 devmode
 devno
 devtype
@@ -770,6 +778,7 @@ drsuapi
 dsmcc
 dstmode
 dstport
+dtnum
 dtwin
 dumpcap
 duple
@@ -1166,6 +1175,7 @@ ideographic
 idiographic
 idl2deb
 idl2wrs
+idlfile
 idltype
 iec60870
 ieee1609dot
@@ -1288,6 +1298,7 @@ ipconfig
 ipdum
 iperf
 ipfix
+ipint
 ipmap
 ipphone
 ipprim
@@ -1911,6 +1922,7 @@ passivated
 passkey
 passthrough
 passwd
+pathbuf
 pathconf
 paxos
 pbcch
@@ -1959,6 +1971,7 @@ plaintext
 planar
 plano
 plcinterface
+plessey
 plixer
 plmnid
 plugin
@@ -2132,6 +2145,7 @@ rcsta
 rctxinfo
 rdata
 rdeth
+rdpmt
 rdpudp
 rdstls
 rdtci
@@ -2247,6 +2261,7 @@ reproducible
 reprogrammable
 reprogramming
 republish
+reqid
 reqinfo
 reqseq
 reqtype
@@ -2317,6 +2332,7 @@ rffpcnex
 rfinfo
 rfmon
 rgoose
+rhsalias
 richard
 rinfo
 ripemd
@@ -2446,6 +2462,7 @@ sessionkey
 setattr
 setcap
 setconf
+setiv
 setkey
 settl
 setuid
@@ -2716,6 +2733,7 @@ telefonica
 Telefónica
 Teléfonos
 telekom
+telem
 telematic
 telematics
 telenet
@@ -2735,6 +2753,7 @@ texas
 text2pcap
 textbox
 tfields
+tfmcc
 tfmccack
 tfshark
 thales
@@ -2744,6 +2763,7 @@ thompson
 throughput
 thunderx
 thursday
+timefmt
 timeout
 timeserv
 timeslot
@@ -2854,6 +2874,7 @@ uint32
 uint8
 uinteger
 ulmap
+ulong
 ulsch
 umask
 unack
@@ -3056,6 +3077,7 @@ validations
 validator
 valstringname
 varbyte
+varinfo
 varint
 vbucket
 vbuckets
@@ -3192,6 +3214,7 @@ yyterminate
 yytext
 z3950
 zbncp
+zboss
 ze3dd
 zeroes
 zigbee

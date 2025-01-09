@@ -312,7 +312,7 @@ static bool do_uncompress(struct input *input,
 			wmem_array_append_one(obuf, v);
 		} else {
 			if (symbol == 256) {
-				/* EOF symbol and everything comsumed */
+				/* EOF symbol and everything consumed */
 				if (bstr.bitstring_index == bstr.input->size) {
 					return true;
 				}
