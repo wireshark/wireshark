@@ -1492,7 +1492,7 @@ blf_read_ethernetframe(blf_params_t *params, int *err, char **err_info, int64_t 
         ws_debug("copying ethernet frame failed");
         return false;
     }
-    params->rec->data.first_free += ethheader.payloadlength;
+    ws_buffer_increase_length(&params->rec->data, ethheader.payloadlength);
 
     blf_init_rec(params, flags, object_timestamp, WTAP_ENCAP_ETHERNET, ethheader.channel, UINT16_MAX, caplen, len);
     blf_add_direction_option(params, ethheader.direction);
@@ -1518,8 +1518,6 @@ blf_read_ethernetframe_ext(blf_params_t *params, int *err, char **err_info, int6
     }
     fix_endianness_blf_ethernetframeheader_ex(&ethheader);
 
-    ws_buffer_assure_space(&params->rec->data, ethheader.frame_length);
-
     if (object_length - (data_start - block_start) - sizeof(blf_ethernetframeheader_ex_t) < ethheader.frame_length) {
         *err = WTAP_ERR_BAD_FILE;
         *err_info = ws_strdup_printf("blf: %s: frame too short", error ? "ETHERNET_ERROR_EX" : "ETHERNET_FRAME_EX");
@@ -1527,10 +1525,13 @@ blf_read_ethernetframe_ext(blf_params_t *params, int *err, char **err_info, int6
         return false;
     }
 
-    if (!blf_read_bytes(params, data_start + sizeof(blf_ethernetframeheader_ex_t), ws_buffer_start_ptr(&params->rec->data), ethheader.frame_length, err, err_info)) {
+    ws_buffer_assure_space(&params->rec->data, ethheader.frame_length);
+
+    if (!blf_read_bytes(params, data_start + sizeof(blf_ethernetframeheader_ex_t), ws_buffer_end_ptr(&params->rec->data), ethheader.frame_length, err, err_info)) {
         ws_debug("copying ethernet frame failed");
         return false;
     }
+    ws_buffer_increase_length(&params->rec->data, ethheader.frame_length);
 
     if (ethheader.flags & BLF_ETHERNET_EX_HARDWARECHANNEL) {
         blf_init_rec(params, flags, object_timestamp, WTAP_ENCAP_ETHERNET, ethheader.channel, ethheader.hw_channel, ethheader.frame_length, ethheader.frame_length);
@@ -1562,8 +1563,6 @@ blf_read_ethernet_rxerror(blf_params_t* params, int* err, char** err_info, int64
     }
     fix_endianness_blf_ethernet_rxerror(&ethheader);
 
-    ws_buffer_assure_space(&params->rec->data, ethheader.frame_length);
-
     if (object_length - (data_start - block_start) < ethheader.frame_length) {
         *err = WTAP_ERR_BAD_FILE;
         *err_info = ws_strdup("blf: ETHERNET_RXERROR: frame too short");
@@ -1571,10 +1570,13 @@ blf_read_ethernet_rxerror(blf_params_t* params, int* err, char** err_info, int64
         return false;
     }
 
-    if (!blf_read_bytes(params, data_start + sizeof(blf_ethernet_rxerror_t), ws_buffer_start_ptr(&params->rec->data), ethheader.frame_length, err, err_info)) {
+    ws_buffer_assure_space(&params->rec->data, ethheader.frame_length);
+
+    if (!blf_read_bytes(params, data_start + sizeof(blf_ethernet_rxerror_t), ws_buffer_end_ptr(&params->rec->data), ethheader.frame_length, err, err_info)) {
         ws_debug("copying ethernet rx error failed");
         return false;
     }
+    ws_buffer_increase_length(&params->rec->data, ethheader.frame_length);
 
     if (ethheader.hw_channel != 0) {    /* In this object type, a value of 0 is considered invalid. */
         blf_init_rec(params, flags, object_timestamp, WTAP_ENCAP_ETHERNET, ethheader.channel, ethheader.hw_channel, ethheader.frame_length, ethheader.frame_length);
@@ -1608,8 +1610,6 @@ blf_read_wlanframe(blf_params_t* params, int* err, char** err_info, int64_t bloc
     }
     fix_endianness_blf_wlanframeheader(&wlanheader);
 
-    ws_buffer_assure_space(&params->rec->data, wlanheader.frame_length);
-
     if (object_length - (data_start - block_start) - sizeof(blf_wlanframeheader_t) < wlanheader.frame_length) {
         *err = WTAP_ERR_BAD_FILE;
         *err_info = ws_strdup("blf: WLAN_FRAME: frame too short");
@@ -1617,10 +1617,13 @@ blf_read_wlanframe(blf_params_t* params, int* err, char** err_info, int64_t bloc
         return false;
     }
 
-    if (!blf_read_bytes(params, data_start + sizeof(blf_wlanframeheader_t), ws_buffer_start_ptr(&params->rec->data), wlanheader.frame_length, err, err_info)) {
+    ws_buffer_assure_space(&params->rec->data, wlanheader.frame_length);
+
+    if (!blf_read_bytes(params, data_start + sizeof(blf_wlanframeheader_t), ws_buffer_end_ptr(&params->rec->data), wlanheader.frame_length, err, err_info)) {
         ws_debug("copying wlan frame failed");
         return false;
     }
+    ws_buffer_increase_length(&params->rec->data, wlanheader.frame_length);
 
     blf_init_rec(params, flags, object_timestamp, WTAP_ENCAP_IEEE_802_11, wlanheader.channel, UINT16_MAX, wlanheader.frame_length, wlanheader.frame_length);
     blf_add_direction_option(params, wlanheader.direction);
@@ -1655,7 +1658,7 @@ blf_can_fill_buf_and_rec(blf_params_t *params, int *err, char **err_info, uint32
         ws_debug("copying can payload failed");
         return false;
     }
-    params->rec->data.first_free += payload_length_valid;
+    ws_buffer_increase_length(&params->rec->data, payload_length_valid);
 
     blf_init_rec(params, flags, object_timestamp, WTAP_ENCAP_SOCKETCAN, channel, UINT16_MAX, caplen, len);
 
@@ -1890,7 +1893,6 @@ blf_read_canerror(blf_params_t *params, int *err, char **err_info, int64_t block
     tmpbuf[3] = (canid & 0x000000ff);
     tmpbuf[4] = payload_length;
 
-    ws_buffer_assure_space(&params->rec->data, sizeof(tmpbuf));
     ws_buffer_append(&params->rec->data, tmpbuf, sizeof(tmpbuf));
 
     blf_init_rec(params, flags, object_timestamp, WTAP_ENCAP_SOCKETCAN, canheader.channel, UINT16_MAX, sizeof(tmpbuf), sizeof(tmpbuf));
@@ -1975,7 +1977,6 @@ blf_read_canerrorext(blf_params_t *params, int *err, char **err_info, int64_t bl
     tmpbuf[3] = (canid & 0x000000ff);
     tmpbuf[4] = payload_length;
 
-    ws_buffer_assure_space(&params->rec->data, sizeof(tmpbuf));
     ws_buffer_append(&params->rec->data, tmpbuf, sizeof(tmpbuf));
 
     blf_init_rec(params, flags, object_timestamp, WTAP_ENCAP_SOCKETCAN, canheader.channel, UINT16_MAX, sizeof(tmpbuf), sizeof(tmpbuf));
@@ -2065,7 +2066,6 @@ blf_read_canfderror64(blf_params_t *params, int *err, char **err_info, int64_t b
     tmpbuf[4] = payload_length;
     // Don't set FDF, ESI and BRS flags, since error messages are always encapsulated in Classic CAN frames
 
-    ws_buffer_assure_space(&params->rec->data, sizeof(tmpbuf));
     ws_buffer_append(&params->rec->data, tmpbuf, sizeof(tmpbuf));
 
     blf_init_rec(params, flags, object_timestamp, WTAP_ENCAP_SOCKETCAN, canheader.channel, UINT16_MAX, sizeof(tmpbuf), sizeof(tmpbuf));
@@ -2140,7 +2140,7 @@ blf_read_flexraydata(blf_params_t *params, int *err, char **err_info, int64_t bl
         ws_debug("copying flexray payload failed");
         return false;
     }
-    params->rec->data.first_free += payload_length_valid;
+    ws_buffer_increase_length(&params->rec->data, payload_length_valid);
 
     blf_init_rec(params, flags, object_timestamp, WTAP_ENCAP_FLEXRAY, frheader.channel, UINT16_MAX, caplen, len);
     blf_add_direction_option(params, frheader.dir);
@@ -2229,7 +2229,7 @@ blf_read_flexraymessage(blf_params_t *params, int *err, char **err_info, int64_t
         ws_debug("copying flexray payload failed");
         return false;
     }
-    params->rec->data.first_free += payload_length_valid;
+    ws_buffer_increase_length(&params->rec->data, payload_length_valid);
 
     blf_init_rec(params, flags, object_timestamp, WTAP_ENCAP_FLEXRAY, frheader.channel, UINT16_MAX, caplen, len);
     blf_add_direction_option(params, frheader.dir);
@@ -2326,7 +2326,7 @@ blf_read_flexrayrcvmessageex(blf_params_t *params, int *err, char **err_info, in
         ws_debug("copying flexray payload failed");
         return false;
     }
-    params->rec->data.first_free += payload_length_valid;
+    ws_buffer_increase_length(&params->rec->data, payload_length_valid);
 
     blf_init_rec(params, flags, object_timestamp, WTAP_ENCAP_FLEXRAY, frheader.channelMask, UINT16_MAX, caplen, len);
     blf_add_direction_option(params, frheader.dir);
@@ -2373,7 +2373,6 @@ blf_read_linmessage(blf_params_t* params, int* err, char** err_info, int64_t blo
         tmpbuf[7] |= 0x08;
     }
 
-    ws_buffer_assure_space(&params->rec->data, sizeof(tmpbuf) + payload_length);
     ws_buffer_append(&params->rec->data, tmpbuf, sizeof(tmpbuf));
     ws_buffer_append(&params->rec->data, linmessage.data, payload_length);
     len = sizeof(tmpbuf) + payload_length;
@@ -2417,7 +2416,6 @@ blf_read_linrcverror(blf_params_t* params, int* err, char** err_info, int64_t bl
      * but in the future we should expand it. */
     tmpbuf[7] = 0x02; /* errors */
 
-    ws_buffer_assure_space(&params->rec->data, sizeof(tmpbuf));
     ws_buffer_append(&params->rec->data, tmpbuf, sizeof(tmpbuf));
 
     blf_init_rec(params, flags, object_timestamp, WTAP_ENCAP_LIN, linmessage.channel, UINT16_MAX, sizeof(tmpbuf), sizeof(tmpbuf));
@@ -2455,7 +2453,6 @@ blf_read_linsenderror(blf_params_t* params, int* err, char** err_info, int64_t b
     tmpbuf[6] = 0; /* checksum */
     tmpbuf[7] = 0x01; /* errors */
 
-    ws_buffer_assure_space(&params->rec->data, sizeof(tmpbuf));
     ws_buffer_append(&params->rec->data, tmpbuf, sizeof(tmpbuf));
 
     blf_init_rec(params, flags, object_timestamp, WTAP_ENCAP_LIN, linmessage.channel, UINT16_MAX, sizeof(tmpbuf), sizeof(tmpbuf));
@@ -2496,7 +2493,6 @@ blf_read_linwakeupevent(blf_params_t* params, int* err, char** err_info, int64_t
     tmpbuf[10] = 0x00;
     tmpbuf[11] = 0x04;
 
-    ws_buffer_assure_space(&params->rec->data, sizeof(tmpbuf));
     ws_buffer_append(&params->rec->data, tmpbuf, sizeof(tmpbuf));
 
     blf_init_rec(params, flags, object_timestamp, WTAP_ENCAP_LIN, linevent.channel, UINT16_MAX, sizeof(tmpbuf), sizeof(tmpbuf));
@@ -2551,7 +2547,6 @@ blf_read_linmessage2(blf_params_t* params, int* err, char** err_info, int64_t bl
     tmpbuf[6] = (uint8_t)(linmessage.crc & 0xff); /* checksum */
     tmpbuf[7] = 0; /* errors */
 
-    ws_buffer_assure_space(&params->rec->data, sizeof(tmpbuf) + payload_length);
     ws_buffer_append(&params->rec->data, tmpbuf, sizeof(tmpbuf));
     ws_buffer_append(&params->rec->data, linmessage.data, payload_length);
     len = sizeof(tmpbuf) + payload_length;
@@ -2609,7 +2604,6 @@ blf_read_lincrcerror2(blf_params_t* params, int* err, char** err_info, int64_t b
     tmpbuf[6] = (uint8_t)(linmessage.crc & 0xff); /* checksum */
     tmpbuf[7] = 0x08; /* errors */
 
-    ws_buffer_assure_space(&params->rec->data, sizeof(tmpbuf) + payload_length);
     ws_buffer_append(&params->rec->data, tmpbuf, sizeof(tmpbuf));
     ws_buffer_append(&params->rec->data, linmessage.data, payload_length);
     len = sizeof(tmpbuf) + payload_length;
@@ -2675,7 +2669,6 @@ blf_read_linrcverror2(blf_params_t* params, int* err, char** err_info, int64_t b
      * but in the future we should expand it. */
     tmpbuf[7] = 0x02; /* errors */
 
-    ws_buffer_assure_space(&params->rec->data, sizeof(tmpbuf) + payload_length);
     ws_buffer_append(&params->rec->data, tmpbuf, sizeof(tmpbuf));
     if (payload_length > 0) {
         ws_buffer_append(&params->rec->data, linmessage.data, payload_length);
@@ -2729,7 +2722,6 @@ blf_read_linsenderror2(blf_params_t* params, int* err, char** err_info, int64_t 
     tmpbuf[6] = 0; /* checksum */
     tmpbuf[7] = 0x01; /* errors */
 
-    ws_buffer_assure_space(&params->rec->data, sizeof(tmpbuf));
     ws_buffer_append(&params->rec->data, tmpbuf, sizeof(tmpbuf));
 
     blf_init_rec(params, flags, object_timestamp, WTAP_ENCAP_LIN, linmessage.linMessageDescriptor.linSynchFieldEvent.linBusEvent.channel, UINT16_MAX, sizeof(tmpbuf), sizeof(tmpbuf));
@@ -2770,7 +2762,6 @@ blf_read_linwakeupevent2(blf_params_t* params, int* err, char** err_info, int64_
     tmpbuf[10] = 0x00;
     tmpbuf[11] = 0x04;
 
-    ws_buffer_assure_space(&params->rec->data, sizeof(tmpbuf));
     ws_buffer_append(&params->rec->data, tmpbuf, sizeof(tmpbuf));
 
     blf_init_rec(params, flags, object_timestamp, WTAP_ENCAP_LIN, linevent.linBusEvent.channel, UINT16_MAX, sizeof(tmpbuf), sizeof(tmpbuf));
@@ -2858,7 +2849,6 @@ blf_read_linsleepmodeevent(blf_params_t* params, int* err, char** err_info, int6
         break;
     }
 
-    ws_buffer_assure_space(&params->rec->data, sizeof(tmpbuf));
     ws_buffer_append(&params->rec->data, tmpbuf, sizeof(tmpbuf));
 
     blf_init_rec(params, flags, object_timestamp, WTAP_ENCAP_LIN, linevent.channel, UINT16_MAX, sizeof(tmpbuf), sizeof(tmpbuf));
@@ -3349,7 +3339,6 @@ blf_read_apptextmessage(blf_params_t *params, int *err, char **err_info, int64_t
             wtap_buffer_append_epdu_end(&params->rec->data);
         }
 
-        ws_buffer_assure_space(&params->rec->data, apptextheader.textLength);
         ws_buffer_append(&params->rec->data, text, apptextheader.textLength);
         g_free(text);
 
@@ -3391,8 +3380,7 @@ blf_read_apptextmessage(blf_params_t *params, int *err, char **err_info, int64_t
         wtap_buffer_append_epdu_end(&params->rec->data);
 
         size_t text_length = strlen(text);  /* The string can contain '\0' before textLength bytes */
-        ws_buffer_assure_space(&params->rec->data, text_length); /* The dissector doesn't need NULL-terminated strings */
-        ws_buffer_append(&params->rec->data, text, text_length);
+        ws_buffer_append(&params->rec->data, text, text_length);    /* The dissector doesn't need NULL-terminated strings */
 
         /* We'll write this as a WS UPPER PDU packet with a text blob */
         blf_init_rec(params, flags, object_timestamp, WTAP_ENCAP_WIRESHARK_UPPER_PDU, 0, UINT16_MAX, (uint32_t)ws_buffer_length(&params->rec->data), (uint32_t)ws_buffer_length(&params->rec->data));
@@ -3468,7 +3456,6 @@ blf_read_ethernet_status(blf_params_t* params, int* err, char** err_info, int64_
     wtap_buffer_append_epdu_string(&params->rec->data, EXP_PDU_TAG_DISSECTOR_NAME, "blf-ethernetstatus-obj");
     wtap_buffer_append_epdu_end(&params->rec->data);
 
-    ws_buffer_assure_space(&params->rec->data, sizeof(ethernet_status_header));
     ws_buffer_append(&params->rec->data, tmpbuf, (size_t)(object_version >= 1 ? 24 : 16));
 
     /* We'll write this as a WS UPPER PDU packet with a data blob */
@@ -3523,8 +3510,7 @@ blf_read_ethernet_phystate(blf_params_t* params, int* err, char** err_info, int6
     wtap_buffer_append_epdu_string(&params->rec->data, EXP_PDU_TAG_DISSECTOR_NAME, "blf-ethernetphystate-obj");
     wtap_buffer_append_epdu_end(&params->rec->data);
 
-    ws_buffer_assure_space(&params->rec->data, sizeof(ethernet_phystate_header));
-    ws_buffer_append(&params->rec->data, tmpbuf, sizeof(ethernet_phystate_header));
+    ws_buffer_append(&params->rec->data, tmpbuf, sizeof(tmpbuf));
 
     /* We'll write this as a WS UPPER PDU packet with a data blob */
     /* This will create an interface with the "name" of the matching
