@@ -1599,7 +1599,7 @@ ttl_read_bytes(ttl_read_t* in, void* out, uint16_t size, int* err, char** err_in
         }
         break;
     case VALIDITY_BUF:
-        if (size > 0) {
+        if (size != 0) {
             if ((in->cur_pos + size) > in->size) {
                 *err = WTAP_ERR_SHORT_READ;
                 *err_info = ws_strdup("ttl_read_bytes(): Attempt to read beyond buffer end");
@@ -1682,7 +1682,7 @@ ttl_read_eth_data_entry(wtap_rec* rec, int* err, char** err_info, ttl_read_t* in
     }
     size -= 2;
 
-    if (size > 0 && !ttl_read_bytes_buffer(in, &rec->data, size, err, err_info)) {
+    if (size != 0 && !ttl_read_bytes_buffer(in, &rec->data, size, err, err_info)) {
         return TTL_ERROR;
     }
 
@@ -1699,7 +1699,7 @@ ttl_add_can_dir_option(wtap_rec* rec) {
     wtap_block_add_uint32_option(rec->block, OPT_EPB_FLAGS, opt);
 }
 
-static uint8_t canfd_dlc_to_length[] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 12, 16, 20, 24, 32, 48, 64 };
+static const uint8_t canfd_dlc_to_length[] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 12, 16, 20, 24, 32, 48, 64 };
 
 static ttl_result_t
 ttl_read_can_data_entry(wtap_rec* rec, int* err, char** err_info, ttl_read_t* in, uint16_t size, uint16_t addr,
@@ -1796,14 +1796,14 @@ ttl_read_can_data_entry(wtap_rec* rec, int* err, char** err_info, ttl_read_t* in
 
     if (error_code) {
         ws_buffer_append(&rec->data, can_error_payload, sizeof(can_error_payload));
-        if (size > 0 && !ttl_skip_bytes(in, size, err, err_info)) {
+        if (size != 0 && !ttl_skip_bytes(in, size, err, err_info)) {
             return TTL_ERROR;
         }
         ttl_init_rec(rec, timestamp, addr, item->pkt_encap, item->interface_id,
                      sizeof(can_header) + sizeof(can_error_payload), sizeof(can_header) + sizeof(can_error_payload));
     }
     else {
-        if (size > 0 && !ttl_read_bytes_buffer(in, &rec->data, size, err, err_info)) {
+        if (size != 0 && !ttl_read_bytes_buffer(in, &rec->data, size, err, err_info)) {
             return TTL_ERROR;
         }
         ttl_init_rec(rec, timestamp, addr, item->pkt_encap, item->interface_id, size + sizeof(can_header), len + sizeof(can_header));
@@ -1851,21 +1851,21 @@ ttl_read_lin_data_entry(wtap_rec* rec, int* err, char** err_info, ttl_read_t* in
     /* Set the checksum error if the checksum is wrong with respect to both types */
     if ((status & TTL_LIN_ERROR_ANY_CHECKSUM) == TTL_LIN_ERROR_ANY_CHECKSUM) lin_header[7] |= 0x08;
 
-    if (dlc > 0) {
+    if (dlc != 0) {
         if (!ttl_read_bytes(in, &lin_payload[0], dlc, err, err_info)) {
             return TTL_ERROR;
         }
         size -= dlc;
     }
 
-    if (size > 0) {
+    if (size != 0) {
         if (!ttl_read_bytes(in, &lin_header[6], 1, err, err_info)) {
             return TTL_ERROR;
         }
         size -= 1;
     }
 
-    if (size > 0) { /* Skip any extra byte */
+    if (size != 0) {    /* Skip any extra byte */
         if (!ttl_skip_bytes(in, size, err, err_info)) {
             return TTL_ERROR;
         }
@@ -1873,7 +1873,7 @@ ttl_read_lin_data_entry(wtap_rec* rec, int* err, char** err_info, ttl_read_t* in
 
     ws_buffer_append(&rec->data, lin_header, sizeof(lin_header));
 
-    if (dlc > 0) {
+    if (dlc != 0) {
         ws_buffer_append(&rec->data, lin_payload, dlc);
     }
 
@@ -1923,7 +1923,7 @@ ttl_read_flexray_data_entry(wtap_rec* rec, int* err, char** err_info, ttl_read_t
 
     ws_buffer_append(&rec->data, fr_header, sizeof(fr_header));
 
-    if (size > 0 && !ttl_read_bytes_buffer(in, &rec->data, size, err, err_info)) {
+    if (size != 0 && !ttl_read_bytes_buffer(in, &rec->data, size, err, err_info)) {
         return TTL_ERROR;
     }
 
@@ -2094,7 +2094,7 @@ static ttl_result_t ttl_read_segmented_message_entry(wtap* wth, wtap_rec* rec, i
                 if (item->buf == NULL) {
                     *err = WTAP_ERR_INTERNAL;
                     *err_info = ws_strdup("ttl_read_segmented_message_entry: cannot allocate memory");
-                    return TTL_ERROR;   /* XXX - Can we continue here? If so, does it make sense? */
+                    return TTL_ERROR;
                 }
             }
 
@@ -2517,7 +2517,7 @@ ttl_parse_masters_pref_file(ttl_t* ttl, const char* path) {
         }
 
         if (tmp) {  /* The address is coupled to the master */
-            if (addr > 0 && ttl_is_master_slave_relation_correct(addr - 1, addr)) {
+            if (addr != 0 && ttl_is_master_slave_relation_correct(addr - 1, addr)) {
                 g_hash_table_insert(ttl->address_to_master_ht, GUINT_TO_POINTER(addr), GUINT_TO_POINTER(addr - 1));
             }
         }
@@ -2597,7 +2597,7 @@ ttl_parse_names_pref_file(ttl_t* ttl, const char* path) {
         addr |= tmp;
 
         cp = strtok(NULL, " \t");
-        if (cp != NULL && strlen(cp) > 0) {
+        if (cp != NULL && strlen(cp) != 0) {
             name = ws_strdup(cp);
             g_hash_table_insert(ttl->address_to_name_ht, GUINT_TO_POINTER(addr), name);
         }
@@ -2719,7 +2719,7 @@ ttl_open(wtap* wth, int* err, char** err_info) {
             offset += TTL_LOGFILE_INFO_SIZE;
 #ifdef HAVE_LIBXML2
             unsigned int xml_len = header.header_size - offset;
-            if (xml_len > 0) {
+            if (xml_len != 0) {
                 unsigned char* xml = g_try_malloc(xml_len);
                 if (xml == NULL) {
                     *err = WTAP_ERR_INTERNAL;
@@ -2742,7 +2742,7 @@ ttl_open(wtap* wth, int* err, char** err_info) {
         }
     }
 
-    if ((header.header_size - offset) > 0) {
+    if ((header.header_size - offset) != 0) {
         if (!wtap_read_bytes(wth->fh, NULL, header.header_size - offset, err, err_info)) {
             ttl_cleanup(ttl);
             return WTAP_OPEN_ERROR;
