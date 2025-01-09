@@ -1621,6 +1621,16 @@ ttl_read_bytes(ttl_read_t* in, void* out, uint16_t size, int* err, char** err_in
 }
 
 static bool
+ttl_read_bytes_buffer(ttl_read_t* in, Buffer* buf, uint16_t size, int* err, char** err_info) {
+    ws_buffer_assure_space(buf, size);
+    if (!ttl_read_bytes(in, ws_buffer_end_ptr(buf), size, err, err_info)) {
+        return false;
+    }
+    ws_buffer_increase_length(buf, size);
+    return true;
+}
+
+static bool
 ttl_skip_bytes(ttl_read_t* in, uint16_t size, int* err, char** err_info) {
     return ttl_read_bytes(in, NULL, size, err, err_info);
 }
@@ -1672,12 +1682,8 @@ ttl_read_eth_data_entry(wtap_rec* rec, int* err, char** err_info, ttl_read_t* in
     }
     size -= 2;
 
-    if (size > 0) {
-        ws_buffer_assure_space(&rec->data, size);
-        if (!ttl_read_bytes(in, ws_buffer_end_ptr(&rec->data), size, err, err_info)) {
-            return TTL_ERROR;
-        }
-        ws_buffer_increase_length(&rec->data, size);
+    if (size > 0 && !ttl_read_bytes_buffer(in, &rec->data, size, err, err_info)) {
+        return TTL_ERROR;
     }
 
     ttl_init_rec(rec, timestamp, addr, item->pkt_encap, item->interface_id, size, size);
@@ -1786,11 +1792,9 @@ ttl_read_can_data_entry(wtap_rec* rec, int* err, char** err_info, ttl_read_t* in
     can_header[6] = 0;
     can_header[7] = 0;
 
-    ws_buffer_assure_space(&rec->data, sizeof(can_header));
     ws_buffer_append(&rec->data, can_header, sizeof(can_header));
 
     if (error_code) {
-        ws_buffer_assure_space(&rec->data, sizeof(can_error_payload));
         ws_buffer_append(&rec->data, can_error_payload, sizeof(can_error_payload));
         if (size > 0 && !ttl_skip_bytes(in, size, err, err_info)) {
             return TTL_ERROR;
@@ -1799,12 +1803,8 @@ ttl_read_can_data_entry(wtap_rec* rec, int* err, char** err_info, ttl_read_t* in
                      sizeof(can_header) + sizeof(can_error_payload), sizeof(can_header) + sizeof(can_error_payload));
     }
     else {
-        if (size > 0) {
-            ws_buffer_assure_space(&rec->data, size);
-            if (!ttl_read_bytes(in, ws_buffer_end_ptr(&rec->data), size, err, err_info)) {
-                return TTL_ERROR;
-            }
-            ws_buffer_increase_length(&rec->data, size);
+        if (size > 0 && !ttl_read_bytes_buffer(in, &rec->data, size, err, err_info)) {
+            return TTL_ERROR;
         }
         ttl_init_rec(rec, timestamp, addr, item->pkt_encap, item->interface_id, size + sizeof(can_header), len + sizeof(can_header));
     }
@@ -1871,11 +1871,9 @@ ttl_read_lin_data_entry(wtap_rec* rec, int* err, char** err_info, ttl_read_t* in
         }
     }
 
-    ws_buffer_assure_space(&rec->data, sizeof(lin_header));
     ws_buffer_append(&rec->data, lin_header, sizeof(lin_header));
 
     if (dlc > 0) {
-        ws_buffer_assure_space(&rec->data, dlc);
         ws_buffer_append(&rec->data, lin_payload, dlc);
     }
 
@@ -1923,15 +1921,10 @@ ttl_read_flexray_data_entry(wtap_rec* rec, int* err, char** err_info, ttl_read_t
     if (status & TTL_FLEXRAY_FRAME_CRC_ERROR_MASK) fr_header[1] |= 0x10;
     if (status & TTL_FLEXRAY_HEADER_CRC_ERROR_MASK) fr_header[1] |= 0x08;
 
-    ws_buffer_assure_space(&rec->data, sizeof(fr_header));
     ws_buffer_append(&rec->data, fr_header, sizeof(fr_header));
 
-    if (size > 0) {
-        ws_buffer_assure_space(&rec->data, size);
-        if (!ttl_read_bytes(in, ws_buffer_end_ptr(&rec->data), size, err, err_info)) {
-            return TTL_ERROR;
-        }
-        ws_buffer_increase_length(&rec->data, size);
+    if (size > 0 && !ttl_read_bytes_buffer(in, &rec->data, size, err, err_info)) {
+        return TTL_ERROR;
     }
 
     ttl_init_rec(rec, timestamp, addr, item->pkt_encap, item->interface_id, size + sizeof(fr_header), size + sizeof(fr_header));
