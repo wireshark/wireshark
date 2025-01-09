@@ -37,15 +37,15 @@ The following features are either new or have been significantly updated since v
 * The Windows installers now ship with Npcap 1.80.
   They previously shipped with Npcap 1.79.
 
+* The Windows installers now ship with Qt 6.8.1.
+  They previously shipped with Qt 6.5.3.
+
 * WinPcap is no longer supported. On Windows, use Npcap instead, uninstalling
   WinPcap if necessary. The last release ever of WinPcap, 4.1.3, was on
   2013-03-08 and only supports up to Windows 8, which is no longer supported
   by Microsoft or Wireshark.
 
 * Source packages are now compressed using zstd.
-
-//* The Windows installers now ship with Qt 6.5.2.
-//  They previously shipped with Qt 6.2.3.
 
 * Absolute time fields, regardless of field display in the Packet Details,
   are always written in ISO 8601 format in UTC with -T json. This was already
