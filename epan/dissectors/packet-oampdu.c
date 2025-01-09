@@ -133,6 +133,12 @@ static dissector_handle_t oampdu_handle;
 #define DPOE_OPCODE_GET_RESPONSE        0x02
 #define DPOE_OPCODE_SET_REQUEST         0x03
 #define DPOE_OPCODE_SET_RESPONSE        0x04
+#define DPOE_OPCODE_FILE_TRANSFER       0x09
+
+/* DPoE File Transfer Opcodes */
+#define DPOE_FILE_TRANSFER_WRITE        0x01
+#define DPOE_FILE_TRANSFER_DATA         0x02
+#define DPOE_FILE_TRANSFER_ACK          0x03
 
 /* see IEEE802.3, table 57-4 */
 static const value_string code_vals[] = {
@@ -629,6 +635,9 @@ static const value_string dpoe_evt_code_vals[] = {
 #define DPOE_LB_EPON_MODE               0xD70014
 #define DPOE_LB_SW_BUNDLE               0xD70015
 #define DPOE_LB_S1_INT_PORT_AUTONEG     0xD70105
+#define DPOE_LB_ALARM_REPORTING         0xD70303
+#define DPOE_LB_ENCRYPTION_MODE         0xD70402
+#define DPOE_LB_S_INT_ENCRYPTION_MODE   0xD70403
 #define DPOE_LB_PORT_INGRESS_RULE       0xD70501
 #define DPOE_LB_QUEUE_CONFIG            0xD7010D
 #define DPOE_LB_FW_FILENAME             0xD7010E
@@ -770,9 +779,11 @@ static const value_string dpoe_variable_descriptor_vals[] = {
     { 0xD90201,                         "Clear Status" },
     { 0xD70301,                         "Port Stat Threshold" },
     { 0xD70302,                         "Link Stat Threshold" },
+    { DPOE_LB_ALARM_REPORTING,          "Alarm Reporting"},
     { 0xD90301,                         "Retrieve Current Alarm Summary" },
     { 0xD70401,                         "Encryption Key Expiry Time" },
-    { 0xD70402,                         "Encryption Mode" },
+    { DPOE_LB_ENCRYPTION_MODE,          "Encryption Mode" },
+    { DPOE_LB_S_INT_ENCRYPTION_MODE,    "S Interface Encryption Mode"},
     { DPOE_LB_PORT_INGRESS_RULE,        "Port Ingress Rule" },
     { 0xD70502,                         "Custom Field" },
     { 0xD70503,                         "C-VLAN TPID" },
@@ -848,6 +859,54 @@ static const value_string dpoe_variable_response_code_vals[] = {
     { 0xA2, "May Be Corrupted" },
     { 0xA3, "Hardware Failure" },
     { 0xA4, "Overflow" },
+    { 0, NULL }
+};
+
+static const value_string dpoe_ar_event_vals[] = {
+    { 0x11, "LOS" },
+    { 0x12, "Key Exchange Failure"},
+    { 0x21, "Port Disabled"},
+    { 0x41, "Power Failure"},
+    { 0x81, "Statistics Alarm"},
+    { 0x82, "D-ONU Busy"},
+    { 0x83, "MAC Table Overflow"},
+    { 0, NULL }
+};
+
+static const value_string dpoe_encryption_mode_vals[] = {
+    { 0x00, "None" },
+    { 0x01, "1Down" },
+    { 0x02, "10Down" },
+    { 0x03, "10Bi" },
+    { 0, NULL }
+};
+
+static const value_string dpoe_s_int_encryption_mode_vals[] = {
+    { 0x00, "Off" },
+    { 0x01, "IEEE 802.1 AE Static, pre-shared, CAK" },
+    { 0, NULL }
+};
+
+static const value_string dpoe_file_transfer_opcode_vals[] = {
+    { 0x01, "Write Request" },
+    { 0x02, "Data" },
+    { 0x03, "Ack" },
+    { 0, NULL }
+};
+
+static const value_string dpoe_file_transfer_response_code_vals[] = {
+    { 0x00, "OK" },
+    { 0x01, "Undefined" },
+    { 0x02, "Not Found" },
+    { 0x03, "No Access" },
+    { 0x04, "Full" },
+    { 0x05, "Illegal Operation" },
+    { 0x06, "Unknown ID" },
+    { 0x07, "Bad Block" },
+    { 0x08, "Timeout" },
+    { 0x09, "Busy" },
+    { 0x0a, "Incompatible File" },
+    { 0x0b, "Corrupted File" },
     { 0, NULL }
 };
 
@@ -1147,6 +1206,15 @@ static int hf_oam_dpoe_qc_queue_size;
 static int hf_oam_dpoe_fw_filename;
 static int hf_oam_dpoe_onu_port_config_llid_count;
 static int hf_oam_dpoe_onu_port_config_uni_count;
+static int hf_oam_dpoe_ar_event;
+static int hf_oam_dpoe_ar_event_state;
+static int hf_oam_dpoe_encryption_mode;
+static int hf_oam_dpoe_s_int_encryption_mode;
+static int hf_oam_dpoe_file_transfer_opcode;
+static int hf_oam_dpoe_file_transfer_name;
+static int hf_oam_dpoe_file_transfer_block_number;
+static int hf_oam_dpoe_file_transfer_block_width;
+static int hf_oam_dpoe_file_transfer_response_code;
 
 static int hf_oam_dpoe_1904_1_mac_enable_status;
 static int hf_oam_dpoe_1904_1_a_phy_type;
@@ -1933,6 +2001,7 @@ dissect_oampdu_vendor_specific(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     uint16_t  bytes;
     uint32_t  leaf_branch;
     uint8_t   dpoe_opcode;
+    uint8_t   opcode;
     uint8_t   variable_length;
     uint8_t   next_byte;
     uint8_t   pir_subtype;
@@ -1949,6 +2018,7 @@ dissect_oampdu_vendor_specific(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     proto_item *dpoe_opcode_request_item;
     proto_item *dpoe_opcode_response;
     proto_tree *dpoe_opcode_response_tree;
+    int length;
     offset = OAMPDU_HEADER_SIZE;
 
     bytes = tvb_captured_length_remaining(tvb, offset);
@@ -2307,6 +2377,19 @@ dissect_oampdu_vendor_specific(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
                                     proto_tree_add_item(dpoe_oam_qc_nq_subtree, hf_oam_dpoe_1904_1_qc_queue_size, tvb, offset, 4, ENC_BIG_ENDIAN);
                                     offset += 4;
                                 }
+                            } else if (leaf_branch == DPOE_LB_ALARM_REPORTING) {
+                                uint8_t event_num; /* number of events */
+                                uint8_t event_i; /* iterator */
+                                event_num = variable_length / 2;
+                                for (event_i = 0; event_i < event_num; event_i++) {
+                                    proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_ar_event, tvb, offset, 1, ENC_BIG_ENDIAN);
+                                    proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_ar_event_state, tvb, offset + 1, 1, ENC_BIG_ENDIAN);
+                                    offset += 2;
+                                }
+                            } else if (leaf_branch == DPOE_LB_ENCRYPTION_MODE) {
+                                proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_encryption_mode, tvb, offset, 1, ENC_BIG_ENDIAN);
+                            } else if (leaf_branch == DPOE_LB_S_INT_ENCRYPTION_MODE){
+                                proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_s_int_encryption_mode, tvb, offset, 1, ENC_BIG_ENDIAN);
                             } else if (leaf_branch == DPOE_LB_1904_1_MAC_ENABLE_STATUS) {
                                 proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_1904_1_mac_enable_status, tvb, offset, 1, ENC_BIG_ENDIAN);
                             } else if (leaf_branch == DPOE_LB_1904_1_A_PHY_TYPE) {
@@ -2349,7 +2432,26 @@ dissect_oampdu_vendor_specific(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
                     break;
                 case 0x08:
                     break;
-                case 0x09:
+                case DPOE_OPCODE_FILE_TRANSFER:
+                    opcode = tvb_get_uint8(tvb, offset);
+                    proto_tree_add_item(dpoe_opcode_tree, hf_oam_dpoe_file_transfer_opcode, tvb, offset, 1, ENC_BIG_ENDIAN);
+                    offset += 1;
+                    switch (opcode) {
+                        case DPOE_FILE_TRANSFER_WRITE:
+                            length = tvb_strsize(tvb, offset);
+                            proto_tree_add_item(dpoe_opcode_tree, hf_oam_dpoe_file_transfer_name, tvb, offset, length, ENC_ASCII);
+                            break;
+                        case DPOE_FILE_TRANSFER_DATA:
+                            proto_tree_add_item(dpoe_opcode_tree, hf_oam_dpoe_file_transfer_block_number, tvb, offset, 2, ENC_BIG_ENDIAN);
+                            proto_tree_add_item(dpoe_opcode_tree, hf_oam_dpoe_file_transfer_block_width, tvb, offset+2, 2, ENC_BIG_ENDIAN);
+                            break;
+                        case DPOE_FILE_TRANSFER_ACK:
+                            proto_tree_add_item(dpoe_opcode_tree, hf_oam_dpoe_file_transfer_block_number, tvb, offset, 2, ENC_BIG_ENDIAN);
+                            proto_tree_add_item(dpoe_opcode_tree, hf_oam_dpoe_file_transfer_response_code, tvb, offset+2, 1, ENC_BIG_ENDIAN);
+                            break;
+                        default:
+                            break;
+                    }
                     break;
                 default:
                     break;
@@ -3132,6 +3234,52 @@ proto_register_oampdu(void)
             { "UNI Count", "oampdu.onu_port.uni_count",
                 FT_UINT8, BASE_DEC, NULL, 0x0,
                 NULL, HFILL } },
+
+        { &hf_oam_dpoe_ar_event,
+            { "Event", "oampdu.alarm_reporting.event",
+                FT_UINT8, BASE_HEX, VALS(dpoe_ar_event_vals), 0x0,
+                NULL, HFILL } },
+
+        { &hf_oam_dpoe_ar_event_state,
+            { "State", "oampdu.alarm_reporting.event_state",
+                FT_BOOLEAN, BASE_NONE, NULL,
+                0x0, NULL, HFILL }},
+
+        { &hf_oam_dpoe_encryption_mode,
+            { "Encryption Mode", "oampdu.encryption_mode",
+                FT_UINT8, BASE_DEC, VALS(dpoe_encryption_mode_vals), 0x0,
+                NULL, HFILL } },
+
+        { &hf_oam_dpoe_s_int_encryption_mode,
+            { "Encryption Mode", "oampdu.s_int_encryption_mode",
+                FT_UINT8, BASE_DEC, VALS(dpoe_s_int_encryption_mode_vals), 0x0,
+                NULL, HFILL } },
+
+        /* DPoE File Transfer */
+        { &hf_oam_dpoe_file_transfer_opcode,
+            { "Opcode", "oampdu.file_transfer.opcode",
+                FT_UINT8, BASE_HEX, VALS(dpoe_file_transfer_opcode_vals),
+                0x0, NULL, HFILL }},
+
+        { &hf_oam_dpoe_file_transfer_name,
+            {"Filename", "oampdu.file_transfer.name",
+                FT_STRINGZ, BASE_NONE, NULL, 0x0,
+                NULL, HFILL } },
+
+        { &hf_oam_dpoe_file_transfer_block_number,
+            { "Block Number", "oampdu.file_transfer.block_number",
+                FT_UINT16, BASE_HEX, NULL, 0x0,
+                NULL, HFILL }},
+
+        { &hf_oam_dpoe_file_transfer_block_width,
+            { "Block Width", "oampdu.file_transfer.block_width",
+                FT_UINT16, BASE_HEX, NULL, 0x0,
+                NULL, HFILL }},
+
+        { &hf_oam_dpoe_file_transfer_response_code,
+            { "Response Code", "oampdu.file_transfer.response_code",
+                FT_UINT8, BASE_HEX, VALS(dpoe_file_transfer_response_code_vals),
+                0x00, NULL, HFILL }},
 
         { &hf_oam_dpoe_1904_1_mac_enable_status,
             { "MAC Enable Status", "oampdu.1904_1.mac_enable_status",
