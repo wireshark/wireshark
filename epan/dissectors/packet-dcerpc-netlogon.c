@@ -1035,13 +1035,13 @@ netlogon_dissect_netrlogonuaslogoff_reply(tvbuff_t *tvb, int offset,
 }
 
 static int
-netlogon_dissect_BYTE_byte(tvbuff_t *tvb, int offset,
-                           packet_info *pinfo, proto_tree *tree,
-                           dcerpc_info *di, uint8_t *drep)
+netlogon_dissect_BLOB(tvbuff_t *tvb, int offset, int length,
+                      packet_info *pinfo _U_ , proto_tree *tree,
+                      dcerpc_info *di _U_, uint8_t *drep _U_)
 {
-    offset = dissect_ndr_uint8(tvb, offset, pinfo, tree, di, drep,
-                               hf_netlogon_unknown_char, NULL);
-
+    proto_tree_add_item(tree, hf_netlogon_blob, tvb, offset, length,
+                        ENC_NA);
+    offset += length;
     return offset;
 }
 
@@ -1050,8 +1050,8 @@ netlogon_dissect_BYTE_array(tvbuff_t *tvb, int offset,
                             packet_info *pinfo, proto_tree *tree,
                             dcerpc_info *di, uint8_t *drep)
 {
-    offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, di, drep,
-                                 netlogon_dissect_BYTE_byte);
+    offset = dissect_ndr_ucarray_block(tvb, offset, pinfo, tree, di, drep,
+                                       netlogon_dissect_BLOB);
 
     return offset;
 }
