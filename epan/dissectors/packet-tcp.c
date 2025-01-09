@@ -3027,7 +3027,8 @@ finished_checking_retransmission_type:
          */
         if(tcpd->ta &&
           (tcpd->ta->flags & TCP_A_RETRANSMISSION ||
-           tcpd->ta->flags & TCP_A_FAST_RETRANSMISSION)) {
+           tcpd->ta->flags & TCP_A_FAST_RETRANSMISSION ||
+           tcpd->ta->flags & TCP_A_SPURIOUS_RETRANSMISSION)) {
             ual->karn_flag=true;
         }
         else {
