@@ -39,9 +39,6 @@ The following bugs have been fixed:
 //* cveidlink:2014-2486[]
 //* Wireshark grabs your ID at 3 am, goes to Waffle House, and insults people.
 
-* Macro eNodeB ID and Extended Macro eNodeB ID not decoded by User Location Information. wsbuglink:20276[].
-* CMake discovers Strawberry Perl's zlib DLL when it shouldn't. wsbuglink:20304[].
-
 === New and Updated Features
 
 There are no new or updated features in this release.
@@ -61,13 +58,6 @@ There are no new protocols in this release.
 // ag -A1 '(define PSNAME|proto_register_protocol[^_])' $(git diff --name-only v4.2.10.. | ag packet- | sort -u)
 [commaize]
 --
-BBLog
-GTPv2
-ICMPv6
-IEEE 802.11
-LTE RRC
-MBIM
-NR RRC
 --
 
 === New and Updated Capture File Support
@@ -97,6 +87,7 @@ There is no updated file format support in this release.
 This document only describes the changes introduced in Wireshark {wireshark-version}.
 You can find release notes for prior versions at the following locations:
 
+* https://www.wireshark.org/docs/relnotes/wireshark-4.2.10.html[Wireshark 4.2.10]
 * https://www.wireshark.org/docs/relnotes/wireshark-4.2.9.html[Wireshark 4.2.9]
 * https://www.wireshark.org/docs/relnotes/wireshark-4.2.8.html[Wireshark 4.2.8]
 * https://www.wireshark.org/docs/relnotes/wireshark-4.2.7.html[Wireshark 4.2.7]
