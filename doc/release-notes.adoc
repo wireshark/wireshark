@@ -40,15 +40,6 @@ The following bugs have been fixed:
 //* cveidlink:2014-2486[]
 //* Wireshark took a bite out of each of your freshly baked muffins until it found the perfect one.
 
-* Potential mis-match in GSM MAP dissector for uncertainty radius and its filter key. wsbuglink:20247[].
-* Macro eNodeB ID and Extended Macro eNodeB ID not decoded by User Location Information. wsbuglink:20276[].
-* The NFSv2 Dissector appears to be swapping Character Special File and Directory in mode decoding. wsbuglink:20290[].
-* CMake discovers Strawberry Perl's zlib DLL when it shouldn't. wsbuglink:20304[].
-* VOIP Calls call flow displaying hours. wsbuglink:20311[].
-* Fuzz job issue: fuzz-2024-12-26-7898.pcap. wsbuglink:20313[].
-* sFlow: Incorrect length passed to header sample dissector. wsbuglink:20320[].
-* wsutil: Should link against -lm due to missing fabs() when built with -fno-builtin. wsbuglink:20326[].
-
 // == Known Bugs
 
 === New and Updated Features
@@ -67,62 +58,15 @@ There are no new protocols in this release.
 // ag -A1 '(define PSNAME|proto_register_protocol[^_])' $(git diff --name-only v4.4.3.. | ag packet- | sort -u)
 [commaize]
 --
-ASN.1 PER
-ARTNET
-BACapp
-BBLog
-BT BR/EDR RF
-CQL
-Diameter
-DOF
-ECMP
-FiveCo RAP
-FTDI FT
-GSM COMMON
-GTPv2
-HCI_MON
-HSRP
-HTTP2
-ICMPv6
-IEEE 802.11
-Kafka
-LTE RRC
-MBIM
-MMS
-Modbus/TCP
-MPEG PES
-NAS-EPS
-NFS
-NGAP
-NR RRC
-PLDM
-POP
-ProtoBuf
-PN-DCP
-PTP
-RPC
-RTCP
-sFlow
-SIP
-SRT
-TCP
-UCP
-RLC
-USBCCID
-Wi-SUN
-ZigBee ZCL
 --
 
 === New and Updated Capture File Support
 
-// There is no new or updated capture file support in this release.
+There is no new or updated capture file support in this release.
 // Add one file type per line between the -- delimiters.
 // [commaize]
---
-CLLog
-EMS
-ERF
---
+// --
+// --
 
 === Updated File Format Decoding Support
 
@@ -139,6 +83,20 @@ There is no updated file format support in this release.
 // === Major API Changes
 
 == Prior Versions
+
+Wireshark 4.4.3 included the following changes.
+See the
+https://www.wireshark.org/docs/relnotes/wireshark-4.4.3.html[release notes]
+for details:
+
+* Potential mis-match in GSM MAP dissector for uncertainty radius and its filter key. wsbuglink:20247[].
+* Macro eNodeB ID and Extended Macro eNodeB ID not decoded by User Location Information. wsbuglink:20276[].
+* The NFSv2 Dissector appears to be swapping Character Special File and Directory in mode decoding. wsbuglink:20290[].
+* CMake discovers Strawberry Perl's zlib DLL when it shouldn't. wsbuglink:20304[].
+* VOIP Calls call flow displaying hours. wsbuglink:20311[].
+* Fuzz job issue: fuzz-2024-12-26-7898.pcap. wsbuglink:20313[].
+* sFlow: Incorrect length passed to header sample dissector. wsbuglink:20320[].
+* wsutil: Should link against -lm due to missing fabs() when built with -fno-builtin. wsbuglink:20326[].
 
 Wireshark 4.4.2 included the following changes.
 See the
