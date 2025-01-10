@@ -769,12 +769,6 @@ WS_DLL_PUBLIC bool deregister_depend_dissector(const char* parent, const char* d
  */
 WS_DLL_PUBLIC depend_dissector_list_t find_depend_dissector_list(const char* name);
 
-
-/* Do all one-time initialization. */
-extern void dissect_init(void);
-
-extern void dissect_cleanup(void);
-
 /*
  * Given a tvbuff, and a length from a packet header, adjust the length
  * of the tvbuff to reflect the specified length.
