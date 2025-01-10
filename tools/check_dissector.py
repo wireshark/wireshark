@@ -9,6 +9,7 @@ import sys
 import os
 import signal
 import argparse
+import subprocess
 
 # Run battery of tests on one or more dissectors.
 
@@ -41,13 +42,15 @@ parser.add_argument('--file', action='append',
                     help='specify individual dissector file to test')
 parser.add_argument('--file-list', action='store',
                     help='file with list of dissectors')
+parser.add_argument('--open', action='store_true',
+                    help='look for dissectors among upon files')
 parser.add_argument('--build-folder', action='store',
                     help='build folder')
 
 args = parser.parse_args()
 
-if not args.file and not args.file_list:
-    print('Need to specify --file or --file-list')
+if not args.file and not args.file_list and not args.open:
+    print('Need to specify --file, --file-list or --open')
     exit(1)
 
 # TODO: verify build-folder if set.
@@ -79,14 +82,33 @@ if args.file_list:
                 else:
                     dissectors.append(f)
 
+if args.open:
+    # Unstaged changes.
+    command = ['git', 'diff', '--name-only']
+    files = [f.decode('utf-8')
+             for f in subprocess.check_output(command).splitlines()]
+    # Filter files.
+    # TODO: should filter here (and below) with a better check for dissectors
+    dissectors = list(filter(lambda f : f.endswith('.c'), files))
+
+    # Staged changes.
+    command = ['git', 'diff', '--staged', '--name-only']
+    files_staged = [f.decode('utf-8')
+                    for f in subprocess.check_output(command).splitlines()]
+    # Filter files.
+    files_staged = list(filter(lambda f : f.endwith('.c'), files_staged))
+    for f in files_staged:
+        if f not in files:
+            dissectors.append(f)
+
 # Tools that should be run on selected files.
 # Boolean arg is for whether build-dir is needed in order to run it.
 # 3rd is Windows support.
 tools = [
-    ('tools/delete_includes.py --folder .',               True,   True),
     ('tools/check_spelling.py --comments --no-wikipedia', False,  True),
     ('tools/check_tfs.py --check-value-strings',          False,  True),
-    ('tools/check_typed_item_calls.py --all-checks',      False,  True),
+    ('tools/check_typed_item_calls.py --all-checks ' +
+      '--extra-value-string-checks --check-expert-items', False,  True),
     ('tools/check_static.py',                             True,   False),
     ('tools/check_dissector_urls.py',                     False,  True),
     ('tools/check_val_to_str.py',                         False,  True),
@@ -124,11 +146,14 @@ def run_check(tool, dissectors, python):
 
 
 # Run all checks on all of my dissectors.
-for tool in tools:
-    if should_exit:
-        exit(1)
-    if ((not sys.platform.startswith('win') or tool[2]) and # Supported on this platform?
-        (not tool[1] or (tool[1] and args.build_folder))):   # Have --build-folder if needed?
+if len(dissectors):
+    for tool in tools:
+        if should_exit:
+            exit(1)
+        if ((not sys.platform.startswith('win') or tool[2]) and # Supported on this platform?
+            (not tool[1] or (tool[1] and args.build_folder))):   # Have --build-folder if needed?
 
-        # Run it.
-        run_check(tool, dissectors, tool[0].find('.py') != -1)
+            # Run it.
+            run_check(tool, dissectors, tool[0].find('.py') != -1)
+else:
+    print('No dissectors selected')
