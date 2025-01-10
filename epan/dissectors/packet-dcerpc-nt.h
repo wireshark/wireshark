@@ -264,6 +264,11 @@ dissect_doserror(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		 int hfindex, uint32_t *pdata);
 
 int
+dissect_werror(tvbuff_t *tvb, int offset, packet_info *pinfo,
+	       proto_tree *tree, dcerpc_info *di, uint8_t *drep,
+	       int hfindex, uint32_t *pdata);
+
+int
 dissect_hresult(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		proto_tree *tree, dcerpc_info *di, uint8_t *drep,
 		int hfindex, uint32_t *pdata);

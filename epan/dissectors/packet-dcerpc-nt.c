@@ -918,6 +918,26 @@ dissect_doserror(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	return offset;
 }
 
+int
+dissect_werror(tvbuff_t *tvb, int offset, packet_info *pinfo,
+	       proto_tree *tree, dcerpc_info *di, uint8_t *drep,
+	       int hfindex, uint32_t *pdata)
+{
+	uint32_t status;
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
+				    hfindex, &status);
+
+	if (status != 0)
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
+				val_to_str_ext(status, &WERR_errors_ext,
+					   "Unknown error 0x%08x"));
+	if (pdata)
+		*pdata = status;
+
+	return offset;
+}
+
 /* Dissect a HRESULT status code */
 
 int
