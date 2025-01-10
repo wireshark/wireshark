@@ -1083,6 +1083,23 @@ static const value_string dtype_vals[] = {
     { 0, NULL}
 };
 
+/* 7.7.24.17 */
+static const value_string papr_type_vals[] = {
+    { 0, "sequence generator type 1 for short sequence lengths"},
+    { 1, "sequence generator type 1 for long sequence lengths"},
+    { 2, "sequence generator type 2 for short sequence lengths"},
+    { 3, "sequence generator type 2 for long sequence lengths"},
+    { 0, NULL}
+};
+
+/* 7.7.24.18 */
+static const value_string hopping_mode_vals[] = {
+    { 0, "neither group, nor sequence hopping is enabled"},
+    { 1, "group hopping is enabled and sequence hopping is disabled"},
+    { 2, "sequence hopping is enabled and group hopping is disabled"},
+    { 3, "reserved"},
+    { 0, NULL}
+};
 
 
 static const true_false_string tfs_sfStatus =
@@ -3576,14 +3593,19 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                 /* userGroupSize (5 bits) */
                 uint32_t user_group_size;
                 proto_item *ugs_ti = proto_tree_add_item_ret_uint(extension_tree, hf_oran_user_group_size, tvb, offset, 1, ENC_BIG_ENDIAN, &user_group_size);
-                if (user_group_size > 12) {
+                if (user_group_size == 0) {
+                    proto_item_append_text(ugs_ti, " (not used)");
+                }
+                else if (user_group_size > 12) {
                     proto_item_append_text(ugs_ti, " (reserved)");
                 }
-
                 offset += 1;
-                /* userGroupId */
+                /* userGroupId (8 bits) */
                 uint32_t user_group_id;
                 proto_tree_add_item_ret_uint(extension_tree, hf_oran_user_group_id, tvb, offset, 1, ENC_BIG_ENDIAN, &user_group_id);
+                if (user_group_id == 0) {
+                    /* TODO: Value 0 can happen in several cases, described in 7.7.24.7.. */
+                }
                 offset += 1;
 
                 /* Dissect each entry (until run out of extlen bytes..). Not sure how this works with padding bytes though... */
@@ -3604,8 +3626,12 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                         proto_item_append_text(entry_type_ti, " (reserved)");
                     }
 
-                    /* dmrsPortNumber (5 bits) */
-                    proto_tree_add_item(entry_tree, hf_oran_dmrs_port_number, tvb, offset, 1, ENC_BIG_ENDIAN);
+                    /* dmrsPortNumber (5 bits).  Values 0-11 allowed */
+                    unsigned int dmrs_port_number;
+                    proto_item *dpn_ti = proto_tree_add_item_ret_uint(entry_tree, hf_oran_dmrs_port_number, tvb, offset, 1, ENC_BIG_ENDIAN, &dmrs_port_number);
+                    if (dmrs_port_number > 11) {
+                        proto_item_append_text(dpn_ti, " (12-31 are reserved)");
+                    }
                     offset += 1;
 
                     /* What follows depends upon entryType */
@@ -3624,6 +3650,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                             /* reserved (1 bit) */
                             proto_tree_add_item(entry_tree, hf_oran_reserved_bit1, tvb, offset, 1, ENC_BIG_ENDIAN);
                             /* dmrsSymbolMask (14 bits) */
+                            /* TODO: break down into separate mask fields? */
                             proto_tree_add_item(entry_tree, hf_oran_dmrs_symbol_mask, tvb, offset, 2, ENC_BIG_ENDIAN);
                             offset += 2;
 
@@ -3634,7 +3661,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                             /* nscid (1 bit) */
                             proto_tree_add_item(entry_tree, hf_oran_nscid, tvb, offset, 1, ENC_BIG_ENDIAN);
 
-                            /* These 6 bits differ depending upon entry type */
+                            /* These 5 bits differ depending upon entry type */
                             if (entry_type == 2) {
                                 /* dType (1 bit) */
                                 proto_tree_add_item(entry_tree, hf_oran_dtype, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -7838,17 +7865,18 @@ proto_register_oran(void)
         },
 
         /* 7.7.24.17 */
+        /* TODO: add value_string */
         { &hf_oran_low_papr_type,
           { "lowPaprType", "oran_fh_cus.lowPaprType",
             FT_UINT8, BASE_HEX,
-            NULL, 0x30,
+            VALS(papr_type_vals), 0x30,
             NULL, HFILL}
         },
         /* 7.7.24.18 */
         { &hf_oran_hopping_mode,
           { "hoppingMode", "oran_fh_cus.hoppingMode",
             FT_UINT8, BASE_HEX,
-            NULL, 0x0c,
+            VALS(hopping_mode_vals), 0x0c,
             NULL, HFILL}
         },
 
