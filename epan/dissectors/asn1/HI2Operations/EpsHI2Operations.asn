@@ -825,7 +825,7 @@ PTC ::= SEQUENCE {
  accessPolicyType [3] AccessPolicyType OPTIONAL,
  alertIndicator [5] AlertIndicator OPTIONAL,
  associatePresenceStatus [6] AssociatePresenceStatus OPTIONAL,
- bearer-capability [7] Bearer-capability-str OPTIONAL,
+ bearer-capability-str [7] Bearer-capability-str OPTIONAL,
  -- identifies the Bearer capability information element (value part)
  broadcastIndicator [8] BOOLEAN OPTIONAL,
  -- default False, true indicates this is a braodcast to a group

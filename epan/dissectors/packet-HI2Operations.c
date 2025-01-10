@@ -412,7 +412,7 @@ static int hf_HI2Operations_accessPolicyFailure;  /* UTF8String */
 static int hf_HI2Operations_accessPolicyType;     /* AccessPolicyType */
 static int hf_HI2Operations_alertIndicator;       /* AlertIndicator */
 static int hf_HI2Operations_associatePresenceStatus;  /* AssociatePresenceStatus */
-static int hf_HI2Operations_bearer_capability_01;  /* Bearer_capability_str */
+static int hf_HI2Operations_bearer_capability_str;  /* Bearer_capability_str */
 static int hf_HI2Operations_broadcastIndicator;   /* BOOLEAN */
 static int hf_HI2Operations_contactID;            /* UTF8String */
 static int hf_HI2Operations_emergency;            /* Emergency */
@@ -4159,7 +4159,7 @@ static const ber_sequence_t PTC_sequence[] = {
   { &hf_HI2Operations_accessPolicyType, BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_AccessPolicyType },
   { &hf_HI2Operations_alertIndicator, BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_AlertIndicator },
   { &hf_HI2Operations_associatePresenceStatus, BER_CLASS_CON, 6, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_AssociatePresenceStatus },
-  { &hf_HI2Operations_bearer_capability_01, BER_CLASS_CON, 7, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_Bearer_capability_str },
+  { &hf_HI2Operations_bearer_capability_str, BER_CLASS_CON, 7, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_Bearer_capability_str },
   { &hf_HI2Operations_broadcastIndicator, BER_CLASS_CON, 8, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_BOOLEAN },
   { &hf_HI2Operations_contactID, BER_CLASS_CON, 9, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_UTF8String },
   { &hf_HI2Operations_emergency, BER_CLASS_CON, 10, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_Emergency },
@@ -6162,10 +6162,10 @@ void proto_register_HI2Operations(void) {
       { "associatePresenceStatus", "HI2Operations.associatePresenceStatus_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-    { &hf_HI2Operations_bearer_capability_01,
-      { "bearer-capability", "HI2Operations.bearer_capability",
+    { &hf_HI2Operations_bearer_capability_str,
+      { "bearer-capability-str", "HI2Operations.bearer_capability_str",
         FT_STRING, BASE_NONE, NULL, 0,
-        "Bearer_capability_str", HFILL }},
+        NULL, HFILL }},
     { &hf_HI2Operations_broadcastIndicator,
       { "broadcastIndicator", "HI2Operations.broadcastIndicator",
         FT_BOOLEAN, BASE_NONE, NULL, 0,
