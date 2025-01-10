@@ -14,6 +14,10 @@ This is an experimental release intended to test new features for Wireshark 5.0.
 Wireshark is the world’s most popular network protocol analyzer.
 It is used for troubleshooting, analysis, development and education.
 
+Wireshark is hosted by the Wireshark Foundation, a nonprofit which promotes protocol analysis education.
+Wireshark and the foundation depend on your contributions in order to do their work.
+If you or your organization would like to contribute or become a sponsor, please visit https://wiresharkfoundation.org[wiresharkfoundation.org].
+
 == What’s New
 
 // Add a summary of **major** changes here.
@@ -142,8 +146,9 @@ The following features are either new or have been significantly updated since v
   the "Print" and "Export Packet Dissection" dialogs, and in TShark with
   the `--hexdump time` option. wsbuglink:17132[]
 
-// === Removed Features and Support
+=== Removed Features and Support
 
+Wireshark no longer supports AirPcap and WinPcap.
 
 // === Removed Dissectors
 

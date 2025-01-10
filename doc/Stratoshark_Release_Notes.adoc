@@ -12,8 +12,12 @@ This is an experimental release intended to test new features for Stratoshark 1.
 == What is Stratoshark?
 
 Stratoshark is a system call and log analyzer.
-It combines the analysis and filtering features of Wireshark with the capture and data enrichment features of Falco.
+It combines the analysis and filtering features of Wireshark with the capture and data enrichment features of https://falco.org[Falco].
 It can be used for troubleshooting, analysis, development and education.
+
+Stratoshark is hosted by the Wireshark Foundation, a nonprofit which promotes protocol and system analysis education.
+Stratoshark and the foundation depend on your contributions in order to do their work.
+If you or your organization would like to contribute or become a sponsor, please visit https://wiresharkfoundation.org[wiresharkfoundation.org].
 
 // == What’s New
 
@@ -33,7 +37,7 @@ It can be used for troubleshooting, analysis, development and education.
 
 === New and Updated Features
 
-Stratoshark can capture system calls on Linux and a variety of log sources on Windows, macOS, and Linux.
+Stratoshark can capture system calls locally on Linux and a variety of log sources on Windows, macOS, and Linux.
 
 // The following features are either new or have been significantly updated since version 0.9.0:
 
