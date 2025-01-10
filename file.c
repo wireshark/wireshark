@@ -281,7 +281,10 @@ cf_open(capture_file *cf, const char *fname, unsigned int type, bool is_tempfile
 
     cf->computed_elapsed = 0;
 
+    /* Record the file's type and compression type. */
     cf->cd_t        = wtap_file_type_subtype(cf->provider.wth);
+    cf->compression_type = wtap_get_compression_type(cf->provider.wth);
+
     cf->open_type   = type;
     cf->linktypes = g_array_sized_new(FALSE, FALSE, (unsigned) sizeof(int), 1);
     cf->count     = 0;
@@ -562,10 +565,6 @@ cf_read(capture_file *cf, bool reloading)
         cf_callback_invoke(cf_cb_file_reload_started, cf);
     else
         cf_callback_invoke(cf_cb_file_read_started, cf);
-
-    /* Record the file's compression type.
-       XXX - do we know this at open time? */
-    cf->compression_type = wtap_get_compression_type(cf->provider.wth);
 
     /* The packet list window will be empty until the file is completely loaded */
     packet_list_freeze();
@@ -5393,7 +5392,9 @@ rescan_file(capture_file *cf, const char *fname, bool is_tempfile)
     /* No user changes yet. */
     cf->unsaved_changes = false;
 
+    /* Record the file's type and compression type. */
     cf->cd_t        = wtap_file_type_subtype(cf->provider.wth);
+    cf->compression_type = wtap_get_compression_type(cf->provider.wth);
     if (cf->linktypes != NULL) {
         g_array_free(cf->linktypes, TRUE);
     }
@@ -5404,10 +5405,6 @@ rescan_file(capture_file *cf, const char *fname, bool is_tempfile)
     name_ptr = g_filename_display_basename(cf->filename);
 
     cf_callback_invoke(cf_cb_file_rescan_started, cf);
-
-    /* Record the file's compression type.
-       XXX - do we know this at open time? */
-    cf->compression_type = wtap_get_compression_type(cf->provider.wth);
 
     /* Find the size of the file. */
     size = wtap_file_size(cf->provider.wth, NULL);
