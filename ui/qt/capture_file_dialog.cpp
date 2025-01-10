@@ -754,6 +754,7 @@ QStringList CaptureFileDialog::buildFileSaveAsTypeList(bool must_support_all_com
                https://bugreports.qt.io/browse/QTBUG-127924
                One simple approach is to just add both to the hash.
              */
+            type_suffixes_[filter] = type_suffixes_[type_name];
             type_hash_[filter] = ft;
             type_hash_[type_name] = ft;
             filters << filter;
