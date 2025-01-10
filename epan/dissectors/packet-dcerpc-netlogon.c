@@ -443,6 +443,9 @@ static int hf_netlogon_ticket_logon_source_of_status;
 static int hf_netlogon_ticket_logon_user_claims_size;
 static int hf_netlogon_ticket_logon_device_claims_size;
 static int hf_netlogon_ticket_logon_claims;
+static int hf_netlogon_forest_trust_info_flags;
+static int hf_netlogon_forest_trust_info_flags_00000001;
+static int hf_netlogon_forest_trust_info;
 
 static int ett_nt_counted_longs_as_string;
 static int ett_dcerpc_netlogon;
@@ -481,6 +484,7 @@ static int ett_domains_group_memberships;
 static int ett_netlogon_ticket_logon_options;
 static int ett_netlogon_ticket_logon_results;
 static int ett_netlogon_ticket_logon_claims;
+static int ett_netlogon_forest_trust_info_flags;
 
 static expert_field ei_netlogon_auth_nthash;
 static expert_field ei_netlogon_session_key;
@@ -3286,6 +3290,159 @@ netlogon_dissect_VALIDATION(tvbuff_t *tvb, int offset,
     }
     return offset;
 }
+
+static int
+netlogon_forest_trust_info(tvbuff_t *tvb, int offset, packet_info *pinfo,
+                           proto_tree *tree, dcerpc_info *di, uint8_t *drep)
+{
+    offset = lsarpc_dissect_struct_lsa_ForestTrustInformation(tvb,
+                                                              offset,
+                                                              pinfo,
+                                                              tree,
+                                                              di,
+                                                              drep,
+                                                              hf_netlogon_forest_trust_info,
+                                                              0);
+
+    return offset;
+}
+
+/*
+ * IDL NET_API_STATUS DsrGetForestTrustInformation(
+ * IDL     [in, unique, string] LOGONSRV_HANDLE ServerName,
+ * IDL     [in, unique, string] wchar_t* TrustedDomainName,
+ * IDL     [in] DWORD Flags,
+ * IDL     [out] PLSA_FOREST_TRUST_INFORMATION* ForestTrustInfo
+ * IDL );
+ */
+static int
+netlogon_dissect_dsrgetforesttrustinformation_rqst(tvbuff_t *tvb,
+                                                   int offset,
+                                                   packet_info *pinfo,
+                                                   proto_tree *tree,
+                                                   dcerpc_info *di,
+                                                   uint8_t *drep)
+{
+    static int * const hf_netlogon_forest_trust_info_flags_bits[] = {
+        &hf_netlogon_forest_trust_info_flags_00000001,
+        NULL
+    };
+    uint32_t flags = 0;
+
+    if (di->conformant_run) {
+        return offset;
+    }
+
+    offset = netlogon_dissect_LOGONSRV_HANDLE(tvb, offset,
+                                              pinfo, tree, di, drep);
+
+    offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, di, drep,
+                                          NDR_POINTER_UNIQUE, "Truste Domain Name",
+                                          hf_netlogon_domain_name, 0);
+
+    offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
+                                -1, &flags);
+    proto_tree_add_bitmask_value_with_flags(tree, tvb, offset-8,
+                                            hf_netlogon_forest_trust_info_flags,
+                                            ett_netlogon_forest_trust_info_flags,
+                                            hf_netlogon_forest_trust_info_flags_bits,
+                                            flags,
+                                            BMT_NO_APPEND);
+
+    return offset;
+}
+
+static int
+netlogon_dissect_dsrgetforesttrustinformation_reply(tvbuff_t *tvb,
+                                                    int offset,
+                                                    packet_info *pinfo,
+                                                    proto_tree *tree,
+                                                    dcerpc_info *di,
+                                                    uint8_t *drep)
+{
+    offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, di, drep,
+                                 netlogon_forest_trust_info, NDR_POINTER_UNIQUE,
+                                 "ForestTrustInfo:", -1);
+
+    offset = dissect_werror(tvb, offset, pinfo, tree, di, drep,
+                            hf_netlogon_werr_rc, NULL);
+
+    return offset;
+}
+
+/*
+ * IDL NTSTATUS NetrGetForestTrustInformation(
+ * IDL     [in, unique, string] LOGONSRV_HANDLE ServerName,
+ * IDL     [in, string] wchar_t* ComputerName,
+ * IDL     [in] PNETLOGON_AUTHENTICATOR Authenticator,
+ * IDL     [out] PNETLOGON_AUTHENTICATOR ReturnAuthenticator,
+ * IDL     [in] DWORD Flags,
+ * IDL     [out] PLSA_FOREST_TRUST_INFORMATION* ForestTrustInfo
+ * IDL );
+ */
+static int
+netlogon_dissect_netrgetforesttrustinformation_rqst(tvbuff_t *tvb,
+                                                    int offset,
+                                                    packet_info *pinfo,
+                                                    proto_tree *tree,
+                                                    dcerpc_info *di,
+                                                    uint8_t *drep)
+{
+    static int * const hf_netlogon_forest_trust_info_flags_bits[] = {
+        &hf_netlogon_forest_trust_info_flags_00000001,
+        NULL
+    };
+    uint32_t flags = 0;
+
+    if (di->conformant_run) {
+        return offset;
+    }
+
+    offset = netlogon_dissect_LOGONSRV_HANDLE(tvb, offset,
+                                              pinfo, tree, di, drep);
+
+    offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, di, drep,
+                                          NDR_POINTER_REF, "Computer Name",
+                                          hf_netlogon_computer_name, 0);
+
+    offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, di, drep,
+                                 netlogon_dissect_AUTHENTICATOR, NDR_POINTER_REF,
+                                 "AUTHENTICATOR: credential", -1);
+
+    offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
+                                -1, &flags);
+    proto_tree_add_bitmask_value_with_flags(tree, tvb, offset-8,
+                                            hf_netlogon_forest_trust_info_flags,
+                                            ett_netlogon_forest_trust_info_flags,
+                                            hf_netlogon_forest_trust_info_flags_bits,
+                                            flags,
+                                            BMT_NO_APPEND);
+
+    return offset;
+}
+
+static int
+netlogon_dissect_netrgetforesttrustinformation_reply(tvbuff_t *tvb,
+                                                     int offset,
+                                                     packet_info *pinfo,
+                                                     proto_tree *tree,
+                                                     dcerpc_info *di,
+                                                     uint8_t *drep)
+{
+    offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, di, drep,
+                                 netlogon_dissect_AUTHENTICATOR, NDR_POINTER_REF,
+                                 "AUTHENTICATOR: return_authenticator", -1);
+
+    offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, di, drep,
+                                 netlogon_forest_trust_info, NDR_POINTER_UNIQUE,
+                                 "ForestTrustInfo:", -1);
+
+    offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep,
+                              hf_netlogon_rc, NULL);
+
+    return offset;
+}
+
 /*
  * IDL long NetrLogonSamLogonWithFlags(
  * IDL      [in][unique][string] wchar_t *ServerName,
@@ -5971,16 +6128,12 @@ static int
 netlogon_dissect_netrlogoncontrol_reply(tvbuff_t *tvb, int offset,
                                         packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
-    uint32_t status;
-
     offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, di, drep,
                                  netlogon_dissect_CONTROL_QUERY_INFORMATION, NDR_POINTER_REF,
                                  "CONTROL_QUERY_INFORMATION:", -1);
 
-    offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_netlogon_werr_rc, &status);
-
-    if (status != 0)
-        col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown WERR error 0x%08x"));
+    offset = dissect_werror(tvb, offset, pinfo, tree, di, drep,
+                            hf_netlogon_werr_rc, NULL);
 
     return offset;
 }
@@ -9750,9 +9903,11 @@ static const dcerpc_sub_dissector dcerpc_netlogon_dissectors[] = {
       netlogon_dissect_netrservertrustpasswordsget_rqst,
       netlogon_dissect_netrservertrustpasswordsget_reply },
     { NETLOGON_DSRGETFORESTTRUSTINFORMATION, "DsrGetForestTrustInformation",
-      NULL, NULL },
+      netlogon_dissect_dsrgetforesttrustinformation_rqst,
+      netlogon_dissect_dsrgetforesttrustinformation_reply },
     { NETLOGON_NETRGETFORESTTRUSTINFORMATION, "NetrGetForestTrustInformation",
-      NULL, NULL },
+      netlogon_dissect_netrgetforesttrustinformation_rqst,
+      netlogon_dissect_netrgetforesttrustinformation_reply },
     { NETLOGON_NETRLOGONSAMLOGONWITHFLAGS, "NetrLogonSamLogonWithFlags",
       netlogon_dissect_netrlogonsamlogonflags_rqst,
       netlogon_dissect_netrlogonsamlogonflags_reply },
@@ -11721,6 +11876,19 @@ proto_register_dcerpc_netlogon(void)
         { &hf_netlogon_ticket_logon_claims,
           { "Claims", "netlogon.ticket_logon_claims", FT_BYTES, BASE_NONE,
             NULL, 0x0, NULL, HFILL }},
+        { &hf_netlogon_forest_trust_info_flags, {
+          "Flags",
+          "netlogon.forest_trust_info_flags",
+          FT_UINT32, BASE_HEX, NULL, 0x0, "Forest Trust Info Flags", HFILL }},
+        { &hf_netlogon_forest_trust_info_flags_00000001, {
+          "Update Trusted Domain Object",
+          "netlogon.forest_trust_info_flags.update_tdo",
+          FT_BOOLEAN, 32, TFS(&tfs_set_notset),
+          0x00000001, NULL, HFILL }},
+        { &hf_netlogon_forest_trust_info,
+          { "Forest Trust Info", "netlogon.forest_trust_info",
+            FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+
     };
 
     static int *ett[] = {
@@ -11764,6 +11932,7 @@ proto_register_dcerpc_netlogon(void)
         &ett_netlogon_ticket_logon_options,
         &ett_netlogon_ticket_logon_results,
         &ett_netlogon_ticket_logon_claims,
+        &ett_netlogon_forest_trust_info_flags,
     };
     static ei_register_info ei[] = {
      { &ei_netlogon_auth_nthash, {
