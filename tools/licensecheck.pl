@@ -693,6 +693,10 @@ sub parselicense {
 			$license = "zlib/libpng $license";
 		}
 
+		if ($licensetext =~ /SPDX-License-Identifier:\s+BSD-3-Clause-UC/i) {
+			$license = 'BSD (4 clause (University of California-Specific))';
+		}
+
 		if ($licensetext =~ /SPDX-License-Identifier:\s+BSD-3-Clause/i) {
 			$license = 'BSD (3 clause)';
 		}
@@ -749,7 +753,9 @@ sub parselicense {
                 }
 
 		if ($licensetext =~ /THIS SOFTWARE IS PROVIDED .*AS IS AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY/) {
-			if ($licensetext =~ /All advertising materials mentioning features or use of this software must display the following acknowledge?ment.*This product includes software developed by/i) {
+			if ($licensetext =~ /All advertising materials mentioning features or use of this software must display the following acknowledge?ment.*This product includes software developed by the University of California, Berkeley and its contributors/i) {
+					$license = "BSD (4 clause (University of California-Specific)) $license";
+			} elsif ($licensetext =~ /All advertising materials mentioning features or use of this software must display the following acknowledge?ment.*This product includes software developed by/i) {
 					$license = "BSD (4 clause) $license";
 			} elsif ($licensetext =~ /(The name(?:\(s\))? .*? may not|Neither the (names? .*?|authors?) nor the names of( (its|their|other|any))? contributors may) be used to endorse or promote products derived from this software/i) {
 					$license = "BSD (3 clause) $license";

@@ -36,6 +36,7 @@ ALLOWED_LICENSES = [
     'BSD (2 clause)',
     'BSD (2 clause) GPL (v2 or later)',
     'BSD (3 clause)',
+    'BSD (4 clause (University of California-Specific))',
     'GPL (v2 or later)',
     'ISC',
     'ISC GPL (v2 or later)',
