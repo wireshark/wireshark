@@ -25,6 +25,32 @@ XIRIPayload
 
 #.TYPE_RENAME
 
+#.FIELD_RENAME
+TraceActivationInfo/traceCollectionEntityIPAddress traceCollectionEntityIPAddress-choice
+AMFDeregistration/cause amfderegistration-cause
+SMFPDUSessionRelease/cause smfpdusessionrelease-cause
+EPSBearerContextCreated/cause epsbearercontextcreated-cause
+VLANTag/priority vlantag-priority
+MMSDeleteFromRelay/contentLocationReq contentLocationReq-seq
+MMSMBoxDelete/contentLocationReq contentLocationReq-seq
+MMSDeleteFromRelay/contentLocationConf contentLocationConf-seq
+MMSMBoxDelete/contentLocationConf contentLocationConf-seq
+NGAPCauseInt/value ngapcausevalueint
+MMSElementDescriptor/value value-str
+StartOfInterceptionForActiveIMSSession/sDPState sDPState-seq
+IMSMessage/payload imsmessage-payload
+IMSCCPDU/payload imsccpdu-payload
+UnfulfilledACProfile/reason unfulfilledacprofile-reason
+UDMInvalidParameters/reason udminvalidparameters-reason
+EASDynamicInfoFilter/eASStatus eASStatus-boolean
+ANNodeID/n3IWFID aNNodeID-n3IWFID
+MMELocationInformation/geographicalInformation geographicalinformationoctet
+SGSNLocationInformation/geographicalInformation geographicalinformationoctet
+MMELocationInformation/geodeticInformation geodeticinformationoctet
+SGSNLocationInformation/geodeticInformation geodeticinformationoctet
+SIPCellularAccessInfo/accessInfo sipaccessinfo
+
+
 #.FN_BODY IMSI
   unsigned tvb_len;
 
