@@ -21,6 +21,9 @@ SLR-ArgExtensionContainer
 SLR-Arg-PCS-Extensions
 #.END
 
+#.FIELD_RENAME
+UTCmodelSet2/utcDN utcDN-bit-str
+GANSSGenericAssistDataElement/sbasID sbasID-int
 #.FN_HDR PDU
 
 	proto_tree_add_item(tree, proto_rrlp, tvb, 0, -1, ENC_NA);

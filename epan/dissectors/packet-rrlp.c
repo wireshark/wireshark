@@ -376,7 +376,7 @@ static int hf_rrlp_ganssAlmanacModel;             /* GANSSAlmanacModel */
 static int hf_rrlp_ganssUTCModel;                 /* GANSSUTCModel */
 static int hf_rrlp_ganssEphemerisExtension;       /* GANSSEphemerisExtension */
 static int hf_rrlp_ganssEphemerisExtCheck;        /* GANSSEphemerisExtensionCheck */
-static int hf_rrlp_sbasID;                        /* INTEGER_0_7 */
+static int hf_rrlp_sbasID_int;                    /* INTEGER_0_7 */
 static int hf_rrlp_ganssAddUTCModel;              /* GANSSAddUTCModel */
 static int hf_rrlp_ganssAuxiliaryInfo;            /* GANSSAuxiliaryInformation */
 static int hf_rrlp_ganssDiffCorrectionsValidityPeriod;  /* GANSSDiffCorrectionsValidityPeriod */
@@ -772,7 +772,7 @@ static int hf_rrlp_utcA1_01;                      /* INTEGER_M4096_4095 */
 static int hf_rrlp_utcA2;                         /* INTEGER_M64_63 */
 static int hf_rrlp_utcTot_01;                     /* INTEGER_0_65535 */
 static int hf_rrlp_utcWNot;                       /* INTEGER_0_8191 */
-static int hf_rrlp_utcDN_01;                      /* BIT_STRING_SIZE_4 */
+static int hf_rrlp_utcDN_bit_str;                 /* BIT_STRING_SIZE_4 */
 static int hf_rrlp_nA;                            /* INTEGER_1_1461 */
 static int hf_rrlp_tauC;                          /* INTEGER_M2147483648_2147483647 */
 static int hf_rrlp_b1;                            /* INTEGER_M1024_1023 */
@@ -881,7 +881,7 @@ static int hf_rrlp_multipleMeasurementSets;       /* MultipleMeasurementSets */
 static int hf_rrlp_GANSSPositionMethods_item;     /* GANSSPositionMethod */
 static int hf_rrlp_gANSSPositioningMethodTypes;   /* GANSSPositioningMethodTypes */
 static int hf_rrlp_gANSSSignals;                  /* GANSSSignals */
-static int hf_rrlp_sbasID_01;                     /* SBASID */
+static int hf_rrlp_sbasID;                        /* SBASID */
 static int hf_rrlp_gpsAssistance;                 /* GPSAssistance */
 static int hf_rrlp_gANSSAssistanceSet;            /* GANSSAssistanceSet */
 static int hf_rrlp_gANSSAdditionalAssistanceChoices;  /* GANSSAdditionalAssistanceChoices */
@@ -5045,7 +5045,7 @@ static const per_sequence_t UTCmodelSet2_sequence[] = {
   { &hf_rrlp_utcTot_01      , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_0_65535 },
   { &hf_rrlp_utcWNot        , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_0_8191 },
   { &hf_rrlp_utcWNlsf       , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_0_255 },
-  { &hf_rrlp_utcDN_01       , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_BIT_STRING_SIZE_4 },
+  { &hf_rrlp_utcDN_bit_str  , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_BIT_STRING_SIZE_4 },
   { &hf_rrlp_utcDeltaTlsf   , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_M128_127 },
   { NULL, 0, 0, NULL }
 };
@@ -5638,7 +5638,7 @@ static const per_sequence_t GANSSGenericAssistDataElement_sequence[] = {
   { &hf_rrlp_ganssUTCModel  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rrlp_GANSSUTCModel },
   { &hf_rrlp_ganssEphemerisExtension, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rrlp_GANSSEphemerisExtension },
   { &hf_rrlp_ganssEphemerisExtCheck, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rrlp_GANSSEphemerisExtensionCheck },
-  { &hf_rrlp_sbasID         , ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_rrlp_INTEGER_0_7 },
+  { &hf_rrlp_sbasID_int     , ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_rrlp_INTEGER_0_7 },
   { &hf_rrlp_ganssAddUTCModel, ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_rrlp_GANSSAddUTCModel },
   { &hf_rrlp_ganssAuxiliaryInfo, ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_rrlp_GANSSAuxiliaryInformation },
   { &hf_rrlp_ganssDiffCorrectionsValidityPeriod, ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_rrlp_GANSSDiffCorrectionsValidityPeriod },
@@ -7504,7 +7504,7 @@ static const per_sequence_t GANSSPositionMethod_sequence[] = {
   { &hf_rrlp_ganssID        , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rrlp_INTEGER_0_7 },
   { &hf_rrlp_gANSSPositioningMethodTypes, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rrlp_GANSSPositioningMethodTypes },
   { &hf_rrlp_gANSSSignals   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rrlp_GANSSSignals },
-  { &hf_rrlp_sbasID_01      , ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_rrlp_SBASID },
+  { &hf_rrlp_sbasID         , ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_rrlp_SBASID },
   { NULL, 0, 0, NULL }
 };
 
@@ -9743,8 +9743,8 @@ void proto_register_rrlp(void) {
       { "ganssEphemerisExtCheck", "rrlp.ganssEphemerisExtCheck_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "GANSSEphemerisExtensionCheck", HFILL }},
-    { &hf_rrlp_sbasID,
-      { "sbasID", "rrlp.sbasID",
+    { &hf_rrlp_sbasID_int,
+      { "sbasID", "rrlp.sbasID_int",
         FT_UINT32, BASE_DEC, NULL, 0,
         "INTEGER_0_7", HFILL }},
     { &hf_rrlp_ganssAddUTCModel,
@@ -11327,8 +11327,8 @@ void proto_register_rrlp(void) {
       { "utcWNot", "rrlp.utcWNot",
         FT_UINT32, BASE_DEC, NULL, 0,
         "INTEGER_0_8191", HFILL }},
-    { &hf_rrlp_utcDN_01,
-      { "utcDN", "rrlp.utcDN",
+    { &hf_rrlp_utcDN_bit_str,
+      { "utcDN", "rrlp.utcDN_bit_str",
         FT_BYTES, BASE_NONE, NULL, 0,
         "BIT_STRING_SIZE_4", HFILL }},
     { &hf_rrlp_nA,
@@ -11763,7 +11763,7 @@ void proto_register_rrlp(void) {
       { "gANSSSignals", "rrlp.gANSSSignals",
         FT_BYTES, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-    { &hf_rrlp_sbasID_01,
+    { &hf_rrlp_sbasID,
       { "sbasID", "rrlp.sbasID",
         FT_BYTES, BASE_NONE, NULL, 0,
         NULL, HFILL }},
