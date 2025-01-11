@@ -129,6 +129,11 @@ Velocity
 CellGlobalIdGERAN/cellIdentity cellGlobalIdGERAN_cellIdentity
 LocationCoordinates/polygon locationCoordinates_polygon
 UTC-ModelSet4/utcDN uTC-ModelSet4_utcDN
+ScheduledLocationTimeSupport-r17/utcTime-r17 utcTime-r17-enum
+ScheduledLocationTimeSupportPerMode-r17/utcTime-r17 utcTime-r17-PositioningModes
+# Does not work -- changed in asn1 code
+#CommonIEsProvideCapabilities/remoteUE-Indication-r18 remoteUE-Indication-r18-boolean 
+
 
 #.FIELD_ATTR
 CellGlobalIdGERAN/cellIdentity  ABBREV=cellGlobalIdGERAN.cellIdentity

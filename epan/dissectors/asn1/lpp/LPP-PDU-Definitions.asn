@@ -699,7 +699,8 @@ CommonIEsProvideCapabilities ::= SEQUENCE {
 												targetToServer	(1) }	OPTIONAL
 	]],
 	[[
-	remoteUE-Indication-r18						BOOLEAN						OPTIONAL,	-- Cond NR
+-- WS mod
+	remoteUE-Indication-r18-bool					BOOLEAN						OPTIONAL,	-- Cond NR
 	locationEstimateAndMeasurementReporting-r18	ENUMERATED { supported }	OPTIONAL
 	]]
 }
