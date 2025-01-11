@@ -222,15 +222,15 @@ static int hf_tetra_lengthIndicationOrCapacityRequest_01;  /* T_lengthIndication
 static int hf_tetra_lengthIndication_01;          /* LengthIndicationMacData */
 static int hf_tetra_capacityRequest_01;           /* FRAG6 */
 static int hf_tetra_sub_type;                     /* INTEGER_0_1 */
-static int hf_tetra_tm_sdu_bit_string;            /* BIT_STRING_SIZE_264 */
-static int hf_tetra_tm_sdu_bit_string_01;         /* BIT_STRING_SIZE_120 */
+static int hf_tetra_tm_sdu_bit_str;               /* BIT_STRING_SIZE_264 */
+static int hf_tetra_tm_sdu_bit_str_01;            /* BIT_STRING_SIZE_120 */
 static int hf_tetra_lengthInd_ReservationReq;     /* LengthIndOrReservationReq */
-static int hf_tetra_tm_sdu_bit_string_02;         /* BIT_STRING_SIZE_258 */
+static int hf_tetra_tm_sdu_bit_str_02;            /* BIT_STRING_SIZE_258 */
 static int hf_tetra_pdu_subtype;                  /* INTEGER_0_1 */
-static int hf_tetra_tm_sdu_bit_string_03;         /* BIT_STRING_SIZE_114 */
+static int hf_tetra_tm_sdu_bit_str_03;            /* BIT_STRING_SIZE_114 */
 static int hf_tetra_lengthInd_ReservationReq_01;  /* T_lengthInd_ReservationReq */
 static int hf_tetra_lengthInd;                    /* LengthIndMacHu */
-static int hf_tetra_tm_sdu_02;                    /* BIT_STRING_SIZE_85 */
+static int hf_tetra_tm_sdu_bit_str_04;            /* BIT_STRING_SIZE_85 */
 static int hf_tetra_position_of_grant;            /* Position_Of_Grant */
 static int hf_tetra_lengthIndication_02;          /* LengthIndicationMacEndDl */
 static int hf_tetra_slot_granting;                /* T_slot_granting */
@@ -238,7 +238,7 @@ static int hf_tetra_none;                         /* NULL */
 static int hf_tetra_slot_granting_param;          /* SlotGranting */
 static int hf_tetra_channel_allocation;           /* T_channel_allocation */
 static int hf_tetra_channel_allocation_element;   /* ChannelAllocation */
-static int hf_tetra_tm_sdu_03;                    /* BIT_STRING_SIZE_255 */
+static int hf_tetra_tm_sdu_bit_str_05;            /* BIT_STRING_SIZE_255 */
 static int hf_tetra_capacity_allocation;          /* Capacity_Allocation */
 static int hf_tetra_granting_delay;               /* Granting_delay */
 static int hf_tetra_allocation_type;              /* T_allocation_type */
@@ -261,7 +261,7 @@ static int hf_tetra_fill_bit_ind;                 /* BOOLEAN */
 static int hf_tetra_position_of_grant_01;         /* INTEGER_0_1 */
 static int hf_tetra_slot_granting_01;             /* T_slot_granting_01 */
 static int hf_tetra_channel_allocation_01;        /* T_channel_allocation_01 */
-static int hf_tetra_tm_sdu_04;                    /* BIT_STRING_SIZE_111 */
+static int hf_tetra_tm_sdu_bit_str_06;            /* BIT_STRING_SIZE_111 */
 static int hf_tetra_encryption_mode;              /* INTEGER_0_3 */
 static int hf_tetra_access_ack;                   /* T_access_ack */
 static int hf_tetra_lengthIndication_03;          /* LengthIndicationMacResource */
@@ -270,9 +270,9 @@ static int hf_tetra_power_control;                /* T_power_control */
 static int hf_tetra_powerParameters;              /* PowerControl */
 static int hf_tetra_slot_granting_02;             /* T_slot_granting_02 */
 static int hf_tetra_channel_allocation_02;        /* T_channel_allocation_02 */
-static int hf_tetra_tm_sdu_05;                    /* D_LLC_PDU */
+static int hf_tetra_tm_sdu_02;                    /* D_LLC_PDU */
 static int hf_tetra_null_pdu;                     /* NULL */
-static int hf_tetra_ssi_01;                       /* SSI_NEED */
+static int hf_tetra_ssi_need;                     /* SSI_NEED */
 static int hf_tetra_eventLabel_01;                /* EVENT_NEED */
 static int hf_tetra_ussi_01;                      /* USSI_NEED */
 static int hf_tetra_smi_01;                       /* SMI_NEED */
@@ -392,9 +392,8 @@ static int hf_tetra_class_of_usage;               /* INTEGER_0_7 */
 static int hf_tetra_detach;                       /* T_detach */
 static int hf_tetra_detach_downlike;              /* T_detach_downlike */
 static int hf_tetra_address_type;                 /* T_address_type */
-static int hf_tetra_gssi_octet_string;            /* OCTET_STRING_SIZE_3 */
+static int hf_tetra_gssi_oct_str;                 /* OCTET_STRING_SIZE_3 */
 static int hf_tetra_gssi_extension;               /* T_gssi_extension */
-static int hf_tetra_gssi_01;                      /* OCTET_STRING_SIZE_3 */
 static int hf_tetra_extension;                    /* OCTET_STRING_SIZE_3 */
 static int hf_tetra_vgssi;                        /* OCTET_STRING_SIZE_3 */
 static int hf_tetra_attach_detach_identifier_01;  /* T_attach_detach_identifier_01 */
@@ -407,7 +406,7 @@ static int hf_tetra_location_update_type;         /* UPDATE_TYPE */
 static int hf_tetra_optional_elements_05;         /* T_optional_elements_05 */
 static int hf_tetra_type2_parameters_03;          /* T_type2_parameters_03 */
 static int hf_tetra_ssi_choice;                   /* T_ssi_choice */
-static int hf_tetra_ssi_02;                       /* OCTET_STRING_SIZE_3 */
+static int hf_tetra_ssi_01;                       /* OCTET_STRING_SIZE_3 */
 static int hf_tetra_address_extension_choice;     /* T_address_extension_choice */
 static int hf_tetra_address_extension;            /* OCTET_STRING_SIZE_3 */
 static int hf_tetra_subscriber_class_choice;      /* T_subscriber_class_choice */
@@ -2262,7 +2261,7 @@ static const value_string tetra_T_ssi_choice_01_vals[] = {
 
 static const per_choice_t T_ssi_choice_01_choice[] = {
   {   0, &hf_tetra_none          , ASN1_NO_EXTENSIONS     , dissect_tetra_NULL },
-  {   1, &hf_tetra_ssi_02        , ASN1_NO_EXTENSIONS     , dissect_tetra_OCTET_STRING_SIZE_3 },
+  {   1, &hf_tetra_ssi_01        , ASN1_NO_EXTENSIONS     , dissect_tetra_OCTET_STRING_SIZE_3 },
   { 0, NULL, 0, NULL }
 };
 
@@ -2628,7 +2627,7 @@ dissect_tetra_T_attach_detach_identifier_01(tvbuff_t *tvb _U_, int offset _U_, a
 
 
 static const per_sequence_t T_gssi_extension_01_sequence[] = {
-  { &hf_tetra_gssi_01       , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_OCTET_STRING_SIZE_3 },
+  { &hf_tetra_gssi_oct_str  , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_OCTET_STRING_SIZE_3 },
   { &hf_tetra_extension     , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_OCTET_STRING_SIZE_3 },
   { NULL, 0, 0, NULL }
 };
@@ -2650,7 +2649,7 @@ static const value_string tetra_T_address_type_01_vals[] = {
 };
 
 static const per_choice_t T_address_type_01_choice[] = {
-  {   0, &hf_tetra_gssi_01       , ASN1_NO_EXTENSIONS     , dissect_tetra_OCTET_STRING_SIZE_3 },
+  {   0, &hf_tetra_gssi_oct_str  , ASN1_NO_EXTENSIONS     , dissect_tetra_OCTET_STRING_SIZE_3 },
   {   1, &hf_tetra_gssi_extension_01, ASN1_NO_EXTENSIONS     , dissect_tetra_T_gssi_extension_01 },
   {   2, &hf_tetra_vgssi         , ASN1_NO_EXTENSIONS     , dissect_tetra_OCTET_STRING_SIZE_3 },
   { 0, NULL, 0, NULL }
@@ -4765,7 +4764,7 @@ static const per_sequence_t MAC_FRAG_sequence[] = {
   { &hf_tetra_pdu_type      , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_INTEGER_0_3 },
   { &hf_tetra_sub_type      , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_INTEGER_0_1 },
   { &hf_tetra_fill_bit_indication, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_Fill_Bit_Indication },
-  { &hf_tetra_tm_sdu_bit_string, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_BIT_STRING_SIZE_264 },
+  { &hf_tetra_tm_sdu_bit_str, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_BIT_STRING_SIZE_264 },
   { NULL, 0, 0, NULL }
 };
 
@@ -4792,7 +4791,7 @@ static const per_sequence_t MAC_FRAG120_sequence[] = {
   { &hf_tetra_pdu_type      , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_INTEGER_0_3 },
   { &hf_tetra_sub_type      , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_INTEGER_0_1 },
   { &hf_tetra_fill_bit_indication, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_Fill_Bit_Indication },
-  { &hf_tetra_tm_sdu_bit_string_01, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_BIT_STRING_SIZE_120 },
+  { &hf_tetra_tm_sdu_bit_str_01, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_BIT_STRING_SIZE_120 },
   { NULL, 0, 0, NULL }
 };
 
@@ -4898,7 +4897,7 @@ static const per_sequence_t MAC_END_UPLINK_sequence[] = {
   { &hf_tetra_sub_type      , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_INTEGER_0_1 },
   { &hf_tetra_fill_bit_indication, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_Fill_Bit_Indication },
   { &hf_tetra_lengthInd_ReservationReq, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_LengthIndOrReservationReq },
-  { &hf_tetra_tm_sdu_bit_string_02, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_BIT_STRING_SIZE_258 },
+  { &hf_tetra_tm_sdu_bit_str_02, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_BIT_STRING_SIZE_258 },
   { NULL, 0, 0, NULL }
 };
 
@@ -4926,7 +4925,7 @@ static const per_sequence_t MAC_END_UP114_sequence[] = {
   { &hf_tetra_pdu_subtype   , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_INTEGER_0_1 },
   { &hf_tetra_fill_bit_indication, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_Fill_Bit_Indication },
   { &hf_tetra_lengthInd_ReservationReq, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_LengthIndOrReservationReq },
-  { &hf_tetra_tm_sdu_bit_string_03, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_BIT_STRING_SIZE_114 },
+  { &hf_tetra_tm_sdu_bit_str_03, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_BIT_STRING_SIZE_114 },
   { NULL, 0, 0, NULL }
 };
 
@@ -5005,7 +5004,7 @@ static const per_sequence_t MAC_END_HU_sequence[] = {
   { &hf_tetra_pdu_type_01   , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_INTEGER_0_1 },
   { &hf_tetra_fill_bit_indication, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_Fill_Bit_Indication },
   { &hf_tetra_lengthInd_ReservationReq_01, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_lengthInd_ReservationReq },
-  { &hf_tetra_tm_sdu_02     , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_BIT_STRING_SIZE_85 },
+  { &hf_tetra_tm_sdu_bit_str_04, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_BIT_STRING_SIZE_85 },
   { NULL, 0, 0, NULL }
 };
 
@@ -5467,7 +5466,7 @@ static const per_sequence_t MAC_END_DOWNLINK_sequence[] = {
   { &hf_tetra_lengthIndication_02, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_LengthIndicationMacEndDl },
   { &hf_tetra_slot_granting , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_slot_granting },
   { &hf_tetra_channel_allocation, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_channel_allocation },
-  { &hf_tetra_tm_sdu_03     , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_BIT_STRING_SIZE_255 },
+  { &hf_tetra_tm_sdu_bit_str_05, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_BIT_STRING_SIZE_255 },
   { NULL, 0, 0, NULL }
 };
 
@@ -5541,7 +5540,7 @@ static const per_sequence_t MAC_END_DOWN111_sequence[] = {
   { &hf_tetra_lengthIndication_02, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_LengthIndicationMacEndDl },
   { &hf_tetra_slot_granting_01, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_slot_granting_01 },
   { &hf_tetra_channel_allocation_01, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_channel_allocation_01 },
-  { &hf_tetra_tm_sdu_04     , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_BIT_STRING_SIZE_111 },
+  { &hf_tetra_tm_sdu_bit_str_06, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_BIT_STRING_SIZE_111 },
   { NULL, 0, 0, NULL }
 };
 
@@ -5752,7 +5751,7 @@ static const value_string tetra_T_ssi_choice_vals[] = {
 
 static const per_choice_t T_ssi_choice_choice[] = {
   {   0, &hf_tetra_none          , ASN1_NO_EXTENSIONS     , dissect_tetra_NULL },
-  {   1, &hf_tetra_ssi_02        , ASN1_NO_EXTENSIONS     , dissect_tetra_OCTET_STRING_SIZE_3 },
+  {   1, &hf_tetra_ssi_01        , ASN1_NO_EXTENSIONS     , dissect_tetra_OCTET_STRING_SIZE_3 },
   { 0, NULL, 0, NULL }
 };
 
@@ -6152,7 +6151,7 @@ dissect_tetra_T_attach_detach_identifier(tvbuff_t *tvb _U_, int offset _U_, asn1
 
 
 static const per_sequence_t T_gssi_extension_sequence[] = {
-  { &hf_tetra_gssi_01       , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_OCTET_STRING_SIZE_3 },
+  { &hf_tetra_gssi_oct_str  , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_OCTET_STRING_SIZE_3 },
   { &hf_tetra_extension     , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_OCTET_STRING_SIZE_3 },
   { NULL, 0, 0, NULL }
 };
@@ -6174,7 +6173,7 @@ static const value_string tetra_T_address_type_vals[] = {
 };
 
 static const per_choice_t T_address_type_choice[] = {
-  {   0, &hf_tetra_gssi_octet_string, ASN1_NO_EXTENSIONS     , dissect_tetra_OCTET_STRING_SIZE_3 },
+  {   0, &hf_tetra_gssi_oct_str  , ASN1_NO_EXTENSIONS     , dissect_tetra_OCTET_STRING_SIZE_3 },
   {   1, &hf_tetra_gssi_extension, ASN1_NO_EXTENSIONS     , dissect_tetra_T_gssi_extension },
   {   2, &hf_tetra_vgssi         , ASN1_NO_EXTENSIONS     , dissect_tetra_OCTET_STRING_SIZE_3 },
   { 0, NULL, 0, NULL }
@@ -8353,7 +8352,7 @@ static const per_sequence_t OTHER_DATA_sequence[] = {
   { &hf_tetra_power_control , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_power_control },
   { &hf_tetra_slot_granting_02, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_slot_granting_02 },
   { &hf_tetra_channel_allocation_02, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_channel_allocation_02 },
-  { &hf_tetra_tm_sdu_05     , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_D_LLC_PDU },
+  { &hf_tetra_tm_sdu_02     , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_D_LLC_PDU },
   { NULL, 0, 0, NULL }
 };
 
@@ -8497,7 +8496,7 @@ static const value_string tetra_AddressMacResource_vals[] = {
 
 static const per_choice_t AddressMacResource_choice[] = {
   {   0, &hf_tetra_null_pdu      , ASN1_NO_EXTENSIONS     , dissect_tetra_NULL },
-  {   1, &hf_tetra_ssi_01        , ASN1_NO_EXTENSIONS     , dissect_tetra_SSI_NEED },
+  {   1, &hf_tetra_ssi_need      , ASN1_NO_EXTENSIONS     , dissect_tetra_SSI_NEED },
   {   2, &hf_tetra_eventLabel_01 , ASN1_NO_EXTENSIONS     , dissect_tetra_EVENT_NEED },
   {   3, &hf_tetra_ussi_01       , ASN1_NO_EXTENSIONS     , dissect_tetra_USSI_NEED },
   {   4, &hf_tetra_smi_01        , ASN1_NO_EXTENSIONS     , dissect_tetra_SMI_NEED },
@@ -9847,28 +9846,28 @@ void proto_register_tetra (void)
       { "sub-type", "tetra.sub_type",
         FT_UINT32, BASE_DEC, NULL, 0,
         "INTEGER_0_1", HFILL }},
-    { &hf_tetra_tm_sdu_bit_string,
-      { "tm-sdu", "tetra.tm_sdu_bit_string",
+    { &hf_tetra_tm_sdu_bit_str,
+      { "tm-sdu", "tetra.tm_sdu_bit_str",
         FT_BYTES, BASE_NONE, NULL, 0,
         "BIT_STRING_SIZE_264", HFILL }},
-    { &hf_tetra_tm_sdu_bit_string_01,
-      { "tm-sdu", "tetra.tm_sdu_bit_string",
+    { &hf_tetra_tm_sdu_bit_str_01,
+      { "tm-sdu", "tetra.tm_sdu_bit_str",
         FT_BYTES, BASE_NONE, NULL, 0,
         "BIT_STRING_SIZE_120", HFILL }},
     { &hf_tetra_lengthInd_ReservationReq,
       { "lengthInd-ReservationReq", "tetra.lengthInd_ReservationReq",
         FT_UINT32, BASE_DEC, VALS(tetra_LengthIndOrReservationReq_vals), 0,
         "LengthIndOrReservationReq", HFILL }},
-    { &hf_tetra_tm_sdu_bit_string_02,
-      { "tm-sdu", "tetra.tm_sdu_bit_string",
+    { &hf_tetra_tm_sdu_bit_str_02,
+      { "tm-sdu", "tetra.tm_sdu_bit_str",
         FT_BYTES, BASE_NONE, NULL, 0,
         "BIT_STRING_SIZE_258", HFILL }},
     { &hf_tetra_pdu_subtype,
       { "pdu-subtype", "tetra.pdu_subtype",
         FT_UINT32, BASE_DEC, NULL, 0,
         "INTEGER_0_1", HFILL }},
-    { &hf_tetra_tm_sdu_bit_string_03,
-      { "tm-sdu", "tetra.tm_sdu_bit_string",
+    { &hf_tetra_tm_sdu_bit_str_03,
+      { "tm-sdu", "tetra.tm_sdu_bit_str",
         FT_BYTES, BASE_NONE, NULL, 0,
         "BIT_STRING_SIZE_114", HFILL }},
     { &hf_tetra_lengthInd_ReservationReq_01,
@@ -9879,8 +9878,8 @@ void proto_register_tetra (void)
       { "lengthInd", "tetra.lengthInd",
         FT_UINT32, BASE_DEC, VALS(tetra_LengthIndMacHu_vals), 0,
         "LengthIndMacHu", HFILL }},
-    { &hf_tetra_tm_sdu_02,
-      { "tm-sdu", "tetra.tm_sdu",
+    { &hf_tetra_tm_sdu_bit_str_04,
+      { "tm-sdu", "tetra.tm_sdu_bit_str",
         FT_BYTES, BASE_NONE, NULL, 0,
         "BIT_STRING_SIZE_85", HFILL }},
     { &hf_tetra_position_of_grant,
@@ -9911,8 +9910,8 @@ void proto_register_tetra (void)
       { "channel-allocation-element", "tetra.channel_allocation_element_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "ChannelAllocation", HFILL }},
-    { &hf_tetra_tm_sdu_03,
-      { "tm-sdu", "tetra.tm_sdu",
+    { &hf_tetra_tm_sdu_bit_str_05,
+      { "tm-sdu", "tetra.tm_sdu_bit_str",
         FT_BYTES, BASE_NONE, NULL, 0,
         "BIT_STRING_SIZE_255", HFILL }},
     { &hf_tetra_capacity_allocation,
@@ -10003,8 +10002,8 @@ void proto_register_tetra (void)
       { "channel-allocation", "tetra.channel_allocation",
         FT_UINT32, BASE_DEC, VALS(tetra_T_channel_allocation_01_vals), 0,
         "T_channel_allocation_01", HFILL }},
-    { &hf_tetra_tm_sdu_04,
-      { "tm-sdu", "tetra.tm_sdu",
+    { &hf_tetra_tm_sdu_bit_str_06,
+      { "tm-sdu", "tetra.tm_sdu_bit_str",
         FT_BYTES, BASE_NONE, NULL, 0,
         "BIT_STRING_SIZE_111", HFILL }},
     { &hf_tetra_encryption_mode,
@@ -10039,7 +10038,7 @@ void proto_register_tetra (void)
       { "channel-allocation", "tetra.channel_allocation",
         FT_UINT32, BASE_DEC, VALS(tetra_T_channel_allocation_02_vals), 0,
         "T_channel_allocation_02", HFILL }},
-    { &hf_tetra_tm_sdu_05,
+    { &hf_tetra_tm_sdu_02,
       { "tm-sdu", "tetra.tm_sdu",
         FT_UINT32, BASE_DEC, VALS(tetra_D_LLC_PDU_vals), 0,
         "D_LLC_PDU", HFILL }},
@@ -10047,8 +10046,8 @@ void proto_register_tetra (void)
       { "null-pdu", "tetra.null_pdu_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-    { &hf_tetra_ssi_01,
-      { "ssi", "tetra.ssi_element",
+    { &hf_tetra_ssi_need,
+      { "ssi", "tetra.ssi_need_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "SSI_NEED", HFILL }},
     { &hf_tetra_eventLabel_01,
@@ -10527,18 +10526,14 @@ void proto_register_tetra (void)
       { "address-type", "tetra.address_type",
         FT_UINT32, BASE_DEC, VALS(tetra_T_address_type_vals), 0,
         NULL, HFILL }},
-    { &hf_tetra_gssi_octet_string,
-      { "gssi", "tetra.gssi_octet_string",
+    { &hf_tetra_gssi_oct_str,
+      { "gssi", "tetra.gssi_oct_str",
         FT_BYTES, BASE_NONE, NULL, 0,
         "OCTET_STRING_SIZE_3", HFILL }},
     { &hf_tetra_gssi_extension,
       { "gssi-extension", "tetra.gssi_extension_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-    { &hf_tetra_gssi_01,
-      { "gssi", "tetra.gssi",
-        FT_BYTES, BASE_NONE, NULL, 0,
-        "OCTET_STRING_SIZE_3", HFILL }},
     { &hf_tetra_extension,
       { "extension", "tetra.extension",
         FT_BYTES, BASE_NONE, NULL, 0,
@@ -10587,7 +10582,7 @@ void proto_register_tetra (void)
       { "ssi", "tetra.ssi_choice",
         FT_UINT32, BASE_DEC, VALS(tetra_T_ssi_choice_vals), 0,
         "T_ssi_choice", HFILL }},
-    { &hf_tetra_ssi_02,
+    { &hf_tetra_ssi_01,
       { "ssi", "tetra.ssi",
         FT_BYTES, BASE_NONE, NULL, 0,
         "OCTET_STRING_SIZE_3", HFILL }},
