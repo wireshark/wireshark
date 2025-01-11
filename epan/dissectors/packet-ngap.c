@@ -2173,11 +2173,11 @@ static int hf_ngap_burstArrivalTimeWindow;        /* BurstArrivalTimeWindow */
 static int hf_ngap_periodicityRange;              /* PeriodicityRange */
 static int hf_ngap_capabilityForBATAdaptation;    /* T_capabilityForBATAdaptation */
 static int hf_ngap_dRBsSubjectToStatusTransferList;  /* DRBsSubjectToStatusTransferList */
-static int hf_ngap_synchronisationState_01;       /* T_synchronisationState */
+static int hf_ngap_synchronisationState_enum;     /* T_synchronisationState_enum */
 static int hf_ngap_traceabletoUTC_01;             /* T_traceabletoUTC_01 */
 static int hf_ngap_traceabletoGNSS_01;            /* T_traceabletoGNSS_01 */
 static int hf_ngap_clockAccuracy_01;              /* ClockAccuracy */
-static int hf_ngap_parentTImeSource_01;           /* ParentTImeSource */
+static int hf_ngap_parentTImeSource_enum;         /* ParentTImeSource */
 static int hf_ngap_rANNodeLevel;                  /* GlobalGNB_ID */
 static int hf_ngap_cellListLevel;                 /* RANTSSCellList */
 static int hf_ngap_RANTSSCellList_item;           /* RANTSSCellItem */
@@ -20753,7 +20753,7 @@ dissect_ngap_RANStatusTransfer_TransparentContainer(tvbuff_t *tvb _U_, int offse
 }
 
 
-static const value_string ngap_T_synchronisationState_vals[] = {
+static const value_string ngap_T_synchronisationState_enum_vals[] = {
   {   0, "locked" },
   {   1, "holdover" },
   {   2, "freerun" },
@@ -20762,7 +20762,7 @@ static const value_string ngap_T_synchronisationState_vals[] = {
 
 
 static int
-dissect_ngap_T_synchronisationState(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_ngap_T_synchronisationState_enum(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
                                      3, NULL, true, 0, NULL);
 
@@ -20803,12 +20803,12 @@ dissect_ngap_T_traceabletoGNSS_01(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t 
 
 
 static const per_sequence_t RANTimingSynchronisationStatusInfo_sequence[] = {
-  { &hf_ngap_synchronisationState_01, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ngap_T_synchronisationState },
+  { &hf_ngap_synchronisationState_enum, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ngap_T_synchronisationState_enum },
   { &hf_ngap_traceabletoUTC_01, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ngap_T_traceabletoUTC_01 },
   { &hf_ngap_traceabletoGNSS_01, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ngap_T_traceabletoGNSS_01 },
   { &hf_ngap_clockFrequencyStability, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ngap_BIT_STRING_SIZE_16 },
   { &hf_ngap_clockAccuracy_01, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ngap_ClockAccuracy },
-  { &hf_ngap_parentTImeSource_01, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ngap_ParentTImeSource },
+  { &hf_ngap_parentTImeSource_enum, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ngap_ParentTImeSource },
   { &hf_ngap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ngap_ProtocolExtensionContainer },
   { NULL, 0, 0, NULL }
 };
@@ -37713,10 +37713,10 @@ void proto_register_ngap(void) {
       { "dRBsSubjectToStatusTransferList", "ngap.dRBsSubjectToStatusTransferList",
         FT_UINT32, BASE_DEC, NULL, 0,
         NULL, HFILL }},
-    { &hf_ngap_synchronisationState_01,
-      { "synchronisationState", "ngap.synchronisationState",
-        FT_UINT32, BASE_DEC, VALS(ngap_T_synchronisationState_vals), 0,
-        NULL, HFILL }},
+    { &hf_ngap_synchronisationState_enum,
+      { "synchronisationState", "ngap.synchronisationState_enum",
+        FT_UINT32, BASE_DEC, VALS(ngap_T_synchronisationState_enum_vals), 0,
+        "T_synchronisationState_enum", HFILL }},
     { &hf_ngap_traceabletoUTC_01,
       { "traceabletoUTC", "ngap.traceabletoUTC",
         FT_UINT32, BASE_DEC, VALS(ngap_T_traceabletoUTC_01_vals), 0,
@@ -37729,8 +37729,8 @@ void proto_register_ngap(void) {
       { "clockAccuracy", "ngap.clockAccuracy",
         FT_UINT32, BASE_DEC, VALS(ngap_ClockAccuracy_vals), 0,
         NULL, HFILL }},
-    { &hf_ngap_parentTImeSource_01,
-      { "parentTImeSource", "ngap.parentTImeSource",
+    { &hf_ngap_parentTImeSource_enum,
+      { "parentTImeSource", "ngap.parentTImeSource_enum",
         FT_UINT32, BASE_DEC, VALS(ngap_ParentTImeSource_vals), 0,
         NULL, HFILL }},
     { &hf_ngap_rANNodeLevel,

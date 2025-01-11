@@ -94,6 +94,8 @@ GlobalN3IWF-ID/n3IWF-ID globalN3IWF-ID_n3IWF-ID
 GlobalTNGF-ID/tNGF-ID globalTNGF-ID_tNGF-ID
 GlobalTWIF-ID/tWIF-ID globalTWIF-ID_tWIF-ID
 GlobalW-AGF-ID/w-AGF-ID globalW-AGF-ID_w-AGF-ID
+RANTimingSynchronisationStatusInfo/synchronisationState synchronisationState-enum
+RANTimingSynchronisationStatusInfo/parentTImeSource parentTImeSource-enum
 
 #.FIELD_ATTR
 GlobalGNB-ID/gNB-ID       ABBREV=globalGNB_ID.gNB_ID
