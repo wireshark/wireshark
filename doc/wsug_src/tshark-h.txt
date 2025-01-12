@@ -1,4 +1,4 @@
-TShark (Wireshark) 4.5.0 (v4.5.0rc0-1147-g31b31e100870)
+TShark (Wireshark) 4.5.0 (v4.5.0rc0-1519-gdac4ac7b76ff)
 Dump and analyze network traffic.
 See https://www.wireshark.org for more information.
 
@@ -98,6 +98,8 @@ Output:
      ascii                 include ASCII dump text (-x default)
      delimit               delimit ASCII dump text with '|' characters
      noascii               exclude ASCII dump text
+     time                  include frame timestamp preamble
+     notime                do not include frame timestamp preamble (-x default)
      help                  display help for --hexdump and exit
   -T pdml|ps|psml|json|jsonraw|ek|tabs|text|fields|?
                            format of text output (def: text)

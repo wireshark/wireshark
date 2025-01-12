@@ -4937,10 +4937,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>패킷 형식 정규 표현식</translation>
     </message>
     <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Perl compatible regular expression capturing a single packet in the file with named groups identifieing data to import. Anchors ^ and $ also match before/after newlines &lt;/p&gt;&lt;p&gt;Required is only a data group, also supported are time, dir and seqno.&lt;/p&gt;&lt;p&gt;Regex flags: DUPNAMES, MULTILINE and NOEMPTY&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;파일에서 각각 패킷을 가져올 때 이름 있는 그룹을 통해서 가져올 데이터를 나타내는 Perl 호환 정규 표현식입니다. 앵커 문자 ^, $는 각각 줄의 맨 처음과 맨 끝과 일치합니다.&lt;/p&gt;&lt;p&gt;필수 항목은 데이터 그룹이며, 선택적 항목은 시간, 방향, 순서 번호입니다.&lt;/p&gt;&lt;p&gt;정규 표현식 플래그: DUPNAMES, MULTILINE, NOEMPTY&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
         <source>This is regexHintLabel, it will be set to default_regex_hint</source>
         <translation>정규 표현식 힌트 레이블이며 default_regex_hint로 지정됨</translation>
     </message>
@@ -5202,8 +5198,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Missing capturing group data (use (?&lt;data&gt;(...)) )</source>
-        <oldsource>Missing capturing group data (use (?</oldsource>
-        <translation type="unfinished">그룹 데이터를 캡처하는 표현식 없음(사용: (?</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Import From Hex Dump</source>
@@ -5277,12 +5272,20 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>외부 캡처 인터페이스가 비활성화되었습니다.</translation>
     </message>
     <message>
+        <source>&lt;p&gt;Local interfaces are unavailable because WinPcap is installed but is no longer supported.&lt;/p&gt;&lt;p&gt;You can fix this by uninstalling WinPcap and installing &lt;a href=&quot;https://npcap.com/&quot;&gt;Npcap&lt;/a&gt;.&lt;/p&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>&lt;p&gt;Local interfaces are unavailable because no packet capture driver is installed.&lt;/p&gt;&lt;p&gt;You can fix this by installing &lt;a href=&quot;https://npcap.com/&quot;&gt;Npcap&lt;/a&gt;.&lt;/p&gt;</source>
         <translation>&lt;p&gt;설치된 패킷 캡처 드라이버가 없어서 사용 가능한 로컬 인터페이스가 없습니다.&lt;/p&gt;&lt;p&gt;문제를 해결하려면 &lt;a href=&quot;https://npcap.com/&quot;&gt;Npcap&lt;/a&gt;을 설치하십시오.&lt;/p&gt;</translation>
     </message>
     <message>
+        <source>&lt;p&gt;Local interfaces are unavailable because the packet capture driver isn&apos;t loaded.&lt;/p&gt;&lt;p&gt;You can fix this by running &lt;pre&gt;net start npcap&lt;/pre&gt; if you have Npcap installed. The command must be run as Administrator.&lt;/p&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>&lt;p&gt;Local interfaces are unavailable because the packet capture driver isn&apos;t loaded.&lt;/p&gt;&lt;p&gt;You can fix this by running &lt;pre&gt;net start npcap&lt;/pre&gt; if you have Npcap installed or &lt;pre&gt;net start npf&lt;/pre&gt; if you have WinPcap installed. Both commands must be run as Administrator.&lt;/p&gt;</source>
-        <translation>&lt;p&gt;패킷 캡처 드라이버를 불러오지 않았기 때문에 로컬 인터페이스를 사용할 수 없습니다.&lt;/p&gt;&lt;p&gt;Npcap이 설치된 경우 &lt;pre&gt;net start npcap&lt;/pre&gt;을 실행하거나 WinPcap이 설치된 경우 &lt;pre&gt;net start npf&lt;/pre&gt;를 실행하여 이 문제를 해결할 수 있습니다. 두 명령 모두 관리자 권한으로 실행해야 합니다.&lt;/p&gt;</translation>
+        <translation type="vanished">&lt;p&gt;패킷 캡처 드라이버를 불러오지 않았기 때문에 로컬 인터페이스를 사용할 수 없습니다.&lt;/p&gt;&lt;p&gt;Npcap이 설치된 경우 &lt;pre&gt;net start npcap&lt;/pre&gt;을 실행하거나 WinPcap이 설치된 경우 &lt;pre&gt;net start npf&lt;/pre&gt;를 실행하여 이 문제를 해결할 수 있습니다. 두 명령 모두 관리자 권한으로 실행해야 합니다.&lt;/p&gt;</translation>
     </message>
     <message>
         <source>&lt;p&gt;You don&apos;t have permission to capture on local interfaces.&lt;/p&gt;&lt;p&gt;You can fix this by &lt;a href=&quot;file://%1&quot;&gt;installing ChmodBPF&lt;/a&gt;.&lt;/p&gt;</source>
@@ -7562,6 +7565,14 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Generate hexdumps for secondary data sources like reassembled or decrypted buffers in addition to the frame&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;프레임 외에도 재조합하거나 복호화한 것 등의 2차 데이터 원본의 16진수 덤프를 생성합니다&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <source>Include timestamp preamble</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Include each frame timestamp immediately before its hex dump, using the current time display format.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -11988,6 +11999,14 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>확대</translation>
     </message>
     <message>
+        <source>Sampling Method</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Select which packets and how the RTT sampling is done</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Display Round Trip Time vs Sequence Number</source>
         <translation>왕복 시간 대 시퀀스 번호 표시</translation>
     </message>
@@ -12282,6 +12301,38 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>4</source>
         <translation>4</translation>
+    </message>
+    <message>
+        <source>All Data Packets</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sampling from all data packets</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>All Data Packets w/ SACK</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sampling from all data packets w/ SACK</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Data Packets matching RTT</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sampling from RTT packets</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Data Packets matching Karn RTT</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sampling from Karn RTT packets</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Zoom In X Axis</source>
@@ -14724,27 +14775,12 @@ a:hover {
         <translation>이전에 표시된 패킷부터 초 단위의 지난 시간으로 패킷 시간을 표시합니다.</translation>
     </message>
     <message>
-        <source>UTC Date and Time of Day (1970-01-01 01:02:03.123456Z)</source>
-        <oldsource>UTC Date and Time of Day (1970-01-01 01:02:03.123456)</oldsource>
-        <translation type="unfinished">UTC 날짜와 시간(1970-01-01 01:02:03.123456)</translation>
-    </message>
-    <message>
         <source>Show packet times as the UTC date and time of day.</source>
         <translation>UTC 날짜와 시간으로 패킷 시간을 표현합니다.</translation>
     </message>
     <message>
-        <source>UTC Year, Day of Year, and Time of Day (1970/001 01:02:03.123456Z)</source>
-        <oldsource>UTC Year, Day of Year, and Time of Day (1970/001 01:02:03.123456)</oldsource>
-        <translation type="unfinished">UTC 년, 연중일, 시간(1970/001 01:02:03.123456)</translation>
-    </message>
-    <message>
         <source>Show packet times as the UTC year, day of the year and time of day.</source>
         <translation>UTC 년, 연중일, 시간으로 패킷 시간을 표시합니다.</translation>
-    </message>
-    <message>
-        <source>UTC Time of Day (01:02:03.123456Z)</source>
-        <oldsource>UTC Time of Day (01:02:03.123456)</oldsource>
-        <translation type="unfinished">UTC 시간(01:02:03.123456)</translation>
     </message>
     <message>
         <source>Show packet times as the UTC time of day.</source>
@@ -14995,6 +15031,18 @@ a:hover {
     <message>
         <source>&amp;Unmark All Displayed</source>
         <translation>표시된 모든 항목 마크 해제(&amp;U)</translation>
+    </message>
+    <message>
+        <source>UTC Date and Time of Day (1970-01-01 01:02:03.123456Z)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>UTC Year, Day of Year, and Time of Day (1970/001 01:02:03.123456Z)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>UTC Time of Day (01:02:03.123456Z)</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>All VoIP Calls</source>

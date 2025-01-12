@@ -4973,10 +4973,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Регулярное выражение для описания формата пакета</translation>
     </message>
     <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Perl compatible regular expression capturing a single packet in the file with named groups identifieing data to import. Anchors ^ and $ also match before/after newlines &lt;/p&gt;&lt;p&gt;Required is only a data group, also supported are time, dir and seqno.&lt;/p&gt;&lt;p&gt;Regex flags: DUPNAMES, MULTILINE and NOEMPTY&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Perl-совместимое регулярное выражение для захвата пакета в файл с включением именованных групп, позволяющих идентифицировать импортируемые данные. Якоря ^ и $ также могут использоваться для сопоставления местоположения до или после перевода строк &lt;/p&gt;&lt;p&gt;Обязательна для включения только группа data, но также поддерживаются группы time, dir и seqno.&lt;/p&gt;&lt;p&gt;Флаги регулярного выражения: DUPNAMES, MULTILINE и NOEMPTY&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
         <source>This is regexHintLabel, it will be set to default_regex_hint</source>
         <translation>Это подпись regexHintLabel, которой будет присвоено значение default_regex_hint</translation>
     </message>
@@ -5238,8 +5234,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Missing capturing group data (use (?&lt;data&gt;(...)) )</source>
-        <oldsource>Missing capturing group data (use (?</oldsource>
-        <translation type="unfinished">Отсутствуют данные группы захвата (use (?</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Import From Hex Dump</source>
@@ -5313,12 +5308,20 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Внешние интерфейсы захвата отключены.</translation>
     </message>
     <message>
+        <source>&lt;p&gt;Local interfaces are unavailable because WinPcap is installed but is no longer supported.&lt;/p&gt;&lt;p&gt;You can fix this by uninstalling WinPcap and installing &lt;a href=&quot;https://npcap.com/&quot;&gt;Npcap&lt;/a&gt;.&lt;/p&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>&lt;p&gt;Local interfaces are unavailable because no packet capture driver is installed.&lt;/p&gt;&lt;p&gt;You can fix this by installing &lt;a href=&quot;https://npcap.com/&quot;&gt;Npcap&lt;/a&gt;.&lt;/p&gt;</source>
         <translation>&lt;p&gt;Локальные интерфейсы недоступны, так как не установлен драйвер захвата пакетов.&lt;/p&gt;&lt;p&gt;Для устранения этой проблемы необходимо установить &lt;a href=&quot;https://npcap.com/&quot;&gt;Npcap&lt;/a&gt;.&lt;/p&gt;</translation>
     </message>
     <message>
+        <source>&lt;p&gt;Local interfaces are unavailable because the packet capture driver isn&apos;t loaded.&lt;/p&gt;&lt;p&gt;You can fix this by running &lt;pre&gt;net start npcap&lt;/pre&gt; if you have Npcap installed. The command must be run as Administrator.&lt;/p&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>&lt;p&gt;Local interfaces are unavailable because the packet capture driver isn&apos;t loaded.&lt;/p&gt;&lt;p&gt;You can fix this by running &lt;pre&gt;net start npcap&lt;/pre&gt; if you have Npcap installed or &lt;pre&gt;net start npf&lt;/pre&gt; if you have WinPcap installed. Both commands must be run as Administrator.&lt;/p&gt;</source>
-        <translation>&lt;p&gt;Локальные интерфейсы недоступны, так как не загружен драйвер захвата пакетов.&lt;/p&gt;&lt;p&gt;Для устранения этой проблемы необходимо запустить команду &lt;pre&gt;net start npcap&lt;/pre&gt;, если установлен Npcap, или командой &lt;pre&gt;net start npf&lt;/pre&gt;, если установлен WinPcap. Обе команды должны быть запущены от имени «Администратора».&lt;/p&gt;</translation>
+        <translation type="vanished">&lt;p&gt;Локальные интерфейсы недоступны, так как не загружен драйвер захвата пакетов.&lt;/p&gt;&lt;p&gt;Для устранения этой проблемы необходимо запустить команду &lt;pre&gt;net start npcap&lt;/pre&gt;, если установлен Npcap, или командой &lt;pre&gt;net start npf&lt;/pre&gt;, если установлен WinPcap. Обе команды должны быть запущены от имени «Администратора».&lt;/p&gt;</translation>
     </message>
     <message>
         <source>&lt;p&gt;You don&apos;t have permission to capture on local interfaces.&lt;/p&gt;&lt;p&gt;You can fix this by &lt;a href=&quot;file://%1&quot;&gt;installing ChmodBPF&lt;/a&gt;.&lt;/p&gt;</source>
@@ -7612,6 +7615,14 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Generate hexdumps for secondary data sources like reassembled or decrypted buffers in addition to the frame&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Генерировать шестнадцатеричные дампы для вторичных источников данных в виде пересобранных или расшифрованных буферов, в добавление к кадру&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <source>Include timestamp preamble</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Include each frame timestamp immediately before its hex dump, using the current time display format.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -12062,6 +12073,14 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>масштаб</translation>
     </message>
     <message>
+        <source>Sampling Method</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Select which packets and how the RTT sampling is done</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Display Round Trip Time vs Sequence Number</source>
         <translation>Отображать время приёма-передачи в зависимости от номера последовательности</translation>
     </message>
@@ -12356,6 +12375,38 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>4</source>
         <translation>4</translation>
+    </message>
+    <message>
+        <source>All Data Packets</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sampling from all data packets</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>All Data Packets w/ SACK</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sampling from all data packets w/ SACK</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Data Packets matching RTT</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sampling from RTT packets</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Data Packets matching Karn RTT</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sampling from Karn RTT packets</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Zoom In X Axis</source>
@@ -14800,27 +14851,12 @@ a:hover {
         <translation>Показывать временные характеристики пакетов в виде числа секунд с момента захвата отображаемого пакета.</translation>
     </message>
     <message>
-        <source>UTC Date and Time of Day (1970-01-01 01:02:03.123456Z)</source>
-        <oldsource>UTC Date and Time of Day (1970-01-01 01:02:03.123456)</oldsource>
-        <translation type="unfinished">Дата и время суток в UTC (1970-01-01 01:02:03.123456)</translation>
-    </message>
-    <message>
         <source>Show packet times as the UTC date and time of day.</source>
         <translation>Показывать временные характеристики пакетов в виде даты и времени суток в UTC.</translation>
     </message>
     <message>
-        <source>UTC Year, Day of Year, and Time of Day (1970/001 01:02:03.123456Z)</source>
-        <oldsource>UTC Year, Day of Year, and Time of Day (1970/001 01:02:03.123456)</oldsource>
-        <translation type="unfinished">Год, день года и время суток в UTC (1970/001 01:02:03.123456)</translation>
-    </message>
-    <message>
         <source>Show packet times as the UTC year, day of the year and time of day.</source>
         <translation>Показывать временные характеристики пакетов в виде года, дня года и времени суток в UTC.</translation>
-    </message>
-    <message>
-        <source>UTC Time of Day (01:02:03.123456Z)</source>
-        <oldsource>UTC Time of Day (01:02:03.123456)</oldsource>
-        <translation type="unfinished">Время суток в UTC (01:02:03.123456)</translation>
     </message>
     <message>
         <source>Show packet times as the UTC time of day.</source>
@@ -15071,6 +15107,18 @@ a:hover {
     <message>
         <source>&amp;Unmark All Displayed</source>
         <translation>&amp;Снять отметку со всего отображённого</translation>
+    </message>
+    <message>
+        <source>UTC Date and Time of Day (1970-01-01 01:02:03.123456Z)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>UTC Year, Day of Year, and Time of Day (1970/001 01:02:03.123456Z)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>UTC Time of Day (01:02:03.123456Z)</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>All VoIP Calls</source>
