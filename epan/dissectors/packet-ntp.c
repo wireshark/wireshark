@@ -607,47 +607,107 @@ static const value_string authentication_types[] = {
  * NTP Extension Field Types.
  * https://www.iana.org/assignments/ntp-parameters/ntp-parameters.xhtml#ntp-parameters-3
  */
-static const value_string ntp_ext_field_types[] = {
+static const range_string ntp_ext_field_types[] = {
+	{ 0x0000, 0x0000, "Crypto-NAK; authentication failure" },
+	{ 0x0002, 0x0002, "Reserved for historic reasons" },
+	{ 0x0102, 0x0102, "Reserved for historic reasons" },
+	{ 0x0104, 0x0104, "Unique Identifier" },
+	{ 0x0200, 0x0200, "No-Operation Request" },
+	{ 0x0201, 0x0201, "Association Message Request" },
+	{ 0x0202, 0x0202, "Certificate Message Request" },
+	{ 0x0203, 0x0203, "Cookie Message Request" },
+	{ 0x0204, 0x0204, "NTS Cookie or Autokey Message Request" },
+	{ 0x0205, 0x0205, "Leapseconds Message Request" },
+	{ 0x0206, 0x0206, "Sign Message Request" },
+	{ 0x0207, 0x0207, "IFF Identity Message Request" },
+	{ 0x0208, 0x0208, "GQ Identity Message Request" },
+	{ 0x0209, 0x0209, "MV Identity Message Request" },
+	{ 0x0302, 0x0302, "Reserved for historic reasons" },
+	{ 0x0304, 0x0304, "NTS Cookie Placeholder" },
+	{ 0x0402, 0x0402, "Reserved for historic reasons" },
+	{ 0x0404, 0x0404, "NTS Authenticator and Encrypted Extension Fields" },
+	{ 0x0502, 0x0502, "Reserved for historic reasons" },
+	{ 0x0602, 0x0602, "Reserved for historic reasons" },
+	{ 0x0702, 0x0702, "Reserved for historic reasons" },
+	{ 0x0802, 0x0802, "Reserved for historic reasons" },
+	{ 0x0902, 0x0902, "Reserved for historic reasons" },
+	{ 0x2005, 0x2005, "UDP Checksum Complement" },
+	{ 0x8002, 0x8002, "Reserved for historic reasons" },
+	{ 0x8102, 0x8102, "Reserved for historic reasons" },
+	{ 0x8200, 0x8200, "No-Operation Response" },
+	{ 0x8201, 0x8201, "Association Message Response" },
+	{ 0x8202, 0x8202, "Certificate Message Response" },
+	{ 0x8203, 0x8203, "Cookie Message Response" },
+	{ 0x8204, 0x8204, "Autokey Message Response" },
+	{ 0x8205, 0x8205, "Leapseconds Message Response" },
+	{ 0x8206, 0x8206, "Sign Message Response" },
+	{ 0x8207, 0x8207, "IFF Identity Message Response" },
+	{ 0x8208, 0x8208, "GQ Identity Message Response" },
+	{ 0x8209, 0x8209, "MV Identity Message Response" },
+	{ 0x8302, 0x8302, "Reserved for historic reasons" },
+	{ 0x8402, 0x8402, "Reserved for historic reasons" },
+	{ 0x8502, 0x8502, "Reserved for historic reasons" },
+	{ 0x8602, 0x8602, "Reserved for historic reasons" },
+	{ 0x8702, 0x8702, "Reserved for historic reasons" },
+	{ 0x8802, 0x8802, "Reserved for historic reasons" },
+	{ 0x8902, 0x8902, "Reserved for historic reasons" },
+	{ 0xC002, 0xC002, "Reserved for historic reasons" },
+	{ 0xC102, 0xC102, "Reserved for historic reasons" },
+	{ 0xC200, 0xC200, "No-Operation Error Response" },
+	{ 0xC201, 0xC201, "Association Message Error Response" },
+	{ 0xC202, 0xC202, "Certificate Message Error Response" },
+	{ 0xC203, 0xC203, "Cookie Message Error Response" },
+	{ 0xC204, 0xC204, "Autokey Message Error Response" },
+	{ 0xC205, 0xC205, "Leapseconds Message Error Response" },
+	{ 0xC206, 0xC206, "Sign Message Error Response" },
+	{ 0xC207, 0xC207, "IFF Identity Message Error Response" },
+	{ 0xC208, 0xC208, "GQ Identity Message Error Response" },
+	{ 0xC209, 0xC209, "MV Identity Message Error Response" },
+	{ 0xC302, 0xC302, "Reserved for historic reasons" },
+	{ 0xC402, 0xC402, "Reserved for historic reasons" },
+	{ 0xC502, 0xC502, "Reserved for historic reasons" },
+	{ 0xC602, 0xC602, "Reserved for historic reasons" },
+	{ 0xC702, 0xC702, "Reserved for historic reasons" },
+	{ 0xC802, 0xC802, "Reserved for historic reasons" },
+	{ 0xC902, 0xC902, "Reserved for historic reasons" },
+	{ 0xF000, 0xFFFF, "Reserved for Experimental Use" },
+	{      0,      0, NULL }
+};
+
+/*
+ * Deprecated, historic extensions
+ * (https://datatracker.ietf.org/doc/draft-ietf-ntp-update-registries/)
+ */
+static const value_string ntp_ext_field_types_historic[] = {
 	{ 0x0002, "No-Operation Request" },
 	{ 0x0102, "Association Message Request" },
-	{ 0x0104, "Unique Identifier" },
-	{ 0x0202, "Certificate Message Request" },
-	{ 0x0204, "NTS Cookie" },
 	{ 0x0302, "Cookie Message Request" },
-	{ 0x0304, "NTS Cookie Placeholder" },
 	{ 0x0402, "Autokey Message Request" },
-	{ 0x0404, "NTS Authenticator and Encrypted Extension Fields" },
-	{ 0x0502, "Leapseconds Message Request" },
+	{ 0x0502, "Leapseconds Value Message Request" },
 	{ 0x0602, "Sign Message Request" },
 	{ 0x0702, "IFF Identity Message Request" },
 	{ 0x0802, "GQ Identity Message Request" },
 	{ 0x0902, "MV Identity Message Request" },
-	{ 0x2005, "Checksum Complement" },
 	{ 0x8002, "No-Operation Response" },
 	{ 0x8102, "Association Message Response" },
-	{ 0x8202, "Certificate Message Response" },
 	{ 0x8302, "Cookie Message Response" },
 	{ 0x8402, "Autokey Message Response" },
-	{ 0x8502, "Leapseconds Message Response" },
+	{ 0x8502, "Leapseconds Value Message Response" },
 	{ 0x8602, "Sign Message Response" },
 	{ 0x8702, "IFF Identity Message Response" },
 	{ 0x8802, "GQ Identity Message Response" },
 	{ 0x8902, "MV Identity Message Response" },
 	{ 0xC002, "No-Operation Error Response" },
 	{ 0xC102, "Association Message Error Response" },
-	{ 0xC202, "Certificate Message Error Response" },
 	{ 0xC302, "Cookie Message Error Response" },
 	{ 0xC402, "Autokey Message Error Response" },
-	{ 0xC502, "Leapseconds Message Error Response" },
+	{ 0xC502, "Leapseconds Value Message Error Response" },
 	{ 0xC602, "Sign Message Error Response" },
 	{ 0xC702, "IFF Identity Message Error Response" },
 	{ 0xC802, "GQ Identity Message Error Response" },
 	{ 0xC902, "MV Identity Message Error Response" },
-	{ 0xF323, "Monotonic Timestamp & Root Delay/Dispersion (exp)" },
-	{ 0xF324, "Network PTP Time correction (exp)" },
-	{ 0, NULL }
+	{      0, NULL }
 };
-
 
 typedef struct {
 	uint32_t req_frame;
@@ -986,7 +1046,8 @@ static int ett_ntppriv_config_flags;
 static int ett_ntppriv_sys_flag_flags;
 static int ett_ntppriv_reset_stats_flags;
 
-static expert_field ei_ntp_ext;
+static expert_field ei_ntp_ext_invalid_length;
+static expert_field ei_ntp_ext_historic;
 
 static const char *mon_names[12] = {
 	"Jan",
@@ -1249,7 +1310,7 @@ dissect_nts_cookie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ext_tree, int 
 			pinfo);
 		if(nts_cookie) {
 			ct = proto_tree_add_uint(ext_tree, hf_ntp_nts_cookie_receive_frame, tvb, 0, 0, nts_cookie->frame_received);
-            proto_item_set_generated(ct);
+			proto_item_set_generated(ct);
 		}
 	} else if ((flags & NTP_MODE_MASK) == NTP_MODE_SERVER && nts_cookie) {
 		/* If a cookie extension was received in a server packet, we need to add it as a new one */
@@ -1277,7 +1338,7 @@ dissect_ntp_ext_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ext_tree, in
 		 * Report the error, and return an offset that goes to
 		 * the end of the tvbuff, so we stop dissecting.
 		 */
-		expert_add_info_format(pinfo, tf, &ei_ntp_ext, "Extension length %u < 8", extlen);
+		expert_add_info_format(pinfo, tf, &ei_ntp_ext_invalid_length, "Extension length %u < 8", extlen);
 		return tvb_reported_length(tvb);
 	}
 	if (extlen % 4) {
@@ -1285,7 +1346,7 @@ dissect_ntp_ext_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ext_tree, in
 		 * Report the error, and return an offset that goes
 		 * to the end of the tvbuff, so we stop dissecting.
 		 */
-		expert_add_info_format(pinfo, tf, &ei_ntp_ext, "Extension length %u isn't a multiple of 4",
+		expert_add_info_format(pinfo, tf, &ei_ntp_ext_invalid_length, "Extension length %u isn't a multiple of 4",
 				extlen);
 		return tvb_reported_length(tvb);
 	}
@@ -1371,10 +1432,11 @@ static int
 dissect_ntp_ext(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ntp_tree, int offset, uint64_t flags)
 {
 	proto_tree *ext_tree;
-	proto_item *tf;
+	proto_item *tf, *ti, *ei;
 	uint16_t extlen;
 	uint32_t type;
 	int value_length, offset_m = offset;
+	const char *ext_historic;
 
 	increment_dissection_depth(pinfo);
 
@@ -1382,8 +1444,15 @@ dissect_ntp_ext(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ntp_tree, int off
 	tf = proto_tree_add_item(ntp_tree, hf_ntp_ext, tvb, offset, extlen, ENC_NA);
 	ext_tree = proto_item_add_subtree(tf, ett_ntp_ext);
 
-	proto_tree_add_item_ret_uint(ext_tree, hf_ntp_ext_type, tvb, offset, 2, ENC_BIG_ENDIAN, &type);
+	ti = proto_tree_add_item_ret_uint(ext_tree, hf_ntp_ext_type, tvb, offset, 2, ENC_BIG_ENDIAN, &type);
 	offset += 2;
+
+	/* Inform about historic extensions */
+	ext_historic = try_val_to_str(type, ntp_ext_field_types_historic);
+	if(ext_historic) {
+		ei = expert_add_info(pinfo, ti, &ei_ntp_ext_historic);
+		proto_item_append_text(ei, " for %s", ext_historic);
+	}
 
 	offset = dissect_ntp_ext_data(tvb, pinfo, ext_tree, offset, extlen);
 
@@ -2991,8 +3060,8 @@ proto_register_ntp(void)
 			"Extension", "ntp.ext", FT_NONE, BASE_NONE,
 			NULL, 0, NULL, HFILL }},
 		{ &hf_ntp_ext_type, {
-			"Field Type", "ntp.ext.type", FT_UINT16, BASE_HEX,
-			VALS(ntp_ext_field_types), 0, NULL, HFILL }},
+			"Field Type", "ntp.ext.type", FT_UINT16, BASE_HEX|BASE_RANGE_STRING,
+			RVALS(ntp_ext_field_types), 0, NULL, HFILL }},
 		{ &hf_ntp_ext_length, {
 			"Length", "ntp.ext.length", FT_UINT16, BASE_DEC,
 			NULL, 0, "Entire extension length including padding", HFILL }},
@@ -3847,7 +3916,8 @@ proto_register_ntp(void)
 	};
 
 	static ei_register_info ei[] = {
-		{ &ei_ntp_ext, { "ntp.ext.invalid_length", PI_PROTOCOL, PI_WARN, "Extension invalid length", EXPFILL }},
+		{ &ei_ntp_ext_invalid_length, { "ntp.ext.invalid_length", PI_PROTOCOL, PI_WARN, "Extension invalid length", EXPFILL }},
+		{ &ei_ntp_ext_historic, { "ntp.ext.historic", PI_DEPRECATED, PI_NOTE, "Historic extension type", EXPFILL }},
 	};
 
 	expert_module_t* expert_ntp;
