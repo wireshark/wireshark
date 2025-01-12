@@ -5165,8 +5165,7 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>Missing capturing group data (use (?&lt;data&gt;(...)) )</source>
-        <oldsource>Missing capturing group data (use (?</oldsource>
-        <translation type="unfinished">mancano i dati del gruppo di cattura (usa (?</translation>
+        <translation>Mancano i dati del gruppo di cattura (usa (?&lt;data&gt;(...)) )</translation>
     </message>
     <message>
         <source>Import From Hex Dump</source>
