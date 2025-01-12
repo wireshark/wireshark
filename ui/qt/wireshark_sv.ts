@@ -4816,8 +4816,7 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>Missing capturing group data (use (?&lt;data&gt;(...)) )</source>
-        <oldsource>Missing capturing group data (use (?</oldsource>
-        <translation type="unfinished">Data för fångstgrupp saknas (använd (?</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Import From Hex Dump</source>
