@@ -515,7 +515,7 @@ const value_string ie_tag_num_vals[] = {
   { TAG_DSE_REG_LOCATION,                     "DSE Registered Location" },
   { TAG_SUPPORTED_OPERATING_CLASSES,          "Supported Operating Classes" },
   { TAG_EXTENDED_CHANNEL_SWITCH_ANNOUNCEMENT, "Extended Channel Switch Announcement" },
-  { TAG_HT_INFO,                              "HT Information (802.11n D1.10)" },
+  { TAG_HT_OPERATION,                         "HT Operation" },
   { TAG_SECONDARY_CHANNEL_OFFSET,             "Secondary Channel Offset (802.11n D1.10)" },
   { TAG_BSS_AVG_ACCESS_DELAY,                 "BSS Average Access Delay" },
   { TAG_ANTENNA,                              "Antenna" },
@@ -3104,19 +3104,9 @@ static const true_false_string ht_info_dual_beacon_flag = {
   "No second beacon is transmitted"
 };
 
-static const true_false_string ht_info_secondary_beacon_flag = {
+static const true_false_string ht_info_stbc_beacon_flag = {
   "STBC beacon",
   "Primary beacon"
-};
-
-static const true_false_string ht_info_lsig_txop_protection_full_support_flag = {
-  "All HT STAs in the BSS support L-SIG TXOP protection",
-  "One or more HT STAs in the BSS do not support L-SIG TXOP protection"
-};
-
-static const true_false_string ht_info_pco_phase_flag = {
-  "Switch to or continue 40 MHz phase",
-  "Switch to or continue 20 MHz phase"
 };
 
 static const true_false_string htc_lac_trq_flag = {
@@ -5731,33 +5721,32 @@ static int hf_ieee80211_txbf_csi_max_rows_bf;
 static int hf_ieee80211_txbf_chan_est;
 static int hf_ieee80211_txbf_resrv;
 
-/*** Begin: 802.11n D1.10 - HT Information IE  ***/
-static int hf_ieee80211_ht_info_primary_channel;
+/*** Begin: 802.11n - HT Operation IE  ***/
+static int hf_ieee80211_ht_operation_primary_channel;
 
-static int hf_ieee80211_ht_info_delimiter1;
-static int hf_ieee80211_ht_info_secondary_channel_offset;
-static int hf_ieee80211_ht_info_sta_channel_width;
-static int hf_ieee80211_ht_info_rifs_mode;
-static int hf_ieee80211_ht_info_reserved_b4_b7;
+static int hf_ieee80211_ht_operation_info_delimiter1;
+static int hf_ieee80211_ht_operation_info_secondary_channel_offset;
+static int hf_ieee80211_ht_operation_info_sta_channel_width;
+static int hf_ieee80211_ht_operation_info_rifs_mode;
+static int hf_ieee80211_ht_operation_info_reserved_b4_b7;
 
-static int hf_ieee80211_ht_info_delimiter2;
-static int hf_ieee80211_ht_info_protection;
-static int hf_ieee80211_ht_info_non_greenfield_sta_present;
-static int hf_ieee80211_ht_info_reserved_b11;
-static int hf_ieee80211_ht_info_obss_non_ht_stas_present;
-static int hf_ieee80211_ht_info_channel_center_freq_seg_2;
-static int hf_ieee80211_ht_info_reserved_b21_b23;
+static int hf_ieee80211_ht_operation_info_delimiter2;
+static int hf_ieee80211_ht_operation_info_protection;
+static int hf_ieee80211_ht_operation_info_non_greenfield_sta_present;
+static int hf_ieee80211_ht_operation_info_reserved_b11;
+static int hf_ieee80211_ht_operation_info_obss_non_ht_stas_present;
+static int hf_ieee80211_ht_operation_info_channel_center_freq_seg_2;
+static int hf_ieee80211_ht_operation_info_reserved_b21_b23;
 
-static int hf_ieee80211_ht_info_delimiter3;
-static int hf_ieee80211_ht_info_reserved_b24_b29;
-static int hf_ieee80211_ht_info_dual_beacon;
-static int hf_ieee80211_ht_info_dual_cts_protection;
-static int hf_ieee80211_ht_info_secondary_beacon;
-static int hf_ieee80211_ht_info_lsig_txop_protection_full_support;
-static int hf_ieee80211_ht_info_pco_active;
-static int hf_ieee80211_ht_info_pco_phase;
-static int hf_ieee80211_ht_info_reserved_b36_b39;
-/*** End: 802.11n D1.10 - HT Information IE  ***/
+static int hf_ieee80211_ht_operation_info_delimiter3;
+static int hf_ieee80211_ht_operation_info_reserved_b24_b29;
+static int hf_ieee80211_ht_operation_info_dual_beacon;
+static int hf_ieee80211_ht_operation_info_dual_cts_protection;
+static int hf_ieee80211_ht_operation_info_stbc_beacon;
+static int hf_ieee80211_ht_operation_info_reserved_b33_b39;
+
+static int hf_ieee80211_ht_operation_mcsset_reserved;
+/*** End: 802.11n - HT Operation IE  ***/
 
 static int hf_ieee80211_tag_ap_channel_report_operating_class;
 static int hf_ieee80211_tag_ap_channel_report_channel_list;
@@ -8356,9 +8345,9 @@ static int ett_vht_grpidmgmt;
 static int ett_vht_msa;
 static int ett_vht_upa;
 
-static int ett_ht_info_delimiter1_tree;
-static int ett_ht_info_delimiter2_tree;
-static int ett_ht_info_delimiter3_tree;
+static int ett_ht_operation_info_delimiter1_tree;
+static int ett_ht_operation_info_delimiter2_tree;
+static int ett_ht_operation_info_delimiter3_tree;
 
 static int ett_ff_ftm_param_delim1;
 static int ett_ff_ftm_param_delim2;
@@ -25491,69 +25480,78 @@ dissect_mcs_set(proto_tree *tree, tvbuff_t *tvb, int offset, bool basic, bool ve
   return offset;
 }
 
-/*  802.11n D1.10 - HT Information IE  */
+/*  802.11n - HT Operation IE  */
 static int
-dissect_ht_info_ie_1_1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
+dissect_ht_operation_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
   int tag_len = tvb_reported_length(tvb);
   ieee80211_tagged_field_data_t* field_data = (ieee80211_tagged_field_data_t*)data;
   int offset = 0;
-  static int * const ieee80211_ht_info1_field[] = {
-    &hf_ieee80211_ht_info_secondary_channel_offset,
-    &hf_ieee80211_ht_info_sta_channel_width,
-    &hf_ieee80211_ht_info_rifs_mode,
-    &hf_ieee80211_ht_info_reserved_b4_b7,
+  static int * const ieee80211_ht_operation_info1_field[] = {
+    &hf_ieee80211_ht_operation_info_secondary_channel_offset,
+    &hf_ieee80211_ht_operation_info_sta_channel_width,
+    &hf_ieee80211_ht_operation_info_rifs_mode,
+    &hf_ieee80211_ht_operation_info_reserved_b4_b7,
     NULL
   };
 
-  static int * const ieee80211_ht_info2_field[] = {
-    &hf_ieee80211_ht_info_protection,
-    &hf_ieee80211_ht_info_non_greenfield_sta_present,
-    &hf_ieee80211_ht_info_reserved_b11,
-    &hf_ieee80211_ht_info_obss_non_ht_stas_present,
-    &hf_ieee80211_ht_info_channel_center_freq_seg_2,
-    &hf_ieee80211_ht_info_reserved_b21_b23,
+  static int * const ieee80211_ht_operation_info2_field[] = {
+    &hf_ieee80211_ht_operation_info_protection,
+    &hf_ieee80211_ht_operation_info_non_greenfield_sta_present,
+    &hf_ieee80211_ht_operation_info_reserved_b11,
+    &hf_ieee80211_ht_operation_info_obss_non_ht_stas_present,
+    &hf_ieee80211_ht_operation_info_channel_center_freq_seg_2,
+    &hf_ieee80211_ht_operation_info_reserved_b21_b23,
     NULL
   };
 
-  static int * const ieee80211_ht_info3_field[] = {
-    &hf_ieee80211_ht_info_reserved_b24_b29,
-    &hf_ieee80211_ht_info_dual_beacon,
-    &hf_ieee80211_ht_info_dual_cts_protection,
-    &hf_ieee80211_ht_info_secondary_beacon,
-    &hf_ieee80211_ht_info_lsig_txop_protection_full_support,
-    &hf_ieee80211_ht_info_pco_active,
-    &hf_ieee80211_ht_info_pco_phase,
-    &hf_ieee80211_ht_info_reserved_b36_b39,
+  static int * const ieee80211_ht_operation_info3_field[] = {
+    &hf_ieee80211_ht_operation_info_reserved_b24_b29,
+    &hf_ieee80211_ht_operation_info_dual_beacon,
+    &hf_ieee80211_ht_operation_info_dual_cts_protection,
+    &hf_ieee80211_ht_operation_info_stbc_beacon,
+    &hf_ieee80211_ht_operation_info_reserved_b33_b39,
     NULL
   };
 
   if (tag_len < 22) {
     expert_add_info_format(pinfo, field_data->item_tag_length, &ei_ieee80211_tag_length,
-                           "HT Information IE content length %u wrong, must be at least 22 bytes", tag_len);
+                           "HT Operation IE content length %u wrong, must be at least 22 bytes", tag_len);
     return 1;
   }
 
-  proto_tree_add_item(tree, hf_ieee80211_ht_info_primary_channel, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(tree, hf_ieee80211_ht_operation_primary_channel, tvb, offset, 1, ENC_LITTLE_ENDIAN);
   offset += 1;
 
-  proto_tree_add_bitmask_with_flags(tree, tvb, offset, hf_ieee80211_ht_info_delimiter1,
-                                    ett_ht_info_delimiter1_tree, ieee80211_ht_info1_field,
+  proto_tree_add_bitmask_with_flags(tree, tvb, offset, hf_ieee80211_ht_operation_info_delimiter1,
+                                    ett_ht_operation_info_delimiter1_tree, ieee80211_ht_operation_info1_field,
                                     ENC_LITTLE_ENDIAN, BMT_NO_APPEND);
   offset += 1;
 
 
-  proto_tree_add_bitmask_with_flags(tree, tvb, offset, hf_ieee80211_ht_info_delimiter2,
-                                    ett_ht_info_delimiter2_tree, ieee80211_ht_info2_field,
+  proto_tree_add_bitmask_with_flags(tree, tvb, offset, hf_ieee80211_ht_operation_info_delimiter2,
+                                    ett_ht_operation_info_delimiter2_tree, ieee80211_ht_operation_info2_field,
                                     ENC_LITTLE_ENDIAN, BMT_NO_APPEND);
   offset += 2;
 
-  proto_tree_add_bitmask_with_flags(tree, tvb, offset, hf_ieee80211_ht_info_delimiter3,
-                                    ett_ht_info_delimiter3_tree, ieee80211_ht_info3_field,
+  proto_tree_add_bitmask_with_flags(tree, tvb, offset, hf_ieee80211_ht_operation_info_delimiter3,
+                                    ett_ht_operation_info_delimiter3_tree, ieee80211_ht_operation_info3_field,
                                     ENC_LITTLE_ENDIAN, BMT_NO_APPEND);
   offset += 2;
 
-  offset = dissect_mcs_set(tree, tvb, offset, true, false);
+  /* Basic HT-MCS Set present in Beacon, Probe Response, Mesh Peering Open and Mesh Peering
+   * Confirm frames. Otherwise reserved.
+   */
+  if ((field_data->ftype && (field_data->ftype == MGT_BEACON || field_data->ftype == MGT_PROBE_RESP)) ||
+      (field_data->sanity_check && field_data->sanity_check->ampe_frame &&
+       (field_data->sanity_check->ampe_frame == SELFPROT_ACTION_MESH_PEERING_OPEN ||
+        field_data->sanity_check->ampe_frame == SELFPROT_ACTION_MESH_PEERING_CONFIRM))) {
+    offset = dissect_mcs_set(tree, tvb, offset, true, false);
+  } else {
+    proto_tree_add_item(tree, hf_ieee80211_ht_operation_mcsset_reserved,
+                        tvb, offset, 16, ENC_NA);
+    offset += 16;
+  }
 
   return offset;
 }
@@ -26409,7 +26407,7 @@ dissect_multiple_bssid_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
   const uint8_t invalid_ids[] = { TAG_TIM, TAG_DS_PARAMETER, TAG_IBSS_PARAMETER,
     TAG_COUNTRY_INFO, TAG_CHANNEL_SWITCH_ANN, TAG_EXTENDED_CHANNEL_SWITCH_ANNOUNCEMENT,
     TAG_WIDE_BW_CHANNEL_SWITCH, TAG_TX_PWR_ENVELOPE, TAG_SUPPORTED_OPERATING_CLASSES, TAG_IBSS_DFS,
-    TAG_ERP_INFO, TAG_ERP_INFO_OLD, TAG_HT_CAPABILITY, TAG_HT_INFO, TAG_VHT_CAPABILITY,
+    TAG_ERP_INFO, TAG_ERP_INFO_OLD, TAG_HT_CAPABILITY, TAG_HT_OPERATION, TAG_VHT_CAPABILITY,
     TAG_VHT_OPERATION, TAG_S1G_BEACON_COMPATIBILITY, TAG_SHORT_BEACON_INTERVAL,
     TAG_S1G_CAPABILITIES, TAG_S1G_OPERATION };
   const uint8_t invalid_ext_ids[] = { ETAG_HE_CAPABILITIES, ETAG_HE_OPERATION,
@@ -30173,7 +30171,7 @@ dissect_neighbor_report(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
         dissect_ht_capability_ie_common(sub_tag_tvb, pinfo, sub_tag_tree, 0, sub_tag_len, field_data->item_tag_length, false);
         break;
       case NR_SUB_ID_HT_OPERATION:
-        dissect_ht_info_ie_1_1(sub_tag_tvb, pinfo, sub_tag_tree, data);
+        dissect_ht_operation_ie(sub_tag_tvb, pinfo, sub_tag_tree, data);
         break;
       case NR_SUB_ID_SEC_CHANNEL_OFFSET:
         dissect_secondary_channel_offset_ie(sub_tag_tvb, pinfo, sub_tag_tree, data);
@@ -51060,110 +51058,100 @@ proto_register_ieee80211(void)
       FT_UINT8, BASE_HEX, NULL, 0x80,
       NULL, HFILL }},
 
-    {&hf_ieee80211_ht_info_delimiter1,
-     {"HT Information Subset (1 of 3)", "wlan.ht.info.delim1",
+    {&hf_ieee80211_ht_operation_info_delimiter1,
+     {"HT Operation Information Subset (1 of 3)", "wlan.ht.info.delim1",
       FT_UINT8, BASE_HEX, NULL, 0,
       NULL, HFILL }},
 
-    {&hf_ieee80211_ht_info_primary_channel,
+    {&hf_ieee80211_ht_operation_primary_channel,
      {"Primary Channel", "wlan.ht.info.primarychannel",
       FT_UINT8, BASE_DEC, NULL, 0,
       NULL, HFILL }},
 
-    {&hf_ieee80211_ht_info_secondary_channel_offset,
+    {&hf_ieee80211_ht_operation_info_secondary_channel_offset,
      {"Secondary channel offset", "wlan.ht.info.secchanoffset",
       FT_UINT8, BASE_HEX, VALS(ht_info_secondary_channel_offset_flags), 0x03,
       NULL, HFILL }},
 
-    {&hf_ieee80211_ht_info_sta_channel_width,
+    {&hf_ieee80211_ht_operation_info_sta_channel_width,
      {"Supported channel width", "wlan.ht.info.chanwidth",
       FT_BOOLEAN, 8, TFS(&ht_info_channel_sta_width_flag), 0x04,
       NULL, HFILL }},
 
-    {&hf_ieee80211_ht_info_rifs_mode,
+    {&hf_ieee80211_ht_operation_info_rifs_mode,
      {"Reduced Interframe Spacing (RIFS)", "wlan.ht.info.rifs",
       FT_BOOLEAN, 8, TFS(&ht_info_rifs_mode_flag), 0x08,
       NULL, HFILL }},
 
-    {&hf_ieee80211_ht_info_reserved_b4_b7,
+    {&hf_ieee80211_ht_operation_info_reserved_b4_b7,
      {"Reserved", "wlan.ht.info.reserved_b4_b7",
       FT_UINT8, BASE_HEX, NULL, 0xf0, NULL, HFILL }},
 
-    {&hf_ieee80211_ht_info_delimiter2,
-     {"HT Information Subset (2 of 3)", "wlan.ht.info.delim2",
+    {&hf_ieee80211_ht_operation_info_delimiter2,
+     {"HT Operation Information Subset (2 of 3)", "wlan.ht.info.delim2",
       FT_UINT16, BASE_HEX, NULL, 0,
       NULL, HFILL }},
 
-    {&hf_ieee80211_ht_info_protection,
+    {&hf_ieee80211_ht_operation_info_protection,
      {"HT Protection", "wlan.ht.info.ht_protection",
       FT_UINT16, BASE_HEX, VALS(ht_info_operating_protection_mode_flags), 0x0003,
       NULL, HFILL }},
 
-    {&hf_ieee80211_ht_info_non_greenfield_sta_present,
+    {&hf_ieee80211_ht_operation_info_non_greenfield_sta_present,
      {"Non-greenfield STAs present", "wlan.ht.info.greenfield",
       FT_BOOLEAN, 16, TFS(&ht_info_non_greenfield_sta_present_flag), 0x0004,
       NULL, HFILL }},
 
-    {&hf_ieee80211_ht_info_reserved_b11,
+    {&hf_ieee80211_ht_operation_info_reserved_b11,
      {"Reserved", "wlan.ht.info.reserved_b11",
       FT_UINT16, BASE_HEX, NULL, 0x0008, NULL, HFILL }},
 
-    {&hf_ieee80211_ht_info_obss_non_ht_stas_present,
+    {&hf_ieee80211_ht_operation_info_obss_non_ht_stas_present,
      {"OBSS non-HT STAs present", "wlan.ht.info.obssnonht",
       FT_BOOLEAN, 16, TFS(&ht_info_obss_non_ht_stas_present_flag), 0x0010,
       NULL, HFILL }},
 
-    {&hf_ieee80211_ht_info_channel_center_freq_seg_2,
+    {&hf_ieee80211_ht_operation_info_channel_center_freq_seg_2,
      {"Channel Center Frequency Segment 2", "wlan.ht.info.chan_center_freq_seg_2",
       FT_UINT16, BASE_DEC, NULL, 0x1fe0, NULL, HFILL }},
 
-    {&hf_ieee80211_ht_info_reserved_b21_b23,
+    {&hf_ieee80211_ht_operation_info_reserved_b21_b23,
      {"Reserved", "wlan.ht.info.reserved_b21_b23",
       FT_UINT16, BASE_HEX, NULL, 0xe000,
       NULL, HFILL }},
 
-    {&hf_ieee80211_ht_info_delimiter3,
-     {"HT Information Subset (3 of 3)", "wlan.ht.info.delim3",
+    {&hf_ieee80211_ht_operation_info_delimiter3,
+     {"HT Operation Information Subset (3 of 3)", "wlan.ht.info.delim3",
       FT_UINT16, BASE_HEX, NULL, 0,
       NULL, HFILL }},
 
-    {&hf_ieee80211_ht_info_reserved_b24_b29,
+    {&hf_ieee80211_ht_operation_info_reserved_b24_b29,
      {"Reserved", "wlan.ht.info.reserved_b24_b29",
       FT_UINT16, BASE_HEX, NULL, 0x003f, NULL, HFILL }},
 
-    {&hf_ieee80211_ht_info_dual_beacon,
+    {&hf_ieee80211_ht_operation_info_dual_beacon,
      {"Dual beacon", "wlan.ht.info.dualbeacon",
       FT_BOOLEAN, 16, TFS(&ht_info_dual_beacon_flag), 0x0040,
       NULL, HFILL }},
 
-    {&hf_ieee80211_ht_info_dual_cts_protection,
+    {&hf_ieee80211_ht_operation_info_dual_cts_protection,
      {"Dual Clear To Send (CTS) protection", "wlan.ht.info.dualcts",
       FT_BOOLEAN, 16, TFS(&tfs_required_not_required), 0x0080,
       NULL, HFILL }},
 
-    {&hf_ieee80211_ht_info_secondary_beacon,
-     {"Beacon ID", "wlan.ht.info.secondarybeacon",
-      FT_BOOLEAN, 16, TFS(&ht_info_secondary_beacon_flag), 0x0100,
+    {&hf_ieee80211_ht_operation_info_stbc_beacon,
+     {"STBC Beacon", "wlan.ht.info.stbcbeacon",
+      FT_BOOLEAN, 16, TFS(&ht_info_stbc_beacon_flag), 0x0100,
       NULL, HFILL }},
 
-    {&hf_ieee80211_ht_info_lsig_txop_protection_full_support,
-     {"L-SIG TXOP Protection Full Support", "wlan.ht.info.lsigprotsupport",
-      FT_BOOLEAN, 16, TFS(&ht_info_lsig_txop_protection_full_support_flag), 0x0200,
+    {&hf_ieee80211_ht_operation_info_reserved_b33_b39,
+     {"Reserved", "wlan.ht.info.reserved_b33_b39",
+      FT_UINT16, BASE_HEX, NULL, 0xfe00,
       NULL, HFILL }},
 
-    {&hf_ieee80211_ht_info_pco_active,
-     {"Phased Coexistence Operation (PCO)", "wlan.ht.info.pco.active",
-      FT_BOOLEAN, 16, TFS(&tfs_active_inactive), 0x0400,
-      NULL, HFILL }},
-
-    {&hf_ieee80211_ht_info_pco_phase,
-     {"Phased Coexistence Operation (PCO) Phase", "wlan.ht.info.pco.phase",
-      FT_BOOLEAN, 16, TFS(&ht_info_pco_phase_flag), 0x0800,
-      NULL, HFILL }},
-
-    {&hf_ieee80211_ht_info_reserved_b36_b39,
-     {"Reserved", "wlan.ht.info.reserved_b36_b39",
-      FT_UINT16, BASE_HEX, NULL, 0xf000,
+    {&hf_ieee80211_ht_operation_mcsset_reserved,
+     {"Basic HT-MCS Set: Reserved", "wlan.ht.info.mcsset_reserved",
+      FT_BYTES, BASE_NONE, NULL, 0x0,
       NULL, HFILL }},
 
     {&hf_ieee80211_tag_ap_channel_report_operating_class,
@@ -60475,9 +60463,9 @@ proto_register_ieee80211(void)
     &ett_vht_msa,
     &ett_vht_upa,
 
-    &ett_ht_info_delimiter1_tree,
-    &ett_ht_info_delimiter2_tree,
-    &ett_ht_info_delimiter3_tree,
+    &ett_ht_operation_info_delimiter1_tree,
+    &ett_ht_operation_info_delimiter2_tree,
+    &ett_ht_operation_info_delimiter3_tree,
 
     &ett_ff_ftm_param_delim1,
     &ett_ff_ftm_param_delim2,
@@ -61526,7 +61514,7 @@ proto_reg_handoff_ieee80211(void)
   dissector_add_uint("wlan.tag.number", TAG_PTI_CONTROL, create_dissector_handle(dissect_pti_control, -1));
   dissector_add_uint("wlan.tag.number", TAG_PU_BUFFER_STATUS, create_dissector_handle(dissect_pu_buffer_status, -1));
   dissector_add_uint("wlan.tag.number", TAG_HT_CAPABILITY, create_dissector_handle(dissect_ht_capability_ie, -1));
-  dissector_add_uint("wlan.tag.number", TAG_HT_INFO, create_dissector_handle(dissect_ht_info_ie_1_1, -1));
+  dissector_add_uint("wlan.tag.number", TAG_HT_OPERATION, create_dissector_handle(dissect_ht_operation_ie, -1));
   dissector_add_uint("wlan.tag.number", TAG_SECONDARY_CHANNEL_OFFSET, create_dissector_handle(dissect_secondary_channel_offset_ie, -1));
   dissector_add_uint("wlan.tag.number", TAG_RCPI, create_dissector_handle(dissect_rcpi_ie, -1));
   dissector_add_uint("wlan.tag.number", TAG_BSS_AVG_ACCESS_DELAY, create_dissector_handle(dissect_bss_avg_access_delay_ie, -1));

@@ -414,7 +414,7 @@ typedef struct anqp_info_dissector_data {
 #define TAG_DSE_REG_LOCATION          58
 #define TAG_SUPPORTED_OPERATING_CLASSES             59 /* IEEE Std 802.11w-2009 */
 #define TAG_EXTENDED_CHANNEL_SWITCH_ANNOUNCEMENT    60 /* IEEE Std 802.11w-2009 */
-#define TAG_HT_INFO                   61  /* IEEE Stc 802.11n/D2.0 */
+#define TAG_HT_OPERATION              61  /* IEEE Std 802.11n */
 #define TAG_SECONDARY_CHANNEL_OFFSET  62  /* IEEE Stc 802.11n/D1.10/D2.0 */
 #define TAG_BSS_AVG_ACCESS_DELAY      63
 #define TAG_ANTENNA                   64
