@@ -406,7 +406,7 @@ static int hf_tetra_location_update_type;         /* UPDATE_TYPE */
 static int hf_tetra_optional_elements_05;         /* T_optional_elements_05 */
 static int hf_tetra_type2_parameters_03;          /* T_type2_parameters_03 */
 static int hf_tetra_ssi_choice;                   /* T_ssi_choice */
-static int hf_tetra_ssi_01;                       /* OCTET_STRING_SIZE_3 */
+static int hf_tetra_ssi_oct_str;                  /* OCTET_STRING_SIZE_3 */
 static int hf_tetra_address_extension_choice;     /* T_address_extension_choice */
 static int hf_tetra_address_extension;            /* OCTET_STRING_SIZE_3 */
 static int hf_tetra_subscriber_class_choice;      /* T_subscriber_class_choice */
@@ -2261,7 +2261,7 @@ static const value_string tetra_T_ssi_choice_01_vals[] = {
 
 static const per_choice_t T_ssi_choice_01_choice[] = {
   {   0, &hf_tetra_none          , ASN1_NO_EXTENSIONS     , dissect_tetra_NULL },
-  {   1, &hf_tetra_ssi_01        , ASN1_NO_EXTENSIONS     , dissect_tetra_OCTET_STRING_SIZE_3 },
+  {   1, &hf_tetra_ssi_oct_str   , ASN1_NO_EXTENSIONS     , dissect_tetra_OCTET_STRING_SIZE_3 },
   { 0, NULL, 0, NULL }
 };
 
@@ -5751,7 +5751,7 @@ static const value_string tetra_T_ssi_choice_vals[] = {
 
 static const per_choice_t T_ssi_choice_choice[] = {
   {   0, &hf_tetra_none          , ASN1_NO_EXTENSIONS     , dissect_tetra_NULL },
-  {   1, &hf_tetra_ssi_01        , ASN1_NO_EXTENSIONS     , dissect_tetra_OCTET_STRING_SIZE_3 },
+  {   1, &hf_tetra_ssi_oct_str   , ASN1_NO_EXTENSIONS     , dissect_tetra_OCTET_STRING_SIZE_3 },
   { 0, NULL, 0, NULL }
 };
 
@@ -10582,8 +10582,8 @@ void proto_register_tetra (void)
       { "ssi", "tetra.ssi_choice",
         FT_UINT32, BASE_DEC, VALS(tetra_T_ssi_choice_vals), 0,
         "T_ssi_choice", HFILL }},
-    { &hf_tetra_ssi_01,
-      { "ssi", "tetra.ssi",
+    { &hf_tetra_ssi_oct_str,
+      { "ssi", "tetra.ssi_oct_str",
         FT_BYTES, BASE_NONE, NULL, 0,
         "OCTET_STRING_SIZE_3", HFILL }},
     { &hf_tetra_address_extension_choice,

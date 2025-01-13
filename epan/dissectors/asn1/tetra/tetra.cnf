@@ -80,9 +80,11 @@ MAC-END-DOWNLINK/tm-sdu tm-sdu-bit-str
 MAC-END-DOWN111/tm-sdu tm-sdu-bit-str
 GROUP-IDENTITY-DOWNLINK/address-type/gssi gssi-oct-str
 D-LOCATION-UPDATE-ACCEPT/optional-elements/type2-parameters/ssi ssi_choice
+D-LOCATION-UPDATE-ACCEPT/optional-elements/type2-parameters/ssi/ssi  ssi-oct-str
 D-LOCATION-UPDATE-ACCEPT/optional-elements/type2-parameters/address-extension address-extension_choice
 D-LOCATION-UPDATE-ACCEPT/optional-elements/type2-parameters/subscriber-class subscriber-class_choice
 U-LOCATION-UPDATE-DEMAND/optional-elements/type2-parameters/ssi ssi_choice
+U-LOCATION-UPDATE-DEMAND/optional-elements/type2-parameters/ssi/ssi  ssi-oct-str
 U-LOCATION-UPDATE-DEMAND/optional-elements/type2-parameters/address-extension address-extension_choice
 U-LOCATION-UPDATE-DEMAND/cipher-control cipher-control-choice
 U-LOCATION-UPDATE-DEMAND/optional-elements/type2-parameters/type3/type3-elements/group-report-response group-report-response-choice
