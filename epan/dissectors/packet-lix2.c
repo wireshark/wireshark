@@ -525,7 +525,7 @@ static int hf_lix2_accessInfo_item;               /* AccessInfo */
 static int hf_lix2_mAUpgradeIndication;           /* SMFMAUpgradeIndication */
 static int hf_lix2_ePSPDNCnxInfo;                 /* SMFEPSPDNCnxInfo */
 static int hf_lix2_mAAcceptedIndication;          /* SMFMAAcceptedIndication */
-static int hf_lix2_cause;                         /* SMFErrorCodes */
+static int hf_lix2_smfmapdusessionrelease_cause;  /* SMFErrorCodes */
 static int hf_lix2_pLMNID;                        /* PLMNID */
 static int hf_lix2_nID;                           /* NID */
 static int hf_lix2_establishmentStatus;           /* EstablishmentStatus */
@@ -669,17 +669,19 @@ static int hf_lix2_qCI;                           /* QCI */
 static int hf_lix2_uPGTPTunnelInfo;               /* GTPTunnelInfo */
 static int hf_lix2_bearerQOS;                     /* EPSBearerQOS */
 static int hf_lix2_epsbearercontextcreated_cause;  /* EPSBearerCreationCauseValue */
-static int hf_lix2_cause_01;                      /* EPSBearerModificationCauseValue */
+static int hf_lix2_epsbearercontextmodified_cause;  /* EPSBearerModificationCauseValue */
 static int hf_lix2_linkedBearerIDs;               /* SEQUENCE_OF_EPSBearerID */
 static int hf_lix2_linkedBearerIDs_item;          /* EPSBearerID */
 static int hf_lix2_linkedEPSBearerID;             /* EPSBearerID */
 static int hf_lix2_ePSBearerIDs;                  /* SEQUENCE_OF_EPSBearerID */
 static int hf_lix2_ePSBearerIDs_item;             /* EPSBearerID */
-static int hf_lix2_cause_02;                      /* EPSBearerDeletionCauseValue */
+static int hf_lix2_epsbearersdeleted_cause;       /* EPSBearerDeletionCauseValue */
 static int hf_lix2_deleteBearerResponse;          /* EPSDeleteBearerResponse */
+static int hf_lix2_epsdeletebearerresponse_cause;  /* EPSBearerDeletionCauseValue */
 static int hf_lix2_bearerContexts_01;             /* SEQUENCE_OF_EPSDeleteBearerContext */
 static int hf_lix2_bearerContexts_item_01;        /* EPSDeleteBearerContext */
-static int hf_lix2_cause_03;                      /* EPSBearerRemovalCauseValue */
+static int hf_lix2_epsdeletebearercontext_cause;  /* EPSBearerDeletionCauseValue */
+static int hf_lix2_epsbearercontextforremoval_cause;  /* EPSBearerRemovalCauseValue */
 static int hf_lix2_maximumUplinkBitRate;          /* BitrateBinKBPS */
 static int hf_lix2_maximumDownlinkBitRate;        /* BitrateBinKBPS */
 static int hf_lix2_guaranteedUplinkBitRate;       /* BitrateBinKBPS */
@@ -758,7 +760,7 @@ static int hf_lix2_requestedCurrentLocation;      /* BOOLEAN */
 static int hf_lix2_requestedRATType;              /* BOOLEAN */
 static int hf_lix2_requestedTimeZone;             /* BOOLEAN */
 static int hf_lix2_requestedServingNode;          /* BOOLEAN */
-static int hf_lix2_cause_04;                      /* UDMProblemDetailsCause */
+static int hf_lix2_udmproblemdetails_cause;       /* UDMProblemDetailsCause */
 static int hf_lix2_uDMDefinedCause;               /* UDMDefinedCause */
 static int hf_lix2_otherCause;                    /* UDMProblemDetailsOtherCause */
 static int hf_lix2_problemDetailsType;            /* UTF8String */
@@ -766,7 +768,7 @@ static int hf_lix2_title;                         /* UTF8String */
 static int hf_lix2_status;                        /* INTEGER */
 static int hf_lix2_detail;                        /* UTF8String */
 static int hf_lix2_instance;                      /* UTF8String */
-static int hf_lix2_cause_05;                      /* UTF8String */
+static int hf_lix2_udmproblemdetailsothercause;   /* UTF8String */
 static int hf_lix2_uDMInvalidParameters;          /* UDMInvalidParameters */
 static int hf_lix2_uDMSupportedFeatures;          /* UTF8String */
 static int hf_lix2_parameter;                     /* UTF8String */
@@ -1232,7 +1234,7 @@ static int hf_lix2_initailRANUEContextSetup;      /* EPSRANUEContext */
 static int hf_lix2_ePSNetworkPolicy;              /* EPSNetworkPolicy */
 static int hf_lix2_detachDirection;               /* MMEDirection */
 static int hf_lix2_detachType;                    /* EPSDetachType */
-static int hf_lix2_cause_06;                      /* EMMCause */
+static int hf_lix2_mmedetach_cause;               /* EMMCause */
 static int hf_lix2_traceActivationInfo;           /* TraceActivation */
 static int hf_lix2_eUTRANCGI;                     /* ECGI */
 static int hf_lix2_mMETraceData;                  /* XMLType */
@@ -1270,7 +1272,7 @@ static int hf_lix2_transportLayerAddress;         /* IPAddr */
 static int hf_lix2_uLGTPTEID;                     /* FTEID */
 static int hf_lix2_dLGTPTEID;                     /* FTEID */
 static int hf_lix2_ERABContextList_item;          /* ERABContext */
-static int hf_lix2_cause_07;                      /* EPSRANCause */
+static int hf_lix2_eraberror_cause;               /* EPSRANCause */
 static int hf_lix2_ERABReleaseList_item;          /* ERABError */
 static int hf_lix2_pLMN;                          /* PLMNID */
 static int hf_lix2_tACListInLTENTN;               /* TACList */
@@ -7866,7 +7868,7 @@ dissect_lix2_EPSBearerRemovalCauseValue(bool implicit_tag _U_, tvbuff_t *tvb _U_
 
 static const ber_sequence_t EPSBearerContextForRemoval_sequence[] = {
   { &hf_lix2_ePSBearerID    , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_lix2_EPSBearerID },
-  { &hf_lix2_cause_03       , BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_lix2_EPSBearerRemovalCauseValue },
+  { &hf_lix2_epsbearercontextforremoval_cause, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_lix2_EPSBearerRemovalCauseValue },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -8166,7 +8168,7 @@ dissect_lix2_SEQUENCE_OF_EPSBearerID(bool implicit_tag _U_, tvbuff_t *tvb _U_, i
 
 static const ber_sequence_t EPSBearerContextModified_sequence[] = {
   { &hf_lix2_ePSBearerID    , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_lix2_EPSBearerID },
-  { &hf_lix2_cause_01       , BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_lix2_EPSBearerModificationCauseValue },
+  { &hf_lix2_epsbearercontextmodified_cause, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_lix2_EPSBearerModificationCauseValue },
   { &hf_lix2_gTPTunnelInfo  , BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_GTPTunnelInfo },
   { &hf_lix2_bearerQOS      , BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_EPSBearerQOS },
   { &hf_lix2_protocolConfigurationOptions, BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_PDNProtocolConfigurationOptions },
@@ -8217,7 +8219,7 @@ dissect_lix2_EPSRANNASCause(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 
 
 static const ber_sequence_t EPSDeleteBearerContext_sequence[] = {
-  { &hf_lix2_cause_02       , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_lix2_EPSBearerDeletionCauseValue },
+  { &hf_lix2_epsdeletebearercontext_cause, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_lix2_EPSBearerDeletionCauseValue },
   { &hf_lix2_ePSBearerID    , BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_lix2_EPSBearerID },
   { &hf_lix2_protocolConfigurationOptions, BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_PDNProtocolConfigurationOptions },
   { &hf_lix2_rANNASCause    , BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_EPSRANNASCause },
@@ -8247,7 +8249,7 @@ dissect_lix2_SEQUENCE_OF_EPSDeleteBearerContext(bool implicit_tag _U_, tvbuff_t 
 
 
 static const ber_sequence_t EPSDeleteBearerResponse_sequence[] = {
-  { &hf_lix2_cause_02       , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_lix2_EPSBearerDeletionCauseValue },
+  { &hf_lix2_epsdeletebearerresponse_cause, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_lix2_EPSBearerDeletionCauseValue },
   { &hf_lix2_linkedEPSBearerID, BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_EPSBearerID },
   { &hf_lix2_bearerContexts_01, BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_SEQUENCE_OF_EPSDeleteBearerContext },
   { &hf_lix2_protocolConfigurationOptions, BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_PDNProtocolConfigurationOptions },
@@ -8267,7 +8269,7 @@ static const ber_sequence_t EPSBearersDeleted_sequence[] = {
   { &hf_lix2_linkedEPSBearerID, BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_EPSBearerID },
   { &hf_lix2_ePSBearerIDs   , BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_SEQUENCE_OF_EPSBearerID },
   { &hf_lix2_protocolConfigurationOptions, BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_PDNProtocolConfigurationOptions },
-  { &hf_lix2_cause_02       , BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_EPSBearerDeletionCauseValue },
+  { &hf_lix2_epsbearersdeleted_cause, BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_EPSBearerDeletionCauseValue },
   { &hf_lix2_deleteBearerResponse, BER_CLASS_CON, 5, BER_FLAGS_IMPLTAG, dissect_lix2_EPSDeleteBearerResponse },
   { NULL, 0, 0, 0, NULL }
 };
@@ -11732,7 +11734,7 @@ static const ber_sequence_t SMFMAPDUSessionRelease_sequence[] = {
   { &hf_lix2_uplinkVolume   , BER_CLASS_CON, 7, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_INTEGER },
   { &hf_lix2_downlinkVolume , BER_CLASS_CON, 8, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_INTEGER },
   { &hf_lix2_location       , BER_CLASS_CON, 9, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_Location },
-  { &hf_lix2_cause          , BER_CLASS_CON, 10, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_SMFErrorCodes },
+  { &hf_lix2_smfmapdusessionrelease_cause, BER_CLASS_CON, 10, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_SMFErrorCodes },
   { &hf_lix2_nGAPCause      , BER_CLASS_CON, 11, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_NGAPCauseInt },
   { &hf_lix2_fiveGMMCause   , BER_CLASS_CON, 12, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_FiveGMMCause },
   { &hf_lix2_pCCRuleIDs     , BER_CLASS_CON, 13, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_PCCRuleIDSet },
@@ -13345,7 +13347,7 @@ static const ber_sequence_t MMEDetach_sequence[] = {
   { &hf_lix2_iMEI           , BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_IMEI },
   { &hf_lix2_mSISDN         , BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_MSISDN },
   { &hf_lix2_gUTI_01        , BER_CLASS_CON, 6, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_GUTI },
-  { &hf_lix2_cause_06       , BER_CLASS_CON, 7, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_EMMCause },
+  { &hf_lix2_mmedetach_cause, BER_CLASS_CON, 7, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_EMMCause },
   { &hf_lix2_location       , BER_CLASS_CON, 8, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_Location },
   { &hf_lix2_switchOffIndicator, BER_CLASS_CON, 9, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_SwitchOffIndicator },
   { NULL, 0, 0, 0, NULL }
@@ -14870,7 +14872,7 @@ static const ber_sequence_t UDMProblemDetailsOtherCause_sequence[] = {
   { &hf_lix2_status         , BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_INTEGER },
   { &hf_lix2_detail         , BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_UTF8String },
   { &hf_lix2_instance       , BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_UTF8String },
-  { &hf_lix2_cause_05       , BER_CLASS_CON, 6, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_UTF8String },
+  { &hf_lix2_udmproblemdetailsothercause, BER_CLASS_CON, 6, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_UTF8String },
   { &hf_lix2_uDMInvalidParameters, BER_CLASS_CON, 7, BER_FLAGS_IMPLTAG, dissect_lix2_UDMInvalidParameters },
   { &hf_lix2_uDMSupportedFeatures, BER_CLASS_CON, 8, BER_FLAGS_IMPLTAG, dissect_lix2_UTF8String },
   { NULL, 0, 0, 0, NULL }
@@ -14908,7 +14910,7 @@ dissect_lix2_UDMProblemDetailsCause(bool implicit_tag _U_, tvbuff_t *tvb _U_, in
 
 
 static const ber_sequence_t UDMProblemDetails_sequence[] = {
-  { &hf_lix2_cause_04       , BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_lix2_UDMProblemDetailsCause },
+  { &hf_lix2_udmproblemdetails_cause, BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_lix2_UDMProblemDetailsCause },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -17857,7 +17859,7 @@ dissect_lix2_EPSRANCause(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 
 static const ber_sequence_t ERABError_sequence[] = {
   { &hf_lix2_eRABID         , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_lix2_EPSBearerID },
-  { &hf_lix2_cause_07       , BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_lix2_EPSRANCause },
+  { &hf_lix2_eraberror_cause, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_lix2_EPSRANCause },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -21562,8 +21564,8 @@ void proto_register_lix2(void) {
       { "mAAcceptedIndication", "lix2.mAAcceptedIndication",
         FT_BOOLEAN, BASE_NONE, NULL, 0,
         "SMFMAAcceptedIndication", HFILL }},
-    { &hf_lix2_cause,
-      { "cause", "lix2.cause",
+    { &hf_lix2_smfmapdusessionrelease_cause,
+      { "cause", "lix2.smfmapdusessionrelease_cause",
         FT_STRING, BASE_NONE, NULL, 0,
         "SMFErrorCodes", HFILL }},
     { &hf_lix2_pLMNID,
@@ -22138,8 +22140,8 @@ void proto_register_lix2(void) {
       { "cause", "lix2.epsbearercontextcreated_cause",
         FT_UINT32, BASE_DEC, NULL, 0,
         "EPSBearerCreationCauseValue", HFILL }},
-    { &hf_lix2_cause_01,
-      { "cause", "lix2.cause",
+    { &hf_lix2_epsbearercontextmodified_cause,
+      { "cause", "lix2.epsbearercontextmodified_cause",
         FT_UINT32, BASE_DEC, NULL, 0,
         "EPSBearerModificationCauseValue", HFILL }},
     { &hf_lix2_linkedBearerIDs,
@@ -22162,14 +22164,18 @@ void proto_register_lix2(void) {
       { "EPSBearerID", "lix2.EPSBearerID",
         FT_UINT32, BASE_DEC, NULL, 0,
         NULL, HFILL }},
-    { &hf_lix2_cause_02,
-      { "cause", "lix2.cause",
+    { &hf_lix2_epsbearersdeleted_cause,
+      { "cause", "lix2.epsbearersdeleted_cause",
         FT_UINT32, BASE_DEC, NULL, 0,
         "EPSBearerDeletionCauseValue", HFILL }},
     { &hf_lix2_deleteBearerResponse,
       { "deleteBearerResponse", "lix2.deleteBearerResponse_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "EPSDeleteBearerResponse", HFILL }},
+    { &hf_lix2_epsdeletebearerresponse_cause,
+      { "cause", "lix2.epsdeletebearerresponse_cause",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "EPSBearerDeletionCauseValue", HFILL }},
     { &hf_lix2_bearerContexts_01,
       { "bearerContexts", "lix2.bearerContexts",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -22178,8 +22184,12 @@ void proto_register_lix2(void) {
       { "EPSDeleteBearerContext", "lix2.EPSDeleteBearerContext_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-    { &hf_lix2_cause_03,
-      { "cause", "lix2.cause",
+    { &hf_lix2_epsdeletebearercontext_cause,
+      { "cause", "lix2.epsdeletebearercontext_cause",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "EPSBearerDeletionCauseValue", HFILL }},
+    { &hf_lix2_epsbearercontextforremoval_cause,
+      { "cause", "lix2.epsbearercontextforremoval_cause",
         FT_UINT32, BASE_DEC, NULL, 0,
         "EPSBearerRemovalCauseValue", HFILL }},
     { &hf_lix2_maximumUplinkBitRate,
@@ -22494,8 +22504,8 @@ void proto_register_lix2(void) {
       { "requestedServingNode", "lix2.requestedServingNode",
         FT_BOOLEAN, BASE_NONE, NULL, 0,
         "BOOLEAN", HFILL }},
-    { &hf_lix2_cause_04,
-      { "cause", "lix2.cause",
+    { &hf_lix2_udmproblemdetails_cause,
+      { "cause", "lix2.udmproblemdetails_cause",
         FT_UINT32, BASE_DEC, VALS(lix2_UDMProblemDetailsCause_vals), 0,
         "UDMProblemDetailsCause", HFILL }},
     { &hf_lix2_uDMDefinedCause,
@@ -22526,8 +22536,8 @@ void proto_register_lix2(void) {
       { "instance", "lix2.instance",
         FT_STRING, BASE_NONE, NULL, 0,
         "UTF8String", HFILL }},
-    { &hf_lix2_cause_05,
-      { "cause", "lix2.cause",
+    { &hf_lix2_udmproblemdetailsothercause,
+      { "cause", "lix2.udmproblemdetailsothercause",
         FT_STRING, BASE_NONE, NULL, 0,
         "UTF8String", HFILL }},
     { &hf_lix2_uDMInvalidParameters,
@@ -24390,8 +24400,8 @@ void proto_register_lix2(void) {
       { "detachType", "lix2.detachType",
         FT_UINT32, BASE_DEC, VALS(lix2_EPSDetachType_vals), 0,
         "EPSDetachType", HFILL }},
-    { &hf_lix2_cause_06,
-      { "cause", "lix2.cause",
+    { &hf_lix2_mmedetach_cause,
+      { "cause", "lix2.mmedetach_cause",
         FT_UINT32, BASE_DEC, NULL, 0,
         "EMMCause", HFILL }},
     { &hf_lix2_traceActivationInfo,
@@ -24542,8 +24552,8 @@ void proto_register_lix2(void) {
       { "ERABContext", "lix2.ERABContext_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-    { &hf_lix2_cause_07,
-      { "cause", "lix2.cause_element",
+    { &hf_lix2_eraberror_cause,
+      { "cause", "lix2.eraberror_cause_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "EPSRANCause", HFILL }},
     { &hf_lix2_ERABReleaseList_item,

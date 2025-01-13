@@ -29,7 +29,18 @@ XIRIPayload
 TraceActivationInfo/traceCollectionEntityIPAddress traceCollectionEntityIPAddress-choice
 AMFDeregistration/cause amfderegistration-cause
 SMFPDUSessionRelease/cause smfpdusessionrelease-cause
+SMFMAPDUSessionRelease/cause smfmapdusessionrelease-cause
 EPSBearerContextCreated/cause epsbearercontextcreated-cause
+EPSBearerContextModified/cause epsbearercontextmodified-cause
+EPSBearersDeleted/cause epsbearersdeleted-cause
+EPSDeleteBearerResponse/cause epsdeletebearerresponse-cause
+EPSDeleteBearerContext/cause epsdeletebearercontext-cause
+EPSBearerContextForRemoval/cause epsbearercontextforremoval-cause
+UDMProblemDetails/cause udmproblemdetails-cause
+UDMProblemDetailsOtherCause/cause udmproblemdetailsothercause
+MMEDetach/cause mmedetach-cause
+ERABError/cause eraberror-cause
+
 VLANTag/priority vlantag-priority
 MMSDeleteFromRelay/contentLocationReq contentLocationReq-seq
 MMSMBoxDelete/contentLocationReq contentLocationReq-seq
