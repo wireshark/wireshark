@@ -19,7 +19,7 @@ Stratoshark is hosted by the Wireshark Foundation, a nonprofit which promotes pr
 Stratoshark and the foundation depend on your contributions in order to do their work.
 If you or your organization would like to contribute or become a sponsor, please visit https://wiresharkfoundation.org[wiresharkfoundation.org].
 
-// == What’s New
+== What’s New
 
 // Add a summary of **major** changes here.
 // Add other changes to "New and Updated Features" below.

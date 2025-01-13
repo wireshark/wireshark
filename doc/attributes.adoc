@@ -60,6 +60,9 @@ endif::[]
 :wireshark-users-guide-url: {wireshark-main-url}docs/wsug_html_chunked/
 :wireshark-wiki-moin-import-url: {wireshark-wiki-url}uploads/__moin_import__/attachments/
 
+// Stratoshark top level URLs (sites)
+:stratoshark-main-url: https://stratoshark.org/
+
 // External URLs
 :tcpdump-main-url: https://www.tcpdump.org/
 :pcap-filter-man-page-url: {tcpdump-main-url}manpages/pcap-filter.7.html

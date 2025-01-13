@@ -955,12 +955,12 @@ xref:wireshark-filter.html[wireshark-filter](4), xref:tshark.html[tshark](1), xr
 
 This is the manual page for *Stratoshark* {stratoshark-version}.
 The latest version of *Stratoshark* can be found at
-{wireshark-main-url}.
+{stratoshark-main-url}.
 
 HTML versions of the Wireshark project man pages are available at
 {wireshark-man-page-url}.
 
 ////
-The Wireshark's User Guide is available at
-{wireshark-users-guide-url}.
+The Stratoshark's User Guide is available at
+{stratoshark-users-guide-url}.
 ////
