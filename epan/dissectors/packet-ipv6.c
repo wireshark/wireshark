@@ -2464,7 +2464,7 @@ dissect_opt_ioam_dex(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *
 
     extflags = tvb_get_bits8(tvb, offset*8, 8);
     proto_tree_add_bitmask(opt_tree, tvb, offset, hf_ipv6_opt_ioam_dex_extflags,
-                           ett_ipv6_opt_ioam_dex_extflags, ioam_dex_extflags, ENC_NA);
+                           ett_ipv6_opt_ioam_dex_extflags, ioam_dex_extflags, ENC_BIG_ENDIAN);
     offset++;
 
     proto_tree_add_bitmask(opt_tree, tvb, offset, hf_ipv6_opt_ioam_trace_type,
@@ -2472,12 +2472,12 @@ dissect_opt_ioam_dex(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *
     proto_tree_add_item(opt_tree, hf_ipv6_opt_ioam_trace_rsv, tvb, offset + 3, 1, ENC_NA);
     offset += 4;
 
-    if (extflags & 0x2) {
+    if (extflags & 0x80) {
         proto_tree_add_item(opt_tree, hf_ipv6_opt_ioam_dex_extflag_flowid, tvb, offset, 4, ENC_NA);
         offset+=4;
     }
 
-    if (extflags & 0x1) {
+    if (extflags & 0x40) {
         proto_tree_add_item(opt_tree, hf_ipv6_opt_ioam_dex_extflag_seqnum, tvb, offset, 4, ENC_NA);
         offset+=4;
     }
@@ -4907,22 +4907,22 @@ proto_register_ipv6(void)
         },
         { &hf_ipv6_opt_ioam_dex_extflags,
             { "Extension Flags", "ipv6.opt.ioam.dex.extflags",
-                FT_UINT8, BASE_DEC, NULL, 0x0,
+                FT_UINT8, BASE_HEX, NULL, 0x0,
                 NULL, HFILL }
         },
         { &hf_ipv6_opt_ioam_dex_extflag_flag_seqnum,
             { "Sequence Number", "ipv6.opt.ioam.dex.extflag.flag.seqnum",
-                FT_BOOLEAN, 8, NULL, 0x2,
+                FT_BOOLEAN, 8, NULL, 0x40,
                 NULL, HFILL }
         },
         { &hf_ipv6_opt_ioam_dex_extflag_flag_flowid,
             { "Flow ID", "ipv6.opt.ioam.dex.extflag.flag.flowid",
-                FT_BOOLEAN, 8, NULL, 0x1,
+                FT_BOOLEAN, 8, NULL, 0x80,
                 NULL, HFILL }
         },
         { &hf_ipv6_opt_ioam_dex_extflag_flag_rsv,
             { "Reserved", "ipv6.opt.ioam.trace.type.rsv",
-                FT_BOOLEAN, 8, NULL, 0xFC,
+                FT_BOOLEAN, 8, NULL, 0x3F,
                 NULL, HFILL }
         },
         { &hf_ipv6_opt_ioam_dex_extflag_flowid,
