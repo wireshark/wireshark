@@ -10124,7 +10124,7 @@ proto_register_dcerpc_netlogon(void)
 #endif
 
         { &hf_netlogon_neg_flags_1000000,
-          { "AES supported", "ntlmssp.neg_flags.na100000", FT_BOOLEAN, 32, TFS(&tfs_set_notset), NETLOGON_FLAG_AES, NULL, HFILL }},
+          { "AES supported", "ntlmssp.neg_flags.na1000000", FT_BOOLEAN, 32, TFS(&tfs_set_notset), NETLOGON_FLAG_AES, NULL, HFILL }},
 
 #if 0
         { &hf_netlogon_neg_flags_800000,
