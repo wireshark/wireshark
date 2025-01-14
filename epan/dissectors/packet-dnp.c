@@ -1646,13 +1646,33 @@ calculateCRCtvb(tvbuff_t *tvb, unsigned offset, unsigned len) {
   return ~crc;
 }
 
-/* calculate the extended sequence number - top 16 bits of the previous sequence number,
+/* calculate the extended sequence number - top 26 bits of the previous sequence number,
  * plus our own; then correct for wrapping */
 static uint32_t
-calculate_extended_seqno(uint32_t previous_seqno, uint8_t raw_seqno)
+calculate_extended_seqno(uint32_t previous_seqno, uint8_t raw_seqno, bool fir)
 {
   uint32_t seqno = (previous_seqno & 0xffffffc0) | raw_seqno;
-  if (seqno + 0x20 < previous_seqno) {
+  /* IEEE Std 1815-2012 8.3.1.4 Rules
+   * "Rule 4: A transport segment with the FIR bit set may have any
+   * sequence number from 0 to 63 without regard to prior history.
+   * Rule 5: 2) A received transport segment having the FIR bit set shall
+   * cause the entire, in-progress transport segment-series to be discarded,
+   * and a new transport segment-series shall be started with the newly
+   * received transport segment as its first member."
+   */
+  if (fir) {
+    /* This is to handle Rule 4 by advancing a cycle on a segment with the
+     * FIR bit set. If the implementation does not avail itself of Rule 4,
+     * and the sequence number is a rolling counter that increments for each
+     * transport segment (as opposed to resetting to 0 or anything else upon
+     * a segment with the FIR bit set), then we could skip this and be able
+     * to handle reordered segments received out of order after a segment with
+     * the FIR bit set belonging to a different segment-series.
+     *
+     * We would need a preference.
+     */
+    seqno += 0x40;
+  } else if (seqno + 0x20 < previous_seqno) {
     seqno += 0x40;
   } else if (previous_seqno + 0x20 < seqno) {
     /* we got an out-of-order packet which happened to go backwards over the
@@ -4211,7 +4231,7 @@ dissect_dnp3_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
         prev = tr_seq;
         conv = conversation_new_full(pinfo->num, conv_key);
       }
-      ext_seq = calculate_extended_seqno(prev, tr_seq);
+      ext_seq = calculate_extended_seqno(prev, tr_seq, tr_fir);
       /* The only thing we store right now is the 32 bit extended sequence
        * number, so we don't need a conversation_data type. */
       conversation_add_proto_data(conv, proto_dnp3, GUINT_TO_POINTER(ext_seq));
