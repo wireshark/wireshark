@@ -135,6 +135,7 @@ STRATOSHARK_LIST=(
     jsoncpp
     onetbb
     re2
+    uthash
 )
 
 ACTUAL_LIST=( "${BUILD_LIST[@]}" "${REQUIRED_LIST[@]}" )
