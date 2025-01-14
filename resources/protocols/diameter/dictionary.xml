@@ -9042,7 +9042,7 @@
 	<application id="16777302"	name="3GPP Sy"				uri="http://www.3gpp.org/ftp/Specs/html-info/29219.htm"/>
 	<application id="16777303"	name="3GPP Sd"				uri="http://www.3gpp.org/ftp/Specs/html-info/29212.htm"/>
 	<!-- application 16777304	is defined in Ericsson.xml -->
-	<!-- application 16777305       is defined in HP.xml -->
+	<!-- application 16777305   is defined in HP.xml -->
 	<application id="16777306"	name="ITU-T M9"				uri="http://www.itu.int/ITU-T/recommendations/rec.aspx?rec=11570"/>
 	<application id="16777307"	name="ITU-T M13"			uri="http://www.itu.int/ITU-T/recommendations/rec.aspx?rec=11712"/>
 	<application id="16777308"	name="3GPP S7a"				uri="http://www.3gpp.org/ftp/Specs/html-info/29272.htm"/>
@@ -9074,25 +9074,35 @@
 	<application id="16777334"	name="Rivada Xp"			uri="none"/>
 	<!-- application 16777335 (3GPP MB2-C)  is defined in TGPP.xml -->
 	<!-- application 16777336 (3GPP PC4a)	is defined in TGPP.xml -->
-	<application id="16777337"	name="3GPP PC2"				uri="http://www.3gpp.org/ftp/Specs/html-info/29343.htm"/>
-	<application id="16777338"	name="Juniper Domain Policy"		uri="none"/>
+	<application id="16777337"	name="3GPP PC2"					uri="http://www.3gpp.org/ftp/Specs/html-info/29343.htm"/>
+	<application id="16777338"	name="Juniper Domain Policy"	uri="none"/>
 	<application id="16777339"	name="Host Observer"			uri="none"/>
-	<application id="16777340"	name="3GPP PC6/PC7"			uri="http://www.3gpp.org/ftp/Specs/html-info/29345.htm"/>
+	<application id="16777340"	name="3GPP PC6/PC7"				uri="http://www.3gpp.org/ftp/Specs/html-info/29345.htm"/>
 	<!-- application 16777341	is defined in Nokia.xml -->
 	<application id="16777342"	name="3GPP Np"				uri="http://www.3gpp.org/ftp/Specs/html-info/29217.htm"/>
+	<application id="16777343"	name="Sandvine Location Relay Service"					uri="none"/>
+	<application id="16777344"	name="Sandvine Fairshare Traffic Management Service"	uri="none"/>
+	<application id="16777345"	name="3GPP S6t"				uri="http://www.3gpp.org/ftp/Specs/html-info/29336.htm"/>
 	<!-- application 16777346	is defined in TGPP.xml -->
+	<application id="16777347"	name="3GPP Ns"				uri="http://www.3gpp.org/ftp/Specs/html-info/29153.htm"/>
+	<application id="16777348"	name="3GPP Nt"				uri="http://www.3gpp.org/ftp/Specs/html-info/29154.htm"/>
+	<application id="16777349"	name="3GPP St"				uri="http://www.3gpp.org/ftp/Specs/html-info/29212.htm"/>
+	<application id="16777350"	name="3GPP PC2"				uri="http://www.3gpp.org/ftp/Specs/html-info/29343.htm"/>
+	<application id="16777351"	name="3GPP Diameter Data Management"				uri="http://www.3gpp.org/ftp/Specs/html-info/29283.htm"/>
+	<application id="16777352"	name="ITU-T M1"				uri="none"/>
+	<application id="16777353"	name="ITU-T M2"				uri="none"/>
+	<application id="16777354"	name="Verizon-NLS-WDS"		uri="none"/>
+	<application id="16777355"	name="3GPP V4"				uri="http://www.3gpp.org/ftp/Specs/html-info/29388.htm"/>
+	<application id="16777356"	name="3GPP V6"				uri="http://www.3gpp.org/ftp/Specs/html-info/29389.htm"/>
+	<application id="16777357"	name="OMN Adapt Application"				uri="none"/>
+	<application id="16777358"	name="3GPP Nta"				uri="http://www.3gpp.org/ftp/Specs/html-info/29154.htm"/>
+	<!-- application 16777359	is defined in Ericsson.xml -->
+	<application id="16777360"	name="GSMA-DESS"			uri="none"/>
+	<!-- application 16777361	is defined in Ericsson.xml -->
+	<application id="16777362"	name="OMN Protect Application"					uri="none"/>
+	<application id="16777363"	name="3GPP Sc"				uri="http://www.3gpp.org/ftp/Specs/html-info/29330.htm"/>
+	<application id="16777364"	name="OMN Message Replication"		uri="none"/>
 	<application id="16777999"	name="S6b Application (One-AAA)"	uri="none"/>
-  <!--
-16777341 Nokia Sdr Application [Timo_Perala]
-16777342 3GPP Np [3GPP TS 29.217][Kimmo_Kymalainen]
-16777343 Sandvine Location Relay Service [Inian_Vasanth]
-16777344 Sandvine Fairshare Traffic Management Service [Inian_Vasanth]
--->
-  	<application id="16777345"	name="3GPP S6t"	uri="http://www.3gpp.org/ftp/Specs/archive/29_series/29.336/29336-e20.zip"/>
-<!--
-16777347 3GPP Ns [3GPP TS 29.153][Kimmo_Kymalainen]
-16777348 3GPP Nt [3GPP TS 29.154][Kimmo_Kymalainen]
-  -->
 	<application id="4294967295"	name="Relay"				uri="http://tools.ietf.org/html/rfc6733"/>
 	<!-- *********************** End Application IDs ************************** -->
 

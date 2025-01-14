@@ -11,6 +11,8 @@
 <application id="16777304"	name="Ericsson Sy"			uri="none"/>
 <application id="16777315"	name="Ericsson Diameter Signalling Controller Application (DSC)" uri="none"/>
 <application id="16777327"	name="Ericsson Sx"			uri="none"/>
+<application id="16777359"	name="Ericsson Charging - SBI Policy"		uri="none"/>
+<application id="16777361"	name="Ericsson Charging - SBI Policy over Ericsson N28 Interface"		uri="none"/>
 
 <vendor vendor-id="Ericsson" code="193" name="Ericsson">
 <!-- *********** Last updated 2007-04-12 ************ -->
