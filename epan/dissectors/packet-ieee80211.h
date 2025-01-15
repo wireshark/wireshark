@@ -398,7 +398,7 @@ typedef struct anqp_info_dissector_data {
 #define TAG_ERP_INFO                  42
 #define TAG_TS_DELAY                  43
 #define TAG_TCLAS_PROCESS             44
-#define TAG_HT_CAPABILITY             45 /* IEEE Stc 802.11n/D2.0 */
+#define TAG_HT_CAPABILITY             45 /* IEEE Std 802.11n */
 #define TAG_QOS_CAPABILITY            46
 #define TAG_ERP_INFO_OLD              47 /* IEEE Std 802.11g/D4.0 */
 #define TAG_RSN_IE                    48

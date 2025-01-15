@@ -500,7 +500,7 @@ const value_string ie_tag_num_vals[] = {
   { TAG_ERP_INFO,                             "ERP Information" },
   { TAG_TS_DELAY,                             "TS Delay" },
   { TAG_TCLAS_PROCESS,                        "TCLAS Processing" },
-  { TAG_HT_CAPABILITY,                        "HT Capabilities (802.11n D1.10)" },
+  { TAG_HT_CAPABILITY,                        "HT Capabilities" },
   { TAG_QOS_CAPABILITY,                       "QoS Capability" },
   { TAG_ERP_INFO_OLD,                         "ERP Information" }, /* Reserved... */
   { TAG_RSN_IE,                               "RSN Information" },
@@ -2875,11 +2875,6 @@ static const true_false_string vht_ndp_annc_sta_info_feedback_type = {
   "SU feedback requested"
 };
 
-static const true_false_string ht_delayed_block_ack_flag = {
-  "Transmitter supports HT-Delayed BlockAck",
-  "Transmitter does not support HT-Delayed BlockAck"
-};
-
 static const true_false_string ht_max_amsdu_flag = {
   "7935 bytes",
   "3839 bytes"
@@ -2890,18 +2885,13 @@ static const true_false_string ht_dss_cck_40_flag = {
   "Won't/Can't use of DSSS/CCK in 40 MHz"
 };
 
-static const true_false_string ht_psmp_flag = {
-  "Will/Can support PSMP operation",
-  "Won't/Can't support PSMP operation"
-};
-
 static const true_false_string ht_40_mhz_intolerant_flag = {
   "Use of 40 MHz transmissions restricted/disallowed",
   "Use of 40 MHz transmissions unrestricted/allowed"
 };
 
 static const value_string ampduparam_mpdu_start_spacing_flags[] = {
-  {0x00, "no restriction"},
+  {0x00, "No restriction"},
   {0x01, "1/4 [usec]"},
   {0x02, "1/2 [usec]"},
   {0x03, "1 [usec]"},
@@ -2926,14 +2916,6 @@ static const value_string mcsset_tx_max_spatial_streams_flags[] = {
   {0x00, NULL}
 };
 
-static const value_string htex_transtime_flags[] = {
-  {0x00, "No Transition"},
-  {0x01, "400 usec"},
-  {0x02, "1.5 msec"},
-  {0x03, "5 msec"},
-  {0x00, NULL}
-};
-
 static const value_string htex_mcs_flags[] = {
   {0x00, "STA does not provide MCS feedback"},
   {0x01, "Reserved"},
@@ -2943,18 +2925,18 @@ static const value_string htex_mcs_flags[] = {
 };
 
 static const value_string txbf_calib_flag[] = {
-  {0x00, "incapable"},
-  {0x01, "Limited involvement, cannot initiate"},
-  {0x02, "Limited involvement, can initiate"},
-  {0x03, "Fully capable"},
+  {0x00, "Not supported"},
+  {0x01, "Can respond to a calibration request but cannot initiate calibration"},
+  {0x02, "Reserved"},
+  {0x03, "Can both initiate and respond to a calibration request"},
   {0x00, NULL}
 };
 
 static const value_string txbf_feedback_flags[] = {
-  {0x00, "not supported"},
-  {0x01, "delayed feedback capable"},
-  {0x02, "immediate feedback capable"},
-  {0x03, "delayed and immediate feedback capable"},
+  {0x00, "Not supported"},
+  {0x01, "Delayed feedback capable"},
+  {0x02, "Immediate feedback capable"},
+  {0x03, "Delayed and immediate feedback capable"},
   {0x00, NULL}
 };
 
@@ -5314,12 +5296,12 @@ static int hf_ieee80211_ht_short20;
 static int hf_ieee80211_ht_short40;
 static int hf_ieee80211_ht_tx_stbc;
 static int hf_ieee80211_ht_rx_stbc;
-static int hf_ieee80211_ht_delayed_block_ack;
+static int hf_ieee80211_ht_reserved_b10;
 static int hf_ieee80211_ht_max_amsdu;
 static int hf_ieee80211_ht_dss_cck_40;
-static int hf_ieee80211_ht_psmp;
+static int hf_ieee80211_ht_reserved_b13;
 static int hf_ieee80211_ht_40_mhz_intolerant;
-static int hf_ieee80211_ht_l_sig;
+static int hf_ieee80211_ht_reserved_b15;
 
 static int hf_ieee80211_ext_bss_mu_mimo_capable_sta_count;
 static int hf_ieee80211_ext_bss_ss_underutilization;
@@ -5692,11 +5674,11 @@ static int hf_ieee80211_mcsset_tx_unequal_modulation;
 
 static int hf_ieee80211_htex_cap;
 static int hf_ieee80211_htex_vs_cap;
-static int hf_ieee80211_htex_pco;
-static int hf_ieee80211_htex_transtime;
+static int hf_ieee80211_htex_reserved_b0_b7;
 static int hf_ieee80211_htex_mcs;
 static int hf_ieee80211_htex_htc_support;
 static int hf_ieee80211_htex_rd_responder;
+static int hf_ieee80211_htex_reserved_b12_b15;
 
 static int hf_ieee80211_txbf;
 static int hf_ieee80211_txbf_vs;
@@ -26595,21 +26577,21 @@ dissect_ht_capability_ie_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
     &hf_ieee80211_ht_short40,
     &hf_ieee80211_ht_tx_stbc,
     &hf_ieee80211_ht_rx_stbc,
-    &hf_ieee80211_ht_delayed_block_ack,
+    &hf_ieee80211_ht_reserved_b10,
     &hf_ieee80211_ht_max_amsdu,
     &hf_ieee80211_ht_dss_cck_40,
-    &hf_ieee80211_ht_psmp,
+    &hf_ieee80211_ht_reserved_b13,
     &hf_ieee80211_ht_40_mhz_intolerant,
-    &hf_ieee80211_ht_l_sig,
+    &hf_ieee80211_ht_reserved_b15,
     NULL
   };
 
   static int * const ieee80211_htex[] = {
-    &hf_ieee80211_htex_pco,
-    &hf_ieee80211_htex_transtime,
+    &hf_ieee80211_htex_reserved_b0_b7,
     &hf_ieee80211_htex_mcs,
     &hf_ieee80211_htex_htc_support,
     &hf_ieee80211_htex_rd_responder,
+    &hf_ieee80211_htex_reserved_b12_b15,
     NULL
   };
 
@@ -49000,11 +48982,11 @@ proto_register_ieee80211(void)
     {&hf_ieee80211_ht_rx_stbc,
      {"HT Rx STBC", "wlan.ht.capabilities.rxstbc",
       FT_UINT16, BASE_HEX, VALS(ht_rx_stbc_flag), 0x0300,
-      "HT Tx STBC", HFILL }},
+      NULL, HFILL }},
 
-    {&hf_ieee80211_ht_delayed_block_ack,
-     {"HT Delayed Block ACK", "wlan.ht.capabilities.delayedblockack",
-      FT_BOOLEAN, 16, TFS(&ht_delayed_block_ack_flag), 0x0400,
+    {&hf_ieee80211_ht_reserved_b10,
+     {"Reserved", "wlan.ht.capabilities.info_reserved_b10",
+      FT_UINT16, BASE_HEX, NULL, 0x0400,
       NULL, HFILL }},
 
     {&hf_ieee80211_ht_max_amsdu,
@@ -49017,9 +48999,9 @@ proto_register_ieee80211(void)
       FT_BOOLEAN, 16, TFS(&ht_dss_cck_40_flag), 0x1000,
       "HT DSS/CCK mode in 40MHz", HFILL }},
 
-    {&hf_ieee80211_ht_psmp,
-     {"HT PSMP Support", "wlan.ht.capabilities.psmp",
-      FT_BOOLEAN, 16, TFS(&ht_psmp_flag), 0x2000,
+    {&hf_ieee80211_ht_reserved_b13,
+     {"Reserved", "wlan.ht.capabilities.info_reserved_b13",
+      FT_UINT16, BASE_HEX, NULL, 0x2000,
       NULL, HFILL }},
 
     {&hf_ieee80211_ht_40_mhz_intolerant,
@@ -49027,9 +49009,9 @@ proto_register_ieee80211(void)
       FT_BOOLEAN, 16, TFS(&ht_40_mhz_intolerant_flag), 0x4000,
       NULL, HFILL }},
 
-    {&hf_ieee80211_ht_l_sig,
-     {"HT L-SIG TXOP Protection support", "wlan.ht.capabilities.lsig",
-      FT_BOOLEAN, 16, TFS(&tfs_supported_not_supported), 0x8000,
+    {&hf_ieee80211_ht_reserved_b15,
+     {"Reserved", "wlan.ht.capabilities.info_reserved_b15",
+      FT_UINT16, BASE_HEX, NULL, 0x8000,
       NULL, HFILL }},
 
     {&hf_ieee80211_ext_bss_mu_mimo_capable_sta_count,
@@ -50368,12 +50350,12 @@ proto_register_ieee80211(void)
       "Vendor Specific A-MPDU Parameters", HFILL }},
 
     {&hf_ieee80211_ampduparam_mpdu,
-     {"Maximum Rx A-MPDU Length", "wlan.ht.ampduparam.maxlength",
+     {"Maximum Rx A-MPDU Length Exponent", "wlan.ht.ampduparam.maxlength",
       FT_UINT8, BASE_HEX, NULL, 0x03,
       NULL, HFILL }},
 
     {&hf_ieee80211_ampduparam_mpdu_start_spacing,
-     {"MPDU Density", "wlan.ht.ampduparam.mpdudensity",
+     {"Minimum MPDU Start Spacing", "wlan.ht.ampduparam.mpdu_start_spacing",
       FT_UINT8, BASE_HEX, VALS(ampduparam_mpdu_start_spacing_flags), 0x1c,
       NULL, HFILL }},
 
@@ -50472,14 +50454,9 @@ proto_register_ieee80211(void)
       FT_UINT16, BASE_HEX, NULL, 0,
       "Vendor Specific HT Extended Capability information", HFILL }},
 
-    {&hf_ieee80211_htex_pco,
-     {"Transmitter supports PCO", "wlan.htex.capabilities.pco",
-      FT_BOOLEAN, 16, TFS(&tfs_supported_not_supported), 0x0001,
-      NULL, HFILL }},
-
-    {&hf_ieee80211_htex_transtime,
-     {"Time needed to transition between 20MHz and 40MHz", "wlan.htex.capabilities.transtime",
-      FT_UINT16, BASE_HEX, VALS(htex_transtime_flags), 0x0006,
+    {&hf_ieee80211_htex_reserved_b0_b7,
+     {"Reserved", "wlan.htex.capabilities.reserved_b0_b7",
+      FT_UINT16, BASE_HEX, NULL, 0x00ff,
       NULL, HFILL }},
 
     {&hf_ieee80211_htex_mcs,
@@ -50488,13 +50465,18 @@ proto_register_ieee80211(void)
       NULL, HFILL }},
 
     {&hf_ieee80211_htex_htc_support,
-     {"High Throughput", "wlan.htex.capabilities.htc",
+     {"HT variant HT Control field", "wlan.htex.capabilities.htc",
       FT_BOOLEAN, 16, TFS(&tfs_supported_not_supported), 0x0400,
       NULL, HFILL }},
 
     {&hf_ieee80211_htex_rd_responder,
      {"Reverse Direction Responder", "wlan.htex.capabilities.rdresponder",
       FT_BOOLEAN, 16, TFS(&tfs_supported_not_supported), 0x0800,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_htex_reserved_b12_b15,
+     {"Reserved", "wlan.htex.capabilities.reserved_b12_b15",
+      FT_UINT16, BASE_HEX, NULL, 0xf000,
       NULL, HFILL }},
 
     {&hf_ieee80211_txbf,
@@ -50508,7 +50490,7 @@ proto_register_ieee80211(void)
       "Vendor Specific Transmit Beam Forming (TxBF) Capabilities", HFILL }},
 
     {&hf_ieee80211_txbf_cap,
-     {"Transmit Beamforming", "wlan.txbf.txbf",
+     {"Implicit Transmit Beamforming Receiving", "wlan.txbf.txbf",
       FT_BOOLEAN, 32, TFS(&tfs_supported_not_supported), 0x00000001,
       NULL, HFILL }},
 
@@ -50533,9 +50515,9 @@ proto_register_ieee80211(void)
       NULL, HFILL }},
 
     {&hf_ieee80211_txbf_impl_txbf,
-     {"Implicit TxBF capable", "wlan.txbf.impltxbf",
+     {"Implicit Transmit Beamforming", "wlan.txbf.impltxbf",
       FT_BOOLEAN, 32, TFS(&tfs_supported_not_supported), 0x00000020,
-      "Implicit Transmit Beamforming (TxBF) capable", HFILL }},
+      NULL, HFILL }},
 
     {&hf_ieee80211_txbf_calib,
      {"Calibration", "wlan.txbf.calibration",
@@ -50543,39 +50525,39 @@ proto_register_ieee80211(void)
       NULL, HFILL }},
 
     {&hf_ieee80211_txbf_expl_csi,
-     {"STA can apply TxBF using CSI explicit feedback", "wlan.txbf.csi",
+     {"Explicit CSI Transmit Beamforming", "wlan.txbf.csi",
       FT_BOOLEAN, 32, TFS(&tfs_supported_not_supported), 0x00000100,
       "Station can apply TxBF using CSI explicit feedback", HFILL }},
 
     {&hf_ieee80211_txbf_expl_uncomp_fm,
-     {"STA can apply TxBF using uncompressed beamforming feedback matrix", "wlan.txbf.fm.uncompressed.tbf",
+     {"Explicit Noncompressed Steering", "wlan.txbf.fm.uncompressed.tbf",
       FT_BOOLEAN, 32, TFS(&tfs_supported_not_supported), 0x00000200,
       "Station can apply TxBF using uncompressed beamforming feedback matrix", HFILL }},
 
     {&hf_ieee80211_txbf_expl_comp_fm,
-     {"STA can apply TxBF using compressed beamforming feedback matrix", "wlan.txbf.fm.compressed.tbf",
+     {"Explicit Compressed Steering", "wlan.txbf.fm.compressed.tbf",
       FT_BOOLEAN, 32, TFS(&tfs_supported_not_supported), 0x00000400,
       "Station can apply TxBF using compressed beamforming feedback matrix", HFILL }},
 
     {&hf_ieee80211_txbf_expl_bf_csi,
-     {"Receiver can return explicit CSI feedback", "wlan.txbf.rcsi",
+     {"Explicit Transmit Beamforming CSI Feedback", "wlan.txbf.rcsi",
       FT_UINT32, BASE_HEX, VALS(txbf_feedback_flags), 0x00001800,
-      NULL, HFILL }},
+      "Receiver can return explicit CSI feedback", HFILL }},
 
     {&hf_ieee80211_txbf_expl_uncomp_fm_feed,
-     {"Receiver can return explicit uncompressed Beamforming Feedback Matrix", "wlan.txbf.fm.uncompressed.rbf",
+     {"Explicit Noncompressed Beamforming Feedback", "wlan.txbf.fm.uncompressed.rbf",
       FT_UINT32, BASE_HEX, VALS(txbf_feedback_flags), 0x00006000,
-      NULL, HFILL }},
+      "Receiver can return explicit uncompressed Beamforming Feedback Matrix", HFILL }},
 
     {&hf_ieee80211_txbf_expl_comp_fm_feed,
-     {"STA can compress and use compressed Beamforming Feedback Matrix", "wlan.txbf.fm.compressed.bf",
+     {"Explicit Noncompressed Beamforming Feedback", "wlan.txbf.fm.compressed.bf",
       FT_UINT32, BASE_HEX, VALS(txbf_feedback_flags), 0x00018000,
       "Station can compress and use compressed Beamforming Feedback Matrix", HFILL }},
 
     {&hf_ieee80211_txbf_min_group,
-     {"Minimal grouping used for explicit feedback reports", "wlan.txbf.mingroup",
+     {"Minimal Grouping", "wlan.txbf.mingroup",
       FT_UINT32, BASE_HEX, VALS(txbf_min_group_flags), 0x00060000,
-      NULL, HFILL }},
+      "Minimal grouping used for explicit feedback reports", HFILL }},
 
     {&hf_ieee80211_vht_cap,
      {"VHT Capabilities Info", "wlan.vht.capabilities",
@@ -50928,29 +50910,29 @@ proto_register_ieee80211(void)
       NULL, HFILL }},
 
     {&hf_ieee80211_txbf_csi_num_bf_ant,
-     {"Max antennae STA can support when CSI feedback required", "wlan.txbf.csinumant",
+     {"CSI Number of Beamformer Antennas", "wlan.txbf.csinumant",
       FT_UINT32, BASE_HEX, VALS(txbf_antenna_flags), 0x00180000,
       "Max antennae station can support when CSI feedback required", HFILL }},
 
     {&hf_ieee80211_txbf_uncomp_sm_bf_ant,
-     {"Max antennae STA can support when uncompressed Beamforming feedback required", "wlan.txbf.fm.uncompressed.maxant",
+     {"Noncompressed Steering Number of Beamformer Antennas", "wlan.txbf.fm.uncompressed.maxant",
       FT_UINT32, BASE_HEX, VALS(txbf_antenna_flags), 0x00600000,
       "Max antennae station can support when uncompressed Beamforming feedback required", HFILL }},
 
     {&hf_ieee80211_txbf_comp_sm_bf_ant,
-     {"Max antennae STA can support when compressed Beamforming feedback required", "wlan.txbf.fm.compressed.maxant",
+     {"Compressed Steering Number of Beamformer Antennas", "wlan.txbf.fm.compressed.maxant",
       FT_UINT32, BASE_HEX, VALS(txbf_antenna_flags), 0x01800000,
       "Max antennae station can support when compressed Beamforming feedback required", HFILL }},
 
     {&hf_ieee80211_txbf_csi_max_rows_bf,
-     {"Maximum number of rows of CSI explicit feedback", "wlan.txbf.csi.maxrows",
+     {"CSI Max Number of Rows Beamformer", "wlan.txbf.csi.maxrows",
       FT_UINT32, BASE_HEX, VALS(txbf_csi_max_rows_bf_flags), 0x06000000,
-      NULL, HFILL }},
+      "Maximum number of rows of CSI explicit feedback", HFILL }},
 
     {&hf_ieee80211_txbf_chan_est,
-     {"Maximum number of space time streams for which channel dimensions can be simultaneously estimated", "wlan.txbf.channelest",
+     {"Channel Estimation", "wlan.txbf.channelest",
       FT_UINT32, BASE_HEX, VALS(txbf_chan_est_flags), 0x18000000,
-      NULL, HFILL }},
+      "Maximum number of space time streams for which channel dimensions can be simultaneously estimated", HFILL }},
 
     {&hf_ieee80211_txbf_resrv,
      {"Reserved", "wlan.txbf.reserved",
