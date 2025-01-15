@@ -1380,20 +1380,22 @@ bool extcap_session_stop(capture_session *cap_session)
             if (fd != -1) {
                 close(fd);
             }
-            /* the fifo will not be freed here, but with the other capture_opts in capture_sync */
             ws_unlink(interface_opts->extcap_fifo);
             get_dirname(interface_opts->extcap_fifo);
             rmdir(interface_opts->extcap_fifo);
+            g_free(interface_opts->extcap_fifo);
             interface_opts->extcap_fifo = NULL;
         }
         if (interface_opts->extcap_control_in && file_exists(interface_opts->extcap_control_in))
         {
             ws_unlink(interface_opts->extcap_control_in);
+            g_free(interface_opts->extcap_control_in);
             interface_opts->extcap_control_in = NULL;
         }
         if (interface_opts->extcap_control_out && file_exists(interface_opts->extcap_control_out))
         {
             ws_unlink(interface_opts->extcap_control_out);
+            g_free(interface_opts->extcap_control_out);
             interface_opts->extcap_control_out = NULL;
         }
 #endif
