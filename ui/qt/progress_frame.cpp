@@ -257,7 +257,7 @@ void ProgressFrame::hide()
     QFrame::hide();
 #ifdef QWINTASKBARPROGRESS_H
     if (taskbar_progress_) {
-        disconnect(this, &ProgressFrame::valueChanged(int)), taskbar_progress_, &QWinTaskbarProgress::setValue);
+        disconnect(this, &ProgressFrame::valueChanged, taskbar_progress_, &QWinTaskbarProgress::setValue);
         taskbar_progress_->reset();
         taskbar_progress_->hide();
     }
