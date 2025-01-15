@@ -356,7 +356,23 @@ static int hf_oran_user_group_id;
 static int hf_oran_entry_type;
 static int hf_oran_dmrs_port_number;
 static int hf_oran_ueid_reset;
+
 static int hf_oran_dmrs_symbol_mask;
+static int hf_oran_dmrs_symbol_mask_s13;
+static int hf_oran_dmrs_symbol_mask_s12;
+static int hf_oran_dmrs_symbol_mask_s11;
+static int hf_oran_dmrs_symbol_mask_s10;
+static int hf_oran_dmrs_symbol_mask_s9;
+static int hf_oran_dmrs_symbol_mask_s8;
+static int hf_oran_dmrs_symbol_mask_s7;
+static int hf_oran_dmrs_symbol_mask_s6;
+static int hf_oran_dmrs_symbol_mask_s5;
+static int hf_oran_dmrs_symbol_mask_s4;
+static int hf_oran_dmrs_symbol_mask_s3;
+static int hf_oran_dmrs_symbol_mask_s2;
+static int hf_oran_dmrs_symbol_mask_s1;
+static int hf_oran_dmrs_symbol_mask_s0;
+
 static int hf_oran_scrambling;
 static int hf_oran_nscid;
 static int hf_oran_dtype;
@@ -444,6 +460,8 @@ static int ett_oran_c_section;
 static int ett_oran_remask;
 static int ett_oran_symbol_reordering_layer;
 static int ett_oran_dmrs_entry;
+static int ett_oran_dmrs_symbol_mask;
+
 
 /* Don't want all extensions to open and close together. Use extType-1 entry */
 static int ett_oran_c_section_extension[HIGHEST_EXTTYPE];
@@ -757,6 +775,15 @@ static const value_string meas_type_id_vals[] = {
 static const value_string beam_type_vals[] = {
     { 0,  "List of beamId values" },
     { 1,  "Range of beamId values" },
+    { 0, NULL}
+};
+
+/* 7.7.24.3 */
+static const value_string entry_type_vals[] = {
+    { 0,  "inherit config from preceding entry (2 or 3) ueIdReset=0" },
+    { 1,  "inherit config from preceding entry (2 or 3) ueIdReset=1" },
+    { 2,  "have transform precoding disabled" },
+    { 3,  "have transform precoding enabled" },
     { 0, NULL}
 };
 
@@ -3643,16 +3670,35 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
 
                         case 2:
                         case 3:
+                        {
                             /* Type 2/3 are very similar.. */
 
                             /* ueIdReset (1 bit) */
                             proto_tree_add_item(entry_tree, hf_oran_ueid_reset, tvb, offset, 1, ENC_BIG_ENDIAN);
                             /* reserved (1 bit) */
                             proto_tree_add_item(entry_tree, hf_oran_reserved_bit1, tvb, offset, 1, ENC_BIG_ENDIAN);
+
                             /* dmrsSymbolMask (14 bits) */
-                            /* TODO: break down into separate mask fields? */
-                            proto_tree_add_item(entry_tree, hf_oran_dmrs_symbol_mask, tvb, offset, 2, ENC_BIG_ENDIAN);
-                            offset += 2;
+                            static int * const  dmrs_symbol_mask_flags[] = {
+                                &hf_oran_dmrs_symbol_mask_s13,
+                                &hf_oran_dmrs_symbol_mask_s12,
+                                &hf_oran_dmrs_symbol_mask_s11,
+                                &hf_oran_dmrs_symbol_mask_s10,
+                                &hf_oran_dmrs_symbol_mask_s9,
+                                &hf_oran_dmrs_symbol_mask_s8,
+                                &hf_oran_dmrs_symbol_mask_s7,
+                                &hf_oran_dmrs_symbol_mask_s6,
+                                &hf_oran_dmrs_symbol_mask_s5,
+                                &hf_oran_dmrs_symbol_mask_s4,
+                                &hf_oran_dmrs_symbol_mask_s3,
+                                &hf_oran_dmrs_symbol_mask_s2,
+                                &hf_oran_dmrs_symbol_mask_s1,
+                                &hf_oran_dmrs_symbol_mask_s0,
+                                NULL
+                            };
+                            proto_tree_add_bitmask(entry_tree, tvb, offset,
+                                                   hf_oran_dmrs_symbol_mask, ett_oran_dmrs_symbol_mask, dmrs_symbol_mask_flags, ENC_BIG_ENDIAN);
+
 
                             /* scrambling */
                             proto_tree_add_item(entry_tree, hf_oran_scrambling, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -3689,13 +3735,15 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                             proto_tree_add_item(entry_tree, hf_oran_reserved_16bits, tvb, offset, 2, ENC_BIG_ENDIAN);
                             offset += 2;
                             break;
+                        }
 
                         default:
                             /* reserved - expert info */
                             break;
                     }
 
-                    proto_item_append_text(entry_ti, " (type=%u)", entry_type);
+                    proto_item_append_text(entry_ti, " (type %u - %s)",
+                                           entry_type, val_to_str_const(entry_type, entry_type_vals, "Unknown"));
                     proto_item_set_end(entry_ti, tvb, offset);
                 }
                 break;
@@ -3884,9 +3932,11 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
             offset += 2;
 
             /* Summary for measurement report root */
-            proto_item_append_text(mr_ti, " (%s)", val_to_str_const(meas_type_id, meas_type_id_vals, "unknown"));
+            proto_item_append_text(mr_ti, " (measTypeId=%u - %s)",
+                                   meas_type_id, val_to_str_const(meas_type_id, meas_type_id_vals, "unknown"));
             /* And section header */
-            proto_item_append_text(tree, " (%s)", val_to_str_const(meas_type_id, meas_type_id_vals, "unknown"));
+            proto_item_append_text(tree, " (measTypeId=%u - %s)",
+                                   meas_type_id, val_to_str_const(meas_type_id, meas_type_id_vals, "unknown"));
 
             switch (meas_type_id) {
                 case 1:
@@ -7790,7 +7840,7 @@ proto_register_oran(void)
         { &hf_oran_entry_type,
           { "entryType", "oran_fh_cus.entryType",
             FT_UINT8, BASE_DEC,
-            NULL, 0xe0,
+            VALS(entry_type_vals), 0xe0,
             "indicates format of the entry", HFILL}
         },
         /* 7.7.24.9 */
@@ -7814,6 +7864,91 @@ proto_register_oran(void)
             NULL, 0x3fff,
             "symbols within the slot containing DMRS", HFILL}
         },
+        { &hf_oran_dmrs_symbol_mask_s13,
+          { "symbol 13", "oran_fh_cus.dmrsSymbolMask.symbol-13",
+            FT_BOOLEAN, 16,
+            TFS(&tfs_present_not_present), 0x2000,
+            NULL, HFILL}
+        },
+        { &hf_oran_dmrs_symbol_mask_s12,
+          { "symbol 12", "oran_fh_cus.dmrsSymbolMask.symbol-12",
+            FT_BOOLEAN, 16,
+            TFS(&tfs_present_not_present), 0x1000,
+            NULL, HFILL}
+        },
+        { &hf_oran_dmrs_symbol_mask_s11,
+          { "symbol 11", "oran_fh_cus.dmrsSymbolMask.symbol-11",
+            FT_BOOLEAN, 16,
+            TFS(&tfs_present_not_present), 0x0800,
+            NULL, HFILL}
+        },
+        { &hf_oran_dmrs_symbol_mask_s10,
+          { "symbol 10", "oran_fh_cus.dmrsSymbolMask.symbol-10",
+            FT_BOOLEAN, 16,
+            TFS(&tfs_present_not_present), 0x0400,
+            NULL, HFILL}
+        },
+        { &hf_oran_dmrs_symbol_mask_s9,
+          { "symbol 9", "oran_fh_cus.dmrsSymbolMask.symbol-9",
+            FT_BOOLEAN, 16,
+            TFS(&tfs_present_not_present), 0x0200,
+            NULL, HFILL}
+        },
+        { &hf_oran_dmrs_symbol_mask_s8,
+          { "symbol 8", "oran_fh_cus.dmrsSymbolMask.symbol-8",
+            FT_BOOLEAN, 16,
+            TFS(&tfs_present_not_present), 0x0100,
+            NULL, HFILL}
+        },
+        { &hf_oran_dmrs_symbol_mask_s7,
+          { "symbol 7", "oran_fh_cus.dmrsSymbolMask.symbol-7",
+            FT_BOOLEAN, 16,
+            TFS(&tfs_present_not_present), 0x0080,
+            NULL, HFILL}
+        },
+        { &hf_oran_dmrs_symbol_mask_s6,
+          { "symbol 6", "oran_fh_cus.dmrsSymbolMask.symbol-6",
+            FT_BOOLEAN, 16,
+            TFS(&tfs_present_not_present), 0x0040,
+            NULL, HFILL}
+        },
+        { &hf_oran_dmrs_symbol_mask_s5,
+          { "symbol 5", "oran_fh_cus.dmrsSymbolMask.symbol-5",
+            FT_BOOLEAN, 16,
+            TFS(&tfs_present_not_present), 0x0020,
+            NULL, HFILL}
+        },
+        { &hf_oran_dmrs_symbol_mask_s4,
+          { "symbol 4", "oran_fh_cus.dmrsSymbolMask.symbol-4",
+            FT_BOOLEAN, 16,
+            TFS(&tfs_present_not_present), 0x0010,
+            NULL, HFILL}
+        },
+        { &hf_oran_dmrs_symbol_mask_s3,
+          { "symbol 3", "oran_fh_cus.dmrsSymbolMask.symbol-3",
+            FT_BOOLEAN, 16,
+            TFS(&tfs_present_not_present), 0x0008,
+            NULL, HFILL}
+        },
+        { &hf_oran_dmrs_symbol_mask_s2,
+          { "symbol 2", "oran_fh_cus.dmrsSymbolMask.symbol-2",
+            FT_BOOLEAN, 16,
+            TFS(&tfs_present_not_present), 0x0004,
+            NULL, HFILL}
+        },
+        { &hf_oran_dmrs_symbol_mask_s1,
+          { "symbol 1", "oran_fh_cus.dmrsSymbolMask.symbol-1",
+            FT_BOOLEAN, 16,
+            TFS(&tfs_present_not_present), 0x0002,
+            NULL, HFILL}
+        },
+        { &hf_oran_dmrs_symbol_mask_s0,
+          { "symbol 0", "oran_fh_cus.dmrsSymbolMask.symbol-0",
+            FT_BOOLEAN, 16,
+            TFS(&tfs_present_not_present), 0x0001,
+            NULL, HFILL}
+        },
+
         /* 7.7.24.12 */
         { &hf_oran_scrambling,
           { "scrambling", "oran_fh_cus.scrambling",
@@ -8082,7 +8217,8 @@ proto_register_oran(void)
         &ett_oran_c_section,
         &ett_oran_remask,
         &ett_oran_symbol_reordering_layer,
-        &ett_oran_dmrs_entry
+        &ett_oran_dmrs_entry,
+        &ett_oran_dmrs_symbol_mask
     };
 
     static int *ext_ett[HIGHEST_EXTTYPE];
