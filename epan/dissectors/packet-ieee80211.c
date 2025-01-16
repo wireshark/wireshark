@@ -2256,8 +2256,8 @@ static const value_string ff_fst_action_flags[] = {
 static const value_string ff_robust_av_streaming_action_flags[] = {
   {ROBUST_AV_STREAMING_SCS_REQUEST,          "SCS Request"},
   {ROBUST_AV_STREAMING_SCS_RESPONSE,         "SCS Response"},
-  {ROBUST_AV_STREAMING_GROUP_MEMBERSHIP_REQ, "Group Membership  Request"},
-  {ROBUST_AV_STREAMING_GROUP_MEMBERSHIP_RSP, "SCS Request"},
+  {ROBUST_AV_STREAMING_GROUP_MEMBERSHIP_REQ, "Group Membership Request"},
+  {ROBUST_AV_STREAMING_GROUP_MEMBERSHIP_RSP, "Group Membership Response"},
   {ROBUST_AV_STREAMING_MSCS_REQUEST,         "MSCS Request"},
   {ROBUST_AV_STREAMING_MSCS_RESPONSE,        "MSCS Response"},
   {0x00, NULL}
@@ -2641,7 +2641,7 @@ static const value_string ba_action_codes[] = {
   {BA_NDP_ADD_BLOCK_ACK_RESPONSE, "NDP ADDBA Response"},
   {BA_NDP_DELETE_BLOCK_ACK,       "NDP DELBA"},
   {BA_BAT_ADD_BLOCK_ACK_REQUEST,  "BAT ADDBA Request"},
-  {BA_BAT_ADD_BLOCK_ACK_RESPONSE, "BAT ADDBA Request"},
+  {BA_BAT_ADD_BLOCK_ACK_RESPONSE, "BAT ADDBA Response"},
   {BA_BAT_DELETE_BLOCK_ACK,       "BAT DELBA"},
   {0x00, NULL}
 };
@@ -3440,8 +3440,8 @@ static const value_string prot_s1g_action_vals[] = {
 static const value_string twt_neg_type_vals[] = {
   {0x0, "Individual TWT"},
   {0x1, "Wake TBTT"},
-  {0x2, "Broadcast TWT"},
-  {0x3, "Broadcast TWT"},
+  {0x2, "Broadcast TWT schedule, TWT element in broadcast management frame"},
+  {0x3, "Broadcast TWT schedule, TWT element in unicast management frame"},
   {0,   NULL},
 };
 
