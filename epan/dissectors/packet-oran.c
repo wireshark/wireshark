@@ -4486,7 +4486,11 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo,
         expert_add_info_format(pinfo, seq_id_ti, &ei_oran_cplane_unexpected_sequence_number,
                                "Sequence number %u expected, but got %u",
                                result->expected_sequence_number, seq_id);
-        tap_info->missing_sns = (seq_id - result->expected_sequence_number) % 256;
+        uint32_t missing_sns = (256 + seq_id - result->expected_sequence_number) % 256;
+        /* Don't get confused by being slightly out of order.. */
+        if (missing_sns < 128) {
+            tap_info->missing_sns = missing_sns;
+        }
         /* TODO: could add previous/next frames (in seqId tree?) ? */
     }
 
@@ -5954,6 +5958,7 @@ dissect_oran(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
     /* Allocate and zero tap struct */
     oran_tap_info *tap_info = wmem_new0(wmem_file_scope(), oran_tap_info);
+    tap_info->pdu_size = pinfo->fd->pkt_len;
 
     switch (ecpri_message_type) {
         case ECPRI_MT_IQ_DATA:

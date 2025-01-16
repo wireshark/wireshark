@@ -26,6 +26,7 @@ enum {
     EAXC_COLUMN,
     DIRECTION_COLUMN,
     NUM_FRAMES_COLUMN,
+    LARGEST_PDU_COLUMN,
     SECTIONS_COLUMN,
     EXTENSIONS_COLUMN,
     HIGHEST_SLOT_COLUMN,
@@ -37,7 +38,8 @@ static const char *flow_titles[] = { " Plane    ",
                                      "eAxC ID",
                                      "Direction    ",
                                      "Frames   ",
-                                     "Section Types           ",
+                                     "Largest PDU   ",
+                                     "Section Types        ",
                                      "Extensions",
                                      "Highest Slot",
                                      "Missing SNs"
@@ -48,6 +50,7 @@ typedef struct oran_row_data {
     oran_tap_info base_info;
     /* Data accumulated over lifetime of flow */
     uint32_t      num_frames;
+    uint32_t      largest_pdu;
     uint32_t      highest_slot;
     uint32_t      missing_sns;
 } oran_row_data;
@@ -129,6 +132,10 @@ oran_stat_packet(void *phs, packet_info *pinfo _U_, epan_dissect_t *edt _U_,
         }
     }
 
+    if (si->pdu_size > row->largest_pdu) {
+        row->largest_pdu = si->pdu_size;
+    }
+
     /* Other updates to flow */
     row->num_frames++;
     row->highest_slot = MAX(row->highest_slot, si->slot);
@@ -188,7 +195,7 @@ oran_stat_draw(void *phs)
         printf("%s  ", flow_titles[i]);
     }
     /* Divider before rows */
-    printf("\n==============================================================================================================\n");
+    printf("\n============================================================================================================================\n");
 
     /* Write a row for each flow */
     for (tmp = list; tmp; tmp=tmp->next) {
@@ -200,7 +207,9 @@ oran_stat_draw(void *phs)
 
         char extensions[128];
         int extensions_offset = 0;
-        extensions[0] = '\0';
+        extensions[0] = '-';
+        extensions[1] = '\0';
+
 
         /* Some fields only apply to c-plane */
         if (!row->base_info.userplane) {
@@ -220,11 +229,12 @@ oran_stat_draw(void *phs)
         }
 
         /* Print this row */
-        printf("%8s %4u      %10s       %6u   %16s %20s  %2u          %4u\n",
-               (row->base_info.userplane) ? "U-Plane" : "C-Plane",
+        printf("%s %11u %16s %11u %15u %18s %18s %13u %12u\n",
+               (row->base_info.userplane) ? "U" : "C",
                row->base_info.eaxc,
                (row->base_info.uplink) ? "Uplink" : "Downlink",
                row->num_frames,
+               row->largest_pdu,
                sections,
                extensions,
                row->highest_slot,

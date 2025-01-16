@@ -37,6 +37,7 @@ typedef struct oran_tap_info {
     uint32_t missing_sns;
     /* TODO: repeated SNs? */
     /* Accumulated state */
+    uint32_t pdu_size;
     bool     section_types[SEC_C_MAX_INDEX];
     bool     extensions[HIGHEST_EXTTYPE+1];    /* wasting first entry */
 
