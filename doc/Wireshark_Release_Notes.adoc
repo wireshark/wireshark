@@ -170,6 +170,7 @@ Lenbrook Service Discovery Protocol (LSDP)
 Network Time Security Key Establishment Protocol (NTS-KE)
 Roughtime (Roughtime)
 Universal Measurement and Calibration Protocol (XCP)
+vSomeIP Internal Protocol (vSomeIP)
 --
 
 === Updated Protocol Support
