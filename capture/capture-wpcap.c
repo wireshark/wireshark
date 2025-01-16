@@ -26,6 +26,7 @@
 
 #include "capture/capture-wpcap.h"
 #include <wsutil/feature_list.h>
+#include <wsutil/application_flavor.h>
 
 bool has_npcap;
 
@@ -771,7 +772,7 @@ get_remote_interface_list(const char *hostname, const char *port,
 			  int auth_type, const char *username,
 			  const char *passwd, int *err, char **err_str)
 {
-	if (!has_npcap) {
+	if (!has_npcap && application_flavor_is_wireshark()) {
 		/*
 		 * We don't have Npcap, so we can't get a list of interfaces.
 		 */
@@ -789,7 +790,7 @@ get_remote_interface_list(const char *hostname, const char *port,
 GList *
 get_interface_list(int *err, char **err_str)
 {
-	if (!has_npcap) {
+	if (!has_npcap && application_flavor_is_wireshark()) {
 		/*
 		 * We don't have Npcap, so we can't get a list of interfaces.
 		 */
