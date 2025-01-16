@@ -241,11 +241,6 @@ set_target_properties(dissectors-corba PROPERTIES
 	COMPILE_DEFINITIONS "WS_BUILD_DLL"
 )
 
-if(WIN32 AND CMAKE_GENERATOR STREQUAL "Visual Studio 12 2013 Win64")
-	# CORBA IDL dissectors are triggering a MSVC 2013 x64 /O2 bug leading to a NULL pointer dereference (see bug 12495)
-	target_compile_options(dissectors-corba PRIVATE $<$<CONFIG:Release>:/Ox> $<$<CONFIG:RelWithDebInfo>:/Ox>)
-endif()
-
 set(NCP2222_DISSECTOR_SRC
 	${CMAKE_CURRENT_BINARY_DIR}/packet-ncp2222.c
 )
@@ -2300,18 +2295,20 @@ install(FILES ${DISSECTOR_PUBLIC_HEADERS}
 	EXCLUDE_FROM_ALL
 )
 
-file(GLOB DISSECTOR_HEADERS RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}" "*.h")
-CHECKAPI(
-	NAME
-	  dissectors
-	SWITCHES
-	  --group dissectors-prohibited
-	  --group dissectors-restricted:5 --summary-group dissectors-restricted
-	SOURCES
-	  ${ALL_DISSECTOR_SRC}
-	  ${DISSECTOR_SUPPORT_SRC}
-	  ${DISSECTOR_HEADERS}
-)
+if(NOT WIN32) # We're well past Windows' command line length limits
+	file(GLOB DISSECTOR_HEADERS RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}" "*.h")
+	CHECKAPI(
+		NAME
+		dissectors
+		SWITCHES
+		--group dissectors-prohibited
+		--group dissectors-restricted:5 --summary-group dissectors-restricted
+		SOURCES
+		${ALL_DISSECTOR_SRC}
+		${DISSECTOR_SUPPORT_SRC}
+		${DISSECTOR_HEADERS}
+	)
+endif()
 
 #
 # Editor modelines  -  https://www.wireshark.org/tools/modelines.html
