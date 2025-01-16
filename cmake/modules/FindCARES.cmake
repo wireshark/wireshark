@@ -26,8 +26,27 @@ find_path( CARES_INCLUDE_DIR
     "${CARES_HINTS}"
 )
 
+#
+# In an attempt to deal with the import library stuff on Windows,
+# c-ares set up their CMake build to append "_static" to the
+# library name when building a static library.
+#
+# Unfortunately, they did that on all platforms, rather than just
+# on Windows, so some UN*Xes may have the static libcares named
+# libcares_static.a rather than libcares.a.
+#
+# They subsequently fixed that, but on Ubuntu 24.04, as it
+# currently exists, that fix isn't present, but the Windows-induced
+# pain is present.
+#
+# Work around that by looking for cares_static after we look for
+# cares and libcares-2; that way, we don't get the static library
+# if we don't require it.
+#
+# See https://gitlab.com/wireshark/wireshark/-/issues/20343
+#
 find_library( CARES_LIBRARY
-  NAMES cares libcares-2
+  NAMES cares libcares-2 cares_static
   PATH_SUFFIXES
         lib64 lib
   HINTS
