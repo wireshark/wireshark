@@ -35,10 +35,10 @@ libpcap_write_packet(FILE* pfile,
 /* Write a pre-formatted pcapng block */
 extern bool
 pcapng_write_block(FILE* pfile,
-                  const uint8_t *data,
-                  uint32_t block_total_length,
-                  uint64_t *bytes_written,
-                  int *err);
+                   const uint8_t *data,
+                   uint32_t block_total_length,
+                   uint64_t *bytes_written,
+                   int *err);
 
 /** Write a section header block (SHB)
  *
@@ -99,16 +99,3 @@ pcapng_write_enhanced_packet_block(FILE* pfile,
                                    uint32_t flags,
                                    uint64_t *bytes_written,
                                    int *err);
-
-/*
- * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
- *
- * Local variables:
- * c-basic-offset: 4
- * tab-width: 8
- * indent-tabs-mode: nil
- * End:
- *
- * vi: set shiftwidth=4 tabstop=8 expandtab:
- * :indentSize=4:tabSize=8:noTabs=true:
- */

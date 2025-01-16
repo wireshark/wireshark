@@ -26,16 +26,3 @@ set_target_properties(writecap PROPERTIES
 	LINK_FLAGS "${WS_LINK_FLAGS}"
 	FOLDER "Libs"
 )
-
-#
-# Editor modelines  -  https://www.wireshark.org/tools/modelines.html
-#
-# Local variables:
-# c-basic-offset: 8
-# tab-width: 8
-# indent-tabs-mode: t
-# End:
-#
-# vi: set shiftwidth=8 tabstop=8 noexpandtab:
-# :indentSize=8:tabSize=8:noTabs=false:
-#
