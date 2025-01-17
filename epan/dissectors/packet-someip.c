@@ -237,6 +237,7 @@ static const fragment_items someip_tp_frag_items = {
 
 static bool someip_tp_reassemble = true;
 static bool someip_deserializer_activated = true;
+static bool someip_deserializer_debugging_activated;
 static bool someip_deserializer_wtlv_default;
 static bool someip_detect_dtls;
 
@@ -2764,8 +2765,8 @@ dissect_someip_payload_string(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     } else {
         ti = proto_tree_add_string_format(tree, hf_id, tvb, offset, 0, name, "%s [%s]", name, config->name);
     }
-
     subtree = proto_item_add_subtree(ti, ett_someip_string);
+
     uint32_t length_of_length = dissect_someip_payload_add_wtlv_if_needed(tvb, pinfo, wtlv_offset, ti, NULL);
 
     /* WTLV length overrides configured length */
@@ -2845,8 +2846,13 @@ dissect_someip_payload_struct(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     } else {
         ti = proto_tree_add_string_format(tree, hf_payload_str_struct, tvb, offset, 0, config->struct_name, "struct %s [%s]", name, config->struct_name);
     }
-
     subtree = proto_item_add_subtree(ti, ett_someip_struct);
+
+    if (someip_deserializer_debugging_activated) {
+        proto_item_append_text(ti, "  [Debug: Struct ID 0x%04x]", id);
+
+    }
+
     uint32_t length_of_length = dissect_someip_payload_add_wtlv_if_needed(tvb, pinfo, wtlv_offset, ti, subtree);
 
     /* WTLV length overrides configured length */
@@ -3063,6 +3069,7 @@ dissect_someip_payload_array(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
     ti = proto_tree_add_string_format(tree, hf_payload_str_array, tvb, offset, 0, config->name, "array %s", name);
     subtree = proto_item_add_subtree(ti, ett_someip_array);
+
     uint32_t length_of_length = dissect_someip_payload_add_wtlv_if_needed(tvb, pinfo, wtlv_offset, ti, subtree);
 
     offset += dissect_someip_payload_array_dim_length(tvb, pinfo, subtree, offset_orig, &length, &lower_limit, &upper_limit, config, 0, length_of_length);
@@ -3072,6 +3079,10 @@ dissect_someip_payload_array(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
         proto_item_append_text(ti, " (elements limit: %d-%d)", lower_limit, upper_limit);
     } else {
          proto_item_append_text(ti, " (elements limit: %d)", upper_limit);
+    }
+
+    if (someip_deserializer_debugging_activated) {
+        proto_item_append_text(ti, "  [Debug: Array ID 0x%04x]", id);
     }
 
     offset += dissect_someip_payload_array_dim(tvb, pinfo, subtree, offset, length, lower_limit, upper_limit, config, 0, name, length_of_length);
@@ -3120,8 +3131,12 @@ dissect_someip_payload_union(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     } else {
         ti = proto_tree_add_string_format(tree, hf_payload_str_union, tvb, offset_orig, 0, name, "union %s [%s]", name, config->name);
     }
-
     subtree = proto_item_add_subtree(ti, ett_someip_union);
+
+    if (someip_deserializer_debugging_activated) {
+        proto_item_append_text(ti, "  [Debug: Union ID 0x%04x]", id);
+    }
+
     uint32_t length_of_length = dissect_someip_payload_add_wtlv_if_needed(tvb, pinfo, wtlv_offset, ti, subtree);
 
     if (length_of_length == 0) {
@@ -4211,6 +4226,11 @@ proto_register_someip(void) {
         "Dissect Payload",
         "Should the SOME/IP Dissector use the payload dissector?",
         &someip_deserializer_activated);
+
+    prefs_register_bool_preference(someip_module, "payload_dissector_debugging_activated",
+        "Add hidden Debug Information of Payload Dissector Configuration",
+        "Should the SOME/IP Dissector add hidden debug information to help debugging dissector configuration?",
+        &someip_deserializer_debugging_activated);
 
     prefs_register_bool_preference(someip_module, "detect_dtls_and_hand_off",
         "Try to automatically detect DTLS",
