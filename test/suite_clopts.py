@@ -322,6 +322,14 @@ class TestTsharkExtcap:
         # TODO: skip this test until it will get fixed.
         if sys.platform == 'win32':
             pytest.skip('FIXME extcap .py scripts needs special treatment on Windows')
+        # Various guides and vulnerability scanners recommend setting /tmp noexec.
+        # If our temp path is such, the extcap script won't work.
+        try:
+            if os.statvfs(home_path).f_flag & os.ST_NOEXEC:
+                pytest.skip('Test requires temp directory to allow execution')
+        except AttributeError:
+            # Most Linux and NetBSD have ST_NOEXEC; Darwin and other *BSDs don't.
+            pass
         extcap_dir_path = os.path.join(home_path, 'extcap')
         os.makedirs(extcap_dir_path)
         test_env['WIRESHARK_EXTCAP_DIR'] = extcap_dir_path
