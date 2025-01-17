@@ -819,7 +819,7 @@ static unsigned dissect_mqtt_properties(tvbuff_t *tvb, packet_info *pinfo, proto
   ti = proto_tree_add_item(mqtt_tree, hf_property, tvb, offset, mqtt_prop_offset + mqtt_prop_len, ENC_NA);
   mqtt_prop_tree = proto_item_add_subtree(ti, ett_mqtt_property);
 
-  proto_tree_add_item(mqtt_prop_tree, hf_mqtt_property_len, tvb, offset, mqtt_prop_offset, ENC_BIG_ENDIAN);
+  proto_tree_add_item(mqtt_prop_tree, hf_mqtt_property_len, tvb, offset, mqtt_prop_offset, ENC_VARINT_PROTOBUF);
   offset += mqtt_prop_offset;
 
   const unsigned bytes_to_read = offset + mqtt_prop_len;
