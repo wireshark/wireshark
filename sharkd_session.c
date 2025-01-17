@@ -378,6 +378,8 @@ json_prep(char* buf, const jsmntok_t* tokens, int count)
         {"method",     "download",       1, JSMN_STRING,       SHARKD_JSON_STRING,   SHARKD_OPTIONAL},
         {"method",     "dumpconf",       1, JSMN_STRING,       SHARKD_JSON_STRING,   SHARKD_OPTIONAL},
         {"method",     "follow",         1, JSMN_STRING,       SHARKD_JSON_STRING,   SHARKD_OPTIONAL},
+        {"method",     "field",          1, JSMN_STRING,       SHARKD_JSON_STRING,   SHARKD_OPTIONAL},
+        {"method",     "fields",         1, JSMN_STRING,       SHARKD_JSON_STRING,   SHARKD_OPTIONAL},
         {"method",     "frame",          1, JSMN_STRING,       SHARKD_JSON_STRING,   SHARKD_OPTIONAL},
         {"method",     "frames",         1, JSMN_STRING,       SHARKD_JSON_STRING,   SHARKD_OPTIONAL},
         {"method",     "info",           1, JSMN_STRING,       SHARKD_JSON_STRING,   SHARKD_OPTIONAL},
@@ -399,6 +401,7 @@ json_prep(char* buf, const jsmntok_t* tokens, int count)
         {"follow",     "follow",         2, JSMN_STRING,       SHARKD_JSON_STRING,   SHARKD_MANDATORY},
         {"follow",     "filter",         2, JSMN_STRING,       SHARKD_JSON_STRING,   SHARKD_MANDATORY},
         {"follow",     "sub_stream",     2, JSMN_PRIMITIVE,    SHARKD_JSON_UINTEGER, SHARKD_OPTIONAL},
+        {"field",      "name",           2, JSMN_STRING,       SHARKD_JSON_STRING,   SHARKD_MANDATORY},
         {"frame",      "frame",          2, JSMN_PRIMITIVE,    SHARKD_JSON_UINTEGER, SHARKD_MANDATORY},
         {"frame",      "proto",          2, JSMN_PRIMITIVE,    SHARKD_JSON_BOOLEAN,  SHARKD_OPTIONAL},
         {"frame",      "ref_frame",      2, JSMN_PRIMITIVE,    SHARKD_JSON_UINTEGER, SHARKD_OPTIONAL},
@@ -684,7 +687,7 @@ json_prep(char* buf, const jsmntok_t* tokens, int count)
                     );
             return false;
         }
-    }
+        }
 
     /* check for mandatory members */
     size_t j = 0;
@@ -1161,6 +1164,116 @@ sharkd_session_process_info(void)
     i = 0;
     follow_iterate_followers(sharkd_follower_visit_cb, &i);
     sharkd_json_array_close();
+
+    sharkd_json_result_epilogue();
+}
+
+static void sharkd_session_print_field(header_field_info* current_header_field_info, gboolean as_object)
+{
+    if (as_object)
+    {
+        sharkd_json_object_open(NULL);
+    }
+    
+    sharkd_json_value_stringf("id", "%i", current_header_field_info->id);
+    sharkd_json_value_stringf("parent_id", "%i", current_header_field_info->parent);
+    sharkd_json_value_string("name", current_header_field_info->abbrev);
+    sharkd_json_value_string("display_name", current_header_field_info->name);
+    sharkd_json_value_string("type", ftype_name(current_header_field_info->type));
+
+    if (as_object)
+    {
+        sharkd_json_object_close();
+    }
+}
+
+static void
+sharkd_session_print_fields(void)
+{
+    void* proto_cookie = NULL;
+    void* field_cookie = NULL;
+    int protocol_id = -1;
+
+    for (protocol_id = proto_get_first_protocol(&proto_cookie); protocol_id != -1; protocol_id = proto_get_next_protocol(&proto_cookie))
+    {
+        protocol_t* protocol = find_protocol_by_id(protocol_id);
+        if (!proto_is_protocol_enabled(protocol))
+        {
+            continue;
+        }
+
+        header_field_info* current_header_field_info = proto_registrar_get_nth(proto_get_id(protocol));
+
+        sharkd_session_print_field(current_header_field_info, TRUE);
+
+        for (current_header_field_info = proto_get_first_protocol_field(protocol_id, &field_cookie); current_header_field_info != NULL; current_header_field_info = proto_get_next_protocol_field(protocol_id, &field_cookie))
+        {
+            if (current_header_field_info->same_name_prev_id != -1)
+            {
+                continue;
+            }
+
+            sharkd_session_print_field(current_header_field_info, TRUE);
+        }
+    }
+}
+
+/**
+ * sharkd_session_process_fields()
+ *
+ * Process fields request
+ *
+ * Output object with attributes:
+ *   (m) fields  - all fields with their id, name, display_name, type and id of their parent
+ */
+static void
+sharkd_session_process_fields(void)
+{
+    sharkd_json_result_prologue(rpcid);
+
+    sharkd_json_array_open("fields");
+    sharkd_session_print_fields();
+    sharkd_json_array_close();
+
+    sharkd_json_result_epilogue();
+}
+
+/**
+ * sharkd_session_process_field()
+ *
+ * Process field request
+ *
+ * Input:
+ *   (m) name - (filter) name of the field
+ *
+ * Output object with attributes:
+ *   (m) id            - id of the field
+ *   (m) parent_id     - id of the field's parent
+ *   (m) name          - name of the field
+ *   (m) display_name  - display_name of the field
+ *   (m) type          - type of the field
+ */
+static void
+sharkd_session_process_field(const char* buf, const jsmntok_t* tokens, int count)
+{
+    const char* tok_name = json_find_attr(buf, tokens, count, "name");
+
+    sharkd_json_result_prologue(rpcid);
+
+    if (tok_name)
+    {
+        header_field_info* current_header_field_info = proto_registrar_get_byname(tok_name);
+        if (current_header_field_info == NULL)
+        {
+            sharkd_json_error(
+                rpcid, -32602, NULL,
+                "Unknown field name"
+            );
+            return;
+        }
+
+        sharkd_session_print_field(current_header_field_info, FALSE);
+    }
 
     sharkd_json_result_epilogue();
 }
@@ -5944,6 +6057,10 @@ sharkd_session_process(char *buf, const jsmntok_t *tokens, int count)
             sharkd_session_process_analyse();
         else if (!strcmp(tok_method, "info"))
             sharkd_session_process_info();
+        else if (!strcmp(tok_method, "fields"))
+            sharkd_session_process_fields();
+        else if (!strcmp(tok_method, "field"))
+            sharkd_session_process_field(buf, tokens, count);
         else if (!strcmp(tok_method, "check"))
             sharkd_session_process_check(buf, tokens, count);
         else if (!strcmp(tok_method, "complete"))
