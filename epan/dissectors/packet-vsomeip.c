@@ -1,7 +1,7 @@
 /* packet-vsomeip.c
  * vSomeIP dissector.
  * By Dr. Lars Völker <lars.voelker@technica-engineering.de>
- * Copyright 2024-2025 Dr. Lars Voelker
+ * Copyright 2024-2025 Dr. Lars Völker
  *
  *
  * Dissector for the vSomeIP internally used protocol.
@@ -258,7 +258,7 @@ static const value_string vsomeip_false_true_type[] = {
 
 #define VSOMEIP_LOCAL                           0x00
 #define VSOMEIP_REMOTE                          0x01
-#define VSOMEIP_ALL                             0x01
+#define VSOMEIP_ALL                             0x02
 
 static const value_string vsomeip_offer_type[] = {
     {VSOMEIP_LOCAL,                             "Local"},
@@ -640,7 +640,7 @@ dissect_vsomeip_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree_root
          */
         uint32_t service_id = tvb_get_uint16(tvb, offset, ENC_BIG_ENDIAN);
         uint32_t method_id = tvb_get_uint16(tvb, offset + 2, ENC_BIG_ENDIAN);
-        col_append_fstr(pinfo->cinfo, COL_INFO, " --%s--> (%04x): ", val_to_str(reliable, vsomeip_reliable_type, "Unknown"), dest);
+        col_append_fstr(pinfo->cinfo, COL_INFO, " --%s--> (%04x): ", val_to_str_const(reliable, vsomeip_reliable_type, "Unknown"), dest);
 
         proto_item_append_text(ti_root, " [Service: 0x%04x Method: 0x%04x]", service_id, method_id);
 
