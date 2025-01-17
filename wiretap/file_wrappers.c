@@ -186,7 +186,8 @@ typedef enum {
     ZLIB,          /* decompress a zlib stream */
     GZIP_AFTER_HEADER,
     ZSTD,
-    LZ4,
+    LZ4,              /* start of a LZ4 Frame */
+    LZ4_AFTER_HEADER, /* start of a LZ4 Block */
 } compression_t;
 
 /*
@@ -489,6 +490,7 @@ fast_seek_reset(FILE_T state)
         break;
 
     case LZ4:
+    case LZ4_AFTER_HEADER:
 #ifdef HAVE_LZ4
         /* Anything to do? */
 #else
@@ -1106,7 +1108,7 @@ lz4_fast_seek_add(FILE_T file, struct zlib_cur_seek_point *point _U_, int64_t in
         struct fast_seek_point *val = g_new(struct fast_seek_point,1);
         val->in = in_pos;
         val->out = out_pos;
-        val->compression = LZ4;
+        val->compression = LZ4_AFTER_HEADER;
 #if 0
         if (point->pos != 0) {
             unsigned int left = LZ4_WINSIZE - point->pos;
@@ -2028,6 +2030,7 @@ file_seek(FILE_T file, int64_t offset, int whence, int *err)
 
 #ifdef USE_LZ4
         case LZ4:
+        case LZ4_AFTER_HEADER:
             ws_debug("fast seek lz4");
             off = here->in;
             off2 = here->out;
@@ -2100,34 +2103,39 @@ file_seek(FILE_T file, int64_t offset, int whence, int *err)
 #endif /* USE_ZLIB_OR_ZLIBNG */
 
 #ifdef USE_LZ4
+        case LZ4_AFTER_HEADER:
+            if (memcmp(&file->lz4_info, &here->data.lz4.lz4_info, sizeof(LZ4F_frameInfo_t)) != 0) {
+                /* If we are jumping to the start of an independent block and
+                 * the frame options haven't changed, we don't need to reset
+                 * the compression context.
+                 */
+                file->compression = LZ4;
+                break;
+            }
+            /* FALLTHROUGH */
         case LZ4:
-            /* If the frame information seems to have changed (i.e., we fast
-             * seeked into a different frame that also has different flags
-             * and options) or if the frame has linked blocks, then reset
-             * the context and re-read it.
+            /* At the start of a frame, reset the context and re-read it.
              * Unfortunately the API doesn't provide a method to set the
              * context options explicitly based on an already read
              * LZ4F_frameInfo_t.
              */
-            if ((here->data.lz4.lz4_info.blockMode != LZ4F_blockIndependent) || (memcmp(&file->lz4_info, &here->data.lz4.lz4_info, sizeof(LZ4F_frameInfo_t)) != 0)) {
 #if LZ4_VERSION_NUMBER >= 10800
-                LZ4F_resetDecompressionContext(file->lz4_dctx);
+            LZ4F_resetDecompressionContext(file->lz4_dctx);
 #else /* LZ4_VERSION_NUMBER >= 10800 */
-                LZ4F_freeDecompressionContext(file->lz4_dctx);
-                const LZ4F_errorCode_t ret = LZ4F_createDecompressionContext(&file->lz4_dctx, LZ4F_VERSION);
-                if (LZ4F_isError(ret)) {
-                    file->err = WTAP_ERR_INTERNAL;
-                    file->err_info = LZ4F_getErrorName(ret);
-                    return -1;
-                }
+            LZ4F_freeDecompressionContext(file->lz4_dctx);
+            const LZ4F_errorCode_t ret = LZ4F_createDecompressionContext(&file->lz4_dctx, LZ4F_VERSION);
+            if (LZ4F_isError(ret)) {
+                file->err = WTAP_ERR_INTERNAL;
+                file->err_info = LZ4F_getErrorName(ret);
+                return -1;
+            }
 #endif /* LZ4_VERSION_NUMBER >= 10800 */
-                size_t hdr_size = LZ4F_HEADER_SIZE_MAX;
-                const LZ4F_errorCode_t frame_err = LZ4F_getFrameInfo(file->lz4_dctx, &file->lz4_info, here->data.lz4.lz4_hdr, &hdr_size);
-                if (LZ4F_isError(frame_err)) {
-                    file->err = WTAP_ERR_DECOMPRESS;
-                    file->err_info = LZ4F_getErrorName(frame_err);
-                    return -1;
-                }
+            size_t hdr_size = LZ4F_HEADER_SIZE_MAX;
+            const LZ4F_errorCode_t frame_err = LZ4F_getFrameInfo(file->lz4_dctx, &file->lz4_info, here->data.lz4.lz4_hdr, &hdr_size);
+            if (LZ4F_isError(frame_err)) {
+                file->err = WTAP_ERR_DECOMPRESS;
+                file->err_info = LZ4F_getErrorName(frame_err);
+                return -1;
             }
             file->lz4_info = here->data.lz4.lz4_info;
             file->compression = LZ4;
@@ -2299,6 +2307,7 @@ file_get_compression_type(FILE_T stream)
             return WTAP_ZSTD_COMPRESSED;
 
         case LZ4:
+        case LZ4_AFTER_HEADER:
             return WTAP_LZ4_COMPRESSED;
 
         case UNCOMPRESSED:
