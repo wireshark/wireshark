@@ -180,6 +180,7 @@
 #define IP_PROTO_AGGFRAG        144     /* AGGFRAG encapsulation payload for ESP */
 #define IP_PROTO_NSH            145     /* Network Service Header */
 #define IP_PROTO_HOMA           146     /* Homa */
+#define IP_PROTO_BIT_EMU        147     /* Bit-stream Emulation */
 #define IP_PROTO_AX4000         173     /* AX/4000 Testblock - non IANA */
 #define IP_PROTO_NCS_HEARTBEAT  224     /* Novell NCS Heartbeat - http://support.novell.com/cgi-bin/search/searchtid.cgi?/10071158.htm */
 
