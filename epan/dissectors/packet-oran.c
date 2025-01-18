@@ -507,6 +507,8 @@ static expert_field ei_oran_sresmask2_not_zero_with_rb;
 static expert_field ei_oran_st6_rb_shall_be_0;
 static expert_field ei_oran_st10_numsymbol_not_14;
 static expert_field ei_oran_st10_startsymbolid_not_0;
+static expert_field ei_oran_num_sinr_per_prb_unknown;
+static expert_field ei_oran_start_symbol_id_bits_ignored;
 
 
 /* These are the message types handled by this dissector */
@@ -2242,7 +2244,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                                                      pref_iqCompressionUplink, &exponent, &sReSMask,
                                                      true) * 8; /* last param is for_sinr */
 
-                    /* sinrValues for this PRB. TODO: subtree for each PRB? */
+                    /* sinrValues for this PRB. */
                     /* TODO: not sure how numSinrPerPrb interacts with rb==1... */
                     for (unsigned n=0; n < num_sinr_per_prb; n++) {
                         unsigned sinr_bits = tvb_get_bits(tvb, bit_offset, pref_sample_bit_width_uplink, ENC_BIG_ENDIAN);
@@ -2580,7 +2582,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                 break;
             }
 
-            case 3: /* SE 3: TODO: DL precoding parameters */
+            case 3: /* SE 3: DL precoding parameters */
             {
                 /* codebookindex (8 bits) */
                 /* "This parameter is not used and shall be set to zero." */
@@ -3469,7 +3471,6 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                         expert_add_info_format(pinfo, prb_group_size_ti, &ei_oran_ci_prb_group_size_reserved,
                                                "SE 11 ciPrbGroupSize is reserved value %u - must be 2-254",
                                                ci_prb_group_size);
-
                         break;
                     default:
                         /* This value affects how SE 11 is interpreted */
@@ -3699,7 +3700,6 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                             proto_tree_add_bitmask(entry_tree, tvb, offset,
                                                    hf_oran_dmrs_symbol_mask, ett_oran_dmrs_symbol_mask, dmrs_symbol_mask_flags, ENC_BIG_ENDIAN);
 
-
                             /* scrambling */
                             proto_tree_add_item(entry_tree, hf_oran_scrambling, tvb, offset, 2, ENC_BIG_ENDIAN);
                             offset += 2;
@@ -3708,7 +3708,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                             proto_tree_add_item(entry_tree, hf_oran_nscid, tvb, offset, 1, ENC_BIG_ENDIAN);
 
                             /* These 5 bits differ depending upon entry type */
-                            if (entry_type == 2) {
+                            if (entry_type == 2) {       /* type 2 */
                                 /* dType (1 bit) */
                                 proto_tree_add_item(entry_tree, hf_oran_dtype, tvb, offset, 1, ENC_BIG_ENDIAN);
                                 /* cdmWithoutData (2 bits) */
@@ -3753,7 +3753,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                 /* Just dissect each available block of 7 bytes as the 14 symbols for a layer,
                    where each layer could be one or apply to all layers. */
             {
-                /* TODO: should only appear in one section of a message.. */
+                /* TODO: should only appear in one section of a message - check? */
                 unsigned layer = 0;
                 proto_item *layer_ti;
                 while (offset+7 <= (extension_start_offset + extlen*4)) {
@@ -4766,7 +4766,9 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo,
                 default:
                     proto_item_append_text(nspp_ti, " (invalid)");
                     num_sinr_per_prb = 1;
-                    /* TODO: expert info? */
+                    expert_add_info_format(pinfo, nspp_ti, &ei_oran_num_sinr_per_prb_unknown,
+                                           "Invalid numSinrPerPrb value (%u)",
+                                           num_sinr_per_prb);
             }
 
             /* reserved (13 bits) */
@@ -4929,7 +4931,7 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo,
                     for (unsigned s=0; s < 14; s++) {
                         if ((startSymbolId & (1 << s)) && (startSymbolId > s)) {
                             proto_item_append_text(symbol_mask_ti, " (startSymbolId is %u, so some lower symbol bits ignored!)", startSymbolId);
-                            /* TODO: expert info too? */
+                            expert_add_info(pinfo, symbol_mask_ti, &ei_oran_start_symbol_id_bits_ignored);
                             break;
                         }
                     }
@@ -8273,7 +8275,11 @@ proto_register_oran(void)
         { &ei_oran_sresmask2_not_zero_with_rb, { "oran_fh_cus.sresmask2_not_zero", PI_MALFORMED, PI_WARN, "sReSMask2 should be zero when rb set", EXPFILL }},
         { &ei_oran_st6_rb_shall_be_0, { "oran_fh_cus.st6_rb_set", PI_MALFORMED, PI_WARN, "rb should not be set for Section Type 6", EXPFILL }},
         { &ei_oran_st10_numsymbol_not_14, { "oran_fh_cus.st10_numsymbol_not_14", PI_MALFORMED, PI_WARN, "numSymbol should be 14 for Section Type 10", EXPFILL }},
-        { &ei_oran_st10_startsymbolid_not_0, { "oran_fh_cus.st10_startsymbolid_not_0", PI_MALFORMED, PI_WARN, "startSymbolId should be 0 for Section Type 10", EXPFILL }}
+        { &ei_oran_st10_startsymbolid_not_0, { "oran_fh_cus.st10_startsymbolid_not_0", PI_MALFORMED, PI_WARN, "startSymbolId should be 0 for Section Type 10", EXPFILL }},
+        { &ei_oran_num_sinr_per_prb_unknown, { "oran_fh_cus.unexpected_num_sinr_per_prb", PI_MALFORMED, PI_WARN, "invalid numSinrPerPrb value", EXPFILL }},
+        { &ei_oran_start_symbol_id_bits_ignored, { "oran_fh_cus.start_symbol_id_bits_ignored", PI_MALFORMED, PI_WARN, "some startSymbolId lower bits ignored", EXPFILL }},
+
+
     };
 
     /* Register the protocol name and description */
