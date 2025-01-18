@@ -29,6 +29,7 @@
 #include <winsock2.h>
 #include <netiodef.h>
 
+#include "etl.h"
 #include "etw_ndiscap.h"
 
 // inet_ipv6.h and netiodef.h define exactly the same stuff, like _IPV6_ROUTING_HEADER and IP6F_OFF_MASK.
