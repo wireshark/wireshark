@@ -3,11 +3,11 @@
 Stratoshark is a sibling application for Wireshark which focuses on system calls and log messages.
 It helps people understand, troubleshoot, and secure their systems via system calls and log messages similar to the way Wireshark helps people understand, troubleshoot, and secure their networks via packets.
 
-This document provides brief instructions for obtaining, using, and building Stratoshark until more complete documentation comparable to the Wireshark Developer’s and User’s Guides can be written.
+This document provides brief instructions for obtaining, using, and building Stratoshark until more complete documentation https://gitlab.com/wireshark/wireshark/-/issues/20303[comparable to the Wireshark Developer’s and User’s Guides can be written].
 
 == Getting Stratoshark
 
-You can get Windows and macOS development packages from https://www.wireshark.org/download/automated/.
+You can get Windows and macOS development packages from https://stratoshark.org/.
 Native system call captures aren't yet supported on those platforms, but they do come with the https://github.com/falcosecurity/plugins/blob/main/plugins/cloudtrail/README.md[CloudTrail plugin], which can pull AWS CloudTrail logs from an S3 bucket or SQS/SNS.
 
 If you wish to use Stratoshark on Linux you will have to built it yourself.
@@ -69,6 +69,5 @@ cmake \
   ..
 make -j $(getconf _NPROCESSORS_ONLN)
 ----
-
 
 If you want to add other Falco plugins later you can copy them to a `falco` subfolder in the Global Plugins folder. The path to the Global Plugins folder is shown in the "Folders" tab in the "About Stratoshark" dialog.
