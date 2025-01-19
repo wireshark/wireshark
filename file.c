@@ -916,16 +916,8 @@ cf_continue_tail(capture_file *cf, volatile int to_read, wtap_rec *rec,
            and exit. */
         return CF_READ_ABORTED;
     } else if (*err != 0) {
-        /* We got an error reading the capture file.
-           XXX - pop up a dialog box instead? */
-        if (err_info != NULL) {
-            ws_warning("Error \"%s\" while reading \"%s\" (\"%s\")",
-                    wtap_strerror(*err), cf->filename, err_info);
-            g_free(err_info);
-        } else {
-            ws_warning("Error \"%s\" while reading \"%s\"",
-                    wtap_strerror(*err), cf->filename);
-        }
+        /* We got an error reading the capture file. */
+        report_cfile_read_failure(cf->filename, *err, err_info);
         return CF_READ_ERROR;
     } else
         return CF_READ_OK;
@@ -1035,16 +1027,8 @@ cf_finish_tail(capture_file *cf, wtap_rec *rec, int *err,
     fileset_update_file(cf->filename);
 
     if (*err != 0) {
-        /* We got an error reading the capture file.
-           XXX - pop up a dialog box? */
-        if (err_info != NULL) {
-            ws_warning("Error \"%s\" while reading \"%s\" (\"%s\")",
-                    wtap_strerror(*err), cf->filename, err_info);
-            g_free(err_info);
-        } else {
-            ws_warning("Error \"%s\" while reading \"%s\"",
-                    wtap_strerror(*err), cf->filename);
-        }
+        /* We got an error reading the capture file. */
+        report_cfile_read_failure(cf->filename, *err, err_info);
         return CF_READ_ERROR;
     } else {
         return CF_READ_OK;
