@@ -824,8 +824,6 @@ mutate_packet_data(wtap_rec *rec, uint8_t *buf, uint32_t change_offset, uint64_t
     uint32_t caplen;
     unsigned real_data_start = 0;
 
-    caplen = 0;
-
     switch (rec->rec_type) {
 
     case REC_TYPE_PACKET:
