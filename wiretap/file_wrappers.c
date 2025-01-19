@@ -1149,11 +1149,11 @@ lz4_fill_out_buffer(FILE_T state)
     do {
         /* get more input for decompress() */
         if (state->in.avail == 0 && fill_in_buffer(state) == -1)
-            break;
+            return false;
         if (state->eof) {
             state->err = WTAP_ERR_SHORT_READ;
             state->err_info = NULL;
-            break;
+            return false;
         }
 
         inBufSize = state->in.avail;
