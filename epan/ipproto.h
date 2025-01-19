@@ -177,6 +177,8 @@
 #define IP_PROTO_WESP           141     /* 141 WESP Wrapped Encapsulating Security Payload [RFC5840] */
 #define IP_PROTO_ROHC           142     /* 142 ROHC Robust Header Compression [RFC5858] */
 #define IP_PROTO_ETHERNET       143     /* Ethernet [RFC8986] */
+#define IP_PROTO_AGGFRAG        144     /* AGGFRAG encapsulation payload for ESP */
+#define IP_PROTO_NSH            145     /* Network Service Header */
 #define IP_PROTO_AX4000         173     /* AX/4000 Testblock - non IANA */
 #define IP_PROTO_NCS_HEARTBEAT  224     /* Novell NCS Heartbeat - http://support.novell.com/cgi-bin/search/searchtid.cgi?/10071158.htm */
 
