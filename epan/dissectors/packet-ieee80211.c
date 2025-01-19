@@ -6853,6 +6853,7 @@ static int hf_ieee80211_vs_wisun_lgtk_key_id;
 static int hf_ieee80211_vs_wisun_lgtk_lgtk;
 static int hf_ieee80211_vs_wisun_data;
 
+static int hf_ieee80211_vs_apple_type;
 static int hf_ieee80211_vs_apple_subtype;
 static int hf_ieee80211_vs_apple_length;
 static int hf_ieee80211_vs_apple_data;
@@ -21804,27 +21805,35 @@ static void
 dissect_vendor_ie_apple(proto_item *item, proto_tree *ietree,
                           tvbuff_t *tvb, int offset, uint32_t tag_len, packet_info *pinfo)
 {
-  uint32_t type, length;
+  uint32_t subtype, type, length;
 
+  proto_tree_add_item_ret_uint(ietree, hf_ieee80211_vs_apple_type, tvb, offset, 1, ENC_LITTLE_ENDIAN, &type);
   offset += 1;
   tag_len -= 1;
 
-  proto_tree_add_item_ret_uint(ietree, hf_ieee80211_vs_apple_subtype, tvb, offset, 2, ENC_LITTLE_ENDIAN, &type);
-  proto_item_append_text(item, ": %s", val_to_str_const(type, ieee80211_vs_apple_subtype_vals, "Unknown"));
-  offset += 2;
-  tag_len -= 2;
+  if(type == 6) { /* when type is 6, there is some subtype...*/
+    proto_tree_add_item_ret_uint(ietree, hf_ieee80211_vs_apple_subtype, tvb, offset, 2, ENC_LITTLE_ENDIAN, &subtype);
+    proto_item_append_text(item, ": %s", val_to_str_const(type, ieee80211_vs_apple_subtype_vals, "Unknown"));
+    offset += 2;
+    tag_len -= 2;
 
-  proto_tree_add_item_ret_uint(ietree, hf_ieee80211_vs_apple_length, tvb, offset, 1, ENC_NA, &length);
-  offset += 1;
-  tag_len -= 1;
+    proto_tree_add_item_ret_uint(ietree, hf_ieee80211_vs_apple_length, tvb, offset, 1, ENC_NA, &length);
+    offset += 1;
+    tag_len -= 1;
 
-  switch (type) {
-  default:
+    switch (subtype) {
+    default:
+      proto_tree_add_item(ietree, hf_ieee80211_vs_apple_data, tvb, offset, tag_len, ENC_NA);
+      if (tag_len > 0)
+        proto_item_append_text(item, " (Data: %s)", tvb_bytes_to_str(pinfo->pool, tvb, offset, tag_len));
+      break;
+    }
+  } else{
     proto_tree_add_item(ietree, hf_ieee80211_vs_apple_data, tvb, offset, tag_len, ENC_NA);
     if (tag_len > 0)
       proto_item_append_text(item, " (Data: %s)", tvb_bytes_to_str(pinfo->pool, tvb, offset, tag_len));
-    break;
   }
+
 }
 
 /* 802.11-2012 8.4.2.37 QoS Capability element */
@@ -54522,6 +54531,11 @@ proto_register_ieee80211(void)
       FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
 
     /* Vendor Specific : apple */
+    {&hf_ieee80211_vs_apple_type,
+     {"Type", "wlan.vs.apple.type",
+      FT_UINT8, BASE_DEC, NULL, 0,
+      NULL, HFILL }},
+
     {&hf_ieee80211_vs_apple_subtype,
      {"Subtype", "wlan.vs.apple.subtype",
       FT_UINT16, BASE_DEC, VALS(ieee80211_vs_apple_subtype_vals), 0,
