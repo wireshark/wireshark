@@ -6,8 +6,8 @@
  *
  * List of PCI ID's
  *
- * Version: 2024.11.25
- * Date:    2024-11-25 03:15:02
+ * Version: 2025.01.13
+ * Date:    2025-01-13 03:15:02
  *
  * Maintained by Albert Pool, Martin Mares, and other volunteers from
  * the PCI ID Project at https://pci-ids.ucw.cz/.
@@ -42054,7 +42054,7 @@ static pci_id_t const pci_vid_8086[] = {
 {0x8086, 0x4DEB, 0xFFFF, 0xFFFF, "Jasper Lake Serial IO I2C Host Controller #3(0x4DEB)"},
 {0x8086, 0x4DED, 0xFFFF, 0xFFFF, "Jasper Lake USB 3.1 xHCI Host Controller(0x4DED)"},
 {0x8086, 0x4DEF, 0xFFFF, 0xFFFF, "Jasper Lake Shared SRAM(0x4DEF)"},
-{0x8086, 0x4DF0, 0xFFFF, 0xFFFF, "Wi-Fi 6 AX201 160MHz(0x4DF0)"},
+{0x8086, 0x4DF0, 0xFFFF, 0xFFFF, "Wireless-AC 9560 160MHz(0x4DF0)"},
 {0x8086, 0x4DF8, 0xFFFF, 0xFFFF, "Jasper Lake SD Controller(0x4DF8)"},
 {0x8086, 0x4E03, 0xFFFF, 0xFFFF, "Dynamic Tuning service(0x4E03)"},
 {0x8086, 0x4E19, 0xFFFF, 0xFFFF, "JasperLake IPU(0x4E19)"},
