@@ -269,6 +269,7 @@ static ws_enum_t const all_enums[] = {
     ENUM(IP_PROTO_AX25),
     ENUM(IP_PROTO_AX4000),
     ENUM(IP_PROTO_BBN_RCC),
+    ENUM(IP_PROTO_BIT_EMU),
     ENUM(IP_PROTO_BNA),
     ENUM(IP_PROTO_BRSATMON),
     ENUM(IP_PROTO_BULK),

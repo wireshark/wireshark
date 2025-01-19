@@ -5303,10 +5303,6 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>&lt;p&gt;Local interfaces are unavailable because the packet capture driver isn&apos;t loaded.&lt;/p&gt;&lt;p&gt;You can fix this by running &lt;pre&gt;net start npcap&lt;/pre&gt; if you have Npcap installed or &lt;pre&gt;net start npf&lt;/pre&gt; if you have WinPcap installed. Both commands must be run as Administrator.&lt;/p&gt;</source>
-        <translation type="vanished">&lt;p&gt;Les interfaces locales ne sont pas disponibles car le pilote de capture de paquets n&apos;est pas chargé.&lt;/p&gt;&lt;p&gt;Vous pouvez résoudre ce problème en exécutant &lt;pre&gt;net start npcap&lt;/pre&gt; si Npcap est installé ou &lt;pre&gt;net start npf&lt;/pre&gt; si vous avez installé WinPcap. Les deux commandes doivent être exécutées en tant qu&apos;administrateur.&lt;/p&gt;</translation>
-    </message>
-    <message>
         <source>&lt;p&gt;You don&apos;t have permission to capture on local interfaces.&lt;/p&gt;&lt;p&gt;You can fix this by &lt;a href=&quot;file://%1&quot;&gt;installing ChmodBPF&lt;/a&gt;.&lt;/p&gt;</source>
         <translation>&lt;p&gt;Vous n&apos;êtes pas autorisé à capturer sur les interfaces locales.&lt;/p&gt;&lt;p&gt;Vous pouvez résoudre ce problème en &lt;a href=&quot;file://%1&quot;&gt;installant ChmodBPF&lt;/a&gt;.&lt;/p&gt;</translation>
     </message>

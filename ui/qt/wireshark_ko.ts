@@ -5284,10 +5284,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>&lt;p&gt;Local interfaces are unavailable because the packet capture driver isn&apos;t loaded.&lt;/p&gt;&lt;p&gt;You can fix this by running &lt;pre&gt;net start npcap&lt;/pre&gt; if you have Npcap installed or &lt;pre&gt;net start npf&lt;/pre&gt; if you have WinPcap installed. Both commands must be run as Administrator.&lt;/p&gt;</source>
-        <translation type="vanished">&lt;p&gt;패킷 캡처 드라이버를 불러오지 않았기 때문에 로컬 인터페이스를 사용할 수 없습니다.&lt;/p&gt;&lt;p&gt;Npcap이 설치된 경우 &lt;pre&gt;net start npcap&lt;/pre&gt;을 실행하거나 WinPcap이 설치된 경우 &lt;pre&gt;net start npf&lt;/pre&gt;를 실행하여 이 문제를 해결할 수 있습니다. 두 명령 모두 관리자 권한으로 실행해야 합니다.&lt;/p&gt;</translation>
-    </message>
-    <message>
         <source>&lt;p&gt;You don&apos;t have permission to capture on local interfaces.&lt;/p&gt;&lt;p&gt;You can fix this by &lt;a href=&quot;file://%1&quot;&gt;installing ChmodBPF&lt;/a&gt;.&lt;/p&gt;</source>
         <translation>&lt;p&gt;로컬 인터페이스에서 캡처할 수 있는 권한이 없습니다.&lt;/p&gt;&lt;p&gt;&lt;a href=&quot;file://%1&quot;&gt;ChmodBPF를 설치&lt;/a&gt;하여 이 문제를 해결할 수 있습니다.&lt;/p&gt;</translation>
     </message>

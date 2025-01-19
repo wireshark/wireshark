@@ -5284,10 +5284,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>&lt;p&gt;Local interfaces are unavailable because the packet capture driver isn&apos;t loaded.&lt;/p&gt;&lt;p&gt;You can fix this by running &lt;pre&gt;net start npcap&lt;/pre&gt; if you have Npcap installed or &lt;pre&gt;net start npf&lt;/pre&gt; if you have WinPcap installed. Both commands must be run as Administrator.&lt;/p&gt;</source>
-        <translation type="vanished">&lt;p&gt;Paket yakalama sürücüsü yüklenmediğinden yerel arayüzler kullanılamıyor.&lt;/p&gt;&lt;p&gt;Npcap veya &lt;pre&gt;net kuruluysa &lt;pre&gt;net start npcap&lt;/pre&gt;&apos;i çalıştırarak bunu düzeltebilirsiniz. WinPcap kuruluysa npf&lt;/pre&gt;&apos;yi başlatın. Her iki komut da Yönetici olarak çalıştırılmalıdır.&lt;/p&gt;</translation>
-    </message>
-    <message>
         <source>&lt;p&gt;You don&apos;t have permission to capture on local interfaces.&lt;/p&gt;&lt;p&gt;You can fix this by &lt;a href=&quot;file://%1&quot;&gt;installing ChmodBPF&lt;/a&gt;.&lt;/p&gt;</source>
         <translation>&lt;p&gt;Yerel arayüzlerde yakalama izniniz yok.&lt;/p&gt;&lt;p&gt;Bunu &lt;a href=&quot;file://%1&quot;&gt;ChmodBPF&apos;yi yükleyerek&lt;/a&gt; düzeltebilirsiniz.&lt;/p &gt;</translation>
     </message>
