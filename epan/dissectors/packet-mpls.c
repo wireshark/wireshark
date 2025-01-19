@@ -308,29 +308,26 @@ dissect_pw_ach(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
     channel_type = tvb_get_ntohs(tvb, 2);
     p_add_proto_data(pinfo->pool, pinfo, proto_pw_ach, 0, GUINT_TO_POINTER(channel_type));
 
-    if (tree) {
-        proto_tree *mpls_pw_ach_tree;
-        proto_item *ti;
-        uint16_t    res;
+    proto_tree *mpls_pw_ach_tree;
+    proto_item *ti;
+    uint16_t    res;
 
-        ti = proto_tree_add_item(tree, proto_pw_ach, tvb, 0, 4, ENC_NA);
-        mpls_pw_ach_tree = proto_item_add_subtree(ti, ett_mpls_pw_ach);
+    ti = proto_tree_add_item(tree, proto_pw_ach, tvb, 0, 4, ENC_NA);
+    mpls_pw_ach_tree = proto_item_add_subtree(ti, ett_mpls_pw_ach);
 
-        proto_tree_add_item(mpls_pw_ach_tree, hf_mpls_pw_ach_ver,
-                            tvb, 0, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(mpls_pw_ach_tree, hf_mpls_pw_ach_ver,
+                        tvb, 0, 1, ENC_BIG_ENDIAN);
 
-        res = tvb_get_uint8(tvb, 1);
-        ti = proto_tree_add_uint(mpls_pw_ach_tree, hf_mpls_pw_ach_res,
-                                        tvb, 1, 1, res);
-        if (res != 0)
-            expert_add_info(pinfo, ti, &ei_mpls_pw_ach_res);
+    res = tvb_get_uint8(tvb, 1);
+    ti = proto_tree_add_uint(mpls_pw_ach_tree, hf_mpls_pw_ach_res,
+                                    tvb, 1, 1, res);
+    if (res != 0)
+        expert_add_info(pinfo, ti, &ei_mpls_pw_ach_res);
 
-        proto_tree_add_item(mpls_pw_ach_tree, hf_mpls_pw_ach_channel_type,
-                            tvb, 2, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(mpls_pw_ach_tree, hf_mpls_pw_ach_channel_type,
+                        tvb, 2, 2, ENC_BIG_ENDIAN);
 
-    } /* if (tree) */
-
-    next_tvb     = tvb_new_subset_remaining(tvb, 4);
+    next_tvb = tvb_new_subset_remaining(tvb, 4);
 
     if (!dissector_try_uint(pw_ach_subdissector_table, channel_type, next_tvb, pinfo, tree))
     {
