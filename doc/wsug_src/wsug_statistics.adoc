@@ -234,7 +234,7 @@ as described in <<ChStatIOGraphs>>.
 
 btn:[Conversation Types] lets you choose which traffic type tabs are shown.
 See <<ChStatEndpoints>> for a list of endpoint types. The enabled types
-are saved in your profile settings.
+are saved in your profile settings, as well as the last opened tab.
 
 [TIP]
 ====
@@ -356,7 +356,7 @@ The btn:[Map] button will show the endpoints mapped in your web browser.
 
 btn:[Endpoint Types] lets you choose which traffic type tabs are shown. See
 <<ChStatEndpoints>> above for a list of endpoint types. The enabled
-types are saved in your profile settings.
+types are saved in your profile settings, as well as the last opened tab.
 
 [TIP]
 ====
