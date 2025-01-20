@@ -2007,9 +2007,9 @@ void StratosharkMainWindow::initMainToolbarIcons()
     // Toolbar actions. The GNOME HIG says that we should have a menu icon for each
     // toolbar item but that clutters up our menu. Set menu icons sparingly.
 
-    main_ui_->actionCaptureStart->setIcon(StockIcon("x-capture-start-circle"));
+    main_ui_->actionCaptureStart->setIcon(StockIcon("x-capture-start"));
     main_ui_->actionCaptureStop->setIcon(StockIcon("x-capture-stop"));
-    main_ui_->actionCaptureRestart->setIcon(StockIcon("x-capture-restart-circle"));
+    main_ui_->actionCaptureRestart->setIcon(StockIcon("x-capture-restart"));
     main_ui_->actionCaptureOptions->setIcon(StockIcon("x-capture-options"));
 
     // Menu icons are disabled in stratoshark_main_window.ui for these File-> items.
