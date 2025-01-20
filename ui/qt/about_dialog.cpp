@@ -306,10 +306,15 @@ AboutDialog::AboutDialog(QWidget *parent) :
     ui->pte_wireshark->setFrameStyle(QFrame::NoFrame);
     ui->pte_wireshark->viewport()->setAutoFillBackground(false);
 
-/* Check if it is a dev release... (VERSION_MINOR is odd in dev release) */
-#if VERSION_MINOR & 1
-        ui->label_logo->setPixmap(QPixmap(":/about/wssplash_dev.png"));
-#endif
+    if (application_flavor_is_stratoshark()) {
+        if (mainApp->devicePixelRatio() > 1.0) {
+            QPixmap pm = QPixmap(":/about/sssplash@2x.png");
+            pm.setDevicePixelRatio(2.0);
+            ui->label_logo->setPixmap(pm);
+        } else {
+            ui->label_logo->setPixmap(QPixmap(":/about/sssplash.png"));
+        }
+    }
 
     /* Authors */
     AuthorListModel * authorModel = new AuthorListModel(this);
