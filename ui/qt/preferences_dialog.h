@@ -47,6 +47,7 @@ protected:
 
 private:
     void apply();
+    void resizeSplitter();
 
     Ui::PreferencesDialog *pd_ui_;
 
