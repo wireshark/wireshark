@@ -2104,7 +2104,7 @@ file_seek(FILE_T file, int64_t offset, int whence, int *err)
 
 #ifdef USE_LZ4
         case LZ4_AFTER_HEADER:
-            if (memcmp(&file->lz4_info, &here->data.lz4.lz4_info, sizeof(LZ4F_frameInfo_t)) != 0) {
+            if (memcmp(&file->lz4_info, &here->data.lz4.lz4_info, sizeof(LZ4F_frameInfo_t)) == 0) {
                 /* If we are jumping to the start of an independent block and
                  * the frame options haven't changed, we don't need to reset
                  * the compression context.
