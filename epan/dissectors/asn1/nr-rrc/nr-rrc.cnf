@@ -405,9 +405,13 @@ MIMO-ParametersPerBand/beamReportTiming/scs-15kHz                             mI
 MIMO-ParametersPerBand/ptrs-DensityRecommendationSetDL/scs-15kHz              mIMO-ParametersPerBand_ptrs-DensityRecommendationSetDL_scs-15kHz
 MIMO-ParametersPerBand/ptrs-DensityRecommendationSetUL/scs-15kHz              mIMO-ParametersPerBand_ptrs-DensityRecommendationSetUL_scs-15kHz
 BandNR/channelBWs-DL/fr1/scs-15kHz                                            bandNR_channelBWs-DL_fr1_scs-15kHz
+BandNR/channelBWs-DL/fr1/scs-30kHz                                            scs-30kHz-bit-str-10
 BandNR/channelBWs-UL/fr1/scs-15kHz                                            bandNR_channelBWs-UL_fr1_scs-15kHz
+BandNR/channelBWs-UL/fr1/scs-30kHz                                            scs-30kHz-bit-str-10
 BandNR/eag_4/channelBWs-DL-v1590/fr1/scs-15kHz                                bandNR_eag_4_channelBWs-DL-v1590_fr1_scs-15kHz
+BandNR/eag_4/channelBWs-DL-v1590/fr1/scs-30kHz                                scs-30kHz-bit-str-16
 BandNR/eag_4/channelBWs-UL-v1590/fr1/scs-15kHz                                bandNR_eag_4_channelBWs-UL-v1590_fr1_scs-15kHz
+BandNR/eag_4/channelBWs-UL-v1590/fr1/scs-30kHz                                scs-30kHz-bit-str-16
 BandNR/eag_6/channelBW-DL-IAB-r16/fr1-100mhz/scs-15kHz                        bandNR_eag_6_channelBW-DL-IAB-r16_fr1-100mhz_scs-15kHz
 BandNR/eag_6/channelBW-UL-IAB-r16/fr1-100mhz/scs-15kHz                        bandNR_eag_6_channelBW-UL-IAB-r16_fr1-100mhz_scs-15kHz
 
@@ -497,7 +501,7 @@ SL-MeasReportQuantity-r16/sl-RSRP-r16                                           
 MasterInformationBlockSidelink/slotIndex-r16                                                        masterInformationBlockSidelink_slotIndex-r16
 
 # Extension group - not handled
-#ConditionalReconfiguration-r16/scpac-ReferenceConfiguration-r18 scpac-referenceconfiguration-r18-choise
+ConditionalReconfiguration-r16/eag_1/scpac-ReferenceConfiguration-r18 scpac-referenceconfiguration-r18-choise
 InvalidSymbolPattern-r16/periodicityAndPattern-r16/n4 n4-bit-str
 InvalidSymbolPattern-r16/periodicityAndPattern-r16/n5 n5-bit-str
 InvalidSymbolPattern-r16/periodicityAndPattern-r16/n8 n8-bit-str
@@ -536,6 +540,17 @@ BandParametersSidelinkDiscovery-r17/sl-TransmissionMode2-PartialSensing-r17/scs-
 BandParametersSidelinkDiscovery-r17/sl-TransmissionMode2-PartialSensing-r17/scs-CP-PatternTxSidelinkModeTwo-r17/fr2-r17/scs-60kHz-r17 scs-60kHz-r17-bit-string
 BandParametersSidelinkDiscovery-r17/sl-TransmissionMode2-PartialSensing-r17/scs-CP-PatternTxSidelinkModeTwo-r17/fr2-r17/scs-120kHz-r17 scs-120kHz-r17-bit-string
 
+BandSidelink-r16/eag_3/sl-TransmissionMode2-RandomResourceSelection-r17/scs-CP-PatternTxSidelinkModeTwo-r17/fr1-r17/scs-15kHz-r17 scs-15kHz-r17-bit-str-16
+BandSidelink-r16/eag_3/sl-TransmissionMode2-RandomResourceSelection-r17/scs-CP-PatternTxSidelinkModeTwo-r17/fr1-r17/scs-30kHz-r17 scs-30kHz-r17-bit-str-16
+BandSidelink-r16/eag_3/sl-TransmissionMode2-RandomResourceSelection-r17/scs-CP-PatternTxSidelinkModeTwo-r17/fr1-r17/scs-60kHz-r17 scs-60kHz-r17-bit-str-16
+BandSidelink-r16/eag_3/sl-TransmissionMode2-RandomResourceSelection-r17/scs-CP-PatternTxSidelinkModeTwo-r17/fr2-r17/scs-60kHz-r17 scs-60kHz-r17-bit-str-16
+BandSidelink-r16/eag_3/sl-TransmissionMode2-RandomResourceSelection-r17/scs-CP-PatternTxSidelinkModeTwo-r17/fr2-r17/scs-120kHz-r17 scs-120kHz-r17-bit-str-16
+
+#FeatureSetDownlink-v1720\rtt-BasedPDC-PRS-r17\maxNumberPRS-ResourceProcessedPerSlot-r17\scs-15kHz-r17 scs-15kHz-r17-enum
+#FeatureSetDownlink-v1720\rtt-BasedPDC-PRS-r17\maxNumberPRS-ResourceProcessedPerSlot-r17\scs-30kHz-r17 scs-30kHz-r17-enum
+#FeatureSetDownlink-v1720\rtt-BasedPDC-PRS-r17\maxNumberPRS-ResourceProcessedPerSlot-r17\scs-60kHz-r17 scs-60kHz-r17-enum
+#FeatureSetDownlink-v1720\rtt-BasedPDC-PRS-r17\maxNumberPRS-ResourceProcessedPerSlot-r17\scs-120kHz-r17 scs-120kHz-r17-enum
+
 LocationMeasurementIndication-IEs/measurementIndication/setup setup-LocationMeasurementInfo
 LoggedMeasurementConfiguration-r16-IEs/bt-NameList-r16/setup setup-BT-NameList-r16
 LoggedMeasurementConfiguration-r16-IEs/wlan-NameList-r16/setup setup-WLAN-NameList-r16
@@ -563,7 +578,7 @@ RRCReconfiguration-v1800-IEs/srs-PosResourceSetAggBW-CombinationList-r18/setup s
 RRCReconfiguration-v1800-IEs/ltm-Config-r18/setup setup-LTM-Config-r18
 RRCRelease-v1610-IEs/measIdleConfig-r16/setup setup-MeasIdleConfigDedicated-r16
 
-SDT-Config-r17/sdt-MAC-PHY-CG-Config-r17/setup setup-SDT-CG-Config-r17
+SDT-Config-r17/sdt-MAC-PHY-CG-Config-r17/setup setup-SDT-CG-Config-r17SuspendConfig
 SDT-MAC-PHY-CG-Config-r17/cg-SDT-ConfigInitialBWP-NUL-r17/setup setup-BWP-UplinkDedicatedSDT-r17
 SDT-MAC-PHY-CG-Config-r17/cg-SDT-ConfigInitialBWP-SUL-r17/setup setup-BWP-UplinkDedicatedSDT-r17
 SDT-MAC-PHY-CG-Config-r17/cg-SDT-TA-ValidationConfig-r17/setup setup-CG-SDT-TA-ValidationConfig-r17
@@ -581,6 +596,17 @@ RRCResume-v1700-IEs/needForGapNCSG-ConfigNR-r17/setup setup-NeedForGapNCSG-Confi
 RRCResume-v1700-IEs/needForGapNCSG-ConfigEUTRA-r17/setup setup-NeedForGapNCSG-ConfigEUTRA-r17
 Aerial-Config-r18/flightPathUpdateThrConfig-r18/flightPathUpdateDistanceThr-r18/setup setup-FlightPathUpdateDistanceThr-r18
 Aerial-Config-r18/flightPathUpdateThrConfig-r18/flightPathUpdateTimeThr-r18/setup setup-FlightPathUpdateTimeThr-r18
+SuspendConfig/eag_1/sdt-Config-r17/setup setup-SDT-Config-r17
+SuspendConfig/eag_1/srs-PosRRC-Inactive-r17/setup setup-SRS-PosRRC-Inactive-r17
+SuspendConfig/eag_3/srs-PosRRC-InactiveEnhanced-r18/setup setup-SRS-PosRRC-InactiveEnhanced-r18
+SCellConfig/eag_3/sCellSIB20-r17/setup setup-SCellSIB20-r17
+ConditionalReconfiguration-r16/eag_1/scpac-ReferenceConfiguration-r18/setup setup-ReferenceConfiguration-r18
+PDSCH-ServingCellConfig/eag_2/pdsch-CodeBlockGroupTransmissionList-r16/setup setup-PDSCH-CodeBlockGroupTransmissionList-r16
+PDSCH-ServingCellConfig/eag_3/downlinkHARQ-FeedbackDisabled-r17/setup setup-DownlinkHARQ-FeedbackDisabled-r17
+LTM-Config-r18/ltm-ReferenceConfiguration-r18/setup setup-ReferenceConfiguration-r18
+PUSCH-ServingCellConfig/codeBlockGroupTransmission/setup setup-PUSCH-CodeBlockGroupTransmission
+PUSCH-ServingCellConfig/eag_2/maxMIMO-LayersDCI-0-2-r16/setup setup-MaxMIMO-LayersDCI-0-2-r16
+PUSCH-ServingCellConfig/eag_3/uplinkHARQ-mode-r17/setup setup-UplinkHARQ-mode-r17
 
 #.FIELD_ATTR
 RRM-Config/eag_1/candidateCellInfoListSN-EUTRA                                 ABBREV=rRM_Config.eag_1.candidateCellInfoListSN_EUTRA
