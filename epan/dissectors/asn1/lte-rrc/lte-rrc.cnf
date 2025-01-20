@@ -268,6 +268,10 @@ RLF-TimersAndConstants-NB-r13/setup                                             
 SR-WithoutHARQ-ACK-Config-NB-r15/setup                                                         sR-WithoutHARQ-ACK-Config-NB-r15_setup
 SR-SPS-BSR-Config-NB-r15/setup                                                                 sR-SPS-BSR-Config-NB-r15_setup
 RSRQ-RangeConfig-r12/setup                                                                     rSRQ-RangeConfig-r12_setup
+PDSCH-ConfigDedicated-v1800/downlinkHARQ-FeedbackDisabledBitmap-r18/setup setup-DownlinkHARQ-FeedbackDisabledBitmap-r18
+PUSCH-ConfigDedicated-v1800/uplinkHARQ-Mode-r18/setup setup-UplinkHARQ-Mode-r18
+NPDSCH-ConfigDedicated-NB-v1800/downlinkHARQ-FeedbackDisabledBitmap-NB-r18/setup setup-DownlinkHARQ-FeedbackDisabledBitmap-NB-r18
+NPUSCH-ConfigDedicated-NB-v1800/uplinkHARQ-Mode-r18/setup setup-UplinkHARQ-Mode-NB-r18
 
 CSI-Process-r11/eag_1/csi-IM-ConfigIdList-r12/setup/_item                                      csi-IM-ConfigIdList-r12_setup_item
 CSI-RS-ConfigZP-ApList-r14/setup/_item                                                         cSI-RS-ConfigZP-ApList-r14_setup_item
@@ -312,6 +316,9 @@ UL-CCCH-Message-NB/message                                                      
 SC-MCCH-Message-NB/message                                                                     sC-MCCH-Message-NB_message
 UL-DCCH-Message-NB/message                                                                     uL-DCCH-Message-NB_message
 DRX-Config/release                                                                             dRX-Config_release
+
+ServingSatelliteInfo-v1820/referenceLocation-r18 referenceLocation-r18-choice
+OtherConfig-r9/eag_6/measUncomBarPre-r17 measUncomBarPre-r17-bool
 
 #.FIELD_ATTR
 UERadioAccessCapabilityInformation-r8-IEs/ue-RadioAccessCapabilityInfo  ABBREV=uERadioAccessCapabilityInformation_r8_IEs.ue_RadioAccessCapabilityInfo
