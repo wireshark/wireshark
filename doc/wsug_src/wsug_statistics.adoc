@@ -229,8 +229,9 @@ The btn:[Copy] button will copy the list values to the clipboard in CSV
 exported without special formatting, but this can be enabled if needed.
 
 The btn:[Follow Stream...] button will show the stream contents as described
-in <<ChAdvFollowStream>> dialog. The btn:[Graph...] button will show a graph
-as described in <<ChStatIOGraphs>>.
+in <<ChAdvFollowStream>> dialog. The btn:[Graph...] button will show a
+Time Sequence graph as described in <<ChStatTCPStreamGraphs>>.
+
 
 btn:[Conversation Types] lets you choose which traffic type tabs are shown.
 See <<ChStatEndpoints>> for a list of endpoint types. The enabled types
