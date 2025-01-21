@@ -1146,21 +1146,18 @@ capture_opts_add_opt(capture_options *capture_opts, int opt, const char *optarg_
             cmdarg_err("--compress-type can be set only once");
             return 1;
         }
-        if (strcmp(optarg_str_p, "none") == 0) {
-            ;
-        } else if (strcmp(optarg_str_p, "gzip") == 0) {
-#if defined (HAVE_ZLIB) || defined (HAVE_ZLIBNG)
-            ;
-#else
-            cmdarg_err("'gzip' compression is not supported");
-            return 1;
-#endif
-        } else {
-#if defined (HAVE_ZLIB) || defined (HAVE_ZLIBNG)
-            cmdarg_err("parameter of --compress-type can be 'none' or 'gzip'");
-#else
-            cmdarg_err("parameter of --compress-type can only be 'none'");
-#endif
+        if (!wtap_can_write_compression_type(wtap_name_to_compression_type(optarg_str_p))) {
+            cmdarg_err("\"%s\" isn't a valid output compression mode", optarg_str_p);
+            cmdarg_err("The available output compression type(s) are:");
+            GSList *output_compression_types;
+            output_compression_types = wtap_get_all_output_compression_type_names_list();
+            for (GSList *compression_type = output_compression_types;
+                compression_type != NULL;
+                compression_type = g_slist_next(compression_type)) {
+
+                cmdarg_err_cont("    %s", (const char*)compression_type->data);
+            }
+            g_slist_free(output_compression_types);
             return 1;
         }
         capture_opts->compress_type = g_strdup(optarg_str_p);

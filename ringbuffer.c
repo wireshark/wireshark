@@ -55,18 +55,6 @@
 #include <wsutil/array.h>
 #include <wsutil/file_util.h>
 
-#ifdef HAVE_ZLIBNG
-#define ZLIB_PREFIX(x) zng_ ## x
-#include <zlib-ng.h>
-typedef zng_stream zlib_stream;
-#else
-#ifdef HAVE_ZLIB
-#define ZLIB_PREFIX(x) x
-#include <zlib.h>
-typedef z_stream zlib_stream;
-#endif /* HAVE_ZLIB */
-#endif
-
 /* Ringbuffer file structure */
 typedef struct _rb_file {
     char          *name;
@@ -85,136 +73,13 @@ typedef struct _ringbuf_data {
     bool          unlimited;           /**< true if unlimited number of files */
 
     int           fd;                  /**< Current ringbuffer file descriptor */
-    FILE         *pdh;
-    char         *io_buffer;              /**< The IO buffer used to write to the file */
+    pcapio_writer* pdh;
     bool          group_read_access;   /**< true if files need to be opened with group read access */
     FILE         *name_h;              /**< write names of completed files to this handle */
-    char         *compress_type;       /**< compress type */
-
-    GMutex        mutex;               /**< mutex for oldnames */
-    char         *oldnames[MAX_FILENAME_QUEUE];       /**< filename list of pending to be deleted */
+    const char   *compress_type;       /**< compress type */
 } ringbuf_data;
 
 static ringbuf_data rb_data;
-
-/*
- * delete pending uncompressed pcap files.
- */
-static void
-CleanupOldCap(char* name)
-{
-    ws_statb64 statb;
-    size_t i;
-
-    g_mutex_lock(&rb_data.mutex);
-
-    /* Delete pending delete file */
-    for (i = 0; i < array_length(rb_data.oldnames); i++) {
-        if (rb_data.oldnames[i] != NULL) {
-            ws_unlink(rb_data.oldnames[i]);
-            if (ws_stat64(rb_data.oldnames[i], &statb) != 0) {
-                g_free(rb_data.oldnames[i]);
-                rb_data.oldnames[i] = NULL;
-            }
-        }
-    }
-
-    if (name) {
-        /* push the current file to pending list if it failed to delete */
-        if (ws_stat64(name, &statb) == 0) {
-            for (i = 0; i < array_length(rb_data.oldnames); i++) {
-                if (rb_data.oldnames[i] == NULL) {
-                    rb_data.oldnames[i] = g_strdup(name);
-                    break;
-                }
-            }
-        }
-    }
-
-    g_mutex_unlock(&rb_data.mutex);
-}
-
-#if defined (HAVE_ZLIB) || defined (HAVE_ZLIBNG)
-/*
- * compress capture file
- */
-static int
-ringbuf_exec_compress(char* name)
-{
-    uint8_t *buffer = NULL;
-    char* outgz = NULL;
-    int  fd = -1;
-    ssize_t nread;
-    bool delete_org_file = true;
-    gzFile fi = NULL;
-
-    fd = ws_open(name, O_RDONLY | O_BINARY, 0000);
-    if (fd < 0) {
-        return -1;
-    }
-
-    outgz = ws_strdup_printf("%s.gz", name);
-    fi = ZLIB_PREFIX(gzopen)(outgz, "wb");
-    g_free(outgz);
-    if (fi == NULL) {
-        ws_close(fd);
-        return -1;
-    }
-
-#define FS_READ_SIZE 65536
-    buffer = (uint8_t*)g_malloc(FS_READ_SIZE);
-    if (buffer == NULL) {
-        ws_close(fd);
-        ZLIB_PREFIX(gzclose)(fi);
-        return -1;
-    }
-
-    while ((nread = ws_read(fd, buffer, FS_READ_SIZE)) > 0) {
-        int n = ZLIB_PREFIX(gzwrite)(fi, buffer, (unsigned int)nread);
-        if (n <= 0) {
-            /* mark compression as failed */
-            delete_org_file = false;
-            break;
-        }
-    }
-    if (nread < 0) {
-        /* mark compression as failed */
-        delete_org_file = false;
-    }
-    ws_close(fd);
-    ZLIB_PREFIX(gzclose)(fi);
-    g_free(buffer);
-
-    /* delete the original file only if compression succeeds */
-    if (delete_org_file) {
-        ws_unlink(name);
-        CleanupOldCap(name);
-    }
-    g_free(name);
-    return 0;
-}
-
-/*
- * thread to compress capture file
- */
-static void*
-exec_compress_thread(void* arg)
-{
-    ringbuf_exec_compress((char*)arg);
-    return NULL;
-}
-
-/*
- * start a thread to compress capture file
- */
-static int
-ringbuf_start_compress_file(rb_file* rfile)
-{
-    char* name = g_strdup(rfile->name);
-    g_thread_new("exec_compress", &exec_compress_thread, name);
-    return 0;
-}
-#endif
 
 /*
  * create the next filename and open a new binary file with that name
@@ -232,11 +97,6 @@ ringbuf_open_file(rb_file *rfile, int *err)
             /* remove old file (if any, so ignore error) */
             ws_unlink(rfile->name);
         }
-#if defined (HAVE_ZLIB) || defined (HAVE_ZLIBNG)
-        else if (rb_data.compress_type != NULL && strcmp(rb_data.compress_type, "gzip") == 0) {
-            ringbuf_start_compress_file(rfile);
-        }
-#endif
         g_free(rfile->name);
     }
 
@@ -278,7 +138,7 @@ ringbuf_open_file(rb_file *rfile, int *err)
  */
 int
 ringbuf_init(const char *capfile_name, unsigned num_files, bool group_read_access,
-        char *compress_type, bool has_nametimenum)
+        const char *compress_type, bool has_nametimenum)
 {
     unsigned int i;
     char        *pfx;
@@ -292,11 +152,9 @@ ringbuf_init(const char *capfile_name, unsigned num_files, bool group_read_acces
     rb_data.unlimited = false;
     rb_data.fd = -1;
     rb_data.pdh = NULL;
-    rb_data.io_buffer = NULL;
     rb_data.group_read_access = group_read_access;
     rb_data.name_h = NULL;
     rb_data.compress_type = compress_type;
-    g_mutex_init(&rb_data.mutex);
 
     /* just to be sure ... */
     if (num_files <= RINGBUFFER_MAX_NUM_FILES) {
@@ -322,12 +180,29 @@ ringbuf_init(const char *capfile_name, unsigned num_files, bool group_read_acces
            Treat it as a separator between the rest of the file name and
            the file name suffix, and arrange that the names given to the
            ring buffer files have the specified suffix, i.e. put the
-           changing part of the name *before* the suffix.
-
-           XXX - If we ever handle writing compressed files directly
-           (#19159) make sure we deal with any compression suffix
-           appropriately. */
+           changing part of the name *before* the suffix. */
         pfx[0] = '\0';
+        /* Is the suffix a compression type extension? (XXX - Should
+         * we only check this if compressing, and only for the compression
+         * type used?) */
+        GSList *compression_type_extensions = wtap_get_all_compression_type_extensions_list();
+        for (GSList *compression_type_extension = compression_type_extensions;
+            compression_type_extension != NULL;
+            compression_type_extension = g_slist_next(compression_type_extension)) {
+
+            if (g_ascii_strcasecmp(pfx + 1, (const char*)compression_type_extension->data) == 0) {
+                /* It's a compression type extension. Is there a previous extension? */
+                char *sfx = strrchr(base_name, '.');
+                if (sfx != NULL) {
+                    /* Yes. Use both extensions as the suffix. */
+                    pfx[0] = '.'; /* restore last suffix */
+                    sfx[0] = '\0';
+                    pfx = sfx;
+                }
+                break;
+            }
+        }
+        g_slist_free(compression_type_extensions);
         rb_data.fprefix = g_build_filename(dir_name, base_name, NULL);
         pfx[0] = '.'; /* restore capfile_name */
         rb_data.fsuffix = g_strdup(pfx);
@@ -413,29 +288,10 @@ ringbuf_current_filename(void)
 /*
  * Calls ws_fdopen() for the current ringbuffer file
  */
-FILE *
+pcapio_writer*
 ringbuf_init_libpcap_fdopen(int *err)
 {
-    rb_data.pdh = ws_fdopen(rb_data.fd, "wb");
-    if (rb_data.pdh == NULL) {
-        if (err != NULL) {
-            *err = errno;
-        }
-    } else {
-        size_t buffsize = IO_BUF_SIZE;
-#ifdef HAVE_STRUCT_STAT_ST_BLKSIZE
-        ws_statb64 statb;
-
-        if (ws_fstat64(rb_data.fd, &statb) == 0) {
-            if (statb.st_blksize > IO_BUF_SIZE) {
-                buffsize = statb.st_blksize;
-            }
-        }
-#endif
-        /* Increase the size of the IO buffer */
-        rb_data.io_buffer = (char *)g_realloc(rb_data.io_buffer, buffsize);
-        setvbuf(rb_data.pdh, rb_data.io_buffer, _IOFBF, buffsize);
-    }
+    rb_data.pdh = writecap_fdopen(rb_data.fd, wtap_name_to_compression_type(rb_data.compress_type), err);
 
     return rb_data.pdh;
 }
@@ -444,22 +300,17 @@ ringbuf_init_libpcap_fdopen(int *err)
  * Switches to the next ringbuffer file
  */
 bool
-ringbuf_switch_file(FILE **pdh, char **save_file, int *save_file_fd, int *err)
+ringbuf_switch_file(pcapio_writer* *pdh, char **save_file, int *save_file_fd, int *err)
 {
     int     next_file_index;
     rb_file *next_rfile = NULL;
 
     /* close current file */
 
-    if (fclose(rb_data.pdh) == EOF) {
-        if (err != NULL) {
-            *err = errno;
-        }
+    if (!writecap_close(rb_data.pdh, err)) {
         ws_close(rb_data.fd);  /* XXX - the above should have closed this already */
         rb_data.pdh = NULL;    /* it's still closed, we just got an error while closing */
         rb_data.fd = -1;
-        g_free(rb_data.io_buffer);
-        rb_data.io_buffer = NULL;
         return false;
     }
 
@@ -503,18 +354,12 @@ ringbuf_libpcap_dump_close(char **save_file, int *err)
 
     /* close current file, if it's open */
     if (rb_data.pdh != NULL) {
-        if (fclose(rb_data.pdh) == EOF) {
-            if (err != NULL) {
-                *err = errno;
-            }
+        if (!writecap_close(rb_data.pdh, err)) {
             ws_close(rb_data.fd);
             ret_val = false;
         }
         rb_data.pdh = NULL;
         rb_data.fd  = -1;
-        g_free(rb_data.io_buffer);
-        rb_data.io_buffer = NULL;
-
     }
 
     if (rb_data.name_h != NULL) {
@@ -557,8 +402,6 @@ ringbuf_free(void)
         g_free(rb_data.fsuffix);
         rb_data.fsuffix = NULL;
     }
-
-    CleanupOldCap(NULL);
 }
 
 /*
@@ -571,7 +414,7 @@ ringbuf_error_cleanup(void)
 
     /* try to close via wtap */
     if (rb_data.pdh != NULL) {
-        if (fclose(rb_data.pdh) == 0) {
+        if (writecap_close(rb_data.pdh, NULL) == 0) {
             rb_data.fd = -1;
         }
         rb_data.pdh = NULL;
@@ -590,8 +433,6 @@ ringbuf_error_cleanup(void)
             }
         }
     }
-    g_free(rb_data.io_buffer);
-    rb_data.io_buffer = NULL;
 
     if (rb_data.name_h != NULL) {
         if (EOF == fclose(rb_data.name_h)) {

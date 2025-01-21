@@ -3458,8 +3458,6 @@ if(BUILD_dumpcap AND PCAP_FOUND)
 		wsutil_static
 		pcap::pcap
 		${CAP_LIBRARIES}
-		${ZLIB_LIBRARIES}
-		${ZLIBNG_LIBRARIES}
 		${NL_LIBRARIES}
 		${APPLE_CORE_FOUNDATION_LIBRARY}
 		${APPLE_SYSTEM_CONFIGURATION_LIBRARY}
@@ -3505,7 +3503,7 @@ if(BUILD_dumpcap AND PCAP_FOUND)
 	add_executable(dumpcap ${dumpcap_FILES})
 	set_extra_executable_properties(dumpcap "Executables")
 	target_link_libraries(dumpcap ${dumpcap_LIBS})
-	target_include_directories(dumpcap SYSTEM PRIVATE ${ZLIB_INCLUDE_DIRS} ${ZLIBNG_INCLUDE_DIRS} ${NL_INCLUDE_DIRS})
+	target_include_directories(dumpcap SYSTEM PRIVATE ${NL_INCLUDE_DIRS})
 	target_compile_definitions(dumpcap PRIVATE ENABLE_STATIC)
 	executable_link_mingw_unicode(dumpcap)
 	install(TARGETS dumpcap

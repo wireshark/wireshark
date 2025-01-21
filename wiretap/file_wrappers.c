@@ -145,6 +145,17 @@ wtap_compression_type_extension(wtap_compression_type compression_type)
 	return NULL;
 }
 
+const char *
+wtap_compression_type_name(wtap_compression_type compression_type)
+{
+	for (struct compression_type *p = compression_types;
+	    p->type != WTAP_UNCOMPRESSED; p++) {
+		if (p->type == compression_type)
+			return p->name;
+	}
+	return NULL;
+}
+
 GSList *
 wtap_get_all_compression_type_extensions_list(void)
 {
@@ -1199,7 +1210,7 @@ lz4_fill_out_buffer(FILE_T state)
 
         state->out.avail += (unsigned)outBufSize;
 
-        if (compressedSize == 0 && ret > 4) {
+        if (compressedSize == 0 && ret > LZ4F_BLOCK_HEADER_SIZE) {
             /* End of block plus the next block header. We want to add a fast
              * seek point to the beginning of a block, before the header. We
              * don't add a fast seek point after before the EndMark / footer,

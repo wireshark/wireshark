@@ -353,12 +353,12 @@ static void
 list_output_compression_types(void) {
     GSList *output_compression_types;
 
-    fprintf(stderr, "tshark: The available output compression type(s) for the \"--compress\" flag are:\n");
+    cmdarg_err("The available output compression type(s) are:");
     output_compression_types = wtap_get_all_output_compression_type_names_list();
     for (GSList *compression_type = output_compression_types;
         compression_type != NULL;
         compression_type = g_slist_next(compression_type)) {
-            fprintf(stderr, "   %s\n", (const char *)compression_type->data);
+            cmdarg_err_cont("   %s", (const char *)compression_type->data);
         }
 
     g_slist_free(output_compression_types);
@@ -1941,6 +1941,7 @@ main(int argc, char *argv[])
                         list_capture_types();
                         break;
                     case LONGOPT_COMPRESS:
+                    case LONGOPT_COMPRESS_TYPE:
                         list_output_compression_types();
                         break;
                     default:
@@ -2090,10 +2091,21 @@ main(int argc, char *argv[])
         goto clean_exit;
     }
 
+    /* XXX - We have two different long options for compression type;
+     * one (undocumented) for live capturing and one for not. That is confusing.
+     * LONGOPT_COMPRESS doesn't set "capture_option_specified" because it can be
+     * used when capturing or when not capturing.
+     */
     if (compression_type != WTAP_UNCOMPRESSED && is_capturing) {
-        cmdarg_err("Writing to compressed output is not supported for live captures");
-        exit_status = WS_EXIT_INVALID_OPTION;
-        goto clean_exit;
+#ifdef HAVE_LIBPCAP
+        exit_status = capture_opts_add_opt(&global_capture_opts, LONGOPT_COMPRESS_TYPE, wtap_compression_type_name(compression_type));
+        if (exit_status != 0) {
+            goto clean_exit;
+        }
+#else
+        capture_option_specified = true;
+        arg_error = true;
+#endif
     }
 
 #ifndef HAVE_LIBPCAP

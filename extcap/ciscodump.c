@@ -894,7 +894,7 @@ static int parse_line_asa(uint8_t* packet, unsigned* offset, char* line, uint32_
 }
 
 /* IOS: Reads response and parses buffer till prompt received */
-static int process_buffer_response_ios(ssh_channel channel, uint8_t* packet, FILE* fp, const uint32_t count, uint32_t *processed_packets)
+static int process_buffer_response_ios(ssh_channel channel, uint8_t* packet, pcapio_writer* fp, const uint32_t count, uint32_t *processed_packets)
 {
 	char line[SSH_READ_BLOCK_SIZE + 1];
 	uint32_t read_packets = 1;
@@ -928,7 +928,7 @@ static int process_buffer_response_ios(ssh_channel channel, uint8_t* packet, FIL
 							ws_debug("Error in libpcap_write_packet(): %s", g_strerror(err));
 							break;
 						}
-						fflush(fp);
+						writecap_flush(fp, &err);
 						ws_debug("Dumped packet %u size: %u\n", *processed_packets, packet_size);
 						(*processed_packets)++;
 					}
@@ -958,7 +958,7 @@ static int process_buffer_response_ios(ssh_channel channel, uint8_t* packet, FIL
 }
 
 /* IOS: Queries buffer content and reads it */
-static void ssh_loop_read_ios(ssh_channel channel, FILE* fp, const uint32_t count)
+static void ssh_loop_read_ios(ssh_channel channel, pcapio_writer* fp, const uint32_t count)
 {
 	char line[SSH_READ_BLOCK_SIZE + 1];
 	uint8_t* packet;
@@ -1016,7 +1016,7 @@ static void ssh_loop_read_ios(ssh_channel channel, FILE* fp, const uint32_t coun
 }
 
 /* IOS-XE 16: Reads response and parses buffer till prompt received */
-static int process_buffer_response_ios_xe_16(ssh_channel channel, uint8_t* packet, FILE* fp, const uint32_t count, uint32_t *processed_packets)
+static int process_buffer_response_ios_xe_16(ssh_channel channel, uint8_t* packet, pcapio_writer* fp, const uint32_t count, uint32_t *processed_packets)
 {
 	char line[SSH_READ_BLOCK_SIZE + 1];
 	uint32_t read_packets = 1;
@@ -1048,7 +1048,7 @@ static int process_buffer_response_ios_xe_16(ssh_channel channel, uint8_t* packe
 							ws_debug("Error in libpcap_write_packet(): %s", g_strerror(err));
 							break;
 						}
-						fflush(fp);
+						writecap_flush(fp, &err);
 						ws_debug("Dumped packet %u size: %u\n", *processed_packets, packet_size);
 						(*processed_packets)++;
 					}
@@ -1078,7 +1078,7 @@ static int process_buffer_response_ios_xe_16(ssh_channel channel, uint8_t* packe
 }
 
 /* IOS-XE 17: Reads response and parses buffer till prompt received */
-static int process_buffer_response_ios_xe_17(ssh_channel channel, uint8_t* packet, FILE* fp, const uint32_t count, uint32_t *processed_packets)
+static int process_buffer_response_ios_xe_17(ssh_channel channel, uint8_t* packet, pcapio_writer* fp, const uint32_t count, uint32_t *processed_packets)
 {
 	char line[SSH_READ_BLOCK_SIZE + 1];
 	uint32_t read_packets = 1;
@@ -1122,7 +1122,7 @@ static int process_buffer_response_ios_xe_17(ssh_channel channel, uint8_t* packe
 							ws_debug("Error in libpcap_write_packet(): %s", g_strerror(err));
 							break;
 						}
-						fflush(fp);
+						writecap_flush(fp, &err);
 						ws_debug("Dumped packet %u size: %u\n", *processed_packets, packet_size);
 						(*processed_packets)++;
 					}
@@ -1146,7 +1146,7 @@ static int process_buffer_response_ios_xe_17(ssh_channel channel, uint8_t* packe
 }
 
 /* IOS-XE 16: Queries buffer content and reads it */
-static void ssh_loop_read_ios_xe_16(ssh_channel channel, FILE* fp, const uint32_t count)
+static void ssh_loop_read_ios_xe_16(ssh_channel channel, pcapio_writer* fp, const uint32_t count)
 {
 	char line[SSH_READ_BLOCK_SIZE + 1];
 	uint8_t* packet;
@@ -1204,7 +1204,7 @@ static void ssh_loop_read_ios_xe_16(ssh_channel channel, FILE* fp, const uint32_
 }
 
 /* IOS-XE 17: Queries buffer content and reads it */
-static void ssh_loop_read_ios_xe_17(ssh_channel channel, FILE* fp, const uint32_t count)
+static void ssh_loop_read_ios_xe_17(ssh_channel channel, pcapio_writer* fp, const uint32_t count)
 {
 	uint8_t* packet;
 	uint32_t processed_packets = 0;
@@ -1234,7 +1234,7 @@ static void ssh_loop_read_ios_xe_17(ssh_channel channel, FILE* fp, const uint32_
 }
 
 /* ASA: Reads response and parses buffer till prompt end of packet received */
-static int process_buffer_response_asa(ssh_channel channel, uint8_t* packet, FILE* fp, const uint32_t count, uint32_t *processed_packets, uint32_t *current_max)
+static int process_buffer_response_asa(ssh_channel channel, uint8_t* packet, pcapio_writer* fp, const uint32_t count, uint32_t *processed_packets, uint32_t *current_max)
 {
 	char line[SSH_READ_BLOCK_SIZE + 1];
 	uint32_t read_packets = 1;
@@ -1273,7 +1273,7 @@ static int process_buffer_response_asa(ssh_channel channel, uint8_t* packet, FIL
 							ws_debug("Error in libpcap_write_packet(): %s", g_strerror(err));
 							break;
 						}
-						fflush(fp);
+						writecap_flush(fp, &err);
 						ws_debug("Dumped packet %u size: %u\n", *processed_packets, packet_size);
 						(*processed_packets)++;
 						packet_size = 0;
@@ -1305,7 +1305,7 @@ static int process_buffer_response_asa(ssh_channel channel, uint8_t* packet, FIL
 }
 
 /* ASA: Queries buffer content and reads it */
-static void ssh_loop_read_asa(ssh_channel channel, FILE* fp, const uint32_t count)
+static void ssh_loop_read_asa(ssh_channel channel, pcapio_writer* fp, const uint32_t count)
 {
 	char line[SSH_READ_BLOCK_SIZE + 1];
 	uint8_t* packet;
@@ -1357,7 +1357,7 @@ static void ssh_loop_read_asa(ssh_channel channel, FILE* fp, const uint32_t coun
 }
 
 
-static void ssh_loop_read(ssh_channel channel, FILE* fp, const uint32_t count _U_, CISCO_SW_TYPE sw_type)
+static void ssh_loop_read(ssh_channel channel, pcapio_writer* fp, const uint32_t count _U_, CISCO_SW_TYPE sw_type)
 {
 	ws_debug("Starting reading loop");
 	switch (sw_type) {
@@ -2132,7 +2132,7 @@ static int ssh_open_remote_connection(const ssh_params_t* ssh_params, const char
 {
 	ssh_session sshs;
 	ssh_channel channel;
-	FILE* fp = stdout;
+	pcapio_writer* fp;
 	uint64_t bytes_written = 0;
 	int err;
 	int ret = EXIT_FAILURE;
@@ -2140,9 +2140,15 @@ static int ssh_open_remote_connection(const ssh_params_t* ssh_params, const char
 
 	if (g_strcmp0(fifo, "-")) {
 		/* Open or create the output file */
-		fp = fopen(fifo, "wb");
+		fp = writecap_fopen(fifo, WTAP_UNCOMPRESSED, &err);
 		if (!fp) {
 			ws_warning("Error creating output file: %s", g_strerror(errno));
+			return EXIT_FAILURE;
+		}
+	} else {
+		fp = writecap_open_stdout(WTAP_UNCOMPRESSED, &err);
+		if (!fp) {
+			ws_warning("Error opening standard out: %s", g_strerror(errno));
 			return EXIT_FAILURE;
 		}
 	}
@@ -2152,7 +2158,7 @@ static int ssh_open_remote_connection(const ssh_params_t* ssh_params, const char
 		goto cleanup;
 	}
 
-	fflush(fp);
+	writecap_flush(fp, &err);
 
 	ws_debug("Create first ssh session");
 	sshs = create_ssh_connection(ssh_params, &err_info);
@@ -2216,8 +2222,7 @@ static int ssh_open_remote_connection(const ssh_params_t* ssh_params, const char
 
 	ret = EXIT_SUCCESS;
 cleanup:
-	if (fp != stdout)
-		fclose(fp);
+	writecap_close(fp, NULL);
 
 	return ret;
 }

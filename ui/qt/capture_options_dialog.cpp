@@ -200,6 +200,16 @@ CaptureOptionsDialog::CaptureOptionsDialog(QWidget *parent) :
     ui->filenameLineEdit->setPlaceholderText(tr("Leave blank to use a temporary file"));
 
     ui->rbCompressionNone->setChecked(true);
+#if defined(HAVE_ZLIB) || defined(HAVE_ZLIBNG)
+    ui->rbCompressionGzip->setEnabled(true);
+#else
+    ui->rbCompressionGzip->setEnabled(false);
+#endif
+#if defined(HAVE_LZ4FRAME_H)
+    ui->rbCompressionLZ4->setEnabled(true);
+#else
+    ui->rbCompressionLZ4->setEnabled(false);
+#endif
     ui->rbTimeNum->setChecked(true);
 
     ui->tempDirLineEdit->setPlaceholderText(g_get_tmp_dir());
@@ -610,13 +620,6 @@ void CaptureOptionsDialog::on_gbNewFileAuto_toggled(bool checked)
     ui->stopMBCheckBox->setEnabled(checked?false:true);
     ui->stopMBSpinBox->setEnabled(checked?false:true);
     ui->stopMBComboBox->setEnabled(checked?false:true);
-    ui->gbCompression->setEnabled(checked);
-    ui->rbCompressionNone->setEnabled(checked);
-#if defined(HAVE_ZLIB) || defined(HAVE_ZLIBNG)
-    ui->rbCompressionGzip->setEnabled(checked);
-#else
-    ui->rbCompressionGzip->setEnabled(false);
-#endif
 }
 
 void CaptureOptionsDialog::on_cbUpdatePacketsRT_toggled(bool checked)
@@ -1278,7 +1281,9 @@ bool CaptureOptionsDialog::saveOptionsToPreferences()
         global_capture_opts.compress_type = NULL;
     } else if (ui->rbCompressionGzip->isChecked() )  {
         global_capture_opts.compress_type = qstring_strdup("gzip");
-    }  else {
+    } else if (ui->rbCompressionLZ4->isChecked() )  {
+        global_capture_opts.compress_type = qstring_strdup("lz4");
+    } else {
         global_capture_opts.compress_type = NULL;
     }
 

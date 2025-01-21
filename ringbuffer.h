@@ -13,7 +13,7 @@
 #define __RINGBUFFER_H__
 
 #include <wireshark.h>
-#include <stdio.h>
+#include <writecap/pcapio.h>
 
 #define RINGBUFFER_UNLIMITED_FILES 0
 /* Minimum number of ringbuffer files */
@@ -24,12 +24,12 @@
 /* Maximum number for FAT filesystems */
 #define RINGBUFFER_WARN_NUM_FILES 65535
 
-int ringbuf_init(const char *capture_name, unsigned num_files, bool group_read_access, char* compress_type,
-                 bool nametimenum);
+int ringbuf_init(const char *capture_name, unsigned num_files, bool group_read_access,
+                 const char *compress_type, bool nametimenum);
 bool ringbuf_is_initialized(void);
 const char *ringbuf_current_filename(void);
-FILE *ringbuf_init_libpcap_fdopen(int *err);
-bool ringbuf_switch_file(FILE **pdh, char **save_file, int *save_file_fd,
+pcapio_writer* ringbuf_init_libpcap_fdopen(int *err);
+bool ringbuf_switch_file(pcapio_writer* *pdh, char **save_file, int *save_file_fd,
                              int *err);
 bool ringbuf_libpcap_dump_close(char **save_file, int *err);
 void ringbuf_free(void);

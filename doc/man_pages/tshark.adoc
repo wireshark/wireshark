@@ -139,8 +139,7 @@ a compression method as well; the list of supported compression methods
 for writing can be displayed by the *--compress* method without an
 argument. If the *--compress* option is not given, then the desired
 compression method, if any, is deduced from the extension of the filename
-given as argument to the *-w* option. Compression is not supported for
-live capture.
+given as argument to the *-w* option.
 
 When capturing packets, *TShark* writes to the standard error an
 initial line listing the interfaces from which packets are being
@@ -2348,17 +2347,11 @@ Compress the output file using the type compression format.
 *--compress* with no argument provides a list of the compression formats supported
 for writing. The type given takes precedence over the extension of __outfile__.
 
-NOTE: This option only works with the *-r* option, i.e., when reading a
-capture file, not for live captures.
 ////
-The --compress-type option is not documented anywhere; it works with live captures,
-but only a limited set of capture options (multiple file mode (-b), but not
-ringbuffer mode (no -b files), and only compressed upon file rotation.)
-It works with TShark and dumpcap, but not from the command line in Wireshark
-(though the Wireshark GUI can pass the option to dumpcap.)
+The --compress-type option is not documented anywhere; it works with live
+captures only.
 
-Should we document it? Deprecate it in favor of also using compress? Do nothing
-until it has closer feature parity to *--compress* but for captures?
+Should we document it? Deprecate it in favor of also using compress?
 ////
 --
 

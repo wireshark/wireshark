@@ -44,8 +44,18 @@
 #include <glib.h>
 
 #include <wsutil/epochs.h>
+#include <wsutil/file_util.h>
 
 #include "pcapio.h"
+#include <wiretap/file_wrappers.h>
+
+typedef void* WFILE_T;
+
+struct pcapio_writer {
+    WFILE_T fh;
+    char* io_buffer;
+    wtap_compression_type ctype;
+};
 
 /* Magic numbers in "libpcap" files.
 
@@ -169,21 +179,272 @@ struct ws_option {
 #define ISB_USRDELIV      8
 #define ADD_PADDING(x) ((((x) + 3) >> 2) << 2)
 
+static WFILE_T
+writecap_file_open(pcapio_writer* pfile, const char *filename)
+{
+    WFILE_T fh;
+    switch (pfile->ctype) {
+#if defined (HAVE_ZLIB) || defined (HAVE_ZLIBNG)
+        case WTAP_GZIP_COMPRESSED:
+            return gzwfile_open(filename);
+#endif /* defined (HAVE_ZLIB) || defined (HAVE_ZLIBNG) */
+#ifdef HAVE_LZ4FRAME_H
+        case WTAP_LZ4_COMPRESSED:
+            return lz4wfile_open(filename);
+#endif /* HAVE_LZ4FRAME_H */
+        default:
+            fh = ws_fopen(filename, "wb");
+            /* Increase the size of the IO buffer if uncompressed.
+             * Compression has its own buffer that reduces writes.
+             */
+            if (fh != NULL) {
+                size_t buffsize = IO_BUF_SIZE;
+#ifdef HAVE_STRUCT_STAT_ST_BLKSIZE
+                ws_statb64 statb;
+
+                if (ws_stat64(filename, &statb) == 0) {
+                    if (statb.st_blksize > IO_BUF_SIZE) {
+                        buffsize = statb.st_blksize;
+                    }
+                }
+#endif
+                pfile->io_buffer = (char *)g_malloc(buffsize);
+                setvbuf(fh, pfile->io_buffer, _IOFBF, buffsize);
+                //ws_debug("buffsize %zu", buffsize);
+            }
+            return fh;
+    }
+}
+
+static WFILE_T
+writecap_file_fdopen(pcapio_writer* pfile, int fd)
+{
+    WFILE_T fh;
+    switch (pfile->ctype) {
+#if defined (HAVE_ZLIB) || defined (HAVE_ZLIBNG)
+        case WTAP_GZIP_COMPRESSED:
+            return gzwfile_fdopen(fd);
+#endif /* defined (HAVE_ZLIB) || defined (HAVE_ZLIBNG) */
+#ifdef HAVE_LZ4FRAME_H
+        case WTAP_LZ4_COMPRESSED:
+            return lz4wfile_fdopen(fd);
+#endif /* HAVE_LZ4FRAME_H */
+        default:
+            fh = ws_fdopen(fd, "wb");
+            /* Increase the size of the IO buffer if uncompressed.
+             * Compression has its own buffer that reduces writes.
+             */
+            if (fh != NULL) {
+                size_t buffsize = IO_BUF_SIZE;
+#ifdef HAVE_STRUCT_STAT_ST_BLKSIZE
+                ws_statb64 statb;
+
+                if (ws_fstat64(fd, &statb) == 0) {
+                    if (statb.st_blksize > IO_BUF_SIZE) {
+                        buffsize = statb.st_blksize;
+                    }
+                }
+#endif
+                pfile->io_buffer = (char *)g_malloc(buffsize);
+                setvbuf(fh, pfile->io_buffer, _IOFBF, buffsize);
+                //ws_debug("buffsize %zu", buffsize);
+            }
+            return fh;
+    }
+}
+
+pcapio_writer*
+writecap_fopen(const char *filename, wtap_compression_type ctype, int *err)
+{
+    pcapio_writer* pfile;
+    *err = 0;
+
+    pfile = g_new0(struct pcapio_writer, 1);
+    if (pfile == NULL) {
+        *err = errno;
+        return NULL;
+    }
+    pfile->ctype = ctype;
+    errno = WTAP_ERR_CANT_OPEN;
+    void* fh = writecap_file_open(pfile, filename);
+    if (fh == NULL) {
+        *err = errno;
+	g_free(pfile);
+	return NULL;
+    }
+
+    pfile->fh = fh;
+    return pfile;
+}
+
+pcapio_writer*
+writecap_fdopen(int fd, wtap_compression_type ctype, int *err)
+{
+    pcapio_writer* pfile;
+    *err = 0;
+
+    pfile = g_new0(struct pcapio_writer, 1);
+    if (pfile == NULL) {
+        *err = errno;
+        return NULL;
+    }
+    pfile->ctype = ctype;
+    errno = WTAP_ERR_CANT_OPEN;
+    WFILE_T fh = writecap_file_fdopen(pfile, fd);
+    if (fh == NULL) {
+        *err = errno;
+        g_free(pfile);
+        return NULL;
+    }
+
+    pfile->fh = fh;
+    return pfile;
+}
+
+pcapio_writer*
+writecap_open_stdout(wtap_compression_type ctype, int *err)
+{
+    int new_fd;
+    pcapio_writer* pfile;
+
+    new_fd = ws_dup(1);
+    if (new_fd == -1) {
+        *err = errno;
+        return NULL;
+    }
+#ifdef _WIN32
+    /*
+     * Put the new descriptor into binary mode.
+     *
+     * XXX - even if the file format we're writing is a text
+     * format?
+     */
+    if (_setmode(new_fd, O_BINARY) == -1) {
+        /* "Should not happen" */
+        *err = errno;
+        ws_close(new_fd);
+        return NULL;
+    }
+#endif
+
+    pfile = writecap_fdopen(new_fd, ctype, err);
+    if (pfile == NULL) {
+        /* Failed; close the new fd */
+        ws_close(new_fd);
+        return NULL;
+    }
+    return pfile;
+}
+
+bool
+writecap_flush(pcapio_writer* pfile, int *err)
+{
+    switch (pfile->ctype) {
+#if defined (HAVE_ZLIB) || defined (HAVE_ZLIBNG)
+        case WTAP_GZIP_COMPRESSED:
+            if (gzwfile_flush((GZWFILE_T)pfile->fh) == -1) {
+                if (err) {
+                    *err = gzwfile_geterr((GZWFILE_T)pfile->fh);
+                }
+                return false;
+            }
+            break;
+#endif
+#ifdef HAVE_LZ4FRAME_H
+        case WTAP_LZ4_COMPRESSED:
+            if (lz4wfile_flush((LZ4WFILE_T)pfile->fh) == -1) {
+                if (err) {
+                    *err = lz4wfile_geterr((LZ4WFILE_T)pfile->fh);
+                }
+                return false;
+            }
+            break;
+#endif /* HAVE_LZ4FRAME_H */
+        default:
+            if (fflush((FILE*)pfile->fh) == EOF) {
+                if (err) {
+                    *err = errno;
+                }
+                return false;
+            }
+    }
+    return true;
+}
+
+bool
+writecap_close(pcapio_writer* pfile, int *errp)
+{
+    int err = 0;
+
+    errno = WTAP_ERR_CANT_CLOSE;
+    switch (pfile->ctype) {
+#if defined (HAVE_ZLIB) || defined (HAVE_ZLIBNG)
+        case WTAP_GZIP_COMPRESSED:
+            err = gzwfile_close(pfile->fh);
+            break;
+#endif
+#ifdef HAVE_LZ4FRAME_H
+        case WTAP_LZ4_COMPRESSED:
+            err = lz4wfile_close(pfile->fh);
+            break;
+#endif /* HAVE_LZ4FRAME_H */
+        default:
+            if (fclose(pfile->fh) == EOF) {
+                err = errno;
+            }
+    }
+
+    g_free(pfile->io_buffer);
+    g_free(pfile);
+    if (errp) {
+        *errp = err;
+    }
+    return err == 0;
+}
+
 /* Write to capture file */
 static bool
-write_to_file(FILE* pfile, const uint8_t* data, size_t data_length,
+write_to_file(pcapio_writer* pfile, const uint8_t* data, size_t data_length,
               uint64_t *bytes_written, int *err)
 {
     size_t nwritten;
 
-    nwritten = fwrite(data, data_length, 1, pfile);
-    if (nwritten != 1) {
-        if (ferror(pfile)) {
-            *err = errno;
-        } else {
-            *err = 0;
-        }
-        return false;
+    switch (pfile->ctype) {
+#if defined (HAVE_ZLIB) || defined (HAVE_ZLIBNG)
+        case WTAP_GZIP_COMPRESSED:
+            nwritten = gzwfile_write(pfile->fh, data, (unsigned)data_length);
+            /*
+             * gzwfile_write() returns 0 on error.
+             */
+            if (nwritten == 0) {
+                *err = gzwfile_geterr(pfile->fh);
+                return false;
+            }
+            break;
+#endif
+#ifdef HAVE_LZ4FRAME_H
+        case WTAP_LZ4_COMPRESSED:
+            nwritten = lz4wfile_write(pfile->fh, data, data_length);
+            /*
+             * lz4wfile_write() returns 0 on error.
+             */
+            if (nwritten == 0) {
+                *err = lz4wfile_geterr(pfile->fh);
+                return false;
+            }
+            break;
+#endif /* HAVE_LZ4FRAME_H */
+        default:
+            nwritten = fwrite(data, data_length, 1, pfile->fh);
+            if (nwritten != 1) {
+                if (ferror(pfile->fh)) {
+                    *err = errno;
+                } else {
+                    *err = WTAP_ERR_SHORT_WRITE;
+                }
+                return false;
+            }
+            break;
     }
 
     (*bytes_written) += data_length;
@@ -196,7 +457,7 @@ write_to_file(FILE* pfile, const uint8_t* data, size_t data_length,
    Returns true on success, false on failure.
    Sets "*err" to an error code, or 0 for a short write, on failure*/
 bool
-libpcap_write_file_header(FILE* pfile, int linktype, int snaplen, bool ts_nsecs, uint64_t *bytes_written, int *err)
+libpcap_write_file_header(pcapio_writer* pfile, int linktype, int snaplen, bool ts_nsecs, uint64_t *bytes_written, int *err)
 {
     struct pcap_hdr file_hdr;
 
@@ -215,7 +476,7 @@ libpcap_write_file_header(FILE* pfile, int linktype, int snaplen, bool ts_nsecs,
 /* Write a record for a packet to a dump file.
    Returns true on success, false on failure. */
 bool
-libpcap_write_packet(FILE* pfile,
+libpcap_write_packet(pcapio_writer* pfile,
                      time_t sec, uint32_t usec,
                      uint32_t caplen, uint32_t len,
                      const uint8_t *pd,
@@ -247,7 +508,7 @@ pcapng_count_string_option(const char *option_value)
 }
 
 static bool
-pcapng_write_string_option(FILE* pfile,
+pcapng_write_string_option(pcapio_writer* pfile,
                            uint16_t option_type, const char *option_value,
                            uint64_t *bytes_written, int *err)
 {
@@ -279,7 +540,7 @@ pcapng_write_string_option(FILE* pfile,
 
 /* Write a pre-formatted pcapng block directly to the output file */
 bool
-pcapng_write_block(FILE* pfile,
+pcapng_write_block(pcapio_writer* pfile,
                    const uint8_t *data,
                    uint32_t length,
                    uint64_t *bytes_written,
@@ -308,7 +569,7 @@ pcapng_write_block(FILE* pfile,
 }
 
 bool
-pcapng_write_section_header_block(FILE* pfile,
+pcapng_write_section_header_block(pcapio_writer* pfile,
                                   GPtrArray *comments,
                                   const char *hw,
                                   const char *os,
@@ -380,7 +641,7 @@ pcapng_write_section_header_block(FILE* pfile,
 }
 
 bool
-pcapng_write_interface_description_block(FILE* pfile,
+pcapng_write_interface_description_block(pcapio_writer* pfile,
                                          const char *comment,  /* OPT_COMMENT        1 */
                                          const char *name,     /* IDB_NAME           2 */
                                          const char *descr,    /* IDB_DESCRIPTION    3 */
@@ -540,7 +801,7 @@ pcapng_write_interface_description_block(FILE* pfile,
 /* Write a record for a packet to a dump file.
    Returns true on success, false on failure. */
 bool
-pcapng_write_enhanced_packet_block(FILE* pfile,
+pcapng_write_enhanced_packet_block(pcapio_writer* pfile,
                                    const char *comment,
                                    time_t sec, uint32_t usec,
                                    uint32_t caplen, uint32_t len,
@@ -632,7 +893,7 @@ pcapng_write_enhanced_packet_block(FILE* pfile,
 }
 
 bool
-pcapng_write_interface_statistics_block(FILE* pfile,
+pcapng_write_interface_statistics_block(pcapio_writer* pfile,
                                         uint32_t interface_id,
                                         uint64_t *bytes_written,
                                         const char *comment,    /* OPT_COMMENT           1 */

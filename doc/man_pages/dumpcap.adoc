@@ -470,6 +470,13 @@ This option may be specified multiple times.  Note that Wireshark
 currently only displays the first comment of a capture file.
 --
 
+////
+The --compress-type option is not documented anywhere.
+
+Should we document it? Deprecate it in favor of using compress as
+used in other tools?
+////
+
 --list-time-stamp-types::
 List time stamp types supported for the interface. If no time stamp type can be
 set, no time stamp types are listed.

@@ -51,6 +51,11 @@ The following features are either new or have been significantly updated since v
 
 * Source packages are now compressed using zstd.
 
+* Live captures can be compressed while writing. (Previously there was
+  support for compressing when performing multiple file capture, at file
+  rotation time.) The `--compress` option in TShark works on live captures
+  as well. wsbuglink:9311[]
+
 * Absolute time fields, regardless of field display in the Packet Details,
   are always written in ISO 8601 format in UTC with -T json. This was already
   the case for -T ek since version 4.2.0. JSON is primarily a data interchange
