@@ -4052,8 +4052,14 @@ pcapng_open(wtap *wth, int *err, char **err_info)
      * a pcapng that has a new link-layer type in an IDB in the middle of
      * the file, as they will discover in the middle that no, they can't
      * successfully write the output file as desired.
+     *
+     * If this is a live capture, and we're reading the initially written
+     * header, we'll loop until we reach EOF. (If compressed, it might
+     * also set WTAP_ERR_SHORT_READ from the stream / frame end not being
+     * present until the file is closed.) So we'll need to clear that at
+     * some point before reading packets.
      */
-    while (1) {
+    while (!file_eof(wth->fh)) {
         /* peek at next block */
         /* Try to read the (next) block header */
         saved_offset = file_tell(wth->fh);
