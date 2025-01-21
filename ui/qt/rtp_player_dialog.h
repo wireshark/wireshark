@@ -68,10 +68,12 @@ class RtpBaseDialog : public WiresharkDialog
 protected:
     explicit RtpBaseDialog(QWidget &parent, CaptureFile &cf) : WiresharkDialog(parent, cf) {}
 
+#ifdef QT_MULTIMEDIA_LIB
 public slots:
     virtual void rtpAnalysisReplace() = 0;
     virtual void rtpAnalysisAdd() = 0;
     virtual void rtpAnalysisRemove() = 0;
+#endif // QT_MULTIMEDIA_LIB
 };
 
 // Singleton by https://refactoring.guru/design-patterns/singleton/cpp/example#example-1

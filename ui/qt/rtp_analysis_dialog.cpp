@@ -1137,7 +1137,14 @@ tab_info_t *RtpAnalysisDialog::getTabInfoForCurrentTab()
     return tab_data;
 }
 
-QToolButton *RtpAnalysisDialog::addAnalyzeButton(QDialogButtonBox *button_box, RtpBaseDialog *dialog)
+
+QToolButton *RtpAnalysisDialog::addAnalyzeButton(QDialogButtonBox *button_box,
+#ifdef QT_MULTIMEDIA_LIB
+    RtpBaseDialog *dialog
+#else
+    RtpBaseDialog *dialog _U_
+#endif // QT_MULTIMEDIA_LIB
+)
 {
     if (!button_box) return nullptr;
 
