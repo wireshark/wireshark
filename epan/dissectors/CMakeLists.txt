@@ -1863,6 +1863,7 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-sapsnc.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-sasp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-sbas_l1.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-sbas_l5.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-sbus.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-sbc.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-sccp.c
