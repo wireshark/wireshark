@@ -18,4 +18,6 @@
 // see ICAO Annex 10, Vol I, 8th edition, Table B-67
 extern const value_string UDREI_EVALUATION[];
 
+extern const char *EMS_L1_SVC_FLAG;
+
 #endif

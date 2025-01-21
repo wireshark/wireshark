@@ -36,6 +36,8 @@
 #define SBAS_L1_PREAMBLE_2 0x9a
 #define SBAS_L1_PREAMBLE_3 0xc6
 
+const char *EMS_L1_SVC_FLAG = "L1";
+
 // User Range Accuracy mapping
 // see ICAO Annex 10, Vol I, 8th edition, Appendix B, Table B-64
 static const value_string URA[] = {
@@ -2637,8 +2639,10 @@ void proto_register_sbas_l1(void) {
 
 
 void proto_reg_handoff_sbas_l1(void) {
-    dissector_add_uint("ubx.rxm.sfrbx.gnssid", GNSS_ID_SBAS,
-        create_dissector_handle(dissect_sbas_l1, proto_sbas_l1));
+    dissector_handle_t sbas_l1_dissector_handle = create_dissector_handle(dissect_sbas_l1, proto_sbas_l1);
+
+    dissector_add_uint("ubx.rxm.sfrbx.gnssid", GNSS_ID_SBAS, sbas_l1_dissector_handle);
+    dissector_add_string("ems.svc_flag", EMS_L1_SVC_FLAG, sbas_l1_dissector_handle);
 
     dissector_add_uint("sbas_l1.mt", 0,  create_dissector_handle(dissect_sbas_l1_mt0,  proto_sbas_l1));
     dissector_add_uint("sbas_l1.mt", 1,  create_dissector_handle(dissect_sbas_l1_mt1,  proto_sbas_l1));

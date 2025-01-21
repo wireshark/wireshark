@@ -1,6 +1,8 @@
 /* ems.c
  *
  * File format support for EGNOS Message Server files
+ * See "Multi-Band EGNOS File Format Description Document" (ESA-EGN-EPO-ICD-0031, Issue 1.4)
+ *
  * Copyright (c) 2023 by Timo Warns <timo.warns@gmail.com>
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
@@ -27,8 +29,10 @@ static bool ems_read(wtap *wth, wtap_rec *rec, int *err, char
 static bool ems_seek_read(wtap *wth, int64_t seek_off, wtap_rec *rec,
         int *err, char **err_info);
 
-#define MAX_EMS_LINE_LEN 256
+#define MAX_EMS_LINE_LEN 1024
 #define EMS_MSG_SIZE 40
+
+typedef char ems_line[MAX_EMS_LINE_LEN];
 
 typedef struct ems_msg_s {
     unsigned int prn;
@@ -38,6 +42,9 @@ typedef struct ems_msg_s {
     unsigned int hour;
     unsigned int minute;
     unsigned int second;
+    unsigned int second_frac;
+    char band[3];
+    unsigned int nof_bits;
     unsigned int mt;
     char sbas_msg[64];
 } ems_msg_t;
@@ -45,103 +52,58 @@ typedef struct ems_msg_s {
 static int ems_file_type_subtype = -1;
 
 /**
- * Gets one character and returns in case of error.
- * Without error, peeks at next character and returns it.
- */
-static int get_and_peek(FILE_T fh) {
-    int c;
-
-    c = file_getc(fh);
-
-    if (c < 0) {
-        return c;
-    }
-
-    return file_peekc(fh);
-}
-
-/**
- * Peeks / returns next relevant character.
- * Skips whitespace at the beginning of a line, comment lines, and empty
- * lines.
- */
-static int peek_relevant_character(FILE_T fh) {
-    int c;
-
-    while (true) {
-        c = file_peekc(fh);
-
-        if (c < 0) {
-            return c;
-        }
-
-        // ignore whitespace at the beginning of a line
-        else if (g_ascii_isspace(c)) {
-            ws_debug("ignoring whitespace at the beginning of line");
-            do {
-                c = get_and_peek(fh);
-                if (c < 0) {
-                    return c;
-                }
-            } while (g_ascii_isspace(c));
-
-            continue;
-        }
-
-        // ignore comment and empty lines
-        else if (c == '\r' || c == '\n' || c == '#') {
-            ws_debug("ignoring comment or empty line");
-            do {
-                c = get_and_peek(fh);
-                if (c < 0) {
-                    return c;
-                }
-            } while (c != '\n');
-
-            continue;
-        }
-
-        // return current character for further inspection
-        else {
-            return c;
-        }
-    }
-}
-
-/**
- * Parses EMS line to ems_msg struct.
+ * Parses an EMS line.
  * Return false on error, true otherwise.
  */
-static bool parse_ems_line(FILE_T fh, ems_msg_t* ems_msg) {
-    char line[MAX_EMS_LINE_LEN];
+static bool parse(ems_line *line, ems_msg_t *msg) {
     int i;
 
-    if (!file_gets(line, array_length(line), fh)) {
-        return false;
-    }
+    // try to parse for L1
+    i = sscanf((char *)line, "%03u %02u %02u %02u %02u %02u %02u %u %64c",
+                &msg->prn,
+                &msg->year,
+                &msg->month,
+                &msg->day,
+                &msg->hour,
+                &msg->minute,
+                &msg->second,
+                &msg->mt,
+                msg->sbas_msg);
 
-    i = sscanf(line, "%03u %02u %02u %02u %02u %02u %02u %u %64c",
-                &ems_msg->prn,
-                &ems_msg->year,
-                &ems_msg->month,
-                &ems_msg->day,
-                &ems_msg->hour,
-                &ems_msg->minute,
-                &ems_msg->second,
-                &ems_msg->mt,
-                ems_msg->sbas_msg);
     if (9 != i) {
-        return false;
+        // L1 parsing failed, try to parse for L5 or non-standard message encoding
+        i = sscanf((char *)line, "%03u %02u %02u %02u %02u %02u %02u.%06u %2s %04x %02u",
+                    &msg->prn,
+                    &msg->year,
+                    &msg->month,
+                    &msg->day,
+                    &msg->hour,
+                    &msg->minute,
+                    &msg->second,
+                    &msg->second_frac,
+                    (char *)&msg->band,
+                    &msg->nof_bits,
+                    &msg->mt);
+
+        if (11 != i) {
+          // L5 / non-standard message parsing failed as well. So,
+          // return with error.
+          return false;
+        }
     }
 
-    if (ems_msg->prn > 255 ||
-            ems_msg->year > 255 ||
-            ems_msg->month > 12 ||
-            ems_msg->day > 31 ||
-            ems_msg->hour > 23 ||
-            ems_msg->minute > 59 ||
-            ems_msg->second > 59 ||
-            ems_msg->mt > 255) {
+    // Do some basic validation
+    // - SBAS PRNs are limited to 128, ..., 158 by the ICAO SARPS
+    // - basic date & time constraints
+    // - SBAS has defined MTs up to 63 only
+    if (msg->prn < 120 || msg->prn > 158 ||
+            msg->year > 255 ||
+            msg->month > 12 ||
+            msg->day > 31 ||
+            msg->hour > 23 ||
+            msg->minute > 59 ||
+            msg->second > 59 ||
+            msg->mt > 63) {
         return false;
     }
 
@@ -149,29 +111,18 @@ static bool parse_ems_line(FILE_T fh, ems_msg_t* ems_msg) {
 }
 
 wtap_open_return_val ems_open(wtap *wth, int *err, char **err_info) {
-    int c;
+    ems_line line;
     ems_msg_t msg;
 
     ws_debug("opening file");
 
-    // skip irrelevant characters
-    c = peek_relevant_character(wth->fh);
-    if (c < 0) {
-        if (file_eof(wth->fh)) {
-            return WTAP_OPEN_NOT_MINE;
-        }
-        *err = file_error(wth->fh, err_info);
+    // read complete EMS line
+    if (!file_gets((char *)line, MAX_EMS_LINE_LEN, wth->fh)) {
         return WTAP_OPEN_ERROR;
     }
 
-    // EMS nav msg lines start with a digit (first digit of PRN).
-    // Check whether current line starts with a digit.
-    if (!g_ascii_isdigit(c)) {
-        return WTAP_OPEN_NOT_MINE;
-    }
-
-    // Check whether the current line matches the EMS format
-    if (parse_ems_line(wth->fh, &msg)) {
+    // Check whether the current line can be parsed.
+    if (parse(&line, &msg)) {
         /* return to the beginning of the file */
         if (file_seek(wth->fh, 0, SEEK_SET, err) == -1) {
             *err = file_error(wth->fh, err_info);
@@ -194,52 +145,33 @@ wtap_open_return_val ems_open(wtap *wth, int *err, char **err_info) {
 static bool ems_read_message(FILE_T fh, wtap_rec *rec,
         int *err, char **err_info) {
 
-    int c;
-    ems_msg_t msg;
+    ems_line line;
+    ems_msg_t msg = {.second_frac = 0};
+    char *end;
 
-    // skip irrelevant characters
-    c = peek_relevant_character(fh);
-    if (c < 0) {
+    // get complete EMS line
+    end = file_getsp((char *)line, MAX_EMS_LINE_LEN, fh);
+    if (!end) {
         *err = file_error(fh, err_info);
         return false;
     }
 
-    // parse line with EMS message
-    if (parse_ems_line(fh, &msg)) {
+    // Check whether the current line can be parsed.
+    if (parse(&line, &msg)) {
         char ts[NSTIME_ISO8601_BUFSIZE + 1];
 
-        ws_buffer_assure_space(&rec->data, EMS_MSG_SIZE);
-
-        ws_buffer_end_ptr(&rec->data)[0] = msg.prn;
-        ws_buffer_end_ptr(&rec->data)[1] = msg.year;
-        ws_buffer_end_ptr(&rec->data)[2] = msg.month;
-        ws_buffer_end_ptr(&rec->data)[3] = msg.day;
-        ws_buffer_end_ptr(&rec->data)[4] = msg.hour;
-        ws_buffer_end_ptr(&rec->data)[5] = msg.minute;
-        ws_buffer_end_ptr(&rec->data)[6] = msg.second;
-        ws_buffer_end_ptr(&rec->data)[7] = msg.mt;
-
-        int i;
-        for (i = 0; i < 32; i++) {
-            uint8_t v;
-            char s[3] = {msg.sbas_msg[i*2], msg.sbas_msg[i*2+1], 0};
-            if (!ws_hexstrtou8(s, NULL, &v)) {
-                return false;
-            }
-            ws_buffer_end_ptr(&rec->data)[8 + i] = v;
-        }
-
-        ws_buffer_increase_length(&rec->data, EMS_MSG_SIZE);
+        ws_buffer_append(&rec->data, line, end - line);
 
         rec->rec_type = REC_TYPE_PACKET;
         rec->block = wtap_block_create(WTAP_BLOCK_PACKET);
         rec->presence_flags = WTAP_HAS_TS;
-        rec->rec_header.packet_header.len = EMS_MSG_SIZE;
-        rec->rec_header.packet_header.caplen = EMS_MSG_SIZE;
+        rec->rec_header.packet_header.len = (uint32_t) (end - line);
+        rec->rec_header.packet_header.caplen = (uint32_t) (end - line);
 
         // use EMS timestamp as packet timestamp
-        snprintf(ts, sizeof(ts), "%04u-%02u-%02uT%02u:%02u:%02uZ", msg.year
-                + 2000, msg.month, msg.day, msg.hour, msg.minute, msg.second);
+        snprintf(ts, sizeof(ts), "%04u-%02u-%02uT%02u:%02u:%02u.%06uZ",
+                 msg.year + 2000, msg.month, msg.day, msg.hour, msg.minute,
+                 msg.second, msg.second_frac);
         iso8601_to_nstime(&rec->ts, ts, ISO8601_DATETIME);
 
         return true;
