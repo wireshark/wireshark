@@ -981,6 +981,7 @@ cf_finish_tail(capture_file *cf, wtap_rec *rec, int *err,
 
     epan_dissect_init(&edt, cf->epan, create_proto_tree, false);
 
+    wtap_cleareof(cf->provider.wth);
     while ((wtap_read(cf->provider.wth, rec, err, &err_info, &data_offset))) {
         if (cf->state == FILE_READ_ABORTED) {
             /* Well, the user decided to abort the read.  Break out of the
