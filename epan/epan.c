@@ -953,9 +953,9 @@ epan_gather_runtime_info(feature_list l)
 #endif
 
 	/* LZ4 */
-#if LZ4_VERSION_NUMBER >= 10703
+#ifdef HAVE_LZ4
 	with_feature(l, "LZ4 %s", LZ4_versionString());
-#endif /* LZ4_VERSION_NUMBER */
+#endif /* HAVE_LZ4 */
 
 	/* Zstandard */
 #if ZSTD_VERSION_NUMBER >= 10300

@@ -1501,7 +1501,7 @@ endif()
 ws_find_package(BROTLI ENABLE_BROTLI HAVE_BROTLI)
 
 # LZ4 compression
-ws_find_package(LZ4 ENABLE_LZ4 HAVE_LZ4)
+ws_find_package(LZ4 ENABLE_LZ4 HAVE_LZ4 "1.8.0")
 
 # Snappy compression
 ws_find_package(SNAPPY ENABLE_SNAPPY HAVE_SNAPPY)
