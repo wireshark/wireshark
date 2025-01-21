@@ -233,7 +233,7 @@ in <<ChAdvFollowStream>> dialog. The btn:[Graph...] button will show a
 Time Sequence graph as described in <<ChStatTCPStreamGraphs>>.
 
 
-btn:[Conversation Types] lets you choose which traffic type tabs are shown.
+btn:[Protocol] lets you choose which traffic type tabs are shown.
 See <<ChStatEndpoints>> for a list of endpoint types. The enabled types
 are saved in your profile settings, as well as the last opened tab.
 
@@ -355,7 +355,7 @@ The btn:[Copy] button will copy the list values to the clipboard in CSV
 exported without special formatting, but this can be enabled if needed.
 The btn:[Map] button will show the endpoints mapped in your web browser.
 
-btn:[Endpoint Types] lets you choose which traffic type tabs are shown. See
+btn:[Protocol] lets you choose which traffic type tabs are shown. See
 <<ChStatEndpoints>> above for a list of endpoint types. The enabled
 types are saved in your profile settings, as well as the last opened tab.
 
