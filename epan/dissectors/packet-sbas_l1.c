@@ -880,7 +880,7 @@ static int ett_sbas_l1_mt63;
 
 // compute the CRC24Q checksum for an SBAS L1 nav msg
 // see ICAO Annex 10, Vol I, 8th edition, Appendix B, Section 3.5.3.5
-static uint32_t sbas_crc24q(const uint8_t *data) {
+uint32_t sbas_crc24q(const uint8_t *data) {
     uint32_t crc = 0;
 
     // source byte and bit level index
