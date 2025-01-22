@@ -209,7 +209,8 @@ typedef enum {
 #define SSL_HND_QUIC_TP_ENABLE_MULTIPATH                    0x0f739bbc1b666d06 /* https://tools.ietf.org/html/draft-ietf-quic-multipath-06 */
 #define SSL_HND_QUIC_TP_INITIAL_MAX_PATHS                   0x0f739bbc1b666d07 /* https://tools.ietf.org/html/draft-ietf-quic-multipath-07 */
 #define SSL_HND_QUIC_TP_INITIAL_MAX_PATH_ID_DRAFT09         0x0f739bbc1b666d09 /* https://tools.ietf.org/html/draft-ietf-quic-multipath-09 */
-#define SSL_HND_QUIC_TP_INITIAL_MAX_PATH_ID                 0x0f739bbc1b666d11 /* https://tools.ietf.org/html/draft-ietf-quic-multipath-11 */
+#define SSL_HND_QUIC_TP_INITIAL_MAX_PATH_ID_DRAFT11         0x0f739bbc1b666d11 /* https://tools.ietf.org/html/draft-ietf-quic-multipath-11 */
+#define SSL_HND_QUIC_TP_INITIAL_MAX_PATH_ID                 0x0f739bbc1b666d0c /* https://tools.ietf.org/html/draft-ietf-quic-multipath-12 */
 
 /*
  * Lookup tables
