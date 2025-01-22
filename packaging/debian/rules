@@ -42,6 +42,10 @@ ifneq ($(filter pkg.wireshark.stratoshark,$(DEB_BUILD_PROFILES)),)
     CONFIGURE_SWITCHES += -DBUILD_stratoshark=ON -DBUILD_falcodump=ON
 endif
 
+ifeq ($(wildcard .git),)
+    CONFIGURE_SWITCHES += -DVCSVERSION_OVERRIDE="$(DEB_VERSION)"
+endif
+
 %:
 	dh $@ --with python3 --buildsystem $(DH_BUILDSYSTEM) --with quilt
 
