@@ -24,7 +24,7 @@
  * https://tools.ietf.org/html/draft-huitema-quic-ts-02
  * https://tools.ietf.org/html/draft-ietf-quic-ack-frequency-07 (and also draft-04/05)
  * https://tools.ietf.org/html/draft-banks-quic-cibir-01
- * https://tools.ietf.org/html/draft-ietf-quic-multipath-11 (and also >= draft-07)
+ * https://tools.ietf.org/html/draft-ietf-quic-multipath-12 (and also >= draft-07)
 
  *
  * Currently supported QUIC version(s): draft-21, draft-22, draft-23, draft-24,
@@ -199,6 +199,7 @@ static int hf_quic_mp_ps_path_status_sequence_number;
 static int hf_quic_mp_ps_path_status;
 static int hf_quic_mp_maximum_paths;
 static int hf_quic_mp_maximum_path_identifier;
+static int hf_quic_mp_pcb_path_identifier;
 
 static expert_field ei_quic_connection_unknown;
 static expert_field ei_quic_ft_unknown;
@@ -697,6 +698,7 @@ static const value_string quic_v2_long_packet_type_vals[] = {
 #define FT_MAX_PATHS                0x15228c0b /* multipath-draft-07 */
 #define FT_MAX_PATH_ID              0x15228c0c /* multipath-draft-09 */
 #define FT_PATHS_BLOCKED            0x15228c0d /* multipath-draft-11 */
+#define FT_PATH_CIDS_BLOCKED        0x15228c0e /* multipath-draft-12 */
 #define FT_TIME_STAMP               0x02F5
 
 static const range_string quic_frame_type_vals[] = {
@@ -741,6 +743,7 @@ static const range_string quic_frame_type_vals[] = {
     { 0x15228c0b, 0x15228c0b, "MAX_PATHS" }, /* >= multipath-draft-07 */
     { 0x15228c0c, 0x15228c0c, "MAX_PATH_ID" }, /* >= multipath-draft-09 */
     { 0x15228c0d, 0x15228c0d, "PATHS_BLOCKED" }, /* >= multipath-draft-11 */
+    { 0x15228c0e, 0x15228c0e, "PATH_CIDS_BLOCKED" }, /* >= multipath-draft-12 */
     { 0,    0,        NULL },
 };
 
@@ -2855,6 +2858,14 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
 
             col_append_str(pinfo->cinfo, COL_INFO, ", PB");
             proto_tree_add_item_ret_varint(ft_tree, hf_quic_mp_maximum_path_identifier, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &length);
+            offset += (uint32_t)length;
+        }
+        break;
+        case FT_PATH_CIDS_BLOCKED:{
+            int32_t length;
+
+            col_append_str(pinfo->cinfo, COL_INFO, ", PCB");
+            proto_tree_add_item_ret_varint(ft_tree, hf_quic_mp_pcb_path_identifier, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &length);
             offset += (uint32_t)length;
         }
         break;
@@ -5161,6 +5172,11 @@ proto_register_quic(void)
         },
        { &hf_quic_mp_maximum_path_identifier,
           { "Maximum Path identifier", "quic.mp_maximum_path_id",
+            FT_UINT64, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+       { &hf_quic_mp_pcb_path_identifier,
+          { "Path identifier", "quic.mp_pcb_path_id",
             FT_UINT64, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
