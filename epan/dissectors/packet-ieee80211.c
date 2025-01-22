@@ -6712,6 +6712,9 @@ static int hf_ieee80211_wfa_ie_wme_tspec_medium;
 static int hf_ieee80211_wfa_ie_nc_cost_level;
 static int hf_ieee80211_wfa_ie_nc_reserved;
 static int hf_ieee80211_wfa_ie_nc_cost_flags;
+static int hf_ieee80211_wfa_ie_tethering_type;
+static int hf_ieee80211_wfa_ie_tethering_mac_length;
+static int hf_ieee80211_wfa_ie_tethering_mac;
 static int hf_ieee80211_wfa_ie_owe_bssid;
 static int hf_ieee80211_wfa_ie_owe_ssid_length;
 static int hf_ieee80211_wfa_ie_owe_ssid;
@@ -19032,6 +19035,7 @@ static const value_string ieee802111_wfa_ie_type_vals[] = {
   { 2, "WMM/WME" },
   { 4, "WPS" },
   { 17, "Network Cost" },
+  { 18, "Tethering" },
   { 0, NULL }
 };
 
@@ -19111,6 +19115,13 @@ static const value_string ieee80211_wfa_ie_nc_cost_flags_vals[] = {
   { 0x08, "Approaching Data Limit / Usage is near the data limit of the metered network; different network costs or conditions might apply once the limit is reached" },
   {0, NULL}
 };
+
+
+static const value_string ieee80211_wfa_ie_tethering_type_vals[] = {
+  { 0x2B, "Broadcasted" },
+  {0, NULL}
+};
+
 
 static const value_string ieee802111_wfa_ie_wme_qos_info_sta_max_sp_length_vals[] = {
   { 0, "WMM AP may deliver all buffered frames (MSDUs and MMPDUs)" },
@@ -19655,6 +19666,19 @@ dissect_vendor_ie_wpawme(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, in
 
       proto_tree_add_item(tree, hf_ieee80211_wfa_ie_nc_reserved, tvb, offset, 1, ENC_LITTLE_ENDIAN);
       offset += 1;
+    }
+    break;
+    case 18: /* Tethering: https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-nct/a097f5bb-6eca-44ad-9a02-20d46ad30d6d */
+    {
+      proto_tree_add_item(tree, hf_ieee80211_wfa_ie_tethering_type, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+      offset += 2;
+
+      proto_tree_add_item(tree, hf_ieee80211_wfa_ie_tethering_mac_length, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+      offset += 2;
+
+      proto_tree_add_item(tree, hf_ieee80211_wfa_ie_tethering_mac, tvb, offset, 6, ENC_NA);
+      offset += 6;
+
     }
     break;
     default:
@@ -53602,6 +53626,21 @@ proto_register_ieee80211(void)
     {&hf_ieee80211_wfa_ie_nc_cost_flags,
      {"Cost Flags", "wlan.wfa.ie.nc.cost_flags",
       FT_UINT8, BASE_DEC, VALS(ieee80211_wfa_ie_nc_cost_flags_vals), 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_wfa_ie_tethering_type,
+     {"Type", "wlan.wfa.ie.tethering.type",
+      FT_UINT16, BASE_DEC, VALS(ieee80211_wfa_ie_tethering_type_vals), 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_wfa_ie_tethering_mac_length,
+     {"MAC Length", "wlan.wfa.ie.tethering.mac_length",
+      FT_UINT16, BASE_DEC, NULL, 0,
+      NULL, HFILL }},
+
+      {&hf_ieee80211_wfa_ie_tethering_mac,
+     {"MAC Address", "wlan.wfa.ie.tethering.mac",
+      FT_ETHER, BASE_NONE, NULL, 0,
       NULL, HFILL }},
 
     {&hf_ieee80211_wfa_ie_owe_bssid,
