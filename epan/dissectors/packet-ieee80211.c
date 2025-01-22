@@ -6709,6 +6709,9 @@ static int hf_ieee80211_wfa_ie_wme_tspec_delay_bound;
 static int hf_ieee80211_wfa_ie_wme_tspec_min_phy;
 static int hf_ieee80211_wfa_ie_wme_tspec_surplus;
 static int hf_ieee80211_wfa_ie_wme_tspec_medium;
+static int hf_ieee80211_wfa_ie_nc_cost_level;
+static int hf_ieee80211_wfa_ie_nc_reserved;
+static int hf_ieee80211_wfa_ie_nc_cost_flags;
 static int hf_ieee80211_wfa_ie_owe_bssid;
 static int hf_ieee80211_wfa_ie_owe_ssid_length;
 static int hf_ieee80211_wfa_ie_owe_ssid;
@@ -19028,6 +19031,7 @@ static const value_string ieee802111_wfa_ie_type_vals[] = {
   { 1, "WPA Information Element" },
   { 2, "WMM/WME" },
   { 4, "WPS" },
+  { 17, "Network Cost" },
   { 0, NULL }
 };
 
@@ -19087,6 +19091,25 @@ static const value_string ieee80211_wfa_ie_wme_tspec_tsinfo_up_vals[] = {
   { 6, "Voice" },
   { 7, "Network Control" },
   { 0, NULL }
+};
+
+/* Cost Level https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-nct/24b04427-4ed6-4d12-a73d-c89ea72c7a94 */
+static const value_string ieee80211_wfa_ie_nc_cost_level_vals[] = {
+  { 0x0, "Unknown / The connection cost is unknown" },
+  { 0x01, "Unrestricted / The connection is unlimited and has unrestricted usage constraints" },
+  { 0x02, "Fixed / Usage counts toward a fixed allotment of data which the user has already paid for (or agreed to pay for)" },
+  { 0x04, "Variable / The connection cost is on a per-byte basis" },
+  {0, NULL}
+};
+
+/* Cost Flags https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-nct/b601a6a0-a4ff-4527-bf43-2eeee8c5796b */
+static const value_string ieee80211_wfa_ie_nc_cost_flags_vals[] = {
+  { 0x0, "Unknown / The usage is unknown or unrestricted" },
+  { 0x01, "Over Data Limit / Usage has exceeded the data limit of the metered network; different network costs or conditions might apply" },
+  { 0x02, "Congested / The network operator is experiencing or expecting heavy load" },
+  { 0x04, "Roaming / The tethering connection is roaming outside the provider's home network or affiliates" },
+  { 0x08, "Approaching Data Limit / Usage is near the data limit of the metered network; different network costs or conditions might apply once the limit is reached" },
+  {0, NULL}
 };
 
 static const value_string ieee802111_wfa_ie_wme_qos_info_sta_max_sp_length_vals[] = {
@@ -19617,6 +19640,21 @@ dissect_vendor_ie_wpawme(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, in
     case 4: /* WPS: Wifi Protected Setup */
     {
       dissect_wps_tlvs(tree, tvb, offset, tag_len-1, NULL);
+    }
+    break;
+    case 17: /* Network Cost: https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-nct/88f0cdf4-cdf2-4455-b849-4abf1e5c11ac */
+    {
+      proto_tree_add_item(tree, hf_ieee80211_wfa_ie_nc_cost_level, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+      offset += 1;
+
+      proto_tree_add_item(tree, hf_ieee80211_wfa_ie_nc_reserved, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+      offset += 1;
+
+      proto_tree_add_item(tree, hf_ieee80211_wfa_ie_nc_cost_flags, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+      offset += 1;
+
+      proto_tree_add_item(tree, hf_ieee80211_wfa_ie_nc_reserved, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+      offset += 1;
     }
     break;
     default:
@@ -53549,6 +53587,21 @@ proto_register_ieee80211(void)
     {&hf_ieee80211_wfa_ie_wme_tspec_medium,
      {"Medium Time", "wlan.wfa.ie.wme.tspec.medium",
       FT_UINT16, BASE_DEC, NULL, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_wfa_ie_nc_cost_level,
+     {"Cost Level", "wlan.wfa.ie.nc.cost_level",
+      FT_UINT8, BASE_DEC, VALS(ieee80211_wfa_ie_nc_cost_level_vals), 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_wfa_ie_nc_reserved,
+     {"Reserved", "wlan.wfa.ie.nc.reserved",
+      FT_UINT8, BASE_HEX, NULL, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_wfa_ie_nc_cost_flags,
+     {"Cost Flags", "wlan.wfa.ie.nc.cost_flags",
+      FT_UINT8, BASE_DEC, VALS(ieee80211_wfa_ie_nc_cost_flags_vals), 0,
       NULL, HFILL }},
 
     {&hf_ieee80211_wfa_ie_owe_bssid,
