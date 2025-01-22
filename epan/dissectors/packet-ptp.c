@@ -1384,6 +1384,7 @@ static int hf_ptp_v2_sourceportid;
 static int hf_ptp_v2_sequenceid;
 static int hf_ptp_v2_controlfield;
 static int hf_ptp_v2_controlfield_default;
+static int hf_ptp_v2_logmessageinterval;
 static int hf_ptp_v2_logmessageperiod;
 static int hf_ptp_v2_flags_synchronizationUncertain;
 
@@ -4078,7 +4079,7 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bool ptpv2_o
     uint16_t ptp_v2_sourceportidref = 0;
 
     /* Set up structures needed to add the protocol subtree and manage it */
-    proto_item *ti = NULL, *msg_len_item = NULL, *clockidentity_ti, *ti_root = NULL;
+    proto_item *ti = NULL, *ti1 = NULL, *msg_len_item = NULL, *clockidentity_ti, *ti_root = NULL;
     proto_tree *ptp_tree = NULL, *ptp_clockidentity_tree;
 
     /* Make entries in Protocol column and Info column on summary display */
@@ -4403,13 +4404,18 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bool ptpv2_o
         }
         offset += 1;
 
-        int logmsgperiod;
-        ti = proto_tree_add_item_ret_int(ptp_tree, hf_ptp_v2_logmessageperiod, tvb, offset, 1, ENC_NA, &logmsgperiod);
+
+        int logmsginterval;
+        ti = proto_tree_add_item_ret_int(ptp_tree, hf_ptp_v2_logmessageinterval, tvb, offset, 1, ENC_NA, &logmsginterval);
+        /* Retain this item as hidden item for backward compatibility. */
+        ti1 = proto_tree_add_item(ptp_tree, hf_ptp_v2_logmessageperiod, tvb, offset, 1, ENC_NA);
 
         /* 127 is special */
-        if (ptp_analyze_messages && logmsgperiod != 127) {
-            proto_item_append_text(ti, " (%.6f s)", pow(2.0, (double)logmsgperiod));
+        if (ptp_analyze_messages && logmsginterval != 127) {
+            proto_item_append_text(ti, " (%.6f s)", pow(2.0, (double)logmsginterval));
+            proto_item_append_text(ti1, " (%.6f s)", pow(2.0, (double)logmsginterval));
         }
+        proto_item_set_hidden(ti1);
 
         offset += 1;
 
@@ -5705,6 +5711,11 @@ proto_register_ptp(void) {
         { &hf_ptp_v2_controlfield,
           { "controlField",           "ptp.v2.controlfield",
             FT_UINT8, BASE_DEC, VALS(ptp_controlfield_vals), 0x00,
+            NULL, HFILL }
+        },
+        { &hf_ptp_v2_logmessageinterval,
+          { "logMessageInterval",           "ptp.v2.logmessageinterval",
+            FT_INT8, BASE_DEC, NULL, 0x00,
             NULL, HFILL }
         },
         { &hf_ptp_v2_logmessageperiod,
