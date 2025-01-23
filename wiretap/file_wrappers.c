@@ -1170,7 +1170,12 @@ lz4_fill_out_buffer(FILE_T state)
             break;
         }
 
+        inBufSize = state->in.avail;
         compressedSize = LZ4F_getFrameInfo(state->lz4_dctx, &state->lz4_info, state->in.next, &inBufSize);
+
+        // We only call this when we're in the middle of decoding a frame, not
+        // before the start of a frame, so this shouldn't consume any bytes.
+        ws_assert(inBufSize == 0);
 
         if (LZ4F_isError(compressedSize)) {
             state->err = WTAP_ERR_DECOMPRESS;
