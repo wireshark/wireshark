@@ -15,7 +15,7 @@
 #define PACKET_SBAS_L1_h
 
 // UDREI_i mapping
-// see ICAO Annex 10, Vol I, Table B-29
+// see ICAO Annex 10, Vol I, 8th edition, Table B-67
 extern const value_string UDREI_EVALUATION[];
 
 #endif
