@@ -39,7 +39,7 @@ function add_package() {
 	elif [ -n "$versionreq" ]; then
 		# Require minimum version or fail.
 		# shellcheck disable=SC2086
-		dpkg --compare-versions $version $versionreq || return 1
+		dpkg --compare-versions $version ge $versionreq || return 1
 	fi
 
 	# package is found, append it to list
