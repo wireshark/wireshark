@@ -55,11 +55,14 @@ static int hf_pkinit_supportedCMSTypes_item;      /* AlgorithmIdentifier */
 static int hf_pkinit_clientDHNonce;               /* DHNonce */
 static int hf_pkinit_supportedKDFs;               /* SEQUENCE_OF_KDFAlgorithmId */
 static int hf_pkinit_supportedKDFs_item;          /* KDFAlgorithmId */
+static int hf_pkinit_checksum;                    /* OCTET_STRING */
+static int hf_pkinit_algorithmIdentifier;         /* AlgorithmIdentifier */
 static int hf_pkinit_cusec;                       /* INTEGER_0_999999 */
 static int hf_pkinit_ctime;                       /* KerberosTime */
 static int hf_pkinit_paNonce;                     /* INTEGER_0_4294967295 */
 static int hf_pkinit_paChecksum;                  /* OCTET_STRING */
 static int hf_pkinit_freshnessToken;              /* OCTET_STRING */
+static int hf_pkinit_paChecksum2;                 /* PAChecksum2 */
 static int hf_pkinit_TD_TRUSTED_CERTIFIERS_item;  /* ExternalPrincipalIdentifier */
 static int hf_pkinit_TD_INVALID_CERTIFICATES_item;  /* ExternalPrincipalIdentifier */
 static int hf_pkinit_realm;                       /* Realm */
@@ -94,6 +97,7 @@ static int ett_pkinit_ExternalPrincipalIdentifier;
 static int ett_pkinit_AuthPack;
 static int ett_pkinit_SEQUENCE_OF_AlgorithmIdentifier;
 static int ett_pkinit_SEQUENCE_OF_KDFAlgorithmId;
+static int ett_pkinit_PAChecksum2;
 static int ett_pkinit_PKAuthenticator;
 static int ett_pkinit_TD_TRUSTED_CERTIFIERS;
 static int ett_pkinit_TD_INVALID_CERTIFICATES;
@@ -222,12 +226,28 @@ dissect_pkinit_INTEGER_0_4294967295(bool implicit_tag _U_, tvbuff_t *tvb _U_, in
 }
 
 
+static const ber_sequence_t PAChecksum2_sequence[] = {
+  { &hf_pkinit_checksum     , BER_CLASS_CON, 0, 0, dissect_pkinit_OCTET_STRING },
+  { &hf_pkinit_algorithmIdentifier, BER_CLASS_CON, 1, 0, dissect_pkix1explicit_AlgorithmIdentifier },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_pkinit_PAChecksum2(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   PAChecksum2_sequence, hf_index, ett_pkinit_PAChecksum2);
+
+  return offset;
+}
+
+
 static const ber_sequence_t PKAuthenticator_sequence[] = {
   { &hf_pkinit_cusec        , BER_CLASS_CON, 0, 0, dissect_pkinit_INTEGER_0_999999 },
   { &hf_pkinit_ctime        , BER_CLASS_CON, 1, 0, dissect_KerberosV5Spec2_KerberosTime },
   { &hf_pkinit_paNonce      , BER_CLASS_CON, 2, 0, dissect_pkinit_INTEGER_0_4294967295 },
   { &hf_pkinit_paChecksum   , BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL, dissect_pkinit_OCTET_STRING },
   { &hf_pkinit_freshnessToken, BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL, dissect_pkinit_OCTET_STRING },
+  { &hf_pkinit_paChecksum2  , BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL, dissect_pkinit_PAChecksum2 },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -593,6 +613,14 @@ void proto_register_pkinit(void) {
       { "KDFAlgorithmId", "pkinit.KDFAlgorithmId_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
+    { &hf_pkinit_checksum,
+      { "checksum", "pkinit.checksum",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "OCTET_STRING", HFILL }},
+    { &hf_pkinit_algorithmIdentifier,
+      { "algorithmIdentifier", "pkinit.algorithmIdentifier_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
     { &hf_pkinit_cusec,
       { "cusec", "pkinit.cusec",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -613,6 +641,10 @@ void proto_register_pkinit(void) {
       { "freshnessToken", "pkinit.freshnessToken",
         FT_BYTES, BASE_NONE, NULL, 0,
         "OCTET_STRING", HFILL }},
+    { &hf_pkinit_paChecksum2,
+      { "paChecksum2", "pkinit.paChecksum2_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
     { &hf_pkinit_TD_TRUSTED_CERTIFIERS_item,
       { "ExternalPrincipalIdentifier", "pkinit.ExternalPrincipalIdentifier_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -724,6 +756,7 @@ void proto_register_pkinit(void) {
     &ett_pkinit_AuthPack,
     &ett_pkinit_SEQUENCE_OF_AlgorithmIdentifier,
     &ett_pkinit_SEQUENCE_OF_KDFAlgorithmId,
+    &ett_pkinit_PAChecksum2,
     &ett_pkinit_PKAuthenticator,
     &ett_pkinit_TD_TRUSTED_CERTIFIERS,
     &ett_pkinit_TD_INVALID_CERTIFICATES,

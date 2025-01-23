@@ -164,6 +164,16 @@ AuthPack ::= SEQUENCE {
     ...
 }
 
+-- WS addition (MS-PKCA v20230920 2.2.3)
+PAChecksum2 ::= SEQUENCE {
+    checksum                [0] OCTET STRING,
+            -- Contains the checksum, performed over
+            -- KDC-REQ-BODY.
+    algorithmIdentifier     [1] AlgorithmIdentifier
+            -- Digest algorithm used to calculate the checksum.
+}
+-- End WS addition
+
 PKAuthenticator ::= SEQUENCE {
     cusec                   [0] INTEGER (0..999999),
     ctime                   [1] KerberosTime,
@@ -179,6 +189,12 @@ PKAuthenticator ::= SEQUENCE {
     freshnessToken          [4] OCTET STRING OPTIONAL,
             -- PA_AS_FRESHNESS padata value as received from the
             -- KDC. MUST be present if sent by KDC
+-- WS addition (MS-PKCA v20230920 2.2.3)
+    paChecksum2             [5] PAChecksum2 OPTIONAL,
+            -- Depending of configuration and algorithms used to
+            -- sign the AuthPack, Windows Server 2025 and newer
+            -- may require this element to be present.
+-- End WS addition
     ...
 }
 
