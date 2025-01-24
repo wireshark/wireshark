@@ -743,9 +743,9 @@ proto_register_isobus(void) {
         { &hf_isobus_ac_name_manufacturer, {
             "Manufacturer", "isobus.ac.name.manufacturer", FT_UINT64, BASE_DEC, NULL, 0x00000000ffe00000, NULL, HFILL } },
         { &hf_isobus_ac_name_function_instance, {
-            "Function Instance", "isobus.ac.name.function_instance", FT_UINT64, BASE_DEC, NULL, 0x000000f000000000, NULL, HFILL } },
+            "Function Instance", "isobus.ac.name.function_instance", FT_UINT64, BASE_DEC, NULL, 0x000000f800000000, NULL, HFILL } },
         { &hf_isobus_ac_name_ecu_instance, {
-            "ECU Instance", "isobus.ac.name.ecu_instance", FT_UINT64, BASE_DEC, NULL, 0x0000000f00000000, NULL, HFILL } },
+            "ECU Instance", "isobus.ac.name.ecu_instance", FT_UINT64, BASE_DEC, NULL, 0x0000000700000000, NULL, HFILL } },
         { &hf_isobus_ac_name_function, {
             "Function", "isobus.ac.name.function", FT_UINT64, BASE_DEC, NULL, 0x0000ff0000000000, NULL, HFILL } },
         { &hf_isobus_ac_name_reserved, {
