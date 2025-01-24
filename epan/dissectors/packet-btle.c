@@ -320,6 +320,56 @@ static int hf_control_sync_info_num_subevents;
 static int hf_control_sync_info_subevent_interval;
 static int hf_control_sync_info_response_slot_delay;
 static int hf_control_sync_info_response_slot_spacing;
+static int hf_control_cs_capabilities_mode_types;
+static int hf_control_cs_capabilities_rtt_capability;
+static int hf_control_cs_capabilities_rtt_aa_only_n;
+static int hf_control_cs_capabilities_rtt_sounding_n;
+static int hf_control_cs_capabilities_rtt_random_sequence_n;
+static int hf_control_cs_capabilities_nadm_sounding_capability;
+static int hf_control_cs_capabilities_nadm_random_sequence_capability;
+static int hf_control_cs_capabilities_cs_sync_phy_capability;
+static int hf_control_cs_capabilities_num_ant;
+static int hf_control_cs_capabilities_max_ant_path;
+static int hf_control_cs_capabilities_role;
+static int hf_control_cs_capabilities_rfu1;
+static int hf_control_cs_capabilities_no_fae;
+static int hf_control_cs_capabilities_channel_selection_3c;
+static int hf_control_cs_capabilities_sounding_pct_estimate;
+static int hf_control_cs_capabilities_rfu2;
+static int hf_control_cs_capabilities_num_configs;
+static int hf_control_cs_capabilities_max_procedures_supported;
+static int hf_control_cs_capabilities_t_sw;
+static int hf_control_cs_capabilities_t_ip1_capability;
+static int hf_control_cs_capabilities_t_ip1_capability_10us;
+static int hf_control_cs_capabilities_t_ip1_capability_20us;
+static int hf_control_cs_capabilities_t_ip1_capability_30us;
+static int hf_control_cs_capabilities_t_ip1_capability_40us;
+static int hf_control_cs_capabilities_t_ip1_capability_50us;
+static int hf_control_cs_capabilities_t_ip1_capability_60us;
+static int hf_control_cs_capabilities_t_ip1_capability_80us;
+static int hf_control_cs_capabilities_t_ip2_capability;
+static int hf_control_cs_capabilities_t_ip2_capability_10us;
+static int hf_control_cs_capabilities_t_ip2_capability_20us;
+static int hf_control_cs_capabilities_t_ip2_capability_30us;
+static int hf_control_cs_capabilities_t_ip2_capability_40us;
+static int hf_control_cs_capabilities_t_ip2_capability_50us;
+static int hf_control_cs_capabilities_t_ip2_capability_60us;
+static int hf_control_cs_capabilities_t_ip2_capability_80us;
+static int hf_control_cs_capabilities_t_fcs_capability;
+static int hf_control_cs_capabilities_t_fcs_capability_15us;
+static int hf_control_cs_capabilities_t_fcs_capability_20us;
+static int hf_control_cs_capabilities_t_fcs_capability_30us;
+static int hf_control_cs_capabilities_t_fcs_capability_40us;
+static int hf_control_cs_capabilities_t_fcs_capability_50us;
+static int hf_control_cs_capabilities_t_fcs_capability_60us;
+static int hf_control_cs_capabilities_t_fcs_capability_80us;
+static int hf_control_cs_capabilities_t_fcs_capability_100us;
+static int hf_control_cs_capabilities_t_fcs_capability_120us;
+static int hf_control_cs_capabilities_t_pm_capability;
+static int hf_control_cs_capabilities_t_pm_capability_10us;
+static int hf_control_cs_capabilities_t_pm_capability_20us;
+static int hf_control_cs_capabilities_rfu3;
+static int hf_control_cs_capabilities_tx_snr_capability;
 static int hf_big_control_opcode;
 static int hf_isochronous_data;
 static int hf_btle_l2cap_msg_fragments;
@@ -373,6 +423,10 @@ static int ett_extended_advertising_data_info;
 static int ett_extended_advertising_aux_pointer;
 static int ett_extended_advertising_sync_info;
 static int ett_extended_advertising_acad;
+static int ett_cs_capabilities_t_ip1;
+static int ett_cs_capabilities_t_ip2;
+static int ett_cs_capabilities_t_fcs;
+static int ett_cs_capabilities_t_pm;
 
 static int * const hfx_extended_advertising_flags[] = {
     &hf_extended_advertising_flags_adva,
@@ -537,6 +591,47 @@ static int * const hfx_control_pwrflags[] = {
     &hf_control_pwrflags_min,
     &hf_control_pwrflags_max,
     &hf_control_pwrflags_reserved_bits,
+    NULL
+};
+
+static int * const hfx_cs_capabilities_t_ip1_capability[] = {
+    &hf_control_cs_capabilities_t_ip1_capability_10us,
+    &hf_control_cs_capabilities_t_ip1_capability_20us,
+    &hf_control_cs_capabilities_t_ip1_capability_30us,
+    &hf_control_cs_capabilities_t_ip1_capability_40us,
+    &hf_control_cs_capabilities_t_ip1_capability_50us,
+    &hf_control_cs_capabilities_t_ip1_capability_60us,
+    &hf_control_cs_capabilities_t_ip1_capability_80us,
+    NULL
+};
+
+static int * const hfx_cs_capabilities_t_ip2_capability[] = {
+    &hf_control_cs_capabilities_t_ip2_capability_10us,
+    &hf_control_cs_capabilities_t_ip2_capability_20us,
+    &hf_control_cs_capabilities_t_ip2_capability_30us,
+    &hf_control_cs_capabilities_t_ip2_capability_40us,
+    &hf_control_cs_capabilities_t_ip2_capability_50us,
+    &hf_control_cs_capabilities_t_ip2_capability_60us,
+    &hf_control_cs_capabilities_t_ip2_capability_80us,
+    NULL
+};
+
+static int * const hfx_cs_capabilities_t_fcs_capability[] = {
+    &hf_control_cs_capabilities_t_fcs_capability_15us,
+    &hf_control_cs_capabilities_t_fcs_capability_20us,
+    &hf_control_cs_capabilities_t_fcs_capability_30us,
+    &hf_control_cs_capabilities_t_fcs_capability_40us,
+    &hf_control_cs_capabilities_t_fcs_capability_50us,
+    &hf_control_cs_capabilities_t_fcs_capability_60us,
+    &hf_control_cs_capabilities_t_fcs_capability_80us,
+    &hf_control_cs_capabilities_t_fcs_capability_100us,
+    &hf_control_cs_capabilities_t_fcs_capability_120us,
+    NULL
+};
+
+static int * const hfx_cs_capabilities_t_pm_capability[] = {
+    &hf_control_cs_capabilities_t_pm_capability_10us,
+    &hf_control_cs_capabilities_t_pm_capability_20us,
     NULL
 };
 
@@ -1546,6 +1641,84 @@ dissect_periodic_sync_wr_ind(tvbuff_t *tvb, proto_tree *btle_tree, int offset, p
     offset += 1;
 
     proto_tree_add_item(btle_tree, hf_control_sync_info_response_slot_spacing, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset += 1;
+
+    return offset;
+}
+
+static int
+dissect_cs_capabilities_req_and_rsp(tvbuff_t *tvb, proto_tree *btle_tree, int offset)
+{
+    proto_tree_add_item(btle_tree, hf_control_cs_capabilities_mode_types, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset += 1;
+
+    proto_tree_add_item(btle_tree, hf_control_cs_capabilities_rtt_capability, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset += 1;
+
+    proto_tree_add_item(btle_tree, hf_control_cs_capabilities_rtt_aa_only_n, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset += 1;
+
+    proto_tree_add_item(btle_tree, hf_control_cs_capabilities_rtt_sounding_n, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset += 1;
+
+    proto_tree_add_item(btle_tree, hf_control_cs_capabilities_rtt_random_sequence_n, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset += 1;
+
+    proto_tree_add_item(btle_tree, hf_control_cs_capabilities_nadm_sounding_capability, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    offset += 2;
+
+    proto_tree_add_item(btle_tree, hf_control_cs_capabilities_nadm_random_sequence_capability, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    offset += 2;
+
+    proto_tree_add_item(btle_tree, hf_control_cs_capabilities_cs_sync_phy_capability, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset += 1;
+
+    proto_tree_add_item(btle_tree, hf_control_cs_capabilities_num_ant, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(btle_tree, hf_control_cs_capabilities_max_ant_path, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset += 1;
+
+    proto_tree_add_item(btle_tree, hf_control_cs_capabilities_role, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(btle_tree, hf_control_cs_capabilities_rfu1, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(btle_tree, hf_control_cs_capabilities_no_fae, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(btle_tree, hf_control_cs_capabilities_channel_selection_3c, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(btle_tree, hf_control_cs_capabilities_sounding_pct_estimate, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(btle_tree, hf_control_cs_capabilities_rfu2, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset += 1;
+
+    proto_tree_add_item(btle_tree, hf_control_cs_capabilities_num_configs, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset += 1;
+
+    proto_tree_add_item(btle_tree, hf_control_cs_capabilities_max_procedures_supported, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    offset += 2;
+
+    proto_tree_add_item(btle_tree, hf_control_cs_capabilities_t_sw, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset += 1;
+
+    proto_item *sub_item;
+    proto_tree *sub_tree;
+
+    sub_item = proto_tree_add_item(btle_tree, hf_control_cs_capabilities_t_ip1_capability, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    sub_tree = proto_item_add_subtree(sub_item, ett_cs_capabilities_t_ip1);
+    proto_tree_add_bitmask_list(sub_tree, tvb, offset, 2, hfx_cs_capabilities_t_ip1_capability, ENC_LITTLE_ENDIAN);
+    offset += 2;
+
+    sub_item = proto_tree_add_item(btle_tree, hf_control_cs_capabilities_t_ip2_capability, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    sub_tree = proto_item_add_subtree(sub_item, ett_cs_capabilities_t_ip2);
+    proto_tree_add_bitmask_list(sub_tree, tvb, offset, 2, hfx_cs_capabilities_t_ip2_capability, ENC_LITTLE_ENDIAN);
+    offset += 2;
+
+    sub_item = proto_tree_add_item(btle_tree, hf_control_cs_capabilities_t_fcs_capability, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    sub_tree = proto_item_add_subtree(sub_item, ett_cs_capabilities_t_fcs);
+    proto_tree_add_bitmask_list(sub_tree, tvb, offset, 2, hfx_cs_capabilities_t_fcs_capability, ENC_LITTLE_ENDIAN);
+    offset += 2;
+
+    sub_item = proto_tree_add_item(btle_tree, hf_control_cs_capabilities_t_pm_capability, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    sub_tree = proto_item_add_subtree(sub_item, ett_cs_capabilities_t_pm);
+    proto_tree_add_bitmask_list(sub_tree, tvb, offset, 2, hfx_cs_capabilities_t_pm_capability, ENC_LITTLE_ENDIAN);
+    offset += 2;
+
+    proto_tree_add_item(btle_tree, hf_control_cs_capabilities_rfu3, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(btle_tree, hf_control_cs_capabilities_tx_snr_capability, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset += 1;
 
     return offset;
@@ -4385,6 +4558,7 @@ dissect_btle_acl(tvbuff_t *tvb,
             }
             break;
         case LL_CTRL_OPCODE_LL_CS_CAPABILITIES_REQ:
+            offset = dissect_cs_capabilities_req_and_rsp(tvb, btle_tree, offset);
             if (connection_info && !btle_frame_info->retransmit && direction != BTLE_DIR_UNKNOWN) {
                 control_proc_start(tvb, pinfo, btle_tree, control_proc_item,
                                     connection_info->direction_info[direction].control_procs,
@@ -4393,6 +4567,7 @@ dissect_btle_acl(tvbuff_t *tvb,
             }
             break;
         case LL_CTRL_OPCODE_LL_CS_CAPABILITIES_RSP:
+            offset = dissect_cs_capabilities_req_and_rsp(tvb, btle_tree, offset);
             if (connection_info && !btle_frame_info->retransmit && direction != BTLE_DIR_UNKNOWN) {
                 if (control_proc_can_add_frame(pinfo,
                                                 last_control_proc[other_direction],
@@ -6389,6 +6564,256 @@ proto_register_btle(void)
             FT_UINT8, BASE_HEX | BASE_EXT_STRING, &big_control_opcode_vals_ext, 0x0,
             NULL, HFILL }
         },
+        { &hf_control_cs_capabilities_mode_types,
+            { "Mode-3 support", "btle.control.cs_mode_3_support",
+            FT_UINT8, BASE_DEC, NULL, 0x01,
+            NULL, HFILL }
+        },
+        { &hf_control_cs_capabilities_rtt_capability,
+            { "RTT_Capability", "btle.control.cs_rtt_capability",
+            FT_UINT8, BASE_DEC, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_control_cs_capabilities_rtt_aa_only_n,
+            { "RTT_AA_Only_N", "btle.control.cs_rtt_aa_only_n",
+            FT_UINT8, BASE_DEC, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_control_cs_capabilities_rtt_sounding_n,
+            { "RTT_Sounding_N", "btle.control.cs_rtt_sounding_n",
+            FT_UINT8, BASE_DEC, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_control_cs_capabilities_rtt_random_sequence_n,
+            { "RTT_Random_Sequence_N", "btle.control.cs_rtt_random_sequence_n",
+            FT_UINT8, BASE_DEC, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_control_cs_capabilities_nadm_sounding_capability,
+            { "NADM_Sounding_Capability", "btle.control.cs_nadm_sounding_capability",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_control_cs_capabilities_nadm_random_sequence_capability,
+            { "NADM_Random_Sequence_Capability", "btle.control.cs_nadm_random_sequence_capability",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_control_cs_capabilities_cs_sync_phy_capability,
+            { "CS_SYNC_PHY_Capability", "btle.control.cs_sync_phy_capability",
+            FT_UINT8, BASE_DEC, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_control_cs_capabilities_num_ant,
+            { "Num_Ant", "btle.control.cs_num_antennas",
+            FT_UINT8, BASE_DEC, NULL, 0x0f,
+            NULL, HFILL }
+        },
+        { &hf_control_cs_capabilities_max_ant_path,
+            { "Max_Ant_Path", "btle.control.cs_max_ant_path",
+            FT_UINT8, BASE_DEC, NULL, 0xf0,
+            NULL, HFILL }
+        },
+        { &hf_control_cs_capabilities_role,
+            { "Role", "btle.control.cs_role",
+            FT_UINT8, BASE_DEC, NULL, 0x03,
+            NULL, HFILL }
+        },
+        { &hf_control_cs_capabilities_rfu1,
+            { "Reserved for future use", "btle.control.cs_rfu1",
+            FT_UINT8, BASE_DEC, NULL, 0x04,
+            NULL, HFILL }
+        },
+        { &hf_control_cs_capabilities_no_fae,
+            { "No_FAE", "btle.control.cs_no_fae",
+            FT_UINT8, BASE_DEC, NULL, 0x08,
+            NULL, HFILL }
+        },
+        { &hf_control_cs_capabilities_channel_selection_3c,
+            { "Channel selection algorithm #3c", "btle.control.cs_channel_selection_3c",
+            FT_UINT8, BASE_DEC, NULL, 0x10,
+            NULL, HFILL }
+        },
+        { &hf_control_cs_capabilities_sounding_pct_estimate,
+            { "Sounding_PCT_Estimate", "btle.control.cs_sounding_pct_estimate",
+            FT_UINT8, BASE_DEC, NULL, 0x20,
+            NULL, HFILL }
+        },
+        { &hf_control_cs_capabilities_rfu2,
+            { "Reserved for future use", "btle.control.cs_rfu2",
+            FT_UINT8, BASE_DEC, NULL, 0xC0,
+            NULL, HFILL }
+        },
+        { &hf_control_cs_capabilities_num_configs,
+            { "Number of configurations", "btle.control.cs_num_configs",
+            FT_UINT8, BASE_DEC, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_control_cs_capabilities_max_procedures_supported,
+            { "Max procedures supported", "btle.control.cs_max_procedures_supported",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_control_cs_capabilities_t_sw,
+            { "T_SW us", "btle.control.cs_t_sw",
+            FT_UINT8, BASE_DEC, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_control_cs_capabilities_t_ip1_capability,
+            { "T_IP1_Capability", "btle.control.cs_t_ip1_capability",
+            FT_UINT16, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_control_cs_capabilities_t_ip1_capability_10us,
+            { "T_IP1_Capability 10us", "btle.control.cs_t_ip1_capability.10us",
+            FT_UINT16, BASE_DEC, NULL, 0x0001,
+            NULL, HFILL }
+        },
+        { &hf_control_cs_capabilities_t_ip1_capability_20us,
+            { "T_IP1_Capability 20us", "btle.control.cs_t_ip1_capability.20us",
+            FT_UINT16, BASE_DEC, NULL, 0x0002,
+            NULL, HFILL }
+        },
+        { &hf_control_cs_capabilities_t_ip1_capability_30us,
+            { "T_IP1_Capability 30us", "btle.control.cs_t_ip1_capability.30us",
+            FT_UINT16, BASE_DEC, NULL, 0x0004,
+            NULL, HFILL }
+        },
+        { &hf_control_cs_capabilities_t_ip1_capability_40us,
+            { "T_IP1_Capability 40us", "btle.control.cs_t_ip1_capability.40us",
+            FT_UINT16, BASE_DEC, NULL, 0x0008,
+            NULL, HFILL }
+        },
+        { &hf_control_cs_capabilities_t_ip1_capability_50us,
+            { "T_IP1_Capability 50us", "btle.control.cs_t_ip1_capability.50us",
+            FT_UINT16, BASE_DEC, NULL, 0x0010,
+            NULL, HFILL }
+        },
+        { &hf_control_cs_capabilities_t_ip1_capability_60us,
+            { "T_IP1_Capability 60us", "btle.control.cs_t_ip1_capability.60us",
+            FT_UINT16, BASE_DEC, NULL, 0x0020,
+            NULL, HFILL }
+        },
+        { &hf_control_cs_capabilities_t_ip1_capability_80us,
+            { "T_IP1_Capability 80us", "btle.control.cs_t_ip1_capability.80us",
+            FT_UINT16, BASE_DEC, NULL, 0x0040,
+            NULL, HFILL }
+        },
+        { &hf_control_cs_capabilities_t_ip2_capability,
+            { "T_IP2_Capability", "btle.control.cs_t_ip2_capability",
+            FT_UINT16, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_control_cs_capabilities_t_ip2_capability_10us,
+            { "T_IP2_Capability 10us", "btle.control.cs_t_ip2_capability.10us",
+            FT_UINT16, BASE_DEC, NULL, 0x0001,
+            NULL, HFILL }
+        },
+        { &hf_control_cs_capabilities_t_ip2_capability_20us,
+            { "T_IP2_Capability 20us", "btle.control.cs_t_ip2_capability.20us",
+            FT_UINT16, BASE_DEC, NULL, 0x0002,
+            NULL, HFILL }
+        },
+        { &hf_control_cs_capabilities_t_ip2_capability_30us,
+            { "T_IP2_Capability 30us", "btle.control.cs_t_ip2_capability.30us",
+            FT_UINT16, BASE_DEC, NULL, 0x0004,
+            NULL, HFILL }
+        },
+        { &hf_control_cs_capabilities_t_ip2_capability_40us,
+            { "T_IP2_Capability 40us", "btle.control.cs_t_ip2_capability.40us",
+            FT_UINT16, BASE_DEC, NULL, 0x0008,
+            NULL, HFILL }
+        },
+        { &hf_control_cs_capabilities_t_ip2_capability_50us,
+            { "T_IP2_Capability 50us", "btle.control.cs_t_ip2_capability.50us",
+            FT_UINT16, BASE_DEC, NULL, 0x0010,
+            NULL, HFILL }
+        },
+        { &hf_control_cs_capabilities_t_ip2_capability_60us,
+            { "T_IP2_Capability 60us", "btle.control.cs_t_ip2_capability.60us",
+            FT_UINT16, BASE_DEC, NULL, 0x0020,
+            NULL, HFILL }
+        },
+        { &hf_control_cs_capabilities_t_ip2_capability_80us,
+            { "T_IP2_Capability 80us", "btle.control.cs_t_ip2_capability.80us",
+            FT_UINT16, BASE_DEC, NULL, 0x0040,
+            NULL, HFILL }
+        },
+        { &hf_control_cs_capabilities_t_fcs_capability,
+            { "T_FCS_Capability", "btle.control.cs_t_fcs_capability",
+            FT_UINT16, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_control_cs_capabilities_t_fcs_capability_15us,
+            { "T_FCS_Capability 15us", "btle.control.cs_t_fcs_capability.15us",
+            FT_UINT16, BASE_DEC, NULL, 0x0001,
+            NULL, HFILL }
+        },
+        { &hf_control_cs_capabilities_t_fcs_capability_20us,
+            { "T_FCS_Capability 20us", "btle.control.cs_t_fcs_capability.20us",
+            FT_UINT16, BASE_DEC, NULL, 0x0002,
+            NULL, HFILL }
+        },
+        { &hf_control_cs_capabilities_t_fcs_capability_30us,
+            { "T_FCS_Capability 30us", "btle.control.cs_t_fcs_capability.30us",
+            FT_UINT16, BASE_DEC, NULL, 0x0004,
+            NULL, HFILL }
+        },
+        { &hf_control_cs_capabilities_t_fcs_capability_40us,
+            { "T_FCS_Capability 40us", "btle.control.cs_t_fcs_capability.40us",
+            FT_UINT16, BASE_DEC, NULL, 0x0008,
+            NULL, HFILL }
+        },
+        { &hf_control_cs_capabilities_t_fcs_capability_50us,
+            { "T_FCS_Capability 50us", "btle.control.cs_t_fcs_capability.50us",
+            FT_UINT16, BASE_DEC, NULL, 0x0010,
+            NULL, HFILL }
+        },
+        { &hf_control_cs_capabilities_t_fcs_capability_60us,
+            { "T_FCS_Capability 60us", "btle.control.cs_t_fcs_capability.60us",
+            FT_UINT16, BASE_DEC, NULL, 0x0020,
+            NULL, HFILL }
+        },
+        { &hf_control_cs_capabilities_t_fcs_capability_80us,
+            { "T_FCS_Capability 80us", "btle.control.cs_t_fcs_capability.80us",
+            FT_UINT16, BASE_DEC, NULL, 0x0040,
+            NULL, HFILL }
+        },
+        { &hf_control_cs_capabilities_t_fcs_capability_100us,
+            { "T_FCS_Capability 100us", "btle.control.cs_t_fcs_capability.100us",
+            FT_UINT16, BASE_DEC, NULL, 0x0080,
+            NULL, HFILL }
+        },
+        { &hf_control_cs_capabilities_t_fcs_capability_120us,
+            { "T_FCS_Capability 120us", "btle.control.cs_t_fcs_capability.120us",
+            FT_UINT16, BASE_DEC, NULL, 0x0100,
+            NULL, HFILL }
+        },
+        { &hf_control_cs_capabilities_t_pm_capability,
+            { "T_PM_Capability", "btle.control.cs_t_pm_capability",
+            FT_UINT16, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_control_cs_capabilities_t_pm_capability_10us,
+            { "T_PM_Capability 10us", "btle.control.cs_t_pm_capability.10us",
+            FT_UINT16, BASE_DEC, NULL, 0x0001,
+            NULL, HFILL }
+        },
+        { &hf_control_cs_capabilities_t_pm_capability_20us,
+            { "T_PM_Capability 20us", "btle.control.cs_t_pm_capability.20us",
+            FT_UINT16, BASE_DEC, NULL, 0x0002,
+            NULL, HFILL }
+        },
+        { &hf_control_cs_capabilities_rfu3,
+            { "Reserved for future use", "btle.control.cs_rfu3",
+            FT_UINT8, BASE_DEC, NULL, 0x01,
+            NULL, HFILL }
+        },
+        { &hf_control_cs_capabilities_tx_snr_capability,
+            { "TX SNR capability", "btle.control.cs_tx_snr_capability",
+            FT_UINT8, BASE_DEC, NULL, 0xfe,
+            NULL, HFILL }
+        },
         { &hf_l2cap_index,
             { "L2CAP Index",                     "btle.l2cap_index",
             FT_UINT32, BASE_DEC, NULL, 0x0,
@@ -6583,7 +7008,11 @@ proto_register_btle(void)
         &ett_btle_l2cap_msg_fragment,
         &ett_btle_l2cap_msg_fragments,
         &ett_btle_ea_host_advertising_data_fragment,
-        &ett_btle_ea_host_advertising_data_fragments
+        &ett_btle_ea_host_advertising_data_fragments,
+        &ett_cs_capabilities_t_ip1,
+        &ett_cs_capabilities_t_ip2,
+        &ett_cs_capabilities_t_fcs,
+        &ett_cs_capabilities_t_pm,
     };
 
     connection_info_tree = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
