@@ -3638,7 +3638,7 @@ static int dissect_id_revision(packet_info *pinfo, proto_tree *tree, proto_item 
    return 2;
 }
 
-static int dissect_id_status(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
+int dissect_cip_id_status(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
    int offset, int total_len)
 {
    static int * const status[] = {
@@ -4359,7 +4359,7 @@ static const attribute_info_t cip_attribute_vals[] = {
    {0x01, false, 2, 1, "Device Type", cip_uint, &hf_id_device_type, NULL},
    {0x01, false, 3, 2, "Product Code", cip_uint, &hf_id_product_code, NULL},
    {0x01, false, 4, 3, "Revision", cip_dissector_func, NULL, dissect_id_revision},
-   {0x01, false, 5, 4, "Status", cip_dissector_func, NULL, dissect_id_status},
+   {0x01, false, 5, 4, "Status", cip_dissector_func, NULL, dissect_cip_id_status},
    {0x01, false, 6, 5, "Serial Number", cip_udint, &hf_id_serial_number, NULL},
    {0x01, false, 7, 6, "Product Name", cip_short_string, &hf_id_product_name, NULL},
    {0x01, false, 8, 7, "State", cip_usint, &hf_id_state, NULL},

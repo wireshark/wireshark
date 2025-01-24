@@ -114,7 +114,6 @@ static int hf_enip_lir_vendor;
 static int hf_enip_lir_devtype;
 static int hf_enip_lir_prodcode;
 static int hf_enip_lir_revision;
-static int hf_enip_lir_status;
 static int hf_enip_lir_serial;
 static int hf_enip_lir_namelen;
 static int hf_enip_lir_name;
@@ -2613,7 +2612,7 @@ static void dissect_item_list_identity(packet_info* pinfo, tvbuff_t* tvb, int of
    proto_tree_add_item(item_tree, hf_enip_lir_revision, tvb, offset + 24, 2, ENC_BIG_ENDIAN);
 
    /* Status */
-   proto_tree_add_item(item_tree, hf_enip_lir_status, tvb, offset + 26, 2, ENC_LITTLE_ENDIAN);
+   dissect_cip_id_status(pinfo, item_tree, NULL, tvb, offset + 26, 2);
 
    /* Serial Number */
    proto_tree_add_item(item_tree, hf_enip_lir_serial, tvb, offset + 28, 4, ENC_LITTLE_ENDIAN);
@@ -3815,11 +3814,6 @@ proto_register_enip(void)
           FT_UINT16, BASE_CUSTOM, CF_FUNC(enip_fmt_lir_revision), 0,
           "ListIdentity Reply: Revision", HFILL }},
 
-      { &hf_enip_lir_status,
-        { "Status", "enip.lir.status",
-          FT_UINT16, BASE_HEX, NULL, 0,
-          "ListIdentity Reply: Status", HFILL }},
-
       { &hf_enip_lir_serial,
         { "Serial Number", "enip.lir.serial",
           FT_UINT32, BASE_HEX, NULL, 0,
@@ -3837,7 +3831,7 @@ proto_register_enip(void)
 
       { &hf_enip_lir_state,
         { "State", "enip.lir.state",
-          FT_UINT8, BASE_HEX, NULL, 0,
+          FT_UINT8, BASE_HEX, VALS(cip_id_state_vals), 0,
           "ListIdentity Reply: State", HFILL }},
 
       { &hf_enip_security_profiles,

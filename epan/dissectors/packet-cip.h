@@ -653,6 +653,9 @@ extern int  dissect_padded_epath_len_usint(packet_info *pinfo, proto_tree *tree,
 extern int  dissect_padded_epath_len_uint(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
    int offset, int total_len);
 
+extern int dissect_cip_id_status(packet_info* pinfo, proto_tree* tree, proto_item* item, tvbuff_t* tvb,
+   int offset, int total_len);
+
 extern void load_cip_request_data(packet_info *pinfo, cip_simple_request_info_t *req_data);
 extern void reset_cip_request_info(cip_simple_request_info_t* req_data);
 extern bool should_dissect_cip_response(tvbuff_t *tvb, int offset, uint8_t gen_status);
