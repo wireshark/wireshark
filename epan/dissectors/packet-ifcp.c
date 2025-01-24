@@ -84,7 +84,7 @@ static const value_string ifcp_sof_vals[] = {
 };
 
 static const value_string fcencap_proto_vals[] = {
-    {FCENCAP_PROTO_iFCP, "iFCP"},
+    {FCENCAP_PROTO_FCIP, "FCIP"},
     {FCENCAP_PROTO_iFCP, "iFCP"},
     {0, NULL},
 };

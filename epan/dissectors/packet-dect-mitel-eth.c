@@ -473,7 +473,6 @@ static const value_string dect_mitel_eth_prim_coding_val[] = {
 	{ DECT_MITEL_ETH_MAC_MOD_REQ,              "MAC_MOD_REQ" },
 	{ DECT_MITEL_ETH_MAC_MOD_CNF,              "MAC_MOD_CNF" },
 	{ DECT_MITEL_ETH_MAC_MOD_IND,              "MAC_MOD_IND" },
-	{ DECT_MITEL_ETH_MAC_MOD_REQ,              "MAC_MOD_REQ" },
 	{ DECT_MITEL_ETH_MAC_RECORD_AUDIO,         "MAC_RECORD_AUDIO" },
 	{ DECT_MITEL_ETH_MAC_INFO_IND,             "MAC_INFO_IND" },
 	{ DECT_MITEL_ETH_MAC_GET_DEF_CKEY_IND,     "MAC_GET_DEF_CKEY_IND" },

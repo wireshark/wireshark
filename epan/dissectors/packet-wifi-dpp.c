@@ -67,13 +67,6 @@ static const value_string dpp_status_codes[] = {
   { DPP_STATUS_CONFIGURE_PENDING,  "Configuration response is not ready yet. The enrollee needs to request again." },
   { DPP_STATUS_CSR_NEEDED,         "Configuration requires a Certificate Signing Request. Enrollee needs to request again." },
   { DPP_STATUS_CSR_BAD,            "The Certificate Signing Request was invalid." },
-  { DPP_STATUS_OK,                "OK" },
-  { DPP_STATUS_NOT_COMPATIBLE,    "Not Compatible" },
-  { DPP_STATUS_AUTH_FAILURE,      "Auth Failure" },
-  { DPP_STATUS_UNWRAP_FAILURE,    "Unwrap Failure" },
-  { DPP_STATUS_BAD_GROUP,         "Bad Group" },
-  { DPP_STATUS_CONFIGURE_FAILURE, "Configure Failure" },
-  { DPP_STATUS_RESPONSE_PENDING,  "Response Pending" },
   { 0, NULL }
 };
 
