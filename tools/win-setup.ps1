@@ -131,8 +131,8 @@ $Arm64Archives = @{
     "speexdsp/speexdsp-1.2.1-1-win64armws.zip" = "1759a9193065f27e50dd79dbb1786d24031ac43ccc48c40dca46d8a48552e3bb";
     "vcpkg-export/vcpkg-export-20240524-1-arm64-windows-ws.zip" = "5d1e186b77ec3bc7072253be90b6aa36d7e317bccc382209c1570b60e488000b";
     "WinSparkle/WinSparkle-0.8.0-4-gb320893.zip" = "3ae42326bcd34594bc21b1e7948863a839ee76e87d9f4cf6b59b9d9f9a083881";
-    "zlib-ng/zlib-ng-2.2.3-1-arm64-windows-ws.zip" = "de3a42d0096a17085b27630402a710b036cc8e3c85029ad37536d929697271e5";
-    "zstd/zstd-1.5.6-1-arm64-windows-ws.zip" = "bea4250059565c3cc49a382d8ec3f82b70c51c3ccca41c5d3daec6862d22d8f8";
+    "zlib-ng/zlib-ng-2.2.3-1-arm64-windows-ws.zip" = "bea4250059565c3cc49a382d8ec3f82b70c51c3ccca41c5d3daec6862d22d8f8";
+    "zstd/zstd-1.5.6-1-arm64-windows-ws.zip" = "0e448875380cc5d5f5539d994062201bfa564e4a27466bc3fdfec84d9008e51d";
 }
 
 # Subdirectory to extract an archive to
