@@ -654,8 +654,6 @@ QVariant ConversationDataModel::headerData(int section, Qt::Orientation orientat
             switch (section) {
             case CONV_TCP_EXT_COLUMN_A:
                 return tr("Flows"); break;
-            default :
-                ws_assert_not_reached(); break;
             }
         }
     } else if (role == Qt::TextAlignmentRole) {
@@ -817,8 +815,6 @@ QVariant ConversationDataModel::data(const QModelIndex &idx, int role) const
                 qlonglong flows = (qlonglong)conv_item->ext_tcp.flows;
                 return role == Qt::DisplayRole ? QStringLiteral("%L1").arg(flows) : (QVariant)flows; break;
                 }
-            default :
-                ws_assert_not_reached(); break;
             }
         }
     } else if (role == Qt::ToolTipRole) {
