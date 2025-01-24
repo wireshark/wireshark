@@ -98,7 +98,7 @@ $X64Archives = @{
     "speexdsp/speexdsp-1.21.1-1-win64ws.zip" = "d36db62e64ffaee38d9f607bef07d3778d8957ad29757f3eba169eb135f1a4e5";
     "vcpkg-export/vcpkg-export-20240524-1-x64-windows-ws.zip" = "c566f41f20ae87fa4357d204f92cbbe2f236bc1df28c3d106fecfe21a8fbfa11";
     "WinSparkle/WinSparkle-0.8.0-4-gb320893.zip" = "3ae42326bcd34594bc21b1e7948863a839ee76e87d9f4cf6b59b9d9f9a083881";
-    "zlib-ng/zlib-ng-2.1.5-1-x64-windows-ws.zip" = "a9f90e349d041d464afc1e0926d628ebee02e7093ab9983c5a7808e2b70d7873";
+    "zlib-ng/zlib-ng-2.2.3-1-x64-windows-ws.zip" = "8b4e5ba1b61688eccb7e315c2f4ce1ef0c4301172f265bd41455e1df6a5a9522";
     "zstd/zstd-1.5.6-1-x64-windows-ws.zip" = "f3f59351d273a1c1f2b84b60164556c8d2726155da2148f917d260d9efd16b6e";
 }
 
@@ -131,8 +131,8 @@ $Arm64Archives = @{
     "speexdsp/speexdsp-1.2.1-1-win64armws.zip" = "1759a9193065f27e50dd79dbb1786d24031ac43ccc48c40dca46d8a48552e3bb";
     "vcpkg-export/vcpkg-export-20240524-1-arm64-windows-ws.zip" = "5d1e186b77ec3bc7072253be90b6aa36d7e317bccc382209c1570b60e488000b";
     "WinSparkle/WinSparkle-0.8.0-4-gb320893.zip" = "3ae42326bcd34594bc21b1e7948863a839ee76e87d9f4cf6b59b9d9f9a083881";
-    "zlib-ng/zlib-ng-2.1.5-1-arm64-windows-ws.zip" = "de3a42d0096a17085b27630402a710b036cc8e3c85029ad37536d929697271e5";
-    "zstd/zstd-1.5.6-1-arm64-windows-ws.zip" = "167261f9605a28f8f5a45a2fa400daa5072290a89d5fdc218595da52d57f938b";
+    "zlib-ng/zlib-ng-2.2.3-1-arm64-windows-ws.zip" = "de3a42d0096a17085b27630402a710b036cc8e3c85029ad37536d929697271e5";
+    "zstd/zstd-1.5.6-1-arm64-windows-ws.zip" = "bea4250059565c3cc49a382d8ec3f82b70c51c3ccca41c5d3daec6862d22d8f8";
 }
 
 # Subdirectory to extract an archive to
