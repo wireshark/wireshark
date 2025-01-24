@@ -846,7 +846,7 @@ typedef enum
     LL_CTRL_OPCODE_LL_CS_FAE_REQ = 0x36,
     LL_CTRL_OPCODE_LL_CS_FAE_RSP = 0x37,
     LL_CTRL_OPCODE_LL_CS_CHANNEL_MAP_IND = 0x38,
-    LL_CTRL_OPCODE_LL_CS_SEQ_REQ = 0x39,
+    LL_CTRL_OPCODE_LL_CS_SEC_REQ = 0x39,
     LL_CTRL_OPCODE_LL_CS_TERMINATE_RSP = 0x3A,
     LL_CTRL_OPCODE_LL_FRAME_SPACE_REQ = 0x3B,
     LL_CTRL_OPCODE_LL_FRAME_SPACE_RSP = 0x3C,
@@ -910,7 +910,7 @@ static const value_string control_opcode_vals[] = {
     { LL_CTRL_OPCODE_LL_CS_FAE_REQ, "LL_CTRL_OPCODE_LL_CS_FAE_REQ" },
     { LL_CTRL_OPCODE_LL_CS_FAE_RSP, "LL_CTRL_OPCODE_LL_CS_FAE_RSP" },
     { LL_CTRL_OPCODE_LL_CS_CHANNEL_MAP_IND, "LL_CTRL_OPCODE_LL_CS_CHANNEL_MAP_IND" },
-    { LL_CTRL_OPCODE_LL_CS_SEQ_REQ, "LL_CTRL_OPCODE_LL_CS_SEQ_REQ" },
+    { LL_CTRL_OPCODE_LL_CS_SEC_REQ, "LL_CTRL_OPCODE_LL_CS_SEC_REQ" },
     { LL_CTRL_OPCODE_LL_CS_TERMINATE_RSP, "LL_CTRL_OPCODE_LL_CS_TERMINATE_RSP" },
     { LL_CTRL_OPCODE_LL_FRAME_SPACE_REQ, "LL_CTRL_OPCODE_LL_FRAME_SPACE_REQ" },
     { LL_CTRL_OPCODE_LL_FRAME_SPACE_RSP, "LL_CTRL_OPCODE_LL_FRAME_SPACE_RSP" },
@@ -4353,9 +4353,9 @@ dissect_btle_acl(tvbuff_t *tvb,
                 }
             }
             break;
-        case LL_CTRL_OPCODE_LL_CS_SEQ_REQ:
+        case LL_CTRL_OPCODE_LL_CS_SEC_REQ:
             if (connection_info && !btle_frame_info->retransmit) {
-                /* The LL_CTRL_OPCODE_LL_CS_SEQ_REQ can only be sent from central to peripheral. */
+                /* The LL_CTRL_OPCODE_LL_CS_SEC_REQ can only be sent from central to peripheral. */
                 if (direction == BTLE_DIR_CENTRAL_PERIPHERAL) {
                     control_proc_start(tvb, pinfo, btle_tree, control_proc_item,
                                         connection_info->direction_info[BTLE_DIR_CENTRAL_PERIPHERAL].control_procs,
@@ -4370,7 +4370,7 @@ dissect_btle_acl(tvbuff_t *tvb,
             if (connection_info && !btle_frame_info->retransmit && direction != BTLE_DIR_UNKNOWN) {
                 if (control_proc_can_add_frame(pinfo,
                                                 last_control_proc[other_direction],
-                                                LL_CTRL_OPCODE_LL_CS_SEQ_REQ, 1)) {
+                                                LL_CTRL_OPCODE_LL_CS_SEC_REQ, 1)) {
                     control_proc_add_last_frame(tvb,
                                                 pinfo,
                                                 btle_tree,
