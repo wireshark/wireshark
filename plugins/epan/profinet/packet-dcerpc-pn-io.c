@@ -53,6 +53,7 @@
 
 
 #include "config.h"
+#define WS_LOG_DOMAIN "PROFINET"
 
 #include <string.h>
 #include <glib.h>
@@ -69,6 +70,14 @@
 #include <wsutil/array.h>
 #include <wsutil/file_util.h>
 #include <epan/prefs.h>
+
+#ifdef HAVE_LIBXML2
+#include <wsutil/strtoi.h>
+#include <libxml/parser.h>
+#include <libxml/tree.h>
+#include <libxml/xpath.h>
+#include <libxml/xpathInternals.h>
+#endif
 
 #include "packet-pn.h"
 
@@ -1049,8 +1058,11 @@ static uint16_t ver_pn_io_implicitar = 1;
 bool           pnio_ps_selection = true;
 static const char *pnio_ps_networkpath = "";
 
+static wmem_allocator_t *pnio_pref_scope;
+
 wmem_list_t       *aruuid_frame_setup_list;
 static wmem_map_t *pnio_time_aware_frame_map;
+static wmem_map_t *pnio_gsd_device_map;
 
 
 /* Allow heuristic dissection */
@@ -3925,6 +3937,354 @@ static const value_string pn_io_snmp_control[] = {
     { 0x03, "Reserved" },
     { 0, NULL }
 };
+
+typedef struct _gsd_dev_key_t {
+    uint32_t vendor_id;
+    uint32_t device_id;
+} gsd_dev_key_t;
+
+typedef struct _gsd_dev_value_t {
+    char *filename;
+    wmem_map_t *modules;
+    wmem_map_t *submodules;
+} gsd_dev_value_t;
+
+typedef struct _gsd_dev_module_t {
+    char *text_id; //
+    char *text; // User-friendly Text (can exist in multiple translations)
+    unsigned amountInGSDML;
+
+} gsm_dev_module_t;
+
+typedef struct _gsd_dev_submodule_t {
+    bool profisafe;
+    uint32_t f_parameter_index;
+} gsm_dev_submodule_t;
+
+static unsigned
+pnio_gsd_device_hash(const void *key)
+{
+    const gsd_dev_key_t *k = (const gsd_dev_key_t *)key;
+
+    uint64_t temp = (uint64_t)k->vendor_id << 32 | k->device_id;
+    return wmem_int64_hash(&temp);
+}
+
+static gboolean
+pnio_gsd_device_equal(const void *key1, const void *key2)
+{
+    const gsd_dev_key_t *a = (const gsd_dev_key_t *)key1;
+    const gsd_dev_key_t *b = (const gsd_dev_key_t *)key2;
+
+    return (a->vendor_id == b->vendor_id) && (a->device_id == b->device_id);
+}
+
+#ifdef HAVE_LIBXML2
+static wmem_map_t *
+pnio_load_gsd_device_modules(const xmlNodePtr deviceNode, xmlXPathContextPtr xpathCtx)
+{
+    xmlXPathObjectPtr result, result2;
+    wmem_map_t *modules = wmem_map_new(pnio_pref_scope, g_direct_hash, g_direct_equal);
+    /* Select all children with a ModuleIdentNumber attribute
+     * XXX - The same ModuleIdentNumber can be used with multiple
+     * TextIDs.
+     */
+    result = xmlXPathEvalExpression(".//*[@ModuleIdentNumber]", xpathCtx);
+    if (!result) {
+        return modules;
+    }
+    xmlNodeSetPtr nodeset = result->nodesetval;
+    int id_size = nodeset ? nodeset->nodeNr : 0;
+    xmlNodePtr moduleNode;
+    xmlChar *moduleIdentStr, *moduleNameStr;
+    uint32_t moduleIdentNr;
+    gsm_dev_module_t *module;
+    for (int i=0; i < id_size; i++) {
+        moduleNode = xmlXPathNodeSetItem(nodeset, i);
+        moduleIdentStr = xmlGetProp(moduleNode, "ModuleIdentNumber");
+        if (ws_basestrtou32(moduleIdentStr, NULL, &moduleIdentNr, 0)) {
+
+            /* Is this a duplicate entry? */
+            module = wmem_map_lookup(modules, GUINT_TO_POINTER(moduleIdentNr));
+            if (module) {
+                xmlFree(moduleIdentStr);
+                module->amountInGSDML++;
+                continue;
+            }
+
+            /* Find the TextId for this module */
+            result2 = xmlXPathNodeEval(moduleNode, "dev:ModuleInfo/dev:Name[@TextId]", xpathCtx);
+            if (!result2) {
+                xmlFree(moduleIdentStr);
+                continue;
+            }
+            if (!result2->nodesetval) {
+                xmlFree(moduleIdentStr);
+                xmlXPathFreeObject(result2);
+                continue;
+            }
+            xmlNodePtr moduleNameNode = xmlXPathNodeSetItem(result2->nodesetval, 0);
+            xmlXPathFreeObject(result2);
+            if (!moduleNameNode) {
+                xmlFree(moduleIdentStr);
+                continue;
+            }
+            moduleNameStr = xmlGetProp(moduleNameNode, "TextId");
+
+            /* Find the Text (friendly name) for this module from the
+             * ExternalTextList section of the GSD file.
+             */
+            char *textquery = wmem_strdup_printf(NULL, ".//dev:ExternalTextList/dev:PrimaryLanguage/dev:Text[@TextId=\"%s\"]", moduleNameStr);
+            result2 = xmlXPathNodeEval(deviceNode, BAD_CAST textquery, xpathCtx);
+            wmem_free(NULL, textquery);
+            if (!result2) {
+                xmlFree(moduleIdentStr);
+                xmlFree(moduleNameStr);
+                continue;
+            }
+            if (!result2->nodesetval) {
+                xmlFree(moduleIdentStr);
+                xmlFree(moduleNameStr);
+                xmlXPathFreeObject(result2);
+                continue;
+            }
+            moduleNameNode = xmlXPathNodeSetItem(result2->nodesetval, 0);
+            xmlXPathFreeObject(result2);
+            if (!moduleNameNode) {
+                xmlFree(moduleIdentStr);
+                xmlFree(moduleNameStr);
+                continue;
+            }
+            xmlChar *moduleText = xmlGetProp(moduleNameNode, "Value");
+            if (!moduleText) {
+                xmlFree(moduleIdentStr);
+                xmlFree(moduleNameStr);
+                continue;
+            }
+            module = wmem_new0(pnio_pref_scope, gsm_dev_module_t);
+            module->amountInGSDML = 1;
+            module->text_id = wmem_strdup(pnio_pref_scope, moduleIdentStr);
+            module->text = wmem_strdup(pnio_pref_scope, moduleText);
+            wmem_map_insert(modules, GUINT_TO_POINTER(moduleIdentNr), module);
+
+            xmlFree(moduleText);
+            xmlFree(moduleNameStr);
+        }
+        xmlFree(moduleIdentStr);
+    }
+    xmlXPathFreeObject(result);
+
+    return modules;
+}
+
+static wmem_map_t *
+pnio_load_gsd_device_submodules(const xmlNodePtr deviceNode, xmlXPathContextPtr xpathCtx)
+{
+    xmlXPathObjectPtr result, result2;
+    wmem_map_t *submodules = wmem_map_new(pnio_pref_scope, g_direct_hash, g_direct_equal);
+    /* Select all children with a SubmoduleIdentNumber attribute
+     * XXX - SubmoduleIdentNumbers are only required to be unique within
+     * a module, submodules can be found in the global SubmoduleList. The
+     * right way to handle this is to look at the UseableSubmodules element
+     * inside a ModuleItem and see which TextId are listed, and then map
+     * those to SubmoduleIdentNumbers on a per-module basis. All we care
+     * for right now is whether PROFIsafe is supported.
+     */
+    result = xmlXPathNodeEval(deviceNode, ".//*[@SubmoduleIdentNumber]", xpathCtx);
+    if (!result) {
+        return submodules;
+    }
+    xmlNodePtr submoduleNode;
+    xmlChar *submoduleIdentStr;
+    uint32_t submoduleIdentNr;
+    xmlNodeSetPtr nodeset = result->nodesetval;
+    int id_size = nodeset ? nodeset->nodeNr : 0;
+    gsm_dev_submodule_t *submodule;
+    for (int i=0; i < id_size; i++) {
+        submoduleNode = xmlXPathNodeSetItem(nodeset, i);
+        submoduleIdentStr = xmlGetProp(submoduleNode, "SubmoduleIdentNumber");
+        if (ws_basestrtou32(submoduleIdentStr, NULL, &submoduleIdentNr, 0)) {
+
+            xmlChar *profisafeStr = xmlGetProp(submoduleNode, "PROFIsafeSupported");
+            bool profisafe = g_strcmp0(profisafeStr, "true") == 0;
+
+            uint32_t fParameterIndexNr = 0;
+            if (profisafe) {
+                /* Look for the F_ParameterRecordDataItem index. */
+                result2 = xmlXPathNodeEval(submoduleNode, "//dev:F_ParameterRecordDataItem", xpathCtx);
+                if (!result2) {
+                    xmlFree(submoduleIdentStr);
+                    continue;
+                }
+                if (!result2->nodesetval) {
+                    xmlXPathFreeObject(result2);
+                    xmlFree(submoduleIdentStr);
+                    continue;
+                }
+                xmlNodePtr fParameterNode = xmlXPathNodeSetItem(result2->nodesetval, 0);
+                xmlXPathFreeObject(result2);
+                if (!fParameterNode) {
+                    ws_warning("PROFIsafeSupport but no F_ParameterRecordDataItem");
+                    xmlFree(submoduleIdentStr);
+                    continue;
+                }
+                xmlChar *fParameterIndexStr;
+                fParameterIndexStr = xmlGetProp(fParameterNode, "Index");
+                if (ws_basestrtou32(fParameterIndexStr, NULL, &fParameterIndexNr, 0)) {
+                    ws_debug("F_Parameter Index: %u", fParameterIndexNr);
+                }
+                xmlFree(fParameterIndexStr);
+            }
+            submodule = wmem_map_lookup(submodules, GUINT_TO_POINTER(submoduleIdentNr));
+            if (submodule) {
+                if (profisafe != submodule->profisafe) {
+                    ws_warning("SubmoduleIdentNumber 0x%08x duplicated with inconsistent PROFIsafeSupport", submoduleIdentNr);
+                }
+            } else {
+                submodule = wmem_new0(pnio_pref_scope, gsm_dev_submodule_t);
+                submodule->profisafe = profisafe;
+                submodule->f_parameter_index = fParameterIndexNr;
+                wmem_map_insert(submodules, GUINT_TO_POINTER(submoduleIdentNr), submodule);
+            }
+
+            xmlFree(profisafeStr);
+        }
+        xmlFree(submoduleIdentStr);
+    }
+    xmlXPathFreeObject(result);
+    return submodules;
+}
+
+static void
+pnio_load_gsd_device_profile(xmlNodePtr deviceNode, xmlXPathContextPtr xpathCtx, const char *filename)
+{
+    xmlXPathObjectPtr result;
+
+    xmlXPathSetContextNode(deviceNode, xpathCtx);
+
+    result = xmlXPathEvalExpression("dev:DeviceIdentity", xpathCtx);
+
+    if (!result) {
+        return;
+    }
+
+    xmlNodeSetPtr nodeset = result->nodesetval;
+    int id_size = nodeset ? nodeset->nodeNr : 0;
+    /* This should be 1. */
+    if (id_size != 1) {
+        ws_warning("ISO15745Profile with more than one DeviceIdentity");
+        xmlXPathFreeObject(result);
+        return;
+    }
+
+    xmlNodePtr deviceIdentity = nodeset->nodeTab[0];
+    xmlXPathFreeObject(result);
+    xmlChar *vendorStr, *deviceStr;
+    uint32_t vendor_id, device_id;
+    vendorStr = xmlGetProp(deviceIdentity, "VendorID");
+    deviceStr = xmlGetProp(deviceIdentity, "DeviceID");
+    if (!ws_basestrtou32(vendorStr, NULL, &vendor_id, 0) ||
+        !ws_basestrtou32(deviceStr, NULL, &device_id, 0)) {
+
+        ws_warning("Failed to convert VendorID or DeviceID to number");
+        xmlFree(vendorStr);
+        xmlFree(deviceStr);
+        return;
+    }
+
+    ws_debug("Vendor: %u Device: %u", vendor_id, device_id);
+    gsd_dev_key_t *key = wmem_new(pnio_pref_scope, gsd_dev_key_t);
+    key->vendor_id = vendor_id;
+    key->device_id = device_id;
+
+    gsd_dev_value_t *value = wmem_new0(pnio_pref_scope, gsd_dev_value_t);
+    value->filename = wmem_strdup(pnio_pref_scope, filename);
+    wmem_map_insert(pnio_gsd_device_map, key, value);
+
+    xmlFree(vendorStr);
+    xmlFree(deviceStr);
+
+    value->modules = pnio_load_gsd_device_modules(deviceNode, xpathCtx);
+    value->submodules = pnio_load_gsd_device_submodules(deviceNode, xpathCtx);
+}
+#endif /* HAVE_LIBXML2 */
+
+static void
+pnio_load_gsd_files(void)
+{
+    if (pnio_pref_scope == NULL) {
+        pnio_pref_scope = wmem_allocator_new(WMEM_ALLOCATOR_BLOCK);
+        pnio_gsd_device_map = wmem_map_new_autoreset(wmem_epan_scope(), pnio_pref_scope, pnio_gsd_device_hash, pnio_gsd_device_equal);
+    } else {
+        wmem_free_all(pnio_pref_scope);
+    }
+
+#ifdef HAVE_LIBXML2
+    char    *diropen = NULL;  /* saves the final networkpath to open for GSD-files */
+    GDir    *dir;
+    const char *filename;    /* saves the found GSD-file name */
+
+    static const char *dev_ns = "http://www.profibus.com/GSDML/2003/11/DeviceProfile";
+    /* Use the given GSD-file networkpath of the PNIO-Preference */
+    if(pnio_ps_networkpath[0] != '\0') {   /* check the length of the given networkpath (array overflow protection) */
+        if ((dir = g_dir_open(pnio_ps_networkpath, 0, NULL)) != NULL) {
+            /* Find all GSD-files within directory */
+            /* XXX - Either only look at files with a .xml extension, or
+             * do some preliminary looking for magic bytes, so that errors
+             * and warnings can be printed without doing so for files that
+             * clearly aren't XML, e.g. vim swap files.)
+             */
+            while ((filename = g_dir_read_name(dir)) != NULL) {
+
+                /* ---- complete the path to open a GSD-file ---- */
+                diropen = wmem_strdup_printf(NULL, "%s" G_DIR_SEPARATOR_S "%s", pnio_ps_networkpath, filename);
+
+                xmlDocPtr doc;
+                /* libxml2 2.13.0 has a way to set an error handler. */
+                doc = xmlReadFile(diropen, NULL, XML_PARSE_NOERROR);
+                if (doc == NULL) {
+                    ws_info("Failed to parse %s", diropen);
+                    wmem_free(NULL, diropen);
+                    continue;
+                }
+
+                xmlXPathContextPtr xpathCtx;
+                xpathCtx = xmlXPathNewContext(doc);
+                if (xpathCtx == NULL) {
+                    ws_warning("Unable to create XPath context");
+                    xmlFreeDoc(doc);
+                    wmem_free(NULL, diropen);
+                    continue;
+                }
+
+                if (xmlXPathRegisterNs(xpathCtx, BAD_CAST "dev", BAD_CAST dev_ns) != 0) {
+                    ws_warning("Unable to register NS with prefix");
+                    xmlXPathFreeContext(xpathCtx);
+                    xmlFreeDoc(doc);
+                    wmem_free(NULL, diropen);
+                    continue;
+                }
+
+                xmlXPathObjectPtr result;
+                result = xmlXPathEvalExpression("/dev:ISO15745Profile/dev:ProfileBody[dev:DeviceIdentity]", xpathCtx);
+                if (result) {
+                    xmlNodeSetPtr nodeset = result->nodesetval;
+                    int size = nodeset ? nodeset->nodeNr : 0;
+                    for (int i=0; i < size; i++) {
+                        pnio_load_gsd_device_profile(nodeset->nodeTab[i], xpathCtx, diropen);
+                    }
+                    xmlXPathFreeObject(result);
+                }
+                xmlXPathFreeContext(xpathCtx);
+                xmlFreeDoc(doc);
+                wmem_free(NULL, diropen);
+            }
+        }
+
+        g_dir_close(dir);
+    }
+#endif /* HAVE_LIBXML2 */
+}
 
 static int
 dissect_profidrive_value(tvbuff_t *tvb, int offset, packet_info *pinfo,
@@ -12237,62 +12597,21 @@ dissect_ExpectedSubmoduleBlockReq_block(tvbuff_t *tvb, int offset,
     proto_tree *submodule_tree;
     uint32_t    u32SubStart;
 
-    /* Variable for the search of gsd file */
-    const char vendorIdStr[] = "VendorID=\"";
-    const char deviceIdStr[] = "DeviceID=\"";
-    const char moduleStr[] = "ModuleIdentNumber=\"";
-    const char subModuleStr[] = "SubmoduleIdentNumber=\"";
-    const char profisafeStr[] = "PROFIsafeSupported=\"true\"";
-    const char fParameterStr[] = "<F_ParameterRecordDataItem";
-    const char fParameterIndexStr[] = "Index=";
-    const char moduleNameInfo[] = "<Name";
-    const char moduleValueInfo[] = "Value=\"";
-
-    uint16_t searchVendorID = 0;
-    uint16_t searchDeviceID = 0;
-    bool vendorMatch;
-    bool deviceMatch;
     conversation_t *conversation;
     stationInfo    *station_info = NULL;
     ioDataObject   *io_data_object = NULL; /* Used to transfer data to fct. "dissect_DataDescription()" */
 
-    /* Variable for the search of GSD-file */
-    uint32_t read_vendor_id;
-    uint32_t read_device_id;
-    uint32_t read_module_id;
-    uint32_t read_submodule_id;
-    bool gsdmlFoundFlag;
-    char    tmp_moduletext[MAX_NAMELENGTH];
-    char    *convertStr;      /* GSD-file search */
-    char    *pch;             /* helppointer, to save temp. the found Networkpath of GSD-file */
-    char    *puffer;          /* used for fgets() during GSD-file search */
-    char    *temp;            /* used for fgets() during GSD-file search */
-    char    *diropen = NULL;  /* saves the final networkpath to open for GSD-files */
-    GDir    *dir;
-    FILE    *fp = NULL;       /* filepointer */
-    const char *filename;    /* saves the found GSD-file name */
+    /* Value from GSD file lookup */
+    gsd_dev_value_t *value = NULL;
 
     ARUUIDFrame       *current_aruuid_frame = NULL;
     uint32_t           current_aruuid = 0;
-
-    /* Helppointer initial */
-    convertStr = (char*)wmem_alloc(pinfo->pool, MAX_NAMELENGTH);
-    convertStr[0] = '\0';
-    pch = (char*)wmem_alloc(pinfo->pool, MAX_LINE_LENGTH);
-    pch[0] = '\0';
-    puffer = (char*)wmem_alloc(pinfo->pool, MAX_LINE_LENGTH);
-    puffer[0] = '\0';
-    temp = (char*)wmem_alloc(pinfo->pool, MAX_LINE_LENGTH);
-    temp[0] = '\0';
 
     /* Initial */
     io_data_object = wmem_new0(wmem_file_scope(), ioDataObject);
     io_data_object->profisafeSupported = false;
     io_data_object->moduleNameStr = (char*)wmem_alloc(wmem_file_scope(), MAX_NAMELENGTH);
     (void) g_strlcpy(io_data_object->moduleNameStr, "Unknown", MAX_NAMELENGTH);
-    vendorMatch = false;
-    deviceMatch = false;
-    gsdmlFoundFlag = false;
 
 
     if (u8BlockVersionHigh != 1 || u8BlockVersionLow != 0) {
@@ -12330,78 +12649,19 @@ dissect_ExpectedSubmoduleBlockReq_block(tvbuff_t *tvb, int offset,
         station_info->gsdFound = false;
         station_info->gsdPathLength = false;
 
-        /* Set searchVendorID and searchDeviceID for GSDfile search */
-        searchVendorID = station_info->u16Vendor_id;
-        searchDeviceID = station_info->u16Device_id;
+        const gsd_dev_key_t search_key = {.vendor_id = station_info->u16Vendor_id,
+                                          .device_id = station_info->u16Device_id};
 
         /* Use the given GSD-file networkpath of the PNIO-Preference */
         if(pnio_ps_networkpath[0] != '\0') {   /* check the length of the given networkpath (array overflow protection) */
             station_info->gsdPathLength = true;
 
-            if ((dir = g_dir_open(pnio_ps_networkpath, 0, NULL)) != NULL) {
-                /* Find all GSD-files within directory */
-                while ((filename = g_dir_read_name(dir)) != NULL) {
-
-                    /* ---- complete the path to open a GSD-file ---- */
-                    diropen = wmem_strdup_printf(pinfo->pool, "%s" G_DIR_SEPARATOR_S "%s", pnio_ps_networkpath, filename);
-
-                    /* ---- Open the found GSD-file  ---- */
-                    fp = ws_fopen(diropen, "r");
-
-                    if(fp != NULL) {
-                        /* ---- Get VendorID & DeviceID ---- */
-                        while(pn_fgets(puffer, MAX_LINE_LENGTH, fp, pinfo->pool) != NULL) {
-                            /* ----- VendorID ------ */
-                            if((strstr(puffer, vendorIdStr)) != NULL) {
-                                memset (convertStr, 0, sizeof(*convertStr));
-                                pch = strstr(puffer, vendorIdStr);
-                                if (pch!= NULL && sscanf(pch, "VendorID=\"%199[^\"]", convertStr) == 1) {
-                                    read_vendor_id = (uint32_t) strtoul (convertStr, NULL, 0);
-
-                                    if(read_vendor_id == searchVendorID) {
-                                        vendorMatch = true;        /* found correct VendorID */
-                                    }
-                                }
-                            }
-
-                            /* ----- DeviceID ------ */
-                            if((strstr(puffer, deviceIdStr)) != NULL) {
-                                memset(convertStr, 0, sizeof(*convertStr));
-                                pch = strstr(puffer, deviceIdStr);
-                                if (pch != NULL && sscanf(pch, "DeviceID=\"%199[^\"]", convertStr) == 1) {
-                                    read_device_id = (uint32_t)strtoul(convertStr, NULL, 0);
-
-                                    if(read_device_id == searchDeviceID) {
-                                        deviceMatch = true;        /* found correct DeviceID */
-                                    }
-                                }
-                            }
-                        }
-
-                        fclose(fp);
-                        fp = NULL;
-
-                        if(vendorMatch && deviceMatch) {
-                            break;        /* Found correct GSD-file! -> Break the searchloop */
-                        }
-                        else {
-                            /* Couldn't find the correct GSD-file to the corresponding device */
-                            vendorMatch = false;
-                            deviceMatch = false;
-                            gsdmlFoundFlag = false;
-                            diropen = "";           /* reset array for next search */
-                        }
-                    }
-                }
-
-                g_dir_close(dir);
-            }
+            value = wmem_map_lookup(pnio_gsd_device_map, &search_key);
 
             /* ---- Found the correct GSD-file -> set Flag and save the completed path ---- */
-            if(vendorMatch && deviceMatch) {
-                gsdmlFoundFlag = true;
+            if (value) {
                 station_info->gsdFound = true;
-                station_info->gsdLocation = wmem_strdup(wmem_file_scope(), diropen);
+                station_info->gsdLocation = wmem_strdup(wmem_file_scope(), value->filename);
             }
             else {
                 /* Copy searchpath to array for a detailed output message in cyclic data dissection */
@@ -12504,108 +12764,17 @@ dissect_ExpectedSubmoduleBlockReq_block(tvbuff_t *tvb, int offset,
             io_data_object->fParameterIndexNr = 0;
             io_data_object->profisafeSupported = false;
 
-            if (diropen != NULL) {
-                fp = ws_fopen(diropen, "r");
-            }
-            else {
-                fp = NULL;
-            }
-            if(fp != NULL && gsdmlFoundFlag) {
-                fseek(fp, 0, SEEK_SET);
-
-                /* Find Indexnumber for fParameter */
-                while(pn_fgets(temp, MAX_LINE_LENGTH, fp, pinfo->pool) != NULL) {
-                    if((strstr(temp, fParameterStr)) != NULL) {
-                        memset (convertStr, 0, sizeof(*convertStr));
-
-                        pch = strstr(temp, fParameterIndexStr);
-                        if (pch != NULL && sscanf(pch, "Index=\"%199[^\"]", convertStr) == 1) {
-                            io_data_object->fParameterIndexNr = (uint32_t)strtoul(convertStr, NULL, 0);
-                        }
-                        break;    /* found Indexnumber -> break search loop */
-                    }
+            if (value != NULL) {
+                gsm_dev_module_t *module = wmem_map_lookup(value->modules, GUINT_TO_POINTER(io_data_object->moduleIdentNr));
+                if (module) {
+                    io_data_object->amountInGSDML = module->amountInGSDML;
+                    io_data_object->moduleNameStr = module->text;
                 }
-
-                memset (temp, 0, sizeof(*temp));
-                fseek(fp, 0, SEEK_SET);                /* Set filepointer to the beginning */
-
-                while(pn_fgets(temp, MAX_LINE_LENGTH, fp, pinfo->pool) != NULL) {
-                    if((strstr(temp, moduleStr)) != NULL) {                         /* find the String "ModuleIdentNumber=" */
-                        memset (convertStr, 0, sizeof(*convertStr));
-                        pch = strstr(temp, moduleStr);                              /* search for "ModuleIdentNumber=\"" within GSD-file */
-                        if (pch != NULL && sscanf(pch, "ModuleIdentNumber=\"%199[^\"]", convertStr) == 1) {  /* Change format of Value string-->numeric string */
-                            read_module_id = (uint32_t)strtoul(convertStr, NULL, 0);     /* Change numeric string --> unsigned long; read_module_id contains the Value of the ModuleIdentNumber */
-
-                            /* If the found ModuleID matches with the wanted ModuleID, search for the Submodule and break */
-                            if (read_module_id == io_data_object->moduleIdentNr) {
-                                ++io_data_object->amountInGSDML;    /* Save the amount of same (!) Module- & SubmoduleIdentNr in one GSD-file */
-
-                                while(pn_fgets(temp, MAX_LINE_LENGTH, fp, pinfo->pool) != NULL) {
-                                    if((strstr(temp, moduleNameInfo)) != NULL) {                    /* find the String "<Name" for the TextID */
-                                        long filePosRecord;
-
-                                        if (sscanf(temp, "%*s TextId=\"%199[^\"]", tmp_moduletext) != 1)        /* saves the correct TextId for the next searchloop */
-                                            break;
-
-                                        filePosRecord = ftell(fp);            /* save the current position of the filepointer (Offset) */
-                                        /* ftell() may return -1 for error, don't move fp in this case */
-                                        if (filePosRecord >= 0) {
-                                            while (pn_fgets(temp, MAX_LINE_LENGTH, fp, pinfo->pool) != NULL && io_data_object->amountInGSDML == 1) {
-                                                /* Find a String with the saved TextID and with a fitting value for it in the same line. This value is the name of the Module! */
-                                                if(((strstr(temp, tmp_moduletext)) != NULL) && ((strstr(temp, moduleValueInfo)) != NULL)) {
-                                                    pch = strstr(temp, moduleValueInfo);
-                                                    if (pch != NULL && sscanf(pch, "Value=\"%199[^\"]", io_data_object->moduleNameStr) == 1)
-                                                        break;    /* Found the name of the module */
-                                                }
-                                            }
-
-                                            fseek(fp, filePosRecord, SEEK_SET);    /* set filepointer to the correct TextID */
-                                        }
-                                    }
-
-                                    /* Search for Submoduleidentnumber in GSD-file */
-                                    if((strstr(temp, subModuleStr)) != NULL) {
-                                        memset (convertStr, 0, sizeof(*convertStr));
-                                        pch = strstr(temp, subModuleStr);
-                                        if (pch != NULL && sscanf(pch, "SubmoduleIdentNumber=\"%199[^\"]", convertStr) == 1) {
-                                            read_submodule_id = (uint32_t) strtoul (convertStr, NULL, 0);    /* read_submodule_id contains the Value of the SubModuleIdentNumber */
-
-                                            /* Find "PROFIsafeSupported" flag of the module in GSD-file */
-                                            if(read_submodule_id == io_data_object->subModuleIdentNr) {
-                                                if((strstr(temp, profisafeStr)) != NULL) {
-                                                    io_data_object->profisafeSupported = true;   /* flag is in the same line as SubmoduleIdentNr */
-                                                    break;
-                                                }
-                                                else {    /* flag is not in the same line as Submoduleidentnumber -> search for it */
-                                                    while(pn_fgets(temp, MAX_LINE_LENGTH, fp, pinfo->pool) != NULL) {
-                                                        if((strstr(temp, profisafeStr)) != NULL) {
-                                                            io_data_object->profisafeSupported = true;
-                                                            break;    /* Found the PROFIsafeSupported flag of the module */
-                                                        }
-
-                                                        else if((strstr(temp, ">")) != NULL) {
-                                                            break;
-                                                        }
-                                                    }
-                                                }
-                                                break;    /* Found the PROFIsafe Module */
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
+                gsm_dev_submodule_t *submodule = wmem_map_lookup(value->submodules, GUINT_TO_POINTER(io_data_object->subModuleIdentNr));
+                if (submodule) {
+                    io_data_object->profisafeSupported = submodule->profisafe;
+                    io_data_object->fParameterIndexNr = submodule->f_parameter_index;
                 }
-
-                fclose(fp);
-                fp = NULL;
-            }
-
-            if(fp != NULL)
-            {
-                fclose(fp);
-                fp = NULL;
             }
 
             switch (u16SubmoduleProperties & 0x03) {
@@ -15240,11 +15409,17 @@ pnio_cleanup(void) {
     pnio_ars = NULL;
 }
 
+static void
+pnio_shutdown(void) {
+    if (pnio_pref_scope) {
+        wmem_destroy_allocator(pnio_pref_scope);
+        pnio_pref_scope = NULL;
+    }
+}
 
 static void
 pnio_setup(void) {
     aruuid_frame_setup_list = wmem_list_new(wmem_file_scope());
-    pnio_time_aware_frame_map = wmem_map_new(wmem_file_scope(), g_direct_hash, g_direct_equal);
 }
 
 
@@ -18880,7 +19055,7 @@ proto_register_pn_io (void)
     expert_register_field_array(expert_pn_io, ei, array_length(ei));
 
     /* Register preferences */
-    pnio_module = prefs_register_protocol(proto_pn_io, NULL);
+    pnio_module = prefs_register_protocol(proto_pn_io, pnio_load_gsd_files);
     prefs_register_bool_preference(pnio_module, "pnio_ps_selection",
         "Enable detailed PROFIsafe dissection",
         "Whether the PNIO dissector is allowed to use detailed PROFIsafe dissection of cyclic data frames",
@@ -18889,6 +19064,11 @@ proto_register_pn_io (void)
         "Folder containing GSD files",     /* Title */
         "Place GSD files in this folder.", /* Description */
         &pnio_ps_networkpath);             /* Variable in which to save the GSD file folder path */
+#ifndef HAVE_LIBXML2
+    prefs_register_static_text_preference(pnio_module, "pnio_no_libxml2",
+        "This version of Wireshark was built without support for reading GSDML files.",
+        "This version of Wireshark was built without libxml2 and does not support reading GSDML files.");
+#endif
 
     /* subdissector code */
     register_dissector("pn_io", dissect_PNIO, proto_pn_io);
@@ -18901,10 +19081,12 @@ proto_register_pn_io (void)
     init_pn_rsi(proto_pn_io);
 
     /* Init functions of PNIO protocol */
+    pnio_time_aware_frame_map = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), g_direct_hash, g_direct_equal);
     register_init_routine(pnio_setup);
 
     /* Cleanup functions of PNIO protocol */
     register_cleanup_routine(pnio_cleanup);
+    register_shutdown_routine(pnio_shutdown);
 
     register_conversation_filter("pn_io", "PN-IO AR", pn_io_ar_conv_valid, pn_io_ar_conv_filter, NULL);
     register_conversation_filter("pn_io", "PN-IO AR (with data)", pn_io_ar_conv_valid, pn_io_ar_conv_data_filter, NULL);

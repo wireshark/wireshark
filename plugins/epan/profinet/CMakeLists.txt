@@ -49,7 +49,22 @@ register_plugin_files(plugin.c
 
 add_wireshark_plugin_library(profinet epan)
 
-target_link_libraries(profinet epan)
+target_link_libraries(profinet
+	PUBLIC
+		epan
+	PRIVATE
+		${LIBXML2_LIBRARIES}
+)
+
+target_include_directories(profinet
+	SYSTEM PRIVATE
+		${LIBXML2_INCLUDE_DIRS}
+)
+
+target_compile_definitions(profinet
+	PRIVATE
+		${LIBXML2_DEFINITIONS}
+)
 
 install_plugin(profinet epan)
 

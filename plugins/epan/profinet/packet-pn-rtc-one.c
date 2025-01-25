@@ -441,7 +441,9 @@ dissect_PNIO_C_SDU_RTC1(tvbuff_t *tvb, int offset,
 
     proto_item *data_item;
     proto_item *IODataObject_item;
+#ifdef HAVE_LIBXML2
     proto_item *IODataObject_item_info;
+#endif
     proto_tree *IODataObject_tree;
     proto_item *ModuleID_item;
     proto_item *ModuleDiff_item;
@@ -568,11 +570,12 @@ dissect_PNIO_C_SDU_RTC1(tvbuff_t *tvb, int offset,
                     0, station_info->nameofstation, "\"%s\"", station_info->nameofstation);
             }
 
+#ifdef HAVE_LIBXML2
             if (station_info->gsdPathLength == true) {      /* given path isn't too long for the array */
                 if (station_info->gsdFound == true) {       /* found a GSD-file */
                     if (station_info->gsdLocation != NULL) {
-                        IODataObject_item_info = proto_tree_add_item(data_tree, hf_pn_io_frame_info_gsd_found, tvb, offset, 0, ENC_NA);
-                        proto_item_append_text(IODataObject_item_info, ": \"%s\"", station_info->gsdLocation);
+                        IODataObject_item_info = proto_tree_add_string(data_tree, hf_pn_io_frame_info_gsd_found, tvb, offset, 0, station_info->gsdLocation);
+                        proto_item_set_generated(IODataObject_item_info);
                     }
                 }
                 else {
@@ -586,6 +589,9 @@ dissect_PNIO_C_SDU_RTC1(tvbuff_t *tvb, int offset,
                 IODataObject_item_info = proto_tree_add_item(data_tree, hf_pn_io_frame_info_gsd_path, tvb, offset, 0, ENC_NA);
                 proto_item_append_text(IODataObject_item_info, " Please check your GSD-file networkpath. (No Path configured)");
             }
+#else /* HAVE_LIBXML2 */
+            proto_tree_add_none_format(data_tree, hf_pn_io_frame_info_gsd_error, tvb, offset, 0, "This copy of Wireshark was built without support for reading GSDML files.");
+#endif /* HAVE_LIBXML2 */
         }
 
         /* ---- Input IOData-/IOCS-Object Handling ---- */
@@ -778,11 +784,12 @@ dissect_PNIO_C_SDU_RTC1(tvbuff_t *tvb, int offset,
                     0, station_info->nameofstation, "\"%s\"", station_info->nameofstation);
             }
 
+#ifdef HAVE_LIBXML2
             if (station_info->gsdPathLength == true) {      /* given path isn't too long for the array */
                 if (station_info->gsdFound == true) {       /* found a GSD-file */
                     if (station_info->gsdLocation != NULL) {
-                        IODataObject_item_info = proto_tree_add_item(data_tree, hf_pn_io_frame_info_gsd_found, tvb, offset, 0, ENC_NA);
-                        proto_item_append_text(IODataObject_item_info, ": \"%s\"", station_info->gsdLocation);
+                        IODataObject_item_info = proto_tree_add_string(data_tree, hf_pn_io_frame_info_gsd_found, tvb, offset, 0, station_info->gsdLocation);
+                        proto_item_set_generated(IODataObject_item_info);
                     }
                 }
                 else {
@@ -796,6 +803,9 @@ dissect_PNIO_C_SDU_RTC1(tvbuff_t *tvb, int offset,
                 IODataObject_item_info = proto_tree_add_item(data_tree, hf_pn_io_frame_info_gsd_path, tvb, offset, 0, ENC_NA);
                 proto_item_append_text(IODataObject_item_info, " Please check your GSD-file networkpath. (No Path configured)");
             }
+#else /* HAVE_LIBXML2 */
+            proto_tree_add_none_format(data_tree, hf_pn_io_frame_info_gsd_error, tvb, offset, 0, "This copy of Wireshark was built without support for reading GSDML files.");
+#endif /* HAVE_LIBXML2 */
         }
 
         /* ---- Output IOData-/IOCS-Object Handling ---- */
@@ -1092,7 +1102,7 @@ init_pn_io_rtc1(int proto)
         },
         { &hf_pn_io_frame_info_gsd_found,
             { "GSD-file found", "pn_io.frame_info.gsd_found",
-            FT_NONE, BASE_NONE, NULL, 0x0,
+            FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_pn_io_frame_info_gsd_error,
