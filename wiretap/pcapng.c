@@ -3168,6 +3168,7 @@ pcapng_read_sysdig_event_block(wtap *wth, FILE_T fh, pcapng_block_header_t *bh,
     uint32_t event_len;
     uint16_t event_type;
     uint32_t nparams = 0;
+    uint32_t flags = 0;
     unsigned min_event_size;
 
     switch (bh->block_type) {
@@ -3195,6 +3196,14 @@ pcapng_read_sysdig_event_block(wtap *wth, FILE_T fh, pcapng_block_header_t *bh,
     if (!wtap_read_bytes(fh, &cpu_id, sizeof cpu_id, err, err_info)) {
         ws_debug("failed to read sysdig event cpu id");
         return false;
+    }
+    if (bh->block_type == BLOCK_TYPE_SYSDIG_EVF || bh->block_type == BLOCK_TYPE_SYSDIG_EVF_V2 || bh->block_type == BLOCK_TYPE_SYSDIG_EVF_V2_LARGE) {
+        // XXX Unused for now.
+        if (!wtap_read_bytes(fh, &flags, sizeof flags, err, err_info)) {
+            ws_debug("failed to read sysdig flags");
+            return false;
+        }
+        min_event_size += 4;
     }
     if (!wtap_read_bytes(fh, &wire_ts, sizeof wire_ts, err, err_info)) {
         ws_debug("failed to read sysdig event timestamp");
@@ -3630,7 +3639,9 @@ pcapng_read_block(wtap *wth, FILE_T fh, pcapng_t *pn,
             case(BLOCK_TYPE_SYSDIG_EVENT):
             case(BLOCK_TYPE_SYSDIG_EVENT_V2):
             case(BLOCK_TYPE_SYSDIG_EVENT_V2_LARGE):
-            /* case(BLOCK_TYPE_SYSDIG_EVF): */
+            case(BLOCK_TYPE_SYSDIG_EVF):
+            case(BLOCK_TYPE_SYSDIG_EVF_V2):
+            case(BLOCK_TYPE_SYSDIG_EVF_V2_LARGE):
                 if (!pcapng_read_sysdig_event_block(wth, fh, &bh, section_info, wblock, err, err_info))
                     return false;
                 break;
