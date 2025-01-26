@@ -180,19 +180,19 @@ sender_receiver_key(uint16_t bus_id, uint8_t channel, uint8_t cycle, uint16_t fr
 
 static sender_receiver_config_t *
 ht_lookup_sender_receiver_config(flexray_info_t *flexray_info) {
-    sender_receiver_config_t* tmp;
+    sender_receiver_config_t *tmp;
     uint64_t                  key;
 
-    if (sender_receiver_configs == NULL) {
+    if (sender_receiver_configs == NULL || data_sender_receiver == NULL) {
         return NULL;
     }
 
     key = sender_receiver_key(flexray_info->bus_id, flexray_info->ch, flexray_info->cc, flexray_info->id);
-    tmp = g_hash_table_lookup(data_sender_receiver, &key);
+    tmp = (sender_receiver_config_t *)g_hash_table_lookup(data_sender_receiver, &key);
 
     if (tmp == NULL) {
         key = sender_receiver_key(0, flexray_info->ch, flexray_info->cc, flexray_info->id);
-        tmp = g_hash_table_lookup(data_sender_receiver, &key);
+        tmp = (sender_receiver_config_t *)g_hash_table_lookup(data_sender_receiver, &key);
     }
 
     return tmp;
@@ -200,9 +200,6 @@ ht_lookup_sender_receiver_config(flexray_info_t *flexray_info) {
 
 static void
 post_update_sender_receiver_cb(void) {
-    unsigned i;
-    uint64_t *key;
-
     /* destroy old hash table, if it exist */
     if (data_sender_receiver) {
         g_hash_table_destroy(data_sender_receiver);
@@ -211,11 +208,20 @@ post_update_sender_receiver_cb(void) {
     /* create new hash table */
     data_sender_receiver = g_hash_table_new_full(g_int64_hash, g_int64_equal, g_free, NULL);
 
-    for (i = 0; i < sender_receiver_config_num; i++) {
-        key = g_new(uint64_t, 1);
+    for (unsigned i = 0; i < sender_receiver_config_num; i++) {
+        uint64_t *key = g_new(uint64_t, 1);
         *key = sender_receiver_key(sender_receiver_configs[i].bus_id, sender_receiver_configs[i].channel,
-                                    sender_receiver_configs[i].cycle, sender_receiver_configs[i].frame_id);
+                                   sender_receiver_configs[i].cycle, sender_receiver_configs[i].frame_id);
         g_hash_table_insert(data_sender_receiver, key, &sender_receiver_configs[i]);
+    }
+}
+
+static void
+reset_sender_receiver_cb(void) {
+    /* destroy hash table, if it exists */
+    if (data_sender_receiver) {
+        g_hash_table_destroy(data_sender_receiver);
+        data_sender_receiver = NULL;
     }
 }
 
@@ -531,7 +537,7 @@ proto_register_flexray(void) {
         update_sender_receiver_config,      /* update callback       */
         free_sender_receiver_config_cb,     /* free callback         */
         post_update_sender_receiver_cb,     /* post update callback  */
-        NULL,                               /* reset callback        */
+        reset_sender_receiver_cb,           /* reset callback        */
         sender_receiver_mapping_uat_fields  /* UAT field definitions */
     );
 
