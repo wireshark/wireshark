@@ -1,8 +1,8 @@
 /* packet-hsfz.c
  * HSFZ Dissector
  * By Dr. Lars Voelker <lars.voelker@technica-engineering.de>
- * Copyright 2013-2019 BMW Group, Dr. Lars Voelker
- * Copyright 2020-2023 Technica Engineering, Dr. Lars Voelker
+ * Copyright 2013-2019 BMW Group, Dr. Lars Völker
+ * Copyright 2020-2025 Technica Engineering, Dr. Lars Völker
  * Copyright 2023-2023 BMW Group, Hermann Leinsle
  *
  * Wireshark - Network traffic analyzer
@@ -143,19 +143,34 @@ UAT_CSTRING_CB_DEF(udf_diag_addr, name, udf_one_id_string_t)
 
 static void
 udf_post_update_diag_addr_cb(void) {
-    unsigned i;
-
     if (ht_diag_addr) {
         g_hash_table_destroy(ht_diag_addr);
     }
 
     ht_diag_addr = g_hash_table_new_full(g_direct_hash, g_direct_equal, NULL, NULL);
 
-    for (i = 0; i < udf_diag_addr_num; i++) {
+    for (unsigned i = 0; i < udf_diag_addr_num; i++) {
         g_hash_table_insert(ht_diag_addr, GUINT_TO_POINTER(udf_diag_addr[i].id), udf_diag_addr[i].name);
     }
 }
 
+static void
+reset_diag_addr_cb(void) {
+    /* destroy hash table, if it exists */
+    if (ht_diag_addr) {
+        g_hash_table_destroy(ht_diag_addr);
+        ht_diag_addr = NULL;
+    }
+}
+
+static char *
+get_name_from_ht_diag_addr(unsigned identifier) {
+    if (ht_diag_addr == NULL) {
+        return NULL;
+    }
+
+    return (char *)g_hash_table_lookup(ht_diag_addr, GUINT_TO_POINTER(identifier));;
+}
 
 /**********************************
  ****** The dissector itself ******
@@ -163,12 +178,10 @@ udf_post_update_diag_addr_cb(void) {
 
 static uint8_t
 dissect_hsfz_address(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, int hf_specific_address) {
-    proto_item *ti;
     uint32_t tmp;
-    char *name;
+    proto_item *ti = proto_tree_add_item_ret_uint(tree, hf_specific_address, tvb, offset, 1, ENC_NA, &tmp);
 
-    ti = proto_tree_add_item_ret_uint(tree, hf_specific_address, tvb, offset, 1, ENC_NA, &tmp);
-    name = g_hash_table_lookup(ht_diag_addr, GUINT_TO_POINTER(tmp));
+    char *name = get_name_from_ht_diag_addr(tmp);
     if (name != NULL) {
         proto_item_append_text(ti, " (%s)", name);
     }
@@ -354,7 +367,7 @@ void proto_register_hsfz(void) {
         udf_update_diag_addr_cb,                /* update callback       */
         udf_free_one_id_string_cb,              /* free callback         */
         udf_post_update_diag_addr_cb,           /* post update callback  */
-        NULL,                                   /* reset callback        */
+        reset_diag_addr_cb,                     /* reset callback        */
         diag_addr_uat_fields                    /* UAT field definitions */
     );
 
