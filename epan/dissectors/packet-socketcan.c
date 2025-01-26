@@ -29,6 +29,7 @@ void proto_register_socketcan(void);
 void proto_reg_handoff_socketcan(void);
 
 static int hf_can_len;
+static int hf_can_bus_id;
 static int hf_can_infoent_ext;
 static int hf_can_infoent_std;
 static int hf_can_extflag;
@@ -271,6 +272,19 @@ post_update_can_interfaces_cb(void) {
     }
 }
 
+static void
+reset_can_interfaces_cb(void) {
+    if (data_can_interfaces_by_id) {
+        g_hash_table_destroy(data_can_interfaces_by_id);
+        data_can_interfaces_by_id = NULL;
+    }
+
+    if (data_can_interfaces_by_name) {
+        g_hash_table_destroy(data_can_interfaces_by_name);
+        data_can_interfaces_by_name = NULL;
+    }
+}
+
 /* We match based on the config in the following order:
  * - interface_name matches and interface_id matches
  * - interface_name matches and interface_id = 0xffffffff
@@ -285,17 +299,22 @@ get_bus_id(packet_info *pinfo) {
     uint32_t            interface_id = pinfo->rec->rec_header.packet_header.interface_id;
     unsigned            section_number = pinfo->rec->presence_flags & WTAP_HAS_SECTION_NUMBER ? pinfo->rec->section_number : 0;
     const char         *interface_name = epan_get_interface_name(pinfo->epan, interface_id, section_number);
-    interface_config_t *tmp = NULL;
 
     if (interface_name != NULL && interface_name[0] != 0) {
-        tmp = g_hash_table_lookup(data_can_interfaces_by_name, interface_name);
+        interface_config_t *tmp = NULL;
+
+        if (data_can_interfaces_by_name != NULL) {
+            tmp = g_hash_table_lookup(data_can_interfaces_by_name, interface_name);
+        }
 
         if (tmp != NULL && (tmp->interface_id == 0xffffffff || tmp->interface_id == interface_id)) {
             /* name + id match or name match and id = any */
             return tmp->bus_id;
         }
 
-        tmp = g_hash_table_lookup(data_can_interfaces_by_id, GUINT_TO_POINTER(interface_id));
+        if (data_can_interfaces_by_id != NULL) {
+            tmp = g_hash_table_lookup(data_can_interfaces_by_id, GUINT_TO_POINTER(interface_id));
+        }
 
         if (tmp != NULL && (tmp->interface_name == NULL || tmp->interface_name[0] == 0)) {
             /* id matches and name is any */
@@ -371,6 +390,10 @@ ht_lookup_sender_receiver_config(uint16_t bus_id, uint32_t can_id) {
     uint64_t key;
     sender_receiver_config_t* tmp;
 
+    if (data_sender_receiver == NULL) {
+        return NULL;
+    }
+
     key = sender_receiver_key(bus_id, can_id);
     tmp = g_hash_table_lookup(data_sender_receiver, &key);
 
@@ -399,6 +422,15 @@ post_update_sender_receiver_cb(void) {
         key = g_new(uint64_t, 1);
         *key = sender_receiver_key(sender_receiver_configs[i].bus_id, sender_receiver_configs[i].can_id);
         g_hash_table_insert(data_sender_receiver, key, &sender_receiver_configs[i]);
+    }
+}
+
+static void
+reset_sender_receiver_cb(void) {
+    /* destroy hash table, if it exists */
+    if (data_sender_receiver) {
+        g_hash_table_destroy(data_sender_receiver);
+        data_sender_receiver = NULL;
     }
 }
 
@@ -590,6 +622,11 @@ dissect_socketcan_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, un
         ti = proto_tree_add_item(tree, proto_canxl, tvb, 0, -1, ENC_NA);
         can_tree = proto_item_add_subtree(ti, ett_can_xl);
 
+        if (can_info.bus_id != 0) {
+            ti = proto_tree_add_uint(can_tree, hf_can_bus_id, tvb, 0, 0, can_info.bus_id);
+            proto_item_set_hidden(ti);
+        }
+
         uint32_t proto_vcid;
 
 	/*
@@ -644,6 +681,11 @@ dissect_socketcan_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, un
             ti = proto_tree_add_item(tree, proto_canfd, tvb, 0, -1, ENC_NA);
         }
         can_tree = proto_item_add_subtree(ti, (can_packet_type == PACKET_TYPE_CAN_FD) ? ett_can_fd : ett_can);
+
+        if (can_info.bus_id != 0) {
+            ti = proto_tree_add_uint(can_tree, hf_can_bus_id, tvb, 0, 0, can_info.bus_id);
+            proto_item_set_hidden(ti);
+        }
 
         /* Get the ID and flags field */
         can_info.id = tvb_get_uint32(tvb, 0, encoding);
@@ -806,6 +848,8 @@ dissect_socketcan_xl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
 void
 proto_register_socketcan(void) {
     static hf_register_info hf[] = {
+        { &hf_can_bus_id, {
+            "Bus ID", "can.bus_id", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL } },
         { &hf_can_infoent_ext, {
             "ID", "can.id", FT_UINT32, BASE_DEC_HEX, NULL, CAN_EFF_MASK, NULL, HFILL } },
         { &hf_can_infoent_std, {
@@ -824,12 +868,14 @@ proto_register_socketcan(void) {
             "Reserved", "can.reserved", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL } },
         { &hf_can_padding, {
             "Padding", "can.padding", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+
         { &hf_canfd_brsflag, {
             "Bit Rate Setting", "canfd.flags.brs", FT_BOOLEAN, 8, NULL, CANFD_BRS, NULL, HFILL } },
         { &hf_canfd_esiflag, {
             "Error State Indicator", "canfd.flags.esi", FT_BOOLEAN, 8, NULL, CANFD_ESI, NULL, HFILL } },
         { &hf_canfd_fdflag, {
             "FD Frame", "canfd.flags.fdf", FT_BOOLEAN, 8, NULL, CANFD_FDF, NULL, HFILL } },
+
         { &hf_can_err_tx_timeout, {
             "Transmit timeout", "can.err.tx_timeout", FT_BOOLEAN, 32, NULL, CAN_ERR_TX_TIMEOUT, NULL, HFILL } },
         { &hf_can_err_lostarb, {
@@ -890,6 +936,7 @@ proto_register_socketcan(void) {
             "Transceiver CANL status", "can.err.trx.canl", FT_UINT8, BASE_DEC, VALS(can_err_trx_canl_vals), 0xF0, NULL, HFILL } },
         { &hf_can_err_ctrl_specific, {
             "Controller specific data", "can.err.ctrl_specific", FT_BYTES, SEP_SPACE, NULL, 0, NULL, HFILL } },
+
         { &hf_canxl_priority, {
             "Priority", "canxl.priority", FT_UINT32, BASE_DEC, NULL, 0x0000FFFF, NULL, HFILL } },
         { &hf_canxl_vcid, {
@@ -993,7 +1040,7 @@ proto_register_socketcan(void) {
         update_interface_config,            /* update callback       */
         free_interface_config_cb,           /* free callback         */
         post_update_can_interfaces_cb,      /* post update callback  */
-        NULL,                               /* reset callback        */
+        reset_can_interfaces_cb,            /* reset callback        */
         can_interface_mapping_uat_fields    /* UAT field definitions */
     );
 
@@ -1020,7 +1067,7 @@ proto_register_socketcan(void) {
         update_sender_receiver_config,      /* update callback       */
         free_sender_receiver_config_cb,     /* free callback         */
         post_update_sender_receiver_cb,     /* post update callback  */
-        NULL,                               /* reset callback        */
+        reset_sender_receiver_cb,           /* reset callback        */
         sender_receiver_mapping_uat_fields  /* UAT field definitions */
     );
 
