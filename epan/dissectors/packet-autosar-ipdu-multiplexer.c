@@ -1,7 +1,7 @@
 /* packet-autosar-ipdu-multiplexer.c
  * Dissector for AUTOSAR I-PDU Multiplexer.
  * By Dr. Lars Voelker <lars.voelker@technica-engineering.de>
- * Copyright 2021-2022 Dr. Lars Voelker
+ * Copyright 2021-2025 Dr. Lars Völker
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -214,22 +214,20 @@ free_ipdum_message_list_cb(void*r) {
 
 static void
 post_update_ipdum_message_list_read_in_data(ipdum_message_list_uat_t *data, unsigned data_num, GHashTable *ht) {
-    unsigned i;
-
     if (ht == NULL || data == NULL) {
         return;
     }
 
-    for (i = 0; i < data_num; i++) {
+    for (unsigned i = 0; i < data_num; i++) {
         ipdum_message_list_t* list = g_hash_table_lookup(ht, GUINT_TO_POINTER(data[i].id));
         if (list == NULL) {
+            /* create new entry */
             list = wmem_new(wmem_epan_scope(), ipdum_message_list_t);
 
             list->id = data[i].id;
             list->num_of_items = data[i].num_of_params;
             list->items = wmem_alloc0_array(wmem_epan_scope(), ipdum_message_item_t, data[i].num_of_params);
 
-            /* create new entry ... */
             g_hash_table_insert(ht, GUINT_TO_POINTER(data[i].id), list);
         }
 
@@ -259,6 +257,23 @@ post_update_ipdum_message_list_cb(void) {
     post_update_ipdum_message_list_read_in_data(ipdum_message_list, ipdum_message_list_num, data_ipdum_messages);
 }
 
+static void
+reset_ipdum_message_list_cb(void) {
+    /* destroy hash table, if it exists */
+    if (data_ipdum_messages) {
+        g_hash_table_destroy(data_ipdum_messages);
+        data_ipdum_messages = NULL;
+    }
+}
+
+static ipdum_message_list_t *
+get_message_config(uint32_t id) {
+    if (data_ipdum_messages == NULL) {
+        return NULL;
+    }
+
+    return (ipdum_message_list_t *)g_hash_table_lookup(data_ipdum_messages, GUINT_TO_POINTER(id));
+}
 
 /* UAT: CAN Binding Config */
 UAT_HEX_CB_DEF(ipdum_can_mapping, can_id, ipdum_can_mapping_uat_t)
@@ -324,9 +339,6 @@ post_update_register_can(void) {
 
 static void
 post_update_ipdum_can_mapping_cb(void) {
-    unsigned i;
-    uint64_t* key;
-
     /* destroy old hash table, if it exists */
     if (data_ipdum_can_mappings) {
         g_hash_table_destroy(data_ipdum_can_mappings);
@@ -335,9 +347,10 @@ post_update_ipdum_can_mapping_cb(void) {
     /* we don't need to free the data as long as we don't alloc it first */
     data_ipdum_can_mappings = g_hash_table_new_full(g_int64_hash, g_int64_equal, g_free, NULL);
 
-    for (i = 0; i < ipdum_can_mapping_num; i++) {
-        key = g_new(uint64_t, 1);
+    for (unsigned i = 0; i < ipdum_can_mapping_num; i++) {
+        uint64_t* key = g_new(uint64_t, 1);
         *key = ipdum_can_mapping[i].can_id | (((uint64_t)ipdum_can_mapping[i].bus_id & 0xffff) << 32);
+
         g_hash_table_insert(data_ipdum_can_mappings, key, &ipdum_can_mapping[i]);
     }
 
@@ -345,20 +358,26 @@ post_update_ipdum_can_mapping_cb(void) {
     post_update_register_can();
 }
 
+static void
+reset_ipdum_can_mapping_cb(void) {
+    /* destroy hash table, if it exists */
+    if (data_ipdum_can_mappings) {
+        g_hash_table_destroy(data_ipdum_can_mappings);
+        data_ipdum_can_mappings = NULL;
+    }
+}
+
 static ipdum_can_mapping_t *
 get_can_mapping(uint32_t id, uint16_t bus_id) {
-    uint64_t key;
-    ipdum_can_mapping_t* tmp;
-
     if (data_ipdum_can_mappings == NULL) {
         return NULL;
     }
 
-    key = (id & (CAN_EFF_MASK | CAN_EFF_FLAG)) | ((uint64_t)bus_id << 32);
-    tmp = g_hash_table_lookup(data_ipdum_can_mappings, &key);
+    uint64_t key = ((uint64_t)id & (CAN_EFF_MASK | CAN_EFF_FLAG)) | ((uint64_t)bus_id << 32);
+    ipdum_can_mapping_t *tmp = g_hash_table_lookup(data_ipdum_can_mappings, &key);
     if (tmp == NULL) {
         /* try again without Bus ID set */
-        key = id & (CAN_EFF_MASK | CAN_EFF_FLAG);
+        key = (uint64_t)id & (CAN_EFF_MASK | CAN_EFF_FLAG);
         tmp = g_hash_table_lookup(data_ipdum_can_mappings, &key);
     }
 
@@ -404,9 +423,6 @@ update_ipdum_flexray_mapping(void *r, char **err) {
 
 static void
 post_update_ipdum_flexray_mapping_cb(void) {
-    unsigned i;
-    uint64_t* key;
-
     /* destroy old hash table, if it exists */
     if (data_ipdum_flexray_mappings) {
         g_hash_table_destroy(data_ipdum_flexray_mappings);
@@ -415,13 +431,38 @@ post_update_ipdum_flexray_mapping_cb(void) {
     /* we don't need to free the data as long as we don't alloc it first */
     data_ipdum_flexray_mappings = g_hash_table_new_full(g_int64_hash, g_int64_equal, g_free, NULL);
 
-    for (i = 0; i < ipdum_flexray_mapping_num; i++) {
-        key = g_new(uint64_t, 1);
+    if (data_ipdum_flexray_mappings == NULL || ipdum_flexray_mapping == NULL) {
+        return;
+    }
+
+    for (unsigned i = 0; i < ipdum_flexray_mapping_num; i++) {
+        uint64_t* key = g_new(uint64_t, 1);
         *key = (ipdum_flexray_mapping[i].frame_id & 0xffff) |
                 (((uint64_t)ipdum_flexray_mapping[i].cycle & 0xff) << 16) |
                 (((uint64_t)ipdum_flexray_mapping[i].channel & 0xff) << 24);
+
         g_hash_table_insert(data_ipdum_flexray_mappings, key, &ipdum_flexray_mapping[i]);
     }
+}
+
+static void
+reset_ipdum_flexray_mapping_cb(void) {
+    /* destroy hash table, if it exists */
+    if (data_ipdum_flexray_mappings) {
+        g_hash_table_destroy(data_ipdum_flexray_mappings);
+        data_ipdum_flexray_mappings = NULL;
+    }
+}
+
+static ipdum_flexray_mapping_t *
+get_flexray_mapping(uint8_t channel, uint8_t cycle, uint16_t flexray_id) {
+    if (data_ipdum_flexray_mappings == NULL) {
+        return NULL;
+    }
+
+    uint64_t key = ((uint64_t)channel << 24) | ((uint64_t)cycle << 16) | (uint64_t)flexray_id;
+
+    return (ipdum_flexray_mapping_t *)g_hash_table_lookup(data_ipdum_flexray_mappings, &key);
 }
 
 
@@ -483,9 +524,6 @@ post_update_register_lin(void) {
 
 static void
 post_update_ipdum_lin_mapping_cb(void) {
-    unsigned i;
-    uint32_t key;
-
     /* destroy old hash table, if it exists */
     if (data_ipdum_lin_mappings) {
         g_hash_table_destroy(data_ipdum_lin_mappings);
@@ -494,8 +532,8 @@ post_update_ipdum_lin_mapping_cb(void) {
     /* we don't need to free the data as long as we don't alloc it first */
     data_ipdum_lin_mappings = g_hash_table_new_full(g_direct_hash, g_direct_equal, NULL, NULL);
 
-    for (i = 0; i < ipdum_lin_mapping_num; i++) {
-        key = (ipdum_lin_mapping[i].frame_id & LIN_ID_MASK) | ((ipdum_lin_mapping[i].bus_id & 0xffff) << 16);
+    for (unsigned i = 0; i < ipdum_lin_mapping_num; i++) {
+        uint32_t key = (ipdum_lin_mapping[i].frame_id & LIN_ID_MASK) | ((ipdum_lin_mapping[i].bus_id & 0xffff) << 16);
         g_hash_table_insert(data_ipdum_lin_mappings, GUINT_TO_POINTER(key), &ipdum_lin_mapping[i]);
     }
 
@@ -503,17 +541,23 @@ post_update_ipdum_lin_mapping_cb(void) {
     post_update_register_lin();
 }
 
+static void
+reset_ipdum_lin_mapping_cb(void) {
+    /* destroy hash table, if it exists */
+    if (data_ipdum_lin_mappings) {
+        g_hash_table_destroy(data_ipdum_lin_mappings);
+        data_ipdum_lin_mappings = NULL;
+    }
+}
+
 static ipdum_lin_mapping_t*
 get_lin_mapping(lin_info_t *lininfo) {
-    uint32_t key;
-    ipdum_lin_mapping_t* tmp;
-
     if (data_ipdum_lin_mappings == NULL) {
         return NULL;
     }
 
-    key = (lininfo->id & LIN_ID_MASK) | ((lininfo->bus_id & 0xffff) << 16);
-    tmp = g_hash_table_lookup(data_ipdum_lin_mappings, GUINT_TO_POINTER(key));
+    uint32_t key = (lininfo->id & LIN_ID_MASK) | ((lininfo->bus_id & 0xffff) << 16);
+    ipdum_lin_mapping_t *tmp = g_hash_table_lookup(data_ipdum_lin_mappings, GUINT_TO_POINTER(key));
     if (tmp == NULL) {
         /* try again without Bus ID set */
         key = (lininfo->id) & LIN_ID_MASK;
@@ -574,8 +618,6 @@ post_update_register_pdu_transport(void) {
 
 static void
 post_update_ipdum_pdu_transport_mapping_cb(void) {
-    unsigned i;
-
     /* destroy old hash table, if it exists */
     if (data_ipdum_pdu_transport_mappings) {
         g_hash_table_destroy(data_ipdum_pdu_transport_mappings);
@@ -584,12 +626,30 @@ post_update_ipdum_pdu_transport_mapping_cb(void) {
     /* we don't need to free the data as long as we don't alloc it first */
     data_ipdum_pdu_transport_mappings = g_hash_table_new_full(g_direct_hash, g_direct_equal, NULL, NULL);
 
-    for (i = 0; i < ipdum_pdu_transport_mapping_num; i++) {
+    for (unsigned i = 0; i < ipdum_pdu_transport_mapping_num; i++) {
         g_hash_table_insert(data_ipdum_pdu_transport_mappings, GUINT_TO_POINTER(ipdum_pdu_transport_mapping[i].pdu_id), &ipdum_pdu_transport_mapping[i]);
     }
 
     /* we need to make sure we register again */
     post_update_register_pdu_transport();
+}
+
+static void
+reset_ipdum_pdu_transport_mapping_cb(void) {
+    /* destroy hash table, if it exists */
+    if (data_ipdum_pdu_transport_mappings) {
+        g_hash_table_destroy(data_ipdum_pdu_transport_mappings);
+        data_ipdum_pdu_transport_mappings = NULL;
+    }
+}
+
+static ipdum_pdu_transport_mapping_t *
+get_pdu_transport_mapping(uint32_t pdu_transport_id) {
+    if (data_ipdum_pdu_transport_mappings == NULL) {
+        return NULL;
+    }
+
+    return (ipdum_pdu_transport_mapping_t *)g_hash_table_lookup(data_ipdum_pdu_transport_mappings, GUINT_TO_POINTER(pdu_transport_id));
 }
 
 /**************************************
@@ -604,7 +664,7 @@ dissect_ipdum_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_tree, 
     proto_item *ti = proto_tree_add_item(root_tree, proto_ipdu_multiplexer, tvb, offset, -1, ENC_NA);
     proto_tree *tree = proto_item_add_subtree(ti, ett_ipdum);
 
-    ipdum_message_list_t *config = g_hash_table_lookup(data_ipdum_messages, GUINT_TO_POINTER(id));
+    ipdum_message_list_t *config = get_message_config(id);
     unsigned i;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, IPDUM_NAME);
@@ -681,8 +741,7 @@ dissect_ipdum_message_flexray(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     struct flexray_info *flexray_data = (struct flexray_info*)data;
     DISSECTOR_ASSERT(flexray_data);
 
-    uint64_t key = (uint64_t)flexray_data->id | ((uint64_t)flexray_data->cc << 16) | ((uint64_t)flexray_data->ch << 24);
-    ipdum_flexray_mapping_t *flexray_mapping = g_hash_table_lookup(data_ipdum_flexray_mappings, &key);
+    ipdum_flexray_mapping_t *flexray_mapping = get_flexray_mapping(flexray_data->ch, flexray_data->cc, flexray_data->id);
 
     if (flexray_mapping == NULL) {
         return 0;
@@ -715,7 +774,7 @@ dissect_ipdum_message_pdu_transport(tvbuff_t *tvb, packet_info *pinfo, proto_tre
     pdu_transport_info_t *pdu_info = (pdu_transport_info_t*)data;
     DISSECTOR_ASSERT(pdu_info);
 
-    ipdum_pdu_transport_mapping_t *pdu_transport_mapping = g_hash_table_lookup(data_ipdum_pdu_transport_mappings, GUINT_TO_POINTER(pdu_info->id));
+    ipdum_pdu_transport_mapping_t *pdu_transport_mapping = get_pdu_transport_mapping(pdu_info->id);
 
     if (pdu_transport_mapping == NULL) {
         return 0;
@@ -821,7 +880,7 @@ proto_register_autosar_ipdu_multiplexer(void) {
         update_ipdum_message_list,                         /* update callback       */
         free_ipdum_message_list_cb,                        /* free callback         */
         post_update_ipdum_message_list_cb,                 /* post update callback  */
-        NULL,                                              /* reset callback        */
+        reset_ipdum_message_list_cb,                       /* reset callback        */
         ipdum_message_list_uat_fields                      /* UAT field definitions */
     );
 
@@ -845,7 +904,7 @@ proto_register_autosar_ipdu_multiplexer(void) {
         update_ipdum_can_mapping,                          /* update callback       */
         NULL,                                              /* free callback         */
         post_update_ipdum_can_mapping_cb,                  /* post update callback  */
-        NULL, /* reset */                                  /* reset callback        */
+        reset_ipdum_can_mapping_cb,                        /* reset callback        */
         ipdum_can_mapping_uat_fields                       /* UAT field definitions */
     );
 
@@ -865,7 +924,7 @@ proto_register_autosar_ipdu_multiplexer(void) {
         update_ipdum_flexray_mapping,                      /* update callback       */
         NULL,                                              /* free callback         */
         post_update_ipdum_flexray_mapping_cb,              /* post update callback  */
-        NULL,                                              /* reset callback        */
+        reset_ipdum_flexray_mapping_cb,                    /* reset callback        */
         ipdum_flexray_mapping_uat_fields                   /* UAT field definitions */
     );
 
@@ -885,7 +944,7 @@ proto_register_autosar_ipdu_multiplexer(void) {
         update_ipdum_lin_mapping,                          /* update callback       */
         NULL,                                              /* free callback         */
         post_update_ipdum_lin_mapping_cb,                  /* post update callback  */
-        NULL,                                              /* reset callback        */
+        reset_ipdum_lin_mapping_cb,                        /* reset callback        */
         ipdum_lin_mapping_uat_fields                       /* UAT field definitions */
     );
 
@@ -905,7 +964,7 @@ proto_register_autosar_ipdu_multiplexer(void) {
         update_ipdum_pdu_transport_mapping,                /* update callback       */
         NULL,                                              /* free callback         */
         post_update_ipdum_pdu_transport_mapping_cb,        /* post update callback  */
-        NULL,                                              /* reset callback        */
+        reset_ipdum_pdu_transport_mapping_cb,              /* reset callback        */
         ipdum_pdu_transport_mapping_uat_fields             /* UAT field definitions */
     );
 
