@@ -1,7 +1,7 @@
 /* packet-pdu_transport.c
  * PDU Transport dissector for FDN and others.
  * By <lars.voelker@technica-engineering.de>
- * Copyright 2020-2023 Dr. Lars Voelker
+ * Copyright 2020-2025 Dr. Lars Völker
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -112,8 +112,6 @@ UAT_CSTRING_CB_DEF(pdu_transport_pdus, name, generic_one_id_string_t)
 
 static void
 post_update_pdu_transport_pdus_cb(void) {
-    unsigned   i;
-
     /* destroy old hash table, if it exists */
     if (data_pdu_transport_pdus) {
         g_hash_table_destroy(data_pdu_transport_pdus);
@@ -122,9 +120,27 @@ post_update_pdu_transport_pdus_cb(void) {
     /* create new hash table */
     data_pdu_transport_pdus = g_hash_table_new_full(g_direct_hash, g_direct_equal, NULL, NULL);
 
-    for (i = 0; i < pdu_transport_pdus_num; i++) {
+    for (unsigned i = 0; i < pdu_transport_pdus_num; i++) {
         g_hash_table_insert(data_pdu_transport_pdus, GUINT_TO_POINTER(pdu_transport_pdus[i].id), pdu_transport_pdus[i].name);
     }
+}
+
+static void
+reset_pdu_transport_pdus_cb(void) {
+    /* destroy hash table, if it exists */
+    if (data_pdu_transport_pdus) {
+        g_hash_table_destroy(data_pdu_transport_pdus);
+        data_pdu_transport_pdus = NULL;
+    }
+}
+
+static char *
+lookup_pdu_name(uint32_t identifier) {
+    if (data_pdu_transport_pdus == NULL) {
+        return NULL;
+    }
+
+    return (char *)g_hash_table_lookup(data_pdu_transport_pdus, GUINT_TO_POINTER(identifier));
 }
 
 static int
@@ -173,8 +189,7 @@ dissect_pdu_transport(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
     proto_tree_add_item_ret_uint(pdu_transport_tree, hf_pdu_transport_length, tvb, offset, 4, ENC_BIG_ENDIAN, &length);
     offset += 4;
 
-    descr = g_hash_table_lookup(data_pdu_transport_pdus, GUINT_TO_POINTER(pdu_id));
-
+    descr = lookup_pdu_name(pdu_id);
     if (descr != NULL) {
         proto_item_append_text(ti_top, ", ID 0x%x (%s), Length: %d", pdu_id, descr, length);
         proto_item_append_text(ti, " (%s)", descr);
@@ -295,7 +310,7 @@ proto_register_pdu_transport(void) {
         update_generic_one_identifier_32bit,    /* update callback       */
         free_generic_one_id_string_cb,          /* free callback         */
         post_update_pdu_transport_pdus_cb,      /* post update callback  */
-        NULL,                                   /* reset callback        */
+        reset_pdu_transport_pdus_cb,            /* reset callback        */
         pdu_transport_cm_id_uat_fields          /* UAT field definitions */
     );
 
