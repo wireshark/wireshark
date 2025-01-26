@@ -1380,6 +1380,10 @@
         <translation>pcap</translation>
     </message>
     <message>
+        <source>Compression:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Instead of using a single capture file, multiple files will be created.&lt;/p&gt;&lt;p&gt;The generated file names will contain an incrementing number and the start time of the capture.&lt;/p&gt;&lt;p&gt;NOTE: If enabled, at least one of the new-file criteria MUST be selected.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Istället för att använda en enda fångstfil kommer flera filer skapas.&lt;/p&gt;&lt;p&gt;De genererade filnamnen kommer innehålla ett ökande nummer och starttidpunkten för fångsten.&lt;/p&gt;&lt;p&gt;OBS: om aktiverat MÅSTE åtminstone ett av kriterierna för ny fil väljas.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
@@ -1451,7 +1455,7 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>compression</source>
-        <translation>komprimering</translation>
+        <translation type="vanished">komprimering</translation>
     </message>
     <message>
         <source>None</source>
@@ -1460,6 +1464,10 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     <message>
         <source>gzip</source>
         <translation>gzip</translation>
+    </message>
+    <message>
+        <source>LZ4</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>File infix pattern</source>

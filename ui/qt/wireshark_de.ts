@@ -1380,6 +1380,10 @@
         <translation>pcap</translation>
     </message>
     <message>
+        <source>Compression:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Instead of using a single capture file, multiple files will be created.&lt;/p&gt;&lt;p&gt;The generated file names will contain an incrementing number and the start time of the capture.&lt;/p&gt;&lt;p&gt;NOTE: If enabled, at least one of the new-file criteria MUST be selected.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Anstatt einer einzelnen Datei werden mehrere Dateien erzeugt.&lt;/p&gt;&lt;p&gt;Der Dateiname enthält eine fortlaufende Nummer und die Startzeit des Mitschnitts.&lt;/p&gt;&lt;p&gt;Achtung: Es muss mindestens ein Kriterium für die neue Datei ausgewählt sein.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
@@ -1451,7 +1455,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>compression</source>
-        <translation>Komprimierung</translation>
+        <translation type="vanished">Komprimierung</translation>
     </message>
     <message>
         <source>None</source>
@@ -1460,6 +1464,10 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     <message>
         <source>gzip</source>
         <translation>gzip</translation>
+    </message>
+    <message>
+        <source>LZ4</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>File infix pattern</source>

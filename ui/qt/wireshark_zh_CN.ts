@@ -1371,6 +1371,10 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Compression:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Instead of using a single capture file, multiple files will be created.&lt;/p&gt;&lt;p&gt;The generated file names will contain an incrementing number and the start time of the capture.&lt;/p&gt;&lt;p&gt;NOTE: If enabled, at least one of the new-file criteria MUST be selected.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;相对于使用单个捕获文件，多个文件将会被创建。&lt;/p&gt;&lt;p&gt;生成的文件名会包含一个递增的序号和捕获开始时间。&lt;/p&gt;&lt;p&gt;注意：如果启用，则必须至少选择一个创建文件的规则。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
@@ -1442,7 +1446,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>compression</source>
-        <translation>压缩</translation>
+        <translation type="vanished">压缩</translation>
     </message>
     <message>
         <source>None</source>
@@ -1451,6 +1455,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>gzip</source>
         <translation>gzip</translation>
+    </message>
+    <message>
+        <source>LZ4</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>File infix pattern</source>

@@ -1373,6 +1373,10 @@
         <translation>pcap</translation>
     </message>
     <message>
+        <source>Compression:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Instead of using a single capture file, multiple files will be created.&lt;/p&gt;&lt;p&gt;The generated file names will contain an incrementing number and the start time of the capture.&lt;/p&gt;&lt;p&gt;NOTE: If enabled, at least one of the new-file criteria MUST be selected.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;캡처 파일을 여러 개 생성합니다.&lt;/p&gt;&lt;p&gt;생성된 파일 이름은 일련 번호와 캡처 시작 시간을 포함합니다.&lt;/p&gt;&lt;p&gt;참고: 이 옵션을 활성화하면 새로운 파일 생성 기준 중 하나 이상을 선택해야 합니다.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
@@ -1444,7 +1448,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>compression</source>
-        <translation>압축</translation>
+        <translation type="vanished">압축</translation>
     </message>
     <message>
         <source>None</source>
@@ -1453,6 +1457,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>gzip</source>
         <translation>gzip</translation>
+    </message>
+    <message>
+        <source>LZ4</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>File infix pattern</source>

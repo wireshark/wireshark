@@ -1382,6 +1382,10 @@
         <translation>pcap</translation>
     </message>
     <message>
+        <source>Compression:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Instead of using a single capture file, multiple files will be created.&lt;/p&gt;&lt;p&gt;The generated file names will contain an incrementing number and the start time of the capture.&lt;/p&gt;&lt;p&gt;NOTE: If enabled, at least one of the new-file criteria MUST be selected.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Au lieu d&apos;utiliser un fichier de capture unique, plusieurs fichiers seront créés.&lt;/p&gt;&lt;p&gt;Les noms des fichiers générés contiendront un nombre croissant et le temps de départ de la capture.&lt;/p&gt;&lt;p&gt;NOTE : Si activé, au moins un des critères de nouveau fichier DOIT être sélectionné.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
@@ -1453,7 +1457,7 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
     </message>
     <message>
         <source>compression</source>
-        <translation>compression</translation>
+        <translation type="vanished">compression</translation>
     </message>
     <message>
         <source>None</source>
@@ -1462,6 +1466,10 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
     <message>
         <source>gzip</source>
         <translation>gzip</translation>
+    </message>
+    <message>
+        <source>LZ4</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>File infix pattern</source>
