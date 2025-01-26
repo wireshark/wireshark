@@ -1213,15 +1213,12 @@ calc_key(uint32_t addr, uint32_t id) {
 
 static char *
 generic_lookup_addr_id(uint32_t addr, uint32_t id, GHashTable *ht) {
-    char* ret;
-    uint64_t key;
-
     if (ht == NULL) {
         return NULL;
     }
 
-    key = calc_key(addr, id);
-    ret = g_hash_table_lookup(ht, &key);
+    uint64_t key = calc_key(addr, id);
+    char *ret = g_hash_table_lookup(ht, &key);
     if (ret == NULL) {
         key = calc_key(UINT32_MAX, id);
         ret = g_hash_table_lookup(ht, &key);
@@ -1241,20 +1238,23 @@ UAT_HEX_CB_DEF(uds_uat_routine_ids, id, generic_addr_id_string_t)
 UAT_CSTRING_CB_DEF(uds_uat_routine_ids, name, generic_addr_id_string_t)
 
 static void
-post_update_uds_routine_cb(void) {
-    unsigned i;
-    uint64_t *key;
-
-    /* destroy old hash table, if it exists */
+reset_update_uds_routine_cb(void) {
+    /* destroy hash table, if it exists */
     if (uds_ht_routine_ids) {
         g_hash_table_destroy(uds_ht_routine_ids);
+        uds_ht_routine_ids = NULL;
     }
+}
+
+static void
+post_update_uds_routine_cb(void) {
+    reset_update_uds_routine_cb();
 
     /* create new hash table */
     uds_ht_routine_ids = g_hash_table_new_full(g_int64_hash, g_int64_equal, g_free, NULL);
 
-    for (i = 0; i < uds_uat_routine_id_num; i++) {
-        key = g_new(uint64_t, 1);
+    for (unsigned i = 0; i < uds_uat_routine_id_num; i++) {
+        uint64_t *key = g_new(uint64_t, 1);
         *key = calc_key(uds_uat_routine_ids[i].address, uds_uat_routine_ids[i].id);
         g_hash_table_insert(uds_ht_routine_ids, key, uds_uat_routine_ids[i].name);
     }
@@ -1298,20 +1298,23 @@ UAT_HEX_CB_DEF(uds_uat_data_ids, id, generic_addr_id_string_t)
 UAT_CSTRING_CB_DEF(uds_uat_data_ids, name, generic_addr_id_string_t)
 
 static void
-post_update_uds_data_cb(void) {
-    unsigned i;
-    uint64_t *key;
-
-    /* destroy old hash table, if it exists */
+reset_update_uds_data_cb(void) {
+    /* destroy hash table, if it exists */
     if (uds_ht_data_ids) {
         g_hash_table_destroy(uds_ht_data_ids);
+        uds_ht_data_ids = NULL;
     }
+}
+
+static void
+post_update_uds_data_cb(void) {
+    reset_update_uds_data_cb();
 
     /* create new hash table */
     uds_ht_data_ids = g_hash_table_new_full(g_int64_hash, g_int64_equal, g_free, NULL);
 
-    for (i = 0; i < uds_uat_data_id_num; i++) {
-        key = g_new(uint64_t, 1);
+    for (unsigned i = 0; i < uds_uat_data_id_num; i++) {
+        uint64_t *key = g_new(uint64_t, 1);
         *key = calc_key(uds_uat_data_ids[i].address, uds_uat_data_ids[i].id);
         g_hash_table_insert(uds_ht_data_ids, key, uds_uat_data_ids[i].name);
     }
@@ -1355,20 +1358,23 @@ UAT_HEX_CB_DEF(uds_uat_dtc_ids, id, generic_addr_id_string_t)
 UAT_CSTRING_CB_DEF(uds_uat_dtc_ids, name, generic_addr_id_string_t)
 
 static void
-post_update_uds_dtc_cb(void) {
-    unsigned i;
-    uint64_t *key;
-
-    /* destroy old hash table, if it exists */
+reset_update_uds_dtc_cb(void) {
+    /* destroy hash table, if it exists */
     if (uds_ht_dtc_ids) {
         g_hash_table_destroy(uds_ht_dtc_ids);
+        uds_ht_dtc_ids = NULL;
     }
+}
+
+static void
+post_update_uds_dtc_cb(void) {
+    reset_update_uds_dtc_cb();
 
     /* create new hash table */
     uds_ht_dtc_ids = g_hash_table_new_full(g_int64_hash, g_int64_equal, g_free, NULL);
 
-    for (i = 0; i < uds_uat_dtc_id_num; i++) {
-        key = g_new(uint64_t, 1);
+    for (unsigned i = 0; i < uds_uat_dtc_id_num; i++) {
+        uint64_t *key = g_new(uint64_t, 1);
         *key = calc_key(uds_uat_dtc_ids[i].address, uds_uat_dtc_ids[i].id);
         g_hash_table_insert(uds_ht_dtc_ids, key, uds_uat_dtc_ids[i].name);
     }
@@ -1403,27 +1409,33 @@ UAT_HEX_CB_DEF(uds_uat_addresses, address, address_string_t)
 UAT_CSTRING_CB_DEF(uds_uat_addresses, name, address_string_t)
 
 static void
-post_update_uds_address_cb(void) {
-    unsigned i;
-
-    /* destroy old hash table, if it exists */
+reset_uds_address_cb(void) {
+    /* destroy hash table, if it exists */
     if (uds_ht_addresses) {
         g_hash_table_destroy(uds_ht_addresses);
+        uds_ht_addresses = NULL;
     }
+}
+
+static void
+post_update_uds_address_cb(void) {
+    reset_uds_address_cb();
 
     /* create new hash table */
     uds_ht_addresses = g_hash_table_new_full(g_direct_hash, g_direct_equal, NULL, NULL);
 
-    for (i = 0; i < uds_uat_addresses_num; i++) {
+    for (unsigned i = 0; i < uds_uat_addresses_num; i++) {
         g_hash_table_insert(uds_ht_addresses, GUINT_TO_POINTER(uds_uat_addresses[i].address), uds_uat_addresses[i].name);
     }
 }
 
 static void
 uds_proto_item_append_address_name(proto_item *ti, uint32_t addr) {
-    char* address_name = g_hash_table_lookup(uds_ht_addresses, GUINT_TO_POINTER(addr));
-    if (address_name != NULL) {
-        proto_item_append_text(ti, " (%s)", address_name);
+    if (uds_ht_addresses != NULL) {
+        char *address_name = g_hash_table_lookup(uds_ht_addresses, GUINT_TO_POINTER(addr));
+        if (address_name != NULL) {
+            proto_item_append_text(ti, " (%s)", address_name);
+        }
     }
 }
 
@@ -1448,7 +1460,11 @@ uds_proto_tree_add_address_item(proto_tree *tree, int hf, tvbuff_t *tvb, const i
 static proto_item *
 uds_proto_tree_add_address_name(proto_tree *tree, int hf, tvbuff_t *tvb, const int offset, const int size, unsigned addr) {
     proto_item *ti;
-    char* address_name = g_hash_table_lookup(uds_ht_addresses, GUINT_TO_POINTER(addr));
+
+    char *address_name = NULL;
+    if (uds_ht_addresses != NULL) {
+        address_name = g_hash_table_lookup(uds_ht_addresses, GUINT_TO_POINTER(addr));
+    }
 
     if (address_name != NULL) {
         ti = proto_tree_add_string(tree, hf, tvb, offset, size, address_name);
@@ -3227,7 +3243,7 @@ dissect_uds_iso10681(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
 
 void
 proto_register_uds(void) {
-    module_t* uds_module;
+    module_t *uds_module;
     static hf_register_info hf[] = {
         { &hf_uds_diag_addr, {
             "Diagnostic Address", "uds.diag_addr", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL } },
@@ -3631,10 +3647,10 @@ proto_register_uds(void) {
             "Unparsed Bytes", "uds.unparsed_bytes", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL } },
     };
 
-    uat_t* uds_routine_ids_uat;
-    uat_t* uds_data_ids_uat;
-    uat_t* uds_dtc_ids_uat;
-    uat_t* uds_address_uat;
+    uat_t *uds_routine_ids_uat;
+    uat_t *uds_data_ids_uat;
+    uat_t *uds_dtc_ids_uat;
+    uat_t *uds_address_uat;
 
     /* Setup protocol subtree array */
     static int *ett[] = {
@@ -3693,7 +3709,7 @@ proto_register_uds(void) {
         update_generic_addr_16bit_id_16bit,         /* update callback       */
         free_generic_one_id_string_cb,              /* free callback         */
         post_update_uds_routine_cb,                 /* post update callback  */
-        NULL,                                       /* reset callback        */
+        reset_update_uds_routine_cb,                /* reset callback        */
         uds_routine_id_uat_fields                   /* UAT field definitions */
     );
 
@@ -3720,7 +3736,7 @@ proto_register_uds(void) {
         update_generic_addr_16bit_id_16bit,         /* update callback       */
         free_generic_one_id_string_cb,              /* free callback         */
         post_update_uds_data_cb,                    /* post update callback  */
-        NULL,                                       /* reset callback        */
+        reset_update_uds_data_cb,                   /* reset callback        */
         uds_data_id_uat_fields                      /* UAT field definitions */
     );
 
@@ -3747,7 +3763,7 @@ proto_register_uds(void) {
         update_generic_addr_16bit_id_24bit,         /* update callback       */
         free_generic_one_id_string_cb,              /* free callback         */
         post_update_uds_dtc_cb,                     /* post update callback  */
-        NULL,                                       /* reset callback        */
+        reset_update_uds_dtc_cb,                    /* reset callback        */
         uds_dtc_id_uat_fields                       /* UAT field definitions */
     );
 
@@ -3773,7 +3789,7 @@ proto_register_uds(void) {
         update_address_string_cb,                   /* update callback       */
         free_address_string_cb,                     /* free callback         */
         post_update_uds_address_cb,                 /* post update callback  */
-        NULL,                                       /* reset callback        */
+        reset_uds_address_cb,                       /* reset callback        */
         uds_address_name_uat_fields                 /* UAT field definitions */
     );
 
