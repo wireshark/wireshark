@@ -1,7 +1,7 @@
 /* packet-asam-cmp.c
  * ASAM Capture Module Protocol dissector.
  * Copyright 2021-2023 Alicia Mediano Schikarski, Technica Engineering GmbH
- * Copyright 2021-2024 Dr. Lars Voelker, Technica Engineering GmbH
+ * Copyright 2021-2025 Dr. Lars Völker, Technica Engineering GmbH
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -785,6 +785,15 @@ free_generic_one_id_string_cb(void *r) {
     rec->name = NULL;
 }
 
+static char *
+ht_lookup_device_name(uint16_t device_id) {
+    if (data_asam_cmp_devices == NULL) {
+        return NULL;
+    }
+
+    return g_hash_table_lookup(data_asam_cmp_devices, GUINT_TO_POINTER(device_id));
+}
+
 /* ID -> ID, Name */
 static void *
 copy_interface_config_cb(void *n, const void *o, size_t size _U_) {
@@ -827,9 +836,19 @@ free_interface_config_cb(void *r) {
     rec->name = NULL;
 }
 
+static interface_config_t *
+ht_lookup_interface(unsigned int identifier) {
+    if (data_asam_cmp_interfaces == NULL) {
+        return NULL;
+    }
+
+    return g_hash_table_lookup(data_asam_cmp_interfaces, GUINT_TO_POINTER(identifier));
+}
+
+
 static char *
 ht_interface_config_to_string(unsigned int identifier) {
-    interface_config_t   *tmp = g_hash_table_lookup(data_asam_cmp_interfaces, GUINT_TO_POINTER(identifier));
+    interface_config_t *tmp = ht_lookup_interface(identifier);
     if (tmp == NULL) {
         return NULL;
     }
@@ -839,7 +858,7 @@ ht_interface_config_to_string(unsigned int identifier) {
 
 static uint16_t
 ht_interface_config_to_bus_id(unsigned int identifier) {
-    interface_config_t   *tmp = g_hash_table_lookup(data_asam_cmp_interfaces, GUINT_TO_POINTER(identifier));
+    interface_config_t *tmp = ht_lookup_interface(identifier);
     if (tmp == NULL) {
         /* 0 means basically any or none */
         return 0;
@@ -849,42 +868,52 @@ ht_interface_config_to_bus_id(unsigned int identifier) {
 }
 
 static void
-post_update_asam_cmp_devices_cb(void) {
-    unsigned i;
-
+reset_asam_cmp_devices_cb(void) {
     /* destroy old hash table, if it exists */
     if (data_asam_cmp_devices) {
         g_hash_table_destroy(data_asam_cmp_devices);
+        data_asam_cmp_devices = NULL;
     }
+}
+
+static void
+post_update_asam_cmp_devices_cb(void) {
+    /* destroy old hash table, if it exists */
+    reset_asam_cmp_devices_cb();
 
     /* create new hash table */
     data_asam_cmp_devices = g_hash_table_new_full(g_direct_hash, g_direct_equal, NULL, NULL);
 
-    for (i = 0; i < asam_cmp_devices_num; i++) {
+    for (unsigned i = 0; i < asam_cmp_devices_num; i++) {
         g_hash_table_insert(data_asam_cmp_devices, GUINT_TO_POINTER(asam_cmp_devices[i].id), asam_cmp_devices[i].name);
     }
 }
 
 static void
-post_update_interface_config_cb(void) {
-    unsigned  i;
-
+reset_interface_config_cb(void) {
     /* destroy old hash table, if it exists */
     if (data_asam_cmp_interfaces) {
         g_hash_table_destroy(data_asam_cmp_interfaces);
+        data_asam_cmp_interfaces = NULL;
     }
+}
+
+static void
+post_update_interface_config_cb(void) {
+    /* destroy old hash table, if it exists */
+    reset_interface_config_cb();
 
     /* create new hash table */
     data_asam_cmp_interfaces = g_hash_table_new_full(g_direct_hash, g_direct_equal, NULL, NULL);
 
-    for (i = 0; i < asam_cmp_interface_num; i++) {
+    for (unsigned i = 0; i < asam_cmp_interface_num; i++) {
         g_hash_table_insert(data_asam_cmp_interfaces, GUINT_TO_POINTER(asam_cmp_interfaces[i].id), &asam_cmp_interfaces[i]);
     }
 }
 
 static void
 add_device_id_text(proto_item *ti, uint16_t device_id) {
-    const char *descr = g_hash_table_lookup(data_asam_cmp_devices, GUINT_TO_POINTER(device_id));
+    const char *descr = ht_lookup_device_name(device_id);
 
     if (descr != NULL) {
         proto_item_append_text(ti, " (%s)", descr);
@@ -2564,7 +2593,7 @@ proto_register_asam_cmp(void) {
         update_generic_one_identifier_16bit,    /* update callback       */
         free_generic_one_id_string_cb,          /* free callback         */
         post_update_asam_cmp_devices_cb,        /* post update callback  */
-        NULL,                                   /* reset callback        */
+        reset_asam_cmp_devices_cb,              /* reset callback        */
         asam_cmp_device_id_uat_fields           /* UAT field definitions */
     );
 
@@ -2583,7 +2612,7 @@ proto_register_asam_cmp(void) {
         update_interface_config,                /* update callback       */
         free_interface_config_cb,               /* free callback         */
         post_update_interface_config_cb,        /* post update callback  */
-        NULL,                                   /* reset callback        */
+        reset_interface_config_cb,              /* reset callback        */
         asam_cmp_interface_id_uat_fields        /* UAT field definitions */
     );
 
