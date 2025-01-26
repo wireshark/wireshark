@@ -2,7 +2,7 @@
  *
  * LIN dissector.
  * By Dr. Lars Voelker <lars.voelker@technica-engineering.de>
- * Copyright 2021-2023 Dr. Lars Voelker
+ * Copyright 2021-2025 Dr. Lars Völker
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -57,6 +57,7 @@ static int hf_lin_err_checksum;
 static int hf_lin_err_invalidid;
 static int hf_lin_err_overflow;
 static int hf_lin_event_id;
+static int hf_lin_bus_id;
 
 static int ett_lin;
 static int ett_lin_pid;
@@ -169,9 +170,7 @@ free_interface_config_cb(void *r) {
 }
 
 static void
-post_update_lin_interfaces_cb(void) {
-    unsigned  i;
-
+post_update_interface_config_cb(void) {
     /* destroy old hash tables, if they exist */
     if (data_lin_interfaces_by_id) {
         g_hash_table_destroy(data_lin_interfaces_by_id);
@@ -184,7 +183,7 @@ post_update_lin_interfaces_cb(void) {
     data_lin_interfaces_by_id = g_hash_table_new_full(g_direct_hash, g_direct_equal, NULL, NULL);
     data_lin_interfaces_by_name = g_hash_table_new_full(g_str_hash, g_str_equal, NULL, NULL);
 
-    for (i = 0; i < interface_config_num; i++) {
+    for (unsigned i = 0; i < interface_config_num; i++) {
         if (interface_configs[i].interface_id != 0xfffffff) {
             g_hash_table_insert(data_lin_interfaces_by_id, GUINT_TO_POINTER(interface_configs[i].interface_id), &interface_configs[i]);
         }
@@ -192,6 +191,19 @@ post_update_lin_interfaces_cb(void) {
         if (interface_configs[i].interface_name != NULL && interface_configs[i].interface_name[0] != 0) {
             g_hash_table_insert(data_lin_interfaces_by_name, interface_configs[i].interface_name, &interface_configs[i]);
         }
+    }
+}
+
+static void
+reset_interface_config_cb(void) {
+    if (data_lin_interfaces_by_id) {
+        g_hash_table_destroy(data_lin_interfaces_by_id);
+        data_lin_interfaces_by_id = NULL;
+    }
+
+    if (data_lin_interfaces_by_name) {
+        g_hash_table_destroy(data_lin_interfaces_by_name);
+        data_lin_interfaces_by_name = NULL;
     }
 }
 
@@ -210,21 +222,26 @@ get_bus_id(packet_info *pinfo) {
     uint32_t            interface_id = pinfo->rec->rec_header.packet_header.interface_id;
     unsigned            section_number = pinfo->rec->presence_flags & WTAP_HAS_SECTION_NUMBER ? pinfo->rec->section_number : 0;
     const char         *interface_name = epan_get_interface_name(pinfo->epan, interface_id, section_number);
-    interface_config_t *tmp = NULL;
 
     if (interface_name != NULL && interface_name[0] != 0) {
-        tmp = g_hash_table_lookup(data_lin_interfaces_by_name, interface_name);
+        interface_config_t *tmp = NULL;
 
-        if (tmp != NULL && (tmp->interface_id == 0xffffffff || tmp->interface_id == interface_id)) {
-            /* name + id match or name match and id = any */
-            return tmp->bus_id;
+        if (data_lin_interfaces_by_name != NULL) {
+            tmp = g_hash_table_lookup(data_lin_interfaces_by_name, interface_name);
+
+            if (tmp != NULL && (tmp->interface_id == 0xffffffff || tmp->interface_id == interface_id)) {
+                /* name + id match or name match and id = any */
+                return tmp->bus_id;
+            }
         }
 
-        tmp = g_hash_table_lookup(data_lin_interfaces_by_id, GUINT_TO_POINTER(interface_id));
+        if (data_lin_interfaces_by_id != NULL) {
+            tmp = g_hash_table_lookup(data_lin_interfaces_by_id, GUINT_TO_POINTER(interface_id));
 
-        if (tmp != NULL && (tmp->interface_name == NULL || tmp->interface_name[0] == 0)) {
-            /* id matches and name is any */
-            return tmp->bus_id;
+            if (tmp != NULL && (tmp->interface_name == NULL || tmp->interface_name[0] == 0)) {
+                /* id matches and name is any */
+                return tmp->bus_id;
+            }
         }
     }
 
@@ -297,11 +314,12 @@ sender_receiver_key(uint16_t bus_id, uint32_t lin_id) {
 
 static sender_receiver_config_t *
 ht_lookup_sender_receiver_config(uint16_t bus_id, uint32_t lin_id) {
-    sender_receiver_config_t *tmp;
-    uint64_t                  key;
+    if (data_sender_receiver == NULL) {
+        return NULL;
+    }
 
-    key = sender_receiver_key(bus_id, lin_id);
-    tmp = g_hash_table_lookup(data_sender_receiver, &key);
+    uint64_t key = sender_receiver_key(bus_id, lin_id);
+    sender_receiver_config_t *tmp = g_hash_table_lookup(data_sender_receiver, &key);
 
     if (tmp == NULL) {
         key = sender_receiver_key(0, lin_id);
@@ -328,6 +346,15 @@ post_update_sender_receiver_cb(void) {
         key = g_new(uint64_t, 1);
         *key = sender_receiver_key(sender_receiver_configs[i].bus_id, sender_receiver_configs[i].lin_id);
         g_hash_table_insert(data_sender_receiver, key, &sender_receiver_configs[i]);
+    }
+}
+
+static void
+reset_sender_receiver_cb(void) {
+    /* destroy hash table, if it exists */
+    if (data_sender_receiver) {
+        g_hash_table_destroy(data_sender_receiver);
+        data_sender_receiver = NULL;
     }
 }
 
@@ -367,8 +394,16 @@ dissect_lin(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     col_set_str(pinfo->cinfo, COL_PROTOCOL, LIN_NAME);
     col_clear(pinfo->cinfo, COL_INFO);
 
+    lininfo.bus_id = (uint16_t)get_bus_id(pinfo);
+    lininfo.len = 0;
+
     ti_root = proto_tree_add_item(tree, proto_lin, tvb, 0, -1, ENC_NA);
     lin_tree = proto_item_add_subtree(ti_root, ett_lin);
+
+    if (lininfo.bus_id != 0) {
+        ti = proto_tree_add_uint(lin_tree, hf_lin_bus_id, tvb, 0, 0, lininfo.bus_id);
+        proto_item_set_hidden(ti);
+    }
 
     proto_tree_add_item(lin_tree, hf_lin_msg_format_rev, tvb, 0, 1, ENC_BIG_ENDIAN);
     ti = proto_tree_add_item(lin_tree, hf_lin_reserved1, tvb, 1, 3, ENC_BIG_ENDIAN);
@@ -386,8 +421,6 @@ dissect_lin(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 
         proto_tree_add_item(lin_tree, hf_lin_checksum, tvb, 6, 1, ENC_BIG_ENDIAN);
 
-        lininfo.bus_id = (uint16_t)get_bus_id(pinfo);
-        lininfo.len = 0;
         lin_set_source_and_destination_columns(pinfo, &lininfo);
     }
     proto_tree_add_bitmask_ret_uint64(lin_tree, tvb, 7, hf_lin_err_errors, ett_errors, error_fields, ENC_BIG_ENDIAN, &errors);
@@ -498,6 +531,9 @@ proto_register_lin(void) {
         { &hf_lin_event_id,
             { "Event ID", "lin.event_id",
             FT_UINT32, BASE_HEX_DEC, VALS(lin_event_type_names), 0x00, NULL, HFILL }},
+        { &hf_lin_bus_id,
+            { "Bus ID", "lin.bus_id",
+            FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL }},
     };
 
     static int *ett[] = {
@@ -536,8 +572,8 @@ proto_register_lin(void) {
         copy_interface_config_cb,               /* copy callback         */
         update_interface_config,                /* update callback       */
         free_interface_config_cb,               /* free callback         */
-        post_update_lin_interfaces_cb,          /* post update callback  */
-        NULL,                                   /* reset callback        */
+        post_update_interface_config_cb,        /* post update callback  */
+        reset_interface_config_cb,              /* reset callback        */
         lin_interface_mapping_uat_fields        /* UAT field definitions */
     );
 
@@ -564,7 +600,7 @@ proto_register_lin(void) {
         update_sender_receiver_config,          /* update callback       */
         free_sender_receiver_config_cb,         /* free callback         */
         post_update_sender_receiver_cb,         /* post update callback  */
-        NULL,                                   /* reset callback        */
+        reset_sender_receiver_cb,               /* reset callback        */
         sender_receiver_mapping_uat_fields      /* UAT field definitions */
     );
 
