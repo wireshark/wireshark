@@ -499,8 +499,6 @@ UAT_CSTRING_CB_DEF(doip_diag_addresses, name, generic_one_id_string_t)
 
 static void
 post_update_doip_diag_addresses(void) {
-    unsigned   i;
-
     /* destroy old hash table, if it exists */
     if (data_doip_diag_addresses) {
         g_hash_table_destroy(data_doip_diag_addresses);
@@ -509,8 +507,17 @@ post_update_doip_diag_addresses(void) {
     /* create new hash table */
     data_doip_diag_addresses = g_hash_table_new_full(g_direct_hash, g_direct_equal, NULL, NULL);
 
-    for (i = 0; i < doip_diag_address_count; i++) {
+    for (unsigned i = 0; i < doip_diag_address_count; i++) {
         g_hash_table_insert(data_doip_diag_addresses, GUINT_TO_POINTER(doip_diag_addresses[i].id), doip_diag_addresses[i].name);
+    }
+}
+
+static void
+reset_doip_diag_addresses_cb(void) {
+    /* destroy hash table, if it exists */
+    if (data_doip_diag_addresses) {
+        g_hash_table_destroy(data_doip_diag_addresses);
+        data_doip_diag_addresses = NULL;
     }
 }
 
@@ -521,7 +528,12 @@ doip_prototree_add_with_resolv(proto_tree* doip_tree, int hfindex, int hfindex_n
     proto_tree *tree;
 
     ti = proto_tree_add_item_ret_uint(doip_tree, hfindex, tvb, start, length, encoding, &diag_addr_tmp);
-    const char *name = g_hash_table_lookup(data_doip_diag_addresses, GUINT_TO_POINTER(diag_addr_tmp));
+    const char *name = NULL;
+
+    if (data_doip_diag_addresses != NULL) {
+        name = g_hash_table_lookup(data_doip_diag_addresses, GUINT_TO_POINTER(diag_addr_tmp));
+    }
+
     if (name != NULL) {
         proto_item_append_text(ti, " (%s)", name);
         tree = proto_item_add_subtree(ti, ett_address);
@@ -553,8 +565,6 @@ UAT_CSTRING_CB_DEF(doip_payload_types, name, generic_one_id_string_t)
 
 static void
 post_update_doip_payload_types(void) {
-    unsigned   i;
-
     /* destroy old hash table, if it exists */
     if (data_doip_payload_types) {
         g_hash_table_destroy(data_doip_payload_types);
@@ -563,15 +573,27 @@ post_update_doip_payload_types(void) {
     /* create new hash table */
     data_doip_payload_types = g_hash_table_new_full(g_direct_hash, g_direct_equal, NULL, NULL);
 
-    for (i = 0; i < doip_payload_type_count; i++) {
+    for (unsigned i = 0; i < doip_payload_type_count; i++) {
         g_hash_table_insert(data_doip_payload_types, GUINT_TO_POINTER(doip_payload_types[i].id), doip_payload_types[i].name);
     }
 }
 
+static void
+reset_doip_payload_type_cb(void) {
+    /* destroy hash table, if it exists */
+    if (data_doip_payload_types) {
+        g_hash_table_destroy(data_doip_payload_types);
+        data_doip_payload_types = NULL;
+    }
+}
+
 static const char*
-resolve_doip_payload_type(wmem_allocator_t *scope, uint16_t payload_type, bool is_col)
-{
-    const char *tmp = g_hash_table_lookup(data_doip_payload_types, GUINT_TO_POINTER(payload_type));
+resolve_doip_payload_type(wmem_allocator_t *scope, uint16_t payload_type, bool is_col) {
+    const char *tmp = NULL;
+
+    if (data_doip_payload_types != NULL) {
+        tmp = g_hash_table_lookup(data_doip_payload_types, GUINT_TO_POINTER(payload_type));
+    }
 
     /* lets look at the static values, if nothing is configured */
     if (tmp == NULL) {
@@ -1267,7 +1289,7 @@ proto_register_doip(void)
         update_generic_one_identifier_16bit,    /* update callback       */
         free_generic_one_id_string_cb,          /* free callback         */
         post_update_doip_diag_addresses,        /* post update callback  */
-        NULL,                                   /* reset callback        */
+        reset_doip_diag_addresses_cb,           /* reset callback        */
         doip_diag_addr_uat_fields               /* UAT field definitions */
     );
 
@@ -1286,7 +1308,7 @@ proto_register_doip(void)
         update_generic_one_identifier_16bit,    /* update callback       */
         free_generic_one_id_string_cb,          /* free callback         */
         post_update_doip_payload_types,         /* post update callback  */
-        NULL,                                   /* reset callback        */
+        reset_doip_payload_type_cb,             /* reset callback        */
         doip_payload_type_uat_fields            /* UAT field definitions */
     );
 
