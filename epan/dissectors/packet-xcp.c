@@ -1,7 +1,7 @@
 /* packet-xcp.c
  * Universal Measurement and Calibration (XCP)
  * By <lars.voelker@technica-engineering.de>
- * Copyright 2023-2024 Dr. Lars Völker
+ * Copyright 2023-2025 Dr. Lars Völker
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -1168,7 +1168,7 @@ xcp_lookup_memory_address(uint16_t ecu_id, uint8_t addr_ext, uint32_t memory_add
         return NULL;
     }
 
-    return g_hash_table_lookup(data_xcp_memory_addresses, &key);
+    return (char *)g_hash_table_lookup(data_xcp_memory_addresses, &key);
 }
 
 static void *
@@ -1220,16 +1220,13 @@ reset_xcp_memory_addresses_cb(void) {
 
 static void
 post_update_xcp_memory_addresses_cb(void) {
-    unsigned    i;
-    uint64_t    *key;
-
     reset_xcp_memory_addresses_cb();
 
     /* create new hash table */
     data_xcp_memory_addresses = g_hash_table_new_full(g_int64_hash, g_int64_equal, g_free, NULL);
 
-    for (i = 0; i < xcp_memory_addresses_num; i++) {
-        key = g_new(uint64_t, 1);
+    for (unsigned i = 0; i < xcp_memory_addresses_num; i++) {
+        uint64_t *key = g_new(uint64_t, 1);
         *key = xcp_memory_address_calc_key((uint16_t)xcp_memory_addresses[i].ecu_id, (uint8_t)xcp_memory_addresses[i].addr_ext, xcp_memory_addresses[i].address);
         g_hash_table_insert(data_xcp_memory_addresses, key, xcp_memory_addresses[i].name);
     }
@@ -1360,12 +1357,19 @@ eth_mapping_uat_entry_to_eth_mapping_entry(uint32_t i) {
 }
 
 static void
-post_update_xcp_eth_mapping_cb(void) {
-    uint32_t i;
+reset_xcp_eth_mapping_cb(void) {
+    /* destroy old hash table, if it exists */
+    if (data_xcp_eth_mappings) {
+        g_hash_table_destroy(data_xcp_eth_mappings);
+        data_xcp_eth_mappings = NULL;
+    }
+}
 
+static void
+post_update_xcp_eth_mapping_cb(void) {
     /* destroy the local xcp_uat_eth_mappings array */
     if (xcp_eth_mappings_priv != NULL) {
-        for (i = 0; i < xcp_uat_eth_mapping_num_current; i++) {
+        for (uint32_t i = 0; i < xcp_uat_eth_mapping_num_current; i++) {
             if (xcp_eth_mappings_priv[i].stream != NULL) {
                 wmem_free(wmem_epan_scope(), xcp_eth_mappings_priv[i].stream);
                 xcp_eth_mappings_priv[i].stream = NULL;
@@ -1381,14 +1385,12 @@ post_update_xcp_eth_mapping_cb(void) {
     xcp_uat_eth_mapping_num_current = xcp_uat_eth_mapping_num;
 
     /* destroy old hash table, if it exists */
-    if (data_xcp_eth_mappings != NULL) {
-        g_hash_table_destroy(data_xcp_eth_mappings);
-    }
+    reset_xcp_eth_mapping_cb();
 
     /* we don't need to free the data as long as we don't alloc it first */
     data_xcp_eth_mappings = g_hash_table_new_full(g_int64_hash, g_int64_equal, g_free, NULL);
 
-    for (i = 0; i < xcp_uat_eth_mapping_num; i++) {
+    for (uint32_t i = 0; i < xcp_uat_eth_mapping_num; i++) {
         xcp_eth_mapping_t* mapping = eth_mapping_uat_entry_to_eth_mapping_entry(i);
 
         uint64_t* hash = g_new(uint64_t, 1);
@@ -1399,15 +1401,6 @@ post_update_xcp_eth_mapping_cb(void) {
 
     /* we need to register the CAN-IDs */
     register_xcp_eth();
-}
-
-static void
-reset_xcp_eth_mapping_cb(void) {
-    /* destroy old hash table, if it exists */
-    if (data_xcp_eth_mappings) {
-        g_hash_table_destroy(data_xcp_eth_mappings);
-        data_xcp_eth_mappings = NULL;
-    }
 }
 
 static xcp_eth_mapping_t *
@@ -1515,6 +1508,15 @@ can_mapping_uat_entry_to_can_mapping_entry(uint32_t i) {
 }
 
 static void
+reset_xcp_can_mapping_cb(void) {
+    /* destroy hash table, if it exists */
+    if (data_xcp_can_mappings) {
+        g_hash_table_destroy(data_xcp_can_mappings);
+        data_xcp_can_mappings = NULL;
+    }
+}
+
+static void
 post_update_xcp_can_mapping_cb(void) {
     uint32_t i;
     uint64_t *key;
@@ -1535,9 +1537,7 @@ post_update_xcp_can_mapping_cb(void) {
     xcp_uat_can_mapping_num_current = xcp_uat_can_mapping_num;
 
     /* destroy old hash table, if it exists */
-    if (data_xcp_can_mappings != NULL) {
-        g_hash_table_destroy(data_xcp_can_mappings);
-    }
+    reset_xcp_can_mapping_cb();
 
     /* we don't need to free the data as long as we don't alloc it first */
     data_xcp_can_mappings = g_hash_table_new_full(g_int64_hash, g_int64_equal, g_free, NULL);
@@ -1568,12 +1568,12 @@ get_can_mapping(uint32_t id, uint16_t bus_id) {
 
     /* key is Bus ID, EFF Flag, CAN-ID */
     uint64_t key = ((uint64_t)id & (CAN_EFF_MASK | CAN_EFF_FLAG)) | ((uint64_t)bus_id << 32);
-    xcp_can_mapping_t *tmp = g_hash_table_lookup(data_xcp_can_mappings, &key);
+    xcp_can_mapping_t *tmp = (xcp_can_mapping_t *)g_hash_table_lookup(data_xcp_can_mappings, &key);
 
     if (tmp == NULL) {
         /* try again without Bus ID set */
         key = id & (CAN_EFF_MASK | CAN_EFF_FLAG);
-        tmp = g_hash_table_lookup(data_xcp_can_mappings, &key);
+        tmp = (xcp_can_mapping_t *)g_hash_table_lookup(data_xcp_can_mappings, &key);
     }
 
     return tmp;
@@ -4237,7 +4237,7 @@ proto_register_xcp(void) {
         update_xcp_can_mapping_cb,                  /* update callback       */
         NULL,                                       /* free callback         */
         post_update_xcp_can_mapping_cb,             /* post update callback  */
-        NULL,                                       /* reset callback        */
+        reset_xcp_can_mapping_cb,                   /* reset callback        */
         xcp_can_mapping_fields                      /* UAT field definitions */
     );
 
