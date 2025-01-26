@@ -2738,6 +2738,8 @@ void WiresharkMainWindow::removeMenusandSubmenus(QAction *action, QMenu *cur_men
 
     // Remove empty submenus.
     while (cur_menu != parent_menu) {
+        if (!cur_menu)
+            break;
         QMenu *empty_menu = (cur_menu->isEmpty() ? cur_menu : NULL);
         cur_menu = dynamic_cast<QMenu *>(cur_menu->parent());
         delete empty_menu;
