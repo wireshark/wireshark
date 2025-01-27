@@ -519,7 +519,13 @@ void InterfaceToolbar::setInterfaceValue(QString ifname, QWidget *widget, int nu
             {
                 interface_[ifname].log_dialog[num]->appendText(payload);
             }
+#if WS_IS_AT_LEAST_GNUC_VERSION(12,1)
+            DIAG_OFF(stringop-overread)
+#endif
             interface_[ifname].log_text[num].append(payload);
+#if WS_IS_AT_LEAST_GNUC_VERSION(12,1)
+            DIAG_ON(stringop-overread)
+#endif
         }
     }
     else if (widget->property(interface_role_property).toInt() == INTERFACE_ROLE_CONTROL)
