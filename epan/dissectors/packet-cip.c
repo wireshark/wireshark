@@ -64,6 +64,7 @@
 
 void proto_register_cip(void);
 void proto_reg_handoff_cip(void);
+static int dissect_cip_stringi(packet_info* pinfo, proto_tree* tree, proto_item* item, tvbuff_t* tvb, int offset);
 
 typedef struct mr_mult_req_info {
    uint8_t service;
@@ -442,7 +443,27 @@ static int hf_stringi_language_char;
 static int hf_stringi_char_string_struct;
 static int hf_stringi_char_set;
 static int hf_stringi_international_string;
+
+static int hf_file_data;
+static int hf_file_encoding;
+static int hf_file_file_access_rule;
+static int hf_file_file_format_version;
+static int hf_file_file_save_parametersd;
+static int hf_file_file_size;
 static int hf_file_filename;
+static int hf_file_incremental_burn_time;
+static int hf_file_incremental_burn;
+static int hf_file_instance_name;
+static int hf_file_invocation_method;
+static int hf_file_major_rev;
+static int hf_file_maximum_transfer_size;
+static int hf_file_minor_rev;
+static int hf_file_state;
+static int hf_file_transfer_checksum;
+static int hf_file_transfer_number;
+static int hf_file_transfer_packet_type;
+static int hf_file_transfer_size;
+
 static int hf_time_sync_ptp_enable;
 static int hf_time_sync_is_synchronized;
 static int hf_time_sync_sys_time_micro;
@@ -944,6 +965,21 @@ static const value_string cip_cco_change_type_vals[] = {
    { 1,        "Incremental"    },
 
    { 0,        NULL             }
+};
+
+static const value_string cip_file_encoding_vals[] = {
+   { 0, "Binary" },
+   { 1, "Compressed file" },
+   { 2, "PEM Encoded Certificate" },
+   { 3, "PKCS#7 Encoded Certificate" },
+   { 4, "PEM Encoded CRL" },
+   { 5, "PKCS#7 Encoded CRL" },
+   { 11, "ASCII text" },
+   { 12, "Word" },
+   { 13, "Excel" },
+   { 14, "PDF" },
+
+   { 0, NULL }
 };
 
 static const value_string cip_time_sync_clock_class_vals[] = {
@@ -4322,6 +4358,150 @@ static int dissect_port_node_range(packet_info *pinfo _U_, proto_tree *tree, pro
    return 4;
 }
 
+/// File Object - Attributes
+static int dissect_file_directory(packet_info *pinfo, proto_tree *tree, proto_item *item _U_, tvbuff_t *tvb,
+   int offset, int total_len _U_)
+{
+   int parsed_len = 0;
+   int instance_num = 1;
+   while (tvb_reported_length_remaining(tvb, offset + parsed_len) > 0)
+   {
+      proto_item *instance_item;
+      proto_tree *instance_tree = proto_tree_add_subtree_format(tree, tvb, offset, 0, ett_cmd_data, &instance_item, "Instance #%d", instance_num);
+
+      proto_tree_add_item(instance_tree, hf_cip_instance16, tvb, offset + parsed_len, 2, ENC_LITTLE_ENDIAN);
+      parsed_len += 2;
+
+      parsed_len += dissect_cip_stringi(pinfo, instance_tree, instance_item, tvb, offset + parsed_len);
+      parsed_len += dissect_cip_stringi(pinfo, instance_tree, instance_item, tvb, offset + parsed_len);
+
+      instance_num++;
+   }
+
+   return parsed_len;
+}
+
+static int dissect_file_revision(packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, tvbuff_t *tvb,
+   int offset, int total_len _U_)
+{
+   proto_tree_add_item(tree, hf_file_major_rev, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+   proto_tree_add_item(tree, hf_file_minor_rev, tvb, offset + 1, 1, ENC_LITTLE_ENDIAN);
+   return 2;
+}
+
+/// File - Services
+static int dissect_file_create(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb, int offset, bool request)
+{
+   int parsed_len = 0;
+
+   if (request)
+   {
+      parsed_len = dissect_cip_stringi(pinfo, tree, item, tvb, offset);
+
+      // This parameter is optional.
+      if (tvb_reported_length_remaining(tvb, offset + parsed_len) > 0)
+      {
+         proto_tree_add_item(tree, hf_file_encoding, tvb, offset + parsed_len, 1, ENC_LITTLE_ENDIAN);
+         parsed_len++;
+      }
+   }
+   else
+   {
+      proto_tree_add_item(tree, hf_cip_instance16, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(tree, hf_file_invocation_method, tvb, offset + 2, 1, ENC_LITTLE_ENDIAN);
+      parsed_len = 3;
+   }
+
+   return parsed_len;
+}
+
+static int dissect_file_initiate_download(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb, int offset, bool request)
+{
+   int parsed_len = 0;
+
+   if (request)
+   {
+      proto_tree_add_item(tree, hf_file_file_size, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(tree, hf_file_file_format_version, tvb, offset + 4, 2, ENC_LITTLE_ENDIAN);
+      dissect_file_revision(pinfo, tree, item, tvb, offset + 6, tvb_reported_length_remaining(tvb, offset + 6));
+      int string_len = dissect_cip_stringi(pinfo, tree, item, tvb, offset + 8);
+
+      parsed_len = 8 + string_len;
+   }
+   else
+   {
+      proto_tree_add_item(tree, hf_file_incremental_burn, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(tree, hf_file_incremental_burn_time, tvb, offset + 4, 2, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(tree, hf_file_transfer_size, tvb, offset + 6, 1, ENC_LITTLE_ENDIAN);
+
+      parsed_len = 7;
+   }
+
+   return parsed_len;
+}
+
+static int dissect_file_initiate_upload(packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, tvbuff_t *tvb, int offset, bool request)
+{
+   int parsed_len = 0;
+
+   if (request)
+   {
+      proto_tree_add_item(tree, hf_file_maximum_transfer_size, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+      parsed_len = 1;
+   }
+   else
+   {
+      proto_tree_add_item(tree, hf_file_file_size, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(tree, hf_file_transfer_size, tvb, offset + 4, 1, ENC_LITTLE_ENDIAN);
+
+      parsed_len = 5;
+   }
+
+   return parsed_len;
+}
+
+static int dissect_file_download_transfer(packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, tvbuff_t *tvb, int offset, bool request)
+{
+   int parsed_len = 0;
+
+   if (request)
+   {
+      proto_tree_add_item(tree, hf_file_transfer_number, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(tree, hf_file_transfer_packet_type, tvb, offset + 1, 1, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(tree, hf_file_data, tvb, offset + 2, tvb_reported_length_remaining(tvb, offset + 2), ENC_LITTLE_ENDIAN);
+
+      parsed_len = tvb_reported_length_remaining(tvb, offset);
+   }
+   else
+   {
+      proto_tree_add_item(tree, hf_file_transfer_number, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+
+      parsed_len = 1;
+   }
+
+   return parsed_len;
+}
+
+static int dissect_file_upload_transfer(packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, tvbuff_t *tvb, int offset, bool request)
+{
+   int parsed_len = 0;
+
+   if (request)
+   {
+      proto_tree_add_item(tree, hf_file_transfer_number, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+      parsed_len = 1;
+   }
+   else
+   {
+      proto_tree_add_item(tree, hf_file_transfer_number, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(tree, hf_file_transfer_packet_type, tvb, offset + 1, 1, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(tree, hf_file_data, tvb, offset + 2, tvb_reported_length_remaining(tvb, offset + 2), ENC_LITTLE_ENDIAN);
+
+      parsed_len = tvb_reported_length_remaining(tvb, offset);
+   }
+
+   return parsed_len;
+}
 
 /// Identity - Services
 static int dissect_identity_reset(packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, tvbuff_t *tvb, int offset, bool request)
@@ -4405,7 +4585,15 @@ static const attribute_info_t cip_attribute_vals[] = {
    {0x06, false, 13, 11, "Buff Size Remaining", cip_udint, &hf_conn_mgr_buff_size_remaining, NULL },
 
     /* File Object (instance attributes) */
-   {0x37, false, 4, -1, "File Name", cip_stringi, &hf_file_filename, NULL },
+   {0x37, CIP_ATTR_INSTANCE, 1, -1, "State", cip_usint, &hf_file_state, NULL },
+   {0x37, CIP_ATTR_INSTANCE, 2, -1, "Instance Name", cip_stringi, &hf_file_instance_name, NULL },
+   {0x37, CIP_ATTR_INSTANCE, 4, -1, "File Name", cip_stringi, &hf_file_filename, NULL },
+   {0x37, CIP_ATTR_INSTANCE, 5, -1, "File Revision", cip_dissector_func, NULL, dissect_file_revision },
+   {0x37, CIP_ATTR_INSTANCE, 6, -1, "File Size", cip_udint, &hf_file_file_size, NULL },
+   {0x37, CIP_ATTR_INSTANCE, 9, -1, "File Save Parameters", cip_byte, &hf_file_file_save_parametersd, NULL },
+   {0x37, CIP_ATTR_INSTANCE, 10, -1, "File Access Rule", cip_usint, &hf_file_file_access_rule, NULL },
+   {0x37, CIP_ATTR_INSTANCE, 11, -1, "File Encoding Format", cip_usint, &hf_file_encoding, NULL },
+   {0x37, CIP_ATTR_CLASS, 32, -1, "Directory", cip_dissector_func, NULL, dissect_file_directory },
 
     /* Time Sync Object (class attributes) */
    {0x43, true, 1, 0, CLASS_ATTRIBUTE_1_NAME, cip_uint, &hf_attr_class_revision, NULL },
@@ -4484,6 +4672,13 @@ static const attribute_info_t cip_attribute_vals[] = {
 // Table of CIP services defined by this dissector.
 static cip_service_info_t cip_obj_spec_service_table[] = {
     { 0x1, SC_RESET, "Reset", dissect_identity_reset },
+
+    { 0x37, SC_CREATE, "Create", dissect_file_create },
+    { 0x37, 0x4B, "Initiate_Upload", dissect_file_initiate_upload },
+    { 0x37, 0x4C, "Initiate_Download", dissect_file_initiate_download },
+    { 0x37, 0x4F, "Upload_Transfer", dissect_file_upload_transfer },
+    { 0x37, 0x50, "Download_Transfer", dissect_file_download_transfer },
+    { 0x37, 0x51, "Clear_File", NULL },
 };
 
 // Look up a given CIP service from this dissector.
@@ -9905,7 +10100,25 @@ proto_register_cip(void)
       { &hf_stringi_char_set, { "Char Set", "cip.stringi.char_set", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL } },
       { &hf_stringi_international_string, { "International String", "cip.stringi.int_string", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL } },
 
+      { &hf_file_data, { "Data", "cip.file.data", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+      { &hf_file_encoding, { "Encoding", "cip.file.encoding", FT_UINT8, BASE_DEC, VALS(cip_file_encoding_vals), 0, NULL, HFILL } },
+      { &hf_file_file_access_rule, { "File Access Rule", "cip.file.file_access_rule", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL } },
+      { &hf_file_file_format_version, { "File Format Version", "cip.file.file_format_version", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL } },
+      { &hf_file_file_save_parametersd, { "File Save Parameters", "cip.file.file_save_parameters", FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL } },
+      { &hf_file_file_size, { "File Size", "cip.file.file_size", FT_UINT32, BASE_DEC|BASE_UNIT_STRING, UNS(&units_byte_bytes), 0, NULL, HFILL } },
       { &hf_file_filename, { "File Name", "cip.file.file_name", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL } },
+      { &hf_file_incremental_burn_time, { "Incremental Burn Time", "cip.file.incremental_burn_time", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL } },
+      { &hf_file_incremental_burn, { "Incremental Burn", "cip.file.incremental_burn", FT_UINT32, BASE_DEC|BASE_UNIT_STRING, UNS(&units_byte_bytes), 0, NULL, HFILL } },
+      { &hf_file_instance_name, { "Instance Name", "cip.file.instance_name", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL } },
+      { &hf_file_invocation_method, { "Invocation Method", "cip.file.invocation_method", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL } },
+      { &hf_file_major_rev, { "Major Revision", "cip.file.major_rev", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+      { &hf_file_maximum_transfer_size, { "Maximum Transfer Size", "cip.file.maximum_transfer_size", FT_UINT8, BASE_DEC|BASE_UNIT_STRING, UNS(&units_byte_bytes), 0, NULL, HFILL } },
+      { &hf_file_minor_rev, { "Minor Revision", "cip.file.minor_rev", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+      { &hf_file_state, { "State", "cip.file.state", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL } },
+      { &hf_file_transfer_checksum, { "Transfer Checksum", "cip.file.transfer_checksum", FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL } },
+      { &hf_file_transfer_number, { "Transfer Number", "cip.file.transfer_number", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL } },
+      { &hf_file_transfer_packet_type, { "Transfer Packet Type", "cip.file.transfer_packet_type", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL } },
+      { &hf_file_transfer_size, { "Transfer Size", "cip.file.transfer_size", FT_UINT8, BASE_DEC|BASE_UNIT_STRING, UNS(&units_byte_bytes), 0, NULL, HFILL } },
 
       { &hf_time_sync_ptp_enable, { "PTP Enable", "cip.time_sync.ptp_enable", FT_BOOLEAN, BASE_NONE, TFS(&tfs_enabled_disabled), 0, NULL, HFILL }},
       { &hf_time_sync_is_synchronized, { "Is Synchronized", "cip.time_sync.is_synchronized", FT_BOOLEAN, BASE_NONE, NULL, 0, NULL, HFILL }},
