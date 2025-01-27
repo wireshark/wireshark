@@ -641,6 +641,7 @@ set(DISSECTOR_PUBLIC_HEADERS
 	packet-umts_rlc.h
 	packet-usb.h
 	packet-usb-hid.h
+	packet-usb-ptp.h
 	packet-usbip.h
 	packet-vxlan.h
 	packet-wap.h
@@ -2049,6 +2050,7 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-usb-i1d3.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-usb-masstorage.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-usb-printer.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-usb-ptp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-usb-video.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-usb.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-usbip.c
