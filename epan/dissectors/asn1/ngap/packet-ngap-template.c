@@ -194,6 +194,7 @@ static int ett_ngap_successfulPSCellChangeReportContainer;
 #include "packet-ngap-ett.c"
 
 static expert_field ei_ngap_number_pages_le15;
+static expert_field ei_ngap_disable_nrppa_encapsulation;
 
 enum{
   INITIATING_MESSAGE,
@@ -566,6 +567,7 @@ static const enum_val_t ngap_lte_container_vals[] = {
 /* Global variables */
 static range_t *gbl_ngapSctpRange;
 static bool ngap_dissect_container = true;
+static bool ngap_disable_nrppa_encapsulation = false;
 static int ngap_dissect_target_ng_ran_container_as = NGAP_NG_RAN_CONTAINER_AUTOMATIC;
 static int ngap_dissect_lte_container_as = NGAP_LTE_CONTAINER_AUTOMATIC;
 
@@ -984,12 +986,18 @@ find_n2_info_content(char *json_data, jsmntok_t *token, const char *n2_info_cont
   if (!str || strcmp(str, content_id))
     return false;
   str = json_get_string(json_data, n2_info_content_token, "ngapIeType");
-  if (str)
-    *subdissector = dissector_get_string_handle(ngap_n2_ie_type_dissector_table, str);
-  else if (json_get_double(json_data, n2_info_content_token, "ngapMessageType", &ngap_msg_type))
+  if (str) {
+    if (!strcmp(str, "NRPPA_PDU") && ngap_disable_nrppa_encapsulation) {
+      *subdissector = nrppa_handle;
+    } else {
+      *subdissector = dissector_get_string_handle(ngap_n2_ie_type_dissector_table, str);
+    }
+  } else if (json_get_double(json_data, n2_info_content_token,
+                             "ngapMessageType", &ngap_msg_type)) {
     *subdissector = ngap_handle;
-  else
+  } else {
     *subdissector = NULL;
+  }
   return true;
 }
 
@@ -1100,6 +1108,11 @@ found:
     if (subdissector != ngap_handle) {
         ngap_item = proto_tree_add_item(tree, proto_ngap, tvb, 0, -1, ENC_NA);
         ngap_tree = proto_item_add_subtree(ngap_item, ett_ngap);
+        if (ngap_disable_nrppa_encapsulation && subdissector == nrppa_handle) {
+          expert_add_info_format(pinfo, ngap_item,
+                                 &ei_ngap_disable_nrppa_encapsulation,
+                                 "Encapsulation of NRPPa in NGAP is disabled");
+        }
     } else {
         ngap_tree = tree;
     }
@@ -1489,7 +1502,10 @@ void proto_register_ngap(void) {
   };
 
   static ei_register_info ei[] = {
-    { &ei_ngap_number_pages_le15, { "ngap.number_pages_le15", PI_MALFORMED, PI_ERROR, "Number of pages should be <=15", EXPFILL }}
+    { &ei_ngap_number_pages_le15, { "ngap.number_pages_le15", PI_MALFORMED, PI_ERROR, "Number of pages should be <=15", EXPFILL }},
+    { &ei_ngap_disable_nrppa_encapsulation,
+      { "ngap.disable_nrppa_encapsulation", PI_PROTOCOL, PI_CHAT, "Encapsulation of NRPPa in NGAP is disabled", EXPFILL }
+    }
   };
 
   module_t *ngap_module;
@@ -1524,6 +1540,13 @@ void proto_register_ngap(void) {
                                  "Dissect TransparentContainer",
                                  "Dissect TransparentContainers that are opaque to NGAP",
                                  &ngap_dissect_container);
+  prefs_register_bool_preference(ngap_module, "disable_nrppa_encapsulation",
+                                 "Disable encapsulation of NRPPa in NGAP",
+                                 "The standard indicates that NRPPa PDU must "
+                                 "be encapsulated in ngap.NRPPa-PDU ASN1 type. "
+                                 "However, Huawei AMF use the NRPPa ASN1 type "
+                                 "directly.",
+                                 &ngap_disable_nrppa_encapsulation);
   prefs_register_enum_preference(ngap_module, "dissect_target_ng_ran_container_as",
                                  "Dissect target NG-RAN container as",
                                  "Select whether target NG-RAN container should be decoded automatically"
