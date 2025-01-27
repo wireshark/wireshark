@@ -106,15 +106,15 @@ PKG_CONFIG_VERSION=0.29.2
 #
 # libgpg-error is required for libgcrypt.
 #
-LIBGPG_ERROR_VERSION=1.47
+LIBGPG_ERROR_VERSION=1.51
 #
 # libgcrypt is required.
 #
-LIBGCRYPT_VERSION=1.10.2
+LIBGCRYPT_VERSION=1.11.0
 #
 # libpcre2 is required.
 #
-PCRE2_VERSION=10.39
+PCRE2_VERSION=10.44
 
 #
 # One or more of the following libraries are required to build Wireshark.
@@ -248,9 +248,9 @@ CSS_PARSER_VERSION=${CSS_PARSER_VERSION-1.12.0}
 # GNU autotools.  They're not supplied with the macOS versions we
 # support, and we currently use them for minizip.
 #
-AUTOCONF_VERSION=2.71
-AUTOMAKE_VERSION=1.16.5
-LIBTOOL_VERSION=2.4.6
+AUTOCONF_VERSION=2.72
+AUTOMAKE_VERSION=1.17
+LIBTOOL_VERSION=2.5.4
 
 install_curl() {
     if [ "$CURL_VERSION" ] && [ ! -f "curl-$CURL_VERSION-done" ] ; then
