@@ -120,6 +120,6 @@ extern int dissect_ingress_egress_set_rules(packet_info *pinfo, proto_tree *tree
 extern int dissect_lldp_cip_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 extern const value_string lldp_cip_subtypes[];
 
-extern const attribute_info_t enip_attribute_vals[118];
+extern const attribute_info_t enip_attribute_vals[125];
 
 #endif /* PACKET_ENIP_H */

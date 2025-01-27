@@ -690,6 +690,7 @@ extern int hf_attr_class_opt_service_num;
 extern int hf_attr_class_service_code;
 extern int hf_attr_class_num_class_attr;
 extern int hf_attr_class_num_inst_attr;
+extern int hf_cip_instance16;
 
 #define CLASS_ATTRIBUTE_1_NAME  "Revision"
 #define CLASS_ATTRIBUTE_2_NAME  "Max Instance"

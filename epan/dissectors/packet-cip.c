@@ -300,7 +300,7 @@ static int hf_cip_class8;
 static int hf_cip_class16;
 static int hf_cip_class32;
 static int hf_cip_instance8;
-static int hf_cip_instance16;
+int hf_cip_instance16;
 static int hf_cip_instance32;
 static int hf_cip_member8;
 static int hf_cip_member16;
