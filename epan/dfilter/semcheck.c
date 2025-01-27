@@ -585,7 +585,7 @@ mk_fvalue_from_val_string(dfwork_t *dfw, header_field_info *hfinfo, const char *
 {
 	fvalue_t *fv = NULL;
 	enum mk_result res;
-	uint64_t val;
+	uint64_t val = 0;
 
 	/* We might have more than one hfinfo with the same abbreviation. (#19111)
 	 * We can optimize to a number (or boolean) test if all fields map the
