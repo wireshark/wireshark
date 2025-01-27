@@ -370,6 +370,37 @@ static int hf_control_cs_capabilities_t_pm_capability_10us;
 static int hf_control_cs_capabilities_t_pm_capability_20us;
 static int hf_control_cs_capabilities_rfu3;
 static int hf_control_cs_capabilities_tx_snr_capability;
+static int hf_control_cs_config_req_config_id;
+static int hf_control_cs_config_req_action;
+static int hf_control_cs_config_req_channel_map_0;
+static int hf_control_cs_config_req_channel_map_1;
+static int hf_control_cs_config_req_channel_map_2;
+static int hf_control_cs_config_req_channel_map_3;
+static int hf_control_cs_config_req_channel_map_4;
+static int hf_control_cs_config_req_channel_map_5;
+static int hf_control_cs_config_req_channel_map_6;
+static int hf_control_cs_config_req_channel_map_7;
+static int hf_control_cs_config_req_channel_map_8;
+static int hf_control_cs_config_req_channel_map_9;
+static int hf_control_cs_config_req_channel_map_repetition;
+static int hf_control_cs_config_req_main_mode;
+static int hf_control_cs_config_req_sub_mode;
+static int hf_control_cs_config_req_main_mode_min_steps;
+static int hf_control_cs_config_req_main_mode_max_steps;
+static int hf_control_cs_config_req_main_mode_repetition;
+static int hf_control_cs_config_req_mode_0_steps;
+static int hf_control_cs_config_req_cs_sync_phy;
+static int hf_control_cs_config_req_rtt_type;
+static int hf_control_cs_config_req_role;
+static int hf_control_cs_config_req_rfu1;
+static int hf_control_cs_config_req_ch_sel;
+static int hf_control_cs_config_req_ch_3c_shape;
+static int hf_control_cs_config_req_ch_3c_jump;
+static int hf_control_cs_config_req_t_ip1;
+static int hf_control_cs_config_req_t_ip2;
+static int hf_control_cs_config_req_t_fcs;
+static int hf_control_cs_config_req_t_pm;
+static int hf_control_cs_config_req_rfu2;
 static int hf_big_control_opcode;
 static int hf_isochronous_data;
 static int hf_btle_l2cap_msg_fragments;
@@ -1719,6 +1750,97 @@ dissect_cs_capabilities_req_and_rsp(tvbuff_t *tvb, proto_tree *btle_tree, int of
 
     proto_tree_add_item(btle_tree, hf_control_cs_capabilities_rfu3, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(btle_tree, hf_control_cs_capabilities_tx_snr_capability, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset += 1;
+
+    return offset;
+}
+
+static int
+dissect_cs_config_req(tvbuff_t *tvb, proto_tree *btle_tree, int offset)
+{
+    proto_tree_add_item(btle_tree, hf_control_cs_config_req_config_id, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(btle_tree, hf_control_cs_config_req_action, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset += 1;
+
+    proto_tree_add_item(btle_tree, hf_control_cs_config_req_channel_map_0, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset += 1;
+
+    proto_tree_add_item(btle_tree, hf_control_cs_config_req_channel_map_1, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset += 1;
+
+    proto_tree_add_item(btle_tree, hf_control_cs_config_req_channel_map_2, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset += 1;
+
+    proto_tree_add_item(btle_tree, hf_control_cs_config_req_channel_map_3, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset += 1;
+
+    proto_tree_add_item(btle_tree, hf_control_cs_config_req_channel_map_4, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset += 1;
+
+    proto_tree_add_item(btle_tree, hf_control_cs_config_req_channel_map_5, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset += 1;
+
+    proto_tree_add_item(btle_tree, hf_control_cs_config_req_channel_map_6, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset += 1;
+
+    proto_tree_add_item(btle_tree, hf_control_cs_config_req_channel_map_7, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset += 1;
+
+    proto_tree_add_item(btle_tree, hf_control_cs_config_req_channel_map_8, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset += 1;
+
+    proto_tree_add_item(btle_tree, hf_control_cs_config_req_channel_map_9, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset += 1;
+
+    proto_tree_add_item(btle_tree, hf_control_cs_config_req_channel_map_repetition, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset += 1;
+
+    proto_tree_add_item(btle_tree, hf_control_cs_config_req_main_mode, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset += 1;
+
+    proto_tree_add_item(btle_tree, hf_control_cs_config_req_sub_mode, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset += 1;
+
+    proto_tree_add_item(btle_tree, hf_control_cs_config_req_main_mode_min_steps, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset += 1;
+
+    proto_tree_add_item(btle_tree, hf_control_cs_config_req_main_mode_max_steps, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset += 1;
+
+    proto_tree_add_item(btle_tree, hf_control_cs_config_req_main_mode_repetition, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset += 1;
+
+    proto_tree_add_item(btle_tree, hf_control_cs_config_req_mode_0_steps, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset += 1;
+
+    proto_tree_add_item(btle_tree, hf_control_cs_config_req_cs_sync_phy, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset += 1;
+
+    proto_tree_add_item(btle_tree, hf_control_cs_config_req_rtt_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(btle_tree, hf_control_cs_config_req_role, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(btle_tree, hf_control_cs_config_req_rfu1, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset += 1;
+
+    proto_tree_add_item(btle_tree, hf_control_cs_config_req_ch_sel, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(btle_tree, hf_control_cs_config_req_ch_3c_shape, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset += 1;
+
+    proto_tree_add_item(btle_tree, hf_control_cs_config_req_ch_3c_jump, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset += 1;
+
+    proto_tree_add_item(btle_tree, hf_control_cs_config_req_t_ip1, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset += 1;
+
+    proto_tree_add_item(btle_tree, hf_control_cs_config_req_t_ip2, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset += 1;
+
+    proto_tree_add_item(btle_tree, hf_control_cs_config_req_t_fcs, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset += 1;
+
+    proto_tree_add_item(btle_tree, hf_control_cs_config_req_t_pm, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset += 1;
+
+    proto_tree_add_item(btle_tree, hf_control_cs_config_req_rfu2, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset += 1;
 
     return offset;
@@ -4586,6 +4708,7 @@ dissect_btle_acl(tvbuff_t *tvb,
             }
             break;
         case LL_CTRL_OPCODE_LL_CS_CONFIG_REQ:
+            offset = dissect_cs_config_req(tvb, btle_tree, offset);
             if (connection_info && !btle_frame_info->retransmit && direction != BTLE_DIR_UNKNOWN) {
                 control_proc_start(tvb, pinfo, btle_tree, control_proc_item,
                                     connection_info->direction_info[direction].control_procs,
@@ -6812,6 +6935,161 @@ proto_register_btle(void)
         { &hf_control_cs_capabilities_tx_snr_capability,
             { "TX SNR capability", "btle.control.cs_tx_snr_capability",
             FT_UINT8, BASE_DEC, NULL, 0xfe,
+            NULL, HFILL }
+        },
+        { &hf_control_cs_config_req_config_id,
+            { "Config_ID", "btle.control.cs_config_req_config_id",
+            FT_UINT8, BASE_DEC, NULL, 0x3f,
+            NULL, HFILL }
+        },
+        { &hf_control_cs_config_req_action,
+            { "Action", "btle.control.cs_config_req_action",
+            FT_UINT8, BASE_DEC, NULL, 0xC0,
+            NULL, HFILL }
+        },
+        { &hf_control_cs_config_req_channel_map_0,
+            { "ChM 0...7", "btle.control.cs_config_req_channel_map_0",
+            FT_UINT8, BASE_HEX, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_control_cs_config_req_channel_map_1,
+            { "ChM 8...15", "btle.control.cs_config_req_channel_map_1",
+            FT_UINT8, BASE_HEX, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_control_cs_config_req_channel_map_2,
+            { "ChM 16...23", "btle.control.cs_config_req_channel_map_2",
+            FT_UINT8, BASE_HEX, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_control_cs_config_req_channel_map_3,
+            { "ChM 24...31", "btle.control.cs_config_req_channel_map_3",
+            FT_UINT8, BASE_HEX, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_control_cs_config_req_channel_map_4,
+            { "ChM 32...39", "btle.control.cs_config_req_channel_map_4",
+            FT_UINT8, BASE_HEX, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_control_cs_config_req_channel_map_5,
+            { "ChM 40...47", "btle.control.cs_config_req_channel_map_5",
+            FT_UINT8, BASE_HEX, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_control_cs_config_req_channel_map_6,
+            { "ChM 48...55", "btle.control.cs_config_req_channel_map_6",
+            FT_UINT8, BASE_HEX, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_control_cs_config_req_channel_map_7,
+            { "ChM 56...63", "btle.control.cs_config_req_channel_map_7",
+            FT_UINT8, BASE_HEX, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_control_cs_config_req_channel_map_8,
+            { "ChM 64...71", "btle.control.cs_config_req_channel_map_8",
+            FT_UINT8, BASE_HEX, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_control_cs_config_req_channel_map_9,
+            { "ChM 72...79", "btle.control.cs_config_req_channel_map_9",
+            FT_UINT8, BASE_HEX, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_control_cs_config_req_channel_map_repetition,
+            { "ChM_Repetition", "btle.control.cs_config_req_channel_map_repetition",
+            FT_UINT8, BASE_DEC, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_control_cs_config_req_main_mode,
+            { "Main_Mode", "btle.control.cs_config_req_main_mode",
+            FT_UINT8, BASE_DEC, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_control_cs_config_req_sub_mode,
+            { "Sub_Mode", "btle.control.cs_config_req_sub_mode",
+            FT_UINT8, BASE_DEC, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_control_cs_config_req_main_mode_min_steps,
+            { "Main_Mode_Min_Steps", "btle.control.cs_config_req_main_mode_min_steps",
+            FT_UINT8, BASE_DEC, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_control_cs_config_req_main_mode_max_steps,
+            { "Main_Mode_Max_Steps", "btle.control.cs_config_req_main_mode_max_steps",
+            FT_UINT8, BASE_DEC, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_control_cs_config_req_main_mode_repetition,
+            { "Main_Mode_Repetition", "btle.control.cs_config_req_main_mode_repetition",
+            FT_UINT8, BASE_DEC, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_control_cs_config_req_mode_0_steps,
+            { "Mode_0_Steps", "btle.control.cs_config_req_mode_0_steps",
+            FT_UINT8, BASE_DEC, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_control_cs_config_req_cs_sync_phy,
+            { "CS_SYNC_PHY", "btle.control.cs_config_req_cs_sync_phy",
+            FT_UINT8, BASE_DEC, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_control_cs_config_req_rtt_type,
+            { "RTT_TYPE", "btle.control.cs_config_req_rtt_type",
+            FT_UINT8, BASE_DEC, NULL, 0x0f,
+            NULL, HFILL }
+        },
+        { &hf_control_cs_config_req_role,
+            { "Role", "btle.control.cs_config_req_role",
+            FT_UINT8, BASE_DEC, NULL, 0x30,
+            NULL, HFILL }
+        },
+        { &hf_control_cs_config_req_rfu1,
+            { "Reserved for future use", "btle.control.cs_config_req_rfu1",
+            FT_UINT8, BASE_DEC, NULL, 0xc0,
+            NULL, HFILL }
+        },
+        { &hf_control_cs_config_req_ch_sel,
+            { "ChSel", "btle.control.cs_config_req_chsel",
+            FT_UINT8, BASE_DEC, NULL, 0x0f,
+            NULL, HFILL }
+        },
+        { &hf_control_cs_config_req_ch_3c_shape,
+            { "Ch3cShape", "btle.control.cs_config_req_ch_3c_shape",
+            FT_UINT8, BASE_DEC, NULL, 0xf0,
+            NULL, HFILL }
+        },
+        { &hf_control_cs_config_req_ch_3c_jump,
+            { "Ch3cJump", "btle.control.cs_config_req_ch_3c_jump",
+            FT_UINT8, BASE_DEC, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_control_cs_config_req_t_ip1,
+            { "T_IP1", "btle.control.cs_config_req_t_ip1",
+            FT_UINT8, BASE_DEC, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_control_cs_config_req_t_ip2,
+            { "T_IP2", "btle.control.cs_config_req_t_ip2",
+            FT_UINT8, BASE_DEC, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_control_cs_config_req_t_fcs,
+            { "T_FCS", "btle.control.cs_config_req_t_fcs",
+            FT_UINT8, BASE_DEC, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_control_cs_config_req_t_pm,
+            { "T_PM", "btle.control.cs_config_req_t_pm",
+            FT_UINT8, BASE_DEC, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_control_cs_config_req_rfu2,
+            { "Reserved for future use", "btle.control.cs_config_req_rfu2",
+            FT_UINT8, BASE_DEC, NULL, 0x00,
             NULL, HFILL }
         },
         { &hf_l2cap_index,
