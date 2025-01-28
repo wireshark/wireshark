@@ -331,10 +331,14 @@ class TestTsharkExtcap:
         except AttributeError:
             # Most Linux and NetBSD have ST_NOEXEC; Darwin and other *BSDs don't.
             pass
+        source_file = os.path.join(os.path.dirname(__file__), 'sampleif.py')
+        # If the git config core.fileMode is set to false, then the execute bit
+        # won't be set. Respect the security policy rather than overriding it.
+        if not os.access(home_path, os.X_OK):
+            pytest.skip('Test requires execute permission for sampleif.py (is git config core.fileMode false?)')
         extcap_dir_path = os.path.join(home_path, 'extcap')
         os.makedirs(extcap_dir_path)
         test_env['WIRESHARK_EXTCAP_DIR'] = extcap_dir_path
-        source_file = os.path.join(os.path.dirname(__file__), 'sampleif.py')
         # We run our tests in a bare, reproducible home environment. This can result in an
         # invalid or missing Python interpreter if our main environment has a wonky Python
         # path, as is the case in the GitLab SaaS macOS runners which use `asdf`. Force
