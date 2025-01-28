@@ -352,6 +352,9 @@ echo "Optional package libsmi-devel is unavailable"
 add_package ADDITIONAL_LIST opencore-amr-devel ||
 echo "Optional package opencore-amr-devel is unavailable" >&2
 
+add_package ADDITIONAL_LIST softhsm ||
+echo "Optional package softhsm is unavailable" >&2
+
 ACTUAL_LIST=$BASIC_LIST
 
 # Now arrange for optional support libraries
