@@ -401,6 +401,8 @@ static int hf_control_cs_config_req_t_ip2;
 static int hf_control_cs_config_req_t_fcs;
 static int hf_control_cs_config_req_t_pm;
 static int hf_control_cs_config_req_rfu2;
+static int hf_control_cs_config_rsp_config_id;
+static int hf_control_cs_config_rsp_rfu;
 static int hf_big_control_opcode;
 static int hf_isochronous_data;
 static int hf_btle_l2cap_msg_fragments;
@@ -1841,6 +1843,16 @@ dissect_cs_config_req(tvbuff_t *tvb, proto_tree *btle_tree, int offset)
     offset += 1;
 
     proto_tree_add_item(btle_tree, hf_control_cs_config_req_rfu2, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset += 1;
+
+    return offset;
+}
+
+static int
+dissect_cs_config_rsp(tvbuff_t *tvb, proto_tree *btle_tree, int offset)
+{
+    proto_tree_add_item(btle_tree, hf_control_cs_config_rsp_config_id, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(btle_tree, hf_control_cs_config_rsp_rfu, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset += 1;
 
     return offset;
@@ -4717,6 +4729,7 @@ dissect_btle_acl(tvbuff_t *tvb,
             }
             break;
         case LL_CTRL_OPCODE_LL_CS_CONFIG_RSP:
+            offset = dissect_cs_config_rsp(tvb, btle_tree, offset);
             if (connection_info && !btle_frame_info->retransmit && direction != BTLE_DIR_UNKNOWN) {
                 if (control_proc_can_add_frame(pinfo,
                                                 last_control_proc[other_direction],
@@ -7090,6 +7103,16 @@ proto_register_btle(void)
         { &hf_control_cs_config_req_rfu2,
             { "Reserved for future use", "btle.control.cs_config_req_rfu2",
             FT_UINT8, BASE_DEC, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_control_cs_config_rsp_config_id,
+            { "Config_ID", "btle.control.cs_config_rsp_config_id",
+            FT_UINT8, BASE_DEC, NULL, 0x3f,
+            NULL, HFILL }
+        },
+        { &hf_control_cs_config_rsp_rfu,
+            { "Reserved for future use", "btle.control.cs_config_rsp_rfu",
+            FT_UINT8, BASE_DEC, NULL, 0xc0,
             NULL, HFILL }
         },
         { &hf_l2cap_index,
