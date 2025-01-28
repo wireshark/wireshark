@@ -383,7 +383,7 @@ class TestDecryptDTLS:
         key_file = os.path.join(dirs.key_dir, 'udt-dtls.key')
         stdout = subprocess.check_output((cmd_tshark,
                 '-r', capture_file('udt-dtls.pcapng.gz'),
-                '-o', 'dtls.keys_list:0.0.0.0,0,data,{}'.format(key_file),
+                '-o', 'uat:rsa_keys:"{}",""'.format(key_file.replace('\\', '\\x5c')),
                 '-Y', 'dtls && udt.type==ack',
             ), encoding='utf-8', env=test_env)
         assert grep_output(stdout, 'UDT')
@@ -411,7 +411,7 @@ class TestDecryptTLS:
         key_file = os.path.join(dirs.key_dir, 'rsa-p-lt-q.key')
         stdout = subprocess.check_output((cmd_tshark,
                 '-r', capture_file('rsa-p-lt-q.pcap'),
-                '-o', 'tls.keys_list:0.0.0.0,443,http,{}'.format(key_file),
+                '-o', 'uat:ssl_keys:"","","","{}",""'.format(key_file.replace('\\', '\\x5c')),
                 '-Tfields',
                 '-e', 'http.request.uri',
                 '-Y', 'http',
@@ -468,7 +468,7 @@ class TestDecryptTLS:
         # Test protocol alias while at it (ssl -> tls)
         stdout = subprocess.check_output((cmd_tshark,
                 '-r', capture_file('tls-renegotiation.pcap'),
-                '-o', 'tls.keys_list:0.0.0.0,4433,http,{}'.format(key_file),
+                '-o', 'uat:rsa_keys:"{}",""'.format(key_file.replace('\\', '\\x5c')),
                 '-d', 'tcp.port==4433,ssl',
                 '-Tfields',
                 '-e', 'http.content_length',
@@ -617,7 +617,7 @@ class TestDecryptTLS:
         key_file = os.path.join(dirs.key_dir, 'tls-over-tls.key')
         output = subprocess.check_output((cmd_tshark,
                 '-r', capture_file('tls-over-tls.pcapng.gz'),
-                '-o', 'tls.keys_list:0.0.0.0,443,http,{}'.format(key_file),
+                '-o', 'uat:rsa_keys:"{}",""'.format(key_file.replace('\\', '\\x5c')),
                 '-z', 'expert,warn,tls.handshake.certificates',
                 '-Tfields',
                 '-e', 'tls.handshake.certificate_length',
