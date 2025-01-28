@@ -456,6 +456,17 @@ static int hf_control_cs_sec_pv_c;
 static int hf_control_cs_sec_iv_p;
 static int hf_control_cs_sec_in_p;
 static int hf_control_cs_sec_pv_p;
+static int hf_control_cs_channel_map_ind_0;
+static int hf_control_cs_channel_map_ind_1;
+static int hf_control_cs_channel_map_ind_2;
+static int hf_control_cs_channel_map_ind_3;
+static int hf_control_cs_channel_map_ind_4;
+static int hf_control_cs_channel_map_ind_5;
+static int hf_control_cs_channel_map_ind_6;
+static int hf_control_cs_channel_map_ind_7;
+static int hf_control_cs_channel_map_ind_8;
+static int hf_control_cs_channel_map_ind_9;
+static int hf_control_cs_channel_map_ind_instant;
 static int hf_big_control_opcode;
 static int hf_isochronous_data;
 static int hf_btle_l2cap_msg_fragments;
@@ -2095,6 +2106,45 @@ dissect_cs_sec_rsp(tvbuff_t *tvb, proto_tree *btle_tree, int offset)
 
     proto_tree_add_item(btle_tree, hf_control_cs_sec_pv_p, tvb, offset, 8, ENC_LITTLE_ENDIAN);
     offset += 8;
+
+    return offset;
+}
+
+static int
+dissect_cs_channel_map_ind(tvbuff_t *tvb, proto_tree *btle_tree, int offset)
+{
+    proto_tree_add_item(btle_tree, hf_control_cs_channel_map_ind_0, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset += 1;
+
+    proto_tree_add_item(btle_tree, hf_control_cs_channel_map_ind_1, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset += 1;
+
+    proto_tree_add_item(btle_tree, hf_control_cs_channel_map_ind_2, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset += 1;
+
+    proto_tree_add_item(btle_tree, hf_control_cs_channel_map_ind_3, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset += 1;
+
+    proto_tree_add_item(btle_tree, hf_control_cs_channel_map_ind_4, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset += 1;
+
+    proto_tree_add_item(btle_tree, hf_control_cs_channel_map_ind_5, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset += 1;
+
+    proto_tree_add_item(btle_tree, hf_control_cs_channel_map_ind_6, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset += 1;
+
+    proto_tree_add_item(btle_tree, hf_control_cs_channel_map_ind_7, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset += 1;
+
+    proto_tree_add_item(btle_tree, hf_control_cs_channel_map_ind_8, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset += 1;
+
+    proto_tree_add_item(btle_tree, hf_control_cs_channel_map_ind_9, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset += 1;
+
+    proto_tree_add_item(btle_tree, hf_control_cs_channel_map_ind_instant, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    offset += 2;
 
     return offset;
 }
@@ -5055,8 +5105,8 @@ dissect_btle_acl(tvbuff_t *tvb,
             }
             break;
         case LL_CTRL_OPCODE_LL_CS_CHANNEL_MAP_IND:
-            /* TODO: Parse Channel Sounding Channel Map Update procedu PDU
-             * and procedure termination. */
+            offset = dissect_cs_channel_map_ind(tvb, btle_tree, offset);
+            break;
         case LL_CTRL_OPCODE_LL_FRAME_SPACE_REQ:
             if (connection_info && !btle_frame_info->retransmit && direction != BTLE_DIR_UNKNOWN) {
                 control_proc_start(tvb, pinfo, btle_tree, control_proc_item,
@@ -7627,6 +7677,61 @@ proto_register_btle(void)
         { &hf_control_cs_sec_pv_p,
             { "CS_PV_P", "btle.control.cs_sec_pv_p",
             FT_UINT64, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_control_cs_channel_map_ind_0,
+            { "ChM channels 0...7", "btle.control.cs_channel_map_ind_0",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_control_cs_channel_map_ind_1,
+            { "ChM channels 8...15", "btle.control.cs_channel_map_ind_1",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_control_cs_channel_map_ind_2,
+            { "ChM channels 16...23", "btle.control.cs_channel_map_ind_2",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_control_cs_channel_map_ind_3,
+            { "ChM channels 24...31", "btle.control.cs_channel_map_ind_3",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_control_cs_channel_map_ind_4,
+            { "ChM channels 32...39", "btle.control.cs_channel_map_ind_4",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_control_cs_channel_map_ind_5,
+            { "ChM channels 40...47", "btle.control.cs_channel_map_ind_5",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_control_cs_channel_map_ind_6,
+            { "ChM channels 48...55", "btle.control.cs_channel_map_ind_6",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_control_cs_channel_map_ind_7,
+            { "ChM channels 56...63", "btle.control.cs_channel_map_ind_7",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_control_cs_channel_map_ind_8,
+            { "ChM channels 64...71", "btle.control.cs_channel_map_ind_8",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_control_cs_channel_map_ind_9,
+            { "ChM channels 72...79", "btle.control.cs_channel_map_ind_9",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_control_cs_channel_map_ind_instant,
+            { "Instant", "btle.control.cs_channel_map_ind_instant",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_l2cap_index,
