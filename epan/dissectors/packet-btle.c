@@ -446,6 +446,10 @@ static int hf_control_cs_ind_aci;
 static int hf_control_cs_ind_phy;
 static int hf_control_cs_ind_pwr_delta;
 static int hf_control_cs_ind_rfu2;
+static int hf_control_cs_terminate_config_id;
+static int hf_control_cs_terminate_rfu;
+static int hf_control_cs_terminate_proc_count;
+static int hf_control_cs_terminate_error_code;
 static int hf_big_control_opcode;
 static int hf_isochronous_data;
 static int hf_btle_l2cap_msg_fragments;
@@ -2038,6 +2042,22 @@ dissect_cs_ind(tvbuff_t *tvb, proto_tree *btle_tree, int offset)
     offset += 1;
 
     proto_tree_add_item(btle_tree, hf_control_cs_ind_rfu2, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset += 1;
+
+    return offset;
+}
+
+static int
+dissect_cs_terminate_req_and_rsp(tvbuff_t *tvb, proto_tree *btle_tree, int offset)
+{
+    proto_tree_add_item(btle_tree, hf_control_cs_terminate_config_id, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(btle_tree, hf_control_cs_terminate_rfu, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset += 1;
+
+    proto_tree_add_item(btle_tree, hf_control_cs_terminate_proc_count, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    offset += 2;
+
+    proto_tree_add_item(btle_tree, hf_control_cs_terminate_error_code, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset += 1;
 
     return offset;
@@ -4943,6 +4963,7 @@ dissect_btle_acl(tvbuff_t *tvb,
             offset = dissect_cs_ind(tvb, btle_tree, offset);
             break;
         case LL_CTRL_OPCODE_LL_CS_TERMINATE_REQ:
+            offset = dissect_cs_terminate_req_and_rsp(tvb, btle_tree, offset);
             if (connection_info && !btle_frame_info->retransmit && direction != BTLE_DIR_UNKNOWN) {
                 control_proc_start(tvb, pinfo, btle_tree, control_proc_item,
                                     connection_info->direction_info[direction].control_procs,
@@ -4951,6 +4972,7 @@ dissect_btle_acl(tvbuff_t *tvb,
             }
             break;
         case LL_CTRL_OPCODE_LL_CS_TERMINATE_RSP:
+            offset = dissect_cs_terminate_req_and_rsp(tvb, btle_tree, offset);
             if (connection_info && !btle_frame_info->retransmit && direction != BTLE_DIR_UNKNOWN) {
                 if (control_proc_can_add_frame(pinfo,
                                                 last_control_proc[other_direction],
@@ -7516,6 +7538,26 @@ proto_register_btle(void)
         },
         { &hf_control_cs_ind_rfu2,
             { "Reserved for future use", "btle.control.cs_ind_rfu2",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_control_cs_terminate_config_id,
+            { "Config_ID", "btle.control.cs_terminate_config_id",
+            FT_UINT8, BASE_DEC, NULL, 0x3f,
+            NULL, HFILL }
+        },
+        { &hf_control_cs_terminate_rfu,
+            { "Reserved for future use", "btle.control.cs_terminate_rfu",
+            FT_UINT8, BASE_DEC, NULL, 0xc0,
+            NULL, HFILL }
+        },
+        { &hf_control_cs_terminate_proc_count,
+            { "ProcCount", "btle.control.cs_terminate_proc_count",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_control_cs_terminate_error_code,
+            { "Error_Code", "btle.control.cs_terminate_error_code",
             FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
