@@ -59,21 +59,26 @@ typedef enum {
 	SMB2_EI_FINDPATTERN	/* find tracking  char * */
 } smb2_extra_info_t;
 typedef struct _smb2_saved_info_t {
-	uint8_t smb2_class;
-	uint8_t infolevel;
-	uint64_t msg_id;
-	uint32_t frame_req, frame_res;
-	nstime_t req_time;
-	uint8_t *preauth_hash_req, *preauth_hash_res;
+	uint8_t   smb2_class;
+	uint8_t   infolevel;
+	uint64_t  msg_id;
+	uint32_t  frame_req, frame_res;
+	nstime_t  req_time;
+	uint8_t  *preauth_hash_req, *preauth_hash_res;
 	smb2_fid_info_t *file;
-	e_ctx_hnd policy_hnd; 		/* for eo_smb tracking */
-	smb_eo_t	*eo_info_t;	/* for storing eo_smb infos */
-	uint64_t		file_offset;	/* needed file_offset for eo_smb */
-	uint32_t		bytes_moved;	/* needed for eo_smb */
-	void *extra_info;
+	e_ctx_hnd policy_hnd; 	/* for eo_smb tracking */
+	smb_eo_t *eo_info_t;	/* for storing eo_smb infos */
+	uint64_t  file_offset;	/* needed file_offset for eo_smb */
+	uint32_t  bytes_moved;	/* needed for eo_smb */
+	void     *extra_info;
 	smb2_extra_info_t extra_info_type;
-	uint32_t fid_hash;
-	uint16_t num_matched;
+	uint32_t  fid_hash;
+	uint16_t  num_matched;
+	proto_item *hnd_item;
+	e_guid_t  uuid_fid;
+	uint32_t frame_beg;  /* The create frame. */
+	uint32_t frame_end;  /* The close frame. */
+	const uint8_t *filename;
 } smb2_saved_info_t;
 
 typedef struct _smb2_tid_info_t {
