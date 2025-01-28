@@ -682,7 +682,7 @@ proto_register_usb_ptp(void)
         NULL                                          , 0x0                                     , NULL      , HFILL}}
         };
 
-    static int *usb_ptp_subtrees[] = {
+    static int *usb_ptp_ett[] = {
         &ett_usb_ptp,
         &ett_usb_ptp_device_info,
         &ett_usb_ptp_object_array,
@@ -698,7 +698,7 @@ proto_register_usb_ptp(void)
 
     proto_usb_ptp = proto_register_protocol("USB Picture Transfer Protocol", "USB-PTP", "usb-ptp");
     proto_register_field_array(proto_usb_ptp, hf, array_length(hf));
-    proto_register_subtree_array(usb_ptp_subtrees, array_length(usb_ptp_subtrees));
+    proto_register_subtree_array(usb_ptp_ett, array_length(usb_ptp_ett));
     expert_usb_ptp = expert_register_protocol(proto_usb_ptp);
     expert_register_field_array(expert_usb_ptp, ei, array_length(ei));
 

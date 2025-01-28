@@ -625,7 +625,7 @@ class ValueString:
                             break
 
                     if not excepted and len(label)>2:
-                        print('Warning:', self.file, ': value_string', self.name, '- label ', label, 'repeated')
+                        print('Warning:', self.file, ': value_string', self.name, '- label', label, 'repeated, value now', value)
                         warnings_found += 1
                 else:
                     self.seen_labels.add(label)
@@ -1101,6 +1101,7 @@ class ExpertEntries:
         global errors_found, warnings_found
 
         # If summaries are not unique, can't tell apart from expert window (need to look into frame to see details)
+        # TODO: summary strings will never be seen if all calls to that item use expert_add_info_format()
         if (entry.summary, entry.severity) in self.summaries:
             print('Warning:', self.filename, 'Expert summary', '"' + entry.summary + '"',
                   'has already been seen (now in', entry.name, '- previously in', self.summary_reverselookup[entry.summary], ')')
