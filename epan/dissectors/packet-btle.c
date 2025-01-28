@@ -450,6 +450,12 @@ static int hf_control_cs_terminate_config_id;
 static int hf_control_cs_terminate_rfu;
 static int hf_control_cs_terminate_proc_count;
 static int hf_control_cs_terminate_error_code;
+static int hf_control_cs_sec_iv_c;
+static int hf_control_cs_sec_in_c;
+static int hf_control_cs_sec_pv_c;
+static int hf_control_cs_sec_iv_p;
+static int hf_control_cs_sec_in_p;
+static int hf_control_cs_sec_pv_p;
 static int hf_big_control_opcode;
 static int hf_isochronous_data;
 static int hf_btle_l2cap_msg_fragments;
@@ -2059,6 +2065,36 @@ dissect_cs_terminate_req_and_rsp(tvbuff_t *tvb, proto_tree *btle_tree, int offse
 
     proto_tree_add_item(btle_tree, hf_control_cs_terminate_error_code, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset += 1;
+
+    return offset;
+}
+
+static int
+dissect_cs_sec_req(tvbuff_t *tvb, proto_tree *btle_tree, int offset)
+{
+    proto_tree_add_item(btle_tree, hf_control_cs_sec_iv_c, tvb, offset, 8, ENC_LITTLE_ENDIAN);
+    offset += 8;
+
+    proto_tree_add_item(btle_tree, hf_control_cs_sec_in_c, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    offset += 4;
+
+    proto_tree_add_item(btle_tree, hf_control_cs_sec_pv_c, tvb, offset, 8, ENC_LITTLE_ENDIAN);
+    offset += 8;
+
+    return offset;
+}
+
+static int
+dissect_cs_sec_rsp(tvbuff_t *tvb, proto_tree *btle_tree, int offset)
+{
+    proto_tree_add_item(btle_tree, hf_control_cs_sec_iv_p, tvb, offset, 8, ENC_LITTLE_ENDIAN);
+    offset += 8;
+
+    proto_tree_add_item(btle_tree, hf_control_cs_sec_in_p, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    offset += 4;
+
+    proto_tree_add_item(btle_tree, hf_control_cs_sec_pv_p, tvb, offset, 8, ENC_LITTLE_ENDIAN);
+    offset += 8;
 
     return offset;
 }
@@ -4866,6 +4902,7 @@ dissect_btle_acl(tvbuff_t *tvb,
             }
             break;
         case LL_CTRL_OPCODE_LL_CS_SEC_REQ:
+            offset = dissect_cs_sec_req(tvb, btle_tree, offset);
             if (connection_info && !btle_frame_info->retransmit) {
                 /* The LL_CTRL_OPCODE_LL_CS_SEC_REQ can only be sent from central to peripheral. */
                 if (direction == BTLE_DIR_CENTRAL_PERIPHERAL) {
@@ -4879,6 +4916,7 @@ dissect_btle_acl(tvbuff_t *tvb,
             }
             break;
         case LL_CTRL_OPCODE_LL_CS_SEC_RSP:
+            offset = dissect_cs_sec_rsp(tvb, btle_tree, offset);
             if (connection_info && !btle_frame_info->retransmit && direction != BTLE_DIR_UNKNOWN) {
                 if (control_proc_can_add_frame(pinfo,
                                                 last_control_proc[other_direction],
@@ -7559,6 +7597,36 @@ proto_register_btle(void)
         { &hf_control_cs_terminate_error_code,
             { "Error_Code", "btle.control.cs_terminate_error_code",
             FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_control_cs_sec_iv_c,
+            { "CS_IV_C", "btle.control.cs_sec_iv_c",
+            FT_UINT64, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_control_cs_sec_in_c,
+            { "CS_IN_C", "btle.control.cs_sec_in_c",
+            FT_UINT32, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_control_cs_sec_pv_c,
+            { "CS_PV_C", "btle.control.cs_sec_pv_c",
+            FT_UINT64, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_control_cs_sec_iv_p,
+            { "CS_IV_P", "btle.control.cs_sec_iv_p",
+            FT_UINT64, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_control_cs_sec_in_p,
+            { "CS_IN_P", "btle.control.cs_sec_in_p",
+            FT_UINT32, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_control_cs_sec_pv_p,
+            { "CS_PV_P", "btle.control.cs_sec_pv_p",
+            FT_UINT64, BASE_HEX, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_l2cap_index,
