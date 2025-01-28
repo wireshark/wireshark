@@ -403,6 +403,24 @@ static int hf_control_cs_config_req_t_pm;
 static int hf_control_cs_config_req_rfu2;
 static int hf_control_cs_config_rsp_config_id;
 static int hf_control_cs_config_rsp_rfu;
+static int hf_control_cs_req_config_id;
+static int hf_control_cs_req_rfu;
+static int hf_control_cs_req_conn_event_count;
+static int hf_control_cs_req_offset_min;
+static int hf_control_cs_req_offset_max;
+static int hf_control_cs_req_max_procedure_len;
+static int hf_control_cs_req_event_interval;
+static int hf_control_cs_req_subevents_per_event;
+static int hf_control_cs_req_subevent_interval;
+static int hf_control_cs_req_subevent_len;
+static int hf_control_cs_req_procedure_interval;
+static int hf_control_cs_req_procedure_count;
+static int hf_control_cs_req_aci;
+static int hf_control_cs_req_preferred_peer_ant;
+static int hf_control_cs_req_phy;
+static int hf_control_cs_req_pwr_delta;
+static int hf_control_cs_req_tx_snr_i;
+static int hf_control_cs_req_tx_snr_r;
 static int hf_big_control_opcode;
 static int hf_isochronous_data;
 static int hf_btle_l2cap_msg_fragments;
@@ -1853,6 +1871,65 @@ dissect_cs_config_rsp(tvbuff_t *tvb, proto_tree *btle_tree, int offset)
 {
     proto_tree_add_item(btle_tree, hf_control_cs_config_rsp_config_id, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(btle_tree, hf_control_cs_config_rsp_rfu, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset += 1;
+
+    return offset;
+}
+
+static int
+dissect_cs_req(tvbuff_t *tvb, proto_tree *btle_tree, int offset)
+{
+    proto_tree_add_item(btle_tree, hf_control_cs_req_config_id, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(btle_tree, hf_control_cs_req_rfu, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset += 1;
+
+    proto_tree_add_item(btle_tree, hf_control_cs_req_conn_event_count, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    offset += 2;
+
+    proto_tree_add_item(btle_tree, hf_control_cs_req_offset_min, tvb, offset, 3, ENC_LITTLE_ENDIAN);
+    offset += 3;
+
+    proto_tree_add_item(btle_tree, hf_control_cs_req_offset_max, tvb, offset, 3, ENC_LITTLE_ENDIAN);
+    offset += 3;
+
+    uint32_t item_value = 0;
+    proto_item * item = NULL;
+    item = proto_tree_add_item_ret_uint(btle_tree, hf_control_cs_req_max_procedure_len, tvb, offset, 2, ENC_LITTLE_ENDIAN, &item_value);
+    proto_item_append_text(item, " (%g msec)", item_value*0.625);
+    offset += 2;
+
+    proto_tree_add_item(btle_tree, hf_control_cs_req_event_interval, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    offset += 2;
+
+    proto_tree_add_item(btle_tree, hf_control_cs_req_subevents_per_event, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset += 1;
+
+    proto_tree_add_item(btle_tree, hf_control_cs_req_subevent_interval, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    offset += 2;
+
+    proto_tree_add_item(btle_tree, hf_control_cs_req_subevent_len, tvb, offset, 3, ENC_LITTLE_ENDIAN);
+    offset += 3;
+
+    proto_tree_add_item(btle_tree, hf_control_cs_req_procedure_interval, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    offset += 2;
+
+    proto_tree_add_item(btle_tree, hf_control_cs_req_procedure_count, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    offset += 2;
+
+    proto_tree_add_item(btle_tree, hf_control_cs_req_aci, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset += 1;
+
+    proto_tree_add_item(btle_tree, hf_control_cs_req_preferred_peer_ant, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset += 1;
+
+    proto_tree_add_item(btle_tree, hf_control_cs_req_phy, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset += 1;
+
+    proto_tree_add_item(btle_tree, hf_control_cs_req_pwr_delta, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset += 1;
+
+    proto_tree_add_item(btle_tree, hf_control_cs_req_tx_snr_i, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(btle_tree, hf_control_cs_req_tx_snr_r, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset += 1;
 
     return offset;
@@ -4748,6 +4825,8 @@ dissect_btle_acl(tvbuff_t *tvb,
             }
             break;
         case LL_CTRL_OPCODE_LL_CS_REQ:
+            offset = dissect_cs_req(tvb, btle_tree, offset);
+            break;
         case LL_CTRL_OPCODE_LL_CS_RSP:
         case LL_CTRL_OPCODE_LL_CS_IND:
             /* TODO: Parse channel sounding start procedure PDUs and
@@ -7113,6 +7192,96 @@ proto_register_btle(void)
         { &hf_control_cs_config_rsp_rfu,
             { "Reserved for future use", "btle.control.cs_config_rsp_rfu",
             FT_UINT8, BASE_DEC, NULL, 0xc0,
+            NULL, HFILL }
+        },
+        { &hf_control_cs_req_config_id,
+            { "Config_ID", "btle.control.cs_req_config_id",
+            FT_UINT8, BASE_DEC, NULL, 0x3f,
+            NULL, HFILL }
+        },
+        { &hf_control_cs_req_rfu,
+            { "Reserved for future use", "btle.control.cs_req_rfu",
+            FT_UINT8, BASE_DEC, NULL, 0xc0,
+            NULL, HFILL }
+        },
+        { &hf_control_cs_req_conn_event_count,
+            { "ConnectionEventCount", "btle.control.cs_req_conn_event_count",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_control_cs_req_offset_min,
+            { "Offset_Min us", "btle.control.cs_req_offset_min",
+            FT_UINT24, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_control_cs_req_offset_max,
+            { "Offset_Max us", "btle.control.cs_req_offset_max",
+            FT_UINT24, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_control_cs_req_max_procedure_len,
+            { "Max_Procedure_Len", "btle.control.cs_req_max_procedure_len",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_control_cs_req_event_interval,
+            { "Event_Interval", "btle.control.cs_req_event_interval",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_control_cs_req_subevents_per_event,
+            { "Subevents_Per_Event", "btle.control.cs_req_subevent_per_event",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_control_cs_req_subevent_interval,
+            { "Subevent_Interval", "btle.control.cs_req_subevent_interval",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_control_cs_req_subevent_len,
+            { "Subevent_Len us", "btle.control.cs_req_subevent_len",
+            FT_UINT24, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_control_cs_req_procedure_interval,
+            { "Procedure_Interval", "btle.control.cs_req_procedure_interval",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_control_cs_req_procedure_count,
+            { "Procedure_Count", "btle.control.cs_req_procedure_count",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_control_cs_req_aci,
+            { "ACI", "btle.control.cs_req_aci",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_control_cs_req_preferred_peer_ant,
+            { "Preferred_Peer_Ant", "btle.control.cs_req_preferred_peer_ant",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_control_cs_req_phy,
+            { "PHY", "btle.control.cs_req_phy",
+            FT_UINT8, BASE_DEC, VALS(le_phys), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_control_cs_req_pwr_delta,
+            { "Pwr_Delta", "btle.control.cs_req_pwr_delta",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_control_cs_req_tx_snr_i,
+            { "TX_SNR_I", "btle.control.cs_req_tx_snr_i",
+            FT_UINT8, BASE_DEC, NULL, 0x0f,
+            NULL, HFILL }
+        },
+        { &hf_control_cs_req_tx_snr_r,
+            { "TX_SNR_R", "btle.control.cs_req_tx_snr_r",
+            FT_UINT8, BASE_DEC, NULL, 0xf0,
             NULL, HFILL }
         },
         { &hf_l2cap_index,
