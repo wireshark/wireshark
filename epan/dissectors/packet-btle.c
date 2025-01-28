@@ -434,6 +434,18 @@ static int hf_control_cs_rsp_aci;
 static int hf_control_cs_rsp_phy;
 static int hf_control_cs_rsp_pwr_delta;
 static int hf_control_cs_rsp_rfu2;
+static int hf_control_cs_ind_config_id;
+static int hf_control_cs_ind_rfu1;
+static int hf_control_cs_ind_conn_event_count;
+static int hf_control_cs_ind_offset;
+static int hf_control_cs_ind_event_interval;
+static int hf_control_cs_ind_subevents_per_event;
+static int hf_control_cs_ind_subevent_interval;
+static int hf_control_cs_ind_subevent_len;
+static int hf_control_cs_ind_aci;
+static int hf_control_cs_ind_phy;
+static int hf_control_cs_ind_pwr_delta;
+static int hf_control_cs_ind_rfu2;
 static int hf_big_control_opcode;
 static int hf_isochronous_data;
 static int hf_btle_l2cap_msg_fragments;
@@ -1986,6 +1998,46 @@ dissect_cs_rsp(tvbuff_t *tvb, proto_tree *btle_tree, int offset)
     offset += 1;
 
     proto_tree_add_item(btle_tree, hf_control_cs_rsp_rfu2, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset += 1;
+
+    return offset;
+}
+
+static int
+dissect_cs_ind(tvbuff_t *tvb, proto_tree *btle_tree, int offset)
+{
+    proto_tree_add_item(btle_tree, hf_control_cs_ind_config_id, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(btle_tree, hf_control_cs_ind_rfu1, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset += 1;
+
+    proto_tree_add_item(btle_tree, hf_control_cs_ind_conn_event_count, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    offset += 2;
+
+    proto_tree_add_item(btle_tree, hf_control_cs_ind_offset, tvb, offset, 3, ENC_LITTLE_ENDIAN);
+    offset += 3;
+
+    proto_tree_add_item(btle_tree, hf_control_cs_ind_event_interval, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    offset += 2;
+
+    proto_tree_add_item(btle_tree, hf_control_cs_ind_subevents_per_event, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset += 1;
+
+    proto_tree_add_item(btle_tree, hf_control_cs_ind_subevent_interval, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    offset += 2;
+
+    proto_tree_add_item(btle_tree, hf_control_cs_ind_subevent_len, tvb, offset, 3, ENC_LITTLE_ENDIAN);
+    offset += 3;
+
+    proto_tree_add_item(btle_tree, hf_control_cs_ind_aci, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset += 1;
+
+    proto_tree_add_item(btle_tree, hf_control_cs_ind_phy, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset += 1;
+
+    proto_tree_add_item(btle_tree, hf_control_cs_ind_pwr_delta, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset += 1;
+
+    proto_tree_add_item(btle_tree, hf_control_cs_ind_rfu2, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset += 1;
 
     return offset;
@@ -4881,14 +4933,14 @@ dissect_btle_acl(tvbuff_t *tvb,
             }
             break;
         case LL_CTRL_OPCODE_LL_CS_REQ:
+            /* TODO: add validation of control procedure flow using control_proc_start() */
             offset = dissect_cs_req(tvb, btle_tree, offset);
             break;
         case LL_CTRL_OPCODE_LL_CS_RSP:
             offset = dissect_cs_rsp(tvb, btle_tree, offset);
             break;
         case LL_CTRL_OPCODE_LL_CS_IND:
-            /* TODO: Parse channel sounding start procedure PDUs and
-             * procedure termination. */
+            offset = dissect_cs_ind(tvb, btle_tree, offset);
             break;
         case LL_CTRL_OPCODE_LL_CS_TERMINATE_REQ:
             if (connection_info && !btle_frame_info->retransmit && direction != BTLE_DIR_UNKNOWN) {
@@ -7404,6 +7456,66 @@ proto_register_btle(void)
         },
         { &hf_control_cs_rsp_rfu2,
             { "Reserved for future use", "btle.control.cs_rsp_rfu2",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_control_cs_ind_config_id,
+            { "Config_ID", "btle.control.cs_ind_config_id",
+            FT_UINT8, BASE_DEC, NULL, 0x3f,
+            NULL, HFILL }
+        },
+        { &hf_control_cs_ind_rfu1,
+            { "Reserved for future use", "btle.control.cs_ind_rfu1",
+            FT_UINT8, BASE_DEC, NULL, 0xc0,
+            NULL, HFILL }
+        },
+        { &hf_control_cs_ind_conn_event_count,
+            { "ConnectionEventCount", "btle.control.cs_ind_conn_event_count",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_control_cs_ind_offset,
+            { "Offset us", "btle.control.cs_ind_offset",
+            FT_UINT24, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_control_cs_ind_event_interval,
+            { "Event_Interval", "btle.control.cs_ind_event_interval",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_control_cs_ind_subevents_per_event,
+            { "Subevents_Per_Event", "btle.control.cs_ind_subevent_per_event",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_control_cs_ind_subevent_interval,
+            { "Subevent_Interval", "btle.control.cs_ind_subevent_interval",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_control_cs_ind_subevent_len,
+            { "Subevent_Len us", "btle.control.cs_ind_subevent_len",
+            FT_UINT24, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_control_cs_ind_aci,
+            { "ACI", "btle.control.cs_ind_aci",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_control_cs_ind_phy,
+            { "PHY", "btle.control.cs_ind_phy",
+            FT_UINT8, BASE_DEC, VALS(le_phys), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_control_cs_ind_pwr_delta,
+            { "Pwr_Delta", "btle.control.cs_ind_pwr_delta",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_control_cs_ind_rfu2,
+            { "Reserved for future use", "btle.control.cs_ind_rfu2",
             FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
