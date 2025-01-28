@@ -6728,7 +6728,7 @@ void
 tls_save_crandom(SslDecryptSession *ssl, ssl_master_key_map_t *mk_map)
 {
     if (ssl && (ssl->state & SSL_CLIENT_RANDOM)) {
-        g_hash_table_add(mk_map->used_crandom, &ssl->client_random);
+        g_hash_table_add(mk_map->used_crandom, ssl_data_clone(&ssl->client_random));
     }
 }
 
