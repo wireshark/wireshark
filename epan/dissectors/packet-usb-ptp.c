@@ -36,6 +36,7 @@
 
 #include <glib.h>
 #include <wsutil/wmem/wmem.h>
+#include <wsutil/array.h>
 #include <epan/conversation.h>
 #include <epan/expert.h>
 #include <epan/packet.h>
@@ -199,10 +200,10 @@ static void
 proto_tree_add_item_mask(packet_info *pinfo,proto_tree *tree, usb_conv_info_t* usb_conv_info, int hf,
         tvbuff_t *tvb, const int length, const int offset, const int add_info, const usb_ptp_value_string_masked_t *vals)
 {
-    const usb_ptp_value_string_masked_t *vsm               = NULL;
-    usb_ptp_conv_info_t         *usb_ptp_conv_info = NULL;
-    uint16_t                     val;
-    const char                  *desc              = "";
+    const usb_ptp_value_string_masked_t *vsm = NULL;
+    usb_ptp_conv_info_t *usb_ptp_conv_info = NULL;
+    uint16_t val;
+    const char *desc;
 
     /* If we're parsing a command parameter the parameter field is 32-bits, but we're only using 16-bits for these tables.
      * MSBs are silently dropped  */
@@ -226,7 +227,7 @@ proto_tree_add_item_mask(packet_info *pinfo,proto_tree *tree, usb_conv_info_t* u
 
 /* Add a PTP-style unicode string*/
 static int
-usb_ptp_add_uint_string(proto_tree *tree, int hf, tvbuff_t *tvb, int offset, char* save_to)
+usb_ptp_add_uint_string(proto_tree *tree, int hf, tvbuff_t *tvb, int offset, char* save_to _U_)
 {
     uint8_t length;
     char    *str;
@@ -239,8 +240,7 @@ usb_ptp_add_uint_string(proto_tree *tree, int hf, tvbuff_t *tvb, int offset, cha
     offset += length;
 
     /* Save to data structure (optional) */
-    if (save_to)
-        save_to = g_strdup(str);
+    save_to = g_strdup(str);
 
     return offset;
 }
@@ -353,7 +353,7 @@ dissect_usb_ptp_get_device_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *p
     offset = usb_ptp_add_uint_string(tree,hf_devinfo_manufacturer      ,tvb,offset,usb_ptp_device_info->Manufacturer);
     offset = usb_ptp_add_uint_string(tree,hf_devinfo_model             ,tvb,offset,usb_ptp_device_info->Model);
     offset = usb_ptp_add_uint_string(tree,hf_devinfo_deviceversion     ,tvb,offset,usb_ptp_device_info->DeviceVersion);
-    offset = usb_ptp_add_uint_string(tree,hf_devinfo_serialnumber      ,tvb,offset,usb_ptp_device_info->SerialNumber);
+    /*offset = */usb_ptp_add_uint_string(tree,hf_devinfo_serialnumber      ,tvb,offset,usb_ptp_device_info->SerialNumber);
 
     /* Post Proc of this table */
 
@@ -416,7 +416,7 @@ dissect_usb_ptp_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, usb
                 /*case USB_PTP_OC_SETDEVICEPROPVALUE: TODO
                  *    return dissect_usb_ptp_set_device_prop_value(tvb,pinfo,tree,offset); */
                 case USB_PTP_OC_GETOBJECTPROPSSUPPORTED:
-                    offset = usb_ptp_add_array_is(pinfo,tree,usb_conv_info,hf_cmd_objpropcode,tvb,offset,"OBJECT PROPERTY CODES",usb_ptp_opc_mvals);
+                    /*offset = */usb_ptp_add_array_is(pinfo,tree,usb_conv_info,hf_cmd_objpropcode,tvb,offset,"OBJECT PROPERTY CODES",usb_ptp_opc_mvals);
                     return;
                 default:
                     break;
@@ -482,7 +482,7 @@ dissect_usb_ptp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void
     const char *ptp_code_desc = "";
     const char *col_class = "?";
     usb_ptp_conv_info_t *usb_ptp_conv_info;
-    const usb_ptp_value_string_masked_t *vsm;
+    const usb_ptp_value_string_masked_t *vsm = NULL;
 
     length_tvb = tvb_captured_length(tvb);
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "USB-PTP");
