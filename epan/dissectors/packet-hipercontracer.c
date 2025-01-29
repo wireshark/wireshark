@@ -44,7 +44,7 @@ static hf_register_info hf[] = {
   { &hf_round,          { "Round",           "hipercontracer.round",          FT_UINT8,  BASE_DEC, NULL,                 0x0, "The round number the packet belongs to",                                HFILL } },
   { &hf_checksum_tweak, { "Checksum Tweak",  "hipercontracer.checksum_tweak", FT_UINT16, BASE_HEX, NULL,                 0x0, "A 16-bit value to ensure a given checksum for the ICMP/ICMPv6 message", HFILL } },
   { &hf_seq_number,     { "Sequence Number", "hipercontracer.seq_number",     FT_UINT16, BASE_DEC, NULL,                 0x0, "A 16-bit sequence number",                                              HFILL } },
-  { &hf_send_timestamp, { "Send Time Stamp", "hipercontracer.send_timestamp", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL, 0x0, "The send time stamp (microseconds since September 29, 1976, 00:00:00)", HFILL } }
+  { &hf_send_timestamp, { "Send Time Stamp", "hipercontracer.send_timestamp", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL, 0x0, "The send time stamp (time since September 29, 1976, 00:00:00.000000000)", HFILL } }
 };
 
 
@@ -53,7 +53,6 @@ heur_dissect_hipercontracer(tvbuff_t *message_tvb, packet_info *pinfo, proto_tre
 {
   proto_item* hipercontracer_item;
   proto_tree* hipercontracer_tree;
-  uint64_t    timestamp;
   nstime_t    t;
 
   // Check length
@@ -94,12 +93,15 @@ heur_dissect_hipercontracer(tvbuff_t *message_tvb, packet_info *pinfo, proto_tre
     return false;
 
   // Check for plausible send time stamp:
-  // * After:  01.01.2016 00:00:00.000000
-  // * Before: 31.12.2099 23:59.59.999999
-  // Time stamp is microseconds since 29.09.1976 00:00:00.000000.
-  sendTimeStamp += UINT64_C(212803200000000);
-  if ( (sendTimeStamp < UINT64_C(1451602800000000)) ||
-       (sendTimeStamp > UINT64_C(4102441199999999)) )
+  // * After:  01.01.2016 00:00:00.000000000
+  // * Before: 31.12.2099 23:59.59.999999999
+  // HiPerConTracer 1.x: Time stamp is microseconds since 29.09.1976 00:00:00.000000000
+  // HiPerConTracer 2.x: Time stamp is nanoseconds since 29.09.1976 00:00:00.000000000
+  if (sendTimeStamp <= UINT64_C(4102441199999999))
+    sendTimeStamp = sendTimeStamp * UINT64_C(1000);   // HiPerConTracer 1.x -> convert to nanoseconds
+  sendTimeStamp += UINT64_C(212803200000000000);
+  if ( (sendTimeStamp < UINT64_C(1451602800000000000)) ||
+       (sendTimeStamp > UINT64_C(4102441199999999999)) )
     return false;
 
   col_append_sep_fstr(pinfo->cinfo, COL_PROTOCOL, NULL, "HiPerConTracer");
@@ -109,9 +111,9 @@ heur_dissect_hipercontracer(tvbuff_t *message_tvb, packet_info *pinfo, proto_tre
   hipercontracer_tree = proto_item_add_subtree(hipercontracer_item, ett_hipercontracer);
 
   // Dissect the message
-  proto_tree_add_item(hipercontracer_tree, hf_magic_number,   message_tvb, 0, 4, ENC_BIG_ENDIAN);
-  proto_tree_add_item(hipercontracer_tree, hf_send_ttl,       message_tvb, 4, 1, ENC_BIG_ENDIAN);
-  proto_tree_add_item(hipercontracer_tree, hf_round,          message_tvb, 5, 1, ENC_BIG_ENDIAN);
+  proto_tree_add_item(hipercontracer_tree, hf_magic_number, message_tvb, 0, 4, ENC_BIG_ENDIAN);
+  proto_tree_add_item(hipercontracer_tree, hf_send_ttl,     message_tvb, 4, 1, ENC_BIG_ENDIAN);
+  proto_tree_add_item(hipercontracer_tree, hf_round,        message_tvb, 5, 1, ENC_BIG_ENDIAN);
   if (pinfo->ptype == PT_NONE) {
      // ICMP or ICMPv6 do not have ports -> Checksum Tweak field
      proto_tree_add_item(hipercontracer_tree, hf_checksum_tweak, message_tvb, 6, 2, ENC_BIG_ENDIAN);
@@ -121,10 +123,9 @@ heur_dissect_hipercontracer(tvbuff_t *message_tvb, packet_info *pinfo, proto_tre
      proto_tree_add_item(hipercontracer_tree, hf_seq_number, message_tvb, 6, 2, ENC_BIG_ENDIAN);
   }
 
-  // Time stamp is microseconds since 29.09.1976 00:00:00.000000.
-  timestamp = tvb_get_ntoh64(message_tvb, 8) + UINT64_C(212803200000000);
-  t.secs  = (time_t)(timestamp / 1000000);
-  t.nsecs = (int)((timestamp - 1000000 * t.secs) * 1000);
+  // Time stamp is nanoseconds since 29.09.1976 00:00:00.000000000.
+  t.secs  = (time_t)(sendTimeStamp / 1000000000);
+  t.nsecs = (int)(sendTimeStamp - 1000000000 * t.secs);
   proto_tree_add_time(hipercontracer_tree, hf_send_timestamp, message_tvb, 8, 8, &t);
 
   col_append_fstr(pinfo->cinfo, COL_INFO, " (SendTTL=%u, Round=%u)",
