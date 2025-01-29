@@ -3,7 +3,7 @@
  * CIP Motion Home: www.odva.org
  *
  * This dissector includes items from:
- *    CIP Volume 9: CIP Motion, Edition 1.7
+ *    CIP Volume 9: CIP Motion, Edition 1.13
  *
  * Copyright 2006-2007
  * Benjamin M. Stocks <bmstocks@ra.rockwell.com>
@@ -70,6 +70,28 @@ static int hf_cip_motor_cntrl;
 static int hf_cip_feedback;
 static int hf_cip_feedback_mode;
 static int hf_cip_feedback_data_type;
+static int hf_cip_controller_update_delay_high_limit;
+static int hf_cip_controller_update_delay_low_limit;
+static int hf_cip_sync_threshold;
+static int hf_cip_step_threshold;
+static int hf_cip_control_method;
+static int hf_cip_feedback_unit_ratio;
+static int hf_cip_velocity_threshold;
+static int hf_cip_velocity_lock_tolerance;
+static int hf_cip_velocity_standstill_window;
+static int hf_cip_proving_configuration;
+static int hf_cip_torque_prove_current;
+static int hf_cip_brake_test_torque;
+static int hf_cip_zero_speed;
+static int hf_cip_zero_speed_time;
+static int hf_cip_dc_bus_voltage;
+static int hf_cip_bus_regulator_action;
+static int hf_cip_inverter_capacity;
+static int hf_cip_converter_thermal_overload_user_limit;
+static int hf_cip_bus_undervoltage_user_limit;
+static int hf_cip_rotary_motor_poles;
+static int hf_cip_rotary_motor_inertia;
+static int hf_cip_rotary_motor_max_speed;
 
 static int hf_connection_configuration_bits;
 static int hf_connection_configuration_bits_power;
@@ -810,11 +832,17 @@ static int dissect_connection_configuration_bits(packet_info* pinfo _U_, proto_t
 const attribute_info_t cip_motion_attribute_vals[] = {
    { CI_CLS_MOTION, CIP_ATTR_CLASS, 14, -1, "Node Control", cip_dissector_func, NULL, dissect_node_control },
    { CI_CLS_MOTION, CIP_ATTR_CLASS, 15, -1, "Node Status", cip_dissector_func, NULL, dissect_node_status },
+   { CI_CLS_MOTION, CIP_ATTR_CLASS, 21, -1, "Controller Update Delay High Limit", cip_usint, &hf_cip_controller_update_delay_high_limit, NULL },
+   { CI_CLS_MOTION, CIP_ATTR_CLASS, 22, -1, "Controller Update Delay Low Limit", cip_usint, &hf_cip_controller_update_delay_low_limit, NULL },
+   { CI_CLS_MOTION, CIP_ATTR_CLASS, 29, -1, "Sync Threshold", cip_udint, &hf_cip_sync_threshold, NULL },
    { CI_CLS_MOTION, CIP_ATTR_CLASS, 31, -1, "Time Data Set", cip_dissector_func, NULL, dissect_time_data_set },
    { CI_CLS_MOTION, CIP_ATTR_CLASS, 34, -1, "Drive Power Structure Class ID", cip_udint, &hf_configuration_block_drive_power_struct_id, NULL },
+   { CI_CLS_MOTION, CIP_ATTR_CLASS, 35, -1, "Step Threshold", cip_udint, &hf_cip_step_threshold, NULL },
    { CI_CLS_MOTION, CIP_ATTR_CLASS, 36, -1, "Connection Configuration Bits", cip_dissector_func, NULL, dissect_connection_configuration_bits },
    { CI_CLS_MOTION, CIP_ATTR_INSTANCE, 40, -1, "Control Mode", cip_usint, &hf_cip_motor_cntrl, NULL },
+   { CI_CLS_MOTION, CIP_ATTR_INSTANCE, 41, -1, "Control Method", cip_usint, &hf_cip_control_method, NULL },
    { CI_CLS_MOTION, CIP_ATTR_INSTANCE, 42, -1, "Feedback Mode", cip_dissector_func, NULL, dissect_feedback_mode },
+   { CI_CLS_MOTION, CIP_ATTR_INSTANCE, 44, -1, "Feedback Unit Ratio", cip_real, &hf_cip_feedback_unit_ratio, NULL },
    { CI_CLS_MOTION, CIP_ATTR_INSTANCE, 60, -1, "Event Checking Control", cip_dissector_func, NULL, dissect_event_checking_control },
    { CI_CLS_MOTION, CIP_ATTR_INSTANCE, 61, -1, "Event Checking Status", cip_dissector_func, NULL, dissect_event_checking_status },
    { CI_CLS_MOTION, CIP_ATTR_INSTANCE, 89, -1, "Control Status", cip_dissector_func, NULL, dissect_control_status },
@@ -824,10 +852,26 @@ const attribute_info_t cip_motion_attribute_vals[] = {
    { CI_CLS_MOTION, CIP_ATTR_INSTANCE, 94, -1, "Status Data Set", cip_dissector_func, NULL, dissect_status_data_set_bits },
    { CI_CLS_MOTION, CIP_ATTR_INSTANCE, 431, -1, "Position Trim", cip_dint, &hf_cip_pos_trim, NULL },
    { CI_CLS_MOTION, CIP_ATTR_INSTANCE, 451, -1, "Velocity Trim", cip_real, &hf_cip_vel_trim, NULL },
+   { CI_CLS_MOTION, CIP_ATTR_INSTANCE, 470, -1, "Velocity Threshold", cip_real, &hf_cip_velocity_threshold, NULL },
+   { CI_CLS_MOTION, CIP_ATTR_INSTANCE, 471, -1, "Velocity Lock Tolerance", cip_real, &hf_cip_velocity_lock_tolerance, NULL },
+   { CI_CLS_MOTION, CIP_ATTR_INSTANCE, 472, -1, "Velocity Standstill Window", cip_real, &hf_cip_velocity_standstill_window, NULL },
    { CI_CLS_MOTION, CIP_ATTR_INSTANCE, 481, -1, "Acceleration Trim", cip_real, &hf_cip_accel_trim, NULL },
    { CI_CLS_MOTION, CIP_ATTR_INSTANCE, 491, -1, "Torque Trim", cip_real, &hf_cip_trq_trim, NULL },
+   { CI_CLS_MOTION, CIP_ATTR_INSTANCE, 590, -1, "Proving Configuration", cip_usint, &hf_cip_proving_configuration, NULL },
+   { CI_CLS_MOTION, CIP_ATTR_INSTANCE, 591, -1, "Torque Prove Current", cip_real, &hf_cip_torque_prove_current, NULL },
+   { CI_CLS_MOTION, CIP_ATTR_INSTANCE, 592, -1, "Brake Test Torque", cip_real, &hf_cip_brake_test_torque, NULL },
+   { CI_CLS_MOTION, CIP_ATTR_INSTANCE, 608, -1, "Zero Speed", cip_real, &hf_cip_zero_speed, NULL },
+   { CI_CLS_MOTION, CIP_ATTR_INSTANCE, 609, -1, "Zero Speed Time", cip_real, &hf_cip_zero_speed_time, NULL },
+   { CI_CLS_MOTION, CIP_ATTR_INSTANCE, 620, -1, "DC Bus Voltage", cip_real, &hf_cip_dc_bus_voltage, NULL },
+   { CI_CLS_MOTION, CIP_ATTR_INSTANCE, 624, -1, "Bus Regulator Action", cip_usint, &hf_cip_bus_regulator_action, NULL },
+   { CI_CLS_MOTION, CIP_ATTR_INSTANCE, 636, -1, "Inverter Capacity", cip_real, &hf_cip_inverter_capacity, NULL },
    { CI_CLS_MOTION, CIP_ATTR_INSTANCE, 651, -1, "Axis Status", cip_dissector_func, NULL, dissect_axis_status },
+   { CI_CLS_MOTION, CIP_ATTR_INSTANCE, 701, -1, "Converter Thermal Overload User Limit", cip_real, &hf_cip_converter_thermal_overload_user_limit, NULL },
+   { CI_CLS_MOTION, CIP_ATTR_INSTANCE, 705, -1, "Bus Undervoltage User Limit", cip_real, &hf_cip_bus_undervoltage_user_limit, NULL },
    { CI_CLS_MOTION, CIP_ATTR_INSTANCE, 740, -1, "Axis Status 2", cip_dissector_func, NULL, dissect_axis_status2 },
+   { CI_CLS_MOTION, CIP_ATTR_INSTANCE, 1329, -1, "Rotary Motor Poles", cip_uint, &hf_cip_rotary_motor_poles, NULL },
+   { CI_CLS_MOTION, CIP_ATTR_INSTANCE, 1330, -1, "Rotary Motor Inertia", cip_real, &hf_cip_rotary_motor_inertia, NULL },
+   { CI_CLS_MOTION, CIP_ATTR_INSTANCE, 1332, -1, "Rotary Motor Max Speed", cip_real, &hf_cip_rotary_motor_max_speed, NULL },
 };
 
 /*
@@ -2411,6 +2455,29 @@ proto_register_cipmotion(void)
           FT_UINT8, BASE_DEC, VALS(cip_feedback_type_vals), FEEDBACK_DATA_TYPE_BITS,
           NULL, HFILL }
       },
+
+      { &hf_cip_controller_update_delay_high_limit, { "Controller Update Delay High Limit", "cipm.controller_update_delay_high_limit", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL } },
+      { &hf_cip_controller_update_delay_low_limit, { "Controller Update Delay Low Limit", "cipm.controller_update_delay_low_limit", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL } },
+      { &hf_cip_sync_threshold, { "Sync Threshold", "cipm.sync_threshold", FT_UINT32, BASE_DEC|BASE_UNIT_STRING, UNS(&units_nanosecond_nanoseconds), 0, NULL, HFILL } },
+      { &hf_cip_step_threshold, { "Step Threshold", "cipm.step_threshold", FT_UINT32, BASE_DEC|BASE_UNIT_STRING, UNS(&units_nanosecond_nanoseconds), 0, NULL, HFILL } },
+      { &hf_cip_control_method, { "Control Method", "cipm.control_method", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL } },
+      { &hf_cip_feedback_unit_ratio, { "Feedback Unit Ratio", "cipm.feedback_unit_ratio", FT_FLOAT, BASE_NONE, NULL, 0, NULL, HFILL } },
+      { &hf_cip_velocity_threshold, { "Velocity Threshold", "cipm.velocity_threshold", FT_FLOAT, BASE_NONE, NULL, 0, NULL, HFILL } },
+      { &hf_cip_velocity_lock_tolerance, { "Velocity Lock Tolerance", "cipm.velocity_lock_tolerance", FT_FLOAT, BASE_NONE, NULL, 0, NULL, HFILL } },
+      { &hf_cip_velocity_standstill_window, { "Velocity Standstill Window", "cipm.velocity_standstill_window", FT_FLOAT, BASE_NONE, NULL, 0, NULL, HFILL } },
+      { &hf_cip_proving_configuration, { "Proving Configuration", "cipm.proving_configuration", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL } },
+      { &hf_cip_torque_prove_current, { "Torque Prove Current", "cipm.torque_prove_current", FT_FLOAT, BASE_NONE, NULL, 0, NULL, HFILL } },
+      { &hf_cip_brake_test_torque, { "Brake Test Torque", "cipm.brake_test_torque", FT_FLOAT, BASE_NONE, NULL, 0, NULL, HFILL } },
+      { &hf_cip_zero_speed, { "Zero Speed", "cipm.zero_speed", FT_FLOAT, BASE_NONE, NULL, 0, NULL, HFILL } },
+      { &hf_cip_zero_speed_time, { "Zero Speed Time", "cipm.zero_speed_time", FT_FLOAT, BASE_NONE, NULL, 0, NULL, HFILL } },
+      { &hf_cip_dc_bus_voltage, { "DC Bus Voltage", "cipm.dc_bus_voltage", FT_FLOAT, BASE_NONE, NULL, 0, NULL, HFILL } },
+      { &hf_cip_bus_regulator_action, { "Bus Regulator Action", "cipm.bus_regulator_action", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL } },
+      { &hf_cip_inverter_capacity, { "Inverter Capacity", "cipm.inverter_capacity", FT_FLOAT, BASE_NONE, NULL, 0, NULL, HFILL } },
+      { &hf_cip_converter_thermal_overload_user_limit, { "Converter Thermal Overload User Limit", "cipm.converter_thermal_overload_user_limit", FT_FLOAT, BASE_NONE, NULL, 0, NULL, HFILL } },
+      { &hf_cip_bus_undervoltage_user_limit, { "Bus Undervoltage User Limit", "cipm.bus_undervoltage_user_limit", FT_FLOAT, BASE_NONE, NULL, 0, NULL, HFILL } },
+      { &hf_cip_rotary_motor_poles, { "Rotary Motor Poles", "cipm.rotary_motor_poles", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL } },
+      { &hf_cip_rotary_motor_inertia, { "Rotary Motor Inertia", "cipm.rotary_motor_inertia", FT_FLOAT, BASE_NONE, NULL, 0, NULL, HFILL } },
+      { &hf_cip_rotary_motor_max_speed, { "Rotary Motor Max Speed", "cipm.rotary_motor_max_speed", FT_FLOAT, BASE_NONE, NULL, 0, NULL, HFILL } },
 
       { &hf_connection_configuration_bits,
         { "Connection Configuration Bits", "cipm.ccb",
