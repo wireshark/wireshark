@@ -67,6 +67,7 @@ local default_settings =
     port         = 65333,
     heur_enabled = true,
     heur_regmode = 1,
+    conv_regmode = 1,
 }
 
 -- for testing purposes, we want to be able to pass in changes to the defaults
@@ -585,7 +586,20 @@ local function heur_dissect_dns(tvbuf,pktinfo,root)
     -- packets to/from the same address:port pair will just call our dissector
     -- function directly instead of this heuristic function
     -- this is a new attribute of pinfo in 1.11.3
-    pktinfo.conversation = dns
+    if default_settings.conv_regmode == 1 then
+        -- This is the "shortcut" way to register conversation dissectors (added in 1.11.3)
+        -- For backwards compatibility, this has been kept. However, method '2' below should
+        -- probably be preferred. Slightly more explicit, but less ambiguous to what you're
+        -- actually setting.
+        pktinfo.conversation = dns
+    elseif default_settings.conv_regmode == 2 then
+        -- New, slightly more explicit method (added in 4.5.X)
+        -- This deconflicts the idea of a 'conversation' from a 'conversation dissector'
+        pktinfo.conversation.dissector = dns
+    elseif default_settings.conv_regmode == 3 then
+        -- Fully explicit method (added in 4.5.X)
+        Conversation.find_from_pinfo(pktinfo).dissector = dns
+    end
 
     return true
 end
