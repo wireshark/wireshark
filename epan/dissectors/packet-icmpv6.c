@@ -88,6 +88,7 @@ void proto_reg_handoff_icmpv6(void);
  * RFC 8781: Discovering PREF64 in Router Advertisements
  * RFC 8505: Registration Extensions for IPv6 over Low-Power Wireless Personal Area Network (6LoWPAN) Neighbor Discovery
  * RFC 8801: Discovering Provisioning Domain Names and Data
+ * RFC 9009: Efficient Route Invalidation
  * http://www.iana.org/assignments/icmpv6-parameters (last updated 2016-02-24)
  */
 
@@ -380,7 +381,7 @@ static int hf_icmpv6_ni_reply_ipv4_address;
 /* RFC 4884: Extended ICMP */
 static int hf_icmpv6_length;
 
-/* RPL: RFC 6550/6997 : Routing and Discovery of P2P Routes in Low-Power and Lossy Networks. */
+/* RPL: RFC 6550/6997/9009 : Routing and Discovery of P2P Routes in Low-Power and Lossy Networks. Efficient route invalidation. */
 static int hf_icmpv6_rpl_dis_flag;
 static int hf_icmpv6_rpl_dio_instance;
 static int hf_icmpv6_rpl_dio_version;
@@ -406,6 +407,21 @@ static int hf_icmpv6_rpl_daoack_flag_rsv;
 static int hf_icmpv6_rpl_daoack_sequence;
 static int hf_icmpv6_rpl_daoack_status;
 static int hf_icmpv6_rpl_daoack_dodagid;
+static int hf_icmpv6_rpl_dco_instance;
+static int hf_icmpv6_rpl_dco_flags;
+static int hf_icmpv6_rpl_dco_flag_k;
+static int hf_icmpv6_rpl_dco_flag_d;
+static int hf_icmpv6_rpl_dco_flag_rsv;
+static int hf_icmpv6_rpl_dco_status;
+static int hf_icmpv6_rpl_dco_sequence;
+static int hf_icmpv6_rpl_dco_dodagid;
+static int hf_icmpv6_rpl_dcoack_instance;
+static int hf_icmpv6_rpl_dcoack_flag;
+static int hf_icmpv6_rpl_dcoack_flag_d;
+static int hf_icmpv6_rpl_dcoack_flag_rsv;
+static int hf_icmpv6_rpl_dcoack_sequence;
+static int hf_icmpv6_rpl_dcoack_status;
+static int hf_icmpv6_rpl_dcoack_dodagid;
 static int hf_icmpv6_rpl_cc_instance;
 static int hf_icmpv6_rpl_cc_flag;
 static int hf_icmpv6_rpl_cc_flag_r;
@@ -494,6 +510,7 @@ static int hf_icmpv6_rpl_opt_target_prefix_length;
 static int hf_icmpv6_rpl_opt_target_prefix;
 static int hf_icmpv6_rpl_opt_transit_flag;
 static int hf_icmpv6_rpl_opt_transit_flag_e;
+static int hf_icmpv6_rpl_opt_transit_flag_i;
 static int hf_icmpv6_rpl_opt_transit_flag_rsv;
 static int hf_icmpv6_rpl_opt_transit_pathseq;
 static int hf_icmpv6_rpl_opt_transit_pathctl;
@@ -637,6 +654,8 @@ static int ett_icmpv6_flag_secure;
 static int ett_icmpv6_flag_rpl_dio;
 static int ett_icmpv6_flag_rpl_dao;
 static int ett_icmpv6_flag_rpl_daoack;
+static int ett_icmpv6_flag_rpl_dco;
+static int ett_icmpv6_flag_rpl_dcoack;
 static int ett_icmpv6_flag_rpl_cc;
 static int ett_icmpv6_opt_name;
 static int ett_icmpv6_cga_param_name;
@@ -1196,6 +1215,8 @@ static const value_string icmpv6_option_cert_type_vals[] = {
 #define ICMP6_RPL_DIO           0x01   /* DODAG Information Object */
 #define ICMP6_RPL_DAO           0x02   /* Destination Advertisement Object */
 #define ICMP6_RPL_DAOACK        0x03   /* Destination Advertisement Object Ack */
+#define ICMP6_RPL_DCO           0x07   /* Destination Cleanup Object */
+#define ICMP6_RPL_DCOACK        0x08   /* Destination Cleanup Object Acknowledgement */
 #define ICMP6_RPL_P2P_DRO       0x04   /* P2P Discovery Reply Object */
 #define ICMP6_RPL_P2P_DROACK    0x05   /* P2P Discovery Reply Object Acknowledgement */
 #define ICMP6_RPL_SDIS          0x80   /* Secure DODAG Information Solicitation */
@@ -1221,6 +1242,15 @@ static const value_string icmpv6_option_cert_type_vals[] = {
 /* RPL DAO ACK Flags */
 #define RPL_DAOACK_FLAG_D               0x80
 #define RPL_DAOACK_FLAG_RESERVED        0x7F
+
+/* RPL DCO Flags */
+#define RPL_DCO_FLAG_K                  0x80
+#define RPL_DCO_FLAG_D                  0x40
+#define RPL_DCO_FLAG_RESERVED           0x3F
+
+/* RPL DCO ACK Flags */
+#define RPL_DCOACK_FLAG_D               0x80
+#define RPL_DCOACK_FLAG_RESERVED        0x7F
 
 /* RPL CC Flags */
 #define RPL_CC_FLAG_R               0x80
@@ -1257,7 +1287,8 @@ static const value_string icmpv6_option_cert_type_vals[] = {
 #define RPL_OPT_CONFIG_FLAG_PCS         0x07
 #define RPL_OPT_CONFIG_FLAG_RESERVED    0xF0
 #define RPL_OPT_TRANSIT_FLAG_E          0x80
-#define RPL_OPT_TRANSIT_FLAG_RSV        0x7F
+#define RPL_OPT_TRANSIT_FLAG_I          0x40
+#define RPL_OPT_TRANSIT_FLAG_RSV        0x3F
 #define RPL_OPT_TRANSIT_PATHCTL_PC1     0xC0
 #define RPL_OPT_TRANSIT_PATHCTL_PC2     0x30
 #define RPL_OPT_TRANSIT_PATHCTL_PC3     0x0C
@@ -1315,6 +1346,8 @@ static const value_string rpl_code_val[] = {
     { ICMP6_RPL_DIO,        "DODAG Information Object" },
     { ICMP6_RPL_DAO,        "Destination Advertisement Object" },
     { ICMP6_RPL_DAOACK,     "Destination Advertisement Object Acknowledgment" },
+    { ICMP6_RPL_DCO,        "Destination Cleanup Object" },
+    { ICMP6_RPL_DCOACK,     "Destination Cleanup Object Acknowledgment" },
     { ICMP6_RPL_SDIS,       "Secure DODAG Information Solicitation" },
     { ICMP6_RPL_SDIO,       "Secure DODAG Information Object" },
     { ICMP6_RPL_SDAO,       "Secure Destination Advertisement Object" },
@@ -3169,6 +3202,7 @@ dissect_icmpv6_rpl_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
             case RPL_OPT_TRANSIT: {
                 static int * const rpl_transit_flags[] = {
                     &hf_icmpv6_rpl_opt_transit_flag_e,
+                    &hf_icmpv6_rpl_opt_transit_flag_i,
                     &hf_icmpv6_rpl_opt_transit_flag_rsv,
                     NULL
                 };
@@ -3628,6 +3662,84 @@ dissect_rpl_control(tvbuff_t *tvb, int rpl_offset, packet_info *pinfo _U_, proto
             if(flags & RPL_DAOACK_FLAG_D)
             {
                 proto_tree_add_item(icmp6_tree, hf_icmpv6_rpl_daoack_dodagid, tvb, rpl_offset, 16, ENC_NA);
+                rpl_offset += 16;
+            }
+
+            /* Options */
+            rpl_offset = dissect_icmpv6_rpl_opt(tvb, rpl_offset, pinfo, icmp6_tree, icmp6_code);
+            break;
+        }
+        case ICMP6_RPL_DCO: /* Destination Cleanup Object (7) */
+
+        {
+            uint8_t flags;
+            static int * const rpl_dco_flags[] = {
+                &hf_icmpv6_rpl_dco_flag_k,
+                &hf_icmpv6_rpl_dco_flag_d,
+                &hf_icmpv6_rpl_dco_flag_rsv,
+                NULL
+            };
+
+            /* DCO Instance */
+            proto_tree_add_item(icmp6_tree, hf_icmpv6_rpl_dco_instance, tvb, rpl_offset, 1, ENC_BIG_ENDIAN);
+            rpl_offset += 1;
+
+            /* Flags */
+            proto_tree_add_bitmask(icmp6_tree, tvb, rpl_offset, hf_icmpv6_rpl_dco_flags,
+                                ett_icmpv6_flag_rpl_dco, rpl_dco_flags, ENC_BIG_ENDIAN);
+            flags = tvb_get_uint8(tvb, rpl_offset);
+            rpl_offset += 1;
+
+            /* RPL status */
+            proto_tree_add_item(icmp6_tree, hf_icmpv6_rpl_dco_status, tvb, rpl_offset, 1, ENC_BIG_ENDIAN);
+            rpl_offset += 1;
+
+            /* Sequence */
+            proto_tree_add_item(icmp6_tree, hf_icmpv6_rpl_dco_sequence, tvb, rpl_offset, 1, ENC_BIG_ENDIAN);
+            rpl_offset += 1;
+
+            /* DODAGID */
+            if(flags & RPL_DCO_FLAG_D)
+            {
+                proto_tree_add_item(icmp6_tree, hf_icmpv6_rpl_dco_dodagid, tvb, rpl_offset, 16, ENC_NA);
+                rpl_offset += 16;
+            }
+            /* Options */
+            rpl_offset = dissect_icmpv6_rpl_opt(tvb, rpl_offset, pinfo, icmp6_tree, icmp6_code);
+            break;
+        }
+        case ICMP6_RPL_DCOACK: /* Destination Advertisement Object Acknowledgment (8) */
+
+        {
+            uint8_t flags;
+            static int * const rpl_dcoack_flags[] = {
+                &hf_icmpv6_rpl_dcoack_flag_d,
+                &hf_icmpv6_rpl_dcoack_flag_rsv,
+                NULL
+            };
+
+            /* DCO Instance */
+            proto_tree_add_item(icmp6_tree, hf_icmpv6_rpl_dcoack_instance, tvb, rpl_offset, 1, ENC_BIG_ENDIAN);
+            rpl_offset += 1;
+
+            /* Flags */
+            proto_tree_add_bitmask(icmp6_tree, tvb, rpl_offset, hf_icmpv6_rpl_dcoack_flag,
+                                ett_icmpv6_flag_rpl_dcoack, rpl_dcoack_flags, ENC_BIG_ENDIAN);
+            flags = tvb_get_uint8(tvb, rpl_offset);
+            rpl_offset += 1;
+
+            /* DCO Sequence */
+            proto_tree_add_item(icmp6_tree, hf_icmpv6_rpl_dcoack_sequence, tvb, rpl_offset, 1, ENC_BIG_ENDIAN);
+            rpl_offset += 1;
+
+            /* Status */
+            proto_tree_add_item(icmp6_tree, hf_icmpv6_rpl_dcoack_status, tvb, rpl_offset, 1, ENC_BIG_ENDIAN);
+            rpl_offset += 1;
+
+            /* DODAGID */
+            if(flags & RPL_DCOACK_FLAG_D)
+            {
+                proto_tree_add_item(icmp6_tree, hf_icmpv6_rpl_dcoack_dodagid, tvb, rpl_offset, 16, ENC_NA);
                 rpl_offset += 16;
             }
 
@@ -5905,6 +6017,51 @@ proto_register_icmpv6(void)
         { &hf_icmpv6_rpl_daoack_dodagid,
            { "DODAGID", "icmpv6.rpl.daoack.dodagid", FT_IPv6, BASE_NONE, NULL, 0x0,
              "IPv6 address integer set by a DODAG root which uniquely identifies a DODAG", HFILL }},
+        { &hf_icmpv6_rpl_dco_instance,
+           { "RPLInstanceID", "icmpv6.rpl.dco.instance", FT_UINT8, BASE_DEC, NULL, 0x0,
+             "Indicating the topology instance associated with the DODAG as learned from the DIO", HFILL }},
+        { &hf_icmpv6_rpl_dco_flags,
+           { "Flags", "icmpv6.rpl.dco.flags", FT_UINT8, BASE_HEX, NULL, 0x0,
+             NULL, HFILL }},
+        { &hf_icmpv6_rpl_dco_flag_k,
+           { "DCO-ACK Request (K)", "icmpv6.rpl.dco.flag.k", FT_BOOLEAN, 8, NULL, RPL_DCO_FLAG_K,
+             "Indicates that the recipient is expected to send a DCO-ACK back", HFILL }},
+        { &hf_icmpv6_rpl_dco_flag_d,
+           { "DODAGID Present (D)", "icmpv6.rpl.dco.flag.d", FT_BOOLEAN, 8, NULL, RPL_DCO_FLAG_D,
+             "Indicates that the DODAGID field is present", HFILL }},
+        { &hf_icmpv6_rpl_dco_flag_rsv,
+           { "Reserved", "icmpv6.rpl.dco.flag.rsv", FT_UINT8, BASE_DEC, NULL, RPL_DCO_FLAG_RESERVED,
+             "Must be zero", HFILL }},
+        {&hf_icmpv6_rpl_dco_status,
+           {"RPL Status", "icmpv6.rpl.dco.status", FT_UINT8, BASE_DEC, NULL, 0x0,
+            "Set by the root common parent that generates the DCO, propagated unchanged", HFILL }},
+        { &hf_icmpv6_rpl_dco_sequence,
+           { "DCO Sequence", "icmpv6.rpl.dco.sequence", FT_UINT8, BASE_DEC, NULL, 0x0,
+             "Incremented at each unique DCO message from a node and echoed in the DCO-ACK message", HFILL }},
+        { &hf_icmpv6_rpl_dco_dodagid,
+           { "DODAGID", "icmpv6.rpl.dco.dodagid", FT_IPv6, BASE_NONE, NULL, 0x0,
+             "IPv6 address set by a DODAG root which uniquely identifies a DODAG", HFILL }},
+        { &hf_icmpv6_rpl_dcoack_instance,
+           { "RPLInstanceID", "icmpv6.rpl.dcoack.instance", FT_UINT8, BASE_DEC, NULL, 0x0,
+             "Indicating the topology instance associated with the DODAG, as learned from the DIO", HFILL }},
+        { &hf_icmpv6_rpl_dcoack_flag,
+           { "Flag", "icmpv6.rpl.dcoack.flag", FT_UINT8, BASE_HEX, NULL, 0x0,
+             NULL, HFILL }},
+        { &hf_icmpv6_rpl_dcoack_flag_d,
+           { "DODAGID Present (D)", "icmpv6.rpl.dcoack.flag.d", FT_BOOLEAN, 8, NULL, RPL_DCOACK_FLAG_D,
+             "Indicates that the DODAGID field is present", HFILL }},
+        { &hf_icmpv6_rpl_dcoack_flag_rsv,
+           { "Reserved", "icmpv6.rpl.dcoack.flag.rsv", FT_UINT8, BASE_DEC, NULL, RPL_DCOACK_FLAG_RESERVED,
+             "Must be zero", HFILL }},
+        { &hf_icmpv6_rpl_dcoack_sequence,
+           { "DCO-ACK Sequence", "icmpv6.rpl.dcoack.sequence", FT_UINT8, BASE_DEC, NULL, 0x0,
+             "Incremented at each DCO message from a node, and echoed in the DCO-ACK by the recipient", HFILL }},
+        { &hf_icmpv6_rpl_dcoack_status,
+           { "Status", "icmpv6.rpl.dcoack.status", FT_UINT8, BASE_DEC, NULL, 0x0,
+             "Indicates the completion", HFILL }},
+        { &hf_icmpv6_rpl_dcoack_dodagid,
+           { "DODAGID", "icmpv6.rpl.dcoack.dodagid", FT_IPv6, BASE_NONE, NULL, 0x0,
+             "IPv6 address integer set by a DODAG root which uniquely identifies a DODAG", HFILL }},
         { &hf_icmpv6_rpl_cc_instance,
            { "RPLInstanceID", "icmpv6.rpl.cc.instance", FT_UINT8, BASE_DEC, NULL, 0x0,
              "Indicating the topology instance associated with the DODAG, as learned from the DIO", HFILL }},
@@ -6169,6 +6326,9 @@ proto_register_icmpv6(void)
          { &hf_icmpv6_rpl_opt_transit_flag_e,
            { "External", "icmpv6.rpl.opt.transit.flag.e", FT_BOOLEAN, 8, TFS(&tfs_set_notset), RPL_OPT_TRANSIT_FLAG_E,
              "Indicate that the parent router redistributes external targets into the RPL network", HFILL }},
+         { &hf_icmpv6_rpl_opt_transit_flag_i,
+           { "InvalidatePreviousRoute", "icmpv6.rpl.opt.transit.flag.i", FT_BOOLEAN, 8, TFS(&tfs_set_notset), RPL_OPT_TRANSIT_FLAG_I,
+             "Indicate to the common ancestor that it wishes to invalidate any previous route between the two paths", HFILL }},
          { &hf_icmpv6_rpl_opt_transit_flag_rsv,
            { "Reserved", "icmpv6.rpl.opt.transit.flag.rsv", FT_UINT8, BASE_DEC, NULL, RPL_OPT_TRANSIT_FLAG_RSV,
              "Must be Zero", HFILL }},
@@ -6458,6 +6618,8 @@ proto_register_icmpv6(void)
         &ett_icmpv6_flag_rpl_dio,
         &ett_icmpv6_flag_rpl_dao,
         &ett_icmpv6_flag_rpl_daoack,
+        &ett_icmpv6_flag_rpl_dco,
+        &ett_icmpv6_flag_rpl_dcoack,
         &ett_icmpv6_flag_rpl_cc,
         &ett_icmpv6_opt_name,
         &ett_icmpv6_cga_param_name,
