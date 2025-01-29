@@ -3,7 +3,8 @@
  * CIP Home: www.odva.org
  *
  * This dissector includes items from:
- *    CIP Volume 1: Common Industrial Protocol, Edition 3.34
+ *    CIP Volume 1: Common Industrial Protocol, Edition 3.37
+ *    CIP Volume 4: ControlNet Adaptation of CIP, Edition 1.9
  *    CIP Volume 5: CIP Safety, Edition 2.25
  *    CIP Volume 7A: Integration of Modbus Devices into the CIP Architecture, Edition 1.9
  *    CIP Volume 8: CIP Security, Edition 1.11
@@ -234,6 +235,7 @@ static int hf_cip_cco_to_rtf;
 static int hf_cip_cco_sc;
 static int hf_cip_cco_format_number;
 static int hf_cip_cco_edit_signature;
+static int hf_cip_cco_scanner_mode;
 static int hf_cip_cco_con_flags;
 static int hf_cip_cco_tdi_vendor;
 static int hf_cip_cco_tdi_devtype;
@@ -411,6 +413,8 @@ static int hf_id_product_name;
 static int hf_id_state;
 static int hf_id_config_value;
 static int hf_id_heartbeat;
+static int hf_id_catalog_number;
+static int hf_id_manufacture_date;
 static int hf_id_status_owned;
 static int hf_id_status_conf;
 static int hf_id_status_extended1;
@@ -463,6 +467,13 @@ static int hf_file_transfer_checksum;
 static int hf_file_transfer_number;
 static int hf_file_transfer_packet_type;
 static int hf_file_transfer_size;
+
+static int hf_energy_energy_resource_type;
+static int hf_energy_base_energy_object_capabilities;
+static int hf_energy_energy_accuracy;
+static int hf_energy_data_status;
+static int hf_energy_energy_transfer_rate;
+static int hf_energy_extended_data_status;
 
 static int hf_time_sync_ptp_enable;
 static int hf_time_sync_is_synchronized;
@@ -547,6 +558,7 @@ static int hf_time_sync_port_proto_addr_info_network_proto;
 static int hf_time_sync_port_proto_addr_info_addr_size;
 static int hf_time_sync_port_proto_addr_info_port_proto_addr;
 static int hf_time_sync_steps_removed;
+static int hf_time_sync_defaultleapseconds;
 static int hf_time_sync_sys_time_and_offset_time;
 static int hf_time_sync_sys_time_and_offset_offset;
 static int hf_port_entry_port;
@@ -555,6 +567,7 @@ static int hf_port_number;
 static int hf_port_min_node_num;
 static int hf_port_max_node_num;
 static int hf_port_name;
+static int hf_port_port_routing_capabilities;
 static int hf_port_num_comm_object_entries;
 static int hf_path_len_usint;
 static int hf_path_len_uint;
@@ -4358,6 +4371,24 @@ static int dissect_port_node_range(packet_info *pinfo _U_, proto_tree *tree, pro
    return 4;
 }
 
+static int dissect_base_energy_create(packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, tvbuff_t *tvb, int offset, bool request)
+{
+   if (request)
+   {
+      proto_tree_add_item(tree, hf_energy_energy_resource_type, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(tree, hf_energy_base_energy_object_capabilities, tvb, offset + 2, 2, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(tree, hf_energy_energy_accuracy, tvb, offset + 4, 2, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(tree, hf_cip_class16, tvb, offset + 6, 2, ENC_LITTLE_ENDIAN);
+
+      return 8;
+   }
+   else
+   {
+      proto_tree_add_item(tree, hf_cip_instance16, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+      return 2;
+   }
+}
+
 /// File Object - Attributes
 static int dissect_file_directory(packet_info *pinfo, proto_tree *tree, proto_item *item _U_, tvbuff_t *tvb,
    int offset, int total_len _U_)
@@ -4545,6 +4576,8 @@ static const attribute_info_t cip_attribute_vals[] = {
    {0x01, false, 8, 7, "State", cip_usint, &hf_id_state, NULL},
    {0x01, false, 9, 8, "Configuration Consistency Value", cip_uint, &hf_id_config_value, NULL},
    {0x01, false, 10, 9, "Heartbeat Interval", cip_usint, &hf_id_heartbeat, NULL},
+   {0x01, false, 21, -1, "Catalog Number", cip_short_string, &hf_id_catalog_number, NULL},
+   {0x01, false, 22, -1, "Manufacture Date", cip_date, &hf_id_manufacture_date, NULL},
 
     /* Message Router Object (class attributes) */
    {0x02, true, 1, 0, CLASS_ATTRIBUTE_1_NAME, cip_uint, &hf_attr_class_revision, NULL },
@@ -4633,7 +4666,15 @@ static const attribute_info_t cip_attribute_vals[] = {
    {0x43, false, 26, -1, "Port Protocol Address Info", cip_dissector_func, NULL, dissect_time_sync_port_proto_addr_info},
    {0x43, false, 27, -1, "Steps Removed", cip_uint, &hf_time_sync_steps_removed, NULL},
    {0x43, false, 28, -1, "System Time and Offset", cip_dissector_func, NULL, dissect_time_sync_sys_time_and_offset},
+   {0x43, false, 30, -1, "DefaultLeapSeconds", cip_uint, &hf_time_sync_defaultleapseconds, NULL },
 
+   // Base Energy
+   { 0x4E, CIP_ATTR_INSTANCE, 1, -1, "Energy/Resource Type", cip_uint, &hf_energy_energy_resource_type, NULL },
+   { 0x4E, CIP_ATTR_INSTANCE, 2, -1, "Base Energy Object Capabilities", cip_uint, &hf_energy_base_energy_object_capabilities, NULL },
+   { 0x4E, CIP_ATTR_INSTANCE, 3, -1, "Energy Accuracy", cip_uint, &hf_energy_energy_accuracy, NULL },
+   { 0x4E, CIP_ATTR_INSTANCE, 6, -1, "Data Status", cip_uint, &hf_energy_data_status, NULL },
+   { 0x4E, CIP_ATTR_INSTANCE, 10, -1, "Energy Transfer Rate", cip_real, &hf_energy_energy_transfer_rate, NULL },
+   { 0x4E, CIP_ATTR_INSTANCE, 18, -1, "Extended Data Status", cip_uint, &hf_energy_extended_data_status, NULL },
 
    /* Connection Configuration Object (class attributes) */
    /* Data sizes are different than common class attributes for some items. */
@@ -4646,6 +4687,10 @@ static const attribute_info_t cip_attribute_vals[] = {
    { 0xF3, true, 7, -1, CLASS_ATTRIBUTE_7_NAME, cip_uint, &hf_attr_class_num_inst_attr, NULL },
    { 0xF3, true, 8, 3, "Format Number", cip_uint, &hf_cip_cco_format_number, NULL },
    { 0xF3, true, 9, 4, "Edit Signature", cip_udint, &hf_cip_cco_edit_signature, NULL },
+   { 0xF3, true, 33, -1, "Scanner Mode", cip_bool, &hf_cip_cco_scanner_mode, NULL },
+
+   /* Connection Configuration Object (instance attributes) */
+   { 0xF3, false, 8, -1, "Connection Name", cip_string2, &hf_cip_cco_connection_name, NULL },
 
    /* Port Object (class attributes) */
    { 0xF4, true, 1, 0, CLASS_ATTRIBUTE_1_NAME, cip_uint, &hf_attr_class_revision, NULL },
@@ -4666,6 +4711,7 @@ static const attribute_info_t cip_attribute_vals[] = {
    { 0xF4, false, 7, 4, "Port Number and Node Address", cip_dissector_func, NULL, dissect_single_segment_padded_attr },
    { 0xF4, false, 8, -1, "Port Node Range", cip_dissector_func, NULL, dissect_port_node_range },
    { 0xF4, false, 9, -1, "Chassis Identity", cip_dissector_func, NULL, dissect_single_segment_packed_attr },
+   { 0xF4, false, 10, -1, "Port Routing Capabilities", cip_dword, &hf_port_port_routing_capabilities, NULL },
    { 0xF4, false, 11, -1, "Associated Communication Objects", cip_dissector_func, NULL, dissect_port_associated_comm_objects },
 };
 
@@ -4679,6 +4725,29 @@ static cip_service_info_t cip_obj_spec_service_table[] = {
     { 0x37, 0x4F, "Upload_Transfer", dissect_file_upload_transfer },
     { 0x37, 0x50, "Download_Transfer", dissect_file_download_transfer },
     { 0x37, 0x51, "Clear_File", NULL },
+
+    { 0x4E, SC_CREATE, "Create", dissect_base_energy_create },
+
+    // ControlNet Keeper
+    { 0xF1, 0x4B, "Obtain_Network_Resource", NULL },
+    { 0xF1, 0x4C, "Hold_Network_Resource", NULL },
+    { 0xF1, 0x4D, "Release_Network_Resource", NULL },
+    { 0xF1, 0x4E, "Change_Start", NULL },
+    { 0xF1, 0x4F, "Change_Complete", NULL },
+    { 0xF1, 0x50, "Change_Abort", NULL },
+    { 0xF1, 0x51, "Get_Signature", NULL },
+    { 0xF1, 0x52, "Get_Attribute_Fragment", NULL },
+    { 0xF1, 0x53, "Set_Attribute_Fragment", NULL },
+
+    // ControlNet Scheduling
+    { 0xF2, 0x4B, "Kick_Timer", NULL },
+    { 0xF2, 0x4C, "Read", NULL },
+    { 0xF2, 0x4D, "Conditional_Write", NULL },
+    { 0xF2, 0x4E, "Forced_Write", NULL },
+    { 0xF2, 0x4F, "Change_Start", NULL },
+    { 0xF2, 0x50, "Break_Connections", NULL },
+    { 0xF2, 0x51, "Change_Complete", NULL },
+    { 0xF2, 0x52, "Restart_Connections", NULL },
 };
 
 // Look up a given CIP service from this dissector.
@@ -10064,6 +10133,8 @@ proto_register_cip(void)
       { &hf_id_state, { "State", "cip.id.state", FT_UINT8, BASE_HEX, VALS(cip_id_state_vals), 0, NULL, HFILL } },
       { &hf_id_config_value, { "Configuration Consistency Value", "cip.id.config_value", FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL } },
       { &hf_id_heartbeat, { "Heartbeat Interval", "cip.id.heartbeat", FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL } },
+      { &hf_id_catalog_number, { "Catalog Number", "cip.id.catalog_number", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
+      { &hf_id_manufacture_date, { "Manufacture Date", "cip.id.manufacture_date", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL } },
       { &hf_id_status_owned, { "Owned", "cip.id.owned", FT_UINT16, BASE_DEC, NULL, 0x0001, NULL, HFILL } },
       { &hf_id_status_conf, { "Configured", "cip.id.conf", FT_UINT16, BASE_DEC, NULL, 0x0004, NULL, HFILL } },
       { &hf_id_status_extended1, { "Extended Device Status", "cip.id.ext", FT_UINT16, BASE_HEX, NULL, 0x00F0, NULL, HFILL } },
@@ -10119,6 +10190,13 @@ proto_register_cip(void)
       { &hf_file_transfer_number, { "Transfer Number", "cip.file.transfer_number", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL } },
       { &hf_file_transfer_packet_type, { "Transfer Packet Type", "cip.file.transfer_packet_type", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL } },
       { &hf_file_transfer_size, { "Transfer Size", "cip.file.transfer_size", FT_UINT8, BASE_DEC|BASE_UNIT_STRING, UNS(&units_byte_bytes), 0, NULL, HFILL } },
+
+      { &hf_energy_energy_resource_type, { "Energy Resource Type", "cip.energy.energy_resource_type", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL } },
+      { &hf_energy_base_energy_object_capabilities, { "Base Energy Object Capabilities", "cip.energy.base_energy_object_capabilities", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL } },
+      { &hf_energy_energy_accuracy, { "Energy Accuracy", "cip.energy.energy_accuracy", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL } },
+      { &hf_energy_data_status, { "Data Status", "cip.energy.data_status", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL } },
+      { &hf_energy_energy_transfer_rate, { "Energy Transfer Rate", "cip.energy.energy_transfer_rate", FT_FLOAT, BASE_NONE, NULL, 0, NULL, HFILL } },
+      { &hf_energy_extended_data_status, { "Extended Data Status", "cip.energy.extended_data_status", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL } },
 
       { &hf_time_sync_ptp_enable, { "PTP Enable", "cip.time_sync.ptp_enable", FT_BOOLEAN, BASE_NONE, TFS(&tfs_enabled_disabled), 0, NULL, HFILL }},
       { &hf_time_sync_is_synchronized, { "Is Synchronized", "cip.time_sync.is_synchronized", FT_BOOLEAN, BASE_NONE, NULL, 0, NULL, HFILL }},
@@ -10203,6 +10281,7 @@ proto_register_cip(void)
       { &hf_time_sync_port_proto_addr_info_addr_size, { "Size of Address", "cip.time_sync.port_proto_addr_info.addr_size", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
       { &hf_time_sync_port_proto_addr_info_port_proto_addr, { "Port Protocol Address", "cip.time_sync.port_profile_id_info.port_proto_addr", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
       { &hf_time_sync_steps_removed, { "Steps Removed", "cip.time_sync.steps_removed", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+      { &hf_time_sync_defaultleapseconds, { "DefaultLeapSeconds", "cip.time_sync.defaultleapseconds", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL } },
       { &hf_time_sync_sys_time_and_offset_time, { "System Time (Microseconds)", "cip.time_sync.sys_time_and_offset.time", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0, NULL, HFILL }},
       { &hf_time_sync_sys_time_and_offset_offset, { "System Offset (Microseconds)", "cip.time_sync.sys_time_and_offset.offset", FT_UINT64, BASE_DEC, NULL, 0, NULL, HFILL }},
       { &hf_port_entry_port, { "Entry Port", "cip.port.entry_port", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL } },
@@ -10211,6 +10290,7 @@ proto_register_cip(void)
       { &hf_port_min_node_num, { "Minimum Node Number", "cip.port.min_node", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL } },
       { &hf_port_max_node_num, { "Maximum Node Number", "cip.port.max_node", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL } },
       { &hf_port_name, { "Port Name", "cip.port.name", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL } },
+      { &hf_port_port_routing_capabilities, { "Port Routing Capabilities", "cip.port.port_routing_capabilities", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL } },
       { &hf_port_num_comm_object_entries, { "Number of entries", "cip.port.num_comm_object_entries", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL } },
       { &hf_path_len_usint, { "Path Length", "cip.path_len", FT_UINT8, BASE_DEC|BASE_UNIT_STRING, UNS(&units_word_words), 0, NULL, HFILL } },
       { &hf_path_len_uint, { "Path Length", "cip.path_len", FT_UINT16, BASE_DEC|BASE_UNIT_STRING, UNS(&units_word_words), 0, NULL, HFILL } },
@@ -10352,6 +10432,7 @@ proto_register_cip(void)
       { &hf_cip_cco_sc, { "Service", "cip.cco.sc", FT_UINT8, BASE_HEX, VALS(cip_sc_vals_cco), CIP_SC_MASK, NULL, HFILL }},
       { &hf_cip_cco_format_number, { "Format Number", "cip.cco.format_number", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
       { &hf_cip_cco_edit_signature, { "Edit Signature", "cip.cco.edit_signature", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
+      { &hf_cip_cco_scanner_mode, { "Scanner Mode", "cip.cco.scanner_mode", FT_BOOLEAN, BASE_NONE, NULL, 0, NULL, HFILL } },
       { &hf_cip_cco_con_flags, { "Connection Flags", "cip.cco.connflags", FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL }},
       { &hf_cip_cco_con_type, { "Connection O_T", "cip.cco.con", FT_UINT16, BASE_DEC, VALS(cip_con_vals), 0x0001, NULL, HFILL }},
       { &hf_cip_cco_ot_rtf, { "O->T real time transfer format", "cip.cco.otrtf", FT_UINT16, BASE_DEC, VALS(cip_con_rtf_vals), 0x000E, NULL, HFILL }},
