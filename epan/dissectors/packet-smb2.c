@@ -2639,7 +2639,8 @@ dissect_smb2_fid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset
 	case FID_MODE_DHNC:
 		offset = dissect_nt_guid_hnd(tvb, offset, pinfo, tree, &di, drep, hf_smb2_fid,
 				&policy_hnd, &hnd_item, PIDL_POLHND_USE);
-		si->saved->hnd_item = hnd_item;
+		if (si->saved)
+			si->saved->hnd_item = hnd_item;
 		break;
 	}
 
