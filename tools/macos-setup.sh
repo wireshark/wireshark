@@ -121,7 +121,7 @@ PCRE2_VERSION=10.44
 #
 # To override the version of Qt call the script with some of the variables
 # set to the new values. Setting the variable to empty will disable building
-# the toolkit and will uninstall # any version previously installed by the
+# the toolkit and will uninstall any version previously installed by the
 # script, e.g.
 # "QT_VERSION=5.10.1 ./macos-setup.sh"
 # will build and install with QT 5.10.1.
@@ -1425,8 +1425,17 @@ install_gmp() {
         else
             LD64_FLAG=""
         fi
+        if [ "$DARWIN_PROCESSOR_ARCH" = "x86_64" ]
+        then
+            # If contemplating darwin20 or newer, refer to the last two paragraphs of
+            # https://gmplib.org/list-archives/gmp-bugs/2024-October/005539.html
+            # and either ensure that GMP is newer than 6.3.0 or run "autoreconf".
+            GMP_BUILD_OPTION="--build=nehalem-apple-darwin18"
+        else
+            GMP_BUILD_OPTION=""
+        fi
         CFLAGS="$CFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" CXXFLAGS="$CXXFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" LDFLAGS="$LDFLAGS $VERSION_MIN_FLAGS $SDKFLAGS $LD64_FLAG" \
-            ./configure "${CONFIGURE_OPTS[@]}" --enable-fat
+            ./configure "${CONFIGURE_OPTS[@]}" --enable-fat "$GMP_BUILD_OPTION"
         make "${MAKE_BUILD_OPTS[@]}"
         $DO_MAKE_INSTALL
         cd ..
@@ -4112,7 +4121,7 @@ fi
 # You need Xcode or the command-line tools installed to get the compilers (xcrun checks both).
 #
  if [ ! -x /usr/bin/xcrun ]; then
-    echo "Please install Xcode (app or command line) first (should be available on DVD or from the Mac App Store)."
+    echo "Please install Xcode (app or command line) first (should be available from the Mac App Store)."
     exit 1
 fi
 
@@ -4132,7 +4141,7 @@ if [ "$QT_VERSION" ]; then
     elif qmake --version >/dev/null 2>&1; then
         :
     else
-        echo "Please install Xcode first (should be available on DVD or from the Mac App Store)."
+        echo "Please install Xcode first (should be available from the Mac App Store)."
         echo "The command-line build tools are not sufficient to build Qt."
         echo "Alternatively build QT according to: https://gist.github.com/shoogle/750a330c851bd1a924dfe1346b0b4a08#:~:text=MacOS%2FQt%5C%20Creator-,Go%20to%20Qt%20Creator%20%3E%20Preferences%20%3E%20Build%20%26%20Run%20%3E%20Kits,for%20both%20compilers%2C%20not%20gcc%20."
         exit 1
