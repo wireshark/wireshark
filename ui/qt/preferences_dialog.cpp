@@ -192,7 +192,7 @@ void PreferencesDialog::resizeSplitter()
     pd_ui_->prefsView->resizeColumnToContents(ModulePrefsModel::colName);
 
     int new_prefs_tree_width = pd_ui_->prefsView->columnWidth(ModulePrefsModel::colName);
-    int scrollBarWidth = pd_ui_->prefsView->verticalScrollBar()->width();
+    int scrollBarWidth = pd_ui_->prefsView->verticalScrollBar()->sizeHint().width();
     new_prefs_tree_width += scrollBarWidth;
     int border_width = pd_ui_->prefsView->style()->pixelMetric(QStyle::PM_DefaultFrameWidth);
     new_prefs_tree_width += 2 * border_width;
