@@ -16,22 +16,37 @@
 
 #include <iosfwd>
 #include <iostream>
-// MINIZIP and MINIZIPNG are generally built with zlib.
-// We have to include the one it was built against to
-// avoid redefining some structs due to unsigned not
-// always being an uint32_t
-#ifdef HAVE_ZLIBNG
-#include <zlib-ng.h>
-#else
-#include <zlib.h>  // For Z_DEFLATED, etc.
-#endif
+// The original minizip API uses constants defined in zlib.h like Z_DEFLATED.
+// The original minizip's zip.h and unzip.h include zlib.h, but minizip-ng's
+// do not until 4.0.8.
+// https://github.com/zlib-ng/minizip-ng/commit/91112baa265fcea729f534ceb085c54f4fd285d3
+//
+// The minizip-ng library itself does include either zlib.h or zlib-ng.h, depending
+// on which one was linked against when building.
+// The zlib.h included with the MacOS SDK is built without ZLIB_CONST so it's
+// not ABI compatible with zlib.h that do define ZLIB_CONST (or with zlib-ng.h
+// in general) so if we include one here, we have to include the same one used
+// when building minizip-ng.
+// Fedora and Red Hat Linux provide minizip-ng and zlib-ng as minizip and zlib,
+// respectively, so HAVE_MINIZIP being defined doesn't necessarily mean we have
+// the original minizip instead of minizip-ng.
 #ifdef HAVE_MINIZIP
 #include <minizip/unzip.h>
 #include <minizip/zip.h>
-#else
+#if !defined(Z_DEFLATED) || !defined(Z_DEFAULT_STRATEGY)
+#include <zlib.h>  // For Z_DEFLATED, etc.
+#endif /* !defined(Z_DEFLATED) || !defined(Z_DEFAULT_STRATEGY) */
+#else /* HAVE_MINIZIP */
 #include <minizip-ng/unzip.h>
 #include <minizip-ng/zip.h>
-#endif
+#if !defined(Z_DEFLATED) || !defined(Z_DEFAULT_STRATEGY)
+#ifdef HAVE_ZLIBNG
+#include <zlib-ng.h>  // For Z_DEFLATED, etc.
+#else /* HAVE_ZLIBNG */
+#include <zlib.h>  // For Z_DEFLATED, etc.
+#endif /* HAVE_ZLIBNG */
+#endif /* !defined(Z_DEFLATED) || !defined(Z_DEFAULT_STRATEGY) */
+#endif /* HAVE_MINIZIP */
 #include "epan/prefs.h"
 #include "wsutil/file_util.h"
 
