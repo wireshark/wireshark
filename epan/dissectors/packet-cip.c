@@ -4499,7 +4499,7 @@ static int dissect_file_download_transfer(packet_info *pinfo _U_, proto_tree *tr
    {
       proto_tree_add_item(tree, hf_file_transfer_number, tvb, offset, 1, ENC_LITTLE_ENDIAN);
       proto_tree_add_item(tree, hf_file_transfer_packet_type, tvb, offset + 1, 1, ENC_LITTLE_ENDIAN);
-      proto_tree_add_item(tree, hf_file_data, tvb, offset + 2, tvb_reported_length_remaining(tvb, offset + 2), ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(tree, hf_file_data, tvb, offset + 2, tvb_reported_length_remaining(tvb, offset + 2), ENC_NA);
 
       parsed_len = tvb_reported_length_remaining(tvb, offset);
    }
@@ -4526,7 +4526,7 @@ static int dissect_file_upload_transfer(packet_info *pinfo _U_, proto_tree *tree
    {
       proto_tree_add_item(tree, hf_file_transfer_number, tvb, offset, 1, ENC_LITTLE_ENDIAN);
       proto_tree_add_item(tree, hf_file_transfer_packet_type, tvb, offset + 1, 1, ENC_LITTLE_ENDIAN);
-      proto_tree_add_item(tree, hf_file_data, tvb, offset + 2, tvb_reported_length_remaining(tvb, offset + 2), ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(tree, hf_file_data, tvb, offset + 2, tvb_reported_length_remaining(tvb, offset + 2), ENC_NA);
 
       parsed_len = tvb_reported_length_remaining(tvb, offset);
    }
