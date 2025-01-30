@@ -4161,6 +4161,11 @@ static int dissect_udcompparam(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
                                uint32_t *exponent, uint16_t *sReSMask,
                                bool for_sinr)
 {
+    if (for_sinr && (comp_meth != COMP_BLOCK_FP)) {
+        /* sinrCompParam only present when bfp is used */
+        return offset;
+    }
+
     if (comp_meth == COMP_NONE ||
         comp_meth == COMP_MODULATION ||
         comp_meth == MOD_COMPR_AND_SELECTIVE_RE_WITH_MASKS) {
@@ -4173,7 +4178,7 @@ static int dissect_udcompparam(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
     unsigned start_offset = offset;
     proto_item *udcompparam_ti = proto_tree_add_string_format(tree, hf_oran_udCompParam,
                                                          tvb, offset, 1, "",
-                                                         (for_sinr) ? "sinrCompHdr" : "udCompParam");
+                                                         (for_sinr) ? "sinrCompParam" : "udCompParam");
     proto_tree *udcompparam_tree = proto_item_add_subtree(udcompparam_ti, ett_oran_udcompparam);
 
     /* Show comp_meth as a generated field */
