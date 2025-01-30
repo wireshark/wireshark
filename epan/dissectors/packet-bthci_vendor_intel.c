@@ -551,10 +551,10 @@ dissect_bthci_vendor_intel(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
                 proto_tree_add_item(main_tree, hf_intel_identifier, tvb, offset, 2, ENC_LITTLE_ENDIAN);
                 offset += 2;
 
-                proto_tree_add_item(main_tree, hf_intel_data, tvb, offset, ddc_config_length, ENC_NA);
-                offset += ddc_config_length;
+                proto_tree_add_item(main_tree, hf_intel_data, tvb, offset, ddc_config_length - 2, ENC_NA);
+                offset += ddc_config_length - 2;
 
-                length -= 1 + 3 + ddc_config_length;
+                length -= 1 + ddc_config_length;
             }
 
             break;
