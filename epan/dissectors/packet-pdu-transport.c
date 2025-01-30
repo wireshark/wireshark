@@ -298,7 +298,7 @@ proto_register_pdu_transport(void) {
         UAT_END_FIELDS
     };
 
-    pdu_transport_pduid_uat = uat_new("pdu_transport Capture Modules",
+    pdu_transport_pduid_uat = uat_new("PDU Transport PDUs",
         sizeof(generic_one_id_string_t),        /* record size           */
         DATAFILE_PDU_IDS,                       /* filename              */
         true,                                   /* from profile          */
