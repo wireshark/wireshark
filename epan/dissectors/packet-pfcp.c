@@ -5,7 +5,7 @@
  * Copyright 2017-2018, Anders Broman <anders.broman@ericsson.com>
  *
  * Updates and corrections:
- * Copyright 2017-2024, Joakim Karlsson <oakimk@gmail.com>
+ * Copyright 2017-2025, Joakim Karlsson <oakimk@gmail.com>
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -13,7 +13,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
- * Ref 3GPP TS 29.244 V18.6.0 (2024-06-26)
+ * Ref 3GPP TS 29.244 V18.8.0 (2025-01-03)
  */
 #include "config.h"
 
@@ -1065,6 +1065,13 @@ static int hf_pfcp_n6_routing_information_destination_ipv4;
 static int hf_pfcp_n6_routing_information_destination_ipv6;
 static int hf_pfcp_n6_routing_information_destination_port;
 
+static int hf_pfcp_uri;
+
+static int hf_pfcp_ue_level_measurements_configuration_job_type;
+static int hf_pfcp_ue_level_measurements_configuration_number_of_measurement;
+static int hf_pfcp_ue_level_measurements_configuration_measurement_type;
+static int hf_pfcp_ue_level_measurements_configuration_time_period;
+
 /* Enterprise IEs */
 /* BBF */
 static int hf_pfcp_bbf_up_function_features_o7_b7_nat_up;
@@ -1948,7 +1955,9 @@ static const value_string pfcp_ie_type[] = {
     { 349, "RTP Header Extension Additional Information"},          /* Extendable / Clause 8.2.241 */
     { 350, "Mapped N6 IP Address"},                                 /* Extendable / Clause 8.2.242 */
     { 351, "N6 Routing Information"},                               /* Extendable / Clause 8.2.243 */
-    //352 to 32767 Spare. For future use.
+    { 352, "URI"},                                                  /* Variable Length / Clause 8.2.244 */
+    { 353, "UE Level Measurements Configuration"},                  /* Extendable / Clause 8.2.245 */
+    //354 to 32767 Spare. For future use.
     //32768 to 65535 Vendor-specific IEs.
     {0, NULL}
 };
@@ -10066,6 +10075,61 @@ dissect_pfcp_n6_routing_information(tvbuff_t *tvb, packet_info *pinfo, proto_tre
     }
 }
 
+/*
+ * 8.2.244    URI
+ */
+static void
+dissect_pfcp_uri(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, uint16_t length, uint8_t message_type _U_, pfcp_session_args_t *args _U_)
+{
+    proto_tree_add_item(tree, hf_pfcp_uri, tvb, 0, length, ENC_ASCII | ENC_NA);
+}
+
+/*
+ * 8.2.245   UE Level Measurements Configuration
+ */
+static const value_string pfcp_ue_level_measurements_configuration_job_type_vals[] = {
+    { 1, "5GC UE Level Measurements only" },
+    { 2, "Trace and 5GC UE Level Measurements" },
+    { 0, NULL }
+};
+static const value_string pfcp_ue_level_measurements_configuration_measurement_type_vals[] = {
+    { 1, "Average DL packet delay between PSA UPF and UE for a QoS flow" },
+    { 2, "Average UL packet delay between PSA UPF and UE for a QoS flow (excluding D1)" },
+    { 3, "Average UL packet delay between PSA UPF and UE for a QoS flow (including D1)" },
+    { 4, "Average UL packet delay between PSA UPF and NG-RAN for a QoS flow" },
+    { 5, "Average DL packet delay between PSA UPF and NG-RAN for a QoS flow" },
+    { 0, NULL }
+};
+static void
+dissect_pfcp_ue_level_measurements_configuration(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, uint16_t length, uint8_t message_type _U_, pfcp_session_args_t *args _U_)
+{
+    int offset = 0;
+    uint32_t value, i;
+
+    /* 5   Job Type  */
+    proto_tree_add_item(tree, hf_pfcp_ue_level_measurements_configuration_job_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
+
+    /* 6   Number of Measurement Types  */
+    proto_tree_add_item_ret_uint(tree, hf_pfcp_ue_level_measurements_configuration_number_of_measurement, tvb, offset, 1, ENC_BIG_ENDIAN, &value);
+    offset += 1;
+
+    /* 7+k-1 Measurement Type value  */
+    for (i = 0; i < value; i++)
+    {
+        proto_tree_add_item(tree, hf_pfcp_ue_level_measurements_configuration_measurement_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset += 1;
+    }
+
+    /* m to m+2   Time Period  */
+    proto_tree_add_item(tree, hf_pfcp_ue_level_measurements_configuration_time_period, tvb, offset, 3, ENC_BIG_ENDIAN);
+    offset += 3;
+
+    if (offset < length) {
+        proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, offset, length);
+    }
+}
+
 static pfcp_msg_hash_t *
 pfcp_match_response(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, int seq_nr, unsigned msgtype, pfcp_conv_info_t *pfcp_info, uint8_t last_cause)
 {
@@ -10806,7 +10870,9 @@ static const pfcp_ie_t pfcp_ies[] = {
 /*    349 */    { dissect_pfcp_rtp_header_extension_additional_information },   /* RTP Header Extension Additional Information	    Extendable / Clause 8.2.241 */
 /*    350 */    { dissect_pfcp_mapped_n6_ip_address },                          /* Mapped N6 IP Address	                            Extendable / Clause 8.2.242 */
 /*    351 */    { dissect_pfcp_n6_routing_information },                        /* N6 Routing Information                           Extendable / Clause 8.2.243 */
-//352 to 32767 Spare. For future use.
+/*    352 */    { dissect_pfcp_uri },                                           /* URI                                              Variable Length / Clause 8.2.244 */
+/*    353 */    { dissect_pfcp_ue_level_measurements_configuration },           /* UE Level Measurements Configuration              Extendable / Clause 8.2.245 */
+//354 to 32767 Spare. For future use.
 //32768 to 65535 Vendor-specific IEs.
     { NULL },                                                        /* End of List */
 };
@@ -17395,6 +17461,34 @@ proto_register_pfcp(void)
         { &hf_pfcp_n6_routing_information_destination_port,
         { "Destination Port Number", "pfcp.n6_routing_information.dpn",
             FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+
+        { &hf_pfcp_uri,
+        { "URI", "pfcp.uri",
+            FT_STRING, BASE_NONE, NULL, 0,
+            NULL, HFILL }
+        },
+
+        { &hf_pfcp_ue_level_measurements_configuration_job_type,
+        { "Job Type", "pfcp.ue_level_measurements_configuration.job_type",
+            FT_UINT8, BASE_DEC, VALS(pfcp_ue_level_measurements_configuration_job_type_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_ue_level_measurements_configuration_number_of_measurement,
+        { "Number of Measurement", "pfcp.ue_level_measurements_configuration.number_of_measurement",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_ue_level_measurements_configuration_measurement_type,
+        { "Measurement Type", "pfcp.ue_level_measurements_configuration.measurement_type",
+            FT_UINT8, BASE_DEC, VALS(pfcp_ue_level_measurements_configuration_measurement_type_vals), 0x0,
+            NULL, HFILL }
+        },
+
+        { &hf_pfcp_ue_level_measurements_configuration_time_period,
+        { "Time Period", "pfcp.ue_level_measurements_configuration.time_period",
+            FT_UINT24, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
 
