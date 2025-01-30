@@ -750,10 +750,6 @@ decrypt_dtls_record(tvbuff_t *tvb, packet_info *pinfo, uint32_t offset, SslDecry
   /* run decryption and add decrypted payload to protocol data, if decryption
    * is successful*/
   dtls_decrypted_data_avail = dtls_decrypted_data.data_len;
-  if (!decoder) {
-    ssl_debug_printf("decrypt_dtls_record: no decoder available\n");
-    return false;
-  }
   success = ssl_decrypt_record(ssl, decoder, content_type, record_version, false,
                          tvb_get_ptr(tvb, offset, record_length), record_length, cid, cid_length,
                          &dtls_compressed_data, &dtls_decrypted_data, &dtls_decrypted_data_avail) == 0;
