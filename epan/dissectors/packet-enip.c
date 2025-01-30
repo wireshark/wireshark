@@ -4,7 +4,7 @@
  *
  * This dissector includes items from:
  *    CIP Volume 1: Common Industrial Protocol, Edition 3.34
- *    CIP Volume 2: EtherNet/IP Adaptation of CIP, Edition 1.30
+ *    CIP Volume 2: EtherNet/IP Adaptation of CIP, Edition 1.34
  *    CIP Volume 8: CIP Security, Edition 1.18
  *
  * Copyright 2003-2004
@@ -285,13 +285,15 @@ static int hf_elink_hc_icount_out_octets;
 static int hf_elink_hc_icount_out_ucast;
 static int hf_elink_hc_icount_out_mcast;
 static int hf_elink_hc_icount_out_broadcast;
-
+static int hf_elink_ethernet_errors;
+static int hf_elink_link_down_counter;
 static int hf_elink_hc_mcount_stats_align_errors;
 static int hf_elink_hc_mcount_stats_fcs_errors;
 static int hf_elink_hc_mcount_stats_internal_mac_transmit_errors;
 static int hf_elink_hc_mcount_stats_frame_too_long;
 static int hf_elink_hc_mcount_stats_internal_mac_receive_errors;
 static int hf_elink_hc_mcount_stats_symbol_errors;
+static int hf_cip_mac_address;
 
 static int hf_qos_8021q_enable;
 static int hf_qos_dscp_ptp_event;
@@ -394,6 +396,11 @@ static int hf_ingress_egress_apply_behavior;
 static int hf_ingress_egress_ins_num;
 static int hf_ingress_egress_ins;
 static int hf_ingress_egress_max_buffer_size_for_rules;
+static int hf_prp_lre_enable;
+static int hf_prp_node_type;
+static int hf_prp_node_name;
+static int hf_prp_version_name;
+static int hf_prp_hsr_nodes_tables_count;
 
 /* Initialize the subtree pointers */
 static int ett_enip;
@@ -2162,7 +2169,7 @@ dissect_eip_security_trusted_identities(packet_info *pinfo, proto_tree *tree, pr
 static int dissect_eip_security_apply_config(packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, tvbuff_t *tvb, int offset, bool request)
 {
    int data_len;
-   
+
    if (request)
    {
       proto_tree_add_item(tree, hf_eip_security_apply_behavior_flags, tvb, offset, 2, ENC_LITTLE_ENDIAN);
@@ -2469,6 +2476,14 @@ static int dissect_tcpip_set_port_admin_state(packet_info *pinfo, proto_tree *tr
    }
 }
 
+int dissect_cip_mac_address(packet_info* pinfo _U_, proto_tree* tree, proto_item* item _U_, tvbuff_t* tvb,
+    int offset, int total_len _U_)
+{
+    proto_tree_add_item(tree, hf_cip_mac_address, tvb, offset, 6, ENC_NA);
+
+    return 6;
+}
+
 const attribute_info_t enip_attribute_vals[] = {
 
     /* TCP/IP Object (class attributes) */
@@ -2519,6 +2534,8 @@ const attribute_info_t enip_attribute_vals[] = {
    {0xF6, false, 11, 10, "Interface Capability",     cip_dissector_func,   NULL, dissect_elink_interface_capability},
    {0xF6, false, 12, 11, "HC Interface Counters",    cip_dissector_func,   NULL, dissect_elink_hc_interface_counters},
    {0xF6, false, 13, 12, "HC Media Counters",        cip_dissector_func,   NULL, dissect_elink_hc_media_counters},
+   {0xF6, false, 14, 13, "Ethernet Errors",          cip_udint,            &hf_elink_ethernet_errors,   NULL},
+   {0xF6, false, 15, 14, "Link_Down Counter",        cip_udint,            &hf_elink_link_down_counter, NULL},
 
     /* QoS Object (class attributes) */
    {0x48, true, 1, 0, CLASS_ATTRIBUTE_1_NAME, cip_uint, &hf_attr_class_revision, NULL },
@@ -2566,6 +2583,16 @@ const attribute_info_t enip_attribute_vals[] = {
    {0x47, false, 14, -1, "Redundant Gateway Status",        cip_usint, &hf_dlr_redundant_gateway_status, NULL},
    {0x47, false, 15, -1, "Active Gateway Address",          cip_dissector_func, NULL, dissect_dlr_active_gateway_address},
    {0x47, false, 16, -1, "Active Gateway Precedence",       cip_usint, &hf_dlr_active_gateway_precedence, NULL},
+
+   // PRP/HSR Protocol
+   {0x56, CIP_ATTR_INSTANCE, 1, 0, "LRE Enable", cip_bool, &hf_prp_lre_enable, NULL},
+   {0x56, CIP_ATTR_INSTANCE, 2, 1, "Node Type", cip_uint, &hf_prp_node_type, NULL},
+   {0x56, CIP_ATTR_INSTANCE, 3, 2, "Node Name", cip_short_string, &hf_prp_node_name, NULL },
+   {0x56, CIP_ATTR_INSTANCE, 4, 3, "Version Name", cip_short_string, &hf_prp_version_name, NULL },
+   {0x56, CIP_ATTR_INSTANCE, 5, 4, "LRE MAC Address", cip_dissector_func, NULL, dissect_cip_mac_address},
+
+   // PRP/HSR Nodes Table
+   {0x57, CIP_ATTR_INSTANCE, 1, 0, "PRP/HSR Nodes Table(s) Count", cip_udint, &hf_prp_hsr_nodes_tables_count, NULL},
 
    /* CIP Security Object (instance attributes) */
    {0x5D, CIP_ATTR_INSTANCE, 1, 0, "State", cip_usint, &hf_cip_security_state, NULL},
@@ -4015,6 +4042,12 @@ proto_register_enip(void)
 
       { &hf_ingress_egress_max_buffer_size_for_rules, { "Max Buffer Size for Rules", "cip.ingress_egress.max_buffer_size_for_rules", FT_UINT32, BASE_DEC|BASE_UNIT_STRING, UNS(&units_byte_bytes), 0, NULL, HFILL } },
 
+      { &hf_prp_lre_enable, { "LRE Enable", "cip.prp.lre_enable", FT_BOOLEAN, BASE_NONE, TFS(&tfs_enabled_disabled), 0, NULL, HFILL } },
+      { &hf_prp_node_type, { "Node Type", "cip.prp.node_type", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL } },
+      { &hf_prp_node_name, { "Node Name", "cip.prp.node_name", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL } },
+      { &hf_prp_version_name, { "Version Name", "cip.prp.version_name", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL } },
+      { &hf_prp_hsr_nodes_tables_count, { "PRP/HSR Nodes Table(s) Count", "cip.prp.prp_hsr_nodes_table_count", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL } },
+
       { &hf_enip_iana_port_state_flags,
         { "IANA Port State", "enip.iana_port_state_flags",
           FT_UINT8, BASE_HEX, NULL, 0,
@@ -4697,6 +4730,10 @@ proto_register_enip(void)
         { "Stats Symbol Errors", "cip.elink.hc_mcount.stats_symbol_errors",
           FT_UINT64, BASE_DEC, NULL, 0,
           NULL, HFILL } },
+
+      { &hf_elink_ethernet_errors, { "Ethernet Errors", "cip.elink.ethernet_errors", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL } },
+      { &hf_elink_link_down_counter, { "Link_Down Counter", "cip.elink.link_down_counter", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL } },
+      { &hf_cip_mac_address, { "MAC Address", "cip.mac_address", FT_ETHER, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 
       { &hf_qos_8021q_enable,
         { "802.1Q Tag Enable", "cip.qos.8021q_enable",

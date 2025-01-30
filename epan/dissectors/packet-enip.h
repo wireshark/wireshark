@@ -117,9 +117,11 @@ extern int dissect_ingress_egress_rules(packet_info *pinfo, proto_tree *tree, pr
    tvbuff_t *tvb, int offset, int total_len);
 extern int dissect_ingress_egress_set_rules(packet_info *pinfo, proto_tree *tree, proto_item *item,
    tvbuff_t *tvb, int offset, bool request);
+extern int dissect_cip_mac_address(packet_info* pinfo, proto_tree* tree, proto_item* item,
+    tvbuff_t* tvb, int offset, int total_len);
 extern int dissect_lldp_cip_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 extern const value_string lldp_cip_subtypes[];
 
-extern const attribute_info_t enip_attribute_vals[125];
+extern const attribute_info_t enip_attribute_vals[133];
 
 #endif /* PACKET_ENIP_H */
