@@ -16,12 +16,21 @@
 
 #include <iosfwd>
 #include <iostream>
+// MINIZIP and MINIZIPNG are generally built with zlib.
+// We have to include the one it was built against to
+// avoid redefining some structs due to unsigned not
+// always being an uint32_t
+#ifdef HAVE_ZLIBNG
+#include <zlib-ng.h>
+#else
 #include <zlib.h>  // For Z_DEFLATED, etc.
+#endif
 #ifdef HAVE_MINIZIP
 #include <minizip/unzip.h>
 #include <minizip/zip.h>
 #else
-#include <minizip-ng/mz_compat.h>
+#include <minizip-ng/unzip.h>
+#include <minizip-ng/zip.h>
 #endif
 #include "epan/prefs.h"
 #include "wsutil/file_util.h"
