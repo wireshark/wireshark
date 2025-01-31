@@ -100,7 +100,6 @@ static int	(*p_pcap_set_buffer_size)(pcap_t *, int);
 static int	(*p_pcap_activate)(pcap_t *);
 static const char *(*p_pcap_statustostr)(int);
 
-#ifdef HAVE_PCAP_SET_TSTAMP_TYPE
 static int      (*p_pcap_set_tstamp_type)(pcap_t *, int);
 static int      (*p_pcap_set_tstamp_precision)(pcap_t *, int);
 static int      (*p_pcap_get_tstamp_precision)(pcap_t *);
@@ -109,7 +108,6 @@ static void     (*p_pcap_free_tstamp_types)(int *);
 static int      (*p_pcap_tstamp_type_name_to_val)(const char *);
 static const char * (*p_pcap_tstamp_type_val_to_name)(int);
 static const char * (*p_pcap_tstamp_type_val_to_description)(int);
-#endif
 
 typedef struct {
 	const char	*name;
@@ -177,7 +175,6 @@ load_wpcap(void)
 		SYM(pcap_can_set_rfmon, false),
 		SYM(pcap_set_rfmon, false),
 		SYM(pcap_statustostr, false),
-#ifdef HAVE_PCAP_SET_TSTAMP_TYPE
 		SYM(pcap_set_tstamp_type, true),
 		SYM(pcap_set_tstamp_precision, true),
 		SYM(pcap_get_tstamp_precision, true),
@@ -186,7 +183,6 @@ load_wpcap(void)
 		SYM(pcap_tstamp_type_name_to_val, true),
 		SYM(pcap_tstamp_type_val_to_name, true),
 		SYM(pcap_tstamp_type_val_to_description, true),
-#endif
 		{ NULL, NULL, false }
 	};
 
@@ -630,7 +626,6 @@ pcap_statustostr(int a)
 	return p_pcap_statustostr(a);
 }
 
-#ifdef HAVE_PCAP_SET_TSTAMP_TYPE
 int
 pcap_set_tstamp_type(pcap_t *a, int b) {
 	ws_assert(has_npcap);
@@ -703,7 +698,6 @@ pcap_tstamp_type_val_to_description(int a) {
 	}
 	return NULL;
 }
-#endif
 
 int
 pcap_datalink_name_to_val(const char *name)

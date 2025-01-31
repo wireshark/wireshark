@@ -236,18 +236,6 @@
 /* Define to 1 if you have the `pcap_setsampling' function. */
 #cmakedefine HAVE_PCAP_SETSAMPLING 1
 
-/* Define to 1 if you have the `pcap_set_tstamp_precision' function. */
-#cmakedefine HAVE_PCAP_SET_TSTAMP_PRECISION 1
-
-/* Define to 1 if you have the `pcap_set_tstamp_type' function. */
-#cmakedefine HAVE_PCAP_SET_TSTAMP_TYPE 1
-
-/* Define to 1 if you have the `PCAP_ERROR_PROMISC_PERM_DENIED' symbol. */
-#cmakedefine HAVE_PCAP_ERROR_PROMISC_PERM_DENIED 1
-
-/* Define to 1 if you have the `PCAP_WARNING_TSTAMP_TYPE_NOTSUP' symbol. */
-#cmakedefine HAVE_PCAP_WARNING_TSTAMP_TYPE_NOTSUP 1
-
 /* Define to 1 if you have the <pwd.h> header file. */
 #cmakedefine HAVE_PWD_H 1
 
@@ -438,10 +426,9 @@
  * The Npcap SDK, as of SDK version 1.04, provides them, so this is
  * only necessary for building with the WinPcap SDK.
  *
- * WinPcap isn't supported at runtime anymore, but it's possible to build
- * with the WinPcap SDK and run with Npcap, so long as this is defined.
- * That's what currently happens when cross-compiling with Fedora Linux,
- * which includes a MinGW WinPcap package.
+ * Building against the WinPcap SDK isn't supported anymore, nor is running
+ * with the WinPcap DLL installed, so needing this is very unlikely, though
+ * libpcap 1.9.0 or later is not yet required.
  */
 #ifdef HAVE_PCAP_REMOTE
 #define HAVE_REMOTE

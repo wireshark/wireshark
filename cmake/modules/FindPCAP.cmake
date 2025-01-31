@@ -107,8 +107,6 @@ endif()
 #
 #  # libpcap 1.5.0 (2013-11-07)
 #  check_symbol_exists(PCAP_ERROR_PROMISC_PERM_DENIED "pcap/pcap.h" HAVE_PCAP_ERROR_PROMISC_PERM_DENIED)
-#  # libpcap 1.2.1 (2012-01-01)
-#  check_symbol_exists(PCAP_WARNING_TSTAMP_TYPE_NOTSUP "pcap/pcap.h" HAVE_PCAP_WARNING_TSTAMP_TYPE_NOTSUP)
 #
 #  if (NOT HAVE_PCAP_ERROR_PROMISC_PERM_DENIED)
 #    set(${validator_result_var} FALSE PARENT_SCOPE)
@@ -234,19 +232,18 @@ if(PCAP_FOUND)
     set(HAVE_PCAP_OPEN TRUE)
     set(HAVE_PCAP_SETSAMPLING TRUE)
     set(HAVE_PCAP_SET_TSTAMP_PRECISION TRUE)
-    set(HAVE_PCAP_SET_TSTAMP_TYPE TRUE)
   else(WIN32)
     #
-    # Make sure we have at least libpcap 1.0, because we require at
-    # least libpcap 1.0's APIs.
+    # Make sure we have at least libpcap 1.5, because we require at
+    # least libpcap 1.5's APIs.
     #
-    # We check whether pcap_create is defined in the pcap header,
-    # using it as a proxy for all the 1.0 API's.  if not, we fail.
+    # We check whether pcap_set_tstamp_precision is defined in the pcap header,
+    # using it as a proxy for all the 1.5 API's.  if not, we fail.
     #
-    check_function_exists( "pcap_create" HAVE_PCAP_CREATE )
-    if( NOT HAVE_PCAP_CREATE )
-      message(FATAL_ERROR "You need libpcap 1.0 or later")
-    endif( NOT HAVE_PCAP_CREATE )
+    check_function_exists( "pcap_set_tstamp_precision" HAVE_PCAP_SET_TSTAMP_PRECISION )
+    if( NOT HAVE_PCAP_SET_TSTAMP_PRECISION )
+      message(FATAL_ERROR "You need libpcap 1.5 or later")
+    endif()
 
     #
     # macOS Sonoma's libpcap includes stub versions of the remote-
@@ -320,19 +317,15 @@ if(PCAP_FOUND)
     endif( HAVE_PCAP_OPEN )
   endif()
 
-  # This function became available in libpcap release 1.5.1. (2013-12-04)
-  check_function_exists( "pcap_set_tstamp_precision" HAVE_PCAP_SET_TSTAMP_PRECISION )
-  # This function became available in libpcap release 1.2.1. (2012-01-01)
-  check_function_exists( "pcap_set_tstamp_type" HAVE_PCAP_SET_TSTAMP_TYPE )
   # Remote pcap checks
   if( HAVE_PCAP_OPEN )
     set( HAVE_PCAP_REMOTE 1 )
   endif()
 
-  # libpcap 1.5.0 (2013-11-07)
   check_symbol_exists(PCAP_ERROR_PROMISC_PERM_DENIED "pcap/pcap.h" HAVE_PCAP_ERROR_PROMISC_PERM_DENIED)
-  # libpcap 1.2.1 (2012-01-01)
-  check_symbol_exists(PCAP_WARNING_TSTAMP_TYPE_NOTSUP "pcap/pcap.h" HAVE_PCAP_WARNING_TSTAMP_TYPE_NOTSUP)
+  if( NOT HAVE_PCAP_ERROR_PROMISC_PERM_DENIED )
+    message(FATAL_ERROR "You need libpcap 1.5 or later")
+  endif()
 
   cmake_pop_check_state()
 endif()

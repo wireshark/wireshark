@@ -3155,10 +3155,8 @@ capture_loop_open_input(capture_options *capture_opts, loop_data *ld,
         if (pcap_src->pcap_h != NULL) {
             /* we've opened "iface" as a network device */
 
-#ifdef HAVE_PCAP_SET_TSTAMP_PRECISION
             /* Find out if we're getting nanosecond-precision time stamps */
             pcap_src->ts_nsec = have_high_resolution_timestamp(pcap_src->pcap_h);
-#endif
 
 #if defined(HAVE_PCAP_SETSAMPLING)
             if (interface_opts->sampling_method != CAPTURE_SAMP_NONE) {
@@ -5949,7 +5947,6 @@ main(int argc, char *argv[])
         exit_main(status);
     }
 
-#ifdef HAVE_PCAP_SET_TSTAMP_TYPE
     for (j = 0; j < global_capture_opts.ifaces->len; j++) {
         interface_options *interface_opts;
 
@@ -5962,7 +5959,6 @@ main(int argc, char *argv[])
             }
         }
     }
-#endif
 
     /* We're supposed to do a capture, or print the BPF code for a filter. */
 

@@ -1124,7 +1124,6 @@ static GList*
 get_pcap_timestamp_types(pcap_t *pch _U_, char **err_str _U_)
 {
 	GList *list = NULL;
-#ifdef HAVE_PCAP_SET_TSTAMP_TYPE
 	int *types;
 	int ntypes = pcap_list_tstamp_types(pch, &types);
 
@@ -1142,11 +1141,9 @@ get_pcap_timestamp_types(pcap_t *pch _U_, char **err_str _U_)
 	}
 
 	pcap_free_tstamp_types(types);
-#endif
 	return list;
 }
 
-#ifdef HAVE_PCAP_SET_TSTAMP_PRECISION
 /*
  * Request high-resolution time stamps.
  *
@@ -1174,6 +1171,11 @@ request_high_resolution_timestamp(pcap_t *pcap_h)
 	 * call it.  We have to, instead, use dlopen() to load
 	 * libpcap, and dlsym() to find a pointer to pcap_set_tstamp_precision(),
 	 * and if we find the pointer, call it.
+	 *
+	 * XXX - This shouldn't be needed anymore; we don't support running
+	 * on any release older than macOS 11, and starting with macOS 11 the
+	 * system libpcap is based on libpcap 1.5 or later and has
+	 * pcap_set_tstamp_precision().
 	 */
 	static bool initialized = false;
 	static int (*p_pcap_set_tstamp_precision)(pcap_t *, int);
@@ -1242,8 +1244,6 @@ have_high_resolution_timestamp(pcap_t *pcap_h)
 	return pcap_get_tstamp_precision(pcap_h) == PCAP_TSTAMP_PRECISION_NANO;
 #endif /* __APPLE__ */
 }
-
-#endif /* HAVE_PCAP_SET_TSTAMP_PRECISION */
 
 #ifdef HAVE_BONDING
 static bool
@@ -1503,7 +1503,6 @@ open_capture_device_pcap_create(
 		return NULL;
 	}
 
-#ifdef HAVE_PCAP_SET_TSTAMP_PRECISION
 	/*
 	 * Try to enable nanosecond-resolution capture; any code
 	 * that can read pcapng files must be able to handle
@@ -1527,9 +1526,7 @@ open_capture_device_pcap_create(
 		pcap_close(pcap_h);
 		return NULL;
 	}
-#endif /* HAVE_PCAP_SET_TSTAMP_PRECISION */
 
-#ifdef HAVE_PCAP_SET_TSTAMP_TYPE
 	if (interface_opts->timestamp_type) {
 		status = pcap_set_tstamp_type(pcap_h, interface_opts->timestamp_type_id);
 		/*
@@ -1543,7 +1540,6 @@ open_capture_device_pcap_create(
 			return NULL;
 		}
 	}
-#endif /* HAVE_PCAP_SET_TSTAMP_PRECISION */
 
 	ws_debug("buffersize %d.", interface_opts->buffer_size);
 	if (interface_opts->buffer_size != 0) {
@@ -1584,13 +1580,11 @@ open_capture_device_pcap_create(
 			    sizeof *open_status_str);
 			break;
 
-#ifdef HAVE_PCAP_ERROR_PROMISC_PERM_DENIED
 		case PCAP_ERROR_PROMISC_PERM_DENIED:
 			*open_status = CAP_DEVICE_OPEN_ERROR_PROMISC_PERM_DENIED;
 			(void) g_strlcpy(*open_status_str, pcap_geterr(pcap_h),
 			    sizeof *open_status_str);
 			break;
-#endif
 
 		case PCAP_ERROR_RFMON_NOTSUP:
 			*open_status = CAP_DEVICE_OPEN_ERROR_RFMON_NOTSUP;
@@ -1632,13 +1626,11 @@ open_capture_device_pcap_create(
 			    sizeof *open_status_str);
 			break;
 
-#ifdef HAVE_PCAP_WARNING_TSTAMP_TYPE_NOTSUP
 		case PCAP_WARNING_TSTAMP_TYPE_NOTSUP:
 			*open_status = CAP_DEVICE_OPEN_WARNING_TSTAMP_TYPE_NOTSUP;
 			(void) g_strlcpy(*open_status_str, pcap_geterr(pcap_h),
 			    sizeof *open_status_str);
 			break;
-#endif
 
 		case PCAP_WARNING:
 			*open_status = CAP_DEVICE_OPEN_WARNING_OTHER;

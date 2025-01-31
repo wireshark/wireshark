@@ -52,13 +52,11 @@ bool set_pcap_datalink(pcap_t *pcap_h, int datalink, char *name,
     char *errmsg, size_t errmsg_len,
     char *secondary_errmsg, size_t secondary_errmsg_len);
 
-#ifdef HAVE_PCAP_SET_TSTAMP_PRECISION
 /*
  * Return true if the pcap_t in question is set up for high-precision
  * time stamps, false otherwise.
  */
 bool have_high_resolution_timestamp(pcap_t *pcap_h);
-#endif /* HAVE_PCAP_SET_TSTAMP_PRECISION */
 
 /*
  * Capture device open status values.
