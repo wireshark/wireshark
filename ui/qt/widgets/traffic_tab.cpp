@@ -133,14 +133,20 @@ QTreeView * TrafficTab::createTree(int protoId)
         tree->setSelectionModel(ism);
         connect(ism, &QItemSelectionModel::currentChanged, this, &TrafficTab::doCurrentIndexChange);
 
+        // Initially resize to the header widths (inc. hidden/filtered columns).
+        for (int col = 0; col < tree->model()->columnCount(); col++) {
+            tree->resizeColumnToContents(col);
+        }
+
         tree->applyRecentColumns();
 
         tree->sortByColumn(0, Qt::AscendingOrder);
 
         connect(proxyModel, &TrafficDataFilterProxy::modelReset, this, [tree]() {
             if (tree->model()->rowCount() > 0) {
-                for (int col = 0; col < tree->model()->columnCount(); col++)
-                    tree->resizeColumnToContents(col);
+                for (int col = 0; col < tree->model()->columnCount(); col++) {
+                    tree->widenColumnToContents(col);
+                }
             }
         });
         connect(proxyModel, &TrafficDataFilterProxy::modelReset, this, &TrafficTab::modelReset);
