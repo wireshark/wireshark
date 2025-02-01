@@ -5236,7 +5236,7 @@ static tap_packet_status dns_stats_tree_packet(stats_tree* st, packet_info* pinf
           val_to_str(pi->packet_qr, dns_qr_vals, "Unknown qr (%d)"));
   stats_tree_tick_pivot(st, st_node_packet_qtypes,
           val_to_str(pi->packet_qtype, dns_types_vals, "Unknown packet type (%d)"));
-  if (dns_qname_stats) {
+  if (dns_qname_stats && pi->qname_len > 0) {
         stats_tree_tick_pivot(st, st_node_packet_qnames, pi->qname);
   }
   stats_tree_tick_pivot(st, st_node_packet_qclasses,
@@ -5490,7 +5490,7 @@ static tap_packet_status dns_qr_stats_tree_packet(stats_tree* st, packet_info* p
         ip6_to_str_buf(pinfo->src.data, buf, sizeof(buf));
       }
       st_node = tick_stat_node(st, buf, st_node_qr_qf_packets, true);
-      if (dns_qr_qrn_statistics_enabled) {
+      if (dns_qr_qrn_statistics_enabled && pi->qname_len > 0) {
         tick_stat_node(st, pi->qname, st_node, false);
       }
     }
@@ -5500,7 +5500,7 @@ static tap_packet_status dns_qr_stats_tree_packet(stats_tree* st, packet_info* p
       ws_debug("qo = Query-Opcode\n");
       tick_stat_node(st, st_str_qr_qo_packets, st_node_qr_q_packets, true);
       st_node = tick_stat_node(st, val_to_str(pi->packet_opcode, opcode_vals, "Unknown opcode (%d)"), st_node_qr_qo_packets, true);
-      if (dns_qr_qrn_statistics_enabled) {
+      if (dns_qr_qrn_statistics_enabled && pi->qname_len > 0) {
         tick_stat_node(st, pi->qname, st_node, false);
       }
     }
@@ -5515,7 +5515,7 @@ static tap_packet_status dns_qr_stats_tree_packet(stats_tree* st, packet_info* p
       else {
         st_node = tick_stat_node(st, "Iteration Desired", st_node_qr_qk_packets, true);
       }
-      if (dns_qr_qrn_statistics_enabled) {
+      if (dns_qr_qrn_statistics_enabled && pi->qname_len > 0) {
         tick_stat_node(st, pi->qname, st_node, false);
       }
     }
@@ -5525,7 +5525,7 @@ static tap_packet_status dns_qr_stats_tree_packet(stats_tree* st, packet_info* p
       ws_debug("qt = Query-Type\n");
       tick_stat_node(st, st_str_qr_qt_packets, st_node_qr_q_packets, true);
       st_node = tick_stat_node(st, val_to_str(pi->packet_qtype, dns_types_vals, "Unknown packet type (%d)"), st_node_qr_qt_packets, true);
-      if (dns_qr_qrn_statistics_enabled) {
+      if (dns_qr_qrn_statistics_enabled && pi->qname_len > 0) {
         tick_stat_node(st, pi->qname, st_node, false);
       }
     }
@@ -5630,7 +5630,7 @@ static tap_packet_status dns_qr_stats_tree_packet(stats_tree* st, packet_info* p
       else {
         st_node = tick_stat_node(st, "> 64KB", st_node_qr_qp_packets, true);
       }
-      if (dns_qr_qrn_statistics_enabled) {
+      if (dns_qr_qrn_statistics_enabled && pi->qname_len > 0) {
         tick_stat_node(st, pi->qname, st_node, false);
       }
     }
@@ -5652,7 +5652,7 @@ static tap_packet_status dns_qr_stats_tree_packet(stats_tree* st, packet_info* p
       if (dns_qr_qs_u_statistics_enabled) {
         ws_debug("qs_u = Query-Service_Unanswered\n");
         if (!pi->retransmission) {
-          if (dns_qr_qrn_statistics_enabled) {
+          if (dns_qr_qrn_statistics_enabled && pi->qname_len > 0) {
             stats_tree_tick_pivot(st, st_node_qr_qs_u_packets, pi->qname);
           }
           else {
@@ -5665,7 +5665,7 @@ static tap_packet_status dns_qr_stats_tree_packet(stats_tree* st, packet_info* p
       if (dns_qr_qs_r_statistics_enabled) {
         ws_debug("qs_r = Query-Service_Retransmission\n");
         if (pi->retransmission) {
-          if (dns_qr_qrn_statistics_enabled) {
+          if (dns_qr_qrn_statistics_enabled && pi->qname_len > 0) {
             stats_tree_tick_pivot(st, st_node_qr_qs_r_packets, pi->qname);
           }
           else {
@@ -5697,7 +5697,7 @@ static tap_packet_status dns_qr_stats_tree_packet(stats_tree* st, packet_info* p
         ip6_to_str_buf(pinfo->src.data, buf, sizeof(buf));
       }
       st_node = tick_stat_node(st, buf, st_node_qr_rf_packets, true);
-      if (dns_qr_qrn_statistics_enabled) {
+      if (dns_qr_qrn_statistics_enabled && pi->qname_len > 0) {
         tick_stat_node(st, pi->qname, st_node, false);
       }
     }
@@ -5707,7 +5707,7 @@ static tap_packet_status dns_qr_stats_tree_packet(stats_tree* st, packet_info* p
       ws_debug("rc = Response-Code\n");
       tick_stat_node(st, st_str_qr_rc_packets, st_node_qr_r_packets, true);
       st_node = tick_stat_node(st, val_to_str(pi->packet_rcode, rcode_vals, "Unknown rcode (%d)"), st_node_qr_rc_packets, true);
-      if (dns_qr_qrn_statistics_enabled) {
+      if (dns_qr_qrn_statistics_enabled && pi->qname_len > 0) {
         tick_stat_node(st, pi->qname, st_node, false);
       }
     }
@@ -5722,7 +5722,7 @@ static tap_packet_status dns_qr_stats_tree_packet(stats_tree* st, packet_info* p
       else {
         st_node = tick_stat_node(st, "Non-Authoritative", st_node_qr_rk_packets, true);
       }
-      if (dns_qr_qrn_statistics_enabled) {
+      if (dns_qr_qrn_statistics_enabled && pi->qname_len > 0) {
         tick_stat_node(st, pi->qname, st_node, false);
       }
     }
@@ -5778,12 +5778,14 @@ static tap_packet_status dns_qr_stats_tree_packet(stats_tree* st, packet_info* p
       }
       if (dns_qr_qrn_statistics_enabled) {
         if (pi->nanswers == 0) {
-          if (dns_qr_qrn_aud_zv_statistics_enabled) {
+          if (dns_qr_qrn_aud_zv_statistics_enabled && pi->qname_len > 0) {
             tick_stat_node(st, pi->qname, st_node, false);
           }
         }
         else {
-          tick_stat_node(st, pi->qname, st_node, false);
+          if (pi->qname_len > 0) {
+            tick_stat_node(st, pi->qname, st_node, false);
+          }
         }
       }
     }
@@ -5839,12 +5841,14 @@ static tap_packet_status dns_qr_stats_tree_packet(stats_tree* st, packet_info* p
       }
       if (dns_qr_qrn_statistics_enabled) {
         if (pi->nauthorities == 0) {
-          if (dns_qr_qrn_aud_zv_statistics_enabled) {
+          if (dns_qr_qrn_aud_zv_statistics_enabled && pi->qname_len > 0) {
             tick_stat_node(st, pi->qname, st_node, false);
           }
         }
         else {
-          tick_stat_node(st, pi->qname, st_node, false);
+          if (pi->qname_len > 0) {
+            tick_stat_node(st, pi->qname, st_node, false);
+          }
         }
       }
     }
@@ -5900,12 +5904,14 @@ static tap_packet_status dns_qr_stats_tree_packet(stats_tree* st, packet_info* p
       }
       if (dns_qr_qrn_statistics_enabled) {
         if (pi->nadditionals == 0) {
-          if (dns_qr_qrn_aud_zv_statistics_enabled) {
+          if (dns_qr_qrn_aud_zv_statistics_enabled && pi->qname_len > 0) {
             tick_stat_node(st, pi->qname, st_node, false);
           }
         }
         else {
-          tick_stat_node(st, pi->qname, st_node, false);
+          if (pi->qname_len > 0) {
+            tick_stat_node(st, pi->qname, st_node, false);
+          }
         }
       }
     }
@@ -5971,7 +5977,7 @@ static tap_packet_status dns_qr_stats_tree_packet(stats_tree* st, packet_info* p
       else {
         st_node = tick_stat_node(st, "> 64KB", st_node_qr_rp_packets, true);
       }
-      if (dns_qr_qrn_statistics_enabled) {
+      if (dns_qr_qrn_statistics_enabled && pi->qname_len > 0) {
         tick_stat_node(st, pi->qname, st_node, false);
       }
     }
@@ -5987,20 +5993,20 @@ static tap_packet_status dns_qr_stats_tree_packet(stats_tree* st, packet_info* p
         ws_debug("rs_a = Response-Service_Answered (ms)\n");
         if (!pi->retransmission && !pi->unsolicited) {
           st_node = avg_stat_node_add_value_float(st, st_str_qr_rs_a_packets, st_node_qr_rs_packets, true, (float)(pi->rrt.secs * 1000. + pi->rrt.nsecs / 1000000.0));
-          if (dns_qr_qrn_statistics_enabled) {
+          if (dns_qr_qrn_statistics_enabled && pi->qname_len > 0) {
             avg_stat_node_add_value_float(st, pi->qname, st_node, false, (float)(pi->rrt.secs * 1000. + pi->rrt.nsecs / 1000000.0));
           }
           // filling in qs_a = Answered (ms)
           if (dns_qr_qs_a_statistics_enabled) {
             st_node = avg_stat_node_add_value_float(st, st_str_qr_qs_a_packets, st_node_qr_qs_packets, true, (float)(pi->rrt.secs * 1000. + pi->rrt.nsecs / 1000000.0));
-            if (dns_qr_qrn_statistics_enabled) {
+            if (dns_qr_qrn_statistics_enabled && pi->qname_len > 0) {
               avg_stat_node_add_value_float(st, pi->qname, st_node, false, (float)(pi->rrt.secs * 1000. + pi->rrt.nsecs / 1000000.0));
             }
           }
           // decrementing qs_u = Unanswered
           if (dns_qr_qs_u_statistics_enabled) {
             increase_stat_node(st, st_str_qr_qs_u_packets, st_node_qr_qs_packets, false, -1);
-            if (dns_qr_qrn_statistics_enabled) {
+            if (dns_qr_qrn_statistics_enabled && pi->qname_len > 0) {
               increase_stat_node(st, pi->qname, st_node_qr_qs_u_packets, false, -1);
             }
           }
@@ -6012,7 +6018,7 @@ static tap_packet_status dns_qr_stats_tree_packet(stats_tree* st, packet_info* p
         ws_debug("rs_u = Response-Service_Unsolicited\n");
         // service statistics (total responses = unsolicited + retransmissions + non-retransmissions)
         if (pi->unsolicited) { // unsolicited = responses without queries being present in this capture
-          if (dns_qr_qrn_statistics_enabled) {
+          if (dns_qr_qrn_statistics_enabled && pi->qname_len > 0) {
             stats_tree_tick_pivot(st, st_node_qr_rs_u_packets, pi->qname);
           }
           else {
@@ -6025,7 +6031,7 @@ static tap_packet_status dns_qr_stats_tree_packet(stats_tree* st, packet_info* p
       if (dns_qr_rs_r_statistics_enabled) {
         ws_debug("rs_r = Response-Service_Retransmission\n");
         if (pi->retransmission && !pi->unsolicited) {
-          if (dns_qr_qrn_statistics_enabled) {
+          if (dns_qr_qrn_statistics_enabled && pi->qname_len > 0) {
             stats_tree_tick_pivot(st, st_node_qr_rs_r_packets, pi->qname);
           }
           else {
@@ -6082,7 +6088,7 @@ static tap_packet_status dns_qr_stats_tree_packet(stats_tree* st, packet_info* p
           else {
             st_node = tick_stat_node(st, "> year", st_node_qr_rt_a_packets, true);
           }
-          if (dns_qr_qrn_statistics_enabled) {
+          if (dns_qr_qrn_statistics_enabled && pi->qname_len > 0) {
             tick_stat_node(st, pi->qname, st_node, false);
           }
         }
@@ -6122,7 +6128,7 @@ static tap_packet_status dns_qr_stats_tree_packet(stats_tree* st, packet_info* p
           else {
             st_node = tick_stat_node(st, "> year", st_node_qr_rt_u_packets, true);
           }
-          if (dns_qr_qrn_statistics_enabled) {
+          if (dns_qr_qrn_statistics_enabled && pi->qname_len > 0) {
             tick_stat_node(st, pi->qname, st_node, false);
           }
         }
@@ -6162,7 +6168,7 @@ static tap_packet_status dns_qr_stats_tree_packet(stats_tree* st, packet_info* p
           else {
             st_node = tick_stat_node(st, "> year", st_node_qr_rt_d_packets, true);
           }
-          if (dns_qr_qrn_statistics_enabled) {
+          if (dns_qr_qrn_statistics_enabled && pi->qname_len > 0) {
             tick_stat_node(st, pi->qname, st_node, false);
           }
         }
