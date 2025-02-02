@@ -21,7 +21,7 @@
 #ifdef HAVE_MINIZIP
 #include "minizip/zip.h"
 #else
-#include "minizip-ng/mz_compat.h"
+#include "minizip-ng/zip.h"
 #endif
 
 class WiresharkZipHelper

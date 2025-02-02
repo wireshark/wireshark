@@ -1,5 +1,6 @@
 #
-# - Find minizip libraries
+# - Find minizip libraries, which might be minizip-ng with a
+#   compatibility layer and the name minzip
 #
 #  MINIZIP_INCLUDE_DIRS - where to find minizip headers.
 #  MINIZIP_LIBRARIES    - List of libraries when using minizip.
