@@ -154,7 +154,12 @@ void EndpointDialog::tabChanged(int idx)
             // Move the selected tab to the head
             if (selected_tab != nullptr) {
                 recent.endpoint_tabs = g_list_remove_link(recent.endpoint_tabs, selected_tab);
+#if GLIB_CHECK_VERSION(2, 62, 0)
+                recent.endpoint_tabs = g_list_insert_before_link(recent.endpoint_tabs, recent.endpoint_tabs, selected_tab);
+#else
                 recent.endpoint_tabs = g_list_prepend(recent.endpoint_tabs, selected_tab->data);
+                g_list_free_1(selected_tab);
+#endif
             }
         }
     }
