@@ -88,9 +88,11 @@ Depends: ${shlibs:Depends},
          libqt6svg6,
          qt6-qpa-plugins
 Recommends: libqt6multimedia6
-Breaks: wireshark-qt,
+Breaks: libwireshark-data (<< 4.4.3-2~),
+        wireshark-qt,
         wireshark-gtk (<< 3.0.0~)
-Replaces: wireshark-qt,
+Replaces: libwireshark-data (<< 4.4.3-2~),
+          wireshark-qt,
           wireshark-gtk (<< 3.0.0~)
 Description: network traffic analyzer - graphical interface
  Wireshark is a network "sniffer" - a tool that captures and analyzes

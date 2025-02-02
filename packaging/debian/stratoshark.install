@@ -2,3 +2,4 @@ usr/bin/stratoshark
 usr/lib/*/stratoshark/extcap
 usr/share/stratoshark/*
 usr/share/applications/org.wireshark.Stratoshark.desktop
+usr/share/metainfo/org.wireshark.Stratoshark.metainfo.xml

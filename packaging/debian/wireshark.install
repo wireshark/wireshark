@@ -1,2 +1,3 @@
 usr/bin/wireshark
 usr/share/applications/org.wireshark.Wireshark.desktop
+usr/share/metainfo/org.wireshark.Wireshark.metainfo.xml
