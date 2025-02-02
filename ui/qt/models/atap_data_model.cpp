@@ -228,9 +228,9 @@ void ATapDataModel::updateData(GArray * newData)
     if (_disableTap)
         return;
 
-    beginResetModel();
+    emit layoutAboutToBeChanged();
     storage_ = newData;
-    endResetModel();
+    emit layoutChanged();
 
     if (_type == ATapDataModel::DATAMODEL_CONVERSATION)
         ((ConversationDataModel *)(this))->doDataUpdate();
@@ -239,16 +239,6 @@ void ATapDataModel::updateData(GArray * newData)
 bool ATapDataModel::resolveNames() const
 {
     return _resolveNames;
-}
-
-void ATapDataModel::setResolveNames(bool resolve)
-{
-    if (_resolveNames == resolve)
-        return;
-
-    beginResetModel();
-    _resolveNames = resolve;
-    endResetModel();
 }
 
 bool ATapDataModel::allowsNameResolution() const
@@ -275,26 +265,6 @@ bool ATapDataModel::allowsNameResolution() const
         return true;
 
     return false;
-}
-
-void ATapDataModel::useAbsoluteTime(bool absolute)
-{
-    if (absolute == _absoluteTime)
-        return;
-
-    beginResetModel();
-    _absoluteTime = absolute;
-    endResetModel();
-}
-
-void ATapDataModel::useNanosecondTimestamps(bool nanoseconds)
-{
-    if (_nanoseconds == nanoseconds)
-        return;
-
-    beginResetModel();
-    _nanoseconds = nanoseconds;
-    endResetModel();
 }
 
 void ATapDataModel::setFilter(QString filter)
@@ -568,6 +538,35 @@ QVariant EndpointDataModel::data(const QModelIndex &idx, int role) const
     }
 
     return QVariant();
+}
+
+void EndpointDataModel::setResolveNames(bool resolve)
+{
+    if (_resolveNames == resolve)
+        return;
+
+    _resolveNames = resolve;
+    if (rowCount() > 0) {
+        dataChanged(index(0, ENDP_COLUMN_ADDR), index(rowCount() - 1, ENDP_COLUMN_PORT));
+    }
+}
+
+void EndpointDataModel::useAbsoluteTime(bool absolute)
+{
+    if (absolute == _absoluteTime)
+        return;
+
+    _absoluteTime = absolute;
+    // No columns that depend on absoluteTime
+}
+
+void EndpointDataModel::useNanosecondTimestamps(bool nanoseconds)
+{
+    if (_nanoseconds == nanoseconds)
+        return;
+
+    _nanoseconds = nanoseconds;
+    // No columns that use time precision
 }
 
 ConversationDataModel::ConversationDataModel(int protoId, QString filter, QObject *parent) :
@@ -891,3 +890,38 @@ bool ConversationDataModel::showConversationId(int row) const
         return true;
     return false;
 }
+
+void ConversationDataModel::setResolveNames(bool resolve)
+{
+    if (_resolveNames == resolve)
+        return;
+
+    _resolveNames = resolve;
+    if (rowCount() > 0) {
+        dataChanged(index(0, CONV_COLUMN_SRC_ADDR), index(rowCount() - 1, CONV_COLUMN_DST_PORT));
+    }
+}
+
+void ConversationDataModel::useAbsoluteTime(bool absolute)
+{
+    if (absolute == _absoluteTime)
+        return;
+
+    _absoluteTime = absolute;
+    headerDataChanged(Qt::Horizontal, CONV_COLUMN_START, CONV_COLUMN_START);
+    if (rowCount() > 0) {
+        dataChanged(index(0, CONV_COLUMN_START), index(rowCount() - 1, CONV_COLUMN_START));
+    }
+}
+
+void ConversationDataModel::useNanosecondTimestamps(bool nanoseconds)
+{
+    if (_nanoseconds == nanoseconds)
+        return;
+
+    _nanoseconds = nanoseconds;
+    if (rowCount() > 0) {
+        dataChanged(index(0, CONV_COLUMN_START), index(rowCount() - 1, CONV_COLUMN_DURATION));
+    }
+}
+

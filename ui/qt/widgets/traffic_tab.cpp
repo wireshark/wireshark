@@ -150,6 +150,7 @@ QTreeView * TrafficTab::createTree(int protoId)
             }
         });
         connect(proxyModel, &TrafficDataFilterProxy::modelReset, this, &TrafficTab::modelReset);
+        connect(proxyModel, &TrafficDataFilterProxy::layoutChanged, this, &TrafficTab::modelReset);
 
         /* If the columns for the tree have changed, contact the tab. By also having the tab
          * columns changed signal connecting back to the tree, it will propagate to all trees
@@ -356,6 +357,7 @@ QVariant TrafficTab::currentItemData(int role)
     return QVariant();
 }
 
+// update current tab label to include row count
 void TrafficTab::modelReset()
 {
     if (! qobject_cast<TrafficDataFilterProxy *>(sender()))

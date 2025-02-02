@@ -133,7 +133,7 @@ public:
      *
      * @param resolve true if names should be resolved
      */
-    void setResolveNames(bool resolve);
+    virtual void setResolveNames(bool resolve) = 0;
 
     /**
      * @brief Does the model allow names to be resolved
@@ -151,14 +151,16 @@ public:
      *
      * @param absolute true to use absolute time values
      */
-    void useAbsoluteTime(bool absolute);
+    virtual void useAbsoluteTime(bool absolute) = 0;
 
     /**
      * @brief Use nanosecond timestamps if requested
      *
+     * Otherwise, microsecond time resolution will be displayed
+     *
      * @param nanoseconds use nanosecond timestamps if required and requested
      */
-    void useNanosecondTimestamps(bool nanoseconds);
+    virtual void useNanosecondTimestamps(bool nanoseconds) = 0;
 
     /**
      * @brief Are ports hidden for this model
@@ -234,6 +236,9 @@ protected:
     QString _filter;
 
     bool _absoluteTime;
+    // XXX - There are other possible time precisions besides
+    // microseconds and nanoseconds; e.g., Netmon 2.3 uses
+    // 100 ns, and pcapng can have one of many values.
     bool _nanoseconds;
     bool _resolveNames;
     bool _disableTap;
@@ -279,10 +284,13 @@ public:
 
     explicit EndpointDataModel(int protoId, QString filter, QObject *parent = nullptr);
 
-    int columnCount(const QModelIndex &parent = QModelIndex()) const;
-    QVariant headerData(int section, Qt::Orientation orientation = Qt::Horizontal, int role = Qt::DisplayRole) const;
-    QVariant data(const QModelIndex &idx, int role = Qt::DisplayRole) const;
+    int columnCount(const QModelIndex &parent = QModelIndex()) const override;
+    QVariant headerData(int section, Qt::Orientation orientation = Qt::Horizontal, int role = Qt::DisplayRole) const override;
+    QVariant data(const QModelIndex &idx, int role = Qt::DisplayRole) const override;
 
+    void setResolveNames(bool resolve) override;
+    void useAbsoluteTime(bool absolute) override;
+    void useNanosecondTimestamps(bool nanoseconds) override;
 };
 
 class ConversationDataModel : public ATapDataModel
@@ -320,9 +328,9 @@ public:
 
     explicit ConversationDataModel(int protoId, QString filter, QObject *parent = nullptr);
 
-    int columnCount(const QModelIndex &parent = QModelIndex()) const;
-    QVariant headerData(int section, Qt::Orientation orientation = Qt::Horizontal, int role = Qt::DisplayRole) const;
-    QVariant data(const QModelIndex &idx, int role = Qt::DisplayRole) const;
+    int columnCount(const QModelIndex &parent = QModelIndex()) const override;
+    QVariant headerData(int section, Qt::Orientation orientation = Qt::Horizontal, int role = Qt::DisplayRole) const override;
+    QVariant data(const QModelIndex &idx, int role = Qt::DisplayRole) const override;
 
     void doDataUpdate();
 
@@ -336,6 +344,9 @@ public:
      */
     bool showConversationId(int row = 0) const;
 
+    void setResolveNames(bool resolve) override;
+    void useAbsoluteTime(bool absolute) override;
+    void useNanosecondTimestamps(bool nanoseconds) override;
 };
 
 #endif // ATAP_DATA_MODEL_H

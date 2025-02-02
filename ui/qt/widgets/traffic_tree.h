@@ -180,6 +180,14 @@ private slots:
     void clipboardAction();
     void resizeAction();
     void toggleSaveRawAction();
+    void handleDataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight,
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+        const QVector<int>
+#else
+        const QList<int>
+#endif
+        );
+    void handleLayoutChanged(const QList<QPersistentModelIndex>, QAbstractItemModel::LayoutChangeHint);
 };
 
 #endif // TRAFFIC_TREE_H

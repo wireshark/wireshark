@@ -627,14 +627,24 @@ TrafficTree::TrafficTree(QString baseName, GList ** recentColumnList, QWidget *p
 
 void TrafficTree::setModel(QAbstractItemModel * model)
 {
+    QTreeView::setModel(model);
+
+    if (this->model()) {
+        TrafficDataFilterProxy * proxy = qobject_cast<TrafficDataFilterProxy *>(model);
+        if (proxy) {
+            disconnect(_header, &TrafficTreeHeaderView::filterOnColumn, proxy, &TrafficDataFilterProxy::filterForColumn);
+            disconnect(proxy, &TrafficDataFilterProxy::dataChanged, this, &TrafficTree::handleDataChanged);
+            disconnect(proxy, &TrafficDataFilterProxy::layoutChanged, this, &TrafficTree::handleLayoutChanged);
+        }
+    }
     if (model) {
         TrafficDataFilterProxy * proxy = qobject_cast<TrafficDataFilterProxy *>(model);
         if (proxy) {
             connect(_header, &TrafficTreeHeaderView::filterOnColumn, proxy, &TrafficDataFilterProxy::filterForColumn);
+            connect(proxy, &TrafficDataFilterProxy::dataChanged, this, &TrafficTree::handleDataChanged);
+            connect(proxy, &TrafficDataFilterProxy::layoutChanged, this, &TrafficTree::handleLayoutChanged);
         }
     }
-
-    QTreeView::setModel(model);
 }
 
 void TrafficTree::tapListenerEnabled(bool enable)
@@ -836,6 +846,28 @@ void TrafficTree::widenColumnToContents(int col)
     if (content_width > columnWidth(col)) {
         setColumnWidth(col, content_width);
     }
+}
+
+
+void TrafficTree::handleDataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight,
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+    const QVector<int>
+#else
+    const QList<int>
+#endif
+    )
+{
+    for (int col = topLeft.column(); col <= bottomRight.column(); ++col) {
+        widenColumnToContents(col);
+    }
+}
+
+void TrafficTree::handleLayoutChanged(const QList<QPersistentModelIndex>, QAbstractItemModel::LayoutChangeHint)
+{
+    for (int col = 0; col < model()->columnCount(); ++col) {
+        widenColumnToContents(col);
+    }
+    scrollTo(currentIndex());
 }
 
 void TrafficTree::toggleSaveRawAction()
