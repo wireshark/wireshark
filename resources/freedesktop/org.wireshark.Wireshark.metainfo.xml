@@ -10,7 +10,9 @@
     <launchable type="desktop-id">org.wireshark.Wireshark.desktop</launchable>
     <name>Wireshark</name>
     <summary>Network protocol analyzer</summary>
-    <developer_name>The Wireshark developer community</developer_name>
+    <developer id="org.wireshark">
+        <name>The Wireshark developer community</name>
+    </developer>
     <content_rating type="oars-1.1"/>
     <metadata_license>CC0-1.0</metadata_license>
     <project_license>GPL-2.0</project_license>

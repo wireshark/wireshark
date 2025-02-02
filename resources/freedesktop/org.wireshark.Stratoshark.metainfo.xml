@@ -9,6 +9,9 @@
     <id>org.wireshark.Stratoshark</id>
     <name>Stratoshark</name>
     <summary>Stratoshark is a feature-filled log analyzer</summary>
+    <developer id="org.wireshark">
+        <name>The Wireshark developer community</name>
+    </developer>
     <content_rating type="oars-1.1"/>
     <metadata_license>CC0-1.0</metadata_license>
     <project_license>GPL-2.0</project_license>
