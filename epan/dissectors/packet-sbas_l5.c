@@ -45,13 +45,25 @@ static int proto_sbas_l5;
 // see ICAO Annex 10, Vol I, 8th edition, Appendix B, Section 3.5.10
 static int hf_sbas_l5_preamble;
 static int hf_sbas_l5_mt;
-static int hf_sbas_l5_chksum;
+static int hf_sbas_l5_checksum;
 
 // see ICAO Annex 10, Vol I, 8th edition, Appendix B, Table B-106
 static int hf_sbas_l5_mt0;
 static int hf_sbas_l5_mt0_reserved_1;
 static int hf_sbas_l5_mt0_reserved_2;
 static int hf_sbas_l5_mt0_reserved_3;
+
+// see ICAO Annex 10, Vol I, 8th edition, Appendix B, Table B-107
+static int hf_sbas_l5_mt31;
+static int hf_sbas_l5_mt31_gps_mask;
+static int hf_sbas_l5_mt31_glonass_mask;
+static int hf_sbas_l5_mt31_galileo_mask;
+static int hf_sbas_l5_mt31_spare_112_119;
+static int hf_sbas_l5_mt31_sbas_mask;
+static int hf_sbas_l5_mt31_bds_mask;
+static int hf_sbas_l5_mt31_reserved;
+static int hf_sbas_l5_mt31_spare_208_214;
+static int hf_sbas_l5_mt31_iodm;
 
 // see ICAO Annex 10, Vol I, 8th edition, Appendix B, Table B-118
 static int hf_sbas_l5_mt63;
@@ -67,6 +79,7 @@ static expert_field ei_sbas_l5_crc;
 
 static int ett_sbas_l5;
 static int ett_sbas_l5_mt0;
+static int ett_sbas_l5_mt31;
 static int ett_sbas_l5_mt63;
 
 
@@ -107,7 +120,7 @@ static int dissect_sbas_l5(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 
     // checksum
     cmp_crc = sbas_crc24q((uint8_t *)tvb_memdup(pinfo->pool, tvb, 0, 29));
-    proto_tree_add_checksum(sbas_l5_tree, tvb, 28, hf_sbas_l5_chksum, -1,
+    proto_tree_add_checksum(sbas_l5_tree, tvb, 28, hf_sbas_l5_checksum, -1,
             &ei_sbas_l5_crc, NULL, cmp_crc, ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY);
 
     // try to dissect MT data
@@ -134,6 +147,27 @@ static int dissect_sbas_l5_mt0(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     return tvb_captured_length(tvb);
 }
 
+/* Dissect SBAS L5 MT 31 */
+static int dissect_sbas_l5_mt31(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_) {
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "SBAS L1 MT31");
+    col_clear(pinfo->cinfo, COL_INFO);
+
+    proto_item *ti = proto_tree_add_item(tree, hf_sbas_l5_mt31, tvb, 0, 32, ENC_NA);
+    proto_tree *sbas_l5_mt31_tree = proto_item_add_subtree(ti, ett_sbas_l5_mt31);
+
+    proto_tree_add_item(sbas_l5_mt31_tree, hf_sbas_l5_mt31_gps_mask,      tvb,  0,  8, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l5_mt31_tree, hf_sbas_l5_mt31_glonass_mask,  tvb,  4,  8, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l5_mt31_tree, hf_sbas_l5_mt31_galileo_mask,  tvb,  9,  8, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l5_mt31_tree, hf_sbas_l5_mt31_spare_112_119, tvb, 14,  2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l5_mt31_tree, hf_sbas_l5_mt31_sbas_mask,     tvb, 15,  8, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l5_mt31_tree, hf_sbas_l5_mt31_bds_mask,      tvb, 20,  8, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l5_mt31_tree, hf_sbas_l5_mt31_reserved,      tvb, 24,  4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l5_mt31_tree, hf_sbas_l5_mt31_spare_208_214, tvb, 26,  1, ENC_NA);
+    proto_tree_add_item(sbas_l5_mt31_tree, hf_sbas_l5_mt31_iodm,          tvb, 27,  1, ENC_NA);
+
+    return tvb_captured_length(tvb);
+}
+
 /* Dissect SBAS L5 MT 63 */
 static int dissect_sbas_l5_mt63(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_) {
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "SBAS L5 MT63");
@@ -154,13 +188,25 @@ void proto_register_sbas_l5(void) {
     static hf_register_info hf[] = {
         {&hf_sbas_l5_preamble, {"Preamble",     "sbas_l5.preamble", FT_UINT8,  BASE_HEX, NULL, 0xf0,       NULL, HFILL}},
         {&hf_sbas_l5_mt,       {"Message Type", "sbas_l5.mt"      , FT_UINT16, BASE_DEC, NULL, 0x0fc0,     NULL, HFILL}},
-        {&hf_sbas_l5_chksum,   {"Checksum",     "sbas_l5.chksum"  , FT_UINT32, BASE_HEX, NULL, 0x3fffffc0, NULL, HFILL}},
+        {&hf_sbas_l5_checksum, {"Checksum",     "sbas_l5.checksum", FT_UINT32, BASE_HEX, NULL, 0x3fffffc0, NULL, HFILL}},
 
         // MT0
         {&hf_sbas_l5_mt0,            {"MT0",        "sbas_l5.mt0",            FT_NONE,  BASE_NONE, NULL, 0x00, NULL, HFILL}},
         {&hf_sbas_l5_mt0_reserved_1, {"Reserved 1", "sbas_l5.mt0.reserved_1", FT_UINT8, BASE_HEX,  NULL, 0x3f, NULL, HFILL}},
         {&hf_sbas_l5_mt0_reserved_2, {"Reserved 2", "sbas_l5.mt0.reserved_2", FT_BYTES, SEP_SPACE, NULL, 0x00, NULL, HFILL}},
         {&hf_sbas_l5_mt0_reserved_3, {"Reserved 3", "sbas_l5.mt0.reserved_3", FT_UINT8, BASE_HEX,  NULL, 0xc0, NULL, HFILL}},
+
+        // MT31
+        {&hf_sbas_l5_mt31,               {"MT31",                        "sbas_l5.mt31",               FT_NONE,   BASE_NONE, NULL, 0x00,                         NULL, HFILL}},
+        {&hf_sbas_l5_mt31_gps_mask,      {"GPS Mask",                    "sbas_l5.mt31.gps_mask",      FT_UINT64, BASE_HEX,  NULL, UINT64_C(0x3ffffffffe000000), NULL, HFILL}},
+        {&hf_sbas_l5_mt31_glonass_mask,  {"GLONASS Mask",                "sbas_l5.mt31.glonass_mask",  FT_UINT64, BASE_HEX,  NULL, UINT64_C(0x01fffffffff00000), NULL, HFILL}},
+        {&hf_sbas_l5_mt31_galileo_mask,  {"Galileo Mask",                "sbas_l5.mt31.galileo_mask",  FT_UINT64, BASE_HEX,  NULL, UINT64_C(0x0fffffffff800000), NULL, HFILL}},
+        {&hf_sbas_l5_mt31_spare_112_119, {"Spare",                       "sbas_l5.mt31.spare_112_119", FT_UINT16, BASE_HEX,  NULL, 0x7f80,                       NULL, HFILL}},
+        {&hf_sbas_l5_mt31_sbas_mask,     {"SBAS Mask",                   "sbas_l5.mt31.sbas_mask",     FT_UINT64, BASE_HEX,  NULL, UINT64_C(0x7fffffffff000000), NULL, HFILL}},
+        {&hf_sbas_l5_mt31_bds_mask,      {"BDS Mask",                    "sbas_l5.mt31.bds_mask",      FT_UINT64, BASE_HEX,  NULL, UINT64_C(0xfffffffff8000000), NULL, HFILL}},
+        {&hf_sbas_l5_mt31_reserved,      {"Reserved",                    "sbas_l5.mt31.reserved",      FT_UINT32, BASE_HEX,  NULL, 0x07ff8000,                   NULL, HFILL}},
+        {&hf_sbas_l5_mt31_spare_208_214, {"Spare",                       "sbas_l5.mt31.spare_208_214", FT_UINT8,  BASE_HEX,  NULL, 0x7f,                         NULL, HFILL}},
+        {&hf_sbas_l5_mt31_iodm,          {"Issue of Data - Mask (IODM)", "sbas_l5.mt31.iodm",          FT_UINT8,  BASE_DEC,  NULL, 0xc0,                         NULL, HFILL}},
 
         // MT63
         {&hf_sbas_l5_mt63,            {"MT63",       "sbas_l5.mt63",            FT_NONE,  BASE_NONE, NULL, 0x00, NULL, HFILL}},
@@ -180,6 +226,7 @@ void proto_register_sbas_l5(void) {
     static int *ett[] = {
         &ett_sbas_l5,
         &ett_sbas_l5_mt0,
+        &ett_sbas_l5_mt31,
         &ett_sbas_l5_mt63,
     };
 
@@ -203,5 +250,6 @@ void proto_reg_handoff_sbas_l5(void) {
     dissector_add_string("ems.svc_flag", EMS_L5_SVC_FLAG, sbas_l5_dissector_handle);
 
     dissector_add_uint("sbas_l5.mt", 0,  create_dissector_handle(dissect_sbas_l5_mt0,  proto_sbas_l5));
+    dissector_add_uint("sbas_l5.mt", 31, create_dissector_handle(dissect_sbas_l5_mt31, proto_sbas_l5));
     dissector_add_uint("sbas_l5.mt", 63, create_dissector_handle(dissect_sbas_l5_mt63, proto_sbas_l5));
 }
