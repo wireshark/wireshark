@@ -1463,10 +1463,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Включите режим монитора на всех интерфейсах 802.11</translation>
     </message>
     <message>
-        <source>compression</source>
-        <translation type="vanished">сжатие</translation>
-    </message>
-    <message>
         <source>None</source>
         <translation>Нет</translation>
     </message>

@@ -1447,10 +1447,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>모든 802.11 인터페이스에서 모니터 모드 활성화</translation>
     </message>
     <message>
-        <source>compression</source>
-        <translation type="vanished">압축</translation>
-    </message>
-    <message>
         <source>None</source>
         <translation>없음</translation>
     </message>

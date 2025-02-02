@@ -1454,10 +1454,6 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <translation>Aktivera övervakningsläge på alla 802.11-gränssnitt</translation>
     </message>
     <message>
-        <source>compression</source>
-        <translation type="vanished">komprimering</translation>
-    </message>
-    <message>
         <source>None</source>
         <translation>Ingen</translation>
     </message>

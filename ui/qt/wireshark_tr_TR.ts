@@ -1447,10 +1447,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Tüm 802.11 arayüzlerinde monitör modunu etkinleştirin</translation>
     </message>
     <message>
-        <source>compression</source>
-        <translation type="vanished">sıkıştırma</translation>
-    </message>
-    <message>
         <source>None</source>
         <translation>Yok</translation>
     </message>

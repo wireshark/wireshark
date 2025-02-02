@@ -1454,10 +1454,6 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
         <translation>Monitor Modus für alle 802.11 Schnittstellen aktivieren</translation>
     </message>
     <message>
-        <source>compression</source>
-        <translation type="vanished">Komprimierung</translation>
-    </message>
-    <message>
         <source>None</source>
         <translation>Keine</translation>
     </message>

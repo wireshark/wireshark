@@ -1429,10 +1429,6 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>compression</source>
-        <translation type="vanished">compresión</translation>
-    </message>
-    <message>
         <source>None</source>
         <translation>Ninguna</translation>
     </message>

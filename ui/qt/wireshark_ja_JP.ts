@@ -1376,7 +1376,7 @@
     </message>
     <message>
         <source>Compression:</source>
-        <translation type="unfinished"></translation>
+        <translation>圧縮:</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Instead of using a single capture file, multiple files will be created.&lt;/p&gt;&lt;p&gt;The generated file names will contain an incrementing number and the start time of the capture.&lt;/p&gt;&lt;p&gt;NOTE: If enabled, at least one of the new-file criteria MUST be selected.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -1448,10 +1448,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>すべての802.11インターフェースにおいてモニターモードを有効化します</translation>
     </message>
     <message>
-        <source>compression</source>
-        <translation type="vanished">圧縮</translation>
-    </message>
-    <message>
         <source>None</source>
         <translation>なし</translation>
     </message>
@@ -1461,7 +1457,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>LZ4</source>
-        <translation type="unfinished"></translation>
+        <translation>LZ4圧縮</translation>
     </message>
     <message>
         <source>File infix pattern</source>

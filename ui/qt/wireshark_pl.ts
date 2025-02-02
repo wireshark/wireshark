@@ -1460,10 +1460,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Włącz tryb monitora na wszystkich interfejsach 802.11</translation>
     </message>
     <message>
-        <source>compression</source>
-        <translation type="vanished">kompresja</translation>
-    </message>
-    <message>
         <source>None</source>
         <translation>Brak</translation>
     </message>

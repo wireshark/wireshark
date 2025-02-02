@@ -1456,10 +1456,6 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
         <translation>Activer le mode Moniteur sur toutes les interfaces 802.11</translation>
     </message>
     <message>
-        <source>compression</source>
-        <translation type="vanished">compression</translation>
-    </message>
-    <message>
         <source>None</source>
         <translation>Aucun</translation>
     </message>
