@@ -1476,6 +1476,69 @@ quic_connection_destroy(void *data, void *user_data _U_)
 /* QUIC Streams tracking and reassembly. {{{ */
 static reassembly_table quic_reassembly_table;
 
+typedef struct _quic_stream_key {
+    uint64_t stream_id;
+    uint32_t id;
+    uint32_t conn_number;
+    bool     from_server;
+} quic_stream_key;
+
+static unsigned
+quic_stream_hash(const void *k)
+{
+    const quic_stream_key *key = (const quic_stream_key*)k;
+    unsigned hash_val;
+
+    hash_val = key->id;
+
+    return hash_val;
+}
+
+static int
+quic_stream_equal(const void *k1, const void *k2)
+{
+    const quic_stream_key* key1 = (const quic_stream_key*)k1;
+    const quic_stream_key* key2 = (const quic_stream_key*)k2;
+
+    return (key1->id == key2->id) &&
+        (key1->stream_id == key2->stream_id) &&
+        (key1->conn_number == key2->conn_number) &&
+        (key1->from_server == key2->from_server);
+}
+
+static void *
+quic_stream_persistent_key(const packet_info *pinfo _U_, const uint32_t id,
+    const void *data)
+{
+    const quic_stream_info* stream_info = (const quic_stream_info*)data;
+    DISSECTOR_ASSERT(stream_info != NULL);
+    quic_stream_key *key = g_slice_new(quic_stream_key);
+
+    key->id = id;
+    key->stream_id = stream_info->stream_id;
+    key->conn_number = stream_info->quic_info->number;
+    key->from_server = stream_info->from_server;
+
+    return (void *)key;
+}
+
+static void
+quic_stream_free_persistent_key(void *ptr)
+{
+    quic_stream_key *key = (quic_stream_key *)ptr;
+    g_slice_free(quic_stream_key, key);
+}
+
+const reassembly_table_functions
+quic_reassembly_table_functions = {
+    quic_stream_hash,
+    quic_stream_equal,
+    quic_stream_persistent_key,
+    quic_stream_persistent_key,
+    quic_stream_free_persistent_key,
+    quic_stream_free_persistent_key
+};
+
 /** Perform sequence analysis for STREAM frames. */
 static quic_stream_state *
 quic_get_stream_state(packet_info *pinfo, quic_info_data_t *quic_info, bool from_server, uint64_t stream_id)
@@ -1611,15 +1674,7 @@ again:
         // result in a reassembly ID collision here. If that collision becomes
         // an issue, we would have to replace "msp->first_frame" with a new
         // field in "msp" that is initialized with "stream_info->stream_offset".
-#if 0
-        uint64_t reassembly_id_data[2];
-        reassembly_id_data[0] = stream_info->stream_id;
-        reassembly_id_data[1] = msp ? msp->first_frame : pinfo->num;
-        reassembly_id = wmem_strong_hash((const uint8_t *)&reassembly_id_data, sizeof(reassembly_id_data));
-#else
-        // XXX for debug (visibility) purposes, do not use a hash but concatenate
-        reassembly_id = ((msp ? msp->first_frame : pinfo->num) << 16) | (uint32_t)stream_info->stream_id;
-#endif
+        reassembly_id = msp ? msp->first_frame : pinfo->num;
     }
 
     if (msp && msp->seq <= seq && msp->nxtpdu > seq) {
@@ -1642,7 +1697,7 @@ again:
         last_fragment_len = len;
 
         fh = fragment_add(&quic_reassembly_table, tvb, offset,
-                          pinfo, reassembly_id, NULL,
+                          pinfo, reassembly_id, stream_info,
                           seq - msp->seq, len,
                           nxtseq < msp->nxtpdu);
         if (fh) {
@@ -1740,7 +1795,7 @@ again:
                  * needs desegmentation).
                  */
                 fragment_set_partial_reassembly(&quic_reassembly_table,
-                                                pinfo, reassembly_id, NULL);
+                                                pinfo, reassembly_id, stream_info);
 
                 /* Update msp->nxtpdu to point to the new next
                  * pdu boundary.
@@ -1829,7 +1884,7 @@ again:
 
                 /* add this segment as the first one for this new pdu */
                 fragment_add(&quic_reassembly_table, tvb, deseg_offset,
-                             pinfo, reassembly_id, NULL,
+                             pinfo, reassembly_id, stream_info,
                              0, nxtseq - deseg_seq,
                              nxtseq < msp->nxtpdu);
             }
@@ -1839,7 +1894,7 @@ again:
              * know what later frame the PDU is reassembled in.
              */
             if (((struct tcp_multisegment_pdu *)wmem_tree_lookup32(stream->multisegment_pdus, deseg_seq))) {
-                fh = fragment_get(&quic_reassembly_table, pinfo, reassembly_id, NULL);
+                fh = fragment_get(&quic_reassembly_table, pinfo, reassembly_id, stream_info);
             }
         }
     }
@@ -5749,11 +5804,12 @@ proto_register_quic(void)
                            udp_port_to_display, follow_quic_tap_listener, get_quic_connections_count,
                            quic_get_sub_stream_id);
 
-    // TODO implement custom reassembly functions that uses the QUIC Connection
-    // ID instead of address and port numbers.
     reassembly_table_register(&quic_reassembly_table,
-                              &addresses_ports_reassembly_table_functions);
+                              &quic_reassembly_table_functions);
 
+    // TODO do we need custom reassembly functions that use the QUIC Connection
+    // ID instead of address and port numbers here? It seems less likely that
+    // something will change the address or port than with STREAM frames.
     reassembly_table_register(&quic_crypto_reassembly_table,
                               &tcp_reassembly_table_functions);
 
