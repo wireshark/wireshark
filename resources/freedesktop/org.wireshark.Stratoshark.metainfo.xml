@@ -15,14 +15,14 @@
     <content_rating type="oars-1.1"/>
     <metadata_license>CC0-1.0</metadata_license>
     <project_license>GPL-2.0</project_license>
-    <!-- NOTE: the below description was copied from packaging/rpm/SPECS/wireshark.spec.in -->
     <description>
     <p>
-	Stratoshark lets you capture and analyze log data from a variety of sources.
+        Stratoshark lets you capture and analyze system call and log data from local and remote sources.
+        It has many powerful features including a rich display filter language which lets you quickly drill down to find relevant events.
+        You can view detailed information about each event as well as summary views of the entire capture.
     </p>
     <p>
-	It has many powerful features including a rich display filter language
-        and a number of ways to view log data.
+        System call captures are enriched and include detailed information about process activity, including user IDs, file names, and container names.
     </p>
     </description>
     <url type="homepage">https://www.wireshark.org</url>

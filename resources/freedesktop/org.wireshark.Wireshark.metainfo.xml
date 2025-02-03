@@ -22,7 +22,7 @@
 	Wireshark allows you to examine protocol data stored in files or as it
 	is captured from wired or wireless (WiFi or Bluetooth) networks, USB
 	devices, and many other sources.  It supports dozens of protocol
-	capture file formats and understands more than a thousand protocols.
+	capture file formats and understands thousands of protocols.
     </p>
     <p>
 	It has many powerful features including a rich display filter language
