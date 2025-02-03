@@ -80,7 +80,7 @@ dissect_pcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
     proto_item      *header_item;
     proto_item      *magic_number_item;
     proto_tree      *packet_tree;
-    proto_item      *packet_item;
+    proto_item      *volatile packet_item;
     proto_tree      *timestamp_tree;
     proto_item      *timestamp_item;
     proto_tree      *packet_data_tree;
