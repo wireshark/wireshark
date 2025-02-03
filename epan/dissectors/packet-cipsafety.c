@@ -4,7 +4,7 @@
  *
  * This dissector includes items from:
  *    CIP Volume 1: Common Industrial Protocol, Edition 3.24
- *    CIP Volume 5: CIP Safety, Edition 2.22
+ *    CIP Volume 5: CIP Safety, Edition 2.26
  *
  * Copyright 2011
  * Michael Mann <mmann@pyramidsolutions.com>
@@ -2036,7 +2036,7 @@ dissect_cip_safety_data( proto_tree *tree, proto_item *item, tvbuff_t *tvb, int 
 
             if (multicast)
             {
-               dissect_base_format_time_correction_message(tree, tvb, (io_data_size * 2) + 5);
+               dissect_base_format_time_correction_message(tree, tvb, item_length - 6);
             }
          }
          break;
