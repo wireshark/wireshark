@@ -24,7 +24,7 @@ import re
 
 
 parser = argparse.ArgumentParser()
-parser.add_argument('commits', nargs='+', default=['HEAD'],
+parser.add_argument('commits', nargs='*', default=['HEAD'],
                     help='Commit ID to be checked (default %(default)s)')
 parser.add_argument('--commitmsg', help='commit-msg check', action='store')
 
