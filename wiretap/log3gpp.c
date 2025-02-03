@@ -648,7 +648,7 @@ bool parse_line(char* linebuff, int line_length, int *seconds, int *useconds,
       n++;
 
       /* Now skip ahead to find start of data (marked by '$') */
-      for (; (n <= line_length) && (linebuff[n] != '$') && (prot_option_chars <= MAX_PROTOCOL_PAR_STRING);
+      for (; (n < line_length) && (linebuff[n] != '$') && (prot_option_chars < MAX_PROTOCOL_PAR_STRING);
            n++,prot_option_chars++)
       {
         protocol_parameters[prot_option_chars] = linebuff[n];
