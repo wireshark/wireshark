@@ -2247,12 +2247,10 @@ dissector_add_for_decode_as(const char *name, dissector_handle_t handle)
 		dissector_name = dissector_handle_get_dissector_name(handle);
 		if (dissector_name == NULL)
 			dissector_name = "(anonymous)";
-		fprintf(stderr, "Registering dissector %s for protocol %s in dissector table %s, which doesn't support Decode As\n",
+		ws_dissector_bug("Registering dissector %s for protocol %s in dissector table %s, which doesn't support Decode As\n",
 				    dissector_name,
 				    proto_get_protocol_short_name(handle->protocol),
 				    name);
-		if (wireshark_abort_on_dissector_bug)
-			abort();
 		return;
 	}
 
@@ -2299,12 +2297,10 @@ dissector_add_for_decode_as(const char *name, dissector_handle_t handle)
 				dup_dissector_name = dissector_handle_get_dissector_name(dup_handle);
 				if (dup_dissector_name == NULL)
 					dup_dissector_name = "(anonymous)";
-				fprintf(stderr, "Dissectors %s and %s in dissector table %s have the same description %s\n",
+				ws_dissector_bug("Dissectors %s and %s in dissector table %s have the same description %s\n",
 				    dissector_name ? dissector_name : "(anonymous)",
 				    dup_dissector_name,
 				    name, handle->description);
-				if (wireshark_abort_on_dissector_bug)
-					abort();
 			}
 		}
 	}
@@ -2330,12 +2326,10 @@ dissector_add_for_decode_as(const char *name, dissector_handle_t handle)
 					dup_dissector_name = "(anonymous)";
 					fprintf(stderr, "Dissector for %s is anonymous", proto_get_protocol_short_name(dup_handle->protocol));
 				}
-				fprintf(stderr, "Dissectors %s and %s in dissector table %s would have the same Decode As preference\n",
+				ws_dissector_bug("Dissectors %s and %s in dissector table %s would have the same Decode As preference\n",
 				    dissector_name ? dissector_name : "(anonymous)",
 				    dup_dissector_name,
 				    name);
-				if (wireshark_abort_on_dissector_bug)
-					abort();
 			}
 		}
 	}
