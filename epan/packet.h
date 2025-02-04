@@ -42,7 +42,7 @@ extern "C" {
 	((unsigned)(offset) + (unsigned)(len) > (unsigned)(offset) && \
 	 (unsigned)(offset) + (unsigned)(len) <= (unsigned)(captured_len))
 
-/* 0 is case insensitive for backwards compatibility with tables that
+/* 0 is case sensitive for backwards compatibility with tables that
  * used false or BASE_NONE for case sensitive, which was the default.
  */
 #define STRING_CASE_SENSITIVE 0
