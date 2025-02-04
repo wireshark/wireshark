@@ -209,4 +209,6 @@ void proto_reg_handoff_cms(void) {
   dissector_add_string("media_type", "application/vnd.de-dke-k461-ic1+xml; encap=cms-tr03109", content_info_handle);
   dissector_add_string("media_type", "application/vnd.de-dke-k461-ic1+xml; encap=cms-tr03109-zlib", content_info_handle);
   dissector_add_string("media_type", "application/hgp;encap=cms", content_info_handle);
+
+  dissector_add_string("rfc7468.preeb_label", "CMS", content_info_handle);
 }
