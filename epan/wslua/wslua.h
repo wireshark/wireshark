@@ -223,7 +223,6 @@ typedef struct _wslua_proto_t {
     GArray *hfa;
     GArray *etta;
     GArray *eia;
-    GSList *cda;
     bool is_postdissector;
     bool expired;
 } wslua_proto_t;
@@ -231,7 +230,6 @@ typedef struct _wslua_proto_t {
 typedef struct _wslua_conv_data_t {
     conversation_t* conv;
     int data_ref;
-    bool registered;
 } wslua_conv_data_t;
 
 /* a "DissectorTable" object can be different things under the hood,
@@ -878,8 +876,6 @@ extern int luaopen_rex_pcre2(lua_State *L);
 
 extern const char* get_current_plugin_version(void);
 extern void clear_current_plugin_version(void);
-
-extern void wslua_proto_register_conv_data(wslua_proto_t* proto, wslua_conv_data_t* cd);
 
 extern int wslua_deregister_heur_dissectors(lua_State* L);
 extern int wslua_deregister_protocols(lua_State* L);

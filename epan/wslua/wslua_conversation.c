@@ -336,13 +336,8 @@ WSLUA_METAMETHOD Conversation__newindex(lua_State* L) {
 
         cd->conv = conv;
         cd->data_ref = LUA_NOREF;
-        cd->registered = false;
 
         conversation_add_proto_data(conv, proto->hfid, cd);
-    }
-
-    if (!cd->registered) {
-        wslua_proto_register_conv_data(proto, cd);
     }
 
     if (cd->data_ref == LUA_NOREF) {
