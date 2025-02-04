@@ -1893,6 +1893,7 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-shim6.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-sigcomp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-signal-pdu.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-silabs-dch.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-simple.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-simulcrypt.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-sinecap.c
