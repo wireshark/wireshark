@@ -220,6 +220,7 @@ static const char *state_str[] = {"Init",
 
 static const char *token_str[] = {"",
                            "Byte",
+                           "Bytes",
                            "Offset",
                            "Directive",
                            "Text",
