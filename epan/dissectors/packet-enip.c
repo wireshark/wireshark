@@ -1198,7 +1198,14 @@ enip_conv_info_t* get_conversation_info_one_direction(packet_info* pinfo, addres
    /* default some information if not included */
    if ((connid_info->port == 0) || (connid_info->type == CONN_TYPE_MULTICAST))
    {
-      connid_info->port = ENIP_IO_PORT;
+      if (pinfo->srcport == ENIP_SECURE_PORT || pinfo->destport == ENIP_SECURE_PORT)
+      {
+         connid_info->port = ENIP_SECURE_PORT;
+      }
+      else
+      {
+         connid_info->port = ENIP_IO_PORT;
+      }
    }
 
    ws_in6_addr ipv6_zero = {0};
@@ -1419,6 +1426,16 @@ enip_get_io_connid(packet_info *pinfo, uint32_t connid, enum enip_connid_type* p
             &pinfo->src, &pinfo->dst,
             conversation_pt_to_conversation_type(pinfo->ptype),
             pinfo->destport, 0, NO_PORT_B);
+
+   // If we couldn't find anything, search based on the source port. Some types of IO traffic use the
+   //   same src/dest port. Other types have a unique source port.
+   if (conversation == NULL)
+   {
+       conversation = find_conversation(pinfo->num,
+           &pinfo->src, &pinfo->dst,
+           conversation_pt_to_conversation_type(pinfo->ptype),
+           pinfo->srcport, 0, NO_PORT_B);
+   }
 
    if (conversation == NULL)
       return NULL;
