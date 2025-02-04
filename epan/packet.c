@@ -3700,9 +3700,7 @@ call_dissector_with_data(dissector_handle_t handle, tvbuff_t *tvb,
 		 * The protocol was disabled, or the dissector rejected
 		 * it.  Just dissect this packet as data.
 		 */
-		DISSECTOR_ASSERT(data_handle->protocol != NULL);
-		call_dissector_work(data_handle, tvb, pinfo, tree, true, NULL);
-		return tvb_captured_length(tvb);
+		return call_data_dissector(tvb, pinfo, tree);
 	}
 	return ret;
 }
@@ -3717,6 +3715,7 @@ call_dissector(dissector_handle_t handle, tvbuff_t *tvb,
 int
 call_data_dissector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
+	DISSECTOR_ASSERT(data_handle->protocol != NULL);
 	return call_dissector_work(data_handle, tvb, pinfo, tree, true, NULL);
 }
 
