@@ -27,6 +27,17 @@ extern "C" {
 extern bool wireshark_abort_on_dissector_bug;
 extern bool wireshark_abort_on_too_many_items;
 
+/** Report a dissector bug (and optionally abort).
+ @param format printf like format string
+ @param ... printf like parameters */
+WS_DLL_PUBLIC void ws_dissector_bug(const char *format, ...)
+    G_GNUC_PRINTF(1,2);
+
+/** Report a dissector OOPS (and optionally abort).
+ @param format printf like format string *literal*
+ @param ... printf like parameters */
+#define ws_dissector_oops(_fmt, ...) ws_dissector_bug("OOPS: " _fmt, __VA_ARGS__)
+
 typedef struct epan_dissect epan_dissect_t;
 
 struct epan_dfilter;

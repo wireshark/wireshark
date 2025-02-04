@@ -11,6 +11,8 @@
 #include "epan.h"
 
 #include <stdarg.h>
+#include <stdio.h>
+#include <stdlib.h>
 
 #include <gcrypt.h>
 
@@ -117,6 +119,19 @@ static wmem_allocator_t *pinfo_pool_cache;
  */
 bool wireshark_abort_on_dissector_bug;
 bool wireshark_abort_on_too_many_items;
+
+void
+ws_dissector_bug(const char *format, ...)
+{
+	va_list     ap;
+
+	va_start(ap, format);
+	vfprintf(stderr, format, ap);
+	va_end(ap);
+
+	if (wireshark_abort_on_dissector_bug)
+		abort();
+}
 
 #ifdef HAVE_PLUGINS
 /* Used for bookkeeping, includes all libwireshark plugin types (dissector, tap, epan). */
