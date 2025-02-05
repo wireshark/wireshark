@@ -6818,6 +6818,13 @@ dissect_smb2_close_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 		which_tree = tree;
 	}
 
+	if (si->file && si->file->delete_on_close) {
+		if (si->file->is_dir)
+			col_append_str(pinfo->cinfo, COL_INFO, ", (delete dir)");
+		else
+			col_append_str(pinfo->cinfo, COL_INFO, ", (delete file)");
+	}
+
 	/* Filename */
 	if (si->file && si->file->name) {
 		item = proto_tree_add_string(which_tree, hf_smb2_filename, tvb, 0, 0, si->file->name);
@@ -6892,6 +6899,13 @@ dissect_smb2_close_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 
 	/* File Attributes */
 	offset = dissect_fscc_file_attr(tvb, tree, offset, NULL);
+
+	if (si->file && si->file->delete_on_close) {
+		if (si->file->is_dir)
+			col_append_str(pinfo->cinfo, COL_INFO, ", (dir was deleted)");
+		else
+			col_append_str(pinfo->cinfo, COL_INFO, ", (file was deleted)");
+	}
 
 	if (pinfo->fd->visited) {
 		if (si->file && si->file->name) {
@@ -10463,6 +10477,12 @@ dissect_smb2_create_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	offset = dissect_smb_access_mask(tvb, tree, offset);
 
 	/* File Attributes */
+	if (si->file) {
+		if (tvb_get_letohl(tvb, offset) & 0x10)
+			si->file->is_dir = TRUE;
+		else
+			si->file->is_dir = FALSE;
+	}
 	offset = dissect_fscc_file_attr(tvb, tree, offset, NULL);
 
 	/* share access */
@@ -10474,6 +10494,12 @@ dissect_smb2_create_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 	/* create options */
 	offset = dissect_nt_create_options(tvb, tree, offset);
+
+	if (tvb_get_letohl(tvb, offset-4) & 0x1000) {
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", (delete on close)");
+		if (si->file)
+			si->file->delete_on_close = TRUE;
+	}
 
 	if (si->file)
 		si->file->frame_beg = pinfo->fd->num;
@@ -10623,6 +10649,9 @@ dissect_smb2_create_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	tvb_get_letohguid(tvb, offset, &tag_guid);
 	if (si->saved)
 		si->saved->uuid_fid = tag_guid;
+
+	if (si->file && si->file->delete_on_close)
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", (delete on close)");
 
 	/* Display the GUID subtree */
 	offset = dissect_smb2_fid(tvb, pinfo, tree, offset, si, FID_MODE_OPEN);
