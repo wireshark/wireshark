@@ -137,6 +137,7 @@ static int hf_cip_cm_to_rpi;
 static int hf_cip_cm_to_timeout;
 
 static int hf_cip_safety_nte_ms;
+static int hf_cipsafety_protocol;
 
 static int hf_cip_cm_to_net_params32;
 static int hf_cip_cm_to_net_params16;
@@ -295,6 +296,7 @@ static int hf_cip_port;
 static int hf_cip_port_extended;
 static int hf_cip_link_address_size;
 static int hf_cip_link_address_byte;
+static int hf_cip_slot;
 static int hf_cip_link_address_string;
 static int hf_cip_logical_seg_type;
 static int hf_cip_logical_seg_format;
@@ -5540,10 +5542,16 @@ static int dissect_segment_port(tvbuff_t* tvb, int offset, bool generate,
          uint8_t link_address_byte = tvb_get_uint8(tvb, offset + offset_link_address);
          proto_item* it = proto_tree_add_uint(path_seg_tree, hf_cip_link_address_byte, tvb, 0, 0, link_address_byte);
          proto_item_set_generated(it);
+
+         proto_item* slot_it = proto_tree_add_uint(path_seg_tree, hf_cip_slot, tvb, 0, 0, link_address_byte);
+         proto_item_set_hidden(slot_it);
       }
       else
       {
          proto_tree_add_item(path_seg_tree, hf_cip_link_address_byte, tvb, offset + offset_link_address, 1, ENC_LITTLE_ENDIAN);
+
+         proto_item* slot_it = proto_tree_add_item(path_seg_tree, hf_cip_slot, tvb, offset + offset_link_address, 1, ENC_LITTLE_ENDIAN);
+         proto_item_set_hidden(slot_it);
       }
 
       proto_item_append_text(epath_item, ", Address: %d", tvb_get_uint8(tvb, offset + offset_link_address));
@@ -5574,6 +5582,12 @@ static int dissect_segment_port(tvbuff_t* tvb, int offset, bool generate,
 static int dissect_segment_safety(packet_info* pinfo, tvbuff_t* tvb, int offset, bool generate,
    proto_tree* net_tree, cip_safety_epath_info_t* safety, cip_simple_request_info_t* req_data)
 {
+   // Allow 'cipsafety' to match all parts of the safety protocol. This will:
+   // 1. Match the I/O format from packet-cipsafety
+   // 2. Match the FwdOpen,FwdClose here
+   proto_item* pi = proto_tree_add_item(net_tree, hf_cipsafety_protocol, tvb, 0, 0, ENC_NA);
+   proto_item_set_hidden(pi);
+
    uint16_t seg_size = tvb_get_uint8(tvb, offset + 1) * 2;
    int segment_len = seg_size + 2;
 
@@ -7836,6 +7850,11 @@ static int dissect_cip_cc_hop(packet_info* pinfo, tvbuff_t* tvb, int offset, pro
         case 0: // Link addresses
         {
             proto_tree_add_item(hop_tree, hf_ext_net_seg_link_address, tvb, offset + parsed, 1, ENC_LITTLE_ENDIAN);
+
+            uint8_t slot_number = tvb_get_uint8(tvb, offset + parsed);
+            proto_item* slot_it = proto_tree_add_uint(hop_tree, hf_cip_slot, tvb, 0, 0, slot_number);
+            proto_item_set_hidden(slot_it);
+
             parsed++;
             break;
         }
@@ -10014,6 +10033,7 @@ proto_register_cip(void)
       { &hf_cip_port, { "Port", "cip.port", FT_UINT8, BASE_DEC, VALS(cip_port_number_vals), CI_PORT_SEG_PORT_ID_MASK, "Port Identifier", HFILL } },
       { &hf_cip_port_extended,{ "Port Extended", "cip.port", FT_UINT16, BASE_HEX, NULL, 0, "Port Identifier Extended", HFILL } },
       { &hf_cip_link_address_byte, { "Link Address", "cip.linkaddress.byte", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+      { &hf_cip_slot, { "Slot", "cip.slot", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL } },
       { &hf_cip_link_address_size, { "Link Address Size", "cip.linkaddress_size", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
       { &hf_cip_link_address_string, { "Link Address", "cip.linkaddress.string", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
       { &hf_cip_logical_seg_type, { "Logical Segment Type", "cip.logical_segment.type", FT_UINT8, BASE_DEC, VALS(cip_logical_segment_type_vals), CI_LOGICAL_SEG_TYPE_MASK, NULL, HFILL }},
@@ -10329,6 +10349,7 @@ proto_register_cip(void)
       { &hf_cip_cm_to_timeout, { "T->O Timeout Threshold", "cip.cm.to_timeout", FT_FLOAT, BASE_NONE|BASE_UNIT_STRING, UNS(&units_milliseconds), 0, NULL, HFILL }},
 
       { &hf_cip_safety_nte_ms, { "Network Time Expectation (Produce Timeout)", "cip.safety.nte", FT_FLOAT, BASE_NONE|BASE_UNIT_STRING, UNS(&units_milliseconds), 0, NULL, HFILL }},
+      { &hf_cipsafety_protocol, { "CIP Safety", "cipsafety", FT_PROTOCOL, BASE_NONE, NULL, 0, NULL, HFILL }},
 
       { &hf_cip_cm_to_net_params32, { "T->O Network Connection Parameters", "cip.cm.to_net_params", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
       { &hf_cip_cm_to_net_params16, { "T->O Network Connection Parameters", "cip.cm.to_net_params", FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL }},
