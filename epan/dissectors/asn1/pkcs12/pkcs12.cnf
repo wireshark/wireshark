@@ -2,9 +2,11 @@
 # PKCS12 conformation file
 
 #.MODULE_IMPORT
-PKCS-7	cms
 PKCS-5	x509af
+PKCS-7	cms
+PKCS-8	akp
 
+#.IMPORT ../akp/akp-exp.cnf
 #.IMPORT ../cms/cms-exp.cnf
 #.IMPORT ../x509if/x509if-exp.cnf
 #.IMPORT ../x509af/x509af-exp.cnf
@@ -21,7 +23,6 @@ SafeContents		B "1.2.840.113549.1.12.10.1.6"	"safeContentsBag"
 
 # PKCS#9 Attributes - see master list in x509sat.cnf
 PFX			B "2.16.840.1.113730.3.1.216"   "pkcs-9-at-PKCS12"
-EncryptedPrivateKeyInfo	B "1.2.840.113549.1.9.25.2"	"pkcs-9-at-encryptedPrivateKeyInfo"
 
 # Password Based Encryption
 PBEParameter		B "1.2.840.113549.1.12.1.1" "pbeWithSHAAnd128BitRC4"
@@ -47,12 +48,10 @@ PBMAC1Params		B "1.2.840.113549.1.5.14" "id-PBMAC1"
 #.TYPE_RENAME
 
 #.FIELD_RENAME
-PrivateKeyInfo/version		privateKeyVersion
 PBKDF2Params/salt		saltChoice
 
 #.PDU
 #AuthenticatedSafe
-PrivateKeyInfo
 
 #.FN_BODY PFX
 	dissector_handle_t dissector_handle;
@@ -132,28 +131,3 @@ PrivateKeyInfo
 
 #.FN_PARS OCTET_STRING VAL_PTR = (hf_index == hf_pkcs12_salt ? &salt : NULL)
 #.FN_PARS INTEGER VAL_PTR = (hf_index == hf_pkcs12_iterationCount ? &iteration_count : NULL)
-
-#.FN_PARS EncryptedData VAL_PTR = &encrypted_tvb
-
-#.FN_HDR EncryptedData
-	tvbuff_t *encrypted_tvb;
-	dissector_handle_t dissector_handle;
-
-#.END
-
-#.FN_FTR EncryptedData
-
-
-
-	dissector_handle=create_dissector_handle(dissect_PrivateKeyInfo_PDU, proto_pkcs12);
-	dissector_change_string("ber.oid", object_identifier_id, dissector_handle);
-
-	PBE_decrypt_data(object_identifier_id, encrypted_tvb, actx->pinfo, actx, actx->created_item);
-
-	/* restore the original dissector */
-	dissector_reset_string("ber.oid", object_identifier_id);
-
-#.END
-
-
-

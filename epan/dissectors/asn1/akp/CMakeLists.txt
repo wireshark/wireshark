@@ -7,15 +7,17 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 #
 
-set( PROTOCOL_NAME pkcs12 )
+set( PROTOCOL_NAME akp )
 
-set( PROTO_OPT )
+set( EXPORT_FILES
+	${PROTOCOL_NAME}-exp.cnf
+)
 
 set( EXT_ASN_FILE_LIST
 )
 
 set( ASN_FILE_LIST
-	${PROTOCOL_NAME}.asn
+	AsymmetricKeyPackageModuleV1.asn
 )
 
 set( EXTRA_DIST
@@ -33,8 +35,6 @@ set( SRC_FILES
 set( A2W_FLAGS -b )
 
 set( EXTRA_CNF
-	"${CMAKE_CURRENT_BINARY_DIR}/../akp/akp-exp.cnf"
-	"${CMAKE_CURRENT_BINARY_DIR}/../x509if/x509if-exp.cnf"
 	"${CMAKE_CURRENT_BINARY_DIR}/../x509af/x509af-exp.cnf"
 	"${CMAKE_CURRENT_BINARY_DIR}/../cms/cms-exp.cnf"
 )

@@ -15,6 +15,7 @@ set(ASN1_SRC_DIRS
 	acp133
 	acse
 	ain
+	akp
 	ansi_map
 	ansi_tcap
 	atn-cm

@@ -1,0 +1,34 @@
+# akp.cnf
+# AKP conformation file
+
+#.MODULE_IMPORT
+CryptographicMessageSyntax-2009 cms
+AlgorithmInformation-2009 x509af
+
+#.IMPORT ../cms/cms-exp.cnf
+#.IMPORT ../x509af/x509af-exp.cnf
+
+#.EXPORTS
+EncryptedPrivateKeyInfo
+PrivateKeyInfo
+
+#.REGISTER
+AsymmetricKeyPackage B "2.16.840.1.101.2.1.2.78.5" "id-ct-KP-aKeyPackage"
+# PKCS#9 Attributes - see master list in x509sat.cnf
+EncryptedPrivateKeyInfo B "1.2.840.113549.1.9.25.2" "pkcs-9-at-encryptedPrivateKeyInfo"
+
+#.PDU
+PrivateKeyInfo
+
+#.FN_HDR EncryptedData
+  tvbuff_t *encrypted_tvb;
+
+#.END
+
+#.FN_PARS EncryptedData VAL_PTR = &encrypted_tvb
+
+#.FN_FTR EncryptedData
+  PBE_decrypt_data(dissect_PrivateKeyInfo_PDU, "PrivateKeyInfo",
+    encrypted_tvb, actx->pinfo, actx, actx->created_item);
+
+#.END

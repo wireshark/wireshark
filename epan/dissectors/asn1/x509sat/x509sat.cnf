@@ -308,7 +308,7 @@ DirectoryString	B "1.2.840.113549.1.9.13"	"pkcs-9-at-signingDescription"
 SyntaxBMPString	B "1.2.840.113549.1.9.20"	"pkcs-9-at-friendlyName"
 OctetString	B "1.2.840.113549.1.9.21"	"pkcs-9-at-localKeyId"
 #PKCS15Token	B "1.2.840.113549.1.9.25.1"	"pkcs-9-at-pkcs15Token" - TBD
-#EncryptedPrivateKeyInfo	B "1.2.840.113549.1.9.25.2"	"pkcs-9-at-encryptedPrivateKeyInfo" - see pkcs12.cnf
+#EncryptedPrivateKeyInfo	B "1.2.840.113549.1.9.25.2"	"pkcs-9-at-encryptedPrivateKeyInfo" - see akp.cnf
 OctetString	B "1.2.840.113549.1.9.25.3"	"pkcs-9-at-randomNonce" # move to PKCS#9 when defined
 Integer		B "1.2.840.113549.1.9.25.4"	"pkcs-9-at-sequenceNumber" # move to PKCS#9 when defined
 #ContentInfo	B "1.2.840.113549.1.9.25.5"	"pkcs-9-at-pkcs7PDU" - TBD - not the same as CMS ContentInfo

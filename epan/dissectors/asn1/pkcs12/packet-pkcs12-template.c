@@ -22,6 +22,7 @@
 #include <epan/prefs.h>
 #include <wsutil/array.h>
 
+#include "packet-akp.h"
 #include "packet-ber.h"
 #include "packet-pkcs12.h"
 #include "packet-x509af.h"
@@ -59,7 +60,6 @@ static bool try_null_password;
 
 static int dissect_AuthenticatedSafe_OCTETSTRING_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data);
 static int dissect_SafeContents_OCTETSTRING_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data);
-static int dissect_PrivateKeyInfo_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data);
 
 #include "packet-pkcs12-hf.c"
 
@@ -193,7 +193,7 @@ void PBE_reset_parameters(void)
 	salt = NULL;
 }
 
-int PBE_decrypt_data(const char *object_identifier_id_param _U_, tvbuff_t *encrypted_tvb _U_, packet_info *pinfo _U_, asn1_ctx_t *actx _U_, proto_item *item _U_)
+int PBE_decrypt_data(dissector_t dissector, const char *description, tvbuff_t *encrypted_tvb, packet_info *pinfo, asn1_ctx_t *actx, proto_item *item)
 {
 	const char	*encryption_algorithm;
 	gcry_cipher_hd_t cipher;
@@ -207,7 +207,6 @@ int PBE_decrypt_data(const char *object_identifier_id_param _U_, tvbuff_t *encry
 	char		*iv = NULL;
 	char		*clear_data = NULL;
 	tvbuff_t	*clear_tvb = NULL;
-	const char      *oidname;
 	GString		*name;
 	proto_tree	*tree;
 	char		byte;
@@ -336,8 +335,7 @@ int PBE_decrypt_data(const char *object_identifier_id_param _U_, tvbuff_t *encry
 	clear_tvb = tvb_new_child_real_data(encrypted_tvb,(const uint8_t *)clear_data, datalen, datalen);
 
 	name = g_string_new("");
-	oidname = oid_resolved_from_string(pinfo->pool, object_identifier_id_param);
-	g_string_printf(name, "Decrypted %s", oidname ? oidname : object_identifier_id_param);
+	g_string_printf(name, "Decrypted %s", description);
 
 	/* add it as a new source */
 	add_new_data_source(actx->pinfo, clear_tvb, name->str);
@@ -345,7 +343,7 @@ int PBE_decrypt_data(const char *object_identifier_id_param _U_, tvbuff_t *encry
 	g_string_free(name, TRUE);
 
 	/* now try and decode it */
-	call_ber_oid_callback(object_identifier_id_param, clear_tvb, 0, actx->pinfo, tree, NULL);
+	dissector(clear_tvb, actx->pinfo, tree, NULL);
 
 	return true;
 }

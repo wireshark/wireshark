@@ -407,6 +407,13 @@ cms_verify_msg_digest(proto_item *pi, tvbuff_t *content, const char *alg, tvbuff
 
 }
 
+static int
+cms_dissect_by_last_oid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data) {
+  struct cms_private_data *cms_data = cms_get_private_data(pinfo);
+
+  return call_ber_oid_callback(cms_data->object_identifier_id, tvb, 0, pinfo, tree, data);
+}
+
 
 
 int
@@ -585,7 +592,7 @@ static const ber_sequence_t Attribute_sequence[] = {
   { NULL, 0, 0, 0, NULL }
 };
 
-static int
+int
 dissect_cms_Attribute(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    Attribute_sequence, hf_index, ett_cms_Attribute);
@@ -1433,10 +1440,15 @@ dissect_cms_EncryptedContent(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offse
                                        &encrypted_tvb);
 
   struct cms_private_data *cms_data = cms_get_private_data(actx->pinfo);
+  const char *oid_name = oid_resolved_from_string(
+    actx->pinfo->pool, cms_data->object_identifier_id);
 
   item = actx->created_item;
 
-  PBE_decrypt_data(cms_data->object_identifier_id, encrypted_tvb, actx->pinfo, actx, item);
+  PBE_decrypt_data(
+    cms_dissect_by_last_oid,
+    oid_name ? oid_name : cms_data->object_identifier_id,
+    encrypted_tvb, actx->pinfo, actx, item);
 
   return offset;
 }

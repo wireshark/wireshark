@@ -12,6 +12,7 @@ ExtendedCertificateOrCertificate
 #.END
 
 #.EXPORTS
+Attribute
 ContentInfo
 ContentType
 Countersignature
@@ -283,10 +284,15 @@ FirmwarePackageLoadError/version		fwErrorVersion
 
 #.FN_FTR EncryptedContent
   struct cms_private_data *cms_data = cms_get_private_data(actx->pinfo);
+  const char *oid_name = oid_resolved_from_string(
+    actx->pinfo->pool, cms_data->object_identifier_id);
 
   item = actx->created_item;
 
-  PBE_decrypt_data(cms_data->object_identifier_id, encrypted_tvb, actx->pinfo, actx, item);
+  PBE_decrypt_data(
+    cms_dissect_by_last_oid,
+    oid_name ? oid_name : cms_data->object_identifier_id,
+    encrypted_tvb, actx->pinfo, actx, item);
 
 #.END
 
