@@ -2197,11 +2197,19 @@ uint32_t get_mptcp_stream_count(void)
 
 /* Calculate the timestamps relative to this conversation */
 static void
-tcp_calculate_timestamps(packet_info *pinfo, struct tcp_analysis *tcpd,
-            struct tcp_per_packet_data_t *tcppd)
+tcp_calculate_timestamps(packet_info *pinfo, struct tcp_analysis *tcpd)
 {
+    struct tcp_per_packet_data_t *tcppd;
+    tcppd = (struct tcp_per_packet_data_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_tcp, pinfo->curr_layer_num);
+    /* XXX - This is the only place this per packet data struct is
+     * created, but the TCP sequence manual analysis is stored here.
+     * It's confusing as the preference description doesn't mention
+     * this (and leads to having to do a lot of NULL checks.) However,
+     * it is useful to be able to disable the per packet persistent
+     * storage, particularly in single pass mode tshark.
+     */
     if( !tcppd ) {
-        tcppd = wmem_new(wmem_file_scope(), struct tcp_per_packet_data_t);
+        tcppd = wmem_new0(wmem_file_scope(), struct tcp_per_packet_data_t);
         p_add_proto_data(wmem_file_scope(), pinfo, proto_tcp, pinfo->curr_layer_num, tcppd);
     }
 
@@ -2212,7 +2220,6 @@ tcp_calculate_timestamps(packet_info *pinfo, struct tcp_analysis *tcpd,
     tcppd->pnum = ++tcpd->pnum;
 
     nstime_delta(&tcppd->ts_del, &pinfo->abs_ts, &tcpd->ts_prev);
-    tcppd->tcp_snd_manual_analysis = 0;
 
     tcpd->ts_prev.secs=pinfo->abs_ts.secs;
     tcpd->ts_prev.nsecs=pinfo->abs_ts.nsecs;
@@ -8307,10 +8314,8 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 
         /* Do we need to calculate timestamps relative to the tcp-stream? */
         if (tcp_calculate_ts) {
-            tcppd = (struct tcp_per_packet_data_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_tcp, pinfo->curr_layer_num);
-
             /* Calculate the timestamps relative to this conversation */
-            tcp_calculate_timestamps(pinfo, tcpd, tcppd);
+            tcp_calculate_timestamps(pinfo, tcpd);
         }
     }
 
@@ -8319,9 +8324,12 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
         proto_item_set_generated(item);
         tcpinfo.stream = tcpd->stream;
 
-        if (tcppd) {
-            item = proto_tree_add_uint(tcp_tree, hf_tcp_stream_pnum, tvb, offset, 0, tcppd->pnum);
-            proto_item_set_generated(item);
+        if (tcp_calculate_ts) {
+            tcppd = (struct tcp_per_packet_data_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_tcp, pinfo->curr_layer_num);
+            if (tcppd) {
+                item = proto_tree_add_uint(tcp_tree, hf_tcp_stream_pnum, tvb, offset, 0, tcppd->pnum);
+                proto_item_set_generated(item);
+            }
         }
 
         /* Display the completeness of this TCP conversation */
