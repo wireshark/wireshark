@@ -8371,6 +8371,10 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     /* is there any manual analysis waiting ? */
     if(pinfo->fd->tcp_snd_manual_analysis > 0) {
         tcppd = (struct tcp_per_packet_data_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_tcp, pinfo->curr_layer_num);
+        if (!tcppd) {
+            tcppd = wmem_new0(wmem_file_scope(), struct tcp_per_packet_data_t);
+            p_add_proto_data(wmem_file_scope(), pinfo, proto_tcp, pinfo->curr_layer_num, tcppd);
+        }
         tcppd->tcp_snd_manual_analysis = pinfo->fd->tcp_snd_manual_analysis;
     }
 
