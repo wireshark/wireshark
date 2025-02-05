@@ -1,7 +1,7 @@
 /* packet-cbor.c
- * Routines for Concise Binary Object Representation (CBOR) (RFC 7049) dissection
+ * Routines for Concise Binary Object Representation (CBOR) (STD 94) dissection
  * References:
- *     RFC 7049: https://tools.ietf.org/html/rfc7049
+ *     RFC 8949: https://tools.ietf.org/html/rfc8949
  *     RFC 8742: https://tools.ietf.org/html/rfc8742
  *
  * Copyright 2015, Hauke Mehrtens <hauke@hauke-m.de>
@@ -18,13 +18,19 @@
 
 #include <math.h>
 
+#include "packet-cbor.h"
 #include <epan/packet.h>
+#include <epan/exceptions.h>
 #include <epan/expert.h>
 #include <epan/proto_data.h>
+#include <epan/wscbor.h>
 #include <wsutil/str_util.h>
 
 void proto_register_cbor(void);
 void proto_reg_handoff_cbor(void);
+
+// Protocol preferences and defaults
+static bool cbor_dissect_embeded_bstr = false;
 
 static int proto_cbor;
 
@@ -53,7 +59,6 @@ static int hf_cbor_type_byte_string;
 static int hf_cbor_type_byte_string_indef;
 static int hf_cbor_type_text_string;
 static int hf_cbor_type_text_string_indef;
-static int hf_cbor_type_tag5;
 static int hf_cbor_type_tag;
 static int hf_cbor_type_simple_data5;
 static int hf_cbor_type_simple_data8;
@@ -78,6 +83,7 @@ static expert_field ei_cbor_invalid_minor_type;
 static expert_field ei_cbor_invalid_element;
 static expert_field ei_cbor_too_long_length;
 static expert_field ei_cbor_max_recursion_depth_reached;
+static expert_field ei_cbor_embedded_bstr;
 
 static dissector_handle_t cbor_handle;
 static dissector_handle_t cborseq_handle;
@@ -140,40 +146,6 @@ static const value_string float_simple_type_vals[] = {
 };
 
 /* see https://www.iana.org/assignments/cbor-tags/cbor-tags.xhtml#tags */
-static const value_string tag32_vals[] = {
-	{ 0, "Standard date/time string" },
-	{ 1, "Epoch-based date/time" },
-	{ 2, "Positive bignum" },
-	{ 3, "Negative bignum" },
-	{ 4, "Decimal fraction" },
-	{ 5, "Bigfloat" },
-	{ 21, "Expected conversion to base64url encoding" },
-	{ 22, "Expected conversion to base64 encoding" },
-	{ 23, "Expected conversion to base16 encoding" },
-	{ 24, "Encoded CBOR data item" },
-	{ 25, "reference the nth previously seen string" },
-	{ 26, "Serialised Perl object with classname and constructor arguments" },
-	{ 27, "Serialised language-independent object with type name and constructor arguments" },
-	{ 28, "mark value as (potentially) shared" },
-	{ 29, "reference nth marked value" },
-	{ 30, "Rational number" },
-	{ 32, "URI" },
-	{ 33, "base64url" },
-	{ 34, "base64" },
-	{ 35, "Regular expression" },
-	{ 36, "MIME message" },
-	{ 37, "Binary UUID" },
-	{ 38, "Language-tagged string" },
-	{ 39, "Identifier" },
-	{ 256, "mark value as having string references" },
-	{ 257, "Binary MIME message" },
-	{ 264, "Decimal fraction with arbitrary exponent" },
-	{ 265, "Bigfloat with arbitrary exponent" },
-	{ 22098, "hint that indicates an additional level of indirection" },
-	{ 55799, "Self-describe CBOR" },
-	{ 0, NULL },
-};
-
 static const val64_string tag64_vals[] = {
 	{ 0, "Standard date/time string" },
 	{ 1, "Epoch-based date/time" },
@@ -181,6 +153,10 @@ static const val64_string tag64_vals[] = {
 	{ 3, "Negative bignum" },
 	{ 4, "Decimal fraction" },
 	{ 5, "Bigfloat" },
+	{ 16, "COSE Single Recipient Encrypted Data Object" },
+	{ 17, "COSE Mac w/o Recipients Object" },
+	{ 18, "COSE Single Signer Data Object" },
+	{ 19, "COSE standalone V2 countersignature" },
 	{ 21, "Expected conversion to base64url encoding" },
 	{ 22, "Expected conversion to base64 encoding" },
 	{ 23, "Expected conversion to base16 encoding" },
@@ -199,10 +175,14 @@ static const val64_string tag64_vals[] = {
 	{ 37, "Binary UUID" },
 	{ 38, "Language-tagged string" },
 	{ 39, "Identifier" },
+	{ 61, "CBOR Web Token (CWT)" },
+	{ 63, "Encoded CBOR Sequence" },
+	{ 100, "Number of days since the epoch date 1970-01-01" },
 	{ 256, "mark value as having string references" },
 	{ 257, "Binary MIME message" },
 	{ 264, "Decimal fraction with arbitrary exponent" },
 	{ 265, "Bigfloat with arbitrary exponent" },
+	{ 1004, "RFC 3339 full-date string" },
 	{ 22098, "hint that indicates an additional level of indirection" },
 	{ 55799, "Self-describe CBOR" },
 	{ 0, NULL },
@@ -421,11 +401,19 @@ dissect_cbor_byte_string(tvbuff_t *tvb, packet_info *pinfo, proto_tree *cbor_tre
 		return false;
 	}
 
-	proto_tree_add_item(subtree, hf_cbor_type_byte_string, tvb, *offset, (int)length, ENC_BIG_ENDIAN|ENC_NA);
+	proto_item *item_data = proto_tree_add_item(subtree, hf_cbor_type_byte_string, tvb, *offset, (int)length, ENC_BIG_ENDIAN|ENC_NA);
 	*offset += (int)length;
 
 	proto_item_append_text(item, ": (%" PRIu64 " byte%s)", length, plurality(length, "", "s"));
 	proto_item_set_end(item, tvb, *offset);
+
+	if (cbor_dissect_embeded_bstr && length) {
+		tvbuff_t *sub_tvb = tvb_new_subset_length(tvb, *offset - (int)length, (int)length);
+		bool valid = cbor_heuristic(sub_tvb, pinfo, subtree, NULL);
+		if (valid) {
+			expert_add_info(pinfo, item_data, &ei_cbor_embedded_bstr);
+		}
+	}
 
 	return true;
 }
@@ -697,8 +685,8 @@ dissect_cbor_tag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *cbor_tree, int *
 	proto_tree_add_item(subtree, hf_cbor_item_major_type, tvb, *offset, 1, ENC_BIG_ENDIAN);
 
 	if (type_minor <= 0x17) {
-		proto_tree_add_item(subtree, hf_cbor_type_tag5, tvb, *offset, 1, ENC_BIG_ENDIAN);
 		tag = type_minor;
+		proto_tree_add_uint64(subtree, hf_cbor_type_tag, tvb, *offset, 1, tag);
 	} else {
 		proto_tree_add_item(subtree, hf_cbor_item_integer_size, tvb, *offset, 1, ENC_BIG_ENDIAN);
 	}
@@ -926,6 +914,37 @@ dissect_cborseq(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void
 	return offset;
 }
 
+bool cbor_heuristic(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_) {
+    int offset = 0;
+    volatile int count = 0;
+
+    while ((unsigned)offset < tvb_reported_length(tvb)) {
+        volatile bool valid = false;
+        TRY {
+            valid = wscbor_skip_next_item(pinfo->pool, tvb, &offset);
+        }
+        CATCH_BOUNDS_AND_DISSECTOR_ERRORS {}
+        ENDTRY;
+        if (!valid) {
+            break;
+        }
+        ++count;
+    }
+
+    // Anything went wrong with any part of the data
+    if ((count == 0) || ((unsigned)offset != tvb_reported_length(tvb))) {
+        return false;
+    }
+
+    if (count == 1) {
+        call_dissector(cbor_handle, tvb, pinfo, tree);
+    }
+    else {
+        call_dissector(cborseq_handle, tvb, pinfo, tree);
+    }
+    return true;
+}
+
 void
 proto_register_cbor(void)
 {
@@ -1055,11 +1074,6 @@ proto_register_cbor(void)
 		    FT_NONE, BASE_NONE, NULL, 0x0,
 		    NULL, HFILL }
 		},
-		{ &hf_cbor_type_tag5,
-		  { "Tag", "cbor.type.tag",
-		    FT_UINT8, BASE_DEC, VALS(tag32_vals), 0x1f,
-		    NULL, HFILL }
-		},
 		{ &hf_cbor_type_tag,
 		  { "Tag", "cbor.type.tag",
 		    FT_UINT64, BASE_DEC|BASE_VAL64_STRING, VALS64(tag64_vals), 0x00,
@@ -1116,6 +1130,8 @@ proto_register_cbor(void)
 		  { "cbor.too_long_length", PI_MALFORMED, PI_WARN, "Too long length", EXPFILL }},
 		{ &ei_cbor_max_recursion_depth_reached,
 		  { "cbor.max_recursion_depth_reached", PI_PROTOCOL, PI_WARN, "Maximum allowed recursion depth reached. Dissection stopped.", EXPFILL }},
+		{ &ei_cbor_embedded_bstr,
+		  { "cbor.embedded_bstr", PI_COMMENTS_GROUP, PI_COMMENT, "Heuristic dissection of CBOR embedded in a byte string", EXPFILL }},
 	};
 
 	expert_module_t *expert_cbor;
@@ -1128,18 +1144,28 @@ proto_register_cbor(void)
 
 	cbor_handle = register_dissector("cbor", dissect_cbor, proto_cbor);
 	cborseq_handle = register_dissector_with_description("cborseq", "CBOR Sequence", dissect_cborseq, proto_cbor);
+
+	module_t *module_cbor = prefs_register_protocol(proto_cbor, NULL);
+	prefs_register_bool_preference(
+			module_cbor,
+			"dissect_embeded_bstr",
+			"Dissect bstr-embedded CBOR",
+			"If enabled, a heuristic dissection of byte strings as embedded "
+			"CBOR/sequence is performed.",
+			&cbor_dissect_embeded_bstr
+	);
+
 }
 
 void
 proto_reg_handoff_cbor(void)
 {
-	dissector_add_string("media_type", "application/cbor", cbor_handle); /* RFC 7049 */
-	dissector_add_string("media_type", "application/senml+cbor", cbor_handle); /* RFC 8428 */
-	dissector_add_string("media_type", "application/sensml+cbor", cbor_handle); /* RFC 8428 */
+	dissector_add_string("media_type", "application/cbor", cbor_handle); /* RFC 8949 */
+	dissector_add_string("media_type", "application/cwt", cbor_handle); /* RFC 8392 */
 	dissector_add_string("media_type", "application/cbor-seq", cborseq_handle); /* RFC 8742 */
 
-	dissector_add_string("media_type.suffix", "cbor", cbor_handle);
-	dissector_add_string("media_type.suffix", "cbor-seq", cborseq_handle);
+	dissector_add_string("media_type.suffix", "cbor", cbor_handle); /* RFC 8949 */
+	dissector_add_string("media_type.suffix", "cbor-seq", cborseq_handle); /* RFC 8742 */
 }
 
 /*

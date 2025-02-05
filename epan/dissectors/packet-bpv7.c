@@ -18,6 +18,7 @@
 #include <inttypes.h>
 
 #include "packet-bpv7.h"
+#include "packet-cbor.h"
 #include "epan/wscbor.h"
 #include <epan/proto.h>
 #include <epan/packet.h>
@@ -29,7 +30,6 @@
 #include <epan/proto_data.h>
 #include <epan/conversation_table.h>
 #include <epan/conversation_filter.h>
-#include <epan/exceptions.h>
 #include <epan/ftypes/ftypes.h>
 #include <epan/unit_strings.h>
 #include <epan/tfs.h>
@@ -2253,37 +2253,6 @@ static int dissect_block_hop_count(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     return offset;
 }
 
-static bool btsd_heur_cbor(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_) {
-    int offset = 0;
-    volatile int count = 0;
-
-    while ((unsigned)offset < tvb_reported_length(tvb)) {
-        volatile bool valid = false;
-        TRY {
-            valid = wscbor_skip_next_item(pinfo->pool, tvb, &offset);
-        }
-        CATCH_BOUNDS_AND_DISSECTOR_ERRORS {}
-        ENDTRY;
-        if (!valid) {
-            break;
-        }
-        ++count;
-    }
-
-    // Anything went wrong with any part of the data
-    if ((count == 0) || ((unsigned)offset != tvb_reported_length(tvb))) {
-        return false;
-    }
-
-    if (count == 1) {
-        call_dissector(handle_cbor, tvb, pinfo, tree);
-    }
-    else {
-        call_dissector(handle_cborseq, tvb, pinfo, tree);
-    }
-    return true;
-}
-
 /// Clear state when new file scope is entered
 static void bp_init(void) {
     bp_history = wmem_new0(wmem_file_scope(), bp_history_t);
@@ -2565,7 +2534,7 @@ void proto_register_bpv7(void) {
 
 void proto_reg_handoff_bpv7(void) {
     const int proto_cbor = proto_get_id_by_filter_name("cbor");
-    heur_dissector_add("bpv7.btsd", btsd_heur_cbor, "CBOR in Bundle BTSD", "cbor_bpv7", proto_cbor, HEURISTIC_ENABLE);
+    heur_dissector_add("bpv7.btsd", cbor_heuristic, "CBOR in Bundle BTSD", "cbor_bpv7", proto_cbor, HEURISTIC_ENABLE);
 
     handle_cbor = find_dissector("cbor");
     handle_cborseq = find_dissector("cborseq");
