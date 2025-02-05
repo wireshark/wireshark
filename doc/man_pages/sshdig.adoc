@@ -70,7 +70,7 @@ The feature is functionally equivalent to
     $ ssh remoteuser@remotehost -p 22222 'sysdig --unbuffered -w -' > FILE &
     $ stratoshark FILE
 
-//    $ ssh somehost sysdig -w - | sshark -i -
+//    $ ssh somehost sysdig -w - | tshark -i -
 
 Typically sshdig is not invoked directly. Instead it can be configured through
 the Stratoshark graphical user interface or its command line. The following will

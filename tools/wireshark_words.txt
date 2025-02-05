@@ -98,6 +98,7 @@ analysed
 analysing
 analyzers
 analyzes
+andsp
 andxoffset
 angeles
 annexc
@@ -494,6 +495,7 @@ contiguously
 controlee
 convolutional
 convs
+convtypes
 coord
 Coord3D
 coords
@@ -859,6 +861,7 @@ enumerator
 enums
 envchange
 epasv
+epath
 epdan
 epdcch
 eperm
@@ -1197,6 +1200,7 @@ image2d
 image3d
 image4dsgis
 imeisv
+immdt
 immersive
 impinj
 implementations
@@ -1660,6 +1664,8 @@ mycaptures
 mydns
 myhost
 mysql
+n3iwf
+n3qai
 nacks
 nagle
 namelen
@@ -1767,6 +1773,7 @@ nrtcws
 nsapi
 nsdbg
 nssai
+nssrg
 nssvc
 nstat
 nstime
@@ -1943,12 +1950,14 @@ pdulength
 pdustatus
 peeraddr
 peerkey
+peips
 pentapartial
 pentium
 periodicities
 periodicity
 peripherals
 peristency
+persian
 persistency
 pfname
 pgpool
@@ -2344,6 +2353,7 @@ rnsap
 roamer
 robert
 romania
+romanian
 roshan
 rostelecom
 rotterdam
@@ -2493,6 +2503,7 @@ siglen
 signaal
 signaling
 signon
+silabs
 simplestatusbit
 simulcast
 simulcrypt
@@ -2509,6 +2520,7 @@ skype
 slaac
 slimp
 slovak
+slovenian
 slovensko
 slsch
 smime
@@ -3108,6 +3120,7 @@ vhdset
 viavi
 videsh
 vidpn
+vietnamese
 viettel
 viprion
 virtex
@@ -3129,6 +3142,7 @@ volser
 voltype
 vrfid
 vserver
+vsomeip
 vtotal
 vxlan
 waitpid
@@ -3164,6 +3178,7 @@ wisun
 withfcs
 withoutfcs
 wksta
+wlansp
 wmdrmpd
 workarounds
 wowlan

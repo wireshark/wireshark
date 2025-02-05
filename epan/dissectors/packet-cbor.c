@@ -1148,7 +1148,7 @@ proto_register_cbor(void)
 	module_t *module_cbor = prefs_register_protocol(proto_cbor, NULL);
 	prefs_register_bool_preference(
 			module_cbor,
-			"dissect_embeded_bstr",
+			"dissect_embeded_bstr",  /* mispelt but best leave */
 			"Dissect bstr-embedded CBOR",
 			"If enabled, a heuristic dissection of byte strings as embedded "
 			"CBOR/sequence is performed.",

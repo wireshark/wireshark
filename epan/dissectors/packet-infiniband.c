@@ -2752,7 +2752,7 @@ static bool parse_PAYLOAD_do_rc_send_reassembling(packet_info *pinfo,
     case RC_SEND_LAST_INVAL:
         break;
     default:
-        /* not a fragmenented RC Send */
+        /* not a fragmented RC Send */
         return false;
     }
 
@@ -2799,7 +2799,7 @@ static tvbuff_t *parse_PAYLOAD_reassemble_tvb(packet_info *pinfo,
     case RC_SEND_LAST_INVAL:
         break;
     default:
-        /* not a fragmenented RC Send */
+        /* not a fragmented RC Send */
         return tvb;
     }
 

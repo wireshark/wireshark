@@ -15553,7 +15553,7 @@ proto_register_nas_5gs(void)
             NULL, HFILL }
         },
         { &hf_nas_5gs_wlansp_loc_entry_type,
-        { "Entryt type", "nas-5gs.andsp.wlansp.loc_entry_type",
+        { "Entry type", "nas-5gs.andsp.wlansp.loc_entry_type",
             FT_UINT8, BASE_DEC, VALS(nas_5gs_andsp_wlansp_loc_entry_type_vals), 0xf0,
             NULL, HFILL }
         },

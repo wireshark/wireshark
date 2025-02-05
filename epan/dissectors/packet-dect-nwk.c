@@ -3191,7 +3191,7 @@ void proto_register_dect_nwk(void)
 				NULL, 0x0, NULL, HFILL
 			}
 		},
-		/* NWK assigend Identity */
+		/* NWK assigned Identity */
 		{ &hf_dect_nwk_s_ie_nwk_assigned_identity_type,
 			{ "Type", "dect_nwk.s.ie.nwk_assigned_identity.type", FT_UINT8, BASE_HEX,
 				VALS(dect_nwk_s_ie_nwk_assigned_identity_type_val), 0x7F, NULL, HFILL
