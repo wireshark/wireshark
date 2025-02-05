@@ -511,6 +511,9 @@ typedef struct cip_connID_info {
 
    // Actual Packet Interval in microseconds.
    uint32_t api;
+
+   // These are used to track the previous timestamps for each direction. These are only used during a first pass calculation.
+   nstime_t timestamp;
 } cip_connID_info_t;
 
 enum cip_safety_format_type {CIP_SAFETY_BASE_FORMAT, CIP_SAFETY_EXTENDED_FORMAT};

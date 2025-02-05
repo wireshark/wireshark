@@ -154,6 +154,7 @@ static int hf_enip_cpf_length;
 static int hf_cip_sequence_count;
 static int hf_cip_cm_ot_api;
 static int hf_cip_cm_to_api;
+static int hf_cip_data_direction;
 static int hf_enip_cpf_cai_connid;
 static int hf_enip_cpf_sai_connid;
 static int hf_cip_connid;
@@ -168,6 +169,7 @@ static int hf_enip_cpf_data;
 static int hf_enip_response_in;
 static int hf_enip_response_to;
 static int hf_enip_time;
+static int hf_cip_connected_data_time_delta;
 static int hf_enip_fwd_open_in;
 static int hf_cip_connection;
 static int hf_cip_io_data;
@@ -843,6 +845,14 @@ static const value_string dlr_flush_learning_update_vals[] = {
    { 0,  NULL              }
 };
 
+static const value_string cip_data_direction[] = {
+   { ECIDT_UNKNOWN, "Unknown" },
+   { ECIDT_O2T, "O->T" },
+   { ECIDT_T2O, "T->O" },
+
+   { 0, NULL }
+};
+
 static const true_false_string dlr_lnknbrstatus_frame_type_vals = {
     "Neighbor_Status Frame",
     "Link_Status Frame"
@@ -1275,6 +1285,8 @@ static void enip_open_cip_connection( packet_info *pinfo, cip_conn_info_t* connI
       *conn_val = *connInfo;
 
       // These values are not copies from the Forward Open Request. Initialize these separately.
+      conn_val->O2T.timestamp = pinfo->abs_ts;
+      conn_val->T2O.timestamp = pinfo->abs_ts;
       conn_val->open_reply_frame = pinfo->num;
       conn_val->connid = enip_unique_connid++;
       conn_val->is_concurrent_connection = (service == SC_CM_CONCURRENT_FWD_OPEN);
@@ -2830,6 +2842,30 @@ void display_fwd_open_connection_path(cip_conn_info_t* conn_info, proto_tree* tr
    }
 }
 
+// Calculate the timing information for a single direction.
+static void enip_calculate_timing_information_direction(packet_info* pinfo, cip_connID_info_t* connid_info)
+{
+   struct enip_per_packet_data_t* enipd = wmem_new(wmem_file_scope(), struct enip_per_packet_data_t);
+   p_add_proto_data(wmem_file_scope(), pinfo, proto_enip, ENIP_DATA_RATE_INFO, enipd);
+
+   nstime_delta(&enipd->ts_delta, &pinfo->abs_ts, &connid_info->timestamp);
+
+   // Save current information for the next frame.
+   connid_info->timestamp = pinfo->abs_ts;
+}
+
+static void enip_calculate_timing_information(packet_info* pinfo, cip_conn_info_t* conn_info, enum enip_connid_type connid_type)
+{
+   if (connid_type == ECIDT_O2T)
+   {
+      enip_calculate_timing_information_direction(pinfo, &conn_info->O2T);
+   }
+   else if (connid_type == ECIDT_T2O)
+   {
+      enip_calculate_timing_information_direction(pinfo, &conn_info->T2O);
+   }
+}
+
 // returns true if this is a likely Heartbeat message
 // Note: item_length include the CIP Sequence Count, if applicable.
 static bool cip_io_is_likely_heartbeat(const cip_conn_info_t* conn_info, enum enip_connid_type connid_type, uint32_t item_length)
@@ -2868,28 +2904,39 @@ static void display_connection_information(packet_info* pinfo, tvbuff_t* tvb, pr
    proto_tree* conn_info_tree = proto_tree_add_subtree(tree, tvb, 0, 0, ett_connection_info, &conn_info_item, "Connection Information");
    proto_item_set_generated(conn_info_item);
 
+   proto_item* pi = proto_tree_add_uint(conn_info_tree, hf_cip_connection, tvb, 0, 0, conn_info->connid);
+   proto_item_set_generated(pi);
+
+   display_fwd_open_connection_path(conn_info, conn_info_tree, tvb, pinfo);
+
+   pi = proto_tree_add_uint(conn_info_tree, hf_enip_fwd_open_in, tvb, 0, 0, conn_info->open_req_frame);
+   proto_item_set_generated(pi);
+
+   pi = proto_tree_add_uint(conn_info_tree, hf_cip_data_direction, tvb, 0, 0, connid_type);
+   proto_item_set_generated(pi);
+
    if (connid_type == ECIDT_O2T)
    {
        proto_item_append_text(conn_info_item, ": O->T");
+
+       pi = proto_tree_add_uint(conn_info_tree, hf_cip_cm_ot_api, tvb, 0, 0, conn_info->O2T.api);
+       proto_item_set_generated(pi);
    }
    else if (connid_type == ECIDT_T2O)
    {
        proto_item_append_text(conn_info_item, ": T->O");
+
+       pi = proto_tree_add_uint(conn_info_tree, hf_cip_cm_to_api, tvb, 0, 0, conn_info->T2O.api);
+       proto_item_set_generated(pi);
    }
 
-   display_fwd_open_connection_path(conn_info, conn_info_tree, tvb, pinfo);
-
-   proto_item* pi = proto_tree_add_uint(conn_info_tree, hf_cip_cm_ot_api, tvb, 0, 0, conn_info->O2T.api);
-   proto_item_set_generated(pi);
-
-   pi = proto_tree_add_uint(conn_info_tree, hf_cip_cm_to_api, tvb, 0, 0, conn_info->T2O.api);
-   proto_item_set_generated(pi);
-
-   pi = proto_tree_add_uint(conn_info_tree, hf_cip_connection, tvb, 0, 0, conn_info->connid);
-   proto_item_set_generated(pi);
-
-   pi = proto_tree_add_uint(conn_info_tree, hf_enip_fwd_open_in, tvb, 0, 0, conn_info->open_req_frame);
-   proto_item_set_generated(pi);
+   // Information about previous data in the same direction.
+   struct enip_per_packet_data_t* enipd = (struct enip_per_packet_data_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_enip, ENIP_DATA_RATE_INFO);
+   if (enipd)
+   {
+      proto_item* item = proto_tree_add_time(conn_info_tree, hf_cip_connected_data_time_delta, tvb, 0, 0, &enipd->ts_delta);
+      proto_item_set_generated(item);
+   }
 
    if (cip_io_is_likely_heartbeat(conn_info, connid_type, item_length))
    {
@@ -3324,6 +3371,7 @@ dissect_cpf(enip_request_key_t *request_key, int command, tvbuff_t *tvb,
                if (!pinfo->fd->visited && conn_info)
                {
                   p_add_proto_data(wmem_file_scope(), pinfo, proto_enip, ENIP_CONNECTION_INFO, conn_info);
+                  enip_calculate_timing_information(pinfo, conn_info, connid_type);
                }
 
                if (command == SEND_UNIT_DATA)  // Class 2/3 over TCP.
@@ -4185,9 +4233,15 @@ proto_register_enip(void)
         { "Forward Open Request In", "enip.fwd_open_in",
         FT_FRAMENUM, BASE_NONE, NULL, 0, NULL, HFILL } },
 
+      { &hf_cip_connected_data_time_delta,
+        { "Time since last data", "cip.data_time_delta",
+          FT_RELATIVE_TIME, BASE_NONE, NULL, 0x0,
+          NULL, HFILL } },
       // Generated API data.
       { &hf_cip_cm_ot_api, { "O->T API", "cip.cm.otapi", FT_UINT32, BASE_CUSTOM, CF_FUNC(cip_rpi_api_fmt), 0, NULL, HFILL } },
       { &hf_cip_cm_to_api, { "T->O API", "cip.cm.toapi", FT_UINT32, BASE_CUSTOM, CF_FUNC(cip_rpi_api_fmt), 0, NULL, HFILL } },
+
+      { &hf_cip_data_direction, { "Data Direction", "cip.data_direction", FT_UINT8, BASE_DEC, VALS(cip_data_direction), 0, NULL, HFILL } },
 
       { &hf_cip_connection,
         { "CIP Connection Index", "cip.connection",

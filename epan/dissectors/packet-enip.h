@@ -94,16 +94,26 @@ typedef struct {
 } enip_request_info_t;
 
 // This represents the data direction for connected data.
-enum enip_connid_type {ECIDT_UNKNOWN, ECIDT_O2T, ECIDT_T2O};
+enum enip_connid_type {
+   ECIDT_UNKNOWN = 0,
+   ECIDT_O2T = 1,
+   ECIDT_T2O = 2
+};
 
 typedef struct cip_io_data_input {
    cip_conn_info_t* conn_info;
    enum enip_connid_type connid_type;
 } cip_io_data_input;
 
+// Per packet data for: ENIP_DATA_RATE_INFO
+struct enip_per_packet_data_t {
+   // Time difference between this message and the previous message in the same connection direction.
+   nstime_t ts_delta;
+};
 /* proto_data types */
 #define ENIP_REQUEST_INFO     0
 #define ENIP_CONNECTION_INFO  1
+#define ENIP_DATA_RATE_INFO   2
 
 void display_fwd_open_connection_path(cip_conn_info_t* conn_info, proto_tree* tree, tvbuff_t* tvb, packet_info* pinfo);
 void enip_close_cip_connection(packet_info *pinfo, const cip_connection_triad_t* triad);
