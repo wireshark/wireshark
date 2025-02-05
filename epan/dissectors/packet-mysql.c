@@ -90,6 +90,9 @@ void proto_reg_handoff_mysql(void);
 #define MYSQL_FLD_TIMESTAMP_FLAG      0x0400
 #define MYSQL_FLD_SET_FLAG            0x0800
 
+/* param flags */
+#define PARAM_UNSIGNED 0x80
+
 /* extended capabilities: 4.1+ client only
  *
  * These are libmysqlclient flags and NOT present
@@ -1269,12 +1272,6 @@ static int hf_mysql_affected_rows;
 static int hf_mysql_insert_id;
 static int hf_mysql_num_warn;
 static int hf_mysql_stmt_id;
-static int hf_mysql_query_attributes;
-static int hf_mysql_query_attributes_count;
-static int hf_mysql_query_attributes_send_types_to_server;
-static int hf_mysql_query_attribute_name_type;
-static int hf_mysql_query_attribute_name;
-static int hf_mysql_query_attribute_value;
 static int hf_mysql_query;
 static int hf_mysql_shutdown;
 static int hf_mysql_option;
@@ -2435,7 +2432,7 @@ mysql_dissect_exec_param(proto_item *req_tree, tvbuff_t *tvb, int *offset,
 	*offset += 1; /* type */
 
 	proto_tree_add_item(field_tree, hf_mysql_exec_unsigned, tvb, *offset, 1, ENC_NA);
-	if ((tvb_get_uint8(tvb, *offset) & 128) == 128) {
+	if ((tvb_get_uint8(tvb, *offset) & PARAM_UNSIGNED) == PARAM_UNSIGNED) {
 		param_unsigned = 1;
 	} else {
 		param_unsigned = 0;
@@ -2563,33 +2560,36 @@ mysql_dissect_request(tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *
 		/* Check both the extended capabilities of the client and server. The flag is set by the client
 		 * even if the server didn't set it. This is only actively used if both set the flag. */
 		if ((conn_data->clnt_caps_ext & MYSQL_CAPS_QA) && (conn_data->srv_caps_ext & MYSQL_CAPS_QA)){
-			proto_item *query_attrs_item = proto_tree_add_item(req_tree, hf_mysql_query_attributes, tvb, offset, -1, ENC_NA);
-			proto_item *query_attrs_tree = proto_item_add_subtree(query_attrs_item, ett_query_attributes);
 			// XXX - https://dev.mysql.com/doc/dev/mysql-server/latest/page_protocol_com_query.html
 			// suggests n_params is length encoded. Use tvb_get_fle?
 			// (More than 250 parameters *does* seem unlikely.)
 			int n_params = tvb_get_uint8(tvb, offset);
-			proto_tree_add_item(query_attrs_tree, hf_mysql_query_attributes_count, tvb, offset, 1, ENC_ASCII);
+			proto_tree_add_item(req_tree, hf_mysql_num_params, tvb, offset, 1, ENC_ASCII);
 			offset += 2;
 
-			if (n_params > 0) {
+			if ((n_params > 0) && (n_params <= 250)) {
 				int null_count = (n_params + 7) / 8;
-				proto_tree_add_item(query_attrs_tree, hf_mysql_unused, tvb, offset, null_count, ENC_ASCII);
+				proto_tree_add_item(req_tree, hf_mysql_unused, tvb, offset, null_count, ENC_ASCII);
 				offset += null_count;
 
-				proto_tree_add_item(query_attrs_tree, hf_mysql_query_attributes_send_types_to_server, tvb, offset, 1, ENC_ASCII);
+				proto_tree_add_item(req_tree, hf_mysql_new_parameter_bound_flag, tvb, offset, 1, ENC_ASCII);
 				offset += 1;
 
 				unsigned encoding = my_frame_data->encoding_client;
 
-				for (int i = 0; i < n_params; ++i) {
-					proto_tree_add_item(query_attrs_tree, hf_mysql_query_attribute_name_type, tvb, offset, 2, ENC_ASCII);
-					offset += 2;
-					offset = mysql_field_add_lestring(tvb, offset, query_attrs_tree, hf_mysql_query_attribute_name, encoding);
+				if (conn_data->clnt_caps_ext & MYSQL_CAPS_QA) {
+					param_offset = mysql_exec_param_offset(tvb, req_tree, offset, (unsigned)n_params);
+				} else {
+					param_offset = offset + (unsigned)n_params * 2;
 				}
-				for (int i = 0; i < n_params; ++i) {
-					offset = mysql_field_add_lestring(tvb, offset, query_attrs_tree, hf_mysql_query_attribute_value, encoding);
+
+				for (int i = 0; i<n_params; i++) {
+					if (!mysql_dissect_exec_param(req_tree, tvb, &offset, &param_offset,
+						0, pinfo, encoding,
+						conn_data->clnt_caps_ext & MYSQL_CAPS_QA))
+						break;
 				}
+				offset = param_offset;
 			}
 		}
 		// The SQL statement is a string<EOF>, because it can
@@ -5473,36 +5473,6 @@ void proto_register_mysql(void)
 		{ "Statement ID", "mysql.stmt_id",
 		FT_UINT32, BASE_DEC, NULL, 0x0,
 		NULL, HFILL }},
-
-		{ &hf_mysql_query_attributes,
-                { "Query Attributes", "mysql.query_attrs",
-                        FT_NONE, BASE_NONE, NULL, 0x0,
-                        NULL, HFILL }},
-
-		{ &hf_mysql_query_attributes_count,
-                { "Count", "mysql.query_attrs_count",
-                        FT_UINT8, BASE_DEC, NULL,  0x0,
-                        NULL, HFILL }},
-
-		{ &hf_mysql_query_attributes_send_types_to_server,
-                { "Send types to server", "mysql.query_attrs_send_types_to_server",
-                        FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-                        NULL, HFILL }},
-
-		{ &hf_mysql_query_attribute_name_type,
-                { "Attribute Name Type", "mysql.query_attr_name_type",
-                        FT_UINT16, BASE_HEX, NULL, 0x0,
-                        NULL, HFILL }},
-
-		{ &hf_mysql_query_attribute_name,
-                { "Attribute Name", "mysql.query_attr_name",
-                        FT_STRING, BASE_NONE, NULL, 0x0,
-                        NULL, HFILL }},
-
-		{ &hf_mysql_query_attribute_value,
-                { "Attribute Value", "mysql.query_attr_value",
-                        FT_STRING, BASE_NONE, NULL, 0x0,
-                        NULL, HFILL }},
 
 		{ &hf_mysql_query,
 		{ "Statement", "mysql.query",
