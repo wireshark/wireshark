@@ -32127,7 +32127,7 @@ void proto_register_its(void)
 #define ITS_TIS_TPG_PROT_VER 1
 #define ITS_CPM_PROT_VERv1 1
 #define ITS_CPM_PROT_VER 2
-#define ITS_VAM_PROT_VER 2
+#define ITS_VAM_PROT_VER 3
 #define ITS_IMZM_PROT_VER 2
 
 void proto_reg_handoff_its(void)
