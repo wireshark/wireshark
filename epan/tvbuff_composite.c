@@ -24,6 +24,8 @@ typedef struct {
 	unsigned		*start_offsets;
 	unsigned		*end_offsets;
 
+	unsigned	recursion_depth;
+
 } tvb_comp_t;
 
 struct tvb_composite {
@@ -101,7 +103,9 @@ composite_get_ptr(tvbuff_t *tvb, unsigned abs_offset, unsigned abs_length)
 	DISSECTOR_ASSERT_NOT_REACHED();
 }
 
+#define MAX_RECURSION_DEPTH 500 // Arbitrary; matches prefs.gui_max_tree_depth
 static void *
+// NOLINTNEXTLINE(misc-no-recursion)
 composite_memcpy(tvbuff_t *tvb, void* _target, unsigned abs_offset, unsigned abs_length)
 {
 	struct tvb_composite *composite_tvb = (struct tvb_composite *) tvb;
@@ -148,6 +152,8 @@ composite_memcpy(tvbuff_t *tvb, void* _target, unsigned abs_offset, unsigned abs
 
 		/* composite_memcpy() can't handle a member_length of zero. */
 		DISSECTOR_ASSERT(member_length > 0);
+		/* make sure we don't underflow below */
+		DISSECTOR_ASSERT(member_length <= abs_length);
 
 		tvb_memcpy(member_tvb, target, member_offset, member_length);
 		abs_offset	+= member_length;
@@ -155,7 +161,9 @@ composite_memcpy(tvbuff_t *tvb, void* _target, unsigned abs_offset, unsigned abs
 
 		/* Recurse */
 		if (abs_length > 0) {
+			DISSECTOR_ASSERT(++composite->recursion_depth < MAX_RECURSION_DEPTH);
 			composite_memcpy(tvb, target + member_length, abs_offset, abs_length);
+			composite->recursion_depth--;
 		}
 
 		return target;
@@ -198,6 +206,7 @@ tvb_new_composite(void)
 	composite->tvbs		 = g_queue_new();
 	composite->start_offsets = NULL;
 	composite->end_offsets	 = NULL;
+	composite->recursion_depth = 0;
 
 	return tvb;
 }
