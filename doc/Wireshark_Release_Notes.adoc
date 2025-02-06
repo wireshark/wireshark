@@ -151,6 +151,9 @@ The following features are either new or have been significantly updated since v
   the "Print" and "Export Packet Dissection" dialogs, and in TShark with
   the `--hexdump time` option. wsbuglink:17132[]
 
+* Lua now has a `Conversation` object, which exposes conversations and conversation
+  data to Lua. Resolves wsbuglink:15396[]
+
 === Removed Features and Support
 
 Wireshark no longer supports AirPcap and WinPcap.
