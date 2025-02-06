@@ -13,6 +13,7 @@
 
 #include "config.h"
 #include <epan/packet.h>
+#include <errno.h>
 #include <glib.h>
 #include <proto.h>
 #include <strutil.h>
