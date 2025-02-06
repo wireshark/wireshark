@@ -16,6 +16,7 @@
 #include <epan/packet.h>
 #include <epan/exceptions.h>
 #include <epan/expert.h>
+#include <epan/prefs.h>
 #include <stdio.h>
 #include <inttypes.h>
 #include "wscbor.h"
@@ -365,7 +366,12 @@ gboolean wscbor_is_indefinite_break(const wscbor_chunk_t *chunk) {
  * an indefinite break.
  * @return True if the skipped item was fully valid.
  */
-static gboolean wscbor_skip_next_item_internal(wmem_allocator_t *alloc, tvbuff_t *tvb, gint *offset, gboolean *is_break) {
+// NOLINTNEXTLINE(misc-no-recursion)
+static gboolean wscbor_skip_next_item_internal(wmem_allocator_t *alloc, tvbuff_t *tvb, gint *offset, gboolean *is_break, unsigned depth) {
+    if (depth > prefs.gui_max_tree_depth) {
+
+        return false;
+    }
     wscbor_chunk_t *chunk = wscbor_chunk_read(alloc, tvb, offset);
     if (wscbor_has_errors(chunk)) {
         wscbor_chunk_free(chunk);
@@ -386,7 +392,7 @@ static gboolean wscbor_skip_next_item_internal(wmem_allocator_t *alloc, tvbuff_t
                 // wait for indefinite break
                 gboolean was_break = FALSE;
                 do {
-                    if (!wscbor_skip_next_item_internal(alloc, tvb, offset, &was_break)) {
+                    if (!wscbor_skip_next_item_internal(alloc, tvb, offset, &was_break, depth + 1)) {
                         return FALSE;
                     }
                 }
@@ -395,7 +401,7 @@ static gboolean wscbor_skip_next_item_internal(wmem_allocator_t *alloc, tvbuff_t
             else {
                 const guint64 count = chunk->head_value;
                 for (guint64 ix = 0; ix < count; ++ix) {
-                    if (!wscbor_skip_next_item_internal(alloc, tvb, offset, NULL)) {
+                    if (!wscbor_skip_next_item_internal(alloc, tvb, offset, NULL, depth + 1)) {
                         return FALSE;
                     }
                 }
@@ -407,7 +413,7 @@ static gboolean wscbor_skip_next_item_internal(wmem_allocator_t *alloc, tvbuff_t
                 // wait for indefinite break
                 gboolean was_break = FALSE;
                 do {
-                    if (!wscbor_skip_next_item_internal(alloc, tvb, offset, &was_break)) {
+                    if (!wscbor_skip_next_item_internal(alloc, tvb, offset, &was_break, depth + 1)) {
                         return FALSE;
                     }
                 }
@@ -416,10 +422,10 @@ static gboolean wscbor_skip_next_item_internal(wmem_allocator_t *alloc, tvbuff_t
             else {
                 const guint64 count = chunk->head_value;
                 for (guint64 ix = 0; ix < count; ++ix) {
-                    if (!wscbor_skip_next_item_internal(alloc, tvb, offset, NULL)) {
+                    if (!wscbor_skip_next_item_internal(alloc, tvb, offset, NULL, depth + 1)) {
                         return FALSE;
                     }
-                    if (!wscbor_skip_next_item_internal(alloc, tvb, offset, NULL)) {
+                    if (!wscbor_skip_next_item_internal(alloc, tvb, offset, NULL, depth + 1)) {
                         return FALSE;
                     }
                 }
@@ -438,7 +444,7 @@ static gboolean wscbor_skip_next_item_internal(wmem_allocator_t *alloc, tvbuff_t
 }
 
 gboolean wscbor_skip_next_item(wmem_allocator_t *alloc, tvbuff_t *tvb, gint *offset) {
-    return wscbor_skip_next_item_internal(alloc, tvb, offset, NULL);
+    return wscbor_skip_next_item_internal(alloc, tvb, offset, NULL, 0);
 }
 
 gboolean wscbor_skip_if_errors(wmem_allocator_t *alloc, tvbuff_t *tvb, gint *offset, const wscbor_chunk_t *chunk) {
