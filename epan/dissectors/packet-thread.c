@@ -2845,7 +2845,7 @@ dissect_thread_mc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 
 static int
 // NOLINTNEXTLINE(misc-no-recursion)
-dissect_thread_nwd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+dissect_thread_nwd_with_server_decode(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int server_decode)
 {
     proto_item  *proto_root;
     proto_tree  *thread_nwd_tree;
@@ -2854,7 +2854,6 @@ dissect_thread_nwd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
     unsigned    offset = 0, tlv_offset;
     proto_item  *ti;
     uint8_t     tlv_type, tlv_len;
-    int         g_server_decode = 1;  /* used to check if the full decoding of Server TLV has to be done or not */
 
     /* Create the protocol tree. */
     proto_root = proto_tree_add_item(tree, proto_thread_nwd, tvb, 0, tvb_reported_length(tvb), ENC_NA);
@@ -2954,7 +2953,7 @@ dissect_thread_nwd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
                         sub_tlv_tree = proto_item_add_subtree(ti, ett_thread_nwd_prefix_sub_tlvs);
                         /* Call this dissector for sub-TLVs */
                         sub_tvb = tvb_new_subset_length(tvb, offset, remaining); /* remove prefix length (1) and prefix (prefix_byte_len) */
-                        dissect_thread_nwd(sub_tvb, pinfo, sub_tlv_tree, data);
+                        dissect_thread_nwd_with_server_decode(sub_tvb, pinfo, sub_tlv_tree, server_decode);
                         offset += remaining;
                     }
                 }
@@ -3060,7 +3059,7 @@ dissect_thread_nwd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
                         proto_tree_add_item(tlv_tree, hf_thread_nwd_tlv_service_anycast_seqno, tvb, offset + 1, 1, ENC_NA);
                         offset += 2;
                         tlv_offset += 2;
-                        g_server_decode = 2;
+                        server_decode = 2;
                     } else if(((s_data_len == 1) && (thread_service_data == 0x5d)) || ((s_data_len == 19) && (thread_service_data == 0x5d)))
                     {
                         proto_tree_add_item(tlv_tree, hf_thread_nwd_tlv_service_s_data, tvb, offset, s_data_len, ENC_NA);
@@ -3069,11 +3068,11 @@ dissect_thread_nwd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
                         tlv_offset += 1;
                         if(s_data_len == 1)
                         {
-                            g_server_decode = 3;
+                            server_decode = 3;
                         }
                         else if(s_data_len == 19)
                         {
-                            g_server_decode = 2;
+                            server_decode = 2;
                             proto_tree_add_item(tlv_tree, hf_thread_nwd_tlv_service_unicast_ipv6_address, tvb, offset, 16, ENC_NA);
                             proto_tree_add_item(tlv_tree, hf_thread_nwd_tlv_service_unicast_port_number, tvb, offset  + 16, 2, ENC_NA);
                             offset += 18;
@@ -3088,10 +3087,10 @@ dissect_thread_nwd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
                         //Flag to be 1 (BIG_ENDIAN so check the MSB)  and thread_service_data = 1 then Server Sub TLV needs to be decoded with s_server_data fields
                        if(((flags & THREAD_NWD_TLV_SERVICE_T) == THREAD_NWD_TLV_SERVICE_T) &&
                                       (thread_service_data == THREAD_SERVICE_DATA_BBR)) {
-                            g_server_decode = 1;
+                            server_decode = 1;
                         }
                         else {
-                            g_server_decode = 0;
+                            server_decode = 0;
                         }
                     }
 
@@ -3101,10 +3100,10 @@ dissect_thread_nwd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
                     // //Flag to be 1 (BIG_ENDIAN so check the MSB)  and thread_service_data = 1 then Server Sub TLV needs to be decoded with s_server_data fields
                     // if(((flags & THREAD_NWD_TLV_SERVICE_T) == THREAD_NWD_TLV_SERVICE_T) &&
                     //                   (thread_service_data == THREAD_SERVICE_DATA_BBR)) {
-                    //     g_server_decode = 1;
+                    //     server_decode = 1;
                     // }
                     // else {
-                    //     g_server_decode = 0;
+                    //     server_decode = 0;
                     // }
                     // Thread 1.3 Service TLV code
 
@@ -3118,7 +3117,7 @@ dissect_thread_nwd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
                         sub_tlv_tree = proto_item_add_subtree(ti, ett_thread_nwd_prefix_sub_tlvs);
                         /* Call this dissector for sub-TLVs. Should only be server TLVs */
                         sub_tvb = tvb_new_subset_length(tvb, offset, remaining); /* remove prefix length (1) and prefix (prefix_byte_len) */
-                        dissect_thread_nwd(sub_tvb, pinfo, sub_tlv_tree, data);
+                        dissect_thread_nwd_with_server_decode(sub_tvb, pinfo, sub_tlv_tree, server_decode);
                         offset += remaining;
                     }
                 }
@@ -3126,7 +3125,7 @@ dissect_thread_nwd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
 
             case THREAD_NWD_TLV_SERVER:
                 {
-                    if(g_server_decode == 1) {
+                    if(server_decode == 1) {
                         //2 bytes of server 16
                         proto_tree_add_item(tlv_tree, hf_thread_nwd_tlv_server_16, tvb, offset, 2, ENC_BIG_ENDIAN);
                         offset += 2;
@@ -3141,7 +3140,7 @@ dissect_thread_nwd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
                         proto_tree_add_item(tlv_tree, hf_thread_nwd_tlv_service_s_data_mlrtimeout, tvb, offset, 4, ENC_NA);
                         offset += 4;
                     }
-                    else if(g_server_decode == 0) {
+                    else if(server_decode == 0) {
                         //2 bytes of server 16
                         proto_tree_add_item(tlv_tree, hf_thread_nwd_tlv_server_16, tvb, offset, 2, ENC_BIG_ENDIAN);
                         offset += 2;
@@ -3157,7 +3156,7 @@ dissect_thread_nwd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
 
                     }
                     // Thread 1.3 Service TLV code
-                    else if(g_server_decode == 2) {
+                    else if(server_decode == 2) {
                         //2 bytes of server 16
                         proto_tree_add_item(tlv_tree, hf_thread_nwd_tlv_server_16, tvb, offset, 2, ENC_BIG_ENDIAN);
                         offset += 2;
@@ -3170,7 +3169,7 @@ dissect_thread_nwd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
                             offset += remaining;
                         }
                     }
-                    else if(g_server_decode == 3) {
+                    else if(server_decode == 3) {
                         //2 bytes of server 16
                         proto_tree_add_item(tlv_tree, hf_thread_nwd_tlv_server_16, tvb, offset, 2, ENC_BIG_ENDIAN);
                         offset += 2;
@@ -3199,6 +3198,13 @@ dissect_thread_nwd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
     }
     decrement_dissection_depth(pinfo);
     return tvb_captured_length(tvb);
+}
+
+static int
+// NOLINTNEXTLINE(misc-no-recursion)
+dissect_thread_nwd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+{
+    return dissect_thread_nwd_with_server_decode(tvb, pinfo, tree, 1);
 }
 
 static int
