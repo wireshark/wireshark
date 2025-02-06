@@ -297,7 +297,15 @@ bluetooth_add_address(packet_info *pinfo, address *addr, uint32_t stream_number,
          const char *setup_method, uint32_t setup_frame_number,
          uint32_t media_types, void *data);
 
-/* Dissect the header only, without side effects */
+/* Dissects the RTP header only, without side effects.
+
+   @param tvb The tv buffer of the current data
+   @param start The start of RTP data in tvb
+   @param pinfo Packet info from the current protocol
+   @param tree The tree to append the RTP header dissection to
+   @param rtp_info structure with RTP header info
+   @return number of bytes consumed
+ */
 WS_DLL_PUBLIC
 int dissect_rtp_shim_header(tvbuff_t *tvb, int start,
                              packet_info *pinfo, proto_tree *tree,

@@ -2747,7 +2747,7 @@ dissect_rtp_shim_header(tvbuff_t *tvb, int start, packet_info *pinfo _U_, proto_
             proto_tree_add_uint( rtp_tree, hf_rtp_version, tvb,
                 offset, 1, octet1);
         }
-        return offset;
+        return 0;
     }
 
     padding_set = RTP_PADDING( octet1 );

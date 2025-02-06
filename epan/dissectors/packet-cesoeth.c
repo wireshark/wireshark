@@ -222,15 +222,22 @@ dissect_cesoeth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
 
             int rtp_header_len = dissect_rtp_shim_header(tvb, offset, pinfo, cesoeth_tree, &rtp_info);
 
-            col_set_str(pinfo->cinfo, COL_PROTOCOL, "CESoETH (w RTP)");
-            col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "RTP PT: %u, SSRC: 0x%X, Seq: %u, Time=%u",
-                                rtp_info.info_payload_type,
-                                rtp_info.info_sync_src,
-                                rtp_info.info_seq_num,
-                                rtp_info.info_timestamp
-                               );
+            if (rtp_header_len > 0)
+            {
+                col_set_str(pinfo->cinfo, COL_PROTOCOL, "CESoETH (w RTP)");
+                col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "RTP PT: %u, SSRC: 0x%X, Seq: %u, Time=%u",
+                                    rtp_info.info_payload_type,
+                                    rtp_info.info_sync_src,
+                                    rtp_info.info_seq_num,
+                                    rtp_info.info_timestamp
+                                );
 
-            next_tvb = tvb_new_subset_length(tvb, offset + rtp_header_len, payload_len - rtp_header_len);
+                next_tvb = tvb_new_subset_length(tvb, offset + rtp_header_len, payload_len - rtp_header_len);
+            }
+            else
+            {
+                col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "RTP header missing");
+            }
         }
 
         call_data_dissector(next_tvb, pinfo, tree);
