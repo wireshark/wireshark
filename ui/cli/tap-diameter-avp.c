@@ -56,6 +56,7 @@ typedef struct _diameteravp_t {
 
 /* Copied from proto.c */
 static bool
+// NOLINTNEXTLINE(misc-no-recursion)
 tree_traverse_pre_order(proto_tree *tree, proto_tree_traverse_func func, void *data)
 {
 	proto_node *pnode = tree;
@@ -69,6 +70,7 @@ tree_traverse_pre_order(proto_tree *tree, proto_tree_traverse_func func, void *d
 	while (child != NULL) {
 		current = child;
 		child = current->next;
+		// We recurse here, but we're limited by our tree depth checks in proto.c
 		if (tree_traverse_pre_order((proto_tree *)current, func, data))
 			return true;
 	}
