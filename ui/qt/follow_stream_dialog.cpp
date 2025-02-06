@@ -611,7 +611,14 @@ FollowStreamDialog::followStream()
 
 void FollowStreamDialog::addText(QString text, bool is_from_server, uint32_t packet_num, bool colorize)
 {
-    ui->teStreamContent->addText(std::move(text), is_from_server, packet_num, colorize);
+    bool marked = false;
+    frame_data *fdata = frame_data_sequence_find(cap_file_.capFile()->provider.frames, packet_num);
+    if (fdata) {
+        if (fdata->marked) {
+            marked = true;
+        }
+    }
+    ui->teStreamContent->addText(std::move(text), is_from_server, packet_num, colorize, marked);
 }
 
 // The following keyboard shortcuts should work (although

@@ -18,7 +18,7 @@ class FollowStreamText : public QPlainTextEdit
 public:
     explicit FollowStreamText(QWidget *parent = 0);
     bool isTruncated() const { return truncated_; }
-    void addText(QString text, bool is_from_server, uint32_t packet_num, bool colorize);
+    void addText(QString text, bool is_from_server, uint32_t packet_num, bool colorize, bool marked);
     void addDeltaTime(double delta);
     int currentPacket() const;
 
