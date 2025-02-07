@@ -12555,6 +12555,10 @@ dissect_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, bool fi
 		if (si->flags & SMB2_FLAGS_RESPONSE) {
 			si->status = tvb_get_letohl(tvb, offset);
 			proto_tree_add_item(header_tree, hf_smb2_nt_status, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+			if (si->status) {
+				proto_item_append_text(item, ", %s",
+					val_to_str_ext(si->status, &NT_errors_ext, "Unknown (0x%08X)"));
+			}
 			offset += 4;
 		} else {
 			si->status = 0;
@@ -12567,6 +12571,9 @@ dissect_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, bool fi
 		/* opcode */
 		si->opcode = tvb_get_letohs(tvb, offset);
 		proto_tree_add_item(header_tree, hf_smb2_cmd, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+		proto_item_append_text(item, ", %s %s",
+			smb2_cmd_vals[si->opcode].strptr,
+			si->flags & SMB2_FLAGS_RESPONSE ? "Response" : "Request");
 		offset += 2;
 
 		/* credits */
@@ -12605,6 +12612,7 @@ dissect_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, bool fi
 		si->msg_id = tvb_get_letoh64(tvb, offset);
 		ssi_key.msg_id = si->msg_id;
 		proto_tree_add_item(header_tree, hf_smb2_msg_id, tvb, offset, 8, ENC_LITTLE_ENDIAN);
+		proto_item_append_text(item,  "MessageId %" PRIu64, (uint64_t)si->msg_id);
 		offset += 8;
 
 		/* Tree ID and Session ID */
