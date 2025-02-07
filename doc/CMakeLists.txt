@@ -541,7 +541,7 @@ if(ASCIIDOCTOR_FOUND AND XSLTPROC_EXECUTABLE)
 	endif()
 	# CMake 3.26 has copy_directory_if_different
 	add_custom_command(
-		TARGET user_guide_html
+		TARGET user_guide_html POST_BUILD
 		COMMAND ${CMAKE_COMMAND} -E copy_directory
 			"${CMAKE_CURRENT_BINARY_DIR}/wsug_html_chunked" "${WSUG_DIR}"
 		VERBATIM
