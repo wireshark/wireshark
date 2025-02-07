@@ -2836,6 +2836,7 @@ void WiresharkMainWindow::reloadDynamicMenus()
     mainApp->clearRemovedMenuGroupItems();
 }
 
+// NOLINTNEXTLINE(misc-no-recursion)
 void WiresharkMainWindow::externalMenuHelper(ext_menu_t * menu, QMenu  * subMenu, int depth)
 {
     QAction * itemAction = Q_NULLPTR;
