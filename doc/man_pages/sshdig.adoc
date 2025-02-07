@@ -58,7 +58,6 @@ sshdig - Provide interfaces to capture system calls from a remote host through S
 *--remote-host=myremotehost*
 *--remote-port=22*
 *--remote-username=user*
-*--remote-interface=eth2*
 *--remote-capture-command='sysdig --unbuffered --write=-'*
 
 == DESCRIPTION
@@ -143,9 +142,6 @@ The passphrase for the private key for authentication.
 --proxycommand=<proxy command>::
 The command to use as proxy for the SSH connection.
 
---remote-interface=<remote interface>::
-The remote network interface to capture from.
-
 --remote-capture-command-select=<capture command-selection>::
 The command to run on the remote system.
 Either *sysdig* for a remote capture command using sysdig, or *other*, where the remote capture command must be provided with the *--remote-capture-command* option.
@@ -226,7 +222,7 @@ To see interface configuration options:
 
 To capture:
 
-    sshdig --extcap-interface=sshdig --fifo=/tmp/ssh.pcap --capture --remote-host 192.168.1.10
+    sshdig --extcap-interface=sshdig --fifo=/tmp/ssh.scap --capture --remote-host 192.168.1.10
     --remote-username user
 
 // To use different capture binaries:
@@ -244,7 +240,7 @@ To capture:
 NOTE: kbd:[CTRL+C] should be used to stop the capture in order to ensure clean termination.
 
 The sshdig binary can be renamed to support multiple instances. For instance if we want sshdig
-to show up twice in stratoshark (for instance to handle multiple profiles), we can copy sshdig to
+to show up twice in Stratoshark (for instance to handle multiple profiles), we can copy sshdig to
 sshdig-host1 and sshdig-host2. Each binary will show up an interface name same as the executable
 name. Those executables not being "sshdig" will show up as "custom version" in the capture source description.
 

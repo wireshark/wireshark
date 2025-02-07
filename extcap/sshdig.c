@@ -287,8 +287,8 @@ static int list_config(char *interface)
             "{type=string}{tooltip=User name of privileged user to execute the capture command on the remote machine}"
             "{group=Capture}\n", inc++);
     printf("{group=Capture}\n");
-    printf("arg {number=%u}{call=--remote-count}{display=Packets to capture}"
-            "{type=unsigned}{default=0}{tooltip=The number of remote packets to capture. (Default: inf)}"
+    printf("arg {number=%u}{call=--remote-count}{display=Events to capture}"
+            "{type=unsigned}{default=0}{tooltip=The number of remote events to capture. (Default: inf)}"
             "{group=Capture}\n", inc++);
     printf("arg {number=%u}{call=--remote-modern-bpf}{display=Use eBPF}{type=boolflag}{default=true}"
             "{tooltip=Use eBPF for capture. With this no kernel module is required}{group=Capture}\n", inc++);
@@ -380,7 +380,7 @@ int main(int argc, char *argv[])
     extcap_help_add_option(extcap_conf, "--remote-capture-command <capture command>", "the remote capture command");
     extcap_help_add_option(extcap_conf, "--remote-priv <selection>", "none, sudo or doas");
     extcap_help_add_option(extcap_conf, "--remote-priv-user <username>", "privileged user name");
-    extcap_help_add_option(extcap_conf, "--remote-count <count>", "the number of packets to capture");
+    extcap_help_add_option(extcap_conf, "--remote-count <count>", "the number of events to capture");
     extcap_help_add_option(extcap_conf, "--remote-modern-bpf", "use eBPF");
 
     ws_opterr = 0;
