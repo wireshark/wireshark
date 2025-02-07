@@ -162,6 +162,8 @@ public:
      */
     virtual void useNanosecondTimestamps(bool nanoseconds) = 0;
 
+    void limitToDisplayFilter(bool limit);
+
     /**
      * @brief Are ports hidden for this model
      *

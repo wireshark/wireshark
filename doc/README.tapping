@@ -144,6 +144,20 @@ is a set of flags for the tap listener.  The flags that can be set are:
         This implies needing a protocol tree, as the option doesn't make
         sense otherwise.
 
+    TL_IGNORE_DISPLAY_FILTER
+
+        set if your tap listener wants to be updated with all packets, even ones
+        that do not pass the filter. Instead, packets that fail the filter will
+        have another flag set, TL_DISPLAY_FILTER_IGNORED, for the tap listener
+        to inspect.
+
+    TL_LIMIT_TO_DISPLAY_FILTER
+
+        set if your tap listener should only be updated with packets that pass
+        the main program display filter. (This can be in addition to setting a
+        per-tap filter.) This is useful if the tap should be automatically
+        updated when the main display filter changes.
+
     If no flags are needed, use TL_REQUIRES_NOTHING.
 
 void (*reset)(void *tapdata)

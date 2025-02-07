@@ -153,6 +153,18 @@ void ATapDataModel::updateFlags(unsigned flag)
     set_tap_flags(&hash_, _tapFlags);
 }
 
+void ATapDataModel::limitToDisplayFilter(bool limit)
+{
+
+    if(limit) {
+        _tapFlags |= TL_LIMIT_TO_DISPLAY_FILTER;
+    }
+    else {
+        _tapFlags &= ~(TL_LIMIT_TO_DISPLAY_FILTER);
+    }
+    set_tap_flags(&hash_, _tapFlags);
+}
+
 int ATapDataModel::rowCount(const QModelIndex &parent) const
 {
     return (storage_ && !parent.isValid()) ? (int) storage_->len : 0;
@@ -302,7 +314,7 @@ bool ATapDataModel::portsAreHidden() const
 bool ATapDataModel::showTotalColumn() const
 {
     /* Implemented to ensure future changes may be done more easily */
-    return _filter.length() > 0;
+    return _tapFlags & TL_LIMIT_TO_DISPLAY_FILTER;
 }
 
 EndpointDataModel::EndpointDataModel(int protoId, QString filter, QObject *parent) :

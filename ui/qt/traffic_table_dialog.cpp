@@ -52,7 +52,6 @@ TrafficTableDialog::TrafficTableDialog(QWidget &parent, CaptureFile &cf, const Q
 
     if (cf.displayFilter().length() > 0) {
         ui->displayFilterCheckBox->setChecked(true);
-        ui->trafficTab->setFilter(cf.displayFilter());
     }
 
     ui->trafficTab->setFocus();
@@ -70,8 +69,6 @@ TrafficTableDialog::TrafficTableDialog(QWidget &parent, CaptureFile &cf, const Q
 
     connect(ui->trafficListSearch, &QLineEdit::textChanged, ui->trafficList, &TrafficTypesList::filterList);
     connect(ui->trafficList, &TrafficTypesList::clearFilterList, ui->trafficListSearch, &QLineEdit::clear);
-
-    connect(mainApp->mainWindow(), SIGNAL(displayFilterSuccess(bool)), this, SLOT(displayFilterSuccess(bool)));
 
     QPushButton *close_bt = ui->buttonBox->button(QDialogButtonBox::Close);
     if (close_bt)
@@ -151,30 +148,14 @@ void TrafficTableDialog::on_nameResolutionCheckBox_toggled(bool checked)
     ui->trafficTab->setNameResolution(checked);
 }
 
-void TrafficTableDialog::displayFilterCheckBoxToggled(bool checked)
-{
-    displayFilterUpdate(checked);
-}
-
-void TrafficTableDialog::displayFilterUpdate(bool set_filter)
+void TrafficTableDialog::displayFilterCheckBoxToggled(bool set_filter)
 {
     if (!cap_file_.isValid()) {
         return;
     }
 
-    if (set_filter)
-        trafficTab()->setFilter(cap_file_.displayFilter());
-    else
-        trafficTab()->setFilter(QString());
-
+    ui->trafficTab->limitToDisplayFilter(set_filter);
     cap_file_.retapPackets();
-}
-
-void TrafficTableDialog::displayFilterSuccess(bool success)
-{
-    if (success && ui->displayFilterCheckBox->isEnabled() && ui->displayFilterCheckBox->isChecked()) {
-       displayFilterUpdate(true);
-    }
 }
 
 void TrafficTableDialog::captureEvent(CaptureEvent e)

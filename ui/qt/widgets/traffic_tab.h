@@ -200,6 +200,7 @@ public slots:
      * @param absolute true if absolute time should be used
      */
     void useAbsoluteTime(bool absolute);
+    void limitToDisplayFilter(bool limit);
 
     void setOpenTabs(QList<int> protocols);
 

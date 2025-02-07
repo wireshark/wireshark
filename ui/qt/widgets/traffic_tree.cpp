@@ -318,7 +318,7 @@ bool TrafficDataFilterProxy::filterAcceptsRow(int source_row, const QModelIndex 
     ATapDataModel * dataModel = qobject_cast<ATapDataModel *>(sourceModel());
     if (dataModel) {
         bool isFiltered = dataModel->data(dataModel->index(source_row, 0), ATapDataModel::ROW_IS_FILTERED).toBool();
-        if (isFiltered && dataModel->filter().length() > 0)
+        if (isFiltered)
             return false;
         /* XXX: What if the filter column is now hidden? Should the filter
          * still apply or should it be cleared? Right now it is still applied.

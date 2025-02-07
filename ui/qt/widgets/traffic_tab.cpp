@@ -183,6 +183,16 @@ void TrafficTab::useNanosecondTimestamps(bool nanoseconds)
     }
 }
 
+void TrafficTab::limitToDisplayFilter(bool limit)
+{
+    for(int idx = 0; idx < count(); idx++)
+    {
+        ATapDataModel * atdm = dataModelForTabIndex(idx);
+        if (atdm)
+            atdm->limitToDisplayFilter(limit);
+    }
+}
+
 void TrafficTab::disableTap()
 {
     for(int idx = 0; idx < count(); idx++)

@@ -2479,6 +2479,7 @@ main(int argc, char *argv[])
         }
     }
     cfile.dfcode = dfcode;
+    tap_load_main_filter(dfcode);
 
     if (print_packet_info) {
         /* If we're printing as text or PostScript, we have

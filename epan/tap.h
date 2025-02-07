@@ -62,6 +62,7 @@ typedef void (*tap_finish_cb)(void *tapdata);
 /** Flags to indicate what the packet cb should do */
 #define TL_IGNORE_DISPLAY_FILTER    0x00000010      /**< use packet, even if it would be filtered out */
 #define TL_DISPLAY_FILTER_IGNORED   0x00100000      /**< flag for the conversation handler */
+#define TL_LIMIT_TO_DISPLAY_FILTER  0x00000040      /**< limit to the main display filter, and retap if it changes. */
 
 /** Flags to indicate how the IP aggregation should behave during the statistics cb */
 #define TL_IP_AGGREGATION_NULL      0x00000100      /**< default analysis, no aggregation at all */
@@ -311,6 +312,12 @@ WS_DLL_PUBLIC const void *fetch_tapped_data(int tap_id, int idx);
 /** Clean internal structures
  */
 extern void tap_cleanup(void);
+
+/** Loads the main filter in the tapping system for taps that limit their
+ * results to the main display filter. Does not take ownership of the filter,
+ * which must still be freed in the main program.
+ */
+WS_DLL_PUBLIC void tap_load_main_filter(struct epan_dfilter *dfcode);
 
 #ifdef __cplusplus
 }
