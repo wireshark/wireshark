@@ -11076,6 +11076,7 @@ dissect_smb2_server_to_client_notification(tvbuff_t *tvb, packet_info *pinfo, pr
 }
 
 /* names here are just until we find better names for these functions */
+/* decode_smb2_name can be used to access this safely */
 static const value_string smb2_cmd_vals[] = {
 	{ 0x00, "Negotiate Protocol" },
 	{ 0x01, "Session Setup" },
@@ -12572,7 +12573,7 @@ dissect_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, bool fi
 		si->opcode = tvb_get_letohs(tvb, offset);
 		proto_tree_add_item(header_tree, hf_smb2_cmd, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		proto_item_append_text(item, ", %s %s",
-			smb2_cmd_vals[si->opcode].strptr,
+			decode_smb2_name(si->opcode),
 			si->flags & SMB2_FLAGS_RESPONSE ? "Response" : "Request");
 		offset += 2;
 
