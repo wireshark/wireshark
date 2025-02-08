@@ -502,7 +502,7 @@ QVariant EndpointDataModel::data(const QModelIndex &idx, int role) const
         }
         return Qt::AlignRight;
     } else if (role == ATapDataModel::DISPLAY_FILTER) {
-        return QString(get_endpoint_filter(item));
+        return gchar_free_to_qstring(get_endpoint_filter(item));
     } else if (role == ATapDataModel::ROW_IS_FILTERED) {
         return (bool)item->filtered && showTotalColumn();
     }

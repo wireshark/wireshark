@@ -758,7 +758,7 @@ QMenu * TrafficTree::createActionSubMenu(FilterAction::Action cur_action, QModel
             }
             foreach (FilterAction::ActionDirection ad, FilterAction::actionDirections()) {
                 FilterAction *fa = new FilterAction(subsubmenu, cur_action, at, ad);
-                QString filter = get_conversation_filter(conv_item, (conv_direction_e) fad_to_cd_[fa->actionDirection()]);
+                QString filter = gchar_free_to_qstring(get_conversation_filter(conv_item, (conv_direction_e) fad_to_cd_[fa->actionDirection()]));
                 fa->setProperty("filter", filter);
                 subsubmenu->addAction(fa);
                 connect(fa, &QAction::triggered, this, &TrafficTree::useFilterAction);
