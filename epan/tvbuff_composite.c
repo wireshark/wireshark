@@ -161,7 +161,8 @@ composite_memcpy(tvbuff_t *tvb, void* _target, unsigned abs_offset, unsigned abs
 
 		/* Recurse */
 		if (abs_length > 0) {
-			DISSECTOR_ASSERT(++composite->recursion_depth < MAX_RECURSION_DEPTH);
+			composite->recursion_depth++;
+			DISSECTOR_ASSERT(composite->recursion_depth < MAX_RECURSION_DEPTH);
 			composite_memcpy(tvb, target + member_length, abs_offset, abs_length);
 			composite->recursion_depth--;
 		}
