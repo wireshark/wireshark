@@ -47,6 +47,7 @@
 #define SPDU_NAME                                           "Signal PDU"
 #define SPDU_NAME_LONG                                      "Signal PDU"
 #define SPDU_NAME_FILTER                                    "signal_pdu"
+#define SPDU_NAME_SIGNAL_PREFIX                             "signal_pdu.signals"
 
 
 /*** Configuration ***/
@@ -848,21 +849,25 @@ deregister_user_data_hfarray(hf_register_info **hf_array, unsigned *number_of_en
     hf_register_info *dynamic_hf = *hf_array;
 
     if (dynamic_hf != NULL) {
-        /* Unregister all fields */
         for (unsigned i = 0; i < dynamic_hf_size; i++) {
-            if (dynamic_hf[i].p_id != NULL) {
-                if (*(dynamic_hf[i].p_id) > 0) {
-                    proto_deregister_field(proto_signal_pdu, *(dynamic_hf[i].p_id));
-                }
-                g_free(dynamic_hf[i].p_id);
-                dynamic_hf[i].p_id = NULL;
-
-                /* workaround since the proto.c proto_free_field_strings would double free this... */
+            if (dynamic_hf[i].p_id != NULL && dynamic_hf[i].hfinfo.strings != NULL) {
+                /* Workaround: do not let proto_free_field_strings (proto.c) free the hfinfo.strings as this fails. */
+                /* Since not all value_names might be used for an hf, we need to free ourselves anyhow. */
                 dynamic_hf[i].hfinfo.strings = NULL;
             }
         }
 
-        proto_add_deregistered_data(dynamic_hf);
+        proto_deregister_all_fields_with_prefix(proto_signal_pdu, SPDU_NAME_SIGNAL_PREFIX);
+        proto_free_deregistered_fields();
+
+        for (unsigned i = 0; i < dynamic_hf_size; i++) {
+            if (dynamic_hf[i].p_id != NULL) {
+                g_free(dynamic_hf[i].p_id);
+                dynamic_hf[i].p_id = NULL;
+            }
+        }
+        g_free(dynamic_hf);
+
         *hf_array = NULL;
         *number_of_entries = 0;
     }
@@ -896,34 +901,34 @@ create_hf_entry(hf_register_info *dynamic_hf, unsigned i, uint32_t id, uint32_t 
     switch (hf_type) {
     case HF_TYPE_RAW:
         dynamic_hf[i].hfinfo.name = ws_strdup_printf("%s_raw", name);
-        dynamic_hf[i].hfinfo.abbrev = ws_strdup_printf("%s.%s_raw", SPDU_NAME_FILTER, filter_string);
+        dynamic_hf[i].hfinfo.abbrev = ws_strdup_printf("%s.%s_raw", SPDU_NAME_SIGNAL_PREFIX, filter_string);
         break;
 
     case HF_TYPE_AGG_SUM:
         dynamic_hf[i].hfinfo.name = ws_strdup_printf("%s_sum", name);
-        dynamic_hf[i].hfinfo.abbrev = ws_strdup_printf("%s.%s_sum", SPDU_NAME_FILTER, filter_string);
+        dynamic_hf[i].hfinfo.abbrev = ws_strdup_printf("%s.%s_sum", SPDU_NAME_SIGNAL_PREFIX, filter_string);
         break;
 
     case HF_TYPE_AGG_AVG:
         dynamic_hf[i].hfinfo.name = ws_strdup_printf("%s_avg", name);
-        dynamic_hf[i].hfinfo.abbrev = ws_strdup_printf("%s.%s_avg", SPDU_NAME_FILTER, filter_string);
+        dynamic_hf[i].hfinfo.abbrev = ws_strdup_printf("%s.%s_avg", SPDU_NAME_SIGNAL_PREFIX, filter_string);
         break;
 
     case HF_TYPE_AGG_INT:
         dynamic_hf[i].hfinfo.name = ws_strdup_printf("%s_int", name);
-        dynamic_hf[i].hfinfo.abbrev = ws_strdup_printf("%s.%s_int", SPDU_NAME_FILTER, filter_string);
+        dynamic_hf[i].hfinfo.abbrev = ws_strdup_printf("%s.%s_int", SPDU_NAME_SIGNAL_PREFIX, filter_string);
         break;
 
     case HF_TYPE_BASE:
         dynamic_hf[i].hfinfo.name = ws_strdup(name);
-        dynamic_hf[i].hfinfo.abbrev = ws_strdup_printf("%s.%s", SPDU_NAME_FILTER, filter_string);
+        dynamic_hf[i].hfinfo.abbrev = ws_strdup_printf("%s.%s", SPDU_NAME_SIGNAL_PREFIX, filter_string);
         break;
 
     case HF_TYPE_NONE:
     default:
         /* we bail out but have set hf_id to 0 before */
         dynamic_hf[i].hfinfo.name = ws_strdup_printf("%s_none", name);
-        dynamic_hf[i].hfinfo.abbrev = ws_strdup_printf("%s.%s_none", SPDU_NAME_FILTER, filter_string);
+        dynamic_hf[i].hfinfo.abbrev = ws_strdup_printf("%s.%s_none", SPDU_NAME_SIGNAL_PREFIX, filter_string);
         return hf_id;
     }
     dynamic_hf[i].hfinfo.bitmask = 0;

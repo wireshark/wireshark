@@ -8887,6 +8887,33 @@ proto_deregister_field (const int parent, int hf_id)
 	}
 }
 
+/* Deregister all registered fields starting with a prefix. Use for dynamic registered fields only! */
+void
+proto_deregister_all_fields_with_prefix(const int parent, const gchar *prefix)
+{
+	header_field_info *hfinfo;
+	protocol_t        *proto;
+
+	g_free(last_field_name);
+	last_field_name = NULL;
+
+	proto = find_protocol_by_id(parent);
+	if (proto && proto->fields && proto->fields->len > 0) {
+		guint i = proto->fields->len;
+		do {
+			i--;
+
+			hfinfo = (header_field_info *)g_ptr_array_index(proto->fields, i);
+			if (g_str_has_prefix(hfinfo->abbrev, prefix)) {
+				hfinfo_remove_from_gpa_name_map(hfinfo);
+				expert_deregister_expertinfo(hfinfo->abbrev);
+				g_ptr_array_add(deregistered_fields, gpa_hfinfo.hfi[hfinfo->id]);
+				g_ptr_array_remove_index_fast(proto->fields, i);
+			}
+		} while (i > 0);
+	}
+}
+
 void
 proto_add_deregistered_data (void *data)
 {

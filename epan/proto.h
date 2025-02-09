@@ -2655,6 +2655,13 @@ proto_deregister_field (const int parent, int hf_id);
 WS_DLL_PUBLIC void
 proto_add_deregistered_data (void *data);
 
+/** Deregister all registered fields of a protocol that match a prefix.
+ @param parent the protocol handle from proto_register_protocol()
+ @prefix a prefix to select which fields to deregister
+*/
+WS_DLL_PUBLIC void
+proto_deregister_all_fields_with_prefix(const int parent, const gchar *prefix);
+
 /** Add a memory slice to be freed when deregistered fields are freed.
  @param block_size the size of the block
  @param mem_block a pointer to the block to free */
