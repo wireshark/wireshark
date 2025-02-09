@@ -4023,7 +4023,7 @@ dissect_smb2_session_setup_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 	if (!pinfo->fd->visited) {
 		idx = 0;
 		while ((ntlmssph = (const ntlmssp_header_t *)fetch_tapped_data(ntlmssp_tap_id, idx++)) != NULL) {
-			if (ntlmssph && ntlmssph->type == NTLMSSP_AUTH) {
+			if (ntlmssph->type == NTLMSSP_AUTH) {
 				si->session = smb2_get_session(si->conv, si->sesid, pinfo, si);
 				si->session->acct_name = wmem_strdup(wmem_file_scope(), ntlmssph->acct_name);
 				si->session->domain_name = wmem_strdup(wmem_file_scope(), ntlmssph->domain_name);
@@ -11647,7 +11647,7 @@ static const smb2_function smb2_dissector[256] = {
 #define SMB3_AES128CCM_NONCE	11
 #define SMB3_AES128GCM_NONCE	12
 
-static bool is_decrypted_header_ok(uint8_t *p, size_t size)
+static bool is_decrypted_header_ok(const uint8_t *p, size_t size)
 {
 	if (size < 4)
 		return false;
