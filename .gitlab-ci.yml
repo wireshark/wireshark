@@ -337,7 +337,9 @@ Fedora RPM Package:
 #     - tshark --version
 #  needs: [ 'Fedora RPM Package' ]
 
-Windows MinGW-w64 Package:
+# Fedora doesn't appear to have checks in place to ensure that their MinGW Qt
+# packages work, so disable the MinGW builds for now.
+.Windows MinGW-w64 Package:
   stage: build
   image: registry.gitlab.com/wireshark/wireshark-containers/mingw-dev
   rules: !reference [.if-merged]
