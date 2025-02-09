@@ -579,7 +579,9 @@ Windows Arm64 Package:
     paths:
       - build/*shark-release-info-*-windows-*.ini
 
-Windows MinGW-w64 Package:
+# Fedora doesn't appear to have checks in place to ensure that their MinGW Qt
+# packages work, so disable the MinGW builds for now.
+.Windows MinGW-w64 Package:
   extends: .build-mingw
   rules: !reference [.if-w-w-only-merged]
   script:
@@ -850,7 +852,9 @@ Ubuntu Qt5 Build:
     - ninja
     - run/wireshark -v
 
-Fedora MinGW Build:
+# Fedora doesn't appear to have checks in place to ensure that their MinGW Qt
+# packages work, so disable the MinGW builds for now.
+.Fedora MinGW Build:
   extends: .build-mingw
   rules: !reference [.if-merge-request]
   needs: [ 'Commit Check' ]
