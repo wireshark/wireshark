@@ -1311,6 +1311,7 @@ static int hf_mysql_binlog_gtid_data;
 static int hf_mysql_binlog_gtid_data_length;
 static int hf_mysql_binlog_hb_event_filename;
 static int hf_mysql_binlog_hb_event_log_position;
+static int hf_mysql_binlog_semisync_flag;
 static int hf_mysql_clone_command_code;
 static int hf_mysql_clone_response_code;
 static int hf_mysql_eof;
@@ -1554,6 +1555,12 @@ static const value_string state_vals[] = {
 	{CLONE_EXIT,           "cloning shutting down"},
 	{RESPONSE_LOCALINFILE, "local infile"},
 	{INFILE_DATA,          "local infile data"},
+	{0, NULL}
+};
+
+static const value_string mysql_binlog_semisync_flag_vals[] = {
+	{0, "Ack not requested"},
+	{1, "Ack requested"},
 	{0, NULL}
 };
 
@@ -2514,6 +2521,8 @@ mysql_dissect_request(tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *
 		return mysql_dissect_auth_sha2(tvb, pinfo, offset, tree, conn_data);
 	case INFILE_DATA:
 		return mysql_dissect_loaddata(tvb, pinfo, offset, tree, conn_data);
+	case BINLOG_DUMP:
+		return mysql_dissect_binlog_event_packet(tvb, pinfo, offset, tree, tree);
 	default:;
 	}
 
@@ -2766,7 +2775,7 @@ mysql_dissect_request(tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *
 
 		/* rest is data */
 		lenstr = tvb_reported_length_remaining(tvb, offset);
-		if (tree &&  lenstr > 0) {
+		if (tree && lenstr > 0) {
 			proto_tree_add_item(req_tree, hf_mysql_payload, tvb, offset, lenstr, ENC_NA);
 		}
 		offset += lenstr;
@@ -2911,7 +2920,7 @@ mysql_dissect_request(tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *
 			}
 		} else {
 			lenstr = tvb_reported_length_remaining(tvb, offset);
-			if (tree &&  lenstr > 0) {
+			if (tree && lenstr > 0) {
 				ti = proto_tree_add_item(req_tree, hf_mysql_payload, tvb, offset, lenstr, ENC_NA);
 				expert_add_info(pinfo, ti, &ei_mysql_prepare_response_needed);
 			}
@@ -2968,7 +2977,7 @@ mysql_dissect_request(tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *
 
 		/* binlog file name ? */
 		lenstr = tvb_reported_length_remaining(tvb, offset);
-		if (tree &&  lenstr > 0) {
+		if (tree && lenstr > 0) {
 			proto_tree_add_item(req_tree, hf_mysql_binlog_file_name, tvb, offset, lenstr, ENC_ASCII);
 		}
 		offset += lenstr;
@@ -4126,6 +4135,27 @@ mysql_dissect_binlog_event_heartbeat_v2(tvbuff_t *tvb, packet_info *pinfo, int o
 	return offset;
 }
 
+// https://jan.kneschke.de/projects/mysql/mysql-55s-semi-sync-replication-the-protocol-side/
+static int
+mysql_dissect_binlog_semisync_ack(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tree)
+{
+	int lenstr;
+
+	col_append_str(pinfo->cinfo, COL_INFO, "Semisync ACK");
+	proto_item_append_text(tree, " - Semisync ACK");
+
+	proto_tree_add_item(tree, hf_mysql_binlog_position8, tvb, offset, 8, ENC_LITTLE_ENDIAN);
+	offset += 8;
+
+	lenstr = tvb_reported_length_remaining(tvb, offset);
+	if (tree && lenstr > 0) {
+		proto_tree_add_item(tree, hf_mysql_binlog_file_name, tvb, offset, lenstr, ENC_ASCII);
+	}
+	offset += lenstr;
+
+	return offset;
+}
+
 static int
 mysql_dissect_binlog_event_header(tvbuff_t *tvb, int offset, proto_tree *tree, proto_item *pi)
 {
@@ -4155,26 +4185,45 @@ static int
 mysql_dissect_binlog_event_packet(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tree, proto_item *pi)
 {
 	uint8_t event_type;
-	int fle;
+	int fle, semisync_marker;
+	bool is_response = true;
 
-	col_append_str(pinfo->cinfo, COL_INFO, "Binlog Event " );
+	if (pinfo->destport == pinfo->match_uint) {
+		is_response = false;
+	}
+
+	col_append_str(pinfo->cinfo, COL_INFO, is_response ? "Binlog Event " : " Binlog Event ");
 	col_set_fence(pinfo->cinfo, COL_INFO);
 
-	event_type = tvb_get_uint8(tvb, offset + 4);
-	offset = mysql_dissect_binlog_event_header(tvb, offset, tree, pi);
+	semisync_marker = tvb_get_uint8(tvb, offset);
 
-	switch (event_type) {
-		case HEARTBEAT_LOG_EVENT_V2:
-			offset = mysql_dissect_binlog_event_heartbeat_v2(tvb, pinfo, offset, tree);
-			break;
-		default:
-			fle = tvb_reported_length_remaining(tvb, offset);
-			offset += fle - 4;
-			break;
+	if (is_response) {
+		if (semisync_marker == 0xef) {
+			offset++; // Marker
+			proto_tree_add_item(tree, hf_mysql_binlog_semisync_flag, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+			offset++; // Flag
+		}
+
+		event_type = tvb_get_uint8(tvb, offset + 4);
+		offset = mysql_dissect_binlog_event_header(tvb, offset, tree, pi);
+
+		switch (event_type) {
+			case HEARTBEAT_LOG_EVENT_V2:
+				offset = mysql_dissect_binlog_event_heartbeat_v2(tvb, pinfo, offset, tree);
+				break;
+			default:
+				fle = tvb_reported_length_remaining(tvb, offset);
+				offset += fle - 4;
+				break;
+		}
+		// checksum
+		proto_tree_add_item(tree, hf_mysql_binlog_event_checksum, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+		offset += 4;
+	} else {
+		if (semisync_marker == 0xef)
+			offset++; // just a marker
+		offset = mysql_dissect_binlog_semisync_ack(tvb, pinfo, offset, tree);
 	}
-	// checksum
-	proto_tree_add_item(tree, hf_mysql_binlog_event_checksum, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-	offset += 4;
 
 	return offset;
 }
@@ -5673,6 +5722,11 @@ void proto_register_mysql(void)
 		{ "Binlog Position", "mysql.binlog.hb_event.log_position",
 		FT_UINT64, BASE_DEC, NULL, 0x0,
 		"position of the next event", HFILL }},
+
+		{ &hf_mysql_binlog_semisync_flag,
+		{ "Semisync Flag", "mysql.binlog.semisync.flag",
+		FT_UINT8, BASE_DEC, VALS(mysql_binlog_semisync_flag_vals), 0x0,
+		NULL, HFILL }},
 
 		{ &hf_mysql_clone_command_code,
 		{ "Clone Command Code", "mysql.clone.command_code",
