@@ -18,14 +18,19 @@
 #include <glib.h>
 
 #include <epan/frame_data.h>
+#include <epan/prefs.h>
 
 #include "packet_range.h"
 
 #include <wsutil/ws_assert.h>
 
 static void
-depended_frames_add(GHashTable* depended_table, frame_data_sequence *frames, frame_data *frame)
+// NOLINTNEXTLINE(misc-no-recursion)
+depended_frames_add(GHashTable* depended_table, frame_data_sequence *frames, frame_data *frame, unsigned depth)
 {
+    if (depth > prefs.gui_max_tree_depth) {
+        return;
+    }
     if (g_hash_table_add(depended_table, GUINT_TO_POINTER(frame->num)) && frame->dependent_frames) {
         GHashTableIter iter;
         void *key;
@@ -33,7 +38,7 @@ depended_frames_add(GHashTable* depended_table, frame_data_sequence *frames, fra
         g_hash_table_iter_init(&iter, frame->dependent_frames);
         while (g_hash_table_iter_next(&iter, &key, NULL)) {
             depended_fd = frame_data_sequence_find(frames, GPOINTER_TO_UINT(key));
-            depended_frames_add(depended_table, frames, depended_fd);
+            depended_frames_add(depended_table, frames, depended_fd, depth + 1);
         }
     }
 }
@@ -123,7 +128,7 @@ static void packet_range_calc(packet_range_t *range) {
                     if (framenum > displayed_mark_high) {
                        displayed_mark_high = framenum;
                     }
-                    depended_frames_add(range->displayed_marked_plus_depends, range->cf->provider.frames, packet);
+                    depended_frames_add(range->displayed_marked_plus_depends, range->cf->provider.frames, packet, 0);
                 }
 
                 if (mark_low == 0) {
@@ -132,7 +137,7 @@ static void packet_range_calc(packet_range_t *range) {
                 if (framenum > mark_high) {
                    mark_high = framenum;
                 }
-                depended_frames_add(range->marked_plus_depends, range->cf->provider.frames, packet);
+                depended_frames_add(range->marked_plus_depends, range->cf->provider.frames, packet, 0);
             }
             if (packet->ignored) {
                 range->ignored_cnt++;
@@ -152,7 +157,7 @@ static void packet_range_calc(packet_range_t *range) {
                 if (packet->ignored) {
                     range->ignored_mark_range_cnt++;
                 }
-                depended_frames_add(range->mark_range_plus_depends, range->cf->provider.frames, packet);
+                depended_frames_add(range->mark_range_plus_depends, range->cf->provider.frames, packet, 0);
             }
 
             if (framenum >= displayed_mark_low &&
@@ -164,7 +169,7 @@ static void packet_range_calc(packet_range_t *range) {
                         range->displayed_ignored_mark_range_cnt++;
                     }
                 }
-                depended_frames_add(range->displayed_mark_range_plus_depends, range->cf->provider.frames, packet);
+                depended_frames_add(range->displayed_mark_range_plus_depends, range->cf->provider.frames, packet, 0);
             }
         }
         range->marked_plus_depends_cnt = g_hash_table_size(range->marked_plus_depends);
@@ -216,13 +221,13 @@ static void packet_range_calc_user(packet_range_t *range) {
                 if (packet->ignored) {
                     range->ignored_user_range_cnt++;
                 }
-                depended_frames_add(range->user_range_plus_depends, range->cf->provider.frames, packet);
+                depended_frames_add(range->user_range_plus_depends, range->cf->provider.frames, packet, 0);
                 if (packet->passed_dfilter) {
                     range->displayed_user_range_cnt++;
                     if (packet->ignored) {
                         range->displayed_ignored_user_range_cnt++;
                     }
-                    depended_frames_add(range->displayed_user_range_plus_depends, range->cf->provider.frames, packet);
+                    depended_frames_add(range->displayed_user_range_plus_depends, range->cf->provider.frames, packet, 0);
                 }
             }
         }
@@ -251,13 +256,13 @@ static void packet_range_calc_selection(packet_range_t *range) {
                 if (packet->ignored) {
                     range->ignored_selection_range_cnt++;
                 }
-                depended_frames_add(range->selected_plus_depends, range->cf->provider.frames, packet);
+                depended_frames_add(range->selected_plus_depends, range->cf->provider.frames, packet, 0);
                 if (packet->passed_dfilter) {
                     range->displayed_selection_range_cnt++;
                     if (packet->ignored) {
                         range->displayed_ignored_selection_range_cnt++;
                     }
-                    depended_frames_add(range->displayed_selected_plus_depends, range->cf->provider.frames, packet);
+                    depended_frames_add(range->displayed_selected_plus_depends, range->cf->provider.frames, packet, 0);
                 }
             }
         }

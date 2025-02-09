@@ -17,9 +17,6 @@ Checks:
   - '-*'
   - 'misc-no-recursion'
 
-# We can remove the configs under epan and plugins, and wiretap if we
-# ever uncomment this.
-
-#WarningsAsErrors: 'misc-no-recursion'
+WarningsAsErrors: 'misc-no-recursion'
 
 UseColor: true

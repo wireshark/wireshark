@@ -1636,6 +1636,7 @@ cf_read_current_record(capture_file *cf)
    some dissector has changed, meaning some dissector might construct
    its state differently from the way it was constructed the last time). */
 static void
+// NOLINTNEXTLINE(misc-no-recursion)
 rescan_packets(capture_file *cf, const char *action, const char *action_item, bool redissect)
 {
     /* Rescan packets new packet list */
@@ -2056,6 +2057,7 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item, bo
      * change) was requested, the rescan above is aborted and restarted here. */
     if (queued_rescan_type != RESCAN_NONE) {
         redissect = redissect || queued_rescan_type == RESCAN_REDISSECT;
+        // We recurse here, but if we have a deep queue at this point we have other problems.
         rescan_packets(cf, "Reprocessing", "all packets", redissect);
     }
 }

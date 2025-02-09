@@ -1725,6 +1725,7 @@ sharkd_session_process_frames(const char *buf, const jsmntok_t *tokens, int coun
 }
 
 static void
+// NOLINTNEXTLINE(misc-no-recursion)
 sharkd_session_process_tap_stats_node_cb(const char *key, const stat_node *n)
 {
     stat_node *node;
@@ -1774,6 +1775,7 @@ sharkd_session_process_tap_stats_node_cb(const char *key, const stat_node *n)
 
         if (node->children)
         {
+            // We recurse here but our depth is limited
             sharkd_session_process_tap_stats_node_cb("sub", node);
         }
         json_dumper_end_object(&dumper);
@@ -2772,6 +2774,7 @@ sharkd_session_free_tap_srt_cb(void *arg)
 }
 
 static void
+// NOLINTNEXTLINE(misc-no-recursion)
 sharkd_session_process_tap_phs_cb_aux(phs_t *rs)
 {
     for (; rs; rs = rs->sibling) {
@@ -2784,6 +2787,7 @@ sharkd_session_process_tap_phs_cb_aux(phs_t *rs)
         sharkd_json_value_anyf("bytes", "%"PRIu64, rs->bytes);
         if (rs->child != NULL && rs->child->protocol != -1) {
             sharkd_json_array_open("protos");
+            // We recurse here but our depth is limited
             sharkd_session_process_tap_phs_cb_aux(rs->child);
             sharkd_json_array_close();
         }
@@ -4051,6 +4055,7 @@ sharkd_session_process_follow(char *buf, const jsmntok_t *tokens, int count)
 }
 
 static void
+// NOLINTNEXTLINE(misc-no-recursion)
 sharkd_session_process_frame_cb_tree(const char *key, epan_dissect_t *edt, proto_tree *tree, tvbuff_t **tvbs, bool display_hidden)
 {
     proto_node *node;
@@ -4155,6 +4160,7 @@ sharkd_session_process_frame_cb_tree(const char *key, epan_dissect_t *edt, proto
             if (finfo->tree_type != -1)
                 sharkd_json_value_anyf("e", "%d", finfo->tree_type);
 
+            // We recurse here but our depth is limited
             sharkd_session_process_frame_cb_tree("n", edt, (proto_tree *) node, tvbs, display_hidden);
         }
 
