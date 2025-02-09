@@ -10496,7 +10496,7 @@ dissect_smb2_create_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	offset = dissect_nt_create_options(tvb, tree, offset);
 
 	if (tvb_get_letohl(tvb, offset-4) & 0x1000) {
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", (delete on close)");
+		col_append_str(pinfo->cinfo, COL_INFO, ", (delete on close)");
 		if (si->file)
 			si->file->delete_on_close = TRUE;
 	}
@@ -10651,7 +10651,7 @@ dissect_smb2_create_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 		si->saved->uuid_fid = tag_guid;
 
 	if (si->file && si->file->delete_on_close)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", (delete on close)");
+		col_append_str(pinfo->cinfo, COL_INFO, ", (delete on close)");
 
 	/* Display the GUID subtree */
 	offset = dissect_smb2_fid(tvb, pinfo, tree, offset, si, FID_MODE_OPEN);
