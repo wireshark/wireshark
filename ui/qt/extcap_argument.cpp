@@ -797,6 +797,7 @@ ExtcapArgument::ExtcapArgument(const ExtcapArgument &obj) :
     }
 }
 
+// NOLINTNEXTLINE(misc-no-recursion)
 ExtcapValueList ExtcapArgument::loadValues(QString parent)
 {
     if (_argument == 0 || _argument->values == 0)
@@ -824,6 +825,7 @@ ExtcapValueList ExtcapArgument::loadValues(QString parent)
                             v->enabled == true, v->is_default == true);
 
             if (!call.isEmpty())
+                // We recurse here, but the tree is only two levels deep
                 element.setChildren(this->loadValues(call));
 
             elements.append(element);

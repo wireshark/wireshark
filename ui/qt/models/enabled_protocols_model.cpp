@@ -479,6 +479,7 @@ void EnabledProtocolsProxyModel::setFilter(const QString& filter, EnabledProtoco
     invalidateFilter();
 }
 
+// NOLINTNEXTLINE(misc-no-recursion)
 void EnabledProtocolsProxyModel::setItemsEnable(EnabledProtocolsProxyModel::EnableType enableType, QModelIndex parent)
 {
     if (! sourceModel())
@@ -510,6 +511,7 @@ void EnabledProtocolsProxyModel::setItemsEnable(EnabledProtocolsProxyModel::Enab
             }
         }
 
+        // We recurse here, but the tree is only two levels deep
         setItemsEnable(enableType, idx);
     }
 

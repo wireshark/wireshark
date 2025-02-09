@@ -621,6 +621,7 @@ int AdvancedPrefsModel::columnCount(const QModelIndex&) const
     return colLast;
 }
 
+// NOLINTNEXTLINE(misc-no-recursion)
 void AdvancedPrefsModel::setFirstColumnSpanned(QTreeView* tree, const QModelIndex& mIndex)
 {
     int childCount, row;
@@ -630,6 +631,7 @@ void AdvancedPrefsModel::setFirstColumnSpanned(QTreeView* tree, const QModelInde
         if (item != NULL) {
             childCount = item->childCount();
             if (childCount > 0) {
+                // We recurse here, but our depth is limited
                 tree->setFirstColumnSpanned(mIndex.row(), mIndex.parent(), true);
                 for (row = 0; row < childCount; row++) {
                     setFirstColumnSpanned(tree, index(row, 0, mIndex));
@@ -643,6 +645,7 @@ void AdvancedPrefsModel::setFirstColumnSpanned(QTreeView* tree, const QModelInde
     }
 }
 
+// NOLINTNEXTLINE(misc-no-recursion)
 bool AdvancedPrefsModel::filterAcceptItem(PrefsItem& item) const
 {
     if (filter_.isEmpty() && !show_changed_values_)
@@ -680,6 +683,7 @@ bool AdvancedPrefsModel::filterAcceptItem(PrefsItem& item) const
     for (int child_row = 0; child_row < item.childCount(); child_row++)
     {
         child_item = item.child(child_row);
+        // We recurse here, but our depth is limited
         if ((child_item != NULL) && (filterAcceptItem(*child_item)))
             return true;
     }

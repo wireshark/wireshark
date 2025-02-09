@@ -35,6 +35,7 @@ ExtArgMultiSelect::~ExtArgMultiSelect()
         delete viewModel;
 }
 
+// NOLINTNEXTLINE(misc-no-recursion)
 QList<QStandardItem *> ExtArgMultiSelect::valueWalker(ExtcapValueList list, QStringList &defaults)
 {
     ExtcapValueList::iterator iter = list.begin();
@@ -58,6 +59,7 @@ QList<QStandardItem *> ExtArgMultiSelect::valueWalker(ExtcapValueList list, QStr
 
         item->setSelectable(false);
         item->setEditable(false);
+        // We recurse here, but the tree is only two levels deep
         QList<QStandardItem *> childs = valueWalker((*iter).children(), defaults);
         if (childs.length() > 0)
             item->appendRows(childs);
@@ -69,6 +71,7 @@ QList<QStandardItem *> ExtArgMultiSelect::valueWalker(ExtcapValueList list, QStr
     return items;
 }
 
+// NOLINTNEXTLINE(misc-no-recursion)
 void ExtArgMultiSelect::checkItemsWalker(QStandardItem * item, QStringList defaults)
 {
     QModelIndex index;
@@ -80,6 +83,7 @@ void ExtArgMultiSelect::checkItemsWalker(QStandardItem * item, QStringList defau
             QStandardItem * child = item->child(row);
             if (child != 0)
             {
+                // We recurse here, but the tree is only two levels deep
                 checkItemsWalker(child, defaults);
             }
         }
@@ -191,7 +195,7 @@ QString ExtArgMultiSelect::defaultValue()
 {
     QStringList checked;
 
-    QList<QStandardItem *> items = valueWalker(values, checked);
+    valueWalker(values, checked);
 
     return checked.join(QString(','));
 }

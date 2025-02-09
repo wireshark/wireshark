@@ -2847,7 +2847,7 @@ void WiresharkMainWindow::externalMenuHelper(ext_menu_t * menu, QMenu  * subMenu
     Q_ASSERT(subMenu != NULL);
 
     /* If the depth counter exceeds, something must have gone wrong */
-    Q_ASSERT(depth < EXT_MENUBAR_MAX_DEPTH);
+    Q_ASSERT(depth < mainApp->maxMenuDepth());
 
     children = menu->children;
     /* Iterate the child entries */

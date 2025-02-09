@@ -751,7 +751,7 @@ QModelIndex ProfileModel::addNewProfile(QString name)
     QString newName = name;
     while (findByNameAndVisibility(newName) >= 0)
     {
-        newName = QStringLiteral("%1 %2").arg(name).arg(QString::number(cnt));
+        newName = QStringLiteral("%1 %2").arg(name, QString::number(cnt));
         cnt++;
     }
 
@@ -761,6 +761,7 @@ QModelIndex ProfileModel::addNewProfile(QString name)
     return index(findByName(newName), COL_NAME);
 }
 
+// NOLINTNEXTLINE(misc-no-recursion)
 QModelIndex ProfileModel::duplicateEntry(QModelIndex idx, int new_status)
 {
     profile_def * prof = guard(idx);
@@ -779,6 +780,7 @@ QModelIndex ProfileModel::duplicateEntry(QModelIndex idx, int new_status)
         int row = findByNameAndVisibility(prof->reference, false);
         profile_def * copyParent = guard(row);
         if (copyParent && copyParent->status == PROF_STAT_NEW)
+            // We recurse here, but our depth is limited
             return duplicateEntry(index(row, ProfileModel::COL_NAME), PROF_STAT_NEW);
     }
 
@@ -812,13 +814,13 @@ QModelIndex ProfileModel::duplicateEntry(QModelIndex idx, int new_status)
     if (prof->is_global && findByNameAndVisibility(parentName) < 0)
         new_name = QString(prof->name);
     else
-        new_name = QStringLiteral("%1 (%2)").arg(parentName).arg(tr("copy", "noun"));
+        new_name = QStringLiteral("%1 (%2)").arg(parentName, tr("copy", "noun"));
 
     /* check if copy already exists and iterate, until an unused version is found */
     int cnt = 1;
     while (findByNameAndVisibility(new_name) >= 0)
     {
-        new_name = QStringLiteral("%1 (%2 %3)").arg(parentName).arg(tr("copy", "noun")).arg(QString::number(cnt));
+        new_name = QStringLiteral("%1 (%2 %3)").arg(parentName, tr("copy", "noun"), QString::number(cnt));
         cnt++;
     }
 
@@ -1044,6 +1046,7 @@ QFileInfoList ProfileModel::uniquePaths(QFileInfoList lst)
     return newLst;
 }
 
+// NOLINTNEXTLINE(misc-no-recursion)
 QFileInfoList ProfileModel::filterProfilePath(QString path, QFileInfoList ent, bool fromZip)
 {
     QFileInfoList result = ent;
@@ -1073,6 +1076,7 @@ QFileInfoList ProfileModel::filterProfilePath(QString path, QFileInfoList ent, b
         else
         {
             if (path.compare(entry.absoluteFilePath()) != 0)
+                // We recurse here, but our depth is limited
                 result.append(filterProfilePath(entry.absoluteFilePath(), result, fromZip));
         }
     }
@@ -1273,7 +1277,7 @@ bool ProfileModel::clearImported(QString *msg)
         {
             if (msg)
             {
-                QString errmsg = QStringLiteral("%1\n\"%2\":\n%3").arg(tr("Can't delete profile directory")).arg(ret_path).arg(g_strerror(errno));
+                QString errmsg = QStringLiteral("%1\n\"%2\":\n%3").arg(tr("Can't delete profile directory"), ret_path, g_strerror(errno));
                 msg->append(errmsg);
             }
 

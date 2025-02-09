@@ -817,6 +817,7 @@ void BluetoothHciSummaryDialog::on_tableTreeWidget_itemActivated(QTreeWidgetItem
 }
 
 
+// NOLINTNEXTLINE(misc-no-recursion)
 void BluetoothHciSummaryDialog::recursiveCopyTreeItems(QTreeWidgetItem *item, QString &copy, int ident_level)
 {
     QTreeWidgetItem *child_item;
@@ -839,6 +840,7 @@ void BluetoothHciSummaryDialog::recursiveCopyTreeItems(QTreeWidgetItem *item, QS
                 .arg(child_item->text(column_number_hardware_error), -15)
                 .arg(child_item->text(column_number_occurrence), -10);
 
+        // We recurse here but the tree is only three levels deep.
         recursiveCopyTreeItems(child_item, copy, ident_level + 1);
     }
 }

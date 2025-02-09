@@ -340,6 +340,7 @@ void FilterExpressionToolBar::closeMenu(QAction * /*sender*/)
     }
 }
 
+// NOLINTNEXTLINE(misc-no-recursion)
 QMenu * FilterExpressionToolBar::findParentMenu(const QStringList tree, void *fed_data, QMenu *parent )
 {
     if (!fed_data)
@@ -357,6 +358,7 @@ QMenu * FilterExpressionToolBar::findParentMenu(const QStringList tree, void *fe
             foreach(QAction * entry, data->toolbar->actions())
             {
                 if (entry->text().compare(tree.at(0).trimmed()) == 0)
+                    // We recurse here, but we're limited to mainApp->maxMenuDepth
                     return findParentMenu(tree.mid(1), fed_data, entry->menu());
             }
         }
@@ -366,8 +368,10 @@ QMenu * FilterExpressionToolBar::findParentMenu(const QStringList tree, void *fe
             /* Iterate to see if we next have to jump into another submenu */
             foreach(QAction *entry, parent->actions())
             {
-                if (entry->menu() && entry->text().compare(menuName) == 0)
+                if (entry->menu() && entry->text().compare(menuName) == 0) {
+                    // We recurse here, but we're limited to mainApp->maxMenuDepth
                     return findParentMenu(tree.mid(1), fed_data, entry->menu());
+                }
             }
 
             /* Submenu not found, creating */
@@ -375,6 +379,7 @@ QMenu * FilterExpressionToolBar::findParentMenu(const QStringList tree, void *fe
             subMenu->installEventFilter(data->toolbar);
             subMenu->setProperty(dfe_menu_, QVariant::fromValue(true));
             parent->addMenu(subMenu);
+            // We recurse here, but we're limited to mainApp->maxMenuDepth
             return findParentMenu(tree.mid(1), fed_data, subMenu);
         }
 
@@ -395,6 +400,7 @@ QMenu * FilterExpressionToolBar::findParentMenu(const QStringList tree, void *fe
         if (menuButton != nullptr) {
             menuButton->setPopupMode(QToolButton::InstantPopup);
         }
+        // We recurse here, but we're limited to mainApp->maxMenuDepth
         return findParentMenu(tree.mid(1), fed_data, parentMenu);
     }
     else if (parent)
@@ -414,17 +420,29 @@ bool FilterExpressionToolBar::filter_expression_add_action(const void *key _U_, 
     QString label = QString(fe->label);
 
     /* Search for parent menu and create if not found */
-    QStringList tree = label.split(PARENT_SEPARATOR);
-    if (!tree.isEmpty())
+    QStringList full_tree = label.split(PARENT_SEPARATOR);
+    QStringList tree = full_tree.mid(0, mainApp->maxMenuDepth());
+    QString remaining_label = full_tree.mid(mainApp->maxMenuDepth()).join(" / ");
+
+    if (!remaining_label.isEmpty()) {
+        tree << remaining_label;
+    }
+    if (!tree.isEmpty()) {
         tree.removeLast();
+    }
     QMenu * parentMenu = findParentMenu(tree, data);
-    if (parentMenu)
-        label = label.mid(label.lastIndexOf(PARENT_SEPARATOR) + QString(PARENT_SEPARATOR).length()).trimmed();
+    if (parentMenu) {
+        if (!remaining_label.isEmpty()) {
+            label = remaining_label;
+        } else {
+            label = label.mid(label.lastIndexOf(PARENT_SEPARATOR) + QString(PARENT_SEPARATOR).length()).trimmed();
+        }
+    }
 
     QAction *dfb_action = new QAction(label, data->toolbar);
     if (strlen(fe->comment) > 0)
     {
-        QString tooltip = QStringLiteral("%1\n%2").arg(fe->comment).arg(fe->expression);
+        QString tooltip = QStringLiteral("%1\n%2").arg(fe->comment, fe->expression);
         dfb_action->setToolTip(tooltip);
         dfb_action->setProperty(dfe_property_comment_, tooltip);
     }

@@ -164,6 +164,8 @@ public:
     void popStatus(StatusInfo sinfo);
 
     void gotoFrame(int frameNum);
+    // Maximum nested menu depth.
+    int maxMenuDepth(void) { return 5; }
 
 private:
     bool initialized_;

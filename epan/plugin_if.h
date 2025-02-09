@@ -29,8 +29,6 @@
 extern "C" {
 #endif /* __cplusplus */
 
-#define EXT_MENUBAR_MAX_DEPTH 5
-
 typedef enum
 {
     EXT_MENUBAR_GTK_GUI,

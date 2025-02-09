@@ -88,7 +88,8 @@ ph_node_is_proto(proto_node *ptree_node)
     return proto_registrar_is_protocol(hfinfo->id) && hfinfo->id != pc_proto_id;
 }
 
-    static void
+static void
+// NOLINTNEXTLINE(misc-no-recursion)
 process_node(proto_node *ptree_node, GNode *parent_stat_node, ph_stats_t *ps)
 {
     field_info		*finfo;
@@ -135,6 +136,7 @@ process_node(proto_node *ptree_node, GNode *parent_stat_node, ph_stats_t *ps)
     }
 
     if (proto_sibling_node) {
+        // We recurse here but we're limited by proto tree checks
         process_node(proto_sibling_node, stat_node, ps);
     } else {
         stats->num_pkts_last++;

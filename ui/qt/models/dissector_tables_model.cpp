@@ -75,13 +75,6 @@ bool IntegerTablesItem::lessThan(DissectorTablesItem &right) const
     return false;
 }
 
-
-
-
-
-
-
-
 DissectorTablesModel::DissectorTablesModel(QObject *parent) :
     QAbstractItemModel(parent),
     root_(new DissectorTablesItem(QStringLiteral("ROOT"), QStringLiteral("ROOT"), NULL))
@@ -362,6 +355,7 @@ bool DissectorTablesProxyModel::lessThan(const QModelIndex &left, const QModelIn
     return false;
 }
 
+// NOLINTNEXTLINE(misc-no-recursion)
 bool DissectorTablesProxyModel::filterAcceptItem(DissectorTablesItem& item) const
 {
     if (filter_.isEmpty())
@@ -374,6 +368,7 @@ bool DissectorTablesProxyModel::filterAcceptItem(DissectorTablesItem& item) cons
     for (int child_row = 0; child_row < item.childCount(); child_row++)
     {
         child_item = item.child(child_row);
+        // We recurse here, but the tree is only three levels deep
         if ((child_item != NULL) && (filterAcceptItem(*child_item)))
             return true;
     }

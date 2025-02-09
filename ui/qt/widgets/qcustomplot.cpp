@@ -19,6 +19,8 @@
 
 #include "qcustomplot.h"
 
+// QCustomPlot uses recursion quite a bit, but depths are limted.
+// NOLINTBEGIN(misc-no-recursion)
 
 /* including file 'src/vector2d.cpp'       */
 /* modified 2022-11-06T12:45:56, size 7973 */
@@ -35538,4 +35540,5 @@ QVector<QPointF> QCPPolarGraph::dataToLines(const QVector<QCPGraphData> &data) c
 }
 /* end of 'src/polar/polargraph.cpp' */
 
+// NOLINTEND(misc-no-recursion)
 
