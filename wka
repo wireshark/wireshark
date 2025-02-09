@@ -73,15 +73,19 @@
 01-11-1E-00-00-03	EPLv2_SoA
 01-11-1E-00-00-04	EPLv2_ASnd
 01-11-1E-00-00-05	EPLv2_AMNI
-01-20-25/25		Control-Technology-Inc's-Industrial-Ctrl-Proto.
+01-20-25/25		Control-Technology-Inc's-Industrial-Ctrl-Proto
 01-80-24-00-00-00	Kalpana-Etherswitch-every-60-seconds
-# IEEE 802.1Q-2018 Table 8-1, C-VLAN and MAC Bridge component Reserved addresses
-01-80-C2-00-00-00/44	Spanning-tree-(for-bridges)
-# 01-80-C2-00-00-00	also: Nearest customer bridge
-01-80-C2-00-00-01	MAC-specific-ctrl-proto-01
+
+# - IEEE 802.1Q-2018 Table 8-1, C-VLAN and MAC Bridge component Reserved addresses
+# - IEEE Standard Group MAC Address
+#   https://standards.ieee.org/products-programs/regauth/grpmac/public/
+# - IANA TRILL Multicast Addresses
+#   https://www.iana.org/assignments/trill-parameters/trill-parameters.xhtml#trill-parameters-2
+01-80-C2-00-00-00	Nearest-Customer-Bridge
+01-80-C2-00-00-01	MAC-specific-Ctrl-Proto-01
 01-80-C2-00-00-02	Slow-Protocols
-01-80-C2-00-00-03	Nearest-non-TPMR-bridge
-01-80-C2-00-00-04	MAC-specific-ctrl-proto-04
+01-80-C2-00-00-03	Nearest-non-TPMR-Bridge
+01-80-C2-00-00-04	MAC-specific-Ctrl-Proto-04
 01-80-C2-00-00-05	Reserved-future-std-05
 01-80-C2-00-00-06	Reserved-future-std-06
 01-80-C2-00-00-07	MEF-Forum-ELMI-proto
@@ -91,30 +95,60 @@
 01-80-C2-00-00-0B	EDE-SS-PEP
 01-80-C2-00-00-0C	Reserved-future-std-0c
 01-80-C2-00-00-0D	Provider-Bridge-MVRP
-01-80-C2-00-00-0E	LLDP_Multicast
+01-80-C2-00-00-0E	Nearest-Bridge
 01-80-C2-00-00-0F	Reserved-future-std-0f
 01-80-C2-00-00-10	Bridge-Management
 01-80-C2-00-00-11	Load-Server
 01-80-C2-00-00-12	Loadable-Device
 01-80-C2-00-00-13	IEEE-1905.1-Control
-01-80-C2-00-00-14	ISIS-all-level-1-IS's
-01-80-C2-00-00-15	ISIS-all-level-2-IS's
+01-80-C2-00-00-14	ISIS-all-level-1-IS
+01-80-C2-00-00-15	ISIS-all-level-2-IS
+01-80-C2-00-00-16	ESIS-all-CONS-End-Systems
+01-80-C2-00-00-17	ESIS-all-CONS-SNAREs
 01-80-C2-00-00-18	IEEE-802.1B-All-Manager-Stations
 01-80-C2-00-00-19	IEEE-802.11aa-groupcast-with-retries
 01-80-C2-00-00-1A	IEEE-802.1B-All-Agent-Stations
-01-80-C2-00-00-1B	ESIS-all-multicast-capable-ES's
+01-80-C2-00-00-1B	ESIS-all-multicast-capable-ES
 01-80-C2-00-00-1C	ESIS-all-multicast-announcements
-01-80-C2-00-00-1D	ESIS-all-multicast-capable-IS's
+01-80-C2-00-00-1D	ESIS-all-multicast-capable-IS
 01-80-C2-00-00-1E	Token-Ring-all-DTR-Concentrators
+01-80-C2-00-00-1F	EDE-CC-PEP
+01-80-C2-00-00-20/44	MRP-reserved
+01-80-C2-00-00-20	MMRP-Customer-and-Provider-Bridge
+01-80-C2-00-00-21	MVRP-Customer-Bridge
+01-80-C2-00-00-2E	MRP-All-Provider-Bridge-IS
+01-80-C2-00-00-2F	MRP-All-Customer-Bridge-IS
+01-80-C2-00-00-30	CFM-CCM-MD0
+01-80-C2-00-00-31	CFM-CCM-MD1
+01-80-C2-00-00-32	CFM-CCM-MD2
+01-80-C2-00-00-33	CFM-CCM-MD3
+01-80-C2-00-00-34	CFM-CCM-MD4
+01-80-C2-00-00-35	CFM-CCM-MD5
+01-80-C2-00-00-36	CFM-CCM-MD6
+01-80-C2-00-00-37	CFM-CCM-MD7
+01-80-C2-00-00-38	CFM-LTM-MD0
+01-80-C2-00-00-39	CFM-LTM-MD1
+01-80-C2-00-00-3A	CFM-LTM-MD2
+01-80-C2-00-00-3B	CFM-LTM-MD3
+01-80-C2-00-00-3C	CFM-LTM-MD4
+01-80-C2-00-00-3D	CFM-LTM-MD5
+01-80-C2-00-00-3E	CFM-LTM-MD6
+01-80-C2-00-00-3F	CFM-LTM-MD7
 01-80-C2-00-00-30/45	OAM-Multicast-DA-Class-1
 01-80-C2-00-00-38/45	OAM-Multicast-DA-Class-2
-01-80-C2-00-00-40	All-RBridges
-01-80-C2-00-00-41	All-IS-IS-RBridges
-01-80-C2-00-00-42	All-Egress-RBridges
+01-80-C2-00-00-40/44	TRILL-reserved
+01-80-C2-00-00-40	TRILL-All-RBridges
+01-80-C2-00-00-41	TRILL-All-IS-IS-RBridges
+01-80-C2-00-00-42	TRILL-All-Egress/ESADI-RBridges
 01-80-C2-00-00-45	TRILL-End-Stations
-01-80-C2-00-00-46	All-Edge-RBridges
+01-80-C2-00-00-46	TRILL-All-Edge-RBridges
+01-80-C2-00-00-47	TRILL-ES-IS
 01-80-C2-00-01-00	FDDI-RMT-Directed-Beacon
 01-80-C2-00-01-10	FDDI-status-report-frame
+01-80-C2-00-01-20	FDDI-All-Concentrator-MACs
+01-80-C2-00-01-30	FDDI-Synchronous-Bandwidth-Allocation
+01-80-C2-00-02-00/40	ETSI-reserved-future-std
+
 01-DD-00-FF-FF-FF	Ungermann-Bass-boot-me-requests
 01-DD-01-00-00-00	Ungermann-Bass-Spanning-Tree
 01-E0-52-CC-CC-CC	Foundry-DP
