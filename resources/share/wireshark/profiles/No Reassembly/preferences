@@ -136,6 +136,7 @@ smb.trans_reassembly: FALSE
 smb.dcerpc_reassembly: FALSE
 smb2.pipe_reassembly: FALSE
 smb_direct.reassemble_smb_direct: FALSE
+smb_direct.reassemble_smb_direct_infiniband: FALSE
 sml.reassemble: FALSE
 smp.desegment: FALSE
 smpp.reassemble_smpp_over_tcp: FALSE
