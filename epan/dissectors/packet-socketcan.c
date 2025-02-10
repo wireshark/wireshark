@@ -584,26 +584,25 @@ dissect_socketcan_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, un
             /* CAN XL: check for min/max data length */
             if (tvb_reported_length(tvb) >= 13 && tvb_reported_length(tvb) <= 2060) {
                 can_packet_type = PACKET_TYPE_CAN_XL;
+            } else {
+                /* invalid CAN XL frame (expert info) */
+                return tvb_captured_length(tvb);
             }
-        }
-        else if (tvb_reported_length(tvb) >= 8) {
+        } else {
             /* CAN CC/FD */
-            if ((canfd_flags & CANFD_FDF) || tvb_reported_length(tvb) > 16) {
-                /* CAN FD: check for max data length
-                 *
-                 * XXX - There's no "correct" way to detect a CAN-FD SocketCAN packet.
-                 * The FD Flag, contrary to the XL Flag, is not always set, so we have
-                 * to implement a heuristic. If the length is too big for a Classical
-                 * CAN packet, we arbitrarly decide it's CAN-FD. This will not detect
-                 * CAN-FD packets with DLC 0 through 8, but also misdetect any Classical
-                 * CAN packet with extra payload as CAN-FD. 
-                 */
-                if (tvb_reported_length(tvb) <= 72) {
+            if (tvb_reported_length(tvb) == 72 || (canfd_flags & CANFD_FDF)) {
+                /* CAN FD: check for min/max data length */
+                if (tvb_reported_length(tvb) >= 8 && tvb_reported_length(tvb) <= 72) {
                     can_packet_type = PACKET_TYPE_CAN_FD;
+                } else {
+                    /* invalid CAN FD frame (expert info) */
+                    return tvb_captured_length(tvb);
                 }
-            }
-            else {
+            } else if (tvb_reported_length(tvb) >= 8 && tvb_reported_length(tvb) <= 16) {
                 can_packet_type = PACKET_TYPE_CAN;
+            } else {
+                /* invalid CAN CC frame (expert info) */
+                return tvb_captured_length(tvb);
             }
         }
     }
