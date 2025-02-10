@@ -54,8 +54,9 @@ Camille Guerin <guerincamille56@gmail.com> cacamille3 <guerincamille56@gmail.com
 Carlos Pignataro <cpignata@gmail.com> Carlos Pignataro <cpignata@cisco.com> 
 Cedric Izoard <cedric.izoard@ceva-dsp.com> Cedric Izoard <cedric.izoard@rivierawaves.com>
 Cenk Gündoğan <mail+dev@gundogan.net> Cenk Gündoğan <cnkgndgn@gmail.com>
-Chaitanya Tata <Chaitanya.Tata@nordicsemi.no> Chaitanya Tata <chaitanya.mgit[AT]gmail.com>
+Chaitanya Tata <Chaitanya.Tata@nordicsemi.no> Chaitanya Tata <chaitanya.mgit@gmail.com>
 Chaitanya Tata <Chaitanya.Tata@nordicsemi.no> Chaitanya T K <chaitanya.mgit@gmail.com>
+Chaitanya Tata <Chaitanya.Tata@nordicsemi.no> tkc <chaitanya.mgit@gmail.com>
 Chaoyong Zhou <bgnvendor@163.com> chaoyongzhou <bgnvendor@163.com>
 Chema Gonzalez <chemag@fb.com> Chema Gonzalez <chemag@gmail.com>
 Chia-Chin Chung <chiachin112686@gmail.com> chiachin2686 <chiachin112686@gmail.com>
@@ -110,7 +111,8 @@ Dmitry Lazurkin <dilaz03@gmail.com> Dmitry Lazurkin <dmitry.lazurkin@synesis.ru>
 Dr. Lars Völker <lars.voelker@technica-engineering.de> Dr. Lars Voelker <lars-github@larsvoelker.de>
 Dr. Lars Völker <lars.voelker@technica-engineering.de> Dr. Lars Voelker <lars.voelker@bmw.de>
 Dr. Lars Völker <lars.voelker@technica-engineering.de> Dr. Lars Völker <lars.voelker@bmw.de>
-Dylan Ulis  <daulis0@gmail.com> D. Ulis <daulis0@gmail.com>
+Dylan Ulis <daulis0@gmail.com> D. Ulis <daulis0@gmail.com>
+Dylan Ulis <daulis0@gmail.com> Dylan Ulis <daulis@ra.rockwell.com>
 Eason Wei <sharkhw@huawei.com> easonweii <sharkhw@huawei.com>
 Eason Wei <sharkhw@huawei.com> eason wei <sharkhw@huawei.com>
 Eckart Haug <wireshark@syntacs.com> eckart haug <wireshark@syntacs.com>
@@ -206,7 +208,6 @@ Juan Pablo Mendoza <jpablo@gmail.com> jpmendoza <jpablo@gmail.com>
 Kary Rogers <kary.rogers@gmail.com> karyrogers <kary.rogers@gmail.com>
 Kasper Deng <kasper.deng@ericsson.com> KasperDeng <kasper.deng@ericsson.com>
 Kirill Chernyshov <nideff.ru@gmail.com> kanidef <nideff.ru@gmail.com>
-Krishna Chaitanya <chaitanya.mgit@gmail.com> tkc <chaitanya.mgit@gmail.com>
 Lin Sun <lin.sun@zoom.us> Lin Sun <sunlin7@yahoo.com>
 Loganaden Velvindron <logan@cyberstorm.mu> Loganaden Velvindron <loganaden@gmail.com>
 Loris Degioanni <ld@degio.org> Loris Degioanni <loris@sysdig.com>
@@ -218,7 +219,7 @@ Marian Ďurkovič <md@bts.sk> Marian Durkovic
 Marius Paliga <marius.paliga@gmail.com> Marius <mareko.paliga@gmail.com>
 Marius Paliga <marius.paliga@gmail.com> Marius Paliga <mareko.paliga@gmail.com>
 Mark Ciechanowski <markciechanowski@gmail.com> ciechanowski <markciechanowski@gmail.com>
-Mark Ivens <mark.ivens[AT]vitrifi.net> mivens <mark.ivens[AT]vitrifi.net>
+Mark Ivens <mark.ivens@vitrifi.net> mivens <mark.ivens@vitrifi.net>
 Mark Phillips <mark.s.phillips@outlook.com> Mark Phillips <mark.phil@samsung.com>
 Mark Phillips <mark.s.phillips@outlook.com> MarkPhillips <mark.s.phillips@outlook.com>
 Martin Boye Petersen <martinboyepetersen@gmail.com> Martin Boye Petersen <martinboyepetersen@hotmail.com>
@@ -226,8 +227,8 @@ Martin Gallo <martin.gallo@gmail.com> Martin Gallo <mgallo@secureauth.com>
 Martin Kaiser <wireshark@kaiser.cx> <martin.kaiser@paytec.ch>
 Martin Kaiser <wireshark@kaiser.cx> <martin@reykholt.kaiser.cx>
 Martin Kaiser <wireshark@kaiser.cx> <martin@skogar.kaiser.cx>
-Martin Lutz <martin.lutz[AT]gmail.com> Martin <martin.lutz[AT]gmail.com>
-Martin Lutz <martin.lutz[AT]gmail.com> Martin Lutz <martin.lutz+github[AT]gmail.com>
+Martin Lutz <martin.lutz@gmail.com> Martin Lutz <martin.lutz+github@gmail.com>
+Martin Lutz <martin.lutz@gmail.com> Martin <martin.lutz@gmail.com>
 Martin Mathieson <martin.r.mathieson@gmail.com> Martin Mathieson <martin.mathieson@keysight.com>
 Martin Nyhus <martin@nyhus.dev> Martin Nyhus <gitlab@nyhus.dev>
 Martin Nyhus <martin@nyhus.dev> Martin Nyhus <martin.nyhus@gmx.com>
@@ -346,6 +347,7 @@ Stephen Fisher <stephenfisher@centurylink.net> <sfisher@sdf.org>
 Stephen Fisher <stephenfisher@centurylink.net> <stephenfisher-wireshark@outlook.com>
 Stephen Fisher <stephenfisher@centurylink.net> <steve@stephen-fisher.com>
 Sumit Kumar Jha <sjha3@ncsu.edu> sjha3 <sjha3@ncsu.edu>
+Szilard Turi-Kovats <szilard.turi-kovats@commsignia.com> tkszilu <tkszilu@ gmail.com>
 Tadeusz Struk <tadeusz.struk@intel.com> Tadeusz Struk <tstruk@gmail.com>
 Tengfei Chang <tengfei.chang@inria.fr> tchang <tengfei.chang@inria.fr>
 Thies Moeller <thies.moeller@baslerweb.com> <thies.moeller@baslerweb.com>
