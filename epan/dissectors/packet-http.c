@@ -2833,16 +2833,31 @@ chunked_encoding_dissector(tvbuff_t **tvb_ptr, packet_info *pinfo,
 }
 
 static bool
-conversation_dissector_is_http(conversation_t *conv, uint32_t frame_num)
+http_conversation_is_connect(conversation_t *conv, uint32_t frame_num)
 {
-	dissector_handle_t conv_handle;
-
-	if (conv == NULL)
+	if (!conv) {
 		return false;
-	conv_handle = conversation_get_dissector(conv, frame_num);
-	return conv_handle == http_handle ||
-	       conv_handle == http_tcp_handle ||
-	       conv_handle == http_sctp_handle;
+	}
+
+	http_conv_t *conv_data = (http_conv_t *)conversation_get_proto_data(conv, proto_http);
+	if (conv_data) {
+		http_req_res_t *curr_req_res = conv_data->req_res_tail;
+		/* Any 2xx (Successful) response indicates the sender will
+		 * switch to tunnel mode immediately after the response header
+		 * section. */
+		if(frame_num >= conv_data->startframe &&
+		   curr_req_res &&
+		   curr_req_res->response_code >= 200 &&
+		   curr_req_res->response_code < 300 &&
+		   curr_req_res->request_method &&
+		   strncmp(curr_req_res->request_method, "CONNECT", 7) == 0 &&
+		   curr_req_res->request_uri) {
+
+			return true;
+		}
+	}
+
+	return false;
 }
 
 /* Call a subdissector to handle HTTP CONNECT's traffic */
@@ -2852,6 +2867,8 @@ http_payload_subdissector(tvbuff_t *tvb, proto_tree *tree,
 {
 	uint32_t *ptr = NULL;
 	uint32_t uri_port, saved_port, srcport, destport;
+	address uri_addr, saved_addr;
+	address *addrp;
 	char **strings; /* An array for splitting the request URI into hostname and port */
 	proto_item *item;
 	proto_tree *proxy_tree;
@@ -2880,32 +2897,46 @@ http_payload_subdissector(tvbuff_t *tvb, proto_tree *tree,
 			proto_item_set_generated(item);
 		}
 
+		/* Set the port and address to the proxied ones so that
+		 * decode_tcp_ports doesn't call the current conversation
+		 * dissector (we must set the address if the URI port is the
+		 * same), and other functions that retrieve conversation data
+		 * or set the conversation dissector don't affect the original
+		 * conversation but the proxied one.
+		 */
 		uri_port = (int)strtol(strings[1], NULL, 10); /* Convert string to a base-10 integer */
 
+		/* Just use the string as a string address. */
+		set_address(&uri_addr, AT_STRINGZ, (int)strlen(strings[0]) + 1, strings[0]);
+		/* We may get stuck in a recursion loop if we let decode_tcp_ports() call us.
+		 * So, if the conversation that would be called also is CONNECT,
+		 * call the data dissector directly instead. The CONNECT method
+		 * is blind forwarding of data and consumes no payload itself
+		 * here, so infinite loops are possible. (Strictly, to avoid a
+		 * loop we must only assure that the same 5-tuple isn't reused,
+		 * which would take more work to check.)
+		 */
 		if (!from_server) {
 			srcport = pinfo->srcport;
 			destport = uri_port;
+			conv = find_conversation(pinfo->num, &pinfo->src, &uri_addr, CONVERSATION_TCP, srcport, destport, 0);
 		} else {
 			srcport = uri_port;
 			destport = pinfo->destport;
+			conv = find_conversation(pinfo->num, &uri_addr, &pinfo->dst, CONVERSATION_TCP, srcport, destport, 0);
 		}
 
-		conv = find_conversation(pinfo->num, &pinfo->src, &pinfo->dst, CONVERSATION_TCP, srcport, destport, 0);
-
-		/* We may get stuck in a recursion loop if we let process_tcp_payload() call us.
-		 * So, if the port in the URI is one we're registered for or we have set up a
-		 * conversation (e.g., one we detected heuristically or via Decode-As) call the data
-		 * dissector directly.
-		 */
-		if (value_is_in_range(http_tcp_range, uri_port) ||
-		    conversation_dissector_is_http(conv, pinfo->num)) {
+		if (http_conversation_is_connect(conv, pinfo->num)) {
 			call_data_dissector(tvb, pinfo, tree);
 		} else {
 			/* set pinfo->{src/dst port} and call the TCP sub-dissector lookup */
-			if (!from_server)
+			if (!from_server) {
 				ptr = &pinfo->destport;
-			else
+				addrp = &pinfo->src;
+			} else {
 				ptr = &pinfo->srcport;
+				addrp = &pinfo->dst;
+			}
 
 			/* Increase pinfo->can_desegment because we are traversing
 			 * http and want to preserve desegmentation functionality for
@@ -2914,12 +2945,15 @@ http_payload_subdissector(tvbuff_t *tvb, proto_tree *tree,
 			if( pinfo->can_desegment>0 )
 				pinfo->can_desegment++;
 
+			copy_address_shallow(&saved_addr, addrp);
+			copy_address_shallow(addrp, &uri_addr);
 			saved_port = *ptr;
 			*ptr = uri_port;
 			decode_tcp_ports(tvb, 0, pinfo, tree,
 				pinfo->srcport, pinfo->destport, NULL,
 				(struct tcpinfo *)data);
 			*ptr = saved_port;
+			copy_address_shallow(addrp, &saved_addr);
 		}
 	}
 }
@@ -4361,13 +4395,7 @@ dissect_http_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
 	 * Check if this is proxied connection and if so, hand of dissection to the
 	 * payload-dissector.
 	 * Response code 200 means "OK" and strncmp() == 0 means the strings match exactly */
-	http_req_res_t *curr_req_res = conv_data->req_res_tail;
-	if(pinfo->num >= conv_data->startframe &&
-	   curr_req_res &&
-	   curr_req_res->response_code == 200 &&
-	   curr_req_res->request_method &&
-	   strncmp(curr_req_res->request_method, "CONNECT", 7) == 0 &&
-	   curr_req_res->request_uri) {
+	if(http_conversation_is_connect(conversation, pinfo->num)) {
 		if (conv_data->startframe == 0 && !PINFO_FD_VISITED(pinfo)) {
 			conv_data->startframe = pinfo->num;
 			conv_data->startoffset = 0;
