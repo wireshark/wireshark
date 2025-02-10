@@ -814,6 +814,18 @@ static int hf_bthci_cmd_override_config_main_mode_steps;
 static int hf_bthci_cmd_override_config_channel_list;
 static int hf_bthci_cmd_cs_override_param_length;
 static int hf_bthci_cmd_cs_override_param_data;
+static int hf_bthci_cmd_override_param_channel_length;
+static int hf_bthci_cmd_override_param_channels;
+static int hf_bthci_cmd_override_param_main_mode_steps;
+static int hf_bthci_cmd_override_param_tpm_tone_ext;
+static int hf_bthci_cmd_override_param_tone_antenna_permutation;
+static int hf_bthci_cmd_override_param_cs_sync_aa_initiator;
+static int hf_bthci_cmd_override_param_cs_sync_aa_reflector;
+static int hf_bthci_cmd_override_param_ss_marker_1_position;
+static int hf_bthci_cmd_override_param_ss_marker_2_position;
+static int hf_bthci_cmd_override_param_ss_marker_value;
+static int hf_bthci_cmd_override_param_cs_sync_payload_pattern;
+static int hf_bthci_cmd_override_param_cs_sync_user_payload;
 static int hf_bthci_cmd_adv_monitoring_enable;
 static int hf_bthci_cmd_adv_decision_flags;
 static int hf_bthci_cmd_adv_decision_flags_resolvable_tag;
@@ -1233,6 +1245,7 @@ static int ett_cs_capability;
 static int ett_cs_times;
 static int ett_adv_test_flags;
 static int ett_override_config;
+static int ett_override_params;
 static int ett_spacing_types;
 
 static int proto_btcommon;
@@ -3152,6 +3165,45 @@ static const value_string cmd_snr_control_vals[] = {
     { 0x03, "27 dB" },
     { 0x04, "30 dB" },
     { 0xff, "Not applied" },
+    {0, NULL }
+};
+
+static const value_string cmd_tone_ext_vals[] = {
+    { 0x00, "No tone extension present" },
+    { 0x01, "Tone extension present for initiator" },
+    { 0x02, "Tone extension present for reflector" },
+    { 0x03, "Tone extension present for both" },
+    { 0x04, "Loop through all valid tone extension patterns" },
+    {0, NULL }
+};
+
+static const value_string cmd_tone_antenna_permutation_vals[] = {
+    { 0xff, "Loop through all valid indices starting from the lowest" },
+    {0, NULL }
+};
+
+static const value_string cmd_ss_marker_2_position_vals[] = {
+    { 0xff, "Sounding sequence or second marker is not present" },
+    {0, NULL }
+};
+
+static const value_string cmd_ss_marker_value_vals[] = {
+    { 0x00, "Use pattern '0011'" },
+    { 0x01, "Use pattern '1100'" },
+    { 0x02, "Loop through pattern '0011' and '1100'" },
+    {0, NULL }
+};
+
+static const value_string cmd_cs_sync_payload_pattern_vals[] = {
+    { 0x00, "PRBS9 sequence" },
+    { 0x01, "Repeated '11110000' sequence" },
+    { 0x02, "Repeated '10101010' sequence" },
+    { 0x03, "PRBS15 sequence" },
+    { 0x04, "Repeated '11111111' sequence" },
+    { 0x05, "Repeated '00000000' sequence" },
+    { 0x06, "Repeated '00001111' sequence" },
+    { 0x07, "Repeated '01010101' sequence" },
+    { 0x80, "Use CS_SYNC_User_Payload" },
     {0, NULL }
 };
 
@@ -6439,6 +6491,7 @@ dissect_le_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, 
         case 0x0095: /* LE CS Test */
             {
             uint8_t role, rtt_type, length;
+            uint16_t override_config;
             proto_tree_add_item(tree, hf_bthci_cmd_main_mode_type, tvb, offset, 1, ENC_NA);
             offset++;
             proto_tree_add_item(tree, hf_bthci_cmd_sub_mode_type, tvb, offset, 1, ENC_NA);
@@ -6487,13 +6540,64 @@ dissect_le_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, 
             offset+=2;
             proto_tree_add_item(tree, hf_bthci_cmd_channel_map_repetition, tvb, offset, 1, ENC_NA);
             offset++;
-            proto_tree_add_bitmask(tree, tvb, offset, hf_bthci_cmd_cs_override_config, ett_override_config, hfx_bthci_cmd_override_config, ENC_NA);
+            proto_tree_add_bitmask(tree, tvb, offset, hf_bthci_cmd_cs_override_config, ett_override_config, hfx_bthci_cmd_override_config, ENC_LITTLE_ENDIAN);
+            override_config = tvb_get_uint16(tvb, offset, ENC_LITTLE_ENDIAN);
             offset += 2;
             proto_tree_add_item(tree, hf_bthci_cmd_cs_override_param_length, tvb, offset, 1, ENC_NA);
             length = tvb_get_uint8(tvb, offset);
             offset++;
-            proto_tree_add_item(tree, hf_bthci_cmd_cs_override_param_data, tvb, offset, length, ENC_NA);
-            offset+=length;
+            sub_tree = proto_tree_add_subtree(tree, tvb, offset, length, ett_override_params, NULL, "Override Parameter Data");
+            if (override_config & (1 << 0)) {
+              proto_tree_add_item(sub_tree, hf_bthci_cmd_override_param_channel_length, tvb, offset, 1, ENC_NA);
+              length = tvb_get_uint8(tvb, offset);
+              offset++;
+              proto_tree_add_item(sub_tree, hf_bthci_cmd_override_param_channels, tvb, offset, length, ENC_NA);
+              offset += length;
+            }
+            else {
+              proto_tree_add_item(sub_tree, hf_bthci_cmd_channel_map, tvb, offset, 10, ENC_NA);
+              offset += 10;
+              proto_tree_add_item(sub_tree, hf_bthci_cmd_channel_selection_type, tvb, offset, 1, ENC_NA);
+              offset++;
+              proto_tree_add_item(sub_tree, hf_bthci_cmd_ch3c_shape, tvb, offset, 1, ENC_NA);
+              offset++;
+              proto_tree_add_item(sub_tree, hf_bthci_cmd_ch3c_jump, tvb, offset, 1, ENC_NA);
+              offset++;
+            }
+            if (override_config & (1 << 2)) {
+              proto_tree_add_item(sub_tree, hf_bthci_cmd_override_param_main_mode_steps, tvb, offset, 1, ENC_NA);
+              offset++;
+            }
+            if (override_config & (1 << 3)) {
+              proto_tree_add_item(sub_tree, hf_bthci_cmd_override_param_tpm_tone_ext, tvb, offset, 1, ENC_NA);
+              offset++;
+            }
+            if (override_config & (1 << 4)) {
+              proto_tree_add_item(sub_tree, hf_bthci_cmd_override_param_tone_antenna_permutation, tvb, offset, 1, ENC_NA);
+              offset++;
+            }
+            if (override_config & (1 << 5)) {
+              proto_tree_add_item(sub_tree, hf_bthci_cmd_override_param_cs_sync_aa_initiator, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+              offset += 4;
+              proto_tree_add_item(sub_tree, hf_bthci_cmd_override_param_cs_sync_aa_reflector, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+              offset += 4;
+            }
+            if (override_config & (1 << 6)) {
+              proto_tree_add_item(sub_tree, hf_bthci_cmd_override_param_ss_marker_1_position, tvb, offset, 1, ENC_NA);
+              offset++;
+              proto_tree_add_item(sub_tree, hf_bthci_cmd_override_param_ss_marker_2_position, tvb, offset, 1, ENC_NA);
+              offset++;
+            }
+            if (override_config & (1 << 7)) {
+              proto_tree_add_item(sub_tree, hf_bthci_cmd_override_param_ss_marker_value, tvb, offset, 1, ENC_NA);
+              offset++;
+            }
+            if (override_config & (1 << 8)) {
+              proto_tree_add_item(sub_tree, hf_bthci_cmd_override_param_cs_sync_payload_pattern, tvb, offset, 1, ENC_NA);
+              offset++;
+              proto_tree_add_item(sub_tree, hf_bthci_cmd_override_param_cs_sync_user_payload, tvb, offset, 16, ENC_LITTLE_ENDIAN);
+              offset += 16;
+            }
             if (!pinfo->fd->visited) {
                 /* store CS role and RTT type configuration for later dissection of CS results */
                 wmem_tree_key_t     key[6];
@@ -10250,6 +10354,66 @@ proto_register_bthci_cmd(void)
             FT_BYTES, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
+        { &hf_bthci_cmd_override_param_channel_length,
+          { "Channel Length", "bthci_cmd.override_param_channel_length",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_override_param_channels,
+          { "Channels", "bthci_cmd.override_param_channels",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_override_param_main_mode_steps,
+          { "Main Mode Steps", "bthci_cmd.override_param_main_mode_steps",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_override_param_tpm_tone_ext,
+          { "Tone Extension", "bthci_cmd.override_param_tpm_tone_ext",
+            FT_UINT8, BASE_DEC, VALS(cmd_tone_ext_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_override_param_tone_antenna_permutation,
+          { "Tone Antenna Permutation", "bthci_cmd.override_param_tone_antenna_permutation",
+            FT_UINT8, BASE_DEC|BASE_SPECIAL_VALS, VALS(cmd_tone_antenna_permutation_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_override_param_cs_sync_aa_initiator,
+          { "CS SYNC AA Initiator", "bthci_cmd.override_param_cs_sync_aa_initiator",
+            FT_UINT32, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_override_param_cs_sync_aa_reflector,
+          { "CS SYNC AA Reflector", "bthci_cmd.override_param_cs_sync_aa_reflector",
+            FT_UINT32, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_override_param_ss_marker_1_position,
+          { "SS Marker 1 Position", "bthci_cmd.override_param_ss_marker_1_position",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_override_param_ss_marker_2_position,
+          { "SS Marker 2 Position", "bthci_cmd.override_param_ss_marker_2_position",
+            FT_UINT8, BASE_DEC|BASE_SPECIAL_VALS, VALS(cmd_ss_marker_2_position_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_override_param_ss_marker_value,
+          { "SS Marker Value", "bthci_cmd.override_param_ss_marker_value",
+            FT_UINT8, BASE_DEC, VALS(cmd_ss_marker_value_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_override_param_cs_sync_payload_pattern,
+          { "CS SYNC Payload Pattern", "bthci_cmd.override_param_cs_sync_payload_pattern",
+            FT_UINT8, BASE_DEC, VALS(cmd_cs_sync_payload_pattern_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_override_param_cs_sync_user_payload,
+          { "CS SYNC User Payload", "bthci_cmd.override_param_cs_sync_user_payload",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
         { &hf_bthci_cmd_adv_monitoring_enable,
           { "Advertiser Monitoring Enable", "bthci_cmd.adv_monitoring_enable",
             FT_UINT8, BASE_HEX, VALS(cmd_boolean), 0x0,
@@ -10900,6 +11064,7 @@ proto_register_bthci_cmd(void)
         &ett_cs_times,
         &ett_adv_test_flags,
         &ett_override_config,
+        &ett_override_params,
         &ett_spacing_types
     };
 
