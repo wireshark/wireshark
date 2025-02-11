@@ -138,3 +138,11 @@ void rtpstream_mark(rtpstream_tapinfo_t *tapinfo, capture_file *cap_file, rtpstr
     if (!was_registered)
         remove_tap_listener_rtpstream(tapinfo);
 }
+
+void rtpstream_set_apply_display_filter(rtpstream_tapinfo_t *tapinfo, bool apply)
+{
+    if (tapinfo->apply_display_filter != apply) {
+        set_tap_flags(tapinfo, apply ? TL_LIMIT_TO_DISPLAY_FILTER : 0);
+        tapinfo->apply_display_filter = apply;
+    }
+}

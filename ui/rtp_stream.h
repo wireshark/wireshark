@@ -138,6 +138,12 @@ bool rtpstream_save(rtpstream_tapinfo_t *tapinfo, capture_file *cap_file, rtpstr
 */
 void rtpstream_mark(rtpstream_tapinfo_t *tapinfo, capture_file *cap_file, rtpstream_info_t* stream_fwd, rtpstream_info_t* stream_rev);
 
+/**
+* Sets whether only packets that pass the current main display filter should
+* be scanned for RTP streams.
+*/
+void rtpstream_set_apply_display_filter(rtpstream_tapinfo_t *tapinfo, bool apply);
+
 /* Constant based on fix for bug 4119/5902: don't insert too many silence
  * frames.
  */
