@@ -1,6 +1,8 @@
 /* packet-oran.c
  * Routines for O-RAN fronthaul UC-plane dissection
  * Copyright 2020, Jan Schiefer, Keysight Technologies, Inc.
+ * Copyright 2020- Martin Mathieson
+ *
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -868,8 +870,6 @@ static AllowedCTs_t ext_cts[HIGHEST_EXTTYPE] = {
     { false, false, false, true,  false, false, false },  // SE 25     (5)
     { false, false, false, true,  false, false, false },  // SE 26     (5)
     { false, false, false, true,  false, false, false },  // SE 27     (5)
-
-
 };
 
 static bool se_allowed_in_st(unsigned se, unsigned ct)
@@ -896,6 +896,7 @@ static bool se_allowed_in_st(unsigned se, unsigned ct)
 
 /************************************************************************************/
 
+/* Table 7.7.1.2-2 */
 static const value_string bfw_comp_headers_iq_width[] = {
     {0,     "I and Q are 16 bits wide"},
     {1,     "I and Q are 1 bit wide"},
@@ -1008,6 +1009,7 @@ static const value_string lbtTrafficClass_vals[] = {
     {0,   NULL}
 };
 
+/* 7.5.3.22 */
 static const value_string lbtPdschRes_vals[] = {
     {0,   "not sensing – indicates that the O-RU is transmitting data"},
     {1,   "currently sensing – indicates the O-RU has not yet acquired the channel"},
@@ -1016,12 +1018,14 @@ static const value_string lbtPdschRes_vals[] = {
     {0,   NULL}
 };
 
+/* Table 7.5.2.15-3 */
 static const value_string ci_comp_opt_vals[] = {
     {0,   "compression per UE, one ciCompParam exists before the I/Q value of each UE"},
     {1,   "compression per PRB, one ciCompParam exists before the I/Q value of each PRB"},
     {0,   NULL}
 };
 
+/* 7.5.2.17 */
 static const range_string cmd_scope_vals[] = {
     {0, 0,  "ARRAY-COMMAND"},
     {1, 1,  "CARRIER-COMMAND"},
@@ -1088,6 +1092,7 @@ static const value_string prg_size_st5_vals[] = {
     { 0, NULL}
 };
 
+/* 7.7.21.3.2 */
 static const value_string prg_size_st6_vals[] = {
     { 0, "if ciPrbGroupSize is 2 or 4, then ciPrbGroupSize, else WIDEBAND"},
     { 1, "Precoding resource block group size as WIDEBAND"},
@@ -1096,12 +1101,14 @@ static const value_string prg_size_st6_vals[] = {
     { 0, NULL}
 };
 
+/* 7.7.24.4 */
 static const value_string alpn_per_sym_vals[] = {
     { 0, "report one allocated IPN value per all allocated symbols with DMRS"},
     { 1, "report one allocated IPN value per group of consecutive DMRS symbols"},
     { 0, NULL}
 };
 
+/* 7.7.24.5 */
 static const value_string ant_dmrs_snr_vals[] = {
     { 0, "O-RU shall not report the MEAS_ANT_DMRS_SNR"},
     { 1, "O-RU shall report the MEAS_ANT_DMRS_SNR"},
