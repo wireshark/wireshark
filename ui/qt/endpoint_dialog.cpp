@@ -209,7 +209,20 @@ void EndpointDialog::aggregationToggled(bool checked)
         return;
     }
 
-    ATapDataModel * atdm = trafficTab()->dataModelForTabIndex(1);
+    // Defaults to 0 but we can't reach this place if IPv4 is not selected anyway
+    int protoTabIndex = 0;
+
+    // Identify which tab number corresponds to IPv4
+    QList<int> _enabledProtocols = trafficList()->protocols(true);
+    for (int i=0; i< _enabledProtocols.size(); i++) {
+        QString protoname = proto_get_protocol_short_name(find_protocol_by_id(_enabledProtocols.at(i))) ;
+        if("IPv4" == protoname) {
+            protoTabIndex = i;
+            break;
+        }
+    }
+
+    ATapDataModel * atdm = trafficTab()->dataModelForTabIndex(protoTabIndex);
     if(atdm) {
         atdm->updateFlags(checked);
     }
