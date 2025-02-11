@@ -6616,6 +6616,9 @@ static int hf_ieee80211_rsn_cap_mfpr;
 static int hf_ieee80211_rsn_cap_mfpc;
 static int hf_ieee80211_rsn_cap_jmr;
 static int hf_ieee80211_rsn_cap_peerkey;
+static int hf_ieee80211_rsn_cap_spp_amsdu_cap;
+static int hf_ieee80211_rsn_cap_spp_amsdu_req;
+static int hf_ieee80211_rsn_cap_pbac;
 static int hf_ieee80211_rsn_cap_extended_key_id_iaf;
 static int hf_ieee80211_rsn_cap_ocvc;
 static int hf_ieee80211_rsn_pmkid_count;
@@ -22054,6 +22057,9 @@ dissect_rsn_ie(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
     &hf_ieee80211_rsn_cap_mfpc,
     &hf_ieee80211_rsn_cap_jmr,
     &hf_ieee80211_rsn_cap_peerkey,
+    &hf_ieee80211_rsn_cap_spp_amsdu_cap,
+    &hf_ieee80211_rsn_cap_spp_amsdu_req,
+    &hf_ieee80211_rsn_cap_pbac,
     &hf_ieee80211_rsn_cap_extended_key_id_iaf,
     &hf_ieee80211_rsn_cap_ocvc,
     NULL
@@ -48933,22 +48939,37 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_rsn_cap_mfpr,
      {"Management Frame Protection Required", "wlan.rsn.capabilities.mfpr",
-      FT_BOOLEAN, 16, NULL, 0x0040,
+      FT_BOOLEAN, 16, TFS(&tfs_required_not_required), 0x0040,
       NULL, HFILL }},
 
     {&hf_ieee80211_rsn_cap_mfpc,
      {"Management Frame Protection Capable", "wlan.rsn.capabilities.mfpc",
-      FT_BOOLEAN, 16, NULL, 0x0080,
+      FT_BOOLEAN, 16, TFS(&tfs_capable_not_capable), 0x0080,
       NULL, HFILL }},
 
     {&hf_ieee80211_rsn_cap_jmr,
      {"Joint Multi-band RSNA", "wlan.rsn.capabilities.jmr",
-      FT_BOOLEAN, 16, NULL, 0x0100,
+      FT_BOOLEAN, 16, TFS(&tfs_supported_not_supported), 0x0100,
       NULL, HFILL }},
 
     {&hf_ieee80211_rsn_cap_peerkey,
      {"PeerKey Enabled", "wlan.rsn.capabilities.peerkey",
-      FT_BOOLEAN, 16, NULL, 0x0200,
+      FT_BOOLEAN, 16, TFS(&tfs_supported_not_supported), 0x0200,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_rsn_cap_spp_amsdu_cap,
+     {"SPP A-MSDU Capable", "wlan.rsn.capabilities.spp_amsdu_cap",
+      FT_BOOLEAN, 16, TFS(&tfs_capable_not_capable), 0x0400,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_rsn_cap_spp_amsdu_req,
+     {"SPP A-MSDU Required", "wlan.rsn.capabilities.spp_amsdu_req",
+      FT_BOOLEAN, 16, TFS(&tfs_required_not_required), 0x0800,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_rsn_cap_pbac,
+     {"PBAC (protected block ack agreement capable)", "wlan.rsn.capabilities.pbac",
+      FT_BOOLEAN, 16, TFS(&tfs_capable_not_capable), 0x1000,
       NULL, HFILL }},
 
     {&hf_ieee80211_rsn_cap_extended_key_id_iaf,
@@ -48958,7 +48979,7 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_rsn_cap_ocvc,
      {"OCVC", "wlan.rsn.capabilities.ocvc",
-      FT_BOOLEAN, 16, NULL, 0x4000,
+      FT_BOOLEAN, 16, TFS(&tfs_supported_not_supported), 0x4000,
       NULL, HFILL }},
 
     {&hf_ieee80211_rsn_pmkid_count,
