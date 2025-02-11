@@ -373,10 +373,22 @@ static void useSndTimeout(socket_handle_t  sock) {
 
 static void useNonBlockingConnectTimeout(socket_handle_t  sock) {
 #ifdef _WIN32
+    /* On Windows, we set a timeout for the non-blocking connection
+     * and have no timeout on the blocking connection. */
+    int res_snd;
+    int res_rcv;
+    const DWORD socket_timeout = SOCKET_RW_TIMEOUT_MS;
     unsigned long non_blocking = 1;
 
+    /* set timeout when non-blocking to 2s on Windows */
+    res_snd = setsockopt(sock, SOL_SOCKET, SO_SNDTIMEO, (const char*)&socket_timeout, sizeof(socket_timeout));
+    res_rcv = setsockopt(sock, SOL_SOCKET, SO_RCVTIMEO, (const char*)&socket_timeout, sizeof(socket_timeout));
     /* set socket to non-blocking */
     ioctlsocket(sock, FIONBIO, &non_blocking);
+    if (res_snd != 0)
+        ws_debug("Can't set socket timeout, using default");
+    if (res_rcv != 0)
+        ws_debug("Can't set socket timeout, using default");
 #else
     int flags = fcntl(sock, F_GETFL);
     fcntl(sock, F_SETFL, flags | O_NONBLOCK);
@@ -387,7 +399,11 @@ static void useNormalConnectTimeout(socket_handle_t  sock) {
     int res_snd;
     int res_rcv;
 #ifdef _WIN32
-    const DWORD socket_timeout = SOCKET_RW_TIMEOUT_MS;
+    /* On Windows there is no timeout on the blocking connection, which
+     * means that the error handling from recv(), etc. is different than
+     * on UN*X. (If the socket timeout on Windows were the same as UN*X,
+     * we would need to test WSAGetLastError() in a number of places.) */
+    const DWORD socket_timeout = 0;
     unsigned long non_blocking = 0;
 
     res_snd = setsockopt(sock, SOL_SOCKET, SO_SNDTIMEO, (const char *) &socket_timeout, sizeof(socket_timeout));
