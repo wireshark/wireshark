@@ -310,6 +310,19 @@ voip_calls_reset_all_taps(voip_calls_tapinfo_t *tapinfo)
     return;
 }
 
+void
+voip_calls_set_apply_display_filter(voip_calls_tapinfo_t *tapinfo, bool apply)
+{
+    if (tapinfo->apply_display_filter != apply) {
+        for (int id_offset = tap_id_offset_actrace_; id_offset <= tap_id_offset_voip_; id_offset++) {
+            /* set_tap_flags is a no-op if the tap is not registered, e.g.
+             * if the plugin isn't loaded, so we don't need to check. */
+            set_tap_flags(tap_base_to_id(tapinfo, id_offset), apply ? TL_LIMIT_TO_DISPLAY_FILTER : 0);
+        }
+        tapinfo->apply_display_filter = apply;
+    }
+}
+
 /****************************************************************************/
 /* free one callsinfo */
 void
@@ -522,10 +535,6 @@ rtp_event_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt _
     voip_calls_tapinfo_t         *tapinfo = tap_id_to_base(tap_offset_ptr, tap_id_offset_rtp_event_);
     const struct _rtp_event_info *pi      = (const struct _rtp_event_info *)rtp_event_info;
 
-    /* if display filtering activated and packet do not match, ignore it */
-    if (tapinfo->apply_display_filter && (pinfo->fd->passed_dfilter == 0)) {
-        return TAP_PACKET_DONT_REDRAW;
-    }
     /* do not consider RTP events packets without a setup frame */
     if (pi->info_setup_frame_num == 0) {
         return TAP_PACKET_DONT_REDRAW;
@@ -615,11 +624,6 @@ rtp_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt, void c
     struct _rtp_packet_info *p_packet_data = NULL;
 
     const struct _rtp_info *rtp_info = (const struct _rtp_info *)rtp_info_ptr;
-
-    /* if display filtering activated and packet do not match, ignore it */
-    if (tapinfo->apply_display_filter && (pinfo->fd->passed_dfilter == 0)) {
-        return TAP_PACKET_DONT_REDRAW;
-    }
 
     /* do not consider RTP packets without a setup frame */
     if (rtp_info->info_setup_frame_num == 0) {
@@ -939,11 +943,6 @@ t38_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt, const 
 
     const t38_packet_info *t38_info = (const t38_packet_info *)t38_info_ptr;
 
-    /* if display filtering activated and packet do not match, ignore it */
-    if (tapinfo->apply_display_filter && (pinfo->fd->passed_dfilter == 0)) {
-        return TAP_PACKET_DONT_REDRAW;
-    }
-
     if  (t38_info->setup_frame_number != 0) {
         /* using the setup frame number of the T38 packet, we get the call number that it belongs */
         if(tapinfo->graph_analysis){
@@ -1149,11 +1148,6 @@ sip_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt ,
     char                 *key         = NULL;
 
     const sip_info_value_t *pi = (const sip_info_value_t *)SIPinfo;
-
-    /* if display filtering activated and packet do not match, ignore it */
-    if (tapinfo->apply_display_filter && (pinfo->fd->passed_dfilter == 0)) {
-        return TAP_PACKET_DONT_REDRAW;
-    }
 
     tapinfo->sip_frame_num = pinfo->num;
 
@@ -1376,11 +1370,6 @@ isup_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt,
 
     const isup_tap_rec_t *pi = (const isup_tap_rec_t *)isup_info;
 
-    /* if display filtering activated and packet do not match, ignore it */
-    if (tapinfo->apply_display_filter && (pinfo->fd->passed_dfilter == 0)) {
-        return TAP_PACKET_DONT_REDRAW;
-    }
-
     /* check if the lower layer is MTP matching the frame number */
     if (tapinfo->mtp3_frame_num != pinfo->num)
         return TAP_PACKET_DONT_REDRAW;
@@ -1576,11 +1565,6 @@ mtp3_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt 
     voip_calls_tapinfo_t *tapinfo = tap_id_to_base(tap_offset_ptr, tap_id_offset_mtp3_);
     const mtp3_tap_rec_t *pi      = (const mtp3_tap_rec_t *)mtp3_info;
 
-    /* if display filtering activated and packet do not match, ignore it */
-    if (tapinfo->apply_display_filter && (pinfo->fd->passed_dfilter == 0)) {
-        return TAP_PACKET_DONT_REDRAW;
-    }
-
     /* keep the data in memory to use when the ISUP information arrives */
 
     tapinfo->mtp3_opc = pi->addr_opc.pc;
@@ -1596,11 +1580,6 @@ m3ua_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt 
 {
     voip_calls_tapinfo_t *tapinfo = tap_id_to_base(tap_offset_ptr, tap_id_offset_m3ua_);
     const mtp3_tap_rec_t *pi = (const mtp3_tap_rec_t *)mtp3_info;
-
-    /* if display filtering activated and packet do not match, ignore it */
-    if (tapinfo->apply_display_filter && (pinfo->fd->passed_dfilter == 0)) {
-        return TAP_PACKET_DONT_REDRAW;
-    }
 
     /* keep the data in memory to use when the ISUP information arrives */
 
@@ -1682,11 +1661,6 @@ q931_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt,
     char                      *comment, *tmp_str;
 
     const q931_packet_info *pi = (const q931_packet_info *)q931_info;
-
-    /* if display filtering activated and packet do not match, ignore it */
-    if (tapinfo->apply_display_filter && (pinfo->fd->passed_dfilter == 0)) {
-        return TAP_PACKET_DONT_REDRAW;
-    }
 
     /* free previously allocated q931_calling/ed_number */
     g_free(tapinfo->q931_calling_number);
@@ -2027,11 +2001,6 @@ h225_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt,
 
     const h225_packet_info *pi = (const h225_packet_info *)H225info;
 
-    /* if display filtering activated and packet do not match, ignore it */
-    if (tapinfo->apply_display_filter && (pinfo->fd->passed_dfilter == 0)) {
-        return TAP_PACKET_DONT_REDRAW;
-    }
-
     /* if not guid and RAS and not LRQ, LCF or LRJ return because did not belong to a call */
     /* OR, if not guid and is H225 return because doesn't belong to a call */
     if ((memcmp(&pi->guid, &guid_allzero, GUID_LEN) == 0))
@@ -2340,11 +2309,6 @@ h245dg_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *ed
 
     const h245_packet_info *pi = (const h245_packet_info *)H245info;
 
-    /* if display filtering activated and packet do not match, ignore it */
-    if (tapinfo->apply_display_filter && (pinfo->fd->passed_dfilter == 0)) {
-        return TAP_PACKET_DONT_REDRAW;
-    }
-
     /* check if Tunneling is OFF and we have a call with this H245 add */
     list = g_queue_peek_nth_link(tapinfo->callsinfos, 0);
     while (list)
@@ -2456,11 +2420,6 @@ sdp_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt _
 {
     voip_calls_tapinfo_t  *tapinfo = tap_id_to_base(tap_offset_ptr, tap_id_offset_sdp_);
     const sdp_packet_info *pi      = (const sdp_packet_info *)SDPinfo;
-
-    /* if display filtering activated and packet do not match, ignore it */
-    if (tapinfo->apply_display_filter && (pinfo->fd->passed_dfilter == 0)) {
-        return TAP_PACKET_DONT_REDRAW;
-    }
 
     /* There are protocols like MGCP/SIP where the SDP is called before the tap for the
        MGCP/SIP packet, in those cases we assign the SPD summary to global lastSDPsummary
@@ -2653,11 +2612,6 @@ mgcp_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt,
     double                diff_time;
 
     const mgcp_info_t *pi = (const mgcp_info_t *)MGCPinfo;
-
-    /* if display filtering activated and packet do not match, ignore it */
-    if (tapinfo->apply_display_filter && (pinfo->fd->passed_dfilter == 0)) {
-        return TAP_PACKET_DONT_REDRAW;
-    }
 
     if ((pi->mgcp_type == MGCP_REQUEST) && !pi->is_duplicate ) {
         /* check whether we already have a call with this Endpoint and it is active*/
@@ -2923,11 +2877,6 @@ actrace_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *e
     voip_calls_info_t        *tmp_listinfo;
     voip_calls_info_t        *callsinfo = NULL;
 
-    /* if display filtering activated and packet do not match, ignore it */
-    if (tapinfo->apply_display_filter && (pinfo->fd->passed_dfilter == 0)) {
-        return TAP_PACKET_DONT_REDRAW;
-    }
-
     tapinfo->actrace_frame_num = pinfo->num;
     tapinfo->actrace_trunk = pi->trunk;
     tapinfo->actrace_direction = pi->direction;
@@ -3150,10 +3099,6 @@ static tap_packet_status
 h248_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt, const void *prot_info, tap_flags_t flags _U_) {
     voip_calls_tapinfo_t *tapinfo = tap_id_to_base(tap_offset_ptr, tap_id_offset_h248_);
 
-    /* if display filtering activated and packet do not match, ignore it */
-    if (tapinfo->apply_display_filter && (pinfo->fd->passed_dfilter == 0)) {
-        return TAP_PACKET_DONT_REDRAW;
-    }
     return h248_calls_packet_common(tapinfo, pinfo, edt, prot_info, REDRAW_H248);
 }
 
@@ -3172,10 +3117,6 @@ static tap_packet_status
 megaco_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt, const void *prot_info, tap_flags_t flags _U_) {
     voip_calls_tapinfo_t *tapinfo = tap_id_to_base(tap_offset_ptr, tap_id_offset_megaco_);
 
-    /* if display filtering activated and packet do not match, ignore it */
-    if (tapinfo->apply_display_filter && (pinfo->fd->passed_dfilter == 0)) {
-        return TAP_PACKET_DONT_REDRAW;
-    }
     return h248_calls_packet_common(tapinfo, pinfo, edt, prot_info, REDRAW_MEGACO);
 }
 
@@ -3351,10 +3292,6 @@ static tap_packet_status
 sccp_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt, const void *prot_info, tap_flags_t flags _U_) {
     voip_calls_tapinfo_t *tapinfo = tap_id_to_base(tap_offset_ptr, tap_id_offset_sccp_);
 
-    /* if display filtering activated and packet do not match, ignore it */
-    if (tapinfo->apply_display_filter && (pinfo->fd->passed_dfilter == 0)) {
-        return TAP_PACKET_DONT_REDRAW;
-    }
     sccp_payload_values = sccp_message_type_acro_values;
     return sccp_calls(tapinfo, pinfo, edt, prot_info, REDRAW_SCCP);
 }
@@ -3374,10 +3311,6 @@ static tap_packet_status
 sua_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt, const void *prot_info, tap_flags_t flags _U_) {
     voip_calls_tapinfo_t *tapinfo = tap_id_to_base(tap_offset_ptr, tap_id_offset_sua_);
 
-    /* if display filtering activated and packet do not match, ignore it */
-    if (tapinfo->apply_display_filter && (pinfo->fd->passed_dfilter == 0)) {
-        return TAP_PACKET_DONT_REDRAW;
-    }
     sccp_payload_values = sua_co_class_type_acro_values;
     return sccp_calls(tapinfo, pinfo, edt, prot_info, REDRAW_SUA);
 }
@@ -3452,11 +3385,6 @@ unistim_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *e
 
     /* Fetch specific packet infos */
     const unistim_info_t *pi = (const unistim_info_t *)unistim_info;
-
-    /* if display filtering activated and packet do not match, ignore it */
-    if (tapinfo->apply_display_filter && (pinfo->fd->passed_dfilter == 0)) {
-        return TAP_PACKET_DONT_REDRAW;
-    }
 
     /* Init gstring */
     g_tmp = g_string_new(NULL);
@@ -3983,11 +3911,6 @@ skinny_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *ed
     skinny_calls_info_t *tmp_skinnyinfo;
     char *comment;
 
-    /* if display filtering activated and packet do not match, ignore it */
-    if (tapinfo->apply_display_filter && (pinfo->fd->passed_dfilter == 0)) {
-        return TAP_PACKET_DONT_REDRAW;
-    }
-
     if (si == NULL || (si->callId == 0 && si->passThroughPartyId == 0))
         return TAP_PACKET_DONT_REDRAW;
     /* check whether we already have this context in the list */
@@ -4145,11 +4068,6 @@ iax2_calls_packet( void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt
     const iax2_info_t    *ii        = (const iax2_info_t *)iax2_info;
     iax2_info_t          *tmp_iax2info;
 
-    /* if display filtering activated and packet do not match, ignore it */
-    if (tapinfo->apply_display_filter && (pinfo->fd->passed_dfilter == 0)) {
-        return TAP_PACKET_DONT_REDRAW;
-    }
-
     if (ii == NULL || ii->ptype != IAX2_FULL_PACKET || (ii->scallno == 0 && ii->dcallno == 0))
         return TAP_PACKET_DONT_REDRAW;
     /* check whether we already have this context in the list */
@@ -4283,11 +4201,6 @@ voip_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt,
     GList *list = NULL;
     const voip_packet_info_t *pi = (const voip_packet_info_t *)VoIPinfo;
 
-    /* if display filtering activated and packet do not match, ignore it */
-    if (tapinfo->apply_display_filter && (pinfo->fd->passed_dfilter == 0)) {
-        return TAP_PACKET_DONT_REDRAW;
-    }
-
     /* VOIP_CALLS_DEBUG("num %u", pinfo->num); */
     if (pi->call_id)
         list = g_queue_peek_nth_link(tapinfo->callsinfos, 0);
@@ -4399,11 +4312,6 @@ static tap_packet_status
 prot_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt _U_, const void *prot_info _U_, tap_flags_t flags _U_)
 {
     voip_calls_tapinfo_t *tapinfo = tap_id_to_base(tap_offset_ptr, tap_id_offset_prot_);
-
-    /* if display filtering activated and packet do not match, ignore it */
-    if (tapinfo->apply_display_filter && (pinfo->fd->passed_dfilter == 0)) {
-        return TAP_PACKET_DONT_REDRAW;
-    }
 
     if (callsinfo!=NULL) {
         callsinfo->stop_abs = pinfo->abs_ts;

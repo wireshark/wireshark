@@ -65,7 +65,6 @@ signals:
     void rtpStreamsDialogDeselectRtpStreams(QVector<rtpstream_id_t *> stream_ids);
 
 public slots:
-    void displayFilterSuccess(bool success);
     void rtpPlayerReplace();
     void rtpPlayerAdd();
     void rtpPlayerRemove();

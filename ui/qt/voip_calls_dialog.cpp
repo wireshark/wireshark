@@ -135,7 +135,7 @@ VoipCallsDialog::VoipCallsDialog(QWidget &parent, CaptureFile &cf, bool all_flow
     voip_calls_init_all_taps(&tapinfo_);
     if (cap_file_.isValid() && cap_file_.capFile()->dfilter) {
         // Activate display filter checking
-        tapinfo_.apply_display_filter = true;
+        voip_calls_set_apply_display_filter(&tapinfo_, true);
         ui->displayFilterCheckBox->setChecked(true);
     }
 
@@ -143,8 +143,6 @@ VoipCallsDialog::VoipCallsDialog(QWidget &parent, CaptureFile &cf, bool all_flow
             this, &VoipCallsDialog::displayFilterCheckBoxToggled);
     connect(this, SIGNAL(updateFilter(QString, bool)),
             &parent, SLOT(filterPackets(QString, bool)));
-    connect(&parent, SIGNAL(displayFilterSuccess(bool)),
-            this, SLOT(displayFilterSuccess(bool)));
     connect(this, SIGNAL(rtpPlayerDialogReplaceRtpStreams(QVector<rtpstream_id_t *>)),
             &parent, SLOT(rtpPlayerDialogReplaceRtpStreams(QVector<rtpstream_id_t *>)));
     connect(this, SIGNAL(rtpPlayerDialogAddRtpStreams(QVector<rtpstream_id_t *>)),
@@ -325,6 +323,8 @@ void VoipCallsDialog::tapReset(void *tapinfo_ptr)
 {
     voip_calls_tapinfo_t *tapinfo = static_cast<voip_calls_tapinfo_t *>(tapinfo_ptr);
     VoipCallsDialog *voip_calls_dialog = static_cast<VoipCallsDialog *>(tapinfo->tap_data);
+
+    voip_calls_dialog->removeAllCalls();
 
     // Create new callsinfos queue in tapinfo. Current callsinfos are
     // in shown_callsinfos_, so don't free the [shared] data stored in
@@ -763,8 +763,7 @@ void VoipCallsDialog::displayFilterCheckBoxToggled(bool checked)
         return;
     }
 
-    tapinfo_.apply_display_filter = checked;
-    removeAllCalls();
+    voip_calls_set_apply_display_filter(&tapinfo_, checked);
 
     cap_file_.retapPackets();
 }
@@ -782,14 +781,6 @@ void VoipCallsDialog::switchTimeOfDay()
     call_infos_model_->setTimeOfDay(checked);
     ui->callTreeView->resizeColumnToContents(VoipCallsInfoModel::StartTime);
     ui->callTreeView->resizeColumnToContents(VoipCallsInfoModel::StopTime);
-}
-
-void VoipCallsDialog::displayFilterSuccess(bool success)
-{
-    if (success && ui->displayFilterCheckBox->isChecked()) {
-        removeAllCalls();
-        cap_file_.retapPackets();
-    }
 }
 
 void VoipCallsDialog::invertSelection()

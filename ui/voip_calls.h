@@ -248,6 +248,9 @@ void voip_calls_remove_all_tap_listeners(voip_calls_tapinfo_t *tap_id_base);
  */
 void voip_calls_reset_all_taps(voip_calls_tapinfo_t *tapinfo);
 
+void
+voip_calls_set_apply_display_filter(voip_calls_tapinfo_t *tapinfo, bool apply);
+
 /**
  * Frees one callsinfo
  */
