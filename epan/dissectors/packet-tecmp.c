@@ -1560,8 +1560,8 @@ dissect_tecmp_status_device_vendor_data(tvbuff_t *tvb, packet_info *pinfo _U_, p
         uint64_t secs = tmp64 / 1000000000;
         uint64_t mins = secs / 60;
         secs -= mins * 60;
-        uint64_t hours = mins / 24;
-        mins -= hours * 24;
+        uint64_t hours = mins / 60;
+        mins -= hours * 60;
         proto_item_append_text(ti, " ns (%d:%02d:%02d.%09d)", (uint32_t)hours, (uint32_t)mins, (uint32_t)secs, (uint32_t)nanos);
 
         if (tmp64 < timestamp_ns) {
