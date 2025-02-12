@@ -104,6 +104,11 @@ heur_dissect_hipercontracer(tvbuff_t *message_tvb, packet_info *pinfo, proto_tre
        (sendTimeStamp > UINT64_C(4102441199999999999)) )
     return false;
 
+  // XXX - If there are more than 16 octets, do the remaining bytes have
+  // any known values? The time stamp heuristic is very weak now that
+  // nanoseconds are allowed. (It accepts some 14.37% of packets, one
+  // thousand times as many as before.)
+
   col_append_sep_fstr(pinfo->cinfo, COL_PROTOCOL, NULL, "HiPerConTracer");
 
   // Create the HiPerConTracer protocol tree
@@ -166,8 +171,8 @@ proto_reg_handoff_hipercontracer(void)
   /* Heuristic dissector for ICMP/ICMPv6 */
   heur_dissector_add("icmp",   heur_dissect_hipercontracer_heur, "HiPerConTracer over ICMP",   "hipercontracer_icmp",   proto_hipercontracer, HEURISTIC_ENABLE);
   heur_dissector_add("icmpv6", heur_dissect_hipercontracer_heur, "HiPerConTracer over ICMPv6", "hipercontracer_icmpv6", proto_hipercontracer, HEURISTIC_ENABLE);
-  heur_dissector_add("udp",    heur_dissect_hipercontracer_heur, "HiPerConTracer over UDP",    "hipercontracer_udp",    proto_hipercontracer, HEURISTIC_ENABLE);
-  heur_dissector_add("tcp",    heur_dissect_hipercontracer_heur, "HiPerConTracer over TCP",    "hipercontracer_tcp",    proto_hipercontracer, HEURISTIC_ENABLE);
+  heur_dissector_add("udp",    heur_dissect_hipercontracer_heur, "HiPerConTracer over UDP",    "hipercontracer_udp",    proto_hipercontracer, HEURISTIC_DISABLE);
+  heur_dissector_add("tcp",    heur_dissect_hipercontracer_heur, "HiPerConTracer over TCP",    "hipercontracer_tcp",    proto_hipercontracer, HEURISTIC_DISABLE);
 }
 
 /*
