@@ -42,6 +42,8 @@ static const value_string wsmp_elemenid_names[] = {
     { 0, NULL }
 };
 
+/* Dissector table to be passed to IEEE 1609.2 dissector */
+static dissector_table_t ieee1609dot2_psid_table;
 
 /* Initialize the protocol and registered fields */
 static int proto_wsmp;
@@ -74,8 +76,6 @@ static int ett_wsmp_ie;
 
 static expert_field ei_wsmp_length_field_err;
 static expert_field ei_wsmp_psid_invalid;
-
-dissector_handle_t IEEE1609dot2_handle;
 
 
 static const value_string wsmp_subtype_vals[] = {
@@ -302,14 +302,14 @@ dissect_wsmp_v3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint8_t oct
     /* WSM Data */
     data_tree = proto_tree_add_subtree(tree, tvb, offset, wsm_len, ett_wsmdata, NULL, "Wave Short Message");
 
-    if((psid == (uint32_t)psid_vehicle_to_vehicle_safety_and_awarenesss) && (IEEE1609dot2_handle)){
+    if(NULL != ieee1609dot2_psid_table){
         ieee1609dot2_set_next_default_psid(pinfo, psid);
-        tvbuff_t * tvb_new = tvb_new_subset_remaining(tvb, offset);
-        call_dissector(IEEE1609dot2_handle, tvb_new, pinfo, data_tree);
-    } else if ((psid == (uint32_t)psid_intersection_safety_and_awareness) && (IEEE1609dot2_handle)) {
-        ieee1609dot2_set_next_default_psid(pinfo, psid);
-        tvbuff_t * tvb_new = tvb_new_subset_remaining(tvb, offset);
-        call_dissector(IEEE1609dot2_handle, tvb_new, pinfo, data_tree);
+        tvbuff_t* tvb_new = tvb_new_subset_remaining(tvb, offset);
+        dissector_try_uint(ieee1609dot2_psid_table,
+                           psid,
+                           tvb_new,
+                           pinfo,
+                           data_tree);
     }
 
     return tvb_captured_length(tvb);
@@ -528,14 +528,19 @@ proto_register_wsmp(void)
 
     /* Register the dissector handle */
     wsmp_handle = register_dissector("wsmp", dissect_wsmp, proto_wsmp);
+
+    /* Register IEEE 1609.2 PSIDs dissector table */
+    ieee1609dot2_psid_table = register_dissector_table("wsmp.psid",
+                                                       "WSMP known PSIDs",
+                                                       proto_wsmp,
+                                                       FT_UINT32,
+                                                       BASE_DEC);
 }
 
 void
 proto_reg_handoff_wsmp(void)
 {
     dissector_add_uint("ethertype", ETHERTYPE_WSMP, wsmp_handle);
-
-    IEEE1609dot2_handle = find_dissector_add_dependency("ieee1609dot2.data", proto_wsmp);
 }
 
 /*

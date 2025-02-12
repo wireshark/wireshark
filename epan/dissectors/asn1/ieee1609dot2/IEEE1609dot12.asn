@@ -64,6 +64,10 @@ psid-road-and-lane-topology-service                                 Psid ::= 138
 psid-infrastructure-to-vehicle-information-service                  Psid ::= 139           -- ISO-19321-ETSI-TS-103-301
 psid-traffic-light-control-requests-service                         Psid ::= 140           -- ISO-19091-ETSI-TS-103-301
 psid-geonetworking-management-communications                        Psid ::= 141           -- ETSI-EN-302-636-4-1
+psid-cooperative-automation-message                                 Psid ::= 142           -- SAE-J3268
+psid-v2x-based-fee-collection                                       Psid ::= 143           -- SAE-J3268
+psid-sensor-sharing-service                                         Psid ::= 144           -- SAE-J3268
+psid-maneuver-coordination-service                                  Psid ::= 145           -- SAE-J3268
 psid-certificate-revocation-list-application                        Psid ::= 256           -- IEEEE Std 1609.2 CAMP
 psid-traffic-light-control-status-service                           Psid ::= 637           -- ISO-19091-ETSI-TS-103-301
 psid-collective-perception-service                                  Psid ::= 639           -- ETSI-TS-103-324
@@ -95,6 +99,10 @@ psid-sra-private-applications-0x204084                              Psid ::= 211
 psid-sra-private-applications-0x204085                              Psid ::= 2113669       -- SRA, Inc,
 psid-sra-private-applications-0x204086                              Psid ::= 2113670       -- SRA, Inc,
 psid-sra-private-applications-0x204087                              Psid ::= 2113671       -- SRA, Inc,
+psid-traffic-signal-priority-status                                 Psid ::= 2113685       -- SAE-J3268
+psid-traffic-signal-request                                         Psid ::= 2113686       -- SAE-J3268
+psid-map-distribution                                               Psid ::= 2113687       -- SAE-J3268
+psid-road-weather-applications                                      Psid ::= 2113689       -- SAE-J3268
 psid-ipv6-routing                                                   Psid ::= 270549118     -- IEEE-Std-1609-3
 -- >4 bytes long its-aid/psid Not suported
 
