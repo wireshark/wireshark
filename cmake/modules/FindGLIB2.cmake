@@ -119,7 +119,19 @@ if( GLIB2_FOUND )
 	# Include transitive dependencies for static linking.
 	if(UNIX AND CMAKE_FIND_LIBRARY_SUFFIXES STREQUAL ".a")
 		if(PC_GLIB2_FOUND)
-			set(GLIB2_LIBRARIES ${PC_GLIB2_STATIC_LIBRARIES})
+			set(_glib2_static_libraries ${PC_GLIB2_STATIC_LIBRARIES})
+			list(REMOVE_ITEM _glib2_static_libraries glib-2.0 libglib-2.0)
+			foreach(_lib IN LISTS _glib2_static_libraries)
+				string(MAKE_C_IDENTIFIER "GLIB2_STATIC_${_lib}_LIBRARY" _libvar)
+				find_library(${_libvar} ${_lib}
+					HINTS ${PC_GLIB2_STATIC_LIBRARY_DIRS}
+				)
+				set(_libpath ${${_libvar}})
+				if(_libpath)
+					list(APPEND GLIB2_STATIC_LIBRARIES ${_libpath})
+				endif()
+			endforeach()
+			list(APPEND GLIB2_LIBRARIES ${GLIB2_STATIC_LIBRARIES})
 			# -pthread appears in LDFLAGS_OTHER
 			list(APPEND GLIB2_LIBRARIES ${PC_GLIB2_STATIC_LDFLAGS_OTHER})
 		elseif(GLIB2_VERSION VERSION_GREATER_EQUAL "2.73.2")
