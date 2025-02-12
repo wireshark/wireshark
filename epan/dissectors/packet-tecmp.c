@@ -1,7 +1,7 @@
 /* packet-tecmp.c
  * Technically Enhanced Capture Module Protocol (TECMP) dissector.
  * By <lars.voelker@technica-engineering.de>
- * Copyright 2019-2024 Dr. Lars Voelker
+ * Copyright 2019-2025 Dr. Lars Voelker
  * Copyright 2020      Ayoub Kaanich
  *
  * Wireshark - Network traffic analyzer
@@ -1555,8 +1555,8 @@ dissect_tecmp_status_device_vendor_data(tvbuff_t *tvb, packet_info *pinfo _U_, p
         uint64_t secs = tmp64 / 1000000000;
         uint64_t mins = secs / 60;
         secs -= mins * 60;
-        uint64_t hours = mins / 24;
-        mins -= hours * 24;
+        uint64_t hours = mins / 60;
+        mins -= hours * 60;
         proto_item_append_text(ti, " ns (%d:%02d:%02d.%09d)", (uint32_t)hours, (uint32_t)mins, (uint32_t)secs, (uint32_t)nanos);
 
         if (tmp64 < timestamp_ns) {
