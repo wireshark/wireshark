@@ -146,6 +146,10 @@ for details.
     # Cherry-picking can add an extra newline, which we'll allow.
     cp_line = '\n(cherry picked from commit'
     body = body.replace('\n' + cp_line, cp_line)
+    # GitLab's "Cherry-pick" button can add an extra newline *and* a slightly
+    # different message, with hyphen-minus, which we'll also allow.
+    cp_line = '\n(cherry-picked from commit'
+    body = body.replace('\n' + cp_line, cp_line)
 
     try:
         cmd = ['git', 'stripspace']
