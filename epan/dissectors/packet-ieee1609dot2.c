@@ -43,6 +43,12 @@ void proto_reg_handoff_ieee1609dot2(void);
 /* Initialize the protocol and registered fields */
 int proto_ieee1609dot2;
 dissector_handle_t proto_ieee1609dot2_handle;
+
+/* WSMP PSID range to be passed to IEEE 1609.2 dissector */
+static range_t *global_wsmp_psid_range;
+/* This is used for WSMP PSID range */
+#define DEFAULT_WSMP_PSID_RANGE "32,39,128,129,130,131,132,133,135,142,143,144,145,2113685,2113686,2113687,2113689"
+#define MAX_WSMP_PSID           4294967295
 static int hf_ieee1609dot2_SecuredCrl_PDU;        /* SecuredCrl */
 static int hf_ieee1609dot2_Ieee1609Dot2Data_PDU;  /* Ieee1609Dot2Data */
 static int hf_ieee1609dot2_SequenceOfUint8_item;  /* Uint8 */
@@ -1329,6 +1335,10 @@ const val64_string ieee1609dot2_Psid_vals[] = {
   { psid_infrastructure_to_vehicle_information_service, "psid-infrastructure-to-vehicle-information-service" },
   { psid_traffic_light_control_requests_service, "psid-traffic-light-control-requests-service" },
   { psid_geonetworking_management_communications, "psid-geonetworking-management-communications" },
+  { psid_cooperative_automation_message, "psid-cooperative-automation-message" },
+  { psid_v2x_based_fee_collection, "psid-v2x-based-fee-collection" },
+  { psid_sensor_sharing_service, "psid-sensor-sharing-service" },
+  { psid_maneuver_coordination_service, "psid-maneuver-coordination-service" },
   { psid_certificate_revocation_list_application, "psid-certificate-revocation-list-application" },
   { psid_traffic_light_control_status_service, "psid-traffic-light-control-status-service" },
   { psid_collective_perception_service, "psid-collective-perception-service" },
@@ -1341,6 +1351,10 @@ const val64_string ieee1609dot2_Psid_vals[] = {
   { psid_sra_private_applications_0x204085, "psid-sra-private-applications-0x204085" },
   { psid_sra_private_applications_0x204086, "psid-sra-private-applications-0x204086" },
   { psid_sra_private_applications_0x204087, "psid-sra-private-applications-0x204087" },
+  { psid_traffic_signal_priority_status, "psid-traffic-signal-priority-status" },
+  { psid_traffic_signal_request, "psid-traffic-signal-request" },
+  { psid_map_distribution, "psid-map-distribution" },
+  { psid_road_weather_applications, "psid-road-weather-applications" },
   { psid_ipv6_routing, "psid-ipv6-routing" },
   { 0, NULL }
 };
@@ -3133,6 +3147,8 @@ ieee1609dot2_Time64_fmt(char *s, uint64_t v)
 /*--- proto_register_ieee1609dot2 ----------------------------------------------*/
 void proto_register_ieee1609dot2(void) {
 
+  module_t *ieee1609dot2_module;
+
   /* List of fields */
   static hf_register_info hf[] = {
     { &hf_ieee1609dot2_SecuredCrl_PDU,
@@ -4270,13 +4286,43 @@ void proto_register_ieee1609dot2(void) {
         "ATS-AID/PSID based dissector for unsecured/signed data", proto_ieee1609dot2, FT_UINT32, BASE_HEX);
   ssp_subdissector_table = register_dissector_table("ieee1609dot2.ssp",
         "ATS-AID/PSID based dissector for Service Specific Permissions (SSP)", proto_ieee1609dot2, FT_UINT32, BASE_HEX);
+
+    range_convert_str(wmem_epan_scope(),
+                      &global_wsmp_psid_range,
+                      DEFAULT_WSMP_PSID_RANGE,
+                      MAX_WSMP_PSID);
+
+    /* Register configuration options */
+    ieee1609dot2_module = prefs_register_protocol(proto_ieee1609dot2,
+                                                  proto_reg_handoff_ieee1609dot2);
+
+    prefs_register_range_preference(ieee1609dot2_module,
+                                    "wsmp.psid",
+                                    "WSMP PSIDs",
+                                    "WSMP PSIDs to be decoded as IEEE 1609.2 data (default: "
+                                    DEFAULT_WSMP_PSID_RANGE ")",
+                                    &global_wsmp_psid_range, MAX_WSMP_PSID);
 }
 
 
 void proto_reg_handoff_ieee1609dot2(void) {
-    dissector_add_string("media_type", "application/x-its", proto_ieee1609dot2_handle);
-    dissector_add_string("media_type", "application/x-its-request", proto_ieee1609dot2_handle);
-    dissector_add_string("media_type", "application/x-its-response", proto_ieee1609dot2_handle);
+
+    static bool inited = false;
+    static range_t *wsmp_psid_range;
+
+    if(!inited) {
+        dissector_add_string("media_type", "application/x-its", proto_ieee1609dot2_handle);
+        dissector_add_string("media_type", "application/x-its-request", proto_ieee1609dot2_handle);
+        dissector_add_string("media_type", "application/x-its-response", proto_ieee1609dot2_handle);
+        inited = true;
+    } else {
+        dissector_delete_uint_range("wsmp.psid", wsmp_psid_range, proto_ieee1609dot2_handle);
+        wmem_free(wmem_epan_scope(), wsmp_psid_range);
+    }
+
+    /* set port for future deletes */
+    wsmp_psid_range = range_copy(wmem_epan_scope(), global_wsmp_psid_range);
+    dissector_add_uint_range("wsmp.psid", wsmp_psid_range, proto_ieee1609dot2_handle);
 
     dissector_add_uint("ieee1609dot2.psid", psid_certificate_revocation_list_application, create_dissector_handle(dissect_SecuredCrl_PDU, proto_ieee1609dot2));
     //dissector_add_uint_range_with_preference("udp.port", "56000,56001", proto_ieee1609dot2_handle);
