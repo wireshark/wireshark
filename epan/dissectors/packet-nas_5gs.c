@@ -61,6 +61,7 @@ static uint16_t de_nas_5gs_mm_pdu_ses_id_2(tvbuff_t *tvb, proto_tree *tree, pack
 static uint16_t de_nas_5gs_cmn_add_inf(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t offset, unsigned len, char *add_string _U_, int string_len _U_);
 static void nas_5gs_mm_5gmm_status(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, uint32_t offset, unsigned len);
 static uint16_t de_nas_5gs_mm_req_type(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, uint32_t offset, unsigned len _U_, char *add_string _U_, int string_len _U_);
+static uint16_t de_nas_5gs_mm_sor_transp_cont(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t offset, unsigned len, char *add_string _U_, int string_len _U_);
 
 static dissector_handle_t nas_5gs_handle;
 static dissector_handle_t eap_handle;
@@ -3155,6 +3156,7 @@ de_nas_5gs_mm_pld_cont(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
         dissect_nas_5gs_common(tvb_new_subset_length(tvb, offset, len), pinfo, tree, 0, NULL);
         break;
     case 2: /* SMS */
+    case 7: /* Location services */
         if (gsm_a_dtap_handle) {
             call_dissector(gsm_a_dtap_handle, tvb_new_subset_length(tvb, offset, len), pinfo, tree);
         } else {
@@ -3167,6 +3169,9 @@ de_nas_5gs_mm_pld_cont(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
         } else {
             proto_tree_add_item(tree, hf_nas_5gs_mm_pld_cont, tvb, offset, len, ENC_NA);
         }
+        break;
+    case 4: /* SOR transparent container */
+        de_nas_5gs_mm_sor_transp_cont(tvb, tree, pinfo, offset, len, NULL, 0);
         break;
     case 5: /* UE policy container */
         dissect_nas_5gs_updp(tvb_new_subset_length(tvb, offset, len), pinfo, tree);
