@@ -740,6 +740,13 @@ else()
 	QT5_ADD_TRANSLATION(WIRESHARK_QT_QM ${WIRESHARK_QT_TS} OPTIONS -silent)
 endif()
 
+add_custom_target(
+	translations
+	DEPENDS
+		${WIRESHARK_QT_QM}
+)
+set_target_properties(translations PROPERTIES FOLDER "UI")
+
 if (WIN32)
 	add_custom_target(copy_qt_translations ALL)
 	add_custom_command(TARGET copy_qt_translations
@@ -747,14 +754,8 @@ if (WIN32)
 		COMMAND ${CMAKE_COMMAND} -E make_directory $<TARGET_FILE_DIR:wireshark>/translations
 		COMMAND ${CMAKE_COMMAND} -E copy_if_different ${WIRESHARK_QT_QM} $<TARGET_FILE_DIR:wireshark>/translations
 	)
+	add_dependencies(copy_qt_translations translations)
 endif()
-
-add_custom_target(
-	translations
-	DEPENDS
-		${WIRESHARK_QT_QM}
-)
-set_target_properties(translations PROPERTIES FOLDER "UI")
 
 set_source_files_properties(
 	${WIRESHARK_QT_NONGENERATED_SRC}
