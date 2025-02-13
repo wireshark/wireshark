@@ -506,11 +506,11 @@ image::images/ws-go-menu.png[{screenshot-attrs}]
 |menu:Go to Corresponding Packet[]      |                   |Go to the corresponding packet of the currently selected protocol field (e.g., the reply
 corresponding to a request packet, or vice versa). If the selected field doesn’t correspond to a packet, this item is greyed out.
 |menu:Previous Packet[]                 |kbd:[Ctrl+↑]|Move to the previous packet in the list.  This can be used to move to the previous packet even if the packet list doesn’t have keyboard focus.
-|menu:Next Packet[]                     |kbd:[Ctrl+↓]|Move to the next packet in the list.  This can be used to move to the previous packet even if the packet list doesn’t have keyboard focus.
+|menu:Next Packet[]                     |kbd:[Ctrl+↓]|Move to the next packet in the list.  This can be used to move to the next packet even if the packet list doesn’t have keyboard focus.
 |menu:First Packet[]                    |kbd:[Ctrl+Home]    |Jump to the first packet of the capture file.
 |menu:Last Packet[]                     |kbd:[Ctrl+End]     |Jump to the last packet of the capture file.
 |menu:Previous Packet In Conversation[] |kbd:[Ctrl+&#44;]  |Move to the previous packet in the current conversation.  This can be used to move to the previous packet even if the packet list doesn’t have keyboard focus.
-|menu:Next Packet In Conversation[]     |kbd:[Ctrl+.]       |Move to the next packet in the current conversation.  This can be used to move to the previous packet even if the packet list doesn’t have keyboard focus.
+|menu:Next Packet In Conversation[]     |kbd:[Ctrl+.]       |Move to the next packet in the current conversation.  This can be used to move to the next packet even if the packet list doesn’t have keyboard focus.
 |menu:Auto Scroll in Live Capture[] |                   |This item allows you to specify that Wireshark should scroll the packet list pane as new packets come in, so you are always looking at the last packet.  If you do not specify this, Wireshark simply adds new packets onto the end of the list, but does not scroll the packet list pane.
 |===
 
