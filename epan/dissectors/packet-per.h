@@ -65,7 +65,7 @@ WS_DLL_PUBLIC uint32_t dissect_per_VisibleString(tvbuff_t *tvb, uint32_t offset,
 
 WS_DLL_PUBLIC uint32_t dissect_per_BMPString(tvbuff_t *tvb, uint32_t offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, int min_len, int max_len, bool has_extension);
 
-extern uint32_t dissect_per_UTF8String(tvbuff_t *tvb, uint32_t offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, int min_len, int max_len, bool has_extension);
+WS_DLL_PUBLIC uint32_t dissect_per_UTF8String(tvbuff_t *tvb, uint32_t offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, int min_len, int max_len, bool has_extension);
 
 extern uint32_t dissect_per_object_descriptor(tvbuff_t *tvb, uint32_t offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, tvbuff_t **value_tvb);
 
@@ -112,7 +112,7 @@ WS_DLL_PUBLIC uint32_t dissect_per_open_type_pdu_new(tvbuff_t *tvb, uint32_t off
 
 WS_DLL_PUBLIC uint32_t dissect_per_external_type(tvbuff_t *tvb, uint32_t offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, per_type_fn type_cb);
 
-extern uint32_t dissect_per_size_constrained_type(tvbuff_t *tvb, uint32_t offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, per_type_fn type_cb, const char *name, int min_len, int max_len, bool has_extension);
+WS_DLL_PUBLIC uint32_t dissect_per_size_constrained_type(tvbuff_t *tvb, uint32_t offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, per_type_fn type_cb, const char *name, int min_len, int max_len, bool has_extension);
 extern bool get_size_constraint_from_stack(asn1_ctx_t *actx, const char *name, int *pmin_len, int *pmax_len, bool *phas_extension);
 
 extern uint32_t dissect_per_length_determinant(tvbuff_t *tvb, uint32_t offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index, uint32_t *length, bool *is_fragmented);
