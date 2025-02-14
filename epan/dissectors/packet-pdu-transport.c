@@ -53,6 +53,7 @@ static dissector_table_t subdissector_table;
 
 /* header field */
 static int hf_pdu_transport_id;
+static int hf_pdu_transport_name;
 static int hf_pdu_transport_length;
 static int hf_pdu_transport_payload;
 
@@ -183,16 +184,19 @@ dissect_pdu_transport(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
         pdu_transport_tree = NULL;
     }
 
-    ti = proto_tree_add_item_ret_uint(pdu_transport_tree, hf_pdu_transport_id, tvb, offset, 4, ENC_BIG_ENDIAN, &pdu_id);
+    proto_tree_add_item_ret_uint(pdu_transport_tree, hf_pdu_transport_id, tvb, offset, 4, ENC_BIG_ENDIAN, &pdu_id);
+    descr = lookup_pdu_name(pdu_id);
+    if (descr != NULL) {
+        ti = proto_tree_add_string(pdu_transport_tree, hf_pdu_transport_name, tvb, offset, 4, descr);
+        proto_item_set_generated(ti);
+    }
     offset += 4;
 
     proto_tree_add_item_ret_uint(pdu_transport_tree, hf_pdu_transport_length, tvb, offset, 4, ENC_BIG_ENDIAN, &length);
     offset += 4;
-
-    descr = lookup_pdu_name(pdu_id);
+    
     if (descr != NULL) {
         proto_item_append_text(ti_top, ", ID 0x%x (%s), Length: %d", pdu_id, descr, length);
-        proto_item_append_text(ti, " (%s)", descr);
         col_append_fstr(pinfo->cinfo, COL_INFO, " (ID: 0x%x, %s)", pdu_id, descr);
     } else {
         proto_item_append_text(ti_top, ", ID 0x%x, Length: %d", pdu_id, length);
@@ -260,6 +264,8 @@ proto_register_pdu_transport(void) {
     static hf_register_info hf[] = {
         { &hf_pdu_transport_id,
             { "ID", "pdu_transport.id", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+        { &hf_pdu_transport_name,
+            { "Name", "pdu_transport.name", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
         { &hf_pdu_transport_length,
             { "Length", "pdu_transport.length", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
         { &hf_pdu_transport_payload,
