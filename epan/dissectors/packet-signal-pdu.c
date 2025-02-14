@@ -840,7 +840,7 @@ free_spdu_signal_list_cb(void *r) {
 }
 
 static void
-deregister_user_data_hfarray(hf_register_info **hf_array, unsigned *number_of_entries) {
+deregister_user_data_hfarray_prepare_for_deregister(hf_register_info **hf_array, unsigned *number_of_entries) {
     if (hf_array == NULL || number_of_entries == NULL) {
         return;
     }
@@ -856,10 +856,19 @@ deregister_user_data_hfarray(hf_register_info **hf_array, unsigned *number_of_en
                 dynamic_hf[i].hfinfo.strings = NULL;
             }
         }
+    }
+}
 
-        proto_deregister_all_fields_with_prefix(proto_signal_pdu, SPDU_NAME_SIGNAL_PREFIX);
-        proto_free_deregistered_fields();
+static void
+deregister_user_data_hfarray_free(hf_register_info **hf_array, unsigned *number_of_entries) {
+    if (hf_array == NULL || number_of_entries == NULL) {
+        return;
+    }
 
+    unsigned dynamic_hf_size = *number_of_entries;
+    hf_register_info *dynamic_hf = *hf_array;
+
+    if (dynamic_hf != NULL) {
         for (unsigned i = 0; i < dynamic_hf_size; i++) {
             if (dynamic_hf[i].p_id != NULL) {
                 g_free(dynamic_hf[i].p_id);
@@ -875,10 +884,19 @@ deregister_user_data_hfarray(hf_register_info **hf_array, unsigned *number_of_en
 
 static void
 deregister_user_data(void) {
-    deregister_user_data_hfarray(&dynamic_hf_base_raw, &dynamic_hf_base_raw_number);
-    deregister_user_data_hfarray(&dynamic_hf_agg_sum, &dynamic_hf_agg_sum_number);
-    deregister_user_data_hfarray(&dynamic_hf_agg_avg, &dynamic_hf_agg_avg_number);
-    deregister_user_data_hfarray(&dynamic_hf_agg_int, &dynamic_hf_agg_int_number);
+    deregister_user_data_hfarray_prepare_for_deregister(&dynamic_hf_base_raw, &dynamic_hf_base_raw_number);
+    deregister_user_data_hfarray_prepare_for_deregister(&dynamic_hf_agg_sum, &dynamic_hf_agg_sum_number);
+    deregister_user_data_hfarray_prepare_for_deregister(&dynamic_hf_agg_avg, &dynamic_hf_agg_avg_number);
+    deregister_user_data_hfarray_prepare_for_deregister(&dynamic_hf_agg_int, &dynamic_hf_agg_int_number);
+
+    proto_deregister_all_fields_with_prefix(proto_signal_pdu, SPDU_NAME_SIGNAL_PREFIX);
+    proto_free_deregistered_fields();
+
+    deregister_user_data_hfarray_free(&dynamic_hf_base_raw, &dynamic_hf_base_raw_number);
+    deregister_user_data_hfarray_free(&dynamic_hf_agg_sum, &dynamic_hf_agg_sum_number);
+    deregister_user_data_hfarray_free(&dynamic_hf_agg_avg, &dynamic_hf_agg_avg_number);
+    deregister_user_data_hfarray_free(&dynamic_hf_agg_int, &dynamic_hf_agg_int_number);
+
     dynamic_hf_number_of_entries = 0;
 }
 
