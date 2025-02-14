@@ -184,14 +184,17 @@ static dissector_handle_t bgp_handle;
 #define BGP_CAPABILITY_FQDN_CISCO                  184  /* Cisco, RFC8810 */
 #define BGP_CAPABILITY_OPERATIONAL_MSG_CISCO       185  /* Cisco, RFC8810 */
 
-#define BGP_ORF_PREFIX_CISCO    0x80 /* Cisco */
+#define BGP_ORF_COMM            0x02 /* unknown */
+#define BGP_ORF_EXTCOMM         0x03 /* unknown */
+#define BGP_ORF_ASPATH          0x04 /* draft-ietf-idr-aspath-orf (expired) */
+#define BGP_ORF_PREFIX          0x40 /* RFC5292 */
+#define BGP_ORF_CP_ORF          0x41 /* RFC7543 */
+#define BGP_ORF_VPN_PREFIX      0x42 /* draft-ietf-idr-vpn-prefix-orf-06 */
+#define BGP_ORF_PREFIX_CISCO    0x80 /* Cisco, same as 0x40 */
 #define BGP_ORF_COMM_CISCO      0x81 /* Cisco */
 #define BGP_ORF_EXTCOMM_CISCO   0x82 /* Cisco */
 #define BGP_ORF_ASPATH_CISCO    0x83 /* Cisco */
 
-#define BGP_ORF_COMM        0x02 /* RFC5291 */
-#define BGP_ORF_EXTCOMM     0x03 /* RFC5291 */
-#define BGP_ORF_ASPATH      0x04 /* draft-ietf-idr-aspath-orf-02.txt */
 /* RFC5291 */
 #define BGP_ORF_ACTION      0xc0
 #define BGP_ORF_ADD         0x00
@@ -1961,12 +1964,19 @@ static const value_string bgpattr_nlri_safi[] = {
 
 /* ORF Type, RFC5291 */
 static const value_string orf_type_vals[] = {
-    {   2,      "Communities ORF-Type" },
-    {   3,      "Extended Communities ORF-Type" },
-    { 128,      "Cisco PrefixList ORF-Type" },
-    { 129,      "Cisco CommunityList ORF-Type" },
-    { 130,      "Cisco Extended CommunityList ORF-Type" },
-    { 131,      "Cisco AsPathList ORF-Type" },
+    /* first 3 entries: questionable origin */
+    { BGP_ORF_COMM,           "(unregistered) Communities ORF-Type" },
+    { BGP_ORF_EXTCOMM,        "(unregistered) Extended Communities ORF-Type" },
+    { BGP_ORF_ASPATH,         "(unregistered) AS-path ORF-Type" },
+    /* IANA registered */
+    { BGP_ORF_PREFIX,         "Address Prefix ORF" },
+    { BGP_ORF_CP_ORF,         "CP-ORF" },
+    { BGP_ORF_VPN_PREFIX,     "VPN Prefix ORF" },
+    /* vendor-specific */
+    { BGP_ORF_PREFIX_CISCO,   "Cisco PrefixList ORF-Type" },
+    { BGP_ORF_COMM_CISCO,     "Cisco CommunityList ORF-Type" },
+    { BGP_ORF_EXTCOMM_CISCO,  "Cisco Extended CommunityList ORF-Type" },
+    { BGP_ORF_ASPATH_CISCO,   "Cisco AsPathList ORF-Type" },
     { 0,        NULL }
 };
 
@@ -3422,6 +3432,9 @@ static expert_field ei_bgp_cap_len_bad;
 static expert_field ei_bgp_cap_gr_helper_mode_only;
 static expert_field ei_bgp_notify_minor_unknown;
 static expert_field ei_bgp_route_refresh_orf_type_unknown;
+static expert_field ei_bgp_route_refresh_orf_type_unsupported;
+static expert_field ei_bgp_route_refresh_orf_type_unregistered;
+static expert_field ei_bgp_route_refresh_orf_action_invalid;
 static expert_field ei_bgp_length_invalid;
 static expert_field ei_bgp_prefix_length_invalid;
 static expert_field ei_bgp_afi_type_not_supported;
@@ -11542,43 +11555,66 @@ example 2
         proto_item_set_len(ti, orflen + 4);
         p += 2;
 
-        if (orftype != BGP_ORF_PREFIX_CISCO) {
-            expert_add_info_format(pinfo, ti1, &ei_bgp_route_refresh_orf_type_unknown, "ORFEntry-Unknown (type %u)", orftype);
-            p += orflen;
-            continue;
-        }
         pend = p + orflen;
-        while (p < pend) {
 
-            ti1 = proto_tree_add_item(subtree, hf_bgp_route_refresh_orf_entry_prefixlist, tvb, p, 1, ENC_NA);
-            subtree1 = proto_item_add_subtree(ti1, ett_bgp_orf_entry);
-            proto_tree_add_item(subtree1, hf_bgp_route_refresh_orf_entry_action, tvb, p, 1, ENC_BIG_ENDIAN);
-            entryflag = tvb_get_uint8(tvb, p);
-            if (((entryflag & BGP_ORF_ACTION) >> 6) == BGP_ORF_REMOVEALL) {
+        switch (orftype) {
+        case BGP_ORF_COMM:
+        case BGP_ORF_EXTCOMM:
+        case BGP_ORF_ASPATH:
+            expert_add_info_format(pinfo, ti1, &ei_bgp_route_refresh_orf_type_unregistered, "Deprecated non-IANA ORF Entry type %u", orftype);
+            break;
+
+        case BGP_ORF_PREFIX:
+        case BGP_ORF_PREFIX_CISCO:
+            while (p < pend) {
+                ti1 = proto_tree_add_item(subtree, hf_bgp_route_refresh_orf_entry_prefixlist, tvb, p, 1, ENC_NA);
+                subtree1 = proto_item_add_subtree(ti1, ett_bgp_orf_entry);
+                proto_tree_add_item(subtree1, hf_bgp_route_refresh_orf_entry_action, tvb, p, 1, ENC_BIG_ENDIAN);
+                entryflag = tvb_get_uint8(tvb, p);
+                if (((entryflag & BGP_ORF_ACTION) >> 6) == BGP_ORF_REMOVEALL) {
+                    p++;
+                    continue;
+                }
+                if (((entryflag & BGP_ORF_ACTION) >> 6) > BGP_ORF_REMOVEALL) {
+                    expert_add_info_format(pinfo, ti1, &ei_bgp_route_refresh_orf_action_invalid, "Invalid ORF action");
+                    p++;
+                    continue;
+                }
+                proto_tree_add_item(subtree1, hf_bgp_route_refresh_orf_entry_match, tvb, p, 1, ENC_BIG_ENDIAN);
                 p++;
-                continue;
+
+                proto_tree_add_item(subtree1, hf_bgp_route_refresh_orf_entry_sequence, tvb, p, 4, ENC_BIG_ENDIAN);
+                p +=4;
+
+                proto_tree_add_item(subtree1, hf_bgp_route_refresh_orf_entry_prefixmask_lower, tvb, p, 1, ENC_BIG_ENDIAN);
+                p++;
+
+                proto_tree_add_item(subtree1, hf_bgp_route_refresh_orf_entry_prefixmask_upper, tvb, p, 1, ENC_BIG_ENDIAN);
+                p++;
+
+                advance = decode_prefix4(subtree1, pinfo, NULL, hf_bgp_route_refresh_orf_entry_ip, tvb, p, "ORF");
+                if (advance < 0)
+                        break;
+                entrylen = 7 + 1 + advance;
+
+                proto_item_set_len(ti1, entrylen);
+                p += advance;
             }
-            proto_tree_add_item(subtree1, hf_bgp_route_refresh_orf_entry_match, tvb, p, 1, ENC_BIG_ENDIAN);
-            p++;
+            break;
 
-            proto_tree_add_item(subtree1, hf_bgp_route_refresh_orf_entry_sequence, tvb, p, 4, ENC_BIG_ENDIAN);
-            p +=4;
+        case BGP_ORF_CP_ORF:
+        case BGP_ORF_VPN_PREFIX:
+        case BGP_ORF_COMM_CISCO:
+        case BGP_ORF_EXTCOMM_CISCO:
+        case BGP_ORF_ASPATH_CISCO:
+            expert_add_info_format(pinfo, ti1, &ei_bgp_route_refresh_orf_type_unsupported, "ORF entry type %u not supported for decoding", orftype);
+            break;
 
-            proto_tree_add_item(subtree1, hf_bgp_route_refresh_orf_entry_prefixmask_lower, tvb, p, 1, ENC_BIG_ENDIAN);
-            p++;
-
-            proto_tree_add_item(subtree1, hf_bgp_route_refresh_orf_entry_prefixmask_upper, tvb, p, 1, ENC_BIG_ENDIAN);
-            p++;
-
-            advance = decode_prefix4(subtree1, pinfo, NULL, hf_bgp_route_refresh_orf_entry_ip, tvb, p, "ORF");
-            if (advance < 0)
-                    break;
-            entrylen = 7 + 1 + advance;
-
-            proto_item_set_len(ti1, entrylen);
-            p += advance;
-
+        default:
+            expert_add_info_format(pinfo, ti1, &ei_bgp_route_refresh_orf_type_unknown, "ORFEntry-Unknown (type %u)", orftype);
         }
+
+        p = pend;
     }
 }
 
@@ -14504,7 +14540,10 @@ proto_register_bgp(void)
         { &ei_bgp_cap_len_bad, { "bgp.cap.length.bad", PI_MALFORMED, PI_ERROR, "Capability length is wrong", EXPFILL }},
         { &ei_bgp_cap_gr_helper_mode_only, { "bgp.cap.gr.helper_mode_only", PI_REQUEST_CODE, PI_CHAT, "Graceful Restart Capability supported in Helper mode only", EXPFILL }},
         { &ei_bgp_notify_minor_unknown, { "bgp.notify.minor_error.unknown", PI_UNDECODED, PI_NOTE, "Unknown notification error", EXPFILL }},
-        { &ei_bgp_route_refresh_orf_type_unknown, { "bgp.route_refresh.orf.type.unknown", PI_MALFORMED, PI_ERROR, "ORFEntry-Unknown", EXPFILL }},
+        { &ei_bgp_route_refresh_orf_type_unknown, { "bgp.route_refresh.orf.type.unknown", PI_UNDECODED, PI_WARN, "unknown ORF type", EXPFILL }},
+        { &ei_bgp_route_refresh_orf_type_unsupported, { "bgp.route_refresh.orf.type.unsupported", PI_UNDECODED, PI_WARN, "ORF type: decoding not supported", EXPFILL }},
+        { &ei_bgp_route_refresh_orf_type_unregistered, { "bgp.route_refresh.orf.type.unregistered", PI_MALFORMED, PI_ERROR, "ORF type: unregistered/non-IANA value", EXPFILL }},
+        { &ei_bgp_route_refresh_orf_action_invalid, { "bgp.route_refresh.orf.action.invalid", PI_MALFORMED, PI_ERROR, "ORF action: invalid value", EXPFILL }},
         { &ei_bgp_length_invalid, { "bgp.length.invalid", PI_MALFORMED, PI_ERROR, "Length is invalid", EXPFILL }},
         { &ei_bgp_prefix_length_invalid, { "bgp.prefix_length.invalid", PI_MALFORMED, PI_ERROR, "Prefix length is invalid", EXPFILL }},
         { &ei_bgp_afi_type_not_supported, { "bgp.afi_type_not_supported", PI_PROTOCOL, PI_ERROR, "AFI Type not supported", EXPFILL }},
