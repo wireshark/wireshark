@@ -818,7 +818,7 @@ static guint dissect_mqtt_properties(tvbuff_t *tvb, proto_tree *mqtt_tree, guint
   ti = proto_tree_add_item(mqtt_tree, hf_property, tvb, offset, mqtt_prop_offset + mqtt_prop_len, ENC_NA);
   mqtt_prop_tree = proto_item_add_subtree(ti, ett_mqtt_property);
 
-  proto_tree_add_item(mqtt_prop_tree, hf_mqtt_property_len, tvb, offset, mqtt_prop_offset, ENC_BIG_ENDIAN);
+  proto_tree_add_item(mqtt_prop_tree, hf_mqtt_property_len, tvb, offset, mqtt_prop_offset, ENC_LITTLE_ENDIAN|ENC_VARINT_PROTOBUF);
   offset += mqtt_prop_offset;
 
   const guint bytes_to_read = offset + mqtt_prop_len;
