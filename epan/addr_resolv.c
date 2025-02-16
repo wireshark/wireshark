@@ -2922,7 +2922,7 @@ add_hosts_file (const char *hosts_file)
     }
 
     if (!found) {
-        g_ptr_array_add(extra_hosts_files, wmem_strdup(addr_resolv_scope, hosts_file));
+        g_ptr_array_add(extra_hosts_files, wmem_strdup(wmem_epan_scope(), hosts_file));
         return read_hosts_file (hosts_file, false);
     }
     return true;
