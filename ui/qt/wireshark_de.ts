@@ -4853,7 +4853,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>Missing capturing group data (use (?&lt;data&gt;(...)) )</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehlende Erfassungsgruppen-Daten (verwende (?&lt;data&gt;(...)) )</translation>
     </message>
     <message>
         <source>Import From Hex Dump</source>
