@@ -21,8 +21,6 @@
 
 static const ws_services_entry_t global_tcp_udp_services_table[] = {
     { 1, "tcpmux",              "TCP Port Service Multiplexer" },
-    { 2, "compressnet",         "Management Utility" },
-    { 3, "compressnet",         "Compression Process" },
     { 5, "rje",                 "Remote Job Entry" },
     { 7, "echo",                "Echo" },
     { 9, "discard",             "Discard" },

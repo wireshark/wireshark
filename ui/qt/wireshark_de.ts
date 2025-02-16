@@ -4278,11 +4278,11 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>Legend</source>
-        <translation type="unfinished"></translation>
+        <translation>Legende</translation>
     </message>
     <message>
         <source>Toggle legend</source>
-        <translation type="unfinished"></translation>
+        <translation>Legende umschalten</translation>
     </message>
     <message>
         <source>Zoom In X Axis</source>
@@ -5165,7 +5165,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>Missing capturing group data (use (?&lt;data&gt;(...)) )</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehlende Erfassungsgruppen-Daten (verwende (?&lt;data&gt;(...)) )</translation>
     </message>
     <message>
         <source>Import From Hex Dump</source>
