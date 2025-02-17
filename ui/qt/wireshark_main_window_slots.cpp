@@ -3662,7 +3662,8 @@ void WiresharkMainWindow::showIOGraphDialog(io_graph_item_unit_t value_units, QS
     }
 
     if (iog_dialog == nullptr) {
-        iog_dialog = new IOGraphDialog(*this, capture_file_, displayFilter, value_units, yfield);
+        QVector<QString> conv_filters;
+        iog_dialog = new IOGraphDialog(*this, capture_file_, displayFilter, value_units, yfield, false, conv_filters);
         connect(iog_dialog, &IOGraphDialog::goToPacket, this, [=](int packet_num) {packet_list_->goToPacket(packet_num);});
         connect(this, &WiresharkMainWindow::reloadFields, iog_dialog, &IOGraphDialog::reloadFields);
     }
@@ -3673,6 +3674,68 @@ void WiresharkMainWindow::showIOGraphDialog(io_graph_item_unit_t value_units, QS
     }
     iog_dialog->raise();
     iog_dialog->activateWindow();
+}
+
+void WiresharkMainWindow::openIOGraph(bool filtered, QVector<uint> typed_conv_ids, QVector<QVariant> typed_conv_agg)
+{
+    const DisplayFilterEdit *df_edit = qobject_cast<DisplayFilterEdit *>(df_combo_box_->lineEdit());
+    QString displayFilter;
+    if (df_edit && filtered)
+        displayFilter = df_edit->text();
+
+    /* the filters to open the IOGraph dialog with */
+    QVector<QString> conv_filters;
+
+    /* maximum number of graphs to open (too many might break the dialog) */
+    uint max_conv = 10;
+    uint count_conv = 0;
+
+    /* the list received should contain at least 2 elements (conv type + conv ids) */
+    if(typed_conv_ids.size()>1) {
+        const QString pfname = proto_get_protocol_filter_name(typed_conv_ids.at(0));
+
+        // parse the conversations Vector and build the Display Filters Vector
+        int i=1;
+        while(i<typed_conv_ids.size() && (count_conv<max_conv) ) {
+            if( (typed_conv_ids.at(i) != CONV_ID_UNSET) ){
+                conv_filters.append(pfname + ".stream eq " + QString::number(typed_conv_ids.at(i)) );
+                count_conv++;
+                i++;
+            }
+            /* else: not supposed to happen, invalid conversations are ignored */
+        }
+    }
+
+    // parse the aggregated info
+    if(typed_conv_agg.size()>1) {
+        QString fagg;
+
+        bool right_part = false;
+        QString qslft, qsrgt;
+
+        int i=1;
+        while( (i<typed_conv_agg.size()) && (count_conv<max_conv) ) {
+            if(right_part) {
+                qsrgt = QString(typed_conv_agg.at(i).toString());
+
+                QString aggfilter;
+                aggfilter = (qslft==qsrgt) ? QString("ip.src==" + qslft + " && ip.dst==" + qsrgt)
+                                           : QString("ip.addr==" + qslft + " && ip.addr==" + qsrgt);
+
+                conv_filters.append(aggfilter);
+                count_conv++;
+            }
+            else {
+                qslft = QString(typed_conv_agg.at(i).toString());
+            }
+            right_part = !right_part;
+            i++;
+        }
+    }
+
+    IOGraphDialog *iog_dialog = new IOGraphDialog(*this, capture_file_, displayFilter, IOG_ITEM_UNIT_PACKETS, QString(), true, conv_filters);
+    connect(this, SIGNAL(reloadFields()), iog_dialog, SLOT(reloadFields()));
+    iog_dialog->show();
 }
 
 // Telephony Menu
@@ -4006,6 +4069,10 @@ void WiresharkMainWindow::showConversationsDialog()
                 openFollowStreamDialog(proto_id, stream_num, sub_stream_num);
             });
     connect(conv_dialog, &ConversationDialog::openTcpStreamGraph, this, &WiresharkMainWindow::openTcpStreamDialog);
+    connect(conv_dialog, &ConversationDialog::openIOGraph, this,
+            [=](bool filtered, QVector<uint> typed_conv_ids, QVector<QVariant> typed_conv_agg) {
+                openIOGraph(filtered, typed_conv_ids, typed_conv_agg);
+            });
     conv_dialog->show();
 }
 

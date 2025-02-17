@@ -881,12 +881,17 @@ add_conversation_table_data_ipv4_subnet(
     /* add data with subnets if we have any, or actual src & dst
      * unset the conv_id when dealing with subnets
      */
-    add_conversation_table_data_with_conv_id(ch,
-        is_src_aggregated?aggsrc:src,
-        is_dst_aggregated?aggdst:dst,
-        src_port, dst_port,
-        (is_src_aggregated||is_dst_aggregated?CONV_ID_UNSET:conv_id),
+    add_conversation_table_data_with_conv_id(ch, src, dst,
+        src_port, dst_port, conv_id,
         num_frames, num_bytes, ts, abs_ts, ct_info, ctype);
+    if(is_src_aggregated || is_dst_aggregated) {
+        add_conversation_table_data_with_conv_id(ch,
+            is_src_aggregated?aggsrc:src,
+            is_dst_aggregated?aggdst:dst,
+            src_port, dst_port,
+            (is_src_aggregated||is_dst_aggregated?CONV_ID_UNSET:conv_id),
+            num_frames, num_bytes, ts, abs_ts, ct_info, ctype);
+    }
 }
 
 /*

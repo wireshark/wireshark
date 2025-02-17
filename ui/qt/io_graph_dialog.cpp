@@ -383,7 +383,8 @@ static void io_graph_post_update_cb() {
 } // extern "C"
 
 IOGraphDialog::IOGraphDialog(QWidget &parent, CaptureFile &cf, QString displayFilter,
-        io_graph_item_unit_t value_units, QString yfield) :
+        io_graph_item_unit_t value_units, QString yfield,
+        gboolean is_sibling_dialog, QVector<QString> convFilters):
     WiresharkDialog(parent, cf),
     ui(new Ui::IOGraphDialog),
     uat_model_(nullptr),
@@ -532,25 +533,55 @@ IOGraphDialog::IOGraphDialog(QWidget &parent, CaptureFile &cf, QString displayFi
 
     tracer_ = new QCPItemTracer(iop);
 
+    /* Depending on how the dialog was called (Main Window/Conversations),
+     * we will display from the Profile & Display Filter or from selected convs.
+     * This distinction is brought by is_sibling_dialog (True for dialogs).
+     */
     loadProfileGraphs();
-    bool filterExists = false;
-    if (uat_model_->rowCount() > 0) {
-        for (int i = 0; i < uat_model_->rowCount(); i++) {
-            createIOGraph(i);
-            IOGraph *iog = ioGraphs_.at(i);
-            if (iog->filter().compare(displayFilter) == 0 &&
+    if (!is_sibling_dialog) {
+        bool filterExists = false;
+        if (uat_model_->rowCount() > 0) {
+            for (int i = 0; i < uat_model_->rowCount(); i++) {
+                createIOGraph(i);
+                IOGraph *iog = ioGraphs_.at(i);
+                if (iog->filter().compare(displayFilter) == 0 &&
                     iog->valueUnitField().compare(yfield) == 0 &&
                     iog->valueUnits() == value_units) {
-                filterExists = true;
+                    filterExists = true;
+                }
+            }
+        } else {
+            addDefaultGraph(true, 0);
+            addDefaultGraph(true, 1);
+        }
+
+        if (! filterExists && (!displayFilter.isEmpty() || !yfield.isEmpty())) {
+            addGraph(true, false, displayFilter, value_units, yfield);
+        }
+    }
+    else {
+        /* If the display filter was propagated up to here (presence of a display filter in the main window and
+         * checkbox enabled on the conversation dialog), we are performing a 'graph disaggregation' : we are
+         * displaying both the filtered packets and (some/all of) their related selected conversations.
+         */
+        if (uat_model_->rowCount() > 0) {
+            for (int i = 0; i < uat_model_->rowCount(); i++) {
+                createIOGraph(i);
             }
         }
-    } else {
-        addDefaultGraph(true, 0);
-        addDefaultGraph(true, 1);
-    }
-
-    if (! filterExists && (!displayFilter.isEmpty() || !yfield.isEmpty())) {
-        addGraph(true, false, displayFilter, value_units, yfield);
+        else {
+            addDefaultGraph(true, 0);
+            addDefaultGraph(true, 1);
+        }
+        /* Filtered packets */
+        if (!displayFilter.isEmpty() || !yfield.isEmpty()) {
+            addGraph(true, false, displayFilter, value_units, yfield);
+        }
+        /* selected conversations from a sibling dialog (typically conversations dialog) */
+        for (int i = 0; i < convFilters.size(); ++i) {
+            addGraph(true, false, convFilters.at(i), convFilters.at(i), ColorUtils::graphColor(uat_model_->rowCount()),
+                IOGraph::psLine, IOG_ITEM_UNIT_PACKETS, QString(), DEFAULT_MOVING_AVERAGE, DEFAULT_Y_AXIS_FACTOR);
+        }
     }
 
     toggleTracerStyle(true);

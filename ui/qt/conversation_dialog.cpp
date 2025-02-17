@@ -89,6 +89,10 @@ ConversationDialog::ConversationDialog(QWidget &parent, CaptureFile &cf) :
     graph_bt_->setToolTip(tr("Graph a TCP conversation."));
     connect(graph_bt_, &QPushButton::clicked, this, &ConversationDialog::graphTcp);
 
+    iograph_bt_ = buttonBox()->addButton(tr("I/O Graphs"), QDialogButtonBox::ActionRole);
+    iograph_bt_->setToolTip(tr("I/OGraph TCP conversations."));
+    connect(iograph_bt_, SIGNAL(clicked()), this, SLOT(showGraphIO()));
+
     connect(mainApp->mainWindow(), &MainWindow::displayFilterSuccess, this, &ConversationDialog::displayFilterSuccess);
 
     absoluteTimeCheckBox()->show();
@@ -148,6 +152,73 @@ void ConversationDialog::graphTcp()
     emit filterAction(filter, FilterAction::ActionApply, FilterAction::ActionTypePlain);
 }
 
+void ConversationDialog::showGraphIO()
+{
+    int endpointType = trafficTab()->currentItemData(ATapDataModel::ENDPOINT_DATATYPE).toInt();
+
+    /* get protoId from its corresponding proto shortname
+     *
+     * XXX - we could directly get this value from a stored value at the
+     * conversation level, but doing it here is a good compromise (lower memory
+     * consumption, lesser function calls)
+     */
+    int protoId;
+    switch(endpointType) {
+        case CONVERSATION_TCP:
+            protoId = proto_get_id_by_short_name("TCP");
+            break;
+        case CONVERSATION_UDP:
+            protoId = proto_get_id_by_short_name("UDP");
+            break;
+        case CONVERSATION_IP:
+            protoId = proto_get_id_by_short_name("IPv4");
+            break;
+        case CONVERSATION_IPV6:
+            protoId = proto_get_id_by_short_name("IPv6");
+            break;
+        case CONVERSATION_ETH:
+            protoId = proto_get_id_by_short_name("Ethernet");
+            break;
+        default:
+            return;
+            break;
+    }
+
+    QVector<uint> typed_conv_ids;
+    QVector<QVariant> agg_conv_filters;
+
+    /* First element of the list is the protoId, */
+    typed_conv_ids.append(protoId);
+    agg_conv_filters.append(protoId);
+
+    QList<QList<QVariant>> lst_ids = trafficTab()->selectedItemsIOGData();
+
+    /* and it is followed by all selected conversations IDs,
+     * for both id based list, and aggregated list
+     * If no conversation is selected, just go ahead with the
+     * default dialog. */
+
+    if(lst_ids.size()>0) {
+        // id based list
+        QList<QVariant> lst_vars = lst_ids.at(0);
+        for (qsizetype i = 1; i < lst_vars.size(); ++i) {
+            typed_conv_ids.append(lst_vars[i].toInt());
+        }
+
+        // aggregated based list
+        lst_vars = lst_ids.at(1);
+        for (qsizetype i = 1; i < lst_vars.size(); ++i) {
+            agg_conv_filters.append(lst_vars[i]);
+        }
+    }
+
+    /* Trigger the I/O Graph window opening by emitting the signal with the necessary information:
+     *   whether the Filter Display is to be applied for a graph
+     *   the QVector containting the TCP selected conversations IDs
+     */
+    emit openIOGraph(this->displayFilterCheckBox()->isChecked(), typed_conv_ids, agg_conv_filters);
+}
+
 void ConversationDialog::tabChanged(int)
 {
     // By default we'll open the last known opened tab from the Profile
@@ -155,6 +226,7 @@ void ConversationDialog::tabChanged(int)
 
     bool follow = false;
     bool graph = false;
+    bool iograph = false;
 
     if (!file_closed_) {
         QVariant current_tab_var = trafficTab()->tabBar()->tabData(trafficTab()->currentIndex());
@@ -181,15 +253,29 @@ void ConversationDialog::tabChanged(int)
             }
         }
         int endpointType = trafficTab()->currentItemData(ATapDataModel::ENDPOINT_DATATYPE).toInt();
+
+        /* endpoints allowing I/O Graph */
         switch(endpointType) {
             case CONVERSATION_TCP:
-                graph = true;
+            case CONVERSATION_UDP:
+            case CONVERSATION_IP:
+            case CONVERSATION_IPV6:
+            case CONVERSATION_ETH:
+                iograph = true;
+                qlonglong selectedCount = trafficTab()->countSelectedItems(ATapDataModel::ENDPOINT_DATATYPE);
+                if(selectedCount>1) {
+                    follow = false;
+                }
+                else {
+                    graph = true;
+                }
                 break;
         }
     }
 
     follow_bt_->setEnabled(follow);
     graph_bt_->setEnabled(graph);
+    iograph_bt_->setEnabled(iograph);
 
     TrafficTableDialog::currentTabChanged();
 }

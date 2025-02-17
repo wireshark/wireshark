@@ -230,7 +230,9 @@ exported without special formatting, but this can be enabled if needed.
 
 The btn:[Follow Stream...] button will show the stream contents as described
 in <<ChAdvFollowStream>> dialog. The btn:[Graph...] button will show a
-Time Sequence graph as described in <<ChStatTCPStreamGraphs>>.
+Time Sequence graph as described in <<ChStatTCPStreamGraphs>>. The
+btn:[I/O Graphs...] will open the I/O Graph dialog described in
+<<ChStatIOGraphs>>, with the selected conversations.
 
 
 btn:[Protocol] lets you choose which traffic type tabs are shown.

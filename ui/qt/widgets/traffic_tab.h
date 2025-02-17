@@ -185,6 +185,23 @@ public:
     QVariant currentItemData(int role = Qt::DisplayRole);
 
     /**
+     * @brief Return the number of currently selected items in the currently
+     * displayed treeview.
+     *
+     * @param role the role to be used, defaults to Qt::DisplayRole
+     * @return qlonglong the number of selected items
+     */
+    qlonglong countSelectedItems(int role = Qt::DisplayRole);
+
+    /**
+     * @brief Return a list of IOGraph related data, for the currently selected
+     * index or indexes in the currently displayed treeview.
+     *
+     * @return QList of IOGraph related data expressed in QVariant types
+     */
+    QList<QList<QVariant> > selectedItemsIOGData();
+
+    /**
      * @brief Use nanosecond timestamps if requested
      *
      * @param useNSTime use nanosecond timestamps if required and requested
@@ -206,7 +223,7 @@ public slots:
 
 signals:
     void filterAction(QString filter, FilterAction::Action action, FilterAction::ActionType type);
-    void tabDataChanged(int idx);
+    void tabDataChanged(int idx, int selcounter);
     void retapRequired();
     void disablingTaps();
     void tabsChanged(QList<int> protocols);
@@ -244,6 +261,7 @@ private slots:
     void modelReset();
 
     void doCurrentIndexChange(const QModelIndex & cur, const QModelIndex & prev);
+    void doSelectionChange(const QItemSelection &selected, const QItemSelection &deselected);
 };
 
 #endif // TRAFFIC_TAB_H
