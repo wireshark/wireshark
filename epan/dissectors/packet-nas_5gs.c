@@ -10386,12 +10386,12 @@ de_nas_5gs_ue_policies_andsp_wlansp_rule(tvbuff_t* tvb, packet_info* pinfo _U_, 
             for (k = 0; k < num_sub_entr; k++) {
                 switch (sel_crit_set_type) {
                 case 1: /* preferred SSID list*/
-                    /* Skip ovrer the list*/
+                    /* Skip over the list*/
                     k = num_sub_entr;
                     offset += sel_crit_set_len - 1;
                     break;
                 case 2: /* preferred roaming partner list,*/
-                    /* Skip ovrer the list*/
+                    /* Skip over the list*/
                     k = num_sub_entr;
                     offset += sel_crit_set_len - 1;
                     break;
@@ -10415,12 +10415,12 @@ de_nas_5gs_ue_policies_andsp_wlansp_rule(tvbuff_t* tvb, packet_info* pinfo _U_, 
                     offset += sub_ent_len;
                     break;
                 case 5: /* minimum backhaul threshold */
-                    /* Skip ovrer the list*/
+                    /* Skip over the list*/
                     k = num_sub_entr;
                     offset += sel_crit_set_len - 1;
                     break;
                 default:
-                    /* Skip ovrer the list*/
+                    /* Skip over the list*/
                     k = num_sub_entr;
                     offset += sel_crit_set_len - 1;
                     break;
