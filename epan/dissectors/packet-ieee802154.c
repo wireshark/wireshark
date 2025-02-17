@@ -2985,10 +2985,12 @@ ieee802154_dissect_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, u
      */
     /* All of the beacon fields, except the beacon payload are considered nonpayload. */
     if ((packet->frame_type != IEEE802154_FCF_MULTIPURPOSE) && ((packet->version == IEEE802154_VERSION_2003) || (packet->version == IEEE802154_VERSION_2006))) {
-        if (packet->frame_type == IEEE802154_FCF_BEACON) { /* Regular Beacon. Some are not present in frame version (Enhanced) Beacons */
-            dissect_ieee802154_superframe(tvb, pinfo, ieee802154_tree, &offset); /* superframe spec */
-            dissect_ieee802154_gtsinfo(tvb, pinfo, ieee802154_tree, &offset);    /* GTS information fields */
-            dissect_ieee802154_pendaddr(tvb, pinfo, ieee802154_tree, &offset);   /* Pending address list */
+        if (tvb_reported_length(tvb) > offset) {
+            if (packet->frame_type == IEEE802154_FCF_BEACON) { /* Regular Beacon. Some are not present in frame version (Enhanced) Beacons */
+                dissect_ieee802154_superframe(tvb, pinfo, ieee802154_tree, &offset); /* superframe spec */
+                dissect_ieee802154_gtsinfo(tvb, pinfo, ieee802154_tree, &offset);    /* GTS information fields */
+                dissect_ieee802154_pendaddr(tvb, pinfo, ieee802154_tree, &offset);   /* Pending address list */
+            }
         }
 
         if (packet->frame_type == IEEE802154_FCF_CMD) {
