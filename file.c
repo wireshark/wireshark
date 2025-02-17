@@ -4877,7 +4877,6 @@ cf_select_packet(capture_file *cf, frame_data *fdata)
     /* We don't need the columns here. */
     cf->edt = epan_dissect_new(cf->epan, true, true);
 
-    tap_build_interesting(cf->edt);
     epan_dissect_run(cf->edt, cf->cd_t, &cf->rec, cf->current_frame, NULL);
 
     if (old_edt != NULL)

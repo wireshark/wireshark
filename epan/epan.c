@@ -657,6 +657,9 @@ epan_dissect_run(epan_dissect_t *edt, int file_type_subtype,
 	wtap_rec *rec, frame_data *fd, column_info *cinfo)
 {
 #ifdef HAVE_LUA
+	/* Prime with the fields used by field extractors. We don't need
+	 * to do this when running the taps because the wslua_dfilter is
+	 * registered to a fake tap. */
 	wslua_prime_dfilter(edt); /* done before entering wmem scope */
 #endif
 	wmem_enter_packet_scope();
