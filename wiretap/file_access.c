@@ -180,6 +180,8 @@ static const struct file_extension_info file_type_extensions_base[] = {
 	{ "MP4 file", false, "mp4" },
 	{ "RTPDump file", false, "rtp;rtpdump" },
 	{ "EMS file", false, "ems" },
+	{ "ASN.1 Basic Encoding Rules", false, "cer;crl;csr;p10;p12;p772;p7c;p7s;p7m;p8;pfx;tsq;tsr" },
+	{ "RFC 7468 files", false, "crt;pem" },
 };
 
 #define	N_FILE_TYPE_EXTENSIONS	array_length(file_type_extensions_base)
