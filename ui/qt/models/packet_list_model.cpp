@@ -553,14 +553,14 @@ void PacketListModel::sort(int column, Qt::SortOrder order)
     if (physical_rows_.count() < 1)
         return;
 
-    sort_column_ = column;
-    text_sort_column_ = PacketListRecord::textColumn(column);
-    sort_order_ = order;
-    sort_cap_file_ = cap_file_;
-
     QString col_title = get_column_title(column);
 
-    if (text_sort_column_ >= 0 && (unsigned)visible_rows_.count() > prefs.gui_packet_list_cached_rows_max) {
+    /* Make sure we're actually going to sort. Note that the header
+     * has no way of knowing that sorting failed, so in these cases
+     * the sort indicator have the value that the user requested
+     * regardless.
+     */
+    if (PacketListRecord::textColumn(column) >= 0 && (unsigned)visible_rows_.count() > prefs.gui_packet_list_cached_rows_max) {
         /* Column not based on frame data but by column text that requires
          * dissection, so to sort in a reasonable amount of time the column
          * text needs to be cached.
@@ -587,15 +587,28 @@ void PacketListModel::sort(int column, Qt::SortOrder order)
      * Similarly, claim the read lock because we don't want the file to
      * change out from under us while sorting, which can segfault. (Previously
      * we ignored user input, but now in order to cancel sorting we don't.)
+     *
+     * This also means we can't sort while still sorting. That would crash
+     * too, because recordLessThan depends on the value of class private
+     * variables, and so we can't change them while a previous sort is using
+     * them. Maybe if we made the comparison function a closure using the
+     * current values.
      */
     if (sort_cap_file_->read_lock) {
         ws_info("Refusing to sort because capture file is being read");
         /* We shouldn't have to tell the user because we're just deferring
-         * the sort until PacketList::captureFileReadFinished
+         * the sort until PacketList::captureFileReadFinished; the case
+         * where we don't sort because we're currently sorting is perhaps
+         * slightly more surprising to the user, but there is a progress bar.
+         * So maybe we should push a status message after all?
          */
         return;
     }
     sort_cap_file_->read_lock = true;
+    sort_order_ = order;
+    sort_column_ = column;
+    text_sort_column_ = PacketListRecord::textColumn(column);
+    sort_cap_file_ = cap_file_;
 
     QString busy_msg;
     if (!col_title.isEmpty()) {
