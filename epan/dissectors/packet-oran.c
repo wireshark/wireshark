@@ -560,6 +560,8 @@ static int  pref_support_udcompLen = 2;            /* start heuristic, can force
 static bool udcomplen_heuristic_result_set = false;
 static bool udcomplen_heuristic_result = false;
 
+/* st6-4byte-alignment-required */
+static bool st6_4byte_alignment = false;
 
 static const enum_val_t dl_compression_options[] = {
     { "COMP_NONE",                             "No Compression",                                                             COMP_NONE },
@@ -597,6 +599,7 @@ static const enum_val_t udcomphdr_present_options[] = {
     { "HEURISTIC",                 "Attempt Heuristic", 2 },
     { NULL, NULL, 0 }
 };
+
 
 
 static const value_string e_bit[] = {
@@ -2365,7 +2368,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                 float value = decompress_value(bits, ci_comp_meth, ci_iq_width, exponent);
 
                 /* Add to tree. */
-                proto_tree_add_float_format_value(sample_tree, hf_oran_ciIsample, tvb, bit_offset/8, (16+7)/8, value, "#%u=%f", m, value);
+                proto_tree_add_float_format_value(sample_tree, hf_oran_ciIsample, tvb, bit_offset/8, (ci_iq_width+7)/8, value, "#%u=%f", m, value);
                 bit_offset += ci_iq_width;
                 proto_item_append_text(sample_ti, "I%u=%f ", m, value);
 
@@ -2375,13 +2378,16 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                 value = decompress_value(bits, ci_comp_meth, ci_iq_width, exponent);
 
                 /* Add to tree. */
-                proto_tree_add_float_format_value(sample_tree, hf_oran_ciQsample, tvb, bit_offset/8, (16+7)/8, value, "#%u=%f", m, value);
+                proto_tree_add_float_format_value(sample_tree, hf_oran_ciQsample, tvb, bit_offset/8, (ci_iq_width+7)/8, value, "#%u=%f", m, value);
                 bit_offset += ci_iq_width;
                 proto_item_append_text(sample_ti, "Q%u=%f ", m, value);
             }
-            proto_item_set_len(prb_ti, (bit_offset-prb_start_offset)/8);
+            proto_item_set_len(prb_ti, (bit_offset-prb_start_offset+7)/8);
         }
-        offset = (bit_offset/8);
+
+        /* Pad out by 1 or 4 bytes, according to preference */
+        offset = (bit_offset + ((st6_4byte_alignment ? 31 : 7) / 8));
+        proto_item_set_end(c_section_tree, tvb, offset);
     }
 
     bool seen_se10 = false;
@@ -4957,10 +4963,10 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo,
                     }
                     offset += 2;
 
-                    /* disableTDBFNs */
+                    /* disableTDBFNs (1 bit) */
                     proto_tree_add_item_ret_boolean(command_tree, hf_oran_disable_tdbfns, tvb, offset, 1, ENC_BIG_ENDIAN, &disable_tdbfns);
 
-                    /* tdBeamNum  */
+                    /* tdBeamNum (15 bits) */
                     proto_tree_add_item(command_tree, hf_oran_td_beam_num, tvb, offset, 2, ENC_BIG_ENDIAN);
                     offset += 2;
 
@@ -4979,11 +4985,11 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo,
                     /* Read beam entries until reach end of command length */
                     while ((offset - command_start_offset) < (st4_cmd_len * 4)) {
 
-                        /* disableTDBFWs */
+                        /* disableTDBFWs (1 bit) */
                         bool disable_tdbfws;
                         proto_tree_add_item_ret_boolean(command_tree, hf_oran_disable_tdbfws, tvb, offset, 1, ENC_BIG_ENDIAN, &disable_tdbfws);
 
-                        /* tdBeamNum  */
+                        /* tdBeamNum (15 bits) */
                         proto_tree_add_item(command_tree, hf_oran_td_beam_num, tvb, offset, 2, ENC_BIG_ENDIAN);
                         offset += 2;
 
@@ -8375,6 +8381,9 @@ proto_register_oran(void)
     prefs_register_enum_preference(oran_module, "oran.support_udcomplen", "udCompLen supported",
         "When enabled, U-Plane messages with relevant compression schemes will include udCompLen",
         &pref_support_udcompLen, udcomp_support_options, false);
+
+    prefs_register_bool_preference(oran_module, "oran.st6_4byte_alignment_required", "Use 4-byte alignment for ST6 sections",
+        "Default is 1-byte alignment", &st6_4byte_alignment);
 
     flow_states_table = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
     flow_results_table = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
