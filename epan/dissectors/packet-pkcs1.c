@@ -679,6 +679,12 @@ void proto_reg_handoff_pkcs1(void) {
 	register_ber_oid_dissector("2.16.840.1.101.3.4.3.1", dissect_ber_oid_NULL_callback, proto_pkcs1, "id-dsa-with-sha224");
 	register_ber_oid_dissector("2.16.840.1.101.3.4.3.2", dissect_ber_oid_NULL_callback, proto_pkcs1, "id-dsa-with-sha256");
 
+	/* Curve25519 and Curve448 algorithms from RFC 8410 */
+	register_ber_oid_dissector("1.3.101.110", dissect_ber_oid_NULL_callback, proto_pkcs1, "id-X25519");
+	register_ber_oid_dissector("1.3.101.111", dissect_ber_oid_NULL_callback, proto_pkcs1, "id-X448");
+	register_ber_oid_dissector("1.3.101.112", dissect_ber_oid_NULL_callback, proto_pkcs1, "id-Ed25519");
+	register_ber_oid_dissector("1.3.101.113", dissect_ber_oid_NULL_callback, proto_pkcs1, "id-Ed448");
+
 	oid_add_from_string("secp192r1","1.2.840.10045.3.1.1");
 	oid_add_from_string("sect163k1","1.3.132.0.1");
 	oid_add_from_string("sect163r2","1.3.132.0.15");
