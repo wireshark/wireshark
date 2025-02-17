@@ -2107,7 +2107,7 @@ proto_mpeg_descriptor_dissect_mosaic(tvbuff_t *tvb, unsigned offset, unsigned le
     while (offset < end) {
         unsigned l_cell_len = proto_mpeg_descriptor_dissect_mosaic_measure_l_cell_len(tvb, offset);
 
-        uint8_t logical_cell_id = tvb_get_bits(tvb, offset*8, 6, ENC_BIG_ENDIAN);
+        uint8_t logical_cell_id = tvb_get_bits32(tvb, offset*8, 6, ENC_BIG_ENDIAN);
         proto_tree *cell_tree = proto_tree_add_subtree_format(tree, tvb, offset, l_cell_len, ett_mpeg_descriptor_mosaic_logical_cell, NULL, "Logical Cell 0x%02x", logical_cell_id);
         proto_tree_add_item(cell_tree, hf_mpeg_descr_mosaic_logical_cell_id, tvb, offset, 2, ENC_BIG_ENDIAN);
         proto_tree_add_item(cell_tree, hf_mpeg_descr_mosaic_reserved_future_use2, tvb, offset, 2, ENC_BIG_ENDIAN);

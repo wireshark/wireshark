@@ -5204,7 +5204,7 @@ static CSN_CallBackStatus_t callback_UTRAN_FDD_compute_FDD_CELL_INFORMATION(prot
 
       while (idx > 0)
       {
-        w[i] = tvb_get_bits(tvb, curr_bit_offset, wsize, ENC_BIG_ENDIAN);
+        w[i] = tvb_get_bits32(tvb, curr_bit_offset, wsize, ENC_BIG_ENDIAN);
         curr_bit_offset += wsize;
         idx -= wsize;
         if (w[i] == 0)
@@ -5307,7 +5307,7 @@ static CSN_CallBackStatus_t callback_UTRAN_TDD_compute_TDD_CELL_INFORMATION(prot
 
       while (idx > 0)
       {
-        w[i] = tvb_get_bits(tvb, curr_bit_offset, wsize, ENC_BIG_ENDIAN);
+        w[i] = tvb_get_bits32(tvb, curr_bit_offset, wsize, ENC_BIG_ENDIAN);
         curr_bit_offset += wsize;
         idx -= wsize;
         if (w[i] == 0)

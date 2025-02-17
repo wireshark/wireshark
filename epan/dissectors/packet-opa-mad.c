@@ -4778,7 +4778,7 @@ static int parse_Aggregate(proto_tree *parentTree, tvbuff_t *tvb, int *offset, M
         local_offset += 2;
         proto_item_set_text(Aggregate_header_item, "Aggregate %u: %s", i + 1, val_to_str(LocalAttributeID, SUBM_Attributes, "Unknown Attribute Type! (0x%02x)"));
 
-        AggregatError = (bool)tvb_get_bits(tvb, local_offset * 8, 1, ENC_BIG_ENDIAN);
+        AggregatError = (bool)tvb_get_bits32(tvb, local_offset * 8, 1, ENC_BIG_ENDIAN);
         Aggregate_Error_item = proto_tree_add_item(Aggregate_header_tree, hf_opa_Aggregate_Error, tvb, local_offset, 2, ENC_BIG_ENDIAN);
         if (AggregatError)
             expert_add_info(NULL, Aggregate_Error_item, &ei_opa_aggregate_error);

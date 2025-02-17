@@ -409,13 +409,13 @@ de_gsm_r_uus1_elda(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, uint
     lat_tree = proto_item_add_subtree(lat_item, ett_gsm_r_uus1_elda_lat);
 
     val = tvb_get_uint32(tvb, curr_offset, ENC_NA);
-    lat_deg_val = tvb_get_bits(tvb, bit_offset, 7, ENC_NA);
+    lat_deg_val = tvb_get_bits32(tvb, bit_offset, 7, ENC_BIG_ENDIAN);
     bit_offset += 7;
-    lat_min_val = tvb_get_bits(tvb, bit_offset, 6, ENC_NA);
+    lat_min_val = tvb_get_bits32(tvb, bit_offset, 6, ENC_BIG_ENDIAN);
     bit_offset += 6;
-    lat_sec_val = tvb_get_bits(tvb, bit_offset, 13, ENC_NA);
+    lat_sec_val = tvb_get_bits32(tvb, bit_offset, 13, ENC_BIG_ENDIAN);
     bit_offset += 13;
-    lat_hem_val = tvb_get_bits(tvb, bit_offset, 1, ENC_NA);
+    lat_hem_val = tvb_get_bits32(tvb, bit_offset, 1, ENC_BIG_ENDIAN);
     bit_offset += 1;
 
     proto_tree_add_uint(lat_tree, hf_gsm_r_uus1_elda_lat_deg, tvb, curr_offset, 4, val);
@@ -433,13 +433,13 @@ de_gsm_r_uus1_elda(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, uint
     long_tree = proto_item_add_subtree(long_item, ett_gsm_r_uus1_elda_long);
 
     val = tvb_get_uint32(tvb, curr_offset, ENC_NA);
-    long_deg_val = tvb_get_bits(tvb, bit_offset, 8, ENC_NA);
+    long_deg_val = tvb_get_bits32(tvb, bit_offset, 8, ENC_BIG_ENDIAN);
     bit_offset += 8;
-    long_min_val = tvb_get_bits(tvb, bit_offset, 6, ENC_NA);
+    long_min_val = tvb_get_bits32(tvb, bit_offset, 6, ENC_BIG_ENDIAN);
     bit_offset += 6;
-    long_sec_val = tvb_get_bits(tvb, bit_offset, 13, ENC_NA);
+    long_sec_val = tvb_get_bits32(tvb, bit_offset, 13, ENC_BIG_ENDIAN);
     bit_offset += 13;
-    long_hem_val = tvb_get_bits(tvb, bit_offset, 1, ENC_NA);
+    long_hem_val = tvb_get_bits32(tvb, bit_offset, 1, ENC_BIG_ENDIAN);
     bit_offset += 1;
 
     proto_tree_add_uint(long_tree, hf_gsm_r_uus1_elda_long_deg, tvb, curr_offset, 4, val);
@@ -455,17 +455,17 @@ de_gsm_r_uus1_elda(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, uint
     /* Height, Speed, Heading */
 
     // height step 1m. Range: -100m...+4500m
-    t_val = tvb_get_bits(tvb, bit_offset, 13, ENC_NA) - 100;
+    t_val = tvb_get_bits32(tvb, bit_offset, 13, ENC_BIG_ENDIAN) - 100;
     proto_tree_add_int(sub_tree, hf_gsm_r_uus1_elda_height, tvb, curr_offset, 4, t_val);
     bit_offset += 13;
 
     // speed step 10 km/h
-    t_val = tvb_get_bits(tvb, bit_offset, 6, ENC_NA) * 10;
+    t_val = tvb_get_bits32(tvb, bit_offset, 6, ENC_BIG_ENDIAN) * 10;
     proto_tree_add_uint(sub_tree, hf_gsm_r_uus1_elda_speed, tvb, curr_offset, 4, t_val);
     bit_offset += 6;
 
     // heading step 10 deg
-    t_val = tvb_get_bits(tvb, bit_offset, 6, ENC_NA) * 10;
+    t_val = tvb_get_bits32(tvb, bit_offset, 6, ENC_BIG_ENDIAN) * 10;
     proto_tree_add_uint(sub_tree, hf_gsm_r_uus1_elda_heading, tvb, curr_offset, 4, t_val);
     bit_offset += 6;
 
@@ -474,22 +474,22 @@ de_gsm_r_uus1_elda(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, uint
     /* Elapsed Time, Distance, Scale, Spare */
 
     // time step 1 second. Range: 0...2047
-    t_val = tvb_get_bits(tvb, bit_offset, 11, ENC_NA);
+    t_val = tvb_get_bits32(tvb, bit_offset, 11, ENC_BIG_ENDIAN);
     proto_tree_add_uint(sub_tree, hf_gsm_r_uus1_elda_e_time, tvb, curr_offset, 4, t_val);
     bit_offset += 11;
 
     // distance step = 10 cm, 1 m or 10 m depending on the parameter Scale
-    t_val = tvb_get_bits(tvb, bit_offset, 14, ENC_NA);
+    t_val = tvb_get_bits32(tvb, bit_offset, 14, ENC_BIG_ENDIAN);
     proto_tree_add_uint(sub_tree, hf_gsm_r_uus1_elda_distance, tvb, curr_offset, 4, t_val);
     bit_offset += 14;
 
     // scale
-    t_val = tvb_get_bits(tvb, bit_offset, 2, ENC_NA);
+    t_val = tvb_get_bits32(tvb, bit_offset, 2, ENC_BIG_ENDIAN);
     proto_tree_add_uint(sub_tree, hf_gsm_r_uus1_elda_scale, tvb, curr_offset, 4, t_val);
     bit_offset += 2;
 
     // spare
-    t_val = tvb_get_bits(tvb, bit_offset, 5, ENC_NA);
+    t_val = tvb_get_bits32(tvb, bit_offset, 5, ENC_BIG_ENDIAN);
     proto_tree_add_uint(sub_tree, hf_gsm_r_uus1_elda_spare, tvb, curr_offset, 4, t_val);
 
     return 16;

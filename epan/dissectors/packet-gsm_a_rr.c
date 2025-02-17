@@ -1579,7 +1579,7 @@ static void dissect_channel_list_n_range(tvbuff_t *tvb, proto_tree *tree, packet
     }
     else {
         bit_offset = curr_offset*8 + 7;
-        arfcn_orig = (int) tvb_get_bits(tvb, bit_offset, 10, false);
+        arfcn_orig = tvb_get_bits32(tvb, bit_offset, 10, ENC_BIG_ENDIAN);
         proto_tree_add_bits_item(subtree, hf_n_range_orig_arfcn, tvb, bit_offset, 10, ENC_BIG_ENDIAN);
         bit_offset+=10;
 
@@ -1606,7 +1606,7 @@ static void dissect_channel_list_n_range(tvbuff_t *tvb, proto_tree *tree, packet
 
     /* extract the variable size w[] elements */
     for (i=1; i<=imax; i++) {
-        w[i] = (int) tvb_get_bits(tvb, bit_offset, wsize, false);
+        w[i] = tvb_get_bits32(tvb, bit_offset, wsize, ENC_BIG_ENDIAN);
         proto_tree_add_bytes_format(subtree, hf_gsm_a_rr_w_elements, tvb, bit_offset>>3, ((bit_offset+wsize-1)>>3) - (bit_offset>>3) + 1 , NULL, "%s W(%d): %d",
                             decode_bits_in_field(pinfo->pool, bit_offset, wsize, w[i], ENC_BIG_ENDIAN),
                             i,
@@ -1919,7 +1919,7 @@ de_rr_cell_select_indic(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
 
                     while (idx > 0)
                     {
-                        w[i] = tvb_get_bits(tvb, bit_offset, wsize, ENC_BIG_ENDIAN);
+                        w[i] = tvb_get_bits32(tvb, bit_offset, wsize, ENC_BIG_ENDIAN);
                         bit_offset += wsize;
                         idx -= wsize;
                         if (w[i] == 0)
@@ -1991,7 +1991,7 @@ de_rr_cell_select_indic(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
 
                     while (idx > 0)
                     {
-                        w[i] = tvb_get_bits(tvb, bit_offset, wsize, ENC_BIG_ENDIAN);
+                        w[i] = tvb_get_bits32(tvb, bit_offset, wsize, ENC_BIG_ENDIAN);
                         bit_offset += wsize;
                         idx -= wsize;
                         if (w[i]  ==  0)
@@ -5732,7 +5732,7 @@ de_rr_si2quater_meas_info_utran_fdd_desc(tvbuff_t *tvb, proto_tree *tree, int bi
 
             while (idx > 0)
             {
-                w[i] = tvb_get_bits(tvb, curr_bit_offset, wsize, ENC_BIG_ENDIAN);
+                w[i] = tvb_get_bits32(tvb, curr_bit_offset, wsize, ENC_BIG_ENDIAN);
                 curr_bit_offset += wsize;
                 idx -= wsize;
                 if (w[i] == 0)
@@ -5812,7 +5812,7 @@ de_rr_si2quater_meas_info_utran_tdd_desc(tvbuff_t *tvb, proto_tree *tree, int bi
 
             while (idx > 0)
             {
-                w[i] = tvb_get_bits(tvb, curr_bit_offset, wsize, ENC_BIG_ENDIAN);
+                w[i] = tvb_get_bits32(tvb, curr_bit_offset, wsize, ENC_BIG_ENDIAN);
                 curr_bit_offset += wsize;
                 idx -= wsize;
                 if (w[i] == 0)

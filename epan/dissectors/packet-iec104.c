@@ -2171,7 +2171,7 @@ static void dissect_iec60870_segment(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 {
 	uint32_t msg_seqid = 0;
 
-	bool final_segment = tvb_get_bits(tvb, (*offset << 3) + 0, 1, ENC_LITTLE_ENDIAN) == 1;
+	bool final_segment = tvb_get_bits32(tvb, (*offset << 3) + 0, 1, ENC_LITTLE_ENDIAN) == 1;
 
 	proto_tree_add_item(tree, hf_asn_fin, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
 	proto_tree_add_item(tree, hf_asn_fir, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
