@@ -916,6 +916,13 @@ static int hf_nas_5gs_wlansp_criteria_priority;
 static int hf_nas_5gs_wlansp_sel_crit_set_len;
 static int hf_nas_5gs_wlansp_sel_crit_set_type;
 static int hf_nas_5gs_wlansp_sel_crit_num_sub_entr;
+static int hf_nas_5gs_wlansp_pref_ssid_list_wlan_prio;
+static int hf_nas_5gs_wlansp_ssid_len;
+static int hf_nas_5gs_wlansp_pref_ssid_list_ssid_ind;
+static int hf_nas_5gs_wlansp_pref_ssid_list_hessid_ind;
+static int hf_nas_5gs_wlansp_pref_ssid_list_ssid;
+static int hf_nas_5gs_wlansp_pref_ssid_list_hessid;
+
 static int hf_nas_5gs_wlansp_req_prot_ip_prot;
 static int hf_nas_5gs_wlansp_req_prot_port_len;
 static int hf_nas_5gs_wlansp_req_prot_port;
@@ -10327,6 +10334,12 @@ de_nas_5gs_ue_policies_andsp_wlansp_rule(tvbuff_t* tvb, packet_info* pinfo _U_, 
     NULL
     };
 
+    static int* const flags3[] = {
+    &hf_nas_5gs_wlansp_pref_ssid_list_hessid_ind,
+    &hf_nas_5gs_wlansp_pref_ssid_list_ssid_ind,
+    NULL
+    };
+
     /* 5.3.2 Encoding of WLANSP */
     /* WLANSP rule */
     int i = 0;
@@ -10382,13 +10395,33 @@ de_nas_5gs_ue_policies_andsp_wlansp_rule(tvbuff_t* tvb, packet_info* pinfo _U_, 
             proto_tree_add_item_ret_uint(sel_crit_entry_sub_tree, hf_nas_5gs_wlansp_sel_crit_set_type, tvb, offset, 1, ENC_BIG_ENDIAN, &sel_crit_set_type);
             proto_tree_add_item_ret_uint(sel_crit_entry_sub_tree, hf_nas_5gs_wlansp_sel_crit_num_sub_entr, tvb, offset, 1, ENC_BIG_ENDIAN, &num_sub_entr);
             offset++;
-            uint32_t k = 0, req_prot_port_len;
+            uint32_t k, req_prot_port_len, ssid_len;
             for (k = 0; k < num_sub_entr; k++) {
                 switch (sel_crit_set_type) {
                 case 1: /* preferred SSID list*/
-                    /* Skip over the list*/
-                    k = num_sub_entr;
-                    offset += sel_crit_set_len - 1;
+                    /* Length of sub entry {set type = preferred SSID list} */
+                    proto_tree_add_item_ret_uint(sel_crit_entry_sub_tree, hf_nas_5gs_wlansp_sub_ent_len, tvb, offset, 1, ENC_BIG_ENDIAN, &sub_ent_len);
+                    offset++;
+                    /* WLAN priority */
+                    proto_tree_add_item(sel_crit_entry_sub_tree, hf_nas_5gs_wlansp_pref_ssid_list_wlan_prio, tvb, offset, 1, ENC_BIG_ENDIAN);
+                    offset++;
+                    /* 0 Spare HESS ID ind SSID ind */
+                    uint64_t retval3;
+                    proto_tree_add_bitmask_list_ret_uint64(sel_crit_entry_sub_tree, tvb, offset, 1, flags3, ENC_BIG_ENDIAN, &retval3);
+                    offset++;
+                    /* SSID length */
+                    proto_tree_add_item_ret_uint(sel_crit_entry_sub_tree, hf_nas_5gs_wlansp_ssid_len, tvb, offset, 1, ENC_BIG_ENDIAN, &ssid_len);
+                    offset++;
+                    /* SSID */
+                    if ((retval3 & 0x01) == 0x01) {
+                        proto_tree_add_item(sel_crit_entry_sub_tree, hf_nas_5gs_wlansp_pref_ssid_list_ssid, tvb, offset, ssid_len, ENC_UTF_8 | ENC_NA);
+                        offset += ssid_len;
+                    }
+                    /* HESSID */
+                    if ((retval3 & 0x02) == 0x02) {
+                        proto_tree_add_item(sel_crit_entry_sub_tree, hf_nas_5gs_wlansp_pref_ssid_list_hessid, tvb, offset, 6, ENC_NA);
+                        offset += 6;
+                    }
                     break;
                 case 2: /* preferred roaming partner list,*/
                     /* Skip over the list*/
@@ -15613,6 +15646,36 @@ proto_register_nas_5gs(void)
         { &hf_nas_5gs_wlansp_sel_crit_num_sub_entr,
         { "Number of sub entries", "nas-5gs.andsp.wlansp.sel_crit_num_sub_entr",
             FT_UINT8, BASE_DEC, NULL, 0x0f,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_wlansp_pref_ssid_list_wlan_prio,
+        { "WLAN priority", "nas-5gs.andsp.wlansp.wlansp_pref_ssid_list_wlan_prio",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_wlansp_ssid_len,
+        { "SSID length", "nas-5gs.andsp.wlansp.pref_ssid_list_ssid_len",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_wlansp_pref_ssid_list_ssid,
+        { "SSID", "nas-5gs.andsp.wlansp.pref_ssid_list_ssid",
+            FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_wlansp_pref_ssid_list_hessid,
+        { "HESSID", "nas-5gs.andsp.wlansp.pref_ssid_list_hessid",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_wlansp_pref_ssid_list_ssid_ind,
+        { "SSID ind", "nas-5gs.andsp.wlansp.pref_ssid_list_ssid_ind",
+            FT_BOOLEAN, 8, NULL, 0x01,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_wlansp_pref_ssid_list_hessid_ind,
+        { "HESSID ind", "nas-5gs.andsp.wlansp.pref_ssid_list_hessid_ind",
+            FT_BOOLEAN, 8, NULL, 0x02,
             NULL, HFILL }
         },
         { &hf_nas_5gs_wlansp_sub_ent_len,
