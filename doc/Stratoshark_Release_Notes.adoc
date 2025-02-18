@@ -27,6 +27,8 @@ If you or your organization would like to contribute or become a sponsor, please
 // Many other improvements have been made.
 // See the “New and Updated Features” section below for more details.
 
+// The following changes have been made since version 0.9.1:
+
 The following changes have been made since version 0.9.0:
 
 * The application icons have been updated.
@@ -38,6 +40,10 @@ The following changes have been made since version 0.9.0:
 //* wsbuglink:6000[Stratoshark bug]
 //* cveidlink:2014-2486[]
 //* Stratoshark grabs your ID at 3 am, goes to Waffle House, and insults people.
+
+The following bugs have been fixed since version 0.9.1:
+
+* Stratoshark help message has Wiresharkisms in it. wsbuglink:20229[].
 
 The following bugs have been fixed since version 0.9.0:
 

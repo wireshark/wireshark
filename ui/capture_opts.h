@@ -63,12 +63,16 @@ extern "C" {
 
 #define OPTSTRING_I "I"
 
+// "interface" and "source" work for both Wireshark and Stratoshark flavors
+// but we only advertise the appropriate one in each application.
 #define LONGOPT_CAPTURE_COMMON \
     {"autostop",              ws_required_argument, NULL, 'a'}, \
     {"ring-buffer",           ws_required_argument, NULL, 'b'}, \
     {"buffer-size",           ws_required_argument, NULL, 'B'}, \
     {"list-interfaces",       ws_no_argument,       NULL, 'D'}, \
+    {"list-sources",          ws_no_argument,       NULL, 'D'}, \
     {"interface",             ws_required_argument, NULL, 'i'}, \
+    {"source",                ws_required_argument, NULL, 'i'}, \
     {"monitor-mode",          ws_no_argument,       NULL, 'I'}, \
     {"list-data-link-types",  ws_no_argument,       NULL, 'L'}, \
     {"no-promiscuous-mode",   ws_no_argument,       NULL, 'p'}, \

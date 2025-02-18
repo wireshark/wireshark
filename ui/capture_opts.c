@@ -484,6 +484,9 @@ get_ring_arguments(capture_options *capture_opts, const char *arg)
     } else if (strcmp(arg,"packets") == 0) {
         capture_opts->has_file_packets = true;
         capture_opts->file_packets = get_positive_int(p, "ring buffer packet count");
+    } else if (strcmp(arg,"events") == 0) {
+        capture_opts->has_file_packets = true;
+        capture_opts->file_packets = get_positive_int(p, "ring buffer event count");
     } else if (strcmp(arg,"printname") == 0) {
         capture_opts->print_file_names = true;
         capture_opts->print_name_to = g_strdup(p);
@@ -971,6 +974,7 @@ capture_opts_add_opt(capture_options *capture_opts, int opt, const char *optarg_
         break;
 #endif
     case 'b':        /* Ringbuffer option */
+        // XXX libscap and libsinsp don't support this, so we should probably error out if our flavor is Stratoshark.
         capture_opts->multi_files_on = true;
         if (get_ring_arguments(capture_opts, optarg_str_p) == false) {
             cmdarg_err("Invalid or unknown -b arg \"%s\"", optarg_str_p);
@@ -978,6 +982,7 @@ capture_opts_add_opt(capture_options *capture_opts, int opt, const char *optarg_
         }
         break;
     case 'B':        /* Buffer size */
+        // XXX Should we error out if our flavor is Stratoshark?
         if (capture_opts->ifaces->len > 0) {
             interface_options *interface_opts;
 
@@ -1026,6 +1031,7 @@ capture_opts_add_opt(capture_options *capture_opts, int opt, const char *optarg_
         }
         break;
     case 'I':        /* Capture in monitor mode */
+        // XXX Should we error out if our flavor is Stratoshark?
         if (capture_opts->ifaces->len > 0) {
             interface_options *interface_opts;
 
@@ -1055,6 +1061,7 @@ capture_opts_add_opt(capture_options *capture_opts, int opt, const char *optarg_
         capture_opts->use_pcapng = true;
         break;
     case 'p':        /* Don't capture in promiscuous mode */
+        // XXX Should we error out if our flavor is Stratoshark?
         if (capture_opts->ifaces->len > 0) {
             interface_options *interface_opts;
 
@@ -1081,6 +1088,7 @@ capture_opts_add_opt(capture_options *capture_opts, int opt, const char *optarg_
         break;
 #endif
     case 's':        /* Set the snapshot (capture) length */
+        // XXX Should we error out if our flavor is Stratoshark?
         snaplen = get_natural_int(optarg_str_p, "snapshot length");
         /*
          * Make a snapshot length of 0 equivalent to the maximum packet

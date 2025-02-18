@@ -138,32 +138,6 @@ Example: *-b filesize:1000 -b files:5* results in a ring buffer of five files
 of size one megabyte each.
 --
 
-////
--B|--buffer-size  <capture buffer size>::
-+
---
-Set capture buffer size (in MiB, default is 2 MiB).  This is used by
-the capture driver to buffer packet data until that data can be written
-to disk.  If you encounter packet drops while capturing, try to increase
-this size.  Note that, while *Stratoshark* attempts to set the buffer size
-to 2 MiB by default, and can be told to set it to a larger value, the
-system or interface on which you're capturing might silently limit the
-capture buffer size to a lower value or raise it to a higher value.
-
-This is available on UNIX-compatible systems, such as Linux, macOS,
-\*BSD, Solaris, and AIX, with libpcap 1.0.0 or later, and on Windows.
-It is not available on UNIX-compatible systems with earlier versions of
-libpcap.
-
-This option can occur multiple times.  If used before the first
-occurrence of the *-i* option, it sets the default capture buffer size.
-If used after an *-i* option, it sets the capture buffer size for
-the interface specified by the last *-i* option occurring before
-this option.  If the capture buffer size is not set specifically,
-the default capture buffer size is used instead.
---
-////
-
 -c  <capture event count>::
 Set the maximum number of events to read when capturing live
 data. Acts the same as *-a events:*<capture event count>.
@@ -182,14 +156,10 @@ This option may be specified multiple times.  Note that Stratoshark
 currently only displays the first comment of a capture file.
 --
 
--D|--list-interfaces::
-Print a list of the interfaces on which *Stratoshark* can capture, and
-exit.  For each network interface, a number and an interface name,
-possibly followed by a text description of the interface, is printed.
-The interface name or the number can be supplied to the *-i* flag to
-specify an interface on which to capture.  The number can be useful on
-Windows systems, where the interfaces have long names that usually
-contain a GUID.
+-D|--list-sources::
+Print a list of the sources from which *Stratoshark* can capture, and exit.
+For each source, a number and a source name, possibly followed by a text description of the source, is printed.
+The source name or the number can be supplied to the *-i* flag to specify a source from which to capture.
 
 --display <X display to use>::
 Specifies the X display to use.  A hostname and screen (otherhost:0.0)
@@ -204,7 +174,7 @@ Set the capture filter expression.
 This option can occur multiple times.  If used before the first
 occurrence of the *-i* option, it sets the default capture filter expression.
 If used after an *-i* option, it sets the capture filter expression for
-the interface specified by the last *-i* option occurring before
+the source specified by the last *-i* option occurring before
 this option.  If the capture filter expression is not set specifically,
 the default capture filter expression is used if provided.
 
@@ -244,15 +214,15 @@ Print the version number and options and exit.
 -H::
 Hide the capture info dialog during live capture.
 
--i|--interface  <capture source>|-::
+-i|--source  <capture source>|-::
 +
 --
 Set the name of the capture source or pipe to use for live capture.
 
 Capture source names should match one of the names or numbers listed in "*stratoshark -D*" (described above).
 
-If no source is specified, *Stratoshark* searches the list of interfaces, choosing the first interface.
-If there are no interfaces at all, *Stratoshark* reports an error and doesn't start the capture.
+If no source is specified, *Stratoshark* searches the list of sources, choosing the first source.
+If there are no sources at all, *Stratoshark* reports an error and doesn't start the capture.
 
 Pipe names should be either the name of a FIFO (named pipe) or "-" to
 read data from the standard input.  On Windows systems, pipe names must be
@@ -262,28 +232,6 @@ Scap data must have the same endianness as the capturing host.
 
 This option can occur multiple times.
 --
-
-////
--I|--monitor-mode::
-+
---
-Put the interface in "monitor mode"; this is supported only on IEEE
-802.11 Wi-Fi interfaces, and supported only on some operating systems.
-
-Note that in monitor mode the adapter might disassociate from the
-network with which it's associated, so that you will not be able to use
-any wireless networks with that adapter.  This could prevent accessing
-files on a network server, or resolving host names or network addresses,
-if you are capturing in monitor mode and are not connected to another
-network with another adapter.
-
-This option can occur multiple times.  If used before the first
-occurrence of the *-i* option, it enables the monitor mode for all interfaces.
-If used after an *-i* option, it enables the monitor mode for
-the interface specified by the last *-i* option occurring before
-this option.
---
-////
 
 -j::
 Use after *-J* to change the behavior when no exact match is found for
@@ -302,8 +250,8 @@ the first event after that is selected.
 --
 Start the capture session immediately.  If the *-i* flag was
 specified, the capture uses the specified source.  Otherwise,
-*Stratoshark* searches the list of interfaces, the first source.
-If there are no interfaces, *Stratoshark* reports an error and doesn't start the capture.
+*Stratoshark* searches the list of sources and uses the first source.
+If there are no sources, *Stratoshark* reports an error and doesn't start the capture.
 --
 
 -l::
@@ -311,16 +259,12 @@ Turn on automatic scrolling if the event display is being updated
 automatically as events arrive during a capture (as specified by the
 *-S* flag).
 
-////
 -L|--list-data-link-types::
 List the data link types supported by the interface and exit.
-////
 
-////
 --list-time-stamp-types::
 List time stamp types supported for the interface. If no time stamp type can be
 set, no time stamp types are listed.
-////
 
 -o  <preference/recent setting>::
 +
@@ -339,26 +283,6 @@ specify a user DLT from the command line, you would use
 
     -o "uat:user_dlts:\"User 0 (DLT=147)\",\"cops\",\"0\",\"\",\"0\",\"\""
 --
-
-////
--p|--no-promiscuous-mode::
-+
---
-__Don't__ put the interface into promiscuous mode.  Note that the
-interface might be in promiscuous mode for some other reason; hence,
-*-p* cannot be used to ensure that the only traffic that is captured is
-traffic sent to or from the machine on which *Stratoshark* is running,
-broadcast traffic, and multicast traffic to addresses received by that
-machine.
-
-This option can occur multiple times.  If used before the first
-occurrence of the *-i* option, no interface will be put into the
-promiscuous mode.
-If used after an *-i* option, the interface specified by the last *-i*
-option occurring before this option will not be put into the
-promiscuous mode.
---
-////
 
 -P <path setting>::
 +
@@ -387,21 +311,6 @@ specified filter (which uses the syntax of display filters, rather than
 that of capture filters) to be applied to all events read from the
 capture file; events not matching the filter are discarded.
 
--s|--snapshot-length  <capture snaplen>::
-+
---
-Set the default snapshot length to use when capturing live data.
-No more than __snaplen__ bytes of each network event will be read into
-memory, or saved to disk.  A value of 0 specifies a snapshot length of
-262144, so that the full event is captured; this is the default.
-
-This option can occur multiple times.  If used before the first
-occurrence of the *-i* option, it sets the default snapshot length.
-If used after an *-i* option, it sets the snapshot length for
-the interface specified by the last *-i* option occurring before
-this option.  If the snapshot length is not set specifically,
-the default snapshot length is used if provided.
---
 
 -S::
 Automatically update the event display as events are coming in.
@@ -418,7 +327,7 @@ typically defaults to __%USERPROFILE%\AppData\Local\Temp__.
 --
 
 --time-stamp-type <type>::
-Change the interface's timestamp method. See --list-time-stamp-types.
+Change the sources's timestamp method. See --list-time-stamp-types.
 
 --update-interval  <interval>::
 Set the length of time in milliseconds between new event reports during
@@ -467,7 +376,7 @@ are the values that can be used.
 This option can occur multiple times.  If used before the first
 occurrence of the *-i* option, it sets the default capture link type.
 If used after an *-i* option, it sets the capture link type for
-the interface specified by the last *-i* option occurring before
+the source specified by the last *-i* option occurring before
 this option.  If the capture link type is not set specifically,
 the default capture link type is used if provided.
 --

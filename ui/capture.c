@@ -43,11 +43,12 @@
 #include "ui/simple_dialog.h"
 #include "ui/ws_ui_util.h"
 
-#include "wsutil/file_util.h"
-#include "wsutil/str_util.h"
+#include <wsutil/application_flavor.h>
+#include <wsutil/file_util.h>
 #include <wsutil/filesystem.h>
-#include <wsutil/wslog.h>
+#include <wsutil/str_util.h>
 #include <wsutil/ws_assert.h>
+#include <wsutil/wslog.h>
 
 typedef struct if_stat_cache_item_s {
     char *name;
@@ -328,19 +329,26 @@ cf_open_error_message(int err, char *err_info)
 
         case WTAP_ERR_FILE_UNKNOWN_FORMAT:
             /* Seen only when opening a capture file for reading. */
-            errmsg = "The file \"%s\" isn't a capture file in a format Wireshark understands.";
+            snprintf(errmsg_errno, sizeof(errmsg_errno),
+                "The file \"%%s\" isn't a capture file in a format %s understands.",
+                application_flavor_name_proper());
+            errmsg = errmsg_errno;
             break;
 
         case WTAP_ERR_UNSUPPORTED:
             snprintf(errmsg_errno, sizeof(errmsg_errno),
-                       "The file \"%%s\" contains record data that Wireshark doesn't support.\n"
-                       "(%s)", err_info != NULL ? err_info : "no information supplied");
+                "The file \"%%s\" contains record data that %s doesn't support.\n"
+                "(%s)", application_flavor_name_proper(),
+                err_info != NULL ? err_info : "no information supplied");
             g_free(err_info);
             errmsg = errmsg_errno;
             break;
 
         case WTAP_ERR_ENCAP_PER_PACKET_UNSUPPORTED:
-            errmsg = "The file \"%s\" is a capture for a network type that Wireshark doesn't support.";
+            snprintf(errmsg_errno, sizeof(errmsg_errno),
+                "The file \"%%s\" is a capture for a network type that %s doesn't support.",
+                application_flavor_name_proper());
+            errmsg = errmsg_errno;
             break;
 
         case WTAP_ERR_BAD_FILE:
