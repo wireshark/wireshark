@@ -128,6 +128,7 @@ KrbFastArmorTypes PROT_PREFIX UPPER_CASE
 ##endif
   if (private_data->msg_type == 0) {
     private_data->msg_type = msgtype;
+    krb5_conf_add_response(actx);
   }
 
 #.FN_BODY ERROR-CODE VAL_PTR = &private_data->errorcode
@@ -590,25 +591,8 @@ EncryptionKey/keytype STRINGS = VALS(kerberos_ENCTYPE_vals)
 %(DEFAULT_BODY)s
 
 #.FN_BODY KDC-REQ
-  kerberos_private_data_t *private_data = kerberos_get_private_data(actx);
   %(DEFAULT_BODY)s
-  if (private_data->krb5_conv != NULL) {
-     krb5_conf_add_request(actx);
-  }
-
-#.FN_BODY KDC-REP
-  kerberos_private_data_t *private_data = kerberos_get_private_data(actx);
-  %(DEFAULT_BODY)s
-  if (private_data->krb5_conv != NULL) {
-     krb5_conf_add_response(actx);
-  }
-
-#.FN_BODY KRB-ERROR
-  kerberos_private_data_t *private_data = kerberos_get_private_data(actx);
-  %(DEFAULT_BODY)s
-  if (private_data->krb5_conv != NULL) {
-     krb5_conf_add_response(actx);
-  }
+  krb5_conf_add_request(actx);
 
 #.FN_BODY KRB-SAFE-BODY/user-data
   kerberos_private_data_t* private_data = kerberos_get_private_data(actx);

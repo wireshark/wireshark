@@ -119,8 +119,15 @@ typedef struct kerberos_frame_t {
 	uint32_t frame;
 	nstime_t frame_time;
 	uint32_t msg_type;
+	bool tgs_authenticator_subkey;
 	int srt_idx;
 } kerberos_frame_t;
+
+struct missing_key_details {
+	const char *keymap_name;
+	unsigned keymap_size;
+	unsigned decryption_count;
+};
 
 typedef struct {
 	uint32_t msg_type;
@@ -144,6 +151,7 @@ typedef struct {
 	enc_key_t *current_ticket_key;
 	tvbuff_t *last_ticket_enc_part_tvb;
 #endif
+	struct missing_key_details *missing_key_stash;
 	int save_encryption_key_parent_hf_index;
 	kerberos_key_save_fn save_encryption_key_fn;
 	unsigned learnt_key_ids;
@@ -172,6 +180,7 @@ typedef struct {
 	kerberos_conv_t *krb5_conv;
 	uint32_t frame_req, frame_rep;
 	nstime_t req_time;
+	bool req_tgs_authenticator_subkey;
 } kerberos_private_data_t;
 
 static dissector_handle_t kerberos_handle_tcp;
@@ -453,6 +462,14 @@ static void krb5_conf_add_request(asn1_ctx_t *actx)
 	if (private_data->krb5_conv == NULL)
 		return;
 
+	switch (private_data->msg_type) {
+	case KERBEROS_APPLICATIONS_AS_REQ:
+	case KERBEROS_APPLICATIONS_TGS_REQ:
+		break;
+	default:
+		return;
+	}
+
 	if (!pinfo->fd->visited) {
 		krqf = wmem_new0(wmem_file_scope(), kerberos_frame_t);
 		if (krqf == NULL) {
@@ -465,6 +482,11 @@ static void krb5_conf_add_request(asn1_ctx_t *actx)
 	krqf->frame = pinfo->num;
 	krqf->frame_time = pinfo->abs_ts;
 	krqf->msg_type = private_data->msg_type;
+#ifdef HAVE_KERBEROS
+	if (private_data->PA_TGS_REQ_subkey != NULL) {
+		krqf->tgs_authenticator_subkey = true;
+	}
+#endif
 	krqf->srt_idx = -1;
 
 	if (!pinfo->fd->visited) {
@@ -506,6 +528,15 @@ static void krb5_conf_add_response(asn1_ctx_t *actx)
 
 	if (private_data->krb5_conv == NULL)
 		return;
+
+	switch (private_data->msg_type) {
+	case KERBEROS_APPLICATIONS_AS_REP:
+	case KERBEROS_APPLICATIONS_TGS_REP:
+	case KERBEROS_APPLICATIONS_KRB_ERROR:
+		break;
+	default:
+		return;
+	}
 
 	if (!pinfo->fd->visited) {
 		krpf = wmem_new0(wmem_file_scope(), kerberos_frame_t);
@@ -557,6 +588,8 @@ static void krb5_conf_add_response(asn1_ctx_t *actx)
 	case KERBEROS_APPLICATIONS_TGS_REQ:
 		if (private_data->msg_type == KERBEROS_APPLICATIONS_TGS_REP) {
 			krpf->srt_idx = 2;
+			private_data->req_tgs_authenticator_subkey =
+				krqf->tgs_authenticator_subkey;
 			break;
 		}
 		if (private_data->msg_type == KERBEROS_APPLICATIONS_KRB_ERROR) {
@@ -1241,19 +1274,21 @@ static void used_encryption_key(proto_tree *tree, packet_info *pinfo,
 
 #ifdef HAVE_MIT_KERBEROS
 
-static void missing_encryption_key(proto_tree *tree, packet_info *pinfo,
-				   kerberos_private_data_t *private_data,
-				   int keytype, int usage, tvbuff_t *cryptotvb,
-				   const char *keymap_name,
-				   unsigned keymap_size,
-				   unsigned decryption_count)
+static void missing_encryption_key_ex(proto_tree *tree, packet_info *pinfo,
+				      kerberos_private_data_t *private_data,
+				      int keytype, const char *usage,
+				      tvbuff_t *cryptotvb,
+				      struct missing_key_details *details)
 {
+	const char *keymap_name = details->keymap_name;
+	unsigned keymap_size = details->keymap_size;
+	unsigned decryption_count = details->decryption_count;
 	proto_item *item = NULL;
 	enc_key_t *mek = NULL;
 
 	mek = wmem_new0(pinfo->pool, enc_key_t);
 	snprintf(mek->key_origin, KRB_MAX_ORIG_LEN,
-		   "keytype %d usage %d missing in frame %u",
+		   "keytype %d usage %s missing in frame %u",
 		   keytype, usage, pinfo->num);
 	mek->fd_num = pinfo->num;
 	mek->id = ++private_data->missing_key_ids;
@@ -1263,7 +1298,7 @@ static void missing_encryption_key(proto_tree *tree, packet_info *pinfo,
 
 	item = proto_tree_add_expert_format(tree, pinfo, &ei_kerberos_missing_keytype,
 					    cryptotvb, 0, 0,
-					    "Missing keytype %d usage %d (id=%s)",
+					    "Missing keytype %d usage %s (id=%s)",
 					    keytype, usage, mek->id_str);
 	expert_add_info_format(pinfo, item, &ei_kerberos_missing_keytype,
 			       "Used keymap=%s num_keys=%u num_tries=%u)",
@@ -1272,6 +1307,31 @@ static void missing_encryption_key(proto_tree *tree, packet_info *pinfo,
 			       decryption_count);
 
 	kerberos_key_list_append(private_data->missing_keys, mek);
+}
+
+static void missing_encryption_key(proto_tree *tree, packet_info *pinfo,
+				   kerberos_private_data_t *private_data,
+				   int keytype, int usage, tvbuff_t *cryptotvb,
+				   const char *keymap_name,
+				   unsigned keymap_size,
+				   unsigned decryption_count)
+{
+	char usage_str[sizeof("18446744073709551615")] = { 0, };
+	struct missing_key_details details = {
+		.keymap_name = keymap_name,
+		.keymap_size = keymap_size,
+		.decryption_count = decryption_count,
+	};
+
+	if (private_data->missing_key_stash != NULL) {
+		*private_data->missing_key_stash = details;
+		return;
+	}
+
+	snprintf(usage_str, sizeof(usage_str)-1, "%d", usage);
+
+	missing_encryption_key_ex(tree, pinfo, private_data, keytype,
+				  usage_str, cryptotvb, &details);
 }
 
 #ifdef HAVE_KRB5_PAC_VERIFY
@@ -3852,11 +3912,55 @@ dissect_krb5_decrypt_KDC_REP_data (bool imp_tag _U_, tvbuff_t *tvb, int offset, 
 	case KERBEROS_APPLICATIONS_TGS_REP:
 		if (private_data->fast_strengthen_key != NULL) {
 			plaintext=decrypt_krb5_data_asn1(tree, actx, 9, next_tvb, &length);
+		} else if (private_data->req_tgs_authenticator_subkey) {
+			plaintext=decrypt_krb5_data_asn1(tree, actx, 9, next_tvb, &length);
 		} else {
+			struct missing_key_details mk8 = {
+				.keymap_name = NULL,
+			};
+			struct missing_key_details mk9 = {
+				.keymap_name = NULL,
+			};
+
+			private_data->missing_key_stash = &mk8;
 			plaintext=decrypt_krb5_data_asn1(tree, actx, 8, next_tvb, &length);
+			private_data->missing_key_stash = NULL;
 			if(!plaintext){
+				private_data->missing_key_stash = &mk9;
 				plaintext=decrypt_krb5_data_asn1(tree, actx, 9, next_tvb, &length);
+				private_data->missing_key_stash = NULL;
 			}
+
+#ifdef HAVE_MIT_KERBEROS
+			if (!plaintext) {
+				if (mk8.keymap_name == mk9.keymap_name) {
+					mk8.decryption_count += mk9.decryption_count;
+
+					missing_encryption_key_ex(tree,
+								  actx->pinfo,
+								  private_data,
+								  private_data->etype,
+								  "8 or 9",
+								  next_tvb,
+								  &mk8);
+				} else {
+					missing_encryption_key_ex(tree,
+								  actx->pinfo,
+								  private_data,
+								  private_data->etype,
+								  "8 (or 9)",
+								  next_tvb,
+								  &mk8);
+					missing_encryption_key_ex(tree,
+								  actx->pinfo,
+								  private_data,
+								  private_data->etype,
+								  "9 (or 8)",
+								  next_tvb,
+								  &mk9);
+				}
+			}
+#endif /* HAVE_MIT_KERBEROS */
 		}
 		break;
 	}
