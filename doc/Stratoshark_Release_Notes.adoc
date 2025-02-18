@@ -27,6 +27,10 @@ If you or your organization would like to contribute or become a sponsor, please
 // Many other improvements have been made.
 // See the “New and Updated Features” section below for more details.
 
+The following changes have been made since version 0.9.0:
+
+* The application icons have been updated.
+
 === Bug Fixes
 
 //The following bugs have been fixed:
@@ -37,6 +41,7 @@ If you or your organization would like to contribute or become a sponsor, please
 
 The following bugs have been fixed since version 0.9.0:
 
+* Falco Bridge: Empty frame.protocols field. wsbuglink:20248[].
 * Sysdig event and Falco bridge dissection mismatch due to unsupported pcapng block types. wsbuglink:20358[].
 
 
