@@ -1418,7 +1418,7 @@ static void ext11_work_out_bundles(unsigned startPrbc,
             settings->bundles[n].end =   settings->bundles[n].start + numBundPrb-1;
             /* Does it go beyond the end? */
             if (settings->bundles[n].end > startPrbc+numPrbc) {
-                settings->bundles[n].end = numPrbc+numPrbc;
+                settings->bundles[n].end = startPrbc+numPrbc;
                 settings->bundles[n].is_orphan = true;
             }
         }
@@ -3078,11 +3078,16 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                         proto_item *ti = proto_tree_add_item(extension_tree, hf_oran_beam_id,
                                                              tvb, offset, 2, ENC_BIG_ENDIAN);
                         if (!ext11_settings.bundles[n].is_orphan) {
-                            proto_item_append_text(ti, " (Bundle %u)", n);
+                            proto_item_append_text(ti, "    (PRBs %3u-%3u)  (Bundle %2u)",
+                                                   ext11_settings.bundles[n].start,
+                                                   ext11_settings.bundles[n].end,
+                                                   n);
                         }
                         else {
                             orphaned_prbs = true;
-                            proto_item_append_text(ti, " (Orphaned PRBs)");
+                            proto_item_append_text(ti, "    (PRBs %3u-%3u)  (Orphaned PRBs)",
+                                                   ext11_settings.bundles[n].start,
+                                                   ext11_settings.bundles[n].end);
                         }
                         offset += 2;
                     }
@@ -3090,7 +3095,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
 
                 /* Add summary to extension root */
                 if (orphaned_prbs) {
-                    proto_item_append_text(extension_ti, " (%u bundles + orphaned)", num_bundles);
+                    proto_item_append_text(extension_ti, " (%u full bundles + orphaned)", num_bundles-1);
                 }
                 else {
                     proto_item_append_text(extension_ti, " (%u bundles)", num_bundles);
