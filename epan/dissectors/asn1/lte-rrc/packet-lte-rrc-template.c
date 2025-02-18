@@ -2789,6 +2789,7 @@ typedef struct lte_rrc_private_data_t
   uint8_t dcch_segment_number;
   tvbuff_t *dcch_segment;
   bool dcch_segment_last;
+  bool digits_strbuf_parsing_failed_flag; /* Whether an error occurred when creating the IMSI/MCC-MNC pair string */
 } lte_rrc_private_data_t;
 
 /* Helper function to get or create a struct that will be actx->private_data */
@@ -3023,6 +3024,18 @@ static void private_data_set_dcch_segment_last(asn1_ctx_t *actx, bool dcch_segme
 {
   lte_rrc_private_data_t *private_data = (lte_rrc_private_data_t*)lte_rrc_get_private_data(actx);
   private_data->dcch_segment_last = dcch_segment_last;
+}
+
+static bool private_data_get_digits_strbuf_parsing_failed_flag(asn1_ctx_t *actx)
+{
+  lte_rrc_private_data_t *private_data = (lte_rrc_private_data_t*)lte_rrc_get_private_data(actx);
+  return private_data->digits_strbuf_parsing_failed_flag;
+}
+
+static void private_data_set_digits_strbuf_parsing_failed_flag(asn1_ctx_t *actx, bool digits_strbuf_parsing_failed_flag)
+{
+  lte_rrc_private_data_t *private_data = (lte_rrc_private_data_t*)lte_rrc_get_private_data(actx);
+  private_data->digits_strbuf_parsing_failed_flag = digits_strbuf_parsing_failed_flag;
 }
 
 /*****************************************************************************/

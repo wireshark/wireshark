@@ -4288,6 +4288,47 @@ SR-NPRACH-Resource-NB-r15/p0-SR-r15 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UN
   }
   actx->value_ptr = NULL;
 
+#.FN_BODY IMSI-Digit VAL_PTR=&value
+  uint32_t value;
+%(DEFAULT_BODY)s
+  if(private_data_get_digits_strbuf_parsing_failed_flag(actx)) {
+    return offset;
+  }
+  if(value > 9) {
+    private_data_set_digits_strbuf_parsing_failed_flag(actx, true);
+    return offset;
+  }
+  if (actx->value_ptr) {
+    wmem_strbuf_t *imsi_str = (wmem_strbuf_t *)actx->value_ptr;
+    wmem_strbuf_append_c(imsi_str, '0' + value);
+  }
+
+#.FN_BODY IMSI
+  wmem_strbuf_t *imsi_strbuf = wmem_strbuf_new_sized(actx->pinfo->pool, 16);
+  unsigned imsi_len;
+  char* imsi_str;
+  tvbuff_t* imsi_tvb;
+
+  actx->value_ptr = imsi_strbuf;
+  private_data_set_digits_strbuf_parsing_failed_flag(actx, false);
+%(DEFAULT_BODY)s
+  actx->value_ptr = NULL;
+  if(private_data_get_digits_strbuf_parsing_failed_flag(actx)) {
+    return offset;
+  }
+
+  imsi_len = (unsigned)wmem_strbuf_get_len(imsi_strbuf);
+  imsi_str = wmem_strbuf_finalize(imsi_strbuf);
+  /* Note - actx->created_item is not the lte-rrc.imsi item, but the
+   * last digit, because dissect_per_sequence_of doesn't set it to
+   * the sequence item, unlike dissect_per_sequence (XXX - Should it?)
+   * so we can't append the string to it, unlike the PLMN-Identity.
+   */
+  imsi_tvb = tvb_new_child_real_data(tvb, (uint8_t*)imsi_str, imsi_len, imsi_len);
+  add_new_data_source(actx->pinfo, imsi_tvb, "IMSI");
+
+  dissect_e212_utf8_imsi(imsi_tvb, actx->pinfo, tree, 0, imsi_len);
+
 #.TYPE_ATTR
 UplinkPowerControlCommon-NB-r13/p0-NominalNPUSCH-r13 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_dbm)
 
