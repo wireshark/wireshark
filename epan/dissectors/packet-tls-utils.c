@@ -10665,8 +10665,13 @@ ssl_dissect_hnd_cli_hello(ssl_common_dissect_t *hf, tvbuff_t *tvb,
             curr_entry = wmem_list_frame_next(curr_entry);
         }
     }
-    ja4_hash = g_compute_checksum_for_string(G_CHECKSUM_SHA256, wmem_strbuf_get_str(ja4_br),-1);
+    if ( wmem_strbuf_get_len(ja4_br) == 0 ) {
+        ja4_hash = g_strdup("000000000000");
+    } else {
+        ja4_hash = g_compute_checksum_for_string(G_CHECKSUM_SHA256, wmem_strbuf_get_str(ja4_br),-1);
+    }
     ja4_b = wmem_strndup(pinfo->pool, ja4_hash, 12);
+
     g_free(ja4_hash);
     if ( wmem_strbuf_get_len(ja4_cr) == 0 ) {
         ja4_hash = g_strdup("000000000000");
