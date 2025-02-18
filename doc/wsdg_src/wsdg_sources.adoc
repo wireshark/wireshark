@@ -1187,10 +1187,10 @@ A https://appvisor.com/pad/[PAD] file is also published at https://www.wireshark
 [discrete]
 ===== Artwork
 
-Logo and icon artwork can be found in the _image_ directory in the
+Logo and icon artwork can be found in the _resources_ directory in the
 distribution. This is available online at
 
-{wireshark-code-browse-url}/image
+{wireshark-code-browse-url}/resources
 
 [discrete]
 ===== Licensing
@@ -1201,8 +1201,8 @@ later. Make sure you and your package comply with this license.
 [discrete]
 ===== Trademarks
 
-Wireshark and the “fin” logo are registered trademarks of the Wireshark
-Foundation. Make sure you and your package comply with trademark law.
+Wireshark, Stratoshark, and their respective “fin” logos are trademarks of the link:{wireshark-foundation-url}[Wireshark Foundation].
+If you have any questions about the use of these trademarks, please contact the foundation.
 
 [discrete]
 ===== Privileges

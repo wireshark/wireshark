@@ -33,7 +33,7 @@ VIAddVersionKey "Comments" "My manta ray is all right."
 VIAddVersionKey "CompanyName" "${PROGRAM_NAME} development team"
 ; NSIS handles U+00a9 but not a UTF-8 encoded copyright symbol.
 VIAddVersionKey "LegalCopyright" "${U+00a9} Gerald Combs and many others"
-VIAddVersionKey "LegalTrademarks" "Stratoshark and the 'ray' logo are registered trademarks"
+VIAddVersionKey "LegalTrademarks" "Stratoshark and the 'fin' logo are trademarks of the Wireshark Foundation"
 VIAddVersionKey "FileDescription" "${PROGRAM_NAME} installer for Windows on ${WIRESHARK_TARGET_PLATFORM}"
 VIAddVersionKey "Language" "English"
 VIAddVersionKey "ProductVersion" "${PRODUCT_VERSION}"
