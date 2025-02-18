@@ -193,6 +193,9 @@ WSLUA_METHOD Tvb_bytes(lua_State* L) {
         return 0;
     }
 
+    /* XXX - Why is *any* negative value allowed here to mean "to the
+     * end of the Tvb" instead of just -1 as elsewhere?
+     */
     if (len < 0) {
         len = tvb_captured_length_remaining(tvb->ws_tvb,offset);
         if (len < 0) {
@@ -375,6 +378,12 @@ bool push_TvbRange(lua_State* L, tvbuff_t* ws_tvb, int offset, int len) {
         return false;
     }
 
+    /* XXX - What if offset is negative? In epan/tvbuff.h functions, a negative
+     * offset means "the offset from the end of the backing tvbuff at which
+     * the new tvbuff's data begins", but that's not done consistently in this
+     * code when taking ranges and passing an offset. And maybe we don't want
+     * to support negative offsets at all in the future (#20103).
+     */
     if (len == -1) {
         len = tvb_captured_length_remaining(ws_tvb,offset);
         if (len < 0) {
@@ -415,7 +424,7 @@ WSLUA_METHOD TvbRange_tvb(lua_State *L) {
         return 0;
     }
 
-    if (tvb_offset_exists(tvbr->tvb->ws_tvb,  tvbr->offset + tvbr->len -1 )) {
+    if (tvb_bytes_exist(tvbr->tvb->ws_tvb, tvbr->offset, tvbr->len)) {
         tvb = (Tvb)g_malloc(sizeof(struct _wslua_tvb));
         tvb->expired = false;
         tvb->need_free = false;
@@ -1261,11 +1270,23 @@ WSLUA_METHOD TvbRange_range(lua_State* L) {
 #define WSLUA_OPTARG_TvbRange_range_LENGTH 3 /* The length (in octets) of the range. Defaults to until the end of the <<lua_class_TvbRange,`TvbRange`>>. */
 
     TvbRange tvbr = checkTvbRange(L,1);
+    /* XXX - What if offset is negative? Right now, that allows taking a
+     * superset instead of a subset, if this TvbRange starts at an offset
+     * into the backing tvb. (In other cases it may have unexpected
+     * behavior when
+     */
     int offset = (int)luaL_optinteger(L,WSLUA_OPTARG_TvbRange_range_OFFSET,0);
     int len;
 
     if (!(tvbr && tvbr->tvb)) return 0;
 
+    /* XXX - What if len is -1? Note that currently it is *not* the same thing
+     * as the default, because it's passed to push_TvbRange and then means
+     * "to the end of the backing tvb," which could be larger than the length
+     * of this TvbRange if this is a subset. Thus, this allows taking a
+     * superset of the range, breaking out into the backing tvb. (Other
+     * negative lengths will fail in push_TvbRange.)
+     */
     len = (int)luaL_optinteger(L,WSLUA_OPTARG_TvbRange_range_LENGTH,tvbr->len-offset);
 
     if (tvbr->tvb->expired) {
@@ -1273,7 +1294,7 @@ WSLUA_METHOD TvbRange_range(lua_State* L) {
         return 0;
     }
 
-    if (offset >= tvbr->len || (len + offset) > tvbr->len) {
+    if (offset > tvbr->len || (len + offset) > tvbr->len) {
         luaL_error(L,"Range is out of bounds");
         return 0;
     }
