@@ -836,6 +836,13 @@ dissect_falco_bridge(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "Falco Bridge");
 
+    // Some events don't have any data. Make sure we don't return 0 in that case
+    // so that things like "protocols in frame" work.
+    int consumed = tvb_captured_length(tvb);
+    if (consumed == 0) {
+        consumed = 1;
+    }
+
     // https://github.com/falcosecurity/libs/blob/9c942f27/userspace/libscap/scap.c#L1900
 
     uint32_t source_id = 0;
@@ -862,7 +869,7 @@ dissect_falco_bridge(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
         if (bi == NULL) {
             proto_item_append_text(idti, " (NOT SUPPORTED)");
             col_append_str(pinfo->cinfo, COL_INFO, " (NOT SUPPORTED)");
-            return tvb_captured_length(tvb);
+            return consumed;
         }
 
         const char *source_name = get_sinsp_source_name(bi->ssi);
@@ -873,7 +880,7 @@ dissect_falco_bridge(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
         dissect_sinsp_plugin(plugin_tvb, pinfo, fb_tree, bi);
     }
 
-    return tvb_captured_length(tvb);
+    return consumed;
 }
 
 int extract_lineage_number(const char *fld_name) {
