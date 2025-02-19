@@ -923,12 +923,21 @@ static int hf_nas_5gs_wlansp_pref_ssid_list_hessid_ind;
 static int hf_nas_5gs_wlansp_pref_ssid_list_ssid;
 static int hf_nas_5gs_wlansp_pref_ssid_list_hessid;
 static int hf_nas_5gs_wlansp_pref_roam_part_list_prio;
+static int hf_nas_5gs_wlansp_fqdn_match_len;
+static int hf_nas_5gs_wlansp_fqdn_match;
+static int hf_nas_5gs_wlansp_country_len;
+static int hf_nas_5gs_wlansp_country;
 
 static int hf_nas_5gs_wlansp_req_prot_ip_prot;
 static int hf_nas_5gs_wlansp_req_prot_port_len;
 static int hf_nas_5gs_wlansp_req_prot_port;
 static int hf_nas_5gs_wlansp_sub_ent_len;
 static int hf_nas_5gs_wlansp_sel_crit_sp_exc;
+static int hf_nas_5gs_wlansp_sp_excl_list_ulbi_ind;
+static int hf_nas_5gs_wlansp_sp_excl_list_dlbi_ind;
+static int hf_nas_5gs_wlansp_sp_excl_list_nw_type;
+static int hf_nas_5gs_wlansp_sp_excl_list_ulb;
+static int hf_nas_5gs_wlansp_sp_excl_list_dlb;
 static int hf_nas_5gs_wlansp_val_area_len;
 static int hf_nas_5gs_wlansp_time_of_day_len;
 static int hf_nas_5gs_wlansp_num_loc_entr;
@@ -10304,6 +10313,11 @@ static const value_string nas_5gs_andsp_wlansp_location_field_typevals[] = {
     { 0, NULL }
 };
 
+static const value_string nas_5gs_wlansp_sp_excl_list_nw_type_vals[] = {
+    { 0x00, "Home" },
+    { 0x01, "Roaming" },
+    { 0, NULL }
+};
 
 static void
 de_nas_5gs_ue_policies_andsp_wlansp_rule(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree)
@@ -10338,6 +10352,14 @@ de_nas_5gs_ue_policies_andsp_wlansp_rule(tvbuff_t* tvb, packet_info* pinfo _U_, 
     static int* const flags3[] = {
     &hf_nas_5gs_wlansp_pref_ssid_list_hessid_ind,
     &hf_nas_5gs_wlansp_pref_ssid_list_ssid_ind,
+    NULL
+    };
+
+    /* Figure 5.3.2.4g */
+    static int* const flags4[] = {
+    &hf_nas_5gs_wlansp_sp_excl_list_ulbi_ind,
+    &hf_nas_5gs_wlansp_sp_excl_list_dlbi_ind,
+    &hf_nas_5gs_wlansp_sp_excl_list_nw_type,
     NULL
     };
 
@@ -10392,6 +10414,7 @@ de_nas_5gs_ue_policies_andsp_wlansp_rule(tvbuff_t* tvb, packet_info* pinfo _U_, 
             int m = 0;
             while (offset < end_offset) {
                 m++;
+                uint64_t retval;
                 /* 5.3.2.4b: Selection criteria set */
                 sel_crit_set_sub_tree = proto_tree_add_subtree_format(sel_crit_entry_sub_tree, tvb, offset, -1, ett_nas_5gs_wlansp_sel_crit_ent, &item, "Selection criteria set %u", m);
                 /* Length of selection criteria set */
@@ -10401,7 +10424,7 @@ de_nas_5gs_ue_policies_andsp_wlansp_rule(tvbuff_t* tvb, packet_info* pinfo _U_, 
                 proto_tree_add_item_ret_uint(sel_crit_set_sub_tree, hf_nas_5gs_wlansp_sel_crit_set_type, tvb, offset, 1, ENC_BIG_ENDIAN, &sel_crit_set_type);
                 proto_tree_add_item_ret_uint(sel_crit_set_sub_tree, hf_nas_5gs_wlansp_sel_crit_num_sub_entr, tvb, offset, 1, ENC_BIG_ENDIAN, &num_sub_entr);
                 offset++;
-                uint32_t k, req_prot_port_len, ssid_len;
+                uint32_t k, req_prot_port_len, ssid_len, fqdn_match_len, country_len;
                 for (k = 0; k < num_sub_entr; k++) {
                     switch (sel_crit_set_type) {
                     case 1: /* preferred SSID list*/
@@ -10434,9 +10457,15 @@ de_nas_5gs_ue_policies_andsp_wlansp_rule(tvbuff_t* tvb, packet_info* pinfo _U_, 
                         proto_tree_add_item(sel_crit_set_sub_tree, hf_nas_5gs_wlansp_pref_roam_part_list_prio, tvb, offset, 1, ENC_BIG_ENDIAN);
                         offset++;
                         /* FQDN_Match length */
+                        proto_tree_add_item_ret_uint(sel_crit_set_sub_tree, hf_nas_5gs_wlansp_fqdn_match_len, tvb, offset, 1, ENC_BIG_ENDIAN, &fqdn_match_len);
+                        offset++;
                         /* FQDN_Match */
+                        proto_tree_add_item(sel_crit_set_sub_tree, hf_nas_5gs_wlansp_fqdn_match, tvb, offset, fqdn_match_len, ENC_UTF_8 | ENC_NA);
                         /* Country length */
+                        proto_tree_add_item_ret_uint(sel_crit_set_sub_tree, hf_nas_5gs_wlansp_country_len, tvb, offset, 1, ENC_BIG_ENDIAN, &country_len);
+                        offset++;
                         /* Country */
+                        proto_tree_add_item(sel_crit_set_sub_tree, hf_nas_5gs_wlansp_country, tvb, offset, country_len, ENC_UTF_8 | ENC_NA);
                         /* Skip over the list*/
                         k = num_sub_entr;
                         offset += sel_crit_set_len - 2;
@@ -10462,11 +10491,18 @@ de_nas_5gs_ue_policies_andsp_wlansp_rule(tvbuff_t* tvb, packet_info* pinfo _U_, 
                         break;
                     case 5: /* minimum backhaul threshold */
                         /* Spare ULBI DLBI Network type */
+                        proto_tree_add_bitmask_list_ret_uint64(sel_crit_set_sub_tree, tvb, offset, 1, flags4, ENC_BIG_ENDIAN, &retval);
+                        offset++;
                         /* Downlink bandwidth */
+                        if ((retval & 0x04) == 0x04) {
+                            proto_tree_add_item(sel_crit_set_sub_tree, hf_nas_5gs_wlansp_sp_excl_list_dlb, tvb, offset, 4, ENC_BIG_ENDIAN);
+                            offset += 4;
+                        }
                         /* Uplink bandwidth */
-                        /* Skip over the list*/
-                        k = num_sub_entr;
-                        offset += sel_crit_set_len - 1;
+                        if ((retval & 0x08) == 0x08) {
+                            proto_tree_add_item(sel_crit_set_sub_tree, hf_nas_5gs_wlansp_sp_excl_list_ulb, tvb, offset, 4, ENC_BIG_ENDIAN);
+                            offset += 4;
+                        }
                         break;
                     default:
                         /* Skip over the list*/
@@ -15690,6 +15726,26 @@ proto_register_nas_5gs(void)
             FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
+        { &hf_nas_5gs_wlansp_fqdn_match_len,
+        { "FQDN_Match length", "nas-5gs.andsp.wlansp.fqdn_match_len",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_wlansp_fqdn_match,
+        { "FQDN_Match", "nas-5gs.andsp.wlansp.fqdn_match",
+            FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_wlansp_country_len,
+        { "Country length", "nas-5gs.andsp.wlansp.country_len",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_wlansp_country,
+        { "Country", "nas-5gs.andsp.wlansp.country",
+            FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
         { &hf_nas_5gs_wlansp_pref_ssid_list_ssid_ind,
         { "SSID ind", "nas-5gs.andsp.wlansp.pref_ssid_list_ssid_ind",
             FT_BOOLEAN, 8, NULL, 0x01,
@@ -15725,6 +15781,32 @@ proto_register_nas_5gs(void)
             FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
+        { &hf_nas_5gs_wlansp_sp_excl_list_ulbi_ind,
+        { "Uplink bandwidth field", "nas-5gs.andsp.wlansp.sp_excl_list_ulbi_ind",
+            FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x08,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_wlansp_sp_excl_list_dlbi_ind,
+        { "Downlink bandwidth field", "nas-5gs.andsp.wlansp.sp_excl_list_dlbi_ind",
+            FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x04,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_wlansp_sp_excl_list_nw_type,
+        { "Network type", "nas-5gs.andsp.wlansp.sp_excl_list_nw_type",
+            FT_UINT8, BASE_DEC, VALS(nas_5gs_wlansp_sp_excl_list_nw_type_vals), 0x03,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_wlansp_sp_excl_list_ulb,
+        { "Uplink bandwidth", "nas-5gs.andsp.wlansp.sp_excl_list_ulb",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_wlansp_sp_excl_list_dlb,
+        { "Downlink bandwidth", "nas-5gs.andsp.wlansp.sp_excl_list_dlb",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+
         { &hf_nas_5gs_wlansp_val_area_len,
         { "length of validity area", "nas-5gs.andsp.wlansp.val_area_len",
             FT_UINT16, BASE_DEC, NULL, 0x0,
