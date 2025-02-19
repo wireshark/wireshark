@@ -1,0 +1,296 @@
+commit 5781e180dc
+Author: Uli Heilmeier <uh@heilmeier.eu>
+Date:   Wed Feb 19 06:48:43 2025 +0000
+
+    TLS: Fix JA4_b when cipher list is empty
+
+    Fixes: #20394
+
+    (cherry picked from commit f6244c782cda81c9607da402fb4aba4939309a9b)
+
+    Co-authored-by: Uli Heilmeier <uh@heilmeier.eu>
+
+commit e774bf45d3
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sun Feb 16 07:32:30 2025 -0500
+
+    Websocket: Fix decompression flag handling
+
+    The first fragment of a multiframe Websocket message is not
+    necessarily the first fragment of the Websocket conversation.
+    We need to save the opcode and per message compression flag from
+    the first fragment of the reassembled message, not the first
+    frame of the conversation. Some conversations may have control
+    frames.
+
+    Also, since according to RFC 6455 5.5, control frames can be
+    interjected in the middle of a fragmented message, can have
+    a payload, and MUST NOT be fragmented, we do not save the first
+    frag payload and per message compression flag until after checking
+    if the frame is a control frame.
+
+    Use proto_tree_add_ret_boolean in a couple places where possible.
+
+    Fixup aa2b43b7456539947fc7756bd3297ea3cbbde0bb
+
+    Fix #20390
+
+    (backported from commit 4bb577c21ae9571ef63654c8fddb31a1344558b3)
+
+commit c64a2c89a3
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sun Feb 16 08:29:40 2025 -0500
+
+    addr_resolv: Fix extra host files
+
+    Extra host files are only added to a list once at program startup,
+    so that needs to be epan scope. They are re-read each time the
+    address resolve scope is reset, but there's no way to clear the
+    list of files. Since it's only used by tshark, this shouldn't be
+    a problem.
+
+    Fixup 0b0ac66fd7c293935362e5cf098762be4741eaea
+    Fix #20391
+
+    (backported from commit 0a8f2e754119b55cf33c26305fd432289844dae6)
+
+commit 4a2ecd9bc5
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Feb 16 09:27:38 2025 +0000
+
+    [Automatic update for 2025-02-16]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit d20e92e0b1
+Author: Jaap Keuter <jaap.keuter@xs4all.nl>
+Date:   Fri Feb 14 21:37:25 2025 +0100
+
+    MQTT: Fix v5.0 properties total length presentation
+
+    Retrieving the Variable Byte Integer value from the TVB requires the
+    addition of ENC_LITTLE_ENDIAN.
+
+    Ref: https://docs.oasis-open.org/mqtt/mqtt/v5.0/os/mqtt-v5.0-os.html#_Toc3901011
+
+    Closes #20389
+
+    (cherry picked from commit 062c5407e041bce89e26293e01231d656c7eb84e)
+
+commit 70c4f6b6df
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Wed Feb 12 21:26:55 2025 +0000
+
+    tools: Allow GitLab's "Cherry-pick" commits
+
+    git cherry-pick -x adds a line, with extra newline, like
+
+    (cherry picked from ...)
+
+    The GitLab GUI's "Cherry-pick" button started creating cherry-picked
+    commits that are *almost* the same, but with an extra hyphen:
+
+    (cherry-picked from ...)
+
+    Allow those too.
+
+    (cherry-picked from commit 293cb0ccf84030bbd651c1e5d85c20e949ca49a4)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 0593d7e594
+Author: Dr. Lars Völker <lars.voelker@technica-engineering.de>
+Date:   Wed Feb 12 15:50:27 2025 +0100
+
+    TECMP: Lifecycle in Status messages was wrong
+
+    An hour should have 60 and not 24 minutes.
+
+    Closes: #20387
+
+commit 2e5e8c1d9a
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Wed Feb 5 19:55:12 2025 -0800
+
+    wscbor: Add a recursion check
+
+    Blind-ish attempt at fixing #20373
+
+    (cherry picked from commit 83c73a83ad9ec7baa4bbf06d6da9cdd91009d5ed)
+
+     Conflicts:
+            epan/wscbor.c
+
+commit 6b9a73d8bd
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Feb 9 09:26:36 2025 +0000
+
+    [Automatic update for 2025-02-09]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit ce2d2cae94
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Wed Feb 5 04:32:03 2025 +0000
+
+    TCP: Create the per packet data if needed for manual seq analysis
+
+    Prevent a crash if the calculate timestamps preference is disabled
+    and manual TCP analysis is used.
+
+    (cherry-picked from commit ddac5fbbf596ff3c213727cb7c9e02c1886cc11e)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 0cb2addd74
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Feb 2 09:27:07 2025 +0000
+
+    [Automatic update for 2025-02-02]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit a19999fe8d
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Wed Jan 29 15:28:16 2025 +0000
+
+    tls-utils: Fix exporting secrets with renegotiation
+
+    Close the client random when inserting it into the hash map of
+    used client randoms. Just inserting the pointer means that when
+    renegotiation occurs, the data changes, which causes the last
+    used Client Random to be exported N times instead of the N different
+    Client Randoms.
+
+    This can be tested with the tls-renegotiation.pcap test capture
+    in the repository.
+
+    Ping #20362
+
+    (cherry picked from commit 670f7908259d1a33fdd30ca193e07e20094e7af9)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit df0f8be8d9
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Jan 26 09:27:04 2025 +0000
+
+    [Automatic update for 2025-01-26]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit 2140658a50
+Author: Alexis La Goutte <alexis.lagoutte@gmail.com>
+Date:   Fri Jan 24 12:37:09 2025 +0000
+
+    isobus: fix function instance and ECU instance field widths
+
+    (cherry picked from commit 0931fae18c1c4aa82914b5b52d369f1ee78f99e3)
+
+    Co-authored-by: Miklos Marton <martonmiklosqdev@gmail.com>
+
+commit 3e5fa804d1
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Thu Jan 23 12:44:59 2025 +0000
+
+    Qt: Fix extcap interface toolbar Qt6 regression
+
+    QComboBox Data is stored as a QVariant. In Qt5, QVariants are converted
+    for equality comparison if possible, but in Qt6 conversion only happens
+    in a more limited number of situations. In Qt5, QVariants from a
+    QByteArray and a QString can compare equal if the QByteArray would
+    convert to the string, but they never compare equal in Qt6.
+
+    The payload passed to the Interface Toolbar is a QByteArray (UTF-8).
+    Don't prematurely convert it to a QString (UTF-16) because passing it to a
+    function that converts it to a QVariant, because then it won't compare
+    equal to QVariants from the same QByteArray not converted.
+
+    Also note that Qt5 and Qt6 convert QByteArrays with internal '\0'
+    differently.
+
+    Fix #20354
+
+    (cherry picked from commit 190120d5cf72c79e324bf52b9fffdb659a5cfb25)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit f169529398
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Tue Aug 13 07:49:54 2024 -0400
+
+    assa_r3: Use FT_CHAR for a character
+
+    This does proper escaping for unprintable characters
+
+    Fix #19987
+
+    (backported from commit 424ecdbf79f2789ff6e0111b231a9b3aefd4081c)
+
+commit 1359077afb
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Jan 19 09:27:19 2025 +0000
+
+    [Automatic update for 2025-01-19]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit 53e3a0ea0e
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Fri Jan 17 16:10:37 2025 +0000
+
+    test: Skip extcap Python script if temp directory is NOEXEC
+
+    Various guides and vulnerability scanners recommend setting /tmp to
+    noexec. Extcap scripts have to be executable to work. Check if the
+    test path is noexec and skip it if so.
+
+    (cherry picked from commit c7952c6f9f20f435a786ae66f4e4d3222db57f7d)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 46df8f24a4
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Jan 12 09:27:44 2025 +0000
+
+    [Automatic update for 2025-01-12]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit 34443a5bdd
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Fri Jan 10 12:23:11 2025 +0000
+
+    Qt: Fix adding compression extension with Qt 6.8
+
+    We need to add the list of suffixes to the hash under the 6.8 version
+    of the extension filter too.
+
+    Fixup 702116d425a1542c0db84e17236dae8c7e1b0bfd
+
+    (cherry picked from commit 9de2298fdeeba681f6032048956bba1510321b8e)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit fa6a720d2f
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Thu Jan 9 14:37:50 2025 +0000
+
+    test: Skip a test that requires brotli if we don't have it
+
+    The quic-with-secrets.pcapng file has brotli compressed data,
+    so the results are different if we don't have brotli.
+
+    Fix #20330
+
+    (cherry picked from commit 454cad756177b003c7418be3ed5f027d21b271ee)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 9773a79963
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Wed Jan 8 18:08:03 2025 -0800
+
+    Version: 4.2.10 → 4.2.11
+
+    [skip ci]
