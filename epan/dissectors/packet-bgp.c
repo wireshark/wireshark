@@ -1655,14 +1655,14 @@ static const value_string bgpext_com_stype_tr_exp_3[] = {
 
 static const value_string bgpext_com_stype_tr_evpn[] = {
     { BGP_EXT_COM_STYPE_EVPN_MMAC,        "MAC Mobility" },
-    { BGP_EXT_COM_STYPE_EVPN_LABEL,       "ESI MPLS Label" },
-    { BGP_EXT_COM_STYPE_EVPN_IMP,         "ES Import" },
+    { BGP_EXT_COM_STYPE_EVPN_LABEL,       "ESI Label" },
+    { BGP_EXT_COM_STYPE_EVPN_IMP,         "ES-Import Route Target" },
     { BGP_EXT_COM_STYPE_EVPN_ROUTERMAC,   "EVPN Router's MAC" },
-    { BGP_EXT_COM_STYPE_EVPN_L2ATTR,      "Layer 2 Attributes" },
+    { BGP_EXT_COM_STYPE_EVPN_L2ATTR,      "EVPN Layer 2 Attributes" },
     { BGP_EXT_COM_STYPE_EVPN_ETREE,       "E-Tree" },
     { BGP_EXT_COM_STYPE_EVPN_DF,          "DF Election" },
     { BGP_EXT_COM_STYPE_EVPN_ISID,        "I-SID" },
-    { BGP_EXT_COM_STYPE_EVPN_ND,          "ND" },
+    { BGP_EXT_COM_STYPE_EVPN_ND,          "ARP/ND" },
     { BGP_EXT_COM_STYPE_EVPN_MCFLAGS,     "Multicast Flags Extended Community" },
     { BGP_EXT_COM_STYPE_EVPN_EVIRT0,      "EVI-RT Type 0 Extended Community" },
     { BGP_EXT_COM_STYPE_EVPN_EVIRT1,      "EVI-RT Type 1 Extended Community" },
