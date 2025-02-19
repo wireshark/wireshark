@@ -4227,7 +4227,7 @@ if(BUILD_stratoshark AND QT_FOUND AND NOT APPLE AND (NOT WIN32 OR USE_MSYSTEM))
 		install(FILES resources/freedesktop/org.wireshark.Stratoshark.desktop
 			DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/applications")
 	endif()
-	foreach(size 16 32 48 64 128 256)
+	foreach(size 16 32 48 256)
 		install(FILES resources/icons/ssicon${size}.png
 			DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/icons/hicolor/${size}x${size}/apps"
 			RENAME org.wireshark.Stratoshark.png)
@@ -4235,9 +4235,6 @@ if(BUILD_stratoshark AND QT_FOUND AND NOT APPLE AND (NOT WIN32 OR USE_MSYSTEM))
 			DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/icons/hicolor/${size}x${size}/mimetypes"
 			RENAME org.wireshark.Stratoshark-mimetype.png)
 	endforeach()
-	install(FILES resources/icons/ssicon.svg
-		DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/icons/hicolor/scalable/apps"
-		RENAME org.wireshark.Stratoshark.svg)
 endif()
 
 cmake_path(SET TMP_DST_PATH NORMALIZE "${CMAKE_INSTALL_LIBDIR}/pkgconfig")
