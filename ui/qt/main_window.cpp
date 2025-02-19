@@ -46,7 +46,7 @@ MainWindow::MainWindow(QWidget *parent) :
     packet_diagram_(nullptr),
     df_combo_box_(nullptr),
     main_status_bar_(nullptr),
-    profile_switcher_(new ProfileSwitcher()),
+    profile_switcher_(new ProfileSwitcher(this)),
     use_capturing_title_(false)
 {
 

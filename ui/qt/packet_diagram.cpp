@@ -524,7 +524,7 @@ void PacketDiagram::resetScene(bool reset_root)
         delete scene();
     }
     viewport()->update();
-    QGraphicsScene *new_scene = new QGraphicsScene();
+    QGraphicsScene *new_scene = new QGraphicsScene(this);
     setScene(new_scene);
     connect(new_scene, &QGraphicsScene::selectionChanged, this, &PacketDiagram::sceneSelectionChanged);
     setRootNode(reset_root ? nullptr : root_node_);
