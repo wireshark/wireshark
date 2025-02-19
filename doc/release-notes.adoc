@@ -20,12 +20,23 @@ If you or your organization would like to contribute or become a sponsor, please
 
 === Bug Fixes
 
-// The following vulnerabilities have been fixed:
+The following vulnerabilities have been fixed:
 
-// * wssalink:2024-16[]
+* wssalink:2025-01[]
+Bundle Protocol and CBOR dissector {crash,infinite loop,memory leak}.
+wsbuglink:20373[].
+// cveidlink:2025-xxx[].
+// Fixed in master: 83c73a83ad
+// Fixed in release-4.4: 73d7d46bcc
+// Fixed in release-4.2: 2e5e8c1d9a
+// CVSS AV:L/AC:L/PR:N/UI:R/S:U/C:H/I:H/A:H
+// CWE-824
+// * OSS-Fuzz 393523567: wireshark:fuzzshark_ip_proto-udp: Stack-overflow in fuzzshark_ip_proto-udp. wsbuglink:20373[].
+
+// * wssalink:2025-02[]
 // Foo dissector {crash,infinite loop,memory leak}.
 // wsbuglink:xxx[].
-// cveidlink:2024-xxx[].
+// cveidlink:2025-xxx[].
 // Fixed in master: xxx
 // Fixed in release-4.4: xxx
 // Fixed in release-4.2: xxx
@@ -39,6 +50,19 @@ The following bugs have been fixed:
 //* wsbuglink:6000[Wireshark bug]
 //* cveidlink:2014-2486[]
 //* Wireshark took a bite out of each of your freshly baked muffins until it found the perfect one.
+
+* Crash when sorting columns during capture with display filter active. wsbuglink:20263[].
+* OSS-Fuzz 384757274: Invalid-bool-value in dissect_tcp. wsbuglink:20300[].
+* Test failure in 4.4.2/4.4.3: test_sharkd_req_follow_http2. wsbuglink:20330[].
+* Regression in extcap interface toolbar. wsbuglink:20354[].
+* Clicking outside columns in TCP tab of Statistics -> Conversations window causes crash. wsbuglink:20357[].
+* FTBFS with Ubuntu development (25.04) release. wsbuglink:20359[].
+* DNS enable_qname_stats crash Wireshark when QDCOUNT == 0. wsbuglink:20367[].
+* Windows: Android extcap plugin fails with "Broken socket connection" if there are no new packets for 2sec. wsbuglink:20386[].
+* TECMP: Calculation of lifecycle start in Status message is wrong. wsbuglink:20387[].
+* MQTT v5.0 properties total length presentation is incorrect. wsbuglink:20389[].
+* TShark doesn't resolve addresses in custom "hosts" files. wsbuglink:20391[].
+* Incorrect JA4 fingerprint with empty ciphers. wsbuglink:20394[].
 
 // == Known Bugs
 
@@ -58,15 +82,31 @@ There are no new protocols in this release.
 // ag -A1 '(define PSNAME|proto_register_protocol[^_])' $(git diff --name-only v4.4.3.. | ag packet- | sort -u)
 [commaize]
 --
+CESoETH
+DNS
+IEEE 1609.2
+ISOBUS
+ITS
+MPLS
+MQTT
+PDU Transport
+RTP
+TCP
+TECMP
+WebSocket
+WSMP
 --
 
 === New and Updated Capture File Support
 
-There is no new or updated capture file support in this release.
+// There is no new or updated capture file support in this release.
 // Add one file type per line between the -- delimiters.
-// [commaize]
-// --
-// --
+[commaize]
+--
+CLLog
+EMS
+ERF
+--
 
 === Updated File Format Decoding Support
 
