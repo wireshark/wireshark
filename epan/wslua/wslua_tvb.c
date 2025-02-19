@@ -1270,31 +1270,31 @@ WSLUA_METHOD TvbRange_range(lua_State* L) {
 #define WSLUA_OPTARG_TvbRange_range_LENGTH 3 /* The length (in octets) of the range. Defaults to until the end of the <<lua_class_TvbRange,`TvbRange`>>. */
 
     TvbRange tvbr = checkTvbRange(L,1);
-    /* XXX - What if offset is negative? Right now, that allows taking a
-     * superset instead of a subset, if this TvbRange starts at an offset
-     * into the backing tvb. (In other cases it may have unexpected
-     * behavior when
-     */
     int offset = (int)luaL_optinteger(L,WSLUA_OPTARG_TvbRange_range_OFFSET,0);
-    int len;
+    int len = (int)luaL_optinteger(L,WSLUA_OPTARG_TvbRange_range_LENGTH,-1);
 
     if (!(tvbr && tvbr->tvb)) return 0;
-
-    /* XXX - What if len is -1? Note that currently it is *not* the same thing
-     * as the default, because it's passed to push_TvbRange and then means
-     * "to the end of the backing tvb," which could be larger than the length
-     * of this TvbRange if this is a subset. Thus, this allows taking a
-     * superset of the range, breaking out into the backing tvb. (Other
-     * negative lengths will fail in push_TvbRange.)
-     */
-    len = (int)luaL_optinteger(L,WSLUA_OPTARG_TvbRange_range_LENGTH,tvbr->len-offset);
-
     if (tvbr->tvb->expired) {
         luaL_error(L,"expired tvb");
         return 0;
     }
 
-    if (offset > tvbr->len || (len + offset) > tvbr->len) {
+    if (offset < 0) {
+        WSLUA_OPTARG_ERROR(TvbRange_range,OFFSET,"offset before start of TvbRange");
+        return 0;
+    }
+    if (offset > tvbr->len) {
+        WSLUA_OPTARG_ERROR(TvbRange_range,OFFSET,"offset beyond end of TvbRange");
+        return 0;
+    }
+
+    if (len == -1) {
+        len = tvbr->len - offset;
+    }
+    if (len < 0) {
+        luaL_error(L,"out of bounds");
+        return 0;
+    } else if ( (len + offset) > tvbr->len) {
         luaL_error(L,"Range is out of bounds");
         return 0;
     }
