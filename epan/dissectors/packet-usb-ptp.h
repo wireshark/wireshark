@@ -74,7 +74,7 @@ typedef struct _usb_ptp_device_info_t {
 typedef struct _usb_ptp_conv_info_t {
     uint32_t               flavor;
     usb_ptp_device_info_t *device_info;
-    /*usb_ptp_object_info_t *object_info; NOT Implemened yet*/
+    /*usb_ptp_object_info_t *object_info; NOT Implemented yet*/
 } usb_ptp_conv_info_t;
 
 /* Mask Definition for Value Strings */
@@ -490,7 +490,7 @@ static const usb_ptp_value_string_masked_t usb_ptp_dpc_mvals[] = {
     {USB_PTP_FLAVOR_NIKON     , 0xd0b6, "RawImageSize"},
     {USB_PTP_FLAVOR_NIKON     , 0xd0b7, "FlickerReductionSetting"},
     {USB_PTP_FLAVOR_NIKON     , 0xd0b9, "MultiBatteryInfo"},
-    {USB_PTP_FLAVOR_NIKON     , 0xd0ba, "DiffractionCompensatipn"},
+    {USB_PTP_FLAVOR_NIKON     , 0xd0ba, "DiffractionCompensation"},
     {USB_PTP_FLAVOR_NIKON     , 0xd0bb, "MovieLogOutput"},
     {USB_PTP_FLAVOR_NIKON     , 0xd0bc, "MovieAutoDistortion"},
     {USB_PTP_FLAVOR_NIKON     , 0xd0be, "RemainingExposureTime"},
@@ -994,7 +994,7 @@ static const usb_ptp_value_string_masked_t usb_ptp_dpc_mvals[] = {
     {USB_PTP_FLAVOR_CANON     , 0xd1b3, "EVFSharpness"},
     {USB_PTP_FLAVOR_NIKON     , 0xd1b3, "ExposureIndicateLightup"},
     {USB_PTP_FLAVOR_CANON     , 0xd1b4, "EVFWBMode"},
-    {USB_PTP_FLAVOR_NIKON     , 0xd1b4, "ContinousShootingCount"},
+    {USB_PTP_FLAVOR_NIKON     , 0xd1b4, "ContinuousShootingCount"},
     {USB_PTP_FLAVOR_CANON     , 0xd1b5, "EVFClickWBCoeffs"},
     {USB_PTP_FLAVOR_CANON     , 0xd1b6, "EVFColorTemp"},
     {USB_PTP_FLAVOR_CANON     , 0xd1b7, "ExposureSimMode"},
@@ -2312,7 +2312,7 @@ static const usb_ptp_value_string_masked_t usb_ptp_opc_mvals[] = {
     {USB_PTP_FLAVOR_ALL       , 0xdc0c, "AllowedFolderContents"},
     {USB_PTP_FLAVOR_ALL       , 0xdc0d, "Hidden"},
     {USB_PTP_FLAVOR_ALL       , 0xdc0e, "SystemObject"},
-    {USB_PTP_FLAVOR_ALL       , 0xdc41, "PersistantUniqueObjectIdentifier"},
+    {USB_PTP_FLAVOR_ALL       , 0xdc41, "PersistentUniqueObjectIdentifier"},
     {USB_PTP_FLAVOR_ALL       , 0xdc42, "SyncID"},
     {USB_PTP_FLAVOR_ALL       , 0xdc43, "PropertyBag"},
     {USB_PTP_FLAVOR_ALL       , 0xdc44, "Name"},

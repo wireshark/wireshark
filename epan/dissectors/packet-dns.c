@@ -6059,7 +6059,7 @@ static tap_packet_status dns_qr_stats_tree_packet(stats_tree* st, packet_info* p
         ws_debug("rt_a = Response-TTL_Answers\n");
         unsigned ui_limit = pi->nanswers;
         if (ui_limit > TTL_MAXIMUM_ELEMENTS) { // limit check to avoid overflow
-          ws_debug("rt_a = Response-TTL_Answers (answers(%u) > (%u)TTL_MAXIMUM_ELEMENTS) (iterating upto TTL_MAXIMUM_ELEMENTS)\n", ui_limit, TTL_MAXIMUM_ELEMENTS);
+          ws_debug("rt_a = Response-TTL_Answers (answers(%u) > (%u)TTL_MAXIMUM_ELEMENTS) (iterating up to TTL_MAXIMUM_ELEMENTS)\n", ui_limit, TTL_MAXIMUM_ELEMENTS);
           ui_limit = TTL_MAXIMUM_ELEMENTS;
         }
         for (unsigned ui = 0; ui < ui_limit; ui++) {
@@ -6099,7 +6099,7 @@ static tap_packet_status dns_qr_stats_tree_packet(stats_tree* st, packet_info* p
         ws_debug("rt_u = Response-TTL_aUthority\n");
         unsigned ui_limit = pi->nauthorities;
         if (ui_limit > TTL_MAXIMUM_ELEMENTS) { // limit check to avoid overflow
-          ws_debug("rt_a = Response-TTL_Answers (authorities(%u) > (%u)TTL_MAXIMUM_ELEMENTS) (iterating upto TTL_MAXIMUM_ELEMENTS)\n", ui_limit, TTL_MAXIMUM_ELEMENTS);
+          ws_debug("rt_a = Response-TTL_Answers (authorities(%u) > (%u)TTL_MAXIMUM_ELEMENTS) (iterating up to TTL_MAXIMUM_ELEMENTS)\n", ui_limit, TTL_MAXIMUM_ELEMENTS);
           ui_limit = TTL_MAXIMUM_ELEMENTS;
         }
         for (unsigned ui = 0; ui < ui_limit; ui++) {
@@ -6139,7 +6139,7 @@ static tap_packet_status dns_qr_stats_tree_packet(stats_tree* st, packet_info* p
         ws_debug("rt_d = Response-TTL_aDditional\n");
         unsigned ui_limit = pi->nadditionals;
         if (ui_limit > TTL_MAXIMUM_ELEMENTS) { // limit check to avoid overflow
-          ws_debug("rt_a = Response-TTL_Answers (additionals(%u) > (%u)TTL_MAXIMUM_ELEMENTS) (iterating upto TTL_MAXIMUM_ELEMENTS)\n", ui_limit, TTL_MAXIMUM_ELEMENTS);
+          ws_debug("rt_a = Response-TTL_Answers (additionals(%u) > (%u)TTL_MAXIMUM_ELEMENTS) (iterating up to TTL_MAXIMUM_ELEMENTS)\n", ui_limit, TTL_MAXIMUM_ELEMENTS);
           ui_limit = TTL_MAXIMUM_ELEMENTS;
         }
         for (unsigned ui = 0; ui < ui_limit; ui++) {

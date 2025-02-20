@@ -39,6 +39,7 @@ acyclic
 adaption
 addba
 additionals
+additionr
 additionsr
 addon
 addrbook
@@ -720,6 +721,7 @@ digium
 dilithium
 dimmable
 diplexer
+dipsa
 directionality
 dirname
 disambiguate
@@ -871,6 +873,7 @@ epsem
 epson
 equinf
 equinix
+equipson
 equiv
 equivalence
 ericsson
@@ -898,6 +901,7 @@ ethertype
 ethname
 etisalat
 etlfile
+etree
 ettarr
 etwdump
 etype
@@ -1195,6 +1199,7 @@ ifndef
 iftype
 ikev2
 illuminance
+illuminazione
 image1d
 image2d
 image3d
@@ -1473,6 +1478,7 @@ lucent
 lumascape
 luminaire
 luminance
+luminex
 luxembourg
 lycamobile
 lz4frame
@@ -1528,6 +1534,7 @@ megaco
 mellanox
 memcache
 memcpy
+memdup
 memset
 menubar
 mergecap
@@ -1658,6 +1665,7 @@ multistate
 mumbai
 mutex
 muting
+muxed
 myanmar
 mycapture
 mycaptures
@@ -1766,6 +1774,7 @@ november
 nowait
 nowrap
 npcap
+npdsch
 nprach
 nreport
 nrppa
@@ -2061,6 +2070,7 @@ profienergy
 profinet
 profxchg
 programmatic
+programmes
 promisc
 promiscsniff
 promiscuously
@@ -2466,6 +2476,7 @@ serialized
 serializes
 serverlst
 serversrt
+servicios
 servlet
 sessionid
 sessionkey
@@ -2561,6 +2572,7 @@ spare9
 spcell
 specifier
 specifiers
+spectre
 spectrograph
 speex
 speexdsp
@@ -2688,6 +2700,7 @@ swedish
 swisscom
 swissvoice
 switchinfo
+swout
 sydney
 symantec
 symbian
@@ -2839,6 +2852,7 @@ tspace
 tspec
 tsprec
 tstamp
+ttltrig
 tuesday
 tunables
 tunid

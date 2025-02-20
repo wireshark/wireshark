@@ -7227,7 +7227,7 @@ dissect_nas_eps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 
                 /* Integrity protected and ciphered = 2, Integrity protected and ciphered with new EPS security context = 4 */
                 /* Use preferences settings to override this behavior */
-                /* No decipher mechanism selected, retruning without trying to decipher */
+                /* No decipher mechanism selected, returning without trying to decipher */
                 if (!g_nas_eps_null_decipher)
                 {
                     return tvb_captured_length(tvb);
