@@ -277,6 +277,10 @@ dfwork_free(dfwork_t *dfw)
 		g_hash_table_destroy(dfw->loaded_raw_fields);
 	}
 
+	if (dfw->loaded_vs_fields) {
+		g_hash_table_destroy(dfw->loaded_vs_fields);
+	}
+
 	if (dfw->interesting_fields) {
 		g_hash_table_destroy(dfw->interesting_fields);
 	}

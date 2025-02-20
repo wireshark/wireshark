@@ -588,6 +588,17 @@ ul_semcheck_value_string(dfwork_t *dfw, const char *func_name, ftenum_t logical_
     resolve_unparsed(dfw, param, true);
 
     if (stnode_type_id(param) == STTYPE_FIELD) {
+        if (sttype_field_raw(param)) {
+            /* Value string operates on the original value, not the raw bytes.
+             * We could ignore the raw operator and just use the value string,
+             * warn, or fail. We choose to fail. (Checking sttype_field_ftenum()
+             * instead of hfinfo->type below would also fail, but an explicit
+             * check for raw gives a more useful error message.
+             */
+            dfunc_fail(dfw, param, "The raw operator (\"@\") cannot be used with %s()",
+                                    func_name);
+        }
+
         dfw->field_count++;
         hfinfo = sttype_field_hfinfo(param);
         abbrev = hfinfo->abbrev;

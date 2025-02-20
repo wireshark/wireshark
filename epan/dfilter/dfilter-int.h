@@ -81,6 +81,7 @@ typedef struct {
 	GPtrArray	*insns;
 	GHashTable	*loaded_fields;
 	GHashTable	*loaded_raw_fields;
+	GHashTable	*loaded_vs_fields;
 	GHashTable	*interesting_fields;
 	int		next_insn_id;
 	int		next_register;
