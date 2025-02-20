@@ -10424,7 +10424,7 @@ de_nas_5gs_ue_policies_andsp_wlansp_rule(tvbuff_t* tvb, packet_info* pinfo _U_, 
                 proto_tree_add_item_ret_uint(sel_crit_set_sub_tree, hf_nas_5gs_wlansp_sel_crit_set_type, tvb, offset, 1, ENC_BIG_ENDIAN, &sel_crit_set_type);
                 proto_tree_add_item_ret_uint(sel_crit_set_sub_tree, hf_nas_5gs_wlansp_sel_crit_num_sub_entr, tvb, offset, 1, ENC_BIG_ENDIAN, &num_sub_entr);
                 offset++;
-                uint32_t k, req_prot_port_len, ssid_len, fqdn_match_len, country_len;
+                uint32_t k, req_prot_port_len, ssid_len, fqdn_match_len, country_len, num_ports;
                 for (k = 0; k < num_sub_entr; k++) {
                     switch (sel_crit_set_type) {
                     case 1: /* preferred SSID list*/
@@ -10461,14 +10461,13 @@ de_nas_5gs_ue_policies_andsp_wlansp_rule(tvbuff_t* tvb, packet_info* pinfo _U_, 
                         offset++;
                         /* FQDN_Match */
                         proto_tree_add_item(sel_crit_set_sub_tree, hf_nas_5gs_wlansp_fqdn_match, tvb, offset, fqdn_match_len, ENC_UTF_8 | ENC_NA);
+                        offset += fqdn_match_len;
                         /* Country length */
                         proto_tree_add_item_ret_uint(sel_crit_set_sub_tree, hf_nas_5gs_wlansp_country_len, tvb, offset, 1, ENC_BIG_ENDIAN, &country_len);
                         offset++;
                         /* Country */
                         proto_tree_add_item(sel_crit_set_sub_tree, hf_nas_5gs_wlansp_country, tvb, offset, country_len, ENC_UTF_8 | ENC_NA);
-                        /* Skip over the list*/
-                        k = num_sub_entr;
-                        offset += sel_crit_set_len - 2;
+                        offset += country_len;
                         break;
                     case 3: /* Required protocol port tuple */
                         /* IP protocol */
@@ -10478,8 +10477,11 @@ de_nas_5gs_ue_policies_andsp_wlansp_rule(tvbuff_t* tvb, packet_info* pinfo _U_, 
                         proto_tree_add_item_ret_uint(sel_crit_set_sub_tree, hf_nas_5gs_wlansp_req_prot_port_len, tvb, offset, 1, ENC_BIG_ENDIAN, &req_prot_port_len);
                         offset++;
                         /* Port number */
-                        proto_tree_add_item(sel_crit_set_sub_tree, hf_nas_5gs_wlansp_req_prot_port, tvb, offset, req_prot_port_len, ENC_NA);
-                        offset += req_prot_port_len;
+                        num_ports = req_prot_port_len >> 1;
+                        for (k = 0; k < num_ports; k++){
+                            proto_tree_add_item(sel_crit_set_sub_tree, hf_nas_5gs_wlansp_req_prot_port, tvb, offset, 2, ENC_BIG_ENDIAN);
+                            offset += 2;
+                        }
                         break;
                     case 4: /* SP exclusion list */
                         /* Length of sub entry {set type = SP exclusion list} */
@@ -10503,6 +10505,7 @@ de_nas_5gs_ue_policies_andsp_wlansp_rule(tvbuff_t* tvb, packet_info* pinfo _U_, 
                             proto_tree_add_item(sel_crit_set_sub_tree, hf_nas_5gs_wlansp_sp_excl_list_ulb, tvb, offset, 4, ENC_BIG_ENDIAN);
                             offset += 4;
                         }
+                        offset += 5;
                         break;
                     default:
                         /* Skip over the list*/
@@ -15773,7 +15776,7 @@ proto_register_nas_5gs(void)
         },
         { &hf_nas_5gs_wlansp_req_prot_port,
         { "Port number", "nas-5gs.andsp.wlansp.req_prot_port",
-            FT_BYTES, BASE_NONE, NULL, 0x0,
+            FT_UINT16, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_nas_5gs_wlansp_sel_crit_sp_exc,
