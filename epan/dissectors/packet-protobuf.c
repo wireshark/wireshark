@@ -791,13 +791,13 @@ protobuf_dissect_field_value(proto_tree *value_tree, tvbuff_t *tvb, unsigned off
         proto_item_append_text(ti_field, " =");
         /* FALLTHROUGH */
     case PROTOBUF_TYPE_STRING:
-        proto_tree_add_item_ret_display_string(value_tree, hf_protobuf_value_string, tvb, offset, length, ENC_UTF_8|ENC_NA, pinfo->pool, &buf);
+        proto_tree_add_item_ret_string(value_tree, hf_protobuf_value_string, tvb, offset, length, ENC_UTF_8|ENC_NA, pinfo->pool, (const uint8_t**)&buf);
         proto_item_append_text(ti_field, "%s %s", prepend_text, buf);
         if (is_top_level) {
             col_append_fstr(pinfo->cinfo, COL_INFO, "=%s", buf);
         }
         if (hf_id_ptr) {
-            ti = proto_tree_add_item_ret_display_string(pbf_tree, *hf_id_ptr, tvb, offset, length, ENC_UTF_8|ENC_NA, pinfo->pool, &buf);
+            ti = proto_tree_add_item(pbf_tree, *hf_id_ptr, tvb, offset, length, ENC_UTF_8|ENC_NA);
         }
         if (field_desc && dumper && field_type == PROTOBUF_TYPE_STRING) {
             /* JSON view will ignore the dissect_bytes_as_string option */
