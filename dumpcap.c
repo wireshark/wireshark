@@ -530,8 +530,11 @@ print_usage(FILE *output)
     fprintf(output, "                                          an exact multiple of NUM secs\n");
     fprintf(output, "                          printname:FILE - print filename to FILE when written\n");
     fprintf(output, "                                           (can use 'stdout' or 'stderr')\n");
+    fprintf(output, "  -F                       output file type (default: pcapng)\n");
+    fprintf(output, "                           an empty \"-F\" option will list the file types\n");
     fprintf(output, "  -n                       use pcapng format instead of pcap (default)\n");
     fprintf(output, "  -P                       use libpcap format instead of pcapng\n");
+
     fprintf(output, "  --capture-comment <comment>\n");
     fprintf(output, "                           add a capture comment to the output file\n");
     fprintf(output, "                           (only for pcapng)\n");
@@ -548,6 +551,7 @@ print_usage(FILE *output)
     fprintf(output, "                           within dumpcap\n");
     fprintf(output, "  -t                       use a separate thread per interface\n");
     fprintf(output, "  -q                       don't report packet capture counts\n");
+    fprintf(output, "  -Q                       suppress all non-error status messages to stderr\n");
     fprintf(output, "  --application-flavor <flavor>\n");
     fprintf(output, "                           set the application flavor\n");
     fprintf(output, "  -v, --version            print version information and exit\n");
