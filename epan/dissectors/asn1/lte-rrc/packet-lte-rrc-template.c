@@ -2790,6 +2790,7 @@ typedef struct lte_rrc_private_data_t
   tvbuff_t *dcch_segment;
   bool dcch_segment_last;
   bool digits_strbuf_parsing_failed_flag; /* Whether an error occurred when creating the IMSI/MCC-MNC pair string */
+  wmem_strbuf_t *last_mcc_strbuf; /* MCC of the immediately preceding IE PLMN-Identity */
 } lte_rrc_private_data_t;
 
 /* Helper function to get or create a struct that will be actx->private_data */
@@ -3036,6 +3037,18 @@ static void private_data_set_digits_strbuf_parsing_failed_flag(asn1_ctx_t *actx,
 {
   lte_rrc_private_data_t *private_data = (lte_rrc_private_data_t*)lte_rrc_get_private_data(actx);
   private_data->digits_strbuf_parsing_failed_flag = digits_strbuf_parsing_failed_flag;
+}
+
+static wmem_strbuf_t* private_data_get_last_mcc_strbuf(asn1_ctx_t *actx)
+{
+  lte_rrc_private_data_t *private_data = (lte_rrc_private_data_t*)lte_rrc_get_private_data(actx);
+  return private_data->last_mcc_strbuf;
+}
+
+static void private_data_set_last_mcc_strbuf(asn1_ctx_t *actx, wmem_strbuf_t* last_mcc_strbuf)
+{
+  lte_rrc_private_data_t *private_data = (lte_rrc_private_data_t*)lte_rrc_get_private_data(actx);
+  private_data->last_mcc_strbuf = last_mcc_strbuf;
 }
 
 /*****************************************************************************/

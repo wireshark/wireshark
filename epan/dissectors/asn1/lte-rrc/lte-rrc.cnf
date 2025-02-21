@@ -4280,13 +4280,50 @@ SR-NPRACH-Resource-NB-r15/p0-SR-r15 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UN
   }
 
 #.FN_BODY PLMN-Identity
-  wmem_strbuf_t *plmn_str = wmem_strbuf_new(actx->pinfo->pool, "");
-  actx->value_ptr = plmn_str;
+  tvbuff_t *mcc_mnc_tvb;
+  wmem_strbuf_t *plmn_strbuf = wmem_strbuf_new(actx->pinfo->pool, "");
+  wmem_strbuf_t *mcc_strbuf;
+  char *plmn_str;
+  unsigned plmn_len;
+
+  actx->value_ptr = plmn_strbuf;
 %(DEFAULT_BODY)s
-  if (wmem_strbuf_get_len(plmn_str) > 0) {
-    proto_item_append_text(actx->created_item, ": %%s", wmem_strbuf_get_str(plmn_str));
-  }
   actx->value_ptr = NULL;
+
+  plmn_len = (unsigned)wmem_strbuf_get_len(plmn_strbuf);
+  plmn_str = wmem_strbuf_finalize(plmn_strbuf);
+  if (plmn_len > 3) {
+    /* 4+ digits were found, so this should be 3 MCC digits plus MNC.
+     * 3GPP TS 36.311 notes that if the MCC is absent in a PLMN-Identity,
+     * it takes the same value as the MCC of the immediately preceding
+     * IE PLMN-Identity (in the PLMN-IdentityList).
+     * So save this for the next PLMN-Identity.
+     */
+    mcc_strbuf = wmem_strbuf_new_sized(actx->pinfo->pool, 3);
+    wmem_strbuf_append_len(mcc_strbuf, plmn_str, 3);
+    private_data_set_last_mcc_strbuf(actx, mcc_strbuf);
+  } else {
+    /* 3 or fewer digits, so probably MNC only. Add the MCC of
+     * the immediately preceding IE PLMN-Identity if we have it. */
+    mcc_strbuf = private_data_get_last_mcc_strbuf(actx);
+    if (mcc_strbuf) {
+      plmn_strbuf = wmem_strbuf_new_sized(actx->pinfo->pool, 6);
+      wmem_strbuf_append(plmn_strbuf, wmem_strbuf_get_str(mcc_strbuf));
+      wmem_strbuf_append(plmn_strbuf, plmn_str);
+      plmn_len = (unsigned)wmem_strbuf_get_len(plmn_strbuf);
+      plmn_str = wmem_strbuf_finalize(plmn_strbuf);
+    }
+  }
+  if (plmn_len > 0) {
+    proto_item_append_text(actx->created_item, ": %%s", plmn_str);
+    if (plmn_len >= 5) {
+      /* Create TVB to pass to E.212 dissector */
+      mcc_mnc_tvb = tvb_new_child_real_data(tvb, (uint8_t*)plmn_str, plmn_len, plmn_len);
+      add_new_data_source(actx->pinfo, mcc_mnc_tvb, "MCC-MNC");
+
+      dissect_e212_mcc_mnc_in_utf8_address(mcc_mnc_tvb, actx->pinfo, proto_item_get_subtree(actx->created_item), 0);
+    }
+  }
 
 #.FN_BODY IMSI-Digit VAL_PTR=&value
   uint32_t value;
