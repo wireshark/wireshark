@@ -564,7 +564,9 @@ dissect_mpeg_pes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 				 * the formats of those payloads specified?)
 				 */
 				length -= ((offset - save_offset) / 8) - 2;
-			} else if (stream < STREAM_VIDEO || stream > STREAM_VIDEO_MAX) {
+			} else if (!(stream == STREAM_PRIVATE1 && (stream_type == 0x21 || stream_type == 0x32))
+				&& (stream < STREAM_VIDEO || stream > STREAM_VIDEO_MAX)) {
+				/* Video with PES length == 0 can also be stream_private_1 with stream_type 0x21 (JPEG 2000) or 0x32 (JPEG XS). */
 				proto_tree_add_expert(tree, pinfo, &ei_mpeg_pes_length_zero, tvb, save_offset / 8, 2);
 			}
 

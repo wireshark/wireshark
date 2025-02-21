@@ -75,6 +75,7 @@ static const value_string mpeg_descriptor_tag_vals[] = {
     { 0x2A, "AVC Timing and HRD Descriptor" },
     { 0x2B, "MPEG2 AAC Descriptor" },
     { 0x2C, "FlexMuxTiming Descriptor" },
+    { 0x3F, "Extension Descriptor (ISO)" },
 
     /* From ETSI EN 300 468 */
     { 0x40, "Network Name Descriptor" },
@@ -143,7 +144,8 @@ static const value_string mpeg_descriptor_tag_vals[] = {
     /* 0x7D from ETSI TS 102 727 */
     { 0x7D, "XAIT Content Location Descriptor" },
     { 0x7E, "FTA Content Management Descriptor" },
-    { 0x7F, "Extension Descriptor" },
+    /* 0x7F from ETSI EN 300 468 */
+    { 0x7F, "Extension Descriptor (ETSI)" },
 
     /* From ATSC A/52 */
     { 0x81, "ATSC A/52 AC-3 Audio Descriptor" },
@@ -822,6 +824,82 @@ proto_mpeg_descriptor_dissect_network_name(tvbuff_t *tvb, unsigned offset, unsig
     dvb_add_chartbl(tree, hf_mpeg_descr_network_name_encoding, tvb, offset, enc_len, encoding);
 
     proto_tree_add_item(tree, hf_mpeg_descr_network_name_descriptor, tvb, offset+enc_len, len-enc_len, dvb_enc_to_item_enc(encoding));
+}
+
+
+/* 0x3F Extension Descriptor (as defined in ISO/IEC 13818-1) */
+static int hf_mpeg_descr_iso_extension_tag_extension;
+static int hf_mpeg_descr_iso_extension_data;
+
+#define ISO_EXT_TAG_OBJECT_DESC_UPDATE          0x02
+#define ISO_EXT_TAG_HEVC_TIMING_AND_HRD         0x03
+#define ISO_EXT_TAG_AF                          0x04
+#define ISO_EXT_TAG_HEVC_OPERATION_POINT        0x05
+#define ISO_EXT_TAG_HEVC_HIERARCHY              0x06
+#define ISO_EXT_TAG_GREEN                       0x07
+#define ISO_EXT_TAG_MPEG_H_3DAUDIO              0x08
+#define ISO_EXT_TAG_MPEG_H_3DAUDIO_CONFIG       0x09
+#define ISO_EXT_TAG_MPEG_H_3DAUDIO_SCENE        0x0A
+#define ISO_EXT_TAG_MPEG_H_3DAUDIO_TEXT_LABEL   0x0B
+#define ISO_EXT_TAG_MPEG_H_3DAUDIO_MULTI_STREAM 0x0C
+#define ISO_EXT_TAG_MPEG_H_3DAUDIO_DRC_LOUDNESS 0x0D
+#define ISO_EXT_TAG_MPEG_H_3DAUDIO_COMMAND      0x0E
+#define ISO_EXT_TAG_QUALITY                     0x0F
+#define ISO_EXT_TAG_VIRTUAL_SEGMENTATION        0x10
+#define ISO_EXT_TAG_TIMED_METADATA              0x11
+#define ISO_EXT_TAG_HEVC_TILE_SUBSTREAM         0x12
+#define ISO_EXT_TAG_HEVC_SUBREGION              0x13
+#define ISO_EXT_TAG_JXS_VIDEO                   0x14
+#define ISO_EXT_TAG_VVC_TIMING_AND_HRD          0x15
+#define ISO_EXT_TAG_EVC_TIMING_AND_HRD          0x16
+#define ISO_EXT_TAG_LCEVC_VIDEO                 0x17
+#define ISO_EXT_TAG_LCEVC_LINKAGE               0x18
+#define ISO_EXT_TAG_MEDIA_SERVICE_KIND          0x19
+
+static const value_string mpeg_descr_iso_extension_tag_extension_vals[] = {
+    { ISO_EXT_TAG_OBJECT_DESC_UPDATE, "Object Descriptor Update" },
+    { ISO_EXT_TAG_HEVC_TIMING_AND_HRD, "HEVC Timing and HRD Descriptor" },
+    { ISO_EXT_TAG_AF, "AF Extensions Descriptor" },
+    { ISO_EXT_TAG_HEVC_OPERATION_POINT, "HEVC Operation Point Descriptor" },
+    { ISO_EXT_TAG_HEVC_HIERARCHY, "HEVC Hierarchy Extension Descriptor" },
+    { ISO_EXT_TAG_GREEN, "Green Extension Descriptor" },
+    { ISO_EXT_TAG_MPEG_H_3DAUDIO, "MPEG-H 3DAudio Descriptor" },
+    { ISO_EXT_TAG_MPEG_H_3DAUDIO_CONFIG, "MPEG-H 3DAudio Config Descriptor" },
+    { ISO_EXT_TAG_MPEG_H_3DAUDIO_SCENE, "MPEG-H 3DAudio Scene Descriptor" },
+    { ISO_EXT_TAG_MPEG_H_3DAUDIO_TEXT_LABEL, "MPEG-H 3DAudio Text Label Descriptor" },
+    { ISO_EXT_TAG_MPEG_H_3DAUDIO_MULTI_STREAM, "MPEG-H 3DAudio Multi-stream Descriptor" },
+    { ISO_EXT_TAG_MPEG_H_3DAUDIO_DRC_LOUDNESS, "MPEG-H 3DAudio DRC Loudness Descriptor" },
+    { ISO_EXT_TAG_MPEG_H_3DAUDIO_COMMAND, "MPEG-H 3DAudio Command Descriptor" },
+    { ISO_EXT_TAG_QUALITY, "Quality Extension Descriptor" },
+    { ISO_EXT_TAG_VIRTUAL_SEGMENTATION, "Virtual Segmentation Descriptor" },
+    { ISO_EXT_TAG_TIMED_METADATA, "Timed Metadata Extension Descriptor" },
+    { ISO_EXT_TAG_HEVC_TILE_SUBSTREAM, "HEVC Tile Substream Descriptor" },
+    { ISO_EXT_TAG_HEVC_SUBREGION, "HEVC Subregion Descriptor" },
+    { ISO_EXT_TAG_JXS_VIDEO, "JXS Video Descriptor" },
+    { ISO_EXT_TAG_VVC_TIMING_AND_HRD, "VVC Timing and HRD Descriptor" },
+    { ISO_EXT_TAG_EVC_TIMING_AND_HRD, "EVC Timing and HRD Descriptor" },
+    { ISO_EXT_TAG_LCEVC_VIDEO, "LCEVC Video Descriptor" },
+    { ISO_EXT_TAG_LCEVC_LINKAGE, "LCEVC Linkage Descriptor" },
+    { ISO_EXT_TAG_MEDIA_SERVICE_KIND, "Media Service Kind Descriptor" },
+    { 0x0, NULL }
+};
+static value_string_ext mpeg_descr_iso_extension_tag_extension_vals_ext = VALUE_STRING_EXT_INIT(mpeg_descr_iso_extension_tag_extension_vals);
+
+static void
+proto_mpeg_descriptor_dissect_iso_extension(tvbuff_t *tvb, unsigned offset, unsigned len, proto_tree *tree)
+{
+    unsigned  offset_start;
+    unsigned  already_dissected;
+
+    offset_start = offset;
+
+    proto_tree_add_item(tree, hf_mpeg_descr_iso_extension_tag_extension, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
+
+    /* Just add the extended descriptor data. */
+    already_dissected = offset-offset_start;
+    if (already_dissected<len)
+        proto_tree_add_item(tree, hf_mpeg_descr_iso_extension_data, tvb, offset, len-already_dissected, ENC_NA);
 }
 
 /* 0x41 Service List Descriptor */
@@ -3665,15 +3743,15 @@ proto_mpeg_descriptor_dissect_fta(tvbuff_t *tvb, unsigned offset, proto_tree *tr
 }
 
 /* 0x7F Extension Descriptor */
-static int hf_mpeg_descr_extension_tag_extension;
-static int hf_mpeg_descr_extension_data;
+static int hf_mpeg_descr_etsi_extension_tag_extension;
+static int hf_mpeg_descr_etsi_extension_data;
 /* Supplementary Audio (Sub-)Descriptor */
-static int hf_mpeg_descr_extension_supp_audio_mix_type;
-static int hf_mpeg_descr_extension_supp_audio_ed_cla;
-static int hf_mpeg_descr_extension_supp_audio_lang_code_present;
-static int hf_mpeg_descr_extension_supp_audio_lang_code;
+static int hf_mpeg_descr_etsi_extension_supp_audio_mix_type;
+static int hf_mpeg_descr_etsi_extension_supp_audio_ed_cla;
+static int hf_mpeg_descr_etsi_extension_supp_audio_lang_code_present;
+static int hf_mpeg_descr_etsi_extension_supp_audio_lang_code;
 
-static int hf_mpeg_descr_private_data;
+static int hf_mpeg_descr_etsi_private_data;
 
 #define EXT_TAG_IMG_ICON      0x00
 #define EXT_TAG_CPCM_DLV      0x01
@@ -3688,7 +3766,7 @@ static int hf_mpeg_descr_private_data;
 #define EXT_TAG_TRGT_REG_NAME 0x0A
 #define EXT_TAG_SVC_RELOC     0x0B
 
-static const value_string mpeg_descr_extension_tag_extension_vals[] = {
+static const value_string mpeg_descr_etsi_extension_tag_extension_vals[] = {
     { EXT_TAG_IMG_ICON,      "Image Icon Descriptor" },
     { EXT_TAG_CPCM_DLV,      "CPCM Delivery Signalling Descriptor" },
     { EXT_TAG_CP,            "CP Descriptor" },
@@ -3703,7 +3781,7 @@ static const value_string mpeg_descr_extension_tag_extension_vals[] = {
     { EXT_TAG_SVC_RELOC,     "Service Relocated Descriptor" },
     { 0x0, NULL }
 };
-static value_string_ext mpeg_descr_extension_tag_extension_vals_ext = VALUE_STRING_EXT_INIT(mpeg_descr_extension_tag_extension_vals);
+static value_string_ext mpeg_descr_etsi_extension_tag_extension_vals_ext = VALUE_STRING_EXT_INIT(mpeg_descr_etsi_extension_tag_extension_vals);
 
 static const value_string supp_audio_mix_type_vals[] = {
     { 0x00, "Audio stream is a supplementary stream" },
@@ -3721,9 +3799,8 @@ static const value_string supp_audio_ed_cla[] = {
     { 0x0, NULL }
 };
 
-
 static void
-proto_mpeg_descriptor_dissect_extension(tvbuff_t *tvb, unsigned offset, unsigned len, proto_tree *tree)
+proto_mpeg_descriptor_dissect_etsi_extension(tvbuff_t *tvb, unsigned offset, unsigned len, proto_tree *tree)
 {
     unsigned  offset_start;
     uint8_t   tag_ext;
@@ -3733,31 +3810,30 @@ proto_mpeg_descriptor_dissect_extension(tvbuff_t *tvb, unsigned offset, unsigned
     offset_start = offset;
 
     tag_ext = tvb_get_uint8(tvb, offset);
-    proto_tree_add_item(tree, hf_mpeg_descr_extension_tag_extension, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_mpeg_descr_etsi_extension_tag_extension, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
 
     switch (tag_ext) {
         case EXT_TAG_SUPP_AUDIO:
-            proto_tree_add_item(tree, hf_mpeg_descr_extension_supp_audio_mix_type, tvb, offset, 1, ENC_BIG_ENDIAN);
-            proto_tree_add_item(tree, hf_mpeg_descr_extension_supp_audio_ed_cla, tvb, offset, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(tree, hf_mpeg_descr_etsi_extension_supp_audio_mix_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(tree, hf_mpeg_descr_etsi_extension_supp_audio_ed_cla, tvb, offset, 1, ENC_BIG_ENDIAN);
             lang_code_present = ((tvb_get_uint8(tvb, offset) & 0x01) == 0x01);
-            proto_tree_add_item(tree, hf_mpeg_descr_extension_supp_audio_lang_code_present, tvb, offset, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(tree, hf_mpeg_descr_etsi_extension_supp_audio_lang_code_present, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset += 1;
             if (lang_code_present) {
-                proto_tree_add_item(tree, hf_mpeg_descr_extension_supp_audio_lang_code, tvb, offset, 3, ENC_ASCII);
+                proto_tree_add_item(tree, hf_mpeg_descr_etsi_extension_supp_audio_lang_code, tvb, offset, 3, ENC_ASCII);
                 offset += 3;
             }
             already_dissected = offset-offset_start;
             if (already_dissected<len)
-                proto_tree_add_item(tree, hf_mpeg_descr_private_data, tvb, offset, len-already_dissected, ENC_NA);
+                proto_tree_add_item(tree, hf_mpeg_descr_etsi_private_data, tvb, offset, len-already_dissected, ENC_NA);
             break;
         default:
             already_dissected = offset-offset_start;
             if (already_dissected<len)
-                proto_tree_add_item(tree, hf_mpeg_descr_extension_data, tvb, offset, len-already_dissected, ENC_NA);
+                proto_tree_add_item(tree, hf_mpeg_descr_etsi_extension_data, tvb, offset, len-already_dissected, ENC_NA);
             break;
     }
-
 }
 
 #define MPEG_DESCR_AC3_SYSA_SRATE_MASK 0xe0
@@ -4426,7 +4502,7 @@ proto_mpeg_descriptor_dissect_private_ciplus(tvbuff_t *tvb, unsigned offset, pro
 
         remaining = offset_start+2+len - offset;
         if (remaining > 0) {
-            proto_tree_add_item(descriptor_tree, hf_mpeg_descr_private_data, tvb, offset, remaining, ENC_NA);
+            proto_tree_add_item(descriptor_tree, hf_mpeg_descr_etsi_private_data, tvb, offset, remaining, ENC_NA);
             offset += remaining;
         }
     }
@@ -4499,6 +4575,9 @@ proto_mpeg_descriptor_dissect(tvbuff_t *tvb, unsigned offset, proto_tree *tree)
             break;
         case 0x28: /* AVC Video Descriptor */
             proto_mpeg_descriptor_dissect_avc_vid(tvb, offset, descriptor_tree);
+            break;
+        case 0x3F: /* MPEG2 Extension Descriptor */
+            proto_mpeg_descriptor_dissect_iso_extension(tvb, offset, len, descriptor_tree);
             break;
         case 0x40: /* Network Name Descriptor */
             proto_mpeg_descriptor_dissect_network_name(tvb, offset, len, descriptor_tree);
@@ -4635,8 +4714,8 @@ proto_mpeg_descriptor_dissect(tvbuff_t *tvb, unsigned offset, proto_tree *tree)
         case 0x7E: /* FTA Content Management Descriptor */
             proto_mpeg_descriptor_dissect_fta(tvb, offset, descriptor_tree);
             break;
-        case 0x7F: /* Extension Descriptor */
-            proto_mpeg_descriptor_dissect_extension(tvb, offset, len, descriptor_tree);
+        case 0x7F: /* ETSI Extension Descriptor */
+            proto_mpeg_descriptor_dissect_etsi_extension(tvb, offset, len, descriptor_tree);
             break;
         case 0x81: /* ATSC A/52 AC-3 Audio Descriptor */
             proto_mpeg_descriptor_dissect_ac3_system_a(tvb, offset, len, descriptor_tree);
@@ -5066,6 +5145,17 @@ proto_register_mpeg_descriptor(void)
         { &hf_mpeg_descr_avc_vid_reserved, {
             "Reserved", "mpeg_descr.avc_vid.reserved",
             FT_UINT8, BASE_HEX, NULL, MPEG_DESCR_AVC_VID_RESERVED_MASK, NULL, HFILL
+        } },
+
+        /* 0x3F Extension Descriptor (ISO) */
+        { &hf_mpeg_descr_iso_extension_tag_extension, {
+            "Descriptor Tag Extension", "mpeg_descr.iso_ext.tag",
+            FT_UINT8, BASE_HEX | BASE_EXT_STRING, &mpeg_descr_iso_extension_tag_extension_vals_ext, 0, NULL, HFILL
+        } },
+
+        { &hf_mpeg_descr_iso_extension_data, {
+            "Descriptor Extension Data", "mpeg_descr.iso_ext.data",
+            FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL
         } },
 
         /* 0x40 Network Name Descriptor */
@@ -6437,39 +6527,39 @@ proto_register_mpeg_descriptor(void)
             FT_BOOLEAN, 8, TFS(&tfs_fta_do_not_apply_revocation), MPEG_DESCR_FTA_REVOCATION_MASK, NULL, HFILL
         } },
 
-        /* 0x7F Extension Descriptor */
-        { &hf_mpeg_descr_extension_tag_extension, {
+        /* 0x7F Extension Descriptor (ETSI) */
+        { &hf_mpeg_descr_etsi_extension_tag_extension, {
             "Descriptor Tag Extension", "mpeg_descr.ext.tag",
-            FT_UINT8, BASE_HEX | BASE_EXT_STRING, &mpeg_descr_extension_tag_extension_vals_ext, 0, NULL, HFILL
+            FT_UINT8, BASE_HEX | BASE_EXT_STRING, &mpeg_descr_etsi_extension_tag_extension_vals_ext, 0, NULL, HFILL
         } },
 
-        { &hf_mpeg_descr_extension_data, {
+        { &hf_mpeg_descr_etsi_extension_data, {
             "Descriptor Extension Data", "mpeg_descr.ext.data",
             FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL
         } },
 
         /* Supplementary Audio Descriptor (part of Extension Descriptor) */
-        { &hf_mpeg_descr_extension_supp_audio_mix_type, {
+        { &hf_mpeg_descr_etsi_extension_supp_audio_mix_type, {
             "Mix type", "mpeg_descr.ext.supp_audio.mix_type",
             FT_UINT8, BASE_HEX, VALS(supp_audio_mix_type_vals), 0x80, NULL, HFILL
         } },
 
-        { &hf_mpeg_descr_extension_supp_audio_ed_cla, {
+        { &hf_mpeg_descr_etsi_extension_supp_audio_ed_cla, {
             "Editorial classification", "mpeg_descr.ext.supp_audio.ed_cla",
             FT_UINT8, BASE_HEX, VALS(supp_audio_ed_cla), 0x7C, NULL, HFILL
         } },
 
-        { &hf_mpeg_descr_extension_supp_audio_lang_code_present, {
+        { &hf_mpeg_descr_etsi_extension_supp_audio_lang_code_present, {
             "Language code present", "mpeg_descr.ext.supp_audio.lang_code_present",
             FT_UINT8, BASE_HEX, NULL, 0x01, NULL, HFILL
         } },
 
-        { &hf_mpeg_descr_extension_supp_audio_lang_code, {
+        { &hf_mpeg_descr_etsi_extension_supp_audio_lang_code, {
             "ISO 639 language code", "mpeg_descr.ext.supp_audio.lang_code",
             FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL
         } },
 
-        { &hf_mpeg_descr_private_data, {
+        { &hf_mpeg_descr_etsi_private_data, {
             "Private data", "mpeg_descr.private_data",
             FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL
         } },
