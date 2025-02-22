@@ -594,7 +594,7 @@ void PacketListModel::sort(int column, Qt::SortOrder order)
      * them. Maybe if we made the comparison function a closure using the
      * current values.
      */
-    if (sort_cap_file_->read_lock) {
+    if (cap_file_->read_lock) {
         ws_info("Refusing to sort because capture file is being read");
         /* We shouldn't have to tell the user because we're just deferring
          * the sort until PacketList::captureFileReadFinished; the case
@@ -604,11 +604,11 @@ void PacketListModel::sort(int column, Qt::SortOrder order)
          */
         return;
     }
+    sort_cap_file_ = cap_file_;
     sort_cap_file_->read_lock = true;
     sort_order_ = order;
     sort_column_ = column;
     text_sort_column_ = PacketListRecord::textColumn(column);
-    sort_cap_file_ = cap_file_;
 
     QString busy_msg;
     if (!col_title.isEmpty()) {
