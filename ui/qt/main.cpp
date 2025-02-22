@@ -117,9 +117,21 @@ void main_window_update(void)
 }
 
 void exit_application(int status) {
+    // It's generally better to return from main. If the event loop is
+    // running (or has already stopped), wsApp->quit will cause the app
+    // to do so. (So we wouldn't need to call stdlib exit.) If it's not
+    // yet running, e.g., failure parsing options in ui/commandline.c,
+    // it's would be cleaner to return back to main and exit from there,
+    // especially if wsApp has been created.
     if (wsApp) {
+        // wsApp->quit() is a no-op if the event loop isn't running
+        // (That was not true in some earlier versions of Qt.)
+        // wsApp->exit(status) is not thread safe, though it may be possible to call
+        //QMetaObject::invokeMethod(wsApp, "exit", Qt::QueuedConnection, status);
+        // or similar, e.g. with a QTimer
         wsApp->quit();
     }
+    // Calling stdlib exit here does not call the wsApp destructor.
     exit(status);
 }
 
@@ -1128,5 +1140,5 @@ clean_exit:
     wtap_cleanup();
     free_progdirs();
     commandline_options_free();
-    exit_application(ret_val);
+    return ret_val;
 }

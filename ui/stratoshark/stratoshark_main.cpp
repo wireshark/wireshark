@@ -1115,5 +1115,5 @@ clean_exit:
     wtap_cleanup();
     free_progdirs();
     commandline_options_free();
-    exit_application(ret_val);
+    return ret_val;
 }
