@@ -3742,7 +3742,7 @@ dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
         conversation_t *conv;
 
         /* find (and extend) an existing conversation, or create a new one */
-        conv = find_conversation_strat(pinfo, CONVERSATION_IPV6, NO_PORT_X);
+        conv = find_conversation_strat(pinfo, CONVERSATION_IPV6, NO_PORT_X, false);
         if(!conv) {
             conv=conversation_new_strat(pinfo, CONVERSATION_IPV6, NO_PORTS);
         }

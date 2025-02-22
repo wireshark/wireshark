@@ -431,9 +431,9 @@ WS_DLL_PUBLIC conversation_t *find_conversation_by_id(const uint32_t frame, cons
 
 /**  A helper function that calls find_conversation() using data from pinfo,
  *  and returns a conversation according to the runtime deinterlacing strategy.
- *  The frame number and addresses are taken from pinfo.
+ *  The frame number and addresses are taken from pinfo, and direction.
  */
-WS_DLL_PUBLIC conversation_t *find_conversation_strat(const packet_info *pinfo, const conversation_type ctype, const unsigned options);
+WS_DLL_PUBLIC conversation_t *find_conversation_strat(const packet_info *pinfo, const conversation_type ctype, const unsigned options, const bool direction);
 
 /**  A helper function that calls find_conversation() using data from pinfo
  *  The frame number and addresses are taken from pinfo.
@@ -542,6 +542,9 @@ WS_DLL_PUBLIC uint32_t conversation_get_id_from_elements(struct _packet_info *pi
 WS_DLL_PUBLIC bool try_conversation_dissector(const address *addr_a, const address *addr_b, const conversation_type ctype,
     const uint32_t port_a, const uint32_t port_b, tvbuff_t *tvb, packet_info *pinfo,
     proto_tree *tree, void* data, const unsigned options);
+
+WS_DLL_PUBLIC bool try_conversation_dissector_strat(packet_info *pinfo, const conversation_type ctype,
+    tvbuff_t *tvb, proto_tree *tree, void* data, const unsigned options);
 
 WS_DLL_PUBLIC bool try_conversation_dissector_by_id(const conversation_type ctype, const uint32_t id, tvbuff_t *tvb,
     packet_info *pinfo, proto_tree *tree, void* data);

@@ -711,7 +711,7 @@ dissect_ssl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
     /* Get the conversation with the deinterlacing strategy,
      * assuming it does exist, as created by an underlying proto.
      */
-    conversation = find_conversation_strat(pinfo, conversation_pt_to_conversation_type(pinfo->ptype), 0);
+    conversation = find_conversation_strat(pinfo, conversation_pt_to_conversation_type(pinfo->ptype), 0, false);
     if(conversation == NULL) {
         conversation = conversation_new(pinfo->num, &pinfo->src,
             &pinfo->dst, conversation_pt_to_conversation_type(pinfo->ptype),
@@ -4345,7 +4345,7 @@ tls13_exporter(packet_info *pinfo, bool is_early,
     }
 
     /* Lookup EXPORTER_SECRET based on client_random from conversation */
-    conversation_t *conv = find_conversation_strat(pinfo, conversation_pt_to_conversation_type(pinfo->ptype), 0);
+    conversation_t *conv = find_conversation_strat(pinfo, conversation_pt_to_conversation_type(pinfo->ptype), 0, false);
     if (!conv) {
         return false;
     }

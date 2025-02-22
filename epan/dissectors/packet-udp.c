@@ -375,7 +375,7 @@ static char *udp_follow_conv_filter(epan_dissect_t *edt _U_, packet_info *pinfo,
      * Eventually the endpoint API should support storing multiple
      * endpoints and UDP should be changed to use the endpoint API.
      */
-    conv = find_conversation_strat(pinfo, CONVERSATION_UDP, 0);
+    conv = find_conversation_strat(pinfo, CONVERSATION_UDP, 0, false);
     if (((pinfo->net_src.type == AT_IPv4 && pinfo->net_dst.type == AT_IPv4) ||
         (pinfo->net_src.type == AT_IPv6 && pinfo->net_dst.type == AT_IPv6))
         && (pinfo->ptype == PT_UDP) &&
@@ -1218,7 +1218,7 @@ dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t ip_proto)
     pinfo->destport = udph->uh_dport;
 
     /* find (and extend) an existing conversation, or create a new one */
-    conv = find_conversation_strat(pinfo, CONVERSATION_UDP, 0);
+    conv = find_conversation_strat(pinfo, CONVERSATION_UDP, 0, false);
     if(!conv) {
         conv=conversation_new_strat(pinfo, CONVERSATION_UDP, 0);
     }

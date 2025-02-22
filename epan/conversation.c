@@ -2325,6 +2325,59 @@ try_conversation_dissector(const address *addr_a, const address *addr_b, const c
     return false;
 }
 
+/*
+ * Similar to try_conversation_dissector() with the particularity of calling
+ * find_conversation_strat() in place of find_conversation() everywhere.
+ */
+bool
+try_conversation_dissector_strat(packet_info *pinfo, const conversation_type ctype,
+        tvbuff_t *tvb, proto_tree *tree, void* data, const unsigned options)
+{
+    conversation_t *conversation;
+    bool dissector_success;
+
+    /*
+     * Verify that the correct options are used, if any.
+     */
+    DISSECTOR_ASSERT_HINT((options == 0) || (options & NO_MASK_B), "Use NO_ADDR_B and/or NO_PORT_B as option");
+
+    /* Try each mode based on option flags */
+    conversation = find_conversation_strat(pinfo, ctype, 0, false);
+    if (conversation != NULL) {
+        if (try_conversation_call_dissector_helper(conversation, &dissector_success, tvb, pinfo, tree, data))
+            return dissector_success;
+    }
+
+    if (options & NO_ADDR_B) {
+        conversation = find_conversation_strat(pinfo, ctype, NO_ADDR_B, false);
+        if (conversation != NULL) {
+            if (try_conversation_call_dissector_helper(conversation, &dissector_success, tvb, pinfo, tree, data))
+                return dissector_success;
+        }
+    }
+
+    if (options & NO_PORT_B) {
+        conversation = find_conversation_strat(pinfo, ctype, NO_PORT_B, false);
+        if (conversation != NULL) {
+            if (try_conversation_call_dissector_helper(conversation, &dissector_success, tvb, pinfo, tree, data)) {
+                return dissector_success;
+            }
+        }
+
+    }
+
+    if (options & (NO_ADDR_B|NO_PORT_B)) {
+        conversation = find_conversation_strat(pinfo, ctype, NO_ADDR_B|NO_PORT_B, false);
+        if (conversation != NULL) {
+            if (try_conversation_call_dissector_helper(conversation, &dissector_success, tvb, pinfo, tree, data)) {
+                return dissector_success;
+            }
+        }
+    }
+
+    return false;
+}
+
 bool
 try_conversation_dissector_by_id(const conversation_type ctype, const uint32_t id, tvbuff_t *tvb,
         packet_info *pinfo, proto_tree *tree, void* data)
@@ -2358,9 +2411,9 @@ try_conversation_dissector_by_id(const conversation_type ctype, const uint32_t i
     return false;
 }
 
-/* identifies a conversation ("classic" or deinterlaced) */
+/* Identifies a conversation ("classic" or deinterlaced) */
 conversation_t *
-find_conversation_strat(const packet_info *pinfo, const conversation_type ctype, const unsigned options)
+find_conversation_strat(const packet_info *pinfo, const conversation_type ctype, const unsigned options, const bool direction)
 {
   conversation_t *conv=NULL;
   /* deinterlacing is only supported for the Ethernet wtap for now */
@@ -2373,7 +2426,12 @@ find_conversation_strat(const packet_info *pinfo, const conversation_type ctype,
     }
   }
   else {
+    if(direction) { // reverse flow (dst to src)
+      conv = find_conversation(pinfo->num, &pinfo->dst, &pinfo->src, ctype, pinfo->destport, pinfo->srcport, options);
+    }
+    else { // default (src to dst)
       conv = find_conversation(pinfo->num, &pinfo->src, &pinfo->dst, ctype, pinfo->srcport, pinfo->destport, options);
+    }
   }
   return conv;
 }
@@ -2465,7 +2523,7 @@ find_conversation_pinfo_ro(const packet_info *pinfo, const unsigned options)
                         pinfo->num, conv->last_frame));
         }
     } else {
-        if ((conv = find_conversation_strat(pinfo, conversation_pt_to_conversation_type(pinfo->ptype), options)) != NULL) {
+        if ((conv = find_conversation_strat(pinfo, conversation_pt_to_conversation_type(pinfo->ptype), options, false)) != NULL) {
             DPRINT(("found previous conversation for frame #%u (last_frame=%d)",
                         pinfo->num, conv->last_frame));
         }

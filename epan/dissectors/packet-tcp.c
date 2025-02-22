@@ -1399,7 +1399,7 @@ char *tcp_follow_conv_filter(epan_dissect_t *edt _U_, packet_info *pinfo, unsign
      * Eventually the endpoint API should support storing multiple
      * endpoints and TCP should be changed to use the endpoint API.
      */
-    conv = find_conversation_strat(pinfo, CONVERSATION_TCP, 0);
+    conv = find_conversation_strat(pinfo, CONVERSATION_TCP, 0, false);
     if (((pinfo->net_src.type == AT_IPv4 && pinfo->net_dst.type == AT_IPv4) ||
         (pinfo->net_src.type == AT_IPv6 && pinfo->net_dst.type == AT_IPv6))
         && (pinfo->ptype == PT_TCP) &&
@@ -5953,7 +5953,7 @@ dissect_tcpopt_mss(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
     struct tcp_analysis *tcpd;
 
     /* find the conversation for this TCP session and its stored data */
-    conversation_t *stratconv = find_conversation_strat(pinfo, CONVERSATION_TCP, 0);
+    conversation_t *stratconv = find_conversation_strat(pinfo, CONVERSATION_TCP, 0, false);
     tcpd=get_tcp_conversation_data_idempotent(stratconv);
 
     item = proto_tree_add_item(tree, proto_tcp_option_mss, tvb, offset, -1, ENC_NA);
@@ -5996,7 +5996,7 @@ dissect_tcpopt_wscale(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void*
     struct tcp_analysis *tcpd;
 
     /* find the conversation for this TCP session and its stored data */
-    conversation_t *stratconv = find_conversation_strat(pinfo, CONVERSATION_TCP, 0);
+    conversation_t *stratconv = find_conversation_strat(pinfo, CONVERSATION_TCP, 0, false);
     tcpd=get_tcp_conversation_data_idempotent(stratconv);
 
     wscale_pi = proto_tree_add_item(tree, proto_tcp_option_wscale, tvb, offset, -1, ENC_NA);
@@ -6056,7 +6056,7 @@ dissect_tcpopt_sack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
      */
     if(tcp_analyze_seq) {
         /* find the conversation for this TCP session and its stored data */
-        conversation_t *stratconv = find_conversation_strat(pinfo, CONVERSATION_TCP, 0);
+        conversation_t *stratconv = find_conversation_strat(pinfo, CONVERSATION_TCP, 0, false);
         tcpd=get_tcp_conversation_data_idempotent(stratconv);
 
         if (tcpd) {
@@ -7011,7 +7011,7 @@ dissect_tcpopt_scps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
     uint8_t     connid;
     int         offset = 0, optlen = tvb_reported_length(tvb);
 
-    conversation_t *stratconv = find_conversation_strat(pinfo, CONVERSATION_TCP, 0);
+    conversation_t *stratconv = find_conversation_strat(pinfo, CONVERSATION_TCP, 0, false);
     tcpd=get_tcp_conversation_data_idempotent(stratconv);
 
     /* check direction and get ua lists */
@@ -7241,7 +7241,7 @@ dissect_tcpopt_snack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
     if (!tcp_option_len_check(length_item, pinfo, tvb_reported_length(tvb), TCPOLEN_SNACK))
         return tvb_captured_length(tvb);
 
-    conversation_t *stratconv = find_conversation_strat(pinfo, CONVERSATION_TCP, 0);
+    conversation_t *stratconv = find_conversation_strat(pinfo, CONVERSATION_TCP, 0, false);
     tcpd=get_tcp_conversation_data_idempotent(stratconv);
 
     /* The SNACK option reports missing data with a granularity of segments. */
@@ -8307,7 +8307,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
      * extends the conversation found. This extension is done later.
      */
 
-    conv = find_conversation_strat(pinfo, CONVERSATION_TCP, 0);
+    conv = find_conversation_strat(pinfo, CONVERSATION_TCP, 0, false);
     if(!conv) {
         conv=conversation_new_strat(pinfo, CONVERSATION_TCP, 0);
         conversation_is_new = true;
