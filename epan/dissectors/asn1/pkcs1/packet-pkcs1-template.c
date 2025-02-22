@@ -107,12 +107,18 @@ void proto_reg_handoff_pkcs1(void) {
 	register_ber_oid_dissector("1.3.101.112", dissect_ber_oid_NULL_callback, proto_pkcs1, "id-Ed25519");
 	register_ber_oid_dissector("1.3.101.113", dissect_ber_oid_NULL_callback, proto_pkcs1, "id-Ed448");
 
-	oid_add_from_string("secp192r1","1.2.840.10045.3.1.1");
+	/* Curve identifiers from SECG SEC 2 */
 	oid_add_from_string("sect163k1","1.3.132.0.1");
+	oid_add_from_string("sect163r1","1.3.132.0.2");
 	oid_add_from_string("sect163r2","1.3.132.0.15");
+	oid_add_from_string("secp192k1","1.3.132.0.31");
+	oid_add_from_string("secp192r1","1.2.840.10045.3.1.1");
+	oid_add_from_string("secp224k1","1.3.132.0.32");
 	oid_add_from_string("secp224r1","1.3.132.0.33");
 	oid_add_from_string("sect233k1","1.3.132.0.26");
 	oid_add_from_string("sect233r1","1.3.132.0.27");
+	oid_add_from_string("sect239k1","1.3.132.0.3");
+	oid_add_from_string("secp256k1","1.3.132.0.10");
 	oid_add_from_string("secp256r1","1.2.840.10045.3.1.7");
 	oid_add_from_string("sect283k1","1.3.132.0.16");
 	oid_add_from_string("sect283r1","1.3.132.0.17");
