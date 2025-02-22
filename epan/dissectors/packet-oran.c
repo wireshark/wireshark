@@ -1406,17 +1406,19 @@ static void ext11_work_out_bundles(unsigned startPrbc,
         }
     }
 
-    /* Bundles not controlled by other extensions - just divide up range into bundles we have */
+    /* Case where bundles are not controlled by other extensions - just divide up range into bundles we have */
     else {
-        settings->num_bundles = (numPrbc+numBundPrb-1) / numBundPrb;
+        settings->num_bundles = (numPrbc+numBundPrb-1) / numBundPrb;   /* rounded up */
 
-        /* Don't overflow settings->bundles[] ! */
+        /* Don't overflow settings->bundles[] */
         settings->num_bundles = MIN(MAX_BFW_BUNDLES, settings->num_bundles);
 
+        /* For each bundle.. */
         for (uint32_t n=0; n < settings->num_bundles; n++) {
+            /* Allocate start and end */
             settings->bundles[n].start = startPrbc + n*numBundPrb;
-            settings->bundles[n].end =   settings->bundles[n].start + numBundPrb-1;
-            /* Does it go beyond the end? */
+            settings->bundles[n].end =   settings->bundles[n].start + numBundPrb - 1;
+            /* If would go beyond end of PRBs, limit and identify as orphan */
             if (settings->bundles[n].end > startPrbc+numPrbc) {
                 settings->bundles[n].end = startPrbc+numPrbc;
                 settings->bundles[n].is_orphan = true;
