@@ -1322,6 +1322,18 @@ try_value_string(const header_field_info *hfinfo, fvalue_t *fv_num, char *buf)
 	 * to perform this mapping. hf_try_val[64]_to_str are similar, though
 	 * don't handle BASE_CUSTOM but do handle BASE_UNIT_STRING */
 
+	if (hfinfo->type == FT_FRAMENUM) {
+		/* FT_FRAMENUM can be converted to an integer (and is compatible
+		 * with the integer types), but if it has an hfinfo->strings it
+		 * is not a value_string and will crash if treated as one.
+		 * Handle the corner case of a FT_FRAMENUM field registered with
+		 * the same abbreviation as a field with a value string.
+		 * (FT_PROTOCOL is caught above because it cannot be converted
+		 * to an integer.)
+		 */
+		return NULL;
+	}
+
 	if (hfinfo->display & BASE_RANGE_STRING) {
 		return try_rval_to_str((uint32_t)val, hfinfo->strings);
 	}

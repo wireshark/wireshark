@@ -397,7 +397,15 @@ mk_uint64_fvalue(uint64_t val)
  * If the mapping number<->string is unique convert the string to a number
  * by inverting the value string function.
  * Otherwise we compile it as a string and map the field value at runtime
- * to a string for the comparison. */
+ * to a string for the comparison.
+ *
+ * XXX - This should check all hfinfo with the same abbreviation, not just the
+ * last registered. If there are multiple fields registered, then all the fields
+ * must map the same number (and only that number) to the string in order for
+ * optimizing into a number test to be valid (see #19111). Otherwise, we should
+ * allow the string match if it at least one field with the same abbreviation has
+ * a value string with that string as an entry.
+ */
 static enum mk_result
 mk_fvalue_from_val_string(dfwork_t *dfw, header_field_info *hfinfo, const char *s, stnode_t *st)
 {
