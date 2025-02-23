@@ -2092,6 +2092,14 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <source>Graph a TCP conversation.</source>
         <translation>Crea il grafico di una connessione TCP.</translation>
     </message>
+    <message>
+        <source>I/O Graphs</source>
+        <translation type="unfinished">Grafici I/O</translation>
+    </message>
+    <message>
+        <source>I/OGraph TCP conversations.</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>ConversationHashTablesDialog</name>

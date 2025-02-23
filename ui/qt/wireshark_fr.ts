@@ -2092,6 +2092,14 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
         <source>Graph a TCP conversation.</source>
         <translation>Décrire graphiquement une conversation TCP</translation>
     </message>
+    <message>
+        <source>I/O Graphs</source>
+        <translation type="unfinished">Graphiques d&apos;E/S</translation>
+    </message>
+    <message>
+        <source>I/OGraph TCP conversations.</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>ConversationHashTablesDialog</name>

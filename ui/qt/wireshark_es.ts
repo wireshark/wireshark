@@ -2065,6 +2065,14 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
         <source>Graph a TCP conversation.</source>
         <translation>Gráfica de conversación TCP.</translation>
     </message>
+    <message>
+        <source>I/O Graphs</source>
+        <translation type="unfinished">Gráficas de E/S</translation>
+    </message>
+    <message>
+        <source>I/OGraph TCP conversations.</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>ConversationHashTablesDialog</name>

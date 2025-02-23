@@ -2090,6 +2090,14 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <source>Graph a TCP conversation.</source>
         <translation>Visa en graf över en TCP-konversation.</translation>
     </message>
+    <message>
+        <source>I/O Graphs</source>
+        <translation type="unfinished">I/O-grafer</translation>
+    </message>
+    <message>
+        <source>I/OGraph TCP conversations.</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>ConversationHashTablesDialog</name>
