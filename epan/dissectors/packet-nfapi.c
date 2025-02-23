@@ -245,8 +245,8 @@ static const true_false_string srs_simult_tx_strname = {
 };
 
 static const true_false_string crc_flag_strname = {
-	"CRC_CORRECT",
-	"CRC_ERROR"
+	"CRC_ERROR",
+	"CRC_CORRECT"
 };
 
 static const true_false_string hi_value_strname = {
