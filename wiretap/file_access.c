@@ -284,7 +284,7 @@ wtap_get_file_extension_type_extensions(unsigned extension_type)
 
 	g_slist_free(compression_type_extensions);
 
-	return extensions;
+	return g_slist_reverse(extensions);
 }
 
 /*
@@ -1984,7 +1984,7 @@ wtap_get_file_extensions_list(int file_type_subtype, bool include_compressed)
 
 	g_slist_free(compression_type_extensions);
 
-	return extensions;
+	return g_slist_reverse(extensions);
 }
 
 /* Return a list of all extensions that are used by all capture file
@@ -2039,7 +2039,7 @@ wtap_get_all_capture_file_extensions_list(void)
 
 	g_slist_free(compression_type_extensions);
 
-	return extensions;
+	return g_slist_reverse(extensions);
 }
 
 /* Return a list of all extensions that are used by all file types that
@@ -2077,7 +2077,7 @@ wtap_get_all_file_extensions_list(void)
 
 	g_slist_free(compression_type_extensions);
 
-	return extensions;
+	return g_slist_reverse(extensions);
 }
 
 /*
