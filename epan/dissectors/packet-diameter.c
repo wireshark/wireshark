@@ -2059,7 +2059,7 @@ static const avp_type_t basic_types[] = {
 	{"octetstring"			, simple_avp		, FT_BYTES			, BASE_NONE			, build_simple_avp  },
 	{"octetstringorutf8"	, simple_avp		, FT_BYTES			, BASE_SHOW_ASCII_PRINTABLE	, build_simple_avp  },
 	{"utf8string"			, utf8_avp			, FT_STRING			, BASE_NONE			, build_simple_avp  },
-	{"grouped"				, grouped_avp		, FT_BYTES			, BASE_NONE			, build_simple_avp  },
+	{"grouped"				, grouped_avp		, FT_BYTES			, BASE_NO_DISPLAY_VALUE			, build_simple_avp  },
 	{"integer32"			, integer32_avp		, FT_INT32			, BASE_DEC			, build_simple_avp  },
 	{"unsigned32"			, unsigned32_avp	, FT_UINT32			, BASE_DEC			, build_simple_avp  },
 	{"integer64"			, integer64_avp		, FT_INT64			, BASE_DEC			, build_simple_avp  },
