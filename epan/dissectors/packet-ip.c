@@ -1771,7 +1771,7 @@ static const value_string dscp_short_vals[] = {
   { IPDSFIELD_DSCP_AF43,    "AF43"   },
   { IPDSFIELD_DSCP_CS5,     "CS5"    },
   { IPDSFIELD_VOICE_ADMIT,  "VOICE-ADMIT" },
-  { IPDSFIELD_DSCP_EF,      "EF PHB" },
+  { IPDSFIELD_DSCP_EF,      "EF"     },
   { IPDSFIELD_DSCP_CS6,     "CS6"    },
   { IPDSFIELD_DSCP_CS7,     "CS7"    },
   { 0,                      NULL     }};
