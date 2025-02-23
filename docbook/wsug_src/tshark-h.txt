@@ -1,4 +1,4 @@
-TShark (Wireshark) 4.2.11 (v4.2.11rc0-2-g34443a5bdde9)
+TShark (Wireshark) 4.2.12 (v4.2.12rc0-2-g5dfcee8f0ac1)
 Dump and analyze network traffic.
 See https://www.wireshark.org for more information.
 
