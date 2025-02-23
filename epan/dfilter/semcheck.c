@@ -548,6 +548,19 @@ mk_fvalue_from_hfinfo(const header_field_info *hfinfo, const char *s, uint64_t *
 		 * That would take changes in dfvm.c try_value_string as well.
 		 */
 	}
+	else if (hfinfo->display & BASE_UNIT_STRING) {
+		/* XXX - Not yet supported in dfvm.c try_value_string. */
+		return MK_ERROR_NO_STRINGS;
+#if 0
+		/* We could optimize by parsing out the number at the
+		 * beginning. (That's harder for floats and doubles.) */
+		if (FT_IS_INTEGER(hfinfo->type)) {
+			/* Should always be true due to type check above. */
+			return MK_OK_STRING;
+		}
+		/* XXX - FT_FLOAT and FT_DOUBLE can be BASE_UNIT_STRING. */
+#endif
+	}
 	else {
 		const value_string *vals = (const value_string *)hfinfo->strings;
 		if (hfinfo->display & BASE_EXT_STRING)

@@ -1332,11 +1332,6 @@ try_value_string(const header_field_info *hfinfo, fvalue_t *fv_num, char *buf)
 {
 	uint64_t val;
 
-	/* XXX - What about BASE_UNIT_STRING? Should we guarantee that we
-	 * don't get here for unit strings in semcheck.c (currently we
-	 * do for OP_MATCHES instead of disallowing it, which will result
-	 * in a legal filter that always compares false as this returns NULL.)
-	 */
 	if (fvalue_to_uinteger64(fv_num, &val) != FT_OK)
 		return NULL;
 
@@ -1379,6 +1374,12 @@ try_value_string(const header_field_info *hfinfo, fvalue_t *fv_num, char *buf)
 			((custom_fmt_func_64_t)hfinfo->strings)(buf, val);
 		else
 			ws_assert_not_reached();
+	}
+	else if (hfinfo->display & BASE_UNIT_STRING) {
+		/* Not supported yet. We would need to create the string
+		 * representation and append the unit, producing the same
+		 * thing as what epan/proto.c does. */
+		return NULL;
 	}
 	else {
 		return try_val_to_str((uint32_t)val, hfinfo->strings);
