@@ -916,6 +916,9 @@ typedef struct ssl_common_dissect {
         int hs_ext_psk_identity_obfuscated_ticket_age;
         int hs_ext_psk_binders_length;
         int hs_ext_psk_binders;
+        int hs_ext_psk_binder;
+        int hs_ext_psk_binder_binder_length;
+        int hs_ext_psk_binder_binder;
         int hs_ext_psk_identity_selected;
         int hs_ext_session_ticket;
         int hs_ext_supported_versions_len;
@@ -1174,6 +1177,8 @@ typedef struct ssl_common_dissect {
         int hs_ext_key_share_ks;
         int hs_ext_pre_shared_key;
         int hs_ext_psk_identity;
+        int hs_ext_psk_binders;
+        int hs_ext_psk_binder;
         int hs_ext_server_name;
         int hs_ext_oid_filter;
         int hs_ext_quictp_parameter;
@@ -1583,6 +1588,21 @@ ssl_common_dissect_t name;
     { & name .hf.hs_ext_psk_binders,                                    \
       { "PSK Binders", prefix ".handshake.extensions.psk.binders",      \
         FT_NONE, BASE_NONE, NULL, 0x0,                                  \
+        NULL, HFILL }                                                   \
+    },                                                                  \
+    { & name .hf.hs_ext_psk_binder,                                     \
+      { "PSK Binder", prefix ".handshake.extensions.psk.binder",        \
+        FT_NONE, BASE_NONE, NULL, 0x0,                                  \
+        NULL, HFILL }                                                   \
+    },                                                                  \
+    { & name .hf.hs_ext_psk_binder_binder_length,                       \
+      { "Binder Length", prefix ".handshake.extensions.psk.binder.binder_length", \
+        FT_UINT8, BASE_DEC, NULL, 0x0,                                  \
+        NULL, HFILL }                                                   \
+    },                                                                  \
+    { & name .hf.hs_ext_psk_binder_binder,                              \
+      { "Binder", prefix ".handshake.extensions.psk.binder.binder",     \
+        FT_BYTES, BASE_NONE, NULL, 0x0,                                 \
         NULL, HFILL }                                                   \
     },                                                                  \
     { & name .hf.hs_ext_psk_identity_selected,                          \
@@ -2842,6 +2862,8 @@ ssl_common_dissect_t name;
         & name .ett.hs_ext_key_share_ks,            \
         & name .ett.hs_ext_pre_shared_key,          \
         & name .ett.hs_ext_psk_identity,            \
+        & name .ett.hs_ext_psk_binders,             \
+        & name .ett.hs_ext_psk_binder,              \
         & name .ett.hs_ext_server_name,             \
         & name .ett.hs_ext_oid_filter,              \
         & name .ett.hs_ext_quictp_parameter,        \
