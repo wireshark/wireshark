@@ -1209,8 +1209,8 @@ Foundation. Make sure you and your package comply with trademark law.
 
 All function calls that require elevated privileges are in dumpcap.
 
-WIRESHARK CONTAINS OVER THREE MILLION LINES OF SOURCE CODE. DO NOT RUN
-THEM AS ROOT.
+WIRESHARK CONTAINS MILLIONS AND MILLIONS OF LINES OF SOURCE CODE.
+DO NOT RUN THEM AS ROOT.
 
 Warnings are displayed when Wireshark and TShark are run as root.
 
