@@ -154,6 +154,11 @@ The following features are either new or have been significantly updated since v
 * Lua now has a `Conversation` object, which exposes conversations and conversation
   data to Lua. Resolves wsbuglink:15396[]
 
+* Supports "Copy in HTML" format via main menu, context menu and keyboard
+  shortcut. It also provides an option (via knobs in preferences) to copy plain
+  text with aligned columns along with an ability to select a copy format to be
+  used when copied via keyboard shortcut.
+
 === Removed Features and Support
 
 Wireshark no longer supports AirPcap and WinPcap.
