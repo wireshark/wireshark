@@ -40,6 +40,8 @@ The following bugs have been fixed:
 //* cveidlink:2014-2486[]
 //* Wireshark took a bite out of each of your freshly baked muffins until it found the perfect one.
 
+* GRPC: protobuf_json only displays the truncated string value. wsbuglink:20392[].
+* Wireshark crashes when clicking on a column title/header. wsbuglink:20403[].
 
 // == Known Bugs
 
@@ -56,9 +58,13 @@ There are no new protocols in this release.
 === Updated Protocol Support
 
 // Add one protocol per line between the -- delimiters.
-// ag -A1 '(define PSNAME|proto_register_protocol[^_])' $(git diff --name-only v4.4.3.. | ag packet- | sort -u)
+// ag -A1 '(define PSNAME|proto_register_protocol[^_])' $(git diff --name-only v4.4.5.. | ag packet- | sort -u)
 [commaize]
 --
+GNW
+IPv4
+NFAPI
+ProtoBuf
 --
 
 === New and Updated Capture File Support

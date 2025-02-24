@@ -1,0 +1,136 @@
+commit 840762e3e4
+Author: Jaap Keuter <jaap.keuter@xs4all.nl>
+Date:   Sun Feb 23 21:53:21 2025 +0000
+
+    Rename "EF PHB" to "EF"
+
+    Remove "PHB" from the description of the EF DSCP code point.  The term
+    PHB (per-hob behavior) is applicable to all of the DSCP code points,
+    but none of the others have it in their description.
+
+    (cherry picked from commit 750ca1550c904302d6b95aa20d242a352da438ae)
+
+    Co-authored-by: Julian Cowley <julesreid@lavanauts.org>
+
+commit 2d07288bf0
+Author: Yohei Konno <konnoy@craftone.jpn.org>
+Date:   Sun Feb 23 14:35:44 2025 +0000
+
+    Update packet-nfapi.c
+
+    0 = pass, 1 = fail, according to SCF222_5G_PHY_API.
+    In C, 0 is false, 1 is true.
+    Therefore, true is CRC_ERROR and false is CRC_CORRECT.
+
+    (cherry picked from commit 873fc74fae76654cb162dd69fd30a1dc8e694ed3)
+
+    Co-authored-by: Yohei Konno <konnoy@craftone.jpn.org>
+
+commit 2a66e51737
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Feb 23 09:28:01 2025 +0000
+
+    [Automatic update for 2025-02-23]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit d1c9cfeb29
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sat Feb 22 15:07:00 2025 +0000
+
+    Qt: Fix sort crash
+
+    Fixup 9cb198d7aa1265b92fe2ea05239f7b428f1660d7
+
+    Fix #20403
+
+    (cherry picked from commit 6cd809dde326e1dd2f855ce59c005eb1453229db)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 74ec82181e
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sat Feb 22 14:48:26 2025 +0000
+
+    dfilter: Extra value_string checking and comments
+
+    It's possible to register multiple fields to the same abbreviation.
+    We don't actually enforce field compatibility, but even if we did,
+    FT_FRAMENUM is considered compatible with other integer fields.
+    So it's theoretically possible to register a integer field with a
+    value string to the same abbreviation as a FT_FRAMENUM with a non-NULL
+    strings - FT_FRAMENUM overloads that field to store ft_framenum_type,
+    and treating it as a value_string *will* crash. (I don't believe
+    we have any such fields currently.)
+
+    Add a couple other comments regarding treatment of value strings -
+    we shouldn't actually optimize tests against strings that represent
+    value strings in cases where multiple fields are registered to the
+    same abbreviation and don't share exactly the same value string.
+    (See #19111 for a specific example.)
+
+    (cherry picked from commit c607060b913906b44c467c7ab9d8bc669c58fe29)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 330fc4f1ad
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Thu Feb 20 11:42:29 2025 +0000
+
+    Protobuf: Don't truncate the string value to ITEM LENGTH for dumping
+
+    Don't call proto_tree_item_ret_display_string, which truncates the
+    returned value to ITEM_LABEL_LENGTH (at least since
+    commit 603354203b608a0d94b91c61791b2ec3052a870b, possibly earlier),
+    but call proto_tree_item_ret_string, which doesn't, when getting the
+    string value to add to the JSON view (and later to output the JSON
+    view's value via output formats like JSON or PDML.)
+
+    Don't create the string a second time, either, if there's another hf.
+
+    Fix #20392
+
+    (cherry picked from commit 3e4ec4f4a7866891c6551ee41e40121dcfd0c371)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 92cc51e6cc
+Author: Szilard Turi-Kovats <szilard.turi-kovats@commsignia.com>
+Date:   Thu Feb 13 16:58:20 2025 +0000
+
+    ITS: GeoNetworking: Show CBR (Channel busy ratio) in 0.00[%] format
+
+    The value is encoded as unsigned int (0..255)
+    The actual represenation is percentage (0..100)
+
+    (cherry-picked from commit 5b830615d653fa9b80773a17a26d5ebc074a7bfe)
+
+    Co-authored-by: Szilard Turi-Kovats <szilard.turi-kovats@commsignia.com>
+
+commit 2335330fa2
+Author: Szilard Turi-Kovats <szilard.turi-kovats@commsignia.com>
+Date:   Thu Feb 13 17:01:11 2025 +0000
+
+    Export PER libwireshark symbols using WS_DLL_PUBLIC define
+
+    (cherry-picked from commit 37e8d173622a62c8f84576aa283a2e52c16518b8)
+
+    Co-authored-by: Marton Papp <marcigladiator@gmail.com>
+
+commit c9004d6075
+Author: Szilard Turi-Kovats <szilard.turi-kovats@commsignia.com>
+Date:   Thu Feb 13 17:00:37 2025 +0000
+
+    Export 'dissect_oer_UTF8String' libwireshark symbol using WS_DLL_PUBLIC define
+
+    (cherry-picked from commit e8fedecf315bd3d67b8cb6aef5478725018645cf)
+
+    Co-authored-by: Marton Papp <marcigladiator@gmail.com>
+
+commit de76ce8e72
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Wed Feb 19 12:45:40 2025 -0800
+
+    Version: 4.4.4 → 4.4.5
+
+    [skip ci]
