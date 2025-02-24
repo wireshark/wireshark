@@ -345,6 +345,44 @@ class ProtoTreeAddItemCheck(APICheck):
                           self.fun_name + ' called for "' + call.hf_name + '"', ' - but no item found')
                     warnings_found += 1
 
+class TVBGetBits:
+    def __init__(self, name, maxlen):
+        self.name = name
+        self.maxlen = maxlen
+        self.calls = []
+        pass
+
+    def find_calls(self, file, macros):
+        self.file = file
+        self.calls = []
+        with open(file, 'r', encoding="utf8") as f:
+            contents = f.read()
+            matches = re.finditer(self.name + r'\([a-zA-Z0-9_]+\s*,\s*(.*?)\s*,\s*([0-9a-zA-Z_]+)', contents)
+            for m in matches:
+                try:
+                    length = int(m.group(2))
+                except:
+                    # Not parsable as literal decimal, so ignore
+                    # TODO: could subst macros if e.g., do check in check_against_items() 
+                    continue
+
+                if length > self.maxlen:
+                    # Error if some bits would get chopped off.
+                    global errors_found
+                    print('Error: ' + file + ' ' + m.group(0) + '...  has length of ' + m.group(2) + ', which is > API limit of ' + str(self.maxlen))
+                    errors_found += 1
+                elif self.maxlen > 8 and length <= self.maxlen/2:
+                    print('Note: ' + file + ' ' +  m.group(0) + '...  has length of ' + m.group(2) + ', could have used smaller version of function?')
+
+
+        return []
+
+    def calls(self):
+        return []
+
+    def check_against_items(self, items_defined, items_declared, items_declared_extern,
+                            check_missing_items=False, field_arrays=None):
+        pass
 
 
 ##################################################################################################
@@ -1789,6 +1827,10 @@ apiChecks.append(APICheck('ptvcursor_add_ret_boolean', { 'FT_BOOLEAN'}))
 apiChecks.append(ProtoTreeAddItemCheck())
 apiChecks.append(ProtoTreeAddItemCheck(True)) # for ptvcursor_add()
 
+apiChecks.append(TVBGetBits('tvb_get_bits8',  maxlen=8))
+apiChecks.append(TVBGetBits('tvb_get_bits16', maxlen=16))
+apiChecks.append(TVBGetBits('tvb_get_bits32', maxlen=32))
+apiChecks.append(TVBGetBits('tvb_get_bits64', maxlen=64))
 
 
 def removeComments(code_string):
