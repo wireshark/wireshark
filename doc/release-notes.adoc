@@ -40,9 +40,6 @@ The following bugs have been fixed:
 //* cveidlink:2014-2486[]
 //* Wireshark took a bite out of each of your freshly baked muffins until it found the perfect one.
 
-* GRPC: protobuf_json only displays the truncated string value. wsbuglink:20392[].
-* Wireshark crashes when clicking on a column title/header. wsbuglink:20403[].
-
 // == Known Bugs
 
 === New and Updated Features
@@ -61,10 +58,6 @@ There are no new protocols in this release.
 // ag -A1 '(define PSNAME|proto_register_protocol[^_])' $(git diff --name-only v4.4.5.. | ag packet- | sort -u)
 [commaize]
 --
-GNW
-IPv4
-NFAPI
-ProtoBuf
 --
 
 === New and Updated Capture File Support
@@ -90,6 +83,14 @@ There is no updated file format support in this release.
 // === Major API Changes
 
 == Prior Versions
+
+Wireshark 4.4.5 included the following changes.
+See the
+https://www.wireshark.org/docs/relnotes/wireshark-4.4.5.html[release notes]
+for details:
+
+* GRPC: protobuf_json only displays the truncated string value. wsbuglink:20392[].
+* Wireshark crashes when clicking on a column title/header. wsbuglink:20403[].
 
 Wireshark 4.4.4 included the following changes.
 See the
