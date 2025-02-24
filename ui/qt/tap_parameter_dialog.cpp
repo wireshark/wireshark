@@ -48,6 +48,7 @@
 #include <QClipboard>
 #include <QContextMenuEvent>
 #include <QMessageBox>
+#include <QTreeWidgetItemIterator>
 
 // The GTK+ counterpart uses tap_param_dlg, which we don't use. If we
 // need tap parameters we should probably create a TapParameterDialog
@@ -413,7 +414,15 @@ QByteArray TapParameterDialog::getTreeAsString(st_format_type format)
 
 void TapParameterDialog::drawTreeItems()
 {
-    if (ui->statsTreeWidget->model()->rowCount() < expand_all_threshold_) {
+    // ui->statsTreeWidget->model()->rowCount() only counts the number
+    // of children of the root element, not all the nodes
+    int nodeCount = 0;
+    for (QTreeWidgetItemIterator iter(ui->statsTreeWidget); *iter; ++iter) {
+        if (++nodeCount >= expand_all_threshold_) {
+            break;
+        }
+    }
+    if (nodeCount < expand_all_threshold_) {
         ui->statsTreeWidget->expandAll();
     }
 
