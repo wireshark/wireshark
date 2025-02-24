@@ -815,7 +815,15 @@ static int hf_rtcp_app_data_padding;
 static int hf_rtcp_mcptt_priority;
 static int hf_rtcp_mcptt_duration;
 static int hf_rtcp_mcptt_user_id;
-static int hf_rtcp_mcptt_floor_ind;
+static int hf_rtcp_mcptt_floor_ind_normal;
+static int hf_rtcp_mcptt_floor_ind_broadcast;
+static int hf_rtcp_mcptt_floor_ind_system;
+static int hf_rtcp_mcptt_floor_ind_emergency;
+static int hf_rtcp_mcptt_floor_ind_imminent_peril;
+static int hf_rtcp_mcptt_floor_ind_queueing_supported;
+static int hf_rtcp_mcptt_floor_ind_dual_floor;
+static int hf_rtcp_mcptt_floor_ind_temp_group;
+static int hf_rtcp_mcptt_floor_ind_multi_talker;
 static int hf_rtcp_mcptt_rej_cause;
 static int hf_rtcp_mcptt_rej_cause_floor_deny;
 static int hf_rtcp_mcptt_rej_cause_floor_revoke;
@@ -851,6 +859,7 @@ static int hf_rtcp_mcptt_long;
 static int hf_rtcp_mcptt_msg_type;
 static int hf_rtcp_mcptt_num_loc;
 static int hf_rtcp_mcptt_str;
+static int hf_rtcp_mcptt_floor_ind;
 static int hf_rtcp_mccp_len;
 static int hf_rtcp_mccp_field_id;
 static int hf_rtcp_mcptt_group_id;
@@ -903,6 +912,7 @@ static int ett_rtcp_mcpt;
 static int ett_rtcp_mcptt_participant_ref;
 static int ett_rtcp_mcptt_eci;
 static int ett_rtcp_mccp_tmgi;
+static int ett_rtcp_mcptt_floor_ind;
 
 static expert_field ei_rtcp_not_final_padding;
 static expert_field ei_rtcp_bye_reason_not_padded;
@@ -2589,19 +2599,6 @@ dissect_rtcp_app_poc1(tvbuff_t* tvb, packet_info* pinfo, int offset, proto_tree*
     return offset;
 }
 
-static const value_string mcptt_floor_ind_vals[] = {
-    { 0x0080, "Multi-talker" },
-    { 0x0100, "Temporary group call" },
-    { 0x0200, "Dual floor" },
-    { 0x0400, "Queueing supported" },
-    { 0x0800, "Imminent peril call" },
-    { 0x1000, "Emergency call" },
-    { 0x2000, "System call" },
-    { 0x4000, "Broadcast group call" },
-    { 0x8000, "Normal call" },
-    { 0, NULL },
-};
-
 static const value_string rtcp_mcptt_rej_cause_floor_deny_vals[] = {
     { 0x1, "Another MCPTT client has permission" },
     { 0x2, "Internal floor control server error" },
@@ -2906,11 +2903,20 @@ dissect_rtcp_app_mcpt(tvbuff_t* tvb, packet_info* pinfo, int offset, proto_tree*
                 break;
             case 13:
             {
-                /* Floor Indicator */
-                uint32_t floor_ind;
-                proto_tree_add_item_ret_uint(sub_tree, hf_rtcp_mcptt_floor_ind, tvb, offset, 2, ENC_BIG_ENDIAN, &floor_ind);
-                col_append_fstr(pinfo->cinfo, COL_INFO, " - %s",
-                    val_to_str_const(floor_ind, mcptt_floor_ind_vals, "Unknown"));
+                /* Floor Indicator TS 24.380 V 18.6.0 */
+                static int* const floor_ind_flags[] = {
+                    &hf_rtcp_mcptt_floor_ind_normal,
+                    &hf_rtcp_mcptt_floor_ind_broadcast,
+                    &hf_rtcp_mcptt_floor_ind_system,
+                    &hf_rtcp_mcptt_floor_ind_emergency,
+                    &hf_rtcp_mcptt_floor_ind_imminent_peril,
+                    &hf_rtcp_mcptt_floor_ind_queueing_supported,
+                    &hf_rtcp_mcptt_floor_ind_dual_floor,
+                    &hf_rtcp_mcptt_floor_ind_temp_group,
+                    &hf_rtcp_mcptt_floor_ind_multi_talker,
+                    NULL
+                };
+                proto_tree_add_bitmask(sub_tree, tvb, offset, hf_rtcp_mcptt_floor_ind, ett_rtcp_mcptt_floor_ind, floor_ind_flags, ENC_BIG_ENDIAN);
                 offset += 2;
                 break;
             }
@@ -8197,9 +8203,49 @@ proto_register_rtcp(void)
             FT_UINT16, BASE_DEC | BASE_UNIT_STRING, UNS(& units_second_seconds), 0x0,
             NULL, HFILL }
         },
-        { &hf_rtcp_mcptt_floor_ind,
-            { "Floor Indicator", "rtcp.app_data.mcptt.floor_ind",
-            FT_UINT16, BASE_DEC, VALS(mcptt_floor_ind_vals), 0x0,
+        { &hf_rtcp_mcptt_floor_ind_normal,
+            { "Normal call", "rtcp.app_data.mcptt.floor_ind.normal",
+            FT_BOOLEAN, 16, NULL, 0x8000,
+            NULL, HFILL }
+        },
+        { &hf_rtcp_mcptt_floor_ind_broadcast,
+            { "Broadcast group call", "rtcp.app_data.mcptt.floor_ind.broadcast",
+            FT_BOOLEAN, 16, NULL, 0x4000,
+            NULL, HFILL }
+        },
+        { &hf_rtcp_mcptt_floor_ind_system,
+            { "System call", "rtcp.app_data.mcptt.floor_ind.system",
+            FT_BOOLEAN, 16, NULL, 0x2000,
+            NULL, HFILL }
+        },
+        { &hf_rtcp_mcptt_floor_ind_emergency,
+            { "Emergency call", "rtcp.app_data.mcptt.floor_ind.emergency",
+            FT_BOOLEAN, 16, NULL, 0x1000,
+            NULL, HFILL }
+        },
+        { &hf_rtcp_mcptt_floor_ind_imminent_peril,
+            { "Imminent peril call", "rtcp.app_data.mcptt.floor_ind.imminent_peril",
+            FT_BOOLEAN, 16, NULL, 0x0800,
+            NULL, HFILL }
+        },
+        { &hf_rtcp_mcptt_floor_ind_queueing_supported,
+            { "Queueing supported", "rtcp.app_data.mcptt.floor_ind.queueing_supported",
+            FT_BOOLEAN, 16, NULL, 0x0400,
+            NULL, HFILL }
+        },
+        { &hf_rtcp_mcptt_floor_ind_dual_floor,
+            { "Dual floor", "rtcp.app_data.mcptt.floor_ind.dual_floor",
+            FT_BOOLEAN, 16, NULL, 0x0200,
+            NULL, HFILL }
+        },
+        { &hf_rtcp_mcptt_floor_ind_temp_group,
+            { "Temporary group call", "rtcp.app_data.mcptt.floor_ind.temp_group",
+            FT_BOOLEAN, 16, NULL, 0x0100,
+            NULL, HFILL }
+        },
+        { &hf_rtcp_mcptt_floor_ind_multi_talker,
+            { "Multi-talker", "rtcp.app_data.mcptt.floor_ind.multi_talker",
+            FT_BOOLEAN, 16, NULL, 0x0080,
             NULL, HFILL }
         },
         { &hf_rtcp_mcptt_rej_cause,
@@ -8377,6 +8423,11 @@ proto_register_rtcp(void)
             FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
+        { &hf_rtcp_mcptt_floor_ind,
+            { "Floor Indication", "rtcp.app_data.mcptt.floor_ind",
+            FT_UINT16, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
         { &hf_rtcp_mccp_len,
             { "Length", "rtcp.app_data.mccp.len",
             FT_UINT8, BASE_DEC, NULL, 0x0,
@@ -8478,6 +8529,7 @@ proto_register_rtcp(void)
         &ett_rtcp_mcpt,
         &ett_rtcp_mcptt_participant_ref,
         &ett_rtcp_mcptt_eci,
+        &ett_rtcp_mcptt_floor_ind,
         &ett_rtcp_mccp_tmgi
     };
 
