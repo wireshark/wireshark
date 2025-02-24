@@ -66,6 +66,7 @@ typedef struct _smb2_saved_info_t {
 	uint64_t  msg_id;
 	uint32_t  frame_req, frame_res;
 	nstime_t  req_time;
+	nstime_t  resp_time;
 	uint8_t  *preauth_hash_req, *preauth_hash_res;
 	smb2_fid_info_t *file;
 	e_ctx_hnd policy_hnd; 	/* for eo_smb tracking */

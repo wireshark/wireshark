@@ -87,7 +87,8 @@ static int hf_smb2_cmd;
 static int hf_smb2_nt_status;
 static int hf_smb2_response_to;
 static int hf_smb2_response_in;
-static int hf_smb2_time;
+static int hf_smb2_time_req;
+static int hf_smb2_time_resp;
 static int hf_smb2_preauth_hash;
 static int hf_smb2_header_len;
 static int hf_smb2_msg_id;
@@ -12743,6 +12744,7 @@ dissect_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, bool fi
 					&& ssi) {
 					/* just  set the response frame and move it to the matched table */
 					ssi->frame_res = pinfo->num;
+					ssi->resp_time = pinfo->abs_ts;
 					g_hash_table_remove(si->conv->unmatched, ssi);
 					g_hash_table_insert(si->conv->matched, ssi, ssi);
 				}
@@ -12781,8 +12783,15 @@ dissect_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, bool fi
 			if (!(si->flags & SMB2_FLAGS_RESPONSE)) {
 				if (ssi->frame_res != UINT32_MAX) {
 					proto_item *tmp_item;
+					nstime_t    deltat;
+
 					tmp_item = proto_tree_add_uint(header_tree, hf_smb2_response_in, tvb, 0, 0,
 						ssi->frame_res);
+					proto_item_set_generated(tmp_item);
+
+					nstime_delta(&deltat, &ssi->resp_time, &pinfo->abs_ts);
+					tmp_item = proto_tree_add_time(header_tree, hf_smb2_time_req, tvb,
+								       0, 0, &deltat);
 					proto_item_set_generated(tmp_item);
 				}
 			} else {
@@ -12795,7 +12804,7 @@ dissect_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, bool fi
 					proto_item_set_generated(tmp_item);
 					t = pinfo->abs_ts;
 					nstime_delta(&deltat, &t, &ssi->req_time);
-					tmp_item = proto_tree_add_time(header_tree, hf_smb2_time, tvb,
+					tmp_item = proto_tree_add_time(header_tree, hf_smb2_time_resp, tvb,
 					0, 0, &deltat);
 					proto_item_set_generated(tmp_item);
 				}
@@ -12931,7 +12940,12 @@ proto_register_smb2(void)
 			FRAMENUM_TYPE(FT_FRAMENUM_RESPONSE), 0, "The response to this packet is in this packet", HFILL }
 		},
 
-		{ &hf_smb2_time,
+		{ &hf_smb2_time_req,
+			{ "Time to response", "smb2.time", FT_RELATIVE_TIME, BASE_NONE,
+			NULL, 0, "Time between Request and Response for SMB2 cmds", HFILL }
+		},
+
+		{ &hf_smb2_time_resp,
 			{ "Time from request", "smb2.time", FT_RELATIVE_TIME, BASE_NONE,
 			NULL, 0, "Time between Request and Response for SMB2 cmds", HFILL }
 		},
