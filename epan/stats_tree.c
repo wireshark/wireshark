@@ -137,11 +137,17 @@ stats_tree_free(stats_tree *st)
     g_ptr_array_free(st->parents,true);
     g_free(st->display_name);
 
+    /* st->root is not allocated with malloc, so we have to call
+     * free_stat_node on each child and free the root's dynamically
+     * allocated members instead of calling free_stat_node(&str->root)
+     */
     for (child = st->root.children; child; child = next ) {
         /* child->next will be gone after free_stat_node, so cache it here */
         next = child->next;
         free_stat_node(child);
     }
+    g_free(st->root.name);
+    g_free(st->root.bh);
 
     if (st->cfg->free_tree_pr)
         st->cfg->free_tree_pr(st);
@@ -238,6 +244,7 @@ stats_tree_reinit(void *p)
     }
     st->root.st_flags = 0;
 
+    g_free(st->root.bh);
     st->root.bh = g_new0(burst_bucket, 1);
     st->root.bt = st->root.bh;
     st->root.bcount = 0;
@@ -252,6 +259,7 @@ stats_tree_reinit(void *p)
 
     /* Do not update st_flags for the tree (sorting) - leave as was */
     st->num_columns = N_COLUMNS;
+    /* XXX - Do we really need to recreate the display name? */
     g_free(st->display_name);
     st->display_name = stats_tree_get_displayname(st->cfg->path);
 
