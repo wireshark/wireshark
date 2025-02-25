@@ -24,11 +24,23 @@ extern "C" {
 #define STAT_TREE_ROOT "root"
 #define STATS_TREE_MENU_SEPARATOR "//"
 
+/* stats_tree specific flags. When registering, these are used together
+ * with the TL_ flags defined in tap.h, so make sure they don't overlap!
+ * (Yes, that applies even to the flags that apply to nodes instead of
+ * the entire tree, and should not be passed in stats_tree_register.
+ * XXX - Why? These flags should be reworked at some point.)
+ */
+
+/* Flags on child nodes for internal use only */
 #define ST_FLG_AVERAGE      0x10000000  /* Calculate averages for nodes, rather than totals */
 #define ST_FLG_ROOTCHILD    0x20000000  /* This node is a direct child of the root node */
+
+/* Flags set on child nodes via stat_node_set_flags */
 #define ST_FLG_DEF_NOEXPAND 0x01000000  /* This node should not be expanded by default */
-#define ST_FLG_SORT_DESC    0x00800000  /* When sorting, sort ascending instead of descending */
 #define ST_FLG_SORT_TOP     0x00400000  /* When sorting always keep these lines on of list */
+
+/* Flags for the entire stat_tree, set via stats_tree_register[_plugin] */
+#define ST_FLG_SORT_DESC    0x00800000  /* When sorting, sort descending instead of ascending */
 #define ST_FLG_SRTCOL_MASK  0x000F0000  /* Mask for sort column ID */
 #define ST_FLG_SRTCOL_SHIFT 16          /* Number of bits to shift masked result */
 

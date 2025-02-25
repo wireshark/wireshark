@@ -2074,7 +2074,7 @@ proto_reg_handoff_ltp(void)
 	dissector_add_uint_with_preference("dccp.port", LTP_PORT, ltp_handle);
 	heur_dissector_add("udp", dissect_ltp_heur_udp, "LTP over UDP", "ltp_udp", proto_ltp, HEURISTIC_DISABLE);
 
-	stats_tree_register("ltp", "ltp", "LTP", ST_SORT_COL_COUNT, ltp_stats_tree_packet, ltp_stats_tree_init, NULL);
+	stats_tree_register("ltp", "ltp", "LTP", 0, ltp_stats_tree_packet, ltp_stats_tree_init, NULL);
 }
 
 /*

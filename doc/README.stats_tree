@@ -71,7 +71,8 @@ extern tap_packet_status
 udp_term_stats_tree_packet(stats_tree *st, /* st as it was passed to us */
                            packet_info *pinfo,  /* we'll fetch the addresses from here */
                            epan_dissect_t *edt _U_, /* unused */
-                           const void *p) /* we'll use this to fetch the ports */
+                           const void *p, /* we'll use this to fetch the ports */
+                           tap_flags_t flags _U_) /* unused */
 {
 	static uint8_t str[128];
 	e_udphdr* udphdr = (e_udphdr*) p;
@@ -97,7 +98,7 @@ WS_DLL_PUBLIC_DEF void plugin_register_tap_listener(void) {
 
     stats_tree_register_plugin("udp", /* the proto we are going to "tap" */
                                "udp_terms", /* the abbreviation for this tree (to be used as -z udp_terms,tree) */
-                               st_str_udp_term, /* the name of the menu and window (use "/" for sub menus)*/
+                               st_str_udp_term, /* the name of the menu and window (use "//" for sub menus)*/
                                0, /* tap listener flags for per-packet callback */
                                udp_term_stats_tree_packet, /* the per packet callback */
                                udp_term_stats_tree_init, /* the init callback */
@@ -122,8 +123,37 @@ stats_tree_set_group(st_config, stat_group);
  changes the menu statistics group for a stats tree
 
 stats_tree_parent_id_by_name( st, parent_name)
-  returns the id of a candidate parent node given its name
+ returns the id of a candidate parent node given its name
 
+flags
+is a bitmask set of flags for the tap listener. Generic tap system flags
+(TL_*) described in README.tapping can be used, along with stat tree specific
+flags that control the default sorting, six for choosing the column and one
+for the order:
+
+	ST_SORT_COL_NAME
+		Sort nodes by node names
+	ST_SORT_COL_COUNT
+		Sort nodes by node count
+	ST_SORT_COL_AVG
+		Sort nodes by node average
+	ST_SORT_COL_MIN
+		Sort nodes by minimum node value
+	ST_SORT_COL_MAX
+		Sort nodes by maximum node value
+	ST_SORT_COL_BURSTRATE
+		Sort nodes by burst rate
+
+	ST_FLG_SORT_DESC
+		Sort nodes in descending order using the chosen column
+                The default if only a column is given is to use ascending
+                order
+
+The sort column flags need to be left shifted by ST_FLG_SRTCOL_SHIFT when
+registering. If no sort columns flags are given, values from the preferences
+(found in the "Statistics" module) are used for both column and order. The
+default preferences are to sort in descending order of node count, i.e.,
+(ST_SORT_COL_COUNT << ST_FLG_SRTCOL_SHIFT) | ST_FLG_SORT_DESC
 
 Node functions
 ==============
@@ -214,7 +244,9 @@ stat_node_clear_flags functions. Currently these flags are defined:
 	ST_FLG_DEF_NOEXPAND: By default the top-level nodes in a tree are
 			automatically expanded in the GUI. Setting this flag on
 			such a node prevents the node from automatically
-			expanding.
+			expanding. (However, if there are fewer than some fixed
+			total number of nodes, currently 100, in the tree, then
+			all the nodes will be expanded anyway.)
 	ST_FLG_SORT_TOP: Nodes with this flag is sorted separately from nodes
 			without this flag (in effect partitioning tree into a top
 			and bottom half. Each half is sorted normally. Top always
