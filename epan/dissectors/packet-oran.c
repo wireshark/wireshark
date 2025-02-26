@@ -4959,6 +4959,10 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo,
                     bool disable_tdbfns;
                     uint32_t bfwcomphdr_iq_width, bfwcomphdr_comp_meth;
 
+                    /* Hidden filter for bf */
+                    proto_item *bf_ti = proto_tree_add_item(command_tree, hf_oran_bf, tvb, 0, 0, ENC_NA);
+                    PROTO_ITEM_SET_HIDDEN(bf_ti);
+
                     /* reserved (2 bits) */
                     proto_tree_add_item(command_tree, hf_oran_reserved_2bits, tvb, offset, 1, ENC_BIG_ENDIAN);
                     /* symbolMask (14 bits) */
