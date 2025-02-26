@@ -106,9 +106,7 @@ sfloat_ieee_11073_val_from_literal(fvalue_t *fv, const char *s, bool allow_parti
         i_char += 1;
     }
 
-    c = *i_char;
-
-    do {
+    while ((c = *i_char)) {
         if (c == '0') {
             if (mantissa * 10 >  (uint32_t) mantissa_max + mantissa_sign) {
                 exponent += 1;
@@ -160,7 +158,7 @@ sfloat_ieee_11073_val_from_literal(fvalue_t *fv, const char *s, bool allow_parti
             }
 
             i_char -= 1;
-        } else if (c != '\0') {
+        } else {
             /* NOTE: Maybe 5e-10, 5e3 notation should be also supported */
             return false;
         }
@@ -172,7 +170,7 @@ sfloat_ieee_11073_val_from_literal(fvalue_t *fv, const char *s, bool allow_parti
             exponent -= 1;
 
         i_char += 1;
-    } while ((c = *i_char));
+    }
 
     if (mantissa_sign) {
         mantissa = ~(mantissa - 1);
@@ -559,9 +557,7 @@ float_ieee_11073_val_from_literal(fvalue_t *fv, const char *s, bool allow_partia
         i_char += 1;
     }
 
-    c = *i_char;
-
-    do {
+    while ((c = *i_char)) {
         if (c == '0') {
             if (mantissa * 10 > mantissa_sign + mantissa_max) {
                 exponent += 1;
@@ -613,7 +609,7 @@ float_ieee_11073_val_from_literal(fvalue_t *fv, const char *s, bool allow_partia
             }
 
             i_char -= 1;
-        } else if (c != '\0') {
+        } else {
             /* NOTE: Maybe 5e-10, 5e3 notation should be also supported */
             return false;
         }
@@ -625,7 +621,7 @@ float_ieee_11073_val_from_literal(fvalue_t *fv, const char *s, bool allow_partia
             exponent -= 1;
 
         i_char += 1;
-    } while ((c = *i_char));
+    }
 
     if (mantissa_sign) {
         mantissa = ~(mantissa - 1);
