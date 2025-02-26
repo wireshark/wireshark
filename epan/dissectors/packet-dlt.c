@@ -650,11 +650,11 @@ dissect_dlt_verbose_parameter_float(tvbuff_t *tvb, packet_info *pinfo, proto_tre
     proto_item *ti = NULL;
     switch (length) {
     case 4:
-        proto_tree_add_item_ret_float(tree, hf_dlt_float, tvb, offset, 4, encoding, &value);
+        ti = proto_tree_add_item_ret_float(tree, hf_dlt_float, tvb, offset, 4, encoding, &value);
         col_append_fstr(pinfo->cinfo, COL_INFO, " %f", value);
         break;
     case 8:
-        proto_tree_add_item_ret_double(tree, hf_dlt_double, tvb, offset, 8, encoding, &value64);
+        ti = proto_tree_add_item_ret_double(tree, hf_dlt_double, tvb, offset, 8, encoding, &value64);
         col_append_fstr(pinfo->cinfo, COL_INFO, " %f", value64);
         break;
     case 2:
