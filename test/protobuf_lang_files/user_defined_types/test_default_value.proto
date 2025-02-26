@@ -44,9 +44,9 @@ message TestDefaultValueMessage {
   optional double doubleWithDefaultValue_Negative0point12345678 = 42 [ default = -0.12345678 ];
 
   // default values of string and bytes
-  optional string stringWithNoValue = 51; // default value must not appear because not declared
+  optional string stringWithNoValue = 51; // default value is empty string ""
   optional string stringWithDefaultValue_SymbolPi = 52 [ default = "The symbol \'\xF0\x9D\x9B\x91\' is mathematical bold small Pi."]; 
-  optional bytes bytesWithNoValue = 53; // default value must not appear because not declared
+  optional bytes bytesWithNoValue = 53; // default value is empty bytes ""
   // '\'nnn is octal value of a byte, '\x'nn is hex value of a byte
   optional bytes bytesWithDefaultValue_1F2F890D0A00004B = 54 [ default = "\x1F\x2F\211\r\n\000\x0\x4B" ];
 

@@ -1144,8 +1144,9 @@ dissect_one_protobuf_field(tvbuff_t *tvb, unsigned* offset, unsigned maxlen, pac
  *  2. For bools, the default value is false.
  *  3. For enums, the default value is the first defined enum value, which must be 0 in 'proto3' (but
  *     allowed to be other in 'proto2').
- *  4. For numeric types, the default value is zero.
- * There are no default values for fields 'repeated' or 'bytes' and 'string' without default value declared.
+ *  4. For numeric types, the default value is zero; for strings, the default value is the empty string;
+ *     and for bytes, the default value is empty bytes.
+ * There are no default values for fields 'repeated'.
  * If the missing field is 'required' in a 'proto2' file, an expert warning item will be added to the tree.
  *
  * Which fields will be displayed is controlled by 'add_default_value' option:
@@ -1199,14 +1200,11 @@ add_missing_fields_with_default_values(tvbuff_t* tvb, unsigned offset, packet_in
             continue;
         }
 
-        /* ignore repeated fields, or optional fields of message/group,
-         * or string/bytes fields without explicitly-declared default value.
+        /* ignore repeated fields, or optional fields of message/group.
          */
         if (is_repeated || (!is_required && (field_type == PROTOBUF_TYPE_NONE
             || field_type == PROTOBUF_TYPE_MESSAGE
             || field_type == PROTOBUF_TYPE_GROUP
-            || (field_type == PROTOBUF_TYPE_BYTES && !has_default_value)
-            || (field_type == PROTOBUF_TYPE_STRING && !has_default_value)
             ))) {
             continue;
         }
@@ -1354,18 +1352,29 @@ add_missing_fields_with_default_values(tvbuff_t* tvb, unsigned offset, packet_in
 
         case PROTOBUF_TYPE_BYTES:
             string_value = pbw_FieldDescriptor_default_value_string(field_desc, &size);
-            DISSECTOR_ASSERT_HINT(has_default_value && string_value, "Bytes field must have default value!");
             if (dumper) {
-                json_dumper_begin_base64(dumper);
-                json_dumper_write_base64(dumper, (const unsigned char *)string_value, size);
-                json_dumper_end_base64(dumper);
+                if (string_value == NULL) {
+                    json_dumper_value_string(dumper, "");
+                } else {
+                    json_dumper_begin_base64(dumper);
+                    json_dumper_write_base64(dumper, (const unsigned char *)string_value, size);
+                    json_dumper_end_base64(dumper);
+                }
             }
             if (!dissect_bytes_as_string) {
-                ti_value = proto_tree_add_bytes_with_length(field_tree, hf_protobuf_value_data, tvb, offset, 0, (const uint8_t*) string_value, size);
+                if (string_value == NULL) {
+                    ti_value = proto_tree_add_bytes_format_value(field_tree, hf_protobuf_value_data, tvb, offset, 0, NULL, "%s", "");
+                } else {
+                    ti_value = proto_tree_add_bytes_with_length(field_tree, hf_protobuf_value_data, tvb, offset, 0, (const uint8_t*)string_value, size);
+                }
                 proto_item_append_text(ti_field, " (%d bytes)", size);
                 /* the type of *hf_id_ptr MUST be FT_BYTES now */
                 if (hf_id_ptr) {
-                    ti_pbf = proto_tree_add_bytes_with_length(pbf_tree, *hf_id_ptr, tvb, offset, 0, (const uint8_t*)string_value, size);
+                    if (string_value == NULL) {
+                        ti_pbf = proto_tree_add_bytes_format_value(pbf_tree, *hf_id_ptr, tvb, offset, 0, NULL, "%s", "");
+                    } else {
+                        ti_pbf = proto_tree_add_bytes_with_length(pbf_tree, *hf_id_ptr, tvb, offset, 0, (const uint8_t*)string_value, size);
+                    }
                 }
                 break;
             }
@@ -1375,7 +1384,9 @@ add_missing_fields_with_default_values(tvbuff_t* tvb, unsigned offset, packet_in
             if (string_value == NULL) {
                 string_value = pbw_FieldDescriptor_default_value_string(field_desc, &size);
             }
-            DISSECTOR_ASSERT_HINT(has_default_value && string_value, "String field must have default value!");
+            if (string_value == NULL) {
+                string_value = "";
+            }
             ti_value = proto_tree_add_string(field_tree, hf_protobuf_value_string, tvb, offset, 0, string_value);
             proto_item_append_text(ti_field, " %s", string_value);
             if (hf_id_ptr) {
@@ -2442,8 +2453,8 @@ proto_register_protobuf(void)
         "  1) The value of the 'default' option of an optional field defined in 'proto2' file. (explicitly-declared)\n"
         "  2) False for bools.\n"
         "  3) First defined enum value for enums.\n"
-        "  4) Zero for numeric types.\n"
-        "There are no default values for fields 'repeated' or 'bytes' and 'string' without default value declared.\n"
+        "  4) Zero for numeric types; empty string for 'string'; and empty bytes for 'bytes'.\n"
+        "There are no default values for fields 'repeated'.\n"
         "If the missing field is 'required' in a 'proto2' file, a warning item will be added to the tree.",
         &add_default_value, add_default_value_policy_vals, false);
 

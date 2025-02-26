@@ -651,6 +651,8 @@ class TestDissectProtobuf:
                       ' && pbf.wireshark.protobuf.test.TestDefaultValueMessage.bytesWithDefaultValue_1F2F890D0A00004B == 1f:2f:89:0d:0a:00:00:4b'
                       ' && pbf.wireshark.protobuf.test.TestDefaultValueMessage.optional' # test taking keyword 'optional' as identification
                       ' && pbf.wireshark.protobuf.test.TestDefaultValueMessage.message' # test taking keyword 'message' as identification
+                      ' && pbf.wireshark.protobuf.test.TestDefaultValueMessage.stringWithNoValue == ""' # test default value is empty for strings
+                      ' && pbf.wireshark.protobuf.test.TestDefaultValueMessage.bytesWithNoValue == ""' # test default value is empty for bytes
             ), encoding='utf-8', env=test_env)
         assert grep_output(stdout, 'floatWithDefaultValue_0point23: 0.23') # another default value will be displayed
         assert grep_output(stdout, 'missing required field \'missingRequiredField\'') # check the missing required field export warn
