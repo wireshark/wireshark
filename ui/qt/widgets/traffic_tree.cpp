@@ -690,7 +690,7 @@ QMenu * TrafficTree::createActionSubMenu(FilterAction::Action cur_action, QModel
 
     QMenu * subMenu = new QMenu(FilterAction::actionName(cur_action));
     subMenu->setEnabled(_tapEnabled);
-    foreach (FilterAction::ActionType at, FilterAction::actionTypes()) {
+    foreach (FilterAction::ActionType at, FilterAction::actionTypes(cur_action)) {
         if (isConversation && conv_item) {
             QMenu *subsubmenu = subMenu->addMenu(FilterAction::actionTypeName(at));
             if (hasConvId && (cur_action == FilterAction::ActionApply || cur_action == FilterAction::ActionPrepare)) {
