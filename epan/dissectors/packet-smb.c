@@ -530,6 +530,20 @@ static int hf_smb_file_id;
 static int hf_smb_file_id_64bit;
 static int hf_smb_ea_error_offset;
 static int hf_smb_end_of_file;
+
+static int hf_smb_pipe_type = -1;
+static int hf_smb_pipe_config = -1;
+static int hf_smb_pipe_max_instances = -1;
+static int hf_smb_pipe_current_instances = -1;
+static int hf_smb_pipe_inbound_quota = -1;
+static int hf_smb_pipe_read_data_avail = -1;
+static int hf_smb_pipe_outbound_quota = -1;
+static int hf_smb_pipe_write_quota_avail = -1;
+static int hf_smb_pipe_state = -1;
+static int hf_smb_pipe_end = -1;
+static int hf_smb_pipe_collect_data_time = -1;
+static int hf_smb_pipe_max_collection_count = -1;
+
 static int hf_smb_replace;
 static int hf_smb_root_dir_handle;
 static int hf_smb_target_name_len;
@@ -2262,7 +2276,7 @@ static const true_false_string tfs_disposition_delete_on_close = {
 	"Normal access, do not delete on close"
 };
 
-static const true_false_string tfs_pipe_info_flag = {
+static const true_false_string tfs_set_named_pipe = {
 	"SET NAMED PIPE mode",
 	"Clear NAMED PIPE mode"
 };
@@ -12705,7 +12719,113 @@ dissect_qsfi_SMB_FILE_ENDOFFILE_INFO(tvbuff_t *tvb, packet_info *pinfo _U_, prot
 	return offset;
 }
 
-/* this dissects the SMB_QUERY_FILE_NAME_INFO
+static const value_string pipe_type_vals[] = {
+	{0x00000000,	"FILE_PIPE_BYTE_STREAM_TYPE - Data MUST be read from the pipe as a stream of bytes" },
+	{0x00000001,	"FILE_PIPE_MESSAGE_TYPE - Data MUST be read from the pipe as a stream of messages" },
+	{ 0, NULL }
+};
+static const value_string pipe_config_vals[] = {
+	{0x00000000,	"FILE_PIPE_INBOUND - Flow of data in the pipe goes from client to server only" },
+	{0x00000001,	"FILE_PIPE_OUTBOUND - Flow of data in the pipe goes from server to client only" },
+	{0x00000002,	"FILE_PIPE_FULL_DUPLEX - Pipe is bi-directional; server and client can read from and write to the pipe" },
+	{ 0, NULL }
+};
+static const value_string pipe_state_vals[] = {
+	{0x00000001,	"FILE_PIPE_DISCONNECTED_STATE - Named pipe is disconnected" },
+	{0x00000002,	"FILE_PIPE_LISTENING_STATE - Named pipe is waiting to establish a connection." },
+	{0x00000003,	"FILE_PIPE_CONNECTED_STATE - Named pipe is connected" },
+	{0x00000004,	"FILE_PIPE_CLOSING_STATE - Named pipe is in the process of being closed" },
+	{ 0, NULL }
+};
+static const value_string pipe_end_vals[] = {
+	{0x00000000,	"FILE_PIPE_CLIENT_END - This is the client end of a named pipe" },
+	{0x00000001,	"FILE_PIPE_SERVER_END - This is the server end of a named pipe" },
+	{ 0, NULL }
+};
+/*  FILE_PIPE_LOCAL_INFO FilePipeLocalInformation - [MS-FSCC]-v20240708 2.4.37
+    SMB2 QUERY_INFO FilePipeLocalInformation      - [MS-SMB2]-v20240708 2.2.37
+*/
+int
+dissect_qfi_SMB_FILE_PIPE_LOCAL_INFO(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+		    int offset, uint16_t *bcp, bool *trunc)
+{
+	/* Pipe Type */
+	CHECK_BYTE_COUNT_SUBR(4);
+	proto_tree_add_item(tree, hf_smb_pipe_type, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	COUNT_BYTES_SUBR(4);
+
+	/* Pipe Configuration */
+	CHECK_BYTE_COUNT_SUBR(4);
+	proto_tree_add_item(tree, hf_smb_pipe_config, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	COUNT_BYTES_SUBR(4);
+
+	/* Maximum Instances */
+	CHECK_BYTE_COUNT_SUBR(4);
+	proto_tree_add_item(tree, hf_smb_pipe_max_instances, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	COUNT_BYTES_SUBR(4);
+
+	/* Current Instances */
+	CHECK_BYTE_COUNT_SUBR(4);
+	proto_tree_add_item(tree, hf_smb_pipe_current_instances, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	COUNT_BYTES_SUBR(4);
+
+	/* Inbound Quota */
+	CHECK_BYTE_COUNT_SUBR(4);
+	proto_tree_add_item(tree, hf_smb_pipe_inbound_quota, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	COUNT_BYTES_SUBR(4);
+
+	/* Read Data Avail */
+	CHECK_BYTE_COUNT_SUBR(4);
+	proto_tree_add_item(tree, hf_smb_pipe_read_data_avail, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	COUNT_BYTES_SUBR(4);
+
+	/* Outbound Quota */
+	CHECK_BYTE_COUNT_SUBR(4);
+	proto_tree_add_item(tree, hf_smb_pipe_outbound_quota, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	COUNT_BYTES_SUBR(4);
+
+	/* Write Quota Avail */
+	CHECK_BYTE_COUNT_SUBR(4);
+	proto_tree_add_item(tree, hf_smb_pipe_write_quota_avail, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	COUNT_BYTES_SUBR(4);
+
+	/* Pipe State */
+	CHECK_BYTE_COUNT_SUBR(4);
+	proto_tree_add_item(tree, hf_smb_pipe_state, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	COUNT_BYTES_SUBR(4);
+
+	/* Pipe End */
+	CHECK_BYTE_COUNT_SUBR(4);
+	proto_tree_add_item(tree, hf_smb_pipe_end, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	COUNT_BYTES_SUBR(4);
+
+	*trunc = FALSE;
+	return offset;
+}
+
+/*  FILE_PIPE_REMOTE_INFO PipeRemoteInformation - [MS-FSCC]-v20240708  [MS-SMB2]-v20140124.4.38
+    SMB2 QUERY_INFO File  PipeRemoteInformation - [MS-SMB2]-v20240729 2.2.37
+*/
+int
+dissect_qfi_SMB_FILE_PIPE_REMOTE_INFO(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+		    int offset, uint16_t *bcp, bool *trunc)
+{
+	/* Collect Data Time */
+	CHECK_BYTE_COUNT_SUBR(8);
+	proto_tree_add_item(tree, hf_smb_pipe_collect_data_time, tvb, offset, 8, ENC_LITTLE_ENDIAN);
+	COUNT_BYTES_SUBR(8);
+
+	/* Max Collection Count */
+	CHECK_BYTE_COUNT_SUBR(4);
+	proto_tree_add_item(tree, hf_smb_pipe_max_collection_count, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	COUNT_BYTES_SUBR(4);
+
+	*trunc = FALSE;
+	return offset;
+}
+
+
+/* This dissects the SMB_QUERY_FILE_NAME_INFO
    as described in 4.2.16.7 of the SNIA CIFS spec
    and in 2.2.8.3.9 of the MS-CIFS spec
    this is the same as SMB_QUERY_FILE_ALT_NAME_INFO
@@ -13624,6 +13744,14 @@ dissect_qpi_loi_vals(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 		offset = dissect_qfi_SMB_FILE_STREAM_INFO(tvb, pinfo, tree, offset, bcp,
 		    &trunc, si->unicode);
 		break;
+	case 1024:	/* Query File Pipe Local Info */
+		offset = dissect_qfi_SMB_FILE_PIPE_LOCAL_INFO(tvb, pinfo, tree, offset, bcp,
+				&trunc);
+		break;
+	case 1025:	/* Query File Pipe Remote Info */
+		offset = dissect_qfi_SMB_FILE_PIPE_REMOTE_INFO(tvb, pinfo, tree, offset, bcp,
+				&trunc);
+		break;
 	case 0x010b:	/*Query File Compression Info*/
 	case 1028:	/* SMB_FILE_COMPRESSION_INFORMATION */
 		offset = dissect_qfi_SMB_FILE_COMPRESSION_INFO(tvb, pinfo, tree, offset, bcp,
@@ -13788,7 +13916,6 @@ dissect_spi_loi_vals(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 		offset = dissect_sfi_SMB_FILE_PIPE_INFO(tvb, pinfo, tree, offset, bcp,
 		    &trunc);
 		break;
-	case 1025:
 	case 1029:
 	case 1032:
 	case 1039:
@@ -19622,7 +19749,7 @@ proto_register_smb(void)
 
 	{ &hf_smb_ipc_state_pipe_type,
 		{ "Pipe Type", "smb.ipc_state.pipe_type", FT_UINT16, BASE_DEC,
-		VALS(ipc_state_pipe_type_vals), 0x0c00, "What type of pipe this is", HFILL }},
+		VALS(ipc_state_pipe_type_vals), 0x0c00, "Byte stream or message type", HFILL }},
 
 	{ &hf_smb_ipc_state_read_mode,
 		{ "Read Mode", "smb.ipc_state.read_mode", FT_UINT16, BASE_DEC,
@@ -21278,8 +21405,56 @@ proto_register_smb(void)
 	    TFS(&tfs_disposition_delete_on_close), 0x01, NULL, HFILL }},
 
 	{ &hf_smb_pipe_info_flag,
-	  { "Pipe Info", "smb.pipe_info_flag", FT_BOOLEAN, 8,
-	    TFS(&tfs_pipe_info_flag), 0x01, NULL, HFILL }},
+	  { "Pipe Info", "smb.set_named_pipe", FT_BOOLEAN, 8,
+	    TFS(&tfs_set_named_pipe), 0x01, NULL, HFILL }},
+
+	{ &hf_smb_pipe_type,
+	  { "Named Pipe Type", "smb.pipe.type", FT_UINT32, BASE_DEC,
+	    VALS(pipe_type_vals), 0, "Byte stream or message type", HFILL }},
+
+	{ &hf_smb_pipe_config,
+	  { "Named Pipe Config", "smb.pipe.config", FT_UINT32, BASE_DEC,
+	    VALS(pipe_config_vals), 0, "Inbound, outbound, or full duplex", HFILL }},
+
+	{ &hf_smb_pipe_max_instances,
+	  { "Maximum instances", "smb.pipe.max_instances", FT_UINT32, BASE_DEC,
+	    NULL, 0, "Maximum number of named pipe instances allowed", HFILL }},
+
+	{ &hf_smb_pipe_current_instances,
+	  { "Current instances", "smb.pipe.current_instances", FT_UINT32, BASE_DEC,
+	    NULL, 0, "Current number of named pipe instances", HFILL }},
+
+	{ &hf_smb_pipe_inbound_quota,
+	  { "Inbound Quota", "smb.pipe.inbound_quota", FT_UINT32, BASE_DEC,
+	    NULL, 0, "Buffer size reserved for inbound data", HFILL }},
+
+	{ &hf_smb_pipe_read_data_avail,
+	  { "Read Data Avail", "smb.pipe.read_data_avail", FT_UINT32, BASE_DEC,
+	    NULL, 0, "Bytes available to be read from the named pipe.", HFILL }},
+
+	{ &hf_smb_pipe_outbound_quota,
+	  { "Outbound Quota", "smb.pipe.outbound_quota", FT_UINT32, BASE_DEC,
+	    NULL, 0, "Buffer size reserved for outbound data", HFILL }},
+
+	{ &hf_smb_pipe_write_quota_avail,
+	  { "Write Data Avail", "smb.pipe.write_data_avail", FT_UINT32, BASE_DEC,
+	NULL, 0, "The inbound or outbound quota buffer available depending on Named Pipe End", HFILL }},
+
+	{ &hf_smb_pipe_state,
+	  { "Named Pipe State", "smb.pipe.state", FT_UINT32, BASE_DEC,
+	    VALS(pipe_state_vals), 0, NULL, HFILL }},
+
+	{ &hf_smb_pipe_end,
+	  { "Named Pipe End", "smb.pipe.end", FT_UINT32, BASE_DEC,
+	    VALS(pipe_end_vals), 0, NULL, HFILL }},
+
+	{ &hf_smb_pipe_collect_data_time,
+	  { "Timeout", "smb.pipe.collect_data_time", FT_UINT64, BASE_DEC,
+	    NULL, 0, "Max delay in 100-nanosecond units before the client will transmit data.", HFILL }},
+
+	{ &hf_smb_pipe_max_collection_count,
+	  { "Max Collection Count", "smb.pipe.max_collection_count", FT_UINT64, BASE_DEC,
+	    NULL, 0, "Max bytes of data the client will collect before transmission to the server", HFILL }},
 
 	{ &hf_smb_logged_in,
 	  { "Logged In", "smb.logged_in", FT_FRAMENUM, BASE_NONE,
