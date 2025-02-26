@@ -535,10 +535,11 @@ WS_DLL_PUBLIC uint64_t tvb_get_bits64(tvbuff_t *tvb, unsigned bit_offset,
     const int no_of_bits, const unsigned encoding);
 
 /**
- *  This function has EXACTLY the same behavior as
- *  tvb_get_bits32()
+ *  This function has EXACTLY the same behavior as tvb_get_bits32()
  */
-WS_DLL_PUBLIC uint32_t tvb_get_bits(tvbuff_t *tvb, const unsigned bit_offset,
+WS_DLL_PUBLIC
+WS_DEPRECATED_X("Use tvb_get_bits32() instead")
+uint32_t tvb_get_bits(tvbuff_t *tvb, const unsigned bit_offset,
     const int no_of_bits, const unsigned encoding);
 
 /** Returns target for convenience. Does not suffer from possible
