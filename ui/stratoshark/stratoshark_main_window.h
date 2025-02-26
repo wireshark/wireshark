@@ -60,7 +60,6 @@
 # include <QSocketNotifier>
 #endif
 
-#include "capture_file.h"
 #include "capture_file_dialog.h"
 #include "capture_file_properties_dialog.h"
 #include <ui/qt/utils/field_information.h>
@@ -145,7 +144,6 @@ private:
     };
 
     Ui::StratosharkMainWindow *main_ui_;
-    CaptureFile capture_file_;
     QFont mono_font_;
     QMap<QString, QTextCodec *> text_codec_map_;
     QWidget *previous_focus_;
@@ -166,7 +164,6 @@ private:
 
     bool capture_stopping_;
     bool capture_filter_valid_;
-    bool use_capturing_title_;
 #ifdef HAVE_LIBPCAP
     capture_session cap_session_;
     CaptureOptionsDialog *capture_options_dialog_;

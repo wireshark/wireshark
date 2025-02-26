@@ -324,8 +324,7 @@ StratosharkMainWindow::StratosharkMainWindow(QWidget *parent) :
     freeze_focus_(NULL),
     was_maximized_(false),
     capture_stopping_(false),
-    capture_filter_valid_(false),
-    use_capturing_title_(false)
+    capture_filter_valid_(false)
 #ifdef HAVE_LIBPCAP
     , capture_options_dialog_(NULL)
     , info_data_()
