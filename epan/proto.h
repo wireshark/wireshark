@@ -973,8 +973,8 @@ typedef proto_node proto_item;
 #define PI_DISSECTOR_BUG        0x11000000
 
 /*
- * add more, see
- *    https://gitlab.com/wireshark/wireshark/-/wikis/Development/ExpertInfo
+ * add more, see WSDG: 9.3. How to add an expert item:
+ *    https://www.wireshark.org/docs/wsdg_html/#ChDissectExpertInfo
  */
 
 /** Retrieve the field_info from a proto_node */

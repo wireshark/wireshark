@@ -1,8 +1,8 @@
 /** @file
  * Collecting of Expert information.
  *
- * For further info, see:
- *    https://gitlab.com/wireshark/wireshark/-/wikis/Development/ExpertInfo
+ * For further info, see WSDG: 9.3. How to add an expert item:
+ *    https://www.wireshark.org/docs/wsdg_html/#ChDissectExpertInfo
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
