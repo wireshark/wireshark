@@ -6595,7 +6595,7 @@ dissect_le_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, 
             if (override_config & (1 << 8)) {
               proto_tree_add_item(sub_tree, hf_bthci_cmd_override_param_cs_sync_payload_pattern, tvb, offset, 1, ENC_NA);
               offset++;
-              proto_tree_add_item(sub_tree, hf_bthci_cmd_override_param_cs_sync_user_payload, tvb, offset, 16, ENC_LITTLE_ENDIAN);
+              proto_tree_add_item(sub_tree, hf_bthci_cmd_override_param_cs_sync_user_payload, tvb, offset, 16, ENC_NA);
               offset += 16;
             }
             if (!pinfo->fd->visited) {
@@ -9836,12 +9836,12 @@ proto_register_bthci_cmd(void)
         },
         { &hf_bthci_cmd_nadm_sounding_capability_supported,
           { "Phase-based NADM Metric", "bthci_cmd.optional_nadm_sounding_capability.supported",
-            FT_BOOLEAN, 16, NULL, 0x01,
+            FT_BOOLEAN, 16, NULL, 0x0001,
             NULL, HFILL }
         },
         { &hf_bthci_cmd_nadm_sounding_capability_reserved,
           { "Reserved", "bthci_cmd.optional_nadm_sounding_capability.reserved",
-            FT_UINT16, BASE_HEX, NULL, 0xfe,
+            FT_UINT16, BASE_HEX, NULL, 0x00fe,
             NULL, HFILL }
         },
         { &hf_bthci_cmd_nadm_random_capability,
@@ -9851,12 +9851,12 @@ proto_register_bthci_cmd(void)
         },
         { &hf_bthci_cmd_nadm_random_capability_supported,
           { "Phase-based NADM Metric", "bthci_cmd.optional_nadm_random_capability.supported",
-            FT_BOOLEAN, 16, NULL, 0x01,
+            FT_BOOLEAN, 16, NULL, 0x0001,
             NULL, HFILL }
         },
         { &hf_bthci_cmd_nadm_random_capability_reserved,
           { "Reserved", "bthci_cmd.optional_nadm_random_capability.reserved",
-            FT_UINT16, BASE_HEX, NULL, 0xfe,
+            FT_UINT16, BASE_HEX, NULL, 0x00fe,
             NULL, HFILL }
         },
         { &hf_bthci_cmd_cs_sync_phys_supported,
@@ -9886,22 +9886,22 @@ proto_register_bthci_cmd(void)
         },
         { &hf_bthci_cmd_cs_subfeatures_companion_signal,
           { "Companion Signal", "bthci_cmd.optional_cs_subfeatures.companion_signal",
-            FT_BOOLEAN, 16, NULL, 0x01,
+            FT_BOOLEAN, 16, NULL, 0x0001,
             NULL, HFILL }
         },
         { &hf_bthci_cmd_cs_subfeatures_freq_actuation_error,
           { "Zero Freq. Actuation Error Relative to Mode-0 Tx in Reflector", "bthci_cmd.optional_cs_subfeatures.freq_actuation_error",
-            FT_BOOLEAN, 16, NULL, 0x02,
+            FT_BOOLEAN, 16, NULL, 0x0002,
             NULL, HFILL }
         },
         { &hf_bthci_cmd_cs_subfeatures_channel_selection_3c,
           { "Channel Selection Algorithm #3c", "bthci_cmd.optional_cs_subfeatures.channel_selection_3c",
-            FT_BOOLEAN, 16, NULL, 0x04,
+            FT_BOOLEAN, 16, NULL, 0x0004,
             NULL, HFILL }
         },
         { &hf_bthci_cmd_cs_subfeatures_pbr_from_rtt,
           { "Phase-based Ranging from RTT sounding sequence", "bthci_cmd.optional_cs_subfeatures.pbr_from_rtt",
-            FT_BOOLEAN, 16, NULL, 0x08,
+            FT_BOOLEAN, 16, NULL, 0x0008,
             NULL, HFILL }
         },
         { &hf_bthci_cmd_cs_subfeatures_reserved,
