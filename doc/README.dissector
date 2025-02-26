@@ -163,10 +163,14 @@ FIELDDISPLAY    --For FT_UINT{8,16,24,32,40,48,56,64} and
                   BASE_NONE can be used in the same way as with FT_UINT8.
 
                 --For FT_FLOAT, FT_DOUBLE:
-                  BASE_NONE, BASE_DEC, BASE_HEX, BASE_EXP or BASE_CUSTOM.
+                  BASE_NONE, BASE_DEC, BASE_HEX, BASE_EXP or BASE_CUSTOM,
+                  possibly ORed with BASE_UNIT_STRING.
 
                   BASE_NONE uses BASE_DEC or BASE_EXP, similarly to the
                   %g double format for the printf() function.
+
+                --For FT_IEEE_11073_SFLOAT, FT_IEEE_11073_FLOAT:
+                  BASE_NONE, possibly ORed with BASE_UNIT_STRING.
 
                 --For FT_ABSOLUTE_TIME:
 
@@ -1030,10 +1034,15 @@ the callback function pointer. Specifically, this is defined as:
 
     void func(char *, uint64_t);
 
+For floating point values, custom_fmt_func_double_t can be used to declare
+the callback function pointer. Specifically, this is defined as:
+
+    void func(char *, double);
+
 The first argument is a pointer to a buffer of the ITEM_LABEL_LENGTH size
 and the second argument is the value to be formatted.
 
-Both custom_fmt_func_t and custom_fmt_func_64_t are defined in epan/proto.h.
+The callback function pointer types are defined in epan/proto.h.
 
 For FT_UINT16 'display' can be used to select a transport layer protocol using one
 of BASE_PT_UDP, BASE_PT_TCP, BASE_PT_DCCP or BASE_PT_SCTP. If transport name

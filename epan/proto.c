@@ -259,6 +259,8 @@ static void fill_label_number64(const field_info *fi, char *label_str, size_t *v
 
 static size_t fill_display_label_float(const field_info *fi, char *label_str);
 static void fill_label_float(const field_info *fi, char *label_str, size_t *value_pos);
+static size_t fill_display_label_ieee_11073_float(const field_info *fi, char *label_str);
+static void fill_label_ieee_11073_float(const field_info *fi, char *label_str, size_t *value_pos);
 
 static const char *hfinfo_number_value_format_display(const header_field_info *hfinfo, int display, char buf[NUMBER_LABEL_LENGTH], uint32_t value);
 static const char *hfinfo_number_value_format_display64(const header_field_info *hfinfo, int display, char buf[NUMBER_LABEL_LENGTH], uint64_t value);
@@ -7281,6 +7283,11 @@ proto_item_fill_display_label(const field_info *finfo, char *display_label_str, 
 			label_len = (int)fill_display_label_float(finfo, display_label_str);
 			break;
 
+		case FT_IEEE_11073_SFLOAT:
+		case FT_IEEE_11073_FLOAT:
+			label_len = (int)fill_display_label_ieee_11073_float(finfo, display_label_str);
+			break;
+
 		case FT_STRING:
 		case FT_STRINGZ:
 		case FT_UINT_STRING:
@@ -9217,6 +9224,8 @@ tmp_fld_check_assert(header_field_info *hfinfo)
 		 */
 		case FT_FLOAT:
 		case FT_DOUBLE:
+		case FT_IEEE_11073_SFLOAT:
+		case FT_IEEE_11073_FLOAT:
 			if (!(hfinfo->display & BASE_UNIT_STRING)) {
 				REPORT_DISSECTOR_BUG("Field '%s' (%s) has a non-unit-strings 'strings' value but is of type %s"
 					" (which is only allowed to have unit strings)",
@@ -9609,6 +9618,25 @@ tmp_fld_check_assert(header_field_info *hfinfo)
 					hfinfo->name, hfinfo->abbrev,
 					ftype_name(hfinfo->type));
 			if (FIELD_DISPLAY(hfinfo->display) != BASE_CUSTOM && (hfinfo->strings != NULL) && !(hfinfo->display & BASE_UNIT_STRING))
+				REPORT_DISSECTOR_BUG("Field '%s' (%s) is an %s but has a strings value",
+					hfinfo->name, hfinfo->abbrev,
+					ftype_name(hfinfo->type));
+			break;
+		case FT_IEEE_11073_SFLOAT:
+		case FT_IEEE_11073_FLOAT:
+			if (FIELD_DISPLAY(hfinfo->display) != BASE_NONE) {
+				tmp_str = val_to_str_wmem(NULL, hfinfo->display, hf_display, "(Bit count: %d)");
+				REPORT_DISSECTOR_BUG("Field '%s' (%s) is an %s but is being displayed as %s instead of BASE_NONE",
+					hfinfo->name, hfinfo->abbrev,
+					ftype_name(hfinfo->type),
+					tmp_str);
+				//wmem_free(NULL, tmp_str);
+			}
+			if (hfinfo->bitmask != 0)
+				REPORT_DISSECTOR_BUG("Field '%s' (%s) is an %s but has a bitmask",
+					hfinfo->name, hfinfo->abbrev,
+					ftype_name(hfinfo->type));
+			if ((hfinfo->strings != NULL) && !(hfinfo->display & BASE_UNIT_STRING))
 				REPORT_DISSECTOR_BUG("Field '%s' (%s) is an %s but has a strings value",
 					hfinfo->name, hfinfo->abbrev,
 					ftype_name(hfinfo->type));
@@ -10235,9 +10263,7 @@ proto_item_fill_label(const field_info *fi, char *label_str, size_t *value_pos)
 
 		case FT_IEEE_11073_SFLOAT:
 		case FT_IEEE_11073_FLOAT:
-			tmp = fvalue_to_string_repr(NULL, fi->value, FTREPR_DISPLAY, hfinfo->display);
-			label_fill(label_str, 0, hfinfo, tmp, value_pos);
-			wmem_free(NULL, tmp);
+			fill_label_ieee_11073_float(fi, label_str, value_pos);
 			break;
 
 		default:
@@ -10773,6 +10799,42 @@ fill_label_float(const field_info *fi, char *label_str, size_t *value_pos)
 	char tmp[ITEM_LABEL_LENGTH];
 
 	fill_display_label_float(fi, tmp);
+	label_fill(label_str, 0, fi->hfinfo, tmp, value_pos);
+}
+
+static size_t
+fill_display_label_ieee_11073_float(const field_info *fi, char *label_str)
+{
+	int display;
+	size_t pos = 0;
+	double value;
+	char* tmp_str;
+
+	display = FIELD_DISPLAY(fi->hfinfo->display);
+	tmp_str = fvalue_to_string_repr(NULL, fi->value, FTREPR_DISPLAY, display);
+	pos = label_concat(label_str, pos, tmp_str);
+	wmem_free(NULL, tmp_str);
+
+	if ((fi->hfinfo->strings) && (fi->hfinfo->display & BASE_UNIT_STRING)) {
+		const char *hf_str_val;
+		fvalue_to_double(fi->value, &value);
+		hf_str_val = unit_name_string_get_double(value, (const struct unit_name_string*)fi->hfinfo->strings);
+		pos = label_concat(label_str, pos, hf_str_val);
+	}
+	if (pos > ITEM_LABEL_LENGTH) {
+		ws_warning("label length too small");
+		return strlen(label_str);
+	}
+
+	return pos;
+}
+
+void
+fill_label_ieee_11073_float(const field_info *fi, char *label_str, size_t *value_pos)
+{
+	char tmp[ITEM_LABEL_LENGTH];
+
+	fill_display_label_ieee_11073_float(fi, tmp);
 	label_fill(label_str, 0, fi->hfinfo, tmp, value_pos);
 }
 
