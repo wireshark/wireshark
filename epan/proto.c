@@ -3193,6 +3193,7 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree,
 				length_error = length < 4 ? true : false;
 				report_type_length_mismatch(tree, "a IEEE 11073 FLOAT", length, length_error);
 			}
+			fvalue_set_uinteger(new_fi->value, tvb_get_uint32(tvb, start, encoding));
 
 			break;
 		default:
