@@ -450,7 +450,7 @@ Offsets are followed by one or more spaces or tabs separating them from the
 bytes.  Offsets optionally can be followed by a single colon after the digits.
 Offsets can be between 3 and 8 digits; hexadecimal base (radix) is assumed by
 default, but they can also be in octal or decimal.  If offsets are in hex,
-they can be preceeded by `0x` or `0X`.  Each packet must begin with offset zero,
+they can be preceded by `0x` or `0X`.  Each packet must begin with offset zero,
 and an offset zero indicates the beginning of a new packet.  Offset values must
 be correct; an unexpected value causes the current packet to be aborted and the
 next packet start awaited.  There is also a single packet mode with no offsets.

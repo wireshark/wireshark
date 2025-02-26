@@ -3895,7 +3895,7 @@ process_header(tvbuff_t *tvb, int offset, int next_offset,
 				ws_strtou64(pos, &pos, &first_range_num);
 			}
 			/* req_list is used for req/resp matching and the deletion (and freeing) of matching
-			*  requests and any orphans that preceed them. A GSList is used instead of a wmem map
+			*  requests and any orphans that precede them. A GSList is used instead of a wmem map
 			*  because there are rarely more than 10 requests in the list."
 			*/
 			if (first_range_num > 0) {
@@ -3957,7 +3957,7 @@ process_header(tvbuff_t *tvb, int offset, int next_offset,
 
 				/* Get the position of the matching request if any in the reqs_table.
 				* This is used to remove and free the matching request, and the unmatched
-				* requests (orphans) that preceed it.
+				* requests (orphans) that precede it.
 				* XXX - There is *NO* guarantee that there is
 				* a perfectly matching request, see 15.3.7:
 				* "However, a server might want to send only a

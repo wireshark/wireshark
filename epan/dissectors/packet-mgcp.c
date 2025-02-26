@@ -2265,7 +2265,7 @@ static int tvb_find_dot_line(tvbuff_t* tvb, int offset, int len, int* next_offse
 			/* Are the characters that follow the dot a newline or carriage return ? */
 			if (tempchar == '\r' || tempchar == '\n')
 			{
-				/* Do we have any characters that proceed the . ? */
+				/* Do we have any characters that precede the . ? */
 				if (tvb_current_offset == 0)
 				{
 					break;
@@ -2274,7 +2274,7 @@ static int tvb_find_dot_line(tvbuff_t* tvb, int offset, int len, int* next_offse
 				{
 					tempchar = tvb_get_uint8(tvb, tvb_current_offset-1);
 
-					/* Are the characters that follow the dot a newline or a
+					/* Are the characters that precede the dot a newline or a
 					   carriage return ? */
 					if (tempchar == '\r' || tempchar == '\n')
 					{
