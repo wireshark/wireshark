@@ -17,6 +17,7 @@
 #include <epan/conversation.h>
 #include <epan/packet.h>
 #include <epan/tfs.h>
+#include <epan/unit_strings.h>
 #include <proto.h>
 #include <wmem_scopes.h>
 #include <wsutil/array.h>
@@ -31,6 +32,18 @@
  * as encoded by UBX (in UBX-RXM-SFRBX messages).
  * Based on Galileo OS SIS ICD Issue 2.1
  */
+
+static const value_string GAL_DAY_NUMBER[] = {
+    {0, "not defined"},
+    {1, "Sunday"},
+    {2, "Monday"},
+    {3, "Tuesday"},
+    {4, "Wednesday"},
+    {5, "Thursday"},
+    {6, "Friday"},
+    {7, "Saturday"},
+    {0, NULL},
+};
 
 static const value_string GAL_SAR_SHORT_RLM_MSG_CODE[] = {
     { 0, "Spare"},
@@ -53,6 +66,21 @@ static const value_string GAL_SAR_SHORT_RLM_MSG_CODE[] = {
 };
 
 #define CONVERSATION_SAR_RLM 1
+
+/* Format A_0 for GST-UTC Conversion with 2^-30s resolution */
+static void fmt_a0(char *label, int64_t c) {
+    snprintf(label, ITEM_LABEL_LENGTH, "%" PRId64 " * 2^-30s", c);
+}
+
+/* Format A_1 for GST-UTC Conversion with 2^-50s/s resolution */
+static void fmt_a1(char *label, int32_t c) {
+    snprintf(label, ITEM_LABEL_LENGTH, "%d * 2^-50s/s", c);
+}
+
+/* Format t_0t for GST-UTC Conversion with 3600s resolution */
+static void fmt_t_0t(char *label, uint32_t c) {
+    snprintf(label, ITEM_LABEL_LENGTH, "%us", c * 3600);
+}
 
 // Initialize the protocol and registered fields
 static int proto_ubx_gal_inav;
@@ -121,6 +149,18 @@ static int hf_ubx_gal_inav_word4_a_f1;
 static int hf_ubx_gal_inav_word4_a_f2;
 static int hf_ubx_gal_inav_word4_spare;
 
+static int hf_ubx_gal_inav_word6;
+static int hf_ubx_gal_inav_word6_a0;
+static int hf_ubx_gal_inav_word6_a1;
+static int hf_ubx_gal_inav_word6_delta_t_ls;
+static int hf_ubx_gal_inav_word6_t_0t;
+static int hf_ubx_gal_inav_word6_wn_0t;
+static int hf_ubx_gal_inav_word6_wn_lsf;
+static int hf_ubx_gal_inav_word6_dn;
+static int hf_ubx_gal_inav_word6_delta_t_lsf;
+static int hf_ubx_gal_inav_word6_tow;
+static int hf_ubx_gal_inav_word6_spare;
+
 static dissector_table_t ubx_gal_inav_word_dissector_table;
 
 static int ett_ubx_gal_inav;
@@ -129,6 +169,7 @@ static int ett_ubx_gal_inav_word1;
 static int ett_ubx_gal_inav_word2;
 static int ett_ubx_gal_inav_word3;
 static int ett_ubx_gal_inav_word4;
+static int ett_ubx_gal_inav_word6;
 static int ett_ubx_gal_inav_sar;
 static int ett_ubx_gal_inav_sar_rlm;
 
@@ -531,6 +572,28 @@ static int dissect_ubx_gal_inav_word4(tvbuff_t *tvb, packet_info *pinfo _U_, pro
     return tvb_captured_length(tvb);
 }
 
+/* Dissect word 6 - GST-UTC conversion parameters */
+static int dissect_ubx_gal_inav_word6(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_) {
+    col_append_str(pinfo->cinfo, COL_INFO, "Word 6 (GST-UTC conversion parameters)");
+
+    proto_item *ti = proto_tree_add_item(tree, hf_ubx_gal_inav_word6, tvb, 0, 16, ENC_NA);
+    proto_tree *word_tree = proto_item_add_subtree(ti, ett_ubx_gal_inav_word6);
+
+    proto_tree_add_item(word_tree, hf_ubx_gal_inav_word_type,         tvb,  0, 1, ENC_NA);
+    proto_tree_add_item(word_tree, hf_ubx_gal_inav_word6_a0,          tvb,  0, 8, ENC_BIG_ENDIAN);
+    proto_tree_add_item(word_tree, hf_ubx_gal_inav_word6_a1,          tvb,  4, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(word_tree, hf_ubx_gal_inav_word6_delta_t_ls,  tvb,  7, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(word_tree, hf_ubx_gal_inav_word6_t_0t,        tvb,  8, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(word_tree, hf_ubx_gal_inav_word6_wn_0t,       tvb,  9, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(word_tree, hf_ubx_gal_inav_word6_wn_lsf,      tvb, 10, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(word_tree, hf_ubx_gal_inav_word6_dn,          tvb, 11, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(word_tree, hf_ubx_gal_inav_word6_delta_t_lsf, tvb, 12, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(word_tree, hf_ubx_gal_inav_word6_tow,         tvb, 12, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(word_tree, hf_ubx_gal_inav_word6_spare,       tvb, 15, 1, ENC_NA);
+
+    return tvb_captured_length(tvb);
+}
+
 void proto_register_ubx_gal_inav(void) {
 
     static hf_register_info hf[] = {
@@ -603,6 +666,19 @@ void proto_register_ubx_gal_inav(void) {
         {&hf_ubx_gal_inav_word4_a_f1,        {"SV clock drift correction coefficient (a_f1)",                                        "gal_inav.word4.a_f1",        FT_INT32,  BASE_CUSTOM, CF_FUNC(&fmt_sv_clk_drift),      0x1fffff00, NULL, HFILL}},
         {&hf_ubx_gal_inav_word4_a_f2,        {"SV clock drift rate correction coefficient (a_f2)",                                   "gal_inav.word4.a_f2",        FT_INT32,  BASE_CUSTOM, CF_FUNC(&fmt_sv_clk_drift_rate), 0x000000fc, NULL, HFILL}},
         {&hf_ubx_gal_inav_word4_spare,       {"Spare",                                                                               "gal_inav.word4.spare",       FT_UINT8,  BASE_HEX,    NULL,                            0x03,       NULL, HFILL}},
+
+        // Word 6
+        {&hf_ubx_gal_inav_word6,             {"Word 6 (GST-UTC conversion parameters)",                                         "gal_inav.word6",             FT_NONE,   BASE_NONE,                 NULL,                       0x0,                NULL, HFILL}},
+        {&hf_ubx_gal_inav_word6_a0,          {"Constant term of polynomial (A_0)",                                              "gal_inav.word6.a_0",         FT_INT64,  BASE_CUSTOM,               CF_FUNC(&fmt_a0),           0x03fffffffc000000, NULL, HFILL}},
+        {&hf_ubx_gal_inav_word6_a1,          {"1st order term of polynomial (A_1)",                                             "gal_inav.word6.a_1",         FT_INT32,  BASE_CUSTOM,               CF_FUNC(&fmt_a1),           0x03fffffc,         NULL, HFILL}},
+        {&hf_ubx_gal_inav_word6_delta_t_ls,  {"Leap Second count before leap second adjustment (" UTF8_CAPITAL_DELTA "t_LS)",   "gal_inav.word6.delta_t_ls",  FT_INT16,  BASE_DEC|BASE_UNIT_STRING, UNS(&units_second_seconds), 0x03fc,             NULL, HFILL}},
+        {&hf_ubx_gal_inav_word6_t_0t,        {"UTC data reference Time of Week (t_0t)",                                         "gal_inav.word6.t_0t",        FT_UINT16, BASE_CUSTOM,               CF_FUNC(&fmt_t_0t),         0x03fc,             NULL, HFILL}},
+        {&hf_ubx_gal_inav_word6_wn_0t,       {"UTC data reference Week Number (WN_0t)",                                         "gal_inav.word6.wn_0t",       FT_UINT16, BASE_DEC|BASE_UNIT_STRING, UNS(&units_week_weeks),     0x03fc,             NULL, HFILL}},
+        {&hf_ubx_gal_inav_word6_wn_lsf,      {"Week Number of leap second adjustment (WN_LSF)",                                 "gal_inav.word6.wn_lsf",      FT_UINT16, BASE_DEC|BASE_UNIT_STRING, UNS(&units_week_weeks),     0x03fc,             NULL, HFILL}},
+        {&hf_ubx_gal_inav_word6_dn,          {"Day Number at the end of which a leap second adjustment becomes effective (DN)", "gal_inav.word6.dn",          FT_UINT16, BASE_DEC, VALS(GAL_DAY_NUMBER),                        0x0380,             NULL, HFILL}},
+        {&hf_ubx_gal_inav_word6_delta_t_lsf, {"Leap Second count after leap second adjustment (" UTF8_CAPITAL_DELTA "t_LSF)",   "gal_inav.word6.delta_t_lsf", FT_INT16,  BASE_DEC|BASE_UNIT_STRING, UNS(&units_second_seconds), 0x7f80,             NULL, HFILL}},
+        {&hf_ubx_gal_inav_word6_tow,         {"Time of Week (TOW)",                                                             "gal_inav.word6.tow",         FT_UINT32, BASE_DEC|BASE_UNIT_STRING, UNS(&units_second_seconds), 0x007ffff8,         NULL, HFILL}},
+        {&hf_ubx_gal_inav_word6_spare,       {"Spare",                                                                          "gal_inav.word6.spare",       FT_UINT8,  BASE_HEX,                  NULL,                       0x07,               NULL, HFILL}},
     };
 
     static int *ett[] = {
@@ -612,6 +688,7 @@ void proto_register_ubx_gal_inav(void) {
         &ett_ubx_gal_inav_word2,
         &ett_ubx_gal_inav_word3,
         &ett_ubx_gal_inav_word4,
+        &ett_ubx_gal_inav_word6,
         &ett_ubx_gal_inav_sar,
         &ett_ubx_gal_inav_sar_rlm,
     };
@@ -635,4 +712,5 @@ void proto_reg_handoff_ubx_gal_inav(void) {
     dissector_add_uint("ubx.rxm.sfrbx.gal_inav.word", 2, create_dissector_handle(dissect_ubx_gal_inav_word2, proto_ubx_gal_inav));
     dissector_add_uint("ubx.rxm.sfrbx.gal_inav.word", 3, create_dissector_handle(dissect_ubx_gal_inav_word3, proto_ubx_gal_inav));
     dissector_add_uint("ubx.rxm.sfrbx.gal_inav.word", 4, create_dissector_handle(dissect_ubx_gal_inav_word4, proto_ubx_gal_inav));
+    dissector_add_uint("ubx.rxm.sfrbx.gal_inav.word", 6, create_dissector_handle(dissect_ubx_gal_inav_word6, proto_ubx_gal_inav));
 }
