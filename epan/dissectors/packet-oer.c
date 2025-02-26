@@ -19,6 +19,7 @@
 #include <epan/asn1.h>
 #include <epan/expert.h>
 #include <epan/exceptions.h>
+#include <epan/to_str.h>
 
 #include <wsutil/array.h>
 
@@ -46,6 +47,7 @@ static int hf_oer_open_type_length;
 static int ett_oer;
 static int ett_oer_sequence_of_item;
 static int ett_oer_open_type;
+static int ett_oer_named_bits;
 
 static expert_field ei_oer_not_decoded_yet;
 static expert_field ei_oer_undecoded;
@@ -184,10 +186,10 @@ dissect_oer_length_determinant(tvbuff_t *tvb, uint32_t offset, asn1_ctx_t *actx,
 /* 9 Encoding of Boolean values */
 uint32_t dissect_oer_boolean(tvbuff_t* tvb, uint32_t offset, asn1_ctx_t* actx, proto_tree* tree, int hf_index, bool* bool_val)
 {
-    uint32_t val = 0;
+    bool val = false;
     DEBUG_ENTRY("dissect_oer_boolean");
 
-    actx->created_item = proto_tree_add_item_ret_uint(tree, hf_index, tvb, offset, 1, ENC_BIG_ENDIAN, &val);
+    actx->created_item = proto_tree_add_item_ret_boolean(tree, hf_index, tvb, offset, 1, ENC_BIG_ENDIAN, &val);
     offset++;
 
     if (bool_val) {
@@ -205,6 +207,10 @@ dissect_oer_constrained_integer(tvbuff_t *tvb, uint32_t offset, asn1_ctx_t *actx
     DEBUG_ENTRY("dissect_oer_constrained_integer");
     uint32_t val = 0;
 
+    if (has_extension) {
+        return dissect_oer_integer(tvb, offset, actx, tree, hf_index, value);
+    }
+
     if (min >= 0) {
         /* 10.2 There are two main cases:
          *      a) The effective value constraint has a lower bound, and that lower bound is zero or positive.
@@ -217,7 +223,7 @@ dissect_oer_constrained_integer(tvbuff_t *tvb, uint32_t offset, asn1_ctx_t *actx
             /* Two octets */
             proto_tree_add_item_ret_uint(tree, hf_index, tvb, offset, 2, ENC_BIG_ENDIAN, &val);
             offset += 2;
-        } else if (max == 0xFFFFFFFF) {
+        } else if (max <= 0xFFFFFFFF) {
             /* Four octets */
             proto_tree_add_item_ret_uint(tree, hf_index, tvb, offset, 4, ENC_BIG_ENDIAN, &val);
             offset += 4;
@@ -266,7 +272,10 @@ dissect_oer_constrained_integer_64b(tvbuff_t *tvb, uint32_t offset, asn1_ctx_t *
 {
     uint64_t val = 0;
 
-    /* XXX Negative numbers ???*/
+    if (has_extension) {
+        return dissect_oer_integer_64b(tvb, offset, actx, tree, hf_index, value);
+    }
+
     if (min >= 0) {
         /* 10.2 There are two main cases:
         *      a) The effective value constraint has a lower bound, and that lower bound is zero or positive.
@@ -284,19 +293,45 @@ dissect_oer_constrained_integer_64b(tvbuff_t *tvb, uint32_t offset, asn1_ctx_t *
             /* Four octets, upper bound is less than or equal to 2 exp 32 - 1 (4294967295), */
             proto_tree_add_item_ret_uint64(tree, hf_index, tvb, offset, 4, ENC_BIG_ENDIAN, &val);
             offset += 4;
-        } else if (max == UINT64_C(18446744073709551615)) {
-            /* Eight octets, upper bound is less than or equal to 2 exp 64 - 1 (4294967295), */
+        } else if (max <= UINT64_C(18446744073709551615)) {
+            /* Eight octets, upper bound is less than or equal to 2 exp 64 - 1 (18446744073709551615), */
             proto_tree_add_item_ret_uint64(tree, hf_index, tvb, offset, 8, ENC_BIG_ENDIAN, &val);
             offset += 8;
         } else {
-            /* eight-octet, upper bound is less than or equal to 2 exp 64 - 1 (18446744073709551615) */
             /* To large not handlet yet*/
             dissect_oer_not_decoded_yet(tree, actx->pinfo, tvb, "constrained_integer to large value");
         }
 
     } else {
         /* b) The effective value constraint has either a negative lower bound or no lower bound. */
-        dissect_oer_not_decoded_yet(tree, actx->pinfo, tvb, "constrained_integer negative value");
+        if ((min >= -128) && (max <= 127)) {
+            /* 10.4 a a) If the lower bound is greater than or equal to -2^7 (-128) and the upper bound is less than or equal to 2^7-1 (127),
+             * then every value of the integer type shall be encoded as a fixed-size signed number in a one-octet word;
+             */
+            proto_tree_add_item_ret_int64(tree, hf_index, tvb, offset, 1, ENC_BIG_ENDIAN, &val);
+            offset++;
+        } else if ((min >= -32768) && (max <= 32767)) {
+            /* if the lower bound is greater than or equal to -2^15 (-32768) and the upper bound is less than or equal to 2^15-1 (32767),
+             * then every value of the integer type shall be encoded as a fixed-size signed number in a two octet word;
+             */
+            proto_tree_add_item_ret_int64(tree, hf_index, tvb, offset, 2, ENC_BIG_ENDIAN, &val);
+            offset += 2;
+        } else if ((min >= -2147483648LL) && (max <= 2147483647)) {
+            /* if the lower bound is greater than or equal to -2^31 (-2147483648) and the upper bound is less than or equal to 2^31-1 (2147483647),
+             * then every value of the integer type shall be encoded as a fixed-size signed number in a four-octet word
+             */
+            proto_tree_add_item_ret_int64(tree, hf_index, tvb, offset, 4, ENC_BIG_ENDIAN, &val);
+            offset += 4;
+        } else if ((min >= INT64_MIN) && (max <= INT64_C(9223372036854775807))) {
+            /* if the lower bound is greater than or equal to –2^63 (–9223372036854775808) and the upper bound is less than or equal to 2^63 – 1 (9223372036854775807),
+             * then every value of the integer type shall be encoded as a fixed-size signed number in an eight-octet words
+             */
+            proto_tree_add_item_ret_int64(tree, hf_index, tvb, offset, 8, ENC_BIG_ENDIAN, &val);
+            offset += 8;
+        } else {
+            /* To large not handlet yet*/
+            dissect_oer_not_decoded_yet(tree, actx->pinfo, tvb, "constrained_integer to large value");
+        }
     }
 
     if (value) {
@@ -395,6 +430,62 @@ dissect_oer_integer(tvbuff_t *tvb, uint32_t offset, asn1_ctx_t *actx, proto_tree
     return offset;
 
 }
+
+uint32_t
+dissect_oer_integer_64b(tvbuff_t *tvb, uint32_t offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, int64_t *value)
+{
+    int64_t val = 0;
+    uint32_t length;
+    /* 10.4 e) (the effective value constraint has a lower bound less than -263, no lower bound,
+     * an upper bound greater than 2 exp 63-1, or no upper bound) every value of the integer type
+     * shall be encoded as a length determinant (see 8.6) followed by a variable-size signed number
+     * (occupying at least as many whole octets as are necessary to carry the value).
+     */
+    offset = dissect_oer_length_determinant(tvb, offset, actx, tree, hf_oer_length_determinant, &length);
+    if (length > 0) {
+        if (length < 9) {
+            /* extend sign bit for signed fields */
+            enum ftenum type = FT_INT64;
+            /* This should be signed, because the field should only be
+             * unsigned if there's a constraint, and then we don't get here. */
+            if (hf_index > 0) {
+                type = proto_registrar_get_ftype(hf_index);
+            }
+            uint8_t first = tvb_get_uint8(tvb, offset);
+            if (first & 0x80 && FT_IS_INT(type)) {
+                val = -1;
+            }
+            for (unsigned i = 0; i < length; i++) {
+                val = ((uint64_t)val << 8) | tvb_get_uint8(tvb, offset);
+                offset++;
+            }
+        } else {
+            dissect_oer_not_decoded_yet(tree, actx->pinfo, tvb, "constrained_integer NO_BOUND too many octets");
+        }
+    } else {
+        dissect_oer_not_decoded_yet(tree, actx->pinfo, tvb, "constrained_integer unexpected length");
+    }
+
+    if (hf_index > 0) {
+        header_field_info* hfi;
+        hfi = proto_registrar_get_nth(hf_index);
+        if (FT_IS_UINT64(hfi->type)) {
+            actx->created_item = proto_tree_add_uint64(tree, hf_index, tvb, offset - length, length, (uint64_t)val);
+        } else if (FT_IS_INT64(hfi->type)) {
+            actx->created_item = proto_tree_add_int64(tree, hf_index, tvb, offset - length, length, val);
+        } else {
+            DISSECTOR_ASSERT_NOT_REACHED();
+        }
+    }
+
+    if (value) {
+        *value = val;
+    }
+
+    return offset;
+
+}
+
 /* 11 Encoding of enumerated values */
 uint32_t
 dissect_oer_enumerated(tvbuff_t *tvb, uint32_t offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, uint32_t root_num _U_, uint32_t *value, bool has_extension _U_, uint32_t ext_num _U_, uint32_t *value_map _U_)
@@ -413,19 +504,6 @@ dissect_oer_enumerated(tvbuff_t *tvb, uint32_t offset, asn1_ctx_t *actx, proto_t
     return offset;
 
 
-}
-/* 13 Encoding of bitstring values */
-
-/* 13.1 General
- * The encoding of a bitstring value depends on the effective size constraint of the bitstring type (see 8.2.8).
- *  If the lower and upper bounds of the effective size constraint are identical, 13.2 applies, otherwise 13.3 applies.
- */
-uint32_t
-dissect_oer_bit_string(tvbuff_t *tvb, uint32_t offset _U_, asn1_ctx_t *actx, proto_tree *tree, int hf_index _U_, int min_len _U_, int max_len _U_, bool has_extension _U_, int * const *named_bits _U_, int num_named_bits _U_, tvbuff_t **value_tvb _U_, int *len _U_)
-{
-    dissect_oer_not_decoded_yet(tree, actx->pinfo, tvb, "Encoding of bitstring values not handled yet");
-
-    return tvb_reported_length(tvb);
 }
 
 static uint32_t
@@ -461,6 +539,191 @@ dissect_oer_bit_string_unconstr(tvbuff_t *tvb, uint32_t offset _U_, asn1_ctx_t *
                 values[i] = value;
             }
             offset += 1;
+        }
+    }
+
+    return offset;
+}
+
+static tvbuff_t *dissect_oer_bit_string_display(tvbuff_t *tvb, uint32_t offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, header_field_info *hfi, uint32_t length, int * const *named_bits, int num_named_bits _U_)
+{
+    tvbuff_t *out_tvb = NULL;
+    uint32_t pad_length=0;
+    uint64_t value;
+
+    uint32_t byte_length = (length + 7) / 8;
+    out_tvb = oer_tvb_new_subset_length(tvb, offset, byte_length);
+    add_new_data_source(actx->pinfo, out_tvb, "Bitstring tvb");
+
+    if (hfi) {
+        actx->created_item = proto_tree_add_item(tree, hf_index, out_tvb, 0, -1, ENC_BIG_ENDIAN);
+        proto_item_append_text(actx->created_item, " [bit length %u", length);
+        if (length%8) {
+            pad_length = 8-(length%8);
+            proto_item_append_text(actx->created_item, ", %u LSB pad bits", pad_length);
+        }
+
+        if (length<=64) { /* if read into 64 bits also handle length <= 24, 40, 48, 56 bits */
+            if (length<=8) {
+                value = tvb_get_bits8(out_tvb, 0, length);
+            }else if (length<=16) {
+                value = tvb_get_bits16(out_tvb, 0, length, ENC_BIG_ENDIAN);
+            }else if (length<=24) { /* first read 16 and then the remaining bits */
+                value = tvb_get_bits16(out_tvb, 0, 16, ENC_BIG_ENDIAN);
+                value <<= 8 - pad_length;
+                value |= tvb_get_bits8(out_tvb, 16, length - 16);
+            }else if (length<=32) {
+                value = tvb_get_bits32(out_tvb, 0, length, ENC_BIG_ENDIAN);
+            }else if (length<=40) { /* first read 32 and then the remaining bits */
+                value = tvb_get_bits32(out_tvb, 0, 32, ENC_BIG_ENDIAN);
+                value <<= 8 - pad_length;
+                value |= tvb_get_bits8(out_tvb, 32, length - 32);
+            }else if (length<=48) { /* first read 32 and then the remaining bits */
+                value = tvb_get_bits32(out_tvb, 0, 32, ENC_BIG_ENDIAN);
+                value <<= 16 - pad_length;
+                value |= tvb_get_bits16(out_tvb, 32, length - 32, ENC_BIG_ENDIAN);
+            }else if (length<=56) { /* first read 32 and 16 then the remaining bits */
+                value = tvb_get_bits32(out_tvb, 0, 32, ENC_BIG_ENDIAN);
+                value <<= 16;
+                value |= tvb_get_bits16(out_tvb, 32, 16, ENC_BIG_ENDIAN);
+                value <<= 8 - pad_length;
+                value |= tvb_get_bits8(out_tvb, 48, length - 48);
+            }else {
+                value = tvb_get_bits64(out_tvb, 0, length, ENC_BIG_ENDIAN);
+            }
+            proto_item_append_text(actx->created_item, ", %s decimal value %" PRIu64,
+                decode_bits_in_field(actx->pinfo->pool, 0, length, value, ENC_BIG_ENDIAN), value);
+            if (named_bits) {
+                const uint32_t named_bits_bytelen = (num_named_bits + 7) / 8;
+                proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_oer_named_bits);
+                for (uint32_t i = 0; i < named_bits_bytelen; i++) {
+                    // If less data is available than the number of named bits, then
+                    // the trailing (right) bits are assumed to be 0.
+                    value = 0;
+                    const uint32_t bit_offset = 8 * i;
+                    if (bit_offset < length) {
+                        value = tvb_get_uint8(out_tvb, i);
+                    }
+
+                    // Process 8 bits at a time instead of 64, each field masks a
+                    // single byte.
+                    int* const * section_named_bits = named_bits + bit_offset;
+                    int* flags[9];
+                    if (num_named_bits - bit_offset > 8) {
+                        memcpy(&flags[0], named_bits + bit_offset, 8 * sizeof(int*));
+                        flags[8] = NULL;
+                        section_named_bits = flags;
+                    }
+
+                    // TODO should non-zero pad bits be masked from the value?
+                    // When trailing zeroes are not present in the data, mark the
+                    // last byte for the lack of a better alternative.
+                    proto_tree_add_bitmask_list_value(subtree, out_tvb, offset + MIN(i, length - 1), 1, section_named_bits, value);
+                }
+            }
+        }
+        proto_item_append_text(actx->created_item, "]");
+    }
+
+    return out_tvb;
+}
+
+static uint32_t
+dissect_oer_bit_string_unconstr_with_display(tvbuff_t *tvb, uint32_t offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, header_field_info * hfi, int * const *named_bits, int num_named_bits, tvbuff_t **value_tvb, uint32_t *len)
+{
+    uint32_t length = 0;
+    uint8_t unused_bit_count = 0;
+    tvbuff_t* tmp_tvb = NULL;
+
+    offset = dissect_oer_length_determinant(tvb, offset, actx, tree, -1, &length);
+
+    if (length > 0) {
+        unused_bit_count = tvb_get_uint8(tvb, offset);
+        if (unused_bit_count > 7) {
+            dissect_oer_not_decoded_yet(tree, actx->pinfo, tvb, "too high unused bit count");
+            return offset + length;
+        }
+        offset += 1;
+        length -= 1;
+    } else {
+        dissect_oer_not_decoded_yet(tree, actx->pinfo, tvb, "Zero length determinant");
+        return offset;
+    }
+
+    if(length > 0) {
+        uint32_t bit_len = (length * 8) - unused_bit_count;
+
+        tmp_tvb = dissect_oer_bit_string_display(tvb,
+                                                 offset,
+                                                 actx,
+                                                 tree,
+                                                 hf_index,
+                                                 hfi,
+                                                 bit_len,
+                                                 named_bits,
+                                                 num_named_bits);
+    }
+
+    if(NULL != value_tvb) {
+        *value_tvb = tmp_tvb;
+    }
+    if(NULL != len) {
+        *len = length;
+    }
+
+    offset += length;
+
+    return offset;
+}
+
+/* 13 Encoding of bitstring values */
+
+/* 13.1 General
+ * The encoding of a bitstring value depends on the effective size constraint of the bitstring type (see 8.2.8).
+ *  If the lower and upper bounds of the effective size constraint are identical, 13.2 applies, otherwise 13.3 applies.
+ */
+uint32_t
+dissect_oer_bit_string(tvbuff_t *tvb, uint32_t offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, int min_len, int max_len, bool has_extension, int * const *named_bits, int num_named_bits, tvbuff_t **value_tvb, int *len _U_)
+{
+    tvbuff_t *out_tvb = NULL;
+    header_field_info *hfi = (hf_index <= 0) ? NULL : proto_registrar_get_nth(hf_index);
+
+    if((min_len < 0) || (max_len < 0)) {
+        dissect_oer_not_decoded_yet(tree, actx->pinfo, tvb, "Encoding of bitstring with negative min_len or max_len values are invalid");
+        return offset;
+    }
+
+    if(max_len == 0) {
+        if(NULL != value_tvb) {
+            *value_tvb = out_tvb;
+        }
+        if(NULL != len) {
+            *len = 0;
+        }
+        return offset;
+    }
+
+    if(has_extension || (min_len != max_len)) {
+        offset = dissect_oer_bit_string_unconstr_with_display(tvb,
+                                                              offset,
+                                                              actx,
+                                                              tree,
+                                                              hf_index,
+                                                              hfi,
+                                                              named_bits,
+                                                              num_named_bits,
+                                                              value_tvb,
+                                                              len);
+    } else {
+        uint32_t byte_len = (min_len + 7) / 8;
+        out_tvb = dissect_oer_bit_string_display(tvb, offset, actx, tree, hf_index, hfi, min_len, named_bits, num_named_bits);
+        offset += byte_len;
+
+        if(NULL != value_tvb) {
+            *value_tvb = out_tvb;
+        }
+        if(NULL != len) {
+            *len = byte_len;
         }
     }
 
@@ -1005,6 +1268,7 @@ void proto_register_oer(void) {
         &ett_oer,
         &ett_oer_sequence_of_item,
         &ett_oer_open_type,
+        &ett_oer_named_bits,
     };
 
     module_t *oer_module;
