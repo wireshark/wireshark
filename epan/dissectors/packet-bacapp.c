@@ -7113,6 +7113,27 @@ static const fragment_items msg_frag_items = {
     "Message fragments"
 };
 
+/* calculate an extended sequence number. The sequence number is an 8-bit
+ * counter, and can rollover with very large data length. */
+static uint32_t
+calculate_extended_seqno(uint32_t prev_seqno, uint8_t raw_seqno)
+{
+    uint32_t seqno = (prev_seqno & 0xffffff00) | raw_seqno;
+    /* The Window Size must be in a range 1 to 127 (see ANSI/ASHRAE Std
+     * 135-2016 5.3), and this guarantees that, e.g., sequence number 128
+     * will not be transmitted unless a SegmentACK has been received for
+     * sequence number 0, so any subsequent sequence number 0 must actually
+     * be sequence number 256 after rollover.
+     */
+    if (seqno + 0x80 < prev_seqno) {
+        seqno += 0x100;
+    } else if (prev_seqno + 0x80 < seqno) {
+        /* Unlikely, out-of-order packet backwards over the wrap boundary. */
+        seqno -= 0x100;
+    }
+    return seqno;
+}
+
 #if 0
 /* if BACnet uses the reserved values, then patch the corresponding values here, maximum 16 values are defined */
 /* FIXME: fGetMaxAPDUSize is commented out, as it is not used. It was used to set variables which were not later used. */
@@ -16772,15 +16793,40 @@ dissect_bacapp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 
     if (fragment) { /* fragmented */
         fragment_head *frag_msg;
+        uint32_t ext_seqno = bacapp_seqno;
 
         pinfo->fragmented = true;
 
+        if (!PINFO_FD_VISITED(pinfo)) {
+            frag_msg = fragment_get(&msg_reassembly_table, pinfo, bacapp_invoke_id, NULL);
+            if (frag_msg) {
+                /* If we have permanently lost segments then using the last
+                 * contiguous sequence number isn't quite right - but we
+                 * won't be able to defragment in that case anyway.
+                 */
+                uint32_t prev_seqno = frag_msg->first_gap->offset;
+                ext_seqno = calculate_extended_seqno(prev_seqno, bacapp_seqno);
+
+                if (ext_seqno != bacapp_seqno) {
+                    p_add_proto_data(wmem_file_scope(), pinfo, proto_bacapp, bacapp_seqno, GUINT_TO_POINTER(ext_seqno));
+                }
+            }
+        } else {
+            /* This is not really necessary (because the fragment number is not
+             * used by fragment_add_seq_check on the second pass) but makes the
+             * fragment number in the Info column be the extended one.
+             */
+            ext_seqno = GPOINTER_TO_UINT(p_get_proto_data(wmem_file_scope(), pinfo, proto_bacapp, bacapp_seqno));
+            if (ext_seqno == 0) {
+                ext_seqno = bacapp_seqno;
+            }
+        }
         frag_msg = fragment_add_seq_check(&msg_reassembly_table,
             tvb, data_offset,
             pinfo,
             bacapp_invoke_id,      /* ID for fragments belonging together */
             NULL,
-            bacapp_seqno,          /* fragment sequence number */
+            ext_seqno,             /* fragment sequence number */
             tvb_reported_length_remaining(tvb, data_offset), /* fragment length - to the end */
             flag & BACAPP_MORE_SEGMENTS); /* Last fragment reached? */
         new_tvb = process_reassembled_data(tvb, data_offset, pinfo,
@@ -16792,7 +16838,7 @@ dissect_bacapp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
                            " (Message Reassembled)");
         } else { /* Not last packet of reassembled Short Message */
             col_append_fstr(pinfo->cinfo, COL_INFO,
-                            " (Message fragment %u)", bacapp_seqno);
+                            " (Message fragment %u)", ext_seqno);
         }
         if (new_tvb) { /* take it all */
             switch (bacapp_type) {
