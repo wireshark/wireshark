@@ -338,6 +338,7 @@ expert_deregister_expertinfo (const char *abbrev)
 	if (expinfo) {
 		g_ptr_array_add(deregistered_expertinfos, gpa_expertinfo.ei[expinfo->id]);
 		g_hash_table_steal(gpa_name_map, abbrev);
+		expinfo->hf_info.hfinfo.blurb = NULL;
 	}
 }
 
@@ -456,6 +457,7 @@ expert_register_field_array(expert_module_t *module, ei_register_info *exp, cons
 		ptr->eiinfo.hf_info.p_id = &ptr->ids->hf;
 		ptr->eiinfo.hf_info.hfinfo.name = ptr->eiinfo.summary;
 		ptr->eiinfo.hf_info.hfinfo.abbrev = ptr->eiinfo.name;
+		ptr->eiinfo.hf_info.hfinfo.blurb = "Expert_Item";
 
 		proto_register_field_array(module->proto_id, &ptr->eiinfo.hf_info, 1);
 	}
