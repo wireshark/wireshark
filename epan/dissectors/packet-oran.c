@@ -5652,7 +5652,7 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     if (result) {
         if (result->unexpected_seq_number) {
             expert_add_info_format(pinfo, seq_id_ti,
-                                   (direction = DIR_UPLINK) ?
+                                   (direction == DIR_UPLINK) ?
                                         &ei_oran_uplane_unexpected_sequence_number_ul :
                                         &ei_oran_uplane_unexpected_sequence_number_dl,
                                    "Sequence number %u expected, but got %u",
