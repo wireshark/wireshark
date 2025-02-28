@@ -24,6 +24,7 @@
 
 #include "packet-ubx.h"
 #include "packet-sbas_l1.h"
+#include "packet-ubx-galileo_e1b_inav.h"
 
 /*
  * Dissects navigation messages of the Satellite Based Augmentation System
@@ -37,6 +38,20 @@
 #define SBAS_L1_PREAMBLE_3 0xc6
 
 const char *EMS_L1_SVC_FLAG = "L1";
+
+// UTC standard identifier
+// see ICAO Annex 10, Vol I, 8th edition, Appendix B, Table B-37
+static const value_string UTC_STD_ID[] = {
+    {0,  "UTC as operated by the National Institute of Information and Communication Technology, Tokyo, Japan"},
+    {1,  "UTC as operated by the U.S. National Institute of Standards and Technology"},
+    {2,  "UTC as operated by the U.S. Naval Observatory"},
+    {3,  "UTC as operated by the International Bureau of Weights and Measures"},
+    {4,  "Reserved for UTC as operated by a European laboratory"},
+    {5,  "UTC as operated by the National Time Service Center, Chinese Academy of Sciences"},
+    {6,  "Reserved"},
+    {7,  "UTC not provided"},
+    {0, NULL}
+};
 
 // User Range Accuracy mapping
 // see ICAO Annex 10, Vol I, 8th edition, Appendix B, Table B-64
@@ -494,6 +509,23 @@ static int hf_sbas_l1_mt9_z_g_acc;
 static int hf_sbas_l1_mt9_a_gf0;
 static int hf_sbas_l1_mt9_a_gf1;
 
+// see ICAO Annex 10, Vol I, 8th edition, Appendix B, Table B-82
+static int hf_sbas_l1_mt12;
+static int hf_sbas_l1_mt12_a_1snt;
+static int hf_sbas_l1_mt12_a_0snt;
+static int hf_sbas_l1_mt12_t_0t;
+static int hf_sbas_l1_mt12_wn_t;
+static int hf_sbas_l1_mt12_delta_t_ls;
+static int hf_sbas_l1_mt12_wn_lsf;
+static int hf_sbas_l1_mt12_dn;
+static int hf_sbas_l1_mt12_delta_t_lsf;
+static int hf_sbas_l1_mt12_utc_std_id;
+static int hf_sbas_l1_mt12_gps_tow;
+static int hf_sbas_l1_mt12_gps_wn;
+static int hf_sbas_l1_mt12_glo_ind;
+static int hf_sbas_l1_mt12_delta_a_i_glo;
+static int hf_sbas_l1_mt12_spare;
+
 // see ICAO Annex 10, Vol I, 8th edition, Appendix B, Table B-83
 static int hf_sbas_l1_mt17;
 static int hf_sbas_l1_mt17_reserved;
@@ -864,6 +896,7 @@ static int ett_sbas_l1_mt5;
 static int ett_sbas_l1_mt6;
 static int ett_sbas_l1_mt7;
 static int ett_sbas_l1_mt9;
+static int ett_sbas_l1_mt12;
 static int ett_sbas_l1_mt17;
 static int ett_sbas_l1_mt17_prn_data[3];
 static int ett_sbas_l1_mt17_health_and_status;
@@ -923,6 +956,11 @@ uint32_t sbas_crc24q(const uint8_t *data) {
     }
 
     return crc;
+}
+
+/* Format t_0t for SNT-UTC Conversion with 4096s resolution */
+static void fmt_t_0t(char *label, uint32_t c) {
+    snprintf(label, ITEM_LABEL_LENGTH, "%us", c * 4096);
 }
 
 /* Format GEO position (X or Y axis) with 2600m resolution */
@@ -1465,6 +1503,32 @@ static int dissect_sbas_l1_mt9(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     proto_tree_add_item(sbas_l1_mt9_tree, hf_sbas_l1_mt9_z_g_acc,  tvb, 21, 4, ENC_BIG_ENDIAN);
     proto_tree_add_item(sbas_l1_mt9_tree, hf_sbas_l1_mt9_a_gf0,    tvb, 24, 4, ENC_BIG_ENDIAN);
     proto_tree_add_item(sbas_l1_mt9_tree, hf_sbas_l1_mt9_a_gf1,    tvb, 24, 4, ENC_BIG_ENDIAN);
+
+    return tvb_captured_length(tvb);
+}
+
+/* Dissect SBAS L1 MT 12 */
+static int dissect_sbas_l1_mt12(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_) {
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "SBAS L1 MT12");
+    col_clear(pinfo->cinfo, COL_INFO);
+
+    proto_item *ti = proto_tree_add_item(tree, hf_sbas_l1_mt12, tvb, 0, 32, ENC_NA);
+    proto_tree *sbas_l1_mt12_tree = proto_item_add_subtree(ti, ett_sbas_l1_mt12);
+
+    proto_tree_add_item(sbas_l1_mt12_tree, hf_sbas_l1_mt12_a_1snt,        tvb,  0, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l1_mt12_tree, hf_sbas_l1_mt12_a_0snt,        tvb,  3, 8, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l1_mt12_tree, hf_sbas_l1_mt12_t_0t,          tvb,  7, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l1_mt12_tree, hf_sbas_l1_mt12_wn_t,          tvb,  8, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l1_mt12_tree, hf_sbas_l1_mt12_delta_t_ls,    tvb,  9, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l1_mt12_tree, hf_sbas_l1_mt12_wn_lsf,        tvb, 10, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l1_mt12_tree, hf_sbas_l1_mt12_dn,            tvb, 11, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l1_mt12_tree, hf_sbas_l1_mt12_delta_t_lsf,   tvb, 12, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l1_mt12_tree, hf_sbas_l1_mt12_utc_std_id,    tvb, 13, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l1_mt12_tree, hf_sbas_l1_mt12_gps_tow,       tvb, 14, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l1_mt12_tree, hf_sbas_l1_mt12_gps_wn,        tvb, 16, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l1_mt12_tree, hf_sbas_l1_mt12_glo_ind,       tvb, 17, 1, ENC_NA);
+    proto_tree_add_item(sbas_l1_mt12_tree, hf_sbas_l1_mt12_delta_a_i_glo, tvb, 18, 3, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sbas_l1_mt12_tree, hf_sbas_l1_mt12_spare,         tvb, 20, 8, ENC_BIG_ENDIAN);
 
     return tvb_captured_length(tvb);
 }
@@ -2256,6 +2320,24 @@ void proto_register_sbas_l1(void) {
         {&hf_sbas_l1_mt9_a_gf0,    {"Time offset of the GEO clock (a_Gf0)", "sbas_l1.mt9.a_gf0",    FT_INT32,  BASE_CUSTOM, CF_FUNC(&fmt_clock_correction),      0x03ffc000,         NULL, HFILL}},
         {&hf_sbas_l1_mt9_a_gf1,    {"Drift rate of the GEO clock (a_Gf1)",  "sbas_l1.mt9.a_gf1",    FT_INT32,  BASE_CUSTOM, CF_FUNC(&fmt_clk_rate_correction2),  0x00003fc0,         NULL, HFILL}},
 
+
+        // MT12
+        {&hf_sbas_l1_mt12,               {"MT12",                     "sbas_l1.mt12",               FT_NONE,   BASE_NONE,                 NULL,                       0x0,                NULL, HFILL}},
+        {&hf_sbas_l1_mt12_a_1snt,        {"A_1SNT",                   "sbas_l1.mt12.a_1snt",        FT_INT32,  BASE_CUSTOM,               CF_FUNC(&fmt_a1),           0x03fffffc,         NULL, HFILL}},
+        {&hf_sbas_l1_mt12_a_0snt,        {"A_0SNT",                   "sbas_l1.mt12.a_0snt",        FT_INT64,  BASE_CUSTOM,               CF_FUNC(&fmt_a0),           0x03fffffffc000000, NULL, HFILL}},
+        {&hf_sbas_l1_mt12_t_0t,          {"t_0t",                     "sbas_l1.mt12.t_0t",          FT_UINT16, BASE_CUSTOM,               CF_FUNC(&fmt_t_0t),         0x03fc,             NULL, HFILL}},
+        {&hf_sbas_l1_mt12_wn_t,          {"WN_t",                     "sbas_l1.mt12.wn_t",          FT_UINT16, BASE_DEC|BASE_UNIT_STRING, UNS(&units_week_weeks),     0x03fc,             NULL, HFILL}},
+        {&hf_sbas_l1_mt12_delta_t_ls,    {UTF8_CAPITAL_DELTA "t_LS",  "sbas_l1.mt12.delta_t_ls",    FT_INT16,  BASE_DEC|BASE_UNIT_STRING, UNS(&units_second_seconds), 0x03fc,             NULL, HFILL}},
+        {&hf_sbas_l1_mt12_wn_lsf,        {"WN_LSF",                   "sbas_l1.mt12.wn_lsf",        FT_UINT16, BASE_DEC|BASE_UNIT_STRING, UNS(&units_week_weeks),     0x03fc,             NULL, HFILL}},
+        {&hf_sbas_l1_mt12_dn,            {"DN",                       "sbas_l1.mt12.dn",            FT_UINT16, BASE_DEC,                  VALS(DAY_NUMBER),           0x03fc,             NULL, HFILL}},
+        {&hf_sbas_l1_mt12_delta_t_lsf,   {UTF8_CAPITAL_DELTA "t_LSF", "sbas_l1.mt12.delta_t_lsf",   FT_INT16,  BASE_DEC|BASE_UNIT_STRING, UNS(&units_second_seconds), 0x03fc,             NULL, HFILL}},
+        {&hf_sbas_l1_mt12_utc_std_id,    {"UTC standard identifier",  "sbas_l1.mt12.utc_std_id",    FT_UINT16, BASE_DEC,                  VALS(UTC_STD_ID),           0x0380,             NULL, HFILL}},
+        {&hf_sbas_l1_mt12_gps_tow,       {"GPS time-of-week (TOW)",   "sbas_l1.mt12.gps_tow",       FT_UINT32, BASE_DEC|BASE_UNIT_STRING, UNS(&units_second_seconds), 0x7ffff800,         NULL, HFILL}},
+        {&hf_sbas_l1_mt12_gps_wn,        {"GPS week number (WN)",     "sbas_l1.mt12.gps_wn",        FT_UINT16, BASE_DEC|BASE_UNIT_STRING, UNS(&units_week_weeks),     0x07fe,             NULL, HFILL}},
+        {&hf_sbas_l1_mt12_glo_ind,       {"GLONASS indicator",        "sbas_l1.mt12.glo_ind",       FT_UINT8,  BASE_HEX,                  NULL,                       0x01,               NULL, HFILL}},
+        {&hf_sbas_l1_mt12_delta_a_i_glo, {UTF8_DELTA "a_i,GLONASS",   "sbas_l1.mt12.delta_a_i_glo", FT_INT24,  BASE_DEC,                  NULL,                       0xffffff,           NULL, HFILL}},
+        {&hf_sbas_l1_mt12_spare,         {"Spare",                    "sbas_l1.mt12.spare",         FT_UINT64, BASE_HEX,                  NULL,                       0x00ffffffffffffc0, NULL, HFILL}},
+
         // MT17
         {&hf_sbas_l1_mt17,                                                {"MT17",                                   "sbas_l1.mt17",                                                FT_NONE,    BASE_NONE,   NULL,                          0x0,        NULL, HFILL}},
         {&hf_sbas_l1_mt17_reserved,                                       {"Reserved",                               "sbas_l1.mt17.reserved",                                       FT_UINT8,   BASE_HEX,    NULL,                          0xc0,       NULL, HFILL}},
@@ -2602,6 +2684,7 @@ void proto_register_sbas_l1(void) {
         &ett_sbas_l1_mt6,
         &ett_sbas_l1_mt7,
         &ett_sbas_l1_mt9,
+        &ett_sbas_l1_mt12,
         &ett_sbas_l1_mt17,
         &ett_sbas_l1_mt17_prn_data[0],
         &ett_sbas_l1_mt17_prn_data[1],
@@ -2653,6 +2736,7 @@ void proto_reg_handoff_sbas_l1(void) {
     dissector_add_uint("sbas_l1.mt", 6,  create_dissector_handle(dissect_sbas_l1_mt6,  proto_sbas_l1));
     dissector_add_uint("sbas_l1.mt", 7,  create_dissector_handle(dissect_sbas_l1_mt7,  proto_sbas_l1));
     dissector_add_uint("sbas_l1.mt", 9,  create_dissector_handle(dissect_sbas_l1_mt9,  proto_sbas_l1));
+    dissector_add_uint("sbas_l1.mt", 12, create_dissector_handle(dissect_sbas_l1_mt12, proto_sbas_l1));
     dissector_add_uint("sbas_l1.mt", 17, create_dissector_handle(dissect_sbas_l1_mt17, proto_sbas_l1));
     dissector_add_uint("sbas_l1.mt", 18, create_dissector_handle(dissect_sbas_l1_mt18, proto_sbas_l1));
     dissector_add_uint("sbas_l1.mt", 24, create_dissector_handle(dissect_sbas_l1_mt24, proto_sbas_l1));
