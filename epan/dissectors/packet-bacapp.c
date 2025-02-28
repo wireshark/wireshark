@@ -16799,7 +16799,7 @@ dissect_bacapp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 
         if (!PINFO_FD_VISITED(pinfo)) {
             frag_msg = fragment_get(&msg_reassembly_table, pinfo, bacapp_invoke_id, NULL);
-            if (frag_msg) {
+            if (frag_msg && frag_msg->first_gap) {
                 /* If we have permanently lost segments then using the last
                  * contiguous sequence number isn't quite right - but we
                  * won't be able to defragment in that case anyway.
