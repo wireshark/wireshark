@@ -785,7 +785,7 @@ WSLUA_METHOD DissectorTable_get_dissector (lua_State *L) {
     /*
      Try to obtain a dissector from a table.
      */
-#define WSLUA_ARG_DissectorTable_get_dissector_PATTERN 2 /* The pattern to be matched (either an integer or a string depending on the table's type). */
+#define WSLUA_ARG_DissectorTable_get_dissector_PATTERN 2 /* The pattern to be matched, depending on the table's type. */
 
     DissectorTable dt = checkDissectorTable(L,1);
     ftenum_t type;
@@ -804,9 +804,13 @@ WSLUA_METHOD DissectorTable_get_dissector (lua_State *L) {
         const e_guid_t* guid = fvalue_get_guid(fval);
         guid_key gk = {*guid, 0};
         handle = dissector_get_guid_handle(dt->table,&gk);
-    } else if ( type == FT_UINT32 || type == FT_UINT16 || type ==  FT_UINT8 || type ==  FT_UINT24 ) {
+    } else if ( type == FT_UINT8 || type == FT_UINT16 || type == FT_UINT24 || type == FT_UINT32 ) {
         uint32_t port = wslua_checkuint32(L, WSLUA_ARG_DissectorTable_get_dissector_PATTERN);
         handle = dissector_get_uint_handle(dt->table,port);
+    } else if ( type == FT_NONE ) {
+        handle = dissector_get_payload_handle(dt->table);
+    } else {
+        luaL_error(L,"Strange type %d for DissectorTable %s",type,dt->name);
     }
 
     if (handle) {
