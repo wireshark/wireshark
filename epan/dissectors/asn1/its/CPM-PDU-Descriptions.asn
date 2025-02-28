@@ -93,12 +93,7 @@ WrappedCpmContainer ::= SEQUENCE {
 }
 
 
--- As per ASN.1 standard (ITU-T X.680 - 2021-02: Section 52.5)
--- ConstraintWrappedCpmContainers shall not be extensible, but the .c file generator does
--- not handle this correctly, so the extension marker is removed explicitly to be aligned with
--- the ASN.1 standard
---WrappedCpmContainers::= SEQUENCE SIZE(1..8,...) OF WrappedCpmContainer
-WrappedCpmContainers::= SEQUENCE SIZE(1..8) OF WrappedCpmContainer
+WrappedCpmContainers::= SEQUENCE SIZE(1..8,...) OF WrappedCpmContainer 
 
 ConstraintWrappedCpmContainers ::= WrappedCpmContainers
 --    ((WITH COMPONENT (WITH COMPONENTS {..., containerId (ALL EXCEPT 1)})) |
