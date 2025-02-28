@@ -1876,9 +1876,33 @@ again:
     }
 }
 
+static tvbuff_t*
+handle_export_pdu_check_desegmentation(packet_info *pinfo, tvbuff_t *tvb)
+{
+    /* Check to see if the tvb we're planning on exporting PDUs from was
+     * dissected fully, or whether it requested further desegmentation.
+     */
+    if (pinfo->can_desegment > 0 && pinfo->desegment_len != 0) {
+        /* Desegmentation was requested. How much did we desegment here?
+         * The rest, presumably, will be handled in another frame.
+         */
+        if (pinfo->desegment_offset == 0) {
+            /* We couldn't, in fact, dissect any of it. */
+            return NULL;
+        }
+        tvb = tvb_new_subset_length(tvb, 0, pinfo->desegment_offset);
+    }
+    return tvb;
+}
+
 static void
 export_pdu_packet(tvbuff_t *tvb, packet_info *pinfo, uint8_t tag, const char *name)
 {
+    tvb = handle_export_pdu_check_desegmentation(pinfo, tvb);
+    if (tvb == NULL) {
+        return;
+    }
+
     exp_pdu_data_t *exp_pdu_data = export_pdu_create_common_tags(pinfo, name, tag);
 
     exp_pdu_data->tvb_captured_length = tvb_captured_length(tvb);
@@ -1956,13 +1980,20 @@ process_ssl_payload(tvbuff_t *tvb, int offset, packet_info *pinfo,
                      (void *)session->app_handle,
                      dissector_handle_get_dissector_name(session->app_handle));
 
+    saved_match_port = pinfo->match_uint;
+    pinfo->match_uint = app_port;
+    call_dissector_with_data(session->app_handle, next_tvb, pinfo, proto_tree_get_root(tree), tlsinfo);
+    /* The app dissector might not fully dissect next_tvb and request
+     * desegmentation. This is especially true on the first pass, but
+     * can also occur on the second pass if it dissects part of next_tvb
+     * but not all of it. So we can't export until after calling the
+     * app handle. (XXX - What if it throws an exception? Should we catch
+     * it and try to export it anyway? That should be fairly rare with
+     * TLS since decryption succeeded.) */
     if (have_tap_listener(exported_pdu_tap)) {
         export_pdu_packet(next_tvb, pinfo, EXP_PDU_TAG_DISSECTOR_NAME,
                           dissector_handle_get_dissector_name(session->app_handle));
     }
-    saved_match_port = pinfo->match_uint;
-    pinfo->match_uint = app_port;
-    call_dissector_with_data(session->app_handle, next_tvb, pinfo, proto_tree_get_root(tree), tlsinfo);
     pinfo->match_uint = saved_match_port;
 }
 
