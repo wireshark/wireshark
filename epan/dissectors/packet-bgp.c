@@ -177,6 +177,7 @@ static dissector_handle_t bgp_handle;
 #define BGP_CAPABILITY_BFD_STRICT                   74  /* draft-ietf-idr-bgp-bfd-strict-mode */
 #define BGP_CAPABILITY_SOFT_VERSION                 75  /* draft-abraitis-bgp-version-capability */
 #define BGP_CAPABILITY_PATHS_LIMIT                  76  /* draft-abraitis-idr-addpath-paths-limit */
+#define BGP_CAPABILITY_LINK_LOCAL_NEXT_HOP          77  /* draft-white-linklocal-capability */
 #define BGP_CAPABILITY_ROUTE_REFRESH_CISCO         128  /* Cisco, RFC8810 */
 #define BGP_CAPABILITY_RPD_CISCO                   129  /* Cisco, RFC8810 */
 #define BGP_CAPABILITY_ORF_CISCO                   130  /* Cisco, RFC8810 */
@@ -2055,6 +2056,7 @@ static const value_string capability_vals[] = {
     { BGP_CAPABILITY_MULTISESSION_CISCO,            "Multisession (Cisco)" },
     { BGP_CAPABILITY_FQDN_CISCO,                    "FQDN (Cisco)" },
     { BGP_CAPABILITY_OPERATIONAL_MSG_CISCO,         "OPERATIONAL message (Cisco)" },
+    { BGP_CAPABILITY_LINK_LOCAL_NEXT_HOP,           "Link-Local Next Hop Capability" },
     { 0, NULL }
 };
 
@@ -8726,6 +8728,7 @@ dissect_bgp_capability_item(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
             }
             break;
 
+        case BGP_CAPABILITY_LINK_LOCAL_NEXT_HOP:
         case BGP_CAPABILITY_ENHANCED_ROUTE_REFRESH:
         case BGP_CAPABILITY_ROUTE_REFRESH_CISCO:
         case BGP_CAPABILITY_ROUTE_REFRESH:
