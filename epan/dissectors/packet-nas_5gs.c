@@ -10452,7 +10452,10 @@ de_nas_5gs_ue_policies_andsp_wlansp_rule(tvbuff_t* tvb, packet_info* pinfo _U_, 
                             offset += 6;
                         }
                         break;
-                    case 2: /* preferred roaming partner list,*/
+                    case 2: /* preferred roaming partner list*/
+                        /* Length of sub entry {set type =  preferred roaming partner list} */
+                        proto_tree_add_item_ret_uint(sel_crit_set_sub_tree, hf_nas_5gs_wlansp_sub_ent_len, tvb, offset, 1, ENC_BIG_ENDIAN, &sub_ent_len);
+                        offset++;
                         /* Priority */
                         proto_tree_add_item(sel_crit_set_sub_tree, hf_nas_5gs_wlansp_pref_roam_part_list_prio, tvb, offset, 1, ENC_BIG_ENDIAN);
                         offset++;
@@ -10470,6 +10473,9 @@ de_nas_5gs_ue_policies_andsp_wlansp_rule(tvbuff_t* tvb, packet_info* pinfo _U_, 
                         offset += country_len;
                         break;
                     case 3: /* Required protocol port tuple */
+                        /* Length of sub entry {set type =  Required protocol port tuple} */
+                        proto_tree_add_item_ret_uint(sel_crit_set_sub_tree, hf_nas_5gs_wlansp_sub_ent_len, tvb, offset, 1, ENC_BIG_ENDIAN, &sub_ent_len);
+                        offset++;
                         /* IP protocol */
                         proto_tree_add_item(sel_crit_set_sub_tree, hf_nas_5gs_wlansp_req_prot_ip_prot, tvb, offset, 1, ENC_BIG_ENDIAN);
                         offset++;
@@ -10505,7 +10511,6 @@ de_nas_5gs_ue_policies_andsp_wlansp_rule(tvbuff_t* tvb, packet_info* pinfo _U_, 
                             proto_tree_add_item(sel_crit_set_sub_tree, hf_nas_5gs_wlansp_sp_excl_list_ulb, tvb, offset, 4, ENC_BIG_ENDIAN);
                             offset += 4;
                         }
-                        offset += 5;
                         break;
                     default:
                         /* Skip over the list*/
