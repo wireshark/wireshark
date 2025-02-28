@@ -33,7 +33,7 @@
  * Based on Galileo OS SIS ICD Issue 2.1
  */
 
-static const value_string GAL_DAY_NUMBER[] = {
+const value_string DAY_NUMBER[] = {
     {0, "not defined"},
     {1, "Sunday"},
     {2, "Monday"},
@@ -66,21 +66,6 @@ static const value_string GAL_SAR_SHORT_RLM_MSG_CODE[] = {
 };
 
 #define CONVERSATION_SAR_RLM 1
-
-/* Format A_0 for GST-UTC Conversion with 2^-30s resolution */
-static void fmt_a0(char *label, int64_t c) {
-    snprintf(label, ITEM_LABEL_LENGTH, "%" PRId64 " * 2^-30s", c);
-}
-
-/* Format A_1 for GST-UTC Conversion with 2^-50s/s resolution */
-static void fmt_a1(char *label, int32_t c) {
-    snprintf(label, ITEM_LABEL_LENGTH, "%d * 2^-50s/s", c);
-}
-
-/* Format t_0t for GST-UTC Conversion with 3600s resolution */
-static void fmt_t_0t(char *label, uint32_t c) {
-    snprintf(label, ITEM_LABEL_LENGTH, "%us", c * 3600);
-}
 
 // Initialize the protocol and registered fields
 static int proto_ubx_gal_inav;
@@ -196,6 +181,21 @@ typedef struct sar_rlm_part {
     bool long_rlm;
     uint32_t rlm_data;
 } sar_rlm_part;
+
+/* Format A_0 for GST-UTC Conversion with 2^-30s resolution */
+void fmt_a0(char *label, int64_t c) {
+    snprintf(label, ITEM_LABEL_LENGTH, "%" PRId64 " * 2^-30s", c);
+}
+
+/* Format A_1 for GST-UTC Conversion with 2^-50s/s resolution */
+void fmt_a1(char *label, int32_t c) {
+    snprintf(label, ITEM_LABEL_LENGTH, "%d * 2^-50s/s", c);
+}
+
+/* Format t_0t for GST-UTC Conversion with 3600s resolution */
+static void fmt_t_0t(char *label, uint32_t c) {
+    snprintf(label, ITEM_LABEL_LENGTH, "%us", c * 3600);
+}
 
 /* Format clock correction (with scale factor 60) for
  * t_0c
@@ -675,7 +675,7 @@ void proto_register_ubx_gal_inav(void) {
         {&hf_ubx_gal_inav_word6_t_0t,        {"UTC data reference Time of Week (t_0t)",                                         "gal_inav.word6.t_0t",        FT_UINT16, BASE_CUSTOM,               CF_FUNC(&fmt_t_0t),         0x03fc,             NULL, HFILL}},
         {&hf_ubx_gal_inav_word6_wn_0t,       {"UTC data reference Week Number (WN_0t)",                                         "gal_inav.word6.wn_0t",       FT_UINT16, BASE_DEC|BASE_UNIT_STRING, UNS(&units_week_weeks),     0x03fc,             NULL, HFILL}},
         {&hf_ubx_gal_inav_word6_wn_lsf,      {"Week Number of leap second adjustment (WN_LSF)",                                 "gal_inav.word6.wn_lsf",      FT_UINT16, BASE_DEC|BASE_UNIT_STRING, UNS(&units_week_weeks),     0x03fc,             NULL, HFILL}},
-        {&hf_ubx_gal_inav_word6_dn,          {"Day Number at the end of which a leap second adjustment becomes effective (DN)", "gal_inav.word6.dn",          FT_UINT16, BASE_DEC, VALS(GAL_DAY_NUMBER),                        0x0380,             NULL, HFILL}},
+        {&hf_ubx_gal_inav_word6_dn,          {"Day Number at the end of which a leap second adjustment becomes effective (DN)", "gal_inav.word6.dn",          FT_UINT16, BASE_DEC, VALS(DAY_NUMBER),                            0x0380,             NULL, HFILL}},
         {&hf_ubx_gal_inav_word6_delta_t_lsf, {"Leap Second count after leap second adjustment (" UTF8_CAPITAL_DELTA "t_LSF)",   "gal_inav.word6.delta_t_lsf", FT_INT16,  BASE_DEC|BASE_UNIT_STRING, UNS(&units_second_seconds), 0x7f80,             NULL, HFILL}},
         {&hf_ubx_gal_inav_word6_tow,         {"Time of Week (TOW)",                                                             "gal_inav.word6.tow",         FT_UINT32, BASE_DEC|BASE_UNIT_STRING, UNS(&units_second_seconds), 0x007ffff8,         NULL, HFILL}},
         {&hf_ubx_gal_inav_word6_spare,       {"Spare",                                                                          "gal_inav.word6.spare",       FT_UINT8,  BASE_HEX,                  NULL,                       0x07,               NULL, HFILL}},
