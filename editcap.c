@@ -135,6 +135,9 @@ typedef struct _chop_t {
 GTree *frames_user_comments;
 GPtrArray *capture_comments;
 
+/* Table of replacement timestamps */
+GTree *frames_replace_timestamp;
+
 #define MAX_SELECTIONS 512
 static struct select_item     selectfrm[MAX_SELECTIONS];
 static unsigned               max_selected;
@@ -923,7 +926,7 @@ print_usage(FILE *output)
     fprintf(output, "                         to) the given time.\n");
     fprintf(output, "  -B <stop time>         only read packets whose timestamp is before the\n");
     fprintf(output, "                         given time.\n");
-    fprintf(output, "                         Time format for -A/-B options is\n");
+    fprintf(output, "                         Time format for -A/-B/-R options is\n");
     fprintf(output, "                         YYYY-MM-DDThh:mm:ss[.nnnnnnnnn][Z|+-hh:mm]\n");
     fprintf(output, "                         Unix epoch timestamps are also supported.\n");
     fprintf(output, "\n");
@@ -960,6 +963,8 @@ print_usage(FILE *output)
     fprintf(output, "                         choplen is positive and at least 1 is negative.\n");
     fprintf(output, "  -L                     adjust the frame (i.e. reported) length when chopping\n");
     fprintf(output, "                         and/or snapping.\n");
+    fprintf(output, "  -R <framenum>:<time>   replace the timestamp for given frame number.\n");
+    fprintf(output, "                         Accept the same time format as used for -A/-B options.\n");
     fprintf(output, "  -t <time adjustment>   adjust the timestamp of each packet.\n");
     fprintf(output, "                         <time adjustment> is in relative seconds (e.g. -0.5).\n");
     fprintf(output, "  -S <strict adjustment> adjust timestamp of packets if necessary to ensure\n");
@@ -1473,7 +1478,7 @@ main(int argc, char *argv[])
     wtap_init(true);
 
     /* Process the options */
-    while ((opt = ws_getopt_long(argc, argv, "a:A:B:c:C:dD:E:F:hi:I:Lo:rs:S:t:T:vVw:", long_options, NULL)) != -1) {
+    while ((opt = ws_getopt_long(argc, argv, "a:A:B:c:C:dD:E:F:hi:I:Lo:rR:s:S:t:T:vVw:", long_options, NULL)) != -1) {
         if (opt != LONGOPT_EXTRACT_SECRETS && opt != 'V') {
             edit_option_specified = true;
         }
@@ -1786,6 +1791,44 @@ main(int argc, char *argv[])
             }
             keep_em = true;
             break;
+
+        case 'R':
+        {
+            uint64_t frame_number;
+            int string_start_index = 0;
+            nstime_t in_time;
+
+            if ((sscanf(ws_optarg, "%" SCNu64 ":%n", &frame_number, &string_start_index) < 1) || (string_start_index == 0)) {
+                cmdarg_err("\"%s\" isn't a valid <frame>:<date-time>", ws_optarg);
+                ret = WS_EXIT_INVALID_OPTION;
+                goto clean_exit;
+            }
+
+            if ((NULL != iso8601_to_nstime(&in_time, ws_optarg+string_start_index, ISO8601_DATETIME)) || (NULL != unix_epoch_to_nstime(&in_time, ws_optarg+string_start_index))) {
+                ;
+            }
+            else {
+                cmdarg_err("\"%s\" isn't a valid date and time", ws_optarg+string_start_index);
+                ret = WS_EXIT_INVALID_OPTION;
+                goto clean_exit;
+            }
+
+            /* Lazily create the table */
+            if (!frames_replace_timestamp) {
+                frames_replace_timestamp = g_tree_new_full(framenum_compare, NULL, g_free, g_free);
+            }
+
+            /* Insert this entry (framenum -> timestamp as a string)
+             *
+             * XXX: We currently choose to use a copy of the timestamp as
+             * a string over an nstime_t so that the exact string used for
+             * the timestamp can be reported in any stderr messages later.
+             */
+            uint64_t *frame_p = g_new(uint64_t, 1);
+            *frame_p = frame_number;
+            g_tree_replace(frames_replace_timestamp, frame_p, g_strdup(ws_optarg+string_start_index));
+            break;
+        }
 
         case 's':
             snaplen = get_nonzero_uint32(ws_optarg, "snapshot length");
@@ -2492,6 +2535,27 @@ main(int argc, char *argv[])
                 }
             }
 
+            /* Replace Timestamp */
+            if (frames_replace_timestamp) {
+                const char *timestamp_string = (const char*)g_tree_lookup(frames_replace_timestamp, &read_count);
+
+                if (timestamp_string != NULL) {
+                    if(verbose) {
+                        fprintf(stderr, "New timestamp for packet %" PRIu64 ": %s\n", read_count, timestamp_string);
+                    }
+
+                    nstime_t new_time;
+
+                    if ((NULL != iso8601_to_nstime(&new_time, timestamp_string, ISO8601_DATETIME)) || (NULL != unix_epoch_to_nstime(&new_time, timestamp_string))) {
+                        read_rec.ts.secs = new_time.secs;
+                        read_rec.ts.nsecs = new_time.nsecs;
+                    }
+                    else {
+                        fprintf(stderr, "Couldn't use replacement timestamp \"%s\" for packet %" PRIu64 "\n", timestamp_string, read_count);
+                    }
+                }
+            } /* replace timestamp */
+
             if (discard_all_secrets) {
                 /*
                  * Discard any secrets we've read since the last packet
@@ -2595,6 +2659,9 @@ clean_exit:
     }
     if (frames_user_comments) {
         g_tree_destroy(frames_user_comments);
+    }
+    if (frames_replace_timestamp) {
+        g_tree_destroy(frames_replace_timestamp);
     }
     if (dsb_filenames) {
         g_array_free(dsb_types, TRUE);

@@ -24,6 +24,7 @@ editcap - Edit and/or translate the format of capture files
 [ *-o* <change offset> ]
 [ *-L* ]
 [ *-r* ]
+[ *-R* <frame:timestamp> ]
 [ *-s* <snaplen> ]
 [ *-S* <strict time adjustment> ]
 [ *-t* <time adjustment> ]
@@ -314,6 +315,33 @@ the same dissector is triggered, that make the fuzzing more precise.
 Reverse the packet selection.
 Causes the packets whose packet numbers are specified on the command
 line to be written to the output capture file, instead of discarding them.
+--
+
+-R  <framenum:timestamp>::
++
+--
+For the specified frame number, assign the given timestamp.
+Can be repeated for multiple frames.
+
+The time may be given either in ISO 8601 format or in Unix epoch
+timestamp format.
+
+ISO 8601 format is either
+
+ YYYY-MM-DD HH:MM:SS[.nnnnnnnnn][Z|±hh:mm]
+
+or
+
+ YYYY-MM-DDTHH:MM:SS[.nnnnnnnnn][Z|±hh:mm]
+
+The fractional seconds are optional, as is the time zone offset from UTC
+(in which case local time is assumed).
+
+Unix epoch format is in seconds since the Unix epoch and nanoseconds,
+with either a period or a comma separating the seconds and nanoseconds.
+The nanoseconds are optional.
+The Unix epoch is 1970-01-01 00:00:00 UTC, so this format is not local
+time.
 --
 
 -s  <snaplen>::
