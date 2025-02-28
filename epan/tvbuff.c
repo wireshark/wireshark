@@ -2236,6 +2236,7 @@ tvb_get_bits_array(wmem_allocator_t *scope, tvbuff_t *tvb, const int bit_offset,
 uint8_t
 tvb_get_bits8(tvbuff_t *tvb, unsigned bit_offset, const int no_of_bits)
 {
+	DISSECTOR_ASSERT_HINT(no_of_bits <= 8, "Too many bits requested for 8-bit return type");
 	return (uint8_t)_tvb_get_bits64(tvb, bit_offset, no_of_bits);
 }
 
@@ -2243,6 +2244,7 @@ tvb_get_bits8(tvbuff_t *tvb, unsigned bit_offset, const int no_of_bits)
 uint16_t
 tvb_get_bits16(tvbuff_t *tvb, unsigned bit_offset, const int no_of_bits, const unsigned encoding)
 {
+	DISSECTOR_ASSERT_HINT(no_of_bits <= 16, "Too many bits requested for 16-bit return type");
 	return (uint16_t)tvb_get_bits64(tvb, bit_offset, no_of_bits, encoding);
 }
 
@@ -2250,6 +2252,7 @@ tvb_get_bits16(tvbuff_t *tvb, unsigned bit_offset, const int no_of_bits, const u
 uint32_t
 tvb_get_bits32(tvbuff_t *tvb, unsigned bit_offset, const int no_of_bits, const unsigned encoding)
 {
+	DISSECTOR_ASSERT_HINT(no_of_bits <= 32, "Too many bits requested for 32-bit return type");
 	return (uint32_t)tvb_get_bits64(tvb, bit_offset, no_of_bits, encoding);
 }
 
@@ -2257,6 +2260,8 @@ tvb_get_bits32(tvbuff_t *tvb, unsigned bit_offset, const int no_of_bits, const u
 uint64_t
 tvb_get_bits64(tvbuff_t *tvb, unsigned bit_offset, const int no_of_bits, const unsigned encoding)
 {
+	DISSECTOR_ASSERT_HINT(no_of_bits <= 64, "Too many bits requested for 64-bit return type");
+
 	/* encoding determines bit numbering within octet array */
 	if (encoding & ENC_LITTLE_ENDIAN) {
 		return _tvb_get_bits64_le(tvb, bit_offset, no_of_bits);
