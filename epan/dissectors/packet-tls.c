@@ -1548,13 +1548,10 @@ again:
 
         /* Did the subdissector ask us to desegment some more data
          * before it could handle the packet?
-         * If so we have to create some structures in our table but
-         * this is something we only do the first time we see this
-         * packet.
+         * If so we'll have to handle that later.
          */
         if (pinfo->desegment_len) {
-            if (!PINFO_FD_VISITED(pinfo))
-                must_desegment = true;
+            must_desegment = true;
 
             /*
              * Set "deseg_offset" to the offset in "tvb"
@@ -1708,14 +1705,9 @@ again:
                  * a higher-level PDU, but the data at the
                  * end of this segment started a higher-level
                  * PDU but didn't complete it.
-                 *
-                 * If so, we have to create some structures
-                 * in our table, but this is something we
-                 * only do the first time we see this packet.
                  */
                 if (pinfo->desegment_len) {
-                    if (!PINFO_FD_VISITED(pinfo))
-                        must_desegment = true;
+                    must_desegment = true;
 
                     /* The stuff we couldn't dissect
                      * must have come from this segment,
@@ -1759,15 +1751,6 @@ again:
     }
 
     if (must_desegment) {
-        /* If the dissector requested "reassemble until FIN"
-         * just set this flag for the flow and let reassembly
-         * proceed at normal.  We will check/pick up these
-         * reassembled PDUs later down in dissect_tcp() when checking
-         * for the FIN flag.
-         */
-        if (pinfo->desegment_len == DESEGMENT_UNTIL_FIN) {
-            flow->flags |= TCP_FLOW_REASSEMBLE_UNTIL_FIN;
-        }
         /*
          * The sequence number at which the stuff to be desegmented
          * starts is the sequence number of the byte at an offset
@@ -1780,35 +1763,53 @@ again:
          */
         deseg_seq = seq + (deseg_offset - offset);
 
-        if (((nxtseq - deseg_seq) <= 1024*1024)
-            &&  (!PINFO_FD_VISITED(pinfo))) {
-            if (pinfo->desegment_len == DESEGMENT_ONE_MORE_SEGMENT) {
-                /* The subdissector asked to reassemble using the
-                 * entire next segment.
-                 * Just ask reassembly for one more byte
-                 * but set this msp flag so we can pick it up
-                 * above.
-                 */
-                msp = pdu_store_sequencenumber_of_next_pdu(pinfo,
-                    deseg_seq, nxtseq+1, flow->multisegment_pdus);
-                msp->flags |= MSP_FLAGS_REASSEMBLE_ENTIRE_SEGMENT;
-            } else if (pinfo->desegment_len == DESEGMENT_UNTIL_FIN) {
-                /* Set nxtseq very large so that reassembly won't happen
-                 * until we force it at the end of the stream in dissect_ssl()
-                 * outside this function.
-                 */
-                msp = pdu_store_sequencenumber_of_next_pdu(pinfo,
-                    deseg_seq, nxtseq+0x40000000, flow->multisegment_pdus);
-            } else {
-                msp = pdu_store_sequencenumber_of_next_pdu(pinfo,
-                    deseg_seq, nxtseq+pinfo->desegment_len, flow->multisegment_pdus);
+        /* We have to create some structures the first time. */
+        if (!PINFO_FD_VISITED(pinfo)) {
+            /* If the dissector requested "reassemble until FIN"
+             * just set this flag for the flow and let reassembly
+             * proceed at normal.  We will check/pick up these
+             * reassembled PDUs later down in dissect_tcp() when checking
+             * for the FIN flag.
+             */
+            if (pinfo->desegment_len == DESEGMENT_UNTIL_FIN) {
+                flow->flags |= TCP_FLOW_REASSEMBLE_UNTIL_FIN;
             }
+            if ((nxtseq - deseg_seq) <= 1024*1024) {
+                if (pinfo->desegment_len == DESEGMENT_ONE_MORE_SEGMENT) {
+                    /* The subdissector asked to reassemble using the
+                     * entire next segment.
+                     * Just ask reassembly for one more byte
+                     * but set this msp flag so we can pick it up
+                     * above.
+                     */
+                    msp = pdu_store_sequencenumber_of_next_pdu(pinfo,
+                        deseg_seq, nxtseq+1, flow->multisegment_pdus);
+                    msp->flags |= MSP_FLAGS_REASSEMBLE_ENTIRE_SEGMENT;
+                } else if (pinfo->desegment_len == DESEGMENT_UNTIL_FIN) {
+                    /* Set nxtseq very large so that reassembly won't happen
+                     * until we force it at the end of the stream in dissect_ssl()
+                     * outside this function.
+                     */
+                    msp = pdu_store_sequencenumber_of_next_pdu(pinfo,
+                        deseg_seq, nxtseq+0x40000000, flow->multisegment_pdus);
+                } else {
+                    msp = pdu_store_sequencenumber_of_next_pdu(pinfo,
+                        deseg_seq, nxtseq+pinfo->desegment_len, flow->multisegment_pdus);
+                }
 
-            /* add this segment as the first one for this new pdu */
-            fragment_add(&ssl_reassembly_table, tvb, deseg_offset,
-                         pinfo, tls_msp_fragment_id(msp), msp,
-                         0, nxtseq - deseg_seq,
-                         LT_SEQ(nxtseq, msp->nxtpdu));
+                /* add this segment as the first one for this new pdu */
+                fragment_add(&ssl_reassembly_table, tvb, deseg_offset,
+                             pinfo, tls_msp_fragment_id(msp), msp,
+                             0, nxtseq - deseg_seq,
+                             LT_SEQ(nxtseq, msp->nxtpdu));
+            }
+        } else {
+            /* If this is not the first pass, then the MSP should already be
+             * created. Retrieve it to see if we know what later frame the
+             * last segment was reassembled in. */
+            if ((msp = (struct tcp_multisegment_pdu *)wmem_tree_lookup32(flow->multisegment_pdus, deseg_seq))) {
+                ipfd_head = fragment_get(&ssl_reassembly_table, pinfo, msp->first_frame, msp);
+            }
         }
     }
 
