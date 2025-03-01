@@ -670,13 +670,13 @@ static const range_string ntp_ext_field_types[] = {
 	{ 0xC702, 0xC702, "Reserved for historic reasons" },
 	{ 0xC802, 0xC802, "Reserved for historic reasons" },
 	{ 0xC902, 0xC902, "Reserved for historic reasons" },
-	{ 0xF000, 0xFFFF, "Reserved for Experimental Use" },
+	{ 0xF000, 0xFFFF, "Reserved for Private or Experimental Use" },
 	{      0,      0, NULL }
 };
 
 /*
- * Deprecated, historic extensions
- * (https://datatracker.ietf.org/doc/draft-ietf-ntp-update-registries/)
+ * Deprecated, historic extensions by RFC 9748 with their former meaning
+ * (https://datatracker.ietf.org/doc/rfc9748)
  */
 static const value_string ntp_ext_field_types_historic[] = {
 	{ 0x0002, "No-Operation Request" },
