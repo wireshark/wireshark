@@ -2183,16 +2183,10 @@ tvb_get_letohguid(tvbuff_t *tvb, const int offset, e_guid_t *guid)
 	memcpy(guid->data4, ptr + 8, sizeof guid->data4);
 }
 
-/*
- * NOTE: to support code written when proto_tree_add_item() took a
- * bool as its last argument, with false meaning "big-endian"
- * and true meaning "little-endian", we treat any non-zero value of
- * "encoding" as meaning "little-endian".
- */
 void
 tvb_get_guid(tvbuff_t *tvb, const int offset, e_guid_t *guid, const unsigned encoding)
 {
-	if (encoding) {
+	if (encoding & ENC_LITTLE_ENDIAN) {
 		tvb_get_letohguid(tvb, offset, guid);
 	} else {
 		tvb_get_ntohguid(tvb, offset, guid);
