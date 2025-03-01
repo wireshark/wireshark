@@ -971,7 +971,7 @@ _serv_name_lookup(port_type proto, unsigned port, serv_port_t **value_ret)
         name = wmem_map_lookup(serv_port_custom_hashtable, &custom_key);
     }
 
-    if (name == NULL) {
+    if (name == NULL && serv_port_names == NULL) {
         /* now look in the global tables */
         bool valid_proto = true;
         switch(proto) {
