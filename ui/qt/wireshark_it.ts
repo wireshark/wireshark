@@ -2094,11 +2094,11 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>I/O Graphs</source>
-        <translation type="unfinished">Grafici I/O</translation>
+        <translation>Grafici I/O</translation>
     </message>
     <message>
         <source>I/OGraph TCP conversations.</source>
-        <translation type="unfinished"></translation>
+        <translation>Connessioni TCP grafici I/O.</translation>
     </message>
 </context>
 <context>

@@ -1,4 +1,4 @@
-Wireshark 4.5.0 (v4.5.0rc0-1147-g31b31e100870)
+Wireshark 4.5.0 (v4.5.0rc0-1896-g8ec46c963ceb)
 Interactively dump and analyze network traffic.
 See https://www.wireshark.org for more information.
 
@@ -25,11 +25,11 @@ Capture interface:
 
 Capture display:
   -k                       start capturing immediately (def: do nothing)
-  -S                       update packet display when new packets are captured
+  -S                       update display when new items are captured
   -l                       turn on automatic scrolling while -S is in use
-  --update-interval        interval between updates with new packets, in milliseconds (def: 100ms)
+  --update-interval        interval between updates with new items, in milliseconds (def: 100ms)
 Capture stop conditions:
-  -c <packet count>        stop after n packets (def: infinite)
+  -c <item count>          stop after n items (def: infinite)
   -a <autostop cond.> ..., --autostop <autostop cond.> ...
                            duration:NUM - stop after NUM seconds
                            filesize:NUM - stop this file after NUM KB
@@ -49,7 +49,7 @@ Input file:
 
 Processing:
   -R <read filter>, --read-filter <read filter>
-                           packet filter in display filter (wireshark-filter(4)) syntax
+                           filter in display filter (wireshark-filter(4)) syntax
   -n                       disable all name resolutions (def: all enabled)
   -N <name resolve flags>  enable specific name resolution(s): "mtndsNvg"
   -d <layer_type>==<selector>,<decode_as_protocol> ...
@@ -71,13 +71,13 @@ Processing:
 
 User interface:
   -C <config profile>      start with specified configuration profile
-  -H                       hide the capture info dialog during packet capture
+  -H                       hide the capture info dialog during capture
   -Y <display filter>, --display-filter <display filter>
                            start with the given display filter
-  -g <packet number>       go to specified packet number after "-r"
-  -J <jump filter>         jump to the first packet matching the (display)
+  -g <item number>         go to specified item number after "-r"
+  -J <jump filter>         jump to the first item matching the display
                            filter
-  -j                       search backwards for a matching packet after "-J"
+  -j                       search backwards for a matching item after "-J"
   -t (a|ad|adoy|d|dd|e|r|u|ud|udoy)[.[N]]|.[N]
                            format of time stamps (def: r: rel. to first)
   -u s|hms                 output format of seconds (def: s: seconds)
