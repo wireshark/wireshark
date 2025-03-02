@@ -11638,6 +11638,7 @@ ssl_dissect_hnd_extension(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *t
     uint16_t    ext_type;
     uint32_t    ext_len;
     uint32_t    next_offset;
+    proto_item *ext_item;
     proto_tree *ext_tree;
     bool        is_tls13 = session->version == TLSV1DOT3_VERSION;
     wmem_strbuf_t *ja3_sg = wmem_strbuf_new(pinfo->pool, "");
@@ -11669,10 +11670,11 @@ ssl_dissect_hnd_extension(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *t
             }
         }
 
-        ext_tree = proto_tree_add_subtree_format(tree, tvb, offset, 4 + ext_len, hf->ett.hs_ext, NULL,
+        ext_item = proto_tree_add_none_format(tree, hf->hf.hs_ext, tvb, offset, 4 + ext_len,
                                   "Extension: %s (len=%u)", val_to_str(ext_type,
                                             tls_hello_extension_types,
                                             "Unknown type %u"), ext_len);
+        ext_tree = proto_item_add_subtree(ext_item, hf->ett.hs_ext);
 
         proto_tree_add_uint(ext_tree, hf->hf.hs_ext_type,
                             tvb, offset, 2, ext_type);

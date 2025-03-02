@@ -932,6 +932,7 @@ typedef struct ssl_common_dissect {
         int hs_ext_server_name_type;
         int hs_ext_max_fragment_length;
         int hs_ext_padding_data;
+        int hs_ext;
         int hs_ext_type;
         int hs_ext_connection_id_length;
         int hs_ext_connection_id;
@@ -1420,6 +1421,11 @@ ssl_common_dissect_t name;
       { "Extensions Length", prefix ".handshake.extensions_length",     \
         FT_UINT16, BASE_DEC, NULL, 0x0,                                 \
         "Length of hello extensions", HFILL }                           \
+    },                                                                  \
+    { & name .hf.hs_ext,                                                \
+      { "Extension", prefix ".handshake.extension",                     \
+        FT_NONE, BASE_NONE, NULL, 0x0,                                  \
+        "Hello extension", HFILL }                                      \
     },                                                                  \
     { & name .hf.hs_ext_type,                                           \
       { "Type", prefix ".handshake.extension.type",                     \
