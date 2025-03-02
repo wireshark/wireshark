@@ -159,6 +159,11 @@ The following features are either new or have been significantly updated since v
   text with aligned columns along with an ability to select a copy format to be
   used when copied via keyboard shortcut.
 
+* The "no duplicate keys" version of JSON output that tshark has supported
+  since 2.6.0 is available through the GUI Export Dissections Dialog.
+  Note that this format does not necessarily preserve the ordering of all
+  children in a tree, if sibling with identical keys are not consecutive.
+
 === Removed Features and Support
 
 Wireshark no longer supports AirPcap and WinPcap.

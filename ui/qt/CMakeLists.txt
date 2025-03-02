@@ -219,6 +219,7 @@ set(WIRESHARK_QT_HEADERS
 	packet_diagram.h
 	packet_dialog.h
 	packet_format_group_box.h
+	packet_format_stack.h
 	packet_list.h
 	packet_range_group_box.h
 	preference_editor_frame.h
@@ -478,6 +479,7 @@ set(WIRESHARK_QT_SRC
 	packet_diagram.cpp
 	packet_dialog.cpp
 	packet_format_group_box.cpp
+	packet_format_stack.cpp
 	packet_list.cpp
 	packet_range_group_box.cpp
 	preference_editor_frame.cpp
@@ -625,6 +627,7 @@ set(WIRESHARK_QT_UI
 	packet_comment_dialog.ui
 	packet_dialog.ui
 	packet_format_group_box.ui
+	packet_format_json_group_box.ui
 	packet_range_group_box.ui
 	preference_editor_frame.ui
 	preferences_dialog.ui

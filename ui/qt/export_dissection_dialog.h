@@ -19,7 +19,7 @@
 #include <ui/qt/widgets/wireshark_file_dialog.h>
 
 #include "packet_range_group_box.h"
-#include "packet_format_group_box.h"
+#include "packet_format_stack.h"
 
 #include <QMap>
 
@@ -51,7 +51,7 @@ private:
     QMap<QString, export_type_e> export_type_map_;
     PacketRangeGroupBox packet_range_group_box_;
 
-    PacketFormatGroupBox packet_format_group_box_;
+    PacketFormatStack *packet_format_stack_;
 
     QPushButton *save_bt_;
 

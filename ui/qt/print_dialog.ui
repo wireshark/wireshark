@@ -16,7 +16,7 @@
      <item>
       <layout class="QVBoxLayout" name="verticalLayout">
        <item>
-        <widget class="PacketFormatGroupBox" name="formatGroupBox">
+        <widget class="PacketFormatTextGroupBox" name="formatGroupBox">
          <property name="title">
           <string>Packet Format</string>
          </property>
@@ -108,7 +108,7 @@
    <container>1</container>
   </customwidget>
   <customwidget>
-   <class>PacketFormatGroupBox</class>
+   <class>PacketFormatTextGroupBox</class>
    <extends>QGroupBox</extends>
    <header>packet_format_group_box.h</header>
    <container>1</container>

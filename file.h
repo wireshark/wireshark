@@ -448,6 +448,9 @@ typedef struct {
     unsigned hexdump_options;        /* Hexdump options if print_hex is true. */
     bool print_formfeed;      /* true if a formfeed should be printed before
                                    * each new packet */
+
+    /* JSON related option */
+    bool no_duplicate_keys;
 } print_args_t;
 
 /**

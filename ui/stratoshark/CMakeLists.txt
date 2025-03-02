@@ -198,6 +198,7 @@ set(WIRESHARK_QT_HEADERS
 	${CMAKE_SOURCE_DIR}/ui/qt/packet_comment_dialog.h
 	${CMAKE_SOURCE_DIR}/ui/qt/packet_dialog.h
 	${CMAKE_SOURCE_DIR}/ui/qt/packet_format_group_box.h
+	${CMAKE_SOURCE_DIR}/ui/qt/packet_format_stack.h
 	${CMAKE_SOURCE_DIR}/ui/qt/packet_list.h
 	${CMAKE_SOURCE_DIR}/ui/qt/packet_range_group_box.h
 	${CMAKE_SOURCE_DIR}/ui/qt/preference_editor_frame.h
@@ -431,6 +432,7 @@ set(WIRESHARK_QT_SRC
 	${CMAKE_SOURCE_DIR}/ui/qt/packet_comment_dialog.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/packet_dialog.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/packet_format_group_box.cpp
+	${CMAKE_SOURCE_DIR}/ui/qt/packet_format_stack.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/packet_list.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/packet_range_group_box.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/preference_editor_frame.cpp
@@ -544,6 +546,7 @@ set(WIRESHARK_QT_UI
 	${CMAKE_SOURCE_DIR}/ui/qt/packet_comment_dialog.ui
 	${CMAKE_SOURCE_DIR}/ui/qt/packet_dialog.ui
 	${CMAKE_SOURCE_DIR}/ui/qt/packet_format_group_box.ui
+	${CMAKE_SOURCE_DIR}/ui/qt/packet_format_json_group_box.ui
 	${CMAKE_SOURCE_DIR}/ui/qt/packet_range_group_box.ui
 	${CMAKE_SOURCE_DIR}/ui/qt/preference_editor_frame.ui
 	${CMAKE_SOURCE_DIR}/ui/qt/preferences_dialog.ui

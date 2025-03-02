@@ -3100,7 +3100,10 @@ write_json_packet(capture_file *cf, frame_data *fdata, wtap_rec *rec,
     /* Write out the information in that tree. */
     write_json_proto_tree(NULL, args->print_args->print_dissections,
             args->print_args->print_hex,
-            &args->edt, &cf->cinfo, proto_node_group_children_by_unique,
+            &args->edt, &cf->cinfo,
+            args->print_args->no_duplicate_keys ?
+                proto_node_group_children_by_json_key :
+                proto_node_group_children_by_unique,
             &args->jdumper);
 
     epan_dissect_reset(&args->edt);

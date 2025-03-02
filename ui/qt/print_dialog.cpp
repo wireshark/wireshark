@@ -245,22 +245,8 @@ void PrintDialog::printPackets(QPrinter *printer, bool in_preview)
 
     /* Fill in our print args */
 
-    print_args_.format              = PR_FMT_TEXT;
-    print_args_.print_summary       = pd_ui_->formatGroupBox->summaryEnabled();
-    print_args_.print_col_headings  = pd_ui_->formatGroupBox->includeColumnHeadingsEnabled();
-    print_args_.print_hex           = pd_ui_->formatGroupBox->bytesEnabled();
-    print_args_.hexdump_options     = pd_ui_->formatGroupBox->getHexdumpOptions();
+    pd_ui_->formatGroupBox->updatePrintArgs(print_args_);
     print_args_.print_formfeed      = pd_ui_->formFeedCheckBox->isChecked();
-
-    print_args_.print_dissections = print_dissections_none;
-    if (pd_ui_->formatGroupBox->detailsEnabled()) {
-        if (pd_ui_->formatGroupBox->allCollapsedEnabled())
-            print_args_.print_dissections = print_dissections_collapsed;
-        else if (pd_ui_->formatGroupBox->asDisplayedEnabled())
-            print_args_.print_dissections = print_dissections_as_displayed;
-        else if (pd_ui_->formatGroupBox->allExpandedEnabled())
-            print_args_.print_dissections = print_dissections_expanded;
-    }
 
     // This should be identical to printer_. However, the QPrintPreviewWidget docs
     // tell us to draw on the printer handed to us by the paintRequested() signal.
@@ -292,9 +278,7 @@ void PrintDialog::checkValidity()
 
     if (!pd_ui_->rangeGroupBox->isValid()) enable = false;
 
-    if (!pd_ui_->formatGroupBox->summaryEnabled() &&
-        !pd_ui_->formatGroupBox->detailsEnabled() &&
-        !pd_ui_->formatGroupBox->bytesEnabled())
+    if (!pd_ui_->formatGroupBox->isValid())
     {
         enable = false;
     }
