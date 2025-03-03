@@ -276,6 +276,13 @@ static bool http_decompress_body = true;
  */
 static bool http_check_ascii_headers = false;
 
+/*
+ * Try heuristic sub-dissectors for HTTP message bodies before
+ * sub-dissectors registered to the Content-Type, aka "MIME sniffing".
+ * Disabled by default, per RFC 9110.
+ */
+static bool http_try_heuristic_first;
+
 /* Simple Service Discovery Protocol
  * SSDP is implemented atop HTTP (yes, it really *does* run over UDP).
  * SSDP is the discovery protocol of Universal Plug and Play
@@ -2322,15 +2329,47 @@ dissecting_body:
 
 		/*
 		 * Do subdissector checks.
-		 *
-		 * First, if we have a Content-Type value, check whether
+		 */
+
+		/*
+		 * Is MIME sniffing enabled?
+		 */
+		if (http_try_heuristic_first) {
+			/*
+			 * Try the heuristic subdissectors.
+			 */
+			uint16_t save_can_desegment = pinfo->can_desegment;
+			if (!(is_request_or_reply || streaming_chunk_mode)) {
+				/* If this isn't a request or reply, and we're not
+				 * in streaming chunk mode, then we didn't try to
+				 * desegment the body. (We think this is file data
+				 * in the middle of a connection.) Allow the heuristic
+				 * dissectors to desegment, if possible.
+				 */
+				pinfo->can_desegment = pinfo->saved_can_desegment;
+			}
+			dissected = dissector_try_heuristic(heur_subdissector_list,
+							    next_tvb, pinfo, tree, &hdtbl_entry, content_info);
+			pinfo->can_desegment = save_can_desegment;
+
+			if (dissected) {
+				/*
+				 * The subdissector dissected the body.
+				 * Fix up the top-level item so that it doesn't
+				 * include the stuff for that protocol.
+				 */
+				if (ti != NULL)
+					proto_item_set_len(ti, offset);
+				goto body_dissected;
+			}
+		}
+
+		/* First, if we have a Content-Type value, check whether
 		 * there's a subdissector for that media type.
 		 */
 		if (headers->content_type != NULL && handle == NULL) {
 			/*
-			 * We didn't find any subdissector that
-			 * registered for the port, and we have a
-			 * Content-Type value.  Is there any subdissector
+			 * We have a Content-Type value.  Is there any subdissector
 			 * for that content type?
 			 */
 
@@ -2401,7 +2440,7 @@ dissecting_body:
 				expert_add_info(pinfo, http_tree, &ei_http_subdissector_failed);
 		}
 
-		if (!dissected) {
+		if (!dissected && !http_try_heuristic_first) {
 			/*
 			 * We don't have a subdissector or we have one and it did not
 			 * dissect the payload - try the heuristic subdissectors.
@@ -4916,6 +4955,12 @@ proto_register_http(void)
 	    "Whether to treat non-ASCII in headers as non-HTTP data "
 	    "and allow other dissectors to process it",
 	    &http_check_ascii_headers);
+	prefs_register_bool_preference(http_module, "try_heuristic_first",
+	    "Try heuristic sub-dissectors first",
+	    "Try to decode HTTP bodies using heuristic sub-dissector "
+	    "(aka MIME sniffing) before using a sub-dissector registered "
+	    "to the Content-Type header or a specific port",
+	    &http_try_heuristic_first);
 	prefs_register_obsolete_preference(http_module, "tcp_alternate_port");
 
 	range_convert_str(wmem_epan_scope(), &global_http_tls_range, TLS_DEFAULT_RANGE, 65535);
